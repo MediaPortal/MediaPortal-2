@@ -9,7 +9,7 @@
     <!-- Configuration model -->
     <Model x:Key="Model" Id="545674F1-D92A-4383-B6C1-D758CECDBDF5"/>
 
-    <ResourceWrapper x:Key="Config_Contents_Element">
+    <ControlTemplate x:Key="Config_Contents_Template">
       <Grid>
         <Grid.ColumnDefinitions>
           <ColumnDefinition Width="*"/>
@@ -28,6 +28,6 @@
           </ListView.Resources>
         </ListView>
       </Grid>
-    </ResourceWrapper>
+    </ControlTemplate>
   </Include.Resources>
 </Include>

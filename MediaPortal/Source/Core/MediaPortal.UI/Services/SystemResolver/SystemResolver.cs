@@ -26,6 +26,7 @@ using MediaPortal.Common;
 using MediaPortal.Common.General;
 using MediaPortal.Common.Logging;
 using MediaPortal.Common.Services.SystemResolver;
+using MediaPortal.Common.SystemResolver;
 using MediaPortal.UI.ServerCommunication;
 
 namespace MediaPortal.UI.Services.SystemResolver

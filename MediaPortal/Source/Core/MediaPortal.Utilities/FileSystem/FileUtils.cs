@@ -91,10 +91,20 @@ namespace MediaPortal.Utilities.FileSystem
       if (path == null) return string.Empty;
       if (path.Length == 0) return string.Empty;
       while (HasPathDelimiter(path))
-      {
         path = path.Remove(path.Length - 1);
-      }
       return path;
+    }
+
+    /// <summary>
+    /// Checks if a trailing slash or backslash is contained in the given path string and adds one, if not present yet.
+    /// </summary>
+    /// <param name="path">A path string with or without trailing path delimiter (@"\" or "/").</param>
+    /// <returns><paramref name="path"/> with path delimiter.</returns>
+    public static string CheckTrailingPathDelimiter(string path)
+    {
+      if (path == null) return string.Empty;
+      if (path.Length == 0) return string.Empty;
+      return HasPathDelimiter(path) ? path : (path + Path.DirectorySeparatorChar);
     }
 
     /// <summary>
@@ -105,8 +115,7 @@ namespace MediaPortal.Utilities.FileSystem
     /// otherwise false</returns>
     public static bool HasPathDelimiter(string path)
     {
-      return path.Length > 0 &&
-          (path[path.Length - 1] == Path.DirectorySeparatorChar || path[path.Length - 1] == Path.AltDirectorySeparatorChar);
+      return path.Length > 0 && (path[path.Length - 1] == Path.DirectorySeparatorChar || path[path.Length - 1] == Path.AltDirectorySeparatorChar);
     }
 
     /// <summary>

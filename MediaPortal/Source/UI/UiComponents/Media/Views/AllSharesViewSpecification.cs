@@ -27,7 +27,7 @@ using System.Collections.Generic;
 using MediaPortal.Common;
 using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
-using MediaPortal.Common.MediaManagement.ResourceAccess;
+using MediaPortal.Common.ResourceAccess;
 using MediaPortal.UI.ServerCommunication;
 
 namespace MediaPortal.UiComponents.Media.Views

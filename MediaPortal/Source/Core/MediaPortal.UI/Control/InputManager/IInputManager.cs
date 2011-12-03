@@ -25,6 +25,7 @@
 using System;
 using System.Drawing;
 using System.Windows.Forms;
+using MediaPortal.Common.General;
 using MediaPortal.UI.Presentation.Actions;
 
 namespace MediaPortal.UI.Control.InputManager
@@ -34,10 +35,13 @@ namespace MediaPortal.UI.Control.InputManager
   /// </summary>
   /// <remarks>
   /// <para>
-  /// This interface provides access to some input events (key/mouse) of the main MP2 window and lets you simulate
-  /// key/mouse events by calling the appropriate methods. When calling input event methods like <see cref="MouseMove"/>
-  /// or <see cref="KeyPress"/>, the events are enqueued together with the "real" input events, i.e. if currently the
-  /// busy cursor is shown, events may be discarded if necessary.
+  /// This interface gives some information about input events and lets you simulate key/mouse events by calling the appropriate methods.
+  /// When calling input event methods like <see cref="MouseMove"/> or <see cref="KeyPress"/>, the events are enqueued together with the
+  /// "real" input events, i.e. if currently the busy cursor is shown, events may be discarded if necessary.
+  /// </para>
+  /// <para>
+  /// This interface also provides method <see cref="ExecuteCommand"/> to execute commands in the input manager's thread. So, long running
+  /// commands can be delegated to the input manager.
   /// </para>
   /// <para>
   /// This class doesn't provide .net events to notify clients of input events by design. All input events are handled by the
@@ -93,6 +97,12 @@ namespace MediaPortal.UI.Control.InputManager
     /// </summary>
     /// <param name="key">The key which was pressed or generated.</param>
     void KeyPress(Key key);
+
+    /// <summary>
+    /// Called to execute the given command in the input manager thread.
+    /// </summary>
+    /// <param name="command">The command to be executed.</param>
+    void ExecuteCommand(ParameterlessMethod command);
 
     /// <summary>
     /// Adds a global key binding.

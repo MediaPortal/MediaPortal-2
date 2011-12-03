@@ -234,7 +234,13 @@
     
     <String Name="Start" Text="Start"/>
     <String Name="End" Text="End"/>
-    
+
+    <String Name="SwitchViewModeMenuItem" Text="View mode"/>
+    <String Name="SwitchViewModeDialogTitle" Text="Choose view mode"/>
+    <String Name="SmallList" Text="Small list"/>
+    <String Name="MediumList" Text="Medium list"/>
+    <String Name="LargeList" Text="Large list"/>
+    <String Name="LargeGrid" Text="Grid"/>
   </Section>
   <Section Name="Settings">
     <String Name="Players" Text="Players"/>

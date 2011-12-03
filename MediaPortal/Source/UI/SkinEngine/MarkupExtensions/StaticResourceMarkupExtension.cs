@@ -63,7 +63,7 @@ namespace MediaPortal.UI.SkinEngine.MarkupExtensions
 
     void IEvaluableMarkupExtension.Initialize(IParserContext context)
     {
-      _resource = ResourceDictionary.FindResourceInParserContext(_resourceKey, context) ?? FindResourceInTheme(_resourceKey);
+      _resource = ResourceDictionary.FindResourceInParserContext(_resourceKey, context) ?? FindResourceInTheme(_resourceKey, context);
 
       if (_resource == null)
         ServiceRegistration.Get<ILogger>().Error("StaticResourceMarkupExtension: Resource '{0}' not found", _resourceKey);

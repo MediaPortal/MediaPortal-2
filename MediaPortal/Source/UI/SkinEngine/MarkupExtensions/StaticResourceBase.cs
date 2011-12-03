@@ -22,7 +22,6 @@
 
 #endregion
 
-using System.Collections.Generic;
 using MediaPortal.UI.SkinEngine.MpfElements;
 using MediaPortal.UI.SkinEngine.SkinManagement;
 using MediaPortal.UI.SkinEngine.Xaml.Interfaces;
@@ -32,16 +31,15 @@ namespace MediaPortal.UI.SkinEngine.MarkupExtensions
   /// <summary>
   /// Base class for MPF static resource lookup markup extensions
   /// </summary>
-  public class StaticResourceBase : ISkinEngineManagedResource
+  public class StaticResourceBase : ISkinEngineManagedObject
   {
-    protected object FindResourceInTheme(string resourceKey)
+    protected object FindResourceInTheme(string resourceKey, IParserContext context)
     {
       object result = SkinContext.SkinResources.FindStyleResource(resourceKey);
       if (result == null)
         return null;
-      IEnumerable<IBinding> deferredBindings; // Don't execute bindings in copy
-      // See comment about the copying in method FindResourceInParserContext()
-      return MpfCopyManager.DeepCopyCutLP(result, out deferredBindings);
+      // See comment about the copying in method ResourceDictionary.FindResourceInParserContext()
+      return MpfCopyManager.DeepCopyCutLVPs(result);
     }
   }
 }

@@ -295,37 +295,8 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
 
     public ScreenManager()
     {
-      SkinSettings screenSettings = ServiceRegistration.Get<ISettingsManager>().Load<SkinSettings>();
       _skinManager = new SkinManager();
       _backgroundData = new BackgroundData(this);
-
-      string skinName = screenSettings.Skin;
-      string themeName = screenSettings.Theme;
-      if (string.IsNullOrEmpty(skinName))
-      {
-        skinName = SkinManager.DEFAULT_SKIN;
-        themeName = null;
-      }
-      SubscribeToMessages();
-
-      // Prepare the skin and theme - the theme will be activated in method MainForm_Load
-      if (!PrepareSkinAndTheme(skinName, themeName))
-        PrepareSkinAndTheme(null, null);
-
-      // Update the settings with our current skin/theme values
-      if (screenSettings.Skin != SkinName || screenSettings.Theme != ThemeName)
-      {
-        screenSettings.Skin = _skin.Name;
-        screenSettings.Theme = _theme == null ? null : _theme.Name;
-        ServiceRegistration.Get<ISettingsManager>().Save(screenSettings);
-      }
-      _garbageCollectorThread = new Thread(DoGarbageCollection)
-        {
-          Name = "ScrMgrGC",  //garbage collector thread
-          Priority = ThreadPriority.Lowest,
-          IsBackground = true
-        };
-      _garbageCollectorThread.Start();
     }
 
     public void Dispose()
@@ -349,7 +320,8 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
           case ScreenManagerMessaging.MessageType.ShowScreen:
             screen = (Screen) message.MessageData[ScreenManagerMessaging.SCREEN];
             bool closeDialogs = (bool) message.MessageData[ScreenManagerMessaging.CLOSE_DIALOGS];
-            DoShowScreen_NoLock(screen, closeDialogs);
+            bool forceUpdate = (bool) message.MessageData[ScreenManagerMessaging.FORCE_UPDATE];
+            DoShowScreen_NoLock(screen, forceUpdate, closeDialogs);
             DecPendingOperations();
             break;
           case ScreenManagerMessaging.MessageType.SetSuperLayer:
@@ -370,11 +342,6 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
             break;
           case ScreenManagerMessaging.MessageType.ReloadScreens:
             DoReloadScreens_NoLock();
-            DecPendingOperations();
-            break;
-          case ScreenManagerMessaging.MessageType.ScreenClosing:
-            screen = (Screen) message.MessageData[ScreenManagerMessaging.SCREEN];
-            DoStartClosingScreen_NoLock(screen);
             DecPendingOperations();
             break;
           case ScreenManagerMessaging.MessageType.SwitchSkinAndTheme:
@@ -524,7 +491,7 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
           // Albert, 2011-03-25: I think that actually, ContentManager.Free() should be called here. Clear() makes the ContentManager
           // forget all its cached assets and so we must make sure that no more asset references are in the system. That's why we also
           // need to clear the brush cache.
-          ServiceRegistration.Get<ContentManager>().Clear();
+          ContentManager.Instance.Clear();
 
           PrepareSkinAndTheme(newSkinName, newThemeName);
           PlayersHelper.ReallocGUIResources();
@@ -642,9 +609,16 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
       return true;
     }
 
-    protected internal void DoShowScreen_NoLock(Screen screen, bool closeDialogs)
+    protected internal void DoShowScreen_NoLock(Screen screen, bool forceUpdate, bool closeDialogs)
     {
       ServiceRegistration.Get<ILogger>().Debug("ScreenManager: Showing screen '{0}'...", screen.ResourceName);
+      if (_nextScreen == null && _currentScreen != null && _currentScreen.ResourceName == screen.ResourceName && !forceUpdate)
+      {
+        screen.ScreenState = Screen.State.Closed;
+        ScheduleDisposeScreen(screen);
+        return;
+      }
+      DoStartClosingScreen_NoLock(_currentScreen);
       if (closeDialogs)
         DoCloseDialogs_NoLock(true, false);
       DoExchangeScreen_NoLock(screen);
@@ -749,7 +723,7 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
       if (dialogPersistence)
       {
         oldDialog.ScreenState = Screen.State.Closing;
-        oldDialog.FireScreenClosingEvent();
+        oldDialog.TriggerScreenClosingEvent();
       }
       else
       {
@@ -839,13 +813,12 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
         currentScreen = _currentScreen;
       }
       DoCloseDialogs_NoLock(true, true);
-      currentScreen.FireScreenClosingEvent();
+      currentScreen.TriggerScreenClosingEvent();
       UnfocusCurrentScreen_NoLock();
     }
 
     protected internal void DoExchangeScreen_NoLock(Screen screen)
     {
-      screen.Prepare();
       lock (_syncObj)
       {
         if (_nextScreen != null)
@@ -855,9 +828,10 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
         }
         if (_currentScreen != null)
           _currentScreen.ScreenState = Screen.State.Closing;
-  
+
         _nextScreen = screen;
       }
+      screen.Prepare();
       CompleteScreenClosure_NoLock();
     }
 
@@ -1011,6 +985,41 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
     }
 
     /// <summary>
+    /// Initializes all resources, loads skin and theme, starts the screen manager's threads.
+    /// </summary>
+    public void Startup()
+    {
+      SkinSettings screenSettings = ServiceRegistration.Get<ISettingsManager>().Load<SkinSettings>();
+      string skinName = screenSettings.Skin;
+      string themeName = screenSettings.Theme;
+      if (string.IsNullOrEmpty(skinName))
+      {
+        skinName = SkinManager.DEFAULT_SKIN;
+        themeName = null;
+      }
+      SubscribeToMessages();
+
+      // Prepare the skin and theme - the theme will be activated in method MainForm_Load
+      if (!PrepareSkinAndTheme(skinName, themeName))
+        PrepareSkinAndTheme(null, null);
+
+      // Update the settings with our current skin/theme values
+      if (screenSettings.Skin != SkinName || screenSettings.Theme != ThemeName)
+      {
+        screenSettings.Skin = _skin.Name;
+        screenSettings.Theme = _theme == null ? null : _theme.Name;
+        ServiceRegistration.Get<ISettingsManager>().Save(screenSettings);
+      }
+      _garbageCollectorThread = new Thread(DoGarbageCollection)
+        {
+          Name = "ScrMgrGC",  //garbage collector thread
+          Priority = ThreadPriority.Lowest,
+          IsBackground = true
+        };
+      _garbageCollectorThread.Start();
+    }
+
+    /// <summary>
     /// Disposes all resources which were allocated by the screen manager.
     /// </summary>
     // Don't hold the ScreenManager's lock while calling this method; At least one _NoLock method is called inside here
@@ -1086,25 +1095,44 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
     /// is not defined in the current skin resource chain.</returns>
     public static Screen LoadScreen(string screenName, string relativeScreenPath, IModelLoader loader)
     {
-      SkinResources resourceBundle;
-      string skinFilePath = SkinContext.SkinResources.GetResourceFilePath(relativeScreenPath, true, out resourceBundle);
-      if (skinFilePath == null)
+      Screen result = null;
+      SkinResources resourceBundle = SkinContext.SkinResources;
+      while (result == null)
       {
-        ServiceRegistration.Get<ILogger>().Error("ScreenManager: No skinfile for screen '{0}'", relativeScreenPath);
-        return null;
+        string skinFilePath = resourceBundle.GetResourceFilePath(relativeScreenPath, true, out resourceBundle);
+        if (skinFilePath == null)
+        {
+          ServiceRegistration.Get<ILogger>().Error("ScreenManager: No skinfile for screen '{0}'", relativeScreenPath);
+          return null;
+        }
+        ServiceRegistration.Get<ILogger>().Debug("ScreenManager: Loading screen from file path '{0}'...", skinFilePath);
+        try
+        {
+          object obj = XamlLoader.Load(skinFilePath, loader);
+          result = obj as Screen;
+          if (result == null)
+          {
+            if (obj != null)
+              ServiceRegistration.Get<ILogger>().Warn("ScreenManager: XAML file '{0}' is expected to be a screen but the top-level element is a '{1}'. Try using a top-level 'Screen' element.", screenName, obj.GetType().Name);
+            DependencyObject.TryDispose(ref obj);
+          }
+        }
+        catch (Exception e)
+        {
+          SkinResources inheritedBundle = resourceBundle.InheritedSkinResources;
+          if (inheritedBundle == null)
+          {
+            ServiceRegistration.Get<ILogger>().Error("ScreenManager: Error loading screen file '{0}', no fallback screen available", e, skinFilePath);
+            throw;
+          }
+          ServiceRegistration.Get<ILogger>().Error(
+              "ScreenManager: Error loading screen '{0}' in resource bundle '{1}', falling back to resource bundle '{2}'",
+              e, screenName, resourceBundle.Name, inheritedBundle);
+          resourceBundle = inheritedBundle;
+        }
       }
-      ServiceRegistration.Get<ILogger>().Debug("ScreenManager: Loading screen from file path '{0}'...", skinFilePath);
-      object obj = XamlLoader.Load(skinFilePath, loader, true);
-      Screen screen = obj as Screen;
-      if (screen == null)
-      {
-        if (obj != null)
-          ServiceRegistration.Get<ILogger>().Warn("ScreenManager: XAML file '{0}' is expected to be a screen but the top-level element is a '{1}'. Try using a top-level 'Screen' element.", screenName, obj.GetType().Name);
-        DependencyObject.TryDispose(ref obj);
-        return null;
-      }
-      screen.Initialize(screenName, resourceBundle.SkinWidth, resourceBundle.SkinHeight);
-      return screen;
+      result.Initialize(screenName, resourceBundle.SkinWidth, resourceBundle.SkinHeight);
+      return result;
     }
 
     /// <summary>
@@ -1252,13 +1280,6 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
       return result;
     }
 
-    protected internal void ScreenChanging()
-    {
-      Screen screen = _currentScreen;
-      IncPendingOperations();
-      ScreenManagerMessaging.SendMessageScreenClosing(screen);
-    }
-
     #region IScreenManager implementation
 
     public string SkinName
@@ -1375,15 +1396,28 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
       SwitchSkinAndTheme(_skin.Name, _theme == null ? null : _theme.Name);
     }
 
+    public Guid? CheckScreen(string screenName)
+    {
+      return ShowScreen(screenName, false, true);
+    }
+
+    public Guid? CheckScreen(string screenName, bool backgroundEnabled)
+    {
+      return ShowScreen(screenName, false, backgroundEnabled);
+    }
+
     public Guid? ShowScreen(string screenName)
     {
-      return ShowScreen(screenName, true);
+      return ShowScreen(screenName, true, true);
     }
 
     public Guid? ShowScreen(string screenName, bool backgroundEnabled)
     {
-      ScreenChanging();
+      return ShowScreen(screenName, true, backgroundEnabled);
+    }
 
+    public Guid? ShowScreen(string screenName, bool forceUpdate, bool backgroundEnabled)
+    {
       ServiceRegistration.Get<ILogger>().Debug("ScreenManager: Preparing to show screen '{0}'...", screenName);
       Screen newScreen = GetScreen(screenName, ScreenType.ScreenOrDialog);
       if (newScreen == null)
@@ -1392,7 +1426,7 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
 
       newScreen.HasBackground = backgroundEnabled;
       IncPendingOperations();
-      ScreenManagerMessaging.SendMessageShowScreen(newScreen, true);
+      ScreenManagerMessaging.SendMessageShowScreen(newScreen, forceUpdate, true);
       return newScreen.ScreenInstanceId;
     }
 
@@ -1403,8 +1437,6 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
 
     public bool ExchangeScreen(string screenName, bool backgroundEnabled)
     {
-      ScreenChanging();
-
       ServiceRegistration.Get<ILogger>().Debug("ScreenManager: Preparing to show screen '{0}'...", screenName);
       Screen newScreen = GetScreen(screenName, ScreenType.ScreenOrDialog);
       if (newScreen == null)
@@ -1413,7 +1445,7 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
 
       newScreen.HasBackground = backgroundEnabled;
       IncPendingOperations();
-      ScreenManagerMessaging.SendMessageShowScreen(newScreen, false);
+      ScreenManagerMessaging.SendMessageShowScreen(newScreen, true, false);
       return true;
     }
 

@@ -2,10 +2,13 @@
     xmlns="www.team-mediaportal.com/2008/mpf/directx"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
   <DockPanel LastChildFill="False">
-    <Label DockPanel.Dock="Top" HorizontalAlignment="Center" Content="ListView Items test" Wrap="True"/>
+    <Label DockPanel.Dock="Top" HorizontalAlignment="Center"
+        Content="ListView Items test"
+        Color="{ThemeResource TextColor}" Wrap="True"/>
     <Label DockPanel.Dock="Top" HorizontalAlignment="Center"
         Content="This screen shows a ListView with different kinds of children using the ListView.Items property."
-        Wrap="True" FontSize="{ThemeResource SmallFontSize}"/>
+        Wrap="True" FontSize="{ThemeResource SmallFontSize}"
+        Color="{ThemeResource TextColor}"/>
     <DockPanel.Resources>
       <DataTemplate x:Key="ItemDataTemplate">
         <Label x:Name="ItemDataLabel" Content="{Binding}" FontSize="{ThemeResource SmallFontSize}" Color="Blue"/>
@@ -18,12 +21,12 @@
     <ListView x:Name="Test" DockPanel.Dock="Center" Style="{ThemeResource ListViewStyle}"
       VerticalAlignment="Center" HorizontalAlignment="Center" Width="1100" Height="500">
       Simple string - Should be wrapped into a blue Label and an item container
-      <Label Content="Simple label - Should be left unchanged"/>
+      <Label Color="{ThemeResource TextColor}" Content="Simple label - Should be left unchanged"/>
       <ListViewItem>
         Simple string inside a ListViewItem - Should be styled with the container style
       </ListViewItem>
       <ListViewItem>
-        <Label Content="Label inside a ListViewItem - Should be styled with the container style"/>
+        <Label Color="{ThemeResource TextColor}" Content="Label inside a ListViewItem - Should be styled with the container style"/>
       </ListViewItem>
       <ListViewItem>
         <Border Background="Yellow" BorderBrush="Red"

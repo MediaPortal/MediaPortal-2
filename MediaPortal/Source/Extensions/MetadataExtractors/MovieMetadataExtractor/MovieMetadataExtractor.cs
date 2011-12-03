@@ -31,7 +31,8 @@ using MediaPortal.Common;
 using MediaPortal.Common.Logging;
 using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
-using MediaPortal.Common.MediaManagement.ResourceAccess;
+using MediaPortal.Common.ResourceAccess;
+using MediaPortal.Common.Services.ResourceAccess.StreamedResourceToLocalFsAccessBridge;
 using MediaPortal.Common.Services.ThumbnailGenerator;
 using MediaPortal.Common.Settings;
 using MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor.Settings;
@@ -108,9 +109,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
     /// <returns><c>true</c>, if the file's extension is supposed to be supported, else <c>false</c>.</returns>
     protected static bool HasMovieExtension(string fileName)
     {
-      string ext = Path.GetExtension(fileName);
-      if (ext != null)
-        ext = ext.ToLower();
+      string ext = DosPathHelper.GetExtension(fileName).ToLowerInvariant();
       return MOVIE_EXTENSIONS.Contains(ext);
     }
 
@@ -193,11 +192,15 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
           if (!_height.HasValue)
             _height = mediaInfo.GetHeight(i);
           if (!_playTime.HasValue)
-            _playTime = mediaInfo.GetPlaytime(i);
+          {
+            long? time = mediaInfo.GetPlaytime(i);
+            if (time.HasValue && time > 1000)
+              _playTime = time.Value;
+          }
           if (!_vidBitRate.HasValue)
             _vidBitRate = mediaInfo.GetVidBitrate(i);
           string vidCodec = mediaInfo.GetVidCodec(i);
-          if (!string.IsNullOrEmpty(vidCodec))
+          if (!string.IsNullOrEmpty(vidCodec) && !_vidCodecs.Contains(vidCodec))
             _vidCodecs.Add(vidCodec);
         }
         _audioStreamCount = mediaInfo.GetAudioCount();
@@ -206,7 +209,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
           if (!_audBitRate.HasValue)
             _audBitRate = mediaInfo.GetAudioBitrate(i);
           string audCodec = mediaInfo.GetAudioCodec(i);
-          if (!string.IsNullOrEmpty(audCodec))
+          if (!string.IsNullOrEmpty(audCodec) && !_audCodecs.Contains(audCodec))
             _audCodecs.Add(audCodec);
         }
       }
@@ -273,7 +276,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
         IFileSystemResourceAccessor fsra = mediaItemAccessor as IFileSystemResourceAccessor;
         if (fsra != null && fsra.IsDirectory && fsra.ResourceExists("VIDEO_TS"))
         {
-          IFileSystemResourceAccessor fsraVideoTs = fsra.GetResource("VIDEO_TS") as IFileSystemResourceAccessor;
+          IFileSystemResourceAccessor fsraVideoTs = fsra.GetResource("VIDEO_TS");
           if (fsraVideoTs != null && fsraVideoTs.ResourceExists("VIDEO_TS.IFO"))
           { // Video DVD
             using (MediaInfoWrapper videoTsInfo = ReadMediaInfo(fsraVideoTs.GetResource("VIDEO_TS.IFO")))
@@ -283,19 +286,21 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
               result = MovieResult.CreateDVDInfo(fsra.ResourceName, videoTsInfo);
             }
             // Iterate over all video files; MediaInfo finds different audio/video metadata for each .ifo file
-            foreach (IFileSystemResourceAccessor file in fsraVideoTs.GetFiles())
-            {
-              string lowerPath = file.ResourcePathName.ToLowerInvariant();
-              if (!lowerPath.EndsWith(".ifo") || lowerPath.EndsWith("video_ts.ifo"))
-                continue;
-              using (MediaInfoWrapper mediaInfo = ReadMediaInfo(file))
+            ICollection<IFileSystemResourceAccessor> files = fsraVideoTs.GetFiles();
+            if (files != null)
+              foreach (IFileSystemResourceAccessor file in files)
               {
-                // Before we start evaluating the file, check if it is a video at all
-                if (mediaInfo.IsValid && mediaInfo.GetVideoCount() == 0)
+                string lowerPath = file.ResourcePathName.ToLowerInvariant();
+                if (!lowerPath.EndsWith(".ifo") || lowerPath.EndsWith("video_ts.ifo"))
                   continue;
-                result.AddMediaInfo(mediaInfo);
+                using (MediaInfoWrapper mediaInfo = ReadMediaInfo(file))
+                {
+                  // Before we start evaluating the file, check if it is a video at all
+                  if (mediaInfo.IsValid && mediaInfo.GetVideoCount() == 0)
+                    continue;
+                  result.AddMediaInfo(mediaInfo);
+                }
               }
-            }
           }
         }
         else if (mediaItemAccessor.IsFile)
@@ -308,7 +313,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
             // Before we start evaluating the file, check if it is a video at all
             if (fileInfo.IsValid && fileInfo.GetVideoCount() == 0)
               return false;
-            result = MovieResult.CreateFileInfo(Path.GetFileNameWithoutExtension(mediaItemAccessor.ResourceName), fileInfo);
+            result = MovieResult.CreateFileInfo(DosPathHelper.GetFileNameWithoutExtension(mediaItemAccessor.ResourceName), fileInfo);
           }
           using (Stream stream = mediaItemAccessor.OpenRead())
             result.MimeType = MimeTypeDetector.GetMimeType(stream);
@@ -329,16 +334,25 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
           if (!extractedAspectData.TryGetValue(ThumbnailLargeAspect.ASPECT_ID, out thumbnailLargeAspect))
             extractedAspectData[ThumbnailLargeAspect.ASPECT_ID] = thumbnailLargeAspect = new MediaItemAspect(ThumbnailLargeAspect.Metadata);
 
-          ILocalFsResourceAccessor lfsra = StreamedResourceToLocalFsAccessBridge.GetLocalFsResourceAccessor(mediaItemAccessor);
-          result.UpdateMetadata(mediaAspect, videoAspect, thumbnailSmallAspect, thumbnailLargeAspect, lfsra.LocalFileSystemPath, forceQuickMode);
+          IResourceAccessor ra = mediaItemAccessor.Clone();
+          try
+          {
+            using (ILocalFsResourceAccessor lfsra = StreamedResourceToLocalFsAccessBridge.GetLocalFsResourceAccessor(ra))
+              result.UpdateMetadata(mediaAspect, videoAspect, thumbnailSmallAspect, thumbnailLargeAspect, lfsra.LocalFileSystemPath, forceQuickMode);
+          }
+          catch
+          {
+            ra.Dispose();
+            throw;
+          }
           return true;
         }
       }
       catch (Exception e)
       {
         // Only log at the info level here - And simply return false. This lets the caller know that we
-        // couldn't perform our task here
-        ServiceRegistration.Get<ILogger>().Info("MovieMetadataExtractor: Exception reading resource '{0}' (Text: '{1}')", mediaItemAccessor.LocalResourcePath, e.Message);
+        // couldn't perform our task here.
+        ServiceRegistration.Get<ILogger>().Info("MovieMetadataExtractor: Exception reading resource '{0}' (Text: '{1}')", mediaItemAccessor.CanonicalLocalResourcePath, e.Message);
       }
       return false;
     }

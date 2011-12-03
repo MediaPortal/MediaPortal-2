@@ -54,8 +54,8 @@ namespace MediaPortal.UI.SkinEngine.Xaml
   /// </para>
   /// <para>
   /// <b>Parsing operation</b><br/>
-  /// The parsing operation starts when the method <see cref="Parser.Parse(bool)"/>
-  /// or <see cref="Parser.Parse(bool)"/>
+  /// The parsing operation starts when the method <see cref="Parser.Parse()"/>
+  /// or <see cref="Parser.Parse()"/>
   /// is called.
   /// The parser will first read the XAML file with an XML reader. This will
   /// result in checking the conformance of the file to the XML language specification.
@@ -66,7 +66,7 @@ namespace MediaPortal.UI.SkinEngine.Xaml
   /// namespaces, all named elements created yet, and the current object which
   /// is built up, together with the context information of all parent elements
   /// up to the top of the tree. After the parsing process has finished,
-  /// the <see cref="Parser.Parse(bool)"/> method returns the root element
+  /// the <see cref="Parser.Parse()"/> method returns the root element
   /// of the created element tree.
   /// </para>
   /// <para>
@@ -93,11 +93,6 @@ namespace MediaPortal.UI.SkinEngine.Xaml
     /// The built-in URI for xmlns namespace declaration attributes.
     /// </summary>
     public const string XMLNS_NS_URI = "http://www.w3.org/2000/xmlns/";
-
-    /// <summary>
-    /// URI for the "x:" namespace.
-    /// </summary>
-    public const string XAML_NS_URI = "http://schemas.microsoft.com/winfx/2006/xaml";
 
     #region Delegate types
 
@@ -178,7 +173,7 @@ namespace MediaPortal.UI.SkinEngine.Xaml
     protected XmlDocument _xmlDocument;
 
     /// <summary>
-    /// Holds the root object which will be build up by the <see cref="Parse(bool)"/>
+    /// Holds the root object which will be build up by the <see cref="Parse()"/>
     /// method.
     /// </summary>
     protected object _rootObject;
@@ -197,7 +192,6 @@ namespace MediaPortal.UI.SkinEngine.Xaml
     protected IDictionary<object ,object> _contextVariables = new Dictionary<object, object>();
 
     protected ICollection<EvaluatableMarkupExtensionActivator> _deferredMarkupExtensionActivations = new List<EvaluatableMarkupExtensionActivator>();
-    protected ICollection<IBinding> _deferredBindings = new List<IBinding>();
 
     #endregion
 
@@ -209,7 +203,7 @@ namespace MediaPortal.UI.SkinEngine.Xaml
     /// <remarks>
     /// The parsing operation will not start immediately, you'll first have to
     /// register all necessary namespace handlers. To start the parsing operation, call
-    /// method <see cref="Parse(bool)"/>.
+    /// method <see cref="Parse()"/>.
     /// </remarks>
     /// <param name="reader">The reader the parser will take its input to parse.</param>
     /// <param name="importNamespace">Delegate to be called when importing
@@ -239,7 +233,7 @@ namespace MediaPortal.UI.SkinEngine.Xaml
     /// <summary>
     /// Returns the root object which was instantiated for the root XAML element
     /// in the XML tree. This property returns a value different from <c>null</c>,
-    /// when the <see cref="Parse(bool)"/> method has finished.
+    /// when the <see cref="Parse()"/> method has finished.
     /// </summary>
     public object RootObject
     {
@@ -261,10 +255,8 @@ namespace MediaPortal.UI.SkinEngine.Xaml
     /// <summary>
     /// Parses the XAML file associated with this parser.
     /// </summary>
-    /// <param name="activateBindings">If set to <c>true</c>, bindings will be activated, else they will be left
-    /// unactivated.</param>
     /// <returns>The visual corresponding to the root XAML element.</returns>
-    public object Parse(bool activateBindings)
+    public object Parse()
     {
       if (_rootObject != null)
         throw new XamlParserException("XAML Parser: Parse() method was invoked multiple times");
@@ -274,9 +266,6 @@ namespace MediaPortal.UI.SkinEngine.Xaml
         throw new XamlParserException("A 'x:Key' attribute is not allowed at the XAML root element");
       foreach (EvaluatableMarkupExtensionActivator activator in _deferredMarkupExtensionActivations)
         activator.Activate();
-      if (activateBindings)
-        foreach (IBinding binding in _deferredBindings)
-          binding.Activate();
       return _rootObject;
     }
 
@@ -328,7 +317,7 @@ namespace MediaPortal.UI.SkinEngine.Xaml
           {
             string importNamespaceURI = attr.Value;
             INamespaceHandler handler;
-            if (importNamespaceURI == XAML_NS_URI)
+            if (importNamespaceURI == XamlNamespaceHandler.XAML_NS_URI)
               // Implicit namespace: Use default x:-handler
               handler = new XamlNamespaceHandler();
             else if (importNamespaceURI.StartsWith("clr-namespace:"))
@@ -380,7 +369,7 @@ namespace MediaPortal.UI.SkinEngine.Xaml
             // Check XML attributes on member element - only x:Uid is permitted
             foreach (XmlAttribute attr in node.Attributes)
             {
-              if (attr.NamespaceURI != XAML_NS_URI || attr.LocalName != "Uid")
+              if (attr.NamespaceURI != XamlNamespaceHandler.XAML_NS_URI || attr.LocalName != "Uid")
                 throw new XamlParserException("No attributes are allowed on member elements except x:Uid");
               // TODO: Handle x:Uid markup extension
             }
@@ -513,7 +502,7 @@ namespace MediaPortal.UI.SkinEngine.Xaml
           throw new XamlBindingException("XAML parser: Member '{0}' was not found on type '{1}'",
             memberName, t.Name);
         }
-        else if (memberDeclarationNode.NamespaceURI == XAML_NS_URI)
+        else if (memberDeclarationNode.NamespaceURI == XamlNamespaceHandler.XAML_NS_URI)
         { // XAML attributes ("x:Attr") will be ignored here - they are evaluated
           // in the code processing the parent instance
         }
@@ -561,7 +550,7 @@ namespace MediaPortal.UI.SkinEngine.Xaml
         name = Convert(ParseValue(memberDeclarationNode), typeof(string)) as string;
         return;
       }
-      if (memberDeclarationNode.NamespaceURI != XAML_NS_URI)
+      if (memberDeclarationNode.NamespaceURI != XamlNamespaceHandler.XAML_NS_URI)
         // Ignore other attributes not located in the x: namespace
         return;
       // x: attributes
@@ -891,10 +880,9 @@ namespace MediaPortal.UI.SkinEngine.Xaml
     public void HandleMemberAssignment(IDataDescriptor dd, object value)
     {
       IBinding binding = value as IBinding;
-      if (binding != null)
+      if (binding != null && dd.DataType != typeof(IBinding)) // In case the property descriptor's type is IBinding, we want to assign the binding directly instead of binding it to the property
       {
         binding.SetTargetDataDescriptor(dd);
-        _deferredBindings.Add(binding);
         return;
       }
 

@@ -47,11 +47,11 @@
 
     </Grid.Resources>
 
-    <Label Grid.Row="0" Grid.Column="1" FontSize="{ThemeResource SmallFontSize}" Content="No Transform"/>
-    <Label Grid.Row="0" Grid.Column="2" FontSize="{ThemeResource SmallFontSize}" Content="RelativeTransform"/>
-    <Label Grid.Row="0" Grid.Column="3" FontSize="{ThemeResource SmallFontSize}" Content="Transform"/>
+    <Label Grid.Row="0" Grid.Column="1" FontSize="{ThemeResource SmallFontSize}" Content="No Transform" Color="{ThemeResource TextColor}"/>
+    <Label Grid.Row="0" Grid.Column="2" FontSize="{ThemeResource SmallFontSize}" Content="RelativeTransform" Color="{ThemeResource TextColor}"/>
+    <Label Grid.Row="0" Grid.Column="3" FontSize="{ThemeResource SmallFontSize}" Content="Transform" Color="{ThemeResource TextColor}"/>
 
-    <Label Grid.Row="1" Grid.Column="0" Content="LinearGradientBrush"/>
+    <Label Grid.Row="1" Grid.Column="0" Content="LinearGradientBrush" Color="{ThemeResource TextColor}"/>
     <Rectangle Grid.Row="1" Grid.Column="1" Width="{StaticResource RectangleWidth}" Height="{StaticResource RectangleHeight}"
         Stroke="{StaticResource RectangleStrokeColor}" StrokeThickness="{StaticResource RectangleStrokeThickness}">
       <Rectangle.Fill>
@@ -96,7 +96,7 @@
       </Rectangle.Fill>
     </Rectangle>
 
-    <Label Grid.Row="2" Grid.Column="0" Content="RadialGradientBrush"/>
+    <Label Grid.Row="2" Grid.Column="0" Content="RadialGradientBrush" Color="{ThemeResource TextColor}"/>
     <Rectangle Grid.Row="2" Grid.Column="1" Width="{StaticResource RectangleWidth}" Height="{StaticResource RectangleHeight}"
         Stroke="{StaticResource RectangleStrokeColor}" StrokeThickness="{StaticResource RectangleStrokeThickness}">
       <Rectangle.Fill>
@@ -141,7 +141,7 @@
       </Rectangle.Fill>
     </Rectangle>
 
-    <Label Grid.Row="3" Grid.Column="0" Content="RadialGradientBrush (2)"/>
+    <Label Grid.Row="3" Grid.Column="0" Content="RadialGradientBrush (2)" Color="{ThemeResource TextColor}"/>
     <Rectangle Grid.Row="3" Grid.Column="1" Width="{StaticResource RectangleWidth}" Height="{StaticResource RectangleHeight}"
         Stroke="{StaticResource RectangleStrokeColor}" StrokeThickness="{StaticResource RectangleStrokeThickness}">
       <Rectangle.Fill>
@@ -188,7 +188,7 @@
       </Rectangle.Fill>
     </Rectangle>
 
-    <Label Grid.Row="4" Grid.Column="0" Content="ImageBrush"/>
+    <Label Grid.Row="4" Grid.Column="0" Content="ImageBrush" Color="{ThemeResource TextColor}"/>
     <Rectangle Grid.Row="4" Grid.Column="1" Width="{StaticResource RectangleWidth}" Height="{StaticResource RectangleHeight}"
         Stroke="{StaticResource RectangleStrokeColor}" StrokeThickness="{StaticResource RectangleStrokeThickness}">
       <Rectangle.Fill>
@@ -217,7 +217,7 @@
       </Rectangle.Fill>
     </Rectangle>
 
-    <Label Grid.Row="5" Grid.Column="0" Content="ImageBrush (Tiled)"/>
+    <Label Grid.Row="5" Grid.Column="0" Content="ImageBrush (Tiled)" Color="{ThemeResource TextColor}"/>
     <Rectangle Grid.Row="5" Grid.Column="1" Width="{StaticResource RectangleWidth}" Height="{StaticResource RectangleHeight}"
         Stroke="{StaticResource RectangleStrokeColor}" StrokeThickness="{StaticResource RectangleStrokeThickness}">
       <Rectangle.Fill>
@@ -246,7 +246,7 @@
       </Rectangle.Fill>
     </Rectangle>
 
-    <Label Grid.Row="6" Grid.Column="0" Content="VisualBrush"/>
+    <Label Grid.Row="6" Grid.Column="0" Content="VisualBrush" Color="{ThemeResource TextColor}"/>
     <Rectangle Grid.Row="6" Grid.Column="1" Width="{StaticResource RectangleWidth}" Height="{StaticResource RectangleHeight}"
         Stroke="{StaticResource RectangleStrokeColor}" StrokeThickness="{StaticResource RectangleStrokeThickness}">
       <Rectangle.Fill>
@@ -284,7 +284,7 @@
       </Rectangle.Fill>
     </Rectangle>
 
-    <Label Grid.Row="7" Grid.Column="0" Content="VideoBrush"/>
+    <Label Grid.Row="7" Grid.Column="0" Content="VideoBrush" Color="{ThemeResource TextColor}"/>
     <Rectangle Grid.Row="7" Grid.Column="1" Width="{StaticResource RectangleWidth}" Height="{StaticResource RectangleHeight}"
         Stroke="{StaticResource RectangleStrokeColor}" StrokeThickness="{StaticResource RectangleStrokeThickness}">
       <Rectangle.Fill>

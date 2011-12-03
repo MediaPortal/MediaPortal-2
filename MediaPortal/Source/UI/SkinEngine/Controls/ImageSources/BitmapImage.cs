@@ -24,7 +24,6 @@
 
 using System;
 using System.Drawing;
-using MediaPortal.Common;
 using MediaPortal.Common.General;
 using MediaPortal.UI.SkinEngine.ContentManagement;
 using MediaPortal.UI.SkinEngine.Controls.Visuals;
@@ -128,7 +127,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.ImageSources
     /// </summary>
     public string UriSource
     {
-      get { return (string)_uriSourceProperty.GetValue(); }
+      get { return (string) _uriSourceProperty.GetValue(); }
       set { _uriSourceProperty.SetValue(value); }
     }
 
@@ -188,7 +187,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.ImageSources
     /// </summary>
     public string Effect
     {
-      get { return (string)_effectProperty.GetValue(); }
+      get { return (string) _effectProperty.GetValue(); }
       set { _effectProperty.SetValue(value); }
     }
 
@@ -202,7 +201,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.ImageSources
     /// </summary>
     public double EffectTimer
     {
-      get { return (double)_effectTimerProperty.GetValue(); }
+      get { return (double) _effectTimerProperty.GetValue(); }
       set { _effectTimerProperty.SetValue(value); }
     }
 
@@ -269,7 +268,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.ImageSources
         return;
       }
       if (_texture == null)
-        _texture = ServiceRegistration.Get<ContentManager>().GetTexture(uri, DecodePixelWidth, DecodePixelHeight, Thumbnail);
+        _texture = ContentManager.Instance.GetTexture(uri, DecodePixelWidth, DecodePixelHeight, Thumbnail);
       if (_texture != null && !_texture.IsAllocated)
       {
         if (Thumbnail)

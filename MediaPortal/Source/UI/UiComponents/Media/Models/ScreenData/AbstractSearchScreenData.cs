@@ -150,7 +150,10 @@ namespace MediaPortal.UiComponents.Media.Models.ScreenData
     {
       Timer timer = _searchTimer;
       _searchTimer = null;
-      timer.Dispose();
+      WaitHandle notifyObject = new ManualResetEvent(false);
+      timer.Dispose(notifyObject);
+      notifyObject.WaitOne();
+      notifyObject.Close();
       _simpleSearchTextProperty = null;
     }
   }

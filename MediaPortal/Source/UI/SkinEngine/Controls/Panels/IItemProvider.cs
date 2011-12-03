@@ -66,10 +66,10 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
     /// Returns the generated <paramref name="index"/>th item.
     /// </summary>
     /// <param name="index">Index of the desired item.</param>
-    /// <param name="visualParent">Visual parent of the new item.</param>
+    /// <param name="lvParent">Visual and logical parent of the new item.</param>
     /// <param name="newCreated"><c>true</c> if the item object was newly created, i.e. it needs to be initialized/measured and
     /// arranged.</param>
     /// <returns>The desired item.</returns>
-    FrameworkElement GetOrCreateItem(int index, FrameworkElement visualParent, out bool newCreated);
+    FrameworkElement GetOrCreateItem(int index, FrameworkElement lvParent, out bool newCreated);
   }
 }

@@ -24,7 +24,6 @@
 
 using System;
 using System.Drawing;
-using MediaPortal.Common;
 using MediaPortal.Common.General;
 using MediaPortal.UI.SkinEngine.ContentManagement;
 using MediaPortal.UI.SkinEngine.Controls.Visuals;
@@ -90,7 +89,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.ImageSources
     /// </summary>
     public string Transition
     {
-      get { return (string)_transitionProperty.GetValue(); }
+      get { return (string) _transitionProperty.GetValue(); }
       set { _transitionProperty.SetValue(value); }
     }
 
@@ -118,7 +117,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.ImageSources
     /// </summary>
     public double TransitionDuration
     {
-      get { return (double)_transitionDurationProperty.GetValue(); }
+      get { return (double) _transitionDurationProperty.GetValue(); }
       set { _transitionDurationProperty.SetValue(value); }
     }
 
@@ -161,7 +160,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.ImageSources
             CycleTextures();
         }
         else
-          _nextTexture = ServiceRegistration.Get<ContentManager>().GetTexture(uri, DecodePixelWidth, DecodePixelHeight, Thumbnail);
+          _nextTexture = ContentManager.Instance.GetTexture(uri, DecodePixelWidth, DecodePixelHeight, Thumbnail);
         _uriChanged = false;
       }
       // Check our previous texture is allocated. Syncronous.
@@ -191,7 +190,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.ImageSources
     {
       Allocate();
 
-      _frameData.Z = (float)EffectTimer;
+      _frameData.Z = (float) EffectTimer;
 
       if (_transitionActive)
       {
@@ -246,7 +245,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.ImageSources
     {
       get
       {
-        TextureAsset nullTexture = ServiceRegistration.Get<ContentManager>().GetColorTexture(BorderColor);
+        TextureAsset nullTexture = ContentManager.Instance.GetColorTexture(BorderColor);
         if (!nullTexture.IsAllocated)
           nullTexture.Allocate();
         return nullTexture;

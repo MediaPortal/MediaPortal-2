@@ -35,7 +35,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
     Star,
   }
 
-  public class GridLength : IDeepCopyable, ISkinEngineManagedResource
+  public class GridLength : IDeepCopyable, ISkinEngineManagedObject
   {
     #region Private fields
 

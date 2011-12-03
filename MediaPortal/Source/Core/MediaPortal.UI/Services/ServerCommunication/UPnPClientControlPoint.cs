@@ -28,7 +28,7 @@ using System.Xml.XPath;
 using MediaPortal.Common;
 using MediaPortal.Common.General;
 using MediaPortal.Common.Logging;
-using MediaPortal.Common.Services.MediaManagement;
+using MediaPortal.Common.Services.ResourceAccess;
 using MediaPortal.Common.UPnP;
 using MediaPortal.Utilities.Exceptions;
 using UPnP.Infrastructure.CP;
@@ -129,12 +129,12 @@ namespace MediaPortal.UI.Services.ServerCommunication
         string friendlyName = ParserHelper.SelectText(deviceElementNav, "d:friendlyName/text()", nsmgr);
         SystemName system = new SystemName(new Uri(rootDescriptor.SSDPRootEntry.PreferredLink.DescriptionLocation).Host);
         if (deviceUuid == _homeServerSystemId)
-          ServiceRegistration.Get<ILogger>().Debug("UPnPClientControlPoint: Found MP 2 home server '{0}' (system ID '{1}') at host '{2}'",
-              friendlyName, deviceUuid, system.HostName);
+          ServiceRegistration.Get<ILogger>().Debug("UPnPClientControlPoint: Found MP 2 home server '{0}' (system ID '{1}') at host '{2}' (IP address: '{3}')",
+              friendlyName, deviceUuid, system.HostName, system.Address);
         else
         {
-          ServiceRegistration.Get<ILogger>().Debug("UPnPClientControlPoint: Found foreign MP 2 server '{0}' (system ID '{1}') at host '{2}'",
-              friendlyName, deviceUuid, system.HostName);
+          ServiceRegistration.Get<ILogger>().Debug("UPnPClientControlPoint: Found foreign MP 2 server '{0}' (system ID '{1}') at host '{2}' (IP address: '{3}')",
+              friendlyName, deviceUuid, system.HostName, system.Address);
           return;
         }
         try

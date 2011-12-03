@@ -28,7 +28,7 @@ using System.Linq;
 using MediaPortal.Common;
 using MediaPortal.Common.Logging;
 using MediaPortal.Common.MediaManagement;
-using MediaPortal.Common.MediaManagement.ResourceAccess;
+using MediaPortal.Common.ResourceAccess;
 using MediaPortal.UI.Shares;
 using MediaPortal.Utilities;
 
@@ -62,14 +62,23 @@ namespace MediaPortal.UiComponents.SkinBase.Models
         ResourceProviderMetadata rpm = BaseResourceProvider;
         if (rpm == null)
           return false;
-        IResourceAccessor rootAccessor = GetResourceProvider(rpm.ResourceProviderId).CreateResourceAccessor("/");
+        IResourceAccessor rootAccessor;
+        try
+        {
+          rootAccessor = GetResourceProvider(rpm.ResourceProviderId).CreateResourceAccessor("/");
+        }
+        catch (Exception)
+        {
+          return false;
+        }
         try
         {
           return rootAccessor is IFileSystemResourceAccessor;
         }
         finally
         {
-          rootAccessor.Dispose();
+          if (rootAccessor != null)
+            rootAccessor.Dispose();
         }
       }
     }
@@ -183,7 +192,7 @@ namespace MediaPortal.UiComponents.SkinBase.Models
           {
             ResourceName = childAccessor.ResourceName,
             HumanReadablePath = childAccessor.ResourcePathName,
-            ResourcePath = childAccessor.LocalResourcePath
+            ResourcePath = childAccessor.CanonicalLocalResourcePath
           };
     }
 

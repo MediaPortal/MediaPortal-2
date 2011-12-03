@@ -28,7 +28,7 @@ using MediaPortal.UI.SkinEngine.Xaml;
 
 namespace MediaPortal.UI.SkinEngine.MarkupExtensions
 {
-  public interface IMultiValueConverter : ISkinEngineManagedResource
+  public interface IMultiValueConverter : ISkinEngineManagedObject
   {
     bool Convert(IDataDescriptor[] values, Type targetType, object parameter, out object result);
   }

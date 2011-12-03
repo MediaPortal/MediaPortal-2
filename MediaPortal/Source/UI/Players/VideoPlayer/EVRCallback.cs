@@ -34,7 +34,7 @@ using System.Drawing;
 using System.Runtime.InteropServices;
 using MediaPortal.UI.Players.Video.Tools;
 using MediaPortal.UI.Presentation.Geometries;
-using MediaPortal.UI.SkinEngine.DirectX;
+using MediaPortal.UI.SkinEngine.SkinManagement;
 using SlimDX.Direct3D9;
 
 namespace MediaPortal.UI.Players.Video
@@ -72,24 +72,48 @@ namespace MediaPortal.UI.Players.Video
     private Size _croppedVideoSize = Size.Empty;
     private Size _originalVideoSize = Size.Empty;
     private Size _aspectRatio = Size.Empty;
-    private readonly RenderDlgt _renderDlgt;
-    private Texture _texture = null;
     private Surface _surface = null;
     private SizeF _surfaceMaxUV = Size.Empty;
+
+    private readonly DeviceEx _device;
+    private readonly RenderDlgt _renderDlgt;
 
     #endregion
 
     public EVRCallback(RenderDlgt renderDlgt)
     {
       _renderDlgt = renderDlgt;
+      _device = SkinContext.Device;
     }
 
-    #region public properties
+    public void Dispose()
+    {
+      VideoSizePresent = null;
+      FreeSurface();
+    }
+
+    #region Public properties and events
 
     /// <summary>
-    /// Gets the size of the texture which contains the current frame.
+    /// The first time the <see cref="OriginalVideoSize"/> and <see cref="CroppedVideoSize"/> properties are
+    /// present is when the EVR presenter delivered the first video frame. At that time, this event will be raised.
     /// </summary>
-    public Size TextureSize
+    public event VideoSizePresentDlgt VideoSizePresent;
+
+    public Surface Surface
+    {
+      get { return _surface; }
+    }
+
+    public object SurfaceLock
+    {
+      get { return _lock; }
+    }
+
+    /// <summary>
+    /// Gets the size of the video image which contains the current frame.
+    /// </summary>
+    public Size ImageSize
     {
       get { return _croppedVideoSize; }
     }
@@ -149,27 +173,10 @@ namespace MediaPortal.UI.Players.Video
 
     #endregion
 
-    /// <summary>
-    /// The first time the <see cref="OriginalVideoSize"/> and <see cref="CroppedVideoSize"/> properties are
-    /// present is when the EVR presenter delivered the first video frame. At that time, this event will be raised.
-    /// </summary>
-    public event VideoSizePresentDlgt VideoSizePresent;
-
-    public void Dispose()
+    private void FreeSurface()
     {
-      VideoSizePresent = null;
-      FreeTexture();
-    }
-
-    private void FreeTexture()
-    {
-      FilterGraphTools.TryDispose(ref _surface);
-      FilterGraphTools.TryDispose(ref _texture);
-    }
-
-    public Texture Texture
-    {
-      get { return _texture; }
+      lock (_lock)
+        FilterGraphTools.TryDispose(ref _surface);
     }
 
     #region IEVRPresentCallback implementation
@@ -181,7 +188,7 @@ namespace MediaPortal.UI.Players.Video
         {
           if (cx != _originalVideoSize.Width || cy != _originalVideoSize.Height)
           {
-            FreeTexture();
+            FreeSurface();
             _originalVideoSize = new Size(cx, cy);
           }
           Rectangle cropRect = _cropSettings == null ? new Rectangle(Point.Empty, _originalVideoSize) :
@@ -191,23 +198,17 @@ namespace MediaPortal.UI.Players.Video
           _aspectRatio.Width = arx;
           _aspectRatio.Height = ary;
 
-          if (_texture == null)
+          if (_surface == null)
           {
-            int ordinal = GraphicsDevice.Device.Capabilities.AdapterOrdinal;
-            AdapterInformation adapterInfo = MPDirect3D.Direct3D.Adapters[ordinal];
-            _texture = new Texture(GraphicsDevice.Device, _croppedVideoSize.Width, _croppedVideoSize.Height,
-                1, Usage.RenderTarget, adapterInfo.CurrentDisplayMode.Format, Pool.Default);
-            _surface = _texture.GetSurfaceLevel(0);
+            _surface = Surface.CreateRenderTarget(_device, _croppedVideoSize.Width, _croppedVideoSize.Height,
+                SkinContext.CurrentDisplayMode.Format, MultisampleType.None, 0, false);
 
-            SurfaceDescription desc = _texture.GetLevelDescription(0);
+            SurfaceDescription desc = _surface.Description;
             _surfaceMaxUV = new SizeF(_croppedVideoSize.Width / (float) desc.Width, _croppedVideoSize.Height / (float) desc.Height);
           }
 
           using (Surface surf = Surface.FromPointer(new IntPtr(dwSurface)))
-          {
-            GraphicsDevice.Device.StretchRectangle(surf, cropRect,
-                _surface, new Rectangle(Point.Empty, _croppedVideoSize), TextureFilter.None);
-          }
+            _device.StretchRectangle(surf, cropRect, _surface, new Rectangle(Point.Empty, _croppedVideoSize), TextureFilter.None);
         }
       VideoSizePresentDlgt vsp = VideoSizePresent;
       if (vsp != null)

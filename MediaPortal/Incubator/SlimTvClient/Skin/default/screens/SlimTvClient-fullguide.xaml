@@ -14,7 +14,7 @@
     <Model x:Key="SlimTvMultiChannelGuide" Id="5054408D-C2A9-451f-A702-E84AFCD29C10"/>
 
     <!-- Contents -->
-    <ResourceWrapper x:Key="Client_Element">
+    <ControlTemplate x:Key="Client_Template">
         <Grid x:Name="MainGrid" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" 
               DataContext="{Binding Source={StaticResource SlimTvMultiChannelGuide}}"
               Margin="0,10,0,0">
@@ -36,7 +36,7 @@
               Command="{Command PrevGroup}"/>
             <Button x:Name="NextGroupButton" Style="{StaticResource SmallButtonStyle}" Content=" &gt; "
               Command="{Command NextGroup}"/>
-            <Label x:Name="GroupNameLabel" FontSize="{ThemeResource SmallFontSize}" Content="{Binding GroupName}"/>
+            <Label x:Name="GroupNameLabel" Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}" Content="{Binding GroupName}"/>
         </StackPanel>
         <StackPanel x:Name="TimeControls" Margin="20,0,20,0" Grid.Column="1" Grid.Row="0"
                      HorizontalAlignment="Left" VerticalAlignment="Top" Orientation="Horizontal">
@@ -44,7 +44,8 @@
               Command="{Command ScrollBackward}"/>
           <Button x:Name="ScrollForwardButton" Style="{StaticResource SmallButtonStyle}" Content=" + "
               Command="{Command ScrollForward}"/>
-          <Label x:Name="GuideStartTimeLabel" FontSize="{ThemeResource SmallFontSize}" Content="{Binding GuideStartTime}"/>
+          <Label x:Name="GuideStartTimeLabel" Content="{Binding GuideStartTime}"
+              Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}"/>
         </StackPanel>
 
           <ListView  Grid.Column="0" Grid.Row="1" Grid.ColumnSpan="2"
@@ -53,7 +54,7 @@
               ItemsSource="{Binding Path=ChannelList}"
               SelectionChanged="{CommandStencil UpdateProgram}">
           <ListView.Resources>
-            <ResourceWrapper x:Key="Menu_Command" Resource="{Binding Path=Command}"/>
+            <CommandBridge x:Key="Menu_Command" Command="{Binding Path=Command,Mode=OneTime}"/>
           </ListView.Resources>
         </ListView>
           
@@ -66,6 +67,6 @@
           </Control>
         </GroupBox>
         </Grid>
-    </ResourceWrapper>
+    </ControlTemplate>
   </Include.Resources>
 </Include>

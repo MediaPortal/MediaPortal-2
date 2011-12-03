@@ -22,8 +22,10 @@
 
 #endregion
 
+using System;
 using System.Collections.Generic;
 using System.Globalization;
+using System.Linq;
 using System.Text;
 using System.Xml;
 using UPnP.Infrastructure.Utils;
@@ -47,7 +49,7 @@ namespace UPnP.Infrastructure.Dv.DeviceTree
   /// To build special device configurations, either subclasses can be implemented doing the device initialization or
   /// an instance of this class can be created and configured from outside.
   /// </summary>
-  public class DvDevice
+  public class DvDevice : IDisposable
   {
     protected DvDevice _parentDevice = null;
     protected IList<DvDevice> _embeddedDevices = new List<DvDevice>();
@@ -73,6 +75,14 @@ namespace UPnP.Infrastructure.Dv.DeviceTree
       _deviceTypeVersion = deviceTypeVersion;
       _uuid = uuid;
       _deviceInformation = descriptor;
+    }
+
+    public virtual void Dispose()
+    {
+      foreach (DvDevice embeddedDevice in _embeddedDevices)
+        embeddedDevice.Dispose();
+      foreach (DvService service in _services)
+        service.Dispose();
     }
 
     /// <summary>
@@ -224,15 +234,8 @@ namespace UPnP.Infrastructure.Dv.DeviceTree
     /// tree starting with this device contains a device with the given name.</returns>
     public DvDevice FindDeviceByUDN(string deviceUDN)
     {
-      if (UDN == deviceUDN)
-        return this;
-      foreach (DvDevice embeddedDevice in _embeddedDevices)
-      {
-        DvDevice result = embeddedDevice.FindDeviceByUDN(deviceUDN);
-        if (result != null)
-          return result;
-      }
-      return null;
+      return UDN == deviceUDN ? this : _embeddedDevices.Select(embeddedDevice => embeddedDevice.FindDeviceByUDN(deviceUDN)).
+          FirstOrDefault(result => result != null);
     }
 
     /// <summary>
@@ -284,7 +287,8 @@ namespace UPnP.Infrastructure.Dv.DeviceTree
     public string BuildRootDeviceDescription(ServerData serverData, EndpointConfiguration config, CultureInfo culture)
     {
       StringBuilder result = new StringBuilder(10000);
-      using (XmlWriter writer = XmlWriter.Create(new StringWriterWithEncoding(result, Encoding.UTF8), UPnPConfiguration.DEFAULT_XML_WRITER_SETTINGS))
+      using (StringWriterWithEncoding stringWriter = new StringWriterWithEncoding(result, Encoding.UTF8))
+      using (XmlWriter writer = XmlWriter.Create(stringWriter, UPnPConfiguration.DEFAULT_XML_WRITER_SETTINGS))
       {
         writer.WriteStartDocument();
         writer.WriteStartElement(string.Empty, "root", UPnPConsts.NS_DEVICE_DESCRIPTION);

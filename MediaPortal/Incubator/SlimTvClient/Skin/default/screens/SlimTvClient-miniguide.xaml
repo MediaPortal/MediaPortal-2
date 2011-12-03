@@ -14,8 +14,8 @@
     <Model x:Key="SlimTvClient" Id="8BEC1372-1C76-484c-8A69-C7F3103708EC"/>
 
     <!-- Contents -->
-    <!--<ResourceWrapper x:Key="Client_Element">-->
-    <ResourceWrapper x:Key="Contents_Element">
+    <!--<ControlTemplate x:Key="Client_Template">-->
+    <ControlTemplate x:Key="Contents_Template">
         <Grid x:Name="MainGrid" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" 
               DataContext="{Binding Source={StaticResource SlimTvClient}}">
           
@@ -35,7 +35,8 @@
               Command="{Command PrevGroup}"/>
             <Button x:Name="NextGroupButton" Style="{StaticResource SmallButtonStyle}" Content=" &gt; "
               Command="{Command NextGroup}"/>
-            <Label x:Name="CurrentGroupNameLabel" FontSize="{ThemeResource SmallFontSize}" Content="{Binding CurrentGroupName}"/>
+            <Label x:Name="CurrentGroupNameLabel" Content="{Binding CurrentGroupName}"
+                Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}"/>
           </StackPanel>
           
           <StackPanel x:Name="PiPControl" Margin="20,0,20,0" Grid.Column="1" Grid.Row="0"
@@ -43,8 +44,8 @@
                      IsVisible="{Binding PiPAvailable}">
             <Button x:Name="EnablePiPButton" Style="{StaticResource SmallButtonStyle}" 
                     Content="PiP enabled:" Command="{Command TogglePiP}" />
-            <Label x:Name="PiPStatusLabel" Margin="10,0,0,0" FontSize="{ThemeResource SmallFontSize}" 
-                   Content="{Binding PiPEnabled}"/>
+            <Label x:Name="PiPStatusLabel" Margin="10,0,0,0" Content="{Binding PiPEnabled}"
+                Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}"/>
          
           </StackPanel>          
           
@@ -54,7 +55,7 @@
               ItemsSource="{Binding Path=CurrentGroupChannels}"
               > 
               <ListView.Resources>
-                  <ResourceWrapper x:Key="Menu_Command" Resource="{Binding Path=Command}"/>
+                <CommandBridge x:Key="Menu_Command" Command="{Binding Path=Command,Mode=OneTime}"/>
                 <!--<ResourceWrapper x:Key="Menu_Command">                  
                   <CommandList>
                     <Command Path="Command"/>
@@ -66,6 +67,6 @@
         <KeyBinding Key="Right" Command="{Command Path=NextGroup}"/>
         <KeyBinding Key="Left" Command="{Command Path=PrevGroup}"/>
       </Grid>
-    </ResourceWrapper>
+    </ControlTemplate>
   </Include.Resources>
 </Include>

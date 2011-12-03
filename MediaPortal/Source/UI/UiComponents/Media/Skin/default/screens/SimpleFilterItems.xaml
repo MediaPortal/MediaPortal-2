@@ -11,7 +11,7 @@
     <!-- Header_Text resource has to be added by including screen -->
 
     <!-- Contents -->
-    <ResourceWrapper x:Key="Contents_Element">
+    <ControlTemplate x:Key="Contents_Template">
       <Grid>
         <Grid.RowDefinitions>
           <RowDefinition Height="Auto"/>
@@ -31,7 +31,7 @@
           </Control.TemplateControl>
         </Control>
       </Grid>
-    </ResourceWrapper>
+    </ControlTemplate>
 
   </Include.Resources>
 </Include>

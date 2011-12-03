@@ -38,6 +38,7 @@ using MediaPortal.UI.SkinEngine.Controls.Transforms;
 using MediaPortal.UI.SkinEngine.Controls.Visuals;
 using MediaPortal.UI.SkinEngine.Controls.Visuals.Styles;
 using MediaPortal.UI.SkinEngine.MpfElements.Resources;
+using MediaPortal.UI.SkinEngine.Xaml.Interfaces;
 using MediaPortal.Utilities;
 using SlimDX;
 using TypeConverter = MediaPortal.UI.SkinEngine.Xaml.TypeConverter;
@@ -52,6 +53,8 @@ namespace MediaPortal.UI.SkinEngine.MpfElements
   /// </summary>
   public class MPF
   {
+    protected static readonly IEnumerable<IBinding> EMPTY_BINDING_ENUMERATION = new List<IBinding>();
+
     #region Variables
 
     protected static readonly NumberFormatInfo NUMBERFORMATINFO = CultureInfo.InvariantCulture.NumberFormat;
@@ -80,6 +83,7 @@ namespace MediaPortal.UI.SkinEngine.MpfElements
       // Visuals
       _objectClassRegistrations.Add("ARRetainingControl", typeof(SkinEngine.Controls.Visuals.ARRetainingControl));
       _objectClassRegistrations.Add("Control", typeof(SkinEngine.Controls.Visuals.Control));
+      _objectClassRegistrations.Add("ContentControl", typeof(SkinEngine.Controls.Visuals.ContentControl));
       _objectClassRegistrations.Add("Border", typeof(SkinEngine.Controls.Visuals.Border));
       _objectClassRegistrations.Add("GroupBox", typeof(SkinEngine.Controls.Visuals.GroupBox));
       _objectClassRegistrations.Add("Image", typeof(SkinEngine.Controls.Visuals.Image));
@@ -99,7 +103,6 @@ namespace MediaPortal.UI.SkinEngine.MpfElements
       _objectClassRegistrations.Add("ScrollViewer", typeof(SkinEngine.Controls.Visuals.ScrollViewer));
       _objectClassRegistrations.Add("TextBox", typeof(SkinEngine.Controls.Visuals.TextBox));
       _objectClassRegistrations.Add("TextControl", typeof(SkinEngine.Controls.Visuals.TextControl));
-      _objectClassRegistrations.Add("ContentControl", typeof(SkinEngine.Controls.Visuals.ContentControl));
       _objectClassRegistrations.Add("KeyBinding", typeof(SkinEngine.Controls.Visuals.KeyBinding));
       _objectClassRegistrations.Add("KeyBindingControl", typeof(SkinEngine.Controls.Visuals.KeyBindingControl));
       _objectClassRegistrations.Add("VirtualKeyboardControl", typeof(SkinEngine.Controls.Visuals.VirtualKeyboardControl));
@@ -179,6 +182,7 @@ namespace MediaPortal.UI.SkinEngine.MpfElements
       // Command
       _objectClassRegistrations.Add("CommandList", typeof(SkinEngine.Commands.CommandList));
       _objectClassRegistrations.Add("InvokeCommand", typeof(SkinEngine.Commands.InvokeCommand));
+      _objectClassRegistrations.Add("CommandBridge", typeof(SkinEngine.Commands.CommandBridge));
 
       // Converters
       _objectClassRegistrations.Add("ReferenceNotNull_BoolConverter", typeof(SkinEngine.MpfElements.Converters.ReferenceNotNull_BoolConverter));
@@ -216,14 +220,12 @@ namespace MediaPortal.UI.SkinEngine.MpfElements
 
     #region Public methods
 
+
     public static bool ConvertType(object value, Type targetType, out object result)
     {
       result = value;
       if (value == null)
-      {
-        result = value;
         return true;
-      }
       if (value is string && targetType == typeof(Type))
       {
         string typeName = (string) value;
@@ -248,7 +250,7 @@ namespace MediaPortal.UI.SkinEngine.MpfElements
             // Resource must be copied because setters and other controls most probably need a copy of the resource.
             // If we don't copy it, Setter is not able to check if we already return a copy because our input value differs
             // from the output value, even if we didn't do a copy here.
-            result = MpfCopyManager.DeepCopyCutLP(result);
+            result = MpfCopyManager.DeepCopyCutLVPs(result);
           }
           return true;
         }
@@ -259,7 +261,7 @@ namespace MediaPortal.UI.SkinEngine.MpfElements
         // If you try to build a ResourceWrapper with a string and assign that ResourceWrapper to a Button's Content property
         // with a StaticResource, for example, the ResourceWrapper will be assigned directly without the data template being
         // applied. To make it sill work, we need this explicit type conversion here.
-        result = new Label { Content = (string) value };
+        result = new Label { Content = (string) value, Color = Color.White };
         return true;
       }
       if (targetType == typeof(Transform))
@@ -464,7 +466,7 @@ namespace MediaPortal.UI.SkinEngine.MpfElements
 
     protected static void TryCleanupAndDispose_NoCheckOwner(object maybeUIElementOrDisposable)
     {
-      if (!(maybeUIElementOrDisposable is ISkinEngineManagedResource))
+      if (!(maybeUIElementOrDisposable is ISkinEngineManagedObject))
         // Don't dispose external resources
         return;
       UIElement u = maybeUIElementOrDisposable as UIElement;

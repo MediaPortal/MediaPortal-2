@@ -24,13 +24,13 @@
 
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
 using MediaPortal.Common;
 using MediaPortal.Common.Logging;
 using MediaPortal.Common.PluginManager;
 using MediaPortal.UI.Presentation.SkinResources;
+using MediaPortal.UI.SkinEngine.MpfElements;
 using MediaPortal.UI.SkinEngine.MpfElements.Resources;
 using MediaPortal.Utilities.Exceptions;
 using MediaPortal.Utilities.FileSystem;
@@ -117,45 +117,6 @@ namespace MediaPortal.UI.SkinEngine.SkinManagement
       }
     }
 
-    protected class ModelItemStateTracker : IPluginItemStateTracker
-    {
-      #region Protected fields
-
-      protected SkinResources _parent;
-
-      #endregion
-
-      #region Ctor
-
-      public ModelItemStateTracker(SkinResources parent)
-      {
-        _parent = parent;
-      }
-
-      #endregion
-
-      #region IPluginItemStateTracker implementation
-
-      public string UsageDescription
-      {
-        get { return "SkinResources: Usage of model in style resources"; }
-      }
-
-      public bool RequestEnd(PluginItemRegistration itemRegistration)
-      {
-        return !_parent.StyleGUIModels.ContainsKey(new Guid(itemRegistration.Metadata.Id));
-      }
-
-      public void Stop(PluginItemRegistration itemRegistration)
-      {
-        _parent.Release();
-      }
-
-      public void Continue(PluginItemRegistration itemRegistration) { }
-
-      #endregion
-    }
-
     #endregion
 
     #region Protected fields
@@ -194,7 +155,7 @@ namespace MediaPortal.UI.SkinEngine.SkinManagement
     /// We request GUI models for our style resources - this plugin item tracker is present for
     /// those models.
     /// </summary>
-    protected ModelItemStateTracker _modelItemStateTracker;
+    protected DefaultItemStateTracker _modelItemStateTracker;
 
     /// <summary>
     /// Models currently loaded for the style.
@@ -206,7 +167,11 @@ namespace MediaPortal.UI.SkinEngine.SkinManagement
     protected SkinResources(string name)
     {
       _name = name;
-      _modelItemStateTracker = new ModelItemStateTracker(this);
+      _modelItemStateTracker = new DefaultItemStateTracker("SkinResources: Usage of model in style resources")
+        {
+            EndRequested = itemRegistration => !StyleGUIModels.ContainsKey(new Guid(itemRegistration.Metadata.Id)),
+            Stopped = itemRegistration => Release()
+        };
     }
 
     /// <summary>
@@ -223,6 +188,14 @@ namespace MediaPortal.UI.SkinEngine.SkinManagement
     public string Name
     {
       get { return _name; }
+    }
+
+    /// <summary>
+    /// Gets the resources which are defined in this resource bundle.
+    /// </summary>
+    public ResourceDictionary LocalStyleResources
+    {
+      get { return _localStyleResources; }
     }
 
     /// <summary>
@@ -439,11 +412,14 @@ namespace MediaPortal.UI.SkinEngine.SkinManagement
           try
           {
             logger.Info("SkinResources: Loading style resource '{0}' from file '{1}'", resourceKey, pr.ResourcePath);
-            ResourceDictionary rd = XamlLoader.Load(pr.ResourcePath,
-                new StyleResourceModelLoader(this), false) as ResourceDictionary;
+            object o = XamlLoader.Load(pr.ResourcePath, new StyleResourceModelLoader(this));
+            ResourceDictionary rd = o as ResourceDictionary;
             if (rd == null)
-              throw new InvalidCastException("Style resource file '" + pr.ResourcePath +
-                  "' doesn't contain a ResourceDictionary as root element");
+            {
+              if (o != null)
+                MPF.TryCleanupAndDispose(o);
+              throw new InvalidCastException("Style resource file '" + pr.ResourcePath + "' doesn't contain a ResourceDictionary as root element");
+            }
             _localStyleResources.TakeOver(rd, false, true);
           }
           catch (Exception ex)
@@ -515,12 +491,10 @@ namespace MediaPortal.UI.SkinEngine.SkinManagement
       ILogger logger = ServiceRegistration.Get<ILogger>();
       logger.Info("SkinResources: Adding skin resource directory '{0}' to {1} '{2}'", rootDirectoryPath, GetType().Name, Name);
       // Add resource files for this directory
-      int directoryNameLength = rootDirectoryPath.Length;
+      int directoryNameLength = FileUtils.CheckTrailingPathDelimiter(rootDirectoryPath).Length;
       foreach (string resourceFilePath in FileUtils.GetAllFilesRecursively(rootDirectoryPath))
       {
         string resourceName = resourceFilePath.Substring(directoryNameLength).ToLowerInvariant();
-        if (resourceName.StartsWith(Path.DirectorySeparatorChar.ToString()))
-          resourceName = resourceName.Substring(1);
         if (_localResourceFilePaths.ContainsKey(resourceName))
           logger.Warn("SkinResources: Duplicate skin resource '{0}', using resource from '{1}'",
               resourceName, _localResourceFilePaths[resourceName]);

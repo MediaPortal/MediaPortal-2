@@ -1,0 +1,107 @@
+﻿<Window x:Class="SkinDesigner.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" Title="MainWindow" Height="600" Width="1019"
+        DataContext="{Binding RelativeSource={RelativeSource Self}}" Closing="Window_Closing">
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="Auto"/>
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+        <StackPanel Orientation="Horizontal">
+            <Button Name="AddColorResourceButton" Content="Add Color Resource" Margin="10" Click="AddColorResourceFileButton_Click" />
+            <Button Name="RemoveColorResourceButton" Content="Remove Color Resource" Margin="10" Click="RemoveColorResourceButton_Click" />
+            <Button Name="SaveColorResourcesButton" Content="Save Color Resources" Margin="10" Click="SaveColorResourcesButton_Click" />
+            <Button Name="ReloadResourcesButton" Content="Reload Color Resources" Margin="10" Click="ReloadColorResourcesButton_Click" />
+        </StackPanel>
+        <ListView HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Name="ColorsList" Grid.Row="1" Grid.Column="0"
+                  ItemsSource="{Binding Path=Colors}">
+            <ListView.Resources>
+                <DataTemplate x:Key="ColorName">
+                    <Label Content="{Binding Name}"/>
+                </DataTemplate>
+                <DataTemplate x:Key="ColorTemplate0">
+                    <Button Click="Color0Click" DataContext="{Binding}">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/>
+                            </Grid.RowDefinitions>
+                            <Rectangle Width="100" Height="50">
+                                <Rectangle.Fill>
+                                    <SolidColorBrush Color="{Binding [0]}"/>
+                                </Rectangle.Fill>
+                            </Rectangle>
+                            <Label Content="{Binding [0]}"/>
+                        </Grid>
+                    </Button>
+                </DataTemplate>
+                <DataTemplate x:Key="ColorTemplate1">
+                    <Button Click="Color0Click" DataContext="{Binding}">
+                        <Rectangle Width="100" Height="50">
+                            <Rectangle.Fill>
+                                <SolidColorBrush Color="{Binding [1]}"/>
+                            </Rectangle.Fill>
+                        </Rectangle>
+                    </Button>
+                </DataTemplate>
+                <DataTemplate x:Key="ColorTemplate2">
+                    <Button Click="Color0Click" DataContext="{Binding}">
+                        <Rectangle Width="100" Height="50">
+                            <Rectangle.Fill>
+                                <SolidColorBrush Color="{Binding [2]}"/>
+                            </Rectangle.Fill>
+                        </Rectangle>
+                    </Button>
+                </DataTemplate>
+                <DataTemplate x:Key="ColorTemplate3">
+                    <Button Click="Color0Click" DataContext="{Binding}">
+                        <Rectangle Width="100" Height="50">
+                            <Rectangle.Fill>
+                                <SolidColorBrush Color="{Binding [3]}"/>
+                            </Rectangle.Fill>
+                        </Rectangle>
+                    </Button>
+                </DataTemplate>
+                <DataTemplate x:Key="ColorTemplate4">
+                    <Button Click="Color0Click" DataContext="{Binding}">
+                        <Rectangle Width="100" Height="50">
+                            <Rectangle.Fill>
+                                <SolidColorBrush Color="{Binding [4]}"/>
+                            </Rectangle.Fill>
+                        </Rectangle>
+                    </Button>
+                </DataTemplate>
+                <DataTemplate x:Key="ColorTemplate5">
+                    <Button Click="Color0Click" DataContext="{Binding}">
+                        <Rectangle Width="100" Height="50">
+                            <Rectangle.Fill>
+                                <SolidColorBrush Color="{Binding [5]}"/>
+                            </Rectangle.Fill>
+                        </Rectangle>
+                    </Button>
+                </DataTemplate>
+                <DataTemplate x:Key="ColorTemplate6">
+                    <Button Click="Color0Click" DataContext="{Binding}">
+                        <Rectangle Width="100" Height="50">
+                            <Rectangle.Fill>
+                                <SolidColorBrush Color="{Binding [6]}"/>
+                            </Rectangle.Fill>
+                        </Rectangle>
+                    </Button>
+                </DataTemplate>
+            </ListView.Resources>
+            <ListView.View>
+                <GridView>
+                    <GridViewColumn Width="200" Header="Color" CellTemplate="{StaticResource ColorName}"/>
+                </GridView>
+            </ListView.View>
+        </ListView>
+        <StackPanel x:Name="ColorPanel" Grid.Column="1" Grid.Row="1"/>
+    </Grid>
+</Window>

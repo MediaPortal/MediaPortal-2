@@ -14,7 +14,8 @@
     <!-- SlimTvMultiChannelGuide model -->
     <Model x:Key="SlimTvMultiChannelGuide" Id="5054408D-C2A9-451f-A702-E84AFCD29C10"/>
 
-    <ResourceWrapper x:Key="Menu_Items" Resource="{Binding Source={StaticResource SlimTvMultiChannelGuide},Path=ProgramActions}"/>
+    <ResourceWrapper x:Key="Menu_Items" EnableBindings="True"
+        Resource="{Binding Source={StaticResource SlimTvMultiChannelGuide},Path=ProgramActions,Mode=OneTime}"/>
 
     <!-- Command -->
     <CommandStencil x:Key="Execute_Command_Stencil"

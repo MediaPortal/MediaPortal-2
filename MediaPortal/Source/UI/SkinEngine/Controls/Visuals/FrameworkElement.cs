@@ -33,12 +33,12 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
 using MediaPortal.UI.Control.InputManager;
-using MediaPortal.Common;
 using MediaPortal.Common.General;
 using MediaPortal.UI.SkinEngine.Commands;
 using MediaPortal.UI.SkinEngine.ContentManagement;
 using MediaPortal.UI.SkinEngine.Controls.Transforms;
 using MediaPortal.UI.SkinEngine.Fonts;
+using MediaPortal.UI.SkinEngine.InputManagement;
 using MediaPortal.UI.SkinEngine.MpfElements;
 using MediaPortal.UI.SkinEngine.MpfElements.Resources;
 using MediaPortal.UI.SkinEngine.Rendering;
@@ -152,6 +152,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     protected RectangleF _lastOccupiedTransformedBounds = new RectangleF();
     protected Size _lastOpacityRenderSize = new Size();
     
+    protected bool _styleSet = false;
+
     protected volatile SetFocusPriority _setFocusPrio = SetFocusPriority.None;
 
     protected SizeF? _availableSize;
@@ -225,6 +227,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       OpacityProperty.Attach(OnOpacityChanged);
       OpacityMaskProperty.Attach(OnOpacityChanged);
       ActualPositionProperty.Attach(OnActualBoundsChanged);
+      IsEnabledProperty.Attach(OnEnabledChanged);
     }
 
     void Detach()
@@ -241,6 +244,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       OpacityProperty.Detach(OnOpacityChanged);
       OpacityMaskProperty.Detach(OnOpacityChanged);
       ActualPositionProperty.Detach(OnActualBoundsChanged);
+      IsEnabledProperty.Detach(OnEnabledChanged);
     }
 
     public override void DeepCopy(IDeepCopyable source, ICopyManager copyManager)
@@ -288,22 +292,44 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 
     #region Event handlers
 
-    protected virtual void OnStyleChanged(AbstractProperty property, object oldValue)
+    protected override void OnUpdateElementState()
     {
-      Style oldStyle = (Style) oldValue;
+      base.OnUpdateElementState();
+      if (PreparingOrRunning && !_styleSet)
+        UpdateStyle(null);
+    }
+
+    protected void UpdateStyle(Style oldStyle)
+    {
       if (oldStyle != null)
       {
         oldStyle.Reset(this);
         MPF.TryCleanupAndDispose(oldStyle);
       }
       if (Style != null)
+      {
         Style.Set(this);
+        _styleSet = true;
+      }
       InvalidateLayout(true, true);
+    }
+
+    protected virtual void OnStyleChanged(AbstractProperty property, object oldValue)
+    {
+      if (!PreparingOrRunning)
+        return;
+      UpdateStyle((Style) oldValue);
     }
 
     void OnActualBoundsChanged(AbstractProperty property, object oldValue)
     {
       _updateOpacityMask = true;
+    }
+
+    void OnEnabledChanged(AbstractProperty property, object oldValue)
+    {
+      if (!IsEnabled)
+        ResetFocus();
     }
 
     void OnLayoutTransformChanged(IObservable observable)
@@ -659,9 +685,11 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       if (!HasFocus)
         return;
       if (key == Key.None) return;
+      IExecutableCommand cmd = ContextMenuCommand;
       if (key == Key.ContextMenu && ContextMenuCommand != null)
       {
-        ContextMenuCommand.Execute();
+        if (cmd != null)
+          InputManager.Instance.ExecuteCommand(cmd.Execute);
         key = Key.None;
       }
     }
@@ -682,7 +710,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
         if (screen == null)
           return false;
         RectangleF actualBounds = ActualBounds;
-        MakeVisible(this, actualBounds);
+        BringIntoView(this, actualBounds);
         screen.UpdateFocusRect(actualBounds);
         screen.FrameworkElementGotFocus(this);
         HasFocus = true;
@@ -771,6 +799,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       //  return;
       _isMeasureInvalid |= invalidateMeasure;
       _isArrangeInvalid |= invalidateArrange;
+      if (!IsVisible)
+        return;
       InvalidateParentLayout(invalidateMeasure, invalidateArrange);
     }
 
@@ -1200,6 +1230,11 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       }
     }
 
+    public void BringIntoView()
+    {
+      BringIntoView(this, ActualBounds);
+    }
+
     #endregion
 
     /// <summary>
@@ -1221,7 +1256,10 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       System.Diagnostics.Trace.WriteLine(string.Format("UpdateLayoutRoot {0} Name='{1}', measuring with screen size {2}", GetType().Name, Name, skinSize));
 #endif
 #endif
-      Measure(ref size);
+      do
+      {
+        Measure(ref size);
+      } while (_isMeasureInvalid);
 
 #if DEBUG_LAYOUT
 #if DEBUG_MORE_LAYOUT
@@ -1299,7 +1337,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
         result = FindResource(type) as Style;
         type = type.BaseType;
       }
-      return MpfCopyManager.DeepCopyCutLP(result); // Create an own copy of the style to be assigned
+      return MpfCopyManager.DeepCopyCutLVPs(result); // Create an own copy of the style to be assigned
     }
 
     /// <summary>
@@ -1316,7 +1354,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
         result = (ResourceDictionary.FindResourceInParserContext(type, context) ?? FindResource(type)) as Style;
         type = type.BaseType;
       }
-      return MpfCopyManager.DeepCopyCutLP(result); // Create an own copy of the style to be assigned
+      return MpfCopyManager.DeepCopyCutLVPs(result); // Create an own copy of the style to be assigned
     }
 
     #region Focus & control predicition
@@ -1406,7 +1444,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       FrameworkElement result = FindNextFocusElement(focusableChildren, currentFocusRect, dir);
       if (result != null)
         return result;
-      return focusableChildren.First();
+      return null;
     }
 
     /// <summary>
@@ -1417,7 +1455,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     /// <param name="dir">Direction to move the focus.</param>
     /// <returns>Next focusable element in the given <paramref name="dir"/> or <c>null</c>, if the given
     /// <paramref name="potentialNextFocusElements"/> don't contain a focusable element in the given direction.</returns>
-    protected static FrameworkElement FindNextFocusElement(ICollection<FrameworkElement> potentialNextFocusElements,
+    protected static FrameworkElement FindNextFocusElement(IEnumerable<FrameworkElement> potentialNextFocusElements,
         RectangleF? currentFocusRect, MoveFocusDirection dir)
     {
       FrameworkElement bestMatch = null;
@@ -1673,13 +1711,14 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
           renderTransformMatrix, RenderTransformOrigin, Opacity);
       _inverseFinalTransform = Matrix.Invert(localRenderContext.MouseTransform);
 
-      if (OpacityMask == null)
+      Brushes.Brush opacityMask = OpacityMask;
+      if (opacityMask == null)
         // Simply render without opacity mask
         DoRender(localRenderContext);
       else
       { // Control has an opacity mask
         // Get global render texture or create it if it doesn't exist
-        RenderTextureAsset renderTarget = ServiceRegistration.Get<ContentManager>().GetRenderTexture(
+        RenderTextureAsset renderTarget = ContentManager.Instance.GetRenderTexture(
             GLOBAL_RENDER_TEXTURE_ASSET_KEY);
 
         // Ensure it's allocated
@@ -1689,7 +1728,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 
         // Create a temporary render context and render the control to the render texture
         RenderContext tempRenderContext = new RenderContext(localRenderContext.Transform, Matrix.Identity, 
-          localRenderContext.Opacity, bounds, localRenderContext.ZOrder);
+            localRenderContext.Opacity, bounds, localRenderContext.ZOrder);
         RenderToTexture(renderTarget, tempRenderContext);
 
         // Add bounds to our calculated, occupied area.
@@ -1703,7 +1742,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
         occupiedTransformedBounds.Height += OPACITY_MASK_BOUNDS*2;
 
         // If the control bounds have changed we need to update our primitive context to make the 
-        //    texture coordinates match up
+        // texture coordinates match up
         if (_updateOpacityMask || _opacityMaskContext == null ||
             occupiedTransformedBounds != _lastOccupiedTransformedBounds ||
             renderTarget.Size != _lastOpacityRenderSize)
@@ -1715,9 +1754,9 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
         }
 
         // Now render the opacitytexture with the OpacityMask brush
-        OpacityMask.BeginRenderOpacityBrush(renderTarget.Texture, new RenderContext(Matrix.Identity, Matrix.Identity, bounds));
+        opacityMask.BeginRenderOpacityBrush(renderTarget.Texture, new RenderContext(Matrix.Identity, Matrix.Identity, bounds));
         _opacityMaskContext.Render(0);
-        OpacityMask.EndRender();
+        opacityMask.EndRender();
       }
       // Calculation of absolute render size (in world coordinate system)
       parentRenderContext.IncludeTransformedContentsBounds(localRenderContext.OccupiedTransformedBounds);

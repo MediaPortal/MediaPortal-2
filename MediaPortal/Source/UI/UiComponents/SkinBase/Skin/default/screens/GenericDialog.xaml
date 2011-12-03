@@ -8,18 +8,18 @@
     >
   <Include.Resources>
     <!-- Dialog title -->
-    <ResourceWrapper x:Key="Dialog_Header_Text"
+    <ResourceWrapper x:Key="Dialog_Header_Text" EnableBindings="True"
         Resource="{Binding Source={Service DialogManager},Path=CurrentDialogData.HeaderText,Mode=OneTime}"/>
 
     <DataTemplate x:Key="DialogButtonItemDataTemplate" DataType="{x:Type collections:ListItem}">
-      <Label x:Name="ItemLabel" Content="{Binding [Name]}"/>
+      <Label x:Name="ItemLabel" Content="{Binding [Name]}" Color="{ThemeResource TextColor}"/>
     </DataTemplate>
 
     <Style x:Key="DialogButtonsListViewStyle">
       <Setter Property="Template">
         <Setter.Value>
           <ControlTemplate TargetType="{x:Type ListView}">
-            <ItemsPresenter VerticalAlignment="Top"/>
+            <ItemsPresenter Margin="10"/>
           </ControlTemplate>
         </Setter.Value>
       </Setter>
@@ -28,13 +28,13 @@
       <Setter Property="ItemsPanel">
         <Setter.Value>
           <ItemsPanelTemplate>
-            <StackPanel x:Name="ListItemsHost" Orientation="Horizontal" IsItemsHost="True" Margin="10" VerticalAlignment="Top"/>
+            <StackPanel x:Name="ListItemsHost" Orientation="Horizontal" IsItemsHost="True" VerticalAlignment="Top"/>
           </ItemsPanelTemplate>
         </Setter.Value>
       </Setter>
     </Style>
 
-    <ResourceWrapper x:Key="Contents_Element">
+    <ControlTemplate x:Key="Contents_Template">
       <Grid x:Name="GenericDialogContent">
         <Grid.ColumnDefinitions>
           <ColumnDefinition Width="*"/>
@@ -44,12 +44,12 @@
           <RowDefinition Height="10"/>
           <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
-        <Label Grid.Column="0" Grid.Row="0" Wrap="True"
+        <Label Grid.Column="0" Grid.Row="0" Wrap="True" Color="{ThemeResource TextColor}"
             Content="{Binding Source={Service DialogManager},Path=CurrentDialogData.Text,Mode=OneTime}"/>
         <ListView Grid.Column="0" Grid.Row="2" HorizontalAlignment="Center"
             Style="{ThemeResource DialogButtonsListViewStyle}"
             ItemsSource="{Binding Source={Service DialogManager},Path=CurrentDialogData.DialogButtons}"/>
       </Grid>
-    </ResourceWrapper>
+    </ControlTemplate>
   </Include.Resources>
 </Include>

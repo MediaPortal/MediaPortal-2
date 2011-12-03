@@ -23,8 +23,6 @@
 #endregion
 
 using System.Collections.Generic;
-using MediaPortal.Common;
-using MediaPortal.Common.Logging;
 using MediaPortal.UI.UserManagement;
 
 namespace MediaPortal.UI.Services.UserManagement

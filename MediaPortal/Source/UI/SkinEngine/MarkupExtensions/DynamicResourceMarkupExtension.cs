@@ -74,8 +74,9 @@ namespace MediaPortal.UI.SkinEngine.MarkupExtensions
   /// This class is realized as a <see cref="IBinding">Binding</see>, because it
   /// has to track changes of the source resource and of the search path to it.
   /// </remarks>
-  public class DynamicResourceMarkupExtension: BindingBase
+  public class DynamicResourceMarkupExtension : BindingBase
   {
+    protected static readonly IEnumerable<IBinding> EMPTY_BINDING_ENUMERATION = new List<IBinding>();
     #region Protected fields
 
 #if DEBUG_DRME
@@ -259,6 +260,17 @@ namespace MediaPortal.UI.SkinEngine.MarkupExtensions
 
 #endif
 
+    protected UIElement FindUIElementInLogicalTree(DependencyObject context)
+    {
+      do
+      {
+        UIElement result = context as UIElement;
+        if (result != null)
+          return result;
+      } while (context != null);
+      return null;
+    }
+
     protected void UpdateTarget(object value)
     {
       // We're called multiple times, for example when a resource dictionary changes.
@@ -267,11 +279,9 @@ namespace MediaPortal.UI.SkinEngine.MarkupExtensions
         return;
       _lastUpdateValue = value;
 
-      IEnumerable<IBinding> deferredBindings;
-      object assignValue = MpfCopyManager.DeepCopyCutLP(value, out deferredBindings);
+      object assignValue = MpfCopyManager.DeepCopyCutLVPs(value);
       if (assignValue is DependencyObject && _targetDataDescriptor.TargetObject is DependencyObject)
         ((DependencyObject) assignValue).LogicalParent = (DependencyObject) _targetDataDescriptor.TargetObject;
-      MpfCopyManager.ActivateBindings(deferredBindings);
 #if DEBUG_DRME
       DebugOutput("Setting target value to '{0}'", assignValue);
 #endif
@@ -279,6 +289,8 @@ namespace MediaPortal.UI.SkinEngine.MarkupExtensions
       if (!ReferenceEquals(assignValue, assignValueConverted) && !ReferenceEquals(assignValue, value))
         MPF.TryCleanupAndDispose(assignValue);
       _contextObject.SetBindingValue(_targetDataDescriptor, assignValueConverted);
+      // If we cannot find any UI element to pass the bindings to, we don't activate them. This means bindings, which are bound to
+      // an object which doesn't have an UI element in its logical tree, cannot be activated.
     }
 
     /// <summary>
@@ -390,6 +402,8 @@ namespace MediaPortal.UI.SkinEngine.MarkupExtensions
 
     public override void Activate()
     {
+      if (_active)
+        return;
       base.Activate();
       if (ResourceKey == null)
         throw new XamlBindingException("DynamicResource: property 'ResourceKey' must be given");

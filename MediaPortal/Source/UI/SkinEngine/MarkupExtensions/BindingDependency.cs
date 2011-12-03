@@ -168,24 +168,28 @@ namespace MediaPortal.UI.SkinEngine.MarkupExtensions
 
     public void UpdateSource()
     {
-      object newValue;
-      if (!ConvertBack(_targetDd.Value, _sourceDd.DataType, out newValue))
+      object convertedValue;
+      if (!ConvertBack(_targetDd.Value, _sourceDd.DataType, out convertedValue))
         return;
+      if (ReferenceEquals(_targetDd.Value, convertedValue))
+        convertedValue = MpfCopyManager.DeepCopyCutLVPs(convertedValue);
       if (_sourceObject != null)
-        _sourceObject.SetBindingValue(_sourceDd, newValue);
+        _sourceObject.SetBindingValue(_sourceDd, convertedValue);
       else
-      _sourceDd.Value = newValue;
+      _sourceDd.Value = convertedValue;
     }
 
     public void UpdateTarget()
     {
-      object newValue;
-      if (!Convert(_sourceDd.Value, _targetDd.DataType, out newValue))
+      object convertedValue;
+      if (!Convert(_sourceDd.Value, _targetDd.DataType, out convertedValue))
         return;
+      if (ReferenceEquals(_sourceDd.Value, convertedValue))
+        convertedValue = MpfCopyManager.DeepCopyCutLVPs(convertedValue);
       if (_targetObject != null)
-        _targetObject.SetBindingValue(_targetDd, newValue);
+        _targetObject.SetBindingValue(_targetDd, convertedValue);
       else
-        _targetDd.Value = newValue;
+        _targetDd.Value = convertedValue;
     }
   }
 }

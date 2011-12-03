@@ -25,6 +25,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Net;
 using System.Text;
 using System.Xml;
@@ -175,9 +176,7 @@ namespace UPnP.Infrastructure.Dv.SOAP
           result = CreateFaultDocument(501, "Action Failed");
           return HttpStatusCode.InternalServerError;
         }
-        IList<OutParameter> outParams = new List<OutParameter>();
-        for (int i = 0; i < formalArguments.Count; i++)
-          outParams.Add(new OutParameter(formalArguments[i], outParameterValues[i]));
+        IList<OutParameter> outParams = formalArguments.Select((t, i) => new OutParameter(t, outParameterValues[i])).ToList();
         result = CreateResultDocument(action, outParams, !subscriberSupportsUPnP11);
         return HttpStatusCode.OK;
       }
@@ -192,7 +191,8 @@ namespace UPnP.Infrastructure.Dv.SOAP
     protected static string CreateResultDocument(DvAction action, IList<OutParameter> outParameters, bool forceSimpleValues)
     {
       StringBuilder result = new StringBuilder(2000);
-      using (XmlWriter writer = XmlWriter.Create(new StringWriterWithEncoding(result, Encoding.UTF8), UPnPConfiguration.DEFAULT_XML_WRITER_SETTINGS))
+      using (StringWriterWithEncoding stringWriter = new StringWriterWithEncoding(result, Encoding.UTF8))
+      using (XmlWriter writer = XmlWriter.Create(stringWriter, UPnPConfiguration.DEFAULT_XML_WRITER_SETTINGS))
       {
         SoapHelper.WriteSoapEnvelopeStart(writer, true);
         writer.WriteStartElement("u", action.Name + "Response", action.ParentService.ServiceTypeVersion_URN);
@@ -211,7 +211,8 @@ namespace UPnP.Infrastructure.Dv.SOAP
     public static string CreateFaultDocument(uint errorCode, string errorDescription)
     {
       StringBuilder result = new StringBuilder(2000);
-      using (XmlWriter writer = XmlWriter.Create(new StringWriterWithEncoding(result, Encoding.UTF8), UPnPConfiguration.DEFAULT_XML_WRITER_SETTINGS))
+      using (StringWriterWithEncoding stringWriter = new StringWriterWithEncoding(result, Encoding.UTF8))
+      using (XmlWriter writer = XmlWriter.Create(stringWriter, UPnPConfiguration.DEFAULT_XML_WRITER_SETTINGS))
       {
         SoapHelper.WriteSoapEnvelopeStart(writer, false);
         writer.WriteStartElement("Fault", UPnPConsts.NS_SOAP_ENVELOPE);

@@ -55,12 +55,6 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Shapes
       Attach();
     }
 
-    public override void Dispose()
-    {
-      base.Dispose();
-      Detach();
-    }
-
     void Init()
     {
       _x1Property = new SProperty(typeof(double), 0.0);
@@ -155,7 +149,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Shapes
           float centerY;
           TriangulateHelper.CalcCentroid(path, out centerX, out centerY);
           PositionColoredTextured[] verts;
-          TriangulateHelper.FillPolygon_TriangleList(path, centerX, centerY, out verts);
+          TriangulateHelper.FillPolygon_TriangleList(path, centerX, centerY, 1, out verts);
 
           Stroke.SetupBrush(this, ref verts, context.ZOrder, true);
           PrimitiveBuffer.SetPrimitiveBuffer(ref _strokeContext, ref verts, PrimitiveType.TriangleList);
@@ -167,7 +161,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Shapes
 
     protected override SizeF CalculateInnerDesiredSize(SizeF totalSize)
     {
-      using (GraphicsPath p = GetLine(new RectangleF(0, 0, 0, 0)))
+      using (GraphicsPath p = GetLine(new RectangleF(new PointF(0, 0), totalSize)))
       {
         RectangleF bounds = p.GetBounds();
 
@@ -199,6 +193,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Shapes
       {
         matrix.RotateAt(ang, new PointF(x1, y1), MatrixOrder.Append);
         matrix.Translate(baseRect.X, baseRect.Y, MatrixOrder.Append);
+        RectangleF bounds = mPath.GetBounds(matrix);
+        matrix.Scale(baseRect.Width / bounds.Width, baseRect.Height / bounds.Height);
         mPath.Transform(matrix);
       }
       mPath.Flatten();

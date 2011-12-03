@@ -22,7 +22,7 @@
 
 #endregion
 
-using System.IO;
+using MediaPortal.Common.ResourceAccess;
 
 namespace Ui.Players.BassPlayer.Utils
 {
@@ -38,10 +38,7 @@ namespace Ui.Players.BassPlayer.Utils
     {
       if (string.IsNullOrEmpty(filePath))
         return false;
-      string ext = Path.GetExtension(filePath);
-      if (string.IsNullOrEmpty(ext))
-        return false;
-      ext = ext.ToLower();
+      string ext = DosPathHelper.GetExtension(filePath).ToLowerInvariant();
       switch (ext)
       {
         case ".mod":

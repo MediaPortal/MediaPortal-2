@@ -33,8 +33,6 @@ namespace MediaPortal.UI.SkinEngine.MpfElements.Resources
 {
   public class Include : NameScope, IInclude, IInitializable, IDisposable
   {
-    public const string KEY_ACTIVATE_BINDINGS = "ActivateBindings";
-
     #region Protected fields
 
     protected object _content = null;
@@ -105,9 +103,7 @@ namespace MediaPortal.UI.SkinEngine.MpfElements.Resources
       string includeFilePath = SkinContext.SkinResources.GetResourceFilePath(_includeName);
       if (includeFilePath == null)
         throw new XamlLoadException("Include: Could not open include file '{0}' (evaluated path is '{1}')", _includeName, includeFilePath);
-      _content = XamlLoader.Load(includeFilePath,
-          (IModelLoader) context.GetContextVariable(typeof(IModelLoader)),
-          (bool) context.GetContextVariable(KEY_ACTIVATE_BINDINGS));
+      _content = XamlLoader.Load(includeFilePath, (IModelLoader) context.GetContextVariable(typeof(IModelLoader)));
       if (_content is UIElement)
       {
         UIElement target = (UIElement) _content;

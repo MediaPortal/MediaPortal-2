@@ -23,10 +23,9 @@
 #endregion
 
 using System;
-using System.IO;
 using System.Threading;
 using MediaPortal.Common;
-using MediaPortal.Common.MediaManagement.ResourceAccess;
+using MediaPortal.Common.ResourceAccess;
 using MediaPortal.Common.Settings;
 using MediaPortal.UI.Players.Picture.Settings;
 using MediaPortal.UI.Presentation.Players;
@@ -76,11 +75,7 @@ namespace MediaPortal.UI.Players.Picture
 
     public void Dispose()
     {
-      if (_slideShowTimer != null)
-      {
-        _slideShowTimer.Dispose();
-        _slideShowTimer = null;
-      }
+      DisposeTimer();
     }
 
     #region Protected members
@@ -150,7 +145,10 @@ namespace MediaPortal.UI.Players.Picture
       lock (_syncObj)
         if (_slideShowTimer != null)
         {
-          _slideShowTimer.Dispose();
+          WaitHandle notifyObject = new ManualResetEvent(false);
+          _slideShowTimer.Dispose(notifyObject);
+          notifyObject.WaitOne();
+          notifyObject.Close();
           _slideShowTimer = null;
         }
     }
@@ -209,7 +207,7 @@ namespace MediaPortal.UI.Players.Picture
         return false;
 
       IResourceAccessor accessor = locator.CreateAccessor();
-      string ext = StringUtils.TrimToEmpty(Path.GetExtension(accessor.ResourcePathName)).ToLowerInvariant();
+      string ext = StringUtils.TrimToEmpty(DosPathHelper.GetExtension(accessor.ResourcePathName)).ToLowerInvariant();
 
       PicturePlayerSettings settings = ServiceRegistration.Get<ISettingsManager>().Load<PicturePlayerSettings>();
       return settings.SupportedExtensions.IndexOf(ext) > -1;

@@ -25,7 +25,6 @@
 using System;
 using System.Collections.Generic;
 using System.Drawing;
-using MediaPortal.Common;
 using MediaPortal.UI.SkinEngine.ContentManagement;
 using MediaPortal.UI.SkinEngine.DirectX;
 using MediaPortal.UI.SkinEngine.SkinManagement;
@@ -237,12 +236,12 @@ namespace MediaPortal.UI.SkinEngine.Rendering
     public bool StartRenderTransition(RenderContext renderContext, float mixValue, ImageContext startContext, int borderColor, Vector4 startFrameData, Vector4 endFrameData)
     {
       if (_effectTransition == null)
-        _effectTransition = ServiceRegistration.Get<ContentManager>().GetEffect(GetTransitionEffectName());
+        _effectTransition = ContentManager.Instance.GetEffect(GetTransitionEffectName());
       if (_lastTexture == null || _effectTransition == null)
         return false;
 
       // Apply effect parameters    
-      _effectTransition.Parameters[PARAM_OPACITY] = (float)renderContext.Opacity;
+      _effectTransition.Parameters[PARAM_OPACITY] = (float) renderContext.Opacity;
       _effectTransition.Parameters[PARAM_BRUSH_TRANSFORM] = _imageTransform;
       _effectTransition.Parameters[PARAM_FRAME_DATA] = endFrameData;
       _effectTransition.Parameters[PARAM_MIX_AB] = mixValue;
@@ -355,7 +354,7 @@ namespace MediaPortal.UI.SkinEngine.Rendering
         _imageTransform = new Vector4(textureRect.X * repeatx, textureRect.Y * repeaty, repeatx, repeaty);
 
         // Build our effects
-        _effect = ServiceRegistration.Get<ContentManager>().GetEffect(GetEffectName());
+        _effect = ContentManager.Instance.GetEffect(GetEffectName());
         // The transition effect will be allocated when required
         _effectTransition = null;
 

@@ -14,8 +14,8 @@
     <Model x:Key="SlimTvSingleChannelGuide" Id="74F50A53-BEF7-415c-A240-2EC718DA8C0F"/>
 
     <!-- Contents -->
-    <!--<ResourceWrapper x:Key="Client_Element">-->
-    <ResourceWrapper x:Key="Contents_Element">
+    <!--<ControlTemplate x:Key="Client_Template">-->
+    <ControlTemplate x:Key="Contents_Template">
         <Grid x:Name="MainGrid" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" 
               DataContext="{Binding Source={StaticResource SlimTvSingleChannelGuide}}">
           
@@ -36,7 +36,8 @@
               Command="{Command PrevGroup}"/>
             <Button x:Name="NextGroupButton" Style="{StaticResource SmallButtonStyle}" Content=" &gt; "
               Command="{Command NextGroup}"/>
-            <Label x:Name="GroupNameLabel" FontSize="{ThemeResource SmallFontSize}" Content="{Binding GroupName}"/>
+            <Label x:Name="GroupNameLabel" Content="{Binding GroupName}"
+                Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}"/>
           </StackPanel>
 
         <StackPanel x:Name="Channels" Margin="20,0,20,0" Grid.Column="1" Grid.Row="0"
@@ -45,7 +46,8 @@
               Command="{Command PrevChannel}"/>
           <Button x:Name="NextChannelButton" Style="{StaticResource SmallButtonStyle}" Content=" &gt; "
               Command="{Command NextChannel}"/>
-          <Label x:Name="CurrentChannelNameLabel" FontSize="{ThemeResource SmallFontSize}" Content="{Binding ChannelName}"/>
+          <Label x:Name="CurrentChannelNameLabel" Content="{Binding ChannelName}"
+              Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}"/>
         </StackPanel>
          
         <ListView  Grid.Column="0" Grid.Row="1" Grid.ColumnSpan="2"
@@ -54,7 +56,7 @@
               ItemsSource="{Binding Path=ProgramsList}"
               SelectionChanged="{CommandStencil UpdateProgram}">
           <ListView.Resources>
-            <ResourceWrapper x:Key="Menu_Command" Resource="{Binding Path=Command}"/>
+            <CommandBridge x:Key="Menu_Command" Command="{Binding Path=Command,Mode=OneTime}"/>
           </ListView.Resources>
         </ListView>
 
@@ -67,6 +69,6 @@
           </Control>
         </GroupBox>
         </Grid>
-    </ResourceWrapper>
+    </ControlTemplate>
   </Include.Resources>
 </Include>

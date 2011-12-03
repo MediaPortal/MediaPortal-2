@@ -44,7 +44,8 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
       /// <summary>
       /// Internal message to show a screen asynchronously. The screen to be shown will be given in the
       /// parameter <see cref="SCREEN"/>. A bool indicating if open dialogs should be closed will be given in the
-      /// parameter <see cref="CLOSE_DIALOGS"/>.
+      /// parameter <see cref="CLOSE_DIALOGS"/>. A bool indicating if if the screen should be updated even if a screen with
+      /// the same resource name is already present will be given in the parameter <see cref="FORCE_UPDATE"/>.
       /// </summary>
       ShowScreen,
 
@@ -73,13 +74,6 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
       ReloadScreens,
 
       /// <summary>
-      /// Internal message to indicate that the current screen is about to be closed. This is sent prior to ShowScreen 
-      /// to trigger hiding events / animations while the next screen is being prepared. The parameter 
-      /// <see cref="ScreenManagerMessaging.SCREEN"/> is used to indicate which screen is being closed.
-      /// </summary>
-      ScreenClosing,
-
-      /// <summary>
       /// Internal message to switch the skin/theme. The parameters <see cref="SKIN_NAME"/> and <see cref="THEME_NAME"/> are set.
       /// </summary>
       SwitchSkinAndTheme,
@@ -88,16 +82,18 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
     // Message data
     public const string SCREEN = "Screen"; // Type Screen
     public const string CLOSE_DIALOGS = "CloseDialogs"; // Type bool
+    public const string FORCE_UPDATE = "ForceUpdate"; // Type bool
     public const string DIALOG_DATA = "DialogData"; // Type DialogData
     public const string DIALOG_INSTANCE_ID = "DialogInstanceId"; // Type Guid
     public const string CLOSE_DIALOGS_MODE = "Mode"; // Type CloseDialogsMode
     public const string SKIN_NAME = "SkinName"; // Type string
     public const string THEME_NAME = "ThemeName"; // Type string
 
-    internal static void SendMessageShowScreen(Screen screen, bool closeDialogs)
+    internal static void SendMessageShowScreen(Screen screen, bool forceUpdate, bool closeDialogs)
     {
       SystemMessage msg = new SystemMessage(MessageType.ShowScreen);
       msg.MessageData[SCREEN] = screen;
+      msg.MessageData[FORCE_UPDATE] = forceUpdate;
       msg.MessageData[CLOSE_DIALOGS] = closeDialogs;
       ServiceRegistration.Get<IMessageBroker>().Send(CHANNEL, msg);
     }
@@ -127,13 +123,6 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
     internal static void SendMessageReloadScreens()
     {
       SystemMessage msg = new SystemMessage(MessageType.ReloadScreens);
-      ServiceRegistration.Get<IMessageBroker>().Send(CHANNEL, msg);
-    }
-
-    internal static void SendMessageScreenClosing(Screen screen)
-    {
-      SystemMessage msg = new SystemMessage(MessageType.ScreenClosing);
-      msg.MessageData[SCREEN] = screen;
       ServiceRegistration.Get<IMessageBroker>().Send(CHANNEL, msg);
     }
 

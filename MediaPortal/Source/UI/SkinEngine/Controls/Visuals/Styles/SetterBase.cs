@@ -21,7 +21,9 @@
 */
 #endregion
 
+using System;
 using MediaPortal.UI.SkinEngine.MpfElements;
+using MediaPortal.UI.SkinEngine.Xaml;
 using MediaPortal.Utilities.DeepCopy;
 
 namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Styles
@@ -91,6 +93,49 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Styles
     /// <param name="element">The UI element which is used as starting point for this setter
     /// to reach the target element.</param>
     public abstract void Restore(UIElement element);
+
+    protected bool FindPropertyDescriptor(UIElement element,
+        out IDataDescriptor propertyDescriptor, out DependencyObject targetObject)
+    {
+      string targetName = TargetName;
+      propertyDescriptor = null;
+      if (string.IsNullOrEmpty(targetName))
+        targetObject = element;
+      else
+      {
+        // Search the element in "normal" namescope and in the dynamic structure via the FindElement method
+        // I think this is more than WPF does. It makes it possible to find elements instantiated
+        // by a template, for example.
+        targetObject = element.FindElementInNamescope(targetName) ??
+            element.FindElement(new NameMatcher(targetName));
+        if (targetObject == null)
+          return false;
+      }
+      string property = Property;
+      int index = property.IndexOf('.');
+      if (index != -1)
+      {
+        string propertyProvider = property.Substring(0, index);
+        string propertyName = property.Substring(index + 1);
+        DefaultAttachedPropertyDataDescriptor result;
+        if (!DefaultAttachedPropertyDataDescriptor.CreateAttachedPropertyDataDescriptor(new MpfNamespaceHandler(),
+            element, propertyProvider, propertyName, out result))
+          throw new ArgumentException(
+            string.Format("Attached property '{0}' cannot be set on element '{1}'", property, targetObject));
+        propertyDescriptor = result;
+        return true;
+      }
+      else
+      {
+        string propertyName = property;
+        IDataDescriptor result;
+        if (!ReflectionHelper.FindMemberDescriptor(targetObject, propertyName, out result))
+          throw new ArgumentException(
+              string.Format("Property '{0}' cannot be set on element '{1}'", property, targetObject));
+        propertyDescriptor = result;
+        return true;
+      }
+    }
 
     #region Base overrides
 

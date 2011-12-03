@@ -27,9 +27,9 @@
          The SortOrder is used for finer grained sorting inside a display category. We suggest to use a single, lower-case
          letter here.
 
-         The SourceState attribute is needed to tell the system in which states the action should be visible.
-         Use the state's id here. You can also use a star ("*"). In that case, the action will be shown in each
-         state.
+         The SourceStates attribute is needed to tell the system in which states the action should be visible.
+         Use the state's ids here, separated by ','. You can also use a star ("*"). In that case, the action will be
+         visible in each workflow state.
 
          The TargetState attribute must always contain an id of a valid target state where the sytem will navigate to
          when this action is executed.
@@ -39,7 +39,7 @@
         Name="Home->MyPlugin"
         DisplayCategory="z-HelloWorld"
         SortOrder="a"
-        SourceState="7F702D9C-F2DD-42da-9ED8-0BA92F07787F"
+        SourceStates="7F702D9C-F2DD-42da-9ED8-0BA92F07787F"
         TargetState="XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX"
         DisplayTitle="[MyPlugin.MenuEntry]"/>
   </MenuActions>

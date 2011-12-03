@@ -37,6 +37,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     protected AbstractProperty _contentProperty;
     protected AbstractProperty _contentTemplateProperty;
 
+    protected bool _contentPresenterInvalid = true;
+
     #endregion
 
     #region Ctor
@@ -94,33 +96,26 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 
     void OnTemplateControlChanged(AbstractProperty property, object oldValue)
     {
+      _contentPresenterInvalid = true;
       InitializeContentPresenter();
     }
 
     void OnContentChanged(AbstractProperty property, object oldValue)
     {
+      _contentPresenterInvalid = true;
       InitializeContentPresenter();
     }
 
     void OnContentAlignmentChanged(AbstractProperty property, object oldValue)
     {
+      _contentPresenterInvalid = true;
       InitializeContentPresenter();
     }
 
     void OnContentTemplateChanged(AbstractProperty property, object oldValue)
     {
+      _contentPresenterInvalid = true;
       InitializeContentPresenter();
-    }
-
-    protected void InitializeContentPresenter()
-    {
-      ContentPresenter presenter = FindContentPresenter();
-      if (presenter == null)
-        return;
-      presenter.HorizontalContentAlignment = HorizontalContentAlignment;
-      presenter.VerticalContentAlignment = VerticalContentAlignment;
-      presenter.ContentTemplate = ContentTemplate;
-      presenter.Content = Content;
     }
 
     #endregion
@@ -150,6 +145,36 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     }
 
     #endregion
+
+    protected override void OnUpdateElementState()
+    {
+      base.OnUpdateElementState();
+      if (PreparingOrRunning)
+        InitializeContentPresenter();
+    }
+
+    protected void InitializeContentPresenter()
+    {
+      if (!_contentPresenterInvalid)
+        return;
+      if (!PreparingOrRunning)
+        return;
+      _contentPresenterInvalid = false;
+      object content = Content;
+      if (content == null)
+        // In default skin, we have the constellation that a Button is used as template control inside a ListViewItem;
+        // thus the Button's ContentPresenter gets used twice: First as presenter for the Button's Content (which is null in that case)
+        // and second as presenter for the ListViewItem's Content (which is the actual content to be set).
+        // If we don't ensure that content != null, the Button resets it's ContentPresenter's Content to null
+        return;
+      ContentPresenter presenter = FindContentPresenter();
+      if (presenter == null)
+        return;
+      presenter.HorizontalContentAlignment = HorizontalContentAlignment;
+      presenter.VerticalContentAlignment = VerticalContentAlignment;
+      presenter.ContentTemplate = MpfCopyManager.DeepCopyCutLVPs(ContentTemplate); // Setting LogicalParent is not necessary because DataTemplate doesn't bind bindings
+      presenter.SetContent(MpfCopyManager.DeepCopyCutLVPs(content));
+    }
 
     protected virtual ContentPresenter FindContentPresenter()
     {

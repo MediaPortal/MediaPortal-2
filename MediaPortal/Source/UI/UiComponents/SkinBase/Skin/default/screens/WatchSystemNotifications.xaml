@@ -10,19 +10,19 @@
     <ResourceWrapper x:Key="Header_Text" Resource="[Notifications.Title]"/>
 
     <!-- Contents -->
-    <ResourceWrapper x:Key="Contents_Element">
+    <ControlTemplate x:Key="Contents_Template">
       <DockPanel LastChildFill="True"> <!-- Dummy element to absorb the data context assigned from our parent -->
         <DockPanel LastChildFill="False" Margin="50" Context="{Model 843F373D-0B4B-47ba-8DD1-0D18F00FAAD3}"> <!-- NotificationsModel -->
           <StackPanel DockPanel.Dock="Top" Orientation="Horizontal" HorizontalAlignment="Left">
             <Image DockPanel.Dock="Top" Margin="10" Source="{Binding NotificationSymbolRelFilePath}"
                 HorizontalAlignment="Center" VerticalAlignment="Center"/>
             <StackPanel DataContext="{Binding CurrentNotification}" HorizontalAlignment="Left">
-              <Label x:Name="TitleLabel" Content="{Binding Title}" Wrap="True" Margin="10"/>
+              <Label x:Name="TitleLabel" Content="{Binding Title}" Color="{ThemeResource TextColor}" Wrap="True" Margin="10"/>
             </StackPanel>
           </StackPanel>
           <StackPanel DockPanel.Dock="Top" DataContext="{Binding CurrentNotification}" HorizontalAlignment="Left">
             <Label x:Name="TextLabel" Margin="10" DockPanel.Dock="Top" Content="{Binding Text}" Wrap="True"
-                HorizontalAlignment="Left" FontSize="{ThemeResource SmallFontSize}"/>
+                HorizontalAlignment="Left" FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource TextColor}"/>
           </StackPanel>
           <Grid DockPanel.Dock="Bottom" IsVisible="{Binding !HasSubWorkflow}" HorizontalAlignment="Stretch">
             <Grid.ColumnDefinitions>
@@ -54,7 +54,7 @@
               FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource HintTextColor}"/>
         </DockPanel>
       </DockPanel>
-    </ResourceWrapper>
+    </ControlTemplate>
 
   </Include.Resources>
 </Include>

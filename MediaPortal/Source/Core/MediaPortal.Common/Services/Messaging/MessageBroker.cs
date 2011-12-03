@@ -24,6 +24,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using MediaPortal.Common.Messaging;
 
@@ -68,14 +69,7 @@ namespace MediaPortal.Common.Services.Messaging
         foreach (string channel in new List<string>(_registeredChannels.Keys))
         {
           IList<WeakReference> receivers = _registeredChannels[channel];
-          bool needCleanup = false;
-          foreach (WeakReference receiver in receivers)
-            if (receiver.Target == null)
-            {
-              needCleanup = true;
-              break;
-            }
-          if (needCleanup)
+          if (receivers.Any(receiver => receiver.Target == null))
           {
             IList<WeakReference> oldReceivers = receivers;
             _registeredChannels[channel] = receivers = new List<WeakReference>(oldReceivers.Count);

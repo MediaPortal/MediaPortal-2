@@ -4,6 +4,7 @@
     <String Name="Name" Text="Settings"/>
     <String Name="ConfigurationMainWorkflowNavigationContextDisplayLabel" Text="Settings"/>
     <String Name="MainSettings" Text="Main settings"/> <!-- 2nd Header for root configuration section -->
+    <String Name="NoSettingsInThisSection" Text="There are no settings in this section"/>
 
     <String Name="ErrorFloatingPointValue" Text="'{0}' is not a valid floating point number"/>
     <String Name="ErrorIntegerValue" Text="'{0}' is not a valid integer number"/>

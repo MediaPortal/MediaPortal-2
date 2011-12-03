@@ -30,12 +30,11 @@ using MediaPortal.Common.General;
 using MediaPortal.Common.Localization;
 using MediaPortal.Common.Logging;
 using MediaPortal.Common.Messaging;
+using System.Linq;
 using MediaPortal.UI.Control.InputManager;
 using MediaPortal.UI.SkinEngine.Controls.Visuals.Templates;
-using MediaPortal.UI.SkinEngine.Controls.Visuals.Triggers;
 using MediaPortal.UI.SkinEngine.MpfElements;
 using MediaPortal.UI.SkinEngine.SkinManagement;
-using MediaPortal.UI.SkinEngine.Xaml.Interfaces;
 using MediaPortal.Utilities;
 
 namespace MediaPortal.UI.SkinEngine.Controls.Visuals
@@ -88,6 +87,37 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
   /// <summary>
   /// Control which shows a virtual keyboard.
   /// </summary>
+  /// <remarks>
+  /// <para>
+  /// The virtual keyboard control shows a complete keyboard with several virtual keys for numbers, letters and special characters on the screen.
+  /// If <see cref="ShowVisibleText"/> is set to <c>true</c>, the control also shows the currently edited text.
+  /// </para>
+  /// <para>
+  /// The virtual keyboard control provides the handling for normal text and password text. If the
+  /// <see cref="VirtualKeyboardTextStyle.PasswordText"/> is set as text style in the settings which have been provided by the caller,
+  /// the visible text consists always of <c>'*'</c> characters.
+  /// </para>
+  /// <para>
+  /// Internally, the virtual keyboard only assembles the text characters which have been given by the virtual keyboard screen. Furthermore,
+  /// it maintains some boolean variables to control the state of modificator keys like Shift, Control, AltGr and some more keys for diacritical signs.
+  /// </para>
+  /// <para>
+  /// The "outer part" of the virtual keyboard, that means the VK frame, can be styled like other controls im MP2.
+  /// The "inner part", which contains the keys, cannot be styled.
+  /// Instead, the layouting of the actual keyboard part and the complete set of available keys is controlled by the localized virtual keyboard control
+  /// which is provided by localization plugins. This class loads the <see cref="ControlTemplate"/> of name <c>VirtualKeyboardLayout_XX</c>,
+  /// where XX is replaced by the two letter ISO language name of the current language.
+  /// If that resource is not found, we fall back to the <see cref="ControlTemplate"/> resource of name <c>VirtualKeyboardLayout</c>.
+  /// </para>
+  /// <para>
+  /// This control contains the boolean state variables for the modificator keys and the logic to control the interaction between them. For example
+  /// the shift key cannot be pressed at the same time as the caps lock key. And only one diacritical sign can be active at a time and can only be
+  /// combined with shift or caps lock. The diacritic state will be automatically be reset after a character is typed at the keyboard.
+  /// </para>
+  /// <para>
+  /// See the default virtual keyboard layout control template as an example how this control and the UI play together.
+  /// </para>
+  /// </remarks>
   public class VirtualKeyboardControl : Control
   {
     #region Consts
@@ -107,6 +137,26 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     protected AbstractProperty _shiftStateProperty = new SProperty(typeof(bool), false);
     protected AbstractProperty _capsLockStateProperty = new SProperty(typeof(bool), false);
     protected AbstractProperty _altGrStateProperty = new SProperty(typeof(bool), false);
+    protected AbstractProperty _diacritic1StateProperty = new SProperty(typeof(bool), false);
+    protected AbstractProperty _diacritic2StateProperty = new SProperty(typeof(bool), false);
+    protected AbstractProperty _diacritic3StateProperty = new SProperty(typeof(bool), false);
+    protected AbstractProperty _diacritic4StateProperty = new SProperty(typeof(bool), false);
+    protected AbstractProperty _diacritic5StateProperty = new SProperty(typeof(bool), false);
+    protected AbstractProperty _diacritic6StateProperty = new SProperty(typeof(bool), false);
+    protected AbstractProperty _diacritic7StateProperty = new SProperty(typeof(bool), false);
+    protected AbstractProperty _diacritic8StateProperty = new SProperty(typeof(bool), false);
+    protected AbstractProperty _diacritic9StateProperty = new SProperty(typeof(bool), false);
+    protected AbstractProperty _diacritic10StateProperty = new SProperty(typeof(bool), false);
+    protected AbstractProperty _diacritic11StateProperty = new SProperty(typeof(bool), false);
+    protected AbstractProperty _diacritic12StateProperty = new SProperty(typeof(bool), false);
+    protected AbstractProperty _diacritic13StateProperty = new SProperty(typeof(bool), false);
+    protected AbstractProperty _diacritic14StateProperty = new SProperty(typeof(bool), false);
+    protected AbstractProperty _diacritic15StateProperty = new SProperty(typeof(bool), false);
+
+    // Will be automtically set if one diacritic is active
+    protected AbstractProperty _diacriticActiveProperty = new SProperty(typeof(bool), false);
+
+    protected ICollection<AbstractProperty> _diacriticProperties;
 
     #endregion
 
@@ -114,6 +164,24 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 
     public VirtualKeyboardControl()
     {
+      _diacriticProperties = new List<AbstractProperty>
+        {
+            _diacritic1StateProperty,
+            _diacritic2StateProperty,
+            _diacritic3StateProperty,
+            _diacritic4StateProperty,
+            _diacritic5StateProperty,
+            _diacritic6StateProperty,
+            _diacritic7StateProperty,
+            _diacritic8StateProperty,
+            _diacritic9StateProperty,
+            _diacritic10StateProperty,
+            _diacritic11StateProperty,
+            _diacritic12StateProperty,
+            _diacritic13StateProperty,
+            _diacritic14StateProperty,
+            _diacritic15StateProperty,
+        };
       IsVisible = false;
       Attach();
       SubscribeToMessages();
@@ -129,6 +197,9 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     {
       _shiftStateProperty.Attach(OnShiftStateChanged);
       _capsLockStateProperty.Attach(OnCapsLockStateChanged);
+      _altGrStateProperty.Attach(OnAltGrStateChanged);
+      foreach (AbstractProperty property in _diacriticProperties)
+        property.Attach(OnDiacriticStateChanged);
     }
 
     // Not used
@@ -136,6 +207,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     //{
     //  _shiftStateProperty.Detach(OnShiftStateChanged);
     //  _capsLockStateProperty.Detach(OnCapsLockStateChanged);
+    //  foreach (AbstractProperty property in _diacriticProperties)
+    //    property.Detach(OnDiacriticStateChanged);
     //}
 
     #endregion
@@ -150,6 +223,27 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     {
       if (CapsLockState)
         ShiftState = false;
+    }
+
+    void OnAltGrStateChanged(AbstractProperty prop, object oldVal)
+    {
+        // Diacritics and Alt Gr cannot be set at the same time
+      if (AltGrState)
+        ResetDiacritics(null);
+    }
+
+    void OnDiacriticStateChanged(AbstractProperty prop, object oldVal)
+    {
+      if ((bool) prop.GetValue())
+      {
+        // Only one diacritic can be active at a time (is this correct for all languages? -> if not, this algorithm has to be changed)
+        ResetDiacritics(prop);
+        // Diacritics and Alt Gr cannot be set at the same time
+        AltGrState = false;
+        DiacriticActive = true;
+      }
+      else
+        DiacriticActive = CheckDiacriticActive();
     }
 
     void SubscribeToMessages()
@@ -285,6 +379,250 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       set { _altGrStateProperty.SetValue(value); }
     }
 
+    #region Diacritics
+
+    public AbstractProperty Diacritic1StateProperty
+    {
+      get { return _diacritic1StateProperty; }
+    }
+
+    /// <summary>
+    /// Gets or sets the current state of the keyboard modificator key for the diacritic 1.
+    /// This property doesn't change any internal processing, it is only an indicator for the GUI to display other keys.
+    /// </summary>
+    public bool Diacritic1State
+    {
+      get { return (bool) _diacritic1StateProperty.GetValue(); }
+      set { _diacritic1StateProperty.SetValue(value); }
+    }
+
+    public AbstractProperty Diacritic2StateProperty
+    {
+      get { return _diacritic2StateProperty; }
+    }
+
+    /// <summary>
+    /// Gets or sets the current state of the keyboard modificator key for the diacritic 2.
+    /// This property doesn't change any internal processing, it is only an indicator for the GUI to display other keys.
+    /// </summary>
+    public bool Diacritic2State
+    {
+      get { return (bool) _diacritic2StateProperty.GetValue(); }
+      set { _diacritic2StateProperty.SetValue(value); }
+    }
+
+    public AbstractProperty Diacritic3StateProperty
+    {
+      get { return _diacritic3StateProperty; }
+    }
+
+    /// <summary>
+    /// Gets or sets the current state of the keyboard modificator key for the diacritic 3.
+    /// This property doesn't change any internal processing, it is only an indicator for the GUI to display other keys.
+    /// </summary>
+    public bool Diacritic3State
+    {
+      get { return (bool) _diacritic3StateProperty.GetValue(); }
+      set { _diacritic3StateProperty.SetValue(value); }
+    }
+
+    public AbstractProperty Diacritic4StateProperty
+    {
+      get { return _diacritic4StateProperty; }
+    }
+
+    /// <summary>
+    /// Gets or sets the current state of the keyboard modificator key for the diacritic 4.
+    /// This property doesn't change any internal processing, it is only an indicator for the GUI to display other keys.
+    /// </summary>
+    public bool Diacritic4State
+    {
+      get { return (bool) _diacritic4StateProperty.GetValue(); }
+      set { _diacritic4StateProperty.SetValue(value); }
+    }
+
+    public AbstractProperty Diacritic5StateProperty
+    {
+      get { return _diacritic5StateProperty; }
+    }
+
+    /// <summary>
+    /// Gets or sets the current state of the keyboard modificator key for the diacritic 5.
+    /// This property doesn't change any internal processing, it is only an indicator for the GUI to display other keys.
+    /// </summary>
+    public bool Diacritic5State
+    {
+      get { return (bool) _diacritic5StateProperty.GetValue(); }
+      set { _diacritic5StateProperty.SetValue(value); }
+    }
+
+    public AbstractProperty Diacritic6StateProperty
+    {
+      get { return _diacritic6StateProperty; }
+    }
+
+    /// <summary>
+    /// Gets or sets the current state of the keyboard modificator key for the diacritic 6.
+    /// This property doesn't change any internal processing, it is only an indicator for the GUI to display other keys.
+    /// </summary>
+    public bool Diacritic6State
+    {
+      get { return (bool) _diacritic6StateProperty.GetValue(); }
+      set { _diacritic6StateProperty.SetValue(value); }
+    }
+
+    public AbstractProperty Diacritic7StateProperty
+    {
+      get { return _diacritic7StateProperty; }
+    }
+
+    /// <summary>
+    /// Gets or sets the current state of the keyboard modificator key for the diacritic 7.
+    /// This property doesn't change any internal processing, it is only an indicator for the GUI to display other keys.
+    /// </summary>
+    public bool Diacritic7State
+    {
+      get { return (bool) _diacritic7StateProperty.GetValue(); }
+      set { _diacritic7StateProperty.SetValue(value); }
+    }
+
+    public AbstractProperty Diacritic8StateProperty
+    {
+      get { return _diacritic8StateProperty; }
+    }
+
+    /// <summary>
+    /// Gets or sets the current state of the keyboard modificator key for the diacritic 8.
+    /// This property doesn't change any internal processing, it is only an indicator for the GUI to display other keys.
+    /// </summary>
+    public bool Diacritic8State
+    {
+      get { return (bool) _diacritic8StateProperty.GetValue(); }
+      set { _diacritic8StateProperty.SetValue(value); }
+    }
+
+    public AbstractProperty Diacritic9StateProperty
+    {
+      get { return _diacritic9StateProperty; }
+    }
+
+    /// <summary>
+    /// Gets or sets the current state of the keyboard modificator key for the diacritic 9.
+    /// This property doesn't change any internal processing, it is only an indicator for the GUI to display other keys.
+    /// </summary>
+    public bool Diacritic9State
+    {
+      get { return (bool) _diacritic9StateProperty.GetValue(); }
+      set { _diacritic9StateProperty.SetValue(value); }
+    }
+
+    public AbstractProperty Diacritic10StateProperty
+    {
+      get { return _diacritic10StateProperty; }
+    }
+
+    /// <summary>
+    /// Gets or sets the current state of the keyboard modificator key for the diacritic 10.
+    /// This property doesn't change any internal processing, it is only an indicator for the GUI to display other keys.
+    /// </summary>
+    public bool Diacritic10State
+    {
+      get { return (bool) _diacritic10StateProperty.GetValue(); }
+      set { _diacritic10StateProperty.SetValue(value); }
+    }
+
+    public AbstractProperty Diacritic11StateProperty
+    {
+      get { return _diacritic11StateProperty; }
+    }
+
+    /// <summary>
+    /// Gets or sets the current state of the keyboard modificator key for the diacritic 11.
+    /// This property doesn't change any internal processing, it is only an indicator for the GUI to display other keys.
+    /// </summary>
+    public bool Diacritic11State
+    {
+      get { return (bool) _diacritic11StateProperty.GetValue(); }
+      set { _diacritic11StateProperty.SetValue(value); }
+    }
+
+    public AbstractProperty Diacritic12StateProperty
+    {
+      get { return _diacritic12StateProperty; }
+    }
+
+    /// <summary>
+    /// Gets or sets the current state of the keyboard modificator key for the diacritic 12.
+    /// This property doesn't change any internal processing, it is only an indicator for the GUI to display other keys.
+    /// </summary>
+    public bool Diacritic12State
+    {
+      get { return (bool) _diacritic12StateProperty.GetValue(); }
+      set { _diacritic12StateProperty.SetValue(value); }
+    }
+
+    public AbstractProperty Diacritic13StateProperty
+    {
+      get { return _diacritic13StateProperty; }
+    }
+
+    /// <summary>
+    /// Gets or sets the current state of the keyboard modificator key for the diacritic 13.
+    /// This property doesn't change any internal processing, it is only an indicator for the GUI to display other keys.
+    /// </summary>
+    public bool Diacritic13State
+    {
+      get { return (bool) _diacritic13StateProperty.GetValue(); }
+      set { _diacritic13StateProperty.SetValue(value); }
+    }
+
+    public AbstractProperty Diacritic14StateProperty
+    {
+      get { return _diacritic14StateProperty; }
+    }
+
+    /// <summary>
+    /// Gets or sets the current state of the keyboard modificator key for the diacritic 14.
+    /// This property doesn't change any internal processing, it is only an indicator for the GUI to display other keys.
+    /// </summary>
+    public bool Diacritic14State
+    {
+      get { return (bool) _diacritic14StateProperty.GetValue(); }
+      set { _diacritic14StateProperty.SetValue(value); }
+    }
+
+    public AbstractProperty Diacritic15StateProperty
+    {
+      get { return _diacritic15StateProperty; }
+    }
+
+    /// <summary>
+    /// Gets or sets the current state of the keyboard modificator key for the diacritic 15.
+    /// This property doesn't change any internal processing, it is only an indicator for the GUI to display other keys.
+    /// </summary>
+    public bool Diacritic15State
+    {
+      get { return (bool) _diacritic15StateProperty.GetValue(); }
+      set { _diacritic15StateProperty.SetValue(value); }
+    }
+
+    public AbstractProperty DiacriticActiveProperty
+    {
+      get { return _diacriticActiveProperty; }
+    }
+
+    /// <summary>
+    /// Gets or sets an indicator which is <c>true</c> if and only if a diacritic state is set.
+    /// This is a convenience property to make the styling easier. It's state is automatically updated by this class.
+    /// </summary>
+    public bool DiacriticActive
+    {
+      get { return (bool) _diacriticActiveProperty.GetValue(); }
+      internal set { _diacriticActiveProperty.SetValue(value); }
+    }
+
+    #endregion
+
     /// <summary>
     /// Adds a character at the end of the edited text.
     /// </summary>
@@ -293,6 +631,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     {
       Text += character;
       ShiftState = false;
+      ResetDiacritics(null);
     }
 
     /// <summary>
@@ -339,10 +678,24 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       FireClosed();
     }
 
+    protected bool CheckDiacriticActive()
+    {
+      return _diacriticProperties.Any(property => (bool) property.GetValue());
+    }
+
     protected void InitializeStates()
     {
       ShiftState = false;
       AltGrState = false;
+      CapsLockState = false;
+      ResetDiacritics(null);
+    }
+
+    protected void ResetDiacritics(AbstractProperty exceptThis)
+    {
+      foreach (AbstractProperty property in _diacriticProperties)
+        if (!ReferenceEquals(property, exceptThis))
+          property.SetValue(false);
     }
 
     protected void FireClosed()
@@ -361,24 +714,29 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     protected ControlTemplate FindKeyboardLayout(CultureInfo culture)
     {
       // Try culture specific keyboard layouts
-      ControlTemplate result = FindResourceInTheme(VIRTUAL_KEYBOARD_RESOURCE_PREFIX + '_' + culture.TwoLetterISOLanguageName) as ControlTemplate;
+      object o = FindResourceInTheme(VIRTUAL_KEYBOARD_RESOURCE_PREFIX + '_' + culture.TwoLetterISOLanguageName, false);
+      ControlTemplate result = o as ControlTemplate;
       if (result != null)
         return result;
+      if (o != null)
+        MPF.TryCleanupAndDispose(o);
       if (!culture.IsNeutralCulture)
         return FindKeyboardLayout(culture.Parent);
       // Fallback: Take default keyboard
-      return FindResourceInTheme(VIRTUAL_KEYBOARD_RESOURCE_PREFIX) as ControlTemplate;
+      o = FindResourceInTheme(VIRTUAL_KEYBOARD_RESOURCE_PREFIX, false);
+      result = o as ControlTemplate;
+      if (result == null && o != null)
+        MPF.TryCleanupAndDispose(o);
+      return result;
     }
 
-    protected object FindResourceInTheme(string resourceKey)
+    protected object FindResourceInTheme(string resourceKey, bool activateBindings)
     {
       object result = SkinContext.SkinResources.FindStyleResource(resourceKey);
       if (result == null)
         return null;
-      IEnumerable<IBinding> deferredBindings; // Don't execute bindings in copy
-      // See comment about the copying in StaticResourceBase.FindResourceInParserContext()
-      result = MpfCopyManager.DeepCopyCutLP(result, out deferredBindings);
-      MpfCopyManager.ActivateBindings(deferredBindings);
+      // See comment about the copying in ResourceDictionary.FindResourceInParserContext()
+      result = MpfCopyManager.DeepCopyCutLVPs(result);
       return result;
     }
 
@@ -399,13 +757,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
         ServiceRegistration.Get<ILogger>().Warn("VirtualKeyboardControl: Could not find style resource for virtual keyboard");
         return;
       }
-      FinishBindingsDlgt finishDlgt;
-      IList<TriggerBase> triggers;
-      FrameworkElement keyboardControl = keyboardLayout.LoadContent(out triggers, out finishDlgt) as FrameworkElement;
-      UninitializeTriggers();
-      CollectionUtils.AddAll(Triggers, triggers);
+      FrameworkElement keyboardControl = keyboardLayout.LoadContent(this) as FrameworkElement;
       presenter.SetKeyboardLayoutControl(this, keyboardControl);
-      finishDlgt();
     }
 
     protected override void ArrangeTemplateControl()

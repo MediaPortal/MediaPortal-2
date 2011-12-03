@@ -36,7 +36,7 @@
           <Control Style="{ThemeResource OSDContainer}" Width="800" DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}"
                    Margin="10">
             <Control.Resources>
-              <ResourceWrapper x:Key="OSD_InfoArea_Element">
+              <ControlTemplate x:Key="OSD_InfoArea_Template">
 
                 <Grid x:Name="PlayerGrid" Margin="10,0,10,0"
                 HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
@@ -80,14 +80,14 @@
                       <Grid.RowDefinitions>
                         <RowDefinition Height="*"/>
                       </Grid.RowDefinitions>
-                      <Label x:Name="VideoName" Content="{Binding Path=MediaItemTitle}" Scroll="Auto"
-                      HorizontalAlignment="Left" VerticalAlignment="Center"/>
+                      <Label x:Name="VideoName" Content="{Binding Path=MediaItemTitle}" Color="{ThemeResource TextColor}"
+                          Scroll="Auto" HorizontalAlignment="Left" VerticalAlignment="Center"/>
                     </Grid>
                   </DockPanel>
                 </Grid>
-              </ResourceWrapper>
+              </ControlTemplate>
 
-              <ResourceWrapper x:Key="OSD_ProgressAndControls_Element">
+              <ControlTemplate x:Key="OSD_ProgressAndControls_Template">
 
                 <DockPanel LastChildFill="true" Margin="3">
                   <Grid DockPanel.Dock="Center" HorizontalAlignment="Stretch">
@@ -102,7 +102,8 @@
                     </Grid.RowDefinitions>
 
                     <Label x:Name="CurrentTimeLabel" Grid.Column="0" Grid.Row="0"  Content="{Binding CurrentTime}"
-                           FontSize="{ThemeResource SmallFontSize}"/>
+                        Color="{ThemeResource TextColor}"
+                        FontSize="{ThemeResource SmallFontSize}"/>
 
                     <Border x:Name="BgProgressbar" Grid.Row="0" Grid.Column="1"
                       HorizontalAlignment="Stretch" VerticalAlignment="Center"
@@ -118,40 +119,42 @@
                     </Border>
 
                     <Label x:Name="VideoDurationLabel" Grid.Column="2" Grid.Row="0" 
-                      Content="{Binding Duration}" 
-                      HorizontalAlignment="Right" VerticalAlignment="Center"
-                      FontSize="{ThemeResource SmallFontSize}"/>
+                        Content="{Binding Duration}" 
+                        HorizontalAlignment="Right" VerticalAlignment="Center"
+                        Color="{ThemeResource TextColor}"
+                        FontSize="{ThemeResource SmallFontSize}"/>
 
 
                     <Label x:Name="PlayerStateLabel" Grid.Column="0" Grid.Row="1" HorizontalAlignment="Left"
-                    Content="{Binding PlayerStateText}" Scroll="Auto" FontSize="{ThemeResource SmallFontSize}"/>
+                        Content="{Binding PlayerStateText}" Scroll="Auto"
+                        Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}"/>
 
                     <StackPanel x:Name="PlayControlsPanel" Orientation="Horizontal" Grid.Column="1" Grid.Row="1" Margin="0"
-                  VerticalAlignment="Center" HorizontalAlignment="Center" IsVisible="{Binding ShowMouseControls}" >
+                        VerticalAlignment="Center" HorizontalAlignment="Center" IsVisible="{Binding ShowMouseControls}" >
                       <Button x:Name="SkipBackButton" Style="{ThemeResource SkipBackButtonStyle}" Margin="5,0,5,0" IsVisible="{Binding CanSkipBack}"
-                    Command="{Command Previous}"/>
+                          Command="{Command Previous}"/>
                       <Button x:Name="RewindButton" Style="{ThemeResource RewindButtonStyle}" Margin="5,0,5,0" IsVisible="{Binding CanSeekBackward}"
-                    Command="{Command SeekBackward}"/>
+                          Command="{Command SeekBackward}"/>
                       <Button x:Name="PlayButton" Style="{ThemeResource PlayButtonStyle}" Margin="5,0,5,0" IsVisible="{Binding CanPlay}"
-                    Command="{Command Play}"/>
+                          Command="{Command Play}"/>
                       <Button x:Name="PauseButton" Style="{ThemeResource PauseButtonStyle}" Margin="5,0,5,0" IsVisible="{Binding CanPause}"
-                    Command="{Command Pause}"/>
+                          Command="{Command Pause}"/>
                       <Button x:Name="StopButton" Style="{ThemeResource StopButtonStyle}" Margin="5,0,5,0" IsVisible="{Binding CanStop}"
-                    Command="{Command Stop}"/>
+                          Command="{Command Stop}"/>
                       <Button x:Name="ForwardButton" Style="{ThemeResource ForwardButtonStyle}" Margin="5,0,5,0" IsVisible="{Binding CanSeekForward}"
-                    Command="{Command SeekForward}"/>
+                          Command="{Command SeekForward}"/>
                       <Button x:Name="SkipForwardButton" Style="{ThemeResource SkipForwardButtonStyle}" Margin="5,0,5,0" IsVisible="{Binding CanSkipForward}"
-                    Command="{Command Next}"/>
-                      <Button x:Name="SelectSubtitleButton" Style="{ThemeResource SelectSubtitleButtonStyle}" Margin="5,0,5,0" 
-                    IsVisible="{Binding Source={StaticResource VideoPlayerModel},Path=PlayerUIContributor.SubtitlesAvailable}"
-                    Command="{Command Source={StaticResource VideoPlayerModel},Path=PlayerUIContributor.OpenChooseSubtitleDialog}"/>
+                          Command="{Command Next}"/>
+                      <Button x:Name="SelectSubtitleButton" Style="{ThemeResource SelectSubtitleButtonStyle}" Margin="5,0,5,0"
+                          IsVisible="{Binding Source={StaticResource VideoPlayerModel},Path=PlayerUIContributor.SubtitlesAvailable}"
+                          Command="{Command Source={StaticResource VideoPlayerModel},Path=PlayerUIContributor.OpenChooseSubtitleDialog}"/>
 
                     </StackPanel>
                     <!-- PlayControlsPanel -->
                   </Grid>
                   <!-- PlayerGrid -->
                 </DockPanel>
-              </ResourceWrapper>
+              </ControlTemplate>
             </Control.Resources>
           </Control>
           <ControlTemplate.Triggers>
@@ -181,7 +184,7 @@
           <Control Style="{ThemeResource OSDContainer}" Width="800" DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}"
                    Margin="10">
             <Control.Resources>
-              <ResourceWrapper x:Key="OSD_InfoArea_Element">
+              <ControlTemplate x:Key="OSD_InfoArea_Template">
 
                 <Grid x:Name="PlayerGrid" Margin="10,0,10,0"
                 HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
@@ -225,14 +228,14 @@
                       <Grid.RowDefinitions>
                         <RowDefinition Height="*"/>
                       </Grid.RowDefinitions>
-                      <Label x:Name="VideoName" Content="{Binding Path=MediaItemTitle}" Scroll="Auto"
-                      HorizontalAlignment="Left" VerticalAlignment="Center"/>
+                      <Label x:Name="VideoName" Content="{Binding Path=MediaItemTitle}" Color="{ThemeResource TextColor}"
+                          Scroll="Auto" HorizontalAlignment="Left" VerticalAlignment="Center"/>
                     </Grid>
                   </DockPanel>
                 </Grid>
-              </ResourceWrapper>
+              </ControlTemplate>
 
-              <ResourceWrapper x:Key="OSD_ProgressAndControls_Element">
+              <ControlTemplate x:Key="OSD_ProgressAndControls_Template">
 
                 <DockPanel LastChildFill="true" Margin="3">
                   <Grid DockPanel.Dock="Center" HorizontalAlignment="Stretch">
@@ -247,7 +250,7 @@
                     </Grid.RowDefinitions>
 
                     <Label x:Name="CurrentTimeLabel" Grid.Column="0" Grid.Row="0"  Content="{Binding CurrentTime}"
-                           FontSize="{ThemeResource SmallFontSize}"/>
+                        Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}"/>
 
                     <Border x:Name="BgProgressbar" Grid.Row="0" Grid.Column="1"
                       HorizontalAlignment="Stretch" VerticalAlignment="Center"
@@ -263,13 +266,15 @@
                     </Border>
 
                     <Label x:Name="VideoDurationLabel" Grid.Column="2" Grid.Row="0" 
-                      Content="{Binding Duration}" 
-                      HorizontalAlignment="Right" VerticalAlignment="Center"
-                      FontSize="{ThemeResource SmallFontSize}"/>
+                        Content="{Binding Duration}" 
+                        HorizontalAlignment="Right" VerticalAlignment="Center"
+                        Color="{ThemeResource TextColor}"
+                        FontSize="{ThemeResource SmallFontSize}"/>
 
 
                     <Label x:Name="PlayerStateLabel" Grid.Column="0" Grid.Row="1" HorizontalAlignment="Left"
-                    Content="{Binding PlayerStateText}" Scroll="Auto" FontSize="{ThemeResource SmallFontSize}"/>
+                        Content="{Binding PlayerStateText}" Scroll="Auto"
+                        Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}"/>
 
                     <StackPanel x:Name="PlayControlsPanel" Orientation="Horizontal" Grid.Column="1" Grid.Row="1" Margin="0"
                   VerticalAlignment="Center" HorizontalAlignment="Center" IsVisible="{Binding ShowMouseControls}" >
@@ -313,7 +318,7 @@
                   </Grid>
                   <!-- PlayerGrid -->
                 </DockPanel>
-              </ResourceWrapper>
+              </ControlTemplate>
             </Control.Resources>
           </Control>
           <ControlTemplate.Triggers>
@@ -364,7 +369,7 @@
                       VerticalAlignment="Center"/>
                 </Grid> <!-- PlayerStatePanel -->
                 <Label x:Name="PictureName" DockPanel.Dock="Center" Margin="3" Content="{Binding Path=MediaItemTitle}" Scroll="Auto"
-                    HorizontalAlignment="Left" VerticalAlignment="Center"/>
+                    Color="{ThemeResource TextColor}" HorizontalAlignment="Left" VerticalAlignment="Center"/>
               </DockPanel> <!-- HeadLine -->
               <StackPanel x:Name="PlayControlsPanel" Orientation="Horizontal" Grid.Column="0" Grid.Row="1" Margin="10,10,10,0"
                   IsVisible="{Binding ShowMouseControls}" >
@@ -468,7 +473,7 @@
                   <Grid.RowDefinitions>
                     <RowDefinition Height="*"/>
                   </Grid.RowDefinitions>
-                  <Label x:Name="MediaName" Content="{Binding Path=MediaItemTitle}" Scroll="Auto"
+                  <Label x:Name="MediaName" Content="{Binding Path=MediaItemTitle}" Color="{ThemeResource TextColor}" Scroll="Auto"
                       HorizontalAlignment="Left" VerticalAlignment="Center"
                       MaxWidth="{ThemeResource FullScreenContentVideoSecondaryPlayerOSDTextMaxWidth}"/>
                 </Grid>
@@ -494,7 +499,8 @@
                 </Button.Triggers>
               </Button> <!-- PiPButton -->
               <Label x:Name="PlayerStateLabel" Grid.Column="0" Grid.Row="2" HorizontalAlignment="Center"
-                  Content="{Binding PlayerStateText}" Scroll="Auto" MaxWidth="{ThemeResource FullScreenContentVideoSecondaryPlayerOSDTextMaxWidth}"/>
+                  Content="{Binding PlayerStateText}" Scroll="Auto" Color="{ThemeResource TextColor}"
+                  MaxWidth="{ThemeResource FullScreenContentVideoSecondaryPlayerOSDTextMaxWidth}"/>
               <StackPanel x:Name="PlayControlsPanel" Orientation="Horizontal" Grid.Column="0" Grid.Row="3" Margin="10,10,10,0"
                   VerticalAlignment="Center" HorizontalAlignment="Center" IsVisible="{Binding ShowMouseControls}" >
                 <Button x:Name="SkipBackButton" Style="{ThemeResource SkipBackButtonStyle}" Margin="5,0,5,0" IsVisible="{Binding CanSkipBack}"
@@ -590,7 +596,7 @@
           <Button x:Name="ItemButton"
               Style="{ThemeResource ButtonWideStyle}" Context="{Binding}"
               VerticalAlignment="Stretch" HorizontalAlignment="Stretch"
-              Command="{DynamicResource ResourceKey=Select_Command,TreeSearchMode=Hybrid}">
+              Command="{DynamicResource ResourceKey=Select_Command}">
             <Button.Triggers>
               <Trigger Property="HasFocus" Value="True">
                 <Setter TargetName="ItemNameLabel" Property="Scroll" Value="Auto"/>
@@ -625,17 +631,17 @@
             <Button x:Name="MoveUpButton" Grid.Column="1" Grid.Row="0" Margin="3" Width="30" Height="30"
                 VerticalAlignment="Center" HorizontalAlignment="Center"
                 Style="{ThemeResource PlaylistMoveUpButtonStyle}" Context="{Binding}"
-                Command="{DynamicResource ResourceKey=MoveUp_Command,TreeSearchMode=Hybrid}"
+                Command="{DynamicResource ResourceKey=MoveUp_Command}"
                 SetFocus="{Binding Path=AdditionalProperties[IsUpButtonFocused],Mode=OneTime}"/>
             <Button x:Name="MoveDownButton" Grid.Column="2" Grid.Row="0" Margin="3" Width="30" Height="30"
                 VerticalAlignment="Center" HorizontalAlignment="Center"
                 Style="{ThemeResource PlaylistMoveDownButtonStyle}" Context="{Binding}"
-                Command="{DynamicResource ResourceKey=MoveDown_Command,TreeSearchMode=Hybrid}"
+                Command="{DynamicResource ResourceKey=MoveDown_Command}"
                 SetFocus="{Binding Path=AdditionalProperties[IsDownButtonFocused],Mode=OneTime}"/>
             <Button x:Name="RemoveButton" Grid.Column="3" Grid.Row="0" Margin="3" Width="30" Height="30"
                 VerticalAlignment="Center" HorizontalAlignment="Center"
                 Style="{ThemeResource RemoveButtonStyle}" Context="{Binding}"
-                Command="{DynamicResource ResourceKey=Remove_Command,TreeSearchMode=Hybrid}"/>
+                Command="{DynamicResource ResourceKey=Remove_Command}"/>
           </Grid>
         </ControlTemplate>
       </Setter.Value>
@@ -692,493 +698,6 @@
     <Setter Property="ItemTemplate" Value="{ThemeResource PlaylistItemDataTemplate}"/>
     <Setter Property="DataStringProvider" Value="{ThemeResource PlaylistItemDataStringProvider}"/>
     <Setter Property="ItemContainerStyle" Value="{ThemeResource EditPlaylistItemContainerStyle}"/>
-  </Style>
-
-  <!-- Fallback data template, if data template for actual item type is not defined -->
-  <DataTemplate DataType="{x:Type navitems:NavigationItem}">
-    <Grid x:Name="ItemControl" VerticalAlignment="Center" HorizontalAlignment="Stretch">
-      <Grid.ColumnDefinitions>
-        <ColumnDefinition Width="*"/>
-        <ColumnDefinition Width="Auto"/>
-      </Grid.ColumnDefinitions>
-      <Label x:Name="ItemLabel" Grid.Column="0" Content="{Binding SimpleTitle}" FontSize="{ThemeResource SmallFontSize}"/>
-      <Label x:Name="NumItems" Grid.Column="1" Content="{Binding NumItems}" FontSize="{ThemeResource SmallFontSize}"/>
-    </Grid>
-  </DataTemplate>
-
-  <ResourceWrapper x:Key="THUMB_WIDTH_S" Resource="48"/>
-  <ResourceWrapper x:Key="THUMB_WIDTH_M" Resource="96"/>
-  <ResourceWrapper x:Key="THUMB_WIDTH_L" Resource="178"/>
-
-  <ResourceWrapper x:Key="THUMB_HEIGHT_S" Resource="27"/>
-  <ResourceWrapper x:Key="THUMB_HEIGHT_M" Resource="56"/>
-  <ResourceWrapper x:Key="THUMB_HEIGHT_L" Resource="100"/>
-
-  <ResourceWrapper x:Key="MediaDetailsColor" Resource="#FF9CB9D5"/>
-
-  <Model x:Key="LayoutManagerModel" Id="35C31826-4159-4CF9-B4F5-98DEBE04E93C"/>
-
-  <!-- 
-  Media Navigation styles   
-  We provide different control styles for thumbnail list and grid views for each navigation item (filter,audio,video,...).
-  -->
-  <!-- Filter -->
-  <ResourceWrapper x:Key="ListViewFilterItemTemplate">
-    <ControlTemplate>
-      <Grid x:Name="ItemControl" VerticalAlignment="Center" HorizontalAlignment="Stretch">
-        <Grid.ColumnDefinitions>
-          <ColumnDefinition Width="Auto"/>
-          <ColumnDefinition Width="*"/>
-          <ColumnDefinition Width="Auto"/>
-        </Grid.ColumnDefinitions>
-        <Grid.RowDefinitions>
-          <RowDefinition Height="Auto"/>
-          <RowDefinition Height="Auto"/>
-        </Grid.RowDefinitions>
-        <Grid.Resources>
-          <Model x:Key="LayoutManagerModel" Id="35C31826-4159-4CF9-B4F5-98DEBE04E93C"/>
-        </Grid.Resources>
-        <Image x:Name="ItemTypeImage" Grid.Row="0" Grid.Column="0" Grid.RowSpan="2" Stretch="Uniform" Margin="0,0,4,0">
-          <Image.Source>
-            <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} &lt; 3 ? {1} : {2}">
-              <Binding Source="{StaticResource LayoutManagerModel}" Path="ThumbnailSizeMode"/>
-              <Binding Source="Filter.png"/>
-              <Binding Source="Filter_l.png"/>
-            </MultiBinding>
-          </Image.Source>
-          <Image.Width>
-            <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}({0} == 1 ? {1} : ({0} == 2 ? {2} : {3}))">
-              <Binding Source="{StaticResource LayoutManagerModel}" Path="ThumbnailSizeMode"/>
-              <Binding Source="{StaticResource THUMB_WIDTH_S}"/>
-              <Binding Source="{StaticResource THUMB_WIDTH_M}"/>
-              <Binding Source="{StaticResource THUMB_WIDTH_L}"/>
-            </MultiBinding>
-          </Image.Width>
-          <Image.Height>
-            <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}({0} == 1 ? {1} : ({0} == 2 ? {2} : {3}))">
-              <Binding Source="{StaticResource LayoutManagerModel}" Path="ThumbnailSizeMode"/>
-              <Binding Source="{StaticResource THUMB_HEIGHT_S}"/>
-              <Binding Source="{StaticResource THUMB_HEIGHT_M}"/>
-              <Binding Source="{StaticResource THUMB_HEIGHT_L}"/>
-            </MultiBinding>
-          </Image.Height>
-        </Image>
-        <Label x:Name="ItemLabel" Grid.Row="0" Grid.Column="1" Content="{Binding SimpleTitle}" FontSize="{ThemeResource SmallFontSize}"/>
-        <Label x:Name="NumItems" Grid.Row="0" Grid.Column="2" Content="{Binding NumItems}" FontSize="{ThemeResource SmallFontSize}"/>
-      </Grid>
-    </ControlTemplate>
-  </ResourceWrapper>
-
-  <ResourceWrapper x:Key="GridViewFilterItemTemplate">
-    <ControlTemplate>
-      <Grid x:Name="ItemControl" VerticalAlignment="Center" HorizontalAlignment="Stretch">
-        <Grid.ColumnDefinitions>
-          <ColumnDefinition Width="180"/>
-        </Grid.ColumnDefinitions>
-        <Grid.RowDefinitions>
-          <RowDefinition Height="120"/>
-          <RowDefinition Height="Auto"/>
-        </Grid.RowDefinitions>
-        <Image x:Name="ItemTypeImage" Grid.Row="0" Grid.Column="0" Stretch="Uniform" Margin="0,0,0,0" Source="Filter_l.png" 
-             Width="{StaticResource THUMB_WIDTH_L}" Height="{StaticResource THUMB_HEIGHT_L}"/>
-        <Label x:Name="ItemLabel" Grid.Row="1" Grid.Column="0" Content="{Binding SimpleTitle}" FontSize="{ThemeResource SmallFontSize}"/>
-      </Grid>
-    </ControlTemplate>
-  </ResourceWrapper>
-
-  <!-- Container -->
-  <ResourceWrapper x:Key="ListViewContainerItemTemplate">
-    <ControlTemplate>
-      <Grid x:Name="ItemControl" VerticalAlignment="Center" HorizontalAlignment="Stretch">
-        <Grid.ColumnDefinitions>
-          <ColumnDefinition Width="Auto"/>
-          <ColumnDefinition Width="*"/>
-          <ColumnDefinition Width="Auto"/>
-        </Grid.ColumnDefinitions>
-        <Grid.RowDefinitions>
-          <RowDefinition Height="Auto"/>
-          <RowDefinition Height="Auto"/>
-        </Grid.RowDefinitions>
-        <Grid.Resources>
-          <Model x:Key="LayoutManagerModel" Id="35C31826-4159-4CF9-B4F5-98DEBE04E93C"/>
-        </Grid.Resources>
-        <Image x:Name="ItemTypeImage" Grid.Row="0" Grid.Column="0" Grid.RowSpan="2" Stretch="Uniform" Margin="0,0,4,0">
-          <Image.Source>
-            <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} &lt; 3 ? {1} : {2}">
-              <Binding Source="{StaticResource LayoutManagerModel}" Path="ThumbnailSizeMode"/>
-              <Binding Source="Navigation.png"/>
-              <Binding Source="Navigation_l.png"/>
-            </MultiBinding>
-          </Image.Source>
-          <Image.Width>
-            <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}({0} == 1 ? {1} : ({0} == 2 ? {2} : {3}))">
-              <Binding Source="{StaticResource LayoutManagerModel}" Path="ThumbnailSizeMode"/>
-              <Binding Source="{StaticResource THUMB_WIDTH_S}"/>
-              <Binding Source="{StaticResource THUMB_WIDTH_M}"/>
-              <Binding Source="{StaticResource THUMB_WIDTH_L}"/>
-            </MultiBinding>
-          </Image.Width>
-          <Image.Height>
-            <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}({0} == 1 ? {1} : ({0} == 2 ? {2} : {3}))">
-              <Binding Source="{StaticResource LayoutManagerModel}" Path="ThumbnailSizeMode"/>
-              <Binding Source="{StaticResource THUMB_HEIGHT_S}"/>
-              <Binding Source="{StaticResource THUMB_HEIGHT_M}"/>
-              <Binding Source="{StaticResource THUMB_HEIGHT_L}"/>
-            </MultiBinding>
-          </Image.Height>
-        </Image>
-        <Label x:Name="ItemLabel" Grid.Row="0" Grid.Column="1" Content="{Binding SimpleTitle}" FontSize="{ThemeResource SmallFontSize}"/>
-        <Label x:Name="NumItems" Grid.Row="0" Grid.Column="2" Content="{Binding NumItems}" FontSize="{ThemeResource SmallFontSize}"/>
-      </Grid>
-    </ControlTemplate>
-  </ResourceWrapper>
-
-  <ResourceWrapper x:Key="GridViewContainerItemTemplate">
-    <ControlTemplate>
-      <Grid x:Name="ItemControl" VerticalAlignment="Center" HorizontalAlignment="Stretch">
-        <Grid.ColumnDefinitions>
-          <ColumnDefinition Width="180"/>
-        </Grid.ColumnDefinitions>
-        <Grid.RowDefinitions>
-          <RowDefinition Height="120"/>
-          <RowDefinition Height="Auto"/>
-        </Grid.RowDefinitions>
-        <Image x:Name="ItemTypeImage" Grid.Row="0" Stretch="Uniform" Source="Navigation_l.png" 
-             Width="{StaticResource THUMB_WIDTH_L}" Height="{StaticResource THUMB_HEIGHT_L}"/>
-        <Label x:Name="ItemLabel" Grid.Row="1" Content="{Binding SimpleTitle}" FontSize="{ThemeResource SmallFontSize}"
-               HorizontalAlignment="Center"/>
-      </Grid>
-    </ControlTemplate>
-  </ResourceWrapper>
-
-  <!-- Movie -->
-  <ResourceWrapper x:Key="ListViewMovieItemTemplate">
-    <ControlTemplate>
-      <Grid x:Name="ItemControl" VerticalAlignment="Center" HorizontalAlignment="Stretch">
-        <Grid.ColumnDefinitions>
-          <ColumnDefinition Width="Auto"/>
-          <ColumnDefinition Width="*"/>
-          <ColumnDefinition Width="Auto"/>
-        </Grid.ColumnDefinitions>
-        <Grid.RowDefinitions>
-          <RowDefinition Height="Auto"/>
-          <RowDefinition Height="Auto"/>
-        </Grid.RowDefinitions>
-        <Image x:Name="ItemTypeImage" Grid.Row="0" Grid.Column="0" Grid.RowSpan="2" Stretch="Uniform" Margin="0,0,4,0" Source="{Binding MediaItem}" 
-             Thumbnail="True">
-          <Image.FallbackSource>
-            <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} &lt; 3 ? {1} : {2}">
-              <Binding Source="{StaticResource LayoutManagerModel}" Path="ThumbnailSizeMode"/>
-              <Binding Source="Movie.png"/>
-              <Binding Source="Movie_l.png"/>
-            </MultiBinding>
-          </Image.FallbackSource>
-          <Image.Width>
-            <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}({0} == 1 ? {1} : ({0} == 2 ? {2} : {3}))">
-              <Binding Source="{StaticResource LayoutManagerModel}" Path="ThumbnailSizeMode"/>
-              <Binding Source="{StaticResource THUMB_WIDTH_S}"/>
-              <Binding Source="{StaticResource THUMB_WIDTH_M}"/>
-              <Binding Source="{StaticResource THUMB_WIDTH_L}"/>
-            </MultiBinding>
-          </Image.Width>
-          <Image.Height>
-            <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}({0} == 1 ? {1} : ({0} == 2 ? {2} : {3}))">
-              <Binding Source="{StaticResource LayoutManagerModel}" Path="ThumbnailSizeMode"/>
-              <Binding Source="{StaticResource THUMB_HEIGHT_S}"/>
-              <Binding Source="{StaticResource THUMB_HEIGHT_M}"/>
-              <Binding Source="{StaticResource THUMB_HEIGHT_L}"/>
-            </MultiBinding>
-          </Image.Height>
-        </Image>
-        <Label x:Name="ItemLabel" Grid.Row="0" Grid.Column="1" Content="{Binding SimpleTitle}" FontSize="{ThemeResource SmallFontSize}"/>
-        <Label x:Name="Duration" Grid.Row="0" Grid.Column="2" Content="{Binding Duration}" FontSize="{ThemeResource SmallFontSize}"/>
-        <Grid x:Name="Details" Grid.Row="1" Grid.Column="1" HorizontalAlignment="Stretch">
-          <Grid.IsVisible>
-            <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} > 1">
-              <Binding Source="{StaticResource LayoutManagerModel}" Path="ThumbnailSizeMode"/>
-            </MultiBinding>
-          </Grid.IsVisible>
-          <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="Auto"/>
-            <ColumnDefinition Width="200"/>
-            <ColumnDefinition Width="Auto"/>
-            <ColumnDefinition Width="200"/>
-          </Grid.ColumnDefinitions>
-          <Label x:Name="VideoEncodingTitle" Grid.Column="0" Content="Video:" FontSize="{ThemeResource SmallFontSize}" Color="{StaticResource MediaDetailsColor}"/>
-          <Label x:Name="VideoEncoding" Grid.Column="1" Content="{Binding VideoEncoding}" FontSize="{ThemeResource SmallFontSize}" Color="{StaticResource MediaDetailsColor}"/>
-          <Label x:Name="AudioEncodingTitle" Grid.Column="2" Content="Audio:" FontSize="{ThemeResource SmallFontSize}" Color="{StaticResource MediaDetailsColor}"/>
-          <Label x:Name="AudioEncoding" Grid.Column="3" Content="{Binding AudioEncoding}" FontSize="{ThemeResource SmallFontSize}" Color="{StaticResource MediaDetailsColor}"/>
-        </Grid>
-      </Grid>
-    </ControlTemplate>
-  </ResourceWrapper>
-
-  <ResourceWrapper x:Key="GridViewMovieItemTemplate">
-    <ControlTemplate>
-      <Grid x:Name="ItemControl" VerticalAlignment="Center" HorizontalAlignment="Stretch">
-        <Grid.ColumnDefinitions>
-          <ColumnDefinition Width="180"/>
-        </Grid.ColumnDefinitions>
-        <Grid.RowDefinitions>
-          <RowDefinition Height="120"/>
-          <RowDefinition Height="Auto"/>
-        </Grid.RowDefinitions>
-        <Image x:Name="ItemTypeImage" Grid.Row="0" Stretch="Uniform" Source="{Binding MediaItem}" 
-             Thumbnail="True" Width="{StaticResource THUMB_WIDTH_L}" Height="{StaticResource THUMB_HEIGHT_L}"
-             FallbackSource="Movie_l.png"/>
-        <Label x:Name="ItemLabel" Grid.Row="1" Content="{Binding SimpleTitle}" FontSize="{ThemeResource SmallFontSize}"
-             HorizontalAlignment="Center"/>
-      </Grid>
-    </ControlTemplate>
-  </ResourceWrapper>
-
-  <!-- Music -->
-  <ResourceWrapper x:Key="ListViewMusicItemTemplate">
-    <ControlTemplate>
-      <Grid x:Name="ItemControl" VerticalAlignment="Center" HorizontalAlignment="Stretch">
-        <Grid.ColumnDefinitions>
-          <ColumnDefinition Width="Auto"/>
-          <ColumnDefinition Width="*"/>
-          <ColumnDefinition Width="Auto"/>
-        </Grid.ColumnDefinitions>
-        <Image x:Name="ItemTypeImage" Grid.Column="0" Stretch="Uniform" Margin="0,0,4,0">
-          <Image.Source>
-            <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} &lt; 3 ? {1} : {2}">
-              <Binding Source="{StaticResource LayoutManagerModel}" Path="ThumbnailSizeMode"/>
-              <Binding Source="Music.png"/>
-              <Binding Source="Music_l.png"/>
-            </MultiBinding>
-          </Image.Source>
-          <Image.Width>
-            <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}({0} == 1 ? {1} : ({0} == 2 ? {2} : {3}))">
-              <Binding Source="{StaticResource LayoutManagerModel}" Path="ThumbnailSizeMode"/>
-              <Binding Source="{StaticResource THUMB_WIDTH_S}"/>
-              <Binding Source="{StaticResource THUMB_WIDTH_M}"/>
-              <Binding Source="{StaticResource THUMB_WIDTH_L}"/>
-            </MultiBinding>
-          </Image.Width>
-          <Image.Height>
-            <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}({0} == 1 ? {1} : ({0} == 2 ? {2} : {3}))">
-              <Binding Source="{StaticResource LayoutManagerModel}" Path="ThumbnailSizeMode"/>
-              <Binding Source="{StaticResource THUMB_HEIGHT_S}"/>
-              <Binding Source="{StaticResource THUMB_HEIGHT_M}"/>
-              <Binding Source="{StaticResource THUMB_HEIGHT_L}"/>
-            </MultiBinding>
-          </Image.Height>
-        </Image>
-        <Label x:Name="ItemLabel" Grid.Column="1" Content="{Binding SimpleTitle}" FontSize="{ThemeResource SmallFontSize}"/>
-        <Label x:Name="Duration" Grid.Column="2" Content="{Binding Duration}" FontSize="{ThemeResource SmallFontSize}"/>
-      </Grid>
-    </ControlTemplate>
-  </ResourceWrapper>
-
-  <ResourceWrapper x:Key="GridViewMusicItemTemplate">
-    <ControlTemplate>
-      <Grid x:Name="ItemControl" VerticalAlignment="Center" HorizontalAlignment="Stretch">
-        <Grid.ColumnDefinitions>
-          <ColumnDefinition Width="180"/>
-        </Grid.ColumnDefinitions>
-        <Grid.RowDefinitions>
-          <RowDefinition Height="120"/>
-          <RowDefinition Height="Auto"/>
-        </Grid.RowDefinitions>
-        <Image x:Name="ItemTypeImage" Grid.Row="0" Stretch="Uniform" Source="Music_l.png" 
-             Width="{StaticResource THUMB_WIDTH_L}" Height="{StaticResource THUMB_HEIGHT_L}"/>
-        <Label x:Name="ItemLabel" Grid.Row="1" Content="{Binding SimpleTitle}" FontSize="{ThemeResource SmallFontSize}"
-             HorizontalAlignment="Center"/>
-      </Grid>
-    </ControlTemplate>
-  </ResourceWrapper>
-
-  <!-- Picture -->
-  <ResourceWrapper x:Key="ListViewPictureItemTemplate">
-    <ControlTemplate>
-      <Grid x:Name="ItemControl" VerticalAlignment="Center" HorizontalAlignment="Stretch">
-        <Grid.ColumnDefinitions>
-          <ColumnDefinition Width="Auto"/>
-          <ColumnDefinition Width="*"/>
-          <ColumnDefinition Width="Auto"/>
-        </Grid.ColumnDefinitions>
-        <Image x:Name="ItemTypeImage" Grid.Column="0" Stretch="Uniform" Margin="0,0,4,0"
-            Source="{Binding MediaItem}">
-          <Image.FallbackSource>
-            <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} &lt; 3 ? {1} : {2}">
-              <Binding Source="{StaticResource LayoutManagerModel}" Path="ThumbnailSizeMode"/>
-              <Binding Source="Picture.png"/>
-              <Binding Source="Picture_l.png"/>
-            </MultiBinding>
-          </Image.FallbackSource>
-          <Image.Width>
-            <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}({0} == 1 ? {1} : ({0} == 2 ? {2} : {3}))">
-              <Binding Source="{StaticResource LayoutManagerModel}" Path="ThumbnailSizeMode"/>
-              <Binding Source="{StaticResource THUMB_WIDTH_S}"/>
-              <Binding Source="{StaticResource THUMB_WIDTH_M}"/>
-              <Binding Source="{StaticResource THUMB_WIDTH_L}"/>
-            </MultiBinding>
-          </Image.Width>
-          <Image.Height>
-            <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}({0} == 1 ? {1} : ({0} == 2 ? {2} : {3}))">
-              <Binding Source="{StaticResource LayoutManagerModel}" Path="ThumbnailSizeMode"/>
-              <Binding Source="{StaticResource THUMB_HEIGHT_S}"/>
-              <Binding Source="{StaticResource THUMB_HEIGHT_M}"/>
-              <Binding Source="{StaticResource THUMB_HEIGHT_L}"/>
-            </MultiBinding>
-          </Image.Height>
-        </Image>
-        <Label x:Name="ItemLabel" Grid.Column="1" Content="{Binding SimpleTitle}" FontSize="{ThemeResource SmallFontSize}"/>
-        <Label x:Name="Duration" Grid.Column="2" Content="{Binding Duration}" FontSize="{ThemeResource SmallFontSize}"/>
-      </Grid>
-    </ControlTemplate>
-  </ResourceWrapper>
-
-  <ResourceWrapper x:Key="GridViewPictureItemTemplate">
-    <ControlTemplate>
-      <Grid x:Name="ItemControl" VerticalAlignment="Center" HorizontalAlignment="Stretch">
-        <Grid.ColumnDefinitions>
-          <ColumnDefinition Width="180"/>
-        </Grid.ColumnDefinitions>
-        <Grid.RowDefinitions>
-          <RowDefinition Height="120"/>
-          <RowDefinition Height="Auto"/>
-        </Grid.RowDefinitions>
-        <Image x:Name="ItemTypeImage" Grid.Row="0" Stretch="Uniform" Source="{Binding MediaItem}" 
-             Thumbnail="True" Width="{StaticResource THUMB_WIDTH_L}" Height="{StaticResource THUMB_HEIGHT_L}"
-             FallbackSource="Picture_l.png"/>
-        <Label x:Name="ItemLabel" Grid.Row="1" Content="{Binding SimpleTitle}" FontSize="{ThemeResource SmallFontSize}"
-             HorizontalAlignment="Center"/>
-      </Grid>
-    </ControlTemplate>
-  </ResourceWrapper>
-
-  
-  <!-- Specific media navigation data templates -->
-  <DataTemplate DataType="{x:Type navitems:ContainerItem}">
-    <Control>
-      <Control.Template>
-        <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} &lt; 4 ? {1} : {2}">
-          <Binding Source="{StaticResource LayoutManagerModel}" Path="ThumbnailSizeMode"/>
-          <Binding Source="{StaticResource ListViewContainerItemTemplate}"/>
-          <Binding Source="{StaticResource GridViewContainerItemTemplate}"/>
-        </MultiBinding>
-      </Control.Template>
-    </Control>
-  </DataTemplate>
-
-  <DataTemplate DataType="{x:Type navitems:FilterItem}">
-    <Control>
-      <Control.Template>
-        <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} &lt; 4 ? {1} : {2}">
-          <Binding Source="{StaticResource LayoutManagerModel}" Path="ThumbnailSizeMode"/>
-          <Binding Source="{StaticResource ListViewFilterItemTemplate}"/>
-          <Binding Source="{StaticResource GridViewFilterItemTemplate}"/>
-        </MultiBinding>
-      </Control.Template>
-    </Control>
-  </DataTemplate>
-
-  <DataTemplate DataType="{x:Type navitems:MovieItem}">
-    <Control>
-      <Control.Template>
-        <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} &lt; 4 ? {1} : {2}">
-          <Binding Source="{StaticResource LayoutManagerModel}" Path="ThumbnailSizeMode"/>
-          <Binding Source="{StaticResource ListViewMovieItemTemplate}"/>
-          <Binding Source="{StaticResource GridViewMovieItemTemplate}"/>
-        </MultiBinding>
-      </Control.Template>
-    </Control>
-  </DataTemplate>
-
-  <DataTemplate DataType="{x:Type navitems:MusicItem}">
-    <Control>
-      <Control.Template>
-        <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} &lt; 4 ? {1} : {2}">
-          <Binding Source="{StaticResource LayoutManagerModel}" Path="ThumbnailSizeMode"/>
-          <Binding Source="{StaticResource ListViewMusicItemTemplate}"/>
-          <Binding Source="{StaticResource GridViewMusicItemTemplate}"/>
-        </MultiBinding>
-      </Control.Template>
-    </Control>
-  </DataTemplate>
-
-  <DataTemplate DataType="{x:Type navitems:PictureItem}">
-    <Control>
-      <Control.Template>
-        <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} &lt; 4 ? {1} : {2}">
-          <Binding Source="{StaticResource LayoutManagerModel}" Path="ThumbnailSizeMode"/>
-          <Binding Source="{StaticResource ListViewPictureItemTemplate}"/>
-          <Binding Source="{StaticResource GridViewPictureItemTemplate}"/>
-        </MultiBinding>
-      </Control.Template>
-    </Control>
-  </DataTemplate>
-
-  <DataStringProvider x:Key="MediaItemDataStringProvider" Path="Title"/>
-
-  <!-- An item list container represented by a standard "Button", scrolling its "ItemLabel" label when focused 
-       It's used only for "Grid Layout" (WrapPanel) to enable changing if ZIndex.
-  -->
-  <Style x:Key="GridViewItemContainerStyle" BasedOn="{ThemeResource DefaultItemContainerStyle}">
-    <Setter Property="Template">
-      <Setter.Value>
-        <ControlTemplate TargetType="{x:Type ListViewItem}">
-          <Button Margin="2" IsEnabled="{Binding Enabled}"
-              Command="{DynamicResource ResourceKey=Menu_Command,TreeSearchMode=Hybrid}">
-            <Button.Triggers>
-              <Trigger Property="HasFocus" Value="True">
-                <Setter TargetName="ItemLabel" Property="Scroll" Value="Auto"/>
-              </Trigger>
-            </Button.Triggers>
-          </Button>
-        </ControlTemplate>        
-      </Setter.Value>
-    </Setter>
-  </Style>
-
-  <!-- Different styles for list and grid views -->
-  <Style x:Key="MediaItemsListListViewStyle" BasedOn="{ThemeResource ContentsMenuListViewStyle}">
-    <Setter Property="ItemTemplate"/> <!-- Don't inherit the ItemTemplate from ContentsMenuListViewStyle - It should remain null to make the SkinEngine choose an appropriate template -->
-    <Setter Property="DataStringProvider" Value="{ThemeResource MediaItemDataStringProvider}"/>
-    <Setter Property="ItemContainerStyle" Value="{ThemeResource DefaultMenuItemContainerStyle}"/>
-    <Setter Property="Template">
-      <Setter.Value>
-        <ControlTemplate TargetType="{x:Type ListView}">
-          <ScrollViewer CanContentScroll="true"
-              HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
-            <ItemsPresenter VerticalAlignment="Stretch" HorizontalAlignment="Stretch"/>
-          </ScrollViewer>
-        </ControlTemplate>
-      </Setter.Value>
-    </Setter>
-    <Setter Property="ItemsPanel">
-      <Setter.Value>
-        <ItemsPanelTemplate>
-          <VirtualizingStackPanel x:Name="ListItemsHost" IsItemsHost="True" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"/>
-        </ItemsPanelTemplate>
-      </Setter.Value>
-    </Setter>
-  </Style>
-
-  <Style x:Key="MediaItemsGridListViewStyle" BasedOn="{ThemeResource ContentsMenuListViewStyle}">
-    <Setter Property="ItemTemplate"/> <!-- Don't inherit the ItemTemplate from ContentsMenuListViewStyle - It should remain null to make the SkinEngine choose an appropriate template -->
-    <Setter Property="DataStringProvider" Value="{ThemeResource MediaItemDataStringProvider}"/>
-    <Setter Property="ItemContainerStyle" Value="{ThemeResource GridViewItemContainerStyle}"/>
-    <Setter Property="Template">
-      <Setter.Value>
-        <ControlTemplate TargetType="{x:Type ListView}">
-          <ScrollViewer CanContentScroll="false"
-              HorizontalScrollBarVisibility="Disabled" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
-            <ItemsPresenter VerticalAlignment="Stretch" HorizontalAlignment="Stretch"/>
-          </ScrollViewer>
-        </ControlTemplate>
-      </Setter.Value>
-    </Setter>
-    <Setter Property="ItemsPanel">
-      <Setter.Value>
-        <ItemsPanelTemplate>
-          <WrapPanel x:Name="ListItemsHost" IsItemsHost="True" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"/>
-        </ItemsPanelTemplate>
-      </Setter.Value>
-    </Setter>
   </Style>
 
   <Style x:Key="PlaylistsListViewStyle" BasedOn="{ThemeResource ContentsMenuListViewStyle}">

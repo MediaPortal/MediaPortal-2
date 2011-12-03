@@ -23,6 +23,7 @@
 #endregion
 
 using System;
+using System.Collections.Generic;
 using System.Reflection;
 using MediaPortal.Common;
 using MediaPortal.Common.Localization;
@@ -42,8 +43,8 @@ namespace MediaPortal.UI.Presentation.Workflow
 
     #endregion
 
-    public MethodCallAction(Guid actionId, string name, Guid? sourceStateId, IResourceString displayTitle, Guid modelId, string methodName) :
-        base(actionId, name, sourceStateId, displayTitle)
+    public MethodCallAction(Guid actionId, string name, IEnumerable<Guid> sourceStateIds, IResourceString displayTitle, Guid modelId, string methodName) :
+        base(actionId, name, sourceStateIds, displayTitle)
     {
       _modelId = modelId;
       _methodName = methodName;

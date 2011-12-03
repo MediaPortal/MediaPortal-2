@@ -22,7 +22,6 @@
 
 #endregion
 
-using MediaPortal.Common;
 using MediaPortal.Common.General;
 using MediaPortal.UI.SkinEngine.ContentManagement;
 using MediaPortal.UI.SkinEngine.Rendering;
@@ -107,7 +106,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
       Matrix finalTransform = renderContext.Transform.Clone();
       Color4 v = ColorConverter.FromColor(Color);
       v.Alpha *= (float) (Opacity * renderContext.Opacity);
-      _effect = ServiceRegistration.Get<ContentManager>().GetEffect(EFFECT_SOLID);
+      _effect = ContentManager.Instance.GetEffect(EFFECT_SOLID);
       _effect.Parameters[PARAM_SOLIDCOLOR] = v;
       _effect.StartRender(finalTransform);
       return true;
@@ -120,7 +119,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
       Color4 v = ColorConverter.FromColor(Color);
       v.Alpha *= (float) (Opacity * renderContext.Opacity);
       Matrix finalTransform = renderContext.Transform.Clone();
-      _effect = ServiceRegistration.Get<ContentManager>().GetEffect(EFFECT_SOLIDOPACITY);
+      _effect = ContentManager.Instance.GetEffect(EFFECT_SOLIDOPACITY);
       _effect.Parameters[PARAM_SOLIDCOLOR] = v;
       _effect.StartRender(tex, finalTransform);
     }

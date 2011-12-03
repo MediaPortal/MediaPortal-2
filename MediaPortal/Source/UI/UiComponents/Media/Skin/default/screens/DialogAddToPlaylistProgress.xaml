@@ -13,14 +13,14 @@
     <Model x:Key="Model" Id="3750D3FE-CA2A-4c8a-97B3-A08EF305C084"/>
 
     <!-- Contents -->
-    <ResourceWrapper x:Key="Contents_Element">
+    <ControlTemplate x:Key="Contents_Template">
       <StackPanel Margin="20" DataContext="{Binding Source={StaticResource Model}}">
-        <Label Content="[Media.AddToPlaylistProgressText]"/>
-        <Label Margin="20" Content="{Binding NumItemsAddedToPlaylistText}" HorizontalAlignment="Center"/>
+        <Label Content="[Media.AddToPlaylistProgressText]" Color="{ThemeResource TextColor}"/>
+        <Label Margin="20" Content="{Binding NumItemsAddedToPlaylistText}" Color="{ThemeResource TextColor}" HorizontalAlignment="Center"/>
         <Button Style="{ThemeResource DialogButtonStyle}" Content="[Media.StopAddToPlaylistButton]"
             Command="{Command Source={StaticResource Model},Path=StopAddToPlaylist}"/>
       </StackPanel>
-    </ResourceWrapper>
+    </ControlTemplate>
 
   </Include.Resources>
 </Include>

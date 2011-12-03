@@ -24,7 +24,6 @@
 
 using System;
 using System.Drawing;
-using MediaPortal.Common;
 using MediaPortal.Common.General;
 using MediaPortal.UI.SkinEngine.ContentManagement;
 using MediaPortal.UI.SkinEngine.Controls.Visuals;
@@ -182,7 +181,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
     public override void SetupBrush(FrameworkElement parent, ref PositionColoredTextured[] verts, float zOrder, bool adaptVertsToBrushTexture)
     {
       base.SetupBrush(parent, ref verts, zOrder, adaptVertsToBrushTexture);
-      _textureVisual = ServiceRegistration.Get<ContentManager>().GetRenderTexture(_renderTextureKey);
+      _textureVisual = ContentManager.Instance.GetRenderTexture(_renderTextureKey);
       _screen = parent.Screen;
       PrepareVisual();
     }

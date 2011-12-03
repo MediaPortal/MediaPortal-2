@@ -1,9 +1,9 @@
-﻿
+
 Microsoft Visual Studio Solution File, Format Version 11.00
 # Visual Studio 2010
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BuildReport", "BuildReport.csproj", "{350957BE-3B86-4928-98FC-04B24682BD66}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MediaPortal.Utilities", "..\..\Source\System\MediaPortal.Utilities\MediaPortal.Utilities.csproj", "{4FE7B8AE-1330-424A-91A1-C68D7ABF9CB8}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MediaPortal.Utilities", "..\..\Source\Core\MediaPortal.Utilities\MediaPortal.Utilities.csproj", "{4FE7B8AE-1330-424A-91A1-C68D7ABF9CB8}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

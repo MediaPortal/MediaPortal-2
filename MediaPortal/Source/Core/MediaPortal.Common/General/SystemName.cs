@@ -55,6 +55,7 @@ namespace MediaPortal.Common.General
 
     #region Protected fields
 
+    protected string _address;
     protected string _hostName;
     protected string[] _aliases;
 
@@ -77,36 +78,37 @@ namespace MediaPortal.Common.General
     /// In case of an IPv6 address, the address can also be given enclosed by <c>[</c> and <c>]</c> brackets.</param>
     public SystemName(string hostName)
     {
-      _hostName = GetCanonicalForm(hostName);
-      _aliases = InitializeAliases(hostName);
+      _address = GetCanonicalForm(hostName);
+      InitializeAliases(hostName);
     }
 
-    protected string[] InitializeAliases(string hostName)
+    protected void InitializeAliases(string hostName)
     {
       List<string> aliases = new List<string>();
       try
       {
-        IPHostEntry hostEntry = Dns.GetHostEntry(_hostName);
+        IPHostEntry hostEntry = Dns.GetHostEntry(_address);
+        _hostName = hostEntry.HostName;
         aliases.AddRange(hostEntry.Aliases.Select(GetCanonicalForm));
         aliases.AddRange(hostEntry.AddressList.Select(NetworkUtils.IPAddrToString));
       }
       catch (SocketException e) // Could occur if the nameserver doesn't answer, for example
       {
         ServiceRegistration.Get<ILogger>().Warn("SystemName: Could not retrieve host alias/address list from DNS", e);
-        return EMPTY_ALIAS_LIST;
+        _aliases = EMPTY_ALIAS_LIST;
       }
-      return aliases.ToArray();
+      _aliases = aliases.ToArray();
     }
 
     #endregion
 
     /// <summary>
-    /// Returns the ip address of the specified system.
+    /// Returns the host name or ip address of the specified system.
     /// </summary>
     [XmlIgnore]
-    public string HostName
+    public string Address
     {
-      get { return _hostName; }
+      get { return _address; }
     }
 
     /// <summary>
@@ -131,32 +133,39 @@ namespace MediaPortal.Common.General
       return new SystemName(LOCAL_HOST_DNS_NAME);
     }
 
+    public string HostName
+    {
+      get { return _hostName; }
+    }
+
     public bool IsLocalSystem()
     {
       // localhost, 127.0.0.1, [::1]
-      if (string.Equals(_hostName, LOCALHOST, StringComparison.InvariantCultureIgnoreCase) ||
-          _hostName == LOOPBACK_IPv4_ADDRESS || _hostName == LOOPBACK_IPv6_ADDRESS)
+      if (string.Equals(_address, LOCALHOST, StringComparison.InvariantCultureIgnoreCase) ||
+          _address == LOOPBACK_IPv4_ADDRESS || _address == LOOPBACK_IPv6_ADDRESS)
         return true;
-      if (string.Equals(_hostName, LOCAL_HOST_DNS_NAME, StringComparison.InvariantCultureIgnoreCase))
+      if (string.Equals(_address, LOCAL_HOST_DNS_NAME, StringComparison.InvariantCultureIgnoreCase))
         return true;
       return IsALocalAddress();
     }
 
-    protected string GetCanonicalForm(string hostName)
+    protected string GetCanonicalForm(string address)
     {
-      hostName = hostName.ToLowerInvariant();
-      if (hostName.StartsWith("[") && hostName.EndsWith("]"))
-        hostName = hostName.Substring(1, hostName.Length-2);
-      IPAddress address;
-      if (IPAddress.TryParse(hostName, out address))
-        hostName = NetworkUtils.IPAddrToString(address);
-      return hostName;
+      address = address.ToLowerInvariant();
+      if (address.StartsWith("[") && address.EndsWith("]"))
+        address = address.Substring(1, address.Length-2);
+      IPAddress ipAddress;
+      if (IPAddress.TryParse(address, out ipAddress))
+        address = NetworkUtils.IPAddrToString(ipAddress);
+      return address;
     }
 
     protected bool IsALocalAddress()
     {
       IPAddress thisAddress;
-      if (!IPAddress.TryParse(_hostName, out thisAddress))
+      if (_address == null)
+        return false;
+      if (!IPAddress.TryParse(_address, out thisAddress))
         return false;
       foreach (NetworkInterface adapter in NetworkInterface.GetAllNetworkInterfaces())
       { // For each network interface adapter
@@ -200,7 +209,7 @@ namespace MediaPortal.Common.General
         return false;
       if (IsLocalSystem() && obj.IsLocalSystem())
         return true;
-      return _aliases.Any(alias => alias == obj._hostName);
+      return _aliases.Any(alias => alias == obj._address);
     }
 
     public override bool Equals(object obj)
@@ -212,12 +221,12 @@ namespace MediaPortal.Common.General
 
     public override int GetHashCode()
     {
-      return _hostName.GetHashCode();
+      return _address.GetHashCode();
     }
 
     public override string ToString()
     {
-      return _hostName;
+      return _address;
     }
 
     #region Additional members for the XML serialization
@@ -227,14 +236,14 @@ namespace MediaPortal.Common.General
     /// <summary>
     /// For internal use of the XML serialization system only.
     /// </summary>
-    [XmlElement("HostName")]
-    public string XML_HostName
+    [XmlElement("Address")]
+    public string XML_Address
     {
-      get { return _hostName; }
+      get { return _address; }
       set
       {
-        _hostName = value;
-        _aliases = InitializeAliases(value);
+        _address = value;
+        InitializeAliases(value);
       }
     }
 

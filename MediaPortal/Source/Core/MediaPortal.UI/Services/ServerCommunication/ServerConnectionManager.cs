@@ -28,7 +28,7 @@ using MediaPortal.Common;
 using MediaPortal.Common.General;
 using MediaPortal.Common.Logging;
 using MediaPortal.Common.MediaManagement;
-using MediaPortal.Common.MediaManagement.ResourceAccess;
+using MediaPortal.Common.ResourceAccess;
 using MediaPortal.Common.Messaging;
 using MediaPortal.Common.Settings;
 using MediaPortal.Common.SystemResolver;
@@ -190,7 +190,8 @@ namespace MediaPortal.UI.Services.ServerCommunication
         ServiceRegistration.Get<ILogger>().Warn("ServerConnectionManager: Could not connect to home server - Unable to verify UPnP root descriptor");
         return;
       }
-      ServiceRegistration.Get<ILogger>().Info("ServerConnectionManager: Connected to home server '{0}' at host '{1}'", serverDescriptor.MPBackendServerUUID, serverDescriptor.GetPreferredLink().HostName);
+      SystemName preferredLink = serverDescriptor.GetPreferredLink();
+      ServiceRegistration.Get<ILogger>().Info("ServerConnectionManager: Connected to home server '{0}' at host '{1}' (IP address: '{2}')", serverDescriptor.MPBackendServerUUID, preferredLink.HostName, preferredLink.Address);
       lock (_syncObj)
       {
         _isHomeServerConnected = true;
@@ -206,6 +207,17 @@ namespace MediaPortal.UI.Services.ServerCommunication
       lock (_syncObj)
         _isHomeServerConnected = false;
       ServerConnectionMessaging.SendConnectionStateChangedMessage(ServerConnectionMessaging.MessageType.HomeServerDisconnected);
+    }
+
+    protected internal UPnPContentDirectoryServiceProxy ContentDirectoryServiceProxy
+    {
+      get
+      {
+        UPnPClientControlPoint cp;
+        lock (_syncObj)
+          cp = _controlPoint;
+        return cp == null ? null : cp.ContentDirectoryService;
+      }
     }
 
     /// <summary>
@@ -258,9 +270,10 @@ namespace MediaPortal.UI.Services.ServerCommunication
         }
       IImporterWorker importerWorker = ServiceRegistration.Get<IImporterWorker>();
       ICollection<Share> newShares = new List<Share>();
-      IContentDirectory cd = ContentDirectory;
+      UPnPContentDirectoryServiceProxy cd = ContentDirectoryServiceProxy;
       if (cd != null)
       {
+        // Update shares registration
         try
         {
           ISettingsManager settingsManager = ServiceRegistration.Get<ISettingsManager>();
@@ -304,6 +317,8 @@ namespace MediaPortal.UI.Services.ServerCommunication
         {
           ServiceRegistration.Get<ILogger>().Warn("ServerConnectionManager: Could not synchronize local shares with server", e);
         }
+
+        // Update media item aspect type registration
         try
         {
           IMediaItemAspectTypeRegistration miatr = ServiceRegistration.Get<IMediaItemAspectTypeRegistration>();
@@ -322,12 +337,28 @@ namespace MediaPortal.UI.Services.ServerCommunication
           ServiceRegistration.Get<ILogger>().Warn("ServerConnectionManager: Could not synchronize local media item aspect types with server", e);
         }
 
+        // Register state variables
+        UPnPContentDirectoryServiceProxy contentDirectoryServiceProxy = cd;
+        contentDirectoryServiceProxy.PlaylistsChanged += OnContentDirectoryPlaylistsChanged;
+        contentDirectoryServiceProxy.MIATypeRegistrationsChanged += OnContentDirectoryMIATypeRegistrationsChanged;
+
+        // Activate importer worker
         ServiceRegistration.Get<ILogger>().Debug("ServerConnectionManager: Activating importer worker");
         ImporterCallback ic = new ImporterCallback(cd);
         importerWorker.Activate(ic, ic);
         foreach (Share share in newShares)
           importerWorker.ScheduleImport(share.BaseResourcePath, share.MediaCategories, true);
       }
+    }
+
+    static void OnContentDirectoryPlaylistsChanged()
+    {
+      ContentDirectoryMessaging.SendPlaylistsChangedMessage();
+    }
+
+    static void OnContentDirectoryMIATypeRegistrationsChanged()
+    {
+      ContentDirectoryMessaging.SendMIATypesChangedMessage();
     }
 
     #region IServerCommunicationManager implementation
@@ -381,13 +412,7 @@ namespace MediaPortal.UI.Services.ServerCommunication
 
     public IContentDirectory ContentDirectory
     {
-      get
-      {
-        UPnPClientControlPoint cp;
-        lock (_syncObj)
-          cp = _controlPoint;
-        return cp == null ? null : cp.ContentDirectoryService;
-      }
+      get { return ContentDirectoryServiceProxy; }
     }
 
     public IResourceInformationService ResourceInformationService

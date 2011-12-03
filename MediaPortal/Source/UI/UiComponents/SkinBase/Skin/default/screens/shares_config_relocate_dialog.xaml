@@ -12,7 +12,7 @@
     <!-- Shares configuration model -->
     <Model x:Key="Model" Id="1768FC91-86B9-4f78-8A4C-E204F0D51502"/>
 
-    <ResourceWrapper x:Key="Contents_Element">
+    <ControlTemplate x:Key="Contents_Template">
       <Grid>
         <Grid.ColumnDefinitions>
           <ColumnDefinition Width="*"/>
@@ -25,9 +25,12 @@
           <RowDefinition Height="*"/>
           <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
-        <Label Grid.Column="0" Grid.Row="0" Wrap="True" Content="[SharesConfig.UpdateShareRelocateItemsQueryText.Info]"/>
-        <Label Grid.Column="0" Grid.Row="1" Wrap="True" Content="[SharesConfig.UpdateShareRelocateItemsQueryText.Description]"/>
-        <Label Grid.Column="0" Grid.Row="3" Wrap="True" Content="[SharesConfig.UpdateShareRelocateItemsQueryText.Query]"/>
+        <Label Grid.Column="0" Grid.Row="0" Wrap="True" Color="{ThemeResource TextColor}"
+            Content="[SharesConfig.UpdateShareRelocateItemsQueryText.Info]"/>
+        <Label Grid.Column="0" Grid.Row="1" Wrap="True" Color="{ThemeResource TextColor}"
+            Content="[SharesConfig.UpdateShareRelocateItemsQueryText.Description]"/>
+        <Label Grid.Column="0" Grid.Row="3" Wrap="True" Color="{ThemeResource TextColor}"
+            Content="[SharesConfig.UpdateShareRelocateItemsQueryText.Query]"/>
         <StackPanel Grid.Column="0" Grid.Row="5" Orientation="Horizontal" HorizontalAlignment="Right">
           <Button Margin="10" Style="{ThemeResource DialogButtonStyle}" Content="[SharesConfig.Relocate]"
               Command="{Command Source={StaticResource Model},Path=FinishDoRelocate}"/>
@@ -35,6 +38,6 @@
               Command="{Command Source={StaticResource Model},Path=FinishDoReImport}"/>
         </StackPanel>
       </Grid>
-    </ResourceWrapper>
+    </ControlTemplate>
   </Include.Resources>
 </Include>

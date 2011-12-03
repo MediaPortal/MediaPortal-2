@@ -22,7 +22,6 @@
 
 #endregion
 
-
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -31,7 +30,8 @@ using MediaPortal.Common;
 using MediaPortal.Common.Logging;
 using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
-using MediaPortal.Common.MediaManagement.ResourceAccess;
+using MediaPortal.Common.ResourceAccess;
+using MediaPortal.Common.Services.ResourceAccess.StreamedResourceToLocalFsAccessBridge;
 using MediaPortal.Common.Services.ThumbnailGenerator;
 using MediaPortal.Common.Settings;
 using MediaPortal.Extensions.MetadataExtractors.PictureMetadataExtractor.Settings;
@@ -108,7 +108,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.PictureMetadataExtractor
     /// <returns><c>true</c>, if the file's extension is supposed to be supported, else <c>false</c>.</returns>
     protected static bool HasImageExtension(string fileName)
     {
-      string ext = Path.GetExtension(fileName).ToLower();
+      string ext = DosPathHelper.GetExtension(fileName).ToLowerInvariant();
       return PICTURE_EXTENSIONS.Contains(ext);
     }
 
@@ -123,7 +123,8 @@ namespace MediaPortal.Extensions.MetadataExtractors.PictureMetadataExtractor
 
     public bool TryExtractMetadata(IResourceAccessor mediaItemAccessor, IDictionary<Guid, MediaItemAspect> extractedAspectData, bool forceQuickMode)
     {
-      if (!HasImageExtension(mediaItemAccessor.ResourcePathName))
+      string fileName = mediaItemAccessor.ResourceName;
+      if (!HasImageExtension(fileName))
         return false;
 
       // TODO: The creation of new media item aspects could be moved to a general method
@@ -148,12 +149,12 @@ namespace MediaPortal.Extensions.MetadataExtractors.PictureMetadataExtractor
         // Extract EXIF information from media item.
         using (ExifMetaInfo.ExifMetaInfo exif = new ExifMetaInfo.ExifMetaInfo(mediaItemAccessor))
         {
-          mediaAspect.SetAttribute(MediaAspect.ATTR_TITLE, Path.GetFileNameWithoutExtension(mediaItemAccessor.ResourcePathName));
+          mediaAspect.SetAttribute(MediaAspect.ATTR_TITLE, ProviderPathHelper.GetFileNameWithoutExtension(fileName));
           mediaAspect.SetAttribute(MediaAspect.ATTR_RECORDINGTIME, exif.OriginalDate != DateTime.MinValue ? exif.OriginalDate : mediaItemAccessor.LastChanged);
           mediaAspect.SetAttribute(MediaAspect.ATTR_COMMENT, StringUtils.TrimToNull(exif.ImageDescription));
 
-          pictureAspect.SetAttribute(PictureAspect.ATTR_WIDTH, (Int32) exif.PixXDim);
-          pictureAspect.SetAttribute(PictureAspect.ATTR_HEIGHT, (Int32) exif.PixYDim);
+          pictureAspect.SetAttribute(PictureAspect.ATTR_WIDTH, (int) exif.PixXDim);
+          pictureAspect.SetAttribute(PictureAspect.ATTR_HEIGHT, (int) exif.PixYDim);
           pictureAspect.SetAttribute(PictureAspect.ATTR_MAKE, StringUtils.TrimToNull(exif.EquipMake));
           pictureAspect.SetAttribute(PictureAspect.ATTR_MODEL, StringUtils.TrimToNull(exif.EquipModel));
           pictureAspect.SetAttribute(PictureAspect.ATTR_EXPOSURE_BIAS, ((double) exif.ExposureBias).ToString());
@@ -164,21 +165,32 @@ namespace MediaPortal.Extensions.MetadataExtractors.PictureMetadataExtractor
           pictureAspect.SetAttribute(PictureAspect.ATTR_ORIENTATION, (Int32) exif.Orientation);
           pictureAspect.SetAttribute(PictureAspect.ATTR_METERING_MODE, exif.MeteringMode.ToString());
 
-          ILocalFsResourceAccessor lfsra = StreamedResourceToLocalFsAccessBridge.GetLocalFsResourceAccessor(mediaItemAccessor);
-          string localFsResourcePath = lfsra.LocalFileSystemPath;
-          if (localFsResourcePath != null)
+          IResourceAccessor ra = mediaItemAccessor.Clone();
+          try
           {
-            // In quick mode only allow thumbs taken from cache.
-            bool cachedOnly = forceQuickMode;
+            using (ILocalFsResourceAccessor lfsra = StreamedResourceToLocalFsAccessBridge.GetLocalFsResourceAccessor(ra))
+            {
+              string localFsResourcePath = lfsra.LocalFileSystemPath;
+              if (localFsResourcePath != null)
+              {
+                // In quick mode only allow thumbs taken from cache.
+                bool cachedOnly = forceQuickMode;
 
-            // Thumbnail extraction
-            IThumbnailGenerator generator = ServiceRegistration.Get<IThumbnailGenerator>();
-            byte[] thumbData;
-            ImageType imageType;
-            if (generator.GetThumbnail(localFsResourcePath, 96, 96, cachedOnly, out thumbData, out imageType))
-              thumbnailSmallAspect.SetAttribute(ThumbnailSmallAspect.ATTR_THUMBNAIL, thumbData);
-            if (generator.GetThumbnail(localFsResourcePath, 256, 256, cachedOnly, out thumbData, out imageType))
-              thumbnailLargeAspect.SetAttribute(ThumbnailLargeAspect.ATTR_THUMBNAIL, thumbData);
+                // Thumbnail extraction
+                IThumbnailGenerator generator = ServiceRegistration.Get<IThumbnailGenerator>();
+                byte[] thumbData;
+                ImageType imageType;
+                if (generator.GetThumbnail(localFsResourcePath, 96, 96, cachedOnly, out thumbData, out imageType))
+                  thumbnailSmallAspect.SetAttribute(ThumbnailSmallAspect.ATTR_THUMBNAIL, thumbData);
+                if (generator.GetThumbnail(localFsResourcePath, 256, 256, cachedOnly, out thumbData, out imageType))
+                  thumbnailLargeAspect.SetAttribute(ThumbnailLargeAspect.ATTR_THUMBNAIL, thumbData);
+              }
+            }
+          }
+          catch
+          {
+            ra.Dispose();
+            throw;
           }
         }
         return true;
@@ -186,8 +198,8 @@ namespace MediaPortal.Extensions.MetadataExtractors.PictureMetadataExtractor
       catch (Exception e)
       {
         // Only log at the info level here - And simply return false. This makes the importer know that we
-        // couldn't perform our task here
-        ServiceRegistration.Get<ILogger>().Info("PictureMetadataExtractor: Exception reading resource '{0}' (Text: '{1}')", mediaItemAccessor.LocalResourcePath, e.Message);
+        // couldn't perform our task here.
+        ServiceRegistration.Get<ILogger>().Info("PictureMetadataExtractor: Exception reading resource '{0}' (Text: '{1}')", mediaItemAccessor.CanonicalLocalResourcePath, e.Message);
       }
       return false;
     }

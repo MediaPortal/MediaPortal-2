@@ -285,7 +285,7 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
         _valuesToSet.Clear();
       }
       foreach (KeyValuePair<IDataDescriptor, object> valueToSet in values) // Outside the lock - will change properties in the screen
-        valueToSet.Key.Value = valueToSet.Value;
+        DependencyObject.SetDataDescriptorValueWithLP(valueToSet.Key, valueToSet.Value);
     }
 
     protected void ResetAllValues(AnimationContext ac)

@@ -50,12 +50,6 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Shapes
       Attach();
     }
 
-    public override void Dispose()
-    {
-      base.Dispose();
-      Detach();
-    }
-
     void Init()
     {
       _radiusXProperty = new SProperty(typeof(double), 0.0);
@@ -130,7 +124,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Shapes
           float centerY = _innerRect.Height / 2 + _innerRect.Top;
           if (Fill != null)
           {
-            TriangulateHelper.FillPolygon_TriangleList(path, centerX, centerY, out verts);
+            TriangulateHelper.FillPolygon_TriangleList(path, centerX, centerY, 1, out verts);
             Fill.SetupBrush(this, ref verts, context.ZOrder, true);
             PrimitiveBuffer.SetPrimitiveBuffer(ref _fillContext, ref verts, PrimitiveType.TriangleList);
           }
@@ -139,7 +133,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Shapes
 
           if (Stroke != null && StrokeThickness > 0)
           {
-            TriangulateHelper.TriangulateStroke_TriangleList(path, (float) StrokeThickness, true, out verts, null);
+            TriangulateHelper.TriangulateStroke_TriangleList(path, (float) StrokeThickness, true, 1, out verts);
             Stroke.SetupBrush(this, ref verts, context.ZOrder, true);
             PrimitiveBuffer.SetPrimitiveBuffer(ref _strokeContext, ref verts, PrimitiveType.TriangleList);
           }

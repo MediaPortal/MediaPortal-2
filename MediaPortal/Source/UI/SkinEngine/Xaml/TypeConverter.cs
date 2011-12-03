@@ -103,7 +103,7 @@ namespace MediaPortal.UI.SkinEngine.Xaml
       {
         if (obj is ICollection)
           return ConvertEntryType((ICollection) obj, entryType, out result);
-        else if (obj is IEnumerable)
+        if (obj is IEnumerable)
         {
           List<object> col = new List<object>();
           foreach (object o1 in (IEnumerable) obj)
@@ -131,8 +131,7 @@ namespace MediaPortal.UI.SkinEngine.Xaml
       object result;
       if (Convert(value, targetType, out result))
         return result;
-      else
-        throw new ConvertException("Could not convert object '{0}' to type '{1}'", value, targetType.Name);
+      throw new ConvertException("Could not convert object '{0}' to type '{1}'", value, targetType.Name);
     }
 
     public static bool Convert(object val, Type targetType, out object result)
@@ -140,7 +139,8 @@ namespace MediaPortal.UI.SkinEngine.Xaml
       result = val;
       // Trivial cases
       if (val == null)
-        return true;
+        // Cannot convert null to value type
+        return !targetType.IsValueType;
       if (targetType.IsAssignableFrom(val.GetType()))
         return true;
 

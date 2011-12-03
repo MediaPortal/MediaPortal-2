@@ -28,6 +28,7 @@ using System.IO;
 using System.Net;
 using System.Text;
 using System.Threading;
+using MediaPortal.Utilities.Network;
 using UPnP.Infrastructure.Dv.DeviceTree;
 using UPnP.Infrastructure.Utils;
 
@@ -65,14 +66,16 @@ namespace UPnP.Infrastructure.Dv.GENA
     protected internal class AsyncRequestState
     {
       protected HttpWebRequest _httpWebRequest;
+      protected EndpointConfiguration _endpoint;
       protected string _sid;
-      protected ICollection<string> _pendingCallbackURLs = new List<string>();
+      protected ICollection<string> _pendingCallbackURLs;
       protected uint _eventKey;
       protected byte[] _messageData;
 
-      public AsyncRequestState(string sid, ICollection<string> pendingCallbackURLs, uint eventKey, byte[] messageData)
+      public AsyncRequestState(EndpointConfiguration endpoint, string sid, IEnumerable<string> pendingCallbackURLs, uint eventKey, byte[] messageData)
       {
-        _pendingCallbackURLs = pendingCallbackURLs;
+        _endpoint = endpoint;
+        _pendingCallbackURLs = new List<string>(pendingCallbackURLs);
         _sid = sid;
         _eventKey = eventKey;
         _messageData = messageData;
@@ -87,6 +90,11 @@ namespace UPnP.Infrastructure.Dv.GENA
       public string SID
       {
         get { return _sid; }
+      }
+
+      public EndpointConfiguration Endpoint
+      {
+        get { return _endpoint; }
       }
 
       public ICollection<string> PendingCallbackURLs
@@ -157,6 +165,7 @@ namespace UPnP.Infrastructure.Dv.GENA
       state.PendingCallbackURLs.Remove(callbackURL);
 
       HttpWebRequest request = (HttpWebRequest) WebRequest.Create(callbackURL);
+      NetworkUtils.SetLocalEndpoint(request, _config.EndPointIPAddress);
       request.Method = "NOTIFY";
       request.KeepAlive = false;
       request.ContentType = "text/xml; charset=\"utf-8\"";
@@ -339,7 +348,7 @@ namespace UPnP.Infrastructure.Dv.GENA
           body = GENAMessageBuilder.BuildEventNotificationMessage(variables, !_subscriberSupportsUPnP11);
         byte[] bodyData = Encoding.UTF8.GetBytes(body);
 
-        AsyncRequestState state = new AsyncRequestState(_sid, _callbackURLs, _eventingState.EventKey, bodyData);
+        AsyncRequestState state = new AsyncRequestState(_config, _sid, _callbackURLs, _eventingState.EventKey, bodyData);
         _pendingRequests.Add(state);
         ContinueEventNotification(state);
         _eventingState.IncEventKey();

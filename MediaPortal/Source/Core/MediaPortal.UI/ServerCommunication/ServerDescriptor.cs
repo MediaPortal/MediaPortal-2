@@ -91,7 +91,8 @@ namespace MediaPortal.UI.ServerCommunication
 
     public override string ToString()
     {
-      return string.Format("MP backend server '{0}' at system '{1}'", _mpBackendServerUUID, GetPreferredLink().HostName);
+      SystemName preferredLink = GetPreferredLink();
+      return string.Format("MP backend server '{0}' at host '{1}' (IP address: '{2}')", _mpBackendServerUUID, preferredLink.HostName, preferredLink.Address);
     }
   }
 }

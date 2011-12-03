@@ -23,10 +23,12 @@
 #endregion
 
 using System;
+using System.Collections.Generic;
 using System.IO;
-using System.Linq;
+using MediaPortal.Common;
+using MediaPortal.Common.Logging;
 using MediaPortal.Common.MediaManagement;
-using MediaPortal.Common.MediaManagement.ResourceAccess;
+using MediaPortal.Common.ResourceAccess;
 using ICSharpCode.SharpZipLib.Zip;
 
 namespace MediaPortal.Extensions.ResourceProviders.ZipResourceProvider
@@ -34,9 +36,13 @@ namespace MediaPortal.Extensions.ResourceProviders.ZipResourceProvider
   /// <summary>
   /// Resource provider implementation for the ZIP files.
   /// </summary>
+  /// <remarks>
+  /// Provider paths used by this resource provider are in standard provider path form and thus can be processed by
+  /// the methods in <see cref="ProviderPathHelper"/>.
+  /// </remarks>
   public class ZipResourceProvider : IChainedResourceProvider
   {
-    #region Public constants
+    #region Consts
 
     /// <summary>
     /// GUID string for the ZIP resource provider.
@@ -54,16 +60,38 @@ namespace MediaPortal.Extensions.ResourceProviders.ZipResourceProvider
 
     protected ResourceProviderMetadata _metadata;
 
+    protected object _syncObj = new object();
+    internal IDictionary<string, ZipResourceProxy> _zipUsages = new Dictionary<string, ZipResourceProxy>(); // Keys to proxy objects
+
     #endregion
 
     #region Ctor
 
     public ZipResourceProvider()
     {
-      _metadata = new ResourceProviderMetadata(ZIP_RESOURCE_PROVIDER_ID, "[ZipResourceProvider.Name]");
+      _metadata = new ResourceProviderMetadata(ZIP_RESOURCE_PROVIDER_ID, "[ZipResourceProvider.Name]", false);
     }
 
     #endregion
+
+    void OnZipResourceProxyOrphaned(ZipResourceProxy proxy)
+    {
+      lock (_syncObj)
+      {
+        if (proxy.UsageCount > 0)
+          // Double check if the proxy was reused when the lock was not set
+          return;
+        _zipUsages.Remove(proxy.Key);
+        proxy.Dispose();
+      }
+    }
+
+    internal ZipResourceProxy CreateZipResourceProxy(string key, IResourceAccessor zipFileResourceAccessor)
+    {
+      ZipResourceProxy result = new ZipResourceProxy(key, zipFileResourceAccessor);
+      result.Orphaned += OnZipResourceProxyOrphaned;
+      return result;
+    }
 
     #region IResourceProvider implementation
 
@@ -79,64 +107,62 @@ namespace MediaPortal.Extensions.ResourceProviders.ZipResourceProvider
 
     #region IChainedResourceProvider implementation
 
-    /// <summary>
-    /// Returns the information if this chained resource provider can use the given
-    /// <paramref name="potentialBaseResourceAccessor"/> as base resource accessor for providing a file system out of the
-    /// input resource.
-    /// </summary>
-    /// <returns><c>true</c> if the given resource accessor can be used to chain this provider to, else <c>false</c></returns>
-    public bool CanChainUp(IResourceAccessor potentialBaseResourceAccessor)
+    public bool TryChainUp(IResourceAccessor potentialBaseResourceAccessor, string path, out IResourceAccessor resultResourceAccessor)
     {
-      if (string.IsNullOrEmpty(potentialBaseResourceAccessor.ResourceName) || !potentialBaseResourceAccessor.IsFile)
+      resultResourceAccessor = null;
+      string resourcePathName = potentialBaseResourceAccessor.ResourcePathName;
+      if (string.IsNullOrEmpty(resourcePathName) || !potentialBaseResourceAccessor.IsFile ||
+          !".zip".Equals(DosPathHelper.GetExtension(resourcePathName), StringComparison.OrdinalIgnoreCase))
         return false;
-      if (".zip".Equals(Path.GetExtension(potentialBaseResourceAccessor.ResourceName), StringComparison.CurrentCultureIgnoreCase))
+
+      lock (_syncObj)
       {
+        string key = potentialBaseResourceAccessor.CanonicalLocalResourcePath.Serialize();
         try
         {
-          ZipFile zFile = new ZipFile(potentialBaseResourceAccessor.ResourcePathName);
-          if (zFile.Count > 0)
-            return true;
+          ZipResourceProxy proxy;
+          if (!_zipUsages.TryGetValue(key, out proxy))
+            _zipUsages.Add(key, proxy = CreateZipResourceProxy(key, potentialBaseResourceAccessor));
+          resultResourceAccessor = new ZipResourceAccessor(this, proxy, path);
         }
-        catch (Exception) {}
+        catch (Exception e)
+        {
+          ServiceRegistration.Get<ILogger>().Warn("ZipResourceProvider: Error chaining up to '{0}'", e, potentialBaseResourceAccessor.CanonicalLocalResourcePath);
+          return false;
+        }
+        return true;
       }
-      return false;
     }
 
-    /// <summary>
-    /// Returns the information if the given <paramref name="path"/> is a valid resource path in this provider, interpreted
-    /// in the given <paramref name="baseResourceAccessor"/>.
-    /// </summary>
-    /// <param name="baseResourceAccessor">Resource accessor for the base resource, this provider should take as
-    /// input.</param>
-    /// <param name="path">Path to evaluate.</param>
-    /// <returns><c>true</c>, if the given <paramref name="path"/> exists (i.e. can be accessed by this provider),
-    /// else <c>false</c>.</returns>
     public bool IsResource(IResourceAccessor baseResourceAccessor, string path)
     {
-      using (ZipFile zFile = new ZipFile(baseResourceAccessor.ResourcePathName))
-      {
-        if (path.Equals("/") && zFile.Count > 0) 
-          return true;
-        return zFile.Cast<ZipEntry>().Any(entry => entry.IsDirectory && entry.Name == path);
-      }
-    }
+      string entryPath = ZipResourceAccessor.ToEntryPath(path);
 
-    /// <summary>
-    /// Creates a resource accessor for the given <paramref name="path"/>, interpreted in the given
-    /// <paramref name="baseResourceAccessor"/>.
-    /// </summary>
-    /// <param name="baseResourceAccessor">Resource accessor for the base resource, this provider should take as
-    /// input.</param>
-    /// <param name="path">Path to be accessed by the returned resource accessor.</param>
-    /// <returns>Resource accessor instance or <c>null</c>, if the given <paramref name="baseResourceAccessor"/> cannot
-    /// be used to chain this resource provider up. The returned resource accessor may be of any interface derived
-    /// from <see cref="IResourceAccessor"/>, i.e. a file system provider will return a resource accessor of interface
-    /// <see cref="IFileSystemResourceAccessor"/>.</returns>
-    /// <exception cref="ArgumentException">If the given <paramref name="path"/> is not a valid path or if the resource
-    /// described by the path doesn't exist in the <paramref name="baseResourceAccessor"/>.</exception>
-    public IResourceAccessor CreateResourceAccessor(IResourceAccessor baseResourceAccessor, string path)
-    {
-      return new ZipResourceAccessor(this, baseResourceAccessor, path);
+      lock (_syncObj)
+      {
+        string key = baseResourceAccessor.CanonicalLocalResourcePath.Serialize();
+        try
+        {
+          ZipResourceProxy proxy;
+          if (_zipUsages.TryGetValue(key, out proxy))
+            return path.Equals("/") || ZipResourceAccessor.IsResource(proxy.ZipFile, entryPath);
+        }
+        catch (Exception)
+        {
+          return false;
+        }
+      }
+
+      using (Stream resourceStream = baseResourceAccessor.OpenRead()) // Not sure if the ZipFile will close the stream so we dispose it here
+        try
+        {
+          using (ZipFile zFile = new ZipFile(resourceStream))
+            return path.Equals("/") || ZipResourceAccessor.IsResource(zFile, entryPath);
+        }
+        catch (Exception)
+        {
+          return false;
+        }
     }
 
     #endregion

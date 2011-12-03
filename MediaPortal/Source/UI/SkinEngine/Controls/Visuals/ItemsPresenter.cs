@@ -102,13 +102,18 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     public void ApplyTemplate(ItemsPanelTemplate template)
     {
       DetachScrolling();
-      FinishBindingsDlgt finishDlgt; // We don't need to finish the bindings on the new template because it is only a template
-      FrameworkElement content = template.LoadContent(out finishDlgt) as FrameworkElement;
+      FrameworkElement content = template.LoadContent() as FrameworkElement;
       FrameworkElement oldTemplateControl = TemplateControl;
       if (oldTemplateControl != null)
         oldTemplateControl.CleanupAndDispose();
       TemplateControl = content;
-      _itemsHostPanel = content == null ? null : content.FindElement(ItemsHostMatcher.Instance) as Panel;
+      if (content == null)
+        _itemsHostPanel = null;
+      else
+      {
+        content.LogicalParent = this;
+        _itemsHostPanel = content.FindElement(ItemsHostMatcher.Instance) as Panel;
+      }
       AttachScrolling();
     }
 
@@ -220,7 +225,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       }
       if (element == null)
         return false;
-      _itemsHostPanel.MakeItemVisible(elementIndex);
+      _itemsHostPanel.BringIntoView(elementIndex);
       element.SetFocusPrio = SetFocusPriority.Default; // For VirtualizingStackPanel, the item might not be in the visual tree yet so defer the focus setting to the next layouting
       return true;
     }

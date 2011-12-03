@@ -27,6 +27,7 @@ using System.Collections.Generic;
 using System.Xml;
 using System.Xml.XPath;
 using MediaPortal.Common;
+using MediaPortal.Common.General;
 using MediaPortal.Common.Logging;
 using MediaPortal.Common.UPnP;
 using MediaPortal.UI.ServerCommunication;
@@ -104,8 +105,9 @@ namespace MediaPortal.UI.Services.ServerCommunication
         ServerDescriptor serverDescriptor = GetMPBackendServerDescriptor(rootDescriptor);
         if (serverDescriptor == null || _availableServers.Contains(serverDescriptor))
           return;
-        ServiceRegistration.Get<ILogger>().Debug("UPnPServerWatcher: Found MediaPortal 2 BackendServer '{0}' at host '{1}'",
-            serverDescriptor.ServerName, serverDescriptor.GetPreferredLink().HostName);
+        SystemName preferredLink = serverDescriptor.GetPreferredLink();
+        ServiceRegistration.Get<ILogger>().Debug("UPnPServerWatcher: Found MediaPortal 2 BackendServer '{0}' at host '{1}' (IP address: '{2}')",
+            serverDescriptor.ServerName, preferredLink.HostName, preferredLink.Address);
         _availableServers.Add(serverDescriptor);
         availableServers = _availableServers;
       }
@@ -120,8 +122,9 @@ namespace MediaPortal.UI.Services.ServerCommunication
         ServerDescriptor serverDescriptor = GetMPBackendServerDescriptor(rootDescriptor);
         if (serverDescriptor == null || !_availableServers.Contains(serverDescriptor))
           return;
-        ServiceRegistration.Get<ILogger>().Debug("UPnPServerWatcher: MediaPortal 2 BackendServer '{0}' at host '{1}' was removed from the network",
-            serverDescriptor.ServerName, serverDescriptor.GetPreferredLink().HostName);
+        SystemName preferredLink = serverDescriptor.GetPreferredLink();
+        ServiceRegistration.Get<ILogger>().Debug("UPnPServerWatcher: MediaPortal 2 BackendServer '{0}' at host '{1}' (IP address: '{2}') was removed from the network",
+            serverDescriptor.ServerName, preferredLink.HostName, preferredLink.Address);
         _availableServers.Remove(serverDescriptor);
         availableServers = _availableServers;
       }

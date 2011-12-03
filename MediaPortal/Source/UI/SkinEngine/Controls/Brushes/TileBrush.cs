@@ -22,7 +22,6 @@
 
 #endregion
 
-using MediaPortal.Common;
 using MediaPortal.Common.General;
 using MediaPortal.UI.SkinEngine.ContentManagement;
 using MediaPortal.UI.SkinEngine.Controls.Visuals;
@@ -250,7 +249,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
       if (_refresh) 
       {
         RefreshEffectParameters();
-        _effect = ServiceRegistration.Get<ContentManager>().GetEffect(_simplemode ? EFFECT_TILE_SIMPLE : EFFECT_TILE);
+        _effect = ContentManager.Instance.GetEffect(_simplemode ? EFFECT_TILE_SIMPLE : EFFECT_TILE);
         _refresh = false;
       }
 
@@ -274,7 +273,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
       if (_refresh)
       {
         RefreshEffectParameters();
-        _effect = ServiceRegistration.Get<ContentManager>().GetEffect(_simplemode ? EFFECT_TILE_OPACITY_SIMPLE : EFFECT_TILE_OPACITY);
+        _effect = ContentManager.Instance.GetEffect(_simplemode ? EFFECT_TILE_OPACITY_SIMPLE : EFFECT_TILE_OPACITY);
         _refresh = false;
       }
 

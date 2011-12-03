@@ -242,7 +242,7 @@ namespace MediaPortal.UI.SkinEngine.MarkupExtensions
       if (passSourceToContextObject && source != null)
         _contextObject.TakeOverOwnership(source);
       else
-        MPF.TryCleanupAndDispose(Source);
+        MPF.TryCleanupAndDispose(source);
       base.Dispose();
     }
 
@@ -1039,9 +1039,11 @@ namespace MediaPortal.UI.SkinEngine.MarkupExtensions
             break;
           case BindingMode.OneTime:
             object value = sourceDd.Value;
-            if (!Convert(value, _targetDataDescriptor.DataType, out value))
+            object convertedValue;
+            if (!Convert(value, _targetDataDescriptor.DataType, out convertedValue))
               return false;
-            _contextObject.SetBindingValue(_targetDataDescriptor, value);
+            _contextObject.SetBindingValue(_targetDataDescriptor,
+                ReferenceEquals(value, convertedValue) ? MpfCopyManager.DeepCopyCutLVPs(convertedValue) : convertedValue);
             _valueAssigned = true;
             Dispose(true);
             return true; // In this case, we have finished with only assigning the value

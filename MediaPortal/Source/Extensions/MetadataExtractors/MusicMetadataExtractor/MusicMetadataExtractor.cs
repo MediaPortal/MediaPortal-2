@@ -26,10 +26,11 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Text.RegularExpressions;
 using MediaPortal.Common;
 using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
-using MediaPortal.Common.MediaManagement.ResourceAccess;
+using MediaPortal.Common.ResourceAccess;
 using MediaPortal.Common.Settings;
 using MediaPortal.Extensions.MetadataExtractors.MusicMetadataExtractor.Settings;
 using MediaPortal.Utilities;
@@ -157,42 +158,56 @@ namespace MediaPortal.Extensions.MetadataExtractors.MusicMetadataExtractor
     /// <returns><c>true</c>, if the file's extension is supposed to be supported, else <c>false</c>.</returns>
     protected static bool HasAudioExtension(string fileName)
     {
-      string ext = (Path.GetExtension(fileName) ?? string.Empty).ToLower();
+      string ext = DosPathHelper.GetExtension(fileName).ToLowerInvariant();
       return AUDIO_EXTENSIONS.Contains(ext);
     }
 
-    /// <summary>
-    /// Given a music file name (or path), this method tries to guess the title of the music. This is done
-    /// by looking for a '-' character and taking the succeeding part of the name, or the whole name if
-    /// no '-' character is present.
-    /// </summary>
-    /// <param name="filePath">Absolute or relative music file name.</param>
-    /// <returns>Guessed title string.</returns>
-    protected static string GuessTitle(string filePath)
-    {
-      string fileName = Path.GetFileName(filePath) ?? string.Empty;
-      int i = fileName.IndexOf('-');
-      return i == -1 ? Path.GetFileNameWithoutExtension(fileName) : fileName.Substring(i + 1).Trim();
-    }
+    protected static readonly Regex TRACKNO_FORMAT = new Regex(@"\(?([0-9]+)\)?\.? *-? *(.*)");
+    protected static readonly Regex TITLE_ARTIST_FORMAT1 = new Regex(@"(.*) *- *(.*)");
+    protected static readonly Regex TITLE_ARTIST_FORMAT2 = new Regex(@"(.*) *\((.*)\)");
 
     /// <summary>
-    /// Given a music file name (or path), this method tries to guess the artist(s) of the music. This is done
-    /// by looking for a '-' character and taking the preceding part of the name. If no '-' character is
-    /// present, an empty enumeration is returned.
+    /// Given a music file name, this method tries to guess title, artist and track number.
     /// </summary>
-    /// <param name="filePath">Absolute or relative music file name.</param>
-    /// <returns>Guessed artist(s) enumeration.</returns>
-    protected static string GuessArtist(string filePath)
+    /// <param name="fileNameWithoutExtension">Music file name (no file path and extension!).</param>
+    /// <param name="title">Guessed title.</param>
+    /// <param name="artist">Guessed artist.</param>
+    /// <param name="trackNo">Guessed track number.</param>
+    protected static void GuessMetadataFromFileName(string fileNameWithoutExtension, out string title, out string artist, out uint? trackNo)
     {
-      string fileName = Path.GetFileName(filePath) ?? string.Empty;
-      // Test form Artist - Title
-      int start = fileName.IndexOf('-');
-      if (start > -1)
-        return fileName.Substring(0, start).Trim();
-      // Test form Title (Artist)
-      start = fileName.IndexOf('(');
-      int end = start == -1 ? -1 : fileName.IndexOf(')', start);
-      return end > -1 ? fileName.Substring(start + 1, end - start - 1) : null;
+      fileNameWithoutExtension = fileNameWithoutExtension.Replace('_', ' ');
+      Match match = TRACKNO_FORMAT.Match(fileNameWithoutExtension);
+      string titleArtist;
+      if (match.Success)
+      { // (Track) - TitleArtist
+        GroupCollection groups = match.Groups;
+        uint trackNoInt;
+        trackNo = uint.TryParse(groups[1].Value.Trim(), out trackNoInt) ? (uint?) trackNoInt : null;
+        titleArtist = groups[2].Value.Trim();
+      }
+      else
+      {
+        trackNo = null;
+        titleArtist = fileNameWithoutExtension.Trim();
+      }
+      match = TITLE_ARTIST_FORMAT1.Match(titleArtist);
+      if (match.Success)
+      { // Artist - Track
+        GroupCollection groups = match.Groups;
+        artist = groups[1].Value.Trim();
+        title = groups[2].Value.Trim();
+        return;
+      }
+      match = TITLE_ARTIST_FORMAT2.Match(titleArtist);
+      if (match.Success)
+      { // Track (Artist)
+        GroupCollection groups = match.Groups;
+        title = groups[1].Value.Trim();
+        artist = groups[2].Value.Trim();
+        return;
+      }
+      title = fileNameWithoutExtension;
+      artist = null;
     }
 
     /// <summary>
@@ -247,8 +262,8 @@ namespace MediaPortal.Extensions.MetadataExtractors.MusicMetadataExtractor
     {
       if (!mediaItemAccessor.IsFile)
         return false;
-      string humanReadablePath = mediaItemAccessor.ResourcePathName;
-      if (!HasAudioExtension(humanReadablePath))
+      string fileName = mediaItemAccessor.ResourceName;
+      if (!HasAudioExtension(fileName))
         return false;
 
       // TODO: The creation of new media item aspects could be moved to a general method
@@ -271,8 +286,8 @@ namespace MediaPortal.Extensions.MetadataExtractors.MusicMetadataExtractor
         catch (CorruptFileException)
         {
           // Only log at the info level here - And simply return false. This makes the importer know that we
-          // couldn't perform our task here
-          ServiceRegistration.Get<ILogger>().Info("MusicMetadataExtractor: Music file '{0}' seems to be broken", mediaItemAccessor.LocalResourcePath);
+          // couldn't perform our task here.
+          ServiceRegistration.Get<ILogger>().Info("MusicMetadataExtractor: Music file '{0}' seems to be broken", mediaItemAccessor.CanonicalLocalResourcePath);
           return false;
         }
 
@@ -280,15 +295,20 @@ namespace MediaPortal.Extensions.MetadataExtractors.MusicMetadataExtractor
         if (tag.Properties.VideoHeight > 0 && tag.Properties.VideoWidth > 0)
           return false;
 
-        string title = string.IsNullOrEmpty(tag.Tag.Title) ? GuessTitle(humanReadablePath) : tag.Tag.Title;
+        fileName = ProviderPathHelper.GetFileNameWithoutExtension(fileName) ?? string.Empty;
+        string title;
+        string artist;
+        uint? trackNo;
+        GuessMetadataFromFileName(fileName, out title, out artist, out trackNo);
+        if (!string.IsNullOrEmpty(tag.Tag.Title))
+          title = tag.Tag.Title;
         IEnumerable<string> artists;
         if (tag.Tag.Performers.Length > 0)
           artists = tag.Tag.Performers;
         else
-        {
-          string artist = GuessArtist(humanReadablePath);
           artists = artist == null ? null : new string[] {artist};
-        }
+        if (tag.Tag.Track != 0)
+          trackNo = tag.Tag.Track;
         mediaAspect.SetAttribute(MediaAspect.ATTR_TITLE, title);
         // FIXME Albert: tag.MimeType returns taglib/mp3 for an MP3 file. This is not what we want and collides with the
         // mimetype handling in the BASS player, which expects audio/xxx.
@@ -310,8 +330,8 @@ namespace MediaPortal.Extensions.MetadataExtractors.MusicMetadataExtractor
         audioAspect.SetAttribute(AudioAspect.ATTR_DURATION, tag.Properties.Duration.TotalSeconds);
         if (tag.Tag.Genres.Length > 0)
           audioAspect.SetCollectionAttribute(AudioAspect.ATTR_GENRES, tag.Tag.Genres);
-        if (tag.Tag.Track != 0)
-          audioAspect.SetAttribute(AudioAspect.ATTR_TRACK, (int) tag.Tag.Track);
+        if (trackNo.HasValue)
+          audioAspect.SetAttribute(AudioAspect.ATTR_TRACK, (int) trackNo.Value);
         if (tag.Tag.TrackCount != 0)
           audioAspect.SetAttribute(AudioAspect.ATTR_NUMTRACKS, (int) tag.Tag.TrackCount);
         int year = (int) tag.Tag.Year;
@@ -323,14 +343,14 @@ namespace MediaPortal.Extensions.MetadataExtractors.MusicMetadataExtractor
       }
       catch (UnsupportedFormatException)
       {
-        ServiceRegistration.Get<ILogger>().Info("MusicMetadataExtractor: Unsupported music file '{0}'", mediaItemAccessor.LocalResourcePath);
+        ServiceRegistration.Get<ILogger>().Info("MusicMetadataExtractor: Unsupported music file '{0}'", mediaItemAccessor.CanonicalLocalResourcePath);
         return false;
       }
       catch (Exception e)
       {
         // Only log at the info level here - And simply return false. This makes the importer know that we
         // couldn't perform our task here
-        ServiceRegistration.Get<ILogger>().Info("MusicMetadataExtractor: Exception reading resource '{0}' (Text: '{1}')", mediaItemAccessor.LocalResourcePath, e.Message);
+        ServiceRegistration.Get<ILogger>().Info("MusicMetadataExtractor: Exception reading resource '{0}' (Text: '{1}')", mediaItemAccessor.CanonicalLocalResourcePath, e.Message);
       }
       return false;
     }

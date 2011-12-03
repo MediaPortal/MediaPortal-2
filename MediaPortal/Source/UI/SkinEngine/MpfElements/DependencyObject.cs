@@ -38,11 +38,12 @@ namespace MediaPortal.UI.SkinEngine.MpfElements
   /// which is needed for
   /// <see cref="MediaPortal.UI.SkinEngine.MarkupExtensions.BindingMarkupExtension">bindings</see>.
   /// </summary>
-  public class DependencyObject: IDeepCopyable, IInitializable, IDisposable, ISkinEngineManagedResource
+  public class DependencyObject: IDeepCopyable, IInitializable, IDisposable, ISkinEngineManagedObject
   {
     #region Protected fields
 
     protected ICollection<BindingBase> _bindings = null;
+    protected ICollection<IBinding> _deferredBindings = null;
     protected IList<object> _adoptedObjects = null;
     protected IDictionary<string, AbstractProperty> _attachedProperties = null; // Lazy initialized
     protected AbstractProperty _dataContextProperty;
@@ -75,17 +76,25 @@ namespace MediaPortal.UI.SkinEngine.MpfElements
       DataContext = copyManager.GetCopy(d.DataContext);
       LogicalParent = copyManager.GetCopy(d.LogicalParent);
       if (d._bindings != null)
+      {
+        ICollection<IBinding> deferredBindings = new List<IBinding>();
+        ICollection<BindingBase> bindings = GetOrCreateBindingCollection();
         foreach (BindingBase binding in d._bindings)
-          copyManager.GetCopy(binding);
+        {
+          BindingBase bindingCopy = copyManager.GetCopy(binding);
+          bindings.Add(bindingCopy);
+          deferredBindings.Add(bindingCopy);
+        }
+        AddToBindingContainerOrDeposit(deferredBindings);
+      }
+      // Deferred bindings not necessary to copy
     }
 
     public virtual void Dispose()
     {
       // Albert, 2010-01-18: The next line should not be done to avoid dependent bindings to fire, which were not disposed yet
       //DataContext = null;
-      if (_bindings != null)
-        foreach (BindingBase _binding in new List<BindingBase>(_bindings))
-          _binding.Dispose();
+      DisposeBindings();
       if (_attachedProperties != null)
         foreach (AbstractProperty property in _attachedProperties.Values)
           MPF.TryCleanupAndDispose(property.GetValue());
@@ -120,7 +129,18 @@ namespace MediaPortal.UI.SkinEngine.MpfElements
     public DependencyObject LogicalParent
     {
       get { return (DependencyObject) _logicalParentProperty.GetValue(); }
-      set { _logicalParentProperty.SetValue(value); }
+      set
+      {
+        object oldValue = _logicalParentProperty.GetValue();
+        _logicalParentProperty.SetValue(value);
+        if (_deferredBindings == null)
+          return;
+        if (oldValue != null || value == null)
+          return;
+        ICollection<IBinding> deferredBindings = _deferredBindings;
+        _deferredBindings = null;
+        AddToBindingContainerOrDeposit(deferredBindings);
+      }
     }
 
     #endregion
@@ -137,13 +157,27 @@ namespace MediaPortal.UI.SkinEngine.MpfElements
       _adoptedObjects.Add(o);
     }
 
-    public static void TryDispose(ref object maybeDisposable)
+    protected void DisposeBindings()
     {
-      IDisposable d = maybeDisposable as IDisposable;
-      if (d == null)
-        return;
-      maybeDisposable = null;
-      d.Dispose();
+      if (_bindings != null)
+        foreach (BindingBase _binding in new List<BindingBase>(_bindings))
+          _binding.Dispose();
+      _bindings = null;
+      _deferredBindings = null;
+    }
+
+    protected void ActivateBindings()
+    {
+      if (_bindings != null)
+        foreach (BindingBase binding in new List<BindingBase>(_bindings))
+          binding.Activate();
+      if (_deferredBindings != null)
+      {
+        ICollection<IBinding> deferredBindings = _deferredBindings;
+        _deferredBindings = null;
+        foreach (IBinding binding in deferredBindings)
+          binding.Activate();
+      }
     }
 
     public BindingMarkupExtension GetOrCreateDataContext()
@@ -154,6 +188,50 @@ namespace MediaPortal.UI.SkinEngine.MpfElements
     public ICollection<BindingBase> GetOrCreateBindingCollection()
     {
       return _bindings ?? (_bindings = new List<BindingBase>());
+    }
+
+    protected ICollection<IBinding> GetOrCreateDeferredBindingCollection()
+    {
+      return _deferredBindings ?? (_deferredBindings = new List<IBinding>());
+    }
+
+    protected void AddDeferredBinding(IBinding binding)
+    {
+      ICollection<IBinding> deferredBindings = GetOrCreateDeferredBindingCollection();
+      if (deferredBindings.Contains(binding))
+        return;
+      deferredBindings.Add(binding);
+    }
+
+    protected void AddToBindingContainerOrDeposit(IEnumerable<IBinding> bindings)
+    {
+      IBindingContainer bc = this as IBindingContainer;
+      if (bc != null)
+      {
+        bc.AddBindings(bindings);
+        return;
+      }
+      DependencyObject parent = LogicalParent;
+      if (parent == null)
+        foreach (IBinding binding in bindings)
+          AddDeferredBinding(binding);
+      else
+        parent.AddToBindingContainerOrDeposit(bindings);
+    }
+
+    public void AddToBindingCollection(BindingBase binding)
+    {
+      ICollection<BindingBase> bindings = GetOrCreateBindingCollection();
+      if (bindings.Contains(binding))
+        return;
+      bindings.Add(binding);
+      AddToBindingContainerOrDeposit(new IBinding[] {binding});
+    }
+
+    public void RemoveFromBindingCollection(BindingBase binding)
+    {
+      ICollection<BindingBase> bindings = GetOrCreateBindingCollection();
+      bindings.Remove(binding);
     }
 
     public virtual INameScope FindNameScope()
@@ -235,7 +313,29 @@ namespace MediaPortal.UI.SkinEngine.MpfElements
     /// <param name="value">The value to be set.</param>
     public virtual void SetBindingValue(IDataDescriptor dd, object value)
     {
+      DependencyObject parent = LogicalParent;
+      if (parent == null)
+        SetDataDescriptorValueWithLP(dd, value);
+      else
+        parent.SetBindingValue(dd, value);
+    }
+
+    public static void SetDataDescriptorValueWithLP(IDataDescriptor dd, object value)
+    {
       dd.Value = value;
+      DependencyObject targetObject = dd.TargetObject as DependencyObject;
+      DependencyObject depObjValue = value as DependencyObject;
+      if (targetObject != null && depObjValue != null)
+        depObjValue.LogicalParent = targetObject;
+    }
+
+    public static void TryDispose<T>(ref T maybeDisposable) where T : class 
+    {
+      IDisposable d = maybeDisposable as IDisposable;
+      if (d == null)
+        return;
+      maybeDisposable = null;
+      d.Dispose();
     }
   }
 }

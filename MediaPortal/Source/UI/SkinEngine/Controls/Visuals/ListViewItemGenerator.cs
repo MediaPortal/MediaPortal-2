@@ -28,7 +28,6 @@ using MediaPortal.UI.SkinEngine.Controls.Panels;
 using MediaPortal.UI.SkinEngine.Controls.Visuals.Styles;
 using MediaPortal.UI.SkinEngine.Controls.Visuals.Templates;
 using MediaPortal.UI.SkinEngine.MpfElements;
-using MediaPortal.UI.SkinEngine.Xaml.Interfaces;
 using MediaPortal.Utilities.DeepCopy;
 
 namespace MediaPortal.UI.SkinEngine.Controls.Visuals
@@ -38,7 +37,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
   /// To generate the items, the <see cref="ItemContainerStyle"/> is applied to <see cref="ListViewItem"/> instances,
   /// using the <see cref="ItemTemplate"/> as content template.
   /// </summary>
-  public class ListViewItemGenerator : IDeepCopyable, IItemProvider
+  public class ListViewItemGenerator : IDeepCopyable, IItemProvider, ISkinEngineManagedObject
   {
     protected DataTemplate _itemTemplate = null;
     protected Style _itemContainerStyle = null;
@@ -52,6 +51,10 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     public void Dispose()
     {
       DisposeItems();
+      MPF.TryCleanupAndDispose(_itemTemplate);
+      _itemTemplate = null;
+      MPF.TryCleanupAndDispose(_itemContainerStyle);
+      _itemContainerStyle = null;
     }
 
     public void DeepCopy(IDeepCopyable source, ICopyManager copyManager)
@@ -89,8 +92,11 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       _materializedItems = new List<FrameworkElement>(_items.Count);
       for (int i = 0; i < _items.Count; i++)
         _materializedItems.Add(null);
-      _itemContainerStyle = itemContainerStyle;
-      _itemTemplate = itemTemplate;
+      MPF.TryCleanupAndDispose(_itemContainerStyle);
+      MPF.TryCleanupAndDispose(_itemTemplate);
+      // No need to set the LogicalParent at styles or data templates because they don't bind bindings
+      _itemContainerStyle = MpfCopyManager.DeepCopyCutLVPs(itemContainerStyle);
+      _itemTemplate = MpfCopyManager.DeepCopyCutLVPs(itemTemplate);
     }
 
     /// <summary>
@@ -122,6 +128,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       if (_materializedItems == null)
         return;
       DisposeItems(0, _materializedItems.Count - 1);
+      _populatedStartIndex = -1;
+      _populatedEndIndex = -1;
       _materializedItems = null;
     }
 
@@ -140,7 +148,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       }
     }
 
-    protected FrameworkElement PrepareItem(object dataItem, FrameworkElement visualParent)
+    protected FrameworkElement PrepareItem(object dataItem, FrameworkElement lvParent)
     {
 // ReSharper disable UseObjectOrCollectionInitializer
       ListViewItem result = new ListViewItem
@@ -149,20 +157,13 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
             Context = dataItem,
             Content = dataItem,
             Screen = _parent.Screen,
-            VisualParent = visualParent
+            VisualParent = lvParent,
+            LogicalParent = lvParent
         };
       // Set this after the other properties have been initialized to avoid duplicate work
-      result.Style = ItemContainerStyle;
-
-      // We need to copy the item data template for the child containers, because the
-      // data template contains specific data for each container. We need to "personalize" the
-      // data template copy by assigning its LogicalParent.
-      IEnumerable<IBinding> deferredBindings;
-      DataTemplate childItemTemplate = MpfCopyManager.DeepCopyCutLP(ItemTemplate, out deferredBindings);
-      if (childItemTemplate != null)
-        childItemTemplate.LogicalParent = result;
-      result.ContentTemplate = childItemTemplate;
-      MpfCopyManager.ActivateBindings(deferredBindings);
+      // No need to set the LogicalParent because styles and content templates don't bind bindings
+      result.Style = MpfCopyManager.DeepCopyCutLVPs(ItemContainerStyle);
+      result.ContentTemplate = MpfCopyManager.DeepCopyCutLVPs(ItemTemplate);
       return result;
     }
 
@@ -192,7 +193,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       }
     }
 
-    public FrameworkElement GetOrCreateItem(int index, FrameworkElement visualParent, out bool newCreated)
+    public FrameworkElement GetOrCreateItem(int index, FrameworkElement lvParent, out bool newCreated)
     {
       if (index < 0 || index >= _materializedItems.Count)
       {
@@ -206,7 +207,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
         return result;
       }
       newCreated = true;
-      result = _materializedItems[index] = PrepareItem(_items[index], visualParent);
+      result = _materializedItems[index] = PrepareItem(_items[index], lvParent);
       if (_populatedStartIndex == -1 || _populatedEndIndex == -1)
       {
         _populatedStartIndex = index;

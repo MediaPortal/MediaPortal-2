@@ -51,7 +51,7 @@ Parameters which have to be accessible by a DynamicResource lookup:
       </InvokeCommand>
       <!-- Don't use method CloseTopmostDialog because the command could have shown another dialog -->
       <Command Source="{Service ScreenManager}" Path="CloseDialog"
-          Parameters="{LateBoundValue BindingValue={Binding Source={Service ScreenManager},Path=TopmostDialogInstanceId}}"/>
+          Parameters="{LateBoundValue BindingValue={Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorType={x:Type Screen}},Path=ScreenInstanceId}}"/>
     </CommandList>
   </Include.Resources>
 </Include>

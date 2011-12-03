@@ -21,8 +21,9 @@
 */
 #endregion
 
-using System;
+using MediaPortal.Common;
 using MediaPortal.Common.General;
+using MediaPortal.Common.Logging;
 using MediaPortal.Utilities.DeepCopy;
 using MediaPortal.UI.SkinEngine.MpfElements;
 using MediaPortal.UI.SkinEngine.Xaml;
@@ -104,47 +105,6 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Styles
 
     #region Protected methods
 
-    protected bool FindPropertyDescriptor(UIElement element,
-        out IDataDescriptor propertyDescriptor, out DependencyObject targetObject)
-    {
-      propertyDescriptor = null;
-      if (string.IsNullOrEmpty(TargetName))
-        targetObject = element;
-      else
-      {
-        // Search the element in "normal" namescope and in the dynamic structure via the FindElement method
-        // I think this is more than WPF does. It makes it possible to find elements instantiated
-        // by a template, for example.
-        targetObject = element.FindElementInNamescope(TargetName) ??
-            element.FindElement(new NameMatcher(TargetName));
-        if (targetObject == null)
-          return false;
-      }
-      int index = Property.IndexOf('.');
-      if (index != -1)
-      {
-        string propertyProvider = Property.Substring(0, index);
-        string propertyName = Property.Substring(index + 1);
-        DefaultAttachedPropertyDataDescriptor result;
-        if (!DefaultAttachedPropertyDataDescriptor.CreateAttachedPropertyDataDescriptor(new MpfNamespaceHandler(),
-            element, propertyProvider, propertyName, out result))
-          throw new ArgumentException(
-            string.Format("Attached property '{0}' cannot be set on element '{1}'", Property, targetObject));
-        propertyDescriptor = result;
-        return true;
-      }
-      else
-      {
-        string propertyName = Property;
-        IDataDescriptor result;
-        if (!ReflectionHelper.FindMemberDescriptor(targetObject, propertyName, out result))
-          throw new ArgumentException(
-              string.Format("Property '{0}' cannot be set on element '{1}'", Property, targetObject));
-        propertyDescriptor = result;
-        return true;
-      }
-    }
-
     /// <summary>
     /// Wrapper class for storing the original value of a property
     /// </summary>
@@ -205,16 +165,20 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Styles
       element.GetPendingOrCurrentValue(dd, out obj);
       SetSetterData(targetObject, new SetterData(obj));
 
-      if (TypeConverter.Convert(Value, dd.DataType, out obj))
-        if (ReferenceEquals(Value, obj))
-          element.SetValueInRenderThread(dd, MpfCopyManager.DeepCopyCutLP(obj));
+      object value = Value;
+      if (TypeConverter.Convert(value, dd.DataType, out obj))
+        if (ReferenceEquals(value, obj))
+          SetDataDescriptorValueWithLP(dd, MpfCopyManager.DeepCopyCutLVPs(obj));
         else
           // Avoid creating a copy twice
-          element.SetValueInRenderThread(dd, obj);
+          SetDataDescriptorValueWithLP(dd, obj);
       else
-        // TODO: Log output
+      {
         // Value is not compatible: We cannot execute
+        ServiceRegistration.Get<ILogger>().Warn("Setter for property '{0}': Cannot convert value {1} to target type {2}", _propertyName,
+            value == null ? "'null'" : ("of type " + value.GetType().Name), dd.DataType.Name);
         return;
+      }
     }
 
     public override void Restore(UIElement element)

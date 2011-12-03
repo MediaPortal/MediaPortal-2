@@ -24,7 +24,7 @@
 
 using System;
 using MediaPortal.Common.MediaManagement;
-using MediaPortal.Common.MediaManagement.ResourceAccess;
+using MediaPortal.Common.ResourceAccess;
 
 namespace MediaPortal.Plugins.SlimTv.Providers
 {
@@ -52,7 +52,7 @@ namespace MediaPortal.Plugins.SlimTv.Providers
 
     public SlimTvResourceProvider()
     {
-      _metadata = new ResourceProviderMetadata(SLIMTV_RESOURCE_PROVIDER_ID, "[SlimTvResourceProvider.Name]");
+      _metadata = new ResourceProviderMetadata(SLIMTV_RESOURCE_PROVIDER_ID, "[SlimTvResourceProvider.Name]", true);
     }
 
     #endregion

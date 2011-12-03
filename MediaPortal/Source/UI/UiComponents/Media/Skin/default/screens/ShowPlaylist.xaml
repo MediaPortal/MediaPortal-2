@@ -8,10 +8,11 @@
 
     <Model x:Key="ShowPlaylistModel" Id="E30AA448-C1D1-4d8e-B08F-CF569624B51C"/>
 
-    <ResourceWrapper x:Key="Header_Text" Resource="{Binding Source={StaticResource ShowPlaylistModel},Path=PlaylistHeader}"/>
+    <ResourceWrapper x:Key="Header_Text" EnableBindings="True"
+        Resource="{Binding Source={StaticResource ShowPlaylistModel},Path=PlaylistHeader,Mode=OneTime}"/>
 
     <!-- Contents -->
-    <ResourceWrapper x:Key="Contents_Element">
+    <ControlTemplate x:Key="Contents_Template">
       <Grid DataContext="{Binding Source={StaticResource ShowPlaylistModel}}">
         <Grid.RowDefinitions>
           <RowDefinition Height="Auto"/>
@@ -21,7 +22,7 @@
           <ColumnDefinition Width="*"/>
         </Grid.ColumnDefinitions>
         <DockPanel Grid.Row="0" Grid.Column="0" VerticalAlignment="Bottom" LastChildFill="false">
-          <Label DockPanel.Dock="Left" Content="{Binding PlaylistHeader}"/>
+          <Label DockPanel.Dock="Left" Content="{Binding PlaylistHeader}" Color="{ThemeResource TextColor}"/>
           <StackPanel Margin="10,0,10,0" Orientation="Horizontal" DockPanel.Dock="Right">
             <Label Color="{ThemeResource HintTextColor}" Content="(" FontSize="{ThemeResource SmallerFontSize}"/>
             <Label Color="{ThemeResource HintTextColor}" Content="{Binding NumItemsStr}" FontSize="{ThemeResource SmallerFontSize}"/>
@@ -48,7 +49,7 @@
               Content="[Media.PlaylistEmpty]" Color="{ThemeResource HintTextColor}"/>
         </Grid>
       </Grid>
-    </ResourceWrapper>
+    </ControlTemplate>
 
   </Include.Resources>
 </Include>

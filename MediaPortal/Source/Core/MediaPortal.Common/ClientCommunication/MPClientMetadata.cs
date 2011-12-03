@@ -157,7 +157,7 @@ namespace MediaPortal.Common.ClientCommunication
     [XmlElement("LastSystem")]
     public string XML_LastSystem
     {
-      get { return _lastSystem == null ? null : _lastSystem.HostName; }
+      get { return _lastSystem == null ? null : _lastSystem.Address; }
       set { _lastSystem = value == null ? null : new SystemName(value); }
     }
 

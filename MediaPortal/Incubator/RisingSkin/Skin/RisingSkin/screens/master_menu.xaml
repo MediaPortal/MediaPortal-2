@@ -15,16 +15,16 @@ Usage:
       <ResourceWrapper x:Key="Header_Text">
         [Header text]
       </ResourceWrapper>
-      <ResourceWrapper x:Key="Contents_Element">
+      <ControlTemplate x:Key="Contents_Template">
         [UI element to be displayed in the content area]
-      </ResourceWrapper>
+      </ControlTemplate>
     </Include.Resources>
   </Include>
 
 Parameters which have to be accessible by a DynamicResource lookup:
  - Header_Text (String): The text to be displayed as header
- - Contents_Element (Any UI element): Contents to be displayed in the content
-   area at the right side
+ - Contents_Template (ConrolTemplate): Template for element to be displayed
+   in the content area at the right side
 -->
 
 <Include
@@ -37,8 +37,8 @@ Parameters which have to be accessible by a DynamicResource lookup:
 
     <!-- Header has to be defined by the includer: "Header_Text" -->
 
-    <!-- Client_Element -->
-    <ResourceWrapper x:Key="Client_Element">
+    <!-- Client_Template -->
+    <ControlTemplate x:Key="Client_Template">
       <DockPanel LastChildFill="True" Margin="10">
         <Grid x:Name="LeftPanel" DockPanel.Dock="Left" Margin="10,0,0,10" VerticalAlignment="Stretch">
           <Grid.ColumnDefinitions>
@@ -57,7 +57,7 @@ Parameters which have to be accessible by a DynamicResource lookup:
               HorizontalAlignment="Stretch" VerticalAlignment="Stretch" SetFocusPrio="Default"
               ItemsSource="{Binding Source={StaticResource MenuModel},Path=MenuItems,Mode=OneTime}">
             <ListView.Resources>
-              <ResourceWrapper x:Key="Menu_Command" Resource="{Binding Path=Command,Mode=OneTime}"/>
+              <CommandBridge x:Key="Menu_Command" Command="{Binding Path=Command,Mode=OneTime}"/>
             </ListView.Resources>
           </ListView>
         </Grid>
@@ -70,11 +70,11 @@ Parameters which have to be accessible by a DynamicResource lookup:
           <Grid.RowDefinitions>
             <RowDefinition Height="*"/>
           </Grid.RowDefinitions>
-          <ContentPresenter Margin="10,0,10,10" x:Name="ContentViewer" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"
-              Content="{DynamicResource ResourceKey=Contents_Element,TreeSearchMode=Hybrid}" SetFocus="true"/>
+          <Control Margin="10,0,10,10" x:Name="ContentViewer" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"
+              Template="{DynamicResource ResourceKey=Contents_Template}" SetFocus="true"/>
         </Grid>
       </DockPanel>
-    </ResourceWrapper>
+    </ControlTemplate>
 
   </Include.Resources>
 </Include>

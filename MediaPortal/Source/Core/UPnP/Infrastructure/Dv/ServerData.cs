@@ -124,15 +124,24 @@ namespace UPnP.Infrastructure.Dv
     }
 
     /// <summary>
+    /// Returns the event key for a multicast event for the given <paramref name="service"/> or <c>null</c>.
+    /// </summary>
+    public EventingState GetMulticastEventKey(DvService service)
+    {
+      EventingState result;
+      if (!ServiceMulticastEventingState.TryGetValue(service, out result))
+        ServiceMulticastEventingState[service] = result = new EventingState();
+      return result;
+    }
+
+    /// <summary>
     /// Returns the next event key for a multicast event for the given <paramref name="service"/>.
     /// </summary>
     /// <param name="service">Service for that the new multicast event key should be created.</param>
     /// <returns>New multicast event key.</returns>
     public uint GetNextMulticastEventKey(DvService service)
     {
-      EventingState state;
-      if (!ServiceMulticastEventingState.TryGetValue(service, out state))
-        ServiceMulticastEventingState[service] = state = new EventingState();
+      EventingState state = GetMulticastEventKey(service);
       uint result = state.EventKey;
       state.IncEventKey();
       return result;

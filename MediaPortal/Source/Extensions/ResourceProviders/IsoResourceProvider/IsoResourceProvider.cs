@@ -23,20 +23,26 @@
 #endregion
 
 using System;
+using System.Collections.Generic;
 using System.IO;
-using System.Linq;
+using DiscUtils;
+using MediaPortal.Common;
+using MediaPortal.Common.Logging;
 using MediaPortal.Common.MediaManagement;
-using MediaPortal.Common.MediaManagement.ResourceAccess;
-using ISOReader;
+using MediaPortal.Common.ResourceAccess;
 
 namespace MediaPortal.Extensions.ResourceProviders.IsoResourceProvider
 {
   /// <summary>
   /// Resource provider implementation for ISO files.
   /// </summary>
+  /// <remarks>
+  /// Provider paths used by this resource provider are in standard provider path form and thus can be processed by
+  /// the methods in <see cref="ProviderPathHelper"/>.
+  /// </remarks>
   public class IsoResourceProvider : IChainedResourceProvider
   {
-    #region Public constants
+    #region Consts
 
     protected const string ISO_RESOURCE_PROVIDER_ID_STR = "{112728B1-F71D-4284-9E5C-3462E8D3C74D}";
     public static Guid ISO_RESOURCE_PROVIDER_ID = new Guid(ISO_RESOURCE_PROVIDER_ID_STR);
@@ -47,16 +53,38 @@ namespace MediaPortal.Extensions.ResourceProviders.IsoResourceProvider
 
     protected ResourceProviderMetadata _metadata;
 
+    protected object _syncObj = new object();
+    internal IDictionary<string, IsoResourceProxy> _isoUsages = new Dictionary<string, IsoResourceProxy>(); // Keys to proxy objects
+
     #endregion
 
     #region Ctor
 
     public IsoResourceProvider()
     {
-      _metadata = new ResourceProviderMetadata(ISO_RESOURCE_PROVIDER_ID, "[IsoResourceProvider.Name]");
+      _metadata = new ResourceProviderMetadata(ISO_RESOURCE_PROVIDER_ID, "[IsoResourceProvider.Name]", false);
     }
 
     #endregion
+
+    void OnIsoResourceProxyOrphaned(IsoResourceProxy proxy)
+    {
+      lock (_syncObj)
+      {
+        if (proxy.UsageCount > 0)
+          // Double check if the proxy was reused when the lock was not set
+          return;
+        _isoUsages.Remove(proxy.Key);
+        proxy.Dispose();
+      }
+    }
+
+    internal IsoResourceProxy CreateIsoResourceProxy(string key, IResourceAccessor isoFileResourceAccessor)
+    {
+      IsoResourceProxy result = new IsoResourceProxy(key, isoFileResourceAccessor);
+      result.Orphaned += OnIsoResourceProxyOrphaned;
+      return result;
+    }
 
     #region IResourceProvider implementation
 
@@ -69,38 +97,69 @@ namespace MediaPortal.Extensions.ResourceProviders.IsoResourceProvider
 
     #region IChainedResourceProvider implementation
 
-    public bool CanChainUp(IResourceAccessor potentialBaseResourceAccessor)
+    public bool TryChainUp(IResourceAccessor potentialBaseResourceAccessor, string path, out IResourceAccessor resultResourceAccessor)
     {
-      string resourceName = potentialBaseResourceAccessor.ResourceName;
-      if (string.IsNullOrEmpty(resourceName) || !potentialBaseResourceAccessor.IsFile)
+      resultResourceAccessor = null;
+      string resourcePathName = potentialBaseResourceAccessor.ResourcePathName;
+      if (string.IsNullOrEmpty(resourcePathName) || !potentialBaseResourceAccessor.IsFile ||
+          !".iso".Equals(DosPathHelper.GetExtension(resourcePathName), StringComparison.OrdinalIgnoreCase))
         return false;
-      if (".iso".Equals(Path.GetExtension(resourceName), StringComparison.OrdinalIgnoreCase))
+
+      lock (_syncObj)
       {
+        string key = potentialBaseResourceAccessor.CanonicalLocalResourcePath.Serialize();
+        try
+        {
+          IsoResourceProxy proxy;
+          if (!_isoUsages.TryGetValue(key, out proxy))
+            _isoUsages.Add(key, proxy = CreateIsoResourceProxy(key, potentialBaseResourceAccessor));
+          resultResourceAccessor = new IsoResourceAccessor(this, proxy, path);
+        }
+        catch (Exception e)
+        {
+          ServiceRegistration.Get<ILogger>().Warn("IsoResourceProvider: Error chaining up to '{0}'", e, potentialBaseResourceAccessor.CanonicalLocalResourcePath);
+          return false;
+        }
         return true;
       }
-      return false;
     }
 
     public bool IsResource(IResourceAccessor baseResourceAccessor, string path)
     {
       string resourceName = baseResourceAccessor.ResourceName;
-      if (string.IsNullOrEmpty(resourceName) || baseResourceAccessor.IsFile)
+      if (string.IsNullOrEmpty(resourceName) || !baseResourceAccessor.IsFile)
         return false;
 
-      IsoReader isoReader = new IsoReader();
-      string resourcePathName = baseResourceAccessor.ResourcePathName;
-      isoReader.Open(resourcePathName);
-      
-      string dosPath = "\\" + LocalFsResourceProviderBase.ToDosPath(Path.GetDirectoryName(path));
-      string dosResource = "\\" + LocalFsResourceProviderBase.ToDosPath(path);
-      
-      string[] dirList = isoReader.GetDirectories(dosPath, SearchOption.TopDirectoryOnly);
-      return dirList.Any(entry => entry.Equals(dosResource, StringComparison.OrdinalIgnoreCase));
-    }
+      // Test if we have already an ISO proxy for that ISO file...
+      lock (_syncObj)
+      {
+        string key = baseResourceAccessor.CanonicalLocalResourcePath.Serialize();
+        try
+        {
+          IsoResourceProxy proxy;
+          if (_isoUsages.TryGetValue(key, out proxy))
+            return IsoResourceAccessor.IsResource(proxy.DiskFileSystem, path);
+        }
+        catch (Exception)
+        {
+          return false;
+        }
+      }
 
-    public IResourceAccessor CreateResourceAccessor(IResourceAccessor baseResourceAccessor, string path)
-    {
-      return new IsoResourceAccessor(this, baseResourceAccessor, path);
+      // ... if not, test the resource in a new disk file system instance
+      using (Stream underlayingStream = baseResourceAccessor.OpenRead())
+      {
+        try
+        {
+          IFileSystem diskFileSystem = IsoResourceProxy.GetFileSystem(underlayingStream);
+          using (diskFileSystem as IDisposable)
+            return IsoResourceAccessor.IsResource(diskFileSystem, path);
+        }
+        catch
+        {
+          return false;
+        }
+      }
     }
 
     #endregion

@@ -78,6 +78,9 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     // Use to avoid change handlers during text updates
     protected bool _internalUpdate = false; 
 
+    // Virtual position
+    protected float _virtualPosition = 0; // Negative values mean the text starts before the text control
+
     // Text cursor
     protected bool _cursorShapeInvalid = true;
     protected bool _cursorBrushInvalid = true;
@@ -116,8 +119,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     void Attach()
     {
       _textProperty.Attach(OnTextChanged);
-      _caretIndexProperty.Attach(OnCaretIndexChanged);
       _internalTextProperty.Attach(OnInternalTextChanged);
+      _caretIndexProperty.Attach(OnCaretIndexChanged);
       _colorProperty.Attach(OnColorChanged);
       _preferredTextLengthProperty.Attach(OnCompleteLayoutGetsInvalid);
 
@@ -129,8 +132,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     void Detach()
     {
       _textProperty.Detach(OnTextChanged);
-      _caretIndexProperty.Detach(OnCaretIndexChanged);
       _internalTextProperty.Detach(OnInternalTextChanged);
+      _caretIndexProperty.Detach(OnCaretIndexChanged);
       _colorProperty.Detach(OnColorChanged);
       _preferredTextLengthProperty.Detach(OnCompleteLayoutGetsInvalid);
 
@@ -145,9 +148,10 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       base.DeepCopy(source, copyManager);
       TextControl tc = (TextControl) source;
       Text = tc.Text;
-      Color = tc.Color;
-      CaretIndex = tc.CaretIndex;
       InternalText = Text;
+      CaretIndex = tc.CaretIndex;
+      Color = tc.Color;
+      PreferredTextLength = tc.PreferredTextLength;
       Attach();
       CheckTextCursor();
     }
@@ -424,6 +428,14 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       return childSize;
     }
 
+    protected void Bound(ref float value, float min, float max)
+    {
+      if (value < min)
+        value = min;
+      if (value > max)
+        value = max;
+    }
+
     public override void DoRender(RenderContext localRenderContext)
     {
       base.DoRender(localRenderContext);
@@ -443,9 +455,6 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 
       Color4 color = ColorConverter.FromColor(Color);
       color.Alpha *= (float) localRenderContext.Opacity;
-
-      // Render text
-      _asset.Render(_innerRect, horzAlign, vertAlign, color, false, localRenderContext.ZOrder, TextScrollEnum.None, 0.0f, localRenderContext.Transform);
 
       // Update text cursor
       if ((_cursorShapeInvalid || _cursorBrushInvalid) && CursorState == TextCursorState.Visible)
@@ -467,9 +476,17 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
             textInsetY = 0;
             break;
         }
-        RectangleF cursorBounds = new RectangleF(_innerRect.X + caretX, _innerRect.Y + textInsetY, CURSOR_THICKNESS, textHeight);
+        if (_virtualPosition + caretX < 10)
+          _virtualPosition = _innerRect.Width / 3 - caretX;
+        if (_virtualPosition + caretX > _innerRect.Width - 10)
+          _virtualPosition = _innerRect.Width * 2/3 - caretX;
+        Bound(ref _virtualPosition, -caretX, 0);
+        RectangleF cursorBounds = new RectangleF(_innerRect.X + _virtualPosition + caretX, _innerRect.Y + textInsetY, CURSOR_THICKNESS, textHeight);
         UpdateCursorShape(cursorBounds, localRenderContext.ZOrder);
       }
+
+      // Render text
+      _asset.Render(_innerRect, horzAlign, vertAlign, _virtualPosition, color, localRenderContext.ZOrder, localRenderContext.Transform);
 
       // Render text cursor
       if (_cursorBrush != null && CursorState == TextCursorState.Visible)

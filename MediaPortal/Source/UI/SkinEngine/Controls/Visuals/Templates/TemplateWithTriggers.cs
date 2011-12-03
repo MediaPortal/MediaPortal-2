@@ -27,7 +27,6 @@ using MediaPortal.Common.General;
 using MediaPortal.UI.SkinEngine.Controls.Visuals.Triggers;
 using MediaPortal.UI.SkinEngine.MpfElements;
 using MediaPortal.UI.SkinEngine.Xaml;
-using MediaPortal.UI.SkinEngine.Xaml.Interfaces;
 using MediaPortal.Utilities.DeepCopy;
 
 namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Templates
@@ -86,14 +85,10 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Templates
 
     #region Public methods
 
-    public UIElement LoadContent(out IList<TriggerBase> triggers, out FinishBindingsDlgt finishBindings)
+    public UIElement LoadContent(UIElement triggerParent)
     {
-      triggers = new List<TriggerBase>(Triggers.Count);
       if (_templateElement == null)
-      {
-        finishBindings = () => { };
         return null;
-      }
       MpfCopyManager cm = new MpfCopyManager();
       cm.AddIdentity(this, null);
       FrameworkElement result = cm.GetCopy(_templateElement);
@@ -102,6 +97,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Templates
       if (_names != null)
         foreach (KeyValuePair<string, object> nameRegistration in _names)
           ns.RegisterName(nameRegistration.Key, cm.GetCopy(nameRegistration.Value));
+      triggerParent.UninitializeTriggers();
+      ICollection<TriggerBase> triggers = triggerParent.Triggers;
       foreach (TriggerBase t in Triggers)
       {
         TriggerBase trigger = cm.GetCopy(t);
@@ -112,11 +109,6 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Templates
       // Setting the logical parent has to be done after the copy process has finished - else the logical parent will be overridden
       foreach (TriggerBase t in triggers)
         t.LogicalParent = result;
-      IEnumerable<IBinding> deferredBindings = cm.GetDeferredBindings();
-      finishBindings = () =>
-        {
-          MpfCopyManager.ActivateBindings(deferredBindings);
-        };
       return result;
     }
 

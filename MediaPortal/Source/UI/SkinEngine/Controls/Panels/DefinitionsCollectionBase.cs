@@ -82,10 +82,16 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
         else
           relativeCount++;
       }
+      bool starAvailable = false; // Determine if we have a Star column which will get the size primarily
       for (int i = 0; i < cellSpan; i++)
       {
         GridLength length = this[i + cellIndex].Length;
-        if (length.IsAuto || length.IsAutoStretch || length.IsStar)
+        starAvailable |= length.IsAutoStretch || length.IsStar;
+      }
+      for (int i = 0; i < cellSpan; i++)
+      {
+        GridLength length = this[i + cellIndex].Length;
+        if (length.IsAutoStretch || length.IsStar || (length.IsAuto && !starAvailable))
           if (length.DesiredLength < desiredLength / relativeCount)
             length.DesiredLength = desiredLength / relativeCount;
       }

@@ -23,13 +23,10 @@
 #endregion
 
 using System;
-using System.Collections.Generic;
 using MediaPortal.Common;
 using MediaPortal.Common.General;
 using MediaPortal.Common.Localization;
 using MediaPortal.Common.Messaging;
-using MediaPortal.UI.Presentation.Models;
-using MediaPortal.UI.Presentation.Workflow;
 using MediaPortal.UI.ServerCommunication;
 
 namespace MediaPortal.UiComponents.SkinBase.Models
@@ -37,42 +34,24 @@ namespace MediaPortal.UiComponents.SkinBase.Models
   /// <summary>
   /// Model which attends the workflow state "ShowHomeServer".
   /// </summary>
-  public class HomeServerModel : IWorkflowModel, IDisposable
+  public class HomeServerModel : IDisposable
   {
     #region Consts
 
     protected const string MODEL_ID_STR = "854ABA9A-71A1-420b-A657-9641815F9C01";
-
-    protected const string SHOW_HOMESERVER_SCREEN = "ShowHomeServer";
-    protected const string NO_HOMESERVER_SCREEN = "NoHomeServer";
 
     protected const string SERVER_FORMAT_TEXT_RES = "[ServerConnection.ServerFormatText]";
 
     protected const string UNKNOWN_SERVER_NAME_RES = "[ServerConnection.UnknownServerName]";
     protected const string UNKNOWN_SERVER_SYSTEM_RES = "[ServerConnection.UnknownServerSystem]";
 
-    protected const string CONFIGURE_HOME_SERVER_STATE_STR = "17214BAC-E79C-4e5e-9280-A01478B27579";
-
-    public const string SERVER_DESCRIPTOR_KEY = "ServerDescriptor";
-    public const string NAME_KEY = "Name";
-    public const string SYSTEM_KEY = "System";
-
     protected static Guid MODEL_ID = new Guid(MODEL_ID_STR);
-
-    /// <summary>
-    /// In this state, the <see cref="HomeServerModel"/> shows a screen which displays the current home server.
-    /// </summary>
-    /// <remarks>
-    /// When the connection state changes, the screen will automatically change to reflect the current connection state.
-    /// </remarks>
-    public static Guid CONFIGURE_HOME_SERVER_STATE = new Guid(CONFIGURE_HOME_SERVER_STATE_STR);
 
     #endregion
 
     #region Protected fields
 
     protected AsynchronousMessageQueue _messageQueue;
-    protected object _syncObj = new object();
     protected AbstractProperty _homeServerProperty;
     protected AbstractProperty _isHomeServerAttachedProperty;
     protected AbstractProperty _isHomeServerConnectedProperty;
@@ -89,7 +68,8 @@ namespace MediaPortal.UiComponents.SkinBase.Models
             ServerConnectionMessaging.CHANNEL
           });
       _messageQueue.MessageReceived += OnMessageReceived;
-      // Message queue will be started in method EnterModelContext
+      _messageQueue.Start();
+      SynchronizeHomeServer();
     }
 
     public virtual void Dispose()
@@ -136,6 +116,11 @@ namespace MediaPortal.UiComponents.SkinBase.Models
       }
     }
 
+    public Guid ModelId
+    {
+      get { return MODEL_ID; }
+    }
+
     #region Public members to be called from the GUI
 
     public bool IsHomeServerAttached
@@ -169,58 +154,6 @@ namespace MediaPortal.UiComponents.SkinBase.Models
     public AbstractProperty IsHomeServerConnectedProperty
     {
       get { return _isHomeServerConnectedProperty; }
-    }
-
-    #endregion
-
-    #region IWorkflowModel implementation
-
-    public Guid ModelId
-    {
-      get { return MODEL_ID; }
-    }
-
-    public bool CanEnterState(NavigationContext oldContext, NavigationContext newContext)
-    {
-      return true;
-    }
-
-    public void EnterModelContext(NavigationContext oldContext, NavigationContext newContext)
-    {
-      lock (_syncObj)
-        _messageQueue.Start();
-      SynchronizeHomeServer();
-    }
-
-    public void ExitModelContext(NavigationContext oldContext, NavigationContext newContext)
-    {
-      lock (_syncObj)
-        _messageQueue.Shutdown();
-    }
-
-    public void ChangeModelContext(NavigationContext oldContext, NavigationContext newContext, bool push)
-    {
-      // Nothing to do
-    }
-
-    public void Deactivate(NavigationContext oldContext, NavigationContext newContext)
-    {
-      // Nothing to do
-    }
-
-    public void Reactivate(NavigationContext oldContext, NavigationContext newContext)
-    {
-      // Nothing to do
-    }
-
-    public void UpdateMenuActions(NavigationContext context, IDictionary<Guid, WorkflowAction> actions)
-    {
-      // Nothing to do
-    }
-
-    public ScreenUpdateMode UpdateScreen(NavigationContext context, ref string screen)
-    {
-      return ScreenUpdateMode.AutoWorkflowManager;
     }
 
     #endregion

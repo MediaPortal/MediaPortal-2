@@ -49,12 +49,12 @@
             </Grid.RowDefinitions>
             
             <Control Grid.Column="0" Grid.Row="0" Style="{ThemeResource OSDInfoAreaStyle}" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"/>
-            <ContentPresenter Grid.Column="0" Grid.Row="0" x:Name="OSDInfoAreaPresenter" Margin="5" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
-                Content="{DynamicResource ResourceKey=OSD_InfoArea_Element,TreeSearchMode=Hybrid}" />
+            <Control Grid.Column="0" Grid.Row="0" x:Name="OSDInfoAreaPresenter" Margin="5" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+                Template="{DynamicResource ResourceKey=OSD_InfoArea_Template}" />
 
             <Control Grid.Column="0" Grid.Row="1" Style="{ThemeResource ProgressAndControlsStyle}" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"/>
-            <ContentPresenter Grid.Column="0" Grid.Row="1" x:Name="ProgressAndControlsPresenter" Margin="2" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
-                Content="{DynamicResource ResourceKey=OSD_ProgressAndControls_Element,TreeSearchMode=Hybrid}"/>
+            <Control Grid.Column="0" Grid.Row="1" x:Name="ProgressAndControlsPresenter" Margin="2" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+                Template="{DynamicResource ResourceKey=OSD_ProgressAndControls_Template}"/>
 
           </Grid>
         </ControlTemplate>

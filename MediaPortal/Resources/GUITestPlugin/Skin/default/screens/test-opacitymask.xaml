@@ -3,10 +3,13 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     >
   <DockPanel LastChildFill="True">
-    <Label DockPanel.Dock="Top" HorizontalAlignment="Center" Content="OpacityMask tests" Wrap="True"/>
+    <Label DockPanel.Dock="Top" HorizontalAlignment="Center"
+        Content="OpacityMask tests"
+        Color="{ThemeResource TextColor}" Wrap="True"/>
     <Label DockPanel.Dock="Top" HorizontalAlignment="Center"
         Content="This screen shows different controls, somtimes animated, with an OpacityMask. The opacity mask should always cover the complete enclosing panel, adapt its size to the panel and span from the left side (transparent) to the right side (opaque)."
-        Wrap="True" FontSize="{ThemeResource SmallFontSize}"/>
+        Wrap="True" FontSize="{ThemeResource SmallFontSize}"
+        Color="{ThemeResource TextColor}"/>
     <Grid DockPanel.Dock="Center">
       <Grid.ColumnDefinitions>
         <ColumnDefinition Width="400"/>
@@ -57,7 +60,7 @@
             <GradientStop Offset="1" Color="#FFFFFFFF"/>
           </LinearGradientBrush>
         </StackPanel.OpacityMask>
-        <Label Content="Simple"/>
+        <Label Content="Simple" Color="{ThemeResource TextColor}"/>
         <Button Margin="5" RenderTransformOrigin="0.5,0.5" Content="{StaticResource ButtonContent}"/>
         <Button Margin="5" RenderTransformOrigin="0.5,0.5" Content="{StaticResource ButtonContent}"/>
       </StackPanel>
@@ -69,7 +72,7 @@
             <GradientStop Offset="1" Color="#FFFFFFFF"/>
           </LinearGradientBrush>
         </StackPanel.OpacityMask>
-        <Label Content="Button translated"/>
+        <Label Content="Button translated" Color="{ThemeResource TextColor}"/>
         <Button Margin="5" RenderTransformOrigin="0.5,0.5" Content="{StaticResource ButtonContent}">
           <Button.RenderTransform>
             <TranslateTransform X="{StaticResource ButtonTranslation}"/>
@@ -90,7 +93,7 @@
           <RotateTransform Angle="{StaticResource StackPanelRotation}"/>
           <!-- Brush (gradient) should be rotated too -->
         </StackPanel.RenderTransform>
-        <Label Content="StackPanel rotated"/>
+        <Label Content="StackPanel rotated" Color="{ThemeResource TextColor}"/>
         <Button Margin="5" RenderTransformOrigin="0.5,0.5" Content="{StaticResource ButtonContent}">
           <Button.RenderTransform>
             <TranslateTransform X="{StaticResource ButtonTranslation}"/>
@@ -112,7 +115,7 @@
             <GradientStop Offset="1" Color="#FFFFFFFF"/>
           </LinearGradientBrush>
         </StackPanel.OpacityMask>
-        <Label Content="Button moving"/>
+        <Label Content="Button moving" Color="{ThemeResource TextColor}"/>
         <Button x:Name="TranslatingButton" Margin="5" RenderTransformOrigin="0.5,0.5" Content="{StaticResource ButtonContent}">
           <Button.RenderTransform>
             <TranslateTransform X="0"/>
@@ -127,8 +130,8 @@
         <Button Margin="5" RenderTransformOrigin="0.5,0.5" Content="{StaticResource ButtonContent}"/>
       </StackPanel>
   
-      <Label Content="Test" Grid.Row="2" Grid.Column="0"/>
-      <Label Content="Test" Grid.Row="3" Grid.Column="0">
+      <Label Content="Test" Grid.Row="2" Grid.Column="0" Color="{ThemeResource TextColor}"/>
+      <Label Content="Test" Grid.Row="3" Grid.Column="0" Color="{ThemeResource TextColor}">
         <Label.OpacityMask>
           <LinearGradientBrush StartPoint="0.5,0.0" EndPoint="0.5,1.0">
             <GradientStop Offset="0.0" Color="#00000000" />

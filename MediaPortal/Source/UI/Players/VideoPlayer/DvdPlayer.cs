@@ -845,7 +845,7 @@ namespace MediaPortal.UI.Players.Video
         int streamsAvailable, currentStream;
         _dvdInfo.GetCurrentAudio(out streamsAvailable, out currentStream);
         string[] audioStreams = AudioStreams;
-        return audioStreams[currentStream];
+        return (currentStream >= 0 && audioStreams.Length > currentStream) ? audioStreams[currentStream] : null;
       }
     }
 
@@ -1008,7 +1008,7 @@ namespace MediaPortal.UI.Players.Video
     /// </summary>
     /// <param name="chapterNumber">0 based chapter number.</param>
     /// <returns>Localized chapter name.</returns>
-    private String GetChapterName(int chapterNumber)
+    private static String GetChapterName(int chapterNumber)
     {
       //Idea: we could scrape chapter names and store them in MediaAspects. When they are available, return the full names here.
       return ServiceRegistration.Get<ILocalization>().ToString(RES_PLAYBACK_CHAPTER, chapterNumber);

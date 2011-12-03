@@ -51,7 +51,8 @@
                     <RowDefinition Height="Auto"/>
                     <RowDefinition Height="Auto"/>
                   </Grid.RowDefinitions>
-                  <!--<Label x:Name="ChannelName" Grid.Column="0" Grid.Row="0" Content="{Binding Source={StaticResource SlimTvClient},Path=ChannelName}" 
+                  <!--<Label x:Name="ChannelName" Grid.Column="0" Grid.Row="0" Content="{Binding Source={StaticResource SlimTvClient},Path=ChannelName}"
+                      Color="{ThemeResource TextColor}"
                       Scroll="Auto" 
                       HorizontalAlignment="Left" VerticalAlignment="Center"/>-->
 
@@ -67,7 +68,7 @@
                   </Image>
 
                   <Label x:Name="CurrentProgramTitleLabel" Grid.Column="1" Grid.Row="0" Content="{Binding Source={StaticResource SlimTvClient},Path=CurrentProgram.Title}" Scroll="Auto"
-                      HorizontalAlignment="Left" VerticalAlignment="Center"/>
+                      HorizontalAlignment="Left" VerticalAlignment="Center" Color="{ThemeResource TextColor}"/>
 
                   <Label x:Name="NextProgramTitleLabel"  Grid.Column="1" Grid.Row="1" Content="{Binding Source={StaticResource SlimTvClient},Path=PlayingNextProgram}" Scroll="Auto"
                       HorizontalAlignment="Left" VerticalAlignment="Center"
@@ -75,8 +76,8 @@
 
 
                   <Label x:Name="CurrentProgramStartLabel" Grid.Column="0" Grid.Row="2" 
-                      Content="{Binding Source={StaticResource SlimTvClient}, Path=CurrentProgram.StartTime, Converter={StaticResource DateFormatConverter}}" 
-                      HorizontalAlignment="Left" VerticalAlignment="Center"/>
+                      Content="{Binding Source={StaticResource SlimTvClient}, Path=CurrentProgram.StartTime, Converter={StaticResource DateFormatConverter}}"
+                      HorizontalAlignment="Left" VerticalAlignment="Center" Color="{ThemeResource TextColor}"/>
 
                   <Border x:Name="BgProgressbar" Grid.Column="1" Grid.Row="2" HorizontalAlignment="Stretch" VerticalAlignment="Center"
                     BorderBrush="Black" CornerRadius="3" BorderThickness="1">
@@ -96,11 +97,11 @@
 
                   
                   <Label x:Name="CurrentProgramEndLabel" Grid.Column="2" Grid.Row="2" 
-                      Content="{Binding Source={StaticResource SlimTvClient},Path=CurrentProgram.EndTime, Converter={StaticResource DateFormatConverter}}" 
-                      HorizontalAlignment="Right" VerticalAlignment="Center"/>
+                      Content="{Binding Source={StaticResource SlimTvClient},Path=CurrentProgram.EndTime, Converter={StaticResource DateFormatConverter}}"
+                      HorizontalAlignment="Right" VerticalAlignment="Center" Color="{ThemeResource TextColor}"/>
 
                   <Label x:Name="PlayerStateLabel" Grid.Column="1" Grid.Row="3" HorizontalAlignment="Center"
-                    Content="{Binding PlayerStateText}" Scroll="Auto"/>
+                      Content="{Binding PlayerStateText}" Color="{ThemeResource TextColor}" Scroll="Auto"/>
 
                 </Grid>
               </DockPanel>
@@ -115,12 +116,12 @@
                   <RowDefinition Height="Auto"/>
                 </Grid.RowDefinitions>
                 <Label x:Name="PlayerStateLabel" Grid.Column="0" Grid.Row="0" HorizontalAlignment="Left"
-                    Content="{Binding PlayerStateText}" Scroll="Auto"/>
+                    Content="{Binding PlayerStateText}" Color="{ThemeResource TextColor}" Scroll="Auto"/>
                 <StackPanel Orientation="Horizontal" Grid.Column="1" Grid.Row="0" Margin="10,0,0,0" HorizontalAlignment="Right"
                     IsVisible="{Binding IsPlayerPresent}">
-                  <Label x:Name="CurrentTimeLabel" Content="{Binding CurrentTime}"/>
-                  <Label Content="/" Margin="4,0,4,0"/>
-                  <Label x:Name="VideoDurationLabel" Content="{Binding Duration}"/>
+                  <Label x:Name="CurrentTimeLabel" Content="{Binding CurrentTime}" Color="{ThemeResource TextColor}"/>
+                  <Label Content="/" Margin="4,0,4,0" Color="{ThemeResource TextColor}"/>
+                  <Label x:Name="VideoDurationLabel" Content="{Binding Duration}" Color="{ThemeResource TextColor}"/>
                 </StackPanel>
               </Grid>--> <!-- StatusLineGrid -->
               <StackPanel x:Name="PlayControlsPanel" Orientation="Horizontal" Grid.Column="0" Grid.Row="3" Margin="10,10,10,0"
@@ -206,9 +207,11 @@
         <ColumnDefinition Width="Auto"/>
         <ColumnDefinition Width="*"/>
       </Grid.ColumnDefinitions>
-      <Label x:Name="StartTime" Grid.Column="0" Content="{Binding [StartTime]}" FontSize="{ThemeResource SmallFontSize}"/>
-      <Label x:Name="ItemLabel" Grid.Column="1" Content="{Binding [Name]}" FontSize="{ThemeResource SmallFontSize}"
-             Margin="5,0,0,0"/>
+      <Label x:Name="StartTime" Grid.Column="0" Content="{Binding [StartTime]}"
+          Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}"/>
+      <Label x:Name="ItemLabel" Grid.Column="1" Content="{Binding [Name]}"
+          Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}"
+          Margin="5,0,0,0"/>
     </Grid>
   </DataTemplate>
 
@@ -221,7 +224,7 @@
           <Binding Path="Program.RemainingDuration"/>
         </MultiBinding>
       </StackPanel.Width>
-      <Label x:Name="ItemLabel" Content="{Binding [Name]}" FontSize="{ThemeResource SmallFontSize}" />
+      <Label x:Name="ItemLabel" Content="{Binding [Name]}" Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}" />
     </StackPanel>
   </DataTemplate>
 
@@ -231,8 +234,7 @@
     <Setter Property="Template">
       <Setter.Value>
         <ControlTemplate TargetType="{x:Type ListView}">
-          <!--<ScrollViewer CanContentScroll="false"
-              HorizontalAlignment="Stretch" VerticalAlignment="Stretch">-->
+          <!--<ScrollViewer CanContentScroll="False">-->
             <ItemsPresenter VerticalAlignment="Stretch" HorizontalAlignment="Stretch" />
           <!--</ScrollViewer>-->
         </ControlTemplate>
@@ -241,9 +243,8 @@
     <Setter Property="ItemsPanel">
       <Setter.Value>
         <ItemsPanelTemplate>
-          <StackPanel x:Name="ListItemsHost" IsItemsHost="True" Margin="0" 
-                      HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
-                      Orientation="Horizontal" />
+          <StackPanel x:Name="ListItemsHost" IsItemsHost="True"
+              Orientation="Horizontal" />
         </ItemsPanelTemplate>
       </Setter.Value>
     </Setter>
@@ -319,7 +320,7 @@
       <Setter.Value>
         <ControlTemplate TargetType="{x:Type ListViewItem}">
           <Button Style="{ThemeResource ProgramGuideButtonStyle}"
-              Command="{DynamicResource ResourceKey=Menu_Command,TreeSearchMode=Hybrid}"
+              Command="{DynamicResource ResourceKey=Menu_Command}"
               IsEnabled="{Binding Enabled}">
             <Button.Triggers>
               <Trigger Property="HasFocus" Value="True">
@@ -435,12 +436,20 @@
                    Stretch="Uniform" Margin="5,2,2,2"
                    Source="{Binding ChannelLogoPath}"
                    FallbackSource="channellogos\no_channel_logo.png"/>
-            <Label Grid.Column="1" Grid.Row="0" x:Name="NameLabel" Margin="3,5,0,5" Content="{Binding [Name]}"/>
+            <Label Grid.Column="1" Grid.Row="0" x:Name="NameLabel" Margin="3,5,0,5" Content="{Binding [Name]}" Color="{ThemeResource TextColor}"/>
 
-            <Label Grid.Column="2" Grid.Row="0" x:Name="CurrentProgramTimeLabel" Margin="5,5,0,5" Content="{Binding Path=Programs[0].Program.StartTime, Converter={StaticResource DateFormatConverter}}"/>
-            <Label Grid.Column="2" Grid.Row="1" x:Name="NextProgramTimeLabel" Margin="5,0,0,5" Content="{Binding Path=Programs[1].Program.StartTime, Converter={StaticResource DateFormatConverter}}" Color="{ThemeResource NextProgramLabelColor}"/>
-            <Label Grid.Column="3" Grid.Row="0" x:Name="CurrentProgramLabel" Margin="5,5,0,5" Content="{Binding Programs[0].Program.Title}"/>
-            <Label Grid.Column="3" Grid.Row="1" x:Name="NextProgramLabel" Margin="5,0,0,5" Content="{Binding Programs[1].Program.Title}" Color="{ThemeResource NextProgramLabelColor}"/>
+            <Label Grid.Column="2" Grid.Row="0" x:Name="CurrentProgramTimeLabel" Margin="5,5,0,5"
+                Content="{Binding Path=Programs[0].Program.StartTime, Converter={StaticResource DateFormatConverter}}"
+                Color="{ThemeResource TextColor}"/>
+            <Label Grid.Column="2" Grid.Row="1" x:Name="NextProgramTimeLabel" Margin="5,0,0,5"
+                Content="{Binding Path=Programs[1].Program.StartTime, Converter={StaticResource DateFormatConverter}}"
+                Color="{ThemeResource NextProgramLabelColor}"/>
+            <Label Grid.Column="3" Grid.Row="0" x:Name="CurrentProgramLabel" Margin="5,5,0,5"
+                Content="{Binding Programs[0].Program.Title}"
+                Color="{ThemeResource TextColor}"/>
+            <Label Grid.Column="3" Grid.Row="1" x:Name="NextProgramLabel" Margin="5,0,0,5"
+                Content="{Binding Programs[1].Program.Title}"
+                Color="{ThemeResource NextProgramLabelColor}"/>
             <!--<ContentPresenter Grid.Column="1" Grid.Row="0" x:Name="ButtonContentPresenter" Margin="5,5,0,5" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"/>-->
           </Grid>
           <ControlTemplate.Triggers>
@@ -487,7 +496,7 @@
       </Grid.ColumnDefinitions>
 
       <Button Style="{ThemeResource ChannelWithLogoButtonStyle}" 
-              Command="{DynamicResource ResourceKey=Menu_Command,TreeSearchMode=Hybrid}"
+              Command="{DynamicResource ResourceKey=Menu_Command}"
               IsEnabled="{Binding Enabled}" Content="{Binding [Name]}" FontSize="{ThemeResource SmallFontSize}" />
     </Grid>
   </DataTemplate>
@@ -502,7 +511,7 @@
       </Grid.ColumnDefinitions>
 
       <Button Style="{ThemeResource ChannelWithLogoAndProgramButtonStyle}" 
-              Command="{DynamicResource ResourceKey=Menu_Command,TreeSearchMode=Hybrid}"
+              Command="{DynamicResource ResourceKey=Menu_Command}"
               IsEnabled="{Binding Enabled}" Content="{Binding [Name]}" FontSize="{ThemeResource SmallFontSize}" />
     </Grid>
   </DataTemplate>
@@ -519,7 +528,7 @@
       </Grid.ColumnDefinitions>
 
       <Button Style="{ThemeResource ChannelWithLogoButtonStyle}" Grid.Column="0" Grid.Row="0"
-              Command="{DynamicResource ResourceKey=Menu_Command,TreeSearchMode=Hybrid}"
+              Command="{DynamicResource ResourceKey=Menu_Command}"
               IsEnabled="{Binding Enabled}" Content="{Binding [Name]}" FontSize="{ThemeResource SmallFontSize}" />
       
       <ListView x:Name="ProgramItems" Grid.Column="1" Grid.Row="0" 
@@ -529,7 +538,7 @@
               SelectionChanged="{CommandStencil Source={StaticResource SlimTvMultiChannelGuide}, Path=UpdateProgram}">
 
         <ListView.Resources>
-          <ResourceWrapper x:Key="Menu_Command" Resource="{Binding Path=Command}"/>
+          <CommandBridge x:Key="Menu_Command" Command="{Binding Path=Command,Mode=OneTime}"/>
         </ListView.Resources>
       </ListView>
     </Grid>

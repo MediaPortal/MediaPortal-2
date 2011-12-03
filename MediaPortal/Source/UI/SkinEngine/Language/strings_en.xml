@@ -6,6 +6,10 @@
     <String Name="Appearance.System.Fullscreen.Help" Text="Show MediaPortal in fullscreen mode"/>
     <String Name="Appearance.System.CellPhoneInputStyle" Text="Cell phone input style"/>
     <String Name="Appearance.System.CellPhoneInputStyle.Help" Text="Use cell phone/SMS input style"/>
+    <String Name="Appearance.System.ScreenSaverEnabled" Text="Enable screen saver"/>
+    <String Name="Appearance.System.ScreenSaverEnabled.Help" Text="Configure if the screen saver should be displayed"/>
+    <String Name="Appearance.System.ScreenSaverTimeout" Text="Screen saver timeout"/>
+    <String Name="Appearance.System.ScreenSaverTimeout.Help" Text="Configure the timespan in minutes when the screen saver should be displayed after the last user input"/>
 
     <String Name="Appearance.Skin" Text="Skin"/>
     <String Name="Appearance.Skin.SkinAndTheme" Text="Skin and theme"/>
@@ -25,12 +29,12 @@
     <String Name="NotificationErrorLoadingSkinFallingBackToCurrentText" Text="Falling back to current skin"/>
     <String Name="NotificationErrorLoadingSkinFallingBackToDefaultText" Text="Falling back to default skin"/>
     <String Name="ErrorLoadingSkinResource" Text="Error loading skin resource"/>
-    <String Name="ScreenMissing" Text="Cannot find the skin resource for screen '{0}'."/>
-    <String Name="ScreenBroken" Text="The skin resource for screen '{0}' seems to be broken."/>
-    <String Name="BackgroundScreenMissing" Text="Cannot find the skin resource for background screen '{0}'."/>
-    <String Name="BackgroundScreenBroken" Text="The skin resource for background screen '{0}' seems to be broken."/>
-    <String Name="SuperLayerScreenMissing" Text="Cannot find the skin resource for super layer screen '{0}'."/>
-    <String Name="SuperLayerScreenBroken" Text="The skin resource for super layer screen '{0}' seems to be broken."/>
+    <String Name="ScreenMissing" Text="Cannot find the skin resource for screen '{0}'"/>
+    <String Name="ScreenBroken" Text="The skin resource for screen '{0}' seems to be broken"/>
+    <String Name="BackgroundScreenMissing" Text="Cannot find the skin resource for background screen '{0}'"/>
+    <String Name="BackgroundScreenBroken" Text="The skin resource for background screen '{0}' seems to be broken"/>
+    <String Name="SuperLayerScreenMissing" Text="Cannot find the skin resource for super layer screen '{0}'"/>
+    <String Name="SuperLayerScreenBroken" Text="The skin resource for super layer screen '{0}' seems to be broken"/>
   </Section>
   <Section Name="Geometries">
     <String Name="IntelligentZoom" Text="Intelligent Zoom"/>

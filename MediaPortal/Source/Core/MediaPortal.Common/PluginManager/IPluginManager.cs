@@ -202,7 +202,7 @@ namespace MediaPortal.Common.PluginManager
     T RequestPluginItem<T>(string location, string id, IPluginItemStateTracker stateTracker) where T : class;
 
     /// <summary>
-    /// Non-generic form of <see cref="RequestPluginItem{T}<>"/>.
+    /// Non-generic form of <see cref="RequestPluginItem"/>.
     /// </summary>
     /// <param name="location">Registration location of the requested item in the plugin tree.</param>
     /// <param name="id">Id which was used to register the requested item.</param>
@@ -232,10 +232,10 @@ namespace MediaPortal.Common.PluginManager
     ICollection<T> RequestAllPluginItems<T>(string location, IPluginItemStateTracker stateTracker) where T : class;
 
     /// <summary>
-    /// Non-generic form of <see cref="RequestAllPluginItems{T}<>"/>.
+    /// Non-generic form of <see cref="RequestAllPluginItems"/>.
     /// </summary>
     /// <param name="location">Registration location of the requested items in the plugin tree.</param>
-    /// <param name="type">Class of the requested items.</typeparam>
+    /// <param name="type">Class of the requested items.</param>
     /// <param name="stateTracker">Instance used to manage the item's state.</param>
     /// <returns>Collection of plugin items registered at the specified location in the plugin tree.</returns>
     /// <exception cref="PluginLockException">If the plugin is locked by an ongoing plugin action.</exception>

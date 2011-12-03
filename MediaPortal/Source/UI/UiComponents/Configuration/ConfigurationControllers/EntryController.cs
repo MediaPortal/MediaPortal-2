@@ -24,28 +24,14 @@
 
 using System;
 using MediaPortal.Common.Configuration.ConfigurationClasses;
-using MediaPortal.Common.General;
 
 namespace MediaPortal.UiComponents.Configuration.ConfigurationControllers
 {
   /// <summary>
   /// Configuration controller for the <see cref="Entry"/> configuration setting.
   /// </summary>
-  public class EntryController : DialogConfigurationController
+  public class EntryController : AbstractEntryController
   {
-    #region Protected fields
-
-    protected AbstractProperty _valueProperty;
-    protected AbstractProperty _displayLengthProperty;
-
-    #endregion
-
-    public EntryController()
-    {
-      _valueProperty = new WProperty(typeof(string), string.Empty);
-      _displayLengthProperty = new WProperty(typeof(int), 0);
-    }
-
     public override Type ConfigSettingType
     {
       get { return typeof(Entry); }
@@ -71,29 +57,6 @@ namespace MediaPortal.UiComponents.Configuration.ConfigurationControllers
       Entry entry = (Entry) _setting;
       entry.Value = Value;
       base.UpdateSetting();
-    }
-
-    public AbstractProperty ValueProperty
-    {
-      get { return _valueProperty; }
-    }
-
-    public string Value
-    {
-      get { return (string) _valueProperty.GetValue(); }
-      set { _valueProperty.SetValue(value); }
-    }
-
-    public AbstractProperty DisplayLengthProperty
-    {
-      get { return _displayLengthProperty; }
-      internal set { _displayLengthProperty.SetValue(value); }
-    }
-
-    public int DisplayLength
-    {
-      get { return (int) _displayLengthProperty.GetValue(); }
-      set { _displayLengthProperty.SetValue(value); }
     }
   }
 }

@@ -65,6 +65,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Cache\SmallLRUCache.cs" />
     <Compile Include="Collections\SafeDictionary.cs" />
     <Compile Include="CollectionUtils.cs" />
     <Compile Include="CommandLine\ArgumentParser.cs" />
@@ -90,6 +91,7 @@
     <Compile Include="CommandLine\TargetWrapper.cs" />
     <Compile Include="CommandLine\ValueListAttribute.cs" />
     <Compile Include="Conversion\Conversion.cs" />
+    <Compile Include="ThreadingUtils.cs" />
     <Compile Include="DB\InstructionList.cs" />
     <Compile Include="DB\SQLUtils.cs" />
     <Compile Include="DeepCopy\CopyManager.cs" />

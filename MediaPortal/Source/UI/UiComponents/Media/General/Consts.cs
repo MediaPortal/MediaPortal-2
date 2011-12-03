@@ -201,6 +201,14 @@ namespace MediaPortal.UiComponents.Media.General
     public const string RES_PLAYLIST_LOAD_SOME_ITEMS_MISSING_TEXT = "[Media.PlaylistLoadSomeItemsMissingText]";
     public const string RES_PLAYLIST_LOAD_ALL_ITEMS_MISSING_TEXT = "[Media.PlaylistLoadAllItemsMissingText]";
 
+    // View mode
+    public const string RES_SWITCH_VIEW_MODE = "[Media.SwitchViewModeMenuItem]";
+
+    public const string RES_SMALL_LIST = "[Media.SmallList]";
+    public const string RES_MEDIUM_LIST = "[Media.MediumList]";
+    public const string RES_LARGE_LIST = "[Media.LargeList]";
+    public const string RES_LARGE_Grid = "[Media.LargeGrid]";
+
     // Screens
     public const string SCREEN_BROWSE_MEDIA_NAVIGATION = "BrowseMediaNavigation";
     public const string SCREEN_LOCAL_MEDIA_NAVIGATION = "LocalMediaNavigation";
@@ -239,6 +247,8 @@ namespace MediaPortal.UiComponents.Media.General
 
     public const string DIALOG_ADD_TO_PLAYLIST_PROGRESS = "DialogAddToPlaylistProgress";
 
+    public const string DIALOG_SWITCH_VIEW_MODE = "DialogSwitchViewMode";
+
     // Timespans
     public static TimeSpan TS_SEARCH_TEXT_TYPE = TimeSpan.FromMilliseconds(300);
 
@@ -262,6 +272,10 @@ namespace MediaPortal.UiComponents.Media.General
     public const string KEY_ARTISTS = "Artists";
     public const string KEY_YEAR = "Year";
     public const string KEY_SIZE = "Size";
+    public const string KEY_WIDTH = "Width";
+    public const string KEY_HEIGHT = "Height";
+    public const string KEY_EXTENSION = "Extension";
+    public const string KEY_MIMETYPE = "MimeType";
     public const string KEY_RATING = "Rating";
 
     public const string KEY_MEDIA_ITEM = "MediaItem";
@@ -313,6 +327,9 @@ namespace MediaPortal.UiComponents.Media.General
           MediaAspect.ASPECT_ID,
           PictureAspect.ASPECT_ID,
       };
+
+    public static readonly string MEDIA_SKIN_SETTINGS_REGISTRATION_PATH = "/Media/SkinSettings";
+    public static readonly string MEDIA_SKIN_SETTINGS_REGISTRATION_OPTIONAL_TYPES_PATH = "OptionalMIATypes";
 
     public const int MAX_NUM_ITEMS_VISIBLE = 5000;
   }

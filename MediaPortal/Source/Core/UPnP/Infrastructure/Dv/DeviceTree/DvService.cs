@@ -22,6 +22,7 @@
 
 #endregion
 
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -41,7 +42,7 @@ namespace UPnP.Infrastructure.Dv.DeviceTree
   /// To build special service configurations, either subclasses can be implemented doing the service initialization or
   /// instances of this class can be created and configured from outside.
   /// </summary>
-  public class DvService
+  public class DvService : IDisposable
   {
     protected string _serviceType;
     protected int _serviceTypeVersion;
@@ -65,6 +66,11 @@ namespace UPnP.Infrastructure.Dv.DeviceTree
       _serviceType = serviceType;
       _serviceTypeVersion = serviceTypeVersion;
       _serviceId = serviceId;
+    }
+
+    public virtual void Dispose()
+    {
+      // Sub classes can override this method
     }
 
     /// <summary>
@@ -212,7 +218,8 @@ namespace UPnP.Infrastructure.Dv.DeviceTree
     public string BuildSCPDDocument(EndpointConfiguration config, ServerData serverData)
     {
       StringBuilder result = new StringBuilder(10000);
-      using (XmlWriter writer = XmlWriter.Create(new StringWriterWithEncoding(result, Encoding.UTF8), UPnPConfiguration.DEFAULT_XML_WRITER_SETTINGS))
+      using (StringWriterWithEncoding stringWriter = new StringWriterWithEncoding(result, Encoding.UTF8))
+      using (XmlWriter writer = XmlWriter.Create(stringWriter, UPnPConfiguration.DEFAULT_XML_WRITER_SETTINGS))
       {
         writer.WriteStartDocument();
         writer.WriteStartElement(string.Empty, "scpd", UPnPConsts.NS_SERVICE_DESCRIPTION);

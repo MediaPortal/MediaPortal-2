@@ -95,7 +95,7 @@ namespace MediaPortal.Backend.ClientCommunication
 
     public override string ToString()
     {
-      return string.Format("MP frontend server '{0}' at system '{1}'", _mpFrontendServerUUID, _system.HostName);
+      return string.Format("MP frontend server '{0}' at system '{1}' (IP address: '{2}')", _mpFrontendServerUUID, _system.HostName, _system.Address);
     }
   }
 }

@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ResourceDictionary
+    xmlns="www.team-mediaportal.com/2008/mpf/directx"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    >
+  <ResourceWrapper x:Key="MEDIA_THUMB_WIDTH_S" Resource="48"/>
+  <ResourceWrapper x:Key="MEDIA_THUMB_WIDTH_M" Resource="96"/>
+  <ResourceWrapper x:Key="MEDIA_THUMB_WIDTH_L" Resource="178"/>
+
+  <ResourceWrapper x:Key="MEDIA_THUMB_HEIGHT_S" Resource="27"/>
+  <ResourceWrapper x:Key="MEDIA_THUMB_HEIGHT_M" Resource="56"/>
+  <ResourceWrapper x:Key="MEDIA_THUMB_HEIGHT_L" Resource="100"/>
+</ResourceDictionary>

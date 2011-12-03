@@ -53,6 +53,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       if (keyboardLayoutControl == null)
         return;
       keyboardLayoutControl.Context = parent;
+      keyboardLayoutControl.LogicalParent = this;
       keyboardLayoutControl.VisualParent = this;
       keyboardLayoutControl.SetScreen(Screen);
       keyboardLayoutControl.SetElementState(_elementState);
@@ -97,6 +98,6 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
         childrenOut.Add(keyboardControl);
     }
 
-    // Allocate/Deallocate not necessary because UIElement handles all direct children
+    // Allocate/Deallocate of _keyboardLayoutControl not necessary because UIElement handles all direct children
   }
 }

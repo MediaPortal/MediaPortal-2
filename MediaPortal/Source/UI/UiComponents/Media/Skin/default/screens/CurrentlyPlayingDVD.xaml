@@ -9,7 +9,7 @@
 
     <ResourceWrapper x:Key="Header_Text" Resource="[Media.DVDCurrentlyPlayingHeader]"/>
 
-    <ResourceWrapper x:Key="Contents_Element">
+    <ControlTemplate x:Key="Contents_Template">
       <mp_special_controls:PlayerControl Margin="20" PlayerContext="CurrentPlayer">
         <mp_special_controls:PlayerControl.TemplateControl>
           <DockPanel LastChildFill="true"
@@ -26,34 +26,45 @@
                 <ColumnDefinition Width="Auto"/>
                 <ColumnDefinition Width="*"/>
               </Grid.ColumnDefinitions>
-              <Label x:Name="TitleLabel" Grid.Row="0" Grid.Column="0" Content="[Media.VideoTitleLabel]"/>
-              <Label x:Name="Title" Grid.Row="0" Grid.Column="1" Scroll="Auto" Content="{Binding MediaItemTitle}"/>
-              <Label x:Name="GenreLabel" Grid.Row="1" Grid.Column="0" Content="[Media.VideoGenreLabel]"/>
-              <Label x:Name="Genre" Grid.Row="1" Grid.Column="1" Content="{Binding VideoGenre}"/>
-              <Label x:Name="YearLabel" Grid.Row="2" Grid.Column="0" Content="[Media.VideoYearLabel]"/>
-              <Label x:Name="Year" Grid.Row="2" Grid.Column="1" Content="{Binding VideoYear}"/>
-              <Label x:Name="DurationLabel" Grid.Row="3" Grid.Column="0" Content="[Media.VideoDurationLabel]"/>
-              <Label x:Name="Duration" Grid.Row="3" Grid.Column="1" Content="{Binding Duration}"/>
-              <Label x:Name="ActorsLabel" Grid.Row="4" Grid.Column="0" Content="[Media.VideoActorsLabel]"/>
+              <Label x:Name="TitleLabel" Grid.Row="0" Grid.Column="0"
+                  Content="[Media.VideoTitleLabel]" Color="{ThemeResource TextColor}"/>
+              <Label x:Name="Title" Grid.Row="0" Grid.Column="1" Scroll="Auto"
+                  Content="{Binding MediaItemTitle}" Color="{ThemeResource TextColor}"/>
+              <Label x:Name="GenreLabel" Grid.Row="1" Grid.Column="0"
+                  Content="[Media.VideoGenreLabel]" Color="{ThemeResource TextColor}"/>
+              <Label x:Name="Genre" Grid.Row="1" Grid.Column="1"
+                  Content="{Binding VideoGenre}" Color="{ThemeResource TextColor}"/>
+              <Label x:Name="YearLabel" Grid.Row="2" Grid.Column="0"
+                  Content="[Media.VideoYearLabel]" Color="{ThemeResource TextColor}"/>
+              <Label x:Name="Year" Grid.Row="2" Grid.Column="1"
+                  Content="{Binding VideoYear}" Color="{ThemeResource TextColor}"/>
+              <Label x:Name="DurationLabel" Grid.Row="3" Grid.Column="0"
+                  Content="[Media.VideoDurationLabel]" Color="{ThemeResource TextColor}"/>
+              <Label x:Name="Duration" Grid.Row="3" Grid.Column="1"
+                  Content="{Binding Duration}" Color="{ThemeResource TextColor}"/>
+              <Label x:Name="ActorsLabel" Grid.Row="4" Grid.Column="0"
+                  Content="[Media.VideoActorsLabel]" Color="{ThemeResource TextColor}"/>
               <Label x:Name="Actors" Grid.Row="4" Grid.Column="1" Wrap="true" HorizontalAlignment="Stretch"
-                  Content="{Binding Path=VideoActors,Converter={ThemeResource CommaSeparatedValuesConverter}}"/>
+                  Content="{Binding Path=VideoActors,Converter={ThemeResource CommaSeparatedValuesConverter}}"
+                  Color="{ThemeResource TextColor}"/>
             </Grid>
             <DockPanel LastChildFill="True" DockPanel.Dock="Center"
                 HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
               <Label x:Name="StoryPlotLabel" HorizontalAlignment="Left" VerticalAlignment="Top"
-                  DockPanel.Dock="Top" Content="[Media.VideoStoryPlotLabel]"/>
+                  DockPanel.Dock="Top" Content="[Media.VideoStoryPlotLabel]" Color="{ThemeResource TextColor}"/>
               <ScrollViewer HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
                   DockPanel.Dock="Center" HorizontalScrollBarVisibility="Disabled"
                   Focusable="True">
                 <Label x:Name="StoryPlot" Wrap="True"
                     HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
-                    Content="{Binding VideoStoryPlot}"/>
+                    Content="{Binding VideoStoryPlot}"
+                    Color="{ThemeResource TextColor}"/>
               </ScrollViewer>
             </DockPanel>
           </DockPanel>
         </mp_special_controls:PlayerControl.TemplateControl>
       </mp_special_controls:PlayerControl>
-    </ResourceWrapper>
+    </ControlTemplate>
 
   </Include.Resources>
 </Include>

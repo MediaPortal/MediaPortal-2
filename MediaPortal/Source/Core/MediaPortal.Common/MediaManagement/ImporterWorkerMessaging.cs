@@ -22,9 +22,8 @@
 
 #endregion
 
-using MediaPortal.Common.MediaManagement.ResourceAccess;
+using MediaPortal.Common.ResourceAccess;
 using MediaPortal.Common.Messaging;
-using MediaPortal.Common.Services.MediaManagement;
 
 namespace MediaPortal.Common.MediaManagement
 {
@@ -34,7 +33,7 @@ namespace MediaPortal.Common.MediaManagement
     public const string CHANNEL = "ImporterWorker";
 
     /// <summary>
-    /// Messages of this type are sent by the <see cref="ImporterWorker"/>.
+    /// Messages of this type are sent by the <see cref="MediaPortal.Common.Services.MediaManagement.ImporterWorker"/>.
     /// </summary>
     public enum MessageType
     {

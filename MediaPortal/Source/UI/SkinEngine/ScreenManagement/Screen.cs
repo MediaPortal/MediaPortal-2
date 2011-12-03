@@ -103,74 +103,6 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
 
     #region Classes
 
-    /// <summary>
-    /// Encapsulates an UI element together with its depth where it is located in the visual tree.
-    /// </summary>
-    protected class InvalidControl : IComparable<InvalidControl>
-    {
-      protected int _treeDepth = -1;
-      protected FrameworkElement _element;
-
-      public InvalidControl(FrameworkElement element)
-      {
-        _element = element;
-      }
-
-      protected void InitializeTreeDepth()
-      {
-        Visual current = _element;
-        while (current != null)
-        {
-          _treeDepth++;
-          current = current.VisualParent;
-        }
-      }
-
-      /// <summary>
-      /// Returns the number of steps wich are necessary to follow the <see cref="Visual.VisualParent"/>
-      /// reference on the <see cref="Element"/> until the root control is reached.
-      /// </summary>
-      public int TreeDepth
-      {
-        get
-        {
-          if (_treeDepth == -1)
-            InitializeTreeDepth();
-          return _treeDepth;
-        }
-      }
-
-      /// <summary>
-      /// Returns the invalid element.
-      /// </summary>
-      public FrameworkElement Element
-      {
-        get { return _element; }
-      }
-
-      public int CompareTo(InvalidControl other)
-      {
-        return TreeDepth - other.TreeDepth;
-      }
-
-      public override int GetHashCode()
-      {
-        return _element.GetHashCode();
-      }
-
-      public override bool Equals(object o)
-      {
-        if (!(o is InvalidControl))
-          return false;
-        return _element.Equals(((InvalidControl) o)._element);
-      }
-
-      public override string ToString()
-      {
-        return string.Format("Element: {0}, Depth: {1}", _element, TreeDepth);
-      }
-    }
-
     protected class ScheduledFocus
     {
       protected FrameworkElement _focusElement = null;
@@ -189,6 +121,28 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
       public int IncAge()
       {
         return ++_age;
+      }
+    }
+
+    protected class PendingScreenEvent
+    {
+      protected string _eventName;
+      protected RoutingStrategyEnum _routingStrategy;
+
+      public PendingScreenEvent(string eventName, RoutingStrategyEnum routingStrategy)
+      {
+        _eventName = eventName;
+        _routingStrategy = routingStrategy;
+      }
+
+      public string EventName
+      {
+        get { return _eventName; }
+      }
+
+      public RoutingStrategyEnum RoutingStategy
+      {
+        get { return _routingStrategy; }
       }
     }
 
@@ -232,12 +186,13 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
 
     protected FrameworkElement _root;
     protected PointF? _mouseMovePending = null;
-    protected bool _screenShowEventPending = false;
+    protected PendingScreenEvent _pendingScreenEvent = null;
     protected Animator _animator = new Animator();
     protected IDictionary<Key, KeyAction> _keyBindings = null;
     protected Guid? _virtualKeyboardDialogGuid = null;
     protected RenderContext _renderContext;
     protected IDictionary<string, object> _names = new Dictionary<string, object>();
+    protected object _syncObj = new object();
 
     #endregion
 
@@ -299,7 +254,7 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
       set
       {
         if (value == State.Preparing)
-          _root.SetElementState(ElementState.Available);
+          _root.SetElementState(ElementState.Preparing);
         else if (value == State.Running)
           _root.SetElementState(ElementState.Running);
         else if (value == State.Closing)
@@ -359,7 +314,7 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
       vkc.Show(textProperty, settings);
     }
 
-    protected void OnVirtualKeyboardDialogClosed(string dialogName, Guid dialogInstanceId)
+    private void OnVirtualKeyboardDialogClosed(string dialogName, Guid dialogInstanceId)
     {
       if (dialogInstanceId != _virtualKeyboardDialogGuid)
         return;
@@ -368,7 +323,7 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
       _virtualKeyboardDialogGuid = null;
     }
 
-    protected void OnVirtualKeyboardClosed(VirtualKeyboardControl virtualKeyboardControl)
+    private void OnVirtualKeyboardClosed(VirtualKeyboardControl virtualKeyboardControl)
     {
       if (!_virtualKeyboardDialogGuid.HasValue)
         return;
@@ -402,13 +357,13 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
 
     public void SetValues()
     {
-      lock (_root)
+      lock (_syncObj)
         _animator.SetValues();
     }
 
     public void Animate()
     {
-      lock (_root)
+      lock (_syncObj)
         _animator.Animate();
     }
 
@@ -417,7 +372,7 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
       uint time = (uint) Environment.TickCount;
       SkinContext.SystemTickCount = time;
 
-      lock (_root)
+      lock (_syncObj)
       {
         if (_mouseMovePending.HasValue)
         {
@@ -429,10 +384,10 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
         if (_root.IsMeasureInvalid || _root.IsArrangeInvalid)
           _root.UpdateLayoutRoot(new SizeF(SkinWidth, SkinHeight));
         HandleScheduledFocus();
-        if (_screenShowEventPending)
+        if (_pendingScreenEvent != null)
         {
-          DoFireScreenShowingEvent();
-          _screenShowEventPending = false;
+          DoFireScreenEvent(_pendingScreenEvent);
+          _pendingScreenEvent = null;
         }
         _root.Render(_renderContext);
       }
@@ -472,18 +427,18 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
 
     public void Prepare()
     {
-      lock (_root)
+      lock (_syncObj)
       {
         _root.Allocate();
 
         _root.InvalidateLayout(true, true);
-        int maxNumUpdate = 10;
-        // Prepare run. In the prepare run, the screen uses some shortcuts to set values
-        _root.SetElementState(ElementState.Preparing);
+        // Prepare run. In the prepare run, the screen uses some shortcuts to set values.
+        ScreenState = State.Preparing;
         SizeF skinSize = new SizeF(SkinWidth, SkinHeight);
         _root.UpdateLayoutRoot(skinSize);
         // Switch to "Running" state which builds the final screen structure
-        _root.SetElementState(ElementState.Running);
+        ScreenState = State.Running;
+        int maxNumUpdate = 10;
         while ((_root.IsMeasureInvalid || _root.IsArrangeInvalid) && maxNumUpdate-- > 0)
         {
           SetValues();
@@ -499,7 +454,7 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
     {
       ScreenState = State.Closed;
       SkinContext.WindowSizeProperty.Detach(OnWindowSizeChanged);
-      lock (_root)
+      lock (_syncObj)
       {
         Animator.StopAll();
         _root.Deallocate();
@@ -547,11 +502,18 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
 
     protected void DoHandleMouseMove(float x, float y)
     {
-      lock (_root)
-        if (_root.CanHandleMouseMove())
-          _root.OnMouseMove(x, y);
-        else
-          _mouseMovePending = new PointF(x, y);
+      try
+      {
+        lock (_syncObj)
+          if (_root.CanHandleMouseMove())
+            _root.OnMouseMove(x, y);
+          else
+            _mouseMovePending = new PointF(x, y);
+      }
+      catch (Exception e)
+      {
+        ServiceRegistration.Get<ILogger>().Error("Screen '{0}': Unhandled exception while processing mouse move event", e, _resourceName);
+      }
     }
 
     private void OnWindowSizeChanged(AbstractProperty property, object oldVal)
@@ -565,11 +527,12 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
         return;
       try
       {
-        _root.OnKeyPreview(ref key);
+        lock (_syncObj)
+          _root.OnKeyPreview(ref key);
       }
       catch (Exception e)
       {
-        ServiceRegistration.Get<ILogger>().Error("Screen '{0}': Unhandled exception while processing key '{0}'", e, _resourceName, key);
+        ServiceRegistration.Get<ILogger>().Error("Screen '{0}': Unhandled exception while preprocessing key event '{0}'", e, _resourceName, key);
       }
       // Try key bindings...
       KeyAction keyAction;
@@ -584,16 +547,33 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
     {
       if (!HasInputFocus)
         return;
-      _root.OnKeyPressed(ref key);
+      try
+      {
+        lock (_syncObj)
+          _root.OnKeyPressed(ref key);
+      }
+      catch (Exception e)
+      {
+        ServiceRegistration.Get<ILogger>().Error("Screen '{0}': Unhandled exception while processing key event '{0}'", e, _resourceName, key);
+      }
       if (key != Key.None)
-        UpdateFocus(ref key);
+        lock (_syncObj)
+          UpdateFocus(ref key);
     }
 
     private void HandleMouseWheel(int numberOfDeltas)
     {
       if (!HasInputFocus)
         return;
-      _root.OnMouseWheel(numberOfDeltas);
+      try
+      {
+        lock (_syncObj)
+          _root.OnMouseWheel(numberOfDeltas);
+      }
+      catch (Exception e)
+      {
+        ServiceRegistration.Get<ILogger>().Error("Screen '{0}': Unhandled exception while processing mouse wheel event", e, _resourceName);
+      }
     }
 
     private void HandleMouseMove(float x, float y)
@@ -608,7 +588,15 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
       if (!HasInputFocus)
         return;
       bool handled = false;
-      _root.OnMouseClick(buttons, ref handled);
+      try
+      {
+        lock (_syncObj)
+          _root.OnMouseClick(buttons, ref handled);
+      }
+      catch (Exception e)
+      {
+        ServiceRegistration.Get<ILogger>().Error("Screen '{0}': Unhandled exception while preprocessing mouse click event", e, _resourceName);
+      }
       if (handled)
         return;
       // If mouse click was not handled explicitly, map it to an appropriate key event
@@ -633,7 +621,7 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
 
     public override bool IsInArea(float x, float y)
     {
-      return true; // Screens always cover the whole physical screen
+      return true; // Screens always cover the whole physical area
     }
 
     protected void InitializeRenderContext()
@@ -669,20 +657,25 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
       internal set { _screenInstanceId = value; }
     }
 
+    protected void TriggerScreenEvent(string eventName, RoutingStrategyEnum routingStrategy)
+    {
+      _pendingScreenEvent = new PendingScreenEvent(eventName, routingStrategy);
+    }
+
     public void TriggerScreenShowingEvent()
     {
-      _screenShowEventPending = true;
+      TriggerScreenEvent(SHOW_EVENT, RoutingStrategyEnum.VisualTree);
     }
 
-    protected void DoFireScreenShowingEvent()
+    public void TriggerScreenClosingEvent()
     {
-      FireEvent(SHOW_EVENT, RoutingStrategyEnum.VisualTree);
+      TriggerScreenEvent(CLOSE_EVENT, RoutingStrategyEnum.VisualTree);
+      _closeTime = FindCloseEventCompletionTime().AddMilliseconds(20); // 20 more milliseconds because of the delay until the event is fired in render loop
     }
 
-    public void FireScreenClosingEvent()
+    protected void DoFireScreenEvent(PendingScreenEvent pendingScreenEvent)
     {
-      FireEvent(CLOSE_EVENT, RoutingStrategyEnum.VisualTree);
-      _closeTime = FindCloseEventCompletionTime();
+      FireEvent(pendingScreenEvent.EventName, pendingScreenEvent.RoutingStategy);
     }
 
     public bool DoneClosing

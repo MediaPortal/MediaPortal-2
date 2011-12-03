@@ -24,19 +24,17 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using MediaPortal.UI.UserManagement;
 
 namespace MediaPortal.UI.Services.UserManagement
 {
-  /// <summary>
-  /// Class which stores user data.
-  /// </summary>
   public class User : IUser
   {
     protected string _userName;
     protected DateTime _lastLogin;
-    protected string _image = "";
-    protected string _password = "";
+    protected string _image = string.Empty;
+    protected string _password = string.Empty;
     protected bool _needsPassword = false;
     protected List<IRole> _roles = new List<IRole>();
 
@@ -94,11 +92,7 @@ namespace MediaPortal.UI.Services.UserManagement
 
     public bool HasPermissionOn(IPermissionObject obj)
     {
-      foreach (IRole role in GetRoles())
-        foreach (IPermission permission in role.GetPermissions())
-          if (permission.IncludesPermissionOn(obj))
-            return true;
-      return false;
+      return GetRoles().SelectMany(role => role.GetPermissions()).Any(permission => permission.IncludesPermissionOn(obj));
     }
 
     public override int GetHashCode()
@@ -106,12 +100,10 @@ namespace MediaPortal.UI.Services.UserManagement
       return _userName == null ? 0 : _userName.GetHashCode();
     }
 
-    public override bool Equals(object other)
+    public override bool Equals(object o)
     {
-      if (other is User)
-        return string.Compare(_userName, ((User) other)._userName, false) == 0;
-      else
-        return false;
+      User other = o as User;
+      return other != null && string.Compare(_userName, other._userName, false) == 0;
     }
   }
 }

@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="4.0">
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
@@ -221,7 +221,8 @@
     <Compile Include="MpfElements\Converters\expr\Variable.cs" />
     <Compile Include="MpfElements\Converters\ReferenceNotNull_BoolConverter.cs" />
     <Compile Include="MpfElements\Converters\expr\Error.cs" />
-    <Compile Include="MpfElements\ISkinEngineManagedResource.cs" />
+    <Compile Include="MpfElements\IBindingContainer.cs" />
+    <Compile Include="MpfElements\ISkinEngineManagedObject.cs" />
     <Compile Include="MpfElements\Resources\IUnmodifiableResource.cs" />
     <Compile Include="Players\ISlimDXVideoPlayer.cs" />
     <Compile Include="Players\PlayersHelper.cs" />
@@ -233,10 +234,13 @@
     <Compile Include="ScreenManagement\ScreenManagerMessaging.cs" />
     <Compile Include="Controls\Visuals\VirtualKeyboardControl.cs" />
     <Compile Include="ScreenManagement\SuperLayerManager.cs" />
+    <Compile Include="Settings\Configuration\Appearance\ScreenSaverTimeout.cs" />
+    <Compile Include="Settings\Configuration\Appearance\ScreenSaverEnabled.cs" />
     <Compile Include="Settings\Configuration\Appearance\Skin\SkinConfigurationController.cs" />
     <Compile Include="Settings\Configuration\Appearance\Skin\ThemeConfigurationController.cs" />
     <Compile Include="Settings\Configuration\Appearance\CellPhoneInputStyle.cs" />
     <Compile Include="Settings\Configuration\Players\DefaultGeometry.cs" />
+    <Compile Include="Settings\ScreenSaverSettings.cs" />
     <Compile Include="Settings\PlayerSettings.cs" />
     <Compile Include="Settings\SkinSettings.cs" />
     <Compile Include="SpecialElements\Controls\UserInputCapture.cs" />
@@ -398,7 +402,7 @@
     <Compile Include="Xaml\XamlNamespace\NullMarkupExtension.cs" />
     <Compile Include="Xaml\XamlNamespace\StaticMarkupExtension.cs" />
     <Compile Include="Xaml\Parser.cs" />
-    <Compile Include="Utils\GeometricHelper.cs" />
+    <Compile Include="Utils\CalcHelper.cs" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="Skin\default\screens\skinengine_config_skinresource_dialog.xaml" />

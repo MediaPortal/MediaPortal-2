@@ -35,6 +35,11 @@ namespace MediaPortal.UI.SkinEngine.Xaml.XamlNamespace
   /// </summary>
   public class XamlNamespaceHandler : INamespaceHandler
   {
+    /// <summary>
+    /// URI for the "x:" namespace.
+    /// </summary>
+    public const string XAML_NS_URI = "http://schemas.microsoft.com/winfx/2006/xaml";
+
     protected static IDictionary<string, Type> objectTypes = new Dictionary<string, Type>();
     static XamlNamespaceHandler()
     {

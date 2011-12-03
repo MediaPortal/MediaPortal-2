@@ -57,7 +57,7 @@ namespace MediaPortal.UI.SkinEngine.MpfElements.Resources
     {
       base.DeepCopy(source, copyManager);
       BindingWrapper bw = (BindingWrapper) source;
-      Binding = bw.Binding;
+      Binding = copyManager.GetCopy(bw.Binding);
     }
 
     #endregion
@@ -71,7 +71,7 @@ namespace MediaPortal.UI.SkinEngine.MpfElements.Resources
 
     public IBinding Binding
     {
-      get { return (IBinding) _bindingProperty.GetValue(); } // Value is not strongly typed by superclass ValueWrapper, so we cannot use a normal typecast
+      get { return (IBinding) _bindingProperty.GetValue(); }
       set { _bindingProperty.SetValue(value); }
     }
 

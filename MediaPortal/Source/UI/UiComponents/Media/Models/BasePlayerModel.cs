@@ -42,7 +42,6 @@ namespace MediaPortal.UiComponents.Media.Models
     protected AbstractProperty _playerUIContributorProperty = null;
     protected bool _inactive = false;
     protected string _screenName = null;
-    protected string _lastScreenName = null;
     protected bool _backgroundDisabled = false;
 
     protected BasePlayerModel(Guid currentlyPlayingWorkflowStateId, Guid fullscreenContentWorkflowStateId) : base(300)
@@ -145,7 +144,7 @@ namespace MediaPortal.UiComponents.Media.Models
       finally
       {
         if (doUpdateScreen)
-          UpdateScreen(false);
+          UpdateScreen();
       }
     }
 
@@ -175,15 +174,14 @@ namespace MediaPortal.UiComponents.Media.Models
       return null;
     }
 
-    protected bool UpdateScreen(bool force)
+    protected bool UpdateScreen()
     {
       IScreenManager screenManager = ServiceRegistration.Get<IScreenManager>();
-      if (_screenName != null && (_lastScreenName != _screenName || force))
-        if (!screenManager.ShowScreen(_screenName).HasValue)
+      if (_screenName != null)
+        if (!screenManager.CheckScreen(_screenName).HasValue)
           // If the opened screen is not present or erroneous, we cannot update the screen
           return false;
       screenManager.BackgroundDisabled = _backgroundDisabled;
-      _lastScreenName = _screenName;
       return true;
     }
 
@@ -241,7 +239,7 @@ namespace MediaPortal.UiComponents.Media.Models
 
     public ScreenUpdateMode UpdateScreen(NavigationContext context, ref string screen)
     {
-      return UpdateScreen(true) ? ScreenUpdateMode.ManualWorkflowModel : ScreenUpdateMode.AutoWorkflowManager;
+      return UpdateScreen() ? ScreenUpdateMode.ManualWorkflowModel : ScreenUpdateMode.AutoWorkflowManager;
     }
   }
 }

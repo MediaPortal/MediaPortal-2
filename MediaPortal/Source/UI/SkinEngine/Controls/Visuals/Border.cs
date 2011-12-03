@@ -279,8 +279,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     /// </summary>
     protected virtual Thickness GetTotalBorderMargin()
     {
-      float borderInsetsX = GetBorderInsetX()*2;
-      float borderInsetsY = GetBorderInsetY()*2;
+      float borderInsetsX = GetBorderInsetX();
+      float borderInsetsY = GetBorderInsetY();
       return new Thickness(borderInsetsX, borderInsetsY, borderInsetsX, borderInsetsY);
     }
 
@@ -335,7 +335,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
           PositionColoredTextured[] verts;
           float centerX, centerY;
           TriangulateHelper.CalcCentroid(path, out centerX, out centerY);
-          TriangulateHelper.FillPolygon_TriangleList(path, centerX, centerY, out verts);
+          TriangulateHelper.FillPolygon_TriangleList(path, centerX, centerY, 1, out verts);
 
           Background.SetupBrush(this, ref verts, context.ZOrder, true);
           PrimitiveBuffer.SetPrimitiveBuffer(ref _backgroundContext, ref verts, PrimitiveType.TriangleList);
@@ -362,8 +362,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
               {
                 bool isClosed;
                 gpi.NextSubpath(subPath, out isClosed);
-                TriangulateHelper.TriangulateStroke_TriangleList(subPath, (float) BorderThickness, isClosed,
-                    out subPathVerts[i], null);
+                TriangulateHelper.TriangulateStroke_TriangleList(subPath, (float) BorderThickness, isClosed, 1,
+                    out subPathVerts[i]);
               }
             }
             PositionColoredTextured[] verts;

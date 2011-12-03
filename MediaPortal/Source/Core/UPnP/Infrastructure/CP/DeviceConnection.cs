@@ -30,10 +30,12 @@ using System.Text;
 using System.Xml;
 using System.Xml.XPath;
 using MediaPortal.Utilities.Exceptions;
+using MediaPortal.Utilities.Network;
 using UPnP.Infrastructure.Common;
 using UPnP.Infrastructure.CP.DeviceTree;
 using UPnP.Infrastructure.CP.GENA;
 using UPnP.Infrastructure.CP.SOAP;
+using UPnP.Infrastructure.CP.SSDP;
 using UPnP.Infrastructure.Utils;
 
 namespace UPnP.Infrastructure.CP
@@ -293,8 +295,10 @@ namespace UPnP.Infrastructure.CP
 
     protected static HttpWebRequest CreateActionCallRequest(ServiceDescriptor sd, CpAction action)
     {
+      LinkData preferredLink = sd.RootDescriptor.SSDPRootEntry.PreferredLink;
       HttpWebRequest request = (HttpWebRequest) WebRequest.Create(new Uri(
-          new Uri(sd.RootDescriptor.SSDPRootEntry.PreferredLink.DescriptionLocation), sd.ControlURL));
+          new Uri(preferredLink.DescriptionLocation), sd.ControlURL));
+      NetworkUtils.SetLocalEndpoint(request, preferredLink.Endpoint.EndPointIPAddress);
       request.Method = "POST";
       request.KeepAlive = true;
       request.AllowAutoRedirect = true;

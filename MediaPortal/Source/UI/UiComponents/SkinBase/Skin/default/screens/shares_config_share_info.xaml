@@ -13,7 +13,7 @@
     <Model x:Key="Model" Id="1768FC91-86B9-4f78-8A4C-E204F0D51502"/>
 
     <!-- Contents -->
-    <ResourceWrapper x:Key="Contents_Element">
+    <ControlTemplate x:Key="Contents_Template">
       <Grid DataContext="{Binding Source={StaticResource Model}}">
         <Grid.RowDefinitions>
           <RowDefinition Height="Auto"/>
@@ -30,26 +30,38 @@
           <ColumnDefinition Width="*"/>
         </Grid.ColumnDefinitions>
 
-        <Label Grid.Row="0" Grid.Column="0" Margin="5" Content="[SharesConfig.ShareNameInfo]"/>
-        <Label Grid.Row="0" Grid.Column="2" Margin="5" Content="{Binding ShareProxy.ShareName}" Scroll="Auto"/>
+        <Label Grid.Row="0" Grid.Column="0" Margin="5"
+            Content="[SharesConfig.ShareNameInfo]" Color="{ThemeResource TextColor}"/>
+        <Label Grid.Row="0" Grid.Column="2" Margin="5"
+            Content="{Binding ShareProxy.ShareName}" Color="{ThemeResource TextColor}" Scroll="Auto"/>
 
-        <Label Grid.Row="1" Grid.Column="0" Margin="5" Content="[SharesConfig.ShareResourceProviderInfo]"/>
-        <Label Grid.Row="1" Grid.Column="2" Margin="5" Content="{Binding ShareProxy.BaseResourceProvider.Name}" Scroll="Auto"/>
+        <Label Grid.Row="1" Grid.Column="0" Margin="5"
+            Content="[SharesConfig.ShareResourceProviderInfo]" Color="{ThemeResource TextColor}"/>
+        <Label Grid.Row="1" Grid.Column="2" Margin="5"
+            Content="{Binding ShareProxy.BaseResourceProvider.Name}" Color="{ThemeResource TextColor}" Scroll="Auto"/>
 
-        <Label Grid.Row="2" Grid.Column="0" Margin="5" Content="[SharesConfig.ShareMediaCategoriesInfo]"/>
-        <Label Grid.Row="2" Grid.Column="2" Margin="5" Content="{Binding ShareProxy.MediaCategories}" Scroll="Auto"/>
+        <Label Grid.Row="2" Grid.Column="0" Margin="5"
+            Content="[SharesConfig.ShareMediaCategoriesInfo]" Color="{ThemeResource TextColor}"/>
+        <Label Grid.Row="2" Grid.Column="2" Margin="5"
+            Content="{Binding ShareProxy.MediaCategories}" Color="{ThemeResource TextColor}" Scroll="Auto"/>
 
-        <Label Grid.Row="3" Grid.Column="0" Margin="5" Content="[SharesConfig.ShareSystem]"/>
-        <Label Grid.Row="3" Grid.Column="2" Margin="5" Content="{Binding ShareProxy.NativeSystem}" Scroll="Auto"/>
+        <Label Grid.Row="3" Grid.Column="0" Margin="5"
+            Content="[SharesConfig.ShareSystem]" Color="{ThemeResource TextColor}"/>
+        <Label Grid.Row="3" Grid.Column="2" Margin="5"
+            Content="{Binding ShareProxy.NativeSystem}" Color="{ThemeResource TextColor}" Scroll="Auto"/>
 
-        <Label Grid.Row="4" Grid.Column="0" Margin="5" Content="[SharesConfig.SharePathInfo]"/>
-        <Label Grid.Row="4" Grid.Column="2" Margin="5" Content="{Binding ShareProxy.ChoosenResourcePathDisplayName}" Scroll="Auto"/>
+        <Label Grid.Row="4" Grid.Column="0" Margin="5"
+            Content="[SharesConfig.SharePathInfo]" Color="{ThemeResource TextColor}"/>
+        <Label Grid.Row="4" Grid.Column="2" Margin="5"
+            Content="{Binding ShareProxy.ChoosenResourcePathDisplayName}" Color="{ThemeResource TextColor}" Scroll="Auto"/>
 
-        <Label Grid.Row="5" Grid.Column="0" Margin="5" Content="[SharesConfig.ShareResourcePathInfo]"/>
+        <Label Grid.Row="5" Grid.Column="0" Margin="5"
+            Content="[SharesConfig.ShareResourcePathInfo]" Color="{ThemeResource TextColor}"/>
         <!-- Attention: In the current implementation of the Grid's layouting code, the row for the following label might be layouted
              too narrow. The problem is the label's wrapping, which cannot correctly be assessed by the grid. That's why we put it at
              the bottom in a very high cell; here, the layout problem won't show up. -->
-        <Label Grid.Row="5" Grid.Column="2" Margin="5" Content="{Binding ShareProxy.ChoosenResourcePath}" Wrap="True"/>
+        <Label Grid.Row="5" Grid.Column="2" Margin="5"
+            Content="{Binding ShareProxy.ChoosenResourcePath}" Color="{ThemeResource TextColor}" Wrap="True"/>
 
         <Grid Grid.Row="6" Grid.Column="0" Grid.ColumnSpan="3" Margin="10,10,10,0">
           <Grid.RowDefinitions>
@@ -68,7 +80,7 @@
               Command="{Command Source={StaticResource Model},Path=EditCurrentShare}"/>
         </Grid>
       </Grid>
-    </ResourceWrapper>
+    </ControlTemplate>
 
   </Include.Resources>
 </Include>

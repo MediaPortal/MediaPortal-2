@@ -28,7 +28,7 @@ using MediaPortal.Utilities.DeepCopy;
 
 namespace MediaPortal.UI.SkinEngine.Controls.Panels
 {
-  public class DefinitionBase : IDeepCopyable, ISkinEngineManagedResource
+  public class DefinitionBase : IDeepCopyable, ISkinEngineManagedObject
   {
     #region Protected fields
 

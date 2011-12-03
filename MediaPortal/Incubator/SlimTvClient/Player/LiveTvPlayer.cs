@@ -222,7 +222,7 @@ namespace MediaPortal.Plugins.SlimTvClient
 
     public event RequestNextItemDlgt NextItemRequest;
 
-    public bool NextItem(Common.MediaManagement.ResourceAccess.IResourceLocator locator, string mimeType, StartTime startTime)
+    public bool NextItem(Common.ResourceAccess.IResourceLocator locator, string mimeType, StartTime startTime)
     {
       if (mimeType != "video/livetv")
         return false;

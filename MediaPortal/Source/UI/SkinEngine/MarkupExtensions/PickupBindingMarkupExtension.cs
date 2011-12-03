@@ -73,7 +73,6 @@ namespace MediaPortal.UI.SkinEngine.MarkupExtensions
       if (bindingWrapper == null || bindingWrapper.Binding == null)
         return false;
       IBinding binding = bindingWrapper.Binding.CopyAndRetarget(_targetDataDescriptor);
-      binding.Activate();
       // When the binding is copied, this instance is not needed any more
       _valueAssigned = true;
       Dispose();

@@ -27,13 +27,12 @@ using System.Collections.Generic;
 namespace MediaPortal.UI.UserManagement
 {
   /// <summary>
-  /// Interface for the User management service.
+  /// Interface for the user management service.
   /// It adds functionality to add / remove users and to get a list of available users.
   /// </summary>
   /// <remarks>
-  /// If the user management service is present in the application, the modules doing the
-  /// work for the GUI are responsible for checking permissions for their jobs for the
-  /// current user. If the user management service is not present in the application,
+  /// If the user management service is present in the application, the modules doing the work for the GUI are responsible for checking
+  /// permissions for their jobs for the current user. If the user management service is not present in the application,
   /// code in those modules should always continue as if the permission checks would have succeeded.
   /// </remarks>
   public interface IUserService

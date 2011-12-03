@@ -5,15 +5,8 @@
         Name="Home->GUI-Test"
         DisplayCategory="z-Test"
         SortOrder="a"
-        SourceState="7F702D9C-F2DD-42da-9ED8-0BA92F07787F"
+        SourceStates="7F702D9C-F2DD-42da-9ED8-0BA92F07787F"
         TargetState="F660C2CA-A340-4694-A7F4-9E68AB9721C4"
         DisplayTitle="GUI-Test"/>
-    <PushNavigationTransition Id="D0DB2310-E55D-4cdf-BCF7-6D8181318FAA"
-        Name="GUI-Test->TreeView"
-        DisplayCategory="controls"
-        SortOrder="TreeView"
-        SourceState="F660C2CA-A340-4694-A7F4-9E68AB9721C4"
-        TargetState="9233F320-F0D3-4511-84F0-4575CC9F6A55"
-        DisplayTitle="TreeView"/>
   </MenuActions>
 </Workflow>

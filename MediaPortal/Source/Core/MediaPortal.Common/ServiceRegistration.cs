@@ -47,34 +47,6 @@ namespace MediaPortal.Common
   {
     public const string PLUGIN_TREE_SERVICES_LOCATION = "/Services";
 
-    #region Classes
-
-    private class ServiceRegistrationChangeListener : IItemRegistrationChangeListener
-    {
-      private readonly ServiceRegistration _parent;
-
-      public ServiceRegistrationChangeListener(ServiceRegistration parent)
-      {
-        _parent = parent;
-      }
-
-      #region IItemRegistrationChangeListener implementation
-
-      public void ItemsWereAdded(string location, ICollection<PluginItemMetadata> items)
-      {
-        _parent.AddServiceItems(items);
-      }
-
-      public void ItemsWereRemoved(string location, ICollection<PluginItemMetadata> items)
-      {
-        // Item removals are not supported
-      }
-
-      #endregion
-    }
-
-    #endregion
-
     private static readonly object _syncObj = new object();
 
     /// <summary>
@@ -97,7 +69,11 @@ namespace MediaPortal.Common
 
     private ServiceRegistration()
     {
-      _servicesRegistrationChangeListener = new ServiceRegistrationChangeListener(this);
+      _servicesRegistrationChangeListener = new DefaultItemRegistrationChangeListener("ServiceRegistration: Listening for service changes")
+        {
+            ItemsWereAdded = (location, items) => AddServiceItems(items)
+            // Service removals are not supported
+        };
     }
 
     public static void RemoveAndDisposePluginServices()

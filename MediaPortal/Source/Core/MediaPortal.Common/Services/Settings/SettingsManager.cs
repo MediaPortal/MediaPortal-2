@@ -130,13 +130,23 @@ namespace MediaPortal.Common.Services.Settings
           SettingAttribute att = GetSettingAttribute(property);
           if (att == null) continue;
           SettingsFileHandler s = (att.SettingScope == SettingScope.Global ? globalHandler : userHandler);
-          object value = s.GetValue(property.Name, property.PropertyType);
-          if (value == null)
+          try
+          {
+            object value = s.GetValue(property.Name, property.PropertyType);
+            if (value == null)
+              if (att.HasDefault)
+                value = att.DefaultValue;
+              else
+                continue;
+            property.SetValue(result, value, null);
+          }
+          catch (Exception e)
+          {
+            ServiceRegistration.Get<ILogger>().Error("SettingsManager: Error setting property '{0}' in settings of type '{1}'" +
+                (att.HasDefault ? ", using default value" : string.Empty), e, property.Name, settingsType.Name);
             if (att.HasDefault)
-              value = att.DefaultValue;
-            else
-              continue;
-          property.SetValue(result, value, null);
+              property.SetValue(result, att.DefaultValue, null);
+          }
         }
         return result;
       }

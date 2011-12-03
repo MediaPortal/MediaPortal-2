@@ -63,6 +63,16 @@
         Text="[Settings.Appearance.System.CellPhoneInputStyle]"
         HelpText="[Settings.Appearance.System.CellPhoneInputStyle.Help]"
         ClassName="MediaPortal.UI.SkinEngine.Settings.Configuration.Appearance.CellPhoneInputStyle"/>
+    <ConfigSetting
+        Id="ScreenSaverEnabled"
+        Text="[Settings.Appearance.System.ScreenSaverEnabled]"
+        HelpText="[Settings.Appearance.System.ScreenSaverEnabled.Help]"
+        ClassName="MediaPortal.UI.SkinEngine.Settings.Configuration.Appearance.ScreenSaverEnabled"/>
+    <ConfigSetting
+        Id="ScreenSaverTimeout"
+        Text="[Settings.Appearance.System.ScreenSaverTimeout]"
+        HelpText="[Settings.Appearance.System.ScreenSaverTimeout.Help]"
+        ClassName="MediaPortal.UI.SkinEngine.Settings.Configuration.Appearance.ScreenSaverTimeout"/>
   </Register>
 
   <!-- Contents of '/Appearance/Skin' section -->

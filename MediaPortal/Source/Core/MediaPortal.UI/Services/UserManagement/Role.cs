@@ -23,13 +23,11 @@
 #endregion
 
 using System.Collections.Generic;
+using System.Linq;
 using MediaPortal.UI.UserManagement;
 
 namespace MediaPortal.UI.Services.UserManagement
 {
-  /// <summary>
-  /// Implements a role.
-  /// </summary>
   public class Role : Permission, IRole
   {
     protected IList<IPermission> _permissions;
@@ -60,20 +58,13 @@ namespace MediaPortal.UI.Services.UserManagement
     public override IList<IPermissionObject> GetPermissionObjects()
     {
       List<IPermissionObject> result = new List<IPermissionObject>(base.GetPermissionObjects());
-      foreach (IPermission permission in _permissions)
-        foreach (IPermissionObject obj in permission.GetPermissionObjects())
-          result.Add(obj);
+      result.AddRange(_permissions.SelectMany(permission => permission.GetPermissionObjects()));
       return result;
     }
 
     public override bool IncludesPermissionOn(IPermissionObject item)
     {
-      if (base.IncludesPermissionOn(item))
-        return true;
-      foreach (IPermission permission in _permissions)
-        if (permission.IncludesPermissionOn(item))
-          return true;
-      return false;
+      return base.IncludesPermissionOn(item) || _permissions.Any(permission => permission.IncludesPermissionOn(item));
     }
 
     #endregion

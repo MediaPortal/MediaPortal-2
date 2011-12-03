@@ -10,34 +10,32 @@
     <Model x:Key="Model" Id="545674F1-D92A-4383-B6C1-D758CECDBDF5"/>
 
     <!-- Header -->
-    <ResourceWrapper x:Key="Header_Text" Resource="{Binding Source={StaticResource Model},Path=HeaderText}"/>
+    <ResourceWrapper x:Key="Header_Text" EnableBindings="True" Resource="{Binding Source={StaticResource Model},Path=HeaderText,Mode=OneTime}"/>
 
     <!-- Contents -->
-    <ResourceWrapper x:Key="Contents_Element">
-      <Grid>
-        <Grid.ColumnDefinitions>
-          <ColumnDefinition Width="*"/>
-        </Grid.ColumnDefinitions>
-        <Grid.RowDefinitions>
-          <RowDefinition Height="*"/>
-          <RowDefinition Height="120"/>
-        </Grid.RowDefinitions>
-        <ListView x:Name="ConfigItemsList"
-            Grid.Row="0" Grid.Column="0"
-            Style="{ThemeResource ContentsMenuListViewStyle}"
-            DataContext="{Binding Source={StaticResource Model}}"
-            ItemsSource="{Binding ConfigSettings}">
-          <ListView.Resources>
-            <ResourceWrapper x:Key="Menu_Command" Resource="{Binding Command}"/>
-          </ListView.Resources>
-        </ListView>
-        <Label Grid.Row="1" Grid.Column="0" Margin="20,0,20,20" Color="{ThemeResource HintTextColor}"
+    <ControlTemplate x:Key="Contents_Template">
+      <DockPanel LastChildFill="False">
+        <Label DockPanel.Dock="Bottom" Height="120" Margin="20,0,20,20" Color="{ThemeResource HintTextColor}"
             HorizontalAlignment="Stretch"
             DataContext="{Binding ElementName=ConfigItemsList,Path=CurrentItem}"
             Content="{Binding [Help]}" Wrap="True"
             IsVisible="{Binding Converter={StaticResource ReferenceToBoolConverter}}"/>
-      </Grid>
-    </ResourceWrapper>
+
+        <ListView x:Name="ConfigItemsList"
+            DockPanel.Dock="Center"
+            HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+            Style="{ThemeResource ContentsMenuListViewStyle}"
+            DataContext="{Binding Source={StaticResource Model}}"
+            ItemsSource="{Binding ConfigSettings}">
+          <ListView.Resources>
+            <CommandBridge x:Key="Menu_Command" Command="{Binding Path=Command,Mode=OneTime}"/>
+          </ListView.Resources>
+        </ListView>
+        <Label DockPanel.Dock="Center" Content="[Configuration.NoSettingsInThisSection]" IsVisible="{Binding ElementName=ConfigItemsList,Path=IsEmpty}"
+            HorizontalAlignment="Center" VerticalAlignment="Center"
+            Color="{ThemeResource HintTextColor}" FontSize="{ThemeResource SmallFontSize}"/>
+      </DockPanel>
+    </ControlTemplate>
 
   </Include.Resources>
 </Include>

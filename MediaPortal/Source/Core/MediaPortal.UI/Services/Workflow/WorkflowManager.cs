@@ -33,7 +33,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using MediaPortal.Common;
-using MediaPortal.Common.General;
 using MediaPortal.Common.Logging;
 using MediaPortal.Common.Messaging;
 using MediaPortal.Common.PluginManager;
@@ -50,51 +49,6 @@ namespace MediaPortal.UI.Services.Workflow
   public class WorkflowManager : IWorkflowManager
   {
     #region Classes
-
-    protected class ModelItemStateTracker : IPluginItemStateTracker
-    {
-      #region Protected fields
-
-      protected WorkflowManager _parent;
-
-      #endregion
-
-      #region Ctor
-
-      public ModelItemStateTracker(WorkflowManager parent)
-      {
-        _parent = parent;
-      }
-
-      #endregion
-
-      #region IPluginItemStateTracker implementation
-
-      public string UsageDescription
-      {
-        get { return "WorkflowManager: Model usage"; }
-      }
-
-      public bool RequestEnd(PluginItemRegistration itemRegistration)
-      {
-        // We could store the end-requested model in an array of "suspended models" in the WF manager,
-        // method WFM.GetOrLoadModel would then fail to load any of the suspended models
-        return !_parent.IsModelContainedInNavigationStack(new Guid(itemRegistration.Metadata.Id));
-      }
-
-      public void Stop(PluginItemRegistration itemRegistration)
-      {
-        _parent.NavigatePopModel(new Guid(itemRegistration.Metadata.Id));
-      }
-
-      public void Continue(PluginItemRegistration itemRegistration)
-      {
-        // If we'd maintain a collection of "suspended models" (like said in comment in method
-        // RequestEnd), we would need to cancel the suspension of the continued model here.
-      }
-
-      #endregion
-    }
 
     protected class ModelEntry
     {
@@ -151,7 +105,7 @@ namespace MediaPortal.UI.Services.Workflow
     protected Stack<NavigationContext> _navigationContextStack = new Stack<NavigationContext>();
 
     protected IDictionary<Guid, ModelEntry> _modelCache = new Dictionary<Guid, ModelEntry>();
-    protected ModelItemStateTracker _modelItemStateTracker;
+    protected DefaultItemStateTracker _modelItemStateTracker;
     protected IDictionary<Guid, WorkflowState> _states = new Dictionary<Guid, WorkflowState>();
     protected IDictionary<Guid, WorkflowAction> _menuActions =  new Dictionary<Guid, WorkflowAction>();
     protected AsynchronousMessageQueue _messageQueue = null;
@@ -162,7 +116,17 @@ namespace MediaPortal.UI.Services.Workflow
 
     public WorkflowManager()
     {
-      _modelItemStateTracker = new ModelItemStateTracker(this);
+      _modelItemStateTracker = new DefaultItemStateTracker("WorkflowManager: Model usage")
+        {
+            // We could store the end-requested model in an array of "suspended models" in the WF manager,
+            // method WFM.GetOrLoadModel would then fail to load any of the suspended models
+            EndRequested = itemRegistration => !IsModelContainedInNavigationStack(new Guid(itemRegistration.Metadata.Id)),
+
+            Stopped = itemRegistration => NavigatePopModel(new Guid(itemRegistration.Metadata.Id))
+
+            // If we'd maintain a collection of "suspended models" (like said in comment in method RequestEnd),
+            // we would need to cancel the suspension of the continued model in the Continued delegate.
+        };
       ServiceRegistration.Get<IPluginManager>().RegisterSystemPluginItemBuilder("Model", new ModelBuilder());
     }
 
@@ -340,7 +304,7 @@ namespace MediaPortal.UI.Services.Workflow
 
     protected static IEnumerable<WorkflowAction> FilterActionsBySourceState(Guid sourceState, ICollection<WorkflowAction> actions)
     {
-      return actions.Where(action => !action.SourceStateId.HasValue || action.SourceStateId.Value == sourceState);
+      return actions.Where(action => action.SourceStateIds == null || action.SourceStateIds.Contains(sourceState));
     }
 
     protected WorkflowState FindLastNonTransientState()
@@ -384,7 +348,8 @@ namespace MediaPortal.UI.Services.Workflow
         {
           logger.Info("Current workflow state '{0}' is temporary, popping it from navigation stack", current.WorkflowState.Name);
           // The next statement can throw an exception - don't catch it - our caller should pop the current navigation context
-          DoPopNavigationContext(1);
+          bool workflowStatePopped;
+          DoPopNavigationContext(1, out workflowStatePopped);
         }
 
         NavigationContext predecessor = CurrentNavigationContext;
@@ -548,13 +513,16 @@ namespace MediaPortal.UI.Services.Workflow
     /// valid but the caller must pop the current navigation context from the workflow stack.
     /// </remarks>
     /// <param name="count">Number of navigation contexts to pop.</param>
+    /// <param name="workflowStatePopped">Will be set to <c>true</c>, if at least one state of type <see cref="WorkflowType.Workflow"/>
+    /// was popped.</param>
     /// <returns><c>true</c> if the given <paramref name="count"/> of context stack frames could be removed from the
     /// navigation context stack. <c>false</c> if the context stack contains less than <c>count + 1</c> contexts.</returns>
-    protected bool DoPopNavigationContext(int count)
+    protected bool DoPopNavigationContext(int count, out bool workflowStatePopped)
     {
       EnterWriteLock("DoPopNavigationContext");
       try
       {
+        workflowStatePopped = false;
         ILogger logger = ServiceRegistration.Get<ILogger>();
 
         logger.Info("WorkflowManager: Trying to remove {0} workflow states from navigation stack...", count);
@@ -578,6 +546,8 @@ namespace MediaPortal.UI.Services.Workflow
             if (dialogInstanceId.HasValue)
               screenManager.CloseDialogs(dialogInstanceId.Value, true);
           }
+          else
+            workflowStatePopped = true;
           
           // Store model exceptions
           IList<Exception> delayedExceptions = new List<Exception>();
@@ -700,8 +670,12 @@ namespace MediaPortal.UI.Services.Workflow
     /// This method just rethrows all exceptions thrown by models. It also throws an <see cref="EnvironmentException"/>
     /// if the screen to be loaded could not be loaded.
     /// </remarks>
+    /// <param name="push">If the former screen operation was a workflow state push operation, this parameter is <c>true</c>,
+    /// else <c>false</c>.</param>
+    /// <param name="force">If set to <c>true</c>, the screen needs to be updated in any case. Else, the screen update may be prevented,
+    /// if the required screen is already visible.</param>
     /// <exception cref="EnvironmentException">If the screen to be loaded could not be loaded.</exception>
-    protected void UpdateScreen_NeedsLock(bool push)
+    protected void UpdateScreen_NeedsLock(bool push, bool force)
     {
       ILogger logger = ServiceRegistration.Get<ILogger>();
       IScreenManager screenManager = ServiceRegistration.Get<IScreenManager>();
@@ -737,7 +711,7 @@ namespace MediaPortal.UI.Services.Workflow
       if (workflowType == WorkflowType.Workflow)
       {
         logger.Info("WorkflowManager: Trying to show screen '{0}'...", screen);
-        result = screenManager.ShowScreen(screen).HasValue;
+        result = (force ? screenManager.ShowScreen(screen) : screenManager.CheckScreen(screen)).HasValue;
       }
       else if (workflowType == WorkflowType.Dialog)
       {
@@ -782,7 +756,7 @@ namespace MediaPortal.UI.Services.Workflow
         try
         {
           if (DoPushNavigationContext(state, config))
-            UpdateScreen_NeedsLock(true);
+            UpdateScreen_NeedsLock(true, true);
           WorkflowManagerMessaging.SendNavigationCompleteMessage();
         }
         catch (Exception e)
@@ -806,7 +780,7 @@ namespace MediaPortal.UI.Services.Workflow
         try
         {
           if (DoPushNavigationContext(state, config))
-            UpdateScreen_NeedsLock(true);
+            UpdateScreen_NeedsLock(true, true);
           WorkflowManagerMessaging.SendNavigationCompleteMessage();
         }
         catch (Exception e)
@@ -829,8 +803,9 @@ namespace MediaPortal.UI.Services.Workflow
       {
         try
         {
-          if (DoPopNavigationContext(count))
-            UpdateScreen_NeedsLock(false);
+          bool workflowStatePopped;
+          if (DoPopNavigationContext(count, out workflowStatePopped))
+            UpdateScreen_NeedsLock(false, workflowStatePopped);
           WorkflowManagerMessaging.SendNavigationCompleteMessage();
         }
         catch (Exception e)
@@ -856,20 +831,21 @@ namespace MediaPortal.UI.Services.Workflow
           if (!IsStateContainedInNavigationStack(stateId))
             return false;
           bool removed = false;
+          bool workflowStatePopped = false;
           while (CurrentNavigationContext.WorkflowState.StateId != stateId)
           {
             removed = true;
-            if (!DoPopNavigationContext(1))
+            if (!DoPopNavigationContext(1, out workflowStatePopped))
               break;
           }
           if (inclusive)
           {
             removed = true;
-            DoPopNavigationContext(1);
+            DoPopNavigationContext(1, out workflowStatePopped);
           }
           if (removed)
           {
-            UpdateScreen_NeedsLock(false);
+            UpdateScreen_NeedsLock(false, workflowStatePopped);
             WorkflowManagerMessaging.SendNavigationCompleteMessage();
             return true;
           }
@@ -1038,15 +1014,16 @@ namespace MediaPortal.UI.Services.Workflow
         try
         {
           bool removed = false;
+          bool workflowStatePopped = false;
           while (IsModelContainedInNavigationStack(modelId))
           {
             removed = true;
-            if (!DoPopNavigationContext(1))
+            if (!DoPopNavigationContext(1, out workflowStatePopped))
               break;
           }
           if (removed)
           {
-            UpdateScreen_NeedsLock(false);
+            UpdateScreen_NeedsLock(false, workflowStatePopped);
             WorkflowManagerMessaging.SendNavigationCompleteMessage();
             return true;
           }

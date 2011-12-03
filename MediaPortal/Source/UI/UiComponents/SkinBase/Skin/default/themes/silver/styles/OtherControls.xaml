@@ -9,7 +9,7 @@
     >
 
   <!-- default brush used to paint the background of a page/window -->
-  <ResourceWrapper x:Key="BackgroundBrush" Freezable="true">
+  <ResourceWrapper x:Key="BackgroundBrush">
     <VisualBrush x:Name="BackgroundVisual">
       <VisualBrush.Visual>
         <Image x:Name="BackdropImageBackground" Stretch="Uniform" Source="silverBackground.png"/>

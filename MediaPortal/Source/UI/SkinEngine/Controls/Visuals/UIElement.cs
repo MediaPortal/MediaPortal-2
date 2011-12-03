@@ -40,7 +40,6 @@ using MediaPortal.UI.Control.InputManager;
 using MediaPortal.UI.SkinEngine.Controls.Visuals.Triggers;
 using MediaPortal.UI.SkinEngine.Controls.Animations;
 using MediaPortal.UI.SkinEngine.Controls.Transforms;
-using MediaPortal.UI.SkinEngine.Commands;
 using MediaPortal.UI.SkinEngine.MpfElements.Resources;
 using MediaPortal.UI.SkinEngine.Xaml.Interfaces;
 using MediaPortal.Utilities.DeepCopy;
@@ -221,9 +220,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 
   #endregion
 
-  public abstract class UIElement : Visual, IContentEnabled
+  public abstract class UIElement : Visual, IContentEnabled, IBindingContainer
   {
-    protected static IList<UIElement> EMPTY_UIELEMENT_LIST = new List<UIElement>();
     protected const string LOADED_EVENT = "UIElement.Loaded";
 
     public const double DELTA_DOUBLE = 0.01;
@@ -245,7 +243,6 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     protected AbstractProperty _templateNameScopeProperty;
     protected ResourceDictionary _resources;
     protected ElementState _elementState = ElementState.Available;
-    protected IExecutableCommand _loaded;
     protected bool _triggersInitialized = false;
     protected bool _fireLoaded = true;
     protected bool _allocated = false;
@@ -293,7 +290,6 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       // TODO Albert78: Implement Freezing
       Freezable = el.Freezable;
       Opacity = el.Opacity;
-      Loaded = copyManager.GetCopy(el.Loaded);
       OpacityMask = copyManager.GetCopy(el.OpacityMask);
       LayoutTransform = copyManager.GetCopy(el.LayoutTransform);
       RenderTransform = copyManager.GetCopy(el.RenderTransform);
@@ -317,10 +313,9 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 
     public override void Dispose()
     {
-      _elementState = ElementState.Disposing; // Not necessary to call SetElementState; children will set their state to Disposing by theirselves
       base.Dispose();
       foreach (UIElement child in GetChildren())
-        child.CleanupAndDispose();
+        child.StopAndDispose();
       foreach (TriggerBase triggerBase in Triggers)
         triggerBase.Dispose();
       MPF.TryCleanupAndDispose(RenderTransform);
@@ -343,12 +338,6 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     /// Event handler called for all events defined by their event string like <see cref="LOADED_EVENT"/>.
     /// </summary>
     public event UIEventDelegate EventOccured;
-
-    public IExecutableCommand Loaded
-    {
-      get { return _loaded; }
-      set { _loaded = value; }
-    }
 
     public ResourceDictionary Resources
     {
@@ -546,10 +535,29 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     /// In state <see cref="Visuals.ElementState.Disposing"/>, the element is about to be disposed, thus no more change triggers and
     /// other time-consuming tasks need to be executed.
     /// </remarks>
-    public virtual ElementState ElementState
+    public ElementState ElementState
     {
       get { return _elementState; }
-      internal set { _elementState = value; }
+      internal set
+      {
+        if (_elementState == value)
+          return;
+        _elementState = value;
+        OnUpdateElementState();
+      }
+    }
+
+    protected virtual void OnUpdateElementState()
+    {
+      if (PreparingOrRunning)
+        ActivateBindings();
+      if (_elementState == ElementState.Disposing)
+        DisposeBindings();
+    }
+
+    internal bool PreparingOrRunning
+    {
+      get { return _elementState == ElementState.Preparing || _elementState == ElementState.Running; }
     }
 
     #endregion
@@ -629,20 +637,24 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     /// will take two actions here:
     /// <list type="bullet">
     /// <item>Scroll the specified <paramref name="element"/> to a visible region inside its borders,
-    /// while undoing layout transformations which will be applied to children.</item>
-    /// <item>Call this inherited method, which delegates the call to the visual parent.</item>
+    /// while undoing layout transformations which will be applied to children. At the same time,
+    /// the <paramref name="elementBounds"/> should be updated to the new bounds after scrolling.</item>
+    /// <item>Call this inherited method (in <see cref="UIElement"/>), which delegates the call to
+    /// the visual parent.</item>
     /// </list>
     /// The call to the visual parent should use the same <paramref name="element"/> but an updated
-    /// <paramref name="elementBounds"/> rectangle.
+    /// <paramref name="elementBounds"/> rectangle. The <paramref name="elementBounds"/> parameter
+    /// should reflect the updated element's bounds after the scrolling update has taken place in the
+    /// next layout cycle.
     /// </remarks>
     /// <param name="element">The original element which should be made visible.</param>
-    /// <param name="elementBounds">The element's bounds after the scrolling update has taken place in the
-    /// next layout cycle.</param>
-    public virtual void MakeVisible(UIElement element, RectangleF elementBounds)
+    /// <param name="elementBounds">The element's bounds which will be active after the scrolling
+    /// update.</param>
+    public virtual void BringIntoView(UIElement element, RectangleF elementBounds)
     {
       UIElement parent = VisualParent as UIElement;
       if (parent != null)
-        parent.MakeVisible(element, elementBounds);
+        parent.BringIntoView(element, elementBounds);
     }
 
     /// <summary>
@@ -686,13 +698,19 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 
     #endregion
 
-    protected internal void CleanupAndDispose()
+    public void CleanupAndDispose()
+    {
+      SetElementState(ElementState.Disposing);
+      Deallocate();
+      ResetScreen();
+      StopAndDispose();
+    }
+
+    protected internal void StopAndDispose()
     {
       Screen screen = Screen;
       if (screen != null)
         screen.Animator.StopAll(this);
-      ResetScreen();
-      Deallocate();
 
       Dispose(); // First dispose bindings before we can reset our VisualParent
       VisualParent = null;
@@ -730,6 +748,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 
     public void SetValueInRenderThread(IDataDescriptor dataDescriptor, object value)
     {
+      if (_elementState == ElementState.Disposing)
+        return;
       Screen screen = Screen;
       if (screen == null || _elementState == ElementState.Available || _elementState == ElementState.Preparing ||
           Thread.CurrentThread == SkinContext.RenderThread)
@@ -788,11 +808,6 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
         UIElement parent = VisualParent as UIElement;
         if (parent != null)
           parent.FireEvent(eventName, routingStrategy);
-      }
-      if (eventName == LOADED_EVENT)
-      {
-        if (_loaded != null)
-          _loaded.Execute();
       }
       UIEventDelegate dlgt = EventOccured;
       if (dlgt != null)
@@ -996,7 +1011,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     {
       if (!_fireLoaded)
         return;
-      FireEvent(LOADED_EVENT, RoutingStrategyEnum.Direct);
+      FireEvent(LOADED_EVENT, RoutingStrategyEnum.VisualTree);
       _fireLoaded = false;
     }
 
@@ -1104,6 +1119,14 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
         child.RestoreUIState(state, prefix + "/Child_" + (i++));
     }
 
+    void IBindingContainer.AddBindings(IEnumerable<IBinding> bindings)
+    {
+      foreach (IBinding binding in bindings)
+        AddDeferredBinding(binding);
+      if (PreparingOrRunning)
+        ActivateBindings();
+    }
+
     public override void SetBindingValue(IDataDescriptor dd, object value)
     {
       SetValueInRenderThread(dd, value);
@@ -1115,6 +1138,11 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
         ForEachElementInTree_BreadthFirst(new SetScreenAction(screen));
     }
 
+    public void ResetScreen()
+    {
+      ForEachElementInTree_BreadthFirst(new SetScreenAction(null));
+    }
+
     /// <summary>
     /// Sets the element state. The <see cref="Screen"/> must have been assigned before the element state is set to
     /// <see cref="Visuals.ElementState.Running"/>.
@@ -1123,11 +1151,6 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     public void SetElementState(ElementState state)
     {
       ForEachElementInTree_BreadthFirst(new SetElementStateAction(state));
-    }
-
-    public void ResetScreen()
-    {
-      ForEachElementInTree_BreadthFirst(new SetScreenAction(null));
     }
 
     public static bool InVisualPath(UIElement possibleParent, UIElement child)

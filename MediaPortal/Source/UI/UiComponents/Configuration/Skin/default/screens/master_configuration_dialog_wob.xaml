@@ -13,15 +13,16 @@ Usage:
       Source="screens\master_configuration_dialog_wob.xaml"
       >
     <Include.Resources>
-      <ResourceWrapper x:Key="Config_Contents_Element">
+      <ControlTemplate x:Key="Config_Contents_Template">
         [Element which represents the contents area of the dialog.
          Here, the configurable element should be displayed.]
-      </ResourceWrapper>
+      </ControlTemplate>
     </Include.Resources>
   </Include>
 
 Parameters which have to be accessible by a DynamicResource lookup:
- - Config_Contents_Element (Any UI element): Configurable element to be displayed.
+ - Config_Contents_Template (ControlTemplate): Template for configurable element
+   to be displayed.
 -->
 
 <Include
@@ -30,21 +31,9 @@ Parameters which have to be accessible by a DynamicResource lookup:
     Source="screens\master_configuration_dialog.xaml"
     >
   <Include.Resources>
-    <ResourceWrapper x:Key="Config_Client_Element">
-      <Grid HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
-        <Grid.ColumnDefinitions>
-          <ColumnDefinition Width="20"/>
-          <ColumnDefinition Width="*"/>
-          <ColumnDefinition Width="20"/>
-        </Grid.ColumnDefinitions>
-        <Grid.RowDefinitions>
-          <RowDefinition Height="10"/>
-          <RowDefinition Height="*"/>
-          <RowDefinition Height="20"/>
-        </Grid.RowDefinitions>
-        <ContentPresenter Grid.Column="1" Grid.Row="1" Content="{DynamicResource ResourceKey=Config_Contents_Element,TreeSearchMode=Hybrid}"
-            HorizontalAlignment="Stretch" VerticalAlignment="Stretch"/>
-      </Grid>
-    </ResourceWrapper>
+    <ControlTemplate x:Key="Config_Client_Template">
+      <Control Margin="20,10,20,20" Template="{DynamicResource ResourceKey=Config_Contents_Template}"
+          HorizontalAlignment="Stretch" VerticalAlignment="Stretch"/>
+    </ControlTemplate>
   </Include.Resources>
 </Include>

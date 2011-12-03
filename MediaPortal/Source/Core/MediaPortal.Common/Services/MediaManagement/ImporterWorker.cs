@@ -29,7 +29,7 @@ using System.Threading;
 using MediaPortal.Common.Logging;
 using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
-using MediaPortal.Common.MediaManagement.ResourceAccess;
+using MediaPortal.Common.ResourceAccess;
 using MediaPortal.Common.Messaging;
 using MediaPortal.Common.Runtime;
 using MediaPortal.Common.Settings;
@@ -279,30 +279,20 @@ namespace MediaPortal.Common.Services.MediaManagement
     /// <param name="mediaItemAccessor">File or directory resource to be imported.</param>
     /// <param name="parentDirectoryId">Media item id of the parent directory, if present, else <see cref="Guid.Empty"/>.</param>
     /// <param name="metadataExtractors">Collection of metadata extractors to apply to the given resoure.</param>
-    /// <param name="mediaItemAspectTypes">Media item aspect types which are expected to be filled. All of those
-    /// media item aspects will be present in the result, but not all of their values might be set if no metadata extractor
-    /// filled them.</param>
     /// <param name="resultHandler">Callback to notify the import results.</param>
     /// <param name="mediaAccessor">Convenience reference to the media accessor.</param>
     /// <returns><c>true</c>, if metadata could be extracted from the given <paramref name="mediaItemAccessor"/>, else
     /// <c>false</c>.</returns>
     protected bool ImportResource(IResourceAccessor mediaItemAccessor, Guid parentDirectoryId,
-        ICollection<IMetadataExtractor> metadataExtractors, ICollection<MediaItemAspectMetadata> mediaItemAspectTypes,
-        IImportResultHandler resultHandler, IMediaAccessor mediaAccessor)
+        ICollection<IMetadataExtractor> metadataExtractors, IImportResultHandler resultHandler, IMediaAccessor mediaAccessor)
     {
       const bool forceQuickMode = false; // Allow extractions with probably longer runtime.
-      ResourcePath path = mediaItemAccessor.LocalResourcePath;
+      ResourcePath path = mediaItemAccessor.CanonicalLocalResourcePath;
       ImporterWorkerMessaging.SendImportMessage(ImporterWorkerMessaging.MessageType.ImportStatus, path);
       IDictionary<Guid, MediaItemAspect> aspects = mediaAccessor.ExtractMetadata(mediaItemAccessor, metadataExtractors, forceQuickMode);
       if (aspects == null)
         // No metadata could be extracted
         return false;
-      // Fill empty entries for media item aspects which aren't returned - this will cleanup those aspects in media library
-      foreach (MediaItemAspectMetadata mediaItemAspectType in mediaItemAspectTypes)
-      {
-        if (!aspects.ContainsKey(mediaItemAspectType.AspectId))
-          aspects[mediaItemAspectType.AspectId] = new MediaItemAspect(mediaItemAspectType);
-      }
       resultHandler.UpdateMediaItem(parentDirectoryId, path, aspects.Values);
       resultHandler.DeleteUnderPath(path);
       return true;
@@ -314,15 +304,14 @@ namespace MediaPortal.Common.Services.MediaManagement
     /// <param name="importJob">The import job being processed.</param>
     /// <param name="fileAccessor">Resource accessor for the file to import.</param>
     /// <param name="metadataExtractors">Metadata extractors to apply on the resource.</param>
-    /// <param name="mediaItemAspectTypes">Types of the media item aspects which are expected to be filled.</param>
     /// <param name="mediaBrowsing">Callback interface to the media library for the refresh import type.</param>
     /// <param name="resultHandler">Callback to notify the import result.</param>
     /// <param name="mediaAccessor">Convenience reference to the media accessor.</param>
     protected void ImportSingleFile(ImportJob importJob, IResourceAccessor fileAccessor,
-        ICollection<IMetadataExtractor> metadataExtractors, ICollection<MediaItemAspectMetadata> mediaItemAspectTypes,
-        IMediaBrowsing mediaBrowsing, IImportResultHandler resultHandler, IMediaAccessor mediaAccessor)
+        ICollection<IMetadataExtractor> metadataExtractors, IMediaBrowsing mediaBrowsing,
+        IImportResultHandler resultHandler, IMediaAccessor mediaAccessor)
     {
-      ResourcePath currentFilePath = fileAccessor.LocalResourcePath;
+      ResourcePath currentFilePath = fileAccessor.CanonicalLocalResourcePath;
       try
       {
         if (importJob.JobType == ImportJobType.Refresh)
@@ -334,7 +323,7 @@ namespace MediaPortal.Common.Services.MediaManagement
               (DateTime) importerAspect[ImporterAspect.ATTR_LAST_IMPORT_DATE] > fileAccessor.LastChanged)
             return;
         }
-        ImportResource(fileAccessor, Guid.Empty, metadataExtractors, mediaItemAspectTypes, resultHandler, mediaAccessor);
+        ImportResource(fileAccessor, Guid.Empty, metadataExtractors, resultHandler, mediaAccessor);
       }
       catch (Exception e)
       {
@@ -347,7 +336,7 @@ namespace MediaPortal.Common.Services.MediaManagement
     protected Guid GetOrAddDirectory(IFileSystemResourceAccessor directoryAccessor, Guid parentDirectoryId,
         IMediaBrowsing mediaBrowsing, IImportResultHandler resultHandler)
     {
-      ResourcePath directoryPath = directoryAccessor.LocalResourcePath;
+      ResourcePath directoryPath = directoryAccessor.CanonicalLocalResourcePath;
       MediaItem directoryItem = mediaBrowsing.LoadItem(directoryPath, EMPTY_MIA_ID_ENUMERATION, DIRECTORY_MIA_ID_ENUMERATION);
       if (directoryItem != null)
       {
@@ -386,7 +375,6 @@ namespace MediaPortal.Common.Services.MediaManagement
     /// <param name="parentDirectoryId">Media item id of the parent directory, if present, else <see cref="Guid.Empty"/>.</param>
     /// <param name="directoryAccessor">Resource accessor for the directory to import.</param>
     /// <param name="metadataExtractors">Metadata extractors to apply on the resources.</param>
-    /// <param name="mediaItemAspectTypes">Types of the media item aspects which are expected to be filled.</param>
     /// <param name="mediaBrowsing">Callback interface to the media library for the refresh import type.</param>
     /// <param name="resultHandler">Callback to notify the import result.</param>
     /// <param name="mediaAccessor">Convenience reference to the media accessor.</param>
@@ -394,16 +382,17 @@ namespace MediaPortal.Common.Services.MediaManagement
     /// was imported as a media item or if an error occured. If <c>null</c> is returned, the directory import should be
     /// considered to be finished.</returns>
     protected Guid? ImportDirectory(ImportJob importJob, Guid parentDirectoryId, IFileSystemResourceAccessor directoryAccessor,
-        ICollection<IMetadataExtractor> metadataExtractors, ICollection<MediaItemAspectMetadata> mediaItemAspectTypes,
-        IMediaBrowsing mediaBrowsing, IImportResultHandler resultHandler, IMediaAccessor mediaAccessor)
+        ICollection<IMetadataExtractor> metadataExtractors, IMediaBrowsing mediaBrowsing,
+        IImportResultHandler resultHandler, IMediaAccessor mediaAccessor)
     {
-      ResourcePath currentDirectoryPath = directoryAccessor.LocalResourcePath;
+      ResourcePath currentDirectoryPath = directoryAccessor.CanonicalLocalResourcePath;
       try
       {
         ImporterWorkerMessaging.SendImportMessage(ImporterWorkerMessaging.MessageType.ImportStatus, currentDirectoryPath);
-        if (ImportResource(directoryAccessor, parentDirectoryId, metadataExtractors, mediaItemAspectTypes,
-            resultHandler, mediaAccessor))
-          // The directory could be imported as a media item
+        if (ImportResource(directoryAccessor, parentDirectoryId, metadataExtractors, resultHandler, mediaAccessor))
+          // The directory could be imported as a media item.
+          // If the directory itself was identified as a normal media item, don't import its children.
+          // Necessary for DVD directories, for example.
           return null;
         Guid directoryId = GetOrAddDirectory(directoryAccessor, parentDirectoryId, mediaBrowsing, resultHandler);
         IDictionary<string, MediaItem> path2Item = new Dictionary<string, MediaItem>();
@@ -418,40 +407,35 @@ namespace MediaPortal.Common.Services.MediaManagement
           }
         }
         CheckImportStillRunning(importJob.State);
-        // If the directory itself was identified as a normal media item, don't import its children.
-        // Necessary for DVD directories, for example.
-        { 
-          ICollection<IFileSystemResourceAccessor> files = FileSystemResourceNavigator.GetFiles(directoryAccessor);
-          if (files != null)
-            foreach (IFileSystemResourceAccessor fileAccessor in files)
-            { // Add & update files
-              ResourcePath currentFilePath = fileAccessor.LocalResourcePath;
-              string serializedFilePath = currentFilePath.Serialize();
-              try
-              {
-                MediaItemAspect importerAspect;
-                MediaItem mediaItem;
-                if (importJob.JobType == ImportJobType.Refresh &&
-                    path2Item.TryGetValue(serializedFilePath, out mediaItem) &&
-                    mediaItem.Aspects.TryGetValue(ImporterAspect.ASPECT_ID, out importerAspect) &&
-                    importerAspect.GetAttributeValue<DateTime>(ImporterAspect.ATTR_LAST_IMPORT_DATE) > fileAccessor.LastChanged)
-                { // We can skip this file; it was imported after the last change time of the item
-                  path2Item.Remove(serializedFilePath);
-                  continue;
-                }
-                if (ImportResource(fileAccessor, directoryId, metadataExtractors, mediaItemAspectTypes,
-                    resultHandler, mediaAccessor))
-                  path2Item.Remove(serializedFilePath);
+        ICollection<IFileSystemResourceAccessor> files = FileSystemResourceNavigator.GetFiles(directoryAccessor);
+        if (files != null)
+          foreach (IFileSystemResourceAccessor fileAccessor in files)
+          { // Add & update files
+            ResourcePath currentFilePath = fileAccessor.CanonicalLocalResourcePath;
+            string serializedFilePath = currentFilePath.Serialize();
+            try
+            {
+              MediaItemAspect importerAspect;
+              MediaItem mediaItem;
+              if (importJob.JobType == ImportJobType.Refresh &&
+                  path2Item.TryGetValue(serializedFilePath, out mediaItem) &&
+                  mediaItem.Aspects.TryGetValue(ImporterAspect.ASPECT_ID, out importerAspect) &&
+                  importerAspect.GetAttributeValue<DateTime>(ImporterAspect.ATTR_LAST_IMPORT_DATE) > fileAccessor.LastChanged)
+              { // We can skip this file; it was imported after the last change time of the item
+                path2Item.Remove(serializedFilePath);
+                continue;
               }
-              catch (Exception e)
-              {
-                CheckSuspended(); // Throw ImportAbortException if suspended - will skip warning and tagging job as erroneous
-                ServiceRegistration.Get<ILogger>().Warn("ImporterWorker: Problem while importing resource '{0}'", e, serializedFilePath);
-                importJob.State = ImportJobState.Erroneous;
-              }
-              CheckImportStillRunning(importJob.State);
+              if (ImportResource(fileAccessor, directoryId, metadataExtractors, resultHandler, mediaAccessor))
+                path2Item.Remove(serializedFilePath);
             }
-        }
+            catch (Exception e)
+            {
+              CheckSuspended(); // Throw ImportAbortException if suspended - will skip warning and tagging job as erroneous
+              ServiceRegistration.Get<ILogger>().Warn("ImporterWorker: Problem while importing resource '{0}'", e, serializedFilePath);
+              importJob.State = ImportJobState.Erroneous;
+            }
+            CheckImportStillRunning(importJob.State);
+          }
         if (importJob.JobType == ImportJobType.Refresh)
         { // Remove remaining (= non-present) files
           foreach (string pathStr in path2Item.Keys)
@@ -523,7 +507,6 @@ namespace MediaPortal.Common.Services.MediaManagement
       {
         try
         {
-          ICollection<MediaItemAspectMetadata> mediaItemAspectTypes = new HashSet<MediaItemAspectMetadata>();
           ICollection<IMetadataExtractor> metadataExtractors = new List<IMetadataExtractor>();
           foreach (Guid metadataExtractorId in importJob.MetadataExtractorIds)
           {
@@ -531,7 +514,6 @@ namespace MediaPortal.Common.Services.MediaManagement
             if (!mediaAccessor.LocalMetadataExtractors.TryGetValue(metadataExtractorId, out extractor))
               continue;
             metadataExtractors.Add(extractor);
-            CollectionUtils.AddAll(mediaItemAspectTypes, extractor.Metadata.ExtractedAspectTypes.Values);
           }
 
           // Prepare import
@@ -548,8 +530,7 @@ namespace MediaPortal.Common.Services.MediaManagement
             }
             else
             { // Simple single-item-import
-              ImportSingleFile(importJob, accessor, metadataExtractors, mediaItemAspectTypes,
-                  mediaBrowsing, resultHandler, mediaAccessor);
+              ImportSingleFile(importJob, accessor, metadataExtractors, mediaBrowsing, resultHandler, mediaAccessor);
               lock (importJob.SyncObj)
                 if (importJob.State == ImportJobState.Started)
                   importJob.State = ImportJobState.Finished;
@@ -574,21 +555,25 @@ namespace MediaPortal.Common.Services.MediaManagement
               string moreResources = numPending > 1 ? string.Format(" ({0} more resources pending)", numPending) : string.Empty;
               ServiceRegistration.Get<ILogger>().Info("ImporterWorker: Importing '{0}'{1}", fsra.ResourcePathName, moreResources);
               if (fsra.IsFile && fsra.Exists)
-                ImportResource(fsra, pendingImportResource.ParentDirectory, metadataExtractors, mediaItemAspectTypes, resultHandler, mediaAccessor);
+                ImportResource(fsra, pendingImportResource.ParentDirectory, metadataExtractors, resultHandler, mediaAccessor);
               else if (fsra.IsDirectory)
               {
                 CheckImportStillRunning(importJob.State);
-                Guid? currentDirectoryId = ImportDirectory(importJob, pendingImportResource.ParentDirectory, fsra, metadataExtractors, mediaItemAspectTypes,
+                Guid? currentDirectoryId = ImportDirectory(importJob, pendingImportResource.ParentDirectory, fsra, metadataExtractors,
                     mediaBrowsing, resultHandler, mediaAccessor);
                 CheckImportStillRunning(importJob.State);
                 if (currentDirectoryId.HasValue && importJob.IncludeSubDirectories)
                   // Add subdirectories in front of work queue
                   lock (importJob.SyncObj)
-                    foreach (IFileSystemResourceAccessor childDirectory in FileSystemResourceNavigator.GetChildDirectories(fsra))
-                      importJob.PendingResources.Insert(0, new PendingImportResource(currentDirectoryId.Value, childDirectory));
+                  {
+                    ICollection<IFileSystemResourceAccessor> directories = FileSystemResourceNavigator.GetChildDirectories(fsra);
+                    if (directories != null)
+                      foreach (IFileSystemResourceAccessor childDirectory in directories)
+                        importJob.PendingResources.Insert(0, new PendingImportResource(currentDirectoryId.Value, childDirectory));
+                  }
               }
               else
-                ServiceRegistration.Get<ILogger>().Warn("ImporterWorker: Cannot import resource '{0}': It's neither a file nor a directory", fsra.LocalResourcePath.Serialize());
+                ServiceRegistration.Get<ILogger>().Warn("ImporterWorker: Cannot import resource '{0}': It's neither a file nor a directory", fsra.CanonicalLocalResourcePath.Serialize());
             }
             lock (importJob.SyncObj)
               importJob.PendingResources.Remove(pendingImportResource);

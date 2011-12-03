@@ -27,7 +27,7 @@ using System.Collections.Generic;
 using System.Linq;
 using MediaPortal.Common;
 using MediaPortal.Common.Logging;
-using MediaPortal.Common.MediaManagement.ResourceAccess;
+using MediaPortal.Common.ResourceAccess;
 using MediaPortal.Common.Messaging;
 using MediaPortal.Common.PluginManager;
 using MediaPortal.Common.Settings;
@@ -43,42 +43,6 @@ namespace MediaPortal.UI.Services.Players
   public class PlayerManager : IPlayerManager
   {
     #region Classes
-
-    /// <summary>
-    /// Plugin item state tracker which allows player plugins to be revoked. This will check if there are
-    /// active players. If stopped, this will automatically remove the player builder registration at the player manager.
-    /// </summary>
-    protected class PlayerBuilderPluginItemStateTracker: IPluginItemStateTracker
-    {
-      protected PlayerManager _playerManager;
-
-      public PlayerBuilderPluginItemStateTracker(PlayerManager playerManager)
-      {
-        _playerManager = playerManager;
-      }
-
-      public string UsageDescription
-      {
-        get { return "PlayerManager: PlayerBuilder usage"; }
-      }
-
-      public bool RequestEnd(PluginItemRegistration itemRegistration)
-      {
-        // Albert, 2010-12-06: It's too difficult to revoke a player builder. We cannot guarantee that no player of that
-        // player builder is currently in use by other threads, so we simply don't allow to revoke them.
-        return false;
-      }
-
-      public void Stop(PluginItemRegistration itemRegistration)
-      {
-        // Nothing to do
-      }
-
-      public void Continue(PluginItemRegistration itemRegistration)
-      {
-        // Nothing to do
-      }
-    }
 
     /// <summary>
     /// Change listener for player builder registrations at the plugin manager. This will dynamically add
@@ -132,7 +96,7 @@ namespace MediaPortal.UI.Services.Players
 
     #region Protected fields
 
-    protected PlayerBuilderPluginItemStateTracker _playerBuilderPluginItemStateTracker;
+    protected IPluginItemStateTracker _playerBuilderPluginItemStateTracker;
     protected PlayerBuilderRegistrationChangeListener _playerBuilderRegistrationChangeListener;
     internal PlayerSlotController[] _slots;
 
@@ -156,7 +120,10 @@ namespace MediaPortal.UI.Services.Players
           new PlayerSlotController(this, PlayerManagerConsts.PRIMARY_SLOT),
           new PlayerSlotController(this, PlayerManagerConsts.SECONDARY_SLOT)
       };
-      _playerBuilderPluginItemStateTracker = new PlayerBuilderPluginItemStateTracker(this);
+
+      // Albert, 2010-12-06: It's too difficult to revoke a player builder. We cannot guarantee that no player of that
+      // player builder is currently in use by other threads, so we simply don't allow to revoke them by using a FixedItemStateTracker.
+      _playerBuilderPluginItemStateTracker = new FixedItemStateTracker("PlayerManager: PlayerBuilder usage");
       _playerBuilderRegistrationChangeListener = new PlayerBuilderRegistrationChangeListener(this);
       LoadSettings();
       SubscribeToMessages();

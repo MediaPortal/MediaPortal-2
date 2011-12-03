@@ -22,7 +22,6 @@
 
 #endregion
 
-using MediaPortal.Common;
 using MediaPortal.Common.General;
 using MediaPortal.UI.SkinEngine.ContentManagement;
 using MediaPortal.UI.SkinEngine.Controls.Visuals;
@@ -216,7 +215,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
       {
         _refresh = false;
         _gradientBrushTexture = BrushCache.Instance.GetGradientBrush(GradientStops);
-        _effect = ServiceRegistration.Get<ContentManager>().GetEffect("radialgradient");
+        _effect = ContentManager.Instance.GetEffect("radialgradient");
 
         g_focus = new float[] { GradientOrigin.X, GradientOrigin.Y };
         g_center = new float[] { Center.X, Center.Y };
@@ -265,7 +264,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
       {
         _refresh = false;
         _gradientBrushTexture = BrushCache.Instance.GetGradientBrush(GradientStops);
-        _effect = ServiceRegistration.Get<ContentManager>().GetEffect(EFFECT_RADIALOPACITYGRADIENT);
+        _effect = ContentManager.Instance.GetEffect(EFFECT_RADIALOPACITYGRADIENT);
 
         g_focus = new float[] { GradientOrigin.X, GradientOrigin.Y };
         g_center = new float[] { Center.X, Center.Y };

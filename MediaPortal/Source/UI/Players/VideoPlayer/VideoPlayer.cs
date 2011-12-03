@@ -32,7 +32,7 @@ using System.Windows.Forms;
 using DirectShowLib;
 using MediaPortal.Common;
 using MediaPortal.Common.Logging;
-using MediaPortal.Common.MediaManagement.ResourceAccess;
+using MediaPortal.Common.ResourceAccess;
 using MediaPortal.Common.Messaging;
 using MediaPortal.Common.Settings;
 using MediaPortal.UI.General;
@@ -41,7 +41,6 @@ using MediaPortal.UI.Players.Video.Settings;
 using MediaPortal.UI.Players.Video.Tools;
 using MediaPortal.UI.Presentation.Geometries;
 using MediaPortal.UI.Presentation.Players;
-using MediaPortal.UI.SkinEngine.DirectX;
 using MediaPortal.UI.SkinEngine.Players;
 using MediaPortal.UI.SkinEngine.SkinManagement;
 using MediaPortal.Utilities.Exceptions;
@@ -157,7 +156,7 @@ namespace MediaPortal.UI.Players.Video
 
     protected StreamInfoHandler _streamInfoAudio = null;
     protected StreamInfoHandler _streamInfoSubtitles = null;
-    private readonly object _syncObj = new object();
+    protected readonly object _syncObj = new object();
 
     #endregion
 
@@ -323,8 +322,7 @@ namespace MediaPortal.UI.Players.Video
 
         // Create the Allocator / Presenter object
         FreeEvrCallback();
-        _evrCallback = new EVRCallback(RenderFrame) { CropSettings = _cropSettings };
-        _evrCallback.VideoSizePresent += OnVideoSizePresent;
+        CreateEvrCallback();
 
         AddEvr();
 
@@ -464,7 +462,7 @@ namespace MediaPortal.UI.Players.Video
       // Set the number of video/subtitle/cc streams that are allowed to be connected to EVR
       config.SetNumberOfStreams(_streamCount);
 
-      IntPtr upDevice = GraphicsDevice.Device.ComPointer;
+      IntPtr upDevice = SkinContext.Device.ComPointer;
       int hr = EvrInit(_evrCallback, (uint) upDevice.ToInt32(), _evr, SkinContext.Form.Handle);
       if (hr != 0)
       {
@@ -558,6 +556,9 @@ namespace MediaPortal.UI.Players.Video
 
           if (settings.AudioCodecLATMAAC != null)
             pc.SetPreferredClsid(MediaSubTypeExt.LATMAAC, settings.AudioCodecLATMAAC.GetCLSID());
+
+          if (settings.AudioCodecAAC != null)
+            pc.SetPreferredClsid(CodecHandler.MEDIASUBTYPE_AAC_AUDIO, settings.AudioCodecAAC.GetCLSID());
 
           if (settings.AudioCodec != null)
           {
@@ -992,10 +993,6 @@ namespace MediaPortal.UI.Players.Video
     }
 
 
-    /// <summary>
-    /// Sets the current audio stream.
-    /// </summary>
-    /// <param name="audioStream">audio stream</param>
     public virtual void SetAudioStream(string audioStream)
     {
       lock (SyncObj)
@@ -1013,24 +1010,15 @@ namespace MediaPortal.UI.Players.Video
       }
     }
 
-    /// <summary>
-    /// Gets the current audio stream.
-    /// </summary>
-    /// <value>The current audio stream.</value>
     public virtual string CurrentAudioStream
     {
       get
       {
         lock (SyncObj)
-        {
-          return _streamInfoAudio != null ? _streamInfoAudio.CurrentStreamName : String.Empty;
-        }
+          return _streamInfoAudio != null ? _streamInfoAudio.CurrentStreamName : null;
       }
     }
 
-    /// <summary>
-    /// Returns list of available audio streams.
-    /// </summary>
     public virtual string[] AudioStreams
     {
       get
@@ -1155,10 +1143,10 @@ namespace MediaPortal.UI.Players.Video
 
     public virtual void ReleaseGUIResources()
     {
+      // TODO (Albert, 2011-11-29): Clarify the following comment.
       //stops the renderer threads all of it's own.
-      lock (_evrCallback)
+      lock (_syncObj)
       {
-        FreeEvrCallback();
         IEnumPins enumer;
         _evr.EnumPins(out enumer);
         if (enumer != null)
@@ -1206,8 +1194,15 @@ namespace MediaPortal.UI.Players.Video
         FilterGraphTools.TryRelease(ref _evr);
 
         EvrDeinit();
+        FreeEvrCallback();
         _initialized = false;
       }
+    }
+
+    protected virtual void CreateEvrCallback()
+    {
+      _evrCallback = new EVRCallback(RenderFrame) { CropSettings = _cropSettings };
+      _evrCallback.VideoSizePresent += OnVideoSizePresent;
     }
 
     protected virtual void FreeEvrCallback()
@@ -1222,8 +1217,7 @@ namespace MediaPortal.UI.Players.Video
       if (_graphBuilder != null)
       {
         FreeEvrCallback();
-        _evrCallback = new EVRCallback(RenderFrame) { CropSettings = _cropSettings };
-        _evrCallback.VideoSizePresent += OnVideoSizePresent;
+        CreateEvrCallback();
         AddEvr();
         IEnumPins enumer;
         _evr.EnumPins(out enumer);
@@ -1275,9 +1269,18 @@ namespace MediaPortal.UI.Players.Video
       return true;
     }
 
-    public Texture Texture
+    public Surface Surface
     {
-      get { return (_initialized && _evrCallback != null) ? _evrCallback.Texture : null; }
+      get { return (_initialized && _evrCallback != null) ? _evrCallback.Surface : null; }
+    }
+
+    public object SurfaceLock
+    {
+      get
+      {
+        EVRCallback callback = _evrCallback;
+        return callback == null ? _syncObj : callback.SurfaceLock;
+      }
     }
 
     #endregion

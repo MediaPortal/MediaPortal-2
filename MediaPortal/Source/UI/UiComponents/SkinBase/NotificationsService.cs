@@ -26,7 +26,7 @@ using System;
 using MediaPortal.Common;
 using MediaPortal.Common.Localization;
 using MediaPortal.Common.MediaManagement;
-using MediaPortal.Common.MediaManagement.ResourceAccess;
+using MediaPortal.Common.ResourceAccess;
 using MediaPortal.Common.Messaging;
 using MediaPortal.UI.Presentation.UiNotifications;
 using MediaPortal.UiComponents.SkinBase.General;

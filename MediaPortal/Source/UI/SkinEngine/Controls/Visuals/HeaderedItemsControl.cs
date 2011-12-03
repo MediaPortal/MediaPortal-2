@@ -26,6 +26,7 @@ using System.Collections;
 using MediaPortal.Common.General;
 using MediaPortal.UI.SkinEngine.Controls.Visuals.Templates;
 using MediaPortal.UI.SkinEngine.MpfElements;
+using MediaPortal.UI.SkinEngine.Xaml;
 using MediaPortal.Utilities.DeepCopy;
 
 namespace MediaPortal.UI.SkinEngine.Controls.Visuals
@@ -39,6 +40,9 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     protected AbstractProperty _forceExpanderProperty;
     protected AbstractProperty _subItemsProviderProperty;
     protected AbstractProperty _selectedProperty;
+
+    protected IDataDescriptor _attachedContextSource = null;
+    protected bool _contextChangedAttached = false;
 
     #endregion
 
@@ -96,7 +100,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 
     void OnSubItemsProviderChanged(AbstractProperty prop, object oldVal)
     {
-      InitializeItemsSource();
+      PrepareItems(true);
     }
 
     void OnSelectedChanged(AbstractProperty prop, object oldVal)
@@ -192,41 +196,60 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     public bool Selected
     {
       get { return (bool) _selectedProperty.GetValue(); }
-      set {_selectedProperty.SetValue(value); }
+      set { _selectedProperty.SetValue(value); }
     }
 
     #endregion
 
-    protected bool InitializeItemsSource()
+    void OnDataContextValueChanged(IDataDescriptor dd)
+    {
+      InitializeSubItemsSource();
+    }
+
+    void OnContextChanged(object newContext, object oldContext)
+    {
+      InitializeSubItemsSource();
+    }
+
+    /// <summary>
+    /// Initializes the <see cref="ItemsControl.ItemsSource"/> property with the <see cref="SubItemsProvider"/>.
+    /// </summary>
+    /// <returns><c>true</c>, if the <see cref="ItemsControl.ItemsSource"/> property was changed by this method, else <c>false</c>.</returns>
+    protected virtual bool InitializeSubItemsSource()
     {
       SubItemsProvider sip = SubItemsProvider;
       IEnumerable oldItemsSource = ItemsSource;
-      ItemsSource = sip == null ? null : sip.GetSubItems(Context);
+      if (!_contextChangedAttached)
+      {
+        ContextChanged += OnContextChanged;
+        _contextChangedAttached = true;
+      }
+      if (_attachedContextSource != null)
+        _attachedContextSource.Detach(OnDataContextValueChanged);
+      _attachedContextSource = DataContext.EvaluatedSourceValue;
+      _attachedContextSource.Attach(OnDataContextValueChanged);
+      object context = Context;
+      if (context == null)
+        return false;
+      ItemsSource = sip == null ? null : sip.GetSubItems(context);
       if (oldItemsSource == ItemsSource)
         return false;
+      MPF.TryCleanupAndDispose(oldItemsSource);
       CheckExpandable();
       return true;
     }
 
-    protected override void PrepareItems(bool force)
+    protected override void PrepareItemsOverride(bool force)
     {
-      if (_preventItemsPreparation)
+      SubItemsProvider sip = SubItemsProvider;
+      if (sip == null)
         return;
-      _preventItemsPreparation = true;
-      try
+      if (ItemsSource == null)
       {
-        SubItemsProvider sip = SubItemsProvider;
-        if (ItemsSource == null && sip != null)
-        {
-          if (InitializeItemsSource()) // This could trigger a recursive call of PrepareItems(true) if the ItemsSource was changed, that's why we set _preventItemsPreparation above
-            force = true;
-        }
+        if (InitializeSubItemsSource()) // This could trigger a recursive call of PrepareItems(true) if the ItemsSource was changed, that's why we set _preventItemsPreparation above
+          force = true;
       }
-      finally
-      {
-        _preventItemsPreparation = false;
-      }
-      base.PrepareItems(force);
+      base.PrepareItemsOverride(force);
     }
 
     protected override FrameworkElement PrepareItemContainer(object dataItem)
@@ -244,14 +267,15 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 
         };
       // Set this after the other properties have been initialized to avoid duplicate work
-      container.Style = MpfCopyManager.DeepCopyCutLP(ItemContainerStyle);
-      container.ContentTemplate = MpfCopyManager.DeepCopyCutLP(ItemTemplate);
+      // No need to set LogicalParent because styles and control templates don't bind bindings
+      container.Style = MpfCopyManager.DeepCopyCutLVPs(ItemContainerStyle);
+      container.ContentTemplate = MpfCopyManager.DeepCopyCutLVPs(ItemTemplate);
 
       // Re-use some properties for our children
-      container.ItemContainerStyle = MpfCopyManager.DeepCopyCutLP(ItemContainerStyle);
-      container.ItemsPanel = MpfCopyManager.DeepCopyCutLP(ItemsPanel);
-      container.ItemTemplate = MpfCopyManager.DeepCopyCutLP(ItemTemplate);
-      container.SubItemsProvider = MpfCopyManager.DeepCopyCutLP(SubItemsProvider);
+      container.ItemContainerStyle = MpfCopyManager.DeepCopyCutLVPs(ItemContainerStyle);
+      container.ItemsPanel = MpfCopyManager.DeepCopyCutLVPs(ItemsPanel);
+      container.ItemTemplate = MpfCopyManager.DeepCopyCutLVPs(ItemTemplate);
+      container.SubItemsProvider = MpfCopyManager.DeepCopyCutLVPs(SubItemsProvider);
       return container;
     }
   }

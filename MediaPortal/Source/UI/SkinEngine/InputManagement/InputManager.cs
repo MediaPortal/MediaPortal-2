@@ -28,6 +28,8 @@ using System.Drawing;
 using System.Threading;
 using System.Windows.Forms;
 using MediaPortal.Common;
+using MediaPortal.Common.General;
+using MediaPortal.Common.Logging;
 using MediaPortal.UI.Control.InputManager;
 using MediaPortal.UI.Presentation.Actions;
 using MediaPortal.UI.Presentation.Screens;
@@ -73,7 +75,12 @@ namespace MediaPortal.UI.SkinEngine.InputManagement
     #region Inner classes
 
     protected class InputEvent
-    {}
+    {
+      public override string ToString()
+      {
+        return GetType().Name;
+      }
+    }
 
     protected class KeyEvent : InputEvent
     {
@@ -163,6 +170,7 @@ namespace MediaPortal.UI.SkinEngine.InputManagement
     protected bool _busyScreenVisible = false;
     protected Thread _workThread;
     protected Queue<InputEvent> _inputEventQueue = new Queue<InputEvent>(30);
+    protected Queue<ParameterlessMethod> _commandQueue = new Queue<ParameterlessMethod>(30);
     protected ManualResetEvent _terminatedEvent = new ManualResetEvent(false);
     protected AutoResetEvent _inputAvailableEvent = new AutoResetEvent(false);
 
@@ -173,6 +181,7 @@ namespace MediaPortal.UI.SkinEngine.InputManagement
 
     private InputManager()
     {
+      _lastMouseUsageTime =_lastInputTime = DateTime.Now;
       _workThread = new Thread(DoWork) { IsBackground = true, Name = "InputMgr" };  //InputManager dispatch thread
       _workThread.Start();
     }
@@ -248,6 +257,12 @@ namespace MediaPortal.UI.SkinEngine.InputManagement
         return _inputEventQueue.Count == 0 ? null : _inputEventQueue.Dequeue();
     }
 
+    protected ParameterlessMethod DequeueCommand()
+    {
+      lock (_syncObj)
+        return _commandQueue.Count == 0 ? null : _commandQueue.Dequeue();
+    }
+
     protected void ClearInputBuffer()
     {
       lock (_syncObj)
@@ -281,19 +296,33 @@ namespace MediaPortal.UI.SkinEngine.InputManagement
 
     protected void DispatchEvent(InputEvent evt)
     {
+      Type eventType = evt.GetType();
+      if (eventType == typeof(KeyEvent))
+        ExecuteKeyPress((KeyEvent) evt);
+      else if (eventType == typeof(MouseMoveEvent))
+        ExecuteMouseMove((MouseMoveEvent) evt);
+      else if (eventType == typeof(MouseClickEvent))
+        ExecuteMouseClick((MouseClickEvent) evt);
+      else if (eventType == typeof(MouseWheelEvent))
+        ExecuteMouseWheel((MouseWheelEvent) evt);
+    }
+
+    protected void Dispatch(object o)
+    {
       lock (_syncObj)
         _callingClientStart = DateTime.Now;
       try
       {
-        Type eventType = evt.GetType();
-        if (eventType == typeof(KeyEvent))
-          ExecuteKeyPress((KeyEvent) evt);
-        else if (eventType == typeof(MouseMoveEvent))
-          ExecuteMouseMove((MouseMoveEvent) evt);
-        else if (eventType == typeof(MouseClickEvent))
-          ExecuteMouseClick((MouseClickEvent) evt);
-        else if (eventType == typeof(MouseWheelEvent))
-          ExecuteMouseWheel((MouseWheelEvent) evt);
+        ParameterlessMethod cmd = o as ParameterlessMethod;
+        if (cmd != null)
+          cmd();
+        InputEvent evt = o as InputEvent;
+        if (evt != null)
+          DispatchEvent(evt);
+      }
+      catch (Exception e)
+      {
+        ServiceRegistration.Get<ILogger>().Error("InputManager: Error dispatching '{0}'", e, o);
       }
       finally
       {
@@ -317,6 +346,15 @@ namespace MediaPortal.UI.SkinEngine.InputManagement
       lock (_syncObj)
       {
         _inputEventQueue.Enqueue(evt);
+        _inputAvailableEvent.Set();
+      }
+    }
+
+    protected void EnqueueCommand(ParameterlessMethod command)
+    {
+      lock (_syncObj)
+      {
+        _commandQueue.Enqueue(command);
         _inputAvailableEvent.Set();
       }
     }
@@ -368,10 +406,13 @@ namespace MediaPortal.UI.SkinEngine.InputManagement
     {
       while (true)
       {
+        ParameterlessMethod cmd;
+        while ((cmd = DequeueCommand()) != null)
+          Dispatch(cmd);
         InputEvent evt;
         while ((evt = DequeueEvent()) != null)
         {
-          DispatchEvent(evt);
+          Dispatch(evt);
           if (IsTerminated)
             break;
         }
@@ -434,6 +475,11 @@ namespace MediaPortal.UI.SkinEngine.InputManagement
     {
       _lastInputTime = DateTime.Now;
       TryEvent_NoLock(new KeyEvent(key));
+    }
+
+    public void ExecuteCommand(ParameterlessMethod command)
+    {
+      EnqueueCommand(command);
     }
 
     public void AddKeyBinding(Key key, KeyActionDlgt action)

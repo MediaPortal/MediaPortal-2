@@ -120,141 +120,63 @@ namespace MediaPortal.Common.Services.Threading
 
     #region Public methods
 
-    /// <summary>
-    /// Add work to be performed by the threadpool.
-    /// Can throw ArgumentNullException and InvalidOperationException.
-    /// </summary>
-    /// <param name="work">DoWorkHandler which contains the work to perform</param>
-    /// <returns>IWork reference to work object</returns>
     public IWork Add(DoWorkHandler work)
     {
       IWork w = new Work(work, _startInfo.DefaultThreadPriority);
-      Add(w);
-      return w;
+      return Add(w) ? w : null;
     }
 
-    /// <summary>
-    /// Add work to be performed by the threadpool.
-    /// Can throw ArgumentNullException and InvalidOperationException.
-    /// </summary>
-    /// <param name="work">DoWorkHandler which contains the work to perform</param>
-    /// <param name="queuePriority">QueuePriority for this work</param>
-    /// <returns>IWork reference to work object</returns>
     public IWork Add(DoWorkHandler work, QueuePriority queuePriority)
     {
       IWork w = new Work(work, _startInfo.DefaultThreadPriority);
-      Add(w, queuePriority);
-      return w;
+      return Add(w, queuePriority) ? w : null;
     }
 
-    /// <summary>
-    /// Add work to be performed by the threadpool.
-    /// Can throw ArgumentNullException and InvalidOperationException.
-    /// </summary>
-    /// <param name="work">DoWorkHandler which contains the work to perform</param>
-    /// <param name="description">description for this work</param>
-    /// <returns>IWork reference to work object</returns>
     public IWork Add(DoWorkHandler work, string description)
     {
       IWork w = new Work(work, description, _startInfo.DefaultThreadPriority);
-      Add(w);
-      return w;
+      return Add(w) ? w : null;
     }
 
-    /// <summary>
-    /// Add work to be performed by the threadpool.
-    /// Can throw ArgumentNullException and InvalidOperationException.
-    /// </summary>
-    /// <param name="work">DoWorkHandler which contains the work to perform</param>
-    /// <param name="threadPriority">System.Threading.ThreadPriority for this work</param>
-    /// <returns>IWork reference to work object</returns>
     public IWork Add(DoWorkHandler work, ThreadPriority threadPriority)
     {
       IWork w = new Work(work, threadPriority);
-      Add(w);
-      return w;
+      return Add(w) ? w : null;
     }
 
-    /// <summary>
-    /// Add work to be performed by the threadpool.
-    /// Can throw ArgumentNullException and InvalidOperationException.
-    /// </summary>
-    /// <param name="work">DoWorkHandler which contains the work to perform</param>
-    /// <param name="workCompletedHandler">WorkEventHandler to be called on completion</param>
-    /// <returns>IWork reference to work object</returns>
     public IWork Add(DoWorkHandler work, WorkEventHandler workCompletedHandler)
     {
       IWork w = new Work(work, workCompletedHandler);
-      Add(w);
-      return w;
+      return Add(w) ? w : null;
     }
 
-    /// <summary>
-    /// Add work to be performed by the threadpool.
-    /// Can throw ArgumentNullException and InvalidOperationException.
-    /// </summary>
-    /// <param name="work">DoWorkHandler which contains the work to perform</param>
-    /// <param name="description">description for this work</param>
-    /// <param name="queuePriority">QueuePriority for this work</param>
-    /// <returns>IWork reference to work object</returns>
     public IWork Add(DoWorkHandler work, string description, QueuePriority queuePriority)
     {
       IWork w = new Work(work, description, _startInfo.DefaultThreadPriority);
-      Add(w, queuePriority);
-      return w;
+      return Add(w, queuePriority) ? w : null;
     }
 
-    /// <summary>
-    /// Add work to be performed by the threadpool.
-    /// Can throw ArgumentNullException and InvalidOperationException.
-    /// </summary>
-    /// <param name="work">DoWorkHandler which contains the work to perform</param>
-    /// <param name="description">description for this work</param>
-    /// <param name="queuePriority">QueuePriority for this work</param>
-    /// <param name="threadPriority">System.Threading.ThreadPriority for this work</param>
-    /// <returns>IWork reference to work object</returns>
     public IWork Add(DoWorkHandler work, string description, QueuePriority queuePriority, ThreadPriority threadPriority)
     {
       IWork w = new Work(work, description, threadPriority);
-      Add(w, queuePriority);
-      return w;
+      return Add(w, queuePriority) ? w : null;
     }
 
-    /// <summary>
-    /// Add work to be performed by the threadpool.
-    /// Can throw ArgumentNullException and InvalidOperationException.
-    /// </summary>
-    /// <param name="work">DoWorkHandler which contains the work to perform</param>
-    /// <param name="description">description for this work</param>
-    /// <param name="queuePriority">QueuePriority for this work</param>
-    /// <param name="threadPriority">System.Threading.ThreadPriority for this work</param>
-    /// <param name="workCompletedHandler">WorkEventHandler to be called on completion</param>
-    /// <returns>IWork reference to work object</returns>
     public IWork Add(DoWorkHandler work, string description, QueuePriority queuePriority, ThreadPriority threadPriority, WorkEventHandler workCompletedHandler)
     {
       IWork w = new Work(work, description, threadPriority, workCompletedHandler);
-      Add(w, queuePriority);
-      return w;
+      return Add(w, queuePriority) ? w : null;
     }
 
-    /// <summary>
-    /// Add work to be performed by the threadpool.
-    /// Can throw ArgumentNullException and InvalidOperationException.
-    /// </summary>
-    /// <param name="work">Add work to be performed by the threadpool</param>
-    public void Add(IWork work)
+    public bool Add(IWork work)
     {
-      Add(work, QueuePriority.Normal);
+      return Add(work, QueuePriority.Normal);
     }
 
-    /// <summary>
-    /// Add work to be performed by the threadpool.
-    /// Can throw ArgumentNullException and InvalidOperationException.
-    /// </summary>
-    /// <param name="work">Add work to be performed by the threadpool</param>
-    /// <param name="queuePriority">QueuePriority for this work</param>
-    public void Add(IWork work, QueuePriority queuePriority)
+    public bool Add(IWork work, QueuePriority queuePriority)
     {
+      if (!_run)
+        return false;
       if (_startInfo.DelayedInit)
       {
         _startInfo.DelayedInit = false;
@@ -269,12 +191,9 @@ namespace MediaPortal.Common.Services.Threading
       work.State = WorkState.INQUEUE;
       _workQueue.Add(work, queuePriority);
       CheckThreadIncrementRequired();
+      return true;
     }
 
-    /// <summary>
-    /// Shuts down the ThreadPool. Active threads will eventually stop; idle threads
-    /// will be shutdown and queue will not accept new work anymore.
-    /// </summary>
     public void Stop()
     {
       _run = false;

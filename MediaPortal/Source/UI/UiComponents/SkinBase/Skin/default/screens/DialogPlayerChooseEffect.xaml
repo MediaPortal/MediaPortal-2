@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <Include
     xmlns="www.team-mediaportal.com/2008/mpf/directx"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
@@ -10,10 +10,11 @@
     <Model x:Key="PlayerConfigurationDialogModel" Id="58A7F9E3-1514-47af-8E83-2AD60BA8A037"/>
 
     <!-- Header -->
-    <ResourceWrapper x:Key="Dialog_Header_Text" Resource="{Binding Source={StaticResource PlayerConfigurationDialogModel},Path=PlayerChooseEffectHeader}"/>
+    <ResourceWrapper x:Key="Dialog_Header_Text" EnableBindings="True"
+        Resource="{Binding Source={StaticResource PlayerConfigurationDialogModel},Path=PlayerChooseEffectHeader,Mode=OneTime}"/>
 
     <!-- Menu -->
-    <ResourceWrapper x:Key="Menu_Items">
+    <ResourceWrapper x:Key="Menu_Items" EnableBindings="True">
       <Binding Source="{StaticResource PlayerConfigurationDialogModel}" Path="PlayerChooseEffectMenu" Mode="OneTime"/>
     </ResourceWrapper>
 

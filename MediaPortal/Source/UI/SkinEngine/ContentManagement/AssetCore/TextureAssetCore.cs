@@ -638,7 +638,7 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement.AssetCore
   {
     private readonly byte[] _binaryThumbdata = null;
 
-    public ThumbnailBinaryTextureAssetCore(byte[] binaryThumbdata, string textureName) : base (textureName, 0, 0)
+    public ThumbnailBinaryTextureAssetCore(byte[] binaryThumbdata, string textureName) : base(textureName, 0, 0)
     {
       _binaryThumbdata = binaryThumbdata;
     }

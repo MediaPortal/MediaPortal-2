@@ -28,6 +28,7 @@ using System.Linq;
 using MediaPortal.Common.General;
 using MediaPortal.UI.SkinEngine.Controls.Visuals;
 using MediaPortal.UI.SkinEngine.MpfElements;
+using MediaPortal.UI.SkinEngine.Utils;
 using MediaPortal.Utilities;
 using SlimDX;
 using SlimDX.Direct3D9;
@@ -121,8 +122,9 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
       Panel p = (Panel) source;
       Background = copyManager.GetCopy(p.Background);
       IsItemsHost = p.IsItemsHost;
+      FrameworkElementCollection children = Children;
       foreach (FrameworkElement el in p.Children)
-        Children.Add(copyManager.GetCopy(el), false);
+        children.Add(copyManager.GetCopy(el), false);
       Attach();
     }
 
@@ -203,13 +205,46 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
     /// Scrolls the panel's child with the given <paramref name="index"/> to the visible area, if possible.
     /// </summary>
     /// <param name="index">Index of the child to make visible. </param>
-    public virtual void MakeItemVisible(int index)
+    public virtual void BringIntoView(int index)
     {
       FrameworkElement element = GetElement(index);
       if (element != null)
-        MakeVisible(element, element.ActualBounds);
+        BringIntoView(element, element.ActualBounds);
     }
 
+
+    protected static float GetExtendsInOrientationDirection(Orientation orientation, SizeF size)
+    {
+      return orientation == Orientation.Vertical ? size.Height : size.Width;
+    }
+
+    protected static float GetExtendsInNonOrientationDirection(Orientation orientation, SizeF size)
+    {
+      return orientation == Orientation.Vertical ? size.Width : size.Height;
+    }
+
+    protected static double SumActualExtendsInOrientationDirection(IList<FrameworkElement> elements, Orientation orientation, int startIndex, int endIndex)
+    {
+      CalcHelper.Bound(ref startIndex, 0, elements.Count-1);
+      CalcHelper.Bound(ref endIndex, 0, elements.Count-1);
+      if (startIndex == endIndex || elements.Count == 0)
+        return 0;
+      bool invert = startIndex > endIndex;
+      if (invert)
+      {
+        int tmp = startIndex;
+        startIndex = endIndex;
+        endIndex = tmp;
+      }
+      double result = 0;
+      if (orientation == Orientation.Horizontal)
+        for (int i = startIndex; i < endIndex; i++)
+          result += elements[i].ActualWidth;
+      else
+        for (int i = startIndex; i < endIndex; i++)
+          result += elements[i].ActualHeight;
+      return invert ? -result : result;
+    }
 
     protected override void ArrangeOverride()
     {
@@ -361,6 +396,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
       }
       return base.IsChildRenderedAt(child, x, y);
     }
+
+    // Allocate/Deallocate of Children not necessary because UIElement handles all direct children
 
     public override void Deallocate()
     {

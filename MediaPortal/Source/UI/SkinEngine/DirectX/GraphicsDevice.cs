@@ -46,7 +46,7 @@ using SlimDX.Direct3D9;
 
 namespace MediaPortal.UI.SkinEngine.DirectX
 {
-  public static class GraphicsDevice
+  internal static class GraphicsDevice
   {
     #region Variables
 
@@ -206,7 +206,7 @@ namespace MediaPortal.UI.SkinEngine.DirectX
     /// </summary>
     public static bool Reset()
     {
-      ServiceRegistration.Get<ILogger>().Debug("GraphicsDevice: Reset DirectX, {0}", ServiceRegistration.Get<ContentManager>().TotalAllocationSize / (1024 * 1024));
+      ServiceRegistration.Get<ILogger>().Debug("GraphicsDevice: Reset DirectX, {0}", ContentManager.Instance.TotalAllocationSize / (1024 * 1024));
       if (_backBuffer != null)
         _backBuffer.Dispose();
       _backBuffer = null;
@@ -235,7 +235,7 @@ namespace MediaPortal.UI.SkinEngine.DirectX
     }
 
     /// <summary>
-    /// Gets or sets the DirectX Device.
+    /// Gets or sets the DirectX device.
     /// </summary>
     public static DeviceEx Device
     {
@@ -373,7 +373,7 @@ namespace MediaPortal.UI.SkinEngine.DirectX
           _deviceLost = true;
           return true;
         }
-        ServiceRegistration.Get<ContentManager>().Clean();
+        ContentManager.Instance.Clean();
       }
       return false;
     }
@@ -398,7 +398,7 @@ namespace MediaPortal.UI.SkinEngine.DirectX
 
         _backBuffer = null;
         PlayersHelper.ReleaseGUIResources();
-        ServiceRegistration.Get<ContentManager>().Free();
+        ContentManager.Instance.Free();
       }
 
       Result result = _device.TestCooperativeLevel();

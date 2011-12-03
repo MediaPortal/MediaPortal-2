@@ -12,7 +12,7 @@
     <!-- Video player model -->
     <Model x:Key="Model" Id="4E2301B4-3C17-4a1d-8DE5-2CEA169A0256"/>
 
-    <ResourceWrapper x:Key="Contents_Element">
+    <ControlTemplate x:Key="Contents_Template">
       <mp_special_controls:PlayerControl Margin="20" PlayerContext="CurrentPlayer">
         <mp_special_controls:PlayerControl.TemplateControl>
           <Grid DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}">
@@ -30,33 +30,56 @@
               <ColumnDefinition Width="Auto"/>
               <ColumnDefinition Width="*"/>
             </Grid.ColumnDefinitions>
-            <Label x:Name="TitleLabel" Grid.Row="0" Grid.Column="0" Content="[Media.PictureTitleLabel]"/>
-            <Label x:Name="Title" Grid.Row="0" Grid.Column="1" Scroll="Auto" Content="{Binding MediaItemTitle}"/>
+            <Label x:Name="TitleLabel" Grid.Row="0" Grid.Column="0"
+                Content="[Media.PictureTitleLabel]" Color="{ThemeResource TextColor}"/>
+            <Label x:Name="Title" Grid.Row="0" Grid.Column="1" Scroll="Auto"
+                Content="{Binding MediaItemTitle}" Color="{ThemeResource TextColor}"/>
     
-            <Label x:Name="PictureDimensionsLabel" Grid.Row="1" Grid.Column="0" Content="[Media.PictureDimensions]"/>
-            <Label x:Name="PictureDimensions" Grid.Row="1" Grid.Column="1" Content="{Binding Source={StaticResource Model},Path=PlayerUIContributor.PictureDimensions}"/>
+            <Label x:Name="PictureDimensionsLabel" Grid.Row="1" Grid.Column="0"
+                Content="[Media.PictureDimensions]" Color="{ThemeResource TextColor}"/>
+            <Label x:Name="PictureDimensions" Grid.Row="1" Grid.Column="1"
+                Content="{Binding Source={StaticResource Model},Path=PlayerUIContributor.PictureDimensions}"
+                Color="{ThemeResource TextColor}"/>
     
-            <Label x:Name="PictureMakeLabel" Grid.Row="2" Grid.Column="0" Content="[Media.PictureMake]"/>
-            <Label x:Name="PictureMake" Grid.Row="2" Grid.Column="1" Scroll="Auto" Content="{Binding Source={StaticResource Model},Path=PlayerUIContributor.PictureMake}"/>
+            <Label x:Name="PictureMakeLabel" Grid.Row="2" Grid.Column="0"
+                Content="[Media.PictureMake]" Color="{ThemeResource TextColor}"/>
+            <Label x:Name="PictureMake" Grid.Row="2" Grid.Column="1" Scroll="Auto"
+                Content="{Binding Source={StaticResource Model},Path=PlayerUIContributor.PictureMake}"
+                Color="{ThemeResource TextColor}"/>
     
-            <Label x:Name="PictureModelLabel" Grid.Row="3" Grid.Column="0" Content="[Media.PictureModel]"/>
-            <Label x:Name="PictureModel" Grid.Row="3" Grid.Column="1" Content="{Binding Source={StaticResource Model},Path=PlayerUIContributor.PictureModel}"/>
+            <Label x:Name="PictureModelLabel" Grid.Row="3" Grid.Column="0"
+                Content="[Media.PictureModel]" Color="{ThemeResource TextColor}"/>
+            <Label x:Name="PictureModel" Grid.Row="3" Grid.Column="1"
+                Content="{Binding Source={StaticResource Model},Path=PlayerUIContributor.PictureModel}"
+                Color="{ThemeResource TextColor}"/>
     
-            <Label x:Name="PictureISOSpeedLabel" Grid.Row="4" Grid.Column="0" Content="[Media.PictureISOSpeedLabel]"/>
-            <Label x:Name="PictureISOSpeed" Grid.Row="4" Grid.Column="1" Content="{Binding Source={StaticResource Model},Path=PlayerUIContributor.PictureISOSpeed}"/>
+            <Label x:Name="PictureISOSpeedLabel" Grid.Row="4" Grid.Column="0"
+                Content="[Media.PictureISOSpeedLabel]" Color="{ThemeResource TextColor}"/>
+            <Label x:Name="PictureISOSpeed" Grid.Row="4" Grid.Column="1"
+                Content="{Binding Source={StaticResource Model},Path=PlayerUIContributor.PictureISOSpeed}"
+                Color="{ThemeResource TextColor}"/>
     
-            <Label x:Name="PictureExposureTimeLabel" Grid.Row="5" Grid.Column="0" Content="[Media.PictureExposureTimeLabel]"/>
-            <Label x:Name="PictureExposureTime" Grid.Row="5" Grid.Column="1" Content="{Binding Source={StaticResource Model},Path=PlayerUIContributor.PictureExposureTime}"/>
+            <Label x:Name="PictureExposureTimeLabel" Grid.Row="5" Grid.Column="0"
+                Content="[Media.PictureExposureTimeLabel]" Color="{ThemeResource TextColor}"/>
+            <Label x:Name="PictureExposureTime" Grid.Row="5" Grid.Column="1"
+                Content="{Binding Source={StaticResource Model},Path=PlayerUIContributor.PictureExposureTime}"
+                Color="{ThemeResource TextColor}"/>
     
-            <Label x:Name="PictureFNumberLabel" Grid.Row="6" Grid.Column="0" Content="[Media.PictureFNumberLabel]"/>
-            <Label x:Name="PictureFNumber" Grid.Row="6" Grid.Column="1" Content="{Binding Source={StaticResource Model},Path=PlayerUIContributor.PictureFNumber}"/>
+            <Label x:Name="PictureFNumberLabel" Grid.Row="6" Grid.Column="0"
+                Content="[Media.PictureFNumberLabel]" Color="{ThemeResource TextColor}"/>
+            <Label x:Name="PictureFNumber" Grid.Row="6" Grid.Column="1"
+                Content="{Binding Source={StaticResource Model},Path=PlayerUIContributor.PictureFNumber}"
+                Color="{ThemeResource TextColor}"/>
     
-            <Label x:Name="PictureMeteringModeLabel" Grid.Row="7" Grid.Column="0" Content="[Media.PictureMeteringModeLabel]"/>
-            <Label x:Name="PictureMeteringMode" Grid.Row="7" Grid.Column="1" Content="{Binding Source={StaticResource Model},Path=PlayerUIContributor.PictureMeteringMode}"/>
+            <Label x:Name="PictureMeteringModeLabel" Grid.Row="7" Grid.Column="0"
+                Content="[Media.PictureMeteringModeLabel]" Color="{ThemeResource TextColor}"/>
+            <Label x:Name="PictureMeteringMode" Grid.Row="7" Grid.Column="1"
+                Content="{Binding Source={StaticResource Model},Path=PlayerUIContributor.PictureMeteringMode}"
+                Color="{ThemeResource TextColor}"/>
           </Grid>
         </mp_special_controls:PlayerControl.TemplateControl>
       </mp_special_controls:PlayerControl>
-    </ResourceWrapper>
+    </ControlTemplate>
 
   </Include.Resources>
 </Include>

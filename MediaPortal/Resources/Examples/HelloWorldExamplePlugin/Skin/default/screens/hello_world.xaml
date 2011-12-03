@@ -10,19 +10,19 @@
     <ResourceWrapper x:Key="Header_Text" Resource="[HelloWorld.ScreenTitle]"/>
 
     <!-- Contents -->
-    <ResourceWrapper x:Key="Contents_Element">
+    <ControlTemplate x:Key="Contents_Template">
       <DockPanel
           Context="{Model Id=5726DA5A-70D5-458f-AF67-611293D97912}" LastChildFill="False">
-        <Label Content="[HelloWorld.SampleText]" FontSize="36" DockPanel.Dock="Top" HorizontalAlignment="Center"/>
+        <Label Content="[HelloWorld.SampleText]" Color="{ThemeResource TextColor}" FontSize="36" DockPanel.Dock="Top" HorizontalAlignment="Center"/>
         <StackPanel DockPanel.Dock="Center" Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center">
           <Button Content="[HelloWorld.ButtonText]" Style="{ThemeResource ButtonWideStyle}" Margin="10"
               HorizontalAlignment="Right" VerticalAlignment="Center"
               Command="{Command ChangeHelloWorldString}"/>
-          <Label Content="{Binding HelloString}" Margin="10"
+          <Label Content="{Binding HelloString}" Color="{ThemeResource TextColor}" Margin="10"
               HorizontalAlignment="Left" VerticalAlignment="Center"/>
         </StackPanel>
       </DockPanel>
-    </ResourceWrapper>
+    </ControlTemplate>
 
   </Include.Resources>
 </Include>

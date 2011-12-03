@@ -26,7 +26,7 @@ using System;
 using System.Threading;
 using System.Windows.Forms;
 using MediaPortal.Backend;
-using MediaPortal.Common.MediaManagement.ResourceAccess;
+using MediaPortal.Common.ResourceAccess;
 using MediaPortal.Common.PluginManager;
 #if DEBUG
 using MediaPortal.Common.Services.Logging;

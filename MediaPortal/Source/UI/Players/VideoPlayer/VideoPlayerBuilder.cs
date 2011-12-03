@@ -25,7 +25,7 @@
 using System;
 using MediaPortal.Common;
 using MediaPortal.Common.Logging;
-using MediaPortal.Common.MediaManagement.ResourceAccess;
+using MediaPortal.Common.ResourceAccess;
 using MediaPortal.UI.Players.Video.Interfaces;
 using MediaPortal.UI.Presentation.Players;
 using MediaPortal.Common.PluginManager;
@@ -49,7 +49,7 @@ namespace MediaPortal.UI.Players.Video
 
     public void RevokeItem(object item, PluginItemMetadata itemData, PluginRuntime plugin)
     {
-
+      // Noting to do
     }
 
     public bool NeedsPluginActive(PluginItemMetadata itemData, PluginRuntime plugin)
@@ -77,33 +77,6 @@ namespace MediaPortal.UI.Players.Video
   /// </summary>
   public class VideoPlayerBuilder : IPlayerBuilder
   {
-    #region Classes
-
-    protected class VideoPlayerBuilderPluginItemStateTracker : IPluginItemStateTracker
-    {
-      public string UsageDescription
-      {
-        get { return "VideoPlayerBuilder - MimeType registration"; }
-      }
-
-      public bool RequestEnd(PluginItemRegistration itemRegistration)
-      {
-        return false;
-      }
-
-      public void Stop(PluginItemRegistration itemRegistration)
-      {
-        // Nothing to do
-      }
-
-      public void Continue(PluginItemRegistration itemRegistration)
-      {
-        // Nothing to do
-      }
-    }
-
-    #endregion
-
     #region Consts
 
     /// <summary>
@@ -115,7 +88,7 @@ namespace MediaPortal.UI.Players.Video
 
     #region Protected fields
 
-    protected VideoPlayerBuilderPluginItemStateTracker _videoPlayerBuilderPluginItemStateTracker;
+    protected IPluginItemStateTracker _videoPlayerBuilderPluginItemStateTracker;
 
     #endregion
 
@@ -123,7 +96,7 @@ namespace MediaPortal.UI.Players.Video
     
     public VideoPlayerBuilder()
     {
-      _videoPlayerBuilderPluginItemStateTracker = new VideoPlayerBuilderPluginItemStateTracker();
+      _videoPlayerBuilderPluginItemStateTracker = new FixedItemStateTracker("VideoPlayerBuilder - MimeType registration");
 
       IPluginManager pluginManager = ServiceRegistration.Get<IPluginManager>();
       foreach (PluginItemMetadata itemMetadata in pluginManager.GetAllPluginItemMetadata(VIDEOPLAYERBUILDERMIMETYPES_REGISTRATION_PATH))

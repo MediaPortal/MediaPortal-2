@@ -48,7 +48,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Shapes
           TriangulateHelper.CalcCentroid(path, out centerX, out centerY);
           if (Fill != null)
           {
-            TriangulateHelper.FillPolygon_TriangleList(path, centerX, centerY, out verts);
+            TriangulateHelper.FillPolygon_TriangleList(path, centerX, centerY, 1, out verts);
             Fill.SetupBrush(this, ref verts, context.ZOrder, true);
             PrimitiveBuffer.SetPrimitiveBuffer(ref _fillContext, ref verts, PrimitiveType.TriangleList);
           }
@@ -57,7 +57,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Shapes
 
           if (Stroke != null && StrokeThickness > 0)
           {
-            TriangulateHelper.TriangulateStroke_TriangleList(path, (float) StrokeThickness, true, out verts, null);
+            TriangulateHelper.TriangulateStroke_TriangleList(path, (float) StrokeThickness, true, 1, out verts);
             Stroke.SetupBrush(this, ref verts, context.ZOrder, true);
             PrimitiveBuffer.SetPrimitiveBuffer(ref _strokeContext, ref verts, PrimitiveType.TriangleList);
           }

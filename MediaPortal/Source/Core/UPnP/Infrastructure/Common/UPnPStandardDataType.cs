@@ -24,6 +24,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Xml;
 using UPnP.Infrastructure.Utils;
 
@@ -38,31 +39,134 @@ namespace UPnP.Infrastructure.Common
     protected static IDictionary<string, UPnPStandardDataType> TYPES =
         new Dictionary<string, UPnPStandardDataType>();
 
+    /// <summary>
+    /// <see cref="Byte"/>.
+    /// </summary>
     public static UPnPStandardDataType Ui1 = new UPnPStandardDataType("ui1", typeof(Byte));
+
+    /// <summary>
+    /// <see cref="UInt16"/>.
+    /// </summary>
     public static UPnPStandardDataType Ui2 = new UPnPStandardDataType("ui2", typeof(UInt16));
+
+    /// <summary>
+    /// <see cref="UInt32"/>.
+    /// </summary>
     public static UPnPStandardDataType Ui4 = new UPnPStandardDataType("ui4", typeof(UInt32));
+
+    /// <summary>
+    /// <see cref="UInt64"/>.
+    /// </summary>
     public static UPnPStandardDataType Ui8 = new UPnPStandardDataType("ui8", typeof(UInt64));
+
+    /// <summary>
+    /// <see cref="SByte"/>.
+    /// </summary>
     public static UPnPStandardDataType I1 = new UPnPStandardDataType("i1", typeof(SByte));
+
+    /// <summary>
+    /// <see cref="Int16"/>.
+    /// </summary>
     public static UPnPStandardDataType I2 = new UPnPStandardDataType("i2", typeof(Int16));
+
+    /// <summary>
+    /// <see cref="Int32"/>.
+    /// </summary>
     public static UPnPStandardDataType I4 = new UPnPStandardDataType("i4", typeof(Int32));
+
+    /// <summary>
+    /// <see cref="Int64"/>.
+    /// </summary>
     public static UPnPStandardDataType I8 = new UPnPStandardDataType("i8", typeof(Int64));
+
+    /// <summary>
+    /// <see cref="int"/>.
+    /// </summary>
     public static UPnPStandardDataType Int = new UPnPStandardDataType("int", typeof(int));
+
+    /// <summary>
+    /// <see cref="Single"/>.
+    /// </summary>
     public static UPnPStandardDataType R4 = new UPnPStandardDataType("r4", typeof(Single));
+
+    /// <summary>
+    /// <see cref="Double"/>.
+    /// </summary>
     public static UPnPStandardDataType R8 = new UPnPStandardDataType("r8", typeof(Double));
+
+    /// <summary>
+    /// <see cref="double"/>.
+    /// </summary>
     public static UPnPStandardDataType Number = new UPnPStandardDataType("number", typeof(double));
+
+    /// <summary>
+    /// <see cref="double"/>.
+    /// </summary>
     public static UPnPStandardDataType Fixed144 = new UPnPStandardDataType("fixed.14.4", typeof(double));
+
+    /// <summary>
+    /// <see cref="float"/>.
+    /// </summary>
     public static UPnPStandardDataType Float = new UPnPStandardDataType("float", typeof(float));
+
+    /// <summary>
+    /// <see cref="Char"/>.
+    /// </summary>
     public static UPnPStandardDataType Char = new UPnPStandardDataType("char", typeof(Char));
+
+    /// <summary>
+    /// <see cref="string"/>.
+    /// </summary>
     public static UPnPStandardDataType String = new UPnPStandardDataType("string", typeof(string));
+
+    /// <summary>
+    /// <see cref="DateTime"/>.
+    /// </summary>
     public static UPnPStandardDataType Date = new UPnPStandardDataType("date", typeof(DateTime));
+
+    /// <summary>
+    /// <see cref="DateTime"/>.
+    /// </summary>
     public static UPnPStandardDataType DateTime = new UPnPStandardDataType("dateTime", typeof(DateTime));
+
+    /// <summary>
+    /// <see cref="DateTime"/>.
+    /// </summary>
     public static UPnPStandardDataType DateTimeTZ = new UPnPStandardDataType("dateTime.tz", typeof(DateTime));
+
+    /// <summary>
+    /// <see cref="DateTime"/>.
+    /// </summary>
     public static UPnPStandardDataType Time = new UPnPStandardDataType("time", typeof(DateTime));
+
+    /// <summary>
+    /// <see cref="DateTime"/>.
+    /// </summary>
     public static UPnPStandardDataType TimeTZ = new UPnPStandardDataType("time.tz", typeof(DateTime));
-    public static UPnPStandardDataType Boolean = new UPnPStandardDataType("boolean", typeof(bool));
+
+    /// <summary>
+    /// <see cref="Boolean"/>.
+    /// </summary>
+    public static UPnPStandardDataType Boolean = new UPnPStandardDataType("boolean", typeof(Boolean));
+
+    /// <summary>
+    /// <c>byte[]</c>.
+    /// </summary>
     public static UPnPStandardDataType BinBase64 = new UPnPStandardDataType("bin.base64", typeof(byte[]));
+
+    /// <summary>
+    /// <c>byte[]</c>.
+    /// </summary>
     public static UPnPStandardDataType BinHex = new UPnPStandardDataType("bin.hex", typeof(byte[]));
+
+    /// <summary>
+    /// <see cref="Uri"/>.
+    /// </summary>
     public static UPnPStandardDataType Uri = new UPnPStandardDataType("uri", typeof(Uri));
+
+    /// <summary>
+    /// <see cref="string"/>.
+    /// </summary>
     public static UPnPStandardDataType Uuid = new UPnPStandardDataType("uuid", typeof(string));
 
     protected string _upnpTypeName;
@@ -77,12 +181,7 @@ namespace UPnP.Infrastructure.Common
 
     public static UPnPStandardDataType ParseStandardType(string typeStr)
     {
-      foreach (UPnPStandardDataType type in TYPES.Values)
-      {
-        if (type.UPnPTypeName == typeStr)
-          return type;
-      }
-      return null;
+      return TYPES.Values.FirstOrDefault(type => type.UPnPTypeName == typeStr);
     }
 
     public string UPnPTypeName

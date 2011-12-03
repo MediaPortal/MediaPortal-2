@@ -473,7 +473,7 @@ namespace MediaPortal.UiComponents.Configuration
           IResourceString res = LocalizationHelper.CreateResourceString(section.Metadata.Text);
           WorkflowAction wa = new PushTransientStateNavigationTransition(
               Guid.NewGuid(), context.WorkflowState.Name + "->" + childNode.Location, null,
-              context.WorkflowState.StateId, newState, res)
+              new Guid[] {context.WorkflowState.StateId}, newState, res)
             {
                 DisplayCategory = ACTIONS_WORKFLOW_CATEGORY,
                 SortOrder = res.Evaluate(),

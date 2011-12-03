@@ -24,6 +24,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Xml;
 using System.Xml.XPath;
 using UPnP.Infrastructure.Utils;
@@ -83,6 +84,14 @@ namespace UPnP.Infrastructure.CP.DeviceTree
     public bool IsConnected
     {
       get { return _connection != null; }
+    }
+
+    /// <summary>
+    /// Returns the device's connection instance, if <see cref="IsConnected"/>.
+    /// </summary>
+    public DeviceConnection Connection
+    {
+      get { return _connection; }
     }
 
     /// <summary>
@@ -203,13 +212,7 @@ namespace UPnP.Infrastructure.CP.DeviceTree
     {
       if (UDN == deviceUDN)
         return this;
-      foreach (CpDevice embeddedDevice in _embeddedDevices.Values)
-      {
-        CpDevice result = embeddedDevice.FindDeviceByUDN(deviceUDN);
-        if (result != null)
-          return result;
-      }
-      return null;
+      return _embeddedDevices.Values.Select(embeddedDevice => embeddedDevice.FindDeviceByUDN(deviceUDN)).FirstOrDefault(result => result != null);
     }
 
     /// <summary>

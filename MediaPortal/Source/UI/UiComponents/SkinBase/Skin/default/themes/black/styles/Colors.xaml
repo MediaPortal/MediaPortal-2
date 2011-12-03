@@ -146,8 +146,6 @@
 
   <ResourceWrapper x:Key="ScrollBarKnobBackgroundColor" Resource="#20A0A0A0"/>
 
-  <ResourceWrapper x:Key="ScrollBarWidth" Resource="12"/>
-
   <!-- White -->
   <ResourceWrapper x:Key="ControlHandleColor" Resource="#FFFFFFFF"/>
 
@@ -247,7 +245,7 @@
   <ResourceWrapper x:Key="WorkflowNavigationBarItemContainerStrokeColor" Resource="DarkGray"/>
   <ResourceWrapper x:Key="FocusedWorkflowNavigationBarItemContainerStrokeColor" Resource="White"/>
   <ResourceWrapper x:Key="WorkflowNavigationBarItemContainerFillColor" Resource="#A04C4C4C"/>
-  <ResourceWrapper x:Key="FocusedWorkflowNavigationBarItemContainerFillColor" Resource="#A0161616"/>
+  <ResourceWrapper x:Key="FocusedWorkflowNavigationBarItemContainerFillColor" Resource="#A0959595"/>
   <ResourceWrapper x:Key="WorkflowNavigationBarFontColor" Resource="LightGray"/>
 
   <ResourceWrapper x:Key="WindowButtonColor" Resource="White"/>

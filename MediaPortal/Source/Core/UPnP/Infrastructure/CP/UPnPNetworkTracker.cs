@@ -29,6 +29,7 @@ using System.Net;
 using System.Xml;
 using System.Xml.XPath;
 using MediaPortal.Utilities.Exceptions;
+using MediaPortal.Utilities.Network;
 using UPnP.Infrastructure.CP.SSDP;
 using UPnP.Infrastructure.Utils;
 
@@ -283,7 +284,8 @@ namespace UPnP.Infrastructure.CP
         SetRootDescriptor(rootEntry, rd);
       try
       {
-        HttpWebRequest request = CreateHttpGetRequest(new Uri(rootEntry.PreferredLink.DescriptionLocation));
+        LinkData preferredLink = rootEntry.PreferredLink;
+        HttpWebRequest request = CreateHttpGetRequest(new Uri(preferredLink.DescriptionLocation), preferredLink.Endpoint.EndPointIPAddress);
         DescriptionRequestState state = new DescriptionRequestState(rd, request);
         lock (_cpData.SyncObj)
           _pendingRequests.Add(state);
@@ -374,7 +376,9 @@ namespace UPnP.Infrastructure.CP
         state.CurrentServiceDescriptor.State = ServiceDescriptorState.AwaitingDescription;
         try
         {
-          HttpWebRequest request = CreateHttpGetRequest(new Uri(new Uri(rootDescriptor.SSDPRootEntry.PreferredLink.DescriptionLocation), url));
+          LinkData preferredLink = rootDescriptor.SSDPRootEntry.PreferredLink;
+          HttpWebRequest request = CreateHttpGetRequest(new Uri(new Uri(preferredLink.DescriptionLocation), url),
+              preferredLink.Endpoint.EndPointIPAddress);
           state.Request = request;
           IAsyncResult result = request.BeginGetResponse(OnServiceDescriptionReceived, state);
           NetworkHelper.AddTimeout(request, result, PENDING_REQUEST_TIMEOUT * 1000);
@@ -547,9 +551,10 @@ namespace UPnP.Infrastructure.CP
           ParserHelper.SelectText(serviceNav, "d:serviceId/text()", nsmgr), controlURL, eventSubURL);
     }
 
-    private static HttpWebRequest CreateHttpGetRequest(Uri uri)
+    private static HttpWebRequest CreateHttpGetRequest(Uri uri, IPAddress localIpAddress)
     {
       HttpWebRequest request = (HttpWebRequest) WebRequest.Create(uri);
+      NetworkUtils.SetLocalEndpoint(request, localIpAddress);
       request.Method = "GET";
       request.KeepAlive = true;
       request.AllowAutoRedirect = true;

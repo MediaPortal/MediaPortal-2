@@ -18,9 +18,9 @@ Usage:
       <ResourceWrapper x:Key="Menu_Items">
         [Collection of ListItem instances]
       </ResourceWrapper>
-      <ResourceWrapper x:Key="Menu_Command">
-        [Command to be executed with the selected item as parameter]
-      </ResourceWrapper>
+
+      <Command to be executed with the selected item as parameter>
+      <Command x:Key="Menu_Command" .../>
     </Include.Resources>
   </Include>
 
@@ -40,8 +40,10 @@ Parameters which have to be accessible by a DynamicResource lookup:
     <!-- Header has to be defined by the includer: "Dialog_Header_Text" -->
 
     <!-- Contents -->
-    <ListView x:Key="Contents_Element" x:Name="DialogMenu" Style="{ThemeResource MenuListViewStyle}"
-        ItemsSource="{Binding Source={DynamicResource ResourceKey=Menu_Items,TreeSearchMode=Hybrid},Path=Resource}" SetFocusPrio="Default"
-        HorizontalAlignment="Stretch" VerticalAlignment="Stretch"/>
+    <ControlTemplate x:Key="Contents_Template">
+      <ListView x:Name="DialogMenu" Style="{ThemeResource MenuListViewStyle}"
+          ItemsSource="{DynamicResource ResourceKey=Menu_Items}" SetFocusPrio="Default"
+          HorizontalAlignment="Stretch" VerticalAlignment="Stretch"/>
+    </ControlTemplate>
   </Include.Resources>
 </Include>

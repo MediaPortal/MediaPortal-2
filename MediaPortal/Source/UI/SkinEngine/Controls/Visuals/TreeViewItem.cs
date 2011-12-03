@@ -154,11 +154,11 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 
     #endregion
 
-    protected override void PrepareItems(bool force)
+    protected override void PrepareItemsOverride(bool force)
     {
       if (!IsExpanded)
         return;
-      base.PrepareItems(force);
+      base.PrepareItemsOverride(force);
     }
 
     protected ContentPresenter FindContentPresenter()

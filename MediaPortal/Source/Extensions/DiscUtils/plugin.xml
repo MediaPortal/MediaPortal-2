@@ -1,0 +1,13 @@
+<Plugin
+    DescriptorVersion="1.0" 
+    Name="DiscUtils"
+    PluginId="{171B66A6-9B70-4822-8F36-72CC86392241}"
+    Author="Kenneth Bell, Team MediaPortal"
+    Copyright="GPL"
+    Description="DiscUtils support plugin"
+    PluginVersion="1.0">
+
+  <Runtime>
+    <Assembly FileName="DiscUtils.dll"/>
+  </Runtime>
+</Plugin>

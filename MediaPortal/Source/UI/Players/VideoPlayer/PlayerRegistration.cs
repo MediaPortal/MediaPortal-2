@@ -24,8 +24,7 @@
 
 using System;
 using System.Collections.Generic;
-using System.IO;
-using MediaPortal.Common.MediaManagement.ResourceAccess;
+using MediaPortal.Common.ResourceAccess;
 using MediaPortal.Utilities;
 
 namespace MediaPortal.UI.Players.Video
@@ -62,13 +61,15 @@ namespace MediaPortal.UI.Players.Video
 
     public static Type GetPlayerTypeForMediaItem(IResourceLocator locator, string mimeType)
     {
-      string path = locator.NativeResourcePath.LastPathSegment.Path;
-      string extension = StringUtils.TrimToEmpty(Path.GetExtension(path)).ToLowerInvariant();
-
       Type playerType;
+	    // When a mimetype is set, try to get the player type for it
       if (mimeType != null && MIMETYPES2PLAYER.TryGetValue(mimeType.ToLowerInvariant(), out playerType))
         return playerType;
-      // 2nd chance: if no mimetype match, try extensions
+
+	    // 2nd chance: If no mimetype matches, try extension
+	    string path = locator.NativeResourcePath.LastPathSegment.Path;
+	    string extension = StringUtils.TrimToEmpty(DosPathHelper.GetExtension(path)).ToLowerInvariant();
+
       if (EXTENSIONS2PLAYER.TryGetValue(extension, out playerType))
         return playerType;
       return null;

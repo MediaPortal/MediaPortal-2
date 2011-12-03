@@ -9,6 +9,7 @@
 
   <DependsOn>
     <PluginReference PluginId="{5D239050-02B8-4f58-8301-7630A1C4CF85}"/> <!-- SkinBase -->
+    <PluginReference PluginId="{D87D92F0-5E71-470a-A2A4-430F90A28BF3}"/> <!-- SkinEngine -->
   </DependsOn>
 
   <Runtime>
@@ -17,14 +18,5 @@
 
   <Register Location="/Models">
     <Model Id="1F4CAEDE-7108-483d-B5C8-18BEC7EC58E5" Name="BackgroundManagerModel" ClassName="MediaPortal.UiComponents.BackgroundManager.Models.BackgroundManagerModel"/>
-    <Model Id="35C31826-4159-4CF9-B4F5-98DEBE04E93C" Name="LayoutManagerModel" ClassName="MediaPortal.UiComponents.BackgroundManager.Models.LayoutManagerModel"/>
-  </Register>
-
-  <Register Location="/Resources/Language">
-    <Resource Id="LayoutManagerLanguage" Directory="Language" Type="Language"/>
-  </Register>
-
-  <Register Location="/Resources/Skin">
-    <Resource Id="LayoutManagerSkin" Directory="Skin" Type="Skin"/>
   </Register>
 </Plugin>

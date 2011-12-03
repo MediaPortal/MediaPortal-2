@@ -25,7 +25,7 @@
 using System;
 using System.Xml.Serialization;
 using MediaPortal.Common.Logging;
-using MediaPortal.Common.MediaManagement.ResourceAccess;
+using MediaPortal.Common.ResourceAccess;
 
 namespace MediaPortal.Common.Services.MediaManagement
 {
@@ -93,7 +93,7 @@ namespace MediaPortal.Common.Services.MediaManagement
     [XmlAttribute("ResourceAccessor")]
     public string XML_ResourceAccessor
     {
-      get { return _resourceAccessor.LocalResourcePath.Serialize(); } 
+      get { return _resourceAccessor.CanonicalLocalResourcePath.Serialize(); } 
       set
       {
         try

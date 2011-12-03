@@ -25,7 +25,7 @@
 using System;
 using System.Drawing;
 using System.IO;
-using MediaPortal.Common.MediaManagement.ResourceAccess;
+using MediaPortal.Common.ResourceAccess;
 
 namespace MediaPortal.Extensions.MetadataExtractors.PictureMetadataExtractor.ExifMetaInfo
 {
@@ -63,30 +63,37 @@ namespace MediaPortal.Extensions.MetadataExtractors.PictureMetadataExtractor.Exi
     /// Returns the width of image.
     /// </summary>
     public uint PixXDim { get { return _pixXDim; } }
+
     /// <summary>
     /// Returns the height of image.
     /// </summary>
     public uint PixYDim { get { return _pixYDim; } }
+
     /// <summary>
     /// Returns the make of camera.
     /// </summary>
     public string EquipMake { get { return _equipMake; } }
+
     /// <summary>
     /// Returns the model of camera.
     /// </summary>
     public string EquipModel { get { return _equipModel; } }
+
     /// <summary>
     /// Returns the description of image.
     /// </summary>
     public string ImageDescription { get { return _imageDescription; } }
+
     /// <summary>
     /// Returns the copyright of image.
     /// </summary>
     public string Copyright { get { return _copyright; } }
+
     /// <summary>
     /// Returns the rotation of image.
     /// </summary>
     public uint Orientation { get { return _orientation; } }
+
     /// <summary>
     /// Returns the rotation of image.
     /// </summary>
@@ -180,8 +187,9 @@ namespace MediaPortal.Extensions.MetadataExtractors.PictureMetadataExtractor.Exi
 
     #endregion
 
-
-    //The format is YYYY:MM:DD HH:MM:SS with time shown in 24-hour format and the date and time separated by one blank character (0x2000). The character string length is 20 bytes including the NULL terminator. When the field is empty, it is treated as unknown.
+    // The format is YYYY:MM:DD HH:MM:SS with time shown in 24-hour format and the date and time separated
+    // by one blank character (0x2000). The character string length is 20 bytes including the NULL terminator.
+    // When the field is empty, it is treated as unknown.
     private static DateTime ExifDtToDateTime(string exifDt)
     {
       try
@@ -201,7 +209,6 @@ namespace MediaPortal.Extensions.MetadataExtractors.PictureMetadataExtractor.Exi
       {
         return DateTime.MinValue;
       }
-
     }
 
     private void ReadMetaInfo(IResourceAccessor mediaItemAccessor)
@@ -461,17 +468,18 @@ namespace MediaPortal.Extensions.MetadataExtractors.PictureMetadataExtractor.Exi
       }
     }
 
+    // TODO: Implement enum for FlashMode and return that enum, implement translation function for that enum to a string.
     private void FillFlashModeResult(uint data)
     {
       switch (data)
       {
-        case 0x0: _flashMode = "Flash did not fire.";
+        case 0x0: _flashMode = "Flash did not fire";
           break;
-        case 0x1: _flashMode = "Flash fired.";
+        case 0x1: _flashMode = "Flash fired";
           break;
-        case 0x5: _flashMode = "Strobe return light not detected.";
+        case 0x5: _flashMode = "Strobe return light not detected";
           break;
-        case 0x7: _flashMode = "Strobe return light detected.";
+        case 0x7: _flashMode = "Strobe return light detected";
           break;
         case 0x9: _flashMode = "Flash fired, compulsory flash mode";
           break;
@@ -554,33 +562,25 @@ namespace MediaPortal.Extensions.MetadataExtractors.PictureMetadataExtractor.Exi
         case PropertyTagId.ExifISOSpeed:
           {
             object tmpValue = PropertyTag.getValue(entryType, entryData);
-            _isoSpeed = tmpValue.GetType().ToString().Equals("System.UInt16")
-                          ? ((uint) (ushort) tmpValue).ToString()
-                          : ((uint) tmpValue).ToString();
+            _isoSpeed = tmpValue is UInt16 ? ((ushort) tmpValue).ToString() : ((uint) tmpValue).ToString();
           }
           break;
         case PropertyTagId.Orientation:
           {
             object tmpValue = PropertyTag.getValue(entryType, entryData);
-            _orientation = tmpValue.GetType().ToString().Equals("System.UInt16")
-                             ? (ushort) tmpValue
-                             : (uint) tmpValue;
+            _orientation = tmpValue is UInt16 ? (ushort) tmpValue : (uint) tmpValue;
           }
           break;
         case PropertyTagId.ExifPixXDim:
           {
             object tmpValue = PropertyTag.getValue(entryType, entryData);
-            _pixXDim = tmpValue.GetType().ToString().Equals("System.UInt16")
-                         ? (ushort) tmpValue
-                         : (uint) tmpValue;
+            _pixXDim = tmpValue is UInt16 ? (ushort) tmpValue : (uint) tmpValue;
           }
           break;
         case PropertyTagId.ExifPixYDim:
           {
             object tmpValue = PropertyTag.getValue(entryType, entryData);
-            _pixYDim = tmpValue.GetType().ToString().Equals("System.UInt16")
-                         ? (ushort) tmpValue
-                         : (uint) tmpValue;
+            _pixYDim = tmpValue is UInt16 ? (ushort) tmpValue : (uint) tmpValue;
           }
           break;
         case PropertyTagId.ExifFlash:
@@ -602,9 +602,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.PictureMetadataExtractor.Exi
         case PropertyTagId.ExifMeteringMode:
           {
             object tmpValue = PropertyTag.getValue(entryType, entryData);
-            _meteringMode = tmpValue.GetType().ToString().Equals("System.UInt16")
-                              ? (MeteringMode) (ushort) tmpValue
-                              : (MeteringMode) (uint) tmpValue;
+            _meteringMode = tmpValue is UInt16 ? (MeteringMode) (ushort) tmpValue : (MeteringMode) (uint) tmpValue;
           }
           break;
       }
@@ -612,14 +610,9 @@ namespace MediaPortal.Extensions.MetadataExtractors.PictureMetadataExtractor.Exi
 
     public void Dispose()
     {
-      try
-      {
-        if (_thumbImage != null)
-          _thumbImage.Dispose();
-        _thumbImage = null;
-      }
-      catch (NullReferenceException)
-      { }
+      if (_thumbImage != null)
+        _thumbImage.Dispose();
+      _thumbImage = null;
     }
   }
 }

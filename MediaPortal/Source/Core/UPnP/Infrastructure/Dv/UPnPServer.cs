@@ -91,6 +91,8 @@ namespace UPnP.Infrastructure.Dv
     public virtual void Dispose()
     {
       Close();
+      foreach (DvDevice rootDevice in _rootDevices)
+        rootDevice.Dispose();
     }
 
     #region Event Handlers
@@ -270,14 +272,15 @@ namespace UPnP.Infrastructure.Dv
         if (!_serverData.IsActive)
           return;
         _serverData.IsActive = false;
-        _serverData.GENAController.Close();
-        _serverData.SSDPController.Close();
-        if (_serverData.HTTPListenerV4 != null)
-          _serverData.HTTPListenerV4.Stop();
-        if (_serverData.HTTPListenerV6 != null)
-          _serverData.HTTPListenerV6.Stop();
-        _serverData.UPnPEndPoints.Clear();
       }
+      _serverData.GENAController.Close();
+      _serverData.SSDPController.Close();
+      if (_serverData.HTTPListenerV4 != null)
+        _serverData.HTTPListenerV4.Stop();
+      if (_serverData.HTTPListenerV6 != null)
+        _serverData.HTTPListenerV6.Stop();
+      lock (_serverData.SyncObj)
+        _serverData.UPnPEndPoints.Clear();
     }
 
     #region Protected methods
@@ -432,17 +435,12 @@ namespace UPnP.Infrastructure.Dv
 
     protected Int32 GenerateConfigId(EndpointConfiguration config)
     {
-      Int64 result = 0;
-      foreach (DvDevice rootDevice in config.RootDeviceDescriptionPathsToRootDevices.Values)
-      {
-        string description = rootDevice.BuildRootDeviceDescription(_serverData, config, CultureInfo.InvariantCulture);
-        result += HashGenerator.CalculateHash(0, description);
-      }
-      foreach (DvService service in config.SCPDPathsToServices.Values)
-      {
-        string description = service.BuildSCPDDocument(config, _serverData);
-        result += HashGenerator.CalculateHash(0, description);
-      }
+      Int64 result = config.RootDeviceDescriptionPathsToRootDevices.Values.Select(
+          rootDevice => rootDevice.BuildRootDeviceDescription(
+              _serverData, config, CultureInfo.InvariantCulture)).Aggregate<string, long>(
+                  0, (current, description) => current + HashGenerator.CalculateHash(0, description));
+      result = config.SCPDPathsToServices.Values.Select(service => service.BuildSCPDDocument(
+          config, _serverData)).Aggregate(result, (current, description) => current + HashGenerator.CalculateHash(0, description));
       result += HashGenerator.CalculateHash(0, NetworkHelper.IPAddrToString(config.EndPointIPAddress));
       result += HashGenerator.CalculateHash(0, config.ControlPathBase + config.DescriptionPathBase + config.EventSubPathBase);
       return (int) result;

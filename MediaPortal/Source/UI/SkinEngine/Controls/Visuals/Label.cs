@@ -60,7 +60,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     void Init()
     {
       _contentProperty = new SProperty(typeof(string), null);
-      _colorProperty = new SProperty(typeof(Color), Color.White);
+      _colorProperty = new SProperty(typeof(Color), Color.DarkViolet);
       _scrollProperty = new SProperty(typeof(TextScrollEnum), TextScrollEnum.None);
       _scrollSpeedProperty = new SProperty(typeof(double), DEFAULT_SCROLL_SPEED);
       _wrapProperty = new SProperty(typeof(bool), false);
@@ -272,7 +272,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       Color4 color = ColorConverter.FromColor(Color);
       color.Alpha *= (float) localRenderContext.Opacity;
 
-      _asset.Render(_innerRect, horzAlign, vertAlign, color, Wrap, localRenderContext.ZOrder, 
+      _asset.Render(_innerRect, horzAlign, vertAlign, color, Wrap, true, localRenderContext.ZOrder, 
         Scroll, (float) ScrollSpeed, localRenderContext.Transform);
     }
 

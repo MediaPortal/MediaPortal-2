@@ -22,9 +22,12 @@
 
 #endregion
 
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using MediaPortal.UI.SkinEngine.MpfElements;
+using MediaPortal.UI.SkinEngine.MpfElements.Resources;
+using MediaPortal.UI.SkinEngine.Xaml;
 using MediaPortal.UI.SkinEngine.Xaml.Interfaces;
 using MediaPortal.Utilities.DeepCopy;
 
@@ -35,12 +38,12 @@ namespace MediaPortal.UI.SkinEngine.Commands
   /// order. This class itself implements the <see cref="IExecutableCommand"/> interface, hence it
   /// can be executed as a whole.
   /// </summary>
-  public class CommandList : DependencyObject, IAddChild<IExecutableCommand>,
-      IEnumerable<IExecutableCommand>, IExecutableCommand
+  public class CommandList : DependencyObject, IAddChild<object>,
+      IEnumerable<object>, IExecutableCommand
   {
     #region Protected fields
 
-    protected IList<IExecutableCommand> _commands = new List<IExecutableCommand>();
+    protected IList<object> _commands = new List<object>();
 
     #endregion
 
@@ -50,13 +53,13 @@ namespace MediaPortal.UI.SkinEngine.Commands
     {
       base.DeepCopy(source, copyManager);
       CommandList cl = (CommandList) source;
-      foreach (IExecutableCommand cmd in cl._commands)
+      foreach (object cmd in cl._commands)
         _commands.Add(copyManager.GetCopy(cmd));
     }
 
     public override void Dispose()
     {
-      foreach (IExecutableCommand command in _commands)
+      foreach (object command in _commands)
         MPF.TryCleanupAndDispose(command);
       base.Dispose();
     }
@@ -67,15 +70,24 @@ namespace MediaPortal.UI.SkinEngine.Commands
 
     public void Execute()
     {
-      foreach (IExecutableCommand cmd in _commands)
+      IList<object> convertedCommands = LateBoundValue.ConvertLateBoundValues(_commands);
+      foreach (object objectCmd in convertedCommands)
+      {
+        object o;
+        if (!TypeConverter.Convert(objectCmd, typeof(IExecutableCommand), out o))
+          throw new ArgumentException(string.Format("CommandList: Command '{0}' cannot be converted to {1}", objectCmd, typeof(IExecutableCommand).Name));
+        IExecutableCommand cmd = (IExecutableCommand) o;
         cmd.Execute();
+        if (!ReferenceEquals(cmd, objectCmd))
+          MPF.TryCleanupAndDispose(cmd);
+      }
     }
 
     #endregion
 
     #region IAddChild Members
 
-    public void AddChild(IExecutableCommand o)
+    public void AddChild(object o)
     {
       _commands.Add(o);
     }
@@ -84,7 +96,7 @@ namespace MediaPortal.UI.SkinEngine.Commands
 
     #region IEnumerable<IExecutableCommand> implementation
 
-    IEnumerator<IExecutableCommand> IEnumerable<IExecutableCommand>.GetEnumerator()
+    IEnumerator<object> IEnumerable<object>.GetEnumerator()
     {
       return _commands.GetEnumerator();
     }
@@ -95,7 +107,7 @@ namespace MediaPortal.UI.SkinEngine.Commands
 
     public IEnumerator GetEnumerator()
     {
-      return ((IEnumerable<IExecutableCommand>) this).GetEnumerator();
+      return ((IEnumerable<object>) this).GetEnumerator();
     }
 
     #endregion

@@ -39,7 +39,7 @@ namespace UPnP.Infrastructure.Dv.GENA
   }
 
   /// <summary>
-  /// Stores eventing data for all state variables of a UPnP service per event subscription.
+  /// Stores eventing data for all state variables of a UPnP service for unicast event subscriptions and for multicast events.
   /// Holds the <see cref="EventKey"/> and a list of scheduled event notifications.
   /// </summary>
   public class EventingState

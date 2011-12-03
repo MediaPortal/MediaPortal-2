@@ -242,7 +242,9 @@ namespace MediaPortal.UiComponents.SkinBase.Models
     }
 
     /// <summary>
-    /// Tries to update the given <paramref name="menuItems"/> to the given list of <paramref name="newActions"/>.
+    /// Updates the given <paramref name="menuItems"/>, each menu item for itself, to the given list of <paramref name="newActions"/>.
+    /// This method only succeeds if the actions given in <paramref name="newActions"/> match the menu items given in
+    /// <paramref name="menuItems"/>.
     /// </summary>
     /// <remarks>
     /// This method locks the synchronization object of the <paramref name="menuItems"/> list and thus must not call
@@ -254,6 +256,8 @@ namespace MediaPortal.UiComponents.SkinBase.Models
     /// <param name="menuItems">Menu items list to update.</param>
     /// <param name="newActions">Preprocessed list (sorted etc.) of actions to be used for the new menu.</param>
     /// <param name="changedItems">Returns a collection of list items which were changed by this method.</param>
+    /// <returns><c>true</c>, if the given <paramref name="newActions"/> match the actions behind the menu items in
+    /// <paramref name="menuItems"/>, else <c>false</c>.</returns>
     protected bool TryUpdateMenuEntries(NavigationContext context, ItemsList menuItems, IList<WorkflowAction> newActions,
         out ICollection<ListItem> changedItems)
     {

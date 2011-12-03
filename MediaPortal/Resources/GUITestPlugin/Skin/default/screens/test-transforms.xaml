@@ -3,10 +3,13 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     >
   <DockPanel LastChildFill="False">
-    <Label DockPanel.Dock="Top" HorizontalAlignment="Center" Content="Simple transforms test" Wrap="True"/>
+    <Label DockPanel.Dock="Top" HorizontalAlignment="Center"
+        Content="Simple transforms test"
+        Color="{ThemeResource TextColor}" Wrap="True"/>
     <Label DockPanel.Dock="Top" HorizontalAlignment="Center"
         Content="This screen shows geometric figures overlayed by the same figure transformed by a simple transformation."
-        Wrap="True" FontSize="{ThemeResource SmallFontSize}"/>
+        Wrap="True" FontSize="{ThemeResource SmallFontSize}"
+        Color="{ThemeResource TextColor}"/>
     <Grid DockPanel.Dock="Center" HorizontalAlignment="Center">
       <Grid.ColumnDefinitions>
         <ColumnDefinition Width="Auto"/>
@@ -91,10 +94,10 @@
   
       <!-- First transform -->
   
-      <Label Grid.Row="0" Grid.Column="0" Content="RenderTransform" Margin="0,30,0,30"/>
-      <Label Grid.Row="0" Grid.Column="2" Content="LayoutTransform" Margin="0,30,0,30"/>
+      <Label Grid.Row="0" Grid.Column="0" Content="RenderTransform" Margin="0,30,0,30" Color="{ThemeResource TextColor}"/>
+      <Label Grid.Row="0" Grid.Column="2" Content="LayoutTransform" Margin="0,30,0,30" Color="{ThemeResource TextColor}"/>
 
-      <Label Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2" Content="{StaticResource Transform1Text}"/>
+      <Label Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2" Content="{StaticResource Transform1Text}" Color="{ThemeResource TextColor}"/>
       <Rectangle Grid.Row="2" Grid.Column="0" Style="{StaticResource ReferenceRectStyle}"/>
       <Rectangle Grid.Row="2" Grid.Column="0" Style="{StaticResource TestRectStyle}" RenderTransform="{StaticResource Transform1}"/>
   
@@ -103,7 +106,7 @@
   
       <!-- Second transform -->
   
-      <Label Grid.Row="3" Grid.Column="0" Grid.ColumnSpan="2" Content="{StaticResource Transform2Text}"/>
+      <Label Grid.Row="3" Grid.Column="0" Grid.ColumnSpan="2" Content="{StaticResource Transform2Text}" Color="{ThemeResource TextColor}"/>
       <Rectangle Grid.Row="4" Grid.Column="0" Style="{StaticResource ReferenceRectStyle}"/>
       <Rectangle Grid.Row="4" Grid.Column="0" Style="{StaticResource TestRectStyle}" RenderTransform="{StaticResource Transform2}"/>
   
@@ -112,7 +115,7 @@
   
       <!-- Third transform -->
   
-      <Label Grid.Row="5" Grid.Column="0" Grid.ColumnSpan="2" Content="{StaticResource Transform3Text}"/>
+      <Label Grid.Row="5" Grid.Column="0" Grid.ColumnSpan="2" Content="{StaticResource Transform3Text}" Color="{ThemeResource TextColor}"/>
       <Rectangle Grid.Row="6" Grid.Column="0" Style="{StaticResource ReferenceRectStyle}"/>
       <Rectangle Grid.Row="6" Grid.Column="0" Style="{StaticResource TestRectStyle}" RenderTransform="{StaticResource Transform3}"/>
   
@@ -121,7 +124,7 @@
   
       <!-- Fourth transform -->
   
-      <Label Grid.Row="7" Grid.Column="0" Grid.ColumnSpan="2" Content="{StaticResource Transform4Text}"/>
+      <Label Grid.Row="7" Grid.Column="0" Grid.ColumnSpan="2" Content="{StaticResource Transform4Text}" Color="{ThemeResource TextColor}"/>
       <Rectangle Grid.Row="8" Grid.Column="0" Style="{StaticResource ReferenceRectStyle}"/>
       <Rectangle Grid.Row="8" Grid.Column="0" Style="{StaticResource TestRectStyle}" RenderTransform="{StaticResource Transform4}"/>
   

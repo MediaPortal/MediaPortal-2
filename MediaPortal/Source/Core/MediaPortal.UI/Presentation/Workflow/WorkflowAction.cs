@@ -23,6 +23,7 @@
 #endregion
 
 using System;
+using System.Collections.Generic;
 using MediaPortal.Common.Localization;
 
 namespace MediaPortal.UI.Presentation.Workflow
@@ -42,16 +43,16 @@ namespace MediaPortal.UI.Presentation.Workflow
     protected string _sortOrder = null;
     protected Guid _actionId;
     protected string _name;
-    protected Guid? _sourceStateId;
+    protected ICollection<Guid> _sourceStateIds;
     protected IResourceString _displayTitle;
 
     #endregion
 
-    protected WorkflowAction(Guid actionId, string name, Guid? sourceStateId, IResourceString displayTitle)
+    protected WorkflowAction(Guid actionId, string name, IEnumerable<Guid> sourceStateIds, IResourceString displayTitle)
     {
       _actionId = actionId;
       _name = name;
-      _sourceStateId = sourceStateId;
+      _sourceStateIds = sourceStateIds == null ? null : new List<Guid>(sourceStateIds);
       _displayTitle = displayTitle;
     }
 
@@ -107,12 +108,12 @@ namespace MediaPortal.UI.Presentation.Workflow
     }
 
     /// <summary>
-    /// Returns the id of the workflow state where this action is available. When the source state is <c>null</c>,
-    /// this action is valid in all source states.
+    /// Returns the ids of the all workflow states where this action is available. When the collection is empty,
+    /// this action is not valid in any source state. If this property is <c>null</c>, this action is valid in all source states.
     /// </summary>
-    public Guid? SourceStateId
+    public ICollection<Guid> SourceStateIds
     {
-      get { return _sourceStateId; }
+      get { return _sourceStateIds; }
     }
 
     /// <summary>

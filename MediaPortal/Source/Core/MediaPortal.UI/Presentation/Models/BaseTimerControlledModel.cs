@@ -39,6 +39,7 @@ namespace MediaPortal.UI.Presentation.Models
     protected object _syncObj = new object();
     protected Timer _timer = null;
     protected long _updateInterval = 0;
+    protected volatile bool _duringUpdate = false;
 
     /// <summary>
     /// Creates a new <see cref="BaseTimerControlledModel"/> instance and initializes the internal timer
@@ -75,7 +76,17 @@ namespace MediaPortal.UI.Presentation.Models
 
     protected void OnTimerElapsed(object sender)
     {
-      Update();
+      if (_duringUpdate)
+        return;
+      _duringUpdate = true;
+      try
+      {
+        Update();
+      }
+      finally
+      {
+        _duringUpdate = false;
+      }
     }
 
     /// <summary>

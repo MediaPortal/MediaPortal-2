@@ -13,7 +13,7 @@
     <ResourceWrapper x:Key="Header_Text" Resource="[Media.SavePlaylistSuccessfulHeader]"/>
 
     <!-- Contents -->
-    <ResourceWrapper x:Key="Client_Element">
+    <ControlTemplate x:Key="Client_Template">
       <Grid Margin="10" DataContext="{Binding Source={StaticResource Model}}">
         <Grid.RowDefinitions>
           <RowDefinition Height="*"/>
@@ -24,7 +24,7 @@
         <Grid.ColumnDefinitions>
           <ColumnDefinition Width="*"/>
         </Grid.ColumnDefinitions>
-        <Label Grid.Row="1" Margin="30" Content="{Binding Message}" Wrap="True"
+        <Label Grid.Row="1" Margin="30" Content="{Binding Message}" Color="{ThemeResource TextColor}" Wrap="True"
             HorizontalAlignment="Stretch" HorizontalContentAlignment="Center"/>
         <Grid Grid.Row="3" Margin="10,10,10,0">
           <Grid.RowDefinitions>
@@ -40,7 +40,7 @@
               Command="{Command NavigateRemovePlaylistSaveWorkflow}"/>
         </Grid>
       </Grid>
-    </ResourceWrapper>
+    </ControlTemplate>
 
   </Include.Resources>
 </Include>

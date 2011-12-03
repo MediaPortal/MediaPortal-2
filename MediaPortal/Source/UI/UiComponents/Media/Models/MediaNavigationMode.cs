@@ -30,7 +30,7 @@ namespace MediaPortal.UiComponents.Media.Models
   public enum MediaNavigationMode
   {
     BrowseLocalMedia,
-    BrowseMedia,
+    BrowseMediaLibrary,
     Music,
     Movies,
     Pictures

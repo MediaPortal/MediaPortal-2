@@ -7,13 +7,13 @@
   <Include.Resources>
 
     <!-- Header -->
-    <ResourceWrapper x:Key="Dialog_Header_Text" Resource="[weathersetup.removecity]"/>
+    <ResourceWrapper x:Key="Dialog_Header_Text" Resource="[WeatherSetup.RemoveCity]"/>
 
     <!-- WeatherSetup model -->
     <Model x:Key="Model" Id="CF0434F2-B319-48ff-A700-0BB7F0C2CD2A"/>
 
     <!-- Menu -->
-    <ResourceWrapper x:Key="Menu_Items">
+    <ResourceWrapper x:Key="Menu_Items" EnableBindings="True">
       <Binding Source="{StaticResource Model}" Path="SetupLocations" Mode="OneTime"/>
     </ResourceWrapper>
 

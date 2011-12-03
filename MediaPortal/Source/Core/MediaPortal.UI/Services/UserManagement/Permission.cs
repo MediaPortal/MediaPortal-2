@@ -23,13 +23,11 @@
 #endregion
 
 using System.Collections.Generic;
+using System.Linq;
 using MediaPortal.UI.UserManagement;
 
 namespace MediaPortal.UI.Services.UserManagement
 {
-  /// <summary>
-  /// Implements a permission.
-  /// </summary>
   public class Permission : IPermission
   {
     protected string _name;
@@ -65,10 +63,7 @@ namespace MediaPortal.UI.Services.UserManagement
 
     public virtual bool IncludesPermissionOn(IPermissionObject item)
     {
-      foreach (IPermissionObject obj in _objects)
-        if (obj.IncludesObject(item))
-          return true;
-      return false;
+      return _objects.Any(obj => obj.IncludesObject(item));
     }
 
     public override int GetHashCode()
@@ -76,12 +71,10 @@ namespace MediaPortal.UI.Services.UserManagement
       return _name == null ? 0 : _name.GetHashCode();
     }
 
-    public override bool Equals(object other)
+    public override bool Equals(object o)
     {
-      if (other is Permission)
-        return string.Compare(_name, ((Permission) other)._name, false) == 0;
-      else
-        return false;
+      Permission other = o as Permission;
+      return other != null && string.Compare(_name, other._name, false) == 0;
     }
   }
 }

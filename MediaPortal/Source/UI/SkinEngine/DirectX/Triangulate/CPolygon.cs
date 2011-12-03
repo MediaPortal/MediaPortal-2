@@ -366,6 +366,9 @@ namespace MediaPortal.UI.SkinEngine.DirectX.Triangulate
       int nCount = 0;
       int nVertices = points.Count;
 
+      if (nVertices < 3)
+        return PolygonDirection.Clockwise;
+
       for (int i = 0; i < nVertices; i++)
       {
         int j = (i + 1) % nVertices;

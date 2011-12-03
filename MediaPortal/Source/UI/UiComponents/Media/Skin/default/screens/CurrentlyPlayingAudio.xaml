@@ -9,7 +9,7 @@
 
     <ResourceWrapper x:Key="Header_Text" Resource="[Media.AudioCurrentlyPlayingHeader]"/>
 
-    <ResourceWrapper x:Key="Contents_Element">
+    <ControlTemplate x:Key="Contents_Template">
       <mp_special_controls:PlayerControl Margin="20" PlayerContext="CurrentPlayer"
           HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
         <mp_special_controls:PlayerControl.TemplateControl>
@@ -24,18 +24,26 @@
               <ColumnDefinition Width="Auto"/>
               <ColumnDefinition Width="*"/>
             </Grid.ColumnDefinitions>
-            <Label x:Name="ArtistsLabel" Grid.Row="0" Grid.Column="0" Content="[Media.AudioArtistsLabel]"/>
-            <Label x:Name="Artists" Grid.Row="0" Grid.Column="1" Content="{Binding AudioArtists}"/>
-            <Label x:Name="TitleLabel" Grid.Row="1" Grid.Column="0" Content="[Media.AudioTitleLabel]"/>
-            <Label x:Name="Title" Grid.Row="1" Grid.Column="1" Scroll="Auto" Content="{Binding MediaItemTitle}"/>
-            <Label x:Name="YearLabel" Grid.Row="2" Grid.Column="0" Content="[Media.AudioYearLabel]"/>
-            <Label x:Name="Year" Grid.Row="2" Grid.Column="1" Content="{Binding AudioYear}"/>
-            <Label x:Name="DurationLabel" Grid.Row="3" Grid.Column="0" Content="[Media.AudioDurationLabel]"/>
-            <Label x:Name="Duration" Grid.Row="3" Grid.Column="1" Content="{Binding Duration}"/>
+            <Label x:Name="ArtistsLabel" Grid.Row="0" Grid.Column="0"
+                Content="[Media.AudioArtistsLabel]" Color="{ThemeResource TextColor}"/>
+            <Label x:Name="Artists" Grid.Row="0" Grid.Column="1"
+                Content="{Binding AudioArtists}" Color="{ThemeResource TextColor}"/>
+            <Label x:Name="TitleLabel" Grid.Row="1" Grid.Column="0"
+                Content="[Media.AudioTitleLabel]" Color="{ThemeResource TextColor}"/>
+            <Label x:Name="Title" Grid.Row="1" Grid.Column="1" Scroll="Auto"
+                Content="{Binding MediaItemTitle}" Color="{ThemeResource TextColor}"/>
+            <Label x:Name="YearLabel" Grid.Row="2" Grid.Column="0"
+                Content="[Media.AudioYearLabel]" Color="{ThemeResource TextColor}"/>
+            <Label x:Name="Year" Grid.Row="2" Grid.Column="1"
+                Content="{Binding AudioYear}" Color="{ThemeResource TextColor}"/>
+            <Label x:Name="DurationLabel" Grid.Row="3" Grid.Column="0"
+                Content="[Media.AudioDurationLabel]" Color="{ThemeResource TextColor}"/>
+            <Label x:Name="Duration" Grid.Row="3" Grid.Column="1"
+                Content="{Binding Duration}" Color="{ThemeResource TextColor}"/>
           </Grid>
         </mp_special_controls:PlayerControl.TemplateControl>
       </mp_special_controls:PlayerControl>
-    </ResourceWrapper>
+    </ControlTemplate>
 
   </Include.Resources>
 </Include>

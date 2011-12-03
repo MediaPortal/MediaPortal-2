@@ -13,7 +13,7 @@
     <Model x:Key="Model" Id="039151B6-800B-4279-A1BE-7F421EEA8C9A"/>
 
     <!-- Contents -->
-    <ResourceWrapper x:Key="Contents_Element">
+    <ControlTemplate x:Key="Contents_Template">
       <Grid DataContext="{Binding Source={StaticResource Model}}">
         <Grid.RowDefinitions>
           <RowDefinition Height="Auto"/>
@@ -29,20 +29,20 @@
           <ColumnDefinition Width="*"/>
         </Grid.ColumnDefinitions>
 
-        <Label Grid.Row="0" Grid.Column="0" Margin="10" Content="[Media.PlaylistNameInfoLabel]"/>
-        <Label Grid.Row="0" Grid.Column="2" Margin="10" Content="{Binding Playlist.Name}" Scroll="Auto"/>
+        <Label Grid.Row="0" Grid.Column="0" Margin="10" Content="[Media.PlaylistNameInfoLabel]" Color="{ThemeResource TextColor}"/>
+        <Label Grid.Row="0" Grid.Column="2" Margin="10" Content="{Binding Playlist.Name}" Color="{ThemeResource TextColor}" Scroll="Auto"/>
 
-        <Label Grid.Row="1" Grid.Column="0" Margin="10" Content="[Media.PlaylistTypeInfoLabel]"/>
-        <Label Grid.Row="1" Grid.Column="2" Margin="10" Content="{Binding Playlist.PlaylistType}" Scroll="Auto"/>
+        <Label Grid.Row="1" Grid.Column="0" Margin="10" Content="[Media.PlaylistTypeInfoLabel]" Color="{ThemeResource TextColor}"/>
+        <Label Grid.Row="1" Grid.Column="2" Margin="10" Content="{Binding Playlist.PlaylistType}" Color="{ThemeResource TextColor}" Scroll="Auto"/>
 
-        <Label Grid.Row="2" Grid.Column="0" Margin="10" Content="[Media.PlaylistNumItemsLabel]"/>
-        <Label Grid.Row="2" Grid.Column="2" Margin="10" Content="{Binding Playlist.NumItems}" Scroll="Auto"/>
+        <Label Grid.Row="2" Grid.Column="0" Margin="10" Content="[Media.PlaylistNumItemsLabel]" Color="{ThemeResource TextColor}"/>
+        <Label Grid.Row="2" Grid.Column="2" Margin="10" Content="{Binding Playlist.NumItems}" Color="{ThemeResource TextColor}" Scroll="Auto"/>
 
-        <Label Grid.Row="3" Grid.Column="0" Margin="10" Content="[Media.PlaylistLocationInfoLabel]"/>
-        <Label Grid.Row="3" Grid.Column="2" Margin="10" Content="{Binding PlaylistLocation}" Scroll="Auto"/>
+        <Label Grid.Row="3" Grid.Column="0" Margin="10" Content="[Media.PlaylistLocationInfoLabel]" Color="{ThemeResource TextColor}"/>
+        <Label Grid.Row="3" Grid.Column="2" Margin="10" Content="{Binding PlaylistLocation}" Color="{ThemeResource TextColor}" Scroll="Auto"/>
 
-        <Label Grid.Row="4" Grid.Column="0" Margin="10" Content="[Media.PlaylistIdInfoLabel]"/>
-        <Label Grid.Row="4" Grid.Column="2" Margin="10" Content="{Binding Playlist.PlaylistId}" Scroll="Auto"/>
+        <Label Grid.Row="4" Grid.Column="0" Margin="10" Content="[Media.PlaylistIdInfoLabel]" Color="{ThemeResource TextColor}"/>
+        <Label Grid.Row="4" Grid.Column="2" Margin="10" Content="{Binding Playlist.PlaylistId}" Color="{ThemeResource TextColor}" Scroll="Auto"/>
 
         <Grid Grid.Row="5" Grid.Column="0" Grid.ColumnSpan="3" Margin="10,10,10,0">
           <Grid.RowDefinitions>
@@ -58,7 +58,7 @@
               Command="{Command LoadPlaylist}"/>
         </Grid>
       </Grid>
-    </ResourceWrapper>
+    </ControlTemplate>
 
   </Include.Resources>
 </Include>

@@ -23,7 +23,7 @@
 #endregion
 
 using MediaPortal.Common.SystemResolver;
-using MediaPortal.UI.Builders;
+using MediaPortal.UI.PluginItemBuilders;
 using MediaPortal.Common;
 using MediaPortal.Common.Logging;
 using MediaPortal.Common.MediaManagement;
@@ -85,7 +85,7 @@ namespace MediaPortal.UI
       logger.Debug("UiExtension: Registering IRemovableMediaTracker service");
       ServiceRegistration.Set<IRemovableMediaTracker>(new Services.RemovableMedia.RemovableMediaTracker());
 
-      AdditionalUiBuilders.Register();
+      AdditionalPluginItemBuilders.Register();
     }
 
     public static void Startup()

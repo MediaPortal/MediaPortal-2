@@ -2,7 +2,7 @@
     DescriptorVersion="1.0" 
     Name="BassLibraries"
     PluginId="{2BA6F93C-B2A9-4795-A99C-BA19126B1359}"
-    Author="Team MediaPortal"
+    Author="un4seen, Team MediaPortal"
     Copyright="GPL"
     Description="Bass support plugin"
     PluginVersion="1.0">

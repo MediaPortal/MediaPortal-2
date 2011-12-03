@@ -23,7 +23,6 @@
 #endregion
 
 using System;
-using System.Drawing;
 using System.Windows.Forms;
 using MediaPortal.UI.Control.InputManager;
 using MediaPortal.Common.General;
@@ -85,8 +84,6 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       _canContentScrollProperty = new SProperty(typeof(bool), false);
       _verticalScrollBarVisibilityProperty = new SProperty(typeof(ScrollBarVisibility), ScrollBarVisibility.Auto);
       _horizontalScrollBarVisibilityProperty = new SProperty(typeof(ScrollBarVisibility), ScrollBarVisibility.Auto);
-
-      ConfigureContentScrollFacility();
     }
 
     void Attach()
@@ -118,21 +115,20 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       VerticalScrollBarVisibility = sv.VerticalScrollBarVisibility;
       HorizontalScrollBarVisibility = sv.HorizontalScrollBarVisibility;
       Attach();
-      copyManager.CopyCompleted += manager => ConfigureContentScrollFacility();
     }
 
     #endregion
 
     void OnContentChanged(AbstractProperty property, object oldValue)
     {
-      UpdateScrollBars();
       ConfigureContentScrollFacility();
+      UpdateScrollBars();
     }
 
     void OnScrollBarVisibilityChanged(AbstractProperty property, object oldValue)
     {
-      UpdateScrollBars();
       ConfigureContentScrollFacility();
+      UpdateScrollBars();
     }
 
     public override void FireEvent(string eventName, RoutingStrategyEnum routingStrategy)
@@ -162,16 +158,14 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       ScrollContentPresenter scp = FindContentPresenter() as ScrollContentPresenter;
       if (scp == null)
         return null;
-      if (CanContentScroll)
-        return scp.Content as IScrollInfo;
+      IScrollInfo scpContentSI = scp.TemplateControl as IScrollInfo;
+      if (CanContentScroll && scpContentSI != null)
+        return scpContentSI;
       return scp;
     }
 
     void UpdateScrollBars()
     {
-      ScrollContentPresenter scp = FindContentPresenter() as ScrollContentPresenter;
-      if (scp == null)
-        return;
       IScrollInfo scrollInfo = FindScrollControl();
       if (scrollInfo == null)
         return;
@@ -235,12 +229,17 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       scp.HorizontalFitToSpace = HorizontalScrollBarVisibility == ScrollBarVisibility.Disabled;
       scp.VerticalFitToSpace = VerticalScrollBarVisibility == ScrollBarVisibility.Disabled;
 
-      IScrollInfo scrollInfo = FindScrollControl();
-      if (scrollInfo == null)
-        return;
-      scrollInfo.DoScroll = true;
       if (_attachedScrollInfo != null)
         _attachedScrollInfo.Scrolled -= OnScrollInfoScrolled;
+      IScrollInfo scrollInfo = FindScrollControl();
+      if (_attachedScrollInfo != null && _attachedScrollInfo != scrollInfo)
+        _attachedScrollInfo.DoScroll = false;
+      if (scrollInfo == null)
+      {
+        _attachedScrollInfo = null;
+        return;
+      }
+      scrollInfo.DoScroll = true;
       _attachedScrollInfo = scrollInfo;
       _attachedScrollInfo.Scrolled += OnScrollInfoScrolled;
     }
@@ -250,17 +249,15 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       UpdateScrollBars();
     }
 
+    protected override System.Drawing.SizeF CalculateInnerDesiredSize(System.Drawing.SizeF totalSize)
+    {
+      ConfigureContentScrollFacility();
+      return base.CalculateInnerDesiredSize(totalSize);
+    }
+
     protected override void ArrangeTemplateControl()
     {
-      FrameworkElement templateControl = _initializedTemplateControl;
-      if (templateControl == null)
-        return;
-      RectangleF childRect = new RectangleF(_innerRect.X, _innerRect.Y,
-          (HorizontalScrollBarVisibility == ScrollBarVisibility.Hidden) || (HorizontalScrollBarVisibility == ScrollBarVisibility.Disabled) ?
-          templateControl.DesiredSize.Width : _innerRect.Width,
-          (VerticalScrollBarVisibility == ScrollBarVisibility.Hidden) || (VerticalScrollBarVisibility == ScrollBarVisibility.Disabled) ?
-          templateControl.DesiredSize.Height : _innerRect.Height);
-      templateControl.Arrange(childRect);
+      base.ArrangeTemplateControl();
       // We need to update the scrollbars after our own and our content's final rectangles are set
       UpdateScrollBars();
     }

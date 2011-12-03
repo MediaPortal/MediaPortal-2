@@ -89,7 +89,6 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       _currentItemProperty = new SProperty(typeof(object), null);
       _selectionChangedProperty = new SProperty(typeof(ICommandStencil), null);
       _isEmptyProperty = new SProperty(typeof(bool), false);
-      AttachToItems(Items);
     }
 
     void Attach()
@@ -99,6 +98,9 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       _itemsPanelProperty.Attach(OnItemsPanelChanged);
       _dataStringProviderProperty.Attach(OnDataStringProviderChanged);
       _itemContainerStyleProperty.Attach(OnItemContainerStyleChanged);
+
+      _templateControlProperty.Attach(OnTemplateControlChanged);
+      AttachToItems(Items);
       AttachToItemsSource(ItemsSource);
     }
 
@@ -109,6 +111,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       _itemsPanelProperty.Detach(OnItemsPanelChanged);
       _dataStringProviderProperty.Detach(OnDataStringProviderChanged);
       _itemContainerStyleProperty.Detach(OnItemContainerStyleChanged);
+
+      _templateControlProperty.Detach(OnTemplateControlChanged);
       DetachFromItems(Items);
       DetachFromItemsSource(ItemsSource);
     }
@@ -204,6 +208,12 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     }
 
     void OnItemsPanelChanged(AbstractProperty property, object oldValue)
+    {
+      _panelTemplateApplied = false;
+      PrepareItems(true);
+    }
+
+    void OnTemplateControlChanged(AbstractProperty property, object oldValue)
     {
       _panelTemplateApplied = false;
       PrepareItems(true);
@@ -370,14 +380,11 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       get { return _itemsHostPanel != null; }
     }
 
-    public override ElementState ElementState
+    protected override void OnUpdateElementState()
     {
-      internal set
-      {
-        base.ElementState = value;
-        if (value == ElementState.Running || value == ElementState.Preparing)
-          PrepareItems(false);
-      }
+      base.OnUpdateElementState();
+      if (_elementState == ElementState.Running || _elementState == ElementState.Preparing)
+        PrepareItems(false);
     }
 
     #endregion
@@ -483,13 +490,26 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       return result;
     }
 
-    protected virtual void PrepareItems(bool force)
+    protected void PrepareItems(bool force)
     {
+      if (_elementState != ElementState.Running && _elementState != ElementState.Preparing)
+        return;
       if (_preventItemsPreparation)
         return;
+      _preventItemsPreparation = true;
+      try
+      {
+        PrepareItemsOverride(force);
+      }
+      finally
+      {
+        _preventItemsPreparation = false;
+      }
+    }
+
+    protected virtual void PrepareItemsOverride(bool force)
+    {
       if (_panelTemplateApplied && _itemsHostPanel != null && !force)
-        return;
-      if (_elementState != ElementState.Running && _elementState != ElementState.Preparing)
         return;
       // Check properties which are necessary in each case
       if (ItemsPanel == null)
@@ -529,6 +549,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
           FrameworkElement element = itemCopy as FrameworkElement ?? PrepareItemContainer(itemCopy);
           if (element.Style == null)
             element.Style = ItemContainerStyle;
+          element.LogicalParent = this;
           preparedChildren.Add(element);
         }
         presenter.SetDataStrings(BuildDataStrings(items));
@@ -554,7 +575,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
           ListViewItemGenerator lvig = new ListViewItemGenerator();
           lvig.Initialize(this, l, ItemContainerStyle, ItemTemplate);
           IsEmpty = l.Count == 0;
-          vsp.ItemProvider = lvig;
+          vsp.SetItemProvider(lvig);
 
           SetPreparedItems(true, null, false, null);
         }

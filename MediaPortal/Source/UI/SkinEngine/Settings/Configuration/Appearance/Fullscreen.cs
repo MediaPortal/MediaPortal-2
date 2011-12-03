@@ -34,8 +34,6 @@ namespace MediaPortal.UI.SkinEngine.Settings.Configuration.Appearance
   /// </summary>
   public class Fullscreen : YesNo
   {
-    #region Public Methods
-
     public override void Load()
     {
       _yes = SettingsManager.Load<AppSettings>().FullScreen;
@@ -45,12 +43,7 @@ namespace MediaPortal.UI.SkinEngine.Settings.Configuration.Appearance
     {
       IScreenControl sc = ServiceRegistration.Get<IScreenControl>();
       // The called methods will change the entry in the setting
-      if (_yes)
-        sc.SwitchMode(ScreenMode.FullScreen);
-      else
-        sc.SwitchMode(ScreenMode.NormalWindowed);
+      sc.SwitchMode(_yes ? ScreenMode.FullScreen : ScreenMode.NormalWindowed);
     }
-
-    #endregion
   }
 }

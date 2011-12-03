@@ -1,4 +1,4 @@
-﻿#region Copyright (C) 2007-2011 Team MediaPortal
+#region Copyright (C) 2007-2011 Team MediaPortal
 
 /*
     Copyright (C) 2007-2011 Team MediaPortal
@@ -44,6 +44,5 @@ namespace MediaPortal.UiComponents.Media.Settings.Configuration
       settings.InstantSkipPercent = _value;
       SettingsManager.Save(settings);
     }
-
   }
 }

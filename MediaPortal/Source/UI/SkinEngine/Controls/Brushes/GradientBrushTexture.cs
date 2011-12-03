@@ -25,7 +25,6 @@
 using System;
 using System.Collections.Generic;
 using System.Drawing;
-using MediaPortal.Common;
 using MediaPortal.UI.SkinEngine.ContentManagement;
 using SlimDX;
 using SlimDX.Direct3D9;
@@ -91,7 +90,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
     public void Allocate()
     {
       if (_texture == null)
-        _texture = ServiceRegistration.Get<ContentManager>().GetRenderTexture(_name);
+        _texture = ContentManager.Instance.GetRenderTexture(_name);
       if (_texture.IsAllocated)
         return;
       _texture.AllocateDynamic(GRADIENT_TEXTURE_WIDTH, GRADIENT_TEXTURE_HEIGHT);
@@ -129,7 +128,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
 
       for (int i = 0; i < _stops.Count - 1; i++)
         CreatePartialGradient(data, _stops[i], _stops[i + 1]);
-      // If sops don't go up to 1.0 we have to fake the final stop
+      // If stops don't go up to 1.0 we have to fake the final stop
       if (_stops[_stops.Count - 1].Offset < 1.0)
         CreatePartialGradient(data, _stops[_stops.Count - 1], new GradientStopData(_stops[_stops.Count - 1].Color, 1.0));
 
