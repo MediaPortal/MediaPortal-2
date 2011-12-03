@@ -37,7 +37,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.ImageSources
   /// <summary>
   /// Like <see cref="BitmapImage"/>, <see cref="MultiImage"/> acts as a source for the <see cref="Visuals.Image"/> control
   /// to access to conventional image formats. The primary difference between these two classes is that
-  /// <see cref="MultiImage"/> is optimised for asyncronous image loading and frequent image changes,
+  /// <see cref="MultiImage"/> is optimised for asynchronous image loading and frequent image changes,
   /// such as in a slide-show, and allows animated transitions between images.
   /// </summary>
   class MultiImage : BitmapImage
@@ -163,13 +163,13 @@ namespace MediaPortal.UI.SkinEngine.Controls.ImageSources
           _nextTexture = ContentManager.Instance.GetTexture(uri, DecodePixelWidth, DecodePixelHeight, Thumbnail);
         _uriChanged = false;
       }
-      // Check our previous texture is allocated. Syncronous.
+      // Check our previous texture is allocated. Synchronous.
       if (_lastTexture != null && !_lastTexture.IsAllocated)
         _lastTexture.Allocate();
-      // Check our current texture is allocated. Syncronous.
+      // Check our current texture is allocated. Synchronous.
       if (_texture != null && !_texture.IsAllocated)
         _texture.Allocate();
-      // Check our next texture is allocated. Asyncronous.
+      // Check our next texture is allocated. Asynchronous.
       if (_nextTexture != null)
       {
         if (!_nextTexture.LoadFailed)

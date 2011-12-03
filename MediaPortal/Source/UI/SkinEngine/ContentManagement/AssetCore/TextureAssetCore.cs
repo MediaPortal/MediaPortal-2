@@ -53,14 +53,14 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement.AssetCore
       Failed
     };
 
-    private const int ASYNCRONOUS_TIMEOUT_MS = 1000 * 60 * 2;
+    private const int ASYNCHRONOUS_TIMEOUT_MS = 1000 * 60 * 2;
 
     #endregion
 
     #region Internal classes
 
     /// <summary>
-    /// Class for holding data about the current asyncronous download operation.
+    /// Class for holding data about the current asynchronous download operation.
     /// </summary>
     protected class WebDownloadContext
     {
@@ -70,9 +70,9 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement.AssetCore
     }
 
     /// <summary>
-    /// Class for holding data about the current asyncronous file reading operation.
+    /// Class for holding data about the current asynchronous file reading operation.
     /// </summary>
-    protected class AsyncronousFileReadContext
+    protected class AsynchronousFileReadContext
     {
       public DateTime timeStarted;
       public FileStream fileStream;
@@ -100,7 +100,7 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement.AssetCore
     protected object _syncObj = new object();
 
     protected WebDownloadContext _webDownloadContext;
-    protected AsyncronousFileReadContext _fileReadContext;
+    protected AsynchronousFileReadContext _fileReadContext;
 
     #endregion
 
@@ -198,7 +198,7 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement.AssetCore
     }
 
     /// <summary>
-    /// Loads the specified texture from the file asyncronously.
+    /// Loads the specified texture from the file asynchronously.
     /// </summary>
     public virtual void AllocateAsync()
     {
@@ -231,10 +231,10 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement.AssetCore
       string sourceFilePath;
       lock (_syncObj)
       {
-        // If data has been cached asyncronously then complete allocation now
+        // If data has been cached asynchronously then complete allocation now
         if (_state == State.Loaded)
         {
-          CompleteAsyncronousOperation();
+          CompleteAsynchronousOperation();
           return;
         }
         if (_state != State.None && _state != State.LoadingThumb)
@@ -285,19 +285,19 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement.AssetCore
         {
           // Calling FileStream.Close should trigger read operation completion and throw a (caught) exception in the 
           //  completion callback
-          if ((DateTime.Now - _fileReadContext.timeStarted).TotalMilliseconds > ASYNCRONOUS_TIMEOUT_MS)
+          if ((DateTime.Now - _fileReadContext.timeStarted).TotalMilliseconds > ASYNCHRONOUS_TIMEOUT_MS)
             _fileReadContext.isCancelled = true;
         }
         if (_webDownloadContext != null)
         {
-          if ((DateTime.Now - _webDownloadContext.timeStarted).TotalMilliseconds > ASYNCRONOUS_TIMEOUT_MS)
+          if ((DateTime.Now - _webDownloadContext.timeStarted).TotalMilliseconds > ASYNCHRONOUS_TIMEOUT_MS)
             _webDownloadContext.webClient.CancelAsync();
         }
       }
 
     }
 
-    protected void CompleteAsyncronousOperation()
+    protected void CompleteAsynchronousOperation()
     {
       lock (_syncObj)
       {
@@ -338,12 +338,12 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement.AssetCore
         {
           _state = State.LoadingAsync;
 
-          // Create our asyncronous context
-          _fileReadContext = new AsyncronousFileReadContext
+          // Create our asynchronous context
+          _fileReadContext = new AsynchronousFileReadContext
             {
               // Log start time to detect timeouts
               timeStarted = DateTime.Now,
-              // Create a FileStream for Asyncronous access.
+              // Create a FileStream for Asynchronous access.
               fileStream = new FileStream(path, FileMode.Open, FileAccess.Read, FileShare.Read, 2048, true),
               // Prepare for file loading
               imageBuffer = new byte[4096],
@@ -396,7 +396,7 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement.AssetCore
       }
     }
 
-    protected void AllocateFromFileDataStream(AsyncronousFileReadContext stateObject)
+    protected void AllocateFromFileDataStream(AsynchronousFileReadContext stateObject)
     {
       lock (_syncObj)
       {
@@ -510,7 +510,7 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement.AssetCore
 
     #endregion
 
-    #region Asyncronous callbacks
+    #region Asynchronous callbacks
 
     protected void WebDownloadComplete(object sender, DownloadDataCompletedEventArgs e)
     {
@@ -536,7 +536,7 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement.AssetCore
     {
       lock (_syncObj)
       {
-        AsyncronousFileReadContext state = (AsyncronousFileReadContext) result.AsyncState;
+        AsynchronousFileReadContext state = (AsynchronousFileReadContext) result.AsyncState;
         if (state.fileStream == null || state.imageDataStream == null)
           return;
         if (_fileReadContext.isCancelled)

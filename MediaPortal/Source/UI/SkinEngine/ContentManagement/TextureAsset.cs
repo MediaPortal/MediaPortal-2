@@ -41,7 +41,7 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement
     }
 
     /// <summary>
-    /// Loads the specified texture from the file / Uri asyncronously.
+    /// Loads the specified texture from the file / Uri asynchronously.
     /// </summary>
     public virtual void AllocateAsync()
     {

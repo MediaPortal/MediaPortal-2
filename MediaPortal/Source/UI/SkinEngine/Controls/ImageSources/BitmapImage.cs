@@ -38,8 +38,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.ImageSources
   /// <summary>
   /// <see cref="BitmapImage"/> acts as a source provider / renderer for the <see cref="Visuals.Image"/> control.
   /// Most conventional image formats are supportted. 
-  /// All images are loaded syncronously, except when thumbnails are used, so it is best used for skin images.
-  /// For images that require asyncronous loading (such as poster art) use MultiImage.
+  /// All images are loaded synchronously, except when thumbnails are used, so it is best used for skin images.
+  /// For images that require asynchronous loading (such as poster art) use MultiImage.
   /// </summary>
   public class BitmapImage : ImageSource
   {

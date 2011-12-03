@@ -309,7 +309,7 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement
     }
 
     /// <summary>
-    /// Frees any assets that haven't been recently used. This must be done syncronously because pre-DirectX 11
+    /// Frees any assets that haven't been recently used. This must be done synchronously because pre-DirectX 11
     /// all calls must be made from the main rendering thread.
     /// </summary>
     public void Clean()
@@ -438,7 +438,7 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement
     }
 
     /// <summary>
-    /// This function is run asyncronously to remove de-referenced and de-allocated assets from the list.
+    /// This function is run asynchronously to remove de-referenced and de-allocated assets from the list.
     /// </summary>
     private void DoGarbageCollection()
     {
