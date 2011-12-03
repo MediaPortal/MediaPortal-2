@@ -399,7 +399,7 @@
   </Target>
   -->
   <PropertyGroup>
-    <PostBuildEvent>
-    </PostBuildEvent>
+    <PostBuildEvent>xcopy /Y "$(ProjectDir)References\Microsoft.WindowsAPICodePack.dll"  "$(SolutionDir)..\Bin\$(SolutionName)\$(OutDir)"
+xcopy /Y "$(ProjectDir)References\Microsoft.WindowsAPICodePack.Shell.dll"  "$(SolutionDir)..\Bin\$(SolutionName)\$(OutDir)"</PostBuildEvent>
   </PropertyGroup>
 </Project>
