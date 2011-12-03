@@ -502,6 +502,7 @@ namespace MediaPortal.UI.Services.Players
           if (value != PlayerManagerConsts.PRIMARY_SLOT && value != PlayerManagerConsts.SECONDARY_SLOT && value != -1)
             return;
           _currentPlayerIndex = value;
+          CheckCurrentPlayerSlot();
           CheckMediaWorkflowStates_Async();
           PlayerContextManagerMessaging.SendPlayerContextManagerMessage(
               PlayerContextManagerMessaging.MessageType.CurrentPlayerChanged, value);
