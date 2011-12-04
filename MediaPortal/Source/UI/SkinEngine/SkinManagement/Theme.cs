@@ -66,6 +66,10 @@ namespace MediaPortal.UI.SkinEngine.SkinManagement
       _parentSkin = parentSkin;
     }
 
+    /// <summary>
+    /// Name of the theme in our <see cref="ParentSkin"/> this theme inherits from. If set to <c>null</c>, this theme
+    /// will inherit from our parent skin's default theme.
+    /// </summary>
     public string BasedOnTheme
     {
       get { return _basedOnTheme; }

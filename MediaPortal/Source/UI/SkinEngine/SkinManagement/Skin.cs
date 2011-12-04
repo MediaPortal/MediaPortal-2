@@ -78,11 +78,20 @@ namespace MediaPortal.UI.SkinEngine.SkinManagement
 
     public Skin(string name): base(name) { }
 
+    /// <summary>
+    /// Name of the skin this skin inherits from. If this parameter is <c>null</c>, this skin inherits from the default
+    /// skin's theme or from the default skin, if there is no default skin.
+    /// </summary>
     public string BasedOnSkin
     {
       get { return _basedOnSkin; }
     }
 
+    /// <summary>
+    /// Name of the theme of the <see cref="BasedOnSkin"/> skin, this skin inherits from. If this value is <c>null</c>,
+    /// we'll inherit from the <see cref="BasedOnSkin"/>, or, if that is also <c>null</c>, from the default skin's theme or
+    /// from the default skin, if there is no default skin.
+    /// </summary>
     public string BasedOnTheme
     {
       get { return _basedOnTheme; }
