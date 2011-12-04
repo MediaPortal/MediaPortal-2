@@ -323,20 +323,15 @@ namespace MediaPortal.UI.SkinEngine.SkinManagement
         _localStyleResources.Dispose();
       _localStyleResources = null;
       ReleaseAllGUIModels();
+      _inheritedSkinResources = null;
     }
 
     /// <summary>
-    /// Prepares the resource chain. This method has to be called at the parent resource of the resource chain.
+    /// Initializes the <see cref="InheritedSkinResources"/> property.
     /// </summary>
-    /// <remarks>
-    /// To prepare the skin resource chain, call method <see cref="SkinManager.InstallSkinResources"/>.
-    /// </remarks>
-    internal void Prepare()
-    {
-      SkinContext.SkinResources = this;
-      InitializeStyleResourceLoading();
-      LoadAllStyleResources();
-    }
+    /// <param name="skins">All available skins.</param>
+    /// <param name="defaultSkin">The default skin of the skin manager.</param>
+    internal abstract void SetupResourceChain(IDictionary<string, Skin> skins, Skin defaultSkin);
 
     protected object GetOrLoadGUIModel(Guid modelId)
     {
@@ -360,7 +355,7 @@ namespace MediaPortal.UI.SkinEngine.SkinManagement
     }
 
     /// <summary>
-    /// Will trigger the lazy initialization on request.
+    /// Loads resource file paths.
     /// </summary>
     protected virtual void CheckResourcesInitialized()
     {
@@ -471,7 +466,7 @@ namespace MediaPortal.UI.SkinEngine.SkinManagement
     /// Will trigger the actual initialization of styles. Before calling this method,
     /// the style loading has to be initialized by calling <see cref="InitializeStyleResourceLoading"/>.
     /// </summary>
-    protected virtual void LoadAllStyleResources()
+    internal virtual void LoadAllStyleResources()
     {
       // Load all pending resources. We use this complicated way because during the loading of
       // each style resource, another dependent resource might be requested to be loaded first.

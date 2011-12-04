@@ -23,6 +23,7 @@
 #endregion
 
 using System;
+using System.Collections.Generic;
 using System.Xml.XPath;
 using MediaPortal.Common;
 using MediaPortal.Common.Logging;
@@ -57,11 +58,17 @@ namespace MediaPortal.UI.SkinEngine.SkinManagement
     protected string _specVersion = null;
     protected string _themeVersion = null;
     protected string _skinEngineVersion = null;
+    protected string _basedOnTheme = null;
     protected int _minColorDepth = -1;
 
     public Theme(string name, Skin parentSkin): base(name)
     {
       _parentSkin = parentSkin;
+    }
+
+    public string BasedOnTheme
+    {
+      get { return _basedOnTheme; }
     }
 
     public string ShortDescription
@@ -103,6 +110,19 @@ namespace MediaPortal.UI.SkinEngine.SkinManagement
     public override int SkinHeight
     {
       get { return ParentSkin.SkinHeight; }
+    }
+
+    internal override void SetupResourceChain(IDictionary<string, Skin> skins, Skin defaultSkin)
+    {
+      Theme inheritTheme;
+      if (_basedOnTheme != null && _parentSkin.Themes.TryGetValue(_basedOnTheme, out inheritTheme))
+        InheritedSkinResources = inheritTheme;
+      else
+      {
+        SkinResources parentDefaultTheme = _parentSkin.DefaultTheme;
+        InheritedSkinResources = parentDefaultTheme != null && parentDefaultTheme != this ? parentDefaultTheme : _parentSkin;
+      }
+      _inheritedSkinResources.SetupResourceChain(skins, defaultSkin);
     }
 
     /// <summary>
@@ -176,6 +196,9 @@ namespace MediaPortal.UI.SkinEngine.SkinManagement
                 break;
               case "MinColorDepth":
                 _minColorDepth = Int32.Parse(childNav.Value);
+                break;
+              case "BasedOnTheme":
+                _basedOnTheme = childNav.Value;
                 break;
               default:
                 throw new ArgumentException("Child element '" + childNav.Name + "' is unknown");
