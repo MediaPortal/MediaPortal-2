@@ -50,12 +50,67 @@ namespace MediaPortal.UiComponents.Weather.Grabbers
     private readonly bool _preferKph = true;
     private readonly string _parsefileLocation;
 
+    private readonly Dictionary<int, int> _weatherCodeTranslation = new Dictionary<int, int>();
+
     public WorldWeatherOnlineCatcher()
     {
       WeatherSettings settings = ServiceRegistration.Get<ISettingsManager>().Load<WeatherSettings>();
       _preferCelcius = settings.TemperatureUnit == WeatherSettings.TempUnit.Celcius;
       _preferKph = settings.WindSpeedUnit == WeatherSettings.SpeedUnit.Kph;
       _parsefileLocation = ServiceRegistration.Get<IPathManager>().GetPath(settings.ParsefileLocation);
+
+      #region Weather code translation
+
+      _weatherCodeTranslation[395] = 42; //  Moderate or heavy snow in area with thunder
+      _weatherCodeTranslation[392] = 14; //  Patchy light snow in area with thunder
+      _weatherCodeTranslation[389] = 40; //  Moderate or heavy rain in area with thunder
+      _weatherCodeTranslation[386] = 3; //  Patchy light rain in area with thunder
+      _weatherCodeTranslation[377] = 18; //  Moderate or heavy showers of ice pellets
+      _weatherCodeTranslation[374] = 18; //  Light showers of ice pellets
+      _weatherCodeTranslation[371] = 16; //  Moderate or heavy snow showers
+      _weatherCodeTranslation[368] = 14; //  Light snow showers
+      _weatherCodeTranslation[365] = 6; //  Moderate or heavy sleet showers
+      _weatherCodeTranslation[362] = 6; //  Light sleet showers
+      _weatherCodeTranslation[359] = 12; //  Torrential rain shower
+      _weatherCodeTranslation[356] = 40; //  Moderate or heavy rain shower
+      _weatherCodeTranslation[353] = 39; //  Light rain shower
+      _weatherCodeTranslation[350] = 18; //  Ice pellets
+      _weatherCodeTranslation[338] = 42; //  Heavy snow
+      _weatherCodeTranslation[335] = 16; //  Patchy heavy snow
+      _weatherCodeTranslation[332] = 41; //  Moderate snow
+      _weatherCodeTranslation[329] = 14; //  Patchy moderate snow
+      _weatherCodeTranslation[326] = 14; //  Light snow
+      _weatherCodeTranslation[323] = 14; //  Patchy light snow
+      _weatherCodeTranslation[320] = 6; //  Moderate or heavy sleet
+      _weatherCodeTranslation[317] = 6; //  Light sleet
+      _weatherCodeTranslation[314] = 10; //  Moderate or Heavy freezing rain
+      _weatherCodeTranslation[311] = 10; //  Light freezing rain
+      _weatherCodeTranslation[308] = 40; //  Heavy rain
+      _weatherCodeTranslation[305] = 39; //  Heavy rain at times
+      _weatherCodeTranslation[302] = 40; //  Moderate rain
+      _weatherCodeTranslation[299] = 39; //  Moderate rain at times
+      _weatherCodeTranslation[296] = 11; //  Light rain
+      _weatherCodeTranslation[293] = 11; //  Patchy light rain
+      _weatherCodeTranslation[284] = 8; //  Heavy freezing drizzle
+      _weatherCodeTranslation[281] = 8; //  Freezing drizzle
+      _weatherCodeTranslation[266] = 9; //  Light drizzle
+      _weatherCodeTranslation[263] = 9; //  Patchy light drizzle
+      _weatherCodeTranslation[260] = 20; //  Freezing fog
+      _weatherCodeTranslation[248] = 20; //  Fog
+      _weatherCodeTranslation[230] = 42; //  Blizzard
+      _weatherCodeTranslation[227] = 43; //  Blowing snow
+      _weatherCodeTranslation[200] = 35; //  Thundery outbreaks in nearby
+      _weatherCodeTranslation[185] = 8; //  Patchy freezing drizzle nearby
+      _weatherCodeTranslation[182] = 6; //  Patchy sleet nearby
+      _weatherCodeTranslation[179] = 41; //  Patchy snow nearby
+      _weatherCodeTranslation[176] = 39; //  Patchy rain nearby
+      _weatherCodeTranslation[143] = 20; //  Mist
+      _weatherCodeTranslation[122] = 26; //  Overcast
+      _weatherCodeTranslation[119] = 26; //  Cloudy
+      _weatherCodeTranslation[116] = 30; //  Partly Cloudy
+      _weatherCodeTranslation[113] = 32; //  Clear/Sunny
+      
+      #endregion
     }
 
     public bool GetLocationData(City city)
@@ -173,9 +228,12 @@ namespace MediaPortal.UiComponents.Weather.Grabbers
         if (node != null)
           city.Condition.Condition = node.Value;
 
-        node = condition.SelectSingleNode("weatherIconUrl");
+        node = condition.SelectSingleNode("weatherCode");
         if (node != null)
-          city.Condition.BigIcon = city.Condition.SmallIcon = node.Value;
+        {
+          city.Condition.BigIcon = @"Weather\128x128\" + GetWeatherIcon(node.ValueAsInt);
+          city.Condition.SmallIcon = @"Weather\64x64\" + GetWeatherIcon(node.ValueAsInt);
+        }
       }
 
       city.ForecastCollection.Clear();
@@ -213,9 +271,12 @@ namespace MediaPortal.UiComponents.Weather.Grabbers
         if (node != null)
           dayForeCast.Wind += node.Value;
 
-        node = forecasts.Current.SelectSingleNode("weatherIconUrl");
+        node = forecasts.Current.SelectSingleNode("weatherCode");
         if (node != null)
-          dayForeCast.BigIcon = dayForeCast.SmallIcon = node.Value;
+        {
+          dayForeCast.BigIcon = @"Weather\128x128\" + GetWeatherIcon(node.ValueAsInt);
+          dayForeCast.SmallIcon = @"Weather\64x64\" + GetWeatherIcon(node.ValueAsInt);
+        }
 
         node = forecasts.Current.SelectSingleNode("weatherDesc");
         if (node != null)
@@ -228,6 +289,14 @@ namespace MediaPortal.UiComponents.Weather.Grabbers
         city.ForecastCollection.Add(dayForeCast);
       }
       return true;
+    }
+
+    private string GetWeatherIcon(int weatherCode)
+    {
+      int translatedID;
+      if (_weatherCodeTranslation.TryGetValue(weatherCode, out translatedID))
+        return translatedID + ".png";
+      return "na.png";
     }
 
     private static string BuildRequest(string relativePage, Dictionary<string, string> args)
