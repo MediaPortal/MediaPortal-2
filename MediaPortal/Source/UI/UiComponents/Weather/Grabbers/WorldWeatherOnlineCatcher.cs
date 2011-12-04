@@ -178,6 +178,7 @@ namespace MediaPortal.UiComponents.Weather.Grabbers
           city.Condition.BigIcon = city.Condition.SmallIcon = node.Value;
       }
 
+      city.ForecastCollection.Clear();
       XPathNodeIterator forecasts = navigator.Select("/data/weather");
       while (forecasts.MoveNext())
       {
