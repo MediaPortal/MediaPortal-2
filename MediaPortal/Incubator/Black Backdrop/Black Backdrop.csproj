@@ -69,15 +69,24 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="Skin\default\images\30715D73-4205-417f-80AA-E82F0834171F.jpg" />
-    <Content Include="Skin\default\images\55556593-9FE9-436c-A3B6-A971E10C9D44.jpg" />
-    <Content Include="Skin\default\images\A4DF2DF6-8D66-479a-9930-D7106525EB07.jpg" />
-    <Content Include="Skin\default\images\defaultBackground.jpg" />
-    <Content Include="Skin\default\images\E34FDB62-1F3E-4aa9-8A61-D143E0AF77B5.jpg" />
-    <Content Include="Skin\default\images\F6255762-C52A-4231-9E67-14C28735216E.jpg" />
-    <Content Include="Skin\default\themes\Black Backdrop\images\preview.png" />
+    <Content Include="Skin\default\themes\Black Backdrop 2\images\30715D73-4205-417f-80AA-E82F0834171F.jpg" />
+    <Content Include="Skin\default\themes\Black Backdrop 2\images\55556593-9FE9-436c-A3B6-A971E10C9D44.jpg" />
+    <Content Include="Skin\default\themes\Black Backdrop 2\images\A4DF2DF6-8D66-479a-9930-D7106525EB07.jpg" />
+    <Content Include="Skin\default\themes\Black Backdrop 2\images\B4A9199F-6DD4-4bda-A077-DE9C081F7703.jpg" />
+    <Content Include="Skin\default\themes\Black Backdrop 2\images\defaultBackground.jpg" />
+    <Content Include="Skin\default\themes\Black Backdrop 2\images\F6255762-C52A-4231-9E67-14C28735216E.jpg" />
+    <Content Include="Skin\default\themes\Black Backdrop 2\images\preview.png" />
+    <Content Include="Skin\default\themes\Black Backdrop 2\theme.xml" />
+    <Content Include="Skin\default\themes\Black Backdrop\images\30715D73-4205-417f-80AA-E82F0834171F.jpg" />
+    <Content Include="Skin\default\themes\Black Backdrop\images\55556593-9FE9-436c-A3B6-A971E10C9D44.jpg" />
+    <Content Include="Skin\default\themes\Black Backdrop\images\A4DF2DF6-8D66-479a-9930-D7106525EB07.jpg" />
+    <Content Include="Skin\default\themes\Black Backdrop\images\B4A9199F-6DD4-4bda-A077-DE9C081F7703.jpg" />
+    <Content Include="Skin\default\themes\Black Backdrop\images\defaultBackground.jpg" />
+    <Content Include="Skin\default\themes\Black Backdrop\images\E34FDB62-1F3E-4aa9-8A61-D143E0AF77B5.jpg" />
+    <Content Include="Skin\default\themes\Black Backdrop\images\F6255762-C52A-4231-9E67-14C28735216E.jpg" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="Skin\default\themes\Black Backdrop\images\preview.png" />
     <Content Include="Skin\default\themes\Black Backdrop\styles\Colors.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -116,6 +125,20 @@
       <ProductName>Windows Installer 3.1</ProductName>
       <Install>true</Install>
     </BootstrapperPackage>
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Skin\default\images\" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Skin\default\themes\Black Backdrop 2\styles\Colors.xaml">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Skin\default\themes\Black Backdrop 2\styles\Consts.xaml">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Skin\default\themes\Black Backdrop 2\styles\OtherControlsOverrides.xaml">
+      <SubType>Designer</SubType>
+    </None>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
