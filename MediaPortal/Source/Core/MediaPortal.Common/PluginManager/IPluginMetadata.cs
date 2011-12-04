@@ -103,7 +103,7 @@ namespace MediaPortal.Common.PluginManager
 
     /// <summary>
     /// Returns the names of all builders which are necessary to build the items of this
-    /// plugin. This is a convenience method for iterating over <see cref="PluginItemsMetadata.Values"/>
+    /// plugin. This is a convenience method for iterating over <see cref="PluginItemsMetadata"/>
     /// and collecting all builder names.
     /// </summary>
     /// <returns>Collection of builder names.</returns>
