@@ -24,8 +24,14 @@
 
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Text;
+using System.Xml;
 using System.Xml.XPath;
+using MediaPortal.Common;
+using MediaPortal.Common.PathManager;
+using MediaPortal.Common.Settings;
+using MediaPortal.UiComponents.Weather.Settings;
 
 namespace MediaPortal.UiComponents.Weather.Grabbers
 {
@@ -33,9 +39,24 @@ namespace MediaPortal.UiComponents.Weather.Grabbers
   {
     #region IWeatherCatcher Member
 
-    private const string DEGREE = " °C";
-    private const string KMH = " km/h";
+    private const string CELCIUS = " °C";
+    private const string FAHRENHEIT = " °F";
+    private const string KPH = " km/h";
+    private const string MPH = " mph";
     private const string PERCENT = " %";
+    private const string MM = " mm";
+
+    private readonly bool _preferCelcius = true;
+    private readonly bool _preferKph = true;
+    private readonly string _parsefileLocation;
+
+    public WorldWeatherOnlineCatcher()
+    {
+      WeatherSettings settings = ServiceRegistration.Get<ISettingsManager>().Load<WeatherSettings>();
+      _preferCelcius = settings.TemperatureUnit == WeatherSettings.TempUnit.Celcius;
+      _preferKph = settings.WindSpeedUnit == WeatherSettings.SpeedUnit.Kph;
+      _parsefileLocation = ServiceRegistration.Get<IPathManager>().GetPath(settings.ParsefileLocation);
+    }
 
     public bool GetLocationData(City city)
     {
@@ -43,12 +64,30 @@ namespace MediaPortal.UiComponents.Weather.Grabbers
       if (string.IsNullOrEmpty(locationKey))
         return false;
 
-      Dictionary<string, string> args = new Dictionary<string, string>();
-      args["q"] = city.Id;
-      args["num_of_days"] = "5";
+      city.HasData = false;
+      string cachefile = string.Format(_parsefileLocation, locationKey.Replace(',', '_'));
 
-      string url = BuildRequest("weather.ashx", args);
-      XPathDocument doc = WorldWeatherOnlineHelper.GetOnlineContent(url);
+      XPathDocument doc;
+      if (File.Exists(cachefile))
+      {
+        doc = new XPathDocument(cachefile);
+      }
+      else
+      {
+        Dictionary<string, string> args = new Dictionary<string, string>();
+        args["q"] = city.Id;
+        args["num_of_days"] = "5";
+
+        string url = BuildRequest("weather.ashx", args);
+        doc = WorldWeatherOnlineHelper.GetOnlineContent(url);
+
+        // Save cache file
+        using (XmlWriter xw = XmlWriter.Create(cachefile))
+        {
+          doc.CreateNavigator().WriteSubtree(xw);
+          xw.Close();
+        }
+      }
       return Parse(city, doc);
     }
 
@@ -104,8 +143,8 @@ namespace MediaPortal.UiComponents.Weather.Grabbers
     {
       return "WorldWeatherOnline.com";
     }
-    
-    private static bool Parse(City city, XPathDocument doc)
+
+    private bool Parse(City city, XPathDocument doc)
     {
       if (city == null || doc == null)
         return false;
@@ -113,14 +152,19 @@ namespace MediaPortal.UiComponents.Weather.Grabbers
       XPathNavigator condition = navigator.SelectSingleNode("/data/current_condition");
       if (condition != null)
       {
-        XPathNavigator node = condition.SelectSingleNode("temp_C");
+        string nodeName = _preferCelcius ? "temp_C" : "temp_F";
+        string unit = _preferCelcius ? CELCIUS : FAHRENHEIT;
+
+        XPathNavigator node = condition.SelectSingleNode(nodeName);
         if (node != null)
-          city.Condition.Temperature = node.Value + DEGREE;
-        
-        node = condition.SelectSingleNode("windspeedKmph");
+          city.Condition.Temperature = node.Value + unit;
+
+        nodeName = _preferKph ? "windspeedKmph" : "windspeedMiles";
+        unit = _preferKph ? KPH : MPH;
+        node = condition.SelectSingleNode(nodeName);
         if (node != null)
-          city.Condition.Wind = node.Value + KMH;
-        
+          city.Condition.Wind = node.Value + unit;
+
         node = condition.SelectSingleNode("humidity");
         if (node != null)
           city.Condition.Humidity = node.Value + PERCENT;
@@ -133,7 +177,7 @@ namespace MediaPortal.UiComponents.Weather.Grabbers
         if (node != null)
           city.Condition.BigIcon = city.Condition.SmallIcon = node.Value;
       }
-      
+
       XPathNodeIterator forecasts = navigator.Select("/data/weather");
       while (forecasts.MoveNext())
       {
@@ -146,17 +190,23 @@ namespace MediaPortal.UiComponents.Weather.Grabbers
         if (node != null)
           dayForeCast.Day = node.Value;
 
-        node = forecasts.Current.SelectSingleNode("tempMinC");
-        if (node != null)
-          dayForeCast.Low = node.Value + DEGREE;
+        string nodeName = _preferCelcius ? "tempMinC" : "tempMinF";
+        string unit = _preferCelcius ? CELCIUS : FAHRENHEIT;
 
-        node = forecasts.Current.SelectSingleNode("tempMaxC");
+        node = forecasts.Current.SelectSingleNode(nodeName);
         if (node != null)
-          dayForeCast.High = node.Value + DEGREE;
+          dayForeCast.Low = node.Value + unit;
 
-        node = forecasts.Current.SelectSingleNode("windspeedKmph");
+        nodeName = _preferCelcius ? "tempMaxC" : "tempMaxF";
+        node = forecasts.Current.SelectSingleNode(nodeName);
         if (node != null)
-          dayForeCast.Wind = node.Value + KMH;
+          dayForeCast.High = node.Value + unit;
+
+        nodeName = _preferKph ? "windspeedKmph" : "windspeedMiles";
+        unit = _preferKph ? KPH : MPH;
+        node = forecasts.Current.SelectSingleNode(nodeName);
+        if (node != null)
+          dayForeCast.Wind = node.Value + unit;
 
         node = forecasts.Current.SelectSingleNode("winddirection");
         if (node != null)
@@ -165,6 +215,14 @@ namespace MediaPortal.UiComponents.Weather.Grabbers
         node = forecasts.Current.SelectSingleNode("weatherIconUrl");
         if (node != null)
           dayForeCast.BigIcon = dayForeCast.SmallIcon = node.Value;
+
+        node = forecasts.Current.SelectSingleNode("weatherDesc");
+        if (node != null)
+          dayForeCast.Overview = node.Value;
+
+        node = forecasts.Current.SelectSingleNode("precipMM");
+        if (node != null)
+          dayForeCast.Precipitation = node.Value + MM;
 
         city.ForecastCollection.Add(dayForeCast);
       }

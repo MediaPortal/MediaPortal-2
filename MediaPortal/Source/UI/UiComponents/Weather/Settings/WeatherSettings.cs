@@ -33,6 +33,18 @@ namespace MediaPortal.UiComponents.Weather.Settings
   /// </summary>
   public class WeatherSettings
   {
+    public enum SpeedUnit
+    {
+      Kph,
+      Mph
+    }
+
+    public enum TempUnit
+    {
+      Celcius,
+      Fahrenheit
+    }
+
     /// <summary>
     /// Constructor
     /// </summary>
@@ -62,14 +74,14 @@ namespace MediaPortal.UiComponents.Weather.Settings
     /// <summary>
     /// Preferred temperature unit.
     /// </summary>
-    [Setting(SettingScope.User, 'C')]
-    public char TemperatureUnit { get; set; }
+    [Setting(SettingScope.User, TempUnit.Celcius)]
+    public TempUnit TemperatureUnit { get; set; }
 
     /// <summary>
     /// Preferred speed unit.
     /// </summary>
-    [Setting(SettingScope.User, "mph")]
-    public string WindSpeed { get; set; }
+    [Setting(SettingScope.User, SpeedUnit.Kph)]
+    public SpeedUnit WindSpeedUnit { get; set; }
 
     /// <summary>
     /// Selected location code.

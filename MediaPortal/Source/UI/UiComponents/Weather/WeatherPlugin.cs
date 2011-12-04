@@ -15,7 +15,7 @@ namespace MediaPortal.UiComponents.Weather
     {
       WeatherSettings settings = ServiceRegistration.Get<ISettingsManager>().Load<WeatherSettings>();
       //ServiceRegistration.Set<IWeatherCatcher>(new WeatherDotComCatcher(
-      //    settings.TemperatureUnit, settings.WindSpeed, ServiceRegistration.Get<IPathManager>().GetPath(settings.ParsefileLocation),
+      //    settings.TemperatureUnit, settings.WindSpeedUnit, ServiceRegistration.Get<IPathManager>().GetPath(settings.ParsefileLocation),
       //    settings.SkipConnectionTest));
       ServiceRegistration.Set<IWeatherCatcher>(new WorldWeatherOnlineCatcher());
     }
