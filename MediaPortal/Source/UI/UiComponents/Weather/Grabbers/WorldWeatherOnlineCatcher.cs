@@ -46,6 +46,8 @@ namespace MediaPortal.UiComponents.Weather.Grabbers
     private const string PERCENT = " %";
     private const string MM = " mm";
 
+    private readonly TimeSpan _maxCacheDuration = TimeSpan.FromHours(1);
+
     private readonly bool _preferCelcius = true;
     private readonly bool _preferKph = true;
     private readonly string _parsefileLocation;
@@ -109,7 +111,7 @@ namespace MediaPortal.UiComponents.Weather.Grabbers
       _weatherCodeTranslation[119] = 26; //  Cloudy
       _weatherCodeTranslation[116] = 30; //  Partly Cloudy
       _weatherCodeTranslation[113] = 32; //  Clear/Sunny
-      
+
       #endregion
     }
 
@@ -123,7 +125,7 @@ namespace MediaPortal.UiComponents.Weather.Grabbers
       string cachefile = string.Format(_parsefileLocation, locationKey.Replace(',', '_'));
 
       XPathDocument doc;
-      if (File.Exists(cachefile))
+      if (ShouldUseCache(cachefile))
       {
         doc = new XPathDocument(cachefile);
       }
@@ -144,6 +146,17 @@ namespace MediaPortal.UiComponents.Weather.Grabbers
         }
       }
       return Parse(city, doc);
+    }
+
+    /// <summary>
+    /// Checks requirements for using local cache file instead of requesting new data from web.
+    /// </summary>
+    /// <param name="cachefile">Filename</param>
+    /// <returns>True if cache is valid and should be used.</returns>
+    private bool ShouldUseCache(string cachefile)
+    {
+      FileInfo fileInfo = new FileInfo(cachefile);
+      return fileInfo.Exists && DateTime.Now - fileInfo.LastWriteTime <= _maxCacheDuration;
     }
 
     /// <summary>
@@ -220,6 +233,10 @@ namespace MediaPortal.UiComponents.Weather.Grabbers
         if (node != null)
           city.Condition.Wind = node.Value + unit;
 
+        node = condition.SelectSingleNode("winddir16Point");
+        if (node != null)
+          city.Condition.Wind += " " + node.Value;
+
         node = condition.SelectSingleNode("humidity");
         if (node != null)
           city.Condition.Humidity = node.Value + PERCENT;
@@ -267,9 +284,9 @@ namespace MediaPortal.UiComponents.Weather.Grabbers
         if (node != null)
           dayForeCast.Wind = node.Value + unit;
 
-        node = forecasts.Current.SelectSingleNode("winddirection");
+        node = forecasts.Current.SelectSingleNode("winddir16Point");
         if (node != null)
-          dayForeCast.Wind += node.Value;
+          dayForeCast.Wind += " " + node.Value;
 
         node = forecasts.Current.SelectSingleNode("weatherCode");
         if (node != null)
