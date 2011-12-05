@@ -237,8 +237,9 @@ namespace MediaPortal.UI.SkinEngine.SkinManagement
     {
       if (!IsStylesInitialized)
         throw new IllegalCallException("SkinResources '{0}' were not prepared", this);
-      if (_localStyleResources.ContainsKey(resourceKey))
-        return _localStyleResources[resourceKey];
+      object result;
+      if (_localStyleResources.TryGetValue(resourceKey, out result))
+        return result;
       // This code will also allow to use resources from the default skin, if
       // they are not implemented in the current theme/skin.
       // If we wanted strictly not to mix resources between themes, the next
@@ -264,10 +265,11 @@ namespace MediaPortal.UI.SkinEngine.SkinManagement
       }
       CheckResourcesInitialized();
       string key = resourceName.ToLowerInvariant();
-      if (_localResourceFilePaths.ContainsKey(key))
+      string result;
+      if (_localResourceFilePaths.TryGetValue(key, out result))
       {
         resourceBundle = this;
-        return _localResourceFilePaths[key];
+        return result;
       }
       if (searchInheritedResources && _inheritedSkinResources != null)
         return _inheritedSkinResources.GetResourceFilePath(resourceName, true, out resourceBundle);
