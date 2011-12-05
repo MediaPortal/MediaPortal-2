@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Theme Name="Black Backdrop 2" Version="1.0">
+  <BasedOnTheme>Black Backdrop</BasedOnTheme>
   <ShortDescription>Black theme with backdrops 2</ShortDescription>
   <Preview>images\preview.png</Preview>
   <Author>Morpheus_xx</Author>
