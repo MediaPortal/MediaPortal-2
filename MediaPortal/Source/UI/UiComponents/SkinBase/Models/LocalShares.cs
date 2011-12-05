@@ -29,6 +29,7 @@ using MediaPortal.Common;
 using MediaPortal.Common.Logging;
 using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.ResourceAccess;
+using MediaPortal.Common.SystemResolver;
 using MediaPortal.UI.Shares;
 using MediaPortal.Utilities;
 
@@ -47,7 +48,9 @@ namespace MediaPortal.UiComponents.SkinBase.Models
 
     public LocalShares(Share share) : base(ShareEditMode.EditShare)
     {
-      InitializePropertiesWithShare(share);
+      ISystemResolver systemResolver = ServiceRegistration.Get<ISystemResolver>();
+      string localSystemName = systemResolver.GetSystemNameForSystemId(systemResolver.LocalSystemId).HostName ?? systemResolver.LocalSystemId;
+      InitializePropertiesWithShare(share, localSystemName);
     }
 
     public override string ConfigShareTitle

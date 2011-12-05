@@ -26,9 +26,11 @@ using System;
 using System.Collections.Generic;
 using MediaPortal.Common;
 using MediaPortal.Common.Exceptions;
+using MediaPortal.Common.General;
 using MediaPortal.Common.Logging;
 using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.ResourceAccess;
+using MediaPortal.Common.SystemResolver;
 using MediaPortal.UI.ServerCommunication;
 using RelocationMode=MediaPortal.Common.MediaManagement.RelocationMode;
 
@@ -47,7 +49,18 @@ namespace MediaPortal.UiComponents.SkinBase.Models
 
     public ServerShares(Share share) : base(ShareEditMode.EditShare)
     {
-      InitializePropertiesWithShare(share);
+      IServerConnectionManager serverConnectionManager = ServiceRegistration.Get<IServerConnectionManager>();
+      ISystemResolver systemResolver = ServiceRegistration.Get<ISystemResolver>();
+      string nativeSystem = serverConnectionManager.LastHomeServerName;
+      if (nativeSystem == null)
+      {
+        SystemName systemName = systemResolver.GetSystemNameForSystemId(serverConnectionManager.HomeServerSystemId);
+        if (systemName != null)
+          nativeSystem = systemName.HostName;
+      }
+      if (nativeSystem == null)
+        nativeSystem = serverConnectionManager.HomeServerSystemId;
+      InitializePropertiesWithShare(share, nativeSystem);
     }
 
     public override string ConfigShareTitle
