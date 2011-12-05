@@ -1,9 +1,6 @@
 using MediaPortal.Common;
-using MediaPortal.Common.PathManager;
 using MediaPortal.Common.PluginManager;
-using MediaPortal.Common.Settings;
 using MediaPortal.UiComponents.Weather.Grabbers;
-using MediaPortal.UiComponents.Weather.Settings;
 
 namespace MediaPortal.UiComponents.Weather
 {
@@ -13,10 +10,6 @@ namespace MediaPortal.UiComponents.Weather
 
     public void Activated(PluginRuntime pluginRuntime)
     {
-      WeatherSettings settings = ServiceRegistration.Get<ISettingsManager>().Load<WeatherSettings>();
-      //ServiceRegistration.Set<IWeatherCatcher>(new WeatherDotComCatcher(
-      //    settings.TemperatureUnit, settings.WindSpeedUnit, ServiceRegistration.Get<IPathManager>().GetPath(settings.ParsefileLocation),
-      //    settings.SkipConnectionTest));
       ServiceRegistration.Set<IWeatherCatcher>(new WorldWeatherOnlineCatcher());
     }
 

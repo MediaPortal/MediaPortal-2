@@ -84,7 +84,6 @@
     <Compile Include="Helper Classes\DayForeCast.cs" />
     <Compile Include="Helper Classes\Helper.cs" />
     <Compile Include="Helper Classes\IWeatherCatcher.cs" />
-    <Compile Include="Grabbers\WeatherDotComCatcher.cs" />
     <Compile Include="Helper Classes\LocInfo.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <EmbeddedResource Include="Properties\Resources.resx">
