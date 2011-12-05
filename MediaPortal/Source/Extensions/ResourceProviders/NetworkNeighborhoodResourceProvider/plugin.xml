@@ -1,0 +1,22 @@
+﻿<Plugin
+    DescriptorVersion="1.0"
+    Name="NetworkNeighborhoodResourceProvider"
+    PluginId="{B1F33F5C-3E2C-4151-9DCE-9F965CA5CDFC}"
+    Author="Albert"
+    Copyright="GPL"
+    Description="Network neighborhood resource provider"
+    PluginVersion="1.0">
+
+  <Runtime>
+    <Assembly FileName="NetworkNeighborhoodResourceProvider.dll"/>
+  </Runtime>
+
+  <Register Location="/Media/ResourceProviders">
+    <Instance Id="NetworkNeighborhoodProvider" ClassName="MediaPortal.Extensions.ResourceProviders.NetworkNeighborhoodResourceProvider.NetworkNeighborhoodResourceProvider"/>
+  </Register>
+
+  <Register Location="/Resources/Language">
+    <Resource Id="NetworkNeighborhoodResourceProviderLanguage" Directory="Language" Type="Language"/>
+  </Register>
+</Plugin>
+
