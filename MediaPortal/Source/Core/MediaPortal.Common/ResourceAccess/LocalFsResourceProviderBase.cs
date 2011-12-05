@@ -79,7 +79,7 @@ namespace MediaPortal.Common.ResourceAccess
     public static string ToProviderPath(string dosPath)
     {
       dosPath = dosPath.Replace(Path.DirectorySeparatorChar, '/');
-      return StringUtils.CheckPrefix(dosPath, "/");
+      return "/" + dosPath;
     }
 
     /// <summary>
