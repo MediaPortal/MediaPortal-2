@@ -89,7 +89,7 @@ namespace MediaPortal.Common.ResourceAccess
     /// <returns>Resource path instance for the given DOS path.</returns>
     public static ResourcePath ToResourcePath(string dosPath)
     {
-      return ResourcePath.BuildBaseProviderPath(LOCAL_FS_RESOURCE_PROVIDER_ID, "/" + dosPath.Replace(Path.DirectorySeparatorChar, '/'));
+      return ResourcePath.BuildBaseProviderPath(LOCAL_FS_RESOURCE_PROVIDER_ID, ToProviderPath(dosPath));
     }
 
     #endregion
