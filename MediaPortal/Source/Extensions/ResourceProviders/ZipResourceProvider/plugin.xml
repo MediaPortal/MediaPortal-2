@@ -4,7 +4,7 @@
     PluginId="{6B042DB8-69AD-4B57-B869-1BCEA4E43C77}"
     Author="Bavarian"
     Copyright="GPL"
-    Description="Zip Files Resource Provider"
+    Description="Zip files resource provider"
     PluginVersion="1.0">
 
   <Runtime>
