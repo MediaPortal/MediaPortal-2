@@ -91,6 +91,9 @@
     <Compile Include="CommandLine\TargetWrapper.cs" />
     <Compile Include="CommandLine\ValueListAttribute.cs" />
     <Compile Include="Conversion\Conversion.cs" />
+    <Compile Include="Network\NetworkResourcesEnumerator.cs" />
+    <Compile Include="Network\Share.cs" />
+    <Compile Include="Network\SharesEnumerator.cs" />
     <Compile Include="ThreadingUtils.cs" />
     <Compile Include="DB\InstructionList.cs" />
     <Compile Include="DB\SQLUtils.cs" />
