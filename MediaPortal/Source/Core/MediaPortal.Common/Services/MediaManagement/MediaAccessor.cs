@@ -56,7 +56,7 @@ namespace MediaPortal.Common.Services.MediaManagement
     public const string MY_PICTURES_SHARE_NAME_RESOURCE = "[Media.MyPictures]";
 
     // Constants will be moved to some constants class
-    protected const string RESOURCE_PROVIDERS_PLUGIN_LOCATION = "/Media/ResourceProviders";
+    protected const string RESOURCE_PROVIDERS_PLUGIN_LOCATION = "/ResourceProviders";
     protected const string METADATA_EXTRACTORS_PLUGIN_LOCATION = "/Media/MetadataExtractors";
 
     protected const string METADATA_EXTRACTORS_USE_COMPONENT_NAME = "MediaAccessor: MetadataExtractors";

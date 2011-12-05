@@ -15,7 +15,7 @@
     <Assembly FileName="IsoResourceProvider.dll"/>
   </Runtime>
 
-  <Register Location="/Media/ResourceProviders">
+  <Register Location="/ResourceProviders">
     <Instance Id="IsoProvider" ClassName="MediaPortal.Extensions.ResourceProviders.IsoResourceProvider.IsoResourceProvider"/>
   </Register>
 

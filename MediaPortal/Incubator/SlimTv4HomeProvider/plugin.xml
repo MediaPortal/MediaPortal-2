@@ -52,7 +52,7 @@
   </Register>
   
   <!-- The ResourceProvider to access Tve3. -->
-  <Register Location="/Media/ResourceProviders">
+  <Register Location="/ResourceProviders">
     <Instance Id="SlimTvProvider" ClassName="MediaPortal.Plugins.SlimTv.Providers.SlimTvResourceProvider"/>
   </Register>
 </Plugin>

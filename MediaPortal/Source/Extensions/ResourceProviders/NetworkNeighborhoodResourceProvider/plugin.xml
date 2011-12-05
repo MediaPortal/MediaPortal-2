@@ -11,7 +11,7 @@
     <Assembly FileName="NetworkNeighborhoodResourceProvider.dll"/>
   </Runtime>
 
-  <Register Location="/Media/ResourceProviders">
+  <Register Location="/ResourceProviders">
     <Instance Id="NetworkNeighborhoodProvider" ClassName="MediaPortal.Extensions.ResourceProviders.NetworkNeighborhoodResourceProvider.NetworkNeighborhoodResourceProvider"/>
   </Register>
 

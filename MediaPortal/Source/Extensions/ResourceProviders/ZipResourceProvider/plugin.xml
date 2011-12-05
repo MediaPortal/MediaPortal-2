@@ -11,7 +11,7 @@
     <Assembly FileName="ZipResourceProvider.dll"/>
   </Runtime>
 
-  <Register Location="/Media/ResourceProviders">
+  <Register Location="/ResourceProviders">
     <Instance Id="ZipProvider" ClassName="MediaPortal.Extensions.ResourceProviders.ZipResourceProvider.ZipResourceProvider"/>
   </Register>
 
