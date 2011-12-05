@@ -703,6 +703,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
       {
         if (IsViewPortAtBottom)
           return false;
+        CalcHelper.Bound(ref numLines, 0, _actualLastVisibleChildIndex - _actualFirstVisibleChildIndex);
         SetScrollIndex(_actualFirstVisibleChildIndex + numLines, true);
         return true;
       }
@@ -715,6 +716,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
       {
         if (IsViewPortAtTop)
           return false;
+        CalcHelper.Bound(ref numLines, 0, _actualLastVisibleChildIndex - _actualFirstVisibleChildIndex);
         SetScrollIndex(_actualFirstVisibleChildIndex - numLines, true);
         return true;
       }
