@@ -88,6 +88,11 @@ namespace MediaPortal.Common.Services.ResourceAccess.RemoteResourceProvider
       get { return _isFile; }
     }
 
+    public string Path
+    {
+      get { return RemoteResourceProvider.BuildProviderPath(_nativeSystemId, _nativeResourcePath); }
+    }
+
     public string ResourceName
     {
       get { return _resourceName; }

@@ -107,6 +107,11 @@ namespace MediaPortal.Extensions.ResourceProviders.AudioCDResourceProvider
       get { return false; }
     }
 
+    public string Path
+    {
+      get { return AudioCDResourceProvider.BuildProviderPath(_drive, _trackNo); }
+    }
+
     public string ResourceName
     {
       get { return string.Format("Track {0}", _trackNo); }

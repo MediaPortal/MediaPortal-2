@@ -59,7 +59,7 @@ namespace MediaPortal.Common.Services.ResourceAccess.StreamedResourceToLocalFsAc
       _mountingDataProxy = mountingDataProxy;
       _mountingDataProxy.IncUsage();
       _path = path;
-      _localFsPath = Path.Combine(_mountingDataProxy.LocalFileSystemPath, ToDosPath(StringUtils.RemovePrefixIfPresent(_path, "/")));
+      _localFsPath = System.IO.Path.Combine(_mountingDataProxy.LocalFileSystemPath, ToDosPath(StringUtils.RemovePrefixIfPresent(_path, "/")));
     }
 
     public void Dispose()
@@ -189,7 +189,7 @@ namespace MediaPortal.Common.Services.ResourceAccess.StreamedResourceToLocalFsAc
 
     public bool ResourceExists(string path)
     {
-      string dosPath = Path.Combine(_localFsPath, ToDosPath(path));
+      string dosPath = System.IO.Path.Combine(_localFsPath, ToDosPath(path));
       return File.Exists(dosPath) || Directory.Exists(dosPath);
     }
 
@@ -256,9 +256,14 @@ namespace MediaPortal.Common.Services.ResourceAccess.StreamedResourceToLocalFsAc
       get { return Directory.Exists(_localFsPath); }
     }
 
+    public string Path
+    {
+      get { return _path; }
+    }
+
     public string ResourceName
     {
-      get { return Path.GetFileName(_localFsPath); }
+      get { return System.IO.Path.GetFileName(_localFsPath); }
     }
 
     public string ResourcePathName

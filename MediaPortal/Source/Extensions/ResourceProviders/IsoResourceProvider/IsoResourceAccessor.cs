@@ -117,12 +117,12 @@ namespace MediaPortal.Extensions.ResourceProviders.IsoResourceProvider
     protected internal static string ToIsoPath(string providerPath)
     {
       providerPath = StringUtils.RemovePrefixIfPresent(providerPath, "/");
-      return providerPath.Replace('/', Path.DirectorySeparatorChar);
+      return providerPath.Replace('/', System.IO.Path.DirectorySeparatorChar);
     }
 
     protected internal static string ToProviderPath(string dosPath)
     {
-      string path = dosPath.Replace(Path.DirectorySeparatorChar, '/');
+      string path = dosPath.Replace(System.IO.Path.DirectorySeparatorChar, '/');
       return StringUtils.CheckPrefix(path, "/");
     }
 
@@ -157,6 +157,11 @@ namespace MediaPortal.Extensions.ResourceProviders.IsoResourceProvider
     public bool Exists
     {
       get { return true; }
+    }
+
+    public string Path
+    {
+      get { return _pathToDirOrFile; }
     }
 
     public string ResourceName

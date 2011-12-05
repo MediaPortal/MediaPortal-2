@@ -62,6 +62,11 @@ namespace MediaPortal.Common.ResourceAccess
     bool IsFile { get; }
 
     /// <summary>
+    /// Returns the resource provider path of this resource accessor.
+    /// </summary>
+    string Path { get; }
+
+    /// <summary>
     /// Returns a short, human readable name for this resource.
     /// </summary>
     /// <value>A human readable name of this resource. For a filesystem resource accessor,

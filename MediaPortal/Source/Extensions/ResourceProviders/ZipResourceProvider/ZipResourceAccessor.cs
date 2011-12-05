@@ -197,6 +197,11 @@ namespace MediaPortal.Extensions.ResourceProviders.ZipResourceProvider
       get { return _zipEntry != null && !_isDirectory; }
     }
 
+    public string Path
+    {
+      get { return _pathToDirOrFile; }
+    }
+
     public string ResourceName
     {
       get

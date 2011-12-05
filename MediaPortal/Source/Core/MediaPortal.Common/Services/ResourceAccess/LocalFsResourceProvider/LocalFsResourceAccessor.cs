@@ -49,7 +49,7 @@ namespace MediaPortal.Common.Services.ResourceAccess.LocalFsResourceProvider
     {
       string rootPath = StringUtils.CheckSuffix(_path, "/");
       return namesWithPathPrefix.Select(filePath => new LocalFsResourceAccessor(
-          _provider, rootPath + Path.GetFileName(filePath) + (isDirectory ? "/" : string.Empty))).Cast<IFileSystemResourceAccessor>().ToList();
+          _provider, rootPath + System.IO.Path.GetFileName(filePath) + (isDirectory ? "/" : string.Empty))).Cast<IFileSystemResourceAccessor>().ToList();
     }
 
     #region ILocalFsResourceAccessor implementation
@@ -187,6 +187,11 @@ namespace MediaPortal.Common.Services.ResourceAccess.LocalFsResourceProvider
       }
     }
 
+    public string Path
+    {
+      get { return _path; }
+    }
+
     public string ResourceName
     {
       get
@@ -204,7 +209,7 @@ namespace MediaPortal.Common.Services.ResourceAccess.LocalFsResourceProvider
           return di.IsReady ? string.Format("[{0}] {1}", path, di.VolumeLabel) : path;
         }
         path = LocalFsResourceProviderBase.ToDosPath(StringUtils.RemoveSuffixIfPresent(path, "/"));
-        return Path.GetFileName(path);
+        return System.IO.Path.GetFileName(path);
       }
     }
 

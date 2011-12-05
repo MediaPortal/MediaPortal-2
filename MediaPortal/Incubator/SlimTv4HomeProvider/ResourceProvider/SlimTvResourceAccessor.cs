@@ -73,9 +73,14 @@ namespace MediaPortal.Plugins.SlimTv.Providers
       get { return true; }
     }
 
+    public string Path
+    {
+      get { return _path; }
+    }
+
     public string ResourceName
     {
-      get { return Path.GetFileName(_path); }
+      get { return System.IO.Path.GetFileName(_path); }
     }
 
     public string ResourcePathName
