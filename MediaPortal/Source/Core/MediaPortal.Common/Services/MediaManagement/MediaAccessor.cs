@@ -247,30 +247,12 @@ namespace MediaPortal.Common.Services.MediaManagement
 
     public IEnumerable<IBaseResourceProvider> LocalBaseResourceProviders
     {
-      get
-      {
-        foreach (IResourceProvider resourceProvider in LocalResourceProviders.Values)
-        {
-          IBaseResourceProvider provider = resourceProvider as IBaseResourceProvider;
-          if (provider != null)
-            yield return provider;
-        }
-        yield break;
-      }
+      get { return LocalResourceProviders.Values.OfType<IBaseResourceProvider>(); }
     }
 
     public IEnumerable<IChainedResourceProvider> LocalChainedResourceProviders
     {
-      get
-      {
-        foreach (IResourceProvider resourceProvider in LocalResourceProviders.Values)
-        {
-          IChainedResourceProvider provider = resourceProvider as IChainedResourceProvider;
-          if (provider != null)
-            yield return provider;
-        }
-        yield break;
-      }
+      get { return LocalResourceProviders.Values.OfType<IChainedResourceProvider>(); }
     }
 
     public IDictionary<Guid, IMetadataExtractor> LocalMetadataExtractors
