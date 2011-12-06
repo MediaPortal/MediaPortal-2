@@ -55,6 +55,7 @@ namespace MediaPortal.Extensions.ResourceProviders.ZipResourceProvider
     public static Guid ZIP_RESOURCE_PROVIDER_ID = new Guid(ZIP_RESOURCE_PROVIDER_ID_STR);
 
     protected const string RES_RESOURCE_PROVIDER_NAME = "[ZipResourceProvider.Name]";
+    protected const string RES_RESOURCE_PROVIDER_DESCRIPTION = "[ZipResourceProvider.Description]";
 
     #endregion
 
@@ -71,7 +72,7 @@ namespace MediaPortal.Extensions.ResourceProviders.ZipResourceProvider
 
     public ZipResourceProvider()
     {
-      _metadata = new ResourceProviderMetadata(ZIP_RESOURCE_PROVIDER_ID, RES_RESOURCE_PROVIDER_NAME, false);
+      _metadata = new ResourceProviderMetadata(ZIP_RESOURCE_PROVIDER_ID, RES_RESOURCE_PROVIDER_NAME, RES_RESOURCE_PROVIDER_DESCRIPTION, false);
     }
 
     #endregion

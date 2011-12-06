@@ -47,6 +47,7 @@ namespace MediaPortal.Extensions.ResourceProviders.AudioCDResourceProvider
     public static Guid AUDIO_CD_RESOURCE_PROVIDER_ID = new Guid(AUDIO_CD_RESOURCE_PROVIDER_ID_STR);
 
     protected const string RES_RESOURCE_PROVIDER_NAME = "[AudioCDResourceProvider.Name]";
+    protected const string RES_RESOURCE_PROVIDER_DESCRIPTION = "[AudioCDResourceProvider.Description]";
 
     #endregion
 
@@ -60,7 +61,7 @@ namespace MediaPortal.Extensions.ResourceProviders.AudioCDResourceProvider
 
     public AudioCDResourceProvider()
     {
-      _metadata = new ResourceProviderMetadata(AUDIO_CD_RESOURCE_PROVIDER_ID, RES_RESOURCE_PROVIDER_NAME, true);
+      _metadata = new ResourceProviderMetadata(AUDIO_CD_RESOURCE_PROVIDER_ID, RES_RESOURCE_PROVIDER_NAME, RES_RESOURCE_PROVIDER_DESCRIPTION, true);
     }
 
     public bool TryExtract(string path, out char drive, out byte trackNo)

@@ -42,6 +42,7 @@ namespace MediaPortal.Common.Services.ResourceAccess.RemoteResourceProvider
     public static Guid REMOTE_RESOURCE_PROVIDER_ID = new Guid(REMOTE_RESOURCE_PROVIDER_ID_STR);
 
     protected const string RES_RESOURCE_PROVIDER_NAME = "[RemoteResourceProvider.Name]";
+    protected const string RES_RESOURCE_PROVIDER_DESCRIPTION = "[RemoteResourceProvider.Description]";
 
     #endregion
 
@@ -55,7 +56,7 @@ namespace MediaPortal.Common.Services.ResourceAccess.RemoteResourceProvider
 
     public RemoteResourceProvider()
     {
-      _metadata = new ResourceProviderMetadata(REMOTE_RESOURCE_PROVIDER_ID, RES_RESOURCE_PROVIDER_NAME, true);
+      _metadata = new ResourceProviderMetadata(REMOTE_RESOURCE_PROVIDER_ID, RES_RESOURCE_PROVIDER_NAME, RES_RESOURCE_PROVIDER_DESCRIPTION, true);
     }
 
     #endregion

@@ -48,6 +48,7 @@ namespace MediaPortal.Extensions.ResourceProviders.IsoResourceProvider
     public static Guid ISO_RESOURCE_PROVIDER_ID = new Guid(ISO_RESOURCE_PROVIDER_ID_STR);
 
     protected const string RES_RESOURCE_PROVIDER_NAME = "[IsoResourceProvider.Name]";
+    protected const string RES_RESOURCE_PROVIDER_DESCRIPTION = "[IsoResourceProvider.Description]";
 
     #endregion
 
@@ -64,7 +65,7 @@ namespace MediaPortal.Extensions.ResourceProviders.IsoResourceProvider
 
     public IsoResourceProvider()
     {
-      _metadata = new ResourceProviderMetadata(ISO_RESOURCE_PROVIDER_ID, RES_RESOURCE_PROVIDER_NAME, false);
+      _metadata = new ResourceProviderMetadata(ISO_RESOURCE_PROVIDER_ID, RES_RESOURCE_PROVIDER_NAME, RES_RESOURCE_PROVIDER_DESCRIPTION, false);
     }
 
     #endregion

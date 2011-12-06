@@ -44,6 +44,7 @@ namespace MediaPortal.Common.MediaManagement
 
     protected Guid _resourceProviderId;
     protected string _name;
+    protected string _description;
     protected bool _transientMedia;
 
     // We could use some cache for this instance, if we would have one...
@@ -51,10 +52,11 @@ namespace MediaPortal.Common.MediaManagement
 
     #endregion
 
-    public ResourceProviderMetadata(Guid resourceProviderId, string name, bool transientMedia)
+    public ResourceProviderMetadata(Guid resourceProviderId, string name, string description, bool transientMedia)
     {
       _resourceProviderId = resourceProviderId;
       _name = name;
+      _description = description;
       _transientMedia = transientMedia;
     }
 
@@ -74,6 +76,15 @@ namespace MediaPortal.Common.MediaManagement
     public string Name
     {
       get { return _name; }
+    }
+
+    /// <summary>
+    /// Returns the description of the resource provider.
+    /// </summary>
+    [XmlIgnore]
+    public string Description
+    {
+      get { return _description; }
     }
 
     /// <summary>
@@ -125,6 +136,16 @@ namespace MediaPortal.Common.MediaManagement
     {
       get { return _name; }
       set { _name = value; }
+    }
+
+    /// <summary>
+    /// For internal use of the XML serialization system only.
+    /// </summary>
+    [XmlAttribute("Description")]
+    public string XML_Description
+    {
+      get { return _description; }
+      set { _description = value; }
     }
 
     /// <summary>

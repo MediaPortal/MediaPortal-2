@@ -46,6 +46,7 @@ namespace MediaPortal.Plugins.SlimTv.Providers
     public static Guid SLIMTV_RESOURCE_PROVIDER_ID = new Guid(SLIMTV_RESOURCE_PROVIDER_ID_STR);
 
     protected const string RES_RESOURCE_PROVIDER_NAME = "[SlimTvResourceProvider.Name]";
+    protected const string RES_RESOURCE_PROVIDER_DESCRIPTION = "[SlimTvResourceProvider.Description]";
 
     #endregion
 
@@ -57,7 +58,7 @@ namespace MediaPortal.Plugins.SlimTv.Providers
 
     public SlimTvResourceProvider()
     {
-      _metadata = new ResourceProviderMetadata(SLIMTV_RESOURCE_PROVIDER_ID, RES_RESOURCE_PROVIDER_NAME, true);
+      _metadata = new ResourceProviderMetadata(SLIMTV_RESOURCE_PROVIDER_ID, RES_RESOURCE_PROVIDER_NAME, RES_RESOURCE_PROVIDER_DESCRIPTION, true);
     }
 
     #endregion
