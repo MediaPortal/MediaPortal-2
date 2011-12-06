@@ -409,13 +409,38 @@
     <Setter Property="Template">
       <Setter.Value>
         <ControlTemplate TargetType="{x:Type ListViewItem}">
-          <RadioButton x:Name="ShareMarker" Margin="2,1,0,1"
+          <RadioButton x:Name="Selection" Margin="2,1,0,1"
               IsChecked="{Binding Path=Selected,Mode=TwoWay}" GroupName="RadioButtonGroup"
               Content="{Binding}">
             <RadioButton.Triggers>
               <Trigger Property="HasFocus" Value="True">
                 <Setter TargetName="ShareName" Property="Scroll" Value="Auto"/>
                 <Setter TargetName="SharePath" Property="Scroll" Value="Auto"/>
+                <Setter TargetName="ItemControl" Property="Background">
+                  <Setter.Value>
+                    <SolidColorBrush Color="{ThemeResource PassiveFocusBackgroundColor}"/>
+                  </Setter.Value>
+                </Setter>
+              </Trigger>
+            </RadioButton.Triggers>
+          </RadioButton>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
+
+  <!-- Container style for a resource provider entry markable with a radio button in the resource providers list -->
+  <Style x:Key="SingleMarkableResourceProviderContainerStyle" BasedOn="{ThemeResource DefaultItemContainerStyle}">
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate TargetType="{x:Type ListViewItem}">
+          <RadioButton x:Name="Selection" Margin="2,1,0,1"
+              IsChecked="{Binding Path=Selected,Mode=TwoWay}" GroupName="RadioButtonGroup"
+              Content="{Binding}">
+            <RadioButton.Triggers>
+              <Trigger Property="HasFocus" Value="True">
+                <Setter TargetName="ResourceProviderName" Property="Scroll" Value="Auto"/>
+                <Setter TargetName="ResourceProviderDescription" Property="Scroll" Value="Auto"/>
                 <Setter TargetName="ItemControl" Property="Background">
                   <Setter.Value>
                     <SolidColorBrush Color="{ThemeResource PassiveFocusBackgroundColor}"/>
@@ -483,7 +508,7 @@
         <ColumnDefinition Width="*"/>
       </Grid.ColumnDefinitions>
       <Label x:Name="ShareName" Grid.Column="0" Content="{Binding [Name]}" FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource TextColor}"/>
-      <Label x:Name="SharePath" Grid.Column="1" Content="{Binding [Path]}" FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource TextColor}"/>
+      <Label x:Name="SharePath" Grid.Column="1" Content="{Binding [Path]}" FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource HintTextColor}"/>
 <!-- Additionally available properties to show here:
       <Label x:Name="ShareProvider" Grid.Column="2" Content="{Binding AdditionalProperties[ResourceProviderMetadata].Name}"
           Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}"/>
@@ -494,6 +519,24 @@
   </DataTemplate>
 
   <DataStringProvider x:Key="ShareItemDataStringProvider" Path="[Name]"/>
+
+  <!-- Data template for a simple resource provider entry in the resource providers list -->
+  <DataTemplate x:Key="ResourceProviderItemDataTemplate" DataType="{x:Type collections:ListItem}">
+    <Grid x:Name="ItemControl">
+      <Grid.RowDefinitions>
+        <RowDefinition Height="*"/>
+      </Grid.RowDefinitions>
+      <Grid.ColumnDefinitions>
+        <ColumnDefinition Width="400"/>
+        <ColumnDefinition Width="*"/>
+      </Grid.ColumnDefinitions>
+      <Label x:Name="ResourceProviderName" Grid.Column="0" Content="{Binding [Name]}" FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource TextColor}"/>
+      <Label x:Name="ResourceProviderDescription" Grid.Column="1" Content="{Binding AdditionalProperties[ResourceProviderMetadata].Description}"
+          FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource HintTextColor}"/>
+    </Grid>
+  </DataTemplate>
+
+  <DataStringProvider x:Key="ResourceProviderItemDataStringProvider" Path="[Name]"/>
 
   <!-- ***************************** ListView styles ********************************* -->
 
@@ -636,6 +679,31 @@
     <Setter Property="ItemTemplate" Value="{ThemeResource ShareItemDataTemplate}"/>
     <Setter Property="DataStringProvider" Value="{ThemeResource ShareItemDataStringProvider}"/>
     <Setter Property="ItemContainerStyle" Value="{ThemeResource SingleMarkableShareContainerStyle}"/>
+  </Style>
+
+  <!-- ListView style to be used for the resource providers list -->
+  <Style x:Key="SingleMarkableResourceProvidersListViewStyle" BasedOn="{ThemeResource ContentsMenuListViewStyle}">
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate TargetType="{x:Type ListView}">
+          <Grid>
+            <Grid.RowDefinitions>
+              <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+            <Grid.ColumnDefinitions>
+              <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+            <ScrollViewer CanContentScroll="True" Margin="5" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+                Background="{ThemeResource ItemsControlShadowBackgroundColor}">
+              <ItemsPresenter VerticalAlignment="Stretch" HorizontalAlignment="Stretch"/>
+            </ScrollViewer>
+          </Grid>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+    <Setter Property="ItemTemplate" Value="{ThemeResource ResourceProviderItemDataTemplate}"/>
+    <Setter Property="DataStringProvider" Value="{ThemeResource ResourceProviderItemDataStringProvider}"/>
+    <Setter Property="ItemContainerStyle" Value="{ThemeResource SingleMarkableResourceProviderContainerStyle}"/>
   </Style>
 
   <!-- ListView style to be used for lists where multiple items can be marked -->
