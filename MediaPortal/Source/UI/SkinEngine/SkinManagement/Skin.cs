@@ -84,7 +84,11 @@ namespace MediaPortal.UI.SkinEngine.SkinManagement
     /// </summary>
     public string BasedOnSkin
     {
-      get { return _basedOnSkin; }
+      get
+      {
+        CheckMetadataInitialized();
+        return _basedOnSkin;
+      }
     }
 
     /// <summary>
@@ -94,22 +98,38 @@ namespace MediaPortal.UI.SkinEngine.SkinManagement
     /// </summary>
     public string BasedOnTheme
     {
-      get { return _basedOnTheme; }
+      get
+      {
+        CheckMetadataInitialized();
+        return _basedOnTheme;
+      }
     }
 
     public string ShortDescription
     {
-      get { return _description; }
+      get
+      {
+        CheckMetadataInitialized();
+        return _description;
+      }
     }
 
     public string UsageNote
     {
-      get { return _usageNote; }
+      get
+      {
+        CheckMetadataInitialized();
+        return _usageNote;
+      }
     }
 
     public string PreviewResourceKey
     {
-      get { return _previewResourceKey; }
+      get
+      {
+        CheckMetadataInitialized();
+        return _previewResourceKey;
+      }
     }
 
     /// <summary>
@@ -229,6 +249,7 @@ namespace MediaPortal.UI.SkinEngine.SkinManagement
 
     internal override void SetupResourceChain(IDictionary<string, Skin> skins, Skin defaultSkin)
     {
+      CheckMetadataInitialized();
       Skin basedOnSkin;
       if (_basedOnSkin != null && skins.TryGetValue(_basedOnSkin, out basedOnSkin))
       {
