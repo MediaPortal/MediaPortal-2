@@ -37,6 +37,12 @@ namespace MediaPortal.Common.Services.ResourceAccess.LocalFsResourceProvider
   /// </summary>
   public class LocalFsResourceProvider : LocalFsResourceProviderBase, IBaseResourceProvider
   {
+    #region Consts
+
+    protected const string RES_RESOURCE_PROVIDER_NAME = "[LocalFsResourceProvider.Name]";
+
+    #endregion 
+
     protected class ChangeTrackerRegistrationKey
     {
       #region Protected fields
@@ -94,7 +100,7 @@ namespace MediaPortal.Common.Services.ResourceAccess.LocalFsResourceProvider
 
     public LocalFsResourceProvider()
     {
-      _metadata = new ResourceProviderMetadata(LOCAL_FS_RESOURCE_PROVIDER_ID, "[LocalFsResourceProvider.Name]", false);
+      _metadata = new ResourceProviderMetadata(LOCAL_FS_RESOURCE_PROVIDER_ID, RES_RESOURCE_PROVIDER_NAME, false);
       _instance = this;
     }
 
