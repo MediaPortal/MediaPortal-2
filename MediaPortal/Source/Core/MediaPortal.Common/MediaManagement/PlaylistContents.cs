@@ -36,6 +36,12 @@ namespace MediaPortal.Common.MediaManagement
   /// <summary>
   /// Contains playlist identification data and a list of media items.
   /// </summary>
+  /// <remarks>
+  /// <para>
+  /// Note: This class is serialized/deserialized by the <see cref="XmlSerializer"/>.
+  /// If changed, this has to be taken into consideration.
+  /// </para>
+  /// </remarks>
   public class PlaylistContents : PlaylistBase
   {
     protected readonly IList<MediaItem> _itemList = new List<MediaItem>();

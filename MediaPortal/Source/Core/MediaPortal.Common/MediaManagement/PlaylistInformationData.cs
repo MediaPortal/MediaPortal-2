@@ -33,6 +33,12 @@ namespace MediaPortal.Common.MediaManagement
   /// <summary>
   /// Contains some playlist information data: Name, id, type and number of items.
   /// </summary>
+  /// <remarks>
+  /// <para>
+  /// Note: This class is serialized/deserialized by the <see cref="XmlSerializer"/>.
+  /// If changed, this has to be taken into consideration.
+  /// </para>
+  /// </remarks>
   public class PlaylistInformationData : PlaylistBase
   {
     protected int _numItems;
