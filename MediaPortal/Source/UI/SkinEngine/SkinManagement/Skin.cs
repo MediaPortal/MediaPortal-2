@@ -290,8 +290,7 @@ namespace MediaPortal.UI.SkinEngine.SkinManagement
               case "Name":
                 if (_name != null && _name != attrNav.Value)
                   throw new ArgumentException("Skin name '" + _name + "' doesn't correspond to specified name '" + attrNav.Value + "'");
-                else
-                  _name = attrNav.Value;
+                _name = attrNav.Value;
                 break;
               default:
                 throw new ArgumentException("Attribute '" + attrNav.Name + "' is unknown");
