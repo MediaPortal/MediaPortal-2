@@ -320,8 +320,7 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
           case ScreenManagerMessaging.MessageType.ShowScreen:
             screen = (Screen) message.MessageData[ScreenManagerMessaging.SCREEN];
             bool closeDialogs = (bool) message.MessageData[ScreenManagerMessaging.CLOSE_DIALOGS];
-            bool forceUpdate = (bool) message.MessageData[ScreenManagerMessaging.FORCE_UPDATE];
-            DoShowScreen_NoLock(screen, forceUpdate, closeDialogs);
+            DoShowScreen_NoLock(screen, closeDialogs);
             DecPendingOperations();
             break;
           case ScreenManagerMessaging.MessageType.SetSuperLayer:
@@ -608,15 +607,9 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
       return true;
     }
 
-    protected internal void DoShowScreen_NoLock(Screen screen, bool forceUpdate, bool closeDialogs)
+    protected internal void DoShowScreen_NoLock(Screen screen, bool closeDialogs)
     {
       ServiceRegistration.Get<ILogger>().Debug("ScreenManager: Showing screen '{0}'...", screen.ResourceName);
-      if (_nextScreen == null && _currentScreen != null && _currentScreen.ResourceName == screen.ResourceName && !forceUpdate)
-      {
-        screen.ScreenState = Screen.State.Closed;
-        ScheduleDisposeScreen(screen);
-        return;
-      }
       DoStartClosingScreen_NoLock(_currentScreen);
       if (closeDialogs)
         DoCloseDialogs_NoLock(true, false);
@@ -1397,25 +1390,35 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
 
     public Guid? CheckScreen(string screenName)
     {
-      return ShowScreen(screenName, false, true);
+      lock (_syncObj)
+      {
+        Screen screen = _nextScreen ?? _currentScreen;
+        if (screen != null && screen.ResourceName == screenName)
+          return _currentScreen.ScreenInstanceId;
+      }
+      return ShowScreen(screenName, true);
     }
 
     public Guid? CheckScreen(string screenName, bool backgroundEnabled)
     {
-      return ShowScreen(screenName, false, backgroundEnabled);
+      lock (_syncObj)
+      {
+        Screen screen = _nextScreen ?? _currentScreen;
+        if (screen != null && screen.ResourceName == screenName)
+        {
+          BackgroundDisabled = !backgroundEnabled;
+          return _currentScreen.ScreenInstanceId;
+        }
+      }
+      return ShowScreen(screenName, backgroundEnabled);
     }
 
     public Guid? ShowScreen(string screenName)
     {
-      return ShowScreen(screenName, true, true);
+      return ShowScreen(screenName, true);
     }
 
     public Guid? ShowScreen(string screenName, bool backgroundEnabled)
-    {
-      return ShowScreen(screenName, true, backgroundEnabled);
-    }
-
-    public Guid? ShowScreen(string screenName, bool forceUpdate, bool backgroundEnabled)
     {
       ServiceRegistration.Get<ILogger>().Debug("ScreenManager: Preparing to show screen '{0}'...", screenName);
       Screen newScreen = GetScreen(screenName, ScreenType.ScreenOrDialog);
@@ -1425,7 +1428,7 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
 
       newScreen.HasBackground = backgroundEnabled;
       IncPendingOperations();
-      ScreenManagerMessaging.SendMessageShowScreen(newScreen, forceUpdate, true);
+      ScreenManagerMessaging.SendMessageShowScreen(newScreen, true);
       return newScreen.ScreenInstanceId;
     }
 
@@ -1444,7 +1447,7 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
 
       newScreen.HasBackground = backgroundEnabled;
       IncPendingOperations();
-      ScreenManagerMessaging.SendMessageShowScreen(newScreen, true, false);
+      ScreenManagerMessaging.SendMessageShowScreen(newScreen, false);
       return true;
     }
 
