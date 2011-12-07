@@ -110,6 +110,7 @@
     <Compile Include="Controls\Animations\Storyboard.cs" />
     <Compile Include="Controls\Animations\Timeline.cs" />
     <Compile Include="Controls\Animations\TimelineGroup.cs" />
+    <Compile Include="Controls\ImageSources\PicturePlayerImageSource.cs" />
     <Compile Include="Controls\ImageSources\TextureImageSource.cs" />
     <Compile Include="Controls\ImageSources\MultiImageSourceBase.cs" />
     <Compile Include="Controls\ImageSources\BitmapImageSource.cs" />

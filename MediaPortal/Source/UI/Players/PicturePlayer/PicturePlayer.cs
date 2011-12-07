@@ -23,17 +23,22 @@
 #endregion
 
 using System;
+using System.Drawing;
+using System.IO;
 using System.Threading;
 using MediaPortal.Common;
 using MediaPortal.Common.ResourceAccess;
 using MediaPortal.Common.Settings;
 using MediaPortal.UI.Players.Picture.Settings;
 using MediaPortal.UI.Presentation.Players;
+using MediaPortal.UI.SkinEngine.Players;
+using MediaPortal.UI.SkinEngine.SkinManagement;
 using MediaPortal.Utilities;
+using SlimDX.Direct3D9;
 
 namespace MediaPortal.UI.Players.Picture
 {
-  public class PicturePlayer : IDisposable, IPicturePlayer, IPlayerEvents, IReusablePlayer, IMediaPlaybackControl
+  public class PicturePlayer : IDisposable, ISlimDXPicturePlayer, IPlayerEvents, IReusablePlayer, IMediaPlaybackControl
   {
     #region Consts
 
@@ -52,8 +57,10 @@ namespace MediaPortal.UI.Players.Picture
     protected bool _isPaused = false;
     protected string _mediaItemTitle = string.Empty;
 
-    protected IResourceLocator _currentLocator;
-    protected TimeSpan _slideShowImageDuration;
+    protected IResourceLocator _currentLocator = null;
+    protected Texture _texture = null;
+    protected SizeF _textureMaxUV = new SizeF(1, 1);
+    protected TimeSpan _slideShowImageDuration = TimeSpan.FromSeconds(10);
     protected Timer _slideShowTimer = null;
     protected bool _slideShowEnabled = true;
     protected DateTime _playbackStartTime = DateTime.MinValue;
@@ -76,6 +83,7 @@ namespace MediaPortal.UI.Players.Picture
     public void Dispose()
     {
       DisposeTimer();
+      DisposeTexture();
     }
 
     #region Protected members
@@ -153,6 +161,15 @@ namespace MediaPortal.UI.Players.Picture
         }
     }
 
+    protected void DisposeTexture()
+    {
+      if (_texture == null)
+        return;
+      _texture.Dispose();
+      _texture = null;
+      _textureMaxUV = new SizeF();
+    }
+
     protected void CheckTimer()
     {
       lock (_syncObj)
@@ -188,10 +205,30 @@ namespace MediaPortal.UI.Players.Picture
     public void SetMediaItemLocator(IResourceLocator locator)
     {
       ReloadSettings();
+
+      if (locator == null)
+        lock (_syncObj)
+        {
+          DisposeTexture();
+          _currentLocator = null;
+          return;
+        }
+      Texture texture;
+      ImageInformation imageInformation;
+      using (IResourceAccessor ra = locator.CreateAccessor())
+      using (Stream stream = ra.OpenRead())
+        texture = Texture.FromStream(SkinContext.Device, stream, (int) stream.Length, 0, 0, 1, Usage.None,
+            Format.A8R8G8B8, Pool.Default, Filter.None, Filter.None, 0, out imageInformation);
       lock (_syncObj)
       {
         _state = PlayerState.Active;
+
+        DisposeTexture();
         _currentLocator = locator;
+        _texture = texture;
+        SurfaceDescription desc = _texture.GetLevelDescription(0);
+        _textureMaxUV = new SizeF(imageInformation.Width / (float) desc.Width, imageInformation.Height / (float) desc.Height);
+
         if (_slideShowTimer != null)
           _slideShowTimer.Change(_slideShowImageDuration, TS_INFINITE);
         else
@@ -202,7 +239,7 @@ namespace MediaPortal.UI.Players.Picture
 
     public static bool CanPlay(IResourceLocator locator, string mimeType)
     {
-      // First check the Mime Type
+      // First check the mime type
       if (!string.IsNullOrEmpty(mimeType) && !mimeType.StartsWith("image"))
         return false;
 
@@ -325,6 +362,35 @@ namespace MediaPortal.UI.Players.Picture
         lock (_syncObj)
           return _currentLocator;
       }
+    }
+
+    #endregion
+
+    #region ISlimDXPicturePlayer implementation
+
+    public object PicturesLock
+    {
+      get { return _syncObj; }
+    }
+
+    public Texture CurrentPicture
+    {
+      get { return _texture; }
+    }
+
+    public float MaxU
+    {
+      get { return _textureMaxUV.Width; }
+    }
+
+    public float MaxV
+    {
+      get { return _textureMaxUV.Height; }
+    }
+
+    public Texture NextPicture
+    {
+      get { return null; }
     }
 
     #endregion

@@ -22,6 +22,7 @@
 
 #endregion
 
+using System.Drawing;
 using MediaPortal.UI.Presentation.Players;
 using SlimDX.Direct3D9;
 
@@ -41,5 +42,15 @@ namespace MediaPortal.UI.SkinEngine.Players
     /// Returns the texture which contains the current picture.
     /// </summary>
     Texture CurrentPicture { get; }
+
+    /// <summary>
+    /// Returns the value of the U coord of the texture that defines the horizontal extent of the image.
+    /// </summary>
+    float MaxU { get; }
+
+    /// <summary>
+    /// Returns the value of the V coord of the texture that defines the vertical extent of the image.
+    /// </summary>
+    float MaxV { get; }
   }
 }
