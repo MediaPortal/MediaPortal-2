@@ -233,10 +233,7 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement.AssetCore
       {
         // If data has been cached asynchronously then complete allocation now
         if (_state == State.Loaded)
-        {
-          CompleteAsynchronousOperation();
           return;
-        }
         if (_state != State.None && _state != State.LoadingThumb)
         {
           CheckAsyncTimeouts();
@@ -297,38 +294,43 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement.AssetCore
 
     }
 
-    protected void CompleteAsynchronousOperation()
+    protected void CompleteAsynchronousOperation_NoLock()
     {
+      Stream stream = null;
+      byte[] data = null;
       lock (_syncObj)
       {
         if (_fileReadContext != null && _fileReadContext.imageDataStream != null)
-          AllocateFromFileDataStream(_fileReadContext);
+          stream = _fileReadContext.fileStream;
         else if (_webDownloadContext != null && _webDownloadContext.imageBuffer != null)
-          AllocateFromWebBuffer(_webDownloadContext);
+          data = _webDownloadContext.imageBuffer;
         else // Set failed state and dispose context info
-          FinalizeAllocation(0, 0);
+          FinalizeAllocation(null, 0, 0);
       }
+      if (stream != null)
+        AllocateFromStream_NoLock(stream);
+      else if (data != null)
+        AllocateFromBuffer_NoLock(data);
     }
 
     protected void AllocateFromFile(string path)
     {
+      Texture texture;
       lock (_syncObj)
-      {
         _state = State.LoadingSync;
 
-        ImageInformation info;
-        try
-        {
-          _texture = Texture.FromFile(GraphicsDevice.Device, path, _decodeWidth, _decodeHeight, 1, Usage.None, Format.A8R8G8B8,
-              Pool.Default, Filter.None, Filter.None, 0, out info);
-        }
-        catch (Exception e)
-        {
-          ServiceRegistration.Get<ILogger>().Warn("TextureAssetCore: Error loading texture from file '{0}'", e, path);
-          return;
-        }
-        FinalizeAllocation(info.Width, info.Height);
+      ImageInformation info;
+      try
+      {
+        texture = Texture.FromFile(GraphicsDevice.Device, path, _decodeWidth, _decodeHeight, 1, Usage.None, Format.A8R8G8B8,
+            Pool.Default, Filter.None, Filter.None, 0, out info);
       }
+      catch (Exception e)
+      {
+        ServiceRegistration.Get<ILogger>().Warn("TextureAssetCore: Error loading texture from file '{0}'", e, path);
+        return;
+      }
+      FinalizeAllocation(texture, info.Width, info.Height);
     }
 
     protected void AllocateFromFileAsync(string path)
@@ -357,7 +359,7 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement.AssetCore
 
           // Read first chunk
           _fileReadContext.fileStream.BeginRead(_fileReadContext.imageBuffer, 0, _fileReadContext.imageBuffer.Length,
-              AllocateAsyncCallback, _fileReadContext);
+              AllocateAsyncCallback_NoLock, _fileReadContext);
         }
         catch (Exception e)
         {
@@ -396,61 +398,52 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement.AssetCore
       }
     }
 
-    protected void AllocateFromFileDataStream(AsynchronousFileReadContext stateObject)
+    protected void AllocateFromStream_NoLock(Stream stream)
     {
-      lock (_syncObj)
+      ImageInformation info;
+      stream.Seek(0, SeekOrigin.Begin);
+      Texture texture;
+      try
       {
-        ImageInformation info;
-        stateObject.imageDataStream.Seek(0, SeekOrigin.Begin);
-        try
-        {
-          _texture = Texture.FromStream(GraphicsDevice.Device, stateObject.imageDataStream, 0, _decodeWidth, _decodeHeight, 1, 
-              Usage.None, Format.A8R8G8B8, Pool.Default, Filter.None, Filter.None, 0, out info);
-        }
-        catch (Exception e)
-        {
-          ServiceRegistration.Get<ILogger>().Warn("TextureAssetCore: Error loading texture from file data stream", e);
-          return;
-        }
-        FinalizeAllocation(info.Width, info.Height);
+        texture = Texture.FromStream(GraphicsDevice.Device, stream, 0, _decodeWidth, _decodeHeight, 1, 
+            Usage.None, Format.A8R8G8B8, Pool.Default, Filter.None, Filter.None, 0, out info);
       }
-    }
-
-    protected void AllocateFromWebBuffer(WebDownloadContext stateObject)
-    {
-      lock (_syncObj)
-        AllocateFromBuffer(stateObject.imageBuffer);
-    }
-
-    protected void AllocateFromBuffer(byte[] data)
-    {
-      lock (_syncObj)
+      catch (Exception e)
       {
-        ImageInformation info;
-        try
-        {
-          _texture = Texture.FromMemory(
-              GraphicsDevice.Device, data, _decodeWidth, _decodeHeight, 1,
-              Usage.None, Format.A8R8G8B8, Pool.Default, Filter.None, Filter.None, 0, out info);
-        }
-        catch (Exception e)
-        {
-          ServiceRegistration.Get<ILogger>().Warn("TextureAssetCore: Error loading texture from memory buffer", e);
-          return;
-        }
-        FinalizeAllocation(info.Width, info.Height);
+        ServiceRegistration.Get<ILogger>().Warn("TextureAssetCore: Error loading texture from file data stream", e);
+        return;
       }
+      FinalizeAllocation(texture, info.Width, info.Height);
     }
 
-    protected void FinalizeAllocation(int fileWidth, int fileHeight)
+    protected void AllocateFromBuffer_NoLock(byte[] data)
+    {
+      Texture texture;
+      ImageInformation info;
+      try
+      {
+        texture = Texture.FromMemory(
+            GraphicsDevice.Device, data, _decodeWidth, _decodeHeight, 1,
+            Usage.None, Format.A8R8G8B8, Pool.Default, Filter.None, Filter.None, 0, out info);
+      }
+      catch (Exception e)
+      {
+        ServiceRegistration.Get<ILogger>().Warn("TextureAssetCore: Error loading texture from memory buffer", e);
+        return;
+      }
+      FinalizeAllocation(texture, info.Width, info.Height);
+    }
+
+    protected void FinalizeAllocation(Texture texture, int fileWidth, int fileHeight)
     {
       lock (_syncObj)
       {
         DisposeFileReadContext();
         DisposeWebContext();
 
-        if (_texture != null)
+        if (texture != null)
         {
+          _texture = texture;
           SurfaceDescription desc = _texture.GetLevelDescription(0);
           _width = fileWidth;
           _height = fileHeight;
@@ -528,12 +521,15 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement.AssetCore
         // Store image data for allocation later
         WebDownloadContext state = (WebDownloadContext) e.UserState;
         state.imageBuffer = e.Result;
-        _state = State.Loaded;
       }
+      CompleteAsynchronousOperation_NoLock();
+      lock (_syncObj)
+        _state = State.Loaded;
     }
 
-    protected void AllocateAsyncCallback(IAsyncResult result)
+    protected void AllocateAsyncCallback_NoLock(IAsyncResult result)
     {
+      bool completeOperation = false;
       lock (_syncObj)
       {
         AsynchronousFileReadContext state = (AsynchronousFileReadContext) result.AsyncState;
@@ -552,6 +548,7 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement.AssetCore
           int read = state.fileStream.EndRead(result);
           if (read == 0)
           {
+            completeOperation = true;
             // File read complete
             _state = State.Loaded;
           }
@@ -560,7 +557,7 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement.AssetCore
             // Write data our SlimDX stream
             state.imageDataStream.Write(state.imageBuffer, 0, read);
             // Read next chunk
-            state.fileStream.BeginRead(state.imageBuffer, 0, state.imageBuffer.Length, AllocateAsyncCallback, state);
+            state.fileStream.BeginRead(state.imageBuffer, 0, state.imageBuffer.Length, AllocateAsyncCallback_NoLock, state);
           }
         }
         catch (Exception e)
@@ -570,17 +567,17 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement.AssetCore
           DisposeFileReadContext();
         }
       }
+      if (completeOperation)
+        CompleteAsynchronousOperation_NoLock();
     }
 
     public void ThumbnailCreated(string sourcePath, bool success, byte[] imageData, ImageType imageType)
     {
-      lock (_syncObj)
-      {
-        if (success)
-          AllocateFromBuffer(imageData);
-        else
+      if (success)
+        AllocateFromBuffer_NoLock(imageData);
+      else
+        lock (_syncObj)
           _state = State.Failed;
-      }
     }
 
     #endregion
@@ -645,7 +642,7 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement.AssetCore
 
     public override void Allocate()
     {
-      AllocateFromBuffer(_binaryThumbdata);
+      AllocateFromBuffer_NoLock(_binaryThumbdata);
     }
   }
 
