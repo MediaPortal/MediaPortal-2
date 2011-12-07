@@ -301,7 +301,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
 
       ISlimDXVideoPlayer player = playerManager[Stream] as ISlimDXVideoPlayer;
       if (player == null) 
-          return false;
+        return false;
 
       RefreshEffectParameters(player);
 
@@ -320,7 +320,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
         if (!textureDesc.HasValue || textureDesc.Value.Width != desc.Width || textureDesc.Value.Height != desc.Height)
         {
           TryDispose(ref _texture);
-          _texture = new Texture(device, desc.Width, desc.Height, 1, Usage.RenderTarget, SkinContext.CurrentDisplayMode.Format, Pool.Default);
+          _texture = new Texture(device, desc.Width, desc.Height, 1, Usage.RenderTarget, Format.A8R8G8B8, Pool.Default);
         }
         using (Surface target = _texture.GetSurfaceLevel(0))
           device.StretchRectangle(playerSurface, target, TextureFilter.None);

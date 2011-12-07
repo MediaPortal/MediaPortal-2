@@ -201,7 +201,7 @@ namespace MediaPortal.UI.Players.Video
           if (_surface == null)
           {
             _surface = Surface.CreateRenderTarget(_device, _croppedVideoSize.Width, _croppedVideoSize.Height,
-                SkinContext.CurrentDisplayMode.Format, MultisampleType.None, 0, false);
+                Format.A8R8G8B8, MultisampleType.None, 0, false);
 
             SurfaceDescription desc = _surface.Description;
             _surfaceMaxUV = new SizeF(_croppedVideoSize.Width / (float) desc.Width, _croppedVideoSize.Height / (float) desc.Height);
