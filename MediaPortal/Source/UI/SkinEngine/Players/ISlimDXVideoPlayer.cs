@@ -31,7 +31,7 @@ namespace MediaPortal.UI.SkinEngine.Players
   public delegate void RenderDlgt();
 
   /// <summary>
-  /// Interface which has to be implemented by video players, which are written for this SkinEngine.
+  /// Interface which has to be implemented by video players which are written for this SkinEngine.
   /// </summary>
   /// <remarks>
   /// Video players always have a tight coupling with the underlaying video rendering engine. So we need

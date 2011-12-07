@@ -41,6 +41,9 @@ using MediaPortal.Utilities.DeepCopy;
 
 namespace MediaPortal.UI.SkinEngine.Controls.Brushes
 {
+  /// <summary>
+  /// Brush which paints the video image of a player provided by the <see cref="IPlayerManager"/>.
+  /// </summary>
   public class VideoBrush : Brush
   {
     #region Consts

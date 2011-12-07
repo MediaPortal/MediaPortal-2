@@ -31,33 +31,24 @@ using MediaPortal.UI.SkinEngine.Rendering;
 using MediaPortal.UI.SkinEngine.SkinManagement;
 using MediaPortal.Utilities.DeepCopy;
 using SlimDX;
+using SlimDX.Direct3D9;
 
 namespace MediaPortal.UI.SkinEngine.Controls.ImageSources
 {
-  /// <summary>
-  /// Like <see cref="BitmapImage"/>, <see cref="MultiImage"/> acts as a source for the <see cref="Visuals.Image"/> control
-  /// to access to conventional image formats. The primary difference between these two classes is that
-  /// <see cref="MultiImage"/> is optimised for asynchronous image loading and frequent image changes,
-  /// such as in a slide-show, and allows animated transitions between images.
-  /// </summary>
-  class MultiImage : BitmapImage
+  public abstract class MultiImageSourceBase : TextureImageSource
   {
     protected AbstractProperty _transitionProperty;
     protected AbstractProperty _transitionInOutProperty;
     protected AbstractProperty _transitionDurationProperty;
 
-    protected TextureAsset _lastTexture = null;
-    protected TextureAsset _nextTexture = null;
     protected ImageContext _lastImageContext = new ImageContext();
     protected DateTime _transitionStart;
     protected bool _transitionActive = false;
     protected Random _rand = new Random();
-    protected bool _uriChanged = true;
-    protected Vector4 _lastFrameData;
 
     #region Ctor
 
-    public MultiImage()
+    protected MultiImageSourceBase()
     {
       Init();
     }
@@ -72,11 +63,11 @@ namespace MediaPortal.UI.SkinEngine.Controls.ImageSources
     public override void DeepCopy(IDeepCopyable source, ICopyManager copyManager)
     {
       base.DeepCopy(source, copyManager);
-      MultiImage b = (MultiImage) source;
-      Transition = b.Transition;
-      TransitionDuration = b.TransitionDuration;
-      TransitionInOut = b.TransitionInOut;
-      FreeTextures();
+      MultiImageSourceBase misb = (MultiImageSourceBase) source;
+      Transition = misb.Transition;
+      TransitionInOut = misb.TransitionInOut;
+      TransitionDuration = misb.TransitionDuration;
+      FreeData();
     }
 
     #endregion
@@ -143,39 +134,10 @@ namespace MediaPortal.UI.SkinEngine.Controls.ImageSources
     {
       get
       {
-        return (_transitionActive && _lastTexture != null) ?
-            MaxSizeF(new SizeF(_lastTexture.Width, _lastTexture.Height), base.SourceSize) : base.SourceSize;
-      }
-    }
-
-    public override void Allocate()
-    {
-      if (_uriChanged)
-      {
-        string uri = UriSource;
-        if (String.IsNullOrEmpty(uri))
-        {
-          _nextTexture = null;
-          if (_texture != null)
-            CycleTextures();
-        }
-        else
-          _nextTexture = ContentManager.Instance.GetTexture(uri, DecodePixelWidth, DecodePixelHeight, Thumbnail);
-        _uriChanged = false;
-      }
-      // Check our previous texture is allocated. Synchronous.
-      if (_lastTexture != null && !_lastTexture.IsAllocated)
-        _lastTexture.Allocate();
-      // Check our current texture is allocated. Synchronous.
-      if (_texture != null && !_texture.IsAllocated)
-        _texture.Allocate();
-      // Check our next texture is allocated. Asynchronous.
-      if (_nextTexture != null)
-      {
-        if (!_nextTexture.LoadFailed)
-          _nextTexture.AllocateAsync();
-        if (!_transitionActive && _nextTexture.IsAllocated)
-          CycleTextures();
+        SizeF currentTextureSize = CurrentTextureSize;
+        SizeF lastTextureSize = LastTextureSize;
+        return (_transitionActive && !lastTextureSize.IsEmpty) ?
+            MaxSizeF(LastTextureSize, currentTextureSize) : currentTextureSize;
       }
     }
 
@@ -183,36 +145,45 @@ namespace MediaPortal.UI.SkinEngine.Controls.ImageSources
     {
       base.Setup(ownerRect, zOrder, skinNeutralAR);
 
-      _lastImageContext.FrameSize = _imageContext.FrameSize;
+      _lastImageContext.FrameSize = _frameSize;
     }
 
     public override void Render(RenderContext renderContext, Stretch stretchMode, StretchDirection stretchDirection)
     {
       Allocate();
 
-      _frameData.Z = (float) EffectTimer;
+      Texture currentTexture = CurrentTexture;
+      SizeF currentTextureSize = CurrentTextureSize;
+      float currentMaxU = CurrentMaxU;
+      float currentMaxV = CurrentMaxV;
+      Vector4 frameData = new Vector4(currentTextureSize.Width, currentTextureSize.Height, (float) EffectTimer, 0);
 
       if (_transitionActive)
       {
         double elapsed = (SkinContext.FrameRenderingStartTime - _transitionStart).TotalSeconds / Math.Max(TransitionDuration, 0.01);
         if (elapsed > 1.0)
           _transitionActive = false;
-        else 
+        else
         {
-          TextureAsset start = _lastTexture ?? NullTexture;
-          TextureAsset end = _texture ?? NullTexture;
+          Texture lastTexture = LastTexture;
+          SizeF lastTextureSize = LastTextureSize;
+          float lastMaxU = LastMaxU;
+          float lastMaxV = LastMaxV;
+          Vector4 lastFrameData = new Vector4(lastTextureSize.Width, lastTextureSize.Height, (float) EffectTimer, 0);
+
+          Texture start = lastTexture ?? NullTexture.Texture;
+          Texture end = currentTexture ?? NullTexture.Texture;
 
           if (start != end)
           {
-            SizeF startSize = StretchSource(_lastImageContext.FrameSize, new SizeF(start.Width, start.Height), stretchMode, stretchDirection);
-            SizeF endSize = StretchSource(_imageContext.FrameSize, new SizeF(end.Width, end.Height), stretchMode, stretchDirection);
+            SizeF startSize = StretchSource(_lastImageContext.FrameSize, lastTextureSize, stretchMode, stretchDirection);
+            SizeF endSize = StretchSource(_imageContext.FrameSize, currentTextureSize, stretchMode, stretchDirection);
 
-            // Render transition from image A (previous) to image B (current/next)
-            _lastImageContext.Update(startSize, start);
-            _imageContext.Update(endSize, end);
+            // Render transition from last texture to current texture
+            _lastImageContext.Update(startSize, start, lastMaxU, lastMaxV);
+            _imageContext.Update(endSize, end, currentMaxU, currentMaxV);
 
-            _lastFrameData.Z = _frameData.Z;
-            if (_imageContext.StartRenderTransition(renderContext, (float) elapsed, _lastImageContext, BorderColor.ToArgb(), _lastFrameData, _frameData))
+            if (_imageContext.StartRenderTransition(renderContext, (float) elapsed, _lastImageContext, BorderColor.ToArgb(), lastFrameData, frameData))
             {
               _primitiveBuffer.Render(0);
               _imageContext.EndRenderTransition();
@@ -224,8 +195,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.ImageSources
 
       if (IsAllocated)
       {
-        SizeF sourceSize = StretchSource(_imageContext.FrameSize, new SizeF(_texture.Width, _texture.Height), stretchMode, stretchDirection);
-        if (_imageContext.StartRender(renderContext, sourceSize, _texture, BorderColor.ToArgb(), _frameData))
+        SizeF sourceSize = StretchSource(_imageContext.FrameSize, currentTextureSize, stretchMode, stretchDirection);
+        if (_imageContext.StartRender(renderContext, sourceSize, CurrentTexture, currentMaxU, currentMaxV, BorderColor.ToArgb(), frameData))
         {
           _primitiveBuffer.Render(0);
           _imageContext.EndRender();
@@ -235,7 +206,43 @@ namespace MediaPortal.UI.SkinEngine.Controls.ImageSources
 
     #endregion
 
-    #region Protected methods
+    #region Protected members
+
+    /// <summary>
+    /// Returns the last texture to be rendered. Must be overridden in subclasses.
+    /// </summary>
+    protected abstract Texture LastTexture { get; }
+
+    /// <summary>
+    /// Returns the size of the last texture.
+    /// </summary>
+    protected abstract SizeF LastTextureSize { get; }
+
+    /// <summary>
+    /// Returns the value of the U coord of the last texture that defines the horizontal extent of the image.
+    /// </summary>
+    protected abstract float LastMaxU { get; }
+
+    /// <summary>
+    /// Returns the value of the V coord of the last texture that defines the vertical extent of the image.
+    /// </summary>
+    protected abstract float LastMaxV { get; }
+
+    /// <summary>
+    /// Returns the current texture to be rendered. Must be overridden in subclasses.
+    /// </summary>
+    protected abstract Texture CurrentTexture { get; }
+    protected abstract SizeF CurrentTextureSize { get; }
+
+    /// <summary>
+    /// Returns the value of the U coord of the current texture that defines the horizontal extent of the image.
+    /// </summary>
+    protected abstract float CurrentMaxU { get; }
+
+    /// <summary>
+    /// Returns the value of the V coord of the current texture that defines the vertical extent of the image.
+    /// </summary>
+    protected abstract float CurrentMaxV { get; }
 
     /// <summary>
     /// DirectX9 does not define what happens when a NULL texture is accessed in a shader. Because of this the action
@@ -252,36 +259,30 @@ namespace MediaPortal.UI.SkinEngine.Controls.ImageSources
       }
     }
 
-    protected void CycleTextures()
-    {
-      // Current -> Last
-      _lastTexture = _texture;
-      _lastImageContext = _imageContext;
-      _lastFrameData = _frameData;
-      // Next -> Current
-      _texture = _nextTexture;
-      _imageContext = new ImageContext
-        {
-            FrameSize = _lastImageContext.FrameSize,
-            ShaderEffect = _lastImageContext.ShaderEffect
-        };
-      if (_texture != null)
-        _frameData = new Vector4(_texture.Width, _texture.Height, 0.0f, 0.0f);
-      // Clear next
-      _nextTexture = null;
+    #region Not used from base class
 
-      if (_lastTexture != _texture)
-      {
-        StartTransition();
-        FireChanged();
-      }
+    protected override Texture Texture
+    {
+      get { return null; }
     }
+
+    protected override float MaxU
+    {
+      get { return 0; }
+    }
+
+    protected override float MaxV
+    {
+      get { return 0; }
+    }
+
+    #endregion
 
     protected void StartTransition()
     {
       if (String.IsNullOrEmpty(Transition))
         return;
-      if ((_lastTexture == null || _texture == null) && !TransitionInOut)
+      if ((LastTexture == null || CurrentTexture == null) && !TransitionInOut)
         return;
 
       // Get a list of transitions to use
@@ -314,20 +315,13 @@ namespace MediaPortal.UI.SkinEngine.Controls.ImageSources
 
     protected override void OnEffectChanged(AbstractProperty prop, object oldValue)
     {
-      _imageContext.ShaderEffect = Effect;
+      base.OnEffectChanged(prop, oldValue);
       _lastImageContext.ShaderEffect = Effect;
     }
 
-    protected override void OnSourceChanged(AbstractProperty prop, object oldValue)
+    protected override void FreeData()
     {
-      _uriChanged = true;
-    }
-
-    protected override void FreeTextures()
-    {
-      base.FreeTextures();
-      _lastTexture = null;
-      _nextTexture = null;
+      base.FreeData();
       _lastImageContext.Clear();
     }
 

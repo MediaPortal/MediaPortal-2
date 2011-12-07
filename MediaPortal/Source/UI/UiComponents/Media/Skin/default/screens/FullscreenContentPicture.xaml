@@ -21,7 +21,7 @@
       <mp_special_controls:PlayerControl.TemplateControl>
         <Image Stretch="Uniform" DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}" SkinNeutralAR="True">
           <Image.Source>
-            <MultiImage UriSource="{Binding PictureSourcePath}" 
+            <MultiImageSource UriSource="{Binding PictureSourcePath}" 
                 Transition="transitions\granular_dissolve;transitions\fade;transitions\dissolve;transitions\wipe_right;transitions\wipe_down;transitions\wipe_down-right;transitions\wipe_up-left"
                 TransitionInOut="False" />
           </Image.Source>

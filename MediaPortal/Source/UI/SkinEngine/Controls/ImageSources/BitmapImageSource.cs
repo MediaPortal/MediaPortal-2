@@ -26,45 +26,39 @@ using System;
 using System.Drawing;
 using MediaPortal.Common.General;
 using MediaPortal.UI.SkinEngine.ContentManagement;
-using MediaPortal.UI.SkinEngine.Controls.Visuals;
-using MediaPortal.UI.SkinEngine.DirectX;
-using MediaPortal.UI.SkinEngine.Rendering;
 using MediaPortal.Utilities.DeepCopy;
-using SlimDX;
 using SlimDX.Direct3D9;
 
 namespace MediaPortal.UI.SkinEngine.Controls.ImageSources
 {
   /// <summary>
-  /// <see cref="BitmapImage"/> acts as a source provider / renderer for the <see cref="Visuals.Image"/> control.
+  /// <see cref="BitmapImageSource"/> acts as a source provider / renderer for the <see cref="Visuals.Image"/> control.
   /// Most conventional image formats are supportted. 
   /// All images are loaded synchronously, except when thumbnails are used, so it is best used for skin images.
   /// For images that require asynchronous loading (such as poster art) use MultiImage.
   /// </summary>
-  public class BitmapImage : ImageSource
+  /// <remarks>
+  /// This class adds additional properties to the <see cref="TextureImageSource"/> and implements the loading and handling of
+  /// the <see cref="Texture"/>.
+  /// </remarks>
+  public class BitmapImageSource : TextureImageSource
   {
-    #region Private fields
+    #region Protected fields
 
     protected AbstractProperty _uriSourceProperty;
     protected AbstractProperty _decodePixelWidthProperty;
     protected AbstractProperty _decodePixelHeightProperty;
-    protected AbstractProperty _borderColorProperty;
-    protected AbstractProperty _effectProperty;
-    protected AbstractProperty _effectTimerProperty;
 
+    protected TextureAsset _texture = null;
     protected AbstractProperty _thumbnailDimensionProperty;
 
     protected bool _thumbnail = false;
-    protected TextureAsset _texture = null;
-    protected PrimitiveBuffer _primitiveBuffer = new PrimitiveBuffer();
-    protected ImageContext _imageContext = new ImageContext();
-    protected Vector4 _frameData;
 
     #endregion
 
     #region Ctor
 
-    public BitmapImage()
+    public BitmapImageSource()
     {
       Init();
       Attach();
@@ -82,40 +76,33 @@ namespace MediaPortal.UI.SkinEngine.Controls.ImageSources
       _uriSourceProperty = new SProperty(typeof(string), null);
       _decodePixelWidthProperty = new SProperty(typeof(int), 0);
       _decodePixelHeightProperty = new SProperty(typeof(int), 0);
-      _borderColorProperty = new SProperty(typeof(Color), Color.FromArgb(0, Color.Black));
-      _effectProperty = new SProperty(typeof(string), null);
-      _effectTimerProperty = new SProperty(typeof(double), 0.0);
       _thumbnailDimensionProperty = new SProperty(typeof(int), 0);
     }
 
     void Attach()
     {
       _uriSourceProperty.Attach(OnSourceChanged);
-      _effectProperty.Attach(OnEffectChanged);
     }
 
     void Detach()
     {
       _uriSourceProperty.Detach(OnSourceChanged);
-      _effectProperty.Detach(OnEffectChanged);
     }
 
     public override void DeepCopy(IDeepCopyable source, ICopyManager copyManager)
     {
       base.DeepCopy(source, copyManager);
       Detach();
-      BitmapImage b = (BitmapImage) source;
+      BitmapImageSource b = (BitmapImageSource) source;
       UriSource = b.UriSource;
       DecodePixelWidth = b.DecodePixelWidth;
       DecodePixelHeight = b.DecodePixelHeight;
       Thumbnail = b.Thumbnail;
       ThumbnailDimension = b.ThumbnailDimension;
       BorderColor = b.BorderColor;
-      Effect = b.Effect;
-      EffectTimer = b.EffectTimer;
       
       Attach();
-      FreeTextures();
+      FreeData();
     }
 
     #endregion
@@ -169,48 +156,6 @@ namespace MediaPortal.UI.SkinEngine.Controls.ImageSources
     }
 
     /// <summary>
-    /// Gets or sets the color of the border around images to small for the frame.
-    /// </summary>
-    public Color BorderColor
-    {
-      get { return (Color) _borderColorProperty.GetValue(); }
-      set { _borderColorProperty.SetValue(value); }
-    }
-
-    public AbstractProperty BorderColorProperty
-    {
-      get { return _borderColorProperty; }
-    }
-
-    /// <summary>
-    /// Gets or sets the <see cref="ImageContext"/> effect to apply to the image.
-    /// </summary>
-    public string Effect
-    {
-      get { return (string) _effectProperty.GetValue(); }
-      set { _effectProperty.SetValue(value); }
-    }
-
-    public AbstractProperty EffectProperty
-    {
-      get { return _effectProperty; }
-    }
-
-    /// <summary>
-    /// Gets or sets the time value that will be passed to shader effects. This animation using storyboards.
-    /// </summary>
-    public double EffectTimer
-    {
-      get { return (double) _effectTimerProperty.GetValue(); }
-      set { _effectTimerProperty.SetValue(value); }
-    }
-
-    public AbstractProperty EffectTimerProperty
-    {
-      get { return _effectTimerProperty; }
-    }
-
-    /// <summary>
     /// Gets or sets a value indicating that the image will be loaded as a thumbnail.
     /// </summary>
     /// <remarks>
@@ -221,7 +166,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.ImageSources
       get { return _thumbnail; }
       set { 
         if (value != _thumbnail) 
-          FreeTextures(); 
+          FreeData(); 
         _thumbnail = value; 
       }
     }
@@ -232,7 +177,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.ImageSources
     /// </summary>
     public int ThumbnailDimension
     {
-      get { return (int)_thumbnailDimensionProperty.GetValue(); }
+      get { return (int) _thumbnailDimensionProperty.GetValue(); }
       set { _thumbnailDimensionProperty.SetValue(value); }
     }
 
@@ -255,6 +200,21 @@ namespace MediaPortal.UI.SkinEngine.Controls.ImageSources
       get { return (_texture != null && _texture.IsAllocated) ? new SizeF(_texture.Width, _texture.Height) : new SizeF(); }
     }
 
+    protected override Texture Texture
+    {
+      get { return _texture == null ? null : _texture.Texture; }
+    }
+
+    protected override float MaxU
+    {
+      get { return _texture == null ? 0 : _texture.MaxU; }
+    }
+
+    protected override float MaxV
+    {
+      get { return _texture == null ? 0 : _texture.MaxV; }
+    }
+
     public override void Allocate()
     {
       string uri = UriSource;
@@ -262,7 +222,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.ImageSources
       {
         if (_texture != null)
         {
-          FreeTextures();
+          FreeData();
           FireChanged();
         }
         return;
@@ -276,71 +236,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.ImageSources
         _texture.Allocate();
         if (_texture.IsAllocated)
         {
-          _frameData.X = _texture.Width;
-          _frameData.Y = _texture.Height;
           _imageContext.Refresh();
           FireChanged();
-        }
-      }
-    }
-
-    public override void Deallocate()
-    {
-      PrimitiveBuffer.DisposePrimitiveBuffer(ref _primitiveBuffer);
-      FreeTextures();
-    }
-
-    public override void Setup(RectangleF ownerRect, float zOrder, bool skinNeutralAR)
-    {
-      PositionColoredTextured[] verts = new PositionColoredTextured[4];
-
-      // Upper left
-      verts[0].X = ownerRect.Left;
-      verts[0].Y = ownerRect.Top;
-      verts[0].Color = 0;
-      verts[0].Tu1 = 0.0f;
-      verts[0].Tv1 = 0.0f;
-      verts[0].Z = zOrder;
-
-      // Bottom left
-      verts[1].X = ownerRect.Left;
-      verts[1].Y = ownerRect.Bottom;
-      verts[1].Color = 0;
-      verts[1].Tu1 = 0.0f;
-      verts[1].Tv1 = 1.0f;
-      verts[1].Z = zOrder;
-
-      // Bottom right
-      verts[2].X = ownerRect.Right;
-      verts[2].Y = ownerRect.Bottom;
-      verts[2].Color = 0;
-      verts[2].Tu1 = 1.0f;
-      verts[2].Tv1 = 1.0f;
-      verts[2].Z = zOrder;
-
-      // Upper right
-      verts[3].X = ownerRect.Right;
-      verts[3].Y = ownerRect.Top;
-      verts[3].Color = 0;
-      verts[3].Tu1 = 1.0f;
-      verts[3].Tv1 = 0.0f;
-      verts[3].Z = zOrder;
-
-      _primitiveBuffer.Set(ref verts, PrimitiveType.TriangleFan);
-
-      _imageContext.FrameSize = skinNeutralAR ? ImageContext.AdjustForSkinAR(ownerRect.Size) : ownerRect.Size;
-    }
-
-    public override void Render(RenderContext renderContext, Stretch stretchMode, StretchDirection stretchDirection)
-    {
-      if (IsAllocated)
-      {
-        SizeF sourceSize = StretchSource(_imageContext.FrameSize, new SizeF(_texture.Width, _texture.Height), stretchMode, stretchDirection);
-        _frameData.Z = (float) EffectTimer;
-        if (_imageContext.StartRender(renderContext, sourceSize, _texture, BorderColor.ToArgb(), _frameData))
-        {
-          _primitiveBuffer.Render(0);
-          _imageContext.EndRender();
         }
       }
     }
@@ -349,21 +246,16 @@ namespace MediaPortal.UI.SkinEngine.Controls.ImageSources
 
     #region Protected methods
 
-    protected virtual void OnSourceChanged(AbstractProperty prop, object oldValue)
+    protected void OnSourceChanged(AbstractProperty prop, object oldValue)
     {
-      FreeTextures();
+      FreeData();
       FireChanged();
     }
 
-    protected virtual void OnEffectChanged(AbstractProperty prop, object oldValue)
-    {
-      _imageContext.ShaderEffect = Effect;
-    }
-
-    protected virtual void FreeTextures()
+    protected override void FreeData()
     {
       _texture = null;
-      _imageContext.Clear();
+      base.FreeData();
     }
 
     #endregion

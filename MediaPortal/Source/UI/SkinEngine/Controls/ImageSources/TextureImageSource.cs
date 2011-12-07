@@ -1,0 +1,245 @@
+#region Copyright (C) 2007-2011 Team MediaPortal
+
+/*
+    Copyright (C) 2007-2011 Team MediaPortal
+    http://www.team-mediaportal.com
+
+    This file is part of MediaPortal 2
+
+    MediaPortal 2 is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    MediaPortal 2 is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with MediaPortal 2. If not, see <http://www.gnu.org/licenses/>.
+*/
+
+#endregion
+
+using System.Drawing;
+using MediaPortal.Common.General;
+using MediaPortal.UI.SkinEngine.Controls.Visuals;
+using MediaPortal.UI.SkinEngine.DirectX;
+using MediaPortal.UI.SkinEngine.Rendering;
+using MediaPortal.Utilities.DeepCopy;
+using SlimDX;
+using SlimDX.Direct3D9;
+
+namespace MediaPortal.UI.SkinEngine.Controls.ImageSources
+{
+  /// <summary>
+  /// Image source that has a <see cref="Texture"/> as image data.
+  /// </summary>
+  /// <remarks>
+  /// This class does the rendering of a texture given by the property <see cref="Texture"/> which must be overridden by sub classes.
+  /// Sub classes can provide an arbitrary texture to render.
+  /// </remarks>
+  public abstract class TextureImageSource : ImageSource
+  {
+    #region Protected fields
+
+    protected AbstractProperty _borderColorProperty;
+    protected AbstractProperty _effectProperty;
+    protected AbstractProperty _effectTimerProperty;
+
+    protected PrimitiveBuffer _primitiveBuffer = new PrimitiveBuffer();
+    protected ImageContext _imageContext = new ImageContext();
+    protected SizeF _frameSize;
+
+    #endregion
+
+    #region Ctor
+
+    protected TextureImageSource()
+    {
+      Init();
+      Attach();
+    }
+
+    public override void Dispose()
+    {
+      base.Dispose();
+      Detach();
+      Deallocate();
+    }
+
+    void Init()
+    {
+      _borderColorProperty = new SProperty(typeof(Color), Color.FromArgb(0, Color.Black));
+      _effectProperty = new SProperty(typeof(string), null);
+      _effectTimerProperty = new SProperty(typeof(double), 0.0);
+    }
+
+    void Attach()
+    {
+      _effectProperty.Attach(OnEffectChanged);
+    }
+
+    void Detach()
+    {
+      _effectProperty.Detach(OnEffectChanged);
+    }
+
+    public override void DeepCopy(IDeepCopyable source, ICopyManager copyManager)
+    {
+      base.DeepCopy(source, copyManager);
+      Detach();
+      BitmapImageSource b = (BitmapImageSource) source;
+      BorderColor = b.BorderColor;
+      Effect = b.Effect;
+      EffectTimer = b.EffectTimer;
+      
+      Attach();
+      FreeData();
+    }
+
+    #endregion
+
+    #region Public properties
+
+    /// <summary>
+    /// Gets or sets the color of the border around images to small for the frame.
+    /// </summary>
+    public Color BorderColor
+    {
+      get { return (Color) _borderColorProperty.GetValue(); }
+      set { _borderColorProperty.SetValue(value); }
+    }
+
+    public AbstractProperty BorderColorProperty
+    {
+      get { return _borderColorProperty; }
+    }
+
+    /// <summary>
+    /// Gets or sets the <see cref="ImageContext"/> effect to apply to the image.
+    /// </summary>
+    public string Effect
+    {
+      get { return (string) _effectProperty.GetValue(); }
+      set { _effectProperty.SetValue(value); }
+    }
+
+    public AbstractProperty EffectProperty
+    {
+      get { return _effectProperty; }
+    }
+
+    /// <summary>
+    /// Gets or sets the time value that will be passed to shader effects. This animation using storyboards.
+    /// </summary>
+    public double EffectTimer
+    {
+      get { return (double) _effectTimerProperty.GetValue(); }
+      set { _effectTimerProperty.SetValue(value); }
+    }
+
+    public AbstractProperty EffectTimerProperty
+    {
+      get { return _effectTimerProperty; }
+    }
+
+    #endregion
+
+    #region ImageSource implementation
+
+    public override void Deallocate()
+    {
+      PrimitiveBuffer.DisposePrimitiveBuffer(ref _primitiveBuffer);
+      FreeData();
+    }
+
+    public override void Setup(RectangleF ownerRect, float zOrder, bool skinNeutralAR)
+    {
+      PositionColoredTextured[] verts = new PositionColoredTextured[4];
+
+      // Upper left
+      verts[0].X = ownerRect.Left;
+      verts[0].Y = ownerRect.Top;
+      verts[0].Color = 0;
+      verts[0].Tu1 = 0.0f;
+      verts[0].Tv1 = 0.0f;
+      verts[0].Z = zOrder;
+
+      // Bottom left
+      verts[1].X = ownerRect.Left;
+      verts[1].Y = ownerRect.Bottom;
+      verts[1].Color = 0;
+      verts[1].Tu1 = 0.0f;
+      verts[1].Tv1 = 1.0f;
+      verts[1].Z = zOrder;
+
+      // Bottom right
+      verts[2].X = ownerRect.Right;
+      verts[2].Y = ownerRect.Bottom;
+      verts[2].Color = 0;
+      verts[2].Tu1 = 1.0f;
+      verts[2].Tv1 = 1.0f;
+      verts[2].Z = zOrder;
+
+      // Upper right
+      verts[3].X = ownerRect.Right;
+      verts[3].Y = ownerRect.Top;
+      verts[3].Color = 0;
+      verts[3].Tu1 = 1.0f;
+      verts[3].Tv1 = 0.0f;
+      verts[3].Z = zOrder;
+
+      _primitiveBuffer.Set(ref verts, PrimitiveType.TriangleFan);
+
+      _frameSize = skinNeutralAR ? ImageContext.AdjustForSkinAR(ownerRect.Size) : ownerRect.Size;
+      _imageContext.FrameSize = _frameSize;
+    }
+
+    public override void Render(RenderContext renderContext, Stretch stretchMode, StretchDirection stretchDirection)
+    {
+      if (!IsAllocated)
+        return;
+      SizeF sourceSize = SourceSize;
+      SizeF modifiedSourceSize = StretchSource(_imageContext.FrameSize, sourceSize, stretchMode, stretchDirection);
+      Vector4 frameData = new Vector4(sourceSize.Width, sourceSize.Height, (float) EffectTimer, 0);
+      if (_imageContext.StartRender(renderContext, modifiedSourceSize, Texture, MaxU, MaxV, BorderColor.ToArgb(), frameData))
+      {
+        _primitiveBuffer.Render(0);
+        _imageContext.EndRender();
+      }
+    }
+
+    #endregion
+
+    #region Protected members
+
+    /// <summary>
+    /// Returns the texture to be rendered. Must be overridden in subclasses.
+    /// </summary>
+    protected abstract Texture Texture { get; }
+
+    /// <summary>
+    /// Returns the value of the U coord of the texture that defines the horizontal extent of the image.
+    /// </summary>
+    protected abstract float MaxU { get; }
+
+    /// <summary>
+    /// Returns the value of the V coord of the texture that defines the vertical extent of the image.
+    /// </summary>
+    protected abstract float MaxV { get; }
+
+    protected virtual void OnEffectChanged(AbstractProperty prop, object oldValue)
+    {
+      _imageContext.ShaderEffect = Effect;
+    }
+
+    protected virtual void FreeData()
+    {
+      _imageContext.Clear();
+    }
+
+    #endregion
+  }
+}

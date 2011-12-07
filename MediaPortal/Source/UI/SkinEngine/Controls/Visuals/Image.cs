@@ -409,7 +409,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
           // Remember to adapt list of supported extensions for picture player plugin...
           if (IsValidSource(uriSource))
           {
-            BitmapImage bmi = new BitmapImage {UriSource = uriSource, Thumbnail = Thumbnail};
+            BitmapImageSource bmi = new BitmapImageSource {UriSource = uriSource, Thumbnail = Thumbnail};
             if (Thumbnail)
               // Set the requested thumbnail dimension, to use the best matching format.
               bmi.ThumbnailDimension = (int) Math.Max(Width, Height);

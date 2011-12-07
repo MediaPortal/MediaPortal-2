@@ -176,30 +176,8 @@ namespace MediaPortal.UI.SkinEngine.Rendering
 
     public void Update(SizeF imageSize, Texture texture, float maxU, float maxV)
     {
-      // Note: There is no check on maxU / MaxV or texture changing. This must be handled by the calling class!
+      _refresh |= texture != _lastTexture;
       RefreshParameters(imageSize, texture, maxU, maxV);
-    }
-
-    public void Update(SizeF imageSize, TextureAsset texture)
-    {
-      _refresh |= texture.Texture != _lastTexture;
-      RefreshParameters(imageSize, texture.Texture, texture.MaxU, texture.MaxV);
-    }
-
-    /// <summary>
-    /// Renders this <see cref="ImageContext"/>.
-    /// </summary>
-    /// <param name="renderContext">The current rendering context.</param>
-    /// <param name="imageSize">The size of the final image within the frame.</param>
-    /// <param name="texture">A texture asset containing the image.</param>
-    /// <param name="borderColor">The color to use outside the image's boundaries.</param>
-    /// <param name="frameData">Additional data to be used by the shaders.</param>
-    /// <returns><c>true</c> if the rendering operation was started.</returns>
-    public bool StartRender(RenderContext renderContext, SizeF imageSize, TextureAsset texture,
-        int borderColor, Vector4 frameData)
-    {
-      Update(imageSize, texture);
-      return StartRender(renderContext, borderColor, frameData);
     }
 
     /// <summary>
@@ -209,7 +187,7 @@ namespace MediaPortal.UI.SkinEngine.Rendering
     /// <param name="imageSize">The size of the final image within the frame.</param>
     /// <param name="texture">A texture object containing the image.</param>
     /// <param name="maxU">The value of the U texture coord that defines the horizontal extent of the image.</param>
-    /// <param name="maxV">The value of the U texture coord that defines the horizontal extent of the image.</param>
+    /// <param name="maxV">The value of the V texture coord that defines the vertical extent of the image.</param>
     /// <param name="borderColor">The color to use outside the image's boundaries.</param>
     /// <param name="frameData">Additional data to be used by the shaders.</param>
     /// <returns><c>true</c> if the rendering operation was started.</returns>
@@ -233,7 +211,8 @@ namespace MediaPortal.UI.SkinEngine.Rendering
     /// <param name="startFrameData">Additional data to be used by the starting image shaders.</param>
     /// <param name="endFrameData">Additional data to be used by the ending image shaders.</param>
     /// <returns><c>true</c> if the rendering operation was started.</returns>
-    public bool StartRenderTransition(RenderContext renderContext, float mixValue, ImageContext startContext, int borderColor, Vector4 startFrameData, Vector4 endFrameData)
+    public bool StartRenderTransition(RenderContext renderContext, float mixValue, ImageContext startContext,
+        int borderColor, Vector4 startFrameData, Vector4 endFrameData)
     {
       if (_effectTransition == null)
         _effectTransition = ContentManager.Instance.GetEffect(GetTransitionEffectName());
