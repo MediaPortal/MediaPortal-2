@@ -48,7 +48,6 @@ namespace MediaPortal.UI.SkinEngine.Controls.ImageSources
 
     protected TextureAsset _lastTexture = null;
     protected TextureAsset _currentTexture = null;
-    protected TextureAsset _nextTexture = null;
     protected bool _uriChanged = true;
 
     #region Ctor
@@ -180,20 +179,20 @@ namespace MediaPortal.UI.SkinEngine.Controls.ImageSources
 
     public override void Allocate()
     {
+      TextureAsset nextTexture = null;
       if (_uriChanged)
       {
         _uriChanged = false;
         string uri = UriSource;
         if (String.IsNullOrEmpty(uri))
         {
-          _nextTexture = null;
           if (_currentTexture != null)
-            CycleTextures();
+            CycleTextures(null);
         }
         else
         {
-          _nextTexture = ContentManager.Instance.GetTexture(uri, DecodePixelWidth, DecodePixelHeight, Thumbnail);
-          _nextTexture.ThumbnailDimension = ThumbnailDimension;
+          nextTexture = ContentManager.Instance.GetTexture(uri, DecodePixelWidth, DecodePixelHeight, Thumbnail);
+          nextTexture.ThumbnailDimension = ThumbnailDimension;
         }
       }
       // Check our previous texture is allocated. Synchronous.
@@ -203,12 +202,12 @@ namespace MediaPortal.UI.SkinEngine.Controls.ImageSources
       if (_currentTexture != null && !_currentTexture.IsAllocated)
         _currentTexture.Allocate();
       // Check our next texture is allocated. Asynchronous.
-      if (_nextTexture != null)
+      if (nextTexture != null)
       {
-        if (!_nextTexture.LoadFailed)
-          _nextTexture.AllocateAsync();
-        if (!_transitionActive && _nextTexture.IsAllocated)
-          CycleTextures();
+        if (!nextTexture.LoadFailed)
+          nextTexture.AllocateAsync();
+        if (!_transitionActive && nextTexture.IsAllocated)
+          CycleTextures(nextTexture);
       }
     }
 
@@ -261,20 +260,18 @@ namespace MediaPortal.UI.SkinEngine.Controls.ImageSources
       get { return _currentTexture != null && _currentTexture.IsAllocated; }
     }
 
-    protected void CycleTextures()
+    protected void CycleTextures(TextureAsset nextTexture)
     {
       // Current -> Last
       _lastTexture = _currentTexture;
       _lastImageContext = _imageContext;
       // Next -> Current
-      _currentTexture = _nextTexture;
+      _currentTexture = nextTexture;
       _imageContext = new ImageContext
         {
             FrameSize = _frameSize,
             ShaderEffect = Effect
         };
-      // Clear next
-      _nextTexture = null;
 
       if (_lastTexture != _currentTexture)
       {
@@ -293,7 +290,6 @@ namespace MediaPortal.UI.SkinEngine.Controls.ImageSources
       base.FreeData();
       _lastTexture = null;
       _currentTexture = null;
-      _nextTexture = null;
       _lastImageContext.Clear();
     }
 
