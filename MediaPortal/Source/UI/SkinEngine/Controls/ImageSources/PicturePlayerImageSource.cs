@@ -31,6 +31,7 @@ using MediaPortal.UI.SkinEngine.Rendering;
 using MediaPortal.UI.SkinEngine.SkinManagement;
 using MediaPortal.Utilities.DeepCopy;
 using SlimDX.Direct3D9;
+using RightAngledRotation = MediaPortal.UI.SkinEngine.Rendering.RightAngledRotation;
 
 namespace MediaPortal.UI.SkinEngine.Controls.ImageSources
 {
@@ -120,7 +121,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.ImageSources
         if (texture != null && texture != _lastCopiedTexture)
         {
           _lastCopiedTexture = texture;
-          CycleTextures(texture, player.MaxU, player.MaxV, player.Rotation);
+          CycleTextures(texture, player.MaxU, player.MaxV, TranslateRotation(player.Rotation));
         }
       }
     }
@@ -172,6 +173,11 @@ namespace MediaPortal.UI.SkinEngine.Controls.ImageSources
     public override bool IsAllocated
     {
       get { return _currentTexture != null; }
+    }
+
+    protected RightAngledRotation TranslateRotation(Presentation.Players.RightAngledRotation rotation)
+    {
+      return (RightAngledRotation) rotation; // Enums are compatible
     }
 
     protected void CycleTextures(Texture nextTexture, float nextMaxU, float nextMaxV, RightAngledRotation nextRotation)

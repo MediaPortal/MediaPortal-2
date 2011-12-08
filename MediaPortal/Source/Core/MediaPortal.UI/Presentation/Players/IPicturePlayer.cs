@@ -26,12 +26,26 @@ using MediaPortal.Common.ResourceAccess;
 
 namespace MediaPortal.UI.Presentation.Players
 {
+  public enum RightAngledRotation
+  {
+    Zero,
+    HalfPi,
+    Pi,
+    ThreeHalfPi
+  }
+
   /// <summary>
   /// Interface for a picture player. Holds all methods which are common to all picture players.
   /// </summary>
   public interface IPicturePlayer : IPlayer
   {
     IResourceLocator CurrentPictureResourceLocator { get; }
+    
+    /// <summary>
+    /// Returns the angle in radians, the picture should be rotated.
+    /// </summary>
+    RightAngledRotation Rotation { get; }
+
     bool SlideShowEnabled { get; set; }
   }
 }
