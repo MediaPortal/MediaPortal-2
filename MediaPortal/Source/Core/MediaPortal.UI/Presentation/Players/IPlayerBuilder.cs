@@ -22,7 +22,7 @@
 
 #endregion
 
-using MediaPortal.Common.ResourceAccess;
+using MediaPortal.Common.MediaManagement;
 
 namespace MediaPortal.UI.Presentation.Players
 {
@@ -43,15 +43,11 @@ namespace MediaPortal.UI.Presentation.Players
   public interface IPlayerBuilder
   {
     /// <summary>
-    /// Returns an appropriate player to play the specified media resource.
+    /// Returns an appropriate player to play the specified media item.
     /// </summary>
-    /// <param name="locator">Resource locator to get access to the media resource.</param>
-    /// <param name="mimeType">Mime type of the media item, if known. If this parameter is given, the
-    /// method might be able to return faster. If this parameter is set to <c>null</c>,
-    /// this method will potentially need to look into the given resource before it is able to choose
-    /// an appropriate player for it.</param>
-    /// <returns>Player instance which is able to play the specified resource, or <c>null</c>, if there
+    /// <param name="mediaItem">Media item to be played.</param>
+    /// <returns>Player instance which is initialized to play the specified media item, or <c>null</c>, if there
     /// is no player available in this player builder which can play it.</returns>
-    IPlayer GetPlayer(IResourceLocator locator, string mimeType);
+    IPlayer GetPlayer(MediaItem mediaItem);
   }
 }

@@ -90,19 +90,6 @@ namespace MediaPortal.UI.Presentation.Players
     string MediaItemTitle { get; }
 
     /// <summary>
-    /// Notifies this player about the current media item's title, as it is known in the system.
-    /// </summary>
-    /// <remarks>
-    /// The player might or might not use this hint to build its <see cref="MediaItemTitle"/> property.
-    /// For example a video player, which doesn't know anything about the title of its current media item,
-    /// will use that hint. A TV- or radio-player will typically use extended streaming information about the
-    /// media content currently played for the <see cref="MediaItemTitle"/> property and thus will ignore the
-    /// given <paramref name="title"/>.
-    /// </remarks>
-    /// <param name="title">Title of the to-be-played media item as it is known to the system.</param>
-    void SetMediaItemTitleHint(string title);
-
-    /// <summary>
     /// Stops playback. The player will set its <see cref="State"/> to <see cref="PlayerState.Stopped"/>.
     /// </summary>
     void Stop();

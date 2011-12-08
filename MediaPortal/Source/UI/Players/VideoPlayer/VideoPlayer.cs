@@ -294,7 +294,7 @@ namespace MediaPortal.UI.Players.Video
 
     #region IInitializablePlayer implementation
 
-    public void SetMediaItemLocator(IResourceLocator locator)
+    public void SetMediaItem(IResourceLocator locator, string mediaItemTitle)
     {
       // free previous opened resource
       FilterGraphTools.TryDispose(ref _resourceAccessor);
@@ -305,6 +305,7 @@ namespace MediaPortal.UI.Players.Video
       try
       {
         _resourceLocator = locator;
+        _mediaItemTitle = mediaItemTitle;
         _resourceAccessor = _resourceLocator.CreateLocalFsAccessor();
         ServiceRegistration.Get<ILogger>().Debug("{0}: Initializing for media item '{1}'", PlayerTitle, _resourceAccessor.LocalFileSystemPath);
 
@@ -957,12 +958,6 @@ namespace MediaPortal.UI.Players.Video
       _isPaused = false;
       _state = PlayerState.Active;
       FireStarted();
-    }
-
-    public void SetMediaItemTitleHint(string title)
-    {
-      // We don't extract the title by ourselves, we just use the title hint
-      _mediaItemTitle = title;
     }
 
     public string MediaItemTitle

@@ -25,6 +25,7 @@
 using System;
 using MediaPortal.Common;
 using MediaPortal.Common.Logging;
+using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.ResourceAccess;
 using MediaPortal.UI.Players.Video.Interfaces;
 using MediaPortal.UI.Presentation.Players;
@@ -114,15 +115,20 @@ namespace MediaPortal.UI.Players.Video
 
     #region IPlayerBuilder implementation
 
-    public IPlayer GetPlayer(IResourceLocator locator, string mimeType)
+    public IPlayer GetPlayer(MediaItem mediaItem)
     {
+      string mimeType;
+      string title;
+      if (!mediaItem.GetPlayData(out mimeType, out title))
+        return null;
+      IResourceLocator locator = mediaItem.GetResourceLocator();
       Type playerType = PlayerRegistration.GetPlayerTypeForMediaItem(locator, mimeType);
       if (playerType == null)
         return null;
       IInitializablePlayer player = (IInitializablePlayer) Activator.CreateInstance(playerType);
       try
       {
-        player.SetMediaItemLocator(locator);
+        player.SetMediaItem(locator, title);
       }
       catch (Exception e)
       { // The file might be broken, so the player wasn't able to play it

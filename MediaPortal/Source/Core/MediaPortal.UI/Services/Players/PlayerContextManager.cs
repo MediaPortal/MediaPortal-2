@@ -212,7 +212,7 @@ namespace MediaPortal.UI.Services.Players
             pc = PlayerContext.GetPlayerContext(psc);
             if (pc == null || !pc.IsValid || psc.ActivationSequence != activationSequence)
               return;
-            pc.RequestNextItem();
+            pc.RequestNextItem_NoLock();
             break;
           case PlayerManagerMessaging.MessageType.PlayerSlotsChanged:
             lock (SyncObj)

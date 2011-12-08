@@ -27,6 +27,7 @@ using System.Collections.Generic;
 using MediaPortal.Common;
 using MediaPortal.Common.Localization;
 using MediaPortal.Common.Logging;
+using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.ResourceAccess;
 using MediaPortal.UI.Presentation.Players;
 using MediaPortal.UI.Presentation.UiNotifications;
@@ -276,26 +277,32 @@ namespace MediaPortal.UI.Services.Players
         dlgt(this, slotState);
     }
 
-    protected void HandleUnableToPlay(IResourceLocator locator, string mimeType, ICollection<Exception> exceptions)
+    protected void HandleUnableToPlay(MediaItem item, ICollection<Exception> exceptions)
     { // We come here in two cases: 1) No player available to play the resource and 2) resouce broken
       INotificationService notificationService = ServiceRegistration.Get<INotificationService>();
       // Start a heuristics to find a proper error message for the user
+      IResourceLocator locator = item.GetResourceLocator();
+      if (locator == null)
+      {
+        ServiceRegistration.Get<ILogger>().Warn("PlayerSlotController: Could not play media item '{0}', resource locator could not be built", item);
+        return;
+      }
       if (exceptions.Count != 0) // This is the indicator that at least one player builder tried to open the resource but threw an exception
       {
         // 1) Check if resource is present
         IResourceAccessor ra = null;
         try
         {
-          bool exists = true;
+          bool exists;
           try
           {
             ra = locator.CreateAccessor();
+            exists = ra != null && ra.Exists;
           }
           catch (Exception)
           {
             exists = false;
           }
-          exists &= ra != null && ra.Exists;
           notificationService.EnqueueNotification(
               NotificationType.UserInteractionRequired, RES_ERROR_PLAYING_MEDIA_ITEM_TITLE, exists ?
                   LocalizationHelper.Translate(RES_UNABLE_TO_PLAY_MEDIA_ITEM_TEXT, ra.ResourceName) :
@@ -454,7 +461,7 @@ namespace MediaPortal.UI.Services.Players
       }
     }
 
-    public bool Play(IResourceLocator locator, string mimeType, string mediaItemTitle, StartTime startTime)
+    public bool Play(MediaItem mediaItem, StartTime startTime)
     {
       IPlayer player = null;
       try
@@ -468,7 +475,7 @@ namespace MediaPortal.UI.Services.Players
         }
         if (rp != null)
         {
-          if (rp.NextItem(locator, mimeType, startTime))
+          if (rp.NextItem(mediaItem, startTime))
           {
             OnPlayerStarted(rp);
             return true;
@@ -476,9 +483,9 @@ namespace MediaPortal.UI.Services.Players
         }
         ReleasePlayer_NoLock();
         ICollection<Exception> exceptions;
-        player = _playerManager.BuildPlayer_NoLock(locator, mimeType, out exceptions);
+        player = _playerManager.BuildPlayer_NoLock(mediaItem, out exceptions);
         if (player == null)
-          HandleUnableToPlay(locator, mimeType, exceptions);
+          HandleUnableToPlay(mediaItem, exceptions);
         else
         {
           IMediaPlaybackControl mpc;
@@ -503,7 +510,7 @@ namespace MediaPortal.UI.Services.Players
       }
       catch (Exception e)
       {
-        ServiceRegistration.Get<ILogger>().Warn("PlayerSlotController: Slot {0} - error playing '{1}'", e, _slotIndex, locator);
+        ServiceRegistration.Get<ILogger>().Warn("PlayerSlotController: Slot {0} - error playing '{1}'", e, _slotIndex, mediaItem);
         IDisposable disposePlayer = player as IDisposable;
         if (disposePlayer != null)
           disposePlayer.Dispose();
@@ -513,10 +520,7 @@ namespace MediaPortal.UI.Services.Players
       finally
       {
         if (player != null)
-        {
           SetSlotState(PlayerSlotState.Playing);
-          player.SetMediaItemTitleHint(mediaItemTitle);
-        }
       }
     }
 

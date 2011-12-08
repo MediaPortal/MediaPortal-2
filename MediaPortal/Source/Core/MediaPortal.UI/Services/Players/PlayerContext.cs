@@ -26,8 +26,6 @@ using System;
 using System.Collections.Generic;
 using MediaPortal.Common;
 using MediaPortal.Common.MediaManagement;
-using MediaPortal.Common.MediaManagement.DefaultItemAspects;
-using MediaPortal.Common.ResourceAccess;
 using MediaPortal.UI.Presentation.Geometries;
 using MediaPortal.UI.Presentation.Players;
 using MediaPortal.Utilities.Exceptions;
@@ -109,22 +107,6 @@ namespace MediaPortal.UI.Services.Players
       }
     }
 
-    protected static bool GetItemData(MediaItem item, out IResourceLocator locator, out string mimeType,
-        out string mediaItemTitle)
-    {
-      locator = null;
-      mimeType = null;
-      mediaItemTitle = null;
-      if (item == null)
-        return false;
-      IMediaAccessor mediaAccessor = ServiceRegistration.Get<IMediaAccessor>();
-      locator = mediaAccessor.GetResourceLocator(item);
-      MediaItemAspect mediaAspect = item[MediaAspect.ASPECT_ID];
-      mimeType = (string) mediaAspect[MediaAspect.ATTR_MIME_TYPE];
-      mediaItemTitle = (string) mediaAspect[MediaAspect.ATTR_TITLE];
-      return locator != null;
-    }
-
     protected IPlayer GetCurrentPlayer()
     {
       IPlayerSlotController psc = _slotController;
@@ -134,33 +116,21 @@ namespace MediaPortal.UI.Services.Players
         return psc.IsActive ? psc.CurrentPlayer : null;
     }
 
-    protected bool DoPlay_NoLock(IResourceLocator locator, string mimeType, string mediaItemTitle, StartTime startTime)
+    protected bool DoPlay_NoLock(MediaItem mediaItem, StartTime startTime)
     {
-      _currentMediaItem = null;
+      _currentMediaItem = mediaItem;
       IPlayerSlotController psc = _slotController;
       if (psc == null)
         return false;
-      return psc.IsActive && psc.Play(locator, mimeType, mediaItemTitle, startTime);
+      return psc.IsActive && psc.Play(mediaItem, startTime);
     }
 
-    protected bool DoPlay(MediaItem item, StartTime startTime)
-    {
-      IResourceLocator locator;
-      string mimeType;
-      string mediaItemTitle;
-      if (!GetItemData(item, out locator, out mimeType, out mediaItemTitle))
-        return false;
-      bool result = DoPlay_NoLock(locator, mimeType, mediaItemTitle, startTime);
-      _currentMediaItem = item;
-      return result;
-    }
-
-    internal bool RequestNextItem()
+    internal bool RequestNextItem_NoLock()
     {
       MediaItem item = _playlist.MoveAndGetNext();
       if (item == null)
         return false;
-      return DoPlay(item, StartTime.Enqueue);
+      return DoPlay_NoLock(item, StartTime.Enqueue);
     }
 
     protected void Seek(double startValue)
@@ -312,12 +282,7 @@ namespace MediaPortal.UI.Services.Players
 
     public bool DoPlay(MediaItem item)
     {
-      return DoPlay(item, StartTime.AtOnce);
-    }
-
-    public bool DoPlay(IResourceLocator locator, string mimeType, string mediaItemTitle)
-    {
-      return DoPlay_NoLock(locator, mimeType, mediaItemTitle, StartTime.AtOnce);
+      return DoPlay_NoLock(item, StartTime.AtOnce);
     }
 
     public ICollection<AudioStreamDescriptor> GetAudioStreamDescriptors(out AudioStreamDescriptor currentAudioStream)
@@ -345,10 +310,9 @@ namespace MediaPortal.UI.Services.Players
         if (string.IsNullOrEmpty(title))
         {
           MediaItem item = Playlist.Current;
-          IResourceLocator locator;
           string mimeType;
           string mediaItemTitle;
-          title = GetItemData(item, out locator, out mimeType, out mediaItemTitle) ? mediaItemTitle : "Audio";
+          title = item.GetPlayData(out mimeType, out mediaItemTitle) ? mediaItemTitle : "Audio";
         }
         result.Add(currentAudioStream = new AudioStreamDescriptor(this, audioPlayer.Name, title));
       }
@@ -540,7 +504,7 @@ namespace MediaPortal.UI.Services.Players
       {
         if (--countLeft < 0 || !_playlist.HasPrevious) // Break loop if we don't have any more items left
           return false;
-      } while (!DoPlay(_playlist.MoveAndGetPrevious(), StartTime.AtOnce));
+      } while (!DoPlay_NoLock(_playlist.MoveAndGetPrevious(), StartTime.AtOnce));
       return true;
     }
 
@@ -558,7 +522,7 @@ namespace MediaPortal.UI.Services.Players
           _playlist.ResetStatus();
           return false;
         }
-        playOk = DoPlay(_playlist.MoveAndGetNext(), StartTime.AtOnce);
+        playOk = DoPlay_NoLock(_playlist.MoveAndGetNext(), StartTime.AtOnce);
       } while (!playOk);
       return true;
     }

@@ -25,6 +25,7 @@
 using System;
 using MediaPortal.Common;
 using MediaPortal.Common.Logging;
+using MediaPortal.Common.MediaManagement;
 using MediaPortal.UI.Presentation.Players;
 using MediaPortal.Common.ResourceAccess;
 
@@ -34,14 +35,23 @@ namespace MediaPortal.UI.Players.Picture
   {
     #region IPlayerBuilder implementation
 
-    public IPlayer GetPlayer(IResourceLocator locator, string mimeType)
+    public IPlayer GetPlayer(MediaItem mediaItem)
     {
+      string mimeType;
+      string title;
+      if (!mediaItem.GetPlayData(out mimeType, out title))
+        return null;
+      IResourceLocator locator = mediaItem.GetResourceLocator();
       if (!PicturePlayer.CanPlay(locator, mimeType))
         return null;
       PicturePlayer player = new PicturePlayer();
       try
       {
-        player.SetMediaItemLocator(locator);
+        if (!player.NextItem(mediaItem, StartTime.AtOnce))
+        {
+          player.Dispose();
+          return null;
+        }
       }
       catch (Exception e)
       {

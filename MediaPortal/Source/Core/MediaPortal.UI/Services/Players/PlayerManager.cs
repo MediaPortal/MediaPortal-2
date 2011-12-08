@@ -27,7 +27,7 @@ using System.Collections.Generic;
 using System.Linq;
 using MediaPortal.Common;
 using MediaPortal.Common.Logging;
-using MediaPortal.Common.ResourceAccess;
+using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.Messaging;
 using MediaPortal.Common.PluginManager;
 using MediaPortal.Common.Settings;
@@ -246,14 +246,12 @@ namespace MediaPortal.UI.Services.Players
     }
 
     /// <summary>
-    /// Tries to build a player for the media resource specified by the given resource <paramref name="locator"/>
-    /// and <paramref name="mimeType"/>.
+    /// Tries to build a player for the given <paramref name="mediaItem"/>.
     /// </summary>
-    /// <param name="locator">Resource locator to access the to-be-played media item.</param>
-    /// <param name="mimeType">Mime type of the media item to be played. May be <c>null</c>.</param>
+    /// <param name="mediaItem">Media item to be played.</param>
     /// <param name="exceptions">All exceptions which have been thrown by any player builder which was tried.</param>
     /// <returns>Player which was built or <c>null</c>, if no player could be built for the given resource.</returns>
-    internal IPlayer BuildPlayer_NoLock(IResourceLocator locator, string mimeType, out ICollection<Exception> exceptions)
+    internal IPlayer BuildPlayer_NoLock(MediaItem mediaItem, out ICollection<Exception> exceptions)
     {
       ICollection<IPlayerBuilder> builders;
       lock (_syncObj)
@@ -263,13 +261,13 @@ namespace MediaPortal.UI.Services.Players
       {
         try
         {
-          IPlayer player = playerBuilder.GetPlayer(locator, mimeType);
+          IPlayer player = playerBuilder.GetPlayer(mediaItem);
           if (player != null)
             return player;
         }
         catch (Exception e)
         {
-          ServiceRegistration.Get<ILogger>().Error("Unable to create media player for media resource '{0}'", e, locator);
+          ServiceRegistration.Get<ILogger>().Error("Unable to create media player for media item '{0}'", e, mediaItem);
           exceptions.Add(e);
         }
       }

@@ -22,7 +22,7 @@
 
 #endregion
 
-using MediaPortal.Common.ResourceAccess;
+using MediaPortal.Common.MediaManagement;
 
 namespace MediaPortal.UI.Presentation.Players
 {
@@ -70,13 +70,11 @@ namespace MediaPortal.UI.Presentation.Players
     /// a management of the next media item once it is added by this method; the new item should be regarded as the new
     /// "current" item.
     /// </remarks>
-    /// <param name="locator">Media locator to the media resource to be played.</param>
-    /// <param name="mimeType">MimeType of the content to be played, if available. Else, this
-    /// parameter should be set to <c>null</c>.</param>
+    /// <param name="mediaItem">Media item to be played.</param>
     /// <param name="startTime">Time when to start the new media item. If cross-fading is enabled, the player will
     /// try to cross-fade the item into the current item.</param>
     /// <returns><c>true</c>, if this player is able to play the specified next item, else <c>false</c>. In case
     /// <c>false</c> is returned, the player will continue to play as before.</returns>
-    bool NextItem(IResourceLocator locator, string mimeType, StartTime startTime);
+    bool NextItem(MediaItem mediaItem, StartTime startTime);
   }
 }

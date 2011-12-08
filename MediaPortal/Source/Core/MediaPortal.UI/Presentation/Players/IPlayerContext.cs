@@ -25,7 +25,6 @@
 using System;
 using System.Collections.Generic;
 using MediaPortal.Common.MediaManagement;
-using MediaPortal.Common.ResourceAccess;
 using MediaPortal.UI.Presentation.Geometries;
 
 namespace MediaPortal.UI.Presentation.Players
@@ -107,9 +106,7 @@ namespace MediaPortal.UI.Presentation.Players
     IPlaylist Playlist { get; }
 
     /// <summary>
-    /// Returns the media item which is currently played. Note that this player context might play a resource which
-    /// doesn't belong to a media item (e.g. by calling <see cref="DoPlay(IResourceLocator,string,string)"/>). In that case,
-    /// this property will return <c>null</c>.
+    /// Returns the media item which is currently played.
     /// </summary>
     MediaItem CurrentMediaItem { get; }
 
@@ -156,18 +153,6 @@ namespace MediaPortal.UI.Presentation.Players
     /// <param name="item">Media item to play.</param>
     /// <returns><c>true</c>, if the specified item could be played, else <c>false</c>.</returns>
     bool DoPlay(MediaItem item);
-
-    /// <summary>
-    /// Plays the specified media resource without putting it into the playlist.
-    /// </summary>
-    /// <param name="locator">Resource locator to the media resource.</param>
-    /// <param name="mimeType">Mime type of the media resource, if known. If this parameter is given, the
-    /// decision whether the media resource can be played might be faster. If this parameter is set to <c>null</c>,
-    /// this method will potentially need more time to look into the given resource's content.</param>
-    /// <param name="mediaItemTitle">The title of the media item. This value is necessary for some players,
-    /// which don't extract metadata from the media file themselves.</param>
-    /// <returns><c>true</c>, if the specified item could be played, else <c>false</c>.</returns>
-    bool DoPlay(IResourceLocator locator, string mimeType, string mediaItemTitle);
 
     /// <summary>
     /// Returns all audio stream descriptors for this player context.

@@ -30,6 +30,7 @@ using MediaPortal.UI.Presentation.Players;
 using Ui.Players.BassPlayer.Interfaces;
 using Ui.Players.BassPlayer.PlayerComponents;
 using Ui.Players.BassPlayer.Utils;
+using MediaPortal.Common.MediaManagement;
 
 namespace Ui.Players.BassPlayer
 {
@@ -200,11 +201,12 @@ namespace Ui.Players.BassPlayer
     /// Enqueues a play workitem for the given mediaitem.
     /// </summary>
     /// <param name="locator">Resource locator of the to-be-played item.</param>
-    /// <param name="mimeType">Mime type of the to-be-played item, if given. May be <c>null</c>.</param>
+    /// <param name="mimeType">Mime type of the media item to be played, if given. May be <c>null</c>.</param>
+    /// <param name="mediaItemTitle">Title of the media item to be played.</param>
     /// <remarks>
     /// The workitem will actually be executed on the controller's mainthread.
     /// </remarks>
-    public void SetMediaItemLocator(IResourceLocator locator, string mimeType)
+    public void SetMediaItemLocator(IResourceLocator locator, string mimeType, string mediaItemTitle)
     {
       if (_externalState != PlayerState.Stopped)
         Stop();
@@ -214,6 +216,7 @@ namespace Ui.Players.BassPlayer
         ServiceRegistration.Get<ILogger>().Warn("Unable to play '{0}'", locator);
         return;
       }
+      _mediaItemTitle = mediaItemTitle;
       _externalState = PlayerState.Active;
       _controller.MoveToNextItem_Async(inputSource, StartTime.AtOnce);
     }
@@ -248,12 +251,6 @@ namespace Ui.Players.BassPlayer
         lock (_syncObj)
           return _mediaItemTitle;
       }
-    }
-
-    public void SetMediaItemTitleHint(string title)
-    {
-      lock (_syncObj)
-        _mediaItemTitle = title;
     }
 
     public void Stop()
@@ -405,14 +402,22 @@ namespace Ui.Players.BassPlayer
 
     public event RequestNextItemDlgt NextItemRequest;
 
-    public bool NextItem(IResourceLocator locator, string mimeType, StartTime startTime)
+    public bool NextItem(MediaItem mediaItem, StartTime startTime)
     {
+      string mimeType;
+      string title;
+      if (!mediaItem.GetPlayData(out mimeType, out title))
+        return false;
+      IResourceLocator locator = mediaItem.GetResourceLocator();
+      if (locator == null)
+        return false;
       IInputSource inputSource = _inputSourceFactory.CreateInputSource(locator, mimeType);
       if (inputSource == null)
         return false;
       lock (_syncObj)
         _externalState = PlayerState.Active;
       _controller.MoveToNextItem_Async(inputSource, startTime);
+      _mediaItemTitle = title; // This is a bit too early because we're not switching to the next item at once, but doesn't matter
       return true;
     }
 

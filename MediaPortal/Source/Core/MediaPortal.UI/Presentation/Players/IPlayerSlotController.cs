@@ -23,7 +23,7 @@
 #endregion
 
 using System.Collections.Generic;
-using MediaPortal.Common.ResourceAccess;
+using MediaPortal.Common.MediaManagement;
 
 namespace MediaPortal.UI.Presentation.Players
 {
@@ -132,19 +132,14 @@ namespace MediaPortal.UI.Presentation.Players
     IDictionary<string, object> ContextVariables { get; }
 
     /// <summary>
-    /// Plays a media resource. An appropriate player will be choosen to play the specified media resource.
+    /// Plays a media item. An appropriate player will be choosen.
     /// </summary>
-    /// <param name="locator">Resource locator to the media resource.</param>
-    /// <param name="mimeType">Mime type of the media resource, if known. If this parameter is given, the
-    /// decision whether the media resource can be played might be faster. If this parameter is set to <c>null</c>,
-    /// this method will potentially need more time to look into the given resource's content.</param>
-    /// <param name="mediaItemTitle">The title of the media item. This value is necessary for some players,
-    /// which don't extract metadata from the media file themselves.</param>
+    /// <param name="mediaItem">Media item to play.</param>
     /// <param name="startTime">Tells the player slot controller when it should play the next item.
     /// This parameter is necessary for the potential already playing player if it is about to be reused to play the
     /// new media resource.</param>
     /// <returns><c>true</c>, if the specified media resource can be played, else <c>false</c>.</returns>
-    bool Play(IResourceLocator locator, string mimeType, string mediaItemTitle, StartTime startTime);
+    bool Play(MediaItem mediaItem, StartTime startTime);
 
     /// <summary>
     /// Sets the given <paramref name="player"/> as current player and starts it.

@@ -31,6 +31,6 @@ namespace MediaPortal.UI.Players.Video.Interfaces
   /// </summary>
   internal interface IInitializablePlayer
   {
-    void SetMediaItemLocator(IResourceLocator locator);
+    void SetMediaItem(IResourceLocator locator, string mediaItemTitle);
   }
 }

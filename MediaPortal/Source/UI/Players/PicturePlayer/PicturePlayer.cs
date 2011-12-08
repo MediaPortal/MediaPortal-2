@@ -27,6 +27,8 @@ using System.Drawing;
 using System.IO;
 using System.Threading;
 using MediaPortal.Common;
+using MediaPortal.Common.MediaManagement;
+using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.Common.ResourceAccess;
 using MediaPortal.Common.Settings;
 using MediaPortal.UI.Players.Picture.Settings;
@@ -56,6 +58,9 @@ namespace MediaPortal.UI.Players.Picture
     protected PlayerState _state;
     protected bool _isPaused = false;
     protected string _mediaItemTitle = string.Empty;
+    protected RightAngledRotation _rotation = RightAngledRotation.Zero;
+    protected bool _flipX = false;
+    protected bool _flipY = false;
 
     protected IResourceLocator _currentLocator = null;
     protected Texture _texture = null;
@@ -199,10 +204,14 @@ namespace MediaPortal.UI.Players.Picture
     #region Public methods
 
     /// <summary>
-    /// Sets the new picture to be played.
+    /// Sets the data of the new picture to be played.
     /// </summary>
     /// <param name="locator">Resource locator of the picture item.</param>
-    public void SetMediaItemLocator(IResourceLocator locator)
+    /// <param name="mediaItemTitle">Title of the picture item.</param>
+    /// <param name="rotation">Rotation of the picture.</param>
+    /// <param name="flipX">Flipping in horizontal direction.</param>
+    /// <param name="flipY">Flipping in vertical direction.</param>
+    public void SetMediaItemData(IResourceLocator locator, string mediaItemTitle, RightAngledRotation rotation, bool flipX, bool flipY)
     {
       ReloadSettings();
 
@@ -225,7 +234,11 @@ namespace MediaPortal.UI.Players.Picture
 
         DisposeTexture();
         _currentLocator = locator;
+        _mediaItemTitle = mediaItemTitle;
         _texture = texture;
+        _rotation = rotation;
+        _flipX = flipX;
+        _flipY = flipY;
         SurfaceDescription desc = _texture.GetLevelDescription(0);
         _textureMaxUV = new SizeF(imageInformation.Width / (float) desc.Width, imageInformation.Height / (float) desc.Height);
 
@@ -282,12 +295,6 @@ namespace MediaPortal.UI.Players.Picture
       }
     }
 
-    public void SetMediaItemTitleHint(string title)
-    {
-      lock (_syncObj)
-        _mediaItemTitle = title;
-    }
-
     public void Stop()
     {
       lock (_syncObj)
@@ -333,11 +340,44 @@ namespace MediaPortal.UI.Players.Picture
 
     public event RequestNextItemDlgt NextItemRequest;
 
-    public bool NextItem(IResourceLocator locator, string mimeType, StartTime startTime)
+    public bool NextItem(MediaItem mediaItem, StartTime startTime)
     {
+      string mimeType;
+      string title;
+      if (!mediaItem.GetPlayData(out mimeType, out title))
+        return false;
+      IResourceLocator locator = mediaItem.GetResourceLocator();
+      if (locator == null)
+        return false;
       if (!CanPlay(locator, mimeType))
         return false;
-      SetMediaItemLocator(locator);
+      RightAngledRotation rotation = RightAngledRotation.Zero;
+      bool flipX = false;
+      bool flipY = false;
+      MediaItemAspect pictureAspect = mediaItem[PictureAspect.ASPECT_ID];
+      if (pictureAspect != null)
+      {
+        int orientationInfo = (int) pictureAspect[PictureAspect.ATTR_ORIENTATION];
+        PictureRotation pictureRotation;
+        PictureAspect.OrientationToRotation(orientationInfo, out pictureRotation);
+        switch (pictureRotation)
+        {
+          case PictureRotation.Rot_0:
+            rotation = RightAngledRotation.Zero;
+            break;
+          case PictureRotation.Rot_90:
+            rotation = RightAngledRotation.HalfPi;
+            break;
+          case PictureRotation.Rot_180:
+            rotation = RightAngledRotation.Pi;
+            break;
+          case PictureRotation.Rot_270:
+            rotation = RightAngledRotation.ThreeHalfPi;
+            break;
+        }
+        PictureAspect.OrientationToFlip(orientationInfo, out flipX, out flipY);
+      }
+      SetMediaItemData(locator, title, rotation, flipX, flipY);
       return true;
     }
 
@@ -368,8 +408,26 @@ namespace MediaPortal.UI.Players.Picture
     {
       get
       {
-        // TODO
-        return RightAngledRotation.Zero;
+        lock (_syncObj)
+          return _rotation;
+      }
+    }
+
+    public bool FlipX
+    {
+      get
+      {
+        lock (_syncObj)
+          return _flipX;
+      }
+    }
+
+    public bool FlipY
+    {
+      get
+      {
+        lock (_syncObj)
+          return _flipY;
       }
     }
 

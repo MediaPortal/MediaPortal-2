@@ -138,6 +138,8 @@ namespace MediaPortal.UI.SkinEngine.SpecialElements.Controls
     protected AbstractProperty _audioYearProperty;
     protected AbstractProperty _pictureSourcePathProperty;
     protected AbstractProperty _pictureRotateDegreesProperty;
+    protected AbstractProperty _pictureFlipXProperty;
+    protected AbstractProperty _pictureFlipYProperty;
 
     protected AbstractProperty _fullscreenContentWFStateIDProperty;
     protected AbstractProperty _currentlyPlayingWFStateIDProperty;
@@ -204,6 +206,8 @@ namespace MediaPortal.UI.SkinEngine.SpecialElements.Controls
       _videoStoryPlotProperty = new SProperty(typeof(string), string.Empty);
       _pictureSourcePathProperty = new SProperty(typeof(string), string.Empty);
       _pictureRotateDegreesProperty = new SProperty(typeof(int), 0);
+      _pictureFlipXProperty = new SProperty(typeof(bool), false);
+      _pictureFlipYProperty = new SProperty(typeof(bool), false);
 
       _audioArtistsProperty = new SProperty(typeof(IEnumerable<string>), EMPTY_NAMES_COLLECTION);
       _audioYearProperty = new SProperty(typeof(int?), null);
@@ -405,16 +409,19 @@ namespace MediaPortal.UI.SkinEngine.SpecialElements.Controls
       ShowMouseControls = inputManager.IsMouseUsed && screen != null && screen.HasInputFocus;
     }
 
-    protected int GetRotationMetadata(MediaItem mediaItem)
+    protected bool GetOrientationMetadata(MediaItem mediaItem, out int rotationDegree, out bool flipX, out bool flipY)
     {
+      rotationDegree = 0;
+      flipX = false;
+      flipY = false;
       MediaItemAspect pictureAspect;
       if (mediaItem != null && mediaItem.Aspects.TryGetValue(PictureAspect.ASPECT_ID, out pictureAspect))
       {
-        Int32 rotationDegree;
-        PictureAspect.OrientationToDegrees((int) pictureAspect[PictureAspect.ATTR_ORIENTATION], out rotationDegree);
-        return rotationDegree;
+        int orientationInfo = (int) pictureAspect[PictureAspect.ATTR_ORIENTATION];
+        return (PictureAspect.OrientationToDegrees(orientationInfo, out rotationDegree) &&
+            PictureAspect.OrientationToFlip(orientationInfo, out flipX, out flipY));
       }
-      return 0;
+      return false;
     }
 
     protected void UpdatePictureSourcePath(IResourceLocator locator)
@@ -529,7 +536,15 @@ namespace MediaPortal.UI.SkinEngine.SpecialElements.Controls
         {
           IsPicturePlayerPresent = true;
           UpdatePictureSourcePath(pp.CurrentPictureResourceLocator);
-          PictureRotateDegrees = GetRotationMetadata(_currentMediaItem);
+          int rotationDegrees;
+          bool flipX;
+          bool flipY;
+          if (GetOrientationMetadata(_currentMediaItem, out rotationDegrees, out flipX, out flipY))
+          {
+            PictureRotateDegrees = rotationDegrees;
+            PictureFlipX = flipX;
+            PictureFlipY = flipY;
+          }
         }
 
         MediaItemAspect mediaAspect;
@@ -1395,6 +1410,28 @@ namespace MediaPortal.UI.SkinEngine.SpecialElements.Controls
     {
       get { return (int) _pictureRotateDegreesProperty.GetValue(); }
       set { _pictureRotateDegreesProperty.SetValue(value); }
+    }
+
+    public AbstractProperty PictureFlipXProperty
+    {
+      get { return _pictureFlipXProperty; }
+    }
+
+    public bool PictureFlipX
+    {
+      get { return (bool) _pictureFlipXProperty.GetValue(); }
+      set { _pictureFlipXProperty.SetValue(value); }
+    }
+
+    public AbstractProperty PictureFlipYProperty
+    {
+      get { return _pictureFlipYProperty; }
+    }
+
+    public bool PictureFlipY
+    {
+      get { return (bool) _pictureFlipYProperty.GetValue(); }
+      set { _pictureFlipYProperty.SetValue(value); }
     }
 
     public AbstractProperty AudioArtistsProperty

@@ -26,6 +26,8 @@ using System;
 using System.Collections.Generic;
 using MediaPortal.Common;
 using MediaPortal.Common.Localization;
+using MediaPortal.Common.MediaManagement;
+using MediaPortal.Common.ResourceAccess;
 using MediaPortal.Plugins.SlimTvClient.Interfaces.Items;
 using MediaPortal.UI.Players.Video;
 using MediaPortal.UI.Players.Video.Tools;
@@ -40,7 +42,6 @@ namespace MediaPortal.Plugins.SlimTvClient
     /// Constructs a LiveTvPlayer player object.
     /// </summary>
     public LiveTvPlayer()
-      : base()
     {
       PlayerTitle = "LiveTvPlayer"; // for logging
     }
@@ -222,12 +223,19 @@ namespace MediaPortal.Plugins.SlimTvClient
 
     public event RequestNextItemDlgt NextItemRequest;
 
-    public bool NextItem(Common.ResourceAccess.IResourceLocator locator, string mimeType, StartTime startTime)
+    public bool NextItem(MediaItem mediaItem, StartTime startTime)
     {
+      string mimeType;
+      string title;
+      if (!mediaItem.GetPlayData(out mimeType, out title))
+        return false;
       if (mimeType != "video/livetv")
         return false;
+      IResourceLocator locator = mediaItem.GetResourceLocator();
+      if (locator == null)
+        return false;
       Shutdown();
-      SetMediaItemLocator(locator);
+      SetMediaItem(locator, title);
       return true;
     }
 

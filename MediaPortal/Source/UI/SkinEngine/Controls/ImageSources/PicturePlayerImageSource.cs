@@ -121,6 +121,9 @@ namespace MediaPortal.UI.SkinEngine.Controls.ImageSources
         if (texture != null && texture != _lastCopiedTexture)
         {
           _lastCopiedTexture = texture;
+          // The SlimDX player also supports the FlipX, FlipY values, which give us the information that the
+          // image should be flipped in horizontal or vertical direction after the rotation. Very few pictures have those flags;
+          // we don't implement them here.
           CycleTextures(texture, player.MaxU, player.MaxV, TranslateRotation(player.Rotation));
         }
       }

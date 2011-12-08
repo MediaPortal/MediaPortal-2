@@ -42,9 +42,19 @@ namespace MediaPortal.UI.Presentation.Players
     IResourceLocator CurrentPictureResourceLocator { get; }
     
     /// <summary>
-    /// Returns the angle in radians, the picture should be rotated.
+    /// Returns the rotation which must be applied to the picture.
     /// </summary>
     RightAngledRotation Rotation { get; }
+
+    /// <summary>
+    /// Returns if the picture must be flipped in horiziontal direction after the <see cref="Rotation"/>.
+    /// </summary>
+    bool FlipX { get; }
+
+    /// <summary>
+    /// Returns if the picture must be flipped in vertical direction after the <see cref="Rotation"/>.
+    /// </summary>
+    bool FlipY { get; }
 
     bool SlideShowEnabled { get; set; }
   }
