@@ -73,8 +73,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.ImageSources
     public override void Dispose()
     {
       base.Dispose();
-      TryDispose(ref _lastTexture);
-      TryDispose(ref _currentTexture);
+      FreeData();
     }
 
     #endregion
@@ -121,14 +120,14 @@ namespace MediaPortal.UI.SkinEngine.Controls.ImageSources
         if (texture != null && texture != _lastCopiedTexture)
         {
           _lastCopiedTexture = texture;
-          CycleTextures(texture, player.MaxU, player.MaxV);
+          CycleTextures(texture, player.MaxU, player.MaxV, player.Rotation);
         }
       }
     }
 
     #endregion
 
-    #region Protected methods
+    #region Protected members
 
     protected override Texture LastTexture
     {
@@ -175,7 +174,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.ImageSources
       get { return _currentTexture != null; }
     }
 
-    protected void CycleTextures(Texture nextTexture, float nextMaxU, float nextMaxV)
+    protected void CycleTextures(Texture nextTexture, float nextMaxU, float nextMaxV, RightAngledRotation nextRotation)
     {
       TryDispose(ref _lastTexture);
 
@@ -196,7 +195,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.ImageSources
       _imageContext = new ImageContext
         {
             FrameSize = _frameSize,
-            ShaderEffect = Effect
+            ShaderEffect = Effect,
+            Rotation = nextRotation
         };
 
       StartTransition();
@@ -218,8 +218,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.ImageSources
     protected override void FreeData()
     {
       base.FreeData();
-      _lastTexture = null;
-      _currentTexture = null;
+      TryDispose(ref _lastTexture);
+      TryDispose(ref _currentTexture);
       _lastImageContext.Clear();
     }
 

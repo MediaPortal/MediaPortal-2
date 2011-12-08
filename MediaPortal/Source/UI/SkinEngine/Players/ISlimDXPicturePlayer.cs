@@ -22,8 +22,8 @@
 
 #endregion
 
-using System.Drawing;
 using MediaPortal.UI.Presentation.Players;
+using MediaPortal.UI.SkinEngine.Rendering;
 using SlimDX.Direct3D9;
 
 namespace MediaPortal.UI.SkinEngine.Players
@@ -52,5 +52,10 @@ namespace MediaPortal.UI.SkinEngine.Players
     /// Returns the value of the V coord of the texture that defines the vertical extent of the image.
     /// </summary>
     float MaxV { get; }
+
+    /// <summary>
+    /// Returns the angle in radians, the picture should be rotated.
+    /// </summary>
+    RightAngledRotation Rotation { get; }
   }
 }

@@ -41,6 +41,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.ImageSources
   public class MultiImageSource : MultiImageSourceBase
   {
     protected AbstractProperty _uriSourceProperty;
+    protected AbstractProperty _rotationProperty;
     protected AbstractProperty _decodePixelWidthProperty;
     protected AbstractProperty _decodePixelHeightProperty;
     protected AbstractProperty _thumbnailDimensionProperty;
@@ -48,7 +49,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.ImageSources
 
     protected TextureAsset _lastTexture = null;
     protected TextureAsset _currentTexture = null;
-    protected bool _uriChanged = true;
+    protected bool _source = true;
 
     #region Ctor
 
@@ -61,6 +62,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.ImageSources
     void Init()
     {
       _uriSourceProperty = new SProperty(typeof(string), null);
+      _rotationProperty = new SProperty(typeof(RightAngledRotation), RightAngledRotation.Zero);
       _decodePixelWidthProperty = new SProperty(typeof(int), 0);
       _decodePixelHeightProperty = new SProperty(typeof(int), 0);
       _thumbnailDimensionProperty = new SProperty(typeof(int), 0);
@@ -107,6 +109,17 @@ namespace MediaPortal.UI.SkinEngine.Controls.ImageSources
     public AbstractProperty UriSourceProperty
     {
       get { return _uriSourceProperty; }
+    }
+
+    public RightAngledRotation Rotation
+    {
+      get { return (RightAngledRotation) _rotationProperty.GetValue(); }
+      set { _rotationProperty.SetValue(value); }
+    }
+
+    public AbstractProperty RotationProperty
+    {
+      get { return _rotationProperty; }
     }
 
     /// <summary>
@@ -180,14 +193,14 @@ namespace MediaPortal.UI.SkinEngine.Controls.ImageSources
     public override void Allocate()
     {
       TextureAsset nextTexture = null;
-      if (_uriChanged)
+      if (_source)
       {
-        _uriChanged = false;
+        _source = false;
         string uri = UriSource;
         if (String.IsNullOrEmpty(uri))
         {
           if (_currentTexture != null)
-            CycleTextures(null);
+            CycleTextures(null, RightAngledRotation.Zero);
         }
         else
         {
@@ -207,7 +220,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.ImageSources
         if (!nextTexture.LoadFailed)
           nextTexture.AllocateAsync();
         if (!_transitionActive && nextTexture.IsAllocated)
-          CycleTextures(nextTexture);
+          CycleTextures(nextTexture, Rotation);
       }
     }
 
@@ -260,7 +273,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.ImageSources
       get { return _currentTexture != null && _currentTexture.IsAllocated; }
     }
 
-    protected void CycleTextures(TextureAsset nextTexture)
+    protected void CycleTextures(TextureAsset nextTexture, RightAngledRotation rotation)
     {
       // Current -> Last
       _lastTexture = _currentTexture;
@@ -270,7 +283,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.ImageSources
       _imageContext = new ImageContext
         {
             FrameSize = _frameSize,
-            ShaderEffect = Effect
+            ShaderEffect = Effect,
+            Rotation = rotation
         };
 
       if (_lastTexture != _currentTexture)
@@ -282,7 +296,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.ImageSources
 
     protected void OnSourceChanged(AbstractProperty prop, object oldValue)
     {
-      _uriChanged = true;
+      _source = true;
     }
 
     protected override void FreeData()

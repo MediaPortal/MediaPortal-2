@@ -32,6 +32,7 @@ using MediaPortal.Common.Settings;
 using MediaPortal.UI.Players.Picture.Settings;
 using MediaPortal.UI.Presentation.Players;
 using MediaPortal.UI.SkinEngine.Players;
+using MediaPortal.UI.SkinEngine.Rendering;
 using MediaPortal.UI.SkinEngine.SkinManagement;
 using MediaPortal.Utilities;
 using SlimDX.Direct3D9;
@@ -391,6 +392,15 @@ namespace MediaPortal.UI.Players.Picture
     public Texture NextPicture
     {
       get { return null; }
+    }
+
+    public RightAngledRotation Rotation
+    {
+      get
+      {
+        // TODO
+        return RightAngledRotation.Zero;
+      }
     }
 
     #endregion

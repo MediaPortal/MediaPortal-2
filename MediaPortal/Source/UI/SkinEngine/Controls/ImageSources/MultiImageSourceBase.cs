@@ -154,8 +154,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.ImageSources
 
       Texture currentTexture = CurrentTexture;
       SizeF currentTextureSize = CurrentTextureSize;
-      float currentMaxU = CurrentMaxU;
-      float currentMaxV = CurrentMaxV;
+      SizeF currentMaxUV = new SizeF(CurrentMaxU, CurrentMaxV);
       Vector4 frameData = new Vector4(currentTextureSize.Width, currentTextureSize.Height, (float) EffectTimer, 0);
 
       if (_transitionActive)
@@ -167,8 +166,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.ImageSources
         {
           Texture lastTexture = LastTexture;
           SizeF lastTextureSize = LastTextureSize;
-          float lastMaxU = LastMaxU;
-          float lastMaxV = LastMaxV;
+          SizeF lastMaxUV = new SizeF(LastMaxU, LastMaxV);
           Vector4 lastFrameData = new Vector4(lastTextureSize.Width, lastTextureSize.Height, (float) EffectTimer, 0);
 
           Texture start = lastTexture ?? NullTexture.Texture;
@@ -180,10 +178,10 @@ namespace MediaPortal.UI.SkinEngine.Controls.ImageSources
             SizeF endSize = StretchSource(_imageContext.FrameSize, currentTextureSize, stretchMode, stretchDirection);
 
             // Render transition from last texture to current texture
-            _lastImageContext.Update(startSize, start, lastMaxU, lastMaxV);
-            _imageContext.Update(endSize, end, currentMaxU, currentMaxV);
+            _lastImageContext.Update(startSize, start, lastMaxUV.Width, lastMaxUV.Height);
 
-            if (_imageContext.StartRenderTransition(renderContext, (float) elapsed, _lastImageContext, BorderColor.ToArgb(), lastFrameData, frameData))
+            if (_imageContext.StartRenderTransition(renderContext, (float) elapsed, _lastImageContext,
+                endSize, end, currentMaxUV.Width, currentMaxUV.Height, BorderColor.ToArgb(), lastFrameData, frameData))
             {
               _primitiveBuffer.Render(0);
               _imageContext.EndRenderTransition();
@@ -196,7 +194,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.ImageSources
       if (IsAllocated)
       {
         SizeF sourceSize = StretchSource(_imageContext.FrameSize, currentTextureSize, stretchMode, stretchDirection);
-        if (_imageContext.StartRender(renderContext, sourceSize, CurrentTexture, currentMaxU, currentMaxV, BorderColor.ToArgb(), frameData))
+        if (_imageContext.StartRender(renderContext, sourceSize, currentTexture, currentMaxUV.Width, currentMaxUV.Height,
+            BorderColor.ToArgb(), frameData))
         {
           _primitiveBuffer.Render(0);
           _imageContext.EndRender();

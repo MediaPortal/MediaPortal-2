@@ -35,6 +35,14 @@ namespace MediaPortal.UI.SkinEngine.Rendering
 {
   public delegate void ImageContextRefreshHandler();
 
+  public enum RightAngledRotation
+  {
+    Zero,
+    HalfPi,
+    Pi,
+    ThreeHalfPi
+  }
+
   /// <summary>
   /// This class provides a common framework for rendering images at specific sizes within a larger primitive.
   /// Images will always be centered and any space will be set to a given color. More advanced features allow for
@@ -60,11 +68,13 @@ namespace MediaPortal.UI.SkinEngine.Rendering
 
     protected const string PARAM_OPACITY = "g_opacity";
     protected const string PARAM_TEXTURE = "g_texture";
+    protected const string PARAM_RELATIVE_TRANSFORM = "g_relativetransform";
     protected const string PARAM_BRUSH_TRANSFORM = "g_imagetransform";
     protected const string PARAM_FRAME_DATA = "g_framedata";
 
     // Transition parameters
     protected const string PARAM_TEXTURE_START= "g_textureA";
+    protected const string PARAM_RELATIVE_TRANSFORM_START = "g_relativetransformA";
     protected const string PARAM_BRUSH_TRANSFORM_START = "g_imagetransformA";
     protected const string PARAM_FRAME_DATA_START = "g_framedataA";
     protected const string PARAM_MIX_AB = "g_mixAB";
@@ -81,6 +91,7 @@ namespace MediaPortal.UI.SkinEngine.Rendering
     protected Vector4 _imageTransform;
     protected SizeF _lastImageSize;
     protected Texture _lastTexture;
+    protected Matrix _inverseRelativeTransformCache;
     protected bool _refresh = true;
 
     protected string _shaderBaseName = null;
@@ -88,6 +99,7 @@ namespace MediaPortal.UI.SkinEngine.Rendering
     protected string _shaderTransformName = null;
     protected string _shaderEffectName = null;
     protected string _shaderTransitionName = null;
+    protected RightAngledRotation _rotation = RightAngledRotation.Zero;
     protected Dictionary<string, object> _extraParameters;
     
     #endregion
@@ -170,14 +182,31 @@ namespace MediaPortal.UI.SkinEngine.Rendering
       }
     }
 
+    /// <summary>
+    /// Gets or sets an additional rotation.
+    /// </summary>
+    public RightAngledRotation Rotation
+    {
+      get { return _rotation; }
+      set
+      {
+        _rotation = value;
+        _refresh = true;
+      }
+    }
+
     #endregion
 
     #region Public methods
 
-    public void Update(SizeF imageSize, Texture texture, float maxU, float maxV)
+    public SizeF RotateSize(SizeF size)
     {
-      _refresh |= texture != _lastTexture;
-      RefreshParameters(imageSize, texture, maxU, maxV);
+      return _rotation == RightAngledRotation.HalfPi || _rotation == RightAngledRotation.ThreeHalfPi ? new SizeF(size.Height, size.Width) : size;
+    }
+
+    public void Update(SizeF rotatedImageSize, Texture texture, float rotatedMaxU, float rotatedMaxV)
+    {
+      RefreshParameters(rotatedImageSize, texture, rotatedMaxU, rotatedMaxV);
     }
 
     /// <summary>
@@ -191,13 +220,10 @@ namespace MediaPortal.UI.SkinEngine.Rendering
     /// <param name="borderColor">The color to use outside the image's boundaries.</param>
     /// <param name="frameData">Additional data to be used by the shaders.</param>
     /// <returns><c>true</c> if the rendering operation was started.</returns>
-    /// <remarks>
-    /// There is no check on maxU / maxV or texture changing. This must be handled by the calling class!
-    /// </remarks>
     public bool StartRender(RenderContext renderContext, SizeF imageSize, Texture texture, float maxU, 
-      float maxV, int borderColor, Vector4 frameData)
+        float maxV, int borderColor, Vector4 frameData)
     {
-      Update(imageSize, texture, maxU, maxV);
+      RefreshParameters(imageSize, texture, maxU, maxV);
       return StartRender(renderContext, borderColor, frameData);
     }
 
@@ -206,14 +232,20 @@ namespace MediaPortal.UI.SkinEngine.Rendering
     /// </summary>
     /// <param name="renderContext">The current rendering context.</param>
     /// <param name="mixValue">A value between 0.0 and 1.0 that governs how much each image contributes to the final rendering.</param>
-    /// <param name="startContext">The <see cref="ImageContext"/> data for the starting position of the transition (this context is the end point).</param>
+    /// <param name="startContext">The <see cref="ImageContext"/> data for the starting position of the transition
+    /// (this context is the end point).</param>
+    /// <param name="endImageSize">The size of the end image within the frame.</param>
+    /// <param name="endTexture">A texture object containing the end image.</param>
+    /// <param name="endMaxU">The value of the U texture coord that defines the horizontal extent of the end image.</param>
+    /// <param name="endMaxV">The value of the V texture coord that defines the vertical extent of the end image.</param>
     /// <param name="borderColor">The color to use outside the image's boundaries.</param>
     /// <param name="startFrameData">Additional data to be used by the starting image shaders.</param>
     /// <param name="endFrameData">Additional data to be used by the ending image shaders.</param>
     /// <returns><c>true</c> if the rendering operation was started.</returns>
     public bool StartRenderTransition(RenderContext renderContext, float mixValue, ImageContext startContext,
-        int borderColor, Vector4 startFrameData, Vector4 endFrameData)
+        SizeF endImageSize, Texture endTexture, float endMaxU, float endMaxV, int borderColor, Vector4 startFrameData, Vector4 endFrameData)
     {
+      RefreshParameters(endImageSize, endTexture, endMaxU, endMaxV);
       if (_effectTransition == null)
         _effectTransition = ContentManager.Instance.GetEffect(GetTransitionEffectName());
       if (_lastTexture == null || _effectTransition == null)
@@ -221,6 +253,7 @@ namespace MediaPortal.UI.SkinEngine.Rendering
 
       // Apply effect parameters    
       _effectTransition.Parameters[PARAM_OPACITY] = (float) renderContext.Opacity;
+      _effectTransition.Parameters[PARAM_RELATIVE_TRANSFORM] = _inverseRelativeTransformCache;
       _effectTransition.Parameters[PARAM_BRUSH_TRANSFORM] = _imageTransform;
       _effectTransition.Parameters[PARAM_FRAME_DATA] = endFrameData;
       _effectTransition.Parameters[PARAM_MIX_AB] = mixValue;
@@ -288,6 +321,7 @@ namespace MediaPortal.UI.SkinEngine.Rendering
       // Apply effect parameters
       _effect.Parameters[PARAM_OPACITY] = (float) renderContext.Opacity;
       _effect.Parameters[PARAM_FRAME_DATA] = frameData;
+      _effect.Parameters[PARAM_RELATIVE_TRANSFORM] = _inverseRelativeTransformCache;
       _effect.Parameters[PARAM_BRUSH_TRANSFORM] = _imageTransform;
 
       if (_extraParameters != null)
@@ -303,15 +337,16 @@ namespace MediaPortal.UI.SkinEngine.Rendering
 
     protected void RefreshParameters(SizeF imageSize, Texture texture, float maxU, float maxV)
     {
-      _lastTexture = texture;
       // If necessary update our image transformation to best fit the frame
-      if (_refresh || Math.Abs(imageSize.Width - _lastImageSize.Width) > FLOAT_EQUALITY_LIMIT ||
+      if (_refresh || texture != _lastTexture || Math.Abs(imageSize.Width - _lastImageSize.Width) > FLOAT_EQUALITY_LIMIT ||
           Math.Abs(imageSize.Height - _lastImageSize.Height) > FLOAT_EQUALITY_LIMIT)
       {
+        _lastTexture = texture;
+
         // Convert image dimensions to texture space
-        Vector4 textureRect = new Vector4(0.0f, 0.0f, imageSize.Width+1.0f, imageSize.Height+1.0f);
-        textureRect.Z /= _frameSize.Width;
-        textureRect.W /= _frameSize.Height;
+        SizeF rotatedFrameSize = RotateSize(_frameSize); // We're doing the relative transform first in the shader, that's why we just have to rotate the frame size
+        Vector4 textureRect = new Vector4(0.0f, 0.0f,
+            (imageSize.Width+1.0f) / rotatedFrameSize.Width, (imageSize.Height+1.0f) / rotatedFrameSize.Height);
 
         // Center texture
         textureRect.X += (1.0f - textureRect.Z) / 2.0f;
@@ -330,6 +365,9 @@ namespace MediaPortal.UI.SkinEngine.Rendering
           _refresh = true;
           return;
         }
+
+        _inverseRelativeTransformCache = TranslateRotation(_rotation);
+        _inverseRelativeTransformCache.Invert();
         _imageTransform = new Vector4(textureRect.X * repeatx, textureRect.Y * repeaty, repeatx, repeaty);
 
         // Build our effects
@@ -346,9 +384,33 @@ namespace MediaPortal.UI.SkinEngine.Rendering
       }
     }
 
+    protected static Matrix TranslateRotation(RightAngledRotation rar)
+    {
+      if (rar == RightAngledRotation.Zero)
+        return Matrix.Identity;
+      float rotation = 0;
+      switch (rar)
+      {
+        case RightAngledRotation.HalfPi:
+          rotation = (float) Math.PI / 2;
+          break;
+        case RightAngledRotation.Pi:
+          rotation = (float) Math.PI;
+          break;
+        case RightAngledRotation.ThreeHalfPi:
+          rotation = (float) Math.PI * 3 / 2;
+          break;
+      }
+      Matrix matrix = Matrix.Translation(-0.5f, -0.5f, 0);
+      matrix *= Matrix.RotationZ(rotation);
+      matrix *= Matrix.Translation(0.5f, 0.5f, 0);
+      return matrix;
+    }
+
     protected void ApplyTransitionParametersAsStartingSource(EffectAsset effect, Vector4 frameData)
     {
       effect.Parameters[PARAM_TEXTURE_START] = _lastTexture;
+      effect.Parameters[PARAM_RELATIVE_TRANSFORM_START] = _inverseRelativeTransformCache;
       effect.Parameters[PARAM_BRUSH_TRANSFORM_START] = _imageTransform;
       effect.Parameters[PARAM_FRAME_DATA_START] = frameData;
     }
