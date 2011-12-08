@@ -21,9 +21,6 @@
                 Transition="transitions\granular_dissolve;transitions\fade;transitions\dissolve;transitions\wipe_right;transitions\wipe_down;transitions\wipe_down-right;transitions\wipe_up-left"
                 TransitionInOut="False" />
           </Image.Source>
-          <Image.LayoutTransform>
-            <RotateTransform Angle="{Binding PictureRotateDegrees}" />
-          </Image.LayoutTransform>
         </Image>
       </mp_special_controls:PlayerControl.TemplateControl>
     </mp_special_controls:PlayerControl>
