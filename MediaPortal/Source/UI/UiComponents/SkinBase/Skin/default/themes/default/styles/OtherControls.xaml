@@ -1289,14 +1289,14 @@
                   <Grid.RowDefinitions>
                     <RowDefinition Height="Auto"/>
                   </Grid.RowDefinitions>
-                  <Control IsVisible="{Binding IsVideoPlayerPresent}" Width="{Binding VideoWidth}" Height="{Binding VideoHeight}">
+                  <Control x:Name="PiPVideo" IsVisible="{Binding IsVideoPlayerPresent}" Width="{Binding VideoWidth}" Height="{Binding VideoHeight}">
                     <Control.Background>
                       <VideoBrush Stream="1"/>
                     </Control.Background>
                   </Control>
-                  <Image IsVisible="{Binding IsPicturePlayerPresent}" Width="{ThemeResource PiPVideoWidth}" Stretch="Uniform">
+                  <Image x:Name="PiPPicture" IsVisible="{Binding IsPicturePlayerPresent}" Width="{ThemeResource PiPVideoWidth}" Stretch="Uniform">
                     <Image.Source>
-                      <PicturePlayerImageSource Stream="0"
+                      <PicturePlayerImageSource Stream="1"
                           Transition="transitions\granular_dissolve;transitions\fade;transitions\dissolve;transitions\wipe_right;transitions\wipe_down;transitions\wipe_down-right;transitions\wipe_up-left"
                           TransitionInOut="False" />
                     </Image.Source>
