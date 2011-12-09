@@ -178,7 +178,7 @@ namespace MediaPortal.UiComponents.Media.Models
     {
       IScreenManager screenManager = ServiceRegistration.Get<IScreenManager>();
       if (_screenName != null)
-        if (!screenManager.CheckScreen(_screenName).HasValue)
+        if (!screenManager.CheckScreen(_screenName, !_backgroundDisabled).HasValue)
           // If the opened screen is not present or erroneous, we cannot update the screen
           return false;
       screenManager.BackgroundDisabled = _backgroundDisabled;
