@@ -27,6 +27,7 @@ using System.Drawing;
 using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.UI.SkinEngine.ContentManagement;
+using MediaPortal.UI.SkinEngine.Rendering;
 using SlimDX.Direct3D9;
 
 namespace MediaPortal.UI.SkinEngine.Controls.ImageSources
@@ -43,6 +44,9 @@ namespace MediaPortal.UI.SkinEngine.Controls.ImageSources
     protected string _key;
     protected int _thumbnailSize;
     protected TextureAsset _texture = null;
+    protected RightAngledRotation _rotation = RightAngledRotation.Zero;
+    protected bool _flipX = false;
+    protected bool _flipY = false;
 
     #endregion
 
@@ -78,6 +82,9 @@ namespace MediaPortal.UI.SkinEngine.Controls.ImageSources
         if (_thumbBinary == null && mediaItem.Aspects.ContainsKey(ThumbnailSmallAspect.ASPECT_ID))
           _thumbBinary = (byte[]) mediaItem.Aspects[ThumbnailSmallAspect.ASPECT_ID].GetAttributeValue(ThumbnailSmallAspect.ATTR_THUMBNAIL);
       }
+      PictureRotation rotation;
+      PictureAspect.GetOrientationMetadata(mediaItem, out rotation, out _flipX, out _flipY);
+      _rotation = RotationTranslator.TranslateToRightAngledRotation(rotation);
     }
 
     #endregion
@@ -119,6 +126,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.ImageSources
         if (_texture.IsAllocated)
         {
           _imageContext.Refresh();
+          _imageContext.Rotation = _rotation;
           FireChanged();
         }
       }

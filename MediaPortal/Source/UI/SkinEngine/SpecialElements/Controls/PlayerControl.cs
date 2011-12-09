@@ -409,21 +409,6 @@ namespace MediaPortal.UI.SkinEngine.SpecialElements.Controls
       ShowMouseControls = inputManager.IsMouseUsed && screen != null && screen.HasInputFocus;
     }
 
-    protected bool GetOrientationMetadata(MediaItem mediaItem, out int rotationDegree, out bool flipX, out bool flipY)
-    {
-      rotationDegree = 0;
-      flipX = false;
-      flipY = false;
-      MediaItemAspect pictureAspect;
-      if (mediaItem != null && mediaItem.Aspects.TryGetValue(PictureAspect.ASPECT_ID, out pictureAspect))
-      {
-        int orientationInfo = (int) pictureAspect[PictureAspect.ATTR_ORIENTATION];
-        return (PictureAspect.OrientationToDegrees(orientationInfo, out rotationDegree) &&
-            PictureAspect.OrientationToFlip(orientationInfo, out flipX, out flipY));
-      }
-      return false;
-    }
-
     protected void UpdatePictureSourcePath(IResourceLocator locator)
     {
       if (_currentPictureSourceLocator != locator)
@@ -536,12 +521,12 @@ namespace MediaPortal.UI.SkinEngine.SpecialElements.Controls
         {
           IsPicturePlayerPresent = true;
           UpdatePictureSourcePath(pp.CurrentPictureResourceLocator);
-          int rotationDegrees;
+          PictureRotation rotation;
           bool flipX;
           bool flipY;
-          if (GetOrientationMetadata(_currentMediaItem, out rotationDegrees, out flipX, out flipY))
+          if (PictureAspect.GetOrientationMetadata(_currentMediaItem, out rotation, out flipX, out flipY))
           {
-            PictureRotateDegrees = rotationDegrees;
+            PictureRotateDegrees = PictureAspect.RotationToDegrees(rotation);
             PictureFlipX = flipX;
             PictureFlipY = flipY;
           }

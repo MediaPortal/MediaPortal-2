@@ -230,9 +230,11 @@
     <Compile Include="Players\ISlimDXPicturePlayer.cs" />
     <Compile Include="Players\ISlimDXVideoPlayer.cs" />
     <Compile Include="Players\PlayersHelper.cs" />
+    <Compile Include="Players\PlayerRotationTranslator.cs" />
     <Compile Include="Rendering\ImageContext.cs" />
     <Compile Include="Rendering\PrimitiveBuffer.cs" />
     <Compile Include="Rendering\RenderContext.cs" />
+    <Compile Include="Rendering\RotationTranslator.cs" />
     <Compile Include="Rendering\TextBuffer.cs" />
     <Compile Include="ScreenManagement\DialogData.cs" />
     <Compile Include="ScreenManagement\ScreenManagerMessaging.cs" />

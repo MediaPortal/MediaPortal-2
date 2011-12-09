@@ -64,13 +64,38 @@ namespace MediaPortal.Common.MediaManagement.DefaultItemAspects
         MediaItemAspectMetadata.CreateStringAttributeSpecification("ISOSpeedRating", 10, Cardinality.Inline, false);
 
     /// <summary>
-    /// Contains the EXIF orientation info. Use <see cref="OrientationToDegrees"/> to get a translated angle in degree.
+    /// Contains the EXIF orientation info. Use <see cref="OrientationToRotation"/>, <see cref="OrientationToFlip"/>
+    /// or <see cref="GetOrientationMetadata"/> to translate the orientation information into degrees and flipX/flipY values.
     /// </summary>
     public static MediaItemAspectMetadata.AttributeSpecification ATTR_ORIENTATION =
         MediaItemAspectMetadata.CreateAttributeSpecification("Orientation", typeof(int), Cardinality.Inline, false);
     public static MediaItemAspectMetadata.AttributeSpecification ATTR_METERING_MODE =
         MediaItemAspectMetadata.CreateStringAttributeSpecification("MeteringMode", 50, Cardinality.Inline, false);
 
+    public static MediaItemAspectMetadata Metadata = new MediaItemAspectMetadata(
+        // TODO: Localize name
+        ASPECT_ID, "PictureItem", new[] {
+            ATTR_WIDTH,
+            ATTR_HEIGHT,
+            ATTR_MAKE,
+            ATTR_MODEL,
+            ATTR_EXPOSURE_BIAS,
+            ATTR_EXPOSURE_TIME,
+            ATTR_FLASH_MODE,
+            ATTR_FNUMBER,
+            ATTR_ISO_SPEED,
+            ATTR_ORIENTATION,
+            ATTR_METERING_MODE,
+        });
+
+    /// <summary>
+    /// Translates the EXIF orientation info to a rotation. The value should be used to apply a rotation
+    /// to show a picture correctly oriented.
+    /// </summary>
+    /// <param name="orientationInfo">Orientation info, stored in attribute <see cref="ATTR_ORIENTATION"/>.</param>
+    /// <param name="rotation">Returns the rotation in clockwise direction.</param>
+    /// <returns><c>true</c>, if the rotation could successfully be decoded from the given <paramref name="orientationInfo"/>,
+    /// else <c>false</c>.</returns>
     public static bool OrientationToRotation(int orientationInfo, out PictureRotation rotation)
     {
       switch (orientationInfo)
@@ -99,35 +124,25 @@ namespace MediaPortal.Common.MediaManagement.DefaultItemAspects
     }
 
     /// <summary>
-    /// Translates the EXIF orientation info to an angle in degrees. The value should be used to apply a rotation
-    /// to show a picture correctly oriented.
+    /// Translates the given <paramref name="rotation"/> to an angle in degrees.
     /// </summary>
-    /// <param name="orientationInfo">Orientation info, stored in attribute <see cref="ATTR_ORIENTATION"/>.</param>
-    /// <param name="degrees">Returns the number degrees the picture has to be rotated in clockwise direction.</param>
-    /// <returns><c>true</c>, if the rotation could successfully be decoded from the given <paramref name="orientationInfo"/>,
-    /// else <c>false</c>.</returns>
-    public static bool OrientationToDegrees(int orientationInfo, out int degrees)
+    /// <param name="rotation">Rotation to be translated.</param>
+    /// <returns>Number degrees in clockwise direction, corresponding to the given <paramref name="rotation"/>.</returns>
+    public static int RotationToDegrees(PictureRotation rotation)
     {
-      degrees = 0;
-      PictureRotation rotation;
-      if (!OrientationToRotation(orientationInfo, out rotation))
-        return false;
       switch (rotation)
       {
         case PictureRotation.Rot_0:
-          degrees = 0;
-          break;
+          return 0;
         case PictureRotation.Rot_90:
-          degrees = 90;
-          break;
+          return 90;
         case PictureRotation.Rot_180:
-          degrees = 180;
-          break;
+          return 180;
         case PictureRotation.Rot_270:
-          degrees = 270;
-          break;
+          return 270;
+        default:
+          return 0;
       }
-      return true;
     }
 
     /// <summary>
@@ -165,20 +180,19 @@ namespace MediaPortal.Common.MediaManagement.DefaultItemAspects
       return true;
     }
 
-    public static MediaItemAspectMetadata Metadata = new MediaItemAspectMetadata(
-        // TODO: Localize name
-        ASPECT_ID, "PictureItem", new[] {
-            ATTR_WIDTH,
-            ATTR_HEIGHT,
-            ATTR_MAKE,
-            ATTR_MODEL,
-            ATTR_EXPOSURE_BIAS,
-            ATTR_EXPOSURE_TIME,
-            ATTR_FLASH_MODE,
-            ATTR_FNUMBER,
-            ATTR_ISO_SPEED,
-            ATTR_ORIENTATION,
-            ATTR_METERING_MODE,
-        });
+    public static bool GetOrientationMetadata(MediaItem mediaItem, out PictureRotation rotation, out bool flipX, out bool flipY)
+    {
+      rotation = PictureRotation.Rot_0;
+      flipX = false;
+      flipY = false;
+      MediaItemAspect pictureAspect;
+      if (mediaItem != null && mediaItem.Aspects.TryGetValue(ASPECT_ID, out pictureAspect))
+      {
+        int orientationInfo = (int) pictureAspect[ATTR_ORIENTATION];
+        return (OrientationToRotation(orientationInfo, out rotation) &&
+            OrientationToFlip(orientationInfo, out flipX, out flipY));
+      }
+      return false;
+    }
   }
 }

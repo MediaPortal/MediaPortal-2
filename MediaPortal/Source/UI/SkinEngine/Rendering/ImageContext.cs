@@ -199,11 +199,6 @@ namespace MediaPortal.UI.SkinEngine.Rendering
 
     #region Public methods
 
-    public SizeF RotateSize(SizeF size)
-    {
-      return _rotation == RightAngledRotation.HalfPi || _rotation == RightAngledRotation.ThreeHalfPi ? new SizeF(size.Height, size.Width) : size;
-    }
-
     public void Update(SizeF rotatedImageSize, Texture texture, float rotatedMaxU, float rotatedMaxV)
     {
       RefreshParameters(rotatedImageSize, texture, rotatedMaxU, rotatedMaxV);
@@ -333,6 +328,11 @@ namespace MediaPortal.UI.SkinEngine.Rendering
       // Render
       _effect.StartRender(_lastTexture, renderContext.Transform);
       return true;
+    }
+
+    protected SizeF RotateSize(SizeF size)
+    {
+      return _rotation == RightAngledRotation.HalfPi || _rotation == RightAngledRotation.ThreeHalfPi ? new SizeF(size.Height, size.Width) : size;
     }
 
     protected void RefreshParameters(SizeF imageSize, Texture texture, float maxU, float maxV)

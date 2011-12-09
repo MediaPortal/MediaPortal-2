@@ -37,6 +37,7 @@ using MediaPortal.UI.SkinEngine.Players;
 using MediaPortal.UI.SkinEngine.SkinManagement;
 using MediaPortal.Utilities;
 using SlimDX.Direct3D9;
+using RightAngledRotation = MediaPortal.UI.Presentation.Players.RightAngledRotation;
 
 namespace MediaPortal.UI.Players.Picture
 {
@@ -360,21 +361,7 @@ namespace MediaPortal.UI.Players.Picture
         int orientationInfo = (int) pictureAspect[PictureAspect.ATTR_ORIENTATION];
         PictureRotation pictureRotation;
         PictureAspect.OrientationToRotation(orientationInfo, out pictureRotation);
-        switch (pictureRotation)
-        {
-          case PictureRotation.Rot_0:
-            rotation = RightAngledRotation.Zero;
-            break;
-          case PictureRotation.Rot_90:
-            rotation = RightAngledRotation.HalfPi;
-            break;
-          case PictureRotation.Rot_180:
-            rotation = RightAngledRotation.Pi;
-            break;
-          case PictureRotation.Rot_270:
-            rotation = RightAngledRotation.ThreeHalfPi;
-            break;
-        }
+        rotation = PlayerRotationTranslator.TranslateToRightAngledRotation(pictureRotation);
         PictureAspect.OrientationToFlip(orientationInfo, out flipX, out flipY);
       }
       SetMediaItemData(locator, title, rotation, flipX, flipY);
