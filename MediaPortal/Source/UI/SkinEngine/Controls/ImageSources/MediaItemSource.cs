@@ -98,7 +98,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.ImageSources
 
     public override SizeF SourceSize
     {
-      get { return (_texture != null && _texture.IsAllocated) ? new SizeF(_texture.Width, _texture.Height) : new SizeF(); }
+      get { return (_texture != null && _texture.IsAllocated) ? _imageContext.GetRotatedSize(new SizeF(_texture.Width, _texture.Height)) : new SizeF(); }
     }
 
     protected override Texture Texture

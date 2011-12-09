@@ -134,8 +134,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.ImageSources
     {
       get
       {
-        SizeF currentTextureSize = CurrentTextureSize;
-        SizeF lastTextureSize = LastTextureSize;
+        SizeF currentTextureSize = _imageContext.GetRotatedSize(CurrentTextureSize);
+        SizeF lastTextureSize = _lastImageContext.GetRotatedSize(LastTextureSize);
         return (_transitionActive && !lastTextureSize.IsEmpty) ?
             MaxSizeF(LastTextureSize, currentTextureSize) : currentTextureSize;
       }

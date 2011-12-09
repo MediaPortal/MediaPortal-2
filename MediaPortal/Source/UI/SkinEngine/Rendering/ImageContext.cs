@@ -320,6 +320,11 @@ namespace MediaPortal.UI.SkinEngine.Rendering
       return frameSize;
     }
 
+    public SizeF GetRotatedSize(SizeF size)
+    {
+      return _rotation == RightAngledRotation.HalfPi || _rotation == RightAngledRotation.ThreeHalfPi ? new SizeF(size.Height, size.Width) : size;
+    }
+
     /// <summary>
     /// Triggers a refresh of this <see cref="ImageContext"/>'s effect parameters.
     /// </summary>
@@ -352,11 +357,6 @@ namespace MediaPortal.UI.SkinEngine.Rendering
       // Render
       _effect.StartRender(_lastTexture, renderContext.Transform);
       return true;
-    }
-
-    protected SizeF GetRotatedSize(SizeF size)
-    {
-      return _rotation == RightAngledRotation.HalfPi || _rotation == RightAngledRotation.ThreeHalfPi ? new SizeF(size.Height, size.Width) : size;
     }
 
     protected void RefreshParameters(SizeF imageSize, Texture texture, float maxU, float maxV)
