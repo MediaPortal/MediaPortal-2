@@ -53,7 +53,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     protected PrimitiveBuffer _backgroundContext;
     protected PrimitiveBuffer _borderContext;
     protected bool _performLayout;
-    protected RectangleF _borderRect;
+    protected RectangleF _outerBorderRect;
     protected FrameworkElement _initializedContent = null; // We need to cache the Content because after it was set, it first needs to be initialized before it can be used
 
     #endregion
@@ -243,8 +243,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     {
       MeasureBorder(totalSize);
 
-      Thickness borderMargin = GetTotalBorderMargin();
-      RemoveMargin(ref totalSize, borderMargin);
+      Thickness enclosingMargin = GetTotalEnclosingMargin();
+      RemoveMargin(ref totalSize, enclosingMargin);
 
       FrameworkElement content = _initializedContent;
       if (content != null && content.IsVisible)
@@ -252,7 +252,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       else
         totalSize = SizeF.Empty;
 
-      AddMargin(ref totalSize, borderMargin);
+      AddMargin(ref totalSize, enclosingMargin);
 
       return totalSize;
     }
@@ -266,7 +266,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       if (content == null)
         return;
       RectangleF layoutRect = new RectangleF(_innerRect.X, _innerRect.Y, _innerRect.Width, _innerRect.Height);
-      RemoveMargin(ref layoutRect, GetTotalBorderMargin());
+      RemoveMargin(ref layoutRect, GetTotalEnclosingMargin());
       PointF location = new PointF(layoutRect.Location.X, layoutRect.Location.Y);
       SizeF size = new SizeF(layoutRect.Size);
       ArrangeChild(content, content.HorizontalAlignment, content.VerticalAlignment, ref location, ref size);
@@ -274,14 +274,14 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     }
 
     /// <summary>
-    /// Gets the size needed for this element's border in total. Will be subtracted from the total available area
+    /// Gets the size needed for this element's border/title in total. Will be subtracted from the total available area
     /// when our content will be layouted.
     /// </summary>
-    protected virtual Thickness GetTotalBorderMargin()
+    protected virtual Thickness GetTotalEnclosingMargin()
     {
-      float borderInsetsX = GetBorderInsetX();
-      float borderInsetsY = GetBorderInsetY();
-      return new Thickness(borderInsetsX, borderInsetsY, borderInsetsX, borderInsetsY);
+      float borderInsetX = GetBorderCornerInsetX();
+      float borderInsetY = GetBorderCornerInsetY();
+      return new Thickness(borderInsetX, borderInsetY, borderInsetX, borderInsetY);
     }
 
     protected virtual void MeasureBorder(SizeF totalSize)
@@ -291,15 +291,15 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 
     protected virtual void ArrangeBorder(RectangleF finalRect)
     {
-      _borderRect = new RectangleF(finalRect.Location, finalRect.Size);
+      _outerBorderRect = new RectangleF(finalRect.Location, finalRect.Size);
     }
 
-    protected float GetBorderInsetX()
+    protected float GetBorderCornerInsetX()
     {
       return (float) Math.Max(BorderThickness, CornerRadius);
     }
 
-    protected float GetBorderInsetY()
+    protected float GetBorderCornerInsetY()
     {
       return (float) Math.Max(BorderThickness, CornerRadius);
     }
@@ -314,20 +314,20 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
         return;
       _performLayout = false;
 
-      RectangleF rect = new RectangleF(-0.5f, -0.5f, _borderRect.Size.Width + 0.5f, _borderRect.Size.Height + 0.5f);
-      rect.X += ActualPosition.X;
-      rect.Y += ActualPosition.Y;
-      PerformLayoutBackground(rect, context);
-      PerformLayoutBorder(rect, context);
+      float borderThickness = (float) BorderThickness;
+      RectangleF innerBorderRect = new RectangleF(_outerBorderRect.X + borderThickness -0.5f, _outerBorderRect.Y + borderThickness -0.5f,
+          _outerBorderRect.Size.Width - 2*borderThickness + 0.5f, _outerBorderRect.Size.Height - 2*borderThickness + 0.5f);
+      PerformLayoutBackground(innerBorderRect, context);
+      PerformLayoutBorder(innerBorderRect, context);
     }
 
-    protected void PerformLayoutBackground(RectangleF rect, RenderContext context)
+    protected void PerformLayoutBackground(RectangleF innerBorderRect, RenderContext context)
     {
       // Setup background brush
       if (Background != null)
       {
         // TODO: Draw background only in the inner rectangle (outer rect minus BorderThickness)
-        using (GraphicsPath path = CreateBorderRectPath(rect))
+        using (GraphicsPath path = CreateBorderRectPath(innerBorderRect))
         {
           // Some backgrounds might not be closed (subclasses sometimes create open background shapes,
           // for example GroupBox). To create a completely filled background, we need a closed figure.
@@ -345,13 +345,13 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
         PrimitiveBuffer.DisposePrimitiveBuffer(ref _backgroundContext);
     }
 
-    protected void PerformLayoutBorder(RectangleF rect, RenderContext context)
+    protected void PerformLayoutBorder(RectangleF innerBorderRect, RenderContext context)
     {
       // Setup border brush
       if (BorderBrush != null && BorderThickness > 0)
       {
         // TODO: Draw border with thickness BorderThickness - doesn't work yet, the drawn line is only one pixel thick
-        using (GraphicsPath path = CreateBorderRectPath(rect))
+        using (GraphicsPath path = CreateBorderRectPath(innerBorderRect))
         {
           using (GraphicsPathIterator gpi = new GraphicsPathIterator(path))
           {
@@ -378,9 +378,9 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
         PrimitiveBuffer.DisposePrimitiveBuffer(ref _borderContext);
     }
 
-    protected virtual GraphicsPath CreateBorderRectPath(RectangleF baseRect)
+    protected virtual GraphicsPath CreateBorderRectPath(RectangleF innerBorderRect)
     {
-      return GraphicsPathHelper.CreateRoundedRectPath(baseRect, (float) CornerRadius, (float) CornerRadius);
+      return GraphicsPathHelper.CreateRoundedRectPath(innerBorderRect, (float) CornerRadius, (float) CornerRadius);
     }
 
     #endregion
