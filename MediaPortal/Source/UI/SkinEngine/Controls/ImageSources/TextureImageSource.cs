@@ -90,10 +90,10 @@ namespace MediaPortal.UI.SkinEngine.Controls.ImageSources
     {
       base.DeepCopy(source, copyManager);
       Detach();
-      BitmapImageSource b = (BitmapImageSource) source;
-      BorderColor = b.BorderColor;
-      Effect = b.Effect;
-      EffectTimer = b.EffectTimer;
+      TextureImageSource tis= (TextureImageSource) source;
+      BorderColor = tis.BorderColor;
+      Effect = tis.Effect;
+      EffectTimer = tis.EffectTimer;
       
       Attach();
       FreeData();
@@ -202,7 +202,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.ImageSources
       if (!IsAllocated)
         return;
       SizeF sourceSize = SourceSize;
-      SizeF modifiedSourceSize = StretchSource(_imageContext.FrameSize, sourceSize, stretchMode, stretchDirection);
+      SizeF modifiedSourceSize = StretchSource(_imageContext.RotatedFrameSize, sourceSize, stretchMode, stretchDirection);
       Vector4 frameData = new Vector4(sourceSize.Width, sourceSize.Height, (float) EffectTimer, 0);
       if (_imageContext.StartRender(renderContext, modifiedSourceSize, Texture, MaxU, MaxV, BorderColor.ToArgb(), frameData))
       {

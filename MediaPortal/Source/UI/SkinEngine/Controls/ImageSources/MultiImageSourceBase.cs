@@ -174,8 +174,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.ImageSources
 
           if (start != end)
           {
-            SizeF startSize = StretchSource(_lastImageContext.FrameSize, lastTextureSize, stretchMode, stretchDirection);
-            SizeF endSize = StretchSource(_imageContext.FrameSize, currentTextureSize, stretchMode, stretchDirection);
+            SizeF startSize = StretchSource(_lastImageContext.RotatedFrameSize, lastTextureSize, stretchMode, stretchDirection);
+            SizeF endSize = StretchSource(_imageContext.RotatedFrameSize, currentTextureSize, stretchMode, stretchDirection);
 
             // Render transition from last texture to current texture
             _lastImageContext.Update(startSize, start, lastMaxUV.Width, lastMaxUV.Height);
@@ -193,7 +193,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.ImageSources
 
       if (IsAllocated)
       {
-        SizeF sourceSize = StretchSource(_imageContext.FrameSize, currentTextureSize, stretchMode, stretchDirection);
+        SizeF sourceSize = StretchSource(_imageContext.RotatedFrameSize, currentTextureSize, stretchMode, stretchDirection);
         if (_imageContext.StartRender(renderContext, sourceSize, currentTexture, currentMaxUV.Width, currentMaxUV.Height,
             BorderColor.ToArgb(), frameData))
         {

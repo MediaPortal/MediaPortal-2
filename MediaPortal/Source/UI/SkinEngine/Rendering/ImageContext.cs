@@ -88,6 +88,7 @@ namespace MediaPortal.UI.SkinEngine.Rendering
     protected EffectAsset _effect;
     protected EffectAsset _effectTransition;
     protected SizeF _frameSize;
+    protected SizeF _rotatedFrameSize;
     protected Vector4 _imageTransform;
     protected SizeF _lastImageSize;
     protected Texture _lastTexture;
@@ -110,14 +111,28 @@ namespace MediaPortal.UI.SkinEngine.Rendering
     /// Gets or sets the size of area the image will render into. Any aspect ration adjustment must be 
     /// done prior to setting this property.
     /// </summary>
+    /// <remarks>
+    /// This property is needed to center the image to be rendered into the given frame.
+    /// </remarks>
     public SizeF FrameSize
     {
       get { return _frameSize; }
       set
       {
         _frameSize = value;
+        _rotatedFrameSize = GetRotatedSize(value);
         _refresh = true;
       }
+    }
+
+    /// <summary>
+    /// Gets the rotated <see cref="FrameSize"/> for image size adjustments. If a <see cref="Rotation"/> is used, image size
+    /// adjustments must be done against this property. If no rotation is used, this property returns the same value as
+    /// <see cref="FrameSize"/>, so image size adjustments should always be done using this property.
+    /// </summary>
+    public SizeF RotatedFrameSize
+    {
+      get { return _rotatedFrameSize; }
     }
 
     /// <summary>
@@ -185,12 +200,19 @@ namespace MediaPortal.UI.SkinEngine.Rendering
     /// <summary>
     /// Gets or sets an additional rotation.
     /// </summary>
+    /// <remarks>
+    /// If a rotation is used, the image will be shown rotated against the frame (see <see cref="FrameSize"/>).
+    /// If the class using this <see cref="ImageContext"/> adjusts the texture size to the frame (for example uniform stretch),
+    /// it must adapt the original texture size to the <see cref="RotatedFrameSize"/> and use the result, without an extra rotation,
+    /// as parameter for the render methods.
+    /// </remarks>
     public RightAngledRotation Rotation
     {
       get { return _rotation; }
       set
       {
         _rotation = value;
+        _rotatedFrameSize = GetRotatedSize(_frameSize);
         _refresh = true;
       }
     }
@@ -199,26 +221,27 @@ namespace MediaPortal.UI.SkinEngine.Rendering
 
     #region Public methods
 
-    public void Update(SizeF rotatedImageSize, Texture texture, float rotatedMaxU, float rotatedMaxV)
+    public void Update(SizeF imageSize, Texture texture, float maxU, float maxV)
     {
-      RefreshParameters(rotatedImageSize, texture, rotatedMaxU, rotatedMaxV);
+      RefreshParameters(imageSize, texture, maxU, maxV);
     }
 
     /// <summary>
     /// Renders the <see cref="ImageContext"/>.
     /// </summary>
     /// <param name="renderContext">The current rendering context.</param>
-    /// <param name="imageSize">The size of the final image within the frame.</param>
+    /// <param name="targetImageSize">The size, the final image should take within the frame. This size is given in the same
+    /// orientation as the <paramref name="texture"/>, i.e. it is not rotated.</param>
     /// <param name="texture">A texture object containing the image.</param>
     /// <param name="maxU">The value of the U texture coord that defines the horizontal extent of the image.</param>
     /// <param name="maxV">The value of the V texture coord that defines the vertical extent of the image.</param>
     /// <param name="borderColor">The color to use outside the image's boundaries.</param>
     /// <param name="frameData">Additional data to be used by the shaders.</param>
     /// <returns><c>true</c> if the rendering operation was started.</returns>
-    public bool StartRender(RenderContext renderContext, SizeF imageSize, Texture texture, float maxU, 
+    public bool StartRender(RenderContext renderContext, SizeF targetImageSize, Texture texture, float maxU, 
         float maxV, int borderColor, Vector4 frameData)
     {
-      RefreshParameters(imageSize, texture, maxU, maxV);
+      RefreshParameters(targetImageSize, texture, maxU, maxV);
       return StartRender(renderContext, borderColor, frameData);
     }
 
@@ -229,7 +252,8 @@ namespace MediaPortal.UI.SkinEngine.Rendering
     /// <param name="mixValue">A value between 0.0 and 1.0 that governs how much each image contributes to the final rendering.</param>
     /// <param name="startContext">The <see cref="ImageContext"/> data for the starting position of the transition
     /// (this context is the end point).</param>
-    /// <param name="endImageSize">The size of the end image within the frame.</param>
+    /// <param name="targetEndImageSize">The size, the final end image should take within the frame. This size is given in the same
+    /// orientation as the <paramref name="endTexture"/>, i.e. it is not rotated.</param>
     /// <param name="endTexture">A texture object containing the end image.</param>
     /// <param name="endMaxU">The value of the U texture coord that defines the horizontal extent of the end image.</param>
     /// <param name="endMaxV">The value of the V texture coord that defines the vertical extent of the end image.</param>
@@ -238,9 +262,9 @@ namespace MediaPortal.UI.SkinEngine.Rendering
     /// <param name="endFrameData">Additional data to be used by the ending image shaders.</param>
     /// <returns><c>true</c> if the rendering operation was started.</returns>
     public bool StartRenderTransition(RenderContext renderContext, float mixValue, ImageContext startContext,
-        SizeF endImageSize, Texture endTexture, float endMaxU, float endMaxV, int borderColor, Vector4 startFrameData, Vector4 endFrameData)
+        SizeF targetEndImageSize, Texture endTexture, float endMaxU, float endMaxV, int borderColor, Vector4 startFrameData, Vector4 endFrameData)
     {
-      RefreshParameters(endImageSize, endTexture, endMaxU, endMaxV);
+      RefreshParameters(targetEndImageSize, endTexture, endMaxU, endMaxV);
       if (_effectTransition == null)
         _effectTransition = ContentManager.Instance.GetEffect(GetTransitionEffectName());
       if (_lastTexture == null || _effectTransition == null)
@@ -330,7 +354,7 @@ namespace MediaPortal.UI.SkinEngine.Rendering
       return true;
     }
 
-    protected SizeF RotateSize(SizeF size)
+    protected SizeF GetRotatedSize(SizeF size)
     {
       return _rotation == RightAngledRotation.HalfPi || _rotation == RightAngledRotation.ThreeHalfPi ? new SizeF(size.Height, size.Width) : size;
     }
@@ -344,9 +368,10 @@ namespace MediaPortal.UI.SkinEngine.Rendering
         _lastTexture = texture;
 
         // Convert image dimensions to texture space
-        SizeF rotatedFrameSize = RotateSize(_frameSize); // We're doing the relative transform first in the shader, that's why we just have to rotate the frame size
+        
+        // We're doing the relative transform first in the shader, that's why we just have to rotate the frame size
         Vector4 textureRect = new Vector4(0.0f, 0.0f,
-            (imageSize.Width+1.0f) / rotatedFrameSize.Width, (imageSize.Height+1.0f) / rotatedFrameSize.Height);
+            (imageSize.Width+1.0f) / _rotatedFrameSize.Width, (imageSize.Height+1.0f) / _rotatedFrameSize.Height);
 
         // Center texture
         textureRect.X += (1.0f - textureRect.Z) / 2.0f;
