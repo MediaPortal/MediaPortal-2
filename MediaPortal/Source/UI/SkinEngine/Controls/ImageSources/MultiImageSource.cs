@@ -238,14 +238,9 @@ namespace MediaPortal.UI.SkinEngine.Controls.ImageSources
       get { return _lastTexture == null ? new SizeF() : new SizeF(_lastTexture.Width, _lastTexture.Height); }
     }
 
-    protected override float LastMaxU
+    protected override RectangleF LastTextureClip
     {
-      get { return _lastTexture == null ? 0 : _lastTexture.MaxU; }
-    }
-
-    protected override float LastMaxV
-    {
-      get { return _lastTexture == null ? 0 : _lastTexture.MaxV; }
+      get { return _lastTexture == null ? new RectangleF() : new RectangleF(0, 0, _lastTexture.MaxU, _lastTexture.MaxV); }
     }
 
     protected override Texture CurrentTexture
@@ -258,14 +253,9 @@ namespace MediaPortal.UI.SkinEngine.Controls.ImageSources
       get { return _currentTexture == null ? new SizeF() : new SizeF(_currentTexture.Width, _currentTexture.Height); }
     }
 
-    protected override float CurrentMaxU
+    protected override RectangleF CurrentTextureClip
     {
-      get { return _currentTexture == null ? 0 : _currentTexture.MaxU; }
-    }
-
-    protected override float CurrentMaxV
-    {
-      get { return _currentTexture == null ? 0 : _currentTexture.MaxV; }
+      get { return _currentTexture == null ? new RectangleF() : new RectangleF(0, 0, _currentTexture.MaxU, _currentTexture.MaxV); }
     }
 
     public override bool IsAllocated

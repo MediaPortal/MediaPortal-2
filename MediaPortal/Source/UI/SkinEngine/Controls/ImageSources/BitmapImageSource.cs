@@ -205,14 +205,9 @@ namespace MediaPortal.UI.SkinEngine.Controls.ImageSources
       get { return (_texture != null && _texture.IsAllocated) ? new SizeF(_texture.Width, _texture.Height) : new SizeF(); }
     }
 
-    protected override float MaxU
+    protected override RectangleF TextureClip
     {
-      get { return _texture == null ? 0 : _texture.MaxU; }
-    }
-
-    protected override float MaxV
-    {
-      get { return _texture == null ? 0 : _texture.MaxV; }
+      get { return _texture == null ? new RectangleF() : new RectangleF(0, 0, _texture.MaxU, _texture.MaxV); }
     }
 
     public override void Allocate()

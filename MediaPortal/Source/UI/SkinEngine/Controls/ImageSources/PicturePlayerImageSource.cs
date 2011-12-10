@@ -39,13 +39,11 @@ namespace MediaPortal.UI.SkinEngine.Controls.ImageSources
   {
     protected Texture _lastTexture = null;
     protected SizeF _lastRawSourceSize;
-    protected float _lastMaxU;
-    protected float _lastMaxV;
+    protected RectangleF _lastTextureClip;
 
     protected Texture _currentTexture = null;
     protected SizeF _currentRawSourceSize;
-    protected float _currentMaxU;
-    protected float _currentMaxV;
+    protected RectangleF _currentTextureClip;
 
     protected Texture _lastCopiedTexture = null;
 
@@ -118,12 +116,13 @@ namespace MediaPortal.UI.SkinEngine.Controls.ImageSources
       lock (player.PicturesLock)
       {
         Texture texture = player.CurrentPicture;
-        if (texture != null && texture != _lastCopiedTexture)
+        RectangleF textureClip = player.TextureClip;
+        if (texture != null && (texture != _lastCopiedTexture || textureClip != _currentTextureClip))
         {
           _lastCopiedTexture = texture;
           // The SlimDX player also supports the FlipX, FlipY values, which which tells us the image should be flipped
           // in horizontal or vertical direction after the rotation. Very few pictures have those flags; we don't implement them here.
-          CycleTextures(texture, player.MaxU, player.MaxV, TranslateRotation(player.Rotation));
+          CycleTextures(texture, player.TextureClip, TranslateRotation(player.Rotation));
         }
       }
     }
@@ -142,14 +141,9 @@ namespace MediaPortal.UI.SkinEngine.Controls.ImageSources
       get { return _lastRawSourceSize; }
     }
 
-    protected override float LastMaxU
+    protected override RectangleF LastTextureClip
     {
-      get { return _lastMaxU; }
-    }
-
-    protected override float LastMaxV
-    {
-      get { return _lastMaxV; }
+      get { return _lastTextureClip; }
     }
 
     protected override Texture CurrentTexture
@@ -162,14 +156,9 @@ namespace MediaPortal.UI.SkinEngine.Controls.ImageSources
       get { return _currentRawSourceSize; }
     }
 
-    protected override float CurrentMaxU
+    protected override RectangleF CurrentTextureClip
     {
-      get { return _currentMaxU; }
-    }
-
-    protected override float CurrentMaxV
-    {
-      get { return _currentMaxV; }
+      get { return _currentTextureClip; }
     }
 
     public override bool IsAllocated
@@ -182,23 +171,21 @@ namespace MediaPortal.UI.SkinEngine.Controls.ImageSources
       return (RightAngledRotation) rotation; // Enums are compatible
     }
 
-    protected void CycleTextures(Texture nextTexture, float nextMaxU, float nextMaxV, RightAngledRotation nextRotation)
+    protected void CycleTextures(Texture nextTexture, RectangleF textureClip, RightAngledRotation nextRotation)
     {
       TryDispose(ref _lastTexture);
 
       // Current -> Last
       _lastTexture = _currentTexture;
       _lastRawSourceSize = _currentRawSourceSize;
-      _lastMaxU = _currentMaxU;
-      _lastMaxV = _currentMaxV;
+      _lastTextureClip = _currentTextureClip;
       _lastImageContext = _imageContext;
 
       // Next -> Current
       SizeF textureSize;
       _currentTexture = CreateTextureCopy(nextTexture, out textureSize);
-      _currentRawSourceSize = new SizeF(textureSize.Width * nextMaxU, textureSize.Height * nextMaxV);
-      _currentMaxU = nextMaxU;
-      _currentMaxV = nextMaxV;
+      _currentRawSourceSize = new SizeF(textureSize.Width * textureClip.Width, textureSize.Height * textureClip.Height);
+      _currentTextureClip = textureClip;
 
       _imageContext = new ImageContext
         {

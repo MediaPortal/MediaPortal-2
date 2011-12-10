@@ -432,14 +432,9 @@ namespace MediaPortal.UI.Players.Picture
       get { return _texture; }
     }
 
-    public float MaxU
+    public RectangleF TextureClip
     {
-      get { return _textureMaxUV.Width; }
-    }
-
-    public float MaxV
-    {
-      get { return _textureMaxUV.Height; }
+      get { return new RectangleF(new PointF(), _textureMaxUV); }
     }
 
     #endregion

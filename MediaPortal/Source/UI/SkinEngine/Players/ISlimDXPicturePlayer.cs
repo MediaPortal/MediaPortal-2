@@ -22,6 +22,7 @@
 
 #endregion
 
+using System.Drawing;
 using MediaPortal.UI.Presentation.Players;
 using SlimDX.Direct3D9;
 
@@ -43,13 +44,8 @@ namespace MediaPortal.UI.SkinEngine.Players
     Texture CurrentPicture { get; }
 
     /// <summary>
-    /// Returns the value of the U coord of the texture that defines the horizontal extent of the image.
+    /// Returns the clipping region which should be taken fron the texture. Values go from 0 to 1.
     /// </summary>
-    float MaxU { get; }
-
-    /// <summary>
-    /// Returns the value of the V coord of the texture that defines the vertical extent of the image.
-    /// </summary>
-    float MaxV { get; }
+    RectangleF TextureClip { get; }
   }
 }

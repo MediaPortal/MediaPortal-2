@@ -209,7 +209,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.ImageSources
       SizeF rawSourceSize = RawSourceSize;
       SizeF modifiedSourceSize = StretchSource(_imageContext.RotatedFrameSize, rawSourceSize, stretchMode, stretchDirection);
       Vector4 frameData = new Vector4(rawSourceSize.Width, rawSourceSize.Height, (float) EffectTimer, 0);
-      if (_imageContext.StartRender(renderContext, modifiedSourceSize, Texture, MaxU, MaxV, BorderColor.ToArgb(), frameData))
+      if (_imageContext.StartRender(renderContext, modifiedSourceSize, Texture, TextureClip, BorderColor.ToArgb(), frameData))
       {
         _primitiveBuffer.Render(0);
         _imageContext.EndRender();
@@ -226,20 +226,14 @@ namespace MediaPortal.UI.SkinEngine.Controls.ImageSources
     protected abstract Texture Texture { get; }
 
     /// <summary>
-    /// Returns the size of the image before any transformation. That is the <see cref="Texture"/>'s size multiplied with its
-    /// <see cref="MaxU"/> and <see cref="MaxV"/> values.
+    /// Returns the size of the last image before any transformation but after the <see cref="TextureClip"/> was applied.
     /// </summary>
     protected abstract SizeF RawSourceSize { get; }
 
     /// <summary>
-    /// Returns the value of the U coord of the texture that defines the horizontal extent of the image.
+    /// Returns the clipping region which should be taken fron the last texture.
     /// </summary>
-    protected abstract float MaxU { get; }
-
-    /// <summary>
-    /// Returns the value of the V coord of the texture that defines the vertical extent of the image.
-    /// </summary>
-    protected abstract float MaxV { get; }
+    protected abstract RectangleF TextureClip { get; }
 
     protected virtual void OnEffectChanged(AbstractProperty prop, object oldValue)
     {

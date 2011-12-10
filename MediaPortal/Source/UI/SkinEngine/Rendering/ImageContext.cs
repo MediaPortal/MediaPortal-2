@@ -221,9 +221,9 @@ namespace MediaPortal.UI.SkinEngine.Rendering
 
     #region Public methods
 
-    public void Update(SizeF imageSize, Texture texture, float maxU, float maxV)
+    public void Update(SizeF targetImageSize, Texture texture, RectangleF textureClip)
     {
-      RefreshParameters(imageSize, texture, maxU, maxV);
+      RefreshParameters(targetImageSize, texture, textureClip);
     }
 
     /// <summary>
@@ -233,15 +233,14 @@ namespace MediaPortal.UI.SkinEngine.Rendering
     /// <param name="targetImageSize">The size, the final image should take within the frame. This size is given in the same
     /// orientation as the <paramref name="texture"/>, i.e. it is not rotated.</param>
     /// <param name="texture">A texture object containing the image.</param>
-    /// <param name="maxU">The value of the U texture coord that defines the horizontal extent of the image.</param>
-    /// <param name="maxV">The value of the V texture coord that defines the vertical extent of the image.</param>
+    /// <param name="textureClip">The section of the texture that should be rendered. Values are between 0 and 1.</param>
     /// <param name="borderColor">The color to use outside the image's boundaries.</param>
     /// <param name="frameData">Additional data to be used by the shaders.</param>
     /// <returns><c>true</c> if the rendering operation was started.</returns>
-    public bool StartRender(RenderContext renderContext, SizeF targetImageSize, Texture texture, float maxU, 
-        float maxV, int borderColor, Vector4 frameData)
+    public bool StartRender(RenderContext renderContext, SizeF targetImageSize, Texture texture, RectangleF textureClip,
+        int borderColor, Vector4 frameData)
     {
-      RefreshParameters(targetImageSize, texture, maxU, maxV);
+      RefreshParameters(targetImageSize, texture, textureClip);
       return StartRender(renderContext, borderColor, frameData);
     }
 
@@ -255,16 +254,15 @@ namespace MediaPortal.UI.SkinEngine.Rendering
     /// <param name="targetEndImageSize">The size, the final end image should take within the frame. This size is given in the same
     /// orientation as the <paramref name="endTexture"/>, i.e. it is not rotated.</param>
     /// <param name="endTexture">A texture object containing the end image.</param>
-    /// <param name="endMaxU">The value of the U texture coord that defines the horizontal extent of the end image.</param>
-    /// <param name="endMaxV">The value of the V texture coord that defines the vertical extent of the end image.</param>
+    /// <param name="endTextureClip">The section of the end texture that should be rendered. Values are between 0 and 1.</param>
     /// <param name="borderColor">The color to use outside the image's boundaries.</param>
     /// <param name="startFrameData">Additional data to be used by the starting image shaders.</param>
     /// <param name="endFrameData">Additional data to be used by the ending image shaders.</param>
     /// <returns><c>true</c> if the rendering operation was started.</returns>
     public bool StartRenderTransition(RenderContext renderContext, float mixValue, ImageContext startContext,
-        SizeF targetEndImageSize, Texture endTexture, float endMaxU, float endMaxV, int borderColor, Vector4 startFrameData, Vector4 endFrameData)
+        SizeF targetEndImageSize, Texture endTexture, RectangleF endTextureClip, int borderColor, Vector4 startFrameData, Vector4 endFrameData)
     {
-      RefreshParameters(targetEndImageSize, endTexture, endMaxU, endMaxV);
+      RefreshParameters(targetEndImageSize, endTexture, endTextureClip);
       if (_effectTransition == null)
         _effectTransition = ContentManager.Instance.GetEffect(GetTransitionEffectName());
       if (_lastTexture == null || _effectTransition == null)
@@ -359,11 +357,11 @@ namespace MediaPortal.UI.SkinEngine.Rendering
       return true;
     }
 
-    protected void RefreshParameters(SizeF imageSize, Texture texture, float maxU, float maxV)
+    protected void RefreshParameters(SizeF targetImageSize, Texture texture, RectangleF textureClip)
     {
       // If necessary update our image transformation to best fit the frame
-      if (_refresh || texture != _lastTexture || Math.Abs(imageSize.Width - _lastImageSize.Width) > FLOAT_EQUALITY_LIMIT ||
-          Math.Abs(imageSize.Height - _lastImageSize.Height) > FLOAT_EQUALITY_LIMIT)
+      if (_refresh || texture != _lastTexture || Math.Abs(targetImageSize.Width - _lastImageSize.Width) > FLOAT_EQUALITY_LIMIT ||
+          Math.Abs(targetImageSize.Height - _lastImageSize.Height) > FLOAT_EQUALITY_LIMIT)
       {
         _lastTexture = texture;
 
@@ -371,15 +369,15 @@ namespace MediaPortal.UI.SkinEngine.Rendering
         
         // We're doing the relative transform first in the shader, that's why we just have to rotate the frame size
         Vector4 textureRect = new Vector4(0.0f, 0.0f,
-            (imageSize.Width+1.0f) / _rotatedFrameSize.Width, (imageSize.Height+1.0f) / _rotatedFrameSize.Height);
+            (targetImageSize.Width+1.0f) / _rotatedFrameSize.Width, (targetImageSize.Height+1.0f) / _rotatedFrameSize.Height);
 
         // Center texture
-        textureRect.X += (1.0f - textureRect.Z) / 2.0f;
-        textureRect.Y += (1.0f - textureRect.W) / 2.0f;
+        textureRect.X = (1.0f - textureRect.Z) / 2.0f;
+        textureRect.Y = (1.0f - textureRect.W) / 2.0f;
 
         // Compensate for texture surface borders
-        textureRect.Z /= maxU;
-        textureRect.W /= maxV;
+        textureRect.Z /= textureClip.Width;
+        textureRect.W /= textureClip.Height;
 
         // Determine correct 2D transform for mapping the texture to the correct place
         float repeatx = 1.0f / textureRect.Z;
@@ -393,7 +391,7 @@ namespace MediaPortal.UI.SkinEngine.Rendering
 
         _inverseRelativeTransformCache = TranslateRotation(_rotation);
         _inverseRelativeTransformCache.Invert();
-        _imageTransform = new Vector4(textureRect.X * repeatx, textureRect.Y * repeaty, repeatx, repeaty);
+        _imageTransform = new Vector4(textureRect.X * repeatx - textureClip.X, textureRect.Y * repeaty - textureClip.Y, repeatx, repeaty);
 
         // Build our effects
         _effect = ContentManager.Instance.GetEffect(GetEffectName());
@@ -404,7 +402,7 @@ namespace MediaPortal.UI.SkinEngine.Rendering
         if (OnRefresh != null)
           OnRefresh();
 
-        _lastImageSize = imageSize;
+        _lastImageSize = targetImageSize;
         _refresh = false;
       }
     }

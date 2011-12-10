@@ -154,7 +154,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.ImageSources
 
       Texture currentTexture = CurrentTexture;
       SizeF currentRawSourceSize = CurrentRawSourceSize;
-      SizeF currentMaxUV = new SizeF(CurrentMaxU, CurrentMaxV);
+      RectangleF currentTextureClip = CurrentTextureClip;
       Vector4 frameData = new Vector4(currentRawSourceSize.Width, currentRawSourceSize.Height, (float) EffectTimer, 0);
 
       if (_transitionActive)
@@ -166,7 +166,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.ImageSources
         {
           Texture lastTexture = LastTexture;
           SizeF lastRawSourceSize = LastRawSourceSize;
-          SizeF lastMaxUV = new SizeF(LastMaxU, LastMaxV);
+          RectangleF lastTextureClip = LastTextureClip;
           Vector4 lastFrameData = new Vector4(lastRawSourceSize.Width, lastRawSourceSize.Height, (float) EffectTimer, 0);
 
           Texture start = lastTexture ?? NullTexture.Texture;
@@ -178,10 +178,10 @@ namespace MediaPortal.UI.SkinEngine.Controls.ImageSources
             SizeF endSize = StretchSource(_imageContext.RotatedFrameSize, currentRawSourceSize, stretchMode, stretchDirection);
 
             // Render transition from last texture to current texture
-            _lastImageContext.Update(startSize, start, lastMaxUV.Width, lastMaxUV.Height);
+            _lastImageContext.Update(startSize, start, lastTextureClip);
 
             if (_imageContext.StartRenderTransition(renderContext, (float) elapsed, _lastImageContext,
-                endSize, end, currentMaxUV.Width, currentMaxUV.Height, BorderColor.ToArgb(), lastFrameData, frameData))
+                endSize, end, currentTextureClip, BorderColor.ToArgb(), lastFrameData, frameData))
             {
               _primitiveBuffer.Render(0);
               _imageContext.EndRenderTransition();
@@ -194,8 +194,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.ImageSources
       if (IsAllocated)
       {
         SizeF sourceSize = StretchSource(_imageContext.RotatedFrameSize, currentRawSourceSize, stretchMode, stretchDirection);
-        if (_imageContext.StartRender(renderContext, sourceSize, currentTexture, currentMaxUV.Width, currentMaxUV.Height,
-            BorderColor.ToArgb(), frameData))
+        if (_imageContext.StartRender(renderContext, sourceSize, currentTexture, currentTextureClip, BorderColor.ToArgb(), frameData))
         {
           _primitiveBuffer.Render(0);
           _imageContext.EndRender();
@@ -213,20 +212,14 @@ namespace MediaPortal.UI.SkinEngine.Controls.ImageSources
     protected abstract Texture LastTexture { get; }
 
     /// <summary>
-    /// Returns the size of the last image before any transformation. That is the <see cref="LastTexture"/>'s size multiplied with its
-    /// <see cref="LastMaxU"/> and <see cref="LastMaxV"/> values.
+    /// Returns the size of the last image before any transformation but after the <see cref="LastTextureClip"/> was applied.
     /// </summary>
     protected abstract SizeF LastRawSourceSize { get; }
 
     /// <summary>
-    /// Returns the value of the U coord of the last texture that defines the horizontal extent of the image inside the potentially bigger texture.
+    /// Returns the clipping region which should be taken fron the last texture.
     /// </summary>
-    protected abstract float LastMaxU { get; }
-
-    /// <summary>
-    /// Returns the value of the V coord of the last texture that defines the vertical extent of the image inside the potentially bigger texture.
-    /// </summary>
-    protected abstract float LastMaxV { get; }
+    protected abstract RectangleF LastTextureClip { get; }
 
     /// <summary>
     /// Returns the current texture to be rendered. Must be overridden in subclasses.
@@ -234,20 +227,14 @@ namespace MediaPortal.UI.SkinEngine.Controls.ImageSources
     protected abstract Texture CurrentTexture { get; }
 
     /// <summary>
-    /// Returns the size of the current image before any transformation. That is the <see cref="LastTexture"/>'s size multiplied with its
-    /// <see cref="LastMaxU"/> and <see cref="LastMaxV"/> values.
+    /// Returns the size of the current image before any transformation but after the <see cref="LastTextureClip"/> was applied.
     /// </summary>
     protected abstract SizeF CurrentRawSourceSize { get; }
 
     /// <summary>
-    /// Returns the value of the U coord of the current texture that defines the horizontal extent of the image inside the potentially bigger texture.
+    /// Returns the clipping region which should be taken fron the last texture.
     /// </summary>
-    protected abstract float CurrentMaxU { get; }
-
-    /// <summary>
-    /// Returns the value of the V coord of the current texture that defines the vertical extent of the image inside the potentially bigger texture.
-    /// </summary>
-    protected abstract float CurrentMaxV { get; }
+    protected abstract RectangleF CurrentTextureClip { get; }
 
     /// <summary>
     /// DirectX9 does not define what happens when a NULL texture is accessed in a shader. Because of this the action
@@ -276,14 +263,9 @@ namespace MediaPortal.UI.SkinEngine.Controls.ImageSources
       get { return new SizeF(); }
     }
 
-    protected override float MaxU
+    protected override RectangleF  TextureClip
     {
-      get { return 0; }
-    }
-
-    protected override float MaxV
-    {
-      get { return 0; }
+      get { return new RectangleF(); }
     }
 
     #endregion

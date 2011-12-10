@@ -305,10 +305,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
 
       RefreshEffectParameters(player);
 
-      // NOTE: It appears that render textures are always allocated to the exact size (not nearest power-of-2), which makes this SurfaceMaxUV stuff
-      // unnecessary. It is unclear whether this is how it is done by every graphics driver though, so I'll leave it in for the 
-      // time being.
-      SizeF maxuv = player.SurfaceMaxUV;
+      RectangleF textureClip = new RectangleF(new PointF(), player.SurfaceMaxUV);
       lock (player.SurfaceLock)
       {
         Surface playerSurface = player.Surface;
@@ -325,7 +322,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
         using (Surface target = _texture.GetSurfaceLevel(0))
           device.StretchRectangle(playerSurface, target, TextureFilter.None);
       }
-      return _imageContext.StartRender(renderContext, _scaledVideoSize, _texture, maxuv.Width, maxuv.Height, BorderColor.ToArgb(), _lastFrameData);
+      return _imageContext.StartRender(renderContext, _scaledVideoSize, _texture, textureClip, BorderColor.ToArgb(), _lastFrameData);
     }
 
     public override void BeginRenderOpacityBrush(Texture tex, RenderContext renderContext)
