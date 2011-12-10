@@ -1,0 +1,17 @@
+<Screen
+    xmlns="www.team-mediaportal.com/2008/mpf/directx"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+  <DockPanel LastChildFill="False">
+    <Label DockPanel.Dock="Top" HorizontalAlignment="Center"
+        Content="Border test"
+        Color="{ThemeResource TextColor}" Wrap="True"/>
+    <Label DockPanel.Dock="Top" HorizontalAlignment="Center"
+        Content="This screen shows a blue rectangle with a yellow border around it."
+        Wrap="True" FontSize="{ThemeResource SmallFontSize}"
+        Color="{ThemeResource TextColor}"/>
+    <Border x:Name="TestBorder" DockPanel.Dock="Center" BorderBrush="Yellow" BorderThickness="20"
+        HorizontalAlignment="Center" VerticalAlignment="Center">
+      <StackPanel x:Name="TestPanel" Width="200" Height="200" Background="Blue"/>
+    </Border>
+  </DockPanel>
+</Screen>
