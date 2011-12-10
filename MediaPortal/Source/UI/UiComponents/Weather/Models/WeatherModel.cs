@@ -42,7 +42,7 @@ namespace MediaPortal.UiComponents.Weather.Models
   /// <summary>
   /// Main model of the Weather plugin.
   /// </summary>
-  public class WeatherModel : IWorkflowModel
+  public class WeatherModel : IWorkflowModel, IDisposable
   {
     #region Consts
 
@@ -59,16 +59,18 @@ namespace MediaPortal.UiComponents.Weather.Models
     #region Protected fields
 
     protected object _syncObj = new object();
-    protected List<City> _locations = null;
+    protected readonly IList<City> _locations = new List<City>();
+    protected int _updateCount = 0;
 
-    protected AbstractProperty _currentLocationProperty = null;
-    protected ItemsList _locationsList = null;
-    protected AbstractProperty _isUpdatingProperty = null;
-    protected AbstractProperty _lastUpdateTimeProperty = null;
+    protected readonly AbstractProperty _currentLocationProperty = new WProperty(typeof(City), new City("No Data", "No Data"));
+    protected readonly ItemsList _locationsList = new ItemsList();
+    protected readonly AbstractProperty _isUpdatingProperty = new WProperty(typeof(bool), false);
+    protected readonly AbstractProperty _lastUpdateTimeProperty = new WProperty(typeof(string), null);
 
     protected String _preferredLocationCode = null;
     protected int? _refreshIntervalSec = null;
     protected IIntervalWork _refreshIntervalWork = null;
+    protected ManualResetEvent _updateFinished = new ManualResetEvent(true);
 
     #endregion
 
@@ -93,7 +95,7 @@ namespace MediaPortal.UiComponents.Weather.Models
     /// <summary>
     /// Gets the list of loaded locations.
     /// </summary>
-    public List<City> Locations
+    public IList<City> Locations
     {
       get { return _locations; }
     }
@@ -144,6 +146,12 @@ namespace MediaPortal.UiComponents.Weather.Models
 
     #region Public methods
 
+    public void Dispose()
+    {
+      EndRefreshTask();
+      _updateFinished.WaitOne(2000);
+      _updateFinished.Close();
+    }
 
     /// <summary>
     /// provides command for the skin to update the location with new data
@@ -175,25 +183,36 @@ namespace MediaPortal.UiComponents.Weather.Models
 
     #region Private members
 
+    protected void IncUpdateCount()
+    {
+      lock (_syncObj)
+      {
+        _updateCount += 1;
+        IsUpdating = _updateCount > 0;
+      }
+    }
+
+    protected void DecUpdateCount()
+    {
+      lock (_syncObj)
+      {
+        _updateCount -= 1;
+        IsUpdating = _updateCount > 0;
+      }
+    }
+
     protected void SetLastUpdateTime(DateTime? updateTime)
     {
       WeatherSettings settings = ServiceRegistration.Get<ISettingsManager>().Load<WeatherSettings>();
       settings.LastUpdate = updateTime;
       ServiceRegistration.Get<ISettingsManager>().Save(settings);
 
-      AbstractProperty lastUpdateTimeProperty;
-      lock (_syncObj)
-      {
-        if (_lastUpdateTimeProperty == null)
-          return;
-        lastUpdateTimeProperty = _lastUpdateTimeProperty;
-      }
       ILocalization localization = ServiceRegistration.Get<ILocalization>();
       CultureInfo culture = localization.CurrentCulture;
 
       string lastUpdate = LocalizationHelper.Translate(LAST_UPDATE_TIME_RES, updateTime.HasValue ?
           updateTime.Value.ToString(culture) : LocalizationHelper.Translate(NOT_UPDATED_YET_RES));
-      lastUpdateTimeProperty.SetValue(lastUpdate);
+      LastUpdateTime = lastUpdate;
     }
 
     protected void ReadSettings(bool shouldFire)
@@ -244,18 +263,8 @@ namespace MediaPortal.UiComponents.Weather.Models
     private void BackgroundRefresh(object threadArgument)
     {
       ServiceRegistration.Get<ILogger>().Debug("WeatherModel: Background refresh");
-      City currentLocation;
-      AbstractProperty isUpdatingProperty;
-      lock (_syncObj)
-      {
-        // Don't use properties outside this lock as the underlaying instances might have been asynchronously set to null
-        currentLocation = _currentLocationProperty == null ? null : (City) _currentLocationProperty.GetValue();
-        isUpdatingProperty = _isUpdatingProperty;
-        if (currentLocation == null || isUpdatingProperty == null)
-          // Asynchronously already disposed
-          return;
-      }
-      isUpdatingProperty.SetValue(true);
+      _updateFinished.Reset();
+      IncUpdateCount();
       try
       {
         City cityToRefresh = (City) threadArgument;
@@ -268,7 +277,7 @@ namespace MediaPortal.UiComponents.Weather.Models
 
         // Copy the data to the skin property...
         if (cityToRefresh.Id.Equals(_preferredLocationCode))
-          currentLocation.Copy(cityToRefresh);
+          CurrentLocation.Copy(cityToRefresh);
 
         // ... and save the last update time to settings
         SetLastUpdateTime(DateTime.Now);
@@ -281,7 +290,8 @@ namespace MediaPortal.UiComponents.Weather.Models
       }
       finally
       {
-        isUpdatingProperty.SetValue(false);
+        DecUpdateCount();
+        _updateFinished.Set();
       }
     }
 
@@ -349,15 +359,6 @@ namespace MediaPortal.UiComponents.Weather.Models
 
     public void EnterModelContext(NavigationContext oldContext, NavigationContext newContext)
     {
-      lock (_syncObj)
-      {
-        _currentLocationProperty = new WProperty(typeof(City), new City("No Data", "No Data"));
-        _locations = new List<City>();
-        _locationsList = new ItemsList();
-        _isUpdatingProperty = new WProperty(typeof(bool), false);
-        _lastUpdateTimeProperty = new WProperty(typeof(string), null);
-      }
-
       // Add citys from settings to the locations list
       ReadSettings(true);
       StartRefreshTask();
@@ -366,14 +367,6 @@ namespace MediaPortal.UiComponents.Weather.Models
     public void ExitModelContext(NavigationContext oldContext, NavigationContext newContext)
     {
       EndRefreshTask();
-      lock (_syncObj)
-      {
-        _currentLocationProperty = null;
-        _locations = null;
-        _locationsList = null;
-        _isUpdatingProperty = null;
-        _lastUpdateTimeProperty = null;
-      }
     }
 
     public void ChangeModelContext(NavigationContext oldContext, NavigationContext newContext, bool push)
