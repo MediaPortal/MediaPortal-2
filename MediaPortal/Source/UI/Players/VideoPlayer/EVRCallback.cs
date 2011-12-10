@@ -69,11 +69,10 @@ namespace MediaPortal.UI.Players.Video
 
     private readonly object _lock = new object();
     private CropSettings _cropSettings = null;
-    private Size _croppedVideoSize = Size.Empty;
+    private Rectangle _cropVideoRect = Rectangle.Empty;
     private Size _originalVideoSize = Size.Empty;
-    private Size _aspectRatio = Size.Empty;
+    private SizeF _aspectRatio = SizeF.Empty;
     private Surface _surface = null;
-    private SizeF _surfaceMaxUV = Size.Empty;
 
     private readonly DeviceEx _device;
     private readonly RenderDlgt _renderDlgt;
@@ -95,7 +94,7 @@ namespace MediaPortal.UI.Players.Video
     #region Public properties and events
 
     /// <summary>
-    /// The first time the <see cref="OriginalVideoSize"/> and <see cref="CroppedVideoSize"/> properties are
+    /// The first time the <see cref="OriginalVideoSize"/> and <see cref="CropVideoRect"/> properties are
     /// present is when the EVR presenter delivered the first video frame. At that time, this event will be raised.
     /// </summary>
     public event VideoSizePresentDlgt VideoSizePresent;
@@ -111,14 +110,6 @@ namespace MediaPortal.UI.Players.Video
     }
 
     /// <summary>
-    /// Gets the size of the video image which contains the current frame.
-    /// </summary>
-    public Size ImageSize
-    {
-      get { return _croppedVideoSize; }
-    }
-
-    /// <summary>
     /// If this property is set to a not <c>null</c> value, the video image will be cropped before it is copied into
     /// the frame <see cref="Texture"/>.
     /// </summary>
@@ -129,11 +120,12 @@ namespace MediaPortal.UI.Players.Video
     }
 
     /// <summary>
-    /// Gets the size of the video frame after it has been cropped using the provided <see cref="CropSettings"/>.
+    /// Gets the rectangle out of the video frame texture which should be presented. The rectangle is provided
+    /// using the given <see cref="CropSettings"/>.
     /// </summary>
-    public Size CroppedVideoSize
+    public Rectangle CropVideoRect
     {
-      get { return _croppedVideoSize; }
+      get { return _cropVideoRect; }
     }
 
     /// <summary>
@@ -145,28 +137,9 @@ namespace MediaPortal.UI.Players.Video
     }
 
     /// <summary>
-    /// Returns the maximum UV coords of the render frame texture.
-    /// </summary>
-    /// <remarks>
-    /// Standard/Legacy DirectX limits texture surface/texture sizes to power-of-2. If a texture
-    /// is created with a non-power-of-2 size it is rounded up, which results in an empty border 
-    /// around the actual texture. By comparing the desired size with the actual size of the surface 
-    /// we can determine the maximum texture coordinates that will display the whole image, in this 
-    /// case a video frame, without showing any of the border. This would be [1.0f, 1.0f] for a 
-    /// power-of-2 texture, and smaller for a non-power-of-2 texture.
-    /// 
-    /// This function returns the pre-calculated maximum texture coordinates required to display the 
-    /// frame without the border.
-    /// </remarks>
-    public SizeF SurfaceMaxUV 
-    {
-      get { return _surfaceMaxUV; } 
-    }
-
-    /// <summary>
     /// Gets the aspect ratio.
     /// </summary>
-    public Size AspectRatio
+    public SizeF AspectRatio
     {
       get { return _aspectRatio; }
     }
@@ -187,28 +160,26 @@ namespace MediaPortal.UI.Players.Video
         if (dwSurface != 0 && cx != 0 && cy != 0)
         {
           if (cx != _originalVideoSize.Width || cy != _originalVideoSize.Height)
-          {
-            FreeSurface();
             _originalVideoSize = new Size(cx, cy);
-          }
-          Rectangle cropRect = _cropSettings == null ? new Rectangle(Point.Empty, _originalVideoSize) :
+          _cropVideoRect = _cropSettings == null ? new Rectangle(Point.Empty, _originalVideoSize) :
               _cropSettings.CropRect(_originalVideoSize);
-          _croppedVideoSize = cropRect.Size;
 
           _aspectRatio.Width = arx;
           _aspectRatio.Height = ary;
 
-          if (_surface == null)
-          {
-            _surface = Surface.CreateRenderTarget(_device, _croppedVideoSize.Width, _croppedVideoSize.Height,
-                Format.A8R8G8B8, MultisampleType.None, 0, false);
-
-            SurfaceDescription desc = _surface.Description;
-            _surfaceMaxUV = new SizeF(_croppedVideoSize.Width / (float) desc.Width, _croppedVideoSize.Height / (float) desc.Height);
-          }
-
           using (Surface surf = Surface.FromPointer(new IntPtr(dwSurface)))
-            _device.StretchRectangle(surf, cropRect, _surface, new Rectangle(Point.Empty, _croppedVideoSize), TextureFilter.None);
+          {
+            SurfaceDescription surfaceDesc = _surface == null ? new SurfaceDescription() : _surface.Description;
+            SurfaceDescription surfDesc = surf.Description;
+            if (surfaceDesc.Width != surfDesc.Width || surfaceDesc.Height != surfDesc.Height)
+            {
+              if (_surface != null)
+                _surface.Dispose();
+              _surface = Surface.CreateRenderTarget(_device, surfDesc.Width, surfDesc.Height, Format.A8R8G8B8, MultisampleType.None, 0, false);
+            }
+
+            _device.StretchRectangle(surf, _surface, TextureFilter.None);
+          }
         }
       VideoSizePresentDlgt vsp = VideoSizePresent;
       if (vsp != null)

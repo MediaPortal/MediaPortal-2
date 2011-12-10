@@ -715,14 +715,9 @@ namespace MediaPortal.UI.Players.Video
       get { return (_evrCallback == null || !_initialized) ? new Size(0, 0) : _evrCallback.OriginalVideoSize; }
     }
 
-    public Size VideoAspectRatio
+    public SizeF VideoAspectRatio
     {
       get { return (_evrCallback == null) ? new Size(1, 1) : _evrCallback.AspectRatio; }
-    }
-
-    public SizeF SurfaceMaxUV
-    {
-      get { return (_evrCallback == null) ? new SizeF(1.0f, 1.0f) : _evrCallback.SurfaceMaxUV; }
     }
 
     public IGeometry GeometryOverride
@@ -1275,6 +1270,15 @@ namespace MediaPortal.UI.Players.Video
       {
         EVRCallback callback = _evrCallback;
         return callback == null ? _syncObj : callback.SurfaceLock;
+      }
+    }
+
+    public Rectangle CropVideoRect
+    {
+      get
+      {
+        EVRCallback callback = _evrCallback;
+        return callback == null ? Rectangle.Empty : callback.CropVideoRect;
       }
     }
 
