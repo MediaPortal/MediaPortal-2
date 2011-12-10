@@ -55,6 +55,7 @@ namespace MediaPortal.UiComponents.Configuration.ConfigurationControllers
       object Value { get; }
       bool IsUpEnabled { get; }
       bool IsDownEnabled { get; }
+      int GetMaxNumCharacters();
       bool TrySetValue(string value, out string errorText);
       double LowerLimit { get; set; }
       double UpperLimit { get; set; }
@@ -90,18 +91,23 @@ namespace MediaPortal.UiComponents.Configuration.ConfigurationControllers
         return double.TryParse(value, NumberStyles.Float, culture, out result);
       }
 
-      protected int GetNumberOfDigitsToPreserve()
+      protected int GetNumberOfDigitsToPreserve(double value)
       {
         if (_maxNumDigits == -1)
           // The following formular tries to find a sensible number of decimal digits to preserve.
           // We use at least one digit and a maximum of 4 digits, depending on the logarithm of our value.
-          return Math.Max(1, 4 - (int) Math.Log10(Math.Abs(_value) + 1));
+          return Math.Max(1, 4 - (int) Math.Log10(Math.Abs(value) + 1));
         return _maxNumDigits;
       }
 
       protected void RoundValue()
       {
-        _value = Math.Round(_value, GetNumberOfDigitsToPreserve());
+        _value = Math.Round(_value, GetNumberOfDigitsToPreserve(_value));
+      }
+
+      public int GetMaxNumCharacters()
+      {
+        return (int) Math.Log10(_upperLimit) + 1 /* pre decimal point digits */ + 1 /* decimal point */ + GetNumberOfDigitsToPreserve(_upperLimit) /* number of decimal places */;
       }
 
       public bool TrySetValue(string value, out string errorText)
@@ -176,7 +182,7 @@ namespace MediaPortal.UiComponents.Configuration.ConfigurationControllers
       {
         ILocalization localization = ServiceRegistration.Get<ILocalization>();
         CultureInfo culture = localization.CurrentCulture;
-        return _value.ToString("F" + GetNumberOfDigitsToPreserve(), culture);
+        return _value.ToString("F" + GetNumberOfDigitsToPreserve(_value), culture);
       }
     }
 
@@ -196,6 +202,11 @@ namespace MediaPortal.UiComponents.Configuration.ConfigurationControllers
       {
         _value = value;
         _step = step;
+      }
+
+      public int GetMaxNumCharacters()
+      {
+        return (int) Math.Log10(_upperLimit) + 1;
       }
 
       public bool TrySetValue(string value, out string errorText)
@@ -358,7 +369,7 @@ namespace MediaPortal.UiComponents.Configuration.ConfigurationControllers
       }
       GetLimits();
       Value = _numberModel.ToString();
-      DisplayLength = (int) Math.Log10(_numberModel.UpperLimit) + 1;
+      DisplayLength = _numberModel.GetMaxNumCharacters();
     }
 
     private void GetLimits()
