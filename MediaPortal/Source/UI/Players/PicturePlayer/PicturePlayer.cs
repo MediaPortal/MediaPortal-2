@@ -432,6 +432,7 @@ namespace MediaPortal.UI.Players.Picture
       get { return _texture; }
     }
 
+    // TODO: Add Ken Burns effekt
     public RectangleF TextureClip
     {
       get { return new RectangleF(new PointF(), _textureMaxUV); }
