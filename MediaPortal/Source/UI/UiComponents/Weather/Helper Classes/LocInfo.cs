@@ -27,16 +27,16 @@ using MediaPortal.Common.General;
 namespace MediaPortal.UiComponents.Weather
 {
   /// <summary>
-  /// Provides data of the location.
+  /// Provides data of a location.
   /// </summary>
-  public class LocInfo // <loc>
+  public class LocInfo
   {
-    private AbstractProperty _time = new WProperty(typeof(string), string.Empty); // <tm>1:12 AM</tm>
-    private AbstractProperty _lat = new WProperty(typeof(string), string.Empty); // <lat>49.02</lat>
-    private AbstractProperty _lon = new WProperty(typeof(string), string.Empty); // <lon>12.1</lon>
-    private AbstractProperty _sunRise = new WProperty(typeof(string), string.Empty); // <sunr>7:14 AM</sunr> 
-    private AbstractProperty _sunSet = new WProperty(typeof(string), string.Empty); // <suns>5:38 PM</suns>
-    private AbstractProperty _zone = new WProperty(typeof(string), string.Empty); // <zone>1</zone>
+    protected readonly AbstractProperty _time = new WProperty(typeof(string), string.Empty);
+    protected readonly AbstractProperty _lat = new WProperty(typeof(string), string.Empty);
+    protected readonly AbstractProperty _lon = new WProperty(typeof(string), string.Empty);
+    protected readonly AbstractProperty _sunRise = new WProperty(typeof(string), string.Empty);
+    protected readonly AbstractProperty _sunSet = new WProperty(typeof(string), string.Empty);
+    protected readonly AbstractProperty _zone = new WProperty(typeof(string), string.Empty);
 
     public string Time
     {
@@ -77,37 +77,31 @@ namespace MediaPortal.UiComponents.Weather
     public AbstractProperty TimeProperty
     {
       get { return _time; }
-      set { _time = value; }
     }
 
     public AbstractProperty LatProperty
     {
       get { return _lat; }
-      set { _lat = value; }
     }
 
     public AbstractProperty LonProperty
     {
       get { return _lon; }
-      set { _lon = value; }
     }
 
     public AbstractProperty SunRiseProperty
     {
       get { return _sunRise; }
-      set { _sunRise = value; }
     }
 
     public AbstractProperty SunSetProperty
     {
       get { return _sunSet; }
-      set { _sunSet = value; }
     }
 
     public AbstractProperty ZoneProperty
     {
       get { return _zone; }
-      set { _zone = value; }
     }
   }
 }

@@ -24,23 +24,23 @@
 
 using MediaPortal.Common.General;
 using System.Collections.Generic;
-using System.Threading;
 
 namespace MediaPortal.UiComponents.Weather
 {
   /// <summary>
-  /// holds Information on the City
+  /// Holds information for a city.
   /// </summary>
+  // TODO: Make the plugin cope with different numbers of forecasts, depending on the catcher.
+  // It's not good that this class always asumes 5 forecasts in the forecast collection.
   public class City : CitySetupInfo
   {
-    private AbstractProperty _locationInfo = new WProperty(typeof(LocInfo), new LocInfo());
-    private AbstractProperty _currCondition = new WProperty(typeof(CurrentCondition), new CurrentCondition());
-    private AbstractProperty _dayForecastCollection = new WProperty(typeof(List<DayForeCast>), new List<DayForeCast>());
-    private bool _updateSuccessful;
+    protected readonly AbstractProperty _locationInfo = new WProperty(typeof(LocInfo), new LocInfo());
+    protected readonly AbstractProperty _currCondition = new WProperty(typeof(CurrentCondition), new CurrentCondition());
+    protected readonly IList<DayForecast> _dayForecastCollection = new List<DayForecast>(5);
+    protected bool _updateSuccessful;
 
     /// <summary>
-    /// parameterless constructor
-    /// needed for serialization
+    /// Parameterless constructor - needed for serialization.
     /// </summary>
     public City()
     {
@@ -68,40 +68,46 @@ namespace MediaPortal.UiComponents.Weather
     private void Init()
     {
       for (int i = 0; i < 5; i++)
-        ForecastCollection.Add(new DayForeCast());
+        ForecastCollection.Add(new DayForecast());
     }
 
     public void Copy(City src)
     {
       Name = src.Name;
       Id = src.Id;
-      LocationInfo.SunRise = src.LocationInfo.SunRise;
-      LocationInfo.SunSet = src.LocationInfo.SunSet;
-      Condition.BigIcon = src.Condition.BigIcon;
-      Condition.SmallIcon = src.Condition.SmallIcon;
-      Condition.Temperature = src.Condition.Temperature;
-      Condition.LastUpdate = src.Condition.LastUpdate;
-      Condition.FeelsLikeTemp = src.Condition.FeelsLikeTemp;
-      Condition.Humidity = src.Condition.Humidity;
-      Condition.Wind = src.Condition.Wind;
-      Condition.UVIndex = src.Condition.UVIndex;
-      Condition.DewPoint = src.Condition.DewPoint;
-      Condition.Condition = src.Condition.Condition;
-      for (int i = 0; i < ForecastCollection.Count; i++)
+      LocInfo locInfo = LocationInfo;
+      LocInfo sourceLocInfo = src.LocationInfo;
+      locInfo.SunRise = sourceLocInfo.SunRise;
+      locInfo.SunSet = sourceLocInfo.SunSet;
+      CurrentCondition condition = Condition;
+      CurrentCondition sourceCondition = src.Condition;
+      condition.BigIcon = sourceCondition.BigIcon;
+      condition.SmallIcon = sourceCondition.SmallIcon;
+      condition.Temperature = sourceCondition.Temperature;
+      condition.LastUpdate = sourceCondition.LastUpdate;
+      condition.FeelsLikeTemp = sourceCondition.FeelsLikeTemp;
+      condition.Humidity = sourceCondition.Humidity;
+      condition.Wind = sourceCondition.Wind;
+      condition.UVIndex = sourceCondition.UVIndex;
+      condition.DewPoint = sourceCondition.DewPoint;
+      condition.Condition = sourceCondition.Condition;
+      IList<DayForecast> forecastCollection = ForecastCollection;
+      for (int i = 0; i < forecastCollection.Count; i++)
       {
-        ForecastCollection[i].Day = src.ForecastCollection[i].Day;
-        ForecastCollection[i].BigIcon = src.ForecastCollection[i].BigIcon;
-        ForecastCollection[i].SmallIcon = src.ForecastCollection[i].SmallIcon;
-        ForecastCollection[i].Low = src.ForecastCollection[i].Low;
-        ForecastCollection[i].High = src.ForecastCollection[i].High;
-        ForecastCollection[i].Humidity = src.ForecastCollection[i].Humidity;
-        ForecastCollection[i].Overview = src.ForecastCollection[i].Overview;
-        ForecastCollection[i].Precipitation = src.ForecastCollection[i].Precipitation;
-        ForecastCollection[i].SunRise = src.ForecastCollection[i].SunRise;
-        ForecastCollection[i].SunSet = src.ForecastCollection[i].SunSet;
-        ForecastCollection[i].Wind = src.ForecastCollection[i].Wind;
+        DayForecast forecast = forecastCollection[i];
+        DayForecast sourceForecast = src.ForecastCollection[i];
+        forecast.Day = sourceForecast.Day;
+        forecast.BigIcon = sourceForecast.BigIcon;
+        forecast.SmallIcon = sourceForecast.SmallIcon;
+        forecast.Low = sourceForecast.Low;
+        forecast.High = sourceForecast.High;
+        forecast.Humidity = sourceForecast.Humidity;
+        forecast.Overview = sourceForecast.Overview;
+        forecast.Precipitation = sourceForecast.Precipitation;
+        forecast.SunRise = sourceForecast.SunRise;
+        forecast.SunSet = sourceForecast.SunSet;
+        forecast.Wind = sourceForecast.Wind;
       }
-      Thread.Sleep(2000);
     }
 
     #region Properties
@@ -109,12 +115,8 @@ namespace MediaPortal.UiComponents.Weather
     public AbstractProperty NameProperty
     {
       get { return _name; }
-      set { _name = value; }
     }
 
-    /// <summary>
-    /// LocationInfo
-    /// </summary>
     public LocInfo LocationInfo
     {
       get { return (LocInfo) _locationInfo.GetValue(); }
@@ -124,12 +126,8 @@ namespace MediaPortal.UiComponents.Weather
     public AbstractProperty LocationInfoProperty
     {
       get { return _locationInfo; }
-      set { _locationInfo = value; }
     }
 
-    /// <summary>
-    /// Current Condition
-    /// </summary>
     public CurrentCondition Condition
     {
       get { return (CurrentCondition) _currCondition.GetValue(); }
@@ -139,26 +137,15 @@ namespace MediaPortal.UiComponents.Weather
     public AbstractProperty ConditionProperty
     {
       get { return _currCondition; }
-      set { _currCondition = value; }
     }
 
-    /// <summary>
-    /// Current Condition
-    /// </summary>
-    public List<DayForeCast> ForecastCollection
-    {
-      get { return (List<DayForeCast>)_dayForecastCollection.GetValue(); }
-      set { _dayForecastCollection.SetValue(value); }
-    }
-
-    public AbstractProperty ForecastCollectionProperty
+    public IList<DayForecast> ForecastCollection
     {
       get { return _dayForecastCollection; }
-      set { _dayForecastCollection = value; }
     }
 
     /// <summary>
-    /// Identifies if the update was successful
+    /// Returns the information if the update was successful.
     /// </summary>
     public bool HasData
     {

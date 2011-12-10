@@ -35,9 +35,9 @@ using MediaPortal.UiComponents.Weather.Settings;
 
 namespace MediaPortal.UiComponents.Weather.Grabbers
 {
-  class WorldWeatherOnlineCatcher : IWeatherCatcher
+  public class WorldWeatherOnlineCatcher : IWeatherCatcher
   {
-    #region IWeatherCatcher Member
+    public const string SERVICE_NAME = "WorldWeatherOnline.com";
 
     private const string CELCIUS = " °C";
     private const string FAHRENHEIT = " °F";
@@ -114,6 +114,8 @@ namespace MediaPortal.UiComponents.Weather.Grabbers
 
       #endregion
     }
+
+    #region IWeatherCatcher implementation
 
     public bool GetLocationData(City city)
     {
@@ -209,7 +211,7 @@ namespace MediaPortal.UiComponents.Weather.Grabbers
 
     public string GetServiceName()
     {
-      return "WorldWeatherOnline.com";
+      return SERVICE_NAME;
     }
 
     private bool Parse(City city, XPathDocument doc)
@@ -253,57 +255,57 @@ namespace MediaPortal.UiComponents.Weather.Grabbers
         }
       }
 
-      city.ForecastCollection.Clear();
       XPathNodeIterator forecasts = navigator.Select("/data/weather");
+      city.ForecastCollection.Clear();
       while (forecasts.MoveNext())
       {
         if (forecasts.Current == null)
           continue;
 
-        DayForeCast dayForeCast = new DayForeCast();
+        DayForecast dayForecast = new DayForecast();
 
         XPathNavigator node = forecasts.Current.SelectSingleNode("date");
         if (node != null)
-          dayForeCast.Day = node.Value;
+          dayForecast.Day = node.Value;
 
         string nodeName = _preferCelcius ? "tempMinC" : "tempMinF";
         string unit = _preferCelcius ? CELCIUS : FAHRENHEIT;
 
         node = forecasts.Current.SelectSingleNode(nodeName);
         if (node != null)
-          dayForeCast.Low = node.Value + unit;
+          dayForecast.Low = node.Value + unit;
 
         nodeName = _preferCelcius ? "tempMaxC" : "tempMaxF";
         node = forecasts.Current.SelectSingleNode(nodeName);
         if (node != null)
-          dayForeCast.High = node.Value + unit;
+          dayForecast.High = node.Value + unit;
 
         nodeName = _preferKph ? "windspeedKmph" : "windspeedMiles";
         unit = _preferKph ? KPH : MPH;
         node = forecasts.Current.SelectSingleNode(nodeName);
         if (node != null)
-          dayForeCast.Wind = node.Value + unit;
+          dayForecast.Wind = node.Value + unit;
 
         node = forecasts.Current.SelectSingleNode("winddir16Point");
         if (node != null)
-          dayForeCast.Wind += " " + node.Value;
+          dayForecast.Wind += " " + node.Value;
 
         node = forecasts.Current.SelectSingleNode("weatherCode");
         if (node != null)
         {
-          dayForeCast.BigIcon = @"Weather\128x128\" + GetWeatherIcon(node.ValueAsInt);
-          dayForeCast.SmallIcon = @"Weather\64x64\" + GetWeatherIcon(node.ValueAsInt);
+          dayForecast.BigIcon = @"Weather\128x128\" + GetWeatherIcon(node.ValueAsInt);
+          dayForecast.SmallIcon = @"Weather\64x64\" + GetWeatherIcon(node.ValueAsInt);
         }
 
         node = forecasts.Current.SelectSingleNode("weatherDesc");
         if (node != null)
-          dayForeCast.Overview = node.Value;
+          dayForecast.Overview = node.Value;
 
         node = forecasts.Current.SelectSingleNode("precipMM");
         if (node != null)
-          dayForeCast.Precipitation = node.Value + MM;
+          dayForecast.Precipitation = node.Value + MM;
 
-        city.ForecastCollection.Add(dayForeCast);
+        city.ForecastCollection.Add(dayForecast);
       }
       return true;
     }

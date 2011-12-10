@@ -22,6 +22,7 @@
 
 #endregion
 using MediaPortal.Common.General;
+using MediaPortal.UiComponents.Weather.Grabbers;
 
 namespace MediaPortal.UiComponents.Weather
 {
@@ -30,8 +31,9 @@ namespace MediaPortal.UiComponents.Weather
   /// </summary>
   public class CitySetupInfo
   {
-    private string _id, _grabber;
-    protected AbstractProperty _name = new WProperty(typeof(string), string.Empty);
+    protected string _id;
+    protected string _grabber;
+    protected readonly AbstractProperty _name = new WProperty(typeof(string), string.Empty);
 
     public CitySetupInfo(string name, string id, string grabber)
     {
@@ -44,13 +46,13 @@ namespace MediaPortal.UiComponents.Weather
     {
       Name = name;
       _id = id;
-      _grabber = "Weather.com";
+      _grabber = WorldWeatherOnlineCatcher.SERVICE_NAME;
     }
 
     public CitySetupInfo() {}
 
     /// <summary>
-    /// Get the Name of the City
+    /// Gets the name of the City.
     /// </summary>
     public string Name
     {
@@ -59,7 +61,7 @@ namespace MediaPortal.UiComponents.Weather
     }
 
     /// <summary>
-    /// Get the Location ID
+    /// Get the Location ID.
     /// </summary>
     public string Id
     {
@@ -68,8 +70,7 @@ namespace MediaPortal.UiComponents.Weather
     }
 
     /// <summary>
-    /// Get the Grabber Service that should
-    /// be used to fetch data for this town
+    /// Get the Grabber Service that should be used to fetch data for this city.
     /// </summary>
     public string Grabber
     {

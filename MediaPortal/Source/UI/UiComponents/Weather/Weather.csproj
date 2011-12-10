@@ -81,8 +81,7 @@
     <Compile Include="Helper Classes\City.cs" />
     <Compile Include="Helper Classes\CitySetupInfo.cs" />
     <Compile Include="Helper Classes\CurrentCondition.cs" />
-    <Compile Include="Helper Classes\DayForeCast.cs" />
-    <Compile Include="Helper Classes\Helper.cs" />
+    <Compile Include="Helper Classes\DayForecast.cs" />
     <Compile Include="Helper Classes\IWeatherCatcher.cs" />
     <Compile Include="Helper Classes\LocInfo.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

@@ -29,19 +29,19 @@ namespace MediaPortal.UiComponents.Weather
   /// <summary>
   /// Day forecast
   /// </summary>
-  public class DayForeCast
+  public class DayForecast
   {
-    private AbstractProperty _smallIcon = new WProperty(typeof(string), string.Empty);
-    private AbstractProperty _bigIcon= new WProperty(typeof(string), string.Empty); 
-    private AbstractProperty _overview = new WProperty(typeof(string), string.Empty); 
-    private AbstractProperty _day = new WProperty(typeof(string), string.Empty);
-    private AbstractProperty _high = new WProperty(typeof(string), string.Empty);
-    private AbstractProperty _low = new WProperty(typeof(string), string.Empty); 
-    private AbstractProperty _sunRise = new WProperty(typeof(string), string.Empty);
-    private AbstractProperty _sunSet = new WProperty(typeof(string), string.Empty);
-    private AbstractProperty _precipitation = new WProperty(typeof(string), string.Empty);
-    private AbstractProperty _humidity = new WProperty(typeof(string), string.Empty);
-    private AbstractProperty _wind = new WProperty(typeof(string), string.Empty); 
+    protected readonly AbstractProperty _smallIcon = new WProperty(typeof(string), string.Empty);
+    protected readonly AbstractProperty _bigIcon= new WProperty(typeof(string), string.Empty); 
+    protected readonly AbstractProperty _overview = new WProperty(typeof(string), string.Empty); 
+    protected readonly AbstractProperty _day = new WProperty(typeof(string), string.Empty);
+    protected readonly AbstractProperty _high = new WProperty(typeof(string), string.Empty);
+    protected readonly AbstractProperty _low = new WProperty(typeof(string), string.Empty); 
+    protected readonly AbstractProperty _sunRise = new WProperty(typeof(string), string.Empty);
+    protected readonly AbstractProperty _sunSet = new WProperty(typeof(string), string.Empty);
+    protected readonly AbstractProperty _precipitation = new WProperty(typeof(string), string.Empty);
+    protected readonly AbstractProperty _humidity = new WProperty(typeof(string), string.Empty);
+    protected readonly AbstractProperty _wind = new WProperty(typeof(string), string.Empty); 
 
     // Getters
 
@@ -114,67 +114,56 @@ namespace MediaPortal.UiComponents.Weather
     public AbstractProperty SmallIconProperty
     {
       get { return _smallIcon; }
-      set { _smallIcon = value; }
     }
 
     public AbstractProperty BigIconProperty
     {
       get { return _bigIcon; }
-      set { _bigIcon = value; }
     }
 
     public AbstractProperty OverviewProperty
     {
       get { return _overview; }
-      set { _overview = value; }
     }
 
     public AbstractProperty DayProperty
     {
       get { return _day; }
-      set { _day = value; }
     }
 
     public AbstractProperty HighProperty
     {
       get { return _high; }
-      set { _high = value; }
     }
 
     public AbstractProperty LowProperty
     {
       get { return _low; }
-      set { _low = value; }
     }
 
     public AbstractProperty SunRiseProperty
     {
       get { return _sunRise; }
-      set { _sunRise = value; }
     }
 
     public AbstractProperty SunSetProperty
     {
       get { return _sunSet; }
-      set { _sunSet = value; }
     }
 
     public AbstractProperty PrecipitationProperty
     {
       get { return _precipitation; }
-      set { _precipitation = value; }
     }
 
     public AbstractProperty HumidityProperty
     {
       get { return _humidity; }
-      set { _humidity = value; }
     }
 
     public AbstractProperty WindProperty
     {
       get { return _wind; }
-      set { _wind = value; }
     }
   }
 }

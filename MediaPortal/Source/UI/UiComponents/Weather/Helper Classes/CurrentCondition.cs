@@ -26,9 +26,6 @@ using MediaPortal.Common.General;
 
 namespace MediaPortal.UiComponents.Weather
 {
-  /// <summary>
-  /// current condition
-  /// </summary>
   public class CurrentCondition
   {
     public void FillWithDummyData()
@@ -45,18 +42,18 @@ namespace MediaPortal.UiComponents.Weather
       DewPoint = "30%";
     }
 
-    private AbstractProperty _city = new WProperty(typeof(string), string.Empty); // <obst>
-    private AbstractProperty _lastUpdate = new WProperty(typeof(string), string.Empty); // <lsup>
-    private AbstractProperty _temperature = new WProperty(typeof(string), string.Empty); // <temp> 
-    private AbstractProperty _feelsLikeTemp = new WProperty(typeof(string), string.Empty); // <flik>
-    private AbstractProperty _condition = new WProperty(typeof(string), string.Empty); // <t>
-    private AbstractProperty _bigIcon = new WProperty(typeof(string), string.Empty); // <icon> 
-    private AbstractProperty _smallIcon = new WProperty(typeof(string), string.Empty); // <icon> 
-    private AbstractProperty _humidity = new WProperty(typeof(string), string.Empty); // <hmid>
-    private AbstractProperty _wind = new WProperty(typeof(string), string.Empty); // <wind>
-    private AbstractProperty _uVindex = new WProperty(typeof(string), string.Empty); // <uv> 
-    private AbstractProperty _dewPoint = new WProperty(typeof(string), string.Empty); // <dewp>
-    // Getters :P
+    protected readonly AbstractProperty _city = new WProperty(typeof(string), string.Empty);
+    protected readonly AbstractProperty _lastUpdate = new WProperty(typeof(string), string.Empty);
+    protected readonly AbstractProperty _temperature = new WProperty(typeof(string), string.Empty);
+    protected readonly AbstractProperty _feelsLikeTemp = new WProperty(typeof(string), string.Empty);
+    protected readonly AbstractProperty _condition = new WProperty(typeof(string), string.Empty);
+    protected readonly AbstractProperty _bigIcon = new WProperty(typeof(string), string.Empty);
+    protected readonly AbstractProperty _smallIcon = new WProperty(typeof(string), string.Empty);
+    protected readonly AbstractProperty _humidity = new WProperty(typeof(string), string.Empty);
+    protected readonly AbstractProperty _wind = new WProperty(typeof(string), string.Empty);
+    protected readonly AbstractProperty _uVindex = new WProperty(typeof(string), string.Empty);
+    protected readonly AbstractProperty _dewPoint = new WProperty(typeof(string), string.Empty);
+
     public string City
     {
       get { return (string) _city.GetValue(); }
@@ -126,67 +123,56 @@ namespace MediaPortal.UiComponents.Weather
     public AbstractProperty CityProperty
     {
       get { return _city; }
-      set { _city = value; }
     }
 
     public AbstractProperty LastUpdateProperty
     {
       get { return _lastUpdate; }
-      set { _lastUpdate = value; }
     }
 
     public AbstractProperty TemperatureProperty
     {
       get { return _temperature; }
-      set { _temperature = value; }
     }
 
     public AbstractProperty FeelsLikeTempProperty
     {
       get { return _feelsLikeTemp; }
-      set { _feelsLikeTemp = value; }
     }
 
     public AbstractProperty ConditionProperty
     {
       get { return _condition; }
-      set { _condition = value; }
     }
 
     public AbstractProperty HumidityProperty
     {
       get { return _humidity; }
-      set { _humidity = value; }
     }
 
     public AbstractProperty WindProperty
     {
       get { return _wind; }
-      set { _wind = value; }
     }
 
     public AbstractProperty UVIndexProperty
     {
       get { return _uVindex; }
-      set { _uVindex = value; }
     }
 
     public AbstractProperty DewPointProperty
     {
       get { return _dewPoint; }
-      set { _dewPoint = value; }
     }
 
     public AbstractProperty BigIconProperty
     {
       get { return _bigIcon; }
-      set { _bigIcon = value; }
     }
 
     public AbstractProperty SmallIconProperty
     {
       get { return _smallIcon; }
-      set { _smallIcon = value; }
     }
   }
 }

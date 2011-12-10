@@ -47,8 +47,12 @@ namespace MediaPortal.UiComponents.Weather.Models
     #region Consts
 
     public const string WEATHER_MODEL_ID_STR = "92BDB53F-4159-4dc2-B212-6083C820A214";
+    public readonly static Guid WEATHER_MODEL_ID = new Guid(WEATHER_MODEL_ID_STR);
+
     public const string LAST_UPDATE_TIME_RES = "[Weather.LastUpdateTime]";
     public const string NOT_UPDATED_YET_RES = "[Weather.NotUpdatedYet]";
+
+    protected const string KEY_CITY = "City";
 
     #endregion
 
@@ -151,26 +155,19 @@ namespace MediaPortal.UiComponents.Weather.Models
     }
 
     /// <summary>
-    /// provides command for the skin to change the current location
+    /// Provides command for the skin to change the current location.
     /// </summary>
-    /// <param name="item">The item.</param>
+    /// <param name="item">The location item.</param>
     public void ChangeLocation(ListItem item)
     {
-      // we need to find the correct city now... do this by searching for the id in the 
-      // locations list
-      string strLoc = item["Id"];
+      City city = (City) item.AdditionalProperties[KEY_CITY];
 
-      City found = Locations.Find(currentItem => currentItem.Id.Equals(strLoc));
-
-      if (found == null) return;
-
-      // okay, if we found the correct location, update the lists
-      _preferredLocationCode = found.Id;
-      StartBackgroundRefresh(found);
+      _preferredLocationCode = city.Id;
+      StartBackgroundRefresh(city);
 
       // also save the last selected city to settings
       WeatherSettings settings = ServiceRegistration.Get<ISettingsManager>().Load<WeatherSettings>();
-      settings.LocationCode = found.Id;
+      settings.LocationCode = city.Id;
       ServiceRegistration.Get<ISettingsManager>().Save(settings);
     }
 
@@ -212,7 +209,11 @@ namespace MediaPortal.UiComponents.Weather.Models
       SetLastUpdateTime(settings.LastUpdate);
 
       foreach (CitySetupInfo loc in settings.LocationsList)
-        AddCityToLocations(loc);
+      {
+        City city = AddCityToLocations(loc);
+        if (loc.Id == _preferredLocationCode)
+          StartBackgroundRefresh(city);
+      }
 
       // if there is no city selected until yet, choose the first one
       if (settings.LocationCode.Equals("<none>") && _locations.Count > 0)
@@ -265,11 +266,11 @@ namespace MediaPortal.UiComponents.Weather.Models
             "WeatherModel: Loaded weather data for {0}, {1}" : "WeatherModel: Failed to load weather data for {0}, {1}",
             cityToRefresh.Name, cityToRefresh.Id);
 
-        // Copy the data to the skin property.
+        // Copy the data to the skin property...
         if (cityToRefresh.Id.Equals(_preferredLocationCode))
           currentLocation.Copy(cityToRefresh);
 
-        // also save the last selected city to settings
+        // ... and save the last update time to settings
         SetLastUpdateTime(DateTime.Now);
 
         ServiceRegistration.Get<ILogger>().Debug("WeatherModel: Background refresh end");
@@ -288,9 +289,9 @@ namespace MediaPortal.UiComponents.Weather.Models
     /// Adds a single city to locations list.
     /// </summary>
     /// <param name="loc">city setup info</param>
-    private void AddCityToLocations(CitySetupInfo loc)
+    private City AddCityToLocations(CitySetupInfo loc)
     {
-      if (loc == null) return;
+      if (loc == null) return null;
 
       City city = new City(loc);
       _locations.Add(city);
@@ -298,9 +299,9 @@ namespace MediaPortal.UiComponents.Weather.Models
       ListItem item = new ListItem();
       item.SetLabel("Name", loc.Name);
       item.SetLabel("Id", loc.Id);
+      item.AdditionalProperties[KEY_CITY] = city;
       _locationsList.Add(item);
-
-      StartBackgroundRefresh(city);
+      return city;
     }
 
     #endregion
@@ -338,7 +339,7 @@ namespace MediaPortal.UiComponents.Weather.Models
 
     public Guid ModelId
     {
-      get { return new Guid(WEATHER_MODEL_ID_STR); }
+      get { return WEATHER_MODEL_ID; }
     }
 
     public bool CanEnterState(NavigationContext oldContext, NavigationContext newContext)
