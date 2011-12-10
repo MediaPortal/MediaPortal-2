@@ -15,11 +15,14 @@
     <!-- Contents -->
     <ControlTemplate x:Key="Contents_Template">
       <DockPanel LastChildFill="False">
-        <Label DockPanel.Dock="Bottom" Height="120" Margin="20,0,20,20" Color="{ThemeResource HintTextColor}"
-            HorizontalAlignment="Stretch"
-            DataContext="{Binding ElementName=ConfigItemsList,Path=CurrentItem}"
-            Content="{Binding [Help]}" Wrap="True"
-            IsVisible="{Binding Converter={StaticResource ReferenceToBoolConverter}}"/>
+        <DockPanel LastChildFill="True" DockPanel.Dock="Bottom" Height="120" Margin="20,0,20,20"
+            HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+          <Label Color="{ThemeResource HintTextColor}" DockPanel.Dock="Center"
+              HorizontalAlignment="Stretch"
+              DataContext="{Binding ElementName=ConfigItemsList,Path=CurrentItem}"
+              Content="{Binding [Help]}" Wrap="True"
+              IsVisible="{Binding Converter={StaticResource ReferenceToBoolConverter}}"/>
+        </DockPanel>
 
         <ListView x:Name="ConfigItemsList"
             DockPanel.Dock="Center"
