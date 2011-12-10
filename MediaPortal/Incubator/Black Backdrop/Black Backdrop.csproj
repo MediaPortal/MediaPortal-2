@@ -73,7 +73,9 @@
     <Content Include="Skin\default\themes\Black Backdrop 2\images\55556593-9FE9-436c-A3B6-A971E10C9D44.jpg" />
     <Content Include="Skin\default\themes\Black Backdrop 2\images\A4DF2DF6-8D66-479a-9930-D7106525EB07.jpg" />
     <Content Include="Skin\default\themes\Black Backdrop 2\images\B4A9199F-6DD4-4bda-A077-DE9C081F7703.jpg" />
+    <Content Include="Skin\default\themes\Black Backdrop 2\images\C33E39CC-910E-41C8-BFFD-9ECCD340B569.jpg" />
     <Content Include="Skin\default\themes\Black Backdrop 2\images\defaultBackground.jpg" />
+    <Content Include="Skin\default\themes\Black Backdrop 2\images\E34FDB62-1F3E-4aa9-8A61-D143E0AF77B5.jpg" />
     <Content Include="Skin\default\themes\Black Backdrop 2\images\F6255762-C52A-4231-9E67-14C28735216E.jpg" />
     <Content Include="Skin\default\themes\Black Backdrop 2\images\preview.png" />
     <Content Include="Skin\default\themes\Black Backdrop 2\theme.xml" />
@@ -81,6 +83,7 @@
     <Content Include="Skin\default\themes\Black Backdrop\images\55556593-9FE9-436c-A3B6-A971E10C9D44.jpg" />
     <Content Include="Skin\default\themes\Black Backdrop\images\A4DF2DF6-8D66-479a-9930-D7106525EB07.jpg" />
     <Content Include="Skin\default\themes\Black Backdrop\images\B4A9199F-6DD4-4bda-A077-DE9C081F7703.jpg" />
+    <Content Include="Skin\default\themes\Black Backdrop\images\C33E39CC-910E-41C8-BFFD-9ECCD340B569.jpg" />
     <Content Include="Skin\default\themes\Black Backdrop\images\defaultBackground.jpg" />
     <Content Include="Skin\default\themes\Black Backdrop\images\E34FDB62-1F3E-4aa9-8A61-D143E0AF77B5.jpg" />
     <Content Include="Skin\default\themes\Black Backdrop\images\F6255762-C52A-4231-9E67-14C28735216E.jpg" />
