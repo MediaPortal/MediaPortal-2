@@ -275,7 +275,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 
     /// <summary>
     /// Gets the size needed for this element's border/title in total. Will be subtracted from the total available area
-    /// when our content will be layouted.
+    /// when our content is layouted.
     /// </summary>
     protected virtual Thickness GetTotalEnclosingMargin()
     {

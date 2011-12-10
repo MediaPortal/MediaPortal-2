@@ -149,7 +149,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     {
       Thickness result = base.GetTotalEnclosingMargin();
       float halfLabel = _headerLabel.DesiredSize.Height/2;
-      result.Top = halfLabel + Math.Max(halfLabel, result.Top);
+      float halfThickness = (float) BorderThickness/2;
+      result.Top = (float) (Math.Max(GetBorderCornerInsetY() - halfThickness, halfLabel) + Math.Max(halfThickness, halfLabel));
       return result;
     }
 
@@ -164,16 +165,18 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 
     protected override void ArrangeBorder(RectangleF finalRect)
     {
-      float totalHeaderLabelHeight = _headerLabel.DesiredSize.Height;
-      float halfLabelHeight = totalHeaderLabelHeight/2;
-      RectangleF borderRect = new RectangleF(finalRect.X, finalRect.Y + halfLabelHeight,
-          finalRect.Width, finalRect.Height - halfLabelHeight);
+      float headerLabelHeight = _headerLabel.DesiredSize.Height;
+      float halfLabelHeight = headerLabelHeight/2;
+      float halfThickness = (float) BorderThickness/2;
+      float insetY = (float) Math.Max(halfThickness, halfLabelHeight) - halfThickness;
+      RectangleF borderRect = new RectangleF(finalRect.X, finalRect.Y + insetY,
+          finalRect.Width, finalRect.Height - insetY);
       base.ArrangeBorder(borderRect);
       const float realHeaderInset = HEADER_INSET_LINE + HEADER_INSET_SPACE;
       float borderInsetX = GetBorderCornerInsetX();
       _headerLabelRect = new RectangleF(
           finalRect.X + borderInsetX + realHeaderInset, finalRect.Y,
-          finalRect.Width - (borderInsetX + realHeaderInset) * 2, totalHeaderLabelHeight);
+          finalRect.Width - (borderInsetX + realHeaderInset) * 2, headerLabelHeight);
       if (_headerLabelRect.Width < 0)
         _headerLabelRect.Width = 0;
       if (_headerLabelRect.Height > finalRect.Height)
@@ -184,10 +187,10 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 
     protected override GraphicsPath CreateBorderRectPath(RectangleF innerBorderRect)
     {
-      SizeF desiredSize = _headerLabel.DesiredSize;
+      SizeF headerLabelSize = _headerLabel.DesiredSize;
       return GraphicsPathHelper.CreateRoundedRectWithTitleRegionPath(innerBorderRect,
           (float) CornerRadius, (float) CornerRadius, true, HEADER_INSET_LINE,
-          desiredSize.Width + HEADER_INSET_SPACE * 2);
+          headerLabelSize.Width + HEADER_INSET_SPACE * 2);
     }
 
     public override void DoRender(RenderContext localRenderContext)
