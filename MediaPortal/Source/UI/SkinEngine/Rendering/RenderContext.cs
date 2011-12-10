@@ -35,7 +35,7 @@ namespace MediaPortal.UI.SkinEngine.Rendering
     protected readonly double _opacity = 1.0f;
     protected readonly Matrix _transform;
     protected readonly Matrix? _additionalMouseTransform;
-    protected RectangleF _transformedRenderBounds = new RectangleF();
+    protected RectangleF _transformedRenderBounds = RectangleF.Empty;
 
     #endregion
 

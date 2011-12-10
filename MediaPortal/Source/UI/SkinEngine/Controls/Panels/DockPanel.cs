@@ -220,7 +220,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
 
       FrameworkElement child = currentVisibleChildEnumerator.Current;
       if (child == null) // Not necessary to check this, only to avoid warning
-        return new SizeF();
+        return SizeF.Empty;
 
       SizeF childSize = new SizeF(currentAvailableSize.Width, currentAvailableSize.Height);
       SizeF nextChildrenDesiredSize;

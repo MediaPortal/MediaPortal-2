@@ -721,7 +721,7 @@ namespace MediaPortal.UI.Players.Video.Subtitles
         float rationW = 1, rationH = 1;
 
         // FIXME: which "MovieRectangle" to use here?
-        Rectangle movieRect = new Rectangle();// player.MovieRectangle;
+        Rectangle movieRect = Rectangle.Empty;// player.MovieRectangle;
         rationH = movieRect.Height / (float) SkinContext.SkinResources.SkinHeight;
         rationW = movieRect.Width / (float) SkinContext.SkinResources.SkinWidth;
 

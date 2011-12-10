@@ -202,12 +202,12 @@ namespace MediaPortal.UI.SkinEngine.Controls.ImageSources
 
     protected override SizeF RawSourceSize
     {
-      get { return (_texture != null && _texture.IsAllocated) ? new SizeF(_texture.Width, _texture.Height) : new SizeF(); }
+      get { return (_texture != null && _texture.IsAllocated) ? new SizeF(_texture.Width, _texture.Height) : SizeF.Empty; }
     }
 
     protected override RectangleF TextureClip
     {
-      get { return _texture == null ? new RectangleF() : new RectangleF(0, 0, _texture.MaxU, _texture.MaxV); }
+      get { return _texture == null ? RectangleF.Empty : new RectangleF(0, 0, _texture.MaxU, _texture.MaxV); }
     }
 
     public override void Allocate()

@@ -260,12 +260,12 @@ namespace MediaPortal.UI.SkinEngine.Controls.ImageSources
 
     protected override SizeF RawSourceSize
     {
-      get { return new SizeF(); }
+      get { return SizeF.Empty; }
     }
 
     protected override RectangleF  TextureClip
     {
-      get { return new RectangleF(); }
+      get { return RectangleF.Empty; }
     }
 
     #endregion

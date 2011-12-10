@@ -173,7 +173,7 @@ namespace MediaPortal.UI.Players.Picture
         return;
       _texture.Dispose();
       _texture = null;
-      _textureMaxUV = new SizeF();
+      _textureMaxUV = SizeF.Empty;
     }
 
     protected void CheckTimer()
