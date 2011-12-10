@@ -33,7 +33,6 @@ using System;
 using System.Drawing;
 using System.Runtime.InteropServices;
 using MediaPortal.UI.Players.Video.Tools;
-using MediaPortal.UI.Presentation.Geometries;
 using MediaPortal.UI.SkinEngine.SkinManagement;
 using SlimDX.Direct3D9;
 
@@ -68,8 +67,6 @@ namespace MediaPortal.UI.Players.Video
     #region Variables
 
     private readonly object _lock = new object();
-    private CropSettings _cropSettings = null;
-    private Rectangle _cropVideoRect = Rectangle.Empty;
     private Size _originalVideoSize = Size.Empty;
     private SizeF _aspectRatio = SizeF.Empty;
     private Surface _surface = null;
@@ -94,8 +91,8 @@ namespace MediaPortal.UI.Players.Video
     #region Public properties and events
 
     /// <summary>
-    /// The first time the <see cref="OriginalVideoSize"/> and <see cref="CropVideoRect"/> properties are
-    /// present is when the EVR presenter delivered the first video frame. At that time, this event will be raised.
+    /// The first time the <see cref="OriginalVideoSize"/> property is present is when the EVR presenter
+    /// delivered the first video frame. At that time, this event will be raised.
     /// </summary>
     public event VideoSizePresentDlgt VideoSizePresent;
 
@@ -107,25 +104,6 @@ namespace MediaPortal.UI.Players.Video
     public object SurfaceLock
     {
       get { return _lock; }
-    }
-
-    /// <summary>
-    /// If this property is set to a not <c>null</c> value, the video image will be cropped before it is copied into
-    /// the frame <see cref="Texture"/>.
-    /// </summary>
-    public CropSettings CropSettings
-    {
-      get { return _cropSettings; }
-      set { _cropSettings = value; }
-    }
-
-    /// <summary>
-    /// Gets the rectangle out of the video frame texture which should be presented. The rectangle is provided
-    /// using the given <see cref="CropSettings"/>.
-    /// </summary>
-    public Rectangle CropVideoRect
-    {
-      get { return _cropVideoRect; }
     }
 
     /// <summary>
@@ -161,8 +139,6 @@ namespace MediaPortal.UI.Players.Video
         {
           if (cx != _originalVideoSize.Width || cy != _originalVideoSize.Height)
             _originalVideoSize = new Size(cx, cy);
-          _cropVideoRect = _cropSettings == null ? new Rectangle(Point.Empty, _originalVideoSize) :
-              _cropSettings.CropRect(_originalVideoSize);
 
           _aspectRatio.Width = arx;
           _aspectRatio.Height = ary;

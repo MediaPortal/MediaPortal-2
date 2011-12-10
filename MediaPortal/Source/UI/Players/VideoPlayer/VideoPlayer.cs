@@ -1191,7 +1191,7 @@ namespace MediaPortal.UI.Players.Video
 
     protected virtual void CreateEvrCallback()
     {
-      _evrCallback = new EVRCallback(RenderFrame) { CropSettings = _cropSettings };
+      _evrCallback = new EVRCallback(RenderFrame);
       _evrCallback.VideoSizePresent += OnVideoSizePresent;
     }
 
@@ -1277,8 +1277,8 @@ namespace MediaPortal.UI.Players.Video
     {
       get
       {
-        EVRCallback callback = _evrCallback;
-        return callback == null ? Rectangle.Empty : callback.CropVideoRect;
+        Size videoSize = VideoSize;
+        return _cropSettings == null ? new Rectangle(Point.Empty, videoSize) : _cropSettings.CropRect(videoSize);
       }
     }
 

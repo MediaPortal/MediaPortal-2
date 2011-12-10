@@ -53,6 +53,14 @@ namespace MediaPortal.UI.SkinEngine.Players
     /// </summary>
     Surface Surface { get; } 
 
+    /// <summary>
+    /// Gets the rectangle out of the video frame <see cref="Surface"/> which should be presented.
+    /// </summary>
+    /// <remarks>
+    /// Video players may adjust the final video frame according to the <see cref="IVideoPlayer.CropSettings"/> in the
+    /// <see cref="Surface"/> property or they may simply return a bigger frame, returning the crop rectangle in this property.
+    /// In that case, the SkinEngine will crop the <see cref="Surface"/> by this rectangle.
+    /// </remarks>
     Rectangle CropVideoRect { get; }
 
     /// <summary>
