@@ -22,6 +22,7 @@
 
 #endregion
 
+using System.Drawing;
 using System.Drawing.Drawing2D;
 using MediaPortal.UI.SkinEngine.DirectX;
 using MediaPortal.UI.SkinEngine.DirectX.Triangulate;
@@ -45,10 +46,11 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Shapes
           PositionColoredTextured[] verts;
           float centerX;
           float centerY;
-          TriangulateHelper.CalcCentroid(path, out centerX, out centerY);
+          PointF[] pathPoints = path.PathPoints;
+          TriangulateHelper.CalcCentroid(pathPoints, out centerX, out centerY);
           if (Fill != null)
           {
-            TriangulateHelper.FillPolygon_TriangleList(path, centerX, centerY, 1, out verts);
+            TriangulateHelper.FillPolygon_TriangleList(pathPoints, centerX, centerY, 1, out verts);
             Fill.SetupBrush(this, ref verts, context.ZOrder, true);
             PrimitiveBuffer.SetPrimitiveBuffer(ref _fillContext, ref verts, PrimitiveType.TriangleList);
           }
@@ -57,7 +59,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Shapes
 
           if (Stroke != null && StrokeThickness > 0)
           {
-            TriangulateHelper.TriangulateStroke_TriangleList(path, (float) StrokeThickness, true, 1, out verts);
+            TriangulateHelper.TriangulateStroke_TriangleList(pathPoints, (float) StrokeThickness, true, 1, out verts);
             Stroke.SetupBrush(this, ref verts, context.ZOrder, true);
             PrimitiveBuffer.SetPrimitiveBuffer(ref _strokeContext, ref verts, PrimitiveType.TriangleList);
           }

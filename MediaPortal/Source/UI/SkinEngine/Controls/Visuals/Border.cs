@@ -334,8 +334,9 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
           path.CloseFigure();
           PositionColoredTextured[] verts;
           float centerX, centerY;
-          TriangulateHelper.CalcCentroid(path, out centerX, out centerY);
-          TriangulateHelper.FillPolygon_TriangleList(path, centerX, centerY, 1, out verts);
+          PointF[] pathPoints = path.PathPoints;
+          TriangulateHelper.CalcCentroid(pathPoints, out centerX, out centerY);
+          TriangulateHelper.FillPolygon_TriangleList(pathPoints, centerX, centerY, 1, out verts);
 
           Background.SetupBrush(this, ref verts, context.ZOrder, true);
           PrimitiveBuffer.SetPrimitiveBuffer(ref _backgroundContext, ref verts, PrimitiveType.TriangleList);
@@ -362,7 +363,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
               {
                 bool isClosed;
                 gpi.NextSubpath(subPath, out isClosed);
-                TriangulateHelper.TriangulateStroke_TriangleList(subPath, (float) BorderThickness, isClosed, 1,
+                PointF[] pathPoints = subPath.PathPoints;
+                TriangulateHelper.TriangulateStroke_TriangleList(pathPoints, (float) BorderThickness, isClosed, 1,
                     out subPathVerts[i]);
               }
             }
