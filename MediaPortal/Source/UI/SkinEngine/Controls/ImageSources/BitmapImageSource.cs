@@ -195,14 +195,14 @@ namespace MediaPortal.UI.SkinEngine.Controls.ImageSources
       get { return _texture != null && _texture.IsAllocated; }
     }
 
-    public override SizeF SourceSize
-    {
-      get { return (_texture != null && _texture.IsAllocated) ? _imageContext.GetRotatedSize(new SizeF(_texture.Width, _texture.Height)) : new SizeF(); }
-    }
-
     protected override Texture Texture
     {
       get { return _texture == null ? null : _texture.Texture; }
+    }
+
+    protected override SizeF RawSourceSize
+    {
+      get { return (_texture != null && _texture.IsAllocated) ? new SizeF(_texture.Width, _texture.Height) : new SizeF(); }
     }
 
     protected override float MaxU

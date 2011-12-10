@@ -74,7 +74,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.ImageSources
     public abstract void Render(RenderContext renderContext, Stretch stretchMode, StretchDirection stretchDirection);
 
     /// <summary>
-    /// Gets the original size (before stretching) of the centent represented by this source.
+    /// Gets the original size (before stretching but after rotation) of the content represented by this source.
     /// </summary>
     public abstract SizeF SourceSize { get; }
 

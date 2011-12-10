@@ -233,7 +233,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.ImageSources
       get { return _lastTexture == null ? null : _lastTexture.Texture; }
     }
 
-    protected override SizeF LastTextureSize
+    protected override SizeF LastRawSourceSize
     {
       get { return _lastTexture == null ? new SizeF() : new SizeF(_lastTexture.Width, _lastTexture.Height); }
     }
@@ -253,7 +253,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.ImageSources
       get { return _currentTexture == null ? null : _currentTexture.Texture; }
     }
 
-    protected override SizeF CurrentTextureSize
+    protected override SizeF CurrentRawSourceSize
     {
       get { return _currentTexture == null ? new SizeF() : new SizeF(_currentTexture.Width, _currentTexture.Height); }
     }

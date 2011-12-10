@@ -149,6 +149,11 @@ namespace MediaPortal.UI.SkinEngine.Controls.ImageSources
 
     #region ImageSource implementation
 
+    public override SizeF SourceSize
+    {
+      get { return _imageContext.GetRotatedSize(RawSourceSize); }
+    }
+
     public override void Deallocate()
     {
       PrimitiveBuffer.DisposePrimitiveBuffer(ref _primitiveBuffer);
@@ -201,9 +206,9 @@ namespace MediaPortal.UI.SkinEngine.Controls.ImageSources
     {
       if (!IsAllocated)
         return;
-      SizeF sourceSize = SourceSize;
-      SizeF modifiedSourceSize = StretchSource(_imageContext.RotatedFrameSize, sourceSize, stretchMode, stretchDirection);
-      Vector4 frameData = new Vector4(sourceSize.Width, sourceSize.Height, (float) EffectTimer, 0);
+      SizeF rawSourceSize = RawSourceSize;
+      SizeF modifiedSourceSize = StretchSource(_imageContext.RotatedFrameSize, rawSourceSize, stretchMode, stretchDirection);
+      Vector4 frameData = new Vector4(rawSourceSize.Width, rawSourceSize.Height, (float) EffectTimer, 0);
       if (_imageContext.StartRender(renderContext, modifiedSourceSize, Texture, MaxU, MaxV, BorderColor.ToArgb(), frameData))
       {
         _primitiveBuffer.Render(0);
@@ -219,6 +224,12 @@ namespace MediaPortal.UI.SkinEngine.Controls.ImageSources
     /// Returns the texture to be rendered. Must be overridden in subclasses.
     /// </summary>
     protected abstract Texture Texture { get; }
+
+    /// <summary>
+    /// Returns the size of the image before any transformation. That is the <see cref="Texture"/>'s size multiplied with its
+    /// <see cref="MaxU"/> and <see cref="MaxV"/> values.
+    /// </summary>
+    protected abstract SizeF RawSourceSize { get; }
 
     /// <summary>
     /// Returns the value of the U coord of the texture that defines the horizontal extent of the image.

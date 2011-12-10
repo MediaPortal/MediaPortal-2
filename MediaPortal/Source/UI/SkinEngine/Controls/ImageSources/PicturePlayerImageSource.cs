@@ -38,12 +38,12 @@ namespace MediaPortal.UI.SkinEngine.Controls.ImageSources
   public class PicturePlayerImageSource : MultiImageSourceBase
   {
     protected Texture _lastTexture = null;
-    protected SizeF _lastTextureSize;
+    protected SizeF _lastRawSourceSize;
     protected float _lastMaxU;
     protected float _lastMaxV;
 
     protected Texture _currentTexture = null;
-    protected SizeF _currentTextureSize;
+    protected SizeF _currentRawSourceSize;
     protected float _currentMaxU;
     protected float _currentMaxV;
 
@@ -121,9 +121,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.ImageSources
         if (texture != null && texture != _lastCopiedTexture)
         {
           _lastCopiedTexture = texture;
-          // The SlimDX player also supports the FlipX, FlipY values, which give us the information that the
-          // image should be flipped in horizontal or vertical direction after the rotation. Very few pictures have those flags;
-          // we don't implement them here.
+          // The SlimDX player also supports the FlipX, FlipY values, which which tells us the image should be flipped
+          // in horizontal or vertical direction after the rotation. Very few pictures have those flags; we don't implement them here.
           CycleTextures(texture, player.MaxU, player.MaxV, TranslateRotation(player.Rotation));
         }
       }
@@ -138,9 +137,9 @@ namespace MediaPortal.UI.SkinEngine.Controls.ImageSources
       get { return _lastTexture; }
     }
 
-    protected override SizeF LastTextureSize
+    protected override SizeF LastRawSourceSize
     {
-      get { return _lastTextureSize; }
+      get { return _lastRawSourceSize; }
     }
 
     protected override float LastMaxU
@@ -158,9 +157,9 @@ namespace MediaPortal.UI.SkinEngine.Controls.ImageSources
       get { return _currentTexture; }
     }
 
-    protected override SizeF CurrentTextureSize
+    protected override SizeF CurrentRawSourceSize
     {
-      get { return _currentTextureSize; }
+      get { return _currentRawSourceSize; }
     }
 
     protected override float CurrentMaxU
@@ -189,7 +188,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.ImageSources
 
       // Current -> Last
       _lastTexture = _currentTexture;
-      _lastTextureSize = _currentTextureSize;
+      _lastRawSourceSize = _currentRawSourceSize;
       _lastMaxU = _currentMaxU;
       _lastMaxV = _currentMaxV;
       _lastImageContext = _imageContext;
@@ -197,7 +196,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.ImageSources
       // Next -> Current
       SizeF textureSize;
       _currentTexture = CreateTextureCopy(nextTexture, out textureSize);
-      _currentTextureSize = new SizeF(textureSize.Width * nextMaxU, textureSize.Height * nextMaxV);
+      _currentRawSourceSize = new SizeF(textureSize.Width * nextMaxU, textureSize.Height * nextMaxV);
       _currentMaxU = nextMaxU;
       _currentMaxV = nextMaxV;
 
@@ -227,6 +226,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.ImageSources
     protected override void FreeData()
     {
       base.FreeData();
+      _lastCopiedTexture = null;
       TryDispose(ref _lastTexture);
       TryDispose(ref _currentTexture);
       _lastImageContext.Clear();

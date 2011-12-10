@@ -134,10 +134,10 @@ namespace MediaPortal.UI.SkinEngine.Controls.ImageSources
     {
       get
       {
-        SizeF currentTextureSize = _imageContext.GetRotatedSize(CurrentTextureSize);
-        SizeF lastTextureSize = _lastImageContext.GetRotatedSize(LastTextureSize);
-        return (_transitionActive && !lastTextureSize.IsEmpty) ?
-            MaxSizeF(LastTextureSize, currentTextureSize) : currentTextureSize;
+        SizeF currentRotatedSourceSize = _imageContext.GetRotatedSize(CurrentRawSourceSize);
+        SizeF lastRotatedSourceSize = _lastImageContext.GetRotatedSize(LastRawSourceSize);
+        return (_transitionActive && !lastRotatedSourceSize.IsEmpty) ?
+            MaxSizeF(lastRotatedSourceSize, currentRotatedSourceSize) : currentRotatedSourceSize;
       }
     }
 
@@ -153,9 +153,9 @@ namespace MediaPortal.UI.SkinEngine.Controls.ImageSources
       Allocate();
 
       Texture currentTexture = CurrentTexture;
-      SizeF currentTextureSize = CurrentTextureSize;
+      SizeF currentRawSourceSize = CurrentRawSourceSize;
       SizeF currentMaxUV = new SizeF(CurrentMaxU, CurrentMaxV);
-      Vector4 frameData = new Vector4(currentTextureSize.Width, currentTextureSize.Height, (float) EffectTimer, 0);
+      Vector4 frameData = new Vector4(currentRawSourceSize.Width, currentRawSourceSize.Height, (float) EffectTimer, 0);
 
       if (_transitionActive)
       {
@@ -165,17 +165,17 @@ namespace MediaPortal.UI.SkinEngine.Controls.ImageSources
         else
         {
           Texture lastTexture = LastTexture;
-          SizeF lastTextureSize = LastTextureSize;
+          SizeF lastRawSourceSize = LastRawSourceSize;
           SizeF lastMaxUV = new SizeF(LastMaxU, LastMaxV);
-          Vector4 lastFrameData = new Vector4(lastTextureSize.Width, lastTextureSize.Height, (float) EffectTimer, 0);
+          Vector4 lastFrameData = new Vector4(lastRawSourceSize.Width, lastRawSourceSize.Height, (float) EffectTimer, 0);
 
           Texture start = lastTexture ?? NullTexture.Texture;
           Texture end = currentTexture ?? NullTexture.Texture;
 
           if (start != end)
           {
-            SizeF startSize = StretchSource(_lastImageContext.RotatedFrameSize, lastTextureSize, stretchMode, stretchDirection);
-            SizeF endSize = StretchSource(_imageContext.RotatedFrameSize, currentTextureSize, stretchMode, stretchDirection);
+            SizeF startSize = StretchSource(_lastImageContext.RotatedFrameSize, lastRawSourceSize, stretchMode, stretchDirection);
+            SizeF endSize = StretchSource(_imageContext.RotatedFrameSize, currentRawSourceSize, stretchMode, stretchDirection);
 
             // Render transition from last texture to current texture
             _lastImageContext.Update(startSize, start, lastMaxUV.Width, lastMaxUV.Height);
@@ -193,7 +193,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.ImageSources
 
       if (IsAllocated)
       {
-        SizeF sourceSize = StretchSource(_imageContext.RotatedFrameSize, currentTextureSize, stretchMode, stretchDirection);
+        SizeF sourceSize = StretchSource(_imageContext.RotatedFrameSize, currentRawSourceSize, stretchMode, stretchDirection);
         if (_imageContext.StartRender(renderContext, sourceSize, currentTexture, currentMaxUV.Width, currentMaxUV.Height,
             BorderColor.ToArgb(), frameData))
         {
@@ -213,17 +213,18 @@ namespace MediaPortal.UI.SkinEngine.Controls.ImageSources
     protected abstract Texture LastTexture { get; }
 
     /// <summary>
-    /// Returns the size of the last texture.
+    /// Returns the size of the last image before any transformation. That is the <see cref="LastTexture"/>'s size multiplied with its
+    /// <see cref="LastMaxU"/> and <see cref="LastMaxV"/> values.
     /// </summary>
-    protected abstract SizeF LastTextureSize { get; }
+    protected abstract SizeF LastRawSourceSize { get; }
 
     /// <summary>
-    /// Returns the value of the U coord of the last texture that defines the horizontal extent of the image.
+    /// Returns the value of the U coord of the last texture that defines the horizontal extent of the image inside the potentially bigger texture.
     /// </summary>
     protected abstract float LastMaxU { get; }
 
     /// <summary>
-    /// Returns the value of the V coord of the last texture that defines the vertical extent of the image.
+    /// Returns the value of the V coord of the last texture that defines the vertical extent of the image inside the potentially bigger texture.
     /// </summary>
     protected abstract float LastMaxV { get; }
 
@@ -231,15 +232,20 @@ namespace MediaPortal.UI.SkinEngine.Controls.ImageSources
     /// Returns the current texture to be rendered. Must be overridden in subclasses.
     /// </summary>
     protected abstract Texture CurrentTexture { get; }
-    protected abstract SizeF CurrentTextureSize { get; }
 
     /// <summary>
-    /// Returns the value of the U coord of the current texture that defines the horizontal extent of the image.
+    /// Returns the size of the current image before any transformation. That is the <see cref="LastTexture"/>'s size multiplied with its
+    /// <see cref="LastMaxU"/> and <see cref="LastMaxV"/> values.
+    /// </summary>
+    protected abstract SizeF CurrentRawSourceSize { get; }
+
+    /// <summary>
+    /// Returns the value of the U coord of the current texture that defines the horizontal extent of the image inside the potentially bigger texture.
     /// </summary>
     protected abstract float CurrentMaxU { get; }
 
     /// <summary>
-    /// Returns the value of the V coord of the current texture that defines the vertical extent of the image.
+    /// Returns the value of the V coord of the current texture that defines the vertical extent of the image inside the potentially bigger texture.
     /// </summary>
     protected abstract float CurrentMaxV { get; }
 
@@ -263,6 +269,11 @@ namespace MediaPortal.UI.SkinEngine.Controls.ImageSources
     protected override Texture Texture
     {
       get { return null; }
+    }
+
+    protected override SizeF RawSourceSize
+    {
+      get { return new SizeF(); }
     }
 
     protected override float MaxU
