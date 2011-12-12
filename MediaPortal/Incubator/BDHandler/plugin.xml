@@ -59,4 +59,19 @@
         ClassName="MediaPortal.Plugins.BDHandler.Settings.Configuration.VideoAVCCodec"/>
   </Register>
 
+  <Register Location="/Configuration/Settings/Players/Codecs">
+    <ConfigGroup
+        Id="SourceFilters"
+        Redundant="true"
+        Text="[Settings.Players.Codecs.SourceFilters]"/>
+  </Register>
+
+  <Register Location="/Configuration/Settings/Players/Codecs/SourceFilters">
+    <ConfigSetting
+        Id="BluRaySourceFilter"
+        Text="[Settings.Players.Codecs.VideoCodecs.BDSourceFilter]"
+        HelpText="[Settings.Players.Codecs.VideoCodecs.BDSourceFilter.Help]"
+        ClassName="MediaPortal.Plugins.BDHandler.Settings.Configuration.BDSourceFilterConfig"/>
+  </Register>
+
 </Plugin>

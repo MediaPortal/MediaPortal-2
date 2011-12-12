@@ -37,5 +37,11 @@ namespace MediaPortal.Plugins.BDHandler.Settings
     /// </summary>
     [Setting(SettingScope.User)]
     public CodecInfo AVCCodec { get; set; }
+
+    /// <summary>
+    /// Gets or Sets the Source Filter used for Blurays (currently only Gabest or LAV Splitter Source are supported).
+    /// </summary>
+    [Setting(SettingScope.User)]
+    public CodecInfo BDSourceFilter { get; set; }
   }
 }

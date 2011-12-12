@@ -29,7 +29,6 @@ using System.Linq;
 using System.Threading;
 using BDInfo;
 using DirectShowLib;
-using System.Text.RegularExpressions;
 using MediaPortal.Common;
 using MediaPortal.Common.Localization;
 using MediaPortal.Common.Settings;
@@ -46,13 +45,6 @@ namespace MediaPortal.UI.Players.Video
   {
     #region Consts and delegates
        
-    // "MPC - Mpeg Source (Gabest)
-    public static CodecInfo MpcMpegSourceFilterInfo = new CodecInfo()
-                                                        {
-                                                          CLSID = "{1365BE7A-C86A-473C-9A41-C0A6E82C9FA3}",
-                                                          Name = "MPC - Mpeg Source (Gabest)"
-                                                        };
-
     public const double MINIMAL_FULL_FEATURE_LENGTH = 3000;
     public const string RES_PLAYBACK_CHAPTER = "[Playback.Chapter]";
 
@@ -131,8 +123,11 @@ namespace MediaPortal.UI.Players.Video
       // only continue with playback if a feature was selected or the extension was m2ts.
       if (DoFeatureSelection(ref strFile))
       {
-        // load the source filter         
-        if (TryAdd(MpcMpegSourceFilterInfo))
+        // find the SourceFilter
+        CodecInfo sourceFilter = ServiceRegistration.Get<ISettingsManager>().Load<BDPlayerSettings>().BDSourceFilter;
+
+        // load the SourceFilter         
+        if (TryAdd(sourceFilter))
         {
           IFileSourceFilter fileSourceFilter = FilterGraphTools.FindFilterByInterface<IFileSourceFilter>(_graphBuilder);
           // load the file
@@ -141,12 +136,11 @@ namespace MediaPortal.UI.Players.Video
         }
         else
         {
-          BDPlayerBuilder.LogError("Unable to load DirectShowFilter: {0}", MpcMpegSourceFilterInfo.Name);
+          BDPlayerBuilder.LogError("Unable to load DirectShowFilter: {0}", sourceFilter.Name);
           throw new Exception("Unable to load DirectShowFilter");
         }
       }
     }
-
 
     protected override void OnBeforeGraphRunning()
     {
@@ -206,7 +200,7 @@ namespace MediaPortal.UI.Players.Video
     /// </summary>
     /// <param name="path"></param>
     /// <returns></returns>
-    private BDInfoExt ScanWorker(string path)
+    private static BDInfoExt ScanWorker(string path)
     {
       BDPlayerBuilder.LogInfo("Scanning bluray structure: {0}", path);
       BDInfoExt bluray = new BDInfoExt(path.ToUpper());
@@ -226,22 +220,11 @@ namespace MediaPortal.UI.Players.Video
         ScanProcess scanner = ScanWorker;
         IAsyncResult result = scanner.BeginInvoke(filePath, null, scanner);
 
-        // Show the wait cursor during scan
-        //GUIWaitCursor.Init();
-        //GUIWaitCursor.Show();
         while (result.IsCompleted == false)
-        {
-          //GUIWindowManager.Process();
           Thread.Sleep(100);
-        }
 
         BDInfoExt bluray = scanner.EndInvoke(result);
         List<TSPlaylistFile> allPlayLists = bluray.PlaylistFiles.Values.Where(p => p.IsValid).OrderByDescending(p => p.TotalLength).Distinct().ToList();
-
-        // this will be the title of the dialog, we strip the dialog of weird characters that might wreck the font engine.
-        string heading = (bluray.Title != string.Empty) ? Regex.Replace(bluray.Title, @"[^\w\s\*\%\$\+\,\.\-\:\!\?\(\)]", "").Trim() : "Bluray: Select Feature";
-
-        //GUIWaitCursor.Hide();
 
         // Feature selection logic 
         TSPlaylistFile listToPlay;
@@ -267,111 +250,15 @@ namespace MediaPortal.UI.Players.Video
 
           // if the filter yields zero results just list all playlists 
           if (playLists.Count == 0)
-          {
             playLists = allPlayLists;
-          }
 
-          //IDialogbox dialog = (IDialogbox)GUIWindowManager.GetWindow((int)GUIWindow.Window.WINDOW_DIALOG_MENU);
-          //while (true)
-          //{
-          //  dialog.Reset();
-          //  dialog.SetHeading(heading);
-
-          //  int count = 1;
-
-          //  for (int i = 0; i < playLists.Count; i++)
-          //  {
-          //    TSPlaylistFile playList = playLists[i];
-          //    TimeSpan lengthSpan = new TimeSpan((long)(playList.TotalLength * 10000000));
-          //    string length = string.Format("{0:D2}:{1:D2}:{2:D2}", lengthSpan.Hours, lengthSpan.Minutes, lengthSpan.Seconds);
-          //    // todo: translation
-          //    string feature = string.Format("Feature #{0}, {2} Chapter{3} ({1})", count, length, playList.Chapters.Count, (playList.Chapters.Count > 1) ? "s" : string.Empty);
-          //    dialog.Add(feature);
-          //    count++;
-          //  }
-
-          //  if (allPlayLists.Count > playLists.Count)
-          //  {
-          //    // todo: translation
-          //    dialog.Add("List all features...");
-          //  }
-
-          //  dialog.DoModal(GUIWindowManager.ActiveWindow);
-
-          //  if (dialog.SelectedId == count)
-          //  {
-          //    // don't filter the playlists and continue to display the dialog again
-          //    playLists = allPlayLists;
-          //    continue;
-
-          //  }
-          //  else if (dialog.SelectedId < 1)
-          //  {
-          //    // user cancelled so we return
-          //    BDHandlerCore.LogDebug("User cancelled dialog.");
-          //    return false;
-          //  }
-
-          //  // end dialog
-          //  break;
-          //}
-
-          //listToPlay = playLists[dialog.SelectedId - 1];
           listToPlay = playLists[0];
         }
+
         GetChapters(listToPlay);
 
-        // load the chapters
-        //chapters = listToPlay.Chapters.ToArray();
-        //BDHandlerCore.LogDebug("Selected: Playlist={0}, Chapters={1}", listToPlay.Name, chapters.Length);
-
-        // create the chosen file path (playlist)
+        // Combine the chosen file path (playlist)
         filePath = Path.Combine(bluray.DirectoryPLAYLIST.FullName, listToPlay.Name);
-
-        //#region Refresh Rate Changer
-
-        //// Because g_player reads the framerate from the iniating media path we need to
-        //// do a re-check of the framerate after the user has chosen the playlist. We do
-        //// this by grabbing the framerate from the first video stream in the playlist as
-        //// this data was already scanned.
-        //using (Settings xmlreader = new MPSettings())
-        //{
-        //  bool enabled = xmlreader.GetValueAsBool("general", "autochangerefreshrate", false);
-        //  if (enabled)
-        //  {
-        //    TSFrameRate framerate = listToPlay.VideoStreams[0].FrameRate;
-        //    if (framerate != TSFrameRate.Unknown)
-        //    {
-        //      double fps = 0;
-        //      switch (framerate)
-        //      {
-        //        case TSFrameRate.FRAMERATE_59_94:
-        //          fps = 59.94;
-        //          break;
-        //        case TSFrameRate.FRAMERATE_50:
-        //          fps = 50;
-        //          break;
-        //        case TSFrameRate.FRAMERATE_29_97:
-        //          fps = 29.97;
-        //          break;
-        //        case TSFrameRate.FRAMERATE_25:
-        //          fps = 25;
-        //          break;
-        //        case TSFrameRate.FRAMERATE_24:
-        //          fps = 24;
-        //          break;
-        //        case TSFrameRate.FRAMERATE_23_976:
-        //          fps = 23.976;
-        //          break;
-        //      }
-
-        //      BDHandlerCore.LogDebug("Initiating refresh rate change: {0}", fps);
-        //      //RefreshRateChanger.SetRefreshRateBasedOnFPS(fps, filePath, RefreshRateChanger.MediaType.Video);
-        //    }
-        //  }
-        //}
-
-        //#endregion
 
         return true;
       }
