@@ -19,13 +19,29 @@
       </VisualBrush.Visual>
     </VisualBrush>
   </ResourceWrapper>
-    
+
+  <!-- An item list container represented by a standard "Button", scrolling its "ItemLabel" label when focused -->
+  <Style x:Key="FixedMenuItemContainerStyle" BasedOn="{ThemeResource DefaultMenuItemContainerStyle}">
+    <Setter Property="Width" Value="200" />
+    <Setter Property="Height" Value="50"/>
+    <Setter Property="Margin" Value="0,0,10,0" />
+  </Style>
+
   <!-- ListView style to be used for main menu -->
   <Style x:Key="MainMenuListViewStyle" BasedOn="{ThemeResource DefaultListViewStyle}">
+    <Setter Property="DockPanel.Dock" Value="Bottom"/>
+    <Setter Property="Width" Value="1200"/>
     <Setter Property="SelectionChanged" Value="{CommandStencil Source={StaticResource BackgroundManagerModel}, Path=SetSelectedItem}"/>
     <Setter Property="ItemTemplate" Value="{ThemeResource MainMenuItemDataTemplate}"/>
+    <Setter Property="ItemsPanel">
+      <Setter.Value>
+        <ItemsPanelTemplate>
+          <StackPanel x:Name="ListItemsHost" IsItemsHost="True" Orientation="Horizontal"/>
+        </ItemsPanelTemplate>
+      </Setter.Value>
+    </Setter>
     <Setter Property="DataStringProvider" Value="{ThemeResource MainMenuItemDataStringProvider}"/>
-    <Setter Property="ItemContainerStyle" Value="{ThemeResource DefaultMenuItemContainerStyle}"/>
+    <Setter Property="ItemContainerStyle" Value="{ThemeResource FixedMenuItemContainerStyle}"/>
   </Style>
 
 </ResourceDictionary>
