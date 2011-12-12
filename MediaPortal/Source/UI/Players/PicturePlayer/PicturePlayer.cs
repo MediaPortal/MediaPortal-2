@@ -31,6 +31,7 @@ using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.Common.ResourceAccess;
 using MediaPortal.Common.Settings;
+using MediaPortal.UI.Players.Picture.Animation;
 using MediaPortal.UI.Players.Picture.Settings;
 using MediaPortal.UI.Presentation.Players;
 using MediaPortal.UI.SkinEngine.Players;
@@ -78,6 +79,9 @@ namespace MediaPortal.UI.Players.Picture
     protected PlayerEventDlgt _ended = null;
     protected PlayerEventDlgt _playbackStateChanged = null;
     protected PlayerEventDlgt _playbackError = null;
+
+    // Picture animation effect
+    protected IPictureAnimator _animator;
 
     #endregion
 
@@ -152,6 +156,8 @@ namespace MediaPortal.UI.Players.Picture
       PicturePlayerSettings settings = ServiceRegistration.Get<ISettingsManager>().Load<PicturePlayerSettings>() ?? new PicturePlayerSettings();
       double durationSec = settings.SlideShowImageDuration;
       _slideShowImageDuration = durationSec == 0 ? TS_INFINITE : TimeSpan.FromSeconds(durationSec);
+
+      _animator = settings.UseKenBurns ? (IPictureAnimator) new KenBurns() : new StillImage();
     }
 
     protected void DisposeTimer()
@@ -223,6 +229,7 @@ namespace MediaPortal.UI.Players.Picture
           _currentLocator = null;
           return;
         }
+      // TODO: Limit loading of images to a maximum of 2048 x 2048, scale down large images (huge performance drop!)
       Texture texture;
       ImageInformation imageInformation;
       using (IResourceAccessor ra = locator.CreateAccessor())
@@ -248,6 +255,9 @@ namespace MediaPortal.UI.Players.Picture
         else
           CheckTimer();
         _playbackStartTime = DateTime.Now;
+
+        // Reset animation
+        _animator.Reset();
       }
     }
 
@@ -432,10 +442,12 @@ namespace MediaPortal.UI.Players.Picture
       get { return _texture; }
     }
 
-    // TODO: Add Ken Burns effekt
     public RectangleF TextureClip
     {
-      get { return new RectangleF(new PointF(), _textureMaxUV); }
+      get
+      {
+        return _animator.Animate(_texture, _textureMaxUV);
+      }
     }
 
     #endregion
