@@ -49,6 +49,9 @@ namespace MediaPortal.UI.Players.Picture
     public const string STR_PLAYER_ID = "9B1B6861-1757-40b2-9227-98A36D6CC9D7";
     public static readonly Guid PLAYER_ID = new Guid(STR_PLAYER_ID);
 
+    // Limit Texture loading to this size. Larger images cause a huge performance drop.
+    public const int MAX_TEXTURE_SIZE = 2048;
+
     protected TimeSpan TS_INFINITE = TimeSpan.FromMilliseconds(-1);
 
     #endregion
@@ -229,12 +232,12 @@ namespace MediaPortal.UI.Players.Picture
           _currentLocator = null;
           return;
         }
-      // TODO: Limit loading of images to a maximum of 2048 x 2048, scale down large images (huge performance drop!)
+
       Texture texture;
       ImageInformation imageInformation;
       using (IResourceAccessor ra = locator.CreateAccessor())
       using (Stream stream = ra.OpenRead())
-        texture = Texture.FromStream(SkinContext.Device, stream, (int) stream.Length, 0, 0, 1, Usage.None,
+        texture = Texture.FromStream(SkinContext.Device, stream, (int) stream.Length, MAX_TEXTURE_SIZE, MAX_TEXTURE_SIZE, 1, Usage.None,
             Format.A8R8G8B8, Pool.Default, Filter.None, Filter.None, 0, out imageInformation);
       lock (_syncObj)
       {
