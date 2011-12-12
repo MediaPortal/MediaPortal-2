@@ -4,5 +4,7 @@
     <String Name="Players.Pictures" Text="Picture Player"/>
     <String Name="Players.Pictures.SlideShowImageDuration" Text="Slideshow image duration"/>
     <String Name="Players.Pictures.SlideShowImageDuration.Help" Text="Sets the duration in seconds how long each picture is visible in slideshow mode"/>
+    <String Name="Players.Pictures.KenBurnsEffect" Text="Use Ken Burns effect"/>
+    <String Name="Players.Pictures.KenBurnsEffect.Help" Text="Uses pan and zoom animations when showing an image"/>
   </Section>
 </Language>

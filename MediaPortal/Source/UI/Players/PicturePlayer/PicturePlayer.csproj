@@ -80,6 +80,7 @@
     <Compile Include="PicturePlayer.cs" />
     <Compile Include="PicturePlayerBuilder.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Settings\Configuration\KenBurnsEffect.cs" />
     <Compile Include="Settings\Configuration\SlideShowImageDuration.cs" />
     <Compile Include="Settings\PicturePlayerSettings.cs" />
   </ItemGroup>
