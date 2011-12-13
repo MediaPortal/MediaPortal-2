@@ -332,7 +332,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       // Find a new image source
       if (_sourceState.ImageSource == null)
       {
-        _sourceState.ImageSource = LoadImageSource(Source);
+        _sourceState.ImageSource = LoadImageSource(Source, true);
         _sourceState.Setup = false;
       }
 
@@ -349,7 +349,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
         // If the source image could not load yet, try fallback image
         if (_fallbackSourceState.ImageSource == null)
         {
-          _fallbackSourceState.ImageSource = LoadImageSource(FallbackSource);
+          _fallbackSourceState.ImageSource = LoadImageSource(FallbackSource, false);
           _fallbackSourceState.Setup = false;
         }
 
@@ -393,10 +393,21 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
         InvalidateImageSources();
     }
 
-    protected ImageSource LoadImageSource(object source)
+    /// <summary>
+    /// Loads an ImageSource and allows control of thumbnail use. 
+    /// Morpheus_xx, 2011-12-13: For fallback sources no thumbnails should be used, because ALL thumbs are created as JPG. This currenly causes an issue: 
+    /// Source -> no thumbnail created -> FallbackSource (PNG) -> creates a JPG thumbnail, so Alpha-Channel of FallbackSource is lost.
+    /// TODO: Image class and thumbnail handling should be refactored to allow more control about image formats and thumbs usage.
+    /// </summary>
+    /// <param name="source">Source</param>
+    /// <param name="allowThumbs">True to allow building a thumbnail of given source</param>
+    /// <returns>ImageSource or null</returns>
+    protected ImageSource LoadImageSource(object source, bool allowThumbs)
     {
       ImageSource result;
       MediaItem mi = source as MediaItem;
+      bool thumbnail = allowThumbs && Thumbnail;
+
       if (mi != null)
         result = new MediaItemSource(mi, (int) Math.Max(Width, Height));
       else
@@ -409,8 +420,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
           // Remember to adapt list of supported extensions for picture player plugin...
           if (IsValidSource(uriSource))
           {
-            BitmapImageSource bmi = new BitmapImageSource {UriSource = uriSource, Thumbnail = Thumbnail};
-            if (Thumbnail)
+            BitmapImageSource bmi = new BitmapImageSource { UriSource = uriSource, Thumbnail = thumbnail };
+            if (thumbnail)
               // Set the requested thumbnail dimension, to use the best matching format.
               bmi.ThumbnailDimension = (int) Math.Max(Width, Height);
             result = bmi;
