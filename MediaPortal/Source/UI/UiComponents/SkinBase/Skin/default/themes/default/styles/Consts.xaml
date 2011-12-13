@@ -66,4 +66,9 @@
 
   <!-- Workflow navigation bar -->
   <ResourceWrapper x:Key="WorkflowNavigationBarFocusTime" Resource="00:00:00.2"/>
+
+  <!-- Master_Bare layout -->
+  <ResourceWrapper x:Key="HeaderPanelHeight" Resource="135" />
+  <ResourceWrapper x:Key="FooterPanelHeight" Resource="100" />
+
 </ResourceDictionary>

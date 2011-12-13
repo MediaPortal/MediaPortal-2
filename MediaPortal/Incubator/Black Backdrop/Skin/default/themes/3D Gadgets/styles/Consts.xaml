@@ -30,5 +30,9 @@
   <ResourceWrapper x:Key="PiPVideoWidth" Resource="192"/>
   
   <ResourceWrapper x:Key="DialogBorderCornerRadius" Resource="2"/>
-  
+
+  <!-- Master_Bare layout -->
+  <ResourceWrapper x:Key="HeaderPanelHeight" Resource="115" />
+  <ResourceWrapper x:Key="FooterPanelHeight" Resource="70" />
+
 </ResourceDictionary>
