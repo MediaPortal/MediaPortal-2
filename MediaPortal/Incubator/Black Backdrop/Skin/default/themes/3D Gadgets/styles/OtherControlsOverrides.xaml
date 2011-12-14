@@ -47,7 +47,7 @@
   <!-- ****************************** Home screen alternative control ********************************** -->
 
   <!-- We are using backdrops, so no other control on homescreen -->
-  <Style x:Key="AlternativeHomeScreenControlStyle" TargetType="{x:Type Control}">
+  <Style x:Key="HomeScreenContentsControlTemplate" TargetType="{x:Type Control}">
   </Style>
 
 </ResourceDictionary>

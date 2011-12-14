@@ -1338,20 +1338,14 @@
     </Setter>
   </Style>
 
-  <!-- ****************************** Home screen alternative control ********************************** -->
+  <!-- ********************************** Home screen control template ************************************** -->
 
-  <Style x:Key="AlternativeHomeScreenControlStyle" TargetType="{x:Type Control}">
-    <Setter Property="Template">
-      <Setter.Value>
-        <ControlTemplate>
-          <DockPanel LastChildFill="False">
-            <Label FontSize="{ThemeResource HugeFontSize}" Color="{ThemeResource TextColor}" DockPanel.Dock="Center"
-              HorizontalAlignment="Center" VerticalAlignment="Center"
-              Content="[Home.Title]"/>
-          </DockPanel>
-        </ControlTemplate>
-      </Setter.Value>
-    </Setter>
-  </Style>
+  <ControlTemplate x:Key="HomeScreenContentsControlTemplate" TargetType="{x:Type Control}">
+    <DockPanel LastChildFill="False">
+      <Label FontSize="{ThemeResource HugeFontSize}" Color="{ThemeResource TextColor}" DockPanel.Dock="Center"
+        HorizontalAlignment="Center" VerticalAlignment="Center"
+        Content="[Home.Title]"/>
+    </DockPanel>
+  </ControlTemplate>
 
 </ResourceDictionary>
