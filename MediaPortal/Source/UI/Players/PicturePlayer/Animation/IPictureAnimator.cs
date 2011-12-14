@@ -23,26 +23,28 @@
 #endregion
 
 using System.Drawing;
-using SlimDX.Direct3D9;
 
 namespace MediaPortal.UI.Players.Picture.Animation
 {
   /// <summary>
-  /// IPictureAnimator is used for picture animation effects used by <see cref="PicturePlayer"/>.
+  /// Used for picture animation effects in the <see cref="PicturePlayer"/>.
   /// </summary>
   public interface IPictureAnimator
   {
     /// <summary>
-    /// Executes the animation and returns the final display rectangle for the given <paramref name="currentImage"/>.
+    /// Returns the zoom view rectangle, X and Y coords go from 0 to 1.
     /// </summary>
-    /// <param name="currentImage">Image to animate</param>
-    /// <param name="maxUV">Max UV coordinates in texture</param>
-    /// <returns>Zoom view rectangle</returns>
-    RectangleF Animate(Texture currentImage, SizeF maxUV);
+    RectangleF ZoomRect { get; }
 
     /// <summary>
-    /// Resets the animation.
+    /// Initializes the animation.
     /// </summary>
-    void Reset();
+    /// <param name="imageSize">Size of the image to animate.</param>
+    void Initialize(Size imageSize);
+
+    /// <summary>
+    /// Executes the animation and updates the final display rectangle.
+    /// </summary>
+     void Animate();
   }
 }

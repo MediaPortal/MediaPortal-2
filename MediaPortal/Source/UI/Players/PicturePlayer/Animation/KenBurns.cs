@@ -25,7 +25,6 @@
 using System;
 using System.Drawing;
 using MediaPortal.UI.SkinEngine.SkinManagement;
-using SlimDX.Direct3D9;
 
 namespace MediaPortal.UI.Players.Picture.Animation
 {
@@ -50,11 +49,9 @@ namespace MediaPortal.UI.Players.Picture.Animation
     private float _bestZoomFactorCurrent = 1.0f;
 
     private EffectType _currentEffectType = EffectType.None;
-    private Random _randomizer;
-    private Texture _currentImage;
-    private SizeF _imageMaxUV;
-    private Size _imageUsedSize;
-    private RectangleF _zoomView = new RectangleF();
+    private readonly Random _randomizer = new Random(DateTime.Now.Millisecond);
+    private Size _imageSize;
+    private RectangleF _zoomRect;
 
     private float _currentZoomFactor = 1.0f;
     private float _currentZoomLeft;
@@ -79,50 +76,35 @@ namespace MediaPortal.UI.Players.Picture.Animation
     private float _zoomWidth;
     private float _zoomHeight;
 
-    /// <summary>
-    /// Executes the animation and returns the final display rectangle for the given <paramref name="currentImage"/>.
-    /// </summary>
-    /// <param name="currentImage">Image to animate</param>
-    /// <param name="maxUV">Max UV coordinates in texture</param>
-    /// <returns>Zoom view rectangle</returns>
-    public RectangleF Animate(Texture currentImage, SizeF maxUV)
+    public RectangleF ZoomRect
     {
-      _imageMaxUV = maxUV;
-      _zoomView = new RectangleF(PointF.Empty, maxUV);
-      _randomizer = new Random(DateTime.Now.Millisecond);
-      if (currentImage == null)
-        return _zoomView;
+      get { return _zoomRect; }
+    }
 
-      _currentImage = currentImage;
-      SurfaceDescription sd = _currentImage.GetLevelDescription(0);
-      _imageUsedSize = new Size((int) (sd.Width * maxUV.Width), (int) (sd.Height * maxUV.Height));
-      _landScape = _imageUsedSize.Width > _imageUsedSize.Height;
+    public void Initialize(Size imageSize)
+    {
+      _imageSize = imageSize;
+      _zoomRect = new RectangleF(PointF.Empty, new SizeF(1, 1));
 
-      if (_reset)
-      {
-        _currentZoomFactor = CalculateBestZoom(_imageUsedSize.Width, _imageUsedSize.Height);
-        _currentZoomLeft = 0;
-        _currentZoomTop = 0;
-        _currentZoomLeft = 0;
-        _currentZoomTop = 0;
+      _landScape = _imageSize.Width > _imageSize.Height;
 
-        _bestZoomFactorCurrent = _currentZoomFactor;
-        _currentEffectType = (EffectType) 1 + _randomizer.Next(2);
-      }
+      _currentZoomFactor = CalculateBestZoom(_imageSize.Width, _imageSize.Height);
+      _currentZoomLeft = 0;
+      _currentZoomTop = 0;
+      _currentZoomLeft = 0;
+      _currentZoomTop = 0;
 
+      _bestZoomFactorCurrent = _currentZoomFactor;
+      _currentEffectType = (EffectType) 1 + _randomizer.Next(2);
+
+      _reset = true;
+    }
+
+    public void Animate()
+    {
       Animate(_reset);
       Zoom(_currentZoomFactor);
       _reset = false;
-
-      return _zoomView;
-    }
-
-    /// <summary>
-    /// Resets the animation.
-    /// </summary>
-    public void Reset()
-    {
-      _reset = true;
     }
 
     /// <summary>
@@ -131,7 +113,7 @@ namespace MediaPortal.UI.Players.Picture.Animation
     /// <returns></returns>
     private void Animate(bool bReset)
     {
-      int iNrOfFramesPerEffect = KENBURNS_TRANSISTION_SPEED * 30;
+      const int iNrOfFramesPerEffect = KENBURNS_TRANSISTION_SPEED * 30;
 
       // Init methode
       if (bReset)
@@ -165,20 +147,17 @@ namespace MediaPortal.UI.Players.Picture.Animation
       }
 
       // Check new rectangle
-      if (_currentImage != null)
-      {
-        if (_currentZoomTop > (_imageUsedSize.Height - _zoomHeight))
-          _currentZoomTop = (_imageUsedSize.Height - _zoomHeight);
+      if (_currentZoomTop > (_imageSize.Height - _zoomHeight))
+        _currentZoomTop = (_imageSize.Height - _zoomHeight);
 
-        if (_currentZoomLeft > (_imageUsedSize.Width - _zoomWidth))
-          _currentZoomLeft = (_imageUsedSize.Width - _zoomWidth);
+      if (_currentZoomLeft > (_imageSize.Width - _zoomWidth))
+        _currentZoomLeft = (_imageSize.Width - _zoomWidth);
 
-        if (_currentZoomTop < 0)
-          _currentZoomTop = 0;
+      if (_currentZoomTop < 0)
+        _currentZoomTop = 0;
 
-        if (_currentZoomLeft < 0)
-          _currentZoomLeft = 0;
-      }
+      if (_currentZoomLeft < 0)
+        _currentZoomLeft = 0;
 
       if (_currentEffectType != EffectType.None && !bReset)
         _frameNumber++;
@@ -228,9 +207,7 @@ namespace MediaPortal.UI.Players.Picture.Animation
         }
 
         // Init zoom
-        _endZoomFactor = _fullScreen
-                               ? _bestZoomFactorCurrent * KENBURNS_ZOOM_FACTOR_FS
-                               : _bestZoomFactorCurrent * KENBURNS_ZOOM_FACTOR;
+        _endZoomFactor = _fullScreen ? _bestZoomFactorCurrent * KENBURNS_ZOOM_FACTOR_FS : _bestZoomFactorCurrent * KENBURNS_ZOOM_FACTOR;
 
         _startZoomFactor = _bestZoomFactorCurrent;
         _zoomChange = (_endZoomFactor - _startZoomFactor) / iNrOfFramesPerEffect;
@@ -246,8 +223,8 @@ namespace MediaPortal.UI.Players.Picture.Animation
     private void SetOutputRect(float fZoomLevel)
     {
       // Current image size
-      float iSourceWidth = _imageUsedSize.Width;
-      float iSourceHeight = _imageUsedSize.Height;
+      float iSourceWidth = _imageSize.Width;
+      float iSourceHeight = _imageSize.Height;
 
       // Calculate aspect ratio correction factor
       float iScreenWidth = SkinContext.WindowSize.Width;
@@ -294,29 +271,29 @@ namespace MediaPortal.UI.Players.Picture.Animation
 
     private void SetOutputRect(float x, float y, float width, float height)
     {
-      float viewX = x < 0 ? 0 : x / _imageUsedSize.Width * _imageMaxUV.Width;
-      float viewY = y < 0 ? 0 : y / _imageUsedSize.Height * _imageMaxUV.Height;
-      float viewWidth = _imageMaxUV.Width * width / _imageUsedSize.Width;
-      float viewHeight = _imageMaxUV.Height * height / _imageUsedSize.Height;
-      _zoomView = new RectangleF(viewX, viewY, viewWidth, viewHeight);
+      float viewX = x < 0 ? 0 : x / _imageSize.Width;
+      float viewY = y < 0 ? 0 : y / _imageSize.Height;
+      float viewWidth = width / _imageSize.Width;
+      float viewHeight = height / _imageSize.Height;
+      _zoomRect = new RectangleF(viewX, viewY, viewWidth, viewHeight);
     }
 
     private void KenBurnsRandomPan(int iFrameNr, int iNrOfFramesPerEffect, bool bReset)
     {
       var landScapePoints = new Point[]
-                              {
-                                new Point(1, 4), new Point(1, 5), new Point(8, 3), new Point(8, 4),
-                                new Point(8, 5), new Point(7, 4), new Point(7, 3), new Point(5, 8),
-                                new Point(5, 1), new Point(4, 7), new Point(4, 8), new Point(4, 1),
-                                new Point(3, 7), new Point(3, 8)
-                              };
+          {
+            new Point(1, 4), new Point(1, 5), new Point(8, 3), new Point(8, 4),
+            new Point(8, 5), new Point(7, 4), new Point(7, 3), new Point(5, 8),
+            new Point(5, 1), new Point(4, 7), new Point(4, 8), new Point(4, 1),
+            new Point(3, 7), new Point(3, 8)
+          };
       var portraitPoints = new Point[]
-                             {
-                               new Point(1, 6), new Point(1, 5), new Point(2, 7), new Point(2, 6),
-                               new Point(2, 5), new Point(3, 7), new Point(3, 6), new Point(5, 2),
-                               new Point(5, 1), new Point(6, 3), new Point(6, 2), new Point(6, 1),
-                               new Point(7, 3), new Point(7, 2)
-                             };
+          {
+            new Point(1, 6), new Point(1, 5), new Point(2, 7), new Point(2, 6),
+            new Point(2, 5), new Point(3, 7), new Point(3, 6), new Point(5, 2),
+            new Point(5, 1), new Point(6, 3), new Point(6, 2), new Point(6, 1),
+            new Point(7, 3), new Point(7, 2)
+          };
 
       // For Landscape picutres zoomstart BestWidth than Pan
       if (bReset)
@@ -342,20 +319,20 @@ namespace MediaPortal.UI.Players.Picture.Animation
           switch (_endPoint)
           {
             case 8:
-              iDestY = (float) _imageUsedSize.Height / 2;
+              iDestY = (float) _imageSize.Height / 2;
               iDestX = _zoomWidth / 2;
               break;
             case 4:
-              iDestY = (float) _imageUsedSize.Height / 2;
-              iDestX = _imageUsedSize.Width - _zoomWidth / 2;
+              iDestY = (float) _imageSize.Height / 2;
+              iDestX = _imageSize.Width - _zoomWidth / 2;
               break;
             case 2:
               iDestY = _zoomHeight / 2;
-              iDestX = (float) _imageUsedSize.Width / 2;
+              iDestX = (float) _imageSize.Width / 2;
               break;
             case 6:
-              iDestY = _imageUsedSize.Height - _zoomHeight / 2;
-              iDestX = (float) _imageUsedSize.Width / 2;
+              iDestY = _imageSize.Height - _zoomHeight / 2;
+              iDestX = (float) _imageSize.Width / 2;
               break;
             case 1:
               iDestY = _zoomHeight / 2;
@@ -363,15 +340,15 @@ namespace MediaPortal.UI.Players.Picture.Animation
               break;
             case 3:
               iDestY = _zoomHeight / 2;
-              iDestX = _imageUsedSize.Width - _zoomWidth / 2;
+              iDestX = _imageSize.Width - _zoomWidth / 2;
               break;
             case 7:
-              iDestY = _imageUsedSize.Height - _zoomHeight / 2;
+              iDestY = _imageSize.Height - _zoomHeight / 2;
               iDestX = _zoomWidth / 2;
               break;
             case 5:
-              iDestY = _imageUsedSize.Height - _zoomHeight / 2;
-              iDestX = _imageUsedSize.Width - _zoomWidth / 2;
+              iDestY = _imageSize.Height - _zoomHeight / 2;
+              iDestX = _imageSize.Width - _zoomWidth / 2;
               break;
           }
 
@@ -385,13 +362,12 @@ namespace MediaPortal.UI.Players.Picture.Animation
 
     private float CalculateBestZoom(float fWidth, float fHeight)
     {
-      float fZoom;
       // Default picutes is zoom best fit (max width or max height)
       float zoomFactorX = SkinContext.WindowSize.Width / fWidth;
       float zoomFactorY = SkinContext.WindowSize.Height / fHeight;
 
       // Get minimal zoom level (1.0==100%)
-      fZoom = zoomFactorX; //-ZoomFactorY+1.0f;
+      float fZoom = zoomFactorX;
       _landScape = true;
       if (zoomFactorY < zoomFactorX)
       {
@@ -420,40 +396,38 @@ namespace MediaPortal.UI.Players.Picture.Animation
     private void Zoom(float fZoom)
     {
       if (fZoom > MAX_ZOOM_FACTOR || fZoom < 0.0f)
-      {
         return;
-      }
 
       // Start and End point positions along the picture rectangle
       // Point zoom in/out only works if the selected Point is at the border
       // example:  "m_dwWidthBackGround == m_iZoomLeft + _zoomWidth"  and zooming to the left (iZoomType=4)
-      float middlex = (float) _imageUsedSize.Width / 2;
-      float middley = (float) _imageUsedSize.Height / 2;
-      float xend = _imageUsedSize.Width;
-      float yend = _imageUsedSize.Height;
+      float middlex = (float) _imageSize.Width / 2;
+      float middley = (float) _imageSize.Height / 2;
+      float xend = _imageSize.Width;
+      float yend = _imageSize.Height;
 
       _currentZoomFactor = fZoom;
 
       SetOutputRect(_currentZoomFactor);
 
-      if (_currentZoomTop + _zoomHeight > _imageUsedSize.Height)
-        _zoomHeight = _imageUsedSize.Height - _currentZoomTop;
+      if (_currentZoomTop + _zoomHeight > _imageSize.Height)
+        _zoomHeight = _imageSize.Height - _currentZoomTop;
 
-      if (_currentZoomLeft + _zoomWidth > _imageUsedSize.Width)
-        _zoomWidth = _imageUsedSize.Width - _currentZoomLeft;
+      if (_currentZoomLeft + _zoomWidth > _imageSize.Width)
+        _zoomWidth = _imageSize.Width - _currentZoomLeft;
 
       switch (_currentZoomType)
       {
         /* 0: // centered, centered
-        * 1: // Top Left unchanged
-        * 2: // Width centered, Top unchanged
-        * 3: // Top Right unchanged
-        * 4: // Height centered, Right unchanged
-        * 5: // Bottom Right unchanged
-        * 6: // Widht centered, Bottom unchanged
-        * 7: // Bottom Left unchanged
-        * 8: // Heigth centered, Left unchanged
-      * */
+         * 1: // Top Left unchanged
+         * 2: // Width centered, Top unchanged
+         * 3: // Top Right unchanged
+         * 4: // Height centered, Right unchanged
+         * 5: // Bottom Right unchanged
+         * 6: // Widht centered, Bottom unchanged
+         * 7: // Bottom Left unchanged
+         * 8: // Heigth centered, Left unchanged
+         * */
         case 0: // centered, centered
           _currentZoomLeft = middlex - _zoomWidth * 0.5f;
           _currentZoomTop = middley - _zoomHeight * 0.5f;
@@ -485,11 +459,11 @@ namespace MediaPortal.UI.Players.Picture.Animation
           _currentZoomLeft = xend - _zoomWidth;
           break;
       }
-      if (_currentZoomLeft > _imageUsedSize.Width - _zoomWidth)
-        _currentZoomLeft = (_imageUsedSize.Width - _zoomWidth);
+      if (_currentZoomLeft > _imageSize.Width - _zoomWidth)
+        _currentZoomLeft = (_imageSize.Width - _zoomWidth);
 
-      if (_currentZoomTop > _imageUsedSize.Height - _zoomHeight)
-        _currentZoomTop = (_imageUsedSize.Height - _zoomHeight);
+      if (_currentZoomTop > _imageSize.Height - _zoomHeight)
+        _currentZoomTop = (_imageSize.Height - _zoomHeight);
 
       if (_currentZoomLeft < 0)
         _currentZoomLeft = 0;
