@@ -86,8 +86,6 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Players", "Players", "{5569
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ZipResourceProvider", "Extensions\ResourceProviders\ZipResourceProvider\ZipResourceProvider.csproj", "{33721BC7-193A-4B80-9CFF-DC8A50700443}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BluRayMetadataExtractor", "..\Incubator\BDHandler\BluRayMetadataExtractor.csproj", "{BA0837F8-2626-4378-8BF2-963574C1E133}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RisingSkin", "..\Incubator\RisingSkin\RisingSkin.csproj", "{D2F9E3AD-D2BB-45F9-9B1A-93C52F76FA19}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RemovableMediaManager", "UI\UiComponents\RemovableMediaManager\RemovableMediaManager.csproj", "{4E73672B-B668-4153-A6F2-0F45B5C3724B}"
@@ -99,6 +97,8 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DiscUtils", "Extensions\DiscUtils\DiscUtils.csproj", "{B368925B-5794-4931-9F3F-E143F6BB7BE5}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NetworkNeighborhoodResourceProvider", "Extensions\ResourceProviders\NetworkNeighborhoodResourceProvider\NetworkNeighborhoodResourceProvider.csproj", "{29184FFE-9BDD-4A49-B326-83D362211004}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BluRayMetadataExtractor", "..\Incubator\BluRayMetadaExtractor\BluRayMetadataExtractor.csproj", "{BA0837F8-2626-4378-8BF2-963574C1E133}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -224,10 +224,6 @@ Global
 		{33721BC7-193A-4B80-9CFF-DC8A50700443}.Debug|x86.Build.0 = Debug|x86
 		{33721BC7-193A-4B80-9CFF-DC8A50700443}.Release|x86.ActiveCfg = Release|x86
 		{33721BC7-193A-4B80-9CFF-DC8A50700443}.Release|x86.Build.0 = Release|x86
-		{BA0837F8-2626-4378-8BF2-963574C1E133}.Debug|x86.ActiveCfg = Debug|x86
-		{BA0837F8-2626-4378-8BF2-963574C1E133}.Debug|x86.Build.0 = Debug|x86
-		{BA0837F8-2626-4378-8BF2-963574C1E133}.Release|x86.ActiveCfg = Release|x86
-		{BA0837F8-2626-4378-8BF2-963574C1E133}.Release|x86.Build.0 = Release|x86
 		{D2F9E3AD-D2BB-45F9-9B1A-93C52F76FA19}.Debug|x86.ActiveCfg = Debug|x86
 		{D2F9E3AD-D2BB-45F9-9B1A-93C52F76FA19}.Debug|x86.Build.0 = Debug|x86
 		{D2F9E3AD-D2BB-45F9-9B1A-93C52F76FA19}.Release|x86.ActiveCfg = Release|x86
@@ -252,6 +248,10 @@ Global
 		{29184FFE-9BDD-4A49-B326-83D362211004}.Debug|x86.Build.0 = Debug|x86
 		{29184FFE-9BDD-4A49-B326-83D362211004}.Release|x86.ActiveCfg = Release|x86
 		{29184FFE-9BDD-4A49-B326-83D362211004}.Release|x86.Build.0 = Release|x86
+		{BA0837F8-2626-4378-8BF2-963574C1E133}.Debug|x86.ActiveCfg = Debug|x86
+		{BA0837F8-2626-4378-8BF2-963574C1E133}.Debug|x86.Build.0 = Debug|x86
+		{BA0837F8-2626-4378-8BF2-963574C1E133}.Release|x86.ActiveCfg = Release|x86
+		{BA0837F8-2626-4378-8BF2-963574C1E133}.Release|x86.Build.0 = Release|x86
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
