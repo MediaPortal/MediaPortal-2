@@ -23,69 +23,72 @@
 #endregion
 
 using System;
-using System.Collections.Generic;
 using System.Runtime.InteropServices;
 using DirectShowLib;
 using MediaPortal.Common;
 using MediaPortal.Common.Logging;
+using MediaPortal.Common.Settings;
 using MediaPortal.UI.Players.Video.Interfaces;
+using MediaPortal.UI.Players.Video.Settings;
 using MediaPortal.UI.Players.Video.Subtitles;
 using MediaPortal.UI.Players.Video.Tools;
-using System.Timers;
+using SlimDX.Direct3D9;
 
 namespace MediaPortal.UI.Players.Video
 {
   public class TsVideoPlayer : VideoPlayer, ITsReaderCallback, ITsReaderCallbackAudioChange
   {
-    #region imports
+    #region Imports
 
     [ComImport, Guid("b9559486-E1BB-45D3-A2A2-9A7AFE49B23F")]
     protected class TsReader { }
 
     #endregion
 
-    #region constants and structs
+    #region Constants and structs
 
     private const string TSREADER_FILTER_NAME = "TsReader";
+    private const int NO_STREAM_INDEX = -1;
 
     #endregion
 
-    #region variables
+    #region Variables
 
     protected IBaseFilter _fileSource = null;
     protected bool _bMediaTypeChanged = false;
     protected bool _bRequestAudioChange = false;
-    SubtitleRenderer _renderer;
+    SubtitleRenderer _subtitleRenderer;
     IBaseFilter _subtitleFilter;
+    protected GraphRebuilder _graphRebuilder;
+    protected int _selectedSubtitleIndex = NO_STREAM_INDEX;
 
     #endregion
 
-    #region constructor
+    #region Constructor
     /// <summary>
     /// Constructs a TsReader player object.
     /// </summary>
     public TsVideoPlayer()
-      : base()
     {
       PlayerTitle = "TsVideoPlayer"; // for logging
       _requiredCapabilities = CodecHandler.CodecCapabilities.VideoH264 | CodecHandler.CodecCapabilities.VideoMPEG2 | CodecHandler.CodecCapabilities.AudioMPEG;
     }
     #endregion
 
-    #region graph building
+    #region Graph building
     /// <summary>
     /// Frees the audio/video codecs.
     /// </summary>
     protected override void FreeCodecs()
     {
-      base.FreeCodecs();
-      if (_renderer != null)
-      {
-        _renderer.Clear();
-        _renderer.ReleaseResources();
-        _renderer = null;
-      }
+      // Free subtitle filter
+      FilterGraphTools.TryDispose(ref _subtitleRenderer);
       FilterGraphTools.TryRelease(ref _subtitleFilter);
+      
+      // Free base class
+      base.FreeCodecs();
+
+      // Free file source
       FilterGraphTools.TryRelease(ref _fileSource);
     }
 
@@ -104,16 +107,19 @@ namespace MediaPortal.UI.Players.Video
 
       _graphBuilder.AddFilter(_fileSource, TSREADER_FILTER_NAME);
 
-      _renderer = new SubtitleRenderer();
-      _subtitleFilter = _renderer.AddSubtitleFilter(_graphBuilder);
+      _subtitleRenderer = new SubtitleRenderer(OnTextureInvalidated);
+      _subtitleFilter = _subtitleRenderer.AddSubtitleFilter(_graphBuilder);
       if (_subtitleFilter != null)
       {
-        _renderer.RenderSubtitles = true;
-        _renderer.SetPlayer(this);
+        _subtitleRenderer.RenderSubtitles = true;
+        _subtitleRenderer.SetPlayer(this);
       }
 
       IFileSourceFilter f = (IFileSourceFilter) _fileSource;
       f.Load(_resourceAccessor.LocalFileSystemPath, null);
+
+      // Init GraphRebuilder
+      _graphRebuilder = new GraphRebuilder(_graphBuilder, _fileSource, SyncObj) { PlayerName = PlayerTitle };
     }
 
     protected override void OnBeforeGraphRunning()
@@ -138,15 +144,8 @@ namespace MediaPortal.UI.Players.Video
     /// <returns>0</returns>
     public int OnMediaTypeChanged(int mediaType)
     {
-      Timer timer = new Timer(1) { AutoReset = false };
-      timer.Elapsed += AsynchRebuild;
-      timer.Enabled = true;
+      _graphRebuilder.DoAsynchRebuild();
       return 0;
-    }
-
-    void AsynchRebuild(object sender, ElapsedEventArgs e)
-    {
-      DoGraphRebuild();
     }
 
     /// <summary>
@@ -198,306 +197,7 @@ namespace MediaPortal.UI.Players.Video
 
     #endregion
 
-    #region graph rebuilding
-
-    //check if the pin connections can be kept, or if a graph rebuilding is necessary!
-    private bool GraphNeedsRebuild(IBaseFilter baseFilter)
-    {
-      IEnumPins pinEnum;
-      int hr = baseFilter.EnumPins(out pinEnum);
-      if (hr != 0 || pinEnum == null) return true;
-      IPin[] pins = new IPin[1];
-      IntPtr ptrFetched = Marshal.AllocCoTaskMem(4);
-      for (; ; )
-      {
-        hr = pinEnum.Next(1, pins, ptrFetched);
-        if (hr != 0 || Marshal.ReadInt32(ptrFetched) == 0)
-          break;
-        IPin other;
-        hr = pins[0].ConnectedTo(out other);
-        try
-        {
-          if (hr == 0 && other != null)
-          {
-            try
-            {
-              PinInfo pinInfo;
-              pins[0].QueryPinInfo(out pinInfo);
-              FilterInfo filterInfo = FilterGraphTools.QueryFilterInfoAndFree(pinInfo.filter);
-              try
-              {
-                if (!QueryConnect(pins[0], other))
-                {
-                  ServiceRegistration.Get<ILogger>().Info("Graph needs a rebuild. Filter: {0}, Pin: {1}",
-                                                          filterInfo.achName, pinInfo.name);
-                  return true;
-                }
-              }
-              finally
-              {
-                FilterGraphTools.FreePinInfo(pinInfo);
-              }
-            }
-            finally
-            {
-              Marshal.ReleaseComObject(other);
-            }
-          }
-        }
-        finally
-        {
-          Marshal.ReleaseComObject(pins[0]);
-        }
-      }
-      Marshal.ReleaseComObject(pinEnum);
-      Marshal.FreeCoTaskMem(ptrFetched);
-      //this is only debug output at the moment. always do a rebuild for now.
-      ServiceRegistration.Get<ILogger>().Info("Graph would _not_ need a rebuild");
-      ServiceRegistration.Get<ILogger>().Info("TSReaderPlayer: GraphNeedsRebuild() original return value is false.");
-      return false; // Eabin ; this one breaks channel change, when going from one channel with mpeg audio to another with ac3 and vice versa.     
-    }
-
-    void DoGraphRebuild()
-    {
-      IMediaControl mediaCtrl = _graphBuilder as IMediaControl;
-      ServiceRegistration.Get<ILogger>().Info("TSReaderPlayer:DoGraphRebuild()");
-      if (mediaCtrl != null)
-      {
-        lock (SyncObj)
-        {
-          int hr = mediaCtrl.Stop();
-          if (hr != 0)
-          {
-            ServiceRegistration.Get<ILogger>().Error("Error stopping graph: ({0:x})", hr);
-          }
-          for (; ; )
-          {
-            FilterState state;
-            hr = mediaCtrl.GetState(200, out state);
-            if (hr != 0)
-            {
-              ServiceRegistration.Get<ILogger>().Info("GetState failed: {0:x}", hr);
-            }
-            else if (state == FilterState.Stopped)
-            {
-              break;
-            }
-            ServiceRegistration.Get<ILogger>().Info("TSReaderPlayer:OnMediaTypeChanged(): Graph not yet stopped, waiting some more.");
-            mediaCtrl.Stop();
-            System.Threading.Thread.Sleep(100);
-
-          }
-          ServiceRegistration.Get<ILogger>().Info("Graph stopped.");
-          bool needRebuild = GraphNeedsRebuild(_fileSource);
-
-          if (needRebuild)
-          {
-            ServiceRegistration.Get<ILogger>().Info("Doing full graph rebuild.");
-            DisconnectAllPins(_graphBuilder, _fileSource);
-            FilterGraphTools.RenderOutputPins(_graphBuilder, _fileSource);
-          }
-          else
-          {
-            ServiceRegistration.Get<ILogger>().Info("Reconnecting all pins of base filter.");
-            ReConnectAll(_graphBuilder, _fileSource);
-          }
-          mediaCtrl.Run();
-        }
-        ServiceRegistration.Get<ILogger>().Info("Reconfigure graph done");
-      }
-      return;
-    }
-
-    //FIXME: Move all pin connection methods to FilterGraphTools
-    bool QueryConnect(IPin pin, IPin other)
-    {
-      IEnumMediaTypes enumTypes;
-      int hr = pin.EnumMediaTypes(out enumTypes);
-      if (hr != 0 || enumTypes == null)
-        return false;
-
-      int count = 0;
-      IntPtr ptrFetched = Marshal.AllocCoTaskMem(4);
-      try
-      {
-        for (; ; )
-        {
-          AMMediaType[] types = new AMMediaType[1];
-          hr = enumTypes.Next(1, types, ptrFetched);
-          if (hr != 0 || Marshal.ReadInt32(ptrFetched) == 0)
-            break;
-
-          count++;
-          if (other.QueryAccept(types[0]) == 0)
-            return true;
-
-          FilterGraphTools.FreeAMMediaType(types[0]);
-        }
-
-        PinInfo info;
-        PinInfo infoOther;
-        pin.QueryPinInfo(out info);
-        other.QueryPinInfo(out infoOther);
-        ServiceRegistration.Get<ILogger>().Info("Pins {0} and {1} do not accept each other. Tested {2} media types",
-                                                info.name, infoOther.name, count);
-        FilterGraphTools.FreePinInfo(info);
-        FilterGraphTools.FreePinInfo(infoOther);
-        return false;
-      }
-      finally
-      {
-        Marshal.FreeCoTaskMem(ptrFetched);
-      }
-    }
-
-    bool ReConnectAll(IGraphBuilder graphBuilder, IBaseFilter filter)
-    {
-      bool bAllConnected = true;
-      IEnumPins pinEnum;
-      FilterInfo info = FilterGraphTools.QueryFilterInfoAndFree(filter);
-      IntPtr ptrFetched = Marshal.AllocCoTaskMem(4);
-      //filter.QueryFilterInfo(out info);
-      int hr = filter.EnumPins(out pinEnum);
-      if ((hr == 0) && (pinEnum != null))
-      {
-        ServiceRegistration.Get<ILogger>().Info("got pins");
-        IPin[] pins = new IPin[1];
-        int iFetched;
-        int iPinNo = 0;
-        do
-        {
-          // Get the next pin
-          iPinNo++;
-          hr = pinEnum.Next(1, pins, ptrFetched);
-
-          // in case of error stop the pin enumeration
-          if (hr != 0)
-            break;
-
-          iFetched = Marshal.ReadInt32(ptrFetched);
-          if (iFetched == 1 && pins[0] != null)
-          {
-            PinInfo pinInfo;
-            hr = pins[0].QueryPinInfo(out pinInfo);
-            if (hr == 0)
-            {
-              ServiceRegistration.Get<ILogger>().Info("  got pin#{0}:{1}", iPinNo - 1, pinInfo.name);
-              FilterGraphTools.FreePinInfo(pinInfo);
-            }
-            else
-            {
-              ServiceRegistration.Get<ILogger>().Info("  got pin:?");
-            }
-            PinDirection pinDir;
-            pins[0].QueryDirection(out pinDir);
-            if (pinDir == PinDirection.Output)
-            {
-              IPin other;
-              hr = pins[0].ConnectedTo(out other);
-              if (hr == 0 && other != null)
-              {
-                ServiceRegistration.Get<ILogger>().Info("Reconnecting {0}:{1}", info.achName, pinInfo.name);
-                hr = graphBuilder.Reconnect(pins[0]);
-                if (hr != 0)
-                {
-                  ServiceRegistration.Get<ILogger>().Warn("Reconnect failed: {0}:{1}, code: 0x{2:x}", info.achName,
-                                                          pinInfo.name, hr);
-                  bAllConnected = false;
-                }
-                PinInfo otherPinInfo;
-                other.QueryPinInfo(out otherPinInfo);
-                ReConnectAll(graphBuilder, otherPinInfo.filter);
-                FilterGraphTools.FreePinInfo(otherPinInfo);
-                FilterGraphTools.TryRelease(ref other);
-              }
-            }
-            FilterGraphTools.TryRelease(ref pins[0]);
-          }
-          else
-          {
-            ServiceRegistration.Get<ILogger>().Info("no pins?");
-            break;
-          }
-        }
-        while (iFetched == 1);
-        FilterGraphTools.TryRelease(ref pinEnum);
-        Marshal.FreeCoTaskMem(ptrFetched);
-      }
-      return bAllConnected;
-    }
-
-    bool DisconnectAllPins(IGraphBuilder graphBuilder, IBaseFilter filter)
-    {
-      IEnumPins pinEnum;
-      int hr = filter.EnumPins(out pinEnum);
-      if (hr != 0 || pinEnum == null) return false;
-      FilterInfo info = FilterGraphTools.QueryFilterInfoAndFree(filter);
-      ServiceRegistration.Get<ILogger>().Info("Disconnecting all pins from filter {0}", info.achName);
-      bool allDisconnected = true;
-      IntPtr ptrFetched = Marshal.AllocCoTaskMem(4);
-      for (; ; )
-      {
-        IPin[] pins = new IPin[1];
-
-        hr = pinEnum.Next(1, pins, ptrFetched);
-        if (hr != 0 || Marshal.ReadInt32(ptrFetched) == 0) break;
-        PinInfo pinInfo;
-        pins[0].QueryPinInfo(out pinInfo);
-        if (pinInfo.dir == PinDirection.Output)
-        {
-          if (!DisconnectPin(graphBuilder, pins[0]))
-            allDisconnected = false;
-        }
-        FilterGraphTools.FreePinInfo(pinInfo);
-        Marshal.ReleaseComObject(pins[0]);
-      }
-      Marshal.ReleaseComObject(pinEnum);
-      Marshal.FreeCoTaskMem(ptrFetched);
-      return allDisconnected;
-    }
-
-    bool DisconnectPin(IGraphBuilder graphBuilder, IPin pin)
-    {
-      IPin other;
-      int hr = pin.ConnectedTo(out other);
-      bool allDisconnected = true;
-      if (hr == 0 && other != null)
-      {
-        PinInfo info;
-        pin.QueryPinInfo(out info);
-        ServiceRegistration.Get<ILogger>().Info("Disconnecting pin {0}", info.name);
-        FilterGraphTools.FreePinInfo(info);
-
-        other.QueryPinInfo(out info);
-        if (!DisconnectAllPins(graphBuilder, info.filter))
-          allDisconnected = false;
-
-        FilterGraphTools.FreePinInfo(info);
-
-        hr = pin.Disconnect();
-        if (hr != 0)
-        {
-          allDisconnected = false;
-          ServiceRegistration.Get<ILogger>().Error("Error disconnecting: {0:x}", hr);
-        }
-        hr = other.Disconnect();
-        if (hr != 0)
-        {
-          allDisconnected = false;
-          ServiceRegistration.Get<ILogger>().Error("Error disconnecting other: {0:x}", hr);
-        }
-        Marshal.ReleaseComObject(other);
-      }
-      else
-      {
-        ServiceRegistration.Get<ILogger>().Info("  Not connected");
-      }
-      return allDisconnected;
-    }
-
-    #endregion
-
-    #region subtitles
+    #region Subtitles
 
     protected override bool EnumerateStreams()
     {
@@ -512,6 +212,11 @@ namespace MediaPortal.UI.Players.Video
         {
           _streamInfoSubtitles = new StreamInfoHandler();
           subtitleStream.GetSubtitleStreamCount(ref count);
+          if (count > 0)
+          {
+            StreamInfo subStream = new StreamInfo(null, NO_STREAM_INDEX, NO_SUBTITLES, 0);
+            _streamInfoSubtitles.AddUnique(subStream);
+          }
           for (int i = 0; i < count; ++i)
           {
             //FIXME: language should be passed back also as LCID
@@ -533,16 +238,61 @@ namespace MediaPortal.UI.Players.Video
     public override void SetSubtitle(string subtitle)
     {
       EnumerateStreams();
-      if (_streamInfoSubtitles == null)
+      ISubtitleStream subtitleStream = _fileSource as ISubtitleStream;
+      if (_streamInfoSubtitles == null || subtitleStream == null)
         return;
 
-      // first try to find a stream by it's exact LCID.
+      // First try to find a stream by it's exact LCID.
       StreamInfo streamInfo = _streamInfoSubtitles.FindStream(subtitle);
       if (streamInfo != null)
-        _streamInfoSubtitles.EnableStream(streamInfo.Name);
+      {
+        // Tell the renderer if it should render subtitles
+        _selectedSubtitleIndex = streamInfo.StreamIndex;
+        _subtitleRenderer.RenderSubtitles = _selectedSubtitleIndex != NO_STREAM_INDEX;
+        if (_selectedSubtitleIndex != NO_STREAM_INDEX)
+          subtitleStream.SetSubtitleStream(_selectedSubtitleIndex);
+        SaveSubtitlePreference();
+      }
+    }
+
+    protected override void SaveSubtitlePreference()
+    {
+      VideoSettings settings = ServiceRegistration.Get<ISettingsManager>().Load<VideoSettings>() ?? new VideoSettings();
+      settings.PreferredSubtitleSteamName = _selectedSubtitleIndex != NO_STREAM_INDEX
+        ? Subtitles[_selectedSubtitleIndex] : String.Empty;
+
+      // If selected stream is "No subtitles", we disable the setting
+      settings.EnableSubtitles = _selectedSubtitleIndex != NO_STREAM_INDEX;
+      ServiceRegistration.Get<ISettingsManager>().Save(settings);
+    }
+
+    protected override void SetPreferredSubtitle()
+    {
+      EnumerateStreams();
+      ISubtitleStream subtitleStream = _fileSource as ISubtitleStream;
+      if (_streamInfoSubtitles == null || subtitleStream == null)
+        return;
+
+      VideoSettings settings = ServiceRegistration.Get<ISettingsManager>().Load<VideoSettings>() ?? new VideoSettings();
+
+      // first try to find a stream by it's exact LCID.
+      StreamInfo streamInfo = _streamInfoSubtitles.FindStream(settings.PreferredSubtitleLanguage) ?? _streamInfoSubtitles.FindSimilarStream(settings.PreferredSubtitleSteamName);
+      if (streamInfo == null || !settings.EnableSubtitles)
+        // Tell the renderer it should not render subtitles
+        _subtitleRenderer.RenderSubtitles = false;
+      else
+        subtitleStream.SetSubtitleStream(streamInfo.StreamIndex);
     }
 
     #endregion
+
+    /// <summary>
+    /// Render subtitles on video texture if enabled and available.
+    /// </summary>
+    protected override void PostProcessTexture(Surface targetSurface)
+    {
+      _subtitleRenderer.DrawOverlay(targetSurface);
+    }
 
     public override TimeSpan CurrentTime
     {
@@ -550,23 +300,9 @@ namespace MediaPortal.UI.Players.Video
       set
       {
         base.CurrentTime = value;
-        if (_renderer != null)
-          _renderer.OnSeek(CurrentTime.TotalSeconds);
+        if (_subtitleRenderer != null)
+          _subtitleRenderer.OnSeek(CurrentTime.TotalSeconds);
       }
-    }
-
-    public override void ReleaseGUIResources()
-    {
-      if (_renderer != null)
-        _renderer.ReleaseResources();
-      base.ReleaseGUIResources();
-    }
-
-    public override void ReallocGUIResources()
-    {
-      if (_renderer != null)
-        _renderer.ReallocResources();
-      base.ReallocGUIResources();
     }
   }
 }

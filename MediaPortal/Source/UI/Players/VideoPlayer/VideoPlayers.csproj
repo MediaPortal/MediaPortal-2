@@ -61,7 +61,7 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>References\DirectShowLib-2005.dll</HintPath>
     </Reference>
-    <Reference Include="SlimDX, Version=2.0.5.39, Culture=neutral, PublicKeyToken=b1b0c32fd1ffe4f9, processorArchitecture=x86">
+    <Reference Include="SlimDX, Version=2.0.12.43, Culture=neutral, PublicKeyToken=b1b0c32fd1ffe4f9, processorArchitecture=x86">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\SkinEngine\References\SlimDX.dll</HintPath>
     </Reference>
@@ -75,7 +75,6 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Interfaces\DirectShowLibExt.cs" />
     <Compile Include="PlayerRegistration.cs" />
     <Compile Include="Settings\Configuration\AudioCodecAAC.cs" />
     <Compile Include="Settings\Configuration\GenericCodecSelection.cs" />
@@ -86,6 +85,7 @@
     <Compile Include="Settings\Configuration\Subtitles.cs" />
     <Compile Include="Settings\Configuration\VideoMPEG4Codec.cs" />
     <Compile Include="Settings\Configuration\VideoMPEG2Codec.cs" />
+    <Compile Include="Tools\GraphRebuilder.cs" />
     <Compile Include="Tools\StreamInfo.cs" />
     <Compile Include="Tools\StreamInfoHandler.cs" />
     <Compile Include="Tools\CodecHandler.cs" />

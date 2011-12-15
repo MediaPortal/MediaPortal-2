@@ -235,6 +235,8 @@
     <Compile Include="Rendering\PrimitiveBuffer.cs" />
     <Compile Include="Rendering\RenderContext.cs" />
     <Compile Include="Rendering\RotationTranslator.cs" />
+    <Compile Include="Rendering\TemporaryRenderState.cs" />
+    <Compile Include="Rendering\TemporaryRenderTarget.cs" />
     <Compile Include="Rendering\TextBuffer.cs" />
     <Compile Include="ScreenManagement\DialogData.cs" />
     <Compile Include="ScreenManagement\ScreenManagerMessaging.cs" />

@@ -261,24 +261,24 @@ namespace MediaPortal.UI.Players.Video.Subtitles
 
       // prepare subtitle
       TextSubtitle sub = new TextSubtitle();
-      sub.encoding = _language;
-      sub.page = _pageNumInProgress;
+      sub.Encoding = _language;
+      sub.Page = _pageNumInProgress;
 
-      sub.language = realLang;
+      sub.Language = realLang;
 
-      sub.text = textBuilder.ToString();
-      sub.lc = lc;
-      sub.timeOut = ulong.MaxValue; // never timeout (will be replaced by other page)
-      sub.timeStamp = _presentTime;
-      Assert(String.IsNullOrEmpty(sub.text), "Sub.text == null!");
+      sub.Text = textBuilder.ToString();
+      sub.LineContents = lc;
+      sub.TimeOut = ulong.MaxValue; // never timeout (will be replaced by other page)
+      sub.TimeStamp = _presentTime;
+      Assert(String.IsNullOrEmpty(sub.Text), "Sub.text == null!");
 
       if (_owner.SubPageInfoCallback != null)
       {
         TeletextPageEntry pageEntry = new TeletextPageEntry
                                         {
-                                          language = String.Copy(sub.language),
-                                          encoding = (TeletextCharTable) sub.encoding,
-                                          page = sub.page
+                                          Language = String.Copy(sub.Language),
+                                          Encoding = (TeletextCharTable) sub.Encoding,
+                                          Page = sub.Page
                                         };
 
         _owner.SubPageInfoCallback(pageEntry);

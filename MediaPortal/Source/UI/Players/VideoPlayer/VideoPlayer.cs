@@ -89,7 +89,7 @@ namespace MediaPortal.UI.Players.Video
     protected static string[] EMPTY_STRING_ARRAY = new string[] { };
 
     // The default name for "No subtitles available" or "Subtitles disabled".
-    private const string NO_SUBTITLES = "No subtitles";
+    protected const string NO_SUBTITLES = "No subtitles";
 
     protected const double PLAYBACK_RATE_PLAY_THRESHOLD = 0.05;
 
@@ -156,7 +156,10 @@ namespace MediaPortal.UI.Players.Video
 
     protected StreamInfoHandler _streamInfoAudio = null;
     protected StreamInfoHandler _streamInfoSubtitles = null;
-    protected readonly object _syncObj = new object();
+    private readonly object _syncObj = new object();
+
+    protected bool _useTexture = true;
+    protected bool _textureInvalid = true;
 
     #endregion
 
@@ -233,7 +236,7 @@ namespace MediaPortal.UI.Players.Video
 
     #region Message handling
 
-    protected virtual void SubscribeToMessages()
+    protected void SubscribeToMessages()
     {
       _messageQueue = new AsynchronousMessageQueue(this, new string[] { WindowsMessaging.CHANNEL });
       _messageQueue.MessageReceived += OnMessageReceived;
@@ -347,8 +350,8 @@ namespace MediaPortal.UI.Players.Video
         int hr = mc.Run();
         DsError.ThrowExceptionForHR(hr);
 
-        OnGraphRunning();
         _initialized = true;
+        OnGraphRunning();
       }
       catch (Exception)
       {
@@ -468,8 +471,7 @@ namespace MediaPortal.UI.Players.Video
       if (hr != 0)
       {
         EvrDeinit();
-        Marshal.ReleaseComObject(_evr);
-        FilterGraphTools.TryDispose(ref _evr);
+        FilterGraphTools.TryRelease(ref _evr);
         throw new VideoPlayerException("Initializing of EVR failed");
       }
       _graphBuilder.AddFilter(_evr, EVR_FILTER_NAME);
@@ -553,10 +555,13 @@ namespace MediaPortal.UI.Players.Video
             pc.SetPreferredClsid(MediaSubType.Mpeg2Video, settings.Mpeg2Codec.GetCLSID());
 
           if (settings.H264Codec != null)
+          {
             pc.SetPreferredClsid(MediaSubType.H264, settings.H264Codec.GetCLSID());
+            pc.SetPreferredClsid(CodecHandler.MEDIASUBTYPE_AVC, settings.H264Codec.GetCLSID());
+          }
 
           if (settings.AudioCodecLATMAAC != null)
-            pc.SetPreferredClsid(MediaSubTypeExt.LATMAAC, settings.AudioCodecLATMAAC.GetCLSID());
+            pc.SetPreferredClsid(CodecHandler.MEDIASUBTYPE_LATM_AAC_AUDIO, settings.AudioCodecLATMAAC.GetCLSID());
 
           if (settings.AudioCodecAAC != null)
             pc.SetPreferredClsid(CodecHandler.MEDIASUBTYPE_AAC_AUDIO, settings.AudioCodecAAC.GetCLSID());
@@ -606,19 +611,19 @@ namespace MediaPortal.UI.Players.Video
     /// </summary>
     protected virtual void FreeCodecs()
     {
+      // Free stream infos and references to IAMStreamSelect
       FilterGraphTools.TryDispose(ref _streamInfoAudio);
       FilterGraphTools.TryDispose(ref _streamInfoSubtitles);
 
-      //FIXME: there is exactly 1 remainaing reference to _evr, which I cannot find (does the custom evr present hold it?)
-      //  call TryRelease with true to free all refrences:
-      // - Releasing filter MediaPortal.UI.Players.Video.VideoPlayer+EnhancedVideoRenderer, remaining references: 1
-      // - Releasing filter DirectShowLib.FilterGraph, remaining references: 1
-      if (_graphBuilder != null)
-        FilterGraphTools.RemoveAllFilters(_graphBuilder, true);
-      FilterGraphTools.TryRelease(ref _evr);
-
+      // Free EVR
       EvrDeinit();
       FreeEvrCallback();
+      FilterGraphTools.TryRelease(ref _evr);
+
+      // Free all filters from graph
+      if (_graphBuilder != null)
+        FilterGraphTools.RemoveAllFilters(_graphBuilder, true);
+
       FilterGraphTools.TryDispose(ref _rot);
       FilterGraphTools.TryRelease(ref _graphBuilder);
     }
@@ -719,6 +724,53 @@ namespace MediaPortal.UI.Players.Video
     {
       get { return (_evrCallback == null) ? new Size(1, 1) : _evrCallback.AspectRatio; }
     }
+
+    protected Surface RawVideoSurface
+    {
+      get { return (_initialized && _evrCallback != null) ? _evrCallback.Surface : null; }
+    }
+
+    public object SurfaceLock
+    {
+      get
+      {
+        EVRCallback callback = _evrCallback;
+        return callback == null ? _syncObj : callback.SurfaceLock;
+      }
+    }
+
+    public Surface Surface
+    {
+      get
+      {
+        lock (SurfaceLock)
+        {
+          Surface videoSurface = RawVideoSurface;
+          if (!_textureInvalid)
+            return videoSurface;
+
+          if (videoSurface == null || videoSurface.Disposed)
+            return null;
+
+          PostProcessTexture(videoSurface);
+          _textureInvalid = false;
+          return videoSurface;
+        }
+      }
+    }
+
+    protected void OnTextureInvalidated()
+    {
+      _textureInvalid = true;
+    }
+
+    /// <summary>
+    /// PostProcessTexture allows video players to post process the video frame texture,
+    /// i.e. for overlaying subtitles or OSD menus.
+    /// </summary>
+    /// <param name="targetTexture"></param>
+    protected virtual void PostProcessTexture(Surface targetTexture)
+    { }
 
     public IGeometry GeometryOverride
     {
@@ -1027,7 +1079,7 @@ namespace MediaPortal.UI.Players.Video
     /// <returns>True if information has been changed.</returns>
     protected virtual bool EnumerateStreams()
     {
-      if (_graphBuilder == null)
+      if (_graphBuilder == null || !_initialized)
         return false;
 
       if (_streamInfoAudio == null || _streamInfoSubtitles == null)
@@ -1076,7 +1128,7 @@ namespace MediaPortal.UI.Players.Video
                   if (mediaType.formatType == FormatType.WaveEx && mediaType.formatPtr != IntPtr.Zero)
                   {
                     WaveFormatEx waveFormatEx =
-                      (WaveFormatEx) Marshal.PtrToStructure(mediaType.formatPtr, typeof (WaveFormatEx));
+                      (WaveFormatEx) Marshal.PtrToStructure(mediaType.formatPtr, typeof(WaveFormatEx));
                     streamAppendix = String.Format("{0} {1}ch", streamAppendix, waveFormatEx.nChannels);
                   }
                   currentStream.Name = String.Format("{0} ({1})", streamName, streamAppendix);
@@ -1191,7 +1243,7 @@ namespace MediaPortal.UI.Players.Video
 
     protected virtual void CreateEvrCallback()
     {
-      _evrCallback = new EVRCallback(RenderFrame);
+      _evrCallback = new EVRCallback(RenderFrame, OnTextureInvalidated);
       _evrCallback.VideoSizePresent += OnVideoSizePresent;
     }
 
@@ -1259,20 +1311,6 @@ namespace MediaPortal.UI.Players.Video
       return true;
     }
 
-    public Surface Surface
-    {
-      get { return (_initialized && _evrCallback != null) ? _evrCallback.Surface : null; }
-    }
-
-    public object SurfaceLock
-    {
-      get
-      {
-        EVRCallback callback = _evrCallback;
-        return callback == null ? _syncObj : callback.SurfaceLock;
-      }
-    }
-
     public Rectangle CropVideoRect
     {
       get
@@ -1286,7 +1324,7 @@ namespace MediaPortal.UI.Players.Video
 
     #region ISubtitlePlayer implementation
 
-    protected void SetPreferredSubtitle()
+    protected virtual void SetPreferredSubtitle()
     {
       EnumerateStreams();
       if (_streamInfoSubtitles == null)
@@ -1334,19 +1372,22 @@ namespace MediaPortal.UI.Players.Video
       lock (SyncObj)
       {
         if (_streamInfoSubtitles != null && _streamInfoSubtitles.EnableStream(subtitle))
-        {
-          VideoSettings settings = ServiceRegistration.Get<ISettingsManager>().Load<VideoSettings>() ?? new VideoSettings();
-          settings.PreferredSubtitleSteamName = _streamInfoSubtitles.CurrentStreamName;
-          // if the subtitle stream has proper LCID, remember it.
-          int lcid = _streamInfoAudio.CurrentStream.LCID;
-          if (lcid != 0)
-            settings.PreferredAudioLanguage = lcid;
-
-          // if selected stream is "No subtitles", we disable the setting
-          settings.EnableSubtitles = _streamInfoSubtitles.CurrentStreamName != NO_SUBTITLES;
-          ServiceRegistration.Get<ISettingsManager>().Save(settings);
-        }
+          SaveSubtitlePreference();
       }
+    }
+
+    protected virtual void SaveSubtitlePreference()
+    {
+      VideoSettings settings = ServiceRegistration.Get<ISettingsManager>().Load<VideoSettings>() ?? new VideoSettings();
+      settings.PreferredSubtitleSteamName = _streamInfoSubtitles.CurrentStreamName;
+      // if the subtitle stream has proper LCID, remember it.
+      int lcid = _streamInfoAudio.CurrentStream.LCID;
+      if (lcid != 0)
+        settings.PreferredAudioLanguage = lcid;
+
+      // if selected stream is "No subtitles", we disable the setting
+      settings.EnableSubtitles = _streamInfoSubtitles.CurrentStreamName != NO_SUBTITLES;
+      ServiceRegistration.Get<ISettingsManager>().Save(settings);
     }
 
     public virtual void DisableSubtitle()

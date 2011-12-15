@@ -99,7 +99,6 @@ namespace MediaPortal.UI.Players.Video
     protected double _currentTime = 0;
 
     private const string DVD_NAVIGATOR = "DVD Navigator";
-    private const string DVD_MESSAGE_CHANNEL = "DVDPlayer Messaging";
 
     protected DvdPreferredDisplayMode _videoPref = DvdPreferredDisplayMode.DisplayContentDefault;
     protected AspectRatioMode arMode = AspectRatioMode.Stretched;
@@ -116,17 +115,6 @@ namespace MediaPortal.UI.Players.Video
     {
       PlayerTitle = "DVDPlayer"; // for logging
       _requiredCapabilities = CodecHandler.CodecCapabilities.VideoMPEG2 | CodecHandler.CodecCapabilities.AudioMPEG;
-    }
-
-    #endregion
-
-    #region Message handling
-
-    protected override void SubscribeToMessages()
-    {
-      _messageQueue = new AsynchronousMessageQueue(this, new string[] { WindowsMessaging.CHANNEL, DVD_MESSAGE_CHANNEL });
-      _messageQueue.MessageReceived += OnMessageReceived;
-      _messageQueue.Start();
     }
 
     #endregion
@@ -713,26 +701,6 @@ namespace MediaPortal.UI.Players.Video
         Message m = (Message) message.MessageData[WindowsMessaging.MESSAGE];
         if (m.Msg == WM_DVD_EVENT)
           OnDvdEvent();
-      }
-      if (message.ChannelName == DVD_MESSAGE_CHANNEL)
-      {
-        string eventType = (string) message.MessageType;
-        if (eventType == "KeyPress")
-        {
-          Key key = (Key) message.MessageData["key"];
-          OnKeyPress(key);
-        }
-
-        if (eventType == "MouseMove" || eventType == "MouseClick")
-        {
-          float x = (float) message.MessageData["x"];
-          float y = (float) message.MessageData["y"];
-          
-          if (eventType == "MouseMove")
-            OnMouseMove(x, y); 
-          else
-            OnMouseClick(x, y);
-        }
       }
     }
 

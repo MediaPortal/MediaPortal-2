@@ -24,6 +24,7 @@
 
 using System;
 using DirectShowLib;
+using MediaPortal.UI.Players.Video.Tools;
 
 namespace MediaPortal.UI.Players.Video.Settings.Configuration
 {
@@ -31,7 +32,7 @@ namespace MediaPortal.UI.Players.Video.Settings.Configuration
   {
     public AudioCodecLATMAAC()
       : base(
-        new Guid[] { MediaType.Audio, MediaSubTypeExt.LATMAAC }, // require LATM-AAC input
+        new Guid[] { MediaType.Audio, CodecHandler.MEDIASUBTYPE_LATM_AAC_AUDIO }, // require LATM-AAC input
         new Guid[] { MediaType.Audio, Guid.Empty} // require any Audio output
       )
     { }

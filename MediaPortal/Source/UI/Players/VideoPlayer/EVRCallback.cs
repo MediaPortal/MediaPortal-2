@@ -73,11 +73,13 @@ namespace MediaPortal.UI.Players.Video
 
     private readonly DeviceEx _device;
     private readonly RenderDlgt _renderDlgt;
+    private readonly Action _onTextureInvalidated;
 
     #endregion
 
-    public EVRCallback(RenderDlgt renderDlgt)
+    public EVRCallback(RenderDlgt renderDlgt, Action onTextureInvalidated)
     {
+      _onTextureInvalidated = onTextureInvalidated;
       _renderDlgt = renderDlgt;
       _device = SkinContext.Device;
     }
@@ -165,6 +167,11 @@ namespace MediaPortal.UI.Players.Video
       }
       if (_renderDlgt != null)
         _renderDlgt();
+
+      // Inform caller that we have changed the texture
+      if (_onTextureInvalidated != null)
+        _onTextureInvalidated();
+
       return 0;
     }
 

@@ -50,7 +50,7 @@ namespace MediaPortal.UI.Players.Video.Subtitles
         case SubtitleType.Bitmap:
           return "Bitmap Lang " + language;
         case SubtitleType.Teletext:
-          return "Teletext Lang\t" + entry.language + "\tpage: " + entry.page;
+          return "Teletext Lang\t" + entry.Language + "\tpage: " + entry.Page;
         case SubtitleType.None:
           return "None";
         default:

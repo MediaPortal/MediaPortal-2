@@ -25,44 +25,49 @@
 using System;
 using System.Collections.Generic;
 using System.Drawing;
-using System.Runtime.InteropServices;
-using MediaPortal.UI.Players.Video.Tools;
-using MediaPortal.UI.SkinEngine.ContentManagement;
-using SlimDX;
-using SlimDX.Direct3D9;
-using DirectShowLib;
 using System.Drawing.Imaging;
+using System.IO;
+using System.Runtime.InteropServices;
+using DirectShowLib;
 using MediaPortal.Common;
-using MediaPortal.UI.Presentation.Players;
 using MediaPortal.Common.Logging;
-using MediaPortal.UI.SkinEngine.DirectX;
+using MediaPortal.UI.Players.Video.Tools;
+using MediaPortal.UI.Presentation.Players;
 using MediaPortal.UI.SkinEngine.Rendering;
 using MediaPortal.UI.SkinEngine.SkinManagement;
+using SlimDX;
+using SlimDX.Direct3D9;
 
 namespace MediaPortal.UI.Players.Video.Subtitles
 {
+  #region Structs and helper classes
+
   /// <summary>
   /// Structure used in communication with subtitle filter.
   /// </summary>
   [StructLayout(LayoutKind.Sequential, Pack = 1)]
   public struct NativeSubtitle
   {
-    // start of bitmap fields
-    public Int32 bmType;
-    public Int32 bmWidth;
-    public Int32 bmHeight;
-    public Int32 bmWidthBytes;
-    public UInt16 bmPlanes;
-    public UInt16 bmBitsPixel;
-    public IntPtr bmBits;
-    //end of bitmap fields
+    // Start of bitmap fields
+    public Int32 Type;
+    public Int32 Width;
+    public Int32 Height;
+    public Int32 WidthBytes;
+    public UInt16 Planes;
+    public UInt16 BitsPixel;
+    public IntPtr Bits;
+    // End of bitmap fields
 
-    // subtitle timestmap
-    public UInt64 timeStamp;
+    // Start of screen size definition
+    public Int32 ScreenWidth;
+    public Int32 ScreenHeight;
 
-    // how long to display subtitle
-    public UInt64 timeOut; // in seconds
-    public Int32 firstScanLine;
+    // Subtitle timestmap
+    public UInt64 TimeStamp;
+
+    // How long to display subtitle
+    public UInt64 TimeOut; // in seconds
+    public Int32 FirstScanLine;
   }
 
   /*
@@ -80,14 +85,14 @@ namespace MediaPortal.UI.Players.Video.Subtitles
   [StructLayout(LayoutKind.Sequential, Pack = 1)]
   public struct TextSubtitle
   {
-    public int encoding;
-    public string language;
+    public int Encoding;
+    public string Language;
 
-    public int page;
-    public string text; // subtitle lines seperated by newline characters
-    public LineContent[] lc;
-    public UInt64 timeStamp;
-    public UInt64 timeOut; // in seconds
+    public int Page;
+    public string Text; // subtitle lines seperated by newline characters
+    public LineContent[] LineContents;
+    public UInt64 TimeStamp;
+    public UInt64 TimeOut; // in seconds
   }
 
   public enum TeletextCharTable
@@ -97,52 +102,58 @@ namespace MediaPortal.UI.Players.Video.Subtitles
     Third = 3,
     Fourth = 4,
     Fifth = 5,
-    Sixth = 6//,
+    Sixth = 6
   }
 
   public class TeletextPageEntry
   {
-
     public TeletextPageEntry() { }
 
     public TeletextPageEntry(TeletextPageEntry e)
     {
-      page = e.page;
-      encoding = e.encoding;
-      language = String.Copy(e.language);
+      Page = e.Page;
+      Encoding = e.Encoding;
+      Language = String.Copy(e.Language);
     }
 
-    public int page = -1; // indicates not valid
-    public TeletextCharTable encoding;
-    public string language;
+    public int Page = -1; // indicates not valid
+    public TeletextCharTable Encoding;
+    public string Language;
   }
 
   public class Subtitle
   {
-    public static int idCount = 0;
+    public static int IdCount = 0;
     public Subtitle()
     {
-      id = idCount++;
+      Id = IdCount++;
     }
-    public Bitmap subBitmap;
-    public uint width;
-    public uint height;
-    public double presentTime;  // NOTE: in seconds
-    public double timeOut;      // NOTE: in seconds
-    public int firstScanLine;
-    public long id = 0;
+    public Bitmap SubBitmap;
+    public uint Width;
+    public uint Height;
+    public double PresentTime;  // NOTE: in seconds
+    public double TimeOut;      // NOTE: in seconds
+    public int FirstScanLine;
+    public long Id = 0;
+    public bool ShouldDraw;
+    public Int32 ScreenWidth; // Required for aspect ratio correction
+    public Int32 HorizontalPosition;
 
     public override string ToString()
     {
-      return "Subtitle " + id + " meta data: Timeout=" + timeOut + " timestamp=" + presentTime;
+      return "Subtitle " + Id + " meta data: Timeout=" + TimeOut + " timestamp=" + PresentTime;
     }
   }
+
+  #endregion
+
+  #region DVBSub2(3) interfaces
 
   /// <summary>
   /// Interface to the subtitle filter, which allows us to get notified of subtitles and retrieve them.
   /// </summary>
   [Guid("4A4fAE7C-6095-11DC-8314-0800200C9A66"),
- InterfaceType(ComInterfaceType.InterfaceIsIUnknown)]
+  InterfaceType(ComInterfaceType.InterfaceIsIUnknown)]
   public interface IDVBSubtitleSource
   {
     void SetBitmapCallback(IntPtr callBack);
@@ -152,63 +163,74 @@ namespace MediaPortal.UI.Players.Video.Subtitles
   }
 
   [UnmanagedFunctionPointer(CallingConvention.StdCall)]
-  public delegate int SubtitleCallback(ref NativeSubtitle sub);
+  public delegate int SubtitleCallback(IntPtr sub);
   public delegate int ResetCallback();
   public delegate int UpdateTimeoutCallback(ref Int64 timeOut);
 
-  public class SubtitleRenderer
+  #endregion
+
+  /// <summary>
+  /// SubtitleRenderer uses the DVBSub2 direct show filter in the video graph to retrieve subtitles.
+  /// The subtitles are handled by drawing bitmap to the video frame (<see cref="DrawOverlay"/>).
+  /// </summary>
+  public class SubtitleRenderer : IDisposable
   {
-    bool _reinitialzing = true;
-    private readonly DeviceEx _device;
-    private bool _useBitmap = true; // if false use teletext
-    private int _activeSubPage; // if use teletext, what page
-    private static SubtitleRenderer _instance = null;
-    private IDVBSubtitleSource _subFilter = null;
-    private long _subCounter = 0;
+    #region Constants
+
     private const int MAX_SUBTITLES_IN_QUEUE = 20;
-    /// <summary>
-    /// The coordinates of current vertex buffer
-    /// </summary>
-    private int _wx0, _wy0, _wwidth0, _wheight0 = 0;
 
-    /// <summary>
-    /// Primitive buffer for rendering subtitles.
-    /// </summary>
-    private readonly PrimitiveBuffer _primitiveContext = new PrimitiveBuffer();
+    #endregion
 
-    // important, these delegates must NOT be garbage collected
-    // or horrible things will happen when the native code tries to call those!
-    private readonly SubtitleCallback _callBack;
-    // private TextSubtitleCallback textCallBack;
-    private readonly ResetCallback _resetCallBack;
-    private readonly UpdateTimeoutCallback _updateTimeoutCallBack;
+    #region Fields
 
-    private double _posOnLastRender; //file position on last render
-
-    /// <summary>
-    /// Texture storing the current/last subtitle
-    /// </summary>
-    private Texture _subTexture;
+    // DirectX DeviceEx to handle graphic operations
+    protected DeviceEx _device;
+    protected IDVBSubtitleSource _subFilter = null;
 
     /// <summary>
     /// Reference to the DirectShow DVBSub filter, which 
     /// is the source of our subtitle bitmaps
     /// </summary>
-    private IBaseFilter _filter = null;
+    protected IBaseFilter _filter = null;
 
-    // timestampt offset in MILLISECONDS
-    private double _startPos = 0;
+    // The current player associated with this instance
+    protected IMediaPlaybackControl _player = null;
 
-    private Subtitle _currentSubtitle = null;
-    private IMediaPlaybackControl _player = null;
-    private readonly LinkedList<Subtitle> _subtitles;
-    private readonly object _alert = new object();
+    // important, these delegates must NOT be garbage collected
+    // or horrible things will happen when the native code tries to call those!
+    protected SubtitleCallback _callBack;
+    protected readonly ResetCallback _resetCallBack;
+    protected readonly UpdateTimeoutCallback _updateTimeoutCallBack;
 
-    private bool _clearOnNextRender = false;
-    private bool _renderSubtitles = true;
+    /// <summary>
+    /// Texture storing the current/last subtitle
+    /// </summary>
+    protected Texture _subTexture;
 
-    private Matrix _finalTransform;
+    // Timestamp offset in MILLISECONDS
+    protected double _startPos = 0;
 
+    protected Subtitle _currentSubtitle = null;
+    protected readonly LinkedList<Subtitle> _subtitles;
+    protected readonly object _syncObj = new object();
+
+    protected double _currentTime; // File position on last render
+    protected bool _useBitmap = true; // If false use teletext
+    protected long _subCounter = 0;
+    protected bool _clearOnNextRender = false;
+    protected bool _renderSubtitles = true;
+    protected int _activeSubPage; // If use teletext, what page
+    protected int _drawCount = 0;
+    
+    protected readonly Action _onTextureInvalidated;
+
+    #endregion
+
+    #region Properties
+
+    /// <summary>
+    /// Gets or Sets a flag if subtitles should be rendered.
+    /// </summary>
     public bool RenderSubtitles
     {
       get
@@ -218,25 +240,32 @@ namespace MediaPortal.UI.Players.Video.Subtitles
       set
       {
         _renderSubtitles = value;
-        if (value == false)
-        {
-          _activeSubPage = -1;
-          _useBitmap = false;
-          _clearOnNextRender = true;
-        }
+        if (value)
+          EnableSubtitleHandling();
+        else
+          DisableSubtitleHandling();
       }
     }
 
-    public Matrix FinalTransform
+    /// <summary>
+    /// Gets the name of the required DirectShow filter.
+    /// </summary>
+    protected virtual string FilterName
     {
-      get { return _finalTransform; }
-      set { _finalTransform = value; }
+      get { return "MediaPortal DVBSub2"; }
     }
 
-    public SubtitleRenderer()
+    #endregion
+
+    #region Constructor and initialization
+
+    /// <summary>
+    /// Constructs a <see cref="SubtitleRenderer"/> instance.
+    /// </summary>
+    public SubtitleRenderer(Action onTextureInvalidated)
     {
+      _onTextureInvalidated = onTextureInvalidated;
       _subtitles = new LinkedList<Subtitle>();
-      _callBack = new SubtitleCallback(OnSubtitle);
       //instance.textCallBack = new TextSubtitleCallback(instance.OnTextSubtitle);
       _resetCallBack = new ResetCallback(Reset);
       _updateTimeoutCallBack = new UpdateTimeoutCallback(UpdateTimeout);
@@ -246,9 +275,8 @@ namespace MediaPortal.UI.Players.Video.Subtitles
     public void SetPlayer(IMediaPlaybackControl p)
     {
       lock (_subtitles)
-      {
         _subtitles.Clear();
-      }
+
       _clearOnNextRender = true;
       _player = p;
     }
@@ -263,7 +291,7 @@ namespace MediaPortal.UI.Players.Video.Subtitles
       else if (option.type == SubtitleType.Teletext)
       {
         _useBitmap = false;
-        _activeSubPage = option.entry.page;
+        _activeSubPage = option.entry.Page;
         ServiceRegistration.Get<ILogger>().Debug("SubtitleRender: Now rendering {0} teletext subtitle page {1}", option.language, _activeSubPage);
       }
       else if (option.type == SubtitleType.Bitmap)
@@ -277,6 +305,10 @@ namespace MediaPortal.UI.Players.Video.Subtitles
       }
     }
 
+    #endregion
+
+    #region Callback and event handling
+
     /// <summary>
     /// Alerts the subtitle render that a seek has just been performed.
     /// Stops displaying the current subtitle and removes any cached subtitles.
@@ -288,30 +320,13 @@ namespace MediaPortal.UI.Players.Video.Subtitles
       ServiceRegistration.Get<ILogger>().Debug("SubtitleRenderer: OnSeek - clear subtitles");
       // Remove all previously received subtitles
       lock (_subtitles)
-      {
         _subtitles.Clear();
-      }
+
       // Fixed seeking, currently TsPlayer & TsReader is not reseting the base time when seeking
       //this.startPos = startPos;
       _clearOnNextRender = true;
       //posOnLastTextSub = -1;
       ServiceRegistration.Get<ILogger>().Debug("New StartPos is " + startPos);
-      return 0;
-    }
-
-
-    /// <summary>
-    /// Alerts the subtitle render that a reset has just been performed.
-    /// Stops displaying the current subtitle and removes any cached subtitles.
-    /// </summary>
-    /// <returns></returns>
-    public int Reset()
-    {
-      ServiceRegistration.Get<ILogger>().Debug("SubtitleRenderer: RESET");
-      // Remove all previously received subtitles
-      lock (_subtitles)
-        _subtitles.Clear();
-      _clearOnNextRender = true;
       return 0;
     }
 
@@ -326,59 +341,30 @@ namespace MediaPortal.UI.Players.Video.Subtitles
 
       if (latest != null)
       {
-        latest.timeOut = (double) timeOut / 1000.0f;
-        ServiceRegistration.Get<ILogger>().Debug("  new timeOut = {0}", latest.timeOut);
+        latest.TimeOut = (double) timeOut / 1000.0f;
+        ServiceRegistration.Get<ILogger>().Debug("  new timeOut = {0}", latest.TimeOut);
       }
       return 0;
     }
 
-
     /// <summary>
     /// Callback from subtitle filter, alerting us that a new subtitle is available.
-    /// It receives the neew subtitle as the argument sub, which data is only valid for the duration of OnSubtitle.
+    /// It receives the neew subtitle as the argument sub, which data is only valid for the duration of OnSubtitleV2.
     /// </summary>
     /// <returns>The return value is always <c>0</c>.</returns>
-    public int OnSubtitle(ref NativeSubtitle sub)
+    public int OnSubtitle(IntPtr sub)
     {
-      if (!_useBitmap) return 0; // TODO: Might be good to let this cache and then check in Render method because bitmap subs arrive a while before display
+      if (!_useBitmap)
+        return 0; // TODO: Might be good to let this cache and then check in Render method because bitmap subs arrive a while before display
+
       ServiceRegistration.Get<ILogger>().Debug("OnSubtitle - stream position " + _player.CurrentTime);
-      lock (_alert)
+      lock (_syncObj)
       {
         try
         {
-          ServiceRegistration.Get<ILogger>().Debug("SubtitleRenderer:  Bitmap: bpp=" + sub.bmBitsPixel + " planes " + sub.bmPlanes + " dim = " + sub.bmWidth + " x " + sub.bmHeight + " stride : " + sub.bmWidthBytes);
-          ServiceRegistration.Get<ILogger>().Debug("SubtitleRenderer: to = " + sub.timeOut + " ts=" + sub.timeStamp + " fsl=" + sub.firstScanLine + " (startPos = " + _startPos + ")");
-
-          Subtitle subtitle = new Subtitle();
-          subtitle.subBitmap = new Bitmap(sub.bmWidth, sub.bmHeight, System.Drawing.Imaging.PixelFormat.Format32bppArgb);
-          subtitle.timeOut = sub.timeOut;
-          subtitle.presentTime = ((double)sub.timeStamp / 1000.0f) + _startPos; // compute present time in SECONDS
-          subtitle.height = (uint)sub.bmHeight;
-          subtitle.width = (uint)sub.bmWidth;
-          subtitle.firstScanLine = sub.firstScanLine;
-          subtitle.id = _subCounter++;
-          //ServiceRegistration.Get<ILogger>().Debug("Received Subtitle : " + subtitle.ToString());
-
-          // get bits of allocated image
-          BitmapData bmData = subtitle.subBitmap.LockBits(new Rectangle(0, 0, sub.bmWidth, sub.bmHeight), ImageLockMode.WriteOnly, PixelFormat.Format32bppArgb);
-          int newSize = bmData.Stride * sub.bmHeight;
-          int size = sub.bmWidthBytes * sub.bmHeight;
-
-          if (newSize != size)
-          {
-            ServiceRegistration.Get<ILogger>().Error("SubtitleRenderer: newSize != size : {0} != {1}", newSize, size);
-          }
-          // Copy to new bitmap
-          //Marshal.Copy(sub.bmBits,bmData.Scan0, 0, newSize);
-          byte[] srcData = new byte[size];
-
-          // could be done in one copy, but no IntPtr -> IntPtr Marshal.Copy method exists?
-          Marshal.Copy(sub.bmBits, srcData, 0, size);
-          Marshal.Copy(srcData, 0, bmData.Scan0, newSize);
-
-          subtitle.subBitmap.UnlockBits(bmData);
-
-          // subtitle.subBitmap.Save("C:\\users\\petert\\sub" + subtitle.id + ".bmp"); // debug
+          Subtitle subtitle = ToSubtitle(sub);
+          //subtitle.SubBitmap.Save(string.Format("C:\\temp\\sub{0}.png", subtitle.Id), ImageFormat.Png); // debug
+          ServiceRegistration.Get<ILogger>().Debug("SubtitleRenderer: to = " + subtitle.TimeOut + " ts=" + subtitle.PresentTime + " fsl=" + subtitle.FirstScanLine + " (startPos = " + _startPos + ")");
 
           lock (_subtitles)
           {
@@ -388,7 +374,7 @@ namespace MediaPortal.UI.Players.Video.Subtitles
               _subtitles.RemoveFirst();
             }
             _subtitles.AddLast(subtitle);
-            ServiceRegistration.Get<ILogger>().Debug("SubtitleRenderer: Subtitle added, now have " + _subtitles.Count + " subtitles in cache");
+            ServiceRegistration.Get<ILogger>().Debug("SubtitleRenderer: Subtitle added, now have {0} subtitles in cache", _subtitles.Count);
           }
         }
         catch (Exception e)
@@ -399,46 +385,25 @@ namespace MediaPortal.UI.Players.Video.Subtitles
       return 0;
     }
 
-    /* private double posOnLastTextSub = -1;
-     private bool lastTextSubBlank = false;
-     private bool useMinSeperation = false;*/
-
     public void OnTextSubtitle(ref TextSubtitle sub)
     {
-      //bool blank = false;
       ServiceRegistration.Get<ILogger>().Debug("On TextSubtitle called");
-
       try
       {
-        if (sub.page == _activeSubPage)
+        if (sub.Page == _activeSubPage)
         {
-          ServiceRegistration.Get<ILogger>().Debug("Page: " + sub.page);
-          ServiceRegistration.Get<ILogger>().Debug("Character table: " + sub.encoding);
-          ServiceRegistration.Get<ILogger>().Debug("Timeout: " + sub.timeOut);
-          ServiceRegistration.Get<ILogger>().Debug("Timestamp" + sub.timeStamp);
-          ServiceRegistration.Get<ILogger>().Debug("Language: " + sub.language);
+          ServiceRegistration.Get<ILogger>().Debug("Page: " + sub.Page);
+          ServiceRegistration.Get<ILogger>().Debug("Character table: " + sub.Encoding);
+          ServiceRegistration.Get<ILogger>().Debug("Timeout: " + sub.TimeOut);
+          ServiceRegistration.Get<ILogger>().Debug("Timestamp" + sub.TimeStamp);
+          ServiceRegistration.Get<ILogger>().Debug("Language: " + sub.Language);
 
-          String content = sub.text;
+          String content = sub.Text;
           if (content == null)
           {
             ServiceRegistration.Get<ILogger>().Error("OnTextSubtitle: sub.txt == null!");
             return;
           }
-          // FIXME: Remove this
-          //ServiceRegistration.Get<ILogger>().Debug("Content: ");
-          //if (content.Trim().Length > 0) // debug log subtitles
-          //{
-          //  StringTokenizer st = new StringTokenizer(content, new char[] { '\n' });
-          //  while (st.HasMore)
-          //  {
-          //    ServiceRegistration.Get<ILogger>().Debug(st.NextToken());
-          //  }
-          //}
-          //else
-          //{
-          //  //blank = true;
-          //  ServiceRegistration.Get<ILogger>().Debug("<BLANK PAGE>");
-          //}
         }
       }
       catch (Exception e)
@@ -450,21 +415,22 @@ namespace MediaPortal.UI.Players.Video.Subtitles
       try
       {
         // if we dont need the subtitle
-        if (!_renderSubtitles || _useBitmap || (_activeSubPage != sub.page))
+        if (!_renderSubtitles || _useBitmap || (_activeSubPage != sub.Page))
         {
-          ServiceRegistration.Get<ILogger>().Debug("Text subtitle (page {0}) discarded: useBitmap is {1} and activeSubPage is {2}", sub.page, _useBitmap, _activeSubPage);
+          ServiceRegistration.Get<ILogger>().Debug("Text subtitle (page {0}) discarded: useBitmap is {1} and activeSubPage is {2}", sub.Page, _useBitmap, _activeSubPage);
           return;
         }
-        ServiceRegistration.Get<ILogger>().Debug("Text subtitle (page {0}) ACCEPTED: useBitmap is {1} and activeSubPage is {2}", sub.page, _useBitmap, _activeSubPage);
+        ServiceRegistration.Get<ILogger>().Debug("Text subtitle (page {0}) ACCEPTED: useBitmap is {1} and activeSubPage is {2}", sub.Page, _useBitmap, _activeSubPage);
 
-        Subtitle subtitle = new Subtitle();
-        subtitle.subBitmap = RenderText(sub.lc);
-        subtitle.timeOut = sub.timeOut;
-        subtitle.presentTime = sub.timeStamp / 90000.0f + _startPos;
-
-        subtitle.height = (uint) SkinContext.SkinResources.SkinHeight;
-        subtitle.width = (uint) SkinContext.SkinResources.SkinWidth;
-        subtitle.firstScanLine = 0;
+        Subtitle subtitle = new Subtitle
+                              {
+                                SubBitmap = RenderText(sub.LineContents),
+                                TimeOut = sub.TimeOut,
+                                PresentTime = sub.TimeStamp / 90000.0f + _startPos,
+                                Height = (uint) SkinContext.SkinResources.SkinHeight,
+                                Width = (uint) SkinContext.SkinResources.SkinWidth,
+                                FirstScanLine = 0
+                              };
 
         lock (_subtitles)
         {
@@ -475,7 +441,7 @@ namespace MediaPortal.UI.Players.Video.Subtitles
           }
           _subtitles.AddLast(subtitle);
 
-          ServiceRegistration.Get<ILogger>().Debug("SubtitleRenderer: Text subtitle added, now have " + _subtitles.Count + " subtitles in cache " + subtitle + " pos on last render was " + _posOnLastRender);
+          ServiceRegistration.Get<ILogger>().Debug("SubtitleRenderer: Text subtitle added, now have {0} subtitles in cache {1} pos on last render was {2}", _subtitles.Count, subtitle, _currentTime);
         }
       }
       catch (Exception e)
@@ -485,6 +451,164 @@ namespace MediaPortal.UI.Players.Video.Subtitles
       }
 
       return;
+    }
+
+    #endregion
+
+    #region Filter handling
+
+    /// <summary>
+    /// Adds the subtitle filter to the graph. The caller need to call <see cref="Marshal.ReleaseComObject"/> on the
+    /// returned instance when done.
+    /// </summary>
+    /// <param name="graphBuilder">The IGraphBuilder</param>
+    /// <returns>DvbSub2(3) filter instance</returns>
+    public IBaseFilter AddSubtitleFilter(IGraphBuilder graphBuilder)
+    {
+      try
+      {
+        _filter = FilterGraphTools.AddFilterByName(graphBuilder, FilterCategory.LegacyAmFilterCategory, FilterName);
+        _subFilter = _filter as IDVBSubtitleSource;
+        ServiceRegistration.Get<ILogger>().Debug("SubtitleRenderer: CreateFilter success: " + (_filter != null) + " & " + (_subFilter != null));
+      }
+      catch (Exception e)
+      {
+        ServiceRegistration.Get<ILogger>().Error(e);
+      }
+      if (_subFilter != null)
+      {
+        _subFilter.StatusTest(111);
+        _callBack = new SubtitleCallback(OnSubtitle);
+
+        IntPtr pCallback = Marshal.GetFunctionPointerForDelegate(_callBack);
+        _subFilter.SetBitmapCallback(pCallback);
+
+        _subFilter.StatusTest(222);
+
+        IntPtr pResetCallBack = Marshal.GetFunctionPointerForDelegate(_resetCallBack);
+        _subFilter.SetResetCallback(pResetCallBack);
+
+        IntPtr pUpdateTimeoutCallBack = Marshal.GetFunctionPointerForDelegate(_updateTimeoutCallBack);
+        _subFilter.SetUpdateTimeoutCallback(pUpdateTimeoutCallBack);
+      }
+      return _filter;
+    }
+
+    protected virtual void EnableSubtitleHandling()
+    {
+      _useBitmap = true;
+    }
+
+    protected virtual void DisableSubtitleHandling()
+    {
+      _activeSubPage = -1;
+      _useBitmap = false;
+      _clearOnNextRender = true;
+    }
+
+    protected virtual Subtitle ToSubtitle(IntPtr nativeSubPtr)
+    {
+      NativeSubtitle nativeSub = (NativeSubtitle)Marshal.PtrToStructure(nativeSubPtr, typeof(NativeSubtitle));
+      Subtitle subtitle = new Subtitle
+      {
+        SubBitmap = new Bitmap(nativeSub.Width, nativeSub.Height, PixelFormat.Format32bppArgb),
+        TimeOut = nativeSub.TimeOut,
+        PresentTime = ((double)nativeSub.TimeStamp / 1000.0f) + _startPos,
+        Height = (uint)nativeSub.Height,
+        Width = (uint)nativeSub.Width,
+        ScreenWidth = nativeSub.ScreenWidth,
+        FirstScanLine = nativeSub.FirstScanLine,
+        Id = _subCounter++
+      };
+      CopyBits(nativeSub.Bits, ref subtitle.SubBitmap, nativeSub.Width, nativeSub.Height, nativeSub.WidthBytes);
+      return subtitle;
+    }
+
+    protected static void CopyBits(IntPtr srcBits, ref Bitmap destBitmap, int width, int height, int widthBytes)
+    {
+      // get bits of allocated image
+      BitmapData bmData = destBitmap.LockBits(new Rectangle(0, 0, width, height), ImageLockMode.WriteOnly, PixelFormat.Format32bppArgb);
+      int newSize = bmData.Stride * height;
+      int size = widthBytes * height;
+
+      if (newSize != size)
+      {
+        ServiceRegistration.Get<ILogger>().Error("SubtitleRenderer: newSize != size : {0} != {1}", newSize, size);
+      }
+      // Copy to new bitmap
+      //Marshal.Copy(sub.Bits,bmData.Scan0, 0, newSize);
+      byte[] srcData = new byte[size];
+
+
+      // could be done in one copy, but no IntPtr -> IntPtr Marshal.Copy method exists?
+      Marshal.Copy(srcBits, srcData, 0, size);
+      Marshal.Copy(srcData, 0, bmData.Scan0, newSize);
+
+      destBitmap.UnlockBits(bmData);
+    }
+
+    #endregion
+
+    #region Subtitle rendering
+
+    public void DrawOverlay(Surface targetSurface)
+    {
+      SetMatchingSubTitle();
+      if (targetSurface == null || targetSurface.Disposed || _subTexture == null)
+      {
+        if (_drawCount > 0)
+          ServiceRegistration.Get<ILogger>().Debug("Draw count for last sub: {0}", _drawCount);
+        _drawCount = 0;
+        return;
+      }
+
+      // Available sub is not due
+      if (!_currentSubtitle.ShouldDraw)
+        return;
+
+      _drawCount++;
+
+      try
+      {
+        if (!_subTexture.Disposed)
+        {
+          // TemporaryRenderTarget changes RenderTarget to texture and restores settings when done (Dispose)
+          using (new TemporaryRenderTarget(targetSurface))
+          using (TemporaryRenderState temporaryRenderState = new TemporaryRenderState())
+          using (Sprite sprite = new Sprite(_device))
+          {
+            sprite.Begin(SpriteFlags.AlphaBlend);
+            // No alpha test here, allow all values
+            temporaryRenderState.SetTemporaryRenderState(RenderState.AlphaTestEnable, 0);
+
+            // Use the SourceAlpha channel and InverseSourceAlpha for destination
+            temporaryRenderState.SetTemporaryRenderState(RenderState.BlendOperation, (int) BlendOperation.Add);
+            temporaryRenderState.SetTemporaryRenderState(RenderState.SourceBlend, (int) Blend.SourceAlpha);
+            temporaryRenderState.SetTemporaryRenderState(RenderState.DestinationBlend, (int) Blend.InverseSourceAlpha);
+
+            // Check the target texture dimensions and adjust scaling and translation
+            SurfaceDescription desc = targetSurface.Description;
+            Matrix transform = Matrix.Identity;
+            transform *= Matrix.Translation(_currentSubtitle.HorizontalPosition, _currentSubtitle.FirstScanLine, 0);
+
+            // Subtitle could be smaller for 16:9 anamorphic video (subtitle width: 720, video texture: 1024)
+            // then we need to scale the subtitle width also.
+            if (_currentSubtitle.ScreenWidth != desc.Width)
+              transform *= Matrix.Scaling((float) desc.Width / _currentSubtitle.ScreenWidth, 1, 1);
+
+            sprite.Transform = transform;
+            sprite.Draw(_subTexture, Color.White);
+            sprite.End();
+          }
+        }
+      }
+      catch (Exception ex)
+      {
+        ServiceRegistration.Get<ILogger>().Debug("Error in DrawOverlay", ex);
+      }
+
+      if (_onTextureInvalidated != null)
+        _onTextureInvalidated();
     }
 
     public static Bitmap RenderText(LineContent[] lc)
@@ -508,7 +632,7 @@ namespace MediaPortal.UI.Players.Video.Subtitles
 
             SizeF size = gBmp.MeasureString(lc[i].line, fnt);
             //gBmp.FillRectangle(new SolidBrush(Color.Pink), new Rectangle(0, 0, w, h));
-            int horzOffset = (int)((w - size.Width) / 2); // center based on actual text width
+            int horzOffset = (int) ((w - size.Width) / 2); // center based on actual text width
             gBmp.DrawString(lc[i].line, fnt, blackBrush, new PointF(horzOffset + 1, vertOffset + 0));
             gBmp.DrawString(lc[i].line, fnt, blackBrush, new PointF(horzOffset + 0, vertOffset + 1));
             gBmp.DrawString(lc[i].line, fnt, blackBrush, new PointF(horzOffset - 1, vertOffset + 0));
@@ -521,6 +645,87 @@ namespace MediaPortal.UI.Players.Video.Subtitles
       return bmp;
     }
 
+    #endregion
+
+    #region Subtitle queue handling
+
+    private void SetMatchingSubTitle()
+    {
+      if (_player == null)
+        return;
+
+      if (_clearOnNextRender)
+      {
+        _clearOnNextRender = false;
+        _currentSubtitle = null;
+        FilterGraphTools.TryDispose(ref _subTexture);
+      }
+
+      if (_renderSubtitles == false)
+        return;
+
+      _currentTime = _player.CurrentTime.TotalSeconds;
+
+      // If we currently have a subtitle an it is in current time, no need to look for another one yet
+      if (_currentSubtitle != null && _currentSubtitle.PresentTime <= _currentTime && _currentTime <= _currentSubtitle.PresentTime + _currentSubtitle.TimeOut)
+      {
+        _currentSubtitle.ShouldDraw = true;
+        return;
+      }
+
+      // If we have already a sub in queue, wait until it's time to show
+      if (_currentSubtitle != null && _currentSubtitle.PresentTime > _currentTime)
+      {
+        _currentSubtitle.ShouldDraw = false;
+        return;
+      }
+
+      // Check for waiting subs
+      Subtitle next;
+      lock (_subtitles)
+      {
+        while (_subtitles.Count > 0)
+        {
+          next = _subtitles.First.Value;
+
+          // if the next should be displayed now or previously
+          if (next.PresentTime <= _currentTime)
+          {
+            // remove from queue
+            _subtitles.RemoveFirst();
+
+            // if it is not too late for this sub to be displayed, break
+            if (next.PresentTime + next.TimeOut >= _currentTime)
+            {
+              next.ShouldDraw = true;
+              SetSubtitle(next);
+              return;
+            }
+          }
+          else
+            break;
+        }
+      }
+      if (_currentSubtitle != null)
+        SetSubtitle(null);
+      return;
+    }
+
+    /// <summary>
+    /// Alerts the subtitle render that a reset has just been performed.
+    /// Stops displaying the current subtitle and removes any cached subtitles.
+    /// </summary>
+    /// <returns></returns>
+    public int Reset()
+    {
+      ServiceRegistration.Get<ILogger>().Debug("SubtitleRenderer: RESET");
+      // Remove all previously received subtitles
+      lock (_subtitles)
+        _subtitles.Clear();
+
+      _clearOnNextRender = true;
+      return 0;
+    }
 
     /// <summary>
     /// Update the subtitle texture from a Bitmap.
@@ -528,340 +733,55 @@ namespace MediaPortal.UI.Players.Video.Subtitles
     /// <param name="subtitle"></param>
     private void SetSubtitle(Subtitle subtitle)
     {
+      Texture texture = null;
       ServiceRegistration.Get<ILogger>().Debug("SubtitleRenderer: SetSubtitle : " + subtitle);
-      Texture texture;
-      try
+      if (subtitle != null)
       {
-        Bitmap bitmap = subtitle.subBitmap;
-        if (bitmap != null)
+        try
         {
-          // allocate new texture
-          texture = new Texture(_device, bitmap.Width, bitmap.Height, 1, Usage.Dynamic, Format.A8R8G8B8, Pool.Default);
-
-          DataRectangle rect = texture.LockRectangle(0, LockFlags.None);
-
-          BitmapData bd = bitmap.LockBits(new Rectangle(0, 0, bitmap.Width, bitmap.Height), ImageLockMode.ReadOnly, System.Drawing.Imaging.PixelFormat.Format32bppArgb);
-
-          // Quick copy of content
-          unsafe
+          Bitmap bitmap = subtitle.SubBitmap;
+          if (bitmap != null)
           {
-            byte* to = (byte*)rect.Data.DataPointer.ToPointer();
-            byte* from = (byte*)bd.Scan0.ToPointer();
-            for (int y = 0; y < bd.Height; ++y)
+            using (MemoryStream stream = new MemoryStream())
             {
-              for (int x = 0; x < bd.Width * 4; ++x)
-              {
-                to[rect.Pitch * y + x] = from[y * bd.Stride + x];
-              }
+              ImageInformation imageInformation;
+              bitmap.Save(stream, ImageFormat.Bmp);
+              stream.Position = 0;
+              texture = Texture.FromStream(_device, stream, (int) stream.Length, (int) subtitle.Width,
+                                           (int) subtitle.Height, 1,
+                                           Usage.Dynamic, Format.A8R8G8B8, Pool.Default, Filter.None, Filter.None, 0,
+                                           out imageInformation);
             }
+            // Free bitmap
+            FilterGraphTools.TryDispose(ref subtitle.SubBitmap);
           }
-
-          texture.UnlockRectangle(0);
-          bitmap.UnlockBits(bd);
-          bitmap.Dispose();
-          bitmap = null;
-          rect.Data.Dispose();
         }
-        else
+        catch (Exception e)
         {
-          texture = new Texture(_device, 100, 100, 1, Usage.Dynamic, Format.A8R8G8B8, Pool.Default);
+          ServiceRegistration.Get<ILogger>().Error("SubtitleRenderer: Failed to create subtitle texture!!!", e);
+          return;
         }
       }
-      catch (Exception e)
-      {
-        ServiceRegistration.Get<ILogger>().Debug("SubtitleRenderer: Failed to create subtitle surface!!!");
-        ServiceRegistration.Get<ILogger>().Error(e);
-        return;
-      }
+      // Dispose of old subtitle
+      FilterGraphTools.TryDispose(ref _subTexture);
 
-      // dispose of old subtitle
-      if (_subTexture != null)
-      {
-        _subTexture.Dispose();
-        _subTexture = null;
-      }
-
-      // set new subtitle
+      // Set new subtitle
       _subTexture = texture;
       _currentSubtitle = subtitle;
-      _currentSubtitle.subBitmap.Dispose();
-      _currentSubtitle.subBitmap = null;
     }
 
-    /// <summary>
-    /// Adds the subtitle filter to the graph.
-    /// </summary>
-    /// <param name="graphBuilder"></param>
-    /// <returns></returns>
-    public IBaseFilter AddSubtitleFilter(IGraphBuilder graphBuilder)
+    #endregion
+
+    #region IDisposable Member
+
+    public void Dispose()
     {
-      try
-      {
-        _filter = FilterGraphTools.AddFilterByName(graphBuilder, FilterCategory.LegacyAmFilterCategory, "MediaPortal DVBSub2");
-        _subFilter = _filter as IDVBSubtitleSource;
-        ServiceRegistration.Get<ILogger>().Debug("SubtitleRenderer: CreateFilter success: " + (_filter != null) + " & " + (_subFilter != null));
-      }
-      catch (Exception e)
-      {
-        ServiceRegistration.Get<ILogger>().Error(e);
-      }
-      if (_subFilter != null)
-      {
-        _subFilter.StatusTest(111);
-        IntPtr pCallback = Marshal.GetFunctionPointerForDelegate(_callBack);
-        _subFilter.SetBitmapCallback(pCallback);
-
-        _subFilter.StatusTest(222);
-
-        IntPtr pResetCallBack = Marshal.GetFunctionPointerForDelegate(_resetCallBack);
-        _subFilter.SetResetCallback(pResetCallBack);
-
-        IntPtr pUpdateTimeoutCallBack = Marshal.GetFunctionPointerForDelegate(_updateTimeoutCallBack);
-        _subFilter.SetUpdateTimeoutCallback(pUpdateTimeoutCallBack);
-      }
-      return _filter;
-    }
-
-    public void Render()
-    {
-      if (_player == null)
-        return;
-      //ServiceRegistration.Get<ILogger>().Debug("\n\n***** SubtitleRenderer: Subtitle render *********");
-      // ServiceRegistration.Get<ILogger>().Debug(" Stream pos: "+player.StreamPosition); 
-      //if (!GUIGraphicsContext.IsFullScreenVideo) return;
-
-      if (_clearOnNextRender)
-      {
-        //ServiceRegistration.Get<ILogger>().Debug("SubtitleRenderer: clearOnNextRender");
-        _clearOnNextRender = false;
-        if (_subTexture != null) _subTexture.Dispose();
-        _subTexture = null;
-        _currentSubtitle = null;
-      }
-
-      if (_renderSubtitles == false)
-        return;
-
-      // ugly temp!
-      bool timeForNext = false;
       lock (_subtitles)
-      {
-        if (_subtitles.Count > 0)
-        {
-          Subtitle next = _subtitles.First.Value;
-          if (next.presentTime <= _player.CurrentTime.TotalSeconds) timeForNext = true;
-          else
-          {
-            //ServiceRegistration.Get<ILogger>().Debug("-NEXT subtitle is in the future");
-          }
-        }
-      }
-
-      _posOnLastRender = _player.CurrentTime.TotalSeconds;
-
-      // Check for subtitle if we dont have one currently or if the current one is beyond its timeout
-      if (_currentSubtitle == null || _currentSubtitle.presentTime + _currentSubtitle.timeOut <= _player.CurrentTime.TotalSeconds || timeForNext)
-      {
-        //ServiceRegistration.Get<ILogger>().Debug("-Current position: ");
-        if (_currentSubtitle != null && !timeForNext)
-        {
-          //ServiceRegistration.Get<ILogger>().Debug("-Current subtitle : " + currentSubtitle.ToString() + " time out expired");
-          _currentSubtitle = null;
-        }
-        if (timeForNext)
-        {
-          //if (currentSubtitle != null) ServiceRegistration.Get<ILogger>().Debug("-Current subtitle : " + currentSubtitle.ToString() + " TIME FOR NEXT!");
-        }
-
-        Subtitle next;
-        lock (_subtitles)
-        {
-          while (_subtitles.Count > 0)
-          {
-            next = _subtitles.First.Value;
-
-            //ServiceRegistration.Get<ILogger>().Debug("-next from queue: " + next.ToString());
-            // if the next should be displayed now or previously
-            if (next.presentTime <= _player.CurrentTime.TotalSeconds)
-            {
-              // remove from queue
-              _subtitles.RemoveFirst();
-
-              // if it is not too late for this sub to be displayed, break
-              // otherwise continue
-              if (next.presentTime + next.timeOut >= _player.CurrentTime.TotalSeconds)
-              {
-                _currentSubtitle = next;
-                break;
-              }
-            }
-            // next wants to be displayed in the future so break
-            else
-            {
-
-              //ServiceRegistration.Get<ILogger>().Debug("-next is in the future");
-              break;
-            }
-          }
-        }
-        // if currentSubtitle is non-null we have a new subtitle
-        if (_currentSubtitle != null)
-          SetSubtitle(_currentSubtitle);
-        else return;
-      }
-      bool alphaTest = false;
-      bool alphaBlend = false;
-      try
-      {
-        // store current settings so they can be restored when we are done
-        alphaTest = true;// (GraphicsDevice.Device.GetRenderState(RenderState.AlphaTestEnable) != 0);
-        alphaBlend = true;// (GraphicsDevice.Device.GetRenderState(RenderState.AlphaBlendEnable) != 0);
-
-        int wwidth = 0, wheight = 0;
-        float rationW = 1, rationH = 1;
-
-        // FIXME: which "MovieRectangle" to use here?
-        Rectangle movieRect = Rectangle.Empty;// player.MovieRectangle;
-        rationH = movieRect.Height / (float) SkinContext.SkinResources.SkinHeight;
-        rationW = movieRect.Width / (float) SkinContext.SkinResources.SkinWidth;
-
-        int wx = (movieRect.Right) - (movieRect.Width / 2) - (int)((_currentSubtitle.width * rationW) / 2);
-        int wy = movieRect.Top + (int)(rationH * _currentSubtitle.firstScanLine);
-
-
-        wwidth = (int)(_currentSubtitle.width * rationW);
-        wheight = (int)(_currentSubtitle.height * rationH);
-
-        // make sure the vertex buffer is ready and correct for the coordinates
-        CreateVertexBuffer(wx, wy, wwidth, wheight);
-
-        // ServiceRegistration.Get<ILogger>().Debug("Subtitle render target: wx = {0} wy = {1} ww = {2} wh = {3}", wx, wy, wwidth, wheight);
-
-        // enable alpha testing so that the subtitle is rendered with transparent background
-        _device.SetRenderState(RenderState.AlphaBlendEnable, true);
-        _device.SetRenderState(RenderState.AlphaTestEnable, false);
-
-        EffectAsset effect = ContentManager.Instance.GetEffect("normal");
-        effect.StartRender(_subTexture, FinalTransform);
-        _primitiveContext.Render(0);
-        effect.EndRender();
-      }
-      catch (Exception e)
-      {
-
-        ServiceRegistration.Get<ILogger>().Error(e);
-      }
-      try
-      {
-        // Restore device settings
-        _device.SetTexture(0, null);
-        _device.SetRenderState(RenderState.AlphaBlendEnable, alphaBlend);
-        _device.SetRenderState(RenderState.AlphaTestEnable, alphaTest);
-      }
-      catch (Exception e)
-      {
-        ServiceRegistration.Get<ILogger>().Error(e);
-      }
-    }
-
-    /// <summary>
-    /// Creates a vertex buffer for a transformed textured quad matching
-    /// the given rectangle and stores it in vertexBuffer
-    /// </summary>
-    /// <param name="wx"></param>
-    /// <param name="wy"></param>
-    /// <param name="wwidth"></param>
-    /// <param name="wheight"></param>
-    private void CreateVertexBuffer(int wx, int wy, int wwidth, int wheight)
-    {
-      if (_wx0 != wx || _wy0 != wy || _wwidth0 != wwidth || _wheight0 != wheight)
-      {
-        ServiceRegistration.Get<ILogger>().Debug("Subtitle: Setting vertices");
-        PositionColoredTextured[] verts = new PositionColoredTextured[4];
-        int color;
-        unchecked
-        {
-          color = (int) 0xffffffff;
-        }
-
-        // Upper left
-        verts[0].X = wx;
-        verts[0].Y = wy;
-        verts[0].Z = 1.0f;
-        verts[0].Tu1 = 0;
-        verts[0].Tv1 = 0;
-        verts[0].Color = color;
-
-        // Upper right
-        verts[1].X = wx + wwidth;
-        verts[1].Y = wy;
-        verts[1].Z = 1.0f;
-        verts[1].Tu1 = 1;
-        verts[1].Tv1 = 0;
-        verts[1].Color = color;
-
-        // Lower left
-        verts[2].X = wx;
-        verts[2].Y = wy + wheight;
-        verts[2].Z = 1.0f;
-        verts[2].Tu1 = 0;
-        verts[2].Tv1 = 1;
-        verts[2].Color = color;
-
-        // Lower right
-        verts[3].X = wx + wwidth;
-        verts[3].Y = wy + wheight;
-        verts[3].Z = 1.0f;
-        verts[3].Tu1 = 1;
-        verts[3].Tv1 = 1;
-        verts[3].Color = color;
-
-
-        // Remember what the vertexBuffer is set to
-        _wy0 = wy;
-        _wx0 = wx;
-        _wheight0 = wheight;
-        _wwidth0 = wwidth;
-        _primitiveContext.Set(ref verts, PrimitiveType.TriangleStrip);
-      }
-    }
-
-    /// <summary>
-    /// Cleans up resources
-    /// </summary>
-    public void Clear()
-    {
-      _startPos = 0;
-      lock (_subtitles)
-      {
         _subtitles.Clear();
-      }
-      // swap
-      if (_subTexture != null)
-      {
-        _subTexture.Dispose();
-        _subTexture = null;
-        lock (_alert)
-        {
-          _subFilter = null;
-        }
-      }
+
+      FilterGraphTools.TryDispose(ref _subTexture);
     }
 
-    public void ReleaseResources()
-    {
-      _reinitialzing = true;
-      if (_subTexture != null)
-      {
-        _subTexture.Dispose();
-        _subTexture = null;
-      }
-      _primitiveContext.Dispose();
-    }
-
-    public void ReallocResources()
-    {
-      _reinitialzing = false;
-    }
+    #endregion
   }
 }
