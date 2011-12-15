@@ -79,8 +79,11 @@
     <Content Include="Skin\default\themes\3D Gadgets\images\F6255762-C52A-4231-9E67-14C28735216E.jpg" />
     <Content Include="Skin\default\themes\3D Gadgets\images\preview.png" />
     <Content Include="Skin\default\themes\3D Gadgets\theme.xml" />
+    <Content Include="Skin\default\themes\Black Backdrop 2\images\09eae702-d9ec-4325-82d9-4843502c966b.jpg" />
+    <Content Include="Skin\default\themes\Black Backdrop 2\images\17D2390E-5B05-4fbd-89F6-24D60CEB427F.jpg" />
     <Content Include="Skin\default\themes\Black Backdrop 2\images\30715D73-4205-417f-80AA-E82F0834171F.jpg" />
     <Content Include="Skin\default\themes\Black Backdrop 2\images\55556593-9FE9-436c-A3B6-A971E10C9D44.jpg" />
+    <Content Include="Skin\default\themes\Black Backdrop 2\images\93442DF7-186D-42e5-A0F5-CF1493E68F49.jpg" />
     <Content Include="Skin\default\themes\Black Backdrop 2\images\A4DF2DF6-8D66-479a-9930-D7106525EB07.jpg" />
     <Content Include="Skin\default\themes\Black Backdrop 2\images\B4A9199F-6DD4-4bda-A077-DE9C081F7703.jpg" />
     <Content Include="Skin\default\themes\Black Backdrop 2\images\C33E39CC-910E-41C8-BFFD-9ECCD340B569.jpg" />
