@@ -46,6 +46,21 @@ namespace MediaPortal.UI.Players.Picture.Animation
     private const int KENBURNS_TRANSISTION_SPEED = 50;
     private const int MAX_ZOOM_FACTOR = 10;
 
+    private static readonly Point[] LANDSCAPE_PAN_SPOTS = new Point[]
+        {
+          new Point(1, 4), new Point(1, 5), new Point(8, 3), new Point(8, 4),
+          new Point(8, 5), new Point(7, 4), new Point(7, 3), new Point(5, 8),
+          new Point(5, 1), new Point(4, 7), new Point(4, 8), new Point(4, 1),
+          new Point(3, 7), new Point(3, 8)
+        };
+    private static readonly Point[] PORTRAIT_PAN_SPOTS = new Point[]
+        {
+          new Point(1, 6), new Point(1, 5), new Point(2, 7), new Point(2, 6),
+          new Point(2, 5), new Point(3, 7), new Point(3, 6), new Point(5, 2),
+          new Point(5, 1), new Point(6, 3), new Point(6, 2), new Point(6, 1),
+          new Point(7, 3), new Point(7, 2)
+        };
+
     private float _bestZoomFactorCurrent = 1.0f;
 
     private EffectType _currentEffectType = EffectType.None;
@@ -91,8 +106,6 @@ namespace MediaPortal.UI.Players.Picture.Animation
       _currentZoomFactor = CalculateBestZoom(_imageSize.Width, _imageSize.Height);
       _currentZoomLeft = 0;
       _currentZoomTop = 0;
-      _currentZoomLeft = 0;
-      _currentZoomTop = 0;
 
       _bestZoomFactorCurrent = _currentZoomFactor;
       _currentEffectType = (EffectType) 1 + _randomizer.Next(2);
@@ -103,7 +116,6 @@ namespace MediaPortal.UI.Players.Picture.Animation
     public void Animate()
     {
       Animate(_reset);
-      Zoom(_currentZoomFactor);
       _reset = false;
     }
 
@@ -148,10 +160,10 @@ namespace MediaPortal.UI.Players.Picture.Animation
 
       // Check new rectangle
       if (_currentZoomTop > (_imageSize.Height - _zoomHeight))
-        _currentZoomTop = (_imageSize.Height - _zoomHeight);
+        _currentZoomTop = _imageSize.Height - _zoomHeight;
 
       if (_currentZoomLeft > (_imageSize.Width - _zoomWidth))
-        _currentZoomLeft = (_imageSize.Width - _zoomWidth);
+        _currentZoomLeft = _imageSize.Width - _zoomWidth;
 
       if (_currentZoomTop < 0)
         _currentZoomTop = 0;
@@ -220,7 +232,7 @@ namespace MediaPortal.UI.Players.Picture.Animation
       }
     }
 
-    private void SetOutputRect(float fZoomLevel)
+    private void SetZoomSize(float fZoomLevel)
     {
       // Current image size
       float iSourceWidth = _imageSize.Width;
@@ -262,11 +274,6 @@ namespace MediaPortal.UI.Players.Picture.Animation
         _zoomWidth = iSourceWidth;
         _zoomHeight = _zoomWidth / fSourceFrameAR;
       }
-
-      float x = (iScreenWidth - width) / 2;
-      float y = (iScreenHeight - height) / 2;
-
-      SetOutputRect(x, y, width, height);
     }
 
     private void SetOutputRect(float x, float y, float width, float height)
@@ -280,27 +287,12 @@ namespace MediaPortal.UI.Players.Picture.Animation
 
     private void KenBurnsRandomPan(int iFrameNr, int iNrOfFramesPerEffect, bool bReset)
     {
-      var landScapePoints = new Point[]
-          {
-            new Point(1, 4), new Point(1, 5), new Point(8, 3), new Point(8, 4),
-            new Point(8, 5), new Point(7, 4), new Point(7, 3), new Point(5, 8),
-            new Point(5, 1), new Point(4, 7), new Point(4, 8), new Point(4, 1),
-            new Point(3, 7), new Point(3, 8)
-          };
-      var portraitPoints = new Point[]
-          {
-            new Point(1, 6), new Point(1, 5), new Point(2, 7), new Point(2, 6),
-            new Point(2, 5), new Point(3, 7), new Point(3, 6), new Point(5, 2),
-            new Point(5, 1), new Point(6, 3), new Point(6, 2), new Point(6, 1),
-            new Point(7, 3), new Point(7, 2)
-          };
-
       // For Landscape picutres zoomstart BestWidth than Pan
       if (bReset)
       {
         // Find start and end points (8 possible points around the rectangle)
         int iRandom = _randomizer.Next(14);
-        Point p = _landScape ? landScapePoints[iRandom] : portraitPoints[iRandom];
+        Point p = _landScape ? LANDSCAPE_PAN_SPOTS[iRandom] : PORTRAIT_PAN_SPOTS[iRandom];
         _startPoint = p.X;
         _endPoint = p.Y;
 
@@ -314,6 +306,9 @@ namespace MediaPortal.UI.Players.Picture.Animation
         if (iFrameNr == 0)
         {
           // Init single effect
+
+          SetZoomSize(_currentZoomFactor);
+  
           float iDestY = 0;
           float iDestX = 0;
           switch (_endPoint)
@@ -352,17 +347,16 @@ namespace MediaPortal.UI.Players.Picture.Animation
               break;
           }
 
-          _panYChange = (iDestY - (_currentZoomTop + _zoomHeight / 2)) / iNrOfFramesPerEffect; // Travel Y;
-          _panXChange = (iDestX - (_currentZoomLeft + _zoomWidth / 2)) / iNrOfFramesPerEffect; // Travel X;
+          _panYChange = (iDestY - (_currentZoomTop + _zoomHeight / 2)) / iNrOfFramesPerEffect;
+          _panXChange = (iDestX - (_currentZoomLeft + _zoomWidth / 2)) / iNrOfFramesPerEffect;
         }
-
         Pan(_panXChange, _panYChange);
       }
     }
 
     private float CalculateBestZoom(float fWidth, float fHeight)
     {
-      // Default picutes is zoom best fit (max width or max height)
+      // Default is zoom best fit (max width or max height)
       float zoomFactorX = SkinContext.WindowSize.Width / fWidth;
       float zoomFactorY = SkinContext.WindowSize.Height / fHeight;
 
@@ -375,11 +369,7 @@ namespace MediaPortal.UI.Players.Picture.Animation
         _landScape = false;
       }
 
-      _fullScreen = false;
-      if ((zoomFactorY < KENBURNS_ZOOM_FACTOR_FS) && (zoomFactorX < KENBURNS_ZOOM_FACTOR_FS))
-      {
-        _fullScreen = true;
-      }
+      _fullScreen = zoomFactorY < KENBURNS_ZOOM_FACTOR_FS && zoomFactorX < KENBURNS_ZOOM_FACTOR_FS;
 
       // Fit to screen default zoom factor
 
@@ -408,7 +398,7 @@ namespace MediaPortal.UI.Players.Picture.Animation
 
       _currentZoomFactor = fZoom;
 
-      SetOutputRect(_currentZoomFactor);
+      SetZoomSize(_currentZoomFactor);
 
       if (_currentZoomTop + _zoomHeight > _imageSize.Height)
         _zoomHeight = _imageSize.Height - _currentZoomTop;
@@ -438,7 +428,7 @@ namespace MediaPortal.UI.Players.Picture.Animation
         case 8: // Heigth centered, Left unchanged
           _currentZoomTop = middley - _zoomHeight * 0.5f;
           break;
-        case 6: // Widht centered, Bottom unchanged
+        case 6: // Width centered, Bottom unchanged
           _currentZoomLeft = middlex - _zoomWidth * 0.5f;
           _currentZoomTop = yend - _zoomHeight;
           break;
@@ -459,11 +449,11 @@ namespace MediaPortal.UI.Players.Picture.Animation
           _currentZoomLeft = xend - _zoomWidth;
           break;
       }
-      if (_currentZoomLeft > _imageSize.Width - _zoomWidth)
-        _currentZoomLeft = (_imageSize.Width - _zoomWidth);
-
       if (_currentZoomTop > _imageSize.Height - _zoomHeight)
-        _currentZoomTop = (_imageSize.Height - _zoomHeight);
+        _currentZoomTop = _imageSize.Height - _zoomHeight;
+
+      if (_currentZoomLeft > _imageSize.Width - _zoomWidth)
+        _currentZoomLeft = _imageSize.Width - _zoomWidth;
 
       if (_currentZoomLeft < 0)
         _currentZoomLeft = 0;

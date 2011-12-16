@@ -220,8 +220,6 @@ namespace MediaPortal.UI.Players.Picture
     /// <param name="flipY">Flipping in vertical direction.</param>
     public void SetMediaItemData(IResourceLocator locator, string mediaItemTitle, RightAngledRotation rotation, bool flipX, bool flipY)
     {
-      ReloadSettings();
-
       if (locator == null)
         lock (_syncObj)
         {
@@ -238,6 +236,7 @@ namespace MediaPortal.UI.Players.Picture
             Format.A8R8G8B8, Pool.Default, Filter.None, Filter.None, 0, out imageInformation);
       lock (_syncObj)
       {
+        ReloadSettings();
         _state = PlayerState.Active;
 
         DisposeTexture();
@@ -250,14 +249,14 @@ namespace MediaPortal.UI.Players.Picture
         SurfaceDescription desc = _texture.GetLevelDescription(0);
         _textureMaxUV = new SizeF(imageInformation.Width / (float) desc.Width, imageInformation.Height / (float) desc.Height);
 
+        // Reset animation
+        _animator.Initialize(new Size(imageInformation.Width, imageInformation.Height));
+
         if (_slideShowTimer != null)
           _slideShowTimer.Change(_slideShowImageDuration, TS_INFINITE);
         else
           CheckTimer();
         _playbackStartTime = DateTime.Now;
-
-        // Reset animation
-        _animator.Initialize(new Size(imageInformation.Width, imageInformation.Height));
       }
     }
 
@@ -439,7 +438,11 @@ namespace MediaPortal.UI.Players.Picture
 
     public Texture CurrentPicture
     {
-      get { return _texture; }
+      get
+      {
+        lock (_syncObj)
+          return _texture;
+      }
     }
 
     public RectangleF TextureClip
