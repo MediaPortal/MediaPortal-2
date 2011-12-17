@@ -23,34 +23,14 @@
   <String Id="F_MediaPortal_Desc">MediaPortal 2 - Main program installations.</String>
 
   <String Id="F_Client">Client</String>
-  <String Id="F_Client_Desc">The user interface.</String>
+  <String Id="F_Client_Desc">The user interface. Plays media files.</String>
   <String Id="F_Client_Plugins">Plugins</String>
   <String Id="F_Client_Plugins_Desc">Plugins for the client.</String>
-
-  <String Id="F_Client_Data">Data</String>
-  <String Id="F_Client_Data_Desc">Client Data description</String>
-  <String Id="F_Client_Config">Config</String>
-  <String Id="F_Client_Config_Desc">Client Config description</String>
-  <String Id="F_Client_Log">Log</String>
-  <String Id="F_Client_Log_Desc">Client Log description</String>
-  <String Id="F_Client_RemoteResources">RemoteResources</String>
-  <String Id="F_Client_RemoteResources_Desc">Client RemoteResources description</String>
 
   <String Id="F_Server">Server</String>
   <String Id="F_Server_Desc">The server part of MediaPortal 2. Provides the MediaLibrary and other services.</String>
   <String Id="F_Server_Plugins">Plugins</String>
   <String Id="F_Server_Plugins_Desc">Plugins for the server.</String>
-
-  <String Id="F_Server_Data">Data</String>
-  <String Id="F_Server_Data_Desc">Server Data description</String>
-  <String Id="F_Server_Config">Config</String>
-  <String Id="F_Server_Config_Desc">Server Config description</String>
-  <String Id="F_Server_Log">Log</String>
-  <String Id="F_Server_Log_Desc">Server Log description</String>
-  <String Id="F_Server_Database">Database</String>
-  <String Id="F_Server_Database_Desc">Server Database description</String>
-  <String Id="F_Server_RemoteResources">RemoteResources</String>
-  <String Id="F_Server_RemoteResources_Desc">Server RemoteResources description</String>
 
   <!-- Launch Conditions -->
   <String Id="LC_OS">[ProductName] requires minimum Windows 7 / 2008 R2 as operating system.</String>
@@ -62,7 +42,7 @@
   <!-- User Interfaces -->
   <String Id="SelectInstallTypeDlg_Title">Select the install type</String>
   <String Id="SelectInstallTypeDlg_BannerBitmap">WixUI_Bmp_Banner</String>
-  <String Id="SelectInstallTypeDlg_DlgDescription">Please select the install type:</String>
+  <String Id="SelectInstallTypeDlg_DlgDescription">Please select the install type</String>
   <String Id="SelectInstallTypeDlg_Client_and_Server">Client and Server</String>
   <String Id="SelectInstallTypeDlg_Client_and_Server_Desc">Install both Client and Server. For single seat or Server with GUI.</String>
   <String Id="SelectInstallTypeDlg_Client_only">Client only</String>

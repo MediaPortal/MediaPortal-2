@@ -43,39 +43,6 @@
                Description="!(loc.F_Server_Plugins_Desc)">
         <ComponentGroupRef Id="ServerPlugins" />
       </Feature>
-
-      <Feature Id="Server.Data" Level="2" Absent="disallow" AllowAdvertise="no"
-               ConfigurableDirectory="SERVER.DATA.FOLDER"
-               Title="!(loc.F_Server_Data)"
-               Description="!(loc.F_Server_Data_Desc)">
-        <ComponentRef Id="SERVER.DATA.FOLDER" />
-
-        <Feature Id="Server.Config" Level="2" Absent="disallow" AllowAdvertise="no"
-                 ConfigurableDirectory="SERVER.CONFIG.FOLDER"
-                 Title="!(loc.F_Server_Config)"
-                 Description="!(loc.F_Server_Config_Desc)">
-          <ComponentRef Id="SERVER.CONFIG.FOLDER" />
-        </Feature>
-        <Feature Id="Server.Log" Level="2" Absent="disallow" AllowAdvertise="no"
-                 ConfigurableDirectory="SERVER.LOG.FOLDER"
-                 Title="!(loc.F_Server_Log)"
-                 Description="!(loc.F_Server_Log_Desc)">
-          <ComponentRef Id="SERVER.LOG.FOLDER" />
-        </Feature>
-        <Feature Id="Server.Database" Level="2" Absent="disallow" AllowAdvertise="no"
-                 ConfigurableDirectory="SERVER.DATABASE.FOLDER"
-                 Title="!(loc.F_Server_Database)"
-                 Description="!(loc.F_Server_Database_Desc)">
-          <ComponentRef Id="SERVER.DATABASE.FOLDER" />
-        </Feature>
-        <Feature Id="Server.RemoteResources" Level="2" Absent="disallow" AllowAdvertise="no"
-                 ConfigurableDirectory="SERVER.REMOTERESOURCES.FOLDER"
-                 Title="!(loc.F_Server_RemoteResources)"
-                 Description="!(loc.F_Server_RemoteResources_Desc)">
-          <ComponentRef Id="SERVER.REMOTERESOURCES.FOLDER" />
-        </Feature>
-
-      </Feature>
     </Feature>
 
   </Fragment>

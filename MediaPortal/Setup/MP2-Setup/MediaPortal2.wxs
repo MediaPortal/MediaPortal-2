@@ -75,11 +75,6 @@
                 <CreateFolder/>
               </Component>
             </Directory>
-            <Directory Id="CLIENT.REMOTERESOURCES.FOLDER" Name="RemoteResources">
-              <Component Id="CLIENT.REMOTERESOURCES.FOLDER" Guid="BC77FD55-512B-4669-8BBE-D69318234DAA">
-                <CreateFolder/>
-              </Component>
-            </Directory>
           </Directory>
 
           <Directory Id="SERVER.DATA.FOLDER" Name="MP2-Server">
@@ -99,11 +94,6 @@
             </Directory>
             <Directory Id="SERVER.DATABASE.FOLDER" Name="Database">
               <Component Id="SERVER.DATABASE.FOLDER" Guid="A7ABDEB5-0D3F-48B7-A4EA-92B1B5DE6C2A">
-                <CreateFolder/>
-              </Component>
-            </Directory>
-            <Directory Id="SERVER.REMOTERESOURCES.FOLDER" Name="RemoteResources">
-              <Component Id="SERVER.REMOTERESOURCES.FOLDER" Guid="68CD2A89-9018-4F6E-BF34-EE55EA388BA6">
                 <CreateFolder/>
               </Component>
             </Directory>

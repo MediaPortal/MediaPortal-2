@@ -8,7 +8,7 @@
   <String Id="ProductLanguage">1031</String>
 
   <!-- AddRemove -->
-  <String Id="AR_Comment">MediaPortal 2</String>
+  <String Id="AR_Comment">MediaPortal 2-Installation</String>
 
   <!-- Shortcuts -->
   <String Id="SC_Client">MediaPortal 2</String>
@@ -23,34 +23,14 @@
   <String Id="F_MediaPortal_Desc">MediaPortal 2 - Hauptprogramme</String>
 
   <String Id="F_Client">Client</String>
-  <String Id="F_Client_Desc">Die grafische Oberfläche.</String>
+  <String Id="F_Client_Desc">Die grafische Oberfläche. Spielt Medien-Dateien ab.</String>
   <String Id="F_Client_Plugins">Plugins</String>
   <String Id="F_Client_Plugins_Desc">Plugins für den Client.</String>
-
-  <String Id="F_Client_Data">Data</String>
-  <String Id="F_Client_Data_Desc">Client Data Beschreibung</String>
-  <String Id="F_Client_Config">Config</String>
-  <String Id="F_Client_Config_Desc">Client Config Beschreibung</String>
-  <String Id="F_Client_Log">Log</String>
-  <String Id="F_Client_Log_Desc">Client Log Beschreibung</String>
-  <String Id="F_Client_RemoteResources">RemoteResources</String>
-  <String Id="F_Client_RemoteResources_Desc">Client RemoteResources Beschreibung</String>
 
   <String Id="F_Server">Server</String>
   <String Id="F_Server_Desc">Der Server von MediaPortal 2. Stellt die Medien-Bibliothek und andere Dienste zur Verfügung.</String>
   <String Id="F_Server_Plugins">Plugins</String>
   <String Id="F_Server_Plugins_Desc">Plugins für den Server.</String>
-
-  <String Id="F_Server_Data">Data</String>
-  <String Id="F_Server_Data_Desc">Server Data Beschreibung</String>
-  <String Id="F_Server_Config">Config</String>
-  <String Id="F_Server_Config_Desc">Server Config Beschreibung</String>
-  <String Id="F_Server_Log">Log</String>
-  <String Id="F_Server_Log_Desc">Server Log Beschreibung</String>
-  <String Id="F_Server_Database">Database</String>
-  <String Id="F_Server_Database_Desc">Server Database Beschreibung</String>
-  <String Id="F_Server_RemoteResources">RemoteResources</String>
-  <String Id="F_Server_RemoteResources_Desc">Server RemoteResources Beschreibung</String>
 
   <!-- Launch Conditions -->
   <String Id="LC_OS">[ProductName] benötigt mindestens das Betriebssystem Windows 7 oder Windows 2008 R2.</String>
@@ -62,7 +42,7 @@
   <!-- User Interfaces -->
   <String Id="SelectInstallTypeDlg_Title">Installationsart auswählen</String>
   <String Id="SelectInstallTypeDlg_BannerBitmap">WixUI_Bmp_Banner</String>
-  <String Id="SelectInstallTypeDlg_DlgDescription">Bitte wählen Sie die Installations-Art aus:</String>
+  <String Id="SelectInstallTypeDlg_DlgDescription">Bitte wählen Sie die Installations-Art aus</String>
   <String Id="SelectInstallTypeDlg_Client_and_Server">Client und Server</String>
   <String Id="SelectInstallTypeDlg_Client_and_Server_Desc">Für eine Einzelplatz- oder Server-Installation mit GUI.</String>
   <String Id="SelectInstallTypeDlg_Client_only">Nur Client</String>

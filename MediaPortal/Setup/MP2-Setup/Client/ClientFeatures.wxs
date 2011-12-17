@@ -43,33 +43,6 @@
                Description="!(loc.F_Client_Plugins_Desc)">
         <ComponentGroupRef Id="ClientPlugins" />
       </Feature>
-
-      <Feature Id="Client.Data" Level="2" Absent="disallow" AllowAdvertise="no"
-               ConfigurableDirectory="CLIENT.DATA.FOLDER"
-               Title="!(loc.F_Client_Data)"
-               Description="!(loc.F_Client_Data_Desc)">
-        <ComponentRef Id="CLIENT.DATA.FOLDER" />
-
-        <Feature Id="Client.Config" Level="2" Absent="disallow" AllowAdvertise="no"
-                 ConfigurableDirectory="CLIENT.CONFIG.FOLDER"
-                 Title="!(loc.F_Client_Config)"
-                 Description="!(loc.F_Client_Config_Desc)">
-          <ComponentRef Id="CLIENT.CONFIG.FOLDER" />
-        </Feature>
-        <Feature Id="Client.Log" Level="2" Absent="disallow" AllowAdvertise="no"
-                 ConfigurableDirectory="CLIENT.LOG.FOLDER"
-                 Title="!(loc.F_Client_Log)"
-                 Description="!(loc.F_Client_Log_Desc)">
-          <ComponentRef Id="CLIENT.LOG.FOLDER" />
-        </Feature>
-        <Feature Id="Client.RemoteResources" Level="2" Absent="disallow" AllowAdvertise="no"
-                 ConfigurableDirectory="CLIENT.REMOTERESOURCES.FOLDER"
-                 Title="!(loc.F_Client_RemoteResources)"
-                 Description="!(loc.F_Client_RemoteResources_Desc)">
-          <ComponentRef Id="CLIENT.REMOTERESOURCES.FOLDER" />
-        </Feature>
-
-      </Feature>
     </Feature>
 
   </Fragment>
