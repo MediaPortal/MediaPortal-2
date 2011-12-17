@@ -20,7 +20,7 @@
 
   <!-- Features -->
   <String Id="F_MediaPortal">MediaPortal 2</String>
-  <String Id="F_MediaPortal_Desc">MediaPortal 2 - Main program installations.</String>
+  <String Id="F_MediaPortal_Desc">MediaPortal 2 - Main programs installations.</String>
 
   <String Id="F_Client">Client</String>
   <String Id="F_Client_Desc">The user interface. Plays media files.</String>
@@ -44,13 +44,12 @@
   <String Id="SelectInstallTypeDlg_BannerBitmap">WixUI_Bmp_Banner</String>
   <String Id="SelectInstallTypeDlg_DlgDescription">Please select the install type</String>
   <String Id="SelectInstallTypeDlg_Client_and_Server">Client and Server</String>
-  <String Id="SelectInstallTypeDlg_Client_and_Server_Desc">Install both Client and Server. For single seat or Server with GUI.</String>
+  <String Id="SelectInstallTypeDlg_Client_and_Server_Desc">Complete single seat or server installation with GUI.</String>
   <String Id="SelectInstallTypeDlg_Client_only">Client only</String>
-  <String Id="SelectInstallTypeDlg_Client_only_Desc">Install only the user interface. A server must be available elsewhere in the local network.</String>
+  <String Id="SelectInstallTypeDlg_Client_only_Desc">Install the user interface only. A MediaPortal 2 server is available in the network.</String>
   <String Id="SelectInstallTypeDlg_Server_only">Server only</String>
-  <String Id="SelectInstallTypeDlg_Server_only_Desc">Install a dedicated server only. Without GUI.</String>
+  <String Id="SelectInstallTypeDlg_Server_only_Desc">Install a dedicated server without GUI.</String>
   <String Id="SelectInstallTypeDlg_Custom">Custom</String>
-  <String Id="SelectInstallTypeDlg_Custom_Advertize">For experienced users only.</String>
   <String Id="SelectInstallTypeDlg_Custom_Desc">Allows you to configure the paths for programs, plugins and other settings.</String>
 
 </WixLocalization>

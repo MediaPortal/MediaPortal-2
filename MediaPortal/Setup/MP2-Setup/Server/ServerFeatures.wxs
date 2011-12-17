@@ -13,8 +13,14 @@
              Title="!(loc.F_Server)"
              Description="!(loc.F_Server_Desc)">
 
+      <ComponentRef Id="SERVER.DATA.FOLDER" />
+      <ComponentRef Id="SERVER.CONFIG.FOLDER" />
+      <ComponentRef Id="SERVER.LOG.FOLDER" />
+      <ComponentRef Id="SERVER.DATABASE.FOLDER" />
+
+      <ComponentRef Id="InstallDirServerRegistry" />
+
       <ComponentRef Id="S__Defaults" />
-      <ComponentRef Id="WriteCustomServerPaths" />
 
       <ComponentRef Id="ClientManager_create_1_0" />
       <ComponentRef Id="MediaLibrary_create_1_0" />

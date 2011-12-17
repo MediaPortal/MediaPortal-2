@@ -27,28 +27,27 @@ Adapted by Team-MediaPortal from a WIX dialog
           <Publish Property="INSTALLTYPE_CUSTOM" Value="0">1</Publish>
           <Publish Event="AddLocal" Value="ALL">1</Publish>
         </Control>
-        <Control Id="Client_and_Server_Desc" Type="Text" X="115" Y="63" Width="230" Height="17" Text="!(loc.SelectInstallTypeDlg_Client_and_Server_Desc)" />
+        <Control Id="Client_and_Server_Desc" Type="Text" X="115" Y="58" Width="230" Height="35" Text="!(loc.SelectInstallTypeDlg_Client_and_Server_Desc)" />
 
         <Control Id="Client_only" Type="PushButton" X="30" Y="100" Width="75" Height="17" Text="!(loc.SelectInstallTypeDlg_Client_only)">
           <Publish Property="INSTALLTYPE_CUSTOM" Value="0">1</Publish>
-          <Publish Event="AddLocal" Value="MP2Client">1</Publish>
-          <Publish Event="Remove" Value="MP2Server">1</Publish>
+          <Publish Event="AddLocal" Value="Client">1</Publish>
+          <Publish Event="Remove" Value="Server">1</Publish>
         </Control>
-        <Control Id="Client_only_Desc" Type="Text" X="115" Y="103" Width="230" Height="17" Text="!(loc.SelectInstallTypeDlg_Client_only_Desc)" />
+        <Control Id="Client_only_Desc" Type="Text" X="115" Y="98" Width="230" Height="35" Text="!(loc.SelectInstallTypeDlg_Client_only_Desc)" />
 
         <Control Id="Server_only" Type="PushButton" X="30" Y="140" Width="75" Height="17" Text="!(loc.SelectInstallTypeDlg_Server_only)">
           <Publish Property="INSTALLTYPE_CUSTOM" Value="0">1</Publish>
-          <Publish Event="AddLocal" Value="MP2Server">1</Publish>
-          <Publish Event="Remove" Value="MP2Client">1</Publish>
+          <Publish Event="AddLocal" Value="Server">1</Publish>
+          <Publish Event="Remove" Value="Client">1</Publish>
         </Control>
-        <Control Id="Server_only_Desc"  Type="Text" X="115" Y="143" Width="230" Height="17" Text="!(loc.SelectInstallTypeDlg_Server_only_Desc)" />
+        <Control Id="Server_only_Desc"  Type="Text" X="115" Y="138" Width="230" Height="35" Text="!(loc.SelectInstallTypeDlg_Server_only_Desc)" />
 
         <Control Id="Custom" Type="PushButton" X="30" Y="190" Width="75" Height="17" Text="!(loc.SelectInstallTypeDlg_Custom)">
           <Publish Property="INSTALLTYPE_CUSTOM" Value="1">1</Publish>
           <Publish Event="AddLocal" Value="ALL">1</Publish>
         </Control>
-        <Control Id="Custom_advertise" Type="Text" X="115" Y="183" Width="230" Height="14" Text="{\Normal_Red}!(loc.SelectInstallTypeDlg_Custom_Advertize)"/>
-        <Control Id="Custom_Desc" Type="Text" X="115" Y="194" Width="220" Height="35" Text="!(loc.SelectInstallTypeDlg_Custom_Desc)" />
+        <Control Id="Custom_Desc" Type="Text" X="115" Y="188" Width="220" Height="35" Text="!(loc.SelectInstallTypeDlg_Custom_Desc)" />
 
         <Control Id="Back" Type="PushButton" X="180" Y="243" Width="56" Height="17" Text="!(loc.WixUIBack)" />
         <Control Id="Cancel" Type="PushButton" X="304" Y="243" Width="56" Height="17" Cancel="yes" Text="!(loc.WixUICancel)">

@@ -1,8 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <Wix xmlns="http://schemas.microsoft.com/wix/2006/wi"
-     xmlns:fire="http://schemas.microsoft.com/wix/FirewallExtension"
-     xmlns:util="http://schemas.microsoft.com/wix/UtilExtension">
+     xmlns:fire="http://schemas.microsoft.com/wix/FirewallExtension">
 
   <Fragment>
 
@@ -16,21 +15,11 @@
           <File Id="S__Paths.xml" Name="Paths.xml" KeyPath="yes" Checksum="yes" />
         </Component>
 
-        <Component Id="WriteCustomServerPaths" Guid="AB85C3C6-423A-484D-93B6-60A24057E683">
-          <?foreach LABEL in $(var.ServerPathLabels)?>
-          <util:XmlFile Id="WriteCustomServerPaths_$(var.LABEL)"
-                        Action="setValue" File="[S__Defaults]\Paths.xml"
-                        ElementPath="//Paths/Path[\[]@name='$(var.LABEL)'[\]]"
-                        Value="[XML.SERVER.$(var.LABEL).FOLDER]" Name="value" SelectionLanguage="XPath" />
-          <?endforeach?>
-
+        <Component Id="InstallDirServerRegistry" Guid="AB85C3C6-423A-484D-93B6-60A24057E683">
           <RegistryKey Root="HKLM"
                        Key="Software\[Manufacturer]\[ProductName]"
                        Action="createAndRemoveOnUninstall">
             <RegistryValue Type="string" Name="INSTALLDIR_SERVER" Value="[INSTALLDIR_SERVER]"/>
-            <?foreach LABEL in $(var.ServerPathLabels)?>
-            <RegistryValue Type="string" Name="SERVER.$(var.LABEL).FOLDER" Value="[SERVER.$(var.LABEL).FOLDER]"/>
-            <?endforeach?>
           </RegistryKey>
           <CreateFolder />
         </Component>

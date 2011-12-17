@@ -13,8 +13,13 @@
              Title="!(loc.F_Client)"
              Description="!(loc.F_Client_Desc)">
 
+      <ComponentRef Id="CLIENT.DATA.FOLDER" />
+      <ComponentRef Id="CLIENT.CONFIG.FOLDER" />
+      <ComponentRef Id="CLIENT.LOG.FOLDER" />
+
+      <ComponentRef Id="InstallDirClientRegistry" />
+
       <ComponentRef Id="Defaults" />
-      <ComponentRef Id="WriteCustomClientPaths" />
 
       <ComponentRef Id="BASSLicense" />
       <ComponentRef Id="MediaPortalLicense" />
