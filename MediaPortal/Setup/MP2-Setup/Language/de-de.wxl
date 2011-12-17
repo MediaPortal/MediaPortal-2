@@ -8,7 +8,7 @@
   <String Id="ProductLanguage">1031</String>
 
   <!-- AddRemove -->
-  <String Id="AR_Comment">MediaPortal 2 Beschreibung</String>
+  <String Id="AR_Comment">MediaPortal 2</String>
 
   <!-- Shortcuts -->
   <String Id="SC_Client">MediaPortal 2</String>
@@ -20,12 +20,13 @@
 
   <!-- Features -->
   <String Id="F_MediaPortal">MediaPortal 2</String>
-  <String Id="F_MediaPortal_Desc">MediaPortal 2 Beschreibung</String>
+  <String Id="F_MediaPortal_Desc">MediaPortal 2 - Hauptprogramme</String>
 
   <String Id="F_Client">Client</String>
-  <String Id="F_Client_Desc">Client Beschreibung</String>
+  <String Id="F_Client_Desc">Die grafische Oberfläche.</String>
   <String Id="F_Client_Plugins">Plugins</String>
-  <String Id="F_Client_Plugins_Desc">Client Plugins Beschreibung</String>
+  <String Id="F_Client_Plugins_Desc">Plugins für den Client.</String>
+
   <String Id="F_Client_Data">Data</String>
   <String Id="F_Client_Data_Desc">Client Data Beschreibung</String>
   <String Id="F_Client_Config">Config</String>
@@ -36,9 +37,10 @@
   <String Id="F_Client_RemoteResources_Desc">Client RemoteResources Beschreibung</String>
 
   <String Id="F_Server">Server</String>
-  <String Id="F_Server_Desc">Server Beschreibung</String>
+  <String Id="F_Server_Desc">Der Server von MediaPortal 2. Stellt die Medien-Bibliothek und andere Dienste zur Verfügung.</String>
   <String Id="F_Server_Plugins">Plugins</String>
-  <String Id="F_Server_Plugins_Desc">Server Plugins Beschreibung</String>
+  <String Id="F_Server_Plugins_Desc">Plugins für den Server.</String>
+
   <String Id="F_Server_Data">Data</String>
   <String Id="F_Server_Data_Desc">Server Data Beschreibung</String>
   <String Id="F_Server_Config">Config</String>
@@ -58,17 +60,17 @@
   <String Id="LC_ADMIN">Um [ProductName] zu installieren, werden Administrator-Rechte benötigt.</String>
 
   <!-- User Interfaces -->
-  <String Id="SelectInstallTypeDlg_Title">Select the install type</String>
+  <String Id="SelectInstallTypeDlg_Title">Installationsart auswählen</String>
   <String Id="SelectInstallTypeDlg_BannerBitmap">WixUI_Bmp_Banner</String>
-  <String Id="SelectInstallTypeDlg_DlgDescription">Choose the way you want to install MediaPortal 2</String>
-  <String Id="SelectInstallTypeDlg_Client_and_Server">Client and Server</String>
-  <String Id="SelectInstallTypeDlg_Client_and_Server_Desc">Install both Client and Server. For single seat</String>
-  <String Id="SelectInstallTypeDlg_Client_only">Client only</String>
-  <String Id="SelectInstallTypeDlg_Client_only_Desc">Install client only. For a supplementary computer</String>
-  <String Id="SelectInstallTypeDlg_Server_only">Server only</String>
-  <String Id="SelectInstallTypeDlg_Server_only_Desc">Install server only. For a dedicated server</String>
-  <String Id="SelectInstallTypeDlg_Custom">Custom</String>
-  <String Id="SelectInstallTypeDlg_Custom_Advertize">Experienced users only, use it at your own risk!</String>
-  <String Id="SelectInstallTypeDlg_Custom_Desc">Allows you to configure path for programs, plugins, database and many more</String>
+  <String Id="SelectInstallTypeDlg_DlgDescription">Bitte wählen Sie die Installations-Art aus:</String>
+  <String Id="SelectInstallTypeDlg_Client_and_Server">Client und Server</String>
+  <String Id="SelectInstallTypeDlg_Client_and_Server_Desc">Für eine Einzelplatz- oder Server-Installation mit GUI.</String>
+  <String Id="SelectInstallTypeDlg_Client_only">Nur Client</String>
+  <String Id="SelectInstallTypeDlg_Client_only_Desc">Nur die grafische Oberfläche installieren. Ein Server ist anderswo im Netzwerk erreichbar.</String>
+  <String Id="SelectInstallTypeDlg_Server_only">Nur Server</String>
+  <String Id="SelectInstallTypeDlg_Server_only_Desc">Einen dedizierten Server installieren. Ohne GUI.</String>
+  <String Id="SelectInstallTypeDlg_Custom">Benutzerdefiniert</String>
+  <String Id="SelectInstallTypeDlg_Custom_Advertize">Nur für erfahrene Benutzer.</String>
+  <String Id="SelectInstallTypeDlg_Custom_Desc">Erlaubt die Konfiguration von Programmpfaden, Plugins und anderen erweiterten Einstellungen.</String>
 
 </WixLocalization>

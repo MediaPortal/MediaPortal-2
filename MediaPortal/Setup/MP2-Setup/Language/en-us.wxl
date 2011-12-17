@@ -8,7 +8,7 @@
   <String Id="ProductLanguage">1033</String>
 
   <!-- AddRemove -->
-  <String Id="AR_Comment">MediaPortal 2 comment</String>
+  <String Id="AR_Comment">MediaPortal 2</String>
 
   <!-- Shortcuts -->
   <String Id="SC_Client">MediaPortal 2</String>
@@ -16,16 +16,17 @@
   <String Id="SC_Server">MediaPortal 2 Server</String>
   <String Id="SC_Server_Desc">Start MediaPortal 2 Server</String>
   <String Id="SC_Uninstall">Uninstall MediaPortal 2</String>
-  <String Id="SC_Uninstall_Desc">This will uninstall MediaPortal 2.</String>
+  <String Id="SC_Uninstall_Desc">Removes MediaPortal 2 or parts of it from the computer</String>
 
   <!-- Features -->
   <String Id="F_MediaPortal">MediaPortal 2</String>
-  <String Id="F_MediaPortal_Desc">MediaPortal 2 description</String>
+  <String Id="F_MediaPortal_Desc">MediaPortal 2 - Main program installations.</String>
 
   <String Id="F_Client">Client</String>
-  <String Id="F_Client_Desc">Client description</String>
+  <String Id="F_Client_Desc">The user interface.</String>
   <String Id="F_Client_Plugins">Plugins</String>
-  <String Id="F_Client_Plugins_Desc">Client Plugins description</String>
+  <String Id="F_Client_Plugins_Desc">Plugins for the client.</String>
+
   <String Id="F_Client_Data">Data</String>
   <String Id="F_Client_Data_Desc">Client Data description</String>
   <String Id="F_Client_Config">Config</String>
@@ -36,9 +37,10 @@
   <String Id="F_Client_RemoteResources_Desc">Client RemoteResources description</String>
 
   <String Id="F_Server">Server</String>
-  <String Id="F_Server_Desc">Server description</String>
+  <String Id="F_Server_Desc">The server part of MediaPortal 2. Provides the MediaLibrary and other services.</String>
   <String Id="F_Server_Plugins">Plugins</String>
-  <String Id="F_Server_Plugins_Desc">Server Plugins description</String>
+  <String Id="F_Server_Plugins_Desc">Plugins for the server.</String>
+
   <String Id="F_Server_Data">Data</String>
   <String Id="F_Server_Data_Desc">Server Data description</String>
   <String Id="F_Server_Config">Config</String>
@@ -60,15 +62,15 @@
   <!-- User Interfaces -->
   <String Id="SelectInstallTypeDlg_Title">Select the install type</String>
   <String Id="SelectInstallTypeDlg_BannerBitmap">WixUI_Bmp_Banner</String>
-  <String Id="SelectInstallTypeDlg_DlgDescription">Choose the way you want to install MediaPortal 2</String>
+  <String Id="SelectInstallTypeDlg_DlgDescription">Please select the install type:</String>
   <String Id="SelectInstallTypeDlg_Client_and_Server">Client and Server</String>
-  <String Id="SelectInstallTypeDlg_Client_and_Server_Desc">Install both Client and Server. For single seat</String>
+  <String Id="SelectInstallTypeDlg_Client_and_Server_Desc">Install both Client and Server. For single seat or Server with GUI.</String>
   <String Id="SelectInstallTypeDlg_Client_only">Client only</String>
-  <String Id="SelectInstallTypeDlg_Client_only_Desc">Install client only. For a supplementary computer</String>
+  <String Id="SelectInstallTypeDlg_Client_only_Desc">Install only the user interface. A server must be available elsewhere in the local network.</String>
   <String Id="SelectInstallTypeDlg_Server_only">Server only</String>
-  <String Id="SelectInstallTypeDlg_Server_only_Desc">Install server only. For a dedicated server</String>
+  <String Id="SelectInstallTypeDlg_Server_only_Desc">Install a dedicated server only. Without GUI.</String>
   <String Id="SelectInstallTypeDlg_Custom">Custom</String>
-  <String Id="SelectInstallTypeDlg_Custom_Advertize">Experienced users only, use it at your own risk!</String>
-  <String Id="SelectInstallTypeDlg_Custom_Desc">Allows you to configure path for programs, plugins, database and many more</String>
+  <String Id="SelectInstallTypeDlg_Custom_Advertize">For experienced users only.</String>
+  <String Id="SelectInstallTypeDlg_Custom_Desc">Allows you to configure the paths for programs, plugins and other settings.</String>
 
 </WixLocalization>

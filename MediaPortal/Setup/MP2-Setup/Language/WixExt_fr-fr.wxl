@@ -17,7 +17,7 @@ Adapted by Team-MediaPortal for Custom Dialogs insertions
 
   <!-- Firewall Extension needs translation here -->
   <!-- todo: translate into fr -->
-  <String Id="msierrFirewallCannotConnect" Overridable="yes">Cannot connect to Windows Firewall.  ([2]   [3]   [4]   [5])</String>
+  <String Id="msierrFirewallCannotConnect" Overridable="yes">Cannot connect to Windows Firewall. ([2]   [3]   [4]   [5])</String>
 
   <String Id="WixSchedFirewallExceptionsInstall" Overridable="yes">Configuring Windows Firewall</String>
   <String Id="WixSchedFirewallExceptionsUninstall" Overridable="yes">Configuring Windows Firewall</String>
