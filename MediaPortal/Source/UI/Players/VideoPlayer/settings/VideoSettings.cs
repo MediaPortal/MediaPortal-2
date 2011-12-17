@@ -89,6 +89,12 @@ namespace MediaPortal.UI.Players.Video.Settings
     /// </summary>
     [Setting(SettingScope.User)]
     public CodecInfo H264Codec { get; set; }
+    
+    /// <summary>
+    /// Gets or Sets the preferred AVC codec.
+    /// </summary>
+    [Setting(SettingScope.User)]
+    public CodecInfo AVCCodec { get; set; }
 
     /// <summary>
     /// Gets or sets the preferred DivX codec.

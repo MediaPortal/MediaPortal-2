@@ -114,7 +114,6 @@ namespace MediaPortal.UI.Players.Video
     public DvdPlayer()
     {
       PlayerTitle = "DVDPlayer"; // for logging
-      _requiredCapabilities = CodecHandler.CodecCapabilities.VideoMPEG2 | CodecHandler.CodecCapabilities.AudioMPEG;
     }
 
     #endregion

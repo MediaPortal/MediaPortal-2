@@ -24,10 +24,9 @@
 
 using System;
 using DirectShowLib;
-using MediaPortal.UI.Players.Video.Settings.Configuration;
 using MediaPortal.UI.Players.Video.Tools;
 
-namespace MediaPortal.Plugins.BDHandler.Settings.Configuration
+namespace MediaPortal.UI.Players.Video.Settings.Configuration
 {
   public class VideoAVCCodec : GenericCodecSelection
   {
@@ -40,8 +39,8 @@ namespace MediaPortal.Plugins.BDHandler.Settings.Configuration
     public override void Load()
     {
       // Load settings
-      BDPlayerSettings settings = SettingsManager.Load<BDPlayerSettings>();
-      if (settings != null && settings.AVCCodec!= null)
+      VideoSettings settings = SettingsManager.Load<VideoSettings>();
+      if (settings != null && settings.AVCCodec != null)
         _currentSelection = settings.AVCCodec.GetCLSID();
       base.Load();
     }
@@ -49,7 +48,7 @@ namespace MediaPortal.Plugins.BDHandler.Settings.Configuration
     public override void Save()
     {
       // Load settings
-      BDPlayerSettings settings = SettingsManager.Load<BDPlayerSettings>();
+      VideoSettings settings = SettingsManager.Load<VideoSettings>();
       settings.AVCCodec = _codecList[Selected];
       SettingsManager.Save(settings);
     }

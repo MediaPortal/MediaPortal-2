@@ -32,44 +32,6 @@ namespace MediaPortal.UI.Players.Video.Tools
 {
   public class CodecHandler
   {
-    #region Enums
-
-    [Flags]
-    public enum CodecCapabilities
-    {
-      /// <summary>
-      /// No special capabilities or restrictions.
-      /// </summary>
-      None = 0,
-      /// <summary>
-      /// MPEG audio decoding support.
-      /// </summary>
-      AudioMPEG = 1,
-      /// <summary>
-      /// MPEG AAC audion decoding support.
-      /// </summary>
-      AudioAAC = 2,
-      /// <summary>
-      /// MPEG2 video decoding support.
-      /// </summary>
-      VideoMPEG2 = 4,
-      /// <summary>
-      /// MPEG4/H264 video decoding support.
-      /// </summary>
-      VideoH264 = 8,
-      /// <summary>
-      /// DivX video decoding support.
-      /// </summary>
-      VideoDIVX = 16,
-
-      /// <summary>
-      /// Restricted to only one video codec in graph.
-      /// </summary>
-      SingleVideoCodecOnly = 1024
-    }
-
-    #endregion
-
     #region Constants
 
     public static Guid WMMEDIASUBTYPE_ACELPnet = new Guid("00000130-0000-0010-8000-00AA00389B71");
@@ -138,17 +100,6 @@ namespace MediaPortal.UI.Players.Video.Tools
     }
 
     /// <summary>
-    /// Checks if all capabilities are supported
-    /// </summary>
-    /// <param name="capabilities">Capabilities to check in</param>
-    /// <param name="checkCapability">Capabilities to check for</param>
-    /// <returns></returns>
-    public bool Supports(CodecCapabilities capabilities, CodecCapabilities checkCapability)
-    {
-      return (capabilities & checkCapability) == checkCapability;
-    }
-
-    /// <summary>
     /// Check if codec exists and add it to list
     /// </summary>
     /// <param name="newCodec">Codec to add</param>
@@ -197,23 +148,6 @@ namespace MediaPortal.UI.Players.Video.Tools
           return false;
         }
       }
-    }
-
-    /// <summary>
-    /// Sets a codec as preferred for the Capability
-    /// </summary>
-    /// <param name="codecName">Name of codec</param>
-    /// <param name="capability">Capability to prefer codec for</param>
-    public void SetPreferred(String codecName, CodecCapabilities capability)
-    {
-      foreach (CodecInfo currentCodec in _codecList)
-      {
-        // Does codec support this capability ?
-        if ((currentCodec.Capabilities & capability) != 0)
-          currentCodec.Preferred = currentCodec.Name == codecName;
-      }
-      // sort list by "preferred" property
-      _codecList.Sort();
     }
 
     /// <summary>
@@ -291,7 +225,7 @@ namespace MediaPortal.UI.Players.Video.Tools
 
           string filterName = FilterGraphTools.GetFriendlyName(moniker[0]);
           Guid filterClassId = FilterGraphTools.GetCLSID(moniker[0]);
-          CodecInfo codecInfo = new CodecInfo(filterName, CodecCapabilities.None, filterClassId);
+          CodecInfo codecInfo = new CodecInfo(filterName, filterClassId);
           filters.Add(codecInfo);
 
           FilterGraphTools.TryRelease(ref moniker[0]);
@@ -336,7 +270,7 @@ namespace MediaPortal.UI.Players.Video.Tools
           {
             string filterName = FilterGraphTools.GetFriendlyName(moniker[0]);
             Guid filterClassId = FilterGraphTools.GetCLSID(moniker[0]);
-            CodecInfo codecInfo = new CodecInfo(filterName, CodecCapabilities.None, filterClassId);
+            CodecInfo codecInfo = new CodecInfo(filterName, filterClassId);
             codecInfos.Add(codecInfo);
 
             FilterGraphTools.TryRelease(ref moniker[0]);

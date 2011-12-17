@@ -25,7 +25,6 @@
 using System;
 using System.Collections.Generic;
 using System.Drawing;
-using System.IO;
 using System.Runtime.InteropServices;
 using System.Security;
 using System.Windows.Forms;
@@ -125,10 +124,6 @@ namespace MediaPortal.UI.Players.Video
     protected uint _streamCount = 1;
     protected SizeF _maxUV = new SizeF(1.0f, 1.0f);
 
-    // Filter graph related 
-    protected CodecHandler.CodecCapabilities _graphCapabilities; // Capabilities which are currently added to graph
-    protected CodecHandler.CodecCapabilities _requiredCapabilities; // Required capabilities for playback
-
     // Internal state and variables
     protected IGeometry _geometryOverride = null;
     protected string _effectOverride = null;
@@ -176,9 +171,6 @@ namespace MediaPortal.UI.Players.Video
 
       SubscribeToMessages();
       PlayerTitle = "VideoPlayer";
-
-      // Default video player capabilities
-      _requiredCapabilities = CodecHandler.CodecCapabilities.VideoDIVX | CodecHandler.CodecCapabilities.AudioMPEG;
 
       // Init the MediaSubTypes dictionary
       InitMediaSubTypes();
@@ -500,20 +492,7 @@ namespace MediaPortal.UI.Players.Video
       IBaseFilter tempFilter = FilterGraphTools.AddFilterByName(_graphBuilder, filterCategory, codecInfo.Name);
       return tempFilter != null;
     }
-
-    /// <summary>
-    /// Used to override requiredCapabilities by file extension.
-    /// </summary>
-    protected virtual void SetCapabilitiesByExtension()
-    {
-      if (_resourceAccessor == null) return;
-      string ext = Path.GetExtension(_resourceAccessor.LocalFileSystemPath);
-      if (ext != null && (ext.IndexOf(".mpg") >= 0 || ext.IndexOf(".ts") >= 0 || ext.IndexOf(".mpeg") >= 0))
-        _requiredCapabilities = CodecHandler.CodecCapabilities.VideoH264 | CodecHandler.CodecCapabilities.VideoMPEG2 | CodecHandler.CodecCapabilities.AudioMPEG;
-      else
-        _requiredCapabilities = CodecHandler.CodecCapabilities.VideoDIVX | CodecHandler.CodecCapabilities.AudioMPEG;
-    }
-
+    
     /// <summary>
     /// Adds the file source filter to the graph.
     /// </summary>
@@ -545,20 +524,19 @@ namespace MediaPortal.UI.Players.Video
         return;
 
       //IAMPluginControl is supported in Win7 and later only.
-      IAMPluginControl pc = null;
       try
       {
-        pc = new DirectShowPluginControl() as IAMPluginControl;
+        IAMPluginControl pc = new DirectShowPluginControl() as IAMPluginControl;
         if (pc != null)
         {
           if (settings.Mpeg2Codec != null)
             pc.SetPreferredClsid(MediaSubType.Mpeg2Video, settings.Mpeg2Codec.GetCLSID());
 
           if (settings.H264Codec != null)
-          {
             pc.SetPreferredClsid(MediaSubType.H264, settings.H264Codec.GetCLSID());
-            pc.SetPreferredClsid(CodecHandler.MEDIASUBTYPE_AVC, settings.H264Codec.GetCLSID());
-          }
+
+          if (settings.AVCCodec != null)
+            pc.SetPreferredClsid(CodecHandler.MEDIASUBTYPE_AVC, settings.AVCCodec.GetCLSID());
 
           if (settings.AudioCodecLATMAAC != null)
             pc.SetPreferredClsid(CodecHandler.MEDIASUBTYPE_LATM_AAC_AUDIO, settings.AudioCodecLATMAAC.GetCLSID());
@@ -583,22 +561,6 @@ namespace MediaPortal.UI.Players.Video
       catch (Exception ex)
       {
         ServiceRegistration.Get<ILogger>().Debug("{0}: Exception in IAMPluginControl: {1}", PlayerTitle, ex.ToString());
-      }
-
-      // if IAMPluginControl is not supported.
-      if (pc == null)
-      {
-        if ((_requiredCapabilities & CodecHandler.CodecCapabilities.VideoMPEG2) != 0)
-          TryAdd(settings.Mpeg2Codec);
-
-        if ((_requiredCapabilities & CodecHandler.CodecCapabilities.VideoH264) != 0)
-          TryAdd(settings.H264Codec);
-
-        if ((_requiredCapabilities & CodecHandler.CodecCapabilities.VideoDIVX) != 0)
-          TryAdd(settings.DivXCodec);
-
-        if ((_requiredCapabilities & CodecHandler.CodecCapabilities.AudioMPEG) != 0)
-          TryAdd(settings.AudioCodec);
       }
     }
 

@@ -51,14 +51,6 @@
         Text="[Settings.Players.Codecs.VideoCodecs]"/>
   </Register>
 
-  <Register Location="/Configuration/Settings/Players/Codecs/VideoCodecs">
-    <ConfigSetting
-        Id="VideoAVCCodec"
-        Text="[Settings.Players.Codecs.VideoCodecs.AVC]"
-        HelpText="[Settings.Players.Codecs.VideoCodecs.AVC.Help]"
-        ClassName="MediaPortal.Plugins.BDHandler.Settings.Configuration.VideoAVCCodec"/>
-  </Register>
-
   <Register Location="/Configuration/Settings/Players/Codecs">
     <ConfigGroup
         Id="SourceFilters"

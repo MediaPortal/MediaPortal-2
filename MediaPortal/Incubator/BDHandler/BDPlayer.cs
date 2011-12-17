@@ -72,7 +72,6 @@ namespace MediaPortal.UI.Players.Video
     public BDPlayer()
     {
       PlayerTitle = "BDPlayer"; // for logging
-      _requiredCapabilities = CodecHandler.CodecCapabilities.VideoH264 | CodecHandler.CodecCapabilities.AudioMPEG;
     }
 
     #endregion
@@ -85,31 +84,7 @@ namespace MediaPortal.UI.Players.Video
       // configure EVR
       _streamCount = 2; // Allow Video and Subtitle
     }
-
-    /// <summary>
-    /// Adds preferred audio/video codecs.
-    /// </summary>
-    protected override void AddPreferredCodecs()
-    {
-      BDPlayerSettings settings = ServiceRegistration.Get<ISettingsManager>().Load<BDPlayerSettings>();
-      if (settings == null)
-        return;
-
-      //IAMPluginControl is supported in Win7 and later only.
-      try
-      {
-        IAMPluginControl pc = new DirectShowPluginControl() as IAMPluginControl;
-        if (pc != null)
-        {
-          if (settings.AVCCodec != null)
-            pc.SetPreferredClsid(CodecHandler.MEDIASUBTYPE_AVC, settings.AVCCodec.GetCLSID());
-        }
-      }
-      catch
-      {
-      }
-    }
-
+    
     /// <summary>
     /// Adds the file source filter to the graph.
     /// </summary>

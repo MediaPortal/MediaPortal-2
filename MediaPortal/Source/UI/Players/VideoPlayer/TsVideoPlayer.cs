@@ -71,7 +71,6 @@ namespace MediaPortal.UI.Players.Video
     public TsVideoPlayer()
     {
       PlayerTitle = "TsVideoPlayer"; // for logging
-      _requiredCapabilities = CodecHandler.CodecCapabilities.VideoH264 | CodecHandler.CodecCapabilities.VideoMPEG2 | CodecHandler.CodecCapabilities.AudioMPEG;
     }
     #endregion
 
@@ -126,13 +125,6 @@ namespace MediaPortal.UI.Players.Video
     {
       FilterGraphTools.RenderOutputPins(_graphBuilder, _fileSource);
     }
-
-    /// <summary>
-    /// no extension based changes
-    /// </summary>
-    protected override void SetCapabilitiesByExtension()
-    { }
-
 
     #endregion
 
