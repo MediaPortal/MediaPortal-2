@@ -33,7 +33,6 @@
       <ComponentRef Id="Microsoft.WindowsAPICodePack"/>
       <ComponentRef Id="Microsoft.WindowsAPICodePack.Shell"/>
       <ComponentRef Id="UPnP" />
-      <ComponentRef Id="zlib1" />
 
       <Feature Id="Client.Plugins"
                Level="2"

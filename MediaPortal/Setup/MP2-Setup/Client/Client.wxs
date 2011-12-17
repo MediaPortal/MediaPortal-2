@@ -84,9 +84,6 @@
       <Component Id="UPnP" Guid="DF7F4726-1AC0-4C8D-9222-850568F9E15C">
         <File Id="UPnP.dll" Name="UPnP.dll" KeyPath="yes" Checksum="yes" />
       </Component>
-      <Component Id="zlib1" Guid="1AFA13C5-506E-440A-A38C-8F519FB0EAD4">
-        <File Id="zlib1.dll" Name="zlib1.dll" KeyPath="yes" Checksum="yes" />
-      </Component>
 
     </DirectoryRef>
 
