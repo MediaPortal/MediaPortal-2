@@ -44,8 +44,11 @@ namespace MediaPortal.UI.Players.Video
       EXTENSIONS2PLAYER.Add(".mpg", typeof(VideoPlayer));
       EXTENSIONS2PLAYER.Add(".mpeg", typeof(VideoPlayer));
       EXTENSIONS2PLAYER.Add(".ts", typeof(TsVideoPlayer));
+      EXTENSIONS2PLAYER.Add(".mts", typeof(VideoPlayer));
+      EXTENSIONS2PLAYER.Add(".m2ts", typeof(VideoPlayer));
       EXTENSIONS2PLAYER.Add(".mp4", typeof(VideoPlayer));
       EXTENSIONS2PLAYER.Add(".mkv", typeof(VideoPlayer));
+      EXTENSIONS2PLAYER.Add(".mov", typeof(VideoPlayer));
       EXTENSIONS2PLAYER.Add(".flv", typeof(VideoPlayer));
       EXTENSIONS2PLAYER.Add(".vob", typeof(DvdPlayer));
       EXTENSIONS2PLAYER.Add(".ifo", typeof(DvdPlayer));

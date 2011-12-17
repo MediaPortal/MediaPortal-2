@@ -41,6 +41,9 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor.Setti
           ".mp4",
           ".ts",
           ".flv",
+          ".m2ts",
+          ".mts",
+          ".mov",
       };
 
     protected List<string> _movieExtensions = new List<string>(DEFAULT_MOVIE_EXTENSIONS);
