@@ -5,11 +5,11 @@ using System.Runtime.InteropServices;
 // General Information about an assembly is controlled through the following 
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle("CustomActions")]
-[assembly: AssemblyDescription("")]
-[assembly: AssemblyCompany("Microsoft")]
-[assembly: AssemblyProduct("CustomActions")]
-[assembly: AssemblyCopyright("Copyright © Microsoft 2011")]
+[assembly: AssemblyTitle("Custom Actions")]
+[assembly: AssemblyDescription("Custom actions for MediaPortal 2 installer")]
+[assembly: AssemblyCompany("Team MediaPortal")]
+[assembly: AssemblyProduct("MediaPortal 2")]
+[assembly: AssemblyCopyright("Copyright © Team MediaPortal 2011")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 
