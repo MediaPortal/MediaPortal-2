@@ -577,7 +577,7 @@ namespace TagLib.Id3v2 {
 				}
 			}
 			
-			// Add unsyncronization bytes if necessary.
+			// Add unsynchronization bytes if necessary.
 			if ((header.Flags & HeaderFlags.Unsynchronisation) != 0)
 				SynchData.UnsynchByteVector (tag_data);
 			

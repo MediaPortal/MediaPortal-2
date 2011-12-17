@@ -47,6 +47,9 @@ namespace MediaPortal.Extensions.ResourceProviders.IsoResourceProvider
     protected const string ISO_RESOURCE_PROVIDER_ID_STR = "{112728B1-F71D-4284-9E5C-3462E8D3C74D}";
     public static Guid ISO_RESOURCE_PROVIDER_ID = new Guid(ISO_RESOURCE_PROVIDER_ID_STR);
 
+    protected const string RES_RESOURCE_PROVIDER_NAME = "[IsoResourceProvider.Name]";
+    protected const string RES_RESOURCE_PROVIDER_DESCRIPTION = "[IsoResourceProvider.Description]";
+
     #endregion
 
     #region Protected fields
@@ -62,7 +65,7 @@ namespace MediaPortal.Extensions.ResourceProviders.IsoResourceProvider
 
     public IsoResourceProvider()
     {
-      _metadata = new ResourceProviderMetadata(ISO_RESOURCE_PROVIDER_ID, "[IsoResourceProvider.Name]", false);
+      _metadata = new ResourceProviderMetadata(ISO_RESOURCE_PROVIDER_ID, RES_RESOURCE_PROVIDER_NAME, RES_RESOURCE_PROVIDER_DESCRIPTION, false);
     }
 
     #endregion

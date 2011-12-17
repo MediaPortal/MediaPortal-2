@@ -25,13 +25,10 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using MediaPortal.Common;
 using MediaPortal.Common.General;
 using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.ResourceAccess;
-using MediaPortal.Common.SystemResolver;
 using MediaPortal.UI.Presentation.DataObjects;
-using MediaPortal.UI.ServerCommunication;
 using MediaPortal.Utilities;
 
 namespace MediaPortal.UiComponents.SkinBase.Models
@@ -344,21 +341,11 @@ namespace MediaPortal.UiComponents.SkinBase.Models
       NativeSystem = null;
     }
 
-    protected bool InitializePropertiesWithShare(Share share)
+    protected bool InitializePropertiesWithShare(Share share, string nativeSystem)
     {
       _origShare = share;
       BaseResourceProvider = GetBaseResourceProviderMetadata(share.BaseResourcePath);
-      IServerConnectionManager serverConnectionManager = ServiceRegistration.Get<IServerConnectionManager>();
-      ISystemResolver systemResolver = ServiceRegistration.Get<ISystemResolver>();
-      NativeSystem = serverConnectionManager.LastHomeServerName;
-      if (NativeSystem == null)
-      {
-        SystemName systemName = systemResolver.GetSystemNameForSystemId(serverConnectionManager.HomeServerSystemId);
-        if (systemName != null)
-          NativeSystem = systemName.HostName;
-      }
-      if (NativeSystem == null)
-        NativeSystem = serverConnectionManager.HomeServerSystemId;
+      NativeSystem = nativeSystem;
       ChoosenResourcePath = share.BaseResourcePath;
       ShareName = share.Name;
       MediaCategories.Clear();

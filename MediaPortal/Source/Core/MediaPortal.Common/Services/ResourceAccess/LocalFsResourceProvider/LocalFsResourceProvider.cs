@@ -37,6 +37,13 @@ namespace MediaPortal.Common.Services.ResourceAccess.LocalFsResourceProvider
   /// </summary>
   public class LocalFsResourceProvider : LocalFsResourceProviderBase, IBaseResourceProvider
   {
+    #region Consts
+
+    protected const string RES_RESOURCE_PROVIDER_NAME = "[LocalFsResourceProvider.Name]";
+    protected const string RES_RESOURCE_PROVIDER_DESCRIPTION = "[LocalFsResourceProvider.Description]";
+
+    #endregion 
+
     protected class ChangeTrackerRegistrationKey
     {
       #region Protected fields
@@ -84,11 +91,18 @@ namespace MediaPortal.Common.Services.ResourceAccess.LocalFsResourceProvider
 
     #endregion
 
+    #region Protected fields
+
+    protected static LocalFsResourceProvider _instance;
+
+    #endregion
+
     #region Ctor
 
     public LocalFsResourceProvider()
     {
-      _metadata = new ResourceProviderMetadata(LOCAL_FS_RESOURCE_PROVIDER_ID, "[LocalFsResourceProvider.Name]", false);
+      _metadata = new ResourceProviderMetadata(LOCAL_FS_RESOURCE_PROVIDER_ID, RES_RESOURCE_PROVIDER_NAME, RES_RESOURCE_PROVIDER_DESCRIPTION, false);
+      _instance = this;
     }
 
     #endregion
@@ -163,7 +177,12 @@ namespace MediaPortal.Common.Services.ResourceAccess.LocalFsResourceProvider
 
     #endregion
 
-    #region Public methods
+    #region Public members
+
+    public static LocalFsResourceProvider Instance
+    {
+      get { return _instance; }
+    }
 
     public void RegisterChangeTracker(PathChangeDelegate changeDelegate,
         string path, IEnumerable<string> fileNameFilters, IEnumerable<MediaSourceChangeType> changeTypes)
@@ -214,7 +233,7 @@ namespace MediaPortal.Common.Services.ResourceAccess.LocalFsResourceProvider
     public IResourceAccessor CreateResourceAccessor(string path)
     {
       if (!IsResource(path))
-        throw new ArgumentException(string.Format("The resource described by path '{0}' doesn't exist", path));
+        throw new ArgumentException(string.Format("Unable to access resource '{0}'", path));
       return new LocalFsResourceAccessor(this, path);
     }
 
@@ -222,14 +241,21 @@ namespace MediaPortal.Common.Services.ResourceAccess.LocalFsResourceProvider
     {
       if (string.IsNullOrEmpty(pathStr))
         return null;
-      // The input string is given by the user. We can cope with two formats:
+      // The input string is given by the user. We can cope with three formats:
       // 1) A resource provider path which can be interpreted by the choosen resource provider itself (i.e. a path without the
       //    starting resource provider GUID)
       // 2) A resource path in the resource path syntax (i.e. {[Base-Provider-Id]}://[Base-Provider-Path])
+      // 3) A dos path
       if (IsResource(pathStr))
         return new ResourcePath(new ProviderPathSegment[]
           {
               new ProviderPathSegment(_metadata.ResourceProviderId, pathStr, true), 
+          });
+      string providerPath = ToProviderPath(pathStr);
+      if (IsResource(providerPath))
+        return new ResourcePath(new ProviderPathSegment[]
+          {
+              new ProviderPathSegment(_metadata.ResourceProviderId, providerPath, true), 
           });
       try
       {

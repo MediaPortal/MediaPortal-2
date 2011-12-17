@@ -478,7 +478,7 @@ namespace MediaPortal.UI.Services.Players
 
     public bool IsFullscreenContentWorkflowStateActive
     {
-      get { return FindIndexOfPlayerWFStateType(PlayerWFStateType.CurrentlyPlaying) != -1; }
+      get { return FindIndexOfPlayerWFStateType(PlayerWFStateType.FullscreenContent) != -1; }
     }
 
     public IPlayerContext CurrentPlayerContext
@@ -502,6 +502,7 @@ namespace MediaPortal.UI.Services.Players
           if (value != PlayerManagerConsts.PRIMARY_SLOT && value != PlayerManagerConsts.SECONDARY_SLOT && value != -1)
             return;
           _currentPlayerIndex = value;
+          CheckCurrentPlayerSlot();
           CheckMediaWorkflowStates_Async();
           PlayerContextManagerMessaging.SendPlayerContextManagerMessage(
               PlayerContextManagerMessaging.MessageType.CurrentPlayerChanged, value);

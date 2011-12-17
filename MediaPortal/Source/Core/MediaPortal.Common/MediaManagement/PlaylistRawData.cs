@@ -35,6 +35,12 @@ namespace MediaPortal.Common.MediaManagement
   /// <summary>
   /// Contains playlist identification data and a list of media item ids. This information is enough to persist a playlist.
   /// </summary>
+  /// <remarks>
+  /// <para>
+  /// Note: This class is serialized/deserialized by the <see cref="XmlSerializer"/>.
+  /// If changed, this has to be taken into consideration.
+  /// </para>
+  /// </remarks>
   public class PlaylistRawData : PlaylistBase
   {
     protected readonly IList<Guid> _mediaItemIds = new List<Guid>();

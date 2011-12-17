@@ -2,6 +2,7 @@
 <ResourceDictionary
     xmlns="www.team-mediaportal.com/2008/mpf/directx"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    DependsOnStyleResources="Colors,Consts"
     >
 
   <!-- Master screen brushes -->

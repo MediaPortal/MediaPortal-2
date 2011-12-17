@@ -581,7 +581,6 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
           SkinResources skinResources = theme == null ? skin : (SkinResources) theme;
           ServiceRegistration.Get<ILogger>().Info("ScreenManager: Applying skin '{0}', theme '{1}'",
               skin == null ? string.Empty : skin.Name, theme == null ? string.Empty : theme.Name);
-          Fonts.FontManager.Load(skinResources);
 
           _skinManager.InstallSkinResources(skinResources);
 

@@ -56,7 +56,7 @@ namespace MediaPortal.Common.Services.MediaManagement
     public const string MY_PICTURES_SHARE_NAME_RESOURCE = "[Media.MyPictures]";
 
     // Constants will be moved to some constants class
-    protected const string RESOURCE_PROVIDERS_PLUGIN_LOCATION = "/Media/ResourceProviders";
+    protected const string RESOURCE_PROVIDERS_PLUGIN_LOCATION = "/ResourceProviders";
     protected const string METADATA_EXTRACTORS_PLUGIN_LOCATION = "/Media/MetadataExtractors";
 
     protected const string METADATA_EXTRACTORS_USE_COMPONENT_NAME = "MediaAccessor: MetadataExtractors";
@@ -247,30 +247,12 @@ namespace MediaPortal.Common.Services.MediaManagement
 
     public IEnumerable<IBaseResourceProvider> LocalBaseResourceProviders
     {
-      get
-      {
-        foreach (IResourceProvider resourceProvider in LocalResourceProviders.Values)
-        {
-          IBaseResourceProvider provider = resourceProvider as IBaseResourceProvider;
-          if (provider != null)
-            yield return provider;
-        }
-        yield break;
-      }
+      get { return LocalResourceProviders.Values.OfType<IBaseResourceProvider>(); }
     }
 
     public IEnumerable<IChainedResourceProvider> LocalChainedResourceProviders
     {
-      get
-      {
-        foreach (IResourceProvider resourceProvider in LocalResourceProviders.Values)
-        {
-          IChainedResourceProvider provider = resourceProvider as IChainedResourceProvider;
-          if (provider != null)
-            yield return provider;
-        }
-        yield break;
-      }
+      get { return LocalResourceProviders.Values.OfType<IChainedResourceProvider>(); }
     }
 
     public IDictionary<Guid, IMetadataExtractor> LocalMetadataExtractors

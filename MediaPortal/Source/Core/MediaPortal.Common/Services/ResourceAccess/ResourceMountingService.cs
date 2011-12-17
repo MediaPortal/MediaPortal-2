@@ -35,7 +35,7 @@ using MediaPortal.Common.SystemResolver;
 
 namespace MediaPortal.Common.Services.ResourceAccess
 {
-  public class ResourceMountingService : IResourceMountingService
+  public class ResourceMountingService : IResourceMountingService, IDisposable
   {
     #region Consts
 
@@ -60,6 +60,15 @@ namespace MediaPortal.Common.Services.ResourceAccess
       ResourceMountingSettings settings = settingsManager.Load<ResourceMountingSettings>();
       return settings.DriveLetter;
     }
+
+    #region IDisposable implementation
+
+    public void Dispose()
+    {
+      Shutdown(); // Make sure we're shut down
+    }
+
+    #endregion
 
     #region IResourceMountingService implementation
 
@@ -103,6 +112,7 @@ namespace MediaPortal.Common.Services.ResourceAccess
       if (_dokanExecutor == null)
         return;
       _dokanExecutor.Dispose();
+      _dokanExecutor = null;
     }
 
     public string CreateRootDirectory(string rootDirectoryName)

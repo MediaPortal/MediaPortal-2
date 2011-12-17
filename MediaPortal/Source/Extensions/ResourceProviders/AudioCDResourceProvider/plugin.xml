@@ -11,7 +11,7 @@
     <Assembly FileName="AudioCDResourceProvider.dll"/>
   </Runtime>
 
-  <Register Location="/Media/ResourceProviders">
+  <Register Location="/ResourceProviders">
     <Instance Id="AudioCDProvider" ClassName="MediaPortal.Extensions.ResourceProviders.AudioCDResourceProvider.AudioCDResourceProvider"/>
   </Register>
 

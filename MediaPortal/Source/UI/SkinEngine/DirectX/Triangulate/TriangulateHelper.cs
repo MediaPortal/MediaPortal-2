@@ -147,6 +147,13 @@ namespace MediaPortal.UI.SkinEngine.DirectX.Triangulate
       return points[i];
     }
 
+    static PointF GetLastPoint(PointF[] points, int i, int max)
+    {
+      i--;
+      while (i < 0) i += max;
+      return points[i];
+    }
+
     /// <summary>
     /// Converts the graphics path to an array of vertices using TriangleList.
     /// </summary>
@@ -188,15 +195,21 @@ namespace MediaPortal.UI.SkinEngine.DirectX.Triangulate
         pointCount = points.Length - 1;
 
       int pointsLength = points.Length;
-      verts = new PositionColoredTextured[pointCount * 3 * 3 - 3];
+      verts = new PositionColoredTextured[pointCount * 3 * 3 - (close ? 0 : 3)];
 
+      float insetX;
+      float insetY;
       int offset = 0;
       PointF? lastInset = null;
+      if (close)
+      {
+        PointF lastPoint = GetLastPoint(points, 0, pointsLength);
+        GetInset(lastPoint, points[0], out insetX, out insetY, thickness, direction);
+        lastInset = new PointF(insetX, insetY);
+      }
       for (int i = 0; i < pointCount; i++)
       {
         PointF nextPoint = GetNextPoint(points, i, pointsLength);
-        float insetX;
-        float insetY;
         GetInset(points[i], nextPoint, out insetX, out insetY, thickness, direction);
 
         if (lastInset.HasValue)

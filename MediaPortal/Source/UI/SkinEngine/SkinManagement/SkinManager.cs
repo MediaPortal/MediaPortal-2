@@ -187,8 +187,14 @@ namespace MediaPortal.UI.SkinEngine.SkinManagement
 
     public void InstallSkinResources(SkinResources skinResources)
     {
-      // Initialize SkinContext with new values
-      skinResources.Prepare();
+      // Setup the resource chain and use the default skin as last fallback
+      skinResources.SetupResourceChain(_skins, DefaultSkin);
+      // Initialize SkinContext with new resource bundle
+      SkinContext.SkinResources = skinResources;
+      skinResources.InitializeStyleResourceLoading(); // Initializes the resource file dictionary
+      Fonts.FontManager.Load(skinResources); // Needs an initialized resource file dictionary - loads font files
+      skinResources.LoadAllStyleResources(); // Needs the FontManager
+      // Notify others that we loaded a new skin or theme
       SkinResourcesMessaging.SendSkinResourcesMessage(SkinResourcesMessaging.MessageType.SkinOrThemeChanged);
     }
 
@@ -244,27 +250,6 @@ namespace MediaPortal.UI.SkinEngine.SkinManagement
           }
         else
           ServiceRegistration.Get<ILogger>().Warn("SkinManager: Skin resource directory '{0}' doesn't exist", rootDirectoryPath);
-      // Setup the resource chain: Inherit the theme resources of the based-on-skin for all
-      // skins, and use the default skin as last fallback
-      Skin defaultSkin = DefaultSkin;
-      SkinResources defaultInheritResources = (defaultSkin == null ? null : defaultSkin.DefaultTheme) ?? (SkinResources) defaultSkin;
-      foreach (KeyValuePair<string, Skin> kvp in _skins)
-      {
-        Skin current = kvp.Value;
-        Skin basedOnSkin;
-        SkinResources inheritResources;
-        if (current.BasedOnSkin != null && _skins.TryGetValue(current.BasedOnSkin, out basedOnSkin))
-        {
-          Theme basedOnTheme;
-          if (current.BasedOnTheme != null && basedOnSkin.Themes.TryGetValue(current.BasedOnTheme, out basedOnTheme))
-            inheritResources = basedOnTheme;
-          else
-            inheritResources = basedOnSkin.DefaultTheme ?? (SkinResources) basedOnSkin;
-        }
-        else
-          inheritResources = kvp.Key == DEFAULT_SKIN ? null : defaultInheritResources;
-        current.InheritedSkinResources = inheritResources;
-      }
     }
 
     /// <summary>

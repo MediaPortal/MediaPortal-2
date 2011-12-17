@@ -25,6 +25,7 @@
 using System;
 using System.Drawing;
 using System.Drawing.Drawing2D;
+using System.Linq;
 
 namespace MediaPortal.UI.SkinEngine.DirectX.Triangulate
 {
@@ -32,10 +33,7 @@ namespace MediaPortal.UI.SkinEngine.DirectX.Triangulate
   {
     public static void Flatten(PositionColoredTextured[][] subPathVerts, out PositionColoredTextured[] verts)
     {
-      int numVertices = 0;
-      for (int i = 0; i < subPathVerts.Length; i++)
-        if (subPathVerts[i] != null)
-          numVertices += subPathVerts[i].Length;
+      int numVertices = subPathVerts.Where(t => t != null).Sum(t => t.Length);
       if (numVertices == 0)
       {
         verts = null;
@@ -43,9 +41,8 @@ namespace MediaPortal.UI.SkinEngine.DirectX.Triangulate
       }
       verts = new PositionColoredTextured[numVertices];
       long offset = 0;
-      for (int i = 0; i < subPathVerts.Length; i++)
+      foreach (PositionColoredTextured[] spv in subPathVerts)
       {
-        PositionColoredTextured[] spv = subPathVerts[i];
         if (spv == null)
           continue;
         long length = spv.Length;

@@ -78,29 +78,58 @@ namespace MediaPortal.UI.SkinEngine.SkinManagement
 
     public Skin(string name): base(name) { }
 
+    /// <summary>
+    /// Name of the skin this skin inherits from. If this parameter is <c>null</c>, this skin inherits from the default
+    /// skin's theme or from the default skin, if there is no default skin.
+    /// </summary>
     public string BasedOnSkin
     {
-      get { return _basedOnSkin; }
+      get
+      {
+        CheckMetadataInitialized();
+        return _basedOnSkin;
+      }
     }
 
+    /// <summary>
+    /// Name of the theme of the <see cref="BasedOnSkin"/> skin, this skin inherits from. If this value is <c>null</c>,
+    /// we'll inherit from the <see cref="BasedOnSkin"/>, or, if that is also <c>null</c>, from the default skin's theme or
+    /// from the default skin, if there is no default skin.
+    /// </summary>
     public string BasedOnTheme
     {
-      get { return _basedOnTheme; }
+      get
+      {
+        CheckMetadataInitialized();
+        return _basedOnTheme;
+      }
     }
 
     public string ShortDescription
     {
-      get { return _description; }
+      get
+      {
+        CheckMetadataInitialized();
+        return _description;
+      }
     }
 
     public string UsageNote
     {
-      get { return _usageNote; }
+      get
+      {
+        CheckMetadataInitialized();
+        return _usageNote;
+      }
     }
 
     public string PreviewResourceKey
     {
-      get { return _previewResourceKey; }
+      get
+      {
+        CheckMetadataInitialized();
+        return _previewResourceKey;
+      }
     }
 
     /// <summary>
@@ -211,6 +240,31 @@ namespace MediaPortal.UI.SkinEngine.SkinManagement
       _metadataInitialized = LoadMetadata(metaFilePath);
     }
 
+    protected override void CheckResourcesInitialized()
+    {
+      if (_themes == null)
+        _themes = new Dictionary<string, Theme>();
+      base.CheckResourcesInitialized();
+    }
+
+    internal override void SetupResourceChain(IDictionary<string, Skin> skins, Skin defaultSkin)
+    {
+      CheckMetadataInitialized();
+      Skin basedOnSkin;
+      if (_basedOnSkin != null && skins.TryGetValue(_basedOnSkin, out basedOnSkin))
+      {
+        Theme basedOnTheme;
+        if (_basedOnTheme != null && basedOnSkin.Themes.TryGetValue(_basedOnTheme, out basedOnTheme))
+          InheritedSkinResources = basedOnTheme;
+        else
+          InheritedSkinResources = basedOnSkin.DefaultTheme ?? (SkinResources) basedOnSkin;
+      }
+      else
+        InheritedSkinResources = this == defaultSkin ? null : defaultSkin.DefaultTheme ?? (SkinResources) defaultSkin;
+      if (_inheritedSkinResources != null)
+        _inheritedSkinResources.SetupResourceChain(skins, defaultSkin);
+    }
+
     protected bool LoadMetadata(string metaFilePath)
     {
       try
@@ -236,8 +290,7 @@ namespace MediaPortal.UI.SkinEngine.SkinManagement
               case "Name":
                 if (_name != null && _name != attrNav.Value)
                   throw new ArgumentException("Skin name '" + _name + "' doesn't correspond to specified name '" + attrNav.Value + "'");
-                else
-                  _name = attrNav.Value;
+                _name = attrNav.Value;
                 break;
               default:
                 throw new ArgumentException("Attribute '" + attrNav.Name + "' is unknown");
@@ -299,26 +352,6 @@ namespace MediaPortal.UI.SkinEngine.SkinManagement
     }
 
     /// <summary>
-    /// Will trigger the lazy initialization on request.
-    /// </summary>
-    protected override void CheckResourcesInitialized()
-    {
-      if (IsResourcesInitialized)
-        return;
-      if (_themes == null)
-        _themes = new Dictionary<string, Theme>();
-      base.CheckResourcesInitialized();
-      Theme defaultTheme = DefaultTheme;
-      foreach (KeyValuePair<string, Theme> theme in _themes)
-      {
-        if (defaultTheme == null || theme.Key == _defaultThemeName)
-          theme.Value.InheritedSkinResources = this;
-        else
-          theme.Value.InheritedSkinResources = defaultTheme;
-      }
-    }
-
-    /// <summary>
     /// Adds the resources and themes in the specified directory.
     /// </summary>
     /// <param name="skinDirectoryPath">Path to a directory whose contents should be added
@@ -333,7 +366,7 @@ namespace MediaPortal.UI.SkinEngine.SkinManagement
         foreach (string themeDirectoryPath in Directory.GetDirectories(themesDirectoryPath))
         { // Iterate over all themes subdirectories
           string themeName = Path.GetFileName(themeDirectoryPath);
-          if (themeName.StartsWith("."))
+          if (themeName == null || themeName.StartsWith("."))
             continue;
           Theme theme;
           if (_themes.ContainsKey(themeName))

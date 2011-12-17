@@ -32,7 +32,7 @@
           DisplayTitle                  CDATA #IMPLIED
           DisplayCategory               CDATA #IMPLIED
           SortOrder                     CDATA #IMPLIED
-          SourceState                   CDATA #REQUIRED
+          SourceStates                  CDATA #REQUIRED
           TargetState                   CDATA #REQUIRED
           NavigationContextDisplayLabel CDATA #IMPLIED>
 
@@ -43,7 +43,7 @@
           DisplayTitle    CDATA #IMPLIED
           DisplayCategory CDATA #IMPLIED
           SortOrder       CDATA #IMPLIED
-          SourceState     CDATA #REQUIRED
+          SourceStates    CDATA #REQUIRED
           NumPop          CDATA #REQUIRED>
 
 <!ELEMENT WorkflowContributorAction EMPTY>
@@ -53,7 +53,7 @@
           DisplayTitle       CDATA #IMPLIED
           DisplayCategory    CDATA #IMPLIED
           SortOrder          CDATA #IMPLIED
-          SourceState        CDATA #REQUIRED
+          SourceStates       CDATA #REQUIRED
           ContributorModelId CDATA #REQUIRED>
 
 <!ELEMENT MethodCallAction EMPTY>
@@ -63,6 +63,6 @@
           DisplayTitle       CDATA #IMPLIED
           DisplayCategory    CDATA #IMPLIED
           SortOrder          CDATA #IMPLIED
-          SourceState        CDATA #REQUIRED
+          SourceStates       CDATA #REQUIRED
           ModelId            CDATA #REQUIRED
           MethodName         CDATA #REQUIRED>

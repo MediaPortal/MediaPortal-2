@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<Language>
+  <Section Name="NetworkNeighborhoodResourceProvider">
+    <String Name="Name" Text="Network neighborhood resource provider"/>
+    <String Name="Description" Text="Provides access to windows shares on other computers in the local network neighborhood"/>
+  </Section>
+</Language>

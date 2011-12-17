@@ -712,7 +712,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
         int firstVisibleChildIndex;
         int numItems;
         IList<FrameworkElement> localChildren;
-        lock (Children.SyncRoot) // We must aquire the children's lock when accessing the _renderOrder
+        lock (Children.SyncRoot)
         {
           firstLocal = _actualFirstVisibleChildIndex - _arrangedItemsStartIndex;
           firstVisibleChildIndex = _actualFirstVisibleChildIndex;
@@ -766,7 +766,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
         int lastVisibleChildIndex;
         int numItems;
         IList<FrameworkElement> localChildren;
-        lock (Children.SyncRoot) // We must aquire the children's lock when accessing the _renderOrder
+        lock (Children.SyncRoot)
         {
           lastLocal = _actualLastVisibleChildIndex - _arrangedItemsStartIndex;
           lastVisibleChildIndex = _actualLastVisibleChildIndex;
@@ -820,7 +820,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
         int firstVisibleChildIndex;
         int numItems;
         IList<FrameworkElement> localChildren;
-        lock (Children.SyncRoot) // We must aquire the children's lock when accessing the _renderOrder
+        lock (Children.SyncRoot)
         {
           firstLocal = _actualFirstVisibleChildIndex - _arrangedItemsStartIndex;
           firstVisibleChildIndex = _actualFirstVisibleChildIndex;
@@ -874,7 +874,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
         int lastVisibleChildIndex;
         int numItems;
         IList<FrameworkElement> localChildren;
-        lock (Children.SyncRoot) // We must aquire the children's lock when accessing the _renderOrder
+        lock (Children.SyncRoot)
         {
           lastLocal = _actualLastVisibleChildIndex - _arrangedItemsStartIndex;
           lastVisibleChildIndex = _actualLastVisibleChildIndex;

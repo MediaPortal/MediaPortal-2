@@ -4,7 +4,7 @@
     PluginId="{112728B1-F71D-4284-9E5C-3462E8D3C74D}"
     Author="Bavarian"
     Copyright="GPL"
-    Description="ISO Files Resource Provider"
+    Description="ISO files resource provider"
     PluginVersion="1.0">
 
   <DependsOn>
@@ -15,7 +15,7 @@
     <Assembly FileName="IsoResourceProvider.dll"/>
   </Runtime>
 
-  <Register Location="/Media/ResourceProviders">
+  <Register Location="/ResourceProviders">
     <Instance Id="IsoProvider" ClassName="MediaPortal.Extensions.ResourceProviders.IsoResourceProvider.IsoResourceProvider"/>
   </Register>
 

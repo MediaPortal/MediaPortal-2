@@ -2,5 +2,6 @@
 <Language>
   <Section Name="AudioCDResourceProvider">
     <String Name="Name" Text="Audio CD resource provider"/>
+    <String Name="Description" Text="Provides access to audio CD tracks"/>
   </Section>
 </Language>

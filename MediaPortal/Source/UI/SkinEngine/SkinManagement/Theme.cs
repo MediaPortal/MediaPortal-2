@@ -23,6 +23,7 @@
 #endregion
 
 using System;
+using System.Collections.Generic;
 using System.Xml.XPath;
 using MediaPortal.Common;
 using MediaPortal.Common.Logging;
@@ -57,6 +58,7 @@ namespace MediaPortal.UI.SkinEngine.SkinManagement
     protected string _specVersion = null;
     protected string _themeVersion = null;
     protected string _skinEngineVersion = null;
+    protected string _basedOnTheme = null;
     protected int _minColorDepth = -1;
 
     public Theme(string name, Skin parentSkin): base(name)
@@ -64,14 +66,35 @@ namespace MediaPortal.UI.SkinEngine.SkinManagement
       _parentSkin = parentSkin;
     }
 
+    /// <summary>
+    /// Name of the theme in our <see cref="ParentSkin"/> this theme inherits from. If set to <c>null</c>, this theme
+    /// will inherit from our parent skin's default theme.
+    /// </summary>
+    public string BasedOnTheme
+    {
+      get
+      {
+        CheckMetadataInitialized();
+        return _basedOnTheme;
+      }
+    }
+
     public string ShortDescription
     {
-      get { return _description; }
+      get
+      {
+        CheckMetadataInitialized();
+        return _description;
+      }
     }
 
     public string PreviewResourceKey
     {
-      get { return _previewResourceKey; }
+      get
+      {
+        CheckMetadataInitialized();
+        return _previewResourceKey;
+      }
     }
 
     /// <summary>
@@ -103,6 +126,20 @@ namespace MediaPortal.UI.SkinEngine.SkinManagement
     public override int SkinHeight
     {
       get { return ParentSkin.SkinHeight; }
+    }
+
+    internal override void SetupResourceChain(IDictionary<string, Skin> skins, Skin defaultSkin)
+    {
+      CheckMetadataInitialized();
+      Theme inheritTheme;
+      if (_basedOnTheme != null && _parentSkin.Themes.TryGetValue(_basedOnTheme, out inheritTheme))
+        InheritedSkinResources = inheritTheme;
+      else
+      {
+        SkinResources parentDefaultTheme = _parentSkin.DefaultTheme;
+        InheritedSkinResources = parentDefaultTheme != null && parentDefaultTheme != this ? parentDefaultTheme : _parentSkin;
+      }
+      _inheritedSkinResources.SetupResourceChain(skins, defaultSkin);
     }
 
     /// <summary>
@@ -143,8 +180,7 @@ namespace MediaPortal.UI.SkinEngine.SkinManagement
               case "Name":
                 if (_name != null && _name != attrNav.Value)
                   throw new ArgumentException("Theme name '" + _name + "' doesn't correspond to specified name '" + attrNav.Value + "'");
-                else
-                  _name = attrNav.Value;
+                _name = attrNav.Value;
                 break;
               default:
                 throw new ArgumentException("Attribute '" + attrNav.Name + "' is unknown");
@@ -176,6 +212,9 @@ namespace MediaPortal.UI.SkinEngine.SkinManagement
                 break;
               case "MinColorDepth":
                 _minColorDepth = Int32.Parse(childNav.Value);
+                break;
+              case "BasedOnTheme":
+                _basedOnTheme = childNav.Value;
                 break;
               default:
                 throw new ArgumentException("Child element '" + childNav.Name + "' is unknown");
