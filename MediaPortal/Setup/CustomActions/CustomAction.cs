@@ -43,8 +43,8 @@ namespace CustomActions
   public class CustomActions
   {//Can publish up to 16 custom actions per DLL
 
-    private static readonly string[] ClientPathLabels = new string[] { "DATA", "CONFIG", "LOG", "PLUGINS", "REMOTERESOURCES" };
-    private static readonly string[] ServerPathLabels = new string[] { "DATA", "CONFIG", "LOG", "PLUGINS", "REMOTERESOURCES", "DATABASE" };
+    private static readonly string[] ClientPathLabels = new string[] { "DATA", "CONFIG", "LOG", "PLUGINS" };
+    private static readonly string[] ServerPathLabels = new string[] { "DATA", "CONFIG", "LOG", "PLUGINS", "DATABASE" };
 
     [CustomAction]
     public static ActionResult AttachClientAndServer(Session session)
