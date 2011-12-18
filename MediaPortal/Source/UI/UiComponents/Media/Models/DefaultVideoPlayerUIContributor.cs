@@ -45,6 +45,7 @@ namespace MediaPortal.UiComponents.Media.Models
     public DefaultVideoPlayerUIContributor() : base(300)
     {
       _subtitlesAvailableProperty = new WProperty(typeof(bool), false);
+      _chaptersAvailableProperty = new WProperty(typeof(bool), false);
       StartTimer();
     }
 
@@ -52,10 +53,17 @@ namespace MediaPortal.UiComponents.Media.Models
 
     #region Variables
 
-    protected ISubtitlePlayer _player;
+    protected ISubtitlePlayer _subtitlePlayer;
     protected AbstractProperty _subtitlesAvailableProperty;
     protected string[] _subtitles = EMPTY_STRING_ARRAY;
     protected ItemsList _subtitleMenuItems;
+
+    protected IChapterPlayer _chapterPlayer;
+    protected AbstractProperty _chaptersAvailableProperty;
+    protected string[] _chapters = EMPTY_STRING_ARRAY;
+    protected ItemsList _chapterMenuItems;
+
+    protected bool _updating;
 
     #endregion
 
@@ -70,6 +78,17 @@ namespace MediaPortal.UiComponents.Media.Models
       set { _subtitlesAvailableProperty.SetValue(value); }
     }
 
+    public AbstractProperty ChaptersAvailableProperty
+    {
+      get { return _chaptersAvailableProperty; }
+    }
+
+    public bool ChaptersAvailable
+    {
+      get { return (bool)_chaptersAvailableProperty.GetValue(); }
+      set { _chaptersAvailableProperty.SetValue(value); }
+    }
+
     /// <summary>
     /// Provides a list of items to be shown in the subtitle selection menu.
     /// </summary>
@@ -78,7 +97,7 @@ namespace MediaPortal.UiComponents.Media.Models
       get
       {
         _subtitleMenuItems.Clear();
-        ISubtitlePlayer subtitlePlayer = _player;
+        ISubtitlePlayer subtitlePlayer = _subtitlePlayer;
         if (subtitlePlayer != null && _subtitles.Length > 0)
         {
           string currentSubtitle = subtitlePlayer.CurrentSubtitle;
@@ -99,6 +118,36 @@ namespace MediaPortal.UiComponents.Media.Models
           }
         }
         return _subtitleMenuItems;
+      }
+    }
+
+    /// <summary>
+    /// Provides a list of items to be shown in the chapter selection menu.
+    /// </summary>
+    public ItemsList ChapterMenuItems
+    {
+      get
+      {
+        string currentChapter = _chapterPlayer.CurrentChapter;
+        _chapterMenuItems.Clear();
+        if (ChaptersAvailable)
+        {
+          foreach (string chapter in _chapterPlayer.Chapters)
+          {
+            // use local variable, otherwise delegate argument is not fixed
+            string localChapter = chapter;
+
+            ListItem item = new ListItem(Consts.KEY_NAME, localChapter)
+            {
+              Command = new MethodDelegateCommand(() => _chapterPlayer.SetChapter(localChapter)),
+              // check if it is the selected chapter, then mark it
+              Selected = (localChapter == currentChapter)
+            };
+
+            _chapterMenuItems.Add(item);
+          }
+        }
+        return _chapterMenuItems;
       }
     }
 
@@ -128,20 +177,40 @@ namespace MediaPortal.UiComponents.Media.Models
     public void Initialize(MediaWorkflowStateType stateType, IPlayer player)
     {
       _mediaWorkflowStateType = stateType;
-      _player = player as ISubtitlePlayer;
+      _subtitlePlayer = player as ISubtitlePlayer;
+      _chapterPlayer = player as IChapterPlayer;
       _subtitleMenuItems = new ItemsList();
+      _chapterMenuItems = new ItemsList();
     }
 
     // Update GUI properties
     protected override void Update()
     {
-      if (_player != null)
+      if (!_updating)
       {
-        _subtitles = _player.Subtitles;
-        SubtitlesAvailable = _subtitles.Length > 0;
+        try
+        {
+          if (_subtitlePlayer != null)
+          {
+            _subtitles = _subtitlePlayer.Subtitles;
+            SubtitlesAvailable = _subtitles.Length > 0;
+          }
+          else
+            _subtitles = EMPTY_STRING_ARRAY;
+
+          if (_chapterPlayer != null)
+          {
+            _chapters = _chapterPlayer.Chapters;
+            ChaptersAvailable = _chapterPlayer.ChaptersAvailable;
+          }
+          else
+            _chapters = EMPTY_STRING_ARRAY;
+        }
+        finally
+        {
+          _updating = false;
+        }
       }
-      else
-        _subtitles = EMPTY_STRING_ARRAY;
     }
 
     /// <summary>
@@ -150,6 +219,14 @@ namespace MediaPortal.UiComponents.Media.Models
     public void OpenChooseSubtitleDialog()
     {
       ServiceRegistration.Get<IScreenManager>().ShowDialog("DialogChooseSubtitle");
+    }
+
+    /// <summary>
+    /// Opens the chapter selection dialog.
+    /// </summary>
+    public void OpenChooseChapterDialog()
+    {
+      ServiceRegistration.Get<IScreenManager>().ShowDialog("DialogChooseChapter");
     }
 
     /// <summary>
@@ -171,5 +248,22 @@ namespace MediaPortal.UiComponents.Media.Models
       IPlayerContext pc = pcm.GetPlayerContext(PlayerManagerConsts.PRIMARY_SLOT);
       PlayerConfigurationDialogModel.OpenChooseGeometryDialog(pc);
     }
+
+    // <summary>
+    /// Skips to previous chapter.
+    /// </summary>
+    public void PrevChapter()
+    {
+      _chapterPlayer.PrevChapter();
+    }
+
+    /// <summary>
+    /// Skips to next chapter.
+    /// </summary>
+    public void NextChapter()
+    {
+      _chapterPlayer.NextChapter();
+    }
+
   }
 }
