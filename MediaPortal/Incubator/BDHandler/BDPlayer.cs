@@ -46,21 +46,13 @@ namespace MediaPortal.UI.Players.Video
     #region Consts and delegates
        
     public const double MINIMAL_FULL_FEATURE_LENGTH = 3000;
-    public const string RES_PLAYBACK_CHAPTER = "[Playback.Chapter]";
-
+    
     /// <summary>
     /// Delegate for starting a BDInfo thread.
     /// </summary>
     /// <param name="path">Path to scan</param>
     /// <returns>BDInfo</returns>
     delegate BDInfoExt ScanProcess(string path);
-
-    #endregion
-
-    #region Variables
-
-    private double[] _chapterTimestamps;
-    private string[] _chapterNames;
 
     #endregion
 
@@ -255,103 +247,26 @@ namespace MediaPortal.UI.Players.Video
         _chapterNames[c] = GetChapterName(c + 1);
     }
 
-    #region IDVDPlayer Member
+    #region ITitlePlayer Member
 
     private readonly string[] _emptyStringArray = new string[0];
 
-    public string[] DvdTitles
+    public string[] Titles
     {
       get { return _emptyStringArray; }
     }
 
-    public void SetDvdTitle(string title)
+    public void SetTitle(string title)
     { }
 
-    public string CurrentDvdTitle
+    public string CurrentTitle
     {
       get { return null; }
     }
 
-    /// <summary>
-    /// Returns a localized chapter name.
-    /// </summary>
-    /// <param name="chapterNumber">0 based chapter number.</param>
-    /// <returns>Localized chapter name.</returns>
-    private static String GetChapterName(int chapterNumber)
-    {
-      //Idea: we could scrape chapter names and store them in MediaAspects. When they are available, return the full names here.
-      return ServiceRegistration.Get<ILocalization>().ToString(RES_PLAYBACK_CHAPTER, chapterNumber);
-    }
+    #endregion
 
-    public string[] Chapters
-    {
-      get { return _chapterNames; }
-    }
-
-    public void SetChapter(string chapter)
-    {
-      string[] chapters = Chapters;
-      for (int i = 0; i < chapters.Length; i++)
-      {
-        if (chapter == chapters[i])
-        {
-          SetDvdChapter(i);
-          return;
-        }
-      }
-    }
-
-    private void SetDvdChapter(Int32 chapterIndex)
-    {
-      if (chapterIndex > _chapterTimestamps.Length || chapterIndex < 0)
-        return;
-      TimeSpan seekTo = TimeSpan.FromSeconds(_chapterTimestamps[chapterIndex]);
-      CurrentTime = seekTo;
-      return;
-    }
-
-    public bool ChaptersAvailable
-    {
-      get { return _chapterNames != null; }
-    }
-
-    private bool GetCurrentChapterIndex(out Int32 chapterIndex)
-    {
-      double currentTimestamp = CurrentTime.TotalSeconds;
-      for (int c = _chapterTimestamps.Length - 1; c >= 0; c--)
-      {
-        if (currentTimestamp > _chapterTimestamps[c])
-        {
-          chapterIndex = c;
-          return true;
-        }
-      }
-      chapterIndex = 0;
-      return false;
-    }
-
-    public void NextChapter()
-    {
-      Int32 currentChapter;
-      if (GetCurrentChapterIndex(out currentChapter))
-      {
-        SetDvdChapter(currentChapter + 1);
-      }
-    }
-
-    public void PrevChapter()
-    {
-      Int32 currentChapter;
-      if (GetCurrentChapterIndex(out currentChapter))
-      {
-        SetDvdChapter(currentChapter - 1);
-      }
-    }
-
-    public string CurrentChapter
-    {
-      get { return null; }
-    }
+    #region IDVDPlayer Member
 
     public bool IsHandlingUserInput
     {

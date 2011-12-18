@@ -29,25 +29,8 @@ namespace MediaPortal.UI.Presentation.Players
   /// <summary>
   /// Interface of a DVD player.
   /// </summary>
-  public interface IDVDPlayer : IPlayer, IChapterPlayer
+  public interface IDVDPlayer : IPlayer, ITitlePlayer, IChapterPlayer
   {
-    /// <summary>
-    /// Gets an ordered list of localized DVD titles.
-    /// </summary>
-    string[] DvdTitles { get; }
-
-    /// <summary>
-    /// Plays the given DVD title.
-    /// </summary>
-    /// <param name="title">The name of the title to set. Must be one of the title names from the
-    /// <see cref="DvdTitles"/> list.</param>
-    void SetDvdTitle(string title);
-
-    /// <summary>
-    /// Gets the current DVD title.
-    /// </summary>
-    string CurrentDvdTitle { get; }
-   
     /// <summary>
     /// Gets the information whether the DVD player currently handles key and mouse events. This is the case if we
     /// are currently in DVD menu.
