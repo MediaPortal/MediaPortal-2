@@ -38,6 +38,15 @@ namespace MediaPortal.Plugins.SlimTvClient
 {
   public class LiveTvPlayer : TsVideoPlayer, IUIContributorPlayer, IChapterPlayer//, IReusablePlayer
   {
+    #region Variables
+
+    protected IList<ITimeshiftContext> _timeshiftContexes;
+    protected StreamInfoHandler _chapterInfo = null;
+
+    #endregion
+
+    #region ctor
+
     /// <summary>
     /// Constructs a LiveTvPlayer player object.
     /// </summary>
@@ -45,6 +54,8 @@ namespace MediaPortal.Plugins.SlimTvClient
     {
       PlayerTitle = "LiveTvPlayer"; // for logging
     }
+
+    #endregion
 
     #region IUIContributorPlayer Member
 
@@ -54,68 +65,6 @@ namespace MediaPortal.Plugins.SlimTvClient
     }
 
     #endregion
-
-    #region IChapterPlayer Member
-
-    protected IList<ITimeshiftContext> _timeshiftContexes;
-    protected StreamInfoHandler _chapterInfo = null;
-
-    private void EnumerateChapters()
-    {
-      _chapterInfo = new StreamInfoHandler();
-
-      IPlayerContextManager playerContextManager = ServiceRegistration.Get<IPlayerContextManager>();
-      for (int index = 0; index < playerContextManager.NumActivePlayerContexts; index++)
-      {
-        IPlayerContext playerContext = playerContextManager.GetPlayerContext(index);
-        if (playerContext == null || playerContext.CurrentPlayer != this)
-          continue;
-
-        LiveTvMediaItem liveTvMediaItem = playerContext.CurrentMediaItem as LiveTvMediaItem;
-        if (liveTvMediaItem == null)
-          continue;
-
-        _timeshiftContexes = liveTvMediaItem.TimeshiftContexes;
-        int i = 0;
-        foreach (ITimeshiftContext timeshiftContext in _timeshiftContexes)
-        {
-          string program = timeshiftContext.Program != null ? timeshiftContext.Program.Title : 
-            ServiceRegistration.Get<ILocalization>().ToString("[SlimTvClient.NoProgram]");
-
-          _chapterInfo.AddUnique(new StreamInfo(null, i++,
-                                                string.Format("{0}: {1}", timeshiftContext.Channel.Name,
-                                                              program), 0));
-        }
-      }
-    }
-
-    public string[] Chapters
-    {
-      get {
-        lock (SyncObj)
-        {
-          //if (_chapterInfo == null)
-            EnumerateChapters();
-
-          return _chapterInfo.Count == 0 ? EMPTY_STRING_ARRAY : _chapterInfo.GetStreamNames();
-        }
-      }
-    }
-
-    public void SetChapter(string chapter)
-    {
-      lock (SyncObj)
-      {
-        if (_chapterInfo != null)
-        {
-          StreamInfo chapterInfo = _chapterInfo.FindStream(chapter);
-          if (chapterInfo != null)
-          {
-            CurrentTime = GetStartDuration(chapterInfo.StreamIndex);
-          }
-        }
-      }
-    }
 
     public ITimeshiftContext CurrentTimeshiftContext
     {
@@ -172,7 +121,67 @@ namespace MediaPortal.Plugins.SlimTvClient
       return totalTime;
     }
 
-    public bool ChaptersAvailable
+    private void EnumerateChapters()
+    {
+      _chapterInfo = new StreamInfoHandler();
+
+      IPlayerContextManager playerContextManager = ServiceRegistration.Get<IPlayerContextManager>();
+      for (int index = 0; index < playerContextManager.NumActivePlayerContexts; index++)
+      {
+        IPlayerContext playerContext = playerContextManager.GetPlayerContext(index);
+        if (playerContext == null || playerContext.CurrentPlayer != this)
+          continue;
+
+        LiveTvMediaItem liveTvMediaItem = playerContext.CurrentMediaItem as LiveTvMediaItem;
+        if (liveTvMediaItem == null)
+          continue;
+
+        _timeshiftContexes = liveTvMediaItem.TimeshiftContexes;
+        int i = 0;
+        foreach (ITimeshiftContext timeshiftContext in _timeshiftContexes)
+        {
+          string program = timeshiftContext.Program != null ? timeshiftContext.Program.Title :
+            ServiceRegistration.Get<ILocalization>().ToString("[SlimTvClient.NoProgram]");
+
+          _chapterInfo.AddUnique(new StreamInfo(null, i++,
+                                                string.Format("{0}: {1}", timeshiftContext.Channel.Name,
+                                                              program), 0));
+        }
+      }
+    }
+
+    #region IChapterPlayer overrides
+
+    public override string[] Chapters
+    {
+      get
+      {
+        lock (SyncObj)
+        {
+          //if (_chapterInfo == null)
+          EnumerateChapters();
+
+          return _chapterInfo.Count == 0 ? EMPTY_STRING_ARRAY : _chapterInfo.GetStreamNames();
+        }
+      }
+    }
+
+    public override void SetChapter(string chapter)
+    {
+      lock (SyncObj)
+      {
+        if (_chapterInfo != null)
+        {
+          StreamInfo chapterInfo = _chapterInfo.FindStream(chapter);
+          if (chapterInfo != null)
+          {
+            CurrentTime = GetStartDuration(chapterInfo.StreamIndex);
+          }
+        }
+      }
+    }
+
+    public override bool ChaptersAvailable
     {
       get
       {
@@ -186,7 +195,7 @@ namespace MediaPortal.Plugins.SlimTvClient
       }
     }
 
-    public void NextChapter()
+    public override void NextChapter()
     {
       int index;
       if (GetContextIndex(CurrentTime, out index))
@@ -194,7 +203,7 @@ namespace MediaPortal.Plugins.SlimTvClient
           CurrentTime = GetContextStart(index + 1);
     }
 
-    public void PrevChapter()
+    public override void PrevChapter()
     {
       int index;
       if (GetContextIndex(CurrentTime, out index))
@@ -202,7 +211,7 @@ namespace MediaPortal.Plugins.SlimTvClient
           CurrentTime = GetContextStart(index - 1);
     }
 
-    public string CurrentChapter
+    public override string CurrentChapter
     {
       get
       {

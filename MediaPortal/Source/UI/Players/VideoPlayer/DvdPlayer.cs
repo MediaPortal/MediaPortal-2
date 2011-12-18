@@ -59,8 +59,6 @@ namespace MediaPortal.UI.Players.Video
     protected const int WM_LBUTTONUP = 0x0202;
 
     public const string RES_PLAYBACK_TITLE = "[Playback.Title]";
-    public const string RES_PLAYBACK_CHAPTER = "[Playback.Chapter]";
-
     #endregion
 
     #region Variables
@@ -79,11 +77,6 @@ namespace MediaPortal.UI.Players.Video
 
     /// <summary> asynchronous command pending. </summary>
     protected bool _pendingCmd;
-
-    /// <summary>
-    /// List of chapters. Will be initialized lazily. <c>null</c> if not currently valid.
-    /// </summary>
-    protected string[] _chapters = null;
 
     protected DvdHMSFTimeCode _currTime; // copy of current playback states, see OnDvdEvent()
     protected string[] _titles;
@@ -641,7 +634,7 @@ namespace MediaPortal.UI.Players.Video
       {
         _streamInfoSubtitles = null; // Invalidate subtitles - could be different in other title
         _streamInfoAudio = null; // Invalidate audio streams - could be different in other title
-        _chapters = null; // Invalidate chapters - they are different per title
+        _chapterNames = null; // Invalidate chapters - they are different per title
         _currTitle = title;
       }
       EnumerateChapters();
@@ -894,12 +887,12 @@ namespace MediaPortal.UI.Players.Video
 
     #endregion
 
-    #region DVD Titles handling
+    #region DVD Titles handling (ITitlesPlayer members)
 
     /// <summary>
     /// Gets the available DVD titles.
     /// </summary>
-    public string[] DvdTitles
+    public string[] Titles
     {
       get
       {
@@ -921,9 +914,9 @@ namespace MediaPortal.UI.Players.Video
     /// Sets the DVD title to play.
     /// </summary>
     /// <param name="title">DVD title</param>
-    public void SetDvdTitle(string title)
+    public void SetTitle(string title)
     {
-      string[] titles = DvdTitles;
+      string[] titles = Titles;
       for (int i = 0; i < titles.Length; ++i)
       {
         if (title == titles[i])
@@ -937,7 +930,7 @@ namespace MediaPortal.UI.Players.Video
     /// <summary>
     /// Gets the current DVD title.
     /// </summary>
-    public string CurrentDvdTitle
+    public string CurrentTitle
     {
       get
       {
@@ -969,37 +962,14 @@ namespace MediaPortal.UI.Players.Video
           chapters.Add(GetChapterName(i));
       }
       lock (SyncObj)
-        _chapters = chapters.ToArray();
-    }
-
-    /// <summary>
-    /// Returns a localized chapter name.
-    /// </summary>
-    /// <param name="chapterNumber">0 based chapter number.</param>
-    /// <returns>Localized chapter name.</returns>
-    private static String GetChapterName(int chapterNumber)
-    {
-      //Idea: we could scrape chapter names and store them in MediaAspects. When they are available, return the full names here.
-      return ServiceRegistration.Get<ILocalization>().ToString(RES_PLAYBACK_CHAPTER, chapterNumber);
-    }
-
-    /// <summary>
-    /// Gets a list of available chapters.
-    /// </summary>
-    public string[] Chapters
-    {
-      get
-      {
-        lock (SyncObj)
-          return _chapters ?? EMPTY_STRING_ARRAY;
-      }
+        _chapterNames = chapters.ToArray();
     }
 
     /// <summary>
     /// Sets the chapter to play.
     /// </summary>
     /// <param name="chapter">Chapter name</param>
-    public void SetChapter(string chapter)
+    public override void SetChapter(string chapter)
     {
       string[] chapters = Chapters;
       for (int i = 0; i < chapters.Length; i++)
@@ -1015,7 +985,7 @@ namespace MediaPortal.UI.Players.Video
     /// <summary>
     /// Gets the current chapter.
     /// </summary>
-    public string CurrentChapter
+    public override string CurrentChapter
     {
       get
       {
@@ -1026,20 +996,9 @@ namespace MediaPortal.UI.Players.Video
     }
 
     /// <summary>
-    /// Indicate if chapters are available.
-    /// </summary>
-    public bool ChaptersAvailable
-    {
-      get
-      {
-        return Chapters.Length != 0;
-      }
-    }
-
-    /// <summary>
     /// Skip to next chapter.
     /// </summary>
-    public void NextChapter()
+    public override void NextChapter()
     {
       IDvdCmd cmd;
       _dvdCtrl.PlayNextChapter(DvdCmdFlags.None, out cmd);
@@ -1048,7 +1007,7 @@ namespace MediaPortal.UI.Players.Video
     /// <summary>
     /// Skip to previous chapter.
     /// </summary>
-    public void PrevChapter()
+    public override void PrevChapter()
     {
       IDvdCmd cmd;
       _dvdCtrl.PlayPrevChapter(DvdCmdFlags.None, out cmd);

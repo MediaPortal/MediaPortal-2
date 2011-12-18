@@ -30,6 +30,7 @@ using System.Security;
 using System.Windows.Forms;
 using DirectShowLib;
 using MediaPortal.Common;
+using MediaPortal.Common.Localization;
 using MediaPortal.Common.Logging;
 using MediaPortal.Common.ResourceAccess;
 using MediaPortal.Common.Messaging;
@@ -48,7 +49,7 @@ using System.Globalization;
 
 namespace MediaPortal.UI.Players.Video
 {
-  public class VideoPlayer : ISlimDXVideoPlayer, IDisposable, IPlayerEvents, IInitializablePlayer, IMediaPlaybackControl, ISubtitlePlayer
+  public class VideoPlayer : ISlimDXVideoPlayer, IDisposable, IPlayerEvents, IInitializablePlayer, IMediaPlaybackControl, ISubtitlePlayer, IChapterPlayer
   {
     #region Classes & interfaces
 
@@ -92,6 +93,7 @@ namespace MediaPortal.UI.Players.Video
     protected const string NO_SUBTITLES = "No subtitles";
 
     protected const double PLAYBACK_RATE_PLAY_THRESHOLD = 0.05;
+    public const string RES_PLAYBACK_CHAPTER = "[Playback.Chapter]";
 
     #region Protected Properties
 
@@ -149,6 +151,16 @@ namespace MediaPortal.UI.Players.Video
     protected StreamInfoHandler _streamInfoAudio = null;
     protected StreamInfoHandler _streamInfoSubtitles = null;
     private readonly object _syncObj = new object();
+
+    /// <summary>
+    /// List of chapters timestapms. Will be initialized lazily. <c>null</c> if not currently valid.
+    /// </summary>
+    protected double[] _chapterTimestamps = null;
+    
+    /// <summary>
+    /// List of chapters. Will be initialized lazily. <c>null</c> if not currently valid.
+    /// </summary>
+    protected string[] _chapterNames = null;
 
     protected bool _useTexture = true;
     protected bool _textureInvalid = true;
@@ -386,6 +398,7 @@ namespace MediaPortal.UI.Players.Video
     /// </summary>
     protected virtual void OnGraphRunning()
     {
+      EnumerateStreams();
       SetPreferredSubtitle();
       SetPreferredAudio();
     }
@@ -1012,7 +1025,7 @@ namespace MediaPortal.UI.Players.Video
         foreach (
           IAMStreamSelect streamSelector in FilterGraphTools.FindFiltersByInterface<IAMStreamSelect>(_graphBuilder))
         {
-          FilterInfo fi = FilterGraphTools.QueryFilterInfoAndFree(((IBaseFilter) streamSelector));
+          FilterInfo fi = FilterGraphTools.QueryFilterInfoAndFree(((IBaseFilter)streamSelector));
           int streamCount;
           streamSelector.Count(out streamCount);
 
@@ -1047,7 +1060,7 @@ namespace MediaPortal.UI.Players.Video
                   // if audio information is available via WaveEx format, query the channel count
                   if (mediaType.formatType == FormatType.WaveEx && mediaType.formatPtr != IntPtr.Zero)
                   {
-                    WaveFormatEx waveFormatEx = (WaveFormatEx) Marshal.PtrToStructure(mediaType.formatPtr, typeof(WaveFormatEx));
+                    WaveFormatEx waveFormatEx = (WaveFormatEx)Marshal.PtrToStructure(mediaType.formatPtr, typeof(WaveFormatEx));
                     streamAppendix = String.Format("{0} {1}ch", streamAppendix, waveFormatEx.nChannels);
                   }
                   currentStream.Name = String.Format("{0} ({1})", streamName, streamAppendix);
@@ -1065,6 +1078,30 @@ namespace MediaPortal.UI.Players.Video
             FilterGraphTools.FreeAMMediaType(mediaType);
           }
         }
+
+        //Try to find a filter implementing IAMExtendSeeking for chapter support
+        try
+        {
+          IAMExtendedSeeking extendSeeking = FilterGraphTools.FindFilterByInterface<IAMExtendedSeeking>(_graphBuilder);
+          if (extendSeeking != null)
+          {
+            int markerCount;
+            if (extendSeeking.get_MarkerCount(out markerCount) == 0 && markerCount > 0)
+            {
+              _chapterTimestamps = new double[markerCount];
+              _chapterNames = new string[markerCount];
+              for (int i = 1; i <= markerCount; i++)
+              {
+                double markerTime;
+                extendSeeking.GetMarkerTime(i, out markerTime);
+                _chapterTimestamps[i - 1] = markerTime;
+                _chapterNames[i - 1] = GetChapterName(i);
+              }
+            }
+          }
+        }
+        catch { }
+
         return true;
       }
       return false;
@@ -1185,7 +1222,6 @@ namespace MediaPortal.UI.Players.Video
 
     protected virtual void SetPreferredSubtitle()
     {
-      EnumerateStreams();
       if (_streamInfoSubtitles == null)
         return;
 
@@ -1269,6 +1305,130 @@ namespace MediaPortal.UI.Players.Video
 
     #endregion
 
+    #region IChapterPlayer implementation
+
+    /// <summary>
+    /// Gets a list of available chapters.
+    /// </summary>
+    public virtual string[] Chapters
+    {
+      get 
+      {
+        lock (SyncObj)
+          return _chapterNames ?? EMPTY_STRING_ARRAY; 
+      }
+    }
+
+    /// <summary>
+    /// Sets the chapter to play.
+    /// </summary>
+    /// <param name="chapter">Chapter name</param>
+    public virtual void SetChapter(string chapter)
+    {
+      string[] chapters = Chapters;
+      for (int i = 0; i < chapters.Length; i++)
+      {
+        if (chapter == chapters[i])
+        {
+          SetChapterByIndex(i);
+          return;
+        }
+      }
+    }
+
+    /// <summary>
+    /// Indicate if chapters are available.
+    /// </summary>
+    public virtual bool ChaptersAvailable
+    {
+      get { return _chapterNames != null; }
+    }
+
+    /// <summary>
+    /// Skip to next chapter.
+    /// </summary>
+    public virtual void NextChapter()
+    {
+      Int32 currentChapter;
+      if (GetCurrentChapter(out currentChapter))
+      {
+        SetChapterByIndex(currentChapter + 1);
+      }
+    }
+
+    /// <summary>
+    /// Skip to previous chapter.
+    /// </summary>
+    public virtual void PrevChapter()
+    {
+      Int32 currentChapter;
+      if (GetCurrentChapter(out currentChapter))
+      {
+        SetChapterByIndex(currentChapter - 1);
+      }
+    }
+
+    /// <summary>
+    /// Gets the current chapter.
+    /// </summary>
+    public virtual string CurrentChapter
+    {
+      get
+      {
+        Int32 currentChapter;
+        if (GetCurrentChapter(out currentChapter))
+        {
+          string currentChapterName = _chapterNames[currentChapter] ?? null;
+          return currentChapterName;
+        }
+        else return null;
+      }
+    }
+
+    /// <summary>
+    /// Gets the current chapter.
+    /// </summary>
+    protected bool GetCurrentChapter(out Int32 chapterIndex)
+    {
+      double currentTimestamp = CurrentTime.TotalSeconds;
+      for (int c = _chapterTimestamps.Length - 1; c >= 0; c--)
+      {
+        if (currentTimestamp > _chapterTimestamps[c])
+        {
+          chapterIndex = c;
+          return true;
+        }
+      }
+      chapterIndex = 0;
+      return false;
+    }
+
+    /// <summary>
+    /// Seek to the begining of the chapter to play
+    /// </summary>
+    /// <param name="chapterIndex">0 based chapter number.</param>
+    protected void SetChapterByIndex(Int32 chapterIndex)
+    {
+      if (chapterIndex > _chapterTimestamps.Length || chapterIndex < 0)
+        return;
+      TimeSpan seekTo = TimeSpan.FromSeconds(_chapterTimestamps[chapterIndex]);
+      CurrentTime = seekTo;
+      return;
+    }
+
+    /// <summary>
+    /// Returns a localized chapter name.
+    /// </summary>
+    /// <param name="chapterNumber">0 based chapter number.</param>
+    /// <returns>Localized chapter name.</returns>
+    protected static string GetChapterName(int chapterNumber)
+    {
+      //Idea: we could scrape chapter names and store them in MediaAspects. When they are available, return the full names here.
+      return ServiceRegistration.Get<ILocalization>().ToString(RES_PLAYBACK_CHAPTER, chapterNumber);
+    }
+
+    #endregion
+
     #region Base overrides
 
     public override string ToString()
@@ -1277,5 +1437,7 @@ namespace MediaPortal.UI.Players.Video
     }
 
     #endregion
+
+
   }
 }
