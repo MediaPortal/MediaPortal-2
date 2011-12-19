@@ -159,18 +159,20 @@ namespace MediaPortal.UI.Players.Video
             _device.StretchRectangle(surf, _surface, TextureFilter.None);
           }
         }
+
       VideoSizePresentDlgt vsp = VideoSizePresent;
       if (vsp != null)
       {
         vsp(this);
         VideoSizePresent = null;
       }
-      if (_renderDlgt != null)
-        _renderDlgt();
 
       // Inform caller that we have changed the texture
       if (_onTextureInvalidated != null)
         _onTextureInvalidated();
+
+      if (_renderDlgt != null)
+        _renderDlgt();
 
       return 0;
     }
