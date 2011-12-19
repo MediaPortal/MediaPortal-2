@@ -30,7 +30,6 @@
     </LinkerAdditionalOptions>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Include="Client\ClientPlugins.wxs" />
     <Compile Include="Client\ClientFeatures.wxs" />
     <Compile Include="Dokan\Dokan.wxs" />
     <Compile Include="Fragments\AddRemoveProperties.wxs" />
@@ -44,11 +43,13 @@
     <Compile Include="UI\MP2_Setup_UI_SelectInstallType.wxs" />
     <Compile Include="VCRedist\VCRedist.wxs" />
     <Content Include="Includes.wxi" />
-    <Compile Include="Server\ServerPlugins.wxs" />
     <Compile Include="Server\Server.wxs" />
     <Content Include="VCRedist\Microsoft_VC100_ATL_x86.msm" />
     <Content Include="VCRedist\Microsoft_VC100_CRT_x86.msm" />
     <Content Include="VCRedist\Microsoft_VC100_MFC_x86.msm" />
+    <Content Include="xslt\ClientFeatures.xslt" />
+    <Content Include="xslt\ServerFeatures.xslt" />
+    <Content Include="xslt\PluginComponents2Features.xslt" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Client\Client.wxs" />
@@ -58,6 +59,7 @@
     <Folder Include="Dokan" />
     <Folder Include="Fragments" />
     <Folder Include="Language" />
+    <Folder Include="xslt" />
     <Folder Include="VCRedist" />
     <Folder Include="UI" />
     <Folder Include="Server" />
@@ -92,8 +94,8 @@
     <PostBuildEvent />
   </PropertyGroup>
   <PropertyGroup>
-    <PreBuildEvent>"$(WIX)bin\heat.exe" dir "$(ProjectDir)..\..\Bin\MP2-Client\bin\x86\Release\Plugins" -cg ClientPlugins -gg -scom -sreg -sfrag -svb6 -srd -dr CLIENT.PLUGINS.FOLDER -var var.SourceClientPlugins -template fragment -out "$(ProjectDir)Client\ClientPlugins.wxs"
-"$(WIX)bin\heat.exe" dir "$(ProjectDir)..\..\Bin\MP2-Server\bin\x86\Release\Plugins" -cg ServerPlugins -gg -scom -sreg -sfrag -svb6 -srd -dr SERVER.PLUGINS.FOLDER -var var.SourceServerPlugins -template fragment -out "$(ProjectDir)Server\ServerPlugins.wxs"</PreBuildEvent>
+    <PreBuildEvent>"$(WIX)bin\heat.exe" dir "$(ProjectDir)..\..\Bin\MP2-Client\bin\x86\Release\Plugins" -cg ClientPlugins -gg -scom -sreg -sfrag -svb6 -srd -dr CLIENT.PLUGINS.FOLDER -var var.SourceClientPlugins -template fragment -t $(ProjectDir)xslt\ClientFeatures.xslt -out "$(ProjectDir)Client\ClientFeatures.wxs"
+"$(WIX)bin\heat.exe" dir "$(ProjectDir)..\..\Bin\MP2-Server\bin\x86\Release\Plugins" -cg ServerPlugins -gg -scom -sreg -sfrag -svb6 -srd -dr SERVER.PLUGINS.FOLDER -var var.SourceServerPlugins -template fragment -t $(ProjectDir)xslt\ServerFeatures.xslt -out "$(ProjectDir)Server\ServerFeatures.wxs"</PreBuildEvent>
   </PropertyGroup>
   <!--
 	To modify your build process, add your task inside one of the targets below and uncomment it.

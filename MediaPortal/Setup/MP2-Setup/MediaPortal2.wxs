@@ -48,6 +48,9 @@
 
       <Directory Id="ProgramFilesFolder">
         <Directory Id="TeamMediaPortalFolder" Name="Team MediaPortal">
+          <!-- An empty Component needed to avoid a bug in Windows Installer -->
+          <Component Id="EmptyComponent_WindowsInstallerBugWorkaround" KeyPath="yes" Guid="4D1E4904-0FB1-44B3-82E1-CFE5F01E6AC3"/>
+
           <Directory Id="INSTALLDIR_CLIENT" Name="MP2-Client">
             <Directory Id="CLIENT.PLUGINS.FOLDER" Name="Plugins"/>
           </Directory>

@@ -1,2 +1,2 @@
-ClientPlugins.wxs
-ServerPlugins.wxs
+ClientFeatures.wxs
+ServerFeatures.wxs
