@@ -23,13 +23,14 @@
 #endregion
 
 using MediaPortal.Common.General;
+using MediaPortal.UI.Presentation.DataObjects;
 
 namespace MediaPortal.UiComponents.Weather
 {
   /// <summary>
   /// Day forecast
   /// </summary>
-  public class DayForecast
+  public class DayForecast : ListItem
   {
     protected readonly AbstractProperty _smallIcon = new WProperty(typeof(string), string.Empty);
     protected readonly AbstractProperty _bigIcon= new WProperty(typeof(string), string.Empty); 
@@ -43,8 +44,7 @@ namespace MediaPortal.UiComponents.Weather
     protected readonly AbstractProperty _humidity = new WProperty(typeof(string), string.Empty);
     protected readonly AbstractProperty _wind = new WProperty(typeof(string), string.Empty); 
 
-    // Getters
-
+    // Public properties
     public string SmallIcon
     {
       get { return (string)_smallIcon.GetValue(); }

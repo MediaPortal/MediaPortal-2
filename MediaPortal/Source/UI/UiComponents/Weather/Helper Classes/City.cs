@@ -23,20 +23,18 @@
 #endregion
 
 using MediaPortal.Common.General;
-using System.Collections.Generic;
+using MediaPortal.UI.Presentation.DataObjects;
 
 namespace MediaPortal.UiComponents.Weather
 {
   /// <summary>
   /// Holds information for a city.
   /// </summary>
-  // TODO: Make the plugin cope with different numbers of forecasts, depending on the catcher.
-  // It's not good that this class always asumes 5 forecasts in the forecast collection.
   public class City : CitySetupInfo
   {
     protected readonly AbstractProperty _locationInfo = new WProperty(typeof(LocInfo), new LocInfo());
     protected readonly AbstractProperty _currCondition = new WProperty(typeof(CurrentCondition), new CurrentCondition());
-    protected readonly IList<DayForecast> _dayForecastCollection = new List<DayForecast>(5);
+    protected readonly ItemsList _dayForecastCollection = new ItemsList();
     protected bool _updateSuccessful;
 
     /// <summary>
@@ -45,7 +43,6 @@ namespace MediaPortal.UiComponents.Weather
     public City()
     {
       _updateSuccessful = false;
-      Init();
     }
 
     public City(CitySetupInfo info)
@@ -54,7 +51,6 @@ namespace MediaPortal.UiComponents.Weather
       Id = info.Id;
       Grabber = info.Grabber;
       _updateSuccessful = false;
-      Init();
     }
 
     public City(string name, string id)
@@ -62,13 +58,6 @@ namespace MediaPortal.UiComponents.Weather
       Name = name;
       Id = id;
       _updateSuccessful = false;
-      Init();
-    }
-
-    private void Init()
-    {
-      for (int i = 0; i < 5; i++)
-        ForecastCollection.Add(new DayForecast());
     }
 
     public void Copy(City src)
@@ -91,23 +80,14 @@ namespace MediaPortal.UiComponents.Weather
       condition.UVIndex = sourceCondition.UVIndex;
       condition.DewPoint = sourceCondition.DewPoint;
       condition.Condition = sourceCondition.Condition;
-      IList<DayForecast> forecastCollection = ForecastCollection;
-      for (int i = 0; i < forecastCollection.Count; i++)
-      {
-        DayForecast forecast = forecastCollection[i];
-        DayForecast sourceForecast = src.ForecastCollection[i];
-        forecast.Day = sourceForecast.Day;
-        forecast.BigIcon = sourceForecast.BigIcon;
-        forecast.SmallIcon = sourceForecast.SmallIcon;
-        forecast.Low = sourceForecast.Low;
-        forecast.High = sourceForecast.High;
-        forecast.Humidity = sourceForecast.Humidity;
-        forecast.Overview = sourceForecast.Overview;
-        forecast.Precipitation = sourceForecast.Precipitation;
-        forecast.SunRise = sourceForecast.SunRise;
-        forecast.SunSet = sourceForecast.SunSet;
-        forecast.Wind = sourceForecast.Wind;
-      }
+
+      ForecastCollection.Clear();
+
+      // Simply copy the DayForecasts to the target
+      foreach (DayForecast srcDayForecast in src.ForecastCollection)
+        ForecastCollection.Add(srcDayForecast);
+
+      ForecastCollection.FireChange();
     }
 
     #region Properties
@@ -139,7 +119,7 @@ namespace MediaPortal.UiComponents.Weather
       get { return _currCondition; }
     }
 
-    public IList<DayForecast> ForecastCollection
+    public ItemsList ForecastCollection
     {
       get { return _dayForecastCollection; }
     }
