@@ -33,7 +33,7 @@
   <String Id="F_Server_Plugins_Desc">Plugins pour le serveur.</String>
 
   <String Id="F_Dokan">Pilote de système de fichier Dokan</String>
-  <String Id="F_Dokan_Desc">Utilisé pour la virtualisation du système de fichier. Necessaire pour le archives et l'accès aux ressources distantes.</String>
+  <String Id="F_Dokan_Desc">Utilisé pour la virtualisation du système de fichier. Necessaire pour l'accès aux archives et aux ressources distantes.</String>
 
   <!-- Launch Conditions -->
   <String Id="LC_OS">[ProductName] nécessite au minimum Windows 7 / 2008 R2 comme système d'exploitation.</String>
