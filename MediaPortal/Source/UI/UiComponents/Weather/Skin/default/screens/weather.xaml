@@ -71,71 +71,12 @@
             <Label Grid.Column="2" Grid.Row="5" FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource TextColor}" Content="{Binding CurrentLocation.Condition.UVIndex}"/>
           </Grid>
         </Grid>
-        <Grid x:Name="ForecastPanel" Margin="30,20,30,20"
-            HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
-          <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="*"/>
-            <ColumnDefinition Width="*"/>
-            <ColumnDefinition Width="*"/>
-            <ColumnDefinition Width="*"/>
-            <ColumnDefinition Width="*"/>
-          </Grid.ColumnDefinitions>
-          <StackPanel Grid.Column="0" Grid.Row="0" HorizontalAlignment="Left" VerticalAlignment="Top">
-            <Label FontSize="{ThemeResource SmallFontSize}" x:Name="Day1" Color="{ThemeResource TextColor}"
-                Content="{Binding CurrentLocation.ForecastCollection[0].Day}"/>
-            <Image Width="64" Height="64" Source="{Binding CurrentLocation.ForecastCollection[0].SmallIconProperty}"/>
-            <Label FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource TextColor}"
-                Content="{Binding CurrentLocation.ForecastCollection[0].High}"
-                HorizontalAlignment="Center"/>
-            <Label FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource TextColor}"
-                Content="{Binding CurrentLocation.ForecastCollection[0].Low}"
-                HorizontalAlignment="Center"/>
-          </StackPanel>
-          <StackPanel Grid.Column="1" Grid.Row="0" HorizontalAlignment="Left" VerticalAlignment="Top">
-            <Label FontSize="{ThemeResource SmallFontSize}" x:Name="Day2" Color="{ThemeResource TextColor}"
-                Content="{Binding CurrentLocation.ForecastCollection[1].Day}"/>
-            <Image Width="64" Height="64" Source="{Binding CurrentLocation.ForecastCollection[1].SmallIconProperty}"/>
-            <Label FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource TextColor}"
-                Content="{Binding CurrentLocation.ForecastCollection[1].High}"
-                HorizontalAlignment="Center"/>
-            <Label FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource TextColor}"
-                Content="{Binding CurrentLocation.ForecastCollection[1].Low}"
-                HorizontalAlignment="Center"/>
-          </StackPanel>
-          <StackPanel Grid.Column="2" Grid.Row="0" HorizontalAlignment="Left" VerticalAlignment="Top">
-            <Label FontSize="{ThemeResource SmallFontSize}" x:Name="Day3" Color="{ThemeResource TextColor}"
-                Content="{Binding CurrentLocation.ForecastCollection[2].Day}"/>
-            <Image Width="64" Height="64" Source="{Binding CurrentLocation.ForecastCollection[2].SmallIconProperty}"/>
-            <Label FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource TextColor}"
-                Content="{Binding CurrentLocation.ForecastCollection[2].High}"
-                HorizontalAlignment="Center"/>
-            <Label FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource TextColor}"
-                Content="{Binding CurrentLocation.ForecastCollection[2].Low}"
-                HorizontalAlignment="Center"/>
-          </StackPanel>
-          <StackPanel Grid.Column="3" Grid.Row="0" HorizontalAlignment="Left" VerticalAlignment="Top">
-            <Label FontSize="{ThemeResource SmallFontSize}" x:Name="Day4" Color="{ThemeResource TextColor}"
-                Content="{Binding CurrentLocation.ForecastCollection[3].Day}"/>
-            <Image Width="64" Height="64" Source="{Binding CurrentLocation.ForecastCollection[3].SmallIconProperty}"/>
-            <Label FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource TextColor}"
-                Content="{Binding CurrentLocation.ForecastCollection[3].High}"
-                HorizontalAlignment="Center"/>
-            <Label FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource TextColor}"
-                Content="{Binding CurrentLocation.ForecastCollection[3].Low}"
-                HorizontalAlignment="Center"/>
-          </StackPanel>
-          <StackPanel Grid.Column="4" Grid.Row="0" HorizontalAlignment="Left" VerticalAlignment="Top">
-            <Label FontSize="{ThemeResource SmallFontSize}" x:Name="Day5" Color="{ThemeResource TextColor}"
-                Content="{Binding CurrentLocation.ForecastCollection[4].Day}"/>
-            <Image Width="64" Height="64" Source="{Binding CurrentLocation.ForecastCollection[4].SmallIconProperty}"/>
-            <Label FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource TextColor}"
-                Content="{Binding CurrentLocation.ForecastCollection[4].High}"
-                HorizontalAlignment="Center"/>
-            <Label FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource TextColor}"
-                Content="{Binding CurrentLocation.ForecastCollection[4].Low}"
-                HorizontalAlignment="Center"/>
-          </StackPanel>
-        </Grid>
+
+        <!-- Forecasts (dynamic count) -->
+        <ListView Margin="30,20,30,20" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+              Style="{ThemeResource ForecastContainerStyle}"
+              ItemsSource="{Binding Path=CurrentLocation.ForecastCollection}" />
+
         <StackPanel HorizontalAlignment="Left">
           <Label FontSize="{ThemeResource SmallerFontSize}" Content="{Binding LastUpdateTime}" Color="{ThemeResource HintTextColor}" IsVisible="{Binding !IsUpdating}"/>
           <Label FontSize="{ThemeResource SmallerFontSize}" x:Name="RefreshingHintLabel" Content="[Weather.Updating]" IsVisible="{Binding IsUpdating}"

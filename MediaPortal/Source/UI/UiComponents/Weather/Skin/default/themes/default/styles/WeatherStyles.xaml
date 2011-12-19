@@ -17,12 +17,34 @@
 
   <DataStringProvider x:Key="WeatherLocationItemDataStringProvider" Path="[Name]"/>
 
-  <!-- ListView style to be used for the shares list -->
+  <!-- ListView style to be used for the weather setup location list -->
   <Style x:Key="WeatherDisplayLocationsListViewStyle" BasedOn="{ThemeResource DefaultListViewStyle}">
     <Setter Property="ItemTemplate" Value="{ThemeResource WeatherLocationItemDataTemplate}"/>
     <Setter Property="DataStringProvider" Value="{ThemeResource WeatherLocationItemDataStringProvider}"/>
     <Setter Property="ItemContainerStyle" Value="{ThemeResource DefaultHighlightableItemContainerStyle}"/>
     <Setter Property="Background" Value="{ThemeResource ItemsControlDialogShadowBackgroundColor}"/>
+  </Style>
+
+  <!-- Styles for a single day forecast -->
+  <DataTemplate x:Key="ForecastItemDataTemplate" DataType="{x:Type collections:ListItem}">
+    <StackPanel HorizontalAlignment="Left" VerticalAlignment="Top" Margin="10,0,50,0">
+      <Label FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource TextColor}" Content="{Binding Day}"/>
+      <Image Width="64" Height="64" Source="{Binding SmallIconProperty}"/>
+      <Label FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource TextColor}" Content="{Binding High}" HorizontalAlignment="Center"/>
+      <Label FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource TextColor}" Content="{Binding Low}" HorizontalAlignment="Center"/>
+    </StackPanel>
+  </DataTemplate>
+
+  <!-- ListView style for all forecasts of the current location -->
+  <Style x:Key="ForecastContainerStyle" BasedOn="{ThemeResource DefaultListViewStyle}">
+    <Setter Property="ItemTemplate" Value="{ThemeResource ForecastItemDataTemplate}"/>
+    <Setter Property="ItemsPanel">
+      <Setter.Value>
+        <ItemsPanelTemplate>
+          <StackPanel x:Name="ListItemsHost" IsItemsHost="True" Orientation="Horizontal" HorizontalAlignment="Stretch"/>
+        </ItemsPanelTemplate>
+      </Setter.Value>
+    </Setter>
   </Style>
 
 </ResourceDictionary>
