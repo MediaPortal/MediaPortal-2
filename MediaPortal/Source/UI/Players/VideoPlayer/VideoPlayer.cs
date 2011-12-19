@@ -94,10 +94,6 @@ namespace MediaPortal.UI.Players.Video
 
     #region Protected Properties
 
-    /// <summary>
-    /// MediaSubTypes lookup list.
-    /// </summary>
-    protected Dictionary<Guid, String> MediaSubTypes = new Dictionary<Guid, string>();
     protected String PlayerTitle = "VideoPlayer";
 
     #endregion
@@ -171,9 +167,6 @@ namespace MediaPortal.UI.Players.Video
 
       SubscribeToMessages();
       PlayerTitle = "VideoPlayer";
-
-      // Init the MediaSubTypes dictionary
-      InitMediaSubTypes();
     }
 
     public void Dispose()
@@ -188,42 +181,6 @@ namespace MediaPortal.UI.Players.Video
       get { return _syncObj; }
     }
 
-    void InitMediaSubTypes()
-    {
-      MediaSubTypes[CodecHandler.WMMEDIASUBTYPE_ACELPnet] = "ACELPnet"; //WMMEDIASUBTYPE_ACELPnet	
-      MediaSubTypes[CodecHandler.WMMEDIASUBTYPE_Base] = "Base"; //WMMEDIASUBTYPE_Base
-      MediaSubTypes[CodecHandler.WMMEDIASUBTYPE_DRM] = "DRM"; //WMMEDIASUBTYPE_DRM
-      MediaSubTypes[CodecHandler.WMMEDIASUBTYPE_MP3] = "MP3"; //WMMEDIASUBTYPE_MP3
-      MediaSubTypes[CodecHandler.WMMEDIASUBTYPE_MP43] = "MP43"; //WMMEDIASUBTYPE_MP43
-      MediaSubTypes[CodecHandler.WMMEDIASUBTYPE_MP4S] = "MP4S"; //WMMEDIASUBTYPE_MP4S
-      MediaSubTypes[CodecHandler.WMMEDIASUBTYPE_M4S2] = "M4S2"; //WMMEDIASUBTYPE_M4S2
-      MediaSubTypes[CodecHandler.WMMEDIASUBTYPE_P422] = "P422"; //WMMEDIASUBTYPE_P422
-      MediaSubTypes[CodecHandler.WMMEDIASUBTYPE_MPEG2_VIDEO] = "MPEG2"; //WMMEDIASUBTYPE_MPEG2_VIDEO
-      MediaSubTypes[CodecHandler.WMMEDIASUBTYPE_MSS1] = "MSS1"; //WMMEDIASUBTYPE_MSS1
-      MediaSubTypes[CodecHandler.WMMEDIASUBTYPE_MSS2] = "MSS2"; //WMMEDIASUBTYPE_MSS2
-      MediaSubTypes[CodecHandler.WMMEDIASUBTYPE_PCM] = "PCM"; //WMMEDIASUBTYPE_PCM
-      MediaSubTypes[CodecHandler.WMMEDIASUBTYPE_WebStream] = "WebStream"; //WMMEDIASUBTYPE_WebStream
-      MediaSubTypes[CodecHandler.WMMEDIASUBTYPE_WMAudio_Lossless] = "WMA Lossless"; //WMMEDIASUBTYPE_WMAudio_Lossless
-      MediaSubTypes[CodecHandler.WMMEDIASUBTYPE_WMAudioV2] = "WMA v2"; //WMMEDIASUBTYPE_WMAudioV2
-      MediaSubTypes[CodecHandler.WMMEDIASUBTYPE_WMAudioV7] = "WMA v7"; //WMMEDIASUBTYPE_WMAudioV7
-      MediaSubTypes[CodecHandler.WMMEDIASUBTYPE_WMAudioV8] = "WMA v8"; //WMMEDIASUBTYPE_WMAudioV8
-      MediaSubTypes[CodecHandler.WMMEDIASUBTYPE_WMAudioV9] = "WMA v9"; //WMMEDIASUBTYPE_WMAudioV9
-      MediaSubTypes[CodecHandler.WMMEDIASUBTYPE_WMSP1] = "WMSP1"; //WMMEDIASUBTYPE_WMSP1
-      MediaSubTypes[CodecHandler.WMMEDIASUBTYPE_WMV1] = "WMV1"; //WMMEDIASUBTYPE_WMV1
-      MediaSubTypes[CodecHandler.WMMEDIASUBTYPE_WMV2] = "WMV2"; //WMMEDIASUBTYPE_WMV2
-      MediaSubTypes[CodecHandler.WMMEDIASUBTYPE_WMV3] = "WMV3"; //WMMEDIASUBTYPE_WMV3
-      MediaSubTypes[CodecHandler.WMMEDIASUBTYPE_WMVA] = "WMVA"; //WMMEDIASUBTYPE_WMVA
-      MediaSubTypes[CodecHandler.WMMEDIASUBTYPE_WMVP] = "WMVP"; //WMMEDIASUBTYPE_WMVP
-      MediaSubTypes[CodecHandler.WMMEDIASUBTYPE_WVP2] = "WVP2"; //WMMEDIASUBTYPE_WVP2
-      MediaSubTypes[CodecHandler.MEDIASUBTYPE_AC3_AUDIO] = "AC3"; //MEDIASUBTYPE_AC3_AUDIO
-      MediaSubTypes[CodecHandler.MEDIASUBTYPE_AC3_AUDIO_OTHER] = "AC3"; //MEDIASUBTYPE_ ???
-      MediaSubTypes[CodecHandler.MEDIASUBTYPE_DDPLUS_AUDIO] = "AC3+"; //MEDIASUBTYPE_DDPLUS_AUDIO
-      MediaSubTypes[CodecHandler.MEDIASUBTYPE_MPEG1_PAYLOAD] = "MPEG1"; //MEDIASUBTYPE_MPEG1_PAYLOAD
-      MediaSubTypes[CodecHandler.MEDIASUBTYPE_MPEG1_AUDIO] = "MPEG1"; //MEDIASUBTYPE_MPEG1_AUDIO
-      MediaSubTypes[CodecHandler.MEDIASUBTYPE_MPEG2_AUDIO] = "MPEG2"; //MEDIASUBTYPE_MPEG2_AUDIO
-      MediaSubTypes[CodecHandler.MEDIASUBTYPE_LATM_AAC_AUDIO] = "LATM AAC"; //MEDIASUBTYPE_LATM_AAC_AUDIO
-      MediaSubTypes[CodecHandler.MEDIASUBTYPE_AAC_AUDIO] = "AAC"; //MEDIASUBTYPE_AAC_AUDIO
-    }
     #endregion
 
     #region Message handling
@@ -1084,13 +1041,12 @@ namespace MediaPortal.UI.Players.Video
               {
                 String streamName = name.Trim();
                 String streamAppendix;
-                if (MediaSubTypes.TryGetValue(mediaType.subType, out streamAppendix))
+                if (CodecHandler.MediaSubTypes.TryGetValue(mediaType.subType, out streamAppendix))
                 {
                   // if audio information is available via WaveEx format, query the channel count
                   if (mediaType.formatType == FormatType.WaveEx && mediaType.formatPtr != IntPtr.Zero)
                   {
-                    WaveFormatEx waveFormatEx =
-                      (WaveFormatEx) Marshal.PtrToStructure(mediaType.formatPtr, typeof(WaveFormatEx));
+                    WaveFormatEx waveFormatEx = (WaveFormatEx) Marshal.PtrToStructure(mediaType.formatPtr, typeof(WaveFormatEx));
                     streamAppendix = String.Format("{0} {1}ch", streamAppendix, waveFormatEx.nChannels);
                   }
                   currentStream.Name = String.Format("{0} ({1})", streamName, streamAppendix);

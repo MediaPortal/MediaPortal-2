@@ -48,8 +48,6 @@ namespace MediaPortal.UI.Players.Video.Tools
     public static Guid WMMEDIASUBTYPE_PCM = new Guid("00000001-0000-0010-8000-00AA00389B71");
     public static Guid WMMEDIASUBTYPE_WebStream = new Guid("776257d4-c627-41cb-8f81-7ac7ff1c40cc");
     public static Guid WMMEDIASUBTYPE_WMAudio_Lossless = new Guid("00000163-0000-0010-8000-00AA00389B71");
-    public static Guid WMMEDIASUBTYPE_WMAudioV2 = new Guid("00000161-0000-0010-8000-00AA00389B71");
-    public static Guid WMMEDIASUBTYPE_WMAudioV7 = new Guid("00000161-0000-0010-8000-00AA00389B71");
     public static Guid WMMEDIASUBTYPE_WMAudioV8 = new Guid("00000161-0000-0010-8000-00AA00389B71");
     public static Guid WMMEDIASUBTYPE_WMAudioV9 = new Guid("00000162-0000-0010-8000-00AA00389B71");
     public static Guid WMMEDIASUBTYPE_WMSP1 = new Guid("0000000A-0000-0010-8000-00AA00389B71");
@@ -71,45 +69,44 @@ namespace MediaPortal.UI.Players.Video.Tools
     public static Guid MEDIASUBTYPE_HDMV_SUBTITLE = new Guid("04EBA53E-9330-436C-9133-553EC87031DC");
     public static Guid MEDIASUBTYPE_VC1 = new Guid("{31435657-0000-0010-8000-00AA00389B71}");
 
-    #endregion
-
-    #region Properties
-
-    public List<CodecInfo> CodecList
-    {
-      get
-      {
-        return _codecList;
-      }
-    }
-
-    #endregion
-
-    #region Variables
-
-    readonly List<CodecInfo> _codecList;
-
-    #endregion
-
     /// <summary>
-    /// Constructor
+    /// MediaSubTypes lookup list.
     /// </summary>
-    public CodecHandler()
-    {
-      _codecList = new List<CodecInfo>();
-    }
+    public static Dictionary<Guid, String> MediaSubTypes = new Dictionary<Guid, string> {
+      {WMMEDIASUBTYPE_ACELPnet, "ACELPnet"}, // WMMEDIASUBTYPE_ACELPnet	
+      {WMMEDIASUBTYPE_Base, "Base"}, // WMMEDIASUBTYPE_Base
+      {WMMEDIASUBTYPE_DRM, "DRM"}, // WMMEDIASUBTYPE_DRM
+      {WMMEDIASUBTYPE_MP3, "MP3"}, // WMMEDIASUBTYPE_MP3
+      {WMMEDIASUBTYPE_MP43, "MP43"}, // WMMEDIASUBTYPE_MP43
+      {WMMEDIASUBTYPE_MP4S, "MP4S"}, // WMMEDIASUBTYPE_MP4S
+      {WMMEDIASUBTYPE_M4S2, "M4S2"}, // WMMEDIASUBTYPE_M4S2
+      {WMMEDIASUBTYPE_P422, "P422"}, // WMMEDIASUBTYPE_P422
+      {WMMEDIASUBTYPE_MPEG2_VIDEO, "MPEG2"}, // WMMEDIASUBTYPE_MPEG2_VIDEO
+      {WMMEDIASUBTYPE_MSS1, "MSS1"}, // WMMEDIASUBTYPE_MSS1
+      {WMMEDIASUBTYPE_MSS2, "MSS2"}, // WMMEDIASUBTYPE_MSS2
+      {WMMEDIASUBTYPE_PCM, "PCM"}, // WMMEDIASUBTYPE_PCM
+      {WMMEDIASUBTYPE_WebStream, "WebStream"}, // WMMEDIASUBTYPE_WebStream
+      {WMMEDIASUBTYPE_WMAudio_Lossless, "WMA Lossless"}, // WMMEDIASUBTYPE_WMAudio_Lossless
+      {WMMEDIASUBTYPE_WMAudioV8, "WMA v8"}, // WMMEDIASUBTYPE_WMAudioV8
+      {WMMEDIASUBTYPE_WMAudioV9, "WMA v9"}, // WMMEDIASUBTYPE_WMAudioV9
+      {WMMEDIASUBTYPE_WMSP1, "WMSP1"}, // WMMEDIASUBTYPE_WMSP1
+      {WMMEDIASUBTYPE_WMV1, "WMV1"}, // WMMEDIASUBTYPE_WMV1
+      {WMMEDIASUBTYPE_WMV2, "WMV2"}, // WMMEDIASUBTYPE_WMV2
+      {WMMEDIASUBTYPE_WMV3, "WMV3"}, // WMMEDIASUBTYPE_WMV3
+      {WMMEDIASUBTYPE_WMVA, "WMVA"}, // WMMEDIASUBTYPE_WMVA
+      {WMMEDIASUBTYPE_WMVP, "WMVP"}, // WMMEDIASUBTYPE_WMVP
+      {WMMEDIASUBTYPE_WVP2, "WVP2"}, // WMMEDIASUBTYPE_WVP2
+      {MEDIASUBTYPE_AC3_AUDIO, "AC3"}, // MEDIASUBTYPE_AC3_AUDIO
+      {MEDIASUBTYPE_AC3_AUDIO_OTHER, "AC3"}, // MEDIASUBTYPE_ ???
+      {MEDIASUBTYPE_DDPLUS_AUDIO, "AC3+"}, // MEDIASUBTYPE_DDPLUS_AUDIO
+      {MEDIASUBTYPE_MPEG1_PAYLOAD, "MPEG1"}, // MEDIASUBTYPE_MPEG1_PAYLOAD
+      {MEDIASUBTYPE_MPEG1_AUDIO, "MPEG1"}, // MEDIASUBTYPE_MPEG1_AUDIO
+      {MEDIASUBTYPE_MPEG2_AUDIO, "MPEG2"}, // MEDIASUBTYPE_MPEG2_AUDIO
+      {MEDIASUBTYPE_LATM_AAC_AUDIO, "LATM AAC"}, // MEDIASUBTYPE_LATM_AAC_AUDIO
+      {MEDIASUBTYPE_AAC_AUDIO, "AAC"} // MEDIASUBTYPE_AAC_AUDIO
+    };
 
-    /// <summary>
-    /// Check if codec exists and add it to list
-    /// </summary>
-    /// <param name="newCodec">Codec to add</param>
-    public void TryAdd(CodecInfo newCodec)
-    {
-      if (DoesComObjectExists(newCodec.CLSID))
-      {
-        _codecList.Add(newCodec);
-      }
-    }
+    #endregion
 
     /// <summary>
     /// Checks to see if a COM object is registered and exists on the filesystem.
