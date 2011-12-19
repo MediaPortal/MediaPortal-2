@@ -26,7 +26,6 @@ using System;
 using System.Runtime.InteropServices;
 using DirectShowLib;
 using MediaPortal.Common;
-using MediaPortal.Common.Logging;
 using MediaPortal.Common.Settings;
 using MediaPortal.UI.Players.Video.Interfaces;
 using MediaPortal.UI.Players.Video.Settings;
@@ -40,13 +39,14 @@ namespace MediaPortal.UI.Players.Video
   {
     #region Imports
 
-    [ComImport, Guid("b9559486-E1BB-45D3-A2A2-9A7AFE49B23F")]
+    [ComImport, Guid(TSREADER_CLSID)]
     protected class TsReader { }
 
     #endregion
 
     #region Constants and structs
 
+    public const string TSREADER_CLSID = "b9559486-E1BB-45D3-A2A2-9A7AFE49B23F";
     private const string TSREADER_FILTER_NAME = "TsReader";
     private const int NO_STREAM_INDEX = -1;
 
