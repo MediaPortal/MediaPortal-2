@@ -1754,9 +1754,11 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
         }
 
         // Now render the opacitytexture with the OpacityMask brush
-        opacityMask.BeginRenderOpacityBrush(renderTarget.Texture, new RenderContext(Matrix.Identity, Matrix.Identity, bounds));
-        _opacityMaskContext.Render(0);
-        opacityMask.EndRender();
+        if (opacityMask.BeginRenderOpacityBrush(renderTarget.Texture, new RenderContext(Matrix.Identity, Matrix.Identity, bounds)))
+        {
+          _opacityMaskContext.Render(0);
+          opacityMask.EndRender();
+        }
       }
       // Calculation of absolute render size (in world coordinate system)
       parentRenderContext.IncludeTransformedContentsBounds(localRenderContext.OccupiedTransformedBounds);
