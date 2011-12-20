@@ -138,6 +138,8 @@ namespace BDInfo
         public byte PMTSectionNumber = 0;
         public byte PMTLastSectionNumber = 0;
 
+        public byte PMTTemp = 0;
+
         public TSStream Stream = null;
         public TSStreamState StreamState = null;
 
@@ -282,18 +284,27 @@ namespace BDInfo
             buffer.EndRead();
             streamState.StreamBuffer.Reset();
 
+            bool isAVC = false;
+            bool isMVC = false;
             foreach (TSStream finishedStream in Streams.Values)
             {
                 if (!finishedStream.IsInitialized)
                 {
                     return false;
                 }
-                if (Streams.Values.Count == 1 && 
-                    finishedStream.StreamType == TSStreamType.MVC_VIDEO)
+                if (finishedStream.StreamType == TSStreamType.AVC_VIDEO)
+                {
+                    isAVC = true;
+                }
+                if (finishedStream.StreamType == TSStreamType.MVC_VIDEO)
+                {
+                    isMVC = true;
+                }
+            }
+            if (isMVC && !isAVC)
                 {
                     return false;
                 }
-            }
             return true;
         }
 
@@ -817,6 +828,8 @@ namespace BDInfo
                                                 List<TSDescriptor> streamDescriptors =
                                                     new List<TSDescriptor>();
 
+                                                    /*
+                                                     * TODO: Getting bad streamInfoLength
                                                 if (streamInfoLength > 0)
                                                 {
                                                     for (int d = 0; d < streamInfoLength; d++)
@@ -834,6 +847,7 @@ namespace BDInfo
                                                         d += (length + 1);
                                                     }
                                                 }
+                                                    */
                                                 CreateStream(streamPID, streamType, streamDescriptors);
                                             }
                                             k += streamInfoLength;
@@ -898,7 +912,9 @@ namespace BDInfo
                                     {
                                         case 8:
                                         case 7:
+                                            break;
                                         case 6:
+                                            parser.PMTTemp = buffer[i];
                                             break;
                                         case 5:
                                             parser.PMTSectionNumber = buffer[i];

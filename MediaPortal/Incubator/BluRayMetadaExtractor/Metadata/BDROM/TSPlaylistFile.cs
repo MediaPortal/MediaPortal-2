@@ -273,43 +273,40 @@ namespace BDInfo
           string itemType = ReadString(data, 4, ref pos);
 
           TSStreamFile streamFile = null;
-          string streamFileName = string.Format(
-              "{0}.M2TS", itemName);
-          if (streamFiles.ContainsKey(streamFileName))
+          string streamFileName = null;
+          foreach (string ext in BDROM.EXT_M2TS)
           {
-            streamFile = streamFiles[streamFileName];
+            streamFileName = string.Format("{0}.{1}", itemName, ext);
+            if (streamFiles.TryGetValue(streamFileName, out streamFile))
+              break;
           }
           if (streamFile == null)
-          {
-            Debug.WriteLine(string.Format(
-                "Playlist {0} referenced missing file {1}.",
-                FileInfo.Name, streamFileName));
-          }
+            Debug.WriteLine(string.Format("Playlist {0} referenced missing file {1}.", FileInfo.Name, streamFileName));
 
           TSStreamClipFile streamClipFile = null;
-          string streamClipFileName = string.Format(
-              "{0}.CLPI", itemName);
-          if (streamClipFiles.ContainsKey(streamClipFileName))
+          foreach (string ext in BDROM.EXT_CLPI)
           {
-            streamClipFile = streamClipFiles[streamClipFileName];
+            string streamClipFileName = string.Format("{0}.{1}", itemName, ext);
+            if (streamClipFiles.TryGetValue(streamClipFileName, out streamClipFile))
+              break;
           }
           if (streamClipFile == null)
-          {
-            throw new Exception(string.Format(
-                "Playlist {0} referenced missing file {1}.",
-                FileInfo.Name, streamFileName));
-          }
+            throw new Exception(string.Format("Playlist {0} referenced missing file {1}.", FileInfo.Name, streamFileName));
 
           pos += 1;
           int multiangle = (data[pos] >> 4) & 0x01;
           int condition = data[pos] & 0x0F;
           pos += 2;
 
-          double timeIn = (double)ReadInt32(data, ref pos) / 45000;
-          double timeOut = (double)ReadInt32(data, ref pos) / 45000;
+          int inTime = ReadInt32(data, ref pos);
+          if (inTime < 0) inTime &= 0x7FFFFFFF;
+          double timeIn = (double)inTime / 45000;
 
-          TSStreamClip streamClip = new TSStreamClip(
-              streamFile, streamClipFile);
+          int outTime = ReadInt32(data, ref pos);
+          if (outTime < 0) outTime &= 0x7FFFFFFF;
+          double timeOut = (double)outTime / 45000;
+
+          TSStreamClip streamClip = new TSStreamClip(streamFile, streamClipFile);
 
           streamClip.Name = streamFileName; //TODO
           streamClip.TimeIn = timeIn;
@@ -332,35 +329,30 @@ namespace BDInfo
               pos += 1;
 
               TSStreamFile angleFile = null;
-              string angleFileName = string.Format(
-                  "{0}.M2TS", angleName);
-              if (streamFiles.ContainsKey(angleFileName))
+              string angleFileName = string.Empty;
+              foreach (string ext in BDROM.EXT_M2TS)
               {
-                angleFile = streamFiles[angleFileName];
+                angleFileName = string.Format("{0}.{1}", itemName, ext);
+                if (streamFiles.TryGetValue(angleFileName, out angleFile))
+                  break;
               }
+
               if (angleFile == null)
-              {
-                throw new Exception(string.Format(
-                    "Playlist {0} referenced missing angle file {1}.",
-                    FileInfo.Name, angleFileName));
-              }
+                throw new Exception(string.Format("Playlist {0} referenced missing angle file {1}.", FileInfo.Name, angleFileName));
 
               TSStreamClipFile angleClipFile = null;
-              string angleClipFileName = string.Format(
-                  "{0}.CLPI", angleName);
-              if (streamClipFiles.ContainsKey(angleClipFileName))
+              string angleClipFileName = string.Empty;
+              foreach (string ext in BDROM.EXT_CLPI)
               {
-                angleClipFile = streamClipFiles[angleClipFileName];
-              }
-              if (angleClipFile == null)
-              {
-                throw new Exception(string.Format(
-                    "Playlist {0} referenced missing angle file {1}.",
-                    FileInfo.Name, angleClipFileName));
+                angleClipFileName = string.Format("{0}.{1}", itemName, ext);
+                if (streamClipFiles.TryGetValue(angleClipFileName, out angleClipFile))
+                  break;
               }
 
-              TSStreamClip angleClip =
-                  new TSStreamClip(angleFile, angleClipFile);
+              if (angleClipFile == null)
+                throw new Exception(string.Format("Playlist {0} referenced missing angle file {1}.", FileInfo.Name, angleClipFileName));
+
+              TSStreamClip angleClip = new TSStreamClip(angleFile, angleClipFile);
               angleClip.AngleIndex = angle + 1;
               angleClip.TimeIn = streamClip.TimeIn;
               angleClip.TimeOut = streamClip.TimeOut;

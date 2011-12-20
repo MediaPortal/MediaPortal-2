@@ -178,8 +178,8 @@ namespace MediaPortal.UI.Players.Video
     private static BDInfoExt ScanWorker(string path)
     {
       BDPlayerBuilder.LogInfo("Scanning bluray structure: {0}", path);
-      BDInfoExt bluray = new BDInfoExt(path.ToUpper());
-      bluray.Scan();
+      BDInfoExt bluray = new BDInfoExt(path.ToUpper(), false); // We do not need all information here, only the playlists
+      bluray.ScanPlaylists();
       return bluray;
     }
 

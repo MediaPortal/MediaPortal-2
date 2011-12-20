@@ -40,8 +40,12 @@ namespace MediaPortal.UI.Players.Video
     
     #region Constructor
 
+    public BDInfoExt(string path, bool autoScan)
+      : base(path, autoScan)
+    { }
+
     public BDInfoExt(string path)
-      : base(path)
+      : this(path, true)
     { }
 
     #endregion
