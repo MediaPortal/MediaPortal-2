@@ -223,7 +223,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
 
     public virtual void SetupBrush(FrameworkElement parent, ref PositionColoredTextured[] verts, float zOrder, bool adaptVertsToBrushTexture)
     {
-      UpdateBounds(ref verts);
+      if (!UpdateBounds(ref verts))
+        return;
       float w = _vertsBounds.Width;
       float h = _vertsBounds.Height;
       float xoff = _vertsBounds.X;
@@ -257,8 +258,13 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
         }
     }
 
-    protected void UpdateBounds(ref PositionColoredTextured[] verts)
+    protected bool UpdateBounds(ref PositionColoredTextured[] verts)
     {
+      if (verts == null)
+      {
+        _vertsBounds = RectangleF.Empty;
+        return false;
+      }
       float minx = float.MaxValue;
       float miny = float.MaxValue;
       float maxx = 0;
@@ -272,6 +278,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
         if (vert.Y > maxy) maxy = vert.Y;
       }
       _vertsBounds = new RectangleF(minx, miny, maxx - minx, maxy - miny);
+      return true;
     }
 
     public Matrix GetCachedFinalBrushTransform()
@@ -291,9 +298,23 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
       return transform.Value;
     }
 
-    public abstract bool BeginRenderBrush(PrimitiveBuffer primitiveContext, RenderContext renderContext);
+    public bool BeginRenderBrush(PrimitiveBuffer primitiveContext, RenderContext renderContext)
+    {
+      if (_vertsBounds.IsEmpty)
+        return false;
+      return BeginRenderBrushOverride(primitiveContext, renderContext);
+    }
 
-    public abstract void BeginRenderOpacityBrush(Texture tex, RenderContext renderContext);
+    protected abstract bool BeginRenderBrushOverride(PrimitiveBuffer primitiveContext, RenderContext renderContext);
+
+    public bool BeginRenderOpacityBrush(Texture tex, RenderContext renderContext)
+    {
+      if (_vertsBounds.IsEmpty || tex == null)
+        return false;
+      return BeginRenderOpacityBrushOverride(tex, renderContext);
+    }
+
+    protected abstract bool BeginRenderOpacityBrushOverride(Texture tex, RenderContext renderContext);
 
     public abstract void EndRender();
 

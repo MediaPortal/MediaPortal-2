@@ -186,25 +186,24 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
       PrepareVisual();
     }
 
-    public override bool BeginRenderBrush(PrimitiveBuffer primitiveContext, RenderContext renderContext)
+    protected override bool BeginRenderBrushOverride(PrimitiveBuffer primitiveContext, RenderContext renderContext)
     {
       FrameworkElement fe = _preparedVisual;
       if (fe == null) return false;
       _textureVisual.AllocateRenderTarget((int) _vertsBounds.Width, (int) _vertsBounds.Height);
 
       UpdateRenderTarget(fe);
-      base.BeginRenderBrush(primitiveContext, renderContext);
-
-      return true;
+      return base.BeginRenderBrushOverride(primitiveContext, renderContext);
     }
 
-    public override void BeginRenderOpacityBrush(Texture tex, RenderContext renderContext)
+    protected override bool BeginRenderOpacityBrushOverride(Texture tex, RenderContext renderContext)
     {
       FrameworkElement fe = _preparedVisual;
-      if (fe == null) return;
+      if (fe == null)
+        return false;
 
       UpdateRenderTarget(fe);
-      base.BeginRenderOpacityBrush(tex, renderContext);
+      return base.BeginRenderOpacityBrushOverride(tex, renderContext);
     }
 
     public override void Allocate()

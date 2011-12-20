@@ -101,7 +101,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
       set { _colorProperty.SetValue(value); }
     }
 
-    public override bool BeginRenderBrush(PrimitiveBuffer primitiveBuffer, RenderContext renderContext)
+    protected override bool BeginRenderBrushOverride(PrimitiveBuffer primitiveBuffer, RenderContext renderContext)
     {
       Matrix finalTransform = renderContext.Transform.Clone();
       Color4 v = ColorConverter.FromColor(Color);
@@ -112,16 +112,15 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
       return true;
     }
 
-    public override void BeginRenderOpacityBrush(Texture tex, RenderContext renderContext)
+    protected override bool BeginRenderOpacityBrushOverride(Texture tex, RenderContext renderContext)
     {
-      if (tex == null)
-        return;
       Color4 v = ColorConverter.FromColor(Color);
       v.Alpha *= (float) (Opacity * renderContext.Opacity);
       Matrix finalTransform = renderContext.Transform.Clone();
       _effect = ContentManager.Instance.GetEffect(EFFECT_SOLIDOPACITY);
       _effect.Parameters[PARAM_SOLIDCOLOR] = v;
       _effect.StartRender(tex, finalTransform);
+      return true;
     }
 
     public override void EndRender()

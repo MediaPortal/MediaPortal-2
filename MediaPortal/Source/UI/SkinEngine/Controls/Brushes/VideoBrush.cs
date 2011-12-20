@@ -309,7 +309,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
         ServiceRegistration.Get<ILogger>().Debug("VideoBrush.SetupBrush: Player manager not found");
     }
 
-    public override bool BeginRenderBrush(PrimitiveBuffer primitiveContext, RenderContext renderContext)
+    protected override bool BeginRenderBrushOverride(PrimitiveBuffer primitiveContext, RenderContext renderContext)
     {
       IPlayerManager playerManager = ServiceRegistration.Get<IPlayerManager>(false);
       if (playerManager == null)
@@ -341,7 +341,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
       return _imageContext.StartRender(renderContext, _scaledVideoSize, _texture, _videoTextureClip, BorderColor.ToArgb(), _lastFrameData);
     }
 
-    public override void BeginRenderOpacityBrush(Texture tex, RenderContext renderContext)
+    protected override bool BeginRenderOpacityBrushOverride(Texture tex, RenderContext renderContext)
     {
       throw new NotImplementedException("VideoBrush doesn't support being rendered as an opacity brush");
     }

@@ -177,20 +177,20 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
       base.SetupBrush(parent, ref verts, zOrder, adaptVertsToBrushTexture);
     }
 
-    public override bool BeginRenderBrush(PrimitiveBuffer primitiveContext, RenderContext renderContext)
+    protected override bool BeginRenderBrushOverride(PrimitiveBuffer primitiveContext, RenderContext renderContext)
     {
       Allocate();
       if (_tex != null)
         _tex.Bind(0);
-      return base.BeginRenderBrush(primitiveContext, renderContext);
+      return base.BeginRenderBrushOverride(primitiveContext, renderContext);
     }
 
-    public override void BeginRenderOpacityBrush(Texture tex, RenderContext renderContext)
+    protected override bool BeginRenderOpacityBrushOverride(Texture tex, RenderContext renderContext)
     {
       Allocate();
       if (_tex != null)
         _tex.Bind(0);
-      base.BeginRenderOpacityBrush(tex, renderContext);
+      return base.BeginRenderOpacityBrushOverride(tex, renderContext);
     }
 
     #endregion
