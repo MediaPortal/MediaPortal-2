@@ -62,6 +62,9 @@ namespace MediaPortal.UiComponents.Weather
 
     public void Copy(City src)
     {
+      if (src == this)
+        return;
+
       Name = src.Name;
       Id = src.Id;
       LocInfo locInfo = LocationInfo;
