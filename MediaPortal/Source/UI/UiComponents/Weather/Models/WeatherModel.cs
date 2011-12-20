@@ -227,6 +227,8 @@ namespace MediaPortal.UiComponents.Weather.Models
       _refreshIntervalSec = settings.RefreshInterval;
       SetLastUpdateTime(settings.LastUpdate);
 
+      _locations.Clear();
+      _locationsList.Clear();
       foreach (CitySetupInfo loc in settings.LocationsList)
       {
         City city = AddCityToLocations(loc);
