@@ -233,8 +233,10 @@ namespace HttpServer
           Disconnect(SocketError.ConnectionReset);
           return;
         }
-        _bytesLeft += bytesRead;
-        if (_bytesLeft > _buffer.Length)
+        // Albert, Team MediaPortal: Replaced usage of _bytesLeft by a local variable bytesLeft in this method
+        // to minimize multithreading issues - to fix it finally, the multithreading capability of this method has to be reworked.
+        int bytesLeft = _bytesLeft + bytesRead;
+        if (bytesLeft > _buffer.Length)
         {
 #if DEBUG
           throw new BadRequestException("Too large HTTP header: " + Encoding.UTF8.GetString(_buffer, 0, bytesRead));
@@ -245,23 +247,23 @@ namespace HttpServer
 
 #if DEBUG
 #pragma warning disable 219
-        string temp = Encoding.ASCII.GetString(_buffer, 0, _bytesLeft);
+        string temp = Encoding.ASCII.GetString(_buffer, 0, bytesLeft);
         LogWriter.Write(this, LogPrio.Trace, "Received: " + temp);
 #pragma warning restore 219
 #endif
-        int offset = _parser.Parse(_buffer, 0, _bytesLeft);
+        int offset = _parser.Parse(_buffer, 0, bytesLeft);
         if (Stream == null)
           return; // "Connection: Close" in effect.
 
         // try again to see if we can parse another message (check parser to see if it is looking for a new message)
         int oldOffset = offset;
-        while (_parser.CurrentState == RequestParserState.FirstLine && offset != 0 && _bytesLeft - offset > 0)
+        while (_parser.CurrentState == RequestParserState.FirstLine && offset != 0 && bytesLeft - offset > 0)
         {
 #if DEBUG
-          temp = Encoding.ASCII.GetString(_buffer, offset, _bytesLeft - offset);
+          temp = Encoding.ASCII.GetString(_buffer, offset, bytesLeft - offset);
           LogWriter.Write(this, LogPrio.Trace, "Processing: " + temp);
 #endif
-          offset = _parser.Parse(_buffer, offset, _bytesLeft - offset);
+          offset = _parser.Parse(_buffer, offset, bytesLeft - offset);
           if (Stream == null)
             return; // "Connection: Close" in effect.
         }
@@ -271,18 +273,19 @@ namespace HttpServer
           offset = oldOffset;
 
         // copy unused bytes to the beginning of the array
-        if (offset > 0 && _bytesLeft != offset)
-          // FIXME Albert, Team MediaPortal: _bytesLeft can be 0 while offset is >0
-          Buffer.BlockCopy(_buffer, offset, _buffer, 0, _bytesLeft - offset);
+        if (offset > 0 && bytesLeft != offset)
+          Buffer.BlockCopy(_buffer, offset, _buffer, 0, bytesLeft - offset);
 
-        _bytesLeft -= offset;
+        bytesLeft -= offset;
         if (Stream != null && Stream.CanRead)
-          Stream.BeginRead(_buffer, _bytesLeft, _buffer.Length - _bytesLeft, OnReceive, null);
+          Stream.BeginRead(_buffer, bytesLeft, _buffer.Length - bytesLeft, OnReceive, null);
         else
         {
           _log.Write(this, LogPrio.Warning, "Could not read any more from the socket.");
           Disconnect(SocketError.Success);
         }
+        // Albert, Team MediaPortal: Write the value back to the object's field
+        _bytesLeft = bytesLeft;
       }
       catch (BadRequestException err)
       {
