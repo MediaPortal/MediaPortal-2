@@ -381,6 +381,8 @@ namespace MediaPortal.Common.Services.ResourceAccess
         throw new ArgumentOutOfRangeException();
       if (_chunkCache == null)
         throw new ObjectDisposedException("CachedMultiSegmentHttpStream");
+      if (_position >= _length)
+        return 0;
       HttpRangeChunk chunk = ProvideReadAhead(_position, NUM_READAHEAD_CHUNKS);
       if (chunk == null)
         throw new IOException();
