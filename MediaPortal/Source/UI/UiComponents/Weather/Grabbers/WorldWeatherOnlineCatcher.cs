@@ -184,6 +184,7 @@ namespace MediaPortal.UiComponents.Weather.Grabbers
 
       while (nodes.MoveNext())
       {
+        List<string> details = new List<string>();
         CitySetupInfo city = new CitySetupInfo();
         XPathNavigator nodesNavigator = nodes.Current;
         if (nodesNavigator == null)
@@ -201,7 +202,18 @@ namespace MediaPortal.UiComponents.Weather.Grabbers
         XPathNavigator latNode = nodesNavigator.SelectSingleNode("latitude");
         XPathNavigator lonNode = nodesNavigator.SelectSingleNode("longitude");
         if (latNode != null && lonNode != null)
+        {
           city.Id = latNode.Value + "," + lonNode.Value;
+          details.Add(string.Format("{0:00.00}  {1:00.00}", latNode.ValueAsDouble, lonNode.ValueAsDouble));
+        }
+
+        // Get population info
+        XPathNavigator populationNode = nodesNavigator.SelectSingleNode("population");
+        if (populationNode != null && populationNode.ValueAsDouble > 0)
+          details.Add(string.Format("Pop.: {0}", populationNode.Value));
+
+        if (details.Count > 0)
+          city.Detail = string.Format("({0})", string.Join(" / ", details.ToArray()));
 
         city.Grabber = GetServiceName();
         locations.Add(city);

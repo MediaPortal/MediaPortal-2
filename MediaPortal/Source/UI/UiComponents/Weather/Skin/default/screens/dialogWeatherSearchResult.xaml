@@ -15,7 +15,7 @@
     <!-- Contents -->
     <ControlTemplate x:Key="Contents_Template">
       <StackPanel>
-        <ListView Height="300" Width="400" x:Name="MainMenu" Style="{ThemeResource MenuListViewStyle}"
+        <ListView Height="400" Width="650" x:Name="MainMenu" Style="{ThemeResource WeatherLocationSearchListViewStyle}"
             ItemsSource="{Binding Source={StaticResource Model},Path=SetupSearchLocations,Mode=OneTime}"
             HorizontalAlignment="Left" VerticalAlignment="Top">
           <ListView.Resources>

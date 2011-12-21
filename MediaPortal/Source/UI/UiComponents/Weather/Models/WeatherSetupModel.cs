@@ -24,6 +24,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using MediaPortal.Common;
 using MediaPortal.Common.General;
 using MediaPortal.Common.Settings;
@@ -45,10 +46,10 @@ namespace MediaPortal.UiComponents.Weather.Models
     // Locations that are already in the list
     private List<CitySetupInfo> _locations = null;
     // Locations that return as result of searching for a city
-    private List<CitySetupInfo> _locationsSearch = null; 
+    private List<CitySetupInfo> _locationsSearch = null;
 
     // Variants of the above that is exposed to the skin
-    private ItemsList _locationsExposed = null; 
+    private ItemsList _locationsExposed = null;
     private ItemsList _locationsSearchExposed = null;
 
     private AbstractProperty _searchCityProperty = null;
@@ -105,12 +106,12 @@ namespace MediaPortal.UiComponents.Weather.Models
     public void AddLocation(ListItem item)
     {
       // Don't add it if it's already in there
-      foreach (ListItem i in _locationsExposed)
-        if (i["Id"].Equals(item["Id"]))
-          return;
+      if (_locationsExposed.Any(i => i["Id"].Equals(item["Id"])))
+        return;
+
       _locationsExposed.Add(item);
       // Create a CitySetupObject and add it to the loctions list
-      CitySetupInfo c = new CitySetupInfo(item["Name"], item["Id"]);
+      CitySetupInfo c = new CitySetupInfo(item["Name"], item["Id"]) { Detail = item["Detail"] };
       _locations.Add(c);
       _locationsExposed.FireChange();
     }
@@ -150,18 +151,10 @@ namespace MediaPortal.UiComponents.Weather.Models
           return;
 
         _locationsExposed.Clear();
-        ListItem item;
 
         foreach (CitySetupInfo c in _locations)
-        {
-          if (c != null)
-          {
-            item = new ListItem();
-            item.SetLabel("Name", c.Name);
-            item.SetLabel("Id", c.Id);
-            _locationsExposed.Add(item);
-          }
-        }
+          AddListItem(_locationsExposed, c);
+
         _locationsExposed.FireChange();
       }
     }
@@ -179,19 +172,22 @@ namespace MediaPortal.UiComponents.Weather.Models
           return;
 
         _locationsSearchExposed.Clear();
-        ListItem item;
         foreach (CitySetupInfo c in _locationsSearch)
-        {
-          if (c != null)
-          {
-            item = new ListItem();
-            item.SetLabel("Name", c.Name);
-            item.SetLabel("Id", c.Id);
-            _locationsSearchExposed.Add(item);
-          }
-        }
+          AddListItem(_locationsSearchExposed, c);
+
         _locationsSearchExposed.FireChange();
       }
+    }
+
+    private static void AddListItem(ItemsList list, CitySetupInfo city)
+    {
+      if (city == null)
+        return;
+      ListItem item = new ListItem();
+      item.SetLabel("Name", city.Name);
+      item.SetLabel("Id", city.Id);
+      item.SetLabel("Detail", city.Detail);
+      list.Add(item);
     }
 
     /// <summary>

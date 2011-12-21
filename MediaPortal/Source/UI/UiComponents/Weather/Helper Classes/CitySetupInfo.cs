@@ -31,23 +31,21 @@ namespace MediaPortal.UiComponents.Weather
   /// </summary>
   public class CitySetupInfo
   {
-    protected string _id;
     protected string _grabber;
+    protected readonly AbstractProperty _id = new WProperty(typeof(string), string.Empty);
     protected readonly AbstractProperty _name = new WProperty(typeof(string), string.Empty);
+    protected readonly AbstractProperty _detail = new WProperty(typeof(string), string.Empty);
 
     public CitySetupInfo(string name, string id, string grabber)
     {
       Name = name;
-      _id = id;
+      Id = id;
       _grabber = grabber;
     }
 
-    public CitySetupInfo(string name, string id)
-    {
-      Name = name;
-      _id = id;
-      _grabber = WorldWeatherOnlineCatcher.SERVICE_NAME;
-    }
+    public CitySetupInfo(string name, string id) :
+      this(name, id, WorldWeatherOnlineCatcher.SERVICE_NAME)
+    { }
 
     public CitySetupInfo() {}
 
@@ -65,8 +63,17 @@ namespace MediaPortal.UiComponents.Weather
     /// </summary>
     public string Id
     {
-      get { return _id; }
-      set { _id = value; }
+      get { return (string) _id.GetValue(); }
+      set { _id.SetValue(value); }
+    }
+
+    /// <summary>
+    /// Get additional detail information to allow to distinguish multiple location matches. Content depends on the available data of the grabber.
+    /// </summary>
+    public string Detail
+    {
+      get { return (string) _detail.GetValue(); }
+      set { _detail.SetValue(value); }
     }
 
     /// <summary>
