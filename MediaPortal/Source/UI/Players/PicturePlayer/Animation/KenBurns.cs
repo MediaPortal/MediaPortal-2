@@ -24,7 +24,6 @@
 
 using System;
 using System.Drawing;
-using MediaPortal.UI.SkinEngine.SkinManagement;
 
 namespace MediaPortal.UI.Players.Picture.Animation
 {
@@ -33,162 +32,15 @@ namespace MediaPortal.UI.Players.Picture.Animation
   /// </summary>
   public class KenBurns: IPictureAnimator
   {
-    private enum EffectType
+    public enum EffectType
     {
       None,
       Zoom,
       Pan
     }
 
-    private const float KENBURNS_ZOOM_FACTOR = 1.30f; // Zoom factor for pictures that have a black border on the sides
-    private const float KENBURNS_ZOOM_FACTOR_FS = 1.20f; // Zoom factor for pictures that are filling the whole screen
-    private const float KENBURNS_MAXZOOM = 1.30f;
-    private const int KENBURNS_TRANSISTION_SPEED = 50;
-    private const int MAX_ZOOM_FACTOR = 10;
-
-    private static readonly Point[] LANDSCAPE_PAN_SPOTS = new Point[]
-        {
-          new Point(1, 4), new Point(1, 5), new Point(8, 3), new Point(8, 4),
-          new Point(8, 5), new Point(7, 4), new Point(7, 3), new Point(5, 8),
-          new Point(5, 1), new Point(4, 7), new Point(4, 8), new Point(4, 1),
-          new Point(3, 7), new Point(3, 8)
-        };
-    private static readonly Point[] PORTRAIT_PAN_SPOTS = new Point[]
-        {
-          new Point(1, 6), new Point(1, 5), new Point(2, 7), new Point(2, 6),
-          new Point(2, 5), new Point(3, 7), new Point(3, 6), new Point(5, 2),
-          new Point(5, 1), new Point(6, 3), new Point(6, 2), new Point(6, 1),
-          new Point(7, 3), new Point(7, 2)
-        };
-
-    private float _bestZoomFactorCurrent = 1.0f;
-
-    private EffectType _currentEffectType = EffectType.None;
-    private readonly Random _randomizer = new Random(DateTime.Now.Millisecond);
-    private Size _imageSize;
-    private RectangleF _zoomRect;
-
-    private float _currentZoomFactor = 1.0f;
-    private float _currentZoomLeft;
-    private float _currentZoomTop;
-    private int _currentZoomType;
-
-    private int _startPoint;
-    private int _endPoint;
-    private float _endZoomFactor = 1.0f;
-    private float _startZoomFactor = 1.0f;
-
-    private bool _reset = false;
-    private bool _fullScreen;
-    private bool _landScape = false;
-    private int _frameNumber = 0;
-
-    private int _kenBurnsState;
-    private float _panXChange;
-    private float _panYChange;
-
-    private float _zoomChange;
-    private float _zoomWidth;
-    private float _zoomHeight;
-
-    public RectangleF ZoomRect
-    {
-      get { return _zoomRect; }
-    }
-
-    public void Initialize(Size imageSize)
-    {
-      _imageSize = imageSize;
-      _zoomRect = new RectangleF(PointF.Empty, new SizeF(1, 1));
-
-      _landScape = _imageSize.Width > _imageSize.Height;
-
-      _currentZoomFactor = CalculateBestZoom(_imageSize.Width, _imageSize.Height);
-      _currentZoomLeft = 0;
-      _currentZoomTop = 0;
-
-      _bestZoomFactorCurrent = _currentZoomFactor;
-      _currentEffectType = (EffectType) 1 + _randomizer.Next(2);
-
-      _reset = true;
-    }
-
-    public void Animate()
-    {
-      Animate(_reset);
-      _reset = false;
-    }
-
-    /// <summary>
-    /// Ken Burn effects
-    /// </summary>
-    /// <returns></returns>
-    private void Animate(bool bReset)
-    {
-      const int iNrOfFramesPerEffect = KENBURNS_TRANSISTION_SPEED * 30;
-
-      // Init methode
-      if (bReset)
-      {
-        // Set first state parameters: start and end zoom factor
-        _frameNumber = 0;
-        _kenBurnsState = 0;
-      }
-
-      // Check single effect end
-      if (_frameNumber == iNrOfFramesPerEffect)
-      {
-        _frameNumber = 0;
-        _kenBurnsState++;
-      }
-
-      // Select effect
-      switch (_currentEffectType)
-      {
-        case EffectType.None:
-          // No effects, just wait for next picture
-          break;
-
-        case EffectType.Zoom:
-          KenBurnsRandomZoom(_frameNumber, iNrOfFramesPerEffect, bReset);
-          break;
-
-        case EffectType.Pan:
-          KenBurnsRandomPan(_frameNumber, iNrOfFramesPerEffect, bReset);
-          break;
-      }
-
-      // Check new rectangle
-      if (_currentZoomTop > (_imageSize.Height - _zoomHeight))
-        _currentZoomTop = _imageSize.Height - _zoomHeight;
-
-      if (_currentZoomLeft > (_imageSize.Width - _zoomWidth))
-        _currentZoomLeft = _imageSize.Width - _zoomWidth;
-
-      if (_currentZoomTop < 0)
-        _currentZoomTop = 0;
-
-      if (_currentZoomLeft < 0)
-        _currentZoomLeft = 0;
-
-      if (_currentEffectType != EffectType.None && !bReset)
-        _frameNumber++;
-    }
-
-    /* Zoom types:
-       * 0: // centered, centered
-       * 1: // Width centered, Top unchanged
-       * 2: // Heigth centered, Left unchanged
-       * 3: // Widht centered, Bottom unchanged
-       * 4: // Height centered, Right unchanged
-       * 5: // Top Left unchanged
-       * 6: // Top Right unchanged
-       * 7: // Bottom Left unchanged
-       * 8: // Bottom Right unchanged
-       * */
-
     /* Zoom points arround the rectangle
-     * Selected zoom type will hold the selected point at the same place while zooming the rectangle
+     * Selected zoom point will be held at the same place while zooming the rectangle
      *
      *     1---------2---------3
      *     |                   |
@@ -198,286 +50,236 @@ namespace MediaPortal.UI.Players.Picture.Animation
      *
      */
 
-    private void KenBurnsRandomZoom(int iFrameNr, int iNrOfFramesPerEffect, bool bReset)
-    {
-      if (bReset)
-      {
-        int iRandom = _randomizer.Next(3);
-        switch (iRandom)
+    protected const float KENBURNS_ZOOM_FACTOR = 1.1f;
+
+    protected static readonly Point[] LANDSCAPE_PAN_SPOTS = new Point[]
         {
-          case 0:
-            _currentZoomType = _landScape ? 8 : 2;
-            break;
+          new Point(1, 4), new Point(1, 5), new Point(8, 3), new Point(8, 4),
+          new Point(8, 5), new Point(7, 4), new Point(7, 3), new Point(5, 8),
+          new Point(5, 1), new Point(4, 7), new Point(4, 8), new Point(4, 1),
+          new Point(3, 7), new Point(3, 8)
+        };
 
-          case 1:
-            _currentZoomType = _landScape ? 4 : 6;
-            break;
-
-          default:
-            _currentZoomType = 0; // centered
-            break;
-        }
-
-        // Init zoom
-        _endZoomFactor = _fullScreen ? _bestZoomFactorCurrent * KENBURNS_ZOOM_FACTOR_FS : _bestZoomFactorCurrent * KENBURNS_ZOOM_FACTOR;
-
-        _startZoomFactor = _bestZoomFactorCurrent;
-        _zoomChange = (_endZoomFactor - _startZoomFactor) / iNrOfFramesPerEffect;
-        _currentZoomFactor = _startZoomFactor;
-      }
-      else
-      {
-        float zoomFactor = _startZoomFactor + _zoomChange * iFrameNr;
-        Zoom(zoomFactor);
-      }
-    }
-
-    private void SetZoomSize(float fZoomLevel)
-    {
-      // Current image size
-      float iSourceWidth = _imageSize.Width;
-      float iSourceHeight = _imageSize.Height;
-
-      // Calculate aspect ratio correction factor
-      float iScreenWidth = SkinContext.WindowSize.Width;
-      float iScreenHeight = SkinContext.WindowSize.Height;
-
-      float fSourceFrameAR = iSourceWidth / iSourceHeight;
-
-      float width = iSourceWidth * fZoomLevel;
-      float height = iSourceHeight * fZoomLevel;
-
-      _zoomWidth = iSourceWidth;
-      _zoomHeight = iSourceHeight;
-
-      // Check org rectangle
-      if (width > iScreenWidth)
-      {
-        width = iScreenWidth;
-        _zoomWidth = width / fZoomLevel;
-      }
-
-      if (height > iScreenHeight)
-      {
-        height = iScreenHeight;
-        _zoomHeight = height / fZoomLevel;
-      }
-
-      if (_zoomHeight > iSourceHeight)
-      {
-        _zoomHeight = iSourceHeight;
-        _zoomWidth = _zoomHeight * fSourceFrameAR;
-      }
-
-      if (_zoomWidth > iSourceWidth)
-      {
-        _zoomWidth = iSourceWidth;
-        _zoomHeight = _zoomWidth / fSourceFrameAR;
-      }
-    }
-
-    private void SetOutputRect(float x, float y, float width, float height)
-    {
-      float viewX = x < 0 ? 0 : x / _imageSize.Width;
-      float viewY = y < 0 ? 0 : y / _imageSize.Height;
-      float viewWidth = width / _imageSize.Width;
-      float viewHeight = height / _imageSize.Height;
-      _zoomRect = new RectangleF(viewX, viewY, viewWidth, viewHeight);
-    }
-
-    private void KenBurnsRandomPan(int iFrameNr, int iNrOfFramesPerEffect, bool bReset)
-    {
-      // For Landscape picutres zoomstart BestWidth than Pan
-      if (bReset)
-      {
-        // Find start and end points (8 possible points around the rectangle)
-        int iRandom = _randomizer.Next(14);
-        Point p = _landScape ? LANDSCAPE_PAN_SPOTS[iRandom] : PORTRAIT_PAN_SPOTS[iRandom];
-        _startPoint = p.X;
-        _endPoint = p.Y;
-
-        // Init 120% top center fixed
-        _currentZoomFactor = _bestZoomFactorCurrent * KENBURNS_ZOOM_FACTOR;
-        _currentZoomType = _startPoint;
-      }
-      else
-      {
-        // - Pan start point to end point
-        if (iFrameNr == 0)
+    protected static readonly Point[] PORTRAIT_PAN_SPOTS = new Point[]
         {
-          // Init single effect
+          new Point(1, 6), new Point(1, 5), new Point(2, 7), new Point(2, 6),
+          new Point(2, 5), new Point(3, 7), new Point(3, 6), new Point(5, 2),
+          new Point(5, 1), new Point(6, 3), new Point(6, 2), new Point(6, 1),
+          new Point(7, 3), new Point(7, 2)
+        };
 
-          SetZoomSize(_currentZoomFactor);
-  
-          float iDestY = 0;
-          float iDestX = 0;
-          switch (_endPoint)
-          {
-            case 8:
-              iDestY = (float) _imageSize.Height / 2;
-              iDestX = _zoomWidth / 2;
-              break;
-            case 4:
-              iDestY = (float) _imageSize.Height / 2;
-              iDestX = _imageSize.Width - _zoomWidth / 2;
-              break;
-            case 2:
-              iDestY = _zoomHeight / 2;
-              iDestX = (float) _imageSize.Width / 2;
-              break;
-            case 6:
-              iDestY = _imageSize.Height - _zoomHeight / 2;
-              iDestX = (float) _imageSize.Width / 2;
-              break;
-            case 1:
-              iDestY = _zoomHeight / 2;
-              iDestX = _zoomWidth / 2;
-              break;
-            case 3:
-              iDestY = _zoomHeight / 2;
-              iDestX = _imageSize.Width - _zoomWidth / 2;
-              break;
-            case 7:
-              iDestY = _imageSize.Height - _zoomHeight / 2;
-              iDestX = _zoomWidth / 2;
-              break;
-            case 5:
-              iDestY = _imageSize.Height - _zoomHeight / 2;
-              iDestX = _imageSize.Width - _zoomWidth / 2;
-              break;
-          }
+    protected static readonly Point[] SPOT_POINTS = new Point[]
+      {
+          new Point(0, 0), // 0
+          new Point(-1, -1), new Point(0, -1), new Point(1, -1), // 1, 2, 3
+          new Point(1, 0), // 4
+          new Point(1, 1), new Point(0, 1), new Point(-1, 1), // 5, 6, 7
+          new Point(-1, 0) // 8
+      };
 
-          _panYChange = (iDestY - (_currentZoomTop + _zoomHeight / 2)) / iNrOfFramesPerEffect;
-          _panXChange = (iDestX - (_currentZoomLeft + _zoomWidth / 2)) / iNrOfFramesPerEffect;
-        }
-        Pan(_panXChange, _panYChange);
+    protected static readonly Random _randomizer = new Random(DateTime.Now.Millisecond);
+
+    protected EffectType _currentEffectType = EffectType.None;
+    protected int _zoomCenterClass = 0;
+    protected float _startZoomFactor = 1;
+    protected float _endZoomFactor = 1;
+    protected int _panPointsIndex = 0;
+
+    protected Size _imageSize;
+
+    public EffectType CurrentEffect
+    {
+      get { return _currentEffectType; }
+    }
+
+    public void Initialize(Size imageSize)
+    {
+      _imageSize = imageSize;
+
+      _currentEffectType = (EffectType) 1 + _randomizer.Next(2);
+      switch (_currentEffectType)
+      {
+        case EffectType.Zoom:
+          _zoomCenterClass = _randomizer.Next(3);
+          _startZoomFactor = 1;
+          _endZoomFactor = KENBURNS_ZOOM_FACTOR;
+          // Not necessary
+          _panPointsIndex = 0;
+          break;
+        case EffectType.Pan:
+          _panPointsIndex = _randomizer.Next(14);
+          // Not necessary
+          _zoomCenterClass = 0;
+          _startZoomFactor = KENBURNS_ZOOM_FACTOR;
+          _endZoomFactor = KENBURNS_ZOOM_FACTOR;
+          break;
+        default:
+          // No effects
+          _zoomCenterClass = 0;
+          _startZoomFactor = 1;
+          _endZoomFactor = 1;
+          _panPointsIndex = 0;
+          break;
       }
     }
 
-    private float CalculateBestZoom(float fWidth, float fHeight)
+    protected bool IsLandscape(SizeF imageSize, SizeF outputSize)
     {
-      // Default is zoom best fit (max width or max height)
-      float zoomFactorX = SkinContext.WindowSize.Width / fWidth;
-      float zoomFactorY = SkinContext.WindowSize.Height / fHeight;
-
-      // Get minimal zoom level (1.0==100%)
-      float fZoom = zoomFactorX;
-      _landScape = true;
-      if (zoomFactorY < zoomFactorX)
-      {
-        fZoom = zoomFactorY; //-ZoomFactorX+1.0f;
-        _landScape = false;
-      }
-
-      _fullScreen = zoomFactorY < KENBURNS_ZOOM_FACTOR_FS && zoomFactorX < KENBURNS_ZOOM_FACTOR_FS;
-
-      // Fit to screen default zoom factor
-
-      // Zoom 100%..150%
-      if (fZoom < 1.00f)
-        fZoom = 1.00f;
-
-      if (fZoom > KENBURNS_MAXZOOM)
-        fZoom = KENBURNS_MAXZOOM;
-
-      return fZoom;
+      return imageSize.Width / outputSize.Width > imageSize.Height / outputSize.Height;
     }
 
-    private void Zoom(float fZoom)
+    public RectangleF GetZoomRect(float animationProgress, Size outputSize)
     {
-      if (fZoom > MAX_ZOOM_FACTOR || fZoom < 0.0f)
-        return;
-
-      // Start and End point positions along the picture rectangle
-      // Point zoom in/out only works if the selected Point is at the border
-      // example:  "m_dwWidthBackGround == m_iZoomLeft + _zoomWidth"  and zooming to the left (iZoomType=4)
-      float middlex = (float) _imageSize.Width / 2;
-      float middley = (float) _imageSize.Height / 2;
-      float xend = _imageSize.Width;
-      float yend = _imageSize.Height;
-
-      _currentZoomFactor = fZoom;
-
-      SetZoomSize(_currentZoomFactor);
-
-      if (_currentZoomTop + _zoomHeight > _imageSize.Height)
-        _zoomHeight = _imageSize.Height - _currentZoomTop;
-
-      if (_currentZoomLeft + _zoomWidth > _imageSize.Width)
-        _zoomWidth = _imageSize.Width - _currentZoomLeft;
-
-      switch (_currentZoomType)
+      bool isLandscape = IsLandscape(_imageSize, outputSize);
+      switch (_currentEffectType)
       {
-        /* 0: // centered, centered
-         * 1: // Top Left unchanged
-         * 2: // Width centered, Top unchanged
-         * 3: // Top Right unchanged
-         * 4: // Height centered, Right unchanged
-         * 5: // Bottom Right unchanged
-         * 6: // Widht centered, Bottom unchanged
-         * 7: // Bottom Left unchanged
-         * 8: // Heigth centered, Left unchanged
-         * */
+        case EffectType.Zoom:
+          int zoomCenterPoint = 0;
+          if (isLandscape)
+            switch (_zoomCenterClass)
+            {
+              case 0:
+                zoomCenterPoint = 8;
+                break;
+              case 1:
+                zoomCenterPoint = 0;
+                break;
+              case 2:
+                zoomCenterPoint = 4;
+                break;
+            }
+          else
+            switch (_zoomCenterClass)
+            {
+              case 0:
+                zoomCenterPoint = 2;
+                break;
+              case 1:
+                zoomCenterPoint = 0;
+                break;
+              case 2:
+                zoomCenterPoint = 6;
+                break;
+            }
+          return GetKenBurnsZoomRectangle(_startZoomFactor + (_endZoomFactor - _startZoomFactor) * animationProgress,
+              zoomCenterPoint, _imageSize, outputSize);
+        case EffectType.Pan:
+          Point startEndPanPoints = isLandscape ? LANDSCAPE_PAN_SPOTS[_panPointsIndex] : PORTRAIT_PAN_SPOTS[_panPointsIndex];
+          PointF panStartPoint = SPOT_POINTS[startEndPanPoints.X];
+          PointF panEndPoint = SPOT_POINTS[startEndPanPoints.Y];
+
+          return GetKenBurnsPanRectangle(KENBURNS_ZOOM_FACTOR,
+              panStartPoint.X + (panEndPoint.X - panStartPoint.X) * animationProgress,
+              panStartPoint.Y + (panEndPoint.Y - panStartPoint.Y) * animationProgress, _imageSize, outputSize);
+        default:
+          // No effects
+          return new RectangleF(0, 0, 1, 1);
+      }
+    }
+
+    protected enum Stretch
+    {
+      // The content is resized to fit in the destination dimensions while it preserves its
+      // native aspect ratio. If the aspect ratio of the destination rectangle differs from
+      // the source, the content won't fill the whole destionation area.
+      Uniform,
+
+      // The content is resized to fill the destination dimensions while it preserves its
+      // native aspect ratio. 
+      // If the aspect ratio of the destination rectangle differs from the source, the source content is 
+      // clipped to fit in the destination dimensions completely.
+      UniformToFill
+    }
+
+    protected static RectangleF GetKenBurnsZoomRectangle(float zoomFactor, int zoomCenterPoint, SizeF imageSize, SizeF outputSize)
+    {
+      float normalizationFactor = NormalizeOutputSizeToImageSize(imageSize, outputSize, Stretch.UniformToFill);
+      
+      float scaledOutputWidth = outputSize.Width * normalizationFactor / zoomFactor;
+      float scaledOutputHeight = outputSize.Height * normalizationFactor / zoomFactor;
+
+      return CalculateZoomRect(imageSize, new SizeF(scaledOutputWidth, scaledOutputHeight), zoomCenterPoint);
+    }
+
+    protected static float NormalizeOutputSizeToImageSize(SizeF imageSize, SizeF outputSize, Stretch stretch)
+    {
+      // Calculate zoom for best fit (largest image length (X/Y) fits completely in output area)
+      float zoomFactorX = imageSize.Width / outputSize.Width;
+      float zoomFactorY = imageSize.Height / outputSize.Height;
+
+      return zoomFactorX > zoomFactorY == (stretch == Stretch.Uniform) ? zoomFactorX : zoomFactorY;
+    }
+
+    protected static RectangleF CalculateZoomRect(SizeF outerSize, SizeF innerSize, int zoomType)
+    {
+      float left;
+      float top;
+
+      switch (zoomType)
+      {
         case 0: // centered, centered
-          _currentZoomLeft = middlex - _zoomWidth * 0.5f;
-          _currentZoomTop = middley - _zoomHeight * 0.5f;
+          left = (outerSize.Width - innerSize.Width) / 2f;
+          top = (outerSize.Height - innerSize.Height) / 2f;
           break;
-        case 2: // Width centered, Top unchanged
-          _currentZoomLeft = middlex - _zoomWidth * 0.5f;
+        case 2: // Width centered, top unchanged
+          left = (outerSize.Width - innerSize.Width) / 2f;
+          top = 0;
           break;
-        case 8: // Heigth centered, Left unchanged
-          _currentZoomTop = middley - _zoomHeight * 0.5f;
+        case 8: // Heigth centered, left unchanged
+          left = 0;
+          top = (outerSize.Height - innerSize.Height) / 2f;
           break;
-        case 6: // Width centered, Bottom unchanged
-          _currentZoomLeft = middlex - _zoomWidth * 0.5f;
-          _currentZoomTop = yend - _zoomHeight;
+        case 6: // Width centered, bottom unchanged
+          left = (outerSize.Width - innerSize.Width) / 2f;
+          top = outerSize.Height - innerSize.Height;
           break;
-        case 4: // Height centered, Right unchanged
-          _currentZoomTop = middley - _zoomHeight * 0.5f;
-          _currentZoomLeft = xend - _zoomWidth;
+        case 4: // Height centered, right unchanged
+          left = outerSize.Width - innerSize.Width;
+          top = (outerSize.Height - innerSize.Height) / 2f;
           break;
-        case 1: // Top Left unchanged
+        case 1: // Top left unchanged
+          left = 0;
+          top = 0;
           break;
-        case 3: // Top Right unchanged
-          _currentZoomLeft = xend - _zoomWidth;
+        case 3: // Top right unchanged
+          left = outerSize.Width - innerSize.Width;
+          top = 0;
           break;
-        case 7: // Bottom Left unchanged
-          _currentZoomTop = yend - _zoomHeight;
+        case 7: // Bottom left unchanged
+          left = 0;
+          top = outerSize.Height - innerSize.Height;
           break;
-        case 5: // Bottom Right unchanged
-          _currentZoomTop = yend - _zoomHeight;
-          _currentZoomLeft = xend - _zoomWidth;
+        case 5: // Bottom right unchanged
+          left = outerSize.Width - innerSize.Width;
+          top = outerSize.Height - innerSize.Height;
+          break;
+        default:
+          top = 0;
+          left = 0;
           break;
       }
-      if (_currentZoomTop > _imageSize.Height - _zoomHeight)
-        _currentZoomTop = _imageSize.Height - _zoomHeight;
-
-      if (_currentZoomLeft > _imageSize.Width - _zoomWidth)
-        _currentZoomLeft = _imageSize.Width - _zoomWidth;
-
-      if (_currentZoomLeft < 0)
-        _currentZoomLeft = 0;
-
-      if (_currentZoomTop < 0)
-        _currentZoomTop = 0;
-
-      SetOutputRect(_currentZoomLeft, _currentZoomTop, _zoomWidth, _zoomHeight);
+      return new RectangleF(left / outerSize.Width, top / outerSize.Height, innerSize.Width / outerSize.Width, innerSize.Height / outerSize.Height);
     }
 
-    /// <summary>
-    /// Pan picture rectangle
-    /// </summary>
-    /// <param name="fPanX"></param>
-    /// <param name="fPanY"></param>
-    private void Pan(float fPanX, float fPanY)
+    protected static RectangleF GetKenBurnsPanRectangle(float zoomFactor, float panX, float panY, SizeF imageSize, SizeF outputSize)
     {
-      if (fPanX == 0.0f && fPanY == 0.0f)
-        return;
+      float normalizationFactor = NormalizeOutputSizeToImageSize(imageSize, outputSize, Stretch.UniformToFill);
+      
+      float scaledOutputWidth = outputSize.Width * normalizationFactor / zoomFactor;
+      float scaledOutputHeight = outputSize.Height * normalizationFactor / zoomFactor;
 
-      _currentZoomLeft += fPanX;
-      _currentZoomTop += fPanY;
+      return CalculatePanRect(imageSize, new SizeF(scaledOutputWidth, scaledOutputHeight), panX, panY);
+    }
 
-      SetOutputRect(_currentZoomLeft, _currentZoomTop, _zoomWidth, _zoomHeight);
+    protected static RectangleF CalculatePanRect(SizeF outerSize, SizeF innerSize, float panX, float panY)
+    {
+      float panFactorX = (panX + 1) * 0.5f;
+      float panFactorY = (panY + 1) * 0.5f;
+
+      float left = (outerSize.Width - innerSize.Width) * panFactorX;
+      float top = (outerSize.Height - innerSize.Height) * panFactorY;
+
+      return new RectangleF(left / outerSize.Width, top / outerSize.Height, innerSize.Width / outerSize.Width, innerSize.Height / outerSize.Height);
     }
   }
 }

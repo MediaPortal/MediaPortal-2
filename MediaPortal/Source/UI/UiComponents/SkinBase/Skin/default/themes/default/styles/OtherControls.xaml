@@ -1294,7 +1294,7 @@
                       <VideoBrush Stream="1"/>
                     </Control.Background>
                   </Control>
-                  <Image x:Name="PiPPicture" IsVisible="{Binding IsPicturePlayerPresent}" Width="{ThemeResource PiPVideoWidth}" Stretch="Uniform">
+                  <Image x:Name="PiPPicture" IsVisible="{Binding IsPicturePlayerPresent}" Width="{Binding VideoWidth}" Height="{Binding VideoHeight}" Stretch="Uniform">
                     <Image.Source>
                       <PicturePlayerImageSource Stream="1"
                           Transition="transitions\granular_dissolve;transitions\fade;transitions\dissolve;transitions\wipe_right;transitions\wipe_down;transitions\wipe_down-right;transitions\wipe_up-left"

@@ -42,8 +42,9 @@ namespace MediaPortal.UI.SkinEngine.Controls.ImageSources
     protected RectangleF _lastTextureClip;
 
     protected Texture _currentTexture = null;
-    protected SizeF _currentRawSourceSize;
-    protected RectangleF _currentTextureClip;
+    protected SizeF _currentTextureSize; // Size of the texture, can be bigger than the raw image in the texture because of DX. _currentTextureClip is based on this size.
+    protected RectangleF _currentTextureClip; // Clipping rectangle to be used from the _currentTexture.
+    protected SizeF _currentClippedSize; // Size of the raw image part in the texture to be shown.
 
     protected Texture _lastCopiedTexture = null;
 
@@ -116,13 +117,20 @@ namespace MediaPortal.UI.SkinEngine.Controls.ImageSources
       lock (player.PicturesLock)
       {
         Texture texture = player.CurrentPicture;
-        RectangleF textureClip = player.TextureClip;
-        if (texture != null && (texture != _lastCopiedTexture || textureClip != _currentTextureClip))
+        // It's a bit stupid because the Image calls Allocate() before Setup() and thus, at the first call of this method,
+        // _frameSize is empty and so we cannot calculate a proper size for this image source...
+        RectangleF textureClip = player.GetTextureClip(new Size((int) _frameSize.Width, (int) _frameSize.Height));
+        if (texture != null)
         {
-          _lastCopiedTexture = texture;
-          // The SlimDX player also supports the FlipX, FlipY values, which which tells us the image should be flipped
-          // in horizontal or vertical direction after the rotation. Very few pictures have those flags; we don't implement them here.
-          CycleTextures(texture, textureClip, TranslateRotation(player.Rotation));
+          if (texture != _lastCopiedTexture)
+          {
+            _lastCopiedTexture = texture;
+            // The SlimDX player also supports the FlipX, FlipY values, which which tells us the image should be flipped
+            // in horizontal or vertical direction after the rotation. Very few pictures have those flags; we don't implement them here.
+            CycleTextures(texture, textureClip, TranslateRotation(player.Rotation));
+          }
+          else if (textureClip != _currentTextureClip)
+            UpdateTextureClip(textureClip);
         }
       }
     }
@@ -153,7 +161,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.ImageSources
 
     protected override SizeF CurrentRawSourceSize
     {
-      get { return _currentRawSourceSize; }
+      get { return _currentClippedSize; }
     }
 
     protected override RectangleF CurrentTextureClip
@@ -177,15 +185,15 @@ namespace MediaPortal.UI.SkinEngine.Controls.ImageSources
 
       // Current -> Last
       _lastTexture = _currentTexture;
-      _lastRawSourceSize = _currentRawSourceSize;
+      _lastRawSourceSize = _currentClippedSize;
       _lastTextureClip = _currentTextureClip;
       _lastImageContext = _imageContext;
 
       // Next -> Current
       SizeF textureSize;
       _currentTexture = CreateTextureCopy(nextTexture, out textureSize);
-      _currentRawSourceSize = new SizeF(textureSize.Width * textureClip.Width, textureSize.Height * textureClip.Height);
-      _currentTextureClip = textureClip;
+      _currentTextureSize = textureSize;
+      UpdateTextureClip(textureClip);
 
       _imageContext = new ImageContext
         {
@@ -198,7 +206,13 @@ namespace MediaPortal.UI.SkinEngine.Controls.ImageSources
       FireChanged();
     }
 
-    protected Texture CreateTextureCopy(Texture sourceTexture, out SizeF textureSize)
+    protected void UpdateTextureClip(RectangleF textureClip)
+    {
+      _currentClippedSize = new SizeF(_currentTextureSize.Width * textureClip.Width, _currentTextureSize.Height * textureClip.Height);
+      _currentTextureClip = textureClip;
+    }
+
+    protected static Texture CreateTextureCopy(Texture sourceTexture, out SizeF textureSize)
     {
       SurfaceDescription desc = sourceTexture.GetLevelDescription(0);
       textureSize = new SizeF(desc.Width, desc.Height);

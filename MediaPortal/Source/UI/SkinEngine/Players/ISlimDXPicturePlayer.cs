@@ -46,6 +46,7 @@ namespace MediaPortal.UI.SkinEngine.Players
     /// <summary>
     /// Returns the clipping region which should be taken fron the texture. Values go from 0 to 1.
     /// </summary>
-    RectangleF TextureClip { get; }
+    /// <param name="outputSize">Size of the output region.</param>
+    RectangleF GetTextureClip(Size outputSize);
   }
 }

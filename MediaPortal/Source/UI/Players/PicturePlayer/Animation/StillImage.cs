@@ -31,21 +31,17 @@ namespace MediaPortal.UI.Players.Picture.Animation
   /// </summary>
   public class StillImage: IPictureAnimator
   {
-    protected readonly RectangleF _zoomRect = new RectangleF(0, 0, 1, 1);
+    protected static readonly RectangleF _zoomRect = new RectangleF(0, 0, 1, 1);
 
     #region IPictureAnimator implementation
-
-    public RectangleF ZoomRect
-    {
-      get { return _zoomRect; }
-    }
 
     public void Initialize(Size imageSize)
     {
     }
 
-    public void Animate()
+    public RectangleF GetZoomRect(float animationProgress, Size outputSize)
     {
+      return _zoomRect;
     }
 
     #endregion

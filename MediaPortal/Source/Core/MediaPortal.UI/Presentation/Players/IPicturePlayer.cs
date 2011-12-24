@@ -22,6 +22,7 @@
 
 #endregion
 
+using System.Drawing;
 using MediaPortal.Common.ResourceAccess;
 
 namespace MediaPortal.UI.Presentation.Players
@@ -41,6 +42,11 @@ namespace MediaPortal.UI.Presentation.Players
   {
     IResourceLocator CurrentPictureResourceLocator { get; }
     
+    /// <summary>
+    /// Returns the size of the whole picture.
+    /// </summary>
+    Size PictureSize { get; }
+
     /// <summary>
     /// Returns the rotation which must be applied to the picture.
     /// </summary>

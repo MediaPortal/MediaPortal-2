@@ -500,7 +500,7 @@ namespace MediaPortal.UI.SkinEngine.SpecialElements.Controls
             VideoHeight = FixedVideoHeight;
           }
           else if (FixedVideoWidth > 0f)
-          { // Calculate the video height from the width
+          { // Calculate the image height from the width
             VideoWidth = FixedVideoWidth;
             VideoHeight = FixedVideoWidth*vp.VideoAspectRatio.Height/vp.VideoAspectRatio.Width;
           }
@@ -520,6 +520,21 @@ namespace MediaPortal.UI.SkinEngine.SpecialElements.Controls
         else
         {
           IsPicturePlayerPresent = true;
+          if (FixedVideoWidth > 0f && FixedVideoHeight > 0f)
+          {
+            VideoWidth = FixedVideoWidth;
+            VideoHeight = FixedVideoHeight;
+          }
+          else if (FixedVideoWidth > 0f)
+          { // Calculate the image height from the width
+            VideoWidth = FixedVideoWidth;
+            VideoHeight = FixedVideoWidth*pp.PictureSize.Height/pp.PictureSize.Width;
+          }
+          else
+          { // FixedVideoHeight > 0f
+            VideoHeight = FixedVideoHeight;
+            VideoWidth = FixedVideoHeight*pp.PictureSize.Width/pp.PictureSize.Height;
+          }
           UpdatePictureSourcePath(pp.CurrentPictureResourceLocator);
           PictureRotation rotation;
           bool flipX;
@@ -541,6 +556,7 @@ namespace MediaPortal.UI.SkinEngine.SpecialElements.Controls
         MediaItemAspect audioAspect;
         if (_currentMediaItem == null || !_currentMediaItem.Aspects.TryGetValue(AudioAspect.ASPECT_ID, out audioAspect))
           audioAspect = null;
+
         IsCurrentPlayer = slotIndex.HasValue && playerContextManager.CurrentPlayerIndex == slotIndex.Value;
         if (player == null)
         {

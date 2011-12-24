@@ -58,7 +58,7 @@ namespace MediaPortal.UI.Players.Picture
     protected readonly object _syncObj = new object();
 
     protected PlayerState _state;
-    protected bool _isPaused = false;
+    protected DateTime? _pauseTime = null;
     protected string _mediaItemTitle = string.Empty;
     protected RightAngledRotation _rotation = RightAngledRotation.Zero;
     protected bool _flipX = false;
@@ -257,6 +257,8 @@ namespace MediaPortal.UI.Players.Picture
         else
           CheckTimer();
         _playbackStartTime = DateTime.Now;
+        if (_pauseTime.HasValue)
+          _pauseTime = _playbackStartTime;
       }
     }
 
@@ -400,6 +402,15 @@ namespace MediaPortal.UI.Players.Picture
       }
     }
 
+    public Size PictureSize
+    {
+      get
+      {
+        SurfaceDescription sd = _texture.GetLevelDescription(0);
+        return new Size((int) (sd.Width * _textureMaxUV.Width), (int) (sd.Height * _textureMaxUV.Height));
+      }
+    }
+
     public RightAngledRotation Rotation
     {
       get
@@ -445,26 +456,19 @@ namespace MediaPortal.UI.Players.Picture
       }
     }
 
-    public RectangleF TextureClip
+    public RectangleF GetTextureClip(Size outputSize)
     {
-      get
+      // TODO: Execute animation in own timer
+      lock (_syncObj)
       {
-        // TODO: Execute animation in own thread
-        lock (_syncObj)
-        {
-          if (!_isPaused)
-            _animator.Animate();
-          return _animator.ZoomRect;
-        }
-      }
-    }
-
-    public Size PictureSize
-    {
-      get
-      {
-        SurfaceDescription sd = _texture.GetLevelDescription(0);
-        return new Size((int) (sd.Width * _textureMaxUV.Width), (int) (sd.Height * _textureMaxUV.Height));
+        TimeSpan displayTime = (_pauseTime.HasValue ? _pauseTime.Value : DateTime.Now) - _playbackStartTime;
+        float animationProgress = (float) displayTime.TotalMilliseconds / (float) _slideShowImageDuration.TotalMilliseconds;
+        // Flatten progress function to be in the range 0-1
+        if (animationProgress < 0)
+          animationProgress = 0;
+        animationProgress = 1-1/(5*animationProgress*animationProgress+1);
+        RectangleF textureClip = _animator.GetZoomRect(animationProgress, outputSize);
+        return new RectangleF(textureClip.X * _textureMaxUV.Width, textureClip.Y * _textureMaxUV.Height, textureClip.Width * _textureMaxUV.Width, textureClip.Height * _textureMaxUV.Height);
       }
     }
 
@@ -478,7 +482,7 @@ namespace MediaPortal.UI.Players.Picture
       {
         lock (_syncObj)
         {
-          if (_isPaused)
+          if (IsPaused)
             return TimeSpan.Zero;
           return DateTime.Now - _playbackStartTime;
         }
@@ -520,7 +524,7 @@ namespace MediaPortal.UI.Players.Picture
       get
       {
         lock (_syncObj)
-          return _isPaused;
+          return _pauseTime.HasValue;
       }
     }
 
@@ -538,7 +542,7 @@ namespace MediaPortal.UI.Players.Picture
     {
       lock (_syncObj)
       {
-        _isPaused = true;
+        _pauseTime = DateTime.Now;
         DisposeTimer();
       }
     }
@@ -547,7 +551,7 @@ namespace MediaPortal.UI.Players.Picture
     {
       lock (_syncObj)
       {
-        _isPaused = false;
+        _pauseTime = null;
         CurrentTime = TimeSpan.Zero;
         CheckTimer();
       }

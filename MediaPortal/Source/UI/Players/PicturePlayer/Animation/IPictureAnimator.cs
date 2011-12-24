@@ -32,19 +32,17 @@ namespace MediaPortal.UI.Players.Picture.Animation
   public interface IPictureAnimator
   {
     /// <summary>
-    /// Returns the zoom view rectangle, X and Y coords go from 0 to 1.
-    /// </summary>
-    RectangleF ZoomRect { get; }
-
-    /// <summary>
     /// Initializes the animation.
     /// </summary>
     /// <param name="imageSize">Size of the image to animate.</param>
     void Initialize(Size imageSize);
 
     /// <summary>
-    /// Executes the animation and updates the final display rectangle.
+    /// Returns the zoom view rectangle for the current animation state for the given <see cref="outputSize"/>.
     /// </summary>
-     void Animate();
+    /// <param name="animationProgress">Progress of the animation, value between 0 (= start) and 1 (=end).</param>
+    /// <param name="outputSize">Size of the output region.</param>
+    /// <returns>Rectangle which contains fractions of the image size; X and Y coords go from 0 to 1.</returns>
+    RectangleF GetZoomRect(float animationProgress, Size outputSize);
   }
 }
