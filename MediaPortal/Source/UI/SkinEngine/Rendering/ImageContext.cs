@@ -92,6 +92,7 @@ namespace MediaPortal.UI.SkinEngine.Rendering
     protected Vector4 _imageTransform;
     protected SizeF _lastImageSize;
     protected Texture _lastTexture;
+    protected RectangleF _lastTextureClip;
     protected Matrix _inverseRelativeTransformCache;
     protected bool _refresh = true;
 
@@ -360,10 +361,13 @@ namespace MediaPortal.UI.SkinEngine.Rendering
     protected void RefreshParameters(SizeF targetImageSize, Texture texture, RectangleF textureClip)
     {
       // If necessary update our image transformation to best fit the frame
-      if (_refresh || texture != _lastTexture || Math.Abs(targetImageSize.Width - _lastImageSize.Width) > FLOAT_EQUALITY_LIMIT ||
-          Math.Abs(targetImageSize.Height - _lastImageSize.Height) > FLOAT_EQUALITY_LIMIT)
+      if (_refresh || texture != _lastTexture ||
+          Math.Abs(targetImageSize.Width - _lastImageSize.Width) > FLOAT_EQUALITY_LIMIT ||
+          Math.Abs(targetImageSize.Height - _lastImageSize.Height) > FLOAT_EQUALITY_LIMIT
+          || textureClip != _lastTextureClip)
       {
         _lastTexture = texture;
+        _lastTextureClip = textureClip;
 
         // Convert image dimensions to texture space
         
