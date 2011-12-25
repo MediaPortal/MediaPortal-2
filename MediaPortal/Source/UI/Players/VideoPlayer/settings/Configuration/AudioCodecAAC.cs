@@ -24,6 +24,7 @@
 
 using System;
 using DirectShowLib;
+using MediaPortal.UI.Players.Video.Tools;
 
 namespace MediaPortal.UI.Players.Video.Settings.Configuration
 {
@@ -31,7 +32,7 @@ namespace MediaPortal.UI.Players.Video.Settings.Configuration
   {
     public AudioCodecAAC()
       : base(
-        new Guid[] { MediaType.Audio, MediaSubTypeExt.AAC }, // require AAC input
+        new Guid[] { MediaType.Audio, CodecHandler.MEDIASUBTYPE_AAC_AUDIO }, // require AAC input
         new Guid[] { MediaType.Audio, Guid.Empty } // require any Audio output
       )
     { }

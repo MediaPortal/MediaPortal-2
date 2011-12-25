@@ -22,6 +22,7 @@
 
 #endregion
 
+using System;
 using System.Drawing;
 using MediaPortal.Common.General;
 using MediaPortal.UI.SkinEngine.MpfElements;
@@ -69,12 +70,12 @@ namespace MediaPortal.UI.SkinEngine.Controls.ImageSources
     /// Renders this image source to the client area using the passed <paramref name="renderContext"/>.
     /// </summary>
     /// <param name="renderContext">The current rendering context</param>
-    /// <param name="stretchMode">The type of stretching to perform when the image doesn't fit the client area.</param>
+    /// <param name="stretchMode">The mode of stretching to perform when the image doesn't fit the client area.</param>
     /// <param name="stretchDirection">The condition required for stretching to take place.</param>
     public abstract void Render(RenderContext renderContext, Stretch stretchMode, StretchDirection stretchDirection);
 
     /// <summary>
-    /// Gets the original size (before stretching) of the centent represented by this source.
+    /// Gets the original size (before stretching but after rotation) of the content represented by this source.
     /// </summary>
     public abstract SizeF SourceSize { get; }
 
@@ -99,17 +100,17 @@ namespace MediaPortal.UI.SkinEngine.Controls.ImageSources
     /// </summary>
     /// <param name="target">The total available space.</param>
     /// <param name="source">The unscaled source size.</param>
-    /// <param name="type">The <see cref="Stretch"/> mode that determines which stretching technique to use.</param>
+    /// <param name="stretchMode">The <see cref="Stretch"/> mode that determines which stretching technique to use.</param>
     /// <param name="direction">The <see cref="StretchDirection"/> that determines when to perform scaling.</param>
     /// <returns>The scaled source size, which may be larger than the <paramref name="target"/> size.</returns>
-    public SizeF StretchSource(SizeF target, SizeF source, Stretch type, StretchDirection direction)
+    public SizeF StretchSource(SizeF target, SizeF source, Stretch stretchMode, StretchDirection direction)
     {
       if (direction == StretchDirection.DownOnly && source.Width <= target.Width && source.Height <= target.Height)
         return source;
       if (direction == StretchDirection.UpOnly && source.Width >= target.Width && source.Height >= target.Height)
         return source;
 
-      switch (type)
+      switch (stretchMode)
       {
         case Stretch.None:
           // Original size
@@ -136,6 +137,13 @@ namespace MediaPortal.UI.SkinEngine.Controls.ImageSources
           break;
       }
       return source;
+    }
+
+    /// <summary>
+    /// Notifies this image source that the rendering was stopped for this image. Can be overridden by sub classes.
+    /// </summary>
+    public virtual void VisibilityLost()
+    {
     }
   }
 }

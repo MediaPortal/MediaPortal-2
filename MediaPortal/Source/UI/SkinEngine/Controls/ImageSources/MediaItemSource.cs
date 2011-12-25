@@ -23,23 +23,31 @@
 #endregion
 
 using System;
+using System.Drawing;
 using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.UI.SkinEngine.ContentManagement;
+using MediaPortal.UI.SkinEngine.Rendering;
+using SlimDX.Direct3D9;
 
 namespace MediaPortal.UI.SkinEngine.Controls.ImageSources
 {
   /// <summary>
   /// <see cref="MediaItemSource"/> acts as a source provider / renderer for the <see cref="Visuals.Image"/> control.
-  /// It's extends the <see cref="BitmapImage"/> to support thumbnail building for MediaItems.
+  /// It's extends the <see cref="BitmapImageSource"/> to support thumbnail building for MediaItems.
   /// </summary>
-  public class MediaItemSource : BitmapImage
+  public class MediaItemSource : TextureImageSource
   {
-    #region Variables
+    #region Protected fields
 
     protected byte[] _thumbBinary = null;
     protected string _key;
     protected int _thumbnailSize;
+    protected TextureAsset _texture = null;
+    protected RightAngledRotation _rotation = RightAngledRotation.Zero;
+    protected bool _flipX = false;
+    protected bool _flipY = false;
+
     #endregion
 
     #region Constructor
@@ -74,11 +82,34 @@ namespace MediaPortal.UI.SkinEngine.Controls.ImageSources
         if (_thumbBinary == null && mediaItem.Aspects.ContainsKey(ThumbnailSmallAspect.ASPECT_ID))
           _thumbBinary = (byte[]) mediaItem.Aspects[ThumbnailSmallAspect.ASPECT_ID].GetAttributeValue(ThumbnailSmallAspect.ATTR_THUMBNAIL);
       }
+      PictureRotation rotation;
+      PictureAspect.GetOrientationMetadata(mediaItem, out rotation, out _flipX, out _flipY);
+      _rotation = RotationTranslator.TranslateToRightAngledRotation(rotation);
     }
 
     #endregion
 
-    #region Base overrides
+    #region ImageSource implementation
+
+    public override bool IsAllocated
+    {
+      get { return _texture != null && _texture.IsAllocated; }
+    }
+
+    protected override Texture Texture
+    {
+      get { return _texture == null ? null : _texture.Texture; }
+    }
+
+    protected override SizeF RawSourceSize
+    {
+      get { return (_texture != null && _texture.IsAllocated) ? new SizeF(_texture.Width, _texture.Height) : SizeF.Empty; }
+    }
+
+    protected override RectangleF TextureClip
+    {
+      get { return _texture == null ? RectangleF.Empty : new RectangleF(0, 0, _texture.MaxU, _texture.MaxV); }
+    }
 
     public override void Allocate()
     {
@@ -89,12 +120,21 @@ namespace MediaPortal.UI.SkinEngine.Controls.ImageSources
         _texture.Allocate();
         if (_texture.IsAllocated)
         {
-          _frameData.X = _texture.Width;
-          _frameData.Y = _texture.Height;
           _imageContext.Refresh();
+          _imageContext.Rotation = _rotation;
           FireChanged();
         }
       }
+    }
+
+    #endregion
+
+    #region Protected methods
+
+    protected override void FreeData()
+    {
+      _texture = null;
+      base.FreeData();
     }
 
     #endregion

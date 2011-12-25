@@ -238,7 +238,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       if (!double.IsNaN(Width))
         totalWidth = (float) Width;
 
-      SizeF size = new SizeF();
+      SizeF size = SizeF.Empty;
       string[] lines = _asset.GetLines(totalWidth, Wrap);
       size.Width = 0;
       foreach (string line in lines)

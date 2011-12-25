@@ -30,5 +30,5 @@
   <ResourceWrapper x:Key="PiPVideoWidth" Resource="192"/>
   
   <ResourceWrapper x:Key="DialogBorderCornerRadius" Resource="2"/>
-  
+
 </ResourceDictionary>

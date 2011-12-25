@@ -97,6 +97,11 @@ namespace MediaPortal.UI.SkinEngine.Rendering
     /// <param name="primitiveType">The primitive type to be used when rendering.</param>
     public void Set(ref PositionColoredTextured[] vertices,  PrimitiveType primitiveType)
     {
+      if (vertices == null)
+      {
+        Clear();
+        return;
+      }
       int numVertices = vertices.Length;
       if (_vertexBuffer == null || numVertices > VertexCount)
         Create(numVertices);
@@ -178,6 +183,8 @@ namespace MediaPortal.UI.SkinEngine.Rendering
     /// <param name="stream"></param>
     public void Render(int stream)
     {
+      if (_vertexBuffer == null)
+        return;
       GraphicsDevice.Device.VertexFormat = VertexFormat;
       GraphicsDevice.Device.SetStreamSource(stream, _vertexBuffer, 0, StrideSize);
       GraphicsDevice.Device.DrawPrimitives(_primitiveType, 0, _primitiveCount);

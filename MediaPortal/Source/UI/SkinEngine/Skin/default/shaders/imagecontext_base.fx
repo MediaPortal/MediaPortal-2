@@ -11,6 +11,7 @@ float4x4  worldViewProj : WORLDVIEWPROJ; // Our world view projection matrix
 
 float     g_opacity;
 texture   g_texture; // Color texture 
+float4x4  g_relativetransform;
 float4    g_imagetransform;
 float4    g_framedata; // xy = width, height in pixels. z = time since rendering start in seconds. Max value 5 hours.
 
@@ -44,7 +45,12 @@ struct PS_Output
 void RenderVertexShader(in VS_Input IN, out VS_Output OUT)
 {
   OUT.Position = mul(IN.Position, worldViewProj);
-  OUT.Texcoord = IN.Texcoord * g_imagetransform.zw - g_imagetransform.xy;
+
+  // Apply relative transform
+  float2 pos = mul(float4(IN.Texcoord.x, IN.Texcoord.y, 0.0, 1.0), g_relativetransform).xy;
+
+  // Transform vertex coords to place brush texture
+  OUT.Texcoord = pos * g_imagetransform.zw - g_imagetransform.xy;
 }
 
 void RenderPixelShader(in VS_Output IN, out PS_Output OUT)

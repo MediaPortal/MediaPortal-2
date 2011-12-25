@@ -26,7 +26,6 @@
 using System.Collections.Generic;
 using MediaPortal.Common.Localization;
 using MediaPortal.Common.Settings;
-using MediaPortal.Common;
 
 namespace MediaPortal.Common.Configuration
 {

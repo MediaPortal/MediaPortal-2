@@ -117,14 +117,15 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Shapes
       {
         using (GraphicsPath path = CreateRectanglePath(_innerRect))
         {
+          PointF[] pathPoints = path.PathPoints;
           PositionColoredTextured[] verts;
-          if (path.PointCount == 0)
+          if (pathPoints.Length == 0)
             return;
           float centerX = _innerRect.Width / 2 + _innerRect.Left;
           float centerY = _innerRect.Height / 2 + _innerRect.Top;
           if (Fill != null)
           {
-            TriangulateHelper.FillPolygon_TriangleList(path, centerX, centerY, 1, out verts);
+            TriangulateHelper.FillPolygon_TriangleList(pathPoints, centerX, centerY, 1, out verts);
             Fill.SetupBrush(this, ref verts, context.ZOrder, true);
             PrimitiveBuffer.SetPrimitiveBuffer(ref _fillContext, ref verts, PrimitiveType.TriangleList);
           }
@@ -133,7 +134,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Shapes
 
           if (Stroke != null && StrokeThickness > 0)
           {
-            TriangulateHelper.TriangulateStroke_TriangleList(path, (float) StrokeThickness, true, 1, out verts);
+            TriangulateHelper.TriangulateStroke_TriangleList(pathPoints, (float) StrokeThickness, true, 1, out verts);
             Stroke.SetupBrush(this, ref verts, context.ZOrder, true);
             PrimitiveBuffer.SetPrimitiveBuffer(ref _strokeContext, ref verts, PrimitiveType.TriangleList);
           }

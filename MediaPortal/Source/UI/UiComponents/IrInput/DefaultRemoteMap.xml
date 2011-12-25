@@ -14,7 +14,10 @@
   <MappedKeyCode Code="Power" Key_Name="S:None" />
 
   <MappedKeyCode Code="Power2" Key_Name="S:Power" />
-  <MappedKeyCode Code="Back" Key_Name="S:Back" />
+  <!-- 
+  Default mapping: <MappedKeyCode Code="Back" Key_Name="S:Back" />
+  -->
+  <MappedKeyCode Code="Back" Key_Name="S:Escape" />
   <MappedKeyCode Code="OK" Key_Name="S:Ok" />
   <MappedKeyCode Code="Start" Key_Name="S:Start" />
 
@@ -27,8 +30,12 @@
   <MappedKeyCode Code="VolumeDown" Key_Name="S:VolumeDown" />
   <MappedKeyCode Code="Mute" Key_Name="S:Mute" />
 
-  <MappedKeyCode Code="ChannelUp" Key_Name="S:ChannelUp" />
-  <MappedKeyCode Code="ChannelDown" Key_Name="S:ChannelDown" />
+  <!-- 
+  Default mapping:  <MappedKeyCode Code="ChannelUp" Key_Name="S:ChannelUp" />
+                    <MappedKeyCode Code="ChannelDown" Key_Name="S:ChannelDown" />
+  -->
+  <MappedKeyCode Code="ChannelUp" Key_Name="S:PageUp" />
+  <MappedKeyCode Code="ChannelDown" Key_Name="S:PageDown" />
 
   <MappedKeyCode Code="Up" Key_Name="S:Up" />
   <MappedKeyCode Code="Down" Key_Name="S:Down" />

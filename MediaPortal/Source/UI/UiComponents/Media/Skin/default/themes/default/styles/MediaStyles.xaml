@@ -389,7 +389,7 @@
   </Storyboard>
 
   <Style x:Key="SecondaryMediaOSDStyle" TargetType="{x:Type mp_special_controls:PlayerControl}">
-    <Setter Property="FixedVideoHeight" Value="{ThemeResource FullScreenContentVideoSecondaryPlayerOSDPipHeight}"/>
+    <Setter Property="FixedImageHeight" Value="{ThemeResource FullScreenContentVideoSecondaryPlayerOSDPipHeight}"/>
     <Setter Property="Template">
       <Setter.Value>
         <ControlTemplate TargetType="{x:Type mp_special_controls:PlayerControl}">

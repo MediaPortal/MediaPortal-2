@@ -98,7 +98,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Shapes
                 {
                   bool isClosed;
                   gpi.NextSubpath(subPath, out isClosed);
-                  TriangulateHelper.Triangulate(subPath, 1, out subPathVerts[i]);
+                  PointF[] pathPoints = subPath.PathPoints;
+                  TriangulateHelper.Triangulate(pathPoints, 1, out subPathVerts[i]);
                 }
               }
               PositionColoredTextured[] verts;
@@ -124,7 +125,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Shapes
                 {
                   bool isClosed;
                   gpi.NextSubpath(subPath, out isClosed);
-                  TriangulateHelper.TriangulateStroke_TriangleList(subPath, (float) StrokeThickness, isClosed, 1,
+                  PointF[] pathPoints = subPath.PathPoints;
+                  TriangulateHelper.TriangulateStroke_TriangleList(pathPoints, (float) StrokeThickness, isClosed, 1,
                       out subPathVerts[i]);
                 }
               }

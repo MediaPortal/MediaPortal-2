@@ -41,6 +41,9 @@ using MediaPortal.Utilities.DeepCopy;
 
 namespace MediaPortal.UI.SkinEngine.Controls.Brushes
 {
+  /// <summary>
+  /// Brush which paints the video image of a player provided by the <see cref="IPlayerManager"/>.
+  /// </summary>
   public class VideoBrush : Brush
   {
     #region Consts
@@ -62,12 +65,13 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
     protected Matrix _inverseRelativeTransformCache;
     protected ImageContext _imageContext;
     protected SizeF _scaledVideoSize;
+    protected RectangleF _videoTextureClip;
 
     protected IGeometry _lastGeometry;
     protected string _lastEffect;
-    protected CropSettings _lastCropSettings;
+    protected Rectangle _lastCropVideoRect;
     protected Size _lastVideoSize;
-    protected Size _lastAspectRatio;
+    protected SizeF _lastAspectRatio;
     protected int _lastDeviceWidth;
     protected int _lastDeviceHeight;
     protected Vector4 _lastFrameData;
@@ -164,15 +168,15 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
       return ServiceRegistration.Get<IGeometryManager>().DefaultVideoGeometry;
     }
 
-    protected void RefreshEffectParameters(IVideoPlayer player)
+    protected bool RefreshEffectParameters(IVideoPlayer player)
     {
       ISlimDXVideoPlayer sdvPlayer = player as ISlimDXVideoPlayer;
       if (sdvPlayer == null)
-        return;
-      Size aspectRatio = sdvPlayer.VideoAspectRatio;
+        return false;
+      SizeF aspectRatio = sdvPlayer.VideoAspectRatio;
       Size playerSize = sdvPlayer.VideoSize;
+      Rectangle cropVideoRect = sdvPlayer.CropVideoRect;
       IGeometry geometry = ChooseVideoGeometry(player);
-      CropSettings cropSettings = player.CropSettings;
       string effectName = player.EffectOverride;
       int deviceWidth = GraphicsDevice.Width; // To avoid threading issues if the device size changes
       int deviceHeight = GraphicsDevice.Height;
@@ -182,22 +186,34 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
       if (!_refresh &&
           _lastVideoSize == playerSize &&
           _lastAspectRatio == aspectRatio &&
+          _lastCropVideoRect == cropVideoRect &&
           _lastGeometry == geometry &&
           _lastEffect == effectName &&
-          _lastCropSettings == cropSettings &&
           _lastDeviceWidth == deviceWidth &&
           _lastDeviceHeight == deviceHeight &&
           _lastVertsBounds == vertsBounds)
-        return;
+        return true;
 
       SizeF targetSize = vertsBounds.Size;
 
-      _scaledVideoSize = cropSettings == null ? playerSize : cropSettings.CropRect(playerSize).Size;
-      
+      lock (sdvPlayer.SurfaceLock)
+      {
+        Surface surface = sdvPlayer.Surface;
+        if (surface == null)
+        {
+          _refresh = true;
+          return false;
+        }
+        SurfaceDescription desc = surface.Description;
+        _videoTextureClip = new Rectangle(cropVideoRect.X / desc.Width, cropVideoRect.Y / desc.Height,
+            cropVideoRect.Width / desc.Width, cropVideoRect.Height / desc.Height);
+      }
+      _scaledVideoSize = cropVideoRect.Size;
+
       // Correct aspect ratio for anamorphic video
       if (!aspectRatio.IsEmpty && geometry.RequiresCorrectAspectRatio)
       {
-        float pixelRatio = aspectRatio.Width / (float) aspectRatio.Height;
+        float pixelRatio = aspectRatio.Width / aspectRatio.Height;
         _scaledVideoSize.Width = _scaledVideoSize.Height * pixelRatio; 
       }
       // Adjust target size to match final Skin scaling
@@ -221,10 +237,13 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
       _lastVideoSize = playerSize;
       _lastAspectRatio = aspectRatio;
       _lastGeometry = geometry;
-      _lastCropSettings = cropSettings;
+      _lastCropVideoRect = cropVideoRect;
       _lastEffect = effectName;
       _lastDeviceWidth = deviceWidth;
       _lastDeviceHeight = deviceHeight;
+
+      _refresh = false;
+      return true;
     }
 
     protected void OnImagecontextRefresh()
@@ -290,7 +309,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
         ServiceRegistration.Get<ILogger>().Debug("VideoBrush.SetupBrush: Player manager not found");
     }
 
-    public override bool BeginRenderBrush(PrimitiveBuffer primitiveContext, RenderContext renderContext)
+    protected override bool BeginRenderBrushOverride(PrimitiveBuffer primitiveContext, RenderContext renderContext)
     {
       IPlayerManager playerManager = ServiceRegistration.Get<IPlayerManager>(false);
       if (playerManager == null)
@@ -298,14 +317,11 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
 
       ISlimDXVideoPlayer player = playerManager[Stream] as ISlimDXVideoPlayer;
       if (player == null) 
-          return false;
+        return false;
 
-      RefreshEffectParameters(player);
+      if (!RefreshEffectParameters(player))
+        return false;
 
-      // NOTE: It appears that render textures are always allocated to the exact size (not nearest power-of-2), which makes this SurfaceMaxUV stuff
-      // unnecessary. It is unclear whether this is how it is done by every graphics driver though, so I'll leave it in for the 
-      // time being.
-      SizeF maxuv = player.SurfaceMaxUV;
       lock (player.SurfaceLock)
       {
         Surface playerSurface = player.Surface;
@@ -317,15 +333,15 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
         if (!textureDesc.HasValue || textureDesc.Value.Width != desc.Width || textureDesc.Value.Height != desc.Height)
         {
           TryDispose(ref _texture);
-          _texture = new Texture(device, desc.Width, desc.Height, 1, Usage.RenderTarget, SkinContext.CurrentDisplayMode.Format, Pool.Default);
+          _texture = new Texture(device, desc.Width, desc.Height, 1, Usage.RenderTarget, Format.A8R8G8B8, Pool.Default);
         }
         using (Surface target = _texture.GetSurfaceLevel(0))
           device.StretchRectangle(playerSurface, target, TextureFilter.None);
       }
-      return _imageContext.StartRender(renderContext, _scaledVideoSize, _texture, maxuv.Width, maxuv.Height, BorderColor.ToArgb(), _lastFrameData);
+      return _imageContext.StartRender(renderContext, _scaledVideoSize, _texture, _videoTextureClip, BorderColor.ToArgb(), _lastFrameData);
     }
 
-    public override void BeginRenderOpacityBrush(Texture tex, RenderContext renderContext)
+    protected override bool BeginRenderOpacityBrushOverride(Texture tex, RenderContext renderContext)
     {
       throw new NotImplementedException("VideoBrush doesn't support being rendered as an opacity brush");
     }

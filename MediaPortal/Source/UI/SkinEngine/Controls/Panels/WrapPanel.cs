@@ -271,7 +271,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
       IList<FrameworkElement> visibleChildren = GetVisibleChildren();
       int numVisibleChildren = visibleChildren.Count;
       if (numVisibleChildren == 0)
-        return new SizeF();
+        return SizeF.Empty;
       float totalDesiredWidth = 0;
       float totalDesiredHeight = 0;
       int index = 0;

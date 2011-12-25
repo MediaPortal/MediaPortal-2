@@ -48,5 +48,10 @@
         Text="[Settings.Players.Pictures.SlideShowImageDuration]"
         HelpText="[Settings.Players.Pictures.SlideShowImageDuration.Help]"
         ClassName="MediaPortal.UI.Players.Picture.Settings.Configuration.SlideShowImageDuration"/>
+    <ConfigSetting
+      Id="KenBurnsEffect"
+      Text="[Settings.Players.Pictures.KenBurnsEffect]"
+      HelpText="[Settings.Players.Pictures.KenBurnsEffect.Help]"
+      ClassName="MediaPortal.UI.Players.Picture.Settings.Configuration.KenBurnsEffect"/>
   </Register>
 </Plugin>

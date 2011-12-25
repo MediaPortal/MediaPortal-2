@@ -55,15 +55,21 @@ namespace MediaPortal.UI.SkinEngine.GUI
   public partial class MainForm : Form, IScreenControl
   {
     /// <summary>
-    /// Maximum time between frames when our render thread is synchronized to the EVR.
+    /// Maximum time between frames when our render thread is synchronized to the video player thread.
     /// </summary>
-    public static int EVR_RENDER_MAX_MS_PER_FRAME = 100;
+    public static int RENDER_MAX_WAIT_FOR_VIDEO_FRAME_MS = 100;
+
+    /// <summary>
+    /// The maximum time for the video player thread to wait for the render thread when those threads are synchronized.
+    /// </summary>
+    public static int VIDEO_PLAYER_MAX_WAIT_FOR_RENDER_MS = 10;
 
     private const string SCREEN_SAVER_SCREEN = "ScreenSaver";
 
     private bool _renderThreadStopped;
     private ISlimDXVideoPlayer _synchronizedVideoPlayer = null;
     private readonly AutoResetEvent _videoRenderFrameEvent = new AutoResetEvent(false);
+    private readonly AutoResetEvent _renderFinishedEvent = new AutoResetEvent(false);
     private bool _videoPlayerSuspended = false;
     private Size _previousWindowClientSize;
     private Point _previousWindowLocation;
@@ -325,6 +331,7 @@ namespace MediaPortal.UI.SkinEngine.GUI
     private void VideoPlayerRender()
     {
       _videoRenderFrameEvent.Set();
+      _renderFinishedEvent.WaitOne(VIDEO_PLAYER_MAX_WAIT_FOR_RENDER_MS);
     }
 
     /// <summary>
@@ -338,12 +345,16 @@ namespace MediaPortal.UI.SkinEngine.GUI
         // EVR handling
         bool isVideoPlayer = SynchronizedToEVR;
 
+        _renderFinishedEvent.Reset();
+
         if (isVideoPlayer && !_videoPlayerSuspended)
           // If our video player synchronizes the rendering, it sets the _videoRenderFrameEvent when a new frame is available,
           // so we wait for that event here.
-          _videoRenderFrameEvent.WaitOne(EVR_RENDER_MAX_MS_PER_FRAME);
+          _videoRenderFrameEvent.WaitOne(RENDER_MAX_WAIT_FOR_VIDEO_FRAME_MS);
 
         bool shouldWait = GraphicsDevice.Render(!isVideoPlayer || _videoPlayerSuspended); // If the video player isn't active or if it is suspended, use the configured target framerate of the GraphicsDevice
+        _renderFinishedEvent.Set();
+
         if (shouldWait || !_hasFocus)
           // The device was lost or we don't have focus - reduce the render rate
           Thread.Sleep(10);

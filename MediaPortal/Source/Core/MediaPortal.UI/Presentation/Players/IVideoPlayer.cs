@@ -46,7 +46,7 @@ namespace MediaPortal.UI.Presentation.Players
     /// <summary>
     /// Returns the aspect ratio of the video.
     /// </summary>
-    Size VideoAspectRatio { get;  }
+    SizeF VideoAspectRatio { get;  }
 
     /// <summary>
     /// Gets or sets a geometry to be used for this player. If this property is not set, a default geometry will be used.

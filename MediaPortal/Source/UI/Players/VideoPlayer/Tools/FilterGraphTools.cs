@@ -369,8 +369,8 @@ namespace MediaPortal.UI.Players.Video.Tools
         {
           if (filters[0] is TE)
             matchingFilters.Add((TE)filters[0]);
-
-          //Marshal.ReleaseComObject(filters[0]);
+          else
+            Marshal.ReleaseComObject(filters[0]);
         }
         Marshal.ReleaseComObject(enumFilters);
         Marshal.FreeCoTaskMem(fetched);
@@ -1119,7 +1119,7 @@ namespace MediaPortal.UI.Players.Video.Tools
     /// <returns>friendly name</returns>
     public static Guid GetCLSID(IMoniker mon)
     {
-      String clsidString=GetFilterProperty(mon, "CLSID");
+      String clsidString = GetFilterProperty(mon, "CLSID");
       return String.IsNullOrEmpty(clsidString) ? Guid.Empty : new Guid(clsidString);
     }
 
@@ -1148,7 +1148,7 @@ namespace MediaPortal.UI.Players.Video.Tools
 
         string ret = val as string;
         if (string.IsNullOrEmpty(ret))
-          throw new NotImplementedException("Filter: "+propertyName);
+          throw new NotImplementedException("Filter: " + propertyName);
 
         return ret;
       }
@@ -1214,7 +1214,7 @@ namespace MediaPortal.UI.Players.Video.Tools
 #else
         [Out] out IStream ppstm
 #endif
-        );
+);
 
     [PreserveSig]
     int OpenStream(
@@ -1227,7 +1227,7 @@ namespace MediaPortal.UI.Players.Video.Tools
 #else
         [Out] out IStream ppstm
 #endif
-        );
+);
 
     [PreserveSig]
     int CreateStorage(
@@ -1299,7 +1299,7 @@ namespace MediaPortal.UI.Players.Video.Tools
         [In] FILETIME patime,
         [In] FILETIME pmtime
 #endif
-        );
+);
 
     [PreserveSig]
     int SetClass([In, MarshalAs(UnmanagedType.LPStruct)] Guid clsid);
@@ -1315,7 +1315,7 @@ namespace MediaPortal.UI.Players.Video.Tools
 #if USING_NET11
 			[Out] out STATSTG pStatStg,
 #else
-        [Out] out STATSTG pStatStg,
+[Out] out STATSTG pStatStg,
 #endif
         [In] int grfStatFlag
         );

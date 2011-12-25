@@ -59,5 +59,15 @@ namespace MediaPortal.UI.Players.Picture.Settings
       get { return _SupportedExtensions; }
       set { _SupportedExtensions = value; }
     }
+
+    /// <summary>
+    /// Enables pan and zoom effect (Ken Burns).
+    /// </summary>
+    [Setting(SettingScope.User, true)]
+    public bool UseKenBurns
+    {
+      get;
+      set;
+    }
   }
 }

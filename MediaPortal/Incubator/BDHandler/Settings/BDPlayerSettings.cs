@@ -33,9 +33,9 @@ namespace MediaPortal.Plugins.BDHandler.Settings
   public class BDPlayerSettings
   {
     /// <summary>
-    /// Gets or Sets the preferred AVC codec.
+    /// Gets or Sets the Source Filter used for Blurays (currently only Gabest or LAV Splitter Source are supported).
     /// </summary>
     [Setting(SettingScope.User)]
-    public CodecInfo AVCCodec { get; set; }
+    public CodecInfo BDSourceFilter { get; set; }
   }
 }

@@ -25,6 +25,7 @@
 using System;
 using MediaPortal.Common;
 using MediaPortal.Common.Logging;
+using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.ResourceAccess;
 using MediaPortal.Common.PluginManager;
 using MediaPortal.UI.Presentation.Players;
@@ -62,14 +63,19 @@ namespace Ui.Players.BassPlayer
 
     #region IPlayerBuilder implementation
 
-    public IPlayer GetPlayer(IResourceLocator locator, string mimeType)
+    public IPlayer GetPlayer(MediaItem mediaItem)
     {
+      string mimeType;
+      string title;
+      if (!mediaItem.GetPlayData(out mimeType, out title))
+        return null;
+      IResourceLocator locator = mediaItem.GetResourceLocator();
       if (InputSourceFactory.CanPlay(locator, mimeType))
       {
         BassPlayer player = new BassPlayer(_pluginDirectory);
         try
         {
-          player.SetMediaItemLocator(locator, mimeType);
+          player.SetMediaItemLocator(locator, mimeType, title);
         }
         catch (Exception e)
         {

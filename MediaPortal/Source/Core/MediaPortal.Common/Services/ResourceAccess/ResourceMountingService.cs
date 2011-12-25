@@ -61,6 +61,14 @@ namespace MediaPortal.Common.Services.ResourceAccess
       return settings.DriveLetter;
     }
 
+    protected void SaveDefaultDriveSettings(char driveLetter)
+    {
+      ISettingsManager settingsManager = ServiceRegistration.Get<ISettingsManager>();
+      ResourceMountingSettings settings = settingsManager.Load<ResourceMountingSettings>();
+      settings.DriveLetter = driveLetter;
+      settingsManager.Save(settings);
+    }
+
     #region IDisposable implementation
 
     public void Dispose()
@@ -98,6 +106,8 @@ namespace MediaPortal.Common.Services.ResourceAccess
         ISystemResolver systemResolver = ServiceRegistration.Get<ISystemResolver>();
         driveLetter = systemResolver.SystemType == SystemType.Server ? ResourceMountingSettings.DEFAULT_DRIVE_LETTER_SERVER :
             ResourceMountingSettings.DEFAULT_DRIVE_LETTER_CLIENT;
+        // Save the current default setting to be able to change it in config file
+        SaveDefaultDriveSettings(driveLetter.Value);
       }
       _dokanExecutor = Dokan.Dokan.Install(driveLetter.Value);
       if (_dokanExecutor == null)

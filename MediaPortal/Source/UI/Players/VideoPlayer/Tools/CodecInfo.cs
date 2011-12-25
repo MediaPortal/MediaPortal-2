@@ -31,8 +31,6 @@ namespace MediaPortal.UI.Players.Video.Tools
   {
     #region Properties
 
-    public CodecHandler.CodecCapabilities Capabilities { get; set; }
-
     public String Name { get; set; }
 
     public String CLSID { get; set; }
@@ -45,14 +43,13 @@ namespace MediaPortal.UI.Players.Video.Tools
 
     public CodecInfo() {}
 
-    public CodecInfo(String codecName, CodecHandler.CodecCapabilities codecCapabilities)
+    public CodecInfo(String codecName)
     {
       Name = codecName;
-      Capabilities = codecCapabilities;
     }
 
-    public CodecInfo(String codecName, CodecHandler.CodecCapabilities codecCapabilities, DsGuid codecClsid) :
-        this(codecName, codecCapabilities)
+    public CodecInfo(String codecName, DsGuid codecClsid) :
+        this(codecName)
     {
       CLSID = codecClsid.ToString();
     }

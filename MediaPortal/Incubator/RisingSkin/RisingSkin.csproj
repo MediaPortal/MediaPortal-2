@@ -182,18 +182,17 @@
     <Content Include="Skin\RisingSkin\images\Weather\64x64\na.png" />
     <Content Include="Skin\RisingSkin\images\Weather\64x64\permission.txt" />
     <Content Include="Skin\RisingSkin\images\Weather\64x64\WEATHERALERT.png" />
-    <Content Include="Skin\RisingSkin\screens\MediaItemsList.inc" />
     <Content Include="Skin\RisingSkin\skin.xml" />
-    <Content Include="Skin\RisingSkin\themes\Silver\images\Filter.png" />
-    <Content Include="Skin\RisingSkin\themes\Silver\images\Filter_l.png" />
-    <Content Include="Skin\RisingSkin\themes\Silver\images\Movie_l.png" />
-    <Content Include="Skin\RisingSkin\themes\Silver\images\Music.png" />
-    <Content Include="Skin\RisingSkin\themes\Silver\images\Music_l.png" />
-    <Content Include="Skin\RisingSkin\themes\Silver\images\Navigation_l.png" />
-    <Content Include="Skin\RisingSkin\themes\Silver\images\Picture.png" />
-    <Content Include="Skin\RisingSkin\themes\Silver\images\Navigation.png" />
-    <Content Include="Skin\RisingSkin\themes\Silver\images\Movie.png" />
-    <Content Include="Skin\RisingSkin\themes\Silver\images\Picture_l.png" />
+    <Content Include="Skin\RisingSkin\themes\Silver\images\FilterLarge.png" />
+    <Content Include="Skin\RisingSkin\themes\Silver\images\FilterSmall.png" />
+    <Content Include="Skin\RisingSkin\themes\Silver\images\MovieLarge.png" />
+    <Content Include="Skin\RisingSkin\themes\Silver\images\MovieSmall.png" />
+    <Content Include="Skin\RisingSkin\themes\Silver\images\MusicLarge.png" />
+    <Content Include="Skin\RisingSkin\themes\Silver\images\MusicSmall.png" />
+    <Content Include="Skin\RisingSkin\themes\Silver\images\NavigationLarge.png" />
+    <Content Include="Skin\RisingSkin\themes\Silver\images\NavigationSmall.png" />
+    <Content Include="Skin\RisingSkin\themes\Silver\images\PictureLarge.png" />
+    <Content Include="Skin\RisingSkin\themes\Silver\images\PictureSmall.png" />
     <Content Include="Skin\RisingSkin\themes\Silver\styles\Colors.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>

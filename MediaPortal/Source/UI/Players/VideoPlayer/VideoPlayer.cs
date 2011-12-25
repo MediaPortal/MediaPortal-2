@@ -25,7 +25,6 @@
 using System;
 using System.Collections.Generic;
 using System.Drawing;
-using System.IO;
 using System.Runtime.InteropServices;
 using System.Security;
 using System.Windows.Forms;
@@ -89,16 +88,12 @@ namespace MediaPortal.UI.Players.Video
     protected static string[] EMPTY_STRING_ARRAY = new string[] { };
 
     // The default name for "No subtitles available" or "Subtitles disabled".
-    private const string NO_SUBTITLES = "No subtitles";
+    protected const string NO_SUBTITLES = "No subtitles";
 
     protected const double PLAYBACK_RATE_PLAY_THRESHOLD = 0.05;
 
     #region Protected Properties
 
-    /// <summary>
-    /// MediaSubTypes lookup list.
-    /// </summary>
-    protected Dictionary<Guid, String> MediaSubTypes = new Dictionary<Guid, string>();
     protected String PlayerTitle = "VideoPlayer";
 
     #endregion
@@ -124,10 +119,6 @@ namespace MediaPortal.UI.Players.Video
     protected Size _previousDisplaySize;
     protected uint _streamCount = 1;
     protected SizeF _maxUV = new SizeF(1.0f, 1.0f);
-
-    // Filter graph related 
-    protected CodecHandler.CodecCapabilities _graphCapabilities; // Capabilities which are currently added to graph
-    protected CodecHandler.CodecCapabilities _requiredCapabilities; // Required capabilities for playback
 
     // Internal state and variables
     protected IGeometry _geometryOverride = null;
@@ -156,7 +147,10 @@ namespace MediaPortal.UI.Players.Video
 
     protected StreamInfoHandler _streamInfoAudio = null;
     protected StreamInfoHandler _streamInfoSubtitles = null;
-    protected readonly object _syncObj = new object();
+    private readonly object _syncObj = new object();
+
+    protected bool _useTexture = true;
+    protected bool _textureInvalid = true;
 
     #endregion
 
@@ -173,12 +167,6 @@ namespace MediaPortal.UI.Players.Video
 
       SubscribeToMessages();
       PlayerTitle = "VideoPlayer";
-
-      // Default video player capabilities
-      _requiredCapabilities = CodecHandler.CodecCapabilities.VideoDIVX | CodecHandler.CodecCapabilities.AudioMPEG;
-
-      // Init the MediaSubTypes dictionary
-      InitMediaSubTypes();
     }
 
     public void Dispose()
@@ -193,47 +181,11 @@ namespace MediaPortal.UI.Players.Video
       get { return _syncObj; }
     }
 
-    void InitMediaSubTypes()
-    {
-      MediaSubTypes[CodecHandler.WMMEDIASUBTYPE_ACELPnet] = "ACELPnet"; //WMMEDIASUBTYPE_ACELPnet	
-      MediaSubTypes[CodecHandler.WMMEDIASUBTYPE_Base] = "Base"; //WMMEDIASUBTYPE_Base
-      MediaSubTypes[CodecHandler.WMMEDIASUBTYPE_DRM] = "DRM"; //WMMEDIASUBTYPE_DRM
-      MediaSubTypes[CodecHandler.WMMEDIASUBTYPE_MP3] = "MP3"; //WMMEDIASUBTYPE_MP3
-      MediaSubTypes[CodecHandler.WMMEDIASUBTYPE_MP43] = "MP43"; //WMMEDIASUBTYPE_MP43
-      MediaSubTypes[CodecHandler.WMMEDIASUBTYPE_MP4S] = "MP4S"; //WMMEDIASUBTYPE_MP4S
-      MediaSubTypes[CodecHandler.WMMEDIASUBTYPE_M4S2] = "M4S2"; //WMMEDIASUBTYPE_M4S2
-      MediaSubTypes[CodecHandler.WMMEDIASUBTYPE_P422] = "P422"; //WMMEDIASUBTYPE_P422
-      MediaSubTypes[CodecHandler.WMMEDIASUBTYPE_MPEG2_VIDEO] = "MPEG2"; //WMMEDIASUBTYPE_MPEG2_VIDEO
-      MediaSubTypes[CodecHandler.WMMEDIASUBTYPE_MSS1] = "MSS1"; //WMMEDIASUBTYPE_MSS1
-      MediaSubTypes[CodecHandler.WMMEDIASUBTYPE_MSS2] = "MSS2"; //WMMEDIASUBTYPE_MSS2
-      MediaSubTypes[CodecHandler.WMMEDIASUBTYPE_PCM] = "PCM"; //WMMEDIASUBTYPE_PCM
-      MediaSubTypes[CodecHandler.WMMEDIASUBTYPE_WebStream] = "WebStream"; //WMMEDIASUBTYPE_WebStream
-      MediaSubTypes[CodecHandler.WMMEDIASUBTYPE_WMAudio_Lossless] = "WMA Lossless"; //WMMEDIASUBTYPE_WMAudio_Lossless
-      MediaSubTypes[CodecHandler.WMMEDIASUBTYPE_WMAudioV2] = "WMA v2"; //WMMEDIASUBTYPE_WMAudioV2
-      MediaSubTypes[CodecHandler.WMMEDIASUBTYPE_WMAudioV7] = "WMA v7"; //WMMEDIASUBTYPE_WMAudioV7
-      MediaSubTypes[CodecHandler.WMMEDIASUBTYPE_WMAudioV8] = "WMA v8"; //WMMEDIASUBTYPE_WMAudioV8
-      MediaSubTypes[CodecHandler.WMMEDIASUBTYPE_WMAudioV9] = "WMA v9"; //WMMEDIASUBTYPE_WMAudioV9
-      MediaSubTypes[CodecHandler.WMMEDIASUBTYPE_WMSP1] = "WMSP1"; //WMMEDIASUBTYPE_WMSP1
-      MediaSubTypes[CodecHandler.WMMEDIASUBTYPE_WMV1] = "WMV1"; //WMMEDIASUBTYPE_WMV1
-      MediaSubTypes[CodecHandler.WMMEDIASUBTYPE_WMV2] = "WMV2"; //WMMEDIASUBTYPE_WMV2
-      MediaSubTypes[CodecHandler.WMMEDIASUBTYPE_WMV3] = "WMV3"; //WMMEDIASUBTYPE_WMV3
-      MediaSubTypes[CodecHandler.WMMEDIASUBTYPE_WMVA] = "WMVA"; //WMMEDIASUBTYPE_WMVA
-      MediaSubTypes[CodecHandler.WMMEDIASUBTYPE_WMVP] = "WMVP"; //WMMEDIASUBTYPE_WMVP
-      MediaSubTypes[CodecHandler.WMMEDIASUBTYPE_WVP2] = "WVP2"; //WMMEDIASUBTYPE_WVP2
-      MediaSubTypes[CodecHandler.MEDIASUBTYPE_AC3_AUDIO] = "AC3"; //MEDIASUBTYPE_AC3_AUDIO
-      MediaSubTypes[CodecHandler.MEDIASUBTYPE_AC3_AUDIO_OTHER] = "AC3"; //MEDIASUBTYPE_ ???
-      MediaSubTypes[CodecHandler.MEDIASUBTYPE_DDPLUS_AUDIO] = "AC3+"; //MEDIASUBTYPE_DDPLUS_AUDIO
-      MediaSubTypes[CodecHandler.MEDIASUBTYPE_MPEG1_PAYLOAD] = "MPEG1"; //MEDIASUBTYPE_MPEG1_PAYLOAD
-      MediaSubTypes[CodecHandler.MEDIASUBTYPE_MPEG1_AUDIO] = "MPEG1"; //MEDIASUBTYPE_MPEG1_AUDIO
-      MediaSubTypes[CodecHandler.MEDIASUBTYPE_MPEG2_AUDIO] = "MPEG2"; //MEDIASUBTYPE_MPEG2_AUDIO
-      MediaSubTypes[CodecHandler.MEDIASUBTYPE_LATM_AAC_AUDIO] = "LATM AAC"; //MEDIASUBTYPE_LATM_AAC_AUDIO
-      MediaSubTypes[CodecHandler.MEDIASUBTYPE_AAC_AUDIO] = "AAC"; //MEDIASUBTYPE_AAC_AUDIO
-    }
     #endregion
 
     #region Message handling
 
-    protected virtual void SubscribeToMessages()
+    protected void SubscribeToMessages()
     {
       _messageQueue = new AsynchronousMessageQueue(this, new string[] { WindowsMessaging.CHANNEL });
       _messageQueue.MessageReceived += OnMessageReceived;
@@ -294,7 +246,7 @@ namespace MediaPortal.UI.Players.Video
 
     #region IInitializablePlayer implementation
 
-    public void SetMediaItemLocator(IResourceLocator locator)
+    public void SetMediaItem(IResourceLocator locator, string mediaItemTitle)
     {
       // free previous opened resource
       FilterGraphTools.TryDispose(ref _resourceAccessor);
@@ -305,6 +257,7 @@ namespace MediaPortal.UI.Players.Video
       try
       {
         _resourceLocator = locator;
+        _mediaItemTitle = mediaItemTitle;
         _resourceAccessor = _resourceLocator.CreateLocalFsAccessor();
         ServiceRegistration.Get<ILogger>().Debug("{0}: Initializing for media item '{1}'", PlayerTitle, _resourceAccessor.LocalFileSystemPath);
 
@@ -346,8 +299,8 @@ namespace MediaPortal.UI.Players.Video
         int hr = mc.Run();
         DsError.ThrowExceptionForHR(hr);
 
-        OnGraphRunning();
         _initialized = true;
+        OnGraphRunning();
       }
       catch (Exception)
       {
@@ -467,8 +420,7 @@ namespace MediaPortal.UI.Players.Video
       if (hr != 0)
       {
         EvrDeinit();
-        Marshal.ReleaseComObject(_evr);
-        FilterGraphTools.TryDispose(ref _evr);
+        FilterGraphTools.TryRelease(ref _evr);
         throw new VideoPlayerException("Initializing of EVR failed");
       }
       _graphBuilder.AddFilter(_evr, EVR_FILTER_NAME);
@@ -497,20 +449,7 @@ namespace MediaPortal.UI.Players.Video
       IBaseFilter tempFilter = FilterGraphTools.AddFilterByName(_graphBuilder, filterCategory, codecInfo.Name);
       return tempFilter != null;
     }
-
-    /// <summary>
-    /// Used to override requiredCapabilities by file extension.
-    /// </summary>
-    protected virtual void SetCapabilitiesByExtension()
-    {
-      if (_resourceAccessor == null) return;
-      string ext = Path.GetExtension(_resourceAccessor.LocalFileSystemPath);
-      if (ext != null && (ext.IndexOf(".mpg") >= 0 || ext.IndexOf(".ts") >= 0 || ext.IndexOf(".mpeg") >= 0))
-        _requiredCapabilities = CodecHandler.CodecCapabilities.VideoH264 | CodecHandler.CodecCapabilities.VideoMPEG2 | CodecHandler.CodecCapabilities.AudioMPEG;
-      else
-        _requiredCapabilities = CodecHandler.CodecCapabilities.VideoDIVX | CodecHandler.CodecCapabilities.AudioMPEG;
-    }
-
+    
     /// <summary>
     /// Adds the file source filter to the graph.
     /// </summary>
@@ -542,10 +481,9 @@ namespace MediaPortal.UI.Players.Video
         return;
 
       //IAMPluginControl is supported in Win7 and later only.
-      IAMPluginControl pc = null;
       try
       {
-        pc = new DirectShowPluginControl() as IAMPluginControl;
+        IAMPluginControl pc = new DirectShowPluginControl() as IAMPluginControl;
         if (pc != null)
         {
           if (settings.Mpeg2Codec != null)
@@ -554,8 +492,11 @@ namespace MediaPortal.UI.Players.Video
           if (settings.H264Codec != null)
             pc.SetPreferredClsid(MediaSubType.H264, settings.H264Codec.GetCLSID());
 
+          if (settings.AVCCodec != null)
+            pc.SetPreferredClsid(CodecHandler.MEDIASUBTYPE_AVC, settings.AVCCodec.GetCLSID());
+
           if (settings.AudioCodecLATMAAC != null)
-            pc.SetPreferredClsid(MediaSubTypeExt.LATMAAC, settings.AudioCodecLATMAAC.GetCLSID());
+            pc.SetPreferredClsid(CodecHandler.MEDIASUBTYPE_LATM_AAC_AUDIO, settings.AudioCodecLATMAAC.GetCLSID());
 
           if (settings.AudioCodecAAC != null)
             pc.SetPreferredClsid(CodecHandler.MEDIASUBTYPE_AAC_AUDIO, settings.AudioCodecAAC.GetCLSID());
@@ -578,22 +519,6 @@ namespace MediaPortal.UI.Players.Video
       {
         ServiceRegistration.Get<ILogger>().Debug("{0}: Exception in IAMPluginControl: {1}", PlayerTitle, ex.ToString());
       }
-
-      // if IAMPluginControl is not supported.
-      if (pc == null)
-      {
-        if ((_requiredCapabilities & CodecHandler.CodecCapabilities.VideoMPEG2) != 0)
-          TryAdd(settings.Mpeg2Codec);
-
-        if ((_requiredCapabilities & CodecHandler.CodecCapabilities.VideoH264) != 0)
-          TryAdd(settings.H264Codec);
-
-        if ((_requiredCapabilities & CodecHandler.CodecCapabilities.VideoDIVX) != 0)
-          TryAdd(settings.DivXCodec);
-
-        if ((_requiredCapabilities & CodecHandler.CodecCapabilities.AudioMPEG) != 0)
-          TryAdd(settings.AudioCodec);
-      }
     }
 
     #endregion
@@ -605,19 +530,19 @@ namespace MediaPortal.UI.Players.Video
     /// </summary>
     protected virtual void FreeCodecs()
     {
+      // Free stream infos and references to IAMStreamSelect
       FilterGraphTools.TryDispose(ref _streamInfoAudio);
       FilterGraphTools.TryDispose(ref _streamInfoSubtitles);
 
-      //FIXME: there is exactly 1 remainaing reference to _evr, which I cannot find (does the custom evr present hold it?)
-      //  call TryRelease with true to free all refrences:
-      // - Releasing filter MediaPortal.UI.Players.Video.VideoPlayer+EnhancedVideoRenderer, remaining references: 1
-      // - Releasing filter DirectShowLib.FilterGraph, remaining references: 1
-      if (_graphBuilder != null)
-        FilterGraphTools.RemoveAllFilters(_graphBuilder, true);
-      FilterGraphTools.TryRelease(ref _evr);
-
+      // Free EVR
       EvrDeinit();
       FreeEvrCallback();
+      FilterGraphTools.TryRelease(ref _evr);
+
+      // Free all filters from graph
+      if (_graphBuilder != null)
+        FilterGraphTools.RemoveAllFilters(_graphBuilder, true);
+
       FilterGraphTools.TryDispose(ref _rot);
       FilterGraphTools.TryRelease(ref _graphBuilder);
     }
@@ -714,15 +639,57 @@ namespace MediaPortal.UI.Players.Video
       get { return (_evrCallback == null || !_initialized) ? new Size(0, 0) : _evrCallback.OriginalVideoSize; }
     }
 
-    public Size VideoAspectRatio
+    public SizeF VideoAspectRatio
     {
       get { return (_evrCallback == null) ? new Size(1, 1) : _evrCallback.AspectRatio; }
     }
 
-    public SizeF SurfaceMaxUV
+    protected Surface RawVideoSurface
     {
-      get { return (_evrCallback == null) ? new SizeF(1.0f, 1.0f) : _evrCallback.SurfaceMaxUV; }
+      get { return (_initialized && _evrCallback != null) ? _evrCallback.Surface : null; }
     }
+
+    public object SurfaceLock
+    {
+      get
+      {
+        EVRCallback callback = _evrCallback;
+        return callback == null ? _syncObj : callback.SurfaceLock;
+      }
+    }
+
+    public Surface Surface
+    {
+      get
+      {
+        lock (SurfaceLock)
+        {
+          Surface videoSurface = RawVideoSurface;
+          if (!_textureInvalid)
+            return videoSurface;
+
+          if (videoSurface == null || videoSurface.Disposed)
+            return null;
+
+          PostProcessTexture(videoSurface);
+          _textureInvalid = false;
+          return videoSurface;
+        }
+      }
+    }
+
+    protected void OnTextureInvalidated()
+    {
+      _textureInvalid = true;
+    }
+
+    /// <summary>
+    /// PostProcessTexture allows video players to post process the video frame texture,
+    /// i.e. for overlaying subtitles or OSD menus.
+    /// </summary>
+    /// <param name="targetTexture"></param>
+    protected virtual void PostProcessTexture(Surface targetTexture)
+    { }
 
     public IGeometry GeometryOverride
     {
@@ -959,12 +926,6 @@ namespace MediaPortal.UI.Players.Video
       FireStarted();
     }
 
-    public void SetMediaItemTitleHint(string title)
-    {
-      // We don't extract the title by ourselves, we just use the title hint
-      _mediaItemTitle = title;
-    }
-
     public string MediaItemTitle
     {
       get { return _mediaItemTitle; }
@@ -1037,7 +998,7 @@ namespace MediaPortal.UI.Players.Video
     /// <returns>True if information has been changed.</returns>
     protected virtual bool EnumerateStreams()
     {
-      if (_graphBuilder == null)
+      if (_graphBuilder == null || !_initialized)
         return false;
 
       if (_streamInfoAudio == null || _streamInfoSubtitles == null)
@@ -1080,13 +1041,12 @@ namespace MediaPortal.UI.Players.Video
               {
                 String streamName = name.Trim();
                 String streamAppendix;
-                if (MediaSubTypes.TryGetValue(mediaType.subType, out streamAppendix))
+                if (CodecHandler.MediaSubTypes.TryGetValue(mediaType.subType, out streamAppendix))
                 {
                   // if audio information is available via WaveEx format, query the channel count
                   if (mediaType.formatType == FormatType.WaveEx && mediaType.formatPtr != IntPtr.Zero)
                   {
-                    WaveFormatEx waveFormatEx =
-                      (WaveFormatEx) Marshal.PtrToStructure(mediaType.formatPtr, typeof (WaveFormatEx));
+                    WaveFormatEx waveFormatEx = (WaveFormatEx) Marshal.PtrToStructure(mediaType.formatPtr, typeof(WaveFormatEx));
                     streamAppendix = String.Format("{0} {1}ch", streamAppendix, waveFormatEx.nChannels);
                   }
                   currentStream.Name = String.Format("{0} ({1})", streamName, streamAppendix);
@@ -1201,7 +1161,7 @@ namespace MediaPortal.UI.Players.Video
 
     protected virtual void CreateEvrCallback()
     {
-      _evrCallback = new EVRCallback(RenderFrame) { CropSettings = _cropSettings };
+      _evrCallback = new EVRCallback(RenderFrame, OnTextureInvalidated);
       _evrCallback.VideoSizePresent += OnVideoSizePresent;
     }
 
@@ -1269,17 +1229,12 @@ namespace MediaPortal.UI.Players.Video
       return true;
     }
 
-    public Surface Surface
-    {
-      get { return (_initialized && _evrCallback != null) ? _evrCallback.Surface : null; }
-    }
-
-    public object SurfaceLock
+    public Rectangle CropVideoRect
     {
       get
       {
-        EVRCallback callback = _evrCallback;
-        return callback == null ? _syncObj : callback.SurfaceLock;
+        Size videoSize = VideoSize;
+        return _cropSettings == null ? new Rectangle(Point.Empty, videoSize) : _cropSettings.CropRect(videoSize);
       }
     }
 
@@ -1287,7 +1242,7 @@ namespace MediaPortal.UI.Players.Video
 
     #region ISubtitlePlayer implementation
 
-    protected void SetPreferredSubtitle()
+    protected virtual void SetPreferredSubtitle()
     {
       EnumerateStreams();
       if (_streamInfoSubtitles == null)
@@ -1335,19 +1290,22 @@ namespace MediaPortal.UI.Players.Video
       lock (SyncObj)
       {
         if (_streamInfoSubtitles != null && _streamInfoSubtitles.EnableStream(subtitle))
-        {
-          VideoSettings settings = ServiceRegistration.Get<ISettingsManager>().Load<VideoSettings>() ?? new VideoSettings();
-          settings.PreferredSubtitleSteamName = _streamInfoSubtitles.CurrentStreamName;
-          // if the subtitle stream has proper LCID, remember it.
-          int lcid = _streamInfoAudio.CurrentStream.LCID;
-          if (lcid != 0)
-            settings.PreferredAudioLanguage = lcid;
-
-          // if selected stream is "No subtitles", we disable the setting
-          settings.EnableSubtitles = _streamInfoSubtitles.CurrentStreamName != NO_SUBTITLES;
-          ServiceRegistration.Get<ISettingsManager>().Save(settings);
-        }
+          SaveSubtitlePreference();
       }
+    }
+
+    protected virtual void SaveSubtitlePreference()
+    {
+      VideoSettings settings = ServiceRegistration.Get<ISettingsManager>().Load<VideoSettings>() ?? new VideoSettings();
+      settings.PreferredSubtitleSteamName = _streamInfoSubtitles.CurrentStreamName;
+      // if the subtitle stream has proper LCID, remember it.
+      int lcid = _streamInfoAudio.CurrentStream.LCID;
+      if (lcid != 0)
+        settings.PreferredAudioLanguage = lcid;
+
+      // if selected stream is "No subtitles", we disable the setting
+      settings.EnableSubtitles = _streamInfoSubtitles.CurrentStreamName != NO_SUBTITLES;
+      ServiceRegistration.Get<ISettingsManager>().Save(settings);
     }
 
     public virtual void DisableSubtitle()

@@ -239,7 +239,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
       base.OnPropertyChanged(prop, oldValue);
     }
 
-    public override bool BeginRenderBrush(PrimitiveBuffer primitiveContext, RenderContext renderContext)
+    protected override bool BeginRenderBrushOverride(PrimitiveBuffer primitiveContext, RenderContext renderContext)
     {
       if (Texture == null)
         return false;
@@ -263,10 +263,10 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
       return true;
     }
 
-    public override void BeginRenderOpacityBrush(Texture tex, RenderContext renderContext)
+    protected override bool BeginRenderOpacityBrushOverride(Texture tex, RenderContext renderContext)
     {
       if (Texture == null)
-        return;
+        return false;
 
       Matrix finalTransform = renderContext.Transform.Clone();
 
@@ -285,7 +285,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
       _effect.Parameters[PARAM_ALPHATEX] = Texture;
       _effect.StartRender(tex, finalTransform);
 
-      return;
+      return true;
     }
 
     public override void EndRender()
@@ -407,7 +407,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
 
       _effect.Parameters[PARAM_RELATIVE_TRANSFORM] = _relativeTransformCache;
       _effect.Parameters[PARAM_TRANSFORM] = GetCachedFinalBrushTransform();
-      _effect.Parameters[PARAM_OPACITY] = (float)(Opacity * renderContext.Opacity);
+      _effect.Parameters[PARAM_OPACITY] = (float) (Opacity * renderContext.Opacity);
       _effect.Parameters[PARAM_TEXTURE_VIEWPORT] = _textureViewport;
       _effect.Parameters[PARAM_BRUSH_TRANSFORM] = _brushTransform;
       _effect.Parameters[PARAM_U_OFFSET] = uvoffset.X;
@@ -418,7 +418,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
     {
       _effect.Parameters[PARAM_RELATIVE_TRANSFORM] = _relativeTransformCache;
       _effect.Parameters[PARAM_TRANSFORM] = GetCachedFinalBrushTransform();
-      _effect.Parameters[PARAM_OPACITY] = (float)(Opacity * renderContext.Opacity);
+      _effect.Parameters[PARAM_OPACITY] = (float) (Opacity * renderContext.Opacity);
       _effect.Parameters[PARAM_TEXTURE_VIEWPORT] = _textureViewport;
       _effect.Parameters[PARAM_BRUSH_TRANSFORM] = _brushTransform;
     }

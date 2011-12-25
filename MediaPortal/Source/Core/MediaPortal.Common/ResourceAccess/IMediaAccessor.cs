@@ -25,7 +25,6 @@
 using System;
 using System.Collections.Generic;
 using MediaPortal.Common.MediaManagement;
-using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 
 namespace MediaPortal.Common.ResourceAccess
 {
@@ -75,14 +74,6 @@ namespace MediaPortal.Common.ResourceAccess
     /// </summary>
     /// <returns>Collection of shares. The shares are not saved to the settings yet.</returns>
     ICollection<Share> CreateDefaultShares();
-
-    /// <summary>
-    /// Returns a resource locator instance for the specified media <paramref name="item"/>.
-    /// </summary>
-    /// <param name="item">Media item to return a locator. That media item must have the <see cref="ProviderResourceAspect"/>
-    /// filled out.</param>
-    /// <returns>Resource locator instance or <c>null</c>, if the item is invalid.</returns>
-    IResourceLocator GetResourceLocator(MediaItem item);
 
     /// <summary>
     /// Returns the ids of all local metadata extractors which are classified into the specified

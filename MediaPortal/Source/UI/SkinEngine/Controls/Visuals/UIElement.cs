@@ -223,6 +223,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
   public abstract class UIElement : Visual, IContentEnabled, IBindingContainer
   {
     protected const string LOADED_EVENT = "UIElement.Loaded";
+    protected const string VISIBILITY_CHANGED_EVENT = "UIElement.VisibilityChanged";
 
     public const double DELTA_DOUBLE = 0.01;
 
@@ -255,6 +256,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     protected UIElement()
     {
       Init();
+      Attach();
     }
 
     void Init()
@@ -276,8 +278,19 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       _opacityMaskProperty = new SProperty(typeof(Brushes.Brush), null);
     }
 
+    void Attach()
+    {
+      _visibilityProperty.Attach(OnVisibilityChanged);
+    }
+
+    void Detach()
+    {
+      _visibilityProperty.Detach(OnVisibilityChanged);
+    }
+
     public override void DeepCopy(IDeepCopyable source, ICopyManager copyManager)
     {
+      Detach();
       base.DeepCopy(source, copyManager);
       UIElement el = (UIElement) source;
       // We do not copy the focus flag, only one element can have focus
@@ -309,6 +322,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
           Name = copyName;
           copyName = null;
         });
+      Attach();
     }
 
     public override void Dispose()
@@ -327,6 +341,15 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 
     #endregion
 
+    #region Event handlers
+
+    void OnVisibilityChanged(AbstractProperty prop, object oldVal)
+    {
+      FireEvent(VISIBILITY_CHANGED_EVENT, RoutingStrategyEnum.VisualTree);
+    }
+
+    #endregion
+
     public void SetResources(ResourceDictionary resources)
     {
       _resources = resources;
@@ -335,7 +358,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     #region Public properties
 
     /// <summary>
-    /// Event handler called for all events defined by their event string like <see cref="LOADED_EVENT"/>.
+    /// Event handler called for all events defined by their event string like <see cref="LOADED_EVENT"/> or <see cref="VISIBILITY_CHANGED_EVENT"/>.
     /// </summary>
     public event UIEventDelegate EventOccured;
 
@@ -697,6 +720,21 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     }
 
     #endregion
+
+    /// <summary>
+    /// Checks if this element and all visual parents are visible and thus this element might be rendered.
+    /// </summary>
+    /// <returns><c>true</c>, if the element is visible, else <c>false</c>.</returns>
+    public bool CheckVisibility()
+    {
+      if (!IsVisible)
+        return false;
+      UIElement visualParent = VisualParent as UIElement;
+      if (visualParent == null)
+        // Root element
+        return true;
+      return visualParent.CheckVisibility();
+    }
 
     public void CleanupAndDispose()
     {

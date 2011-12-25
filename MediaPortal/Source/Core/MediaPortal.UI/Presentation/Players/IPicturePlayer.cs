@@ -22,16 +22,46 @@
 
 #endregion
 
+using System.Drawing;
 using MediaPortal.Common.ResourceAccess;
 
 namespace MediaPortal.UI.Presentation.Players
 {
+  public enum RightAngledRotation
+  {
+    Zero,
+    HalfPi,
+    Pi,
+    ThreeHalfPi
+  }
+
   /// <summary>
   /// Interface for a picture player. Holds all methods which are common to all picture players.
   /// </summary>
   public interface IPicturePlayer : IPlayer
   {
     IResourceLocator CurrentPictureResourceLocator { get; }
+    
+    /// <summary>
+    /// Returns the size of the whole picture.
+    /// </summary>
+    Size PictureSize { get; }
+
+    /// <summary>
+    /// Returns the rotation which must be applied to the picture.
+    /// </summary>
+    RightAngledRotation Rotation { get; }
+
+    /// <summary>
+    /// Returns if the picture must be flipped in horiziontal direction after the <see cref="Rotation"/>.
+    /// </summary>
+    bool FlipX { get; }
+
+    /// <summary>
+    /// Returns if the picture must be flipped in vertical direction after the <see cref="Rotation"/>.
+    /// </summary>
+    bool FlipY { get; }
+
     bool SlideShowEnabled { get; set; }
   }
 }

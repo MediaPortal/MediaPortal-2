@@ -57,7 +57,7 @@ Parameters which have to be accessible by a DynamicResource lookup:
       </TransformGroup>
     </DockPanel.RenderTransform>
     <Grid x:Name="HeaderPanel" DockPanel.Dock="Top" Background="{ThemeResource HeaderPanelBackgroundBrush}"
-        Height="135">
+        Height="{ThemeResource HeaderPanelHeight}">
       <Grid.RowDefinitions>
         <RowDefinition Height="*"/>
       </Grid.RowDefinitions>
@@ -118,7 +118,7 @@ Parameters which have to be accessible by a DynamicResource lookup:
     </Grid> <!-- HeaderPanel -->
     <Line x:Name="UpperSeparator" X1="0" X2="10" Height="1" Stroke="{ThemeResource HeaderFooterSeparatorLineStrokeColor}" StrokeThickness="1"
         HorizontalAlignment="Stretch" DockPanel.Dock="Top"/>
-    <DockPanel x:Name="FooterPanel" DockPanel.Dock="Bottom" Height="100" LastChildFill="False"
+    <DockPanel x:Name="FooterPanel" DockPanel.Dock="Bottom" Height="{ThemeResource FooterPanelHeight}" LastChildFill="False"
         Background="{ThemeResource FooterPanelBackgroundBrush}">
       <mp_special_controls:WorkflowNavigationBar Style="{ThemeResource WorkflowNavigationBarStyle}" DockPanel.Dock="Bottom"/>
     </DockPanel> <!-- FooterPanel -->

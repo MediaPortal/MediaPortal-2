@@ -23,11 +23,16 @@
 #endregion
 
 using System;
+using System.Linq;
 using MediaPortal.Common;
 using MediaPortal.Common.Logging;
+using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.ResourceAccess;
+using MediaPortal.Common.Settings;
+using MediaPortal.Plugins.BDHandler.Settings.Configuration;
 using MediaPortal.UI.Players.Video.Tools;
 using MediaPortal.UI.Presentation.Players;
+using MediaPortal.Plugins.BDHandler.Settings;
 
 namespace MediaPortal.UI.Players.Video
 {
@@ -37,11 +42,24 @@ namespace MediaPortal.UI.Players.Video
 
     public BDPlayerBuilder()
     {
-      Enabled = FilterGraphTools.IsThisComObjectInstalled(new Guid(BDPlayer.MpcMpegSourceFilterInfo.CLSID));
+      BDPlayerSettings settings = ServiceRegistration.Get<ISettingsManager>().Load<BDPlayerSettings>();
+      if (settings.BDSourceFilter == null)
+      {
+        // Try to init settings with the first available source filter
+        CodecInfo sourceFilter = BDSourceFilterConfig.SupportedSourceFilters.FirstOrDefault(codecInfo => FilterGraphTools.IsThisComObjectInstalled(new Guid(codecInfo.CLSID)));
+        if (sourceFilter != null)
+        {
+          settings.BDSourceFilter = sourceFilter;
+          ServiceRegistration.Get<ISettingsManager>().Save(settings);
+        }
+      }
+
+      Enabled = settings.BDSourceFilter != null;
+
       if (Enabled)
-        LogInfo("Detected source filer '{0}' on the system.", BDPlayer.MpcMpegSourceFilterInfo.Name);
+        LogInfo("Detected BluRay Source Filter '{0}' on the system.", settings.BDSourceFilter.Name);
       else
-        LogWarn("'{0}' was not detected on the system.", BDPlayer.MpcMpegSourceFilterInfo.Name);
+        LogWarn("No BluRay Source Filter was detected on the system.");
     }
 
     #endregion
@@ -54,17 +72,22 @@ namespace MediaPortal.UI.Players.Video
     protected bool Enabled { get; set; }
 
     #endregion
-
+    
     #region IPlayerBuilder implementation
 
-    public IPlayer GetPlayer(IResourceLocator locator, string mimeType)
+    public IPlayer GetPlayer(MediaItem mediaItem)
     {
+      string mimeType;
+      string title;
+      if (!mediaItem.GetPlayData(out mimeType, out title))
+        return null;
       if (Enabled && mimeType == "video/bluray")
       {
+        IResourceLocator locator = mediaItem.GetResourceLocator();
         BDPlayer player = new BDPlayer();
         try
         {
-          player.SetMediaItemLocator(locator);
+          player.SetMediaItem(locator, title);
         }
         catch (Exception)
         {

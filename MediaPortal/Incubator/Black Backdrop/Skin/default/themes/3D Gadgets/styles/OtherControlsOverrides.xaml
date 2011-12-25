@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ResourceDictionary
+    xmlns="www.team-mediaportal.com/2008/mpf/directx"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:system="clr-namespace:System"
+    xmlns:collections="clr-namespace:MediaPortal.UI.Presentation.DataObjects;assembly=MediaPortal.UI"
+    xmlns:mp_special_controls="clr-namespace:MediaPortal.UI.SkinEngine.SpecialElements.Controls"
+    DependsOnStyleResources="Colors,Buttons,Consts,OtherControls"
+    >
+
+  <!-- BackgroundManager model -->
+  <Model x:Key="BackgroundManagerModel" Id="1F4CAEDE-7108-483d-B5C8-18BEC7EC58E5"/>
+
+  <!-- default brush used to paint the background of a page/window -->
+  <ResourceWrapper x:Key="BackgroundBrush">
+    <VisualBrush x:Name="BackdropImageBackgroundBrush">
+      <VisualBrush.Visual>
+        <Image x:Name="BackdropImageBackground" Stretch="Uniform" Source="{Binding Source={StaticResource BackgroundManagerModel}, Path=BackgroundImage}" />
+      </VisualBrush.Visual>
+    </VisualBrush>
+  </ResourceWrapper>
+
+  <!-- An item list container represented by a standard "Button", scrolling its "ItemLabel" label when focused -->
+  <Style x:Key="FixedMenuItemContainerStyle" BasedOn="{ThemeResource DefaultMenuItemContainerStyle}">
+    <Setter Property="Width" Value="200" />
+    <Setter Property="Height" Value="50"/>
+    <Setter Property="Margin" Value="0,0,10,0" />
+  </Style>
+  
+  <!-- ListView style to be used for main menu -->
+  <Style x:Key="MainMenuListViewStyle" BasedOn="{ThemeResource DefaultListViewStyle}">
+    <Setter Property="DockPanel.Dock" Value="Bottom"/>
+    <Setter Property="Width" Value="1200"/>
+    <Setter Property="SelectionChanged" Value="{CommandStencil Source={StaticResource BackgroundManagerModel}, Path=SetSelectedItem}"/>
+    <Setter Property="ItemTemplate" Value="{ThemeResource MainMenuItemDataTemplate}"/>
+    <Setter Property="ItemsPanel">
+      <Setter.Value>
+        <ItemsPanelTemplate>
+          <StackPanel x:Name="ListItemsHost" IsItemsHost="True" Orientation="Horizontal"/>
+        </ItemsPanelTemplate>
+      </Setter.Value>
+    </Setter>
+    <Setter Property="DataStringProvider" Value="{ThemeResource MainMenuItemDataStringProvider}"/>
+    <Setter Property="ItemContainerStyle" Value="{ThemeResource FixedMenuItemContainerStyle}"/>
+  </Style>
+
+  <!-- ****************************** Home screen alternative control ********************************** -->
+
+  <!-- We are using backdrops, so no other control on homescreen -->
+  <ControlTemplate x:Key="HomeScreenContentsControlTemplate" TargetType="{x:Type Control}"/>
+
+</ResourceDictionary>

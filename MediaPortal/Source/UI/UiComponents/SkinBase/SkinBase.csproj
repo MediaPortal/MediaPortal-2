@@ -118,12 +118,41 @@
   <ItemGroup>
     <Content Include="plugin.xml" />
     <Content Include="Language\strings_en.xml" />
+    <Content Include="Resources\ConfigurationImages\default-22.png" />
+    <Content Include="Resources\ConfigurationImages\default-48.png" />
+    <Content Include="Resources\ConfigurationImages\folders-22.png" />
+    <Content Include="Resources\ConfigurationImages\folders-48.png" />
+    <Content Include="Resources\ConfigurationImages\general-22.png" />
+    <Content Include="Resources\ConfigurationImages\general-48.png" />
+    <Content Include="Resources\ConfigurationImages\globe-22.png" />
+    <Content Include="Resources\ConfigurationImages\globe-48.png" />
+    <Content Include="Resources\ConfigurationImages\hardware-22.png" />
+    <Content Include="Resources\ConfigurationImages\hardware-48.png" />
+    <Content Include="Skin\default\images\accept.png" />
+    <Content Include="Skin\default\images\add.png" />
+    <Content Include="Skin\default\images\archive.png" />
+    <Content Include="Skin\default\images\attachment.png" />
+    <Content Include="Skin\default\images\audio.png" />
+    <Content Include="Skin\default\images\back.png" />
+    <Content Include="Skin\default\images\cd.png" />
+    <Content Include="Skin\default\images\delete-icon.png" />
+    <Content Include="Skin\default\images\internet-icon.png" />
+    <Content Include="Skin\default\images\movie_track.png" />
+    <Content Include="Skin\default\images\network-icon.png" />
+    <Content Include="Skin\default\images\picture-icon.png" />
+    <Content Include="Skin\default\images\process.png" />
     <Content Include="Skin\default\images\server-attach-icon.png" />
     <Content Include="Skin\default\images\server-config-icon.png" />
+    <Content Include="Skin\default\images\server-connected-icon.png" />
     <Content Include="Skin\default\images\server-disconnected-icon.png" />
+    <Content Include="Skin\default\images\server-error-icon.png" />
     <Content Include="Skin\default\images\server-icon.png" />
     <Content Include="Skin\default\images\server-search-icon.png" />
+    <Content Include="Skin\default\images\sound.png" />
+    <Content Include="Skin\default\images\sound_off.png" />
+    <Content Include="Skin\default\images\video.png" />
     <Content Include="Skin\default\skin.xml" />
+    <Content Include="Skin\default\sounds\button12.wav" />
     <Content Include="Skin\default\sounds\button6.wav" />
     <Content Include="Skin\default\sounds\button7.wav" />
     <Content Include="Skin\default\themes\silver\images\preview.png" />
@@ -136,9 +165,7 @@
     <Content Include="Skin\default\images\DefaultFolderBig.png" />
     <Content Include="Skin\default\images\defaultPictureBig.png" />
     <Content Include="Skin\default\images\DefaultUser.png" />
-    <Content Include="Skin\default\images\music.png" />
     <Content Include="Skin\default\images\radio.png" />
-    <Content Include="Skin\default\images\Videos.png" />
     <Content Include="Skin\default\images\playlist.png" />
     <Content Include="Skin\default\images\settings.png" />
     <Content Include="Skin\default\images\login_users.png" />
@@ -180,6 +207,7 @@
     <Content Include="Skin\default\backgrounds\picture-background.xaml" />
     <Content Include="Skin\default\superlayers\BusyCursor.xaml" />
     <Content Include="Skin\default\superlayers\Volume.xaml" />
+    <Content Include="Skin\default\superlayers\ScreenSaver.xaml"/>
     <Content Include="Skin\default\workflow\player-states.xml" />
     <Content Include="Skin\default\workflow\player-actions.xml" />
     <Content Include="Skin\default\workflow\serverconnect-actions.xml" />
@@ -201,11 +229,21 @@
     <Content Include="Skin\default\workflow\sharesconfig-states.xml" />
     <Content Include="Skin\default\themes\silver\styles\Colors.xaml" />
     <Content Include="Skin\default\themes\silver\styles\Consts.xaml" />
-    <Content Include="Skin\default\themes\silver\styles\OtherControlsOverrides.xaml" />
+    <Content Include="Skin\default\themes\silver\styles\OtherControls.xaml"/>
     <Content Include="Skin\default\themes\silver\theme.xml" />
     <Content Include="Skin\default\themes\default\styles\Brushes.xaml" />
     <Content Include="Skin\default\themes\default\styles\BusyCursor.xaml" />
     <Content Include="Skin\default\screens\DialogPlayerConfiguration.xaml" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Skin\default\fonts\eurof55.ttf" />
+    <None Include="Skin\default\fonts\EuroFurence.desc" />
+    <None Include="Skin\default\fonts\RitzyNormal.desc" />
+    <None Include="Skin\default\fonts\RitzyNormal.ttf" />
+    <None Include="Skin\default\fonts\SansBetween.desc" />
+    <None Include="Skin\default\fonts\SansBetween.ttf" />
+    <None Include="Skin\default\fonts\SketchyTimes.desc" />
+    <None Include="Skin\default\fonts\SketchyTimes.ttf" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

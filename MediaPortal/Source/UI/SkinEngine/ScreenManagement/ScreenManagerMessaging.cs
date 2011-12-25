@@ -44,8 +44,7 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
       /// <summary>
       /// Internal message to show a screen asynchronously. The screen to be shown will be given in the
       /// parameter <see cref="SCREEN"/>. A bool indicating if open dialogs should be closed will be given in the
-      /// parameter <see cref="CLOSE_DIALOGS"/>. A bool indicating if if the screen should be updated even if a screen with
-      /// the same resource name is already present will be given in the parameter <see cref="FORCE_UPDATE"/>.
+      /// parameter <see cref="CLOSE_DIALOGS"/>.
       /// </summary>
       ShowScreen,
 
@@ -82,18 +81,16 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
     // Message data
     public const string SCREEN = "Screen"; // Type Screen
     public const string CLOSE_DIALOGS = "CloseDialogs"; // Type bool
-    public const string FORCE_UPDATE = "ForceUpdate"; // Type bool
     public const string DIALOG_DATA = "DialogData"; // Type DialogData
     public const string DIALOG_INSTANCE_ID = "DialogInstanceId"; // Type Guid
     public const string CLOSE_DIALOGS_MODE = "Mode"; // Type CloseDialogsMode
     public const string SKIN_NAME = "SkinName"; // Type string
     public const string THEME_NAME = "ThemeName"; // Type string
 
-    internal static void SendMessageShowScreen(Screen screen, bool forceUpdate, bool closeDialogs)
+    internal static void SendMessageShowScreen(Screen screen, bool closeDialogs)
     {
       SystemMessage msg = new SystemMessage(MessageType.ShowScreen);
       msg.MessageData[SCREEN] = screen;
-      msg.MessageData[FORCE_UPDATE] = forceUpdate;
       msg.MessageData[CLOSE_DIALOGS] = closeDialogs;
       ServiceRegistration.Get<IMessageBroker>().Send(CHANNEL, msg);
     }

@@ -6,7 +6,11 @@
     <String Name="Players.Codecs.VideoCodecs.MPEG2" Text="MPEG2 Video Codec"/>
     <String Name="Players.Codecs.VideoCodecs.MPEG2.Help" Text="Set the codec used for MPEG2 video (DVD, DVB-SD)"/>
     <String Name="Players.Codecs.VideoCodecs.MPEG4" Text="MPEG4 Video Codec"/>
-    <String Name="Players.Codecs.VideoCodecs.MPEG4.Help" Text="Set the codec used for MPEG4 video (HDTV)"/>
+    <String Name="Players.Codecs.VideoCodecs.MPEG4.Help" Text="Set the codec used for MPEG4 video (H.264, x264)"/>
+    <String Name="Players.Codecs.VideoCodecs.AVC" Text="AVC Video Codec"/>
+    <String Name="Players.Codecs.VideoCodecs.AVC.Help" Text="Set the codec used for AVC video (HDTV, BluRay)"/>
+    <String Name="Players.Codecs.AudioCodecs" Text="Audio Codecs"/>
+    <String Name="Players.Codecs.AudioRenderer" Text="Audio Renderer"/>
     <String Name="Players.Codecs.AudioCodecs.AudioCodec" Text="MPEG1/2 Audio Codec"/>
     <String Name="Players.Codecs.AudioCodecs.AudioCodec.Help" Text="Set the MPEG1/2 audio codec"/>
     <String Name="Players.Codecs.AudioCodecs.AudioCodecLATMAAC" Text="LATM-AAC Audio Codec"/>

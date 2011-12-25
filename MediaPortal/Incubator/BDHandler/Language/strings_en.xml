@@ -1,7 +1,7 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Language>
   <Section Name="Settings">
-    <String Name="Players.Codecs.VideoCodecs.AVC" Text="AVC Video Codec"/>
-    <String Name="Players.Codecs.VideoCodecs.AVC.Help" Text="Set the codec used for AVC video (BluRay)"/>
+    <String Name="Players.Codecs.VideoCodecs.BDSourceFilter" Text="Bluray Source Filter"/>
+    <String Name="Players.Codecs.VideoCodecs.BDSourceFilter.Help" Text="Set the Source Filter used for BluRay playback. Currently only Gabest and LAV Splitter Source are supported."/>
   </Section>
 </Language>

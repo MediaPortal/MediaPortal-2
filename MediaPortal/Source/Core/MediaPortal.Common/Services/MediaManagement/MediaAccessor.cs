@@ -30,7 +30,6 @@ using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.Common.ResourceAccess;
 using MediaPortal.Common.PluginManager;
-using MediaPortal.Common.Services.ResourceAccess;
 using MediaPortal.Common.Services.ResourceAccess.LocalFsResourceProvider;
 using MediaPortal.Common.Services.ResourceAccess.RemoteResourceProvider;
 using MediaPortal.Common.SystemResolver;
@@ -317,16 +316,6 @@ namespace MediaPortal.Common.Services.MediaManagement
       result.AddRange(LocalBaseResourceProviders.Select(resourceProvider => resourceProvider.Metadata).Select(
           metadata => Share.CreateNewLocalShare(ResourcePath.BuildBaseProviderPath(metadata.ResourceProviderId, "/"), metadata.Name, null)));
       return result;
-    }
-
-    public IResourceLocator GetResourceLocator(MediaItem item)
-    {
-      if (item == null || !item.Aspects.ContainsKey(ProviderResourceAspect.ASPECT_ID))
-        return null;
-      MediaItemAspect providerAspect = item[ProviderResourceAspect.ASPECT_ID];
-      string systemId = (string) providerAspect[ProviderResourceAspect.ATTR_SYSTEM_ID];
-      string resourceAccessorPath = (string) providerAspect[ProviderResourceAspect.ATTR_RESOURCE_ACCESSOR_PATH];
-      return new ResourceLocator(systemId, ResourcePath.Deserialize(resourceAccessorPath));
     }
 
     public ICollection<Guid> GetMetadataExtractorsForCategory(string mediaCategory)

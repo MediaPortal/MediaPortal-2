@@ -24,7 +24,7 @@
 
 using System;
 using System.Collections.Generic;
-using System.Drawing.Drawing2D;
+using System.Drawing;
 using System.Linq;
 using MediaPortal.Common;
 using MediaPortal.Common.Logging;
@@ -37,16 +37,7 @@ namespace MediaPortal.UI.SkinEngine.DirectX.Triangulate
   /// </summary>
   public class CPolygon : List<CPoint2D>
   {
-    /// <summary>
-    /// Creates a new simple polygon with the vertices in the specified graphics <paramref name="path"/>.
-    /// </summary>
-    /// <remarks>
-    /// The polygon will reject consecutive points with a very small distance, i.e. it will skip such
-    /// points from the input.
-    /// The polygon will be closed automatically.
-    /// There are some conditions which need to be met, see method <see cref="CheckProperPolygon"/>.
-    /// </remarks>
-    public CPolygon(GraphicsPath path) : this(path.PathPoints.Select(point => new CPoint2D(point.X, point.Y)).ToList(), false) { }
+    public CPolygon(IEnumerable<PointF> points) : this(points.Select(point => new CPoint2D(point.X, point.Y)), false) { }
 
     /// <summary>
     /// Creates a new simple polygon with the vertices in the specified <paramref name="points"/> array.
@@ -55,7 +46,7 @@ namespace MediaPortal.UI.SkinEngine.DirectX.Triangulate
     /// The polygon will be closed automatically.
     /// </summary>
     /// <param name="points">The points to be used for the new polygon.</param>
-    public CPolygon(IList<CPoint2D> points) : this(points, false) { }
+    public CPolygon(IEnumerable<CPoint2D> points) : this(points, false) { }
 
     /// <summary>
     /// Creates a new simple polygon with the vertices in the specified <paramref name="points"/> array.
@@ -65,14 +56,12 @@ namespace MediaPortal.UI.SkinEngine.DirectX.Triangulate
     /// If set to <c>true</c>, the constructor will reject consecutive points with a very small distance,
     /// i.e. it will skip such points from the input. It will also be closed automatically.
     /// </param>
-    protected CPolygon(IList<CPoint2D> points, bool ignoreChecks)
+    protected CPolygon(IEnumerable<CPoint2D> points, bool ignoreChecks)
     {
-      CPoint2D lastPoint = points[0];
-      Add(lastPoint);
-      for (int i = 1; i < points.Count; i++)
+      CPoint2D lastPoint = null;
+      foreach (CPoint2D currentPoint in points)
       {
-        CPoint2D currentPoint = points[i];
-        if (!ignoreChecks && CPoint2D.SamePoints(lastPoint, currentPoint))
+        if (!ignoreChecks && lastPoint != null && CPoint2D.SamePoints(lastPoint, currentPoint))
           continue;
         Add(currentPoint);
         lastPoint = currentPoint;

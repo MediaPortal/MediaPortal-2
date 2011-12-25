@@ -28,6 +28,8 @@ using System.Xml;
 using System.Xml.Schema;
 using System.Xml.Serialization;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
+using MediaPortal.Common.ResourceAccess;
+using MediaPortal.Common.Services.ResourceAccess;
 
 namespace MediaPortal.Common.MediaManagement
 {
@@ -91,7 +93,37 @@ namespace MediaPortal.Common.MediaManagement
     /// if the aspect is not contained in this instance.</returns>
     public MediaItemAspect this[Guid mediaItemAspectId]
     {
-      get { return _aspects.ContainsKey(mediaItemAspectId) ? _aspects[mediaItemAspectId] : null; }
+      get
+      {
+        MediaItemAspect result;
+        return _aspects.TryGetValue(mediaItemAspectId, out result) ? result : null;
+      }
+    }
+
+    /// <summary>
+    /// Returns a resource locator instance for this item.
+    /// </summary>
+    /// <returns>Resource locator instance or <c>null</c>, if this item doesn't contain a <see cref="ProviderResourceAspect"/>.</returns>
+    public IResourceLocator GetResourceLocator()
+    {
+      MediaItemAspect providerAspect;
+      if (!_aspects.TryGetValue(ProviderResourceAspect.ASPECT_ID, out providerAspect))
+        return null;
+      string systemId = (string) providerAspect[ProviderResourceAspect.ATTR_SYSTEM_ID];
+      string resourceAccessorPath = (string) providerAspect[ProviderResourceAspect.ATTR_RESOURCE_ACCESSOR_PATH];
+      return new ResourceLocator(systemId, ResourcePath.Deserialize(resourceAccessorPath));
+    }
+
+    public bool GetPlayData(out string mimeType, out string mediaItemTitle)
+    {
+      mimeType = null;
+      mediaItemTitle = null;
+      MediaItemAspect mediaAspect = this[MediaAspect.ASPECT_ID];
+      if (mediaAspect == null)
+        return false;
+      mimeType = (string) mediaAspect[MediaAspect.ATTR_MIME_TYPE];
+      mediaItemTitle = (string) mediaAspect[MediaAspect.ATTR_TITLE];
+      return true;
     }
 
     XmlSchema IXmlSerializable.GetSchema()
@@ -141,6 +173,15 @@ namespace MediaPortal.Common.MediaManagement
       MediaItem result = new MediaItem();
       ((IXmlSerializable) result).ReadXml(reader);
       return result;
+    }
+
+    public override string ToString()
+    {
+      string mimeType;
+      string title;
+      if (GetPlayData(out mimeType, out title))
+        return title;
+      return "<Unknown>";
     }
 
     #region IEquatable<MediaItem> implementation

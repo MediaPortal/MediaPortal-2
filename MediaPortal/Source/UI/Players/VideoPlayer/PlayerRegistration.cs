@@ -25,6 +25,7 @@
 using System;
 using System.Collections.Generic;
 using MediaPortal.Common.ResourceAccess;
+using MediaPortal.UI.Players.Video.Tools;
 using MediaPortal.Utilities;
 
 namespace MediaPortal.UI.Players.Video
@@ -43,9 +44,18 @@ namespace MediaPortal.UI.Players.Video
       EXTENSIONS2PLAYER.Add(".avi", typeof(VideoPlayer));
       EXTENSIONS2PLAYER.Add(".mpg", typeof(VideoPlayer));
       EXTENSIONS2PLAYER.Add(".mpeg", typeof(VideoPlayer));
-      EXTENSIONS2PLAYER.Add(".ts", typeof(TsVideoPlayer));
+
+      // TsVideoPlayer depends on the MP1 TsReader.ax component, that may not be present. In this case we'll use the default VideoPlayer.
+      EXTENSIONS2PLAYER.Add(".ts",
+                            FilterGraphTools.IsThisComObjectInstalled(new Guid(TsVideoPlayer.TSREADER_CLSID))
+                              ? typeof (TsVideoPlayer)
+                              : typeof (VideoPlayer));
+
+      EXTENSIONS2PLAYER.Add(".mts", typeof(VideoPlayer));
+      EXTENSIONS2PLAYER.Add(".m2ts", typeof(VideoPlayer));
       EXTENSIONS2PLAYER.Add(".mp4", typeof(VideoPlayer));
       EXTENSIONS2PLAYER.Add(".mkv", typeof(VideoPlayer));
+      EXTENSIONS2PLAYER.Add(".mov", typeof(VideoPlayer));
       EXTENSIONS2PLAYER.Add(".flv", typeof(VideoPlayer));
       EXTENSIONS2PLAYER.Add(".vob", typeof(DvdPlayer));
       EXTENSIONS2PLAYER.Add(".ifo", typeof(DvdPlayer));

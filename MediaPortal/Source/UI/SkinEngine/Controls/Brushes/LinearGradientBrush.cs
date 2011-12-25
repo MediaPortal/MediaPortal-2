@@ -150,7 +150,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
       _refresh = true;
     }
 
-    public override bool BeginRenderBrush(PrimitiveBuffer primitiveContext, RenderContext renderContext)
+    protected override bool BeginRenderBrushOverride(PrimitiveBuffer primitiveContext, RenderContext renderContext)
     {
       if (_gradientBrushTexture == null || _refresh)
       {
@@ -193,15 +193,13 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
       return true;
     }
 
-    public override void BeginRenderOpacityBrush(Texture tex, RenderContext renderContext)
+    protected override bool BeginRenderOpacityBrushOverride(Texture tex, RenderContext renderContext)
     {
-      if (tex == null)
-        return;
       if (_gradientBrushTexture == null || _refresh)
       {
         _gradientBrushTexture = BrushCache.Instance.GetGradientBrush(GradientStops);
         if (_gradientBrushTexture == null)
-          return;
+          return false;
       }
 
       Matrix finalTransform = renderContext.Transform.Clone();
@@ -242,6 +240,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
 
       GraphicsDevice.Device.SetSamplerState(0, SamplerState.AddressU, SpreadAddressMode);
       _effect.StartRender(tex, finalTransform);
+      return true;
     }
 
     public override void EndRender()

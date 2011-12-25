@@ -149,8 +149,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 
     protected PrimitiveBuffer _opacityMaskContext;
     protected bool _updateOpacityMask = false;
-    protected RectangleF _lastOccupiedTransformedBounds = new RectangleF();
-    protected Size _lastOpacityRenderSize = new Size();
+    protected RectangleF _lastOccupiedTransformedBounds = RectangleF.Empty;
+    protected Size _lastOpacityRenderSize =Size.Empty;
     
     protected bool _styleSet = false;
 
@@ -507,7 +507,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     /// </summary>
     public RectangleF ActualTotalBounds
     {
-      get { return _outerRect ?? new RectangleF(); }
+      get { return _outerRect ?? RectangleF.Empty; }
     }
 
     public AbstractProperty HorizontalAlignmentProperty
@@ -1754,9 +1754,11 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
         }
 
         // Now render the opacitytexture with the OpacityMask brush
-        opacityMask.BeginRenderOpacityBrush(renderTarget.Texture, new RenderContext(Matrix.Identity, Matrix.Identity, bounds));
-        _opacityMaskContext.Render(0);
-        opacityMask.EndRender();
+        if (opacityMask.BeginRenderOpacityBrush(renderTarget.Texture, new RenderContext(Matrix.Identity, Matrix.Identity, bounds)))
+        {
+          _opacityMaskContext.Render(0);
+          opacityMask.EndRender();
+        }
       }
       // Calculation of absolute render size (in world coordinate system)
       parentRenderContext.IncludeTransformedContentsBounds(localRenderContext.OccupiedTransformedBounds);

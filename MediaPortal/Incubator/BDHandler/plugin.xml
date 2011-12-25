@@ -12,6 +12,7 @@
     <PluginReference PluginId="{D87D92F0-5E71-470a-A2A4-430F90A28BF3}"/> <!-- SkinEngine -->
     <PluginReference PluginId="{1AFF4467-64B0-4ca1-AF28-9AEDF3525BCE}"/> <!-- ConfigurationManager -->
     <PluginReference PluginId="{B765A4B6-F455-4941-BDAE-2CE45208BFEB}"/> <!-- Configuration Model -->
+    <PluginReference PluginId="{FE6076A1-8C38-416C-8129-A80942FCFB68}"/> <!-- BluRayMetadataExtractor -->
   </DependsOn>
 
   <Runtime>
@@ -51,12 +52,19 @@
         Text="[Settings.Players.Codecs.VideoCodecs]"/>
   </Register>
 
-  <Register Location="/Configuration/Settings/Players/Codecs/VideoCodecs">
+  <Register Location="/Configuration/Settings/Players/Codecs">
+    <ConfigGroup
+        Id="SourceFilters"
+        Redundant="true"
+        Text="[Settings.Players.Codecs.SourceFilters]"/>
+  </Register>
+
+  <Register Location="/Configuration/Settings/Players/Codecs/SourceFilters">
     <ConfigSetting
-        Id="VideoAVCCodec"
-        Text="[Settings.Players.Codecs.VideoCodecs.AVC]"
-        HelpText="[Settings.Players.Codecs.VideoCodecs.AVC.Help]"
-        ClassName="MediaPortal.Plugins.BDHandler.Settings.Configuration.VideoAVCCodec"/>
+        Id="BluRaySourceFilter"
+        Text="[Settings.Players.Codecs.VideoCodecs.BDSourceFilter]"
+        HelpText="[Settings.Players.Codecs.VideoCodecs.BDSourceFilter.Help]"
+        ClassName="MediaPortal.Plugins.BDHandler.Settings.Configuration.BDSourceFilterConfig"/>
   </Register>
 
 </Plugin>

@@ -25,6 +25,7 @@
 using System;
 using MediaPortal.Common;
 using MediaPortal.Common.Logging;
+using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.ResourceAccess;
 using MediaPortal.UI.Presentation.Players;
 
@@ -37,14 +38,19 @@ namespace MediaPortal.Plugins.SlimTvClient
   {
     #region IPlayerBuilder implementation
 
-    public IPlayer GetPlayer(IResourceLocator locator, string mimeType)
+    public IPlayer GetPlayer(MediaItem mediaItem)
     {
+      string mimeType;
+      string title;
+      if (!mediaItem.GetPlayData(out mimeType, out title))
+        return null;
       if (mimeType != "video/livetv")
         return null;
+      IResourceLocator locator = mediaItem.GetResourceLocator();
       LiveTvPlayer player = new LiveTvPlayer();
       try
       {
-        player.SetMediaItemLocator(locator);
+        player.SetMediaItem(locator, title);
       }
       catch (Exception e)
       {
