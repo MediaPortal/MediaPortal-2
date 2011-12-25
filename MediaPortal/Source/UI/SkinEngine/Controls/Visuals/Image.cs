@@ -486,5 +486,23 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
         _fallbackSourceState.ImageSource = null;
       }
     }
+
+    public override void FireEvent(string eventName, RoutingStrategyEnum routingStrategy)
+    {
+      base.FireEvent(eventName, routingStrategy);
+      if (eventName == VISIBILITY_CHANGED_EVENT)
+      {
+        if (!CheckVisibility())
+        {
+          // Element lost visibility - notify image sources
+          ImageSource source = _sourceState.ImageSource;
+          if (source != null)
+            source.VisibilityLost();
+          source = _fallbackSourceState.ImageSource;
+          if (source != null)
+            source.VisibilityLost();
+        }
+      }
+    }
   }
 }

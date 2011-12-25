@@ -22,6 +22,7 @@
 
 #endregion
 
+using System;
 using System.Drawing;
 using MediaPortal.Common.General;
 using MediaPortal.UI.SkinEngine.MpfElements;
@@ -136,6 +137,13 @@ namespace MediaPortal.UI.SkinEngine.Controls.ImageSources
           break;
       }
       return source;
+    }
+
+    /// <summary>
+    /// Notifies this image source that the rendering was stopped for this image. Can be overridden by sub classes.
+    /// </summary>
+    public virtual void VisibilityLost()
+    {
     }
   }
 }

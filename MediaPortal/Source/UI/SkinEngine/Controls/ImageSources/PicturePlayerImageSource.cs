@@ -98,6 +98,15 @@ namespace MediaPortal.UI.SkinEngine.Controls.ImageSources
 
     #region ImageSource implementation
 
+    public override void VisibilityLost()
+    {
+      base.VisibilityLost();
+      // Delete the current and the last image to avoid image transitions the next time we are visible again
+      _lastCopiedTexture = null;
+      CycleTextures(null, RectangleF.Empty, RightAngledRotation.Zero);
+      CycleTextures(null, RectangleF.Empty, RightAngledRotation.Zero);
+    }
+
     public override void Allocate()
     {
       IPlayerManager playerManager = ServiceRegistration.Get<IPlayerManager>(false);
@@ -214,6 +223,11 @@ namespace MediaPortal.UI.SkinEngine.Controls.ImageSources
 
     protected static Texture CreateTextureCopy(Texture sourceTexture, out SizeF textureSize)
     {
+      if (sourceTexture == null)
+      {
+        textureSize = Size.Empty;
+        return null;
+      }
       SurfaceDescription desc = sourceTexture.GetLevelDescription(0);
       textureSize = new SizeF(desc.Width, desc.Height);
       DeviceEx device = SkinContext.Device;

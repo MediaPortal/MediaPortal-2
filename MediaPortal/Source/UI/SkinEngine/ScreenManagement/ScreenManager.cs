@@ -1060,10 +1060,14 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
           enabledScreens = GetScreens(!_backgroundDisabled, true, true, true);
         }
         foreach (Screen screen in disabledScreens)
+        {
+          screen.IsVisible = false;
           // Animation of disabled screens is necessary to avoid an overrun of the async properties setter buffer
           screen.SetValues();
+        }
         foreach (Screen screen in enabledScreens)
         {
+          screen.IsVisible = true;
           screen.SetValues();
           screen.Animate();
           screen.Render();
