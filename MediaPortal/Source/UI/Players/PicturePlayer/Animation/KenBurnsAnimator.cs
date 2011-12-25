@@ -22,27 +22,33 @@
 
 #endregion
 
+using System;
 using System.Drawing;
 
 namespace MediaPortal.UI.Players.Picture.Animation
 {
   /// <summary>
-  /// Used for picture animation effects in the <see cref="PicturePlayer"/>.
+  /// The Ken Burns effect uses different pan and zoom operations to animate a picture.
   /// </summary>
-  public interface IPictureAnimator
+  public class KenBurnsAnimator : IPictureAnimator
   {
-    /// <summary>
-    /// Initializes the animation.
-    /// </summary>
-    void Initialize();
+    protected static readonly Random _rnd = new Random(DateTime.Now.Millisecond);
 
-    /// <summary>
-    /// Returns the zoom view rectangle for the current animation state for the given <see cref="outputSize"/>.
-    /// </summary>
-    /// <param name="animationProgress">Progress of the animation, value between 0 (= start) and 1 (=end).</param>
-    /// <param name="imageSize"></param>
-    /// <param name="outputSize">Size of the output region.</param>
-    /// <returns>Rectangle which contains fractions of the image size; X and Y coords go from 0 to 1.</returns>
-    RectangleF GetZoomRect(float animationProgress, Size imageSize, Size outputSize);
+    protected AbstractKenBurnsEffect _currentEffect = null;
+
+    public void Initialize()
+    {
+      _currentEffect = GetRandomKenBurnsEffect();
+    }
+
+    public RectangleF GetZoomRect(float animationProgress, Size imageSize, Size outputSize)
+    {
+      return _currentEffect == null ? RectangleF.Empty : _currentEffect.GetZoomRect(animationProgress, imageSize, outputSize);
+    }
+
+    protected AbstractKenBurnsEffect GetRandomKenBurnsEffect()
+    {
+      return _rnd.Next(2) == 0 ? (AbstractKenBurnsEffect) new KenBurnsZoomEffect() : new KenBurnsPanEffect();
+    }
   }
 }

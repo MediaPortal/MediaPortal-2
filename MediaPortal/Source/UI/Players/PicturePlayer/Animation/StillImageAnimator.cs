@@ -29,17 +29,17 @@ namespace MediaPortal.UI.Players.Picture.Animation
   /// <summary>
   /// StillImage animation class provides static images only.
   /// </summary>
-  public class StillImage: IPictureAnimator
+  public class StillImageAnimator: IPictureAnimator
   {
     protected static readonly RectangleF _zoomRect = new RectangleF(0, 0, 1, 1);
 
     #region IPictureAnimator implementation
 
-    public void Initialize(Size imageSize)
+    public void Initialize()
     {
     }
 
-    public RectangleF GetZoomRect(float animationProgress, Size outputSize)
+    public RectangleF GetZoomRect(float animationProgress, Size imageSize, Size outputSize)
     {
       return _zoomRect;
     }

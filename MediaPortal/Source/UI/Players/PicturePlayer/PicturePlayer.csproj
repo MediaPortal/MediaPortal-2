@@ -74,9 +74,13 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Animation\AbstractKenBurnsEffect.cs" />
+    <Compile Include="Animation\KenBurnsAnimator.cs" />
+    <Compile Include="Animation\KenBurnsPanEffect.cs" />
+    <Compile Include="Animation\KenBurnsZoomEffect.cs" />
+    <Compile Include="Animation\KenBurnsEffects.cs" />
     <Compile Include="Animation\IPictureAnimator.cs" />
-    <Compile Include="Animation\KenBurns.cs" />
-    <Compile Include="Animation\StillImage.cs" />
+    <Compile Include="Animation\StillImageAnimator.cs" />
     <Compile Include="PicturePlayer.cs" />
     <Compile Include="PicturePlayerBuilder.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

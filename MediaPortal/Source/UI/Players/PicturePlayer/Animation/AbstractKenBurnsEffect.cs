@@ -22,27 +22,41 @@
 
 #endregion
 
+using System;
 using System.Drawing;
 
 namespace MediaPortal.UI.Players.Picture.Animation
 {
   /// <summary>
-  /// Used for picture animation effects in the <see cref="PicturePlayer"/>.
+  /// Abstract base class for Ken Burns pan and zoom effect classes.
   /// </summary>
-  public interface IPictureAnimator
+  public abstract class AbstractKenBurnsEffect
   {
     /// <summary>
-    /// Initializes the animation.
+    /// Randomizer which can be used by sub classes.
     /// </summary>
-    void Initialize();
+    protected static readonly Random _randomizer = new Random(DateTime.Now.Millisecond);
+
+    /// <summary>
+    /// Returns the information whether the image with the given <paramref name="imageSize"/> has landscape orientation
+    /// in relation to the given <paramref name="outputSize"/>. A landscape picture has borders at its top and bottom while
+    /// a portrait picture has borders at its left and right sides.
+    /// </summary>
+    /// <param name="imageSize">Size or aspect ratio of the image.</param>
+    /// <param name="outputSize">Size or aspect ratio of the available output region to show the image.</param>
+    /// <returns><c>true</c>, if the image has landscape orientation, else <c>false</c>.</returns>
+    protected bool IsLandscape(SizeF imageSize, SizeF outputSize)
+    {
+      return imageSize.Width / outputSize.Width > imageSize.Height / outputSize.Height;
+    }
 
     /// <summary>
     /// Returns the zoom view rectangle for the current animation state for the given <see cref="outputSize"/>.
     /// </summary>
     /// <param name="animationProgress">Progress of the animation, value between 0 (= start) and 1 (=end).</param>
-    /// <param name="imageSize"></param>
+    /// <param name="imageSize">Size of the image to animate.</param>
     /// <param name="outputSize">Size of the output region.</param>
     /// <returns>Rectangle which contains fractions of the image size; X and Y coords go from 0 to 1.</returns>
-    RectangleF GetZoomRect(float animationProgress, Size imageSize, Size outputSize);
+    public abstract RectangleF GetZoomRect(float animationProgress, Size imageSize, Size outputSize);
   }
 }

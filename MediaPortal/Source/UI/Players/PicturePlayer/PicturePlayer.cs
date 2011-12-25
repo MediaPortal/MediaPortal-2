@@ -49,7 +49,9 @@ namespace MediaPortal.UI.Players.Picture
     public const string STR_PLAYER_ID = "9B1B6861-1757-40b2-9227-98A36D6CC9D7";
     public static readonly Guid PLAYER_ID = new Guid(STR_PLAYER_ID);
 
-    protected TimeSpan TS_INFINITE = TimeSpan.FromMilliseconds(-1);
+    protected static readonly TimeSpan TS_INFINITE = TimeSpan.FromMilliseconds(-1);
+
+    protected static readonly IPictureAnimator STILL_IMAGE_ANIMATION = new StillImageAnimator();
 
     #endregion
 
@@ -157,7 +159,7 @@ namespace MediaPortal.UI.Players.Picture
       double durationSec = settings.SlideShowImageDuration;
       _slideShowImageDuration = durationSec == 0 ? TS_INFINITE : TimeSpan.FromSeconds(durationSec);
 
-      _animator = settings.UseKenBurns ? (IPictureAnimator) new KenBurns() : new StillImage();
+      _animator = settings.UseKenBurns ? new KenBurnsAnimator() : STILL_IMAGE_ANIMATION;
     }
 
     protected void DisposeTimer()
@@ -250,7 +252,7 @@ namespace MediaPortal.UI.Players.Picture
         _textureMaxUV = new SizeF(imageInformation.Width / (float) desc.Width, imageInformation.Height / (float) desc.Height);
 
         // Reset animation
-        _animator.Initialize(new Size(imageInformation.Width, imageInformation.Height));
+        _animator.Initialize();
 
         if (_slideShowTimer != null)
           _slideShowTimer.Change(_slideShowImageDuration, TS_INFINITE);
@@ -467,7 +469,7 @@ namespace MediaPortal.UI.Players.Picture
         if (animationProgress < 0)
           animationProgress = 0;
         animationProgress = 1-1/(5*animationProgress*animationProgress+1);
-        RectangleF textureClip = _animator.GetZoomRect(animationProgress, outputSize);
+        RectangleF textureClip = _animator.GetZoomRect(animationProgress, PictureSize, outputSize);
         return new RectangleF(textureClip.X * _textureMaxUV.Width, textureClip.Y * _textureMaxUV.Height, textureClip.Width * _textureMaxUV.Width, textureClip.Height * _textureMaxUV.Height);
       }
     }

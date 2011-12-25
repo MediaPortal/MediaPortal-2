@@ -27,20 +27,28 @@ using System.Drawing;
 
 namespace MediaPortal.UI.Players.Picture.Animation
 {
-  /// <summary>
-  /// Ken Burns effect uses different pan and zoom operations to animate a picture.
-  /// </summary>
-  public class KenBurns: IPictureAnimator
+  public enum Stretch
   {
-    public enum EffectType
-    {
-      None,
-      Zoom,
-      Pan
-    }
+    // The content is resized to fit in the destination dimensions while it preserves its
+    // native aspect ratio. If the aspect ratio of the destination rectangle differs from
+    // the source, the content won't fill the whole destionation area.
+    Uniform,
 
-    /* Zoom points arround the rectangle
-     * Selected zoom point will be held at the same place while zooming the rectangle
+    // The content is resized to fill the destination dimensions while it preserves its
+    // native aspect ratio. 
+    // If the aspect ratio of the destination rectangle differs from the source, the source content is 
+    // clipped to fit in the destination dimensions completely.
+    UniformToFill
+  }
+
+  /// <summary>
+  /// Contains default values and calculation methods for Ken Burns zoom and pan effects.
+  /// </summary>
+  public class KenBurnsEffects
+  {
+    /* Zoom and pan points arround the rectangle:
+     * For zoom, the selected point will be held at the same place while zooming the rectangle.
+     * For pan, the image is moved from one pan spot to the other.
      *
      *     1---------2---------3
      *     |                   |
@@ -50,9 +58,13 @@ namespace MediaPortal.UI.Players.Picture.Animation
      *
      */
 
-    protected const float KENBURNS_ZOOM_FACTOR = 1.1f;
+    public const float KENBURNS_DEFAULT_ZOOM_FACTOR = 1.1f;
 
-    protected static readonly Point[] LANDSCAPE_PAN_SPOTS = new Point[]
+    public const float KENBURNS_DEFAULT_PAN_ZOOM_FACTOR = 1.1f;
+
+    public const int NUM_PAN_SPOTS = 14;
+
+    public static readonly Point[] LANDSCAPE_PAN_SPOTS = new Point[NUM_PAN_SPOTS]
         {
           new Point(1, 4), new Point(1, 5), new Point(8, 3), new Point(8, 4),
           new Point(8, 5), new Point(7, 4), new Point(7, 3), new Point(5, 8),
@@ -60,7 +72,7 @@ namespace MediaPortal.UI.Players.Picture.Animation
           new Point(3, 7), new Point(3, 8)
         };
 
-    protected static readonly Point[] PORTRAIT_PAN_SPOTS = new Point[]
+    public static readonly Point[] PORTRAIT_PAN_SPOTS = new Point[NUM_PAN_SPOTS]
         {
           new Point(1, 6), new Point(1, 5), new Point(2, 7), new Point(2, 6),
           new Point(2, 5), new Point(3, 7), new Point(3, 6), new Point(5, 2),
@@ -68,7 +80,7 @@ namespace MediaPortal.UI.Players.Picture.Animation
           new Point(7, 3), new Point(7, 2)
         };
 
-    protected static readonly Point[] SPOT_POINTS = new Point[]
+    public static readonly Point[] SPOT_POINTS = new Point[]
       {
           new Point(0, 0), // 0
           new Point(-1, -1), new Point(0, -1), new Point(1, -1), // 1, 2, 3
@@ -79,119 +91,7 @@ namespace MediaPortal.UI.Players.Picture.Animation
 
     protected static readonly Random _randomizer = new Random(DateTime.Now.Millisecond);
 
-    protected EffectType _currentEffectType = EffectType.None;
-    protected int _zoomCenterClass = 0;
-    protected float _startZoomFactor = 1;
-    protected float _endZoomFactor = 1;
-    protected int _panPointsIndex = 0;
-
-    protected Size _imageSize;
-
-    public EffectType CurrentEffect
-    {
-      get { return _currentEffectType; }
-    }
-
-    public void Initialize(Size imageSize)
-    {
-      _imageSize = imageSize;
-
-      _currentEffectType = (EffectType) 1 + _randomizer.Next(2);
-      switch (_currentEffectType)
-      {
-        case EffectType.Zoom:
-          _zoomCenterClass = _randomizer.Next(3);
-          _startZoomFactor = 1;
-          _endZoomFactor = KENBURNS_ZOOM_FACTOR;
-          // Not necessary
-          _panPointsIndex = 0;
-          break;
-        case EffectType.Pan:
-          _panPointsIndex = _randomizer.Next(14);
-          // Not necessary
-          _zoomCenterClass = 0;
-          _startZoomFactor = KENBURNS_ZOOM_FACTOR;
-          _endZoomFactor = KENBURNS_ZOOM_FACTOR;
-          break;
-        default:
-          // No effects
-          _zoomCenterClass = 0;
-          _startZoomFactor = 1;
-          _endZoomFactor = 1;
-          _panPointsIndex = 0;
-          break;
-      }
-    }
-
-    protected bool IsLandscape(SizeF imageSize, SizeF outputSize)
-    {
-      return imageSize.Width / outputSize.Width > imageSize.Height / outputSize.Height;
-    }
-
-    public RectangleF GetZoomRect(float animationProgress, Size outputSize)
-    {
-      bool isLandscape = IsLandscape(_imageSize, outputSize);
-      switch (_currentEffectType)
-      {
-        case EffectType.Zoom:
-          int zoomCenterPoint = 0;
-          if (isLandscape)
-            switch (_zoomCenterClass)
-            {
-              case 0:
-                zoomCenterPoint = 8;
-                break;
-              case 1:
-                zoomCenterPoint = 0;
-                break;
-              case 2:
-                zoomCenterPoint = 4;
-                break;
-            }
-          else
-            switch (_zoomCenterClass)
-            {
-              case 0:
-                zoomCenterPoint = 2;
-                break;
-              case 1:
-                zoomCenterPoint = 0;
-                break;
-              case 2:
-                zoomCenterPoint = 6;
-                break;
-            }
-          return GetKenBurnsZoomRectangle(_startZoomFactor + (_endZoomFactor - _startZoomFactor) * animationProgress,
-              zoomCenterPoint, _imageSize, outputSize);
-        case EffectType.Pan:
-          Point startEndPanPoints = isLandscape ? LANDSCAPE_PAN_SPOTS[_panPointsIndex] : PORTRAIT_PAN_SPOTS[_panPointsIndex];
-          PointF panStartPoint = SPOT_POINTS[startEndPanPoints.X];
-          PointF panEndPoint = SPOT_POINTS[startEndPanPoints.Y];
-
-          return GetKenBurnsPanRectangle(KENBURNS_ZOOM_FACTOR,
-              panStartPoint.X + (panEndPoint.X - panStartPoint.X) * animationProgress,
-              panStartPoint.Y + (panEndPoint.Y - panStartPoint.Y) * animationProgress, _imageSize, outputSize);
-        default:
-          // No effects
-          return new RectangleF(0, 0, 1, 1);
-      }
-    }
-
-    protected enum Stretch
-    {
-      // The content is resized to fit in the destination dimensions while it preserves its
-      // native aspect ratio. If the aspect ratio of the destination rectangle differs from
-      // the source, the content won't fill the whole destionation area.
-      Uniform,
-
-      // The content is resized to fill the destination dimensions while it preserves its
-      // native aspect ratio. 
-      // If the aspect ratio of the destination rectangle differs from the source, the source content is 
-      // clipped to fit in the destination dimensions completely.
-      UniformToFill
-    }
-
-    protected static RectangleF GetKenBurnsZoomRectangle(float zoomFactor, int zoomCenterPoint, SizeF imageSize, SizeF outputSize)
+    public static RectangleF GetKenBurnsZoomRectangle(float zoomFactor, int zoomCenterPoint, SizeF imageSize, SizeF outputSize)
     {
       float normalizationFactor = NormalizeOutputSizeToImageSize(imageSize, outputSize, Stretch.UniformToFill);
       
@@ -199,6 +99,16 @@ namespace MediaPortal.UI.Players.Picture.Animation
       float scaledOutputHeight = outputSize.Height * normalizationFactor / zoomFactor;
 
       return CalculateZoomRect(imageSize, new SizeF(scaledOutputWidth, scaledOutputHeight), zoomCenterPoint);
+    }
+
+    public static RectangleF GetKenBurnsPanRectangle(float zoomFactor, float panX, float panY, SizeF imageSize, SizeF outputSize)
+    {
+      float normalizationFactor = NormalizeOutputSizeToImageSize(imageSize, outputSize, Stretch.UniformToFill);
+      
+      float scaledOutputWidth = outputSize.Width * normalizationFactor / zoomFactor;
+      float scaledOutputHeight = outputSize.Height * normalizationFactor / zoomFactor;
+
+      return CalculatePanRect(imageSize, new SizeF(scaledOutputWidth, scaledOutputHeight), panX, panY);
     }
 
     protected static float NormalizeOutputSizeToImageSize(SizeF imageSize, SizeF outputSize, Stretch stretch)
@@ -259,16 +169,6 @@ namespace MediaPortal.UI.Players.Picture.Animation
           break;
       }
       return new RectangleF(left / outerSize.Width, top / outerSize.Height, innerSize.Width / outerSize.Width, innerSize.Height / outerSize.Height);
-    }
-
-    protected static RectangleF GetKenBurnsPanRectangle(float zoomFactor, float panX, float panY, SizeF imageSize, SizeF outputSize)
-    {
-      float normalizationFactor = NormalizeOutputSizeToImageSize(imageSize, outputSize, Stretch.UniformToFill);
-      
-      float scaledOutputWidth = outputSize.Width * normalizationFactor / zoomFactor;
-      float scaledOutputHeight = outputSize.Height * normalizationFactor / zoomFactor;
-
-      return CalculatePanRect(imageSize, new SizeF(scaledOutputWidth, scaledOutputHeight), panX, panY);
     }
 
     protected static RectangleF CalculatePanRect(SizeF outerSize, SizeF innerSize, float panX, float panY)
