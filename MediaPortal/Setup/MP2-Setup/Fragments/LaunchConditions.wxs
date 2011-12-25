@@ -10,7 +10,7 @@
     </Condition>
 
     <Condition Message="!(loc.LC_NET)">
-      <![CDATA[Installed OR NETFRAMEWORK40FULL]]>
+      <![CDATA[Installed OR NETFRAMEWORK35]]>
     </Condition>
     <Condition Message="!(loc.LC_ADMIN)">
       Privileged

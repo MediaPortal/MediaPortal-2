@@ -34,9 +34,7 @@
 
   <!-- Launch Conditions -->
   <String Id="LC_OS">[ProductName] benötigt mindestens das Betriebssystem Windows 7 oder Windows 2008 R2.</String>
-  <String Id="LC_Dokan">[ProductName] benötigt Dokan v0.6.0.</String>
-  <String Id="LC_DokanError">Dokan-Treiber ist nicht korrekt unter SYSTEM\CurrentControlSet\services registriert. Bitte Dokan neuinstallieren.</String>
-  <String Id="LC_NET">[ProductName] benötigt mindestens .NET Framework 4.0 Full.</String>
+  <String Id="LC_NET">[ProductName] benötigt mindestens .NET Framework 3.5.</String>
   <String Id="LC_ADMIN">Um [ProductName] zu installieren, werden Administrator-Rechte benötigt.</String>
 
   <!-- User Interfaces -->

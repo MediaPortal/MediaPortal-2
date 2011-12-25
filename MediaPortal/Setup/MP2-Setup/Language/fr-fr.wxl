@@ -37,9 +37,7 @@
 
   <!-- Launch Conditions -->
   <String Id="LC_OS">[ProductName] nécessite au minimum Windows 7 / 2008 R2 comme système d'exploitation.</String>
-  <String Id="LC_Dokan">[ProductName] nécessite Dokan v0.6.0.</String>
-  <String Id="LC_DokanError">Le Driver Dokan.sys n'est pas correctement inscrit dans le registre SYSTEM\CurrentControlSet\services !</String>
-  <String Id="LC_NET">[ProductName] nécessite que soit installé le Framework .NET 4.0 Main profile</String>
+  <String Id="LC_NET">[ProductName] nécessite que soit installé le Framework .NET 3.5.</String>
   <String Id="LC_ADMIN">Vous devez être administrateur pour installer [ProductName].</String>
 
   <!-- User Interfaces -->
