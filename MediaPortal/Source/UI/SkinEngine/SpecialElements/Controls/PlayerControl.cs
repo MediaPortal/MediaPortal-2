@@ -86,8 +86,8 @@ namespace MediaPortal.UI.SkinEngine.SpecialElements.Controls
     // Direct properties/fields
     protected AbstractProperty _playerContextProperty;
     protected AbstractProperty _autoVisibilityProperty;
-    protected float _fixedVideoWidth;
-    protected float _fixedVideoHeight;
+    protected float _fixedImageWidth;
+    protected float _fixedImageHeight;
     protected Timer _timer;
     protected bool _initialized = false;
     protected bool _updating = false;
@@ -128,8 +128,8 @@ namespace MediaPortal.UI.SkinEngine.SpecialElements.Controls
     protected AbstractProperty _canSeekBackwardProperty;
     protected AbstractProperty _isPlayerActiveProperty;
     protected AbstractProperty _isPipProperty;
-    protected AbstractProperty _videoWidthProperty;
-    protected AbstractProperty _videoHeightProperty;
+    protected AbstractProperty _imageWidthProperty;
+    protected AbstractProperty _imageHeightProperty;
     protected AbstractProperty _videoGenreProperty;
     protected AbstractProperty _videoYearProperty;
     protected AbstractProperty _videoActorsProperty;
@@ -153,7 +153,7 @@ namespace MediaPortal.UI.SkinEngine.SpecialElements.Controls
 
     #endregion
 
-    #region Ctor
+    #region Ctor & maintainance
 
     public PlayerControl()
     {
@@ -196,10 +196,10 @@ namespace MediaPortal.UI.SkinEngine.SpecialElements.Controls
       _canSeekBackwardProperty = new SProperty(typeof(bool), false);
       _isPlayerActiveProperty = new SProperty(typeof(bool), false);
       _isPipProperty = new SProperty(typeof(bool), false);
-      _fixedVideoWidth = 0f;
-      _fixedVideoHeight = 0f;
-      _videoWidthProperty = new SProperty(typeof(float), 0f);
-      _videoHeightProperty = new SProperty(typeof(float), 0f);
+      _fixedImageWidth = 0f;
+      _fixedImageHeight = 0f;
+      _imageWidthProperty = new SProperty(typeof(float), 0f);
+      _imageHeightProperty = new SProperty(typeof(float), 0f);
       _videoGenreProperty = new SProperty(typeof(string), string.Empty);
       _videoYearProperty = new SProperty(typeof(int?), null);
       _videoActorsProperty = new SProperty(typeof(IEnumerable<string>), EMPTY_NAMES_COLLECTION);
@@ -246,8 +246,8 @@ namespace MediaPortal.UI.SkinEngine.SpecialElements.Controls
 
       PlayerContext = pc.PlayerContext;
       AutoVisibility = pc.AutoVisibility;
-      _fixedVideoWidth = pc._fixedVideoWidth;
-      _fixedVideoHeight = pc._fixedVideoHeight;
+      _fixedImageWidth = pc._fixedImageWidth;
+      _fixedImageHeight = pc._fixedImageHeight;
 
       Attach();
       UpdateProperties();
@@ -488,26 +488,26 @@ namespace MediaPortal.UI.SkinEngine.SpecialElements.Controls
         if (vp == null)
         {
           IsVideoPlayerPresent = false;
-          VideoWidth = 0f;
-          VideoHeight = 0f;
+          ImageWidth = 0f;
+          ImageHeight = 0f;
         }
         else
         {
           IsVideoPlayerPresent = true;
-          if (FixedVideoWidth > 0f && FixedVideoHeight > 0f)
+          if (FixedImageWidth > 0f && FixedImageHeight > 0f)
           {
-            VideoWidth = FixedVideoWidth;
-            VideoHeight = FixedVideoHeight;
+            ImageWidth = FixedImageWidth;
+            ImageHeight = FixedImageHeight;
           }
-          else if (FixedVideoWidth > 0f)
+          else if (FixedImageWidth > 0f)
           { // Calculate the image height from the width
-            VideoWidth = FixedVideoWidth;
-            VideoHeight = FixedVideoWidth*vp.VideoAspectRatio.Height/vp.VideoAspectRatio.Width;
+            ImageWidth = FixedImageWidth;
+            ImageHeight = FixedImageWidth*vp.VideoAspectRatio.Height/vp.VideoAspectRatio.Width;
           }
           else
-          { // FixedVideoHeight > 0f
-            VideoHeight = FixedVideoHeight;
-            VideoWidth = FixedVideoHeight*vp.VideoAspectRatio.Width/vp.VideoAspectRatio.Height;
+          { // FixedImageHeight > 0f
+            ImageHeight = FixedImageHeight;
+            ImageWidth = FixedImageHeight*vp.VideoAspectRatio.Width/vp.VideoAspectRatio.Height;
           }
         }
         if (pp == null)
@@ -520,20 +520,20 @@ namespace MediaPortal.UI.SkinEngine.SpecialElements.Controls
         else
         {
           IsPicturePlayerPresent = true;
-          if (FixedVideoWidth > 0f && FixedVideoHeight > 0f)
+          if (FixedImageWidth > 0f && FixedImageHeight > 0f)
           {
-            VideoWidth = FixedVideoWidth;
-            VideoHeight = FixedVideoHeight;
+            ImageWidth = FixedImageWidth;
+            ImageHeight = FixedImageHeight;
           }
-          else if (FixedVideoWidth > 0f)
+          else if (FixedImageWidth > 0f)
           { // Calculate the image height from the width
-            VideoWidth = FixedVideoWidth;
-            VideoHeight = FixedVideoWidth*pp.PictureSize.Height/pp.PictureSize.Width;
+            ImageWidth = FixedImageWidth;
+            ImageHeight = FixedImageWidth*pp.PictureSize.Height/pp.PictureSize.Width;
           }
           else
-          { // FixedVideoHeight > 0f
-            VideoHeight = FixedVideoHeight;
-            VideoWidth = FixedVideoHeight*pp.PictureSize.Width/pp.PictureSize.Height;
+          { // FixedImageHeight > 0f
+            ImageHeight = FixedImageHeight;
+            ImageWidth = FixedImageHeight*pp.PictureSize.Width/pp.PictureSize.Height;
           }
           UpdatePictureSourcePath(pp.CurrentPictureResourceLocator);
           PictureRotation rotation;
@@ -815,27 +815,27 @@ namespace MediaPortal.UI.SkinEngine.SpecialElements.Controls
     }
 
     /// <summary>
-    /// Gets or sets a fixed width for the <see cref="VideoWidth"/> property. If <see cref="FixedVideoHeight"/> is set to
-    /// <c>0</c>, the <see cref="VideoHeight"/> will be calculated automatically using the current player's aspect ratio.
-    /// If both <see cref="FixedVideoWidth"/> and <see cref="FixedVideoHeight"/> are set, the player's aspect ratio will be
+    /// Gets or sets a fixed width for the <see cref="ImageWidth"/> property. If <see cref="FixedImageHeight"/> is set to
+    /// <c>0</c>, the <see cref="ImageHeight"/> will be calculated automatically using the current player's aspect ratio.
+    /// If both <see cref="FixedImageWidth"/> and <see cref="FixedImageHeight"/> are set, the player's aspect ratio will be
     /// ignored.
     /// </summary>
-    public float FixedVideoWidth
+    public float FixedImageWidth
     {
-      get { return _fixedVideoWidth; }
-      set { _fixedVideoWidth = value; }
+      get { return _fixedImageWidth; }
+      set { _fixedImageWidth = value; }
     }
 
     /// <summary>
-    /// Gets or sets a fixed height for the <see cref="VideoHeight"/> property. If <see cref="FixedVideoWidth"/> is set to
-    /// <c>0</c>, the <see cref="VideoWidth"/> will be calculated automatically using the current player's aspect ratio.
-    /// If both <see cref="FixedVideoWidth"/> and <see cref="FixedVideoHeight"/> are set, the player's aspect ratio will be
+    /// Gets or sets a fixed height for the <see cref="ImageHeight"/> property. If <see cref="FixedImageWidth"/> is set to
+    /// <c>0</c>, the <see cref="ImageWidth"/> will be calculated automatically using the current player's aspect ratio.
+    /// If both <see cref="FixedImageWidth"/> and <see cref="FixedImageHeight"/> are set, the player's aspect ratio will be
     /// ignored.
     /// </summary>
-    public float FixedVideoHeight
+    public float FixedImageHeight
     {
-      get { return _fixedVideoHeight; }
-      set { _fixedVideoHeight = value; }
+      get { return _fixedImageHeight; }
+      set { _fixedImageHeight = value; }
     }
 
     #endregion
@@ -1285,44 +1285,44 @@ namespace MediaPortal.UI.SkinEngine.SpecialElements.Controls
       internal set { _isPipProperty.SetValue(value); }
     }
 
-    public AbstractProperty VideoWidthProperty
+    public AbstractProperty ImageWidthProperty
     {
-      get { return _videoWidthProperty; }
+      get { return _imageWidthProperty; }
     }
 
     /// <summary>
     /// Gets the fixed or calculated video width.
     /// </summary>
     /// <remarks>
-    /// This property returns the video size returned by the video player, if neither <see cref="FixedVideoWidth"/>
-    /// nor <see cref="FixedVideoHeight"/> is set. If one of them is set, the other dimension is calculated from the
+    /// This property returns the video size returned by the video player, if neither <see cref="FixedImageWidth"/>
+    /// nor <see cref="FixedImageHeight"/> is set. If one of them is set, the other dimension is calculated from the
     /// fixed dimension according to the current video's aspect ratio. This can be used for displaying a
     /// picture-in-picture rectangle, for example.
     /// </remarks>
-    public float VideoWidth
+    public float ImageWidth
     {
-      get { return (float) _videoWidthProperty.GetValue(); }
-      internal set { _videoWidthProperty.SetValue(value); }
+      get { return (float) _imageWidthProperty.GetValue(); }
+      internal set { _imageWidthProperty.SetValue(value); }
     }
 
-    public AbstractProperty VideoHeightProperty
+    public AbstractProperty ImageHeightProperty
     {
-      get { return _videoHeightProperty; }
+      get { return _imageHeightProperty; }
     }
 
     /// <summary>
     /// Gets the fixed or calculated video height.
     /// </summary>
     /// <remarks>
-    /// This property returns the video size returned by the video player, if neither <see cref="FixedVideoWidth"/>
-    /// nor <see cref="FixedVideoHeight"/> is set. If one of them is set, the other dimension is calculated from the
+    /// This property returns the video size returned by the video player, if neither <see cref="FixedImageWidth"/>
+    /// nor <see cref="FixedImageHeight"/> is set. If one of them is set, the other dimension is calculated from the
     /// fixed dimension according to the current video's aspect ratio. This can be used for displaying a
     /// picture-in-picture rectangle, for example.
     /// </remarks>
-    public float VideoHeight
+    public float ImageHeight
     {
-      get { return (float) _videoHeightProperty.GetValue(); }
-      internal set { _videoHeightProperty.SetValue(value); }
+      get { return (float) _imageHeightProperty.GetValue(); }
+      internal set { _imageHeightProperty.SetValue(value); }
     }
 
     public AbstractProperty VideoYearProperty
