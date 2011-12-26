@@ -29,7 +29,7 @@
 
     <CustomAction Id="CA_InstallDokan"
                   BinaryKey="DokanInstallerExe"
-                  Impersonate="yes"
+                  Impersonate="no"
                   Execute="deferred"
                   ExeCommand="/S"
                   Return="check" />
@@ -37,7 +37,7 @@
     <CustomAction Id="CA_UninstallDokan"
                   Directory="DokanLibraryFolder"
                   ExeCommand="[DokanLibraryFolder]DokanUninstall.exe"
-                  Impersonate="yes"
+                  Impersonate="no"
                   Execute="deferred"
                   Return="ignore" />
 
