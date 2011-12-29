@@ -79,6 +79,8 @@ namespace MediaPortal.UiComponents.Weather
       condition.LastUpdate = sourceCondition.LastUpdate;
       condition.FeelsLikeTemp = sourceCondition.FeelsLikeTemp;
       condition.Humidity = sourceCondition.Humidity;
+      condition.Precipitation = sourceCondition.Precipitation;
+      condition.Pressure = sourceCondition.Pressure;
       condition.Wind = sourceCondition.Wind;
       condition.UVIndex = sourceCondition.UVIndex;
       condition.DewPoint = sourceCondition.DewPoint;

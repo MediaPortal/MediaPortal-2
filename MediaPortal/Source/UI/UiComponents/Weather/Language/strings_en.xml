@@ -16,6 +16,8 @@
     <String Name="UVIndex" Text="UV Index"/>
     <String Name="Wind" Text="Wind"/>
     <String Name="Humidity" Text="Humidity"/>
+    <String Name="Precipitation" Text="Precipitation"/>
+    <String Name="Pressure" Text="Pressure"/>
     <String Name="DewPoint" Text="Dew Point"/>
     <String Name="Sunrise" Text="Sunrise"/>
     <String Name="Sunset" Text="Sunset"/>

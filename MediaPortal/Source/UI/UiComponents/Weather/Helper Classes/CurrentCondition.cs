@@ -50,6 +50,8 @@ namespace MediaPortal.UiComponents.Weather
     protected readonly AbstractProperty _bigIcon = new WProperty(typeof(string), string.Empty);
     protected readonly AbstractProperty _smallIcon = new WProperty(typeof(string), string.Empty);
     protected readonly AbstractProperty _humidity = new WProperty(typeof(string), string.Empty);
+    protected readonly AbstractProperty _precipitation = new WProperty(typeof(string), string.Empty);
+    protected readonly AbstractProperty _pressure = new WProperty(typeof(string), string.Empty);
     protected readonly AbstractProperty _wind = new WProperty(typeof(string), string.Empty);
     protected readonly AbstractProperty _uVindex = new WProperty(typeof(string), string.Empty);
     protected readonly AbstractProperty _dewPoint = new WProperty(typeof(string), string.Empty);
@@ -88,6 +90,18 @@ namespace MediaPortal.UiComponents.Weather
     {
       get { return (string) _humidity.GetValue(); }
       set { _humidity.SetValue(value); }
+    }
+
+    public string Precipitation
+    {
+      get { return (string) _precipitation.GetValue(); }
+      set { _precipitation.SetValue(value); }
+    }
+
+    public string Pressure
+    {
+      get { return (string) _pressure.GetValue(); }
+      set { _pressure.SetValue(value); }
     }
 
     public string Wind
@@ -148,6 +162,16 @@ namespace MediaPortal.UiComponents.Weather
     public AbstractProperty HumidityProperty
     {
       get { return _humidity; }
+    }
+
+    public AbstractProperty PrecipitationProperty
+    {
+      get { return _precipitation; }
+    }
+
+    public AbstractProperty PressureProperty
+    {
+      get { return _pressure; }
     }
 
     public AbstractProperty WindProperty

@@ -46,6 +46,7 @@ namespace MediaPortal.UiComponents.Weather.Grabbers
     private const string MPH = "mph";
     private const string PERCENT = "%";
     private const string MM = "mm";
+    private const string MBAR = "mbar";
 
     private readonly TimeSpan _maxCacheDuration = TimeSpan.FromHours(1);
 
@@ -235,27 +236,13 @@ namespace MediaPortal.UiComponents.Weather.Grabbers
       XPathNavigator condition = navigator.SelectSingleNode("/data/current_condition");
       if (condition != null)
       {
-        string nodeName = _preferCelcius ? "temp_C" : "temp_F";
-        string unit = _preferCelcius ? CELCIUS : FAHRENHEIT;
+        city.Condition.Temperature = FormatCurrentTemp(condition);
+        city.Condition.Wind = FormatWind(condition);
+        city.Condition.Humidity = FormatHumidity(condition);
+        city.Condition.Precipitation = FormatPrecip(condition);
+        city.Condition.Pressure = FormatPressure(condition);
 
-        XPathNavigator node = condition.SelectSingleNode(nodeName);
-        if (node != null)
-          city.Condition.Temperature = node.Value + unit;
-
-        nodeName = _preferKph ? "windspeedKmph" : "windspeedMiles";
-        unit = _preferKph ? KPH : MPH;
-        node = condition.SelectSingleNode(nodeName);
-        string windSpeed = node != null ? node.Value : string.Empty;
-
-        node = condition.SelectSingleNode("winddir16Point");
-        string windDir = node != null ? ServiceRegistration.Get<ILocalization>().ToString(string.Format("[Weather.{0}]", node.Value)) : string.Empty;
-        city.Condition.Wind = ServiceRegistration.Get<ILocalization>().ToString("[Weather.From]", windDir, windSpeed, unit);
-
-        node = condition.SelectSingleNode("humidity");
-        if (node != null)
-          city.Condition.Humidity = node.Value + PERCENT;
-
-        node = condition.SelectSingleNode("weatherDesc");
+        XPathNavigator node = condition.SelectSingleNode("weatherDesc");
         if (node != null)
           city.Condition.Condition = node.Value;
 
@@ -284,27 +271,10 @@ namespace MediaPortal.UiComponents.Weather.Grabbers
           dayForecast.Day = String.Format("{0} {1}", day, date.ToShortDateString());
         }
 
-        string nodeName = _preferCelcius ? "tempMinC" : "tempMinF";
-        string unit = _preferCelcius ? CELCIUS : FAHRENHEIT;
-
-        node = forecasts.Current.SelectSingleNode(nodeName);
-        if (node != null)
-          dayForecast.Low = node.Value + unit;
-
-        nodeName = _preferCelcius ? "tempMaxC" : "tempMaxF";
-        node = forecasts.Current.SelectSingleNode(nodeName);
-        if (node != null)
-          dayForecast.High = node.Value + unit;
-
-        nodeName = _preferKph ? "windspeedKmph" : "windspeedMiles";
-        unit = _preferKph ? KPH : MPH;
-        node = forecasts.Current.SelectSingleNode(nodeName);
-        if (node != null)
-          dayForecast.Wind = node.Value + unit;
-
-        node = forecasts.Current.SelectSingleNode("winddir16Point");
-        if (node != null)
-          dayForecast.Wind += " " + node.Value;
+        dayForecast.Low = FormatTempLow(forecasts.Current);
+        dayForecast.High = FormatTempHigh(forecasts.Current);
+        dayForecast.Precipitation = FormatPrecip(forecasts.Current);
+        dayForecast.Wind = FormatWind(forecasts.Current);
 
         node = forecasts.Current.SelectSingleNode("weatherCode");
         if (node != null)
@@ -317,13 +287,68 @@ namespace MediaPortal.UiComponents.Weather.Grabbers
         if (node != null)
           dayForecast.Overview = node.Value;
 
-        node = forecasts.Current.SelectSingleNode("precipMM");
-        if (node != null)
-          dayForecast.Precipitation = node.Value + MM;
-
         city.ForecastCollection.Add(dayForecast);
       }
       return true;
+    }
+
+    private string FormatWind(XPathNavigator condition)
+    {
+      string nodeName = _preferKph ? "windspeedKmph" : "windspeedMiles";
+      string unit = _preferKph ? KPH : MPH;
+      XPathNavigator node = condition.SelectSingleNode(nodeName);
+      string windSpeed = node != null ? node.Value : string.Empty;
+
+      node = condition.SelectSingleNode("winddir16Point");
+      string windDir = node != null ? ServiceRegistration.Get<ILocalization>().ToString(string.Format("[Weather.{0}]", node.Value)) : string.Empty;
+      return ServiceRegistration.Get<ILocalization>().ToString("[Weather.From]", windDir, windSpeed, unit);
+    }
+
+    private string FormatCurrentTemp(XPathNavigator condition)
+    {
+      string nodeName = _preferCelcius ? "temp_C" : "temp_F";
+      return FormatTemp(condition.SelectSingleNode(nodeName));
+    }
+
+    private string FormatTempLow(XPathNavigator condition)
+    {
+      string nodeName = _preferCelcius ? "tempMinC" : "tempMinF";
+      return FormatTemp(condition.SelectSingleNode(nodeName));
+    }
+
+    private string FormatTempHigh(XPathNavigator condition)
+    {
+      string nodeName = _preferCelcius ? "tempMaxC" : "tempMaxF";
+      return FormatTemp(condition.SelectSingleNode(nodeName));
+    }
+
+    private string FormatTemp(XPathNavigator tempNode)
+    {
+      if (tempNode == null)
+        return string.Empty;
+      string unit = _preferCelcius ? CELCIUS : FAHRENHEIT;
+      return string.Format("{0} {1}", tempNode.ValueAsDouble, unit);
+    }
+
+    private static string FormatPrecip(XPathNavigator condition)
+    {
+      return FormatDouble(condition, "precipMM", MM);
+    }
+
+    private static string FormatHumidity(XPathNavigator condition)
+    {
+      return FormatDouble(condition, "humidity", PERCENT); 
+    }
+
+    private static string FormatPressure(XPathNavigator condition)
+    {
+      return FormatDouble(condition, "pressure", MBAR);
+    }
+
+    private static string FormatDouble(XPathNavigator condition, string nodeName, string unit)
+    {
+      XPathNavigator node = condition.SelectSingleNode(nodeName);
+      return node == null ? string.Empty : string.Format("{0} {1}", node.ValueAsDouble, unit);
     }
 
     private string GetWeatherIcon(int weatherCode)
