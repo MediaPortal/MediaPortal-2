@@ -42,8 +42,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.ImageSources
     protected RectangleF _lastTextureClip;
 
     protected Texture _currentTexture = null;
-    protected SizeF _currentTextureSize; // Size of the texture, can be bigger than the raw image in the texture because of DX. _currentTextureClip is based on this size.
-    protected RectangleF _currentTextureClip; // Clipping rectangle to be used from the _currentTexture.
+    protected SizeF _currentTextureSize; // Size of the texture, can be bigger than the actual image in the texture because of DX. _currentTextureClip is based on this size.
+    protected RectangleF _currentTextureClip; // Clipping rectangle to be used from the _currentTexture. Values go from 0 to 1.
     protected SizeF _currentClippedSize; // Size of the raw image part in the texture to be shown.
 
     protected Texture _lastCopiedTexture = null;
