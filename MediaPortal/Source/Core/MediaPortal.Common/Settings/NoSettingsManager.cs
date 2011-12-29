@@ -53,6 +53,8 @@ namespace MediaPortal.Common.Settings
 
     public void CancelBatchUpdate() { }
 
+    public void ClearCache() { }
+
     public void RemoveSettingsData(Type settingsType, bool user, bool global) { }
 
     public void RemoveAllSettingsData(bool user, bool global) { }

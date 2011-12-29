@@ -96,6 +96,15 @@ namespace MediaPortal.Common.Settings
     void CancelBatchUpdate();
 
     /// <summary>
+    /// Clears the settings cache. After this method is called, the settings manager will re-load all requested settings
+    /// rather than taking them from the cache.
+    /// </summary>
+    /// <remarks>
+    /// Used by the setup application to be able to load settings from both server and client.
+    /// </remarks>
+    void ClearCache();
+
+    /// <summary>
     /// Removes the application setting with the specified <paramref name="settingsType"/> from the system.
     /// </summary>
     /// <param name="settingsType">Type of settings to remove.</param>

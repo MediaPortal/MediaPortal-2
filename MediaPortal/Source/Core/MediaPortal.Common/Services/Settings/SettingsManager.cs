@@ -247,6 +247,11 @@ namespace MediaPortal.Common.Services.Settings
       }
     }
 
+    public void ClearCache()
+    {
+      _cache.Clear();
+    }
+
     public void RemoveSettingsData(Type settingsType, bool user, bool global)
     {
       lock (_cache.SyncObj)
