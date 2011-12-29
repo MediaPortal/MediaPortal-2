@@ -37,10 +37,10 @@
     <Setter Property="ItemTemplate" Value="{ThemeResource WeatherLocationItemDataTemplate}"/>
   </Style>
 
-  
+
   <!-- Styles for a single day forecast -->
   <DataTemplate x:Key="ForecastItemDataTemplate" DataType="{x:Type collections:ListItem}">
-    <StackPanel HorizontalAlignment="Left" VerticalAlignment="Top" Margin="10,0,40,0">
+    <StackPanel HorizontalAlignment="Left" VerticalAlignment="Top" Margin="5,0,25,0">
       <Label FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource TextColor}" Content="{Binding Day}"/>
       <Image Width="64" Height="64" Source="{Binding SmallIconProperty}"/>
       <Label FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource TextColor}" Content="{Binding High}" HorizontalAlignment="Center"/>

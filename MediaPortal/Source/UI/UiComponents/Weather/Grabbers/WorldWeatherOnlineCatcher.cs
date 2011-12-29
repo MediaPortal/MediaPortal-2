@@ -29,6 +29,7 @@ using System.Text;
 using System.Xml;
 using System.Xml.XPath;
 using MediaPortal.Common;
+using MediaPortal.Common.Localization;
 using MediaPortal.Common.PathManager;
 using MediaPortal.Common.Settings;
 using MediaPortal.UiComponents.Weather.Settings;
@@ -39,12 +40,12 @@ namespace MediaPortal.UiComponents.Weather.Grabbers
   {
     public const string SERVICE_NAME = "WorldWeatherOnline.com";
 
-    private const string CELCIUS = " °C";
-    private const string FAHRENHEIT = " °F";
-    private const string KPH = " km/h";
-    private const string MPH = " mph";
-    private const string PERCENT = " %";
-    private const string MM = " mm";
+    private const string CELCIUS = "°C";
+    private const string FAHRENHEIT = "°F";
+    private const string KPH = "km/h";
+    private const string MPH = "mph";
+    private const string PERCENT = "%";
+    private const string MM = "mm";
 
     private readonly TimeSpan _maxCacheDuration = TimeSpan.FromHours(1);
 
@@ -244,12 +245,11 @@ namespace MediaPortal.UiComponents.Weather.Grabbers
         nodeName = _preferKph ? "windspeedKmph" : "windspeedMiles";
         unit = _preferKph ? KPH : MPH;
         node = condition.SelectSingleNode(nodeName);
-        if (node != null)
-          city.Condition.Wind = node.Value + unit;
+        string windSpeed = node != null ? node.Value : string.Empty;
 
         node = condition.SelectSingleNode("winddir16Point");
-        if (node != null)
-          city.Condition.Wind += " " + node.Value;
+        string windDir = node != null ? ServiceRegistration.Get<ILocalization>().ToString(string.Format("[Weather.{0}]", node.Value)) : string.Empty;
+        city.Condition.Wind = ServiceRegistration.Get<ILocalization>().ToString("[Weather.From]", windDir, windSpeed, unit);
 
         node = condition.SelectSingleNode("humidity");
         if (node != null)
@@ -278,7 +278,11 @@ namespace MediaPortal.UiComponents.Weather.Grabbers
 
         XPathNavigator node = forecasts.Current.SelectSingleNode("date");
         if (node != null)
-          dayForecast.Day = node.Value;
+        {
+          DateTime date = node.ValueAsDateTime;
+          string day = ServiceRegistration.Get<ILocalization>().CurrentCulture.DateTimeFormat.GetAbbreviatedDayName(date.DayOfWeek);
+          dayForecast.Day = String.Format("{0} {1}", day, date.ToShortDateString());
+        }
 
         string nodeName = _preferCelcius ? "tempMinC" : "tempMinF";
         string unit = _preferCelcius ? CELCIUS : FAHRENHEIT;
