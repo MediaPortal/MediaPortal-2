@@ -27,9 +27,11 @@ using System.Collections.Generic;
 using System.IO;
 using MediaPortal.Common.Localization;
 using MediaPortal.Common.Services.Localization;
+using System.Text;
+using MediaPortal.Backend.Services.SystemResolver;
+using MediaPortal.Common.Services.Logging;
 using Microsoft.Deployment.WindowsInstaller;
 
-using MediaPortal.Backend.Services.SystemResolver;
 using MediaPortal.Common;
 using MediaPortal.Common.Logging;
 using MediaPortal.Common.PathManager;
@@ -48,6 +50,26 @@ namespace CustomActions
     private static readonly string[] ClientPathLabels = new string[] { "DATA", "CONFIG", "LOG", "PLUGINS" };
     private static readonly string[] ServerPathLabels = new string[] { "DATA", "CONFIG", "LOG", "PLUGINS", "DATABASE" };
 
+    protected class SessionLogWriter : TextWriter
+    {
+      protected Session _session;
+
+      public SessionLogWriter(Session session)
+      {
+        _session = session;
+      }
+
+      public override void WriteLine(string value)
+      {
+ 	       _session.Log(value);
+      }
+
+      public override Encoding Encoding
+      {
+        get { return Encoding.UTF8; }
+      }
+    }
+
     [CustomAction]
     public static ActionResult AttachClientToServer(Session session)
     {
@@ -57,53 +79,47 @@ namespace CustomActions
       if (session.Features["Client"].RequestState == InstallState.Local
         & session.Features["Server"].RequestState == InstallState.Local)
       {
-        // todo: check which code is really needed: serviceregistration? pathmanager?
-        ServiceRegistration.Set<ILogger>(new NoLogger());
+        ServiceRegistration.Set<ILogger>(new DefaultLogger(new SessionLogWriter(session), LogLevel.All, false, false)); // Logger for called services
 
-        IPathManager pathManager = new PathManager();
+        PathManager pathManager = new PathManager(); // Fake path manager to inject the settings path to SettingsManager
         ServiceRegistration.Set<IPathManager>(pathManager);
         ServiceRegistration.Set<ISettingsManager>(new SettingsManager());
         ServiceRegistration.Set<ILocalization>(new StringManager());
 
-        string applicationPath = Environment.GetCommandLineArgs()[0];
-        pathManager.SetPath("APPLICATION_PATH", applicationPath);
-        pathManager.SetPath("APPLICATION_ROOT", Path.GetDirectoryName(applicationPath));
-        pathManager.SetPath("LOCAL_APPLICATION_DATA",
-            Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData));
-        pathManager.SetPath("COMMON_APPLICATION_DATA",
-            Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData));
-        pathManager.SetPath("MY_DOCUMENTS", Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments));
+        string clientApplicationPath = Path.Combine(session["INSTALLDIR_CLIENT"], "MP2-Client.exe");
+        string serverApplicationPath = Path.Combine(session["INSTALLDIR_SERVER"], "MP2-Server.exe");
 
-
-        pathManager.SetPath("DEFAULTS", session["INSTALLDIR_CLIENT"] + "\\Defaults");
-        pathManager.LoadPaths(session["INSTALLDIR_CLIENT"] + "\\Defaults\\Paths.xml");
+        pathManager.InitializeDefaults(clientApplicationPath);
 
         ISettingsManager settingsManager = ServiceRegistration.Get<ISettingsManager>();
-        ServerConnectionSettings settings = settingsManager.Load<ServerConnectionSettings>();
+        ServerConnectionSettings serverConnectionSettings = settingsManager.Load<ServerConnectionSettings>();
 
-        if (settings.HomeServerSystemId == null)
+        if (serverConnectionSettings.HomeServerSystemId == null)
         {
-          session.Log("Client is not attached, will be auto attached with the local server");
-          pathManager.SetPath("DEFAULTS", session["INSTALLDIR_SERVER"] + "\\Defaults");
-          pathManager.LoadPaths(session["INSTALLDIR_SERVER"] + "\\Defaults\\Paths.xml");
+          session.Log("Client is not attached, auto-attaching to local server");
 
-          ISystemResolver systemResolver = new SystemResolver();
-          ServiceRegistration.Set<ISystemResolver>(systemResolver);
+          pathManager.InitializeDefaults(serverApplicationPath);
+          settingsManager.ClearCache(); // Force the settings manager to use the server path and re-load all settings objects
 
-          String _localSystemId = systemResolver.LocalSystemId;
-          session.Log("Local systemid = " + systemResolver.LocalSystemId);
+          ISystemResolver backendSystemResolver = new SystemResolver();
 
-          pathManager.SetPath("DEFAULTS", session["INSTALLDIR_CLIENT"] + "\\Defaults");
-          pathManager.LoadPaths(session["INSTALLDIR_CLIENT"] + "\\Defaults\\Paths.xml");
+          String serverSystemId = backendSystemResolver.LocalSystemId;
+          session.Log("Using server's system ID '{0}'", serverSystemId);
 
-          settings.HomeServerSystemId = _localSystemId;
-          settings.LastHomeServerName = "MediaPortal 2 server";
-          settingsManager.Save(settings);
+          pathManager.InitializeDefaults(clientApplicationPath);
+          settingsManager.ClearCache();
+
+          serverConnectionSettings.HomeServerSystemId = serverSystemId;
+          settingsManager.Save(serverConnectionSettings);
         }
         else
         {
-          session.Log("Client is already attached with server with ID {0}", settings.HomeServerSystemId);
+          session.Log("Client is already attached to server with system ID '{0}'", serverConnectionSettings.HomeServerSystemId);
         }
+
+        ServiceRegistration.RemoveAndDispose<ISettingsManager>();
+        ServiceRegistration.RemoveAndDispose<IPathManager>();
+        ServiceRegistration.RemoveAndDispose<ILogger>();
       }
       else
       {
