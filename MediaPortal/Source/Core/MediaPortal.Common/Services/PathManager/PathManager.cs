@@ -63,7 +63,11 @@ namespace MediaPortal.Common.Services.PathManager
     public void InitializeDefaults()
     {
       string applicationPath = Environment.GetCommandLineArgs()[0];
+      InitializeDefaults(applicationPath);
+    }
 
+    public void InitializeDefaults(string applicationPath)
+    {
       SetPath("APPLICATION_PATH", applicationPath);
       SetPath("APPLICATION_ROOT", Path.GetDirectoryName(applicationPath));
       SetPath("LOCAL_APPLICATION_DATA", Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData));
