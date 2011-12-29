@@ -28,11 +28,12 @@
             <StackPanel x:Name="Temperatures" Orientation="Horizontal" HorizontalAlignment="Center" IsVisible="{Binding CurrentLocation}">
               <Label x:Name="Temperature" FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource TextColor}"
                   Content="{Binding CurrentLocation.Condition.Temperature}"/>
+              <!-- Morpheus_xx 2011-29-12: Currently not supported by grabber, temporary removed
               <Label FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource TextColor}" Content=" ("/>
               <Label x:Name="TempFeel" FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource TextColor}"
                   Content="{Binding CurrentLocation.Condition.FeelsLikeTemp}"/>
               <Label FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource TextColor}"
-                  Content=")"/>
+                  Content=")"/>-->
             </StackPanel>
             <Label x:Name="LocName" HorizontalAlignment="Center" FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource TextColor}"
                 Content="{Binding CurrentLocation.Name}"/>
@@ -52,11 +53,12 @@
               <RowDefinition Height="Auto"/>
               <RowDefinition Height="Auto"/>
             </Grid.RowDefinitions>
+            <!-- Morpheus_xx 2011-29-12: Currently not supported by grabber, temporary removed
             <Label Grid.Column="0" Grid.Row="0" FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource TextColor}" Content="[Weather.Sunrise]"/>
             <Label Grid.Column="2" Grid.Row="0" FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource TextColor}" Content="{Binding CurrentLocation.LocationInfo.SunRise}"/>
 
             <Label Grid.Column="0" Grid.Row="1" FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource TextColor}" Content="[Weather.Sunset]" />
-            <Label Grid.Column="2" Grid.Row="1" FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource TextColor}" Content="{Binding CurrentLocation.LocationInfo.SunSet}"/>
+            <Label Grid.Column="2" Grid.Row="1" FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource TextColor}" Content="{Binding CurrentLocation.LocationInfo.SunSet}"/>-->
 
             <Label Grid.Column="0" Grid.Row="2" FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource TextColor}" Content="[Weather.Wind]"/>
             <Label Grid.Column="2" Grid.Row="2" FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource TextColor}" Content="{Binding CurrentLocation.Condition.Wind}"/>
@@ -64,11 +66,12 @@
             <Label Grid.Column="0" Grid.Row="3" FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource TextColor}" Content="[Weather.Humidity]"/>
             <Label Grid.Column="2" Grid.Row="3" FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource TextColor}" Content="{Binding CurrentLocation.Condition.Humidity}"/>
 
+            <!-- Morpheus_xx 2011-29-12: Currently not supported by grabber, temporary removed
             <Label Grid.Column="0" Grid.Row="4" FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource TextColor}" Content="[Weather.Dewpoint]"/>
             <Label Grid.Column="2" Grid.Row="4" FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource TextColor}" Content="{Binding CurrentLocation.Condition.DewPoint}"/>
 
             <Label Grid.Column="0" Grid.Row="5" FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource TextColor}" Content="[Weather.UVIndex]"/>
-            <Label Grid.Column="2" Grid.Row="5" FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource TextColor}" Content="{Binding CurrentLocation.Condition.UVIndex}"/>
+            <Label Grid.Column="2" Grid.Row="5" FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource TextColor}" Content="{Binding CurrentLocation.Condition.UVIndex}"/>-->
           </Grid>
         </Grid>
 
