@@ -70,7 +70,7 @@ Parameters which have to be accessible by a DynamicResource lookup:
         </ListView>
 
         <!-- Order matters here: The content grid has to be the last control to fill the rest of the space -->
-        <!--<Grid x:Name="ContentPanel" Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="3" SetFocusPrio="Default">
+        <Grid x:Name="ContentPanel" Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="3" SetFocusPrio="Default">
           <Grid.ColumnDefinitions>
             <ColumnDefinition Width="*"/>
           </Grid.ColumnDefinitions>
@@ -79,7 +79,7 @@ Parameters which have to be accessible by a DynamicResource lookup:
           </Grid.RowDefinitions>
           <Control Margin="10,0,10,10" x:Name="ContentViewer" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"
               Template="{DynamicResource ResourceKey=Contents_Template}" SetFocus="true"/>
-        </Grid>-->
+        </Grid>
       </Grid>
       <!--</DockPanel>-->
     </ControlTemplate>
