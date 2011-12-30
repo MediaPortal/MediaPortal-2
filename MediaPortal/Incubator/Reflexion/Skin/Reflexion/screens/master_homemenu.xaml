@@ -53,6 +53,14 @@ Parameters which have to be accessible by a DynamicResource lookup:
           <Model x:Key="MenuModel" Id="9E9D0CD9-4FDB-4c0f-A0C4-F356E151BDE0"/>
         </Grid.Resources>
 
+        <Canvas x:Name="Text_bar" Margin="-150,0,0,0"  Opacity="0.902" Grid.Column="0" Grid.Row="0" Grid.RowSpan="3">
+          <Image x:Name="Layer_4" Height="126" Canvas.Left="0" Opacity="0.749" Source="Controls\Layer 141.png" Canvas.Top="326" Width="2200"/>
+          <Image x:Name="Layer_14_copy" Height="126" Canvas.Left="0" Opacity="0.788" Source="Controls\Layer 14 copy.png" Canvas.Top="322" Width="2200"/>
+          <Image x:Name="Layer_3" Height="134" Canvas.Left="0" Source="Controls\Layer 11.png" Canvas.Top="318" Width="2200"/>
+          <Image x:Name="Layer_2" Height="133" Canvas.Left="0" Opacity="0.29" Source="Controls\Layer 51.png" Canvas.Top="319" Width="2200"/>
+          <Image x:Name="Layer_22" Height="100" Canvas.Left="0" Opacity="0.8" Source="Controls\Layer 22.png" Canvas.Top="335" Width="2200"/>
+        </Canvas>
+
         <ListView x:Name="MainMenu" Grid.Column="1" Grid.Row="1" Style="{ThemeResource HomeMenuListViewStyle}"
               HorizontalAlignment="Stretch" VerticalAlignment="Center" SetFocusPrio="DefaultHigh"
               ItemsSource="{Binding Source={StaticResource MenuModel},Path=MenuItems,Mode=OneTime}">

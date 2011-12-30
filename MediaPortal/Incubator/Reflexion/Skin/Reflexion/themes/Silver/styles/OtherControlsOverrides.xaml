@@ -105,7 +105,7 @@
 
   <!-- Menu template -->
   <DataTemplate x:Key="MainMenuItemDataTemplateHover">
-    <DockPanel x:Name="ItemControl" LastChildFill="True" VerticalAlignment="Stretch" HorizontalAlignment="Stretch">
+    <DockPanel x:Name="ItemControl" LastChildFill="True" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Height="700">
 
       <Control x:Name="HoverControl" IsVisible="False"
                Style="{ThemeResource ReflexionControl}" 
@@ -132,7 +132,7 @@
           </ControlTemplate>
         </Control.Resources>
       </Control>
-      <Label x:Name="ItemLabel" Margin="30,30,0,0" DockPanel.Dock="Center" Content="{Binding [Name]}" Color="{ThemeResource TextColor}"/>
+      <Label x:Name="ItemLabel" Margin="30,250,0,0" DockPanel.Dock="Center" Content="{Binding [Name]}" Color="{ThemeResource TextColor}"/>
     </DockPanel>
   </DataTemplate>
 

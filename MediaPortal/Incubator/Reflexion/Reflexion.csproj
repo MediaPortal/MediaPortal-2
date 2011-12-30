@@ -187,11 +187,23 @@
   <ItemGroup>
     <Content Include="plugin.xml" />
     <Content Include="Skin\Reflexion\images\defaultBackground.png" />
+    <Content Include="Skin\Reflexion\themes\Silver\images\Controls\Layer 0 copy.png" />
+    <Content Include="Skin\Reflexion\themes\Silver\images\Controls\Layer 0.png" />
     <Content Include="Skin\Reflexion\themes\Silver\images\Controls\Layer 1.png" />
+    <Content Include="Skin\Reflexion\themes\Silver\images\Controls\Layer 11.png" />
     <Content Include="Skin\Reflexion\themes\Silver\images\Controls\Layer 12.png" />
+    <Content Include="Skin\Reflexion\themes\Silver\images\Controls\Layer 121.png" />
+    <Content Include="Skin\Reflexion\themes\Silver\images\Controls\Layer 13.png" />
+    <Content Include="Skin\Reflexion\themes\Silver\images\Controls\Layer 14 copy.png" />
     <Content Include="Skin\Reflexion\themes\Silver\images\Controls\Layer 14.png" />
+    <Content Include="Skin\Reflexion\themes\Silver\images\Controls\Layer 141.png" />
+    <Content Include="Skin\Reflexion\themes\Silver\images\Controls\Layer 142.png" />
     <Content Include="Skin\Reflexion\themes\Silver\images\Controls\Layer 15.png" />
+    <Content Include="Skin\Reflexion\themes\Silver\images\Controls\Layer 151.png" />
+    <Content Include="Skin\Reflexion\themes\Silver\images\Controls\Layer 22.png" />
     <Content Include="Skin\Reflexion\themes\Silver\images\Controls\Layer 5.png" />
+    <Content Include="Skin\Reflexion\themes\Silver\images\Controls\Layer 51.png" />
+    <Content Include="Skin\Reflexion\themes\Silver\images\Controls\Layer 52.png" />
     <Content Include="Skin\Reflexion\themes\Silver\images\FilterLarge.png" />
     <Content Include="Skin\Reflexion\themes\Silver\images\FilterSmall.png" />
     <Content Include="Skin\Reflexion\themes\Silver\images\MovieLarge.png" />
