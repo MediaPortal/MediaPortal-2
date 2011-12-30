@@ -74,11 +74,11 @@
     </Setter>
   </Style>
 
-  <Style x:Key="GlasOverlayControl" TargetType="{x:Type Control}">
+  <Style x:Key="GlassOverlayControl" TargetType="{x:Type Control}">
     <Setter Property="Template">
       <Setter.Value>
         <ControlTemplate>
-          <Grid x:Name="MainGlasGrid">
+          <Grid x:Name="MainGlassGrid">
             <Grid.ColumnDefinitions>
               <ColumnDefinition Width="Auto"/>
             </Grid.ColumnDefinitions>
@@ -87,15 +87,15 @@
               <RowDefinition Height="Auto"/>
             </Grid.RowDefinitions>
 
-            <Image Grid.Column="0" Grid.Row="0" Margin="0,0,0,0" x:Name="Layer_12" Height="401" Opacity="0.49" Source="Controls\Layer 12.png" Width="728"/>
+            <Image Grid.Column="0" Grid.Row="0" Margin="0" x:Name="Layer_12" Opacity="0.49" Source="Controls\Layer 12.png"/>
 
             <Control Grid.Column="0" Grid.Row="0" x:Name="ControlPresenter" Margin="0,0,0,0" Width="695" Height="372"
-                Template="{DynamicResource ResourceKey=MakeGlas}" />
+                Template="{DynamicResource ResourceKey=MakeGlass}" />
 
-            <Image Grid.Column="0" Grid.Row="0" Margin="0,0,0,0" x:Name="Layer_14" Height="395" Source="Controls\Layer 14.png" Width="722"/>
-            <Image Grid.Column="0" Grid.Row="0" Margin="190,-6,0,0" x:Name="Layer_15" Height="402" Opacity="0.278" Source="Controls\Layer 15.png" Width="538"/>
-            <Image Grid.Column="0" Grid.Row="0" Margin="0" x:Name="Layer_1" Height="422" Source="Controls\Layer 1.png" Width="749"/>
-            <Image Grid.Column="0" Grid.Row="0" Margin="0,0,0,0" x:Name="Layer_5" Height="419" Opacity="0.29" Source="Controls\Layer 5.png" Width="746"/>
+            <Image Grid.Column="0" Grid.Row="0" Margin="0" x:Name="Layer_14" Source="Controls\Layer 14.png"/>
+            <Image Grid.Column="0" Grid.Row="0" Margin="190,-6,0,0" x:Name="Layer_15" Opacity="0.278" Source="Controls\Layer 15.png"/>
+            <Image Grid.Column="0" Grid.Row="0" Margin="0" x:Name="Layer_1" Source="Controls\Layer 1.png"/>
+            <Image Grid.Column="0" Grid.Row="0" Margin="0" x:Name="Layer_5" Opacity="0.29" Source="Controls\Layer 5.png"/>
 
           </Grid>
         </ControlTemplate>
@@ -105,7 +105,7 @@
 
   <!-- Menu template -->
   <DataTemplate x:Key="MainMenuItemDataTemplateHover">
-    <DockPanel x:Name="ItemControl" LastChildFill="True" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Height="700">
+    <DockPanel x:Name="ItemControl" LastChildFill="False" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Height="700">
 
       <Control x:Name="HoverControl" IsVisible="False"
                Style="{ThemeResource ReflexionControl}" 
@@ -114,12 +114,12 @@
         <Control.Resources>
           <ControlTemplate x:Key="MakeReflexion">
 
-            <Control x:Name="GlasOverlay"
-               Style="{ThemeResource GlasOverlayControl}" 
+            <Control x:Name="GlassOverlay"
+               Style="{ThemeResource GlassOverlayControl}" 
                DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}"
                VerticalAlignment="Stretch" HorizontalAlignment="Stretch" DockPanel.Dock="Center">
               <Control.Resources>
-                <ControlTemplate x:Key="MakeGlas">
+                <ControlTemplate x:Key="MakeGlass">
 
                   <Image x:Name="BackdropImageBackground"
                      VerticalAlignment="Top"
