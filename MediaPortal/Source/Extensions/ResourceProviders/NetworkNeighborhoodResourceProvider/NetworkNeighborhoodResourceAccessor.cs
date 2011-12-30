@@ -196,8 +196,12 @@ namespace MediaPortal.Extensions.ResourceProviders.NetworkNeighborhoodResourcePr
                     _parent, StringUtils.CheckPrefix(serverName, @"\\").Replace('\\', '/'))).Cast<IFileSystemResourceAccessor>().ToList();
       if (IsServerPath(_path))
         return SharesEnumerator.EnumerateShares(StringUtils.RemovePrefixIfPresent(_path, "//")).Where(
-            share => share.ShareType == ShareType.Disk).Select(share => new NetworkNeighborhoodResourceAccessor(
-                _parent, share.UNCPath.Replace('\\', '/'))).Cast<IFileSystemResourceAccessor>().ToList();
+            share => share.ShareType == ShareType.Disk).Select(
+            share => {
+              try { return new NetworkNeighborhoodResourceAccessor(_parent, share.UNCPath.Replace('\\', '/')); }
+              catch(ArgumentException) { return null; }
+            }
+          ).Where(share => share != null).Cast<IFileSystemResourceAccessor>().ToList();
       return _underlayingResource == null ? null : WrapLocalFsResourceAccessors(_underlayingResource.GetChildDirectories());
     }
 
