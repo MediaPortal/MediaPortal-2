@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Screen
+    xmlns="www.team-mediaportal.com/2008/mpf/directx"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    x:Name="Screen"
+    >
+  <DockPanel LastChildFill="False" Background="#E0000000">
+    <DockPanel.Resources>
+      <Model x:Key="TimeModel" Id="E821B1C8-0666-4339-8027-AA45A4F6F107"/>
+    </DockPanel.Resources>
+
+    <StackPanel Orientation="Vertical" DockPanel.Dock="Center"
+      HorizontalAlignment="Stretch" VerticalAlignment="Center">
+      <Control x:Name="AnalogClock" Style="{ThemeResource AnalogClockStyle}" HorizontalAlignment="Center"/>
+      <Label x:Name="Date" FontSize="{ThemeResource DateTimeFontSize}"
+        HorizontalAlignment="Center"
+        Content="{Binding Source={StaticResource TimeModel}, Path=CurrentDate}" Color="{ThemeResource TextColor}"/>
+      <Label x:Name="Time" FontSize="{ThemeResource DateTimeFontSize}"
+        HorizontalAlignment="Center"
+        Content="{Binding Source={StaticResource TimeModel}, Path=CurrentTime}" Color="{ThemeResource TextColor}"/>
+    </StackPanel>
+
+  </DockPanel>
+</Screen>

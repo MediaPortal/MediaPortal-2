@@ -1,0 +1,44 @@
+<Plugin
+    DescriptorVersion="1.0"
+    Name="Reflexion Skin"
+    PluginId="{CA7543A8-D7DF-44BC-A6AC-75AB3911FE43}"
+    Author="Furnibird,Morpheus_xx"
+    Copyright="GPL"
+    Description="Reflexion Skin for MP2."
+    PluginVersion="1.0">
+
+  <DependsOn>
+    <PluginReference PluginId="{5D239050-02B8-4f58-8301-7630A1C4CF85}"/> <!-- SkinBase -->
+    <PluginReference PluginId="{F6C71648-3874-4d27-9232-C41EBEDE0337}"/> <!-- Background Manager -->    
+  </DependsOn>
+
+  <!-- Registrations for MIA types which need to be loaded by the Media navigation model for this skin -->
+  <Register Location="/Media/SkinSettings/Reflexion/Music/OptionalMIATypes">
+    <MIATypeRegistration Id="ThumbnailSmallAspect" MediaItemAspectTypeId="A61846E9-0910-499D-9868-A1FABCE7CCFD"/>
+    <MIATypeRegistration Id="ThumbnailLargeAspect" MediaItemAspectTypeId="1FDA5774-9AC5-4873-926C-E84E3C36A966"/>
+  </Register>
+
+  <Register Location="/Media/SkinSettings/Reflexion/Movies/OptionalMIATypes">
+    <MIATypeRegistration Id="ThumbnailSmallAspect" MediaItemAspectTypeId="A61846E9-0910-499D-9868-A1FABCE7CCFD"/>
+    <MIATypeRegistration Id="ThumbnailLargeAspect" MediaItemAspectTypeId="1FDA5774-9AC5-4873-926C-E84E3C36A966"/>
+  </Register>
+
+  <Register Location="/Media/SkinSettings/Reflexion/Pictures/OptionalMIATypes">
+    <MIATypeRegistration Id="ThumbnailSmallAspect" MediaItemAspectTypeId="A61846E9-0910-499D-9868-A1FABCE7CCFD"/>
+    <MIATypeRegistration Id="ThumbnailLargeAspect" MediaItemAspectTypeId="1FDA5774-9AC5-4873-926C-E84E3C36A966"/>
+  </Register>
+
+  <Register Location="/Media/SkinSettings/Reflexion/BrowseMediaLibrary/OptionalMIATypes">
+    <MIATypeRegistration Id="ThumbnailSmallAspect" MediaItemAspectTypeId="A61846E9-0910-499D-9868-A1FABCE7CCFD"/>
+    <MIATypeRegistration Id="ThumbnailLargeAspect" MediaItemAspectTypeId="1FDA5774-9AC5-4873-926C-E84E3C36A966"/>
+  </Register>
+
+  <Register Location="/Media/SkinSettings/Reflexion/BrowseLocalMedia/OptionalMIATypes">
+    <MIATypeRegistration Id="ThumbnailSmallAspect" MediaItemAspectTypeId="A61846E9-0910-499D-9868-A1FABCE7CCFD"/>
+    <MIATypeRegistration Id="ThumbnailLargeAspect" MediaItemAspectTypeId="1FDA5774-9AC5-4873-926C-E84E3C36A966"/>
+  </Register>
+
+  <Register Location="/Resources/Skin">
+    <Resource Id="ReflexionSkin" Directory="Skin" Type="Skin"/>
+  </Register>
+</Plugin>

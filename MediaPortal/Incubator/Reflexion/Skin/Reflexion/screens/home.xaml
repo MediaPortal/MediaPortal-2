@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Include
+    xmlns="www.team-mediaportal.com/2008/mpf/directx"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    Source="screens\master_homemenu.xaml"
+    >
+  <Include.Resources>
+    <Model x:Key="TimeModel" Id="E821B1C8-0666-4339-8027-AA45A4F6F107"/>
+    <Model x:Key="WeatherModel" Id="92BDB53F-4159-4dc2-B212-6083C820A214"/>
+
+    <!-- Header -->
+    <!--<ResourceWrapper x:Key="Header_Text" Resource="[Home.Title]"/>-->
+    <ResourceWrapper x:Key="Header_Text" EnableBindings="True" Resource="{Binding Source={StaticResource TimeModel}, Path=CurrentTime}"/>
+
+    <!-- Contents -->
+    <ControlTemplate x:Key="Contents_Template">
+      <DockPanel LastChildFill="False">
+        <Grid DataContext="{Binding Source={StaticResource WeatherModel}}" DockPanel.Dock="Center" HorizontalAlignment="Center">
+          <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="Auto" />
+            <ColumnDefinition Width="70" />
+            <ColumnDefinition Width="85" />
+            <ColumnDefinition Width="Auto" />
+          </Grid.ColumnDefinitions>
+          <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            </Grid.RowDefinitions>
+
+
+          <!-- Morpheus_xx 2011-12-21: Analog clock currently not needed
+          <StackPanel Grid.Row="0" Grid.Column="0" Grid.RowSpan="2" Orientation="Vertical" HorizontalAlignment="Center" VerticalAlignment="Top">
+            <Control x:Name="AnalogClock" Style="{ThemeResource AnalogClockStyle}" HorizontalAlignment="Center" />
+            <Label x:Name="Time" FontSize="{ThemeResource DateTimeFontSize}" HorizontalAlignment="Center"              
+                   Content="{Binding Source={StaticResource TimeModel}, Path=CurrentTime}" Color="{ThemeResource TextColor}"/>
+          </StackPanel>-->
+          
+          <Image Grid.Row="0" Grid.Column="1" Grid.RowSpan="2" x:Name="BigIcon" Source="{Binding CurrentLocation.Condition.SmallIconProperty}" 
+                 IsVisible="{Binding UseInHome}"/>
+          <Label Grid.Row="0" Grid.Column="2" x:Name="Temperature" FontSize="{ThemeResource BigFontSize}" Color="{ThemeResource TextColor}" 
+                 Content="{Binding CurrentLocation.Condition.Temperature}"
+                 IsVisible="{Binding UseInHome}"/>
+
+          <Label Grid.Row="0" Grid.Column="3" x:Name="LocName" FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource TextColor}" Content="{Binding CurrentLocation.Name}"
+                 VerticalAlignment="Bottom"
+                 IsVisible="{Binding UseInHome}"/>
+          
+          <Label Grid.Row="1" Grid.Column="2" Grid.ColumnSpan="2" x:Name="Date" FontSize="{ThemeResource DateTimeFontSize}"
+                 Content="{Binding Source={StaticResource TimeModel}, Path=CurrentDate}"
+                 Color="{ThemeResource TextColor}"/>
+        </Grid>
+
+      </DockPanel>
+    </ControlTemplate>
+
+  </Include.Resources>
+</Include>

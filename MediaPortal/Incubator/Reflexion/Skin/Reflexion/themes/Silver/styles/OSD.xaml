@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ResourceDictionary
+    xmlns="www.team-mediaportal.com/2008/mpf/directx"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:system="clr-namespace:System"
+    xmlns:collections="clr-namespace:MediaPortal.UI.Presentation.DataObjects;assembly=MediaPortal.UI"
+    xmlns:mp_special_controls="clr-namespace:MediaPortal.UI.SkinEngine.SpecialElements.Controls"
+    DependsOnStyleResources="Colors,Consts"
+    >
+  
+  <Style x:Key="ProgressAndControlsStyle" TargetType="{x:Type Control}">
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate>
+          <DockPanel Name="ProgressAndControlsRectangle">
+            <Rectangle DockPanel.Dock="Center" RadiusX="0" RadiusY="0" Name="ProgressAndControlsBackground" Fill="{StaticResource OSDProgressAndControlsColor}" />
+            <Rectangle DockPanel.Dock="Center" RadiusX="0" RadiusY="0" Name="ButtonUpperShine" Fill="{StaticResource UpperShineGradient}" />
+            <Rectangle DockPanel.Dock="Center" RadiusX="0" RadiusY="0" Name="ButtonLowerShine" Fill="{StaticResource LowerShineGradient}" />
+          </DockPanel>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
+
+  <Style x:Key="OSDInfoAreaStyle" TargetType="{x:Type Control}">
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate>
+          <DockPanel Name="OSDInfoAreaRectangle">
+            <Rectangle DockPanel.Dock="Center" RadiusX="0" RadiusY="0" Name="OSDInfoArea" Fill="{StaticResource OSDInfoAreaBrush}" />
+          </DockPanel>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
+  
+  <Style x:Key="OSDContainer" TargetType="{x:Type Control}">
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate>
+          <Grid x:Name="MainOSDGrid">
+            <Grid.ColumnDefinitions>
+              <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+
+            <Grid.RowDefinitions>
+              <RowDefinition Height="Auto"/>
+              <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+            
+            <Control Grid.Column="0" Grid.Row="0" Style="{ThemeResource OSDInfoAreaStyle}" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"/>
+            <Control Grid.Column="0" Grid.Row="0" x:Name="OSDInfoAreaPresenter" Margin="5" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+                Template="{DynamicResource ResourceKey=OSD_InfoArea_Template}" />
+
+            <Control Grid.Column="0" Grid.Row="1" Style="{ThemeResource ProgressAndControlsStyle}" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"/>
+            <Control Grid.Column="0" Grid.Row="1" x:Name="ProgressAndControlsPresenter" Margin="2" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+                Template="{DynamicResource ResourceKey=OSD_ProgressAndControls_Template}"/>
+
+          </Grid>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
+  
+</ResourceDictionary>

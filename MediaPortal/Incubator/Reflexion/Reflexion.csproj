@@ -1,0 +1,312 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProductVersion>9.0.30729</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{F5A74068-2365-46C2-87E0-762A70A30D05}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>MediaPortal.UiComponents.Reflexion</RootNamespace>
+    <AssemblyName>Reflexion</AssemblyName>
+    <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <FileUpgradeFlags>
+    </FileUpgradeFlags>
+    <OldToolsVersion>3.5</OldToolsVersion>
+    <UpgradeBackupLocation />
+    <PublishUrl>publish\</PublishUrl>
+    <Install>true</Install>
+    <InstallFrom>Disk</InstallFrom>
+    <UpdateEnabled>false</UpdateEnabled>
+    <UpdateMode>Foreground</UpdateMode>
+    <UpdateInterval>7</UpdateInterval>
+    <UpdateIntervalUnits>Days</UpdateIntervalUnits>
+    <UpdatePeriodically>false</UpdatePeriodically>
+    <UpdateRequired>false</UpdateRequired>
+    <MapFileExtensions>true</MapFileExtensions>
+    <ApplicationRevision>0</ApplicationRevision>
+    <ApplicationVersion>1.0.0.%2a</ApplicationVersion>
+    <IsWebBootstrapper>false</IsWebBootstrapper>
+    <UseApplicationTrust>false</UseApplicationTrust>
+    <BootstrapperEnabled>true</BootstrapperEnabled>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|x86' ">
+    <DebugSymbols>true</DebugSymbols>
+    <OutputPath>bin\x86\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <DebugType>full</DebugType>
+    <PlatformTarget>x86</PlatformTarget>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|x86' ">
+    <OutputPath>bin\x86\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <Optimize>true</Optimize>
+    <DebugType>pdbonly</DebugType>
+    <PlatformTarget>x86</PlatformTarget>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="System" />
+    <Reference Include="System.Core">
+      <RequiredTargetFramework>3.5</RequiredTargetFramework>
+    </Reference>
+    <Reference Include="System.Xml.Linq">
+      <RequiredTargetFramework>3.5</RequiredTargetFramework>
+    </Reference>
+    <Reference Include="System.Data.DataSetExtensions">
+      <RequiredTargetFramework>3.5</RequiredTargetFramework>
+    </Reference>
+    <Reference Include="System.Data" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Properties\AssemblyInfo.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Skin\Reflexion\fonts\default-font.xml" />
+    <Content Include="Skin\Reflexion\images\17D2390E-5B05-4fbd-89F6-24D60CEB427F.jpg" />
+    <Content Include="Skin\Reflexion\images\30715D73-4205-417f-80AA-E82F0834171F.jpg" />
+    <Content Include="Skin\Reflexion\images\55556593-9FE9-436c-A3B6-A971E10C9D44.jpg" />
+    <Content Include="Skin\Reflexion\images\09eae702-d9ec-4325-82d9-4843502c966b.jpg" />
+    <Content Include="Skin\Reflexion\images\A4DF2DF6-8D66-479a-9930-D7106525EB07.jpg" />
+    <Content Include="Skin\Reflexion\images\B4A9199F-6DD4-4bda-A077-DE9C081F7703.jpg" />
+    <Content Include="Skin\Reflexion\images\defaultBackground.jpg" />
+    <Content Include="Skin\Reflexion\images\E34FDB62-1F3E-4aa9-8A61-D143E0AF77B5.jpg" />
+    <Content Include="Skin\Reflexion\images\F6255762-C52A-4231-9E67-14C28735216E.jpg" />
+    <Content Include="Skin\Reflexion\images\93442DF7-186D-42e5-A0F5-CF1493E68F49.jpg" />
+    <Content Include="Skin\Reflexion\images\preview.png" />
+    <Content Include="Skin\Reflexion\images\Weather\128x128\0.png" />
+    <Content Include="Skin\Reflexion\images\Weather\128x128\1.png" />
+    <Content Include="Skin\Reflexion\images\Weather\128x128\10.png" />
+    <Content Include="Skin\Reflexion\images\Weather\128x128\11.png" />
+    <Content Include="Skin\Reflexion\images\Weather\128x128\12.png" />
+    <Content Include="Skin\Reflexion\images\Weather\128x128\13.png" />
+    <Content Include="Skin\Reflexion\images\Weather\128x128\14.png" />
+    <Content Include="Skin\Reflexion\images\Weather\128x128\15.png" />
+    <Content Include="Skin\Reflexion\images\Weather\128x128\16.png" />
+    <Content Include="Skin\Reflexion\images\Weather\128x128\17.png" />
+    <Content Include="Skin\Reflexion\images\Weather\128x128\18.png" />
+    <Content Include="Skin\Reflexion\images\Weather\128x128\19.png" />
+    <Content Include="Skin\Reflexion\images\Weather\128x128\2.png" />
+    <Content Include="Skin\Reflexion\images\Weather\128x128\20.png" />
+    <Content Include="Skin\Reflexion\images\Weather\128x128\21.png" />
+    <Content Include="Skin\Reflexion\images\Weather\128x128\22.png" />
+    <Content Include="Skin\Reflexion\images\Weather\128x128\23.png" />
+    <Content Include="Skin\Reflexion\images\Weather\128x128\24.png" />
+    <Content Include="Skin\Reflexion\images\Weather\128x128\25.png" />
+    <Content Include="Skin\Reflexion\images\Weather\128x128\26.png" />
+    <Content Include="Skin\Reflexion\images\Weather\128x128\27.png" />
+    <Content Include="Skin\Reflexion\images\Weather\128x128\28.png" />
+    <Content Include="Skin\Reflexion\images\Weather\128x128\29.png" />
+    <Content Include="Skin\Reflexion\images\Weather\128x128\3.png" />
+    <Content Include="Skin\Reflexion\images\Weather\128x128\30.png" />
+    <Content Include="Skin\Reflexion\images\Weather\128x128\31.png" />
+    <Content Include="Skin\Reflexion\images\Weather\128x128\32.png" />
+    <Content Include="Skin\Reflexion\images\Weather\128x128\33.png" />
+    <Content Include="Skin\Reflexion\images\Weather\128x128\34.png" />
+    <Content Include="Skin\Reflexion\images\Weather\128x128\35.png" />
+    <Content Include="Skin\Reflexion\images\Weather\128x128\36.png" />
+    <Content Include="Skin\Reflexion\images\Weather\128x128\37.png" />
+    <Content Include="Skin\Reflexion\images\Weather\128x128\38.png" />
+    <Content Include="Skin\Reflexion\images\Weather\128x128\39.png" />
+    <Content Include="Skin\Reflexion\images\Weather\128x128\4.png" />
+    <Content Include="Skin\Reflexion\images\Weather\128x128\40.png" />
+    <Content Include="Skin\Reflexion\images\Weather\128x128\41.png" />
+    <Content Include="Skin\Reflexion\images\Weather\128x128\42.png" />
+    <Content Include="Skin\Reflexion\images\Weather\128x128\43.png" />
+    <Content Include="Skin\Reflexion\images\Weather\128x128\44.png" />
+    <Content Include="Skin\Reflexion\images\Weather\128x128\45.png" />
+    <Content Include="Skin\Reflexion\images\Weather\128x128\46.png" />
+    <Content Include="Skin\Reflexion\images\Weather\128x128\47.png" />
+    <Content Include="Skin\Reflexion\images\Weather\128x128\5.png" />
+    <Content Include="Skin\Reflexion\images\Weather\128x128\6.png" />
+    <Content Include="Skin\Reflexion\images\Weather\128x128\7.png" />
+    <Content Include="Skin\Reflexion\images\Weather\128x128\8.png" />
+    <Content Include="Skin\Reflexion\images\Weather\128x128\9.png" />
+    <Content Include="Skin\Reflexion\images\Weather\128x128\na.png" />
+    <Content Include="Skin\Reflexion\images\Weather\128x128\permission.txt" />
+    <Content Include="Skin\Reflexion\images\Weather\128x128\WEATHERALERT.png" />
+    <Content Include="Skin\Reflexion\images\Weather\64x64\0.png" />
+    <Content Include="Skin\Reflexion\images\Weather\64x64\1.png" />
+    <Content Include="Skin\Reflexion\images\Weather\64x64\10.png" />
+    <Content Include="Skin\Reflexion\images\Weather\64x64\11.png" />
+    <Content Include="Skin\Reflexion\images\Weather\64x64\12.png" />
+    <Content Include="Skin\Reflexion\images\Weather\64x64\13.png" />
+    <Content Include="Skin\Reflexion\images\Weather\64x64\14.png" />
+    <Content Include="Skin\Reflexion\images\Weather\64x64\15.png" />
+    <Content Include="Skin\Reflexion\images\Weather\64x64\16.png" />
+    <Content Include="Skin\Reflexion\images\Weather\64x64\17.png" />
+    <Content Include="Skin\Reflexion\images\Weather\64x64\18.png" />
+    <Content Include="Skin\Reflexion\images\Weather\64x64\19.png" />
+    <Content Include="Skin\Reflexion\images\Weather\64x64\2.png" />
+    <Content Include="Skin\Reflexion\images\Weather\64x64\20.png" />
+    <Content Include="Skin\Reflexion\images\Weather\64x64\21.png" />
+    <Content Include="Skin\Reflexion\images\Weather\64x64\22.png" />
+    <Content Include="Skin\Reflexion\images\Weather\64x64\23.png" />
+    <Content Include="Skin\Reflexion\images\Weather\64x64\24.png" />
+    <Content Include="Skin\Reflexion\images\Weather\64x64\25.png" />
+    <Content Include="Skin\Reflexion\images\Weather\64x64\26.png" />
+    <Content Include="Skin\Reflexion\images\Weather\64x64\27.png" />
+    <Content Include="Skin\Reflexion\images\Weather\64x64\28.png" />
+    <Content Include="Skin\Reflexion\images\Weather\64x64\29.png" />
+    <Content Include="Skin\Reflexion\images\Weather\64x64\3.png" />
+    <Content Include="Skin\Reflexion\images\Weather\64x64\30.png" />
+    <Content Include="Skin\Reflexion\images\Weather\64x64\31.png" />
+    <Content Include="Skin\Reflexion\images\Weather\64x64\32.png" />
+    <Content Include="Skin\Reflexion\images\Weather\64x64\33.png" />
+    <Content Include="Skin\Reflexion\images\Weather\64x64\34.png" />
+    <Content Include="Skin\Reflexion\images\Weather\64x64\35.png" />
+    <Content Include="Skin\Reflexion\images\Weather\64x64\36.png" />
+    <Content Include="Skin\Reflexion\images\Weather\64x64\37.png" />
+    <Content Include="Skin\Reflexion\images\Weather\64x64\38.png" />
+    <Content Include="Skin\Reflexion\images\Weather\64x64\39.png" />
+    <Content Include="Skin\Reflexion\images\Weather\64x64\4.png" />
+    <Content Include="Skin\Reflexion\images\Weather\64x64\40.png" />
+    <Content Include="Skin\Reflexion\images\Weather\64x64\41.png" />
+    <Content Include="Skin\Reflexion\images\Weather\64x64\42.png" />
+    <Content Include="Skin\Reflexion\images\Weather\64x64\43.png" />
+    <Content Include="Skin\Reflexion\images\Weather\64x64\44.png" />
+    <Content Include="Skin\Reflexion\images\Weather\64x64\45.png" />
+    <Content Include="Skin\Reflexion\images\Weather\64x64\46.png" />
+    <Content Include="Skin\Reflexion\images\Weather\64x64\47.png" />
+    <Content Include="Skin\Reflexion\images\Weather\64x64\5.png" />
+    <Content Include="Skin\Reflexion\images\Weather\64x64\6.png" />
+    <Content Include="Skin\Reflexion\images\Weather\64x64\7.png" />
+    <Content Include="Skin\Reflexion\images\Weather\64x64\8.png" />
+    <Content Include="Skin\Reflexion\images\Weather\64x64\9.png" />
+    <Content Include="Skin\Reflexion\images\Weather\64x64\na.png" />
+    <Content Include="Skin\Reflexion\images\Weather\64x64\permission.txt" />
+    <Content Include="Skin\Reflexion\images\Weather\64x64\WEATHERALERT.png" />
+    <Content Include="Skin\Reflexion\skin.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="plugin.xml" />
+    <Content Include="Skin\Reflexion\images\defaultBackground.png" />
+    <Content Include="Skin\Reflexion\themes\Silver\images\FilterLarge.png" />
+    <Content Include="Skin\Reflexion\themes\Silver\images\FilterSmall.png" />
+    <Content Include="Skin\Reflexion\themes\Silver\images\MovieLarge.png" />
+    <Content Include="Skin\Reflexion\themes\Silver\images\MovieSmall.png" />
+    <Content Include="Skin\Reflexion\themes\Silver\images\MusicLarge.png" />
+    <Content Include="Skin\Reflexion\themes\Silver\images\MusicSmall.png" />
+    <Content Include="Skin\Reflexion\themes\Silver\images\NavigationLarge.png" />
+    <Content Include="Skin\Reflexion\themes\Silver\images\NavigationSmall.png" />
+    <Content Include="Skin\Reflexion\themes\Silver\images\PictureLarge.png" />
+    <Content Include="Skin\Reflexion\themes\Silver\images\PictureSmall.png" />
+    <Content Include="Skin\Reflexion\themes\Silver\images\preview.png" />
+    <None Include="Skin\Reflexion\themes\Silver\styles\OtherControlsOverrides.xaml">
+      <SubType>Designer</SubType>
+      <SubType>Designer</SubType>
+    </None>
+    <Content Include="Skin\Reflexion\themes\Silver\images\Reflex.jpg" />
+    <Content Include="Skin\Reflexion\themes\Silver\theme.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <BootstrapperPackage Include="Microsoft.Net.Client.3.5">
+      <Visible>False</Visible>
+      <ProductName>.NET Framework 3.5 SP1 Client Profile</ProductName>
+      <Install>false</Install>
+    </BootstrapperPackage>
+    <BootstrapperPackage Include="Microsoft.Net.Framework.3.5.SP1">
+      <Visible>False</Visible>
+      <ProductName>.NET Framework 3.5 SP1</ProductName>
+      <Install>true</Install>
+    </BootstrapperPackage>
+    <BootstrapperPackage Include="Microsoft.Windows.Installer.3.1">
+      <Visible>False</Visible>
+      <ProductName>Windows Installer 3.1</ProductName>
+      <Install>true</Install>
+    </BootstrapperPackage>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Skin\Reflexion\fonts\eurof55.ttf" />
+    <None Include="Skin\Reflexion\fonts\EuroFurence.desc" />
+    <None Include="Skin\Reflexion\fonts\mayatypeui.desc" />
+    <None Include="Skin\Reflexion\fonts\mayatypelight.ttf" />
+    <None Include="Skin\Reflexion\fonts\mayatypeui.ttf" />
+    <None Include="Skin\Reflexion\fonts\mayatypeuitvg.ttf" />
+    <None Include="Skin\Reflexion\fonts\RitzyNormal.desc" />
+    <None Include="Skin\Reflexion\fonts\RitzyNormal.ttf" />
+    <None Include="Skin\Reflexion\fonts\SansBetween.desc" />
+    <None Include="Skin\Reflexion\fonts\SansBetween.ttf" />
+    <None Include="Skin\Reflexion\fonts\SketchyTimes.desc" />
+    <None Include="Skin\Reflexion\fonts\SketchyTimes.ttf" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Skin\Reflexion\images\Weather\128x128\Thumbs.db" />
+    <None Include="Skin\Reflexion\images\Weather\64x64\Thumbs.db" />
+    <None Include="Skin\Reflexion\screens\home.xaml">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Skin\Reflexion\screens\master_home.xaml">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Skin\Reflexion\screens\master_homemenu.xaml">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Skin\Reflexion\screens\master_menu.xaml">
+      <SubType>Designer</SubType>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Skin\Reflexion\screens\master_bare.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Skin\Reflexion\superlayers\ScreenSaver.xaml">
+      <SubType>Designer</SubType>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Skin\Reflexion\themes\Silver\styles\Backgrounds.xaml">
+      <SubType>Designer</SubType>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Skin\Reflexion\themes\Silver\styles\AnalogClock.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+    <Content Include="Skin\Reflexion\themes\Silver\styles\Buttons.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+    <Content Include="Skin\Reflexion\themes\Silver\styles\Colors.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+    <Content Include="Skin\Reflexion\themes\Silver\styles\Consts.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+    <Content Include="Skin\Reflexion\themes\Silver\styles\Graphics.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+    <Content Include="Skin\Reflexion\themes\Silver\styles\MediaStyles.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+    <Content Include="Skin\Reflexion\themes\Silver\styles\OSD.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Skin\Reflexion\backgrounds\" />
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+  <PropertyGroup>
+    <PostBuildEvent>xcopy /Y "$(ProjectDir)plugin.xml" "$(SolutionDir)..\Bin\$(SolutionName)\$(OutDir)Plugins\$(ProjectName)\"
+mkdir "$(SolutionDir)..\Bin\$(SolutionName)\$(OutDir)Plugins\$(ProjectName)\Skin"
+robocopy "$(ProjectDir)Skin" "$(SolutionDir)..\Bin\$(SolutionName)\$(OutDir)Plugins\$(ProjectName)\Skin" /MIR /NP /XD .svn
+@REM Reset RoboCopy's exit code which is different from 0
+IF %25ERRORLEVEL%25 LSS 8 SET ERRORLEVEL=0
+</PostBuildEvent>
+  </PropertyGroup>
+</Project>

@@ -1,0 +1,156 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ResourceDictionary
+    xmlns="www.team-mediaportal.com/2008/mpf/directx"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:system="clr-namespace:System"
+    xmlns:collections="clr-namespace:MediaPortal.UI.Presentation.DataObjects;assembly=MediaPortal.UI"
+    xmlns:mp_special_controls="clr-namespace:MediaPortal.UI.SkinEngine.SpecialElements.Controls"
+    DependsOnStyleResources="Colors,Buttons,Consts,OtherControls"
+    >
+
+  <!-- BackgroundManager model -->
+  <Model x:Key="BackgroundManagerModel" Id="1F4CAEDE-7108-483d-B5C8-18BEC7EC58E5"/>
+
+  <!-- default brush used to paint the background of a page/window -->
+  <ResourceWrapper x:Key="BackgroundBrush">
+    <ImageBrush x:Name="BackdropImageBackground" ImageSource="Reflex.jpg" />
+  </ResourceWrapper>
+
+  <!-- An item list container represented by a standard "Button", scrolling its "ItemLabel" label when focused -->
+  <Style x:Key="MainMenuMenuItemContainerStyle" BasedOn="{ThemeResource DefaultItemContainerStyle}">
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate TargetType="{x:Type ListViewItem}">
+          <Button Style="{ThemeResource ButtonWideStyle_GrowOnly}"
+              Command="{DynamicResource ResourceKey=Menu_Command}"
+              IsEnabled="{Binding Enabled}" SetFocus="{Binding Path=Selected,Mode=OneTime}">
+            <Button.Triggers>
+              <Trigger Property="HasFocus" Value="True">
+                <Setter TargetName="ItemLabel" Property="Scroll" Value="Auto"/>
+                <Setter TargetName="HoverControl" Property="IsVisible" Value="True"/>
+              </Trigger>
+            </Button.Triggers>
+          </Button>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
+
+  <Style x:Key="ReflexionControl" TargetType="{x:Type Control}">
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate>
+          <Grid x:Name="MainReflexionGrid">
+            <Grid.ColumnDefinitions>
+              <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+
+            <Grid.RowDefinitions>
+              <RowDefinition Height="Auto"/>
+              <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+
+            <Control Grid.Column="0" Grid.Row="0" x:Name="ControlPresenter" Margin="0" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+                Template="{DynamicResource ResourceKey=MakeReflexion}" />
+
+            <Control Grid.Column="0" Grid.Row="1" x:Name="ReflexionControlPresenter" Margin="0,10,0,0" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+                Template="{DynamicResource ResourceKey=MakeReflexion}">
+              <Control.LayoutTransform>
+                <TransformGroup>
+                  <ScaleTransform ScaleX="1" ScaleY="-0.75"/>
+                </TransformGroup>
+              </Control.LayoutTransform>
+              <Control.OpacityMask>
+                <LinearGradientBrush StartPoint="0.5,0.0" EndPoint="0.5,1.0">
+                  <GradientStop Offset="0.0" Color="#60000000" />
+                  <GradientStop Offset="1.0" Color="#00000000" />
+                </LinearGradientBrush>
+              </Control.OpacityMask>
+            </Control>
+
+          </Grid>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
+
+  <Style x:Key="GlasOverlayControl" TargetType="{x:Type Control}">
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate>
+          <Grid x:Name="MainGlasGrid">
+            <Grid.ColumnDefinitions>
+              <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+
+            <Grid.RowDefinitions>
+              <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+
+            <Control Grid.Column="0" Grid.Row="0" x:Name="ControlPresenter" Margin="0" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+                Template="{DynamicResource ResourceKey=MakeGlas}" />
+
+            <Control Grid.Column="0" Grid.Row="0" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" DockPanel.Dock="Center">
+              <Control.Background>
+                <LinearGradientBrush StartPoint="1,0" EndPoint="0.4,0.4">
+                  <GradientStop Offset="0" Color="#90FFFFFF"/>
+                  <GradientStop Offset="0.9" Color="#40FFFFFF"/>
+                  <GradientStop Offset="1" Color="#00FFFFFF"/>
+                </LinearGradientBrush >
+              </Control.Background>
+            </Control>
+          </Grid>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
+
+  <!-- Menu template -->
+  <DataTemplate x:Key="MainMenuItemDataTemplateHover">
+    <DockPanel x:Name="ItemControl" LastChildFill="True" VerticalAlignment="Stretch" HorizontalAlignment="Stretch">
+
+      <Control x:Name="HoverControl" IsVisible="False"
+               Style="{ThemeResource ReflexionControl}" 
+               DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}"
+               VerticalAlignment="Stretch" HorizontalAlignment="Stretch" DockPanel.Dock="Center">
+        <Control.Resources>
+          <ControlTemplate x:Key="MakeReflexion">
+
+            <Control x:Name="GlasOverlay"
+               Style="{ThemeResource GlasOverlayControl}" 
+               DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}"
+               VerticalAlignment="Stretch" HorizontalAlignment="Stretch" DockPanel.Dock="Center">
+              <Control.Resources>
+                <ControlTemplate x:Key="MakeGlas">
+
+                  <Image x:Name="BackdropImageBackground"
+                     VerticalAlignment="Top"
+                     Width="400" Stretch="Uniform"
+                     Source="{Binding Source={StaticResource BackgroundManagerModel}, Path=BackgroundImage}" />
+                </ControlTemplate>
+              </Control.Resources>
+            </Control>
+            
+          </ControlTemplate>
+        </Control.Resources>
+      </Control>
+      <Label x:Name="ItemLabel" DockPanel.Dock="Center" Content="{Binding [Name]}" Color="{ThemeResource TextColor}"/>
+    </DockPanel>
+  </DataTemplate>
+
+  <!-- ListView style to be used for main menu -->
+  <Style x:Key="HomeMenuListViewStyle" BasedOn="{ThemeResource DefaultListViewStyle}">
+    <Setter Property="SelectionChanged" Value="{CommandStencil Source={StaticResource BackgroundManagerModel}, Path=SetSelectedItem}"/>
+    <Setter Property="ItemTemplate" Value="{ThemeResource MainMenuItemDataTemplateHover}"/>
+    <Setter Property="ItemsPanel">
+      <Setter.Value>
+        <ItemsPanelTemplate>
+          <StackPanel x:Name="ListItemsHost" IsItemsHost="True" Orientation="Horizontal"/>
+        </ItemsPanelTemplate>
+      </Setter.Value>
+    </Setter>
+    <Setter Property="DataStringProvider" Value="{ThemeResource MainMenuItemDataStringProvider}"/>
+    <Setter Property="ItemContainerStyle" Value="{ThemeResource MainMenuMenuItemContainerStyle}"/>
+  </Style>
+
+</ResourceDictionary>
