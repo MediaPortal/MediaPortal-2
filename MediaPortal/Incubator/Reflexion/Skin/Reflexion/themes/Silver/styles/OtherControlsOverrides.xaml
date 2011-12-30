@@ -87,18 +87,16 @@
               <RowDefinition Height="Auto"/>
             </Grid.RowDefinitions>
 
-            <Control Grid.Column="0" Grid.Row="0" x:Name="ControlPresenter" Margin="0" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+            <Image Grid.Column="0" Grid.Row="0" Margin="0,0,0,0" x:Name="Layer_12" Height="401" Opacity="0.49" Source="Controls\Layer 12.png" Width="728"/>
+            
+            <Control Grid.Column="0" Grid.Row="0" x:Name="ControlPresenter" Margin="0,0,0,0" Width="695" Height="372"
                 Template="{DynamicResource ResourceKey=MakeGlas}" />
 
-            <Control Grid.Column="0" Grid.Row="0" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" DockPanel.Dock="Center">
-              <Control.Background>
-                <LinearGradientBrush StartPoint="1,0" EndPoint="0.4,0.4">
-                  <GradientStop Offset="0" Color="#90FFFFFF"/>
-                  <GradientStop Offset="0.9" Color="#40FFFFFF"/>
-                  <GradientStop Offset="1" Color="#00FFFFFF"/>
-                </LinearGradientBrush >
-              </Control.Background>
-            </Control>
+            <Image Grid.Column="0" Grid.Row="0" Margin="0,0,0,0" x:Name="Layer_14" Height="395" Source="Controls\Layer 14.png" Width="722"/>
+            <Image Grid.Column="0" Grid.Row="0" Margin="190,-6,0,0" x:Name="Layer_15" Height="402" Opacity="0.278" Source="Controls\Layer 15.png" Width="538"/>
+            <Image Grid.Column="0" Grid.Row="0" Margin="0" x:Name="Layer_1" Height="422" Source="Controls\Layer 1.png" Width="749"/>
+            <Image Grid.Column="0" Grid.Row="0" Margin="0,0,0,0" x:Name="Layer_5" Height="419" Opacity="0.29" Source="Controls\Layer 5.png" Width="746"/>
+
           </Grid>
         </ControlTemplate>
       </Setter.Value>
@@ -125,16 +123,16 @@
 
                   <Image x:Name="BackdropImageBackground"
                      VerticalAlignment="Top"
-                     Width="400" Stretch="Uniform"
+                     Width="695" Stretch="UniformToFill"
                      Source="{Binding Source={StaticResource BackgroundManagerModel}, Path=BackgroundImage}" />
                 </ControlTemplate>
               </Control.Resources>
             </Control>
-            
+
           </ControlTemplate>
         </Control.Resources>
       </Control>
-      <Label x:Name="ItemLabel" DockPanel.Dock="Center" Content="{Binding [Name]}" Color="{ThemeResource TextColor}"/>
+      <Label x:Name="ItemLabel" Margin="30,30,0,0" DockPanel.Dock="Center" Content="{Binding [Name]}" Color="{ThemeResource TextColor}"/>
     </DockPanel>
   </DataTemplate>
 

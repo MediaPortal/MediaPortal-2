@@ -7,7 +7,7 @@
   <SkinVersion>1.0</SkinVersion>
   <SkinEngine>1.0</SkinEngine>
 
-  <NativeWidth>1280</NativeWidth>
-  <NativeHeight>720</NativeHeight>
+  <NativeWidth>1920</NativeWidth>
+  <NativeHeight>1080</NativeHeight>
   <DefaultTheme>Silver</DefaultTheme>
 </Skin>
