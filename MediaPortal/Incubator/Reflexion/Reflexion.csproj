@@ -215,6 +215,8 @@
     <Content Include="Skin\Reflexion\themes\Silver\images\PictureLarge.png" />
     <Content Include="Skin\Reflexion\themes\Silver\images\PictureSmall.png" />
     <Content Include="Skin\Reflexion\themes\Silver\images\preview.png" />
+    <None Include="Skin\Reflexion\fonts\TitleCaps.desc" />
+    <None Include="Skin\Reflexion\fonts\TitleCaps.ttf" />
     <None Include="Skin\Reflexion\themes\Silver\styles\OtherControlsOverrides.xaml">
       <SubType>Designer</SubType>
       <SubType>Designer</SubType>

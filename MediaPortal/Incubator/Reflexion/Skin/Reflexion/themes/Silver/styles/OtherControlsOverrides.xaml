@@ -88,7 +88,7 @@
             </Grid.RowDefinitions>
 
             <Image Grid.Column="0" Grid.Row="0" Margin="0,0,0,0" x:Name="Layer_12" Height="401" Opacity="0.49" Source="Controls\Layer 12.png" Width="728"/>
-            
+
             <Control Grid.Column="0" Grid.Row="0" x:Name="ControlPresenter" Margin="0,0,0,0" Width="695" Height="372"
                 Template="{DynamicResource ResourceKey=MakeGlas}" />
 
@@ -132,18 +132,52 @@
           </ControlTemplate>
         </Control.Resources>
       </Control>
-      <Label x:Name="ItemLabel" Margin="30,250,0,0" DockPanel.Dock="Center" Content="{Binding [Name]}" Color="{ThemeResource TextColor}"/>
+      <Label x:Name="ItemLabel" Margin="30,250,0,0" DockPanel.Dock="Center" Content="{Binding [Name]}" FontSize="{ThemeResource BigFontSize}" Color="{ThemeResource TextColor}"/>
     </DockPanel>
   </DataTemplate>
+
+  <Style x:Key="MainMenuScrollViewerStyle" TargetType="{x:Type ScrollViewer}">
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate TargetType="{x:Type ScrollViewer}">
+          <Grid x:Name="ScrollViewerGrid">
+            <Grid.ColumnDefinitions>
+              <ColumnDefinition Width="*"/>
+              <ColumnDefinition Width="Auto"/>
+              <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+              <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+            <!-- Content -->
+            <ScrollContentPresenter Grid.Row="0" Grid.Column="1" Grid.ZIndex="100"
+                VerticalAlignment="Stretch" HorizontalAlignment="Stretch"/>
+
+            <Label IsVisible="{TemplateBinding ScrollBarXVisible}" Margin="0,255,0,0" Grid.Row="0" Grid.Column="0" Content="&lt;" FontSize="{ThemeResource BigFontSize}" Color="{ThemeResource TextColor}"/>
+            <Label IsVisible="{TemplateBinding ScrollBarXVisible}" Margin="0,255,0,0" Grid.Row="0" Grid.Column="2" Content="&gt;" FontSize="{ThemeResource BigFontSize}" Color="{ThemeResource TextColor}"/>
+          </Grid>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
 
   <!-- ListView style to be used for main menu -->
   <Style x:Key="HomeMenuListViewStyle" BasedOn="{ThemeResource DefaultListViewStyle}">
     <Setter Property="SelectionChanged" Value="{CommandStencil Source={StaticResource BackgroundManagerModel}, Path=SetSelectedItem}"/>
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate TargetType="{x:Type ListView}">
+          <ScrollViewer CanContentScroll="True" Margin="5" Style="{ThemeResource MainMenuScrollViewerStyle}">
+            <ItemsPresenter VerticalAlignment="Stretch" HorizontalAlignment="Stretch"/>
+          </ScrollViewer>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
     <Setter Property="ItemTemplate" Value="{ThemeResource MainMenuItemDataTemplateHover}"/>
     <Setter Property="ItemsPanel">
       <Setter.Value>
         <ItemsPanelTemplate>
-          <StackPanel x:Name="ListItemsHost" IsItemsHost="True" Orientation="Horizontal"/>
+          <VirtualizingStackPanel x:Name="ListItemsHost" IsItemsHost="True" Orientation="Horizontal"/>
         </ItemsPanelTemplate>
       </Setter.Value>
     </Setter>
