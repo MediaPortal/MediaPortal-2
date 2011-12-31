@@ -53,7 +53,7 @@ namespace HttpServer
     private readonly IHttpClientContext _context;
     private readonly ResponseCookies _cookies = new ResponseCookies();
     private readonly NameValueCollection _headers = new NameValueCollection();
-    private readonly string _httpVersion;
+    private string _httpVersion;
     private Stream _body = new MemoryStream();
     private long _contentLength;
     private string _contentType;
@@ -125,6 +125,17 @@ namespace HttpServer
     /// received the full message.
     /// </summary>
     public bool Chunked { get; set; }
+
+
+    /// <summary>
+    /// Defines the version of the HTTP Response for applications where it's required
+    /// for this to be forced.
+    /// </summary>
+    public string ProtocolVersion
+    {
+      get { return _httpVersion; }
+      set { _httpVersion = value; }
+    }
 
     /// <summary>
     /// Kind of connection
@@ -329,7 +340,7 @@ namespace HttpServer
 
       if (Connection == ConnectionType.KeepAlive)
       {
-        _headers["Keep-Alive"] = "timeout=" + _keepAlive + ", max=" + _keepAlive*20;
+        _headers["Keep-Alive"] = "timeout=" + _keepAlive + ", max=" + _keepAlive * 20;
         _headers["Connection"] = "keep-alive";
       }
       else
@@ -391,7 +402,7 @@ namespace HttpServer
 
     #endregion
 
-/*
+    /*
 HTTP/1.1 200 OK
 Date: Sun, 16 Mar 2008 08:01:36 GMT
 Server: Apache/2.2.6 (Win32) PHP/5.2.4

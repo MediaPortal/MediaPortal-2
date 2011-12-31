@@ -15,7 +15,7 @@ namespace HttpServer
   /// Remember to <see cref="Start"/> after you have hooked the <see cref="RequestReceived"/> event.
   /// </remarks>
   /// TODO: Maybe this class should be broken up into HttpClientChannel and HttpClientContext?
-  public class HttpClientContext : IHttpClientContext
+  public class HttpClientContext : IHttpClientContext, IDisposable
   {
     private readonly byte[] _buffer;
     private int _bytesLeft;
@@ -23,6 +23,9 @@ namespace HttpServer
     private readonly IHttpRequestParser _parser;
     private readonly int _bufferSize;
     private IHttpRequest _currentRequest;
+
+    public bool Available = true;
+    public bool EndWhenDone = false;
 
     /// <summary>
     /// This context have been cleaned, which means that it can be reused.
@@ -46,13 +49,14 @@ namespace HttpServer
     /// <exception cref="ArgumentException">Stream must be writable and readable.</exception>
     public HttpClientContext(
         bool secured, IPEndPoint remoteEndPoint,
-        Stream stream, IRequestParserFactory parserFactory, int bufferSize)
+        Stream stream, IRequestParserFactory parserFactory, int bufferSize, Socket sock)
     {
       Check.Require(remoteEndPoint, "remoteEndPoint");
       Check.NotEmpty(remoteEndPoint.Address.ToString(), "remoteEndPoint.Address");
       Check.Require(stream, "stream");
       Check.Require(parserFactory, "parser");
       Check.Min(1024, bufferSize, "bufferSize");
+      Check.Require(sock, "socket");
 
       if (!stream.CanWrite || !stream.CanRead)
         throw new ArgumentException("Stream must be writable and readable.");
@@ -156,6 +160,12 @@ namespace HttpServer
       _parser.Clear();
     }
 
+    public void Close()
+    {
+      Cleanup();
+      Available = true;
+    }
+
     /// <summary>
     /// Using SSL or other encryption method.
     /// </summary>
@@ -210,10 +220,16 @@ namespace HttpServer
     /// <param name="error">error to report in the <see cref="Disconnected"/> event.</param>
     public void Disconnect(SocketError error)
     {
-      // disconnect may not throw any exceptions
+      // Disconnect may not throw any exceptions
       try
       {
-        Stream.Close();
+        if (error == SocketError.Success)
+        {
+          ReusableSocketNetworkStream reusableSocketNetworkStream = Stream as ReusableSocketNetworkStream;
+          if (reusableSocketNetworkStream != null)
+            reusableSocketNetworkStream.Flush();
+        }
+
         Disconnected(this, new DisconnectedEventArgs(error));
       }
       catch (Exception err)
@@ -241,7 +257,7 @@ namespace HttpServer
 #if DEBUG
           throw new BadRequestException("Too large HTTP header: " + Encoding.UTF8.GetString(_buffer, 0, bytesRead));
 #else
-                    throw new BadRequestException("Too large HTTP header: " + _bytesLeft);
+          throw new BadRequestException("Too large HTTP header: " + _bytesLeft);
 #endif
         }
 
@@ -312,6 +328,11 @@ namespace HttpServer
       {
         LogWriter.Write(this, LogPrio.Debug, "Failed to end receive : " + err.Message);
         Disconnect(SocketError.NotSocket);
+      }
+      catch (NullReferenceException err)
+      {
+        LogWriter.Write(this, LogPrio.Debug, "Failed to end receive : NullRef: " + err.Message);
+        Disconnect(SocketError.NoRecovery);
       }
     }
 
@@ -409,8 +430,18 @@ namespace HttpServer
       if (offset + size > buffer.Length)
         throw new ArgumentOutOfRangeException("offset", offset, "offset + size is beyond end of buffer.");
 
-      if (Stream != null)
-        Stream.Write(buffer, offset, size);
+      if (Stream != null && Stream.CanWrite)
+      {
+        try
+        {
+          Stream.Write(buffer, offset, size);
+        }
+        catch (IOException)
+        {
+
+        }
+      }
+
     }
 
     /// <summary>
@@ -425,5 +456,31 @@ namespace HttpServer
     /// A request have been received in the context.
     /// </summary>
     public event EventHandler<RequestEventArgs> RequestReceived = delegate { };
+    public void Dispose()
+    {
+      Dispose(true);
+      GC.SuppressFinalize(this);
+    }
+
+    private void Dispose(bool unmanaged)
+    {
+      if (unmanaged)
+        if (Stream != null)
+        {
+          try
+          {
+            if (Stream.CanWrite)
+              Stream.Flush();
+            Cleanup();
+          }
+          catch (IOException)
+          { }
+        }
+    }
+
+    ~HttpClientContext()
+    {
+      Dispose();
+    }
   }
 }

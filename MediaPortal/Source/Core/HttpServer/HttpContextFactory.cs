@@ -44,16 +44,25 @@ namespace HttpServer
     /// <param name="endPoint">Client that connected</param>
     /// <param name="stream">Network/SSL stream.</param>
     /// <returns>A context.</returns>
-    protected HttpClientContext CreateContext(bool isSecured, IPEndPoint endPoint, Stream stream)
+    protected HttpClientContext CreateContext(bool isSecured, IPEndPoint endPoint, Stream stream, Socket sock)
     {
       HttpClientContext context;
       lock (_contextQueue)
       {
         if (_contextQueue.Count > 0)
+        {
           context = _contextQueue.Dequeue();
+          if (!context.Available)
+          {
+            context = CreateNewContext(isSecured, endPoint, stream, sock);
+            context.Disconnected += OnFreeContext;
+            context.RequestReceived += OnRequestReceived;
+            context.EndWhenDone = true;
+          }
+        }
         else
         {
-          context = CreateNewContext(isSecured, endPoint, stream);
+          context = CreateNewContext(isSecured, endPoint, stream, sock);
           context.Disconnected += OnFreeContext;
           context.RequestReceived += OnRequestReceived;
         }
@@ -74,9 +83,9 @@ namespace HttpServer
     /// <param name="endPoint">Remote client</param>
     /// <param name="stream">Network stream, <see cref="HttpClientContext"/> uses <see cref="ReusableSocketNetworkStream"/>.</param>
     /// <returns>A new context (always).</returns>
-    protected virtual HttpClientContext CreateNewContext(bool isSecured, IPEndPoint endPoint, Stream stream)
+    protected virtual HttpClientContext CreateNewContext(bool isSecured, IPEndPoint endPoint, Stream stream, Socket sock)
     {
-      return new HttpClientContext(isSecured, endPoint, stream, _factory, _bufferSize);
+      return new HttpClientContext(isSecured, endPoint, stream, _factory, _bufferSize, sock);
     }
 
     private void OnRequestReceived(object sender, RequestEventArgs e)
@@ -88,9 +97,18 @@ namespace HttpServer
     {
       var imp = (HttpClientContext) sender;
       imp.Cleanup();
-      lock (_contextQueue)
-        _contextQueue.Enqueue(imp);
+
+      if (!imp.EndWhenDone)
+      {
+        lock (_contextQueue)
+          _contextQueue.Enqueue(imp);
+      }
+      else
+      {
+        imp.Close();
+      }
     }
+
 
     #region IHttpContextFactory Members
 
@@ -113,7 +131,7 @@ namespace HttpServer
       {
         //TODO: this may fail
         sslStream.AuthenticateAsServer(certificate, false, protocol, false);
-        return CreateContext(true, remoteEndPoint, sslStream);
+        return CreateContext(true, remoteEndPoint, sslStream, socket);
       }
       catch (IOException err)
       {
@@ -146,7 +164,7 @@ namespace HttpServer
     {
       var networkStream = new ReusableSocketNetworkStream(socket, true);
       var remoteEndPoint = (IPEndPoint) socket.RemoteEndPoint;
-      return CreateContext(false, remoteEndPoint, networkStream);
+      return CreateContext(false, remoteEndPoint, networkStream, socket);
     }
 
     #endregion
@@ -157,6 +175,7 @@ namespace HttpServer
   /// </summary>
   internal class ReusableSocketNetworkStream : NetworkStream
   {
+    private bool disposed = false;
     /// <summary>
     ///                     Creates a new instance of the <see cref="T:System.Net.Sockets.NetworkStream" /> class for the specified <see cref="T:System.Net.Sockets.Socket" />.
     /// </summary>
@@ -174,7 +193,7 @@ namespace HttpServer
     ///                     The <paramref name="socket" /> parameter is in a nonblocking state. 
     ///                 </exception>
     public ReusableSocketNetworkStream(Socket socket)
-        : base(socket)
+      : base(socket)
     {
     }
 
@@ -198,7 +217,7 @@ namespace HttpServer
     ///                     the <paramref name="socket" /> parameter is in a nonblocking state. 
     ///                 </exception>
     public ReusableSocketNetworkStream(Socket socket, bool ownsSocket)
-        : base(socket, ownsSocket)
+      : base(socket, ownsSocket)
     {
     }
 
@@ -222,7 +241,7 @@ namespace HttpServer
     ///                     the <paramref name="socket" /> parameter is in a nonblocking state. 
     ///                 </exception>
     public ReusableSocketNetworkStream(Socket socket, FileAccess access)
-        : base(socket, access)
+      : base(socket, access)
     {
     }
 
@@ -249,7 +268,7 @@ namespace HttpServer
     ///                     The <paramref name="socket" /> parameter is in a nonblocking state. 
     ///                 </exception>
     public ReusableSocketNetworkStream(Socket socket, FileAccess access, bool ownsSocket)
-        : base(socket, access, ownsSocket)
+      : base(socket, access, ownsSocket)
     {
     }
 
@@ -269,17 +288,22 @@ namespace HttpServer
     /// <param name="disposing">true to release both managed and unmanaged resources; false to release only unmanaged resources.</param>
     protected override void Dispose(bool disposing)
     {
-      if (Socket != null && Socket.Connected)
-        // Exception handler added by Albert, Team-Mediaportal:
-        // The Disconnect call raises an ObjectDisposedException if the system isn't shut down correctly.
-        // Besides that, sometimes a SocketException is raised.
-        try
-        {
-          Socket.Disconnect(true);
-        }
-        catch (SystemException) { }
 
-      base.Dispose(disposing);
+      if (!disposed)
+      {
+        disposed = true;
+        if (Socket != null && Socket.Connected)
+          // Exception handler added by Albert, Team-Mediaportal:
+          // The Disconnect call raises an ObjectDisposedException if the system isn't shut down correctly.
+          // Besides that, sometimes a SocketException is raised.
+          try
+          {
+            Socket.Disconnect(true);
+          }
+          catch (SystemException) { }
+
+        base.Dispose(disposing);
+      }
     }
   }
 

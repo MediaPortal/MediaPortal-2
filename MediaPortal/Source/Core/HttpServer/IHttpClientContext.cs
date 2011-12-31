@@ -63,6 +63,11 @@ namespace HttpServer
     void Send(byte[] buffer, int offset, int size);
 
     /// <summary>
+    /// Closes the streams and disposes of the unmanaged resources
+    /// </summary>
+    void Close();
+
+    /// <summary>
     /// The context have been disconnected.
     /// </summary>
     /// <remarks>

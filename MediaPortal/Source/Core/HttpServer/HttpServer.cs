@@ -63,7 +63,8 @@ namespace HttpServer
     private ExceptionHandler _exceptionHandler;
     private readonly IComponentProvider _components;
     private readonly RequestQueue _requestQueue;
-    [ThreadStatic] private static HttpServer _current;
+    [ThreadStatic]
+    private static HttpServer _current;
 
     /// <summary>
     /// Server that is handling the current request.
@@ -366,7 +367,7 @@ namespace HttpServer
 #if DEBUG
       writer.WriteLine(err);
 #else
-			writer.WriteLine(err.Message);
+      writer.WriteLine(err.Message);
 #endif
       writer.Flush();
     }
@@ -437,7 +438,7 @@ namespace HttpServer
           // only set session cookie if it have not been sent in the request.
           if (request.Cookies[_sessionCookieName] == null)
             response.Cookies.Add(new ResponseCookie(_sessionCookieName, session.Id, DateTime.MinValue));
-                //DateTime.Now.AddMinutes(20).AddDays(1)));
+          //DateTime.Now.AddMinutes(20).AddDays(1)));
         }
         else
           _sessionStore.AddUnused(session);
@@ -681,10 +682,10 @@ namespace HttpServer
 #if DEBUG
           throw;
 #else
-				{
-					WriteLog(LogPrio.Fatal, err.Message);
-					return;
-				}
+        {
+          WriteLog(LogPrio.Fatal, err.Message);
+          return;
+        }
 #endif
         _exceptionHandler(this, err);
 
@@ -703,7 +704,7 @@ namespace HttpServer
           context.Respond(
               "HTTP/1.0", HttpStatusCode.InternalServerError, "Internal server error", err.ToString(), "text/plain");
 #else
-					context.Respond("HTTP/1.0", HttpStatusCode.InternalServerError, "Internal server error");
+          context.Respond("HTTP/1.0", HttpStatusCode.InternalServerError, "Internal server error");
 #endif
         }
         catch (Exception err2)
@@ -719,13 +720,19 @@ namespace HttpServer
     /// <param name="address">IP Address to listen on, use <c>IpAddress.Any </c>to accept connections on all IP addresses/network cards.</param>
     /// <param name="port">Port to listen on. 80 can be a good idea. When using a value of <c>0</c>, the system will
     /// use an available port automatically.</param>
+    /// <exception cref="ArgumentNullException"><c>address</c> is null.</exception>
+    /// <exception cref="ArgumentException">Port must be a positive number.</exception>
     public void Start(IPAddress address, int port)
     {
+      if (address == null)
+        throw new ArgumentNullException("address");
+      if (port < 0)
+        throw new ArgumentException("Port must be a positive number.");
       if (_httpListener != null)
         return;
 
       Init();
-      _httpListener = new HttpListener(address, port, _components.Get<IHttpContextFactory>()) {LogWriter = LogWriter};
+      _httpListener = new HttpListener(address, port, _components.Get<IHttpContextFactory>()) { LogWriter = LogWriter };
       _httpListener.RequestReceived += OnRequest;
       _httpListener.Start(50);
       _httpListener.ExceptionThrown += _exceptionHandler;
@@ -746,8 +753,14 @@ namespace HttpServer
     /// <param name="port">Port to listen on. 80 can be a good idea. When using a value of <c>0</c>, the system will
     /// use an available port automatically.</param>
     /// <param name="certificate">Certificate to use</param>
+    /// <exception cref="ArgumentNullException"><c>address</c> is null.</exception>
+    /// <exception cref="ArgumentException">Port must be a positive number.</exception>
     public void Start(IPAddress address, int port, X509Certificate certificate)
     {
+      if (address == null)
+        throw new ArgumentNullException("address");
+      if (port < 0)
+        throw new ArgumentException("Port must be a positive number.");
       if (_httpsListener != null)
         return;
 
