@@ -643,8 +643,7 @@ namespace UPnP.Infrastructure.CP.SSDP
         if (!DateTime.TryParse(date, out d))
           d = DateTime.Now;
         DateTime expirationTime = d.AddSeconds(maxAge);
-        string[] splitStrings = server.Contains(", ") ? new string[] { ", " } : new string[] { " " };
-        string[] versionInfos = server.Split(splitStrings, StringSplitOptions.RemoveEmptyEntries);
+        string[] versionInfos = server.Split(new char[] {',', ' '}, StringSplitOptions.RemoveEmptyEntries);
         string upnpVersionInfo = versionInfos.FirstOrDefault(v => v.StartsWith(UPnPVersion.VERSION_PREFIX));
         if (upnpVersionInfo == null)
           // Invalid message
