@@ -69,7 +69,7 @@ namespace UPnP.Infrastructure.Utils.HTTP
     /// </summary>
     /// <param name="stream">HTTP data stream to parse.</param>
     /// <param name="result">Returns the parsed HTTP request instance.</param>
-    /// <exception cref="MediaPortal.Utilities.Exceptions.InvalidDataException">If the given <paramref name="data"/> is malformed.</exception>
+    /// <exception cref="MediaPortal.Utilities.Exceptions.InvalidDataException">If the given <paramref name="stream"/> is malformed.</exception>
     public static void Parse(Stream stream, out SimpleHTTPRequest result)
     {
       result = new SimpleHTTPRequest();
