@@ -204,9 +204,9 @@ namespace MediaPortal.Common.Services.ResourceAccess
 
     protected IList<Range> ParseRanges(string byteRangesSpecifier, long size)
     {
+      if (string.IsNullOrEmpty(byteRangesSpecifier) || size == 0)
+        return null;
       IList<Range> result = new List<Range>();
-      if (size == 0)
-        return result;
       try
       {
         string[] tokens = byteRangesSpecifier.Split(new char[] {'='});
@@ -331,7 +331,7 @@ namespace MediaPortal.Common.Services.ResourceAccess
           string byteRangesSpecifier = request.Headers["Range"];
           IList<Range> ranges = ParseRanges(byteRangesSpecifier, resourceStream.Length);
           bool onlyHeaders = request.Method == "Headers" || response.Status == HttpStatusCode.NotModified;
-          if (ranges.Count == 1)
+          if (ranges != null && ranges.Count == 1)
               // We only support one range
             SendRange(response, resourceStream, ranges[0], onlyHeaders);
           else
