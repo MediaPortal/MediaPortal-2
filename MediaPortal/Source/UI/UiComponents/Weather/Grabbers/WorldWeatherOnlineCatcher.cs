@@ -55,8 +55,6 @@ namespace MediaPortal.UiComponents.Weather.Grabbers
     private readonly bool _preferKph = true;
     private readonly string _parsefileLocation;
 
-    private DateTimeFormatInfo _dateFormat;
-
     private readonly Dictionary<int, int> _weatherCodeTranslation = new Dictionary<int, int>();
 
     public WorldWeatherOnlineCatcher()
@@ -235,7 +233,7 @@ namespace MediaPortal.UiComponents.Weather.Grabbers
     {
       if (city == null || doc == null)
         return false;
-      _dateFormat = ServiceRegistration.Get<ILocalization>().CurrentCulture.DateTimeFormat;
+      DateTimeFormatInfo dateFormat = ServiceRegistration.Get<ILocalization>().CurrentCulture.DateTimeFormat;
       XPathNavigator navigator = doc.CreateNavigator();
       XPathNavigator condition = navigator.SelectSingleNode("/data/current_condition");
       if (condition != null)
@@ -271,9 +269,10 @@ namespace MediaPortal.UiComponents.Weather.Grabbers
         if (node != null)
         {
           DateTime date = node.ValueAsDateTime;
-          string day = _dateFormat.GetAbbreviatedDayName(date.DayOfWeek);
-          // Attention: CurrentThread.Culture / UICulture are NOT set to ILocalization.Culture, so it has to be used here for formatting date correctly.
-          string fomattedDate = date.ToString(_dateFormat.ShortDatePattern, _dateFormat);
+          string day = dateFormat.GetAbbreviatedDayName(date.DayOfWeek);
+          // Attention: CurrentThread.Culture / UICulture are NOT set to ILocalization.Culture, so ILocalization.Culture
+          // has to be used explicitly here for formatting date correctly.
+          string fomattedDate = date.ToString(dateFormat.ShortDatePattern, dateFormat);
           dayForecast.Day = String.Format("{0} {1}", day, fomattedDate);
         }
 
