@@ -23,6 +23,7 @@
 #endregion
 
 using System;
+using System.Linq;
 
 namespace UPnP.Infrastructure.Common
 {
@@ -49,12 +50,18 @@ namespace UPnP.Infrastructure.Common
       get { return _verMin; }
     }
 
-    public static UPnPVersion Parse(string versionStr)
+    public static bool TryParseFromServerOrUserAgent(string serverOrUserAgent, out UPnPVersion upnpVersion)
     {
-      UPnPVersion result;
-      if (!TryParse(versionStr, out result))
-        throw new ArgumentException(string.Format("UPnP version string '{0}' cannot be parsed", versionStr));
-      return result;
+      upnpVersion = null;
+      if (string.IsNullOrEmpty(serverOrUserAgent))
+        return false;
+      // The specification says the userAgentStr should contain three entries, separated by ' '.
+      // Unfortunately, some devices send entries separated by ", ". We try to handle both situations correctly here.
+      string[] versionInfos = serverOrUserAgent.Split(new char[] {',', ' '}, StringSplitOptions.RemoveEmptyEntries);
+      string upnpVersionInfo = versionInfos.FirstOrDefault(v => v.StartsWith(UPnPVersion.VERSION_PREFIX));
+      if (upnpVersionInfo == null)
+        return false;
+      return TryParse(upnpVersionInfo, out upnpVersion);
     }
 
     public static bool TryParse(string versionStr, out UPnPVersion result)

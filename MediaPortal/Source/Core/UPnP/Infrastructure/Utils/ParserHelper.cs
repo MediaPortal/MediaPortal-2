@@ -25,7 +25,6 @@
 using System;
 using System.Xml;
 using System.Xml.XPath;
-using MediaPortal.Utilities.Exceptions;
 using UPnP.Infrastructure.Common;
 
 namespace UPnP.Infrastructure.Utils
@@ -42,17 +41,13 @@ namespace UPnP.Infrastructure.Utils
     /// <exception cref="MediaPortal.Utilities.Exceptions.InvalidDataException">If the specified header value is malformed.</exception>
     public static bool ParseUserAgentUPnP1MinorVersion(string userAgentStr, out int minorVersion)
     {
-      if (userAgentStr == null)
+      if (string.IsNullOrEmpty(userAgentStr))
       {
         minorVersion = 0;
         return false;
       }
-      string[] tokens = userAgentStr.Split(new char[] {' '}, StringSplitOptions.RemoveEmptyEntries);
-      if (tokens.Length != 3)
-        throw new InvalidDataException("Invalid USER-AGENT header entry");
-      string upnpToken = tokens[1];
       UPnPVersion ver;
-      if (!UPnPVersion.TryParse(upnpToken, out ver))
+      if (!UPnPVersion.TryParseFromServerOrUserAgent(userAgentStr, out ver))
         throw new UnsupportedRequestException(string.Format("Unsupported USER-AGENT header entry '{0}'", userAgentStr));
       minorVersion = 0;
       if (ver.VerMax != 1)

@@ -643,7 +643,11 @@ namespace UPnP.Infrastructure.CP.SSDP
         if (!DateTime.TryParse(date, out d))
           d = DateTime.Now;
         DateTime expirationTime = d.AddSeconds(maxAge);
-        string[] versionInfos = server.Split(new char[] {',', ' '}, StringSplitOptions.RemoveEmptyEntries);
+        // The specification says the userAgentStr should contain three entries, separated by space, like "SERVER: OS/version UPnP/1.1 product/version".
+        // Unfortunately, some devices send entries separated by ", ", like "Linux/2.x.x, UPnP/1.0, pvConnect UPnP SDK/1.0".
+        // We try to handle both situations correctly here, that's the reason for this ugly code here.
+        string[] versionInfos = server.Contains(", ") ? server.Split(new string[] { ", " }, StringSplitOptions.RemoveEmptyEntries) :
+            server.Split(new char[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
         string upnpVersionInfo = versionInfos.FirstOrDefault(v => v.StartsWith(UPnPVersion.VERSION_PREFIX));
         if (upnpVersionInfo == null)
           // Invalid message
