@@ -78,24 +78,38 @@
     <Setter Property="Template">
       <Setter.Value>
         <ControlTemplate>
-          <Grid x:Name="MainGlassGrid">
+          <Grid x:Name="MainGlassGrid" Width="{DynamicResource ResourceKey=ControlWidth}" Height="{DynamicResource ResourceKey=ControlHeight}">
             <Grid.ColumnDefinitions>
-              <ColumnDefinition Width="Auto"/>
+              <ColumnDefinition Width="*"/>
             </Grid.ColumnDefinitions>
 
             <Grid.RowDefinitions>
-              <RowDefinition Height="Auto"/>
+              <RowDefinition Height="*"/>
             </Grid.RowDefinitions>
 
-            <Image Grid.Column="0" Grid.Row="0" Margin="0" x:Name="Layer_12" Opacity="0.49" Source="Controls\Layer 12.png"/>
+            <Border Grid.Column="0" Grid.Row="0" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" x:Name="Layer_14" Margin="0" BorderBrush="Black"
+                    CornerRadius="0" BorderThickness="1"/>
+            <Border Grid.Column="0" Grid.Row="0" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" x:Name="Layer_5" Margin="1" BorderBrush="#4A808080"
+                    CornerRadius="0" BorderThickness="8"/>
+            <Border Grid.Column="0" Grid.Row="0" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" x:Name="Layer_1" Margin="10" Opacity="1" BorderBrush="Black"
+                    CornerRadius="0" BorderThickness="3"/>
+            <Border Grid.Column="0" Grid.Row="0" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" x:Name="Layer_12" Margin="12" Opacity="0.49" BorderBrush="White"
+                    CornerRadius="0" BorderThickness="3"/>
+            <Border Grid.Column="0" Grid.Row="0" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" x:Name="Layer_14-1" Margin="15" Opacity="1" BorderBrush="Black"
+                    CornerRadius="0" BorderThickness="15"/>
 
-            <Control Grid.Column="0" Grid.Row="0" x:Name="ControlPresenter" Margin="0,0,0,0" Width="695" Height="372"
+            <Control Grid.Column="0" Grid.Row="0" x:Name="ControlPresenter" Margin="30" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"
                 Template="{DynamicResource ResourceKey=MakeGlass}" />
 
-            <Image Grid.Column="0" Grid.Row="0" Margin="0" x:Name="Layer_14" Source="Controls\Layer 14.png"/>
-            <Image Grid.Column="0" Grid.Row="0" Margin="190,-6,0,0" x:Name="Layer_15" Opacity="0.278" Source="Controls\Layer 15.png"/>
-            <Image Grid.Column="0" Grid.Row="0" Margin="0" x:Name="Layer_1" Source="Controls\Layer 1.png"/>
-            <Image Grid.Column="0" Grid.Row="0" Margin="0" x:Name="Layer_5" Opacity="0.29" Source="Controls\Layer 5.png"/>
+            <Canvas Grid.Column="0" Grid.Row="0" VerticalAlignment="Stretch" HorizontalAlignment="Stretch">
+              <Canvas.Background>
+                <LinearGradientBrush StartPoint="1,0" EndPoint="0.65,0.65">
+                  <GradientStop Offset="0" Color="#4AFFFFFF"/>
+                  <GradientStop Offset="0.961" Color="#40FFFFFF"/>
+                  <GradientStop Offset="1" Color="#00FFFFFF"/>
+                </LinearGradientBrush >
+              </Canvas.Background>
+            </Canvas>
 
           </Grid>
         </ControlTemplate>
@@ -105,13 +119,15 @@
 
   <!-- Menu template -->
   <DataTemplate x:Key="MainMenuItemDataTemplateHover">
-    <DockPanel x:Name="ItemControl" LastChildFill="False" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Height="700">
+    <DockPanel x:Name="ItemControl" LastChildFill="False" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Height="800">
 
-      <Control x:Name="HoverControl" IsVisible="False"
+      <Control x:Name="HoverControl" IsVisible="False" Margin="0,150,0,0"
                Style="{ThemeResource ReflexionControl}" 
                DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}"
                VerticalAlignment="Stretch" HorizontalAlignment="Stretch" DockPanel.Dock="Center">
         <Control.Resources>
+          <ResourceWrapper x:Key="ControlWidth" Resource="620"/>
+          <ResourceWrapper x:Key="ControlHeight" Resource="340"/>
           <ControlTemplate x:Key="MakeReflexion">
 
             <Control x:Name="GlassOverlay"
@@ -120,11 +136,11 @@
                VerticalAlignment="Stretch" HorizontalAlignment="Stretch" DockPanel.Dock="Center">
               <Control.Resources>
                 <ControlTemplate x:Key="MakeGlass">
-
+                  
                   <Image x:Name="BackdropImageBackground"
-                     VerticalAlignment="Top"
-                     Width="695" Stretch="UniformToFill"
+                     VerticalAlignment="Top" Stretch="UniformToFill"
                      Source="{Binding Source={StaticResource BackgroundManagerModel}, Path=BackgroundImage}" />
+                  
                 </ControlTemplate>
               </Control.Resources>
             </Control>
@@ -132,7 +148,7 @@
           </ControlTemplate>
         </Control.Resources>
       </Control>
-      <Label x:Name="ItemLabel" Margin="30,290,0,0" DockPanel.Dock="Center" Content="{Binding [Name]}" FontSize="{ThemeResource BigFontSize}" Color="{ThemeResource TextColor}"/>
+      <Label x:Name="ItemLabel" Margin="30,320,0,0" DockPanel.Dock="Center" Content="{Binding [Name]}" FontSize="{ThemeResource BigFontSize}" Color="{ThemeResource TextColor}"/>
     </DockPanel>
   </DataTemplate>
 
@@ -153,8 +169,8 @@
             <ScrollContentPresenter Grid.Row="0" Grid.Column="1" Grid.ZIndex="100"
                 VerticalAlignment="Stretch" HorizontalAlignment="Stretch"/>
 
-            <Label IsVisible="{TemplateBinding ScrollBarXVisible}" Margin="0,295,0,0" Grid.Row="0" Grid.Column="0" Content="&lt;" FontSize="{ThemeResource BigFontSize}" Color="{ThemeResource TextColor}"/>
-            <Label IsVisible="{TemplateBinding ScrollBarXVisible}" Margin="0,295,0,0" Grid.Row="0" Grid.Column="2" Content="&gt;" FontSize="{ThemeResource BigFontSize}" Color="{ThemeResource TextColor}"/>
+            <Label IsVisible="{TemplateBinding ScrollBarXVisible}" Margin="0,325,0,0" Grid.Row="0" Grid.Column="0" Content="&lt;" FontSize="{ThemeResource BigFontSize}" Color="{ThemeResource TextColor}"/>
+            <Label IsVisible="{TemplateBinding ScrollBarXVisible}" Margin="0,325,0,0" Grid.Row="0" Grid.Column="2" Content="&gt;" FontSize="{ThemeResource BigFontSize}" Color="{ThemeResource TextColor}"/>
           </Grid>
         </ControlTemplate>
       </Setter.Value>
