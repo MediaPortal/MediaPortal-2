@@ -279,8 +279,8 @@ namespace UPnP.Infrastructure.CP.SSDP
             continue;
           EndpointConfiguration config = new EndpointConfiguration
             {
-                SSDPMulticastAddress = NetworkHelper.GetSSDPMulticastAddressForInterface(address),
-                EndPointIPAddress = address
+              SSDPMulticastAddress = NetworkHelper.GetSSDPMulticastAddressForInterface(address),
+              EndPointIPAddress = address
             };
 
           // Multicast receiver socket - used for receiving multicast messages
@@ -590,7 +590,7 @@ namespace UPnP.Infrastructure.CP.SSDP
     protected void HandleNotifyRequest(SimpleHTTPRequest header, EndpointConfiguration config, IPEndPoint remoteEndPoint)
     {
       if (header.Param != "*")
-          // Invalid message
+        // Invalid message
         return;
       HTTPVersion httpVersion;
       if (!HTTPVersion.TryParse(header.HttpVersion, out httpVersion))
@@ -643,7 +643,8 @@ namespace UPnP.Infrastructure.CP.SSDP
         if (!DateTime.TryParse(date, out d))
           d = DateTime.Now;
         DateTime expirationTime = d.AddSeconds(maxAge);
-        string[] versionInfos = server.Split(' ');
+        string[] splitStrings = server.Contains(", ") ? new string[] { ", " } : new string[] { " " };
+        string[] versionInfos = server.Split(splitStrings, StringSplitOptions.RemoveEmptyEntries);
         string upnpVersionInfo = versionInfos.FirstOrDefault(v => v.StartsWith(UPnPVersion.VERSION_PREFIX));
         if (upnpVersionInfo == null)
           // Invalid message
