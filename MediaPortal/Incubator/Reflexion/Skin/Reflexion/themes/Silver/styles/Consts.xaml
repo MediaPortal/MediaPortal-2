@@ -7,6 +7,8 @@
   <ResourceWrapper x:Key="DialogTitleFontSize" Resource="30"/>
 
   <ResourceWrapper x:Key="DateTimeFontSize" Resource="20"/>
+
+  <ResourceWrapper x:Key="BigFontSize" Resource="30"/>
   <ResourceWrapper x:Key="SmallFontSize" Resource="18"/>
   <ResourceWrapper x:Key="SmallerFontSize" Resource="16"/>
   <ResourceWrapper x:Key="TinyFontSize" Resource="9"/>
