@@ -643,9 +643,11 @@ namespace UPnP.Infrastructure.CP.SSDP
         if (!DateTime.TryParse(date, out d))
           d = DateTime.Now;
         DateTime expirationTime = d.AddSeconds(maxAge);
-        // The specification says the userAgentStr should contain three entries, separated by space, like "SERVER: OS/version UPnP/1.1 product/version".
-        // Unfortunately, some devices send entries separated by ", ", like "Linux/2.x.x, UPnP/1.0, pvConnect UPnP SDK/1.0".
-        // We try to handle both situations correctly here, that's the reason for this ugly code here.
+        // The specification says the SERVER header should contain three entries, separated by space, like
+        // "SERVER: OS/version UPnP/1.1 product/version".
+        // Unfortunately, some clients send entries separated by ", ", like "Linux/2.x.x, UPnP/1.0, pvConnect UPnP SDK/1.0".
+        // Other users saw strings like "3Com-ADSL-11g/1.0 UPnP/1.0" here, i.e. with only two tokens.
+        // We try to handle all situations correctly here, that's the reason for this ugly code.
         string[] versionInfos = server.Contains(", ") ? server.Split(new string[] { ", " }, StringSplitOptions.RemoveEmptyEntries) :
             server.Split(new char[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
         string upnpVersionInfo = versionInfos.FirstOrDefault(v => v.StartsWith(UPnPVersion.VERSION_PREFIX));
@@ -681,7 +683,10 @@ namespace UPnP.Infrastructure.CP.SSDP
         {
           bool rootEntryAdded;
           LinkData link;
-          rootEntry = GetOrCreateRootEntry(deviceUUID, upnpVersion, versionInfos[0], versionInfos[2],
+          // Use fail-safe code, see comment above about the different SERVER headers
+          string osVersion = versionInfos.Length < 1 ? string.Empty : versionInfos[0];
+          string productVersion = versionInfos.Length < 3 ? string.Empty : versionInfos[2];
+          rootEntry = GetOrCreateRootEntry(deviceUUID, upnpVersion, osVersion, productVersion,
               expirationTime, config, location, httpVersion, searchPort, out link, out rootEntryAdded);
           if (bi != null && rootEntry.BootID > bootID)
             // Invalid message

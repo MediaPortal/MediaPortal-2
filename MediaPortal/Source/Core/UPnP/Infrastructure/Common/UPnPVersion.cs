@@ -50,15 +50,15 @@ namespace UPnP.Infrastructure.Common
       get { return _verMin; }
     }
 
-    public static bool TryParseFromServerOrUserAgent(string serverOrUserAgent, out UPnPVersion upnpVersion)
+    public static bool TryParseFromUserAgent(string userAgentHeader, out UPnPVersion upnpVersion)
     {
       upnpVersion = null;
-      if (string.IsNullOrEmpty(serverOrUserAgent))
+      if (string.IsNullOrEmpty(userAgentHeader))
         return false;
-      // The specification says the userAgentStr should contain three entries, separated by ' '.
-      // Unfortunately, some devices send entries separated by ", ". We try to handle both situations correctly here.
-      string[] versionInfos = serverOrUserAgent.Split(new char[] {',', ' '}, StringSplitOptions.RemoveEmptyEntries);
-      string upnpVersionInfo = versionInfos.FirstOrDefault(v => v.StartsWith(UPnPVersion.VERSION_PREFIX));
+      // The specification says the userAgentHeader string should contain three tokens, separated by ' '.
+      // Unfortunately, some devices send tokens separated by ", ". Others only send two tokens. We try to handle all situations correctly here.
+      string[] versionInfos = userAgentHeader.Split(new char[] {',', ' '}, StringSplitOptions.RemoveEmptyEntries);
+      string upnpVersionInfo = versionInfos.FirstOrDefault(v => v.StartsWith(VERSION_PREFIX));
       if (upnpVersionInfo == null)
         return false;
       return TryParse(upnpVersionInfo, out upnpVersion);
