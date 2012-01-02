@@ -27,6 +27,7 @@ using System.Collections.Generic;
 using System.Drawing.Drawing2D;
 using MediaPortal.Common.General;
 using MediaPortal.UI.SkinEngine.Controls.Brushes;
+using MediaPortal.UI.SkinEngine.Controls.Visuals.Shapes;
 using MediaPortal.UI.SkinEngine.DirectX.Triangulate;
 using MediaPortal.UI.SkinEngine.MpfElements;
 using SlimDX.Direct3D9;
@@ -47,6 +48,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     protected AbstractProperty _backgroundProperty;
     protected AbstractProperty _borderBrushProperty;
     protected AbstractProperty _borderThicknessProperty;
+    protected AbstractProperty _borderLineJoinProperty;
     protected AbstractProperty _cornerRadiusProperty;
     protected AbstractProperty _contentProperty;
     protected int _verticesCountBorder;
@@ -71,6 +73,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       _borderBrushProperty = new SProperty(typeof(Brush), null);
       _backgroundProperty = new SProperty(typeof(Brush), null);
       _borderThicknessProperty = new SProperty(typeof(double), 1.0);
+      _borderLineJoinProperty = new SProperty(typeof(PenLineJoin), PenLineJoin.Bevel);
       _cornerRadiusProperty = new SProperty(typeof(double), 0.0);
       _contentProperty = new SProperty(typeof(FrameworkElement), null);
     }
@@ -80,6 +83,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       _borderBrushProperty.Attach(OnBorderBrushPropertyChanged);
       _backgroundProperty.Attach(OnBackgroundBrushPropertyChanged);
       _borderThicknessProperty.Attach(OnLayoutPropertyChanged);
+      _borderLineJoinProperty.Attach(OnBorderLineJoinChanged);
       _cornerRadiusProperty.Attach(OnLayoutPropertyChanged);
       _contentProperty.Attach(OnContentChanged);
     }
@@ -89,6 +93,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       _borderBrushProperty.Detach(OnBorderBrushPropertyChanged);
       _backgroundProperty.Detach(OnBackgroundBrushPropertyChanged);
       _borderThicknessProperty.Detach(OnLayoutPropertyChanged);
+      _borderLineJoinProperty.Detach(OnBorderLineJoinChanged);
       _cornerRadiusProperty.Detach(OnLayoutPropertyChanged);
       _contentProperty.Detach(OnContentChanged);
     }
@@ -101,6 +106,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       BorderBrush = copyManager.GetCopy(b.BorderBrush);
       Background = copyManager.GetCopy(b.Background);
       BorderThickness = b.BorderThickness;
+      BorderLineJoin = b.BorderLineJoin;
       CornerRadius = b.CornerRadius;
       Content = copyManager.GetCopy(b.Content);
       _initializedContent = copyManager.GetCopy(b._initializedContent);
@@ -139,6 +145,11 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       if (brush != null)
         brush.ObjectChanged += OnBorderBrushChanged;
       OnBorderBrushChanged(brush);
+    }
+
+    void OnBorderLineJoinChanged(AbstractProperty property, object oldValue)
+    {
+      _performLayout = true;
     }
 
     void OnBackgroundBrushChanged(IObservable observable)
@@ -222,6 +233,17 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     {
       get { return (double) _borderThicknessProperty.GetValue(); }
       set { _borderThicknessProperty.SetValue(value); }
+    }
+
+    public AbstractProperty BorderLineJoinProperty
+    {
+      get { return _borderLineJoinProperty; }
+    }
+
+    public PenLineJoin BorderLineJoin
+    {
+      get { return (PenLineJoin) _borderLineJoinProperty.GetValue(); }
+      set { _borderLineJoinProperty.SetValue(value); }
     }
 
     public AbstractProperty CornerRadiusProperty
@@ -364,7 +386,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
                 bool isClosed;
                 gpi.NextSubpath(subPath, out isClosed);
                 PointF[] pathPoints = subPath.PathPoints;
-                TriangulateHelper.TriangulateStroke_TriangleList(pathPoints, (float) BorderThickness, isClosed, 1,
+                TriangulateHelper.TriangulateStroke_TriangleList(pathPoints, (float) BorderThickness, isClosed, 1, BorderLineJoin,
                     out subPathVerts[i]);
               }
             }

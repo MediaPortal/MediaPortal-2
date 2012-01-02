@@ -126,7 +126,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Shapes
                   bool isClosed;
                   gpi.NextSubpath(subPath, out isClosed);
                   PointF[] pathPoints = subPath.PathPoints;
-                  TriangulateHelper.TriangulateStroke_TriangleList(pathPoints, (float) StrokeThickness, isClosed, 1,
+                  TriangulateHelper.TriangulateStroke_TriangleList(pathPoints, (float) StrokeThickness, isClosed, 1, StrokeLineJoin,
                       out subPathVerts[i]);
                 }
               }

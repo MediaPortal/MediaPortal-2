@@ -25,9 +25,10 @@
 using System;
 using System.Collections.Generic;
 using System.Drawing;
+using MediaPortal.UI.SkinEngine.Controls.Visuals.Shapes;
 using SlimDX;
 using SlimDX.Direct3D9;
-using Matrix=SlimDX.Matrix;
+using Matrix = SlimDX.Matrix;
 
 namespace MediaPortal.UI.SkinEngine.DirectX.Triangulate
 {
@@ -158,7 +159,7 @@ namespace MediaPortal.UI.SkinEngine.DirectX.Triangulate
     /// <summary>
     /// Converts the graphics path to an array of vertices using TriangleList.
     /// </summary>
-    public static void TriangulateStroke_TriangleList(PointF[] points, float thickness, bool close, float zCoord,
+    public static void TriangulateStroke_TriangleList(PointF[] points, float thickness, bool close, float zCoord, PenLineJoin lineJoin,
         out PositionColoredTextured[] verts)
     {
       PointF[] pathPoints = AdjustPoints(points);
@@ -169,7 +170,7 @@ namespace MediaPortal.UI.SkinEngine.DirectX.Triangulate
         cpoints[i] = new CPoint2D(pt.X, pt.Y);
       }
       PolygonDirection direction = CPolygon.GetPointsDirection(cpoints);
-      TriangulateStroke_TriangleList(pathPoints, thickness, close, direction, zCoord, out verts);
+      TriangulateStroke_TriangleList(pathPoints, thickness, close, direction, zCoord, lineJoin, out verts);
     }
 
     /// <summary>
@@ -180,9 +181,10 @@ namespace MediaPortal.UI.SkinEngine.DirectX.Triangulate
     /// <param name="close">True if we should connect the first and last point.</param>
     /// <param name="direction">The polygon direction.</param>
     /// <param name="zCoord">Z coordinate of the returned vertices.</param>
+    /// <param name="lineJoin">The PenLineJoin to use.</param>
     /// <param name="verts">The generated verts.</param>
     public static void TriangulateStroke_TriangleList(PointF[] points, float thickness, bool close,
-        PolygonDirection direction, float zCoord, out PositionColoredTextured[] verts)
+        PolygonDirection direction, float zCoord, PenLineJoin lineJoin, out PositionColoredTextured[] verts)
     {
       verts = null;
       PointF[] pathPoints = AdjustPoints(points);
@@ -197,7 +199,8 @@ namespace MediaPortal.UI.SkinEngine.DirectX.Triangulate
         pointCount = pathPoints.Length - 1;
 
       int pointsLength = pathPoints.Length;
-      verts = new PositionColoredTextured[pointCount * 3 * 3 - (close ? 0 : 3)];
+      int trianglesPerSegment = lineJoin == PenLineJoin.Miter ? 4 : 3;
+      verts = new PositionColoredTextured[pointCount * trianglesPerSegment * 3 - (close ? 0 : 3)];
 
       float insetX;
       float insetY;
@@ -217,22 +220,36 @@ namespace MediaPortal.UI.SkinEngine.DirectX.Triangulate
         if (lastInset.HasValue)
         {
           // If we wanted to have different StrokeLineJoin implementations, this should be done here. At the moment, the join is quite trivial.
-          verts[offset].Position = new Vector3(pathPoints[i].X, pathPoints[i].Y, zCoord);
-          verts[offset + 1].Position = new Vector3(pathPoints[i].X + insetX, pathPoints[i].Y + insetY, zCoord);
-          verts[offset + 2].Position = new Vector3(pathPoints[i].X + lastInset.Value.X, pathPoints[i].Y + lastInset.Value.Y, zCoord);
-          offset += 3;
+          switch (lineJoin)
+          {
+            case PenLineJoin.Miter:
+              verts[offset++].Position = new Vector3(pathPoints[i].X, pathPoints[i].Y, zCoord);
+              verts[offset++].Position = new Vector3(pathPoints[i].X + lastInset.Value.X, pathPoints[i].Y + lastInset.Value.Y, zCoord);
+              verts[offset++].Position = new Vector3(pathPoints[i].X + insetX + lastInset.Value.X, pathPoints[i].Y + insetY + lastInset.Value.Y, zCoord);
+
+              verts[offset++].Position = new Vector3(pathPoints[i].X + insetX + lastInset.Value.X, pathPoints[i].Y + insetY + lastInset.Value.Y, zCoord);
+              verts[offset++].Position = new Vector3(pathPoints[i].X + insetX, pathPoints[i].Y + insetY, zCoord);
+              verts[offset++].Position = new Vector3(pathPoints[i].X, pathPoints[i].Y, zCoord);
+              break;
+              // Currently Round is not supported and will be rendered as Bevel.
+            case PenLineJoin.Round:
+            case PenLineJoin.Bevel:
+              verts[offset++].Position = new Vector3(pathPoints[i].X, pathPoints[i].Y, zCoord);
+              verts[offset++].Position = new Vector3(pathPoints[i].X + insetX, pathPoints[i].Y + insetY, zCoord);
+              verts[offset++].Position = new Vector3(pathPoints[i].X + lastInset.Value.X, pathPoints[i].Y + lastInset.Value.Y, zCoord);
+              break;
+          }
         }
 
-        verts[offset].Position = new Vector3(pathPoints[i].X, pathPoints[i].Y, zCoord);
-        verts[offset + 1].Position = new Vector3(nextPoint.X, nextPoint.Y, zCoord);
-        verts[offset + 2].Position = new Vector3(pathPoints[i].X + insetX, pathPoints[i].Y + insetY, 1);
+        verts[offset++].Position = new Vector3(pathPoints[i].X, pathPoints[i].Y, zCoord);
+        verts[offset++].Position = new Vector3(nextPoint.X, nextPoint.Y, zCoord);
+        verts[offset++].Position = new Vector3(pathPoints[i].X + insetX, pathPoints[i].Y + insetY, zCoord);
 
-        verts[offset + 3].Position = new Vector3(nextPoint.X, nextPoint.Y, zCoord);
-        verts[offset + 4].Position = new Vector3(nextPoint.X + insetX, nextPoint.Y + insetY, zCoord);
-        verts[offset + 5].Position = new Vector3(pathPoints[i].X + insetX, pathPoints[i].Y + insetY, zCoord);
+        verts[offset++].Position = new Vector3(nextPoint.X, nextPoint.Y, zCoord);
+        verts[offset++].Position = new Vector3(nextPoint.X + insetX, nextPoint.Y + insetY, zCoord);
+        verts[offset++].Position = new Vector3(pathPoints[i].X + insetX, pathPoints[i].Y + insetY, zCoord);
 
         lastInset = new PointF(insetX, insetY);
-        offset += 6;
       }
     }
 
@@ -272,31 +289,31 @@ namespace MediaPortal.UI.SkinEngine.DirectX.Triangulate
       }
     }
 
-  /// <summary>
-  /// Describes how points should be painted in a LineStrip relative to its center.
-  /// </summary>
-  /// <remarks>
-  /// The behavior of the <see cref="LeftHanded"/> and <see cref="RightHanded"/> modes depends on the order the points are
-  /// listed in. <see cref="LeftHanded"/> will draw the line on the outside of a clockwise curve and on the
-  /// inside of a counterclockwise curve; <see cref="RightHanded"/> is the opposite.
-  /// </remarks>
-  public enum WidthMode
-  {
     /// <summary>
-    /// Centers the width on the line.
+    /// Describes how points should be painted in a LineStrip relative to its center.
     /// </summary>
-    Centered,
+    /// <remarks>
+    /// The behavior of the <see cref="LeftHanded"/> and <see cref="RightHanded"/> modes depends on the order the points are
+    /// listed in. <see cref="LeftHanded"/> will draw the line on the outside of a clockwise curve and on the
+    /// inside of a counterclockwise curve; <see cref="RightHanded"/> is the opposite.
+    /// </remarks>
+    public enum WidthMode
+    {
+      /// <summary>
+      /// Centers the width on the line.
+      /// </summary>
+      Centered,
 
-    /// <summary>
-    /// Places the width on the left-hand side of the line.
-    /// </summary>
-    LeftHanded,
+      /// <summary>
+      /// Places the width on the left-hand side of the line.
+      /// </summary>
+      LeftHanded,
 
-    /// <summary>
-    /// Places the width on the right-hand side of the line.
-    /// </summary>
-    RightHanded
-  }
+      /// <summary>
+      /// Places the width on the right-hand side of the line.
+      /// </summary>
+      RightHanded
+    }
 
     /// <summary>
     /// Generates the vertices of a thickened line strip.
@@ -420,12 +437,12 @@ namespace MediaPortal.UI.SkinEngine.DirectX.Triangulate
         v2 = pathPoints[index];
         ZCross(ref v1, ref v2, out temp);
         area += temp;
-        centroid.X += (float)((v1.X + v2.X) * temp);
-        centroid.Y += (float)((v1.Y + v2.Y) * temp);
+        centroid.X += (float) ((v1.X + v2.X) * temp);
+        centroid.Y += (float) ((v1.Y + v2.Y) * temp);
       }
       temp = 1 / (Math.Abs(area) * 3);
-      centroid.X *= (float)temp;
-      centroid.Y *= (float)temp;
+      centroid.X *= (float) temp;
+      centroid.Y *= (float) temp;
 
       cx = Math.Abs(centroid.X);
       cy = Math.Abs(centroid.Y);

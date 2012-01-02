@@ -30,6 +30,25 @@ using MediaPortal.Utilities.DeepCopy;
 
 namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Shapes
 {
+  /// <summary>
+  /// Describes the shape that joins two lines or segments.
+  /// </summary>
+  public enum PenLineJoin
+  {
+    /// <summary>
+    /// Line joins use regular angular vertices.
+    /// </summary>
+    Miter,
+    /// <summary>
+    /// Line joins use beveled vertices. This is the default behaviour in MPF.
+    /// </summary>
+    Bevel,
+    /// <summary>
+    /// Line joins use rounded vertices.
+    /// </summary>
+    Round
+  }
+
   public class Shape : FrameworkElement
   {
     #region Protected fields
@@ -38,6 +57,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Shapes
     protected AbstractProperty _fillProperty;
     protected AbstractProperty _strokeProperty;
     protected AbstractProperty _strokeThicknessProperty;
+    protected AbstractProperty _strokeLineJoinProperty;
 
     protected volatile bool _performLayout;
     protected PrimitiveBuffer _fillContext;
@@ -66,6 +86,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Shapes
       _fillProperty = new SProperty(typeof(Brush), null);
       _strokeProperty = new SProperty(typeof(Brush), null);
       _strokeThicknessProperty = new SProperty(typeof(double), 1.0);
+      _strokeLineJoinProperty = new SProperty(typeof(PenLineJoin), PenLineJoin.Bevel);
       _stretchProperty = new SProperty(typeof(Stretch), Stretch.None);
     }
 
@@ -74,6 +95,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Shapes
       _fillProperty.Attach(OnFillBrushPropertyChanged);
       _strokeProperty.Attach(OnStrokeBrushPropertyChanged);
       _strokeThicknessProperty.Attach(OnStrokeThicknessChanged);
+      _strokeLineJoinProperty.Attach(OnStrokeLineJoinChanged);
     }
 
     void Detach()
@@ -81,6 +103,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Shapes
       _fillProperty.Detach(OnFillBrushPropertyChanged);
       _strokeProperty.Detach(OnStrokeBrushPropertyChanged);
       _strokeThicknessProperty.Detach(OnStrokeThicknessChanged);
+      _strokeLineJoinProperty.Detach(OnStrokeLineJoinChanged);
     }
 
     public override void DeepCopy(IDeepCopyable source, ICopyManager copyManager)
@@ -110,6 +133,11 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Shapes
     }
 
     void OnStrokeBrushChanged(IObservable observable)
+    {
+      _performLayout = true;
+    }
+
+    void OnStrokeLineJoinChanged(AbstractProperty property, object oldValue)
     {
       _performLayout = true;
     }
@@ -174,6 +202,20 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Shapes
     {
       get { return (double) _strokeThicknessProperty.GetValue(); }
       set { _strokeThicknessProperty.SetValue(value); }
+    }
+    
+    public AbstractProperty StrokeLineJoinProperty
+    {
+      get { return _strokeLineJoinProperty; }
+    }
+
+    /// <summary>
+    /// Gets or sets a PenLineJoin enumeration value that specifies the type of join that is used at the vertices of a Shape.
+    /// </summary>
+    public PenLineJoin StrokeLineJoin
+    {
+      get { return (PenLineJoin) _strokeLineJoinProperty.GetValue(); }
+      set { _strokeLineJoinProperty.SetValue(value); }
     }
 
     protected void PerformLayout(RenderContext context)
