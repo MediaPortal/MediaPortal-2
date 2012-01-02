@@ -23,6 +23,7 @@
 #endregion
 
 using System.Collections.Generic;
+using MediaPortal.UI.Presentation.Screens;
 
 namespace MediaPortal.UI.Presentation.SkinResources
 {
@@ -32,14 +33,24 @@ namespace MediaPortal.UI.Presentation.SkinResources
   public interface IResourceAccessor
   {
     /// <summary>
-    /// Returns the resource file for the specified resource name.
+    /// Returns the resource file path for the specified resource name.
     /// </summary>
-    /// <param name="resourceName">Name of the resource. This is the
-    /// path of the resource relative to the root directory level of this resource
+    /// <param name="resourceName">Name of the resource. This is the path of the resource relative to the root directory level of this resource
     /// collection directory.</param>
-    /// <returns>Absolute file path of the specified resource or <c>null</c> if
-    /// the resource is not defined.</returns>
+    /// <returns>Absolute file path of the specified resource or <c>null</c> if the resource is not defined.</returns>
     string GetResourceFilePath(string resourceName);
+
+    /// <summary>
+    /// Returns the resource file path and the resource bundle where the file was found for the specified resource name.
+    /// </summary>
+    /// <param name="resourceName">Name of the resource. This is the path of the resource relative to the root directory level of this resource
+    /// collection directory.</param>
+    /// <param name="searchInheritedResources">If set to <c>true</c>, inherited skin resources will be searched if the specified resource
+    /// is not present in the current resource accessor, else inherited resources won't be checked.</param>
+    /// <param name="resourceBundle">Resource bundle which contains the requested resource.</param>
+    /// <returns>Absolute file path of the specified resource or <c>null</c> if the resource is not defined.</returns>
+    string GetResourceFilePath(string resourceName, bool searchInheritedResources,
+        out ISkinResourceBundle resourceBundle);
 
     /// <summary>
     /// Returns all resource files in this resource collection, where their relative directory

@@ -28,6 +28,7 @@ using System.Collections.Generic;
 using System.Xml.XPath;
 using MediaPortal.Common;
 using MediaPortal.Common.Logging;
+using MediaPortal.UI.Presentation.SkinResources;
 using MediaPortal.Utilities;
 
 namespace MediaPortal.UI.SkinEngine.SkinManagement
@@ -43,7 +44,7 @@ namespace MediaPortal.UI.SkinEngine.SkinManagement
   /// The meta information will be read from a file <i>skin.xml</i> located in one of the
   /// skin resource directories.
   /// </remarks>
-  public class Skin: SkinResources
+  public class Skin: SkinResources, ISkin
   {
     public const string SKIN_META_FILE = "skin.xml";
     public const string THEMES_DIRECTORY = "themes";
@@ -78,10 +79,6 @@ namespace MediaPortal.UI.SkinEngine.SkinManagement
 
     public Skin(string name): base(name) { }
 
-    /// <summary>
-    /// Name of the skin this skin inherits from. If this parameter is <c>null</c>, this skin inherits from the default
-    /// skin's theme or from the default skin, if there is no default skin.
-    /// </summary>
     public string BasedOnSkin
     {
       get
@@ -91,11 +88,6 @@ namespace MediaPortal.UI.SkinEngine.SkinManagement
       }
     }
 
-    /// <summary>
-    /// Name of the theme of the <see cref="BasedOnSkin"/> skin, this skin inherits from. If this value is <c>null</c>,
-    /// we'll inherit from the <see cref="BasedOnSkin"/>, or, if that is also <c>null</c>, from the default skin's theme or
-    /// from the default skin, if there is no default skin.
-    /// </summary>
     public string BasedOnTheme
     {
       get
@@ -105,7 +97,7 @@ namespace MediaPortal.UI.SkinEngine.SkinManagement
       }
     }
 
-    public string ShortDescription
+    public override string ShortDescription
     {
       get
       {
@@ -123,7 +115,7 @@ namespace MediaPortal.UI.SkinEngine.SkinManagement
       }
     }
 
-    public string PreviewResourceKey
+    public override string PreviewResourceKey
     {
       get
       {

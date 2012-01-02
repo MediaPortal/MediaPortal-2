@@ -1092,7 +1092,7 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
     public static Screen LoadScreen(string screenName, string relativeScreenPath, IModelLoader loader)
     {
       Screen result = null;
-      SkinResources resourceBundle = SkinContext.SkinResources;
+      ISkinResourceBundle resourceBundle = SkinContext.SkinResources;
       while (result == null)
       {
         string skinFilePath = resourceBundle.GetResourceFilePath(relativeScreenPath, true, out resourceBundle);
@@ -1115,7 +1115,7 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
         }
         catch (Exception e)
         {
-          SkinResources inheritedBundle = resourceBundle.InheritedSkinResources;
+          ISkinResourceBundle inheritedBundle = resourceBundle.InheritedSkinResources;
           if (inheritedBundle == null)
           {
             ServiceRegistration.Get<ILogger>().Error("ScreenManager: Error loading screen file '{0}', no fallback screen available", e, skinFilePath);
@@ -1237,6 +1237,24 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
       }
     }
 
+    public string SkinName
+    {
+      get
+      {
+        lock (_syncObj)
+          return _skin.Name;
+      }
+    }
+
+    public string ThemeName
+    {
+      get
+      {
+        lock (_syncObj)
+          return _theme == null ? null : _theme.Name;
+      }
+    }
+
     public DialogData CurrentDialogData
     {
       get
@@ -1278,22 +1296,9 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
 
     #region IScreenManager implementation
 
-    public string SkinName
+    public ISkinResourceBundle CurrentSkinResourceBundle
     {
-      get
-      {
-        lock (_syncObj)
-          return _skin.Name;
-      }
-    }
-
-    public string ThemeName
-    {
-      get
-      {
-        lock (_syncObj)
-          return _theme == null ? null : _theme.Name;
-      }
+      get { return _theme ?? (ISkinResourceBundle) _skin; }
     }
 
     public string ActiveScreenName

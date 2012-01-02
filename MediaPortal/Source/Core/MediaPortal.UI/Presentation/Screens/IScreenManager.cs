@@ -24,6 +24,7 @@
 
 using System;
 using System.Collections.Generic;
+using MediaPortal.UI.Presentation.SkinResources;
 
 namespace MediaPortal.UI.Presentation.Screens
 {
@@ -54,14 +55,9 @@ namespace MediaPortal.UI.Presentation.Screens
   public interface IScreenManager
   {
     /// <summary>
-    /// Gets the logical name of the current skin used.
+    /// Returns the currently active resource bundle. This can be a <see cref="ISkin">skin</see> or a <see cref="ITheme">theme</see>.
     /// </summary>
-    string SkinName { get;}
-
-    /// <summary>
-    /// Gets the name of the current theme used.
-    /// </summary>
-    string ThemeName { get;}
+    ISkinResourceBundle CurrentSkinResourceBundle { get; }
 
     /// <summary>
     /// Gets the name of the currently active screen (or dialog).

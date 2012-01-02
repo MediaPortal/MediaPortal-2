@@ -27,6 +27,7 @@ using System.Collections.Generic;
 using System.Xml.XPath;
 using MediaPortal.Common;
 using MediaPortal.Common.Logging;
+using MediaPortal.UI.Presentation.SkinResources;
 using MediaPortal.Utilities;
 
 namespace MediaPortal.UI.SkinEngine.SkinManagement
@@ -41,7 +42,7 @@ namespace MediaPortal.UI.SkinEngine.SkinManagement
   /// The meta information will be read from a file <i>theme.xml</i> located in one of the
   /// theme resource directories.
   /// </remarks>
-  public class Theme: SkinResources
+  public class Theme: SkinResources, ITheme
   {
     public const string THEME_META_FILE = "theme.xml";
 
@@ -66,10 +67,6 @@ namespace MediaPortal.UI.SkinEngine.SkinManagement
       _parentSkin = parentSkin;
     }
 
-    /// <summary>
-    /// Name of the theme in our <see cref="ParentSkin"/> this theme inherits from. If set to <c>null</c>, this theme
-    /// will inherit from our parent skin's default theme.
-    /// </summary>
     public string BasedOnTheme
     {
       get
@@ -79,7 +76,7 @@ namespace MediaPortal.UI.SkinEngine.SkinManagement
       }
     }
 
-    public string ShortDescription
+    public override string ShortDescription
     {
       get
       {
@@ -88,13 +85,18 @@ namespace MediaPortal.UI.SkinEngine.SkinManagement
       }
     }
 
-    public string PreviewResourceKey
+    public override string PreviewResourceKey
     {
       get
       {
         CheckMetadataInitialized();
         return _previewResourceKey;
       }
+    }
+
+    ISkin ITheme.ParentSkin
+    {
+      get { return _parentSkin; }
     }
 
     /// <summary>

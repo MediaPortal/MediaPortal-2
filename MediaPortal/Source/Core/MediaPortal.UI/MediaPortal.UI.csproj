@@ -72,6 +72,9 @@
     <Compile Include="FrontendServer\IFrontendServer.cs" />
     <Compile Include="General\WindowsMessaging.cs" />
     <Compile Include="Presentation\Actions\KeyAction.cs" />
+    <Compile Include="Presentation\SkinResources\ISkin.cs" />
+    <Compile Include="Presentation\SkinResources\ISkinResourceBundle.cs" />
+    <Compile Include="Presentation\SkinResources\ITheme.cs" />
     <Compile Include="RemovableMedia\IRemovableMediaTracker.cs" />
     <Compile Include="Presentation\DataObjects\ItemsList.cs" />
     <Compile Include="Presentation\DataObjects\ListItem.cs" />

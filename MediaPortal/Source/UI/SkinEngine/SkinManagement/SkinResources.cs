@@ -54,7 +54,7 @@ namespace MediaPortal.UI.SkinEngine.SkinManagement
   /// When the resources of this instance are no longer needed, method <see cref="Release"/>
   /// can be called to reduce the memory consumption of this instance.
   /// </remarks>
-  public abstract class SkinResources: IResourceAccessor
+  public abstract class SkinResources : ISkinResourceBundle
   {
     #region Consts
 
@@ -182,12 +182,27 @@ namespace MediaPortal.UI.SkinEngine.SkinManagement
       get { return true; }
     }
 
-    /// <summary>
-    /// Gets the name of this resource bundle (skin name or theme name).
-    /// </summary>
     public string Name
     {
       get { return _name; }
+    }
+
+    public abstract string ShortDescription { get; }
+
+    public abstract string PreviewResourceKey { get; }
+
+    public abstract int SkinWidth { get; }
+
+    public abstract int SkinHeight { get; }
+
+    public IDictionary<Guid, object> StyleGUIModels
+    {
+      get { return _styleGUIModels; }
+    }
+
+    ISkinResourceBundle ISkinResourceBundle.InheritedSkinResources
+    {
+      get { return _inheritedSkinResources; }
     }
 
     /// <summary>
@@ -196,21 +211,6 @@ namespace MediaPortal.UI.SkinEngine.SkinManagement
     public ResourceDictionary LocalStyleResources
     {
       get { return _localStyleResources; }
-    }
-
-    /// <summary>
-    /// Gets the native width of the skin this resource bundle belongs to.
-    /// </summary>
-    public abstract int SkinWidth { get; }
-
-    /// <summary>
-    /// Gets the native height of the skin this resource bundle belongs to.
-    /// </summary>
-    public abstract int SkinHeight { get; }
-
-    public IDictionary<Guid, object> StyleGUIModels
-    {
-      get { return _styleGUIModels; }
     }
 
     /// <summary>
@@ -251,12 +251,12 @@ namespace MediaPortal.UI.SkinEngine.SkinManagement
 
     public string GetResourceFilePath(string resourceName)
     {
-      SkinResources resourceBundle;
+      ISkinResourceBundle resourceBundle;
       return GetResourceFilePath(resourceName, true, out resourceBundle);
     }
 
     public string GetResourceFilePath(string resourceName, bool searchInheritedResources,
-        out SkinResources resourceBundle)
+        out ISkinResourceBundle resourceBundle)
     {
       if (resourceName == null)
       {

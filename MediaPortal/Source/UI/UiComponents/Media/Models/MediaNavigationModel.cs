@@ -33,6 +33,7 @@ using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.Common.PluginItemBuilders;
 using MediaPortal.Common.PluginManager;
 using MediaPortal.UI.Presentation.Screens;
+using MediaPortal.UI.Presentation.SkinResources;
 using MediaPortal.UiComponents.Media.Views;
 using MediaPortal.UI.Presentation.DataObjects;
 using MediaPortal.UI.Presentation.Models;
@@ -196,6 +197,12 @@ namespace MediaPortal.UiComponents.Media.Models
       }
     }
 
+    private static ISkinResourceBundle GetSkin(ISkinResourceBundle resourceBundle)
+    {
+      ISkin skin = resourceBundle as ISkin;
+      return skin ?? GetSkin(resourceBundle.InheritedSkinResources);
+    }
+
     // Currently, we don't track skin changes while we're in the media navigation. Normally, that should not be necessary because to switch the skin,
     // the user has to navigate out of media navigation. If we wanted to track skin changes and then update all our navigation data,
     // we would need to register a plugin item registration change listener, which would need to trigger an update of all active media state data.
@@ -204,7 +211,7 @@ namespace MediaPortal.UiComponents.Media.Models
     protected IEnumerable<Guid> GetMediaSkinOptionalMIATypes(MediaNavigationMode navigationMode)
     {
       IScreenManager screenManager = ServiceRegistration.Get<IScreenManager>();
-      string skinName = screenManager.SkinName;
+      string skinName = GetSkin(screenManager.CurrentSkinResourceBundle).Name;
       IPluginManager pluginManager = ServiceRegistration.Get<IPluginManager>();
       string registrationLocation = Consts.MEDIA_SKIN_SETTINGS_REGISTRATION_PATH + "/" + skinName + "/" +
           navigationMode + "/" + Consts.MEDIA_SKIN_SETTINGS_REGISTRATION_OPTIONAL_TYPES_PATH;

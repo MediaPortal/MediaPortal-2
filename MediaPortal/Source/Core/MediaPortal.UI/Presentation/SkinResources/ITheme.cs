@@ -1,0 +1,40 @@
+#region Copyright (C) 2007-2011 Team MediaPortal
+
+/*
+    Copyright (C) 2007-2011 Team MediaPortal
+    http://www.team-mediaportal.com
+
+    This file is part of MediaPortal 2
+
+    MediaPortal 2 is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    MediaPortal 2 is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with MediaPortal 2. If not, see <http://www.gnu.org/licenses/>.
+*/
+
+#endregion
+
+namespace MediaPortal.UI.Presentation.SkinResources
+{
+  public interface ITheme : ISkinResourceBundle
+  {
+    /// <summary>
+    /// Name of the theme in our <see cref="ParentSkin"/> this theme inherits from. If set to <c>null</c>, this theme
+    /// will inherit from our parent skin's default theme.
+    /// </summary>
+    string BasedOnTheme { get; }
+
+    /// <summary>
+    /// Returns the skin this theme belongs to.
+    /// </summary>
+    ISkin ParentSkin { get; }
+  }
+}

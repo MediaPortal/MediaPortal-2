@@ -25,6 +25,7 @@
 
 using MediaPortal.Common.Configuration;
 using MediaPortal.UI.Presentation.DataObjects;
+using MediaPortal.UI.Presentation.SkinResources;
 using MediaPortal.UI.SkinEngine.SkinManagement;
 using MediaPortal.UiComponents.Configuration.ConfigurationControllers;
 
@@ -74,7 +75,7 @@ namespace MediaPortal.UI.SkinEngine.Settings.Configuration.Appearance.Skin
       {
         ListItem skinItem = new ListItem(KEY_NAME, skin.ShortDescription);
         skinItem.SetLabel(KEY_TECHNAME, skin.Name);
-        SkinResources resourceBundle;
+        ISkinResourceBundle resourceBundle;
         string preview = skin.GetResourceFilePath(skin.PreviewResourceKey, false, out resourceBundle);
         if (preview == null)
         {
