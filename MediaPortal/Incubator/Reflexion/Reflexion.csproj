@@ -300,6 +300,9 @@
     <Content Include="Skin\Reflexion\themes\Silver\styles\OSD.xaml">
       <SubType>Designer</SubType>
     </Content>
+    <Content Include="Skin\Reflexion\themes\Silver\styles\Widgets.xaml">
+      <SubType>Designer</SubType>
+    </Content>
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Skin\Reflexion\backgrounds\" />
