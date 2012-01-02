@@ -175,9 +175,9 @@
       <Setter.Value>
         <ControlTemplate>
           <DockPanel Name="ButtonControlRectangle">
-            <Rectangle DockPanel.Dock="Center" RadiusX="5" RadiusY="5" Name="ButtonBase" Fill="#E0203040" />
-            <Rectangle DockPanel.Dock="Center" RadiusX="5" RadiusY="5" Name="ButtonLowerShine" Fill="{StaticResource LowerShineGradientAnimated}" />
-            <Rectangle DockPanel.Dock="Center" RadiusX="5" RadiusY="5" Name="ButtonUpperShine" Fill="{StaticResource UpperShineGradientAnimated}" />
+            <Rectangle DockPanel.Dock="Center" RadiusX="{StaticResource ButtonRadius}" RadiusY="{StaticResource ButtonRadius}" Name="ButtonBase" Fill="{StaticResource ButtonBackgroundFill}" />
+            <Rectangle DockPanel.Dock="Center" RadiusX="{StaticResource ButtonRadius}" RadiusY="{StaticResource ButtonRadius}" Name="ButtonLowerShine" Fill="{StaticResource LowerShineGradientAnimated}" />
+            <Rectangle DockPanel.Dock="Center" RadiusX="{StaticResource ButtonRadius}" RadiusY="{StaticResource ButtonRadius}" Name="ButtonUpperShine" Fill="{StaticResource UpperShineGradientAnimated}" />
           </DockPanel>
         </ControlTemplate>
       </Setter.Value>

@@ -67,7 +67,7 @@
           </ControlTemplate>
         </Control.Resources>
       </Control>
-      <Label x:Name="ItemLabel" Margin="30,320,0,0" DockPanel.Dock="Center" Content="{Binding [Name]}" FontSize="{ThemeResource BigFontSize}" Color="{ThemeResource TextColor}"/>
+      <Label x:Name="ItemLabel" Margin="30,335,0,0" DockPanel.Dock="Center" Content="{Binding [Name]}" FontSize="{ThemeResource BigFontSize}" Color="{ThemeResource TextColor}"/>
     </DockPanel>
   </DataTemplate>
 
@@ -88,8 +88,8 @@
             <ScrollContentPresenter Grid.Row="0" Grid.Column="1" Grid.ZIndex="100"
                 VerticalAlignment="Stretch" HorizontalAlignment="Stretch"/>
 
-            <Label IsVisible="{TemplateBinding ScrollBarXVisible}" Margin="0,325,0,0" Grid.Row="0" Grid.Column="0" Content="&lt;" FontSize="{ThemeResource BigFontSize}" Color="{ThemeResource TextColor}"/>
-            <Label IsVisible="{TemplateBinding ScrollBarXVisible}" Margin="0,325,0,0" Grid.Row="0" Grid.Column="2" Content="&gt;" FontSize="{ThemeResource BigFontSize}" Color="{ThemeResource TextColor}"/>
+            <Label IsVisible="{TemplateBinding ScrollBarXVisible}" Margin="0,340,0,0" Grid.Row="0" Grid.Column="0" Content="&lt;" FontSize="{ThemeResource BigFontSize}" Color="{ThemeResource TextColor}"/>
+            <Label IsVisible="{TemplateBinding ScrollBarXVisible}" Margin="0,340,0,0" Grid.Row="0" Grid.Column="2" Content="&gt;" FontSize="{ThemeResource BigFontSize}" Color="{ThemeResource TextColor}"/>
           </Grid>
         </ControlTemplate>
       </Setter.Value>

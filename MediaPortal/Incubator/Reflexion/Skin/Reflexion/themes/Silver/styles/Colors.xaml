@@ -268,11 +268,14 @@
   <ResourceWrapper x:Key="FooterPanelBackgroundBrush" Resource="{ThemeResource HeaderPanelBackgroundBrush}"/>
 
   <!-- Colors and gradients used for buttons shine and OSD progress / control area -->
-  <ResourceWrapper x:Key="ShineGradientStartColor" Resource="#FFFFFFFF" />
-  <ResourceWrapper x:Key="ShineGradientEndColor" Resource="#00FFFFFF" />
+  <ResourceWrapper x:Key="ShineGradientStartColor" Resource="#FFA0C0FF" />
+  <ResourceWrapper x:Key="ShineGradientEndColor" Resource="#00A0C0FF" />
   
   <ResourceWrapper x:Key="OSDProgressAndControlsColor" Resource="#FF000000" />
 
+  <!-- Button background and effects-->
+  <ResourceWrapper x:Key="ButtonBackgroundFill" Resource="#80000000"/>
+  
   <ResourceWrapper x:Key="UpperShineGradient">
     <ResourceWrapper.Resource>
       <LinearGradientBrush StartPoint="0.5,-0.3" EndPoint="0.5,0.4">
