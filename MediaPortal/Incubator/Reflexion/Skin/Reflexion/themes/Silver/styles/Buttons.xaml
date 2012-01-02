@@ -3,7 +3,7 @@
     xmlns="www.team-mediaportal.com/2008/mpf/directx"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:mp_special_controls="clr-namespace:MediaPortal.UI.SkinEngine.SpecialElements.Controls"
-    DependsOnStyleResources="Colors,Graphics,Consts"
+    DependsOnStyleResources="Colors,Graphics,Consts,Widgets"
     >
 
   <!-- ***************************** Storyboards ******************************** -->
@@ -49,7 +49,7 @@
       <SplineDoubleKeyFrame KeyTime="00:00:04" Value="-0.006"/>
     </DoubleAnimationUsingKeyFrames>
     <ColorAnimationUsingKeyFrames BeginTime="00:00:00" Storyboard.TargetName="ButtonBase" Storyboard.TargetProperty="Fill">
-      <SplineColorKeyFrame KeyTime="00:00:00.1000000" Value="#FF000000"/>
+      <SplineColorKeyFrame KeyTime="00:00:00.1000000" Value="{ThemeResource ButtonBackgroundFocusFill}"/>
     </ColorAnimationUsingKeyFrames>
     <ColorAnimationUsingKeyFrames BeginTime="00:00:00" Storyboard.TargetName="ButtonUpperShine" Storyboard.TargetProperty="Fill.GradientStops[0].Color">
       <SplineColorKeyFrame KeyTime="00:00:00" Value="{ThemeResource ShineGradientEndColor}"/>
@@ -409,7 +409,68 @@
       </Setter.Value>
     </Setter>
   </Style>
-  
+
+  <Style x:Key="ButtonWideGlassStyle" TargetType="{x:Type Button}">
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate>
+          <Control x:Name="GrowControl" RenderTransformOrigin="0.5,0.5" Margin="0,5,5,0" Style="{ThemeResource SmallGlassOverlayControl}" VerticalAlignment="Stretch" HorizontalAlignment="Stretch">
+            <Control.Resources>
+              <ResourceWrapper x:Key="ControlWidth" Resource="190"/>
+              <!--<ResourceWrapper x:Key="ControlHeight" Resource="160"/>-->
+              <ControlTemplate x:Key="MakeGlass">
+                <Grid Margin="0,1,0,1">
+                  <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                  </Grid.ColumnDefinitions>
+                  <Grid.RowDefinitions>
+                    <RowDefinition Height="*"/>
+                  </Grid.RowDefinitions>
+                  <Grid.RenderTransform>
+                    <TransformGroup>
+                      <ScaleTransform ScaleX="1" ScaleY="1"/>
+                    </TransformGroup>
+                  </Grid.RenderTransform>
+                  <Control Style="{ThemeResource EmptyButtonControlStyle}" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"/>
+                  <ContentPresenter x:Name="ButtonContentPresenter" Margin="10,5,10,5" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"/>
+                </Grid>
+                <ControlTemplate.Triggers>
+                  <Trigger Property="HasFocus" Value="True">
+                    <Trigger.EnterActions>
+                      <BeginStoryboard x:Name="Focused_BeginStoryboard" Storyboard="{ThemeResource FocusedButtonWideStoryboard_GrowOnly}"/>
+                      <SoundPlayerAction Source="button12.wav" DisableOnAudioOutput="True"/>
+                    </Trigger.EnterActions>
+                    <Trigger.ExitActions>
+                      <StopStoryboard BeginStoryboardName="Focused_BeginStoryboard"/>
+                    </Trigger.ExitActions>
+                  </Trigger>
+                  <Trigger Property="IsPressed" Value="True">
+                    <Trigger.EnterActions>
+                      <BeginStoryboard x:Name="Pressed_BeginStoryboard" Storyboard="{ThemeResource PressedButtonWideStoryboard_GrowOnly}"
+                    HandoffBehavior="TemporaryReplace"/>
+                      <SoundPlayerAction Source="button7.wav" DisableOnAudioOutput="True"/>
+                    </Trigger.EnterActions>
+                    <Trigger.ExitActions>
+                      <StopStoryboard BeginStoryboardName="Pressed_BeginStoryboard"/>
+                    </Trigger.ExitActions>
+                  </Trigger>
+                  <Trigger Property="IsEnabled" Value="False">
+                    <Trigger.EnterActions>
+                      <BeginStoryboard x:Name="Disabled_BeginStoryBoard" Storyboard="{ThemeResource DisabledButtonStoryboard}"/>
+                    </Trigger.EnterActions>
+                    <Trigger.ExitActions>
+                      <StopStoryboard BeginStoryboardName="Disabled_BeginStoryBoard"/>
+                    </Trigger.ExitActions>
+                  </Trigger>
+                </ControlTemplate.Triggers>
+              </ControlTemplate>
+            </Control.Resources>
+          </Control>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
+
   <Style x:Key="WizardButtonStyle" BasedOn="{ThemeResource ButtonWideStyle}" TargetType="{x:Type Button}">
     <Setter Property="HorizontalAlignment" Value="Stretch"/>
   </Style>

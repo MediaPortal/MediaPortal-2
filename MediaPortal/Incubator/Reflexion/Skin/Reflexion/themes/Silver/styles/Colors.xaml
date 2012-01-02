@@ -275,6 +275,7 @@
 
   <!-- Button background and effects-->
   <ResourceWrapper x:Key="ButtonBackgroundFill" Resource="#80000000"/>
+  <ResourceWrapper x:Key="ButtonBackgroundFocusFill" Resource="#70136D96"/>
   
   <ResourceWrapper x:Key="UpperShineGradient">
     <ResourceWrapper.Resource>
