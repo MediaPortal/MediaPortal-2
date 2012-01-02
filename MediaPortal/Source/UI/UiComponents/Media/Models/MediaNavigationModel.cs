@@ -65,6 +65,8 @@ namespace MediaPortal.UiComponents.Media.Models
     // ID variables
     public static readonly Guid MEDIA_MODEL_ID = new Guid(MEDIA_MODEL_ID_STR);
 
+    protected static readonly IList<Guid> EMPTY_GUID_LIST = new List<Guid>();
+
     #endregion
 
     #region Protected fields
@@ -197,28 +199,52 @@ namespace MediaPortal.UiComponents.Media.Models
       }
     }
 
-    private static ISkinResourceBundle GetSkin(ISkinResourceBundle resourceBundle)
+    private static void GetSkinAndThemeName(ISkinResourceBundle resourceBundle, out string skinName, out string themeName)
     {
       ISkin skin = resourceBundle as ISkin;
-      return skin ?? GetSkin(resourceBundle.InheritedSkinResources);
+      if (skin != null)
+      {
+        skinName = skin.Name;
+        themeName = null;
+        return;
+      }
+      ITheme theme = resourceBundle as ITheme;
+      if (theme == null)
+      {
+        skinName = null;
+        themeName = null;
+        return;
+      }
+      themeName = theme.Name;
+      skin = theme.ParentSkin;
+      skinName = skin == null ? string.Empty : skin.Name;
     }
 
     // Currently, we don't track skin changes while we're in the media navigation. Normally, that should not be necessary because to switch the skin,
     // the user has to navigate out of media navigation. If we wanted to track skin changes and then update all our navigation data,
     // we would need to register a plugin item registration change listener, which would need to trigger an update of all active media state data.
-    // TODO: One problem is that we aren't able to navigate over inherited skins, so the registration needs to be done in each inherited
-    // skin. It would be easier to handle if this method would be able to collect all registered optional MIA types from all inherited skins.
     protected IEnumerable<Guid> GetMediaSkinOptionalMIATypes(MediaNavigationMode navigationMode)
     {
       IScreenManager screenManager = ServiceRegistration.Get<IScreenManager>();
-      string skinName = GetSkin(screenManager.CurrentSkinResourceBundle).Name;
+      return GetMediaSkinOptionalMIATypes(navigationMode, screenManager.CurrentSkinResourceBundle);
+    }
+
+    protected IEnumerable<Guid> GetMediaSkinOptionalMIATypes(MediaNavigationMode navigationMode, ISkinResourceBundle bundle)
+    {
+      if (bundle == null)
+        return EMPTY_GUID_LIST;
+      string skinName;
+      string themeName;
+      GetSkinAndThemeName(bundle, out skinName, out themeName);
       IPluginManager pluginManager = ServiceRegistration.Get<IPluginManager>();
-      string registrationLocation = Consts.MEDIA_SKIN_SETTINGS_REGISTRATION_PATH + "/" + skinName + "/" +
-          navigationMode + "/" + Consts.MEDIA_SKIN_SETTINGS_REGISTRATION_OPTIONAL_TYPES_PATH;
+      string registrationLocation = Consts.MEDIA_SKIN_SETTINGS_REGISTRATION_PATH + "/" + skinName + "/";
+      if (!string.IsNullOrEmpty(themeName))
+        registrationLocation += themeName + "/";
+      registrationLocation += navigationMode + "/" + Consts.MEDIA_SKIN_SETTINGS_REGISTRATION_OPTIONAL_TYPES_PATH;
       IEnumerable<Guid> result = pluginManager.RequestAllPluginItems<MIATypeRegistration>(
           registrationLocation, _mediaSkinMIATypeRegistrationStateTracker).Select(registration => registration.MediaItemAspectTypeId);
       pluginManager.RevokeAllPluginItems(registrationLocation, _mediaSkinMIATypeRegistrationStateTracker);
-      return result;
+      return result.Union(GetMediaSkinOptionalMIATypes(navigationMode, bundle.InheritedSkinResources));
     }
 
     protected void PrepareRootState()
