@@ -169,7 +169,7 @@
   </Storyboard>
 
   <!-- ************************* Control styles for buttons ************************* -->
- 
+
   <Style x:Key="ButtonControlStyle" TargetType="{x:Type Control}">
     <Setter Property="Template">
       <Setter.Value>
@@ -197,7 +197,7 @@
       </Setter.Value>
     </Setter>-->
   </Style>
-  
+
   <Style x:Key="ProgramGuideButtonControlStyle" TargetType="{x:Type Control}">
     <Setter Property="Template">
       <Setter.Value>
@@ -211,7 +211,7 @@
       </Setter.Value>
     </Setter>
   </Style>
-  
+
   <Style x:Key="OSDButtonControlStyle" TargetType="{x:Type Control}">
     <Setter Property="Template">
       <Setter.Value>
@@ -225,7 +225,7 @@
       </Setter.Value>
     </Setter>
   </Style>
-  
+
   <Style x:Key="RadioButtonControlStyle" TargetType="{x:Type Control}">
     <Setter Property="Template">
       <Setter.Value>
@@ -426,46 +426,46 @@
                   <Grid.RowDefinitions>
                     <RowDefinition Height="*"/>
                   </Grid.RowDefinitions>
-                  <Grid.RenderTransform>
-                    <TransformGroup>
-                      <ScaleTransform ScaleX="1" ScaleY="1"/>
-                    </TransformGroup>
-                  </Grid.RenderTransform>
-                  <Control Style="{ThemeResource EmptyButtonControlStyle}" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"/>
+                  <Control Style="{ThemeResource ButtonControlStyle}" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"/>
                   <ContentPresenter x:Name="ButtonContentPresenter" Margin="10,5,10,5" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"/>
                 </Grid>
-                <ControlTemplate.Triggers>
-                  <Trigger Property="HasFocus" Value="True">
-                    <Trigger.EnterActions>
-                      <BeginStoryboard x:Name="Focused_BeginStoryboard" Storyboard="{ThemeResource FocusedButtonWideStoryboard_GrowOnly}"/>
-                      <SoundPlayerAction Source="button12.wav" DisableOnAudioOutput="True"/>
-                    </Trigger.EnterActions>
-                    <Trigger.ExitActions>
-                      <StopStoryboard BeginStoryboardName="Focused_BeginStoryboard"/>
-                    </Trigger.ExitActions>
-                  </Trigger>
-                  <Trigger Property="IsPressed" Value="True">
-                    <Trigger.EnterActions>
-                      <BeginStoryboard x:Name="Pressed_BeginStoryboard" Storyboard="{ThemeResource PressedButtonWideStoryboard_GrowOnly}"
-                    HandoffBehavior="TemporaryReplace"/>
-                      <SoundPlayerAction Source="button7.wav" DisableOnAudioOutput="True"/>
-                    </Trigger.EnterActions>
-                    <Trigger.ExitActions>
-                      <StopStoryboard BeginStoryboardName="Pressed_BeginStoryboard"/>
-                    </Trigger.ExitActions>
-                  </Trigger>
-                  <Trigger Property="IsEnabled" Value="False">
-                    <Trigger.EnterActions>
-                      <BeginStoryboard x:Name="Disabled_BeginStoryBoard" Storyboard="{ThemeResource DisabledButtonStoryboard}"/>
-                    </Trigger.EnterActions>
-                    <Trigger.ExitActions>
-                      <StopStoryboard BeginStoryboardName="Disabled_BeginStoryBoard"/>
-                    </Trigger.ExitActions>
-                  </Trigger>
-                </ControlTemplate.Triggers>
               </ControlTemplate>
             </Control.Resources>
+            <Control.RenderTransform>
+              <TransformGroup>
+                <ScaleTransform ScaleX="1" ScaleY="1"/>
+              </TransformGroup>
+            </Control.RenderTransform>
           </Control>
+          <ControlTemplate.Triggers>
+            <Trigger Property="HasFocus" Value="True">
+              <Trigger.EnterActions>
+                <BeginStoryboard x:Name="Focused_BeginStoryboard" Storyboard="{ThemeResource FocusedButtonWideStoryboard}"/>
+                <SoundPlayerAction Source="button12.wav" DisableOnAudioOutput="True"/>
+              </Trigger.EnterActions>
+              <Trigger.ExitActions>
+                <StopStoryboard BeginStoryboardName="Focused_BeginStoryboard"/>
+              </Trigger.ExitActions>
+            </Trigger>
+            <Trigger Property="IsPressed" Value="True">
+              <Trigger.EnterActions>
+                <BeginStoryboard x:Name="Pressed_BeginStoryboard" Storyboard="{ThemeResource PressedButtonWideStoryboard}"
+                    HandoffBehavior="TemporaryReplace"/>
+                <SoundPlayerAction Source="button7.wav" DisableOnAudioOutput="True"/>
+              </Trigger.EnterActions>
+              <Trigger.ExitActions>
+                <StopStoryboard BeginStoryboardName="Pressed_BeginStoryboard"/>
+              </Trigger.ExitActions>
+            </Trigger>
+            <Trigger Property="IsEnabled" Value="False">
+              <Trigger.EnterActions>
+                <BeginStoryboard x:Name="Disabled_BeginStoryBoard" Storyboard="{ThemeResource DisabledButtonStoryboard}"/>
+              </Trigger.EnterActions>
+              <Trigger.ExitActions>
+                <StopStoryboard BeginStoryboardName="Disabled_BeginStoryBoard"/>
+              </Trigger.ExitActions>
+            </Trigger>
+          </ControlTemplate.Triggers>
         </ControlTemplate>
       </Setter.Value>
     </Setter>
@@ -683,8 +683,10 @@
                 <SplineColorKeyFrame KeyTime="00:00:00.2000000" Value="{ThemeResource DialogCloseButtonShape2HighlightColor}"/>
               </ColorAnimationUsingKeyFrames>
               <ColorAnimationUsingKeyFrames BeginTime="00:00:00" Storyboard.TargetName="ButtonShape" Storyboard.TargetProperty="Fill.GradientStops[2].Color">
-                <SplineColorKeyFrame KeyTime="00:00:00" Value="{ThemeResource DialogCloseButtonShape3Color}"/> <!-- Dreckig hellblau -->
-                <SplineColorKeyFrame KeyTime="00:00:00.2000000" Value="{ThemeResource DialogCloseButtonShape3HighlightColor}"/> <!-- sehr hellblau, fast grau -->
+                <SplineColorKeyFrame KeyTime="00:00:00" Value="{ThemeResource DialogCloseButtonShape3Color}"/>
+                <!-- Dreckig hellblau -->
+                <SplineColorKeyFrame KeyTime="00:00:00.2000000" Value="{ThemeResource DialogCloseButtonShape3HighlightColor}"/>
+                <!-- sehr hellblau, fast grau -->
               </ColorAnimationUsingKeyFrames>
             </Storyboard>
           </ControlTemplate.Resources>
@@ -1149,9 +1151,9 @@
     </Setter>
   </Style>
 
-  
+
   <!-- global buttons -->
-  
+
   <Style x:Key="WindowCloseButtonStyle" BasedOn="{ThemeResource BasePlayerControlButtonStyle}">
     <Style.Resources>
       <ResourceWrapper x:Key="ContentControlTemplate" Resource="{ThemeResource WindowCloseControlTemplate}" />
@@ -1229,7 +1231,7 @@
     </Setter>
   </Style>
 
-<!-- To be removed
+  <!-- To be removed
   <!- ***************************** Zoom buttons ******************************** ->
 
   <Storyboard x:Key="FocusedZoomButtonStoryBoard" FillBehavior="Stop">
