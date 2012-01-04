@@ -81,6 +81,7 @@ namespace MediaPortal.Common.Services.ResourceAccess
 
     public ResourceAccessModule()
     {
+      AddDefaultMimeTypes();
       IThreadPool threadPool = ServiceRegistration.Get<IThreadPool>();
       threadPool.AddIntervalWork(new IntervalWork(TidyUpResourceAccessorCache, CACHE_CLEANUP_INTERVAL), false);
     }
