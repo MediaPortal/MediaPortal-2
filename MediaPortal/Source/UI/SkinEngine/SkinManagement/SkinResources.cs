@@ -409,7 +409,7 @@ namespace MediaPortal.UI.SkinEngine.SkinManagement
           try
           {
             logger.Info("SkinResources: Loading style resource '{0}' from file '{1}'", resourceKey, pr.ResourcePath);
-            object o = XamlLoader.Load(pr.ResourcePath, new StyleResourceModelLoader(this));
+            object o = XamlLoader.Load(pr.ResourcePath, this, new StyleResourceModelLoader(this));
             ResourceDictionary rd = o as ResourceDictionary;
             if (rd == null)
             {

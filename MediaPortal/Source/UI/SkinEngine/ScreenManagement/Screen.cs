@@ -33,6 +33,7 @@ using MediaPortal.Common;
 using MediaPortal.Common.General;
 using MediaPortal.UI.Presentation.Actions;
 using MediaPortal.UI.Presentation.Screens;
+using MediaPortal.UI.Presentation.SkinResources;
 using MediaPortal.UI.SkinEngine.Controls.Visuals;
 using MediaPortal.UI.SkinEngine.Controls.Visuals.Triggers;
 using MediaPortal.UI.SkinEngine.InputManagement;
@@ -207,13 +208,9 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
     /// Initializes this instance.
     /// </summary>
     /// <param name="resourceName">The logical screen name.</param>
-    /// <param name="skinWidth">Native width of the skin providing this screen.</param>
-    /// <param name="skinHeight">Native height of the skin providing this screen.</param>
-    public void Initialize(string resourceName, int skinWidth, int skinHeight)
+    public void Initialize(string resourceName)
     {
       _resourceName = resourceName;
-      _skinWidth = skinWidth;
-      _skinHeight = skinHeight;
       SkinContext.WindowSizeProperty.Attach(OnWindowSizeChanged);
       InitializeRenderContext();
     }
@@ -803,6 +800,26 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
       return endTime;
     }
 
+    public void ScheduleSetFocus(FrameworkElement element, SetFocusPriority setFocusPriority)
+    {
+      if (_scheduledFocus.ContainsKey(setFocusPriority))
+        return;
+      _scheduledFocus[setFocusPriority] = new ScheduledFocus(element);
+    }
+
+    public override void FinishInitialization(IParserContext context)
+    {
+      base.FinishInitialization(context);
+      ISkinResourceBundle resourceBundle = (ISkinResourceBundle) context.GetContextVariable(typeof(ISkinResourceBundle));
+      // This resourceBundle is the resource bundle where the screen itself is located. It is necessary to use the resource bundle
+      // of the skin where the screen file which contains the <Screen> element is located and NOT the resource bundle of the
+      // screen which is being loaded by the ScreenManager, because the skin file with the <Screen> element might be included
+      // into that screen which is being loaded by the ScreenManager.
+      // We need the correct resource bundle to get the native size of the skin which defines the <Screen> element.
+      _skinWidth = resourceBundle.SkinWidth;
+      _skinHeight = resourceBundle.SkinHeight;
+    }
+
     public override void AddChildren(ICollection<UIElement> childrenOut)
     {
       if (_root != null)
@@ -851,12 +868,5 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
     }
 
     #endregion
-
-    public void ScheduleSetFocus(FrameworkElement element, SetFocusPriority setFocusPriority)
-    {
-      if (_scheduledFocus.ContainsKey(setFocusPriority))
-        return;
-      _scheduledFocus[setFocusPriority] = new ScheduledFocus(element);
-    }
   }
 }

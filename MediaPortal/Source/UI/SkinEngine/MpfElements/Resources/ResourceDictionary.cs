@@ -26,6 +26,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using MediaPortal.Common.General;
+using MediaPortal.UI.Presentation.SkinResources;
 using MediaPortal.UI.SkinEngine.Controls.Visuals;
 using MediaPortal.UI.SkinEngine.Xaml;
 using MediaPortal.UI.SkinEngine.Xaml.Exceptions;
@@ -359,10 +360,11 @@ namespace MediaPortal.UI.SkinEngine.MpfElements.Resources
       base.FinishInitialization(context);
       if (!string.IsNullOrEmpty(_source))
       {
-        string sourceFilePath = SkinContext.SkinResources.GetResourceFilePath(_source);
+        ISkinResourceBundle resourceBundle;
+        string sourceFilePath = SkinContext.SkinResources.GetResourceFilePath(_source, true, out resourceBundle);
         if (sourceFilePath == null)
           throw new XamlLoadException("Could not open ResourceDictionary source file '{0}' (evaluated path is '{1}')", _source, sourceFilePath);
-        object obj = XamlLoader.Load(sourceFilePath, (IModelLoader) context.GetContextVariable(typeof(IModelLoader)));
+        object obj = XamlLoader.Load(sourceFilePath, resourceBundle, (IModelLoader) context.GetContextVariable(typeof(IModelLoader)));
         ResourceDictionary mergeDict = obj as ResourceDictionary;
         if (mergeDict == null)
         {

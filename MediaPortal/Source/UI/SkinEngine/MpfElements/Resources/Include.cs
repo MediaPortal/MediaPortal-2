@@ -23,6 +23,7 @@
 #endregion
 
 using System;
+using MediaPortal.UI.Presentation.SkinResources;
 using MediaPortal.UI.SkinEngine.Xaml.Exceptions;
 using MediaPortal.UI.SkinEngine.Xaml;
 using MediaPortal.UI.SkinEngine.Xaml.Interfaces;
@@ -100,10 +101,11 @@ namespace MediaPortal.UI.SkinEngine.MpfElements.Resources
 
     public void FinishInitialization(IParserContext context)
     {
-      string includeFilePath = SkinContext.SkinResources.GetResourceFilePath(_includeName);
+      ISkinResourceBundle resourceBundle;
+      string includeFilePath = SkinContext.SkinResources.GetResourceFilePath(_includeName, true, out resourceBundle);
       if (includeFilePath == null)
         throw new XamlLoadException("Include: Could not open include file '{0}' (evaluated path is '{1}')", _includeName, includeFilePath);
-      _content = XamlLoader.Load(includeFilePath, (IModelLoader) context.GetContextVariable(typeof(IModelLoader)));
+      _content = XamlLoader.Load(includeFilePath, resourceBundle, (IModelLoader) context.GetContextVariable(typeof(IModelLoader)));
       if (_content is UIElement)
       {
         UIElement target = (UIElement) _content;

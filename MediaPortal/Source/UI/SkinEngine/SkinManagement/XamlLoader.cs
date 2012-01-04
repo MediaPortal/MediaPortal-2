@@ -25,6 +25,7 @@
 using System;
 using System.IO;
 using System.Reflection;
+using MediaPortal.UI.Presentation.SkinResources;
 using MediaPortal.UI.SkinEngine.Xaml.Exceptions;
 using MediaPortal.UI.SkinEngine.Xaml;
 using MediaPortal.UI.SkinEngine.Controls.Visuals;
@@ -43,15 +44,16 @@ namespace MediaPortal.UI.SkinEngine.SkinManagement
     /// Loads the specified skin file and returns the root UIElement.
     /// </summary>
     /// <param name="skinFilePath">The path to the XAML skin file.</param>
+    /// <param name="actualResourceBundle">Resource bundle which contains the skin file with the given path.</param>
     /// <param name="loader">Loader callback for GUI models.</param>
     /// <returns><see cref="UIElement"/> descendant corresponding to the root element in the
     /// specified skin file.</returns>
-    public static object Load(string skinFilePath, IModelLoader loader)
+    public static object Load(string skinFilePath, ISkinResourceBundle actualResourceBundle, IModelLoader loader)
     {
       try
       {
         using (TextReader reader = new StreamReader(skinFilePath))
-          return Load(reader, loader);
+          return Load(reader, actualResourceBundle, loader);
       }
       catch (XamlLoadException e)
       {
@@ -68,16 +70,18 @@ namespace MediaPortal.UI.SkinEngine.SkinManagement
     /// Loads a skin file from the specified <paramref name="reader"/> and returns the root UIElement.
     /// </summary>
     /// <param name="reader">The reader containing the XAML contents of the skin file.</param>
+    /// <param name="actualResourceBundle">Resource bundle which contains the skin file with the given path.</param>
     /// <param name="loader">Loader callback for GUI models.</param>
     /// <returns><see cref="UIElement"/> descendant corresponding to the root element in the
     /// specified skin file.</returns>
-    public static object Load(TextReader reader, IModelLoader loader)
+    protected static object Load(TextReader reader, ISkinResourceBundle actualResourceBundle, IModelLoader loader)
     {
       try
       {
         Parser parser = new Parser(reader, parser_ImportNamespace, parser_GetEventHandler);
         parser.SetCustomTypeConverter(MPF.ConvertType);
         parser.SetContextVariable(typeof(IModelLoader), loader);
+        parser.SetContextVariable(typeof(ISkinResourceBundle), actualResourceBundle);
         return parser.Parse();
       }
       catch (Exception e)
