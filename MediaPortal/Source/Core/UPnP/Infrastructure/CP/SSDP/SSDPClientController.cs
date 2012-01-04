@@ -147,6 +147,9 @@ namespace UPnP.Infrastructure.CP.SSDP
 
     private void OnSSDPUnicastReceive(IAsyncResult ar)
     {
+      lock (_cpData.SyncObj)
+        if (!_isActive)
+          return;
       UDPAsyncReceiveState<EndpointConfiguration> state = (UDPAsyncReceiveState<EndpointConfiguration>) ar.AsyncState;
       EndpointConfiguration config = state.Endpoint;
       Socket socket = config.SSDP_UDP_UnicastSocket;
