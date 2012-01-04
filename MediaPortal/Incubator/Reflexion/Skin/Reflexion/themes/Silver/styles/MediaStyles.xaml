@@ -459,10 +459,10 @@
   <ControlTemplate x:Key="GridViewFilterItemTemplate">
     <Grid x:Name="ItemControl">
       <Grid.ColumnDefinitions>
-        <ColumnDefinition Width="180"/>
+        <ColumnDefinition Width="244"/>
       </Grid.ColumnDefinitions>
       <Grid.RowDefinitions>
-        <RowDefinition Height="110"/>
+        <RowDefinition Height="150"/>
         <RowDefinition Height="Auto"/>
       </Grid.RowDefinitions>
       <Image x:Name="ItemTypeImage" Grid.Row="0" Grid.Column="0" Stretch="Uniform" Margin="0,0,0,0" Source="FilterLarge.png"
@@ -514,10 +514,10 @@
   <ControlTemplate x:Key="GridViewContainerItemTemplate">
     <Grid x:Name="ItemControl">
       <Grid.ColumnDefinitions>
-        <ColumnDefinition Width="180"/>
+        <ColumnDefinition Width="244"/>
       </Grid.ColumnDefinitions>
       <Grid.RowDefinitions>
-        <RowDefinition Height="110"/>
+        <RowDefinition Height="150"/>
         <RowDefinition Height="Auto"/>
       </Grid.RowDefinitions>
       <Image x:Name="ItemTypeImage" Grid.Row="0" Stretch="Uniform" Source="NavigationLarge.png"
@@ -584,10 +584,10 @@
   <ControlTemplate x:Key="GridViewMovieItemTemplate">
     <Grid x:Name="ItemControl">
       <Grid.ColumnDefinitions>
-        <ColumnDefinition Width="180"/>
+        <ColumnDefinition Width="244"/>
       </Grid.ColumnDefinitions>
       <Grid.RowDefinitions>
-        <RowDefinition Height="110"/>
+        <RowDefinition Height="150"/>
         <RowDefinition Height="Auto"/>
       </Grid.RowDefinitions>
       <Image x:Name="ItemTypeImage" Grid.Row="0" Stretch="Uniform" Source="{Binding MediaItem}"
@@ -639,10 +639,10 @@
   <ControlTemplate x:Key="GridViewMusicItemTemplate">
     <Grid x:Name="ItemControl">
       <Grid.ColumnDefinitions>
-        <ColumnDefinition Width="180"/>
+        <ColumnDefinition Width="244"/>
       </Grid.ColumnDefinitions>
       <Grid.RowDefinitions>
-        <RowDefinition Height="110"/>
+        <RowDefinition Height="150"/>
         <RowDefinition Height="Auto"/>
       </Grid.RowDefinitions>
       <Image x:Name="ItemTypeImage" Grid.Row="0" Stretch="Uniform" Source="MusicLarge.png"
@@ -710,10 +710,10 @@
   <ControlTemplate x:Key="GridViewPictureItemTemplate">
     <Grid x:Name="ItemControl">
       <Grid.ColumnDefinitions>
-        <ColumnDefinition Width="180"/>
+        <ColumnDefinition Width="244"/>
       </Grid.ColumnDefinitions>
       <Grid.RowDefinitions>
-        <RowDefinition Height="110"/>
+        <RowDefinition Height="150"/>
         <RowDefinition Height="Auto"/>
       </Grid.RowDefinitions>
       <!-- For grid layout, we only support large layout size -->
