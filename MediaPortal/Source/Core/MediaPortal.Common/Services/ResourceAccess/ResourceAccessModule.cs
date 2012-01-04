@@ -33,6 +33,7 @@ using HttpServer.Sessions;
 using MediaPortal.Common.Logging;
 using MediaPortal.Common.ResourceAccess;
 using MediaPortal.Common.Threading;
+using MediaPortal.Utilities.SystemAPI;
 
 namespace MediaPortal.Common.Services.ResourceAccess
 {
@@ -75,7 +76,7 @@ namespace MediaPortal.Common.Services.ResourceAccess
       }
     }
 
-    protected readonly IDictionary<string, string> _mimeTypes = new Dictionary<string, string>();
+    protected readonly IDictionary<string, string> _defaultMimeTypes = new Dictionary<string, string>();
     protected readonly IDictionary<string, CachedResource> _resourceAccessorCache = new Dictionary<string, CachedResource>(10);
     protected readonly object _syncObj = new object();
 
@@ -90,9 +91,9 @@ namespace MediaPortal.Common.Services.ResourceAccess
     /// List with all mime-type that are allowed. 
     /// </summary>
     /// <remarks>All other mime types will result in a Forbidden http status code.</remarks>
-    public IDictionary<string, string> MimeTypes
+    public IDictionary<string, string> DefaultMimeTypes
     {
-      get { return _mimeTypes; }
+      get { return _defaultMimeTypes; }
     }
 
     /// <summary>
@@ -100,38 +101,38 @@ namespace MediaPortal.Common.Services.ResourceAccess
     /// </summary>
     protected void AddDefaultMimeTypes()
     {
-      _mimeTypes.Add(".txt", "text/plain");
-      _mimeTypes.Add(".html", "text/html");
-      _mimeTypes.Add(".htm", "text/html");
-      _mimeTypes.Add(".jpg", "image/jpg");
-      _mimeTypes.Add(".jpeg", "image/jpg");
-      _mimeTypes.Add(".bmp", "image/bmp");
-      _mimeTypes.Add(".gif", "image/gif");
-      _mimeTypes.Add(".png", "image/png");
+      _defaultMimeTypes.Add(".txt", "text/plain");
+      _defaultMimeTypes.Add(".html", "text/html");
+      _defaultMimeTypes.Add(".htm", "text/html");
+      _defaultMimeTypes.Add(".jpg", "image/jpg");
+      _defaultMimeTypes.Add(".jpeg", "image/jpg");
+      _defaultMimeTypes.Add(".bmp", "image/bmp");
+      _defaultMimeTypes.Add(".gif", "image/gif");
+      _defaultMimeTypes.Add(".png", "image/png");
 
-      _mimeTypes.Add(".ico", "image/vnd.microsoft.icon");
-      _mimeTypes.Add(".css", "text/css");
-      _mimeTypes.Add(".gzip", "application/x-gzip");
-      _mimeTypes.Add(".zip", "multipart/x-zip");
-      _mimeTypes.Add(".tar", "application/x-tar");
-      _mimeTypes.Add(".pdf", "application/pdf");
-      _mimeTypes.Add(".rtf", "application/rtf");
-      _mimeTypes.Add(".xls", "application/vnd.ms-excel");
-      _mimeTypes.Add(".ppt", "application/vnd.ms-powerpoint");
-      _mimeTypes.Add(".doc", "application/application/msword");
-      _mimeTypes.Add(".js", "application/javascript");
-      _mimeTypes.Add(".au", "audio/basic");
-      _mimeTypes.Add(".snd", "audio/basic");
-      _mimeTypes.Add(".es", "audio/echospeech");
-      _mimeTypes.Add(".mp3", "audio/mpeg");
-      _mimeTypes.Add(".mp2", "audio/mpeg");
-      _mimeTypes.Add(".mid", "audio/midi");
-      _mimeTypes.Add(".wav", "audio/x-wav");
-      _mimeTypes.Add(".swf", "application/x-shockwave-flash");
-      _mimeTypes.Add(".avi", "video/avi");
-      _mimeTypes.Add(".rm", "audio/x-pn-realaudio");
-      _mimeTypes.Add(".ram", "audio/x-pn-realaudio");
-      _mimeTypes.Add(".aif", "audio/x-aiff");
+      _defaultMimeTypes.Add(".ico", "image/vnd.microsoft.icon");
+      _defaultMimeTypes.Add(".css", "text/css");
+      _defaultMimeTypes.Add(".gzip", "application/x-gzip");
+      _defaultMimeTypes.Add(".zip", "multipart/x-zip");
+      _defaultMimeTypes.Add(".tar", "application/x-tar");
+      _defaultMimeTypes.Add(".pdf", "application/pdf");
+      _defaultMimeTypes.Add(".rtf", "application/rtf");
+      _defaultMimeTypes.Add(".xls", "application/vnd.ms-excel");
+      _defaultMimeTypes.Add(".ppt", "application/vnd.ms-powerpoint");
+      _defaultMimeTypes.Add(".doc", "application/application/msword");
+      _defaultMimeTypes.Add(".js", "application/javascript");
+      _defaultMimeTypes.Add(".au", "audio/basic");
+      _defaultMimeTypes.Add(".snd", "audio/basic");
+      _defaultMimeTypes.Add(".es", "audio/echospeech");
+      _defaultMimeTypes.Add(".mp3", "audio/mpeg");
+      _defaultMimeTypes.Add(".mp2", "audio/mpeg");
+      _defaultMimeTypes.Add(".mid", "audio/midi");
+      _defaultMimeTypes.Add(".wav", "audio/x-wav");
+      _defaultMimeTypes.Add(".swf", "application/x-shockwave-flash");
+      _defaultMimeTypes.Add(".avi", "video/avi");
+      _defaultMimeTypes.Add(".rm", "audio/x-pn-realaudio");
+      _defaultMimeTypes.Add(".ram", "audio/x-pn-realaudio");
+      _defaultMimeTypes.Add(".aif", "audio/x-aiff");
     }
 
     protected IResourceAccessor GetResourceAccessor(ResourcePath resourcePath)
@@ -285,6 +286,19 @@ namespace MediaPortal.Common.Services.ResourceAccess
       return true;
     }
 
+    protected string GuessMimeType(Stream resourceStream, string fileName)
+    {
+      string mimeType = MimeTypeDetector.GetMimeType(resourceStream);
+      resourceStream.Seek(0, SeekOrigin.Begin);
+      if (mimeType != null)
+        return mimeType;
+      string extension = GetFileExtension(fileName);
+      string contentType;
+      if (extension != null && _defaultMimeTypes.TryGetValue(extension, out contentType))
+        return contentType;
+      return DEFAULT_MIME_TYPE;
+    }
+
     /// <summary>
     /// Method that processes the Uri.
     /// </summary>
@@ -308,18 +322,13 @@ namespace MediaPortal.Common.Services.ResourceAccess
         throw new ForbiddenException(string.Format("Access of resource '{0}' not allowed", resourcePath));
       }
 
-      string extension = GetFileExtension(resourcePath.FileName);
       try
       {
-        string contentType;
-        if (extension != null && _mimeTypes.TryGetValue(extension, out contentType))
-          response.ContentType = contentType;
-        else
-          response.ContentType = DEFAULT_MIME_TYPE;
-
         IResourceAccessor ra = GetResourceAccessor(resourcePath);
         using (Stream resourceStream = ra.OpenRead())
         {
+          response.ContentType = GuessMimeType(resourceStream, resourcePath.FileName);
+
           if (!string.IsNullOrEmpty(request.Headers["If-Modified-Since"]))
           {
             DateTime lastRequest = DateTime.Parse(request.Headers["If-Modified-Since"]);
