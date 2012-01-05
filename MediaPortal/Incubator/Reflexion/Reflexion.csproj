@@ -187,6 +187,7 @@
   <ItemGroup>
     <Content Include="plugin.xml" />
     <Content Include="Skin\Reflexion\images\defaultBackground.png" />
+    <Content Include="Skin\Reflexion\themes\Silver\images\Controls\HomeTextbar.png" />
     <Content Include="Skin\Reflexion\themes\Silver\images\Controls\Layer 11.png" />
     <Content Include="Skin\Reflexion\themes\Silver\images\Controls\Layer 13.png" />
     <Content Include="Skin\Reflexion\themes\Silver\images\Controls\Layer 14 copy.png" />
