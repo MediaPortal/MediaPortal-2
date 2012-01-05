@@ -18,21 +18,32 @@
 
   <ResourceWrapper x:Key="WindowHeaderColor" Resource="White"/>
 
-  <ResourceWrapper x:Key="DialogBackgroundGradient1Color" Resource="#EFB0B0B0"/>
+  <!-- Semi transparent black used to darken the background when showing a dialog -->
+  <ResourceWrapper x:Key="DialogScreenBackgroundColor">
+    <RadialGradientBrush GradientOrigin="0.5,0.5">
+      <GradientStop Color="#FF000000" Offset="0"/>
+      <GradientStop Color="#A0000000" Offset="0.3"/>
+      <GradientStop Color="#40000000" Offset="1"/>
+    </RadialGradientBrush>
+  </ResourceWrapper>
+  
+  <ResourceWrapper x:Key="DialogHeaderBackgroundBrush">
+    <LinearGradientBrush StartPoint="0.5,0" EndPoint="0.5,1">
+      <GradientStop Offset="0"    Color="#40000000"/>
+      <GradientStop Offset="0.85" Color="#E0000000"/>
+      <GradientStop Offset="0.9"  Color="#A0E0E0E0"/>
+      <GradientStop Offset="0.95" Color="#A0000000"/>
+    </LinearGradientBrush >
+  </ResourceWrapper>
 
-  <ResourceWrapper x:Key="DialogBackgroundGradient2Color" Resource="#EF909090"/>
+  <ResourceWrapper x:Key="DialogBackgroundGradient1Color" Resource="#F0A0A0A0"/>
+  <ResourceWrapper x:Key="DialogBackgroundGradient2Color" Resource="#F0333644"/>
 
-  <ResourceWrapper x:Key="DialogBorderColor">
-    <ResourceWrapper.Resource>
-      <LinearGradientBrush StartPoint="0.5,0" EndPoint="0.5,1">
-        <GradientStop Offset="0" Color="#40505050"/>
-        <GradientStop Offset="0.5" Color="#A0808080"/>
-        <GradientStop Offset="1" Color="#40505050"/>
-      </LinearGradientBrush >
-    </ResourceWrapper.Resource>
-  </ResourceWrapper> 
+  <ResourceWrapper x:Key="DialogBorderGradient1Color" Resource="#40505050"/>
+  <ResourceWrapper x:Key="DialogBorderGradient2Color" Resource="#A0808080"/>
+  <ResourceWrapper x:Key="DialogBorderGradient3Color" Resource="#40505050"/>
 
-  <ResourceWrapper x:Key="DialogHeaderColor" Resource="#FF3F5768"/>
+  <ResourceWrapper x:Key="DialogHeaderColor" Resource="#FFF0F0F0"/>
 
   <ResourceWrapper x:Key="TextColor" Resource="White"/>
 

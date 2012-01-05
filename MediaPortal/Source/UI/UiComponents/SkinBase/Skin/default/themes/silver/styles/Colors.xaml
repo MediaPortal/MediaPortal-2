@@ -20,9 +20,9 @@
   <ResourceWrapper x:Key="FooterPanelBackgroundGradient2Color" Resource="#30000000"/>
   <ResourceWrapper x:Key="FooterPanelBackgroundGradient3Color" Resource="#10000000"/>
 
-  <ResourceWrapper x:Key="DialogBackgroundGradient1Color" Resource="#EFB0B0B0"/>
+  <ResourceWrapper x:Key="DialogBackgroundGradient1Color" Resource="#A0B0B0B0"/>
 
-  <ResourceWrapper x:Key="DialogBackgroundGradient2Color" Resource="#EF909090"/>
+  <ResourceWrapper x:Key="DialogBackgroundGradient2Color" Resource="#A0606060"/>
 
   <ResourceWrapper x:Key="DialogBorderGradient1Color" Resource="#40505050"/>
   <ResourceWrapper x:Key="DialogBorderGradient2Color" Resource="#A0808080"/>
