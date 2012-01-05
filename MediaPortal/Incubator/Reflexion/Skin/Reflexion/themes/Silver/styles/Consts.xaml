@@ -3,6 +3,8 @@
     xmlns="www.team-mediaportal.com/2008/mpf/directx"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     >
+
+  <!-- General font sizes -->
   <ResourceWrapper x:Key="HeaderFontSize" Resource="56"/>
   <ResourceWrapper x:Key="DialogTitleFontSize" Resource="30"/>
 
@@ -12,6 +14,10 @@
   <ResourceWrapper x:Key="SmallFontSize" Resource="24"/>
   <ResourceWrapper x:Key="SmallerFontSize" Resource="22"/>
   <ResourceWrapper x:Key="TinyFontSize" Resource="14"/>
+
+  <!-- Screen transitions -->
+  <ResourceWrapper x:Key="ScreenTransitionEndTime" Resource="00:00:00.20"/>
+  <ResourceWrapper x:Key="DialogTransitionEndTime" Resource="00:00:00.20"/>
 
   <ResourceWrapper x:Key="ButtonRadius" Resource="2"/>
   
