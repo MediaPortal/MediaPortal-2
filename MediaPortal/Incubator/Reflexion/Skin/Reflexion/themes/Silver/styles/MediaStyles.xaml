@@ -92,9 +92,9 @@
                 <DockPanel LastChildFill="true" Margin="3">
                   <Grid DockPanel.Dock="Center" HorizontalAlignment="Stretch">
                     <Grid.ColumnDefinitions>
-                      <ColumnDefinition Width="80"/>
+                      <ColumnDefinition Width="180"/>
                       <ColumnDefinition Width="*"/>
-                      <ColumnDefinition Width="80"/>
+                      <ColumnDefinition Width="180"/>
                     </Grid.ColumnDefinitions>
                     <Grid.RowDefinitions>
                       <RowDefinition Height="Auto"/>
@@ -240,9 +240,9 @@
                 <DockPanel LastChildFill="true" Margin="3">
                   <Grid DockPanel.Dock="Center" HorizontalAlignment="Stretch">
                     <Grid.ColumnDefinitions>
-                      <ColumnDefinition Width="80"/>
+                      <ColumnDefinition Width="180"/>
                       <ColumnDefinition Width="*"/>
-                      <ColumnDefinition Width="80"/>
+                      <ColumnDefinition Width="180"/>
                     </Grid.ColumnDefinitions>
                     <Grid.RowDefinitions>
                       <RowDefinition Height="Auto"/>

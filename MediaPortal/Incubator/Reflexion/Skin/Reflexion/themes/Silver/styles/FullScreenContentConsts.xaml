@@ -4,11 +4,9 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:mp_special_controls="clr-namespace:MediaPortal.UI.SkinEngine.SpecialElements.Controls"
     >
-  <ResourceWrapper x:Key="FullScreenContentVideoPrimaryPlayerOSDWidth" Resource="768"/>
-  <ResourceWrapper x:Key="FullScreenContentVideoSecondaryPlayerOSDPipHeight" Resource="108"/>
-  <ResourceWrapper x:Key="FullScreenContentVideoSecondaryPlayerOSDTextMaxWidth" Resource="200"/>
-
-  <ResourceWrapper x:Key="FullScreenContentPicturePrimaryPlayerOSDWidth" Resource="768"/>
+  <ResourceWrapper x:Key="FullScreenContentVideoPrimaryPlayerOSDWidth" Resource="1100"/>
+  <ResourceWrapper x:Key="FullScreenContentVideoSecondaryPlayerOSDPipHeight" Resource="256"/>
+  <ResourceWrapper x:Key="FullScreenContentVideoSecondaryPlayerOSDTextMaxWidth" Resource="300"/>
 
   <ResourceWrapper x:Key="VideoButtonFrameStrokeThickness" Resource="1"/>
 </ResourceDictionary>
