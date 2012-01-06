@@ -961,7 +961,7 @@
     <Setter Property="BorderThickness" Value="{ThemeResource DefaultPlayerControlBorderThickness}"/>
     <Setter Property="CornerRadius" Value="{ThemeResource DefaultPlayerControlCornerRadius}"/>
     <Setter Property="HeaderColor" Value="{ThemeResource PlayerControlTitleColor}"/>
-    <Setter Property="FontSize" Value="{ThemeResource SmallFontSize}"/>
+    <Setter Property="FontSize" Value="{ThemeResource PlayerControlFontSize}"/>
   </Style>
 
   <Storyboard x:Key="NavigationScreenCurrentPlayerControlStoryboard" FillBehavior="Stop">

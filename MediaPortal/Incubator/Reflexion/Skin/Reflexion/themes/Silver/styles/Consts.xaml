@@ -35,6 +35,8 @@
   <ResourceWrapper x:Key="DefaultPlayerControlCornerRadius" Resource="2"/>
   <ResourceWrapper x:Key="OSDPlayControlBorderThickness" Resource="1"/>
   <ResourceWrapper x:Key="OSDPlayControlCornerRadius" Resource="2"/>
+  <ResourceWrapper x:Key="PlayerControlFontSize" Resource="{ThemeResource SmallerFontSize}"/>
+
   <ResourceWrapper x:Key="PipBorderThickness" Resource="2"/>
 
   <ResourceWrapper x:Key="PiPVideoWidth" Resource="192"/>
