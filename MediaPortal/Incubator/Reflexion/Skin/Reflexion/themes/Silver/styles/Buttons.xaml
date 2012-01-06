@@ -678,40 +678,36 @@
         <ControlTemplate TargetType="{x:Type Button}">
           <ControlTemplate.Resources>
             <Storyboard x:Key="FocusedStoryboard" FillBehavior="HoldEnd">
-              <ColorAnimationUsingKeyFrames BeginTime="00:00:00" Storyboard.TargetName="ButtonShape" Storyboard.TargetProperty="Fill.GradientStops[1].Color">
+              <ColorAnimationUsingKeyFrames BeginTime="00:00:00" Storyboard.TargetName="ButtonBackground" Storyboard.TargetProperty="Background.GradientStops[1].Color">
                 <SplineColorKeyFrame KeyTime="00:00:00" Value="{ThemeResource DialogCloseButtonShape2Color}"/>
                 <SplineColorKeyFrame KeyTime="00:00:00.2000000" Value="{ThemeResource DialogCloseButtonShape2HighlightColor}"/>
               </ColorAnimationUsingKeyFrames>
-              <ColorAnimationUsingKeyFrames BeginTime="00:00:00" Storyboard.TargetName="ButtonShape" Storyboard.TargetProperty="Fill.GradientStops[2].Color">
+              <ColorAnimationUsingKeyFrames BeginTime="00:00:00" Storyboard.TargetName="CloseSign" Storyboard.TargetProperty="Stroke">
                 <SplineColorKeyFrame KeyTime="00:00:00" Value="{ThemeResource DialogCloseButtonShape3Color}"/>
-                <!-- Dreckig hellblau -->
-                <SplineColorKeyFrame KeyTime="00:00:00.2000000" Value="{ThemeResource DialogCloseButtonShape3HighlightColor}"/>
-                <!-- sehr hellblau, fast grau -->
+                <SplineColorKeyFrame KeyTime="00:00:00.2000000" Value="{ThemeResource DialogCloseButtonCrossColor}"/>
               </ColorAnimationUsingKeyFrames>
             </Storyboard>
           </ControlTemplate.Resources>
-          <Grid Width="48" Height="48">
-            <Ellipse x:Name="ButtonBackground" StrokeThickness="4" Width="48" Height="48">
-              <Ellipse.Fill>
+          <Grid>
+            <Border x:Name="ButtonBackground" BorderThickness="2" Width="34" Height="34" BorderLineJoin="Miter">
+              <Border.BorderBrush>
                 <RadialGradientBrush>
                   <GradientStop Color="{ThemeResource DialogCloseButtonBackgroundRadius1Color}" Offset="0.827"/>
                   <GradientStop Color="{ThemeResource DialogCloseButtonBackgroundRadius2Color}" Offset="0.909"/>
                   <GradientStop Color="{ThemeResource DialogCloseButtonBackgroundRadius3Color}" Offset="1"/>
                 </RadialGradientBrush>
-              </Ellipse.Fill>
-            </Ellipse>
-            <Ellipse x:Name="ButtonShape" StrokeThickness="2" VerticalAlignment="Top" Margin="3.5,3.5,3.5,0" Width="41" Height="41">
-              <Ellipse.Fill>
-                <RadialGradientBrush GradientOrigin="0.499,0.915">
+              </Border.BorderBrush>
+              <Border.Background>
+                <LinearGradientBrush StartPoint="0.5,0" EndPoint="0.5,1">
                   <GradientStop Color="{ThemeResource DialogCloseButtonShape1Color}" Offset="0"/>
                   <GradientStop Color="{ThemeResource DialogCloseButtonShape2Color}" Offset="0.332"/>
                   <GradientStop Color="{ThemeResource DialogCloseButtonShape3Color}" Offset="0.798"/>
                   <GradientStop Color="{ThemeResource DialogCloseButtonShape4Color}" Offset="1"/>
-                </RadialGradientBrush>
-              </Ellipse.Fill>
-            </Ellipse>
-            <Path x:Name="Cross" Stretch="Fill" Stroke="{ThemeResource DialogCloseButtonCrossColor}" StrokeThickness="2" HorizontalAlignment="Left" VerticalAlignment="Top"
-                Margin="15,15,0,0" Width="18" Height="18" Data="M0,20 L20,0 z M0,0 L20,20 z" RenderTransformOrigin="0.5,0.5"/>
+                </LinearGradientBrush>
+              </Border.Background>
+              <Path x:Name="CloseSign" Stretch="Fill" Stroke="{ThemeResource DialogHeaderColor}" StrokeThickness="2" HorizontalAlignment="Left" VerticalAlignment="Top"
+                Margin="6" Width="18" Height="18" Data="M0,20 L20,0 z M0,0 L20,20 z" RenderTransformOrigin="0.5,0.5"/>
+            </Border>
           </Grid>
           <ControlTemplate.Triggers>
             <Trigger Property="HasFocus" Value="True">
