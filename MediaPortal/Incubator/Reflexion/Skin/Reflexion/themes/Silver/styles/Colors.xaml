@@ -244,15 +244,17 @@
   <!-- Transparent white -->
   <ResourceWrapper x:Key="PipBorderColor" Resource="#66FFFFFF"/>
 
-  <ResourceWrapper x:Key="DefaultPlayerControlBorderColor" Resource="#FF999999"/>
-  <ResourceWrapper x:Key="DefaultPlayerControlTitleColor" Resource="#FF999999"/>
-  <ResourceWrapper x:Key="DefaultPlayerControlMediaItemColor" Resource="White"/>
-  <ResourceWrapper x:Key="DefaultPlayerControlBackgroundColor" Resource="#60000000"/>
-  <ResourceWrapper x:Key="DefaultCurrentPlayerControlBorderColor" Resource="#FFDDDDDD"/>
-  <ResourceWrapper x:Key="DefaultCurrentPlayerControlTitleColor" Resource="#FFDDDDDD"/>
-  <ResourceWrapper x:Key="DefaultCurrentPlayerControlBackgroundColor1" Resource="#606D99FF"/>
-  <ResourceWrapper x:Key="DefaultCurrentPlayerControlBackgroundColor2" Resource="#603F92FF"/>
-  <ResourceWrapper x:Key="DefaultCurrentPlayerControlBackgroundColor3" Resource="#6066BFFF"/>
+  <ResourceWrapper x:Key="PlayerControlBorderColor" Resource="#FF7E7E7E"/>
+  <ResourceWrapper x:Key="PlayerControlTitleColor" Resource="#FFBDBDBD"/>
+  <ResourceWrapper x:Key="PlayerControlMediaItemColor" Resource="White"/>
+  <ResourceWrapper x:Key="PlayerControlInactiveMediaItemColor" Resource="DarkGray"/>
+  <ResourceWrapper x:Key="PlayerControlBackgroundColor" Resource="#60000000"/>
+  <ResourceWrapper x:Key="PlayerControlInactiveOpacityMaskColor" Resource="#80000000"/>
+  <ResourceWrapper x:Key="CurrentPlayerControlBorderColor" Resource="#FFC0C0C0"/>
+  <ResourceWrapper x:Key="CurrentPlayerControlTitleColor" Resource="#FFD0D0D0"/>
+  <ResourceWrapper x:Key="CurrentPlayerControlBackgroundColor1" Resource="#60436EB4"/>
+  <ResourceWrapper x:Key="CurrentPlayerControlBackgroundColor2" Resource="#605050AD"/>
+  <ResourceWrapper x:Key="CurrentPlayerControlBackgroundColor3" Resource="#60436EB4"/>
 
   <ResourceWrapper x:Key="WorkflowNavigationBarItemContainerStrokeColor" Resource="DarkGray"/>
   <ResourceWrapper x:Key="FocusedWorkflowNavigationBarItemContainerStrokeColor" Resource="White"/>
