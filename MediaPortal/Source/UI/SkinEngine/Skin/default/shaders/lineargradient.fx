@@ -10,6 +10,7 @@ texture   g_texture; // Color texture
 float     g_opacity;
 float2    g_startpoint = {0.0f, 0.0f};
 float2    g_endpoint = {1.0f, 1.0f};
+float2    g_framesize = {1.0f, 1.0f};
 
 sampler TextureSampler = sampler_state
 {
@@ -38,8 +39,8 @@ struct PS_Output
 
 float GetColor(float2 pos)
 {
-  float2 vPos = pos-g_startpoint;
-  float2 vDist = g_endpoint-g_startpoint;
+  float2 vPos = (pos-g_startpoint) * g_framesize;
+  float2 vDist = (g_endpoint-g_startpoint) * g_framesize;
   float dist = dot(vPos, vDist) / dot(vDist, vDist);
 
   return dist;

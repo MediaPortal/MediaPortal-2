@@ -44,6 +44,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
     protected const string PARAM_OPACITY = "g_opacity";
     protected const string PARAM_STARTPOINT = "g_startpoint";
     protected const string PARAM_ENDPOINT = "g_endpoint";
+    protected const string PARAM_FRAMESIZE = "g_framesize";
 
     protected const string PARAM_ALPHATEX = "g_alphatex";
     protected const string PARAM_UPPERVERTSBOUNDS = "g_uppervertsbounds";
@@ -60,6 +61,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
     protected GradientBrushTexture _gradientBrushTexture;
     protected float[] g_startpoint;
     protected float[] g_endpoint;
+    protected float[] g_framesize;
     protected volatile bool _refresh = false;
 
     #endregion
@@ -174,6 +176,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
           g_endpoint[0] /= _vertsBounds.Width;
           g_endpoint[1] /= _vertsBounds.Height;
         }
+        g_framesize = new float[] {_vertsBounds.Width, _vertsBounds.Height};
+
         if (RelativeTransform != null)
         {
           Matrix m = RelativeTransform.GetTransform();
@@ -182,6 +186,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
         }
       }
 
+      _effect.Parameters[PARAM_FRAMESIZE] = g_framesize;
       _effect.Parameters[PARAM_TRANSFORM] = GetCachedFinalBrushTransform();
       _effect.Parameters[PARAM_OPACITY] = (float) (Opacity * renderContext.Opacity);
       _effect.Parameters[PARAM_STARTPOINT] = g_startpoint;
@@ -217,6 +222,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
           g_endpoint[0] /= _vertsBounds.Width;
           g_endpoint[1] /= _vertsBounds.Height;
         }
+        g_framesize = new float[] {_vertsBounds.Width, _vertsBounds.Height};
 
         if (RelativeTransform != null)
         {
@@ -233,6 +239,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
       _effect.Parameters[PARAM_OPACITY] = (float) (Opacity * renderContext.Opacity);
       _effect.Parameters[PARAM_STARTPOINT] = g_startpoint;
       _effect.Parameters[PARAM_ENDPOINT] = g_endpoint;
+      _effect.Parameters[PARAM_FRAMESIZE] = g_framesize;
       _effect.Parameters[PARAM_ALPHATEX] = _gradientBrushTexture.Texture;
       _effect.Parameters[PARAM_UPPERVERTSBOUNDS] = g_UpperVertsBounds;
       _effect.Parameters[PARAM_LOWERVERTSBOUNDS] = g_LowerVertsBounds;
