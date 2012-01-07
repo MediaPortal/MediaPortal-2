@@ -64,9 +64,7 @@
     <ResourceWrapper.Resource>
       <Canvas Grid.Column="0" Grid.Row="0" VerticalAlignment="Stretch" HorizontalAlignment="Stretch">
         <Canvas.Background>
-          <!-- original gradient endpoint, temporary replaced until MPF is fixed 
-          <LinearGradientBrush StartPoint="1,0" EndPoint="0.65,0.65">-->
-          <LinearGradientBrush StartPoint="1,0" EndPoint="0.4,0.3">
+          <LinearGradientBrush StartPoint="1,0" EndPoint="0.65,0.65">
             <GradientStop Offset="0" Color="#4AFFFFFF"/>
             <GradientStop Offset="0.961" Color="#40FFFFFF"/>
             <GradientStop Offset="1" Color="#00FFFFFF"/>
