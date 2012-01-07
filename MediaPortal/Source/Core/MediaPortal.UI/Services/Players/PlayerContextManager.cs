@@ -631,7 +631,7 @@ namespace MediaPortal.UI.Services.Players
               playerManager.AudioSlotIndex = PlayerManagerConsts.PRIMARY_SLOT;
             }
             break;
-            default:
+          default:
             // Don't enable concurrent controllers: Close all except the primary slot controller
             playerManager.CloseAllSlots();
             playerManager.OpenSlot(out slotIndex, out slotController);

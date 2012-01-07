@@ -557,17 +557,20 @@ namespace MediaPortal.UI.Services.Players
 
     public void Stop()
     {
+      bool setStopped;
       lock (SyncObj)
       {
         CheckActive();
-        if (_slotState != PlayerSlotState.Stopped)
-        {
+        setStopped = _slotState != PlayerSlotState.Stopped;
+        if (setStopped)
           SetSlotState(PlayerSlotState.Stopped);
+      }
+      // Simply discard the player - we'll send the PlayerStopped event later in this method
+      ReleasePlayer_NoLock();
+      lock (SyncObj)
+        if (setStopped)
           // We need to simulate the PlayerStopped event, as the ReleasePlayer_NoLock() method discards all further player events
           PlayerManagerMessaging.SendPlayerMessage(PlayerManagerMessaging.MessageType.PlayerStopped, this);
-        }
-      }
-      ReleasePlayer_NoLock();
     }
 
     public void Reset()

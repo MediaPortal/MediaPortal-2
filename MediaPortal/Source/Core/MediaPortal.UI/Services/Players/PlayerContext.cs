@@ -384,11 +384,11 @@ namespace MediaPortal.UI.Services.Players
       IPlayerSlotController psc = _slotController;
       if (psc == null)
         return;
-      psc.Stop();
       IPlaylist playlist;
       lock (SyncObj)
         playlist = _playlist;
       playlist.ResetStatus();
+      psc.Stop();
     }
 
     public void Pause()
