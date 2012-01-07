@@ -466,11 +466,18 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
       base.BringIntoView(element, elementBounds);
     }
 
+    /// <summary>
+    /// Summarizes the extends of the given <paramref name="lines"/> in non-orientation direction.
+    /// </summary>
+    /// <param name="lines">Lines to summarize.</param>
+    /// <param name="startIndex">Index of the first line, inclusive.</param>
+    /// <param name="endIndex">Index of the last line, exclusive.</param>
+    /// <returns></returns>
     protected float SumActualLineExtendsInNonOrientationDirection(IList<LineMeasurement> lines, int startIndex, int endIndex)
     {
       int numLines = lines.Count;
       CalcHelper.Bound(ref startIndex, 0, numLines - 1);
-      CalcHelper.Bound(ref endIndex, 0, numLines - 1);
+      CalcHelper.Bound(ref endIndex, 0, numLines); // End index is exclusive
       if (startIndex == endIndex || numLines == 0)
         return 0;
       bool invert = startIndex > endIndex;
@@ -954,12 +961,12 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
 
     public virtual float ViewPortStartX
     {
-      get { return Orientation == Orientation.Horizontal ? 0 : SumActualLineExtendsInNonOrientationDirection(_arrangedLines, 0, _actualFirstVisibleLineIndex - 1); }
+      get { return Orientation == Orientation.Horizontal ? 0 : SumActualLineExtendsInNonOrientationDirection(_arrangedLines, 0, _actualFirstVisibleLineIndex); }
     }
 
     public virtual float ViewPortStartY
     {
-      get { return Orientation == Orientation.Vertical ? 0 : SumActualLineExtendsInNonOrientationDirection(_arrangedLines, 0, _actualFirstVisibleLineIndex - 1); }
+      get { return Orientation == Orientation.Vertical ? 0 : SumActualLineExtendsInNonOrientationDirection(_arrangedLines, 0, _actualFirstVisibleLineIndex); }
     }
 
     public virtual bool IsViewPortAtTop

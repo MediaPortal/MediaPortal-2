@@ -223,10 +223,18 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
       return orientation == Orientation.Vertical ? size.Width : size.Height;
     }
 
+    /// <summary>
+    /// Summarizes the extends of the given <paramref name="elements"/> in orientation direction.
+    /// </summary>
+    /// <param name="elements">Elements to summarize.</param>
+    /// <param name="orientation">Orientation in which the extends should be summarized.</param>
+    /// <param name="startIndex">Index of the first element, inclusive.</param>
+    /// <param name="endIndex">Index of the last element, exclusive.</param>
+    /// <returns></returns>
     protected static double SumActualExtendsInOrientationDirection(IList<FrameworkElement> elements, Orientation orientation, int startIndex, int endIndex)
     {
       CalcHelper.Bound(ref startIndex, 0, elements.Count-1);
-      CalcHelper.Bound(ref endIndex, 0, elements.Count-1);
+      CalcHelper.Bound(ref endIndex, 0, elements.Count); // End index is exclusive
       if (startIndex == endIndex || elements.Count == 0)
         return 0;
       bool invert = startIndex > endIndex;
