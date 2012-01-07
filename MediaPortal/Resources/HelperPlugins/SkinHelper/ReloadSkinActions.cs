@@ -25,6 +25,8 @@
 using MediaPortal.Common;
 using MediaPortal.UI.Control.InputManager;
 using MediaPortal.UI.Presentation.Screens;
+using MediaPortal.UI.Presentation.SkinResources;
+using MediaPortal.UI.SkinEngine.SkinManagement;
 
 namespace MediaPortal.Helpers.SkinHelper
 {
@@ -73,11 +75,23 @@ namespace MediaPortal.Helpers.SkinHelper
       screenManager.SwitchSkinAndTheme(_skinName, _themeName);
     }
 
-    void SaveSkinAndThemeAction()
+    protected static void FindSkinAndTheme(out Skin skin, out Theme theme)
     {
       IScreenManager screenManager = ServiceRegistration.Get<IScreenManager>();
-      _skinName = screenManager.SkinName;
-      _themeName = screenManager.ThemeName;
+      ISkinResourceBundle bundle = screenManager.CurrentSkinResourceBundle;
+      theme = bundle as Theme;
+      skin = bundle as Skin;
+      if (theme != null)
+        skin = bundle.InheritedSkinResources as Skin;
+    }
+
+    void SaveSkinAndThemeAction()
+    {
+      Skin skin;
+      Theme theme;
+      FindSkinAndTheme(out skin, out theme);
+      _skinName = skin.Name;
+      _themeName = theme.Name;
     }
   }
 }
