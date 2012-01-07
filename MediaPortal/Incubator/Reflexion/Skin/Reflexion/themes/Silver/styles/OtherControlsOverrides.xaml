@@ -27,7 +27,10 @@
             <Button.Triggers>
               <Trigger Property="HasFocus" Value="True">
                 <Setter TargetName="ItemLabel" Property="Scroll" Value="Auto"/>
+                <Setter TargetName="ItemLabel" Property="HorizontalAlignment" Value="Left"/>
+                <Setter TargetName="ItemLabel" Property="Margin" Value="30,0,0,0"/>
                 <Setter TargetName="HoverControl" Property="IsVisible" Value="True"/>
+                <Setter TargetName="ItemControl" Property="Width" Value="640"/> <!-- auto -->
               </Trigger>
             </Button.Triggers>
           </Button>
@@ -38,9 +41,16 @@
 
   <!-- Menu template -->
   <DataTemplate x:Key="MainMenuItemDataTemplateHover">
-    <DockPanel x:Name="ItemControl" LastChildFill="False" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Height="800">
-
-      <Control x:Name="HoverControl" IsVisible="False" Margin="0,150,0,0"
+    <Grid x:Name="ItemControl" Width="285" Height="800">
+      <Grid.ColumnDefinitions>
+        <ColumnDefinition Width="*"/>
+      </Grid.ColumnDefinitions>
+      <Grid.RowDefinitions>
+        <RowDefinition Height="335"/>
+        <RowDefinition Height="Auto"/>
+        <RowDefinition Height="*"/>
+      </Grid.RowDefinitions>
+      <Control Grid.Row="0" Grid.Column="0" Grid.RowSpan="3" x:Name="HoverControl" IsVisible="False" Margin="0,150,0,0"
                Style="{ThemeResource ReflexionControl}" 
                DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}"
                VerticalAlignment="Stretch" HorizontalAlignment="Stretch" DockPanel.Dock="Center">
@@ -67,8 +77,8 @@
           </ControlTemplate>
         </Control.Resources>
       </Control>
-      <Label x:Name="ItemLabel" Margin="30,335,0,0" DockPanel.Dock="Center" Content="{Binding [Name]}" FontSize="{ThemeResource BigFontSize}" Color="{ThemeResource TextColor}"/>
-    </DockPanel>
+      <Label Grid.Row="1" Grid.Column="0" x:Name="ItemLabel" HorizontalAlignment="Center" Content="{Binding [Name]}" FontSize="{ThemeResource BigFontSize}" Color="{ThemeResource TextColor}"/>
+    </Grid>
   </DataTemplate>
 
   <Style x:Key="MainMenuScrollViewerStyle" TargetType="{x:Type ScrollViewer}">
@@ -85,8 +95,7 @@
               <RowDefinition Height="*"/>
             </Grid.RowDefinitions>
             <!-- Content -->
-            <ScrollContentPresenter Grid.Row="0" Grid.Column="1" Grid.ZIndex="100"
-                VerticalAlignment="Stretch" HorizontalAlignment="Stretch"/>
+            <ScrollContentPresenter Grid.Row="0" Grid.Column="1" Grid.ZIndex="100" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"/>
 
             <Label IsVisible="{TemplateBinding ScrollBarXVisible}" Margin="0,340,0,0" Grid.Row="0" Grid.Column="0" Content="&lt;" FontSize="{ThemeResource BigFontSize}" Color="{ThemeResource TextColor}"/>
             <Label IsVisible="{TemplateBinding ScrollBarXVisible}" Margin="0,340,0,0" Grid.Row="0" Grid.Column="2" Content="&gt;" FontSize="{ThemeResource BigFontSize}" Color="{ThemeResource TextColor}"/>
@@ -112,7 +121,7 @@
     <Setter Property="ItemsPanel">
       <Setter.Value>
         <ItemsPanelTemplate>
-          <VirtualizingStackPanel x:Name="ListItemsHost" IsItemsHost="True" Orientation="Horizontal"/>
+          <StackPanel x:Name="ListItemsHost" IsItemsHost="True" Orientation="Horizontal"/>
         </ItemsPanelTemplate>
       </Setter.Value>
     </Setter>
