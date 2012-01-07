@@ -33,7 +33,6 @@ using MediaPortal.Utilities.DeepCopy;
 
 namespace MediaPortal.UI.SkinEngine.Controls.Brushes
 {
-  // TODO: Implement Freezable behaviour
   public class LinearGradientBrush : GradientBrush
   {
     #region Consts
