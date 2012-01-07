@@ -75,7 +75,6 @@
     <Content Include="Skin\Reflexion\images\09eae702-d9ec-4325-82d9-4843502c966b.jpg" />
     <Content Include="Skin\Reflexion\images\A4DF2DF6-8D66-479a-9930-D7106525EB07.jpg" />
     <Content Include="Skin\Reflexion\images\B4A9199F-6DD4-4bda-A077-DE9C081F7703.jpg" />
-    <Content Include="Skin\Reflexion\images\defaultBackground.jpg" />
     <Content Include="Skin\Reflexion\images\E34FDB62-1F3E-4aa9-8A61-D143E0AF77B5.jpg" />
     <Content Include="Skin\Reflexion\images\F6255762-C52A-4231-9E67-14C28735216E.jpg" />
     <Content Include="Skin\Reflexion\images\93442DF7-186D-42e5-A0F5-CF1493E68F49.jpg" />
@@ -183,30 +182,32 @@
     <Content Include="Skin\Reflexion\images\Weather\64x64\permission.txt" />
     <Content Include="Skin\Reflexion\images\Weather\64x64\WEATHERALERT.png" />
     <Content Include="Skin\Reflexion\skin.xml" />
+    <Content Include="Skin\Reflexion\themes\green\images\preview.png" />
+    <Content Include="Skin\Reflexion\themes\green\images\Reflex.jpg" />
+    <Content Include="Skin\Reflexion\themes\green\theme.xml" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="plugin.xml" />
-    <Content Include="Skin\Reflexion\images\defaultBackground.png" />
-    <Content Include="Skin\Reflexion\themes\Silver\images\Controls\HomeTextbar.png" />
-    <Content Include="Skin\Reflexion\themes\Silver\images\FilterLarge.png" />
-    <Content Include="Skin\Reflexion\themes\Silver\images\FilterSmall.png" />
-    <Content Include="Skin\Reflexion\themes\Silver\images\MovieLarge.png" />
-    <Content Include="Skin\Reflexion\themes\Silver\images\MovieSmall.png" />
-    <Content Include="Skin\Reflexion\themes\Silver\images\MusicLarge.png" />
-    <Content Include="Skin\Reflexion\themes\Silver\images\MusicSmall.png" />
-    <Content Include="Skin\Reflexion\themes\Silver\images\NavigationLarge.png" />
-    <Content Include="Skin\Reflexion\themes\Silver\images\NavigationSmall.png" />
-    <Content Include="Skin\Reflexion\themes\Silver\images\PictureLarge.png" />
-    <Content Include="Skin\Reflexion\themes\Silver\images\PictureSmall.png" />
-    <Content Include="Skin\Reflexion\themes\Silver\images\preview.png" />
+    <Content Include="Skin\Reflexion\themes\default\images\Controls\HomeTextbar.png" />
+    <Content Include="Skin\Reflexion\themes\default\images\FilterLarge.png" />
+    <Content Include="Skin\Reflexion\themes\default\images\FilterSmall.png" />
+    <Content Include="Skin\Reflexion\themes\default\images\MovieLarge.png" />
+    <Content Include="Skin\Reflexion\themes\default\images\MovieSmall.png" />
+    <Content Include="Skin\Reflexion\themes\default\images\MusicLarge.png" />
+    <Content Include="Skin\Reflexion\themes\default\images\MusicSmall.png" />
+    <Content Include="Skin\Reflexion\themes\default\images\NavigationLarge.png" />
+    <Content Include="Skin\Reflexion\themes\default\images\NavigationSmall.png" />
+    <Content Include="Skin\Reflexion\themes\default\images\PictureLarge.png" />
+    <Content Include="Skin\Reflexion\themes\default\images\PictureSmall.png" />
+    <Content Include="Skin\Reflexion\themes\default\images\preview.png" />
     <None Include="Skin\Reflexion\fonts\TitleCaps.desc" />
     <None Include="Skin\Reflexion\fonts\TitleCaps.ttf" />
-    <None Include="Skin\Reflexion\themes\Silver\styles\OtherControlsOverrides.xaml">
+    <None Include="Skin\Reflexion\themes\default\styles\OtherControlsOverrides.xaml">
       <SubType>Designer</SubType>
       <SubType>Designer</SubType>
     </None>
-    <Content Include="Skin\Reflexion\themes\Silver\images\Reflex.jpg" />
-    <Content Include="Skin\Reflexion\themes\Silver\theme.xml" />
+    <Content Include="Skin\Reflexion\themes\default\images\Reflex.jpg" />
+    <Content Include="Skin\Reflexion\themes\default\theme.xml" />
   </ItemGroup>
   <ItemGroup>
     <BootstrapperPackage Include="Microsoft.Net.Client.3.5">
@@ -266,33 +267,33 @@
     </None>
   </ItemGroup>
   <ItemGroup>
-    <None Include="Skin\Reflexion\themes\Silver\styles\Backgrounds.xaml">
+    <None Include="Skin\Reflexion\themes\default\styles\Backgrounds.xaml">
       <SubType>Designer</SubType>
     </None>
   </ItemGroup>
   <ItemGroup>
-    <Content Include="Skin\Reflexion\themes\Silver\styles\AnalogClock.xaml">
+    <Content Include="Skin\Reflexion\themes\default\styles\AnalogClock.xaml">
       <SubType>Designer</SubType>
     </Content>
-    <Content Include="Skin\Reflexion\themes\Silver\styles\Buttons.xaml">
+    <Content Include="Skin\Reflexion\themes\default\styles\Buttons.xaml">
       <SubType>Designer</SubType>
     </Content>
-    <Content Include="Skin\Reflexion\themes\Silver\styles\Colors.xaml">
+    <Content Include="Skin\Reflexion\themes\default\styles\Colors.xaml">
       <SubType>Designer</SubType>
     </Content>
-    <Content Include="Skin\Reflexion\themes\Silver\styles\Consts.xaml">
+    <Content Include="Skin\Reflexion\themes\default\styles\Consts.xaml">
       <SubType>Designer</SubType>
     </Content>
-    <Content Include="Skin\Reflexion\themes\Silver\styles\Graphics.xaml">
+    <Content Include="Skin\Reflexion\themes\default\styles\Graphics.xaml">
       <SubType>Designer</SubType>
     </Content>
-    <Content Include="Skin\Reflexion\themes\Silver\styles\MediaStyles.xaml">
+    <Content Include="Skin\Reflexion\themes\default\styles\MediaStyles.xaml">
       <SubType>Designer</SubType>
     </Content>
-    <Content Include="Skin\Reflexion\themes\Silver\styles\OSD.xaml">
+    <Content Include="Skin\Reflexion\themes\default\styles\OSD.xaml">
       <SubType>Designer</SubType>
     </Content>
-    <Content Include="Skin\Reflexion\themes\Silver\styles\Widgets.xaml">
+    <Content Include="Skin\Reflexion\themes\default\styles\Widgets.xaml">
       <SubType>Designer</SubType>
     </Content>
   </ItemGroup>
@@ -331,19 +332,24 @@
     </Content>
   </ItemGroup>
   <ItemGroup>
-    <Content Include="Skin\Reflexion\themes\Silver\styles\FullScreenContentConsts.xaml">
+    <Content Include="Skin\Reflexion\themes\default\styles\FullScreenContentConsts.xaml">
       <SubType>Designer</SubType>
     </Content>
   </ItemGroup>
   <ItemGroup>
-    <Content Include="Skin\Reflexion\themes\Silver\styles\SlimTvStyles.xaml">
+    <Content Include="Skin\Reflexion\themes\default\styles\SlimTvStyles.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Content>
   </ItemGroup>
   <ItemGroup>
-    <Content Include="Skin\Reflexion\themes\Silver\styles\SlimTvConsts.xaml">
+    <Content Include="Skin\Reflexion\themes\default\styles\SlimTvConsts.xaml">
       <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Skin\Reflexion\themes\green\styles\Colors.xaml">
       <SubType>Designer</SubType>
     </Content>
   </ItemGroup>
