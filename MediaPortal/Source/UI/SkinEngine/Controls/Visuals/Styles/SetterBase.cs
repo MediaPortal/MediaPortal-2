@@ -21,7 +21,8 @@
 */
 #endregion
 
-using System;
+using MediaPortal.Common;
+using MediaPortal.Common.Logging;
 using MediaPortal.UI.SkinEngine.MpfElements;
 using MediaPortal.UI.SkinEngine.Xaml;
 using MediaPortal.Utilities.DeepCopy;
@@ -120,8 +121,11 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Styles
         DefaultAttachedPropertyDataDescriptor result;
         if (!DefaultAttachedPropertyDataDescriptor.CreateAttachedPropertyDataDescriptor(new MpfNamespaceHandler(),
             element, propertyProvider, propertyName, out result))
-          throw new ArgumentException(
-            string.Format("Attached property '{0}' cannot be set on element '{1}'", property, targetObject));
+        {
+          ServiceRegistration.Get<ILogger>().Warn(
+              string.Format("Attached property '{0}' cannot be set on element '{1}'", property, targetObject));
+          return false;
+        }
         propertyDescriptor = result;
         return true;
       }
@@ -130,8 +134,11 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Styles
         string propertyName = property;
         IDataDescriptor result;
         if (!ReflectionHelper.FindMemberDescriptor(targetObject, propertyName, out result))
-          throw new ArgumentException(
+        {
+          ServiceRegistration.Get<ILogger>().Warn(
               string.Format("Property '{0}' cannot be set on element '{1}'", property, targetObject));
+          return false;
+        }
         propertyDescriptor = result;
         return true;
       }
