@@ -238,17 +238,17 @@ namespace MediaPortal.UI.SkinEngine.DirectX.Triangulate
 
         if (lastLine[0] != PointF.Empty && lastLine[1] != PointF.Empty)
         {
+          // We move the original line by the needed thickness.
+          PointF movedLast0 = PointF.Empty;
+          PointF movedLast1 = PointF.Empty;
+          MoveVector(lastLine[0], lastLine[1], thickness, ref movedLast0, ref movedLast1);
+
           // StrokeLineJoin implementation
           switch (lineJoin)
           {
             default:
             case PenLineJoin.Miter:
-              // We need to calculate the intersection of the 2 moved lines
-              PointF movedLast0 = PointF.Empty;
-              PointF movedLast1 = PointF.Empty;
-              MoveVector(lastLine[0], lastLine[1], thickness, ref movedLast0, ref movedLast1);
-
-              // Calculate the intersection of the last line and the line that is defined by current and next point
+              // We need to calculate the intersection of the 2 moved lines (Line A: movedCurrent/movedNext and Line B: movedLast0/movedLast1)
               PointF intersection;
               if (LineIntersect(movedCurrent, movedNext, movedLast0, movedLast1, out intersection))
               {
@@ -260,6 +260,12 @@ namespace MediaPortal.UI.SkinEngine.DirectX.Triangulate
                 vertList.Add(new PositionColoredTextured { Position = new Vector3(movedLast1.X, movedLast1.Y, zCoord) });
                 vertList.Add(new PositionColoredTextured { Position = new Vector3(intersection.X, intersection.Y, zCoord) });
               }
+              break;
+            case PenLineJoin.Bevel:
+              // This is currently not the exact WPF "Bevel" implementation, we only insert a simple triangle between the line ends.
+              vertList.Add(new PositionColoredTextured { Position = new Vector3(currentPoint.X, currentPoint.Y, zCoord) });
+              vertList.Add(new PositionColoredTextured { Position = new Vector3(movedCurrent.X, movedCurrent.Y, zCoord) });
+              vertList.Add(new PositionColoredTextured { Position = new Vector3(movedLast1.X, movedLast1.Y, zCoord) });
               break;
           }
         }

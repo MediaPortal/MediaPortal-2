@@ -36,15 +36,15 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Shapes
   public enum PenLineJoin
   {
     /// <summary>
-    /// Line joins use regular angular vertices.
+    /// Line joins use regular angular vertices. This is the default behavior in MPF.
     /// </summary>
     Miter,
     /// <summary>
-    /// Line joins use beveled vertices. This is the default behaviour in MPF.
+    /// Line joins use beveled vertices.
     /// </summary>
     Bevel,
     /// <summary>
-    /// Line joins use rounded vertices.
+    /// Line joins use rounded vertices. This is currently not supported and will be rendered using the default behavior.
     /// </summary>
     Round
   }
@@ -86,7 +86,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Shapes
       _fillProperty = new SProperty(typeof(Brush), null);
       _strokeProperty = new SProperty(typeof(Brush), null);
       _strokeThicknessProperty = new SProperty(typeof(double), 1.0);
-      _strokeLineJoinProperty = new SProperty(typeof(PenLineJoin), PenLineJoin.Bevel);
+      _strokeLineJoinProperty = new SProperty(typeof(PenLineJoin), PenLineJoin.Miter);
       _stretchProperty = new SProperty(typeof(Stretch), Stretch.None);
     }
 
@@ -114,6 +114,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Shapes
       Fill = copyManager.GetCopy(s.Fill);
       Stroke = copyManager.GetCopy(s.Stroke);
       StrokeThickness = s.StrokeThickness;
+      StrokeLineJoin = s.StrokeLineJoin;
       Stretch = s.Stretch;
       Attach();
       OnFillBrushPropertyChanged(_fillProperty, null);

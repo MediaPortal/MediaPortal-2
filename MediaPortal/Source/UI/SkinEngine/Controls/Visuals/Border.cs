@@ -73,7 +73,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       _borderBrushProperty = new SProperty(typeof(Brush), null);
       _backgroundProperty = new SProperty(typeof(Brush), null);
       _borderThicknessProperty = new SProperty(typeof(double), 1.0);
-      _borderLineJoinProperty = new SProperty(typeof(PenLineJoin), PenLineJoin.Bevel);
+      _borderLineJoinProperty = new SProperty(typeof(PenLineJoin), PenLineJoin.Miter);
       _cornerRadiusProperty = new SProperty(typeof(double), 0.0);
       _contentProperty = new SProperty(typeof(FrameworkElement), null);
     }
