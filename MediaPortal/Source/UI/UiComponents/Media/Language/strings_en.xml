@@ -8,6 +8,7 @@
     <String Name="MoviesMenuItem" Text="Movies"/>
     <String Name="PicturesMenuItem" Text="Pictures"/>
 
+    <!-- Filter titles -->
     <String Name="FilterByArtistMenuItem" Text="Filter by artist"/>
     <String Name="FilterByAlbumMenuItem" Text="Filter by album"/>
     <String Name="FilterByMusicGenreMenuItem" Text="Filter by genre"/>
@@ -22,6 +23,11 @@
     <String Name="ShowAllMusicItemsMenuItem" Text="Show all"/>
     <String Name="ShowAllMovieItemsMenuItem" Text="Show all"/>
     <String Name="ShowAllPictureItemsMenuItem" Text="Show all"/>
+
+    <!-- Special filters names -->
+    <String Name="PictureFilterSmall" Text="Small"/>
+    <String Name="PictureFilterMedium" Text="Medium"/>
+    <String Name="PictureFilterBig" Text="Big"/>
 
     <!-- Navbar display labels for sub view navigation -->
     <String Name="BrowseMediaNavigationNavbarDisplayLabel" Text="{0}"/> <!-- For example: "R.E.M." -->
@@ -101,7 +107,7 @@
     <String Name="PicturesRootViewName" Text="Pictures"/>
     <String Name="SimpleSearchViewName" Text="Simple search"/>
 
-    <!-- Other strings -->
+    <!-- General strings used in views  -->
     <String Name="ViewInvalid" Text="This view could not be built"/>
     <String Name="ViewEmpty" Text="&lt;No items to display&gt;"/>
     <String Name="NoItems" Text="No items"/> <!-- Shown in the header of an items list -->
@@ -115,10 +121,7 @@
     <String Name="ListIsBeingBuiltHint" Text="The items list is being built..."/>
     <String Name="SearchResultIsBeingBuiltHint" Text="Searching..."/>
 
-    <String Name="PictureFilterSmall" Text="Small"/>
-    <String Name="PictureFilterMedium" Text="Medium"/>
-    <String Name="PictureFilterBig" Text="Big"/>
-
+    <!-- Playlists -->
     <String Name="ManagePlaylists" Text="Playlists"/>
     <String Name="AddAllToPlaylist" Text="Add all to playlist"/>
     <String Name="ChooseAVTypeDialogHeader" Text="Choose type of items"/>
@@ -131,28 +134,32 @@
     <String Name="NItemsAdded" Text="{0} items added"/>
     <String Name="StopAddToPlaylistButton" Text="Stop"/>
 
+    <!-- Play items dialog -->
+    <String Name="PlayItemDialogHeader" Text="Play item"/>
+
     <String Name="PlayAudioItems" Text="Play audio items"/>
     <String Name="EnqueueAudioItems" Text="Enqueue audio items"/>
     <String Name="MuteVideoAndPlayAudioItems" Text="Play audio items concurrently"/>
 
-    <String Name="PlayVideoItems" Text="Play video items"/>
-    <String Name="EnqueueVideoItems" Text="Enqueue video items"/>
-    <String Name="PlayVideoItemsMutedConcurrentAudio" Text="Play video items in background &amp; continue concurrent audio item"/>
-    <String Name="PlayVideoItemsPiP" Text="Play video items in PiP mode"/>
+    <String Name="PlayVideoImageItems" Text="Play video/image items"/>
+    <String Name="EnqueueVideoImageItems" Text="Enqueue video/image items"/>
+    <String Name="PlayVideoImageItemsMutedConcurrentAudio" Text="Play video/image items in background &amp; continue concurrent audio item"/>
+    <String Name="PlayVideoImageItemsPiP" Text="Play video/image items in PiP mode"/>
 
     <String Name="PlayAudioItem" Text="Play audio item"/>
     <String Name="EnqueueAudioItem" Text="Enqueue audio item"/>
     <String Name="MuteVideoAndPlayAudioItem" Text="Play audio item concurrently"/>
 
-    <String Name="PlayVideoItem" Text="Play video item"/>
-    <String Name="EnqueueVideoItem" Text="Enqueue video item"/>
-    <String Name="PlayVideoItemMutedConcurrentAudio" Text="Play video item in background &amp; continue concurrent audio item"/>
-    <String Name="PlayVideoItemPiP" Text="Play video item in PiP mode"/>
-    <String Name="PlayItemDialogHeader" Text="Play item"/>
+    <String Name="PlayVideoImageItem" Text="Play video/image item"/>
+    <String Name="EnqueueVideoImageItem" Text="Enqueue video/image item"/>
+    <String Name="PlayVideoImageItemMutedConcurrentAudio" Text="Play video/image item in background &amp; continue concurrent audio item"/>
+    <String Name="PlayVideoImageItemPiP" Text="Play video/image item in PiP mode"/>
 
-    <String Name="VideoPictureContextName" Text="Video/Picture"/>
+    <!-- Player context names -->
+    <String Name="VideoImageContextName" Text="Video/Image"/>
     <String Name="AudioContextName" Text="Audio"/>
 
+    <!-- Video currently playing -->
     <String Name="VideoCurrentlyPlayingHeader" Text="Current video information"/>
     <String Name="VideoTitleLabel" Text="Title: "/>
     <String Name="VideoGenreLabel" Text="Genre: "/>
@@ -161,8 +168,22 @@
     <String Name="VideoActorsLabel" Text="Actor(s): "/>
     <String Name="VideoStoryPlotLabel" Text="Story plot: "/>
 
+    <!-- Image currently playing -->
+    <String Name="PictureCurrentlyPlayingHeader" Text="Current image information"/>
+    <String Name="PictureTitleLabel" Text="Name: "/>
+    <String Name="PictureDimensions" Text="Dimensions: "/>
+    <String Name="PictureMake" Text="Camera make: "/>
+    <String Name="PictureModel" Text="Camera model: "/>
+    <String Name="PictureISOSpeedLabel" Text="ISO speed: "/>
+    <String Name="PictureFNumberLabel" Text="F number: "/>
+    <String Name="PictureShutterSpeedLabel" Text="Shutter speed: "/>
+    <String Name="PictureMeteringModeLabel" Text="Metering mode: "/>
+    <String Name="PictureExposureTimeLabel" Text="Exposure time: "/>
+
+    <!-- DVD currently playing -->
     <String Name="DVDCurrentlyPlayingHeader" Text="Current DVD information"/>
 
+    <!-- Audio currently playing -->
     <String Name="AudioCurrentlyPlayingHeader" Text="Current audio information"/>
     <String Name="AudioArtistsLabel" Text="Artists: "/>
     <String Name="AudioTitleLabel" Text="Title: "/>
@@ -215,18 +236,6 @@
     <String Name="ChooseChapterDialogHeader" Text="Choose chapter"/>
     <String Name="ChooseSubtitleDialogHeader" Text="Choose subtitle"/>
 
-    <!-- Picture player related -->
-    <String Name="PictureCurrentlyPlayingHeader" Text="Current picture information"/>
-    <String Name="PictureTitleLabel" Text="Picture: "/>
-    <String Name="PictureDimensions" Text="Dimensions: "/>
-    <String Name="PictureMake" Text="Camera make: "/>
-    <String Name="PictureModel" Text="Camera model: "/>
-    <String Name="PictureISOSpeedLabel" Text="ISO speed: "/>
-    <String Name="PictureFNumberLabel" Text="F number: "/>
-    <String Name="PictureShutterSpeedLabel" Text="Shutter speed: "/>
-    <String Name="PictureMeteringModeLabel" Text="Metering mode: "/>
-    <String Name="PictureExposureTimeLabel" Text="Exposure time: "/>
-    
     <!-- Video Player time units -->
     <String Name="Seconds" Text="sec"/>
     <String Name="Minutes" Text="min"/>

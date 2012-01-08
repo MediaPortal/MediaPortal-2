@@ -404,7 +404,7 @@ namespace MediaPortal.UiComponents.Media.Models
           break;
         case AVType.Video:
           {
-            ListItem playItem = new ListItem(Consts.KEY_NAME, Consts.RES_PLAY_VIDEO_ITEMS)
+            ListItem playItem = new ListItem(Consts.KEY_NAME, Consts.RES_PLAY_VIDEO_IMAGE_ITEMS)
               {
                   Command = new MethodDelegateCommand(() =>
                     {
@@ -415,7 +415,7 @@ namespace MediaPortal.UiComponents.Media.Models
             _playMenuItems.Add(playItem);
             if (numVideo > 0)
             {
-              ListItem enqueueItem = new ListItem(Consts.KEY_NAME, Consts.RES_ENQUEUE_VIDEO_ITEMS)
+              ListItem enqueueItem = new ListItem(Consts.KEY_NAME, Consts.RES_ENQUEUE_VIDEO_IMAGE_ITEMS)
                 {
                     Command = new MethodDelegateCommand(() =>
                       {
@@ -427,7 +427,7 @@ namespace MediaPortal.UiComponents.Media.Models
             }
             if (numAudio > 0)
             {
-              ListItem playItem_A = new ListItem(Consts.KEY_NAME, Consts.RES_PLAY_VIDEO_ITEMS_MUTED_CONCURRENT_AUDIO)
+              ListItem playItem_A = new ListItem(Consts.KEY_NAME, Consts.RES_PLAY_VIDEO_IMAGE_ITEMS_MUTED_CONCURRENT_AUDIO)
                 {
                     Command = new MethodDelegateCommand(() =>
                       {
@@ -439,7 +439,7 @@ namespace MediaPortal.UiComponents.Media.Models
             }
             if (numVideo > 0)
             {
-              ListItem playItem_V = new ListItem(Consts.KEY_NAME, Consts.RES_PLAY_VIDEO_ITEMS_PIP)
+              ListItem playItem_V = new ListItem(Consts.KEY_NAME, Consts.RES_PLAY_VIDEO_IMAGE_ITEMS_PIP)
                 {
                     Command = new MethodDelegateCommand(() =>
                       {
@@ -529,7 +529,7 @@ namespace MediaPortal.UiComponents.Media.Models
           break;
         case AVType.Video:
           {
-            ListItem playItem = new ListItem(Consts.KEY_NAME, Consts.RES_PLAY_VIDEO_ITEM)
+            ListItem playItem = new ListItem(Consts.KEY_NAME, Consts.RES_PLAY_VIDEO_IMAGE_ITEM)
               {
                   Command = new MethodDelegateCommand(() =>
                     {
@@ -540,7 +540,7 @@ namespace MediaPortal.UiComponents.Media.Models
             _playMenuItems.Add(playItem);
             if (numVideo > 0)
             {
-              ListItem enqueueItem = new ListItem(Consts.KEY_NAME, Consts.RES_ENQUEUE_VIDEO_ITEM)
+              ListItem enqueueItem = new ListItem(Consts.KEY_NAME, Consts.RES_ENQUEUE_VIDEO_IMAGE_ITEM)
                 {
                     Command = new MethodDelegateCommand(() =>
                       {
@@ -552,7 +552,7 @@ namespace MediaPortal.UiComponents.Media.Models
             }
             if (numAudio > 0)
             {
-              ListItem playItem_A = new ListItem(Consts.KEY_NAME, Consts.RES_PLAY_VIDEO_ITEM_MUTED_CONCURRENT_AUDIO)
+              ListItem playItem_A = new ListItem(Consts.KEY_NAME, Consts.RES_PLAY_VIDEO_IMAGE_ITEM_MUTED_CONCURRENT_AUDIO)
                 {
                     Command = new MethodDelegateCommand(() =>
                       {
@@ -564,7 +564,7 @@ namespace MediaPortal.UiComponents.Media.Models
             }
             if (numVideo > 0)
             {
-              ListItem playItem_V = new ListItem(Consts.KEY_NAME, Consts.RES_PLAY_VIDEO_ITEM_PIP)
+              ListItem playItem_V = new ListItem(Consts.KEY_NAME, Consts.RES_PLAY_VIDEO_IMAGE_ITEM_PIP)
                 {
                     Command = new MethodDelegateCommand(() =>
                       {
@@ -599,7 +599,7 @@ namespace MediaPortal.UiComponents.Media.Models
       // No locking necessary
       if (avType == AVType.Video)
       {
-        contextName = Consts.RES_VIDEO_PICTURE_CONTEXT_NAME;
+        contextName = Consts.RES_VIDEO_IMAGE_CONTEXT_NAME;
         return true;
       }
       if (avType == AVType.Audio)

@@ -97,21 +97,21 @@ namespace MediaPortal.UiComponents.Media.General
     public const string RES_ENQUEUE_AUDIO_ITEM = "[Media.EnqueueAudioItem]";
     public const string RES_MUTE_VIDEO_PLAY_AUDIO_ITEM = "[Media.MuteVideoAndPlayAudioItem]";
 
-    public const string RES_PLAY_VIDEO_ITEM = "[Media.PlayVideoItem]";
-    public const string RES_ENQUEUE_VIDEO_ITEM = "[Media.EnqueueVideoItem]";
-    public const string RES_PLAY_VIDEO_ITEM_MUTED_CONCURRENT_AUDIO = "[Media.PlayVideoItemMutedConcurrentAudio]";
-    public const string RES_PLAY_VIDEO_ITEM_PIP = "[Media.PlayVideoItemPiP]";
+    public const string RES_PLAY_VIDEO_IMAGE_ITEM = "[Media.PlayVideoImageItem]";
+    public const string RES_ENQUEUE_VIDEO_IMAGE_ITEM = "[Media.EnqueueVideoImageItem]";
+    public const string RES_PLAY_VIDEO_IMAGE_ITEM_MUTED_CONCURRENT_AUDIO = "[Media.PlayVideoImageItemMutedConcurrentAudio]";
+    public const string RES_PLAY_VIDEO_IMAGE_ITEM_PIP = "[Media.PlayVideoImageItemPiP]";
 
     public const string RES_PLAY_AUDIO_ITEMS = "[Media.PlayAudioItems]";
     public const string RES_ENQUEUE_AUDIO_ITEMS = "[Media.EnqueueAudioItems]";
     public const string RES_MUTE_VIDEO_PLAY_AUDIO_ITEMS = "[Media.MuteVideoAndPlayAudioItems]";
 
-    public const string RES_PLAY_VIDEO_ITEMS = "[Media.PlayVideoItems]";
-    public const string RES_ENQUEUE_VIDEO_ITEMS = "[Media.EnqueueVideoItems]";
-    public const string RES_PLAY_VIDEO_ITEMS_MUTED_CONCURRENT_AUDIO = "[Media.PlayVideoItemsMutedConcurrentAudio]";
-    public const string RES_PLAY_VIDEO_ITEMS_PIP = "[Media.PlayVideoItemsPiP]";
+    public const string RES_PLAY_VIDEO_IMAGE_ITEMS = "[Media.PlayVideoImageItems]";
+    public const string RES_ENQUEUE_VIDEO_IMAGE_ITEMS = "[Media.EnqueueVideoImageItems]";
+    public const string RES_PLAY_VIDEO_IMAGE_ITEMS_MUTED_CONCURRENT_AUDIO = "[Media.PlayVideoImageItemsMutedConcurrentAudio]";
+    public const string RES_PLAY_VIDEO_IMAGE_ITEMS_PIP = "[Media.PlayVideoImageItemsPiP]";
 
-    public const string RES_VIDEO_PICTURE_CONTEXT_NAME = "[Media.VideoPictureContextName]";
+    public const string RES_VIDEO_IMAGE_CONTEXT_NAME = "[Media.VideoImageContextName]";
     public const string RES_AUDIO_CONTEXT_NAME = "[Media.AudioContextName]";
 
     public const string RES_SYSTEM_INFORMATION = "[System.Information]";
