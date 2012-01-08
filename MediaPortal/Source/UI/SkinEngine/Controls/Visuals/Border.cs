@@ -386,7 +386,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
                 bool isClosed;
                 gpi.NextSubpath(subPath, out isClosed);
                 PointF[] pathPoints = subPath.PathPoints;
-                TriangulateHelper.TriangulateStroke_TriangleList(pathPoints, (float) BorderThickness, isClosed, 1, BorderLineJoin,
+                PenLineJoin lineJoin = Math.Abs(CornerRadius) < DELTA_DOUBLE ? BorderLineJoin : PenLineJoin.Bevel;
+                TriangulateHelper.TriangulateStroke_TriangleList(pathPoints, (float) BorderThickness, isClosed, 1, lineJoin,
                     out subPathVerts[i]);
               }
             }

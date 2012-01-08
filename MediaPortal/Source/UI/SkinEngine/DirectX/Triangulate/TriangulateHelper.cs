@@ -138,8 +138,8 @@ namespace MediaPortal.UI.SkinEngine.DirectX.Triangulate
     /// <summary>
     /// Returns the last line of a closed path, which consists of the last point and the first point.
     /// </summary>
-    /// <param name="points">All points</param>
-    /// <param name="line">Last line</param>
+    /// <param name="points">All points of the path.</param>
+    /// <param name="line">Point array of length 2 which represents the two points of the last line.</param>
     static void GetLastLine(PointF[] points, out PointF[] line)
     {
       int maxIdx = points.Length;
@@ -149,13 +149,13 @@ namespace MediaPortal.UI.SkinEngine.DirectX.Triangulate
     }
 
     /// <summary>
-    /// Does a translatory shift of a given line that consists of 2 points (Vector3).
+    /// Does a translatory shift of a given line that consists of 2 points.
     /// </summary>
-    /// <param name="point1">Line point 1</param>
-    /// <param name="point2">Line point 2</param>
-    /// <param name="moveDistance">The distance to be moved</param>
-    /// <param name="point1Moved">Returns moved point 1'</param>
-    /// <param name="point2Moved">Returns moved point 2'</param>
+    /// <param name="point1">First line point.</param>
+    /// <param name="point2">Second line point.</param>
+    /// <param name="moveDistance">The distance to be moved.</param>
+    /// <param name="point1Moved">Returns moved point 1.</param>
+    /// <param name="point2Moved">Returns moved point 2.</param>
     static void MoveVector(PointF point1, PointF point2, double moveDistance, ref PointF point1Moved, ref PointF point2Moved)
     {
       Vector3 normalVector = new Vector3(-(point1.Y - point2.Y), point1.X - point2.X, 0);
@@ -168,7 +168,8 @@ namespace MediaPortal.UI.SkinEngine.DirectX.Triangulate
     }
 
     /// <summary>
-    /// Calculates the intersection of two lines. If they are parallel the result is PointF.Empty. This method currently does only calculate 2D intersections.
+    /// Calculates the intersection of two lines. If they are parallel the result is PointF.Empty.
+    /// This method currently does only calculate 2D intersections.
     /// </summary>
     /// <param name="a1">Line A point 1</param>
     /// <param name="a2">Line A point 2</param>
@@ -183,7 +184,7 @@ namespace MediaPortal.UI.SkinEngine.DirectX.Triangulate
       float da = b2.X - b1.X;
       float db = b2.Y - b1.Y;
 
-      if (da * dy - db * dx == 0)
+      if (Math.Abs(da * dy - db * dx) < DELTA_DOUBLE)
       {
         // The segments are parallel.
         intersection = PointF.Empty;
@@ -246,7 +247,8 @@ namespace MediaPortal.UI.SkinEngine.DirectX.Triangulate
           // StrokeLineJoin implementation
           switch (lineJoin)
           {
-            default:
+            case PenLineJoin.Round:
+              // We fallback to the Miter because we don't support the Round line join yet.
             case PenLineJoin.Miter:
               // We need to calculate the intersection of the 2 moved lines (Line A: movedCurrent/movedNext and Line B: movedLast0/movedLast1)
               PointF intersection;
