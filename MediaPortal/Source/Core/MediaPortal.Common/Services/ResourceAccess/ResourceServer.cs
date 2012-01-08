@@ -22,6 +22,7 @@
 
 #endregion
 
+using System;
 using System.Net;
 using System.Net.Sockets;
 using HttpServer;
@@ -33,7 +34,7 @@ using MediaPortal.Common.Settings;
 
 namespace MediaPortal.Common.Services.ResourceAccess
 {
-  public class ResourceServer : IResourceServer
+  public class ResourceServer : IResourceServer, IDisposable
   {
     internal class HttpLogWriter : ILogWriter
     {
@@ -76,9 +77,10 @@ namespace MediaPortal.Common.Services.ResourceAccess
       AddHttpModule(module);
     }
 
-    ~ResourceServer()
+    public void Dispose()
     {
       StopServers();
+      DisposeServers();
     }
 
     public void StartServers()
@@ -119,6 +121,26 @@ namespace MediaPortal.Common.Services.ResourceAccess
       try
       {
         _httpServerV6.Stop();
+      }
+      catch (SocketException e)
+      {
+        ServiceRegistration.Get<ILogger>().Warn("ResourceServer: Error stopping HTTP server (IPv6)", e);
+      }
+    }
+
+    public void DisposeServers()
+    {
+      try
+      {
+        _httpServerV4.Dispose();
+      }
+      catch (SocketException e)
+      {
+        ServiceRegistration.Get<ILogger>().Warn("ResourceServer: Error stopping HTTP server (IPv4)", e);
+      }
+      try
+      {
+        _httpServerV6.Dispose();
       }
       catch (SocketException e)
       {

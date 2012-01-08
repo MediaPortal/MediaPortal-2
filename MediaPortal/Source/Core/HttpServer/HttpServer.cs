@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Net;
 using System.Net.Sockets;
 using System.Security.Cryptography.X509Certificates;
@@ -47,7 +48,7 @@ namespace HttpServer
   /// <seealso cref="HttpModule"/>
   /// <seealso cref="FileModule"/>
   /// <seealso cref="HttpListener"/>
-  public class HttpServer
+  public class HttpServer : IDisposable // Albert, Team MediaPortal: Added IDisposable interface declaration
   {
     private FormDecoderProvider _formDecodersProvider;
     private readonly List<HttpModule> _modules = new List<HttpModule>();
@@ -173,6 +174,15 @@ namespace HttpServer
       if (logWriter != null)
         _components.AddInstance<ILogWriter>(logWriter);
       _requestQueue = new RequestQueue(ProcessRequestWrapper);
+    }
+
+    // Albert, Team MediaPortal: Added this method
+    public void Dispose()
+    {
+      foreach (IDisposable d in _modules.OfType<IDisposable>())
+        d.Dispose();
+      foreach (IDisposable d in _authModules.OfType<IDisposable>())
+        d.Dispose();
     }
 
     /// <summary>

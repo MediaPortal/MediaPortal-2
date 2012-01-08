@@ -37,7 +37,7 @@ using MediaPortal.Utilities.SystemAPI;
 
 namespace MediaPortal.Common.Services.ResourceAccess
 {
-  public class ResourceAccessModule : HttpModule
+  public class ResourceAccessModule : HttpModule, IDisposable
   {
     public const string DEFAULT_MIME_TYPE = "application/octet-stream";
 
@@ -78,13 +78,26 @@ namespace MediaPortal.Common.Services.ResourceAccess
 
     protected readonly IDictionary<string, string> _defaultMimeTypes = new Dictionary<string, string>();
     protected readonly IDictionary<string, CachedResource> _resourceAccessorCache = new Dictionary<string, CachedResource>(10);
+    protected IntervalWork _tidyUpCacheWork;
     protected readonly object _syncObj = new object();
 
     public ResourceAccessModule()
     {
       AddDefaultMimeTypes();
       IThreadPool threadPool = ServiceRegistration.Get<IThreadPool>();
-      threadPool.AddIntervalWork(new IntervalWork(TidyUpResourceAccessorCache, CACHE_CLEANUP_INTERVAL), false);
+      _tidyUpCacheWork = new IntervalWork(TidyUpResourceAccessorCache, CACHE_CLEANUP_INTERVAL);
+      threadPool.AddIntervalWork(_tidyUpCacheWork, false);
+    }
+
+    public void Dispose()
+    {
+      if (_tidyUpCacheWork != null)
+      {
+        IThreadPool threadPool = ServiceRegistration.Get<IThreadPool>();
+        threadPool.RemoveIntervalWork(_tidyUpCacheWork);
+        _tidyUpCacheWork = null;
+      }
+      ClearResourceAccessorCache();
     }
 
     /// <summary>
@@ -174,6 +187,26 @@ namespace MediaPortal.Common.Services.ResourceAccess
         }
         foreach (string resourcePathStr in removedResources)
           _resourceAccessorCache.Remove(resourcePathStr);
+      }
+    }
+
+    protected void ClearResourceAccessorCache()
+    {
+      lock (_syncObj)
+      {
+        foreach (KeyValuePair<string, CachedResource> entry in _resourceAccessorCache)
+        {
+          CachedResource resource = entry.Value;
+          try
+          {
+            resource.Dispose();
+          }
+          catch (Exception e)
+          {
+            ServiceRegistration.Get<ILogger>().Warn("ResourceAccessModule: Error disposing resource accessor '{0}'", e, entry.Key);
+          }
+        }
+        _resourceAccessorCache.Clear();
       }
     }
 
