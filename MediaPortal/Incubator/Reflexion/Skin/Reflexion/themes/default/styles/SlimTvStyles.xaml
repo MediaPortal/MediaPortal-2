@@ -289,15 +289,14 @@
 
   <!-- MultiChannel Program Guide, Item Width gets calculated of program's Duration and visible ViewPort (time). -->
   <DataTemplate x:Key="MultiChannelProgramGuideDataTemplate" DataType="{x:Type collections:ListItem}">
-    <StackPanel x:Name="ItemControl" VerticalAlignment="Center" HorizontalAlignment="Stretch">
+    <StackPanel x:Name="ItemControl" VerticalAlignment="Center" HorizontalAlignment="Stretch" Height="{ThemeResource MultiGuideProgramHeight}">
       <StackPanel.Width>
         <!-- Use a ExpressionMultiValueConverter to calculate a matching Width (Duration in minutes * n) -->
-        <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} * 6">
+        <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} * 108 / 10">
           <Binding Path="Program.RemainingDuration"/>
         </MultiBinding>
       </StackPanel.Width>
-      <Label x:Name="ItemLabel" Content="{Binding [Name]}"
-          Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}"/>
+      <Label x:Name="ItemLabel" VerticalAlignment="Center" Content="{Binding [Name]}" Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}" />
     </StackPanel>
   </DataTemplate>
 
@@ -425,10 +424,8 @@
         <ControlTemplate>
           <Grid x:Name="GrowControl" RenderTransformOrigin="0.5,0.5" Margin="0,2,0,2">
             <Grid.ColumnDefinitions>
-              <ColumnDefinition Width="30"/>
-              <!-- Channel Logo -->
-              <ColumnDefinition Width="*"/>
-              <!-- Channel Name -->
+              <ColumnDefinition Width="{ThemeResource ChannelLogoContainerSmall}"/> <!-- Channel Logo -->
+              <ColumnDefinition Width="*"/>                                         <!-- Channel Name -->
             </Grid.ColumnDefinitions>
             <Grid.RowDefinitions>
               <RowDefinition Height="*"/>
@@ -440,7 +437,7 @@
             </Grid.RenderTransform>
             <Control Style="{ThemeResource ProgramGuideButtonControlStyle}" Grid.Column="0" Grid.Row="0" Grid.ColumnSpan="2"
                      VerticalAlignment="Stretch" HorizontalAlignment="Stretch"/>
-            <Image x:Name="ChannelLogo" Grid.Column="0" Grid.Row="0" Width="24" Height="24" 
+            <Image x:Name="ChannelLogo" Grid.Column="0" Grid.Row="0" Width="{ThemeResource ChannelLogoSmall}" Height="{ThemeResource ChannelLogoSmall}" 
                    Stretch="Uniform"
                    Source="{Binding ChannelLogoPath}"
                    FallbackSource="channellogos\no_channel_logo.png"/>
@@ -599,13 +596,14 @@
   <DataTemplate x:Key="GuideChannelListDataTemplate" DataType="{x:Type collections:ListItem}">
     <Grid x:Name="ItemControl" VerticalAlignment="Center" HorizontalAlignment="Stretch">
       <Grid.ColumnDefinitions>
-        <ColumnDefinition Width="250"/>
-        <!-- Row Header (Channel Name)-->
-        <ColumnDefinition Width="*"/>
-        <!-- Programs Listing -->
+        <ColumnDefinition Width="{ThemeResource TvGuideHowHeaderWidth}"/> <!-- Row Header (Channel Name)-->
+        <ColumnDefinition Width="*"/>   <!-- Programs Listing -->
       </Grid.ColumnDefinitions>
+      <Grid.RowDefinitions>
+        <RowDefinition Height="{ThemeResource MultiGuideProgramHeight}"/>
+      </Grid.RowDefinitions>
 
-      <Button Style="{ThemeResource ChannelWithLogoButtonStyle}" Grid.Column="0" Grid.Row="0"
+      <Button Style="{ThemeResource ChannelWithLogoButtonStyle}" Grid.Column="0" Grid.Row="0" VerticalAlignment="Stretch"
               Command="{DynamicResource ResourceKey=Menu_Command}"
               IsEnabled="{Binding Enabled}" Content="{Binding [Name]}" FontSize="{ThemeResource SmallFontSize}" />
 
@@ -619,6 +617,13 @@
           <CommandBridge x:Key="Menu_Command" Command="{Binding Path=Command,Mode=OneTime}"/>
         </ListView.Resources>
       </ListView>
+      <Grid.OpacityMask>
+        <LinearGradientBrush StartPoint="0.0,0.5" EndPoint="1.0,0.5">
+          <GradientStop Offset="0.0" Color="#FF000000" />
+          <GradientStop Offset="0.984" Color="#FF000000" />
+          <GradientStop Offset="1.0" Color="#00000000" />
+        </LinearGradientBrush>
+      </Grid.OpacityMask>
     </Grid>
   </DataTemplate>
 

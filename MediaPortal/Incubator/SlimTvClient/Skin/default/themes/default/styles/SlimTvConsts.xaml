@@ -16,5 +16,9 @@
   <ResourceWrapper x:Key="OSDDetailLabelHeight" Resource="150"/>
   
   <ResourceWrapper x:Key="MiniGuideWidth" Resource="300"/>
+  
+  <ResourceWrapper x:Key="MultiGuideHeaderWidth" Resource="300"/>
+  <ResourceWrapper x:Key="MultiGuideProgramHeight" Resource="40"/>
+  <ResourceWrapper x:Key="MultiGuideProgramPreviewHeight" Resource="180"/>
 
 </ResourceDictionary>

@@ -292,7 +292,7 @@
     <StackPanel x:Name="ItemControl" VerticalAlignment="Center" HorizontalAlignment="Stretch">
       <StackPanel.Width>
         <!-- Use a ExpressionMultiValueConverter to calculate a matching Width (Duration in minutes * n) -->
-        <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} * 6">
+        <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} * 65 / 10">
           <Binding Path="Program.RemainingDuration"/>
         </MultiBinding>
       </StackPanel.Width>
@@ -615,6 +615,13 @@
           <CommandBridge x:Key="Menu_Command" Command="{Binding Path=Command,Mode=OneTime}"/>
         </ListView.Resources>
       </ListView>
+      <Grid.OpacityMask>
+        <LinearGradientBrush StartPoint="0.0,0.5" EndPoint="1.0,0.5">
+          <GradientStop Offset="0.0" Color="#FF000000" />
+          <GradientStop Offset="0.984" Color="#FF000000" />
+          <GradientStop Offset="1.0" Color="#00000000" />
+        </LinearGradientBrush>
+      </Grid.OpacityMask>
     </Grid>
   </DataTemplate>
   
