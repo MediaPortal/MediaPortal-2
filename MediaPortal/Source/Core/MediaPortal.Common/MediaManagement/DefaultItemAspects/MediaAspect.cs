@@ -34,46 +34,46 @@ namespace MediaPortal.Common.MediaManagement.DefaultItemAspects
     /// <summary>
     /// Media item aspect id of the media aspect.
     /// </summary>
-    public static Guid ASPECT_ID = new Guid("A01B7D6E-A6F2-434b-AC12-49D7D5CBD377");
+    public static readonly Guid ASPECT_ID = new Guid("A01B7D6E-A6F2-434b-AC12-49D7D5CBD377");
 
     /// <summary>
     /// Contains a human readable title of the media item.
     /// </summary>
-    public static MediaItemAspectMetadata.AttributeSpecification ATTR_TITLE =
+    public static readonly MediaItemAspectMetadata.AttributeSpecification ATTR_TITLE =
         MediaItemAspectMetadata.CreateStringAttributeSpecification("Title", 1000, Cardinality.Inline, true);
 
     /// <summary>
     /// Contains the mime type of the media item.
     /// </summary>
-    public static MediaItemAspectMetadata.AttributeSpecification ATTR_MIME_TYPE =
+    public static readonly MediaItemAspectMetadata.AttributeSpecification ATTR_MIME_TYPE =
         MediaItemAspectMetadata.CreateStringAttributeSpecification("MimeType", 50, Cardinality.Inline, false);
 
     /// <summary>
     /// Contains the recording time and date of the media item. Can be used for an exact recording time
     /// (e.g. for images) as well as for only storing a recording year (e.g. for movies).
     /// </summary>
-    public static MediaItemAspectMetadata.AttributeSpecification ATTR_RECORDINGTIME =
+    public static readonly MediaItemAspectMetadata.AttributeSpecification ATTR_RECORDINGTIME =
         MediaItemAspectMetadata.CreateAttributeSpecification("RecordingTime", typeof(DateTime), Cardinality.Inline, false);
 
     /// <summary>
     /// Contains a rating of the media item. Value ranges from -100 (very bad) to 100 (very good).
     /// </summary>
-    public static MediaItemAspectMetadata.AttributeSpecification ATTR_RATING =
+    public static readonly MediaItemAspectMetadata.AttributeSpecification ATTR_RATING =
         MediaItemAspectMetadata.CreateAttributeSpecification("Rating", typeof(int), Cardinality.Inline, true);
 
     /// <summary>
     /// Contains a textual comment to this media item.
     /// </summary>
-    public static MediaItemAspectMetadata.AttributeSpecification ATTR_COMMENT =
+    public static readonly MediaItemAspectMetadata.AttributeSpecification ATTR_COMMENT =
         MediaItemAspectMetadata.CreateStringAttributeSpecification("Comment", 1000, Cardinality.Inline, false);
 
     /// <summary>
     /// Contains the date when the media item was last played.
     /// </summary>
-    public static MediaItemAspectMetadata.AttributeSpecification ATTR_LASTPLAYED =
+    public static readonly MediaItemAspectMetadata.AttributeSpecification ATTR_LASTPLAYED =
         MediaItemAspectMetadata.CreateAttributeSpecification("LastPlayed", typeof(DateTime), Cardinality.Inline, false);
 
-    public static MediaItemAspectMetadata Metadata = new MediaItemAspectMetadata(
+    public static readonly MediaItemAspectMetadata Metadata = new MediaItemAspectMetadata(
         // TODO: Localize name
         ASPECT_ID, "MediaItem", new[] {
             ATTR_TITLE,

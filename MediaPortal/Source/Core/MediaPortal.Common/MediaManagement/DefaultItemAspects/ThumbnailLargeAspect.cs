@@ -34,15 +34,15 @@ namespace MediaPortal.Common.MediaManagement.DefaultItemAspects
     /// <summary>
     /// Media item aspect id of the large thumbnail aspect.
     /// </summary>
-    public static Guid ASPECT_ID = new Guid("1FDA5774-9AC5-4873-926C-E84E3C36A966");
+    public static readonly Guid ASPECT_ID = new Guid("1FDA5774-9AC5-4873-926C-E84E3C36A966");
 
     /// <summary>
     /// Contains a large sized (max. 256x256) thumbnail.
     /// </summary>
-    public static MediaItemAspectMetadata.AttributeSpecification ATTR_THUMBNAIL =
+    public static readonly MediaItemAspectMetadata.AttributeSpecification ATTR_THUMBNAIL =
         MediaItemAspectMetadata.CreateAttributeSpecification("Thumbnail", typeof(byte[]), Cardinality.Inline, false);
 
-    public static MediaItemAspectMetadata Metadata = new MediaItemAspectMetadata(
+    public static readonly MediaItemAspectMetadata Metadata = new MediaItemAspectMetadata(
         // TODO: Localize name
         ASPECT_ID, "ThumbnailLarge", new[] {
             ATTR_THUMBNAIL,

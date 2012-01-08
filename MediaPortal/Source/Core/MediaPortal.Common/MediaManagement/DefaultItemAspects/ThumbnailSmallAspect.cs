@@ -34,15 +34,15 @@ namespace MediaPortal.Common.MediaManagement.DefaultItemAspects
     /// <summary>
     /// Media item aspect id of the small thumbnail aspect.
     /// </summary>
-    public static Guid ASPECT_ID = new Guid("A61846E9-0910-499D-9868-A1FABCE7CCFD");
+    public static readonly Guid ASPECT_ID = new Guid("A61846E9-0910-499D-9868-A1FABCE7CCFD");
 
     /// <summary>
     /// Contains a small sized (max. 96x96) thumbnail.
     /// </summary>
-    public static MediaItemAspectMetadata.AttributeSpecification ATTR_THUMBNAIL =
+    public static readonly MediaItemAspectMetadata.AttributeSpecification ATTR_THUMBNAIL =
         MediaItemAspectMetadata.CreateAttributeSpecification("Thumbnail", typeof(byte[]), Cardinality.Inline, false);
 
-    public static MediaItemAspectMetadata Metadata = new MediaItemAspectMetadata(
+    public static readonly MediaItemAspectMetadata Metadata = new MediaItemAspectMetadata(
         // TODO: Localize name
         ASPECT_ID, "ThumbnailSmall", new[] {
             ATTR_THUMBNAIL,

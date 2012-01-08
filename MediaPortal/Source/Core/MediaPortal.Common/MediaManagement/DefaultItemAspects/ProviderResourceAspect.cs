@@ -35,27 +35,27 @@ namespace MediaPortal.Common.MediaManagement.DefaultItemAspects
     /// <summary>
     /// Media item aspect id of the provider resource aspect.
     /// </summary>
-    public static Guid ASPECT_ID = new Guid("0A296ACD-F95B-4a28-90A2-E4FD2A4CC4ED");
+    public static readonly Guid ASPECT_ID = new Guid("0A296ACD-F95B-4a28-90A2-E4FD2A4CC4ED");
 
     /// <summary>
     /// Contains UPnP device UUID of the system where the media item is located.
     /// </summary>
-    public static MediaItemAspectMetadata.AttributeSpecification ATTR_SYSTEM_ID =
+    public static readonly MediaItemAspectMetadata.AttributeSpecification ATTR_SYSTEM_ID =
         MediaItemAspectMetadata.CreateStringAttributeSpecification("System-Id", 100, Cardinality.Inline, true);
 
     /// <summary>
     /// Contains the path of the item in its provider.
     /// </summary>
-    public static MediaItemAspectMetadata.AttributeSpecification ATTR_RESOURCE_ACCESSOR_PATH =
+    public static readonly MediaItemAspectMetadata.AttributeSpecification ATTR_RESOURCE_ACCESSOR_PATH =
         MediaItemAspectMetadata.CreateStringAttributeSpecification("Path", 1000, Cardinality.Inline, true);
 
     /// <summary>
     /// Contains id of the parent directory item.
     /// </summary>
-    public static MediaItemAspectMetadata.AttributeSpecification ATTR_PARENT_DIRECTORY_ID =
+    public static readonly MediaItemAspectMetadata.AttributeSpecification ATTR_PARENT_DIRECTORY_ID =
         MediaItemAspectMetadata.CreateAttributeSpecification("ParentDirectory", typeof(Guid), Cardinality.Inline, true);
 
-    public static MediaItemAspectMetadata Metadata = new MediaItemAspectMetadata(
+    public static readonly MediaItemAspectMetadata Metadata = new MediaItemAspectMetadata(
         // TODO: Localize name
         ASPECT_ID, "ProviderResource", new[] {
             ATTR_SYSTEM_ID,

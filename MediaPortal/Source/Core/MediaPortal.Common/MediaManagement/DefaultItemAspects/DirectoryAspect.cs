@@ -35,9 +35,9 @@ namespace MediaPortal.Common.MediaManagement.DefaultItemAspects
     /// <summary>
     /// Media item aspect id of the directory aspect.
     /// </summary>
-    public static Guid ASPECT_ID = new Guid("1EEEF2D0-D52F-40f7-A12A-9908C2DAED1A");
+    public static readonly Guid ASPECT_ID = new Guid("1EEEF2D0-D52F-40f7-A12A-9908C2DAED1A");
 
-    public static MediaItemAspectMetadata Metadata = new MediaItemAspectMetadata(
+    public static readonly MediaItemAspectMetadata Metadata = new MediaItemAspectMetadata(
         // TODO: Localize name
         ASPECT_ID, "Directory", new MediaItemAspectMetadata.AttributeSpecification[] {
         });

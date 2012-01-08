@@ -42,37 +42,37 @@ namespace MediaPortal.Common.MediaManagement.DefaultItemAspects
     /// <summary>
     /// Media item aspect id of the image aspect.
     /// </summary>
-    public static Guid ASPECT_ID = new Guid("7868A212-F866-47F6-9F5D-4DFB3868F763");
+    public static readonly Guid ASPECT_ID = new Guid("7868A212-F866-47F6-9F5D-4DFB3868F763");
 
-    public static MediaItemAspectMetadata.AttributeSpecification ATTR_WIDTH =
+    public static readonly MediaItemAspectMetadata.AttributeSpecification ATTR_WIDTH =
         MediaItemAspectMetadata.CreateAttributeSpecification("Width", typeof(int), Cardinality.Inline, false);
-    public static MediaItemAspectMetadata.AttributeSpecification ATTR_HEIGHT =
+    public static readonly MediaItemAspectMetadata.AttributeSpecification ATTR_HEIGHT =
         MediaItemAspectMetadata.CreateAttributeSpecification("Height", typeof(int), Cardinality.Inline, false);
-    public static MediaItemAspectMetadata.AttributeSpecification ATTR_MAKE =
+    public static readonly MediaItemAspectMetadata.AttributeSpecification ATTR_MAKE =
         MediaItemAspectMetadata.CreateStringAttributeSpecification("EquipmentMake", 100, Cardinality.Inline, false);
-    public static MediaItemAspectMetadata.AttributeSpecification ATTR_MODEL =
+    public static readonly MediaItemAspectMetadata.AttributeSpecification ATTR_MODEL =
         MediaItemAspectMetadata.CreateStringAttributeSpecification("EquipmentModel", 100, Cardinality.Inline, false);
-    public static MediaItemAspectMetadata.AttributeSpecification ATTR_EXPOSURE_BIAS =
+    public static readonly MediaItemAspectMetadata.AttributeSpecification ATTR_EXPOSURE_BIAS =
         MediaItemAspectMetadata.CreateStringAttributeSpecification("ExposureBias", 20, Cardinality.Inline, false);
-    public static MediaItemAspectMetadata.AttributeSpecification ATTR_EXPOSURE_TIME =
+    public static readonly MediaItemAspectMetadata.AttributeSpecification ATTR_EXPOSURE_TIME =
         MediaItemAspectMetadata.CreateStringAttributeSpecification("ExposureTime", 20, Cardinality.Inline, false);
-    public static MediaItemAspectMetadata.AttributeSpecification ATTR_FLASH_MODE =
+    public static readonly MediaItemAspectMetadata.AttributeSpecification ATTR_FLASH_MODE =
         MediaItemAspectMetadata.CreateStringAttributeSpecification("FlashMode", 50, Cardinality.Inline, false);
-    public static MediaItemAspectMetadata.AttributeSpecification ATTR_FNUMBER =
+    public static readonly MediaItemAspectMetadata.AttributeSpecification ATTR_FNUMBER =
         MediaItemAspectMetadata.CreateStringAttributeSpecification("FNumber", 10, Cardinality.Inline, false);
-    public static MediaItemAspectMetadata.AttributeSpecification ATTR_ISO_SPEED =
+    public static readonly MediaItemAspectMetadata.AttributeSpecification ATTR_ISO_SPEED =
         MediaItemAspectMetadata.CreateStringAttributeSpecification("ISOSpeedRating", 10, Cardinality.Inline, false);
 
     /// <summary>
     /// Contains the EXIF orientation info. Use <see cref="OrientationToRotation"/>, <see cref="OrientationToFlip"/>
     /// or <see cref="GetOrientationMetadata"/> to translate the orientation information into degrees and flipX/flipY values.
     /// </summary>
-    public static MediaItemAspectMetadata.AttributeSpecification ATTR_ORIENTATION =
+    public static readonly MediaItemAspectMetadata.AttributeSpecification ATTR_ORIENTATION =
         MediaItemAspectMetadata.CreateAttributeSpecification("Orientation", typeof(int), Cardinality.Inline, false);
-    public static MediaItemAspectMetadata.AttributeSpecification ATTR_METERING_MODE =
+    public static readonly MediaItemAspectMetadata.AttributeSpecification ATTR_METERING_MODE =
         MediaItemAspectMetadata.CreateStringAttributeSpecification("MeteringMode", 50, Cardinality.Inline, false);
 
-    public static MediaItemAspectMetadata Metadata = new MediaItemAspectMetadata(
+    public static readonly MediaItemAspectMetadata Metadata = new MediaItemAspectMetadata(
         // TODO: Localize name
         ASPECT_ID, "ImageItem", new[] {
             ATTR_WIDTH,
