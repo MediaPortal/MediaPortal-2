@@ -264,7 +264,7 @@ namespace MediaPortal.UiComponents.Media.Models
         if (imageAspect == null)
         {
           ImageDimensions = string.Empty;
-          ImageMake = string.Empty;
+          CameraMake = string.Empty;
           CameraModel = string.Empty;
           ImageISOSpeed = string.Empty;
           ImageExposureTime = string.Empty;
@@ -275,7 +275,7 @@ namespace MediaPortal.UiComponents.Media.Models
         else
         {
           ImageDimensions = String.Format("{0} x {1}", imageAspect[ImageAspect.ATTR_WIDTH], imageAspect[ImageAspect.ATTR_HEIGHT]);
-          ImageMake = (string) imageAspect[ImageAspect.ATTR_MAKE];
+          CameraMake = (string) imageAspect[ImageAspect.ATTR_MAKE];
           CameraModel = (string) imageAspect[ImageAspect.ATTR_MODEL];
           ImageISOSpeed = (string) imageAspect[ImageAspect.ATTR_ISO_SPEED];
           ImageExposureTime = (string) imageAspect[ImageAspect.ATTR_EXPOSURE_TIME];
