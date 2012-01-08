@@ -35,7 +35,7 @@ using MediaPortal.Common.MediaManagement;
 namespace Ui.Players.BassPlayer
 {
   /// <summary>
-  /// MediaPortal 2 music player based on the Un4seen Bass library. Supports several player interfaces of the MP2 player API.
+  /// MediaPortal 2 audio player based on the Un4seen Bass library. Supports several player interfaces of the MP2 player API.
   /// </summary>
   /// <remarks>
   /// There are several aspects which need to be understood in the architecture of this player:

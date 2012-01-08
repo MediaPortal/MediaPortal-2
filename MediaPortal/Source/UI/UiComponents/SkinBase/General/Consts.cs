@@ -32,7 +32,7 @@ namespace MediaPortal.UiComponents.SkinBase.General
     // Screens
     public static string SCREEN_DEFAULT_BACKGROUND = "default-background";
     public static string SCREEN_VIDEO_BACKGROUND = "video-background";
-    public static string SCREEN_PICTURE_BACKGROUND = "picture-background";
+    public static string SCREEN_IMAGE_BACKGROUND = "image-background";
 
     // Language resources
     public const string RES_SYSTEM_HINT = "[System.Hint]";

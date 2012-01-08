@@ -30,7 +30,7 @@ using Microsoft.WindowsAPICodePack.Shell;
 namespace MediaPortal.Common.Services.ThumbnailGenerator
 {
   /// <summary>
-  /// ShellThumnbnailBuilder extracts thumbnails for picture and video files using the Windows provided thumbnail creation and
+  /// ShellThumnbnailBuilder extracts thumbnails for image and video files using the Windows provided thumbnail creation and
   /// caching feature.
   /// </summary>
   public class ShellThumbnailBuilder

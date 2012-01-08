@@ -14,18 +14,18 @@
         WorkflowModel="4CDD601F-E280-43b9-AD0A-6D7B2403C856"/> <!-- Workflow model = Media model -->
 
     <WorkflowState Id="F2AAEBC6-BFB0-42c8-9C80-0A98BA67A7EB"
-        Name="MusicNavigation-Root"
-        DisplayLabel="[Media.MusicNavigationRootWorkflowNavigationContextDisplayLabel]"
+        Name="AudioNavigation-Root"
+        DisplayLabel="[Media.AudioNavigationRootWorkflowNavigationContextDisplayLabel]"
         WorkflowModel="4CDD601F-E280-43b9-AD0A-6D7B2403C856"/> <!-- Workflow model = Media model -->
 
     <WorkflowState Id="22ED8702-3887-4acb-ACB4-30965220AFF0"
-        Name="MoviesNavigation-Root"
-        DisplayLabel="[Media.MoviesNavigationRootWorkflowNavigationContextDisplayLabel]"
+        Name="VideosNavigation-Root"
+        DisplayLabel="[Media.VideoNavigationRootWorkflowNavigationContextDisplayLabel]"
         WorkflowModel="4CDD601F-E280-43b9-AD0A-6D7B2403C856"/> <!-- Workflow model = Media model -->
 
     <WorkflowState Id="76019AEB-3445-4da9-9A10-63A87549A7CF"
-        Name="PicturesNavigation-Root"
-        DisplayLabel="[Media.PicturesNavigationRootWorkflowNavigationContextDisplayLabel]"
+        Name="ImagesNavigation-Root"
+        DisplayLabel="[Media.ImageNavigationRootWorkflowNavigationContextDisplayLabel]"
         WorkflowModel="4CDD601F-E280-43b9-AD0A-6D7B2403C856"/> <!-- Workflow model = Media model -->
 
     <!-- Play items -->

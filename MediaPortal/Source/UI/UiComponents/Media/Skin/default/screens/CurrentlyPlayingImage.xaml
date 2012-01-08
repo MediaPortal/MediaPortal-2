@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Include
+    xmlns="www.team-mediaportal.com/2008/mpf/directx"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    Source="screens\master_menu.xaml"
+    xmlns:mp_special_controls="clr-namespace:MediaPortal.UI.SkinEngine.SpecialElements.Controls"
+    >
+  <Include.Resources>
+
+    <ResourceWrapper x:Key="Header_Text" Resource="[Media.ImageCurrentlyPlayingHeader]"/>
+
+    <!-- Video player model -->
+    <Model x:Key="Model" Id="4E2301B4-3C17-4a1d-8DE5-2CEA169A0256"/>
+
+    <ControlTemplate x:Key="Contents_Template">
+      <mp_special_controls:PlayerControl Margin="20" PlayerContext="CurrentPlayer">
+        <mp_special_controls:PlayerControl.TemplateControl>
+          <Grid DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}">
+            <Grid.RowDefinitions>
+              <RowDefinition Height="Auto"/>
+              <RowDefinition Height="Auto"/>
+              <RowDefinition Height="Auto"/>
+              <RowDefinition Height="Auto"/>
+              <RowDefinition Height="Auto"/>
+              <RowDefinition Height="Auto"/>
+              <RowDefinition Height="Auto"/>
+              <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+            <Grid.ColumnDefinitions>
+              <ColumnDefinition Width="Auto"/>
+              <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+            <Label x:Name="TitleLabel" Grid.Row="0" Grid.Column="0"
+                Content="[Media.ImageTitleLabel]" Color="{ThemeResource TextColor}"/>
+            <Label x:Name="Title" Grid.Row="0" Grid.Column="1" Scroll="Auto"
+                Content="{Binding MediaItemTitle}" Color="{ThemeResource TextColor}"/>
+    
+            <Label x:Name="ImageDimensionsLabel" Grid.Row="1" Grid.Column="0"
+                Content="[Media.ImageDimensions]" Color="{ThemeResource TextColor}"/>
+            <Label x:Name="ImageDimensions" Grid.Row="1" Grid.Column="1"
+                Content="{Binding Source={StaticResource Model},Path=PlayerUIContributor.ImageDimensions}"
+                Color="{ThemeResource TextColor}"/>
+    
+            <Label x:Name="CameraMakeLabel" Grid.Row="2" Grid.Column="0"
+                Content="[Media.CameraMake]" Color="{ThemeResource TextColor}"/>
+            <Label x:Name="CameraMake" Grid.Row="2" Grid.Column="1" Scroll="Auto"
+                Content="{Binding Source={StaticResource Model},Path=PlayerUIContributor.CameraMake}"
+                Color="{ThemeResource TextColor}"/>
+    
+            <Label x:Name="CameraModelLabel" Grid.Row="3" Grid.Column="0"
+                Content="[Media.CameraModel]" Color="{ThemeResource TextColor}"/>
+            <Label x:Name="CameraModel" Grid.Row="3" Grid.Column="1"
+                Content="{Binding Source={StaticResource Model},Path=PlayerUIContributor.CameraModel}"
+                Color="{ThemeResource TextColor}"/>
+    
+            <Label x:Name="ImageISOSpeedLabel" Grid.Row="4" Grid.Column="0"
+                Content="[Media.ImageISOSpeedLabel]" Color="{ThemeResource TextColor}"/>
+            <Label x:Name="ImageISOSpeed" Grid.Row="4" Grid.Column="1"
+                Content="{Binding Source={StaticResource Model},Path=PlayerUIContributor.ImageISOSpeed}"
+                Color="{ThemeResource TextColor}"/>
+    
+            <Label x:Name="ImageExposureTimeLabel" Grid.Row="5" Grid.Column="0"
+                Content="[Media.ImageExposureTimeLabel]" Color="{ThemeResource TextColor}"/>
+            <Label x:Name="ImageExposureTime" Grid.Row="5" Grid.Column="1"
+                Content="{Binding Source={StaticResource Model},Path=PlayerUIContributor.ImageExposureTime}"
+                Color="{ThemeResource TextColor}"/>
+    
+            <Label x:Name="ImageFNumberLabel" Grid.Row="6" Grid.Column="0"
+                Content="[Media.ImageFNumberLabel]" Color="{ThemeResource TextColor}"/>
+            <Label x:Name="ImageFNumber" Grid.Row="6" Grid.Column="1"
+                Content="{Binding Source={StaticResource Model},Path=PlayerUIContributor.ImageFNumber}"
+                Color="{ThemeResource TextColor}"/>
+    
+            <Label x:Name="ImageMeteringModeLabel" Grid.Row="7" Grid.Column="0"
+                Content="[Media.ImageMeteringModeLabel]" Color="{ThemeResource TextColor}"/>
+            <Label x:Name="ImageMeteringMode" Grid.Row="7" Grid.Column="1"
+                Content="{Binding Source={StaticResource Model},Path=PlayerUIContributor.ImageMeteringMode}"
+                Color="{ThemeResource TextColor}"/>
+          </Grid>
+        </mp_special_controls:PlayerControl.TemplateControl>
+      </mp_special_controls:PlayerControl>
+    </ControlTemplate>
+
+  </Include.Resources>
+</Include>

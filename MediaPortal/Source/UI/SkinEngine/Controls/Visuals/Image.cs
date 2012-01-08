@@ -417,7 +417,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
         string uriSource = source as string;
         if (!string.IsNullOrEmpty(uriSource))
         {
-          // Remember to adapt list of supported extensions for picture player plugin...
+          // Remember to adapt list of supported extensions for image player plugin...
           if (IsValidSource(uriSource))
           {
             BitmapImageSource bmi = new BitmapImageSource { UriSource = uriSource, Thumbnail = thumbnail };

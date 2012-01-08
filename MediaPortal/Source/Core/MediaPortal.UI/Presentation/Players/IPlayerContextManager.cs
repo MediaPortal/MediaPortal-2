@@ -112,7 +112,7 @@ namespace MediaPortal.UI.Presentation.Players
   /// </summary>
   /// <remarks>
   /// <para>
-  /// Media modules (like Music, Video, Picture, TV, Radio) can initiate and access player contexts,
+  /// Media modules (like Audio, Video, Image, TV, Radio) can initiate and access player contexts,
   /// which are specially created for them. The player context manager service manages all those player contexts,
   /// tracks their player state and manages UI workflow states relating to active players.
   /// The separation of player context initiator (= media plugin) and player context manager

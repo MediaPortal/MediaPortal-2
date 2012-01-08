@@ -277,7 +277,7 @@ namespace Ui.Players.BassPlayer
     }
 
     /// <summary>
-    /// Make MP provide the next music item.
+    /// Make MP provide the next audio item.
     /// </summary>
     public void RequestNextMediaItem_Async()
     {

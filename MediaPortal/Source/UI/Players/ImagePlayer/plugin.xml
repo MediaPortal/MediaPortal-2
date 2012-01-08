@@ -1,0 +1,57 @@
+<Plugin
+    DescriptorVersion="1.0"
+    Name="ImagePlayer"
+    PluginId="{50A8E101-B43C-4681-9259-2386A898CC5C}"
+    Author="Morpheus_xx, Albert"
+    Copyright="GPL"
+    Description="Image Player"
+    PluginVersion="1.0">
+
+  <DependsOn>
+    <PluginReference PluginId="{1AFF4467-64B0-4ca1-AF28-9AEDF3525BCE}"/> <!-- ConfigurationManager -->
+    <PluginReference PluginId="{B765A4B6-F455-4941-BDAE-2CE45208BFEB}"/> <!-- Configuration plugin -->
+  </DependsOn>
+
+  <Runtime>
+    <Assembly FileName="ImagePlayer.dll"/>
+  </Runtime>
+
+  <Register Location="/Players/Builders">
+    <PlayerBuilder Id="3BD29059-A2AC-4983-BDBA-D3080D1CA19D" ClassName="MediaPortal.UI.Players.Image.ImagePlayerBuilder"/>
+  </Register>
+
+  <!-- Language resources -->
+  <Register Location="/Resources/Language">
+    <Resource Id="ImagePlayerLanguage" Directory="Language" Type="Language"/>
+  </Register>
+
+  <!-- Root Sections -->
+  <Register Location="/Configuration/Settings">
+    <ConfigSection
+        Id="Players"
+        Redundant="true"
+        Text="[Settings.Players]"/>
+  </Register>
+
+  <!-- Contents of '/Players' section -->
+  <Register Location="/Configuration/Settings/Players">
+    <ConfigSection
+        Id="Image"
+        Redundant="true"
+        Text="[Settings.Players.Image]"/>
+  </Register>
+
+  <!-- Contents of '/Players/Image' section -->
+  <Register Location="/Configuration/Settings/Players/Image">
+    <ConfigSetting
+        Id="SlideShowImageDuration"
+        Text="[Settings.Players.Image.SlideShowImageDuration]"
+        HelpText="[Settings.Players.Image.SlideShowImageDuration.Help]"
+        ClassName="MediaPortal.UI.Players.Image.Settings.Configuration.SlideShowImageDuration"/>
+    <ConfigSetting
+      Id="KenBurnsEffect"
+      Text="[Settings.Players.Image.KenBurnsEffect]"
+      HelpText="[Settings.Players.Image.KenBurnsEffect.Help]"
+      ClassName="MediaPortal.UI.Players.Image.Settings.Configuration.KenBurnsEffect"/>
+  </Register>
+</Plugin>

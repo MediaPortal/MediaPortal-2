@@ -57,7 +57,7 @@ namespace MediaPortal.UiComponents.Media.Models
   /// <para>
   /// There are methods available with several signatures to provide a maximum of flexibility for the caller. The user can be
   /// asked if he wants to play or enqueue the item(s) or the function can be choosen explicitly by the caller. The user
-  /// can also be asked which kind of media items (audio/video/pictures) he wants to play/enqueue.
+  /// can also be asked which kind of media items (audio/video/images) he wants to play/enqueue.
   /// </para>
   /// <para>
   /// As entrance point see the static methods <see cref="PlayItem"/>, <see cref="PlayItems"/>,
@@ -174,7 +174,7 @@ namespace MediaPortal.UiComponents.Media.Models
     }
 
     /// <summary>
-    /// First shows a menu to choose which media type should be played (Video, Audio, Picture), then
+    /// First shows a menu to choose which media type should be played (Video, Audio, Image), then
     /// filters the items returned from the given <paramref name="getMediaItemsFunction"/>, checks if we need to show a
     /// menu for playing those items and shows that menu or adds all items to the playlist at once, starting playing,
     /// if no player is active and thus no menu needs to be shown.
@@ -235,7 +235,7 @@ namespace MediaPortal.UiComponents.Media.Models
       if (pc == null)
         return;
 
-      // Always add items to playlist. This allows audio playlists as well as video playlists.
+      // Always add items to playlist. This allows audio playlists as well as video/image playlists.
       pc.Playlist.Add(item);
 
       ServiceRegistration.Get<IThreadPool>().Add(() => CompletePlayOrEnqueue(pc, play));
@@ -691,12 +691,12 @@ namespace MediaPortal.UiComponents.Media.Models
             new ListItem(Consts.KEY_NAME, Consts.RES_ADD_ALL_IMAGES)
               {
                   Command = new MethodDelegateCommand(() => CheckQueryPlayAction_Continue(
-                      getMediaItemsFunction, new Guid[] {PictureAspect.Metadata.AspectId}, AVType.Video))
+                      getMediaItemsFunction, new Guid[] {ImageAspect.Metadata.AspectId}, AVType.Video))
               },
             new ListItem(Consts.KEY_NAME, Consts.RES_ADD_VIDEOS_AND_IMAGES)
               {
                   Command = new MethodDelegateCommand(() => CheckQueryPlayAction_Continue(
-                      getMediaItemsFunction, new Guid[] {VideoAspect.Metadata.AspectId, PictureAspect.Metadata.AspectId}, AVType.Video))
+                      getMediaItemsFunction, new Guid[] {VideoAspect.Metadata.AspectId, ImageAspect.Metadata.AspectId}, AVType.Video))
               },
         };
       IScreenManager screenManager = ServiceRegistration.Get<IScreenManager>();

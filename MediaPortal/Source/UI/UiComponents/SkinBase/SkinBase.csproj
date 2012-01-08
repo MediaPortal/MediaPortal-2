@@ -204,10 +204,12 @@
     <Content Include="Skin\default\themes\black\styles\Colors.xaml" />
     <Content Include="Skin\default\backgrounds\default-background.xaml" />
     <Content Include="Skin\default\backgrounds\video-background.xaml" />
-    <Content Include="Skin\default\backgrounds\picture-background.xaml" />
+    <Content Include="Skin\default\backgrounds\image-background.xaml">
+      <SubType>Designer</SubType>
+    </Content>
     <Content Include="Skin\default\superlayers\BusyCursor.xaml" />
     <Content Include="Skin\default\superlayers\Volume.xaml" />
-    <Content Include="Skin\default\superlayers\ScreenSaver.xaml"/>
+    <Content Include="Skin\default\superlayers\ScreenSaver.xaml" />
     <Content Include="Skin\default\workflow\player-states.xml" />
     <Content Include="Skin\default\workflow\player-actions.xml" />
     <Content Include="Skin\default\workflow\serverconnect-actions.xml" />
@@ -229,7 +231,7 @@
     <Content Include="Skin\default\workflow\sharesconfig-states.xml" />
     <Content Include="Skin\default\themes\silver\styles\Colors.xaml" />
     <Content Include="Skin\default\themes\silver\styles\Consts.xaml" />
-    <Content Include="Skin\default\themes\silver\styles\OtherControls.xaml"/>
+    <Content Include="Skin\default\themes\silver\styles\OtherControls.xaml" />
     <Content Include="Skin\default\themes\silver\theme.xml" />
     <Content Include="Skin\default\themes\default\styles\Brushes.xaml" />
     <Content Include="Skin\default\themes\default\styles\BusyCursor.xaml" />

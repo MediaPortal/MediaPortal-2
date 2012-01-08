@@ -4,7 +4,7 @@
     PluginId="{9886EB43-B3EB-4cf1-A979-8D4D8874C555}"
     Author="hwahrmann, Symphy, Albert"
     Copyright="GPL"
-    Description="Bass Music Player"
+    Description="Bass Audio Player"
     PluginVersion="1.0">
 
   <DependsOn>

@@ -50,9 +50,9 @@ namespace MediaPortal.UiComponents.Media.Models
   /// </summary>
   /// <remarks>
   /// The media model attends all media navigation workflow states. It can handle the local media navigation as well as
-  /// media library based music, movies and pictures navigation. For each of those modes, there exists an own workflow
-  /// state which represents the according root view. So when navigating to the root view state for the music navigation,
-  /// this model will show the music navigation screen with a view representing the complete music contents of the media
+  /// media library based audio, videos and images navigation. For each of those modes, there exists an own workflow
+  /// state which represents the according root view. So when navigating to the root view state for the audio navigation,
+  /// this model will show the audio navigation screen with a view representing the complete audio contents of the media
   /// library, for example. For the navigation, it delegates to <see cref="AbstractScreenData"/> and its sub classes.
   /// </remarks>
   public class MediaNavigationModel : IWorkflowModel
@@ -83,8 +83,9 @@ namespace MediaPortal.UiComponents.Media.Models
     /// Gets the current media navigation mode.
     /// </summary>
     /// <remarks>
-    /// The media navigation mode determines the media library part which is navigated: Music, Movies or Pictures. Another
-    /// navigation mode is BrowseLocalMedia, which is completely decoupled from the media library.
+    /// The media navigation mode determines the media library part which is navigated: Audio, Videos or Images. Other
+    /// navigation modes are BrowseLocalMedia, which is completely decoupled from the media library, and and BrowseMediaLibrary,
+    /// which lets the user browse through the media library contents.
     /// </remarks>
     public MediaNavigationMode Mode
     {
@@ -185,11 +186,11 @@ namespace MediaPortal.UiComponents.Media.Models
       MediaNavigationMode mode = Mode;
       switch (mode)
       {
-        case MediaNavigationMode.Music:
+        case MediaNavigationMode.Audio:
           PlayItemsModel.CheckQueryPlayAction(GetMediaItemsFromCurrentView, AVType.Audio);
           break;
-        case MediaNavigationMode.Movies:
-        case MediaNavigationMode.Pictures:
+        case MediaNavigationMode.Videos:
+        case MediaNavigationMode.Images:
           PlayItemsModel.CheckQueryPlayAction(GetMediaItemsFromCurrentView, AVType.Video);
           break;
         case MediaNavigationMode.BrowseLocalMedia:
@@ -250,87 +251,87 @@ namespace MediaPortal.UiComponents.Media.Models
     protected void PrepareRootState()
     {
       // Initialize root media navigation state. We will set up all sub processes for each media model "part", i.e.
-      // music, movies, pictures and local media.
+      // audio, videos, images, browse local media and browse media library.
       Guid currentStateId = _currentNavigationContext.WorkflowState.StateId;
-      // The initial state ID determines the media model "part" to initialize: Local media, music, movies or pictures.
+      // The initial state ID determines the media model "part" to initialize: Browse local media, browse media library, audio, videos or images.
       // The media model part determines the media navigation mode and the view contents to be set.
       NavigationData navigationData;
-      if (currentStateId == Consts.WF_STATE_ID_MUSIC_NAVIGATION_ROOT)
+      if (currentStateId == Consts.WF_STATE_ID_AUDIO_NAVIGATION_ROOT)
       {
-        Mode = MediaNavigationMode.Music;
+        Mode = MediaNavigationMode.Audio;
         IEnumerable<Guid> skinDependentOptionalMIATypeIDs = GetMediaSkinOptionalMIATypes(Mode);
-        AbstractItemsScreenData.PlayableItemCreatorDelegate picd = mi => new MusicItem(mi)
+        AbstractItemsScreenData.PlayableItemCreatorDelegate picd = mi => new AudioItem(mi)
           {
               Command = new MethodDelegateCommand(() => PlayItemsModel.CheckQueryPlayAction(mi))
           };
-        ViewSpecification rootViewSpecification = new MediaLibraryQueryViewSpecification(Consts.RES_MUSIC_VIEW_NAME,
-            null, Consts.NECESSARY_MUSIC_MIAS, skinDependentOptionalMIATypeIDs, true)
+        ViewSpecification rootViewSpecification = new MediaLibraryQueryViewSpecification(Consts.RES_AUDIO_VIEW_NAME,
+            null, Consts.NECESSARY_AUDIO_MIAS, skinDependentOptionalMIATypeIDs, true)
           {
               MaxNumItems = Consts.MAX_NUM_ITEMS_VISIBLE
           };
-        AbstractScreenData sd = new MusicFilterByAlbumScreenData();
+        AbstractScreenData sd = new AudioFilterByAlbumScreenData();
         ICollection<AbstractScreenData> availableScreens = new List<AbstractScreenData>
             {
-              new MusicShowItemsScreenData(picd),
-              new MusicFilterByArtistScreenData(),
+              new AudioShowItemsScreenData(picd),
+              new AudioFilterByArtistScreenData(),
               sd, // C# doesn't like it to have an assignment inside a collection initializer
-              new MusicFilterByGenreScreenData(),
-              new MusicFilterByDecadeScreenData(),
-              new MusicFilterBySystemScreenData(),
-              new MusicSimpleSearchScreenData(picd),
+              new AudioFilterByGenreScreenData(),
+              new AudioFilterByDecadeScreenData(),
+              new AudioFilterBySystemScreenData(),
+              new AudioSimpleSearchScreenData(picd),
             };
-        navigationData = new NavigationData(Consts.RES_MUSIC_VIEW_NAME, currentStateId,
+        navigationData = new NavigationData(Consts.RES_AUDIO_VIEW_NAME, currentStateId,
             currentStateId, rootViewSpecification, sd, availableScreens);
       }
-      else if (currentStateId == Consts.WF_STATE_ID_MOVIES_NAVIGATION_ROOT)
+      else if (currentStateId == Consts.WF_STATE_ID_VIDEOS_NAVIGATION_ROOT)
       {
-        Mode = MediaNavigationMode.Movies;
+        Mode = MediaNavigationMode.Videos;
         IEnumerable<Guid> skinDependentOptionalMIATypeIDs = GetMediaSkinOptionalMIATypes(Mode);
-        AbstractItemsScreenData.PlayableItemCreatorDelegate picd = mi => new MovieItem(mi)
+        AbstractItemsScreenData.PlayableItemCreatorDelegate picd = mi => new VideoItem(mi)
           {
               Command = new MethodDelegateCommand(() => PlayItemsModel.CheckQueryPlayAction(mi))
           };
-        ViewSpecification rootViewSpecification = new MediaLibraryQueryViewSpecification(Consts.RES_MOVIES_VIEW_NAME,
-            null, Consts.NECESSARY_MOVIE_MIAS, skinDependentOptionalMIATypeIDs, true)
+        ViewSpecification rootViewSpecification = new MediaLibraryQueryViewSpecification(Consts.RES_VIDEOS_VIEW_NAME,
+            null, Consts.NECESSARY_VIDEO_MIAS, skinDependentOptionalMIATypeIDs, true)
           {
               MaxNumItems = Consts.MAX_NUM_ITEMS_VISIBLE
           };
-        AbstractScreenData sd = new MoviesFilterByGenreScreenData();
+        AbstractScreenData sd = new VideosFilterByGenreScreenData();
         ICollection<AbstractScreenData> availableScreens = new List<AbstractScreenData>
             {
-              new MoviesShowItemsScreenData(picd),
-              new MoviesFilterByActorScreenData(),
+              new VideosShowItemsScreenData(picd),
+              new VideosFilterByActorScreenData(),
               sd, // C# doesn't like it to have an assignment inside a collection initializer
-              new MoviesFilterByYearScreenData(),
-              new MoviesFilterBySystemScreenData(),
-              new MoviesSimpleSearchScreenData(picd),
+              new VideosFilterByYearScreenData(),
+              new VideosFilterBySystemScreenData(),
+              new VideosSimpleSearchScreenData(picd),
           };
-        navigationData = new NavigationData(Consts.RES_MOVIES_VIEW_NAME, currentStateId,
+        navigationData = new NavigationData(Consts.RES_VIDEOS_VIEW_NAME, currentStateId,
             currentStateId, rootViewSpecification, sd, availableScreens);
       }
-      else if (currentStateId == Consts.WF_STATE_ID_PICTURES_NAVIGATION_ROOT)
+      else if (currentStateId == Consts.WF_STATE_ID_IMAGES_NAVIGATION_ROOT)
       {
-        Mode = MediaNavigationMode.Pictures;
+        Mode = MediaNavigationMode.Images;
         IEnumerable<Guid> skinDependentOptionalMIATypeIDs = GetMediaSkinOptionalMIATypes(Mode);
-        AbstractItemsScreenData.PlayableItemCreatorDelegate picd = mi => new PictureItem(mi)
+        AbstractItemsScreenData.PlayableItemCreatorDelegate picd = mi => new ImageItem(mi)
           {
               Command = new MethodDelegateCommand(() => PlayItemsModel.CheckQueryPlayAction(mi))
           };
-        ViewSpecification rootViewSpecification = new MediaLibraryQueryViewSpecification(Consts.RES_PICTURES_VIEW_NAME,
-            null, Consts.NECESSARY_PICTURE_MIAS, skinDependentOptionalMIATypeIDs, true)
+        ViewSpecification rootViewSpecification = new MediaLibraryQueryViewSpecification(Consts.RES_IMAGES_VIEW_NAME,
+            null, Consts.NECESSARY_IMAGE_MIAS, skinDependentOptionalMIATypeIDs, true)
           {
               MaxNumItems = Consts.MAX_NUM_ITEMS_VISIBLE
           };
-        AbstractScreenData sd = new PicturesFilterByYearScreenData();
+        AbstractScreenData sd = new ImagesFilterByYearScreenData();
         ICollection<AbstractScreenData> availableScreens = new List<AbstractScreenData>
             {
-              new PicturesShowItemsScreenData(picd),
+              new ImagesShowItemsScreenData(picd),
               sd, // C# doesn't like it to have an assignment inside a collection initializer
-              new PicturesFilterBySizeScreenData(),
-              new PicturesFilterBySystemScreenData(),
-              new PicturesSimpleSearchScreenData(picd),
+              new ImagesFilterBySizeScreenData(),
+              new ImagesFilterBySystemScreenData(),
+              new ImagesSimpleSearchScreenData(picd),
           };
-        navigationData = new NavigationData(Consts.RES_PICTURES_VIEW_NAME, currentStateId,
+        navigationData = new NavigationData(Consts.RES_IMAGES_VIEW_NAME, currentStateId,
             currentStateId, rootViewSpecification, sd, availableScreens);
       }
       else
@@ -351,17 +352,17 @@ namespace MediaPortal.UiComponents.Media.Models
         AbstractItemsScreenData.PlayableItemCreatorDelegate picd = mi =>
           {
             if (mi.Aspects.ContainsKey(AudioAspect.ASPECT_ID))
-              return new MusicItem(mi)
+              return new AudioItem(mi)
                 {
                     Command = new MethodDelegateCommand(() => PlayItemsModel.CheckQueryPlayAction(mi))
                 };
             if (mi.Aspects.ContainsKey(VideoAspect.ASPECT_ID))
-              return new MovieItem(mi)
+              return new VideoItem(mi)
                 {
                     Command = new MethodDelegateCommand(() => PlayItemsModel.CheckQueryPlayAction(mi))
                 };
-            if (mi.Aspects.ContainsKey(PictureAspect.ASPECT_ID))
-              return new PictureItem(mi)
+            if (mi.Aspects.ContainsKey(ImageAspect.ASPECT_ID))
+              return new ImageItem(mi)
                 {
                     Command = new MethodDelegateCommand(() => PlayItemsModel.CheckQueryPlayAction(mi))
                 };
@@ -376,7 +377,7 @@ namespace MediaPortal.UiComponents.Media.Models
             {
                 AudioAspect.ASPECT_ID,
                 VideoAspect.ASPECT_ID,
-                PictureAspect.ASPECT_ID,
+                ImageAspect.ASPECT_ID,
             }.Union(skinDependentOptionalMIATypeIDs);
         string viewName = currentStateId == Consts.WF_STATE_ID_LOCAL_MEDIA_NAVIGATION_ROOT ?
             Consts.RES_LOCAL_MEDIA_ROOT_VIEW_NAME : Consts.RES_BROWSE_MEDIA_ROOT_VIEW_NAME;

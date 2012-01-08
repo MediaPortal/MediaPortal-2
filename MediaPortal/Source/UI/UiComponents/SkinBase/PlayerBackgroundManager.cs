@@ -166,8 +166,8 @@ namespace MediaPortal.UiComponents.SkinBase
       {
         if (pscPrimary.CurrentPlayer is IVideoPlayer)
           return Consts.SCREEN_VIDEO_BACKGROUND;
-        if (pscPrimary.CurrentPlayer is IPicturePlayer)
-          return Consts.SCREEN_PICTURE_BACKGROUND;
+        if (pscPrimary.CurrentPlayer is IImagePlayer)
+          return Consts.SCREEN_IMAGE_BACKGROUND;
       }
       return Consts.SCREEN_DEFAULT_BACKGROUND;
     }

@@ -467,7 +467,7 @@ namespace MediaPortal.UI.Services.Players
         IPlayerManager playerManager = ServiceRegistration.Get<IPlayerManager>();
         // No locking necessary
         IPlayer player = playerManager[PlayerManagerConsts.SECONDARY_SLOT];
-        return player is IVideoPlayer || player is IPicturePlayer;
+        return player is IVideoPlayer || player is IImagePlayer;
       }
     }
 
@@ -715,7 +715,7 @@ namespace MediaPortal.UI.Services.Players
     {
       // No locking necessary
       if (item.Aspects.ContainsKey(VideoAspect.Metadata.AspectId) ||
-          item.Aspects.ContainsKey(PictureAspect.Metadata.AspectId))
+          item.Aspects.ContainsKey(ImageAspect.Metadata.AspectId))
         return AVType.Video;
       if (item.Aspects.ContainsKey(AudioAspect.Metadata.AspectId))
         return AVType.Audio;

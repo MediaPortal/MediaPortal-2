@@ -113,9 +113,9 @@ namespace Ui.Players.BassPlayer.InputSources
       { // Build stream reading procs for the resource's input stream
         Stream inputStream = _accessor.OpenRead();
         int length = (int) inputStream.Length;
-        byte[] musicData = new byte[length];
-        inputStream.Read(musicData, 0, length);
-        handle = Bass.BASS_MusicLoad(musicData, 0, length, flags, 0);
+        byte[] audioData = new byte[length];
+        inputStream.Read(audioData, 0, length);
+        handle = Bass.BASS_MusicLoad(audioData, 0, length, flags, 0);
       }
       else
         // Optimize access to local filesystem resource

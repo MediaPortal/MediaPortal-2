@@ -4,54 +4,54 @@
     <!-- Menu items for the five Media navigation parts -->
     <String Name="BrowseMediaMenuItem" Text="Browse media"/>
     <String Name="LocalMediaMenuItem" Text="Local media"/>
-    <String Name="MusicMenuItem" Text="Music"/>
-    <String Name="MoviesMenuItem" Text="Movies"/>
-    <String Name="PicturesMenuItem" Text="Pictures"/>
+    <String Name="AudioMenuItem" Text="Audio"/>
+    <String Name="VideosMenuItem" Text="Videos"/>
+    <String Name="ImagesMenuItem" Text="Images"/>
 
     <!-- Filter titles -->
     <String Name="FilterByArtistMenuItem" Text="Filter by artist"/>
     <String Name="FilterByAlbumMenuItem" Text="Filter by album"/>
-    <String Name="FilterByMusicGenreMenuItem" Text="Filter by genre"/>
+    <String Name="FilterByAudioGenreMenuItem" Text="Filter by genre"/>
     <String Name="FilterByDecadeMenuItem" Text="Filter by decade"/>
     <String Name="FilterByActorMenuItem" Text="Filter by actor"/>
-    <String Name="FilterByMovieGenreMenuItem" Text="Filter by genre"/>
-    <String Name="FilterByMovieYearMenuItem" Text="Filter by year"/>
-    <String Name="FilterByPictureSizeMenuItem" Text="Filter by size"/>
-    <String Name="FilterByPictureYearMenuItem" Text="Filter by year"/>
+    <String Name="FilterByVideoGenreMenuItem" Text="Filter by genre"/>
+    <String Name="FilterByVideoYearMenuItem" Text="Filter by year"/>
+    <String Name="FilterByImageSizeMenuItem" Text="Filter by size"/>
+    <String Name="FilterByImageYearMenuItem" Text="Filter by year"/>
     <String Name="FilterBySystemMenuItem" Text="Filter by system"/>
     <String Name="SimpleSearchFilterMenuItem" Text="Search"/>
-    <String Name="ShowAllMusicItemsMenuItem" Text="Show all"/>
-    <String Name="ShowAllMovieItemsMenuItem" Text="Show all"/>
-    <String Name="ShowAllPictureItemsMenuItem" Text="Show all"/>
+    <String Name="ShowAllAudioItemsMenuItem" Text="Show all"/>
+    <String Name="ShowAllVideoItemsMenuItem" Text="Show all"/>
+    <String Name="ShowAllImageItemsMenuItem" Text="Show all"/>
 
     <!-- Special filters names -->
-    <String Name="PictureFilterSmall" Text="Small"/>
-    <String Name="PictureFilterMedium" Text="Medium"/>
-    <String Name="PictureFilterBig" Text="Big"/>
+    <String Name="ImageFilterSmall" Text="Small"/>
+    <String Name="ImageFilterMedium" Text="Medium"/>
+    <String Name="ImageFilterBig" Text="Big"/>
 
     <!-- Navbar display labels for sub view navigation -->
     <String Name="BrowseMediaNavigationNavbarDisplayLabel" Text="{0}"/> <!-- For example: "R.E.M." -->
     <String Name="LocalMediaNavigationNavbarDisplayLabel" Text="{0}"/> <!-- For example: "R.E.M." -->
     <String Name="FilterArtistNavbarDisplayLabel" Text="Artist: {0}"/> <!-- For example: "Artist: R.E.M." -->
     <String Name="FilterAlbumNavbarDisplayLabel" Text="Album: {0}"/>
-    <String Name="FilterMusicGenreNavbarDisplayLabel" Text="Genre: {0}"/>
+    <String Name="FilterAudioGenreNavbarDisplayLabel" Text="Genre: {0}"/>
     <String Name="FilterDecadeNavbarDisplayLabel" Text="Decade: {0}"/>
     <String Name="FilterActorNavbarDisplayLabel" Text="Actor: {0}"/>
-    <String Name="FilterMovieGenreNavbarDisplayLabel" Text="Genre: {0}"/>
-    <String Name="FilterMovieYearNavbarDisplayLabel" Text="Year: {0}"/>
-    <String Name="FilterPictureSizeNavbarDisplayLabel" Text="Size: {0}"/>
-    <String Name="FilterPictureYearNavbarDisplayLabel" Text="Year: {0}"/>
-    <String Name="FilterMusicItemsNavbarDisplayLabel" Text="Name: {0}"/>
-    <String Name="FilterMovieItemsNavbarDisplayLabel" Text="Name: {0}"/>
-    <String Name="FilterPictureItemsNavbarDisplayLabel" Text="Name: {0}"/>
+    <String Name="FilterVideoGenreNavbarDisplayLabel" Text="Genre: {0}"/>
+    <String Name="FilterVideoYearNavbarDisplayLabel" Text="Year: {0}"/>
+    <String Name="FilterImageSizeNavbarDisplayLabel" Text="Size: {0}"/>
+    <String Name="FilterImageYearNavbarDisplayLabel" Text="Year: {0}"/>
+    <String Name="FilterAudioItemsNavbarDisplayLabel" Text="Name: {0}"/>
+    <String Name="FilterVideoItemsNavbarDisplayLabel" Text="Name: {0}"/>
+    <String Name="FilterImageItemsNavbarDisplayLabel" Text="Name: {0}"/>
     <String Name="FilterSystemNavbarDisplayLabel" Text="System: {0}"/>
 
     <!-- Display labels for workflow navigation contexts -->
     <String Name="BrowseMediaNavigationRootWorkflowNavigationContextDisplayLabel" Text="Browse media"/>
     <String Name="LocalMediaNavigationRootWorkflowNavigationContextDisplayLabel" Text="Local media"/>
-    <String Name="MusicNavigationRootWorkflowNavigationContextDisplayLabel" Text="Music library"/>
-    <String Name="MoviesNavigationRootWorkflowNavigationContextDisplayLabel" Text="Movies library"/>
-    <String Name="PicturesNavigationRootWorkflowNavigationContextDisplayLabel" Text="Pictures library"/>
+    <String Name="AudioNavigationRootWorkflowNavigationContextDisplayLabel" Text="Audio library"/>
+    <String Name="VideoNavigationRootWorkflowNavigationContextDisplayLabel" Text="Video library"/>
+    <String Name="ImageNavigationRootWorkflowNavigationContextDisplayLabel" Text="Image library"/>
     <String Name="VideoCurrentlyPlayingWorkflowStateNavigationContextDisplayLabel" Text="Current video"/>
     <String Name="VideoFullscreenContentWorkflowStateNavigationContextDisplayLabel" Text="Fullscreen video"/>
     <String Name="AudioCurrentlyPlayingWorkflowStateNavigationContextDisplayLabel" Text="Current audio"/>
@@ -73,19 +73,19 @@
     <String Name="BrowseMediaNavigationHeader" Text="Browse media navigation"/>
     <String Name="LocalMediaNavigationHeader" Text="Local media navigation"/>
     <String Name="MediaItemsHeader" Text="Media items"/>
-    <String Name="MovieItemsHeader" Text="Movies"/>
-    <String Name="MusicItemsHeader" Text="Music items"/>
-    <String Name="PictureItemsHeader" Text="Pictures"/>
+    <String Name="VideoItemsHeader" Text="Videos"/>
+    <String Name="AudioItemsHeader" Text="Audio items"/>
+    <String Name="ImageItemsHeader" Text="Images"/>
     <String Name="SimpleSearchHeader" Text="Simple search"/>
     <String Name="ChooseActorHeader" Text="Choose an actor"/>
-    <String Name="ChooseMovieGenreHeader" Text="Choose a genre"/>
-    <String Name="ChooseMovieYearHeader" Text="Choose a year"/>
-    <String Name="ChooseMusicDecadeHeader" Text="Choose a decade"/>
+    <String Name="ChooseVideoGenreHeader" Text="Choose a genre"/>
+    <String Name="ChooseVideoYearHeader" Text="Choose a year"/>
+    <String Name="ChooseAudioDecadeHeader" Text="Choose a decade"/>
     <String Name="ChooseAlbumHeader" Text="Choose an album"/>
     <String Name="ChooseArtistHeader" Text="Choose an artist"/>
-    <String Name="ChooseMusicGenreHeader" Text="Choose a genre"/>
-    <String Name="ChoosePictureYearHeader" Text="Choose a year"/>
-    <String Name="ChoosePictureSizeHeader" Text="Choose a size"/>
+    <String Name="ChooseAudioGenreHeader" Text="Choose a genre"/>
+    <String Name="ChooseImageYearHeader" Text="Choose a year"/>
+    <String Name="ChooseImageSizeHeader" Text="Choose a size"/>
     <String Name="ChooseSystemHeader" Text="Choose a system"/>
 
     <String Name="PlaylistsOverviewHeader" Text="Playlists"/>
@@ -102,9 +102,9 @@
     <!-- View names (names for the view instances) -->
     <String Name="BrowseMediaRootViewName" Text="Browse media"/>
     <String Name="LocalMediaRootViewName" Text="Local media"/>
-    <String Name="MusicRootViewName" Text="Music"/>
-    <String Name="MoviesRootViewName" Text="Movies"/>
-    <String Name="PicturesRootViewName" Text="Pictures"/>
+    <String Name="AudioRootViewName" Text="Audio"/>
+    <String Name="VideosRootViewName" Text="Videos"/>
+    <String Name="ImagesRootViewName" Text="Images"/>
     <String Name="SimpleSearchViewName" Text="Simple search"/>
 
     <!-- General strings used in views  -->
@@ -169,16 +169,16 @@
     <String Name="VideoStoryPlotLabel" Text="Story plot: "/>
 
     <!-- Image currently playing -->
-    <String Name="PictureCurrentlyPlayingHeader" Text="Current image information"/>
-    <String Name="PictureTitleLabel" Text="Name: "/>
-    <String Name="PictureDimensions" Text="Dimensions: "/>
-    <String Name="PictureMake" Text="Camera make: "/>
-    <String Name="PictureModel" Text="Camera model: "/>
-    <String Name="PictureISOSpeedLabel" Text="ISO speed: "/>
-    <String Name="PictureFNumberLabel" Text="F number: "/>
-    <String Name="PictureShutterSpeedLabel" Text="Shutter speed: "/>
-    <String Name="PictureMeteringModeLabel" Text="Metering mode: "/>
-    <String Name="PictureExposureTimeLabel" Text="Exposure time: "/>
+    <String Name="ImageCurrentlyPlayingHeader" Text="Current image information"/>
+    <String Name="ImageTitleLabel" Text="Name: "/>
+    <String Name="ImageDimensions" Text="Dimensions: "/>
+    <String Name="CameraMake" Text="Camera make: "/>
+    <String Name="CameraModel" Text="Camera model: "/>
+    <String Name="ImageISOSpeedLabel" Text="ISO speed: "/>
+    <String Name="ImageFNumberLabel" Text="F number: "/>
+    <String Name="ImageShutterSpeedLabel" Text="Shutter speed: "/>
+    <String Name="ImageMeteringModeLabel" Text="Metering mode: "/>
+    <String Name="ImageExposureTimeLabel" Text="Exposure time: "/>
 
     <!-- DVD currently playing -->
     <String Name="DVDCurrentlyPlayingHeader" Text="Current DVD information"/>
@@ -191,14 +191,14 @@
     <String Name="AudioDurationLabel" Text="Duration: "/>
 
     <String Name="AudioPlaylistHeader" Text="Audio playlist"/>
-    <String Name="VideoPlaylistHeader" Text="Video playlist"/>
+    <String Name="VideoImagePlaylistHeader" Text="Video/image playlist"/>
     <String Name="PiPPlaylistHeader" Text="PiP playlist"/>
 
     <String Name="SavePLAtServer" Text="Save at the server"/>
     <String Name="SavePLLocally" Text="Save locally"/>
 
     <String Name="ShowAudioPlaylistAction" Text="Show audio playlist"/>
-    <String Name="ShowVideoPlaylistAction" Text="Show video playlist"/>
+    <String Name="ShowVideoImagePlaylistAction" Text="Show video/image playlist"/>
     <String Name="ShowPiPPlaylistAction" Text="Show PiP playlist"/>
     <String Name="EditPlaylistAction" Text="Edit playlist"/>
     <String Name="ClearPlaylistAction" Text="Clear playlist"/>

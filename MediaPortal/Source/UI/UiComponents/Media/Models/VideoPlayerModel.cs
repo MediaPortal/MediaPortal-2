@@ -76,8 +76,8 @@ namespace MediaPortal.UiComponents.Media.Models
         return uicPlayer.UIContributorType;
 
       // Return the more specific player types first
-      if (player is IPicturePlayer)
-        return typeof(PicturePlayerUIContributor);
+      if (player is IImagePlayer)
+        return typeof(ImagePlayerUIContributor);
 
       if (player is IDVDPlayer)
         return typeof(DVDPlayerUIContributor);

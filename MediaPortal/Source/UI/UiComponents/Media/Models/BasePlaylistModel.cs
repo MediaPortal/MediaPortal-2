@@ -129,7 +129,7 @@ namespace MediaPortal.UiComponents.Media.Models
           break;
         case AVType.Video:
           PlaylistHeader = slotIndex == PlayerManagerConsts.PRIMARY_SLOT ?
-              Consts.RES_VIDEO_PLAYLIST : Consts.RES_PIP_PLAYLIST;
+              Consts.RES_VIDEO_IMAGE_PLAYLIST : Consts.RES_PIP_PLAYLIST;
           break;
         default:
           // Unknown player context type

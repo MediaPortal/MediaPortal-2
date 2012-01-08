@@ -29,7 +29,7 @@ namespace Ui.Players.BassPlayer.Utils
   public class URLUtils
   {
     /// <summary>
-    /// Determines if the given <paramref name="filePath"/> represents a MOD music file.
+    /// Determines if the given <paramref name="filePath"/> represents a MOD audio file.
     /// </summary>
     /// <param name="filePath">The path of the file to be examined.</param>
     /// <returns><c>true</c> if the extension of the given file path is one of the known MOD file extensions,

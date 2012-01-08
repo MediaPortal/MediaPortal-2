@@ -53,7 +53,7 @@ namespace MediaPortal.UI.Shares
 
     /// <summary>
     /// If no shares are present, this method can be called to setup the default client shares. This will create
-    /// the music share, the movies share and the pictures share with the Windows default directories.
+    /// the music, movies and pictures shares with the Windows default directories.
     /// </summary>
     void SetupDefaultShares();
 

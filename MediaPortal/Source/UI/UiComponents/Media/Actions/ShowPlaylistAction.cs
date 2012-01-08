@@ -38,9 +38,9 @@ namespace MediaPortal.UiComponents.Media.Actions
     public const string SHOW_PLAYLIST_WORKFLOW_STATE_ID_STR = "95E38A80-234C-4494-9F7A-006D8E4D6FDA";
     public static readonly Guid SHOW_PLAYLIST_WORKFLOW_STATE_ID = new Guid(SHOW_PLAYLIST_WORKFLOW_STATE_ID_STR);
 
-    public const string SHOW_AUDIO_PLAYLIST_RES = "[Media.ShowAudioPlaylistAction]";
-    public const string SHOW_VIDEO_PLAYLIST_RES = "[Media.ShowVideoPlaylistAction]";
-    public const string SHOW_PIP_PLAYLIST_RES = "[Media.ShowPiPPlaylistAction]";
+    public const string RES_SHOW_AUDIO_PLAYLIST = "[Media.ShowAudioPlaylistAction]";
+    public const string RES_SHOW_VIDEO_IMAGE_PLAYLIST_RES = "[Media.ShowVideoImagePlaylistAction]";
+    public const string RES_SHOW_PIP_PLAYLIST = "[Media.ShowPiPPlaylistAction]";
 
     #endregion
 
@@ -120,11 +120,11 @@ namespace MediaPortal.UiComponents.Media.Actions
         switch (pc.AVType)
         {
           case AVType.Audio:
-            displayTitleRes = SHOW_AUDIO_PLAYLIST_RES;
+            displayTitleRes = RES_SHOW_AUDIO_PLAYLIST;
             break;
           case AVType.Video:
             displayTitleRes = pc.PlayerSlotController.SlotIndex == PlayerManagerConsts.PRIMARY_SLOT ?
-                SHOW_VIDEO_PLAYLIST_RES : SHOW_PIP_PLAYLIST_RES;
+                RES_SHOW_VIDEO_IMAGE_PLAYLIST_RES : RES_SHOW_PIP_PLAYLIST;
             break;
           default:
             // Unknown player context type

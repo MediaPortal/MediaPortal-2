@@ -79,7 +79,7 @@ namespace Ui.Players.BassPlayer
         }
         catch (Exception e)
         {
-          ServiceRegistration.Get<ILogger>().Warn("BassPlayer: Error playing media item '{0}'", e, locator);
+          ServiceRegistration.Get<ILogger>().Warn("BassPlayerPlugin: Error playing media item '{0}'", e, locator);
           player.Dispose();
           return null;
         }

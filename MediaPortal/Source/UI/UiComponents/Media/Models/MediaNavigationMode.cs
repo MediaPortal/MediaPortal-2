@@ -31,8 +31,8 @@ namespace MediaPortal.UiComponents.Media.Models
   {
     BrowseLocalMedia,
     BrowseMediaLibrary,
-    Music,
-    Movies,
-    Pictures
+    Audio,
+    Videos,
+    Images
   }
 }

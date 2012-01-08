@@ -41,7 +41,7 @@ namespace MediaPortal.UiComponents.SkinBase.Actions
 
     public const string RES_FULLSCREEN_VIDEO = "[Players.FullscreenVideo]";
     public const string RES_AUDIO_VISUALIZATION = "[Players.AudioVisualization]";
-    public const string RES_FULLSCREEN_PICTURE = "[Players.FullscreenPicture]";
+    public const string RES_FULLSCREEN_IMAGE = "[Players.FullscreenImage]";
 
     #endregion
 
@@ -117,7 +117,7 @@ namespace MediaPortal.UiComponents.SkinBase.Actions
       IWorkflowManager workflowManager = ServiceRegistration.Get<IWorkflowManager>();
       IPlayerContext pcPrimary = playerContextManager.GetPlayerContext(PlayerManagerConsts.PRIMARY_SLOT);
       IPlayer primaryPlayer = pcPrimary == null ? null : pcPrimary.CurrentPlayer;
-      IPicturePlayer pp = primaryPlayer as IPicturePlayer;
+      IImagePlayer pp = primaryPlayer as IImagePlayer;
       IVideoPlayer vp = primaryPlayer as IVideoPlayer;
       IAudioPlayer ap = primaryPlayer as IAudioPlayer;
       bool visible = (pp != null || vp != null || ap != null) &&
@@ -129,7 +129,7 @@ namespace MediaPortal.UiComponents.SkinBase.Actions
         displayTitleRes = LocalizationHelper.CreateStaticString(
             LocalizationHelper.CreateResourceString(RES_FULLSCREEN_VIDEO).Evaluate(vp.Name));
       else
-        displayTitleRes = LocalizationHelper.CreateResourceString(RES_FULLSCREEN_PICTURE);
+        displayTitleRes = LocalizationHelper.CreateResourceString(RES_FULLSCREEN_IMAGE);
       lock (_syncObj)
       {
         _isVisible = visible;

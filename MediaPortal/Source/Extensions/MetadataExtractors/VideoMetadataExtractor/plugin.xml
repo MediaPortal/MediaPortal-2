@@ -1,0 +1,23 @@
+<Plugin
+    DescriptorVersion="1.0"
+    Name="VideoMetadataExtractor"
+    PluginId="{21FC7331-8E52-4ced-AD3B-8B27B050D6C5}"
+    Author = "Frodo, Albert"
+    Copyright="GPL"
+    Description="Metadata extractor for many kinds of video file formats"
+    PluginVersion="1.0">
+
+  <DependsOn>
+    <PluginReference PluginId="{D418C9C9-6D2A-44ed-ADC2-16345294B019}"/> <!-- MediaInfoPlugin -->
+  </DependsOn>
+
+  <Runtime>
+    <Assembly FileName="VideoMetadataExtractor.dll"/>
+  </Runtime>
+
+  <Register Location="/Media/MetadataExtractors">
+    <Instance
+        Id="VideoMetadataExtractor"
+        ClassName="MediaPortal.Extensions.MetadataExtractors.VideoMetadataExtractor.VideoMetadataExtractor"/>
+  </Register>
+</Plugin>

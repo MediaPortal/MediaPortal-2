@@ -16,11 +16,11 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "BackendComponents", "Backen
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Database", "Database", "{EFC339EB-9F75-4E5A-937A-A8BECA514715}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MovieMetadataExtractor", "Extensions\MetadataExtractors\MovieMetadataExtractor\MovieMetadataExtractor.csproj", "{000C12A6-9734-4ACB-99E9-D3F726C5858F}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VideoMetadataExtractor", "Extensions\MetadataExtractors\VideoMetadataExtractor\VideoMetadataExtractor.csproj", "{000C12A6-9734-4ACB-99E9-D3F726C5858F}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MusicMetadataExtractor", "Extensions\MetadataExtractors\MusicMetadataExtractor\MusicMetadataExtractor.csproj", "{11FD64F0-97C0-40B5-8AAA-1E56255D3EF7}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AudioMetadataExtractor", "Extensions\MetadataExtractors\AudioMetadataExtractor\AudioMetadataExtractor.csproj", "{11FD64F0-97C0-40B5-8AAA-1E56255D3EF7}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PictureMetadataExtractor", "Extensions\MetadataExtractors\PictureMetadataExtractor\PictureMetadataExtractor.csproj", "{47B09A95-16F2-4B96-A9FE-4A96363442B0}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ImageMetadataExtractor", "Extensions\MetadataExtractors\ImageMetadataExtractor\ImageMetadataExtractor.csproj", "{47B09A95-16F2-4B96-A9FE-4A96363442B0}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ConfigurationManager", "Core\ConfigurationManager\ConfigurationManager.csproj", "{9545C4C0-3AF9-49F4-811C-47334FEFDFFC}"
 EndProject

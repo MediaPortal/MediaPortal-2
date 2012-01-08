@@ -185,14 +185,14 @@
     <Content Include="Skin\RisingSkin\skin.xml" />
     <Content Include="Skin\RisingSkin\themes\Silver\images\FilterLarge.png" />
     <Content Include="Skin\RisingSkin\themes\Silver\images\FilterSmall.png" />
-    <Content Include="Skin\RisingSkin\themes\Silver\images\MovieLarge.png" />
-    <Content Include="Skin\RisingSkin\themes\Silver\images\MovieSmall.png" />
-    <Content Include="Skin\RisingSkin\themes\Silver\images\MusicLarge.png" />
-    <Content Include="Skin\RisingSkin\themes\Silver\images\MusicSmall.png" />
+    <Content Include="Skin\RisingSkin\themes\Silver\images\VideoLarge.png" />
+    <Content Include="Skin\RisingSkin\themes\Silver\images\VideoSmall.png" />
+    <Content Include="Skin\RisingSkin\themes\Silver\images\AudioLarge.png" />
+    <Content Include="Skin\RisingSkin\themes\Silver\images\AudioSmall.png" />
     <Content Include="Skin\RisingSkin\themes\Silver\images\NavigationLarge.png" />
     <Content Include="Skin\RisingSkin\themes\Silver\images\NavigationSmall.png" />
-    <Content Include="Skin\RisingSkin\themes\Silver\images\PictureLarge.png" />
-    <Content Include="Skin\RisingSkin\themes\Silver\images\PictureSmall.png" />
+    <Content Include="Skin\RisingSkin\themes\Silver\images\ImageLarge.png" />
+    <Content Include="Skin\RisingSkin\themes\Silver\images\ImageSmall.png" />
     <Content Include="Skin\RisingSkin\themes\Silver\styles\Colors.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>

@@ -102,12 +102,12 @@ namespace MediaPortal.UiComponents.RemovableMediaManager
       VideoDriveHandler vdh;
       AudioCDDriveHandler acddh;
       MultimediaDriveHandler mcddh;
-      if ((vdh = VideoDriveHandler.TryCreateVideoDriveHandler(driveInfo, Consts.NECESSARY_MUSIC_MIAS)) != null)
+      if ((vdh = VideoDriveHandler.TryCreateVideoDriveHandler(driveInfo, Consts.NECESSARY_AUDIO_MIAS)) != null)
         PlayItemsModel.CheckQueryPlayAction(vdh.VideoItem);
       else if ((acddh = AudioCDDriveHandler.TryCreateAudioCDDriveHandler(driveInfo)) != null)
         PlayItemsModel.CheckQueryPlayAction(() => acddh.GetAllMediaItems(), AVType.Audio);
       else if ((mcddh = MultimediaDriveHandler.TryCreateMultimediaCDDriveHandler(driveInfo,
-          Consts.NECESSARY_MOVIE_MIAS, Consts.NECESSARY_MUSIC_MIAS, Consts.NECESSARY_PICTURE_MIAS)) != null)
+          Consts.NECESSARY_VIDEO_MIAS, Consts.NECESSARY_AUDIO_MIAS, Consts.NECESSARY_IMAGE_MIAS)) != null)
         switch (mcddh.MediaType)
         {
           case MultiMediaType.Video:

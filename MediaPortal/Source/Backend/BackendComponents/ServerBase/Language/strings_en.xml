@@ -13,7 +13,7 @@
     <String Name="DefaultFriendlyName" Text="MediaPortal 2 server"/>
     <String Name="Manufacturer" Text="Team Mediaportal"/>
     <String Name="ManufacturerUrl" Text="www.team-mediaportal.com"/>
-    <String Name="ModelDescription" Text="MediaPortal 2 server - hosts music, videos and pictures, a media database and provides recording functionality"/>
+    <String Name="ModelDescription" Text="MediaPortal 2 server - hosts audio files, videos and images, and provides a media database"/>
     <String Name="ModelName" Text="MediaPortal 2 server"/>
     <String Name="ModelNumber" Text="1"/>
 <!--    <String Name="ModelUrl" Text="..."/> -->

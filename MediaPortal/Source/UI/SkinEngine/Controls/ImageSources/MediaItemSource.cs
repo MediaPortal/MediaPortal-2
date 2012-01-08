@@ -82,8 +82,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.ImageSources
         if (_thumbBinary == null && mediaItem.Aspects.ContainsKey(ThumbnailSmallAspect.ASPECT_ID))
           _thumbBinary = (byte[]) mediaItem.Aspects[ThumbnailSmallAspect.ASPECT_ID].GetAttributeValue(ThumbnailSmallAspect.ATTR_THUMBNAIL);
       }
-      PictureRotation rotation;
-      PictureAspect.GetOrientationMetadata(mediaItem, out rotation, out _flipX, out _flipY);
+      ImageRotation rotation;
+      ImageAspect.GetOrientationMetadata(mediaItem, out rotation, out _flipX, out _flipY);
       _rotation = RotationTranslator.TranslateToRightAngledRotation(rotation);
     }
 

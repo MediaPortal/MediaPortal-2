@@ -337,8 +337,7 @@
     <Setter Property="PlayerContext" Value="PrimaryPlayer"/>
   </Style>
 
-
-  <Style x:Key="PrimaryPictureOSDStyle" TargetType="{x:Type mp_special_controls:PlayerControl}">
+  <Style x:Key="PrimaryImageOSDStyle" TargetType="{x:Type mp_special_controls:PlayerControl}">
     <Setter Property="Template">
       <Setter.Value>
         <ControlTemplate TargetType="{x:Type mp_special_controls:PlayerControl}">
@@ -368,7 +367,7 @@
                   <Control x:Name="StatePause" IsVisible="{Binding IsPaused}" Template="{ThemeResource PauseControlTemplate}"
                       VerticalAlignment="Center"/>
                 </Grid> <!-- PlayerStatePanel -->
-                <Label x:Name="PictureName" DockPanel.Dock="Center" Margin="3" Content="{Binding Path=MediaItemTitle}" Scroll="Auto"
+                <Label x:Name="ImageName" DockPanel.Dock="Center" Margin="3" Content="{Binding Path=MediaItemTitle}" Scroll="Auto"
                     Color="{ThemeResource TextColor}" HorizontalAlignment="Left" VerticalAlignment="Center"/>
               </DockPanel> <!-- HeadLine -->
               <StackPanel x:Name="PlayControlsPanel" Orientation="Horizontal" Grid.Column="0" Grid.Row="1" Margin="10,10,10,0"

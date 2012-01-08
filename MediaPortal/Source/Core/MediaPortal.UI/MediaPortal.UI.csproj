@@ -89,7 +89,7 @@
     <Compile Include="Presentation\Players\IAudioPlayer.cs" />
     <Compile Include="Presentation\Players\AudioStreamDescriptor.cs" />
     <Compile Include="Presentation\Players\IDVDPlayer.cs" />
-    <Compile Include="Presentation\Players\IPicturePlayer.cs" />
+    <Compile Include="Presentation\Players\IImagePlayer.cs" />
     <Compile Include="Presentation\Players\IPlayer.cs" />
     <Compile Include="Presentation\Players\IPlayerBuilder.cs" />
     <Compile Include="Presentation\Players\IPlayerContext.cs" />

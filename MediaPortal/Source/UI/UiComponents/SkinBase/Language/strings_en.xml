@@ -102,7 +102,7 @@
     <String Name="PlayerConfiguration" Text="Player configuration"/>
     <String Name="CurrentMediaInfo" Text="Current media info"/>
     <String Name="FullscreenVideo" Text="Fullscreen {0}"/> <!--for example "Fullscreen TV" -->
-    <String Name="FullscreenPicture" Text="Fullscreen picture"/>
+    <String Name="FullscreenImage" Text="Fullscreen image"/>
     <String Name="AudioVisualization" Text="Audio visualization"/>
     <String Name="PlayerOfType" Text="{0} player"/> <!-- for example "Video player" -->
     <String Name="SlotNo" Text="Slot #{0}"/>

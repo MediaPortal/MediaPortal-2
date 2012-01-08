@@ -99,7 +99,7 @@ namespace MediaPortal.UI.SkinEngine.SpecialElements.Controls
     protected MediaItem _currentMediaItem;
     protected AbstractProperty _isPlayerPresentProperty;
     protected AbstractProperty _isVideoPlayerPresentProperty;
-    protected AbstractProperty _isPicturePlayerPresentProperty;
+    protected AbstractProperty _isImagePlayerPresentProperty;
     protected AbstractProperty _titleProperty;
     protected AbstractProperty _mediaItemTitleProperty;
     protected AbstractProperty _nextMediaItemTitleProperty;
@@ -136,10 +136,10 @@ namespace MediaPortal.UI.SkinEngine.SpecialElements.Controls
     protected AbstractProperty _videoStoryPlotProperty;
     protected AbstractProperty _audioArtistsProperty;
     protected AbstractProperty _audioYearProperty;
-    protected AbstractProperty _pictureSourcePathProperty;
-    protected AbstractProperty _pictureRotateDegreesProperty;
-    protected AbstractProperty _pictureFlipXProperty;
-    protected AbstractProperty _pictureFlipYProperty;
+    protected AbstractProperty _imageSourcePathProperty;
+    protected AbstractProperty _imageRotateDegreesProperty;
+    protected AbstractProperty _imageFlipXProperty;
+    protected AbstractProperty _imageFlipYProperty;
 
     protected AbstractProperty _fullscreenContentWFStateIDProperty;
     protected AbstractProperty _currentlyPlayingWFStateIDProperty;
@@ -148,8 +148,8 @@ namespace MediaPortal.UI.SkinEngine.SpecialElements.Controls
     protected IResourceString _headerPiPResource;
     protected IResourceString _playbackRateHintResource;
 
-    protected IResourceLocator _currentPictureSourceLocator = null;
-    protected ILocalFsResourceAccessor _currentPictureResourceAccessor = null;
+    protected IResourceLocator _currentImageSourceLocator = null;
+    protected ILocalFsResourceAccessor _currentImageResourceAccessor = null;
 
     #endregion
 
@@ -167,7 +167,7 @@ namespace MediaPortal.UI.SkinEngine.SpecialElements.Controls
       _autoVisibilityProperty = new SProperty(typeof(bool), false);
       _isPlayerPresentProperty = new SProperty(typeof(bool), false);
       _isVideoPlayerPresentProperty = new SProperty(typeof(bool), false);
-      _isPicturePlayerPresentProperty = new SProperty(typeof(bool), false);
+      _isImagePlayerPresentProperty = new SProperty(typeof(bool), false);
       _titleProperty = new SProperty(typeof(string), null);
       _mediaItemTitleProperty = new SProperty(typeof(string), null);
       _nextMediaItemTitleProperty = new SProperty(typeof(string), string.Empty);
@@ -204,10 +204,10 @@ namespace MediaPortal.UI.SkinEngine.SpecialElements.Controls
       _videoYearProperty = new SProperty(typeof(int?), null);
       _videoActorsProperty = new SProperty(typeof(IEnumerable<string>), EMPTY_NAMES_COLLECTION);
       _videoStoryPlotProperty = new SProperty(typeof(string), string.Empty);
-      _pictureSourcePathProperty = new SProperty(typeof(string), string.Empty);
-      _pictureRotateDegreesProperty = new SProperty(typeof(int), 0);
-      _pictureFlipXProperty = new SProperty(typeof(bool), false);
-      _pictureFlipYProperty = new SProperty(typeof(bool), false);
+      _imageSourcePathProperty = new SProperty(typeof(string), string.Empty);
+      _imageRotateDegreesProperty = new SProperty(typeof(int), 0);
+      _imageFlipXProperty = new SProperty(typeof(bool), false);
+      _imageFlipYProperty = new SProperty(typeof(bool), false);
 
       _audioArtistsProperty = new SProperty(typeof(IEnumerable<string>), EMPTY_NAMES_COLLECTION);
       _audioYearProperty = new SProperty(typeof(int?), null);
@@ -258,7 +258,7 @@ namespace MediaPortal.UI.SkinEngine.SpecialElements.Controls
       StopTimer();
       _updateFinished.Close();
       UnsubscribeFromMessages();
-      DisposeCurrentPictureResourceAccessor();
+      DisposeCurrentImageResourceAccessor();
       base.Dispose();
     }
 
@@ -409,35 +409,35 @@ namespace MediaPortal.UI.SkinEngine.SpecialElements.Controls
       ShowMouseControls = inputManager.IsMouseUsed && screen != null && screen.HasInputFocus;
     }
 
-    protected void UpdatePictureSourcePath(IResourceLocator locator)
+    protected void UpdateImageSourcePath(IResourceLocator locator)
     {
-      if (_currentPictureSourceLocator != locator)
+      if (_currentImageSourceLocator != locator)
       {
-        ILocalFsResourceAccessor oldAccessor = _currentPictureResourceAccessor;
-        _currentPictureSourceLocator = locator;
-        if (_currentPictureSourceLocator != null)
+        ILocalFsResourceAccessor oldAccessor = _currentImageResourceAccessor;
+        _currentImageSourceLocator = locator;
+        if (_currentImageSourceLocator != null)
           try
           {
-            _currentPictureResourceAccessor = _currentPictureSourceLocator.CreateLocalFsAccessor();
+            _currentImageResourceAccessor = _currentImageSourceLocator.CreateLocalFsAccessor();
           }
           catch (Exception e)
           {
-            ServiceRegistration.Get<ILogger>().Warn("PlayerControl: Problem creating local filesystem accessor for picture '{0}'",
-                e, _currentPictureSourceLocator);
-            PictureSourcePath = null;
+            ServiceRegistration.Get<ILogger>().Warn("PlayerControl: Problem creating local filesystem accessor for image '{0}'",
+                e, _currentImageSourceLocator);
+            ImageSourcePath = null;
             return;
           }
-        PictureSourcePath = _currentPictureResourceAccessor == null ? null : _currentPictureResourceAccessor.LocalFileSystemPath;
+        ImageSourcePath = _currentImageResourceAccessor == null ? null : _currentImageResourceAccessor.LocalFileSystemPath;
         if (oldAccessor != null)
           oldAccessor.Dispose();
       }
     }
 
-    protected void DisposeCurrentPictureResourceAccessor()
+    protected void DisposeCurrentImageResourceAccessor()
     {
-      if (_currentPictureResourceAccessor != null)
-        _currentPictureResourceAccessor.Dispose();
-      _currentPictureResourceAccessor = null;
+      if (_currentImageResourceAccessor != null)
+        _currentImageResourceAccessor.Dispose();
+      _currentImageResourceAccessor = null;
     }
 
     // Hack! The following code was copied from PlayerConfigurationDialogModel.OpenAudioMenuDialog.
@@ -484,7 +484,7 @@ namespace MediaPortal.UI.SkinEngine.SpecialElements.Controls
 
         IsPlayerPresent = player != null;
         IVideoPlayer vp = player as IVideoPlayer;
-        IPicturePlayer pp = player as IPicturePlayer;
+        IImagePlayer pp = player as IImagePlayer;
         if (vp == null)
         {
           IsVideoPlayerPresent = false;
@@ -512,14 +512,14 @@ namespace MediaPortal.UI.SkinEngine.SpecialElements.Controls
         }
         if (pp == null)
         {
-          IsPicturePlayerPresent = false;
-          DisposeCurrentPictureResourceAccessor();
-          PictureSourcePath = null;
-          PictureRotateDegrees = 0;
+          IsImagePlayerPresent = false;
+          DisposeCurrentImageResourceAccessor();
+          ImageSourcePath = null;
+          ImageRotateDegrees = 0;
         }
         else
         {
-          IsPicturePlayerPresent = true;
+          IsImagePlayerPresent = true;
           if (FixedImageWidth > 0f && FixedImageHeight > 0f)
           {
             ImageWidth = FixedImageWidth;
@@ -528,22 +528,22 @@ namespace MediaPortal.UI.SkinEngine.SpecialElements.Controls
           else if (FixedImageWidth > 0f)
           { // Calculate the image height from the width
             ImageWidth = FixedImageWidth;
-            ImageHeight = FixedImageWidth*pp.PictureSize.Height/pp.PictureSize.Width;
+            ImageHeight = FixedImageWidth*pp.ImageSize.Height/pp.ImageSize.Width;
           }
           else
           { // FixedImageHeight > 0f
             ImageHeight = FixedImageHeight;
-            ImageWidth = FixedImageHeight*pp.PictureSize.Width/pp.PictureSize.Height;
+            ImageWidth = FixedImageHeight*pp.ImageSize.Width/pp.ImageSize.Height;
           }
-          UpdatePictureSourcePath(pp.CurrentPictureResourceLocator);
-          PictureRotation rotation;
+          UpdateImageSourcePath(pp.CurrentImageResourceLocator);
+          ImageRotation rotation;
           bool flipX;
           bool flipY;
-          if (PictureAspect.GetOrientationMetadata(_currentMediaItem, out rotation, out flipX, out flipY))
+          if (ImageAspect.GetOrientationMetadata(_currentMediaItem, out rotation, out flipX, out flipY))
           {
-            PictureRotateDegrees = PictureAspect.RotationToDegrees(rotation);
-            PictureFlipX = flipX;
-            PictureFlipY = flipY;
+            ImageRotateDegrees = ImageAspect.RotationToDegrees(rotation);
+            ImageFlipX = flipX;
+            ImageFlipY = flipY;
           }
         }
 
@@ -600,7 +600,7 @@ namespace MediaPortal.UI.SkinEngine.SpecialElements.Controls
         }
         else
         {
-          IsPip = slotIndex == PlayerManagerConsts.SECONDARY_SLOT && (player is IVideoPlayer || player is IPicturePlayer);
+          IsPip = slotIndex == PlayerManagerConsts.SECONDARY_SLOT && (player is IVideoPlayer || player is IImagePlayer);
           string pcName = LocalizationHelper.CreateResourceString(playerContext.Name).Evaluate();
           Title = IsPip ? _headerPiPResource.Evaluate(pcName) : _headerNormalResource.Evaluate(pcName);
           string mit = player.MediaItemTitle;
@@ -870,18 +870,18 @@ namespace MediaPortal.UI.SkinEngine.SpecialElements.Controls
       internal set { _isVideoPlayerPresentProperty.SetValue(value); }
     }
 
-    public AbstractProperty IsPicturePlayerPresentProperty
+    public AbstractProperty IsImagePlayerPresentProperty
     {
-      get { return _isPicturePlayerPresentProperty; }
+      get { return _isImagePlayerPresentProperty; }
     }
 
     /// <summary>
-    /// Gets the information if the underlaying player slot currently has a picture player.
+    /// Gets the information if the underlaying player slot currently has a image player.
     /// </summary>
-    public bool IsPicturePlayerPresent
+    public bool IsImagePlayerPresent
     {
-      get { return (bool) _isPicturePlayerPresentProperty.GetValue(); }
-      internal set { _isPicturePlayerPresentProperty.SetValue(value); }
+      get { return (bool) _isImagePlayerPresentProperty.GetValue(); }
+      internal set { _isImagePlayerPresentProperty.SetValue(value); }
     }
 
     public AbstractProperty TitleProperty
@@ -1277,7 +1277,7 @@ namespace MediaPortal.UI.SkinEngine.SpecialElements.Controls
     }
 
     /// <summary>
-    /// Gets the information whether a picture-in-picture player is playing.
+    /// Gets the information whether a picture-in-picture player (video or image) is playing.
     /// </summary>
     public bool IsPip
     {
@@ -1385,54 +1385,54 @@ namespace MediaPortal.UI.SkinEngine.SpecialElements.Controls
       internal set { _videoStoryPlotProperty.SetValue(value); }
     }
 
-    public AbstractProperty PictureSourcePathProperty
+    public AbstractProperty ImageSourcePathProperty
     {
-      get { return _pictureSourcePathProperty; }
+      get { return _imageSourcePathProperty; }
     }
 
     /// <summary>
-    /// Gets the local file path to the current picture, if <see cref="IsPicturePlayerPresent"/> is <c>true</c>.
+    /// Gets the local file path to the current image, if <see cref="IsImagePlayerPresent"/> is <c>true</c>.
     /// </summary>
-    public string PictureSourcePath
+    public string ImageSourcePath
     {
-      get { return (string) _pictureSourcePathProperty.GetValue(); }
-      set { _pictureSourcePathProperty.SetValue(value); }
+      get { return (string) _imageSourcePathProperty.GetValue(); }
+      set { _imageSourcePathProperty.SetValue(value); }
     }
 
-    public AbstractProperty PictureRotateDegreesProperty
+    public AbstractProperty ImageRotateDegreesProperty
     {
-      get { return _pictureRotateDegreesProperty; }
+      get { return _imageRotateDegreesProperty; }
     }
 
     /// <summary>
-    /// Retuns the rotation of the current picture in degrees, if <see cref="IsPicturePlayerPresent"/> is <c>true</c>.
+    /// Retuns the rotation of the current image in degrees, if <see cref="IsImagePlayerPresent"/> is <c>true</c>.
     /// </summary>
-    public int PictureRotateDegrees
+    public int ImageRotateDegrees
     {
-      get { return (int) _pictureRotateDegreesProperty.GetValue(); }
-      set { _pictureRotateDegreesProperty.SetValue(value); }
+      get { return (int) _imageRotateDegreesProperty.GetValue(); }
+      set { _imageRotateDegreesProperty.SetValue(value); }
     }
 
-    public AbstractProperty PictureFlipXProperty
+    public AbstractProperty ImageFlipXProperty
     {
-      get { return _pictureFlipXProperty; }
+      get { return _imageFlipXProperty; }
     }
 
-    public bool PictureFlipX
+    public bool ImageFlipX
     {
-      get { return (bool) _pictureFlipXProperty.GetValue(); }
-      set { _pictureFlipXProperty.SetValue(value); }
+      get { return (bool) _imageFlipXProperty.GetValue(); }
+      set { _imageFlipXProperty.SetValue(value); }
     }
 
-    public AbstractProperty PictureFlipYProperty
+    public AbstractProperty ImageFlipYProperty
     {
-      get { return _pictureFlipYProperty; }
+      get { return _imageFlipYProperty; }
     }
 
-    public bool PictureFlipY
+    public bool ImageFlipY
     {
-      get { return (bool) _pictureFlipYProperty.GetValue(); }
-      set { _pictureFlipYProperty.SetValue(value); }
+      get { return (bool) _imageFlipYProperty.GetValue(); }
+      set { _imageFlipYProperty.SetValue(value); }
     }
 
     public AbstractProperty AudioArtistsProperty

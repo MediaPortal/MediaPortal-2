@@ -1,0 +1,19 @@
+<Plugin
+    DescriptorVersion="1.0"
+    Name="ImageMetadataExtractor"
+    PluginId="{059F49E5-E7FB-43bd-B859-49BAAD497FFA}"
+    Author="Frodo, Morpheus_xx"
+    Copyright="GPL"
+    Description="Metadata extractor for many kinds of image file formats"
+    PluginVersion="1.0">
+
+  <Runtime>
+    <Assembly FileName="ImageMetadataExtractor.dll"/>
+  </Runtime>
+
+  <Register Location="/Media/MetadataExtractors">
+    <Instance
+        Id="ImageMetadataExtractor"
+        ClassName="MediaPortal.Extensions.MetadataExtractors.ImageMetadataExtractor.ImageMetadataExtractor"/>
+  </Register>
+</Plugin>

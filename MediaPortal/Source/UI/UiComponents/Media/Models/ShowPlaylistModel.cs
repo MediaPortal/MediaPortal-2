@@ -41,7 +41,7 @@ namespace MediaPortal.UiComponents.Media.Models
   /// Attends the ShowPlaylist workflow state.
   /// </summary>
   /// <remarks>
-  /// We only provide one single playlist workflow state for audio and video playlists for development time reasons.
+  /// We only provide one single playlist workflow state for audio and video/image playlists for development time reasons.
   /// Later, we can split this state up into two different states with two different screens.
   /// </remarks>
   public class ShowPlaylistModel : BasePlaylistModel, IDisposable, IWorkflowModel

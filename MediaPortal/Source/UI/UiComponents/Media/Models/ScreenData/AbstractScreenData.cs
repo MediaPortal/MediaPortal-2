@@ -95,7 +95,7 @@ namespace MediaPortal.UiComponents.Media.Models.ScreenData
     #region Lazy initialized properties
 
     /// <summary>
-    /// In case the current screen shows local media, music, movies or pictures, this property provides a list
+    /// In case the current screen shows browse local media, browse media library, audio, videos or images, this property provides a list
     /// with the sub views and media items of the current view. In case the current screen shows a list of filter
     /// value of a choosen filter criteria, this property provides a list of available filter values.
     /// </summary>

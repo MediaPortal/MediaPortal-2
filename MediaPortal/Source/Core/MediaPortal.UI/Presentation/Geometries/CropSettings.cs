@@ -55,7 +55,7 @@ namespace MediaPortal.UI.Presentation.Geometries
     #region Public properties
 
     /// <summary>
-    /// Number of scanlines to remove at the top of the picture.
+    /// Number of scanlines to remove at the top of the image.
     /// </summary>
     public int Top
     {
@@ -64,7 +64,7 @@ namespace MediaPortal.UI.Presentation.Geometries
     }
 
     /// <summary>
-    /// Number of scanlines to remove at the bottom of the picture.
+    /// Number of scanlines to remove at the bottom of the image.
     /// </summary>
     public int Bottom
     {
@@ -73,7 +73,7 @@ namespace MediaPortal.UI.Presentation.Geometries
     }
 
     /// <summary>
-    /// Number of columns to remove from the left side of the picture.
+    /// Number of columns to remove from the left side of the image.
     /// </summary>
     public int Left
     {
@@ -82,7 +82,7 @@ namespace MediaPortal.UI.Presentation.Geometries
     }
 
     /// <summary>
-    /// Number of columns to remove from the right side of the picture.
+    /// Number of columns to remove from the right side of the image.
     /// </summary>
     public int Right
     {

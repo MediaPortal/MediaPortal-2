@@ -101,9 +101,9 @@
     <Compile Include="Actions\SwitchViewModeAction.cs" />
     <Compile Include="Actions\SavePlaylistAction.cs" />
     <Compile Include="Actions\ManagePlaylistsAction.cs" />
-    <Compile Include="Actions\PicturesAction.cs" />
-    <Compile Include="Actions\MoviesAction.cs" />
-    <Compile Include="Actions\MusicAction.cs" />
+    <Compile Include="Actions\ImagesAction.cs" />
+    <Compile Include="Actions\VideosAction.cs" />
+    <Compile Include="Actions\AudioAction.cs" />
     <Compile Include="Actions\ShowPlaylistAction.cs" />
     <Compile Include="Actions\TrackServerConnectionBaseAction.cs" />
     <Compile Include="Actions\BrowseLocalMediaAction.cs" />
@@ -120,7 +120,7 @@
     <Compile Include="Models\MediaItemAspects\SpecialSortAspect.cs" />
     <Compile Include="Models\Navigation\ContainerItem.cs" />
     <Compile Include="Models\Navigation\ViewItem.cs" />
-    <Compile Include="Models\PicturePlayerUIContributor.cs" />
+    <Compile Include="Models\ImagePlayerUIContributor.cs" />
     <Compile Include="Models\NavigationData.cs" />
     <Compile Include="Models\Navigation\FilterItem.cs" />
     <Compile Include="Models\PlayItemsModel.cs" />
@@ -129,44 +129,44 @@
     <Compile Include="Models\EditPlaylistModel.cs" />
     <Compile Include="Models\ScreenData\AbstractItemsScreenData.cs" />
     <Compile Include="Models\ScreenData\AbstractFiltersScreenData.cs" />
-    <Compile Include="Models\ScreenData\AbstractMoviesFilterScreenData.cs" />
-    <Compile Include="Models\ScreenData\AbstractMusicFilterScreenData.cs" />
-    <Compile Include="Models\ScreenData\AbstractPicturesFilterScreenData.cs" />
+    <Compile Include="Models\ScreenData\AbstractVideosFilterScreenData.cs" />
+    <Compile Include="Models\ScreenData\AbstractAudioFilterScreenData.cs" />
+    <Compile Include="Models\ScreenData\AbstractImagesFilterScreenData.cs" />
     <Compile Include="Models\ScreenData\BrowseMediaNavigationScreenData.cs" />
-    <Compile Include="Models\ScreenData\PicturesFilterBySystemScreenData.cs" />
-    <Compile Include="Models\ScreenData\MusicFilterBySystemScreenData.cs" />
-    <Compile Include="Models\ScreenData\MoviesFilterBySystemScreenData.cs" />
+    <Compile Include="Models\ScreenData\ImagesFilterBySystemScreenData.cs" />
+    <Compile Include="Models\ScreenData\AudioFilterBySystemScreenData.cs" />
+    <Compile Include="Models\ScreenData\VideosFilterBySystemScreenData.cs" />
     <Compile Include="Models\ScreenData\LocalMediaNavigationScreenData.cs" />
-    <Compile Include="Models\ScreenData\PicturesSimpleSearchScreenData.cs" />
-    <Compile Include="Models\ScreenData\PicturesFilterBySizeScreenData.cs" />
-    <Compile Include="Models\ScreenData\PicturesFilterByYearScreenData.cs" />
-    <Compile Include="Models\ScreenData\MoviesSimpleSearchScreenData.cs" />
-    <Compile Include="Models\ScreenData\MoviesFilterByYearScreenData.cs" />
-    <Compile Include="Models\ScreenData\MoviesFilterByGenreScreenData.cs" />
-    <Compile Include="Models\ScreenData\MusicSimpleSearchScreenData.cs" />
-    <Compile Include="Models\ScreenData\MusicFilterByDecadeScreenData.cs" />
-    <Compile Include="Models\ScreenData\MusicFilterByGenreScreenData.cs" />
-    <Compile Include="Models\ScreenData\MusicFilterByAlbumScreenData.cs" />
-    <Compile Include="Models\ScreenData\MusicFilterByArtistScreenData.cs" />
-    <Compile Include="Models\ScreenData\MoviesFilterByActorScreenData.cs" />
-    <Compile Include="Models\ScreenData\MoviesShowItemsScreenData.cs" />
-    <Compile Include="Models\ScreenData\PicturesShowItemsScreenData.cs" />
-    <Compile Include="Models\ScreenData\MusicShowItemsScreenData.cs" />
+    <Compile Include="Models\ScreenData\ImagesSimpleSearchScreenData.cs" />
+    <Compile Include="Models\ScreenData\ImagesFilterBySizeScreenData.cs" />
+    <Compile Include="Models\ScreenData\ImagesFilterByYearScreenData.cs" />
+    <Compile Include="Models\ScreenData\VideosSimpleSearchScreenData.cs" />
+    <Compile Include="Models\ScreenData\VideosFilterByYearScreenData.cs" />
+    <Compile Include="Models\ScreenData\VideosFilterByGenreScreenData.cs" />
+    <Compile Include="Models\ScreenData\AudioSimpleSearchScreenData.cs" />
+    <Compile Include="Models\ScreenData\AudioFilterByDecadeScreenData.cs" />
+    <Compile Include="Models\ScreenData\AudioFilterByGenreScreenData.cs" />
+    <Compile Include="Models\ScreenData\AudioFilterByAlbumScreenData.cs" />
+    <Compile Include="Models\ScreenData\AudioFilterByArtistScreenData.cs" />
+    <Compile Include="Models\ScreenData\VideosFilterByActorScreenData.cs" />
+    <Compile Include="Models\ScreenData\VideosShowItemsScreenData.cs" />
+    <Compile Include="Models\ScreenData\ImagesShowItemsScreenData.cs" />
+    <Compile Include="Models\ScreenData\AudioShowItemsScreenData.cs" />
     <Compile Include="Models\ScreenData\AbstractSearchScreenData.cs" />
     <Compile Include="Models\MediaNavigationModel.cs" />
     <Compile Include="Models\ServerPlaylists.cs" />
     <Compile Include="Models\ShowPlaylistModel.cs" />
-    <Compile Include="Models\Navigation\PictureItem.cs" />
-    <Compile Include="Models\Navigation\MovieItem.cs" />
+    <Compile Include="Models\Navigation\ImageItem.cs" />
+    <Compile Include="Models\Navigation\VideoItem.cs" />
     <Compile Include="Models\MediaNavigationMode.cs" />
     <Compile Include="Models\Navigation\NavigationItem.cs" />
     <Compile Include="Models\Navigation\PlayableMediaItem.cs" />
-    <Compile Include="Models\Navigation\MusicItem.cs" />
+    <Compile Include="Models\Navigation\AudioItem.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Models\VideoPlayerModel.cs" />
     <Compile Include="Models\AudioPlayerModel.cs" />
     <Compile Include="FilterCriteria\FilterByDecadeCriterion.cs" />
-    <Compile Include="FilterCriteria\FilterByPictureSizeCriterion.cs" />
+    <Compile Include="FilterCriteria\FilterByImageSizeCriterion.cs" />
     <Compile Include="FilterCriteria\FilterByYearCriterion.cs" />
     <Compile Include="FilterCriteria\FilterValue.cs" />
     <Compile Include="FilterCriteria\MLFilterCriterion.cs" />
@@ -217,26 +217,62 @@
     <Content Include="Skin\default\screens\BrowseMediaNavigation.xaml" />
     <Content Include="Skin\default\screens\MediaItemsList.inc" />
     <Content Include="Skin\default\screens\MediaItemsListHeader.inc" />
-    <Content Include="Skin\default\screens\MusicShowItems.xaml" />
-    <Content Include="Skin\default\screens\MoviesShowItems.xaml" />
-    <Content Include="Skin\default\screens\PicturesShowItems.xaml" />
-    <Content Include="Skin\default\screens\PicturesFilterBySystem.xaml" />
+    <Content Include="Skin\default\screens\AudioShowItems.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+    <Content Include="Skin\default\screens\VideoShowItems.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+    <Content Include="Skin\default\screens\ImageShowItems.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+    <Content Include="Skin\default\screens\ImageFilterBySystem.xaml">
+      <SubType>Designer</SubType>
+    </Content>
     <Content Include="Skin\default\screens\SimpleFilterItems.xaml" />
     <Content Include="Skin\default\screens\SimpleShowItems.xaml" />
-    <Content Include="Skin\default\screens\MoviesFilterByActor.xaml" />
-    <Content Include="Skin\default\screens\MoviesFilterByGenre.xaml" />
-    <Content Include="Skin\default\screens\MoviesFilterByYear.xaml" />
-    <Content Include="Skin\default\screens\MoviesFilterBySystem.xaml" />
-    <Content Include="Skin\default\screens\MusicFilterByAlbum.xaml" />
-    <Content Include="Skin\default\screens\MusicFilterByArtist.xaml" />
-    <Content Include="Skin\default\screens\MusicFilterByDecade.xaml" />
-    <Content Include="Skin\default\screens\MusicFilterByGenre.xaml" />
-    <Content Include="Skin\default\screens\MusicFilterBySystem.xaml" />
-    <Content Include="Skin\default\screens\PicturesFilterBySize.xaml" />
-    <Content Include="Skin\default\screens\PicturesFilterByYear.xaml" />
-    <Content Include="Skin\default\screens\MoviesSimpleSearch.xaml" />
-    <Content Include="Skin\default\screens\MusicSimpleSearch.xaml" />
-    <Content Include="Skin\default\screens\PicturesSimpleSearch.xaml" />
+    <Content Include="Skin\default\screens\VideoFilterByActor.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+    <Content Include="Skin\default\screens\VideoFilterByGenre.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+    <Content Include="Skin\default\screens\VideoFilterByYear.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+    <Content Include="Skin\default\screens\VideoFilterBySystem.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+    <Content Include="Skin\default\screens\AudioFilterByAlbum.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+    <Content Include="Skin\default\screens\AudioFilterByArtist.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+    <Content Include="Skin\default\screens\AudioFilterByDecade.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+    <Content Include="Skin\default\screens\AudioFilterByGenre.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+    <Content Include="Skin\default\screens\AudioFilterBySystem.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+    <Content Include="Skin\default\screens\ImageFilterBySize.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+    <Content Include="Skin\default\screens\ImageFilterByYear.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+    <Content Include="Skin\default\screens\VideoSimpleSearch.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+    <Content Include="Skin\default\screens\AudioSimpleSearch.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+    <Content Include="Skin\default\screens\ImageSimpleSearch.xaml">
+      <SubType>Designer</SubType>
+    </Content>
     <Content Include="Skin\default\screens\SimpleSearch.xaml" />
     <Content Include="Skin\default\screens\ShowPlaylist.xaml" />
     <Content Include="Skin\default\screens\EditPlaylist.xaml" />
@@ -246,14 +282,14 @@
     <Content Include="Skin\default\screens\SavePlaylistEditName.xaml" />
     <Content Include="Skin\default\themes\default\images\FilterLarge.png" />
     <Content Include="Skin\default\themes\default\images\FilterSmall.png" />
-    <Content Include="Skin\default\themes\default\images\MovieLarge.png" />
-    <Content Include="Skin\default\themes\default\images\MovieSmall.png" />
-    <Content Include="Skin\default\themes\default\images\MusicLarge.png" />
-    <Content Include="Skin\default\themes\default\images\MusicSmall.png" />
+    <Content Include="Skin\default\themes\default\images\VideoLarge.png" />
+    <Content Include="Skin\default\themes\default\images\VideoSmall.png" />
+    <Content Include="Skin\default\themes\default\images\AudioLarge.png" />
+    <Content Include="Skin\default\themes\default\images\AudioSmall.png" />
     <Content Include="Skin\default\themes\default\images\NavigationLarge.png" />
     <Content Include="Skin\default\themes\default\images\NavigationSmall.png" />
-    <Content Include="Skin\default\themes\default\images\PictureLarge.png" />
-    <Content Include="Skin\default\themes\default\images\PictureSmall.png" />
+    <Content Include="Skin\default\themes\default\images\ImageLarge.png" />
+    <Content Include="Skin\default\themes\default\images\ImageSmall.png" />
     <Content Include="Skin\default\themes\default\styles\MediaStyles.xaml" />
     <Content Include="Skin\default\themes\default\styles\MediaColors.xaml" />
     <Content Include="Skin\default\themes\default\styles\MediaConsts.xaml" />
@@ -261,8 +297,12 @@
     <Content Include="Skin\default\workflow\media-actions.xml" />
     <Content Include="Skin\default\workflow\media-states.xml" />
     <Content Include="Skin\default\workflow\viewmode-actions.xml" />
-    <Content Include="Skin\default\screens\CurrentlyPlayingPicture.xaml" />
-    <Content Include="Skin\default\screens\FullscreenContentPicture.xaml" />
+    <Content Include="Skin\default\screens\CurrentlyPlayingImage.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+    <Content Include="Skin\default\screens\FullscreenContentImage.xaml">
+      <SubType>Designer</SubType>
+    </Content>
     <Content Include="Skin\default\screens\CurrentlyPlayingDVD.xaml" />
     <Content Include="Skin\default\screens\FullscreenContentDVD.xaml" />
     <Content Include="Skin\default\screens\DialogChooseSubtitle.xaml" />

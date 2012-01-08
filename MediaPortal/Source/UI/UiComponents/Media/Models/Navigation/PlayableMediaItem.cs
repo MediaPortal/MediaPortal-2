@@ -63,11 +63,11 @@ namespace MediaPortal.UiComponents.Media.Models.Navigation
     public static PlayableMediaItem CreateItem(MediaItem mediaItem)
     {
       if (mediaItem.Aspects.ContainsKey(AudioAspect.ASPECT_ID))
-        return new MusicItem(mediaItem);
+        return new AudioItem(mediaItem);
       if (mediaItem.Aspects.ContainsKey(VideoAspect.ASPECT_ID))
-        return new MovieItem(mediaItem);
-      if (mediaItem.Aspects.ContainsKey(PictureAspect.ASPECT_ID))
-        return new PictureItem(mediaItem);
+        return new VideoItem(mediaItem);
+      if (mediaItem.Aspects.ContainsKey(ImageAspect.ASPECT_ID))
+        return new ImageItem(mediaItem);
       throw new NotImplementedException("The given media item is of an unknown type");
     }
 

@@ -118,7 +118,7 @@ namespace MediaPortal.UiComponents.Media.General
     }
 
     /// <summary>
-    /// Depending on the existence of an <see cref="VideoAspect"/>, <see cref="PictureAspect"/> or <see cref="AudioAspect"/>,
+    /// Depending on the existence of an <see cref="VideoAspect"/>, <see cref="ImageAspect"/> or <see cref="AudioAspect"/>,
     /// this method returns <see cref="MultiMediaType.Video"/>, <see cref="MultiMediaType.Image"/> or <see cref="MultiMediaType.Audio"/>.
     /// </summary>
     /// <param name="mediaItem">The media item to be examined. For a value of <c>null</c>, <see cref="MultiMediaType.None"/> is returned.</param>
@@ -129,7 +129,7 @@ namespace MediaPortal.UiComponents.Media.General
         return MultiMediaType.None;
       if (mediaItem.Aspects.ContainsKey(VideoAspect.ASPECT_ID))
         return MultiMediaType.Video;
-      if (mediaItem.Aspects.ContainsKey(PictureAspect.ASPECT_ID))
+      if (mediaItem.Aspects.ContainsKey(ImageAspect.ASPECT_ID))
         return MultiMediaType.Image;
       if (mediaItem.Aspects.ContainsKey(AudioAspect.ASPECT_ID))
         return MultiMediaType.Audio;

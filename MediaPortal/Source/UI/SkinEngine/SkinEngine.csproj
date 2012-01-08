@@ -110,7 +110,7 @@
     <Compile Include="Controls\Animations\Storyboard.cs" />
     <Compile Include="Controls\Animations\Timeline.cs" />
     <Compile Include="Controls\Animations\TimelineGroup.cs" />
-    <Compile Include="Controls\ImageSources\PicturePlayerImageSource.cs" />
+    <Compile Include="Controls\ImageSources\ImagePlayerImageSource.cs" />
     <Compile Include="Controls\ImageSources\TextureImageSource.cs" />
     <Compile Include="Controls\ImageSources\MultiImageSourceBase.cs" />
     <Compile Include="Controls\ImageSources\BitmapImageSource.cs" />
@@ -227,7 +227,7 @@
     <Compile Include="MpfElements\IBindingContainer.cs" />
     <Compile Include="MpfElements\ISkinEngineManagedObject.cs" />
     <Compile Include="MpfElements\Resources\IUnmodifiableResource.cs" />
-    <Compile Include="Players\ISlimDXPicturePlayer.cs" />
+    <Compile Include="Players\ISlimDXImagePlayer.cs" />
     <Compile Include="Players\ISlimDXVideoPlayer.cs" />
     <Compile Include="Players\PlayersHelper.cs" />
     <Compile Include="Players\PlayerRotationTranslator.cs" />

@@ -29,17 +29,17 @@ namespace MediaPortal.UI.SkinEngine.Players
 {
   public class PlayerRotationTranslator
   {
-    public static RightAngledRotation TranslateToRightAngledRotation(PictureRotation pictureRotation)
+    public static RightAngledRotation TranslateToRightAngledRotation(ImageRotation imageRotation)
     {
-      switch (pictureRotation)
+      switch (imageRotation)
       {
-        case PictureRotation.Rot_0:
+        case ImageRotation.Rot_0:
           return RightAngledRotation.Zero;
-        case PictureRotation.Rot_90:
+        case ImageRotation.Rot_90:
           return RightAngledRotation.HalfPi;
-        case PictureRotation.Rot_180:
+        case ImageRotation.Rot_180:
           return RightAngledRotation.Pi;
-        case PictureRotation.Rot_270:
+        case ImageRotation.Rot_270:
           return RightAngledRotation.ThreeHalfPi;
       }
       return RightAngledRotation.Zero;

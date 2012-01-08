@@ -34,7 +34,7 @@ namespace MediaPortal.UI.Players.Video
   {
     /// <summary>
     /// List of (lower-case!) extensions which are played with one of our players.
-    /// TODO: Move to settings like in PicturePlayer and BassPlayer.
+    /// TODO: Move to settings like in ImagePlayer and BassPlayer.
     /// </summary>
     protected static IDictionary<string, Type> EXTENSIONS2PLAYER = new Dictionary<string, Type>();
     protected static IDictionary<string, Type> MIMETYPES2PLAYER = new Dictionary<string, Type>();

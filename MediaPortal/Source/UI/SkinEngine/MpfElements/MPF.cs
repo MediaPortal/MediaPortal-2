@@ -111,7 +111,7 @@ namespace MediaPortal.UI.SkinEngine.MpfElements
       // Image Sources
       _objectClassRegistrations.Add("BitmapImageSource", typeof(SkinEngine.Controls.ImageSources.BitmapImageSource));
       _objectClassRegistrations.Add("MultiImageSource", typeof(SkinEngine.Controls.ImageSources.MultiImageSource));
-      _objectClassRegistrations.Add("PicturePlayerImageSource", typeof(SkinEngine.Controls.ImageSources.PicturePlayerImageSource));
+      _objectClassRegistrations.Add("ImagePlayerImageSource", typeof(SkinEngine.Controls.ImageSources.ImagePlayerImageSource));
 
       // Brushes
       _objectClassRegistrations.Add("SolidColorBrush", typeof(SkinEngine.Controls.Brushes.SolidColorBrush));

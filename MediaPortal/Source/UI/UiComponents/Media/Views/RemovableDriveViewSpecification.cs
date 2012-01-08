@@ -70,9 +70,9 @@ namespace MediaPortal.UiComponents.Media.Views
 
     protected void UpdateRemovableDriveHandler()
     {
-      _removableDriveHandler = VideoDriveHandler.TryCreateVideoDriveHandler(_driveInfo, Consts.NECESSARY_MOVIE_MIAS) ??
+      _removableDriveHandler = VideoDriveHandler.TryCreateVideoDriveHandler(_driveInfo, Consts.NECESSARY_VIDEO_MIAS) ??
           AudioCDDriveHandler.TryCreateAudioCDDriveHandler(_driveInfo) ??
-          MultimediaDriveHandler.TryCreateMultimediaCDDriveHandler(_driveInfo, Consts.NECESSARY_MOVIE_MIAS, Consts.NECESSARY_PICTURE_MIAS, Consts.NECESSARY_MUSIC_MIAS) ??
+          MultimediaDriveHandler.TryCreateMultimediaCDDriveHandler(_driveInfo, Consts.NECESSARY_VIDEO_MIAS, Consts.NECESSARY_IMAGE_MIAS, Consts.NECESSARY_AUDIO_MIAS) ??
           (IRemovableDriveHandler) new UnknownRemovableDriveHandler(_driveInfo);
     }
 

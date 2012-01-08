@@ -308,7 +308,7 @@ namespace MediaPortal.UiComponents.Media.Models
           {
               AudioAspect.ASPECT_ID,
               VideoAspect.ASPECT_ID,
-              PictureAspect.ASPECT_ID,
+              ImageAspect.ASPECT_ID,
           };
       PlaylistContents playlistContents = cd.LoadServerPlaylist(_playlist.PlaylistId, necessaryMIATypes, optionalMIATypes);
       IList<MediaItem> mediaItems = playlistContents.ItemList;
