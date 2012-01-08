@@ -290,7 +290,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
     /// <param name="valuesEnumer">Enumeration of values, to which the additional separator behaviour shall be applied.</param>
     protected static IEnumerable<string> ApplyAdditionalSeparator(IEnumerable<string> valuesEnumer)
     {
-      if (valuesEnumer == null)
+      if (valuesEnumer == null || valuesEnumer.ToList<String>().Count == 0)
         return null;
       List<String> result = new List<String>();
       if (USE_ADDITIONAL_SEPARATOR)
