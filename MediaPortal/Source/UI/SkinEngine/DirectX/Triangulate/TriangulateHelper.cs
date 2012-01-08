@@ -128,20 +128,6 @@ namespace MediaPortal.UI.SkinEngine.DirectX.Triangulate
       return;
     }
 
-    static void GetInset(PointF nextpoint, PointF point, out float x, out float y, double thickness,
-        PolygonDirection direction)
-    {
-      double ang = Math.Atan2(nextpoint.Y - point.Y, nextpoint.X - point.X);  // Returns in radians
-      const double pi2 = Math.PI / 2.0;
-
-      if (direction == PolygonDirection.Clockwise)
-        ang += pi2;
-      else
-        ang -= pi2;
-      x = (float) (Math.Cos(ang) * thickness); // Radians
-      y = (float) (Math.Sin(ang) * thickness);
-    }
-
     static PointF GetNextPoint(PointF[] points, int i, int max)
     {
       i++;
@@ -149,28 +135,64 @@ namespace MediaPortal.UI.SkinEngine.DirectX.Triangulate
       return points[i];
     }
 
-    static PointF GetLastPoint(PointF[] points, int i, int max)
+    /// <summary>
+    /// Returns the last line of a closed path, which consists of the last point and the first point.
+    /// </summary>
+    /// <param name="points">All points</param>
+    /// <param name="line">Last line</param>
+    static void GetLastLine(PointF[] points, out PointF[] line)
     {
-      i--;
-      while (i < 0) i += max;
-      return points[i];
+      int maxIdx = points.Length;
+      line = new PointF[2];
+      line[0] = points[maxIdx - 1];
+      line[1] = points[0];
     }
 
     /// <summary>
-    /// Converts the graphics path to an array of vertices using TriangleList.
+    /// Does a translatory shift of a given line that consists of 2 points (Vector3).
     /// </summary>
-    public static void TriangulateStroke_TriangleList(PointF[] points, float thickness, bool close, float zCoord, PenLineJoin lineJoin,
-        out PositionColoredTextured[] verts)
+    /// <param name="point1">Line point 1</param>
+    /// <param name="point2">Line point 2</param>
+    /// <param name="moveDistance">The distance to be moved</param>
+    /// <param name="point1Moved">Returns moved point 1'</param>
+    /// <param name="point2Moved">Returns moved point 2'</param>
+    static void MoveVector(PointF point1, PointF point2, double moveDistance, ref PointF point1Moved, ref PointF point2Moved)
     {
-      PointF[] pathPoints = AdjustPoints(points);
-      CPoint2D[] cpoints = new CPoint2D[pathPoints.Length];
-      for (int i = 0; i < pathPoints.Length; i++)
+      Vector3 normalVector = new Vector3(-(point1.Y - point2.Y), point1.X - point2.X, 0);
+      normalVector.Normalize();
+      point1Moved.X = point1.X + (float) moveDistance * normalVector.X;
+      point1Moved.Y = point1.Y + (float) moveDistance * normalVector.Y;
+
+      point2Moved.X = point2.X + (float) moveDistance * normalVector.X;
+      point2Moved.Y = point2.Y + (float) moveDistance * normalVector.Y;
+    }
+
+    /// <summary>
+    /// Calculates the intersection of two lines. If they are parallel the result is PointF.Empty. This method currently does only calculate 2D intersections.
+    /// </summary>
+    /// <param name="a1">Line A point 1</param>
+    /// <param name="a2">Line A point 2</param>
+    /// <param name="b1">Line B point 1</param>
+    /// <param name="b2">Line B point 2</param>
+    /// <param name="intersection">Returns the intersection</param>
+    /// <returns>True if intersection was possible</returns>
+    static bool LineIntersect(PointF a1, PointF a2, PointF b1, PointF b2, out PointF intersection)
+    {
+      float dx = a2.X - a1.X;
+      float dy = a2.Y - a1.Y;
+      float da = b2.X - b1.X;
+      float db = b2.Y - b1.Y;
+
+      if (da * dy - db * dx == 0)
       {
-        PointF pt = pathPoints[i];
-        cpoints[i] = new CPoint2D(pt.X, pt.Y);
+        // The segments are parallel.
+        intersection = PointF.Empty;
+        return false;
       }
-      PolygonDirection direction = CPolygon.GetPointsDirection(cpoints);
-      TriangulateStroke_TriangleList(pathPoints, thickness, close, direction, zCoord, lineJoin, out verts);
+
+      float t = (da * (a1.Y - b1.Y) + db * (b1.X - a1.X)) / (db * dx - da * dy);
+      intersection = new PointF(a1.X + t * dx, a1.Y + t * dy);
+      return true;
     }
 
     /// <summary>
@@ -179,12 +201,11 @@ namespace MediaPortal.UI.SkinEngine.DirectX.Triangulate
     /// <param name="points">The points of the line.</param>
     /// <param name="thickness">The thickness of the line.</param>
     /// <param name="close">True if we should connect the first and last point.</param>
-    /// <param name="direction">The polygon direction.</param>
     /// <param name="zCoord">Z coordinate of the returned vertices.</param>
     /// <param name="lineJoin">The PenLineJoin to use.</param>
     /// <param name="verts">The generated verts.</param>
-    public static void TriangulateStroke_TriangleList(PointF[] points, float thickness, bool close,
-        PolygonDirection direction, float zCoord, PenLineJoin lineJoin, out PositionColoredTextured[] verts)
+    public static void TriangulateStroke_TriangleList(PointF[] points, float thickness, bool close, float zCoord, PenLineJoin lineJoin,
+        out PositionColoredTextured[] verts)
     {
       verts = null;
       PointF[] pathPoints = AdjustPoints(points);
@@ -199,58 +220,61 @@ namespace MediaPortal.UI.SkinEngine.DirectX.Triangulate
         pointCount = pathPoints.Length - 1;
 
       int pointsLength = pathPoints.Length;
-      int trianglesPerSegment = lineJoin == PenLineJoin.Miter ? 4 : 3;
-      verts = new PositionColoredTextured[pointCount * trianglesPerSegment * 3 - (close ? 0 : 3)];
+      List<PositionColoredTextured> vertList = new List<PositionColoredTextured>();
 
-      float insetX;
-      float insetY;
-      int offset = 0;
-      PointF? lastInset = null;
+      PointF[] lastLine = new PointF[] { PointF.Empty, PointF.Empty };
       if (close)
-      {
-        PointF lastPoint = GetLastPoint(pathPoints, 0, pointsLength);
-        GetInset(lastPoint, pathPoints[0], out insetX, out insetY, thickness, direction);
-        lastInset = new PointF(insetX, insetY);
-      }
+        GetLastLine(pathPoints, out lastLine);
+
       for (int i = 0; i < pointCount; i++)
       {
+        PointF currentPoint = pathPoints[i];
         PointF nextPoint = GetNextPoint(pathPoints, i, pointsLength);
-        GetInset(pathPoints[i], nextPoint, out insetX, out insetY, thickness, direction);
 
-        if (lastInset.HasValue)
+        PointF movedCurrent = PointF.Empty;
+        PointF movedNext = PointF.Empty;
+
+        MoveVector(currentPoint, nextPoint, thickness, ref movedCurrent, ref movedNext);
+
+        if (lastLine[0] != PointF.Empty && lastLine[1] != PointF.Empty)
         {
-          // If we wanted to have different StrokeLineJoin implementations, this should be done here. At the moment, the join is quite trivial.
+          // StrokeLineJoin implementation
           switch (lineJoin)
           {
+            default:
             case PenLineJoin.Miter:
-              verts[offset++].Position = new Vector3(pathPoints[i].X, pathPoints[i].Y, zCoord);
-              verts[offset++].Position = new Vector3(pathPoints[i].X + lastInset.Value.X, pathPoints[i].Y + lastInset.Value.Y, zCoord);
-              verts[offset++].Position = new Vector3(pathPoints[i].X + insetX + lastInset.Value.X, pathPoints[i].Y + insetY + lastInset.Value.Y, zCoord);
+              // We need to calculate the intersection of the 2 moved lines
+              PointF movedLast0 = PointF.Empty;
+              PointF movedLast1 = PointF.Empty;
+              MoveVector(lastLine[0], lastLine[1], thickness, ref movedLast0, ref movedLast1);
 
-              verts[offset++].Position = new Vector3(pathPoints[i].X + insetX + lastInset.Value.X, pathPoints[i].Y + insetY + lastInset.Value.Y, zCoord);
-              verts[offset++].Position = new Vector3(pathPoints[i].X + insetX, pathPoints[i].Y + insetY, zCoord);
-              verts[offset++].Position = new Vector3(pathPoints[i].X, pathPoints[i].Y, zCoord);
-              break;
-              // Currently Round is not supported and will be rendered as Bevel.
-            case PenLineJoin.Round:
-            case PenLineJoin.Bevel:
-              verts[offset++].Position = new Vector3(pathPoints[i].X, pathPoints[i].Y, zCoord);
-              verts[offset++].Position = new Vector3(pathPoints[i].X + insetX, pathPoints[i].Y + insetY, zCoord);
-              verts[offset++].Position = new Vector3(pathPoints[i].X + lastInset.Value.X, pathPoints[i].Y + lastInset.Value.Y, zCoord);
+              // Calculate the intersection of the last line and the line that is defined by current and next point
+              PointF intersection;
+              if (LineIntersect(movedCurrent, movedNext, movedLast0, movedLast1, out intersection))
+              {
+                vertList.Add(new PositionColoredTextured { Position = new Vector3(currentPoint.X, currentPoint.Y, zCoord) });
+                vertList.Add(new PositionColoredTextured { Position = new Vector3(movedCurrent.X, movedCurrent.Y, zCoord) });
+                vertList.Add(new PositionColoredTextured { Position = new Vector3(intersection.X, intersection.Y, zCoord) });
+
+                vertList.Add(new PositionColoredTextured { Position = new Vector3(currentPoint.X, currentPoint.Y, zCoord) });
+                vertList.Add(new PositionColoredTextured { Position = new Vector3(movedLast1.X, movedLast1.Y, zCoord) });
+                vertList.Add(new PositionColoredTextured { Position = new Vector3(intersection.X, intersection.Y, zCoord) });
+              }
               break;
           }
         }
 
-        verts[offset++].Position = new Vector3(pathPoints[i].X, pathPoints[i].Y, zCoord);
-        verts[offset++].Position = new Vector3(nextPoint.X, nextPoint.Y, zCoord);
-        verts[offset++].Position = new Vector3(pathPoints[i].X + insetX, pathPoints[i].Y + insetY, zCoord);
+        vertList.Add(new PositionColoredTextured { Position = new Vector3(currentPoint.X, currentPoint.Y, zCoord) });
+        vertList.Add(new PositionColoredTextured { Position = new Vector3(nextPoint.X, nextPoint.Y, zCoord) });
+        vertList.Add(new PositionColoredTextured { Position = new Vector3(movedCurrent.X, movedCurrent.Y, zCoord) });
 
-        verts[offset++].Position = new Vector3(nextPoint.X, nextPoint.Y, zCoord);
-        verts[offset++].Position = new Vector3(nextPoint.X + insetX, nextPoint.Y + insetY, zCoord);
-        verts[offset++].Position = new Vector3(pathPoints[i].X + insetX, pathPoints[i].Y + insetY, zCoord);
+        vertList.Add(new PositionColoredTextured { Position = new Vector3(nextPoint.X, nextPoint.Y, zCoord) });
+        vertList.Add(new PositionColoredTextured { Position = new Vector3(movedNext.X, movedNext.Y, zCoord) });
+        vertList.Add(new PositionColoredTextured { Position = new Vector3(movedCurrent.X, movedCurrent.Y, zCoord) });
 
-        lastInset = new PointF(insetX, insetY);
+        lastLine = new PointF[] { currentPoint, nextPoint };
       }
+      verts = vertList.ToArray();
     }
 
     /// <summary>
@@ -383,8 +407,8 @@ namespace MediaPortal.UI.SkinEngine.DirectX.Triangulate
         outPoints[outPoints.Length - 2] = vPoints[vPoints.Length - 1] + norm;
 
         //Get the slope and intercept of the first segment to feed into the middle loop
-        slope = vectorSlope(vPoints[1] - vPoints[0]);
-        intercept = lineIntercept(outPoints[0], slope);
+        slope = VectorSlope(vPoints[1] - vPoints[0]);
+        intercept = LineIntercept(outPoints[0], slope);
       }
 
       //Get the middle points
@@ -478,7 +502,7 @@ namespace MediaPortal.UI.SkinEngine.DirectX.Triangulate
 
     /// <summary>the slope of v, or NaN if it is nearly vertical</summary>
     /// <param name="v">Vector to take slope from</param>
-    private static float vectorSlope(Vector2 v)
+    private static float VectorSlope(Vector2 v)
     {
       return Math.Abs(v.X) < 0.001f ? float.NaN : (v.Y / v.X);
     }
@@ -486,7 +510,7 @@ namespace MediaPortal.UI.SkinEngine.DirectX.Triangulate
     /// <summary>Finds the intercept of a line</summary>
     /// <param name="point">A point on the line</param>
     /// <param name="slope">The slope of the line</param>
-    private static float lineIntercept(Vector2 point, float slope)
+    private static float LineIntercept(Vector2 point, float slope)
     {
       return point.Y - slope * point.X;
     }
@@ -524,8 +548,8 @@ namespace MediaPortal.UI.SkinEngine.DirectX.Triangulate
     public static Vector2 InnerPoint(Vector2 distance, Vector2 lastPoint, Vector2 point, Vector2 nextPoint, out float slope, out float intercept)
     {
       Vector2 lastDifference = point - lastPoint;
-      slope = vectorSlope(lastDifference);
-      intercept = lineIntercept(lastPoint + Vector2.Modulate(distance, GetNormal(lastDifference)), slope);
+      slope = VectorSlope(lastDifference);
+      intercept = LineIntercept(lastPoint + Vector2.Modulate(distance, GetNormal(lastDifference)), slope);
       return InnerPoint(distance, ref slope, ref intercept, lastPoint + Vector2.Modulate(distance, GetNormal(lastDifference)), point, nextPoint);
     }
 
@@ -548,8 +572,8 @@ namespace MediaPortal.UI.SkinEngine.DirectX.Triangulate
 
       innerPoint = nextPoint + innerPoint;
 
-      float slope = vectorSlope(edgeVector);
-      float intercept = lineIntercept(innerPoint, slope);
+      float slope = VectorSlope(edgeVector);
+      float intercept = LineIntercept(innerPoint, slope);
 
       float safeSlope, safeIntercept;	//Slope and intercept on one of the lines guaranteed not to be vertical
       float x;						//X-coordinate of intersection
