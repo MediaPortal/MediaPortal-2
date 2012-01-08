@@ -272,7 +272,7 @@ namespace HttpServer.Parser
             }
             else if (startPos == -1)
               startPos = currentPos;
-            else if (!char.IsLetterOrDigit(ch) && ch != '-')
+            else if (!char.IsLetterOrDigit(ch) && ch != '-' && ch != '.') // Albert, Team MediaPortal, 2012-01-08: Added '.'. This line should be reworked according to RFC2616, 4.2/2.2
             {
               _log.Write(this, LogPrio.Warning, "Invalid character in header name on line " + currentLine);
               throw new BadRequestException("Invalid character in header name on line " + currentLine);
