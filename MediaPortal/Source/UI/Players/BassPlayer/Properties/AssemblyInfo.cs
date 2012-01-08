@@ -6,7 +6,7 @@ using System.Runtime.InteropServices;
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
 [assembly: AssemblyTitle("BassPlayer")]
-[assembly: AssemblyDescription("Audio player based on BASS audio library")]
+[assembly: AssemblyDescription("Audio player plugin for MediaPortal 2 based on BASS audio library")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("Team MediaPortal")]
 [assembly: AssemblyProduct("MediaPortal")]

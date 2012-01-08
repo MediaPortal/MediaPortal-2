@@ -6,7 +6,7 @@ using System.Runtime.InteropServices;
 // Attribute gesteuert. Ändern Sie diese Attributwerte, um die Informationen zu ändern,
 // die mit einer Assembly verknüpft sind.
 [assembly: AssemblyTitle("VideoPlayer")]
-[assembly: AssemblyDescription("")]
+[assembly: AssemblyDescription("Video player plugin for MediaPortal 2 which plays videos of different formats")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("Team MediaPortal")]
 [assembly: AssemblyProduct("MediaPortal 2")]
