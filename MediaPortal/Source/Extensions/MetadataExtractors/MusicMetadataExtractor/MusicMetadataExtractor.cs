@@ -63,7 +63,10 @@ namespace MediaPortal.Extensions.MetadataExtractors.MusicMetadataExtractor
 
     protected static IList<string> SHARE_CATEGORIES = new List<string>();
     protected static IList<string> AUDIO_EXTENSIONS = new List<string>();
-    protected static IList<string> UNSPLITTABLE_VALUES = new List<string>();
+    protected static IList<string> UNSPLITTABLE_ID3V23_VALUES = new List<string>();
+    protected static bool USE_ADDITIONAL_SEPARATOR;
+    protected static char ADDITIONAL_SEPARATOR;
+    protected static IList<string> UNSPLITTABLE_ADDITIONAL_SEPARATOR_VALUES = new List<string>();
 
     /// <summary>
     /// Music file accessor class needed for our tag library implementation. This class maps
@@ -115,7 +118,8 @@ namespace MediaPortal.Extensions.MetadataExtractors.MusicMetadataExtractor
 
       MusicMetadataExtractorSettings settings = ServiceRegistration.Get<ISettingsManager>().Load<MusicMetadataExtractorSettings>();
       InitializeExtensions(settings);
-      InitializeUnsplittableValues(settings);
+      InitializeUnsplittableID3v23Values(settings);
+      InitializeAdditionalSeparatorBehaviour(settings);
     }
 
     /// <summary>
@@ -128,12 +132,23 @@ namespace MediaPortal.Extensions.MetadataExtractors.MusicMetadataExtractor
     }
 
     /// <summary>
-    /// (Re)initializes the unsplittable artists collection for which this <see cref="MusicMetadataExtractor"/> used.
+    /// (Re)initializes the unsplittable values collection for ID3v2.3 tags.
     /// </summary>
     /// <param name="settings">Settings object to read the data from.</param>
-    internal static void InitializeUnsplittableValues(MusicMetadataExtractorSettings settings)
+    internal static void InitializeUnsplittableID3v23Values(MusicMetadataExtractorSettings settings)
     {
-      UNSPLITTABLE_VALUES = new List<string>(settings.UnsplittableValues.Select(v => v.ToLowerInvariant()));
+      UNSPLITTABLE_ID3V23_VALUES = new List<string>(settings.UnsplittableID3v23Values.Select(v => v.ToLowerInvariant()));
+    }
+
+    /// <summary>
+    /// (Re)initializes the behaviour of this <see cref="MusicMetadataExtractor"/> regarding multiple values in single fields.
+    /// </summary>
+    /// <param name="settings">Settings object to read the data from.</param>
+    internal static void InitializeAdditionalSeparatorBehaviour(MusicMetadataExtractorSettings settings)
+    {
+      USE_ADDITIONAL_SEPARATOR = settings.UseAdditionalSeparator;
+      ADDITIONAL_SEPARATOR = settings.AdditionalSeparator;
+      UNSPLITTABLE_ADDITIONAL_SEPARATOR_VALUES = new List<string>(settings.UnsplittableAddditionalSeparatorValues.Select(e => e.ToLowerInvariant()));
     }
 
     public MusicMetadataExtractor()
@@ -211,42 +226,80 @@ namespace MediaPortal.Extensions.MetadataExtractors.MusicMetadataExtractor
     }
 
     /// <summary>
-    /// Patches an enumeration of artists or other values that have been potentially been separated by the tag reader
-    /// although the artist name contains one or more "/" in its name and thus should not be treated as different artists.
+    /// Patches an enumeration of artists or other values that have been potentially been separated
+    /// although the artist name or other value contains one or more separators in its name and thus should not
+    /// be treated as different artists or separated other values.
     /// </summary>
     /// <param name="valuesList">List of artists or other values, which have potentially been separated.</param>
-    /// <param name="parts">Parts which belong together, for example <c>{"AC", "DC"}</c>.</param>
-    protected static void PatchID3v2Enumeration(IList<string> valuesList,IList<string> parts)
+    /// <param name="unsplittableValue">Artist or other value containing at least one separator character.</param>
+    /// <param name="separator">Character, which was used as separator.</param>
+    protected static void JoinUnsplittableValue(IList<string> valuesList, string unsplittableValue, char separator)
     {
+      IList<string> parts = unsplittableValue.Split(separator);
       int index = CollectionUtils.IndexOf<string, string>(valuesList, parts, StringComparer.InvariantCultureIgnoreCase);
-      if (index != -1)
+      if (index == -1)
+        return;
+      string[] origParts = new string[parts.Count];
+      for (int i = 0; i < parts.Count; i++)
       {
-        string[] origParts = new string[parts.Count];
-        for (int i = 0; i < parts.Count; i++)
-        {
-          origParts[i] = valuesList[index];
-          valuesList.RemoveAt(index);
-        }
-        valuesList.Insert(index, StringUtils.Join("/", origParts));
+        origParts[i] = valuesList[index];
+        valuesList.RemoveAt(index);
       }
+      valuesList.Insert(index, StringUtils.Join(separator.ToString(), origParts));
     }
 
-    protected static IEnumerable<string> PatchID3v2Enumeration(IEnumerable<string> valuesEnumer)
+    /// <summary>
+    /// Patches an enumeration of artists or other values that have been potentially been separated
+    /// although the artist names or other values each contain one or more separators in their name and thus should not
+    /// be treated as different artists or separated other values.
+    /// </summary>
+    /// <param name="valuesEnumer">Enumerable of artists or other values, which have potentially been separated.</param>
+    /// <param name="unsplittableValues">Artists or other values each containing at least one separator character.</param>
+    /// <param name="separator">Character, which was used as separator.</param>
+    protected static IEnumerable<string> JoinUnsplittableValues(IEnumerable<string> valuesEnumer, IList<string> unsplittableValues, char separator)
     {
-      // We have to cope with a very stupid problem; The ID3Tag specification v2 (http://www.id3.org/d3v2.3.0, search for TPE1)
-      // uses the "/" character to separate artists/performers/lyricists etc., but what to do if an artist name contains
-      // that character? We'll do a hack for the most common artists of that kind
       if (valuesEnumer == null)
         return null;
       IList<string> values = new List<string>(valuesEnumer);
       if (values.Count == 0)
         return null;
-      foreach (string artist in UNSPLITTABLE_VALUES)
-      {
-        string[] artistNameParts = artist.Split('/');
-        PatchID3v2Enumeration(values, new List<string>(artistNameParts)); 
-      }
+      foreach (string unsplittableValue in unsplittableValues)
+        JoinUnsplittableValue(values, unsplittableValue, separator);
       return values;
+    }
+
+    /// <summary>
+    /// We have to cope with a very stupid problem; The ID3Tag specification v2.3 (http://www.id3.org/d3v2.3.0, search for TPE1)
+    /// uses the '/' character as separator for multiple values in some fields such as TPEE1 (=artist), but what to do if an artist name contains
+    /// that character? We'll do a hack for the most common artists and other values of that kind.
+    /// </summary>
+    /// <remarks>
+    /// We call this for Artists, Albumartists, Composers and Genres if the tag format is ID3v2.3.
+    /// For more information see this thread in the MediaPortal forum: http://forum.team-mediaportal.com/submit-bug-reports-532/multiple-music-genres-not-handled-correctly-103169/
+    /// </remarks>
+    /// <param name="valuesEnumer">Enumeration of values, which were potentially wrongly splitted by TagLib#.</param>
+    protected static IEnumerable<string> PatchID3v23Enumeration(IEnumerable<string> valuesEnumer)
+    {
+      return JoinUnsplittableValues(valuesEnumer, UNSPLITTABLE_ID3V23_VALUES, '/');
+    }
+
+    /// <summary>
+    /// If USE_ADDITIONAL_SEPARATOR is true, valuesEnumer are splitted by ADDITIONAL_SEPARATOR and wrongly
+    /// splitted values contained in UNSPLITTABLE_ADDITIONAL_SEPARATOR_VALUES are corrected.
+    /// </summary>
+    /// <param name="valuesEnumer">Enumeration of values, to which the additional separator behaviour shall be applied.</param>
+    protected static IEnumerable<string> ApplyAdditionalSeparator(IEnumerable<string> valuesEnumer)
+    {
+      List<String> result = new List<String>();
+      if (USE_ADDITIONAL_SEPARATOR)
+      {
+        foreach (String value in valuesEnumer)
+          result.AddRange(value.Split(ADDITIONAL_SEPARATOR));
+        result = new List<String>(JoinUnsplittableValues(result, UNSPLITTABLE_ADDITIONAL_SEPARATOR_VALUES, ADDITIONAL_SEPARATOR));
+      }
+      else
+        result = new List<String>(valuesEnumer);
+      return result;
     }
 
     #endregion
@@ -304,21 +357,31 @@ namespace MediaPortal.Extensions.MetadataExtractors.MusicMetadataExtractor
           title = tag.Tag.Title;
         IEnumerable<string> artists;
         if (tag.Tag.Performers.Length > 0)
+        {
           artists = tag.Tag.Performers;
+          if ((tag.TagTypes & TagTypes.Id3v2) != 0)
+            artists = PatchID3v23Enumeration(artists);
+        }
         else
-          artists = artist == null ? null : new string[] {artist};
+          artists = artist == null ? null : new string[] { artist };
         if (tag.Tag.Track != 0)
           trackNo = tag.Tag.Track;
         mediaAspect.SetAttribute(MediaAspect.ATTR_TITLE, title);
         // FIXME Albert: tag.MimeType returns taglib/mp3 for an MP3 file. This is not what we want and collides with the
         // mimetype handling in the BASS player, which expects audio/xxx.
         //mediaAspect.SetAttribute(MediaAspect.ATTR_MIME_TYPE, tag.MimeType);
-        audioAspect.SetCollectionAttribute(AudioAspect.ATTR_ARTISTS, PatchID3v2Enumeration(artists));
+        audioAspect.SetCollectionAttribute(AudioAspect.ATTR_ARTISTS, ApplyAdditionalSeparator(artists));
         audioAspect.SetAttribute(AudioAspect.ATTR_ALBUM, StringUtils.TrimToNull(tag.Tag.Album));
-        audioAspect.SetCollectionAttribute(AudioAspect.ATTR_ALBUMARTISTS, PatchID3v2Enumeration(tag.Tag.AlbumArtists));
+        IEnumerable<string> albumArtists = tag.Tag.AlbumArtists;
+        if ((tag.TagTypes & TagTypes.Id3v2) != 0)
+          albumArtists = PatchID3v23Enumeration(albumArtists);
+        audioAspect.SetCollectionAttribute(AudioAspect.ATTR_ALBUMARTISTS, ApplyAdditionalSeparator(albumArtists));
         audioAspect.SetAttribute(AudioAspect.ATTR_BITRATE, tag.Properties.AudioBitrate);
         mediaAspect.SetAttribute(MediaAspect.ATTR_COMMENT, StringUtils.TrimToNull(tag.Tag.Comment));
-        audioAspect.SetCollectionAttribute(AudioAspect.ATTR_COMPOSERS, tag.Tag.Composers);
+        IEnumerable<string> composers = tag.Tag.Composers;
+        if ((tag.TagTypes & TagTypes.Id3v2) != 0)
+          composers = PatchID3v23Enumeration(composers);
+        audioAspect.SetCollectionAttribute(AudioAspect.ATTR_COMPOSERS, ApplyAdditionalSeparator(composers));
         // The following code gets cover art images - and there is no cover art attribute in any media item aspect
         // defined yet. (Albert, 2008-11-19)
         //IPicture[] pics = new IPicture[] { };
@@ -329,7 +392,12 @@ namespace MediaPortal.Extensions.MetadataExtractors.MusicMetadataExtractor
         //}
         audioAspect.SetAttribute(AudioAspect.ATTR_DURATION, tag.Properties.Duration.TotalSeconds);
         if (tag.Tag.Genres.Length > 0)
-          audioAspect.SetCollectionAttribute(AudioAspect.ATTR_GENRES, tag.Tag.Genres);
+        {
+          IEnumerable<string> genres = tag.Tag.Genres;
+          if ((tag.TagTypes & TagTypes.Id3v2) != 0)
+            genres = PatchID3v23Enumeration(genres);
+          audioAspect.SetCollectionAttribute(AudioAspect.ATTR_GENRES, ApplyAdditionalSeparator(genres));
+        }
         if (trackNo.HasValue)
           audioAspect.SetAttribute(AudioAspect.ATTR_TRACK, (int) trackNo.Value);
         if (tag.Tag.TrackCount != 0)

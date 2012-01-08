@@ -29,11 +29,15 @@ namespace MediaPortal.Extensions.MetadataExtractors.MusicMetadataExtractor.Setti
 {
   public class MusicMetadataExtractorSettings
   {
-    protected readonly static List<string> DEFAULT_UNSPLITTABLE_ARTISTS = new List<string>
+    protected readonly static List<string> DEFAULT_UNSPLITTABLE_ID3V23_VALUES = new List<string>
       {
           "AC/DC",
           "De/Vision",
       };
+
+    protected readonly static char ADDITIONAL_SEPARATOR = ';';
+
+    protected readonly static List<string> DEFAULT_UNSPLITTABLE_ADDITIONAL_SEPARATOR_VALUES = new List<string>();
 
     protected readonly static List<string> DEFAULT_AUDIO_EXTENSIONS = new List<string>
       {
@@ -52,30 +56,81 @@ namespace MediaPortal.Extensions.MetadataExtractors.MusicMetadataExtractor.Setti
           ".mpp",
       };
 
-    protected List<string> _unsplittableValues = new List<string>(DEFAULT_UNSPLITTABLE_ARTISTS);
+    protected List<string> _unsplittableID3v23Values = new List<string>(DEFAULT_UNSPLITTABLE_ID3V23_VALUES);
+    protected bool _useAdditionalSeparator;
+    protected char _additionalSeparator = ADDITIONAL_SEPARATOR;
+    protected List<string> _unsplittableAddditionalSeparatorValues = new List<string>(DEFAULT_UNSPLITTABLE_ADDITIONAL_SEPARATOR_VALUES);
     protected List<string> _audioExtensions = new List<string>(DEFAULT_AUDIO_EXTENSIONS);
 
     /// <summary>
     /// Returns a list of strings of the form "AC/DC". Each string must contain at least one "/" character.
     /// </summary>
     /// <remarks>
-    /// The ID3v2 tag specification states that the "/" character should be used to separate different artists or album artists.
-    /// But some artists contain a "/" character in their name. This setting is initialized with some default artists containing
-    /// a "/" in their name, e.g. "AC/DC" or "De/Vision". It can be extended by more artists of that kind by the user.
-    /// Also artists with more than one "/" in their name are supported.
+    /// The ID3v2.3 tag specification states that the "/" character should be used to separate different artists, album artists or composers.
+    /// The TagLib# library additionally treats "/" as a separator for genres.
+    /// But some artists, composers or maybe genres contain a "/" character in their name. This setting is initialized with some default artists containing
+    /// a "/" in their name, e.g. "AC/DC" or "De/Vision". It can be extended by more artists, composers or genres of that kind by the user.
+    /// Also values with more than one "/" in their name are supported.
     /// </remarks>
-    // Global or per-user?
     [Setting(SettingScope.Global)]
-    public List<string> UnsplittableValues
+    public List<string> UnsplittableID3v23Values
     {
-      get { return _unsplittableValues; }
-      set { _unsplittableValues = value; }
+      get { return _unsplittableID3v23Values; }
+      set { _unsplittableID3v23Values = value; }
+    }
+
+    /// <summary>
+    /// Indicates whether an additional separator is taken into account for multiple value fields.
+    /// </summary>
+    /// <remarks>
+    /// Some tagging formats (such as e.g. Vorbis Comments) support multi-value fields in a way that you can store multiple
+    /// fields with the same name. If a track for example has two artists "Beavis" and "Butthead", you can store one field with
+    /// the name "artist" and the value "Beavis" and a second field with the same name "artist" and the value "Butthead".
+    /// Other tagging formats such as ID3v2.3 store multiple values in one field and use a separator character to separate
+    /// multiple values. In the ID3v2.3 format e.g., the separator for the field with the name "TPE1", which is used to store the
+    /// artists, is '/'. As a result, in the example above, you would store one field named "TPE1" with the value
+    /// "Beavis/Butthead".
+    /// Unfortunately, the separator differs from one tagging format to another. In ID3v2.4 for example, the null character is used
+    /// instead of the '/'. Since there is no unique and correct separator, many tagging tools have started to use their "own" separator
+    /// values. MPTagThat for example uses the semicolon (';') as a unique separator.
+    /// If this value is set to true, the <see cref="MusicMetadataExtractor"/> will use <see cref="AdditionalSeparator"/> as an additional separator character for
+    /// all multiple value fields and all tagging formats. Since, depending on the separator used, there may be values that contain
+    /// <see cref="AdditionalSeparator"/> as a regular character, <see cref="UnsplittableAddditionalSeparatorValues"/> contains values, which are not splitted
+    /// although they contain <see cref="AdditionalSeparator"/>.
+    /// The standard value for this setting is true combined with ';' as <see cref="AdditionalSeparator"/> to make <see cref="MusicMetadataExtractor"/> behave
+    /// like MP1 and MPTagThat.
+    /// For more information see this thread in the MediaPortal forum: http://forum.team-mediaportal.com/submit-bug-reports-532/multiple-music-genres-not-handled-correctly-103169/
+    /// </remarks>
+    [Setting(SettingScope.Global, true)]
+    public bool UseAdditionalSeparator
+    {
+      get { return _useAdditionalSeparator; }
+      set { _useAdditionalSeparator = value; }
+    }
+
+    /// <summary>
+    /// Character to use as an additional separator for multiple values stored in a single tagging field.
+    /// </summary>
+    [Setting(SettingScope.Global)]
+    public char AdditionalSeparator
+    {
+      get { return _additionalSeparator; }
+      set { _additionalSeparator = value; }
+    }
+
+    /// <summary>
+    /// List of values, which contain one or more <see cref="AdditionalSeparator"/> values and nevertheless must not be splitted.
+    /// </summary>
+    [Setting(SettingScope.Global)]
+    public List<string> UnsplittableAddditionalSeparatorValues
+    {
+      get { return _unsplittableAddditionalSeparatorValues; }
+      set { _unsplittableAddditionalSeparatorValues = value; }
     }
 
     /// <summary>
     /// Audio extensions for which the <see cref="MusicMetadataExtractor"/> should be used.
     /// </summary>
-    // Global or per-user?
     [Setting(SettingScope.Global)]
     public List<string> AudioExtensions
     {
