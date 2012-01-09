@@ -72,6 +72,7 @@
     <Compile Include="FrontendServer\IFrontendServer.cs" />
     <Compile Include="General\WindowsMessaging.cs" />
     <Compile Include="Presentation\Actions\KeyAction.cs" />
+    <Compile Include="Presentation\Players\ISpectrumPlayer.cs" />
     <Compile Include="Presentation\SkinResources\ISkin.cs" />
     <Compile Include="Presentation\SkinResources\ISkinResourceBundle.cs" />
     <Compile Include="Presentation\SkinResources\ITheme.cs" />
