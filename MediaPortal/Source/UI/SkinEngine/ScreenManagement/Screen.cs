@@ -503,7 +503,13 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
       {
         lock (_syncObj)
           if (_root.CanHandleMouseMove())
-            _root.OnMouseMove(x, y);
+          {
+            List<FocusCandidate> focusCandidates = new List<FocusCandidate>(10);
+            _root.OnMouseMove(x, y, focusCandidates);
+            focusCandidates.Sort((f1, f2) => Math.Sign(f2.ZIndex - f1.ZIndex)); // Comparer for sorting in descending order - Sort list from biggest Z-Index to lowest Z-Index
+            if (focusCandidates.Select(candidate => candidate.Candidate).FirstOrDefault(candidate => candidate.TrySetFocus(false)) == null)
+              RemoveCurrentFocus();
+          }
           else
             _mouseMovePending = new PointF(x, y);
       }
@@ -712,9 +718,10 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
     /// </summary>
     public void RemoveCurrentFocus()
     {
-      if (_focusedElement != null)
-        if (_focusedElement.HasFocus)
-          _focusedElement.ResetFocus(); // Will trigger the FrameworkElementLostFocus method, which sets _focusedElement to null
+      FrameworkElement focusedElement = _focusedElement;
+      if (focusedElement != null)
+        if (focusedElement.HasFocus)
+          focusedElement.ResetFocus(); // Will trigger the FrameworkElementLostFocus method, which sets _focusedElement to null
     }
 
     /// <summary>

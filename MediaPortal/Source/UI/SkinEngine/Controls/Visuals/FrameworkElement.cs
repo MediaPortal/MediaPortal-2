@@ -165,6 +165,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     protected volatile bool _isArrangeInvalid = true;
     
     protected Matrix? _inverseFinalTransform = null;
+    protected float _lastZIndex = 0;
 
     #endregion
 
@@ -1286,11 +1287,10 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       return _inverseFinalTransform.HasValue;
     }
 
-    public override void OnMouseMove(float x, float y)
+    public override void OnMouseMove(float x, float y, ICollection<FocusCandidate> focusCandidates)
     {
       if (IsVisible)
       {
-        bool hasFocus = HasFocus;
         float xTrans = x;
         float yTrans = y;
         if (!TransformMouseCoordinates(ref xTrans, ref yTrans))
@@ -1302,11 +1302,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
             IsMouseOver = true;
             FireEvent(MOUSEENTER_EVENT, RoutingStrategyEnum.Direct);
           }
-          bool inVisibleArea = IsInVisibleArea(xTrans, yTrans);
-          if (!hasFocus && inVisibleArea)
-            TrySetFocus(false);
-          if (hasFocus && !inVisibleArea)
-            ResetFocus();
+          if (IsInVisibleArea(xTrans, yTrans))
+            focusCandidates.Add(new FocusCandidate(this, _lastZIndex));
         }
         else
         {
@@ -1315,11 +1312,9 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
             IsMouseOver = false;
             FireEvent(MOUSELEAVE_EVENT, RoutingStrategyEnum.Direct);
           }
-          if (hasFocus)
-            ResetFocus();
         }
       }
-      base.OnMouseMove(x, y);
+      base.OnMouseMove(x, y, focusCandidates);
     }
 
     public override bool IsInArea(float x, float y)
@@ -1762,6 +1757,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       }
       // Calculation of absolute render size (in world coordinate system)
       parentRenderContext.IncludeTransformedContentsBounds(localRenderContext.OccupiedTransformedBounds);
+      _lastZIndex = localRenderContext.ZOrder;
     }
 
     #region Opacitymask

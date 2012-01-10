@@ -866,12 +866,24 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       }
     }
 
-    public virtual void OnMouseMove(float x, float y)
+    public struct FocusCandidate
+    {
+      public FrameworkElement Candidate;
+      public float ZIndex;
+
+      public FocusCandidate(FrameworkElement candidate, float zIndex)
+      {
+        Candidate = candidate;
+        ZIndex = zIndex;
+      }
+    }
+
+    public virtual void OnMouseMove(float x, float y, ICollection<FocusCandidate> focusCandidates)
     {
       foreach (UIElement child in GetChildren())
       {
         if (!child.IsVisible) continue;
-        child.OnMouseMove(x, y);
+        child.OnMouseMove(x, y, focusCandidates);
       }
     }
 

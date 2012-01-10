@@ -22,6 +22,7 @@
 
 #endregion
 
+using System.Collections.Generic;
 using System.Windows.Forms;
 using MediaPortal.UI.Control.InputManager;
 using MediaPortal.UI.SkinEngine.Commands;
@@ -122,9 +123,9 @@ namespace MediaPortal.UI.SkinEngine.SpecialElements.Controls
       command.Execute(new object[] {key});
     }
 
-    public override void OnMouseMove(float x, float y)
+    public override void OnMouseMove(float x, float y, ICollection<FocusCandidate> focusCandidates)
     {
-      base.OnMouseMove(x, y);
+      base.OnMouseMove(x, y, focusCandidates);
       float xTrans = x;
       float yTrans = y;
       if (!TransformMouseCoordinates(ref xTrans, ref yTrans))
