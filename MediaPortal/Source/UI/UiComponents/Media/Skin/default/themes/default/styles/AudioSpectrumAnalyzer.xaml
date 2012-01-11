@@ -1,0 +1,68 @@
+<!--
+// Copyright (C) 2011, Jacob Johnston 
+//
+// Permission is hereby granted, free of charge, to any person obtaining a 
+// copy of this software and associated documentation files (the "Software"), 
+// to deal in the Software without restriction, including without limitation 
+// the rights to use, copy, modify, merge, publish, distribute, sublicense, 
+// and/or sell copies of the Software, and to permit persons to whom the 
+// Software is furnished to do so, subject to the following conditions: 
+//
+// The above copyright notice and this permission notice shall be included in 
+// all copies or substantial portions of the Software. 
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR 
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, 
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL 
+// THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER 
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING 
+// FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER 
+// DEALINGS IN THE SOFTWARE. 
+-->
+<ResourceDictionary    
+   xmlns="www.team-mediaportal.com/2008/mpf/directx"
+   xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+   xmlns:mp_audio_viz="clr-namespace:MediaPortal.Plugins.AudioSpectrumAnalyzer;assembly=AudioSpectrumAnalyzer">
+
+  <!-- Region: SpectrumAnalyzer -->
+  <LinearGradientBrush x:Key="SpectrumBarBrush" EndPoint="0.5,0" StartPoint="0.5,1">
+    <GradientStop Color="#3c993b" Offset="0" />
+    <GradientStop Color="#43d33a" Offset="1" />
+  </LinearGradientBrush>
+
+  <!--<SolidColorBrush x:Key="SpectrumBarBrush" Color="#3c993b" />-->
+  <SolidColorBrush x:Key="SpectrumPeakBrush" Color="#43d33a" />
+
+  <Style x:Key="SpectrumAnalyzerStyle" TargetType="{x:Type mp_audio_viz:AudioSpectrumAnalyzer}">
+    <Setter Property="BarStyle">
+      <Setter.Value>
+        <Style TargetType="{x:Type Rectangle}">
+          <Setter Property="Fill" Value="{StaticResource SpectrumBarBrush}" />
+        </Style>
+      </Setter.Value>
+    </Setter>
+    <Setter Property="PeakStyle">
+      <Setter.Value>
+        <Style TargetType="{x:Type Rectangle}">
+          <Setter Property="Fill" Value="{StaticResource SpectrumPeakBrush}" />
+        </Style>
+      </Setter.Value>
+    </Setter>
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate TargetType="{x:Type mp_audio_viz:AudioSpectrumAnalyzer}">
+          <Border Background="{TemplateBinding Background}"
+                            BorderBrush="{TemplateBinding BorderBrush}"
+                            BorderThickness="{TemplateBinding BorderThickness}">
+            <Canvas Name="PART_SpectrumCanvas" Width="600" Height="300"
+                                HorizontalAlignment="Stretch"
+                                VerticalAlignment="Stretch" />
+          </Border>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
+  <!-- EndRegion: SpectrumAnalyzer -->
+
+
+</ResourceDictionary>

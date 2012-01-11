@@ -4,6 +4,7 @@
     xmlns="www.team-mediaportal.com/2008/mpf/directx"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:mp_special_workflow="clr-namespace:MediaPortal.UI.SkinEngine.SpecialElements.Workflow"
+    xmlns:mp_audio_viz="clr-namespace:MediaPortal.Plugins.AudioSpectrumAnalyzer;assembly=AudioSpectrumAnalyzer"
     mp_special_workflow:WorkflowContext.StateSlot="Root"
     x:Name="FullscreenContentAudioScreen"
     >
@@ -14,6 +15,10 @@
     <Grid.RowDefinitions>
       <RowDefinition Height="*"/>
     </Grid.RowDefinitions>
+
+    <mp_audio_viz:AudioSpectrumAnalyzer Width="600" Height="300"
+      Grid.Column="0" Grid.Row="0" x:Name="spectrumAnalyzer" Margin="5" Style="{ThemeResource SpectrumAnalyzerStyle}"/>
+    
     <Label DockPanel.Dock="Center"
         HorizontalAlignment="Center" VerticalAlignment="Center"
         Content="In the future, you will see an audio visualization here"
