@@ -1,0 +1,24 @@
+<Plugin
+    DescriptorVersion="1.0"
+    Name="AudioSpectrumAnalyzer"
+    PluginId="{834702F7-1493-4E75-A272-1AD1DB3DE64B}"
+    Author="Morpheus_xx"
+    Copyright="GPL"
+    Description="Simple Audio Spectrum Analyzer"
+    PluginVersion="1.0">
+
+  <DependsOn>
+    <PluginReference PluginId="{D87D92F0-5E71-470a-A2A4-430F90A28BF3}"/> <!-- SkinEngine -->
+    <PluginReference PluginId="{1AFF4467-64B0-4ca1-AF28-9AEDF3525BCE}"/> <!-- ConfigurationManager -->
+    <PluginReference PluginId="{B765A4B6-F455-4941-BDAE-2CE45208BFEB}"/> <!-- Configuration Model -->
+  </DependsOn>
+
+  <Runtime>
+    <Assembly FileName="AudioSpectrumAnalyzer.dll"/>
+  </Runtime>
+
+  <Register Location="/Models">
+    <Model Id="D8C2235E-D112-4FB0-9D1A-CF3116B92E2C" Name="AudioSpectrumAnalyzerModel" ClassName="MediaPortal.Plugins.AudioSpectrumAnalyzer.AudioSpectrumAnalyzerModel"/>
+  </Register>
+ 
+</Plugin>
