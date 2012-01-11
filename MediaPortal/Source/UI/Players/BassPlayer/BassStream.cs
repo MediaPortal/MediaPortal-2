@@ -51,11 +51,10 @@ namespace Ui.Players.BassPlayer
 
     #region Fields
 
-    private int _Handle;
-    private BASS_CHANNELINFO _Info;
-    private StreamContentType _StreamContentType = StreamContentType.Unknown;
-    private TimeSpan _Length;
-    private long _SampleLength;
+    private int _handle;
+    private BASS_CHANNELINFO _info;
+    private StreamContentType _streamContentType = StreamContentType.Unknown;
+    private TimeSpan _length;
 
     #endregion
 
@@ -66,7 +65,7 @@ namespace Ui.Players.BassPlayer
     /// </summary>
     public int Handle
     {
-      get { return _Handle; }
+      get { return _handle; }
     }
 
     /// <summary>
@@ -74,7 +73,7 @@ namespace Ui.Players.BassPlayer
     /// </summary>
     public int Channels
     {
-      get { return _Info.chans; }
+      get { return _info.chans; }
     }
 
     /// <summary>
@@ -82,7 +81,7 @@ namespace Ui.Players.BassPlayer
     /// </summary>
     public int SampleRate
     {
-      get { return _Info.freq; }
+      get { return _info.freq; }
     }
 
     /// <summary>
@@ -98,7 +97,7 @@ namespace Ui.Players.BassPlayer
     /// </summary>
     public BASS_CHANNELINFO BassInfo
     {
-      get { return _Info; }
+      get { return _info; }
     }
 
     /// <summary>
@@ -106,7 +105,7 @@ namespace Ui.Players.BassPlayer
     /// </summary>
     public StreamContentType StreamContentType
     {
-      get { return _StreamContentType; }
+      get { return _streamContentType; }
     }
 
     /// <summary>
@@ -114,7 +113,7 @@ namespace Ui.Players.BassPlayer
     /// </summary>
     public TimeSpan Length
     {
-      get { return _Length; }
+      get { return _length; }
     }
 
     /// <summary>
@@ -144,7 +143,7 @@ namespace Ui.Players.BassPlayer
     /// <returns></returns>
     public int Read(float[] buffer, int length)
     {
-      int bytesRead = Bass.BASS_ChannelGetData(_Handle, buffer, length * BassConstants.FloatBytes);
+      int bytesRead = Bass.BASS_ChannelGetData(_handle, buffer, length * BassConstants.FloatBytes);
 
       if (bytesRead == -1)
       {
@@ -162,7 +161,7 @@ namespace Ui.Players.BassPlayer
     /// <returns>The number of bytes read or -1 when the end of the stream is reached.</returns>
     public int Read(IntPtr buffer, int length)
     {
-      int bytesRead = Bass.BASS_ChannelGetData(_Handle, buffer, length);
+      int bytesRead = Bass.BASS_ChannelGetData(_handle, buffer, length);
 
       if (bytesRead == -1)
       {
@@ -238,7 +237,7 @@ namespace Ui.Players.BassPlayer
     public void SeekNextFrame(int stream, StreamContentType streamContentType)
     {
       SyncWord syncWord;
-      switch (_StreamContentType)
+      switch (_streamContentType)
       {
         case StreamContentType.DD:
           syncWord = new DDSyncWord();
@@ -274,8 +273,8 @@ namespace Ui.Players.BassPlayer
     /// </remarks>
     public void UpdateLocalFields()
     {
-      _Length = GetLength();
-      _SampleLength = GetSampleLength();
+      _length = GetLength();
+      GetSampleLength();
     }
 
     #endregion
@@ -284,7 +283,7 @@ namespace Ui.Players.BassPlayer
 
     private BassStream(int handle)
     {
-      _Handle = handle;
+      _handle = handle;
     }
 
     private static void CheckException(string bassFunction)
@@ -300,18 +299,18 @@ namespace Ui.Players.BassPlayer
     /// </summary>
     private void Initialize()
     {
-      _Info = Bass.BASS_ChannelGetInfo(_Handle);
-      Log.Debug("Stream type: {0}", _Info.ctype);
+      _info = Bass.BASS_ChannelGetInfo(_handle);
+      Log.Debug("Stream type: {0}", _info.ctype);
 
-      if (_Info.ctype != BASSChannelType.BASS_CTYPE_STREAM &&
-          _Info.ctype != BASSChannelType.BASS_CTYPE_STREAM_MIXER)
+      if (_info.ctype != BASSChannelType.BASS_CTYPE_STREAM &&
+          _info.ctype != BASSChannelType.BASS_CTYPE_STREAM_MIXER)
       {
-        Log.Info("Stream info: {0}", _Info.ToString());
+        Log.Info("Stream info: {0}", _info.ToString());
 
         UpdateLocalFields();
-        _StreamContentType = GetStreamContentType();
+        _streamContentType = GetStreamContentType();
 
-        Log.Info("Stream content: {0}", _StreamContentType);
+        Log.Info("Stream content: {0}", _streamContentType);
       }
     }
 
@@ -417,13 +416,13 @@ namespace Ui.Players.BassPlayer
       const int bytesPerWord = 2;
       const int channelCount = 2;
 
-      long streamLength = Bass.BASS_ChannelGetLength(_Handle);
+      long streamLength = Bass.BASS_ChannelGetLength(_handle);
       long currentPosition = 0;
       if (streamLength > 0)
       {
-        currentPosition = Bass.BASS_ChannelGetPosition(_Handle);
+        currentPosition = Bass.BASS_ChannelGetPosition(_handle);
         if (currentPosition != 0)
-          Bass.BASS_ChannelSetPosition(_Handle, 0);
+          Bass.BASS_ChannelSetPosition(_handle, 0);
       }
 
       SyncFifoBuffer syncFifoBuffer = new SyncFifoBuffer(syncWord);
@@ -439,7 +438,7 @@ namespace Ui.Players.BassPlayer
 
       while (!result && sampleIndex < maxSampleIndex)
       {
-        int bytesRead = Bass.BASS_ChannelGetData(_Handle, readBuffer, readBuffer.Length * bytesPerSample);
+        int bytesRead = Bass.BASS_ChannelGetData(_handle, readBuffer, readBuffer.Length * bytesPerSample);
         if (bytesRead <= 0)
           // End of stream
           break;
@@ -477,7 +476,7 @@ namespace Ui.Players.BassPlayer
       }
 
       if (streamLength > 0)
-        Bass.BASS_ChannelSetPosition(_Handle, currentPosition);
+        Bass.BASS_ChannelSetPosition(_handle, currentPosition);
 
       return result;
     }
@@ -493,10 +492,10 @@ namespace Ui.Players.BassPlayer
       const int bytesPerWord = 2;
       const int channelCount = 2;
 
-      long streamLength = Bass.BASS_ChannelGetLength(_Handle);
+      long streamLength = Bass.BASS_ChannelGetLength(_handle);
       long currentPosition = 0;
       if (streamLength > 0)
-        currentPosition = Bass.BASS_ChannelGetPosition(_Handle);
+        currentPosition = Bass.BASS_ChannelGetPosition(_handle);
 
       SyncFifoBuffer syncFifoBuffer = new SyncFifoBuffer(syncWord);
       float[] readBuffer = new float[channelCount];
@@ -508,7 +507,7 @@ namespace Ui.Players.BassPlayer
       while (!success && sampleIndex < maxSampleIndex)
       {
         // For float streams we get one float value for each 16bit word
-        int bytesRead = Bass.BASS_ChannelGetData(_Handle, readBuffer, readBuffer.Length * bytesPerSample);
+        int bytesRead = Bass.BASS_ChannelGetData(_handle, readBuffer, readBuffer.Length * bytesPerSample);
         if (bytesRead <= 0)
           // End of stream
           break;
@@ -526,7 +525,7 @@ namespace Ui.Players.BassPlayer
           if (syncFifoBuffer.IsMatch())
           {
             long pos = currentPosition + (sampleIndex - syncWord.WordLength + 1) * bytesPerWord;
-            Bass.BASS_ChannelSetPosition(_Handle, pos);
+            Bass.BASS_ChannelSetPosition(_handle, pos);
             success = true;
           }
           sampleIndex++;
@@ -535,7 +534,7 @@ namespace Ui.Players.BassPlayer
       }
 
       if (!success && streamLength > 0)
-        Bass.BASS_ChannelSetPosition(_Handle, currentPosition);
+        Bass.BASS_ChannelSetPosition(_handle, currentPosition);
     }
 
     /// <summary>
@@ -544,7 +543,7 @@ namespace Ui.Players.BassPlayer
     /// <param name="volume">Volume to set. 0 = silent, 1 = full.</param>
     private void SetVolume(float volume)
     {
-      if (!Bass.BASS_ChannelSetAttribute(_Handle, BASSAttribute.BASS_ATTRIB_VOL, volume))
+      if (!Bass.BASS_ChannelSetAttribute(_handle, BASSAttribute.BASS_ATTRIB_VOL, volume))
         CheckException("BASS_ChannelSetAttribute");
 
     }
@@ -556,7 +555,7 @@ namespace Ui.Players.BassPlayer
     private float GetVolume()
     {
       float value = 0.0f;
-      if (!Bass.BASS_ChannelGetAttribute(_Handle, BASSAttribute.BASS_ATTRIB_VOL, ref value))
+      if (!Bass.BASS_ChannelGetAttribute(_handle, BASSAttribute.BASS_ATTRIB_VOL, ref value))
         CheckException("BASS_ChannelGetAttribute");
 
       return value;
@@ -568,11 +567,11 @@ namespace Ui.Players.BassPlayer
 
     public void Dispose()
     {
-      if (_Handle != 0)
+      if (_handle != 0)
       {
         // Make sure handle never points to a non-existing handle (multithreading)
-        int h = _Handle;
-        _Handle = 0;
+        int h = _handle;
+        _handle = 0;
 
         // ignore error
         Bass.BASS_StreamFree(h);

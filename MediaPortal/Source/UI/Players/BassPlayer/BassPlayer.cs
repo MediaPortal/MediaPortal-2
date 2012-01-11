@@ -25,12 +25,13 @@
 using System;
 using MediaPortal.Common;
 using MediaPortal.Common.Logging;
+using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.ResourceAccess;
 using MediaPortal.UI.Presentation.Players;
 using Ui.Players.BassPlayer.Interfaces;
 using Ui.Players.BassPlayer.PlayerComponents;
 using Ui.Players.BassPlayer.Utils;
-using MediaPortal.Common.MediaManagement;
+using Un4seen.Bass;
 
 namespace Ui.Players.BassPlayer
 {
@@ -52,7 +53,7 @@ namespace Ui.Players.BassPlayer
   /// Multithreading: This "external" player interface class is safe for multithreading.
   /// </para>
   /// </remarks>
-  public class BassPlayer : IDisposable, IAudioPlayer, IMediaPlaybackControl, IPlayerEvents, IReusablePlayer
+  public class BassPlayer : IDisposable, ISpectrumPlayer, IMediaPlaybackControl, IPlayerEvents, IReusablePlayer
   {
     #region Consts
 
@@ -74,6 +75,10 @@ namespace Ui.Players.BassPlayer
     protected volatile PlayerState _externalState;
     protected InputSourceFactory _inputSourceFactory;
     protected string _mediaItemTitle = string.Empty;
+
+    // Spectrum related fields
+    protected readonly int _maxFFT = (int) (BASSData.BASS_DATA_AVAILABLE | BASSData.BASS_DATA_FFT4096);
+    protected int _sampleFrequency = 0;
 
     // Data and events for the communication with the player manager.
     protected PlayerEventDlgt _started = null;
@@ -419,6 +424,29 @@ namespace Ui.Players.BassPlayer
       _controller.MoveToNextItem_Async(inputSource, startTime);
       _mediaItemTitle = title; // This is a bit too early because we're not switching to the next item at once, but doesn't matter
       return true;
+    }
+
+    #endregion
+
+    #region ISpectrumPlayer Member
+
+    public bool GetFFTData(float[] fftDataBuffer)
+    {
+      BassStream currentStream = _controller.PlaybackProcessor.OutputStream;
+      if (currentStream == null)
+        return false;
+
+      // FIXME: reading the FFT data corrupts playback, speed increases
+      return (Bass.BASS_ChannelGetData(currentStream.Handle, fftDataBuffer, _maxFFT)) > 0;
+    }
+
+    public int GetFFTFrequencyIndex(int frequency)
+    {
+      BassStream currentStream = _controller.PlaybackProcessor.OutputStream;
+      if (_sampleFrequency == 0 && currentStream != null)
+        _sampleFrequency = currentStream.SampleRate;
+
+      return Un4seen.Bass.Utils.FFTFrequency2Index(frequency, 4096, _sampleFrequency);
     }
 
     #endregion
