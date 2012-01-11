@@ -170,14 +170,47 @@
 
   <!-- ************************* Control styles for buttons ************************* -->
 
-  <Style x:Key="ButtonControlStyle" TargetType="{x:Type Control}">
+  <!-- Flat button style, used under glass overlay -->
+  <Style x:Key="FlatButtonControlStyle" TargetType="{x:Type Control}">
     <Setter Property="Template">
       <Setter.Value>
         <ControlTemplate>
           <DockPanel Name="ButtonControlRectangle">
-            <Rectangle DockPanel.Dock="Center" RadiusX="{StaticResource ButtonRadius}" RadiusY="{StaticResource ButtonRadius}" Name="ButtonBase" Fill="{StaticResource ButtonBackgroundFill}" />
+            <Rectangle DockPanel.Dock="Center" Name="ButtonBase" Fill="{StaticResource ButtonBackgroundFill}" />
+            <Rectangle DockPanel.Dock="Center" Name="ButtonLowerShine" Fill="{StaticResource LowerShineGradientAnimated}" />
+            <Rectangle DockPanel.Dock="Center" Name="ButtonUpperShine" Fill="{StaticResource UpperShineGradientAnimated}" />
+          </DockPanel>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
+  
+  <!-- Main button style -->
+  <Style x:Key="ButtonControlStyle" TargetType="{x:Type Control}">
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate>
+          <DockPanel Name="ButtonControlRectangle" Margin="2">
+            <Rectangle DockPanel.Dock="Center" x:Name="ButtonBaseBackground" StrokeLineJoin="Miter" RadiusX="{StaticResource ButtonRadius}" RadiusY="{StaticResource ButtonRadius}" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+              <Rectangle.Fill>
+                <LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0">
+                  <GradientStop Color="#4CFFFFFF" Offset="0"/>
+                  <GradientStop Color="#4C2D2D2D" Offset="0.672"/>
+                </LinearGradientBrush>
+              </Rectangle.Fill>
+            </Rectangle>
             <Rectangle DockPanel.Dock="Center" RadiusX="{StaticResource ButtonRadius}" RadiusY="{StaticResource ButtonRadius}" Name="ButtonLowerShine" Fill="{StaticResource LowerShineGradientAnimated}" />
             <Rectangle DockPanel.Dock="Center" RadiusX="{StaticResource ButtonRadius}" RadiusY="{StaticResource ButtonRadius}" Name="ButtonUpperShine" Fill="{StaticResource UpperShineGradientAnimated}" />
+            <Rectangle DockPanel.Dock="Center" x:Name="ButtonBase" StrokeLineJoin="Miter" RadiusX="{StaticResource ButtonRadius}" RadiusY="{StaticResource ButtonRadius}"  HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Fill="#A0000000">
+              <Rectangle.Stroke>
+                <LinearGradientBrush StartPoint="0.2,0" EndPoint="0.8,1">
+                  <GradientStop Color="#DC3D3939" Offset="0"/>
+                  <GradientStop Color="#A0A0A0" Offset="0.332"/>
+                  <GradientStop Color="#E0E0E0" Offset="0.798"/>
+                  <GradientStop Color="#E13F3B3B" Offset="1"/>
+                </LinearGradientBrush>
+              </Rectangle.Stroke>
+            </Rectangle>
           </DockPanel>
         </ControlTemplate>
       </Setter.Value>
@@ -185,17 +218,6 @@
   </Style>
 
   <Style x:Key="EmptyButtonControlStyle" TargetType="{x:Type Control}">
-    <!--<Setter Property="Template">
-      <Setter.Value>
-        <ControlTemplate>
-          <DockPanel Name="ButtonControlRectangle">
-            <Rectangle DockPanel.Dock="Center" RadiusX="5" RadiusY="5" Name="ButtonBase" Fill="#E0203040" />
-            <Rectangle DockPanel.Dock="Center" RadiusX="5" RadiusY="5" Name="ButtonLowerShine" Fill="{StaticResource LowerShineGradientAnimated}" />
-            <Rectangle DockPanel.Dock="Center" RadiusX="5" RadiusY="5" Name="ButtonUpperShine" Fill="{StaticResource UpperShineGradientAnimated}" />
-          </DockPanel>
-        </ControlTemplate>
-      </Setter.Value>
-    </Setter>-->
   </Style>
 
   <Style x:Key="ProgramGuideButtonControlStyle" TargetType="{x:Type Control}">
@@ -426,7 +448,7 @@
                   <Grid.RowDefinitions>
                     <RowDefinition Height="*"/>
                   </Grid.RowDefinitions>
-                  <Control Style="{ThemeResource ButtonControlStyle}" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"/>
+                  <Control Style="{ThemeResource FlatButtonControlStyle}" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"/>
                   <ContentPresenter x:Name="ButtonContentPresenter" Margin="10,5,10,5" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"/>
                 </Grid>
               </ControlTemplate>

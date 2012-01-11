@@ -19,7 +19,7 @@
   <ResourceWrapper x:Key="ScreenTransitionEndTime" Resource="00:00:00.20"/>
   <ResourceWrapper x:Key="DialogTransitionEndTime" Resource="00:00:00.20"/>
 
-  <ResourceWrapper x:Key="ButtonRadius" Resource="2"/>
+  <ResourceWrapper x:Key="ButtonRadius" Resource="6"/>
   
   <ResourceWrapper x:Key="DialogButtonMinWidth" Resource="200"/>
 
