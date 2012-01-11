@@ -178,7 +178,10 @@
             <Control Grid.Column="0" Grid.Row="0" Margin="7" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"
                 Template="{DynamicResource ResourceKey=MakeGlass}" />
 
+            <!--
+            Morpheus_xx, 2012-01-11: Temporary disabled, the shine looks quite bad for list layouts
             <StaticResource ResourceKey="ShineSquare"/>
+            -->
           </Grid>
         </ControlTemplate>
       </Setter.Value>
