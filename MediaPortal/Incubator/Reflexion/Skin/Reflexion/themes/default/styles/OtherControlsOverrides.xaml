@@ -28,9 +28,19 @@
               <Trigger Property="HasFocus" Value="True">
                 <Setter TargetName="ItemLabel" Property="Scroll" Value="Auto"/>
                 <Setter TargetName="ItemLabel" Property="HorizontalAlignment" Value="Left"/>
-                <Setter TargetName="ItemLabel" Property="Margin" Value="30,0,0,0"/>
+                <Setter TargetName="ItemLabel" Property="Margin" Value="28,92,10,0"/>
+                <Setter TargetName="ItemLabel" Property="Color" Value="{ThemeResource TextColor}"/>
+                <Setter TargetName="ItemLabel" Property="Background">
+                  <Setter.Value>
+                    <LinearGradientBrush StartPoint="0,0.5" EndPoint="1,0.5">
+                      <GradientStop Color="#A0000000" Offset="0"/>
+                      <GradientStop Color="#70000000" Offset="0.8"/>
+                      <GradientStop Color="#00000000" Offset="1"/>
+                    </LinearGradientBrush>
+                  </Setter.Value>
+                </Setter>
                 <Setter TargetName="HoverControl" Property="IsVisible" Value="True"/>
-                <Setter TargetName="ItemControl" Property="Width" Value="640"/> <!-- auto -->
+                <Setter TargetName="ItemControl" Property="Width" Value="640"/>
               </Trigger>
             </Button.Triggers>
           </Button>
@@ -77,7 +87,7 @@
           </ControlTemplate>
         </Control.Resources>
       </Control>
-      <Label Grid.Row="1" Grid.Column="0" x:Name="ItemLabel" HorizontalAlignment="Center" Content="{Binding [Name]}" FontSize="{ThemeResource BigFontSize}" Color="{ThemeResource TextColor}"/>
+      <Label Grid.Row="1" Grid.Column="0" x:Name="ItemLabel" HorizontalAlignment="Center" Content="{Binding [Name]}" FontSize="{ThemeResource BigFontSize}" Color="{ThemeResource HomeNonFocusedColor}"/>
     </Grid>
   </DataTemplate>
 

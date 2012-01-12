@@ -47,6 +47,8 @@
 
   <ResourceWrapper x:Key="TextColor" Resource="White"/>
 
+  <ResourceWrapper x:Key="HomeNonFocusedColor" Resource="#6B6A6A"/>
+
   <ResourceWrapper x:Key="HintTextColor" Resource="DarkGray"/>
 
   <ResourceWrapper x:Key="EmphasisTextColor" Resource="Yellow"/>
