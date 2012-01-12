@@ -66,7 +66,6 @@ namespace MediaPortal.Plugins.AudioSpectrumAnalyzer
     #region Fields
     private readonly Timer _animationTimer;
     private bool _initialized = false;
-    private bool _disposing = false;
 
     private Canvas _spectrumCanvas;
     private readonly List<Shape> _barShapes = new List<Shape>();
@@ -283,8 +282,6 @@ namespace MediaPortal.Plugins.AudioSpectrumAnalyzer
     {
       lock (_syncObj)
       {
-        if (_disposing)
-          return;
         UpdateBarLayout(false);
         UpdateSpectrum();
       }
@@ -294,9 +291,6 @@ namespace MediaPortal.Plugins.AudioSpectrumAnalyzer
 
     public override void Dispose()
     {
-      lock (_syncObj)
-        _disposing = true;
-
       Detach();
       _animationTimer.Stop();
       _animationTimer.Close();
@@ -382,38 +376,38 @@ namespace MediaPortal.Plugins.AudioSpectrumAnalyzer
 
         // If this is the last FFT bucket in the bar's group, draw the bar.
         int currentIndexMax = IsFrequencyScaleLinear ? _barIndexMax[barIndex] : _barLogScaleIndexMax[barIndex];
-        if (i == currentIndexMax)
-        {
-          // Peaks can't surpass the height of the control.
-          if (barHeight > height)
-            barHeight = height;
+        if (i != currentIndexMax) 
+          continue;
 
-          if (AveragePeaks && barIndex > 0)
-            barHeight = (lastPeakHeight + barHeight) / 2;
+        // Peaks can't surpass the height of the control.
+        if (barHeight > height)
+          barHeight = height;
 
-          double peakYPos = barHeight;
+        if (AveragePeaks && barIndex > 0)
+          barHeight = (lastPeakHeight + barHeight) / 2;
 
-          if (_channelPeakData[barIndex] < peakYPos)
-            _channelPeakData[barIndex] = (float) peakYPos;
-          else
-            _channelPeakData[barIndex] = (float) (peakYPos + (PeakFallDelay * _channelPeakData[barIndex])) / (PeakFallDelay + 1);
+        double peakYPos = barHeight;
 
-          double xCoord = BarSpacing + (_barWidth * barIndex) + (BarSpacing * barIndex) + 1;
+        if (_channelPeakData[barIndex] < peakYPos)
+          _channelPeakData[barIndex] = (float) peakYPos;
+        else
+          _channelPeakData[barIndex] = (float) (peakYPos + (PeakFallDelay * _channelPeakData[barIndex])) / (PeakFallDelay + 1);
 
-          // FIXME: Margins are updated correctly, but Rect won't change sizes on screen!
-          // EventHandler is called properly: protected void OnMeasureGetsInvalid(AbstractProperty property, object oldValue)
-          _barShapes[barIndex].Margin = new Thickness((float) xCoord, (float) ((height - 1) - barHeight), 0, 0);
-          _barShapes[barIndex].Height = barHeight;
-          _peakShapes[barIndex].Margin = new Thickness((float) xCoord, (float) ((height - 1) - _channelPeakData[barIndex] - peakDotHeight), 0, 0);
-          _peakShapes[barIndex].Height = peakDotHeight;
+        double xCoord = BarSpacing + (_barWidth * barIndex) + (BarSpacing * barIndex) + 1;
 
-          if (_channelPeakData[barIndex] > 0.05)
-            allZero = false;
+        // FIXME: Margins are updated correctly, but Rect won't change sizes on screen!
+        // EventHandler is called properly: protected void OnMeasureGetsInvalid(AbstractProperty property, object oldValue)
+        _barShapes[barIndex].Margin = new Thickness((float) xCoord, (float) ((height - 1) - barHeight), 0, 0);
+        _barShapes[barIndex].Height = barHeight;
+        _peakShapes[barIndex].Margin = new Thickness((float) xCoord, (float) ((height - 1) - _channelPeakData[barIndex] - peakDotHeight), 0, 0);
+        _peakShapes[barIndex].Height = peakDotHeight;
 
-          lastPeakHeight = barHeight;
-          barHeight = 0f;
-          barIndex++;
-        }
+        if (_channelPeakData[barIndex] > 0.05)
+          allZero = false;
+
+        lastPeakHeight = barHeight;
+        barHeight = 0f;
+        barIndex++;
       }
 
       if (allZero && player.State != PlayerState.Active)
@@ -457,11 +451,12 @@ namespace MediaPortal.Plugins.AudioSpectrumAnalyzer
 
       double height = _spectrumCanvas.Height;
       double peakDotHeight = Math.Max(_barWidth / 2.0f, 1);
-      // FIXME: this copy call also creates a new instance of AudioSpectrumAnalyzer!
-      Style barStyleCopy = MpfCopyManager.DeepCopy(BarStyle);
-      Style peakStyleCopy = MpfCopyManager.DeepCopy(PeakStyle);
       for (int i = 0; i < actualBarCount; i++)
       {
+        // Deep copy the styles to each bar
+        Style barStyleCopy = MpfCopyManager.DeepCopyCutLVPs(BarStyle);
+        Style peakStyleCopy = MpfCopyManager.DeepCopyCutLVPs(PeakStyle);
+
         double xCoord = BarSpacing + (_barWidth * i) + (BarSpacing * i) + 1;
         Rectangle barRectangle = new Rectangle
                                    {
