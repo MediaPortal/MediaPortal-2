@@ -58,6 +58,7 @@ using MediaPortal.UI.SkinEngine.Controls.Visuals;
 using MediaPortal.UI.SkinEngine.Controls.Visuals.Shapes;
 using MediaPortal.UI.SkinEngine.Controls.Visuals.Styles;
 using MediaPortal.UI.SkinEngine.MpfElements;
+using MediaPortal.Utilities.DeepCopy;
 
 namespace MediaPortal.Plugins.AudioSpectrumAnalyzer
 {
@@ -139,6 +140,28 @@ namespace MediaPortal.Plugins.AudioSpectrumAnalyzer
       PeakStyleProperty.Detach(RequireUpdateLayout);
       RefreshIntervalProperty.Detach(OnRefreshIntervalChanged);
       TemplateProperty.Detach(OnSpectrumTemplateChanged);
+    }
+
+    public override void DeepCopy(IDeepCopyable source, ICopyManager copyManager)
+    {
+      Detach();
+      _animationTimer.Stop();
+
+      base.DeepCopy(source, copyManager);
+
+      AudioSpectrumAnalyzer c = (AudioSpectrumAnalyzer) source;
+      BarStyle = copyManager.GetCopy(c.BarStyle);
+      PeakStyle = copyManager.GetCopy(c.PeakStyle);
+
+      MaximumFrequency = c.MaximumFrequency;
+      MinimumFrequency = c.MinimumFrequency;
+      BarCount = c.BarCount;
+      BarSpacing = c.BarSpacing;
+      IsFrequencyScaleLinear = c.IsFrequencyScaleLinear;
+      RefreshInterval = c.RefreshInterval;
+      
+      _animationTimer.Start();
+      Attach();
     }
 
     public AbstractProperty MaximumFrequencyProperty { get; internal set; }
