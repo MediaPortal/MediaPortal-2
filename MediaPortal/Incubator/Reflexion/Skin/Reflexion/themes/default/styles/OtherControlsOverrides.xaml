@@ -51,7 +51,7 @@
 
   <!-- Menu template -->
   <DataTemplate x:Key="MainMenuItemDataTemplateHover">
-    <Grid x:Name="ItemControl" Width="285" Height="800">
+    <Grid x:Name="ItemControl" Width="275" Height="800">
       <Grid.ColumnDefinitions>
         <ColumnDefinition Width="*"/>
       </Grid.ColumnDefinitions>
@@ -97,18 +97,35 @@
         <ControlTemplate TargetType="{x:Type ScrollViewer}">
           <Grid x:Name="ScrollViewerGrid">
             <Grid.ColumnDefinitions>
+              <ColumnDefinition Width="50"/>
               <ColumnDefinition Width="*"/>
-              <ColumnDefinition Width="Auto"/>
-              <ColumnDefinition Width="*"/>
+              <ColumnDefinition Width="20"/>
             </Grid.ColumnDefinitions>
             <Grid.RowDefinitions>
               <RowDefinition Height="*"/>
             </Grid.RowDefinitions>
             <!-- Content -->
-            <ScrollContentPresenter Grid.Row="0" Grid.Column="1" Grid.ZIndex="100" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"/>
+            <ScrollContentPresenter Grid.Row="0" Grid.Column="1" Grid.ZIndex="100" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"
+                                    ActualWidth="{TemplateBinding Path=ScrollBarXSize,Mode=OneWayToSource}"/>
 
-            <Label IsVisible="{TemplateBinding ScrollBarXVisible}" Margin="0,340,0,0" Grid.Row="0" Grid.Column="0" Content="&lt;" FontSize="{ThemeResource BigFontSize}" Color="{ThemeResource TextColor}"/>
-            <Label IsVisible="{TemplateBinding ScrollBarXVisible}" Margin="0,340,0,0" Grid.Row="0" Grid.Column="2" Content="&gt;" FontSize="{ThemeResource BigFontSize}" Color="{ThemeResource TextColor}"/>
+            <Label Margin="0,340,0,0" Grid.Row="0" Grid.Column="0" Content="&lt;" FontSize="{ThemeResource BigFontSize}" Color="{ThemeResource HomeNonFocusedColor}">
+              <Label.IsVisible>
+                <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} &amp;&amp; {1} > 0.0">
+                  <TemplateBinding Path="ScrollBarXVisible"/>
+                  <TemplateBinding Path="ScrollBarXKnobPos"/>
+                </MultiBinding>
+              </Label.IsVisible>
+            </Label>
+            <Label Margin="0,340,0,0" Grid.Row="0" Grid.Column="2" Content="&gt;" FontSize="{ThemeResource BigFontSize}" Color="{ThemeResource HomeNonFocusedColor}">
+              <Label.IsVisible>
+                <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} &amp;&amp; ({1}+{2} &lt; {3})">
+                  <TemplateBinding Path="ScrollBarXVisible"/>
+                  <TemplateBinding Path="ScrollBarXKnobPos"/>
+                  <TemplateBinding Path="ScrollBarXKnobWidth"/>
+                  <TemplateBinding Path="ScrollBarXSize"/>
+                </MultiBinding>
+              </Label.IsVisible>
+            </Label>
           </Grid>
         </ControlTemplate>
       </Setter.Value>
