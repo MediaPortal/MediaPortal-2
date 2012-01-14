@@ -337,8 +337,7 @@
     <Setter Property="PlayerContext" Value="PrimaryPlayer"/>
   </Style>
 
-
-  <Style x:Key="PrimaryPictureOSDStyle" TargetType="{x:Type mp_special_controls:PlayerControl}">
+  <Style x:Key="PrimaryImageOSDStyle" TargetType="{x:Type mp_special_controls:PlayerControl}">
     <Setter Property="Template">
       <Setter.Value>
         <ControlTemplate TargetType="{x:Type mp_special_controls:PlayerControl}">
@@ -356,7 +355,7 @@
                       VerticalAlignment="Center"/>
                   </Grid>
                   <!-- PlayerStatePanel -->
-                  <Label x:Name="PictureName" DockPanel.Dock="Center" Margin="3" Content="{Binding Path=MediaItemTitle}" Scroll="Auto"
+                  <Label x:Name="ImageName" DockPanel.Dock="Center" Margin="3" Content="{Binding Path=MediaItemTitle}" Scroll="Auto"
                     Color="{ThemeResource TextColor}" HorizontalAlignment="Left" VerticalAlignment="Center"/>
                 </DockPanel>
                 <!-- HeadLine -->
@@ -527,8 +526,8 @@
     </Grid>
   </ControlTemplate>
 
-  <!-- Movie -->
-  <ControlTemplate x:Key="ListViewMovieItemTemplate">
+  <!-- Video -->
+  <ControlTemplate x:Key="ListViewVideoItemTemplate">
     <Grid x:Name="ItemControl">
       <Grid.ColumnDefinitions>
         <ColumnDefinition Width="Auto"/>
@@ -541,19 +540,19 @@
       </Grid.RowDefinitions>
       <DockPanel LastChildFill="True" Grid.Row="0" Grid.Column="0" Grid.RowSpan="2" Margin="0,0,4,0">
         <Image x:Name="ItemTypeSmall" Stretch="Uniform"
-            Source="{Binding MediaItem}" FallbackSource="MovieSmall.png" Width="{StaticResource MEDIA_THUMB_WIDTH_S}" Height="{StaticResource MEDIA_THUMB_HEIGHT_S}">
+            Source="{Binding MediaItem}" FallbackSource="VideoSmall.png" Width="{StaticResource MEDIA_THUMB_WIDTH_S}" Height="{StaticResource MEDIA_THUMB_HEIGHT_S}">
           <Image.IsVisible>
             <Binding Source="{StaticResource ViewModeModel}" Path="LayoutSize" Converter="{StaticResource ExpressionValueConverter}" ConverterParameter="{}{0} == {LayoutSize}.{Small}"/>
           </Image.IsVisible>
         </Image>
         <Image x:Name="ItemTypeMedium" Stretch="Uniform"
-            Source="{Binding MediaItem}" FallbackSource="MovieSmall.png" Width="{StaticResource MEDIA_THUMB_WIDTH_M}" Height="{StaticResource MEDIA_THUMB_HEIGHT_M}">
+            Source="{Binding MediaItem}" FallbackSource="VideoSmall.png" Width="{StaticResource MEDIA_THUMB_WIDTH_M}" Height="{StaticResource MEDIA_THUMB_HEIGHT_M}">
           <Image.IsVisible>
             <Binding Source="{StaticResource ViewModeModel}" Path="LayoutSize" Converter="{StaticResource ExpressionValueConverter}" ConverterParameter="{}{0} == {LayoutSize}.{Medium}"/>
           </Image.IsVisible>
         </Image>
         <Image x:Name="ItemTypeLarge" Stretch="Uniform"
-            Source="{Binding MediaItem}" FallbackSource="MovieLarge.png" Width="{StaticResource MEDIA_THUMB_WIDTH_L}" Height="{StaticResource MEDIA_THUMB_HEIGHT_L}">
+            Source="{Binding MediaItem}" FallbackSource="VideoLarge.png" Width="{StaticResource MEDIA_THUMB_WIDTH_L}" Height="{StaticResource MEDIA_THUMB_HEIGHT_L}">
           <Image.IsVisible>
             <Binding Source="{StaticResource ViewModeModel}" Path="LayoutSize" Converter="{StaticResource ExpressionValueConverter}" ConverterParameter="{}{0} == {LayoutSize}.{Large}"/>
           </Image.IsVisible>
@@ -581,7 +580,7 @@
     </Grid>
   </ControlTemplate>
 
-  <ControlTemplate x:Key="GridViewMovieItemTemplate">
+  <ControlTemplate x:Key="GridViewVideoItemTemplate">
     <Grid x:Name="ItemControl">
       <Grid.ColumnDefinitions>
         <ColumnDefinition Width="244"/>
@@ -592,14 +591,14 @@
       </Grid.RowDefinitions>
       <Image x:Name="ItemTypeImage" Grid.Row="0" Stretch="Uniform" Source="{Binding MediaItem}"
            Thumbnail="True" Width="{StaticResource MEDIA_THUMB_WIDTH_L}" Height="{StaticResource MEDIA_THUMB_HEIGHT_L}"
-           FallbackSource="MovieLarge.png"/>
+           FallbackSource="VideoLarge.png"/>
       <Label x:Name="ItemLabel" Grid.Row="1" Content="{Binding SimpleTitle}" FontSize="{ThemeResource SmallFontSize}"
            Color="{ThemeResource TextColor}" HorizontalAlignment="Center"/>
     </Grid>
   </ControlTemplate>
 
-  <!-- Music -->
-  <ControlTemplate x:Key="ListViewMusicItemTemplate">
+  <!-- Audio -->
+  <ControlTemplate x:Key="ListViewAudioItemTemplate">
     <Grid x:Name="ItemControl">
       <Grid.ColumnDefinitions>
         <ColumnDefinition Width="Auto"/>
@@ -611,19 +610,19 @@
       </Grid.RowDefinitions>
       <DockPanel LastChildFill="True" Grid.Row="0" Grid.Column="0" Margin="0,0,4,0">
         <Image x:Name="ItemTypeSmall" Stretch="Uniform"
-            Source="MusicSmall.png" Width="{StaticResource MEDIA_THUMB_WIDTH_S}" Height="{StaticResource MEDIA_THUMB_HEIGHT_S}">
+            Source="AudioSmall.png" Width="{StaticResource MEDIA_THUMB_WIDTH_S}" Height="{StaticResource MEDIA_THUMB_HEIGHT_S}">
           <Image.IsVisible>
             <Binding Source="{StaticResource ViewModeModel}" Path="LayoutSize" Converter="{StaticResource ExpressionValueConverter}" ConverterParameter="{}{0} == {LayoutSize}.{Small}"/>
           </Image.IsVisible>
         </Image>
         <Image x:Name="ItemTypeMedium" Stretch="Uniform"
-            Source="MusicSmall.png" Width="{StaticResource MEDIA_THUMB_WIDTH_M}" Height="{StaticResource MEDIA_THUMB_HEIGHT_M}">
+            Source="AudioSmall.png" Width="{StaticResource MEDIA_THUMB_WIDTH_M}" Height="{StaticResource MEDIA_THUMB_HEIGHT_M}">
           <Image.IsVisible>
             <Binding Source="{StaticResource ViewModeModel}" Path="LayoutSize" Converter="{StaticResource ExpressionValueConverter}" ConverterParameter="{}{0} == {LayoutSize}.{Medium}"/>
           </Image.IsVisible>
         </Image>
         <Image x:Name="ItemTypeLarge" Stretch="Uniform"
-            Source="MusicLarge.png" Width="{StaticResource MEDIA_THUMB_WIDTH_L}" Height="{StaticResource MEDIA_THUMB_HEIGHT_L}">
+            Source="AudioLarge.png" Width="{StaticResource MEDIA_THUMB_WIDTH_L}" Height="{StaticResource MEDIA_THUMB_HEIGHT_L}">
           <Image.IsVisible>
             <Binding Source="{StaticResource ViewModeModel}" Path="LayoutSize" Converter="{StaticResource ExpressionValueConverter}" ConverterParameter="{}{0} == {LayoutSize}.{Large}"/>
           </Image.IsVisible>
@@ -636,7 +635,7 @@
     </Grid>
   </ControlTemplate>
 
-  <ControlTemplate x:Key="GridViewMusicItemTemplate">
+  <ControlTemplate x:Key="GridViewAudioItemTemplate">
     <Grid x:Name="ItemControl">
       <Grid.ColumnDefinitions>
         <ColumnDefinition Width="244"/>
@@ -645,7 +644,7 @@
         <RowDefinition Height="150"/>
         <RowDefinition Height="Auto"/>
       </Grid.RowDefinitions>
-      <Image x:Name="ItemTypeImage" Grid.Row="0" Stretch="Uniform" Source="MusicLarge.png"
+      <Image x:Name="ItemTypeImage" Grid.Row="0" Stretch="Uniform" Source="AudioLarge.png"
            Width="{StaticResource MEDIA_THUMB_WIDTH_L}" Height="{StaticResource MEDIA_THUMB_HEIGHT_L}"/>
       <Label x:Name="ItemLabel" Grid.Row="1" Content="{Binding SimpleTitle}"
           Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}"
@@ -653,8 +652,8 @@
     </Grid>
   </ControlTemplate>
 
-  <!-- Picture -->
-  <ControlTemplate x:Key="ListViewPictureItemTemplate">
+  <!-- Image -->
+  <ControlTemplate x:Key="ListViewImageItemTemplate">
     <Grid x:Name="ItemControl">
       <Grid.ColumnDefinitions>
         <ColumnDefinition Width="Auto"/>
@@ -667,19 +666,19 @@
       </Grid.RowDefinitions>
       <DockPanel LastChildFill="True" Grid.Row="0" Grid.Column="0" Grid.RowSpan="2" Margin="0,0,4,0">
         <Image x:Name="ItemTypeSmall" Stretch="Uniform"
-            Source="{Binding MediaItem}" FallbackSource="PictureSmall.png" Width="{StaticResource MEDIA_THUMB_WIDTH_S}" Height="{StaticResource MEDIA_THUMB_HEIGHT_S}">
+            Source="{Binding MediaItem}" FallbackSource="ImageSmall.png" Width="{StaticResource MEDIA_THUMB_WIDTH_S}" Height="{StaticResource MEDIA_THUMB_HEIGHT_S}">
           <Image.IsVisible>
             <Binding Source="{StaticResource ViewModeModel}" Path="LayoutSize" Converter="{StaticResource ExpressionValueConverter}" ConverterParameter="{}{0} == {LayoutSize}.{Small}"/>
           </Image.IsVisible>
         </Image>
         <Image x:Name="ItemTypeMedium" Stretch="Uniform"
-            Source="{Binding MediaItem}" FallbackSource="PictureSmall.png" Width="{StaticResource MEDIA_THUMB_WIDTH_M}" Height="{StaticResource MEDIA_THUMB_HEIGHT_M}">
+            Source="{Binding MediaItem}" FallbackSource="ImageSmall.png" Width="{StaticResource MEDIA_THUMB_WIDTH_M}" Height="{StaticResource MEDIA_THUMB_HEIGHT_M}">
           <Image.IsVisible>
             <Binding Source="{StaticResource ViewModeModel}" Path="LayoutSize" Converter="{StaticResource ExpressionValueConverter}" ConverterParameter="{}{0} == {LayoutSize}.{Medium}"/>
           </Image.IsVisible>
         </Image>
         <Image x:Name="ItemTypeLarge" Stretch="Uniform"
-            Source="{Binding MediaItem}" FallbackSource="PictureLarge.png" Width="{StaticResource MEDIA_THUMB_WIDTH_L}" Height="{StaticResource MEDIA_THUMB_HEIGHT_L}">
+            Source="{Binding MediaItem}" FallbackSource="ImageLarge.png" Width="{StaticResource MEDIA_THUMB_WIDTH_L}" Height="{StaticResource MEDIA_THUMB_HEIGHT_L}">
           <Image.IsVisible>
             <Binding Source="{StaticResource ViewModeModel}" Path="LayoutSize" Converter="{StaticResource ExpressionValueConverter}" ConverterParameter="{}{0} == {LayoutSize}.{Large}"/>
           </Image.IsVisible>
@@ -707,7 +706,7 @@
     </Grid>
   </ControlTemplate>
 
-  <ControlTemplate x:Key="GridViewPictureItemTemplate">
+  <ControlTemplate x:Key="GridViewImageItemTemplate">
     <Grid x:Name="ItemControl">
       <Grid.ColumnDefinitions>
         <ColumnDefinition Width="244"/>
@@ -719,7 +718,7 @@
       <!-- For grid layout, we only support large layout size -->
       <Image x:Name="ItemTypeImage" Grid.Row="0" Stretch="Uniform" Source="{Binding MediaItem}"
            Thumbnail="True" Width="{StaticResource MEDIA_THUMB_WIDTH_L}" Height="{StaticResource MEDIA_THUMB_HEIGHT_L}"
-           FallbackSource="PictureLarge.png"/>
+           FallbackSource="ImageLarge.png"/>
       <Label x:Name="ItemLabel" Grid.Row="1" Content="{Binding SimpleTitle}"
           Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}"
           HorizontalAlignment="Center"/>
@@ -751,37 +750,37 @@
     </Control>
   </DataTemplate>
 
-  <DataTemplate DataType="{x:Type navitems:MovieItem}">
+  <DataTemplate DataType="{x:Type navitems:VideoItem}">
     <Control>
       <Control.Template>
         <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} == {LayoutType}.{ListLayout} ? {1} : {2}">
           <Binding Source="{StaticResource ViewModeModel}" Path="LayoutType"/>
-          <Binding Source="{StaticResource ListViewMovieItemTemplate}"/>
-          <Binding Source="{StaticResource GridViewMovieItemTemplate}"/>
+          <Binding Source="{StaticResource ListViewVideoItemTemplate}"/>
+          <Binding Source="{StaticResource GridViewVideoItemTemplate}"/>
         </MultiBinding>
       </Control.Template>
     </Control>
   </DataTemplate>
 
-  <DataTemplate DataType="{x:Type navitems:MusicItem}">
+  <DataTemplate DataType="{x:Type navitems:AudioItem}">
     <Control>
       <Control.Template>
         <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} == {LayoutType}.{ListLayout} ? {1} : {2}">
           <Binding Source="{StaticResource ViewModeModel}" Path="LayoutType"/>
-          <Binding Source="{StaticResource ListViewMusicItemTemplate}"/>
-          <Binding Source="{StaticResource GridViewMusicItemTemplate}"/>
+          <Binding Source="{StaticResource ListViewAudioItemTemplate}"/>
+          <Binding Source="{StaticResource GridViewAudioItemTemplate}"/>
         </MultiBinding>
       </Control.Template>
     </Control>
   </DataTemplate>
 
-  <DataTemplate DataType="{x:Type navitems:PictureItem}">
+  <DataTemplate DataType="{x:Type navitems:ImageItem}">
     <Control>
       <Control.Template>
         <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} == {LayoutType}.{ListLayout} ? {1} : {2}">
           <Binding Source="{StaticResource ViewModeModel}" Path="LayoutType"/>
-          <Binding Source="{StaticResource ListViewPictureItemTemplate}"/>
-          <Binding Source="{StaticResource GridViewPictureItemTemplate}"/>
+          <Binding Source="{StaticResource ListViewImageItemTemplate}"/>
+          <Binding Source="{StaticResource GridViewImageItemTemplate}"/>
         </MultiBinding>
       </Control.Template>
     </Control>
