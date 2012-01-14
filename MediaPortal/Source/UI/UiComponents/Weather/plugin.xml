@@ -19,6 +19,7 @@
 
   <Register Location="/Models">
     <Model Id="92BDB53F-4159-4dc2-B212-6083C820A214" Name="WeatherModel" ClassName="MediaPortal.UiComponents.Weather.Models.WeatherModel"/>
+    <Model Id="FC57FF5C-F72F-47E9-B973-338E31FF7FF1" Name="CurrentWeatherModel" ClassName="MediaPortal.UiComponents.Weather.Models.CurrentWeatherModel"/>
     <Model Id="CF0434F2-B319-48ff-A700-0BB7F0C2CD2A" Name="WeatherSetupModel" ClassName="MediaPortal.UiComponents.Weather.Models.WeatherSetupModel"/>
   </Register>
 
