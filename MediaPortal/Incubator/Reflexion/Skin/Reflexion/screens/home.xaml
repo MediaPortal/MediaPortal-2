@@ -6,7 +6,7 @@
     >
   <Include.Resources>
     <Model x:Key="TimeModel" Id="E821B1C8-0666-4339-8027-AA45A4F6F107"/>
-    <Model x:Key="WeatherModel" Id="92BDB53F-4159-4dc2-B212-6083C820A214"/>
+    <Model x:Key="CurrentWeatherModel" Id="FC57FF5C-F72F-47E9-B973-338E31FF7FF1"/>
 
     <!-- Header -->
     <!--<ResourceWrapper x:Key="Header_Text" Resource="[Home.Title]"/>-->
@@ -15,7 +15,7 @@
     <!-- Contents -->
     <ControlTemplate x:Key="Contents_Template">
       <DockPanel LastChildFill="False">
-        <Grid DataContext="{Binding Source={StaticResource WeatherModel}}" DockPanel.Dock="Center" HorizontalAlignment="Center">
+        <Grid DataContext="{Binding Source={StaticResource CurrentWeatherModel}}" DockPanel.Dock="Center" HorizontalAlignment="Center">
           <Grid.ColumnDefinitions>
             <ColumnDefinition Width="Auto" />
             <ColumnDefinition Width="70" />
