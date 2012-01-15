@@ -93,7 +93,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
     /// <param name="targetObject">The object whose property value will
     /// be set.</param>
     /// <param name="value">Value of the <c>Left</c> property on the
-    /// <paramref name="targetObject"/> to be set.</returns>
+    /// <paramref name="targetObject"/> to be set.</param>
     public static void SetLeft(DependencyObject targetObject, double value)
     {
       targetObject.SetAttachedPropertyValue<double>(LEFT_ATTACHED_PROPERTY, value);
@@ -131,7 +131,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
     /// <param name="targetObject">The object whose property value will
     /// be set.</param>
     /// <param name="value">Value of the <c>Right</c> property on the
-    /// <paramref name="targetObject"/> to be set.</returns>
+    /// <paramref name="targetObject"/> to be set.</param>
     public static void SetRight(DependencyObject targetObject, double value)
     {
       targetObject.SetAttachedPropertyValue<double>(RIGHT_ATTACHED_PROPERTY, value);
@@ -169,7 +169,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
     /// <param name="targetObject">The object whose property value will
     /// be set.</param>
     /// <param name="value">Value of the <c>Top</c> property on the
-    /// <paramref name="targetObject"/> to be set.</returns>
+    /// <paramref name="targetObject"/> to be set.</param>
     public static void SetTop(DependencyObject targetObject, double value)
     {
       targetObject.SetAttachedPropertyValue<double>(TOP_ATTACHED_PROPERTY, value);
@@ -207,7 +207,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
     /// <param name="targetObject">The object whose property value will
     /// be set.</param>
     /// <param name="value">Value of the <c>Bottom</c> property on the
-    /// <paramref name="targetObject"/> to be set.</returns>
+    /// <paramref name="targetObject"/> to be set.</param>
     public static void SetBottom(DependencyObject targetObject, double value)
     {
       targetObject.SetAttachedPropertyValue<double>(BOTTOM_ATTACHED_PROPERTY, value);
