@@ -37,7 +37,6 @@ namespace Ui.Players.BassPlayer.Utils
     private readonly int _delay;
 
     private readonly float[] _buffer;
-    private readonly int _bufferLength;
     private readonly int _bytesPerMilliSec;
     private readonly bool _is32Bit = false;
     private int _writePointer;
@@ -49,7 +48,7 @@ namespace Ui.Players.BassPlayer.Utils
     /// </summary>
     public TimeSpan Delay
     {
-      get { return TimeSpan.FromMilliseconds(_delay - ((_space / _bufferLength) * _delay)); }
+      get { return TimeSpan.FromMilliseconds(_delay - ((_space / _buffer.Length) * _delay)); }
     }
 
     /// <summary>
@@ -57,7 +56,7 @@ namespace Ui.Players.BassPlayer.Utils
     /// </summary>
     public int Length
     {
-      get { return _bufferLength; }
+      get { return _buffer.Length; }
     }
 
     /// <summary>
@@ -81,18 +80,18 @@ namespace Ui.Players.BassPlayer.Utils
     /// </summary>
     public int Count
     {
-      get { return _bufferLength - _space; }
+      get { return _buffer.Length - _space; }
     }
 
     public AudioRingBuffer(int sampleRate, int channels, TimeSpan delay)
     {
       _is32Bit = (IntPtr.Size == 4);
       _delay = (int)delay.TotalMilliseconds;
-      _bufferLength = CalculateLength(sampleRate, channels, delay);
+      int bufferLength = CalculateLength(sampleRate, channels, delay);
       _bytesPerMilliSec = CalculateLength(sampleRate, channels, TimeSpan.FromMilliseconds(1));
-      _buffer = new float[_bufferLength];
+      _buffer = new float[bufferLength];
 
-      ResetPointers(0);
+      ResetPointers();
     }
 
     /// <summary>
@@ -153,13 +152,13 @@ namespace Ui.Players.BassPlayer.Utils
         _space -= count;
         _writePointer = writePointer + count;
 
-        if (_writePointer > _bufferLength)
-          _writePointer = _writePointer - _bufferLength;
+        if (_writePointer > _buffer.Length)
+          _writePointer = _writePointer - _buffer.Length;
       }
 
       if (writePointer >= readPointer)
       {
-        int count1 = Math.Min(count, _bufferLength - writePointer);
+        int count1 = Math.Min(count, _buffer.Length - writePointer);
         Array.Copy(data, 0, _buffer, writePointer, count1);
 
         int count2 = Math.Min(count - count1, readPointer);
@@ -180,12 +179,15 @@ namespace Ui.Players.BassPlayer.Utils
     /// <summary>
     /// Reads a number of samples without moving the readpointer.
     /// </summary>
-    /// <param name="buffer"></param>
-    /// <param name="requested"></param>
-    /// <param name="offset"></param>
-    /// <returns></returns>
+    /// <param name="buffer">The buffer to write the data to.</param>
+    /// <param name="requested">Number of requested number of samples.</param>
+    /// <param name="offset">Offset to move the ring buffer read pointer before reading data.</param>
+    /// <returns>Number of bytes read.</returns>
     public int Peek(IntPtr buffer, int requested, int offset)
     {
+      if (buffer == IntPtr.Zero)
+        return 0;
+
       // Same code as method Read, only without the last update of _readPointer and _space
       int read;
       int readPointer;
@@ -199,13 +201,13 @@ namespace Ui.Players.BassPlayer.Utils
         space = _space;
       }
 
-      offset = Math.Min(offset, _bufferLength - space);
+      offset = Math.Min(offset, _buffer.Length - space);
 
       readPointer += offset;
-      if (readPointer > _bufferLength)
-        readPointer -= _bufferLength;
+      if (readPointer > _buffer.Length)
+        readPointer -= _buffer.Length;
 
-      requested = Math.Min(requested, _bufferLength - space - offset);
+      requested = Math.Min(requested, _buffer.Length - space - offset);
 
       if (writePointer > readPointer)
       {
@@ -218,13 +220,15 @@ namespace Ui.Players.BassPlayer.Utils
       }
       else
       {
-        int count1 = Math.Min(requested, _bufferLength - readPointer);
+        int count1 = Math.Min(requested, _buffer.Length - readPointer);
 
-        Marshal.Copy(_buffer, readPointer, buffer, count1);
-        //readPointer += count1;
-
-        //if (readPointer == _buffer.Length)
-        //  readPointer = 0;
+        if (count1 > 0)
+        {
+          Marshal.Copy(_buffer, readPointer, buffer, count1);
+          //readPointer += count1;
+          //if (readPointer == _buffer.Length)
+          //  readPointer = 0;
+        }
 
         int count2 = Math.Min(requested - count1, writePointer);
         if (count2 > 0)
@@ -244,10 +248,10 @@ namespace Ui.Players.BassPlayer.Utils
     /// <summary>
     /// Reads a number of samples.
     /// </summary>
-    /// <param name="buffer"></param>
-    /// <param name="requested"></param>
-    /// <param name="offset"></param>
-    /// <returns></returns>
+    /// <param name="buffer">The buffer to write the data to.</param>
+    /// <param name="requested">Number of requested number of samples.</param>
+    /// <param name="offset">Offset to move the ring buffer read pointer before reading data.</param>
+    /// <returns>Number of samples read.</returns>
     public int Read(IntPtr buffer, int requested, int offset)
     {
       int read;
@@ -262,43 +266,40 @@ namespace Ui.Players.BassPlayer.Utils
         space = _space;
       }
 
-      offset = Math.Min(offset, _bufferLength - space);
+      offset = Math.Min(offset, _buffer.Length - space);
 
       readPointer += offset;
-      if (readPointer > _bufferLength)
-        readPointer -= _bufferLength;
+      if (readPointer > _buffer.Length)
+        readPointer -= _buffer.Length;
 
-      requested = Math.Min(requested, _bufferLength - space - offset);
+      requested = Math.Min(requested, _buffer.Length - space - offset);
 
       if (writePointer > readPointer)
       {
         int count1 = Math.Min(requested, writePointer - readPointer);
 
-        if (buffer != IntPtr.Zero)
-          Marshal.Copy(_buffer, readPointer, buffer, count1);
+        Marshal.Copy(_buffer, readPointer, buffer, count1);
         readPointer += count1;
 
         read = count1;
       }
       else
       {
-        int count1 = Math.Min(requested, _bufferLength - readPointer);
+        int count1 = Math.Min(requested, _buffer.Length - readPointer);
 
-        if (buffer != IntPtr.Zero)
+        if (count1 > 0)
+        {
           Marshal.Copy(_buffer, readPointer, buffer, count1);
-        readPointer += count1;
-
-        if (readPointer == _buffer.Length)
-          readPointer = 0;
+          readPointer += count1;
+          if (readPointer == _buffer.Length)
+            readPointer = 0;
+        }
 
         int count2 = Math.Min(requested - count1, writePointer);
         if (count2 > 0)
         {
-          if (buffer != IntPtr.Zero)
-          {
-            IntPtr ptr = new IntPtr((_is32Bit ? buffer.ToInt32() : buffer.ToInt64()) + (count1*BassConstants.FloatBytes));
-            Marshal.Copy(_buffer, 0, ptr, count2);
-          }
+          IntPtr ptr = new IntPtr((_is32Bit ? buffer.ToInt32() : buffer.ToInt64()) + (count1*BassConstants.FloatBytes));
+          Marshal.Copy(_buffer, 0, ptr, count2);
           readPointer = count2;
         }
         else
@@ -308,7 +309,7 @@ namespace Ui.Players.BassPlayer.Utils
 
       readPointer = readPointer - offset;
       if (readPointer < 0)
-        readPointer += _bufferLength;
+        readPointer += _buffer.Length;
 
       lock (_syncObj)
       {
@@ -324,18 +325,17 @@ namespace Ui.Players.BassPlayer.Utils
     public void Clear()
     {
       _buffer.Initialize();
-      ResetPointers(0);
+      ResetPointers();
     }
 
     /// <summary>
     /// Resets the readpointer and sets the writepointer at the specified position.
     /// </summary>
-    /// <param name="initialPosition">The position to set toe writepointer to.</param>
-    public void ResetPointers(int initialPosition)
+    public void ResetPointers()
     {
-      _writePointer = initialPosition;
-      _readPointer = 0;
-      _space = _bufferLength - initialPosition;
+      _writePointer = 0;
+      _readPointer = _buffer.Length;
+      _space = _buffer.Length;
     }
   }
 }

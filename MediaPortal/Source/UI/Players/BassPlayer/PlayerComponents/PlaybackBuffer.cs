@@ -43,7 +43,6 @@ namespace Ui.Players.BassPlayer.PlayerComponents
 
     private readonly Controller _controller;
 
-    private int _readOffsetBytes;
     private int _vizReadOffsetBytes;
 
     private volatile bool _terminated = false;
@@ -61,7 +60,6 @@ namespace Ui.Players.BassPlayer.PlayerComponents
     private BassStream _vizStream;
 
     private readonly TimeSpan _bufferSize;
-    private TimeSpan _readOffset;
     private TimeSpan _vizReadOffset;
 
     private readonly STREAMPROC _streamWriteProcDelegate;
@@ -81,8 +79,6 @@ namespace Ui.Players.BassPlayer.PlayerComponents
       BassPlayerSettings settings = Controller.GetSettings();
 
       _bufferSize = settings.PlaybackBufferSize;
-
-      _readOffset = InternalSettings.VizLatencyCorrectionRange;
 
       _streamWriteProcDelegate = new STREAMPROC(OutputStreamWriteProc);
       _vizRawStreamWriteProcDelegate = new STREAMPROC(VizRawStreamWriteProc);
@@ -137,20 +133,15 @@ namespace Ui.Players.BassPlayer.PlayerComponents
     /// <param name="stream">New inputstream.</param>
     public void SetInputStream(BassStream stream)
     {
-      Log.Debug("PlaybackBuffer.SetInputStream()");
-
       ResetInputStream();
 
       _inputStream = stream;
-      _readOffsetBytes = AudioRingBuffer.CalculateLength(stream.SampleRate, stream.Channels, _readOffset);
-
-      Log.Debug("Output stream reading offset: {0} ms", _readOffset.TotalMilliseconds);
 
       UpdateVizLatencyCorrection();
 
-      _buffer = new AudioRingBuffer(stream.SampleRate, stream.Channels, _bufferSize + _readOffset);
+      _buffer = new AudioRingBuffer(stream.SampleRate, stream.Channels, _bufferSize + _vizReadOffset);
       _streamEnded = false;
-      _buffer.ResetPointers(_readOffsetBytes);
+      _buffer.ResetPointers();
 
       CreateOutputStream();
       CreateVizStream();
@@ -169,7 +160,7 @@ namespace Ui.Players.BassPlayer.PlayerComponents
     public void ClearBuffer()
     {
       _buffer.Clear();
-      _buffer.ResetPointers(_readOffsetBytes);
+      _buffer.ResetPointers();
     }
 
     /// <summary>
@@ -177,32 +168,22 @@ namespace Ui.Players.BassPlayer.PlayerComponents
     /// </summary>
     public void ResetInputStream()
     {
-      Log.Debug("PlaybackBuffer.ResetInputStream()");
-
       TerminateBufferUpdateThread();
       if (_inputStreamInitialized)
       {
-
-        Log.Debug("Disposing output stream");
-
         _inputStreamInitialized = false;
 
         _outputStream.Dispose();
         _outputStream = null;
 
-        Log.Debug("Disposing visualization stream");
-
         _vizStream.Dispose();
         _vizStream = null;
-
-        Log.Debug("Disposing visualization raw stream");
 
         _vizRawStream.Dispose();
         _vizRawStream = null;
 
         _buffer = null;
         _inputStream = null;
-        _readOffsetBytes = 0;
         _vizReadOffsetBytes = 0;
       }
     }
@@ -216,8 +197,6 @@ namespace Ui.Players.BassPlayer.PlayerComponents
     /// </summary>
     private void UpdateVizLatencyCorrection()
     {
-      Log.Debug("PlaybackBuffer.UpdateVizLatencyCorrection()");
-
       BassPlayerSettings settings = Controller.GetSettings();
 
       _vizReadOffset = InternalSettings.VizLatencyCorrectionRange.Add(settings.VizStreamLatencyCorrection);
@@ -228,8 +207,6 @@ namespace Ui.Players.BassPlayer.PlayerComponents
 
     private void CreateOutputStream()
     {
-      Log.Debug("Creating playback buffer output stream");
-
       const BASSFlag flags = BASSFlag.BASS_SAMPLE_FLOAT | BASSFlag.BASS_STREAM_DECODE;
 
       int handle = Bass.BASS_StreamCreate(
@@ -250,8 +227,6 @@ namespace Ui.Players.BassPlayer.PlayerComponents
     /// </summary>
     private void CreateVizStream()
     {
-      Log.Debug("Creating visualization raw stream");
-
       BASSFlag streamFlags = BASSFlag.BASS_STREAM_DECODE | BASSFlag.BASS_SAMPLE_FLOAT;
 
       int handle = Bass.BASS_StreamCreate(
@@ -267,8 +242,6 @@ namespace Ui.Players.BassPlayer.PlayerComponents
       _vizRawStream = BassStream.Create(handle);
 
       // Todo: apply AGC
-
-      Log.Debug("Creating visualization stream");
 
       streamFlags = BASSFlag.BASS_MIXER_NONSTOP | BASSFlag.BASS_SAMPLE_FLOAT | BASSFlag.BASS_STREAM_DECODE;
 
@@ -301,11 +274,14 @@ namespace Ui.Players.BassPlayer.PlayerComponents
     /// <param name="streamHandle">Bass stream handle that requests sample data.</param>
     /// <param name="buffer">Buffer to write the sampledata in.</param>
     /// <param name="requestedBytes">Requested number of bytes.</param>
-    /// <param name="userData"></param>
+    /// <param name="userData">Not used.</param>
     /// <returns>Number of bytes read.</returns>
     private int OutputStreamWriteProc(int streamHandle, IntPtr buffer, int requestedBytes, IntPtr userData)
     {
-      int read = _buffer.Read(buffer, requestedBytes / BassConstants.FloatBytes, _readOffsetBytes);
+      if (buffer == IntPtr.Zero)
+        return 0;
+
+      int read = _buffer.Read(buffer, requestedBytes / BassConstants.FloatBytes, 0);
       int result = (read == 0 && _streamEnded) ? (int) BASSStreamProc.BASS_STREAMPROC_END : read * BassConstants.FloatBytes;
       _notifyBufferUpdateThread.Set();
       return result;
@@ -315,15 +291,18 @@ namespace Ui.Players.BassPlayer.PlayerComponents
     /// Callback function for the visualization stream.
     /// </summary>
     /// <param name="streamHandle">Bass stream handle that requests sample data.</param>
-    /// <param name="buffer">Buffer to write the sampledata in.</param>
+    /// <param name="buffer">Buffer to write the sampledata to.</param>
     /// <param name="requestedBytes">Requested number of bytes.</param>
-    /// <param name="userData"></param>
+    /// <param name="userData">Not used.</param>
     /// <returns>Number of bytes read.</returns>
     private int VizRawStreamWriteProc(int streamHandle, IntPtr buffer, int requestedBytes, IntPtr userData)
     {
+      if (buffer == IntPtr.Zero)
+        return 0;
+
       if (_controller.Player.ExternalState == PlayerState.Active)
       {
-        int read = _buffer.Peek(buffer, requestedBytes, _vizReadOffsetBytes);
+        int read = _buffer.Peek(buffer, requestedBytes / BassConstants.FloatBytes, _vizReadOffsetBytes);
         return (read == 0 && _streamEnded) ? (int) BASSStreamProc.BASS_STREAMPROC_END : read * BassConstants.FloatBytes;
       }
       return _silence.Write(buffer, requestedBytes);
@@ -338,6 +317,7 @@ namespace Ui.Players.BassPlayer.PlayerComponents
       // Don't just use a background thread and forget about it - because we run in a plugin. Using a background thread and
       // not stopping it at the end of the plugin's activation time would prevent the plugin from being unloaded and,
       // even worse, the thread would be started again each time a new BassPlayer instance is created.
+      // So we store a reference to the thread and dispose the thread when we don't need it any more.
       _bufferUpdateThread = new Thread(ThreadBufferUpdate) {Name = "PlaybackBuffer update thread"};
       _bufferUpdateThread.Start();
       _notifyBufferUpdateThread.Set();

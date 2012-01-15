@@ -432,7 +432,7 @@ namespace Ui.Players.BassPlayer
 
     public bool GetFFTData(float[] fftDataBuffer)
     {
-      BassStream currentStream = _controller.PlaybackProcessor.OutputStream;
+      BassStream currentStream = _controller.PlaybackProcessor.VizStream;
       if (currentStream == null)
         return false;
 
@@ -442,7 +442,7 @@ namespace Ui.Players.BassPlayer
 
     public int GetFFTFrequencyIndex(int frequency)
     {
-      BassStream currentStream = _controller.PlaybackProcessor.OutputStream;
+      BassStream currentStream = _controller.PlaybackProcessor.VizStream;
       if (_sampleFrequency == 0 && currentStream != null)
         _sampleFrequency = currentStream.SampleRate;
 

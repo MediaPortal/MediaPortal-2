@@ -325,6 +325,17 @@ namespace Ui.Players.BassPlayer.PlayerComponents
       }
     }
 
+    public BassStream VizStream
+    {
+      get
+      {
+        PlaybackSession playbackSession = _playbackSession;
+        if (playbackSession == null)
+          return null;
+        return playbackSession.PlaybackBuffer.VizStream;
+      }
+    }
+
     // Convenience method for BassPlayer.CurrentTime setter, which needs a method to be executed asynchronously
     public void SetPosition(TimeSpan value)
     {
