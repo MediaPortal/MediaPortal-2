@@ -144,7 +144,7 @@ namespace MediaPortal.Plugins.SlimTv.Providers
 
     public void Dispose()
     {
-      ITvHandler tv = ServiceRegistration.Get<ITvHandler>();
+      ITvHandler tv = ServiceRegistration.Get<ITvHandler>(false);
       if (tv != null)
         tv.DisposeSlot(_slotIndex);
     }
