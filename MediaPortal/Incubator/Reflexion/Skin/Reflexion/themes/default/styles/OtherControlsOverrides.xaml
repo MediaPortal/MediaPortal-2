@@ -16,6 +16,13 @@
     <ImageBrush x:Name="BackdropImageBackground" ImageSource="Reflex.jpg" />
   </ResourceWrapper>
 
+  <Storyboard x:Key="HoverMenuItemStoryboard" FillBehavior="HoldEnd">
+    <DoubleAnimationUsingKeyFrames BeginTime="00:00:00" FillBehavior="HoldEnd" Storyboard.TargetName="HoverControl" Storyboard.TargetProperty="RenderTransform.Children[0].ScaleX">
+      <SplineDoubleKeyFrame KeyTime="00:00:00" Value="1"/>
+      <SplineDoubleKeyFrame KeyTime="00:00:00.08" Value="2.327"/>
+    </DoubleAnimationUsingKeyFrames>
+  </Storyboard>
+
   <!-- An item list container represented by a standard "Button", scrolling its "ItemLabel" label when focused -->
   <Style x:Key="MainMenuMenuItemContainerStyle" BasedOn="{ThemeResource DefaultItemContainerStyle}">
     <Setter Property="Template">
@@ -26,9 +33,16 @@
               IsEnabled="{Binding Enabled}" SetFocus="{Binding Path=Selected,Mode=OneTime}">
             <Button.Triggers>
               <Trigger Property="HasFocus" Value="True">
+                <Trigger.EnterActions>
+                  <BeginStoryboard x:Name="HomeHover_BeginStoryboard" Storyboard="{ThemeResource HoverMenuItemStoryboard}"/>
+                </Trigger.EnterActions>
+                <Trigger.ExitActions>
+                  <StopStoryboard BeginStoryboardName="HomeHover_BeginStoryboard"/>
+                </Trigger.ExitActions>
+
                 <Setter TargetName="ItemLabel" Property="Scroll" Value="Auto"/>
                 <Setter TargetName="ItemLabel" Property="HorizontalAlignment" Value="Left"/>
-                <Setter TargetName="ItemLabel" Property="Margin" Value="28,92,10,0"/>
+                <Setter TargetName="ItemLabel" Property="Margin" Value="-150,115,10,0"/>
                 <Setter TargetName="ItemLabel" Property="Color" Value="{ThemeResource TextColor}"/>
                 <Setter TargetName="ItemLabel" Property="Background">
                   <Setter.Value>
@@ -40,8 +54,8 @@
                   </Setter.Value>
                 </Setter>
                 <Setter TargetName="HoverControl" Property="IsVisible" Value="True"/>
-                <Setter TargetName="ItemControl" Property="Width" Value="640"/>
               </Trigger>
+
             </Button.Triggers>
           </Button>
         </ControlTemplate>
@@ -63,7 +77,17 @@
       <Control Grid.Row="0" Grid.Column="0" Grid.RowSpan="3" x:Name="HoverControl" IsVisible="False" Margin="0,150,0,0"
                Style="{ThemeResource ReflexionControl}" 
                DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}"
-               VerticalAlignment="Stretch" HorizontalAlignment="Stretch" DockPanel.Dock="Center">
+               VerticalAlignment="Stretch" HorizontalAlignment="Stretch" DockPanel.Dock="Center" RenderTransformOrigin="0.5,0.5">
+        <Control.LayoutTransform>
+          <TransformGroup>
+            <ScaleTransform ScaleX="0.4297" ScaleY="1"/>
+          </TransformGroup>
+        </Control.LayoutTransform>
+        <Control.RenderTransform>
+          <TransformGroup>
+            <ScaleTransform ScaleX="1" ScaleY="1"/>
+          </TransformGroup>
+        </Control.RenderTransform>
         <Control.Resources>
           <ControlTemplate x:Key="MakeReflexion">
 
@@ -75,11 +99,11 @@
                 <ResourceWrapper x:Key="ControlWidth" Resource="620"/>
                 <ResourceWrapper x:Key="ControlHeight" Resource="340"/>
                 <ControlTemplate x:Key="MakeGlass">
-                  
+
                   <Image x:Name="BackdropImageBackground"
                      VerticalAlignment="Top" Stretch="UniformToFill"
-                     Source="{Binding Source={StaticResource BackgroundManagerModel}, Path=BackgroundImage}" />
-                  
+                     Source="{Binding Source={StaticResource BackgroundManagerModel}, Path=BackgroundImage}"/>
+
                 </ControlTemplate>
               </Control.Resources>
             </Control>
@@ -97,17 +121,15 @@
         <ControlTemplate TargetType="{x:Type ScrollViewer}">
           <Grid x:Name="ScrollViewerGrid">
             <Grid.ColumnDefinitions>
-              <ColumnDefinition Width="50"/>
+              <ColumnDefinition Width="20"/>
               <ColumnDefinition Width="*"/>
               <ColumnDefinition Width="20"/>
             </Grid.ColumnDefinitions>
             <Grid.RowDefinitions>
               <RowDefinition Height="*"/>
             </Grid.RowDefinitions>
-            <!-- Content -->
-            <ScrollContentPresenter Grid.Row="0" Grid.Column="1" Grid.ZIndex="100" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"
-                                    ActualWidth="{TemplateBinding Path=ScrollBarXSize,Mode=OneWayToSource}"/>
 
+            <!-- Scroll left indicator -->
             <Label Margin="0,340,0,0" Grid.Row="0" Grid.Column="0" Content="&lt;" FontSize="{ThemeResource BigFontSize}" Color="{ThemeResource HomeNonFocusedColor}">
               <Label.IsVisible>
                 <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} &amp;&amp; {1} > 0.0">
@@ -116,6 +138,13 @@
                 </MultiBinding>
               </Label.IsVisible>
             </Label>
+
+            <!-- Content -->
+            <ScrollContentPresenter Grid.Row="0" Grid.Column="1" Grid.ZIndex="100" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"
+                                    ActualWidth="{TemplateBinding Path=ScrollBarXSize,Mode=OneWayToSource}" Margin="175,0,10,0"/>
+
+
+            <!-- Scroll right indicator -->
             <Label Margin="0,340,0,0" Grid.Row="0" Grid.Column="2" Content="&gt;" FontSize="{ThemeResource BigFontSize}" Color="{ThemeResource HomeNonFocusedColor}">
               <Label.IsVisible>
                 <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} &amp;&amp; ({1}+{2} &lt; {3})">
