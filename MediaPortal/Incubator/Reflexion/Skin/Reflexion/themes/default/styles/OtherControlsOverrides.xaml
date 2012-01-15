@@ -302,4 +302,135 @@
     </Setter>
   </Style>
 
+  <!-- ****************************** Workflow navigation bar ********************************** -->
+
+  <Storyboard x:Key="NewFocusedNavbarContainerStoryboard" FillBehavior="HoldEnd">
+    <ColorAnimationUsingKeyFrames BeginTime="00:00:00" FillBehavior="HoldEnd" Storyboard.TargetName="WorkflowNavigationBarItemContainer_LineLeft" Storyboard.TargetProperty="Fill">
+      <SplineColorKeyFrame KeyTime="00:00:00" Value="{ThemeResource WorkflowNavigationBarItemContainerFillColor}"/>
+      <SplineColorKeyFrame KeyTime="{ThemeResource WorkflowNavigationBarFocusTime}" Value="{ThemeResource FocusedWorkflowNavigationBarItemContainerFillColor}"/>
+    </ColorAnimationUsingKeyFrames>
+    <ColorAnimationUsingKeyFrames BeginTime="00:00:00" FillBehavior="HoldEnd" Storyboard.TargetName="WorkflowNavigationBarItemContainer_ArrowLeft" Storyboard.TargetProperty="Fill">
+      <SplineColorKeyFrame KeyTime="00:00:00" Value="{ThemeResource WorkflowNavigationBarItemContainerFillColor}"/>
+      <SplineColorKeyFrame KeyTime="{ThemeResource WorkflowNavigationBarFocusTime}" Value="{ThemeResource FocusedWorkflowNavigationBarItemContainerFillColor}"/>
+    </ColorAnimationUsingKeyFrames>
+    <ColorAnimationUsingKeyFrames BeginTime="00:00:00" FillBehavior="HoldEnd" Storyboard.TargetName="WorkflowNavigationBarItemContainer_Center_Back" Storyboard.TargetProperty="Fill">
+      <SplineColorKeyFrame KeyTime="00:00:00" Value="{ThemeResource WorkflowNavigationBarItemContainerFillColor}"/>
+      <SplineColorKeyFrame KeyTime="{ThemeResource WorkflowNavigationBarFocusTime}" Value="{ThemeResource FocusedWorkflowNavigationBarItemContainerFillColor}"/>
+    </ColorAnimationUsingKeyFrames>
+    <ColorAnimationUsingKeyFrames BeginTime="00:00:00" FillBehavior="HoldEnd" Storyboard.TargetName="WorkflowNavigationBarItemContainer_ArrowRight" Storyboard.TargetProperty="Fill">
+      <SplineColorKeyFrame KeyTime="00:00:00" Value="{ThemeResource WorkflowNavigationBarItemContainerFillColor}"/>
+      <SplineColorKeyFrame KeyTime="{ThemeResource WorkflowNavigationBarFocusTime}" Value="{ThemeResource FocusedWorkflowNavigationBarItemContainerFillColor}"/>
+    </ColorAnimationUsingKeyFrames>
+  </Storyboard>
+  
+  <!-- Container style for the entries in the workflow navigation bar -->
+  <Style x:Key="NewWorkflowNavigationBarContainerStyle" BasedOn="{ThemeResource DefaultItemContainerStyle}">
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate TargetType="{x:Type ListViewItem}">
+          <!-- Available data in the given ListViewItem:
+               - AdditionalProperties[IsFirst] is true for the first item
+               - Executing the Command will navigate the workflow to the underlaying workflow state
+          -->
+          <Button Command="{Binding Command}" Style="{ThemeResource EmptyStyle}">
+            <Button.TemplateControl>
+              <Grid x:Name="WorkflowItemGrid" Opacity="0.5">
+                <Grid.RowDefinitions>
+                  <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+                <Grid.ColumnDefinitions>
+                  <ColumnDefinition Width="15"/>
+                  <ColumnDefinition Width="Auto"/>
+                  <ColumnDefinition Width="15"/>
+                </Grid.ColumnDefinitions>
+                <Path x:Name="WorkflowNavigationBarItemContainer_LineLeft" Grid.Row="0" Grid.Column="0" Stretch="Fill"
+                    IsVisible="{Binding AdditionalProperties[IsFirst]}"
+                    Stroke="{ThemeResource ReflexionBorderStroke}"
+                    Fill="{ThemeResource WorkflowNavigationBarItemContainerFillColor}"
+                    Data="M20,20 L0,20 0,0 20,0"/>
+                <Path x:Name="WorkflowNavigationBarItemContainer_ArrowLeft" Grid.Row="0" Grid.Column="0" Stretch="Fill"
+                    IsVisible="{Binding !AdditionalProperties[IsFirst]}"
+                    Stroke="{ThemeResource ReflexionBorderStroke}"
+                    Fill="{ThemeResource WorkflowNavigationBarItemContainerFillColor}"
+                    Data="M30,20 L0,20 0,18 20,10 0,2 0,0 30,0"/>
+                <Path x:Name="WorkflowNavigationBarItemContainer_Center_Back" Grid.Row="0" Grid.Column="1" Stretch="Fill"
+                    Fill="{ThemeResource WorkflowNavigationBarItemContainerFillColor}"
+                    Data="M0,0 L100,0 100,20 0,20 z"/>
+                <Path x:Name="WorkflowNavigationBarItemContainer_Center_Border" Grid.Row="0" Grid.Column="1" Stretch="Fill"
+                    Stroke="{ThemeResource ReflexionBorderStroke}"
+                    Data="M0,0 L100,0 M100,20 L0,20"/>
+                <Path x:Name="WorkflowNavigationBarItemContainer_ArrowRight" Grid.Row="0" Grid.Column="2" Stretch="Fill"
+                    Stroke="{ThemeResource ReflexionBorderStroke}"
+                    Fill="{ThemeResource WorkflowNavigationBarItemContainerFillColor}"
+                    Data="M0,0 L10,0 10,2 30,10 10,18 10,20 0,20"/>
+                <ContentPresenter Grid.Row="0" Grid.Column="1" x:Name="WorkflowNavibationItemContentPresenter" HorizontalAlignment="Stretch"/>
+              </Grid>
+            </Button.TemplateControl>
+            <Button.Triggers>
+              <Trigger Property="HasFocus" Value="True">
+                <Setter TargetName="WorkflowItemGrid" Property="Opacity" Value="1"/>
+                <Trigger.EnterActions>
+                  <BeginStoryboard x:Name="Focused_BeginStoryboard" Storyboard="{ThemeResource NewFocusedNavbarContainerStoryboard}"/>
+                </Trigger.EnterActions>
+                <Trigger.ExitActions>
+                  <StopStoryboard BeginStoryboardName="Focused_BeginStoryboard"/>
+                </Trigger.ExitActions>
+              </Trigger>
+            </Button.Triggers>
+          </Button>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
+
+
+  <!-- Data template for contents of workflow navigation bar entries -->
+  <DataTemplate x:Key="NewWorkflowNavigationBarItemDataTemplate" DataType="{x:Type collections:ListItem}">
+    <DockPanel x:Name="ItemControl" LastChildFill="True">
+      <Label x:Name="ItemLabel" DockPanel.Dock="Center" Margin="2" Content="{Binding [Name]}" Color="{ThemeResource WorkflowNavigationBarFontColor}"/>
+    </DockPanel>
+  </DataTemplate>
+
+  <!-- Control which is used to symbolize the ellipsis of some entries when the workflow navigation bar is too long for the available space -->
+  <Style x:Key="NewWorkflowNavigationBarEllipsisControlStyle" TargetType="{x:Type Control}">
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate>
+          <Label Content="..." Margin="10,2,10,2" Color="{ThemeResource WorkflowNavigationBarFontColor}"/>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
+
+  <Style x:Key="NewWorkflowNavigationBarListViewStyle" TargetType="{x:Type ListView}">
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate>
+          <ItemsPresenter Margin="5"/>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+    <Setter Property="ItemTemplate" Value="{ThemeResource NewWorkflowNavigationBarItemDataTemplate}"/>
+    <Setter Property="ItemContainerStyle" Value="{ThemeResource NewWorkflowNavigationBarContainerStyle}"/>
+    <Setter Property="ItemsPanel">
+      <Setter.Value>
+        <ItemsPanelTemplate>
+          <mp_special_controls:WorkflowNavigationBarPanel x:Name="WorkflowNavigationBarItemsHost" IsItemsHost="True"
+              Orientation="Horizontal"
+              EllipsisControlStyle="{ThemeResource NewWorkflowNavigationBarEllipsisControlStyle}"/>
+        </ItemsPanelTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
+
+  <Style x:Key="NewWorkflowNavigationBarStyle" TargetType="{x:Type mp_special_controls:WorkflowNavigationBar}">
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate>
+          <ListView x:Name="WorkflowNavigationBarListView" ItemsSource="{TemplateBinding NavigationItems}" Style="{ThemeResource NewWorkflowNavigationBarListViewStyle}"/>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
+
 </ResourceDictionary>

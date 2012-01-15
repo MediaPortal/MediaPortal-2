@@ -201,16 +201,8 @@
             </Rectangle>
             <Rectangle DockPanel.Dock="Center" RadiusX="{StaticResource ButtonRadius}" RadiusY="{StaticResource ButtonRadius}" Name="ButtonLowerShine" Fill="{StaticResource LowerShineGradientAnimated}" />
             <Rectangle DockPanel.Dock="Center" RadiusX="{StaticResource ButtonRadius}" RadiusY="{StaticResource ButtonRadius}" Name="ButtonUpperShine" Fill="{StaticResource UpperShineGradientAnimated}" />
-            <Rectangle DockPanel.Dock="Center" x:Name="ButtonBase" StrokeLineJoin="Miter" RadiusX="{StaticResource ButtonRadius}" RadiusY="{StaticResource ButtonRadius}"  HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Fill="#A0000000">
-              <Rectangle.Stroke>
-                <LinearGradientBrush StartPoint="0.2,0" EndPoint="0.8,1">
-                  <GradientStop Color="#DC3D3939" Offset="0"/>
-                  <GradientStop Color="#A0A0A0" Offset="0.332"/>
-                  <GradientStop Color="#E0E0E0" Offset="0.798"/>
-                  <GradientStop Color="#E13F3B3B" Offset="1"/>
-                </LinearGradientBrush>
-              </Rectangle.Stroke>
-            </Rectangle>
+            <Rectangle DockPanel.Dock="Center" x:Name="ButtonBase" StrokeLineJoin="Miter" RadiusX="{StaticResource ButtonRadius}" RadiusY="{StaticResource ButtonRadius}"  HorizontalAlignment="Stretch" VerticalAlignment="Stretch" 
+                       Fill="#A0000000" Stroke="{ThemeResource ReflexionBorderStroke}"/>
           </DockPanel>
         </ControlTemplate>
       </Setter.Value>

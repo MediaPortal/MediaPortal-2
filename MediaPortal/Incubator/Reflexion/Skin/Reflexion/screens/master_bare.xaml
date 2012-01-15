@@ -109,7 +109,7 @@ Parameters which have to be accessible by a DynamicResource lookup:
         <ColumnDefinition Width="*"/>
         <ColumnDefinition Width="Auto"/>
       </Grid.ColumnDefinitions>
-      <mp_special_controls:WorkflowNavigationBar Grid.Column="0" Grid.Row="0" Style="{ThemeResource WorkflowNavigationBarStyle}"
+      <mp_special_controls:WorkflowNavigationBar Grid.Column="0" Grid.Row="0" Style="{ThemeResource NewWorkflowNavigationBarStyle}"
             VerticalAlignment="Center"/>
       <Control Grid.Column="1" Grid.Row="0" Margin="10,0,10,0" Style="{ThemeResource NotificationControlStyle}"
             HorizontalAlignment="Right" VerticalAlignment="Center"/>
