@@ -321,7 +321,7 @@
     </Content>
   </ItemGroup>
   <ItemGroup>
-    <Content Include="Skin\Reflexion\screens\FullscreenContentPicture.xaml">
+    <Content Include="Skin\Reflexion\screens\FullscreenContentImage.xaml">
       <SubType>Designer</SubType>
     </Content>
   </ItemGroup>

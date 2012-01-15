@@ -5,7 +5,7 @@
     xmlns:mp_special_controls="clr-namespace:MediaPortal.UI.SkinEngine.SpecialElements.Controls"
     xmlns:mp_special_workflow="clr-namespace:MediaPortal.UI.SkinEngine.SpecialElements.Workflow"
     mp_special_workflow:WorkflowContext.StateSlot="Root"
-    x:Name="FullscreenContentPictureScreen"
+    x:Name="FullscreenContentImageScreen"
     >
   <Grid
       x:Name="FullscreenLayoutGrid"
@@ -18,12 +18,12 @@
       <RowDefinition Height="*"/>
     </Grid.RowDefinitions>
   
-    <mp_special_controls:PlayerControl x:Name="FullscreenPicture" Grid.Column="0" Grid.Row="0"
+    <mp_special_controls:PlayerControl x:Name="FullscreenImage" Grid.Column="0" Grid.Row="0"
         VerticalAlignment="Stretch" HorizontalAlignment="Stretch" PlayerContext="PrimaryPlayer">
       <mp_special_controls:PlayerControl.TemplateControl>
         <Image Stretch="Uniform" DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}" SkinNeutralAR="True">
           <Image.Source>
-            <PicturePlayerImageSource Stream="0"
+            <ImagePlayerImageSource Stream="0"
                 Transition="transitions\granular_dissolve;transitions\fade;transitions\dissolve;transitions\wipe_right;transitions\wipe_down;transitions\wipe_down-right;transitions\wipe_up-left"
                 TransitionInOut="False" />
           </Image.Source>
@@ -56,7 +56,7 @@
       <DockPanel x:Name="OSD_LeftPanel" DockPanel.Dock="Left" Width="{ThemeResource FullScreenContentPicturePrimaryPlayerOSDWidth}"
           IsVisible="{Binding IsOSDVisible}" LastChildFill="False">
         <mp_special_controls:PlayerControl x:Name="PrimaryOSD" DockPanel.Dock="Bottom"
-            Style="{ThemeResource PrimaryPictureOSDStyle}"
+            Style="{ThemeResource PrimaryImageOSDStyle}"
             VerticalAlignment="Stretch" HorizontalAlignment="Stretch"/>
       </DockPanel> <!-- OSD_LeftPanel -->
       <DockPanel x:Name="OSD_RightPanel" DockPanel.Dock="Right" IsVisible="{Binding IsOSDVisible}" LastChildFill="false">
