@@ -22,6 +22,7 @@
 
 #endregion
 
+using System.Collections.Generic;
 using System.Drawing;
 using MediaPortal.Common.General;
 using MediaPortal.UI.SkinEngine.Controls.Visuals;
@@ -35,20 +36,87 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
   /// </summary>
   public class Canvas : Panel
   {
+    #region Consts
+
     protected const string LEFT_ATTACHED_PROPERTY = "Canvas.Left";
     protected const string RIGHT_ATTACHED_PROPERTY = "Canvas.Right";
     protected const string TOP_ATTACHED_PROPERTY = "Canvas.Top";
     protected const string BOTTOM_ATTACHED_PROPERTY = "Canvas.Bottom";
 
+    #endregion
+
+    #region Protected fields
+
+    protected IList<AbstractProperty> _canvasPositionRegisteredProperties = new List<AbstractProperty>();
+
+    #endregion
+
+    private void OnChildCanvasPositionChanged(AbstractProperty property, object oldvalue)
+    {
+      InvalidateLayout(true, true);
+    }
+
+    protected void UnregisterAllChildCanvasPositionProperties()
+    {
+      foreach (AbstractProperty property in _canvasPositionRegisteredProperties)
+        // Just detach from change handler and attach again later
+        property.Detach(OnChildCanvasPositionChanged);
+      _canvasPositionRegisteredProperties.Clear();
+    }
+
+    protected void RegisterChildCanvasPosition(AbstractProperty childCanvasPositionProperty)
+    {
+      childCanvasPositionProperty.Attach(OnChildCanvasPositionChanged);
+    }
+
+    protected float GetLeft(FrameworkElement child, bool registerPositionProperty)
+    {
+      AbstractProperty leftAttachedProperty = GetLeftAttachedProperty_NoCreate(child);
+      AbstractProperty rightAttachedProperty = GetRightAttachedProperty_NoCreate(child);
+      if (leftAttachedProperty != null)
+        RegisterChildCanvasPosition(leftAttachedProperty);
+      if (rightAttachedProperty != null)
+        RegisterChildCanvasPosition(rightAttachedProperty);
+      float result;
+      if (leftAttachedProperty != null)
+        result = (float) leftAttachedProperty.GetValue();
+      else if (rightAttachedProperty != null)
+        result = (float) rightAttachedProperty.GetValue() - child.DesiredSize.Width;
+      else result = 0;
+      return result;
+    }
+
+    protected float GetTop(FrameworkElement child, bool registerPositionProperty)
+    {
+      AbstractProperty topAttachedProperty = GetTopAttachedProperty_NoCreate(child);
+      AbstractProperty bottomAttachedProperty = GetBottomAttachedProperty_NoCreate(child);
+      if (topAttachedProperty != null)
+        RegisterChildCanvasPosition(topAttachedProperty);
+      if (bottomAttachedProperty != null)
+        RegisterChildCanvasPosition(bottomAttachedProperty);
+      float result;
+      if (topAttachedProperty != null)
+        result = (float) topAttachedProperty.GetValue();
+      else if (bottomAttachedProperty != null)
+        result = (float) bottomAttachedProperty.GetValue() - child.DesiredSize.Height;
+      else
+        result = 0;
+      return result;
+    }
+
     protected override SizeF CalculateInnerDesiredSize(SizeF totalSize)
     {
       RectangleF rect = new RectangleF(0, 0, 0, 0);
+      UnregisterAllChildCanvasPositionProperties();
       foreach (FrameworkElement child in GetVisibleChildren())
       {
         SizeF childSize = new SizeF(totalSize.Width, totalSize.Height);
         child.Measure(ref childSize);
-        rect = RectangleF.Union(rect, new RectangleF(new PointF((float) GetLeft(child), (float) GetTop(child)),
-            new SizeF(childSize.Width, childSize.Height)));
+
+        float left = GetLeft(child, true);
+        float top = GetTop(child, true);
+
+        rect = RectangleF.Union(rect, new RectangleF(new PointF(left, top), new SizeF(childSize.Width, childSize.Height)));
       }
 
       return new SizeF(rect.Right, rect.Bottom);
@@ -63,7 +131,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
       foreach (FrameworkElement child in GetVisibleChildren())
       {
         // Get the coordinates relative to the canvas area.
-        PointF location = new PointF((float) GetLeft(child) + x, (float) GetTop(child) + y);
+        PointF location = new PointF(GetLeft(child, false) + x, GetTop(child, false) + y);
 
         // Get the child size
         SizeF childSize = child.DesiredSize;
@@ -113,6 +181,11 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
       return targetObject.GetOrCreateAttachedProperty<double>(LEFT_ATTACHED_PROPERTY, 0.0);
     }
 
+    public static AbstractProperty GetLeftAttachedProperty_NoCreate(DependencyObject targetObject)
+    {
+      return targetObject.GetAttachedProperty(LEFT_ATTACHED_PROPERTY);
+    }
+
     /// <summary>
     /// Getter method for the attached property <c>Right</c>.
     /// </summary>
@@ -149,6 +222,11 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
     public static AbstractProperty GetRightAttachedProperty(DependencyObject targetObject)
     {
       return targetObject.GetOrCreateAttachedProperty<double>(RIGHT_ATTACHED_PROPERTY, 0.0);
+    }
+
+    public static AbstractProperty GetRightAttachedProperty_NoCreate(DependencyObject targetObject)
+    {
+      return targetObject.GetAttachedProperty(RIGHT_ATTACHED_PROPERTY);
     }
 
     /// <summary>
@@ -189,6 +267,11 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
       return targetObject.GetOrCreateAttachedProperty<double>(TOP_ATTACHED_PROPERTY, 0.0);
     }
 
+    public static AbstractProperty GetTopAttachedProperty_NoCreate(DependencyObject targetObject)
+    {
+      return targetObject.GetAttachedProperty(TOP_ATTACHED_PROPERTY);
+    }
+
     /// <summary>
     /// Getter method for the attached property <c>Bottom</c>.
     /// </summary>
@@ -225,6 +308,11 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
     public static AbstractProperty GetBottomAttachedProperty(DependencyObject targetObject)
     {
       return targetObject.GetOrCreateAttachedProperty<double>(BOTTOM_ATTACHED_PROPERTY, 0.0);
+    }
+
+    public static AbstractProperty GetBottomAttachedProperty_NoCreate(DependencyObject targetObject)
+    {
+      return targetObject.GetAttachedProperty(BOTTOM_ATTACHED_PROPERTY);
     }
 
     #endregion
