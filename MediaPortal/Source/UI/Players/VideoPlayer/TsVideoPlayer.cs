@@ -56,7 +56,6 @@ namespace MediaPortal.UI.Players.Video
 
     protected IBaseFilter _fileSource = null;
     protected bool _bMediaTypeChanged = false;
-    protected bool _bRequestAudioChange = false;
     SubtitleRenderer _subtitleRenderer;
     IBaseFilter _subtitleFilter;
     protected GraphRebuilder _graphRebuilder;
@@ -175,7 +174,8 @@ namespace MediaPortal.UI.Players.Video
     /// <returns></returns>
     public int OnRequestAudioChange()
     {
-      _bRequestAudioChange = true;
+      // This is a special workaround for enumerating streams the first time: the callback happens before _initialized is set usually set to true (in AddFileSource).
+       _initialized = true;
 
       EnumerateStreams();
       if (_streamInfoAudio == null || _streamInfoAudio.Count == 0)
