@@ -496,8 +496,12 @@ namespace MediaPortal.UI.SkinEngine.GUI
         bool wasScreenSaverActive = _isScreenSaverActive;
         if (_isScreenSaverEnabled)
         {
+          IPlayerManager playerManager = ServiceRegistration.Get<IPlayerManager>();
           IPlayerContextManager playerContextManager = ServiceRegistration.Get<IPlayerContextManager>();
-          bool preventScreenSaver = playerContextManager.IsFullscreenContentWorkflowStateActive;
+          IPlayer primaryPlayer = playerManager[PlayerManagerConsts.PRIMARY_SLOT];
+          IMediaPlaybackControl mbc = primaryPlayer as IMediaPlaybackControl;
+          bool preventScreenSaver = ((primaryPlayer is IVideoPlayer || primaryPlayer is IImagePlayer) && (mbc == null || !mbc.IsPaused)) ||
+              playerContextManager.IsFullscreenContentWorkflowStateActive;
 
           _isScreenSaverActive = !preventScreenSaver &&
               SkinContext.FrameRenderingStartTime - inputManager.LastMouseUsageTime > _screenSaverTimeOut &&
