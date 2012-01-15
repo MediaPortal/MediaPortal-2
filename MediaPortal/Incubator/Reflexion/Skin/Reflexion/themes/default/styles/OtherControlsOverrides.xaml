@@ -16,10 +16,15 @@
     <ImageBrush x:Name="BackdropImageBackground" ImageSource="Reflex.jpg" />
   </ResourceWrapper>
 
+  <!-- Scaling constants -->
+  <ResourceWrapper x:Key="HomeMenuItemScaleMax"        Resource="2.0" />
+  <ResourceWrapper x:Key="HomeMenuItemInverseScaleMax" Resource="0.5" /> 
+  
+  <!-- Scale animation storyboard for focussed menu item on home screen -->
   <Storyboard x:Key="HoverMenuItemStoryboard" FillBehavior="HoldEnd">
     <DoubleAnimationUsingKeyFrames BeginTime="00:00:00" FillBehavior="HoldEnd" Storyboard.TargetName="HoverControl" Storyboard.TargetProperty="RenderTransform.Children[0].ScaleX">
       <SplineDoubleKeyFrame KeyTime="00:00:00" Value="1"/>
-      <SplineDoubleKeyFrame KeyTime="00:00:00.08" Value="2.327"/>
+      <SplineDoubleKeyFrame KeyTime="00:00:00.10" Value="{StaticResource HomeMenuItemScaleMax}"/>
     </DoubleAnimationUsingKeyFrames>
   </Storyboard>
 
@@ -40,9 +45,13 @@
                   <StopStoryboard BeginStoryboardName="HomeHover_BeginStoryboard"/>
                 </Trigger.ExitActions>
 
+                <!-- Morpheus_xx: this helps to keep the other menu items visible and not overlapped by hover, but it can introduce
+                                  the flicker issue with the most right item of the menu (trying to focus it by mouse)-->
+                <Setter TargetName="ItemControl" Property="Margin" Value="110,0,120,0"/>
+                
                 <Setter TargetName="ItemLabel" Property="Scroll" Value="Auto"/>
                 <Setter TargetName="ItemLabel" Property="HorizontalAlignment" Value="Left"/>
-                <Setter TargetName="ItemLabel" Property="Margin" Value="-150,115,10,0"/>
+                <Setter TargetName="ItemLabel" Property="Margin" Value="-112,113,10,0"/>
                 <Setter TargetName="ItemLabel" Property="Color" Value="{ThemeResource TextColor}"/>
                 <Setter TargetName="ItemLabel" Property="Background">
                   <Setter.Value>
@@ -65,7 +74,7 @@
 
   <!-- Menu template -->
   <DataTemplate x:Key="MainMenuItemDataTemplateHover">
-    <Grid x:Name="ItemControl" Width="275" Height="800">
+    <Grid x:Name="ItemControl" Width="340" Height="800" Margin="40,0,0,0">
       <Grid.ColumnDefinitions>
         <ColumnDefinition Width="*"/>
       </Grid.ColumnDefinitions>
@@ -80,7 +89,7 @@
                VerticalAlignment="Stretch" HorizontalAlignment="Stretch" DockPanel.Dock="Center" RenderTransformOrigin="0.5,0.5">
         <Control.LayoutTransform>
           <TransformGroup>
-            <ScaleTransform ScaleX="0.4297" ScaleY="1"/>
+            <ScaleTransform ScaleX="{StaticResource HomeMenuItemInverseScaleMax}" ScaleY="1"/>
           </TransformGroup>
         </Control.LayoutTransform>
         <Control.RenderTransform>
@@ -141,7 +150,7 @@
 
             <!-- Content -->
             <ScrollContentPresenter Grid.Row="0" Grid.Column="1" Grid.ZIndex="100" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"
-                                    ActualWidth="{TemplateBinding Path=ScrollBarXSize,Mode=OneWayToSource}" Margin="175,0,10,0"/>
+                                    ActualWidth="{TemplateBinding Path=ScrollBarXSize,Mode=OneWayToSource}" Margin="40,0,10,0"/>
 
 
             <!-- Scroll right indicator -->
