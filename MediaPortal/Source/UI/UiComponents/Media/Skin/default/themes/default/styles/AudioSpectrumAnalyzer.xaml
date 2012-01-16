@@ -24,13 +24,11 @@
    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
    xmlns:mp_audio_viz="clr-namespace:MediaPortal.Plugins.AudioSpectrumAnalyzer;assembly=AudioSpectrumAnalyzer">
 
-  <!-- Region: SpectrumAnalyzer -->
   <LinearGradientBrush x:Key="SpectrumBarBrush" EndPoint="0.5,0" StartPoint="0.5,1">
     <GradientStop Color="#3c993b" Offset="0" />
     <GradientStop Color="#43d33a" Offset="1" />
   </LinearGradientBrush>
 
-  <!--<SolidColorBrush x:Key="SpectrumBarBrush" Color="#3c993b" />-->
   <SolidColorBrush x:Key="SpectrumPeakBrush" Color="#43d33a" />
 
   <Style x:Key="SpectrumAnalyzerStyle" TargetType="{x:Type mp_audio_viz:AudioSpectrumAnalyzer}">
@@ -40,7 +38,7 @@
           <Setter Property="Template">
             <Setter.Value>
               <ControlTemplate>
-                <Rectangle Fill="{StaticResource SpectrumBarBrush}"/>
+                <Rectangle Fill="{ThemeResource SpectrumBarBrush}"/>
               </ControlTemplate>
             </Setter.Value>
           </Setter>
@@ -53,7 +51,7 @@
           <Setter Property="Template">
             <Setter.Value>
               <ControlTemplate>
-                <Rectangle Fill="{StaticResource SpectrumPeakBrush}"/>
+                <Rectangle Fill="{ThemeResource SpectrumPeakBrush}"/>
               </ControlTemplate>
             </Setter.Value>
           </Setter>
@@ -63,18 +61,13 @@
     <Setter Property="Template">
       <Setter.Value>
         <ControlTemplate TargetType="{x:Type mp_audio_viz:AudioSpectrumAnalyzer}">
-          <Border Background="{TemplateBinding Background}"
-                            BorderBrush="{TemplateBinding BorderBrush}"
-                            BorderThickness="{TemplateBinding BorderThickness}">
-            <Canvas Name="PART_SpectrumCanvas" Width="600" Height="300"
-                                HorizontalAlignment="Stretch"
-                                VerticalAlignment="Stretch" />
+          <Border Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}"
+              BorderThickness="{TemplateBinding BorderThickness}">
+            <Canvas Name="PART_SpectrumCanvas"
+                HorizontalAlignment="Stretch" VerticalAlignment="Stretch" />
           </Border>
         </ControlTemplate>
       </Setter.Value>
     </Setter>
   </Style>
-  <!-- EndRegion: SpectrumAnalyzer -->
-
-
 </ResourceDictionary>

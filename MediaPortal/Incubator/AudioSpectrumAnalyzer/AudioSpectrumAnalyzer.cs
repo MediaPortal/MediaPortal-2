@@ -367,7 +367,15 @@ namespace MediaPortal.Plugins.AudioSpectrumAnalyzer
     {
       ISpectrumPlayer player = ActiveSpectrumPlayer;
 
-      if (!_refreshShapes || player == null || _spectrumCanvas == null)
+      if (player == null)
+      {
+        _barWidth = 1;
+        _maximumFrequencyIndex = -1;
+        _minimumFrequencyIndex = 0;
+        return;
+      }
+
+      if (!_refreshShapes || _spectrumCanvas == null)
         return;
 
       _barWidth = Math.Max(((_spectrumCanvas.ActualWidth - (BarSpacing * (BarCount + 1))) / BarCount), 1);
@@ -491,15 +499,15 @@ namespace MediaPortal.Plugins.AudioSpectrumAnalyzer
         Control bar = _barShapes[barIndex];
         bar.RenderTransform = new ScaleTransform
           {
-              CenterX = bar.Width / 2,
-              CenterY = bar.Height,
+              CenterX = bar.ActualWidth / 2,
+              CenterY = bar.ActualHeight,
               ScaleY = barHeight / height
           };
 
         Control peak = _peakShapes[barIndex];
         peak.RenderTransform = new TranslateTransform
           {
-              Y = _channelPeakData[barIndex]
+              Y = -_channelPeakData[barIndex]
           };
 
         lastPeakHeight = barHeight;

@@ -1,5 +1,4 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- TODO -->
 <Screen
     xmlns="www.team-mediaportal.com/2008/mpf/directx"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
@@ -16,12 +15,8 @@
       <RowDefinition Height="*"/>
     </Grid.RowDefinitions>
 
-    <mp_audio_viz:AudioSpectrumAnalyzer Width="600" Height="300"
-      Grid.Column="0" Grid.Row="0" x:Name="spectrumAnalyzer" Margin="5" Style="{ThemeResource SpectrumAnalyzerStyle}"/>
-    
-    <Label DockPanel.Dock="Center"
+    <mp_audio_viz:AudioSpectrumAnalyzer DockPanel.Dock="Center" Width="600" Height="300"
         HorizontalAlignment="Center" VerticalAlignment="Center"
-        Content="In the future, you will see an audio visualization here"
-        Color="{ThemeResource TextColor}"/>
+        Grid.Column="0" Grid.Row="0" x:Name="SpectrumAnalyzer" Style="{ThemeResource SpectrumAnalyzerStyle}"/>
   </Grid>
 </Screen>
