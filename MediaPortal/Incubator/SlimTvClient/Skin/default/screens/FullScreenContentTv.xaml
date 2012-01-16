@@ -68,6 +68,7 @@
     <KeyBinding Key="Right" Command="{Command Source={StaticResource ExtendedVideoSkip}, Path=SkipStepForward}"/>
     <KeyBinding Key="Left" Command="{Command Source={StaticResource ExtendedVideoSkip}, Path=SkipStepBackward}"/>
 
-    <KeyBinding Key="Ok" Command="{Command Source={Service ScreenManager},Path=ShowDialog,Parameters=SlimTVClient-miniguide}"/>
+    <KeyBinding Key="Ok" Command="{Command Source={Service ScreenManager},Path=ShowDialog,Parameters=SlimTVClient-miniguide}"
+                IsEnabled="{Binding Source={StaticResource SlimTvClient},Path=!IsOSDVisible}"/>
   </Grid>
 </Screen>
