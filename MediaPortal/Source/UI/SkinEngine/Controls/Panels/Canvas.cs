@@ -79,9 +79,9 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
         RegisterChildCanvasPosition(rightAttachedProperty);
       float result;
       if (leftAttachedProperty != null)
-        result = (float) leftAttachedProperty.GetValue();
+        result = (float) (double) leftAttachedProperty.GetValue();
       else if (rightAttachedProperty != null)
-        result = (float) rightAttachedProperty.GetValue() - child.DesiredSize.Width;
+        result = (float) (double) rightAttachedProperty.GetValue() - child.DesiredSize.Width;
       else result = 0;
       return result;
     }
@@ -96,9 +96,9 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
         RegisterChildCanvasPosition(bottomAttachedProperty);
       float result;
       if (topAttachedProperty != null)
-        result = (float) topAttachedProperty.GetValue();
+        result = (float) (double) topAttachedProperty.GetValue();
       else if (bottomAttachedProperty != null)
-        result = (float) bottomAttachedProperty.GetValue() - child.DesiredSize.Height;
+        result = (float) (double) bottomAttachedProperty.GetValue() - child.DesiredSize.Height;
       else
         result = 0;
       return result;
