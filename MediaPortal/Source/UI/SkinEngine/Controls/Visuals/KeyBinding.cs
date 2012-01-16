@@ -110,7 +110,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     protected void Execute()
     {
       IExecutableCommand cmd = Command;
-      if (cmd != null)
+      if (cmd != null && IsEnabled)
         InputManager.Instance.ExecuteCommand(cmd.Execute);
     }
 
@@ -121,7 +121,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       if (Key == null)
         return;
       Screen screen = Screen;
-      if (screen == null || !IsEnabled)
+      if (screen == null)
         return;
       _registeredScreen = screen;
       _registeredKey = Key;
