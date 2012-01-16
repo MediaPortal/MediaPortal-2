@@ -29,6 +29,7 @@
             <Grid x:Name="PlayerGrid" Margin="10,0,10,0"
                 HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
               <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto"/>
                 <ColumnDefinition Width="*"/>
               </Grid.ColumnDefinitions>
               <Grid.RowDefinitions>
@@ -37,8 +38,9 @@
                 <RowDefinition Height="Auto"/>
                 <RowDefinition Height="*"/>
               </Grid.RowDefinitions>
-              <DockPanel Grid.Column="0" Grid.Row="0" LastChildFill="true" Margin="3">
- 
+              <DockPanel Grid.Column="0" Grid.Row="0" Grid.ColumnSpan="2" LastChildFill="true" Margin="3">
+
+
                 <Grid DockPanel.Dock="Center" HorizontalAlignment="Stretch">
                   <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="80"/>
@@ -50,14 +52,11 @@
                     <RowDefinition Height="Auto"/>
                     <RowDefinition Height="Auto"/>
                     <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
                   </Grid.RowDefinitions>
-                  <!--<Label x:Name="ChannelName" Grid.Column="0" Grid.Row="0" Content="{Binding Source={StaticResource SlimTvClient},Path=ChannelName}"
-                      Color="{ThemeResource TextColor}"
-                      Scroll="Auto" 
-                      HorizontalAlignment="Left" VerticalAlignment="Center"/>-->
 
                   <Image x:Name="ChannelLogo" Grid.Column="0" Grid.Row="0" Width="64" Height="64" Grid.RowSpan="2"
-                   Stretch="Uniform" FallbackSource="channellogos\no_channel_logo.png">
+                          Stretch="Uniform" FallbackSource="channellogos\no_channel_logo.png">
                     <Image.Source>
                       <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0}+{1}+{2}">
                         <Binding Source="channellogos\"/>
@@ -68,18 +67,101 @@
                   </Image>
 
                   <Label x:Name="CurrentProgramTitleLabel" Grid.Column="1" Grid.Row="0" Content="{Binding Source={StaticResource SlimTvClient},Path=CurrentProgram.Title}" Scroll="Auto"
-                      HorizontalAlignment="Left" VerticalAlignment="Center" Color="{ThemeResource TextColor}"/>
+                        HorizontalAlignment="Left" VerticalAlignment="Center"
+                        IsVisible="{Binding Source={StaticResource SlimTvClient},Path=!IsOSDLevel2}"
+                        Color="{ThemeResource TextColor}"/>
 
-                  <Label x:Name="NextProgramTitleLabel"  Grid.Column="1" Grid.Row="1" Content="{Binding Source={StaticResource SlimTvClient},Path=PlayingNextProgram}" Scroll="Auto"
-                      HorizontalAlignment="Left" VerticalAlignment="Center"
-                      Color="{ThemeResource NextProgramLabelColor}"/>
+                  <Label x:Name="NextProgramTitleLabel"  Grid.Column="1" Grid.Row="1" Content="{Binding Source={StaticResource SlimTvClient},Path=NextProgram.Title}" Scroll="Auto"
+                        HorizontalAlignment="Left" VerticalAlignment="Center"
+                        IsVisible="{Binding Source={StaticResource SlimTvClient},Path=IsOSDLevel0}"
+                        Color="{ThemeResource NextProgramLabelColor}"/>
+
+                  <!-- Title lable for OSD Level 2 (next program) -->
+                  <Label x:Name="NextProgramTitleLabelLevel2" Grid.Column="1" Grid.Row="0" Content="{Binding Source={StaticResource SlimTvClient},Path=NextProgram.Title}" Scroll="Auto"
+                        HorizontalAlignment="Left" VerticalAlignment="Center"
+                        IsVisible="{Binding Source={StaticResource SlimTvClient},Path=IsOSDLevel2}"
+                        Color="{ThemeResource NextProgramLabelColor}"/>
 
 
-                  <Label x:Name="CurrentProgramStartLabel" Grid.Column="0" Grid.Row="2" 
-                      Content="{Binding Source={StaticResource SlimTvClient}, Path=CurrentProgram.StartTime, Converter={StaticResource DateFormatConverter}}"
-                      HorizontalAlignment="Left" VerticalAlignment="Center" Color="{ThemeResource TextColor}"/>
+                  <!-- Current Program detailed information -->
+                  <Grid Grid.Column="1" Grid.Row="1" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+                        IsVisible="{Binding Source={StaticResource SlimTvClient},Path=IsOSDLevel1}">
+                    <Grid.RowDefinitions>
+                      <RowDefinition Height="Auto"/>
+                      <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
+                    <Grid.ColumnDefinitions>
+                      <ColumnDefinition Width="100"/>
+                      <ColumnDefinition Width="60"/>
+                      <ColumnDefinition Width="15"/>
+                      <ColumnDefinition Width="60"/>
+                      <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    <Label x:Name="Channel" Grid.Row="0" Grid.Column="0" Scroll="Auto" FontSize="{ThemeResource SmallFontSize}"
+                          Content="{Binding Source={StaticResource SlimTvClient},Path=ChannelName}"
+                          Color="{ThemeResource TextColor}"/>
 
-                  <Border x:Name="BgProgressbar" Grid.Column="1" Grid.Row="2" HorizontalAlignment="Stretch" VerticalAlignment="Center"
+                    <Label x:Name="ProgramStart" Grid.Row="0" Grid.Column="1" Scroll="Auto" Margin="5,0,0,0" FontSize="{ThemeResource SmallFontSize}"
+                          Content="{Binding Source={StaticResource SlimTvClient},Path=CurrentProgram.StartTime, Converter={StaticResource DateFormatConverter}}"
+                          Color="{ThemeResource TextColor}"/>
+
+                    <Label Grid.Row="0" Grid.Column="2" FontSize="{ThemeResource SmallFontSize}" Content="-" Color="{ThemeResource TextColor}"/>
+
+                    <Label x:Name="ProgramEnd" Grid.Row="0" Grid.Column="3" Scroll="Auto" Margin="5,0,0,0" FontSize="{ThemeResource SmallFontSize}"
+                          Content="{Binding Source={StaticResource SlimTvClient},Path=CurrentProgram.EndTime, Converter={StaticResource DateFormatConverter}}"
+                          Color="{ThemeResource TextColor}"/>
+
+                    <Label x:Name="Genre" Grid.Row="0" Grid.Column="4" Scroll="Auto" Margin="5,0,0,0"  FontSize="{ThemeResource SmallFontSize}"
+                          Content="{Binding Source={StaticResource SlimTvClient},Path=CurrentProgram.Genre}"
+                          Color="{ThemeResource TextColor}"/>
+
+                    <Label Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="5" x:Name="Description" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+                          Wrap="True" Scroll="Auto" FontSize="{ThemeResource SmallFontSize}"
+                          Height="120"
+                          Content="{Binding Source={StaticResource SlimTvClient},Path=CurrentProgram.Description}"
+                          Color="{ThemeResource TextColor}"/>
+                  </Grid>
+
+                  <!-- Next Program detailed information -->
+                  <Grid Grid.Column="1" Grid.Row="1" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+                        IsVisible="{Binding Source={StaticResource SlimTvClient},Path=IsOSDLevel2}">
+                    <Grid.RowDefinitions>
+                      <RowDefinition Height="Auto"/>
+                      <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
+                    <Grid.ColumnDefinitions>
+                      <ColumnDefinition Width="100"/>
+                      <ColumnDefinition Width="60"/>
+                      <ColumnDefinition Width="15"/>
+                      <ColumnDefinition Width="60"/>
+                      <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    <Label x:Name="NextChannel" Grid.Row="0" Grid.Column="0" Scroll="Auto" FontSize="{ThemeResource SmallFontSize}" 
+                          Content="{Binding Source={StaticResource SlimTvClient},Path=ChannelName}"
+                          Color="{ThemeResource TextColor}"/>
+
+                    <Label x:Name="NextProgramStart" Grid.Row="0" Grid.Column="1" Scroll="Auto" Margin="5,0,0,0" FontSize="{ThemeResource SmallFontSize}"
+                          Content="{Binding Source={StaticResource SlimTvClient},Path=NextProgram.StartTime, Converter={StaticResource DateFormatConverter}}"
+                          Color="{ThemeResource TextColor}"/>
+
+                    <Label Grid.Row="0" Grid.Column="2" FontSize="{ThemeResource SmallFontSize}" Content="-" Color="{ThemeResource TextColor}"/>
+
+                    <Label x:Name="NextProgramEnd" Grid.Row="0" Grid.Column="3" Scroll="Auto" Margin="5,0,0,0" FontSize="{ThemeResource SmallFontSize}"
+                          Content="{Binding Source={StaticResource SlimTvClient},Path=NextProgram.EndTime, Converter={StaticResource DateFormatConverter}}"
+                          Color="{ThemeResource TextColor}"/>
+
+                    <Label x:Name="NextGenre" Grid.Row="0" Grid.Column="4" Scroll="Auto" Margin="5,0,0,0"  FontSize="{ThemeResource SmallFontSize}"
+                          Content="{Binding Source={StaticResource SlimTvClient},Path=NextProgram.Genre}"
+                          Color="{ThemeResource TextColor}"/>
+
+                    <Label Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="5" x:Name="NextDescription" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+                          Wrap="True" Scroll="Auto" FontSize="{ThemeResource SmallFontSize}"
+                          Height="120"
+                          Content="{Binding Source={StaticResource SlimTvClient},Path=NextProgram.Description}"
+                          Color="{ThemeResource TextColor}"/>
+                  </Grid>
+
+                  <Border x:Name="BgProgressbar" Grid.Column="1" Grid.Row="3" HorizontalAlignment="Stretch" VerticalAlignment="Center"
                     BorderBrush="Black" CornerRadius="3" BorderThickness="1">
                     <Border.Background>
                       <RadialGradientBrush Center="0.5,-0" GradientOrigin="0.5,0" RadiusX="0.9" RadiusY="0.5">
@@ -95,13 +177,13 @@
                       Value="{Binding Path=PercentPlayed}"/>-->
                   </Border>
 
-                  
-                  <Label x:Name="CurrentProgramEndLabel" Grid.Column="2" Grid.Row="2" 
+                  <Label x:Name="CurrentProgramStartLabel" Grid.Column="0" Grid.Row="3" 
+                      Content="{Binding Source={StaticResource SlimTvClient},Path=CurrentProgram.StartTime, Converter={StaticResource DateFormatConverter}}"
+                      HorizontalAlignment="Left" VerticalAlignment="Center" Color="{ThemeResource TextColor}"/>
+
+                  <Label x:Name="CurrentProgramEndLabel" Grid.Column="2" Grid.Row="3" 
                       Content="{Binding Source={StaticResource SlimTvClient},Path=CurrentProgram.EndTime, Converter={StaticResource DateFormatConverter}}"
                       HorizontalAlignment="Right" VerticalAlignment="Center" Color="{ThemeResource TextColor}"/>
-
-                  <Label x:Name="PlayerStateLabel" Grid.Column="1" Grid.Row="3" HorizontalAlignment="Center"
-                      Content="{Binding PlayerStateText}" Color="{ThemeResource TextColor}" Scroll="Auto"/>
 
                 </Grid>
               </DockPanel>
@@ -123,8 +205,13 @@
                   <Label Content="/" Margin="4,0,4,0" Color="{ThemeResource TextColor}"/>
                   <Label x:Name="VideoDurationLabel" Content="{Binding Duration}" Color="{ThemeResource TextColor}"/>
                 </StackPanel>
-              </Grid>--> <!-- StatusLineGrid -->
-              <StackPanel x:Name="PlayControlsPanel" Orientation="Horizontal" Grid.Column="0" Grid.Row="3" Margin="10,10,10,0"
+              </Grid>-->
+              <!-- StatusLineGrid -->
+
+              <Label x:Name="PlayerStateLabel" Grid.Column="0" Grid.Row="4" HorizontalAlignment="Center"
+                      Content="{Binding PlayerStateText}" Color="{ThemeResource TextColor}" Scroll="Auto"/>
+
+              <StackPanel x:Name="PlayControlsPanel" Orientation="Horizontal" Grid.Column="1" Grid.Row="4" Margin="10,10,10,0"
                   VerticalAlignment="Center" HorizontalAlignment="Center" IsVisible="{Binding ShowMouseControls}" >
                 <Button x:Name="SkipBackButton" Style="{ThemeResource SkipBackButtonStyle}" Margin="5,0,5,0" IsVisible="{Binding CanSkipBack}"
                     Command="{Command Previous}"/>
@@ -140,7 +227,7 @@
                     Command="{Command SeekForward}"/>
                 <Button x:Name="SkipForwardButton" Style="{ThemeResource SkipForwardButtonStyle}" Margin="5,0,5,0" IsVisible="{Binding CanSkipForward}"
                     Command="{Command Next}"/>
-                
+
                 <Button x:Name="PreviousChapterButton" Style="{ThemeResource PreviousChapterButtonStyle}" Margin="5,0,5,0" 
                       IsVisible="{Binding Source={StaticResource VideoPlayerModel},Path=PlayerUIContributor.ChaptersAvailable}"
                       Command="{Command Source={StaticResource VideoPlayerModel},Path=PlayerUIContributor.PrevChapter}"/>
@@ -175,9 +262,12 @@
                   </Grid>
                 </Grid>
 
-              </StackPanel> <!-- PlayControlsPanel -->
-            </Grid> <!-- PlayerGrid -->
-          </Border> <!-- OSD_Background -->
+              </StackPanel>
+              <!-- PlayControlsPanel -->
+            </Grid>
+            <!-- PlayerGrid -->
+          </Border>
+          <!-- OSD_Background -->
           <ControlTemplate.Triggers>
             <Trigger Property="IsCurrentPlayer" Value="True">
               <Trigger.EnterActions>
@@ -199,7 +289,7 @@
   <Style x:Key="SmallButtonStyle" BasedOn="{ThemeResource ButtonWideStyle}" TargetType="{x:Type Button}">
     <Setter Property="FontSize" Value="{ThemeResource SmallFontSize}"/>
   </Style>
-  
+
   <!-- SingleChannel Program Guide, Item contains StartTime and Title. -->
   <DataTemplate x:Key="SingleChannelProgramGuideDataTemplate" DataType="{x:Type collections:ListItem}">
     <Grid x:Name="ItemControl" VerticalAlignment="Center" HorizontalAlignment="Stretch">
@@ -228,14 +318,14 @@
     </StackPanel>
   </DataTemplate>
 
-  
+
   <!-- ProgramGuideViewStyle defines the horizontal layout for the MultiChannelGuide program rows. -->
   <Style x:Key="ProgramGuideViewStyle" TargetType="{x:Type ListView}">
     <Setter Property="Template">
       <Setter.Value>
         <ControlTemplate TargetType="{x:Type ListView}">
           <!--<ScrollViewer CanContentScroll="False">-->
-            <ItemsPresenter VerticalAlignment="Stretch" HorizontalAlignment="Stretch" />
+          <ItemsPresenter VerticalAlignment="Stretch" HorizontalAlignment="Stretch" />
           <!--</ScrollViewer>-->
         </ControlTemplate>
       </Setter.Value>
@@ -313,7 +403,7 @@
       </Setter.Value>
     </Setter>
   </Style>
-    
+
   <!-- An item list container represented by a ProgramGuideButtonStyle, scrolling its "ItemLabel" label when focused -->
   <Style x:Key="ProgramGuideItemContainerStyle" BasedOn="{ThemeResource DefaultItemContainerStyle}">
     <Setter Property="Template">
@@ -352,12 +442,14 @@
         <ControlTemplate>
           <Grid x:Name="GrowControl" RenderTransformOrigin="0.5,0.5" Margin="0,2,0,2">
             <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="30"/>                <!-- Channel Logo -->
-                <ColumnDefinition Width="*"/>                <!-- Channel Name -->
-              </Grid.ColumnDefinitions>
-              <Grid.RowDefinitions>
-                <RowDefinition Height="*"/>
-              </Grid.RowDefinitions>
+              <ColumnDefinition Width="30"/>
+              <!-- Channel Logo -->
+              <ColumnDefinition Width="*"/>
+              <!-- Channel Name -->
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+              <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
             <Grid.RenderTransform>
               <TransformGroup>
                 <ScaleTransform ScaleX="1" ScaleY="1"/>
@@ -416,10 +508,14 @@
         <ControlTemplate>
           <Grid x:Name="GrowControl" RenderTransformOrigin="0.5,0.5" Margin="0,2,0,2" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
             <Grid.ColumnDefinitions>
-              <ColumnDefinition Width="50"/>              <!-- Channel Logo -->
-              <ColumnDefinition Width="180"/>              <!-- Channel Name -->
-              <ColumnDefinition Width="60"/>              <!-- Program Time -->
-              <ColumnDefinition Width="*"/>              <!-- Program Title -->
+              <ColumnDefinition Width="50"/>
+              <!-- Channel Logo -->
+              <ColumnDefinition Width="180"/>
+              <!-- Channel Name -->
+              <ColumnDefinition Width="60"/>
+              <!-- Program Time -->
+              <ColumnDefinition Width="*"/>
+              <!-- Program Title -->
             </Grid.ColumnDefinitions>
             <Grid.RowDefinitions>
               <RowDefinition Height="Auto"/>
@@ -485,7 +581,7 @@
       </Setter.Value>
     </Setter>
   </Style>
-  
+
   <!-- 
   DataTemplate for ChannelWithLogoDataTemplate
   -->
@@ -523,14 +619,16 @@
   <DataTemplate x:Key="GuideChannelListDataTemplate" DataType="{x:Type collections:ListItem}">
     <Grid x:Name="ItemControl" VerticalAlignment="Center" HorizontalAlignment="Stretch">
       <Grid.ColumnDefinitions>
-        <ColumnDefinition Width="250"/> <!-- Row Header (Channel Name)-->
-        <ColumnDefinition Width="*"/>   <!-- Programs Listing -->
+        <ColumnDefinition Width="250"/>
+        <!-- Row Header (Channel Name)-->
+        <ColumnDefinition Width="*"/>
+        <!-- Programs Listing -->
       </Grid.ColumnDefinitions>
 
       <Button Style="{ThemeResource ChannelWithLogoButtonStyle}" Grid.Column="0" Grid.Row="0"
               Command="{DynamicResource ResourceKey=Menu_Command}"
               IsEnabled="{Binding Enabled}" Content="{Binding [Name]}" FontSize="{ThemeResource SmallFontSize}" />
-      
+
       <ListView x:Name="ProgramItems" Grid.Column="1" Grid.Row="0" 
               HorizontalAlignment="Stretch" VerticalAlignment="Top"
               Style="{ThemeResource MultiProgramGuideListViewStyle}"
@@ -543,7 +641,7 @@
       </ListView>
     </Grid>
   </DataTemplate>
-  
+
   <!-- MultiProgramGuideContainerStyle is the "top level" style used in SlimTvClient-fullguide -->
   <Style x:Key="MultiProgramGuideContainerStyle" BasedOn="{ThemeResource DefaultListViewStyle}">
     <Setter Property="ItemTemplate" Value="{ThemeResource GuideChannelListDataTemplate}"/>
@@ -562,5 +660,5 @@
     <Setter Property="ItemTemplate" Value="{ThemeResource ChannelWithLogoAndProgramDataTemplate}"/>
     <Setter Property="ItemContainerStyle" Value="{ThemeResource DefaultItemContainerStyle}"/>
   </Style>
-  
+
 </ResourceDictionary>
