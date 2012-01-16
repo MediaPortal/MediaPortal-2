@@ -47,39 +47,44 @@
 #endregion
 
 using System;
-using System.Linq;
 using System.Collections.Generic;
 using System.Timers;
 using MediaPortal.Common;
 using MediaPortal.Common.General;
 using MediaPortal.UI.Presentation.Players;
 using MediaPortal.UI.SkinEngine.Controls.Panels;
+using MediaPortal.UI.SkinEngine.Controls.Transforms;
 using MediaPortal.UI.SkinEngine.Controls.Visuals;
-using MediaPortal.UI.SkinEngine.Controls.Visuals.Shapes;
 using MediaPortal.UI.SkinEngine.Controls.Visuals.Styles;
 using MediaPortal.UI.SkinEngine.MpfElements;
+using MediaPortal.UI.SkinEngine.Rendering;
 using MediaPortal.Utilities.DeepCopy;
 
 namespace MediaPortal.Plugins.AudioSpectrumAnalyzer
 {
   public class AudioSpectrumAnalyzer : Control
   {
+    #region Consts
+
+    protected const int FREQUENCY_BUFFER_SIZE = 2048;
+    #endregion
+
     #region Fields
+
     private readonly Timer _animationTimer;
-    private bool _initialized = false;
+    private volatile bool _refreshShapes = false;
+    private volatile bool _refreshValues = false;
 
     private Canvas _spectrumCanvas;
-    private readonly List<Shape> _barShapes = new List<Shape>();
-    private readonly List<Shape> _peakShapes = new List<Shape>();
-    private readonly float[] _channelData = new float[2048];
+    private readonly List<Control> _barShapes = new List<Control>();
+    private readonly List<Control> _peakShapes = new List<Control>();
+    private readonly float[] _channelData = new float[FREQUENCY_BUFFER_SIZE];
     private float[] _channelPeakData;
     private double _barWidth = 1;
     private int _maximumFrequencyIndex = 2047;
     private int _minimumFrequencyIndex;
     private int[] _barIndexMax;
     private int[] _barLogScaleIndexMax;
-
-    private readonly object _syncObj = new object();
 
     #endregion
 
@@ -111,7 +116,6 @@ namespace MediaPortal.Plugins.AudioSpectrumAnalyzer
 
       _animationTimer = new Timer(RefreshInterval);
       _animationTimer.Elapsed += AnimationTimerElapsed;
-      _animationTimer.Start();
 
       Attach();
     }
@@ -145,7 +149,6 @@ namespace MediaPortal.Plugins.AudioSpectrumAnalyzer
     public override void DeepCopy(IDeepCopyable source, ICopyManager copyManager)
     {
       Detach();
-      _animationTimer.Stop();
 
       base.DeepCopy(source, copyManager);
 
@@ -160,10 +163,39 @@ namespace MediaPortal.Plugins.AudioSpectrumAnalyzer
       IsFrequencyScaleLinear = c.IsFrequencyScaleLinear;
       RefreshInterval = c.RefreshInterval;
       
-      _animationTimer.Start();
       Attach();
     }
 
+    public override void Dispose()
+    {
+      Detach();
+      _animationTimer.Stop();
+      _animationTimer.Close();
+      base.Dispose();
+    }
+
+    private void RequireUpdateLayout(AbstractProperty property, object oldvalue)
+    {
+      _refreshShapes = true;
+    }
+
+    private void OnRefreshIntervalChanged(AbstractProperty property, object oldvalue)
+    {
+      _animationTimer.Interval = (double) property.GetValue();
+    }
+
+    private void OnSpectrumTemplateChanged(AbstractProperty property, object oldvalue)
+    {
+      _spectrumCanvas = FindElement(new NameMatcher("PART_SpectrumCanvas")) as Canvas;
+      _refreshShapes = true;
+    }
+
+    private void AnimationTimerElapsed(object sender, ElapsedEventArgs e)
+    {
+      _refreshValues = true;
+    }
+
+    // FIXME: Don't check values in the setters; Instead, use safe getters
     public AbstractProperty MaximumFrequencyProperty { get; internal set; }
     public int MaximumFrequency
     {
@@ -273,6 +305,7 @@ namespace MediaPortal.Plugins.AudioSpectrumAnalyzer
     }
 
     public AbstractProperty PlayerContextProperty { get; internal set; }
+
     /// <summary>
     /// Determines, which player's properties are tracked by this player control.
     /// </summary>
@@ -282,56 +315,26 @@ namespace MediaPortal.Plugins.AudioSpectrumAnalyzer
       set { PlayerContextProperty.SetValue(value); }
     }
 
-    private void RequireUpdateLayout(AbstractProperty property, object oldvalue)
+    public override void Allocate()
     {
-      lock (_syncObj)
-      {
-        _initialized = false;
-        UpdateBarLayout(true);
-      }
+      base.Allocate();
+      _animationTimer.Start();
     }
 
-    private void OnRefreshIntervalChanged(AbstractProperty property, object oldvalue)
+    public override void Deallocate()
     {
-      _animationTimer.Interval = (double) property.GetValue();
-    }
-
-    private void OnSpectrumTemplateChanged(AbstractProperty property, object oldvalue)
-    {
-      _spectrumCanvas = FindElement(new NameMatcher("PART_SpectrumCanvas")) as Canvas;
-    }
-
-    private void AnimationTimerElapsed(object sender, ElapsedEventArgs e)
-    {
-      lock (_syncObj)
-      {
-        UpdateBarLayout(false);
-        UpdateSpectrum();
-      }
-    }
-
-    #region Event Overrides
-
-    public override void Dispose()
-    {
-      Detach();
+      base.Deallocate();
       _animationTimer.Stop();
-      _animationTimer.Close();
-      base.Dispose();
     }
 
-    private static void DisposeClear<TE>(IList<TE> elements)
+    public override void DoRender(RenderContext localRenderContext)
     {
-      foreach (IDisposable element in elements.OfType<IDisposable>())
-        element.Dispose();
-      elements.Clear();
+      InitializeBars();
+      UpdateSpectrum();
+      base.DoRender(localRenderContext);
     }
 
-    #endregion
-
-    #region Private Drawing Methods
-
-    protected ISpectrumPlayer ActivePlayer
+    protected ISpectrumPlayer ActiveSpectrumPlayer
     {
       get
       {
@@ -348,32 +351,101 @@ namespace MediaPortal.Plugins.AudioSpectrumAnalyzer
 
     private void UpdateSpectrum()
     {
-      ISpectrumPlayer player = ActivePlayer;
-      if (player == null || _spectrumCanvas == null || _spectrumCanvas.Width < 1 || _spectrumCanvas.Height < 1)
+      ISpectrumPlayer player = ActiveSpectrumPlayer;
+      if (!_refreshValues || player == null || _spectrumCanvas == null)
         return;
 
       if (player.State == PlayerState.Active && !player.GetFFTData(_channelData))
         return;
 
-      UpdateSpectrumShapes();
+      UpdateSpectrumShapes(player);
     }
 
-    private void UpdateSpectrumShapes()
+    #region Private Drawing Methods
+
+    private void InitializeBars()
     {
-      bool allZero = true;
+      ISpectrumPlayer player = ActiveSpectrumPlayer;
+
+      if (!_refreshShapes || player == null || _spectrumCanvas == null)
+        return;
+
+      _barWidth = Math.Max(((_spectrumCanvas.ActualWidth - (BarSpacing * (BarCount + 1))) / BarCount), 1);
+      _maximumFrequencyIndex = Math.Min(player.GetFFTFrequencyIndex(MaximumFrequency) + 1, FREQUENCY_BUFFER_SIZE - 1);
+      _minimumFrequencyIndex = Math.Min(player.GetFFTFrequencyIndex(MinimumFrequency), FREQUENCY_BUFFER_SIZE - 1);
+
+      int actualBarCount = _barWidth >= 1.0d ? BarCount : Math.Max((int) ((_spectrumCanvas.ActualWidth - BarSpacing) / (_barWidth + BarSpacing)), 1);
+      _channelPeakData = new float[actualBarCount];
+
+      int indexCount = _maximumFrequencyIndex - _minimumFrequencyIndex;
+      int linearIndexBucketSize = (int) Math.Round(indexCount / (double) actualBarCount, 0);
+      List<int> maxIndexList = new List<int>();
+      List<int> maxLogScaleIndexList = new List<int>();
+      double maxLog = Math.Log(actualBarCount, actualBarCount);
+      for (int i = 1; i < actualBarCount; i++)
+      {
+        maxIndexList.Add(_minimumFrequencyIndex + (i * linearIndexBucketSize));
+        int logIndex = (int) ((maxLog - Math.Log((actualBarCount + 1) - i, (actualBarCount + 1))) * indexCount) + _minimumFrequencyIndex;
+        maxLogScaleIndexList.Add(logIndex);
+      }
+      maxIndexList.Add(_maximumFrequencyIndex);
+      maxLogScaleIndexList.Add(_maximumFrequencyIndex);
+      _barIndexMax = maxIndexList.ToArray();
+      _barLogScaleIndexMax = maxLogScaleIndexList.ToArray();
+
+      FrameworkElementCollection canvasChildren = _spectrumCanvas.Children;
+      canvasChildren.Clear();
+
+      double height = _spectrumCanvas.ActualHeight;
+      double peakDotHeight = Math.Max(_barWidth / 2.0f, 1);
+      for (int i = 0; i < actualBarCount; i++)
+      {
+        // Deep copy the styles to each bar
+        Style barStyleCopy = MpfCopyManager.DeepCopyCutLVPs(BarStyle);
+        Style peakStyleCopy = MpfCopyManager.DeepCopyCutLVPs(PeakStyle);
+
+        double xCoord = BarSpacing + (_barWidth * i) + (BarSpacing * i) + 1;
+        Control barControl = new Control
+            {
+              Width = _barWidth,
+              Height = height,
+              Style = barStyleCopy
+            };
+        Canvas.SetLeft(barControl, xCoord);
+        Canvas.SetBottom(barControl, height);
+        _barShapes.Add(barControl);
+        canvasChildren.Add(barControl);
+
+        Control peakControl = new Control
+            {
+              Width = _barWidth,
+              Height = peakDotHeight,
+              Style = peakStyleCopy
+            };
+        Canvas.SetLeft(peakControl, xCoord);
+        Canvas.SetBottom(peakControl, height);
+        _peakShapes.Add(peakControl);
+        canvasChildren.Add(peakControl);
+      }
+
+      ActualBarWidth = _barWidth;
+      _refreshShapes = false;
+    }
+
+    private void UpdateSpectrumShapes(ISpectrumPlayer player)
+    {
       double fftBucketHeight = 0f;
       double barHeight = 0f;
       double lastPeakHeight = 0f;
-      double height = _spectrumCanvas.Height;
+      double height = _spectrumCanvas.ActualHeight;
       int barIndex = 0;
       double peakDotHeight = Math.Max(_barWidth / 2.0f, 1);
       double barHeightScale = (height - peakDotHeight);
 
-      ISpectrumPlayer player = ActivePlayer;
       for (int i = _minimumFrequencyIndex; i <= _maximumFrequencyIndex; i++)
       {
         // If we're paused, keep drawing, but set the current height to 0 so the peaks fall.
-        if (player.State != PlayerState.Active)
+        if (player == null || player.State != PlayerState.Active)
           barHeight = 0f;
         else // Draw the maximum value for the bar's band
         {
@@ -416,97 +488,26 @@ namespace MediaPortal.Plugins.AudioSpectrumAnalyzer
         else
           _channelPeakData[barIndex] = (float) (peakYPos + (PeakFallDelay * _channelPeakData[barIndex])) / (PeakFallDelay + 1);
 
-        double xCoord = BarSpacing + (_barWidth * barIndex) + (BarSpacing * barIndex) + 1;
+        Control bar = _barShapes[barIndex];
+        bar.RenderTransform = new ScaleTransform
+          {
+              CenterX = bar.Width / 2,
+              CenterY = bar.Height,
+              ScaleY = barHeight / height
+          };
 
-        // FIXME: Margins are updated correctly, but Rect won't change sizes on screen!
-        // EventHandler is called properly: protected void OnMeasureGetsInvalid(AbstractProperty property, object oldValue)
-        _barShapes[barIndex].Margin = new Thickness((float) xCoord, (float) ((height - 1) - barHeight), 0, 0);
-        _barShapes[barIndex].Height = barHeight;
-        _peakShapes[barIndex].Margin = new Thickness((float) xCoord, (float) ((height - 1) - _channelPeakData[barIndex] - peakDotHeight), 0, 0);
-        _peakShapes[barIndex].Height = peakDotHeight;
-
-        if (_channelPeakData[barIndex] > 0.05)
-          allZero = false;
+        Control peak = _peakShapes[barIndex];
+        peak.RenderTransform = new TranslateTransform
+          {
+              Y = _channelPeakData[barIndex]
+          };
 
         lastPeakHeight = barHeight;
         barHeight = 0f;
         barIndex++;
       }
-
-      if (allZero && player.State != PlayerState.Active)
-        _animationTimer.Stop();
     }
 
-    private void UpdateBarLayout(bool force)
-    {
-      ISpectrumPlayer player = ActivePlayer;
-      if (force)
-        _initialized = false;
-      if (_initialized || player == null || _spectrumCanvas == null)
-        return;
-
-      _barWidth = Math.Max(((_spectrumCanvas.Width - (BarSpacing * (BarCount + 1))) / BarCount), 1);
-      _maximumFrequencyIndex = Math.Min(player.GetFFTFrequencyIndex(MaximumFrequency) + 1, 2047);
-      _minimumFrequencyIndex = Math.Min(player.GetFFTFrequencyIndex(MinimumFrequency), 2047);
-
-      int actualBarCount = _barWidth >= 1.0d ? BarCount : Math.Max((int) ((_spectrumCanvas.Width - BarSpacing) / (_barWidth + BarSpacing)), 1);
-      _channelPeakData = new float[actualBarCount];
-
-      int indexCount = _maximumFrequencyIndex - _minimumFrequencyIndex;
-      int linearIndexBucketSize = (int) Math.Round(indexCount / (double) actualBarCount, 0);
-      List<int> maxIndexList = new List<int>();
-      List<int> maxLogScaleIndexList = new List<int>();
-      double maxLog = Math.Log(actualBarCount, actualBarCount);
-      for (int i = 1; i < actualBarCount; i++)
-      {
-        maxIndexList.Add(_minimumFrequencyIndex + (i * linearIndexBucketSize));
-        int logIndex = (int) ((maxLog - Math.Log((actualBarCount + 1) - i, (actualBarCount + 1))) * indexCount) + _minimumFrequencyIndex;
-        maxLogScaleIndexList.Add(logIndex);
-      }
-      maxIndexList.Add(_maximumFrequencyIndex);
-      maxLogScaleIndexList.Add(_maximumFrequencyIndex);
-      _barIndexMax = maxIndexList.ToArray();
-      _barLogScaleIndexMax = maxLogScaleIndexList.ToArray();
-
-      _spectrumCanvas.Children.Clear();
-      DisposeClear(_barShapes);
-      DisposeClear(_peakShapes);
-
-      double height = _spectrumCanvas.Height;
-      double peakDotHeight = Math.Max(_barWidth / 2.0f, 1);
-      for (int i = 0; i < actualBarCount; i++)
-      {
-        // Deep copy the styles to each bar
-        Style barStyleCopy = MpfCopyManager.DeepCopyCutLVPs(BarStyle);
-        Style peakStyleCopy = MpfCopyManager.DeepCopyCutLVPs(PeakStyle);
-
-        double xCoord = BarSpacing + (_barWidth * i) + (BarSpacing * i) + 1;
-        Rectangle barRectangle = new Rectangle
-                                   {
-                                     Margin = new Thickness((float) xCoord, (float) height, 0, 0),
-                                     Width = _barWidth,
-                                     Height = 0,
-                                     Style = barStyleCopy
-                                   };
-        _barShapes.Add(barRectangle);
-        Rectangle peakRectangle = new Rectangle
-                                    {
-                                      Margin = new Thickness((float) xCoord, (float) (height - peakDotHeight), 0, 0),
-                                      Width = _barWidth,
-                                      Height = peakDotHeight,
-                                      Style = peakStyleCopy
-                                    };
-        _peakShapes.Add(peakRectangle);
-      }
-
-      foreach (Shape shape in _barShapes)
-        _spectrumCanvas.Children.Add(shape);
-      foreach (Shape shape in _peakShapes)
-        _spectrumCanvas.Children.Add(shape);
-
-      ActualBarWidth = _barWidth;
-      _initialized = true;
-    }
     #endregion
   }
 }

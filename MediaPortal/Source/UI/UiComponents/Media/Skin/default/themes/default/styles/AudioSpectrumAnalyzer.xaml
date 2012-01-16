@@ -36,15 +36,27 @@
   <Style x:Key="SpectrumAnalyzerStyle" TargetType="{x:Type mp_audio_viz:AudioSpectrumAnalyzer}">
     <Setter Property="BarStyle">
       <Setter.Value>
-        <Style TargetType="{x:Type Rectangle}">
-          <Setter Property="Fill" Value="{StaticResource SpectrumBarBrush}" />
+        <Style TargetType="{x:Type Control}">
+          <Setter Property="Template">
+            <Setter.Value>
+              <ControlTemplate>
+                <Rectangle Fill="{StaticResource SpectrumBarBrush}"/>
+              </ControlTemplate>
+            </Setter.Value>
+          </Setter>
         </Style>
       </Setter.Value>
     </Setter>
     <Setter Property="PeakStyle">
       <Setter.Value>
-        <Style TargetType="{x:Type Rectangle}">
-          <Setter Property="Fill" Value="{StaticResource SpectrumPeakBrush}" />
+        <Style TargetType="{x:Type Control}">
+          <Setter Property="Template">
+            <Setter.Value>
+              <ControlTemplate>
+                <Rectangle Fill="{StaticResource SpectrumPeakBrush}"/>
+              </ControlTemplate>
+            </Setter.Value>
+          </Setter>
         </Style>
       </Setter.Value>
     </Setter>
