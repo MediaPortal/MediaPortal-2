@@ -57,8 +57,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Transforms
     {
       _centerYProperty = new SProperty(typeof(double), 0.0);
       _centerXProperty = new SProperty(typeof(double), 0.0);
-      _scaleXProperty = new SProperty(typeof(double), 0.0);
-      _scaleYProperty = new SProperty(typeof(double), 0.0);
+      _scaleXProperty = new SProperty(typeof(double), 1.0);
+      _scaleYProperty = new SProperty(typeof(double), 1.0);
     }
 
     void Attach()
