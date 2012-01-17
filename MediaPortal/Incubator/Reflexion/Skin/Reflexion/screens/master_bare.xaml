@@ -36,18 +36,32 @@ Parameters which have to be accessible by a DynamicResource lookup:
   <DockPanel VerticalAlignment="Stretch" HorizontalAlignment="Stretch" LastChildFill="True">
     <DockPanel.Resources>
       <Model x:Key="MouseModel" Id="CA6428A7-A6E2-4dd3-9661-F89CEBAF8E62"/>
+      <Model x:Key="TimeModel" Id="E821B1C8-0666-4339-8027-AA45A4F6F107"/>
+      <Model x:Key="CurrentWeatherModel" Id="FC57FF5C-F72F-47E9-B973-338E31FF7FF1"/>
     </DockPanel.Resources>
     <Grid x:Name="HeaderPanel" DockPanel.Dock="Top" Background="{ThemeResource HeaderPanelBackgroundBrush}">
       <Grid.RowDefinitions>
-        <RowDefinition Height="120"/>
+        <RowDefinition Height="60"/>
       </Grid.RowDefinitions>
       <Grid.ColumnDefinitions>
-        <ColumnDefinition Width="50"/>
-        <ColumnDefinition Width="*"/>
-        <ColumnDefinition Width="Auto"/>
+        <ColumnDefinition Width="120"/><!-- Time -->
+        <ColumnDefinition Width="*"/> <!-- NavBar -->
+        <ColumnDefinition Width="Auto"/> <!-- ScreenName -->
+        <ColumnDefinition Width="120"/> <!-- WindowButtons -->
       </Grid.ColumnDefinitions>
-      <StackPanel Margin="5" x:Name="WindowButtonsPanel" Orientation="Vertical" Grid.Column="0" Grid.Row="0"
-            HorizontalAlignment="Stretch" DataContext="{Binding RelativeSource={RelativeSource Self},Path=Screen}">
+
+      <mp_special_controls:WorkflowNavigationBar Grid.Column="1" Grid.Row="0" Style="{ThemeResource NewWorkflowNavigationBarStyle}"
+            VerticalAlignment="Center"/>
+
+      <Label x:Name="TimeLabel" Content="{Binding Source={StaticResource TimeModel}, Path=CurrentTime}" Grid.Column="0" Grid.Row="0" Margin="10,0,0,0"
+              FontSize="{ThemeResource BigFontSize}" Color="{ThemeResource PlaylistItemColor}" VerticalAlignment="Center"/>
+
+      <Label x:Name="HeaderLabel" Grid.Column="2" Grid.Row="0" VerticalAlignment="Center" Margin="0,0,60,0"
+              FontSize="{ThemeResource BigFontSize}" Color="{ThemeResource WindowHeaderColor}"
+              Content="{Binding Source={DynamicResource Header_Text},Path=Resource}" />
+
+      <StackPanel Margin="5" x:Name="WindowButtonsPanel" Orientation="Horizontal" Grid.Column="3" Grid.Row="0" VerticalAlignment="Center"
+            DataContext="{Binding RelativeSource={RelativeSource Self},Path=Screen}">
         <StackPanel.IsVisible>
           <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} &amp;&amp; {1}">
             <Binding Path="HasInputFocus"/>
@@ -62,36 +76,63 @@ Parameters which have to be accessible by a DynamicResource lookup:
           </Trigger>
         </StackPanel.Triggers>
         <Button x:Name="CloseButton" Style="{ThemeResource WindowCloseButtonStyle}" Margin="3"
-              HorizontalAlignment="Left"
+              HorizontalAlignment="Left" VerticalAlignment="Center"
               Command="{Command Source={Service Window},Path=Shutdown}"/>
         <Button x:Name="MinimizeButton" Style="{ThemeResource WindowMinimizeButtonStyle}" Margin="3"
-              HorizontalAlignment="Left"
+              HorizontalAlignment="Left" VerticalAlignment="Center"
               Command="{Command Source={Service Window},Path=Minimize}"/>
         <Button x:Name="HibernateButton" Style="{ThemeResource HibernateButtonStyle}" Margin="3"
-              HorizontalAlignment="Left"
+              HorizontalAlignment="Left" VerticalAlignment="Center"
               Command="{Command Source={Service Window},Path=Hibernate}"/>
       </StackPanel>
+      
       <!-- WindowButtonsPanel -->
-      <Grid x:Name="HeaderTextPanel" Grid.Column="1" Grid.Row="0">
-        <Label x:Name="HeaderLabel"
-              FontSize="{ThemeResource HeaderFontSize}" Color="{ThemeResource WindowHeaderColor}"
-              Content="{Binding Source={DynamicResource Header_Text},Path=Resource}" />
+    </Grid>
+    <!-- HeaderPanel -->
 
-        <Label x:Name="MirrorHeaderLabel" 
-              FontSize="{ThemeResource HeaderFontSize}" Color="{ThemeResource WindowHeaderColor}"
-              Content="{Binding Source={DynamicResource Header_Text},Path=Resource}"
-              Margin ="6,6,0,0">
-          <Label.OpacityMask>
-            <LinearGradientBrush StartPoint="0.5,0.0" EndPoint="0.5,1.0">
-              <GradientStop Offset="0.0" Color="#00000000" />
-              <GradientStop Offset="1.0" Color="#40000000" />
-            </LinearGradientBrush>
-          </Label.OpacityMask>
-        </Label>
+    <Grid x:Name="FooterPanel" DockPanel.Dock="Bottom" Background="{ThemeResource FooterPanelBackgroundBrush}">
+      <Grid.RowDefinitions>
+        <RowDefinition Height="110"/>
+      </Grid.RowDefinitions>
+      <Grid.ColumnDefinitions>
+        <ColumnDefinition Width="100"/>        <!-- Connection/Notifiction -->
+        <ColumnDefinition Width="Auto"/>        <!-- Weather? -->
+        <ColumnDefinition Width="*"/>         <!-- PlayerControls -->
+      </Grid.ColumnDefinitions>
+
+      <Control Grid.Column="0" Grid.Row="0" Margin="10,0,10,0" Style="{ThemeResource NotificationControlStyle}"
+            HorizontalAlignment="Right" VerticalAlignment="Center"/>
+
+      <Grid  Grid.Column="1" Grid.Row="0" DataContext="{Binding Source={StaticResource CurrentWeatherModel}}" VerticalAlignment="Bottom" Margin="10,0,0,20">
+        <Grid.ColumnDefinitions>
+          <ColumnDefinition Width="Auto" />
+          <ColumnDefinition Width="70" />
+          <ColumnDefinition Width="85" />
+          <ColumnDefinition Width="Auto" />
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+          <RowDefinition Height="Auto" />
+          <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+
+        <Image Grid.Row="0" Grid.Column="1" Grid.RowSpan="2" x:Name="BigIcon" Source="{Binding CurrentLocation.Condition.SmallIconProperty}" 
+                 IsVisible="{Binding UseInHome}"/>
+        <Label Grid.Row="0" Grid.Column="2" x:Name="Temperature" FontSize="{ThemeResource BigFontSize}" Color="{ThemeResource TextColor}" 
+                 Content="{Binding CurrentLocation.Condition.Temperature}"
+                 IsVisible="{Binding UseInHome}"/>
+
+        <Label Grid.Row="0" Grid.Column="3" x:Name="LocName" FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource TextColor}" Content="{Binding CurrentLocation.Name}"
+                 VerticalAlignment="Bottom"
+                 IsVisible="{Binding UseInHome}"/>
+
+        <Label Grid.Row="1" Grid.Column="2" Grid.ColumnSpan="2" x:Name="Date" FontSize="{ThemeResource DateTimeFontSize}"
+                 Content="{Binding Source={StaticResource TimeModel}, Path=CurrentDate}"
+                 Color="{ThemeResource TextColor}"/>
       </Grid>
-      <!-- HeaderTextPanel -->
-      <StackPanel x:Name="PlayerControls" Grid.Column="2" Grid.Row="0" Orientation="Horizontal"
-            HorizontalAlignment="Right" VerticalAlignment="Top">
+
+
+      <StackPanel x:Name="PlayerControls" Grid.Column="2" Grid.Row="0" Orientation="Horizontal" Margin="20,0,0,0"
+            HorizontalAlignment="Left" VerticalAlignment="Top">
         <mp_special_controls:PlayerControl Margin="3" Style="{ThemeResource NavigationScreenPlayerControlStyle}" Width="450"
               HorizontalAlignment="Left" VerticalAlignment="Top"
               AutoVisibility="True" PlayerContext="PrimaryPlayer"/>
@@ -99,22 +140,7 @@ Parameters which have to be accessible by a DynamicResource lookup:
               HorizontalAlignment="Left" VerticalAlignment="Top"
               AutoVisibility="True" PlayerContext="SecondaryPlayer"/>
       </StackPanel>
-    </Grid>
-    <!-- HeaderPanel -->
-    <Grid x:Name="FooterPanel" DockPanel.Dock="Bottom" Background="{ThemeResource FooterPanelBackgroundBrush}">
-      <Grid.RowDefinitions>
-        <RowDefinition Height="Auto"/>
-      </Grid.RowDefinitions>
-      <Grid.ColumnDefinitions>
-        <ColumnDefinition Width="*"/>
-        <ColumnDefinition Width="Auto"/>
-      </Grid.ColumnDefinitions>
-      <mp_special_controls:WorkflowNavigationBar Grid.Column="0" Grid.Row="0" Style="{ThemeResource NewWorkflowNavigationBarStyle}"
-            VerticalAlignment="Center"/>
-      <Control Grid.Column="1" Grid.Row="0" Margin="10,0,10,0" Style="{ThemeResource NotificationControlStyle}"
-            HorizontalAlignment="Right" VerticalAlignment="Center"/>
-    </Grid>
-    <!-- FooterPanel -->
+    </Grid> <!-- FooterPanel -->
 
     <!-- Not sure if and how we should show shortcuts...
       <ListView x:Name="KeyBindingControls" DockPanel.Dock="Bottom" Style="{ThemeResource KeyBindingsListViewStyle}"

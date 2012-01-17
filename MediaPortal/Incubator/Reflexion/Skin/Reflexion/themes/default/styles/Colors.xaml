@@ -283,8 +283,22 @@
   <ResourceWrapper x:Key="OSDProgressBarBackgroundGradient2Color" Resource="#F8CCCCCC"/>
 
   <!-- Master screen colors -->
-  <ResourceWrapper x:Key="HeaderPanelBackgroundBrush" />
-  <ResourceWrapper x:Key="FooterPanelBackgroundBrush" Resource="{ThemeResource HeaderPanelBackgroundBrush}"/>
+  <ResourceWrapper x:Key="HeaderPanelBackgroundBrush">
+    <LinearGradientBrush StartPoint="0.5,0" EndPoint="0.5,1">
+      <GradientStop Offset="0"    Color="#40000000"/>
+      <GradientStop Offset="0.85" Color="#E0000000"/>
+      <GradientStop Offset="0.9"  Color="#A0E0E0E0"/>
+      <GradientStop Offset="0.95" Color="#A0000000"/>
+    </LinearGradientBrush>
+  </ResourceWrapper>
+  <ResourceWrapper x:Key="FooterPanelBackgroundBrush">
+    <LinearGradientBrush StartPoint="0.5,1" EndPoint="0.5,0">
+      <GradientStop Offset="0"    Color="#40000000"/>
+      <GradientStop Offset="0.95" Color="#E0000000"/>
+      <GradientStop Offset="0.98"  Color="#A0E0E0E0"/>
+      <GradientStop Offset="1" Color="#A0000000"/>
+    </LinearGradientBrush>
+  </ResourceWrapper>
 
   <!-- Colors and gradients used for buttons shine and OSD progress / control area -->
   <ResourceWrapper x:Key="ShineGradientStartColor" Resource="#FFA0C0FF" />
