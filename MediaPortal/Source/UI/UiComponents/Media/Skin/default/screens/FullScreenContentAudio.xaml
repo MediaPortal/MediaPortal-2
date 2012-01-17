@@ -3,7 +3,7 @@
     xmlns="www.team-mediaportal.com/2008/mpf/directx"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:mp_special_workflow="clr-namespace:MediaPortal.UI.SkinEngine.SpecialElements.Workflow"
-    xmlns:mp_audio_viz="clr-namespace:MediaPortal.Plugins.AudioSpectrumAnalyzer;assembly=AudioSpectrumAnalyzer"
+    xmlns:mp_audio_viz="clr-namespace:MediaPortal.UiComponents.Media.Controls;assembly=Media"
     mp_special_workflow:WorkflowContext.StateSlot="Root"
     x:Name="FullscreenContentAudioScreen"
     >

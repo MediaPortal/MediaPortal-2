@@ -22,7 +22,7 @@
 <ResourceDictionary    
    xmlns="www.team-mediaportal.com/2008/mpf/directx"
    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-   xmlns:mp_audio_viz="clr-namespace:MediaPortal.Plugins.AudioSpectrumAnalyzer;assembly=AudioSpectrumAnalyzer">
+   xmlns:mp_audio_viz="clr-namespace:MediaPortal.UiComponents.Media.Controls;assembly=Media">
 
   <LinearGradientBrush x:Key="SpectrumBarBrush" EndPoint="0.5,0" StartPoint="0.5,1">
     <GradientStop Color="#3c993b" Offset="0" />
