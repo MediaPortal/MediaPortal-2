@@ -7,6 +7,9 @@
   <ResourceWrapper x:Key="FullScreenContentVideoPrimaryPlayerOSDWidth" Resource="1300"/>
   <ResourceWrapper x:Key="FullScreenContentVideoSecondaryPlayerOSDPipHeight" Resource="256"/>
   <ResourceWrapper x:Key="FullScreenContentVideoSecondaryPlayerOSDTextMaxWidth" Resource="300"/>
+  
+  <ResourceWrapper x:Key="FullScreenContentVideoSecondaryPlayerOSDRightMargin" Resource="50"/>
+  <ResourceWrapper x:Key="FullScreenContentVideoSecondaryPlayerOSDBottomMargin" Resource="120"/>
 
   <ResourceWrapper x:Key="VideoButtonFrameStrokeThickness" Resource="1"/>
 </ResourceDictionary>

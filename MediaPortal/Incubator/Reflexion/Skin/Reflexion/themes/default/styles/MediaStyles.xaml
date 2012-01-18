@@ -396,6 +396,155 @@
     <Setter Property="PlayerContext" Value="PrimaryPlayer"/>
   </Style>
 
+  <Storyboard x:Key="PressedPiPOSDButtonStoryboard" FillBehavior="HoldEnd">
+    <ColorAnimationUsingKeyFrames BeginTime="00:00:00" RepeatBehavior="Forever" AutoReverse="True" Storyboard.TargetName="PiPControlBorder" Storyboard.TargetProperty="BorderBrush.Color">
+      <SplineColorKeyFrame KeyTime="00:00:00" Value="{ThemeResource PipBorderColor}"/>
+      <SplineColorKeyFrame KeyTime="{ThemeResource PressedPiPOSDButtonAnimationTime2}" Value="{ThemeResource OSDPipBorderFocusColor}"/>
+    </ColorAnimationUsingKeyFrames>
+    <DoubleAnimationUsingKeyFrames BeginTime="00:00:00" FillBehavior="HoldEnd" Storyboard.TargetName="PiPButton" Storyboard.TargetProperty="RenderTransform.Children[0].ScaleX">
+      <SplineDoubleKeyFrame KeyTime="00:00:00" Value="1"/>
+      <SplineDoubleKeyFrame KeyTime="{ThemeResource PressedPiPOSDButtonAnimationTime1}" Value="{ThemeResource SquareButtonZoomCoefficient}"/>
+    </DoubleAnimationUsingKeyFrames>
+    <DoubleAnimationUsingKeyFrames BeginTime="00:00:00" FillBehavior="HoldEnd" Storyboard.TargetName="PiPButton" Storyboard.TargetProperty="RenderTransform.Children[0].ScaleY">
+      <SplineDoubleKeyFrame KeyTime="00:00:00" Value="1"/>
+      <SplineDoubleKeyFrame KeyTime="{ThemeResource PressedPiPOSDButtonAnimationTime1}" Value="{ThemeResource SquareButtonZoomCoefficient}"/>
+    </DoubleAnimationUsingKeyFrames>
+  </Storyboard>
+
+  <Style x:Key="SecondaryMediaOSDStyle" TargetType="{x:Type mp_special_controls:PlayerControl}">
+    <Setter Property="FixedImageHeight" Value="{ThemeResource FullScreenContentVideoSecondaryPlayerOSDPipHeight}"/>
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate TargetType="{x:Type mp_special_controls:PlayerControl}">
+          <Control x:Name="PiPOSDBorder"
+               Style="{ThemeResource SmallGlassBorder}" 
+               DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}"
+               VerticalAlignment="Stretch" HorizontalAlignment="Stretch" DockPanel.Dock="Center">
+            <Control.Resources>
+              <ResourceWrapper x:Key="ControlWidth" Resource="400"/>
+              <ResourceWrapper x:Key="ControlHeight" Resource="350"/>
+              <ControlTemplate x:Key="MakeGlass">
+                <Border x:Name="OSD_Background" BorderBrush="{ThemeResource OSDPlayControlBorderColor}"
+                  CornerRadius="{ThemeResource OSDPlayControlCornerRadius}" BorderThickness="{ThemeResource OSDPlayControlBorderThickness}"
+                        Background="{ThemeResource DialogBackgroundBrush}">
+                  <!--Morpheus_xx: removed to use shared background brush, same as dialog background
+                  <Border.Background>
+                    <LinearGradientBrush StartPoint="0.5,0" EndPoint="0.5,1">
+                      <GradientStop Offset="0" Color="{ThemeResource OSDPlayerControlBackgroundColor1}"/>
+                      <GradientStop Offset="0.5" Color="{ThemeResource OSDPlayerControlBackgroundColor2}"/>
+                      <GradientStop Offset="1" Color="{ThemeResource OSDPlayerControlBackgroundColor3}"/>
+                    </LinearGradientBrush >
+                  </Border.Background>-->
+                  <Grid x:Name="PlayerGrid" Grid.Column="2" Grid.Row="0" Margin="10,0,10,0" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+                    <Grid.ColumnDefinitions>
+                      <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    <Grid.RowDefinitions>
+                      <RowDefinition Height="Auto"/>
+                      <RowDefinition Height="*"/>
+                      <RowDefinition Height="Auto"/>
+                      <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+                    <DockPanel x:Name="PiPHeaderPanel" Grid.Column="0" Grid.Row="0" LastChildFill="true" Margin="3">
+                      <Grid x:Name="AudioPanel" DockPanel.Dock="Right" HorizontalAlignment="Right" Margin="4,0,0,0" IsVisible="{Binding HasAudio}">
+                        <Grid x:Name="Audio_NoMouse" IsVisible="{Binding !ShowMouseControls}" VerticalAlignment="Center" HorizontalAlignment="Center">
+                          <!-- Must be located the same as Audio_Mouse -->
+                          <Control x:Name="AudioSimple" IsVisible="{Binding IsAudio}" Template="{ThemeResource AudioActiveControlTemplate}"/>
+                          <Control x:Name="MuteOnOffSimple" Template="{ThemeResource MuteOnOffControlTemplate}">
+                            <Control.IsVisible>
+                              <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} &amp;&amp; {1}">
+                                <Binding Path="IsAudio"/>
+                                <Binding Path="IsMuted"/>
+                              </MultiBinding>
+                            </Control.IsVisible>
+                          </Control>
+                        </Grid>
+                        <Grid x:Name="Audio_Mouse" IsVisible="{Binding ShowMouseControls}" VerticalAlignment="Center" HorizontalAlignment="Center">
+                          <!-- Must be located the same as Audio_NoMouse -->
+                          <Button x:Name="AudioActiveButton" IsVisible="{Binding IsAudio}" Style="{ThemeResource AudioActiveButtonStyle}"
+                            Command="{Command AudioButtonPressed}"/>
+                          <Button x:Name="AudioInactiveButton" IsVisible="{Binding !IsAudio}" Style="{ThemeResource AudioInactiveButtonStyle}"
+                            Command="{Command AudioButtonPressed}"/>
+                        </Grid>
+                      </Grid>
+                      <Grid DockPanel.Dock="Center">
+                        <!-- Has to be last control in DockPanel, LastChildFill! -->
+                        <Grid.ColumnDefinitions>
+                          <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <Grid.RowDefinitions>
+                          <RowDefinition Height="*"/>
+                        </Grid.RowDefinitions>
+                        <Label x:Name="MediaName" Content="{Binding Path=MediaItemTitle}" Color="{ThemeResource TextColor}" Scroll="Auto"
+                          HorizontalAlignment="Left" VerticalAlignment="Center"
+                          MaxWidth="{ThemeResource FullScreenContentVideoSecondaryPlayerOSDTextMaxWidth}"/>
+                      </Grid>
+                    </DockPanel>
+                    <!-- PiPHeaderPanel -->
+                    <Button x:Name="PiPButton" Grid.Column="0" Grid.Row="1" Margin="5"
+                      Style="{ThemeResource PipControlStyle}" RenderTransformOrigin="0.5,0.5"
+                      VerticalAlignment="Center" HorizontalAlignment="Center"
+                      Command="{Command SwitchPip}" IsVisible="{Binding IsPip}">
+                      <Button.RenderTransform>
+                        <TransformGroup>
+                          <ScaleTransform ScaleX="1" ScaleY="1"/>
+                        </TransformGroup>
+                      </Button.RenderTransform>
+                      <Button.Triggers>
+                        <Trigger Property="HasFocus" Value="True">
+                          <Trigger.EnterActions>
+                            <BeginStoryboard x:Name="Focused_BeginStoryboard" Storyboard="{ThemeResource PressedPiPOSDButtonStoryboard}"/>
+                          </Trigger.EnterActions>
+                          <Trigger.ExitActions>
+                            <StopStoryboard BeginStoryboardName="Focused_BeginStoryboard"/>
+                          </Trigger.ExitActions>
+                        </Trigger>
+                      </Button.Triggers>
+                    </Button>
+                    <!-- PiPButton -->
+                    <Label x:Name="PlayerStateLabel" Grid.Column="0" Grid.Row="2" HorizontalAlignment="Center" Color="{ThemeResource TextColor}"
+                      Content="{Binding PlayerStateText}" Scroll="Auto" MaxWidth="{ThemeResource FullScreenContentVideoSecondaryPlayerOSDTextMaxWidth}"/>
+                    <StackPanel x:Name="PlayControlsPanel" Orientation="Horizontal" Grid.Column="0" Grid.Row="3" Margin="10,10,10,0"
+                      VerticalAlignment="Center" HorizontalAlignment="Center" IsVisible="{Binding ShowMouseControls}" >
+                      <Button x:Name="SkipBackButton" Style="{ThemeResource SkipBackButtonStyle}" Margin="5,0,5,0" IsVisible="{Binding CanSkipBack}"
+                        Command="{Command Previous}"/>
+                      <Button x:Name="RewindButton" Style="{ThemeResource RewindButtonStyle}" Margin="5,0,5,0" IsVisible="{Binding CanSeekBackward}"
+                        Command="{Command SeekBackward}"/>
+                      <Button x:Name="PlayButton" Style="{ThemeResource PlayButtonStyle}" Margin="5,0,5,0" IsVisible="{Binding CanPlay}"
+                        Command="{Command Play}"/>
+                      <Button x:Name="PauseButton" Style="{ThemeResource PauseButtonStyle}" Margin="5,0,5,0" IsVisible="{Binding CanPause}"
+                        Command="{Command Pause}"/>
+                      <Button x:Name="StopButton" Style="{ThemeResource StopButtonStyle}" Margin="5,0,5,0" IsVisible="{Binding CanStop}"
+                        Command="{Command Stop}"/>
+                      <Button x:Name="ForwardButton" Style="{ThemeResource ForwardButtonStyle}" Margin="5,0,5,0" IsVisible="{Binding CanSeekForward}"
+                        Command="{Command SeekForward}"/>
+                      <Button x:Name="SkipForwardButton" Style="{ThemeResource SkipForwardButtonStyle}" Margin="5,0,5,0" IsVisible="{Binding CanSkipForward}"
+                        Command="{Command Next}"/>
+                    </StackPanel>
+                    <!-- PlayControlsPanel -->
+                  </Grid>
+                  <!-- PlayerGrid -->
+                </Border>
+                <!-- OSD_Background -->
+                <ControlTemplate.Triggers>
+                  <Trigger Property="IsCurrentPlayer" Value="True">
+                    <Trigger.EnterActions>
+                      <BeginStoryboard x:Name="CurrentPlayer_BeginStoryboard" Storyboard="{ThemeResource OSDCurrentPlayerControlStoryboard}"/>
+                    </Trigger.EnterActions>
+                    <Trigger.ExitActions>
+                      <StopStoryboard BeginStoryboardName="CurrentPlayer_BeginStoryboard"/>
+                    </Trigger.ExitActions>
+                  </Trigger>
+                </ControlTemplate.Triggers>
+              </ControlTemplate>
+            </Control.Resources>
+          </Control>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+    <Setter Property="PlayerContext" Value="SecondaryPlayer"/>
+  </Style>
+
   <!-- 
     Media Navigation styles.
     We provide different control styles for thumbnail list and grid views for each navigation item (filter, audio, video,...).

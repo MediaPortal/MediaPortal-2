@@ -297,9 +297,7 @@
       <SubType>Designer</SubType>
     </Content>
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Skin\Reflexion\backgrounds\" />
-  </ItemGroup>
+  <ItemGroup />
   <ItemGroup>
     <Content Include="Skin\Reflexion\screens\master_dialog_bare.xaml">
       <SubType>Designer</SubType>
@@ -350,6 +348,21 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="Skin\Reflexion\themes\green\styles\Colors.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Skin\Reflexion\backgrounds\default-background.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Skin\Reflexion\backgrounds\video-background.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Skin\Reflexion\backgrounds\image-background.xaml">
       <SubType>Designer</SubType>
     </Content>
   </ItemGroup>
