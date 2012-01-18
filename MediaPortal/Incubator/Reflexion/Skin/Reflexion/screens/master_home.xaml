@@ -92,10 +92,10 @@ Parameters which have to be accessible by a DynamicResource lookup:
       <!-- HeaderTextPanel -->
       <StackPanel x:Name="PlayerControls" Grid.Column="2" Grid.Row="0" Orientation="Horizontal"
           HorizontalAlignment="Right" VerticalAlignment="Top">
-        <mp_special_controls:PlayerControl Margin="3" Style="{ThemeResource NavigationScreenPlayerControlStyle}" Width="450"
+        <mp_special_controls:PlayerControl Margin="3" Style="{ThemeResource NewNavigationScreenPlayerControlStyle}" Width="450"
             HorizontalAlignment="Left" VerticalAlignment="Top"
             AutoVisibility="True" PlayerContext="PrimaryPlayer"/>
-        <mp_special_controls:PlayerControl Margin="3" Style="{ThemeResource NavigationScreenPlayerControlStyle}" Width="450"
+        <mp_special_controls:PlayerControl Margin="3" Style="{ThemeResource NewNavigationScreenPlayerControlStyle}" Width="450"
             HorizontalAlignment="Left" VerticalAlignment="Top"
             AutoVisibility="True" PlayerContext="SecondaryPlayer"/>
       </StackPanel>

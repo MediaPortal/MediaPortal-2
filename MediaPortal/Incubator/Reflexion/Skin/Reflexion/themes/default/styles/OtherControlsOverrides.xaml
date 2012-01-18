@@ -194,18 +194,28 @@
     <Setter Property="ItemContainerStyle" Value="{ThemeResource MainMenuMenuItemContainerStyle}"/>
   </Style>
 
+
+  <Style x:Key="NewPlayerControlGroupBoxStyle">
+    <Setter Property="BorderBrush" Value="{ThemeResource ReflexionBorderStroke}"/>
+    <Setter Property="BorderThickness" Value="{ThemeResource DefaultPlayerControlBorderThickness}"/>
+    <Setter Property="CornerRadius" Value="{ThemeResource DefaultPlayerControlCornerRadius}"/>
+    <Setter Property="HeaderColor" Value="{ThemeResource PlayerControlTitleColor}"/>
+    <Setter Property="FontSize" Value="{ThemeResource PlayerControlFontSize}"/>
+  </Style>
+  
   <!-- Player control styles -->
-  <Style x:Key="NavigationScreenPlayerControlStyle" TargetType="{x:Type mp_special_controls:PlayerControl}">
+  <Style x:Key="NewNavigationScreenPlayerControlStyle" TargetType="{x:Type mp_special_controls:PlayerControl}">
     <Setter Property="Template">
       <Setter.Value>
         <ControlTemplate TargetType="{x:Type mp_special_controls:PlayerControl}">
-          <GroupBox x:Name="PCGroupBox" Style="{ThemeResource PlayerControlGroupBoxStyle}"
+          <GroupBox x:Name="PCGroupBox" Style="{ThemeResource NewPlayerControlGroupBoxStyle}"
               DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}"
               Header="{Binding Title}">
             <GroupBox.Background>
-              <LinearGradientBrush StartPoint="0.5,0" EndPoint="0.5,1">
+              <LinearGradientBrush StartPoint="0.0,0" EndPoint="0.5,1">
                 <GradientStop Color="{ThemeResource PlayerControlBackgroundColor}" Offset="0"/>
-                <GradientStop Color="{ThemeResource PlayerControlBackgroundColor}" Offset="0.5"/>
+                <GradientStop Color="{ThemeResource PlayerControlBackgroundColor}" Offset="0.34"/>
+                <GradientStop Color="{ThemeResource PlayerControlBackgroundColor}" Offset="0.67"/>
                 <GradientStop Color="{ThemeResource PlayerControlBackgroundColor}" Offset="1"/>
               </LinearGradientBrush>
             </GroupBox.Background>
