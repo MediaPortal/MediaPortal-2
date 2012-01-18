@@ -30,7 +30,7 @@ Parameters which have to be accessible by a DynamicResource lookup:
 <Include
     xmlns="www.team-mediaportal.com/2008/mpf/directx"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-    Source="screens\master_home.xaml"
+    Source="screens\master_bare.xaml"
     xmlns:mp_special_controls="clr-namespace:MediaPortal.UI.SkinEngine.SpecialElements.Controls"
     >
   <Include.Resources>
@@ -52,7 +52,7 @@ Parameters which have to be accessible by a DynamicResource lookup:
           <Model x:Key="MenuModel" Id="9E9D0CD9-4FDB-4c0f-A0C4-F356E151BDE0"/>
         </Grid.Resources>
 
-        <Image x:Name="Text_bar" Margin="-10,-170,0,0" Grid.Column="0" Grid.Row="0" Grid.RowSpan="3" Source="Controls\HomeTextbar.png" />
+        <Image x:Name="Text_bar" Margin="-10,-110,0,0" Grid.Column="0" Grid.Row="0" Grid.RowSpan="3" Source="Controls\HomeTextbar.png" />
 
         <ListView x:Name="MainMenu" Grid.Column="0" Grid.Row="1" Style="{ThemeResource HomeMenuListViewStyle}"
               HorizontalAlignment="Stretch" VerticalAlignment="Center" SetFocusPrio="DefaultHigh"
