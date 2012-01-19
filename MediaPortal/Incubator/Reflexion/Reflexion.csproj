@@ -297,7 +297,11 @@
       <SubType>Designer</SubType>
     </Content>
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <Content Include="Skin\Reflexion\themes\default\styles\WeatherStyles.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
   <ItemGroup>
     <Content Include="Skin\Reflexion\screens\master_dialog_bare.xaml">
       <SubType>Designer</SubType>
@@ -363,6 +367,11 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="Skin\Reflexion\backgrounds\image-background.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Skin\Reflexion\screens\weather.xaml">
       <SubType>Designer</SubType>
     </Content>
   </ItemGroup>
