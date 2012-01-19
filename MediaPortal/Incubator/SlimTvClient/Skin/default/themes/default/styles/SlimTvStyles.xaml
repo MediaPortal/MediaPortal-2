@@ -613,7 +613,7 @@
   <DataTemplate x:Key="GuideChannelListDataTemplate" DataType="{x:Type collections:ListItem}">
     <Grid x:Name="ItemControl" VerticalAlignment="Center" HorizontalAlignment="Stretch">
       <Grid.ColumnDefinitions>
-        <ColumnDefinition Width="{ThemeResource TvGuideHowHeaderWidth}"/> <!-- Row Header (Channel Name)-->
+        <ColumnDefinition Width="{ThemeResource TvGuideRowHeaderWidth}"/> <!-- Row Header (Channel Name)-->
         <ColumnDefinition Width="*"/>   <!-- Programs Listing -->
       </Grid.ColumnDefinitions>
       <Grid.RowDefinitions>

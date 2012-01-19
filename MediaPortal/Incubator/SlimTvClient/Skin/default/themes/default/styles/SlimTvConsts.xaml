@@ -11,7 +11,7 @@
   
   <ResourceWrapper x:Key="MainListChannelNameLength" Resource="180"/>
   <ResourceWrapper x:Key="MainListTimeLength" Resource="60"/>
-  <ResourceWrapper x:Key="TvGuideHowHeaderWidth" Resource="250"/>
+  <ResourceWrapper x:Key="TvGuideRowHeaderWidth" Resource="250"/>
 
   <ResourceWrapper x:Key="OSDDetailLabelHeight" Resource="150"/>
   
