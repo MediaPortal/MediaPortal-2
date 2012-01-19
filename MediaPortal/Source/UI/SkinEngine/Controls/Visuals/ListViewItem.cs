@@ -80,7 +80,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     public bool Selected
     {
       get { return (bool) _selectedProperty.GetValue(); }
-      set {_selectedProperty.SetValue(value); }
+      set { _selectedProperty.SetValue(value); }
     }
   }
 }
