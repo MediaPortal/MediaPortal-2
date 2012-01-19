@@ -832,13 +832,15 @@ namespace MediaPortal.UI.Players.Video
     /// <summary>
     /// Gets the DisplayName for the given LCID. If LCID is not valid, "unknown" is returned.
     /// </summary>
-    /// <param name="currentLCID">valid LCID</param>
-    /// <returns>DisplayName</returns>
-    private static string GetLanguageName(int currentLCID)
+    /// <param name="lcid">Valid LCID.</param>
+    /// <returns>DisplayName of the culture to the given <paramref name="lcid"/>.</returns>
+    private static string GetLanguageName(int lcid)
     {
+      if (lcid == 0)
+        return "unknown";
       try
       {
-        CultureInfo ci = new CultureInfo(currentLCID);
+        CultureInfo ci = new CultureInfo(lcid);
         return ci.DisplayName; // use localized name.
       }
       catch (Exception)
