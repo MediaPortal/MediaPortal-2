@@ -292,7 +292,7 @@
     <StackPanel x:Name="ItemControl" VerticalAlignment="Center" HorizontalAlignment="Stretch" Height="{ThemeResource MultiGuideProgramHeight}">
       <StackPanel.Width>
         <!-- Use a ExpressionMultiValueConverter to calculate a matching Width (Duration in minutes * n) -->
-        <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} * 108 / 10">
+        <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} * 102 / 10">
           <Binding Path="Program.RemainingDuration"/>
         </MultiBinding>
       </StackPanel.Width>
@@ -350,12 +350,12 @@
               </TransformGroup>
             </Grid.RenderTransform>
             <Control Style="{ThemeResource ProgramGuideButtonControlStyle}" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"/>
-            <ContentPresenter x:Name="ButtonContentPresenter" Margin="0,5,0,5" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"/>
+            <ContentPresenter x:Name="ButtonContentPresenter" Margin="0,18,0,0" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"/>
           </Grid>
           <ControlTemplate.Triggers>
             <Trigger Property="HasFocus" Value="True">
               <Trigger.EnterActions>
-                <BeginStoryboard x:Name="Focused_BeginStoryboard" Storyboard="{ThemeResource FocusedButtonWideStoryboard}"/>
+                <BeginStoryboard x:Name="Focused_BeginStoryboard" Storyboard="{ThemeResource FocusedButtonStoryboard_Base}"/>
                 <SoundPlayerAction Source="button12.wav" DisableOnAudioOutput="True"/>
               </Trigger.EnterActions>
               <Trigger.ExitActions>
@@ -435,18 +435,18 @@
                 <ScaleTransform ScaleX="1" ScaleY="1"/>
               </TransformGroup>
             </Grid.RenderTransform>
-            <Control Style="{ThemeResource ProgramGuideButtonControlStyle}" Grid.Column="0" Grid.Row="0" Grid.ColumnSpan="2"
+            <Control Style="{ThemeResource ProgramGuideRowHeaderButtonControlStyle}" Grid.Column="0" Grid.Row="0" Grid.ColumnSpan="2"
                      VerticalAlignment="Stretch" HorizontalAlignment="Stretch"/>
             <Image x:Name="ChannelLogo" Grid.Column="0" Grid.Row="0" Width="{ThemeResource ChannelLogoSmall}" Height="{ThemeResource ChannelLogoSmall}" 
                    Stretch="Uniform"
                    Source="{Binding ChannelLogoPath}"
                    FallbackSource="channellogos\no_channel_logo.png"/>
-            <ContentPresenter Grid.Column="1" Grid.Row="0" x:Name="ButtonContentPresenter" Margin="5,5,0,5" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"/>
+            <ContentPresenter Grid.Column="1" Grid.Row="0" x:Name="ButtonContentPresenter" Margin="5,5,0,5" HorizontalAlignment="Stretch" VerticalAlignment="Center"/>
           </Grid>
           <ControlTemplate.Triggers>
             <Trigger Property="HasFocus" Value="True">
               <Trigger.EnterActions>
-                <BeginStoryboard x:Name="Focused_BeginStoryboard" Storyboard="{ThemeResource FocusedButtonWideStoryboard}"/>
+                <BeginStoryboard x:Name="Focused_BeginStoryboard" Storyboard="{ThemeResource FocusedButtonStoryboard_Base}"/>
                 <SoundPlayerAction Source="button12.wav" DisableOnAudioOutput="True"/>
               </Trigger.EnterActions>
               <Trigger.ExitActions>
