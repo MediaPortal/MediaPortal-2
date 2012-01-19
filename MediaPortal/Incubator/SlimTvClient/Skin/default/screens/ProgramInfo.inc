@@ -14,7 +14,7 @@
     <RowDefinition Height="*"/>
   </Grid.RowDefinitions>
   <Grid.ColumnDefinitions>
-    <ColumnDefinition Width="150"/>
+    <ColumnDefinition Width="{ThemeResource ProgramInfoHeaderWidth}"/>
     <ColumnDefinition Width="*"/>
   </Grid.ColumnDefinitions>
   <Label x:Name="ChannelLabel" Grid.Row="0" Grid.Column="0" Content="[SlimTvClient.ChannelLabel]" Color="{ThemeResource TextColor}"/>

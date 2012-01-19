@@ -19,26 +19,26 @@
         <Grid x:Name="MainGrid" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" 
               DataContext="{Binding Source={StaticResource SlimTvSingleChannelGuide}}">
           
-          <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="200"/>
-            <ColumnDefinition Width="200"/>
-            <ColumnDefinition Width="*"/>
-          </Grid.ColumnDefinitions>
+        <Grid.ColumnDefinitions>
+          <ColumnDefinition Width="{ThemeResource SingleGuideProgramWidth}"/>
+          <ColumnDefinition Width="{ThemeResource SingleGuideProgramWidth}"/>
+          <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
           
-          <Grid.RowDefinitions>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="*"/>
-          </Grid.RowDefinitions>
+        <Grid.RowDefinitions>
+          <RowDefinition Height="Auto"/>
+          <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
           
-          <StackPanel x:Name="Groups" Margin="20,0,20,0" Grid.Column="0" Grid.Row="0"
-              HorizontalAlignment="Left" VerticalAlignment="Top" Orientation="Horizontal">
-            <Button x:Name="PrevGroupButton" Style="{StaticResource SmallButtonStyle}" Content=" &lt; "
-              Command="{Command PrevGroup}"/>
-            <Button x:Name="NextGroupButton" Style="{StaticResource SmallButtonStyle}" Content=" &gt; "
-              Command="{Command NextGroup}"/>
-            <Label x:Name="GroupNameLabel" Content="{Binding GroupName}"
-                Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}"/>
-          </StackPanel>
+        <StackPanel x:Name="Groups" Margin="20,0,20,0" Grid.Column="0" Grid.Row="0"
+            HorizontalAlignment="Left" VerticalAlignment="Top" Orientation="Horizontal">
+          <Button x:Name="PrevGroupButton" Style="{StaticResource SmallButtonStyle}" Content=" &lt; "
+            Command="{Command PrevGroup}"/>
+          <Button x:Name="NextGroupButton" Style="{StaticResource SmallButtonStyle}" Content=" &gt; "
+            Command="{Command NextGroup}"/>
+          <Label x:Name="GroupNameLabel" Content="{Binding GroupName}"
+              Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}"/>
+        </StackPanel>
 
         <StackPanel x:Name="Channels" Margin="20,0,20,0" Grid.Column="1" Grid.Row="0"
               HorizontalAlignment="Left" VerticalAlignment="Top" Orientation="Horizontal">
