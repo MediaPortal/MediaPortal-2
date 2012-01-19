@@ -50,6 +50,8 @@ namespace MediaPortal.Common.UPnP
     public static readonly UPnPExtendedDataType DtPlaylistInformationDataEnumeration = new UPnPDtPlaylistInformationDataEnumeration();
     public static readonly UPnPExtendedDataType DtPlaylistRawData = new UPnPDtPlaylistRawData();
     public static readonly UPnPExtendedDataType DtPlaylistContents = new UPnPDtPlaylistContents();
+    public static readonly UPnPExtendedDataType DtUserProfile = new UPnPDtUserProfile();
+    public static readonly UPnPExtendedDataType DtUserProfileEnumeration = new UPnPDtUserProfileEnumeration();
 
     protected static IDictionary<string, UPnPExtendedDataType> _dataTypes = new Dictionary<string, UPnPExtendedDataType>();
 
@@ -73,6 +75,8 @@ namespace MediaPortal.Common.UPnP
       AddDataType(DtPlaylistInformationDataEnumeration);
       AddDataType(DtPlaylistRawData);
       AddDataType(DtPlaylistContents);
+      AddDataType(DtUserProfile);
+      AddDataType(DtUserProfileEnumeration);
     }
 
     protected static void AddDataType(UPnPExtendedDataType type)

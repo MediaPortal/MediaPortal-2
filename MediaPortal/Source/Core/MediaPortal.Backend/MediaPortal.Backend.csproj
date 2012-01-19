@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="4.0">
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
@@ -116,6 +116,9 @@
     <Compile Include="Services\MediaManagement\MediaItemAspectTypeRegistration.cs" />
     <Compile Include="Services\Database\DBUtils.cs" />
     <Compile Include="Services\SystemResolver\SystemResolver.cs" />
+    <Compile Include="Services\UserProfileDataManagement\UPnPUserProfileDataManagementServiceImpl.cs" />
+    <Compile Include="Services\UserProfileDataManagement\UserProfileDataManagement.cs" />
+    <Compile Include="Services\UserProfileDataManagement\UserProfileDataManagement_SubSchema.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\HttpServer\HttpServer.csproj">

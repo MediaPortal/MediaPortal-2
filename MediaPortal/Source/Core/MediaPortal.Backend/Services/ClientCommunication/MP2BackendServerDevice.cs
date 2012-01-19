@@ -22,6 +22,7 @@
 
 #endregion
 
+using MediaPortal.Backend.Services.UserProfileDataManagement;
 using MediaPortal.Common.Services.ResourceAccess;
 using MediaPortal.Common.UPnP;
 using UPnP.Infrastructure.Dv.DeviceTree;
@@ -37,6 +38,7 @@ namespace MediaPortal.Backend.Services.ClientCommunication
       AddService(new UPnPContentDirectoryServiceImpl());
       AddService(new UPnPResourceInformationServiceImpl());
       AddService(new UPnPServerControllerServiceImpl());
+      AddService(new UPnPUserProfileDataManagementServiceImpl());
       // TODO: UPnP AV MediaServer device
     }
   }

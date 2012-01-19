@@ -25,6 +25,7 @@
 using MediaPortal.Backend.ClientCommunication;
 using MediaPortal.Backend.BackendServer;
 using MediaPortal.Backend.Services.SystemResolver;
+using MediaPortal.Backend.Services.UserProfileDataManagement;
 using MediaPortal.Common;
 using MediaPortal.Common.Logging;
 using MediaPortal.Common.MediaManagement;
@@ -33,6 +34,7 @@ using MediaPortal.Backend.MediaLibrary;
 using MediaPortal.Backend.Services.Database;
 using MediaPortal.Backend.Services.MediaManagement;
 using MediaPortal.Common.SystemResolver;
+using MediaPortal.Common.UserProfileDataManagement;
 
 namespace MediaPortal.Backend
 {
@@ -59,6 +61,10 @@ namespace MediaPortal.Backend
 
       logger.Debug("BackendExtension: Registering IClientManager service");
       ServiceRegistration.Set<IClientManager>(new Services.ClientCommunication.ClientManager());
+
+      logger.Debug("BackendExtension: Registering IUserProfileDataManagement service");
+      ServiceRegistration.Set<IUserProfileDataManagement>(new UserProfileDataManagement());
+      ServiceRegistration.Set<UserProfileDataManagement>(new UserProfileDataManagement());
     }
 
     /// <summary>
@@ -70,6 +76,7 @@ namespace MediaPortal.Backend
       ServiceRegistration.Get<IMediaLibrary>().Startup();
       ServiceRegistration.Get<IClientManager>().Startup();
       ServiceRegistration.Get<IBackendServer>().Startup();
+      ServiceRegistration.Get<UserProfileDataManagement>().Startup();
     }
 
     /// <summary>
@@ -82,6 +89,7 @@ namespace MediaPortal.Backend
 
     public static void ShutdownBackendServices()
     {
+      ServiceRegistration.Get<UserProfileDataManagement>().Shutdown();
       ServiceRegistration.Get<IClientManager>().Shutdown();
       ServiceRegistration.Get<IMediaLibrary>().Shutdown();
       ServiceRegistration.Get<IBackendServer>().Shutdown();
@@ -90,6 +98,9 @@ namespace MediaPortal.Backend
     public static void DisposeBackendServices()
     {
       ILogger logger = ServiceRegistration.Get<ILogger>();
+
+      logger.Debug("BackendExtension: Removing IUserProfileDataManagement service");
+      ServiceRegistration.RemoveAndDispose<IUserProfileDataManagement>();
 
       logger.Debug("BackendExtension: Removing IClientManager service");
       ServiceRegistration.RemoveAndDispose<IClientManager>();

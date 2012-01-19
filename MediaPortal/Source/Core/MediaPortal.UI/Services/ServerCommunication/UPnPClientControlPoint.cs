@@ -53,6 +53,7 @@ namespace MediaPortal.UI.Services.ServerCommunication
     protected UPnPContentDirectoryServiceProxy _contentDirectoryService = null;
     protected UPnPServerControllerServiceProxy _serverControllerService = null;
     protected UPnPResourceInformationServiceProxy _resourceInformationService = null;
+    protected UPnPUserProfileDataManagementServiceProxy _userProfileDataManagementService = null;
 
     public UPnPClientControlPoint(string homeServerSystemId)
     {
@@ -89,6 +90,11 @@ namespace MediaPortal.UI.Services.ServerCommunication
     public UPnPServerControllerServiceProxy ServerControllerService
     {
       get { return _serverControllerService; }
+    }
+
+    public UPnPUserProfileDataManagementServiceProxy UserProfileDataManagementService
+    {
+      get { return _userProfileDataManagementService; }
     }
 
     public void Start()
@@ -162,11 +168,16 @@ namespace MediaPortal.UI.Services.ServerCommunication
         if (scsStub == null)
           throw new InvalidDataException("ServerController service not found in device '{0}' of type '{1}:{2}'",
               deviceUuid, UPnPTypesAndIds.BACKEND_SERVER_DEVICE_TYPE, UPnPTypesAndIds.BACKEND_SERVER_DEVICE_TYPE_VERSION);
+        CpService updmStub = connection.Device.FindServiceByServiceId(UPnPTypesAndIds.USER_PROFILE_DATA_MANAGEMENT_SERVICE_ID);
+        if (updmStub == null)
+          throw new InvalidDataException("UserProfileDataManagement service not found in device '{0}' of type '{1}:{2}'",
+              deviceUuid, UPnPTypesAndIds.BACKEND_SERVER_DEVICE_TYPE, UPnPTypesAndIds.BACKEND_SERVER_DEVICE_TYPE_VERSION);
         lock (_networkTracker.SharedControlPointData.SyncObj)
         {
           _contentDirectoryService = new UPnPContentDirectoryServiceProxy(cdsStub);
           _resourceInformationService = new UPnPResourceInformationServiceProxy(risStub);
           _serverControllerService = new UPnPServerControllerServiceProxy(scsStub);
+          _userProfileDataManagementService = new UPnPUserProfileDataManagementServiceProxy(updmStub);
         }
         // TODO: other services
       }

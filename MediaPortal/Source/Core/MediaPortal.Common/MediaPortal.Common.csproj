@@ -326,6 +326,9 @@
     <Compile Include="Services\FileEventNotification\FileWatcherInfo.cs" />
     <Compile Include="Services\FileEventNotification\FileWatchEvent.cs" />
     <Compile Include="Services\FileEventNotification\FileWatchEventArgs.cs" />
+    <Compile Include="UPnP\UPnPTypesAndIds.cs" />
+    <Compile Include="UPnP\UPnPExtendedDataTypes.cs" />
+    <Compile Include="UPnP\DataTypesConfiguration.cs" />
     <Compile Include="UPnP\UPnPDtMediaItem.cs" />
     <Compile Include="UPnP\UPnPDtPlaylistRawData.cs" />
     <Compile Include="UPnP\UPnPDtPlaylistContents.cs" />
@@ -342,12 +345,13 @@
     <Compile Include="UPnP\UPnPDtResourcePathMetadata.cs" />
     <Compile Include="UPnP\UPnPDtMLQueryResultGroupEnumeration.cs" />
     <Compile Include="UPnP\UPnPServiceProxyBase.cs" />
-    <Compile Include="UPnP\UPnPTypesAndIds.cs" />
-    <Compile Include="UPnP\DataTypesConfiguration.cs" />
     <Compile Include="UPnP\UPnPDtShareEnumeration.cs" />
     <Compile Include="UPnP\UPnPDtMediaItemAspectMetadata.cs" />
     <Compile Include="UPnP\UPnPDtShare.cs" />
-    <Compile Include="UPnP\UPnPExtendedDataTypes.cs" />
+    <Compile Include="UPnP\UPnPDtUserProfile.cs" />
+    <Compile Include="UPnP\UPnPDtUserProfileEnumeration.cs" />
+    <Compile Include="UserProfileDataManagement\IUserProfileDataManagement.cs" />
+    <Compile Include="UserProfileDataManagement\UserProfile.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\HttpServer\HttpServer.csproj">

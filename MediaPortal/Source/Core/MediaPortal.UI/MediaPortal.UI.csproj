@@ -166,6 +166,7 @@
     <Compile Include="Services\ServerCommunication\UPnPServerWatcher.cs" />
     <Compile Include="Services\ServerCommunication\UPnPServerControllerServiceProxy.cs" />
     <Compile Include="Services\ServerCommunication\UPnPContentDirectoryServiceProxy.cs" />
+    <Compile Include="Services\ServerCommunication\UPnPUserProfileDataManagementServiceProxy.cs" />
     <Compile Include="Services\Shares\LocalSharesManagement.cs" />
     <Compile Include="Presentation\UiNotifications\DefaultNotification.cs" />
     <Compile Include="Services\UiNotifications\NotificationService.cs" />
