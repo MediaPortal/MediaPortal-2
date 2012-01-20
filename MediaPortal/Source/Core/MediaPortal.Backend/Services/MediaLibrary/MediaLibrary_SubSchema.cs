@@ -48,7 +48,6 @@ namespace MediaPortal.Backend.Services.MediaLibrary
 
     internal const string MEDIA_ITEMS_TABLE_NAME = "MEDIA_ITEMS";
     internal const string MEDIA_ITEMS_ITEM_ID_COL_NAME = "MEDIA_ITEM_ID";
-    internal const string MEDIA_LIBRARY_ID_SEQUENCE_NAME = "MEDIA_LIBRARY_ID_GEN";
 
     #endregion
 
@@ -62,23 +61,23 @@ namespace MediaPortal.Backend.Services.MediaLibrary
     }
 
     public static IDbCommand SelectAllMediaItemAspectMetadataCommand(ITransaction transaction,
-        out int aspectIdIndex, out int serializationsIndex)
+        out int aspectIdIndex, out int serializationIndex)
     {
       IDbCommand result = transaction.CreateCommand();
       result.CommandText = "SELECT MIAM_ID, MIAM_SERIALIZATION FROM MIA_TYPES";
 
       aspectIdIndex = 0;
-      serializationsIndex = 1;
+      serializationIndex = 1;
       return result;
     }
 
-    public static IDbCommand CreateMediaItemAspectMetadataCommand(ITransaction transaction, Guid id,
+    public static IDbCommand CreateMediaItemAspectMetadataCommand(ITransaction transaction, Guid miamId,
         string name, string serialization)
     {
       IDbCommand result = transaction.CreateCommand();
       result.CommandText = "INSERT INTO MIA_TYPES (MIAM_ID, NAME, MIAM_SERIALIZATION) VALUES (@MIAM_ID, @NAME, @MIAM_SERIALIZATION)";
       ISQLDatabase database = transaction.Database;
-      database.AddParameter(result, "MIAM_ID", id, typeof(Guid));
+      database.AddParameter(result, "MIAM_ID", miamId, typeof(Guid));
       database.AddParameter(result, "NAME", name, typeof(string));
       database.AddParameter(result, "MIAM_SERIALIZATION", serialization, typeof(string));
       return result;

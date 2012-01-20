@@ -392,15 +392,15 @@ namespace MediaPortal.Backend.Services.MediaLibrary
       try
       {
         int miamIdIndex;
-        int serializationsIndex;
+        int serializationIndex;
         using (IDbCommand command = MediaLibrary_SubSchema.SelectAllMediaItemAspectMetadataCommand(
-            transaction, out miamIdIndex, out serializationsIndex))
+            transaction, out miamIdIndex, out serializationIndex))
         using (IDataReader reader = command.ExecuteReader())
         {
           IDictionary<Guid, string> result = new Dictionary<Guid, string>();
           while (reader.Read())
             result.Add(database.ReadDBValue<Guid>(reader, miamIdIndex),
-                database.ReadDBValue<string>(reader, serializationsIndex));
+                database.ReadDBValue<string>(reader, serializationIndex));
           return result;
         }
       }
