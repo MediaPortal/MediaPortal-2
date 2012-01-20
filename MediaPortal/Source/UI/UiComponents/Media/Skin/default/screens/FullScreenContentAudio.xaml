@@ -18,6 +18,16 @@
       <RowDefinition Height="*"/>
     </Grid.RowDefinitions>
 
+    <Control x:Name="WindowButtons" Grid.Row="0" Grid.Column="0" HorizontalAlignment="Stretch">
+      <Control.TemplateControl>
+        <Include Source="screens\FSCWindowButtons.inc"/>
+      </Control.TemplateControl>
+    </Control>
+
+    <mp_audio_viz:AudioSpectrumAnalyzer Grid.ZIndex="100" Grid.Row="1" Grid.Column="0" Width="600" Height="300"
+        HorizontalAlignment="Center" VerticalAlignment="Center"
+        x:Name="SpectrumAnalyzer" Style="{ThemeResource SpectrumAnalyzerStyle}"/>
+    
     <Control Grid.Row="2" Grid.Column="0" Grid.RowSpan="2" Margin="0,-50,0,-50">
       <Control.Background>
         <LinearGradientBrush StartPoint="0.5,0" EndPoint="0.5,1">
@@ -26,37 +36,29 @@
         </LinearGradientBrush >
       </Control.Background>
     </Control>
-    <mp_audio_viz:AudioSpectrumAnalyzer Grid.Row="1" Grid.Column="0"  Width="600" Height="300"
-        HorizontalAlignment="Center" VerticalAlignment="Center"
-        x:Name="SpectrumAnalyzer" Style="{ThemeResource SpectrumAnalyzerStyle}"/>
-    
-    <Grid Grid.Row="3" Grid.Column="0">
-      
-      <mp_special_controls:PlayerControl Margin="20" PlayerContext="CurrentPlayer"
-          HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
-        <mp_special_controls:PlayerControl.TemplateControl>
-          <Grid DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}">
-            <Grid.RowDefinitions>
-              <RowDefinition Height="Auto"/>
-              <RowDefinition Height="Auto"/>
-            </Grid.RowDefinitions>
-            <Grid.ColumnDefinitions>
-              <ColumnDefinition Width="Auto"/>
-              <ColumnDefinition Width="*"/>
-            </Grid.ColumnDefinitions>
-            <Label x:Name="ArtistsLabel" Grid.Row="0" Grid.Column="0"
-                Content="[Media.AudioArtistsLabel]" Color="{ThemeResource TextColor}" FontSize="{ThemeResource BigFontSize}"/>
-            <Label x:Name="Artists" Grid.Row="0" Grid.Column="1"
-                Content="{Binding AudioArtists}" Color="{ThemeResource TextColor}" FontSize="{ThemeResource BigFontSize}"/>
-            <Label x:Name="TitleLabel" Grid.Row="1" Grid.Column="0"
-                Content="[Media.AudioTitleLabel]" Color="{ThemeResource TextColor}" FontSize="{ThemeResource BigFontSize}"/>
-            <Label x:Name="Title" Grid.Row="1" Grid.Column="1" Scroll="Auto"
-                Content="{Binding MediaItemTitle}" Color="{ThemeResource TextColor}" FontSize="{ThemeResource BigFontSize}"/>
-          </Grid>
-        </mp_special_controls:PlayerControl.TemplateControl>
-      </mp_special_controls:PlayerControl>
 
-
-    </Grid>
+    <mp_special_controls:PlayerControl Margin="20" PlayerContext="CurrentPlayer" Grid.Row="3" Grid.Column="0"
+        HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+      <mp_special_controls:PlayerControl.TemplateControl>
+        <Grid DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}">
+          <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+          </Grid.RowDefinitions>
+          <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="Auto"/>
+            <ColumnDefinition Width="*"/>
+          </Grid.ColumnDefinitions>
+          <Label x:Name="ArtistsLabel" Grid.Row="0" Grid.Column="0"
+              Content="[Media.AudioArtistsLabel]" Color="{ThemeResource TextColor}" FontSize="{ThemeResource BigFontSize}"/>
+          <Label x:Name="Artists" Grid.Row="0" Grid.Column="1"
+              Content="{Binding AudioArtists}" Color="{ThemeResource TextColor}" FontSize="{ThemeResource BigFontSize}"/>
+          <Label x:Name="TitleLabel" Grid.Row="1" Grid.Column="0"
+              Content="[Media.AudioTitleLabel]" Color="{ThemeResource TextColor}" FontSize="{ThemeResource BigFontSize}"/>
+          <Label x:Name="Title" Grid.Row="1" Grid.Column="1" Scroll="Auto"
+              Content="{Binding MediaItemTitle}" Color="{ThemeResource TextColor}" FontSize="{ThemeResource BigFontSize}"/>
+        </Grid>
+      </mp_special_controls:PlayerControl.TemplateControl>
+    </mp_special_controls:PlayerControl>
   </Grid>
 </Screen>
