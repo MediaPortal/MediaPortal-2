@@ -472,7 +472,9 @@ namespace MediaPortal.UiComponents.Media.Controls
       double peakDotHeight = Math.Max(_barWidth / 2.0f, 1);
       double barHeightScale = (height - peakDotHeight);
 
-      for (int i = _minimumFrequencyIndex; i <= _maximumFrequencyIndex; i++)
+      int minIndex = Math.Max(0, Math.Min(_minimumFrequencyIndex, _channelData.Length));
+      int maxIndex = Math.Max(0, Math.Min(_maximumFrequencyIndex, _channelData.Length));
+      for (int i = minIndex; i <= maxIndex; i++)
       {
         // If we're paused, keep drawing, but set the current height to 0 so the peaks fall.
         if (player == null || player.State != PlayerState.Active)
