@@ -202,6 +202,23 @@
     <Setter Property="HeaderColor" Value="{ThemeResource PlayerControlTitleColor}"/>
     <Setter Property="FontSize" Value="{ThemeResource PlayerControlFontSize}"/>
   </Style>
+
+
+  <!-- Translate animation storyboard for bottom player control bar -->
+  <Storyboard x:Key="ShowBottomPlayerBarStoryboard" FillBehavior="HoldEnd">
+    <DoubleAnimationUsingKeyFrames BeginTime="00:00:00" FillBehavior="HoldEnd" Storyboard.TargetName="BottomPlayerControlBar" Storyboard.TargetProperty="RenderTransform.Children[0].Y">
+      <SplineDoubleKeyFrame KeyTime="00:00:00" Value="110"/>
+      <SplineDoubleKeyFrame KeyTime="00:00:00.50" Value="0"/>
+    </DoubleAnimationUsingKeyFrames>
+    <DoubleAnimationUsingKeyFrames FillBehavior="HoldEnd" Storyboard.TargetName="PrimaryPC" Storyboard.TargetProperty="Opacity">
+      <SplineDoubleKeyFrame KeyTime="00:00:00.50" Value="0"/>
+      <SplineDoubleKeyFrame KeyTime="00:00:01.00" Value="1"/>
+    </DoubleAnimationUsingKeyFrames>
+    <DoubleAnimationUsingKeyFrames FillBehavior="HoldEnd" Storyboard.TargetName="SecondaryPC" Storyboard.TargetProperty="Opacity">
+      <SplineDoubleKeyFrame KeyTime="00:00:00.50" Value="0"/>
+      <SplineDoubleKeyFrame KeyTime="00:00:01.00" Value="1"/>
+    </DoubleAnimationUsingKeyFrames>
+  </Storyboard>
   
   <!-- Player control styles -->
   <Style x:Key="NewNavigationScreenPlayerControlStyle" TargetType="{x:Type mp_special_controls:PlayerControl}">
@@ -211,14 +228,15 @@
           <GroupBox x:Name="PCGroupBox" Style="{ThemeResource NewPlayerControlGroupBoxStyle}"
               DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}"
               Header="{Binding Title}">
-            <GroupBox.Background>
+
+            <!--<GroupBox.Background>
               <LinearGradientBrush StartPoint="0.0,0" EndPoint="0.5,1">
                 <GradientStop Color="{ThemeResource PlayerControlBackgroundColor}" Offset="0"/>
                 <GradientStop Color="{ThemeResource PlayerControlBackgroundColor}" Offset="0.34"/>
                 <GradientStop Color="{ThemeResource PlayerControlBackgroundColor}" Offset="0.67"/>
                 <GradientStop Color="{ThemeResource PlayerControlBackgroundColor}" Offset="1"/>
               </LinearGradientBrush>
-            </GroupBox.Background>
+            </GroupBox.Background>-->
             <GroupBox.Triggers>
               <DataTrigger Binding="{Binding IsPlayerPresent}" Value="False">
                 <Setter Property="OpacityMask" Value="{ThemeResource PlayerControlInactiveOpacityMaskColor}"/>

@@ -44,7 +44,7 @@ Parameters which have to be accessible by a DynamicResource lookup:
         <RowDefinition Height="60"/>
       </Grid.RowDefinitions>
       <Grid.ColumnDefinitions>
-        <ColumnDefinition Width="120"/><!-- Time -->
+        <ColumnDefinition Width="150"/> <!-- Time -->
         <ColumnDefinition Width="*"/> <!-- NavBar -->
         <ColumnDefinition Width="Auto"/> <!-- ScreenName -->
         <ColumnDefinition Width="120"/> <!-- WindowButtons -->
@@ -54,7 +54,7 @@ Parameters which have to be accessible by a DynamicResource lookup:
             VerticalAlignment="Center"/>
 
       <Label x:Name="TimeLabel" Content="{Binding Source={StaticResource TimeModel}, Path=CurrentTime}" Grid.Column="0" Grid.Row="0" Margin="10,0,0,0"
-              FontSize="{ThemeResource BigFontSize}" Color="{ThemeResource PlaylistItemColor}" VerticalAlignment="Center"/>
+              FontSize="{ThemeResource BigFontSize}" Color="{ThemeResource PlaylistItemColor}" VerticalAlignment="Center" HorizontalAlignment="Center"/>
 
       <Label x:Name="HeaderLabel" Grid.Column="2" Grid.Row="0" VerticalAlignment="Center" Margin="0,0,60,0"
               FontSize="{ThemeResource BigFontSize}" Color="{ThemeResource WindowHeaderColor}"
@@ -84,21 +84,41 @@ Parameters which have to be accessible by a DynamicResource lookup:
         <Button x:Name="HibernateButton" Style="{ThemeResource HibernateButtonStyle}" Margin="3"
               HorizontalAlignment="Left" VerticalAlignment="Center"
               Command="{Command Source={Service Window},Path=Hibernate}"/>
-      </StackPanel>
+      </StackPanel>      <!-- WindowButtonsPanel -->
       
-      <!-- WindowButtonsPanel -->
-    </Grid>
-    <!-- HeaderPanel -->
+    </Grid>    <!-- HeaderPanel -->
 
-    <Grid x:Name="FooterPanel" DockPanel.Dock="Bottom" Background="{ThemeResource FooterPanelBackgroundBrush}">
+    <!--  Background="{ThemeResource FooterPanelBackgroundBrush}" -->
+    <Grid x:Name="FooterPanel" DockPanel.Dock="Bottom">
       <Grid.RowDefinitions>
         <RowDefinition Height="110"/>
       </Grid.RowDefinitions>
       <Grid.ColumnDefinitions>
         <ColumnDefinition Width="100"/>        <!-- Connection/Notifiction -->
-        <ColumnDefinition Width="Auto"/>        <!-- Weather? -->
+        <ColumnDefinition Width="500"/>        <!-- Weather? -->
         <ColumnDefinition Width="*"/>         <!-- PlayerControls -->
       </Grid.ColumnDefinitions>
+
+      <Grid Grid.Column="0" Grid.Row="0" Grid.ColumnSpan="3">
+        <Grid Margin="540,-10,0,0" x:Name="BottomPlayerControlBar">
+          <Grid.RenderTransform>
+            <TransformGroup>
+              <TranslateTransform X="0" Y="110">
+                <!--<TranslateTransform.Y>
+                  <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
+                    <Binding Source="PrimaryPC" Path="IsPlayerPresent"/>
+                    <Binding Path="0"/>
+                    <Binding Path="110"/>
+                  </MultiBinding>
+                </TranslateTransform.Y>-->
+              </TranslateTransform>
+            </TransformGroup>
+          </Grid.RenderTransform>
+          <Image Source="Controls\Glass.png" />
+          <!-- If player controls are placed here, no buttons will work, because they are covered by Bar.png image and can't be focussed -->
+        </Grid>
+        <Image Source="Controls\Bar.png" />
+      </Grid>
 
       <Control Grid.Column="0" Grid.Row="0" Margin="10,0,10,0" Style="{ThemeResource NotificationControlStyle}"
             HorizontalAlignment="Right" VerticalAlignment="Center"/>
@@ -131,15 +151,29 @@ Parameters which have to be accessible by a DynamicResource lookup:
       </Grid>
 
 
-      <StackPanel x:Name="PlayerControls" Grid.Column="2" Grid.Row="0" Orientation="Horizontal" Margin="20,0,0,0"
+      <StackPanel x:Name="PlayerControls" Grid.Column="2" Grid.Row="0" Orientation="Horizontal" Margin="80,-15,0,20"
             HorizontalAlignment="Left" VerticalAlignment="Top">
-        <mp_special_controls:PlayerControl Margin="3" Style="{ThemeResource NewNavigationScreenPlayerControlStyle}" Width="450"
-              HorizontalAlignment="Left" VerticalAlignment="Top"
+
+        <mp_special_controls:PlayerControl x:Name="PrimaryPC" Margin="20,0,0,0" Style="{ThemeResource NewNavigationScreenPlayerControlStyle}" Width="450"
+              HorizontalAlignment="Left" VerticalAlignment="Top" Opacity="0"
               AutoVisibility="True" PlayerContext="PrimaryPlayer"/>
-        <mp_special_controls:PlayerControl Margin="3" Style="{ThemeResource NewNavigationScreenPlayerControlStyle}" Width="450"
-              HorizontalAlignment="Left" VerticalAlignment="Top"
+
+        <mp_special_controls:PlayerControl x:Name="SecondaryPC" Margin="20,0,0,0" Style="{ThemeResource NewNavigationScreenPlayerControlStyle}" Width="450"
+              HorizontalAlignment="Left" VerticalAlignment="Top" Opacity="0"
               AutoVisibility="True" PlayerContext="SecondaryPlayer"/>
       </StackPanel>
+      
+      <Grid.Triggers>
+        <DataTrigger Binding="{Binding ElementName=PrimaryPC,Path=IsPlayerPresent}" Value="True">
+          <DataTrigger.EnterActions>
+            <BeginStoryboard x:Name="ShowBottomPlayerBarStoryboard_BeginStoryboard" Storyboard="{ThemeResource ShowBottomPlayerBarStoryboard}"/>
+          </DataTrigger.EnterActions>
+          <DataTrigger.ExitActions>
+            <StopStoryboard BeginStoryboardName="ShowBottomPlayerBarStoryboard_BeginStoryboard"/>
+          </DataTrigger.ExitActions>
+        </DataTrigger>
+      </Grid.Triggers>
+
     </Grid> <!-- FooterPanel -->
 
     <!-- Not sure if and how we should show shortcuts...
