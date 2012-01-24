@@ -75,6 +75,7 @@
     <Content Include="Skin\Reflexion\images\09eae702-d9ec-4325-82d9-4843502c966b.jpg" />
     <Content Include="Skin\Reflexion\images\A4DF2DF6-8D66-479a-9930-D7106525EB07.jpg" />
     <Content Include="Skin\Reflexion\images\B4A9199F-6DD4-4bda-A077-DE9C081F7703.jpg" />
+    <Content Include="Skin\Reflexion\images\C33E39CC-910E-41C8-BFFD-9ECCD340B569.jpg" />
     <Content Include="Skin\Reflexion\images\E34FDB62-1F3E-4aa9-8A61-D143E0AF77B5.jpg" />
     <Content Include="Skin\Reflexion\images\F6255762-C52A-4231-9E67-14C28735216E.jpg" />
     <Content Include="Skin\Reflexion\images\93442DF7-186D-42e5-A0F5-CF1493E68F49.jpg" />
@@ -184,6 +185,7 @@
     <Content Include="Skin\Reflexion\skin.xml" />
     <Content Include="Skin\Reflexion\themes\default\images\Controls\Bar.png" />
     <Content Include="Skin\Reflexion\themes\default\images\Controls\Glass.png" />
+    <Content Include="Skin\Reflexion\themes\default\images\Controls\MenuBackground.png" />
     <Content Include="Skin\Reflexion\themes\green\images\preview.png" />
     <Content Include="Skin\Reflexion\themes\green\images\Reflex.jpg" />
     <Content Include="Skin\Reflexion\themes\green\theme.xml" />

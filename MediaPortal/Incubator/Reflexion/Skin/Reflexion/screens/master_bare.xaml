@@ -91,7 +91,7 @@ Parameters which have to be accessible by a DynamicResource lookup:
     <!--  Background="{ThemeResource FooterPanelBackgroundBrush}" -->
     <Grid x:Name="FooterPanel" DockPanel.Dock="Bottom">
       <Grid.RowDefinitions>
-        <RowDefinition Height="110"/>
+        <RowDefinition Height="100"/>
       </Grid.RowDefinitions>
       <Grid.ColumnDefinitions>
         <ColumnDefinition Width="100"/>        <!-- Connection/Notifiction -->
