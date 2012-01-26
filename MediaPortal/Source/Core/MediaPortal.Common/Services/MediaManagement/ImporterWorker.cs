@@ -467,6 +467,9 @@ namespace MediaPortal.Common.Services.MediaManagement
       {
         throw;
       }
+      // If the access to the file or folder was denied, simply continue with the others
+      catch(UnauthorizedAccessException)
+      { }
       catch (Exception e)
       {
         CheckSuspended(); // Throw ImportAbortException if suspended - will skip warning and tagging job as erroneous
