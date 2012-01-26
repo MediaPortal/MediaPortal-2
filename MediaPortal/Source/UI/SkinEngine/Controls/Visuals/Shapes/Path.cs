@@ -26,7 +26,9 @@ using System;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Text.RegularExpressions;
+using MediaPortal.Common;
 using MediaPortal.Common.General;
+using MediaPortal.Common.Logging;
 using MediaPortal.UI.SkinEngine.DirectX;
 using MediaPortal.UI.SkinEngine.DirectX.Triangulate;
 using MediaPortal.UI.SkinEngine.Rendering;
@@ -100,6 +102,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Shapes
                   gpi.NextSubpath(subPath, out isClosed);
                   PointF[] pathPoints = subPath.PathPoints;
                   TriangulateHelper.Triangulate(pathPoints, 1, out subPathVerts[i]);
+                  if (subPathVerts[i] == null)
+                    ServiceRegistration.Get<ILogger>().Warn("Failed to triangulate Path \"{0}\"!", Name);
                 }
               }
               PositionColoredTextured[] verts;

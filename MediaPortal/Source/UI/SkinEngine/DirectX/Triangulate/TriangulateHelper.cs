@@ -309,7 +309,18 @@ namespace MediaPortal.UI.SkinEngine.DirectX.Triangulate
         verts[2].Position = new Vector3(pathPoints[2].X, pathPoints[2].Y, zCoord);
         return;
       }
-      ICollection<CPolygon> polygons = new List<CPolygon>(new CPolygon(pathPoints).Triangulate());
+
+      ICollection<CPolygon> polygons;
+      try
+      {
+        // Triangulation can fail (i.e. polygon is self-intersecting)
+        polygons = new List<CPolygon>(new CPolygon(pathPoints).Triangulate());
+      }
+      catch (Exception)
+      {
+        verts = null;
+        return;
+      }
 
       verts = new PositionColoredTextured[polygons.Count * 3];
       int offset = 0;
