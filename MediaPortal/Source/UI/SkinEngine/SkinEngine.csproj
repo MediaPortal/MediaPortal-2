@@ -122,6 +122,9 @@
     <Compile Include="Controls\Panels\DefinitionsCollectionBase.cs" />
     <Compile Include="Controls\Panels\IItemProvider.cs" />
     <Compile Include="Controls\Transforms\MatrixTransform.cs" />
+    <Compile Include="Controls\Visuals\Effects\Effect.cs" />
+    <Compile Include="Controls\Visuals\Effects\DropShadowEffect.cs" />
+    <Compile Include="Controls\Visuals\Effects\BlurEffect.cs" />
     <Compile Include="Controls\Visuals\ISelectableItemContainer.cs" />
     <Compile Include="Controls\Visuals\Templates\DataStringProvider.cs" />
     <Compile Include="Controls\Visuals\ListViewItemGenerator.cs" />
