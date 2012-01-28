@@ -257,6 +257,9 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     {
       PerformLayout(localRenderContext);
 
+      // Base class
+      base.DoRender(localRenderContext);
+
       if (_backgroundContext != null)
       {
         if (Background.BeginRenderBrush(_backgroundContext, localRenderContext))

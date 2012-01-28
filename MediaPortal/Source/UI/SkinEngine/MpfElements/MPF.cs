@@ -208,6 +208,11 @@ namespace MediaPortal.UI.SkinEngine.MpfElements
 
       // Others
       _objectClassRegistrations.Add("RelativeSource", typeof(SkinEngine.MarkupExtensions.RelativeSource));
+
+      // Effects
+      _objectClassRegistrations.Add("BlurEffect", typeof(MediaPortal.UI.SkinEngine.Controls.Visuals.Effects.BlurEffect));
+      _objectClassRegistrations.Add("DropShadowEffect", typeof(MediaPortal.UI.SkinEngine.Controls.Visuals.Effects.DropShadowEffect));
+
     }
 
     #endregion

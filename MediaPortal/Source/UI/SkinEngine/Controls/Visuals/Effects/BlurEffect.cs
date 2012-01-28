@@ -1,19 +1,25 @@
-﻿using MediaPortal.Common.General;
-using MediaPortal.UI.SkinEngine.ContentManagement;
+﻿using System.Drawing;
+using MediaPortal.Common.General;
 using MediaPortal.UI.SkinEngine.Rendering;
 using MediaPortal.Utilities.DeepCopy;
 using SlimDX;
+using SlimDX.Direct3D9;
 
 namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Effects
 {
   public sealed class BlurEffect : Effect
   {
-    private const string EFFECT_BLUR = "blur";
+    #region Consts
+
+    private const string EFFECT_BLUR = "effects\\zoom_blur";
+
+    #endregion
 
     #region Protected fields
 
     protected AbstractProperty _radiusProperty;
-    protected EffectAsset _effect;
+    protected bool _refresh = true;
+    protected readonly RectangleF FULLSIZE = new RectangleF(0, 0, 1, 1);
 
     #endregion
 
@@ -56,19 +62,27 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Effects
 
     #region Rendering
 
-    public void Render(RenderContext renderContext)
+    protected override bool BeginRenderEffectOverride(Texture texture, RenderContext renderContext)
     {
-      _effect = ContentManager.Instance.GetEffect(EFFECT_BLUR);
-      SetEffectParameters(renderContext);
-      // TODO: what to render? The parent element?
-      // _effect.StartRender(Matrix.Identity);
+      if (_refresh)
+      {
+        _imageContext = new ImageContext();
+        _refresh = false;
+      }
 
+      RectangleF rect = renderContext.OccupiedTransformedBounds;
+      SizeF frameSize = new SizeF(rect.Width, rect.Height);
+      _imageContext.FrameSize = frameSize;
+      _imageContext.ShaderEffect = EFFECT_BLUR;
+
+      Vector4 lastFrameData = new Vector4(rect.Width, rect.Height, 0.0f, 0.0f);
+      _imageContext.StartRender(renderContext, frameSize, texture, FULLSIZE, 0, lastFrameData);
+      return true;
     }
 
-    protected void SetEffectParameters(RenderContext renderContext)
+    public override void EndRender()
     {
-      // TODO: pass proper parameters to shader (here radius)
-      //_effect.Parameters[PARAM_RELATIVE_TRANSFORM] = _relativeTransformCache;
+      _imageContext.EndRender();
     }
 
     #endregion
