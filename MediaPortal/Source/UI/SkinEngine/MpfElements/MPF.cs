@@ -211,6 +211,7 @@ namespace MediaPortal.UI.SkinEngine.MpfElements
 
       // Effects
       _objectClassRegistrations.Add("BlurEffect", typeof(MediaPortal.UI.SkinEngine.Controls.Visuals.Effects.BlurEffect));
+      _objectClassRegistrations.Add("ShaderBlurEffect", typeof(MediaPortal.UI.SkinEngine.Controls.Visuals.Effects.ShaderBlurEffect));
       _objectClassRegistrations.Add("DropShadowEffect", typeof(MediaPortal.UI.SkinEngine.Controls.Visuals.Effects.DropShadowEffect));
 
     }

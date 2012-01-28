@@ -1346,7 +1346,7 @@
         HorizontalAlignment="Center" VerticalAlignment="Center"
         Content="[Home.Title]">
         <Label.Effect>
-          <BlurEffect />
+          <ShaderBlurEffect />
         </Label.Effect>
       </Label>
     </DockPanel>
