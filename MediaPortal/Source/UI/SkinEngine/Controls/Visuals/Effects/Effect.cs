@@ -10,9 +10,9 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Effects
 {
   public abstract class Effect : DependencyObject
   {
-    protected ImageContext _imageContext;
     protected RectangleF _vertsBounds;
     protected EffectAsset _effect;
+    protected readonly RectangleF CROP_FULLSIZE = new RectangleF(0, 0, 1, 1);
 
     public bool BeginRender(Texture texture, RenderContext renderContext)
     {
