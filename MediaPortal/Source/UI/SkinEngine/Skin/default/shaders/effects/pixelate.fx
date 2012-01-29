@@ -1,9 +1,9 @@
-﻿#define HorizontalPixelCounts (80)
-#define VerticalPixelCounts (80) 
+﻿float g_horizontalPixelCounts = 80;
+float g_verticalPixelCounts   = 80;
 
 float4 PixelEffect(in float2 texcoord, in sampler TextureSampler, in float4 framedata) : COLOR
 {
-   float2 brickCounts = { HorizontalPixelCounts, VerticalPixelCounts };
+   float2 brickCounts = { g_horizontalPixelCounts, g_verticalPixelCounts };
    float2 brickSize = 1.0 / brickCounts;
 
    // Offset every other row of bricks

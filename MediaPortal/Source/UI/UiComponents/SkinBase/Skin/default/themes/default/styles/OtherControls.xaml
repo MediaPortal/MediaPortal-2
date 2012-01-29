@@ -1346,7 +1346,9 @@
         HorizontalAlignment="Center" VerticalAlignment="Center"
         Content="[Home.Title]">
         <Label.Effect>
-          <ShaderBlurEffect />
+          <ZoomBlurEffect CenterX="0" CenterY="1" BlurAmount="0.01"/>
+          <!--<PixelateEffect VerticalPixelCount="280" HorizonzalPixelCount="280"/>-->
+          <!--<SepiaEffect/>-->
         </Label.Effect>
       </Label>
     </DockPanel>
