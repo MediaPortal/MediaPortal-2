@@ -467,9 +467,11 @@ namespace MediaPortal.Common.Services.MediaManagement
       {
         throw;
       }
-      // If the access to the file or folder was denied, simply continue with the others
-      catch(UnauthorizedAccessException)
-      { }
+      catch(UnauthorizedAccessException e)
+      {
+        // If the access to the file or folder was denied, simply continue with the others
+        ServiceRegistration.Get<ILogger>().Warn("ImporterWorker: Problem accessing resource '{0}', continueing with one", e, currentDirectoryPath);
+      }
       catch (Exception e)
       {
         CheckSuspended(); // Throw ImportAbortException if suspended - will skip warning and tagging job as erroneous
