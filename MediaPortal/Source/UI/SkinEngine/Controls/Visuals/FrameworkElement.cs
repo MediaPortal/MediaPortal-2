@@ -1783,7 +1783,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       _lastZIndex = localRenderContext.ZOrder;
     }
 
-    void UpdateEffectMask(RectangleF bounds, float width, float height, float zPos)
+    protected void UpdateEffectMask(RectangleF bounds, float width, float height, float zPos)
     {
       Color4 col = ColorConverter.FromColor(Color.White);
       col.Alpha *= (float) Opacity;
