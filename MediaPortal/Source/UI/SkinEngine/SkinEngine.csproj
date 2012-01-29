@@ -119,6 +119,7 @@
     <Compile Include="Controls\ImageSources\ImageSource.cs" />
     <Compile Include="Controls\ImageSources\MediaItemSource.cs" />
     <Compile Include="Controls\ImageSources\MultiImageSource.cs" />
+    <Compile Include="Controls\Panels\BackgroundCapture.cs" />
     <Compile Include="Controls\Panels\DefinitionsCollectionBase.cs" />
     <Compile Include="Controls\Panels\IItemProvider.cs" />
     <Compile Include="Controls\Transforms\MatrixTransform.cs" />

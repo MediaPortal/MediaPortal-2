@@ -45,8 +45,16 @@ Parameters which have to be accessible by a DynamicResource lookup:
       </EventTrigger.Actions>
     </EventTrigger>
   </Screen.Triggers>
+
+
+  
   <DockPanel x:Name="ScreenAnimationElement" RenderTransformOrigin="0.5,0.5" Background="{ThemeResource DialogScreenBackgroundColor}"
       LastChildFill="False">
+  <BackgroundCapture x:Name="BackgroundCapture" IsVisible="True" DockPanel.Dock="Center">
+    <BackgroundCapture.Effect>
+      <BlurEffect/>
+    </BackgroundCapture.Effect>
+  </BackgroundCapture>
     <DockPanel.RenderTransform>
       <TransformGroup>
         <ScaleTransform CenterX="0.5" CenterY="0.5" ScaleX="1" ScaleY="1"/>
@@ -75,6 +83,7 @@ Parameters which have to be accessible by a DynamicResource lookup:
           <Button x:Name="CloseButton" Grid.Column="1" Grid.Row="0" Style="{ThemeResource DialogCloseButtonStyle}"
               Command="{Command Source={Service ScreenManager},Path=CloseTopmostDialog}"/>
         </Grid>
+
         <Control x:Name="ContentPanel" Margin="10" DockPanel.Dock="Center"
             VerticalAlignment="Stretch" HorizontalAlignment="Stretch"
             Template="{DynamicResource ResourceKey=Contents_Template}"/>
