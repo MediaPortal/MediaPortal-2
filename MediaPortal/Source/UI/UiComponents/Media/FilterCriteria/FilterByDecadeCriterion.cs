@@ -43,7 +43,7 @@ namespace MediaPortal.UiComponents.Media.FilterCriteria
 
     #region Base overrides
 
-    public override ICollection<FilterValue> GetAvailableValues(IEnumerable<Guid> necessaryMIATypeIds, IFilter filter)
+    public override ICollection<FilterValue> GetAvailableValues(IEnumerable<Guid> necessaryMIATypeIds, IFilter selectAttributeFilter, IFilter filter)
     {
       // We'll do the grouping here at the client. We could also implement a grouping function for decades at the server,
       // but that seems to be not better since it increases the server code size, the server workload, it complicates the
@@ -51,7 +51,7 @@ namespace MediaPortal.UiComponents.Media.FilterCriteria
       IContentDirectory cd = ServiceRegistration.Get<IServerConnectionManager>().ContentDirectory;
       if (cd == null)
         return new List<FilterValue>();
-      HomogenousMap valueGroups = cd.GetValueGroups(MediaAspect.ATTR_RECORDINGTIME, ProjectionFunction.DateToYear,
+      HomogenousMap valueGroups = cd.GetValueGroups(MediaAspect.ATTR_RECORDINGTIME, null, ProjectionFunction.DateToYear,
           necessaryMIATypeIds, filter, true);
       IList<FilterValue> result = new List<FilterValue>(valueGroups.Count);
       int numEmptyEntries = 0;
@@ -72,7 +72,7 @@ namespace MediaPortal.UiComponents.Media.FilterCriteria
           numEmptyEntries += (int) group.Value;
       }
       if (numEmptyEntries > 0)
-        result.Insert(0, new FilterValue(Consts.VALUE_EMPTY_TITLE, new EmptyFilter(MediaAspect.ATTR_RECORDINGTIME), numEmptyEntries, this));
+        result.Insert(0, new FilterValue(Consts.VALUE_EMPTY_TITLE, new EmptyFilter(MediaAspect.ATTR_RECORDINGTIME), null, numEmptyEntries, this));
       for (int decade = 0; decade < 300; decade++)
       {
         int year = decade * 10;
@@ -84,17 +84,12 @@ namespace MediaPortal.UiComponents.Media.FilterCriteria
               {
                   new RelationalFilter(MediaAspect.ATTR_RECORDINGTIME, RelationalOperator.GE, new DateTime(year, 1, 1)),
                   new RelationalFilter(MediaAspect.ATTR_RECORDINGTIME, RelationalOperator.LT, new DateTime(year + 10, 1, 1)),
-              }), numItems, this));
+              }), null, numItems, this));
       }
       return result;
     }
 
-    public override IFilter CreateFilter(FilterValue filterValue)
-    {
-      return (IFilter) filterValue.Value;
-    }
-
-    public override ICollection<FilterValue> GroupValues(ICollection<Guid> necessaryMIATypeIds, IFilter filter)
+    public override ICollection<FilterValue> GroupValues(ICollection<Guid> necessaryMIATypeIds, IFilter selectAttributeFilter, IFilter filter)
     {
       return null;
     }

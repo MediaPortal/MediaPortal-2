@@ -49,12 +49,12 @@ namespace MediaPortal.UiComponents.Media.FilterCriteria
 
     #region Base overrides
 
-    public override ICollection<FilterValue> GetAvailableValues(IEnumerable<Guid> necessaryMIATypeIds, IFilter filter)
+    public override ICollection<FilterValue> GetAvailableValues(IEnumerable<Guid> necessaryMIATypeIds, IFilter selectAttributeFilter, IFilter filter)
     {
       IContentDirectory cd = ServiceRegistration.Get<IServerConnectionManager>().ContentDirectory;
       if (cd == null)
         return new List<FilterValue>();
-      HomogenousMap valueGroups = cd.GetValueGroups(_attributeType, ProjectionFunction.None, necessaryMIATypeIds, filter, true);
+      HomogenousMap valueGroups = cd.GetValueGroups(_attributeType, selectAttributeFilter, ProjectionFunction.None, necessaryMIATypeIds, filter, true);
       IList<FilterValue> result = new List<FilterValue>(valueGroups.Count);
       int numEmptyEntries = 0;
       foreach (KeyValuePair<object, object> group in valueGroups)
@@ -63,25 +63,19 @@ namespace MediaPortal.UiComponents.Media.FilterCriteria
         if (name == string.Empty)
           numEmptyEntries += (int) group.Value;
         else
-          result.Add(new FilterValue(name,
-              new RelationalFilter(_attributeType, RelationalOperator.EQ, group.Key), (int) group.Value, this));
+          result.Add(new FilterValue(name, new RelationalFilter(_attributeType, RelationalOperator.EQ, group.Key), null, (int) group.Value, this));
       }
       if (numEmptyEntries > 0)
-        result.Insert(0, new FilterValue(Consts.VALUE_EMPTY_TITLE, new EmptyFilter(_attributeType), numEmptyEntries, this));
+        result.Insert(0, new FilterValue(Consts.VALUE_EMPTY_TITLE, new EmptyFilter(_attributeType), null, numEmptyEntries, this));
       return result;
     }
 
-    public override IFilter CreateFilter(FilterValue filterValue)
-    {
-      return (IFilter) filterValue.Value;
-    }
-
-    public override ICollection<FilterValue> GroupValues(ICollection<Guid> necessaryMIATypeIds, IFilter filter)
+    public override ICollection<FilterValue> GroupValues(ICollection<Guid> necessaryMIATypeIds, IFilter selectAttributeFilter, IFilter filter)
     {
       IContentDirectory cd = ServiceRegistration.Get<IServerConnectionManager>().ContentDirectory;
       if (cd == null)
         return new List<FilterValue>();
-      IList<MLQueryResultGroup> valueGroups = cd.GroupValueGroups(_attributeType, ProjectionFunction.None,
+      IList<MLQueryResultGroup> valueGroups = cd.GroupValueGroups(_attributeType, selectAttributeFilter, ProjectionFunction.None,
           necessaryMIATypeIds, filter, true, GroupingFunction.FirstCharacter);
       IList<FilterValue> result = new List<FilterValue>(valueGroups.Count);
       int numEmptyEntries = 0;
@@ -92,10 +86,10 @@ namespace MediaPortal.UiComponents.Media.FilterCriteria
         if (name == string.Empty)
           numEmptyEntries += group.NumItemsInGroup;
         else
-          result.Add(new FilterValue(name, group.AdditionalFilter, group.NumItemsInGroup, this));
+          result.Add(new FilterValue(name, null, group.AdditionalFilter, group.NumItemsInGroup, this));
       }
       if (numEmptyEntries > 0)
-        result.Insert(0, new FilterValue(Consts.VALUE_EMPTY_TITLE, new EmptyFilter(_attributeType), numEmptyEntries, this));
+        result.Insert(0, new FilterValue(Consts.VALUE_EMPTY_TITLE, new EmptyFilter(_attributeType), null, numEmptyEntries, this));
       return result;
     }
 

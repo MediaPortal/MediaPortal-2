@@ -38,29 +38,27 @@ namespace MediaPortal.UiComponents.Media.FilterCriteria
     /// </summary>
     /// <param name="necessaryMIATypeIds">Media item aspects which need to be available in the media items, from which
     /// the available values will be collected.</param>
+    /// <param name="selectAttributeFilter">Special filter which can be implemented by a special filter criterion which
+    /// fills the <see cref="FilterValue.SelectAttributeFilter"/>.</param>
     /// <param name="filter">Base filter for the media items from which the available values will be collected.</param>
     /// <returns>Collection of filter value objects which hold a title for the particular filter value and which can
     /// create the actual filter to be used in a media item query.</returns>
-    public abstract ICollection<FilterValue> GetAvailableValues(IEnumerable<Guid> necessaryMIATypeIds, IFilter filter);
-
-    /// <summary>
-    /// Creates a media item filter from the given <paramref name="filterValue"/> to be used in a media item query.
-    /// </summary>
-    /// <param name="filterValue">Filter value instance which was returned by <see cref="GetAvailableValues"/>.</param>
-    /// <returns>Filter instance. The returned filter instance doesn't inculde the filter used when calling method
-    /// <see cref="GetAvailableValues"/>, i.e. the return value should be combined with that filter.</returns>
-    public abstract IFilter CreateFilter(FilterValue filterValue);
+    public abstract ICollection<FilterValue> GetAvailableValues(IEnumerable<Guid> necessaryMIATypeIds,
+        IFilter selectAttributeFilter, IFilter filter);
 
     /// <summary>
     /// Builds value groups for the values created by this filter criterion.
     /// </summary>
     /// <param name="necessaryMIATypeIds">Media item aspects which need to be available in the media items, from which
     /// the available values will be collected.</param>
+    /// <param name="selectAttributeFilter">Special filter which can be implemented by a special filter criterion which
+    /// fills the <see cref="FilterValue.SelectAttributeFilter"/>.</param>
     /// <param name="filter">Base filter for the media items from which the available values will be collected.</param>
     /// <returns>Collection of filter value objects which hold a title for the particular filter value group and which can
     /// create the actual filter to be used in a media item query. If <c>null</c> is returned, this filter doesn't provide
     /// value groups. In that case, the caller can fall back to request all filter values via
     /// <see cref="GetAvailableValues"/>.</returns>
-    public abstract ICollection<FilterValue> GroupValues(ICollection<Guid> necessaryMIATypeIds, IFilter filter);
+    public abstract ICollection<FilterValue> GroupValues(ICollection<Guid> necessaryMIATypeIds, IFilter selectAttributeFilter,
+        IFilter filter);
   }
 }

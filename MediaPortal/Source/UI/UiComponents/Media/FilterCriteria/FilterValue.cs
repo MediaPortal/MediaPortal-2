@@ -29,21 +29,24 @@ namespace MediaPortal.UiComponents.Media.FilterCriteria
   public class FilterValue
   {
     protected string _title;
-    protected object _value;
+    protected IFilter _filter;
+    protected IFilter _selectAttributeFilter;
     protected int? _numItems = null;
     protected MLFilterCriterion _criterion;
 
-    public FilterValue(string title, object value, MLFilterCriterion criterion)
+    public FilterValue(string title, IFilter filter, IFilter selectAttributeFilter, MLFilterCriterion criterion)
     {
       _title = title;
-      _value = value;
+      _filter = filter;
+      _selectAttributeFilter = selectAttributeFilter;
       _criterion = criterion;
     }
 
-    public FilterValue(string title, object value, int numItems, MLFilterCriterion criterion)
+    public FilterValue(string title, IFilter filter, IFilter selectAttributeFilter, int numItems, MLFilterCriterion criterion)
     {
       _title = title;
-      _value = value;
+      _filter = filter;
+      _selectAttributeFilter = selectAttributeFilter;
       _numItems = numItems;
       _criterion = criterion;
     }
@@ -51,11 +54,6 @@ namespace MediaPortal.UiComponents.Media.FilterCriteria
     public string Title
     {
       get { return _title; }
-    }
-
-    public object Value
-    {
-      get { return _value; }
     }
 
     public int? NumItems
@@ -70,7 +68,12 @@ namespace MediaPortal.UiComponents.Media.FilterCriteria
 
     public IFilter Filter
     {
-      get { return _criterion.CreateFilter(this); }
+      get { return _filter; }
+    }
+
+    public IFilter SelectAttributeFilter
+    {
+      get { return _selectAttributeFilter; }
     }
   }
 }

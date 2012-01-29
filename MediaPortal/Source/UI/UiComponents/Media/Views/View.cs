@@ -187,6 +187,9 @@ namespace MediaPortal.UiComponents.Media.Views
     public IViewChangeNotificator GetViewChangeNotificator()
     {
       List<ViewSpecification> viewSpecifications = new List<ViewSpecification> {_viewSpecification};
+      IList<View> subViews = SubViews;
+      if (subViews == null)
+        return null;
       CollectionUtils.AddAll(viewSpecifications, SubViews.Select(subView => subView.Specification));
       return CombinedViewChangeNotificator.CombineViewChangeNotificators(viewSpecifications);
     }

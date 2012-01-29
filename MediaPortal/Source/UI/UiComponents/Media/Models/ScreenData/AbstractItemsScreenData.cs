@@ -174,10 +174,10 @@ namespace MediaPortal.UiComponents.Media.Models.ScreenData
           return;
         }
         // Mark the list as being built
-        _buildingList = true;
-        _listDirty = false;
         view = _view;
         InstallViewChangeNotificator(_view.GetViewChangeNotificator());
+        _buildingList = true;
+        _listDirty = false;
       }
       try
       {

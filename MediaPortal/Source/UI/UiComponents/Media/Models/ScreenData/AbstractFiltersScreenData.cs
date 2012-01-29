@@ -42,7 +42,7 @@ namespace MediaPortal.UiComponents.Media.Models.ScreenData
   {
     protected MLFilterCriterion _filterCriterion;
     protected string _navbarSubViewNavigationDisplayLabel;
-    protected bool _avoidClustering = false;
+    protected IFilter _clusterFilter = null;
 
     protected object _syncObj = new object();
     // Variables to be synchronized for multithreading access
@@ -64,10 +64,10 @@ namespace MediaPortal.UiComponents.Media.Models.ScreenData
       _filterCriterion = filterCriterion;
     }
 
-    public bool AvoidClustering
+    public IFilter ClusterFilter
     {
-      get { return _avoidClustering; }
-      set { _avoidClustering = value; }
+      get { return _clusterFilter; }
+      set { _clusterFilter = value; }
     }
 
     /// <summary>
@@ -134,13 +134,13 @@ namespace MediaPortal.UiComponents.Media.Models.ScreenData
           Display_ListBeingBuilt();
           bool grouping = true;
           int numItems = 0;
-          ICollection<FilterValue> fv = _avoidClustering ? null :
-              _filterCriterion.GroupValues(currentVS.NecessaryMIATypeIds, currentVS.Filter);
+          ICollection<FilterValue> fv = _clusterFilter == null ?
+              _filterCriterion.GroupValues(currentVS.NecessaryMIATypeIds, _clusterFilter, currentVS.Filter) : null;
           if (fv != null)
             numItems = fv.Select(filterValue => filterValue.NumItems).Select(num => num.HasValue ? num.Value : 0).Sum();
           if (fv == null || numItems <= Consts.MAX_NUM_ITEMS_VISIBLE)
           {
-            fv = _filterCriterion.GetAvailableValues(currentVS.NecessaryMIATypeIds, currentVS.Filter);
+            fv = _filterCriterion.GetAvailableValues(currentVS.NecessaryMIATypeIds, _clusterFilter, currentVS.Filter);
             grouping = false;
           }
           if (fv.Count > Consts.MAX_NUM_ITEMS_VISIBLE)
@@ -163,11 +163,12 @@ namespace MediaPortal.UiComponents.Media.Models.ScreenData
             foreach (FilterValue filterValue in fv)
             {
               string filterTitle = filterValue.Title;
-              IFilter combinedFilter = BooleanCombinationFilter.CombineFilters(BooleanOperator.And, new IFilter[] { currentVS.Filter, filterValue.Filter});
+              IFilter combinedFilter = BooleanCombinationFilter.CombineFilters(BooleanOperator.And, new IFilter[] {currentVS.Filter, filterValue.Filter});
+              IFilter selectAttributeFilter = filterValue.SelectAttributeFilter;
               MediaLibraryQueryViewSpecification subVS = currentVS.CreateSubViewSpecification(filterTitle, combinedFilter);
               ListItem filterValueItem = new FilterItem(filterTitle, filterValue.NumItems)
                 {
-                    Command = grouping ? new MethodDelegateCommand(() => NavigateToGroup(subVS)) :
+                    Command = grouping ? new MethodDelegateCommand(() => NavigateToGroup(subVS, selectAttributeFilter)) :
                         new MethodDelegateCommand(() => NavigateToSubView(subVS, remainingScreens))
                 };
               items.Add(filterValueItem);
@@ -202,10 +203,10 @@ namespace MediaPortal.UiComponents.Media.Models.ScreenData
       }
     }
 
-    protected void NavigateToGroup(ViewSpecification subViewSpecification)
+    protected void NavigateToGroup(ViewSpecification subViewSpecification, IFilter clusterFilter)
     {
       AbstractFiltersScreenData childScreenData = Derive();
-      childScreenData.AvoidClustering = true; // We already showed the clusters in the current screen - avoid clusters again else we would present the same grouped screen contents again
+      childScreenData.ClusterFilter = clusterFilter; // We already showed the clusters in the current screen - avoid clusters again else we would present the same grouped screen contents again
       _navigationData.StackSubordinateNavigationContext(subViewSpecification, childScreenData,
           LocalizationHelper.Translate(_navbarSubViewNavigationDisplayLabel,
               LocalizationHelper.Translate(subViewSpecification.ViewDisplayName)));

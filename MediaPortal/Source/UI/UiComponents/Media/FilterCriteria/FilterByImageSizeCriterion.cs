@@ -40,7 +40,7 @@ namespace MediaPortal.UiComponents.Media.FilterCriteria
 
     #region Base overrides
 
-    public override ICollection<FilterValue> GetAvailableValues(IEnumerable<Guid> necessaryMIATypeIds, IFilter filter)
+    public override ICollection<FilterValue> GetAvailableValues(IEnumerable<Guid> necessaryMIATypeIds, IFilter selectAttributeFilter, IFilter filter)
     {
       IContentDirectory cd = ServiceRegistration.Get<IServerConnectionManager>().ContentDirectory;
       if (cd == null)
@@ -70,19 +70,14 @@ namespace MediaPortal.UiComponents.Media.FilterCriteria
       int numBigItems = cd.CountMediaItems(necessaryMIATypeIds, bigFilter, true);
       return new List<FilterValue>(new FilterValue[]
         {
-            new FilterValue(Consts.VALUE_EMPTY_TITLE, emptyFilter, numEmptyItems, this),
-            new FilterValue(Consts.RES_IMAGE_FILTER_SMALL, smallFilter, numSmallItems, this),
-            new FilterValue(Consts.RES_IMAGE_FILTER_MEDIUM, mediumFilter, numMediumItems, this),
-            new FilterValue(Consts.RES_IMAGE_FILTER_BIG, bigFilter, numBigItems, this),
+            new FilterValue(Consts.VALUE_EMPTY_TITLE, emptyFilter, null, numEmptyItems, this),
+            new FilterValue(Consts.RES_IMAGE_FILTER_SMALL, smallFilter, null, numSmallItems, this),
+            new FilterValue(Consts.RES_IMAGE_FILTER_MEDIUM, mediumFilter, null, numMediumItems, this),
+            new FilterValue(Consts.RES_IMAGE_FILTER_BIG, bigFilter, null, numBigItems, this),
         }.Where(fv => !fv.NumItems.HasValue || fv.NumItems.Value > 0));
     }
 
-    public override IFilter CreateFilter(FilterValue filterValue)
-    {
-      return (IFilter) filterValue.Value;
-    }
-
-    public override ICollection<FilterValue> GroupValues(ICollection<Guid> necessaryMIATypeIds, IFilter filter)
+    public override ICollection<FilterValue> GroupValues(ICollection<Guid> necessaryMIATypeIds, IFilter selectAttributeFilter, IFilter filter)
     {
       return null;
     }

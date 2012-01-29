@@ -91,10 +91,11 @@ namespace MediaPortal.UI.ServerCommunication
     IList<MediaItem> Search(MediaItemQuery query, bool onlyOnline);
     IList<MediaItem> SimpleTextSearch(string searchText, IEnumerable<Guid> necessaryMIATypes, IEnumerable<Guid> optionalMIATypes,
         IFilter filter, bool excludeCLOBs, bool onlyOnline, bool caseSensitive);
-    HomogenousMap GetValueGroups(MediaItemAspectMetadata.AttributeSpecification attributeType, ProjectionFunction projectionFunction,
-        IEnumerable<Guid> necessaryMIATypes, IFilter filter, bool onlyOnline);
-    IList<MLQueryResultGroup> GroupValueGroups(MediaItemAspectMetadata.AttributeSpecification attributeType, ProjectionFunction projectionFunction,
-        IEnumerable<Guid> necessaryMIATypes, IFilter filter, bool onlyOnline, GroupingFunction groupingFunction);
+    HomogenousMap GetValueGroups(MediaItemAspectMetadata.AttributeSpecification attributeType, IFilter selectAttributeFilter,
+        ProjectionFunction projectionFunction, IEnumerable<Guid> necessaryMIATypes, IFilter filter, bool onlyOnline);
+    IList<MLQueryResultGroup> GroupValueGroups(MediaItemAspectMetadata.AttributeSpecification attributeType,
+        IFilter selectAttributeFilter, ProjectionFunction projectionFunction, IEnumerable<Guid> necessaryMIATypes,
+        IFilter filter, bool onlyOnline, GroupingFunction groupingFunction);
     int CountMediaItems(IEnumerable<Guid> necessaryMIATypes, IFilter filter, bool onlyOnline);
 
     #endregion

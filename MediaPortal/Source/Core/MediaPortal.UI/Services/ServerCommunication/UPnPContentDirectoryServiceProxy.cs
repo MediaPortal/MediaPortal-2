@@ -281,21 +281,22 @@ namespace MediaPortal.UI.Services.ServerCommunication
       return (IList<MediaItem>) outParameters[0];
     }
 
-    public HomogenousMap GetValueGroups(MediaItemAspectMetadata.AttributeSpecification attributeType,
+    public HomogenousMap GetValueGroups(MediaItemAspectMetadata.AttributeSpecification attributeType, IFilter selectAttributeFilter,
         ProjectionFunction projectionFunction, IEnumerable<Guid> necessaryMIATypes, IFilter filter, bool onlyOnline)
     {
       CpAction action = GetAction("GetValueGroups");
       string projectionFunctionStr = SerializeProjectionFunction(projectionFunction);
       string onlineStateStr = SerializeOnlineState(onlyOnline);
       IList<object> inParameters = new List<object> {MarshallingHelper.SerializeGuid(attributeType.ParentMIAM.AspectId),
-          attributeType.AttributeName, projectionFunctionStr, MarshallingHelper.SerializeGuidEnumerationToCsv(necessaryMIATypes), filter, onlineStateStr};
+          attributeType.AttributeName, selectAttributeFilter, projectionFunctionStr,
+          MarshallingHelper.SerializeGuidEnumerationToCsv(necessaryMIATypes), filter, onlineStateStr};
       IList<object> outParameters = action.InvokeAction(inParameters);
       return (HomogenousMap) outParameters[0];
     }
 
     public IList<MLQueryResultGroup> GroupValueGroups(MediaItemAspectMetadata.AttributeSpecification attributeType,
-        ProjectionFunction projectionFunction, IEnumerable<Guid> necessaryMIATypes, IFilter filter, bool onlyOnline,
-        GroupingFunction groupingFunction)
+        IFilter selectAttributeFilter, ProjectionFunction projectionFunction, IEnumerable<Guid> necessaryMIATypes,
+        IFilter filter, bool onlyOnline, GroupingFunction groupingFunction)
     {
       CpAction action = GetAction("GroupValueGroups");
       string projectionFunctionStr = SerializeProjectionFunction(projectionFunction);
@@ -310,8 +311,8 @@ namespace MediaPortal.UI.Services.ServerCommunication
           throw new NotImplementedException(string.Format("GroupingFunction '{0}' is not implemented", groupingFunction));
       }
       IList<object> inParameters = new List<object> {MarshallingHelper.SerializeGuid(attributeType.ParentMIAM.AspectId),
-          attributeType.AttributeName, projectionFunctionStr, MarshallingHelper.SerializeGuidEnumerationToCsv(necessaryMIATypes), filter, onlineStateStr,
-          groupingFunctionStr};
+          attributeType.AttributeName, selectAttributeFilter, projectionFunctionStr,
+          MarshallingHelper.SerializeGuidEnumerationToCsv(necessaryMIATypes), filter, onlineStateStr, groupingFunctionStr};
       IList<object> outParameters = action.InvokeAction(inParameters);
       return (IList<MLQueryResultGroup>) outParameters[0];
     }
