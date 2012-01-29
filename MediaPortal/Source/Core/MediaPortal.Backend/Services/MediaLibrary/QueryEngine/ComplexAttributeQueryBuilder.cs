@@ -127,7 +127,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
 
       // Build table query data for each Inline attribute which is part of a filter
       // + compile query attribute
-      foreach (QueryAttribute attr in _filter.FilterAttributes)
+      foreach (QueryAttribute attr in _filter.RequiredAttributes)
       {
         if (attr.Attr.Cardinality != Cardinality.Inline && attr.Attr.Cardinality != Cardinality.ManyToOne)
           continue;
@@ -177,6 +177,10 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
       result.Append(countAttribute);
       groupSizeAlias = ns.GetOrCreate(countAttribute, "C");
       result.Append(groupSizeAlias);
+
+      string whereStr;
+      _filter.CreateSqlFilterCondition(ns, requestedAttributes, miaIdAttribute.GetQualifiedName(ns), out whereStr, out bindVars);
+
       result.Append(" FROM ");
 
       // Always request the mia table
@@ -190,9 +194,6 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
         result.Append(' ');
       }
 
-      string whereStr;
-      _filter.CreateSqlFilterCondition(ns, requestedAttributes,
-          miaIdAttribute.GetQualifiedName(ns), out whereStr, out bindVars);
       if (!string.IsNullOrEmpty(whereStr) || queryAttributeFilter != null)
       {
         result.Append("WHERE ");
@@ -285,7 +286,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
 
       // Build table query data for each Inline attribute which is part of a filter
       // + compile query attribute
-      foreach (QueryAttribute attr in _filter.FilterAttributes)
+      foreach (QueryAttribute attr in _filter.RequiredAttributes)
       {
         if (attr.Attr.Cardinality != Cardinality.Inline && attr.Attr.Cardinality != Cardinality.ManyToOne)
           continue;
@@ -305,6 +306,9 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
       // Selected attributes
       result.Append(valueAttribute.GetDeclarationWithAlias(ns, out valueAlias));
 
+      string whereStr;
+      _filter.CreateSqlFilterCondition(ns, requestedAttributes, miaIdAttribute.GetQualifiedName(ns), out whereStr, out bindVars);
+
       result.Append(" FROM ");
 
       bool firstJoinTable = true;
@@ -321,9 +325,6 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
         result.Append(' ');
       }
 
-      string whereStr;
-      _filter.CreateSqlFilterCondition(ns, requestedAttributes,
-          miaIdAttribute.GetQualifiedName(ns), out whereStr, out bindVars);
       if (!string.IsNullOrEmpty(whereStr))
       {
         result.Append("WHERE ");

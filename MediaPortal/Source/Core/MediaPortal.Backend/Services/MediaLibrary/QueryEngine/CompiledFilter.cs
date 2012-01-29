@@ -51,15 +51,18 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
     /// </summary>
     protected object _outerMIIDJoinVariablePlaceHolder;
 
-    protected readonly ICollection<QueryAttribute> _filterAttributes;
+    protected readonly ICollection<QueryAttribute> _requiredAttributes;
+    protected readonly ICollection<MediaItemAspectMetadata> _requiredMIATypes;
 
     public CompiledFilter(MIA_Management miaManagement, IFilter filter, object outerMIIDJoinVariablePlaceHolder,
         BindVarNamespace bvNamespace)
     {
       _statementParts = new List<object>();
       _statementBindVars = new List<BindVar>();
-      CompileStatementParts(miaManagement, filter, outerMIIDJoinVariablePlaceHolder, bvNamespace, _statementParts, _statementBindVars);
-      _filterAttributes = _statementParts.OfType<QueryAttribute>().ToList();
+      _requiredMIATypes = new List<MediaItemAspectMetadata>();
+      CompileStatementParts(miaManagement, filter, outerMIIDJoinVariablePlaceHolder, bvNamespace, _requiredMIATypes,
+          _statementParts, _statementBindVars);
+      _requiredAttributes = _statementParts.OfType<QueryAttribute>().ToList();
       _outerMIIDJoinVariablePlaceHolder = outerMIIDJoinVariablePlaceHolder;
     }
 
@@ -70,7 +73,8 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
     }
 
     protected void CompileStatementParts(MIA_Management miaManagement, IFilter filter,
-        object outerMIIDJoinVariablePlaceHolder, BindVarNamespace bvNamespace, IList<object> resultParts, IList<BindVar> resultBindVars)
+        object outerMIIDJoinVariablePlaceHolder, BindVarNamespace bvNamespace, ICollection<MediaItemAspectMetadata> requiredMIATypes,
+        IList<object> resultParts, IList<BindVar> resultBindVars)
     {
       if (filter == null)
         return;
@@ -124,7 +128,8 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
           return;
         if (numOperands > 1)
           resultParts.Add("(");
-        CompileStatementParts(miaManagement, (IFilter) enumOperands.Current, outerMIIDJoinVariablePlaceHolder, bvNamespace, resultParts, resultBindVars);
+        CompileStatementParts(miaManagement, (IFilter) enumOperands.Current, outerMIIDJoinVariablePlaceHolder, bvNamespace,
+            requiredMIATypes, resultParts, resultBindVars);
         while (enumOperands.MoveNext())
         {
           switch (boolFilter.Operator)
@@ -139,7 +144,8 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
               throw new NotImplementedException(string.Format(
                   "Boolean filter operator '{0}' isn't supported by the media library", boolFilter.Operator));
           }
-          CompileStatementParts(miaManagement, (IFilter) enumOperands.Current, outerMIIDJoinVariablePlaceHolder, bvNamespace, resultParts, resultBindVars);
+          CompileStatementParts(miaManagement, (IFilter) enumOperands.Current, outerMIIDJoinVariablePlaceHolder, bvNamespace,
+              requiredMIATypes, resultParts, resultBindVars);
         }
         if (numOperands > 1)
           resultParts.Add(")");
@@ -150,7 +156,8 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
       if (notFilter != null)
       {
         resultParts.Add("NOT (");
-        CompileStatementParts(miaManagement, notFilter.InnerFilter, outerMIIDJoinVariablePlaceHolder, bvNamespace, resultParts, resultBindVars);
+        CompileStatementParts(miaManagement, notFilter.InnerFilter, outerMIIDJoinVariablePlaceHolder, bvNamespace,
+            requiredMIATypes, resultParts, resultBindVars);
         resultParts.Add(")");
         return;
       }
@@ -168,6 +175,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
       if (emptyFilter != null)
       {
         MediaItemAspectMetadata.AttributeSpecification attributeType = emptyFilter.AttributeType;
+        requiredMIATypes.Add(attributeType.ParentMIAM);
         Cardinality cardinality = attributeType.Cardinality;
         if (cardinality == Cardinality.Inline || cardinality == Cardinality.ManyToOne)
         {
@@ -234,6 +242,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
         //  WHERE NM.MI_ID=[Outer-Join-Variable-Placeholder] AND V.VALUE [Operator] [Comparison-Value])
 
         MediaItemAspectMetadata.AttributeSpecification attributeType = attributeFilter.AttributeType;
+        requiredMIATypes.Add(attributeType.ParentMIAM);
         Cardinality cardinality = attributeType.Cardinality;
         if (cardinality == Cardinality.Inline || cardinality == Cardinality.ManyToOne)
           BuildAttributeFilterExpression(attributeFilter, new QueryAttribute(attributeType), bvNamespace,
@@ -399,9 +408,22 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
       throw new InvalidDataException("Filter type '{0}' isn't supported by the media library", filter.GetType().Name);
     }
 
-    public ICollection<QueryAttribute> FilterAttributes
+    /// <summary>
+    /// Returns a collection of <see cref="QueryAttribute"/> instances encapsulating attributes which are accesed by this filter
+    /// and thus must be available in the SQL query.
+    /// </summary>
+    public ICollection<QueryAttribute> RequiredAttributes
     {
-      get { return _filterAttributes; }
+      get { return _requiredAttributes; }
+    }
+
+    /// <summary>
+    /// Returns a collection of <see cref="MediaItemAspectMetadata"/> instances representing the MIA types that will be accessed by this
+    /// filter.
+    /// </summary>
+    public ICollection<MediaItemAspectMetadata> RequiredMIATypes
+    {
+      get { return _requiredMIATypes; }
     }
 
     // outerMIIDJoinVariable is MEDIA_ITEMS.MEDIA_ITEM_ID (or its alias) for simple selects,

@@ -110,10 +110,9 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
         optionalMIATypes.Add(miam);
       }
       // Raise exception if MIA types are not present, which are contained in filter condition
-      CompiledFilter filter = CompiledFilter.Compile(miaManagement, query.Filter, new BindVarNamespace());
-      foreach (QueryAttribute qa in filter.FilterAttributes)
+      CompiledFilter compiledFilter = CompiledFilter.Compile(miaManagement, query.Filter, new BindVarNamespace());
+      foreach (MediaItemAspectMetadata miam in compiledFilter.RequiredMIATypes)
       {
-        MediaItemAspectMetadata miam = qa.Attr.ParentMIAM;
         if (!availableMIATypes.ContainsKey(miam.AspectId))
           throw new InvalidDataException("MIA type '{0}', which is contained in filter condition, is not present in the media library", miam.Name);
       }
@@ -146,7 +145,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
       }
 
       return new CompiledMediaItemQuery(miaManagement, necessaryMIATypes, optionalMIATypes,
-          mainSelectedAttributes, explicitSelectAttributes, filter, query.SortInformation);
+          mainSelectedAttributes, explicitSelectAttributes, compiledFilter, query.SortInformation);
     }
 
     public IList<MediaItem> Execute()

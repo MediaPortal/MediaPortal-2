@@ -211,7 +211,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
       }
       // Build table query data for each Inline attribute which is part of a filter
       // + compile query attribute
-      foreach (QueryAttribute attr in _filter.FilterAttributes)
+      foreach (QueryAttribute attr in _filter.RequiredAttributes)
       {
         if (attr.Attr.Cardinality != Cardinality.Inline && attr.Attr.Cardinality != Cardinality.ManyToOne)
           continue;
@@ -273,6 +273,9 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
         result.Append(selectAttr);
       }
 
+      string whereStr;
+      _filter.CreateSqlFilterCondition(ns, requestedAttributes, miaIdAttribute.GetQualifiedName(ns), out whereStr, out bindVars);
+
       result.Append(" FROM ");
 
       bool firstJoinTable = true;
@@ -289,8 +292,6 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
         result.Append(' ');
       }
 
-      string whereStr;
-      _filter.CreateSqlFilterCondition(ns, requestedAttributes, miaIdAttribute.GetQualifiedName(ns), out whereStr, out bindVars);
       if (!string.IsNullOrEmpty(whereStr))
       {
         result.Append("WHERE ");
