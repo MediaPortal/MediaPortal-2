@@ -15,13 +15,15 @@
 
     <Property Id="DOKANVERCHECK32">
       <DirectorySearch Id="Dokan.sys.version" Path="[SystemFolder]\Drivers">
-        <FileSearch Name="Dokan.sys" MinSize="91903" MaxSize="95745" />
+        <!-- 84992 is the exact filesize of dokan.sys v0.53 on Windows 32 -->
+        <FileSearch Name="Dokan.sys" MinSize="84992" MaxSize="84992" />
       </DirectorySearch>
     </Property>
 
     <Property Id="DOKANVERCHECK64">
       <DirectorySearch Id="Dokan.sys64.version" Path="[System64Folder]\Drivers">
-        <FileSearch Name="Dokan.sys" MinSize="120407" MaxSize="120409" />
+        <!-- 106888 is the exact filesize of dokan.sys v0.53 on Windows 64 -->
+        <FileSearch Name="Dokan.sys" MinSize="106888" MaxSize="106888" />
       </DirectorySearch>
     </Property>
 
