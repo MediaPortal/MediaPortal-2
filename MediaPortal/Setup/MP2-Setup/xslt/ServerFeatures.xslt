@@ -39,6 +39,7 @@
       <ComponentRef Id="ClientManager_create_1_0" />
       <ComponentRef Id="MediaLibrary_create_1_0" />
       <ComponentRef Id="MediaPortal_Basis_create_1_0" />
+      <ComponentRef Id="UserProfileDataManagement_create_1_0" />
 
       <ComponentRef Id="MP2Server" />
       <ComponentRef Id="MP2Server.config" />

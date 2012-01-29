@@ -35,6 +35,9 @@
         <Component Id="MediaPortal_Basis_create_1_0" Guid="87AEE59F-516D-463A-9221-5C82D0A5246D">
           <File Id="MediaPortal_Basis_create_1.0.sql" Name="MediaPortal-Basis-create-1.0.sql" KeyPath="yes" Checksum="yes" />
         </Component>
+        <Component Id="UserProfileDataManagement_create_1_0" Guid="24D425B0-27A0-4369-8614-5DFA0582F13C">
+          <File Id="UserProfileDataManagement_create_1.0.sql" Name="UserProfileDataManagement-create-1.0.sql" KeyPath="yes" Checksum="yes" />
+        </Component>
       </Directory>
 
       <Component Id="MP2Server" Guid="3AF13E59-DC3A-4C6F-A0EB-89462019140C">
