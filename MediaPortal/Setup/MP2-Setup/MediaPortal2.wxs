@@ -109,13 +109,26 @@
       </Directory>
 
       <Directory Id="ProgramMenuFolder">
-        <Directory Id="MP2StartMenu" Name="MediaPortal 2" />
+        <Directory Id="TeamMediaPortalStartMenu" Name="Team MediaPortal">
+          <Directory Id="MP2StartMenu" Name="MediaPortal 2" />
+        </Directory>        
       </Directory>
 
       <Directory Id="DesktopFolder" />
     </Directory>
 
     <!-- Shortcuts -->
+    <DirectoryRef Id="TeamMediaPortalStartMenu">
+      <Component Id="TeamMediaPortalStartMenu" Guid="EBCECF2A-3330-11E1-BB19-75D94724019B">
+        <RemoveFolder Id="TeamMediaPortalStartMenu" On="uninstall"/>
+        <RegistryValue Root="HKCU"
+                       Key="Software\Team MediaPortal\MediaPortal 2\Install"
+                       Name="TeamMediaPortalStartMenu"
+                       Type="string"
+                       Value="1"
+                       KeyPath="yes" />
+      </Component>
+    </DirectoryRef>
     <DirectoryRef Id="MP2StartMenu">
       <Component Id="MP2StartMenu" Guid="DB88BD5D-BD35-402E-ABD5-A8EBB1F0FA42">
         <Shortcut Id="MP2Uninstall.StartMenu.Shortcut"
@@ -148,6 +161,7 @@
              Description="!(loc.F_MediaPortal_Desc)">
       <FeatureRef Id="Client" />
       <FeatureRef Id="Server" />
+      <ComponentRef Id="TeamMediaPortalStartMenu" />
       <ComponentRef Id="MP2StartMenu" />
     </Feature>
 
