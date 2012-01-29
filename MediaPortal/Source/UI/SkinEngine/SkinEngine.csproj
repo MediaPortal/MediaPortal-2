@@ -127,6 +127,7 @@
     <Compile Include="Controls\Visuals\Effects\BlurEffect.cs" />
     <Compile Include="Controls\Visuals\Effects\ImageEffect.cs" />
     <Compile Include="Controls\Visuals\Effects\InvertEffect.cs" />
+    <Compile Include="Controls\Visuals\Effects\DialogBackgroundEffect.cs" />
     <Compile Include="Controls\Visuals\Effects\PixelateEffect.cs" />
     <Compile Include="Controls\Visuals\Effects\SepiaEffect.cs" />
     <Compile Include="Controls\Visuals\Effects\ZoomBlurEffect.cs" />

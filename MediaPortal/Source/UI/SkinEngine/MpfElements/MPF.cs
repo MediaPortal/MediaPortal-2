@@ -220,6 +220,7 @@ namespace MediaPortal.UI.SkinEngine.MpfElements
 
       // Generic shader effects based on EffectContext
       _objectClassRegistrations.Add("ShaderBlurEffect", typeof(MediaPortal.UI.SkinEngine.Controls.Visuals.Effects.ShaderBlurEffect));
+      _objectClassRegistrations.Add("DialogBackgroundEffect", typeof(MediaPortal.UI.SkinEngine.Controls.Visuals.Effects.DialogBackgroundEffect));
 
     }
 

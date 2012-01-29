@@ -52,7 +52,10 @@ Parameters which have to be accessible by a DynamicResource lookup:
       LastChildFill="False">
   <BackgroundCapture x:Name="BackgroundCapture" IsVisible="True" DockPanel.Dock="Center">
     <BackgroundCapture.Effect>
-      <BlurEffect/>
+      <!--<ShaderBlurEffect/>-->
+      <!--<SepiaEffect/>-->
+      <!--<InvertEffect/>-->
+       <DialogBackgroundEffect/>
     </BackgroundCapture.Effect>
   </BackgroundCapture>
     <DockPanel.RenderTransform>
