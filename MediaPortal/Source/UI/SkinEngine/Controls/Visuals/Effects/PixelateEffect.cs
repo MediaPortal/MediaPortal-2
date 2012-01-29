@@ -31,8 +31,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Effects
 
     void Init()
     {
-      _horizonzalPixelCountProperty = new SProperty(typeof(int), 80);
-      _verticalPixelCountProperty = new SProperty(typeof(int), 80);
+      _horizonzalPixelCountProperty = new SProperty(typeof(double), 80.0d);
+      _verticalPixelCountProperty = new SProperty(typeof(double), 80.0d);
     }
 
     public override void DeepCopy(IDeepCopyable source, ICopyManager copyManager)
@@ -52,9 +52,9 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Effects
       get { return _horizonzalPixelCountProperty; }
     }
 
-    public int HorizonzalPixelCount
+    public double HorizonzalPixelCount
     {
-      get { return (int) _horizonzalPixelCountProperty.GetValue(); }
+      get { return (double) _horizonzalPixelCountProperty.GetValue(); }
       set { _horizonzalPixelCountProperty.SetValue(value); }
     }
 
@@ -63,9 +63,9 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Effects
       get { return _verticalPixelCountProperty; }
     }
 
-    public int VerticalPixelCount
+    public double VerticalPixelCount
     {
-      get { return (int) _verticalPixelCountProperty.GetValue(); }
+      get { return (double) _verticalPixelCountProperty.GetValue(); }
       set { _verticalPixelCountProperty.SetValue(value); }
     }
 
