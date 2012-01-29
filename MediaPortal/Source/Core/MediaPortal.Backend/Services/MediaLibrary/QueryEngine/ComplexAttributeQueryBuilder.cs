@@ -270,7 +270,6 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
           throw new IllegalCallException("Media item aspect attributes of cardinality '{0}' cannot be requested via the {1}",
               _queryAttribute.Cardinality, GetType().Name);
       }
-      tableQueries[_queryAttribute.ParentMIAM] = mainJoinTableQuery;
       tableJoins.Insert(0, new TableJoin("INNER JOIN", mainJoinTableQuery, null, null)); // The first table join doesn't need the join attributes - see below
 
       // Ensure that the tables for all necessary MIAs are requested first (INNER JOIN)
