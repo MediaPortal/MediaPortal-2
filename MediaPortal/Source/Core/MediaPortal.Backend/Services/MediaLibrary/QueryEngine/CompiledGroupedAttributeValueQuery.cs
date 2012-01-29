@@ -44,22 +44,26 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
     protected readonly MIA_Management _miaManagement;
     protected readonly IEnumerable<MediaItemAspectMetadata> _necessaryRequestedMIATypes;
     protected readonly MediaItemAspectMetadata.AttributeSpecification _selectAttribute;
+    protected readonly IAttributeFilter _selectAttributeFilter;
     protected readonly SelectProjectionFunction _selectProjectionFunction;
     protected readonly Type _projectionValueType;
     protected readonly CompiledFilter _filter;
+    protected readonly BindVarNamespace _bvNamespace;
 
     public CompiledGroupedAttributeValueQuery(
         MIA_Management miaManagement,
         IEnumerable<MediaItemAspectMetadata> necessaryRequestedMIATypes,
-        MediaItemAspectMetadata.AttributeSpecification selectedAttribute,
-        SelectProjectionFunction selectProjectionFunction, Type projectionValueType,
+        MediaItemAspectMetadata.AttributeSpecification selectedAttribute, IAttributeFilter selectAttributeFilter,
+        SelectProjectionFunction selectProjectionFunction, Type projectionValueType, BindVarNamespace bvNamespace,
         CompiledFilter filter)
     {
       _miaManagement = miaManagement;
       _necessaryRequestedMIATypes = necessaryRequestedMIATypes;
       _selectAttribute = selectedAttribute;
+      _selectAttributeFilter = selectAttributeFilter;
       _selectProjectionFunction = selectProjectionFunction;
       _projectionValueType = projectionValueType;
+      _bvNamespace = bvNamespace;
       _filter = filter;
     }
 
@@ -73,6 +77,11 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
       get { return _selectAttribute; }
     }
 
+    public IAttributeFilter SelectAttributeFilter
+    {
+      get { return _selectAttributeFilter; }
+    }
+
     public CompiledFilter Filter
     {
       get { return _filter; }
@@ -80,12 +89,21 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
 
     public static CompiledGroupedAttributeValueQuery Compile(MIA_Management miaManagement,
         IEnumerable<Guid> necessaryRequestedMIATypeIDs,
-        MediaItemAspectMetadata.AttributeSpecification selectAttribute,
+        MediaItemAspectMetadata.AttributeSpecification selectAttribute, IAttributeFilter selectAttributeFilter,
         SelectProjectionFunction selectProjectionFunction, Type projectionValueType, IFilter filter)
     {
       IDictionary<Guid, MediaItemAspectMetadata> availableMIATypes = miaManagement.ManagedMediaItemAspectTypes;
+
+      // If we're doing a complex query, we can optimize if we have an extra select attribute filter, i.e. a restriction
+      // on the result set of values. See ComplexAttributeQueryBuilder.GenerateSqlGroupByStatement().
+      bool simpleQuery = selectAttribute.Cardinality == Cardinality.Inline || selectAttribute.Cardinality == Cardinality.ManyToOne;
+      IFilter combinedFilter = simpleQuery ?
+          BooleanCombinationFilter.CombineFilters(BooleanOperator.And, new IFilter[] {filter, selectAttributeFilter}) : filter;
+      selectAttributeFilter = simpleQuery ? null : selectAttributeFilter;
+
+      BindVarNamespace bvNamespace = new BindVarNamespace();
       // Raise exception if MIA types are not present, which are contained in filter condition
-      CompiledFilter compiledFilter = CompiledFilter.Compile(miaManagement, filter);
+      CompiledFilter compiledFilter = CompiledFilter.Compile(miaManagement, combinedFilter, bvNamespace);
       foreach (QueryAttribute qa in compiledFilter.FilterAttributes)
       {
         MediaItemAspectMetadata miam = qa.Attr.ParentMIAM;
@@ -101,8 +119,8 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
           throw new InvalidDataException("Necessary requested MIA type of ID '{0}' is not present in the media library", miaTypeID);
         necessaryMIATypes.Add(miam);
       }
-      return new CompiledGroupedAttributeValueQuery(miaManagement, necessaryMIATypes, selectAttribute,
-          selectProjectionFunction, projectionValueType, compiledFilter);
+      return new CompiledGroupedAttributeValueQuery(miaManagement, necessaryMIATypes, selectAttribute, selectAttributeFilter,
+          selectProjectionFunction, projectionValueType, bvNamespace, compiledFilter);
     }
 
     public HomogenousMap Execute()
@@ -131,7 +149,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
           {
             ComplexAttributeQueryBuilder builder = new ComplexAttributeQueryBuilder(_miaManagement, _selectAttribute,
                 _selectProjectionFunction, _necessaryRequestedMIATypes, _filter);
-            builder.GenerateSqlGroupByStatement(new Namespace(), out valueAlias, out groupSizeAlias,
+            builder.GenerateSqlGroupByStatement(new Namespace(), _selectAttributeFilter, _bvNamespace, out valueAlias, out groupSizeAlias,
                 out statementStr, out bindVars);
           }
           command.CommandText = statementStr;

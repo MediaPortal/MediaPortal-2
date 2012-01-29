@@ -444,7 +444,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
       return result;
     }
 
-    public HomogenousMap GetValueGroups(MediaItemAspectMetadata.AttributeSpecification attributeType,
+    public HomogenousMap GetValueGroups(MediaItemAspectMetadata.AttributeSpecification attributeType, IFilter selectAttributeFilter,
         ProjectionFunction projectionFunction, IEnumerable<Guid> necessaryMIATypeIDs, IFilter filter, bool filterOnlyOnline)
     {
       SelectProjectionFunction selectProjectionFunctionImpl;
@@ -464,15 +464,18 @@ namespace MediaPortal.Backend.Services.MediaLibrary
           projectionValueType = null;
           break;
       }
+      IAttributeFilter saf = selectAttributeFilter as IAttributeFilter;
+      if (saf == null && selectAttributeFilter != null)
+        filter = BooleanCombinationFilter.CombineFilters(BooleanOperator.And, new IFilter[] {filter, selectAttributeFilter});
       CompiledGroupedAttributeValueQuery cdavq = CompiledGroupedAttributeValueQuery.Compile(_miaManagement,
           filterOnlyOnline ? necessaryMIATypeIDs.Union(new Guid[] {ProviderResourceAspect.ASPECT_ID}) :
-          necessaryMIATypeIDs, attributeType, selectProjectionFunctionImpl, projectionValueType, filterOnlyOnline ? AddOnlyOnlineFilter(filter) : filter);
+          necessaryMIATypeIDs, attributeType, saf, selectProjectionFunctionImpl, projectionValueType, filterOnlyOnline ? AddOnlyOnlineFilter(filter) : filter);
       return cdavq.Execute();
     }
 
     public IList<MLQueryResultGroup> GroupValueGroups(MediaItemAspectMetadata.AttributeSpecification attributeType,
-        ProjectionFunction projectionFunction, IEnumerable<Guid> necessaryMIATypeIDs, IFilter filter, bool filterOnlyOnline,
-        GroupingFunction groupingFunction)
+        IFilter selectAttributeFilter, ProjectionFunction projectionFunction, IEnumerable<Guid> necessaryMIATypeIDs,
+        IFilter filter, bool filterOnlyOnline, GroupingFunction groupingFunction)
     {
       IDictionary<object, MLQueryResultGroup> groups = new Dictionary<object, MLQueryResultGroup>();
       IGroupingFunctionImpl groupingFunctionImpl;
@@ -485,7 +488,8 @@ namespace MediaPortal.Backend.Services.MediaLibrary
           groupingFunctionImpl = new FirstCharGroupingFunction(attributeType);
           break;
       }
-      foreach (KeyValuePair<object, object> resultItem in GetValueGroups(attributeType, projectionFunction, necessaryMIATypeIDs, filter, filterOnlyOnline))
+      foreach (KeyValuePair<object, object> resultItem in GetValueGroups(attributeType, selectAttributeFilter,
+          projectionFunction, necessaryMIATypeIDs, filter, filterOnlyOnline))
       {
         object valueGroupKey = resultItem.Key;
         int resultGroupItemCount = (int) resultItem.Value;

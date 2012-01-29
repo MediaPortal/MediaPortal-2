@@ -439,6 +439,7 @@ namespace MediaPortal.Backend.Services.ClientCommunication
           new DvArgument[] {
             new DvArgument("MIAType", A_ARG_TYPE_Uuid, ArgumentDirection.In),
             new DvArgument("AttributeName", A_ARG_TYPE_Name, ArgumentDirection.In),
+            new DvArgument("SelectAttributeFilter", A_ARG_TYPE_MediaItemFilter, ArgumentDirection.In),
             new DvArgument("ProjectionFunction", A_ARG_TYPE_ProjectionFunction, ArgumentDirection.In),
             new DvArgument("NecessaryMIATypes", A_ARG_TYPE_UuidEnumeration, ArgumentDirection.In),
             new DvArgument("Filter", A_ARG_TYPE_MediaItemFilter, ArgumentDirection.In),
@@ -453,6 +454,7 @@ namespace MediaPortal.Backend.Services.ClientCommunication
           new DvArgument[] {
             new DvArgument("MIAType", A_ARG_TYPE_Uuid, ArgumentDirection.In),
             new DvArgument("AttributeName", A_ARG_TYPE_Name, ArgumentDirection.In),
+            new DvArgument("SelectAttributeFilter", A_ARG_TYPE_MediaItemFilter, ArgumentDirection.In),
             new DvArgument("ProjectionFunction", A_ARG_TYPE_ProjectionFunction, ArgumentDirection.In),
             new DvArgument("NecessaryMIATypes", A_ARG_TYPE_UuidEnumeration, ArgumentDirection.In),
             new DvArgument("Filter", A_ARG_TYPE_MediaItemFilter, ArgumentDirection.In),
@@ -897,10 +899,11 @@ namespace MediaPortal.Backend.Services.ClientCommunication
     {
       Guid aspectId = MarshallingHelper.DeserializeGuid((string) inParams[0]);
       string attributeName = (string) inParams[1];
-      string projectionFunctionStr = (string) inParams[2];
-      IEnumerable<Guid> necessaryMIATypes = MarshallingHelper.ParseCsvGuidCollection((string) inParams[3]);
-      IFilter filter = (IFilter) inParams[4];
-      string onlineStateStr = (string) inParams[5];
+      IFilter selectAttributeFilter = (IFilter) inParams[2];
+      string projectionFunctionStr = (string) inParams[3];
+      IEnumerable<Guid> necessaryMIATypes = MarshallingHelper.ParseCsvGuidCollection((string) inParams[4]);
+      IFilter filter = (IFilter) inParams[5];
+      string onlineStateStr = (string) inParams[6];
       IMediaItemAspectTypeRegistration miatr = ServiceRegistration.Get<IMediaItemAspectTypeRegistration>();
       MediaItemAspectMetadata miam;
       outParams = null;
@@ -916,7 +919,7 @@ namespace MediaPortal.Backend.Services.ClientCommunication
       if (!miam.AttributeSpecifications.TryGetValue(attributeName, out attributeType))
         return new UPnPError(600, string.Format("Media item aspect type '{0}' doesn't contain an attribute of name '{1}'",
             aspectId, attributeName));
-      HomogenousMap values = ServiceRegistration.Get<IMediaLibrary>().GetValueGroups(attributeType,
+      HomogenousMap values = ServiceRegistration.Get<IMediaLibrary>().GetValueGroups(attributeType, selectAttributeFilter,
           projectionFunction, necessaryMIATypes, filter, !all);
       outParams = new List<object> {values};
       return null;
@@ -927,11 +930,12 @@ namespace MediaPortal.Backend.Services.ClientCommunication
     {
       Guid aspectId = MarshallingHelper.DeserializeGuid((string) inParams[0]);
       string attributeName = (string) inParams[1];
-      string projectionFunctionStr = (string) inParams[2];
-      IEnumerable<Guid> necessaryMIATypes = MarshallingHelper.ParseCsvGuidCollection((string) inParams[3]);
-      IFilter filter = (IFilter) inParams[4];
-      string onlineStateStr = (string) inParams[5];
-      string groupingFunctionStr = (string) inParams[6];
+      IFilter selectAttributeFilter = (IFilter) inParams[2];
+      string projectionFunctionStr = (string) inParams[3];
+      IEnumerable<Guid> necessaryMIATypes = MarshallingHelper.ParseCsvGuidCollection((string) inParams[4]);
+      IFilter filter = (IFilter) inParams[5];
+      string onlineStateStr = (string) inParams[6];
+      string groupingFunctionStr = (string) inParams[7];
       outParams = null;
       ProjectionFunction projectionFunction;
       bool all = true;
@@ -950,7 +954,7 @@ namespace MediaPortal.Backend.Services.ClientCommunication
         return new UPnPError(600, string.Format("Media item aspect type '{0}' doesn't contain an attribute of name '{1}'",
             aspectId, attributeName));
       IList<MLQueryResultGroup> values = ServiceRegistration.Get<IMediaLibrary>().GroupValueGroups(attributeType,
-          projectionFunction, necessaryMIATypes, filter, !all, groupingFunction);
+          selectAttributeFilter, projectionFunction, necessaryMIATypes, filter, !all, groupingFunction);
       outParams = new List<object> {values};
       return null;
     }

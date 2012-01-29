@@ -25,6 +25,8 @@
 using System.Collections.Generic;
 using System.Text;
 using MediaPortal.Common.MediaManagement;
+using MediaPortal.Common.MediaManagement.MLQueries;
+using MediaPortal.Utilities;
 using MediaPortal.Utilities.Exceptions;
 
 namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
@@ -47,15 +49,16 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
     /// </summary>
     /// <param name="miaManagement">MIAM management instance from media library.</param>
     /// <param name="complexQueryAttribute">Complex attribute, which is requested by this query. Only attributes
-    ///   with a cardinality different from <see cref="Cardinality.Inline"/> are allowed here.</param>
+    /// with a cardinality different from <see cref="Cardinality.Inline"/> are allowed here.</param>
     /// <param name="selectProjectionFunction">This delegate function will be called for the selected attribute.
-    ///   It must return an SQL projection expression whose return value is the requested value for that attribute.
-    ///   If this delegate function is <c>null</c>, the actual attribute is selected without a projection function.</param>
+    /// It must return an SQL projection expression whose return value is the requested value for that attribute.
+    /// If this delegate function is <c>null</c>, the actual attribute is selected without a projection function.</param>
     /// <param name="necessaryRequestedMIAs">MIAs which must be present for the media item to match the query.</param>
     /// <param name="filter">Filter which must be applied to the media items to match the query.</param>
     public ComplexAttributeQueryBuilder(
         MIA_Management miaManagement,
-        MediaItemAspectMetadata.AttributeSpecification complexQueryAttribute, SelectProjectionFunction selectProjectionFunction,
+        MediaItemAspectMetadata.AttributeSpecification complexQueryAttribute,
+        SelectProjectionFunction selectProjectionFunction,
         IEnumerable<MediaItemAspectMetadata> necessaryRequestedMIAs, CompiledFilter filter) : base(miaManagement)
     {
       _queryAttribute = complexQueryAttribute;
@@ -80,12 +83,17 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
     /// </summary>
     /// <param name="ns">Namespace used to generate the SQL statement. If the generated statement should be used
     /// inside another statement, the use of a common namespace prevents name collisions.</param>
+    /// <param name="queryAttributeFilter">Additional filter which is defined on the <see cref="QueryAttribute"/>.
+    /// That filter COULD be part of the <see cref="Filter"/> but this method can highly optimize a filter on the
+    /// query attribute, so a filter on that attribute should be given in this parameter and should not be part of the <see cref="Filter"/>.
+    /// </param>
+    /// <param name="bvNamespace">Namespace used to build bind vars.</param>
     /// <param name="valueAlias">Alias for the value column.</param>
     /// <param name="groupSizeAlias">Alias for the column containing the number of items in each group.</param>
     /// <param name="statementStr">Statement which was built by this method.</param>
     /// <param name="bindVars">Bind variables to be inserted into placeholders in the returned <paramref name="statementStr"/>.</param>
-    public void GenerateSqlGroupByStatement(Namespace ns, out string valueAlias, out string groupSizeAlias,
-        out string statementStr, out IList<BindVar> bindVars)
+    public void GenerateSqlGroupByStatement(Namespace ns, IAttributeFilter queryAttributeFilter, BindVarNamespace bvNamespace,
+        out string valueAlias, out string groupSizeAlias, out string statementStr, out IList<BindVar> bindVars)
     {
       // Contains a mapping of each queried (=selected or filtered) attribute to its request attribute instance
       // data (which holds its requested query table instance)
@@ -100,7 +108,10 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
 
       // First create the request table query data for the MIA main table and the request attribute for the MIA ID.
       // We'll need the requested attribute as join attribute soon.
-      TableQueryData miaTableQuery = new TableQueryData(_miaManagement.GetMIATableName(_queryAttribute.ParentMIAM));
+      MediaItemAspectMetadata queryMIAM = _queryAttribute.ParentMIAM;
+      TableQueryData miaTableQuery = new TableQueryData(_miaManagement.GetMIATableName(queryMIAM));
+      tableQueries.Add(queryMIAM, miaTableQuery);
+
       RequestedAttribute miaIdAttribute = new RequestedAttribute(miaTableQuery, MIA_Management.MIA_MEDIA_ITEM_ID_COL_NAME);
 
       // Ensure that the tables for all necessary MIAs are requested first (INNER JOIN)
@@ -109,8 +120,9 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
         TableQueryData tqd;
         if (!tableQueries.TryGetValue(miaType, out tqd))
           tqd = tableQueries[miaType] = TableQueryData.CreateTableQueryOfMIATable(_miaManagement, miaType);
-        tableJoins.Add(new TableJoin("INNER JOIN", tqd,
-            new RequestedAttribute(tqd, MIA_Management.MIA_MEDIA_ITEM_ID_COL_NAME), miaIdAttribute));
+        if (miaType != queryMIAM)
+          tableJoins.Add(new TableJoin("INNER JOIN", tqd,
+              new RequestedAttribute(tqd, MIA_Management.MIA_MEDIA_ITEM_ID_COL_NAME), miaIdAttribute));
       }
 
       // Build table query data for each Inline attribute which is part of a filter
@@ -181,10 +193,22 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
       string whereStr;
       _filter.CreateSqlFilterCondition(ns, requestedAttributes,
           miaIdAttribute.GetQualifiedName(ns), out whereStr, out bindVars);
-      if (!string.IsNullOrEmpty(whereStr))
+      if (!string.IsNullOrEmpty(whereStr) || queryAttributeFilter != null)
       {
         result.Append("WHERE ");
-        result.Append(whereStr);
+        IList<string> filters = new List<string>(2);
+        if (!string.IsNullOrEmpty(whereStr))
+          filters.Add(whereStr);
+        if (queryAttributeFilter != null)
+        {
+          IList<object> resultParts = new List<object>();
+          CompiledFilter.BuildAttributeFilterExpression(queryAttributeFilter, valueAttribute.GetQualifiedName(ns), bvNamespace,
+              resultParts, bindVars);
+          string filterStr;
+          CompiledFilter.CreateSimpleSqlFilterCondition(ns, resultParts, requestedAttributes, out filterStr);
+          filters.Add(filterStr);
+        }
+        result.Append(StringUtils.Join(" AND ", filters));
       }
 
       result.Append(" GROUP BY ");
@@ -246,13 +270,16 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
           throw new IllegalCallException("Media item aspect attributes of cardinality '{0}' cannot be requested via the {1}",
               _queryAttribute.Cardinality, GetType().Name);
       }
+      tableQueries[_queryAttribute.ParentMIAM] = mainJoinTableQuery;
+      tableJoins.Insert(0, new TableJoin("INNER JOIN", mainJoinTableQuery, null, null)); // The first table join doesn't need the join attributes - see below
 
       // Ensure that the tables for all necessary MIAs are requested first (INNER JOIN)
       foreach (MediaItemAspectMetadata miaType in _necessaryRequestedMIAs)
       {
-        TableQueryData tqd;
-        if (!tableQueries.TryGetValue(miaType, out tqd))
-          tqd = tableQueries[miaType] = TableQueryData.CreateTableQueryOfMIATable(_miaManagement, miaType);
+        if (tableQueries.ContainsKey(miaType))
+          // We only come here if miaType is the MIA of the requested attribute itself or if it was already queried as necessary MIA, so optimize redundant entry
+          continue;
+        TableQueryData tqd = tableQueries[miaType] = TableQueryData.CreateTableQueryOfMIATable(_miaManagement, miaType);
         tableJoins.Add(new TableJoin("INNER JOIN", tqd,
             new RequestedAttribute(tqd, MIA_Management.MIA_MEDIA_ITEM_ID_COL_NAME), miaIdAttribute));
       }
@@ -281,14 +308,17 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
 
       result.Append(" FROM ");
 
-      // Always request the main join table (depending on the cardinality of query attribute)
-      result.Append(mainJoinTableQuery.GetDeclarationWithAlias(ns));
-      result.Append(' ');
-
+      bool firstJoinTable = true;
       // Other joined tables
       foreach (TableJoin tableJoin in tableJoins)
       {
-        result.Append(tableJoin.GetJoinDeclaration(ns));
+        if (firstJoinTable)
+        {
+          result.Append(tableJoin.JoinedTable.GetDeclarationWithAlias(ns));
+          firstJoinTable = false;
+        }
+        else
+          result.Append(tableJoin.GetJoinDeclaration(ns));
         result.Append(' ');
       }
 

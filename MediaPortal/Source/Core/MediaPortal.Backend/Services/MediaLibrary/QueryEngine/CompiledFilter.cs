@@ -45,8 +45,6 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
     protected IList<object> _statementParts;
     protected IList<BindVar> _statementBindVars;
 
-    protected int _bindVarCounter = 0;
-
     /// <summary>
     /// Placeholder object which will be replaced by method <see cref="CreateSqlFilterCondition"/> with the
     /// final outer join variable (or alias).
@@ -55,31 +53,24 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
 
     protected readonly ICollection<QueryAttribute> _filterAttributes;
 
-    public CompiledFilter(MIA_Management miaManagement, IFilter filter, object outerMIIDJoinVariablePlaceHolder)
+    public CompiledFilter(MIA_Management miaManagement, IFilter filter, object outerMIIDJoinVariablePlaceHolder,
+        BindVarNamespace bvNamespace)
     {
       _statementParts = new List<object>();
       _statementBindVars = new List<BindVar>();
-      CompileStatementParts(miaManagement, filter, outerMIIDJoinVariablePlaceHolder, _statementParts, _statementBindVars);
-      ICollection<QueryAttribute> filterAttributes = new List<QueryAttribute>();
-      foreach (object statementPart in _statementParts)
-      {
-        QueryAttribute qa = statementPart as QueryAttribute;
-        if (qa != null)
-          filterAttributes.Add(qa);
-      }
-
-      _filterAttributes = filterAttributes;
+      CompileStatementParts(miaManagement, filter, outerMIIDJoinVariablePlaceHolder, bvNamespace, _statementParts, _statementBindVars);
+      _filterAttributes = _statementParts.OfType<QueryAttribute>().ToList();
       _outerMIIDJoinVariablePlaceHolder = outerMIIDJoinVariablePlaceHolder;
     }
 
-    public static CompiledFilter Compile(MIA_Management miaManagement, IFilter filter)
+    public static CompiledFilter Compile(MIA_Management miaManagement, IFilter filter, BindVarNamespace bvNamespace)
     {
       object outerMIIDJoinVariablePlaceHolder = new object();
-      return new CompiledFilter(miaManagement, filter, outerMIIDJoinVariablePlaceHolder);
+      return new CompiledFilter(miaManagement, filter, outerMIIDJoinVariablePlaceHolder, bvNamespace);
     }
 
     protected void CompileStatementParts(MIA_Management miaManagement, IFilter filter,
-        object outerMIIDJoinVariablePlaceHolder, IList<object> resultParts, IList<BindVar> resultBindVars)
+        object outerMIIDJoinVariablePlaceHolder, BindVarNamespace bvNamespace, IList<object> resultParts, IList<BindVar> resultBindVars)
     {
       if (filter == null)
         return;
@@ -95,7 +86,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
           if (mediaItemIds.Count == 1)
           {
             resultParts.Add(outerMIIDJoinVariablePlaceHolder);
-            BindVar bindVar = new BindVar("V" + _bindVarCounter++, mediaItemIds.First(), typeof(Guid));
+            BindVar bindVar = new BindVar(bvNamespace.CreateNewBindVarName("V"), mediaItemIds.First(), typeof(Guid));
             resultParts.Add(" = @" + bindVar.Name);
             resultBindVars.Add(bindVar);
           }
@@ -108,7 +99,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
               IList<string> bindVarRefs = new List<string>(MAX_IN_VALUES_SIZE);
               foreach (Guid mediaItemId in mediaItemIdsCluster)
               {
-                BindVar bindVar = new BindVar("V" + _bindVarCounter++, mediaItemId, typeof(Guid));
+                BindVar bindVar = new BindVar(bvNamespace.CreateNewBindVarName("V"), mediaItemId, typeof(Guid));
                 bindVarRefs.Add("@" + bindVar.Name);
                 resultBindVars.Add(bindVar);
               }
@@ -133,7 +124,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
           return;
         if (numOperands > 1)
           resultParts.Add("(");
-        CompileStatementParts(miaManagement, (IFilter) enumOperands.Current, outerMIIDJoinVariablePlaceHolder, resultParts, resultBindVars);
+        CompileStatementParts(miaManagement, (IFilter) enumOperands.Current, outerMIIDJoinVariablePlaceHolder, bvNamespace, resultParts, resultBindVars);
         while (enumOperands.MoveNext())
         {
           switch (boolFilter.Operator)
@@ -148,7 +139,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
               throw new NotImplementedException(string.Format(
                   "Boolean filter operator '{0}' isn't supported by the media library", boolFilter.Operator));
           }
-          CompileStatementParts(miaManagement, (IFilter) enumOperands.Current, outerMIIDJoinVariablePlaceHolder, resultParts, resultBindVars);
+          CompileStatementParts(miaManagement, (IFilter) enumOperands.Current, outerMIIDJoinVariablePlaceHolder, bvNamespace, resultParts, resultBindVars);
         }
         if (numOperands > 1)
           resultParts.Add(")");
@@ -159,7 +150,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
       if (notFilter != null)
       {
         resultParts.Add("NOT (");
-        CompileStatementParts(miaManagement, notFilter.InnerFilter, outerMIIDJoinVariablePlaceHolder, resultParts, resultBindVars);
+        CompileStatementParts(miaManagement, notFilter.InnerFilter, outerMIIDJoinVariablePlaceHolder, bvNamespace, resultParts, resultBindVars);
         resultParts.Add(")");
         return;
       }
@@ -245,7 +236,8 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
         MediaItemAspectMetadata.AttributeSpecification attributeType = attributeFilter.AttributeType;
         Cardinality cardinality = attributeType.Cardinality;
         if (cardinality == Cardinality.Inline || cardinality == Cardinality.ManyToOne)
-          BuildAttributeFilterExpression(attributeFilter, new QueryAttribute(attributeType), resultParts, resultBindVars);
+          BuildAttributeFilterExpression(attributeFilter, new QueryAttribute(attributeType), bvNamespace,
+              resultParts, resultBindVars);
         else if (cardinality == Cardinality.OneToMany)
         {
           resultParts.Add("EXISTS(");
@@ -258,7 +250,8 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
           resultParts.Add("=");
           resultParts.Add(outerMIIDJoinVariablePlaceHolder);
           resultParts.Add(" AND ");
-          BuildAttributeFilterExpression(attributeFilter, "V." + MIA_Management.COLL_ATTR_VALUE_COL_NAME, resultParts, resultBindVars);
+          BuildAttributeFilterExpression(attributeFilter, "V." + MIA_Management.COLL_ATTR_VALUE_COL_NAME, bvNamespace,
+              resultParts, resultBindVars);
           resultParts.Add(")");
         }
         else if (cardinality == Cardinality.ManyToMany)
@@ -279,7 +272,8 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
           resultParts.Add("=");
           resultParts.Add(outerMIIDJoinVariablePlaceHolder);
           resultParts.Add(" AND ");
-          BuildAttributeFilterExpression(attributeFilter, "V." + MIA_Management.COLL_ATTR_VALUE_COL_NAME, resultParts, resultBindVars);
+          BuildAttributeFilterExpression(attributeFilter, "V." + MIA_Management.COLL_ATTR_VALUE_COL_NAME, bvNamespace,
+              resultParts, resultBindVars);
           resultParts.Add(")");
         }
         return;
@@ -295,9 +289,10 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
     /// <param name="attributeOperand">Comparison attribute to be used. Depending on the cardinality of the
     /// to-be-filtered attribute, this will be the inline attribute alias or the attribute alias of the collection
     /// attribute table.</param>
+    /// <param name="bvNamespace">Namespace used to build bind var names.</param>
     /// <param name="resultParts">Statement parts for the attribute filter.</param>
     /// <param name="resultBindVars">Bind variables for the attribute filter.</param>
-    protected void BuildAttributeFilterExpression(IAttributeFilter filter, object attributeOperand,
+    public static void BuildAttributeFilterExpression(IAttributeFilter filter, object attributeOperand, BindVarNamespace bvNamespace,
         IList<object> resultParts, IList<BindVar> resultBindVars)
     {
       Type attributeType = filter.AttributeType.AttributeType;
@@ -329,7 +324,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
             throw new NotImplementedException(string.Format(
                 "Relational filter operator '{0}' isn't supported by the media library", relationalFilter.Operator));
         }
-        BindVar bindVar = new BindVar("V" + _bindVarCounter++, relationalFilter.FilterValue, attributeType);
+        BindVar bindVar = new BindVar(bvNamespace.CreateNewBindVarName("V"), relationalFilter.FilterValue, attributeType);
         resultParts.Add("@" + bindVar.Name);
         resultBindVars.Add(bindVar);
         return;
@@ -348,7 +343,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
 
         resultParts.Add(" LIKE ");
 
-        BindVar bindVar = new BindVar("V" + _bindVarCounter++, likeFilter.Expression, attributeType);
+        BindVar bindVar = new BindVar(bvNamespace.CreateNewBindVarName("V"), likeFilter.Expression, attributeType);
         if (likeFilter.CaseSensitive)
           resultParts.Add("@" + bindVar.Name);
         else
@@ -356,7 +351,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
         resultBindVars.Add(bindVar);
         if (likeFilter.EscapeChar.HasValue)
         {
-          bindVar = new BindVar("E" + _bindVarCounter++, likeFilter.EscapeChar.ToString(), typeof(Char));
+          bindVar = new BindVar(bvNamespace.CreateNewBindVarName("E"), likeFilter.EscapeChar.ToString(), typeof(Char));
           resultParts.Add(" ESCAPE @" + bindVar.Name);
           resultBindVars.Add(bindVar);
         }
@@ -368,11 +363,11 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
       {
         resultParts.Add(attributeOperand);
         resultParts.Add(" BETWEEN ");
-        BindVar bindVar = new BindVar("V" + _bindVarCounter++, betweenFilter.Value1, attributeType);
+        BindVar bindVar = new BindVar(bvNamespace.CreateNewBindVarName("V"), betweenFilter.Value1, attributeType);
         resultParts.Add("@" + bindVar.Name);
         resultBindVars.Add(bindVar);
         resultParts.Add(" AND ");
-        bindVar = new BindVar("V" + _bindVarCounter++, betweenFilter.Value2, attributeType);
+        bindVar = new BindVar(bvNamespace.CreateNewBindVarName("V"), betweenFilter.Value2, attributeType);
         resultParts.Add("@" + bindVar.Name);
         resultBindVars.Add(bindVar);
         return;
@@ -392,7 +387,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
           IList<string> bindVarRefs = new List<string>(MAX_IN_VALUES_SIZE);
           foreach (object value in valuesCluster)
           {
-            BindVar bindVar = new BindVar("V" + _bindVarCounter++, value, attributeType);
+            BindVar bindVar = new BindVar(bvNamespace.CreateNewBindVarName("V"), value, attributeType);
             bindVarRefs.Add("@" + bindVar.Name);
             resultBindVars.Add(bindVar);
           }
@@ -428,6 +423,18 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
       }
       filterStr = filterBuilder.ToString();
       bindVars = _statementBindVars;
+    }
+
+    public static void CreateSimpleSqlFilterCondition(Namespace ns, IList<object> statementParts,
+        IDictionary<QueryAttribute, RequestedAttribute> requestedAttributes, out string filterStr)
+    {
+      StringBuilder filterBuilder = new StringBuilder(1000);
+      foreach (object statementPart in statementParts)
+      {
+        QueryAttribute qa = statementPart as QueryAttribute;
+        filterBuilder.Append(qa == null ? statementPart.ToString() : requestedAttributes[qa].GetQualifiedName(ns));
+      }
+      filterStr = filterBuilder.ToString();
     }
   }
 }

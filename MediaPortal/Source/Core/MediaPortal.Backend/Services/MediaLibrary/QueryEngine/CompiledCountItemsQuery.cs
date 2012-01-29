@@ -63,7 +63,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
     {
       IDictionary<Guid, MediaItemAspectMetadata> availableMIATypes = miaManagement.ManagedMediaItemAspectTypes;
       // Raise exception if MIA types are not present, which are contained in filter condition
-      CompiledFilter compiledFilter = CompiledFilter.Compile(miaManagement, filter);
+      CompiledFilter compiledFilter = CompiledFilter.Compile(miaManagement, filter, new BindVarNamespace());
       foreach (QueryAttribute qa in compiledFilter.FilterAttributes)
       {
         MediaItemAspectMetadata miam = qa.Attr.ParentMIAM;

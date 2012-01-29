@@ -135,8 +135,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
 
       // Dictionary containing as key the requested MIAM instance OR attribute specification of cardinality MTO,
       // mapped to the table query data to request its contents.
-      IDictionary<object, TableQueryData> tableQueries =
-          new Dictionary<object, TableQueryData>();
+      IDictionary<object, TableQueryData> tableQueries = new Dictionary<object, TableQueryData>();
 
       // Contains the same tables as the tableQueries variable, but in order and enriched with table join data
       IList<TableJoin> tableJoins = new List<TableJoin>();
@@ -144,10 +143,14 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
       // Contains all table query data for MIA type tables
       IDictionary<MediaItemAspectMetadata, TableQueryData> miaTypeTableQueries = new Dictionary<MediaItemAspectMetadata, TableQueryData>();
 
-      // First create the request table query data for the MIA main table and the request attribute for the MIA ID.
-      // We'll need the requested attribute as join attribute soon.
-      TableQueryData miaTableQuery = new TableQueryData(MediaLibrary_SubSchema.MEDIA_ITEMS_TABLE_NAME);
-      RequestedAttribute miaIdAttribute = new RequestedAttribute(miaTableQuery, MediaLibrary_SubSchema.MEDIA_ITEMS_ITEM_ID_COL_NAME);
+      // Albert, 2012-01-29: Optimized query, don't join with media items table, if we have necessary requested MIAs. In that case,
+      // we can use one of their media item ids.
+      //// First create the request table query data for the MIA main table and the request attribute for the MIA ID.
+      //// We'll need the requested attribute as join attribute soon.
+      //TableQueryData miaTableQuery = new TableQueryData(MediaLibrary_SubSchema.MEDIA_ITEMS_TABLE_NAME);
+      //RequestedAttribute miaIdAttribute = new RequestedAttribute(miaTableQuery, MediaLibrary_SubSchema.MEDIA_ITEMS_ITEM_ID_COL_NAME);
+
+      RequestedAttribute miaIdAttribute = null; // Lazy initialized below
 
       // Contains CompiledSortInformation instances for each sort information instance
       IList<CompiledSortInformation> compiledSortInformation = null;
@@ -155,26 +158,36 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
       // Ensure that the tables for all necessary MIAs are requested first (INNER JOIN)
       foreach (MediaItemAspectMetadata miaType in _necessaryRequestedMIAs)
       {
-        TableQueryData tqd;
-        if (!tableQueries.TryGetValue(miaType, out tqd))
-        {
-          tqd = tableQueries[miaType] = TableQueryData.CreateTableQueryOfMIATable(_miaManagement, miaType);
-          miaTypeTableQueries.Add(miaType, tqd);
-        }
+        if (tableQueries.ContainsKey(miaType))
+          // We only come here if miaType was already queried as necessary MIA, so optimize redundant entry
+          continue;
+        TableQueryData tqd = tableQueries[miaType] = TableQueryData.CreateTableQueryOfMIATable(_miaManagement, miaType);
+        miaTypeTableQueries.Add(miaType, tqd);
+        RequestedAttribute ra;
+        // The first table join has invalid join attributes because miaIdAttribute is still null - but only the join table attribute is necessary
+        // for the the first table - see below
         tableJoins.Add(new TableJoin("INNER JOIN", tqd,
-            new RequestedAttribute(tqd, MIA_Management.MIA_MEDIA_ITEM_ID_COL_NAME), miaIdAttribute));
+            ra = new RequestedAttribute(tqd, MIA_Management.MIA_MEDIA_ITEM_ID_COL_NAME), miaIdAttribute));
+        if (miaIdAttribute == null)
+          miaIdAttribute = ra;
+      }
+
+      if (miaIdAttribute == null)
+      { // If we didn't request any necessary MIA types, we have to add an artificial table for the miaIdAttribute
+        TableQueryData miaTableQuery = new TableQueryData(MediaLibrary_SubSchema.MEDIA_ITEMS_TABLE_NAME);
+        tableJoins.Add(new TableJoin("INNER JOIN", miaTableQuery, null, null)); // First table join has invalid join attributes - not needed for first table
+        miaIdAttribute = new RequestedAttribute(miaTableQuery, MediaLibrary_SubSchema.MEDIA_ITEMS_ITEM_ID_COL_NAME);
       }
 
       // Ensure that the tables for all optional MIAs are requested first (LEFT OUTER JOIN)
       // That is necessary to make empty optional MIA types available in the result
       foreach (MediaItemAspectMetadata miaType in _optionalRequestedMIAs)
       {
-        TableQueryData tqd;
-        if (!tableQueries.TryGetValue(miaType, out tqd))
-        {
-          tqd = tableQueries[miaType] = TableQueryData.CreateTableQueryOfMIATable(_miaManagement, miaType);
-          miaTypeTableQueries.Add(miaType, tqd);
-        }
+        if (tableQueries.ContainsKey(miaType))
+          // We only come here if miaType was already queried as necessary or optional MIA, so optimize redundant entry
+          continue;
+        TableQueryData tqd = tableQueries[miaType] = TableQueryData.CreateTableQueryOfMIATable(_miaManagement, miaType);
+        miaTypeTableQueries.Add(miaType, tqd);
         tableJoins.Add(new TableJoin("LEFT OUTER JOIN", tqd,
             new RequestedAttribute(tqd, MIA_Management.MIA_MEDIA_ITEM_ID_COL_NAME), miaIdAttribute));
       }
@@ -261,15 +274,18 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
       }
 
       result.Append(" FROM ");
-      // Always request the MEDIA_ITEMS table because if no necessary aspects are given and the optional aspects aren't
-      // present, we could miss the ID for requested media items
-      result.Append(miaTableQuery.GetDeclarationWithAlias(ns));
-      result.Append(' ');
 
+      bool firstJoinTable = true;
       // Other joined tables
       foreach (TableJoin tableJoin in tableJoins)
       {
-        result.Append(tableJoin.GetJoinDeclaration(ns));
+        if (firstJoinTable)
+        {
+          result.Append(tableJoin.JoinedTable.GetDeclarationWithAlias(ns));
+          firstJoinTable = false;
+        }
+        else
+          result.Append(tableJoin.GetJoinDeclaration(ns));
         result.Append(' ');
       }
 
