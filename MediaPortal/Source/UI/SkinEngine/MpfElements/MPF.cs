@@ -210,9 +210,15 @@ namespace MediaPortal.UI.SkinEngine.MpfElements
       _objectClassRegistrations.Add("RelativeSource", typeof(SkinEngine.MarkupExtensions.RelativeSource));
 
       // Effects
+      // Image effects based on ImageContext
       _objectClassRegistrations.Add("BlurEffect", typeof(MediaPortal.UI.SkinEngine.Controls.Visuals.Effects.BlurEffect));
+      _objectClassRegistrations.Add("ZoomBlurEffect", typeof(MediaPortal.UI.SkinEngine.Controls.Visuals.Effects.ZoomBlurEffect));
+      _objectClassRegistrations.Add("PixelateEffect", typeof(MediaPortal.UI.SkinEngine.Controls.Visuals.Effects.PixelateEffect));
+      _objectClassRegistrations.Add("SepiaEffect", typeof(MediaPortal.UI.SkinEngine.Controls.Visuals.Effects.SepiaEffect));
+      _objectClassRegistrations.Add("InvertEffect", typeof(MediaPortal.UI.SkinEngine.Controls.Visuals.Effects.InvertEffect));
+
+      // Generic shader effects based on EffectContext
       _objectClassRegistrations.Add("ShaderBlurEffect", typeof(MediaPortal.UI.SkinEngine.Controls.Visuals.Effects.ShaderBlurEffect));
-      _objectClassRegistrations.Add("DropShadowEffect", typeof(MediaPortal.UI.SkinEngine.Controls.Visuals.Effects.DropShadowEffect));
 
     }
 

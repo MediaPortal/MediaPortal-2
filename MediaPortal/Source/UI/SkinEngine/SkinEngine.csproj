@@ -123,9 +123,12 @@
     <Compile Include="Controls\Panels\IItemProvider.cs" />
     <Compile Include="Controls\Transforms\MatrixTransform.cs" />
     <Compile Include="Controls\Visuals\Effects\Effect.cs" />
-    <Compile Include="Controls\Visuals\Effects\DropShadowEffect.cs" />
     <Compile Include="Controls\Visuals\Effects\BlurEffect.cs" />
     <Compile Include="Controls\Visuals\Effects\ImageEffect.cs" />
+    <Compile Include="Controls\Visuals\Effects\InvertEffect.cs" />
+    <Compile Include="Controls\Visuals\Effects\PixelateEffect.cs" />
+    <Compile Include="Controls\Visuals\Effects\SepiaEffect.cs" />
+    <Compile Include="Controls\Visuals\Effects\ZoomBlurEffect.cs" />
     <Compile Include="Controls\Visuals\Effects\ShaderBlurEffect.cs" />
     <Compile Include="Controls\Visuals\Effects\ShaderEffect.cs" />
     <Compile Include="Controls\Visuals\ISelectableItemContainer.cs" />
