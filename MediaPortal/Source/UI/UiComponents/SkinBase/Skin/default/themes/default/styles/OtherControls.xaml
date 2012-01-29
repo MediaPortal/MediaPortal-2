@@ -1345,11 +1345,33 @@
       <Label FontSize="{ThemeResource HugeFontSize}" Color="{ThemeResource TextColor}" DockPanel.Dock="Center"
         HorizontalAlignment="Center" VerticalAlignment="Center"
         Content="[Home.Title]">
+        <Label.Resources>
+          <Storyboard x:Key="AnimateEffect" FillBehavior="Stop" RepeatBehavior="Forever">
+            <DoubleAnimationUsingKeyFrames BeginTime="00:00:00"  RepeatBehavior="Forever" AutoReverse="True" Storyboard.TargetProperty="Effect.HorizontalPixelCount">
+              <SplineDoubleKeyFrame KeyTime="00:00:00" Value="250"/>
+              <SplineDoubleKeyFrame KeyTime="00:00:02" Value="1"/>
+            </DoubleAnimationUsingKeyFrames>
+            <DoubleAnimationUsingKeyFrames BeginTime="00:00:00"  RepeatBehavior="Forever" AutoReverse="True" Storyboard.TargetProperty="Effect.VerticalPixelCount">
+              <SplineDoubleKeyFrame KeyTime="00:00:00" Value="250"/>
+              <SplineDoubleKeyFrame KeyTime="00:00:02" Value="1"/>
+            </DoubleAnimationUsingKeyFrames>
+          </Storyboard>
+        </Label.Resources>
         <Label.Effect>
-          <ZoomBlurEffect CenterX="0" CenterY="1" BlurAmount="0.01"/>
-          <!--<PixelateEffect VerticalPixelCount="280" HorizonzalPixelCount="280"/>-->
+          <!--<ZoomBlurEffect CenterX="0" CenterY="1" BlurAmount="0.01"/>-->
+          <PixelateEffect VerticalPixelCount="280" HorizonzalPixelCount="280"/>
           <!--<SepiaEffect/>-->
         </Label.Effect>
+        <Label.Triggers>
+          <Trigger Property="IsVisible" Value="True">
+            <Trigger.EnterActions>
+              <BeginStoryboard x:Name="AnimateEffect_BeginStoryboard" Storyboard="{StaticResource AnimateEffect}"/>
+            </Trigger.EnterActions>
+            <Trigger.ExitActions>
+              <StopStoryboard BeginStoryboardName="AnimateEffect_BeginStoryboard"/>
+            </Trigger.ExitActions>
+          </Trigger>
+        </Label.Triggers>
       </Label>
     </DockPanel>
   </ControlTemplate>
