@@ -47,15 +47,14 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
     protected readonly IAttributeFilter _selectAttributeFilter;
     protected readonly SelectProjectionFunction _selectProjectionFunction;
     protected readonly Type _projectionValueType;
-    protected readonly CompiledFilter _filter;
-    protected readonly BindVarNamespace _bvNamespace;
+    protected readonly IFilter _filter;
 
     public CompiledGroupedAttributeValueQuery(
         MIA_Management miaManagement,
         IEnumerable<MediaItemAspectMetadata> necessaryRequestedMIATypes,
         MediaItemAspectMetadata.AttributeSpecification selectedAttribute, IAttributeFilter selectAttributeFilter,
-        SelectProjectionFunction selectProjectionFunction, Type projectionValueType, BindVarNamespace bvNamespace,
-        CompiledFilter filter)
+        SelectProjectionFunction selectProjectionFunction, Type projectionValueType,
+        IFilter filter)
     {
       _miaManagement = miaManagement;
       _necessaryRequestedMIATypes = necessaryRequestedMIATypes;
@@ -63,7 +62,6 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
       _selectAttributeFilter = selectAttributeFilter;
       _selectProjectionFunction = selectProjectionFunction;
       _projectionValueType = projectionValueType;
-      _bvNamespace = bvNamespace;
       _filter = filter;
     }
 
@@ -82,7 +80,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
       get { return _selectAttributeFilter; }
     }
 
-    public CompiledFilter Filter
+    public IFilter Filter
     {
       get { return _filter; }
     }
@@ -101,14 +99,6 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
           BooleanCombinationFilter.CombineFilters(BooleanOperator.And, new IFilter[] {filter, selectAttributeFilter}) : filter;
       selectAttributeFilter = simpleQuery ? null : selectAttributeFilter;
 
-      BindVarNamespace bvNamespace = new BindVarNamespace();
-      // Raise exception if MIA types are not present, which are contained in filter condition
-      CompiledFilter compiledFilter = CompiledFilter.Compile(miaManagement, combinedFilter, bvNamespace);
-      foreach (MediaItemAspectMetadata miam in compiledFilter.RequiredMIATypes)
-      {
-        if (!availableMIATypes.ContainsKey(miam.AspectId))
-          throw new InvalidDataException("MIA type '{0}', which is contained in filter condition, is not present in the media library", miam.Name);
-      }
       ICollection<MediaItemAspectMetadata> necessaryMIATypes = new List<MediaItemAspectMetadata>();
       // Raise exception if necessary MIA types are not present
       foreach (Guid miaTypeID in necessaryRequestedMIATypeIDs)
@@ -119,7 +109,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
         necessaryMIATypes.Add(miam);
       }
       return new CompiledGroupedAttributeValueQuery(miaManagement, necessaryMIATypes, selectAttribute, selectAttributeFilter,
-          selectProjectionFunction, projectionValueType, bvNamespace, compiledFilter);
+          selectProjectionFunction, projectionValueType, combinedFilter);
     }
 
     public HomogenousMap Execute()
@@ -141,14 +131,14 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
                 new QueryAttribute[] {selectAttributeQA}, _selectProjectionFunction,
                 _necessaryRequestedMIATypes, new MediaItemAspectMetadata[] {}, _filter, null);
             IDictionary<QueryAttribute, string> qa2a;
-            builder.GenerateSqlGroupByStatement(new Namespace(), out groupSizeAlias, out qa2a, out statementStr, out bindVars);
+            builder.GenerateSqlGroupByStatement(out groupSizeAlias, out qa2a, out statementStr, out bindVars);
             valueAlias = qa2a[selectAttributeQA];
           }
           else
           {
             ComplexAttributeQueryBuilder builder = new ComplexAttributeQueryBuilder(_miaManagement, _selectAttribute,
                 _selectProjectionFunction, _necessaryRequestedMIATypes, _filter);
-            builder.GenerateSqlGroupByStatement(new Namespace(), _selectAttributeFilter, _bvNamespace, out valueAlias, out groupSizeAlias,
+            builder.GenerateSqlGroupByStatement(_selectAttributeFilter, out valueAlias, out groupSizeAlias,
                 out statementStr, out bindVars);
           }
           command.CommandText = statementStr;

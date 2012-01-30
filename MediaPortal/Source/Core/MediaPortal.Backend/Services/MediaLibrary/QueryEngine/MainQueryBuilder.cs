@@ -82,7 +82,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
     /// </summary>
     protected readonly IList<QueryAttribute> _selectAttributes;
     protected readonly SelectProjectionFunction _selectProjectionFunction;
-    protected readonly CompiledFilter _filter;
+    protected readonly IFilter _filter;
     protected readonly IList<SortInformation> _sortInformation;
 
     /// <summary>
@@ -90,21 +90,21 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
     /// </summary>
     /// <param name="miaManagement">MIAM management instance from media library.</param>
     /// <param name="simpleSelectAttributes">Enumeration of media item aspect attributes, given as
-    ///   <see cref="QueryAttribute"/> instances, which should be selected by this main query. Only attributes with
-    ///   cardinalities of <see cref="Cardinality.Inline"/> and <see cref="Cardinality.ManyToOne"/> are allowed here.
-    ///   Both necessary and optional attributes are allowed in this enumeration.</param>
+    /// <see cref="QueryAttribute"/> instances, which should be selected by this main query. Only attributes with
+    /// cardinalities of <see cref="Cardinality.Inline"/> and <see cref="Cardinality.ManyToOne"/> are allowed here.
+    /// Both necessary and optional attributes are allowed in this enumeration.</param>
     /// <param name="selectProjectionFunction">This delegate function will be called for each selected attribute.
-    ///   It must return an SQL projection expression whose return value is the requested value for that attribute.
-    ///   If this delegate function is <c>null</c>, the actual attribute is selected without a projection function.</param>
+    /// It must return an SQL projection expression whose return value is the requested value for that attribute.
+    /// If this delegate function is <c>null</c>, the actual attribute is selected without a projection function.</param>
     /// <param name="necessaryRequestedMIAs">MIAs which must be present for the media item to match the query.</param>
     /// <param name="optionalRequestedMIAs">MIAs which will be returned if they are attached to items which are
-    ///   already returned.</param>
+    /// already returned.</param>
     /// <param name="filter">Filter to restrict the result set.</param>
     /// <param name="sortInformation">List of sorting criteria.</param>
     public MainQueryBuilder(MIA_Management miaManagement, IEnumerable<QueryAttribute> simpleSelectAttributes,
         SelectProjectionFunction selectProjectionFunction,
         IEnumerable<MediaItemAspectMetadata> necessaryRequestedMIAs, IEnumerable<MediaItemAspectMetadata> optionalRequestedMIAs,
-        CompiledFilter filter, IList<SortInformation> sortInformation) : base(miaManagement)
+        IFilter filter, IList<SortInformation> sortInformation) : base(miaManagement)
     {
       _necessaryRequestedMIAs = necessaryRequestedMIAs;
       _optionalRequestedMIAs = optionalRequestedMIAs;
@@ -114,19 +114,22 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
       _sortInformation = sortInformation;
     }
 
-    protected void GenerateSqlStatement(Namespace ns, bool groupByValues,
+    protected void GenerateSqlStatement(bool groupByValues,
         IDictionary<MediaItemAspectMetadata, string> miamAliases,
         out string mediaItemIdOrGroupSizeAlias,
         out IDictionary<QueryAttribute, string> attributeAliases,
         out string statementStr, out IList<BindVar> bindVars)
     {
+      Namespace ns = new Namespace();
+      BindVarNamespace bvNamespace = new BindVarNamespace();
+
       // Contains a mapping of each queried (=selected or filtered) attribute to its request attribute instance
       // data (which holds its requested query table instance)
       IDictionary<QueryAttribute, RequestedAttribute> requestedAttributes = new Dictionary<QueryAttribute, RequestedAttribute>();
       attributeAliases = new Dictionary<QueryAttribute, string>();
 
       // Contains a list of qualified attribute names for all select attributes - needed for GROUP BY-expressions
-      ICollection<string> qualifiedGroupByAttributeNames = new List<string>();
+      ICollection<string> qualifiedGroupByAliases = new List<string>();
 
       // Contains a list of compiled select attribute declarations. We need this in a separate list (in contrast to using
       // the selectAttributes list together with the compiledAttributes map) because it might be the case that
@@ -205,13 +208,14 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
             ra.GetDeclarationWithAlias(ns, out alias) :
             ra.GetDeclarationWithAlias(ns, _selectProjectionFunction, out alias));
         attributeAliases.Add(attr, alias);
-        qualifiedGroupByAttributeNames.Add(_selectProjectionFunction == null ?
-            ra.GetQualifiedName(ns) :
-            _selectProjectionFunction(ra.GetQualifiedName(ns)));
+        qualifiedGroupByAliases.Add(ra.GetAlias(ns));
       }
+
+      CompiledFilter compiledFilter = new CompiledFilter(_miaManagement, _filter, ns, bvNamespace, miaIdAttribute.GetQualifiedName(ns), tableJoins);
+
       // Build table query data for each Inline attribute which is part of a filter
       // + compile query attribute
-      foreach (QueryAttribute attr in _filter.RequiredAttributes)
+      foreach (QueryAttribute attr in compiledFilter.RequiredAttributes)
       {
         if (attr.Attr.Cardinality != Cardinality.Inline && attr.Attr.Cardinality != Cardinality.ManyToOne)
           continue;
@@ -238,14 +242,19 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
       }
       StringBuilder result = new StringBuilder("SELECT ");
 
+      string groupClause = StringUtils.Join(", ", qualifiedGroupByAliases.Select(alias => "V." + alias));
       if (groupByValues)
       {
-        // Append a COUNT expression for the MEDIA_ITEMS.MEDIA_ITEM_ID for the GROUP BY-statement
-        string countAttribute = "COUNT(" + miaIdAttribute.GetQualifiedName(ns) + ")";
-        result.Append(countAttribute);
-        result.Append(" ");
-        mediaItemIdOrGroupSizeAlias = ns.GetOrCreate(countAttribute, "C");
+        mediaItemIdOrGroupSizeAlias = "C";
+        // Create an additional COUNT expression for the MEDIA_ITEMS.MEDIA_ITEM_ID in the GROUP BY-statement
+        result.Append("COUNT(V.C) ");
         result.Append(mediaItemIdOrGroupSizeAlias);
+        result.Append(", ");
+        result.Append(groupClause);
+        result.Append(" FROM (");
+        result.Append("SELECT DISTINCT ");
+        result.Append(miaIdAttribute.GetQualifiedName(ns));
+        result.Append(" C");
       }
       else
       {
@@ -255,7 +264,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
         // System attributes: Necessary to evaluate if a requested MIA is present for the media item
         foreach (KeyValuePair<MediaItemAspectMetadata, TableQueryData> kvp in miaTypeTableQueries)
         {
-          result.Append(",");
+          result.Append(", ");
           string miamColumn = kvp.Value.GetAlias(ns) + "." + MIA_Management.MIA_MEDIA_ITEM_ID_COL_NAME;
           result.Append(miamColumn);
           string miamAlias = ns.GetOrCreate(miamColumn, "A");
@@ -269,12 +278,11 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
       // Selected attributes
       foreach (string selectAttr in selectAttributeDeclarations)
       {
-        result.Append(",");
+        result.Append(", ");
         result.Append(selectAttr);
       }
 
-      string whereStr;
-      _filter.CreateSqlFilterCondition(ns, requestedAttributes, miaIdAttribute.GetQualifiedName(ns), out whereStr, out bindVars);
+      string whereStr = compiledFilter.CreateSqlFilterCondition(ns, requestedAttributes, out bindVars);
 
       result.Append(" FROM ");
 
@@ -299,10 +307,11 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
       }
       if (groupByValues)
       {
-        if (qualifiedGroupByAttributeNames.Count > 0)
+        result.Append(") V");
+        if (qualifiedGroupByAliases.Count > 0)
         {
           result.Append(" GROUP BY ");
-          result.Append(StringUtils.Join(",", qualifiedGroupByAttributeNames));
+          result.Append(groupClause);
         }
       }
       else
@@ -311,7 +320,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
         {
           IEnumerable<string> sortCriteria = compiledSortInformation.Select(csi => csi.GetSortDeclaration(ns));
           result.Append("ORDER BY ");
-          result.Append(StringUtils.Join(",", sortCriteria));
+          result.Append(StringUtils.Join(", ", sortCriteria));
         }
       }
 
@@ -322,48 +331,42 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
     /// Generates an SQL statement for the underlaying query specification which contains groups of the same attribute
     /// values and a count column containing the size of each group.
     /// </summary>
-    /// <param name="ns">Namespace used to generate the SQL statement. If the generated statement should be used
-    /// inside another statement, the use of a common namespace prevents name collisions.</param>
     /// <param name="groupSizeAlias">Alias of the groups sizes in the result set.</param>
     /// <param name="attributeAliases">Returns the aliases for all selected attributes.</param>
     /// <param name="statementStr">SQL statement which was built by this method.</param>
     /// <param name="bindVars">Bind variables to be inserted into the returned <paramref name="statementStr"/>.</param>
-    public void GenerateSqlGroupByStatement(Namespace ns, out string groupSizeAlias,
-        out IDictionary<QueryAttribute, string> attributeAliases,
+    public void GenerateSqlGroupByStatement(out string groupSizeAlias, out IDictionary<QueryAttribute, string> attributeAliases,
         out string statementStr, out IList<BindVar> bindVars)
     {
-      GenerateSqlStatement(ns, true, null, out groupSizeAlias, out attributeAliases, out statementStr, out bindVars);
+      GenerateSqlStatement(true, null, out groupSizeAlias, out attributeAliases, out statementStr, out bindVars);
     }
 
     /// <summary>
     /// Generates the SQL statement for the underlaying query specification.
     /// </summary>
-    /// <param name="ns">Namespace used to generate the SQL statement. If the generated statement should be used
-    /// inside another statement, the use of a common namespace prevents name collisions.</param>
     /// <param name="mediaItemIdAlias">Alias of the media item's IDs in the result set.</param>
     /// <param name="miamAliases">Returns the aliases of the ID columns of the joined media item aspect tables. With this mapping,
     /// the caller can check if a MIA type was requested or not. That is needed for optional requested MIA types.</param>
     /// <param name="attributeAliases">Returns the aliases for all selected attributes.</param>
     /// <param name="statementStr">SQL statement which was built by this method.</param>
     /// <param name="bindVars">Bind variables to be inserted into the returned <paramref name="statementStr"/>.</param>
-    public void GenerateSqlStatement(Namespace ns, out string mediaItemIdAlias,
+    public void GenerateSqlStatement(out string mediaItemIdAlias,
         out IDictionary<MediaItemAspectMetadata, string> miamAliases,
         out IDictionary<QueryAttribute, string> attributeAliases,
         out string statementStr, out IList<BindVar> bindVars)
     {
       miamAliases = new Dictionary<MediaItemAspectMetadata, string>();
-      GenerateSqlStatement(ns, false, miamAliases, out mediaItemIdAlias, out attributeAliases, out statementStr, out bindVars);
+      GenerateSqlStatement(false, miamAliases, out mediaItemIdAlias, out attributeAliases, out statementStr, out bindVars);
     }
 
     public override string ToString()
     {
       string mediaItemIdAlias2;
       IDictionary<MediaItemAspectMetadata, string> miamAliases;
-      Namespace mainQueryNS = new Namespace();
       IDictionary<QueryAttribute, string> qa2a;
       string statementStr;
       IList<BindVar> bindVars;
-      GenerateSqlStatement(mainQueryNS, out mediaItemIdAlias2, out miamAliases, out qa2a, out statementStr, out bindVars);
+      GenerateSqlStatement(out mediaItemIdAlias2, out miamAliases, out qa2a, out statementStr, out bindVars);
       return statementStr;
     }
   }

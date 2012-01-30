@@ -22,6 +22,8 @@
 
 #endregion
 
+using System.Text;
+
 namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
 {
   /// <summary>
@@ -31,10 +33,13 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
   {
     protected string _joinType;
     protected TableQueryData _table;
-    protected RequestedAttribute _joinAttr1;
-    protected RequestedAttribute _joinAttr2;
+    protected object _joinAttr1;
+    protected object _joinAttr2;
 
-    public TableJoin(string joinType, TableQueryData table, RequestedAttribute joinAttr1, RequestedAttribute joinAttr2)
+    public TableJoin(string joinType, TableQueryData table, RequestedAttribute joinAttr1, RequestedAttribute joinAttr2) :
+        this(joinType, table, (object) joinAttr1, (object) joinAttr2) { }
+
+    public TableJoin(string joinType, TableQueryData table, object joinAttr1, object joinAttr2)
     {
       _joinType = joinType;
       _table = table;
@@ -58,26 +63,25 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
       get { return _table; }
     }
 
-    /// <summary>
-    /// First attribute of the join condition.
-    /// </summary>
-    public RequestedAttribute JoinAttr1
-    {
-      get { return _joinAttr1; }
-    }
-
-    /// <summary>
-    /// Second attribute of the join condition.
-    /// </summary>
-    public RequestedAttribute JoinAttr2
-    {
-      get { return _joinAttr2; }
-    }
-
     public string GetJoinDeclaration(Namespace ns)
     {
-      return _joinType + " " + _table.GetDeclarationWithAlias(ns) +
-          " ON " + _joinAttr1.GetQualifiedName(ns) + " = " + _joinAttr2.GetQualifiedName(ns);
+      StringBuilder result = new StringBuilder(100);
+      result.Append(_joinType);
+      result.Append(" ");
+      result.Append(_table.GetDeclarationWithAlias(ns));
+      result.Append(" ON ");
+      RequestedAttribute ra = _joinAttr1 as RequestedAttribute;
+      if (ra != null)
+        result.Append(ra.GetQualifiedName(ns));
+      else
+        result.Append(_joinAttr1);
+      result.Append(" = ");
+      ra = _joinAttr2 as RequestedAttribute;
+      if (ra != null)
+        result.Append(ra.GetQualifiedName(ns));
+      else
+        result.Append(_joinAttr2);
+      return result.ToString();
     }
   }
 }

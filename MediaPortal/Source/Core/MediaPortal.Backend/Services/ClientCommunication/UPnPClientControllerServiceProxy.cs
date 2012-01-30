@@ -64,7 +64,7 @@ namespace MediaPortal.Backend.Services.ClientCommunication
       IList<object> inParameters = new List<object>
           {
             path,
-            StringUtils.Join(",", mediaCategories),
+            StringUtils.Join(", ", mediaCategories),
             importModeStr
           };
       action.InvokeAction(inParameters);

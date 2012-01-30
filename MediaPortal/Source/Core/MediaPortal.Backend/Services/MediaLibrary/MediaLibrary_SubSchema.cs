@@ -241,7 +241,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
         database.AddParameter(result, bindVar, shareId, typeof(Guid));
         placeholders.Add("@" + bindVar);
       }
-      result.CommandText = "DELETE FROM SHARES WHERE SHARE_ID in (" + StringUtils.Join(",", placeholders) + ")";
+      result.CommandText = "DELETE FROM SHARES WHERE SHARE_ID in (" + StringUtils.Join(", ", placeholders) + ")";
 
       return result;
     }

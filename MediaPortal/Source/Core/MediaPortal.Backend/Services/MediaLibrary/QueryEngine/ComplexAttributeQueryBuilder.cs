@@ -42,7 +42,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
 
     protected readonly MediaItemAspectMetadata.AttributeSpecification _queryAttribute;
     protected readonly SelectProjectionFunction _selectProjectionFunction;
-    protected readonly CompiledFilter _filter;
+    protected readonly IFilter _filter;
 
     /// <summary>
     /// Creates a new <see cref="ComplexAttributeQueryBuilder"/> instance.
@@ -59,7 +59,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
         MIA_Management miaManagement,
         MediaItemAspectMetadata.AttributeSpecification complexQueryAttribute,
         SelectProjectionFunction selectProjectionFunction,
-        IEnumerable<MediaItemAspectMetadata> necessaryRequestedMIAs, CompiledFilter filter) : base(miaManagement)
+        IEnumerable<MediaItemAspectMetadata> necessaryRequestedMIAs, IFilter filter) : base(miaManagement)
     {
       _queryAttribute = complexQueryAttribute;
       _selectProjectionFunction = selectProjectionFunction;
@@ -72,7 +72,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
       get { return _queryAttribute; }
     }
 
-    public CompiledFilter Filter
+    public IFilter Filter
     {
       get { return _filter; }
     }
@@ -81,20 +81,20 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
     /// Generates a statement to query the distinct values of the complex <see cref="QueryAttribute"/>, together with their
     /// occurence count.
     /// </summary>
-    /// <param name="ns">Namespace used to generate the SQL statement. If the generated statement should be used
-    /// inside another statement, the use of a common namespace prevents name collisions.</param>
     /// <param name="queryAttributeFilter">Additional filter which is defined on the <see cref="QueryAttribute"/>.
     /// That filter COULD be part of the <see cref="Filter"/> but this method can highly optimize a filter on the
     /// query attribute, so a filter on that attribute should be given in this parameter and should not be part of the <see cref="Filter"/>.
     /// </param>
-    /// <param name="bvNamespace">Namespace used to build bind vars.</param>
     /// <param name="valueAlias">Alias for the value column.</param>
     /// <param name="groupSizeAlias">Alias for the column containing the number of items in each group.</param>
     /// <param name="statementStr">Statement which was built by this method.</param>
     /// <param name="bindVars">Bind variables to be inserted into placeholders in the returned <paramref name="statementStr"/>.</param>
-    public void GenerateSqlGroupByStatement(Namespace ns, IAttributeFilter queryAttributeFilter, BindVarNamespace bvNamespace,
+    public void GenerateSqlGroupByStatement(IAttributeFilter queryAttributeFilter,
         out string valueAlias, out string groupSizeAlias, out string statementStr, out IList<BindVar> bindVars)
     {
+      Namespace ns = new Namespace();
+      BindVarNamespace bvNamespace = new BindVarNamespace();
+
       // Contains a mapping of each queried (=selected or filtered) attribute to its request attribute instance
       // data (which holds its requested query table instance)
       IDictionary<QueryAttribute, RequestedAttribute> requestedAttributes = new Dictionary<QueryAttribute, RequestedAttribute>();
@@ -125,9 +125,11 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
               new RequestedAttribute(tqd, MIA_Management.MIA_MEDIA_ITEM_ID_COL_NAME), miaIdAttribute));
       }
 
+      CompiledFilter compiledFilter = new CompiledFilter(_miaManagement, _filter, ns, bvNamespace, miaIdAttribute.GetQualifiedName(ns), tableJoins);
+
       // Build table query data for each Inline attribute which is part of a filter
       // + compile query attribute
-      foreach (QueryAttribute attr in _filter.RequiredAttributes)
+      foreach (QueryAttribute attr in compiledFilter.RequiredAttributes)
       {
         if (attr.Attr.Cardinality != Cardinality.Inline && attr.Attr.Cardinality != Cardinality.ManyToOne)
           continue;
@@ -166,20 +168,22 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
               _queryAttribute.Cardinality, GetType().Name);
       }
 
-      StringBuilder result = new StringBuilder("SELECT ");
-
       // Selected attributes
-      result.Append(_selectProjectionFunction == null ?
+      string valueDeclaration = _selectProjectionFunction == null ?
           valueAttribute.GetDeclarationWithAlias(ns, out valueAlias) :
-          valueAttribute.GetDeclarationWithAlias(ns, _selectProjectionFunction, out valueAlias));
-      result.Append(",");
-      string countAttribute = "COUNT(" + miaIdAttribute.GetQualifiedName(ns) + ") ";
-      result.Append(countAttribute);
-      groupSizeAlias = ns.GetOrCreate(countAttribute, "C");
+          valueAttribute.GetDeclarationWithAlias(ns, _selectProjectionFunction, out valueAlias);
+      groupSizeAlias = "C";
+      StringBuilder result = new StringBuilder("SELECT COUNT(V.ID) ");
       result.Append(groupSizeAlias);
+      result.Append(", V.");
+      result.Append(valueAlias);
+      result.Append(" FROM (");
+      result.Append("SELECT DISTINCT ");
+      result.Append(miaIdAttribute.GetQualifiedName(ns));
+      result.Append(" ID, ");
+      result.Append(valueDeclaration);
 
-      string whereStr;
-      _filter.CreateSqlFilterCondition(ns, requestedAttributes, miaIdAttribute.GetQualifiedName(ns), out whereStr, out bindVars);
+      string whereStr = compiledFilter.CreateSqlFilterCondition(ns, requestedAttributes, out bindVars);
 
       result.Append(" FROM ");
 
@@ -211,10 +215,8 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
         result.Append(StringUtils.Join(" AND ", filters));
       }
 
-      result.Append(" GROUP BY ");
-      result.Append(_selectProjectionFunction == null ?
-          valueAttribute.GetQualifiedName(ns) :
-          _selectProjectionFunction(valueAttribute.GetQualifiedName(ns)));
+      result.Append(") V GROUP BY V.");
+      result.Append(valueAlias);
 
       statementStr = result.ToString();
     }
@@ -222,15 +224,16 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
     /// <summary>
     /// Generates a statement to query the values of the complex <see cref="QueryAttribute"/>.
     /// </summary>
-    /// <param name="ns">Namespace used to generate the SQL statement. If the generated statement should be used
-    /// inside another statement, the use of a common namespace prevents name collisions.</param>
     /// <param name="valueAlias">Alias for the value column.</param>
     /// <param name="mediaItemIdAlias">Alias for the ID of the media item to which the value belongs.</param>
     /// <param name="statementStr">Statement which was built by this method.</param>
     /// <param name="bindVars">Bind variables to be inserted into placeholders in the returned <paramref name="statementStr"/>.</param>
-    public void GenerateSqlStatement(Namespace ns, out string mediaItemIdAlias, out string valueAlias,
+    public void GenerateSqlStatement(out string mediaItemIdAlias, out string valueAlias,
         out string statementStr, out IList<BindVar> bindVars)
     {
+      Namespace ns = new Namespace();
+      BindVarNamespace bvNamespace = new BindVarNamespace();
+
       // Contains a mapping of each queried (=selected or filtered) attribute to its request attribute instance
       // data (which holds its requested query table instance)
       IDictionary<QueryAttribute, RequestedAttribute> requestedAttributes = new Dictionary<QueryAttribute, RequestedAttribute>();
@@ -283,9 +286,11 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
             new RequestedAttribute(tqd, MIA_Management.MIA_MEDIA_ITEM_ID_COL_NAME), miaIdAttribute));
       }
 
+      CompiledFilter compiledFilter = new CompiledFilter(_miaManagement, _filter, ns, bvNamespace, miaIdAttribute.GetQualifiedName(ns), tableJoins);
+
       // Build table query data for each Inline attribute which is part of a filter
       // + compile query attribute
-      foreach (QueryAttribute attr in _filter.RequiredAttributes)
+      foreach (QueryAttribute attr in compiledFilter.RequiredAttributes)
       {
         if (attr.Attr.Cardinality != Cardinality.Inline && attr.Attr.Cardinality != Cardinality.ManyToOne)
           continue;
@@ -305,8 +310,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
       // Selected attributes
       result.Append(valueAttribute.GetDeclarationWithAlias(ns, out valueAlias));
 
-      string whereStr;
-      _filter.CreateSqlFilterCondition(ns, requestedAttributes, miaIdAttribute.GetQualifiedName(ns), out whereStr, out bindVars);
+      string whereStr = compiledFilter.CreateSqlFilterCondition(ns, requestedAttributes, out bindVars);
 
       result.Append(" FROM ");
 
@@ -339,7 +343,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
       string valueAlias;
       string statementStr;
       IList<BindVar> bindVars;
-      GenerateSqlStatement(new Namespace(), out mediaItemIdAlias, out valueAlias, out statementStr, out bindVars);
+      GenerateSqlStatement(out mediaItemIdAlias, out valueAlias, out statementStr, out bindVars);
       return statementStr;
     }
   }

@@ -48,7 +48,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
     protected readonly ICollection<MediaItemAspectMetadata> _optionalRequestedMIAs;
     protected readonly IDictionary<MediaItemAspectMetadata.AttributeSpecification, QueryAttribute> _mainSelectAttributes;
     protected readonly ICollection<MediaItemAspectMetadata.AttributeSpecification> _explicitSelectAttributes;
-    protected readonly CompiledFilter _filter;
+    protected readonly IFilter _filter;
     protected readonly IList<SortInformation> _sortInformation;
 
     public CompiledMediaItemQuery(
@@ -57,7 +57,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
         ICollection<MediaItemAspectMetadata> optionalRequestedMIAs,
         IDictionary<MediaItemAspectMetadata.AttributeSpecification, QueryAttribute> mainSelectedAttributes,
         ICollection<MediaItemAspectMetadata.AttributeSpecification> explicitSelectedAttributes,
-        CompiledFilter filter, IList<SortInformation> sortInformation)
+        IFilter filter, IList<SortInformation> sortInformation)
     {
       _miaManagement = miaManagement;
       _necessaryRequestedMIAs = necessaryRequestedMIAs;
@@ -78,7 +78,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
       get { return _explicitSelectAttributes; }
     }
 
-    public CompiledFilter Filter
+    public IFilter Filter
     {
       get { return _filter; }
     }
@@ -109,13 +109,6 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
           continue;
         optionalMIATypes.Add(miam);
       }
-      // Raise exception if MIA types are not present, which are contained in filter condition
-      CompiledFilter compiledFilter = CompiledFilter.Compile(miaManagement, query.Filter, new BindVarNamespace());
-      foreach (MediaItemAspectMetadata miam in compiledFilter.RequiredMIATypes)
-      {
-        if (!availableMIATypes.ContainsKey(miam.AspectId))
-          throw new InvalidDataException("MIA type '{0}', which is contained in filter condition, is not present in the media library", miam.Name);
-      }
 
       // Maps (all selected main) MIAM.Attributes to QueryAttributes
       IDictionary<MediaItemAspectMetadata.AttributeSpecification, QueryAttribute> mainSelectedAttributes =
@@ -145,7 +138,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
       }
 
       return new CompiledMediaItemQuery(miaManagement, necessaryMIATypes, optionalMIATypes,
-          mainSelectedAttributes, explicitSelectAttributes, compiledFilter, query.SortInformation);
+          mainSelectedAttributes, explicitSelectAttributes, query.Filter, query.SortInformation);
     }
 
     public IList<MediaItem> Execute()
@@ -168,7 +161,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
           {
             string mediaItemIdAlias;
             string valueAlias;
-            complexAttributeQueryBuilder.GenerateSqlStatement(new Namespace(), out mediaItemIdAlias, out valueAlias,
+            complexAttributeQueryBuilder.GenerateSqlStatement(out mediaItemIdAlias, out valueAlias,
                 out statementStr, out bindVars);
             command.CommandText = statementStr;
             foreach (BindVar bindVar in bindVars)
@@ -202,10 +195,9 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
         {
           string mediaItemIdAlias2;
           IDictionary<MediaItemAspectMetadata, string> miamAliases;
-          Namespace mainQueryNS = new Namespace();
           // Maps (selected and filtered) QueryAttributes to CompiledQueryAttributes in the SQL query
           IDictionary<QueryAttribute, string> qa2a;
-          mainQueryBuilder.GenerateSqlStatement(mainQueryNS, out mediaItemIdAlias2, out miamAliases, out qa2a,
+          mainQueryBuilder.GenerateSqlStatement(out mediaItemIdAlias2, out miamAliases, out qa2a,
               out statementStr, out bindVars);
           command.CommandText = statementStr;
           foreach (BindVar bindVar in bindVars)
@@ -213,12 +205,17 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
 
           IEnumerable<MediaItemAspectMetadata> selectedMIAs = _necessaryRequestedMIAs.Union(_optionalRequestedMIAs);
 
+          ICollection<Guid> mediaItems = new HashSet<Guid>();
           using (IDataReader reader = command.ExecuteReader())
           {
             IList<MediaItem> result = new List<MediaItem>();
             while (reader.Read())
             {
               Guid mediaItemId = database.ReadDBValue<Guid>(reader, reader.GetOrdinal(mediaItemIdAlias2));
+              if (mediaItems.Contains(mediaItemId))
+                // Media item was already added to result - query results are not always unique because of JOINs used for filtering
+                continue;
+              mediaItems.Add(mediaItemId);
               IDictionary<MediaItemAspectMetadata.AttributeSpecification, ICollection<object>> attributeValues;
               if (!complexAttributeValues.TryGetValue(mediaItemId, out attributeValues))
                   attributeValues = null;

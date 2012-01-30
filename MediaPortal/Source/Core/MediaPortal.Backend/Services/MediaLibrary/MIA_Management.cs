@@ -136,11 +136,13 @@ namespace MediaPortal.Backend.Services.MediaLibrary
     /// <summary>
     /// ID column name for MIA collection attribute tables
     /// </summary>
+    // TODO: Rename to VALUE_ID - will break an existing media library
     protected internal const string FOREIGN_COLL_ATTR_ID_COL_NAME = "ID";
 
     /// <summary>
     /// Value column name for MIA collection attribute tables.
     /// </summary>
+    // TODO: Rename to VALUE - will break an existing media library
     protected internal const string COLL_ATTR_VALUE_COL_NAME = "ATTRIBUTE_VALUE";
 
     protected readonly IDictionary<string, string> _nameAliases = new Dictionary<string, string>();

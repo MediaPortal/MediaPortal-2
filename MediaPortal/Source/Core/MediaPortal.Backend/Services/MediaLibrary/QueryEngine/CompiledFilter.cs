@@ -45,35 +45,22 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
     protected IList<object> _statementParts;
     protected IList<BindVar> _statementBindVars;
 
-    /// <summary>
-    /// Placeholder object which will be replaced by method <see cref="CreateSqlFilterCondition"/> with the
-    /// final outer join variable (or alias).
-    /// </summary>
-    protected object _outerMIIDJoinVariablePlaceHolder;
-
     protected readonly ICollection<QueryAttribute> _requiredAttributes;
     protected readonly ICollection<MediaItemAspectMetadata> _requiredMIATypes;
+    protected readonly IDictionary<string, string> _innerJoinedTables = new Dictionary<string, string>();
 
-    public CompiledFilter(MIA_Management miaManagement, IFilter filter, object outerMIIDJoinVariablePlaceHolder,
-        BindVarNamespace bvNamespace)
+    public CompiledFilter(MIA_Management miaManagement, IFilter filter, Namespace ns, BindVarNamespace bvNamespace, string outerMIIDJoinVariable, ICollection<TableJoin> tableJoins)
     {
       _statementParts = new List<object>();
       _statementBindVars = new List<BindVar>();
       _requiredMIATypes = new List<MediaItemAspectMetadata>();
-      CompileStatementParts(miaManagement, filter, outerMIIDJoinVariablePlaceHolder, bvNamespace, _requiredMIATypes,
+      CompileStatementParts(miaManagement, filter, ns, bvNamespace, _requiredMIATypes, outerMIIDJoinVariable, tableJoins,
           _statementParts, _statementBindVars);
       _requiredAttributes = _statementParts.OfType<QueryAttribute>().ToList();
-      _outerMIIDJoinVariablePlaceHolder = outerMIIDJoinVariablePlaceHolder;
     }
 
-    public static CompiledFilter Compile(MIA_Management miaManagement, IFilter filter, BindVarNamespace bvNamespace)
-    {
-      object outerMIIDJoinVariablePlaceHolder = new object();
-      return new CompiledFilter(miaManagement, filter, outerMIIDJoinVariablePlaceHolder, bvNamespace);
-    }
-
-    protected void CompileStatementParts(MIA_Management miaManagement, IFilter filter,
-        object outerMIIDJoinVariablePlaceHolder, BindVarNamespace bvNamespace, ICollection<MediaItemAspectMetadata> requiredMIATypes,
+    protected void CompileStatementParts(MIA_Management miaManagement, IFilter filter, Namespace ns, BindVarNamespace bvNamespace,
+        ICollection<MediaItemAspectMetadata> requiredMIATypes, string outerMIIDJoinVariable, ICollection<TableJoin> tableJoins,
         IList<object> resultParts, IList<BindVar> resultBindVars)
     {
       if (filter == null)
@@ -89,7 +76,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
         {
           if (mediaItemIds.Count == 1)
           {
-            resultParts.Add(outerMIIDJoinVariablePlaceHolder);
+            resultParts.Add(outerMIIDJoinVariable);
             BindVar bindVar = new BindVar(bvNamespace.CreateNewBindVarName("V"), mediaItemIds.First(), typeof(Guid));
             resultParts.Add(" = @" + bindVar.Name);
             resultBindVars.Add(bindVar);
@@ -110,8 +97,8 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
               if (!first)
                 resultParts.Add(" OR ");
               first = false;
-              resultParts.Add(outerMIIDJoinVariablePlaceHolder);
-              resultParts.Add(" IN (" + StringUtils.Join(",", bindVarRefs) + ")");
+              resultParts.Add(outerMIIDJoinVariable);
+              resultParts.Add(" IN (" + StringUtils.Join(", ", bindVarRefs) + ")");
             }
             resultParts.Add(StringUtils.Join(" OR ", clusterExpressions));
           }
@@ -128,8 +115,8 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
           return;
         if (numOperands > 1)
           resultParts.Add("(");
-        CompileStatementParts(miaManagement, (IFilter) enumOperands.Current, outerMIIDJoinVariablePlaceHolder, bvNamespace,
-            requiredMIATypes, resultParts, resultBindVars);
+        CompileStatementParts(miaManagement, (IFilter) enumOperands.Current, ns, bvNamespace,
+            requiredMIATypes, outerMIIDJoinVariable, tableJoins, resultParts, resultBindVars);
         while (enumOperands.MoveNext())
         {
           switch (boolFilter.Operator)
@@ -144,8 +131,8 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
               throw new NotImplementedException(string.Format(
                   "Boolean filter operator '{0}' isn't supported by the media library", boolFilter.Operator));
           }
-          CompileStatementParts(miaManagement, (IFilter) enumOperands.Current, outerMIIDJoinVariablePlaceHolder, bvNamespace,
-              requiredMIATypes, resultParts, resultBindVars);
+          CompileStatementParts(miaManagement, (IFilter) enumOperands.Current, ns, bvNamespace,
+              requiredMIATypes, outerMIIDJoinVariable, tableJoins, resultParts, resultBindVars);
         }
         if (numOperands > 1)
           resultParts.Add(")");
@@ -156,8 +143,8 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
       if (notFilter != null)
       {
         resultParts.Add("NOT (");
-        CompileStatementParts(miaManagement, notFilter.InnerFilter, outerMIIDJoinVariablePlaceHolder, bvNamespace,
-            requiredMIATypes, resultParts, resultBindVars);
+        CompileStatementParts(miaManagement, notFilter.InnerFilter, ns, bvNamespace,
+            requiredMIATypes, outerMIIDJoinVariable, tableJoins, resultParts, resultBindVars);
         resultParts.Add(")");
         return;
       }
@@ -192,7 +179,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
           resultParts.Add(" V WHERE V.");
           resultParts.Add(MIA_Management.MIA_MEDIA_ITEM_ID_COL_NAME);
           resultParts.Add("=");
-          resultParts.Add(outerMIIDJoinVariablePlaceHolder);
+          resultParts.Add(outerMIIDJoinVariable);
           resultParts.Add(")");
         }
         else if (cardinality == Cardinality.ManyToMany)
@@ -211,7 +198,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
           resultParts.Add(" WHERE NM.");
           resultParts.Add(MIA_Management.MIA_MEDIA_ITEM_ID_COL_NAME);
           resultParts.Add("=");
-          resultParts.Add(outerMIIDJoinVariablePlaceHolder);
+          resultParts.Add(outerMIIDJoinVariable);
           resultParts.Add(")");
         }
         return;
@@ -228,18 +215,14 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
         //
         // for OTM attributes, we create
         //
-        // EXISTS(
-        //  SELECT V.MEDIA_ITEM_ID
-        //  FROM [OTM-Value-Table] V
-        //  WHERE V.MI_ID=[Outer-Join-Variable-Placeholder] AND V.VALUE [Operator] [Comparison-Value])
+        // INNER JOIN [OTM-Value-Table] V ON V.MEDIA_ITEM_ID=[Outer-Join-Variable-Placeholder]
+        // WHERE [...] and V.VALUE [Operator] [Comparison-Value])
         //
         // for MTM attributes, we create
         //
-        // EXISTS(
-        //  SELECT NM.MEDIA_ITEM_ID
-        //  FROM [MTM-NM-Table] NM
-        //  INNER JOIN [MTM-Value-Table] V ON NM.ID = V.ID
-        //  WHERE NM.MI_ID=[Outer-Join-Variable-Placeholder] AND V.VALUE [Operator] [Comparison-Value])
+        // INNER JOIN [MTM-NM-Table] NM ON NM.MEDIA_ITEM_ID=[Outer-Join-Variable-Placeholder]
+        // INNER JOIN [MTM-Value-Table] V ON NM.ID = V.ID
+        // WHERE [...] AND V.VALUE [Operator] [Comparison-Value])
 
         MediaItemAspectMetadata.AttributeSpecification attributeType = attributeFilter.AttributeType;
         requiredMIATypes.Add(attributeType.ParentMIAM);
@@ -249,41 +232,39 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
               resultParts, resultBindVars);
         else if (cardinality == Cardinality.OneToMany)
         {
-          resultParts.Add("EXISTS(");
-          resultParts.Add("SELECT V.");
-          resultParts.Add(MIA_Management.MIA_MEDIA_ITEM_ID_COL_NAME);
-          resultParts.Add(" FROM ");
-          resultParts.Add(miaManagement.GetMIACollectionAttributeTableName(attributeType));
-          resultParts.Add(" V WHERE V.");
-          resultParts.Add(MIA_Management.MIA_MEDIA_ITEM_ID_COL_NAME);
-          resultParts.Add("=");
-          resultParts.Add(outerMIIDJoinVariablePlaceHolder);
-          resultParts.Add(" AND ");
-          BuildAttributeFilterExpression(attributeFilter, "V." + MIA_Management.COLL_ATTR_VALUE_COL_NAME, bvNamespace,
-              resultParts, resultBindVars);
-          resultParts.Add(")");
+          string joinTable = miaManagement.GetMIACollectionAttributeTableName(attributeType);
+          string attrName;
+          if (!_innerJoinedTables.TryGetValue(joinTable, out attrName))
+          {
+            TableQueryData tqd = new TableQueryData(joinTable);
+
+            tableJoins.Add(new TableJoin("LEFT OUTER JOIN", tqd,
+                new RequestedAttribute(tqd, MIA_Management.MIA_MEDIA_ITEM_ID_COL_NAME), outerMIIDJoinVariable));
+            attrName = new RequestedAttribute(tqd, MIA_Management.COLL_ATTR_VALUE_COL_NAME).GetQualifiedName(ns);
+            _innerJoinedTables.Add(joinTable, attrName);
+          }
+          BuildAttributeFilterExpression(attributeFilter, attrName, bvNamespace, resultParts, resultBindVars);
         }
         else if (cardinality == Cardinality.ManyToMany)
         {
-          resultParts.Add("EXISTS(");
-          resultParts.Add("SELECT NM.");
-          resultParts.Add(MIA_Management.MIA_MEDIA_ITEM_ID_COL_NAME);
-          resultParts.Add(" FROM ");
-          resultParts.Add(miaManagement.GetMIACollectionAttributeNMTableName(attributeType));
-          resultParts.Add(" NM INNER JOIN ");
-          resultParts.Add(miaManagement.GetMIACollectionAttributeTableName(attributeType));
-          resultParts.Add(" V ON NM.");
-          resultParts.Add(MIA_Management.FOREIGN_COLL_ATTR_ID_COL_NAME);
-          resultParts.Add(" = V.");
-          resultParts.Add(MIA_Management.FOREIGN_COLL_ATTR_ID_COL_NAME);
-          resultParts.Add(" WHERE NM.");
-          resultParts.Add(MIA_Management.MIA_MEDIA_ITEM_ID_COL_NAME);
-          resultParts.Add("=");
-          resultParts.Add(outerMIIDJoinVariablePlaceHolder);
-          resultParts.Add(" AND ");
-          BuildAttributeFilterExpression(attributeFilter, "V." + MIA_Management.COLL_ATTR_VALUE_COL_NAME, bvNamespace,
-              resultParts, resultBindVars);
-          resultParts.Add(")");
+          string miaCollectionAttributeNMTableName = miaManagement.GetMIACollectionAttributeNMTableName(attributeType);
+          string attrName;
+          if (!_innerJoinedTables.TryGetValue(miaCollectionAttributeNMTableName, out attrName))
+          {
+            TableQueryData tqdMiaCollectionAttributeNMTable = new TableQueryData(miaCollectionAttributeNMTableName);
+
+            tableJoins.Add(new TableJoin("LEFT OUTER JOIN", tqdMiaCollectionAttributeNMTable,
+                new RequestedAttribute(tqdMiaCollectionAttributeNMTable, MIA_Management.MIA_MEDIA_ITEM_ID_COL_NAME), outerMIIDJoinVariable));
+
+            TableQueryData tqdMiaCollectionAttributeTable = new TableQueryData(miaManagement.GetMIACollectionAttributeTableName(attributeType));
+
+            tableJoins.Add(new TableJoin("LEFT OUTER JOIN", tqdMiaCollectionAttributeTable,
+                new RequestedAttribute(tqdMiaCollectionAttributeNMTable, MIA_Management.FOREIGN_COLL_ATTR_ID_COL_NAME),
+                new RequestedAttribute(tqdMiaCollectionAttributeTable, MIA_Management.FOREIGN_COLL_ATTR_ID_COL_NAME)));
+            attrName = tqdMiaCollectionAttributeTable.GetAlias(ns) + "." + MIA_Management.COLL_ATTR_VALUE_COL_NAME;
+            _innerJoinedTables.Add(miaCollectionAttributeNMTableName, attrName);
+          }
+          BuildAttributeFilterExpression(attributeFilter, attrName, bvNamespace, resultParts, resultBindVars);
         }
         return;
       }
@@ -312,22 +293,22 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
         switch (relationalFilter.Operator)
         {
           case RelationalOperator.EQ:
-            resultParts.Add("=");
+            resultParts.Add(" = ");
             break;
           case RelationalOperator.NEQ:
-            resultParts.Add("<>");
+            resultParts.Add(" <> ");
             break;
           case RelationalOperator.LT:
-            resultParts.Add("<");
+            resultParts.Add(" < ");
             break;
           case RelationalOperator.LE:
-            resultParts.Add("<=");
+            resultParts.Add(" <= ");
             break;
           case RelationalOperator.GT:
-            resultParts.Add(">");
+            resultParts.Add(" > ");
             break;
           case RelationalOperator.GE:
-            resultParts.Add(">=");
+            resultParts.Add(" >= ");
             break;
           default:
             throw new NotImplementedException(string.Format(
@@ -400,7 +381,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
             bindVarRefs.Add("@" + bindVar.Name);
             resultBindVars.Add(bindVar);
           }
-          clusterExpressions.Add(" IN (" + StringUtils.Join(",", bindVarRefs) + ")");
+          clusterExpressions.Add(" IN (" + StringUtils.Join(", ", bindVarRefs) + ")");
         }
         resultParts.Add(StringUtils.Join(" OR ", clusterExpressions));
         return;
@@ -428,23 +409,17 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
 
     // outerMIIDJoinVariable is MEDIA_ITEMS.MEDIA_ITEM_ID (or its alias) for simple selects,
     // MIAM_TABLE_XXX.MEDIA_ITEM_ID (or alias) for complex selects, used for join conditions in complex filters
-    public void CreateSqlFilterCondition(Namespace ns,
-        IDictionary<QueryAttribute, RequestedAttribute> requestedAttributes,
-        string outerMIIDJoinVariable, out string filterStr, out IList<BindVar> bindVars)
+    public string CreateSqlFilterCondition(Namespace ns, IDictionary<QueryAttribute, RequestedAttribute> requestedAttributes,
+        out IList<BindVar> bindVars)
     {
       StringBuilder filterBuilder = new StringBuilder(1000);
       foreach (object statementPart in _statementParts)
       {
         QueryAttribute qa = statementPart as QueryAttribute;
-        if (qa != null)
-          filterBuilder.Append(requestedAttributes[qa].GetQualifiedName(ns));
-        else if (statementPart == _outerMIIDJoinVariablePlaceHolder)
-          filterBuilder.Append(outerMIIDJoinVariable);
-        else
-          filterBuilder.Append(statementPart.ToString());
+        filterBuilder.Append(qa == null ? statementPart.ToString() : requestedAttributes[qa].GetQualifiedName(ns));
       }
-      filterStr = filterBuilder.ToString();
       bindVars = _statementBindVars;
+      return filterBuilder.ToString();
     }
 
     /// <summary>

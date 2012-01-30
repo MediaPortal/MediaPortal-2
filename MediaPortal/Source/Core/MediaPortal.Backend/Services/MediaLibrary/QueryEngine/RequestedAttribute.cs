@@ -81,15 +81,20 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
       return _requestedTable.GetAlias(ns) + "." + _columnName;
     }
 
+    public string GetAlias(Namespace ns)
+    {
+      return ns.GetOrCreate(this, "A");
+    }
+
     public string GetDeclarationWithAlias(Namespace ns, out string alias)
     {
-      alias = ns.GetOrCreate(this, "A");
+      alias = GetAlias(ns);
       return _requestedTable.GetAlias(ns) + "." + _columnName + " " + alias;
     }
 
     public string GetDeclarationWithAlias(Namespace ns, SelectProjectionFunction selectProjectionFunction, out string alias)
     {
-      alias = ns.GetOrCreate(this, "A");
+      alias = GetAlias(ns);
       return selectProjectionFunction(_requestedTable.GetAlias(ns) + "." + _columnName) + " " + alias;
     }
 
