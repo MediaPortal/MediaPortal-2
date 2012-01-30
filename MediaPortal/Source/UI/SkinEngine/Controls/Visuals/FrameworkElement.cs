@@ -1820,6 +1820,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     public override void Deallocate()
     {
       base.Deallocate();
+      PrimitiveBuffer.DisposePrimitiveBuffer(ref _effectContext);
       PrimitiveBuffer.DisposePrimitiveBuffer(ref _opacityMaskContext);
     }
 

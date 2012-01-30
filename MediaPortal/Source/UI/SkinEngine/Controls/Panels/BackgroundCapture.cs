@@ -52,6 +52,12 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
         }
       }
     }
+
+    public override void Dispose()
+    {
+      base.Dispose();
+      TryDispose(ref _texture);
+    }
   }
 }
 
