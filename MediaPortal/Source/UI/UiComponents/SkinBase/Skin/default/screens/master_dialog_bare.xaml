@@ -52,10 +52,11 @@ Parameters which have to be accessible by a DynamicResource lookup:
       LastChildFill="False">
   <BackgroundCapture x:Name="BackgroundCapture" IsVisible="True" DockPanel.Dock="Center">
     <BackgroundCapture.Effect>
-      <!--<ShaderBlurEffect/>-->
-      <!--<SepiaEffect/>-->
-      <!--<InvertEffect/>-->
-       <DialogBackgroundEffect/>
+        <!-- name of .fx file from Skin/default/shaders -->
+        <GenericShaderEffect ShaderEffectName="dialogbg"/>
+
+        <!-- name of partitial .fx file from Skin/default/shaders/effects -->
+        <!--<GenericImageEffect PartitialEffectName="sepia"/>-->
     </BackgroundCapture.Effect>
   </BackgroundCapture>
     <DockPanel.RenderTransform>

@@ -35,7 +35,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Effects
 
     protected virtual Dictionary<string, object> GetShaderParameters()
     {
-      return new Dictionary<string, object>();
+      return null;
     }
 
     public override void EndRender()
