@@ -108,11 +108,16 @@
                 <ResourceWrapper x:Key="ControlWidth" Resource="620"/>
                 <ResourceWrapper x:Key="ControlHeight" Resource="340"/>
                 <ControlTemplate x:Key="MakeGlass">
-
-                  <Image x:Name="BackdropImageBackground"
-                     VerticalAlignment="Top" Stretch="UniformToFill"
-                     Source="{Binding Source={StaticResource BackgroundManagerModel}, Path=BackgroundImage}"/>
-
+                  <Grid>
+                    <Image x:Name="BackdropImageBackground"
+                       VerticalAlignment="Top" Stretch="UniformToFill"
+                       Source="{Binding Source={StaticResource BackgroundManagerModel}, Path=BackgroundImage}"
+                       FallbackSource="hover-default.png"/>
+                  
+                    <Image x:Name="BackdropMask"
+                       VerticalAlignment="Top" Stretch="UniformToFill"
+                       Source="hover-overlay.png"/>
+                  </Grid>
                 </ControlTemplate>
               </Control.Resources>
             </Control>

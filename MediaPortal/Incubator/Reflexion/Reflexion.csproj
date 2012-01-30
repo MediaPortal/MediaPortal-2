@@ -71,11 +71,14 @@
     <Content Include="Skin\Reflexion\fonts\default-font.xml" />
     <Content Include="Skin\Reflexion\images\17D2390E-5B05-4fbd-89F6-24D60CEB427F.jpg" />
     <Content Include="Skin\Reflexion\images\30715D73-4205-417f-80AA-E82F0834171F.jpg" />
+    <Content Include="Skin\Reflexion\images\36FA3773-8428-4e0c-BE5B-4ECFF5A5E11F.jpg" />
     <Content Include="Skin\Reflexion\images\55556593-9FE9-436c-A3B6-A971E10C9D44.jpg" />
     <Content Include="Skin\Reflexion\images\09eae702-d9ec-4325-82d9-4843502c966b.jpg" />
+    <Content Include="Skin\Reflexion\images\9C3E6701-6856-49ec-A4CD-0CEB15F385F6.jpg" />
     <Content Include="Skin\Reflexion\images\A4DF2DF6-8D66-479a-9930-D7106525EB07.jpg" />
     <Content Include="Skin\Reflexion\images\B4A9199F-6DD4-4bda-A077-DE9C081F7703.jpg" />
     <Content Include="Skin\Reflexion\images\C33E39CC-910E-41C8-BFFD-9ECCD340B569.jpg" />
+    <Content Include="Skin\Reflexion\images\D83604C0-0936-4416-9DE8-7B6D7C50023C.jpg" />
     <Content Include="Skin\Reflexion\images\E34FDB62-1F3E-4aa9-8A61-D143E0AF77B5.jpg" />
     <Content Include="Skin\Reflexion\images\F6255762-C52A-4231-9E67-14C28735216E.jpg" />
     <Content Include="Skin\Reflexion\images\93442DF7-186D-42e5-A0F5-CF1493E68F49.jpg" />
@@ -185,7 +188,6 @@
     <Content Include="Skin\Reflexion\skin.xml" />
     <Content Include="Skin\Reflexion\themes\default\images\Controls\Bar.png" />
     <Content Include="Skin\Reflexion\themes\default\images\Controls\Glass.png" />
-    <Content Include="Skin\Reflexion\themes\default\images\Controls\MenuBackground.png" />
     <Content Include="Skin\Reflexion\themes\green\images\preview.png" />
     <Content Include="Skin\Reflexion\themes\green\images\Reflex.jpg" />
     <Content Include="Skin\Reflexion\themes\green\theme.xml" />
