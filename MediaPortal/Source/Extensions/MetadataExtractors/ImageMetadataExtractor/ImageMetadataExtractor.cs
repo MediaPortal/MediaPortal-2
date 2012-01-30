@@ -170,31 +170,33 @@ namespace MediaPortal.Extensions.MetadataExtractors.ImageMetadataExtractor
           imageAspect.SetAttribute(ImageAspect.ATTR_METERING_MODE, exif.MeteringMode.ToString());
 
           IResourceAccessor ra = mediaItemAccessor.Clone();
+          ILocalFsResourceAccessor lfsra;
           try
           {
-            using (ILocalFsResourceAccessor lfsra = StreamedResourceToLocalFsAccessBridge.GetLocalFsResourceAccessor(ra))
-            {
-              string localFsResourcePath = lfsra.LocalFileSystemPath;
-              if (localFsResourcePath != null)
-              {
-                // In quick mode only allow thumbs taken from cache.
-                bool cachedOnly = forceQuickMode;
-
-                // Thumbnail extraction
-                IThumbnailGenerator generator = ServiceRegistration.Get<IThumbnailGenerator>();
-                byte[] thumbData;
-                ImageType imageType;
-                if (generator.GetThumbnail(localFsResourcePath, 96, 96, cachedOnly, out thumbData, out imageType))
-                  thumbnailSmallAspect.SetAttribute(ThumbnailSmallAspect.ATTR_THUMBNAIL, thumbData);
-                if (generator.GetThumbnail(localFsResourcePath, 256, 256, cachedOnly, out thumbData, out imageType))
-                  thumbnailLargeAspect.SetAttribute(ThumbnailLargeAspect.ATTR_THUMBNAIL, thumbData);
-              }
-            }
+            lfsra = StreamedResourceToLocalFsAccessBridge.GetLocalFsResourceAccessor(ra);
           }
           catch
           {
             ra.Dispose();
             throw;
+          }
+          using (lfsra)
+          {
+            string localFsResourcePath = lfsra.LocalFileSystemPath;
+            if (localFsResourcePath != null)
+            {
+              // In quick mode only allow thumbs taken from cache.
+              bool cachedOnly = forceQuickMode;
+
+              // Thumbnail extraction
+              IThumbnailGenerator generator = ServiceRegistration.Get<IThumbnailGenerator>();
+              byte[] thumbData;
+              ImageType imageType;
+              if (generator.GetThumbnail(localFsResourcePath, 96, 96, cachedOnly, out thumbData, out imageType))
+                thumbnailSmallAspect.SetAttribute(ThumbnailSmallAspect.ATTR_THUMBNAIL, thumbData);
+              if (generator.GetThumbnail(localFsResourcePath, 256, 256, cachedOnly, out thumbData, out imageType))
+                thumbnailLargeAspect.SetAttribute(ThumbnailLargeAspect.ATTR_THUMBNAIL, thumbData);
+            }
           }
         }
         return true;
