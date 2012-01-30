@@ -447,8 +447,17 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
       bindVars = _statementBindVars;
     }
 
-    public static void CreateSimpleSqlFilterCondition(Namespace ns, IList<object> statementParts,
-        IDictionary<QueryAttribute, RequestedAttribute> requestedAttributes, out string filterStr)
+    /// <summary>
+    /// Creates a simple SQL filter term from the given precompiled <paramref name="statementParts"/>.
+    /// The given parts must have been compiled by method <see cref="BuildAttributeFilterExpression"/>.
+    /// </summary>
+    /// <param name="ns">Namespace in which the query is generated.</param>
+    /// <param name="statementParts">Precompiled filter statement parts created by method <see cref="BuildAttributeFilterExpression"/>.</param>
+    /// <param name="requestedAttributes">Dictionary containing all attributes which have been requested in the query which will accommodate
+    /// the result filter. This dictionary must contain all attributes contained in <see cref="RequiredAttributes"/>.</param>
+    /// <returns>Created filter string to be placed behind the <c>WHERE</c> keyword.</returns>
+    public static string CreateSimpleSqlFilterCondition(Namespace ns, IList<object> statementParts,
+        IDictionary<QueryAttribute, RequestedAttribute> requestedAttributes)
     {
       StringBuilder filterBuilder = new StringBuilder(1000);
       foreach (object statementPart in statementParts)
@@ -456,7 +465,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
         QueryAttribute qa = statementPart as QueryAttribute;
         filterBuilder.Append(qa == null ? statementPart.ToString() : requestedAttributes[qa].GetQualifiedName(ns));
       }
-      filterStr = filterBuilder.ToString();
+      return filterBuilder.ToString();
     }
   }
 }

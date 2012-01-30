@@ -205,8 +205,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
           IList<object> resultParts = new List<object>();
           CompiledFilter.BuildAttributeFilterExpression(queryAttributeFilter, valueAttribute.GetQualifiedName(ns), bvNamespace,
               resultParts, bindVars);
-          string filterStr;
-          CompiledFilter.CreateSimpleSqlFilterCondition(ns, resultParts, requestedAttributes, out filterStr);
+          string filterStr = CompiledFilter.CreateSimpleSqlFilterCondition(ns, resultParts, requestedAttributes);
           filters.Add(filterStr);
         }
         result.Append(StringUtils.Join(" AND ", filters));
