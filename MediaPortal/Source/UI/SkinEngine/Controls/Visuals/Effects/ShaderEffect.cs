@@ -6,7 +6,7 @@ using SlimDX.Direct3D9;
 
 namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Effects
 {
-  public abstract class ShaderEffect:Effect
+  public abstract class ShaderEffect : Effect
   {
     protected EffectContext _effectContext;
     protected string _shaderEffectName;
@@ -32,7 +32,10 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Effects
       return true;
     }
 
-    protected abstract Dictionary<string, object> GetShaderParameters();
+    protected virtual Dictionary<string, object> GetShaderParameters()
+    {
+      return null;
+    }
 
     public override void EndRender()
     {

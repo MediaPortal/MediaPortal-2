@@ -8,10 +8,5 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Effects
     {
       _shaderEffectName = "blur";
     }
-
-    protected override Dictionary<string, object> GetShaderParameters()
-    {
-      return new Dictionary<string, object>();
-    }
   }
 }

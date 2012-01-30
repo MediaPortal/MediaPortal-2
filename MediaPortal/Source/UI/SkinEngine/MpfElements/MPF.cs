@@ -212,6 +212,7 @@ namespace MediaPortal.UI.SkinEngine.MpfElements
 
       // Effects
       // Image effects based on ImageContext
+      _objectClassRegistrations.Add("GenericImageEffect", typeof(MediaPortal.UI.SkinEngine.Controls.Visuals.Effects.GenericImageEffect));
       _objectClassRegistrations.Add("BlurEffect", typeof(MediaPortal.UI.SkinEngine.Controls.Visuals.Effects.BlurEffect));
       _objectClassRegistrations.Add("ZoomBlurEffect", typeof(MediaPortal.UI.SkinEngine.Controls.Visuals.Effects.ZoomBlurEffect));
       _objectClassRegistrations.Add("PixelateEffect", typeof(MediaPortal.UI.SkinEngine.Controls.Visuals.Effects.PixelateEffect));
@@ -219,6 +220,7 @@ namespace MediaPortal.UI.SkinEngine.MpfElements
       _objectClassRegistrations.Add("InvertEffect", typeof(MediaPortal.UI.SkinEngine.Controls.Visuals.Effects.InvertEffect));
 
       // Generic shader effects based on EffectContext
+      _objectClassRegistrations.Add("GenericShaderEffect", typeof(MediaPortal.UI.SkinEngine.Controls.Visuals.Effects.GenericShaderEffect));
       _objectClassRegistrations.Add("ShaderBlurEffect", typeof(MediaPortal.UI.SkinEngine.Controls.Visuals.Effects.ShaderBlurEffect));
       _objectClassRegistrations.Add("DialogBackgroundEffect", typeof(MediaPortal.UI.SkinEngine.Controls.Visuals.Effects.DialogBackgroundEffect));
 

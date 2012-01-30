@@ -75,7 +75,6 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Effects
           unchecked
           {
             Color4 color = ColorConverter.FromColor(Color.White);
-            // color.Alpha *= (float) Opacity;
             vert.Color = color.ToArgb();
           }
           vert.Tu1 = u;
