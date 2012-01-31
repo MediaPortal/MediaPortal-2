@@ -230,11 +230,11 @@
   <!-- Yellow -->
   <ResourceWrapper x:Key="PlayControlsFillBrush">
     <ResourceWrapper.Resource>
-      <LinearGradientBrush StartPoint="0.5,0" EndPoint="0.5,1">
-        <GradientStop Offset="0" Color="#E0A0A0A0"/>
-        <GradientStop Offset="0.5" Color="#F0F0F0F0"/>
-        <GradientStop Offset="1" Color="#E0A0A0A0"/>
-      </LinearGradientBrush >
+      <LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0">
+        <GradientStop Color="#FF47474D" Offset="0.608"/>
+        <GradientStop Color="#FF343439"/>
+        <GradientStop Color="#FF333437" Offset="0.935"/>
+      </LinearGradientBrush>
     </ResourceWrapper.Resource>
   </ResourceWrapper>
 
@@ -245,7 +245,7 @@
   <ResourceWrapper x:Key="PlayControlsMuteOffCrossColor" Resource="Red"/>
 
   <!-- Black -->
-  <ResourceWrapper x:Key="PlayControlsStrokeColor" Resource="#FF000000"/>
+  <ResourceWrapper x:Key="PlayControlsStrokeColor" Resource="#E8101010"/>
 
   <!-- DarkGray -->
   <ResourceWrapper x:Key="WindowControlsFillColor" Resource="DarkGray"/>

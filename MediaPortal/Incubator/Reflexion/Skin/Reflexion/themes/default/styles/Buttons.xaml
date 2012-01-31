@@ -245,10 +245,30 @@
       <Setter.Value>
         <ControlTemplate>
           <DockPanel Name="ButtonControlRectangle">
+            <Ellipse DockPanel.Dock="Center" x:Name="ButtonBackground" Margin="0,2,0,1">
+              <Ellipse.Fill>
+                <RadialGradientBrush Center="0.5,0.5" GradientOrigin="0.25,0.3">
+                  <GradientStop Color="#FF626262" Offset="0.967"/>
+                  <GradientStop Color="#FFAAAAAF"/>
+                </RadialGradientBrush>
+              </Ellipse.Fill>
+            </Ellipse>
+            <Ellipse DockPanel.Dock="Center" x:Name="ButtonBorderShadow" StrokeThickness="5" Stroke="#7E000000" Margin="1,4,0,1"/>
+            <Ellipse DockPanel.Dock="Center" x:Name="ButtonBorder" StrokeThickness="5" Margin="0,3,0,1">
+              <Ellipse.Stroke>
+                <RadialGradientBrush GradientOrigin="0.5,0.5" Center="0.3,0.3">
+                  <GradientStop Color="Black" Offset="0"/>
+                  <GradientStop Color="#FFA5A5A5" Offset="1"/>
+                </RadialGradientBrush>
+              </Ellipse.Stroke>
+            </Ellipse>
+          </DockPanel>
+
+          <!--<DockPanel Name="ButtonControlRectangle">
             <Rectangle DockPanel.Dock="Center" RadiusX="2" RadiusY="2" Name="ButtonBase" Fill="#E0203040" />
             <Rectangle DockPanel.Dock="Center" RadiusX="2" RadiusY="2" Name="ButtonLowerShine" Fill="{StaticResource LowerShineGradientAnimated}" />
             <Rectangle DockPanel.Dock="Center" RadiusX="2" RadiusY="2" Name="ButtonUpperShine" Fill="{StaticResource UpperShineGradientAnimated}" />
-          </DockPanel>
+          </DockPanel>-->
         </ControlTemplate>
       </Setter.Value>
     </Setter>
@@ -993,8 +1013,30 @@
                 <ScaleTransform ScaleX="1" ScaleY="1"/>
               </TransformGroup>
             </Grid.RenderTransform>
-            <Control Style="{ThemeResource OSDButtonControlStyle}" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"/>
-            <Control x:Name="ContentControl" Template="{DynamicResource ResourceKey=ContentControlTemplate}" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"/>
+            <!--<Control Style="{ThemeResource OSDButtonControlStyle}" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"/>-->
+            <DockPanel Name="ButtonControlRectangle">
+              <Ellipse DockPanel.Dock="Center" x:Name="ButtonBackground" Margin="0,2,0,1">
+                <Ellipse.Fill>
+                  <RadialGradientBrush Center="0.5,0.5" GradientOrigin="0.25,0.3">
+                    <GradientStop Color="#FF626262" Offset="0.967"/>
+                    <GradientStop Color="#FFAAAAAF"/>
+                  </RadialGradientBrush>
+                </Ellipse.Fill>
+              </Ellipse>
+              <Ellipse DockPanel.Dock="Center" x:Name="ButtonBorderShadow" StrokeThickness="5" Stroke="#7E000000" Margin="1,4,0,1"/>
+              <Ellipse DockPanel.Dock="Center" x:Name="ButtonBorder" StrokeThickness="5" Margin="0,3,0,1">
+                <Ellipse.Stroke>
+                  <RadialGradientBrush GradientOrigin="0.5,0.5" Center="0.3,0.3">
+                    <GradientStop Color="Black" Offset="0"/>
+                    <GradientStop Color="#FFA5A5A5" Offset="1"/>
+                  </RadialGradientBrush>
+                </Ellipse.Stroke>
+              </Ellipse>
+
+              <Control DockPanel.Dock="Center" x:Name="ContentControl" Template="{DynamicResource ResourceKey=ContentControlTemplate}" 
+                       VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Margin="{ThemeResource OSDControlMargin}"/>
+            </DockPanel>
+            
           </Grid>
           <ControlTemplate.Triggers>
             <Trigger Property="HasFocus" Value="True">

@@ -44,8 +44,8 @@
   <ResourceWrapper x:Key="DialogBorderCornerRadius" Resource="2"/>
   
   <!-- width and margin for small OSD buttons -->
-  <ResourceWrapper x:Key="OSDControlWidth" Resource="18" />
-  <ResourceWrapper x:Key="OSDControlMargin" Resource="5,2,5,2" />
+  <ResourceWrapper x:Key="OSDControlWidth" Resource="30" />
+  <ResourceWrapper x:Key="OSDControlMargin" Resource="8" />
 
   
 </ResourceDictionary>
