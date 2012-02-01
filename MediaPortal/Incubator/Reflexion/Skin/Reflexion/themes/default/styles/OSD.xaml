@@ -7,64 +7,39 @@
     xmlns:mp_special_controls="clr-namespace:MediaPortal.UI.SkinEngine.SpecialElements.Controls"
     DependsOnStyleResources="Colors,Consts,Widgets"
     >
-  
-  <Style x:Key="ProgressAndControlsStyle" TargetType="{x:Type Control}">
-    <Setter Property="Template">
-      <Setter.Value>
-        <ControlTemplate>
-          <DockPanel Name="ProgressAndControlsRectangle">
-            <Rectangle DockPanel.Dock="Center" RadiusX="0" RadiusY="0" Name="ProgressAndControlsBackground" Fill="{StaticResource OSDProgressAndControlsColor}" />
-            <Rectangle DockPanel.Dock="Center" RadiusX="0" RadiusY="0" Name="ButtonUpperShine" Fill="{StaticResource UpperShineGradient}" />
-            <Rectangle DockPanel.Dock="Center" RadiusX="0" RadiusY="0" Name="ButtonLowerShine" Fill="{StaticResource LowerShineGradient}" />
-          </DockPanel>
-        </ControlTemplate>
-      </Setter.Value>
-    </Setter>
-  </Style>
-
-  <Style x:Key="OSDInfoAreaStyle" TargetType="{x:Type Control}">
-    <Setter Property="Template">
-      <Setter.Value>
-        <ControlTemplate>
-           <Rectangle DockPanel.Dock="Center" RadiusX="0" RadiusY="0" Name="OSDInfoArea" Fill="{StaticResource DialogHeaderBackgroundBrush}" />
-        </ControlTemplate>
-      </Setter.Value>
-    </Setter>
-  </Style>
-  
   <Style x:Key="OSDContainer" TargetType="{x:Type Control}">
     <Setter Property="Template">
       <Setter.Value>
         <ControlTemplate>
-          <Control Style="{ThemeResource SmallGlassBorder}" VerticalAlignment="Stretch" HorizontalAlignment="Stretch">
-            <Control.Resources>
-              <ControlTemplate x:Key="MakeGlass">
+          <Grid x:Name="MainOSDGrid">
+            <Grid.ColumnDefinitions>
+              <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
 
-                <Grid x:Name="MainOSDGrid" Background="{ThemeResource DialogBackgroundBrush}">
-                  <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="*"/>
-                  </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+              <RowDefinition Height="Auto"/>
+              <RowDefinition Height="Auto"/>
+              <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
 
-                  <Grid.RowDefinitions>
-                    <RowDefinition Height="Auto"/>
-                    <RowDefinition Height="Auto"/>
-                  </Grid.RowDefinitions>
+            <Rectangle Grid.Column="0" Grid.Row="0" Fill="#FFEEEEEE" Height="8" Width="1920" />
+            <Rectangle Grid.Column="0" Grid.Row="1" Fill="#FF363535" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Opacity="0.7" Width="1920"/>
 
-                  <Control Grid.Column="0" Grid.Row="0" Style="{ThemeResource OSDInfoAreaStyle}" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"/>
-                  <Control Grid.Column="0" Grid.Row="0" x:Name="OSDInfoAreaPresenter" Margin="15" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+            <Control Grid.Column="0" Grid.Row="1" x:Name="OSDInfoAreaPresenter" Margin="15" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
                 Template="{DynamicResource ResourceKey=OSD_InfoArea_Template}" />
 
-                  <Control Grid.Column="0" Grid.Row="1" Style="{ThemeResource ProgressAndControlsStyle}" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"/>
-                  <Control Grid.Column="0" Grid.Row="1" x:Name="ProgressAndControlsPresenter" Margin="8" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+            <Rectangle Grid.Column="0" Grid.Row="2" Fill="#FF040303" Height="166" Opacity="0.94" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Width="1920"/>
+            <Path Grid.Column="0" Grid.Row="2" 
+                  Data="F1M401.3301,165.6406C410.5401,164.9906,419.7501,164.0706,429.0001,164.0196C775.6601,164.0296,1122.3301,164.0196,1469.0001,164.0196C1480.2201,164.0796,1491.4701,163.7206,1502.6801,164.6696C1564.5001,169.1096,1626.1401,175.7006,1687.7601,182.2696C1742.4901,187.7206,1797.8701,198.2206,1847.0701,223.7996C1855.3601,228.4706,1864.5101,232.3496,1870.5801,239.9996L46.4601,239.9996C51.9801,232.8796,60.3001,229.1606,67.9401,224.8396C103.5301,205.9106,142.8401,195.0496,182.4401,188.3906C204.8701,184.5196,227.5701,182.5196,250.1801,180.0196C300.5101,174.7306,350.8601,169.4596,401.3301,165.6406" 
+                  Height="76" Fill="#FF296787" Stretch="Fill" Margin="40,0,40,0" Opacity="1"/>
+
+            <Control Grid.Column="0" Grid.Row="2" x:Name="ProgressAndControlsPresenter" Margin="10" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
                 Template="{DynamicResource ResourceKey=OSD_ProgressAndControls_Template}"/>
 
-                </Grid>
-              </ControlTemplate>
-            </Control.Resources>
-          </Control>
+          </Grid>
         </ControlTemplate>
       </Setter.Value>
     </Setter>
   </Style>
-  
+
 </ResourceDictionary>
