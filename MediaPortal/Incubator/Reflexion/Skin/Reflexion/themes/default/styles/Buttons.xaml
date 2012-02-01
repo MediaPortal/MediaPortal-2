@@ -1001,7 +1001,7 @@
     <Setter Property="Template">
       <Setter.Value>
         <ControlTemplate TargetType="{x:Type Button}">
-          <Grid x:Name="GrowControl" RenderTransformOrigin="0.5,0.5" Margin="0,5,0,5">
+          <Grid x:Name="GrowControl" RenderTransformOrigin="0.5,0.5" Margin="8">
             <Grid.ColumnDefinitions>
               <ColumnDefinition Width="*"/>
             </Grid.ColumnDefinitions>
@@ -1018,8 +1018,8 @@
               <Ellipse DockPanel.Dock="Center" x:Name="ButtonBackground" Margin="0,2,0,1">
                 <Ellipse.Fill>
                   <RadialGradientBrush Center="0.5,0.5" GradientOrigin="0.25,0.3">
+                    <GradientStop Color="#FFAAAAAF" Offset="0"/>
                     <GradientStop Color="#FF626262" Offset="0.967"/>
-                    <GradientStop Color="#FFAAAAAF"/>
                   </RadialGradientBrush>
                 </Ellipse.Fill>
               </Ellipse>
