@@ -519,6 +519,60 @@
     </Setter>
   </Style>
 
+  <Style x:Key="GlobalButtonStyle" TargetType="{x:Type Button}">
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate>
+          <Grid x:Name="GrowControl" RenderTransformOrigin="0.5,0.5" Margin="0,1,0,1">
+            <Grid.ColumnDefinitions>
+              <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+              <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+            <Grid.RenderTransform>
+              <TransformGroup>
+                <ScaleTransform ScaleX="1" ScaleY="1"/>
+              </TransformGroup>
+            </Grid.RenderTransform>
+            <Control Style="{ThemeResource ButtonControlStyle}" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"/>
+            <Control x:Name="ContentControl" Template="{DynamicResource ResourceKey=ContentControlTemplate}" 
+                       VerticalAlignment="Stretch" HorizontalAlignment="Stretch"  Margin="10,5,10,5"/>
+          </Grid>
+          <ControlTemplate.Triggers>
+            <Trigger Property="HasFocus" Value="True">
+              <Trigger.EnterActions>
+                <BeginStoryboard x:Name="Focused_BeginStoryboard" Storyboard="{ThemeResource FocusedButtonWideStoryboard}"/>
+                <SoundPlayerAction Source="button12.wav" DisableOnAudioOutput="True"/>
+              </Trigger.EnterActions>
+              <Trigger.ExitActions>
+                <StopStoryboard BeginStoryboardName="Focused_BeginStoryboard"/>
+              </Trigger.ExitActions>
+            </Trigger>
+            <Trigger Property="IsPressed" Value="True">
+              <Trigger.EnterActions>
+                <BeginStoryboard x:Name="Pressed_BeginStoryboard" Storyboard="{ThemeResource PressedButtonWideStoryboard}"
+                    HandoffBehavior="TemporaryReplace"/>
+                <SoundPlayerAction Source="button7.wav" DisableOnAudioOutput="True"/>
+              </Trigger.EnterActions>
+              <Trigger.ExitActions>
+                <StopStoryboard BeginStoryboardName="Pressed_BeginStoryboard"/>
+              </Trigger.ExitActions>
+            </Trigger>
+            <Trigger Property="IsEnabled" Value="False">
+              <Trigger.EnterActions>
+                <BeginStoryboard x:Name="Disabled_BeginStoryBoard" Storyboard="{ThemeResource DisabledButtonStoryboard}"/>
+              </Trigger.EnterActions>
+              <Trigger.ExitActions>
+                <StopStoryboard BeginStoryboardName="Disabled_BeginStoryBoard"/>
+              </Trigger.ExitActions>
+            </Trigger>
+          </ControlTemplate.Triggers>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
+  
   <Style x:Key="WizardButtonStyle" BasedOn="{ThemeResource ButtonWideStyle}" TargetType="{x:Type Button}">
     <Setter Property="HorizontalAlignment" Value="Stretch"/>
   </Style>
@@ -1220,25 +1274,25 @@
 
   <!-- global buttons -->
 
-  <Style x:Key="WindowCloseButtonStyle" BasedOn="{ThemeResource BasePlayerControlButtonStyle}">
+  <Style x:Key="WindowCloseButtonStyle" BasedOn="{ThemeResource GlobalButtonStyle}">
     <Style.Resources>
       <ResourceWrapper x:Key="ContentControlTemplate" Resource="{ThemeResource WindowCloseControlTemplate}" />
     </Style.Resources>
   </Style>
 
-  <Style x:Key="WindowMinimizeButtonStyle" BasedOn="{ThemeResource BasePlayerControlButtonStyle}">
+  <Style x:Key="WindowMinimizeButtonStyle" BasedOn="{ThemeResource GlobalButtonStyle}">
     <Style.Resources>
       <ResourceWrapper x:Key="ContentControlTemplate" Resource="{ThemeResource WindowMinimizeControlTemplate}" />
     </Style.Resources>
   </Style>
 
-  <Style x:Key="HibernateButtonStyle" BasedOn="{ThemeResource BasePlayerControlButtonStyle}">
+  <Style x:Key="HibernateButtonStyle" BasedOn="{ThemeResource GlobalButtonStyle}">
     <Style.Resources>
       <ResourceWrapper x:Key="ContentControlTemplate" Resource="{ThemeResource HibernateControlTemplate}" />
     </Style.Resources>
   </Style>
 
-  <Style x:Key="NavigateBackButtonStyle" BasedOn="{ThemeResource BasePlayerControlButtonStyle}">
+  <Style x:Key="NavigateBackButtonStyle" BasedOn="{ThemeResource GlobalButtonStyle}">
     <Style.Resources>
       <ResourceWrapper x:Key="ContentControlTemplate" Resource="{ThemeResource NavigateBackControlTemplate}" />
     </Style.Resources>
