@@ -163,9 +163,8 @@ namespace MediaPortal.UiComponents.Media.Models.ScreenData
             foreach (FilterValue filterValue in fv)
             {
               string filterTitle = filterValue.Title;
-              IFilter combinedFilter = BooleanCombinationFilter.CombineFilters(BooleanOperator.And, new IFilter[] {currentVS.Filter, filterValue.Filter});
               IFilter selectAttributeFilter = filterValue.SelectAttributeFilter;
-              MediaLibraryQueryViewSpecification subVS = currentVS.CreateSubViewSpecification(filterTitle, combinedFilter);
+              MediaLibraryQueryViewSpecification subVS = currentVS.CreateSubViewSpecification(filterTitle, filterValue.Filter);
               ListItem filterValueItem = new FilterItem(filterTitle, filterValue.NumItems)
                 {
                     Command = grouping ? new MethodDelegateCommand(() => NavigateToGroup(subVS, selectAttributeFilter)) :
