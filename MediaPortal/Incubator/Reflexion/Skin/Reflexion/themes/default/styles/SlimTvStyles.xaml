@@ -166,7 +166,7 @@
                 </DockPanel>
               </ControlTemplate>
 
-              <ControlTemplate x:Key="OSD_ProgressAndControls_Template">
+              <ControlTemplate x:Key="OSD_Progress_Template">
 
                 <DockPanel LastChildFill="true" Margin="3">
                   <Grid DockPanel.Dock="Center" HorizontalAlignment="Stretch">
@@ -212,8 +212,11 @@
                         FontSize="{ThemeResource SmallFontSize}"
                         Color="{ThemeResource TextColor}"
                         IsVisible="{Binding ShowMouseControls}"/>
-
-
+                  </Grid>
+                </DockPanel>
+              </ControlTemplate>
+              
+              <ControlTemplate x:Key="OSD_Controls_Template">
                     <StackPanel x:Name="PlayControlsPanel" Orientation="Horizontal" Grid.Column="1" Grid.Row="1" Margin="0"
                       VerticalAlignment="Center" HorizontalAlignment="Center" IsVisible="{Binding ShowMouseControls}" >
                       <Button x:Name="SkipBackButton" Style="{ThemeResource SkipBackButtonStyle}" Margin="5,0,5,0" IsVisible="{Binding CanSkipBack}"
@@ -240,13 +243,10 @@
                       <Button x:Name="NextChapterButton" Style="{ThemeResource NextChapterButtonStyle}" Margin="5,0,5,0" 
                       IsVisible="{Binding Source={StaticResource VideoPlayerModel},Path=PlayerUIContributor.ChaptersAvailable}"
                       Command="{Command Source={StaticResource VideoPlayerModel},Path=PlayerUIContributor.NextChapter}"/>
-                    </StackPanel>
-                    <!-- PlayControlsPanel -->
-                  </Grid>
-                </DockPanel>
+                    </StackPanel> <!-- PlayControlsPanel -->
               </ControlTemplate>
+              
             </Control.Resources>
-
           </Control>
 
           <ControlTemplate.Triggers>

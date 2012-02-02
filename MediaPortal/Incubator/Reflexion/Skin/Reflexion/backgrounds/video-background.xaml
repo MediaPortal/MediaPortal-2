@@ -14,9 +14,9 @@
       <ColumnDefinition Width="{ThemeResource FullScreenContentVideoSecondaryPlayerOSDRightMargin}"/>
     </Grid.ColumnDefinitions>
     <Grid.RowDefinitions>
-      <RowDefinition Height="*"/>
-      <RowDefinition Height="Auto"/>
       <RowDefinition Height="{ThemeResource FullScreenContentVideoSecondaryPlayerOSDBottomMargin}"/>
+      <RowDefinition Height="Auto"/>
+      <RowDefinition Height="*"/>
     </Grid.RowDefinitions>
     <Control x:Name="BackgroundPiP" Grid.Column="1" Grid.Row="1" Style="{ThemeResource PipControlStyle}"/>
   </Grid>

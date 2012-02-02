@@ -7,18 +7,20 @@
     mp_special_workflow:WorkflowContext.StateSlot="Root"
     x:Name="FullscreenContentImageScreen"
     >
-  <Grid
-      x:Name="FullscreenLayoutGrid"
-      Context="{Model Id=4E2301B4-3C17-4a1d-8DE5-2CEA169A0256}"
-      > <!-- Model = VideoPlayer model -->
+  <Grid x:Name="FullscreenLayoutGrid" Context="{Model Id=4E2301B4-3C17-4a1d-8DE5-2CEA169A0256}"> <!-- Model = VideoPlayer model -->
     <Grid.ColumnDefinitions>
       <ColumnDefinition Width="*"/>
+      <ColumnDefinition Width="Auto"/>
+      <ColumnDefinition Width="180"/>
     </Grid.ColumnDefinitions>
     <Grid.RowDefinitions>
+      <RowDefinition Height="100"/>
+      <RowDefinition Height="Auto"/>
       <RowDefinition Height="*"/>
+      <RowDefinition Height="Auto"/>
     </Grid.RowDefinitions>
-  
-    <mp_special_controls:PlayerControl x:Name="FullscreenImage" Grid.Column="0" Grid.Row="0"
+
+    <mp_special_controls:PlayerControl x:Name="FullscreenImage"  Grid.Row="0" Grid.RowSpan="4" Grid.Column="0" Grid.ColumnSpan="3"
         VerticalAlignment="Stretch" HorizontalAlignment="Stretch" PlayerContext="PrimaryPlayer">
       <mp_special_controls:PlayerControl.TemplateControl>
         <Image Stretch="Uniform" DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}" SkinNeutralAR="True">
@@ -30,42 +32,27 @@
         </Image>
       </mp_special_controls:PlayerControl.TemplateControl>
     </mp_special_controls:PlayerControl>
-  
-    <Grid x:Name="PipLayoutGrid" Grid.Row="0" Grid.Column="0" VerticalAlignment="Stretch" HorizontalAlignment="Stretch">
-      <Grid.ColumnDefinitions>
-        <ColumnDefinition Width="*"/>
-        <ColumnDefinition Width="Auto"/>
-        <ColumnDefinition Width="50"/>
-      </Grid.ColumnDefinitions>
-      <Grid.RowDefinitions>
-        <RowDefinition Height="*"/>
-        <RowDefinition Height="Auto"/>
-        <RowDefinition Height="50"/>
-      </Grid.RowDefinitions>
-  
-      <Control x:Name="PiP" Grid.Column="1" Grid.Row="1" Style="{ThemeResource PipControlStyle}"
+
+    <Control x:Name="WindowButtons" Grid.Column="2" Grid.Row="0">
+      <Control.TemplateControl>
+        <Include Source="screens\FSCWindowButtons.inc"/>
+      </Control.TemplateControl>
+    </Control>
+
+    <Control x:Name="PiP" Grid.Column="1" Grid.ColumnSpan="2" Grid.Row="1" Style="{ThemeResource PipControlStyle}" 
           IsVisible="{Binding !IsOSDVisible}"/>
-    </Grid> <!-- PipLayoutGrid -->
-    <DockPanel x:Name="OSD_LayoutPanel" Grid.Row="0" Grid.Column="0" LastChildFill="false"
-        VerticalAlignment="Stretch" HorizontalAlignment="Stretch">
-      <Control x:Name="WindowButtons" DockPanel.Dock="Top" HorizontalAlignment="Stretch">
-        <Control.TemplateControl>
-          <Include Source="screens\FSCWindowButtons.inc"/>
-        </Control.TemplateControl>
-      </Control>
-      <DockPanel x:Name="OSD_LeftPanel" DockPanel.Dock="Left" Width="{ThemeResource FullScreenContentVideoPrimaryPlayerOSDWidth}"
-          IsVisible="{Binding IsOSDVisible}" LastChildFill="False">
-        <mp_special_controls:PlayerControl x:Name="PrimaryOSD" DockPanel.Dock="Bottom"
-            Style="{ThemeResource PrimaryImageOSDStyle}"
-            VerticalAlignment="Stretch" HorizontalAlignment="Stretch"/>
-      </DockPanel> <!-- OSD_LeftPanel -->
-      <DockPanel x:Name="OSD_RightPanel" DockPanel.Dock="Right" IsVisible="{Binding IsOSDVisible}" LastChildFill="false">
-        <mp_special_controls:PlayerControl x:Name="SecondaryOSD" DockPanel.Dock="Bottom"
+
+    <DockPanel x:Name="OSD_RightPanel"  Grid.Column="1" Grid.ColumnSpan="2" Grid.Row="1" LastChildFill="false" IsVisible="{Binding IsOSDVisible}">
+      <mp_special_controls:PlayerControl x:Name="SecondaryOSD"
             Style="{ThemeResource SecondaryMediaOSDStyle}"
             VerticalAlignment="Stretch" HorizontalAlignment="Stretch"
             AutoVisibility="true"/>
-      </DockPanel> <!-- OSD_RightPanel -->
-    </DockPanel> <!-- OSD_LayoutPanel -->
+    </DockPanel>
+
+    <mp_special_controls:PlayerControl x:Name="PrimaryOSD"  Grid.Column="0" Grid.ColumnSpan="3" Grid.Row="3"
+            Style="{ThemeResource PrimaryImageOSDStyle}"
+            VerticalAlignment="Stretch" HorizontalAlignment="Stretch"/>
+    
     <KeyBinding Key="Info" Command="{Command ShowVideoInfo}"/>
   </Grid>
 </Screen>
