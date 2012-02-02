@@ -24,6 +24,7 @@
 
 using System;
 using System.Collections.Generic;
+using MediaPortal.Common.Exceptions;
 using MediaPortal.Common.MediaManagement.MLQueries;
 
 namespace MediaPortal.UiComponents.Media.FilterCriteria
@@ -43,6 +44,7 @@ namespace MediaPortal.UiComponents.Media.FilterCriteria
     /// <param name="filter">Base filter for the media items from which the available values will be collected.</param>
     /// <returns>Collection of filter value objects which hold a title for the particular filter value and which can
     /// create the actual filter to be used in a media item query.</returns>
+    /// <exception cref="NotConnectedException">If the media library is currently not connected.</exception>
     public abstract ICollection<FilterValue> GetAvailableValues(IEnumerable<Guid> necessaryMIATypeIds,
         IFilter selectAttributeFilter, IFilter filter);
 
@@ -58,6 +60,7 @@ namespace MediaPortal.UiComponents.Media.FilterCriteria
     /// create the actual filter to be used in a media item query. If <c>null</c> is returned, this filter doesn't provide
     /// value groups. In that case, the caller can fall back to request all filter values via
     /// <see cref="GetAvailableValues"/>.</returns>
+    /// <exception cref="NotConnectedException">If the media library is currently not connected.</exception>
     public abstract ICollection<FilterValue> GroupValues(ICollection<Guid> necessaryMIATypeIds, IFilter selectAttributeFilter,
         IFilter filter);
   }

@@ -26,6 +26,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using MediaPortal.Common;
+using MediaPortal.Common.Exceptions;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.Common.MediaManagement.MLQueries;
 using MediaPortal.UI.ServerCommunication;
@@ -44,7 +45,7 @@ namespace MediaPortal.UiComponents.Media.FilterCriteria
     {
       IContentDirectory cd = ServiceRegistration.Get<IServerConnectionManager>().ContentDirectory;
       if (cd == null)
-        return new List<FilterValue>();
+        throw new NotConnectedException("The MediaLibrary is not connected");
       IFilter emptyFilter = BooleanCombinationFilter.CombineFilters(BooleanOperator.Or,
           new EmptyFilter(ImageAspect.ATTR_WIDTH),
           new RelationalFilter(ImageAspect.ATTR_WIDTH, RelationalOperator.EQ, 0),

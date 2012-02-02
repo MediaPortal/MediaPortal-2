@@ -26,6 +26,7 @@ using System;
 using System.Collections.Generic;
 using MediaPortal.Common;
 using MediaPortal.Common.ClientCommunication;
+using MediaPortal.Common.Exceptions;
 using MediaPortal.Common.General;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.Common.MediaManagement.MLQueries;
@@ -42,6 +43,8 @@ namespace MediaPortal.UiComponents.Media.FilterCriteria
     {
       IServerConnectionManager serverConnectionManager = ServiceRegistration.Get<IServerConnectionManager>();
       IServerController serverController = serverConnectionManager.ServerController;
+      if (serverController == null)
+        throw new NotConnectedException("The MediaLibrary is not connected");
       IDictionary<string, string> systemNames = new Dictionary<string, string>();
       foreach (MPClientMetadata client in serverController.GetAttachedClients())
         systemNames.Add(client.SystemId, client.LastClientName);

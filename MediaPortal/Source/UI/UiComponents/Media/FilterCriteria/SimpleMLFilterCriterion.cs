@@ -25,6 +25,7 @@
 using System;
 using System.Collections.Generic;
 using MediaPortal.Common;
+using MediaPortal.Common.Exceptions;
 using MediaPortal.Common.General;
 using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.MediaManagement.MLQueries;
@@ -53,7 +54,7 @@ namespace MediaPortal.UiComponents.Media.FilterCriteria
     {
       IContentDirectory cd = ServiceRegistration.Get<IServerConnectionManager>().ContentDirectory;
       if (cd == null)
-        return new List<FilterValue>();
+        throw new NotConnectedException("The MediaLibrary is not connected");
       HomogenousMap valueGroups = cd.GetValueGroups(_attributeType, selectAttributeFilter, ProjectionFunction.None, necessaryMIATypeIds, filter, true);
       IList<FilterValue> result = new List<FilterValue>(valueGroups.Count);
       int numEmptyEntries = 0;
@@ -74,7 +75,7 @@ namespace MediaPortal.UiComponents.Media.FilterCriteria
     {
       IContentDirectory cd = ServiceRegistration.Get<IServerConnectionManager>().ContentDirectory;
       if (cd == null)
-        return new List<FilterValue>();
+        throw new NotConnectedException("The MediaLibrary is not connected");
       IList<MLQueryResultGroup> valueGroups = cd.GroupValueGroups(_attributeType, selectAttributeFilter, ProjectionFunction.None,
           necessaryMIATypeIds, filter, true, GroupingFunction.FirstCharacter);
       IList<FilterValue> result = new List<FilterValue>(valueGroups.Count);
