@@ -121,10 +121,7 @@ namespace MediaPortal.Common.ResourceAccess
       IMediaAccessor mediaAccessor = ServiceRegistration.Get<IMediaAccessor>();
       foreach (IChainedResourceProvider cmp in mediaAccessor.LocalChainedResourceProviders)
         if (cmp.TryChainUp(fileAccessor, "/", out resultResourceAccessor))
-        {
-          resultResourceAccessor.Dispose();
           return true;
-        }
       resultResourceAccessor = null;
       return false;
     }
