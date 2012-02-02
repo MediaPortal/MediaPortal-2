@@ -24,10 +24,53 @@
 
 using System.Globalization;
 using System.Net;
+using System.Xml;
 using UPnP.Infrastructure.Utils;
 
 namespace UPnP.Infrastructure.Dv.DeviceTree
 {
+  /// <summary>
+  /// Contains all possible hook positions during the device generation, where the device
+  /// generation hook will be called.
+  /// </summary>
+  /// <remarks>
+  /// This enum is not complete by design to avoid superfluous work. If the device
+  /// generation hook should be called for more positions in the future,
+  /// this enum and the appropriate calls in the device generation methods can be extended.
+  /// </remarks>
+  public enum GenerationPosition
+  {
+    /// <summary>
+    /// Denotes the position just after the start tag of the device element.
+    /// </summary>
+    DeviceStart,
+
+    //[...]
+    //ServiceStart,
+    //[...]
+    //ServiceEnd,
+    //[...]
+
+    /// <summary>
+    /// Denotes the position after the deviceList element.
+    /// </summary>
+    AfterDeviceList,
+
+    /// <summary>
+    /// Denotes the position just before the closing of the device element.
+    /// </summary>
+    DeviceEnd
+  }
+
+  /// <summary>
+  /// Delegate which is called during the device description generation. Implementors can add additional XML elements.
+  /// </summary>
+  /// <param name="writer">The writer used to create the XML document.</param>
+  /// <param name="pos">The current description XML position.</param>
+  /// <param name="config">The endpoint configuration which requested the description.</param>
+  /// <param name="culture">The culture of the client which requested the description.</param>
+  public delegate void GenerateDescriptionDlgt(XmlWriter writer, GenerationPosition pos, EndpointConfiguration config, CultureInfo culture);
+
   /// <summary>
   /// Delegate which can return a URL which is available over the specified <paramref name="endPointIPAddress"/>.
   /// The URL may be localized for the given <paramref name="culture"/>.

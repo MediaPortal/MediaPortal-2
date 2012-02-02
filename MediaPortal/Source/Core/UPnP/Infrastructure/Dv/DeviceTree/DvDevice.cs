@@ -181,6 +181,11 @@ namespace UPnP.Infrastructure.Dv.DeviceTree
     }
 
     /// <summary>
+    /// If assigned, this hook delegate will be called during the generation of the device description;
+    /// </summary>
+    public GenerateDescriptionDlgt DescriptionGenerateHook;
+
+    /// <summary>
     /// Adds the specified embedded <paramref name="device"/>.
     /// </summary>
     /// <remarks>
@@ -314,8 +319,12 @@ namespace UPnP.Infrastructure.Dv.DeviceTree
     /// <param name="culture">Culture to create the culture specific information.</param>
     internal void AddDeviceDescriptionsRecursive(XmlWriter writer, EndpointConfiguration config, CultureInfo culture)
     {
+      GenerateDescriptionDlgt dgh = DescriptionGenerateHook;
       ILocalizedDeviceInformation deviceInformation = _deviceInformation;
+
       writer.WriteStartElement("device");
+      if (dgh != null)
+        dgh(writer, GenerationPosition.DeviceStart, config, culture);
       writer.WriteElementString("deviceType", DeviceTypeVersion_URN);
       writer.WriteElementString("friendlyName", deviceInformation.GetFriendlyName(culture));
       writer.WriteElementString("manufacturer", deviceInformation.GetManufacturer(culture));
@@ -371,12 +380,16 @@ namespace UPnP.Infrastructure.Dv.DeviceTree
           embeddedDevice.AddDeviceDescriptionsRecursive(writer, config, culture);
         writer.WriteEndElement(); // deviceList
       }
+      if (dgh != null)
+        dgh(writer, GenerationPosition.AfterDeviceList, config, culture);
       GetURLForEndpointDlgt presentationURLGetter = GetPresentationURLDelegate;
       string presentationURL = null;
       if (presentationURLGetter != null)
         presentationURL = presentationURLGetter(config.EndPointIPAddress, culture);
       if (!string.IsNullOrEmpty(presentationURL))
         writer.WriteElementString("presentationURL", presentationURL);
+      if (dgh != null)
+        dgh(writer, GenerationPosition.DeviceEnd, config, culture);
       writer.WriteEndElement(); // device
     }
 
