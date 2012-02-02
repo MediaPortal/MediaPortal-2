@@ -83,5 +83,10 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
         result.Append(_joinAttr2);
       return result.ToString();
     }
+
+    public override string ToString()
+    {
+      return GetJoinDeclaration(new Namespace());
+    }
   }
 }

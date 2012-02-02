@@ -442,5 +442,10 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
       }
       return filterBuilder.ToString();
     }
+
+    public override string ToString()
+    {
+      return StringUtils.Join(string.Empty, _statementParts);
+    }
   }
 }

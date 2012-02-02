@@ -44,5 +44,10 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
     {
       get { return _attr; }
     }
+
+    public override string ToString()
+    {
+      return _attr.ParentMIAM.Name + "." + _attr.AttributeName;
+    }
   }
 }
