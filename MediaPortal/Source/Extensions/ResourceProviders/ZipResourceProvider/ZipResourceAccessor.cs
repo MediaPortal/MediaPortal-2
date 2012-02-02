@@ -283,7 +283,7 @@ namespace MediaPortal.Extensions.ResourceProviders.ZipResourceProvider
       {
         List<IFileSystemResourceAccessor> result = new List<IFileSystemResourceAccessor>();
         CollectionUtils.AddAll(result, _currentDirList.Where(entry => entry.IsFile).Select(fileEntry =>
-            new ZipResourceAccessor(_zipProvider, _zipProxy, ToProviderPath(fileEntry.Name))));
+            new ZipResourceAccessor(_zipProvider, _zipProxy, ToProviderPath(StringUtils.RemoveSuffixIfPresent(fileEntry.Name, "/")))));
         return result;
       }
       catch (Exception e)
@@ -301,7 +301,7 @@ namespace MediaPortal.Extensions.ResourceProviders.ZipResourceProvider
       {
         ICollection<IFileSystemResourceAccessor> result = new List<IFileSystemResourceAccessor>();
         CollectionUtils.AddAll(result, _currentDirList.Where(entry => entry.IsDirectory).Select(directoryEntry =>
-            new ZipResourceAccessor(_zipProvider, _zipProxy, ToProviderPath(directoryEntry.Name))));
+            new ZipResourceAccessor(_zipProvider, _zipProxy, ToProviderPath(StringUtils.CheckSuffix(directoryEntry.Name, "/")))));
         return result;
       }
       catch (Exception e)
