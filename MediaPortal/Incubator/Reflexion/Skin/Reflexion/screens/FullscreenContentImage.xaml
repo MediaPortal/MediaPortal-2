@@ -53,7 +53,7 @@
           <Include Source="screens\FSCWindowButtons.inc"/>
         </Control.TemplateControl>
       </Control>
-      <DockPanel x:Name="OSD_LeftPanel" DockPanel.Dock="Left" Width="{ThemeResource FullScreenContentPicturePrimaryPlayerOSDWidth}"
+      <DockPanel x:Name="OSD_LeftPanel" DockPanel.Dock="Left" Width="{ThemeResource FullScreenContentVideoPrimaryPlayerOSDWidth}"
           IsVisible="{Binding IsOSDVisible}" LastChildFill="False">
         <mp_special_controls:PlayerControl x:Name="PrimaryOSD" DockPanel.Dock="Bottom"
             Style="{ThemeResource PrimaryImageOSDStyle}"
