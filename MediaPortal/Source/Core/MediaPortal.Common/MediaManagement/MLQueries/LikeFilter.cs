@@ -57,7 +57,7 @@ namespace MediaPortal.Common.MediaManagement.MLQueries
       if (!_caseSensitive)
         result.Append("UPPER(");
       result.Append("[");
-      result.Append(_attributeType.AttributeName);
+      result.Append(AttributeTypeToString());
       result.Append("]");
       if (!_caseSensitive)
         result.Append(")");

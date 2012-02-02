@@ -27,5 +27,11 @@ namespace MediaPortal.Common.MediaManagement.MLQueries
   /// <summary>
   /// Filter which doesn't match any media item.
   /// </summary>
-  public class FalseFilter : IFilter { }
+  public class FalseFilter : IFilter
+  {
+    public override string ToString()
+    {
+      return "1 = 2";
+    }
+  }
 }

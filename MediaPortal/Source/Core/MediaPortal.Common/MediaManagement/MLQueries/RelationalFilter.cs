@@ -91,6 +91,11 @@ namespace MediaPortal.Common.MediaManagement.MLQueries
       set { _filterValue = value; }
     }
 
+    public override string ToString()
+    {
+      return AttributeTypeToString() + " " + _operator + " " + _filterValue;
+    }
+
     #region Additional members for the XML serialization
 
     internal RelationalFilter() { }

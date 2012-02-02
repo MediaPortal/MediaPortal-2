@@ -55,6 +55,11 @@ namespace MediaPortal.Common.MediaManagement.MLQueries
       set { _value2 = value; }
     }
 
+    public override string ToString()
+    {
+      return AttributeTypeToString() + " BETWEEN " + _value1 + " AND " + _value2;
+    }
+
     #region Additional members for the XML serialization
 
     internal BetweenFilter() { }

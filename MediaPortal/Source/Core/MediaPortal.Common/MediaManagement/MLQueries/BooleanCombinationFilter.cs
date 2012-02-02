@@ -26,6 +26,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Xml.Serialization;
+using MediaPortal.Utilities;
 
 namespace MediaPortal.Common.MediaManagement.MLQueries
 {
@@ -77,6 +78,11 @@ namespace MediaPortal.Common.MediaManagement.MLQueries
     public static IFilter CombineFilters(BooleanOperator op, params IFilter[] filters)
     {
       return CombineFilters(op, (IEnumerable<IFilter>) filters);
+    }
+
+    public override string ToString()
+    {
+      return StringUtils.Join(" " + _operator + " ", _operands);
     }
 
     #region Additional members for the XML serialization

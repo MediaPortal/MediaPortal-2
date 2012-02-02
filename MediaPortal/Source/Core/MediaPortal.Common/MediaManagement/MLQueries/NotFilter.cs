@@ -45,6 +45,11 @@ namespace MediaPortal.Common.MediaManagement.MLQueries
       set { _innerFilter = value; }
     }
 
+    public override string ToString()
+    {
+      return "NOT (" + _innerFilter + ")";
+    }
+
     #region Additional members for the XML serialization
 
     internal NotFilter() { }

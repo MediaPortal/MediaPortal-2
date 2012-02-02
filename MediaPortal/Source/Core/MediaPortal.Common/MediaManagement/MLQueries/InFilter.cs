@@ -24,6 +24,7 @@
 
 using System.Collections.Generic;
 using System.Xml.Serialization;
+using MediaPortal.Utilities;
 
 namespace MediaPortal.Common.MediaManagement.MLQueries
 {
@@ -45,6 +46,11 @@ namespace MediaPortal.Common.MediaManagement.MLQueries
     {
       get { return _values; }
       set { _values = new List<object>(value); }
+    }
+
+    public override string ToString()
+    {
+      return AttributeTypeToString() + " IN (" + StringUtils.Join(", ", _values) + ")";
     }
 
     #region Additional members for the XML serialization

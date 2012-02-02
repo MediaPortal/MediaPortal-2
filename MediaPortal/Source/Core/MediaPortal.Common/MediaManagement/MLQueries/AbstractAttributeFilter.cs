@@ -42,6 +42,11 @@ namespace MediaPortal.Common.MediaManagement.MLQueries
       set { _attributeType = value; }
     }
 
+    protected string AttributeTypeToString()
+    {
+      return _attributeType.ParentMIAM.Name + "." + _attributeType.AttributeName;
+    }
+
     #region Additional members for the XML serialization
 
     internal AbstractAttributeFilter() { }

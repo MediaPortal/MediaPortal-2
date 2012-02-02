@@ -31,6 +31,11 @@ namespace MediaPortal.Common.MediaManagement.MLQueries
   {
     public EmptyFilter(MediaItemAspectMetadata.AttributeSpecification attributeType) : base(attributeType) { }
 
+    public override string ToString()
+    {
+      return AttributeTypeToString() + " IS EMPTY";
+    }
+
     #region Additional members for the XML serialization
 
     internal EmptyFilter() { }
