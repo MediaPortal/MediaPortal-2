@@ -152,6 +152,8 @@ namespace MediaPortal.Common.Services.MediaManagement
         ImporterWorkerSettings settings = settingsManager.Load<ImporterWorkerSettings>();
         settings.PendingImportJobs = new List<ImportJob>(_importJobs);
         settingsManager.Save(settings);
+        foreach (ImportJob job in _importJobs)
+          job.Dispose();
         _importJobs.Clear();
       }
     }
@@ -212,6 +214,7 @@ namespace MediaPortal.Common.Services.MediaManagement
     {
       lock (_syncObj)
         _importJobs.Remove(job);
+      job.Dispose();
     }
 
     protected void ImporterLoop()
@@ -410,32 +413,33 @@ namespace MediaPortal.Common.Services.MediaManagement
         ICollection<IFileSystemResourceAccessor> files = FileSystemResourceNavigator.GetFiles(directoryAccessor);
         if (files != null)
           foreach (IFileSystemResourceAccessor fileAccessor in files)
-          { // Add & update files
-            ResourcePath currentFilePath = fileAccessor.CanonicalLocalResourcePath;
-            string serializedFilePath = currentFilePath.Serialize();
-            try
-            {
-              MediaItemAspect importerAspect;
-              MediaItem mediaItem;
-              if (importJob.JobType == ImportJobType.Refresh &&
-                  path2Item.TryGetValue(serializedFilePath, out mediaItem) &&
-                  mediaItem.Aspects.TryGetValue(ImporterAspect.ASPECT_ID, out importerAspect) &&
-                  importerAspect.GetAttributeValue<DateTime>(ImporterAspect.ATTR_LAST_IMPORT_DATE) > fileAccessor.LastChanged)
-              { // We can skip this file; it was imported after the last change time of the item
-                path2Item.Remove(serializedFilePath);
-                continue;
+            using (fileAccessor)
+            { // Add & update files
+              ResourcePath currentFilePath = fileAccessor.CanonicalLocalResourcePath;
+              string serializedFilePath = currentFilePath.Serialize();
+              try
+              {
+                MediaItemAspect importerAspect;
+                MediaItem mediaItem;
+                if (importJob.JobType == ImportJobType.Refresh &&
+                    path2Item.TryGetValue(serializedFilePath, out mediaItem) &&
+                    mediaItem.Aspects.TryGetValue(ImporterAspect.ASPECT_ID, out importerAspect) &&
+                    importerAspect.GetAttributeValue<DateTime>(ImporterAspect.ATTR_LAST_IMPORT_DATE) > fileAccessor.LastChanged)
+                { // We can skip this file; it was imported after the last change time of the item
+                  path2Item.Remove(serializedFilePath);
+                  continue;
+                }
+                if (ImportResource(fileAccessor, directoryId, metadataExtractors, resultHandler, mediaAccessor))
+                  path2Item.Remove(serializedFilePath);
               }
-              if (ImportResource(fileAccessor, directoryId, metadataExtractors, resultHandler, mediaAccessor))
-                path2Item.Remove(serializedFilePath);
+              catch (Exception e)
+              {
+                CheckSuspended(); // Throw ImportAbortException if suspended - will skip warning and tagging job as erroneous
+                ServiceRegistration.Get<ILogger>().Warn("ImporterWorker: Problem while importing resource '{0}'", e, serializedFilePath);
+                importJob.State = ImportJobState.Erroneous;
+              }
+              CheckImportStillRunning(importJob.State);
             }
-            catch (Exception e)
-            {
-              CheckSuspended(); // Throw ImportAbortException if suspended - will skip warning and tagging job as erroneous
-              ServiceRegistration.Get<ILogger>().Warn("ImporterWorker: Problem while importing resource '{0}'", e, serializedFilePath);
-              importJob.State = ImportJobState.Erroneous;
-            }
-            CheckImportStillRunning(importJob.State);
-          }
         if (importJob.JobType == ImportJobType.Refresh)
         { // Remove remaining (= non-present) files
           foreach (string pathStr in path2Item.Keys)
@@ -443,10 +447,10 @@ namespace MediaPortal.Common.Services.MediaManagement
             ResourcePath path = ResourcePath.Deserialize(pathStr);
             try
             {
-              IResourceAccessor ra = path.CreateLocalResourceAccessor();
-              if (!ra.IsFile)
-                // Don't touch directories because they will be imported in a different call of ImportDirectory
-                continue;
+              using (IResourceAccessor ra = path.CreateLocalResourceAccessor())
+                if (!ra.IsFile)
+                  // Don't touch directories because they will be imported in a different call of ImportDirectory
+                  continue;
             }
             catch (IllegalCallException)
             {
@@ -526,20 +530,22 @@ namespace MediaPortal.Common.Services.MediaManagement
           {
             ServiceRegistration.Get<ILogger>().Info("ImporterWorker: Starting import job '{0}'", importJob);
             ImporterWorkerMessaging.SendImportMessage(ImporterWorkerMessaging.MessageType.ImportStarted, importJob.BasePath);
-            IResourceAccessor accessor = importJob.BasePath.CreateLocalResourceAccessor();
-            IFileSystemResourceAccessor fsra = accessor as IFileSystemResourceAccessor;
-            if (fsra != null)
-            { // Prepare complex import process
-              importJob.PendingResources.Add(new PendingImportResource(Guid.Empty, fsra));
-              importJob.State = ImportJobState.Started;
-            }
-            else
-            { // Simple single-item-import
-              ImportSingleFile(importJob, accessor, metadataExtractors, mediaBrowsing, resultHandler, mediaAccessor);
-              lock (importJob.SyncObj)
-                if (importJob.State == ImportJobState.Started)
-                  importJob.State = ImportJobState.Finished;
-              return;
+            using (IResourceAccessor accessor = importJob.BasePath.CreateLocalResourceAccessor())
+            {
+              IFileSystemResourceAccessor fsra = accessor as IFileSystemResourceAccessor;
+              if (fsra != null)
+              { // Prepare complex import process
+                importJob.PendingResources.Add(new PendingImportResource(Guid.Empty, (IFileSystemResourceAccessor) fsra.Clone()));
+                importJob.State = ImportJobState.Started;
+              }
+              else
+              { // Simple single-item-import
+                ImportSingleFile(importJob, accessor, metadataExtractors, mediaBrowsing, resultHandler, mediaAccessor);
+                lock (importJob.SyncObj)
+                  if (importJob.State == ImportJobState.Started)
+                    importJob.State = ImportJobState.Finished;
+                return;
+              }
             }
           }
           else
@@ -582,6 +588,7 @@ namespace MediaPortal.Common.Services.MediaManagement
             }
             lock (importJob.SyncObj)
               importJob.PendingResources.Remove(pendingImportResource);
+            pendingImportResource.Dispose();
           }
           lock (importJob.SyncObj)
             if (importJob.State == ImportJobState.Started)

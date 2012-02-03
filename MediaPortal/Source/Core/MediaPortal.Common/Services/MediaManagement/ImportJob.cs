@@ -64,7 +64,7 @@ namespace MediaPortal.Common.Services.MediaManagement
   /// If changed, this has to be taken into consideration.
   /// </para>
   /// </remarks>
-  public class ImportJob
+  public class ImportJob : IDisposable
   {
     protected object _syncObj = new object();
     protected ImportJobType _jobType;
@@ -81,6 +81,13 @@ namespace MediaPortal.Common.Services.MediaManagement
       _basePath = basePath;
       _metadataExtractorIds = new HashSet<Guid>(metadataExtractorIds);
       _includeSubDirectories = includeSubDirectories;
+    }
+
+    public void Dispose()
+    {
+      foreach (PendingImportResource pendingResource in _pendingResources)
+        pendingResource.Dispose();
+      _pendingResources.Clear();
     }
 
     [XmlIgnore]

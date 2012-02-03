@@ -50,6 +50,19 @@ namespace MediaPortal.Common.Services.MediaManagement
       _resourceAccessor = resourceAccessor;
     }
 
+    public void Dispose()
+    {
+      try
+      {
+        if (_resourceAccessor != null)
+          _resourceAccessor.Dispose();
+      }
+      catch (Exception e)
+      {
+        ServiceRegistration.Get<ILogger>().Warn("PendingImportResource: Could not dispose resource", e);
+      }
+    }
+
     [XmlIgnore]
     public Guid ParentDirectory
     {
