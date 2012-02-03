@@ -80,6 +80,7 @@ namespace MediaPortal.Common.ResourceAccess
   /// </remarks>
   public class ResourcePath : IEnumerable<ProviderPathSegment>, IComparable<ResourcePath>
   {
+    public const bool USE_RA_CACHE = true;
     public const int RESOURCE_PATH_CACHE_SIZE = 100;
 
     protected static SmallLRUCache<ResourcePath, IResourceAccessor> _cachedResourceAccessors = new SmallLRUCache<ResourcePath, IResourceAccessor>(RESOURCE_PATH_CACHE_SIZE);
@@ -113,13 +114,21 @@ namespace MediaPortal.Common.ResourceAccess
     protected static void AddToCache(ResourcePath path, IResourceAccessor ra)
     {
       lock (_cachedResourceAccessors.SyncObj)
-        _cachedResourceAccessors.Add(path, ra);
+      {
+        if (!_cachedResourceAccessors.Contains(path))
+          _cachedResourceAccessors.Add(path, ra.Clone());
+      }
     }
 
     protected static bool TryGetFromCache(ResourcePath path, out IResourceAccessor ra)
     {
       lock (_cachedResourceAccessors.SyncObj)
-        return _cachedResourceAccessors.TryGetValue(path, out ra);
+        if (_cachedResourceAccessors.TryGetValue(path, out ra))
+        {
+          ra = ra.Clone();
+          return true;
+        }
+      return false;
     }
 
     /// <summary>
@@ -346,9 +355,10 @@ namespace MediaPortal.Common.ResourceAccess
     /// <exception cref="UnexpectedStateException">If this path is empty.</exception>
     public IResourceAccessor CreateLocalResourceAccessor()
     {
-      IResourceAccessor resourceAccessor;
-      if (TryGetFromCache(this, out resourceAccessor))
-        return resourceAccessor.Clone();
+      IResourceAccessor resourceAccessor = null;
+      if (USE_RA_CACHE)
+        if (TryGetFromCache(this, out resourceAccessor))
+          return resourceAccessor;
 
       IMediaAccessor mediaAccessor = ServiceRegistration.Get<IMediaAccessor>();
       IEnumerator<ProviderPathSegment> enumer = _pathSegments.GetEnumerator();
@@ -392,7 +402,8 @@ namespace MediaPortal.Common.ResourceAccess
           resourceAccessor.Dispose();
         throw;
       }
-      AddToCache(this, resourceAccessor.Clone());
+      if (USE_RA_CACHE)
+        AddToCache(this, resourceAccessor);
       return resourceAccessor;
     }
 

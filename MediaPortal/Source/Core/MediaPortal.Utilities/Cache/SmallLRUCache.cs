@@ -150,6 +150,12 @@ namespace MediaPortal.Utilities.Cache
       }
     }
 
+    public bool Contains(TKey key)
+    {
+      lock (_syncObj)
+        return FindEntry(key) != null;
+    }
+
     /// <summary>
     /// Returns the value which is stored in the cache for the specified <paramref name="key"/> if
     /// it is present in the cache.
