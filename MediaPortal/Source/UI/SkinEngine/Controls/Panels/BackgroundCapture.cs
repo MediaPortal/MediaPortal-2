@@ -8,13 +8,18 @@ using Effect = MediaPortal.UI.SkinEngine.Controls.Visuals.Effects.Effect;
 
 namespace MediaPortal.UI.SkinEngine.Controls.Panels
 {
+  /// <summary>
+  /// BackgroundCapture is used as helper control to capture the already rendered screen from the backbuffer, so that any <see cref="Effect"/> can be applied to it.
+  /// This component always captures the complete backbuffer size. The position inside the XAML code does matter, because only elements that were rendered before 
+  /// are visible. It only processes the backbuffer if a <see cref="Effect"/> is set and rendering is required.
+  /// </summary>
   public class BackgroundCapture : FrameworkElement
   {
     private Texture _texture;
 
     public override void Render(RenderContext parentRenderContext)
     {
-      if (!IsVisible)
+      if (!IsVisible || Effect == null)
         return;
 
       RectangleF bounds = ActualBounds;
@@ -38,18 +43,13 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
       }
       device.StretchRectangle(backBuffer, _texture.GetSurfaceLevel(0), TextureFilter.None);
 
+      Effect effect = Effect;
 
-      // Effect here???
-      if (Effect != null)
+      UpdateEffectMask(localRenderContext.OccupiedTransformedBounds, desc.Width, desc.Height, localRenderContext.ZOrder);
+      if (effect.BeginRender(_texture, new RenderContext(Matrix.Identity, Matrix.Identity, 1.0d, bounds, localRenderContext.ZOrder)))
       {
-        Effect effect = Effect;
-
-        UpdateEffectMask(localRenderContext.OccupiedTransformedBounds, desc.Width, desc.Height, localRenderContext.ZOrder);
-        if (effect.BeginRender(_texture, new RenderContext(Matrix.Identity, Matrix.Identity, 1.0d, bounds, localRenderContext.ZOrder)))
-        {
-          _effectContext.Render(0);
-          effect.EndRender();
-        }
+        _effectContext.Render(0);
+        effect.EndRender();
       }
     }
 
