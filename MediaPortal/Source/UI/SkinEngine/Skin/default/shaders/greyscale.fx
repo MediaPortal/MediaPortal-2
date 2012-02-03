@@ -1,5 +1,5 @@
 /*
-** Unused?
+** Can be used by GenericShaderEffect.
 ** Renders a texture with it's color channels averaged.
 */
 
