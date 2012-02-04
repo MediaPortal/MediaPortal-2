@@ -25,7 +25,13 @@
 
             <Rectangle Grid.Column="0" Grid.Row="0" Fill="#FFEEEEEE" Height="5" HorizontalAlignment="Stretch"/>
             <Rectangle Grid.Column="0" Grid.Row="1" Fill="#FF363535" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Opacity="0.7"/>
+            <Rectangle Grid.Column="0" Grid.Row="1" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Opacity="0.08">
+              <Rectangle.Fill>
+                <ImageBrush ImageSource="Controls\GaussianNoise.jpg"/>
+              </Rectangle.Fill>
+            </Rectangle>
 
+            
             <Control Grid.Column="0" Grid.Row="1" x:Name="OSDInfoAreaPresenter" Margin="15" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
                 Template="{DynamicResource ResourceKey=OSD_InfoArea_Template}" />
 
@@ -35,6 +41,14 @@
                      Template="{DynamicResource ResourceKey=OSD_Progress_Template}"/>
 
             <Grid  Grid.Column="0" Grid.Row="3" HorizontalAlignment="Center">
+
+              <Path  VerticalAlignment="Bottom" HorizontalAlignment="Center"
+              	Data="F1M401.3301,165.6406C410.5401,164.9906,419.7501,164.0706,429.0001,164.0196C775.6601,164.0296,1122.3301,164.0196,1469.0001,164.0196C1480.2201,164.0796,1491.4701,163.7206,1502.6801,164.6696C1564.5001,169.1096,1626.1401,175.7006,1687.7601,182.2696C1742.4901,187.7206,1797.8701,198.2206,1847.0701,223.7996C1855.3601,228.4706,1864.5101,232.3496,1870.5801,239.9996L46.4601,239.9996C51.9801,232.8796,60.3001,229.1606,67.9401,224.8396C103.5301,205.9106,142.8401,195.0496,182.4401,188.3906C204.8701,184.5196,227.5701,182.5196,250.1801,180.0196C300.5101,174.7306,350.8601,169.4596,401.3301,165.6406" 
+              	Height="76" Width="1000" Stretch="Fill" Opacity="0.16">
+                <Path.Fill>
+                  <ImageBrush ImageSource="Controls\GaussianNoise.jpg"/>
+                </Path.Fill>
+              </Path>
 
               <Path  VerticalAlignment="Bottom" HorizontalAlignment="Center"
                   Data="F1M401.3301,165.6406C410.5401,164.9906,419.7501,164.0706,429.0001,164.0196C775.6601,164.0296,1122.3301,164.0196,1469.0001,164.0196C1480.2201,164.0796,1491.4701,163.7206,1502.6801,164.6696C1564.5001,169.1096,1626.1401,175.7006,1687.7601,182.2696C1742.4901,187.7206,1797.8701,198.2206,1847.0701,223.7996C1855.3601,228.4706,1864.5101,232.3496,1870.5801,239.9996L46.4601,239.9996C51.9801,232.8796,60.3001,229.1606,67.9401,224.8396C103.5301,205.9106,142.8401,195.0496,182.4401,188.3906C204.8701,184.5196,227.5701,182.5196,250.1801,180.0196C300.5101,174.7306,350.8601,169.4596,401.3301,165.6406" 
@@ -47,7 +61,17 @@
                   </LinearGradientBrush>
                 </Path.Fill>
               </Path>
-
+              
+              <Path  VerticalAlignment="Bottom" HorizontalAlignment="Center"
+              	Data="F1M401.3301,165.6406C410.5401,164.9906,419.7501,164.0706,429.0001,164.0196C775.6601,164.0296,1122.3301,164.0196,1469.0001,164.0196C1480.2201,164.0796,1491.4701,163.7206,1502.6801,164.6696C1564.5001,169.1096,1626.1401,175.7006,1687.7601,182.2696C1742.4901,187.7206,1797.8701,198.2206,1847.0701,223.7996C1855.3601,228.4706,1864.5101,232.3496,1870.5801,239.9996L46.4601,239.9996C51.9801,232.8796,60.3001,229.1606,67.9401,224.8396C103.5301,205.9106,142.8401,195.0496,182.4401,188.3906C204.8701,184.5196,227.5701,182.5196,250.1801,180.0196C300.5101,174.7306,350.8601,169.4596,401.3301,165.6406" 
+              	Height="76" Width="1000" Stretch="Fill" Opacity="1">
+                <Path.Fill>
+                  <RadialGradientBrush RadiusY="1.1" Center="0.5,1" RadiusX="0.6">
+                    <GradientStop Color="#5F9BBCDF" Offset="0.022"/>
+                    <GradientStop Color="#B2000000" Offset="0.987"/>
+                  </RadialGradientBrush>
+                </Path.Fill>
+              </Path>
               <Control  x:Name="ControlsPresenter" Margin="0" HorizontalAlignment="Center" VerticalAlignment="Center"
                      Template="{DynamicResource ResourceKey=OSD_Controls_Template}"/>
 

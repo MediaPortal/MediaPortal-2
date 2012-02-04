@@ -190,6 +190,7 @@
     <Content Include="Skin\Reflexion\screens\FSCWindowButtons.inc" />
     <Content Include="Skin\Reflexion\skin.xml" />
     <Content Include="Skin\Reflexion\themes\default\images\Controls\Bar.png" />
+    <Content Include="Skin\Reflexion\themes\default\images\Controls\GaussianNoise.jpg" />
     <Content Include="Skin\Reflexion\themes\default\images\Controls\Glass.png" />
     <Content Include="Skin\Reflexion\themes\green\images\preview.png" />
     <Content Include="Skin\Reflexion\themes\green\images\Reflex.jpg" />
