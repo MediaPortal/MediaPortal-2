@@ -36,6 +36,16 @@
     </LinearGradientBrush >
   </ResourceWrapper>
 
+  <ResourceWrapper x:Key="ReflexionBorderStroke">
+    <LinearGradientBrush StartPoint="0.2,0" EndPoint="0.8,1">
+      <GradientStop Color="#DC3D3939" Offset="0"/>
+      <GradientStop Color="#A0A0A0" Offset="0.332"/>
+      <GradientStop Color="#E0E0E0" Offset="0.798"/>
+      <GradientStop Color="#E13F3B3B" Offset="1"/>
+    </LinearGradientBrush>
+  </ResourceWrapper>
+
+
   <ResourceWrapper x:Key="DialogBackgroundGradient1Color" Resource="#F0A0A0A0"/>
   <ResourceWrapper x:Key="DialogBackgroundGradient2Color" Resource="#F041564D"/>
 
@@ -46,6 +56,8 @@
   <ResourceWrapper x:Key="DialogHeaderColor" Resource="#FFF0F0F0"/>
 
   <ResourceWrapper x:Key="TextColor" Resource="White"/>
+
+  <ResourceWrapper x:Key="HomeNonFocusedColor" Resource="#6B6A6A"/>
 
   <ResourceWrapper x:Key="HintTextColor" Resource="DarkGray"/>
 
@@ -271,8 +283,22 @@
   <ResourceWrapper x:Key="OSDProgressBarBackgroundGradient2Color" Resource="#F8CCCCCC"/>
 
   <!-- Master screen colors -->
-  <ResourceWrapper x:Key="HeaderPanelBackgroundBrush" />
-  <ResourceWrapper x:Key="FooterPanelBackgroundBrush" Resource="{ThemeResource HeaderPanelBackgroundBrush}"/>
+  <ResourceWrapper x:Key="HeaderPanelBackgroundBrush">
+    <LinearGradientBrush StartPoint="0.5,0" EndPoint="0.5,1">
+      <GradientStop Offset="0"    Color="#40000000"/>
+      <GradientStop Offset="0.94" Color="#E0000000"/>
+      <GradientStop Offset="0.97" Color="#A0E0E0E0"/>
+      <GradientStop Offset="1.0"  Color="#A0000000"/>
+    </LinearGradientBrush>
+  </ResourceWrapper>
+  <ResourceWrapper x:Key="FooterPanelBackgroundBrush">
+    <LinearGradientBrush StartPoint="0.5,1" EndPoint="0.5,0">
+      <GradientStop Offset="0"    Color="#40000000"/>
+      <GradientStop Offset="0.95" Color="#E0000000"/>
+      <GradientStop Offset="0.98"  Color="#A0E0E0E0"/>
+      <GradientStop Offset="1" Color="#A0000000"/>
+    </LinearGradientBrush>
+  </ResourceWrapper>
 
   <!-- Colors and gradients used for buttons shine and OSD progress / control area -->
   <ResourceWrapper x:Key="ShineGradientStartColor" Resource="#FFA0FFA8" />
