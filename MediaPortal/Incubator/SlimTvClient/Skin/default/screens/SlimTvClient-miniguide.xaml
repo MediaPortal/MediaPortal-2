@@ -20,7 +20,7 @@
               DataContext="{Binding Source={StaticResource SlimTvClient}}">
           
           <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="300"/>
+          <ColumnDefinition Width="{ThemeResource MiniGuideWidth}"/>
             <ColumnDefinition Width="*"/>
           </Grid.ColumnDefinitions>
           
@@ -49,7 +49,7 @@
          
           </StackPanel>          
           
-          <ListView  Grid.Column="0" Grid.Row="1" Grid.ColumnSpan="2" Width="700"
+          <ListView  Grid.Column="0" Grid.Row="1" Grid.ColumnSpan="2"
               HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
               Style="{ThemeResource ChannelWithLogoAndProgramContainerStyle}"
               ItemsSource="{Binding Path=CurrentGroupChannels}"

@@ -4,7 +4,7 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:collections="clr-namespace:MediaPortal.UI.Presentation.DataObjects;assembly=MediaPortal.UI"
     xmlns:mp_special_controls="clr-namespace:MediaPortal.UI.SkinEngine.SpecialElements.Controls"
-    DependsOnStyleResources="SlimTvColors,FullScreenContentConsts,MediaButtons,MediaColors,Consts,Colors,Buttons,OtherControls"
+    DependsOnStyleResources="SlimTvColors,SlimTvConsts,FullScreenContentConsts,MediaButtons,MediaColors,Consts,Colors,Buttons,OtherControls"
     >
   <!-- SlimTvClient model -->
   <Model x:Key="SlimTvClient" Id="8BEC1372-1C76-484c-8A69-C7F3103708EC"/>
@@ -56,7 +56,7 @@
                   </Grid.RowDefinitions>
 
                   <Image x:Name="ChannelLogo" Grid.Column="0" Grid.Row="0" Width="64" Height="64" Grid.RowSpan="2"
-                          Stretch="Uniform" FallbackSource="channellogos\no_channel_logo.png">
+                   Stretch="Uniform" FallbackSource="channellogos\no_channel_logo.png">
                     <Image.Source>
                       <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0}+{1}+{2}">
                         <Binding Source="channellogos\"/>
@@ -72,9 +72,9 @@
                         Color="{ThemeResource TextColor}"/>
 
                   <Label x:Name="NextProgramTitleLabel"  Grid.Column="1" Grid.Row="1" Content="{Binding Source={StaticResource SlimTvClient},Path=NextProgram.Title}" Scroll="Auto"
-                        HorizontalAlignment="Left" VerticalAlignment="Center"
+                      HorizontalAlignment="Left" VerticalAlignment="Center"
                         IsVisible="{Binding Source={StaticResource SlimTvClient},Path=IsOSDLevel0}"
-                        Color="{ThemeResource NextProgramLabelColor}"/>
+                      Color="{ThemeResource NextProgramLabelColor}"/>
 
                   <!-- Title lable for OSD Level 2 (next program) -->
                   <Label x:Name="NextProgramTitleLabelLevel2" Grid.Column="1" Grid.Row="0" Content="{Binding Source={StaticResource SlimTvClient},Path=NextProgram.Title}" Scroll="Auto"
@@ -325,7 +325,7 @@
       <Setter.Value>
         <ControlTemplate TargetType="{x:Type ListView}">
           <!--<ScrollViewer CanContentScroll="False">-->
-          <ItemsPresenter VerticalAlignment="Stretch" HorizontalAlignment="Stretch" />
+            <ItemsPresenter VerticalAlignment="Stretch" HorizontalAlignment="Stretch" />
           <!--</ScrollViewer>-->
         </ControlTemplate>
       </Setter.Value>
@@ -442,14 +442,12 @@
         <ControlTemplate>
           <Grid x:Name="GrowControl" RenderTransformOrigin="0.5,0.5" Margin="0,2,0,2">
             <Grid.ColumnDefinitions>
-              <ColumnDefinition Width="30"/>
-              <!-- Channel Logo -->
-              <ColumnDefinition Width="*"/>
-              <!-- Channel Name -->
-            </Grid.ColumnDefinitions>
-            <Grid.RowDefinitions>
-              <RowDefinition Height="*"/>
-            </Grid.RowDefinitions>
+                <ColumnDefinition Width="{ThemeResource ChannelLogoContainerSmall}"/>                <!-- Channel Logo -->
+                <ColumnDefinition Width="*"/>                <!-- Channel Name -->
+              </Grid.ColumnDefinitions>
+              <Grid.RowDefinitions>
+                <RowDefinition Height="*"/>
+              </Grid.RowDefinitions>
             <Grid.RenderTransform>
               <TransformGroup>
                 <ScaleTransform ScaleX="1" ScaleY="1"/>
@@ -457,7 +455,7 @@
             </Grid.RenderTransform>
             <Control Style="{ThemeResource ButtonControlStyle}" Grid.Column="0" Grid.Row="0" Grid.ColumnSpan="2"
                      VerticalAlignment="Stretch" HorizontalAlignment="Stretch"/>
-            <Image x:Name="ChannelLogo" Grid.Column="0" Grid.Row="0" Width="24" Height="24" 
+            <Image x:Name="ChannelLogo" Grid.Column="0" Grid.Row="0" Width="{ThemeResource ChannelLogoSmall}" Height="{ThemeResource ChannelLogoSmall}" 
                    Stretch="Uniform"
                    Source="{Binding ChannelLogoPath}"
                    FallbackSource="channellogos\no_channel_logo.png"/>
@@ -508,14 +506,10 @@
         <ControlTemplate>
           <Grid x:Name="GrowControl" RenderTransformOrigin="0.5,0.5" Margin="0,2,0,2" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
             <Grid.ColumnDefinitions>
-              <ColumnDefinition Width="50"/>
-              <!-- Channel Logo -->
-              <ColumnDefinition Width="180"/>
-              <!-- Channel Name -->
-              <ColumnDefinition Width="60"/>
-              <!-- Program Time -->
-              <ColumnDefinition Width="*"/>
-              <!-- Program Title -->
+              <ColumnDefinition Width="{ThemeResource ChannelLogoContainerMedium}"/>              <!-- Channel Logo -->
+              <ColumnDefinition Width="{ThemeResource MainListChannelNameLength}"/>              <!-- Channel Name -->
+              <ColumnDefinition Width="{ThemeResource MainListTimeLength}"/>              <!-- Program Time -->
+              <ColumnDefinition Width="*"/>              <!-- Program Title -->
             </Grid.ColumnDefinitions>
             <Grid.RowDefinitions>
               <RowDefinition Height="Auto"/>
@@ -528,7 +522,7 @@
             </Grid.RenderTransform>
             <Control Style="{ThemeResource ButtonControlStyle}" Grid.Column="0" Grid.Row="0" Grid.ColumnSpan="4" Grid.RowSpan="2"
                      VerticalAlignment="Stretch" HorizontalAlignment="Stretch"/>
-            <Image x:Name="ChannelLogo" Grid.Column="0" Grid.Row="0" Grid.RowSpan="2" Width="48" Height="48" 
+            <Image x:Name="ChannelLogo" Grid.Column="0" Grid.Row="0" Grid.RowSpan="2" Width="{ThemeResource ChannelLogoMedium}" Height="{ThemeResource ChannelLogoMedium}" 
                    Stretch="Uniform" Margin="5,2,2,2"
                    Source="{Binding ChannelLogoPath}"
                    FallbackSource="channellogos\no_channel_logo.png"/>
@@ -619,10 +613,8 @@
   <DataTemplate x:Key="GuideChannelListDataTemplate" DataType="{x:Type collections:ListItem}">
     <Grid x:Name="ItemControl" VerticalAlignment="Center" HorizontalAlignment="Stretch">
       <Grid.ColumnDefinitions>
-        <ColumnDefinition Width="250"/>
-        <!-- Row Header (Channel Name)-->
-        <ColumnDefinition Width="*"/>
-        <!-- Programs Listing -->
+        <ColumnDefinition Width="{ThemeResource TvGuideHowHeaderWidth}"/> <!-- Row Header (Channel Name)-->
+        <ColumnDefinition Width="*"/>   <!-- Programs Listing -->
       </Grid.ColumnDefinitions>
 
       <Button Style="{ThemeResource ChannelWithLogoButtonStyle}" Grid.Column="0" Grid.Row="0"
