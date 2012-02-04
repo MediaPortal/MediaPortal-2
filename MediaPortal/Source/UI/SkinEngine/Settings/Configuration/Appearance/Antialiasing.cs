@@ -24,9 +24,9 @@
 #endregion
 
 using System.Collections.Generic;
-using MediaPortal.Common.Configuration.ConfigurationClasses;
-using MediaPortal.Common.Localization;
 using System.Linq;
+using MediaPortal.Common.Localization;
+using MediaPortal.Common.Configuration.ConfigurationClasses;
 using MediaPortal.UI.SkinEngine.DirectX;
 using SlimDX.Direct3D9;
 
