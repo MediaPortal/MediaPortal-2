@@ -168,6 +168,16 @@
     </ColorAnimationUsingKeyFrames>
   </Storyboard>
 
+
+  <Storyboard x:Key="FocusedOSDButtonStoryboard" FillBehavior="HoldEnd">
+    <StaticResource ResourceKey="FocusedButtonWideStoryboard_GrowOnly"/>
+    <ColorAnimationUsingKeyFrames BeginTime="00:00:00" Storyboard.TargetName="ButtonBackground" Storyboard.TargetProperty="Fill.GradientStops[1].Color">
+      <SplineColorKeyFrame KeyTime="00:00:00" Value="#FF626262"/>
+      <SplineColorKeyFrame KeyTime="00:00:00.700" Value="#8070B5FF"/>
+    </ColorAnimationUsingKeyFrames>
+  </Storyboard>
+
+
   <!-- ************************* Control styles for buttons ************************* -->
 
   <!-- Flat button style, used under glass overlay -->
@@ -184,7 +194,7 @@
       </Setter.Value>
     </Setter>
   </Style>
-  
+
   <!-- Main button style -->
   <Style x:Key="ButtonControlStyle" TargetType="{x:Type Control}">
     <Setter Property="Template">
@@ -572,7 +582,7 @@
       </Setter.Value>
     </Setter>
   </Style>
-  
+
   <Style x:Key="WizardButtonStyle" BasedOn="{ThemeResource ButtonWideStyle}" TargetType="{x:Type Button}">
     <Setter Property="HorizontalAlignment" Value="Stretch"/>
   </Style>
@@ -1090,12 +1100,12 @@
               <Control DockPanel.Dock="Center" x:Name="ContentControl" Template="{DynamicResource ResourceKey=ContentControlTemplate}" 
                        VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Margin="{ThemeResource OSDControlMargin}"/>
             </DockPanel>
-            
+
           </Grid>
           <ControlTemplate.Triggers>
             <Trigger Property="HasFocus" Value="True">
               <Trigger.EnterActions>
-                <BeginStoryboard x:Name="Focused_BeginStoryboard" Storyboard="{ThemeResource FocusedButtonStoryboard}"/>
+                <BeginStoryboard x:Name="Focused_BeginStoryboard" Storyboard="{ThemeResource FocusedOSDButtonStoryboard}"/>
               </Trigger.EnterActions>
               <Trigger.ExitActions>
                 <StopStoryboard BeginStoryboardName="Focused_BeginStoryboard"/>
