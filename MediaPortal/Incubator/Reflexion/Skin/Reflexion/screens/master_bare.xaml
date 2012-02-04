@@ -127,7 +127,7 @@ Parameters which have to be accessible by a DynamicResource lookup:
         <Grid.ColumnDefinitions>
           <ColumnDefinition Width="Auto" />
           <ColumnDefinition Width="70" />
-          <ColumnDefinition Width="85" />
+          <ColumnDefinition Width="95" />
           <ColumnDefinition Width="Auto" />
         </Grid.ColumnDefinitions>
         <Grid.RowDefinitions>
