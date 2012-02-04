@@ -31,6 +31,7 @@
 //#define PROFILE_FRAMERATE
 
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Threading;
@@ -291,17 +292,12 @@ namespace MediaPortal.UI.SkinEngine.DirectX
         _device.SetRenderState(RenderState.AlphaRef, 0x05);
         _device.SetRenderState(RenderState.AlphaFunc, Compare.GreaterEqual);
       }
-      _device.SetSamplerState(0, SamplerState.MinFilter, TextureFilter.Linear);
-      _device.SetSamplerState(0, SamplerState.MagFilter, TextureFilter.Linear);
-      _device.SetSamplerState(0, SamplerState.MipFilter, TextureFilter.None);
-
-      _device.SetSamplerState(1, SamplerState.MinFilter, TextureFilter.Linear);
-      _device.SetSamplerState(1, SamplerState.MagFilter, TextureFilter.Linear);
-      _device.SetSamplerState(1, SamplerState.MipFilter, TextureFilter.None);
-
-      _device.SetSamplerState(2, SamplerState.MinFilter, TextureFilter.Linear);
-      _device.SetSamplerState(2, SamplerState.MagFilter, TextureFilter.Linear);
-      _device.SetSamplerState(2, SamplerState.MipFilter, TextureFilter.None);
+      for (int sampler = 0; sampler < 3; sampler++)
+      {
+        _device.SetSamplerState(sampler, SamplerState.MinFilter, TextureFilter.Linear);
+        _device.SetSamplerState(sampler, SamplerState.MagFilter, TextureFilter.Linear);
+        _device.SetSamplerState(sampler, SamplerState.MipFilter, TextureFilter.None);
+      }
 
       // Projection onto screen space
       SetCameraProjection(Width, Height);
@@ -352,7 +348,7 @@ namespace MediaPortal.UI.SkinEngine.DirectX
           _screenManager.Render();
 
           _device.EndScene();
-          _device.PresentEx(Present.ForceImmediate);
+          _device.PresentEx(_setup.WindowedPresent);
 
           _fpsCounter += 1;
           TimeSpan ts = DateTime.Now - _fpsTimer;
@@ -437,6 +433,13 @@ namespace MediaPortal.UI.SkinEngine.DirectX
     public static IList<DisplayMode> GetDisplayModes()
     {
       return _setup.GetDisplayModes();
+    }
+    /// <summary>
+    /// Returns available MultiSampleTypes.
+    /// </summary>
+    public static ArrayList WindowedMultiSampleTypes
+    {
+      get { return _setup.WindowedMultiSampleTypes; }
     }
 
     public static string DesktopDisplayMode

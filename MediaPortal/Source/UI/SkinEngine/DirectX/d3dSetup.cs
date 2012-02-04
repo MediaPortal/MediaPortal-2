@@ -25,6 +25,7 @@
 //#define PROFILE_PERFORMANCE
 
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
@@ -34,6 +35,8 @@ using System.Text;
 using System.Windows.Forms;
 using MediaPortal.Common;
 using MediaPortal.Common.Logging;
+using MediaPortal.Common.Settings;
+using MediaPortal.UI.SkinEngine.Settings;
 using MediaPortal.Utilities;
 using SlimDX.Direct3D9;
 
@@ -96,7 +99,7 @@ namespace MediaPortal.UI.SkinEngine.DirectX
     public IList<DisplayMode> GetDisplayModes()
     {
       return _graphicsSettings.FullscreenDisplayModes.Where(mode => mode.Width != 0 || mode.Height != 0 || mode.RefreshRate != 0).ToList();
-    }
+      }
 
     public string DesktopDisplayMode
     {
@@ -135,6 +138,16 @@ namespace MediaPortal.UI.SkinEngine.DirectX
     {
       get { return _graphicsSettings.IsWindowed; }
       set { _graphicsSettings.IsWindowed = value; }
+    }
+
+    public ArrayList WindowedMultiSampleTypes
+    {
+      get { return _graphicsSettings.WindowedDeviceCombo.MultisampleTypeList; }
+    }
+
+    public Present WindowedPresent
+    {
+      get { return _graphicsSettings.WindowedPresent; }
     }
 
     /// <summary>
@@ -297,11 +310,13 @@ namespace MediaPortal.UI.SkinEngine.DirectX
       _graphicsSettings.WindowedHeight = _ourRenderTarget.Height;
       if (_enumerationSettings.AppUsesDepthBuffer)
         _graphicsSettings.WindowedDepthStencilBufferFormat = (Format)bestDeviceCombo.DepthStencilFormatList[0];
-      int iQuality = 0; //bestDeviceCombo.MultisampleTypeList.Count-1;
-      if (bestDeviceCombo.MultisampleTypeList.Count > 0)
-        iQuality = bestDeviceCombo.MultisampleTypeList.Count - 1;
+
+      int iQuality = ServiceRegistration.Get<ISettingsManager>().Load<AppSettings>().MultiSampleType;
+      if (iQuality >= bestDeviceCombo.MultisampleTypeList.Count)
+        iQuality = 0;
+
       _graphicsSettings.WindowedMultisampleType = (MultisampleType)bestDeviceCombo.MultisampleTypeList[iQuality];
-      _graphicsSettings.WindowedMultisampleQuality = 0; //(int)bestDeviceCombo.MultisampleQualityList[iQuality];
+      _graphicsSettings.WindowedMultisampleQuality = 0;
 
       _graphicsSettings.WindowedVertexProcessingType =
         (VertexProcessingType)bestDeviceCombo.VertexProcessingTypeList[0];
@@ -1011,27 +1026,26 @@ namespace MediaPortal.UI.SkinEngine.DirectX
 
       if (_graphicsSettings.IsWindowed)
       {
-        _presentParams.Multisample = MultisampleType.None;// _graphicsSettings.WindowedMultisampleType;
-        _presentParams.MultisampleQuality = 0;// _graphicsSettings.WindowedMultisampleQuality;
-        //_presentParams.AutoDepthStencilFormat = _graphicsSettings.WindowedDepthStencilBufferFormat;
+        _presentParams.Multisample =  _graphicsSettings.WindowedMultisampleType;
+        _presentParams.MultisampleQuality = 0;
+        _presentParams.AutoDepthStencilFormat = _graphicsSettings.WindowedDepthStencilBufferFormat;
         _presentParams.BackBufferWidth = _ourRenderTarget.ClientRectangle.Width;
         _presentParams.BackBufferHeight = _ourRenderTarget.ClientRectangle.Height;
         _presentParams.BackBufferFormat = _graphicsSettings.BackBufferFormat;
         _presentParams.BackBufferCount = _graphicsSettings.BackBufferCount;
 #if PROFILE_PERFORMANCE
-        _presentParams.PresentationInterval = PresentInterval.Immediate; // Immediate.Default;
+        _presentParams.PresentationInterval = PresentInterval.Immediate;
 #else
         if (_usingPerfHud)
           _presentParams.PresentationInterval = PresentInterval.Immediate;
         else
-          _presentParams.PresentationInterval = PresentInterval.One; // Immediate.Default;
+          _presentParams.PresentationInterval = PresentInterval.One; 
 #endif
         _presentParams.FullScreenRefreshRateInHertz = 0;
-        _presentParams.SwapEffect = SwapEffect.FlipEx;
+        _presentParams.SwapEffect = _graphicsSettings.WindowedSwapEffect;
         _presentParams.PresentFlags = PresentFlags.Video; //PresentFlag.LockableBackBuffer;
         _presentParams.DeviceWindowHandle = _ourRenderTarget.Handle;
         _presentParams.Windowed = true;
-        //_presentParams.PresentationInterval = PresentInterval.Immediate;
       }
       else
       {
@@ -1053,7 +1067,7 @@ namespace MediaPortal.UI.SkinEngine.DirectX
           _presentParams.PresentationInterval = PresentInterval.One;
 #endif
         _presentParams.FullScreenRefreshRateInHertz = _graphicsSettings.DisplayMode.RefreshRate;
-        _presentParams.SwapEffect = SwapEffect.FlipEx;
+        _presentParams.SwapEffect = SwapEffect.Discard;
         _presentParams.PresentFlags = PresentFlags.Video; //|PresentFlag.LockableBackBuffer;
         _presentParams.DeviceWindowHandle = _window.Handle;
         _presentParams.Windowed = false;

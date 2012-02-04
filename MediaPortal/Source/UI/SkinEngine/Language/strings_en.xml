@@ -6,11 +6,12 @@
     <String Name="Appearance.System.Fullscreen.Help" Text="Show MediaPortal in fullscreen mode"/>
     <String Name="Appearance.System.CellPhoneInputStyle" Text="Cell phone input style"/>
     <String Name="Appearance.System.CellPhoneInputStyle.Help" Text="Use cell phone/SMS input style"/>
-    <String Name="Appearance.System.ScreenSaverEnabled" Text="Enable screen saver"/>
-    <String Name="Appearance.System.ScreenSaverEnabled.Help" Text="Configure if the screen saver should be displayed"/>
+    <String Name="Appearance.System.ScreenSaverEnabled" Text="Enable screen saver"/>    <String Name="Appearance.System.ScreenSaverEnabled.Help" Text="Configure if the screen saver should be displayed"/>
     <String Name="Appearance.System.ScreenSaverTimeout" Text="Screen saver timeout"/>
     <String Name="Appearance.System.ScreenSaverTimeout.Help" Text="Configure the timespan in minutes when the screen saver should be displayed after the last user input"/>
 
+    <String Name="Appearance.System.MultiSampleType" Text="GUI antialiasing"/>
+    <String Name="Appearance.System.MultiSampleType.Help" Text="Enabling antialiasing improves the visual GUI quality but can decrease video performance."/>
     <String Name="Appearance.Skin" Text="Skin"/>
     <String Name="Appearance.Skin.SkinAndTheme" Text="Skin and theme"/>
     <String Name="Appearance.Skin.SkinAndTheme.ChangeSkin" Text="Change skin"/>

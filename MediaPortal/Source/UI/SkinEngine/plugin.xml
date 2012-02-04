@@ -73,6 +73,12 @@
         Text="[Settings.Appearance.System.ScreenSaverTimeout]"
         HelpText="[Settings.Appearance.System.ScreenSaverTimeout.Help]"
         ClassName="MediaPortal.UI.SkinEngine.Settings.Configuration.Appearance.ScreenSaverTimeout"/>
+
+    <ConfigSetting
+        Id="MultiSampleType"
+        Text="[Settings.Appearance.System.MultiSampleType]"
+        HelpText="[Settings.Appearance.System.MultiSampleType.Help]"
+        ClassName="MediaPortal.UI.SkinEngine.Settings.Configuration.Appearance.MultiSampleType"/>
   </Register>
 
   <!-- Contents of '/Appearance/Skin' section -->

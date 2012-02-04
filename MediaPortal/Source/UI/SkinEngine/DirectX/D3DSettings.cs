@@ -38,7 +38,7 @@ namespace MediaPortal.UI.SkinEngine.DirectX
     public DeviceCombo WindowedDeviceCombo;
     public DisplayMode WindowedDisplayMode; // not changable by the user
     public Format WindowedDepthStencilBufferFormat;
-    public MultisampleType WindowedMultisampleType;
+    public MultisampleType WindowedMultisampleType = MultisampleType.TwoSamples;
     public int WindowedMultisampleQuality;
     public VertexProcessingType WindowedVertexProcessingType;
     public PresentInterval WindowedPresentInterval;
@@ -57,6 +57,26 @@ namespace MediaPortal.UI.SkinEngine.DirectX
     public int FullscreenMultisampleQuality;
     public VertexProcessingType FullscreenVertexProcessingType;
     public PresentInterval FullscreenPresentInterval;
+
+    public SwapEffect WindowedSwapEffect
+    {
+      get
+      {
+        return WindowedMultisampleType == MultisampleType.None
+                 ? SwapEffect.FlipEx
+                 : SwapEffect.Discard;
+      }
+    }
+
+    public Present WindowedPresent
+    {
+      get
+      {
+        return WindowedMultisampleType == MultisampleType.None
+                 ? Present.ForceImmediate
+                 : Present.None;
+      }
+    }
 
     public GraphicsAdapterInfo AdapterInfo
     {

@@ -43,6 +43,14 @@ namespace MediaPortal.UI.SkinEngine.Settings
     protected bool _cellPhoneInputStyle = DEFAULT_CELL_PHONE_INPUT_STYLE;
     protected bool _screenSaverEnabled = DEFAULT_SCREEN_SAVER_ENABLED;
     protected double _screenSaverTimoutMin = DEFAULT_SCREEN_SAVER_TIMEOUT_MIN;
+    protected int _multiSampleTypeIndex = 0;
+
+    [Setting(SettingScope.User, 0)]
+    public int MultiSampleType
+    {
+      get { return _multiSampleTypeIndex; }
+      set { _multiSampleTypeIndex = value; }
+    }
 
     [Setting(SettingScope.User, DEFAULT_FULL_SCREEN)]
     public bool FullScreen
