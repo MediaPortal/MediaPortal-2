@@ -25,6 +25,8 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using MediaPortal.Common.Localization;
+using MediaPortal.Common.Services.Localization;
 using Microsoft.Deployment.WindowsInstaller;
 
 using MediaPortal.Backend.Services.SystemResolver;
@@ -47,7 +49,7 @@ namespace CustomActions
     private static readonly string[] ServerPathLabels = new string[] { "DATA", "CONFIG", "LOG", "PLUGINS", "DATABASE" };
 
     [CustomAction]
-    public static ActionResult AttachClientAndServer(Session session)
+    public static ActionResult AttachClientToServer(Session session)
     {
       session.Log("ClientRequestState : {0}", session.Features["Client"].RequestState);
       session.Log("ServerRequestState : {0}", session.Features["Server"].RequestState);
@@ -61,14 +63,15 @@ namespace CustomActions
         IPathManager pathManager = new PathManager();
         ServiceRegistration.Set<IPathManager>(pathManager);
         ServiceRegistration.Set<ISettingsManager>(new SettingsManager());
+        ServiceRegistration.Set<ILocalization>(new StringManager());
 
         string applicationPath = Environment.GetCommandLineArgs()[0];
         pathManager.SetPath("APPLICATION_PATH", applicationPath);
         pathManager.SetPath("APPLICATION_ROOT", Path.GetDirectoryName(applicationPath));
         pathManager.SetPath("LOCAL_APPLICATION_DATA",
-                            Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData));
+            Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData));
         pathManager.SetPath("COMMON_APPLICATION_DATA",
-                            Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData));
+            Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData));
         pathManager.SetPath("MY_DOCUMENTS", Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments));
 
 

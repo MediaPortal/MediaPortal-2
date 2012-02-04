@@ -8,6 +8,6 @@
 
     <CustomAction Id="ReadCustomPaths" BinaryKey="Custom_Action_Dll" DllEntry="ReadCustomPaths" Execute="immediate" Return="check" />
     <CustomAction Id="SetCustomPaths" BinaryKey="Custom_Action_Dll" DllEntry="SetCustomPaths" Execute="immediate" Return="check" />
-    <CustomAction Id="AttachClientAndServer" BinaryKey="Custom_Action_Dll" DllEntry="AttachClientAndServer" Execute="immediate" Return="check" />
+    <CustomAction Id="AttachClientToServer" BinaryKey="Custom_Action_Dll" DllEntry="AttachClientToServer" Execute="immediate" Return="check" />
   </Fragment>
 </Wix>
