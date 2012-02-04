@@ -8,12 +8,12 @@
   <ResourceWrapper x:Key="HeaderFontSize" Resource="56"/>
   <ResourceWrapper x:Key="DialogTitleFontSize" Resource="30"/>
 
-  <ResourceWrapper x:Key="DateTimeFontSize" Resource="20"/>
+  <ResourceWrapper x:Key="DateTimeFontSize" Resource="26"/>
 
-  <ResourceWrapper x:Key="BigFontSize" Resource="30"/>
-  <ResourceWrapper x:Key="SmallFontSize" Resource="24"/>
-  <ResourceWrapper x:Key="SmallerFontSize" Resource="22"/>
-  <ResourceWrapper x:Key="TinyFontSize" Resource="14"/>
+  <ResourceWrapper x:Key="BigFontSize" Resource="32"/>
+  <ResourceWrapper x:Key="SmallFontSize" Resource="26"/>
+  <ResourceWrapper x:Key="SmallerFontSize" Resource="24"/>
+  <ResourceWrapper x:Key="TinyFontSize" Resource="20"/>
 
   <!-- Screen transitions -->
   <ResourceWrapper x:Key="ScreenTransitionEndTime" Resource="00:00:00.20"/>

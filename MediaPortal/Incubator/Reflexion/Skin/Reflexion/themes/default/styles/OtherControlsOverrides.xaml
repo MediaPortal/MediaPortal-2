@@ -125,7 +125,9 @@
           </ControlTemplate>
         </Control.Resources>
       </Control>
-      <Label Grid.Row="1" Grid.Column="0" x:Name="ItemLabel" HorizontalAlignment="Center" Content="{Binding [Name]}" FontSize="{ThemeResource BigFontSize}" Color="{ThemeResource HomeNonFocusedColor}"/>
+      <Label Grid.Row="1" Grid.Column="0" x:Name="ItemLabel" HorizontalAlignment="Center" Content="{Binding [Name]}" 
+             FontFamily="TitleCaps"
+             FontSize="{ThemeResource BigFontSize}" Color="{ThemeResource HomeNonFocusedColor}"/>
     </Grid>
   </DataTemplate>
 
@@ -326,6 +328,11 @@
                   <Button x:Name="SkipForwardButton" Style="{ThemeResource SkipForwardButtonStyle}" Margin="5,0,5,0" IsVisible="{Binding CanSkipForward}"
                       Command="{Command Next}"/>
                 </StackPanel>
+                <StackPanel.LayoutTransform>
+                  <TransformGroup>
+                    <ScaleTransform ScaleX="0.85" ScaleY="0.85"/>
+                  </TransformGroup>
+                </StackPanel.LayoutTransform>
               </StackPanel>
             </StackPanel>
           </Grid>
