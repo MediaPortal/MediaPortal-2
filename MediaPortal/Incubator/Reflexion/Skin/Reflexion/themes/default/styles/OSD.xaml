@@ -67,7 +67,7 @@
               	Height="76" Width="1000" Stretch="Fill" Opacity="1">
                 <Path.Fill>
                   <RadialGradientBrush RadiusY="1.1" Center="0.5,1" RadiusX="0.6">
-                    <GradientStop Color="#5F9BBCDF" Offset="0.022"/>
+                    <GradientStop Color="#5F9BBCDF" Offset="0"/>
                     <GradientStop Color="#B2000000" Offset="0.987"/>
                   </RadialGradientBrush>
                 </Path.Fill>
