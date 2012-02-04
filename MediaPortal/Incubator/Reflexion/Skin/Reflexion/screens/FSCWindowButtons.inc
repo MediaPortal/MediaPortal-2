@@ -25,10 +25,10 @@
       <Button x:Name="BackButton" Style="{ThemeResource NavigateBackButtonStyle}" Margin="3"
           HorizontalAlignment="Left"
           Command="{Command Source={Service WorkflowManager},Path=NavigatePop,Parameters=1}"/>
-      <Button x:Name="CloseButton" Style="{ThemeResource WindowCloseButtonStyle}" Margin="3"
-          HorizontalAlignment="Left" Command="{Command Shutdown}"/>
       <Button x:Name="MinimizeButton" Style="{ThemeResource WindowMinimizeButtonStyle}" Margin="3"
           HorizontalAlignment="Left" Command="{Command Minimize}"/>
+      <Button x:Name="CloseButton" Style="{ThemeResource WindowCloseButtonStyle}" Margin="3"
+          HorizontalAlignment="Left" Command="{Command Shutdown}"/>
     </StackPanel>
   </Grid> <!-- WindowButtonsPanel -->
 </DockPanel>

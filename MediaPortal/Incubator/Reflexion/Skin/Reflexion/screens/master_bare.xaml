@@ -75,15 +75,15 @@ Parameters which have to be accessible by a DynamicResource lookup:
             </Trigger.Setters>
           </Trigger>
         </StackPanel.Triggers>
-        <Button x:Name="CloseButton" Style="{ThemeResource WindowCloseButtonStyle}" Margin="3"
-              HorizontalAlignment="Left" VerticalAlignment="Center"
-              Command="{Command Source={Service Window},Path=Shutdown}"/>
         <Button x:Name="MinimizeButton" Style="{ThemeResource WindowMinimizeButtonStyle}" Margin="3"
               HorizontalAlignment="Left" VerticalAlignment="Center"
               Command="{Command Source={Service Window},Path=Minimize}"/>
         <Button x:Name="HibernateButton" Style="{ThemeResource HibernateButtonStyle}" Margin="3"
               HorizontalAlignment="Left" VerticalAlignment="Center"
               Command="{Command Source={Service Window},Path=Hibernate}"/>
+        <Button x:Name="CloseButton" Style="{ThemeResource WindowCloseButtonStyle}" Margin="3"
+              HorizontalAlignment="Left" VerticalAlignment="Center"
+              Command="{Command Source={Service Window},Path=Shutdown}"/>
       </StackPanel>      <!-- WindowButtonsPanel -->
       
     </Grid>    <!-- HeaderPanel -->
