@@ -599,12 +599,12 @@ namespace MediaPortal.UiComponents.Media.Models
       // No locking necessary
       if (avType == AVType.Video)
       {
-        contextName = Consts.RES_VIDEO_IMAGE_CONTEXT_NAME;
+        contextName = LocalizationHelper.Translate(Consts.RES_VIDEO_IMAGE_CONTEXT_NAME);
         return true;
       }
       if (avType == AVType.Audio)
       {
-        contextName = Consts.RES_AUDIO_CONTEXT_NAME;
+        contextName = LocalizationHelper.Translate(Consts.RES_AUDIO_CONTEXT_NAME);
         return true;
       }
       contextName = null;
