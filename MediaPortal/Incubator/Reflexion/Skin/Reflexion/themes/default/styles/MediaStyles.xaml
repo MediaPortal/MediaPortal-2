@@ -134,7 +134,8 @@
               </ControlTemplate>
               <ControlTemplate x:Key="OSD_Controls_Template">
                 <StackPanel x:Name="PlayControlsPanel" Orientation="Horizontal"
-                        VerticalAlignment="Center" HorizontalAlignment="Center" IsVisible="{Binding ShowMouseControls}" >
+                        VerticalAlignment="Center" HorizontalAlignment="Center">
+                  <!-- Morpheus_xx: we want to see buttons always, not only when using mouse // IsVisible="{Binding ShowMouseControls}" -->
                   <Button x:Name="SkipBackButton" Style="{ThemeResource SkipBackButtonStyle}" Margin="5,0,5,0" IsVisible="{Binding CanSkipBack}"
                           Command="{Command Previous}"/>
                   <Button x:Name="RewindButton" Style="{ThemeResource RewindButtonStyle}" Margin="5,0,5,0" IsVisible="{Binding CanSeekBackward}"
@@ -283,7 +284,8 @@
               <ControlTemplate x:Key="OSD_Controls_Template">
 
                 <StackPanel x:Name="PlayControlsPanel" Orientation="Horizontal" 
-                  VerticalAlignment="Center" HorizontalAlignment="Center" IsVisible="{Binding ShowMouseControls}" >
+                  VerticalAlignment="Center" HorizontalAlignment="Center">
+                  <!-- Morpheus_xx: we want to see buttons always, not only when using mouse // IsVisible="{Binding ShowMouseControls}" -->
                   <Button x:Name="SkipBackButton" Style="{ThemeResource SkipBackButtonStyle}" Margin="5,0,5,0" IsVisible="{Binding CanSkipBack}"
                     Command="{Command Previous}"/>
                   <Button x:Name="RewindButton" Style="{ThemeResource RewindButtonStyle}" Margin="5,0,5,0" IsVisible="{Binding CanSeekBackward}"
@@ -369,7 +371,8 @@
               
               <ControlTemplate x:Key="OSD_Controls_Template">
                 <StackPanel x:Name="PlayControlsPanel" Orientation="Horizontal" 
-                  VerticalAlignment="Center" HorizontalAlignment="Center" IsVisible="{Binding ShowMouseControls}" >
+                  VerticalAlignment="Center" HorizontalAlignment="Center">
+                  <!-- Morpheus_xx: we want to see buttons always, not only when using mouse // IsVisible="{Binding ShowMouseControls}" -->
                   <Button x:Name="SkipBackButton" Style="{ThemeResource SkipBackButtonStyle}" Margin="5,0,5,0" IsVisible="{Binding CanSkipBack}"
                     Command="{Command Previous}"/>
                   <Button x:Name="PlayButton" Style="{ThemeResource PlayButtonStyle}" Margin="5,0,5,0" IsVisible="{Binding CanPlay}"
