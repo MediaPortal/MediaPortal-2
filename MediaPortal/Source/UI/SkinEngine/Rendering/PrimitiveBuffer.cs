@@ -40,7 +40,7 @@ namespace MediaPortal.UI.SkinEngine.Rendering
 
     #endregion
 
-    #region Ctor
+    #region Ctor & maintainance
 
     public PrimitiveBuffer()
     {
@@ -65,10 +65,6 @@ namespace MediaPortal.UI.SkinEngine.Rendering
       Set(ref vertices, primitiveType);
     }
 
-    #endregion
-
-    #region IDisposable implementation
-
     public void Dispose()
     {
       Clear();
@@ -76,7 +72,7 @@ namespace MediaPortal.UI.SkinEngine.Rendering
 
     #endregion
 
-    #region Buffer creation
+    #region Buffer creation & disposal
 
     /// <summary>
     /// Allocates an empty vertex buffer.
@@ -140,10 +136,6 @@ namespace MediaPortal.UI.SkinEngine.Rendering
       _vertexBuffer.Unlock();
     }
 
-    #endregion
-
-    #region Buffer disposal
-
     protected void Clear()
     {
       if (_vertexBuffer != null)
@@ -154,10 +146,6 @@ namespace MediaPortal.UI.SkinEngine.Rendering
       }
       _primitiveCount = 0;
     }
-
-    #endregion
-
-    #region Buffer maintainance
 
     public static void SetPrimitiveBuffer(ref PrimitiveBuffer _buffer, ref PositionColoredTextured[] verts, PrimitiveType type)
     {

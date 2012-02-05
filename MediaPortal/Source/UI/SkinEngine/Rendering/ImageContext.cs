@@ -278,6 +278,9 @@ namespace MediaPortal.UI.SkinEngine.Rendering
 
       startContext.ApplyTransitionParametersAsStartingSource(_effectTransition, startFrameData);
 
+      // Disable antialiasing for image rendering.
+      GraphicsDevice.Device.SetRenderState(RenderState.MultisampleAntialias, false);
+
       // Set border colour for area outside of texture boundaries
       GraphicsDevice.Device.SetSamplerState(0, SamplerState.BorderColor, borderColor);
       GraphicsDevice.Device.SetSamplerState(1, SamplerState.BorderColor, borderColor);
@@ -330,6 +333,13 @@ namespace MediaPortal.UI.SkinEngine.Rendering
     public void Refresh()
     {
       _refresh = true;
+    }
+
+    public void Clear()
+    {
+      _effect = null;
+      _effectTransition = null;
+      _lastTexture = null;
     }
 
     #endregion
@@ -467,12 +477,5 @@ namespace MediaPortal.UI.SkinEngine.Rendering
     }
 
     #endregion
-
-    public void Clear()
-    {
-      _effect = null;
-      _effectTransition = null;
-      _lastTexture = null;
-    }
   }
 }
