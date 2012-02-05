@@ -558,8 +558,9 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
       KeyAction keyAction;
       if (_keyBindings != null && _keyBindings.TryGetValue(key, out keyAction))
       {
-        keyAction.Action();
-        key = Key.None;
+        if (keyAction.Action())
+          // Reset key only if action was successfully handled
+          key = Key.None;
       }
     }
 
