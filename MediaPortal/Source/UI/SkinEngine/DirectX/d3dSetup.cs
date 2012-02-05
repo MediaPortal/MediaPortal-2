@@ -26,10 +26,7 @@
 
 using System;
 using System.Collections.Generic;
-using System.Drawing;
 using System.Linq;
-using System.Runtime.InteropServices;
-using System.Security;
 using System.Text;
 using System.Windows.Forms;
 using MediaPortal.Common;
@@ -170,31 +167,6 @@ namespace MediaPortal.UI.SkinEngine.DirectX
         if (!FindBestModes())
           Environment.Exit(0);
 
-        /*
-
-        // Depending on witch screen MP is started it will move to the monitor where it was configured to be
-        Screen formOnScreen = Screen.FromRectangle(Bounds);
-        if (!formOnScreen.Equals(GUIGraphicsContext.currentScreen))
-        {
-          Rectangle newBounds = Bounds;
-          Point location = this.Location;
-
-          if (newBounds.Width > GUIGraphicsContext.currentScreen.Bounds.Width)
-            newBounds.Width = GUIGraphicsContext.currentScreen.Bounds.Width;
-          if (newBounds.Height > GUIGraphicsContext.currentScreen.Bounds.Height)
-            newBounds.Height = GUIGraphicsContext.currentScreen.Bounds.Height;
-
-          newBounds.X = (GUIGraphicsContext.currentScreen.Bounds.Width - newBounds.Width) / 2;
-          newBounds.Y = (GUIGraphicsContext.currentScreen.Bounds.Height - newBounds.Height) / 2;
-
-          newBounds.X += GUIGraphicsContext.currentScreen.Bounds.Left;
-          newBounds.Y += GUIGraphicsContext.currentScreen.Bounds.Top;
-
-          this.Bounds = newBounds;
-        }
-        oldBounds = Bounds;
-
-        */
         // Initialize the 3D environment for the app
         _graphicsSettings.IsWindowed = true;
         InitializeEnvironment();
@@ -207,8 +179,6 @@ namespace MediaPortal.UI.SkinEngine.DirectX
       }
 
       // The app is ready to go
-      //ready = true;
-
       return true;
     }
 
@@ -317,7 +287,6 @@ namespace MediaPortal.UI.SkinEngine.DirectX
 
       return true;
     }
-
 
     /// <summary>
     /// Sets up graphicsSettings with best available fullscreen mode, subject to 
@@ -430,7 +399,6 @@ namespace MediaPortal.UI.SkinEngine.DirectX
       return true;
     }
 
-
     /// <summary>
     /// Find the best fullscreen / windowed modes.
     /// </summary>
@@ -479,14 +447,12 @@ namespace MediaPortal.UI.SkinEngine.DirectX
         throw new ApplicationException();
 
       ServiceRegistration.Get<ILogger>().Info("DirectX: Using adapter: {0} {1} {2}",
-              _graphicsSettings.AdapterOrdinal,
-              MPDirect3D.Direct3D.Adapters[_graphicsSettings.AdapterOrdinal].Details.Description,
-              _graphicsSettings.DevType);
+          _graphicsSettings.AdapterOrdinal,
+          MPDirect3D.Direct3D.Adapters[_graphicsSettings.AdapterOrdinal].Details.Description,
+          _graphicsSettings.DevType);
       try
       {
         // Create the device
-        //Device.IsUsingEventHandlers = false;
-
         GraphicsDevice.Device = new DeviceEx(MPDirect3D.Direct3D,
             _graphicsSettings.AdapterOrdinal,
             _graphicsSettings.DevType,
@@ -494,11 +460,6 @@ namespace MediaPortal.UI.SkinEngine.DirectX
             createFlags | CreateFlags.Multithreaded,
             _presentParams);
 
-        //GraphicsDevice.Device.DeviceResizing += _cancelEventHandler;
-        // Cache our local objects
-        //renderState = GraphicsDevice.Device.RenderState;
-        //sampleState = GraphicsDevice.Device.SamplerState;
-        //textureStates = GraphicsDevice.Device.TextureState;
         // When moving from fullscreen to windowed mode, it is important to
         // adjust the window size after recreating the device rather than
         // beforehand to ensure that you get the window size you want.  For
@@ -518,32 +479,6 @@ namespace MediaPortal.UI.SkinEngine.DirectX
         else if (deviceInfo.DevType == DeviceType.Software)
           sb.Append("SW");
 
-        /*
-        if ((behaviorFlags.HardwareVertexProcessing) &&
-            (behaviorFlags.PureDevice))
-        {
-          if (deviceInfo.DevType == DeviceType.Hardware)
-            sb.Append(" (pure hw vp)");
-          else
-            sb.Append(" (simulated pure hw vp)");
-        }
-        else if (behaviorFlags.HardwareVertexProcessing)
-        {
-          if (deviceInfo.DevType == DeviceType.Hardware)
-            sb.Append(" (hw vp)");
-          else
-            sb.Append(" (simulated hw vp)");
-        }
-        else if (behaviorFlags.MixedVertexProcessing)
-        {
-          if (deviceInfo.DevType == DeviceType.Hardware)
-            sb.Append(" (mixed vp)");
-          else
-            sb.Append(" (simulated mixed vp)");
-        }
-        else if (behaviorFlags.SoftwareVertexProcessing)
-          sb.Append(" (sw vp)");
-        */
         if (deviceInfo.DevType == DeviceType.Hardware)
         {
           sb.Append(": ");
@@ -628,384 +563,6 @@ namespace MediaPortal.UI.SkinEngine.DirectX
 
     #endregion
 
-    #region Native Methods
-
-    /// <summary>
-    /// Will hold native methods which are interop'd
-    /// </summary>
-    // TODO: Move to MediaPortal.Utils
-    public class NativeMethods
-    {
-      #region Win32 User Messages / Structures
-
-      /// <summary>Show window flags styles</summary>
-      public enum ShowWindowFlags : uint
-      {
-        Hide = 0,
-        ShowNormal = 1,
-        Normal = 1,
-        ShowMinimized = 2,
-        ShowMaximized = 3,
-        ShowNoActivate = 4,
-        Show = 5,
-        Minimize = 6,
-        ShowMinNoActivate = 7,
-        ShowNotActivated = 8,
-        Restore = 9,
-        ShowDefault = 10,
-        ForceMinimize = 11,
-      }
-
-      /// <summary>Window styles</summary>
-      [Flags]
-      public enum WindowStyles : uint
-      {
-        Overlapped = 0x00000000,
-        Popup = 0x80000000,
-        Child = 0x40000000,
-        Minimize = 0x20000000,
-        Visible = 0x10000000,
-        Disabled = 0x08000000,
-        ClipSiblings = 0x04000000,
-        ClipChildren = 0x02000000,
-        Maximize = 0x01000000,
-        Caption = 0x00C00000, /* WindowStyles.Border | WindowStyles.DialogFrame  */
-        Border = 0x00800000,
-        DialogFrame = 0x00400000,
-        VerticalScroll = 0x00200000,
-        HorizontalScroll = 0x00100000,
-        SystemMenu = 0x00080000,
-        ThickFrame = 0x00040000,
-        Group = 0x00020000,
-        TabStop = 0x00010000,
-        MinimizeBox = 0x00020000,
-        MaximizeBox = 0x00010000,
-      }
-
-      /// <summary>Peek message flags</summary>
-      public enum PeekMessageFlags : uint
-      {
-        NoRemove = 0,
-        Remove = 1,
-        NoYield = 2,
-      }
-
-      /// <summary>Window messages</summary>
-      public enum WindowMessage : uint
-      {
-        // Misc messages
-        Destroy = 0x0002,
-        Close = 0x0010,
-        Quit = 0x0012,
-        Paint = 0x000F,
-        SetCursor = 0x0020,
-        ActivateApplication = 0x001C,
-        EnterMenuLoop = 0x0211,
-        ExitMenuLoop = 0x0212,
-        NonClientHitTest = 0x0084,
-        PowerBroadcast = 0x0218,
-        SystemCommand = 0x0112,
-        GetMinMax = 0x0024,
-
-        // Keyboard messages
-        KeyDown = 0x0100,
-        KeyUp = 0x0101,
-        Character = 0x0102,
-        SystemKeyDown = 0x0104,
-        SystemKeyUp = 0x0105,
-        SystemCharacter = 0x0106,
-
-        // Mouse messages
-        MouseMove = 0x0200,
-        LeftButtonDown = 0x0201,
-        LeftButtonUp = 0x0202,
-        LeftButtonDoubleClick = 0x0203,
-        RightButtonDown = 0x0204,
-        RightButtonUp = 0x0205,
-        RightButtonDoubleClick = 0x0206,
-        MiddleButtonDown = 0x0207,
-        MiddleButtonUp = 0x0208,
-        MiddleButtonDoubleClick = 0x0209,
-        MouseWheel = 0x020a,
-        XButtonDown = 0x020B,
-        XButtonUp = 0x020c,
-        XButtonDoubleClick = 0x020d,
-        MouseFirst = LeftButtonDown, // Skip mouse move, it happens a lot and there is another message for that
-        MouseLast = XButtonDoubleClick,
-
-        // Sizing
-        EnterSizeMove = 0x0231,
-        ExitSizeMove = 0x0232,
-        Size = 0x0005,
-      }
-
-      /// <summary>Mouse buttons</summary>
-      public enum MouseButtons
-      {
-        Left = 0x0001,
-        Right = 0x0002,
-        Middle = 0x0010,
-        Side1 = 0x0020,
-        Side2 = 0x0040,
-      }
-
-      /// <summary>Windows Message</summary>
-      [StructLayout(LayoutKind.Sequential)]
-      public struct Message
-      {
-        public IntPtr hWnd;
-        public WindowMessage msg;
-        public IntPtr wParam;
-        public IntPtr lParam;
-        public uint time;
-        public Point p;
-      }
-
-      /// <summary>MinMax Info structure</summary>
-      [StructLayout(LayoutKind.Sequential)]
-      public struct MinMaxInformation
-      {
-        public Point reserved;
-        public Point MaxSize;
-        public Point MaxPosition;
-        public Point MinTrackSize;
-        public Point MaxTrackSize;
-      }
-
-      /// <summary>Monitor Info structure</summary>
-      [StructLayout(LayoutKind.Sequential)]
-      public struct MonitorInformation
-      {
-        public uint Size; // Size of this structure
-        public Rectangle MonitorRectangle;
-        public Rectangle WorkRectangle;
-        public uint Flags; // Possible flags
-      }
-
-      /// <summary>Window class structure</summary>
-      [StructLayout(LayoutKind.Sequential)]
-      public struct WindowClass
-      {
-        public int Styles;
-        [MarshalAs(UnmanagedType.FunctionPtr)]
-        public WndProcDelegate WindowsProc;
-        private int ExtraClassData;
-        private int ExtraWindowData;
-        public IntPtr InstanceHandle;
-        public IntPtr IconHandle;
-        public IntPtr CursorHandle;
-        public IntPtr backgroundBrush;
-        [MarshalAs(UnmanagedType.LPTStr)]
-        public string MenuName;
-        [MarshalAs(UnmanagedType.LPTStr)]
-        public string ClassName;
-      }
-
-      #endregion
-
-      #region Delegates
-
-      public delegate IntPtr WndProcDelegate(IntPtr hWnd, WindowMessage msg, IntPtr wParam, IntPtr lParam);
-
-      #endregion
-
-      #region Windows API calls
-
-      [SuppressUnmanagedCodeSecurity] // We won't use this maliciously
-      [DllImport("winmm.dll")]
-      public static extern IntPtr timeBeginPeriod(uint period);
-
-      [SuppressUnmanagedCodeSecurity] // We won't use this maliciously
-      [DllImport("User32.dll", CharSet = CharSet.Auto)]
-      public static extern bool PeekMessage(out Message msg, IntPtr hWnd,
-          uint messageFilterMin, uint messageFilterMax, PeekMessageFlags flags);
-
-      [SuppressUnmanagedCodeSecurity] // We won't use this maliciously
-      [DllImport("User32.dll", CharSet = CharSet.Auto)]
-      public static extern bool TranslateMessage(ref Message msg);
-
-      [SuppressUnmanagedCodeSecurity] // We won't use this maliciously
-      [DllImport("User32.dll", CharSet = CharSet.Auto)]
-      public static extern bool DispatchMessage(ref Message msg);
-
-      [SuppressUnmanagedCodeSecurity] // We won't use this maliciously
-      [DllImport("User32.dll", CharSet = CharSet.Auto)]
-      public static extern IntPtr DefWindowProc(IntPtr hWnd, WindowMessage msg, IntPtr wParam, IntPtr lParam);
-
-      [SuppressUnmanagedCodeSecurity] // We won't use this maliciously
-      [DllImport("User32.dll", CharSet = CharSet.Auto)]
-      public static extern void PostQuitMessage(int exitCode);
-
-      [SuppressUnmanagedCodeSecurity] // We won't use this maliciously
-      [DllImport("User32.dll", CharSet = CharSet.Auto)]
-#if(_WIN64)
-      private static extern IntPtr SetWindowLongPtr(IntPtr hWnd, int index,
-          [MarshalAs(UnmanagedType.FunctionPtr)] WndProcDelegate windowCallback);
-#else
-      private static extern IntPtr SetWindowLong(IntPtr hWnd, int index,
-          [MarshalAs(UnmanagedType.FunctionPtr)] WndProcDelegate windowCallback);
-#endif
-
-      [SuppressUnmanagedCodeSecurity] // We won't use this maliciously
-      [DllImport("User32.dll", EntryPoint = "SetWindowLong", CharSet = CharSet.Auto)]
-      private static extern IntPtr SetWindowLongStyle(IntPtr hWnd, int index, WindowStyles style);
-
-      [SuppressUnmanagedCodeSecurity] // We won't use this maliciously
-      [DllImport("User32.dll", EntryPoint = "GetWindowLong", CharSet = CharSet.Auto)]
-      private static extern WindowStyles GetWindowLongStyle(IntPtr hWnd, int index);
-
-      [SuppressUnmanagedCodeSecurity] // We won't use this maliciously
-      [DllImport("kernel32")]
-      public static extern bool QueryPerformanceFrequency(ref long PerformanceFrequency);
-
-      [SuppressUnmanagedCodeSecurity] // We won't use this maliciously
-      [DllImport("kernel32")]
-      public static extern bool QueryPerformanceCounter(ref long PerformanceCount);
-
-      [SuppressUnmanagedCodeSecurity] // We won't use this maliciously
-      [DllImport("User32.dll", CharSet = CharSet.Auto)]
-      public static extern bool GetClientRect(IntPtr hWnd, out Rectangle rect);
-
-      [SuppressUnmanagedCodeSecurity] // We won't use this maliciously
-      [DllImport("User32.dll", CharSet = CharSet.Auto)]
-      public static extern bool GetWindowRect(IntPtr hWnd, out Rectangle rect);
-
-      [SuppressUnmanagedCodeSecurity] // We won't use this maliciously
-      [DllImport("User32.dll", CharSet = CharSet.Auto)]
-      public static extern bool SetWindowPos(IntPtr hWnd, IntPtr hWndAfter, int x, int y, int w, int h, uint flags);
-
-      [SuppressUnmanagedCodeSecurity] // We won't use this maliciously
-      [DllImport("User32.dll", CharSet = CharSet.Auto)]
-      public static extern bool ScreenToClient(IntPtr hWnd, ref Point rect);
-
-      [SuppressUnmanagedCodeSecurity] // We won't use this maliciously
-      [DllImport("User32.dll", CharSet = CharSet.Auto)]
-      public static extern IntPtr SetFocus(IntPtr hWnd);
-
-      [SuppressUnmanagedCodeSecurity] // We won't use this maliciously
-      [DllImport("User32.dll", CharSet = CharSet.Auto)]
-      public static extern IntPtr GetParent(IntPtr hWnd);
-
-      [SuppressUnmanagedCodeSecurity] // We won't use this maliciously
-      [DllImport("User32.dll", CharSet = CharSet.Auto)]
-      public static extern bool GetMonitorInfo(IntPtr hWnd, ref MonitorInformation info);
-
-      [SuppressUnmanagedCodeSecurity] // We won't use this maliciously
-      [DllImport("User32.dll", CharSet = CharSet.Auto)]
-      public static extern IntPtr MonitorFromWindow(IntPtr hWnd, uint flags);
-
-      [SuppressUnmanagedCodeSecurity] // We won't use this maliciously
-      [DllImport("User32.dll", CharSet = CharSet.Auto)]
-      public static extern short GetAsyncKeyState(uint key);
-
-      [SuppressUnmanagedCodeSecurity] // We won't use this maliciously
-      [DllImport("User32.dll", CharSet = CharSet.Auto)]
-      public static extern IntPtr SetCapture(IntPtr handle);
-
-      [SuppressUnmanagedCodeSecurity] // We won't use this maliciously
-      [DllImport("User32.dll", CharSet = CharSet.Auto)]
-      public static extern bool ReleaseCapture();
-
-      [SuppressUnmanagedCodeSecurity] // We won't use this maliciously
-      [DllImport("User32.dll", CharSet = CharSet.Auto)]
-      public static extern bool ShowWindow(IntPtr hWnd, ShowWindowFlags flags);
-
-      [SuppressUnmanagedCodeSecurity] // We won't use this maliciously
-      [DllImport("User32.dll", CharSet = CharSet.Auto)]
-      public static extern bool SetMenu(IntPtr hWnd, IntPtr menuHandle);
-
-      [SuppressUnmanagedCodeSecurity] // We won't use this maliciously
-      [DllImport("User32.dll", CharSet = CharSet.Auto)]
-      public static extern bool DestroyWindow(IntPtr hWnd);
-
-      [SuppressUnmanagedCodeSecurity] // We won't use this maliciously
-      [DllImport("User32.dll", CharSet = CharSet.Auto)]
-      public static extern bool IsIconic(IntPtr hWnd);
-
-      [SuppressUnmanagedCodeSecurity] // We won't use this maliciously
-      [DllImport("User32.dll", CharSet = CharSet.Auto)]
-      public static extern bool AdjustWindowRect(ref Rectangle rect, WindowStyles style,
-                                                 [MarshalAs(UnmanagedType.Bool)] bool menu);
-
-      [SuppressUnmanagedCodeSecurity] // We won't use this maliciously
-      [DllImport("User32.dll", CharSet = CharSet.Auto)]
-      public static extern IntPtr SendMessage(IntPtr windowHandle, WindowMessage msg, IntPtr w, IntPtr l);
-
-      [SuppressUnmanagedCodeSecurity] // We won't use this maliciously
-      [DllImport("User32.dll", CharSet = CharSet.Auto)]
-      public static extern IntPtr RegisterClass(ref WindowClass wndClass);
-
-      [SuppressUnmanagedCodeSecurity] // We won't use this maliciously
-      [DllImport("User32.dll", CharSet = CharSet.Auto)]
-      public static extern bool UnregisterClass([MarshalAs(UnmanagedType.LPTStr)] string className,
-                                                IntPtr instanceHandle);
-
-      [SuppressUnmanagedCodeSecurity] // We won't use this maliciously
-      [DllImport("User32.dll", EntryPoint = "CreateWindowEx", CharSet = CharSet.Auto)]
-      public static extern IntPtr CreateWindow(int exStyle, [MarshalAs(UnmanagedType.LPTStr)] string className,
-                                               [MarshalAs(UnmanagedType.LPTStr)] string windowName,
-                                               WindowStyles style, int x, int y, int width, int height, IntPtr parent,
-                                               IntPtr menuHandle, IntPtr instanceHandle, IntPtr zero);
-
-      [SuppressUnmanagedCodeSecurity] // We won't use this maliciously
-      [DllImport("User32.dll", CharSet = CharSet.Auto)]
-      public static extern int GetCaretBlinkTime();
-
-      #endregion
-
-      #region Class Methods
-
-      private NativeMethods() { } // No creation
-
-      /// <summary>Hooks window messages to go through this new callback</summary>
-      public static void HookWindowsMessages(IntPtr window, WndProcDelegate callback)
-      {
-#if(_WIN64)
-        SetWindowLongPtr(window, -4, callback);
-#else
-        SetWindowLong(window, -4, callback);
-#endif
-      }
-
-      /// <summary>Set new window style</summary>
-      public static void SetStyle(IntPtr window, WindowStyles newStyle)
-      {
-        SetWindowLongStyle(window, -16, newStyle);
-      }
-
-      /// <summary>Get new window style</summary>
-      public static WindowStyles GetStyle(IntPtr window)
-      {
-        return GetWindowLongStyle(window, -16);
-      }
-
-      /// <summary>Returns the low word</summary>
-      public static short LoWord(uint l)
-      {
-        return (short)(l & 0xffff);
-      }
-
-      /// <summary>Returns the high word</summary>
-      public static short HiWord(uint l)
-      {
-        return (short)(l >> 16);
-      }
-
-      /// <summary>Makes two shorts into a long</summary>
-      public static uint MakeUInt32(short l, short r)
-      {
-        return (uint)((l & 0xffff) | ((r & 0xffff) << 16));
-      }
-
-      /// <summary>Is this key down right now</summary>
-      public static bool IsKeyDown(Keys key)
-      {
-        return (GetAsyncKeyState((int)Keys.ShiftKey) & 0x8000) != 0;
-      }
-
-      #endregion
-    }
-
     /// <summary>
     /// Build presentation parameters from the current settings
     /// </summary>
@@ -1078,7 +635,5 @@ namespace MediaPortal.UI.SkinEngine.DirectX
       result.RefreshRate = Int32.Parse(words[2]);
       return result;
     }
-
-    #endregion
   }
 }

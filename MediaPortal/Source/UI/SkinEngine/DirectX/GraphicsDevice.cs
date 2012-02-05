@@ -69,6 +69,80 @@ namespace MediaPortal.UI.SkinEngine.DirectX
     public static Matrix TransformProjection;
     public static Matrix FinalTransform;
 
+    /// <summary>
+    /// Returns the information if the graphics device was lost.
+    /// </summary>
+    /// <remarks>
+    /// The device has to be reclaimed by calling <see cref="ReclaimDevice"/>.
+    /// TODO: Describe when the device can get lost (Change of graphics parameters? Monitor change? Error in graphics driver?)
+    /// </remarks>
+    public static bool DeviceLost
+    {
+      get { return _deviceLost; }
+    }
+
+    /// <summary>
+    /// Returns the target rendering target framerate. This value can be changed according to screen refresh rate or video fps.
+    /// </summary>
+    public static float TargetFrameRate
+    {
+      get { return _targetFrameRate; }
+    }
+
+    /// <summary>
+    /// Returns the time per frame in ms.
+    /// </summary>
+    public static int MsPerFrame
+    {
+      get { return _msPerFrame; }
+    }
+
+    public static ScreenManager ScreenManager
+    {
+      get { return _screenManager; }
+      set { _screenManager = value; }
+    }
+
+    public static bool IsWindowed
+    {
+      get { return _setup.Windowed; }
+    }
+
+    /// <summary>
+    /// Gets or sets the DirectX device.
+    /// </summary>
+    public static DeviceEx Device
+    {
+      get { return _device; }
+      set { _device = value; }
+    }
+
+    /// <summary>
+    /// Gets the DirectX back-buffer width.
+    /// </summary>
+    public static int Width
+    {
+      get { return _setup.PresentParameters.BackBufferWidth; }
+    }
+
+    /// <summary>
+    /// Gets the DirectX back-buffer height.
+    /// </summary>
+    public static int Height
+    {
+      get { return _setup.PresentParameters.BackBufferHeight; }
+    }
+
+    public static DxCapabilities DxCapabilities
+    {
+      get { return _dxCapabilities; }
+    }
+
+    public static DateTime LastRenderTime
+    {
+       get { return _frameRenderingStartTime; }
+    }
+
     public static void Initialize(Form window)
     {
       try
@@ -116,32 +190,12 @@ namespace MediaPortal.UI.SkinEngine.DirectX
       MPDirect3D.Unload();
     }
 
-    /// <summary>
-    /// Returns the information if the graphics device was lost.
-    /// </summary>
-    /// <remarks>
-    /// The device has to be reclaimed by calling <see cref="ReclaimDevice"/>.
-    /// TODO: Describe when the device can get lost (Change of graphics parameters? Monitor change? Error in graphics driver?)
-    /// </remarks>
-    public static bool DeviceLost
+    public static void SetFrameRate(float frameRate)
     {
-      get { return _deviceLost; }
-    }
-
-    /// <summary>
-    /// Returns the target rendering target framerate. This value can be changed according to screen refresh rate or video fps.
-    /// </summary>
-    public static float TargetFrameRate
-    {
-      get { return _targetFrameRate; }
-    }
-
-    /// <summary>
-    /// Returns the time per frame in ms.
-    /// </summary>
-    public static int MsPerFrame
-    {
-      get { return _msPerFrame; }
+      if (frameRate == 0)
+        frameRate = 1;
+      _targetFrameRate = frameRate;
+      _msPerFrame = (int) (1000/_targetFrameRate);
     }
 
     private static void ResetPerformanceData()
@@ -153,14 +207,6 @@ namespace MediaPortal.UI.SkinEngine.DirectX
     private static void AdaptTargetFrameRateToDisplayMode(DisplayMode displayMode)
     {
       SetFrameRate(displayMode.RefreshRate);
-    }
-
-    public static void SetFrameRate(float frameRate)
-    {
-      if (frameRate == 0)
-        frameRate = 1;
-      _targetFrameRate = frameRate;
-      _msPerFrame = (int) (1000/_targetFrameRate);
     }
 
     private static void ResetDxDevice()
@@ -204,52 +250,6 @@ namespace MediaPortal.UI.SkinEngine.DirectX
       _backBuffer = _device.GetRenderTarget(0);
       _dxCapabilities = DxCapabilities.RequestCapabilities(deviceCapabilities, currentMode);
       return true;
-    }
-
-    public static ScreenManager ScreenManager
-    {
-      get { return _screenManager; }
-      set { _screenManager = value; }
-    }
-
-    public static bool IsWindowed
-    {
-      get { return _setup.Windowed; }
-    }
-
-    /// <summary>
-    /// Gets or sets the DirectX device.
-    /// </summary>
-    public static DeviceEx Device
-    {
-      get { return _device; }
-      set { _device = value; }
-    }
-
-    /// <summary>
-    /// Gets the DirectX back-buffer width.
-    /// </summary>
-    public static int Width
-    {
-      get { return _setup.PresentParameters.BackBufferWidth; }
-    }
-
-    /// <summary>
-    /// Gets the DirectX back-buffer height.
-    /// </summary>
-    public static int Height
-    {
-      get { return _setup.PresentParameters.BackBufferHeight; }
-    }
-
-    public static DxCapabilities DxCapabilities
-    {
-      get { return _dxCapabilities; }
-    }
-
-    public static DateTime LastRenderTime
-    {
-       get { return _frameRenderingStartTime; }
     }
 
     /// <summary>
