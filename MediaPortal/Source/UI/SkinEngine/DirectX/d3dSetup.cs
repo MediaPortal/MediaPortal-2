@@ -147,8 +147,8 @@ namespace MediaPortal.UI.SkinEngine.DirectX
     /// Picks the best graphics device and initializes it.
     /// </summary>
     /// <param name="form">The form.</param>
-    /// <returns><c>true</c>, if a good device was found, <c>false</c> otherwise.</returns>
-    public bool SetupDirectX(Form form)
+    /// <returns>Device, if a good device was found, else <c>null</c>.</returns>
+    public DeviceEx SetupDirectX(Form form)
     {
       _window = form;
       RenderTarget = form;
@@ -168,17 +168,13 @@ namespace MediaPortal.UI.SkinEngine.DirectX
 
         // Initialize the 3D environment for the app
         _graphicsSettings.IsWindowed = true;
-        InitializeEnvironment();
-        // Initialize the app's custom scene stuff
+        return CreateDevice();
       }
       catch (Exception ex)
       {
         HandleException(ex, ApplicationMessage.ApplicationMustExit);
-        return false;
+        return null;
       }
-
-      // The app is ready to go
-      return true;
     }
 
     /// <summary>
@@ -190,8 +186,7 @@ namespace MediaPortal.UI.SkinEngine.DirectX
     /// <returns><c>true</c> if a mode is found, <c>false</c> otherwise.</returns>
     public bool FindBestWindowedMode(bool doesRequireHardware, bool doesRequireReference)
     {
-      // Get display mode of primary adapter (which is assumed to be where the window 
-      // will appear)
+      // Get display mode of primary adapter (which is assumed to be where the window will appear)
 
       DisplayMode primaryDesktopDisplayMode = MPDirect3D.Direct3D.Adapters[0].CurrentDisplayMode;
       bool perfHudFound = false;
@@ -416,9 +411,9 @@ namespace MediaPortal.UI.SkinEngine.DirectX
     }
 
     /// <summary>
-    /// Initialize the graphics environment.
+    /// Creates the DirectX device.
     /// </summary>
-    public void InitializeEnvironment()
+    public DeviceEx CreateDevice()
     {
       GraphicsAdapterInfo adapterInfo = _graphicsSettings.AdapterInfo;
       GraphicsDeviceInfo deviceInfo = _graphicsSettings.DeviceInfo;
@@ -449,7 +444,7 @@ namespace MediaPortal.UI.SkinEngine.DirectX
       try
       {
         // Create the device
-        GraphicsDevice.Device = new DeviceEx(MPDirect3D.Direct3D,
+        DeviceEx result = new DeviceEx(MPDirect3D.Direct3D,
             _graphicsSettings.AdapterOrdinal,
             _graphicsSettings.DevType,
             _ourRenderTarget.Handle,
@@ -484,6 +479,7 @@ namespace MediaPortal.UI.SkinEngine.DirectX
         // Set device stats string
         _deviceStats = sb.ToString();
         ServiceRegistration.Get<ILogger>().Info("DirectX: {0}", _deviceStats);
+        return result;
       }
       catch (Exception e)
       {
@@ -497,10 +493,11 @@ namespace MediaPortal.UI.SkinEngine.DirectX
             // Let the user know we are switching from HAL to the reference rasterizer
             HandleException(e, ApplicationMessage.WarnSwitchToRef);
 
-            InitializeEnvironment();
+            return CreateDevice();
           }
         }
       }
+      return null;
     }
 
     protected virtual bool ConfirmDevice(Capabilities caps, VertexProcessingType vertexProcessingType,

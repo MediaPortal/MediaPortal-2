@@ -147,9 +147,12 @@ namespace MediaPortal.UI.SkinEngine.DirectX
     {
       try
       {
-        ServiceRegistration.Get<ILogger>().Debug("GraphicsDevice: Initialize DirectX");
+        ServiceRegistration.Get<ILogger>().Debug("GraphicsDevice: Initializing DirectX");
         MPDirect3D.Load();
-        _setup.SetupDirectX(window);
+
+        // TODO: Make Initialize callable during the runtime to change DX settings; Dispose all necessary objects and restore everything
+        // after the new device was built
+        _device = _setup.SetupDirectX(window);
 
         Capabilities deviceCapabilities = _device.Capabilities;
         _backBuffer = _device.GetRenderTarget(0);
