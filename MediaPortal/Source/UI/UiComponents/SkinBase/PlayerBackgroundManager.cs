@@ -128,7 +128,7 @@ namespace MediaPortal.UiComponents.SkinBase
       }
     }
 
-    protected void AddKeyBinding_NeedLock(Key key, KeyActionDlgt action)
+    protected void AddKeyBinding_NeedLock(Key key, VoidKeyActionDlgt action)
     {
       _registeredKeyBindings.Add(key);
       IInputManager inputManager = ServiceRegistration.Get<IInputManager>();

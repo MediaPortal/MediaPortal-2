@@ -25,6 +25,7 @@
 using System.Drawing;
 using MediaPortal.Common.General;
 using MediaPortal.UI.Control.InputManager;
+using MediaPortal.UI.Presentation.Actions;
 using MediaPortal.UI.SkinEngine.Commands;
 using MediaPortal.UI.SkinEngine.InputManagement;
 using MediaPortal.UI.SkinEngine.MpfElements;
@@ -107,11 +108,14 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       RegisterKeyBinding();
     }
 
-    protected void Execute()
+    protected bool Execute()
     {
       IExecutableCommand cmd = Command;
-      if (cmd != null && IsEnabled)
+      if (!IsEnabled)
+        return false;
+      if (cmd != null)
         InputManager.Instance.ExecuteCommand(cmd.Execute);
+      return true;
     }
 
     protected void RegisterKeyBinding()
@@ -125,7 +129,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
         return;
       _registeredScreen = screen;
       _registeredKey = Key;
-      _registeredScreen.AddKeyBinding(_registeredKey, Execute);
+      _registeredScreen.AddKeyBinding(_registeredKey, new KeyActionDlgt(Execute));
     }
 
     protected void UnregisterKeyBinding()

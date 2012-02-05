@@ -488,6 +488,15 @@ namespace MediaPortal.UI.SkinEngine.InputManagement
         _keyBindings[key] = new KeyAction(key, action);
     }
 
+    public void AddKeyBinding(Key key, VoidKeyActionDlgt action)
+    {
+      AddKeyBinding(key, () =>
+          {
+            action();
+            return true;
+          });
+    }
+
     public void RemoveKeyBinding(Key key)
     {
       lock (_syncObj)

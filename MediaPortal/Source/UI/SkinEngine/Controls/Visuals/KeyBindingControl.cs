@@ -24,6 +24,7 @@
 
 using MediaPortal.UI.Control.InputManager;
 using MediaPortal.Common.General;
+using MediaPortal.UI.Presentation.Actions;
 using MediaPortal.UI.SkinEngine.ScreenManagement;
 using MediaPortal.Utilities.DeepCopy;
 
@@ -112,7 +113,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       {
         _registeredScreen = screen;
         _registeredKey = Key;
-        _registeredScreen.AddKeyBinding(_registeredKey, Execute);
+        _registeredScreen.AddKeyBinding(_registeredKey, new VoidKeyActionDlgt(Execute));
       }
       Content = Key.Name + ": " + Description;
     }

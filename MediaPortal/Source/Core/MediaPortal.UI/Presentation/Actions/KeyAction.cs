@@ -26,7 +26,8 @@ using MediaPortal.UI.Control.InputManager;
 
 namespace MediaPortal.UI.Presentation.Actions
 {
-  public delegate void KeyActionDlgt();
+  public delegate void VoidKeyActionDlgt();
+  public delegate bool KeyActionDlgt();
 
   /// <summary>
   /// Mapping of a <see cref="Key"/> to an <see cref="KeyActionDlgt"/> method. Used to register key bindings.

@@ -108,8 +108,16 @@ namespace MediaPortal.UI.Control.InputManager
     /// Adds a global key binding.
     /// </summary>
     /// <param name="key">The key which triggers the command.</param>
-    /// <param name="action">The action which should be executed.</param>
+    /// <param name="action">The action which should be executed. If that action returns <c>false</c>,
+    /// the input manager will fall back to a default binding, if present.</param>
     void AddKeyBinding(Key key, KeyActionDlgt action);
+
+    /// <summary>
+    /// Adds a global key binding.
+    /// </summary>
+    /// <param name="key">The key which triggers the command.</param>
+    /// <param name="action">The action which should be executed.</param>
+    void AddKeyBinding(Key key, VoidKeyActionDlgt action);
 
     /// <summary>
     /// Removes a global key binding.

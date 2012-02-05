@@ -343,6 +343,23 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
     }
 
     /// <summary>
+    /// Adds a key binding to a command for this screen. Screen key bindings will only concern the current screen.
+    /// They will be evaluated before the global key bindings in the InputManager.
+    /// </summary>
+    /// <param name="key">The key which triggers the command.</param>
+    /// <param name="action">The action which should be executed.</param>
+    public void AddKeyBinding(Key key, VoidKeyActionDlgt action)
+    {
+      if (_keyBindings == null)
+        _keyBindings = new Dictionary<Key, KeyAction>();
+      _keyBindings[key] = new KeyAction(key, () =>
+        {
+          action();
+          return true;
+        });
+    }
+
+    /// <summary>
     /// Removes a key binding from this screen.
     /// </summary>
     /// <param name="key">The key which triggers the command.</param>
