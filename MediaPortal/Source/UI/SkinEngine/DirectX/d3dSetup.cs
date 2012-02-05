@@ -273,7 +273,13 @@ namespace MediaPortal.UI.SkinEngine.DirectX
       AppSettings settings = ServiceRegistration.Get<ISettingsManager>().Load<AppSettings>();
 
       _graphicsSettings.WindowedMultisampleType = settings.MultisampleType;
-      _graphicsSettings.WindowedMultisampleQuality = 0;
+      int quality = 1;
+      foreach (KeyValuePair<MultisampleType, int> mst2quality in bestDeviceCombo.MultisampleTypes)
+      {
+        if (mst2quality.Key == _graphicsSettings.WindowedMultisampleType)
+          quality = mst2quality.Value;
+      }
+      _graphicsSettings.WindowedMultisampleQuality = quality - 1;
 
       _graphicsSettings.WindowedVertexProcessingType = bestDeviceCombo.VertexProcessingTypes.FirstOrDefault();
       _graphicsSettings.WindowedPresentInterval = bestDeviceCombo.PresentIntervals.FirstOrDefault();
@@ -549,7 +555,7 @@ namespace MediaPortal.UI.SkinEngine.DirectX
       if (_graphicsSettings.IsWindowed)
       {
         _presentParams.Multisample =  _graphicsSettings.WindowedMultisampleType;
-        _presentParams.MultisampleQuality = 0;
+        _presentParams.MultisampleQuality = _graphicsSettings.WindowedMultisampleQuality;
         _presentParams.AutoDepthStencilFormat = _graphicsSettings.WindowedDepthStencilBufferFormat;
         _presentParams.BackBufferWidth = _ourRenderTarget.ClientRectangle.Width;
         _presentParams.BackBufferHeight = _ourRenderTarget.ClientRectangle.Height;
@@ -561,7 +567,7 @@ namespace MediaPortal.UI.SkinEngine.DirectX
         if (_usingPerfHud)
           _presentParams.PresentationInterval = PresentInterval.Immediate;
         else
-          _presentParams.PresentationInterval = PresentInterval.One; 
+          _presentParams.PresentationInterval = PresentInterval.One;
 #endif
         _presentParams.FullScreenRefreshRateInHertz = 0;
         _presentParams.SwapEffect = _graphicsSettings.WindowedSwapEffect;
@@ -573,7 +579,7 @@ namespace MediaPortal.UI.SkinEngine.DirectX
       {
         _presentParams.Multisample = _graphicsSettings.FullscreenMultisampleType;
         _presentParams.MultisampleQuality = _graphicsSettings.FullscreenMultisampleQuality;
-        //_presentParams.AutoDepthStencilFormat = _graphicsSettings.FullscreenDepthStencilBufferFormat;
+        _presentParams.AutoDepthStencilFormat = _graphicsSettings.FullscreenDepthStencilBufferFormat;
 
         _presentParams.BackBufferWidth = _graphicsSettings.DisplayMode.Width;
         _presentParams.BackBufferHeight = _graphicsSettings.DisplayMode.Height;

@@ -342,7 +342,7 @@
     <Compile Include="Controls\Visuals\Visual.cs" />
     <Compile Include="SkinEnginePlugin.cs" />
     <Compile Include="DirectX\D3DEnumeration.cs" />
-    <Compile Include="DirectX\d3dSetup.cs" />
+    <Compile Include="DirectX\D3DSetup.cs" />
     <Compile Include="DirectX\D3DUtil.cs" />
     <Compile Include="DirectX\GraphicsDevice.cs" />
     <Compile Include="MatrixOperations.cs" />
