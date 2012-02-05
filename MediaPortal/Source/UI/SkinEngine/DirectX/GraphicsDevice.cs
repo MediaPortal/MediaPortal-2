@@ -54,11 +54,7 @@ namespace MediaPortal.UI.SkinEngine.DirectX
     private static DeviceEx _device;
     private static Surface _backBuffer;
     private static bool _deviceLost = false;
-    private static int _anisotropy;
-    private static bool _supportsFiltering;
-    private static bool _supportsAlphaBlend;
-    private static bool _supportsShaders = false;
-    private static bool _firstTimeInitialisation = true;
+    private static DxCapabilities _dxCapabilities = null;
     private static ScreenManager _screenManager = null;
     private static float _targetFrameRate = 25;
     private static int _msPerFrame = (int) (1.0 / _targetFrameRate);
@@ -80,14 +76,25 @@ namespace MediaPortal.UI.SkinEngine.DirectX
         ServiceRegistration.Get<ILogger>().Debug("GraphicsDevice: Initialize DirectX");
         MPDirect3D.Load();
         _setup.SetupDirectX(window);
+
+        Capabilities deviceCapabilities = _device.Capabilities;
         _backBuffer = _device.GetRenderTarget(0);
-        int ordinal = _device.Capabilities.AdapterOrdinal;
+        int ordinal = deviceCapabilities.AdapterOrdinal;
         AdapterInformation adapterInfo = MPDirect3D.Direct3D.Adapters[ordinal];
         DisplayMode currentMode = adapterInfo.CurrentDisplayMode;
         AdaptTargetFrameRateToDisplayMode(currentMode);
         ServiceRegistration.Get<ILogger>().Info("GraphicsDevice: DirectX initialized {0}x{1} (format: {2} {3} Hz)", Width,
             Height, currentMode.Format, _targetFrameRate);
-        GetCapabilities();
+        bool firstTimeInitialization = _dxCapabilities == null;
+        _dxCapabilities = DxCapabilities.RequestCapabilities(deviceCapabilities, currentMode);
+        if (firstTimeInitialization)
+        {
+          if (!_dxCapabilities.SupportsShaders)
+          {
+            string text = String.Format("MediaPortal 2 needs a graphics card wich supports shader model 2.0\nYour card does NOT support this.\nMediaportal 2 will continue but migh run slow");
+            MessageBox.Show(text, "GraphicAdapter", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+          }
+        }
         ResetPerformanceData();
       }
       catch (Exception ex)
@@ -109,10 +116,16 @@ namespace MediaPortal.UI.SkinEngine.DirectX
       MPDirect3D.Unload();
     }
 
+    /// <summary>
+    /// Returns the information if the graphics device was lost.
+    /// </summary>
+    /// <remarks>
+    /// The device has to be reclaimed by calling <see cref="ReclaimDevice"/>.
+    /// TODO: Describe when the device can get lost (Change of graphics parameters? Monitor change? Error in graphics driver?)
+    /// </remarks>
     public static bool DeviceLost
     {
       get { return _deviceLost; }
-      set { _deviceLost = value; }
     }
 
     /// <summary>
@@ -129,37 +142,6 @@ namespace MediaPortal.UI.SkinEngine.DirectX
     public static int MsPerFrame
     {
       get { return _msPerFrame; }
-    }
-
-    private static void GetCapabilities()
-    {
-      _anisotropy = _device.Capabilities.MaxAnisotropy;
-      _supportsFiltering = MPDirect3D.Direct3D.CheckDeviceFormat(
-          _device.Capabilities.AdapterOrdinal,
-          _device.Capabilities.DeviceType,
-          _device.GetDisplayMode(0).Format,
-          Usage.RenderTarget | Usage.QueryFilter,
-          ResourceType.Texture,
-          Format.A8R8G8B8);
-
-      _supportsAlphaBlend = MPDirect3D.Direct3D.CheckDeviceFormat(_device.Capabilities.AdapterOrdinal,
-          _device.Capabilities.DeviceType, _device.GetDisplayMode(0).Format,
-          Usage.RenderTarget | Usage.QueryPostPixelShaderBlending,
-          ResourceType.Surface, Format.A8R8G8B8);
-      int vertexShaderVersion = _device.Capabilities.VertexShaderVersion.Major;
-      int pixelShaderVersion = _device.Capabilities.PixelShaderVersion.Major;
-      ServiceRegistration.Get<ILogger>().Info("DirectX: Pixel shader support: {0}.{1}", _device.Capabilities.PixelShaderVersion.Major, _device.Capabilities.PixelShaderVersion.Minor);
-      ServiceRegistration.Get<ILogger>().Info("DirectX: Vertex shader support: {0}.{1}", _device.Capabilities.VertexShaderVersion.Major, _device.Capabilities.VertexShaderVersion.Minor);
-      _supportsShaders = pixelShaderVersion >= 2 && vertexShaderVersion >= 2;
-      if (_firstTimeInitialisation)
-      {
-        _firstTimeInitialisation = false;
-        if (!_supportsShaders)
-        {
-          string text = String.Format("MediaPortal 2 needs a graphics card wich supports shader model 2.0\nYour card does NOT support this.\nMediaportal 2 will continue but migh run slow");
-          MessageBox.Show(text, "Warning", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
-        }
-      }
     }
 
     private static void ResetPerformanceData()
@@ -212,14 +194,15 @@ namespace MediaPortal.UI.SkinEngine.DirectX
       _backBuffer = null;
       _setup.BuildPresentParamsFromSettings();
       ResetDxDevice();
-      int ordinal = _device.Capabilities.AdapterOrdinal;
+      Capabilities deviceCapabilities = _device.Capabilities;
+      int ordinal = deviceCapabilities.AdapterOrdinal;
       AdapterInformation adapterInfo = MPDirect3D.Direct3D.Adapters[ordinal];
       DisplayMode currentMode = adapterInfo.CurrentDisplayMode;
       AdaptTargetFrameRateToDisplayMode(currentMode);
       ServiceRegistration.Get<ILogger>().Debug("GraphicsDevice: DirectX reset {0}x{1} format: {2} {3} Hz", Width, Height,
           currentMode.Format, _targetFrameRate);
       _backBuffer = _device.GetRenderTarget(0);
-      GetCapabilities();
+      _dxCapabilities = DxCapabilities.RequestCapabilities(deviceCapabilities, currentMode);
       return true;
     }
 
@@ -259,9 +242,9 @@ namespace MediaPortal.UI.SkinEngine.DirectX
       get { return _setup.PresentParameters.BackBufferHeight; }
     }
 
-    public static bool SupportsShaders
+    public static DxCapabilities DxCapabilities
     {
-      get { return _supportsShaders; }
+      get { return _dxCapabilities; }
     }
 
     public static DateTime LastRenderTime
@@ -285,7 +268,7 @@ namespace MediaPortal.UI.SkinEngine.DirectX
       _device.SetRenderState(RenderState.SourceBlend, Blend.One);
       _device.SetRenderState(RenderState.DestinationBlend, Blend.InverseSourceAlpha);
 
-      if (_supportsAlphaBlend)
+      if (_dxCapabilities.SupportsAlphaBlend)
       {
         _device.SetRenderState(RenderState.AlphaTestEnable, true);
         _device.SetRenderState(RenderState.AlphaRef, 0x05);
@@ -385,6 +368,11 @@ namespace MediaPortal.UI.SkinEngine.DirectX
     }
 #endif
 
+    /// <summary>
+    /// Reclaims the DirectX device if it has been lost (<see cref="DeviceLost"/>).
+    /// </summary>
+    /// <returns><c>true</c>, if the device could successfully be reclaimed. In this case, <see cref="DeviceLost"/> will be reset to
+    /// <c>false</c>. <c>false</c>, if the device could not be reclaimed.</returns>
     public static bool ReclaimDevice()
     {
       if (_backBuffer != null)
@@ -423,6 +411,7 @@ namespace MediaPortal.UI.SkinEngine.DirectX
           return false;
         }
       }
+      _deviceLost = false;
       return true;
     }
 

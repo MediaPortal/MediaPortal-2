@@ -646,10 +646,7 @@ namespace MediaPortal.UI.SkinEngine.GUI
             if (_hasFocus)
             {
               if (GraphicsDevice.ReclaimDevice())
-              {
-                GraphicsDevice.DeviceLost = false;
                 StartRenderThread_Async();
-              }
             }
           }
         }
