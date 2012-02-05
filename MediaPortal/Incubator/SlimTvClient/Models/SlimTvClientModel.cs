@@ -356,6 +356,16 @@ namespace MediaPortal.Plugins.SlimTvClient
       Update();
     }
 
+    public void CloseOSD()
+    {
+      if (IsOSDVisible)
+      {
+        // Hide OSD
+        IsOSDVisible = IsOSDLevel0 = IsOSDLevel1 = IsOSDLevel2 = false;
+        Update();
+      }
+    }
+
     #endregion
 
     #region Members

@@ -19,7 +19,7 @@
 
   <ResourceWrapper x:Key="MultiGuideHeaderWidth" Resource="400"/>
   <ResourceWrapper x:Key="MultiGuideProgramHeight" Resource="70"/>
-  <ResourceWrapper x:Key="MultiGuideProgramPreviewHeight" Resource="280"/>
+  <ResourceWrapper x:Key="MultiGuideProgramPreviewHeight" Resource="330"/>
 
   <ResourceWrapper x:Key="SingleGuideProgramWidth" Resource="350"/>
 
