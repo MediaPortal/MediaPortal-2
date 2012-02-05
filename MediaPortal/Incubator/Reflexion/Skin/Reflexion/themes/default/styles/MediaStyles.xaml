@@ -49,29 +49,6 @@
                     <RowDefinition Height="*"/>
                   </Grid.RowDefinitions>
                   <DockPanel Grid.Column="0" Grid.Row="0" LastChildFill="true" Margin="3">
-                    <Grid x:Name="AudioPanel" DockPanel.Dock="Right" HorizontalAlignment="Right" Margin="4,0,0,0">
-                      <Grid x:Name="Audio_NoMouse" IsVisible="{Binding !ShowMouseControls}"
-                      VerticalAlignment="Center" HorizontalAlignment="Center">
-                        <!-- Must be located the same as Audio_Mouse -->
-                        <Control x:Name="AudioSimple" IsVisible="{Binding IsAudio}" Template="{ThemeResource AudioActiveControlTemplate}"/>
-                        <Control x:Name="MuteOnOffSimple" Template="{ThemeResource MuteOnOffControlTemplate}">
-                          <Control.IsVisible>
-                            <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} &amp;&amp; {1}">
-                              <Binding Path="IsAudio"/>
-                              <Binding Path="IsMuted"/>
-                            </MultiBinding>
-                          </Control.IsVisible>
-                        </Control>
-                      </Grid>
-                      <Grid x:Name="Audio_Mouse" IsVisible="{Binding ShowMouseControls}"
-                      VerticalAlignment="Center" HorizontalAlignment="Center">
-                        <!-- Must be located the same as Audio_NoMouse -->
-                        <Button x:Name="AudioActiveButton" IsVisible="{Binding IsAudio}" Style="{ThemeResource AudioActiveButtonStyle}"
-                        Command="{Command AudioButtonPressed}"/>
-                        <Button x:Name="AudioInactiveButton" IsVisible="{Binding !IsAudio}" Style="{ThemeResource AudioInactiveButtonStyle}"
-                        Command="{Command AudioButtonPressed}"/>
-                      </Grid>
-                    </Grid>
                     <Grid DockPanel.Dock="Center">
                       <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="*"/>
@@ -91,20 +68,24 @@
                 <DockPanel LastChildFill="true" Margin="3">
                   <Grid DockPanel.Dock="Center" HorizontalAlignment="Stretch">
                     <Grid.ColumnDefinitions>
-                      <ColumnDefinition Width="180"/>
+                      <ColumnDefinition Width="200"/>
+                      <ColumnDefinition Width="150"/>
                       <ColumnDefinition Width="*"/>
-                      <ColumnDefinition Width="180"/>
+                      <ColumnDefinition Width="350"/>
                     </Grid.ColumnDefinitions>
                     <Grid.RowDefinitions>
-                      <RowDefinition Height="Auto"/>
+                      <RowDefinition Height="15"/>
                       <RowDefinition Height="Auto"/>
                     </Grid.RowDefinitions>
 
-                    <Label x:Name="CurrentTimeLabel" Grid.Column="0" Grid.Row="0"  Content="{Binding CurrentTime}"
-                        Color="{ThemeResource TextColor}"
-                        FontSize="{ThemeResource SmallFontSize}"/>
+                    <Label x:Name="PlayerStateLabel" Grid.Column="0" Grid.Row="1" HorizontalAlignment="Left"
+                        Content="{Binding PlayerStateText}" Scroll="Auto"
+                        Color="{ThemeResource TextColor}" />
 
-                    <Border x:Name="BgProgressbar" Grid.Row="0" Grid.Column="1"
+                    <Label x:Name="CurrentTimeLabel" Grid.Column="1" Grid.Row="1"  Content="{Binding CurrentTime}"
+                        Color="{ThemeResource TextColor}"  Margin="0,0,20,0" HorizontalAlignment="Right"/>
+
+                    <Border x:Name="BgProgressbar" Grid.Row="1" Grid.Column="2"
                       HorizontalAlignment="Stretch" VerticalAlignment="Center"
                       BorderBrush="Black" CornerRadius="2" BorderThickness="1">
                       <Border.Background>
@@ -117,16 +98,11 @@
                         Value="{Binding Path=PercentPlayed}"/>
                     </Border>
 
-                    <Label x:Name="VideoDurationLabel" Grid.Column="2" Grid.Row="0" 
+                    <Label x:Name="VideoDurationLabel" Grid.Column="3" Grid.Row="1" Margin="20,0,0,0"
                         Content="{Binding Duration}" 
-                        HorizontalAlignment="Right" VerticalAlignment="Center"
-                        Color="{ThemeResource TextColor}"
-                        FontSize="{ThemeResource SmallFontSize}"/>
+                        HorizontalAlignment="Left" VerticalAlignment="Center"
+                        Color="{ThemeResource TextColor}"/>
 
-
-                    <Label x:Name="PlayerStateLabel" Grid.Column="0" Grid.Row="1" HorizontalAlignment="Left"
-                        Content="{Binding PlayerStateText}" Scroll="Auto"
-                        Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}"/>
 
                   </Grid>
                   <!-- PlayerGrid -->
@@ -154,6 +130,9 @@
                           IsVisible="{Binding Source={StaticResource VideoPlayerModel},Path=PlayerUIContributor.SubtitlesAvailable}"
                           Command="{Command Source={StaticResource VideoPlayerModel},Path=PlayerUIContributor.OpenChooseSubtitleDialog}"/>
 
+                  <Button x:Name="AudioActiveButton" IsVisible="{Binding IsAudio}" Style="{ThemeResource AudioActiveButtonStyle}"
+                        Command="{Command AudioButtonPressed}"/>
+                  
                 </StackPanel>
                 <!-- PlayControlsPanel -->
               </ControlTemplate>
@@ -199,29 +178,7 @@
                     <RowDefinition Height="*"/>
                   </Grid.RowDefinitions>
                   <DockPanel Grid.Column="0" Grid.Row="0" LastChildFill="true" Margin="3">
-                    <Grid x:Name="AudioPanel" DockPanel.Dock="Right" HorizontalAlignment="Right" Margin="4,0,0,0">
-                      <Grid x:Name="Audio_NoMouse" IsVisible="{Binding !ShowMouseControls}"
-                      VerticalAlignment="Center" HorizontalAlignment="Center">
-                        <!-- Must be located the same as Audio_Mouse -->
-                        <Control x:Name="AudioSimple" IsVisible="{Binding IsAudio}" Template="{ThemeResource AudioActiveControlTemplate}"/>
-                        <Control x:Name="MuteOnOffSimple" Template="{ThemeResource MuteOnOffControlTemplate}">
-                          <Control.IsVisible>
-                            <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} &amp;&amp; {1}">
-                              <Binding Path="IsAudio"/>
-                              <Binding Path="IsMuted"/>
-                            </MultiBinding>
-                          </Control.IsVisible>
-                        </Control>
-                      </Grid>
-                      <Grid x:Name="Audio_Mouse" IsVisible="{Binding ShowMouseControls}"
-                      VerticalAlignment="Center" HorizontalAlignment="Center">
-                        <!-- Must be located the same as Audio_NoMouse -->
-                        <Button x:Name="AudioActiveButton" IsVisible="{Binding IsAudio}" Style="{ThemeResource AudioActiveButtonStyle}"
-                        Command="{Command AudioButtonPressed}"/>
-                        <Button x:Name="AudioInactiveButton" IsVisible="{Binding !IsAudio}" Style="{ThemeResource AudioInactiveButtonStyle}"
-                        Command="{Command AudioButtonPressed}"/>
-                      </Grid>
-                    </Grid>
+                  
                     <Grid DockPanel.Dock="Center">
                       <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="*"/>
@@ -241,19 +198,24 @@
                 <DockPanel LastChildFill="true" Margin="3">
                   <Grid DockPanel.Dock="Center" HorizontalAlignment="Stretch">
                     <Grid.ColumnDefinitions>
-                      <ColumnDefinition Width="180"/>
+                      <ColumnDefinition Width="200"/>
+                      <ColumnDefinition Width="150"/>
                       <ColumnDefinition Width="*"/>
-                      <ColumnDefinition Width="180"/>
+                      <ColumnDefinition Width="350"/>
                     </Grid.ColumnDefinitions>
                     <Grid.RowDefinitions>
-                      <RowDefinition Height="Auto"/>
+                      <RowDefinition Height="15"/>
                       <RowDefinition Height="Auto"/>
                     </Grid.RowDefinitions>
 
-                    <Label x:Name="CurrentTimeLabel" Grid.Column="0" Grid.Row="0"  Content="{Binding CurrentTime}"
-                        Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}"/>
+                    <Label x:Name="PlayerStateLabel" Grid.Column="0" Grid.Row="1" HorizontalAlignment="Left"
+                        Content="{Binding PlayerStateText}" Scroll="Auto"
+                        Color="{ThemeResource TextColor}" />
 
-                    <Border x:Name="BgProgressbar" Grid.Row="0" Grid.Column="1"
+                    <Label x:Name="CurrentTimeLabel" Grid.Column="1" Grid.Row="1"  Content="{Binding CurrentTime}"
+                        Color="{ThemeResource TextColor}"  Margin="0,0,20,0" HorizontalAlignment="Right"/>
+
+                    <Border x:Name="BgProgressbar" Grid.Row="1" Grid.Column="2"
                       HorizontalAlignment="Stretch" VerticalAlignment="Center"
                       BorderBrush="Black" CornerRadius="2" BorderThickness="1">
                       <Border.Background>
@@ -266,16 +228,11 @@
                         Value="{Binding Path=PercentPlayed}"/>
                     </Border>
 
-                    <Label x:Name="VideoDurationLabel" Grid.Column="2" Grid.Row="0" 
+                    <Label x:Name="VideoDurationLabel" Grid.Column="3" Grid.Row="1" Margin="20,0,0,0"
                         Content="{Binding Duration}" 
-                        HorizontalAlignment="Right" VerticalAlignment="Center"
-                        Color="{ThemeResource TextColor}"
-                        FontSize="{ThemeResource SmallFontSize}"/>
+                        HorizontalAlignment="Left" VerticalAlignment="Center"
+                        Color="{ThemeResource TextColor}"/>
 
-
-                    <Label x:Name="PlayerStateLabel" Grid.Column="0" Grid.Row="1" HorizontalAlignment="Left"
-                        Content="{Binding PlayerStateText}" Scroll="Auto"
-                        Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}"/>
                   </Grid>
                   <!-- PlayerGrid -->
                 </DockPanel>
@@ -318,11 +275,13 @@
                     <Button x:Name="SelectSubtitleButton" Style="{ThemeResource SelectSubtitleButtonStyle}" Margin="5,0,5,0" 
                       IsVisible="{Binding SubtitlesAvailable}"
                       Command="{Command OpenChooseSubtitleDialog}"/>
-                  </StackPanel>
-                  <!-- DvdButtons -->
 
-                </StackPanel>
-                <!-- PlayControlsPanel -->
+                  </StackPanel> <!-- DvdButtons -->
+                  
+                  <Button x:Name="AudioActiveButton" IsVisible="{Binding IsAudio}" Style="{ThemeResource AudioActiveButtonStyle}"
+                        Command="{Command AudioButtonPressed}"/>
+                 
+                </StackPanel> <!-- PlayControlsPanel -->
               </ControlTemplate>
               
             </Control.Resources>
@@ -353,13 +312,6 @@
               <ControlTemplate x:Key="OSD_InfoArea_Template">
 
                 <DockPanel x:Name="HeadLine" Grid.Row="0" Grid.Column="0" LastChildFill="True">
-                  <Grid x:Name="PlayerStatePanel" DockPanel.Dock="Left">
-                    <Control x:Name="StatePlay" IsVisible="{Binding IsPlaying}" Template="{ThemeResource PlayControlTemplate}"
-                      VerticalAlignment="Center"/>
-                    <Control x:Name="StatePause" IsVisible="{Binding IsPaused}" Template="{ThemeResource PauseControlTemplate}"
-                      VerticalAlignment="Center"/>
-                  </Grid>
-                  <!-- PlayerStatePanel -->
                   <Label x:Name="ImageName" DockPanel.Dock="Center" Margin="3" Content="{Binding Path=MediaItemTitle}" Scroll="Auto"
                     Color="{ThemeResource TextColor}" HorizontalAlignment="Left" VerticalAlignment="Center"/>
                 </DockPanel>
@@ -383,6 +335,9 @@
                     Command="{Command Stop}"/>
                   <Button x:Name="SkipForwardButton" Style="{ThemeResource SkipForwardButtonStyle}" Margin="5,0,5,0" IsVisible="{Binding CanSkipForward}"
                     Command="{Command Next}"/>
+
+                  <Button x:Name="AudioActiveButton" IsVisible="{Binding IsAudio}" Style="{ThemeResource AudioActiveButtonStyle}"
+                        Command="{Command AudioButtonPressed}"/>
                 </StackPanel>
                 <!-- PlayControlsPanel -->
               </ControlTemplate>

@@ -3,9 +3,9 @@
     xmlns="www.team-mediaportal.com/2008/mpf/directx"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
   <DockPanel LastChildFill="False">
-    <Border DockPanel.Dock="Bottom" Height="50" Width="400" HorizontalAlignment="Center" 
+    <Border DockPanel.Dock="Center" Height="80" Width="600" HorizontalAlignment="Center" 
             Margin="0,0,0,84" BorderBrush="{ThemeResource PlayControlsFillBrush}" BorderThickness="5"
-        CornerRadius="10">
+        CornerRadius="10" Background="#80A0A0A0">
       <Grid Context="{Model A2F24149-B44C-498b-AE93-288213B87A1A}">
         <!-- Model = GeneralPlayerModel -->
         <Grid.RowDefinitions>
@@ -14,9 +14,9 @@
         <Grid.Resources>
          <ResourceWrapper x:Key="VolumeFillBrush">
            <LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0">
-             <GradientStop Color="#5F9BBCDF" Offset="0" />
-             <GradientStop Color="#708CB7DA" Offset="0.18" />
-             <GradientStop Color="#3560AACD" Offset="1" />
+             <GradientStop Color="#8F9BBCDF" Offset="0" />
+             <GradientStop Color="#A08CB7DA" Offset="0.18" />
+             <GradientStop Color="#6560AACD" Offset="1" />
             </LinearGradientBrush>
          </ResourceWrapper>
         </Grid.Resources>

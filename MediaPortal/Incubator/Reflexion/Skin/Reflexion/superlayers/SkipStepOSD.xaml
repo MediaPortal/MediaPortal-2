@@ -7,10 +7,9 @@
   <DockPanel x:Name="SkipStepOSDPanel" Context="{Model Id=8573DBD8-A257-426a-9875-9DB155D32D47}" LastChildFill="false">
     <!-- DataContext model = ExtendedVideoSkip -->
 
-    <Border DockPanel.Dock="Bottom" HorizontalAlignment="Center" Margin="0,0,0,80"  x:Name="OSD_Background" 
-        BorderBrush="{ThemeResource OSDPlayControlBorderColor}"
-        CornerRadius="{ThemeResource OSDPlayControlCornerRadius}" 
-        BorderThickness="{ThemeResource OSDPlayControlBorderThickness}">
+    <Border DockPanel.Dock="Center" Height="80" Width="600" HorizontalAlignment="Center" 
+            Margin="0,0,0,84" BorderBrush="{ThemeResource PlayControlsFillBrush}" BorderThickness="5"
+        CornerRadius="10" Background="#80A0A0A0">
       <Border.Background>
           <LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0">
           <GradientStop Color="#5F9BBCDF" Offset="0" />
@@ -18,7 +17,7 @@
           <GradientStop Color="#3560AACD" Offset="1" />
         </LinearGradientBrush>
       </Border.Background>
-      <Grid Margin="10,0,10,0">
+      <Grid HorizontalAlignment="Center" VerticalAlignment="Center">
         <Grid.ColumnDefinitions>
           <ColumnDefinition Width="180"/>
         </Grid.ColumnDefinitions>
@@ -27,7 +26,7 @@
         </Grid.RowDefinitions>
 
         <Label x:Name="SkipStepLabel" Grid.Column="0" Grid.Row="0" HorizontalAlignment="Center"
-            Content="{Binding SkipStep}" Color="{ThemeResource TextColor}"/>
+            Content="{Binding SkipStep}" Color="{ThemeResource TextColor}" FontSize="{ThemeResource BigFontSize}"/>
 
       </Grid>
     </Border>

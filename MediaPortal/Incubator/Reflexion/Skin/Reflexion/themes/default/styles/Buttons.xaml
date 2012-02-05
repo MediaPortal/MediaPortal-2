@@ -171,9 +171,13 @@
 
   <Storyboard x:Key="FocusedOSDButtonStoryboard" FillBehavior="HoldEnd">
     <StaticResource ResourceKey="FocusedButtonWideStoryboard_GrowOnly"/>
-    <ColorAnimationUsingKeyFrames BeginTime="00:00:00" Storyboard.TargetName="ButtonBackground" Storyboard.TargetProperty="Fill.GradientStops[1].Color">
-      <SplineColorKeyFrame KeyTime="00:00:00" Value="#FF626262"/>
-      <SplineColorKeyFrame KeyTime="00:00:00.700" Value="#8070B5FF"/>
+    <ColorAnimationUsingKeyFrames Storyboard.TargetName="ButtonBackground" Storyboard.TargetProperty="Fill.GradientStops[0].Color">
+      <SplineColorKeyFrame KeyTime="00:00:00"    Value="#8C221E1F"/>
+      <SplineColorKeyFrame KeyTime="00:00:00.20" Value="#60FFFFFF"/>
+    </ColorAnimationUsingKeyFrames>
+    <ColorAnimationUsingKeyFrames Storyboard.TargetName="ButtonBackground" Storyboard.TargetProperty="Fill.GradientStops[1].Color">
+      <SplineColorKeyFrame KeyTime="00:00:00"    Value="#00221E1F"/>
+      <SplineColorKeyFrame KeyTime="00:00:00.20" Value="#C40C4978"/>
     </ColorAnimationUsingKeyFrames>
   </Storyboard>
 
@@ -1078,30 +1082,33 @@
               </TransformGroup>
             </Grid.RenderTransform>
             <!--<Control Style="{ThemeResource OSDButtonControlStyle}" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"/>-->
-            <DockPanel Name="ButtonControlRectangle">
-              <Ellipse DockPanel.Dock="Center" x:Name="ButtonBackground" Margin="0,2,0,1">
+
+            <Canvas Name="ButtonControlRectangle" Height="174" Width="174">
+              <Ellipse x:Name="ButtonBackground" Height="160" Width="160" Canvas.Left="7" Canvas.Top="7">
                 <Ellipse.Fill>
-                  <RadialGradientBrush Center="0.5,0.5" GradientOrigin="0.25,0.3">
-                    <GradientStop Color="#FFAAAAAF" Offset="0"/>
-                    <GradientStop Color="#FF626262" Offset="0.967"/>
+                  <RadialGradientBrush Center="0.5,0.5" GradientOrigin="0.5,0.5">
+                    <GradientStop Color="#00221E1F" Offset="0"/>
+                    <GradientStop Color="#8C221E1F" Offset="1"/>
                   </RadialGradientBrush>
                 </Ellipse.Fill>
               </Ellipse>
-              <Ellipse DockPanel.Dock="Center" x:Name="ButtonBorderShadow" StrokeThickness="5" Stroke="#7E000000" Margin="1,4,0,1"/>
-              <Ellipse DockPanel.Dock="Center" x:Name="ButtonBorder" StrokeThickness="5" Margin="0,3,0,1">
-                <Ellipse.Stroke>
-                  <RadialGradientBrush GradientOrigin="0.5,0.5" Center="0.3,0.3">
-                    <GradientStop Color="Black" Offset="0"/>
-                    <GradientStop Color="#FFA5A5A5" Offset="1"/>
-                  </RadialGradientBrush>
-                </Ellipse.Stroke>
-              </Ellipse>
+              <Ellipse Height="156" Width="156" Canvas.Left="9" Canvas.Top="9" Stroke="#49000000" StrokeThickness="8" StrokeLineJoin="Miter"/>
 
-              <Control DockPanel.Dock="Center" x:Name="ContentControl" Template="{DynamicResource ResourceKey=ContentControlTemplate}" 
-                       VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Margin="{ThemeResource OSDControlMargin}"/>
-            </DockPanel>
 
+              <!--<Canvas x:Name="Pause" Height="167" Width="167">-->
+              <Control x:Name="ContentControl" Template="{DynamicResource ResourceKey=ContentControlTemplate}" />
+              <!--</Canvas>-->
+
+
+              <Canvas.LayoutTransform>
+                <TransformGroup>
+                  <ScaleTransform ScaleX="0.4" ScaleY="0.4"/>
+                </TransformGroup>
+              </Canvas.LayoutTransform>
+            </Canvas>
           </Grid>
+
+
           <ControlTemplate.Triggers>
             <Trigger Property="HasFocus" Value="True">
               <Trigger.EnterActions>
@@ -1176,8 +1183,22 @@
     </Style.Resources>
   </Style>
 
+  <Style x:Key="AudioActiveButtonStyle" BasedOn="{ThemeResource BasePlayerControlButtonStyle}">
+    <Style.Resources>
+      <ResourceWrapper x:Key="ContentControlTemplate">
+        <ControlTemplate>
+          <Grid>
+            <Control x:Name="Audio" Template="{ThemeResource AudioActiveControlTemplate}" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"/>
+            <Control x:Name="MuteOnOff" Template="{ThemeResource MuteOnOffControlTemplate}" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"
+                   IsVisible="{Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorType={x:Type mp_special_controls:PlayerControl}},Path=IsMuted}"/>
+          </Grid>
+        </ControlTemplate>
+      </ResourceWrapper>
+    </Style.Resources>
+  </Style>
+
   <!-- audio mute control style -->
-  <Style x:Key="AudioActiveButtonStyle" TargetType="{x:Type CheckBox}">
+  <!--<Style x:Key="AudioActiveButtonStyle" TargetType="{x:Type CheckBox}">
     <Setter Property="Template">
       <Setter.Value>
         <ControlTemplate TargetType="{x:Type CheckBox}">
@@ -1193,10 +1214,29 @@
                 <ScaleTransform ScaleX="1" ScaleY="1"/>
               </TransformGroup>
             </Grid.RenderTransform>
-            <Control Style="{ThemeResource OSDButtonControlStyle}" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"/>
-            <Control x:Name="Audio" Template="{ThemeResource AudioActiveControlTemplate}" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"/>
-            <Control x:Name="MuteOnOff" Template="{ThemeResource MuteOnOffControlTemplate}" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"
+
+            <Canvas Name="ButtonControlRectangle" Height="174" Width="174">
+              <Ellipse x:Name="ButtonBackground" Height="160" Width="160" Canvas.Left="7" Canvas.Top="7">
+                <Ellipse.Fill>
+                  <RadialGradientBrush Center="0.5,0.5" GradientOrigin="0.5,0.5">
+                    <GradientStop Color="#00221E1F" Offset="0"/>
+                    <GradientStop Color="#8C221E1F" Offset="1"/>
+                  </RadialGradientBrush>
+                </Ellipse.Fill>
+              </Ellipse>
+              <Ellipse Height="156" Width="156" Canvas.Left="9" Canvas.Top="9" Stroke="#49000000" StrokeThickness="8" StrokeLineJoin="Miter"/>
+
+              <Control x:Name="Audio" Template="{ThemeResource AudioActiveControlTemplate}" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"/>
+              <Control x:Name="MuteOnOff" Template="{ThemeResource MuteOnOffControlTemplate}" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"
                  IsVisible="{Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorType={x:Type mp_special_controls:PlayerControl}},Path=IsMuted}"/>
+
+
+              <Canvas.LayoutTransform>
+                <TransformGroup>
+                  <ScaleTransform ScaleX="0.4" ScaleY="0.4"/>
+                </TransformGroup>
+              </Canvas.LayoutTransform>
+            </Canvas>
           </Grid>
           <ControlTemplate.Triggers>
             <Trigger Property="HasFocus" Value="True">
@@ -1228,7 +1268,7 @@
         </ControlTemplate>
       </Setter.Value>
     </Setter>
-  </Style>
+  </Style>-->
 
   <Style x:Key="AudioInactiveButtonStyle" TargetType="{x:Type CheckBox}">
     <Setter Property="Template">
@@ -1246,8 +1286,25 @@
                 <ScaleTransform ScaleX="1" ScaleY="1"/>
               </TransformGroup>
             </Grid.RenderTransform>
-            <Control Style="{ThemeResource OSDButtonControlStyle}" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"/>
-            <Control x:Name="Audio" Template="{ThemeResource AudioInactiveControlTemplate}" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"/>
+            <Canvas Name="ButtonControlRectangle" Height="174" Width="174">
+              <Ellipse x:Name="ButtonBackground" Height="160" Width="160" Canvas.Left="7" Canvas.Top="7">
+                <Ellipse.Fill>
+                  <RadialGradientBrush Center="0.5,0.5" GradientOrigin="0.5,0.5">
+                    <GradientStop Color="#00221E1F" Offset="0"/>
+                    <GradientStop Color="#8C221E1F" Offset="1"/>
+                  </RadialGradientBrush>
+                </Ellipse.Fill>
+              </Ellipse>
+              <Ellipse Height="156" Width="156" Canvas.Left="9" Canvas.Top="9" Stroke="#49000000" StrokeThickness="8" StrokeLineJoin="Miter"/>
+
+              <Control x:Name="Audio" Template="{ThemeResource AudioInactiveControlTemplate}" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"/>
+
+              <Canvas.LayoutTransform>
+                <TransformGroup>
+                  <ScaleTransform ScaleX="0.4" ScaleY="0.4"/>
+                </TransformGroup>
+              </Canvas.LayoutTransform>
+            </Canvas>
           </Grid>
           <ControlTemplate.Triggers>
             <Trigger Property="HasFocus" Value="True">
