@@ -27,17 +27,12 @@ using SlimDX.Direct3D9;
 namespace MediaPortal.UI.SkinEngine.DirectX
 {
   /// <summary>
-  /// Various helper functions for graphics samples
+  /// Various helper functions for graphics samples.
   /// </summary>
-  public class D3DUtil
+  public static class D3DUtil
   {
     /// <summary>
-    /// Private Constructor 
-    /// </summary>
-    private D3DUtil() {}
-
-    /// <summary>
-    /// Gets the number of ColorChanelBits from a format
+    /// Gets the number of ColorChanelBits from a format.
     /// </summary>
     public static int GetColorChannelBits(Format format)
     {
@@ -73,7 +68,7 @@ namespace MediaPortal.UI.SkinEngine.DirectX
     }
 
     /// <summary>
-    /// Gets the number of alpha channel bits 
+    /// Gets the number of alpha channel bits.
     /// </summary>
     public static int GetAlphaChannelBits(Format format)
     {
@@ -109,7 +104,7 @@ namespace MediaPortal.UI.SkinEngine.DirectX
     }
 
     /// <summary>
-    /// Gets the number of depth bits
+    /// Gets the number of depth bits.
     /// </summary>
     public static int GetDepthBits(Format format)
     {
@@ -133,7 +128,7 @@ namespace MediaPortal.UI.SkinEngine.DirectX
     }
 
     /// <summary>
-    /// Gets the number of stencil bits
+    /// Gets the number of stencil bits.
     /// </summary>
     public static int GetStencilBits(Format format)
     {

@@ -27,7 +27,7 @@ using SlimDX.Direct3D9;
 namespace MediaPortal.UI.SkinEngine.DirectX
 {
   /// <summary>
-  /// Current D3D settings: adapter, device, mode, formats, etc.
+  /// Current D3D settings: Adapter, device, mode, formats, etc.
   /// </summary>
   public class D3DSettings
   {

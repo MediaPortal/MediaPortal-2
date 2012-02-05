@@ -163,6 +163,7 @@
     <Compile Include="Controls\Visuals\KeyBindingControl.cs" />
     <Compile Include="Controls\Visuals\VirtualKeyboardPresenter.cs" />
     <Compile Include="DirectX\D3DSettings.cs" />
+    <Compile Include="DirectX\MPDirect3D.cs" />
     <Compile Include="DirectX\PositionColoredTextured.cs" />
     <Compile Include="DirectX\Triangulate\GraphicsPathHelper.cs" />
     <Compile Include="DirectX\Triangulate\TriangulateHelper.cs" />
@@ -340,9 +341,9 @@
     <Compile Include="Controls\Visuals\FrameworkElementCollection.cs" />
     <Compile Include="Controls\Visuals\Visual.cs" />
     <Compile Include="SkinEnginePlugin.cs" />
-    <Compile Include="DirectX\d3denumeration.cs" />
+    <Compile Include="DirectX\D3DEnumeration.cs" />
     <Compile Include="DirectX\d3dSetup.cs" />
-    <Compile Include="DirectX\d3dutil.cs" />
+    <Compile Include="DirectX\D3DUtil.cs" />
     <Compile Include="DirectX\GraphicsDevice.cs" />
     <Compile Include="MatrixOperations.cs" />
     <Compile Include="GUI\MainForm.cs">

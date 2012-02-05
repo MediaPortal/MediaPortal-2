@@ -38,33 +38,32 @@ using SlimDX.Direct3D9;
 
 namespace MediaPortal.UI.SkinEngine.DirectX
 {
-  public static class MPDirect3D 
-  {
-    private static Direct3DEx _d3d;
-
-    public static Direct3DEx Direct3D
-    {
-      get { return _d3d; }
-    }
-
-    public static void Load()
-    {
-      if (_d3d == null)
-        _d3d = new Direct3DEx();
-    }
-
-    public static void Unload()
-    {
-      if (_d3d != null)
-        _d3d.Dispose();
-      _d3d = null;
-    }
-  }
-
   internal class D3DSetup
   {
+    #region Classes
+
     /// <summary>
-    /// Messages that can be used when displaying an error
+    /// An exception for when the ReferenceDevice is null
+    /// </summary>
+    public class NullReferenceDeviceException : ApplicationException
+    {
+      public override string Message
+      {
+        get
+        {
+          return "Warning: Nothing will be rendered.\n" +
+              "The reference rendering device was selected, but your\n" +
+              "computer only has a reduced-functionality reference device\n" +
+              "installed. Please check if your graphics card and\n" +
+              "drivers meet the minimum system requirements.\n";
+        }
+      }
+    }
+
+    #endregion
+
+    /// <summary>
+    /// Messages that can be used when displaying an error.
     /// </summary>
     public enum ApplicationMessage
     {
@@ -75,8 +74,8 @@ namespace MediaPortal.UI.SkinEngine.DirectX
 
     private System.Windows.Forms.Control _ourRenderTarget; // The window we will render too
 
-    protected D3DEnumeration _enumerationSettings = new D3DEnumeration();
     // We need to keep track of our enumeration settings
+    protected D3DEnumeration _enumerationSettings = new D3DEnumeration();
 
     protected D3DSettings _graphicsSettings = new D3DSettings();
     private PresentParameters _presentParams = new PresentParameters();
@@ -136,7 +135,7 @@ namespace MediaPortal.UI.SkinEngine.DirectX
 
     public IEnumerable<MultisampleType> WindowedMultisampleTypes
     {
-      get { return _graphicsSettings.WindowedDeviceCombo.MultisampleTypeList.Cast<MultisampleType>(); }
+      get { return _graphicsSettings.WindowedDeviceCombo.MultisampleTypes.Select(mst => mst.Key); }
     }
 
     public Present WindowedPresent
@@ -227,14 +226,14 @@ namespace MediaPortal.UI.SkinEngine.DirectX
           adapterInfo = FindAdapterForScreen(GUI.Library.GUIGraphicsContext.currentScreen);
           primaryDesktopDisplayMode = Direct3D.Adapters[adapterInfo.AdapterOrdinal].CurrentDisplayMode;
         }*/
-        foreach (GraphicsDeviceInfo deviceInfo in adapterInfo.DeviceInfoList)
+        foreach (GraphicsDeviceInfo deviceInfo in adapterInfo.DeviceInfos)
         {
           if (doesRequireHardware && deviceInfo.DevType != DeviceType.Hardware)
             continue;
           if (doesRequireReference && deviceInfo.DevType != DeviceType.Reference)
             continue;
 
-          foreach (DeviceCombo deviceCombo in deviceInfo.DeviceComboList)
+          foreach (DeviceCombo deviceCombo in deviceInfo.DeviceCombos)
           {
             bool adapterMatchesBackBuffer = (deviceCombo.BackBufferFormat == deviceCombo.AdapterFormat);
             if (!deviceCombo.IsWindowed)
@@ -274,16 +273,15 @@ namespace MediaPortal.UI.SkinEngine.DirectX
       _graphicsSettings.WindowedWidth = _ourRenderTarget.Width;
       _graphicsSettings.WindowedHeight = _ourRenderTarget.Height;
       if (_enumerationSettings.AppUsesDepthBuffer)
-        _graphicsSettings.WindowedDepthStencilBufferFormat = (Format) bestDeviceCombo.DepthStencilFormatList[0];
+        _graphicsSettings.WindowedDepthStencilBufferFormat = bestDeviceCombo.DepthStencilFormats.FirstOrDefault();
 
       AppSettings settings = ServiceRegistration.Get<ISettingsManager>().Load<AppSettings>();
 
       _graphicsSettings.WindowedMultisampleType = settings.MultisampleType;
       _graphicsSettings.WindowedMultisampleQuality = 0;
 
-      _graphicsSettings.WindowedVertexProcessingType =
-        (VertexProcessingType) bestDeviceCombo.VertexProcessingTypeList[0];
-      _graphicsSettings.WindowedPresentInterval = (PresentInterval) bestDeviceCombo.PresentIntervalList[0];
+      _graphicsSettings.WindowedVertexProcessingType = bestDeviceCombo.VertexProcessingTypes.FirstOrDefault();
+      _graphicsSettings.WindowedPresentInterval = bestDeviceCombo.PresentIntervals.FirstOrDefault();
 
       return true;
     }
@@ -315,14 +313,14 @@ namespace MediaPortal.UI.SkinEngine.DirectX
         //  adapterInfo = FindAdapterForScreen(GUI.Library.GUIGraphicsContext.currentScreen);
 
         adapterDesktopDisplayMode = MPDirect3D.Direct3D.Adapters[adapterInfo.AdapterOrdinal].CurrentDisplayMode;
-        foreach (GraphicsDeviceInfo deviceInfo in adapterInfo.DeviceInfoList)
+        foreach (GraphicsDeviceInfo deviceInfo in adapterInfo.DeviceInfos)
         {
           if (doesRequireHardware && deviceInfo.DevType != DeviceType.Hardware)
             continue;
           if (doesRequireReference && deviceInfo.DevType != DeviceType.Reference)
             continue;
 
-          foreach (DeviceCombo deviceCombo in deviceInfo.DeviceComboList)
+          foreach (DeviceCombo deviceCombo in deviceInfo.DeviceCombos)
           {
             bool adapterMatchesBackBuffer = (deviceCombo.BackBufferFormat == deviceCombo.AdapterFormat);
             bool adapterMatchesDesktop = (deviceCombo.AdapterFormat == adapterDesktopDisplayMode.Format);
@@ -361,7 +359,7 @@ namespace MediaPortal.UI.SkinEngine.DirectX
       // and is as close to bestAdapterDesktopDisplayMode's res as possible
 
       int NumberOfFullscreenDisplayModes = 0;
-      foreach (DisplayMode displayMode in bestAdapterInfo.DisplayModeList)
+      foreach (DisplayMode displayMode in bestAdapterInfo.DisplayModes)
       {
         if (displayMode.Format != bestDeviceCombo.AdapterFormat)
           continue;
@@ -385,15 +383,13 @@ namespace MediaPortal.UI.SkinEngine.DirectX
       _graphicsSettings.FullscreenDeviceCombo = bestDeviceCombo;
 
       if (_enumerationSettings.AppUsesDepthBuffer)
-        _graphicsSettings.FullscreenDepthStencilBufferFormat = (Format) bestDeviceCombo.DepthStencilFormatList[0];
+        _graphicsSettings.FullscreenDepthStencilBufferFormat = bestDeviceCombo.DepthStencilFormats.FirstOrDefault();
       
-      int iQuality = 0; //bestDeviceCombo.MultisampleTypeList.Count-1;
-      if (bestDeviceCombo.MultisampleTypeList.Count > 0)
-        iQuality = bestDeviceCombo.MultisampleTypeList.Count - 1;
-      _graphicsSettings.FullscreenMultisampleType = (MultisampleType)bestDeviceCombo.MultisampleTypeList[iQuality];
+      KeyValuePair<MultisampleType, int> mst2quality = bestDeviceCombo.MultisampleTypes.LastOrDefault();
+      _graphicsSettings.FullscreenMultisampleType = mst2quality.Key;
       _graphicsSettings.FullscreenMultisampleQuality = 0;
 
-      _graphicsSettings.FullscreenVertexProcessingType = (VertexProcessingType) bestDeviceCombo.VertexProcessingTypeList[0];
+      _graphicsSettings.FullscreenVertexProcessingType = bestDeviceCombo.VertexProcessingTypes.FirstOrDefault();
       _graphicsSettings.FullscreenPresentInterval = PresentInterval.Default;
 
       return true;
@@ -541,28 +537,6 @@ namespace MediaPortal.UI.SkinEngine.DirectX
       MessageBox.Show(StringUtils.Join("\n\n", strMsg), "Error DirectX layer", MessageBoxButtons.OK, icon);
     }
 
-    #region Various Exceptions
-
-    /// <summary>
-    /// An exception for when the ReferenceDevice is null
-    /// </summary>
-    public class NullReferenceDeviceException : ApplicationException
-    {
-      public override string Message
-      {
-        get
-        {
-          return "Warning: Nothing will be rendered.\n" +
-              "The reference rendering device was selected, but your\n" +
-              "computer only has a reduced-functionality reference device\n" +
-              "installed. Please check if your graphics card and\n" +
-              "drivers meet the minimum system requirements.\n";
-        }
-      }
-    }
-
-    #endregion
-
     /// <summary>
     /// Build presentation parameters from the current settings
     /// </summary>
@@ -623,17 +597,6 @@ namespace MediaPortal.UI.SkinEngine.DirectX
         _presentParams.DeviceWindowHandle = _window.Handle;
         _presentParams.Windowed = false;
       }
-    }
-
-    protected static DisplayMode ToDisplayMode(string mode)
-    {
-      char[] delimiterChars = { 'x', '@' };
-      string[] words = mode.Split(delimiterChars);
-      DisplayMode result = new DisplayMode();
-      result.Width = Int32.Parse(words[0]);
-      result.Height = Int32.Parse(words[1]);
-      result.RefreshRate = Int32.Parse(words[2]);
-      return result;
     }
   }
 }
