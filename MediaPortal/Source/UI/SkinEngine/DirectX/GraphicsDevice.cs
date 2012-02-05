@@ -31,7 +31,6 @@
 //#define PROFILE_FRAMERATE
 
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Threading;
@@ -434,12 +433,13 @@ namespace MediaPortal.UI.SkinEngine.DirectX
     {
       return _setup.GetDisplayModes();
     }
+
     /// <summary>
-    /// Returns available MultiSampleTypes.
+    /// Returns all available MultisampleTypes for the current windowed configuration.
     /// </summary>
-    public static ArrayList WindowedMultiSampleTypes
+    public static IEnumerable<MultisampleType> WindowedMultisampleTypes
     {
-      get { return _setup.WindowedMultiSampleTypes; }
+      get { return _setup.WindowedMultisampleTypes; }
     }
 
     public static string DesktopDisplayMode

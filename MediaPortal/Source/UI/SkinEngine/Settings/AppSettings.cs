@@ -23,6 +23,7 @@
 #endregion
 
 using MediaPortal.Common.Settings;
+using SlimDX.Direct3D9;
 
 namespace MediaPortal.UI.SkinEngine.Settings
 {
@@ -35,6 +36,7 @@ namespace MediaPortal.UI.SkinEngine.Settings
     protected const bool DEFAULT_CELL_PHONE_INPUT_STYLE = false;
     protected const bool DEFAULT_SCREEN_SAVER_ENABLED = true;
     protected const double DEFAULT_SCREEN_SAVER_TIMEOUT_MIN = 5;
+    protected const MultisampleType DEFAULT_MULTISAMPLING_TYPE = MultisampleType.None;
 
     #endregion
 
@@ -43,13 +45,13 @@ namespace MediaPortal.UI.SkinEngine.Settings
     protected bool _cellPhoneInputStyle = DEFAULT_CELL_PHONE_INPUT_STYLE;
     protected bool _screenSaverEnabled = DEFAULT_SCREEN_SAVER_ENABLED;
     protected double _screenSaverTimoutMin = DEFAULT_SCREEN_SAVER_TIMEOUT_MIN;
-    protected int _multiSampleTypeIndex = 0;
+    protected MultisampleType _multisampleType = DEFAULT_MULTISAMPLING_TYPE;
 
     [Setting(SettingScope.User, 0)]
-    public int MultiSampleType
+    public MultisampleType MultisampleType
     {
-      get { return _multiSampleTypeIndex; }
-      set { _multiSampleTypeIndex = value; }
+      get { return _multisampleType; }
+      set { _multisampleType = value; }
     }
 
     [Setting(SettingScope.User, DEFAULT_FULL_SCREEN)]

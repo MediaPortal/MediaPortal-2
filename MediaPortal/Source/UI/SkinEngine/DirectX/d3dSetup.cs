@@ -25,7 +25,6 @@
 //#define PROFILE_PERFORMANCE
 
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
@@ -76,8 +75,6 @@ namespace MediaPortal.UI.SkinEngine.DirectX
       ApplicationMustExit,
       WarnSwitchToRef
     }
-
-    //private bool _windowed = true;
 
     private System.Windows.Forms.Control _ourRenderTarget; // The window we will render too
 
@@ -140,9 +137,9 @@ namespace MediaPortal.UI.SkinEngine.DirectX
       set { _graphicsSettings.IsWindowed = value; }
     }
 
-    public ArrayList WindowedMultiSampleTypes
+    public IEnumerable<MultisampleType> WindowedMultisampleTypes
     {
-      get { return _graphicsSettings.WindowedDeviceCombo.MultisampleTypeList; }
+      get { return _graphicsSettings.WindowedDeviceCombo.MultisampleTypeList.Cast<MultisampleType>(); }
     }
 
     public Present WindowedPresent
@@ -217,11 +214,11 @@ namespace MediaPortal.UI.SkinEngine.DirectX
 
     /// <summary>
     /// Sets up graphicsSettings with best available windowed mode, subject to 
-    /// the doesRequireHardware and doesRequireReference constraints.  
+    /// the <paramref name="doesRequireHardware"/> and <paramref name="doesRequireReference"/> constraints.  
     /// </summary>
-    /// <param name="doesRequireHardware">Does the device require hardware support</param>
-    /// <param name="doesRequireReference">Does the device require the ref device</param>
-    /// <returns>true if a mode is found, false otherwise</returns>
+    /// <param name="doesRequireHardware">The device requires hardware support.</param>
+    /// <param name="doesRequireReference">The device requires the ref device.</param>
+    /// <returns><c>true</c> if a mode is found, <c>false</c> otherwise.</returns>
     public bool FindBestWindowedMode(bool doesRequireHardware, bool doesRequireReference)
     {
       // Get display mode of primary adapter (which is assumed to be where the window 
@@ -231,12 +228,12 @@ namespace MediaPortal.UI.SkinEngine.DirectX
       bool perfHudFound = false;
       for (int i = 0; i < MPDirect3D.Direct3D.Adapters.Count; ++i)
       {
-        string name = MPDirect3D.Direct3D.Adapters[i].Details.Description;
-        if (String.Compare(name, "NVIDIA PerfHUD", true) == 0)
+        AdapterInformation adapter = MPDirect3D.Direct3D.Adapters[i];
+        string name = adapter.Details.Description;
+        if ("NVIDIA PerfHUD".Equals(name, StringComparison.InvariantCultureIgnoreCase))
         {
-          ServiceRegistration.Get<ILogger>().Info("DirectX: Found PerfHUD adapter: {0} {1} ", i,
-              MPDirect3D.Direct3D.Adapters[i].Details.Description);
-          primaryDesktopDisplayMode = MPDirect3D.Direct3D.Adapters[i].CurrentDisplayMode;
+          ServiceRegistration.Get<ILogger>().Info("DirectX: Found PerfHUD adapter: {0} {1} ", i, adapter.Details.Description);
+          primaryDesktopDisplayMode = adapter.CurrentDisplayMode;
           perfHudFound = true;
           _usingPerfHud = true;
           doesRequireReference = true;
@@ -246,14 +243,13 @@ namespace MediaPortal.UI.SkinEngine.DirectX
       GraphicsAdapterInfo bestAdapterInfo = null;
       GraphicsDeviceInfo bestDeviceInfo = null;
       DeviceCombo bestDeviceCombo = null;
-      foreach (GraphicsAdapterInfo adapterInfoIterate in _enumerationSettings.AdapterInfoList)
+      foreach (GraphicsAdapterInfo adapterInfo in _enumerationSettings.AdapterInfoList)
       {
-        GraphicsAdapterInfo adapterInfo = adapterInfoIterate;
-
         if (perfHudFound)
         {
           string name = adapterInfo.AdapterDetails.Description;
-          if (String.Compare(name, "NVIDIA PerfHUD", true) != 0) continue;
+          if (!"NVIDIA PerfHUD".Equals(name, StringComparison.InvariantCultureIgnoreCase))
+            continue;
         }
         /*
         if (GUIGraphicsContext._useScreenSelector)
@@ -304,22 +300,19 @@ namespace MediaPortal.UI.SkinEngine.DirectX
       _graphicsSettings.WindowedAdapterInfo = bestAdapterInfo;
       _graphicsSettings.WindowedDeviceInfo = bestDeviceInfo;
       _graphicsSettings.WindowedDeviceCombo = bestDeviceCombo;
-      _graphicsSettings.IsWindowed = true;
       _graphicsSettings.WindowedDisplayMode = primaryDesktopDisplayMode;
       _graphicsSettings.WindowedWidth = _ourRenderTarget.Width;
       _graphicsSettings.WindowedHeight = _ourRenderTarget.Height;
       if (_enumerationSettings.AppUsesDepthBuffer)
         _graphicsSettings.WindowedDepthStencilBufferFormat = (Format) bestDeviceCombo.DepthStencilFormatList[0];
 
-      int iQuality = ServiceRegistration.Get<ISettingsManager>().Load<AppSettings>().MultiSampleType;
-      if (iQuality >= bestDeviceCombo.MultisampleTypeList.Count)
-        iQuality = 0;
+      AppSettings settings = ServiceRegistration.Get<ISettingsManager>().Load<AppSettings>();
 
-      _graphicsSettings.WindowedMultisampleType = (MultisampleType) bestDeviceCombo.MultisampleTypeList[iQuality];
+      _graphicsSettings.WindowedMultisampleType = settings.MultisampleType;
       _graphicsSettings.WindowedMultisampleQuality = 0;
 
       _graphicsSettings.WindowedVertexProcessingType =
-        (VertexProcessingType)bestDeviceCombo.VertexProcessingTypeList[0];
+        (VertexProcessingType) bestDeviceCombo.VertexProcessingTypeList[0];
       _graphicsSettings.WindowedPresentInterval = (PresentInterval) bestDeviceCombo.PresentIntervalList[0];
 
       return true;
@@ -421,16 +414,17 @@ namespace MediaPortal.UI.SkinEngine.DirectX
       _graphicsSettings.FullscreenAdapterInfo = bestAdapterInfo;
       _graphicsSettings.FullscreenDeviceInfo = bestDeviceInfo;
       _graphicsSettings.FullscreenDeviceCombo = bestDeviceCombo;
-      _graphicsSettings.IsWindowed = false;
 
       if (_enumerationSettings.AppUsesDepthBuffer)
-        _graphicsSettings.FullscreenDepthStencilBufferFormat = (Format)bestDeviceCombo.DepthStencilFormatList[0];
+        _graphicsSettings.FullscreenDepthStencilBufferFormat = (Format) bestDeviceCombo.DepthStencilFormatList[0];
+      
       int iQuality = 0; //bestDeviceCombo.MultisampleTypeList.Count-1;
       if (bestDeviceCombo.MultisampleTypeList.Count > 0)
         iQuality = bestDeviceCombo.MultisampleTypeList.Count - 1;
       _graphicsSettings.FullscreenMultisampleType = (MultisampleType)bestDeviceCombo.MultisampleTypeList[iQuality];
       _graphicsSettings.FullscreenMultisampleQuality = 0;
-      _graphicsSettings.FullscreenVertexProcessingType = (VertexProcessingType)bestDeviceCombo.VertexProcessingTypeList[0];
+
+      _graphicsSettings.FullscreenVertexProcessingType = (VertexProcessingType) bestDeviceCombo.VertexProcessingTypeList[0];
       _graphicsSettings.FullscreenPresentInterval = PresentInterval.Default;
 
       return true;

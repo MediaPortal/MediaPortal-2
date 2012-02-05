@@ -44,20 +44,20 @@ namespace MediaPortal.UI.SkinEngine.Settings.Configuration.Appearance
 
     public override void Load()
     {
-      _multiSampleTypes = new List<MultisampleType>(GraphicsDevice.WindowedMultiSampleTypes.Cast<MultisampleType>());
-      int selectedMsType = SettingsManager.Load<AppSettings>().MultiSampleType;
-      if (selectedMsType > _multiSampleTypes.Count)
-        selectedMsType = 0;
+      _multiSampleTypes = new List<MultisampleType>(GraphicsDevice.WindowedMultisampleTypes);
+      MultisampleType selectedMsType = SettingsManager.Load<AppSettings>().MultisampleType;
+      for (int i = 0; i < _multiSampleTypes.Count; i++)
+        if (selectedMsType == _multiSampleTypes[i])
+          Selected = i;
 
       // Fill items
       _items = _multiSampleTypes.Select(mst => LocalizationHelper.CreateStaticString(mst.ToString())).ToList();
-      Selected = selectedMsType;
     }
 
     public override void Save()
     {
       AppSettings settings = SettingsManager.Load<AppSettings>();
-      settings.MultiSampleType = Selected;
+      settings.MultisampleType = _multiSampleTypes[Selected];
       SettingsManager.Save(settings);
       // TODO: Reload DX settings, reset DX device
     }
