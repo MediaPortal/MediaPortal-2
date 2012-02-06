@@ -863,7 +863,7 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
         _currentSuperLayer = screen;
       }
       if (screen == null)
-        SetInputFocus_NoLock(GetScreens(false, true, true, false).Last());
+        SetInputFocus_NoLock(GetScreens(false, true, true, false).LastOrDefault());
       else
         UnfocusCurrentScreen_NoLock();
     }
