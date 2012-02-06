@@ -23,9 +23,7 @@
 #endregion
 
 using System;
-using System.Collections.Generic;
 using System.Drawing;
-using System.Linq;
 using System.Threading;
 using System.Windows.Forms;
 using MediaPortal.Common;
@@ -472,11 +470,6 @@ namespace MediaPortal.UI.SkinEngine.GUI
     public double ScreenSaverTimeoutMin
     {
       get { return _screenSaverTimeOut.TotalMinutes; }
-    }
-
-    public IList<string> DisplayModes
-    {
-      get { return GraphicsDevice.GetDisplayModes().Select(ToString).ToList(); }
     }
 
     public IntPtr MainWindowHandle

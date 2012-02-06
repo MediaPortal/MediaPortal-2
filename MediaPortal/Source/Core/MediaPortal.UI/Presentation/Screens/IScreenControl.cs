@@ -23,7 +23,6 @@
 #endregion
 
 using System;
-using System.Collections.Generic;
 
 namespace MediaPortal.UI.Presentation.Screens
 {
@@ -76,11 +75,6 @@ namespace MediaPortal.UI.Presentation.Screens
     /// <c>true</c> if this instance is fullscreen mode; otherwise, <c>false</c>.
     /// </value>
     bool IsFullScreen { get; }
-
-    /// <summary>
-    /// Returns available display modes.
-    /// </summary>
-    IList<string> DisplayModes { get; }
 
     /// <summary>
     /// Returns the window handle of the main window.
