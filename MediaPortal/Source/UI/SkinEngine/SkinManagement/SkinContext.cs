@@ -137,7 +137,7 @@ namespace MediaPortal.UI.SkinEngine.SkinManagement
     /// screen (window plus dialog). Everytime it is possible that a skinfile from the default skin
     /// is shown. The returned value by this property only takes respect of the current active skin.
     /// </remarks>
-    /// TODO: to be removed
+    [Obsolete("To be removed")]
     public static float MaxZoomHeight
     {
       get { return GraphicsDevice.DesktopHeight / (float) _skinResources.SkinHeight; }
@@ -150,7 +150,7 @@ namespace MediaPortal.UI.SkinEngine.SkinManagement
     /// <remarks>
     /// See the comment in <see cref="MaxZoomHeight"/>.
     /// </remarks>
-    /// TODO: to be removed
+    [Obsolete("To be removed")]
     public static float MaxZoomWidth
     {
       get { return GraphicsDevice.DesktopWidth / (float) _skinResources.SkinWidth; }
