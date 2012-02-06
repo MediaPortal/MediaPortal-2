@@ -173,11 +173,11 @@
     <StaticResource ResourceKey="FocusedButtonWideStoryboard_GrowOnly"/>
     <ColorAnimationUsingKeyFrames Storyboard.TargetName="ButtonBackground" Storyboard.TargetProperty="Fill.GradientStops[0].Color">
       <SplineColorKeyFrame KeyTime="00:00:00"    Value="#8C221E1F"/>
-      <SplineColorKeyFrame KeyTime="00:00:00.20" Value="#60FFFFFF"/>
+      <SplineColorKeyFrame KeyTime="00:00:00.20" Value="#FFFFFFFF"/>
     </ColorAnimationUsingKeyFrames>
     <ColorAnimationUsingKeyFrames Storyboard.TargetName="ButtonBackground" Storyboard.TargetProperty="Fill.GradientStops[1].Color">
       <SplineColorKeyFrame KeyTime="00:00:00"    Value="#00221E1F"/>
-      <SplineColorKeyFrame KeyTime="00:00:00.20" Value="#C40C4978"/>
+      <SplineColorKeyFrame KeyTime="00:00:00.20" Value="#CC288393"/>
     </ColorAnimationUsingKeyFrames>
   </Storyboard>
 
@@ -1081,8 +1081,9 @@
                 <ScaleTransform ScaleX="1" ScaleY="1"/>
               </TransformGroup>
             </Grid.RenderTransform>
-            <!--<Control Style="{ThemeResource OSDButtonControlStyle}" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"/>-->
 
+
+            <!-- OSD Button Control -->
             <Canvas Name="ButtonControlRectangle" Height="174" Width="174">
               <Ellipse x:Name="ButtonBackground" Height="160" Width="160" Canvas.Left="7" Canvas.Top="7">
                 <Ellipse.Fill>
@@ -1092,13 +1093,17 @@
                   </RadialGradientBrush>
                 </Ellipse.Fill>
               </Ellipse>
-              <Ellipse Height="156" Width="156" Canvas.Left="9" Canvas.Top="9" Stroke="#49000000" StrokeThickness="8" StrokeLineJoin="Miter"/>
+              <Ellipse Height="150" Width="150" Canvas.Left="12" Canvas.Top="12" StrokeThickness="16" StrokeLineJoin="Miter">
+                <Ellipse.Stroke>
+                  <RadialGradientBrush Center="0.3,0.3" GradientOrigin="0.5,0.5">
+                    <GradientStop Color="#40FFFFFF" Offset="0"/>
+                    <GradientStop Color="#CC303030" Offset="1"/>
+                  </RadialGradientBrush>
+                </Ellipse.Stroke>
+              </Ellipse>
 
-
-              <!--<Canvas x:Name="Pause" Height="167" Width="167">-->
+              <!-- Embedded symbol  -->
               <Control x:Name="ContentControl" Template="{DynamicResource ResourceKey=ContentControlTemplate}" />
-              <!--</Canvas>-->
-
 
               <Canvas.LayoutTransform>
                 <TransformGroup>
@@ -1183,6 +1188,7 @@
     </Style.Resources>
   </Style>
 
+  <!-- audio mute control style -->
   <Style x:Key="AudioActiveButtonStyle" BasedOn="{ThemeResource BasePlayerControlButtonStyle}">
     <Style.Resources>
       <ResourceWrapper x:Key="ContentControlTemplate">
@@ -1196,148 +1202,18 @@
       </ResourceWrapper>
     </Style.Resources>
   </Style>
-
-  <!-- audio mute control style -->
-  <!--<Style x:Key="AudioActiveButtonStyle" TargetType="{x:Type CheckBox}">
-    <Setter Property="Template">
-      <Setter.Value>
-        <ControlTemplate TargetType="{x:Type CheckBox}">
-          <Grid x:Name="GrowControl" RenderTransformOrigin="0.5,0.5">
-            <Grid.ColumnDefinitions>
-              <ColumnDefinition Width="*"/>
-            </Grid.ColumnDefinitions>
-            <Grid.RowDefinitions>
-              <RowDefinition Height="*"/>
-            </Grid.RowDefinitions>
-            <Grid.RenderTransform>
-              <TransformGroup>
-                <ScaleTransform ScaleX="1" ScaleY="1"/>
-              </TransformGroup>
-            </Grid.RenderTransform>
-
-            <Canvas Name="ButtonControlRectangle" Height="174" Width="174">
-              <Ellipse x:Name="ButtonBackground" Height="160" Width="160" Canvas.Left="7" Canvas.Top="7">
-                <Ellipse.Fill>
-                  <RadialGradientBrush Center="0.5,0.5" GradientOrigin="0.5,0.5">
-                    <GradientStop Color="#00221E1F" Offset="0"/>
-                    <GradientStop Color="#8C221E1F" Offset="1"/>
-                  </RadialGradientBrush>
-                </Ellipse.Fill>
-              </Ellipse>
-              <Ellipse Height="156" Width="156" Canvas.Left="9" Canvas.Top="9" Stroke="#49000000" StrokeThickness="8" StrokeLineJoin="Miter"/>
-
-              <Control x:Name="Audio" Template="{ThemeResource AudioActiveControlTemplate}" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"/>
-              <Control x:Name="MuteOnOff" Template="{ThemeResource MuteOnOffControlTemplate}" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"
-                 IsVisible="{Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorType={x:Type mp_special_controls:PlayerControl}},Path=IsMuted}"/>
-
-
-              <Canvas.LayoutTransform>
-                <TransformGroup>
-                  <ScaleTransform ScaleX="0.4" ScaleY="0.4"/>
-                </TransformGroup>
-              </Canvas.LayoutTransform>
-            </Canvas>
+  
+  <Style x:Key="AudioInactiveButtonStyle" BasedOn="{ThemeResource BasePlayerControlButtonStyle}">
+    <Style.Resources>
+      <ResourceWrapper x:Key="ContentControlTemplate">
+        <ControlTemplate>
+          <Grid>
+             <Control x:Name="Audio" Template="{ThemeResource AudioInactiveControlTemplate}" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"/>
           </Grid>
-          <ControlTemplate.Triggers>
-            <Trigger Property="HasFocus" Value="True">
-              <Trigger.EnterActions>
-                <BeginStoryboard x:Name="Focused_BeginStoryboard" Storyboard="{ThemeResource FocusedButtonStoryboard}"/>
-              </Trigger.EnterActions>
-              <Trigger.ExitActions>
-                <StopStoryboard BeginStoryboardName="Focused_BeginStoryboard"/>
-              </Trigger.ExitActions>
-            </Trigger>
-            <Trigger Property="IsPressed" Value="True">
-              <Trigger.EnterActions>
-                <BeginStoryboard x:Name="Pressed_BeginStoryboard" Storyboard="{ThemeResource PressedButtonStoryboard}"
-                    HandoffBehavior="TemporaryReplace"/>
-              </Trigger.EnterActions>
-              <Trigger.ExitActions>
-                <StopStoryboard BeginStoryboardName="Pressed_BeginStoryboard"/>
-              </Trigger.ExitActions>
-            </Trigger>
-            <Trigger Property="IsEnabled" Value="False">
-              <Trigger.EnterActions>
-                <BeginStoryboard x:Name="Disabled_BeginStoryboard" Storyboard="{ThemeResource DisabledButtonStoryboard}"/>
-              </Trigger.EnterActions>
-              <Trigger.ExitActions>
-                <StopStoryboard BeginStoryboardName="Disabled_BeginStoryboard"/>
-              </Trigger.ExitActions>
-            </Trigger>
-          </ControlTemplate.Triggers>
         </ControlTemplate>
-      </Setter.Value>
-    </Setter>
-  </Style>-->
-
-  <Style x:Key="AudioInactiveButtonStyle" TargetType="{x:Type CheckBox}">
-    <Setter Property="Template">
-      <Setter.Value>
-        <ControlTemplate TargetType="{x:Type CheckBox}">
-          <Grid x:Name="GrowControl" RenderTransformOrigin="0.5,0.5">
-            <Grid.ColumnDefinitions>
-              <ColumnDefinition Width="*"/>
-            </Grid.ColumnDefinitions>
-            <Grid.RowDefinitions>
-              <RowDefinition Height="*"/>
-            </Grid.RowDefinitions>
-            <Grid.RenderTransform>
-              <TransformGroup>
-                <ScaleTransform ScaleX="1" ScaleY="1"/>
-              </TransformGroup>
-            </Grid.RenderTransform>
-            <Canvas Name="ButtonControlRectangle" Height="174" Width="174">
-              <Ellipse x:Name="ButtonBackground" Height="160" Width="160" Canvas.Left="7" Canvas.Top="7">
-                <Ellipse.Fill>
-                  <RadialGradientBrush Center="0.5,0.5" GradientOrigin="0.5,0.5">
-                    <GradientStop Color="#00221E1F" Offset="0"/>
-                    <GradientStop Color="#8C221E1F" Offset="1"/>
-                  </RadialGradientBrush>
-                </Ellipse.Fill>
-              </Ellipse>
-              <Ellipse Height="156" Width="156" Canvas.Left="9" Canvas.Top="9" Stroke="#49000000" StrokeThickness="8" StrokeLineJoin="Miter"/>
-
-              <Control x:Name="Audio" Template="{ThemeResource AudioInactiveControlTemplate}" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"/>
-
-              <Canvas.LayoutTransform>
-                <TransformGroup>
-                  <ScaleTransform ScaleX="0.4" ScaleY="0.4"/>
-                </TransformGroup>
-              </Canvas.LayoutTransform>
-            </Canvas>
-          </Grid>
-          <ControlTemplate.Triggers>
-            <Trigger Property="HasFocus" Value="True">
-              <Trigger.EnterActions>
-                <BeginStoryboard x:Name="Focused_BeginStoryboard" Storyboard="{ThemeResource FocusedButtonStoryboard}"/>
-              </Trigger.EnterActions>
-              <Trigger.ExitActions>
-                <StopStoryboard BeginStoryboardName="Focused_BeginStoryboard"/>
-              </Trigger.ExitActions>
-            </Trigger>
-            <Trigger Property="IsPressed" Value="True">
-              <Trigger.EnterActions>
-                <BeginStoryboard x:Name="Pressed_BeginStoryboard" Storyboard="{ThemeResource PressedButtonStoryboard}"
-                    HandoffBehavior="TemporaryReplace"/>
-              </Trigger.EnterActions>
-              <Trigger.ExitActions>
-                <StopStoryboard BeginStoryboardName="Pressed_BeginStoryboard"/>
-              </Trigger.ExitActions>
-            </Trigger>
-            <Trigger Property="IsEnabled" Value="False">
-              <Trigger.EnterActions>
-                <BeginStoryboard x:Name="Disabled_BeginStoryboard" Storyboard="{ThemeResource DisabledButtonStoryboard}"/>
-              </Trigger.EnterActions>
-              <Trigger.ExitActions>
-                <StopStoryboard BeginStoryboardName="Disabled_BeginStoryboard"/>
-              </Trigger.ExitActions>
-            </Trigger>
-          </ControlTemplate.Triggers>
-        </ControlTemplate>
-      </Setter.Value>
-    </Setter>
+      </ResourceWrapper>
+    </Style.Resources>
   </Style>
-
 
   <!-- global buttons -->
 

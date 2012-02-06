@@ -23,7 +23,7 @@
               <RowDefinition Height="80"/>
             </Grid.RowDefinitions>
 
-            <Rectangle Grid.Column="0" Grid.Row="0" Fill="#FFEEEEEE" Height="5" HorizontalAlignment="Stretch"/>
+            <Rectangle Grid.Column="0" Grid.Row="0" Fill="#FFEEEEEE" Height="2" HorizontalAlignment="Stretch"/>
             <Rectangle Grid.Column="0" Grid.Row="1" Fill="#FF363535" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Opacity="0.7"/>
             <Rectangle Grid.Column="0" Grid.Row="1" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Opacity="0.08">
               <Rectangle.Fill>
