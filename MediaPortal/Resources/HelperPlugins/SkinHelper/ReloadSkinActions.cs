@@ -24,6 +24,7 @@
 
 using MediaPortal.Common;
 using MediaPortal.UI.Control.InputManager;
+using MediaPortal.UI.Presentation.Actions;
 using MediaPortal.UI.Presentation.Screens;
 using MediaPortal.UI.Presentation.SkinResources;
 using MediaPortal.UI.SkinEngine.SkinManagement;
@@ -51,9 +52,9 @@ namespace MediaPortal.Helpers.SkinHelper
     public void RegisterKeyActions()
     {
       IInputManager inputManager = ServiceRegistration.Get<IInputManager>();
-      inputManager.AddKeyBinding(RELOAD_SCREEN_KEY, ReloadScreenAction);
-      inputManager.AddKeyBinding(RELOAD_THEME_KEY, ReloadThemeAction);
-      inputManager.AddKeyBinding(SAVE_SKIN_AND_THEME_KEY, SaveSkinAndThemeAction);
+      inputManager.AddKeyBinding(RELOAD_SCREEN_KEY, new VoidKeyActionDlgt(ReloadScreenAction));
+      inputManager.AddKeyBinding(RELOAD_THEME_KEY, new VoidKeyActionDlgt(ReloadThemeAction));
+      inputManager.AddKeyBinding(SAVE_SKIN_AND_THEME_KEY, new VoidKeyActionDlgt(SaveSkinAndThemeAction));
     }
 
     public void UnregisterKeyActions()
