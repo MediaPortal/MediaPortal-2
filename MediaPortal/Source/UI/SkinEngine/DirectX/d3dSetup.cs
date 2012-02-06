@@ -72,7 +72,7 @@ namespace MediaPortal.UI.SkinEngine.DirectX
       WarnSwitchToRef
     }
 
-    private System.Windows.Forms.Control _ourRenderTarget; // The window we will render too
+    private System.Windows.Forms.Control _renderTarget; // The window we will render too
 
     // We need to keep track of our enumeration settings
     protected D3DEnumeration _enumerationSettings = new D3DEnumeration();
@@ -80,13 +80,12 @@ namespace MediaPortal.UI.SkinEngine.DirectX
     protected D3DSettings _graphicsSettings = new D3DSettings();
     private PresentParameters _presentParams = new PresentParameters();
     protected string _deviceStats; // String to hold D3D device stats
-    private Form _window;
     bool _usingPerfHud = false;
 
     protected System.Windows.Forms.Control RenderTarget
     {
-      get { return _ourRenderTarget; }
-      set { _ourRenderTarget = value; }
+      get { return _renderTarget; }
+      set { _renderTarget = value; }
     }
 
     public IList<DisplayMode> GetDisplayModes()
@@ -150,15 +149,14 @@ namespace MediaPortal.UI.SkinEngine.DirectX
     /// <returns>Device, if a good device was found, else <c>null</c>.</returns>
     public DeviceEx SetupDirectX(Form form)
     {
-      _window = form;
-      RenderTarget = form;
+      _renderTarget = form;
       _enumerationSettings.ConfirmDeviceCallback = ConfirmDevice;
       _enumerationSettings.Enumerate();
 
-      if (_ourRenderTarget.Cursor == null)
+      if (_renderTarget.Cursor == null)
       {
         // Set up a default cursor
-        _ourRenderTarget.Cursor = Cursors.Default;
+        _renderTarget.Cursor = Cursors.Default;
       }
 
       try
@@ -265,21 +263,15 @@ namespace MediaPortal.UI.SkinEngine.DirectX
       _graphicsSettings.WindowedDeviceInfo = bestDeviceInfo;
       _graphicsSettings.WindowedDeviceCombo = bestDeviceCombo;
       _graphicsSettings.WindowedDisplayMode = primaryDesktopDisplayMode;
-      _graphicsSettings.WindowedWidth = _ourRenderTarget.Width;
-      _graphicsSettings.WindowedHeight = _ourRenderTarget.Height;
+      _graphicsSettings.WindowedWidth = _renderTarget.Width;
+      _graphicsSettings.WindowedHeight = _renderTarget.Height;
       if (_enumerationSettings.AppUsesDepthBuffer)
         _graphicsSettings.WindowedDepthStencilBufferFormat = bestDeviceCombo.DepthStencilFormats.FirstOrDefault();
 
       AppSettings settings = ServiceRegistration.Get<ISettingsManager>().Load<AppSettings>();
 
       _graphicsSettings.WindowedMultisampleType = settings.MultisampleType;
-      int quality = 1;
-      foreach (KeyValuePair<MultisampleType, int> mst2quality in bestDeviceCombo.MultisampleTypes)
-      {
-        if (mst2quality.Key == _graphicsSettings.WindowedMultisampleType)
-          quality = mst2quality.Value;
-      }
-      _graphicsSettings.WindowedMultisampleQuality = quality - 1;
+      _graphicsSettings.WindowedMultisampleQuality = 0;
 
       _graphicsSettings.WindowedVertexProcessingType = bestDeviceCombo.VertexProcessingTypes.FirstOrDefault();
       _graphicsSettings.WindowedPresentInterval = bestDeviceCombo.PresentIntervals.FirstOrDefault();
@@ -453,7 +445,7 @@ namespace MediaPortal.UI.SkinEngine.DirectX
         DeviceEx result = new DeviceEx(MPDirect3D.Direct3D,
             _graphicsSettings.AdapterOrdinal,
             _graphicsSettings.DevType,
-            _ourRenderTarget.Handle,
+            _renderTarget.Handle,
             createFlags | CreateFlags.Multithreaded,
             _presentParams);
 
@@ -550,15 +542,19 @@ namespace MediaPortal.UI.SkinEngine.DirectX
       _presentParams.EnableAutoDepthStencil = false;
 
       ServiceRegistration.Get<ILogger>().Debug("BuildPresentParamsFromSettings windowed {0} {1} {2}",
-          _graphicsSettings.IsWindowed, _ourRenderTarget.ClientRectangle.Width, _ourRenderTarget.ClientRectangle.Height);
+          _graphicsSettings.IsWindowed, _renderTarget.ClientRectangle.Width, _renderTarget.ClientRectangle.Height);
+
+      _presentParams.PresentFlags = PresentFlags.Video; //PresentFlag.LockableBackBuffer;
+      _presentParams.DeviceWindowHandle = _renderTarget.Handle;
+      _presentParams.Windowed = _graphicsSettings.IsWindowed;
 
       if (_graphicsSettings.IsWindowed)
       {
         _presentParams.Multisample =  _graphicsSettings.WindowedMultisampleType;
         _presentParams.MultisampleQuality = _graphicsSettings.WindowedMultisampleQuality;
         _presentParams.AutoDepthStencilFormat = _graphicsSettings.WindowedDepthStencilBufferFormat;
-        _presentParams.BackBufferWidth = _ourRenderTarget.ClientRectangle.Width;
-        _presentParams.BackBufferHeight = _ourRenderTarget.ClientRectangle.Height;
+        _presentParams.BackBufferWidth = _renderTarget.ClientRectangle.Width;
+        _presentParams.BackBufferHeight = _renderTarget.ClientRectangle.Height;
         _presentParams.BackBufferFormat = _graphicsSettings.BackBufferFormat;
         _presentParams.BackBufferCount = _graphicsSettings.BackBufferCount;
 #if PROFILE_PERFORMANCE
@@ -571,9 +567,6 @@ namespace MediaPortal.UI.SkinEngine.DirectX
 #endif
         _presentParams.FullScreenRefreshRateInHertz = 0;
         _presentParams.SwapEffect = _graphicsSettings.WindowedSwapEffect;
-        _presentParams.PresentFlags = PresentFlags.Video; //PresentFlag.LockableBackBuffer;
-        _presentParams.DeviceWindowHandle = _ourRenderTarget.Handle;
-        _presentParams.Windowed = true;
       }
       else
       {
@@ -596,9 +589,6 @@ namespace MediaPortal.UI.SkinEngine.DirectX
 #endif
         _presentParams.FullScreenRefreshRateInHertz = _graphicsSettings.DisplayMode.RefreshRate;
         _presentParams.SwapEffect = SwapEffect.Discard;
-        _presentParams.PresentFlags = PresentFlags.Video; //|PresentFlag.LockableBackBuffer;
-        _presentParams.DeviceWindowHandle = _window.Handle;
-        _presentParams.Windowed = false;
       }
     }
   }
