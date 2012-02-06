@@ -36,7 +36,7 @@ namespace MediaPortal.UI.SkinEngine.Settings.Configuration.Appearance
   {
     #region Variables
 
-    private IList<MultisampleType> _multiSampleTypes;
+    private IList<MultisampleType> _multisampleTypes;
 
     #endregion
 
@@ -44,20 +44,19 @@ namespace MediaPortal.UI.SkinEngine.Settings.Configuration.Appearance
 
     public override void Load()
     {
-      _multiSampleTypes = new List<MultisampleType>(GraphicsDevice.WindowedMultisampleTypes);
+      _multisampleTypes = new List<MultisampleType>(GraphicsDevice.WindowedMultisampleTypes);
       MultisampleType selectedMsType = SettingsManager.Load<AppSettings>().MultisampleType;
-      for (int i = 0; i < _multiSampleTypes.Count; i++)
-        if (selectedMsType == _multiSampleTypes[i])
-          Selected = i;
+      Selected = _multisampleTypes.IndexOf(selectedMsType);
 
       // Fill items
-      _items = _multiSampleTypes.Select(mst => LocalizationHelper.CreateStaticString(mst.ToString())).ToList();
+      _items = _multisampleTypes.Select(mst => LocalizationHelper.CreateStaticString(mst.ToString())).ToList();
     }
 
     public override void Save()
     {
       AppSettings settings = SettingsManager.Load<AppSettings>();
-      settings.MultisampleType = _multiSampleTypes[Selected];
+      int selected = Selected;
+      settings.MultisampleType = selected > -1 && selected < _multisampleTypes.Count ? _multisampleTypes[selected] : MultisampleType.None;
       SettingsManager.Save(settings);
       // TODO: Reload DX settings, reset DX device
     }
