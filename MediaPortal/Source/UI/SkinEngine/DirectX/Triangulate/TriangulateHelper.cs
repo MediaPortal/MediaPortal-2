@@ -248,7 +248,7 @@ namespace MediaPortal.UI.SkinEngine.DirectX.Triangulate
           switch (lineJoin)
           {
             case PenLineJoin.Round:
-              // We fallback to the Miter because we don't support the Round line join yet.
+            // We fallback to the Miter because we don't support the Round line join yet.
             case PenLineJoin.Miter:
               // We need to calculate the intersection of the 2 moved lines (Line A: movedCurrent/movedNext and Line B: movedLast0/movedLast1)
               PointF intersection;
@@ -507,6 +507,9 @@ namespace MediaPortal.UI.SkinEngine.DirectX.Triangulate
         last = point;
         result.Add(point);
       }
+      // Check if the last point of the list is same as the start point, then remove it
+      if (result.Count > 2 && SamePoints(result[0], result[result.Count - 1]))
+        result.Remove(result[result.Count - 1]);
       return result.ToArray();
     }
 
