@@ -74,13 +74,11 @@ namespace MediaPortal.UI.SkinEngine.DirectX
 
     private System.Windows.Forms.Control _renderTarget; // The window we will render too
 
-    // We need to keep track of our enumeration settings
     protected D3DEnumeration _enumerationSettings = new D3DEnumeration();
 
-    protected D3DSettings _graphicsSettings = new D3DSettings();
-    private PresentParameters _presentParams = new PresentParameters();
-    protected string _deviceStats; // String to hold D3D device stats
-    bool _usingPerfHud = false;
+    protected DisplayMode _desktopDisplayMode;
+    protected D3DConfiguration _currentGraphicsConfiguration = null;
+    private PresentParameters _presentParams = null;
 
     protected System.Windows.Forms.Control RenderTarget
     {
@@ -88,36 +86,19 @@ namespace MediaPortal.UI.SkinEngine.DirectX
       set { _renderTarget = value; }
     }
 
-    public IList<DisplayMode> GetDisplayModes()
+    public DisplayMode DesktopDisplayMode
     {
-      return _graphicsSettings.FullscreenDisplayModes.Where(mode => mode.Width != 0 || mode.Height != 0 || mode.RefreshRate != 0).ToList();
-    }
-
-    public string DesktopDisplayMode
-    {
-      get
-      {
-        DisplayMode mode = _graphicsSettings.FullscreenDisplayModes[_graphicsSettings.DesktopDisplayMode];
-        return string.Format("{0}x{1}@{2}", mode.Width, mode.Height, mode.RefreshRate);
-      }
+      get { return _desktopDisplayMode; }
     }
 
     public int DesktopHeight
     {
-      get
-      {
-        DisplayMode mode = _graphicsSettings.FullscreenDisplayModes[_graphicsSettings.DesktopDisplayMode];
-        return mode.Height;
-      }
+      get { return _desktopDisplayMode.Height; }
     }
 
     public int DesktopWidth
     {
-      get
-      {
-        DisplayMode mode = _graphicsSettings.FullscreenDisplayModes[_graphicsSettings.DesktopDisplayMode];
-        return mode.Width;
-      }
+      get { return _desktopDisplayMode.Width; }
     }
 
     public PresentParameters PresentParameters
@@ -126,30 +107,29 @@ namespace MediaPortal.UI.SkinEngine.DirectX
       set { _presentParams = value; }
     }
 
-    public bool Windowed
+    public D3DConfiguration CurrentConfiguration
     {
-      get { return _graphicsSettings.IsWindowed; }
-      set { _graphicsSettings.IsWindowed = value; }
+      get { return _currentGraphicsConfiguration; }
     }
 
-    public IEnumerable<MultisampleType> WindowedMultisampleTypes
+    public IEnumerable<MultisampleType> MultisampleTypes
     {
-      get { return _graphicsSettings.WindowedDeviceCombo.MultisampleTypes.Select(mst => mst.Key); }
+      get { return _currentGraphicsConfiguration.DeviceCombo.MultisampleTypes.Select(mst => mst.Key); }
     }
 
-    public Present WindowedPresent
+    public Present Present
     {
-      get { return _graphicsSettings.WindowedPresent; }
+      get { return _presentParams.Multisample == MultisampleType.None ? Present.ForceImmediate : Present.None; }
     }
 
     /// <summary>
     /// Picks the best graphics device and initializes it.
     /// </summary>
-    /// <param name="form">The form.</param>
+    /// <param name="window">The form which will be used as render target for MediaPortal.</param>
     /// <returns>Device, if a good device was found, else <c>null</c>.</returns>
-    public DeviceEx SetupDirectX(Form form)
+    public DeviceEx SetupDirectX(Form window)
     {
-      _renderTarget = form;
+      _renderTarget = window;
       _enumerationSettings.ConfirmDeviceCallback = ConfirmDevice;
       _enumerationSettings.Enumerate();
 
@@ -161,58 +141,132 @@ namespace MediaPortal.UI.SkinEngine.DirectX
 
       try
       {
-        if (!FindBestModes())
+        D3DConfiguration configuration = FindBestWindowedMode(false, false);
+        if (configuration == null)
+        {
+          ServiceRegistration.Get<ILogger>().Critical("D3DSetup: Failed to find best windowed display mode.");
           Environment.Exit(0);
+        }
 
         // Initialize the 3D environment for the app
-        _graphicsSettings.IsWindowed = true;
-        return CreateDevice();
+        try
+        { 
+          return CreateDevice(configuration);
+        }
+        catch (Exception e)
+        {
+          ServiceRegistration.Get<ILogger>().Critical("D3DSetup: Failed to initialize windowed display mode. Falling back to reference rasterizer.");
+          if (configuration.DeviceInfo.DevType == DeviceType.Hardware)
+          {
+            // Let the user know we are switching from HAL to the reference rasterizer
+            HandleException(e, ApplicationMessage.WarnSwitchToRef);
+
+            configuration = FindBestWindowedMode(false, true);
+            if (configuration == null)
+            {
+              ServiceRegistration.Get<ILogger>().Critical("D3DSetup: Failed to find display mode with reference rasterizer.");
+              Environment.Exit(0);
+            }
+
+            return CreateDevice(configuration);
+          }
+        }
       }
       catch (Exception ex)
       {
         HandleException(ex, ApplicationMessage.ApplicationMustExit);
-        return null;
       }
+      Environment.Exit(0);
+      return null;
     }
 
     /// <summary>
-    /// Sets up graphicsSettings with best available windowed mode, subject to 
+    /// Creates the DirectX device.
+    /// </summary>
+    public DeviceEx CreateDevice(D3DConfiguration configuration)
+    {
+      GraphicsAdapterInfo adapterInfo = configuration.AdapterInfo;
+      GraphicsDeviceInfo deviceInfo = configuration.DeviceInfo;
+
+      // Set up the presentation parameters
+      BuildPresentParamsFromSettings(configuration);
+
+      if ((deviceInfo.Caps.PrimitiveMiscCaps & PrimitiveMiscCaps.NullReference) != 0)
+        // Warn user about null ref device that can't render anything
+        HandleException(new NullReferenceDeviceException(), ApplicationMessage.None);
+
+      CreateFlags createFlags;
+      if (configuration.DeviceCombo.VertexProcessingTypes.Contains(VertexProcessingType.PureHardware))
+        createFlags = CreateFlags.HardwareVertexProcessing; // | CreateFlags.PureDevice;
+      else if (configuration.DeviceCombo.VertexProcessingTypes.Contains(VertexProcessingType.Hardware))
+        createFlags = CreateFlags.HardwareVertexProcessing;
+      else if (configuration.DeviceCombo.VertexProcessingTypes.Contains(VertexProcessingType.Mixed))
+        createFlags = CreateFlags.MixedVertexProcessing;
+      else if (configuration.DeviceCombo.VertexProcessingTypes.Contains(VertexProcessingType.Software))
+        createFlags = CreateFlags.SoftwareVertexProcessing;
+      else
+        throw new ApplicationException();
+
+      ServiceRegistration.Get<ILogger>().Info("DirectX: Using adapter: {0} {1} {2}",
+          configuration.AdapterInfo.AdapterOrdinal,
+          MPDirect3D.Direct3D.Adapters[configuration.AdapterInfo.AdapterOrdinal].Details.Description,
+          configuration.DeviceInfo.DevType);
+
+      // Create the device
+      DeviceEx result = new DeviceEx(MPDirect3D.Direct3D,
+          configuration.AdapterInfo.AdapterOrdinal,
+          configuration.DeviceInfo.DevType,
+          _renderTarget.Handle,
+          createFlags | CreateFlags.Multithreaded,
+          _presentParams);
+
+      // When moving from fullscreen to windowed mode, it is important to
+      // adjust the window size after recreating the device rather than
+      // beforehand to ensure that you get the window size you want.  For
+      // example, when switching from 640x480 fullscreen to windowed with
+      // a 1000x600 window on a 1024x768 desktop, it is impossible to set
+      // the window size to 1000x600 until after the display mode has
+      // changed to 1024x768, because windows cannot be larger than the
+      // desktop.
+
+      StringBuilder sb = new StringBuilder();
+
+      // Store device description
+      if (deviceInfo.DevType == DeviceType.Reference)
+        sb.Append("REF");
+      else if (deviceInfo.DevType == DeviceType.Hardware)
+        sb.Append("HAL");
+      else if (deviceInfo.DevType == DeviceType.Software)
+        sb.Append("SW");
+
+      if (deviceInfo.DevType == DeviceType.Hardware)
+      {
+        sb.Append(": ");
+        sb.Append(adapterInfo.AdapterDetails.Description);
+      }
+
+      ServiceRegistration.Get<ILogger>().Info("DirectX: {0}", sb.ToString());
+      return result;
+    }
+
+    /// <summary>
+    /// Returns a settings object with best available windowed mode, according to 
     /// the <paramref name="doesRequireHardware"/> and <paramref name="doesRequireReference"/> constraints.  
     /// </summary>
     /// <param name="doesRequireHardware">The device requires hardware support.</param>
     /// <param name="doesRequireReference">The device requires the ref device.</param>
     /// <returns><c>true</c> if a mode is found, <c>false</c> otherwise.</returns>
-    public bool FindBestWindowedMode(bool doesRequireHardware, bool doesRequireReference)
+    public D3DConfiguration FindBestWindowedMode(bool doesRequireHardware, bool doesRequireReference)
     {
-      // Get display mode of primary adapter (which is assumed to be where the window will appear)
+      D3DConfiguration result = new D3DConfiguration();
 
+      // Get display mode of primary adapter (which is assumed to be where the window will appear)
       DisplayMode primaryDesktopDisplayMode = MPDirect3D.Direct3D.Adapters[0].CurrentDisplayMode;
-      bool perfHudFound = false;
-      for (int i = 0; i < MPDirect3D.Direct3D.Adapters.Count; ++i)
-      {
-        AdapterInformation adapter = MPDirect3D.Direct3D.Adapters[i];
-        string name = adapter.Details.Description;
-        if ("NVIDIA PerfHUD".Equals(name, StringComparison.InvariantCultureIgnoreCase))
-        {
-          ServiceRegistration.Get<ILogger>().Info("DirectX: Found PerfHUD adapter: {0} {1} ", i, adapter.Details.Description);
-          primaryDesktopDisplayMode = adapter.CurrentDisplayMode;
-          perfHudFound = true;
-          _usingPerfHud = true;
-          doesRequireReference = true;
-          break;
-        }
-      }
       GraphicsAdapterInfo bestAdapterInfo = null;
       GraphicsDeviceInfo bestDeviceInfo = null;
       DeviceCombo bestDeviceCombo = null;
       foreach (GraphicsAdapterInfo adapterInfo in _enumerationSettings.AdapterInfoList)
       {
-        if (perfHudFound)
-        {
-          string name = adapterInfo.AdapterDetails.Description;
-          if (!"NVIDIA PerfHUD".Equals(name, StringComparison.InvariantCultureIgnoreCase))
-            continue;
-        }
         /*
         if (GUIGraphicsContext._useScreenSelector)
         {
@@ -228,11 +282,12 @@ namespace MediaPortal.UI.SkinEngine.DirectX
 
           foreach (DeviceCombo deviceCombo in deviceInfo.DeviceCombos)
           {
-            bool adapterMatchesBackBuffer = (deviceCombo.BackBufferFormat == deviceCombo.AdapterFormat);
             if (!deviceCombo.IsWindowed)
               continue;
             if (deviceCombo.AdapterFormat != primaryDesktopDisplayMode.Format)
               continue;
+
+            bool adapterMatchesBackBuffer = (deviceCombo.BackBufferFormat == deviceCombo.AdapterFormat);
 
             // If we haven't found a compatible DeviceCombo yet, or if this set
             // is better (because it's a HAL, and/or because formats match better),
@@ -257,55 +312,42 @@ namespace MediaPortal.UI.SkinEngine.DirectX
 
     EndWindowedDeviceComboSearch:
       if (bestDeviceCombo == null)
-        return false;
+        return null;
 
-      _graphicsSettings.WindowedAdapterInfo = bestAdapterInfo;
-      _graphicsSettings.WindowedDeviceInfo = bestDeviceInfo;
-      _graphicsSettings.WindowedDeviceCombo = bestDeviceCombo;
-      _graphicsSettings.WindowedDisplayMode = primaryDesktopDisplayMode;
-      _graphicsSettings.WindowedWidth = _renderTarget.Width;
-      _graphicsSettings.WindowedHeight = _renderTarget.Height;
-      if (_enumerationSettings.AppUsesDepthBuffer)
-        _graphicsSettings.WindowedDepthStencilBufferFormat = bestDeviceCombo.DepthStencilFormats.FirstOrDefault();
+      result.AdapterInfo = bestAdapterInfo;
+      result.DeviceInfo = bestDeviceInfo;
+      result.DeviceCombo = bestDeviceCombo;
+      result.DisplayMode = primaryDesktopDisplayMode;
 
-      AppSettings settings = ServiceRegistration.Get<ISettingsManager>().Load<AppSettings>();
-
-      _graphicsSettings.WindowedMultisampleType = settings.MultisampleType;
-      _graphicsSettings.WindowedMultisampleQuality = 0;
-
-      _graphicsSettings.WindowedVertexProcessingType = bestDeviceCombo.VertexProcessingTypes.FirstOrDefault();
-      _graphicsSettings.WindowedPresentInterval = bestDeviceCombo.PresentIntervals.FirstOrDefault();
-
-      return true;
+      return result;
     }
 
     /// <summary>
-    /// Sets up graphicsSettings with best available fullscreen mode, subject to 
-    /// the doesRequireHardware and doesRequireReference constraints.  
+    /// Returns a settings object with best available fullscreen mode, according to 
+    /// the <paramref name="doesRequireHardware"/> and <paramref name="doesRequireReference"/> constraints.  
     /// </summary>
-    /// <param name="doesRequireHardware">Does the device require hardware support</param>
-    /// <param name="doesRequireReference">Does the device require the ref device</param>
-    /// <returns>true if a mode is found, false otherwise</returns>
+    /// <param name="doesRequireHardware">The device requires hardware support.</param>
+    /// <param name="doesRequireReference">The device requires the ref device.</param>
+    /// <returns><c>true</c> if a mode is found, <c>false</c> otherwise.</returns>
     public bool FindBestFullscreenMode(bool doesRequireHardware, bool doesRequireReference)
     {
+      D3DConfiguration result = new D3DConfiguration();
+
       // For fullscreen, default to first HAL DeviceCombo that supports the current desktop 
       // display mode, or any display mode if HAL is not compatible with the desktop mode, or 
       // non-HAL if no HAL is available
-      DisplayMode adapterDesktopDisplayMode;
-      DisplayMode bestAdapterDesktopDisplayMode = new DisplayMode {Width = 0, Height = 0, Format = 0, RefreshRate = 0};
+      DisplayMode bestAdapterDesktopDisplayMode = new DisplayMode();
 
       GraphicsAdapterInfo bestAdapterInfo = null;
       GraphicsDeviceInfo bestDeviceInfo = null;
       DeviceCombo bestDeviceCombo = null;
 
-      foreach (GraphicsAdapterInfo adapterInfoIterate in _enumerationSettings.AdapterInfoList)
+      foreach (GraphicsAdapterInfo adapterInfo in _enumerationSettings.AdapterInfoList)
       {
-        GraphicsAdapterInfo adapterInfo = adapterInfoIterate;
-
         //if (GUIGraphicsContext._useScreenSelector)
         //  adapterInfo = FindAdapterForScreen(GUI.Library.GUIGraphicsContext.currentScreen);
 
-        adapterDesktopDisplayMode = MPDirect3D.Direct3D.Adapters[adapterInfo.AdapterOrdinal].CurrentDisplayMode;
+        DisplayMode adapterDesktopDisplayMode = MPDirect3D.Direct3D.Adapters[adapterInfo.AdapterOrdinal].CurrentDisplayMode;
         foreach (GraphicsDeviceInfo deviceInfo in adapterInfo.DeviceInfos)
         {
           if (doesRequireHardware && deviceInfo.DevType != DeviceType.Hardware)
@@ -315,10 +357,11 @@ namespace MediaPortal.UI.SkinEngine.DirectX
 
           foreach (DeviceCombo deviceCombo in deviceInfo.DeviceCombos)
           {
-            bool adapterMatchesBackBuffer = (deviceCombo.BackBufferFormat == deviceCombo.AdapterFormat);
-            bool adapterMatchesDesktop = (deviceCombo.AdapterFormat == adapterDesktopDisplayMode.Format);
             if (deviceCombo.IsWindowed)
               continue;
+
+            bool adapterMatchesBackBuffer = (deviceCombo.BackBufferFormat == deviceCombo.AdapterFormat);
+            bool adapterMatchesDesktop = (deviceCombo.AdapterFormat == adapterDesktopDisplayMode.Format);
 
             // If we haven't found a compatible set yet, or if this set
             // is better (because it's a HAL, and/or because formats match better),
@@ -350,152 +393,22 @@ namespace MediaPortal.UI.SkinEngine.DirectX
 
       // Need to find a display mode on the best adapter that uses pBestDeviceCombo->AdapterFormat
       // and is as close to bestAdapterDesktopDisplayMode's res as possible
-
-      int NumberOfFullscreenDisplayModes = 0;
       foreach (DisplayMode displayMode in bestAdapterInfo.DisplayModes)
       {
         if (displayMode.Format != bestDeviceCombo.AdapterFormat)
           continue;
-        if (NumberOfFullscreenDisplayModes == _graphicsSettings.FullscreenDisplayModes.Length)
-          break;
         if (displayMode.Width == bestAdapterDesktopDisplayMode.Width &&
             displayMode.Height == bestAdapterDesktopDisplayMode.Height &&
             displayMode.RefreshRate == bestAdapterDesktopDisplayMode.RefreshRate)
-        {
-          _graphicsSettings.CurrentFullscreenDisplayMode = NumberOfFullscreenDisplayModes;
-          _graphicsSettings.DesktopDisplayMode = NumberOfFullscreenDisplayModes;
-        }
-        _graphicsSettings.FullscreenDisplayModes[NumberOfFullscreenDisplayModes++] = displayMode;
+          _desktopDisplayMode = displayMode;
       }
 
-      if (NumberOfFullscreenDisplayModes == 0)
-        return false;
-
-      _graphicsSettings.FullscreenAdapterInfo = bestAdapterInfo;
-      _graphicsSettings.FullscreenDeviceInfo = bestDeviceInfo;
-      _graphicsSettings.FullscreenDeviceCombo = bestDeviceCombo;
-
-      if (_enumerationSettings.AppUsesDepthBuffer)
-        _graphicsSettings.FullscreenDepthStencilBufferFormat = bestDeviceCombo.DepthStencilFormats.FirstOrDefault();
-      
-      KeyValuePair<MultisampleType, int> mst2quality = bestDeviceCombo.MultisampleTypes.LastOrDefault();
-      _graphicsSettings.FullscreenMultisampleType = mst2quality.Key;
-      _graphicsSettings.FullscreenMultisampleQuality = 0;
-
-      _graphicsSettings.FullscreenVertexProcessingType = bestDeviceCombo.VertexProcessingTypes.FirstOrDefault();
-      _graphicsSettings.FullscreenPresentInterval = PresentInterval.Default;
+      result.DisplayMode = bestAdapterDesktopDisplayMode;
+      result.AdapterInfo = bestAdapterInfo;
+      result.DeviceInfo = bestDeviceInfo;
+      result.DeviceCombo = bestDeviceCombo;
 
       return true;
-    }
-
-    /// <summary>
-    /// Find the best fullscreen / windowed modes.
-    /// </summary>
-    /// <returns>true if the settings were initialized</returns>
-    public bool FindBestModes()
-    {
-
-      if (!FindBestFullscreenMode(false, false))
-      {
-        ServiceRegistration.Get<ILogger>().Critical("D3DSetup: failed to find best fullscreen mode.");
-        return false;
-      }
-      if (!FindBestWindowedMode(false, false))
-      {
-        ServiceRegistration.Get<ILogger>().Critical("D3DSetup: failed to find best windowed mode.");
-        return false;
-      }
-      return true;
-    }
-
-    /// <summary>
-    /// Creates the DirectX device.
-    /// </summary>
-    public DeviceEx CreateDevice()
-    {
-      GraphicsAdapterInfo adapterInfo = _graphicsSettings.AdapterInfo;
-      GraphicsDeviceInfo deviceInfo = _graphicsSettings.DeviceInfo;
-
-      // Set up the presentation parameters
-      BuildPresentParamsFromSettings();
-
-      if ((deviceInfo.Caps.PrimitiveMiscCaps & PrimitiveMiscCaps.NullReference) != 0)
-        // Warn user about null ref device that can't render anything
-        HandleException(new NullReferenceDeviceException(), ApplicationMessage.None);
-
-      CreateFlags createFlags;
-      if (_graphicsSettings.VertexProcessingType == VertexProcessingType.Software)
-        createFlags = CreateFlags.SoftwareVertexProcessing;
-      else if (_graphicsSettings.VertexProcessingType == VertexProcessingType.Mixed)
-        createFlags = CreateFlags.MixedVertexProcessing;
-      else if (_graphicsSettings.VertexProcessingType == VertexProcessingType.Hardware)
-        createFlags = CreateFlags.HardwareVertexProcessing;
-      else if (_graphicsSettings.VertexProcessingType == VertexProcessingType.PureHardware)
-        createFlags = CreateFlags.HardwareVertexProcessing; // | CreateFlags.PureDevice;
-      else
-        throw new ApplicationException();
-
-      ServiceRegistration.Get<ILogger>().Info("DirectX: Using adapter: {0} {1} {2}",
-          _graphicsSettings.AdapterOrdinal,
-          MPDirect3D.Direct3D.Adapters[_graphicsSettings.AdapterOrdinal].Details.Description,
-          _graphicsSettings.DevType);
-      try
-      {
-        // Create the device
-        DeviceEx result = new DeviceEx(MPDirect3D.Direct3D,
-            _graphicsSettings.AdapterOrdinal,
-            _graphicsSettings.DevType,
-            _renderTarget.Handle,
-            createFlags | CreateFlags.Multithreaded,
-            _presentParams);
-
-        // When moving from fullscreen to windowed mode, it is important to
-        // adjust the window size after recreating the device rather than
-        // beforehand to ensure that you get the window size you want.  For
-        // example, when switching from 640x480 fullscreen to windowed with
-        // a 1000x600 window on a 1024x768 desktop, it is impossible to set
-        // the window size to 1000x600 until after the display mode has
-        // changed to 1024x768, because windows cannot be larger than the
-        // desktop.
-
-        StringBuilder sb = new StringBuilder();
-
-        // Store device description
-        if (deviceInfo.DevType == DeviceType.Reference)
-          sb.Append("REF");
-        else if (deviceInfo.DevType == DeviceType.Hardware)
-          sb.Append("HAL");
-        else if (deviceInfo.DevType == DeviceType.Software)
-          sb.Append("SW");
-
-        if (deviceInfo.DevType == DeviceType.Hardware)
-        {
-          sb.Append(": ");
-          sb.Append(adapterInfo.AdapterDetails.Description);
-        }
-
-        // Set device stats string
-        _deviceStats = sb.ToString();
-        ServiceRegistration.Get<ILogger>().Info("DirectX: {0}", _deviceStats);
-        return result;
-      }
-      catch (Exception e)
-      {
-        // If that failed, fall back to the reference rasterizer
-        if (deviceInfo.DevType == DeviceType.Hardware)
-        {
-          if (FindBestWindowedMode(false, true))
-          {
-            _graphicsSettings.IsWindowed = true;
-
-            // Let the user know we are switching from HAL to the reference rasterizer
-            HandleException(e, ApplicationMessage.WarnSwitchToRef);
-
-            return CreateDevice();
-          }
-        }
-      }
-      return null;
     }
 
     protected virtual bool ConfirmDevice(Capabilities caps, VertexProcessingType vertexProcessingType,
@@ -524,7 +437,7 @@ namespace MediaPortal.UI.SkinEngine.DirectX
           icon = MessageBoxIcon.Error;
           break;
         case ApplicationMessage.WarnSwitchToRef:
-          strMsg.Add("\n\nSwitching to the reference rasterizer, a software device that implements the entire\n" +
+          strMsg.Add("Switching to the reference rasterizer, a software device that implements the entire\n" +
               "Direct3D feature set, but runs very slowly.");
           icon = MessageBoxIcon.Information;
           break;
@@ -533,63 +446,67 @@ namespace MediaPortal.UI.SkinEngine.DirectX
     }
 
     /// <summary>
-    /// Build presentation parameters from the current settings
+    /// Build presentation parameters from the current settings.
     /// </summary>
     public void BuildPresentParamsFromSettings()
     {
-      _presentParams.Windowed = _graphicsSettings.IsWindowed;
+      BuildPresentParamsFromSettings(_currentGraphicsConfiguration);
+    }
 
-      _presentParams.EnableAutoDepthStencil = false;
-
-      ServiceRegistration.Get<ILogger>().Debug("BuildPresentParamsFromSettings windowed {0} {1} {2}",
-          _graphicsSettings.IsWindowed, _renderTarget.ClientRectangle.Width, _renderTarget.ClientRectangle.Height);
-
-      _presentParams.PresentFlags = PresentFlags.Video; //PresentFlag.LockableBackBuffer;
-      _presentParams.DeviceWindowHandle = _renderTarget.Handle;
-      _presentParams.Windowed = _graphicsSettings.IsWindowed;
-
-      if (_graphicsSettings.IsWindowed)
+    /// <summary>
+    /// Build presentation parameters from the given settings.
+    /// </summary>
+    /// <param name="configuration">Graphics configuration to use.</param>
+    public void BuildPresentParamsFromSettings(D3DConfiguration configuration)
+    {
+      int backBufferWidth;
+      int backBufferHeight;
+      if (configuration.DeviceCombo.IsWindowed)
       {
-        _presentParams.Multisample =  _graphicsSettings.WindowedMultisampleType;
-        _presentParams.MultisampleQuality = _graphicsSettings.WindowedMultisampleQuality;
-        _presentParams.AutoDepthStencilFormat = _graphicsSettings.WindowedDepthStencilBufferFormat;
-        _presentParams.BackBufferWidth = _renderTarget.ClientRectangle.Width;
-        _presentParams.BackBufferHeight = _renderTarget.ClientRectangle.Height;
-        _presentParams.BackBufferFormat = _graphicsSettings.BackBufferFormat;
-        _presentParams.BackBufferCount = _graphicsSettings.BackBufferCount;
-#if PROFILE_PERFORMANCE
-        _presentParams.PresentationInterval = PresentInterval.Immediate;
-#else
-        if (_usingPerfHud)
-          _presentParams.PresentationInterval = PresentInterval.Immediate;
-        else
-          _presentParams.PresentationInterval = PresentInterval.One;
-#endif
-        _presentParams.FullScreenRefreshRateInHertz = 0;
-        _presentParams.SwapEffect = _graphicsSettings.WindowedSwapEffect;
+        backBufferWidth = _renderTarget.ClientRectangle.Width;
+        backBufferHeight = _renderTarget.ClientRectangle.Height;
       }
       else
       {
-        _presentParams.Multisample = _graphicsSettings.FullscreenMultisampleType;
-        _presentParams.MultisampleQuality = _graphicsSettings.FullscreenMultisampleQuality;
-        _presentParams.AutoDepthStencilFormat = _graphicsSettings.FullscreenDepthStencilBufferFormat;
-
-        _presentParams.BackBufferWidth = _graphicsSettings.DisplayMode.Width;
-        _presentParams.BackBufferHeight = _graphicsSettings.DisplayMode.Height;
-        _presentParams.BackBufferFormat = _graphicsSettings.DeviceCombo.BackBufferFormat;
-        _presentParams.BackBufferCount = _graphicsSettings.BackBufferCount;
-
-#if PROFILE_PERFORMANCE
-        _presentParams.PresentationInterval = PresentInterval.Immediate;
-#else
-        if (_usingPerfHud)
-          _presentParams.PresentationInterval = PresentInterval.Immediate;
-        else
-          _presentParams.PresentationInterval = PresentInterval.One;
-#endif
-        _presentParams.FullScreenRefreshRateInHertz = _graphicsSettings.DisplayMode.RefreshRate;
-        _presentParams.SwapEffect = SwapEffect.Discard;
+        backBufferWidth = configuration.DisplayMode.Width;
+        backBufferHeight = configuration.DisplayMode.Height;
       }
+
+      ServiceRegistration.Get<ILogger>().Debug("BuildPresentParamsFromSettings: Windowed = {0},  {1} x {2}",
+          configuration.DeviceCombo.IsWindowed, backBufferWidth, backBufferHeight);
+
+      _presentParams = new PresentParameters();
+
+      AppSettings settings = ServiceRegistration.Get<ISettingsManager>().Load<AppSettings>();
+
+      DeviceCombo dc = configuration.DeviceCombo;
+      MultisampleType mst = dc.MultisampleTypes.ContainsKey(settings.MultisampleType) ?
+          settings.MultisampleType : MultisampleType.None;
+      _presentParams.Multisample = mst;
+      _presentParams.MultisampleQuality = 0;
+      _presentParams.EnableAutoDepthStencil = false;
+      _presentParams.AutoDepthStencilFormat = dc.DepthStencilFormats.FirstOrDefault(dsf =>
+          !dc.DepthStencilMultiSampleConflicts.Contains(new DepthStencilMultiSampleConflict {DepthStencilFormat = dsf, MultisampleType = mst}));
+      _presentParams.PresentFlags = PresentFlags.Video; //PresentFlag.LockableBackBuffer;
+      _presentParams.DeviceWindowHandle = _renderTarget.Handle;
+      _presentParams.Windowed = configuration.DeviceCombo.IsWindowed;
+      _presentParams.BackBufferFormat = configuration.DeviceCombo.BackBufferFormat;
+      _presentParams.BackBufferCount = 4; // 2 to 4 are recommended for FlipEx swap mode
+#if PROFILE_PERFORMANCE
+      _presentParams.PresentationInterval = PresentInterval.Immediate;
+#else
+      _presentParams.PresentationInterval = PresentInterval.One;
+#endif
+      _presentParams.FullScreenRefreshRateInHertz = _presentParams.Windowed ? 0 : configuration.DisplayMode.RefreshRate;
+      
+      // From http://msdn.microsoft.com/en-us/library/windows/desktop/bb173422%28v=vs.85%29.aspx :
+      // To use multisampling, the SwapEffect member of D3DPRESENT_PARAMETER must be set to D3DSWAPEFFECT_DISCARD.
+      _presentParams.SwapEffect = mst == MultisampleType.None ? SwapEffect.FlipEx : SwapEffect.Discard;
+
+      _presentParams.BackBufferWidth = backBufferWidth;
+      _presentParams.BackBufferHeight = backBufferHeight;
+
+      _currentGraphicsConfiguration = configuration;
     }
   }
 }

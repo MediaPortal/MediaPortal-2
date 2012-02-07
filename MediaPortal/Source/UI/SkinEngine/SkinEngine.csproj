@@ -162,7 +162,8 @@
     <Compile Include="Controls\Brushes\VisualBrush.cs" />
     <Compile Include="Controls\Visuals\KeyBindingControl.cs" />
     <Compile Include="Controls\Visuals\VirtualKeyboardPresenter.cs" />
-    <Compile Include="DirectX\D3DSettings.cs" />
+    <Compile Include="DirectX\D3DConfiguration.cs" />
+    <Compile Include="DirectX\DxCapabilities.cs" />
     <Compile Include="DirectX\MPDirect3D.cs" />
     <Compile Include="DirectX\PositionColoredTextured.cs" />
     <Compile Include="DirectX\Triangulate\GraphicsPathHelper.cs" />

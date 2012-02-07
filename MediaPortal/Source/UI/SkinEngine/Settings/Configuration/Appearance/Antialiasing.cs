@@ -34,9 +34,9 @@ namespace MediaPortal.UI.SkinEngine.Settings.Configuration.Appearance
 {
   public class Antialiasing : SingleSelectionList
   {
-    #region Variables
+    #region Protected fields
 
-    private IList<MultisampleType> _multisampleTypes;
+    protected IList<MultisampleType> _multisampleTypes;
 
     #endregion
 
@@ -44,7 +44,7 @@ namespace MediaPortal.UI.SkinEngine.Settings.Configuration.Appearance
 
     public override void Load()
     {
-      _multisampleTypes = new List<MultisampleType>(GraphicsDevice.WindowedMultisampleTypes);
+      _multisampleTypes = new List<MultisampleType>(GraphicsDevice.MultisampleTypes);
       MultisampleType selectedMsType = SettingsManager.Load<AppSettings>().MultisampleType;
       Selected = _multisampleTypes.IndexOf(selectedMsType);
 

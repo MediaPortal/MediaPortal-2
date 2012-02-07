@@ -82,6 +82,24 @@ namespace MediaPortal.UI.SkinEngine.DirectX
   {
     public Format DepthStencilFormat;
     public MultisampleType MultisampleType;
+
+    public override int GetHashCode()
+    {
+      return DepthStencilFormat.GetHashCode() + MultisampleType.GetHashCode();
+    }
+
+    public override bool Equals(object obj)
+    {
+      if (!(obj is DepthStencilMultiSampleConflict))
+        return false;
+      DepthStencilMultiSampleConflict other =  (DepthStencilMultiSampleConflict) obj;
+      return other.DepthStencilFormat == DepthStencilFormat && other.MultisampleType == MultisampleType;
+    }
+
+    public override string ToString()
+    {
+      return DepthStencilFormat + "; " + MultisampleType;
+    }
   }
 
   /// <summary>
@@ -96,7 +114,7 @@ namespace MediaPortal.UI.SkinEngine.DirectX
     public Format BackBufferFormat;
     public bool IsWindowed;
     public ICollection<Format> DepthStencilFormats = new List<Format>(); // Collection of D3DFORMATs
-    public ICollection<KeyValuePair<MultisampleType, int>> MultisampleTypes = new List<KeyValuePair<MultisampleType, int>>(); // Collection of D3DMULTISAMPLE_TYPEs mapped to their max quality (device manufacturer dependent)
+    public IDictionary<MultisampleType, int> MultisampleTypes = new Dictionary<MultisampleType, int>(); // Collection of D3DMULTISAMPLE_TYPEs mapped to their max quality (device manufacturer dependent)
     public ICollection<DepthStencilMultiSampleConflict> DepthStencilMultiSampleConflicts = new List<DepthStencilMultiSampleConflict>();
     public ICollection<VertexProcessingType> VertexProcessingTypes = new List<VertexProcessingType>();
     public ICollection<PresentInterval> PresentIntervals = new List<PresentInterval>(); // Collection of D3DPRESENT_INTERVALs
@@ -342,7 +360,7 @@ namespace MediaPortal.UI.SkinEngine.DirectX
         int qualityLevels;
         if (MPDirect3D.Direct3D.CheckDeviceMultisampleType(deviceCombo.AdapterOrdinal, deviceCombo.DevType,
             deviceCombo.BackBufferFormat, deviceCombo.IsWindowed, msType, out qualityLevels, out result))
-          deviceCombo.MultisampleTypes.Add(new KeyValuePair<MultisampleType, int>(msType, qualityLevels));
+          deviceCombo.MultisampleTypes.Add(msType, qualityLevels);
       }
     }
 
@@ -353,12 +371,12 @@ namespace MediaPortal.UI.SkinEngine.DirectX
     public void BuildDepthStencilMultiSampleConflictList(DeviceCombo deviceCombo)
     {
       foreach (Format dsFmt in deviceCombo.DepthStencilFormats)
-        foreach (KeyValuePair<MultisampleType, int> msType in deviceCombo.MultisampleTypes)
+        foreach (MultisampleType mst in deviceCombo.MultisampleTypes.Keys)
           if (!MPDirect3D.Direct3D.CheckDeviceMultisampleType(deviceCombo.AdapterOrdinal,
-              deviceCombo.DevType, dsFmt, deviceCombo.IsWindowed, msType.Key))
+              deviceCombo.DevType, dsFmt, deviceCombo.IsWindowed, mst))
           {
             deviceCombo.DepthStencilMultiSampleConflicts.Add(
-                new DepthStencilMultiSampleConflict {DepthStencilFormat = dsFmt, MultisampleType = msType.Key});
+                new DepthStencilMultiSampleConflict {DepthStencilFormat = dsFmt, MultisampleType = mst});
           }
     }
 

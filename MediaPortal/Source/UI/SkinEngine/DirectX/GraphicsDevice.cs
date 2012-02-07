@@ -103,11 +103,6 @@ namespace MediaPortal.UI.SkinEngine.DirectX
       set { _screenManager = value; }
     }
 
-    public static bool IsWindowed
-    {
-      get { return _setup.Windowed; }
-    }
-
     /// <summary>
     /// Gets or sets the DirectX device.
     /// </summary>
@@ -241,7 +236,6 @@ namespace MediaPortal.UI.SkinEngine.DirectX
       if (_backBuffer != null)
         _backBuffer.Dispose();
       _backBuffer = null;
-      _setup.BuildPresentParamsFromSettings();
       ResetDxDevice();
       Capabilities deviceCapabilities = _device.Capabilities;
       int ordinal = deviceCapabilities.AdapterOrdinal;
@@ -333,7 +327,7 @@ namespace MediaPortal.UI.SkinEngine.DirectX
           _screenManager.Render();
 
           _device.EndScene();
-          _device.PresentEx(_setup.WindowedPresent);
+          _device.PresentEx(_setup.Present);
 
           _fpsCounter += 1;
           TimeSpan ts = DateTime.Now - _fpsTimer;
@@ -419,31 +413,20 @@ namespace MediaPortal.UI.SkinEngine.DirectX
     }
 
     /// <summary>
-    /// Returns available display modes for the display device
-    /// </summary>
-    public static IList<DisplayMode> GetDisplayModes()
-    {
-      return _setup.GetDisplayModes();
-    }
-
-    /// <summary>
     /// Returns all available MultisampleTypes for the current windowed configuration.
     /// </summary>
-    public static IEnumerable<MultisampleType> WindowedMultisampleTypes
+    public static IEnumerable<MultisampleType> MultisampleTypes
     {
-      get { return _setup.WindowedMultisampleTypes; }
+      get { return _setup.MultisampleTypes; }
     }
 
-    public static string DesktopDisplayMode
-    {
-      get { return _setup.DesktopDisplayMode; }
-    }
-
+    [Obsolete("To be removed")]
     public static int DesktopHeight
     {
       get { return _setup.DesktopHeight; }
     }
 
+    [Obsolete("To be removed")]
     public static int DesktopWidth
     {
       get { return _setup.DesktopWidth; }
