@@ -11,6 +11,7 @@
   <Grid>
     <Grid.ColumnDefinitions>
       <ColumnDefinition Width="*"/>
+      <ColumnDefinition Width="180"/>
     </Grid.ColumnDefinitions>
     <Grid.RowDefinitions>
       <RowDefinition Height="350"/>
@@ -18,7 +19,13 @@
       <RowDefinition Height="*"/>
     </Grid.RowDefinitions>
 
-    <Control Grid.Row="2" Grid.Column="0" Grid.RowSpan="2" Margin="0,-50,0,-50">
+    <Control x:Name="WindowButtons" Grid.Column="1" Grid.Row="0">
+      <Control.TemplateControl>
+        <Include Source="screens\FSCWindowButtons.inc"/>
+      </Control.TemplateControl>
+    </Control>
+
+    <Control Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="2" Grid.RowSpan="2" Margin="0,-50,0,-50">
       <Control.Background>
         <LinearGradientBrush StartPoint="0.5,0" EndPoint="0.5,1">
           <GradientStop Offset="0" Color="#A0000000"/>
@@ -27,7 +34,7 @@
       </Control.Background>
     </Control>
 
-    <Control x:Name="GlassOverlay" Grid.Row="1" Grid.Column="0"  Width="1050" Height="500"
+    <Control x:Name="GlassOverlay" Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2" Width="1050" Height="500"
                Style="{ThemeResource GlassOverlayControl}" 
                DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}">
       <Control.Resources>
