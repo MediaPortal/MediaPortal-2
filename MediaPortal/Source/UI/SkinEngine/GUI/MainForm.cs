@@ -114,7 +114,6 @@ namespace MediaPortal.UI.SkinEngine.GUI
       else
         SwitchToWindowedSize(Location, desiredWindowedSize, false);
 
-      SkinContext.Form = this;
       SkinContext.WindowSize = ClientSize;
 
       // GraphicsDevice has to be initialized after the form was sized correctly

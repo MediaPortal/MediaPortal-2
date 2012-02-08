@@ -31,7 +31,6 @@
 //#define PROFILE_FRAMERATE
 
 using System;
-using System.Collections.Generic;
 using System.Drawing;
 using System.Threading;
 using System.Windows.Forms;
@@ -41,6 +40,7 @@ using MediaPortal.UI.SkinEngine.ContentManagement;
 using MediaPortal.UI.SkinEngine.Players;
 using MediaPortal.UI.SkinEngine.ScreenManagement;
 using MediaPortal.UI.SkinEngine.SkinManagement;
+using MediaPortal.UI.SkinEngine.Utils;
 using SlimDX;
 using SlimDX.Direct3D9;
 
@@ -51,6 +51,7 @@ namespace MediaPortal.UI.SkinEngine.DirectX
     #region Variables
 
     private static readonly D3DSetup _setup = new D3DSetup();
+    private static readonly ReaderWriterLockSlim _renderAndResourceAccessLock = new ReaderWriterLockSlim();
     private static DeviceEx _device;
     private static Surface _backBuffer;
     private static bool _deviceLost = false;
@@ -138,16 +139,40 @@ namespace MediaPortal.UI.SkinEngine.DirectX
        get { return _frameRenderingStartTime; }
     }
 
+    public static D3DSetup Setup
+    {
+      get { return _setup; }
+    }
+
+    /// <summary>
+    /// Lock to be used during DirectX (and maybe also other) resource access and during rendering.
+    /// </summary>
+    public static ReaderWriterLockSlim RenderAndResourceAccessLock
+    {
+      get { return _renderAndResourceAccessLock; }
+    }
+
+    /// <summary>
+    /// Initializes or re-initializes the DirectX device and the backbuffer. This is necessary in the initialization phase
+    /// of the SkinEngine and after a parameter was changed which affects the DX device creation.
+    /// </summary>
+    /// <param name="window">The window which is being used as render target; that window will contain the DX device.</param>
     public static void Initialize(Form window)
     {
+      _renderAndResourceAccessLock.EnterWriteLock(); // Avoid rendering during DX initialization
       try
       {
         ServiceRegistration.Get<ILogger>().Debug("GraphicsDevice: Initializing DirectX");
         MPDirect3D.Load();
 
-        // TODO: Make Initialize callable during the runtime to change DX settings; Dispose all necessary objects and restore everything
-        // after the new device was built
+        // Cleanup-part: Only necessary during re-initialization
+        UIResourcesHelper.ReleaseUIResources();
+        if (_backBuffer != null)
+          _backBuffer.Dispose();
+        if (_device != null)
+          _device.Dispose();
         _device = _setup.SetupDirectX(window);
+        // End cleanup part
 
         Capabilities deviceCapabilities = _device.Capabilities;
         _backBuffer = _device.GetRenderTarget(0);
@@ -168,11 +193,16 @@ namespace MediaPortal.UI.SkinEngine.DirectX
           }
         }
         ResetPerformanceData();
+        UIResourcesHelper.ReallocUIResources();
       }
       catch (Exception ex)
       {
         ServiceRegistration.Get<ILogger>().Critical("GraphicsDevice: Failed to setup DirectX", ex);
         Environment.Exit(0);
+      }
+      finally
+      {
+        _renderAndResourceAccessLock.ExitWriteLock();
       }
     }
 
@@ -186,6 +216,7 @@ namespace MediaPortal.UI.SkinEngine.DirectX
         _device.Dispose();
       _device = null;
       MPDirect3D.Unload();
+      _renderAndResourceAccessLock.Dispose();
     }
 
     public static void SetFrameRate(float frameRate)
@@ -317,38 +348,40 @@ namespace MediaPortal.UI.SkinEngine.DirectX
         WaitForNextFrame();
 #endif
       _frameRenderingStartTime = DateTime.Now;
-      lock (_setup)
+      _renderAndResourceAccessLock.EnterReadLock();
+      try
       {
-        try
+        _device.Clear(ClearFlags.Target, Color.Black, 1.0f, 0);
+        _device.BeginScene();
+
+        _screenManager.Render();
+
+        _device.EndScene();
+        _device.PresentEx(_setup.Present);
+
+        _fpsCounter += 1;
+        TimeSpan ts = DateTime.Now - _fpsTimer;
+        if (ts.TotalSeconds >= 1.0f)
         {
-          _device.Clear(ClearFlags.Target, Color.Black, 1.0f, 0);
-          _device.BeginScene();
-
-          _screenManager.Render();
-
-          _device.EndScene();
-          _device.PresentEx(_setup.Present);
-
-          _fpsCounter += 1;
-          TimeSpan ts = DateTime.Now - _fpsTimer;
-          if (ts.TotalSeconds >= 1.0f)
-          {
-            float secs = (float) ts.TotalSeconds;
-            SkinContext.FPS = _fpsCounter / secs;
+          float secs = (float) ts.TotalSeconds;
+          SkinContext.FPS = _fpsCounter / secs;
 #if PROFILE_FRAMERATE
-            ServiceRegistration.Get<ILogger>().Debug("RenderLoop: {0} frames per second, {1} total frames until last measurement", SkinContext.FPS, _fpsCounter);
+          ServiceRegistration.Get<ILogger>().Debug("RenderLoop: {0} frames per second, {1} total frames until last measurement", SkinContext.FPS, _fpsCounter);
 #endif
-            _fpsCounter = 0;
-            _fpsTimer = DateTime.Now;
-          }
-        }
-        catch (Direct3D9Exception e)
-        {
-          ServiceRegistration.Get<ILogger>().Warn("GraphicsDevice: Lost DirectX device", e);
-          _deviceLost = true;
-          return true;
+          _fpsCounter = 0;
+          _fpsTimer = DateTime.Now;
         }
         ContentManager.Instance.Clean();
+      }
+      catch (Direct3D9Exception e)
+      {
+        ServiceRegistration.Get<ILogger>().Warn("GraphicsDevice: Lost DirectX device", e);
+        _deviceLost = true;
+        return true;
+      }
+      finally
+      {
+        _renderAndResourceAccessLock.ExitReadLock();
       }
       return false;
     }
@@ -410,26 +443,6 @@ namespace MediaPortal.UI.SkinEngine.DirectX
       }
       _deviceLost = false;
       return true;
-    }
-
-    /// <summary>
-    /// Returns all available MultisampleTypes for the current windowed configuration.
-    /// </summary>
-    public static IEnumerable<MultisampleType> MultisampleTypes
-    {
-      get { return _setup.MultisampleTypes; }
-    }
-
-    [Obsolete("To be removed")]
-    public static int DesktopHeight
-    {
-      get { return _setup.DesktopHeight; }
-    }
-
-    [Obsolete("To be removed")]
-    public static int DesktopWidth
-    {
-      get { return _setup.DesktopWidth; }
     }
   }
 }

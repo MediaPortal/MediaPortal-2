@@ -72,7 +72,7 @@ namespace MediaPortal.UI.SkinEngine.DirectX
       WarnSwitchToRef
     }
 
-    private System.Windows.Forms.Control _renderTarget; // The window we will render too
+    private Form _renderTarget; // The window we will render too
 
     protected D3DEnumeration _enumerationSettings = new D3DEnumeration();
 
@@ -80,7 +80,7 @@ namespace MediaPortal.UI.SkinEngine.DirectX
     protected D3DConfiguration _currentGraphicsConfiguration = null;
     private PresentParameters _presentParams = null;
 
-    protected System.Windows.Forms.Control RenderTarget
+    public Form RenderTarget
     {
       get { return _renderTarget; }
       set { _renderTarget = value; }
@@ -112,14 +112,17 @@ namespace MediaPortal.UI.SkinEngine.DirectX
       get { return _currentGraphicsConfiguration; }
     }
 
-    public IEnumerable<MultisampleType> MultisampleTypes
-    {
-      get { return _currentGraphicsConfiguration.DeviceCombo.MultisampleTypes.Select(mst => mst.Key); }
-    }
-
     public Present Present
     {
       get { return _presentParams.Multisample == MultisampleType.None ? Present.ForceImmediate : Present.None; }
+    }
+
+    /// <summary>
+    /// Returns all available MultisampleTypes for the current windowed configuration.
+    /// </summary>
+    public IEnumerable<MultisampleType> MultisampleTypes
+    {
+      get { return _currentGraphicsConfiguration.DeviceCombo.MultisampleTypes.Select(mst => mst.Key); }
     }
 
     /// <summary>

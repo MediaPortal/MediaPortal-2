@@ -34,14 +34,14 @@ using MediaPortal.UI.Presentation.Screens;
 using MediaPortal.UI.Presentation.SkinResources;
 using MediaPortal.UI.Presentation.UiNotifications;
 using MediaPortal.UI.Presentation.Workflow;
-using MediaPortal.UI.SkinEngine.ContentManagement;
 using MediaPortal.Common;
 using MediaPortal.Common.Logging;
 using MediaPortal.Common.Settings;
+using MediaPortal.UI.SkinEngine.DirectX;
 using MediaPortal.UI.SkinEngine.MpfElements;
-using MediaPortal.UI.SkinEngine.Players;
 using MediaPortal.UI.SkinEngine.Settings;
 using MediaPortal.UI.SkinEngine.SkinManagement;
+using MediaPortal.UI.SkinEngine.Utils;
 
 namespace MediaPortal.UI.SkinEngine.ScreenManagement
 {
@@ -269,7 +269,6 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
     protected AutoResetEvent _pendingOperationsDecreasedEvent = new AutoResetEvent(false);
     protected ManualResetEvent _garbageCollectionFinished = new ManualResetEvent(true);
     protected ManualResetEvent _renderFinished = new ManualResetEvent(true);
-    protected ReaderWriterLockSlim _renderAndResourceAccessLock = new ReaderWriterLockSlim();
 
     protected readonly SkinManager _skinManager;
 
@@ -306,7 +305,6 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
       _garbageScreensAvailable.Close();
       _pendingOperationsDecreasedEvent.Close();
       _garbageCollectionFinished.Close();
-      _renderAndResourceAccessLock.Dispose();
     }
 
     void OnMessageReceived(AsynchronousMessageQueue queue, SystemMessage message)
@@ -464,7 +462,7 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
 
       // Suspend both rendering and resource access to avoid the render thread rendering screens which are being closed here and
       // to block other threads accessing our skin resources (via indirect GetScreen calls)
-      _renderAndResourceAccessLock.EnterWriteLock();
+      GraphicsDevice.RenderAndResourceAccessLock.EnterWriteLock();
       try
       {
         lock (_syncObj)
@@ -484,23 +482,17 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
 
         lock (_syncObj)
         {
-          PlayersHelper.ReleaseGUIResources();
-
-          Controls.Brushes.BrushCache.Instance.Clear();
-          // Albert, 2011-03-25: I think that actually, ContentManager.Free() should be called here. Clear() makes the ContentManager
-          // forget all its cached assets and so we must make sure that no more asset references are in the system. That's why we also
-          // need to clear the brush cache.
-          ContentManager.Instance.Clear();
+          UIResourcesHelper.ReleaseUIResources();
 
           PrepareSkinAndTheme(newSkinName, newThemeName);
-          PlayersHelper.ReallocGUIResources();
 
+          UIResourcesHelper.ReallocUIResources();
         }
       }
       finally
       {
         // Resume resource access before we reload everything below
-        _renderAndResourceAccessLock.ExitWriteLock();
+        GraphicsDevice.RenderAndResourceAccessLock.ExitWriteLock();
       }
       if (!InstallBackgroundManager())
         _backgroundData.Load(currentBackgroundName);
@@ -1048,7 +1040,6 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
       CompleteScreenClosure_NoLock();
       CompleteDialogClosures_NoLock();
 
-      _renderAndResourceAccessLock.EnterReadLock();
       _renderFinished.Reset();
       try
       {
@@ -1075,7 +1066,6 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
       }
       finally
       {
-        _renderAndResourceAccessLock.ExitReadLock();
         _renderFinished.Set();
       }
     }
@@ -1170,14 +1160,14 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
         string relativeScreenPath = relativeDirectory + Path.DirectorySeparatorChar + screenName + ".xaml";
 
         Screen result;
-        _renderAndResourceAccessLock.EnterReadLock();
+        GraphicsDevice.RenderAndResourceAccessLock.EnterReadLock();
         try
         {
           result = LoadScreen(screenName, relativeScreenPath, loader);
         }
         finally
         {
-          _renderAndResourceAccessLock.ExitReadLock();
+          GraphicsDevice.RenderAndResourceAccessLock.ExitReadLock();
         }
 
         if (result == null)

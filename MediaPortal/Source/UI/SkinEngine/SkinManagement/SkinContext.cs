@@ -44,7 +44,6 @@ namespace MediaPortal.UI.SkinEngine.SkinManagement
     private static readonly AbstractProperty _windowSizeProperty = new SProperty(typeof(Size), new Size(1920, 1080));
     private static readonly WeakEventMulticastDelegate _skinResourcesChangedDelegate = new WeakEventMulticastDelegate();
     private static SkinResources _skinResources = new Skin("[not initialized]"); // Avoid initialization issues. So we don't need to check "if SkinResources == null" every time
-    private static Form _form;
     private static DateTime _frameRenderingStartTime;
     private static float _fps = 0;
     private static volatile Thread _renderThread = null;
@@ -84,8 +83,7 @@ namespace MediaPortal.UI.SkinEngine.SkinManagement
     /// </summary>
     public static Form Form
     {
-      get { return _form; }
-      internal set { _form = value; }
+      get { return GraphicsDevice.Setup.RenderTarget; }
     }
 
     public static Thread RenderThread
@@ -137,10 +135,9 @@ namespace MediaPortal.UI.SkinEngine.SkinManagement
     /// screen (window plus dialog). Everytime it is possible that a skinfile from the default skin
     /// is shown. The returned value by this property only takes respect of the current active skin.
     /// </remarks>
-    [Obsolete("To be removed")]
     public static float MaxZoomHeight
     {
-      get { return GraphicsDevice.DesktopHeight / (float) _skinResources.SkinHeight; }
+      get { return GraphicsDevice.Setup.DesktopHeight / (float) _skinResources.SkinHeight; }
     }
 
     /// <summary>
@@ -150,10 +147,9 @@ namespace MediaPortal.UI.SkinEngine.SkinManagement
     /// <remarks>
     /// See the comment in <see cref="MaxZoomHeight"/>.
     /// </remarks>
-    [Obsolete("To be removed")]
     public static float MaxZoomWidth
     {
-      get { return GraphicsDevice.DesktopWidth / (float) _skinResources.SkinWidth; }
+      get { return GraphicsDevice.Setup.DesktopWidth / (float) _skinResources.SkinWidth; }
     }
 
     /// <summary>

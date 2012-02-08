@@ -244,6 +244,7 @@
     <Compile Include="ScreenManagement\ScreenManagerMessaging.cs" />
     <Compile Include="Controls\Visuals\VirtualKeyboardControl.cs" />
     <Compile Include="ScreenManagement\SuperLayerManager.cs" />
+    <Compile Include="Utils\UIResourcesHelper.cs" />
     <Compile Include="Settings\Configuration\Appearance\ScreenSaverTimeout.cs" />
     <Compile Include="Settings\Configuration\Appearance\ScreenSaverEnabled.cs" />
     <Compile Include="Settings\Configuration\Appearance\Antialiasing.cs" />

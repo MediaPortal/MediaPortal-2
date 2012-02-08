@@ -153,10 +153,11 @@ namespace MediaPortal.UI.SkinEngine
       ServiceRegistration.Get<ILogger>().Debug("SkinEnginePlugin: Removing IGeometryManager service");
       ServiceRegistration.RemoveAndDispose<IGeometryManager>();
 
+      ServiceRegistration.Get<ILogger>().Debug("SkinEnginePlugin: Clearing BrushCache");
       SkinEngine.Controls.Brushes.BrushCache.Instance.Clear();
 
+      ServiceRegistration.Get<ILogger>().Debug("SkinEnginePlugin: Clearing ContentManager");
       ContentManager.Instance.Clear();
-      ServiceRegistration.Get<ILogger>().Debug("SkinEnginePlugin: Removing ContentManager service");
     }
 
     public void Dispose()

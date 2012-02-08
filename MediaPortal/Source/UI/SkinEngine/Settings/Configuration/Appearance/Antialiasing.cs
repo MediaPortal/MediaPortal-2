@@ -44,7 +44,7 @@ namespace MediaPortal.UI.SkinEngine.Settings.Configuration.Appearance
 
     public override void Load()
     {
-      _multisampleTypes = new List<MultisampleType>(GraphicsDevice.MultisampleTypes);
+      _multisampleTypes = new List<MultisampleType>(GraphicsDevice.Setup.MultisampleTypes);
       MultisampleType selectedMsType = SettingsManager.Load<AppSettings>().MultisampleType;
       Selected = _multisampleTypes.IndexOf(selectedMsType);
 
@@ -58,7 +58,7 @@ namespace MediaPortal.UI.SkinEngine.Settings.Configuration.Appearance
       int selected = Selected;
       settings.MultisampleType = selected > -1 && selected < _multisampleTypes.Count ? _multisampleTypes[selected] : MultisampleType.None;
       SettingsManager.Save(settings);
-      // TODO: Reload DX settings, reset DX device
+      GraphicsDevice.Initialize(GraphicsDevice.Setup.RenderTarget);
     }
 
     #endregion
