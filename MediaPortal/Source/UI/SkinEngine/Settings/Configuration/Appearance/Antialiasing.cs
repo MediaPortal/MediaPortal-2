@@ -58,7 +58,7 @@ namespace MediaPortal.UI.SkinEngine.Settings.Configuration.Appearance
       int selected = Selected;
       settings.MultisampleType = selected > -1 && selected < _multisampleTypes.Count ? _multisampleTypes[selected] : MultisampleType.None;
       SettingsManager.Save(settings);
-      GraphicsDevice.Initialize(GraphicsDevice.Setup.RenderTarget);
+      GraphicsDevice.ReCreateDXDevice();
     }
 
     #endregion

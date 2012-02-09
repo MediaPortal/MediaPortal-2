@@ -91,7 +91,7 @@ namespace MediaPortal.UI.SkinEngine.DirectX
     }
 
     /// <summary>
-    /// Returns the time per frame in ms.
+    /// Returns the desired time per frame in ms.
     /// </summary>
     public static int MsPerFrame
     {
@@ -101,7 +101,7 @@ namespace MediaPortal.UI.SkinEngine.DirectX
     public static ScreenManager ScreenManager
     {
       get { return _screenManager; }
-      set { _screenManager = value; }
+      internal set { _screenManager = value; }
     }
 
     /// <summary>
@@ -152,14 +152,29 @@ namespace MediaPortal.UI.SkinEngine.DirectX
       get { return _renderAndResourceAccessLock; }
     }
 
+    public static void ReCreateDXDevice()
+    {
+      _renderAndResourceAccessLock.EnterWriteLock(); // Avoid rendering during DX initialization
+      ScreenManager.ScreenManagerMemento memento;
+      try
+      {
+        memento = _screenManager.TempClean_OnlyRenderLock();
+        Initialize(_setup.RenderTarget);
+      }
+      finally
+      {
+        _renderAndResourceAccessLock.ExitWriteLock();
+      }
+      _screenManager.Recreate_NoLock(memento);
+    }
+
     /// <summary>
     /// Initializes or re-initializes the DirectX device and the backbuffer. This is necessary in the initialization phase
     /// of the SkinEngine and after a parameter was changed which affects the DX device creation.
     /// </summary>
     /// <param name="window">The window which is being used as render target; that window will contain the DX device.</param>
-    public static void Initialize(Form window)
+    internal static void Initialize(Form window)
     {
-      _renderAndResourceAccessLock.EnterWriteLock(); // Avoid rendering during DX initialization
       try
       {
         ServiceRegistration.Get<ILogger>().Debug("GraphicsDevice: Initializing DirectX");
@@ -192,6 +207,7 @@ namespace MediaPortal.UI.SkinEngine.DirectX
             MessageBox.Show(text, "GraphicAdapter", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
           }
         }
+        SetRenderState();
         ResetPerformanceData();
         UIResourcesHelper.ReallocUIResources();
       }
@@ -200,13 +216,9 @@ namespace MediaPortal.UI.SkinEngine.DirectX
         ServiceRegistration.Get<ILogger>().Critical("GraphicsDevice: Failed to setup DirectX", ex);
         Environment.Exit(0);
       }
-      finally
-      {
-        _renderAndResourceAccessLock.ExitWriteLock();
-      }
     }
 
-    public static void Dispose()
+    internal static void Dispose()
     {
       if (_backBuffer != null)
         _backBuffer.Dispose();
@@ -242,19 +254,8 @@ namespace MediaPortal.UI.SkinEngine.DirectX
     {
       _setup.BuildPresentParamsFromSettings();
 
-      Result result = _device.Reset(_setup.PresentParameters);
+      _device.Reset(_setup.PresentParameters);
 
-      if (result == ResultCode.DeviceLost)
-      {
-        result = _device.TestCooperativeLevel();
-        // Loop until it's ok to reset
-        while (result == ResultCode.DeviceLost)
-        {
-          Thread.Sleep(10);
-          result = _device.TestCooperativeLevel();
-        }
-        _device.Reset(_setup.PresentParameters);
-      }
       ResetPerformanceData();
     }
 

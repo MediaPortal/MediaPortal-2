@@ -82,7 +82,14 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
 
     #endregion
 
-    #region Classes, delegates & enums
+    #region Classes, structs, delegates & enums
+
+    public struct ScreenManagerMemento
+    {
+      public string CurrentScreenName;
+      public string CurrentSuperLayerName;
+      public string CurrentBackgroundName;
+    }
 
     protected delegate void ScreenExecutor(Screen screen);
 
@@ -451,34 +458,51 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
         _pendingOperationsDecreasedEvent.WaitOne(TIMESPAN_INFINITE);
     }
 
+    public ScreenManagerMemento TempClean_OnlyRenderLock()
+    {
+      ScreenManagerMemento memento = new ScreenManagerMemento();
+      lock (_syncObj)
+      {
+        memento.CurrentScreenName = _currentScreen == null ? null : _currentScreen.ResourceName;
+        memento.CurrentSuperLayerName = _currentSuperLayer == null ? null : _currentSuperLayer.ResourceName;
+        Screen backgroundScreen = _backgroundData.BackgroundScreen;
+        memento.CurrentBackgroundName = backgroundScreen == null ? null : backgroundScreen.ResourceName;
+
+        UninstallBackgroundManager();
+        _backgroundData.Unload();
+      }
+
+      // Potential deadlock situation... But we cannot release our lock since noone is allowed to access the skin resources during skin/theme update.
+      DoCloseCurrentScreenAndDialogs_NoLock(true, true, false);
+      WaitForGarbageCollection();
+      return memento;
+    }
+
+    public void Recreate_NoLock(ScreenManagerMemento memento)
+    {
+      if (!InstallBackgroundManager())
+        _backgroundData.Load(memento.CurrentBackgroundName);
+      Screen screen = GetScreen(memento.CurrentScreenName, ScreenType.ScreenOrDialog);
+      DoExchangeScreen_NoLock(screen);
+      if (memento.CurrentSuperLayerName != null)
+      {
+        Screen superLayer = GetScreen(memento.CurrentSuperLayerName, ScreenType.SuperLayer);
+        DoSetSuperLayer_NoLock(superLayer);
+      }
+    }
+
     public void DoSwitchSkinAndTheme_NoLock(string newSkinName, string newThemeName)
     {
       ServiceRegistration.Get<ILogger>().Info("ScreenManager: Loading skin '{0}' with theme '{1}'", newSkinName, newThemeName);
 
-      string currentScreenName;
-      string currentSuperLayerName;
-      Screen backgroundScreen;
-      string currentBackgroundName;
+      ScreenManagerMemento memento;
 
       // Suspend both rendering and resource access to avoid the render thread rendering screens which are being closed here and
       // to block other threads accessing our skin resources (via indirect GetScreen calls)
       GraphicsDevice.RenderAndResourceAccessLock.EnterWriteLock();
       try
       {
-        lock (_syncObj)
-        {
-          currentScreenName = _currentScreen == null ? null : _currentScreen.ResourceName;
-          currentSuperLayerName = _currentSuperLayer == null ? null : _currentSuperLayer.ResourceName;
-          backgroundScreen = _backgroundData.BackgroundScreen;
-          currentBackgroundName = backgroundScreen == null ? null : backgroundScreen.ResourceName;
-
-          UninstallBackgroundManager();
-          _backgroundData.Unload();
-        }
-
-        // Potential deadlock situation... But we cannot release our lock since noone is allowed to access the skin resources during skin/theme update.
-        DoCloseCurrentScreenAndDialogs_NoLock(true, true, false);
-        WaitForGarbageCollection();
+        memento = TempClean_OnlyRenderLock();
 
         lock (_syncObj)
         {
@@ -494,15 +518,7 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
         // Resume resource access before we reload everything below
         GraphicsDevice.RenderAndResourceAccessLock.ExitWriteLock();
       }
-      if (!InstallBackgroundManager())
-        _backgroundData.Load(currentBackgroundName);
-      Screen screen = GetScreen(currentScreenName, ScreenType.ScreenOrDialog);
-      DoExchangeScreen_NoLock(screen);
-      if (currentSuperLayerName != null)
-      {
-        Screen superLayer = GetScreen(currentSuperLayerName, ScreenType.SuperLayer);
-        DoSetSuperLayer_NoLock(superLayer);
-      }
+      Recreate_NoLock(memento);
       SkinSettings settings = ServiceRegistration.Get<ISettingsManager>().Load<SkinSettings>();
       settings.Skin = SkinName;
       settings.Theme = ThemeName;
