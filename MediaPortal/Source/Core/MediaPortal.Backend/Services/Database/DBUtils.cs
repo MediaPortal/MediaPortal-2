@@ -34,6 +34,15 @@ namespace MediaPortal.Backend.Services.Database
   /// </summary>
   public static class SQLDatabaseExtension
   {
+    /// <summary>
+    /// Reads a value of the given type from the given database <paramref name="reader"/> from the column of the given <paramref name="colIndex"/>.
+    /// </summary>
+    /// <typeparam name="T">Type of the parameter to read. The data access layer will automatically try to convert a value of a convertible
+    /// format, if possible.</typeparam>
+    /// <param name="database">Underlaying SQL database.</param>
+    /// <param name="reader">Reader containing the value to read.</param>
+    /// <param name="colIndex">Index of the column to read. Indices start at <c>0</c>.</param>
+    /// <returns>Value which was read or <c>null</c>.</returns>
     public static T ReadDBValue<T>(this ISQLDatabase database, IDataReader reader, int colIndex)
     {
       return (T) database.ReadDBValue(typeof(T), reader, colIndex);
@@ -143,6 +152,8 @@ namespace MediaPortal.Backend.Services.Database
     /// <returns>Read value.</returns>
     public static object ReadSimpleDBValue(Type type, IDataReader reader, int colIndex)
     {
+      if (type != null && type.IsGenericType && type.GetGenericTypeDefinition() == typeof(Nullable<>))
+        type = type.GetGenericArguments()[0];
       if (reader.IsDBNull(colIndex))
         return null;
       if (type == typeof(string))
