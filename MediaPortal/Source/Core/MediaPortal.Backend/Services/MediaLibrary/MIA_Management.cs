@@ -624,24 +624,34 @@ namespace MediaPortal.Backend.Services.MediaLibrary
         MediaItemAspectMetadata.AttributeSpecification spec, object value, bool insert, out Guid valuePk)
     {
       string collectionAttributeTableName = GetMIACollectionAttributeTableName(spec);
-      IDatabaseManager databaseManager = ServiceRegistration.Get<IDatabaseManager>();
       ISQLDatabase database = transaction.Database;
 
       LockAttribute(spec);
       try
       {
-        valuePk = Guid.NewGuid();
-        // Insert value into collection attribute table if not exists
         using (IDbCommand command = transaction.CreateCommand())
         {
+          // First check if value already exists...
+          command.CommandText = "SELECT " + FOREIGN_COLL_ATTR_ID_COL_NAME + " FROM " + collectionAttributeTableName +
+              " WHERE " + COLL_ATTR_VALUE_COL_NAME + " = @COLL_ATTR_VALUE";
+
+          database.AddParameter(command, "COLL_ATTR_VALUE", value, spec.AttributeType);
+
+          using (IDataReader reader = command.ExecuteReader())
+          {
+            if (reader.Read())
+            {
+              valuePk = database.ReadDBValue<Guid>(reader, 0);
+              return;
+            }
+          }
+
+          // ... if not, insert it
+          valuePk = Guid.NewGuid();
           command.CommandText = "INSERT INTO " + collectionAttributeTableName + " (" +
-              FOREIGN_COLL_ATTR_ID_COL_NAME + ", " + COLL_ATTR_VALUE_COL_NAME + ") SELECT @FOREIGN_COLL_ATTR_ID, @COLL_ATTR_VALUE FROM " +
-              databaseManager.DummyTableName + " WHERE NOT EXISTS(" +
-              "SELECT " + FOREIGN_COLL_ATTR_ID_COL_NAME + " FROM " +
-              collectionAttributeTableName + " WHERE " + COLL_ATTR_VALUE_COL_NAME + " = @COLL_ATTR_VALUE)";
+              FOREIGN_COLL_ATTR_ID_COL_NAME + ", " + COLL_ATTR_VALUE_COL_NAME + ") VALUES (@FOREIGN_COLL_ATTR_ID, @COLL_ATTR_VALUE)";
 
           database.AddParameter(command, "FOREIGN_COLL_ATTR_ID", valuePk, typeof(Guid));
-          database.AddParameter(command, "COLL_ATTR_VALUE", value, spec.AttributeType); // Used twice in query
 
           command.ExecuteNonQuery();
         }
