@@ -1406,7 +1406,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
             }
             else
               terms1.Add(attrColName + " = @" + bindVarName);
-            bindVars.Add(new BindVar(bindVarName, insertValue.HasValue ? (Guid?) insertValue.Value : null, spec.AttributeType));
+            bindVars.Add(new BindVar(bindVarName, insertValue.HasValue ? (Guid?) insertValue.Value : null, typeof(Guid)));
             break;
           case Cardinality.ManyToMany:
             // After main query
