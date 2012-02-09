@@ -196,6 +196,9 @@
     <Content Include="Skin\Reflexion\themes\green\images\preview.png" />
     <Content Include="Skin\Reflexion\themes\green\images\Reflex.jpg" />
     <Content Include="Skin\Reflexion\themes\green\theme.xml" />
+    <Content Include="Skin\Reflexion\themes\grey\images\preview.png" />
+    <Content Include="Skin\Reflexion\themes\grey\images\reflex.jpg" />
+    <Content Include="Skin\Reflexion\themes\grey\theme.xml" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="plugin.xml" />
@@ -398,6 +401,11 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="Skin\Reflexion\themes\default\styles\MediaGraphics.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Skin\Reflexion\themes\grey\styles\Colors.xaml">
       <SubType>Designer</SubType>
     </Content>
   </ItemGroup>
