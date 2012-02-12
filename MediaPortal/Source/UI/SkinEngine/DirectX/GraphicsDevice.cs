@@ -46,6 +46,8 @@ using SlimDX.Direct3D9;
 
 namespace MediaPortal.UI.SkinEngine.DirectX
 {
+  public delegate void WorkDlgt();
+
   internal static class GraphicsDevice
   {
     #region Variables
@@ -152,31 +154,40 @@ namespace MediaPortal.UI.SkinEngine.DirectX
       get { return _renderAndResourceAccessLock; }
     }
 
+    public static void ExecuteInMainThread(WorkDlgt method)
+    {
+      _setup.RenderTarget.Invoke(method);
+    }
+
     public static void ReCreateDXDevice()
     {
-      _renderAndResourceAccessLock.EnterWriteLock(); // Avoid rendering during DX initialization
-      ScreenManager.ScreenManagerMemento memento;
-      try
-      {
-        memento = _screenManager.TempClean_OnlyRenderLock();
-        Initialize(_setup.RenderTarget);
-      }
-      finally
-      {
-        _renderAndResourceAccessLock.ExitWriteLock();
-      }
-      _screenManager.Recreate_NoLock(memento);
+      _screenManager.ExecuteWithTempReleasedResources(() => ExecuteInMainThread(DoReCreateDevice_MainThread));
     }
 
     /// <summary>
     /// Initializes or re-initializes the DirectX device and the backbuffer. This is necessary in the initialization phase
     /// of the SkinEngine and after a parameter was changed which affects the DX device creation.
     /// </summary>
+    /// <remarks>
+    /// This method has to be called from the main application thread because the DirectX device will be created by this method.
+    /// </remarks>
     /// <param name="window">The window which is being used as render target; that window will contain the DX device.</param>
-    internal static void Initialize(Form window)
+    internal static void Initialize_MainThread(Form window)
+    {
+      _setup.RenderTarget = window;
+      DoReCreateDevice_MainThread();
+    }
+
+    /// <summary>
+    /// Creates or re-creates the DirectX device and the backbuffer. This is necessary in the initialization phase
+    /// of the SkinEngine and after a parameter was changed which affects the DX device creation.
+    /// </summary>
+    internal static void DoReCreateDevice_MainThread()
     {
       try
       {
+        // Note that only the thread which handles window messages is allowed to call CreateDevice and Reset
+        // (see http://msdn.microsoft.com/en-us/library/windows/desktop/bb147224%28v=vs.85%29.aspx )
         ServiceRegistration.Get<ILogger>().Debug("GraphicsDevice: Initializing DirectX");
         MPDirect3D.Load();
 
@@ -186,7 +197,7 @@ namespace MediaPortal.UI.SkinEngine.DirectX
           _backBuffer.Dispose();
         if (_device != null)
           _device.Dispose();
-        _device = _setup.SetupDirectX(window);
+        _device = _setup.SetupDirectX();
         // End cleanup part
 
         Capabilities deviceCapabilities = _device.Capabilities;
@@ -264,20 +275,32 @@ namespace MediaPortal.UI.SkinEngine.DirectX
     /// </summary>
     public static bool Reset()
     {
-      ServiceRegistration.Get<ILogger>().Debug("GraphicsDevice: Reset DirectX, {0}", ContentManager.Instance.TotalAllocationSize / (1024 * 1024));
-      if (_backBuffer != null)
-        _backBuffer.Dispose();
-      _backBuffer = null;
-      ResetDxDevice();
-      Capabilities deviceCapabilities = _device.Capabilities;
-      int ordinal = deviceCapabilities.AdapterOrdinal;
-      AdapterInformation adapterInfo = MPDirect3D.Direct3D.Adapters[ordinal];
-      DisplayMode currentMode = adapterInfo.CurrentDisplayMode;
-      AdaptTargetFrameRateToDisplayMode(currentMode);
-      ServiceRegistration.Get<ILogger>().Debug("GraphicsDevice: DirectX reset {0}x{1} format: {2} {3} Hz", Width, Height,
-          currentMode.Format, _targetFrameRate);
-      _backBuffer = _device.GetRenderTarget(0);
-      _dxCapabilities = DxCapabilities.RequestCapabilities(deviceCapabilities, currentMode);
+      _screenManager.ExecuteWithTempReleasedResources(() => ExecuteInMainThread(() =>
+          {
+            // Note that the thread which created the device must call this (see http://msdn.microsoft.com/en-us/library/windows/desktop/bb174344%28v=vs.85%29.aspx ).
+            // Note also that only the thread which handles window messages is allowed to call CreateDevice and Reset
+            // (see http://msdn.microsoft.com/en-us/library/windows/desktop/bb147224%28v=vs.85%29.aspx )
+            ServiceRegistration.Get<ILogger>().Debug("GraphicsDevice: Reset DirectX");
+            UIResourcesHelper.ReleaseUIResources();
+            ServiceRegistration.Get<ILogger>().Debug("GraphicsDevice: ContentManager.TotalAllocationSize = {0}", ContentManager.Instance.TotalAllocationSize / (1024 * 1024));
+
+            if (_backBuffer != null)
+              _backBuffer.Dispose();
+            _backBuffer = null;
+
+            ResetDxDevice();
+            Capabilities deviceCapabilities = _device.Capabilities;
+            int ordinal = deviceCapabilities.AdapterOrdinal;
+            AdapterInformation adapterInfo = MPDirect3D.Direct3D.Adapters[ordinal];
+            DisplayMode currentMode = adapterInfo.CurrentDisplayMode;
+            AdaptTargetFrameRateToDisplayMode(currentMode);
+            ServiceRegistration.Get<ILogger>().Debug("GraphicsDevice: DirectX reset {0}x{1} format: {2} {3} Hz", Width, Height,
+                currentMode.Format, _targetFrameRate);
+            _backBuffer = _device.GetRenderTarget(0);
+            _dxCapabilities = DxCapabilities.RequestCapabilities(deviceCapabilities, currentMode);
+
+            UIResourcesHelper.ReallocUIResources();
+          }));
       return true;
     }
 

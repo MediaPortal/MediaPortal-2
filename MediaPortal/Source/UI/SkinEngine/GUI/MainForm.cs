@@ -35,7 +35,6 @@ using MediaPortal.UI.General;
 using MediaPortal.Common.Settings;
 using MediaPortal.UI.Presentation.Players;
 using MediaPortal.UI.Presentation.Screens;
-using MediaPortal.UI.SkinEngine.ContentManagement;
 using MediaPortal.UI.SkinEngine.DirectX;
 using MediaPortal.UI.SkinEngine.InputManagement;
 using MediaPortal.UI.SkinEngine.Players;
@@ -43,6 +42,7 @@ using MediaPortal.UI.SkinEngine.ScreenManagement;
 using MediaPortal.UI.SkinEngine.SkinManagement;
 
 using MediaPortal.UI.SkinEngine.Settings;
+using MediaPortal.UI.SkinEngine.Utils;
 using SlimDX.Direct3D9;
 using Screen = MediaPortal.UI.SkinEngine.ScreenManagement.Screen;
 
@@ -118,7 +118,7 @@ namespace MediaPortal.UI.SkinEngine.GUI
 
       // GraphicsDevice has to be initialized after the form was sized correctly
       ServiceRegistration.Get<ILogger>().Debug("SkinEngine MainForm: Initialize DirectX");
-      GraphicsDevice.Initialize(this);
+      GraphicsDevice.Initialize_MainThread(this);
 
       // Read and apply ScreenSaver settings
       _screenSaverTimeOut = TimeSpan.FromMinutes(settings.ScreenSaverTimeoutMin);
@@ -238,15 +238,12 @@ namespace MediaPortal.UI.SkinEngine.GUI
     {
       ServiceRegistration.Get<ILogger>().Debug("SkinEngine MainForm: Stoping UI");
       StopRenderThread();
-      PlayersHelper.ReleaseGUIResources();
-      ContentManager.Instance.Free();
     }
 
     public void StartUI()
     {
       ServiceRegistration.Get<ILogger>().Debug("SkinEngine MainForm: Starting UI");
       GraphicsDevice.Reset();
-      PlayersHelper.ReallocGUIResources();
       StartRenderThread_Async();
     }
 
@@ -526,6 +523,7 @@ namespace MediaPortal.UI.SkinEngine.GUI
       {
         logger.Debug("SkinEngine MainForm: Stopping");
         StopUI();
+        UIResourcesHelper.ReleaseUIResources();
       }
       catch (Exception ex)
       {
@@ -754,7 +752,8 @@ namespace MediaPortal.UI.SkinEngine.GUI
     {
       // Also called on window movement
       base.OnResizeEnd(e);
-      if (_adaptToSizeEnabled && ClientSize != _previousWindowClientSize)
+      // Don't react on window state changes, those are captured by OnSizeChanged()
+      if (_adaptToSizeEnabled && ClientSize != _previousWindowClientSize && _previousWindowState == WindowState)
         AdaptToSize();
     }
 

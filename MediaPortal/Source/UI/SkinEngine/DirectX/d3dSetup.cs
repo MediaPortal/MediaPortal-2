@@ -72,7 +72,7 @@ namespace MediaPortal.UI.SkinEngine.DirectX
       WarnSwitchToRef
     }
 
-    private Form _renderTarget; // The window we will render too
+    private Form _renderTarget; // The window we will render to
 
     protected D3DEnumeration _enumerationSettings = new D3DEnumeration();
 
@@ -128,19 +128,14 @@ namespace MediaPortal.UI.SkinEngine.DirectX
     /// <summary>
     /// Picks the best graphics device and initializes it.
     /// </summary>
-    /// <param name="window">The form which will be used as render target for MediaPortal.</param>
-    /// <returns>Device, if a good device was found, else <c>null</c>.</returns>
-    public DeviceEx SetupDirectX(Form window)
+    /// <returns>Created device, if a good device could be created, else <c>null</c>.</returns>
+    public DeviceEx SetupDirectX()
     {
-      _renderTarget = window;
       _enumerationSettings.ConfirmDeviceCallback = ConfirmDevice;
       _enumerationSettings.Enumerate();
 
       if (_renderTarget.Cursor == null)
-      {
-        // Set up a default cursor
         _renderTarget.Cursor = Cursors.Default;
-      }
 
       try
       {
@@ -158,7 +153,7 @@ namespace MediaPortal.UI.SkinEngine.DirectX
         }
         catch (Exception e)
         {
-          ServiceRegistration.Get<ILogger>().Critical("D3DSetup: Failed to initialize windowed display mode. Falling back to reference rasterizer.");
+          ServiceRegistration.Get<ILogger>().Critical("D3DSetup: Failed to initialize device. Falling back to reference rasterizer.", e);
           if (configuration.DeviceInfo.DevType == DeviceType.Hardware)
           {
             // Let the user know we are switching from HAL to the reference rasterizer
@@ -167,7 +162,7 @@ namespace MediaPortal.UI.SkinEngine.DirectX
             configuration = FindBestWindowedMode(false, true);
             if (configuration == null)
             {
-              ServiceRegistration.Get<ILogger>().Critical("D3DSetup: Failed to find display mode with reference rasterizer.");
+              ServiceRegistration.Get<ILogger>().Critical("D3DSetup: Failed to find display mode for reference rasterizer.");
               Environment.Exit(0);
             }
 
@@ -192,7 +187,7 @@ namespace MediaPortal.UI.SkinEngine.DirectX
       GraphicsDeviceInfo deviceInfo = configuration.DeviceInfo;
 
       // Set up the presentation parameters
-      BuildPresentParamsFromSettings(configuration);
+      _presentParams = BuildPresentParamsFromSettings(_currentGraphicsConfiguration = configuration);
 
       if ((deviceInfo.Caps.PrimitiveMiscCaps & PrimitiveMiscCaps.NullReference) != 0)
         // Warn user about null ref device that can't render anything
@@ -453,14 +448,14 @@ namespace MediaPortal.UI.SkinEngine.DirectX
     /// </summary>
     public void BuildPresentParamsFromSettings()
     {
-      BuildPresentParamsFromSettings(_currentGraphicsConfiguration);
+      _presentParams = BuildPresentParamsFromSettings(_currentGraphicsConfiguration);
     }
 
     /// <summary>
     /// Build presentation parameters from the given settings.
     /// </summary>
     /// <param name="configuration">Graphics configuration to use.</param>
-    public void BuildPresentParamsFromSettings(D3DConfiguration configuration)
+    public PresentParameters BuildPresentParamsFromSettings(D3DConfiguration configuration)
     {
       int backBufferWidth;
       int backBufferHeight;
@@ -478,38 +473,37 @@ namespace MediaPortal.UI.SkinEngine.DirectX
       ServiceRegistration.Get<ILogger>().Debug("BuildPresentParamsFromSettings: Windowed = {0},  {1} x {2}",
           configuration.DeviceCombo.IsWindowed, backBufferWidth, backBufferHeight);
 
-      _presentParams = new PresentParameters();
+      PresentParameters result = new PresentParameters();
 
       AppSettings settings = ServiceRegistration.Get<ISettingsManager>().Load<AppSettings>();
 
       DeviceCombo dc = configuration.DeviceCombo;
-      MultisampleType mst = dc.MultisampleTypes.ContainsKey(settings.MultisampleType) ?
-          settings.MultisampleType : MultisampleType.None;
-      _presentParams.Multisample = mst;
-      _presentParams.MultisampleQuality = 0;
-      _presentParams.EnableAutoDepthStencil = false;
-      _presentParams.AutoDepthStencilFormat = dc.DepthStencilFormats.FirstOrDefault(dsf =>
+      MultisampleType mst = settings.MultisampleType;
+      result.Multisample = dc.MultisampleTypes.ContainsKey(mst) ? mst : MultisampleType.None;
+      result.MultisampleQuality = 0;
+      result.EnableAutoDepthStencil = false;
+      result.AutoDepthStencilFormat = dc.DepthStencilFormats.FirstOrDefault(dsf =>
           !dc.DepthStencilMultiSampleConflicts.Contains(new DepthStencilMultiSampleConflict {DepthStencilFormat = dsf, MultisampleType = mst}));
-      _presentParams.PresentFlags = PresentFlags.Video; //PresentFlag.LockableBackBuffer;
-      _presentParams.DeviceWindowHandle = _renderTarget.Handle;
-      _presentParams.Windowed = configuration.DeviceCombo.IsWindowed;
-      _presentParams.BackBufferFormat = configuration.DeviceCombo.BackBufferFormat;
-      _presentParams.BackBufferCount = 4; // 2 to 4 are recommended for FlipEx swap mode
+      result.PresentFlags = PresentFlags.Video; //PresentFlag.LockableBackBuffer;
+      result.DeviceWindowHandle = _renderTarget.Handle;
+      result.Windowed = configuration.DeviceCombo.IsWindowed;
+      result.BackBufferFormat = configuration.DeviceCombo.BackBufferFormat;
+      result.BackBufferCount = 4; // 2 to 4 are recommended for FlipEx swap mode
 #if PROFILE_PERFORMANCE
       _presentParams.PresentationInterval = PresentInterval.Immediate;
 #else
-      _presentParams.PresentationInterval = PresentInterval.One;
+      result.PresentationInterval = PresentInterval.One;
 #endif
-      _presentParams.FullScreenRefreshRateInHertz = _presentParams.Windowed ? 0 : configuration.DisplayMode.RefreshRate;
+      result.FullScreenRefreshRateInHertz = result.Windowed ? 0 : configuration.DisplayMode.RefreshRate;
       
       // From http://msdn.microsoft.com/en-us/library/windows/desktop/bb173422%28v=vs.85%29.aspx :
       // To use multisampling, the SwapEffect member of D3DPRESENT_PARAMETER must be set to D3DSWAPEFFECT_DISCARD.
-      _presentParams.SwapEffect = mst == MultisampleType.None ? SwapEffect.FlipEx : SwapEffect.Discard;
+      result.SwapEffect = mst == MultisampleType.None ? SwapEffect.FlipEx : SwapEffect.Discard;
 
-      _presentParams.BackBufferWidth = backBufferWidth;
-      _presentParams.BackBufferHeight = backBufferHeight;
+      result.BackBufferWidth = backBufferWidth;
+      result.BackBufferHeight = backBufferHeight;
 
-      _currentGraphicsConfiguration = configuration;
+      return result;
     }
   }
 }
