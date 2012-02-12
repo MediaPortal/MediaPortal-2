@@ -291,7 +291,6 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement.AssetCore
             _webDownloadContext.webClient.CancelAsync();
         }
       }
-
     }
 
     protected void CompleteAsynchronousOperation_NoLock()
@@ -315,10 +314,10 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement.AssetCore
 
     protected void AllocateFromFile(string path)
     {
-      Texture texture;
       lock (_syncObj)
         _state = State.LoadingSync;
 
+      Texture texture;
       ImageInformation info;
       try
       {
@@ -400,9 +399,9 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement.AssetCore
 
     protected void AllocateFromStream_NoLock(Stream stream)
     {
-      ImageInformation info;
       stream.Seek(0, SeekOrigin.Begin);
       Texture texture;
+      ImageInformation info;
       try
       {
         texture = Texture.FromStream(GraphicsDevice.Device, stream, 0, _decodeWidth, _decodeHeight, 1, 
@@ -443,14 +442,20 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement.AssetCore
 
         if (texture != null)
         {
+          if (_texture != null)
+          {
+            _texture.Dispose();
+            AllocationChanged(_allocationSize);
+          }
           _texture = texture;
+
           SurfaceDescription desc = _texture.GetLevelDescription(0);
           _width = fileWidth;
           _height = fileHeight;
           _maxU = fileWidth/((float) desc.Width);
           _maxV = fileHeight/((float) desc.Height);
           _allocationSize = desc.Width*desc.Height*4;
-          AllocationChanged(AllocationSize);
+          AllocationChanged(_allocationSize);
           _state = State.None;
         }
         else
@@ -686,7 +691,6 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement.AssetCore
 
           _width = TEXTURE_SIZE;
           _height = TEXTURE_SIZE;
-
           _allocationSize = TEXTURE_SIZE*TEXTURE_SIZE*4;
         }
       }
