@@ -84,7 +84,7 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
 
     #region Classes, structs, delegates & enums
 
-    public struct ScreenManagerMemento
+    public class ScreenManagerMemento
     {
       public string CurrentScreenName;
       public string CurrentSuperLayerName;
@@ -458,15 +458,37 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
         _pendingOperationsDecreasedEvent.WaitOne(TIMESPAN_INFINITE);
     }
 
-    public ScreenManagerMemento TempClean_OnlyRenderLock()
+    public void ExecuteWithTempReleasedResources(Action action)
     {
-      ScreenManagerMemento memento = new ScreenManagerMemento();
+      GraphicsDevice.RenderAndResourceAccessLock.EnterWriteLock(); // Avoid rendering during DX initialization
+      ScreenManagerMemento memento;
+      try
+      {
+        memento = TempClean_OnlyRenderLock();
+        action();
+      }
+      finally
+      {
+        GraphicsDevice.RenderAndResourceAccessLock.ExitWriteLock();
+      }
+      Recreate_NoLock(memento);
+    }
+
+    protected ScreenManagerMemento TempClean_OnlyRenderLock()
+    {
+      ScreenManagerMemento memento;
       lock (_syncObj)
       {
-        memento.CurrentScreenName = _currentScreen == null ? null : _currentScreen.ResourceName;
-        memento.CurrentSuperLayerName = _currentSuperLayer == null ? null : _currentSuperLayer.ResourceName;
+        if (_currentScreen == null)
+          // Not yet initialized
+          return null;
         Screen backgroundScreen = _backgroundData.BackgroundScreen;
-        memento.CurrentBackgroundName = backgroundScreen == null ? null : backgroundScreen.ResourceName;
+        memento = new ScreenManagerMemento
+          {
+              CurrentScreenName = _currentScreen.ResourceName,
+              CurrentSuperLayerName = _currentSuperLayer == null ? null : _currentSuperLayer.ResourceName,
+              CurrentBackgroundName = backgroundScreen == null ? null : backgroundScreen.ResourceName
+          };
 
         UninstallBackgroundManager();
         _backgroundData.Unload();
@@ -478,8 +500,10 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
       return memento;
     }
 
-    public void Recreate_NoLock(ScreenManagerMemento memento)
+    protected void Recreate_NoLock(ScreenManagerMemento memento)
     {
+      if (memento == null)
+        return;
       if (!InstallBackgroundManager())
         _backgroundData.Load(memento.CurrentBackgroundName);
       Screen screen = GetScreen(memento.CurrentScreenName, ScreenType.ScreenOrDialog);
