@@ -386,16 +386,15 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement
 
     private TextureAsset GetCreateTexture(string fileName, string key, int width, int height, bool thumb)
     {
-      int type = (int) (thumb ? AssetType.Thumbnail : AssetType.Texture);
+      AssetType type = thumb ? AssetType.Thumbnail : AssetType.Texture;
       AssetInstance texture;
       TextureAsset asset = null;
 
-      lock (_assets[type])
+      lock (_assets[(int) type])
       {
-        if (!_assets[type].TryGetValue(key, out texture))
+        if (!_assets[(int) type].TryGetValue(key, out texture))
         {
-          texture = NewAssetInstance(key, thumb ? AssetType.Thumbnail : AssetType.Texture,
-              new TextureAssetCore(fileName, width, height));
+          texture = NewAssetInstance(key, type, new TextureAssetCore(fileName, width, height));
           ((TextureAssetCore) texture.core).UseThumbnail = thumb;
         }
         else
@@ -414,15 +413,15 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement
 
     private TextureAsset GetCreateThumbTexture(byte[] binaryData, string key)
     {
-      const int type = (int) AssetType.Thumbnail;
+      const AssetType type = AssetType.Thumbnail;
       AssetInstance texture;
       TextureAsset asset = null;
 
-      lock (_assets[type])
+      lock (_assets[(int) type])
       {
-        if (!_assets[type].TryGetValue(key, out texture))
+        if (!_assets[(int) type].TryGetValue(key, out texture))
         {
-          texture = NewAssetInstance(key, AssetType.Thumbnail, new ThumbnailBinaryTextureAssetCore(binaryData, key));
+          texture = NewAssetInstance(key, type, new ThumbnailBinaryTextureAssetCore(binaryData, key));
         }
         else
           asset = texture.asset.Target as TextureAsset;
@@ -458,8 +457,6 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement
     private AssetInstance NewAssetInstance(string key, AssetType type, IAssetCore newcore)
     {
       AssetInstance inst = new AssetInstance { core = newcore };
-      // Albert, 2010-11-16: The following line produces too many messages in log
-      // ServiceRegistration.Get<ILogger>().Debug("ContentManager: Creating new {0} for '{1}'", type.ToString(), key);
       newcore.AllocationChanged += OnAssetAllocationChanged;
       _assets[(int) type].Add(key, inst);
       return inst;
