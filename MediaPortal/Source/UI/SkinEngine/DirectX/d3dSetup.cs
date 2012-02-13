@@ -479,12 +479,14 @@ namespace MediaPortal.UI.SkinEngine.DirectX
 
       DeviceCombo dc = configuration.DeviceCombo;
       MultisampleType mst = settings.MultisampleType;
-      result.Multisample = dc.MultisampleTypes.ContainsKey(mst) ? mst : MultisampleType.None;
+      mst = dc.MultisampleTypes.ContainsKey(mst) ? mst : MultisampleType.None;
+      result.Multisample = mst;
       result.MultisampleQuality = 0;
       result.EnableAutoDepthStencil = false;
       result.AutoDepthStencilFormat = dc.DepthStencilFormats.FirstOrDefault(dsf =>
           !dc.DepthStencilMultiSampleConflicts.Contains(new DepthStencilMultiSampleConflict {DepthStencilFormat = dsf, MultisampleType = mst}));
-      result.PresentFlags = PresentFlags.Video; //PresentFlag.LockableBackBuffer;
+      // Note that PresentFlags.Video makes NVidia graphics drivers switch off multisampling antialiasing
+      result.PresentFlags = PresentFlags.None;
       result.DeviceWindowHandle = _renderTarget.Handle;
       result.Windowed = configuration.DeviceCombo.IsWindowed;
       result.BackBufferFormat = configuration.DeviceCombo.BackBufferFormat;
