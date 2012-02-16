@@ -69,17 +69,18 @@ namespace MediaPortal.UI.Players.Video
     #region DLL imports
 
     [DllImport("EVRPresenter.dll", ExactSpelling = true, CharSet = CharSet.Auto, SetLastError = true)]
-    private static extern int EvrInit(IEVRPresentCallback callback, uint dwD3DDevice, IBaseFilter evrFilter, IntPtr monitor);
+    private static extern int EvrInit(IEVRPresentCallback callback, uint dwD3DDevice, IBaseFilter evrFilter, IntPtr monitor, out IntPtr presenterInstance);
 
     [DllImport("EVRPresenter.dll", ExactSpelling = true, CharSet = CharSet.Auto, SetLastError = true)]
-    private static extern void EvrDeinit();
+    private static extern void EvrDeinit(IntPtr presenterInstance);
 
     #endregion
 
     #region Consts
 
     protected const int WM_GRAPHNOTIFY = 0x4000 + 123;
-    private const string EVR_FILTER_NAME = "Enhanced Video Renderer";
+    protected const string EVR_FILTER_NAME = "Enhanced Video Renderer";
+    protected IntPtr _presenterInstance;
 
     public const string PLAYER_ID_STR = "9EF8D975-575A-4c64-AA54-500C97745969";
     public const string AUDIO_STREAM_NAME = "Audio1";
@@ -410,19 +411,19 @@ namespace MediaPortal.UI.Players.Video
 
       _evr = (IBaseFilter) new EnhancedVideoRenderer();
 
-      IEVRFilterConfig config = (IEVRFilterConfig) _evr;
-
-      // Set the number of video/subtitle/cc streams that are allowed to be connected to EVR
-      config.SetNumberOfStreams(_streamCount);
-
       IntPtr upDevice = SkinContext.Device.ComPointer;
-      int hr = EvrInit(_evrCallback, (uint) upDevice.ToInt32(), _evr, SkinContext.Form.Handle);
+      int hr = EvrInit(_evrCallback, (uint) upDevice.ToInt32(), _evr, SkinContext.Form.Handle, out _presenterInstance);
       if (hr != 0)
       {
-        EvrDeinit();
+        EvrDeinit(_presenterInstance);
         FilterGraphTools.TryRelease(ref _evr);
         throw new VideoPlayerException("Initializing of EVR failed");
       }
+
+      // Set the number of video/subtitle/cc streams that are allowed to be connected to EVR. This has to be done after the custom presenter is initialized.
+      IEVRFilterConfig config = (IEVRFilterConfig) _evr;
+      config.SetNumberOfStreams(_streamCount);
+
       _graphBuilder.AddFilter(_evr, EVR_FILTER_NAME);
     }
 
@@ -534,14 +535,14 @@ namespace MediaPortal.UI.Players.Video
       FilterGraphTools.TryDispose(ref _streamInfoAudio);
       FilterGraphTools.TryDispose(ref _streamInfoSubtitles);
 
-      // Free EVR
-      EvrDeinit();
-      FreeEvrCallback();
-      FilterGraphTools.TryRelease(ref _evr);
-
       // Free all filters from graph
       if (_graphBuilder != null)
         FilterGraphTools.RemoveAllFilters(_graphBuilder, true);
+
+      // Free EVR
+      EvrDeinit(_presenterInstance);
+      FreeEvrCallback();
+      FilterGraphTools.TryRelease(ref _evr);
 
       FilterGraphTools.TryDispose(ref _rot);
       FilterGraphTools.TryRelease(ref _graphBuilder);
@@ -1153,7 +1154,7 @@ namespace MediaPortal.UI.Players.Video
           _graphBuilder.RemoveFilter(_evr);
         FilterGraphTools.TryRelease(ref _evr);
 
-        EvrDeinit();
+        EvrDeinit(_presenterInstance);
         FreeEvrCallback();
         _initialized = false;
       }

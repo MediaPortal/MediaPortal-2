@@ -57,11 +57,12 @@ EVRCustomPresenter::EVRCustomPresenter(IEVRCallback* callback, IDirect3DDevice9E
 // Destructor
 EVRCustomPresenter::~EVRCustomPresenter()
 {
+  Log("EVRCustomPresenter::~EVRCustomPresenter destructor");
 }
 
 
 // Init EVR Presenter (called by VideoPlayer.cs)
-__declspec(dllexport) int EvrInit(IEVRCallback* callback, DWORD dwD3DDevice, IBaseFilter* evrFilter, HWND hwnd)
+__declspec(dllexport) int EvrInit(IEVRCallback* callback, DWORD dwD3DDevice, IBaseFilter* evrFilter, HWND hwnd, EVRCustomPresenter** ppPresenterInstance)
 {
 	HRESULT hr;
 
@@ -78,7 +79,8 @@ __declspec(dllexport) int EvrInit(IEVRCallback* callback, DWORD dwD3DDevice, IBa
   if (FAILED(hr))
   {
     Log("EvrInit EVRCustomPresenter() failed");
-    delete presenter;
+    presenter->Release();
+    pVideoRenderer.Release();
 	  return hr;
   }
 
@@ -86,16 +88,22 @@ __declspec(dllexport) int EvrInit(IEVRCallback* callback, DWORD dwD3DDevice, IBa
   if (FAILED(hr))
   {
     Log("EvrInit IMFVIdeoRenderer::InitializeRenderer failed");
+    presenter->Release();
     pVideoRenderer.Release();
 	  return hr;
   }
 
+  *ppPresenterInstance = presenter;
+  Log("EvrInit: successfully created presenter 0x%x", *ppPresenterInstance);
   pVideoRenderer.Release();
 	return hr;
 }
 
 
-__declspec(dllexport) void EvrDeinit()
+__declspec(dllexport) void EvrDeinit(EVRCustomPresenter* pPresenterInstance)
 {
+  Log("EvrDeinit: releasing presenter 0x%x", pPresenterInstance);
+  if (pPresenterInstance)
+    pPresenterInstance->Release();
 }
 
