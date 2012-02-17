@@ -1478,7 +1478,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
       foreach (MediaItemAspectMetadata.AttributeSpecification spec in miaType.AttributeSpecifications.Values)
       {
         if (mia.IsIgnore(spec))
-          break;
+          continue;
         switch (spec.Cardinality)
         {
           case Cardinality.Inline:
