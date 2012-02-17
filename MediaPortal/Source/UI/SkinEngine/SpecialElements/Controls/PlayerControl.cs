@@ -130,7 +130,7 @@ namespace MediaPortal.UI.SkinEngine.SpecialElements.Controls
     protected AbstractProperty _isPipProperty;
     protected AbstractProperty _imageWidthProperty;
     protected AbstractProperty _imageHeightProperty;
-    protected AbstractProperty _videoGenreProperty;
+    protected AbstractProperty _videoGenresProperty;
     protected AbstractProperty _videoYearProperty;
     protected AbstractProperty _videoActorsProperty;
     protected AbstractProperty _videoStoryPlotProperty;
@@ -200,7 +200,7 @@ namespace MediaPortal.UI.SkinEngine.SpecialElements.Controls
       _fixedImageHeight = 0f;
       _imageWidthProperty = new SProperty(typeof(float), 0f);
       _imageHeightProperty = new SProperty(typeof(float), 0f);
-      _videoGenreProperty = new SProperty(typeof(string), string.Empty);
+      _videoGenresProperty = new SProperty(typeof(IEnumerable<string>), EMPTY_NAMES_COLLECTION);
       _videoYearProperty = new SProperty(typeof(int?), null);
       _videoActorsProperty = new SProperty(typeof(IEnumerable<string>), EMPTY_NAMES_COLLECTION);
       _videoStoryPlotProperty = new SProperty(typeof(string), string.Empty);
@@ -738,13 +738,13 @@ namespace MediaPortal.UI.SkinEngine.SpecialElements.Controls
         }
         if (videoAspect == null)
         {
-          VideoGenre = string.Empty;
+          VideoGenres = EMPTY_NAMES_COLLECTION;
           VideoActors = EMPTY_NAMES_COLLECTION;
           VideoStoryPlot = string.Empty;
         }
         else
         {
-          VideoGenre = (string) videoAspect[VideoAspect.ATTR_GENRE];
+          VideoGenres = (IEnumerable<string>) videoAspect[VideoAspect.ATTR_GENRES];
           VideoActors = (IEnumerable<string>) videoAspect[VideoAspect.ATTR_ACTORS];
           VideoStoryPlot = (string) videoAspect[VideoAspect.ATTR_STORYPLOT];
         }
@@ -1340,19 +1340,19 @@ namespace MediaPortal.UI.SkinEngine.SpecialElements.Controls
       internal set { _videoYearProperty.SetValue(value); }
     }
 
-    public AbstractProperty VideoGenreProperty
+    public AbstractProperty VideoGenresProperty
     {
-      get { return _videoGenreProperty; }
+      get { return _videoGenresProperty; }
     }
 
     /// <summary>
     /// Gets the genre string of the currently playing video, if the current media item is a video item and if this
     /// information is available.
     /// </summary>
-    public string VideoGenre
+    public IEnumerable<string> VideoGenres
     {
-      get { return (string) _videoGenreProperty.GetValue(); }
-      internal set { _videoGenreProperty.SetValue(value); }
+      get { return (IEnumerable<string>) _videoGenresProperty.GetValue(); }
+      internal set { _videoGenresProperty.SetValue(value); }
     }
 
     public AbstractProperty VideoActorsProperty

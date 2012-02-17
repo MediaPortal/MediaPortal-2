@@ -33,7 +33,7 @@
               <Label x:Name="GenreLabel" Grid.Row="1" Grid.Column="0"
                   Content="[Media.VideoGenreLabel]" Color="{ThemeResource TextColor}"/>
               <Label x:Name="Genre" Grid.Row="1" Grid.Column="1"
-                  Content="{Binding VideoGenre}" Color="{ThemeResource TextColor}"/>
+                  Content="{Binding VideoGenres}" Color="{ThemeResource TextColor}"/>
               <Label x:Name="YearLabel" Grid.Row="2" Grid.Column="0"
                   Content="[Media.VideoYearLabel]" Color="{ThemeResource TextColor}"/>
               <Label x:Name="Year" Grid.Row="2" Grid.Column="1"

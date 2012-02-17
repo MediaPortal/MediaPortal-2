@@ -34,13 +34,13 @@ namespace MediaPortal.Common.MediaManagement.DefaultItemAspects
     /// <summary>
     /// Media item aspect id of the movie aspect.
     /// </summary>
-    public static readonly Guid ASPECT_ID = new Guid("8F8B7A4F-767C-4180-B58E-7C8999C52067");
+    public static readonly Guid ASPECT_ID = new Guid("39B6A293-3E97-4873-8955-975A15359050");
 
     /// <summary>
     /// Genre string.
     /// </summary>
-    public static readonly MediaItemAspectMetadata.AttributeSpecification ATTR_GENRE =
-        MediaItemAspectMetadata.CreateStringAttributeSpecification("Genre", 100, Cardinality.ManyToOne, true);
+    public static readonly MediaItemAspectMetadata.AttributeSpecification ATTR_GENRES =
+        MediaItemAspectMetadata.CreateStringAttributeSpecification("Genres", 100, Cardinality.ManyToMany, true);
 
     /// <summary>
     /// Duration in seconds.
@@ -130,7 +130,7 @@ namespace MediaPortal.Common.MediaManagement.DefaultItemAspects
     public static readonly MediaItemAspectMetadata Metadata = new MediaItemAspectMetadata(
         // TODO: Localize name
         ASPECT_ID, "VideoItem", new[] {
-            ATTR_GENRE,
+            ATTR_GENRES,
             ATTR_DURATION,
             ATTR_DIRECTOR,
             ATTR_AUDIOSTREAMCOUNT,
