@@ -90,7 +90,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.VideoMetadataExtractor.Matro
     public void ReadTags(Dictionary<string, IList<string>> tagsToExtract)
     {
       String output;
-      if (TryExecuteReadString(@"mkvextract.exe", "tags " + _fileName, out output) && !string.IsNullOrEmpty(output))
+      if (TryExecuteReadString(@"mkvextract.exe", string.Format("tags \"{0}\"", _fileName), out output) && !string.IsNullOrEmpty(output))
       {
         XDocument doc = XDocument.Parse(output);
 
@@ -128,10 +128,11 @@ namespace MediaPortal.Extensions.MetadataExtractors.VideoMetadataExtractor.Matro
         using (_process.StandardOutput)
         {
           result = _process.StandardOutput.ReadToEnd();
-          if (_process.WaitForExit(1000) && _process.ExitCode == 0)
-            return true;
+          if (_process.WaitForExit(1000))
+            return _process.ExitCode == 0;
         }
-        _process.Kill();
+        if (!_process.HasExited)
+          _process.Close();
       }
       return false;
     }
@@ -146,7 +147,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.VideoMetadataExtractor.Matro
       // |  + Mime type: image/jpeg
       // |  + File data, size: 132908
       // |  + File UID: 1495003044
-      if (TryExecuteReadString(@"mkvinfo.exe", "--ui-language en --output-charset UTF-8 " + _fileName, out output))
+      if (TryExecuteReadString(@"mkvinfo.exe", string.Format("--ui-language en --output-charset UTF-8 \"{0}\"", _fileName), out output))
       {
         StringReader reader = new StringReader(output);
         string line;
