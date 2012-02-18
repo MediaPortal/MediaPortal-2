@@ -101,6 +101,7 @@ namespace MediaPortal.UI.SkinEngine.SpecialElements.Controls
     protected AbstractProperty _isVideoPlayerPresentProperty;
     protected AbstractProperty _isImagePlayerPresentProperty;
     protected AbstractProperty _titleProperty;
+    protected AbstractProperty _mediaItemProperty;
     protected AbstractProperty _mediaItemTitleProperty;
     protected AbstractProperty _nextMediaItemTitleProperty;
     protected AbstractProperty _hasNextMediaItemProperty;
@@ -169,6 +170,7 @@ namespace MediaPortal.UI.SkinEngine.SpecialElements.Controls
       _isVideoPlayerPresentProperty = new SProperty(typeof(bool), false);
       _isImagePlayerPresentProperty = new SProperty(typeof(bool), false);
       _titleProperty = new SProperty(typeof(string), null);
+      _mediaItemProperty = new SProperty(typeof(MediaItem), null);
       _mediaItemTitleProperty = new SProperty(typeof(string), null);
       _nextMediaItemTitleProperty = new SProperty(typeof(string), string.Empty);
       _hasNextMediaItemProperty = new SProperty(typeof(bool), false);
@@ -481,6 +483,7 @@ namespace MediaPortal.UI.SkinEngine.SpecialElements.Controls
         }
 
         _currentMediaItem = playerContext == null ? null : playerContext.CurrentMediaItem;
+        MediaItem = _currentMediaItem;
 
         IsPlayerPresent = player != null;
         IVideoPlayer vp = player as IVideoPlayer;
@@ -896,6 +899,20 @@ namespace MediaPortal.UI.SkinEngine.SpecialElements.Controls
     {
       get { return (string) _titleProperty.GetValue(); }
       internal set { _titleProperty.SetValue(value); }
+    }
+
+    public AbstractProperty MediaItemProperty
+    {
+      get { return _mediaItemProperty; }
+    }
+
+    /// <summary>
+    /// Gets current media item.
+    /// </summary>
+    public MediaItem MediaItem
+    {
+      get { return (MediaItem) _mediaItemProperty.GetValue(); }
+      internal set { _mediaItemProperty.SetValue(value); }
     }
 
     public AbstractProperty MediaItemTitleProperty
