@@ -275,11 +275,29 @@ namespace MediaPortal.Extensions.MetadataExtractors.VideoMetadataExtractor
                                                    };
           mkvReader.ReadTags(tagsToExtract);
 
+          string title = string.Empty;
+          if (tagsToExtract[TAG_SIMPLE_TITLE] != null)
+            title = tagsToExtract[TAG_SIMPLE_TITLE].FirstOrDefault();
+
           if (tagsToExtract[TAG_EPISODE_TITLE] != null)
-            mediaAspect.SetAttribute(MediaAspect.ATTR_TITLE, tagsToExtract[TAG_EPISODE_TITLE].FirstOrDefault());
-          else
-            if (tagsToExtract[TAG_SIMPLE_TITLE] != null)
-              mediaAspect.SetAttribute(MediaAspect.ATTR_TITLE, tagsToExtract[TAG_SIMPLE_TITLE].FirstOrDefault());
+          {
+            string episodeName = tagsToExtract[TAG_EPISODE_TITLE].FirstOrDefault();
+            string seriesName = string.Empty;
+            string seasonNum = string.Empty;
+            string episodeNum = string.Empty;
+
+            if (tagsToExtract[TAG_SERIES_TITLE] != null)
+             seriesName = tagsToExtract[TAG_SERIES_TITLE].FirstOrDefault();
+            if (tagsToExtract[TAG_SEASON_NUMBER] != null)
+             seasonNum = tagsToExtract[TAG_SEASON_NUMBER].FirstOrDefault();
+            if (tagsToExtract[TAG_EPISODE_NUMBER] != null)
+              episodeNum = tagsToExtract[TAG_EPISODE_NUMBER].FirstOrDefault();
+
+            if (!string.IsNullOrEmpty(seriesName) && !string.IsNullOrEmpty(seasonNum) && !string.IsNullOrEmpty(episodeNum))
+              title = string.Format("{0} S{1}E{2} - {3}", seriesName, seasonNum.PadLeft(2, '0'), episodeNum.PadLeft(2, '0'), episodeName);
+          }
+          if (!string.IsNullOrEmpty(title))
+            mediaAspect.SetAttribute(MediaAspect.ATTR_TITLE, title);
 
           string yearCandidate = null;
           if (tagsToExtract[TAG_EPISODE_YEAR] != null)
