@@ -22,6 +22,7 @@
             </Grid.RowDefinitions>
             <Grid.ColumnDefinitions>
               <ColumnDefinition Width="Auto"/>
+              <ColumnDefinition Width="Auto"/>
               <ColumnDefinition Width="*"/>
             </Grid.ColumnDefinitions>
             <Label x:Name="ArtistsLabel" Grid.Row="0" Grid.Column="0"
@@ -40,6 +41,10 @@
                 Content="[Media.AudioDurationLabel]" Color="{ThemeResource TextColor}"/>
             <Label x:Name="Duration" Grid.Row="3" Grid.Column="1"
                 Content="{Binding Duration}" Color="{ThemeResource TextColor}"/>
+
+            <Image x:Name="ItemTypeImage" Grid.Row="0" Grid.Column="2" Grid.RowSpan="4" Stretch="Uniform" 
+                Source="{Binding MediaItem}" FallbackSource="AudioLarge.png"
+                Width="{StaticResource MEDIA_THUMB_WIDTH_CP}" Height="{StaticResource MEDIA_THUMB_HEIGHT_CP}"/>
           </Grid>
         </mp_special_controls:PlayerControl.TemplateControl>
       </mp_special_controls:PlayerControl>

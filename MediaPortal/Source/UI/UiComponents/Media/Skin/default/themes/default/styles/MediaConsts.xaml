@@ -6,8 +6,10 @@
   <ResourceWrapper x:Key="MEDIA_THUMB_WIDTH_S" Resource="48"/>
   <ResourceWrapper x:Key="MEDIA_THUMB_WIDTH_M" Resource="96"/>
   <ResourceWrapper x:Key="MEDIA_THUMB_WIDTH_L" Resource="178"/>
+  <ResourceWrapper x:Key="MEDIA_THUMB_WIDTH_CP" Resource="200"/>
 
   <ResourceWrapper x:Key="MEDIA_THUMB_HEIGHT_S" Resource="27"/>
   <ResourceWrapper x:Key="MEDIA_THUMB_HEIGHT_M" Resource="56"/>
   <ResourceWrapper x:Key="MEDIA_THUMB_HEIGHT_L" Resource="100"/>
+  <ResourceWrapper x:Key="MEDIA_THUMB_HEIGHT_CP" Resource="200"/>
 </ResourceDictionary>
