@@ -4,12 +4,13 @@
     PluginId="{CA7543A8-D7DF-44BC-A6AC-75AB3911FE43}"
     Author="Furnibird,Morpheus_xx"
     Copyright="GPL"
-    Description="Reflexion Skin for MP2."
+    Description="Reflexion Skin for MP2"
     PluginVersion="1.0">
 
   <DependsOn>
     <PluginReference PluginId="{5D239050-02B8-4f58-8301-7630A1C4CF85}"/> <!-- SkinBase -->
-    <PluginReference PluginId="{F6C71648-3874-4d27-9232-C41EBEDE0337}"/> <!-- Background Manager -->    
+    <PluginReference PluginId="{F6C71648-3874-4d27-9232-C41EBEDE0337}"/> <!-- Background Manager -->
+    <PluginReference PluginId="{AD9C0439-F9DA-443c-BAC3-163891FB09F1}"/> <!-- Weather -->
   </DependsOn>
 
   <!-- Registrations for MIA types which need to be loaded by the Media navigation model for this skin -->

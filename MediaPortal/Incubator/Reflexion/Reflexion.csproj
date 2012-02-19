@@ -188,6 +188,7 @@
     <Content Include="Skin\Reflexion\images\Weather\64x64\permission.txt" />
     <Content Include="Skin\Reflexion\images\Weather\64x64\WEATHERALERT.png" />
     <Content Include="Skin\Reflexion\screens\FSCWindowButtons.inc" />
+    <Content Include="Skin\Reflexion\screens\ProgramInfoSlim.inc" />
     <Content Include="Skin\Reflexion\skin.xml" />
     <Content Include="Skin\Reflexion\themes\default\images\Controls\Bar.png" />
     <Content Include="Skin\Reflexion\themes\default\images\Controls\GaussianNoise.jpg" />
@@ -411,6 +412,11 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="Skin\Reflexion\themes\default\styles\MediaConsts.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Skin\Reflexion\screens\SlimTvClient-fullguide.xaml">
       <SubType>Designer</SubType>
     </Content>
   </ItemGroup>
