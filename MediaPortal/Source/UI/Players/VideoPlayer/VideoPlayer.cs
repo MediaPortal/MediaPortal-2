@@ -49,7 +49,7 @@ using System.Globalization;
 
 namespace MediaPortal.UI.Players.Video
 {
-  public class VideoPlayer : ISlimDXVideoPlayer, IDisposable, IPlayerEvents, IInitializablePlayer, IMediaPlaybackControl, ISubtitlePlayer, IChapterPlayer
+  public class VideoPlayer : ISlimDXVideoPlayer, IDisposable, IPlayerEvents, IInitializablePlayer, IMediaPlaybackControl, ISubtitlePlayer, IChapterPlayer, ITitlePlayer
   {
     #region Classes & interfaces
 
@@ -150,6 +150,7 @@ namespace MediaPortal.UI.Players.Video
 
     protected StreamInfoHandler _streamInfoAudio = null;
     protected StreamInfoHandler _streamInfoSubtitles = null;
+    protected StreamInfoHandler _streamInfoTitles = null; //Used mostly for MKV Editions
     private readonly object _syncObj = new object();
 
     /// <summary>
@@ -1015,12 +1016,14 @@ namespace MediaPortal.UI.Players.Video
       if (_graphBuilder == null || !_initialized)
         return false;
 
-      if (_streamInfoAudio == null || _streamInfoSubtitles == null)
+      if (_streamInfoAudio == null || _streamInfoSubtitles == null || _streamInfoTitles == null)
       {
         FilterGraphTools.TryDispose(ref _streamInfoAudio);
         FilterGraphTools.TryDispose(ref _streamInfoSubtitles);
+        FilterGraphTools.TryDispose(ref _streamInfoTitles);
         _streamInfoAudio = new StreamInfoHandler();
         _streamInfoSubtitles = new StreamInfoHandler();
+        _streamInfoTitles = new StreamInfoHandler();
 
         foreach (
           IAMStreamSelect streamSelector in FilterGraphTools.FindFiltersByInterface<IAMStreamSelect>(_graphBuilder))
@@ -1072,6 +1075,11 @@ namespace MediaPortal.UI.Players.Video
             {
               // subtitles
               _streamInfoSubtitles.AddUnique(currentStream, true);
+            }
+
+            if (groupNumber == 18) //This is a MKV Edition handeled by Haali splitter
+            {
+              _streamInfoTitles.AddUnique(currentStream, true);
             }
 
             // free MediaType and references
@@ -1315,6 +1323,7 @@ namespace MediaPortal.UI.Players.Video
       get 
       {
         lock (SyncObj)
+          EnumerateStreams();
           return _chapterNames ?? EMPTY_STRING_ARRAY; 
       }
     }
@@ -1443,6 +1452,55 @@ namespace MediaPortal.UI.Players.Video
 
     #endregion
 
+    #region ITitlePlayer implementation
+
+    public virtual string[] Titles
+    {
+      get
+      {
+        lock (SyncObj)
+        {
+          EnumerateStreams();
+
+          if (_streamInfoTitles == null)
+            return EMPTY_STRING_ARRAY;
+
+          // Check if there are real title streams available.
+          string[] titleStreamNames = _streamInfoTitles.GetStreamNames();
+          if (titleStreamNames.Length == 0)
+            return EMPTY_STRING_ARRAY;
+          return titleStreamNames;
+        }
+      }
+    }
+
+    /// <summary>
+    /// Sets the current subtitle stream.
+    /// </summary>
+    /// <param name="subtitle">subtitle stream</param>
+    public virtual void SetTitle(string title)
+    {
+      lock (SyncObj)
+      {
+        _streamInfoTitles.EnableStream(title);
+        _streamInfoTitles = null; //Will force a stream enumeration by setting _chapterNames to null
+        EnumerateStreams();
+      }
+    }
+
+    public virtual string CurrentTitle
+    {
+      get
+      {
+        lock (SyncObj)
+        {
+          return _streamInfoTitles != null ? _streamInfoTitles.CurrentStreamName : String.Empty;
+        }
+      }
+    }
+
+    #endregion
+
     #region Base overrides
 
     public override string ToString()
@@ -1451,7 +1509,6 @@ namespace MediaPortal.UI.Players.Video
     }
 
     #endregion
-
 
   }
 }

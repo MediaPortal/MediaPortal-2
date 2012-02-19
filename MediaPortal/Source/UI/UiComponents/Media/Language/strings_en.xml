@@ -240,10 +240,11 @@
 
     <String Name="ValueEmptyTitle" Text="&lt;Empty&gt;"/>
 
-    <!-- DVDPlayerUIContributor -->
+    <!-- VideoPlayerUIContributor -->
     <String Name="SubtitleOff" Text="Disable Subtitles"/>
     <String Name="ChooseChapterDialogHeader" Text="Choose chapter"/>
     <String Name="ChooseSubtitleDialogHeader" Text="Choose subtitle"/>
+    <String Name="ChooseTitleDialogHeader" Text="Choose title"/>
 
     <!-- Video Player time units -->
     <String Name="Seconds" Text="sec"/>
