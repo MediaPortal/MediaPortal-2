@@ -57,7 +57,7 @@ EVRCustomPresenter::EVRCustomPresenter(IEVRCallback* callback, IDirect3DDevice9E
 // Destructor
 EVRCustomPresenter::~EVRCustomPresenter()
 {
-  Log("EVRCustomPresenter::~EVRCustomPresenter destructor");
+  Log("EVRCustomPresenter::~EVRCustomPresenter");
 }
 
 
@@ -65,6 +65,7 @@ EVRCustomPresenter::~EVRCustomPresenter()
 __declspec(dllexport) int EvrInit(IEVRCallback* callback, DWORD dwD3DDevice, IBaseFilter* evrFilter, HWND hwnd, EVRCustomPresenter** ppPresenterInstance)
 {
 	HRESULT hr;
+  *ppPresenterInstance = NULL;
 
   // Set IMFVideoRenderer Interface
 	CComQIPtr<IMFVideoRenderer> pVideoRenderer = evrFilter;
@@ -102,8 +103,10 @@ __declspec(dllexport) int EvrInit(IEVRCallback* callback, DWORD dwD3DDevice, IBa
 
 __declspec(dllexport) void EvrDeinit(EVRCustomPresenter* pPresenterInstance)
 {
-  Log("EvrDeinit: releasing presenter 0x%x", pPresenterInstance);
-  if (pPresenterInstance)
+  if (pPresenterInstance != NULL)
+  {
+    Log("EvrDeinit: Releasing presenter 0x%x", pPresenterInstance);
     pPresenterInstance->Release();
+  }
 }
 
