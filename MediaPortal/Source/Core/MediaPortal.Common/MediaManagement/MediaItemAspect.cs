@@ -410,6 +410,21 @@ namespace MediaPortal.Common.MediaManagement
         _aspectData[attributeSpecification] = IGNORE;
     }
 
+    /// <summary>
+    /// Gets a MediaItemAspect from the given <paramref name="aspects"/> dictionary or creates a new instance which is then added to the dictionary.
+    /// </summary>
+    /// <param name="aspects">Dictionary of MediaItemAspects</param>
+    /// <param name="aspectId">ASPECT_ID of requested MediaItemAspect</param>
+    /// <param name="mediaItemAspectMetadata">Definiton of metadata that is used for creation</param>
+    /// <returns>MediaItemAspect</returns>
+    public static MediaItemAspect GetOrCreateAspect(IDictionary<Guid, MediaItemAspect> aspects, Guid aspectId, MediaItemAspectMetadata mediaItemAspectMetadata)
+    {
+      MediaItemAspect mediaAspect;
+      if (!aspects.TryGetValue(aspectId, out mediaAspect))
+        aspects[aspectId] = mediaAspect = new MediaItemAspect(mediaItemAspectMetadata);
+      return mediaAspect;
+    }
+
     public override string ToString()
     {
       return "MIA of type '" + _metadata + "'";

@@ -54,6 +54,9 @@ namespace MediaPortal.Extensions.MetadataExtractors.VideoMetadataExtractor
     /// </summary>
     public const string METADATAEXTRACTOR_ID_STR = "F2D86BE4-07E6-40F2-9D12-C0076861CAB8";
 
+    #region Matroska reader tags
+
+    // Tags are constructed by using TargetTypeValue (i.e. 70) and the name of the <Simple> tag (i.e. TITLE).
     private const string TAG_SERIES_TITLE = "70.TITLE";
     private const string TAG_SERIES_GENRE = "70.GENRE";
     private const string TAG_SEASON_YEAR = "60.DATE_RELEASE";
@@ -65,6 +68,8 @@ namespace MediaPortal.Extensions.MetadataExtractors.VideoMetadataExtractor
     private const string TAG_EPISODE_YEAR = "50.DATE_RELEASED";
     private const string TAG_EPISODE_NUMBER = "50.PART_NUMBER";
     private const string TAG_SIMPLE_TITLE = "TITLE";
+
+    #endregion
 
     /// <summary>
     /// Video metadata extractor GUID.
@@ -401,19 +406,10 @@ namespace MediaPortal.Extensions.MetadataExtractors.VideoMetadataExtractor
         }
         if (result != null)
         {
-          // TODO: The creation of new media item aspects could be moved to a general method
-          MediaItemAspect mediaAspect;
-          if (!extractedAspectData.TryGetValue(MediaAspect.ASPECT_ID, out mediaAspect))
-            extractedAspectData[MediaAspect.ASPECT_ID] = mediaAspect = new MediaItemAspect(MediaAspect.Metadata);
-          MediaItemAspect videoAspect;
-          if (!extractedAspectData.TryGetValue(VideoAspect.ASPECT_ID, out videoAspect))
-            extractedAspectData[VideoAspect.ASPECT_ID] = videoAspect = new MediaItemAspect(VideoAspect.Metadata);
-          MediaItemAspect thumbnailSmallAspect;
-          if (!extractedAspectData.TryGetValue(ThumbnailSmallAspect.ASPECT_ID, out thumbnailSmallAspect))
-            extractedAspectData[ThumbnailSmallAspect.ASPECT_ID] = thumbnailSmallAspect = new MediaItemAspect(ThumbnailSmallAspect.Metadata);
-          MediaItemAspect thumbnailLargeAspect;
-          if (!extractedAspectData.TryGetValue(ThumbnailLargeAspect.ASPECT_ID, out thumbnailLargeAspect))
-            extractedAspectData[ThumbnailLargeAspect.ASPECT_ID] = thumbnailLargeAspect = new MediaItemAspect(ThumbnailLargeAspect.Metadata);
+          MediaItemAspect mediaAspect = MediaItemAspect.GetOrCreateAspect(extractedAspectData, MediaAspect.ASPECT_ID, MediaAspect.Metadata);
+          MediaItemAspect videoAspect = MediaItemAspect.GetOrCreateAspect(extractedAspectData, VideoAspect.ASPECT_ID, VideoAspect.Metadata);
+          MediaItemAspect thumbnailSmallAspect = MediaItemAspect.GetOrCreateAspect(extractedAspectData, ThumbnailSmallAspect.ASPECT_ID, ThumbnailSmallAspect.Metadata);
+          MediaItemAspect thumbnailLargeAspect = MediaItemAspect.GetOrCreateAspect(extractedAspectData, ThumbnailLargeAspect.ASPECT_ID, ThumbnailLargeAspect.Metadata);
 
           IResourceAccessor ra = mediaItemAccessor.Clone();
           try
