@@ -407,15 +407,14 @@ namespace MediaPortal.Plugins.SlimTv.Providers
       {
         ISystemResolver systemResolver = ServiceRegistration.Get<ISystemResolver>();
         IDictionary<Guid, MediaItemAspect> aspects = new Dictionary<Guid, MediaItemAspect>();
-        MediaItemAspect providerResourceAspect;
-        MediaItemAspect mediaAspect;
 
         SlimTvResourceAccessor resourceAccessor = new SlimTvResourceAccessor(slotIndex, streamUrl);
-        aspects[ProviderResourceAspect.ASPECT_ID] =
-          providerResourceAspect = new MediaItemAspect(ProviderResourceAspect.Metadata);
-        aspects[MediaAspect.ASPECT_ID] = mediaAspect = new MediaItemAspect(MediaAspect.Metadata);
-        // videoaspect needs to be included to associate player later!
-        aspects[VideoAspect.ASPECT_ID] = new MediaItemAspect(VideoAspect.Metadata);
+        MediaItemAspect providerResourceAspect = MediaItemAspect.GetOrCreateAspect(aspects, ProviderResourceAspect.ASPECT_ID, ProviderResourceAspect.Metadata);
+        MediaItemAspect mediaAspect = MediaItemAspect.GetOrCreateAspect(aspects, MediaAspect.ASPECT_ID, MediaAspect.Metadata);
+        
+        // VideoAspect needs to be included to associate player later, even if it is empty
+        MediaItemAspect.GetOrCreateAspect(aspects, VideoAspect.ASPECT_ID, VideoAspect.Metadata);
+
         providerResourceAspect.SetAttribute(ProviderResourceAspect.ATTR_SYSTEM_ID, systemResolver.LocalSystemId);
 
         String raPath = resourceAccessor.CanonicalLocalResourcePath.Serialize();
