@@ -42,7 +42,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.VideoMetadataExtractor.Matro
     private Process _process;
     private readonly string _fileName;
     private readonly string _workingDirectory;
-    private readonly List<MatroskaAttachment> _attachments;
+    private List<MatroskaAttachment> _attachments;
 
     #endregion
 
@@ -63,6 +63,9 @@ namespace MediaPortal.Extensions.MetadataExtractors.VideoMetadataExtractor.Matro
 
     #region Properties
 
+    /// <summary>
+    /// Gets a list of attachments, is created after <see cref="ReadAttachments"/> was called once.
+    /// </summary>
     public List<MatroskaAttachment> Attachments
     {
       get { return _attachments; }
@@ -80,13 +83,16 @@ namespace MediaPortal.Extensions.MetadataExtractors.VideoMetadataExtractor.Matro
     {
       _fileName = fileName;
       _workingDirectory = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
-      _attachments = new List<MatroskaAttachment>();
     }
 
     #endregion
 
     #region Public Methods
 
+    /// <summary>
+    /// Reads all tags from matroska file and parses the XML for the requested tags (<paramref name="tagsToExtract"/>).
+    /// </summary>
+    /// <param name="tagsToExtract">Dictionary with tag names as keys</param>
     public void ReadTags(Dictionary<string, IList<string>> tagsToExtract)
     {
       String output;
@@ -116,29 +122,17 @@ namespace MediaPortal.Extensions.MetadataExtractors.VideoMetadataExtractor.Matro
       }
     }
 
-    #endregion
-
-    #region Private methods
-
-    private bool TryExecuteReadString(string executable, string arguments, out string result)
-    {
-      using (_process = new Process { StartInfo = new ProcessStartInfo(Path.Combine(_workingDirectory, executable), arguments) { UseShellExecute = false, CreateNoWindow = true, RedirectStandardOutput = true } })
-      {
-        _process.Start();
-        using (_process.StandardOutput)
-        {
-          result = _process.StandardOutput.ReadToEnd();
-          if (_process.WaitForExit(1000))
-            return _process.ExitCode == 0;
-        }
-        if (!_process.HasExited)
-          _process.Close();
-      }
-      return false;
-    }
-
+    /// <summary>
+    /// Reads the attachment information from the matroska file.
+    /// </summary>
     public void ReadAttachments()
     {
+      // Only read attachments once
+      if (_attachments != null)
+        return;
+
+      _attachments = new List<MatroskaAttachment>();
+
       String output;
       // Structure of mkvinfo attachment output
       // |+ Attachments
@@ -169,6 +163,120 @@ namespace MediaPortal.Extensions.MetadataExtractors.VideoMetadataExtractor.Matro
       }
     }
 
+    /// <summary>
+    /// Tries to extract an embedded cover from the matroska file. It checks attachments for a matching filename (cover.jpg/png).
+    /// <para>
+    /// <seealso cref="http://www.matroska.org/technical/cover_art/index.html"/>:
+    /// The way to differentiate between all these versions is by the filename. The default filename is cover.(png/jpg) for backward compatibility reasons. 
+    /// That is the "big" version of the file (600) in square or portrait mode. It should also be the first file in the attachments. 
+    /// The smaller resolution should be prefixed with "small_", ie small_cover.(jpg/png). The landscape variant should be suffixed with "_land", ie cover_land.jpg. 
+    /// The filenames are case sensitive and should all be lower case.
+    /// In the end a file could contain these 4 basic cover art files:
+    ///  cover.jpg (portrait/square 600)
+    ///  small_cover.png (portrait/square 120)
+    ///  cover_land.png (landscape 600)
+    ///  small_cover_land.jpg (landscape 120)
+    /// </para>
+    /// </summary>
+    /// <param name="binaryData">Returns the binary data</param>
+    /// <returns>True if successful</returns>
+    public bool GetCover(out byte[] binaryData)
+    {
+      return GetAttachmentByName("cover.", out binaryData); // Could be .png or .jpg
+    }
+
+    /// <summary>
+    /// Tries to extract an embedded landscape cover from the matroska file. <seealso cref="GetCover"/> for more information about naming conventions.
+    /// </summary>
+    /// <param name="binaryData">Returns the binary data</param>
+    /// <returns>True if successful</returns>
+    public bool GetCoverLandscape(out byte[] binaryData)
+    {
+      return GetAttachmentByName("cover_land.", out binaryData); // Could be .png or .jpg
+    }
+
+    /// <summary>
+    /// Tries to extract an attachment by its name.
+    /// </summary>
+    /// <param name="fileNamePart">Beginn of filename</param>
+    /// <param name="binaryData">Returns the binary data</param>
+    /// <returns>True if successful</returns>
+    public bool GetAttachmentByName(string fileNamePart, out byte[] binaryData)
+    {
+      ReadAttachments();
+      for (int c = 0; c < Attachments.Count; c++)
+        if (Attachments[c].FileName.ToLowerInvariant().StartsWith(fileNamePart))
+          return ExtractAttachment(c, out binaryData);
+
+      binaryData = null;
+      return false;
+    }
+
+    /// <summary>
+    /// Tries to extract an attachment by its index. The index is zero-based and refers to the <see cref="Attachments"/> collection index.
+    /// </summary>
+    /// <param name="attachmentIndex">Index</param>
+    /// <param name="binaryData">Returns the binary data</param>
+    /// <returns>True if successful</returns>
+    public bool ExtractAttachment(int attachmentIndex, out byte[] binaryData)
+    {
+      binaryData = null;
+      string tempFileName = Path.GetTempFileName();
+      if (TryExecute(@"mkvextract.exe", string.Format("attachments \"{0}\" {1}:\"{2}\"", _fileName, attachmentIndex + 1, tempFileName)))
+      {
+        int fileSize = _attachments[attachmentIndex].FileSize;
+        FileInfo fileInfo = new FileInfo(tempFileName);
+        if (!fileInfo.Exists || fileInfo.Length != fileSize)
+          return false;
+
+        binaryData = new byte[fileSize];
+        using (FileStream fileStream = new FileStream(tempFileName, FileMode.Open))
+        {
+          int offset = 0;
+          int read;
+          do
+          {
+            read = fileStream.Read(binaryData, offset, Math.Min(fileSize - offset, 8192));
+            offset += read;
+          } while (read > 0);
+        }
+        fileInfo.Delete();
+      }
+      return false;
+    }
+
+    #endregion
+
+    #region Private methods
+
+    private bool TryExecuteReadString(string executable, string arguments, out string result)
+    {
+      using (_process = new Process { StartInfo = new ProcessStartInfo(Path.Combine(_workingDirectory, executable), arguments) { UseShellExecute = false, CreateNoWindow = true, RedirectStandardOutput = true } })
+      {
+        _process.Start();
+        using (_process.StandardOutput)
+        {
+          result = _process.StandardOutput.ReadToEnd();
+          if (_process.WaitForExit(1000))
+            return _process.ExitCode == 0;
+        }
+        if (!_process.HasExited)
+          _process.Close();
+      }
+      return false;
+    }
+
+    private bool TryExecute(string executable, string arguments)
+    {
+      using (_process = new Process { StartInfo = new ProcessStartInfo(executable, arguments) { UseShellExecute = false, CreateNoWindow = true } })
+      {
+        _process.Start();
+        if (_process.WaitForExit(1000))
+          return _process.ExitCode == 0;
+      }
+      return false;
+    }
+    
     static IEnumerable<XElement> GetTagsForTargetType(XDocument doc, int? targetTypeValue)
     {
       if (targetTypeValue.HasValue)
@@ -180,7 +288,6 @@ namespace MediaPortal.Extensions.MetadataExtractors.VideoMetadataExtractor.Matro
              where !simpleTag.Element("Targets").HasElements
              select simpleTag;
     }
-
 
     #endregion
   }
