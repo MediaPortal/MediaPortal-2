@@ -1095,7 +1095,7 @@ namespace MediaPortal.UI.Players.Video
                 double markerTime;
                 extendSeeking.GetMarkerTime(i, out markerTime);
                 _chapterTimestamps[i - 1] = markerTime;
-                _chapterNames[i - 1] = GetChapterName(i);
+                _chapterNames[i - 1] = GetChapterName(i,_graphBuilder);
               }
             }
           }
@@ -1421,10 +1421,24 @@ namespace MediaPortal.UI.Players.Video
     /// </summary>
     /// <param name="chapterNumber">0 based chapter number.</param>
     /// <returns>Localized chapter name.</returns>
-    protected static string GetChapterName(int chapterNumber)
+    protected static string GetChapterName(int chapterNumber, IGraphBuilder graphBuilder=null)
     {
       //Idea: we could scrape chapter names and store them in MediaAspects. When they are available, return the full names here.
-      return ServiceRegistration.Get<ILocalization>().ToString(RES_PLAYBACK_CHAPTER, chapterNumber);
+      string markerName=null;
+      if (graphBuilder != null)
+      {
+        IAMExtendedSeeking extendSeeking = FilterGraphTools.FindFilterByInterface<IAMExtendedSeeking>(graphBuilder);
+        if (extendSeeking != null)
+        {
+          //Get the chapter name from the IAMExtendSeecking interface, if exists
+          extendSeeking.GetMarkerName(chapterNumber, out markerName);
+        }
+      }
+
+      if (!String.IsNullOrEmpty(markerName))
+        return markerName;
+      else
+        return ServiceRegistration.Get<ILocalization>().ToString(RES_PLAYBACK_CHAPTER, chapterNumber);
     }
 
     #endregion
