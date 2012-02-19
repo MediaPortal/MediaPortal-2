@@ -892,7 +892,7 @@ namespace MediaPortal.UI.Players.Video
     /// <summary>
     /// Gets the available DVD titles.
     /// </summary>
-    public string[] Titles
+    public override string[] Titles
     {
       get
       {
@@ -914,7 +914,7 @@ namespace MediaPortal.UI.Players.Video
     /// Sets the DVD title to play.
     /// </summary>
     /// <param name="title">DVD title</param>
-    public void SetTitle(string title)
+    public override void SetTitle(string title)
     {
       string[] titles = Titles;
       for (int i = 0; i < titles.Length; ++i)
@@ -930,7 +930,7 @@ namespace MediaPortal.UI.Players.Video
     /// <summary>
     /// Gets the current DVD title.
     /// </summary>
-    public string CurrentTitle
+    public override string CurrentTitle
     {
       get
       {

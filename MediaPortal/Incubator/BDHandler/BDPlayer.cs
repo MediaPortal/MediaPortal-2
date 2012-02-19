@@ -251,15 +251,15 @@ namespace MediaPortal.UI.Players.Video
 
     private readonly string[] _emptyStringArray = new string[0];
 
-    public string[] Titles
+    public override string[] Titles
     {
       get { return _emptyStringArray; }
     }
 
-    public void SetTitle(string title)
+    public override void SetTitle(string title)
     { }
 
-    public string CurrentTitle
+    public override string CurrentTitle
     {
       get { return null; }
     }

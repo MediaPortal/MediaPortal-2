@@ -46,6 +46,7 @@ namespace MediaPortal.UiComponents.Media.Models
     {
       _subtitlesAvailableProperty = new WProperty(typeof(bool), false);
       _chaptersAvailableProperty = new WProperty(typeof(bool), false);
+      _titlesAvailableProperty = new WProperty(typeof(bool), false);
       StartTimer();
     }
 
@@ -62,6 +63,11 @@ namespace MediaPortal.UiComponents.Media.Models
     protected AbstractProperty _chaptersAvailableProperty;
     protected string[] _chapters = EMPTY_STRING_ARRAY;
     protected ItemsList _chapterMenuItems;
+
+    protected ITitlePlayer _titlePlayer;
+    protected AbstractProperty _titlesAvailableProperty;
+    protected string[] _titles = EMPTY_STRING_ARRAY;
+    protected ItemsList _titleMenuItems;
 
     protected bool _updating;
 
@@ -87,6 +93,17 @@ namespace MediaPortal.UiComponents.Media.Models
     {
       get { return (bool)_chaptersAvailableProperty.GetValue(); }
       set { _chaptersAvailableProperty.SetValue(value); }
+    }
+
+    public AbstractProperty TitlesAvailableProperty
+    {
+      get { return _titlesAvailableProperty; }
+    }
+
+    public bool TitlesAvailable
+    {
+      get { return (bool)_titlesAvailableProperty.GetValue(); }
+      set { _titlesAvailableProperty.SetValue(value); }
     }
 
     /// <summary>
@@ -151,6 +168,37 @@ namespace MediaPortal.UiComponents.Media.Models
       }
     }
 
+    /// <summary>
+    /// Provides a list of items to be shown in the title selection menu.
+    /// </summary>
+    public ItemsList TitleMenuItems
+    {
+      get
+      {
+        _titleMenuItems.Clear();
+        ITitlePlayer titlePlayer = _titlePlayer;
+        if (titlePlayer != null && _titles.Length > 0)
+        {
+          string currentTitle = titlePlayer.CurrentTitle;
+
+          foreach (string title in _titles)
+          {
+            // Use local variable, otherwise delegate argument is not fixed
+            string localTitle = title;
+
+            ListItem item = new ListItem(Consts.KEY_NAME, localTitle)
+            {
+              Command = new MethodDelegateCommand(() => titlePlayer.SetTitle(localTitle)),
+              // Check if it is the selected subtitle, then mark it
+              Selected = localTitle == currentTitle
+            };
+
+            _titleMenuItems.Add(item);
+          }
+        }
+        return _titleMenuItems;
+      }
+    }
 
     public bool BackgroundDisabled
     {
@@ -179,8 +227,10 @@ namespace MediaPortal.UiComponents.Media.Models
       _mediaWorkflowStateType = stateType;
       _subtitlePlayer = player as ISubtitlePlayer;
       _chapterPlayer = player as IChapterPlayer;
+      _titlePlayer = player as ITitlePlayer;
       _subtitleMenuItems = new ItemsList();
       _chapterMenuItems = new ItemsList();
+      _titleMenuItems = new ItemsList();
     }
 
     // Update GUI properties
@@ -205,6 +255,14 @@ namespace MediaPortal.UiComponents.Media.Models
           }
           else
             _chapters = EMPTY_STRING_ARRAY;
+
+          if (_titlePlayer != null)
+          {
+            _titles = _titlePlayer.Titles;
+            TitlesAvailable = _titles.Length > 0;
+          }
+          else
+            _titles = EMPTY_STRING_ARRAY;
         }
         finally
         {
@@ -227,6 +285,14 @@ namespace MediaPortal.UiComponents.Media.Models
     public void OpenChooseChapterDialog()
     {
       ServiceRegistration.Get<IScreenManager>().ShowDialog("DialogChooseChapter");
+    }
+
+    /// <summary>
+    /// Opens the title selection dialog.
+    /// </summary>
+    public void OpenChooseTitleDialog()
+    {
+      ServiceRegistration.Get<IScreenManager>().ShowDialog("DialogChooseTitle");
     }
 
     /// <summary>
