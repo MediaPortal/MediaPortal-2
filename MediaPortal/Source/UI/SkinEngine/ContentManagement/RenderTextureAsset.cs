@@ -115,7 +115,7 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement
     }
 
     /// <summary>
-    /// Allocates a new render-texture with the specified size and default format.
+    /// Allocates a new render-texture with the specified parameters.
     /// </summary>
     public void AllocateCustom(int width, int height, Usage usage, Format format)
     {

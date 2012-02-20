@@ -43,11 +43,13 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
 
     protected AbstractProperty _visualProperty;
     protected AbstractProperty _autoLayoutContentProperty;
-    protected RenderTextureAsset _textureVisual = null;
+    protected RenderTextureAsset _visualTexture = null;
+    protected RenderTargetAsset _visualSurface = null;
     protected Screen _screen = null;
     protected SizeF _visualSize = Size.Empty;
     protected FrameworkElement _preparedVisual = null;
     protected String _renderTextureKey;
+    protected String _renderSurfaceKey;
     protected static int _visualBrushId = 0;
 
     #endregion
@@ -56,8 +58,9 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
 
     public VisualBrush()
     {
-      ++_visualBrushId;
+      _visualBrushId++;
       _renderTextureKey = String.Format("VisualBrush RenderTexture #{0}", _visualBrushId);
+      _renderSurfaceKey = String.Format("VisualBrush RenderSurface #{0}", _visualBrushId);
 
       Init();
       Attach();
@@ -105,8 +108,14 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
 
     void UpdateRenderTarget(FrameworkElement fe)
     {
-      fe.RenderToTexture(_textureVisual, new RenderContext(Matrix.Identity, Matrix.Identity, Opacity,
+      fe.RenderToSurface(_visualSurface, new RenderContext(Matrix.Identity, Matrix.Identity, Opacity,
           new RectangleF(new PointF(0.0f, 0.0f), _vertsBounds.Size), 1.0f));
+
+      // Unfortunately, brushes/brush effects are based on textures and cannot work with surfaces, so we need this additional copy step
+      GraphicsDevice.Device.StretchRectangle(
+          _visualSurface.Surface, new Rectangle(Point.Empty, _visualSurface.Size),
+          _visualTexture.Surface0, new Rectangle(Point.Empty,  _visualTexture.Size),
+          TextureFilter.None);
     }
 
     protected void PrepareVisual()
@@ -163,17 +172,17 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
 
     public override Texture Texture
     {
-      get { return _textureVisual.Texture; }
+      get { return _visualTexture.Texture; }
     }
 
     protected override Vector2 BrushDimensions
     {
-      get { return (_textureVisual != null) ? new Vector2(_textureVisual.Width, _textureVisual.Height) : new Vector2(1.0f, 1.0f); }
+      get { return (_visualTexture != null) ? new Vector2(_visualTexture.Width, _visualTexture.Height) : new Vector2(1.0f, 1.0f); }
     }
 
     protected override Vector2 TextureMaxUV
     {
-      get { return (_textureVisual != null) ? new Vector2(_textureVisual.MaxU, _textureVisual.MaxV) : new Vector2(1.0f, 1.0f); }
+      get { return (_visualTexture != null) ? new Vector2(_visualTexture.MaxU, _visualTexture.MaxV) : new Vector2(1.0f, 1.0f); }
     }
 
     #endregion
@@ -181,7 +190,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
     public override void SetupBrush(FrameworkElement parent, ref PositionColoredTextured[] verts, float zOrder, bool adaptVertsToBrushTexture)
     {
       base.SetupBrush(parent, ref verts, zOrder, adaptVertsToBrushTexture);
-      _textureVisual = ContentManager.Instance.GetRenderTexture(_renderTextureKey);
+      _visualTexture = ContentManager.Instance.GetRenderTexture(_renderTextureKey);
+      _visualSurface = ContentManager.Instance.GetRenderTarget(_renderSurfaceKey);
       _screen = parent.Screen;
       PrepareVisual();
     }
@@ -190,7 +200,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
     {
       FrameworkElement fe = _preparedVisual;
       if (fe == null) return false;
-      _textureVisual.AllocateRenderTarget((int) _vertsBounds.Width, (int) _vertsBounds.Height);
+      _visualTexture.AllocateRenderTarget((int) _vertsBounds.Width, (int) _vertsBounds.Height);
+      _visualSurface.AllocateRenderTarget((int) _vertsBounds.Width, (int) _vertsBounds.Height);
 
       UpdateRenderTarget(fe);
       return base.BeginRenderBrushOverride(primitiveContext, renderContext);

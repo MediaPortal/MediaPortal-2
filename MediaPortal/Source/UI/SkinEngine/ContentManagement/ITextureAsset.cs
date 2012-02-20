@@ -28,6 +28,9 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement
 {
   public interface ITextureAsset : IAsset
   {
+    /// <summary>
+    /// Gets the texture resource for this asset.
+    /// </summary>
     Texture Texture { get; }
   }
 }

@@ -123,7 +123,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     public const string MOUSEENTER_EVENT = "FrameworkElement.MouseEnter";
     public const string MOUSELEAVE_EVENT = "FrameworkElement.MouseLeave";
 
-    protected const string GLOBAL_RENDER_TEXTURE_ASSET_KEY = "SkinEngine::GlobalRenderTarget";
+    protected const string GLOBAL_RENDER_TEXTURE_ASSET_KEY = "SkinEngine::GlobalRenderTexture";
+    protected const string GLOBAL_RENDER_SURFACE_ASSET_KEY = "SkinEngine::GlobalRenderSurface";
 
     #region Protected fields
 
@@ -1653,28 +1654,28 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     {
     }
 
-    public void RenderToTexture(RenderTextureAsset texture, RenderContext renderContext)
+    public void RenderToSurface(RenderTargetAsset renderTarget, RenderContext renderContext)
     {
       // We do the following here:
-      // 1. Set the transformation matrix to match the texture size
-      // 2. Set the rendertarget to the given texture
-      // 3. Clear the texture with an alpha value of 0
-      // 4. Render the control (into the texture)
+      // 1. Set the transformation matrix to match the render surface's size
+      // 2. Set the rendertarget to the given surface
+      // 3. Clear the surface with an alpha value of 0
+      // 4. Render the control (into the surface)
       // 5. Restore the rendertarget to the backbuffer
       // 6. Restore previous transformation matrix
 
       // Set transformation matrix
       Matrix? oldTransform = null;
-      if (texture.Width != GraphicsDevice.Width || texture.Height != GraphicsDevice.Height)
+      if (renderTarget.Width != GraphicsDevice.Width || renderTarget.Height != GraphicsDevice.Height)
       {
         oldTransform = GraphicsDevice.FinalTransform;
-        GraphicsDevice.SetCameraProjection(texture.Width, texture.Height);
+        GraphicsDevice.SetCameraProjection(renderTarget.Width, renderTarget.Height);
       }
       // Get the current backbuffer
       using (Surface backBuffer = GraphicsDevice.Device.GetRenderTarget(0))
       {
         // Change the rendertarget to the render texture
-        GraphicsDevice.Device.SetRenderTarget(0, texture.Surface0);
+        GraphicsDevice.Device.SetRenderTarget(0, renderTarget.Surface);
 
         // Fill the background of the texture with an alpha value of 0
         GraphicsDevice.Device.Clear(ClearFlags.Target, Color.FromArgb(0, Color.Black), 1.0f, 0);
@@ -1712,19 +1713,22 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
         DoRender(localRenderContext);
       else
       { // Control has an opacity mask
-        // Get global render texture or create it if it doesn't exist
-        RenderTextureAsset renderTarget = ContentManager.Instance.GetRenderTexture(
+        // Get global render surface and render texture or create them if they dosn't exist
+        RenderTextureAsset renderTexture = ContentManager.Instance.GetRenderTexture(
+            GLOBAL_RENDER_TEXTURE_ASSET_KEY);
+        RenderTargetAsset renderSurface = ContentManager.Instance.GetRenderTarget(
             GLOBAL_RENDER_TEXTURE_ASSET_KEY);
 
-        // Ensure it's allocated
-        renderTarget.AllocateRenderTarget(GraphicsDevice.Width, GraphicsDevice.Height);
-        if (!renderTarget.IsAllocated)
+        // Ensure they are allocated
+        renderTexture.AllocateRenderTarget(GraphicsDevice.Width, GraphicsDevice.Height);
+        renderSurface.AllocateRenderTarget(GraphicsDevice.Width, GraphicsDevice.Height);
+        if (!renderTexture.IsAllocated || !renderSurface.IsAllocated)
           return;
 
         // Create a temporary render context and render the control to the render texture
         RenderContext tempRenderContext = new RenderContext(localRenderContext.Transform, Matrix.Identity, 
             localRenderContext.Opacity, bounds, localRenderContext.ZOrder);
-        RenderToTexture(renderTarget, tempRenderContext);
+        RenderToSurface(renderSurface, tempRenderContext);
 
         // Add bounds to our calculated, occupied area.
         // If we don't do that, lines at the border of this element might be dimmed because of the filter (see OpacityMask test in GUITestPlugin).
@@ -1740,16 +1744,22 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
         // texture coordinates match up
         if (_updateOpacityMask || _opacityMaskContext == null ||
             occupiedTransformedBounds != _lastOccupiedTransformedBounds ||
-            renderTarget.Size != _lastOpacityRenderSize)
+            renderSurface.Size != _lastOpacityRenderSize)
         {
-          UpdateOpacityMask(occupiedTransformedBounds, renderTarget.Width, renderTarget.Height, localRenderContext.ZOrder);
+          UpdateOpacityMask(occupiedTransformedBounds, renderSurface.Width, renderSurface.Height, localRenderContext.ZOrder);
           _lastOccupiedTransformedBounds = occupiedTransformedBounds;
           _updateOpacityMask = false;
-          _lastOpacityRenderSize = renderTarget.Size;
+          _lastOpacityRenderSize = renderSurface.Size;
         }
 
-        // Now render the opacitytexture with the OpacityMask brush
-        if (opacityMask.BeginRenderOpacityBrush(renderTarget.Texture, new RenderContext(Matrix.Identity, Matrix.Identity, bounds)))
+        // Unfortunately, brushes/brush effects are based on textures and cannot work with surfaces, so we need this additional copy step
+        GraphicsDevice.Device.StretchRectangle(
+            renderSurface.Surface, new Rectangle(Point.Empty, renderSurface.Size),
+            renderTexture.Surface0, new Rectangle(Point.Empty,  renderTexture.Size),
+            TextureFilter.None);
+
+        // Now render the opacity texture with the OpacityMask brush)
+        if (opacityMask.BeginRenderOpacityBrush(renderTexture.Texture, new RenderContext(Matrix.Identity, Matrix.Identity, bounds)))
         {
           _opacityMaskContext.Render(0);
           opacityMask.EndRender();

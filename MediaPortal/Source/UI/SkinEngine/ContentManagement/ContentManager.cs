@@ -67,8 +67,10 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement
       Thumbnail = 1,
       Effect = 2,
       Font = 3,
-      RenderTexture = 4
-    };
+      RenderTexture = 4,
+      RenderTarget = 5,
+    }
+
     // Values for less agressive resource management.
     private const int LOW_CLEANUP_THRESHOLD = 70 * 1024 * 1024; // 70 MB
     private const int LOW_DEALLOCATION_LIMIT = 10;
@@ -281,6 +283,32 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement
         if (asset == null) 
         {
           asset = new RenderTextureAsset(texture.core as RenderTextureAssetCore);
+          if (texture.asset == null)
+            texture.asset = new WeakReference(asset);
+        }
+      }
+      return asset;
+    }
+
+    /// <summary>
+    /// Retrieves a <see cref="RenderTargetAsset"/>, creating it if necessary.
+    /// </summary>
+    /// <param name="key">The name/key to use for storing the asset.</param>
+    /// <returns>A <see cref="RenderTargetAsset"/> object.</returns>
+    public RenderTargetAsset GetRenderTarget(string key)
+    {
+      AssetInstance texture;
+      RenderTargetAsset asset = null;
+      lock (_assets[(int) AssetType.RenderTarget])
+      {
+        if (!_assets[(int) AssetType.RenderTarget].TryGetValue(key, out texture))
+          texture = NewAssetInstance(key, AssetType.RenderTarget, new RenderTargetAssetCore());
+        else
+          asset = texture.asset.Target as RenderTargetAsset;
+        // If the asset wrapper has been garbage collected then re-allocate it
+        if (asset == null) 
+        {
+          asset = new RenderTargetAsset(texture.core as RenderTargetAssetCore);
           if (texture.asset == null)
             texture.asset = new WeakReference(asset);
         }

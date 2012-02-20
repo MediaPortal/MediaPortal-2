@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2011 Team MediaPortal
+#region #region Copyright (C) 2007-2012 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2011 Team MediaPortal
+    #region Copyright (C) 2007-2012 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -28,37 +28,26 @@ using SlimDX.Direct3D9;
 
 namespace MediaPortal.UI.SkinEngine.ContentManagement.AssetCore
 {
-  public class RenderTextureAssetCore : TemporaryAssetBase, ITextureAsset, IAssetCore
+  // It doesn't seem to be possible to create a texture which provides multisample surfaces. So for rendering to a surface/texture
+  // with multisample antialiasing enabled, we must provide this special surface asset.
+  public class RenderTargetAssetCore : TemporaryAssetBase, IAssetCore
   {
     public event AssetAllocationHandler AllocationChanged = delegate { };
 
     #region Protected fields
 
-    protected Texture _texture = null;
-    protected Surface _surface0 = null;
+    protected Surface _surface = null;
     protected Size _size = Size.Empty;
-    protected Usage _usage = Usage.RenderTarget;
     protected Format _format = Format.A8B8G8R8;
-    protected float _maxU = 1.0f;
-    protected float _maxV = 1.0f;
 
     #endregion
 
-    public Texture Texture
+    public Surface Surface
     {
       get
       {
         KeepAlive();
-        return _texture;
-      }
-    }
-
-    public Surface Surface0
-    {
-      get
-      {
-        KeepAlive();
-        return _surface0;
+        return _surface;
       }
     }
 
@@ -77,36 +66,18 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement.AssetCore
       get { return _size; }
     }
 
-    public float MaxU
+    public void Allocate(int width, int height, Format format, MultisampleType multisampleType, int multisampleQuality, bool lockable)
     {
-      get { return _maxU; }
-    }
-
-    public float MaxV
-    {
-      get { return _maxV; }
-    }
-
-    public void Allocate(int width, int height, Usage usage, Format format)
-    {
-      if (width != _size.Width || height != _size.Height || usage != _usage || format != _format)
+      if (width != _size.Width || height != _size.Height || format != _format)
         Free();
-      if (_texture != null)
+      if (_surface != null)
         return;
 
       _size.Width = width;
       _size.Height = height;
-      _usage = usage;
       _format = format;
 
-      // Note that it doesn't seem to be possible to create a texture with multisample surfaces inside. So rendering to that texture
-      // won't provide multisample antialiasing.
-      _texture = new Texture(GraphicsDevice.Device, width, height, 1, usage, format, Pool.Default);
-      _surface0 = _texture.GetSurfaceLevel(0);
-
-      SurfaceDescription desc = _texture.GetLevelDescription(0);
-      _maxU = _size.Width / ((float) desc.Width);
-      _maxV = _size.Height / ((float) desc.Height);
+      _surface = Surface.CreateRenderTarget(GraphicsDevice.Device, width, height, format, multisampleType, multisampleQuality, lockable);
 
       AllocationChanged(AllocationSize);
       KeepAlive();
@@ -116,7 +87,7 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement.AssetCore
 
     public bool IsAllocated
     {
-      get { return _texture != null; }
+      get { return _surface != null; }
     }
 
     public int AllocationSize
@@ -126,16 +97,11 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement.AssetCore
 
     public void Free()
     {
-      if (_texture == null)
+      if (_surface == null)
         return;
-      lock (_texture)
-      {
-        AllocationChanged(-AllocationSize);
-        _surface0.Dispose();
-        _texture.Dispose();
-        _texture = null;
-        _surface0 = null;
-      }
+      AllocationChanged(-AllocationSize);
+      _surface.Dispose();
+      _surface = null;
       _size = Size.Empty;
     }
 
