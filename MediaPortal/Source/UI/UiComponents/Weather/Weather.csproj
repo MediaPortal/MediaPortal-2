@@ -75,6 +75,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Grabbers\WorldWeatherOnlineCatcher.cs" />
+    <Compile Include="Helper Classes\WeatherMessaging.cs" />
     <Compile Include="Models\CurrentWeatherModel.cs" />
     <Compile Include="Models\WeatherModel.cs" />
   </ItemGroup>

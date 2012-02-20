@@ -26,6 +26,7 @@ using System;
 using MediaPortal.Common;
 using MediaPortal.Common.General;
 using MediaPortal.Common.Logging;
+using MediaPortal.Common.Messaging;
 using MediaPortal.Common.Settings;
 using MediaPortal.UI.Presentation.Models;
 using MediaPortal.UiComponents.Weather.Settings;
@@ -67,8 +68,23 @@ namespace MediaPortal.UiComponents.Weather.Models
       : base(WEATHER_UPDATE_INTERVAL)
     {
       SetAndUpdatePreferredLocation();
+      SubscribeToMessages();
     }
 
+    void SubscribeToMessages()
+    {
+      _messageQueue.SubscribeToMessageChannel(WeatherMessaging.CHANNEL);
+      _messageQueue.MessageReceived += OnMessageReceived;
+    }
+
+    void OnMessageReceived(AsynchronousMessageQueue queue, SystemMessage message)
+    {
+      if (message.ChannelName == WeatherMessaging.CHANNEL)
+      {
+        if (((WeatherMessaging.MessageType) message.MessageType) == WeatherMessaging.MessageType.LocationChanged)
+          Update();
+      }
+    }
     protected override void Update()
     {
       SetAndUpdatePreferredLocation();
@@ -83,17 +99,18 @@ namespace MediaPortal.UiComponents.Weather.Models
       CitySetupInfo city = settings.LocationsList.Find(loc => loc.Id == settings.LocationCode);
       if (city == null)
         return;
-
-      CurrentLocation = new City(city);
-      bool result;
+      bool result = false;
       try
       {
-        result = ServiceRegistration.Get<IWeatherCatcher>().GetLocationData(CurrentLocation);
+        City newLocation = new City(city);
+        if (ServiceRegistration.Get<IWeatherCatcher>().GetLocationData(newLocation))
+        {
+          CurrentLocation.Copy(newLocation);
+          result = true;
+        }
       }
       catch (Exception)
-      {
-        result = false;
-      }
+      { }
 
       ServiceRegistration.Get<ILogger>().Info(result ?
           "WeatherModel: Loaded weather data for {0}, {1}" : "WeatherModel: Failed to load weather data for {0}, {1}",
