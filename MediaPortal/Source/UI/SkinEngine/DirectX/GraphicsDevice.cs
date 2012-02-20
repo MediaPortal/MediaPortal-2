@@ -37,7 +37,6 @@ using System.Windows.Forms;
 using MediaPortal.Common;
 using MediaPortal.Common.Logging;
 using MediaPortal.UI.SkinEngine.ContentManagement;
-using MediaPortal.UI.SkinEngine.Players;
 using MediaPortal.UI.SkinEngine.ScreenManagement;
 using MediaPortal.UI.SkinEngine.SkinManagement;
 using MediaPortal.UI.SkinEngine.Utils;
@@ -261,21 +260,13 @@ namespace MediaPortal.UI.SkinEngine.DirectX
       SetFrameRate(displayMode.RefreshRate);
     }
 
-    private static void ResetDxDevice()
-    {
-      _setup.BuildPresentParamsFromSettings();
-
-      _device.Reset(_setup.PresentParameters);
-
-      ResetPerformanceData();
-    }
-
     /// <summary>
     /// Resets the DirectX device. This will release all screens, other UI resources and our back buffer, reset the DX device and realloc
     /// all resources.
     /// </summary>
     public static bool Reset()
     {
+      ServiceRegistration.Get<ILogger>().Warn("GraphicsDevice: Resetting DX device...");
       _screenManager.ExecuteWithTempReleasedResources(() => ExecuteInMainThread(() =>
           {
             // Note that the thread which created the device must call this (see http://msdn.microsoft.com/en-us/library/windows/desktop/bb174344%28v=vs.85%29.aspx ).
@@ -289,7 +280,11 @@ namespace MediaPortal.UI.SkinEngine.DirectX
               _backBuffer.Dispose();
             _backBuffer = null;
 
-            ResetDxDevice();
+            _setup.BuildPresentParamsFromSettings();
+            _device.Reset(_setup.PresentParameters);
+
+            ResetPerformanceData();
+
             Capabilities deviceCapabilities = _device.Capabilities;
             int ordinal = deviceCapabilities.AdapterOrdinal;
             AdapterInformation adapterInfo = MPDirect3D.Direct3D.Adapters[ordinal];
@@ -302,7 +297,41 @@ namespace MediaPortal.UI.SkinEngine.DirectX
 
             UIResourcesHelper.ReallocUIResources();
           }));
+      ServiceRegistration.Get<ILogger>().Warn("GraphicsDevice: Device successfully reset");
       return true;
+    }
+
+    /// <summary>
+    /// Reclaims the DirectX device if it has been lost (see <see cref="DeviceLost"/>).
+    /// </summary>
+    /// <returns><c>true</c>, if the device could successfully be reclaimed. In this case, <see cref="DeviceLost"/> will be reset to
+    /// <c>false</c>. <c>false</c>, if the device could not be reclaimed.</returns>
+    public static bool ReclaimDevice()
+    {
+      Result result = _device.TestCooperativeLevel();
+
+      if (result == ResultCode.Success)
+        return true;
+
+      if (result == ResultCode.DeviceLost)
+        return false;
+
+      if (result == ResultCode.DeviceNotReset)
+      {
+        try
+        {
+          Reset();
+          _deviceLost = false;
+          return true;
+        }
+        catch (Exception ex)
+        {
+          ServiceRegistration.Get<ILogger>().Warn("GraphicsDevice: Reclaiming DX device failed", ex);
+          return false;
+        }
+      }
+
+      return false;
     }
 
     /// <summary>
@@ -422,51 +451,5 @@ namespace MediaPortal.UI.SkinEngine.DirectX
         Thread.Sleep(msToNextFrame);
     }
 #endif
-
-    /// <summary>
-    /// Reclaims the DirectX device if it has been lost (<see cref="DeviceLost"/>).
-    /// </summary>
-    /// <returns><c>true</c>, if the device could successfully be reclaimed. In this case, <see cref="DeviceLost"/> will be reset to
-    /// <c>false</c>. <c>false</c>, if the device could not be reclaimed.</returns>
-    public static bool ReclaimDevice()
-    {
-      if (_backBuffer != null)
-      {
-        _backBuffer.Dispose();
-
-        _backBuffer = null;
-        PlayersHelper.ReleaseGUIResources();
-        ContentManager.Instance.Free();
-      }
-
-      Result result = _device.TestCooperativeLevel();
-
-      if (result == ResultCode.DeviceNotReset)
-      {
-        ServiceRegistration.Get<ILogger>().Warn("GraphicsDevice: Aquired DirectX device");
-        try
-        {
-          ServiceRegistration.Get<ILogger>().Warn("GraphicsDevice: Device reset");
-          ResetDxDevice();
-          int ordinal = _device.Capabilities.AdapterOrdinal;
-          AdapterInformation adapterInfo = MPDirect3D.Direct3D.Adapters[ordinal];
-          DisplayMode currentMode = adapterInfo.CurrentDisplayMode;
-          AdaptTargetFrameRateToDisplayMode(currentMode);
-          ServiceRegistration.Get<ILogger>().Debug("GraphicsDevice: DirectX reset {0}x{1} format: {2} {3} Hz", Width, Height,
-              currentMode.Format, _targetFrameRate);
-          _backBuffer = _device.GetRenderTarget(0);
-          PlayersHelper.ReallocGUIResources();
-          ServiceRegistration.Get<ILogger>().Warn("GraphicsDevice: Aquired device reset");
-          ResetPerformanceData();
-        }
-        catch (Exception ex)
-        {
-          ServiceRegistration.Get<ILogger>().Warn("GraphicsDevice: Reset failed", ex);
-          return false;
-        }
-      }
-      _deviceLost = false;
-      return true;
-    }
   }
 }
