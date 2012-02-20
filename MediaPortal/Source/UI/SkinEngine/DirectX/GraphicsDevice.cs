@@ -274,7 +274,9 @@ namespace MediaPortal.UI.SkinEngine.DirectX
             // (see http://msdn.microsoft.com/en-us/library/windows/desktop/bb147224%28v=vs.85%29.aspx )
             ServiceRegistration.Get<ILogger>().Debug("GraphicsDevice: Reset DirectX");
             UIResourcesHelper.ReleaseUIResources();
-            ServiceRegistration.Get<ILogger>().Debug("GraphicsDevice: ContentManager.TotalAllocationSize = {0}", ContentManager.Instance.TotalAllocationSize / (1024 * 1024));
+            
+            if (ContentManager.Instance.TotalAllocationSize != 0)
+              ServiceRegistration.Get<ILogger>().Warn("GraphicsDevice: ContentManager.TotalAllocationSize = {0}, should be 0!", ContentManager.Instance.TotalAllocationSize / (1024 * 1024));
 
             if (_backBuffer != null)
               _backBuffer.Dispose();

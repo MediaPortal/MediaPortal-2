@@ -500,6 +500,8 @@ namespace MediaPortal.UI.SkinEngine.DirectX
       
       // From http://msdn.microsoft.com/en-us/library/windows/desktop/bb173422%28v=vs.85%29.aspx :
       // To use multisampling, the SwapEffect member of D3DPRESENT_PARAMETER must be set to D3DSWAPEFFECT_DISCARD.
+      // SwapEffect must be set to SwapEffect.FlipEx to support the Present property to be Present.ForceImmediate
+      // (see http://msdn.microsoft.com/en-us/library/windows/desktop/bb174343%28v=vs.85%29.aspx )
       result.SwapEffect = mst == MultisampleType.None ? SwapEffect.FlipEx : SwapEffect.Discard;
 
       result.BackBufferWidth = backBufferWidth;
