@@ -190,7 +190,9 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement.AssetCore
       return LineHeight(fontSize) * (lineCount + 1) - Base(fontSize) - 1.0f;
     }
 
-    /// <summary>Gets the font texture.</summary>
+    /// <summary>
+    /// Gets the font texture.
+    /// </summary>
     public Texture Texture
     {
       get
