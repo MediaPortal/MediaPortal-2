@@ -271,7 +271,8 @@ namespace MediaPortal.UI.SkinEngine.DirectX
     }
 
     /// <summary>
-    /// Resets the DirectX device.
+    /// Resets the DirectX device. This will release all screens, other UI resources and our back buffer, reset the DX device and realloc
+    /// all resources.
     /// </summary>
     public static bool Reset()
     {
@@ -457,7 +458,6 @@ namespace MediaPortal.UI.SkinEngine.DirectX
           PlayersHelper.ReallocGUIResources();
           ServiceRegistration.Get<ILogger>().Warn("GraphicsDevice: Aquired device reset");
           ResetPerformanceData();
-          return true;
         }
         catch (Exception ex)
         {
