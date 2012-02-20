@@ -283,7 +283,6 @@ namespace MediaPortal.UI.SkinEngine.GUI
     {
       if (SkinContext.RenderThread != null)
         throw new Exception("DirectX MainForm: Render thread already running");
-      ServiceRegistration.Get<ILogger>().Debug("SkinEngine MainForm: Starting render thread");
       _renderThreadStopped = false;
       SkinContext.RenderThread = new Thread(RenderLoop) { Name = "DX Render" };
       SkinContext.RenderThread.Start();
@@ -332,6 +331,7 @@ namespace MediaPortal.UI.SkinEngine.GUI
     /// </summary>
     private void RenderLoop()
     {
+      ServiceRegistration.Get<ILogger>().Debug("SkinEngine MainForm: Starting main render loop");
       GraphicsDevice.SetRenderState();
       while (!_renderThreadStopped)
       {
@@ -355,7 +355,7 @@ namespace MediaPortal.UI.SkinEngine.GUI
         if (GraphicsDevice.DeviceLost)
           break;
       }
-      ServiceRegistration.Get<ILogger>().Debug("SkinEngine MainForm: Render thread stopped");
+      ServiceRegistration.Get<ILogger>().Debug("SkinEngine MainForm: Main render loop was stopped");
     }
 
     public void Start()
