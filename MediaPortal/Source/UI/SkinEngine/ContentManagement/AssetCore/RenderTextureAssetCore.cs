@@ -99,6 +99,8 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement.AssetCore
       _usage = usage;
       _format = format;
 
+      // Note that it doesn't seem to be possible to create a texture with multisample surfaces inside. So rendering to that texture
+      // won't provide multisample antialiasing.
       _texture = new Texture(GraphicsDevice.Device, width, height, 1, usage, format, Pool.Default);
       _surface0 = _texture.GetSurfaceLevel(0);
 
