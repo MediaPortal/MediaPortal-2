@@ -114,7 +114,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.VideoMetadataExtractor.Matro
             tagName = parts[0];
 
           var result = from simpleTag in GetTagsForTargetType(doc, targetType).Elements("Simple")
-                       where simpleTag.Element("Name").Value == tagName
+                       where simpleTag.Element("Name").Value == tagName && !string.IsNullOrEmpty(simpleTag.Element("String").Value)
                        select simpleTag.Element("String").Value;
           if (result.Any())
             tagsToExtract[key] = result.ToList();
