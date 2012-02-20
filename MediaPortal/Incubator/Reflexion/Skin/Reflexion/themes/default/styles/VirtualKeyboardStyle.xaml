@@ -15,7 +15,7 @@
     <Setter Property="Template">
       <Setter.Value>
         <ControlTemplate>
-          <Border Background="{ThemeResource VirtualKeyboardBackgroundColor}" BorderBrush="{ThemeResource VirtualKeyboardBorderColor}"
+          <Border Background="{ThemeResource DialogBackgroundBrush}" BorderBrush="{ThemeResource DialogBorderBrush}"
               BorderThickness="{ThemeResource VirtualKeyboardBorderThickness}" CornerRadius="{ThemeResource VirtualKeyboardCornerRadius}">
             <StackPanel>
               <Label Content="{Binding RelativeSource={RelativeSource TemplatedParent},Path=VisibleText}"
