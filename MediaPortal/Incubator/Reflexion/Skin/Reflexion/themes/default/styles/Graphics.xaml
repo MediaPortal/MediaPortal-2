@@ -16,9 +16,11 @@
   </ControlTemplate>
 
   <ControlTemplate x:Key="AudioInactiveControlTemplate">
-    <Path x:Name="Audio" Fill="{ThemeResource InactivePlayControlsFillBrush}" Stretch="Fill" Stroke="{ThemeResource PlayControlsStrokeColor}"
-        Width="18" Height="18" Margin="8,5,12,5"
-        Data="F1 M0.0,5.0 L3.0,5 3.0,13 0.0,13 z M3.0,6.0 L10.0,2 10.0,16 3.0,12.0 3.0,6.0 z M10.0,0.5 L12.0,0.5 12.0,17.5 10.0,17.5 z"/>
+    <Canvas Height="167" Width="167">
+      <Path Data="F1M1050,354L1050,381L1059,381L1085,408L1095,408L1095,327L1086,327L1059,354" Fill="Black" Height="81" Canvas.Left="42.932" Opacity="0.75" Stretch="Fill" Canvas.Top="42.578" Width="45"/>
+      <Path Data="M1102,341.5439C1124.07,363.6139,1108.07,386.3859,1102,392.4559" Height="53.912" Canvas.Left="93.432" Opacity="0.75" Stretch="Fill" Stroke="Black" StrokeThickness="3" StrokeLineJoin="Miter" Canvas.Top="55.622" Width="14.302"/>
+      <Path Data="M1111,327C1133.386,349.386,1133.386,385.614,1111,408" Height="86" Canvas.Left="101.432" Opacity="0.75" Stretch="Fill"  Stroke="Black" StrokeThickness="5" StrokeLineJoin="Miter" Canvas.Top="40.078" Width="21.79"/>
+    </Canvas>
   </ControlTemplate>
 
   <ControlTemplate x:Key="MuteOnOffControlTemplate">

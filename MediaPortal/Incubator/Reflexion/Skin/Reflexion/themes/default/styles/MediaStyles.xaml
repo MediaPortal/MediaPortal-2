@@ -429,6 +429,11 @@
                           <Button x:Name="AudioInactiveButton" IsVisible="{Binding !IsAudio}" Style="{ThemeResource AudioInactiveButtonStyle}"
                             Command="{Command AudioButtonPressed}"/>
                         </Grid>
+                        <Grid.LayoutTransform>
+                          <TransformGroup>
+                            <ScaleTransform ScaleX="0.6" ScaleY="0.6"/>
+                          </TransformGroup>
+                        </Grid.LayoutTransform>
                       </Grid>
                       <Grid DockPanel.Dock="Center">
                         <!-- Has to be last control in DockPanel, LastChildFill! -->
@@ -439,7 +444,7 @@
                           <RowDefinition Height="*"/>
                         </Grid.RowDefinitions>
                         <Label x:Name="MediaName" Content="{Binding Path=MediaItemTitle}" Color="{ThemeResource TextColor}" Scroll="Auto"
-                          HorizontalAlignment="Left" VerticalAlignment="Center"
+                          HorizontalAlignment="Left" VerticalAlignment="Center" FontSize="{ThemeResource SmallFontSize}"
                           MaxWidth="{ThemeResource FullScreenContentVideoSecondaryPlayerOSDTextMaxWidth}"/>
                       </Grid>
                     </DockPanel>
@@ -465,7 +470,7 @@
                       </Button.Triggers>
                     </Button>
                     <!-- PiPButton -->
-                    <Label x:Name="PlayerStateLabel" Grid.Column="0" Grid.Row="2" HorizontalAlignment="Center" Color="{ThemeResource TextColor}"
+                    <Label x:Name="PlayerStateLabel" Grid.Column="0" Grid.Row="2" HorizontalAlignment="Center" Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallerFontSize}"
                       Content="{Binding PlayerStateText}" Scroll="Auto" MaxWidth="{ThemeResource FullScreenContentVideoSecondaryPlayerOSDTextMaxWidth}"/>
                     <StackPanel x:Name="PlayControlsPanel" Orientation="Horizontal" Grid.Column="0" Grid.Row="3" Margin="10,10,10,0"
                       VerticalAlignment="Center" HorizontalAlignment="Center" IsVisible="{Binding ShowMouseControls}" >
@@ -483,6 +488,11 @@
                         Command="{Command SeekForward}"/>
                       <Button x:Name="SkipForwardButton" Style="{ThemeResource SkipForwardButtonStyle}" Margin="5,0,5,0" IsVisible="{Binding CanSkipForward}"
                         Command="{Command Next}"/>
+                      <StackPanel.LayoutTransform>
+                        <TransformGroup>
+                          <ScaleTransform ScaleX="0.6" ScaleY="0.6"/>
+                        </TransformGroup>
+                      </StackPanel.LayoutTransform>
                     </StackPanel>
                     <!-- PlayControlsPanel -->
                   </Grid>
