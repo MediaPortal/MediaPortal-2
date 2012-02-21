@@ -37,7 +37,7 @@
   </ResourceWrapper>
 
   <ResourceWrapper x:Key="ReflexionBorderStroke">
-    <LinearGradientBrush StartPoint="0.2,0" EndPoint="0.8,1">
+    <LinearGradientBrush StartPoint="0,0.5" EndPoint="1,0.5">
       <GradientStop Color="#DC3D3939" Offset="0"/>
       <GradientStop Color="#A0A0A0" Offset="0.332"/>
       <GradientStop Color="#E0E0E0" Offset="0.798"/>
@@ -354,8 +354,8 @@
   </LinearGradientBrush>
 
   <!-- Workflow bar item style -->
-  <ResourceWrapper x:Key="WorkflowNavigationBarItemContainerStrokeColor" Resource="DarkGray"/>
-  <ResourceWrapper x:Key="FocusedWorkflowNavigationBarItemContainerStrokeColor" Resource="White"/>
+  <ResourceWrapper x:Key="WorkflowNavigationBarItemContainerStrokeColor" Resource="#80A0A0A0"/>
+  <ResourceWrapper x:Key="FocusedWorkflowNavigationBarItemContainerStrokeColor" Resource="#E0FFFFFF"/>
   <ResourceWrapper x:Key="WorkflowNavigationBarItemContainerFillColor" Resource="{ThemeResource ButtonBackgroundFill}"/>
   <ResourceWrapper x:Key="FocusedWorkflowNavigationBarItemContainerFillColor" Resource="{ThemeResource ButtonBackgroundFocusFill}"/>
   <ResourceWrapper x:Key="WorkflowNavigationBarFontColor" Resource="LightGray"/>

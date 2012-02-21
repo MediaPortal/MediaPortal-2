@@ -351,22 +351,22 @@
                 </Grid.ColumnDefinitions>
                 <Path x:Name="WorkflowNavigationBarItemContainer_LineLeft" Grid.Row="0" Grid.Column="0" Stretch="Fill"
                     IsVisible="{Binding AdditionalProperties[IsFirst]}"
-                    Stroke="{ThemeResource ReflexionBorderStroke}"
+                    Stroke="{ThemeResource WorkflowNavigationBarItemContainerStrokeColor}"
                     Fill="{ThemeResource WorkflowNavigationBarItemContainerFillColor}"
                     Data="M20,20 L0,20 0,0 20,0"/>
                 <Path x:Name="WorkflowNavigationBarItemContainer_ArrowLeft" Grid.Row="0" Grid.Column="0" Stretch="Fill"
                     IsVisible="{Binding !AdditionalProperties[IsFirst]}"
-                    Stroke="{ThemeResource ReflexionBorderStroke}"
+                    Stroke="{ThemeResource WorkflowNavigationBarItemContainerStrokeColor}"
                     Fill="{ThemeResource WorkflowNavigationBarItemContainerFillColor}"
                     Data="M30,20 L0,20 0,18 20,10 0,2 0,0 30,0"/>
                 <Path x:Name="WorkflowNavigationBarItemContainer_Center_Back" Grid.Row="0" Grid.Column="1" Stretch="Fill"
                     Fill="{ThemeResource WorkflowNavigationBarItemContainerFillColor}"
                     Data="M0,0 L100,0 100,20 0,20 z"/>
                 <Path x:Name="WorkflowNavigationBarItemContainer_Center_Border" Grid.Row="0" Grid.Column="1" Stretch="Fill"
-                    Stroke="{ThemeResource ReflexionBorderStroke}"
+                    Stroke="{ThemeResource WorkflowNavigationBarItemContainerStrokeColor}"
                     Data="M0,0 L100,0 M100,20 L0,20"/>
                 <Path x:Name="WorkflowNavigationBarItemContainer_ArrowRight" Grid.Row="0" Grid.Column="2" Stretch="Fill"
-                    Stroke="{ThemeResource ReflexionBorderStroke}"
+                    Stroke="{ThemeResource WorkflowNavigationBarItemContainerStrokeColor}"
                     Fill="{ThemeResource WorkflowNavigationBarItemContainerFillColor}"
                     Data="M0,0 L10,0 10,2 30,10 10,18 10,20 0,20"/>
                 <ContentPresenter Grid.Row="0" Grid.Column="1" x:Name="WorkflowNavibationItemContentPresenter" HorizontalAlignment="Stretch"/>
