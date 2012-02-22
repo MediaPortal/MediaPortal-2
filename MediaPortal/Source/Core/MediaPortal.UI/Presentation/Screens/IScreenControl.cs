@@ -37,7 +37,9 @@ namespace MediaPortal.UI.Presentation.Screens
   {
     bool IsScreenSaverActive { get; }
 
-    bool IsScreenSaverEnabled { get; set; }
+    bool IsScreenSaverEnabled { get; }
+
+    double ScreenSaverTimeoutMin { get; }
 
     void ConfigureScreenSaver(bool screenSaverEnabled, double screenSaverTimeoutMin);
 

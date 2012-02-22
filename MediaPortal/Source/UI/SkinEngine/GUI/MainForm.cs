@@ -101,7 +101,7 @@ namespace MediaPortal.UI.SkinEngine.GUI
       InitializeComponent();
       CheckForIllegalCrossThreadCalls = false;
 
-      AppSettings appSettings = ServiceRegistration.Get<ISettingsManager>().Load<AppSettings>();
+      AppSettings settings = ServiceRegistration.Get<ISettingsManager>().Load<AppSettings>();
 
       _previousMousePosition = new Point(-1, -1);
 
@@ -111,8 +111,8 @@ namespace MediaPortal.UI.SkinEngine.GUI
       _previousWindowClientSize = desiredWindowedSize;
       _previousWindowState = FormWindowState.Normal;
 
-      if (appSettings.FullScreen)
-        SwitchToFullscreen(appSettings.FSScreenNum);
+      if (settings.FullScreen)
+        SwitchToFullscreen(settings.FSScreenNum);
       else
         SwitchToWindowedSize(Location, desiredWindowedSize, false);
 
@@ -124,7 +124,6 @@ namespace MediaPortal.UI.SkinEngine.GUI
       GraphicsDevice.Initialize(this);
 
       // Read and apply ScreenSaver settings
-      ScreenSaverSettings settings = ServiceRegistration.Get<ISettingsManager>().Load<ScreenSaverSettings>();
       _screenSaverTimeOut = TimeSpan.FromMinutes(settings.ScreenSaverTimeoutMin);
       _isScreenSaverEnabled = settings.ScreenSaverEnabled;
 
@@ -400,7 +399,7 @@ namespace MediaPortal.UI.SkinEngine.GUI
 
     public void ConfigureScreenSaver(bool screenSaverEnabled, double screenSaverTimeoutMin)
     {
-      ScreenSaverSettings settings = ServiceRegistration.Get<ISettingsManager>().Load<ScreenSaverSettings>();
+      AppSettings settings = ServiceRegistration.Get<ISettingsManager>().Load<AppSettings>();
       settings.ScreenSaverTimeoutMin = screenSaverTimeoutMin;
       ServiceRegistration.Get<ISettingsManager>().Save(settings);
       _screenSaverTimeOut = TimeSpan.FromMinutes(screenSaverTimeoutMin);
@@ -468,7 +467,11 @@ namespace MediaPortal.UI.SkinEngine.GUI
     public bool IsScreenSaverEnabled
     {
       get { return _isScreenSaverEnabled; }
-      set { _isScreenSaverEnabled = value; }
+    }
+
+    public double ScreenSaverTimeoutMin
+    {
+      get { return _screenSaverTimeOut.TotalMinutes; }
     }
 
     public IList<string> DisplayModes

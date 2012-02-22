@@ -36,15 +36,14 @@ namespace MediaPortal.UI.SkinEngine.Settings.Configuration.Appearance
   {
     public override void Load()
     {
-      _yes = SettingsManager.Load<ScreenSaverSettings>().ScreenSaverEnabled;
+      _yes = ServiceRegistration.Get<IScreenControl>().IsScreenSaverEnabled;
     }
 
     public override void Save()
     {
       base.Save();
       IScreenControl screenControl = ServiceRegistration.Get<IScreenControl>();
-      screenControl.IsScreenSaverEnabled = _yes;
-      // The setting will be written by the screen control class
+      screenControl.ConfigureScreenSaver(_yes, screenControl.ScreenSaverTimeoutMin); // The setting will be written by the screen control class
     }
   }
 }
