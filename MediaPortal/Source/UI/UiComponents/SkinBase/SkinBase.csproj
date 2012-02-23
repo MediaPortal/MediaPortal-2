@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="4.0">
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
@@ -85,7 +85,7 @@
     <Compile Include="Actions\PlayerConfigurationAction.cs" />
     <Compile Include="Actions\SetupDefaultSharesAction.cs" />
     <Compile Include="ConnectionListenerService.cs" />
-    <Compile Include="NotificationsService.cs" />
+    <Compile Include="CommonNotificationService.cs" />
     <Compile Include="General\Consts.cs" />
     <Compile Include="IConnectionListenerService.cs" />
     <Compile Include="Models\MouseModel.cs" />

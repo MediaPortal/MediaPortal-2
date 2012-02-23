@@ -34,14 +34,14 @@ using MediaPortal.UiComponents.SkinBase.General;
 namespace MediaPortal.UiComponents.SkinBase
 {
   /// <summary>
-  /// Listens for messages and other system events and sends UI notifications for them.
+  /// Listens for common messages and other system events and sends UI notifications for them.
   /// </summary>
-  public class NotificationsService : IDisposable
+  public class CommonNotificationService : IDisposable
   {
     protected AsynchronousMessageQueue _messageQueue;
     protected object _syncObj = new object();
 
-    public NotificationsService()
+    public CommonNotificationService()
     {
       _messageQueue = new AsynchronousMessageQueue(this, new string[]
           {
