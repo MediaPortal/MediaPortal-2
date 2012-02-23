@@ -55,12 +55,12 @@ namespace MediaPortal.Common.PluginManager
       set { _itemsWereRemoved = value; }
     }
 
-    #region IItemRegistrationChangeListener implementation
-
     public string UsageDescription
     {
       get { return _usageDescription; }
     }
+
+    #region IItemRegistrationChangeListener implementation
 
     void IItemRegistrationChangeListener.ItemsWereAdded(string location, ICollection<PluginItemMetadata> items)
     {

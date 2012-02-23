@@ -367,12 +367,12 @@ namespace MediaPortal.Common.Services.PluginManager
       lock (_syncObj)
       {
         if (!IsEnabledOrActive(plugin))
+          // Hint: As of the specification (see PluginState.EndRequest), we would have to make the current
+          // thread sleep until a possible ongoing stopping procedure is finished or cancelled. This means we have to
+          // implement a notification mechanism in the stop request methods to re-awake this thread.
+          // By now, we simply let the item request fail (which is not exactly the specified behavior!)
           throw new PluginInvalidStateException("Plugin '{0}' (id '{1}') neither is enabled nor active; cannot request items in this state",
               plugin.Metadata.Name, plugin.Metadata.PluginId);
-        // Hint: As of the specification (see PluginState.EndRequest), we would have to make the current
-        // thread sleep until a possible ongoing stopping procedure is finished or cancelled. This means we have to
-        // implement a notification mechanism in the stop request methods to re-awake this thread.
-        // By now, we simply let the item request fail (which is not exactly the specified behavior!)
       }
       try
       {
