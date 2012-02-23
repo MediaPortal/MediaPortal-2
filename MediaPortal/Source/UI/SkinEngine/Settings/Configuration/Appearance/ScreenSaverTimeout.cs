@@ -40,7 +40,8 @@ namespace MediaPortal.UI.SkinEngine.Settings.Configuration.Appearance
       _step = 0.5;
       _lowerLimit = 0.5;
       _upperLimit = 120;
-      _value = SettingsManager.Load<ScreenSaverSettings>().ScreenSaverTimeoutMin;
+      IScreenControl screenControl = ServiceRegistration.Get<IScreenControl>();
+      _value = screenControl.ScreenSaverTimeoutMin;
     }
 
     public override void Save()
