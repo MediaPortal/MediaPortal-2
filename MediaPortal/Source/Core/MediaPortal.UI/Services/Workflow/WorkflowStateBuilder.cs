@@ -99,8 +99,12 @@ namespace MediaPortal.UI.Services.Workflow
         string tmpStr;
         if (attributes.TryGetValue("WorkflowModel", out tmpStr))
           workflowModelId = new Guid(tmpStr);
-        if (workflowModelId == null && !attributes.TryGetValue("DialogScreen", out dialogScreen))
-          throw new ArgumentException(string.Format("WorkflowState '{0}': Either 'WorkflowModel' or 'DialogScreen' atrribute must be specified", name));
+        if (!attributes.TryGetValue("DialogScreen", out dialogScreen))
+        {
+          dialogScreen = null;
+          if (workflowModelId == null)
+            throw new ArgumentException(string.Format("WorkflowState '{0}': Either 'WorkflowModel' or 'DialogScreen' atrribute must be specified", name));
+        }
         if (attributes.TryGetValue("Temporary", out tmpStr) && !bool.TryParse(tmpStr, out isTemporary))
           throw new ArgumentException("'Temporary' attribute has to be of type bool");
         return new WorkflowState(id, name, displayLabel, isTemporary, dialogScreen, false, false,
