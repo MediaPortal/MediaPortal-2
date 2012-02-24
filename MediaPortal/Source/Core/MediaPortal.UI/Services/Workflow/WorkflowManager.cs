@@ -87,6 +87,8 @@ namespace MediaPortal.UI.Services.Workflow
     #region Consts
 
     public const string MODELS_REGISTRATION_LOCATION = "/Models";
+    public const string WORKFLOW_STATES_REGISTRATION_LOCATION = "/Workflow/States";
+
     public const int MODEL_CACHE_MAX_NUM_UNUSED = 50;
 
     protected static readonly NavigationContextConfig EMPTY_NAVIGATION_CONTEXT_CONFIG = new NavigationContextConfig();
@@ -105,7 +107,9 @@ namespace MediaPortal.UI.Services.Workflow
     protected Stack<NavigationContext> _navigationContextStack = new Stack<NavigationContext>();
 
     protected IDictionary<Guid, ModelEntry> _modelCache = new Dictionary<Guid, ModelEntry>();
-    protected DefaultItemStateTracker _modelItemStateTracker;
+    protected IPluginItemStateTracker _modelItemStateTracker;
+    protected IPluginItemStateTracker _wfStateItemStateTracker;
+    protected IItemRegistrationChangeListener _workflowPluginItemsChangeListener;
     protected IDictionary<Guid, WorkflowState> _states = new Dictionary<Guid, WorkflowState>();
     protected IDictionary<Guid, WorkflowAction> _menuActions =  new Dictionary<Guid, WorkflowAction>();
     protected AsynchronousMessageQueue _messageQueue = null;
@@ -127,7 +131,16 @@ namespace MediaPortal.UI.Services.Workflow
             // If we'd maintain a collection of "suspended models" (like said in comment in method RequestEnd),
             // we would need to cancel the suspension of the continued model in the Continued delegate.
         };
-      ServiceRegistration.Get<IPluginManager>().RegisterSystemPluginItemBuilder("Model", new ModelBuilder());
+      _wfStateItemStateTracker = new DefaultItemStateTracker("WorkflowManager: Workflow state usage")
+        {
+            Stopped = itemRegistration => ReloadWorkflowStates()
+        };
+      _workflowPluginItemsChangeListener = new DefaultItemRegistrationChangeListener("WorkflowManager: Workflow state usage")
+        {
+            ItemsWereAdded = (location, items) => ReloadWorkflowStates(),
+
+            ItemsWereRemoved = (location, items) => ReloadWorkflowStates()
+        };
     }
 
     #endregion
@@ -161,7 +174,7 @@ namespace MediaPortal.UI.Services.Workflow
         {
           case SkinResourcesMessaging.MessageType.SkinResourcesChanged:
           case SkinResourcesMessaging.MessageType.SkinOrThemeChanged:
-            ReloadWorkflowResources();
+            ReloadWorkflowActions();
             break;
         }
       }
@@ -221,20 +234,39 @@ namespace MediaPortal.UI.Services.Workflow
       _lock.ExitReadLock();
     }
 
+    protected void RegisterWorkflowPluginItemChangeListener()
+    {
+      ServiceRegistration.Get<IPluginManager>().AddItemRegistrationChangeListener(WORKFLOW_STATES_REGISTRATION_LOCATION, _workflowPluginItemsChangeListener);
+    }
+
     /// <summary>
     /// (Re)loads all workflow resources from the skin resource manager.
     /// </summary>
-    protected void ReloadWorkflowResources()
+    protected void ReloadWorkflowActions()
     {
-      ServiceRegistration.Get<ILogger>().Debug(_states.Count == 0 ? "WorkflowManager: Loading workflow resources" :
-          "WorkflowManager: Reloading workflow resources");
+      ServiceRegistration.Get<ILogger>().Debug(_states.Count == 0 ? "WorkflowManager: Loading workflow actions" :
+          "WorkflowManager: Reloading workflow actions");
       WorkflowResourcesLoader loader = new WorkflowResourcesLoader();
       loader.Load();
-      EnterWriteLock("ReloadWorkflowResources");
+      EnterWriteLock("ReloadWorkflowActions");
+      _menuActions = loader.MenuActions;
+      ExitWriteLock();
+    }
+
+    /// <summary>
+    /// (Re)loads all workflow states from the plugin tree.
+    /// </summary>
+    protected void ReloadWorkflowStates()
+    {
+      ServiceRegistration.Get<ILogger>().Debug(_states.Count == 0 ? "WorkflowManager: Loading workflow states" :
+          "WorkflowManager: Reloading workflow states");
+      EnterWriteLock("ReloadWorkflowStates");
       try
       {
-        _states = loader.States;
-        _menuActions = loader.MenuActions;
+        IPluginManager pluginManager = ServiceRegistration.Get<IPluginManager>();
+        _states.Clear();
+        foreach (WorkflowState state in pluginManager.RequestAllPluginItems<WorkflowState>(WORKFLOW_STATES_REGISTRATION_LOCATION, _wfStateItemStateTracker))
+          _states.Add(state.StateId, state);
         int count = 0;
         int numPop = 0;
         foreach (NavigationContext context in _navigationContextStack)
@@ -930,7 +962,9 @@ namespace MediaPortal.UI.Services.Workflow
     {
       ServiceRegistration.Get<ILogger>().Info("WorkflowManager: Startup");
       SubscribeToMessages();
-      ReloadWorkflowResources();
+      RegisterWorkflowPluginItemChangeListener();
+      ReloadWorkflowStates();
+      ReloadWorkflowActions();
     }
 
     public void Shutdown()

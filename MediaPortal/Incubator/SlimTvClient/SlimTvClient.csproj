@@ -491,7 +491,6 @@
     <Content Include="Skin\default\images\channellogos\ZDFtheaterkanal.png" />
     <Content Include="Skin\default\images\channellogos\ZDF_neo.png" />
     <Content Include="Skin\default\workflow\SlimTvClient-actions.xml" />
-    <Content Include="Skin\default\workflow\SlimTvClient-states.xml" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="Skin\default\screens\SlimTvClient-main.xaml">

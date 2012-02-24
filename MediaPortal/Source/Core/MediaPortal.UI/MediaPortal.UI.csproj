@@ -171,6 +171,7 @@
     <Compile Include="Services\Shares\LocalSharesManagement.cs" />
     <Compile Include="Presentation\UiNotifications\DefaultNotification.cs" />
     <Compile Include="Services\UiNotifications\NotificationService.cs" />
+    <Compile Include="Services\Workflow\WorkflowStateBuilder.cs" />
     <Compile Include="Shares\SharesMessaging.cs" />
     <Compile Include="Services\Shares\Settings\SharesSettings.cs" />
     <Compile Include="Services\SystemResolver\SystemResolver.cs" />

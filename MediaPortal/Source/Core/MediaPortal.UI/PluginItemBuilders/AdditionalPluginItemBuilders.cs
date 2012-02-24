@@ -25,6 +25,7 @@
 using MediaPortal.Common;
 using MediaPortal.Common.PluginManager;
 using MediaPortal.UI.Services.Players.Builders;
+using MediaPortal.UI.Services.Workflow;
 
 namespace MediaPortal.UI.PluginItemBuilders
 {
@@ -36,6 +37,9 @@ namespace MediaPortal.UI.PluginItemBuilders
   {
     public const string BACKGROUND_BUILDER_NAME = "Background";
     public const string PLAYERBUILDER_BUILDER_NAME = "PlayerBuilder";
+    public const string MODEL_BUILDER_NAME = "Model";
+    public const string WORKFLOW_STATE_BUILDER_NAME = "WorkflowState";
+    public const string DIALOG_STATE_BUILDER_NAME = "DialogState";
 
     public static void Register()
     {
@@ -43,6 +47,12 @@ namespace MediaPortal.UI.PluginItemBuilders
       pluginManager.RegisterSystemPluginItemBuilder(BACKGROUND_BUILDER_NAME, new BackgroundBuilder());
 
       pluginManager.RegisterSystemPluginItemBuilder(PLAYERBUILDER_BUILDER_NAME, new PlayerBuilder());
+
+      pluginManager.RegisterSystemPluginItemBuilder(MODEL_BUILDER_NAME, new ModelBuilder());
+
+      pluginManager.RegisterSystemPluginItemBuilder(WORKFLOW_STATE_BUILDER_NAME, new WorkflowStateBuilder());
+
+      pluginManager.RegisterSystemPluginItemBuilder(DIALOG_STATE_BUILDER_NAME, new WorkflowStateBuilder());
     }
   }
 }

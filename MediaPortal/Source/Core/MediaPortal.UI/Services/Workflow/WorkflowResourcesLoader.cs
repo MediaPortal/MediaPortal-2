@@ -45,13 +45,7 @@ namespace MediaPortal.UI.Services.Workflow
 
     public const string WORKFLOW_DIRECTORY = "workflow";
 
-    protected IDictionary<Guid, WorkflowState> _states = new Dictionary<Guid, WorkflowState>();
     protected IDictionary<Guid, WorkflowAction> _menuActions = new Dictionary<Guid, WorkflowAction>();
-
-    public IDictionary<Guid, WorkflowState> States
-    {
-      get { return _states; }
-    }
 
     public IDictionary<Guid, WorkflowAction> MenuActions
     {
@@ -63,7 +57,6 @@ namespace MediaPortal.UI.Services.Workflow
     /// </summary>
     public void Load()
     {
-      _states.Clear();
       _menuActions.Clear();
       IDictionary<string, string> workflowResources = ServiceRegistration.Get<ISkinResourceManager>().
           SkinResourceContext.GetResourceFilePaths("^" + WORKFLOW_DIRECTORY + "\\\\.*\\.xml$");
@@ -117,16 +110,6 @@ namespace MediaPortal.UI.Services.Workflow
           {
             switch (childNav.LocalName)
             {
-              case "States":
-                foreach (WorkflowState state in LoadStates(childNav))
-                {
-                  if (_states.ContainsKey(state.StateId))
-                    throw new ArgumentException(string.Format(
-                        "A workflow or dialog state with id '{0}' was already declared with name '{1}' (name of duplicate state is '{2}') -> Forgot to create a new GUID?",
-                        state.StateId, _states[state.StateId].Name, state.Name));
-                  _states.Add(state.StateId, state);
-                }
-                break;
               case "MenuActions":
                 foreach (WorkflowAction action in LoadActions(childNav))
                 {
@@ -146,26 +129,6 @@ namespace MediaPortal.UI.Services.Workflow
       {
         ServiceRegistration.Get<ILogger>().Error("Error loading workflow resource file '" + filePath + "'", e);
       }
-    }
-
-    protected IEnumerable<WorkflowState> LoadStates(XPathNavigator statesNav)
-    {
-      XPathNavigator childNav = statesNav.Clone();
-      if (childNav.MoveToChild(XPathNodeType.Element))
-        do
-        {
-          switch (childNav.LocalName)
-          {
-            case "WorkflowState":
-              yield return LoadWorkflowState(childNav);
-              break;
-            case "DialogState":
-              yield return LoadDialogState(childNav);
-              break;
-            default:
-              throw new ArgumentException("'" + statesNav.Name + "' element doesn't support a child element '" + childNav.Name + "'");
-          }
-        } while (childNav.MoveToNext(XPathNodeType.Element));
     }
 
     protected static IEnumerable<WorkflowAction> LoadActions(XPathNavigator actionsNav)
@@ -193,109 +156,6 @@ namespace MediaPortal.UI.Services.Workflow
               throw new ArgumentException("'" + actionsNav.Name + "' element doesn't support a child element '" + childNav.Name + "'");
           }
         } while (childNav.MoveToNext(XPathNodeType.Element));
-    }
-
-    protected static WorkflowState LoadDialogState(XPathNavigator stateNav)
-    {
-      string id = null;
-      string name = null;
-      string displayLabel = null;
-      string dialogScreen = null;
-      bool isTemporary = false;
-      string workflowModelId = null;
-      XPathNavigator attrNav = stateNav.Clone();
-      if (attrNav.MoveToFirstAttribute())
-        do
-        {
-          switch (attrNav.Name)
-          {
-            case "Id":
-              id = attrNav.Value;
-              break;
-            case "Name":
-              name = attrNav.Value;
-              break;
-            case "DisplayLabel":
-              displayLabel = attrNav.Value;
-              break;
-            case "Temporary":
-              if (!bool.TryParse(attrNav.Value, out isTemporary))
-                throw new ArgumentException("'Temporary' attribute has to be of type bool");
-              break;
-            case "DialogScreen":
-              dialogScreen = attrNav.Value;
-              break;
-            case "WorkflowModel":
-              workflowModelId = attrNav.Value;
-              break;
-            default:
-              throw new ArgumentException("'" + stateNav.Name + "' element doesn't support an attribute '" + attrNav.Name + "'");
-          }
-        } while (attrNav.MoveToNextAttribute());
-      if (string.IsNullOrEmpty(id))
-        throw new ArgumentException(string.Format("{0} '{1}': State must be specified", stateNav.Name, name));
-      if (string.IsNullOrEmpty(name))
-        throw new ArgumentException(string.Format("{0} with id '{1}': 'Name' attribute missing", stateNav.Name, id));
-      if (string.IsNullOrEmpty(displayLabel))
-        throw new ArgumentException(string.Format("{0} with id '{1}': 'DisplayLabel' attribute missing", stateNav.Name, id));
-      if (string.IsNullOrEmpty(dialogScreen) && string.IsNullOrEmpty(workflowModelId))
-        throw new ArgumentException(string.Format("{0} '{1}': Either 'WorkflowModel' or 'DialogScreen' atrribute must be specified", stateNav.Name, name));
-      return new WorkflowState(new Guid(id), name, displayLabel, isTemporary, dialogScreen, false, false,
-          workflowModelId == null ? (Guid?) null : new Guid(workflowModelId), WorkflowType.Dialog);
-    }
-
-    protected static WorkflowState LoadWorkflowState(XPathNavigator stateNav)
-    {
-      string id = null;
-      string name = null;
-      string displayLabel = null;
-      bool isTemporary = false;
-      string mainScreen = null;
-      bool inheritMenu = false;
-      string workflowModelId = null;
-      XPathNavigator attrNav = stateNav.Clone();
-      if (attrNav.MoveToFirstAttribute())
-        do
-        {
-          switch (attrNav.Name)
-          {
-            case "Id":
-              id = attrNav.Value;
-              break;
-            case "Name":
-              name = attrNav.Value;
-              break;
-            case "DisplayLabel":
-              displayLabel = attrNav.Value;
-              break;
-            case "Temporary":
-              if (!bool.TryParse(attrNav.Value, out isTemporary))
-                throw new ArgumentException("'Temporary' attribute has to be of type bool");
-              break;
-            case "MainScreen":
-              mainScreen = attrNav.Value;
-              break;
-            case "InheritMenu":
-              if (!bool.TryParse(attrNav.Value, out inheritMenu))
-                throw new ArgumentException("'InheritMenu' attribute has to be of type bool");
-              break;
-            case "WorkflowModel":
-              workflowModelId = attrNav.Value;
-              break;
-            default:
-              throw new ArgumentException("'" + stateNav.Name + "' element doesn't support an attribute '" + attrNav.Name + "'");
-          }
-        } while (attrNav.MoveToNextAttribute());
-      if (string.IsNullOrEmpty(id))
-        throw new ArgumentException(string.Format("{0} '{1}': State must be specified", stateNav.Name, name));
-      if (string.IsNullOrEmpty(name))
-        throw new ArgumentException(string.Format("{0} with id '{1}': 'Name' attribute missing", stateNav.Name, id));
-      if (string.IsNullOrEmpty(displayLabel))
-        throw new ArgumentException(string.Format("{0} with id '{1}': 'DisplayLabel' attribute missing", stateNav.Name, id));
-      if (string.IsNullOrEmpty(mainScreen) && string.IsNullOrEmpty(workflowModelId))
-        throw new ArgumentException(string.Format("{0} '{1}': Either 'WorkflowModel' or 'MainScreen' atrribute must be specified", stateNav.Name, name));
-      return new WorkflowState(new Guid(id), name, displayLabel, isTemporary, mainScreen, inheritMenu, false,
-          string.IsNullOrEmpty(workflowModelId) ? null : new Guid?(new Guid(workflowModelId)), WorkflowType.Workflow);
     }
 
     protected static WorkflowAction LoadPushNavigationTransition(XPathNavigator actionNav)

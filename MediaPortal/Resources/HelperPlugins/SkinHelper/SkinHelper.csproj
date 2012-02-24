@@ -79,7 +79,6 @@
     <Content Include="Language\strings_en.xml" />
     <Content Include="plugin.xml" />
     <Content Include="Skin\default\workflow\skinhelper-actions.xml" />
-    <Content Include="Skin\default\workflow\skinhelper-states.xml" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="Skin\default\screens\ShowThemeColors.xaml">

@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
@@ -107,7 +107,6 @@
     <Content Include="Skin\default\screens\dialog_configuration_singleselectionlist.xaml" />
     <Content Include="Skin\default\screens\dialog_configuration_multiselectionlist.xaml" />
     <Content Include="Skin\default\screens\dialog_configuration_numberselect.xaml" />
-    <Content Include="Skin\default\workflow\configuration-states.xml" />
     <Content Include="Skin\default\workflow\configuration-actions.xml" />
   </ItemGroup>
   <ItemGroup>

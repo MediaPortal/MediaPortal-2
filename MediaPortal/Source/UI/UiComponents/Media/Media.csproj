@@ -300,7 +300,6 @@
     <Content Include="Skin\default\themes\default\styles\MediaConsts.xaml" />
     <Content Include="Skin\default\themes\default\styles\FullScreenContentConsts.xaml" />
     <Content Include="Skin\default\workflow\media-actions.xml" />
-    <Content Include="Skin\default\workflow\media-states.xml" />
     <Content Include="Skin\default\workflow\viewmode-actions.xml" />
     <Content Include="Skin\default\screens\CurrentlyPlayingImage.xaml">
       <SubType>Designer</SubType>

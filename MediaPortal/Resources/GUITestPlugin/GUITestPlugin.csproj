@@ -79,7 +79,6 @@
   <ItemGroup>
     <Content Include="Skin\default\images\Cherries.jpg" />
     <Content Include="Skin\default\workflow\gui-test-actions.xml" />
-    <Content Include="Skin\default\workflow\gui-test-states.xml" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\Source\Core\MediaPortal.Common\MediaPortal.Common.csproj">
