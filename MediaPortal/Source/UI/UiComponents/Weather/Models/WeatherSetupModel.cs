@@ -95,7 +95,11 @@ namespace MediaPortal.UiComponents.Weather.Models
       WeatherSettings settings = settingsManager.Load<WeatherSettings>();
       // Apply new locations list
       settings.LocationsList = Locations;
+      // Check if preferred location still in list, if not then set the first available
+      if (settings.LocationsList.Find(loc => loc.Id == settings.LocationCode) == null && settings.LocationsList.Count > 0)
+        settings.LocationCode = settings.LocationsList[0].Id;
       settingsManager.Save(settings);
+      WeatherMessaging.SendWeatherMessage(WeatherMessaging.MessageType.LocationChanged);
     }
 
     /// <summary>
