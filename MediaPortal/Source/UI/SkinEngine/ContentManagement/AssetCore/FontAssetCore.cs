@@ -20,7 +20,7 @@
     along with MediaPortal 2. If not, see <http://www.gnu.org/licenses/>.
 */
 
-#endregion
+    #endregion
 
 using System;
 using System.Collections.Generic;
@@ -55,6 +55,8 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement.AssetCore
     protected int _currentX = 0;
     protected int _rowHeight = 0;
     protected int _currentY = 0;
+
+    protected object _syncObj = new object();
 
     #region Ctor
 
@@ -204,7 +206,8 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement.AssetCore
         if (!IsAllocated)
           Allocate();
         KeepAlive();
-        return _texture;
+        lock (_syncObj)
+          return _texture;
       }
     }
 
@@ -220,7 +223,8 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement.AssetCore
       if (IsAllocated)
         return;
 
-      _texture = new Texture(GraphicsDevice.Device, MAX_WIDTH, MAX_HEIGHT, 1, Usage.Dynamic, Format.L8, Pool.Default);
+      lock (_syncObj)
+        _texture = new Texture(GraphicsDevice.Device, MAX_WIDTH, MAX_HEIGHT, 1, Usage.Dynamic, Format.L8, Pool.Default);
 
       AllocationChanged(AllocationSize);
       // Add 'not defined' glyph
@@ -236,76 +240,79 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement.AssetCore
       return AddGlyph(GlyphIndex(character));
     }
 
-
     /// <summary>Adds a glyph to the font set by glyph index.</summary>
     /// <param name="glyphIndex">The index of the glyph to add.</param>
     private bool AddGlyph(uint glyphIndex)
     {
       // FreeType measures font size in terms Of 1/64ths of a point.
       // 1 point = 1/72th of an inch. Resolution is in dots (pixels) per inch.
-      float point_size = 64.0f * _charSet.RenderedSize * 72.0f / _resolution;
-      FT.FT_Set_Char_Size(_family.Face, (int) point_size, 0, _resolution, 0);
-
-      // Font does not contain that glyph, the 'missing' glyph will be shown instead
-      if (glyphIndex == 0 && _charSet.GetCharacter(0) != null)
-        return false;
-
-      // Load the glyph for the current character.
-      if (FT.FT_Load_Glyph(_family.Face, glyphIndex, FT.FT_LOAD_DEFAULT) != 0)
-        return false;
-
-      FT_FaceRec face = (FT_FaceRec) Marshal.PtrToStructure(_family.Face, typeof(FT_FaceRec));
-
-      IntPtr glyph;
-      // Load the glyph data into our local array.
-      if (FT.FT_Get_Glyph(face.glyph, out glyph) != 0)
-        return false;
-
-      // Convert the glyph to bitmap form.
-      if (FT.FT_Glyph_To_Bitmap(ref glyph, FT_Render_Mode.FT_RENDER_MODE_NORMAL, IntPtr.Zero, 1) != 0)
-        return false;
-
-      // get the structure fron the intPtr
-      FT_BitmapGlyph Glyph = (FT_BitmapGlyph) Marshal.PtrToStructure(glyph, typeof(FT_BitmapGlyph));
-
-      // Width/height of char
-      int cwidth = Glyph.bitmap.width;
-      int cheight = Glyph.bitmap.rows;
-
-      // Width/height of char including padding
-      int pwidth = cwidth + 3 * PAD;
-      int pheight = cheight + 3 * PAD;
-
-      // Check glyph index is in the character set range.
-      if (!_charSet.IsInRange(glyphIndex))
-        return false;
-
-      // Check glyph fits in our texture
-      if (_currentX + pwidth > MAX_WIDTH)
+      // Locking is also required here to avoid accessing to texture when handling glyphs (can lead to AccessViolationException)
+      lock (_syncObj)
       {
-        _currentX = 0;
-        _currentY += _rowHeight;
-        _rowHeight = 0;
+        float pointSize = 64.0f * _charSet.RenderedSize * 72.0f / _resolution;
+        FT.FT_Set_Char_Size(_family.Face, (int) pointSize, 0, _resolution, 0);
+
+        // Font does not contain that glyph, the 'missing' glyph will be shown instead
+        if (glyphIndex == 0 && _charSet.GetCharacter(0) != null)
+          return false;
+
+        // Load the glyph for the current character.
+        if (FT.FT_Load_Glyph(_family.Face, glyphIndex, FT.FT_LOAD_DEFAULT) != 0)
+          return false;
+
+        FT_FaceRec face = (FT_FaceRec) Marshal.PtrToStructure(_family.Face, typeof(FT_FaceRec));
+
+        IntPtr glyphPtr;
+        // Load the glyph data into our local array.
+        if (FT.FT_Get_Glyph(face.glyph, out glyphPtr) != 0)
+          return false;
+
+        // Convert the glyph to bitmap form.
+        if (FT.FT_Glyph_To_Bitmap(ref glyphPtr, FT_Render_Mode.FT_RENDER_MODE_NORMAL, IntPtr.Zero, 1) != 0)
+          return false;
+
+        // Get the structure fron the intPtr
+        FT_BitmapGlyph glyph = (FT_BitmapGlyph) Marshal.PtrToStructure(glyphPtr, typeof(FT_BitmapGlyph));
+
+        // Width/height of char
+        int cwidth = glyph.bitmap.width;
+        int cheight = glyph.bitmap.rows;
+
+        // Width/height of char including padding
+        int pwidth = cwidth + 3 * PAD;
+        int pheight = cheight + 3 * PAD;
+
+        // Check glyph index is in the character set range.
+        if (!_charSet.IsInRange(glyphIndex))
+          return false;
+
+        // Check glyph fits in our texture
+        if (_currentX + pwidth > MAX_WIDTH)
+        {
+          _currentX = 0;
+          _currentY += _rowHeight;
+          _rowHeight = 0;
+        }
+        if (_currentY + pheight > MAX_HEIGHT)
+          return false;
+
+        // Create and store a BitmapCharacter for this glyph
+        _charSet.SetCharacter(glyphIndex, CreateCharacter(glyph));
+
+        // Copy the glyph bitmap to our local array
+        Byte[] bitmapBuffer = new Byte[cwidth * cheight];
+        if (glyph.bitmap.buffer != IntPtr.Zero)
+          Marshal.Copy(glyph.bitmap.buffer, bitmapBuffer, 0, cwidth * cheight);
+
+        // Write glyph bitmap to our texture
+        WriteGlyphToTexture(glyph, pwidth, pheight, bitmapBuffer);
+
+        _currentX += pwidth;
+        _rowHeight = Math.Max(_rowHeight, pheight);
+
+        // Free the glyph
+        FT.FT_Done_Glyph(glyphPtr);
       }
-      if (_currentY + pheight > MAX_HEIGHT)
-        return false;
-
-      // Create and store a BitmapCharacter for this glyph
-      _charSet.SetCharacter(glyphIndex, CreateCharacter(Glyph));
-
-      // Copy the glyph bitmap to our local array
-      Byte[] BitmapBuffer = new Byte[cwidth * cheight];
-      if (Glyph.bitmap.buffer != IntPtr.Zero)
-        Marshal.Copy(Glyph.bitmap.buffer, BitmapBuffer, 0, cwidth * cheight);
-
-      // Write glyph bitmap to our texture
-      WriteGlyphToTexture(Glyph, pwidth, pheight, BitmapBuffer);
-
-      _currentX += pwidth;
-      _rowHeight = Math.Max(_rowHeight, pheight);
-
-      // Free the glyph
-      FT.FT_Done_Glyph(glyph);
       return true;
     }
 
@@ -314,52 +321,51 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement.AssetCore
       return FT.FT_Get_Char_Index(_family.Face, charIndex);
     }
 
-    private BitmapCharacter CreateCharacter(FT_BitmapGlyph Glyph)
+    private BitmapCharacter CreateCharacter(FT_BitmapGlyph glyph)
     {
       BitmapCharacter result = new BitmapCharacter
         {
-          Width = Glyph.bitmap.width + PAD * 2,
-          Height = Glyph.bitmap.rows + PAD * 2,
+          Width = glyph.bitmap.width + PAD * 2,
+          Height = glyph.bitmap.rows + PAD * 2,
           X = _currentX,
           Y = _currentY,
-          XOffset = Glyph.left,
-          YOffset = _charSet.Base - Glyph.top,
+          XOffset = glyph.left,
+          YOffset = _charSet.Base - glyph.top,
           // Convert fixed point 16.16 to float by divison with 2^16
-          XAdvance = (int) (Glyph.root.advance.x / 65536.0f)
+          XAdvance = (int) (glyph.root.advance.x / 65536.0f)
         };
       return result;
     }
 
-    private void WriteGlyphToTexture(FT_BitmapGlyph Glyph, int pwidth, int pheight, Byte[] BitmapBuffer)
+    private void WriteGlyphToTexture(FT_BitmapGlyph glyph, int pwidth, int pheight, Byte[] bitmapBuffer)
     {
       // Lock the the area we intend to update
       Rectangle charArea = new Rectangle(_currentX, _currentY, pwidth, pheight);
       DataRectangle rect = _texture.LockRectangle(0, charArea, LockFlags.None);
-
-      // Copy FreeType glyph bitmap into our font texture.
-      Byte[] FontPixels = new Byte[pwidth];
-      Byte[] PadPixels = new Byte[pwidth];
-
-      int Pitch = Math.Abs(Glyph.bitmap.pitch);
-
-      // Write the first padding row
-      rect.Data.Write(PadPixels, 0, pwidth);
-      rect.Data.Seek(MAX_WIDTH - pwidth, SeekOrigin.Current);
-      // Write the glyph
-      for (int y = 0; y < Glyph.bitmap.rows; y++)
+      using (rect.Data)
       {
-        for (int x = 0; x < Glyph.bitmap.width; x++)
-          FontPixels[x + PAD] = BitmapBuffer[y * Pitch + x];
-        rect.Data.Write(FontPixels, 0, pwidth);
+        // Copy FreeType glyph bitmap into our font texture.
+        Byte[] fontPixels = new Byte[pwidth];
+        Byte[] padPixels = new Byte[pwidth];
+
+        int pitch = Math.Abs(glyph.bitmap.pitch);
+
+        // Write the first padding row
+        rect.Data.Write(padPixels, 0, pwidth);
         rect.Data.Seek(MAX_WIDTH - pwidth, SeekOrigin.Current);
+        // Write the glyph
+        for (int y = 0; y < glyph.bitmap.rows; y++)
+        {
+          for (int x = 0; x < glyph.bitmap.width; x++)
+            fontPixels[x + PAD] = bitmapBuffer[y * pitch + x];
+          rect.Data.Write(fontPixels, 0, pwidth);
+          rect.Data.Seek(MAX_WIDTH - pwidth, SeekOrigin.Current);
+        }
+        // Write the last padding row
+        rect.Data.Write(padPixels, 0, pwidth);
+        rect.Data.Seek(MAX_WIDTH - pwidth, SeekOrigin.Current);
+        _texture.UnlockRectangle(0);
       }
-      // Write the last padding row
-      rect.Data.Write(PadPixels, 0, pwidth);
-      rect.Data.Seek(MAX_WIDTH - pwidth, SeekOrigin.Current);
-
-      _texture.UnlockRectangle(0);
-
-      rect.Data.Dispose();
     }
 
     #endregion
@@ -396,8 +402,8 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement.AssetCore
 
       textSize = new SizeF(0.0f, verts[verts.Count - 1].Y);
 
-      /// Stores the line widths as the Z coordinate of the verices. This means alignment
-      ///     can be performed by a vertex shader durng rendering
+      // Stores the line widths as the Z coordinate of the verices. This means alignment
+      // can be performed by a vertex shader durng rendering
       PositionColoredTextured[] vertArray = verts.ToArray();
       for (int i = 0; i < lineIndex.Length; ++i)
       {
@@ -443,7 +449,7 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement.AssetCore
       y += c.YOffset;
       PositionColoredTextured tl = new PositionColoredTextured(
           x * sizeScale, y * sizeScale, 1.0f,
-          (c.X + 0.5f) / (float) _charSet.Width,
+          (c.X + 0.5f) / _charSet.Width,
           c.Y / (float) _charSet.Height,
           0
           );
@@ -452,7 +458,7 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement.AssetCore
           (y + c.Height) * sizeScale,
           1.0f,
           (c.X + c.Width) / (float) _charSet.Width,
-          (c.Y + c.Height - 0.5f) / (float) _charSet.Height,
+          (c.Y + c.Height - 0.5f) / _charSet.Height,
           0
           );
       PositionColoredTextured bl = new PositionColoredTextured(tl.X, br.Y, 1.0f, tl.Tu1, br.Tv1, 0);
@@ -530,9 +536,9 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement.AssetCore
     public int Height;
     private BitmapCharacter[] _characters;
 
-    public BitmapCharacterSet(int number_of_glyphs)
+    public BitmapCharacterSet(int numberOfGlyphs)
     {
-      _characters = new BitmapCharacter[number_of_glyphs];
+      _characters = new BitmapCharacter[numberOfGlyphs];
     }
 
     public BitmapCharacter GetCharacter(uint index)
