@@ -73,10 +73,14 @@ namespace MediaPortal.UI.SkinEngine.DirectX
 
     /// <summary>
     /// Returns the information if the graphics device was lost.
+    /// <para>
+    /// Devices in Direct9EX only lost under two circumstances; when the hardware is reset because it is hanging, and when the device driver is stopped. 
+    /// When hardware hangs, the device can be reset by calling ResetEx. If hardware hangs, texture memory is lost. 
+    /// After a driver is stopped, the IDirect9Ex object must be recreated to resume rendering.
+    /// </para>
     /// </summary>
     /// <remarks>
     /// The device has to be reclaimed by calling <see cref="ReclaimDevice"/>.
-    /// TODO: Describe when the device can get lost (Change of graphics parameters? Monitor change? Error in graphics driver?)
     /// </remarks>
     public static bool DeviceLost
     {
@@ -137,7 +141,7 @@ namespace MediaPortal.UI.SkinEngine.DirectX
 
     public static DateTime LastRenderTime
     {
-       get { return _frameRenderingStartTime; }
+      get { return _frameRenderingStartTime; }
     }
 
     public static D3DSetup Setup
@@ -161,6 +165,14 @@ namespace MediaPortal.UI.SkinEngine.DirectX
     public static void ReCreateDXDevice()
     {
       _screenManager.ExecuteWithTempReleasedResources(() => ExecuteInMainThread(DoReCreateDevice_MainThread));
+    }
+
+    /// <summary>
+    /// Gets the current device state.
+    /// </summary>
+    internal static DeviceState CurrentDeviceState
+    {
+      get { return _device.CheckDeviceState(_setup.RenderTarget.Handle); }
     }
 
     /// <summary>
@@ -246,7 +258,7 @@ namespace MediaPortal.UI.SkinEngine.DirectX
       if (frameRate == 0)
         frameRate = 1;
       _targetFrameRate = frameRate;
-      _msPerFrame = (int) (1000/_targetFrameRate);
+      _msPerFrame = (int) (1000 / _targetFrameRate);
     }
 
     private static void ResetPerformanceData()
@@ -274,7 +286,7 @@ namespace MediaPortal.UI.SkinEngine.DirectX
             // (see http://msdn.microsoft.com/en-us/library/windows/desktop/bb147224%28v=vs.85%29.aspx )
             ServiceRegistration.Get<ILogger>().Debug("GraphicsDevice: Reset DirectX");
             UIResourcesHelper.ReleaseUIResources();
-            
+
             if (ContentManager.Instance.TotalAllocationSize != 0)
               ServiceRegistration.Get<ILogger>().Warn("GraphicsDevice: ContentManager.TotalAllocationSize = {0}, should be 0!", ContentManager.Instance.TotalAllocationSize / (1024 * 1024));
 
@@ -283,7 +295,7 @@ namespace MediaPortal.UI.SkinEngine.DirectX
             _backBuffer = null;
 
             _setup.BuildPresentParamsFromSettings();
-            _device.Reset(_setup.PresentParameters);
+            _device.ResetEx(_setup.PresentParameters);
 
             ResetPerformanceData();
 
@@ -310,21 +322,18 @@ namespace MediaPortal.UI.SkinEngine.DirectX
     /// <c>false</c>. <c>false</c>, if the device could not be reclaimed.</returns>
     public static bool ReclaimDevice()
     {
-      Result result = _device.TestCooperativeLevel();
-
-      if (result == ResultCode.Success)
+      DeviceState state = CurrentDeviceState;
+      if (state == DeviceState.Ok)
         return true;
 
-      if (result == ResultCode.DeviceLost)
-        return false;
-
-      if (result == ResultCode.DeviceNotReset)
+      if (state == DeviceState.DeviceLost)
       {
         try
         {
           Reset();
-          _deviceLost = false;
-          return true;
+          // Check for new state
+          _deviceLost = CurrentDeviceState != DeviceState.Ok;
+          return !_deviceLost;
         }
         catch (Exception ex)
         {
@@ -332,7 +341,6 @@ namespace MediaPortal.UI.SkinEngine.DirectX
           return false;
         }
       }
-
       return false;
     }
 
@@ -385,7 +393,7 @@ namespace MediaPortal.UI.SkinEngine.DirectX
       Matrix translate = Matrix.Translation(-w, -h, 0.0f);
       TransformView = Matrix.Multiply(translate, flipY);
 
-      TransformProjection = Matrix.OrthoOffCenterLH(-w, w, -h, h, 0.0f, 2.0f); 
+      TransformProjection = Matrix.OrthoOffCenterLH(-w, w, -h, h, 0.0f, 2.0f);
       FinalTransform = TransformView * TransformProjection;
     }
 
@@ -431,9 +439,10 @@ namespace MediaPortal.UI.SkinEngine.DirectX
       }
       catch (Direct3D9Exception e)
       {
-        ServiceRegistration.Get<ILogger>().Warn("GraphicsDevice: Lost DirectX device", e);
-        _deviceLost = true;
-        return true;
+        DeviceState state = CurrentDeviceState;
+        _deviceLost = state != DeviceState.Ok;
+        ServiceRegistration.Get<ILogger>().Warn("GraphicsDevice: DirectX Exception, DeviceState: {0}, DeviceLost: {1}", e, state, _deviceLost);
+        return _deviceLost;
       }
       finally
       {
