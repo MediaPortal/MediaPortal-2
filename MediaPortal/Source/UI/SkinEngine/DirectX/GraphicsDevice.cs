@@ -309,10 +309,26 @@ namespace MediaPortal.UI.SkinEngine.DirectX
             _backBuffer = _device.GetRenderTarget(0);
             _dxCapabilities = DxCapabilities.RequestCapabilities(deviceCapabilities, currentMode);
 
+            ScreenRefreshWorkaround();
+
             UIResourcesHelper.ReallocUIResources();
           }));
       ServiceRegistration.Get<ILogger>().Warn("GraphicsDevice: Device successfully reset");
       return true;
+    }
+
+    /// <summary>
+    /// This workaround is required for changing the Antialiasing setting from "None" to any AA mode. The rendering stalls until window is moved, focus lost and gained, 
+    /// window size changed. So we change the size of the MainForm temporary, so the screen get's refreshed properly. 
+    /// Note: This workaround is only needed for AA None to any AA mode, but switching between different AA levels is working fine!
+    /// TODO: Find a proper solution and remove this workaround.
+    /// </summary>
+    private static void ScreenRefreshWorkaround()
+    {
+      Form target = _setup.RenderTarget;
+      Size oldSize = target.ClientSize;
+      target.ClientSize = new Size(oldSize.Width, oldSize.Height + 1);
+      target.ClientSize = new Size(oldSize.Width, oldSize.Height);
     }
 
     /// <summary>
