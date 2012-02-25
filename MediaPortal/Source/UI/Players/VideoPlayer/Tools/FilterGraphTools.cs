@@ -20,7 +20,7 @@
     along with MediaPortal 2. If not, see <http://www.gnu.org/licenses/>.
 */
 
-#endregion
+    #endregion
 
 /****************************************************************************
 While the underlying libraries are covered by LGPL, this sample is released 
@@ -88,7 +88,7 @@ namespace MediaPortal.UI.Players.Video.Tools
       try
       {
         Type type = Type.GetTypeFromCLSID(clsid);
-        filter = (IBaseFilter)Activator.CreateInstance(type);
+        filter = (IBaseFilter) Activator.CreateInstance(type);
 
         int hr = graphBuilder.AddFilter(filter, name);
         DsError.ThrowExceptionForHR(hr);
@@ -135,7 +135,7 @@ namespace MediaPortal.UI.Players.Video.Tools
           continue;
         }
 
-        int hr = ((IFilterGraph2)graphBuilder).AddSourceFilterForMoniker(t.Mon, null, friendlyName, out filter);
+        int hr = ((IFilterGraph2) graphBuilder).AddSourceFilterForMoniker(t.Mon, null, friendlyName, out filter);
         if (hr != 0 || filter == null)
           return null; //DsError.ThrowExceptionForHR(hr);
 
@@ -186,7 +186,7 @@ namespace MediaPortal.UI.Players.Video.Tools
         hr = NativeMethods.MkParseDisplayName(bindCtx, devicePath, out eaten, out moniker);
         Marshal.ThrowExceptionForHR(hr);
 
-        hr = ((IFilterGraph2)graphBuilder).AddSourceFilterForMoniker(moniker, bindCtx, name, out filter);
+        hr = ((IFilterGraph2) graphBuilder).AddSourceFilterForMoniker(moniker, bindCtx, name, out filter);
         DsError.ThrowExceptionForHR(hr);
       }
       catch
@@ -342,7 +342,7 @@ namespace MediaPortal.UI.Players.Video.Tools
         Marshal.ReleaseComObject(enumFilters);
         Marshal.FreeCoTaskMem(fetched);
       }
-      return (TE)filter;
+      return (TE) filter;
     }
 
     /// <summary>
@@ -368,7 +368,7 @@ namespace MediaPortal.UI.Players.Video.Tools
         while (enumFilters.Next(filters.Length, filters, fetched) == 0)
         {
           if (filters[0] is TE)
-            matchingFilters.Add((TE)filters[0]);
+            matchingFilters.Add((TE) filters[0]);
           else
             Marshal.ReleaseComObject(filters[0]);
         }
@@ -495,7 +495,7 @@ namespace MediaPortal.UI.Players.Video.Tools
       }
       finally
       {
-        Marshal.FreeCoTaskMem(pFetched);        
+        Marshal.FreeCoTaskMem(pFetched);
         Marshal.ReleaseComObject(enumFilters);
       }
     }
@@ -544,6 +544,86 @@ namespace MediaPortal.UI.Players.Video.Tools
       {
         Marshal.FreeCoTaskMem(pFetched);
       }
+    }
+
+    /// <summary>
+    /// Enumerates all Pins of a given <paramref name="filter"/> having the <paramref name="direction"/> and returns 
+    /// the currently connected pins into <paramref name="pinList"/>. This methods adds a reference to each returned Pin,
+    /// so the caller has to do a Marshal.ReleaseComObject on them when done. When used in combination with <see cref="RestorePinConnections"/>
+    /// the method takes care for releasing pins.
+    /// </summary>
+    /// <param name="filter">Filter</param>
+    /// <param name="direction">PinDirection</param>
+    /// <param name="pinList">List to be filled with IPins</param>
+    public static void GetConnectedPins(IBaseFilter filter, PinDirection direction, IList<IPin> pinList)
+    {
+      IEnumPins enumer;
+      filter.EnumPins(out enumer);
+      if (enumer == null)
+        return;
+
+      IPin[] pins = new IPin[1];
+      IntPtr ptrFetched = Marshal.AllocCoTaskMem(4);
+      if (enumer.Next(1, pins, ptrFetched) == 0)
+      {
+        if (Marshal.ReadInt32(ptrFetched) == 1)
+        {
+          if (pins[0] != null)
+          {
+            PinDirection pinDir;
+            pins[0].QueryDirection(out pinDir);
+            if (pinDir == direction)
+            {
+              IPin pinConnect;
+              if (pins[0].ConnectedTo(out pinConnect) == 0 && pinConnect != null)
+                pinList.Add(pinConnect);
+
+              Marshal.ReleaseComObject(pins[0]);
+            }
+          }
+        }
+      }
+      Marshal.FreeCoTaskMem(ptrFetched);
+      Marshal.ReleaseComObject(enumer);
+    }
+
+    /// <summary>
+    /// Tries to reconnect the pins of the given <paramref name="filter"/> with the passed pins in <paramref name="previousConnectedPins"/>.
+    /// After connection the pins are freed (Marshal.ReleaseComObject) and removed from the <paramref name="previousConnectedPins"/>.
+    /// </summary>
+    /// <param name="graphBuilder">Graphbuilder</param>
+    /// <param name="filter">The filter to reconnect</param>
+    /// <param name="direction">Pin direction</param>
+    /// <param name="previousConnectedPins">List of pins to connect</param>
+    public static void RestorePinConnections(IGraphBuilder graphBuilder, IBaseFilter filter, PinDirection direction, IList<IPin> previousConnectedPins)
+    {
+      IEnumPins enumer;
+      filter.EnumPins(out enumer);
+      if (enumer == null)
+        return;
+
+      IPin[] pins = new IPin[1];
+      IntPtr ptrFetched = Marshal.AllocCoTaskMem(4);
+      if (enumer.Next(1, pins, ptrFetched) == 0)
+      {
+        if (Marshal.ReadInt32(ptrFetched) == 1 && pins[0] != null)
+        {
+          PinDirection pinDir;
+          pins[0].QueryDirection(out pinDir);
+          if (pinDir == direction)
+          {
+            if (previousConnectedPins.Count > 0)
+            {
+              graphBuilder.Connect(previousConnectedPins[0], pins[0]);
+              Marshal.ReleaseComObject(previousConnectedPins[0]);
+              previousConnectedPins.RemoveAt(0);
+            }
+            Marshal.ReleaseComObject(pins[0]);
+          }
+        }
+      }
+      Marshal.FreeCoTaskMem(ptrFetched);
+      Marshal.ReleaseComObject(enumer);
     }
 
     /// <summary>
@@ -749,7 +829,7 @@ namespace MediaPortal.UI.Players.Video.Tools
 
         Marshal.ThrowExceptionForHR(hr);
 
-        hr = ((IPersistStream)graphBuilder).Save(stream, true);
+        hr = ((IPersistStream) graphBuilder).Save(stream, true);
         Marshal.ThrowExceptionForHR(hr);
 
         hr = storage.Commit(STGC.Default);
@@ -820,7 +900,7 @@ namespace MediaPortal.UI.Players.Video.Tools
 
         Marshal.ThrowExceptionForHR(hr);
 
-        hr = ((IPersistStream)graphBuilder).Load(stream);
+        hr = ((IPersistStream) graphBuilder).Load(stream);
         Marshal.ThrowExceptionForHR(hr);
       }
       finally
@@ -897,7 +977,7 @@ namespace MediaPortal.UI.Players.Video.Tools
           Marshal.ReleaseComObject(filterInfo.pGraph);
         }
 
-        hr = ((ISpecifyPropertyPages)filter).GetPages(out caGuid);
+        hr = ((ISpecifyPropertyPages) filter).GetPages(out caGuid);
         DsError.ThrowExceptionForHR(hr);
 
         try
@@ -1141,7 +1221,7 @@ namespace MediaPortal.UI.Players.Video.Tools
         IErrorLog errorLog = null;
         Guid bagId = typeof(IPropertyBag).GUID;
         mon.BindToStorage(null, null, ref bagId, out bagObj);
-        bag = (IPropertyBag)bagObj;
+        bag = (IPropertyBag) bagObj;
         object val;
         int hr = bag.Read(propertyName, out val, errorLog);
         Marshal.ThrowExceptionForHR(hr);
@@ -1159,7 +1239,7 @@ namespace MediaPortal.UI.Players.Video.Tools
       finally
       {
         bag = null;
-        if (bagObj != null) 
+        if (bagObj != null)
           Marshal.ReleaseComObject(bagObj);
         bagObj = null;
       }
@@ -1212,7 +1292,7 @@ namespace MediaPortal.UI.Players.Video.Tools
 #if USING_NET11
 			[Out] out UCOMIStream ppstm
 #else
-        [Out] out IStream ppstm
+ [Out] out IStream ppstm
 #endif
 );
 
@@ -1225,7 +1305,7 @@ namespace MediaPortal.UI.Players.Video.Tools
 #if USING_NET11
 			[Out] out UCOMIStream ppstm
 #else
-        [Out] out IStream ppstm
+ [Out] out IStream ppstm
 #endif
 );
 
@@ -1295,9 +1375,9 @@ namespace MediaPortal.UI.Players.Video.Tools
 			[In] FILETIME patime,
 			[In] FILETIME pmtime
 #else
-        [In] FILETIME pctime,
-        [In] FILETIME patime,
-        [In] FILETIME pmtime
+ [In] FILETIME pctime,
+ [In] FILETIME patime,
+ [In] FILETIME pmtime
 #endif
 );
 
@@ -1317,8 +1397,8 @@ namespace MediaPortal.UI.Players.Video.Tools
 #else
 [Out] out STATSTG pStatStg,
 #endif
-        [In] int grfStatFlag
-        );
+ [In] int grfStatFlag
+ );
   }
 
   internal static class NativeMethods

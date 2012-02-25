@@ -1104,42 +1104,10 @@ namespace MediaPortal.UI.Players.Video
 
     public virtual void ReleaseGUIResources()
     {
-      // TODO (Albert, 2011-11-29): Clarify the following comment.
-      //stops the renderer threads all of it's own.
+      // Releases all Direct3D related resources
       lock (_syncObj)
       {
-        IEnumPins enumer;
-        _evr.EnumPins(out enumer);
-        if (enumer != null)
-        {
-          IPin[] pins = new IPin[2];
-          IntPtr ptrFetched = Marshal.AllocCoTaskMem(4);
-          if (0 == enumer.Next(1, pins, ptrFetched))
-          {
-            if (Marshal.ReadInt32(ptrFetched) == 1)
-            {
-              if (pins[0] != null)
-              {
-                PinDirection pinDir;
-                pins[0].QueryDirection(out pinDir);
-                if (pinDir == PinDirection.Input)
-                {
-                  IPin pinConnect;
-                  if (0 == pins[0].ConnectedTo(out pinConnect))
-                  {
-                    if (pinConnect != null)
-                    {
-                      _evrConnectionPins.Add(pinConnect);
-                    }
-                  }
-                  Marshal.ReleaseComObject(pins[0]);
-                }
-              }
-            }
-          }
-          Marshal.FreeCoTaskMem(ptrFetched);
-          Marshal.ReleaseComObject(enumer);
-        }
+        _initialized = false;
 
         FilterState state;
         IMediaControl mc = (IMediaControl) _graphBuilder;
@@ -1151,12 +1119,15 @@ namespace MediaPortal.UI.Players.Video
         }
 
         if (_evr != null)
+        {
+          // Get the currently connected EVR Pins to restore the connections later
+          FilterGraphTools.GetConnectedPins(_evr, PinDirection.Input, _evrConnectionPins);
           _graphBuilder.RemoveFilter(_evr);
-        FilterGraphTools.TryRelease(ref _evr);
+          FilterGraphTools.TryRelease(ref _evr);
+        }
 
         EvrDeinit(_presenterInstance);
         FreeEvrCallback();
-        _initialized = false;
       }
     }
 
@@ -1175,53 +1146,22 @@ namespace MediaPortal.UI.Players.Video
 
     public virtual void ReallocGUIResources()
     {
-      if (_graphBuilder != null)
+      if (_graphBuilder == null) 
+        return;
+
+      CreateEvrCallback();
+      AddEvr();
+      FilterGraphTools.RestorePinConnections(_graphBuilder, _evr, PinDirection.Input, _evrConnectionPins);
+
+      if (State == PlayerState.Active)
       {
-        FreeEvrCallback();
-        CreateEvrCallback();
-        AddEvr();
-        IEnumPins enumer;
-        _evr.EnumPins(out enumer);
-        if (enumer != null)
-        {
-          IPin[] pins = new IPin[2];
-          IntPtr ptrFetched = Marshal.AllocCoTaskMem(4);
-          if (0 == enumer.Next(1, pins, ptrFetched))
-          {
-            if (Marshal.ReadInt32(ptrFetched) == 1)
-            {
-              if (pins[0] != null)
-              {
-                PinDirection pinDir;
-                pins[0].QueryDirection(out pinDir);
-                if (pinDir == PinDirection.Input)
-                {
-                  if (_evrConnectionPins.Count > 0)
-                  {
-                    _graphBuilder.Connect(_evrConnectionPins[0], pins[0]);
-                    Marshal.ReleaseComObject(_evrConnectionPins[0]);
-                    _evrConnectionPins.RemoveAt(0);
-                  }
-                  Marshal.ReleaseComObject(pins[0]);
-                }
-              }
-            }
-          }
-
-          Marshal.FreeCoTaskMem(ptrFetched);
-          Marshal.ReleaseComObject(enumer);
-        }
-
-        if (State == PlayerState.Active)
-        {
-          IMediaControl mc = (IMediaControl) _graphBuilder;
-          if (_isPaused)
-            mc.Pause();
-          else
-            mc.Run();
-        }
-        _initialized = true;
+        IMediaControl mc = (IMediaControl) _graphBuilder;
+        if (_isPaused)
+          mc.Pause();
+        else
+          mc.Run();
       }
+      _initialized = true;
     }
 
     public bool SetRenderDelegate(SkinEngine.Players.RenderDlgt dlgt)
