@@ -4,6 +4,9 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     >
 
-  <ResourceWrapper x:Key="NextProgramLabelColor" Resource="#FF9CB9D5"/>  
+  <ResourceWrapper x:Key="NextProgramLabelColor" Resource="#FF9CB9D5"/>
+
+  <!-- Program guide colors -->
+  <ResourceWrapper x:Key="ProgramRunningFill" Resource="#A0134763"/>
 
 </ResourceDictionary>
