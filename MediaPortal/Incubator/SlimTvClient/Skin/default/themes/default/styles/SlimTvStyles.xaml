@@ -628,12 +628,8 @@
               HorizontalAlignment="Stretch" VerticalAlignment="Top"
               Style="{ThemeResource MultiProgramGuideListViewStyle}"
               ItemsSource="{Binding Path=Programs}"
-              SelectionChanged="{CommandStencil Source={StaticResource SlimTvMultiChannelGuide}, Path=UpdateProgram}">
+              SelectionChanged="{CommandStencil Source={StaticResource SlimTvMultiChannelGuide}, Path=UpdateProgram}"/>
 
-        <ListView.Resources>
-          <CommandBridge x:Key="Menu_Command" Command="{Binding Path=Command,Mode=OneTime}"/>
-        </ListView.Resources>
-      </ListView>
       <Grid.OpacityMask>
         <LinearGradientBrush StartPoint="0.0,0.5" EndPoint="1.0,0.5">
           <GradientStop Offset="0.0" Color="#FF000000" />
