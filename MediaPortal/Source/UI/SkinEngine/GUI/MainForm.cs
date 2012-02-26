@@ -352,7 +352,7 @@ namespace MediaPortal.UI.SkinEngine.GUI
           // The device was lost or we don't have focus - reduce the render rate
           Thread.Sleep(10);
 
-        if (GraphicsDevice.DeviceLost)
+        if (!GraphicsDevice.DeviceOk)
           break;
       }
       ServiceRegistration.Get<ILogger>().Debug("SkinEngine MainForm: Main render loop was stopped");
@@ -630,7 +630,7 @@ namespace MediaPortal.UI.SkinEngine.GUI
       if (Monitor.TryEnter(_reclaimDeviceSyncObj))
         try
         {
-          if (GraphicsDevice.DeviceLost)
+          if (!GraphicsDevice.DeviceOk)
           {
             StopRenderThread();
             if (_hasFocus)

@@ -55,7 +55,7 @@ namespace MediaPortal.UI.SkinEngine.DirectX
     private static readonly ReaderWriterLockSlim _renderAndResourceAccessLock = new ReaderWriterLockSlim();
     private static DeviceEx _device;
     private static Surface _backBuffer;
-    private static bool _deviceLost = false;
+    private static bool _deviceOk = true;
     private static DxCapabilities _dxCapabilities = null;
     private static ScreenManager _screenManager = null;
     private static float _targetFrameRate = 25;
@@ -72,11 +72,14 @@ namespace MediaPortal.UI.SkinEngine.DirectX
     public static Matrix FinalTransform;
 
     /// <summary>
-    /// Returns the information if the graphics device was lost.
+    /// Returns the information if the graphics device is healthy, which means it was neither lost nor hung nor removed.
     /// </summary>
-    public static bool DeviceLost
+    /// <remarks>
+    /// If this property is <c>false</c>, <see cref="ReclaimDevice"/> must be called.
+    /// </remarks>
+    public static bool DeviceOk
     {
-      get { return _deviceLost; }
+      get { return _deviceOk; }
     }
 
     /// <summary>
@@ -160,11 +163,11 @@ namespace MediaPortal.UI.SkinEngine.DirectX
     }
 
     /// <summary>
-    /// Gets the current device state.
+    /// Calls <see cref="DeviceEx.CheckDeviceState"/> on the DX device and returns its result.
     /// </summary>
-    internal static DeviceState CurrentDeviceState
+    internal static DeviceState CheckDeviceState()
     {
-      get { return _device.CheckDeviceState(_setup.RenderTarget.Handle); }
+      return _device.CheckDeviceState(_setup.RenderTarget.Handle);
     }
 
     /// <summary>
@@ -324,32 +327,44 @@ namespace MediaPortal.UI.SkinEngine.DirectX
     }
 
     /// <summary>
-    /// Reclaims the DirectX device if it has been lost (see <see cref="DeviceLost"/>).
+    /// Reclaims the DirectX device if it has been lost (see <see cref="DeviceOk"/>).
     /// </summary>
-    /// <returns><c>true</c>, if the device could successfully be reclaimed. In this case, <see cref="DeviceLost"/> will be reset to
+    /// <returns><c>true</c>, if the device could successfully be reclaimed. In this case, <see cref="DeviceOk"/> will be reset to
     /// <c>false</c>. <c>false</c>, if the device could not be reclaimed.</returns>
     public static bool ReclaimDevice()
     {
-      DeviceState state = CurrentDeviceState;
-      if (state == DeviceState.Ok)
-        return true;
-
-      if (state == DeviceState.DeviceLost)
+      try
       {
-        try
+        // Handling is implemented based on http://msdn.microsoft.com/en-us/library/windows/desktop/bb172554%28v=vs.85%29.aspx
+        switch (CheckDeviceState())
         {
-          Reset();
-          // Check for new state
-          _deviceLost = CurrentDeviceState != DeviceState.Ok;
-          return !_deviceLost;
-        }
-        catch (Exception ex)
-        {
-          ServiceRegistration.Get<ILogger>().Warn("GraphicsDevice: Reclaiming DX device failed", ex);
-          return false;
+          case DeviceState.Ok:
+            _deviceOk = true;
+            break;
+          case DeviceState.DeviceLost:
+          case DeviceState.DeviceHung:
+            Reset();
+            _deviceOk = CheckDeviceState() == DeviceState.Ok;
+            break;
+          case DeviceState.DeviceRemoved:
+            // Albert, 2012-02-26: Note that this code path is not verified/tested yet. The description of D3DERR_DEVICEREMOVED in
+            // http://msdn.microsoft.com/en-us/library/windows/desktop/bb172554%28v=vs.85%29.aspx says the device must be re-created,
+            // so we do that here. I'm not sure if we maybe must re-create our IDirect3D9Ex object and do all the initialization work
+            // again, according to http://msdn.microsoft.com/en-us/library/bb219800%28v=vs.85%29.aspx#Lost_Device_Behavior_Changes
+            ReCreateDXDevice();
+            _deviceOk = CheckDeviceState() == DeviceState.Ok;
+            break;
+          default:
+            _deviceOk = false;
+            break;
         }
       }
-      return false;
+      catch (Exception ex)
+      {
+        ServiceRegistration.Get<ILogger>().Warn("GraphicsDevice: Reclaiming DX device failed", ex);
+        _deviceOk = false;
+      }
+      return !_deviceOk;
     }
 
     /// <summary>
@@ -413,7 +428,7 @@ namespace MediaPortal.UI.SkinEngine.DirectX
     /// <returns><c>true</c>, if the caller should wait some milliseconds before rendering the next time.</returns>
     public static bool Render(bool doWaitForNextFame)
     {
-      if (_device == null || _deviceLost)
+      if (_device == null || !_deviceOk)
         return true;
 #if (MAX_FRAMERATE == false)
       if (doWaitForNextFame)
@@ -447,10 +462,10 @@ namespace MediaPortal.UI.SkinEngine.DirectX
       }
       catch (Direct3D9Exception e)
       {
-        DeviceState state = CurrentDeviceState;
-        _deviceLost = state != DeviceState.Ok;
-        ServiceRegistration.Get<ILogger>().Warn("GraphicsDevice: DirectX Exception, DeviceState: {0}, DeviceLost: {1}", e, state, _deviceLost);
-        return _deviceLost;
+        DeviceState state = CheckDeviceState();
+        ServiceRegistration.Get<ILogger>().Warn("GraphicsDevice: DirectX Exception, DeviceState: {0}", e, state);
+        _deviceOk = state == DeviceState.Ok;
+        return !_deviceOk;
       }
       finally
       {
