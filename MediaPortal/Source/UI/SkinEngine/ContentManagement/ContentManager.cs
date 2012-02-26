@@ -85,6 +85,7 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement
     private const double LONG_CLEANUP_INTERVAL = 10.0;
     // Maximum time between dictionary garbage collections (in milliseconds)
     private const int DICTIONARY_CLEANUP_INTERVAL = 60 * 1000;
+
     #endregion
 
     #region Private variables

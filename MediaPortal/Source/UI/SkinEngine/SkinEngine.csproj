@@ -80,7 +80,7 @@
     <Compile Include="ContentManagement\AssetCore\FontAssetCore.cs" />
     <Compile Include="ContentManagement\AssetCore\IAssetCore.cs" />
     <Compile Include="ContentManagement\AssetCore\RenderTextureAssetCore.cs" />
-    <Compile Include="ContentManagement\AssetCore\TemporaryAssetBase.cs" />
+    <Compile Include="ContentManagement\AssetCore\TemporaryAssetCoreBase.cs" />
     <Compile Include="ContentManagement\AssetCore\TextureAssetCore.cs" />
     <Compile Include="ContentManagement\ContentManager.cs" />
     <Compile Include="ContentManagement\RenderTargetAsset.cs" />

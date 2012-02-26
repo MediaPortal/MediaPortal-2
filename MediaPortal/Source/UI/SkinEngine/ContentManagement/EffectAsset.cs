@@ -43,7 +43,7 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement
       return _assetCore.Allocate();
     }
 
-    public Dictionary<string, object> Parameters
+    public IDictionary<string, object> Parameters
     {
       get { return _assetCore.Parameters; }
     }

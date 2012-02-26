@@ -140,10 +140,7 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement
     /// </summary>
     public Texture Texture
     {
-      get
-      {
-        return _assetCore.Texture;
-      }
+      get { return _assetCore.Texture; }
     }
   }
 }

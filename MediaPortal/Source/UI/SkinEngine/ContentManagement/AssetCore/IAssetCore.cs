@@ -41,7 +41,7 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement.AssetCore
     /// Gets a value indicating whether this asset can be deleted.
     /// </summary>
     /// <value>
-    /// 	<c>true</c> if this asset can be deleted; otherwise, <c>false</c>.
+    /// <c>true</c> if this asset can be deleted; otherwise, <c>false</c>.
     /// </value>
     bool CanBeDeleted { get; }
 
@@ -54,7 +54,7 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement.AssetCore
     /// Gets a value indicating the estimated current VRAM usage of this asset.
     /// </summary>
     /// <value>
-    /// 	The estimated VRAM usage of the asset in bytes.
+    /// The estimated VRAM usage of the asset in bytes.
     /// </value>
     int AllocationSize { get; }
   }

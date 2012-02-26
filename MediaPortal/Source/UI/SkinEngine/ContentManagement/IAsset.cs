@@ -33,7 +33,7 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement
     /// Gets a value indicating the asset is allocated.
     /// </summary>
     /// <value>
-    /// 	<c>true</c> if this asset is allocated; otherwise, <c>false</c>.
+    /// <c>true</c> if this asset is allocated; otherwise, <c>false</c>.
     /// </value>
     bool IsAllocated { get; }
   }

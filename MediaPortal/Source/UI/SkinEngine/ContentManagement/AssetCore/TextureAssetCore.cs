@@ -39,7 +39,7 @@ using MediaPortal.Common.Services.ThumbnailGenerator;
 
 namespace MediaPortal.UI.SkinEngine.ContentManagement.AssetCore
 {
-  public class TextureAssetCore : TemporaryAssetBase, IAssetCore
+  public class TextureAssetCore : TemporaryAssetCoreBase, IAssetCore
   {
     #region Consts / Enums
 

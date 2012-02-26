@@ -25,11 +25,11 @@
 namespace MediaPortal.UI.SkinEngine.ContentManagement.AssetCore
 {
   /// <summary>
-  /// In order to properly manage resources all Assets are actually two components: a wrapper that 
+  /// In order to properly manage resources, all Assets are actually two components: A wrapper that 
   /// can GC'd freely and a core object that holds the actual DirectX resource and is managed by the 
   /// <see cref="ContentManager"/>. This is a base class for all asset wrappers.
   /// </summary>
-  /// <typeparam name="T"></typeparam>
+  /// <typeparam name="T">The asset core type.</typeparam>
   public class AssetWrapper<T> : IAsset where T : IAssetCore
   {
     protected T _assetCore;

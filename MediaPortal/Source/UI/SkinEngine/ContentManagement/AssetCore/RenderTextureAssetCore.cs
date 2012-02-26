@@ -28,7 +28,7 @@ using SlimDX.Direct3D9;
 
 namespace MediaPortal.UI.SkinEngine.ContentManagement.AssetCore
 {
-  public class RenderTextureAssetCore : TemporaryAssetBase, ITextureAsset, IAssetCore
+  public class RenderTextureAssetCore : TemporaryAssetCoreBase, ITextureAsset, IAssetCore
   {
     public event AssetAllocationHandler AllocationChanged = delegate { };
 

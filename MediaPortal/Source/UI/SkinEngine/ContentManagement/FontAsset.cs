@@ -35,11 +35,10 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement
   public class FontAsset : AssetWrapper<FontAssetCore>, ITextureAsset
   {
     public delegate void DeallocationHandler();
+
     /// <summary>
-    /// Event for notifying this assets clients that the underlying texture has been deallocated, as that
-    ///   will required text to be re-generated.
+    /// Event for notifying this assets clients that the underlying texture has been deallocated, as that will required text to be re-generated.
     /// </summary>
-    /// 
     public event DeallocationHandler Deallocated;
 
     public FontAsset(FontAssetCore core) : base(core) 
@@ -48,7 +47,7 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement
     }
 
     /// <summary>
-    /// Get the size of this <see cref="FontAsset"/>.
+    /// Get the size of this <see cref="FontAsset"/> in pixels.
     /// </summary>
     public float Size
     {
@@ -56,8 +55,9 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement
     }
 
     /// <summary>
-    /// Gets the <see cref="FontAsset"/>'s base.
+    /// Gets the <see cref="FontAsset"/>'s base for the given <paramref name="fontSize"/>.
     /// </summary>
+    /// <param name="fontSize">The scale size.</param>
     public float Base(float fontSize)
     {
       return _assetCore.Base(fontSize); 

@@ -26,6 +26,7 @@ using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
+using System.Linq;
 using System.Runtime.InteropServices;
 using MediaPortal.UI.SkinEngine.DirectX;
 using SlimDX;
@@ -38,7 +39,7 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement.AssetCore
   /// <summary>
   /// Represents a font set (of glyphs).
   /// </summary>
-  public class FontAssetCore : TemporaryAssetBase, IAssetCore, ITextureAsset
+  public class FontAssetCore : TemporaryAssetCoreBase, IAssetCore, ITextureAsset
   {
     public event AssetAllocationHandler AllocationChanged = delegate { };
 
@@ -56,7 +57,10 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement.AssetCore
     protected int _currentY = 0;
 
     #region Ctor
-    /// <summary>Creates a new font set.</summary>
+
+    /// <summary>
+    /// Creates a new font set.
+    /// </summary>
     /// <param name="family">The font family.</param>
     /// <param name="size">Size in pixels.</param>
     /// <param name="resolution">Resolution in dpi.</param>
@@ -81,7 +85,7 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement.AssetCore
     #region Public properties
 
     /// <summary>
-    /// Get the size of this <see cref="FontAssetCore"/>.
+    /// Get the size of this <see cref="FontAssetCore"/> in pixels.
     /// </summary>
     public float Size
     {
@@ -223,7 +227,9 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement.AssetCore
       AddGlyph(0);
     }
 
-    /// <summary>Adds a glyph to the font set by character code.</summary>
+    /// <summary>
+    /// Adds a glyph to the font set by character code.
+    /// </summary>
     /// <param name="character">The char to add.</param>
     private bool AddChar(char character)
     {
@@ -478,10 +484,8 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement.AssetCore
 
     protected int GetKerningAmount(BitmapCharacter first, char second)
     {
-      foreach (Kerning node in first.KerningList)
-        if (node.Second == second)
-          return node.Amount;
-      return 0;
+      Kerning result = first.KerningList.Where(node => node.Second == second).FirstOrDefault();
+      return result == null ? 0 : result.Amount;
     }
     #endregion
 
@@ -511,10 +515,13 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement.AssetCore
     {
       get { return IsAllocated ? MAX_WIDTH * MAX_HEIGHT * 1 : 0; }
     }
+
     #endregion
   }
 
-  /// <summary>Represents a single bitmap character set.</summary>
+  /// <summary>
+  /// Represents a single bitmap character set.
+  /// </summary>
   internal class BitmapCharacterSet
   {
     public int Base;

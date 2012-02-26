@@ -30,7 +30,7 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement.AssetCore
 {
   // It doesn't seem to be possible to create a texture which provides multisample surfaces. So for rendering to a surface/texture
   // with multisample antialiasing enabled, we must provide this special surface asset.
-  public class RenderTargetAssetCore : TemporaryAssetBase, IAssetCore
+  public class RenderTargetAssetCore : TemporaryAssetCoreBase, IAssetCore
   {
     public event AssetAllocationHandler AllocationChanged = delegate { };
 

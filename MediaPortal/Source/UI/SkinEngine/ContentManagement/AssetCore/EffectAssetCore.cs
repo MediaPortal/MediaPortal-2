@@ -39,7 +39,7 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement.AssetCore
   /// Encapsulates an effect which can render a vertex buffer with a texture.
   /// The effect gets loaded from the skin's shaders directory.
   /// </summary>
-  public class EffectAssetCore : TemporaryAssetBase, IAssetCore
+  public class EffectAssetCore : TemporaryAssetCoreBase, IAssetCore
   {
     public event AssetAllocationHandler AllocationChanged = delegate { };
 
@@ -50,13 +50,13 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement.AssetCore
 
     #endregion
 
-    private readonly string _effectName;
-    readonly Dictionary<string, object> _parameterValues;
-    private Effect _effect;
-    EffectHandle _handleWorldProjection;
-    EffectHandle _handleTexture;
-    EffectHandle _handleTechnique;
-    bool _fileMissing = false;
+    protected readonly string _effectName;
+    protected readonly IDictionary<string, object> _parameterValues;
+    protected Effect _effect;
+    protected EffectHandle _handleWorldProjection;
+    protected EffectHandle _handleTexture;
+    protected EffectHandle _handleTechnique;
+    protected bool _fileMissing = false;
 
     /// <summary>
     /// EffectAssetCore constructor.
@@ -131,7 +131,7 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement.AssetCore
       }
     }
 
-    public Dictionary<string, object> Parameters
+    public IDictionary<string, object> Parameters
     {
       get { return _parameterValues; }
     }
@@ -142,7 +142,7 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement.AssetCore
 
     public bool IsAllocated
     {
-      get { return (_effect != null); }
+      get { return _effect != null; }
     }
 
     public int AllocationSize

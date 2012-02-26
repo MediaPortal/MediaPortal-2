@@ -27,12 +27,12 @@ using MediaPortal.UI.SkinEngine.SkinManagement;
 
 namespace MediaPortal.UI.SkinEngine.ContentManagement.AssetCore
 {
-  public abstract class TemporaryAssetBase
+  public abstract class TemporaryAssetCoreBase
   {
-    private DateTime _lastTimeUsed;
-    private double _lifetime = 30.0f;
+    protected DateTime _lastTimeUsed;
+    protected double _lifetime = 30.0f;
 
-    protected TemporaryAssetBase()
+    protected TemporaryAssetCoreBase()
     {
       KeepAlive();
     }
