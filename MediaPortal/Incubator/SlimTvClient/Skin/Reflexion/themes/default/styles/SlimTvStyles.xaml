@@ -333,6 +333,10 @@
             <ContentPresenter x:Name="ButtonContentPresenter" Margin="0,18,0,0" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"/>
           </Grid>
           <ControlTemplate.Triggers>
+            <!-- Handling of different program states -->
+            <DataTrigger Binding="{Binding IsRunning}" Value="True">
+              <Setter TargetName="ButtonBase" Property="Fill" Value="{ThemeResource ProgramRunningFill}"/>
+            </DataTrigger>
             <Trigger Property="HasFocus" Value="True">
               <Trigger.EnterActions>
                 <BeginStoryboard x:Name="Focused_BeginStoryboard" Storyboard="{ThemeResource FocusedButtonStoryboard_Base}"/>

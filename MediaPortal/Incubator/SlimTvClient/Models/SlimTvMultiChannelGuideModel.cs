@@ -188,7 +188,9 @@ namespace MediaPortal.Plugins.SlimTvClient
 
 
     protected override void Update()
-    { }
+    {
+      UpdateProgramsState();
+    }
 
     protected override void UpdateCurrentChannel()
     { }
@@ -197,6 +199,24 @@ namespace MediaPortal.Plugins.SlimTvClient
     {
       foreach (ChannelProgramListItem channel in _channelList)
         UpdateChannelPrograms(channel);
+
+      UpdateProgramsState();
+    }
+
+    private void UpdateProgramsState()
+    {
+      foreach (ChannelProgramListItem channel in _channelList)
+        UpdateChannelProgramsState(channel);
+    }
+
+    /// <summary>
+    /// Sets the "IsRunning" state of all programs.
+    /// </summary>
+    /// <param name="channel"></param>
+    private static void UpdateChannelProgramsState(ChannelProgramListItem channel)
+    {
+      foreach (ProgramListItem program in channel.Programs)
+        program.Update();
     }
 
     private void UpdateChannelPrograms(ChannelProgramListItem channel)
