@@ -73,22 +73,15 @@ namespace MediaPortal.UI.SkinEngine.DirectX
 
     /// <summary>
     /// Returns the information if the graphics device was lost.
-    /// <para>
-    /// Devices in Direct9EX only lost under two circumstances; when the hardware is reset because it is hanging, and when the device driver is stopped. 
-    /// When hardware hangs, the device can be reset by calling ResetEx. If hardware hangs, texture memory is lost. 
-    /// After a driver is stopped, the IDirect9Ex object must be recreated to resume rendering.
-    /// </para>
     /// </summary>
-    /// <remarks>
-    /// The device has to be reclaimed by calling <see cref="ReclaimDevice"/>.
-    /// </remarks>
     public static bool DeviceLost
     {
       get { return _deviceLost; }
     }
 
     /// <summary>
-    /// Returns the target rendering target framerate. This value can be changed according to screen refresh rate or video fps.
+    /// Returns the target rendering target framerate. This value can be changed according to screen refresh rate or video fps using
+    /// one of the methods <see cref="AdaptTargetFrameRateToDisplayMode"/> or <see cref="SetFrameRate"/>.
     /// </summary>
     public static float TargetFrameRate
     {
@@ -110,12 +103,11 @@ namespace MediaPortal.UI.SkinEngine.DirectX
     }
 
     /// <summary>
-    /// Gets or sets the DirectX device.
+    /// Gets the DirectX device which is used to render.
     /// </summary>
     public static DeviceEx Device
     {
       get { return _device; }
-      set { _device = value; }
     }
 
     /// <summary>
