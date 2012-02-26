@@ -32,7 +32,7 @@ namespace MediaPortal.Common.MediaManagement.DefaultItemAspects
   public static class VideoAspect
   {
     /// <summary>
-    /// Media item aspect id of the movie aspect.
+    /// Media item aspect id of the video aspect.
     /// </summary>
     public static readonly Guid ASPECT_ID = new Guid("39B6A293-3E97-4873-8955-975A15359050");
 
