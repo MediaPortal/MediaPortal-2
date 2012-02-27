@@ -25,8 +25,12 @@
 namespace MediaPortal.UI.SkinEngine.ContentManagement
 {
   /// <summary>
-  /// Identifies a resource which is maybe shared between different objects.
+  /// Identifies an unmanaged DirectX resource
   /// </summary>
+  /// <remarks>
+  /// Asset objects are maybe shared between different client objects, potentially from multiple threads. So implementations must be
+  /// thread-safe.
+  /// </remarks>
   public interface IAsset
   {
     /// <summary>

@@ -27,9 +27,13 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement.AssetCore
   public delegate void AssetAllocationHandler(int allocation);
 
   /// <summary>
-  /// Extended interface for the direct access of asset resources.  Provides an interface for freeing 
+  /// Extended interface for the direct access of asset resources. Provides properties and methods for freeing 
   /// unmanaged resources and determining if those resources are still needed.
   /// </summary>
+  /// <remarks>
+  /// Asset core objects are maybe shared between different client objects, potentially from multiple threads. So implementations must be
+  /// thread-safe.
+  /// </remarks>
   public interface IAssetCore : IAsset
   {
     /// <summary>

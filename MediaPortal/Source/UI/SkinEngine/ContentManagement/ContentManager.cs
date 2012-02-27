@@ -35,6 +35,33 @@ using FontFamily = MediaPortal.UI.SkinEngine.Fonts.FontFamily;
 
 namespace MediaPortal.UI.SkinEngine.ContentManagement
 {
+  /// <summary>
+  /// Main class of the DirectX content management subsystem. The content management system is responsible to maintain all
+  /// DirectX resources which are currently in use, called "assets".
+  /// </summary>
+  /// <remarks>
+  /// <para>
+  /// For each asset type (like fonts, effects, render target surfaces and render textures), we provide a wrapper class. Those classes
+  /// are called "asset core classes" and they are located in namespace <see cref="MediaPortal.UI.SkinEngine.ContentManagement.AssetCore"/>.
+  /// </para>
+  /// <para>
+  /// Managed assets are re-used by many client objects in parallel. When an asset is not used any more, the content manager releases
+  /// it after some time.
+  /// </para>
+  /// <para>
+  /// To simplify the lifetime management of assets, we manage two instances for each asset: One "asset" and one "asset core", which are both
+  /// together referenced by a <see cref="AssetInstance"/> object. Each asset instance object which is alive is referenced by the
+  /// ContentManager. Furthermore, each asset references its asset core object. The asset object is only referenced by the asset instance
+  /// using a <see cref="WeakReference"/>.
+  /// </para>
+  /// <para>
+  /// Each client object (typically SkinEngine controls) holds references to each asset it needs. After the last client object drops
+  /// its asset reference or is gc'ed, the asset is free to be catched by the garbage collector. 
+  /// </para>
+  /// <para>
+  /// This class is multithreading-safe.
+  /// </para>
+  /// </remarks>
   public sealed class ContentManager
   {
     #region Internal structure
@@ -164,7 +191,7 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement
     }
 
     /// <summary>
-    /// Retrieves a <see cref="TextureAsset"/> (creating it if necessary) fiklled with the given color.
+    /// Retrieves a <see cref="TextureAsset"/> (creating it if necessary) filled with the given color.
     /// </summary>
     /// <param name="color">The color to fill the texture with.</param>
     /// <returns>A texture asset filled with the given color.</returns>
@@ -233,7 +260,7 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement
       FontFamily family = FontManager.GetFontFamily(fontFamily);
       if (family == null)
       {
-        ServiceRegistration.Get<ILogger>().Warn("SkinEngine.ContentManager: Could not get FontFamily '{0}', using default", fontFamily);
+        ServiceRegistration.Get<ILogger>().Warn("ContentManager: Could not get FontFamily '{0}', using default", fontFamily);
         family = FontManager.GetFontFamily(FontManager.DefaultFontFamily);
         if (family == null)
           return null;
