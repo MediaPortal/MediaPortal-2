@@ -22,7 +22,9 @@
 
 #endregion
 
-namespace MediaPortal.UI.SkinEngine.ContentManagement.AssetCore
+using MediaPortal.UI.SkinEngine.ContentManagement.AssetCore;
+
+namespace MediaPortal.UI.SkinEngine.ContentManagement
 {
   /// <summary>
   /// In order to properly manage resources, all Assets are actually two components: A wrapper that 

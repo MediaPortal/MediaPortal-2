@@ -74,7 +74,7 @@
     <Compile Include="Commands\ICommandStencil.cs" />
     <Compile Include="Commands\IExecutableCommand.cs" />
     <Compile Include="Commands\InvokeCommand.cs" />
-    <Compile Include="ContentManagement\AssetCore\AssetWrapper.cs" />
+    <Compile Include="ContentManagement\AssetWrapper.cs" />
     <Compile Include="ContentManagement\AssetCore\RenderTargetAssetCore.cs" />
     <Compile Include="ContentManagement\AssetCore\EffectAssetCore.cs" />
     <Compile Include="ContentManagement\AssetCore\FontAssetCore.cs" />
