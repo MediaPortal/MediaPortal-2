@@ -495,21 +495,18 @@
   <ItemGroup>
     <Content Include="Skin\default\screens\SlimTvClient-main.xaml">
       <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Content>
   </ItemGroup>
   <ItemGroup>
     <Content Include="Skin\default\screens\CurrentlyPlayingTv.xaml">
       <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Content>
   </ItemGroup>
   <ItemGroup>
     <Content Include="Skin\default\screens\FullScreenContentTv.xaml">
       <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Content>
   </ItemGroup>
@@ -517,14 +514,12 @@
     <Content Include="Language\strings_en.xml" />
     <Content Include="Skin\default\themes\default\styles\SlimTvStyles.xaml">
       <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Content>
   </ItemGroup>
   <ItemGroup>
     <Content Include="Skin\default\screens\SlimTvClient-guide.xaml">
       <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Content>
   </ItemGroup>
@@ -537,7 +532,6 @@
   <ItemGroup>
     <Content Include="Skin\default\screens\DialogProgramActions.xaml">
       <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Content>
   </ItemGroup>
@@ -547,20 +541,17 @@
     </Content>
     <Content Include="Skin\default\screens\SlimTvClient-fullguide.xaml">
       <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Content>
   </ItemGroup>
   <ItemGroup>
     <Content Include="Skin\default\screens\DialogProgramActionsFull.xaml">
       <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Content>
   </ItemGroup>
   <ItemGroup>
     <Content Include="Skin\default\themes\default\styles\SlimTvConsts.xaml">
-      <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Content>
   </ItemGroup>
@@ -583,19 +574,27 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="Skin\default\screens\SlimTvClient-miniguide.xaml">
-      <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Content>
   </ItemGroup>
   <ItemGroup>
+    <Content Include="Skin\Reflexion\themes\default\styles\ProgramInfoSlim.inc" />
     <Content Include="Skin\RisingSkin\themes\Silver\styles\SlimTvStyles.xaml">
-      <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Content>
   </ItemGroup>
   <ItemGroup>
     <Content Include="Skin\default\themes\default\styles\SlimTvColors.xaml">
-      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Skin\Reflexion\themes\default\styles\SlimTvStyles.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Skin\Reflexion\themes\default\styles\SlimTvConsts.xaml">
       <SubType>Designer</SubType>
     </Content>
   </ItemGroup>
