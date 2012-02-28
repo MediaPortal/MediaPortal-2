@@ -40,9 +40,9 @@
     <Reference Include="Microsoft.Deployment.WindowsInstaller" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="CustomAction.cs" />
+    <Compile Include="CustomActions.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Content Include="CustomAction.config" />
+    <Content Include="CustomActions.config" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\Source\Core\MediaPortal.Backend\MediaPortal.Backend.csproj">
