@@ -26,23 +26,25 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
-using MediaPortal.Common.Localization;
-using MediaPortal.Common.Services.Localization;
 using System.Text;
 using MediaPortal.Backend.Services.ClientCommunication;
 using MediaPortal.Backend.Services.SystemResolver;
-using MediaPortal.Common.General;
-using MediaPortal.Common.Services.Logging;
-using Microsoft.Deployment.WindowsInstaller;
-
 using MediaPortal.Common;
+using MediaPortal.Common.General;
+using MediaPortal.Common.Localization;
 using MediaPortal.Common.Logging;
 using MediaPortal.Common.PathManager;
-using MediaPortal.Common.Services.Settings;
+using MediaPortal.Common.PluginManager;
+using MediaPortal.Common.Registry;
+using MediaPortal.Common.Services.Localization;
+using MediaPortal.Common.Services.Logging;
 using MediaPortal.Common.Services.PathManager;
+using MediaPortal.Common.Services.PluginManager;
+using MediaPortal.Common.Services.Settings;
 using MediaPortal.Common.Settings;
 using MediaPortal.Common.SystemResolver;
 using MediaPortal.UI.ServerCommunication.Settings;
+using Microsoft.Deployment.WindowsInstaller;
 using Microsoft.Win32;
 
 namespace CustomActions
@@ -50,8 +52,8 @@ namespace CustomActions
   public class CustomActions
   {//Can publish up to 16 custom actions per DLL
 
-    private static readonly string[] ClientPathLabels = new string[] { "DATA", "CONFIG", "LOG", "PLUGINS" };
-    private static readonly string[] ServerPathLabels = new string[] { "DATA", "CONFIG", "LOG", "PLUGINS", "DATABASE" };
+    protected static readonly string[] ClientPathLabels = new string[] { "DATA", "CONFIG", "LOG", "PLUGINS" };
+    protected static readonly string[] ServerPathLabels = new string[] { "DATA", "CONFIG", "LOG", "PLUGINS", "DATABASE" };
 
     protected class SessionLogWriter : TextWriter
     {
@@ -73,6 +75,80 @@ namespace CustomActions
       }
     }
 
+    protected struct HomeServerData
+    {
+      public string HomeServerSystemId;
+      public string HomeServerName;
+    }
+
+    protected static HomeServerData GetHomeServerData(string serverApplicationPath)
+    {
+      PathManager pathManager = new PathManager(); // Fake path manager to inject the settings path to SettingsManager and StringManager
+
+      pathManager.InitializeDefaults(serverApplicationPath);
+      ServiceRegistration.Set<IPathManager>(pathManager);
+      ISettingsManager settingsManager = new SettingsManager();
+      ServiceRegistration.Set<ISettingsManager>(settingsManager);
+      ServiceRegistration.Set<IRegistry>(new MediaPortal.Common.Services.Registry.Registry());
+      ServiceRegistration.Set<IPluginManager>(new PluginManager());
+
+      StringManager stringManager = new StringManager();
+      stringManager.Startup();
+      ServiceRegistration.Set<ILocalization>(stringManager);
+
+      ISystemResolver backendSystemResolver = new SystemResolver();
+
+      HomeServerData result = new HomeServerData
+        {
+            HomeServerName = new LocalizedUPnPDeviceInformation().GetFriendlyName(CultureInfo.InvariantCulture),
+            HomeServerSystemId = backendSystemResolver.LocalSystemId
+        };
+
+      ServiceRegistration.RemoveAndDispose<ILocalization>();
+      ServiceRegistration.RemoveAndDispose<IPluginManager>();
+      ServiceRegistration.RemoveAndDispose<IRegistry>();
+      ServiceRegistration.RemoveAndDispose<ISettingsManager>();
+      ServiceRegistration.RemoveAndDispose<IPathManager>();
+
+      return result;
+    }
+
+    protected static void AttachClientToServer(string clientApplicationPath, HomeServerData homeServerData)
+    {
+      PathManager pathManager = new PathManager(); // Fake path manager to inject the settings path to SettingsManager and StringManager
+
+      pathManager.InitializeDefaults(clientApplicationPath);
+      ServiceRegistration.Set<IPathManager>(pathManager);
+      ISettingsManager settingsManager = new SettingsManager();
+      ServiceRegistration.Set<ISettingsManager>(settingsManager);
+      ServiceRegistration.Set<IRegistry>(new MediaPortal.Common.Services.Registry.Registry());
+      ServiceRegistration.Set<IPluginManager>(new PluginManager());
+
+      StringManager stringManager = new StringManager();
+      stringManager.Startup();
+      ServiceRegistration.Set<ILocalization>(stringManager);
+
+      ServerConnectionSettings serverConnectionSettings = settingsManager.Load<ServerConnectionSettings>();
+
+      if (serverConnectionSettings.HomeServerSystemId == null)
+      {
+        ServiceRegistration.Get<ILogger>().Info("Client is not attached, auto-attaching to local server '{0}', system id '{1}'", homeServerData.HomeServerName, homeServerData.HomeServerSystemId);
+
+        serverConnectionSettings.HomeServerSystemId = homeServerData.HomeServerSystemId;
+        serverConnectionSettings.LastHomeServerSystem = SystemName.Loopback();
+        serverConnectionSettings.LastHomeServerName = homeServerData.HomeServerName;
+        settingsManager.Save(serverConnectionSettings);
+      }
+      else
+        ServiceRegistration.Get<ILogger>().Info("Client is already attached to server with system ID '{0}'", serverConnectionSettings.HomeServerSystemId);
+
+      ServiceRegistration.RemoveAndDispose<ILocalization>();
+      ServiceRegistration.RemoveAndDispose<IPluginManager>();
+      ServiceRegistration.RemoveAndDispose<IRegistry>();
+      ServiceRegistration.RemoveAndDispose<ISettingsManager>();
+      ServiceRegistration.RemoveAndDispose<IPathManager>();
+    }
+
     [CustomAction]
     public static ActionResult AttachClientToServer(Session session)
     {
@@ -82,53 +158,18 @@ namespace CustomActions
       if (session.Features["Client"].RequestState == InstallState.Local
         & session.Features["Server"].RequestState == InstallState.Local)
       {
-        ServiceRegistration.Set<ILogger>(new DefaultLogger(new SessionLogWriter(session), LogLevel.All, false, false)); // Logger for called services
-
-        PathManager pathManager = new PathManager(); // Fake path manager to inject the settings path to SettingsManager
-        ServiceRegistration.Set<IPathManager>(pathManager);
-        ServiceRegistration.Set<ISettingsManager>(new SettingsManager());
-        ServiceRegistration.Set<ILocalization>(new StringManager());
-
         string clientApplicationPath = Path.Combine(session["INSTALLDIR_CLIENT"], "MP2-Client.exe");
         string serverApplicationPath = Path.Combine(session["INSTALLDIR_SERVER"], "MP2-Server.exe");
 
-        pathManager.InitializeDefaults(clientApplicationPath);
+        ServiceRegistration.Set<ILogger>(new DefaultLogger(new SessionLogWriter(session), LogLevel.All, false, false)); // Logger for called services
 
-        ISettingsManager settingsManager = ServiceRegistration.Get<ISettingsManager>();
-        ServerConnectionSettings serverConnectionSettings = settingsManager.Load<ServerConnectionSettings>();
-
-        if (serverConnectionSettings.HomeServerSystemId == null)
-        {
-          session.Log("Client is not attached, auto-attaching to local server");
-
-          pathManager.InitializeDefaults(serverApplicationPath);
-          settingsManager.ClearCache(); // Force the settings manager to use the server path and re-load all settings objects
-
-          ISystemResolver backendSystemResolver = new SystemResolver();
-
-          String serverSystemId = backendSystemResolver.LocalSystemId;
-          session.Log("Using server's system ID '{0}'", serverSystemId);
-
-          pathManager.InitializeDefaults(clientApplicationPath);
-          settingsManager.ClearCache();
-
-          serverConnectionSettings.HomeServerSystemId = serverSystemId;
-          serverConnectionSettings.LastHomeServerSystem = SystemName.Loopback();
-          serverConnectionSettings.LastHomeServerName = new LocalizedUPnPDeviceInformation().GetFriendlyName(CultureInfo.InvariantCulture);
-          settingsManager.Save(serverConnectionSettings);
-        }
-        else
-        {
-          session.Log("Client is already attached to server with system ID '{0}'", serverConnectionSettings.HomeServerSystemId);
-        }
-
-        ServiceRegistration.RemoveAndDispose<ISettingsManager>();
-        ServiceRegistration.RemoveAndDispose<IPathManager>();
+        HomeServerData homeServerData = GetHomeServerData(serverApplicationPath);
+        AttachClientToServer(clientApplicationPath, homeServerData);
         ServiceRegistration.RemoveAndDispose<ILogger>();
       }
       else
       {
-        session.Log("Installation mode is not SingleSeat. No auto-attaching possible.");
+        session.Log("Installation mode is not SingleSeat. Skipping auto-attach step.");
       }
 
       return ActionResult.Success;
@@ -192,24 +233,6 @@ namespace CustomActions
       {
         session[cs + "." + label + ".FOLDER"] = pathManager.GetPath("<" + label + ">");
       }
-    }
-
-    private static ActionResult SetInstallState(Session session)
-    {
-      if (!string.IsNullOrEmpty(session["UPGRADINGPRODUCTCODE"]))
-      {
-        string feature = string.Empty;
-        //string feature = cs.ToUpper()[0] + cs.ToLower().Remove(0, 1);
-        session.Log("Product is already installed. UPGRADINGPRODUCTCODE is {0}", session["UPGRADINGPRODUCTCODE"]);
-        session.Log("Setting RequestState from {1} to {2} (previous installation state) for feature {0}.",
-          feature,
-          session.Features[feature].RequestState,
-          session.Features[feature].CurrentState);
-
-        session.Features[feature].RequestState = session.Features[feature].CurrentState;
-      }
-
-      return ActionResult.Success;
     }
 
     [CustomAction]
