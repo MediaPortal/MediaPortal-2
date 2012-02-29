@@ -56,8 +56,6 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement.AssetCore
     protected int _rowHeight = 0;
     protected int _currentY = 0;
 
-    protected object _syncObj = new object();
-
     #region Ctor
 
     /// <summary>
@@ -206,8 +204,7 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement.AssetCore
         if (!IsAllocated)
           Allocate();
         KeepAlive();
-        lock (_syncObj)
-          return _texture;
+        return _texture;
       }
     }
 
@@ -220,15 +217,16 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement.AssetCore
     /// </summary>
     public void Allocate()
     {
-      if (IsAllocated)
-        return;
-
       lock (_syncObj)
+      {
+        if (IsAllocated)
+          return;
         _texture = new Texture(GraphicsDevice.Device, MAX_WIDTH, MAX_HEIGHT, 1, Usage.Dynamic, Format.L8, Pool.Default);
+        // Add 'not defined' glyph
+        AddGlyph(0);
+      }
 
       AllocationChanged(AllocationSize);
-      // Add 'not defined' glyph
-      AddGlyph(0);
     }
 
     /// <summary>
@@ -318,53 +316,57 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement.AssetCore
 
     private uint GlyphIndex(uint charIndex)
     {
-      return FT.FT_Get_Char_Index(_family.Face, charIndex);
+      lock (_syncObj)
+        return FT.FT_Get_Char_Index(_family.Face, charIndex);
     }
 
     private BitmapCharacter CreateCharacter(FT_BitmapGlyph glyph)
     {
-      BitmapCharacter result = new BitmapCharacter
-        {
-          Width = glyph.bitmap.width + PAD * 2,
-          Height = glyph.bitmap.rows + PAD * 2,
-          X = _currentX,
-          Y = _currentY,
-          XOffset = glyph.left,
-          YOffset = _charSet.Base - glyph.top,
-          // Convert fixed point 16.16 to float by divison with 2^16
-          XAdvance = (int) (glyph.root.advance.x / 65536.0f)
-        };
-      return result;
+      lock (_syncObj)
+        return new BitmapCharacter
+          {
+            Width = glyph.bitmap.width + PAD * 2,
+            Height = glyph.bitmap.rows + PAD * 2,
+            X = _currentX,
+            Y = _currentY,
+            XOffset = glyph.left,
+            YOffset = _charSet.Base - glyph.top,
+            // Convert fixed point 16.16 to float by divison with 2^16
+            XAdvance = (int) (glyph.root.advance.x / 65536.0f)
+          };
     }
 
     private void WriteGlyphToTexture(FT_BitmapGlyph glyph, int pwidth, int pheight, Byte[] bitmapBuffer)
     {
-      // Lock the the area we intend to update
-      Rectangle charArea = new Rectangle(_currentX, _currentY, pwidth, pheight);
-      DataRectangle rect = _texture.LockRectangle(0, charArea, LockFlags.None);
-      using (rect.Data)
+      lock (_syncObj)
       {
-        // Copy FreeType glyph bitmap into our font texture.
-        Byte[] fontPixels = new Byte[pwidth];
-        Byte[] padPixels = new Byte[pwidth];
-
-        int pitch = Math.Abs(glyph.bitmap.pitch);
-
-        // Write the first padding row
-        rect.Data.Write(padPixels, 0, pwidth);
-        rect.Data.Seek(MAX_WIDTH - pwidth, SeekOrigin.Current);
-        // Write the glyph
-        for (int y = 0; y < glyph.bitmap.rows; y++)
+        // Lock the the area we intend to update
+        Rectangle charArea = new Rectangle(_currentX, _currentY, pwidth, pheight);
+        DataRectangle rect = _texture.LockRectangle(0, charArea, LockFlags.None);
+        using (rect.Data)
         {
-          for (int x = 0; x < glyph.bitmap.width; x++)
-            fontPixels[x + PAD] = bitmapBuffer[y * pitch + x];
-          rect.Data.Write(fontPixels, 0, pwidth);
+          // Copy FreeType glyph bitmap into our font texture.
+          Byte[] fontPixels = new Byte[pwidth];
+          Byte[] padPixels = new Byte[pwidth];
+
+          int pitch = Math.Abs(glyph.bitmap.pitch);
+
+          // Write the first padding row
+          rect.Data.Write(padPixels, 0, pwidth);
           rect.Data.Seek(MAX_WIDTH - pwidth, SeekOrigin.Current);
+          // Write the glyph
+          for (int y = 0; y < glyph.bitmap.rows; y++)
+          {
+            for (int x = 0; x < glyph.bitmap.width; x++)
+              fontPixels[x + PAD] = bitmapBuffer[y * pitch + x];
+            rect.Data.Write(fontPixels, 0, pwidth);
+            rect.Data.Seek(MAX_WIDTH - pwidth, SeekOrigin.Current);
+          }
+          // Write the last padding row
+          rect.Data.Write(padPixels, 0, pwidth);
+          rect.Data.Seek(MAX_WIDTH - pwidth, SeekOrigin.Current);
+          _texture.UnlockRectangle(0);
         }
-        // Write the last padding row
-        rect.Data.Write(padPixels, 0, pwidth);
-        rect.Data.Seek(MAX_WIDTH - pwidth, SeekOrigin.Current);
-        _texture.UnlockRectangle(0);
       }
     }
 
@@ -420,27 +422,30 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement.AssetCore
 
     protected float CreateTextLine(string line, float y, float sizeScale, bool kerning, ref List<PositionColoredTextured> verts)
     {
-      int x = 0;
+      lock (_syncObj)
+      {
+        int x = 0;
 
-      BitmapCharacter lastChar = null;
-      foreach (char character in line)
-      {
-        BitmapCharacter c = Character(character);
-        // Adjust for kerning
-        if (kerning && lastChar != null)
-          x += GetKerningAmount(lastChar, character);
-        lastChar = c;
-        if (!char.IsWhiteSpace(character))
-          CreateQuad(c, sizeScale, x, y, ref verts);
-        x += c.XAdvance;
+        BitmapCharacter lastChar = null;
+        foreach (char character in line)
+        {
+          BitmapCharacter c = Character(character);
+          // Adjust for kerning
+          if (kerning && lastChar != null)
+            x += GetKerningAmount(lastChar, character);
+          lastChar = c;
+          if (!char.IsWhiteSpace(character))
+            CreateQuad(c, sizeScale, x, y, ref verts);
+          x += c.XAdvance;
+        }
+        // Make sure there is a t least one character
+        if (verts.Count == 0)
+        {
+          BitmapCharacter c = Character(' ');
+          CreateQuad(c, sizeScale, c.XOffset, c.YOffset, ref verts);
+        }
+        return x*sizeScale;
       }
-      // Make sure there is a t least one character
-      if (verts.Count == 0)
-      {
-        BitmapCharacter c = Character(' ');
-        CreateQuad(c, sizeScale, c.XOffset, c.YOffset, ref verts);
-      }
-      return x * sizeScale;
     }
 
     protected void CreateQuad(BitmapCharacter c, float sizeScale, float x, float y, ref List<PositionColoredTextured> verts)
@@ -475,17 +480,20 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement.AssetCore
 
     protected BitmapCharacter Character(char character)
     {
-      uint glyphIndex = GlyphIndex(character);
-      BitmapCharacter result = _charSet.GetCharacter(glyphIndex);
-      if (glyphIndex == 0)
-        result = null;
-      if (result == null)
+      lock (_syncObj)
       {
-        if (!AddGlyph(glyphIndex))
-          return _charSet.GetCharacter(0);
-        return _charSet.GetCharacter(glyphIndex);
+        uint glyphIndex = GlyphIndex(character);
+        BitmapCharacter result = _charSet.GetCharacter(glyphIndex);
+        if (glyphIndex == 0)
+          result = null;
+        if (result == null)
+        {
+          if (!AddGlyph(glyphIndex))
+            return _charSet.GetCharacter(0);
+          return _charSet.GetCharacter(glyphIndex);
+        }
+        return result;
       }
-      return result;
     }
 
     protected int GetKerningAmount(BitmapCharacter first, char second)

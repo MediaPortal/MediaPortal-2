@@ -52,7 +52,7 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement.AssetCore
 
     protected readonly string _effectName;
     protected readonly IDictionary<string, object> _parameterValues;
-    protected Effect _effect;
+    protected volatile Effect _effect;
     protected EffectHandle _handleWorldProjection;
     protected EffectHandle _handleTexture;
     protected EffectHandle _handleTechnique;
@@ -101,21 +101,29 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement.AssetCore
       effectShader.Replace("vs_2_0", String.Format("vs_{0}_{1}", vertexShaderVersion.Major, vertexShaderVersion.Minor));
       effectShader.Replace("ps_2_0", String.Format("ps_{0}_{1}", pixelShaderVersion.Major, pixelShaderVersion.Minor));
 
-      string errors = string.Empty;
-      try
+      // We place the lock here to comply to the MP2 multithreading guideline - we are not allowed to request the
+      // effect resources when holding our lock
+      lock (_syncObj)
       {
-        const ShaderFlags shaderFlags = ShaderFlags.OptimizationLevel3 | ShaderFlags.EnableBackwardsCompatibility; //| ShaderFlags.NoPreshader;
-        _effect = Effect.FromString(GraphicsDevice.Device, effectShader.ToString(), null, null, null, shaderFlags, null, out errors);
-        _handleWorldProjection = _effect.GetParameter(null, PARAM_WORLDVIEWPROJ);
-        _handleTexture = _effect.GetParameter(null, PARAM_TEXTURE);
-        _handleTechnique = _effect.GetTechnique(0);
-        return true;
-      }
-      catch
-      {
-        ServiceRegistration.Get<ILogger>().Error("EffectAsset: Unable to load '{0}'", _effectName);
-        ServiceRegistration.Get<ILogger>().Error("EffectAsset: Errors: {0}", errors);
-        return false;
+        if (_effect != null)
+          return true;
+
+        string errors = string.Empty;
+        try
+        {
+          const ShaderFlags shaderFlags = ShaderFlags.OptimizationLevel3 | ShaderFlags.EnableBackwardsCompatibility; //| ShaderFlags.NoPreshader;
+          _effect = Effect.FromString(GraphicsDevice.Device, effectShader.ToString(), null, null, null, shaderFlags, null, out errors);
+          _handleWorldProjection = _effect.GetParameter(null, PARAM_WORLDVIEWPROJ);
+          _handleTexture = _effect.GetParameter(null, PARAM_TEXTURE);
+          _handleTechnique = _effect.GetTechnique(0);
+          return true;
+        }
+        catch
+        {
+          ServiceRegistration.Get<ILogger>().Error("EffectAsset: Unable to load '{0}'", _effectName);
+          ServiceRegistration.Get<ILogger>().Error("EffectAsset: Errors: {0}", errors);
+          return false;
+        }
       }
     }
 

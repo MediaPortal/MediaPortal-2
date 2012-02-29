@@ -31,8 +31,10 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement.AssetCore
   /// unmanaged resources and determining if those resources are still needed.
   /// </summary>
   /// <remarks>
+  /// Implementation note for subclasses:
   /// Asset core objects are maybe shared between different client objects, potentially from multiple threads. So implementations must be
-  /// thread-safe.
+  /// thread-safe. Rendering and disposal is always done by a single thread. So it is sufficient to protect all other methods - particularly
+  /// allocation and helper/support methods.
   /// </remarks>
   public interface IAssetCore : IAsset
   {

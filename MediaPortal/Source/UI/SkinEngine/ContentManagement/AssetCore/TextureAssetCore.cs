@@ -97,7 +97,6 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement.AssetCore
     protected float _maxU;
     protected int _allocationSize = 0;
     protected State _state = State.None;
-    protected object _syncObj = new object();
 
     protected WebDownloadContext _webDownloadContext;
     protected AsynchronousFileReadContext _fileReadContext;

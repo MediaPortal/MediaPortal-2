@@ -89,25 +89,30 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement.AssetCore
 
     public void Allocate(int width, int height, Usage usage, Format format)
     {
-      if (width != _size.Width || height != _size.Height || usage != _usage || format != _format)
+      bool free;
+      lock (_syncObj)
+        free = width != _size.Width || height != _size.Height || usage != _usage || format != _format;
+      if (free)
         Free();
-      if (_texture != null)
-        return;
+      lock (_syncObj)
+      {
+        if (_texture != null)
+          return;
 
-      _size.Width = width;
-      _size.Height = height;
-      _usage = usage;
-      _format = format;
+        _size.Width = width;
+        _size.Height = height;
+        _usage = usage;
+        _format = format;
 
-      // Note that it doesn't seem to be possible to create a texture with multisample surfaces inside. So rendering to that texture
-      // won't provide multisample antialiasing.
-      _texture = new Texture(GraphicsDevice.Device, width, height, 1, usage, format, Pool.Default);
-      _surface0 = _texture.GetSurfaceLevel(0);
+        // Note that it doesn't seem to be possible to create a texture with multisample surfaces inside. So rendering to that texture
+        // won't provide multisample antialiasing.
+        _texture = new Texture(GraphicsDevice.Device, width, height, 1, usage, format, Pool.Default);
+        _surface0 = _texture.GetSurfaceLevel(0);
 
-      SurfaceDescription desc = _texture.GetLevelDescription(0);
-      _maxU = _size.Width / ((float) desc.Width);
-      _maxV = _size.Height / ((float) desc.Height);
-
+        SurfaceDescription desc = _texture.GetLevelDescription(0);
+        _maxU = _size.Width/((float) desc.Width);
+        _maxV = _size.Height/((float) desc.Height);
+      }
       AllocationChanged(AllocationSize);
       KeepAlive();
     }

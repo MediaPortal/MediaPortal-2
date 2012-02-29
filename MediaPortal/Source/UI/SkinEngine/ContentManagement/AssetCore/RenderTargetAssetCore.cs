@@ -68,17 +68,22 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement.AssetCore
 
     public void Allocate(int width, int height, Format format, MultisampleType multisampleType, int multisampleQuality, bool lockable)
     {
-      if (width != _size.Width || height != _size.Height || format != _format)
+      bool free;
+      lock (_syncObj)
+        free = width != _size.Width || height != _size.Height || format != _format;
+      if (free)
         Free();
-      if (_surface != null)
-        return;
+      lock (_syncObj)
+      {
+        if (_surface != null)
+          return;
 
-      _size.Width = width;
-      _size.Height = height;
-      _format = format;
+        _size.Width = width;
+        _size.Height = height;
+        _format = format;
 
-      _surface = Surface.CreateRenderTarget(GraphicsDevice.Device, width, height, format, multisampleType, multisampleQuality, lockable);
-
+        _surface = Surface.CreateRenderTarget(GraphicsDevice.Device, width, height, format, multisampleType, multisampleQuality, lockable);
+      }
       AllocationChanged(AllocationSize);
       KeepAlive();
     }

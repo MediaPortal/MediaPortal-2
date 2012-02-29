@@ -31,6 +31,7 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement.AssetCore
   {
     protected DateTime _lastTimeUsed;
     protected double _lifetime = 30.0f;
+    protected object _syncObj = new object();
 
     protected TemporaryAssetCoreBase()
     {
