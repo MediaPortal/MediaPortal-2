@@ -169,7 +169,9 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement
 
     public TextureAsset GetTexture(byte[] binaryData, string key)
     {
-      return GetCreateThumbTexture(binaryData, key);
+      return GetCreateAsset(AssetType.Thumbnail, key,
+          assetCore => new TextureAsset(assetCore as TextureAssetCore),
+          () => new ThumbnailBinaryTextureAssetCore(binaryData, key)) as TextureAsset;
     }
 
     /// <summary>
@@ -197,26 +199,10 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement
     /// <returns>A texture asset filled with the given color.</returns>
     public TextureAsset GetColorTexture(Color color)
     {
-      AssetInstance texture;
-      TextureAsset asset = null;
       string key = ':' + color.ToString(); // The ':' is to make absolutely sure that the key isn't a valid filename.
-      lock (_assets[(int) AssetType.Texture])
-      {
-        if (!_assets[(int) AssetType.Texture].TryGetValue(key, out texture))
-        {
-          texture = NewAssetInstance(key, AssetType.Texture, new ColorTextureAssetCore(color));
-        }
-        else
-          asset = texture.asset.Target as TextureAsset;
-        // If the asset wrapper has been garbage collected then re-allocate it
-        if (asset == null)
-        {
-          asset = new TextureAsset(texture.core as TextureAssetCore);
-          if (texture.asset == null)
-            texture.asset = new WeakReference(asset);
-        }
-      }
-      return asset;
+      return GetCreateAsset(AssetType.Texture, key,
+          assetCore => new TextureAsset(assetCore as TextureAssetCore),
+          () => new ColorTextureAssetCore(color)) as TextureAsset;
     }
 
     /// <summary>
@@ -226,23 +212,9 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement
     /// <returns>An <see cref="EffectAsset"/> object.</returns>
     public EffectAsset GetEffect(string effectName)
     {
-      AssetInstance effect;
-      EffectAsset asset = null;
-      lock (_assets[(int) AssetType.Effect])
-      {
-        if (!_assets[(int) AssetType.Effect].TryGetValue(effectName, out effect))
-          effect = NewAssetInstance(effectName, AssetType.Effect, new EffectAssetCore(effectName));
-        else
-          asset = effect.asset.Target as EffectAsset;
-        // If the asset wrapper has been garbage collected then re-allocate it
-        if (asset == null)
-        {
-          asset = new EffectAsset(effect.core as EffectAssetCore);
-          if (effect.asset == null)
-            effect.asset = new WeakReference(asset);
-        }
-      }
-      return asset;
+      return GetCreateAsset(AssetType.Effect, effectName,
+          assetCore => new EffectAsset(assetCore as EffectAssetCore),
+          () => new EffectAssetCore(effectName)) as EffectAsset;
     }
 
     /// <summary>
@@ -253,9 +225,6 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement
     /// <returns>A <see cref="FontAsset"/> object.</returns>
     public FontAsset GetFont(string fontFamily, float fontSize)
     {
-      AssetInstance font;
-      FontAsset asset = null;
-
       // Get the actual font file resource for this family
       FontFamily family = FontManager.GetFontFamily(fontFamily);
       if (family == null)
@@ -274,22 +243,9 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement
       // Generate the asset key we'll use to store this font
       string key = family.Name + "::" + baseSize;
 
-      // Get / Create AssetInstance
-      lock (_assets[(int) AssetType.Font])
-      {
-        if (!_assets[(int) AssetType.Font].TryGetValue(key, out font))
-          font = NewAssetInstance(key, AssetType.Font, new FontAssetCore(family, baseSize, FontManager.DefaultDPI));
-        else
-          asset = font.asset.Target as FontAsset;
-      }
-      // If the asset wrapper has been garbage collected then re-allocate it
-      if (asset == null)
-      {
-        asset = new FontAsset(font.core as FontAssetCore);
-        if (font.asset == null)
-          font.asset = new WeakReference(asset);
-      }
-      return asset;
+      return GetCreateAsset(AssetType.Font, key,
+          assetCore => new FontAsset(assetCore as FontAssetCore),
+          () => new FontAssetCore(family, baseSize, FontManager.DefaultDPI)) as FontAsset;
     }
 
     /// <summary>
@@ -299,23 +255,9 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement
     /// <returns>A <see cref="RenderTextureAsset"/> object.</returns>
     public RenderTextureAsset GetRenderTexture(string key)
     {
-      AssetInstance texture;
-      RenderTextureAsset asset = null;
-      lock (_assets[(int) AssetType.RenderTexture])
-      {
-        if (!_assets[(int) AssetType.RenderTexture].TryGetValue(key, out texture))
-          texture = NewAssetInstance(key, AssetType.RenderTexture, new RenderTextureAssetCore());
-        else
-          asset = texture.asset.Target as RenderTextureAsset;
-        // If the asset wrapper has been garbage collected then re-allocate it
-        if (asset == null) 
-        {
-          asset = new RenderTextureAsset(texture.core as RenderTextureAssetCore);
-          if (texture.asset == null)
-            texture.asset = new WeakReference(asset);
-        }
-      }
-      return asset;
+      return GetCreateAsset(AssetType.RenderTexture, key,
+          assetCore => new RenderTextureAsset(assetCore as RenderTextureAssetCore),
+          () => new RenderTextureAssetCore()) as RenderTextureAsset;
     }
 
     /// <summary>
@@ -325,23 +267,9 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement
     /// <returns>A <see cref="RenderTargetAsset"/> object.</returns>
     public RenderTargetAsset GetRenderTarget(string key)
     {
-      AssetInstance texture;
-      RenderTargetAsset asset = null;
-      lock (_assets[(int) AssetType.RenderTarget])
-      {
-        if (!_assets[(int) AssetType.RenderTarget].TryGetValue(key, out texture))
-          texture = NewAssetInstance(key, AssetType.RenderTarget, new RenderTargetAssetCore());
-        else
-          asset = texture.asset.Target as RenderTargetAsset;
-        // If the asset wrapper has been garbage collected then re-allocate it
-        if (asset == null) 
-        {
-          asset = new RenderTargetAsset(texture.core as RenderTargetAssetCore);
-          if (texture.asset == null)
-            texture.asset = new WeakReference(asset);
-        }
-      }
-      return asset;
+      return GetCreateAsset(AssetType.RenderTarget, key,
+          assetCore => new RenderTargetAsset(assetCore as RenderTargetAssetCore),
+          () => new RenderTargetAssetCore()) as RenderTargetAsset;
     }
 
     #endregion
@@ -443,54 +371,12 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement
     private TextureAsset GetCreateTexture(string fileName, string key, int width, int height, bool thumb)
     {
       AssetType type = thumb ? AssetType.Thumbnail : AssetType.Texture;
-      AssetInstance texture;
-      TextureAsset asset = null;
 
-      lock (_assets[(int) type])
-      {
-        if (!_assets[(int) type].TryGetValue(key, out texture))
-        {
-          texture = NewAssetInstance(key, type, new TextureAssetCore(fileName, width, height));
-          ((TextureAssetCore) texture.core).UseThumbnail = thumb;
-        }
-        else
-          asset = texture.asset.Target as TextureAsset;
-        // If the asset wrapper has been garbage collected then re-allocate it
-        if (asset == null)
-        {
-          asset = new TextureAsset(texture.core as TextureAssetCore);
-          if (texture.asset == null)
-            texture.asset = new WeakReference(asset);
-        }
-      }
-      return asset;
+      return GetCreateAsset(type, key,
+          assetCore => new TextureAsset(assetCore as TextureAssetCore),
+          () => new TextureAssetCore(fileName, width, height) {UseThumbnail = thumb}) as TextureAsset;
     }
 
-
-    private TextureAsset GetCreateThumbTexture(byte[] binaryData, string key)
-    {
-      const AssetType type = AssetType.Thumbnail;
-      AssetInstance texture;
-      TextureAsset asset = null;
-
-      lock (_assets[(int) type])
-      {
-        if (!_assets[(int) type].TryGetValue(key, out texture))
-        {
-          texture = NewAssetInstance(key, type, new ThumbnailBinaryTextureAssetCore(binaryData, key));
-        }
-        else
-          asset = texture.asset.Target as TextureAsset;
-        // If the asset wrapper has been garbage collected then re-allocate it
-        if (asset == null)
-        {
-          asset = new TextureAsset(texture.core as ThumbnailBinaryTextureAssetCore);
-          if (texture.asset == null)
-            texture.asset = new WeakReference(asset);
-        }
-      }
-      return asset;
-    }
 
     /// <summary>
     /// This function is run asynchronously to remove de-referenced and de-allocated assets from the list.
@@ -508,6 +394,31 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement
         // Wait for next run
         Thread.Sleep(DICTIONARY_CLEANUP_INTERVAL);
       }
+    }
+
+    private delegate IAsset CreateAssetDlgt(IAssetCore core);
+    private delegate IAssetCore CreateAssetCoreDlgt();
+
+    private IAsset GetCreateAsset(AssetType type, string key, CreateAssetDlgt createAsset, CreateAssetCoreDlgt createAssetCore)
+    {
+      AssetInstance assetInstance;
+      IAsset result = null;
+      IDictionary<string, AssetInstance> assetTypeDict = _assets[(int) type];
+      lock (assetTypeDict)
+      {
+        if (assetTypeDict.TryGetValue(key, out assetInstance))
+          result = assetInstance.asset.Target as IAsset;
+        else
+          assetInstance = NewAssetInstance(key, type, createAssetCore());
+        
+        // If the asset instance was just created, create asset wrapper. If the asset wrapper has been garbage collected, re-allocate it.
+        if (result == null)
+        {
+          result = createAsset(assetInstance.core);
+          assetInstance.asset = new WeakReference(result);
+        }
+      }
+      return result;
     }
 
     private AssetInstance NewAssetInstance(string key, AssetType type, IAssetCore newcore)
