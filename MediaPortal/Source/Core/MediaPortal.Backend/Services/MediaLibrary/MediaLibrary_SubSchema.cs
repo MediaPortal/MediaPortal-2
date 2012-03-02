@@ -44,7 +44,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
     public const string SUBSCHEMA_NAME = "MediaLibrary";
 
     public const int EXPECTED_SCHEMA_VERSION_MAJOR = 1;
-    public const int EXPECTED_SCHEMA_VERSION_MINOR = 0;
+    public const int EXPECTED_SCHEMA_VERSION_MINOR = 1;
 
     internal const string MEDIA_ITEMS_TABLE_NAME = "MEDIA_ITEMS";
     internal const string MEDIA_ITEMS_ITEM_ID_COL_NAME = "MEDIA_ITEM_ID";
@@ -75,10 +75,11 @@ namespace MediaPortal.Backend.Services.MediaLibrary
         string name, string serialization)
     {
       IDbCommand result = transaction.CreateCommand();
-      result.CommandText = "INSERT INTO MIA_TYPES (MIAM_ID, NAME, MIAM_SERIALIZATION) VALUES (@MIAM_ID, @NAME, @MIAM_SERIALIZATION)";
+      result.CommandText = "INSERT INTO MIA_TYPES (MIAM_ID, NAME, CREATION_DATE, MIAM_SERIALIZATION) VALUES (@MIAM_ID, @NAME, @CREATION_DATE, @MIAM_SERIALIZATION)";
       ISQLDatabase database = transaction.Database;
       database.AddParameter(result, "MIAM_ID", miamId, typeof(Guid));
       database.AddParameter(result, "NAME", name, typeof(string));
+      database.AddParameter(result, "CREATION_DATE", DateTime.Now, typeof(DateTime));
       database.AddParameter(result, "MIAM_SERIALIZATION", serialization, typeof(string));
       return result;
     }
