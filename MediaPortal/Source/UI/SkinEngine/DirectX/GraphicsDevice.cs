@@ -313,11 +313,18 @@ namespace MediaPortal.UI.SkinEngine.DirectX
     }
 
     /// <summary>
-    /// This workaround is required for changing the Antialiasing setting from "None" to any AA mode. The rendering stalls until window is moved, focus lost and gained, 
-    /// window size changed. So we change the size of the MainForm temporary, so the screen get's refreshed properly. 
-    /// Note: This workaround is only needed for AA None to any AA mode, but switching between different AA levels is working fine!
-    /// TODO: Find a proper solution and remove this workaround.
+    /// This workaround is required for changing the AntiAliasing setting from "None" to any AA mode. The rendering stalls until the window is moved,
+    /// the focus is lost and gained or the window size changed. So we work around that problem by changing the size of the MainForm temporary,
+    /// so the screen get's refreshed properly.
     /// </summary>
+    /// <remarks>
+    /// To reproduce the problem, remove the call to this method, go to the AntiAliasing configuration (Settings/Appearance/GUI antialiasing)
+    /// and check that the AA mode "None" is currently active. If you now switch to any other AA mode than "None", the last rendered GUI image
+    /// remains on screen but isn't updated any more. If you move the mouse over the position where buttons are located, you hear button sounds,
+    /// but you don't see an up-to-date image.
+    /// The problem only occurs when you switch from AA None to any other AA mode, but switching between different AA levels is working fine!
+    /// TODO: Find a proper solution and remove this workaround.
+    /// </remarks>
     private static void ScreenRefreshWorkaround()
     {
       Form target = _setup.RenderTarget;
