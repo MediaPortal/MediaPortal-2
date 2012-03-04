@@ -108,6 +108,7 @@ namespace MediaPortal.UI.SkinEngine.MpfElements
       _objectClassRegistrations.Add("KeyBindingControl", typeof(SkinEngine.Controls.Visuals.KeyBindingControl));
       _objectClassRegistrations.Add("VirtualKeyboardControl", typeof(SkinEngine.Controls.Visuals.VirtualKeyboardControl));
       _objectClassRegistrations.Add("VirtualKeyboardPresenter", typeof(SkinEngine.Controls.Visuals.VirtualKeyboardPresenter));
+      _objectClassRegistrations.Add("Thickness", typeof(SkinEngine.Controls.Visuals.Thickness));
 
       // Image Sources
       _objectClassRegistrations.Add("BitmapImageSource", typeof(SkinEngine.Controls.ImageSources.BitmapImageSource));
