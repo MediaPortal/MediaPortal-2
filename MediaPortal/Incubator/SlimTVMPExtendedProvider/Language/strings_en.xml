@@ -1,0 +1,10 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Language>
+  <Section Name="Settings">
+    <String Name="Plugins.TV" Text="TV"/>
+    <String Name="Plugins.TV.MPExtendedServerAddress" Text="MPExtendedServerAddress server addresses"/>
+    <String Name="Plugins.TV.MPExtendedServerAddress.Help" Text="Enter server names or IP addresses, separated by ';' (defaults to localhost)."/>
+    <String Name="Plugins.TV.ConnectionErrorTitle" Text="Connection error"/>
+    <String Name="Plugins.TV.ConnectionErrorText" Text="Could not connect MPExtendedServerAddress-Server: {0}"/>
+  </Section>
+</Language>
