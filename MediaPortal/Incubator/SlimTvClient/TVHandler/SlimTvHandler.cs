@@ -28,7 +28,6 @@ using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.Plugins.SlimTvClient.Interfaces;
 using MediaPortal.Plugins.SlimTvClient.Interfaces.Items;
-using MediaPortal.Plugins.SlimTvClient.Interfaces.LiveTvMediaItem;
 using MediaPortal.UI.Presentation.Players;
 using MediaPortal.UiComponents.Media.Models;
 

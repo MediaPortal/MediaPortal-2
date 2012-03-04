@@ -31,12 +31,10 @@ using MediaPortal.Common.General;
 using MediaPortal.Common.Localization;
 using MediaPortal.Common.Logging;
 using MediaPortal.Common.MediaManagement;
-using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.Common.Settings;
-using MediaPortal.Common.SystemResolver;
 using MediaPortal.Plugins.SlimTvClient.Interfaces;
 using MediaPortal.Plugins.SlimTvClient.Interfaces.Items;
-using MediaPortal.Plugins.SlimTvClient.Interfaces.LiveTvMediaItem;
+using MediaPortal.Plugins.SlimTvClient.Interfaces.ResourceProvider;
 using MediaPortal.Plugins.SlimTvClient.Providers.Items;
 using MediaPortal.Plugins.SlimTvClient.Providers.Settings;
 using MediaPortal.UI.Presentation.UiNotifications;
@@ -403,32 +401,10 @@ namespace MediaPortal.Plugins.SlimTv.Providers
 
     public MediaItem CreateMediaItem(int slotIndex, string streamUrl, IChannel channel)
     {
-      if (!String.IsNullOrEmpty(streamUrl))
+      LiveTvMediaItem tvStream = SlimTvMediaItemBuilder.CreateMediaItem(slotIndex, streamUrl, channel);
+      if (tvStream != null)
       {
-        ISystemResolver systemResolver = ServiceRegistration.Get<ISystemResolver>();
-        IDictionary<Guid, MediaItemAspect> aspects = new Dictionary<Guid, MediaItemAspect>();
-
-        SlimTvResourceAccessor resourceAccessor = new SlimTvResourceAccessor(slotIndex, streamUrl);
-        MediaItemAspect providerResourceAspect = MediaItemAspect.GetOrCreateAspect(aspects, ProviderResourceAspect.Metadata);
-        MediaItemAspect mediaAspect = MediaItemAspect.GetOrCreateAspect(aspects, MediaAspect.Metadata);
-        
-        // VideoAspect needs to be included to associate player later, even if it is empty
-        MediaItemAspect.GetOrCreateAspect(aspects, VideoAspect.Metadata);
-
-        providerResourceAspect.SetAttribute(ProviderResourceAspect.ATTR_SYSTEM_ID, systemResolver.LocalSystemId);
-
-        String raPath = resourceAccessor.CanonicalLocalResourcePath.Serialize();
-        providerResourceAspect.SetAttribute(ProviderResourceAspect.ATTR_RESOURCE_ACCESSOR_PATH, raPath);
-
-        mediaAspect.SetAttribute(MediaAspect.ATTR_TITLE, "Live TV");
-        mediaAspect.SetAttribute(MediaAspect.ATTR_MIME_TYPE, "video/livetv"); //Custom mimetype for LiveTv
-
-        LiveTvMediaItem tvStream = new LiveTvMediaItem(new Guid(), aspects);
-
-        tvStream.AdditionalProperties[LiveTvMediaItem.SLOT_INDEX] = slotIndex;
-        tvStream.AdditionalProperties[LiveTvMediaItem.CHANNEL] = channel;
-        tvStream.AdditionalProperties[LiveTvMediaItem.TUNING_TIME] = DateTime.Now;
-
+        // Add program infos to the LiveTvMediaItem
         IProgram currentProgram;
         if (GetCurrentProgram(channel, out currentProgram))
           tvStream.AdditionalProperties[LiveTvMediaItem.CURRENT_PROGRAM] = currentProgram;
