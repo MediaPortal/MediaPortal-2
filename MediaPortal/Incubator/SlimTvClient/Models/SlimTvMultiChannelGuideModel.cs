@@ -39,10 +39,30 @@ namespace MediaPortal.Plugins.SlimTvClient
   public class SlimTvMultiChannelGuideModel : SlimTvGuideModelBase
   {
     public const string MODEL_ID_STR = "5054408D-C2A9-451f-A702-E84AFCD29C10";
-    
-    public const Double VISIBLE_HOURS = 2.5;
+
+    protected static double _visibleHours = 2.5;
+    protected static double _programWidthFactor = 6;
+    protected static double _programsStartOffset = 370;
+
+    public static Double VisibleHours
+    {
+      get { return _visibleHours; }
+    }
+
+    public static Double ProgramWidthFactor
+    {
+      get { return _programWidthFactor; }
+    }
 
     #region Constructor
+
+
+    static SlimTvMultiChannelGuideModel()
+    {
+      ResourceHelper.ReadResourceDouble("MultiGuideVisibleHours", ref _visibleHours);
+      ResourceHelper.ReadResourceDouble("MultiGuideProgramLeftOffset", ref _programsStartOffset);
+      ResourceHelper.ReadResourceDouble("MultiGuideProgramTimeFactor", ref _programWidthFactor);
+    }
 
     public SlimTvMultiChannelGuideModel()
     {
@@ -54,10 +74,13 @@ namespace MediaPortal.Plugins.SlimTvClient
     #region Protected fields
 
     protected AbstractProperty _guideStartTimeProperty = null;
+    protected AbstractProperty _currentTimeViewOffsetProperty = null;
+    protected AbstractProperty _currentTimeLeftOffsetProperty = null;
+    protected AbstractProperty _currentTimeVisibleProperty = null;
 
     protected DateTime GuideEndTime
     {
-      get { return GuideStartTime.AddHours(VISIBLE_HOURS); }
+      get { return GuideStartTime.AddHours(VisibleHours); }
     }
 
     #endregion
@@ -80,13 +103,46 @@ namespace MediaPortal.Plugins.SlimTvClient
 
     public DateTime GuideStartTime
     {
-      get { return (DateTime)_guideStartTimeProperty.GetValue(); }
+      get { return (DateTime) _guideStartTimeProperty.GetValue(); }
       set { _guideStartTimeProperty.SetValue(value); }
     }
 
     public AbstractProperty GuideStartTimeProperty
     {
       get { return _guideStartTimeProperty; }
+    }
+
+    public int CurrentTimeViewOffset
+    {
+      get { return (int) _currentTimeViewOffsetProperty.GetValue(); }
+      set { _currentTimeViewOffsetProperty.SetValue(value); }
+    }
+
+    public AbstractProperty CurrentTimeViewOffsetProperty
+    {
+      get { return _currentTimeViewOffsetProperty; }
+    }
+
+    public double CurrentTimeLeftOffset
+    {
+      get { return (double) _currentTimeLeftOffsetProperty.GetValue(); }
+      set { _currentTimeLeftOffsetProperty.SetValue(value); }
+    }
+
+    public AbstractProperty CurrentTimeLeftOffsetProperty
+    {
+      get { return _currentTimeLeftOffsetProperty; }
+    } 
+    
+    public bool CurrentTimeVisible
+    {
+      get { return (bool) _currentTimeVisibleProperty.GetValue(); }
+      set { _currentTimeVisibleProperty.SetValue(value); }
+    }
+
+    public AbstractProperty CurrentTimeVisibleProperty
+    {
+      get { return _currentTimeVisibleProperty; }
     }
 
     public void ScrollForward()
@@ -112,7 +168,10 @@ namespace MediaPortal.Plugins.SlimTvClient
       if (!_isInitialized)
       {
         DateTime startDate = FormatHelper.RoundDateTime(DateTime.Now, 15, FormatHelper.RoundingDirection.Down);
-        _guideStartTimeProperty = new WProperty(typeof (DateTime), startDate);
+        _guideStartTimeProperty = new WProperty(typeof(DateTime), startDate);
+        _currentTimeViewOffsetProperty = new WProperty(typeof(int), 0);
+        _currentTimeLeftOffsetProperty = new WProperty(typeof(double), 0d);
+        _currentTimeVisibleProperty= new WProperty(typeof(bool), true);
       }
       base.InitModel();
     }
@@ -189,7 +248,19 @@ namespace MediaPortal.Plugins.SlimTvClient
 
     protected override void Update()
     {
+      if (!_isInitialized)
+        return;
       UpdateProgramsState();
+      UpdateCurrentTimeIndicator();
+    }
+
+    private void UpdateCurrentTimeIndicator()
+    {
+      DateTime now = DateTime.Now;
+      int currentOffsetInViewport = (int) (now - GuideStartTime).TotalMinutes;
+      CurrentTimeViewOffset = currentOffsetInViewport;
+      CurrentTimeLeftOffset = (int) (_programsStartOffset + ProgramWidthFactor * currentOffsetInViewport);
+      CurrentTimeVisible = now >= GuideStartTime && now <= GuideEndTime;
     }
 
     protected override void UpdateCurrentChannel()
@@ -197,6 +268,7 @@ namespace MediaPortal.Plugins.SlimTvClient
 
     protected override void UpdatePrograms()
     {
+      UpdateCurrentTimeIndicator();
       foreach (ChannelProgramListItem channel in _channelList)
         UpdateChannelPrograms(channel);
 
@@ -225,7 +297,7 @@ namespace MediaPortal.Plugins.SlimTvClient
       if (programCount > 0)
       {
         ProgramListItem firstItem = (ProgramListItem) channel.Programs[0];
-        ProgramListItem lastItem = (ProgramListItem) channel.Programs[programCount-1];
+        ProgramListItem lastItem = (ProgramListItem) channel.Programs[programCount - 1];
         DateTime timeFrom = firstItem.Program.StartTime;
         DateTime timeTo = lastItem.Program.EndTime;
         if (timeFrom > GuideStartTime)
@@ -250,7 +322,7 @@ namespace MediaPortal.Plugins.SlimTvClient
     {
       for (int i = programs.Count - 1; i >= 0; i--)
       {
-        ProgramListItem currentItem = (ProgramListItem)programs[i];
+        ProgramListItem currentItem = (ProgramListItem) programs[i];
         if (currentItem.Program.RemainingDuration == 0)
           programs.Remove(currentItem);
       }
@@ -258,9 +330,9 @@ namespace MediaPortal.Plugins.SlimTvClient
 
     private void TrimStart(ItemsList programs)
     {
-      for(int i=0; i<programs.Count; i++)
+      for (int i = 0; i < programs.Count; i++)
       {
-        ProgramListItem firstItem = (ProgramListItem)programs[0];
+        ProgramListItem firstItem = (ProgramListItem) programs[0];
         if (firstItem.Program.EndTime <= GuideStartTime)
           programs.RemoveAt(0);
         else
@@ -270,9 +342,9 @@ namespace MediaPortal.Plugins.SlimTvClient
 
     private void TrimEnd(ItemsList programs)
     {
-      for (int i = programs.Count-1; i >=0 ; i--)
+      for (int i = programs.Count - 1; i >= 0; i--)
       {
-        ProgramListItem firstItem = (ProgramListItem)programs[i];
+        ProgramListItem firstItem = (ProgramListItem) programs[i];
         if (firstItem.Program.StartTime > GuideEndTime)
           programs.RemoveAt(i);
         else
@@ -293,7 +365,6 @@ namespace MediaPortal.Plugins.SlimTvClient
       ItemsList newItems = GetProgramsList(channel.Channel, lastEndTime.AddSeconds(1), GuideEndTime);
       foreach (ListItem listItem in newItems)
         channel.Programs.Add(listItem);
-
     }
 
     #endregion
