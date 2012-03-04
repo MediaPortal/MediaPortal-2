@@ -33,6 +33,18 @@ namespace MediaPortal.Plugins.SlimTvClient.Providers.Settings
     /// </summary>
     [Setting(SettingScope.User, "localhost")]
     public string TvServerHost { get; set; }
+    
+    /// <summary>
+    /// When MPExtended is configured to require authentication, this Username is used for establishing the connection.
+    /// </summary>
+    [Setting(SettingScope.User)]
+    public string Username { get; set; }
+
+    /// <summary>
+    /// When MPExtended is configured to require authentication, this Password is used for establishing the connection.
+    /// </summary>
+    [Setting(SettingScope.User)]
+    public string Password { get; set; }
 
     /// <summary>
     /// Holds the last selected channel group ID.

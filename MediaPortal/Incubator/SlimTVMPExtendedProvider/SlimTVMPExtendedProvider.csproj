@@ -76,6 +76,8 @@
     <Compile Include="Items\Channel.cs" />
     <Compile Include="Items\Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Settings\Configuration\MPExtendedPassword.cs" />
+    <Compile Include="Settings\Configuration\MPExtendedUsername.cs" />
     <Compile Include="Settings\Configuration\MPExtendedServerAddress.cs" />
     <Compile Include="Settings\MPExtendedProviderSettings.cs" />
     <Compile Include="SlimTVMPExtendedProvider.cs" />

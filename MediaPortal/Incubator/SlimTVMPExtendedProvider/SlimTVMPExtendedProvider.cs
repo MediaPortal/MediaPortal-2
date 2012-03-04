@@ -50,6 +50,8 @@ namespace MediaPortal.Plugins.SlimTv.Providers
     internal class ServerContext
     {
       public string ServerName;
+      public string Username;
+      public string Password;
       public ITVAccessService TvServer;
       public bool ConnectionOk;
 
@@ -66,6 +68,7 @@ namespace MediaPortal.Plugins.SlimTv.Providers
       {
         Binding binding;
         EndpointAddress endpointAddress;
+        bool useAuth = !string.IsNullOrEmpty(Username) && !string.IsNullOrEmpty(Password);
         if (IsLocal(ServerName))
         {
           endpointAddress = new EndpointAddress("net.pipe://localhost/MPExtended/TVAccessService");
@@ -74,10 +77,22 @@ namespace MediaPortal.Plugins.SlimTv.Providers
         else
         {
           endpointAddress = new EndpointAddress(string.Format("http://{0}:4322/MPExtended/TVAccessService", ServerName));
-          binding = new BasicHttpBinding { MaxReceivedMessageSize = 10000000 };
+          BasicHttpBinding basicBinding = new BasicHttpBinding { MaxReceivedMessageSize = 10000000 };
+          if (useAuth)
+          {
+            basicBinding.Security.Mode = BasicHttpSecurityMode.TransportCredentialOnly;
+            basicBinding.Security.Transport.ClientCredentialType = HttpClientCredentialType.Basic;
+          }
+          binding = basicBinding;
         }
         binding.OpenTimeout = TimeSpan.FromSeconds(5);
-        TvServer = ChannelFactory<ITVAccessService>.CreateChannel(binding, endpointAddress);
+        ChannelFactory<ITVAccessService> factory = new ChannelFactory<ITVAccessService>(binding);
+        if (factory.Credentials != null && useAuth)
+        {
+          factory.Credentials.UserName.UserName = Username;
+          factory.Credentials.UserName.Password = Password;
+        }
+        TvServer = factory.CreateChannel(endpointAddress);
       }
     }
 
@@ -275,7 +290,9 @@ namespace MediaPortal.Plugins.SlimTv.Providers
           ServerContext tvServer = new ServerContext
                                      {
                                        ServerName = serverName,
-                                       ConnectionOk = false
+                                       ConnectionOk = false,
+                                       Username = setting.Username,
+                                       Password = setting.Password
                                      };
           _tvServers[serverIndex] = tvServer;
           tvServer.CreateChannel();
