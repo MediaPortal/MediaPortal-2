@@ -269,13 +269,8 @@
 
   <!-- MultiChannel Program Guide, Item Width gets calculated of program's Duration and visible ViewPort (time). -->
   <DataTemplate x:Key="MultiChannelProgramGuideDataTemplate" DataType="{x:Type collections:ListItem}">
-    <StackPanel x:Name="ItemControl" VerticalAlignment="Center" HorizontalAlignment="Stretch" Height="{ThemeResource MultiGuideProgramHeight}">
-      <StackPanel.Width>
-        <!-- Use a ExpressionMultiValueConverter to calculate a matching Width (Duration in minutes * n) -->
-        <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} * 102 / 10">
-          <Binding Path="Program.RemainingDuration"/>
-        </MultiBinding>
-      </StackPanel.Width>
+    <StackPanel x:Name="ItemControl" VerticalAlignment="Center" HorizontalAlignment="Stretch" Height="{ThemeResource MultiGuideProgramHeight}"
+                Width="{Binding Program.ProgramWidth}">
       <Label x:Name="ItemLabel" VerticalAlignment="Center" Content="{Binding [Name]}" Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}" />
     </StackPanel>
   </DataTemplate>

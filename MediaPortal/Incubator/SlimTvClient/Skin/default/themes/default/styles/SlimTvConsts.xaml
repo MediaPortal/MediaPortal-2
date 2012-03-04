@@ -16,7 +16,14 @@
   <ResourceWrapper x:Key="OSDDetailLabelHeight" Resource="150"/>
   
   <ResourceWrapper x:Key="MiniGuideWidth" Resource="300"/>
-  
+
+  <!-- Hours to be shown in EPG screen -->
+  <ResourceWrapper x:Key="MultiGuideVisibleHours" Resource="2.5"/>
+  <!-- The left offset for positioning the current time indicator -->
+  <ResourceWrapper x:Key="MultiGuideProgramLeftOffset" Resource="270"/>
+  <!-- This factor is used to calculate the progam's width in guide, Width = [number of minutes] * MultiGuideProgramTimeFactor -->
+  <ResourceWrapper x:Key="MultiGuideProgramTimeFactor" Resource="6.5"/>
+
   <ResourceWrapper x:Key="MultiGuideHeaderWidth" Resource="300"/>
   <ResourceWrapper x:Key="MultiGuideProgramHeight" Resource="40"/>
   <ResourceWrapper x:Key="MultiGuideProgramPreviewHeight" Resource="180"/>
