@@ -49,6 +49,16 @@
         Text="[Settings.Plugins.TV.MPExtendedServerAddress]"
         HelpText="[Settings.Plugins.TV.MPExtendedServerAddress.Help]"
         ClassName="MediaPortal.Plugins.SlimTv.Providers.Settings.Configuration.MPExtendedServerAddress"/>
+    <ConfigSetting
+        Id="MPExtendedUsername"
+        Text="[Settings.Plugins.TV.MPExtendedUsername]"
+        HelpText="[Settings.Plugins.TV.MPExtendedUsername.Help]"
+        ClassName="MediaPortal.Plugins.SlimTv.Providers.Settings.Configuration.MPExtendedUsername"/>
+    <ConfigSetting
+        Id="MPExtendedPassword"
+        Text="[Settings.Plugins.TV.MPExtendedPassword]"
+        HelpText="[Settings.Plugins.TV.MPExtendedPassword.Help]"
+        ClassName="MediaPortal.Plugins.SlimTv.Providers.Settings.Configuration.MPExtendedPassword"/>
   </Register>
   
   <!-- The ResourceProvider to access Tve3. -->
