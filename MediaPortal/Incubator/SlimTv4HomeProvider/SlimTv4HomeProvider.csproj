@@ -75,8 +75,6 @@
     <Compile Include="Items\ChannelGroup.cs" />
     <Compile Include="Items\Channel.cs" />
     <Compile Include="Items\Program.cs" />
-    <Compile Include="ResourceProvider\SlimTvResourceProvider.cs" />
-    <Compile Include="ResourceProvider\SlimTvResourceAccessor.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Settings\Configuration\TV4HomeServerAddress.cs" />
     <Compile Include="Settings\TV4HomeProviderSettings.cs" />

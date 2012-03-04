@@ -28,11 +28,11 @@ using MediaPortal.Common;
 using MediaPortal.Common.Localization;
 using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.ResourceAccess;
+using MediaPortal.Plugins.SlimTvClient.Interfaces;
 using MediaPortal.Plugins.SlimTvClient.Interfaces.Items;
 using MediaPortal.UI.Players.Video;
 using MediaPortal.UI.Players.Video.Tools;
 using MediaPortal.UI.Presentation.Players;
-using MediaPortal.Plugins.SlimTvClient.Interfaces.LiveTvMediaItem;
 
 namespace MediaPortal.Plugins.SlimTvClient
 {
