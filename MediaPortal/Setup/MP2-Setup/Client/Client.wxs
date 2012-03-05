@@ -15,6 +15,19 @@
           <File Id="Paths.xml" Name="Paths.xml" KeyPath="yes" Checksum="yes" />
         </Component>
 
+        <!-- Albert, 2012-03-04: If we would let the user change the custom paths, we could write them here to the Paths.xml file.
+                                 We would need to call our custom action PrepareXmlPathVariables(). -->
+        <!--
+        <Component Id="WriteCustomClientPaths" Guid="52711D1B-E2EE-4ACD-9993-F5B3FCF87701">
+          <?foreach LABEL in $(var.ClientPathLabels)?>
+          <util:XmlFile Id="WriteCustomClientPaths_$(var.LABEL)"
+                        Action="setValue" File="[Defaults]\Paths.xml"
+                        ElementPath="//Paths/Path[\[]@name='$(var.LABEL)'[\]]"
+                        Value="[XML.CLIENT.$(var.LABEL).FOLDER]" Name="value" SelectionLanguage="XPath" />
+          <?endforeach?>
+        </Component>
+        -->
+
         <Component Id="InstallDirClientRegistry" Guid="52711D1B-E2EE-4ACD-9993-F5B3FCF87701">
           <RegistryKey Root="HKLM"
                        Key="Software\[Manufacturer]\[ProductName]"

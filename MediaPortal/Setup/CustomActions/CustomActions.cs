@@ -44,6 +44,7 @@ using MediaPortal.Common.Services.Settings;
 using MediaPortal.Common.Settings;
 using MediaPortal.Common.SystemResolver;
 using MediaPortal.UI.ServerCommunication.Settings;
+using MediaPortal.Utilities;
 using Microsoft.Deployment.WindowsInstaller;
 using Microsoft.Win32;
 
@@ -149,14 +150,19 @@ namespace CustomActions
       ServiceRegistration.RemoveAndDispose<IPathManager>();
     }
 
+    /// <summary>
+    /// Checks if the current installation mode is SingleSeat and auto-attaches the local client to the local server.
+    /// </summary>
+    /// <param name="session">Current installation session object.</param>
+    /// <returns><see cref="ActionResult.Success"/>.</returns>
     [CustomAction]
     public static ActionResult AttachClientToServer(Session session)
     {
       session.Log("ClientRequestState : {0}", session.Features["Client"].RequestState);
       session.Log("ServerRequestState : {0}", session.Features["Server"].RequestState);
 
-      if (session.Features["Client"].RequestState == InstallState.Local
-        & session.Features["Server"].RequestState == InstallState.Local)
+      if (session.Features["Client"].RequestState == InstallState.Local &&
+          session.Features["Server"].RequestState == InstallState.Local)
       {
         string clientApplicationPath = Path.Combine(session["INSTALLDIR_CLIENT"], "MP2-Client.exe");
         string serverApplicationPath = Path.Combine(session["INSTALLDIR_SERVER"], "MP2-Server.exe");
@@ -168,129 +174,220 @@ namespace CustomActions
         ServiceRegistration.RemoveAndDispose<ILogger>();
       }
       else
-      {
         session.Log("Installation mode is not SingleSeat. Skipping auto-attach step.");
+
+      return ActionResult.Success;
+    }
+
+    /// <summary>
+    /// Reads the paths files from a former installation for client and server and sets them in the given installation <paramref name="session"/>.
+    /// </summary>
+    /// <remarks>
+    /// <para>
+    /// This action reads all the paths from an existing MP2 installation's Paths.xml file via the <see cref="PathManager"/> and fills
+    /// the <paramref name="session"/>'s variables of the form <c>"CLIENT.CONFIG.FOLDER</c> for all labels given in the
+    /// <see cref="ClientPathLabels"/> and <see cref="ServerPathLabels"/>, with the appropriate prefix <c>"CLIENT"</c> or <c>"SERVER"</c>.
+    /// </para>
+    /// <para>
+    /// The paths in the written variables will be OS paths, i.e. they won't contain MP2 path labels/placeholders like <c>"&lt;DATA&gt;"</c>.
+    /// </para>
+    /// </remarks>
+    /// <param name="session">Current installation session object.</param>
+    /// <returns><see cref="ActionResult.Success"/>, if no exception happens, else <see cref="ActionResult.Failure"/>.</returns>
+    [CustomAction]
+    public static ActionResult ReadCustomPathsFromExistingPathsFile(Session session)
+    {
+      try
+      {
+        ReadCustomPathsFromExistingPathsFile(session, "CLIENT", ClientPathLabels);
+        ReadCustomPathsFromExistingPathsFile(session, "SERVER", ServerPathLabels);
+      }
+      catch (Exception e)
+      {
+        session.Log("Error reading custom paths from former installation: " + e.Message);
+        return ActionResult.Failure;
       }
 
       return ActionResult.Success;
     }
 
-    [CustomAction]
-    public static ActionResult ReadCustomPaths(Session session)
-    {
-      ReadCustomPaths(session, "CLIENT", ClientPathLabels);
-      ReadCustomPaths(session, "SERVER", ServerPathLabels);
-
-      return ActionResult.Success;
-    }
-    
     /// <summary>
-    /// 
+    /// Tries to read the installation directory of a former installation from the registry.
     /// </summary>
-    /// <param name="session"></param>
-    /// <param name="cs">String which can be CLIENT or SERVER to access the properties of sessions.</param>
-    /// <param name="pathLabels">List of path labels which are available for Client or Server.</param>
-    private static void ReadCustomPaths(Session session, string cs, IEnumerable<string> pathLabels)
+    /// <param name="session">Current installation session object.</param>
+    /// <param name="cs">String which can be <c>CLIENT</c> or <c>SERVER</c> to access the properties of session.</param>
+    /// <param name="installDir">Returns the installation directory, if the return value is <c>true</c>. Else, this parameter is
+    /// undefined.</param>
+    /// <returns><c>true</c>, if the installation directory from a former installation could successfully be read, else <c>false</c>.</returns>
+    private static bool ReadInstallDirFromRegistry(Session session, string cs, out string installDir)
     {
+      installDir = string.Empty;
       string regKey = String.Format("SOFTWARE\\{0}\\{1}", session["Manufacturer"], session["ProductName"]);
       string regValue = "INSTALLDIR_" + cs;
 
-      // reading install dir from registry
+      // Read install dir from registry
       RegistryKey masterKey = Registry.LocalMachine.OpenSubKey(regKey);
       if (masterKey == null)
       {
-        session.Log("RegKey HKLM\\{0} not opened/found.", regKey);
-        return;
+        session.Log("Registry key 'HKLM\\{0}' not opened/found, former installation directory cannot be found", regKey);
+        return false;
       }
 
-      string installDir = masterKey.GetValue(regValue, string.Empty) as string;
+      installDir = masterKey.GetValue(regValue, string.Empty) as string;
       if (String.IsNullOrEmpty(installDir))
       {
-        session.Log("RegValue {1} in HKLM\\{0} not opened/found.", regKey, regValue);
+        session.Log("Registry value '{1}' in registry key 'HKLM\\{0}' not opened/found, former installation directory cannot be found", regKey, regValue);
+        return false;
+      }
+
+      session.Log("Former installation directory '{0}' read from registry key '{1}'", installDir, regValue);
+      return true;
+    }
+    
+    /// <summary>
+    /// Reads the path files from a former installation for client or server and sets them in the given installation <paramref name="session"/>.
+    /// </summary>
+    /// <remarks>
+    /// This method reads all the paths from an existing MP2 installation's Paths.xml file via the <see cref="PathManager"/> and fills
+    /// the session's variables of the form <c>"CLIENT.CONFIG.FOLDER</c> for all labels given in the <paramref name="pathLabels"/> for
+    /// either client or server, depending on the <paramref name="cs"/> parameter.
+    /// </remarks>
+    /// <param name="session">Current installation session object.</param>
+    /// <param name="cs">String which can be <c>CLIENT</c> or <c>SERVER</c> to access the properties of the <paramref name="session"/>
+    /// object.</param>
+    /// <param name="pathLabels">List of path labels whose values should be set in the <paramref name="session"/> object.</param>
+    private static void ReadCustomPathsFromExistingPathsFile(Session session, string cs, IEnumerable<string> pathLabels)
+    {
+      string installDir;
+      if (!ReadInstallDirFromRegistry(session, cs, out installDir))
+      {
+        session.Log("No former installation found, skipping loading of custom paths from former installation");
         return;
       }
 
-      session.Log("{0} read from registry: {1}", regValue, installDir);
+      // Read other dirs from Paths.xml
+      string pathsFile = Path.Combine(installDir, "Defaults\\Paths.xml");
+      if (!File.Exists(pathsFile))
+      {
+        session.Log("Paths file '{0}' not found, skipping loading of custom paths from former installation", pathsFile);
+        return;
+      }
 
-      // reading other dirs from paths.xml
-      installDir = MediaPortal.Utilities.StringUtils.RemoveSuffixIfPresent(installDir, "\\");
-
-      string pathsFile = installDir + "\\Defaults\\Paths.xml";
-      if (!File.Exists(pathsFile)) return;
-
-      session.Log("Paths file found, reading it: {0}", pathsFile);
-      IPathManager pathManager = new PathManager();
-      pathManager.SetPath("APPLICATION_ROOT", installDir);
-      pathManager.SetPath("LOCAL_APPLICATION_DATA",
-                          Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData));
-      pathManager.SetPath("COMMON_APPLICATION_DATA",
-                          Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData));
-      pathManager.SetPath("MY_DOCUMENTS", Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments));
-      pathManager.SetPath("DEFAULTS", installDir + "\\Defaults");
-      pathManager.LoadPaths(pathsFile);
+      session.Log("Reading custom paths from former installation from paths file: '{0}'", pathsFile);
+      PathManager pathManager = new PathManager();
+      pathManager.InitializeDefaults(Path.Combine(installDir, "Executable.exe"));
 
       foreach (string label in pathLabels)
       {
-        session[cs + "." + label + ".FOLDER"] = pathManager.GetPath("<" + label + ">");
+        string key = cs + "." + label + ".FOLDER";
+        string path = pathManager.GetPath("<" + label + ">");
+        session[key] = path;
+        session.Log("Reading custom path '{0}': '{1}", key, path);
       }
     }
 
+    /// <summary>
+    /// Prepares the path variables which might have been edited by the user and writes them to the given <paramref name="session"/>.
+    /// </summary>
+    /// <remarks>
+    /// This action reads the session's variables of the form <c>"CLIENT.CONFIG.FOLDER</c> for client and server and for all labels
+    /// in <see cref="ClientPathLabels"/> resp. <see cref="ServerPathLabels"/>, cleans them up (means replaces all common path fragments by
+    /// path labels like <c>"CONFIG"</c>) and writes them to session variables of the form <c>"XML.CLIENT.CONFIG.FOLDER</c>.
+    /// </remarks>
+    /// <param name="session">Current installation session object.</param>
     [CustomAction]
-    public static ActionResult SetCustomPaths(Session session)
+    public static ActionResult PrepareXmlPathVariables(Session session)
     {
-      SetCustomPaths(session, "CLIENT", ClientPathLabels);
-      SetCustomPaths(session, "SERVER", ServerPathLabels);
+      PrepareXmlPathVariables(session, "CLIENT", ClientPathLabels);
+      PrepareXmlPathVariables(session, "SERVER", ServerPathLabels);
 
       return ActionResult.Success;
     }
 
-    /// <summary>
-    /// 
-    /// </summary>
-    /// <param name="session"></param>
-    /// <param name="cs">String which can be CLIENT or SERVER to access the properties of sessions.</param>
-    /// <param name="pathLabels">List of path labels which are available for Client or Server.</param>
-    private static void SetCustomPaths(Session session, string cs, IEnumerable<string> pathLabels)
+    protected class StringLengthComparer : IComparer<string>
     {
+      public enum Direction
+      {
+        Ascending,
+        Descending
+      }
+
+      protected Direction _direction;
+
+      public StringLengthComparer(Direction direction)
+      {
+        _direction = direction;
+      }
+
+      public int Compare(string x, string y)
+      {
+        int xLen = string.IsNullOrEmpty(x) ? 0 : x.Length;
+        int yLen = string.IsNullOrEmpty(y) ? 0 : y.Length;
+        if (x == null || y == null)
+          return 0;
+        if (xLen == yLen)
+          return x.CompareTo(y);
+        int result = xLen - yLen;
+        if (_direction == Direction.Descending)
+          result *= -1;
+        return result;
+      }
+    }
+
+    /// <summary>
+    /// Prepares the path variables which might have been edited by the user and writes them to the given <paramref name="session"/>.
+    /// </summary>
+    /// <remarks>
+    /// This method reads the session's variables of the form <c>"CLIENT.CONFIG.FOLDER</c> for client or server (depending on
+    /// parameter <paramref name="cs"/>) and for all given <paramref name="pathLabels"/>, cleans them up (means replaces all
+    /// common path fragments by path labels like <c>"CONFIG"</c>) and writes them to session variables of the form
+    /// <c>"XML.CLIENT.CONFIG.FOLDER</c>. Those session variables will be written into the configuration files of MP2 by one
+    /// of the next installer steps.
+    /// </remarks>
+    /// <param name="session">Current installation session object.</param>
+    /// <param name="cs">String which can be CLIENT or SERVER to access the properties of sessions.</param>
+    /// <param name="pathLabels">List of path labels to be written.</param>
+    private static void PrepareXmlPathVariables(Session session, string cs, IEnumerable<string> pathLabels)
+    {
+      // We want to fold the paths given in the installer session to make each saved path as generic as possible.
+      // That means we will replace each known path by its label.
+      // During replacing, the order matters because sometimes, paths are inserted into other paths multiple times.
+      // To avoid replacing short segments in paths where a longer segment could be replaced, we order the paths which can be replaced
+      // by the length of their labels in descending direction. That makes sure always the longest possible path segment is replaced.
+
+      SortedDictionary<string, string> paths2Labels = new SortedDictionary<string, string>(
+          new StringLengthComparer(StringLengthComparer.Direction.Descending));
+
+      // Fill in all paths which should be replaced in the paths which were edited by the user
+      foreach (KeyValuePair<string, string> label2Path in PathManager.GetStandardSpecialFolderMappings())
+        paths2Labels[label2Path.Value] = label2Path.Key;
+      foreach (string pathLabel in pathLabels)
+      {
+        string path = session[cs + "." + pathLabel + ".FOLDER"];
+        paths2Labels[path] = pathLabel;
+      }
+
+      string installDir = StringUtils.RemoveSuffixIfPresent(session["INSTALLDIR_" + cs], "\\");
+
+      // Go through each path which was edited by the user and try to replace all known paths by their labels
       foreach (string label in pathLabels)
       {
-        string path = session[cs + "." + label + ".FOLDER"];
+        string currentPath = session[cs + "." + label + ".FOLDER"]; // Path which was edited in the installer GUI
+        if (string.IsNullOrEmpty(currentPath))
+          continue;
 
-        string tmpPath = session["INSTALLDIR_" + cs];
-        path = path.Replace(MediaPortal.Utilities.StringUtils.RemoveSuffixIfPresent(tmpPath, "\\"),
-          "<APPLICATION_ROOT>");
+        // Replace application dir and all common folders in this system by their path labels to make the path as generic as possible
+        if (!string.IsNullOrEmpty(installDir))
+          currentPath = currentPath.Replace(installDir, "<APPLICATION_ROOT>");
+        foreach (KeyValuePair<string, string> path2Label in paths2Labels)
+          if (currentPath != path2Label.Key) // Don't replace a path with its own label
+            currentPath.Replace(path2Label.Key, path2Label.Value);
 
-        tmpPath = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
-        path = path.Replace(MediaPortal.Utilities.StringUtils.RemoveSuffixIfPresent(tmpPath, "\\"),
-          "<LOCAL_APPLICATION_DATA>");
+        currentPath = StringUtils.RemoveSuffixIfPresent(currentPath, "\\");
 
-        tmpPath = Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData);
-        path = path.Replace(MediaPortal.Utilities.StringUtils.RemoveSuffixIfPresent(tmpPath, "\\"),
-          "<COMMON_APPLICATION_DATA>");
-
-        tmpPath = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
-        path = path.Replace(MediaPortal.Utilities.StringUtils.RemoveSuffixIfPresent(tmpPath, "\\"),
-          "<MY_DOCUMENTS>");
-
-        path = MediaPortal.Utilities.StringUtils.RemoveSuffixIfPresent(path, "\\");
-
-        foreach (string l in ClientPathLabels)
-        {
-          // only check if parts of string equals if we have a different labels
-          if (l.Equals(label)) continue;
-
-          // only replace if p is not empty
-          string p = session["XML." + cs + "." + l + ".FOLDER"];
-          if (String.IsNullOrEmpty(p)) continue;
-
-          p = p.Replace(path, "<" + label + ">");
-          path = path.Replace(p, "<" + l + ">");
-
-          session["XML." + cs + "." + l + ".FOLDER"] = p;
-        }
-
-        session["XML." + cs + "." + label + ".FOLDER"] = path;
-        session.Log("XML.{1}={0}", path, cs + "." + label + ".FOLDER");
+        string sessionKey = "XML." + cs + "." + label + ".FOLDER";
+        session[sessionKey] = currentPath;
+        session.Log("{0} = {1}", sessionKey, currentPath);
       }
     }
   }

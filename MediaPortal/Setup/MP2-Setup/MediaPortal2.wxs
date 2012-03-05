@@ -178,15 +178,15 @@
 
     <InstallUISequence>
 
-      <Custom Action="ReadCustomPaths" Before="CostFinalize">NOT Installed</Custom>
+      <Custom Action="ReadCustomPathsFromExistingPathsFile" Before="CostFinalize">NOT Installed</Custom>
       
     </InstallUISequence>
     
     <InstallExecuteSequence>
-      
-      <Custom Action="ReadCustomPaths" Before="SetCustomPaths">(NOT Installed) AND (INSTALLTYPE_CUSTOM = 0)</Custom>
+      <!-- Reads custom paths which maybe have been changed by the user in a former installation -->
+      <Custom Action="ReadCustomPathsFromExistingPathsFile" Before="PrepareXmlPathVariables">(NOT Installed) AND (INSTALLTYPE_CUSTOM = 0)</Custom>
 
-      <Custom Action="SetCustomPaths" Before="FileCost">NOT Installed</Custom>
+      <Custom Action="PrepareXmlPathVariables" Before="FileCost">NOT Installed</Custom>
       <Custom Action="AttachClientToServer" After="InstallFinalize">NOT Installed</Custom>
 
       <!-- Uninstall Dokan during installation, if dokan is out of date -->
