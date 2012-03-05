@@ -29,6 +29,7 @@ using System.Linq;
 using MediaPortal.Common.ResourceAccess;
 using MediaPortal.Utilities;
 using MediaPortal.Utilities.FileSystem;
+using MediaPortal.Utilities.Network;
 
 namespace MediaPortal.Common.Services.ResourceAccess.LocalFsResourceProvider
 {
@@ -206,7 +207,13 @@ namespace MediaPortal.Common.Services.ResourceAccess.LocalFsResourceProvider
         if (path.EndsWith(":/"))
         {
           DriveInfo di = new DriveInfo(path);
-          return di.IsReady ? string.Format("[{0}] {1}", path, di.VolumeLabel) : path;
+          if (!di.IsReady)
+            return path;
+
+          string driveName;
+          if (di.DriveType != DriveType.Network || !SharesEnumerator.GetFormattedUNCPath(path, out driveName))
+            driveName = di.VolumeLabel;
+          return string.Format("[{0}] {1}", path, driveName);
         }
         path = LocalFsResourceProviderBase.ToDosPath(StringUtils.RemoveSuffixIfPresent(path, "/"));
         return System.IO.Path.GetFileName(path);

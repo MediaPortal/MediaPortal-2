@@ -24,7 +24,9 @@
 
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Runtime.InteropServices;
+using System.Text;
 
 namespace MediaPortal.Utilities.Network
 {
@@ -193,6 +195,68 @@ namespace MediaPortal.Utilities.Network
     /// <summary>Free the buffer (NT)</summary>
     [DllImport("netapi32.dll")]
     protected static extern int NetApiBufferFree(IntPtr lpBuffer);
+
+    [DllImport("mpr.dll", CharSet = CharSet.Unicode, SetLastError = true)]
+    protected static extern int WNetGetConnection(
+        [MarshalAs(UnmanagedType.LPTStr)] string localName,
+        [MarshalAs(UnmanagedType.LPTStr)] StringBuilder remoteName,
+        ref int length);
+
+    #endregion
+
+    #region Local share name translation
+
+    /// <summary>
+    /// Tries to convert a local mapped network path into an UNC path. 
+    /// For example, "P:\2008-02-29" might return: "\\networkserver\Shares\Photos\2008-02-09".
+    /// </summary>
+    /// <param name="originalPath">The path to convert to a UNC Path</param>
+    /// <param name="uncPath">A UNC path. If a network drive letter is specified, the drive letter is converted to a UNC or network path.</param>
+    /// <returns>True if path could be converted.</returns>
+    public static bool GetUNCPath(string originalPath, out string uncPath)
+    {
+      uncPath = null;
+      StringBuilder sb = new StringBuilder(512);
+      int size = sb.Capacity;
+
+      // Look for the {LETTER}: combination ...
+      if (originalPath.Length > 2 && originalPath[1] == ':')
+      {
+        char c = originalPath.ToLowerInvariant()[0];
+        if (c >= 'a' && c <= 'z')
+        {
+          int error = WNetGetConnection(originalPath.Substring(0, 2), sb, ref size);
+          if (error == 0)
+          {
+            string path = Path.GetFullPath(originalPath).Substring(Path.GetPathRoot(originalPath).Length);
+            uncPath = Path.Combine(sb.ToString().TrimEnd(), path);
+            return true;
+          }
+        }
+      }
+      return false;
+    }
+
+    /// <summary>
+    /// Returns a formatted name of a network mapped drive like the explorer does: SHARE (\\SERVER)
+    /// </summary>
+    /// <param name="originalPath">Local path</param>
+    /// <param name="formattedUNCPath">Returns a formatted path</param>
+    /// <returns>True if translated successfully</returns>
+    public static bool GetFormattedUNCPath(string originalPath, out string formattedUNCPath)
+    {
+      string uncPath;
+      if (!GetUNCPath(originalPath, out uncPath))
+      {
+        formattedUNCPath = null;
+        return false;
+      }
+      int lastIndex = uncPath.LastIndexOf('\\');
+      string sharePart = uncPath.Substring(lastIndex + 1);
+      string serverPart = uncPath.Substring(0, lastIndex);
+      formattedUNCPath = string.Format("{0} ({1})", sharePart, serverPart);
+      return true;
+    }
 
     #endregion
 
