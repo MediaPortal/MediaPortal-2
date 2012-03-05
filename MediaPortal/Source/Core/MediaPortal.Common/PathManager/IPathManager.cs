@@ -90,7 +90,8 @@ namespace MediaPortal.Common.PathManager
     /// <summary>
     /// Loads path values from a paths file.
     /// </summary>
-    /// <param name="pathsFile">File with paths. See <c>[App-Root]/Defaults/Paths.xml</c> as example.</param>
-    void LoadPaths(string pathsFile);
+    /// <param name="pathsFile">Name of a file with paths to load. See <c>[App-Root]/Defaults/Paths.xml</c> as example.</param>
+    /// <returns><c>true</c>, if the file with the given name exists and could be loaded. Else, <c>false</c> is returned.</returns>
+    bool LoadPaths(string pathsFile);
   }
 }

@@ -70,11 +70,27 @@ namespace MediaPortal.Common.Services.PathManager
     {
       SetPath("APPLICATION_PATH", applicationPath);
       SetPath("APPLICATION_ROOT", Path.GetDirectoryName(applicationPath));
-      SetPath("LOCAL_APPLICATION_DATA", Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData));
-      SetPath("COMMON_APPLICATION_DATA", Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData));
-      SetPath("MY_DOCUMENTS", Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments));
       SetPath("DEFAULTS", @"<APPLICATION_ROOT>\Defaults");
+
+      foreach (KeyValuePair<string, string> mapping in GetStandardSpecialFolderMappings())
+        SetPath(mapping.Key, mapping.Value);
+
       LoadPaths(GetPath(@"<DEFAULTS>\Paths.xml"));
+    }
+
+    /// <summary>
+    /// Returns a dictionary containing the standard labels <c>"LOCAL_APPLICATION_DATA"</c>, <c>"COMMON_APPLICATION_DATA"</c> and <c>"MY_DOCUMENTS"</c>
+    /// mapped to their folder path in the local system.
+    /// </summary>
+    /// <returns>Dictionary of labels mapped to paths, the labels are not enclosed by <c>'&lt;'</c> and <c>'&gt;'</c> characters.</returns>
+    public static IDictionary<string, string> GetStandardSpecialFolderMappings()
+    {
+      return new Dictionary<string, string>
+        {
+            {"LOCAL_APPLICATION_DATA", Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData)},
+            {"COMMON_APPLICATION_DATA", Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData)},
+            {"MY_DOCUMENTS", Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments)}
+        };
     }
 
     #endregion
@@ -128,8 +144,10 @@ namespace MediaPortal.Common.Services.PathManager
           _paths.Remove(label);
     }
 
-    public void LoadPaths(string pathsFile)
+    public bool LoadPaths(string pathsFile)
     {
+      if (!File.Exists(pathsFile))
+        return false;
       try
       {
         XmlSerializer s = new XmlSerializer(typeof(PathListFile));
@@ -144,7 +162,9 @@ namespace MediaPortal.Common.Services.PathManager
       catch (Exception e)
       {
         ServiceRegistration.Get<ILogger>().Error("Error reading default paths file", e);
+        return false;
       }
+      return true;
     }
 
     #endregion
