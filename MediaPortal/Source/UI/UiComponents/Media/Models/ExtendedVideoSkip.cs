@@ -1,4 +1,4 @@
-#region Copyright (C) 2007-2012 Team MediaPortal
+﻿#region Copyright (C) 2007-2012 Team MediaPortal
 
 /*
     Copyright (C) 2007-2012 Team MediaPortal
@@ -54,7 +54,7 @@ namespace MediaPortal.UiComponents.Media.Models
     {
       get { return new Guid(MODEL_ID_STR); }
     }
-    
+
     public ExtendedVideoSkip()
     {
       _skipStepProperty = new SProperty(typeof(string), string.Empty);
@@ -68,7 +68,7 @@ namespace MediaPortal.UiComponents.Media.Models
     /// </summary>
     public string SkipStep
     {
-      get { return (string)_skipStepProperty.GetValue(); }
+      get { return (string) _skipStepProperty.GetValue(); }
       internal set { _skipStepProperty.SetValue(value); }
     }
 
@@ -107,7 +107,7 @@ namespace MediaPortal.UiComponents.Media.Models
 
       ClearSkipTimer();
       MediaModelSettings settings = ServiceRegistration.Get<ISettingsManager>().Load<MediaModelSettings>();
-      pc.InstantSkip((int)settings.InstantSkipPercent);
+      pc.InstantSkip((int) settings.InstantSkipPercent);
     }
 
     /// <summary>
@@ -119,10 +119,10 @@ namespace MediaPortal.UiComponents.Media.Models
       IPlayerContext pc = GetPlayerContext();
       if (pc == null)
         return;
-         
+
       ClearSkipTimer();
       MediaModelSettings settings = ServiceRegistration.Get<ISettingsManager>().Load<MediaModelSettings>();
-      pc.InstantSkip(-(int)settings.InstantSkipPercent);
+      pc.InstantSkip(-(int) settings.InstantSkipPercent);
     }
 
     #endregion
@@ -160,18 +160,19 @@ namespace MediaPortal.UiComponents.Media.Models
 
       ReSetSkipTimer();
 
-      // first we find the new skip index, then we check if the player is able to skip.
+      // First we find the new skip index, then we check if the player is able to skip.
       int newSkipStepIndex = _skipStepIndex;
 
-      // we are in the matching range and want to step "forward" (greater step into this direction).
+      // We are in the matching range and want to step "forward" (greater step into this direction).
       if (_skipStepDirection == skipDirection)
       {
-        if (_skipStepIndex < _skipSteps.Count - 1)
+        // Last step must be valid to do next step
+        if (_skipStepValid && _skipStepIndex < _skipSteps.Count - 1)
           newSkipStepIndex++;
       }
       else
       {
-        // the current index is in the opposite direction, so we take one step back.
+        // The current index is in the opposite direction, so we take one step back.
         if (_skipStepIndex > 0)
           newSkipStepIndex--;
         else
@@ -181,10 +182,10 @@ namespace MediaPortal.UiComponents.Media.Models
         }
       }
 
+      _skipStepIndex = newSkipStepIndex;
       if (pc.CanSkipRelative(TimeSpan.FromSeconds(_skipStepDirection * _skipSteps[newSkipStepIndex])))
       {
-        // skip target is inside valid range
-        _skipStepIndex = newSkipStepIndex;
+        // Skip target is inside valid range
         SkipStep = FormatStepUnit(_skipStepDirection * _skipSteps[_skipStepIndex]);
         _skipStepValid = true;
       }
@@ -201,12 +202,12 @@ namespace MediaPortal.UiComponents.Media.Models
       MediaModelSettings settings = ServiceRegistration.Get<ISettingsManager>().Load<MediaModelSettings>();
       if (_skipStepTimer == null)
       {
-        _skipStepTimer = new Timer(settings.SkipStepTimeout*1000) { Enabled = true, AutoReset = false };
+        _skipStepTimer = new Timer(settings.SkipStepTimeout * 1000) { Enabled = true, AutoReset = false };
         _skipStepTimer.Elapsed += SkipStepTimerElapsed;
       }
       else
       {
-        // in case of new user action, reset the timer.
+        // In case of new user action, reset the timer.
         _skipStepTimer.Stop();
         _skipStepTimer.Start();
       }
@@ -229,7 +230,7 @@ namespace MediaPortal.UiComponents.Media.Models
     {
       if (_skipStepTimer != null)
         _skipStepTimer.Stop();
-      
+
       SkipStep = null;
       HideSkipOSD();
     }
@@ -240,7 +241,11 @@ namespace MediaPortal.UiComponents.Media.Models
       if (pc != null)
       {
         if (_skipStepValid)
-          pc.SkipRelative(TimeSpan.FromSeconds(_skipStepDirection * _skipSteps[_skipStepIndex]));
+        {
+          int step = _skipSteps[_skipStepIndex];
+          if (step != 0)
+            pc.SkipRelative(TimeSpan.FromSeconds(_skipStepDirection * step));
+        }
         else
         {
           if (_skipStepDirection == -1)
@@ -256,19 +261,19 @@ namespace MediaPortal.UiComponents.Media.Models
     /// <summary>
     /// This function returns the localized time units for "Step" (seconds) in human readable format.
     /// </summary>
-    /// <param name="step"></param>
-    /// <returns></returns>
+    /// <param name="step">Step in seconds</param>
+    /// <returns>Localized string</returns>
     public static string FormatStepUnit(int step)
     {
-      if (step == 0)
-        return string.Empty;
-
       ILocalization loc = ServiceRegistration.Get<ILocalization>();
+      if (step == 0)
+        return loc.ToString("[Media.DontSkip]");
+
       string sign = step < 0 ? "-" : "+";
       int absStep = Math.Abs(step);
       if (absStep >= 3600)
       {
-        // check for 'full' hours
+        // Check for 'full' hours
         if ((Convert.ToSingle(absStep) / 3600) > 1 && (Convert.ToSingle(absStep) / 3600) != 2 &&
             (Convert.ToSingle(absStep) / 3600) != 3)
           return string.Format("{0} {1} {2}", sign, Convert.ToString(absStep / 60), loc.ToString("[Media.Minutes]")); // "min"

@@ -243,6 +243,7 @@
     
     <String Name="Start" Text="Start"/>
     <String Name="End" Text="End"/>
+    <String Name="DontSkip" Text="Don't skip"/>
 
     <String Name="SwitchViewModeMenuItem" Text="View mode"/>
     <String Name="SwitchViewModeDialogTitle" Text="Choose view mode"/>
