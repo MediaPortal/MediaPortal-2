@@ -210,25 +210,29 @@ namespace MediaPortal.Utilities.Network
     /// Tries to convert a local mapped network path into an UNC path. 
     /// For example, "P:\2008-02-29" might return: "\\networkserver\Shares\Photos\2008-02-09".
     /// </summary>
-    /// <param name="originalPath">The path to convert to a UNC Path</param>
-    /// <param name="uncPath">A UNC path. If a network drive letter is specified, the drive letter is converted to a UNC or network path.</param>
-    /// <returns>True if path could be converted.</returns>
-    public static bool GetUNCPath(string originalPath, out string uncPath)
+    /// <param name="localMountPath">Local path mounting a UNC or network path.</param>
+    /// <param name="uncPath">If <paramref name="localMountPath"/> refers to a local path which mounts a UNC or network path, the local drive letter
+    /// is converted to its underlaying UNC or network path. The rest of the <paramref name="localMountPath"/> will be preserved. The combination
+    /// of those two path segments are returned in this parameter.</param>
+    /// <returns><c>true</c>, if the <paramref name="localMountPath"/> is an UNC path and could be converted. In that case, <paramref name="uncPath"/>
+    /// will return the corresponding UNC path pointing to the same resource as <paramref name="localMountPath"/>. Else, <c>false</c> will be
+    /// returned.</returns>
+    public static bool GetUNCPath(string localMountPath, out string uncPath)
     {
       uncPath = null;
       StringBuilder sb = new StringBuilder(512);
       int size = sb.Capacity;
 
       // Look for the {LETTER}: combination ...
-      if (originalPath.Length > 2 && originalPath[1] == ':')
+      if (localMountPath.Length > 2 && localMountPath[1] == ':')
       {
-        char c = originalPath.ToLowerInvariant()[0];
+        char c = localMountPath.ToLowerInvariant()[0];
         if (c >= 'a' && c <= 'z')
         {
-          int error = WNetGetConnection(originalPath.Substring(0, 2), sb, ref size);
+          int error = WNetGetConnection(localMountPath.Substring(0, 2), sb, ref size);
           if (error == 0)
           {
-            string path = Path.GetFullPath(originalPath).Substring(Path.GetPathRoot(originalPath).Length);
+            string path = Path.GetFullPath(localMountPath).Substring(Path.GetPathRoot(localMountPath).Length);
             uncPath = Path.Combine(sb.ToString().TrimEnd(), path);
             return true;
           }
@@ -238,15 +242,17 @@ namespace MediaPortal.Utilities.Network
     }
 
     /// <summary>
-    /// Returns a formatted name of a network mapped drive like the explorer does: SHARE (\\SERVER)
+    /// Returns a formatted name of a network mapped drive like the Windows explorer does: SHARE (\\SERVER)
     /// </summary>
-    /// <param name="originalPath">Local path</param>
-    /// <param name="formattedUNCPath">Returns a formatted path</param>
-    /// <returns>True if translated successfully</returns>
-    public static bool GetFormattedUNCPath(string originalPath, out string formattedUNCPath)
+    /// <param name="localMountPath">Local path which mounts a network or UNC path.</param>
+    /// <param name="formattedUNCPath">Returns the formatted UNC path, if <paramref name="localMountPath"/> is a network mount.
+    /// Else, this parameter will be set to <c>null</c>.</param>
+    /// <returns><c>true</c>, if the given <paramref name="localMountPath"/> is a local network mount and could be converted
+    /// successfully. Else, <c>false</c> will be returned.</returns>
+    public static bool GetFormattedUNCPath(string localMountPath, out string formattedUNCPath)
     {
       string uncPath;
-      if (!GetUNCPath(originalPath, out uncPath))
+      if (!GetUNCPath(localMountPath, out uncPath))
       {
         formattedUNCPath = null;
         return false;
