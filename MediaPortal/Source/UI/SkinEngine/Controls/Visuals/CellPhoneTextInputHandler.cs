@@ -214,7 +214,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
         if (caretIndex > 0)
         {
           CaretIndex = caretIndex - 1;
-          // Only consume the key if we can move the cared - else the key can be used by
+          // Only consume the key if we can move the caret - else the key can be used by
           // the focus management, for example
           key = Key.None;
         }
@@ -226,7 +226,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
         if (caretIndex < text.Length)
         {
           CaretIndex = caretIndex + 1;
-          // Only consume the key if we can move the cared - else the key can be used by
+          // Only consume the key if we can move the caret - else the key can be used by
           // the focus management, for example
           key = Key.None;
         }
