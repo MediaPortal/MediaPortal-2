@@ -157,7 +157,7 @@ namespace MediaPortal.Extensions.MetadataExtractors
 
         string value;
         if (TryGet(tags, TAG_GENRE, out value))
-          videoAspect.SetCollectionAttribute(VideoAspect.ATTR_GENRE, new List<String> {value});
+          videoAspect.SetCollectionAttribute(VideoAspect.ATTR_GENRES, new List<String> {value});
 
         if (TryGet(tags, TAG_PLOT, out value))
           videoAspect.SetAttribute(VideoAspect.ATTR_STORYPLOT, value);
