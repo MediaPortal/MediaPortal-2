@@ -316,7 +316,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.VideoMetadataExtractor
             mediaAspect.SetAttribute(MediaAspect.ATTR_RECORDINGTIME, new DateTime(year, 1, 1));
 
           if (tagsToExtract[TAG_SERIES_GENRE] != null)
-            videoAspect.SetCollectionAttribute(VideoAspect.ATTR_GENRE, tagsToExtract[TAG_SERIES_GENRE]);
+            videoAspect.SetCollectionAttribute(VideoAspect.ATTR_GENRES, tagsToExtract[TAG_SERIES_GENRE]);
 
           if (tagsToExtract[TAG_ACTORS] != null)
             videoAspect.SetCollectionAttribute(VideoAspect.ATTR_ACTORS, tagsToExtract[TAG_ACTORS]);
