@@ -59,6 +59,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.VideoMetadataExtractor
     // Tags are constructed by using TargetTypeValue (i.e. 70) and the name of the <Simple> tag (i.e. TITLE).
     private const string TAG_SERIES_TITLE = "70.TITLE";
     private const string TAG_SERIES_GENRE = "70.GENRE";
+    private const string TAG_SERIES_ACTORS = "70.ACTOR";
     private const string TAG_SEASON_YEAR = "60.DATE_RELEASE";
     private const string TAG_SEASON_TITLE = "60.TITLE";
     private const string TAG_EPISODE_TITLE = "50.TITLE";
@@ -268,6 +269,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.VideoMetadataExtractor
                                                    {
                                                      {TAG_SERIES_TITLE, null}, // Series title
                                                      {TAG_SERIES_GENRE, null}, // Series genre(s)
+                                                     {TAG_SERIES_ACTORS, null}, // Series actor(s)
                                                      {TAG_SEASON_NUMBER, null}, // Season number
                                                      {TAG_SEASON_YEAR, null}, // Season year
                                                      {TAG_SEASON_TITLE, null}, // Season title
@@ -318,8 +320,15 @@ namespace MediaPortal.Extensions.MetadataExtractors.VideoMetadataExtractor
           if (tagsToExtract[TAG_SERIES_GENRE] != null)
             videoAspect.SetCollectionAttribute(VideoAspect.ATTR_GENRES, tagsToExtract[TAG_SERIES_GENRE]);
 
-          if (tagsToExtract[TAG_ACTORS] != null)
-            videoAspect.SetCollectionAttribute(VideoAspect.ATTR_ACTORS, tagsToExtract[TAG_ACTORS]);
+          IEnumerable<string> actors;
+          // Combine series actors and episode actors if both are available
+          if (tagsToExtract[TAG_SERIES_ACTORS] != null && tagsToExtract[TAG_ACTORS] != null)
+            actors = tagsToExtract[TAG_SERIES_ACTORS].Union(tagsToExtract[TAG_ACTORS]);
+          else
+            actors = tagsToExtract[TAG_SERIES_ACTORS] ?? tagsToExtract[TAG_ACTORS];
+
+          if (actors != null)
+            videoAspect.SetCollectionAttribute(VideoAspect.ATTR_ACTORS, actors);
 
           if (tagsToExtract[TAG_EPISODE_SUMMARY] != null)
             videoAspect.SetAttribute(VideoAspect.ATTR_STORYPLOT, tagsToExtract[TAG_EPISODE_SUMMARY].FirstOrDefault());
