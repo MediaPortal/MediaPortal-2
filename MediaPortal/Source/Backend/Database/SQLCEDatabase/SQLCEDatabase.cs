@@ -43,6 +43,17 @@ namespace MediaPortal.Database.SQLCE
     public const int LOCK_TIMEOUT = 30000; // Time in ms the database will wait for a lock
     public const int MAX_BUFFER_SIZE = 2048;
 
+    /// <summary>
+    /// Maximum size of the shared memory region in MB which SQL CE uses for shared database connections.
+    /// The maximum database size defaults to 256 MB, which might be too small for big databases.
+    /// </summary>
+    public const int INITIAL_MAX_DATABASE_SIZE = 1024;
+
+    /// <summary>
+    /// Buffer, the "Max Database Size" parameter must be bigger than the actual database file size, in MB.
+    /// </summary>
+    public const int DATABASE_SIZE_BUFFER = 256;
+
     public const string DEFAULT_DATABASE_FILE = "Datastore.sdf";
 
     protected string _connectionString;
@@ -55,7 +66,16 @@ namespace MediaPortal.Database.SQLCE
         string dataDirectory = pathManager.GetPath("<DATABASE>");
         string databaseFile = Path.Combine(dataDirectory, DEFAULT_DATABASE_FILE);
 
-        _connectionString = "Data Source='" + databaseFile + "'; Default Lock Timeout=" + LOCK_TIMEOUT + "; Max Buffer Size = " + MAX_BUFFER_SIZE;
+        int databaseSize = INITIAL_MAX_DATABASE_SIZE;
+        FileInfo databaseFileInfo = new FileInfo(databaseFile);
+        if (databaseFileInfo.Exists)
+        {
+          int bufferFileSize = (int) (databaseFileInfo.Length/(1024*1024)) + DATABASE_SIZE_BUFFER;
+          if (bufferFileSize > databaseSize)
+            databaseSize = bufferFileSize;
+        }
+
+        _connectionString = "Data Source='" + databaseFile + "'; Default Lock Timeout=" + LOCK_TIMEOUT + "; Max Buffer Size = " + MAX_BUFFER_SIZE + "; Max Database Size = " + databaseSize;
         SqlCeEngine engine = new SqlCeEngine(_connectionString);
         if (!File.Exists(databaseFile))
         {
