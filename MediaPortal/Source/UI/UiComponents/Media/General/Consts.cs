@@ -298,6 +298,9 @@ namespace MediaPortal.UiComponents.Media.General
     public const string KEY_PLAYLIST_DATA = "PlaylistData";
     public const string KEY_MESSAGE = "Message";
 
+    public const string KEY_LAYOUT_TYPE = "LayoutType";
+    public const string KEY_LAYOUT_SIZE = "LayoutSize";
+
     // Keys for workflow state variables
     public const string KEY_NAVIGATION_MODE = "MediaNavigationModel: NAVIGATION_MODE";
     public const string KEY_NAVIGATION_DATA = "MediaNavigationModel: NAVIGATION_DATA";

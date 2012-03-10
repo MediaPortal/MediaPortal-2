@@ -55,23 +55,34 @@ namespace MediaPortal.UiComponents.Media.Models
 
       ListItem smallList = new ListItem(Consts.KEY_NAME, Consts.RES_SMALL_LIST)
         {
-            Command = new MethodDelegateCommand(() => SetViewMode(LayoutType.ListLayout, LayoutSize.Small))
+            Command = new MethodDelegateCommand(() => SetViewMode(LayoutType.ListLayout, LayoutSize.Small)),
         };
+      smallList.AdditionalProperties[Consts.KEY_LAYOUT_TYPE] = LayoutType.ListLayout;
+      smallList.AdditionalProperties[Consts.KEY_LAYOUT_SIZE] = LayoutSize.Small;
       _viewModeItemsList.Add(smallList);
+
       ListItem mediumlList = new ListItem(Consts.KEY_NAME, Consts.RES_MEDIUM_LIST)
         {
             Command = new MethodDelegateCommand(() => SetViewMode(LayoutType.ListLayout, LayoutSize.Medium))
         };
+      mediumlList.AdditionalProperties[Consts.KEY_LAYOUT_TYPE] = LayoutType.ListLayout;
+      mediumlList.AdditionalProperties[Consts.KEY_LAYOUT_SIZE] = LayoutSize.Medium;
       _viewModeItemsList.Add(mediumlList);
+
       ListItem largeList = new ListItem(Consts.KEY_NAME, Consts.RES_LARGE_LIST)
         {
             Command = new MethodDelegateCommand(() => SetViewMode(LayoutType.ListLayout, LayoutSize.Large))
         };
+      largeList.AdditionalProperties[Consts.KEY_LAYOUT_TYPE] = LayoutType.ListLayout;
+      largeList.AdditionalProperties[Consts.KEY_LAYOUT_SIZE] = LayoutSize.Large;
       _viewModeItemsList.Add(largeList);
+
       ListItem largeGrid = new ListItem(Consts.KEY_NAME, Consts.RES_LARGE_Grid)
         {
             Command = new MethodDelegateCommand(() => SetViewMode(LayoutType.GridLayout, LayoutSize.Large))
         };
+      largeGrid.AdditionalProperties[Consts.KEY_LAYOUT_TYPE] = LayoutType.GridLayout;
+      largeGrid.AdditionalProperties[Consts.KEY_LAYOUT_SIZE] = LayoutSize.Large;
       _viewModeItemsList.Add(largeGrid);
     }
 
@@ -87,11 +98,27 @@ namespace MediaPortal.UiComponents.Media.Models
       settingsManager.Save(settings);
     }
 
+    protected void UpdateSelectedFlag(ItemsList itemsList)
+    {
+      ViewSettings settings = ServiceRegistration.Get<ISettingsManager>().Load<ViewSettings>();
+      foreach (ListItem item in itemsList)
+      {
+        object layout;
+        object size;
+        if (item.AdditionalProperties.TryGetValue(Consts.KEY_LAYOUT_TYPE, out layout) && item.AdditionalProperties.TryGetValue(Consts.KEY_LAYOUT_SIZE, out size))
+          item.Selected = settings.LayoutType.Equals(layout) && settings.LayoutSize.Equals(size);
+      }
+    }
+
     #region Members to be accessed from the GUI
 
     public ItemsList ViewModeItemsList
     {
-      get { return _viewModeItemsList; }
+      get
+      {
+        UpdateSelectedFlag(_viewModeItemsList);
+        return _viewModeItemsList;
+      }
     }
 
     public AbstractProperty LayoutTypeProperty
