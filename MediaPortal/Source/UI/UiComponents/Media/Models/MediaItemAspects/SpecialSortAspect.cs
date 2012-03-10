@@ -33,7 +33,7 @@ namespace MediaPortal.UiComponents.Media.Models.MediaItemAspects
   public static class SpecialSortAspect
   {
     /// <summary>
-    /// Media item aspect id of the audio aspect.
+    /// Media item aspect id of the aspect.
     /// </summary>
     public static Guid ASPECT_ID = new Guid("49D1A110-F1A1-450A-8817-CF02ECBF5E22");
 
