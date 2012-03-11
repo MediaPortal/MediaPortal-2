@@ -50,6 +50,8 @@ namespace MediaPortal.UiComponents.Media.Models.ScreenData
     protected AbstractProperty _listHintProperty = null;
     protected NavigationData _navigationData = null;
 
+    protected object _syncObj = new object();
+
     #endregion
 
     protected AbstractScreenData(string screen, string menuItemLabel)
@@ -212,7 +214,29 @@ namespace MediaPortal.UiComponents.Media.Models.ScreenData
       get { return _navigationData != null; }
     }
 
+    public Sorting.Sorting CurrentSorting
+    {
+      get
+      {
+        Sorting.Sorting result;
+        lock (_syncObj)
+        {
+          NavigationData nd = _navigationData;
+          result = nd == null ? null : nd.CurrentSorting;
+        }
+        return result;
+      }
+    }
+
+    /// <summary>
+    /// Invalidates the underlaying view and reloads all sub views and items.
+    /// </summary>
     public abstract void Reload();
+
+    /// <summary>
+    /// Rebuilds the items list without invalidating the underlaying view.
+    /// </summary>
+    public abstract void UpdateItems();
 
     /// <summary>
     /// Updates all data which is needed by the skin. That is all properties in the region "Lazy initialized properties"
@@ -256,9 +280,18 @@ namespace MediaPortal.UiComponents.Media.Models.ScreenData
     /// Returns all media items of the current screen and all sub-screens recursively.
     /// </summary>
     /// <returns>Enumeration of media items.</returns>
-    public virtual IEnumerable<MediaItem> GetAllMediaItems()
+    public IEnumerable<MediaItem> GetAllMediaItems()
     {
-      // Normally, this method doesn't need to be virtual because the code here is very generic -
+      List<MediaItem> result = new List<MediaItem>(GetAllMediaItemsOverride());
+      Sorting.Sorting sorting = CurrentSorting;
+      if (sorting != null)
+        result.Sort(sorting);
+      return result;
+    }
+
+    protected virtual IEnumerable<MediaItem> GetAllMediaItemsOverride()
+    {
+      // Actually, this method doesn't need to be virtual because the code here is very generic -
       // depending on the base view specification of the current screen, we collect all items.
       // But screens like the search screen modify their list of items dynamically. Such screens must
       // return their dynamically generated items list.

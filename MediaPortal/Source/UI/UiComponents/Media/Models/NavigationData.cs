@@ -48,6 +48,7 @@ namespace MediaPortal.UiComponents.Media.Models
 
     #region Protected properties
 
+    protected NavigationData _parent;
     protected string _navigationContextName;
     protected Guid _currentWorkflowStateId;
     protected Guid _baseWorkflowStateId;
@@ -56,11 +57,15 @@ namespace MediaPortal.UiComponents.Media.Models
     protected ICollection<AbstractScreenData> _availableScreens;
     protected ICollection<WorkflowAction> _dynamicWorkflowActions;
 
+    protected Sorting.Sorting _currentSorting = null;
+    protected ICollection<Sorting.Sorting> _availableSortings = null;
+
     #endregion
 
     /// <summary>
     /// Creates a new navigation data structure for a new media navigation step.
     /// </summary>
+    /// <param name="parent">Parent navigation data, this navigation data is derived from.</param>
     /// <param name="navigationContextName">Name, which is used for the corresponding workflow navigation context.</param>
     /// <param name="currentWorkflowStateId">Id of the workflow state which corresponds to the new media navigation step.</param>
     /// <param name="parentWorkflowStateId">Id of the workflow state to which the workflow navigation should be reverted when
@@ -68,23 +73,29 @@ namespace MediaPortal.UiComponents.Media.Models
     /// <param name="baseViewSpecification">View specification for the media items of the new media navigation step.</param>
     /// <param name="defaultScreen">Screen which should present the new navigation step by default.</param>
     /// <param name="availableScreens">Available set of screen descriptions which can present the new media navigation step.</param>
-    public NavigationData(string navigationContextName, Guid parentWorkflowStateId, Guid currentWorkflowStateId,
-        ViewSpecification baseViewSpecification, AbstractScreenData defaultScreen, ICollection<AbstractScreenData> availableScreens) :
-        this(navigationContextName, parentWorkflowStateId, currentWorkflowStateId, baseViewSpecification, defaultScreen, availableScreens, false) { }
+    /// <param name="currentSorting">Denotes the current sorting for the items to be shown. If this is set to <c>null</c>,
+    /// default sorting will be applied.</param>
+    public NavigationData(NavigationData parent, string navigationContextName, Guid parentWorkflowStateId, Guid currentWorkflowStateId,
+        ViewSpecification baseViewSpecification, AbstractScreenData defaultScreen, ICollection<AbstractScreenData> availableScreens,
+        Sorting.Sorting currentSorting) :
+        this(parent, navigationContextName, parentWorkflowStateId, currentWorkflowStateId, baseViewSpecification, defaultScreen, availableScreens,
+        currentSorting, false) { }
 
     // If the suppressActions parameter is set to <c>true</c>, no actions will be built. Instead, they will be inherited from
     // the parent navigation step. That is used for subview navigation where the navigation step doesn't produce own
     // workflow actions.
-    protected NavigationData(string navigationContextName, Guid parentWorkflowStateId, Guid currentWorkflowStateId,
+    protected NavigationData(NavigationData parent, string navigationContextName, Guid parentWorkflowStateId, Guid currentWorkflowStateId,
         ViewSpecification baseViewSpecification, AbstractScreenData defaultScreen, ICollection<AbstractScreenData> availableScreens,
-        bool suppressActions)
+        Sorting.Sorting currentSorting, bool suppressActions)
     {
+      _parent = parent;
       _navigationContextName = navigationContextName;
       _currentWorkflowStateId = currentWorkflowStateId;
       _baseWorkflowStateId = parentWorkflowStateId;
       _baseViewSpecification = baseViewSpecification;
       _currentScreenData = defaultScreen;
       _availableScreens = availableScreens ?? new List<AbstractScreenData>();
+      _currentSorting = currentSorting;
       if (suppressActions)
         _dynamicWorkflowActions = null;
       else
@@ -126,6 +137,33 @@ namespace MediaPortal.UiComponents.Media.Models
     public ICollection<AbstractScreenData> AvailableScreens
     {
       get { return _availableScreens; }
+    }
+
+    public Sorting.Sorting CurrentSorting
+    {
+      get { return _currentSorting; }
+      set
+      {
+        _currentSorting = value;
+        AbstractScreenData screenData = _currentScreenData;
+        if (screenData != null)
+          screenData.UpdateItems();
+      }
+    }
+
+    public ICollection<Sorting.Sorting> AvailableSortings
+    {
+      get
+      {
+        ICollection<Sorting.Sorting> result = _availableSortings;
+        if (result != null)
+          return result;
+        NavigationData parent = _parent;
+        if (parent == null)
+          return null;
+        return parent.AvailableSortings;
+      }
+      set { _availableSortings = value; }
     }
 
     /// <summary>
@@ -176,17 +214,9 @@ namespace MediaPortal.UiComponents.Media.Models
       WorkflowState newState = WorkflowState.CreateTransientState(
           "View: " + subViewSpecification.ViewDisplayName, subViewSpecification.ViewDisplayName,
           false, null, true, WorkflowType.Workflow);
-      NavigationData newNavigationData = new NavigationData(subViewSpecification.ViewDisplayName,
-          _baseWorkflowStateId, newState.StateId, subViewSpecification, visibleScreen, _availableScreens, true);
-      IWorkflowManager workflowManager = ServiceRegistration.Get<IWorkflowManager>();
-      workflowManager.NavigatePushTransient(newState, new NavigationContextConfig
-        {
-          AdditionalContextVariables = new Dictionary<string, object>
-            {
-              {Consts.KEY_NAVIGATION_DATA, newNavigationData}
-            },
-          NavigationContextDisplayLabel = navbarDisplayLabel
-        });
+      NavigationData newNavigationData = new NavigationData(this, subViewSpecification.ViewDisplayName,
+          _baseWorkflowStateId, newState.StateId, subViewSpecification, visibleScreen, _availableScreens, _currentSorting, true);
+      PushNewNavigationWorkflowState(newState, navbarDisplayLabel, newNavigationData);
     }
 
     /// <summary>
@@ -202,8 +232,14 @@ namespace MediaPortal.UiComponents.Media.Models
       WorkflowState newState = WorkflowState.CreateTransientState(
           "View: " + subViewSpecification.ViewDisplayName, subViewSpecification.ViewDisplayName,
           false, null, false, WorkflowType.Workflow);
-      NavigationData newNavigationData = new NavigationData(subViewSpecification.ViewDisplayName,
-          newState.StateId, newState.StateId, subViewSpecification, remainingScreens.FirstOrDefault(), remainingScreens);
+      NavigationData newNavigationData = new NavigationData(this, subViewSpecification.ViewDisplayName,
+          newState.StateId, newState.StateId, subViewSpecification, remainingScreens.FirstOrDefault(), remainingScreens,
+          _currentSorting);
+      PushNewNavigationWorkflowState(newState, navbarDisplayLabel, newNavigationData);
+    }
+
+    protected static void PushNewNavigationWorkflowState(WorkflowState newState, string navbarDisplayLabel, NavigationData newNavigationData)
+    {
       IWorkflowManager workflowManager = ServiceRegistration.Get<IWorkflowManager>();
       workflowManager.NavigatePushTransient(newState, new NavigationContextConfig
         {

@@ -44,7 +44,6 @@ namespace MediaPortal.UiComponents.Media.Models.ScreenData
     protected string _navbarSubViewNavigationDisplayLabel;
     protected IFilter _clusterFilter = null;
 
-    protected object _syncObj = new object();
     // Variables to be synchronized for multithreading access
     protected bool _buildingList = false;
     protected bool _listDirty = false;
@@ -84,7 +83,11 @@ namespace MediaPortal.UiComponents.Media.Models.ScreenData
     public override void Reload()
     {
       lock (_syncObj)
-      ReloadFilterValuesList(false);
+        ReloadFilterValuesList(false);
+    }
+
+    public override void UpdateItems()
+    {
     }
 
     public override void CreateScreenData(NavigationData navigationData)

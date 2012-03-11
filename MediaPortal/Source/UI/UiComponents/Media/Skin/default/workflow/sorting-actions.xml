@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Action to switch the sorting -->
+<Workflow DescriptorVersion="1.0">
+  <MenuActions>
+    <WorkflowContributorAction Id="D205E9BC-A970-429D-88F8-BBB92CF3F19A"
+        Name="Media navigation->Switch sorting"
+        DisplayCategory="b-Sorting"
+        SortOrder="a"
+        SourceStates="*"
+        ContributorModelId="D447F742-5592-48FF-B189-C1868FB6740F"/> <!-- Sorting action -->
+  </MenuActions>
+</Workflow>

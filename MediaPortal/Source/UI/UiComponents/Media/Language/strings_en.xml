@@ -251,6 +251,23 @@
     <String Name="MediumList" Text="Medium list"/>
     <String Name="LargeList" Text="Large list"/>
     <String Name="LargeGrid" Text="Grid"/>
+
+    <String Name="SwitchSortingMenuItem" Text="Sorting"/>
+    <String Name="SwitchSortingDialogTitle" Text="Sorting"/>
+    <String Name="SortByTitle" Text="Sort by title"/>
+    <String Name="SortByAlbumTrack" Text="Sort by album and track"/>
+    <String Name="SortByGenre" Text="Sort by genre"/>
+    <String Name="SortByAlbum" Text="Sort by album and title"/>
+    <String Name="SortByTrack" Text="Sort by track"/>
+    <String Name="SortByArtist" Text="Sort by artist"/>
+    <String Name="SortByYear" Text="Sort by year"/>
+    <String Name="SortBySize" Text="Sort by size"/>
+    <String Name="SortBySystem" Text="Sort by system"/>
+    <String Name="SortByActor" Text="Sort by actor"/>
+    <String Name="SortByDirector" Text="Sort by director"/>
+    <String Name="SortByDuration" Text="Sort by duration"/>
+    <String Name="SortByAspectRatio" Text="Sort by aspect ratio"/>
+    <String Name="SortingBrowseDefault" Text="Default sorting"/>
   </Section>
   <Section Name="Settings">
     <String Name="Players" Text="Players"/>

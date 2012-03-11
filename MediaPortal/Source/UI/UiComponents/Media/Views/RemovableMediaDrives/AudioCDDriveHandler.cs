@@ -32,8 +32,6 @@ using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.Common.SystemResolver;
 using MediaPortal.Extensions.BassLibraries;
 using MediaPortal.Extensions.ResourceProviders.AudioCDResourceProvider;
-using MediaPortal.UiComponents.Media.Models.MediaItemAspects;
-using MediaPortal.Utilities;
 using MediaPortal.Utilities.FileSystem;
 
 namespace MediaPortal.UiComponents.Media.Views.RemovableMediaDrives
@@ -117,7 +115,6 @@ namespace MediaPortal.UiComponents.Media.Views.RemovableMediaDrives
               ProviderResourceAspect.ASPECT_ID,
               MediaAspect.ASPECT_ID,
               AudioAspect.ASPECT_ID,
-              SpecialSortAspect.ASPECT_ID
           };
       }
       catch (IOException)
@@ -139,8 +136,6 @@ namespace MediaPortal.UiComponents.Media.Views.RemovableMediaDrives
       aspects[MediaAspect.ASPECT_ID] = mediaAspect = new MediaItemAspect(MediaAspect.Metadata);
       MediaItemAspect audioAspect;
       aspects[AudioAspect.ASPECT_ID] = audioAspect = new MediaItemAspect(AudioAspect.Metadata);
-      MediaItemAspect specialSortAspect;
-      aspects[SpecialSortAspect.ASPECT_ID] = specialSortAspect = new MediaItemAspect(SpecialSortAspect.Metadata);
 
       // TODO: Collect data from internet for the current audio CD
       providerResourceAspect.SetAttribute(ProviderResourceAspect.ATTR_RESOURCE_ACCESSOR_PATH,
@@ -152,7 +147,6 @@ namespace MediaPortal.UiComponents.Media.Views.RemovableMediaDrives
       audioAspect.SetAttribute(AudioAspect.ATTR_ENCODING, "PCM");
       audioAspect.SetAttribute(AudioAspect.ATTR_BITRATE, 1411200); // 44.1 kHz * 16 bit * 2 channel
       audioAspect.SetAttribute(AudioAspect.ATTR_NUMTRACKS, numTracks);
-      specialSortAspect.SetAttribute(SpecialSortAspect.ATTR_SORT_STRING, StringUtils.Pad(track.TrackNo.ToString(), 5, '0', true));
 
       return new MediaItem(Guid.Empty, aspects);
     }

@@ -36,9 +36,6 @@ namespace MediaPortal.UiComponents.Media.FilterCriteria
 {
   public class FilterByImageSizeCriterion : MLFilterCriterion
   {
-    public const int SMALL_SIZE_THRESHOLD = 640;
-    public const int BIG_SIZE_THRESHOLD = 1200;
-
     #region Base overrides
 
     public override ICollection<FilterValue> GetAvailableValues(IEnumerable<Guid> necessaryMIATypeIds, IFilter selectAttributeFilter, IFilter filter)
@@ -52,16 +49,16 @@ namespace MediaPortal.UiComponents.Media.FilterCriteria
           new EmptyFilter(ImageAspect.ATTR_HEIGHT),
           new RelationalFilter(ImageAspect.ATTR_HEIGHT, RelationalOperator.EQ, 0));
       IFilter simpleSmallFilter = BooleanCombinationFilter.CombineFilters(BooleanOperator.And,
-          new RelationalFilter(ImageAspect.ATTR_WIDTH, RelationalOperator.LT, SMALL_SIZE_THRESHOLD),
-          new RelationalFilter(ImageAspect.ATTR_HEIGHT, RelationalOperator.LT, SMALL_SIZE_THRESHOLD));
+          new RelationalFilter(ImageAspect.ATTR_WIDTH, RelationalOperator.LT, Consts.SMALL_SIZE_THRESHOLD),
+          new RelationalFilter(ImageAspect.ATTR_HEIGHT, RelationalOperator.LT, Consts.SMALL_SIZE_THRESHOLD));
       IFilter smallFilter = BooleanCombinationFilter.CombineFilters(BooleanOperator.And,
           simpleSmallFilter,
           new NotFilter(BooleanCombinationFilter.CombineFilters(BooleanOperator.Or,
             new RelationalFilter(ImageAspect.ATTR_WIDTH, RelationalOperator.EQ, 0),
             new RelationalFilter(ImageAspect.ATTR_HEIGHT, RelationalOperator.EQ, 0))));
       IFilter bigFilter = BooleanCombinationFilter.CombineFilters(BooleanOperator.Or,
-          new RelationalFilter(ImageAspect.ATTR_WIDTH, RelationalOperator.GT, BIG_SIZE_THRESHOLD),
-          new RelationalFilter(ImageAspect.ATTR_HEIGHT, RelationalOperator.GT, BIG_SIZE_THRESHOLD));
+          new RelationalFilter(ImageAspect.ATTR_WIDTH, RelationalOperator.GT, Consts.BIG_SIZE_THRESHOLD),
+          new RelationalFilter(ImageAspect.ATTR_HEIGHT, RelationalOperator.GT, Consts.BIG_SIZE_THRESHOLD));
       IFilter mediumFilter = BooleanCombinationFilter.CombineFilters(BooleanOperator.And,
           new NotFilter(simpleSmallFilter),
           new NotFilter(bigFilter));

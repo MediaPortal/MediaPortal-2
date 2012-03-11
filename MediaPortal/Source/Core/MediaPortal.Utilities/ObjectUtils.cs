@@ -22,6 +22,7 @@
 
 #endregion
 
+using System;
 using System.Collections.Generic;
 
 namespace MediaPortal.Utilities
@@ -49,6 +50,28 @@ namespace MediaPortal.Utilities
       if (o1 == null || o2 == null)
         return false;
       return comparer.Equals(o1, o2);
+    }
+
+    public static int Compare<T>(T x, T y) where T : class, IComparable<T>
+    {
+      if (x == null && y == null)
+        return 0;
+      if (x == null)
+        return -1;
+      if (y == null)
+        return 1;
+      return x.CompareTo(y);
+    }
+
+    public static int Compare<T>(T? x, T? y) where T : struct, IComparable<T>
+    {
+      if (!x.HasValue && !y.HasValue)
+        return 0;
+      if (!x.HasValue)
+        return -1;
+      if (!y.HasValue)
+        return 1;
+      return x.Value.CompareTo(y.Value);
     }
   }
 }

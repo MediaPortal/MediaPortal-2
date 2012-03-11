@@ -90,7 +90,7 @@ namespace MediaPortal.UiComponents.Media.Models.ScreenData
       DoSearch();
     }
 
-    public override IEnumerable<MediaItem> GetAllMediaItems()
+    protected override IEnumerable<MediaItem> GetAllMediaItemsOverride()
     {
       return BuildAllItemsView().MediaItems;
     }
@@ -135,7 +135,7 @@ namespace MediaPortal.UiComponents.Media.Models.ScreenData
       }
       SimpleSearchText = string.Empty;
 
-      // Initialize data manually which would have been initialized by AbstractItemsScreenData.ReloadMediaItems else
+      // Initialize data manually which would have been initialized by AbstractItemsScreenData.UpdateMediaItems else
       IsItemsValid = true;
       IsItemsEmpty = false;
       TooManyItems = false;

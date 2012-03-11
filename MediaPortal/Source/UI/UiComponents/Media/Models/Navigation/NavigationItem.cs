@@ -39,6 +39,9 @@ namespace MediaPortal.UiComponents.Media.Models.Navigation
       set { SetLabel(Consts.KEY_SIMPLE_TITLE, value); }
     }
 
+    /// <summary>
+    /// Provides a fallback sorting for navigation items which is applied if no other sorting is available.
+    /// </summary>
     public string SortString
     {
       get

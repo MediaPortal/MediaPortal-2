@@ -209,6 +209,35 @@ namespace MediaPortal.UiComponents.Media.General
     public const string RES_LARGE_LIST = "[Media.LargeList]";
     public const string RES_LARGE_Grid = "[Media.LargeGrid]";
 
+    // Sorting
+    public const string RES_SWITCH_SORTING = "[Media.SwitchSortingMenuItem]";
+
+    public const string RES_SORT_BY_TITLE = "[Media.SortByTitle]";
+    public const string RES_SORT_BY_ALBUM_TRACK = "[Media.SortByAlbumTrack]";
+    public const string RES_SORT_BY_GENRE = "[Media.SortByGenre]";
+    public const string RES_SORT_BY_ALBUM = "[Media.SortByAlbum]";
+    public const string RES_SORT_BY_TRACK = "[Media.SortByTrack]";
+    public const string RES_SORT_BY_ARTIST = "[Media.SortByArtist]";
+    public const string RES_SORT_BY_YEAR = "[Media.SortByYear]";
+    public const string RES_SORT_BY_SIZE = "[Media.SortBySize]";
+    public const string RES_SORT_BY_SYSTEM = "[Media.SortBySystem]";
+    public const string RES_SORT_BY_ACTOR = "[Media.SortByActor]";
+    public const string RES_SORT_BY_DIRECTOR = "[Media.SortByDirector]";
+    public const string RES_SORT_BY_DURATION = "[Media.SortByDuration]";
+    public const string RES_SORT_BY_ASPECT_RATIO = "[Media.SortByAspectRatio]";
+    public const string RES_SORTING_BROWSE_DEFAULT = "[Media.SortingBrowseDefault]";
+
+    // Image and video size thresholds
+    /// <summary>
+    /// Smaller than this value in pixels in any direction is considered "small".
+    /// </summary>
+    public const int SMALL_SIZE_THRESHOLD = 640;
+
+    /// <summary>
+    /// Bigger than this value in pixels in any direction is considered "big".
+    /// </summary>
+    public const int BIG_SIZE_THRESHOLD = 1200;
+
     // Screens
     public const string SCREEN_BROWSE_MEDIA_NAVIGATION = "BrowseMediaNavigation";
     public const string SCREEN_LOCAL_MEDIA_NAVIGATION = "LocalMediaNavigation";
@@ -248,6 +277,8 @@ namespace MediaPortal.UiComponents.Media.General
     public const string DIALOG_ADD_TO_PLAYLIST_PROGRESS = "DialogAddToPlaylistProgress";
 
     public const string DIALOG_SWITCH_VIEW_MODE = "DialogSwitchViewMode";
+
+    public const string DIALOG_SWITCH_SORTING = "DialogSwitchSorting";
 
     // Timespans
     public static TimeSpan TS_SEARCH_TEXT_TYPE = TimeSpan.FromMilliseconds(300);
@@ -300,6 +331,8 @@ namespace MediaPortal.UiComponents.Media.General
 
     public const string KEY_LAYOUT_TYPE = "LayoutType";
     public const string KEY_LAYOUT_SIZE = "LayoutSize";
+
+    public const string KEY_SORTING = "Sorting";
 
     // Keys for workflow state variables
     public const string KEY_NAVIGATION_MODE = "MediaNavigationModel: NAVIGATION_MODE";

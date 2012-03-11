@@ -46,7 +46,6 @@ namespace MediaPortal.UiComponents.Media.Models.ScreenData
     protected bool _presentsBaseView;
     protected PlayableItemCreatorDelegate _playableItemCreator;
 
-    protected object _syncObj = new object();
     // Variables to be synchronized for multithreading access
     protected View _view = null;
     protected bool _buildingList = false;
@@ -121,14 +120,19 @@ namespace MediaPortal.UiComponents.Media.Models.ScreenData
       lock (_syncObj)
         if (_view != null)
           _view.Invalidate();
-      ReloadMediaItems(false);
+      UpdateMediaItems(false);
+    }
+
+    public override void UpdateItems()
+    {
+      UpdateMediaItems(false);
     }
 
     public void ReloadMediaItems(View view, bool createNewList)
     {
       lock (_syncObj)
         _view = view;
-      ReloadMediaItems(createNewList);
+      UpdateMediaItems(createNewList);
     }
 
     private void ViewChanged()
@@ -161,7 +165,7 @@ namespace MediaPortal.UiComponents.Media.Models.ScreenData
     /// </summary>
     /// <param name="createNewList">If set to <c>true</c>, this method will re-create the
     /// <see cref="AbstractScreenData.Items"/> list, else it will reuse it.</param>
-    protected void ReloadMediaItems(bool createNewList)
+    protected void UpdateMediaItems(bool createNewList)
     {
       View view;
       // Control other threads reentering this method
@@ -229,8 +233,13 @@ namespace MediaPortal.UiComponents.Media.Models.ScreenData
                     goto RebuildView;
 
                 PlayableItemCreatorDelegate picd = PlayableItemCreator;
-                List<NavigationItem> itemsList = mediaItems.Select(childItem => picd(childItem)).Where(item => item != null).Cast<NavigationItem>().ToList();
-                itemsList.Sort((i1, i2) => string.Compare(i1.SortString, i2.SortString));
+                List<PlayableMediaItem> itemsList = mediaItems.Select(childItem => picd(childItem)).Where(item => item != null).ToList();
+                Sorting.Sorting sorting = CurrentSorting;
+                if (sorting != null)
+                  itemsList.Sort((i1, i2) => sorting.Compare(i1.MediaItem, i2.MediaItem));
+                else
+                  // Default sorting: Use SortString
+                  itemsList.Sort((i1, i2) => string.Compare(i1.SortString, i2.SortString));
                 CollectionUtils.AddAll(items, itemsList);
 
                 Display_Normal(items.Count, totalNumItems == 0 ? new int?() : totalNumItems);
@@ -256,7 +265,7 @@ namespace MediaPortal.UiComponents.Media.Models.ScreenData
           else
             dirty = false;
         if (dirty)
-          ReloadMediaItems(createNewList);
+          UpdateMediaItems(createNewList);
         else
         {
           _items = items;

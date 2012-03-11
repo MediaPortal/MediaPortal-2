@@ -34,6 +34,7 @@ using MediaPortal.Common.PluginItemBuilders;
 using MediaPortal.Common.PluginManager;
 using MediaPortal.UI.Presentation.Screens;
 using MediaPortal.UI.Presentation.SkinResources;
+using MediaPortal.UiComponents.Media.Models.Sorting;
 using MediaPortal.UiComponents.Media.Views;
 using MediaPortal.UI.Presentation.DataObjects;
 using MediaPortal.UI.Presentation.Models;
@@ -269,19 +270,34 @@ namespace MediaPortal.UiComponents.Media.Models
           {
               MaxNumItems = Consts.MAX_NUM_ITEMS_VISIBLE
           };
-        AbstractScreenData sd = new AudioFilterByAlbumScreenData();
+        AbstractScreenData filterByAlbum = new AudioFilterByAlbumScreenData();
         ICollection<AbstractScreenData> availableScreens = new List<AbstractScreenData>
             {
               new AudioShowItemsScreenData(picd),
               new AudioFilterByArtistScreenData(),
-              sd, // C# doesn't like it to have an assignment inside a collection initializer
+              filterByAlbum, // C# doesn't like it to have an assignment inside a collection initializer
               new AudioFilterByGenreScreenData(),
               new AudioFilterByDecadeScreenData(),
               new AudioFilterBySystemScreenData(),
               new AudioSimpleSearchScreenData(picd),
             };
-        navigationData = new NavigationData(Consts.RES_AUDIO_VIEW_NAME, currentStateId,
-            currentStateId, rootViewSpecification, sd, availableScreens);
+        Sorting.Sorting sortByAlbumTrack = new AudioSortByAlbumTrack();
+        ICollection<Sorting.Sorting> availableSortings = new List<Sorting.Sorting>
+          {
+              sortByAlbumTrack,
+              new SortByTitle(),
+              new AudioSortByFirstGenre(),
+              new AudioSortByFirstArtist(),
+              new AudioSortByAlbum(),
+              new AudioSortByTrack(),
+              new SortByYear(),
+              new SortBySystem(),
+          };
+        navigationData = new NavigationData(null, Consts.RES_AUDIO_VIEW_NAME, currentStateId,
+            currentStateId, rootViewSpecification, filterByAlbum, availableScreens, sortByAlbumTrack)
+          {
+              AvailableSortings = availableSortings
+          };
       }
       else if (currentStateId == Consts.WF_STATE_ID_VIDEOS_NAVIGATION_ROOT)
       {
@@ -296,18 +312,34 @@ namespace MediaPortal.UiComponents.Media.Models
           {
               MaxNumItems = Consts.MAX_NUM_ITEMS_VISIBLE
           };
-        AbstractScreenData sd = new VideosFilterByGenreScreenData();
+        AbstractScreenData filterByGenre = new VideosFilterByGenreScreenData();
         ICollection<AbstractScreenData> availableScreens = new List<AbstractScreenData>
             {
               new VideosShowItemsScreenData(picd),
               new VideosFilterByActorScreenData(),
-              sd, // C# doesn't like it to have an assignment inside a collection initializer
+              filterByGenre, // C# doesn't like it to have an assignment inside a collection initializer
               new VideosFilterByYearScreenData(),
               new VideosFilterBySystemScreenData(),
               new VideosSimpleSearchScreenData(picd),
           };
-        navigationData = new NavigationData(Consts.RES_VIDEOS_VIEW_NAME, currentStateId,
-            currentStateId, rootViewSpecification, sd, availableScreens);
+        Sorting.Sorting sortByTitle = new SortByTitle();
+        ICollection<Sorting.Sorting> availableSortings = new List<Sorting.Sorting>
+          {
+              sortByTitle,
+              new SortByYear(),
+              new VideoSortByFirstGenre(),
+              new VideoSortByDuration(),
+              new VideoSortByDirector(),
+              new VideoSortByFirstActor(),
+              new VideoSortBySize(),
+              new VideoSortByAspectRatio(),
+              new SortBySystem(),
+          };
+        navigationData = new NavigationData(null, Consts.RES_VIDEOS_VIEW_NAME, currentStateId,
+            currentStateId, rootViewSpecification, filterByGenre, availableScreens, sortByTitle)
+          {
+              AvailableSortings = availableSortings
+          };
       }
       else if (currentStateId == Consts.WF_STATE_ID_IMAGES_NAVIGATION_ROOT)
       {
@@ -322,17 +354,28 @@ namespace MediaPortal.UiComponents.Media.Models
           {
               MaxNumItems = Consts.MAX_NUM_ITEMS_VISIBLE
           };
-        AbstractScreenData sd = new ImagesFilterByYearScreenData();
+        AbstractScreenData filterByYear = new ImagesFilterByYearScreenData();
         ICollection<AbstractScreenData> availableScreens = new List<AbstractScreenData>
             {
               new ImagesShowItemsScreenData(picd),
-              sd, // C# doesn't like it to have an assignment inside a collection initializer
+              filterByYear, // C# doesn't like it to have an assignment inside a collection initializer
               new ImagesFilterBySizeScreenData(),
               new ImagesFilterBySystemScreenData(),
               new ImagesSimpleSearchScreenData(picd),
           };
-        navigationData = new NavigationData(Consts.RES_IMAGES_VIEW_NAME, currentStateId,
-            currentStateId, rootViewSpecification, sd, availableScreens);
+        Sorting.Sorting sortByYear = new SortByYear();
+        ICollection<Sorting.Sorting> availableSortings = new List<Sorting.Sorting>
+          {
+              new SortByYear(),
+              new SortByTitle(),
+              new ImageSortBySize(),
+              new SortBySystem(),
+          };
+        navigationData = new NavigationData(null, Consts.RES_IMAGES_VIEW_NAME, currentStateId,
+            currentStateId, rootViewSpecification, filterByYear, availableScreens, sortByYear)
+          {
+              AvailableSortings = availableSortings
+          };
       }
       else
       {
@@ -387,8 +430,18 @@ namespace MediaPortal.UiComponents.Media.Models
         // Dynamic screens remain null - browse media states don't provide dynamic filters
         AbstractScreenData screenData = currentStateId == Consts.WF_STATE_ID_LOCAL_MEDIA_NAVIGATION_ROOT ?
             (AbstractScreenData) new LocalMediaNavigationScreenData(picd) : new BrowseMediaNavigationScreenData(picd);
-        navigationData = new NavigationData(viewName, currentStateId,
-            currentStateId, rootViewSpecification, screenData, null);
+        Sorting.Sorting browseDefaultSorting = new BrowseDefaultSorting();
+        ICollection<Sorting.Sorting> availableSortings = new List<Sorting.Sorting>
+          {
+              browseDefaultSorting,
+              new SortByTitle(),
+              // We could offer sortings here which are specific for one media item type but which will cope with all three item types (and sort items of the three types in a defined order)
+          };
+        navigationData = new NavigationData(null, viewName, currentStateId,
+            currentStateId, rootViewSpecification, screenData, null, browseDefaultSorting)
+          {
+              AvailableSortings = availableSortings
+          };
       }
       SetNavigationData(navigationData, _currentNavigationContext);
     }
