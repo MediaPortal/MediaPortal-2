@@ -359,9 +359,12 @@ namespace MediaPortal.Plugins.SlimTv.Providers
       {
         List<WebChannelBasic> tvChannels = TvServer(indexGroup.ServerIndex).GetChannelsBasic(group.ChannelGroupId);
         foreach (WebChannelBasic webChannel in tvChannels)
-        {
-          channels.Add(new Channel { ChannelId = webChannel.IdChannel, Name = webChannel.DisplayName, ServerIndex = indexGroup.ServerIndex });
-        }
+          channels.Add(new Channel
+                         {
+                           ChannelId = webChannel.IdChannel,
+                           Name = webChannel.DisplayName,
+                           ServerIndex = indexGroup.ServerIndex
+                         });
         return true;
       }
       catch (Exception ex)
@@ -502,7 +505,7 @@ namespace MediaPortal.Plugins.SlimTv.Providers
         ServiceRegistration.Get<ILogger>().Error(ex.Message);
         return false;
       }
-      return true;
+      return programs.Count > 0;
     }
 
     public bool GetProgramsForSchedule(ISchedule schedule, out IList<IProgram> programs)
