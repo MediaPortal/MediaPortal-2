@@ -93,7 +93,7 @@ namespace MediaPortal.Plugins.SlimTvClient
     /// </summary>
     public string CurrentGroupName
     {
-      get { return (string)_currentGroupNameProperty.GetValue(); }
+      get { return (string) _currentGroupNameProperty.GetValue(); }
       set { _currentGroupNameProperty.SetValue(value); }
     }
 
@@ -110,7 +110,7 @@ namespace MediaPortal.Plugins.SlimTvClient
     /// </summary>
     public string ChannelName
     {
-      get { return (string)_currentChannelNameProperty.GetValue(); }
+      get { return (string) _currentChannelNameProperty.GetValue(); }
       set { _currentChannelNameProperty.SetValue(value); }
     }
 
@@ -135,7 +135,7 @@ namespace MediaPortal.Plugins.SlimTvClient
     /// </summary>
     public string SelectedCurrentProgram
     {
-      get { return (string)_selectedCurrentProgramProperty.GetValue(); }
+      get { return (string) _selectedCurrentProgramProperty.GetValue(); }
       set { _selectedCurrentProgramProperty.SetValue(value); }
     }
 
@@ -153,7 +153,7 @@ namespace MediaPortal.Plugins.SlimTvClient
     /// </summary>
     public string SelectedNextProgram
     {
-      get { return (string)_selectedNextProgramProperty.GetValue(); }
+      get { return (string) _selectedNextProgramProperty.GetValue(); }
       set { _selectedNextProgramProperty.SetValue(value); }
     }
 
@@ -171,7 +171,7 @@ namespace MediaPortal.Plugins.SlimTvClient
     /// </summary>
     public ProgramProperties CurrentProgram
     {
-      get { return (ProgramProperties)_currentProgramProperty.GetValue(); }
+      get { return (ProgramProperties) _currentProgramProperty.GetValue(); }
       set { _currentProgramProperty.SetValue(value); }
     }
 
@@ -188,7 +188,7 @@ namespace MediaPortal.Plugins.SlimTvClient
     /// </summary>
     public double ProgramProgress
     {
-      get { return (double)_programProgressProperty.GetValue(); }
+      get { return (double) _programProgressProperty.GetValue(); }
       internal set { _programProgressProperty.SetValue(value); }
     }
 
@@ -205,7 +205,7 @@ namespace MediaPortal.Plugins.SlimTvClient
     /// </summary>
     public double TimeshiftProgress
     {
-      get { return (double)_timeshiftProgressProperty.GetValue(); }
+      get { return (double) _timeshiftProgressProperty.GetValue(); }
       internal set { _timeshiftProgressProperty.SetValue(value); }
     }
 
@@ -216,13 +216,13 @@ namespace MediaPortal.Plugins.SlimTvClient
     {
       get { return _timeshiftProgressProperty; }
     }
-    
+
     /// <summary>
     /// Exposes the next program to the skin.
     /// </summary>
     public ProgramProperties NextProgram
     {
-      get { return (ProgramProperties)_nextProgramProperty.GetValue(); }
+      get { return (ProgramProperties) _nextProgramProperty.GetValue(); }
       set { _nextProgramProperty.SetValue(value); }
     }
 
@@ -247,7 +247,7 @@ namespace MediaPortal.Plugins.SlimTvClient
 
     public bool PiPEnabled
     {
-      get { return (bool)_piPEnabledProperty.GetValue(); }
+      get { return (bool) _piPEnabledProperty.GetValue(); }
       set { _piPEnabledProperty.SetValue(value); }
     }
 
@@ -255,10 +255,10 @@ namespace MediaPortal.Plugins.SlimTvClient
     {
       get { return _piPEnabledProperty; }
     }
-    
+
     public bool IsOSDVisible
     {
-      get { return (bool)_isOSDVisibleProperty.GetValue(); }
+      get { return (bool) _isOSDVisibleProperty.GetValue(); }
       set { _isOSDVisibleProperty.SetValue(value); }
     }
 
@@ -269,7 +269,7 @@ namespace MediaPortal.Plugins.SlimTvClient
 
     public bool IsOSDLevel0
     {
-      get { return (bool)_isOSDLevel0Property.GetValue(); }
+      get { return (bool) _isOSDLevel0Property.GetValue(); }
       set { _isOSDLevel0Property.SetValue(value); }
     }
 
@@ -280,7 +280,7 @@ namespace MediaPortal.Plugins.SlimTvClient
 
     public bool IsOSDLevel1
     {
-      get { return (bool)_isOSDLevel1Property.GetValue(); }
+      get { return (bool) _isOSDLevel1Property.GetValue(); }
       set { _isOSDLevel1Property.SetValue(value); }
     }
 
@@ -291,7 +291,7 @@ namespace MediaPortal.Plugins.SlimTvClient
 
     public bool IsOSDLevel2
     {
-      get { return (bool)_isOSDLevel2Property.GetValue(); }
+      get { return (bool) _isOSDLevel2Property.GetValue(); }
       set { _isOSDLevel2Property.SetValue(value); }
     }
 
@@ -328,7 +328,7 @@ namespace MediaPortal.Plugins.SlimTvClient
         Update();
         return;
       }
-      
+
       if (IsOSDLevel0)
       {
         IsOSDVisible = IsOSDLevel1 = true;
@@ -413,23 +413,23 @@ namespace MediaPortal.Plugins.SlimTvClient
     {
       if (!_isInitialized)
       {
-        _currentGroupNameProperty = new WProperty(typeof (string), string.Empty);
-        _selectedCurrentProgramProperty = new WProperty(typeof (string), string.Empty);
-        _selectedNextProgramProperty = new WProperty(typeof (string), string.Empty);
+        _currentGroupNameProperty = new WProperty(typeof(string), string.Empty);
+        _selectedCurrentProgramProperty = new WProperty(typeof(string), string.Empty);
+        _selectedNextProgramProperty = new WProperty(typeof(string), string.Empty);
 
-        _currentChannelNameProperty = new WProperty(typeof (string), string.Empty);
-        _currentProgramProperty = new WProperty(typeof (ProgramProperties), new ProgramProperties());
-        _nextProgramProperty = new WProperty(typeof (ProgramProperties), new ProgramProperties());
-        _programProgressProperty = new WProperty(typeof (double), 0d);
-        _timeshiftProgressProperty = new WProperty(typeof (double), 0d);
+        _currentChannelNameProperty = new WProperty(typeof(string), string.Empty);
+        _currentProgramProperty = new WProperty(typeof(ProgramProperties), new ProgramProperties());
+        _nextProgramProperty = new WProperty(typeof(ProgramProperties), new ProgramProperties());
+        _programProgressProperty = new WProperty(typeof(double), 0d);
+        _timeshiftProgressProperty = new WProperty(typeof(double), 0d);
 
-        _piPAvailableProperty = new WProperty(typeof (bool), false);
-        _piPEnabledProperty = new WProperty(typeof (bool), false);
+        _piPAvailableProperty = new WProperty(typeof(bool), false);
+        _piPEnabledProperty = new WProperty(typeof(bool), false);
 
-        _isOSDVisibleProperty = new WProperty(typeof (bool), false);
-        _isOSDLevel0Property = new WProperty(typeof (bool), false);
-        _isOSDLevel1Property = new WProperty(typeof (bool), false);
-        _isOSDLevel2Property = new WProperty(typeof (bool), false);
+        _isOSDVisibleProperty = new WProperty(typeof(bool), false);
+        _isOSDLevel0Property = new WProperty(typeof(bool), false);
+        _isOSDLevel1Property = new WProperty(typeof(bool), false);
+        _isOSDLevel2Property = new WProperty(typeof(bool), false);
 
         _isInitialized = true;
       }
@@ -475,14 +475,13 @@ namespace MediaPortal.Plugins.SlimTvClient
             if (context.Program != null)
             {
               IProgram currentProgram = context.Program;
-              double progress = (DateTime.Now - currentProgram.StartTime).TotalSeconds/
-                                (currentProgram.EndTime - currentProgram.StartTime).TotalSeconds*100;
+              double progress = (DateTime.Now - currentProgram.StartTime).TotalSeconds /
+                                (currentProgram.EndTime - currentProgram.StartTime).TotalSeconds * 100;
               _programProgressProperty.SetValue(progress);
 
               IList<IProgram> nextPrograms;
               DateTime nextTime = currentProgram.EndTime.Add(TimeSpan.FromSeconds(10));
-              _tvHandler.ProgramInfo.GetPrograms(context.Channel, nextTime, nextTime, out nextPrograms);
-              if (nextPrograms != null)
+              if (_tvHandler.ProgramInfo.GetPrograms(context.Channel, nextTime, nextTime, out nextPrograms))
                 NextProgram.SetProgram(nextPrograms[0]);
             }
           }
@@ -541,6 +540,7 @@ namespace MediaPortal.Plugins.SlimTvClient
     {
       ItemsList channelPrograms = new ItemsList();
       IProgram program;
+      // We do not check return code here, because CreateProgramListItem creates placeholder when no program is available
       _tvHandler.ProgramInfo.GetCurrentProgram(channel, out program);
       CreateProgramListItem(program, channelPrograms);
 
@@ -584,7 +584,7 @@ namespace MediaPortal.Plugins.SlimTvClient
       if (program == null)
         return ServiceRegistration.Get<ILocalization>().ToString("[SlimTvClient.NoProgram]");
 
-      return String.Format("{0} - {1} : {2}", 
+      return String.Format("{0} - {1} : {2}",
                            program.StartTime.ToString("t"),
                            program.EndTime.ToString("t"),
                            program.Title);

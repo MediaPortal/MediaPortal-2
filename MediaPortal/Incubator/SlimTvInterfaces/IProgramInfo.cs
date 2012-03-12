@@ -33,11 +33,48 @@ namespace MediaPortal.Plugins.SlimTvClient.Interfaces
   /// </summary>
   public interface IProgramInfo
   {
+    /// <summary>
+    /// Tries to get the current program for the given <paramref name="channel"/>.
+    /// </summary>
+    /// <param name="channel">Channel</param>
+    /// <param name="program">Returns program</param>
+    /// <returns><c>true</c> if a program could be found</returns>
     bool GetCurrentProgram(IChannel channel, out IProgram program);
+
+    /// <summary>
+    /// Tries to get the next program for the given <paramref name="channel"/>.
+    /// </summary>
+    /// <param name="channel">Channel</param>
+    /// <param name="program">Returns program</param>
+    /// <returns><c>true</c> if a program could be found</returns>
     bool GetNextProgram(IChannel channel, out IProgram program);
+
+    /// <summary>
+    /// Tries to get a list of programs for the given <paramref name="channel"/> and time range.
+    /// </summary>
+    /// <param name="channel">Channel</param>
+    /// <param name="from">Time from</param>
+    /// <param name="to">Time to</param>
+    /// <param name="programs">Returns programs</param>
+    /// <returns><c>true</c> if at least one program could be found</returns>
     bool GetPrograms(IChannel channel, DateTime from, DateTime to, out IList<IProgram> programs);
+
+    /// <summary>
+    /// Tries to get a list of programs for the given <paramref name="schedule"/>.
+    /// </summary>
+    /// <param name="schedule">Schedule</param>
+    /// <param name="programs">Returns programs</param>
+    /// <returns><c>true</c> if at least one program could be found</returns>
     bool GetProgramsForSchedule(ISchedule schedule, out IList<IProgram> programs);
+
+    /// <summary>
+    /// Tries to get a list of programs for the given <paramref name="channel"/>.
+    /// </summary>
+    /// <param name="channel">Channel</param> 
+    /// <param name="programs">Returns programs</param>
+    /// <returns><c>true</c> if at least one program could be found</returns>
     bool GetScheduledPrograms(IChannel channel, out IList<IProgram> programs);
+
     /// <summary>
     /// Gets a channel from an IProgram.
     /// </summary>

@@ -132,8 +132,8 @@ namespace MediaPortal.Plugins.SlimTvClient
     public AbstractProperty CurrentTimeLeftOffsetProperty
     {
       get { return _currentTimeLeftOffsetProperty; }
-    } 
-    
+    }
+
     public bool CurrentTimeVisible
     {
       get { return (bool) _currentTimeVisibleProperty.GetValue(); }
@@ -171,7 +171,7 @@ namespace MediaPortal.Plugins.SlimTvClient
         _guideStartTimeProperty = new WProperty(typeof(DateTime), startDate);
         _currentTimeViewOffsetProperty = new WProperty(typeof(int), 0);
         _currentTimeLeftOffsetProperty = new WProperty(typeof(double), 0d);
-        _currentTimeVisibleProperty= new WProperty(typeof(bool), true);
+        _currentTimeVisibleProperty = new WProperty(typeof(bool), true);
       }
       base.InitModel();
     }
@@ -204,30 +204,30 @@ namespace MediaPortal.Plugins.SlimTvClient
       return GetProgramsList(channel, GuideStartTime, GuideEndTime);
 
     }
+
     protected ItemsList GetProgramsList(IChannel channel, DateTime referenceStart, DateTime referenceEnd)
     {
       ItemsList channelPrograms = new ItemsList();
       if (_tvHandler.ProgramInfo.GetPrograms(channel, referenceStart, referenceEnd, out _programs))
       {
-        if (_programs.Count == 0)
-          channelPrograms.Add(NoProgramPlaceholder());
-        else
-          foreach (IProgram program in _programs)
-          {
-            // Use local variable, otherwise delegate argument is not fixed
-            ProgramProperties programProperties = new ProgramProperties(GuideStartTime, GuideEndTime);
-            IProgram currentProgram = program;
-            programProperties.SetProgram(currentProgram);
+        foreach (IProgram program in _programs)
+        {
+          // Use local variable, otherwise delegate argument is not fixed
+          ProgramProperties programProperties = new ProgramProperties(GuideStartTime, GuideEndTime);
+          IProgram currentProgram = program;
+          programProperties.SetProgram(currentProgram);
 
-            ProgramListItem item = new ProgramListItem(programProperties)
-                                     {
-                                       Command = new MethodDelegateCommand(() => ShowProgramActions(currentProgram))
-                                     };
-            item.AdditionalProperties["PROGRAM"] = currentProgram;
+          ProgramListItem item = new ProgramListItem(programProperties)
+                                   {
+                                     Command = new MethodDelegateCommand(() => ShowProgramActions(currentProgram))
+                                   };
+          item.AdditionalProperties["PROGRAM"] = currentProgram;
 
-            channelPrograms.Add(item);
-          }
+          channelPrograms.Add(item);
+        }
       }
+      else
+        channelPrograms.Add(NoProgramPlaceholder());
       return channelPrograms;
     }
 

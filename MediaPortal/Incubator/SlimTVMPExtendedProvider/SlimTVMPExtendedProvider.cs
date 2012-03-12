@@ -519,7 +519,7 @@ namespace MediaPortal.Plugins.SlimTv.Providers
         ServiceRegistration.Get<ILogger>().Error(ex.Message);
         return false;
       }
-      return true;
+      return programs.Count > 0;
     }
 
     public bool GetProgramsForSchedule(ISchedule schedule, out IList<IProgram> programs)
