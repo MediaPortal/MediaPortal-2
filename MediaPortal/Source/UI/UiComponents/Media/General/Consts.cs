@@ -225,6 +225,7 @@ namespace MediaPortal.UiComponents.Media.General
     public const string RES_SORT_BY_DIRECTOR = "[Media.SortByDirector]";
     public const string RES_SORT_BY_DURATION = "[Media.SortByDuration]";
     public const string RES_SORT_BY_ASPECT_RATIO = "[Media.SortByAspectRatio]";
+    public const string RES_SORT_BY_DATE = "[Media.SortByDate]";
     public const string RES_SORTING_BROWSE_DEFAULT = "[Media.SortingBrowseDefault]";
 
     // Image and video size thresholds

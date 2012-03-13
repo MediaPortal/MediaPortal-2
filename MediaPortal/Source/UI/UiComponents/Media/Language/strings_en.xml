@@ -267,6 +267,7 @@
     <String Name="SortByDirector" Text="Sort by director"/>
     <String Name="SortByDuration" Text="Sort by duration"/>
     <String Name="SortByAspectRatio" Text="Sort by aspect ratio"/>
+    <String Name="SortByDate" Text="Sort by recording date"/>
     <String Name="SortingBrowseDefault" Text="Default sorting"/>
   </Section>
   <Section Name="Settings">

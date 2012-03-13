@@ -435,6 +435,7 @@ namespace MediaPortal.UiComponents.Media.Models
           {
               browseDefaultSorting,
               new SortByTitle(),
+              new SortByDate(),
               // We could offer sortings here which are specific for one media item type but which will cope with all three item types (and sort items of the three types in a defined order)
           };
         navigationData = new NavigationData(null, viewName, currentStateId,

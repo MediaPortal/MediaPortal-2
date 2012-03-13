@@ -22,19 +22,32 @@
 
 #endregion
 
+using System;
+using MediaPortal.Common.MediaManagement;
+using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.UiComponents.Media.General;
+using MediaPortal.Utilities;
 
 namespace MediaPortal.UiComponents.Media.Models.Sorting
 {
-  /// <summary>
-  /// In fact, this comparer does the same than <see cref="SortByDate"/>, but the <see cref="DisplayName"/> shows something like
-  /// <c>"Sort by year"</c>.
-  /// </summary>
-  public class SortByYear : SortByDate
+  public class SortByDate : SortByTitle
   {
     public override string DisplayName
     {
-      get { return Consts.RES_SORT_BY_YEAR; }
+      get { return Consts.RES_SORT_BY_DATE; }
+    }
+
+    public override int Compare(MediaItem x, MediaItem y)
+    {
+      MediaItemAspect mediaAspectX;
+      MediaItemAspect mediaAspectY;
+      if (x.Aspects.TryGetValue(MediaAspect.ASPECT_ID, out mediaAspectX) && y.Aspects.TryGetValue(MediaAspect.ASPECT_ID, out mediaAspectY))
+      {
+        DateTime? recordingTimeX = (DateTime?) mediaAspectX.GetAttributeValue(MediaAspect.ATTR_RECORDINGTIME);
+        DateTime? recordingTimeY = (DateTime?) mediaAspectY.GetAttributeValue(MediaAspect.ATTR_RECORDINGTIME);
+        return ObjectUtils.Compare(recordingTimeX, recordingTimeY);
+      }
+      return base.Compare(x, y);
     }
   }
 }
