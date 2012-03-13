@@ -24,25 +24,20 @@
 
 using MediaPortal.Common.Localization;
 using MediaPortal.UI.Presentation.Workflow;
+using MediaPortal.UiComponents.Media.General;
 using MediaPortal.UiComponents.Media.Models;
 
 namespace MediaPortal.UiComponents.Media.Actions
 {
   public class AddViewToPlaylistAction : IWorkflowContributor
   {
-    #region Consts
-
-    public const string ADD_TO_PLAYLIST_RES = "[Media.AddAllToPlaylist]";
-
-    #endregion
-
     #region IWorkflowContributor implementation
 
     public event ContributorStateChangeDelegate StateChanged;
 
     public IResourceString DisplayTitle
     {
-      get { return LocalizationHelper.CreateResourceString(ADD_TO_PLAYLIST_RES); }
+      get { return LocalizationHelper.CreateResourceString(Consts.RES_ADD_TO_PLAYLIST_RES); }
     }
 
     public void Initialize()

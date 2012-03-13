@@ -124,6 +124,8 @@
     <!-- Playlists -->
     <String Name="ManagePlaylists" Text="Playlists"/>
     <String Name="AddAllToPlaylist" Text="Add all to playlist"/>
+    <String Name="NoItemsToAddHeader" Text="No items to add"/>
+    <String Name="NoItemsToAddText" Text="There are no items in the current view"/>
     <String Name="ChooseAVTypeDialogHeader" Text="Choose type of items"/>
     <String Name="AddAllAudio" Text="Add audio items"/>
     <String Name="AddAllVideo" Text="Add video items"/>

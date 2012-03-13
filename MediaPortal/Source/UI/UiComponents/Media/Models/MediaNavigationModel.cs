@@ -129,6 +129,12 @@ namespace MediaPortal.UiComponents.Media.Models
 
     #region Static members which also can be used from other models
 
+    public static MediaNavigationModel GetCurrentInstance()
+    {
+      IWorkflowManager workflowManager = ServiceRegistration.Get<IWorkflowManager>();
+      return (MediaNavigationModel) workflowManager.GetModel(MEDIA_MODEL_ID);
+    }
+
     /// <summary>
     /// Gets the information if there is a navigation data available.
     /// </summary>
@@ -136,21 +142,32 @@ namespace MediaPortal.UiComponents.Media.Models
     {
       get
       {
-        IWorkflowManager workflowManager = ServiceRegistration.Get<IWorkflowManager>();
-        MediaNavigationModel model = (MediaNavigationModel) workflowManager.GetModel(MEDIA_MODEL_ID);
+        MediaNavigationModel model = GetCurrentInstance();
         NavigationData navigationData = model.NavigationData;
         return navigationData != null && navigationData.IsEnabled;
       }
     }
 
     /// <summary>
-    /// Action which can be called from outside when there is an enabled navigation data present
-    /// (<see cref="IsNavigationDataEnabled"/>.
+    /// Adds the current view to the playlist of the current player.
     /// </summary>
+    /// <remarks>
+    /// This action can be called from outside when there is an enabled navigation data present (<see cref="IsNavigationDataEnabled"/>.
+    /// </remarks>
     public static void AddCurrentViewToPlaylist()
     {
-      IWorkflowManager workflowManager = ServiceRegistration.Get<IWorkflowManager>();
-      MediaNavigationModel model = (MediaNavigationModel) workflowManager.GetModel(MEDIA_MODEL_ID);
+      MediaNavigationModel model = GetCurrentInstance();
+      NavigationData navigationData = model.NavigationData;
+      if (navigationData == null || !navigationData.IsEnabled)
+      {
+        ServiceRegistration.Get<ILogger>().Error("MediaNavigationModel.AddCurrentViewToPlaylist: No enabled navigation data present");
+        return;
+      }
+      if (navigationData.CurrentScreenData.IsItemsEmpty)
+      {
+        ServiceRegistration.Get<IDialogManager>().ShowDialog(Consts.RES_NO_ITEMS_TO_ADD_HEADER, Consts.RES_NO_ITEMS_TO_ADD_TEXT, DialogType.OkDialog, false, DialogButtonType.Ok);
+        return;
+      }
       model.AddCurrentViewToPlaylistInternal();
     }
 
