@@ -453,7 +453,7 @@ namespace UPnP.Infrastructure.Dv.SSDP
     /// </summary>
     /// <param name="userAgentStr">USER-AGENT header entry of a UPnP discovery request.</param>
     /// <exception cref="MediaPortal.Utilities.Exceptions.InvalidDataException">If the specified header value is malformed.</exception>
-    /// <exception cref="UnsupportedRequestException">If the specified header denotes an unsupported client.</exception>
+    /// <exception cref="UnsupportedRequestException">If the specified header denotes an unsupported UPnP version.</exception>
     protected static void CheckUserAgentUPnPVersion(string userAgentStr)
     {
       int minorVersion;

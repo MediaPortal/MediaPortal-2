@@ -56,7 +56,7 @@ namespace UPnP.Infrastructure
     public static bool SITE_LOCAL_OPERATION = true;
 
     /// <summary>
-    /// Seconds a search response may be delayed. MUST be >=1 and SHOULD be <=5. This setting is relevant for the
+    /// Denotes that a search response may be delayed. MUST be &gt;=1 and SHOULD be &lt;=5. This setting is relevant for the
     /// UPnP control point.
     /// </summary>
     public static int SEARCH_MX = 1;
@@ -86,6 +86,12 @@ namespace UPnP.Infrastructure
     /// product to be represented. This setting is relevant for both the UPnP control point and UPnP server.
     /// </summary>
     public static string PRODUCT_VERSION = "UPnP_server/0.1";
+
+    /// <summary>
+    /// Denotes that <c>USER-AGENT</c> strings should be parsed strictly (<c>LAX_USER_AGENT_PARSING == false</c>) or lax.
+    /// Many devices, especially smartphones, send a malformed <c>USER-AGENT</c> header which doesn't comply with the UPnP specification.
+    /// </summary>
+    public static bool LAX_USER_AGENT_PARSING = true;
 
     /// <summary>
     /// Logger instance used in all future calls of the UPnP system. Must not be <c>null</c>!

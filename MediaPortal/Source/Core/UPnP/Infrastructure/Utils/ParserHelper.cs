@@ -48,7 +48,15 @@ namespace UPnP.Infrastructure.Utils
       }
       UPnPVersion ver;
       if (!UPnPVersion.TryParseFromUserAgent(userAgentStr, out ver))
+      {
+        if (UPnPConfiguration.LAX_USER_AGENT_PARSING)
+        {
+          // If a client sent a malformed USER-AGENT, we'll assume UPnP Version 1.0
+          minorVersion = 0;
+          return true;
+        }
         throw new UnsupportedRequestException(string.Format("Unsupported USER-AGENT header entry '{0}'", userAgentStr));
+      }
       minorVersion = 0;
       if (ver.VerMax != 1)
         return false;
