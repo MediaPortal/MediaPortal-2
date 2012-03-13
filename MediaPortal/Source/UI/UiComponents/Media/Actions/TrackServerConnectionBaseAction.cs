@@ -38,7 +38,7 @@ namespace MediaPortal.UiComponents.Media.Actions
     protected AsynchronousMessageQueue _messageQueue = null;
 
     protected readonly bool _visibleOnServerConnect;
-    protected readonly Guid _targetWorkflowStateId;
+    protected readonly Guid? _targetWorkflowStateId;
     protected readonly IResourceString _displayTitle;
 
     // This is the only attribute to be updated so we can optimize using volatile instead of using a lock
@@ -46,7 +46,7 @@ namespace MediaPortal.UiComponents.Media.Actions
 
     #endregion
 
-    public TrackServerConnectionBaseAction(bool visibleOnServerConnect, Guid targetWorkflowStateId, string displayTitleResource)
+    public TrackServerConnectionBaseAction(bool visibleOnServerConnect, Guid? targetWorkflowStateId, string displayTitleResource)
     {
       _visibleOnServerConnect = visibleOnServerConnect;
       _targetWorkflowStateId = targetWorkflowStateId;
@@ -90,9 +90,14 @@ namespace MediaPortal.UiComponents.Media.Actions
     {
       IServerConnectionManager scm = ServiceRegistration.Get<IServerConnectionManager>();
       bool lastVisible = _isVisible;
-      _isVisible = scm.IsHomeServerConnected ^ !_visibleOnServerConnect;
+      _isVisible = (scm.IsHomeServerConnected ^ !_visibleOnServerConnect) && IsVisibleOverride;
       if (lastVisible != _isVisible)
         FireStateChanged();
+    }
+
+    protected virtual bool IsVisibleOverride
+    {
+      get { return true; }
     }
 
     protected void FireStateChanged()
@@ -105,36 +110,38 @@ namespace MediaPortal.UiComponents.Media.Actions
 
     public event ContributorStateChangeDelegate StateChanged;
 
-    public IResourceString DisplayTitle
+    public virtual IResourceString DisplayTitle
     {
       get { return _displayTitle; }
     }
 
-    public void Initialize()
+    public virtual void Initialize()
     {
       SubscribeToMessages();
       Update();
     }
 
-    public void Uninitialize()
+    public virtual void Uninitialize()
     {
       UnsubscribeFromMessages();
     }
 
-    public bool IsActionVisible(NavigationContext context)
+    public virtual bool IsActionVisible(NavigationContext context)
     {
       return _isVisible;
     }
 
-    public bool IsActionEnabled(NavigationContext context)
+    public virtual bool IsActionEnabled(NavigationContext context)
     {
       return true;
     }
 
-    public void Execute()
+    public virtual void Execute()
     {
+      if (!_targetWorkflowStateId.HasValue)
+        return;
       IWorkflowManager workflowManager = ServiceRegistration.Get<IWorkflowManager>();
-      workflowManager.NavigatePush(_targetWorkflowStateId);
+      workflowManager.NavigatePush(_targetWorkflowStateId.Value);
     }
 
     #endregion

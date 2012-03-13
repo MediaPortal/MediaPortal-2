@@ -23,14 +23,13 @@
 #endregion
 
 using MediaPortal.Common;
-using MediaPortal.Common.Localization;
 using MediaPortal.UI.Presentation.Workflow;
 using MediaPortal.UiComponents.Media.General;
 using MediaPortal.UiComponents.Media.Models;
 
 namespace MediaPortal.UiComponents.Media.Actions
 {
-  public class ManagePlaylistsAction : IWorkflowContributor
+  public class ManagePlaylistsAction : TrackServerConnectionBaseAction
   {
     #region Consts
 
@@ -39,6 +38,8 @@ namespace MediaPortal.UiComponents.Media.Actions
     public const string ADD_TO_PLAYLIST_RES = "[Media.ManagePlaylists]";
 
     #endregion
+
+    public ManagePlaylistsAction() : base(true, null, ADD_TO_PLAYLIST_RES) {}
 
     /// <summary>
     /// Returns the information if the playlist management action should be visible in the current workflow state.
@@ -49,34 +50,14 @@ namespace MediaPortal.UiComponents.Media.Actions
       return !workflowManager.IsStateContainedInNavigationStack(Consts.WF_STATE_ID_PLAYLISTS_OVERVIEW);
     }
 
+    protected override bool IsVisibleOverride
+    {
+      get { return ShowPlaylistManagement(); }
+    }
+
     #region IWorkflowContributor implementation
 
-    public event ContributorStateChangeDelegate StateChanged;
-
-    public IResourceString DisplayTitle
-    {
-      get { return LocalizationHelper.CreateResourceString(ADD_TO_PLAYLIST_RES); }
-    }
-
-    public void Initialize()
-    {
-    }
-
-    public void Uninitialize()
-    {
-    }
-
-    public bool IsActionVisible(NavigationContext context)
-    {
-      return ShowPlaylistManagement();
-    }
-
-    public bool IsActionEnabled(NavigationContext context)
-    {
-      return true;
-    }
-
-    public void Execute()
+    public override void Execute()
     {
       ManagePlaylistsModel.ShowPlaylistsOverview();
     }
