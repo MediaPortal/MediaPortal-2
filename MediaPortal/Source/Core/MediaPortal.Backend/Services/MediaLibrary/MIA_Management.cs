@@ -421,6 +421,15 @@ namespace MediaPortal.Backend.Services.MediaLibrary
       return result;
     }
 
+    protected static object TruncateBigValue(object value, MediaItemAspectMetadata.AttributeSpecification attributeSpecification)
+    {
+      string str = value as string;
+      uint maxNumChars = attributeSpecification.MaxNumChars;
+      if (!string.IsNullOrEmpty(str) && maxNumChars > 0 && str.Length > maxNumChars)
+        return str.Substring(0, (int) maxNumChars);
+      return value;
+    }
+
     protected IList GetOneToManyMIAAttributeValues(ITransaction transaction, Guid mediaItemId,
         MediaItemAspectMetadata.AttributeSpecification spec)
     {
@@ -577,7 +586,8 @@ namespace MediaPortal.Backend.Services.MediaLibrary
               MIA_MEDIA_ITEM_ID_COL_NAME + " = @MEDIA_ITEM_ID AND " + COLL_ATTR_VALUE_COL_NAME + " = @COLL_ATTR_VALUE)";
 
           database.AddParameter(command, "MEDIA_ITEM_ID", mediaItemId, typeof(Guid)); // Used twice in query
-          database.AddParameter(command, "COLL_ATTR_VALUE", value, spec.AttributeType); // Used twice in query
+          object writeValue = TruncateBigValue(value, spec);
+          database.AddParameter(command, "COLL_ATTR_VALUE", writeValue, spec.AttributeType); // Used twice in query
 
           command.ExecuteNonQuery();
         }
@@ -725,6 +735,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
             " FROM " + collectionAttributeTableName + " WHERE " + COLL_ATTR_VALUE_COL_NAME + " = @COLL_ATTR_VALUE)";
 
         database.AddParameter(command, "FOREIGN_COLL_ATTR", Guid.NewGuid(), typeof(Guid));
+        value = TruncateBigValue(value, spec);
         database.AddParameter(command, "COLL_ATTR_VALUE", value, spec.AttributeType); // Used twice in query
 
         command.ExecuteNonQuery();
@@ -1392,6 +1403,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
             else
               terms1.Add(attrColName + " = @" + bindVarName);
             attributeValue = mia.GetAttributeValue(spec);
+            attributeValue = TruncateBigValue(attributeValue, spec);
             bindVars.Add(new BindVar(bindVarName, AttributeIsEmpty(attributeValue) ? null : attributeValue, spec.AttributeType));
             break;
           case Cardinality.OneToMany:
