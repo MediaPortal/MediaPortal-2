@@ -261,7 +261,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.VideoMetadataExtractor
 
 
         // Try to get extended information out of matroska files
-        if (localFsResourcePath.EndsWith(".mkv"))
+        if (localFsResourcePath.EndsWith(".mkv") || localFsResourcePath.EndsWith(".mk3d"))
         {
           MatroskaInfoReader mkvReader = new MatroskaInfoReader(localFsResourcePath);
           // Add keys to be extracted to tags dictionary, matching results will returned as value
