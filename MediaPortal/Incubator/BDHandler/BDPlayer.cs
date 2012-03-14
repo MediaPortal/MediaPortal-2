@@ -30,7 +30,6 @@ using System.Threading;
 using BDInfo;
 using DirectShowLib;
 using MediaPortal.Common;
-using MediaPortal.Common.Localization;
 using MediaPortal.Common.Settings;
 using MediaPortal.Plugins.BDHandler.Settings;
 using MediaPortal.UI.Players.Video.Tools;
@@ -121,43 +120,6 @@ namespace MediaPortal.UI.Players.Video
       // MSDN: "During the connection process, the Filter Graph Manager ignores pins on intermediate filters if the pin name begins with a tilde (~)."
       // then connect the skipped "~" output pins
       FilterGraphTools.RenderAllManualConnectPins(_graphBuilder);
-
-      AnalyseStreams();
-    }
-
-    #endregion
-
-    #region Methods
-
-    /// <summary>
-    /// Analyzes the current graph and extracts information about chapter markers and subtitle streams.
-    /// </summary>
-    /// <returns></returns>
-    public bool AnalyseStreams()
-    {
-      BDPlayerBuilder.LogDebug("Analyzing streams to filter duplicates...");
-      try
-      {
-        IAMExtendedSeeking pEs = FilterGraphTools.FindFilterByInterface<IAMExtendedSeeking>(_graphBuilder);
-        if (pEs != null)
-        {
-          int markerCount;
-          if (pEs.get_MarkerCount(out markerCount) == 0 && markerCount > 0)
-          {
-            _chapterTimestamps = new double[markerCount];
-            _chapterNames = new string[markerCount];
-            for (int i = 1; i <= markerCount; i++)
-            {
-              double markerTime;
-              pEs.GetMarkerTime(i, out markerTime);
-              _chapterTimestamps[i - 1] = markerTime;
-              _chapterNames[i - 1] = GetChapterName(i);
-            }
-          }
-        }
-      }
-      catch { }
-      return true;
     }
 
     #endregion
@@ -246,26 +208,7 @@ namespace MediaPortal.UI.Players.Video
       for (int c = 0; c < _chapterNames.Length; c++)
         _chapterNames[c] = GetChapterName(c + 1);
     }
-
-    #region ITitlePlayer Member
-
-    private readonly string[] _emptyStringArray = new string[0];
-
-    public override string[] Titles
-    {
-      get { return _emptyStringArray; }
-    }
-
-    public override void SetTitle(string title)
-    { }
-
-    public override string CurrentTitle
-    {
-      get { return null; }
-    }
-
-    #endregion
-
+    
     #region IDVDPlayer Member
 
     public bool IsHandlingUserInput
