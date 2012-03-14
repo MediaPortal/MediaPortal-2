@@ -947,7 +947,7 @@ namespace MediaPortal.UI.Players.Video
     /// <summary>
     /// Enumerates available chapters. Needs to be executed after title changes.
     /// </summary>
-    protected void EnumerateChapters()
+    protected override void EnumerateChapters()
     {
       if (!_initialized || _dvdInfo == null)
         return;

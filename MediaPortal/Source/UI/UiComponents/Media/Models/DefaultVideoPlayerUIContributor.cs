@@ -315,7 +315,7 @@ namespace MediaPortal.UiComponents.Media.Models
       PlayerConfigurationDialogModel.OpenChooseGeometryDialog(pc);
     }
 
-    // <summary>
+    /// <summary>
     /// Skips to previous chapter.
     /// </summary>
     public void PrevChapter()
