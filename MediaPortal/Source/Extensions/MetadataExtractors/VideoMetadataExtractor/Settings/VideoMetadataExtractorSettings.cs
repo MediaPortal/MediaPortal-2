@@ -33,6 +33,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.VideoMetadataExtractor.Setti
     protected readonly static List<string> DEFAULT_VIDEO_FILE_EXTENSIONS = new List<string>
       {
           ".mkv",
+          ".mk3d",
           ".ogm",
           ".avi",
           ".wmv",
