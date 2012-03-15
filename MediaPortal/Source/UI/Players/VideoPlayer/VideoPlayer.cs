@@ -1387,7 +1387,7 @@ namespace MediaPortal.UI.Players.Video
     {
       Int32 currentChapter;
       if (GetCurrentChapter(out currentChapter))
-        SetChapterByIndex(currentChapter - 1);
+        SetChapterByIndex(Math.Max(currentChapter - 1, 0));
     }
 
     /// <summary>
@@ -1421,12 +1421,12 @@ namespace MediaPortal.UI.Players.Video
     }
 
     /// <summary>
-    /// Seek to the begining of the chapter to play
+    /// Seek to the beginning of the chapter to play.
     /// </summary>
     /// <param name="chapterIndex">0 based chapter number.</param>
     protected virtual void SetChapterByIndex(Int32 chapterIndex)
     {
-      if (chapterIndex > _chapterTimestamps.Length || chapterIndex < 0)
+      if (chapterIndex >= _chapterTimestamps.Length || chapterIndex < 0)
         return;
       TimeSpan seekTo = TimeSpan.FromSeconds(_chapterTimestamps[chapterIndex]);
       CurrentTime = seekTo;
