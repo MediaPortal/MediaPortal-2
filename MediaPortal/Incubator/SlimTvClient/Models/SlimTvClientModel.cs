@@ -24,6 +24,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Timers;
 using MediaPortal.Common;
 using MediaPortal.Common.Commands;
 using MediaPortal.Common.General;
@@ -71,6 +72,11 @@ namespace MediaPortal.Plugins.SlimTvClient
     private AbstractProperty _isOSDLevel0Property = null;
     private AbstractProperty _isOSDLevel1Property = null;
     private AbstractProperty _isOSDLevel2Property = null;
+
+    // Channel zapping
+    protected const double ZAP_TIMEOUT_SECONDS = 2.0d;
+    protected Timer _zapTimer;
+    protected int _zapChannelIndex;
 
     #endregion
 
@@ -389,6 +395,14 @@ namespace MediaPortal.Plugins.SlimTvClient
       //if (SlotPlayer != null)
       //  SlotPlayer.Pause();
 
+      // Set the current index of the tuned channel
+      _webChannelIndex = 0;
+      foreach (IChannel currentChannel in _channels)
+        if (currentChannel != channel)
+          _webChannelIndex++;
+        else
+          break;
+
       if (_tvHandler.StartTimeshift(SlotIndex, channel))
       {
         SeekToEndAndPlay();
@@ -403,6 +417,96 @@ namespace MediaPortal.Plugins.SlimTvClient
         SlotPlayer.CurrentTime = SlotPlayer.Duration;
         //SlotPlayer.Resume();
       }
+    }
+
+    /// <summary>
+    /// Starts the zap process to tune the next channel in the current channel group.
+    /// </summary>
+    public void ZapNextChannel()
+    {
+      if (_channels == null)
+        return;
+
+      _zapChannelIndex++;
+      if (_zapChannelIndex >= _channels.Count)
+        _zapChannelIndex = 0;
+
+      ReSetSkipTimer();
+    }
+
+    /// <summary>
+    /// Starts the zap process to tune the previous channel in the current channel group.
+    /// </summary>
+    public void ZapPrevChannel()
+    {
+      if (_channels == null)
+        return;
+
+      _zapChannelIndex--;
+      if (_zapChannelIndex < 0)
+        _zapChannelIndex = _channels.Count - 1;
+
+      ReSetSkipTimer();
+    }
+
+    /// <summary>
+    /// Sets or resets the zap timer. When the timer elapses, the new selected channel is tuned.
+    /// </summary>
+    private void ReSetSkipTimer()
+    {
+      IsOSDVisible = true;
+      IsOSDLevel0 = true;
+      IsOSDLevel1 = false;
+      IsOSDLevel2 = false;
+
+      UpdateForChannel(_channels[_zapChannelIndex]);
+
+      if (_zapTimer == null)
+      {
+        _zapTimer = new Timer(ZAP_TIMEOUT_SECONDS * 1000) { Enabled = true, AutoReset = false };
+        _zapTimer.Elapsed += ZapTimerElapsed;
+      }
+      else
+      {
+        // In case of new user action, reset the timer.
+        _zapTimer.Stop();
+        _zapTimer.Start();
+      }
+    }
+
+    private void ZapTimerElapsed(object sender, ElapsedEventArgs e)
+    {
+      CloseOSD();
+
+      if (_zapChannelIndex != _webChannelIndex)
+        Tune(_channels[_zapChannelIndex]);
+
+      _zapTimer.Close();
+      _zapTimer = null;
+
+      // When not zapped the previous channel information is restored during the next Update() call
+    }
+
+    protected void UpdateForChannel(IChannel channel)
+    {
+      ChannelName = channel.Name;
+      IProgram currentProgram;
+      if (_tvHandler.ProgramInfo.GetCurrentProgram(channel, out currentProgram))
+      {
+        CurrentProgram.SetProgram(currentProgram);
+        double progress = (DateTime.Now - currentProgram.StartTime).TotalSeconds /
+                          (currentProgram.EndTime - currentProgram.StartTime).TotalSeconds * 100;
+        _programProgressProperty.SetValue(progress);
+      }
+      else
+      {
+        CurrentProgram.SetProgram(null);
+        _programProgressProperty.SetValue(100);
+      }
+
+      IProgram nextProgram;
+      if (_tvHandler.ProgramInfo.GetNextProgram(channel, out nextProgram))
+        NextProgram.SetProgram(nextProgram);
     }
 
     #endregion
@@ -446,7 +550,8 @@ namespace MediaPortal.Plugins.SlimTvClient
 
     protected override void Update()
     {
-      if (!_active)
+      // Don't update the current channel and program information if we are in zap osd.
+      if (!_active || _zapTimer != null)
         return;
 
       if (_tvHandler.NumberOfActiveSlots < 1)
