@@ -79,52 +79,39 @@ namespace MediaPortal.Plugins.SlimTvClient
         int i = 0;
         foreach (ITimeshiftContext timeshiftContext in _timeshiftContexes)
         {
-          string program = timeshiftContext.Program != null ? timeshiftContext.Program.Title : 
+          string program = timeshiftContext.Program != null ? timeshiftContext.Program.Title :
             ServiceRegistration.Get<ILocalization>().ToString("[SlimTvClient.NoProgram]");
 
-          _chapterInfo.AddUnique(new StreamInfo(null, i++,
-                                                string.Format("{0}: {1}", timeshiftContext.Channel.Name,
-                                                              program), 0));
+          _chapterInfo.AddUnique(new StreamInfo(null, i++, string.Format("{0}: {1}", timeshiftContext.Channel.Name, program), 0));
         }
       }
     }
 
     public string[] Chapters
     {
-      get {
-        lock (SyncObj)
-        {
-          //if (_chapterInfo == null)
-            EnumerateChapters();
-
-          return _chapterInfo.Count == 0 ? EMPTY_STRING_ARRAY : _chapterInfo.GetStreamNames();
-        }
+      get
+      {
+        EnumerateChapters();
+        return _chapterInfo.Count == 0 ? EMPTY_STRING_ARRAY : _chapterInfo.GetStreamNames();
       }
     }
 
     public void SetChapter(string chapter)
     {
-      lock (SyncObj)
-      {
-        if (_chapterInfo != null)
-        {
-          StreamInfo chapterInfo = _chapterInfo.FindStream(chapter);
-          if (chapterInfo != null)
-          {
-            CurrentTime = GetStartDuration(chapterInfo.StreamIndex);
-          }
-        }
-      }
+      if (_chapterInfo == null)
+        return;
+
+      StreamInfo chapterInfo = _chapterInfo.FindStream(chapter);
+      if (chapterInfo != null)
+        CurrentTime = GetStartDuration(chapterInfo.StreamIndex);
     }
 
     public ITimeshiftContext CurrentTimeshiftContext
     {
-      get 
+      get
       {
         int index;
-        if (GetContextIndex(CurrentTime, out index))
-          return _timeshiftContexes[index];
-        return null;
+        return GetContextIndex(CurrentTime, out index) ? _timeshiftContexes[index] : null;
       }
     }
 
@@ -154,14 +141,14 @@ namespace MediaPortal.Plugins.SlimTvClient
       }
       return false;
     }
-    
+
     private TimeSpan GetContextStart(int index)
     {
       if (_chapterInfo == null)
         EnumerateChapters();
 
       TimeSpan totalTime = new TimeSpan();
-      int i=0;
+      int i = 0;
       foreach (ITimeshiftContext timeshiftContext in _timeshiftContexes)
       {
         if (i >= index)
@@ -176,13 +163,8 @@ namespace MediaPortal.Plugins.SlimTvClient
     {
       get
       {
-        lock (SyncObj)
-        {
-          //if (_chapterInfo == null)
-            EnumerateChapters();
-
-          return _chapterInfo.Count > 1;
-        }
+        EnumerateChapters();
+        return _chapterInfo.Count > 1;
       }
     }
 
@@ -206,14 +188,8 @@ namespace MediaPortal.Plugins.SlimTvClient
     {
       get
       {
-        lock (SyncObj)
-        {
-          int index;
-          if (GetContextIndex(CurrentTime, out index))
-            return _chapterInfo[index].Name;
-
-          return string.Empty;
-        }
+        int index;
+        return GetContextIndex(CurrentTime, out index) ? _chapterInfo[index].Name : string.Empty;
       }
     }
 

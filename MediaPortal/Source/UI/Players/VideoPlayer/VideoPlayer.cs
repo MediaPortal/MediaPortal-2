@@ -450,7 +450,7 @@ namespace MediaPortal.UI.Players.Video
       IBaseFilter tempFilter = FilterGraphTools.AddFilterByName(_graphBuilder, filterCategory, codecInfo.Name);
       return tempFilter != null;
     }
-    
+
     /// <summary>
     /// Adds the file source filter to the graph.
     /// </summary>
@@ -552,43 +552,40 @@ namespace MediaPortal.UI.Players.Video
     {
       StopSeeking();
       _initialized = false;
-      lock (SyncObj)
+      ServiceRegistration.Get<ILogger>().Debug("{0}: Stop playing", PlayerTitle);
+
+      try
       {
-        ServiceRegistration.Get<ILogger>().Debug("{0}: Stop playing", PlayerTitle);
-
-        try
+        if (_graphBuilder != null)
         {
-          if (_graphBuilder != null)
+          FilterState state;
+          IMediaEventEx me = (IMediaEventEx) _graphBuilder;
+          IMediaControl mc = (IMediaControl) _graphBuilder;
+
+          me.SetNotifyWindow(IntPtr.Zero, 0, IntPtr.Zero);
+
+          mc.GetState(10, out state);
+          if (state != FilterState.Stopped)
           {
-            FilterState state;
-            IMediaEventEx me = (IMediaEventEx) _graphBuilder;
-            IMediaControl mc = (IMediaControl) _graphBuilder;
-
-            me.SetNotifyWindow(IntPtr.Zero, 0, IntPtr.Zero);
-
+            mc.Stop();
             mc.GetState(10, out state);
-            if (state != FilterState.Stopped)
-            {
-              mc.Stop();
-              mc.GetState(10, out state);
-              ServiceRegistration.Get<ILogger>().Debug("{0}: Graph state after stop command: {1}", PlayerTitle, state);
-            }
+            ServiceRegistration.Get<ILogger>().Debug("{0}: Graph state after stop command: {1}", PlayerTitle, state);
           }
         }
-        catch (Exception ex)
+      }
+      catch (Exception ex)
+      {
+        ServiceRegistration.Get<ILogger>().Debug("{0}: Exception when stopping graph: {1}", PlayerTitle, ex.ToString());
+      }
+      finally
+      {
+        if (_instancePtr != IntPtr.Zero)
         {
-          ServiceRegistration.Get<ILogger>().Debug("{0}: Exception when stopping graph: {1}", PlayerTitle, ex.ToString());
+          Marshal.FreeCoTaskMem(_instancePtr);
+          _instancePtr = IntPtr.Zero;
         }
-        finally
-        {
-          if (_instancePtr != IntPtr.Zero)
-          {
-            Marshal.FreeCoTaskMem(_instancePtr);
-            _instancePtr = IntPtr.Zero;
-          }
 
-          FreeCodecs();
-        }
+        FreeCodecs();
       }
       // Dispose resource locator and accessor
       FilterGraphTools.TryDispose(ref _resourceAccessor);
@@ -714,23 +711,21 @@ namespace MediaPortal.UI.Players.Video
     {
       get
       {
-        lock (SyncObj)
-        {
-          if (!_initialized || !(_graphBuilder is IMediaSeeking))
-            return new TimeSpan();
-          IMediaSeeking mediaSeeking = (IMediaSeeking) _graphBuilder;
-          long lStreamPos;
-          mediaSeeking.GetCurrentPosition(out lStreamPos); // stream position
-          double fCurrentPos = lStreamPos;
-          fCurrentPos /= 10000000d;
+        if (!_initialized || !(_graphBuilder is IMediaSeeking))
+          return new TimeSpan();
+        IMediaSeeking mediaSeeking = (IMediaSeeking) _graphBuilder;
+        long lStreamPos;
 
-          long lContentStart, lContentEnd;
-          mediaSeeking.GetAvailable(out lContentStart, out lContentEnd);
-          double fContentStart = lContentStart;
-          fContentStart /= 10000000d;
-          fCurrentPos -= fContentStart;
-          return new TimeSpan(0, 0, 0, 0, (int) (fCurrentPos * 1000.0f));
-        }
+        mediaSeeking.GetCurrentPosition(out lStreamPos); // stream position
+        double fCurrentPos = lStreamPos;
+        fCurrentPos /= 10000000d;
+
+        long lContentStart, lContentEnd;
+        mediaSeeking.GetAvailable(out lContentStart, out lContentEnd);
+        double fContentStart = lContentStart;
+        fContentStart /= 10000000d;
+        fCurrentPos -= fContentStart;
+        return new TimeSpan(0, 0, 0, 0, (int) (fCurrentPos * 1000.0f));
       }
       set
       {
@@ -740,30 +735,29 @@ namespace MediaPortal.UI.Players.Video
           // If the player isn't active when setting its position, we will switch to pause mode to prevent the
           // player from run.
           Pause();
-        lock (SyncObj)
-        {
-          IMediaSeeking mediaSeeking = _graphBuilder as IMediaSeeking;
-          if (mediaSeeking == null)
-            return;
-          double dTimeInSecs = value.TotalSeconds;
-          dTimeInSecs *= 10000000d;
 
-          long lContentStart, lContentEnd;
-          mediaSeeking.GetAvailable(out lContentStart, out lContentEnd);
-          double dContentStart = lContentStart;
-          double dContentEnd = lContentEnd;
+        IMediaSeeking mediaSeeking = _graphBuilder as IMediaSeeking;
+        if (mediaSeeking == null)
+          return;
+        double dTimeInSecs = value.TotalSeconds;
+        dTimeInSecs *= 10000000d;
 
-          dTimeInSecs += dContentStart;
-          if (dTimeInSecs > dContentEnd)
-            dTimeInSecs = dContentEnd;
+        long lContentStart, lContentEnd;
 
-          DsLong seekPos = new DsLong((long) dTimeInSecs);
-          DsLong stopPos = new DsLong(0);
+        mediaSeeking.GetAvailable(out lContentStart, out lContentEnd);
+        double dContentStart = lContentStart;
+        double dContentEnd = lContentEnd;
 
-          int hr = mediaSeeking.SetPositions(seekPos, AMSeekingSeekingFlags.AbsolutePositioning, stopPos, AMSeekingSeekingFlags.NoPositioning);
-          if (hr != 0)
-            ServiceRegistration.Get<ILogger>().Warn("{0}: Failed to seek, hr: {1}", PlayerTitle, hr);
-        }
+        dTimeInSecs += dContentStart;
+        if (dTimeInSecs > dContentEnd)
+          dTimeInSecs = dContentEnd;
+
+        DsLong seekPos = new DsLong((long) dTimeInSecs);
+        DsLong stopPos = new DsLong(0);
+
+        int hr = mediaSeeking.SetPositions(seekPos, AMSeekingSeekingFlags.AbsolutePositioning, stopPos, AMSeekingSeekingFlags.NoPositioning);
+        if (hr != 0)
+          ServiceRegistration.Get<ILogger>().Warn("{0}: Failed to seek, hr: {1}", PlayerTitle, hr);
       }
     }
 
@@ -771,20 +765,17 @@ namespace MediaPortal.UI.Players.Video
     {
       get
       {
-        lock (SyncObj)
-        {
-          if (!_initialized || !(_graphBuilder is IMediaSeeking))
-            return new TimeSpan();
-          IMediaSeeking mediaSeeking = (IMediaSeeking) _graphBuilder;
-          long lContentStart, lContentEnd;
-          mediaSeeking.GetAvailable(out lContentStart, out lContentEnd);
-          double fContentStart = lContentStart;
-          double fContentEnd = lContentEnd;
-          fContentStart /= 10000000d;
-          fContentEnd /= 10000000d;
-          fContentEnd -= fContentStart;
-          return new TimeSpan(0, 0, 0, 0, (int) (fContentEnd * 1000.0f));
-        }
+        if (!_initialized || !(_graphBuilder is IMediaSeeking))
+          return new TimeSpan();
+        IMediaSeeking mediaSeeking = (IMediaSeeking) _graphBuilder;
+        long lContentStart, lContentEnd;
+        mediaSeeking.GetAvailable(out lContentStart, out lContentEnd);
+        double fContentStart = lContentStart;
+        double fContentEnd = lContentEnd;
+        fContentStart /= 10000000d;
+        fContentEnd /= 10000000d;
+        fContentEnd -= fContentStart;
+        return new TimeSpan(0, 0, 0, 0, (int) (fContentEnd * 1000.0f));
       }
     }
 
@@ -879,41 +870,41 @@ namespace MediaPortal.UI.Players.Video
 
     public void Pause()
     {
-      if (!_isPaused)
-      {
-        ServiceRegistration.Get<ILogger>().Debug("{0}: Pause", PlayerTitle);
-        IMediaControl mc = _graphBuilder as IMediaControl;
-        if (mc != null)
-          mc.Pause();
-        StopSeeking();
-        _isPaused = true;
-        _state = PlayerState.Active;
-        FirePlaybackStateChanged();
-      }
+      if (_isPaused)
+        return;
+
+      ServiceRegistration.Get<ILogger>().Debug("{0}: Pause", PlayerTitle);
+      IMediaControl mc = _graphBuilder as IMediaControl;
+      if (mc != null)
+        mc.Pause();
+      StopSeeking();
+      _isPaused = true;
+      _state = PlayerState.Active;
+      FirePlaybackStateChanged();
     }
 
     public void Resume()
     {
-      if (_isPaused || IsSeeking)
+      if (!_isPaused && !IsSeeking)
+        return;
+
+      ServiceRegistration.Get<ILogger>().Debug("{0}: Resume", PlayerTitle);
+      IMediaControl mc = _graphBuilder as IMediaControl;
+      if (mc != null)
       {
-        ServiceRegistration.Get<ILogger>().Debug("{0}: Resume", PlayerTitle);
-        IMediaControl mc = _graphBuilder as IMediaControl;
-        if (mc != null)
+        int hr = mc.Run();
+        if (hr != 0 && hr != 1)
         {
-          int hr = mc.Run();
-          if (hr != 0 && hr != 1)
-          {
-            ServiceRegistration.Get<ILogger>().Error("{0}: Resume Failed to start: {0:X}", PlayerTitle, hr);
-            Shutdown();
-            FireStopped();
-            return;
-          }
+          ServiceRegistration.Get<ILogger>().Error("{0}: Resume Failed to start: {0:X}", PlayerTitle, hr);
+          Shutdown();
+          FireStopped();
+          return;
         }
-        StopSeeking();
-        _isPaused = false;
-        _state = PlayerState.Active;
-        FirePlaybackStateChanged();
       }
+      StopSeeking();
+      _isPaused = false;
+      _state = PlayerState.Active;
+      FirePlaybackStateChanged();
     }
 
     public void Restart()
@@ -957,17 +948,14 @@ namespace MediaPortal.UI.Players.Video
 
     public virtual void SetAudioStream(string audioStream)
     {
-      lock (SyncObj)
+      if (_streamInfoAudio != null && _streamInfoAudio.EnableStream(audioStream))
       {
-        if (_streamInfoAudio != null && _streamInfoAudio.EnableStream(audioStream))
+        VideoSettings settings = ServiceRegistration.Get<ISettingsManager>().Load<VideoSettings>() ?? new VideoSettings();
+        int lcid = _streamInfoAudio.CurrentStream.LCID;
+        if (lcid != 0)
         {
-          VideoSettings settings = ServiceRegistration.Get<ISettingsManager>().Load<VideoSettings>() ?? new VideoSettings();
-          int lcid = _streamInfoAudio.CurrentStream.LCID;
-          if (lcid != 0)
-          {
-            settings.PreferredAudioLanguage = lcid;
-            ServiceRegistration.Get<ISettingsManager>().Save(settings);
-          }
+          settings.PreferredAudioLanguage = lcid;
+          ServiceRegistration.Get<ISettingsManager>().Save(settings);
         }
       }
     }
@@ -976,8 +964,7 @@ namespace MediaPortal.UI.Players.Video
     {
       get
       {
-        lock (SyncObj)
-          return _streamInfoAudio != null ? _streamInfoAudio.CurrentStreamName : null;
+        return _streamInfoAudio != null ? _streamInfoAudio.CurrentStreamName : null;
       }
     }
 
@@ -985,11 +972,8 @@ namespace MediaPortal.UI.Players.Video
     {
       get
       {
-        lock (SyncObj)
-        {
-          EnumerateStreams();
-          return _streamInfoAudio == null ? DEFAULT_AUDIO_STREAM_NAMES : _streamInfoAudio.GetStreamNames();
-        }
+        EnumerateStreams();
+        return _streamInfoAudio == null ? DEFAULT_AUDIO_STREAM_NAMES : _streamInfoAudio.GetStreamNames();
       }
     }
 
@@ -1105,30 +1089,27 @@ namespace MediaPortal.UI.Players.Video
     public virtual void ReleaseGUIResources()
     {
       // Releases all Direct3D related resources
-      lock (_syncObj)
+      _initialized = false;
+
+      FilterState state;
+      IMediaControl mc = (IMediaControl) _graphBuilder;
+      mc.GetState(10, out state);
+      if (state != FilterState.Stopped)
       {
-        _initialized = false;
-
-        FilterState state;
-        IMediaControl mc = (IMediaControl) _graphBuilder;
-        mc.GetState(10, out state);
-        if (state != FilterState.Stopped)
-        {
-          mc.StopWhenReady();
-          mc.Stop();
-        }
-
-        if (_evr != null)
-        {
-          // Get the currently connected EVR Pins to restore the connections later
-          FilterGraphTools.GetConnectedPins(_evr, PinDirection.Input, _evrConnectionPins);
-          _graphBuilder.RemoveFilter(_evr);
-          FilterGraphTools.TryRelease(ref _evr);
-        }
-
-        EvrDeinit(_presenterInstance);
-        FreeEvrCallback();
+        mc.StopWhenReady();
+        mc.Stop();
       }
+
+      if (_evr != null)
+      {
+        // Get the currently connected EVR Pins to restore the connections later
+        FilterGraphTools.GetConnectedPins(_evr, PinDirection.Input, _evrConnectionPins);
+        _graphBuilder.RemoveFilter(_evr);
+        FilterGraphTools.TryRelease(ref _evr);
+      }
+
+      EvrDeinit(_presenterInstance);
+      FreeEvrCallback();
     }
 
     protected virtual void CreateEvrCallback()
@@ -1146,7 +1127,7 @@ namespace MediaPortal.UI.Players.Video
 
     public virtual void ReallocGUIResources()
     {
-      if (_graphBuilder == null) 
+      if (_graphBuilder == null)
         return;
 
       CreateEvrCallback();
@@ -1206,19 +1187,16 @@ namespace MediaPortal.UI.Players.Video
     {
       get
       {
-        lock (SyncObj)
-        {
-          EnumerateStreams();
+        EnumerateStreams();
 
-          if (_streamInfoSubtitles == null)
-            return EMPTY_STRING_ARRAY;
+        if (_streamInfoSubtitles == null)
+          return EMPTY_STRING_ARRAY;
 
-          // Check if there are real subtitle streams available. If not, the splitter only offers "No subtitles".
-          string[] subtitleStreamNames = _streamInfoSubtitles.GetStreamNames();
-          if (subtitleStreamNames.Length == 1 && subtitleStreamNames[0] == NO_SUBTITLES)
-            return EMPTY_STRING_ARRAY;
-          return subtitleStreamNames;
-        }
+        // Check if there are real subtitle streams available. If not, the splitter only offers "No subtitles".
+        string[] subtitleStreamNames = _streamInfoSubtitles.GetStreamNames();
+        if (subtitleStreamNames.Length == 1 && subtitleStreamNames[0] == NO_SUBTITLES)
+          return EMPTY_STRING_ARRAY;
+        return subtitleStreamNames;
       }
     }
 
@@ -1228,11 +1206,8 @@ namespace MediaPortal.UI.Players.Video
     /// <param name="subtitle">subtitle stream</param>
     public virtual void SetSubtitle(string subtitle)
     {
-      lock (SyncObj)
-      {
-        if (_streamInfoSubtitles != null && _streamInfoSubtitles.EnableStream(subtitle))
-          SaveSubtitlePreference();
-      }
+      if (_streamInfoSubtitles != null && _streamInfoSubtitles.EnableStream(subtitle))
+        SaveSubtitlePreference();
     }
 
     protected virtual void SaveSubtitlePreference()
@@ -1260,10 +1235,7 @@ namespace MediaPortal.UI.Players.Video
     {
       get
       {
-        lock (SyncObj)
-        {
-          return _streamInfoSubtitles != null ? _streamInfoSubtitles.CurrentStreamName : String.Empty;
-        }
+        return _streamInfoSubtitles != null ? _streamInfoSubtitles.CurrentStreamName : String.Empty;
       }
     }
 
