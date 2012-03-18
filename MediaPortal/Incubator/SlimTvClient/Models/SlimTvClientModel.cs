@@ -501,7 +501,7 @@ namespace MediaPortal.Plugins.SlimTvClient
       else
       {
         CurrentProgram.SetProgram(null);
-        _programProgressProperty.SetValue(100);
+        _programProgressProperty.SetValue(100d);
       }
 
       IProgram nextProgram;
