@@ -8,5 +8,6 @@
 
   <!-- Program guide colors -->
   <ResourceWrapper x:Key="ProgramRunningFill" Resource="#A0134763"/>
+  <ResourceWrapper x:Key="ProgramScheduledFill" Resource="#A0FF0000"/>
 
 </ResourceDictionary>

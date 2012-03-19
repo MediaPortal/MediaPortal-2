@@ -70,6 +70,11 @@ namespace MediaPortal.Plugins.SlimTvClient
       get { return _tvProvider as IProgramInfo; }
     }
 
+    public IScheduleControl ScheduleControl
+    {
+      get { return _tvProvider as IScheduleControl; }
+    }
+
     public IProgram CurrentProgram
     {
       get { return GetCurrentProgram(GetChannel(PlayerManagerConsts.PRIMARY_SLOT)); }

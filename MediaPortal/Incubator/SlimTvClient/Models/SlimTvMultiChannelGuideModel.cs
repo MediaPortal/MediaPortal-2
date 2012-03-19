@@ -23,6 +23,7 @@
 #endregion
 
 using System;
+using System.Linq;
 using MediaPortal.Common;
 using MediaPortal.Common.Commands;
 using MediaPortal.Common.General;
@@ -273,6 +274,23 @@ namespace MediaPortal.Plugins.SlimTvClient
         UpdateChannelPrograms(channel);
 
       UpdateProgramsState();
+    }
+
+    protected override bool UpdateRecordingStatus(IProgram program, RecordingStatus newStatus)
+    {
+      bool changed = base.UpdateRecordingStatus(program, newStatus);
+      if (changed)
+      {
+        ChannelProgramListItem programChannel = _channelList.OfType<ChannelProgramListItem>().FirstOrDefault(c => c.Channel.ChannelId == program.ChannelId);
+        if (programChannel == null)
+          return false;
+
+        ProgramListItem listProgram = programChannel.Programs.OfType<ProgramListItem>().FirstOrDefault(p => p.Program.ProgramId == program.ProgramId);
+        if (listProgram == null)
+          return false;
+        listProgram.Program.IsScheduled = newStatus != RecordingStatus.None;
+      }
+      return changed;
     }
 
     private void UpdateProgramsState()

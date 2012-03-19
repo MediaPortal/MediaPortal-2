@@ -1,4 +1,4 @@
-#region Copyright (C) 2007-2012 Team MediaPortal
+﻿#region Copyright (C) 2007-2012 Team MediaPortal
 
 /*
     Copyright (C) 2007-2012 Team MediaPortal
@@ -22,27 +22,10 @@
 
 #endregion
 
-using System;
-using System.Collections.Generic;
-
 namespace MediaPortal.Plugins.SlimTvClient.Interfaces.Items
 {
-  public interface IScheduleControl
+  public interface IProgramRecordingStatus : IProgram
   {
-    int ScheduleControlId { get; }
-    string Name { get; set; }
-
-    PriorityType Priority { get; set; }
-
-    TimeSpan PreRecordInterval { get; set; }
-    TimeSpan PostRecordInterval { get; set; }
-
-    KeepMethodType KeepMethod { get; set; }
-    DateTime KeepDate { get; set; }
-
-    bool AddRule(IScheduleRule rule);
-    bool RemoveRule(IScheduleRule rule);
-    bool GetRules(out IList<IScheduleRule> rules);
-    //TODO
+    RecordingStatus RecordingStatus { get; set; }
   }
 }
