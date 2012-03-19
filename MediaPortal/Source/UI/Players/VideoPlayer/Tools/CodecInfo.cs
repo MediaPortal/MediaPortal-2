@@ -27,7 +27,7 @@ using DirectShowLib;
 
 namespace MediaPortal.UI.Players.Video.Tools
 {
-  public class CodecInfo: IComparable
+  public class CodecInfo : IComparable
   {
     #region Properties
 
@@ -35,13 +35,11 @@ namespace MediaPortal.UI.Players.Video.Tools
 
     public String CLSID { get; set; }
 
-    public bool Preferred { get; set; }
-
     #endregion
 
     #region Constructor
 
-    public CodecInfo() {}
+    public CodecInfo() { }
 
     public CodecInfo(String codecName)
     {
@@ -49,7 +47,7 @@ namespace MediaPortal.UI.Players.Video.Tools
     }
 
     public CodecInfo(String codecName, DsGuid codecClsid) :
-        this(codecName)
+      this(codecName)
     {
       CLSID = codecClsid.ToString();
     }
@@ -79,12 +77,12 @@ namespace MediaPortal.UI.Players.Video.Tools
 
     #region IComparable Member
 
-    public int CompareTo(object obj)
+    public int CompareTo(object other)
     {
-      if (! (obj is CodecInfo) ) return -1;
-      if (Preferred && !((CodecInfo)obj).Preferred) return -1;
-      if (!Preferred && ((CodecInfo)obj).Preferred) return +1;
-      return Name.CompareTo(((CodecInfo)obj).Name);
+      CodecInfo otherCodec = other as CodecInfo;
+      if (otherCodec == null)
+        return -1;
+      return string.Compare(Name, otherCodec.Name);
     }
 
     #endregion
