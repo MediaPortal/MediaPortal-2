@@ -43,7 +43,7 @@ using IChannel = MediaPortal.Plugins.SlimTvClient.Interfaces.Items.IChannel;
 
 namespace MediaPortal.Plugins.SlimTv.Providers
 {
-  public class SlimTv4HomeProvider : ITvProvider, ITimeshiftControl, IProgramInfo, IChannelAndGroupInfo
+  public class SlimTv4HomeProvider : ITvProvider, ITimeshiftControl, IProgramInfo, IChannelAndGroupInfo, IScheduleControl
   {
     #region Internal class
 
@@ -516,6 +516,73 @@ namespace MediaPortal.Plugins.SlimTv.Providers
     public bool GetScheduledPrograms(IChannel channel, out IList<IProgram> programs)
     {
       throw new NotImplementedException();
+    }
+
+    #endregion
+
+    #region IScheduleControl Member
+
+    public bool CreateSchedule(IProgram program)
+    {
+      Program indexProgram = program as Program;
+      if (indexProgram == null)
+        return false;
+
+      if (!CheckConnection(indexProgram.ServerIndex))
+        return false;
+
+      try
+      {
+        TvServer(indexProgram.ServerIndex).AddSchedule(program.ChannelId, program.Title, program.StartTime, program.EndTime, 0);
+      }
+      catch
+      {
+        return false;
+      }
+      return true;
+    }
+
+    public bool RemoveSchedule(IProgram program)
+    {
+      Program indexProgram = program as Program;
+      if (indexProgram == null)
+        return false;
+
+      if (!CheckConnection(indexProgram.ServerIndex))
+        return false;
+
+      try
+      {
+        TvServer(indexProgram.ServerIndex).CancelSchedule(program.ProgramId);
+      }
+      catch
+      {
+        return false;
+      }
+      return true;
+    }
+
+    public bool GetRecordingStatus(IProgram program, out RecordingStatus recordingStatus)
+    {
+      recordingStatus = RecordingStatus.None;
+
+      Program indexProgram = program as Program;
+      if (indexProgram == null)
+        return false;
+
+      if (!CheckConnection(indexProgram.ServerIndex))
+        return false;
+
+      try
+      {
+        WebProgramDetailed programDetailed = TvServer(indexProgram.ServerIndex).GetProgramDetailedById(program.ProgramId);
+        recordingStatus = Program.GetRecordingStatus(programDetailed);
+      }
+      catch
+      {
+        return false;
+      }
+      return true;
     }
 
     #endregion
