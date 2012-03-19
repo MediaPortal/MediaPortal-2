@@ -28,7 +28,7 @@ using TV4Home.Server.TVEInteractionLibrary.Interfaces;
 
 namespace MediaPortal.Plugins.SlimTvClient.Providers.Items
 {
-  public class Program : IProgram
+  public class Program : IProgramRecordingStatus
   {
     public Program()
     {}
@@ -45,6 +45,26 @@ namespace MediaPortal.Plugins.SlimTvClient.Providers.Items
       ProgramId = webProgram.IdProgram;
     }
 
+    public static RecordingStatus GetRecordingStatus(WebProgramBasic programDetailed)
+    {
+      RecordingStatus recordingStatus = RecordingStatus.None;
+      if (programDetailed.IsScheduled)
+        recordingStatus |= RecordingStatus.Scheduled;
+      return recordingStatus;
+    }
+
+    public static RecordingStatus GetRecordingStatus(WebProgramDetailed programDetailed)
+    {
+      RecordingStatus recordingStatus = RecordingStatus.None;
+      if (programDetailed.IsRecording || programDetailed.IsRecordingOnce || programDetailed.IsRecordingSeries)
+        recordingStatus |= RecordingStatus.Recording;
+      if (programDetailed.IsScheduled || programDetailed.IsRecordingOncePending)
+        recordingStatus |= RecordingStatus.Scheduled;
+      if (programDetailed.IsRecordingSeriesPending)
+        recordingStatus |= RecordingStatus.SeriesScheduled;
+      return recordingStatus;
+    }
+
     #region IProgram Member
 
     public int ServerIndex { get; set; }
@@ -55,6 +75,7 @@ namespace MediaPortal.Plugins.SlimTvClient.Providers.Items
     public string Genre { get; set; }
     public DateTime StartTime { get; set; }
     public DateTime EndTime { get; set; }
+    public RecordingStatus RecordingStatus { get; set; }
 
     #endregion
   }
