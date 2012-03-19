@@ -53,6 +53,11 @@ namespace MediaPortal.Plugins.SlimTvClient.Interfaces
     IProgramInfo ProgramInfo { get; }
 
     /// <summary>
+    /// Exposes the IScheduleControl interface of active TvProvider.
+    /// </summary>
+    IScheduleControl ScheduleControl { get; }
+
+    /// <summary>
     /// Uses the <see cref="TimeshiftControl"/> to start timeshifting and the playback of
     /// the created MediaItem.
     /// </summary>

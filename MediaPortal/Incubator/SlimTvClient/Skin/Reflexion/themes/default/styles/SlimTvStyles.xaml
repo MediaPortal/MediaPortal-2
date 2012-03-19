@@ -332,6 +332,9 @@
             <DataTrigger Binding="{Binding IsRunning}" Value="True">
               <Setter TargetName="ButtonBase" Property="Fill" Value="{ThemeResource ProgramRunningFill}"/>
             </DataTrigger>
+            <DataTrigger Binding="{Binding Program.IsScheduled}" Value="True">
+              <Setter TargetName="ButtonOverlay" Property="Fill" Value="{ThemeResource ProgramScheduledFill}"/>
+            </DataTrigger>
             <Trigger Property="HasFocus" Value="True">
               <Trigger.EnterActions>
                 <BeginStoryboard x:Name="Focused_BeginStoryboard" Storyboard="{ThemeResource FocusedButtonStoryboard_Base}"/>

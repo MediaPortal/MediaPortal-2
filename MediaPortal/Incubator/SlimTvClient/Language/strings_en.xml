@@ -19,8 +19,9 @@
 
     <String Name="ProgramOver" Text="Program already over"/>
     <String Name="WatchNow" Text="Watch program now"/>
+    <String Name="RecordNow" Text="Record now"/>
     <String Name="DeleteSchedule" Text="Delete schedule"/>
-    <String Name="CreateSchedule" Text="Create recording schedule"/>
+    <String Name="CreateSchedule" Text="Schedule recording"/>
 
   </Section>
 </Language>

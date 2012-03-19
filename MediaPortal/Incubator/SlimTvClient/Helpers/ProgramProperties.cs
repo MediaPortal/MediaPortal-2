@@ -36,7 +36,9 @@ namespace MediaPortal.Plugins.SlimTvClient.Helpers
     private DateTime _viewPortMinTime;
     private DateTime _viewPortMaxTime;
     private static readonly double ProgramWidthFactor = 6.5;
-    
+
+    public AbstractProperty ProgramIdProperty { get; set; }
+    public AbstractProperty IsScheduledProperty { get; set; }
     public AbstractProperty TitleProperty { get; set; }
     public AbstractProperty DescriptionProperty { get; set; }
     public AbstractProperty StartTimeProperty { get; set; }
@@ -71,7 +73,7 @@ namespace MediaPortal.Plugins.SlimTvClient.Helpers
       get { return (String)GenreProperty.GetValue(); }
       set { GenreProperty.SetValue(value); }
     }
-
+    
     /// <summary>
     /// Gets or Sets the Start time.
     /// </summary>
@@ -100,6 +102,24 @@ namespace MediaPortal.Plugins.SlimTvClient.Helpers
       set { RemainingDurationProperty.SetValue(value); }
     }
 
+    /// <summary>
+    /// Gets or Sets an indicator if the program is scheduled or currently recording.
+    /// </summary>
+    public bool IsScheduled
+    {
+      get { return (bool) IsScheduledProperty.GetValue(); }
+      set { IsScheduledProperty.SetValue(value); }
+    }
+
+    /// <summary>
+    /// Gets or Sets an indicator if the program is scheduled or currently recording.
+    /// </summary>
+    public int ProgramId
+    {
+      get { return (int) ProgramIdProperty.GetValue(); }
+      set { ProgramIdProperty.SetValue(value); }
+    }
+
     public double ProgramWidth
     {
       get { return (double) ProgramWidthProperty.GetValue(); }
@@ -119,6 +139,8 @@ namespace MediaPortal.Plugins.SlimTvClient.Helpers
     {
       _viewPortMinTime = viewPortMinTime;
       _viewPortMaxTime = viewPortMaxTime;
+      ProgramIdProperty = new WProperty(typeof(int), 0);
+      IsScheduledProperty = new WProperty(typeof(bool), false);
       TitleProperty = new WProperty(typeof(String), String.Empty);
       DescriptionProperty = new WProperty(typeof(String), String.Empty);
       GenreProperty = new WProperty(typeof(String), String.Empty);
@@ -130,8 +152,13 @@ namespace MediaPortal.Plugins.SlimTvClient.Helpers
 
     public void SetProgram(IProgram program)
     {
+      IProgramRecordingStatus recordingStatus = program as IProgramRecordingStatus;
+      if (recordingStatus != null)
+        IsScheduled = recordingStatus.RecordingStatus != RecordingStatus.None;
+
       if (program != null)
       {
+        ProgramId = program.ProgramId;
         Title = program.Title;
         Description = program.Description;
         StartTime = program.StartTime;

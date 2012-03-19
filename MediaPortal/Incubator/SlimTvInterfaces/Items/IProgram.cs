@@ -65,22 +65,5 @@ namespace MediaPortal.Plugins.SlimTvClient.Interfaces.Items
     /// Gets or Sets the End time.
     /// </summary>
     DateTime EndTime { get; set; }
-
-    ///// <summary>
-    ///// Gets or Sets the Title of an Episode.
-    ///// </summary>
-    //String EpisodeTitle { get; set; }
-
-    ///// <summary>
-    ///// Gets or Sets the Number of an Episode.
-    ///// </summary>
-    //String EpisodeNumber { get; set; }
-
-    ///// <summary>
-    ///// Gets or Sets the Season number of an Episode.
-    ///// </summary>
-    //String SeasonNumber { get; set; }
-
-    //TODO
   }
 }
