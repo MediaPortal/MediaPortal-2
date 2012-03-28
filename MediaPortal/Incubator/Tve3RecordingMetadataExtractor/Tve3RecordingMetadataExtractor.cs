@@ -31,6 +31,7 @@ using MediaPortal.Common.Logging;
 using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.Common.ResourceAccess;
+using MediaPortal.Extensions.MetadataExtractors.Aspects;
 
 namespace MediaPortal.Extensions.MetadataExtractors
 {
@@ -97,6 +98,9 @@ namespace MediaPortal.Extensions.MetadataExtractors
     static Tve3RecordingMetadataExtractor()
     {
       SHARE_CATEGORIES.Add(DefaultMediaCategory.Video.ToString());
+      // Register the Recording aspect
+      IMediaItemAspectTypeRegistration miatr = ServiceRegistration.Get<IMediaItemAspectTypeRegistration>();
+      miatr.RegisterLocallyKnownMediaItemAspectType(RecordingAspect.Metadata);
     }
 
     public Tve3RecordingMetadataExtractor()
