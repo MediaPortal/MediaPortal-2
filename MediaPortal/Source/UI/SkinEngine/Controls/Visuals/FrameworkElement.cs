@@ -153,8 +153,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 
     protected bool _updateOpacityMask = false;
     protected RectangleF _lastOccupiedTransformedBounds = RectangleF.Empty;
-    protected Size _lastOpacityRenderSize =Size.Empty;
-    
+    protected Size _lastOpacityRenderSize = Size.Empty;
+
     protected bool _styleSet = false;
 
     protected volatile SetFocusPriority _setFocusPrio = SetFocusPriority.None;
@@ -166,7 +166,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     protected RectangleF _innerRect;
     protected volatile bool _isMeasureInvalid = true;
     protected volatile bool _isArrangeInvalid = true;
-    
+
     protected Matrix? _inverseFinalTransform = null;
     protected float _lastZIndex = 0;
 
@@ -1714,8 +1714,12 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
         // Simply render without opacity mask
         DoRender(localRenderContext);
       else
-      { // Control has an opacity mask
-        RenderTargetAsset renderSurface = ContentManager.Instance.GetRenderTarget(GLOBAL_RENDER_TEXTURE_ASSET_KEY);
+      { 
+        // Control has an opacity mask or Effect
+        RenderTextureAsset renderTexture = ContentManager.Instance.GetRenderTexture(GLOBAL_RENDER_TEXTURE_ASSET_KEY);
+        // Get global render surface and render texture or create them if they dosn't exist
+        RenderTargetAsset renderSurface = ContentManager.Instance.GetRenderTarget(GLOBAL_RENDER_SURFACE_ASSET_KEY);
+
         // Ensure they are allocated
         renderTexture.AllocateRenderTarget(GraphicsDevice.Width, GraphicsDevice.Height);
         renderSurface.AllocateRenderTarget(GraphicsDevice.Width, GraphicsDevice.Height);
@@ -1726,17 +1730,23 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
         RenderContext tempRenderContext = new RenderContext(localRenderContext.Transform, Matrix.Identity, localRenderContext.Opacity, bounds, localRenderContext.ZOrder);
         RenderToSurface(renderSurface, tempRenderContext);
 
+        // Unfortunately, brushes/brush effects are based on textures and cannot work with surfaces, so we need this additional copy step
+        GraphicsDevice.Device.StretchRectangle(
+            renderSurface.Surface, new Rectangle(Point.Empty, renderSurface.Size),
+            renderTexture.Surface0, new Rectangle(Point.Empty, renderTexture.Size),
+            TextureFilter.None);
+
         // Add bounds to our calculated, occupied area.
         // If we don't do that, lines at the border of this element might be dimmed because of the filter (see OpacityMask test in GUITestPlugin).
         // The value was just found by testing. Any better solution is welcome.
-        if (OpacityMask != null)
+        if (opacityMask != null)
         {
           const float OPACITY_MASK_BOUNDS = 0.9f;
           RectangleF occupiedTransformedBounds = tempRenderContext.OccupiedTransformedBounds;
           occupiedTransformedBounds.X -= OPACITY_MASK_BOUNDS;
           occupiedTransformedBounds.Y -= OPACITY_MASK_BOUNDS;
-          occupiedTransformedBounds.Width += OPACITY_MASK_BOUNDS*2;
-          occupiedTransformedBounds.Height += OPACITY_MASK_BOUNDS*2;
+          occupiedTransformedBounds.Width += OPACITY_MASK_BOUNDS * 2;
+          occupiedTransformedBounds.Height += OPACITY_MASK_BOUNDS * 2;
 
           // If the control bounds have changed we need to update our primitive context to make the 
           // texture coordinates match up
@@ -1744,33 +1754,26 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
               occupiedTransformedBounds != _lastOccupiedTransformedBounds ||
             renderSurface.Size != _lastOpacityRenderSize)
           {
-          UpdateOpacityMask(occupiedTransformedBounds, renderSurface.Width, renderSurface.Height, localRenderContext.ZOrder);
+            UpdateOpacityMask(occupiedTransformedBounds, renderSurface.Width, renderSurface.Height, localRenderContext.ZOrder);
             _lastOccupiedTransformedBounds = occupiedTransformedBounds;
             _updateOpacityMask = false;
-          _lastOpacityRenderSize = renderSurface.Size;
+            _lastOpacityRenderSize = renderSurface.Size;
           }
 
-        // Unfortunately, brushes/brush effects are based on textures and cannot work with surfaces, so we need this additional copy step
-        GraphicsDevice.Device.StretchRectangle(
-            renderSurface.Surface, new Rectangle(Point.Empty, renderSurface.Size),
-            renderTexture.Surface0, new Rectangle(Point.Empty,  renderTexture.Size),
-            TextureFilter.None);
-
-        // Now render the opacity texture with the OpacityMask brush)
-        if (opacityMask.BeginRenderOpacityBrush(renderTexture.Texture, new RenderContext(Matrix.Identity, Matrix.Identity, bounds)))
+          // Now render the opacity texture with the OpacityMask brush)
+          if (opacityMask.BeginRenderOpacityBrush(renderTexture.Texture, new RenderContext(Matrix.Identity, Matrix.Identity, bounds)))
           {
             _opacityMaskContext.Render(0);
             opacityMask.EndRender();
           }
         }
 
-        // Effect here???
-        if (Effect != null)
+        // Render Effect
+        Effects.Effect effect = Effect;
+        if (effect != null)
         {
-          Effects.Effect effect = Effect;
-
-          UpdateEffectMask(tempRenderContext.OccupiedTransformedBounds, renderTarget.Width, renderTarget.Height, localRenderContext.ZOrder);
-          if (effect.BeginRender(renderTarget.Texture, new RenderContext(Matrix.Identity, Matrix.Identity, 1.0d, bounds, localRenderContext.ZOrder)))
+          UpdateEffectMask(tempRenderContext.OccupiedTransformedBounds, renderTexture.Width, renderTexture.Height, localRenderContext.ZOrder);
+          if (effect.BeginRender(renderTexture.Texture, new RenderContext(Matrix.Identity, Matrix.Identity, 1.0d, bounds, localRenderContext.ZOrder)))
           {
             _effectContext.Render(0);
             effect.EndRender();
