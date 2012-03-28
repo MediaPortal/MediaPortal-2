@@ -54,6 +54,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Metadata\RecordingAspect.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Tve3RecordingMetadataExtractor.cs" />
   </ItemGroup>
