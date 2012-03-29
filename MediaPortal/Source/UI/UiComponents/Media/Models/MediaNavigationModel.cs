@@ -363,7 +363,7 @@ namespace MediaPortal.UiComponents.Media.Models
       {
         Mode = MediaNavigationMode.Videos;
         IEnumerable<Guid> skinDependentOptionalMIATypeIDs = GetMediaSkinOptionalMIATypes(Mode);
-        AbstractItemsScreenData.PlayableItemCreatorDelegate picd = mi => new VideoItem(mi)
+        AbstractItemsScreenData.PlayableItemCreatorDelegate picd = mi => new SeriesItem(mi)
           {
               Command = new MethodDelegateCommand(() => PlayItemsModel.CheckQueryPlayAction(mi))
           };
