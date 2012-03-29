@@ -22,18 +22,24 @@
 
 #endregion
 
-namespace MediaPortal.UiComponents.Media.Models
+using System;
+using MediaPortal.UiComponents.Media.General;
+
+namespace MediaPortal.UiComponents.Media.Actions
 {
-  /// <summary>
-  /// Represents different parts of the media library/system which can be navigated by the media model.
-  /// </summary>
-  public enum MediaNavigationMode
+  public class SeriesAction : TrackServerConnectionBaseAction
   {
-    BrowseLocalMedia,
-    BrowseMediaLibrary,
-    Audio,
-    Videos,
-    Images,
-    Series
+    #region Consts
+
+    public const string VIDEOS_CONTRIBUTOR_MODEL_ID_STR = "598F813D-D575-4229-A8E6-5ABCE0EDCDB8";
+
+    public static readonly Guid VIDEOS_CONTRIBUTOR_MODEL_ID = new Guid(VIDEOS_CONTRIBUTOR_MODEL_ID_STR);
+
+    public const string RES_SERIES_MENU_ITEM = "[Media.SeriesMenuItem]";
+
+    #endregion
+
+    public SeriesAction() :
+        base(true, Consts.WF_STATE_ID_SERIES_NAVIGATION_ROOT, RES_SERIES_MENU_ITEM) { }
   }
 }

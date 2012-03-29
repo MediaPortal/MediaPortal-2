@@ -207,6 +207,7 @@ namespace MediaPortal.UiComponents.Media.Models
         case MediaNavigationMode.Audio:
           PlayItemsModel.CheckQueryPlayAction(GetMediaItemsFromCurrentView, AVType.Audio);
           break;
+        case MediaNavigationMode.Series:
         case MediaNavigationMode.Videos:
         case MediaNavigationMode.Images:
           PlayItemsModel.CheckQueryPlayAction(GetMediaItemsFromCurrentView, AVType.Video);
@@ -354,6 +355,47 @@ namespace MediaPortal.UiComponents.Media.Models
           };
         navigationData = new NavigationData(null, Consts.RES_VIDEOS_VIEW_NAME, currentStateId,
             currentStateId, rootViewSpecification, filterByGenre, availableScreens, sortByTitle)
+          {
+              AvailableSortings = availableSortings
+          };
+      } 
+      else if (currentStateId == Consts.WF_STATE_ID_SERIES_NAVIGATION_ROOT)
+      {
+        Mode = MediaNavigationMode.Videos;
+        IEnumerable<Guid> skinDependentOptionalMIATypeIDs = GetMediaSkinOptionalMIATypes(Mode);
+        AbstractItemsScreenData.PlayableItemCreatorDelegate picd = mi => new VideoItem(mi)
+          {
+              Command = new MethodDelegateCommand(() => PlayItemsModel.CheckQueryPlayAction(mi))
+          };
+        ViewSpecification rootViewSpecification = new MediaLibraryQueryViewSpecification(Consts.RES_SERIES_VIEW_NAME,
+            null, Consts.NECESSARY_SERIES_MIAS, skinDependentOptionalMIATypeIDs, true)
+          {
+              MaxNumItems = Consts.MAX_NUM_ITEMS_VISIBLE
+          };
+        AbstractScreenData filterBySeries = new SeriesFilterByNameScreenData();
+        ICollection<AbstractScreenData> availableScreens = new List<AbstractScreenData>
+            {
+              new SeriesShowItemsScreenData(picd),
+              filterBySeries, // C# doesn't like it to have an assignment inside a collection initializer
+              new SeriesFilterBySeasonScreenData(),
+              new VideosFilterByGenreScreenData(),
+              new VideosSimpleSearchScreenData(picd),
+          };
+        Sorting.Sorting sortByTitle = new SortByTitle();
+        ICollection<Sorting.Sorting> availableSortings = new List<Sorting.Sorting>
+          {
+              sortByTitle,
+              new SortByYear(),
+              new VideoSortByFirstGenre(),
+              new VideoSortByDuration(),
+              new VideoSortByDirector(),
+              new VideoSortByFirstActor(),
+              new VideoSortBySize(),
+              new VideoSortByAspectRatio(),
+              new SortBySystem(),
+          };
+        navigationData = new NavigationData(null, Consts.RES_SERIES_VIEW_NAME, currentStateId,
+            currentStateId, rootViewSpecification, filterBySeries, availableScreens, sortByTitle)
           {
               AvailableSortings = availableSortings
           };

@@ -35,6 +35,7 @@
     <Model Id="92F6CE34-CB28-40f7-9136-AB576F479F94" Name="BrowseMediaContributorModel" ClassName="MediaPortal.UiComponents.Media.Actions.BrowseMediaAction"/>
     <Model Id="D8922F2B-5B56-4218-93B1-570616BAAEAD" Name="AudioContributorModel" ClassName="MediaPortal.UiComponents.Media.Actions.AudioAction"/>
     <Model Id="598F813D-D575-4229-A8E6-5ABCE0EDCDB8" Name="VideosContributorModel" ClassName="MediaPortal.UiComponents.Media.Actions.VideosAction"/>
+    <Model Id="A772B6E4-352D-46F8-B328-C2F4F2FCEA0F" Name="SeriesContributorModel" ClassName="MediaPortal.UiComponents.Media.Actions.SeriesAction"/>
     <Model Id="E6E42CDB-07F7-4055-8EF9-0AA35904FAB5" Name="AddToPlaylistContributorModel" ClassName="MediaPortal.UiComponents.Media.Actions.AddViewToPlaylistAction"/>
     <Model Id="7190C5BB-430E-48be-A6B2-C651A840C54A" Name="ImagesContributorModel" ClassName="MediaPortal.UiComponents.Media.Actions.ImagesAction"/>
     <Model Id="313C4313-1D2B-4505-BA50-84EA684889C7" Name="PlaylistContributorModel" ClassName="MediaPortal.UiComponents.Media.Actions.ShowPlaylistAction"/>
@@ -68,6 +69,11 @@
     <WorkflowState Id="22ED8702-3887-4acb-ACB4-30965220AFF0"
         Name="VideosNavigation-Root"
         DisplayLabel="[Media.VideoNavigationRootWorkflowNavigationContextDisplayLabel]"
+        WorkflowModel="4CDD601F-E280-43b9-AD0A-6D7B2403C856"/> <!-- Workflow model = Media model -->
+
+    <WorkflowState Id="30F57CBA-459C-4202-A587-09FFF5098251"
+        Name="SeriesNavigation-Root"
+        DisplayLabel="[Media.SeriesNavigationRootWorkflowNavigationContextDisplayLabel]"
         WorkflowModel="4CDD601F-E280-43b9-AD0A-6D7B2403C856"/> <!-- Workflow model = Media model -->
 
     <WorkflowState Id="76019AEB-3445-4da9-9A10-63A87549A7CF"
