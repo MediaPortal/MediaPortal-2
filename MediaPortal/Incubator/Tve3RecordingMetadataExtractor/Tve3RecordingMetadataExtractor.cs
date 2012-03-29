@@ -109,7 +109,9 @@ namespace MediaPortal.Extensions.MetadataExtractors
           SHARE_CATEGORIES, new[]
               {
                 MediaAspect.Metadata,
-                VideoAspect.Metadata
+                VideoAspect.Metadata,
+                SeriesAspect.Metadata,
+                RecordingAspect.Metadata
               });
     }
 
@@ -138,38 +140,67 @@ namespace MediaPortal.Extensions.MetadataExtractors
 
         MediaItemAspect mediaAspect = MediaItemAspect.GetOrCreateAspect(extractedAspectData, MediaAspect.ASPECT_ID, MediaAspect.Metadata);
         MediaItemAspect videoAspect = MediaItemAspect.GetOrCreateAspect(extractedAspectData, VideoAspect.ASPECT_ID, VideoAspect.Metadata);
+        MediaItemAspect recordingAspect = MediaItemAspect.GetOrCreateAspect(extractedAspectData, RecordingAspect.ASPECT_ID, RecordingAspect.Metadata);
+        MediaItemAspect seriesAspect = MediaItemAspect.GetOrCreateAspect(extractedAspectData, SeriesAspect.ASPECT_ID, SeriesAspect.Metadata);
 
         Tags tags;
         XmlSerializer serializer = new XmlSerializer(typeof(Tags));
-        using(FileStream fileStream = new FileStream(metaFile, FileMode.Open))
+        using (FileStream fileStream = new FileStream(metaFile, FileMode.Open))
           tags = (Tags) serializer.Deserialize(fileStream);
 
         string title;
         if (TryGet(tags, TAG_TITLE, out title))
         {
           string episodeName;
-          string seriesNum;
-          string episodeNum;
+          string seasonNum;
+          string episodeNum = null;
+          string formattedTitle = title;
 
-          if (TryGet(tags, TAG_SERIESNUM, out seriesNum) && TryGet(tags, TAG_EPISODENUM, out episodeNum))
-            title = string.Format("{0} - S{1}E{2}", title, seriesNum, episodeNum);
+          if (TryGet(tags, TAG_SERIESNUM, out seasonNum) && TryGet(tags, TAG_EPISODENUM, out episodeNum))
+            formattedTitle = string.Format("{0} - S{1}E{2}", formattedTitle, seasonNum, episodeNum);
 
           if (TryGet(tags, TAG_EPISODENAME, out episodeName))
-            title = string.Format("{0} - {1}", title, episodeName);
-          mediaAspect.SetAttribute(MediaAspect.ATTR_TITLE, title);
+            formattedTitle = string.Format("{0} - {1}", formattedTitle, episodeName);
+          
+          mediaAspect.SetAttribute(MediaAspect.ATTR_TITLE, formattedTitle);
+
+          if (!string.IsNullOrEmpty(episodeName))
+          {
+            // Only fill the series name if there is also an episode. Otherwise the normal media item title will be enough.
+            seriesAspect.SetAttribute(SeriesAspect.ATTR_SERIESNAME, title);
+            seriesAspect.SetAttribute(SeriesAspect.ATTR_EPISODENAME, episodeName);
+          }
+
+          int seasonNumber;
+          if (int.TryParse(seasonNum, out seasonNumber))
+            seriesAspect.SetAttribute(SeriesAspect.ATTR_SEASONNUMBER, seasonNumber);
+
+          // TODO: how does Tve3/EPG/EpisodeScanner store combined episodes?
+          int episodeNumber;
+          if (int.TryParse(episodeNum, out episodeNumber))
+            seriesAspect.SetCollectionAttribute(SeriesAspect.ATTR_EPISODENUMBER, new List<int> { episodeNumber });
         }
 
         string value;
         if (TryGet(tags, TAG_GENRE, out value))
-          videoAspect.SetCollectionAttribute(VideoAspect.ATTR_GENRES, new List<String> {value});
+          videoAspect.SetCollectionAttribute(VideoAspect.ATTR_GENRES, new List<String> { value });
 
         if (TryGet(tags, TAG_PLOT, out value))
           videoAspect.SetAttribute(VideoAspect.ATTR_STORYPLOT, value);
 
+        if (TryGet(tags, TAG_CHANNEL, out value))
+          recordingAspect.SetAttribute(RecordingAspect.ATTR_CHANNEL, value);
+
         // Recording date formatted: 2011-11-04 20:55
         DateTime recordingStart;
+        DateTime recordingEnd;
         if (TryGet(tags, TAG_STARTTIME, out value) && DateTime.TryParse(value, out recordingStart))
+        {
           mediaAspect.SetAttribute(MediaAspect.ATTR_RECORDINGTIME, recordingStart);
+          recordingAspect.SetAttribute(RecordingAspect.ATTR_STARTTIME, recordingStart);
+        }
+        if (TryGet(tags, TAG_ENDTIME, out value) && DateTime.TryParse(value, out recordingEnd))
+          recordingAspect.SetAttribute(RecordingAspect.ATTR_ENDTIME, recordingEnd);
 
         return true;
       }
