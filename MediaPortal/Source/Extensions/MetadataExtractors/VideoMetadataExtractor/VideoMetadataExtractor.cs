@@ -234,7 +234,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.VideoMetadataExtractor
         }
       }
 
-      public void UpdateMetadata(MediaItemAspect mediaAspect, MediaItemAspect videoAspect, MediaItemAspect thumbnailSmallAspect, MediaItemAspect thumbnailLargeAspect, string localFsResourcePath, bool forceQuickMode)
+      public void UpdateMetadata(MediaItemAspect mediaAspect, MediaItemAspect videoAspect, MediaItemAspect thumbnailSmallAspect, MediaItemAspect thumbnailLargeAspect, MediaItemAspect seriesAspect, string localFsResourcePath, bool forceQuickMode)
       {
         mediaAspect.SetAttribute(MediaAspect.ATTR_TITLE, _title);
         mediaAspect.SetAttribute(MediaAspect.ATTR_MIME_TYPE, _mimeType);
@@ -286,6 +286,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.VideoMetadataExtractor
           if (tagsToExtract[TAG_SIMPLE_TITLE] != null)
             title = tagsToExtract[TAG_SIMPLE_TITLE].FirstOrDefault();
 
+          // Series and episode handling
           if (tagsToExtract[TAG_EPISODE_TITLE] != null)
           {
             string episodeName = tagsToExtract[TAG_EPISODE_TITLE].FirstOrDefault();
@@ -302,7 +303,22 @@ namespace MediaPortal.Extensions.MetadataExtractors.VideoMetadataExtractor
 
             if (!string.IsNullOrEmpty(seriesName) && !string.IsNullOrEmpty(seasonNum) && !string.IsNullOrEmpty(episodeNum))
               title = string.Format("{0} S{1}E{2} - {3}", seriesName, seasonNum.PadLeft(2, '0'), episodeNum.PadLeft(2, '0'), episodeName);
+
+            if (!string.IsNullOrEmpty(episodeName))
+              seriesAspect.SetAttribute(SeriesAspect.ATTR_SERIESNAME, seriesName);
+            if (!string.IsNullOrEmpty(episodeName))
+              seriesAspect.SetAttribute(SeriesAspect.ATTR_EPISODENAME, episodeName);
+
+            int seasonNumber;
+            if (int.TryParse(seasonNum, out seasonNumber))
+              seriesAspect.SetAttribute(SeriesAspect.ATTR_SEASONNUMBER, seasonNumber);
+
+            // TODO: how does Tve3/EPG/EpisodeScanner store combined episodes?
+            int episodeNumber;
+            if (int.TryParse(episodeNum, out episodeNumber))
+              seriesAspect.SetCollectionAttribute(SeriesAspect.ATTR_EPISODENUMBER, new List<int> { episodeNumber });
           }
+
           if (!string.IsNullOrEmpty(title))
             mediaAspect.SetAttribute(MediaAspect.ATTR_TITLE, title);
 
@@ -417,6 +433,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.VideoMetadataExtractor
         {
           MediaItemAspect mediaAspect = MediaItemAspect.GetOrCreateAspect(extractedAspectData, MediaAspect.ASPECT_ID, MediaAspect.Metadata);
           MediaItemAspect videoAspect = MediaItemAspect.GetOrCreateAspect(extractedAspectData, VideoAspect.ASPECT_ID, VideoAspect.Metadata);
+          MediaItemAspect seriesAspect = MediaItemAspect.GetOrCreateAspect(extractedAspectData, SeriesAspect.ASPECT_ID, SeriesAspect.Metadata);
           MediaItemAspect thumbnailSmallAspect = MediaItemAspect.GetOrCreateAspect(extractedAspectData, ThumbnailSmallAspect.ASPECT_ID, ThumbnailSmallAspect.Metadata);
           MediaItemAspect thumbnailLargeAspect = MediaItemAspect.GetOrCreateAspect(extractedAspectData, ThumbnailLargeAspect.ASPECT_ID, ThumbnailLargeAspect.Metadata);
 
@@ -424,7 +441,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.VideoMetadataExtractor
           try
           {
             using (ILocalFsResourceAccessor lfsra = StreamedResourceToLocalFsAccessBridge.GetLocalFsResourceAccessor(ra))
-              result.UpdateMetadata(mediaAspect, videoAspect, thumbnailSmallAspect, thumbnailLargeAspect, lfsra.LocalFileSystemPath, forceQuickMode);
+              result.UpdateMetadata(mediaAspect, videoAspect, thumbnailSmallAspect, thumbnailLargeAspect, seriesAspect, lfsra.LocalFileSystemPath, forceQuickMode);
           }
           catch
           {
