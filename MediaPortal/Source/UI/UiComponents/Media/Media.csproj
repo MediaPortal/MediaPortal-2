@@ -137,6 +137,7 @@
     <Compile Include="Models\Sorting\AbstractSortByFirstComparableAttribute.cs" />
     <Compile Include="Models\Sorting\AbstractSortByComparableObjectAttribute.cs" />
     <Compile Include="Models\Sorting\AbstractSortByComparableValueAttribute.cs" />
+    <Compile Include="Models\Sorting\SeriesSortByEpisode.cs" />
     <Compile Include="Models\Sorting\SortByDate.cs" />
     <Compile Include="Models\Sorting\VideoSortByAspectRatio.cs" />
     <Compile Include="Models\Sorting\VideoSortBySize.cs" />
