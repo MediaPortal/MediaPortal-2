@@ -22,18 +22,21 @@
 
 #endregion
 
-namespace MediaPortal.UiComponents.Media.Models
+using MediaPortal.UiComponents.Media.General;
+
+namespace MediaPortal.UiComponents.Media.Models.ScreenData
 {
-  /// <summary>
-  /// Represents different parts of the media library/system which can be navigated by the media model.
-  /// </summary>
-  public enum MediaNavigationMode
+  public class SeriesShowItemsScreenData : AbstractItemsScreenData
   {
-    BrowseLocalMedia,
-    BrowseMediaLibrary,
-    Audio,
-    Videos,
-    Images,
-    Series
+    public SeriesShowItemsScreenData(PlayableItemCreatorDelegate playableItemCreator) :
+        base(Consts.SCREEN_SERIES_SHOW_ITEMS, Consts.RES_SHOW_ALL_VIDEO_ITEMS_MENU_ITEM,
+        Consts.RES_FILTER_SERIES_ITEMS_NAVBAR_DISPLAY_LABEL, playableItemCreator, true)
+    {
+    }
+
+    public override AbstractItemsScreenData Derive()
+    {
+      return new SeriesShowItemsScreenData(PlayableItemCreator);
+    }
   }
 }

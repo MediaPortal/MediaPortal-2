@@ -36,6 +36,8 @@ namespace MediaPortal.UiComponents.Media.General
     public const string STR_WF_STATE_ID_AUDIO_NAVIGATION_ROOT = "F2AAEBC6-BFB0-42c8-9C80-0A98BA67A7EB";
     public const string STR_WF_STATE_ID_VIDEOS_NAVIGATION_ROOT = "22ED8702-3887-4acb-ACB4-30965220AFF0";
     public const string STR_WF_STATE_ID_IMAGES_NAVIGATION_ROOT = "76019AEB-3445-4da9-9A10-63A87549A7CF";
+    public const string STR_WF_STATE_ID_SERIES_NAVIGATION_ROOT = "30F57CBA-459C-4202-A587-09FFF5098251";
+    public const string STR_WF_STATE_ID_SERIES_SEASON_NAVIGATION = "ECD9729E-AE51-448E-85C2-A8302E9BB392";
 
     public const string STR_WF_STATE_ID_ADD_TO_PLAYLIST = "76CDF664-F49C-40a4-8108-E478AB199595";
 
@@ -69,6 +71,8 @@ namespace MediaPortal.UiComponents.Media.General
     public static readonly Guid WF_STATE_ID_AUDIO_NAVIGATION_ROOT = new Guid(STR_WF_STATE_ID_AUDIO_NAVIGATION_ROOT);
     public static readonly Guid WF_STATE_ID_VIDEOS_NAVIGATION_ROOT = new Guid(STR_WF_STATE_ID_VIDEOS_NAVIGATION_ROOT);
     public static readonly Guid WF_STATE_ID_IMAGES_NAVIGATION_ROOT = new Guid(STR_WF_STATE_ID_IMAGES_NAVIGATION_ROOT);
+    public static readonly Guid WF_STATE_ID_SERIES_NAVIGATION_ROOT = new Guid(STR_WF_STATE_ID_SERIES_NAVIGATION_ROOT);
+    public static readonly Guid WF_STATE_ID_SERIES_SEASON_NAVIGATION = new Guid(STR_WF_STATE_ID_SERIES_SEASON_NAVIGATION);
 
     public static readonly Guid WF_STATE_ID_CURRENTLY_PLAYING_VIDEO = new Guid(STR_WF_STATE_ID_CURRENTLY_PLAYING_VIDEO);
     public static readonly Guid WF_STATE_ID_FULLSCREEN_VIDEO = new Guid(STR_WF_STATE_ID_FULLSCREEN_VIDEO);
@@ -122,6 +126,7 @@ namespace MediaPortal.UiComponents.Media.General
     public const string RES_LOCAL_MEDIA_ROOT_VIEW_NAME = "[Media.LocalMediaRootViewName]";
     public const string RES_AUDIO_VIEW_NAME = "[Media.AudioRootViewName]";
     public const string RES_VIDEOS_VIEW_NAME = "[Media.VideosRootViewName]";
+    public const string RES_SERIES_VIEW_NAME = "[Media.SeriesRootViewName]";
     public const string RES_IMAGES_VIEW_NAME = "[Media.ImagesRootViewName]";
     public const string RES_SIMPLE_SEARCH_VIEW_NAME = "[Media.SimpleSearchViewName]";
 
@@ -135,6 +140,10 @@ namespace MediaPortal.UiComponents.Media.General
     public const string RES_FILTER_BY_VIDEO_GENRE_MENU_ITEM = "[Media.FilterByVideoGenreMenuItem]";
     public const string RES_FILTER_BY_SYSTEM_MENU_ITEM = "[Media.FilterBySystemMenuItem]";
     public const string RES_FILTER_BY_IMAGE_SIZE_MENU_ITEM = "[Media.FilterByImageSizeMenuItem]";
+    public const string RES_FILTER_BY_SERIES_NAME_MENU_ITEM = "[Media.FilterBySeriesNameMenuItem]";
+    public const string RES_FILTER_BY_SERIES_SEASON_MENU_ITEM = "[Media.FilterBySeriesSeasonMenuItem]";
+    public const string RES_FILTER_BY_SERIES_EPISODE_MENU_ITEM = "[Media.FilterBySeriesEpisodeMenuItem]";
+
     public const string RES_SIMPLE_SEARCH_FILTER_MENU_ITEM = "[Media.SimpleSearchFilterMenuItem]";
     public const string RES_SHOW_ALL_AUDIO_ITEMS_MENU_ITEM = "[Media.ShowAllAudioItemsMenuItem]";
     public const string RES_SHOW_ALL_VIDEO_ITEMS_MENU_ITEM = "[Media.ShowAllVideoItemsMenuItem]";
@@ -155,6 +164,8 @@ namespace MediaPortal.UiComponents.Media.General
     public const string RES_FILTER_VIDEO_ITEMS_NAVBAR_DISPLAY_LABEL = "[Media.FilterVideoItemsNavbarDisplayLabel]";
     public const string RES_FILTER_IMAGE_ITEMS_NAVBAR_DISPLAY_LABEL = "[Media.FilterImageItemsNavbarDisplayLabel]";
     public const string RES_FILTER_SYSTEM_NAVBAR_DISPLAY_LABEL = "[Media.FilterSystemNavbarDisplayLabel]";
+    public const string RES_FILTER_SERIES_ITEMS_NAVBAR_DISPLAY_LABEL = "[Media.FilterSeriesItemsNavbarDisplayLabel]";
+    public const string RES_FILTER_SERIES_SEASON_NAVBAR_DISPLAY_LABEL = "[Media.FilterSeriesSeasonNavbarDisplayLabel]";
 
     public const string VALUE_EMPTY_TITLE = "[Media.ValueEmptyTitle]";
 
@@ -258,6 +269,9 @@ namespace MediaPortal.UiComponents.Media.General
     public const string SCREEN_VIDEOS_FILTER_BY_GENRE = "VideoFilterByGenre";
     public const string SCREEN_VIDEOS_FILTER_BY_YEAR = "VideoFilterByYear";
     public const string SCREEN_VIDEOS_FILTER_BY_SYSTEM = "VideoFilterBySystem";
+    public const string SCREEN_SERIES_SHOW_ITEMS = "SeriesShowItems";
+    public const string SCREEN_SERIES_FILTER_BY_NAME = "SeriesFilterByName";
+    public const string SCREEN_SERIES_FILTER_BY_SEASON = "SeriesFilterBySeason";
     public const string SCREEN_VIDEOS_SIMPLE_SEARCH = "VideoSimpleSearch";
     public const string SCREEN_IMAGE_SHOW_ITEMS = "ImageShowItems";
     public const string SCREEN_IMAGE_FILTER_BY_YEAR = "ImageFilterByYear";
@@ -353,6 +367,14 @@ namespace MediaPortal.UiComponents.Media.General
           ProviderResourceAspect.ASPECT_ID,
           MediaAspect.ASPECT_ID,
           VideoAspect.ASPECT_ID,
+      };
+
+    public static readonly Guid[] NECESSARY_SERIES_MIAS = new Guid[]
+      {
+          ProviderResourceAspect.ASPECT_ID,
+          MediaAspect.ASPECT_ID,
+          VideoAspect.ASPECT_ID,
+          SeriesAspect.ASPECT_ID,
       };
 
     public static readonly Guid[] NECESSARY_AUDIO_MIAS = new Guid[]

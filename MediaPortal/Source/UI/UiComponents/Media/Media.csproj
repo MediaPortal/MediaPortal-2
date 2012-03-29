@@ -101,6 +101,8 @@
   <ItemGroup>
     <Compile Include="Actions\AddViewToPlaylistAction.cs" />
     <Compile Include="Actions\BrowseMediaAction.cs" />
+    <Compile Include="Actions\SeriesSeasonAction.cs" />
+    <Compile Include="Actions\SeriesAction.cs" />
     <Compile Include="Actions\SwitchSortingAction.cs" />
     <Compile Include="Actions\RemovePlaylistsAction.cs" />
     <Compile Include="Actions\SwitchViewModeAction.cs" />
@@ -122,6 +124,9 @@
     <Compile Include="Models\ExtendedVideoSkip.cs" />
     <Compile Include="Models\IPlayerUIContributor.cs" />
     <Compile Include="Models\DVDPlayerUIContributor.cs" />
+    <Compile Include="Models\ScreenData\SeriesShowItemsScreenData.cs" />
+    <Compile Include="Models\ScreenData\SeriesFilterBySeasonScreenData.cs" />
+    <Compile Include="Models\ScreenData\SeriesFilterByNameScreenData.cs" />
     <Compile Include="Models\Sorting\AudioSortByAlbumTrack.cs" />
     <Compile Include="Models\Sorting\AudioSortByAlbum.cs" />
     <Compile Include="Models\Sorting\AudioSortByTrack.cs" />
@@ -346,6 +351,24 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="Skin\default\themes\default\styles\AudioSpectrumAnalyzer.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Skin\default\screens\DialogSwitchSorting.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+    <Content Include="Skin\default\screens\SeriesFilterByName.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Skin\default\screens\SeriesFilterBySeason.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Skin\default\screens\SeriesShowItems.xaml">
       <SubType>Designer</SubType>
     </Content>
   </ItemGroup>

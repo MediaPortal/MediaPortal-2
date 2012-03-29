@@ -22,18 +22,23 @@
 
 #endregion
 
-namespace MediaPortal.UiComponents.Media.Models
+using MediaPortal.Common.MediaManagement.DefaultItemAspects;
+using MediaPortal.UiComponents.Media.FilterCriteria;
+using MediaPortal.UiComponents.Media.General;
+
+namespace MediaPortal.UiComponents.Media.Models.ScreenData
 {
-  /// <summary>
-  /// Represents different parts of the media library/system which can be navigated by the media model.
-  /// </summary>
-  public enum MediaNavigationMode
+  public class SeriesFilterByNameScreenData : AbstractVideosFilterScreenData
   {
-    BrowseLocalMedia,
-    BrowseMediaLibrary,
-    Audio,
-    Videos,
-    Images,
-    Series
+    public SeriesFilterByNameScreenData() :
+        base(Consts.SCREEN_SERIES_FILTER_BY_NAME, Consts.RES_FILTER_BY_SERIES_NAME_MENU_ITEM,
+        Consts.RES_FILTER_SERIES_ITEMS_NAVBAR_DISPLAY_LABEL, new SimpleMLFilterCriterion(SeriesAspect.ATTR_SERIESNAME))
+    {
+    }
+
+    public override AbstractFiltersScreenData Derive()
+    {
+      return new SeriesFilterByNameScreenData();
+    }
   }
 }
