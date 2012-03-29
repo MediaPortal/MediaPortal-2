@@ -381,21 +381,16 @@ namespace MediaPortal.UiComponents.Media.Models
               new VideosFilterByGenreScreenData(),
               new VideosSimpleSearchScreenData(picd),
           };
-        Sorting.Sorting sortByTitle = new SortByTitle();
+        Sorting.Sorting sortByEpisode = new SeriesSortByEpisode();
         ICollection<Sorting.Sorting> availableSortings = new List<Sorting.Sorting>
           {
-              sortByTitle,
-              new SortByYear(),
-              new VideoSortByFirstGenre(),
-              new VideoSortByDuration(),
-              new VideoSortByDirector(),
-              new VideoSortByFirstActor(),
-              new VideoSortBySize(),
-              new VideoSortByAspectRatio(),
+              sortByEpisode,
+              new SortByTitle(),
+              new SortByDate(),
               new SortBySystem(),
           };
         navigationData = new NavigationData(null, Consts.RES_SERIES_VIEW_NAME, currentStateId,
-            currentStateId, rootViewSpecification, filterBySeries, availableScreens, sortByTitle)
+            currentStateId, rootViewSpecification, filterBySeries, availableScreens, sortByEpisode)
           {
               AvailableSortings = availableSortings
           };
