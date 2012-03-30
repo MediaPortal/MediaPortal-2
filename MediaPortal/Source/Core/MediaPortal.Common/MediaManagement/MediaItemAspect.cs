@@ -425,6 +425,46 @@ namespace MediaPortal.Common.MediaManagement
       return mediaAspect;
     }
 
+
+    /// <summary>
+    /// Sets a MetaData attribute for a MetadataAspect. This helper method only creates the MetadataAspect when it is needed to store values.
+    /// This way no "empty" aspects will be written to MediaLibrary.
+    /// If the MetadataAspect gets accessed the first time it will be added to the <paramref name="extractedAspectData"/> and the <paramref name="metadata"/>.
+    /// </summary>
+    /// <typeparam name="TE">Type parameter</typeparam>
+    /// <param name="metadata">Property <see cref="IMetadataExtractor.Metadata"/></param>
+    /// <param name="extractedAspectData">Parameter of <see cref="IMetadataExtractor.TryExtractMetadata"/></param>
+    /// <param name="aspectId">ID of MediaItemAspect</param>
+    /// <param name="mediaItemAspectMetadata">MediaItemAspectMetadata</param>
+    /// <param name="attributeSpecification">The attribute to be set</param>
+    /// <param name="value">Value to be set</param>
+    public static void SetAttribute<TE>(MetadataExtractorMetadata metadata, IDictionary<Guid, MediaItemAspect> extractedAspectData, Guid aspectId, MediaItemAspectMetadata mediaItemAspectMetadata, MediaItemAspectMetadata.AttributeSpecification attributeSpecification, TE value)
+    {
+      MediaItemAspect aspect = GetOrCreateAspect(extractedAspectData, aspectId, mediaItemAspectMetadata);
+      if (!metadata.ExtractedAspectTypes.ContainsKey(aspectId))
+        metadata.ExtractedAspectTypes.Add(aspectId, mediaItemAspectMetadata);
+      aspect.SetAttribute(attributeSpecification, value);
+    }
+
+    /// <summary>
+    /// Sets a MetaData collection attribute for a MetadataAspect. This helper method only creates the MetadataAspect when it is needed to store values.
+    /// This way no "empty" aspects will be written to MediaLibrary.
+    /// If the MetadataAspect gets accessed the first time it will be added to the <paramref name="extractedAspectData"/> and the <paramref name="metadata"/>.
+    /// </summary>
+    /// <param name="metadata">Property <see cref="IMetadataExtractor.Metadata"/></param>
+    /// <param name="extractedAspectData">Parameter of <see cref="IMetadataExtractor.TryExtractMetadata"/></param>
+    /// <param name="aspectId">ID of MediaItemAspect</param>
+    /// <param name="mediaItemAspectMetadata">MediaItemAspectMetadata</param>
+    /// <param name="attributeSpecification">The attribute to be set</param>
+    /// <param name="value">Value to be set</param>
+    public static void SetCollectionAttribute(MetadataExtractorMetadata metadata, IDictionary<Guid, MediaItemAspect> extractedAspectData, Guid aspectId, MediaItemAspectMetadata mediaItemAspectMetadata, MediaItemAspectMetadata.AttributeSpecification attributeSpecification, IEnumerable value)
+    {
+      MediaItemAspect aspect = GetOrCreateAspect(extractedAspectData, aspectId, mediaItemAspectMetadata);
+      if (!metadata.ExtractedAspectTypes.ContainsKey(aspectId))
+        metadata.ExtractedAspectTypes.Add(aspectId, mediaItemAspectMetadata);
+      aspect.SetCollectionAttribute(attributeSpecification, value);
+    }
+
     public override string ToString()
     {
       return "MIA of type '" + _metadata + "'";
