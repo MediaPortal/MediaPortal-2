@@ -23,6 +23,7 @@
 #endregion
 
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Xml.Serialization;
@@ -110,7 +111,6 @@ namespace MediaPortal.Extensions.MetadataExtractors
               {
                 MediaAspect.Metadata,
                 VideoAspect.Metadata,
-                SeriesAspect.Metadata,
                 RecordingAspect.Metadata
               });
     }
@@ -141,7 +141,6 @@ namespace MediaPortal.Extensions.MetadataExtractors
         MediaItemAspect mediaAspect = MediaItemAspect.GetOrCreateAspect(extractedAspectData, MediaAspect.ASPECT_ID, MediaAspect.Metadata);
         MediaItemAspect videoAspect = MediaItemAspect.GetOrCreateAspect(extractedAspectData, VideoAspect.ASPECT_ID, VideoAspect.Metadata);
         MediaItemAspect recordingAspect = MediaItemAspect.GetOrCreateAspect(extractedAspectData, RecordingAspect.ASPECT_ID, RecordingAspect.Metadata);
-        MediaItemAspect seriesAspect = MediaItemAspect.GetOrCreateAspect(extractedAspectData, SeriesAspect.ASPECT_ID, SeriesAspect.Metadata);
 
         Tags tags;
         XmlSerializer serializer = new XmlSerializer(typeof(Tags));
@@ -161,24 +160,25 @@ namespace MediaPortal.Extensions.MetadataExtractors
 
           if (TryGet(tags, TAG_EPISODENAME, out episodeName))
             formattedTitle = string.Format("{0} - {1}", formattedTitle, episodeName);
-          
-          mediaAspect.SetAttribute(MediaAspect.ATTR_TITLE, formattedTitle);
 
-          if (!string.IsNullOrEmpty(episodeName))
-          {
-            // Only fill the series name if there is also an episode. Otherwise the normal media item title will be enough.
-            seriesAspect.SetAttribute(SeriesAspect.ATTR_SERIESNAME, title);
-            seriesAspect.SetAttribute(SeriesAspect.ATTR_EPISODENAME, episodeName);
-          }
+          mediaAspect.SetAttribute(MediaAspect.ATTR_TITLE, formattedTitle);
 
           int seasonNumber;
           if (int.TryParse(seasonNum, out seasonNumber))
-            seriesAspect.SetAttribute(SeriesAspect.ATTR_SEASONNUMBER, seasonNumber);
+            MediaItemAspect.SetAttribute(_metadata, extractedAspectData, SeriesAspect.ASPECT_ID, SeriesAspect.Metadata, SeriesAspect.ATTR_SEASONNUMBER, seasonNumber);
 
           // TODO: how does Tve3/EPG/EpisodeScanner store combined episodes?
           int episodeNumber;
           if (int.TryParse(episodeNum, out episodeNumber))
-            seriesAspect.SetCollectionAttribute(SeriesAspect.ATTR_EPISODENUMBER, new List<int> { episodeNumber });
+            MediaItemAspect.SetCollectionAttribute(_metadata, extractedAspectData, SeriesAspect.ASPECT_ID, SeriesAspect.Metadata, SeriesAspect.ATTR_EPISODENUMBER, new List<int> { episodeNumber });
+
+          // Only fill the series name if there is also an episode. Otherwise the normal media item title will be enough.
+          // This check needs to be done, because the EpisodeName tag is often filled with the original title (i.e. by TvMovie EPG importer)
+          if (!string.IsNullOrEmpty(episodeName) && episodeNumber > 0)
+          {
+            MediaItemAspect.SetAttribute(_metadata, extractedAspectData, SeriesAspect.ASPECT_ID, SeriesAspect.Metadata, SeriesAspect.ATTR_SERIESNAME, title);
+            MediaItemAspect.SetAttribute(_metadata, extractedAspectData, SeriesAspect.ASPECT_ID, SeriesAspect.Metadata, SeriesAspect.ATTR_EPISODENAME, episodeName);
+          }
         }
 
         string value;
