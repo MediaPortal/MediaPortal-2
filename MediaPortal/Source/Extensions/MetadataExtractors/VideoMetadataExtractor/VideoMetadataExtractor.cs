@@ -113,7 +113,6 @@ namespace MediaPortal.Extensions.MetadataExtractors.VideoMetadataExtractor
               {
                 MediaAspect.Metadata,
                 VideoAspect.Metadata,
-                SeriesAspect.Metadata
               });
     }
 
@@ -235,29 +234,31 @@ namespace MediaPortal.Extensions.MetadataExtractors.VideoMetadataExtractor
         }
       }
 
-      public void UpdateMetadata(MediaItemAspect mediaAspect, MediaItemAspect videoAspect, MediaItemAspect thumbnailSmallAspect, MediaItemAspect thumbnailLargeAspect, MediaItemAspect seriesAspect, string localFsResourcePath, bool forceQuickMode)
+      public void UpdateMetadata(MetadataExtractorMetadata metadata, IDictionary<Guid, MediaItemAspect> extractedAspectData, string localFsResourcePath, bool forceQuickMode)
       {
-        mediaAspect.SetAttribute(MediaAspect.ATTR_TITLE, _title);
-        mediaAspect.SetAttribute(MediaAspect.ATTR_MIME_TYPE, _mimeType);
+        MediaItemAspect.SetAttribute(metadata, extractedAspectData, MediaAspect.ASPECT_ID, MediaAspect.Metadata, MediaAspect.ATTR_TITLE, _title);
+        MediaItemAspect.SetAttribute(metadata, extractedAspectData, MediaAspect.ASPECT_ID, MediaAspect.Metadata, MediaAspect.ATTR_MIME_TYPE, _mimeType);
         if (_ar.HasValue)
-          videoAspect.SetAttribute(VideoAspect.ATTR_ASPECTRATIO, _ar.Value);
+          MediaItemAspect.SetAttribute(metadata, extractedAspectData, VideoAspect.ASPECT_ID, VideoAspect.Metadata, VideoAspect.ATTR_ASPECTRATIO, _ar.Value);
         if (_frameRate.HasValue)
-          videoAspect.SetAttribute(VideoAspect.ATTR_FPS, _frameRate.Value);
+          MediaItemAspect.SetAttribute(metadata, extractedAspectData, VideoAspect.ASPECT_ID, VideoAspect.Metadata, VideoAspect.ATTR_FPS, _frameRate.Value);
         if (_width.HasValue)
-          videoAspect.SetAttribute(VideoAspect.ATTR_WIDTH, _width.Value);
+          MediaItemAspect.SetAttribute(metadata, extractedAspectData, VideoAspect.ASPECT_ID, VideoAspect.Metadata, VideoAspect.ATTR_WIDTH, _width.Value);
         if (_height.HasValue)
-          videoAspect.SetAttribute(VideoAspect.ATTR_HEIGHT, _height.Value);
+          MediaItemAspect.SetAttribute(metadata, extractedAspectData, VideoAspect.ASPECT_ID, VideoAspect.Metadata, VideoAspect.ATTR_HEIGHT, _height.Value);
         // MediaInfo returns milliseconds, we need seconds
         if (_playTime.HasValue)
-          videoAspect.SetAttribute(VideoAspect.ATTR_DURATION, _playTime.Value / 1000);
+          MediaItemAspect.SetAttribute(metadata, extractedAspectData, VideoAspect.ASPECT_ID, VideoAspect.Metadata, VideoAspect.ATTR_DURATION, _playTime.Value / 1000);
         if (_vidBitRate.HasValue)
-          videoAspect.SetAttribute(VideoAspect.ATTR_VIDEOBITRATE, _vidBitRate.Value);
-        videoAspect.SetAttribute(VideoAspect.ATTR_VIDEOENCODING, StringUtils.Join(", ", _vidCodecs));
+          MediaItemAspect.SetAttribute(metadata, extractedAspectData, VideoAspect.ASPECT_ID, VideoAspect.Metadata, VideoAspect.ATTR_VIDEOBITRATE, _vidBitRate.Value);
 
-        videoAspect.SetAttribute(VideoAspect.ATTR_AUDIOSTREAMCOUNT, _audioStreamCount);
+        MediaItemAspect.SetAttribute(metadata, extractedAspectData, VideoAspect.ASPECT_ID, VideoAspect.Metadata, VideoAspect.ATTR_VIDEOENCODING, StringUtils.Join(", ", _vidCodecs));
+
+        MediaItemAspect.SetAttribute(metadata, extractedAspectData, VideoAspect.ASPECT_ID, VideoAspect.Metadata, VideoAspect.ATTR_AUDIOSTREAMCOUNT, _audioStreamCount);
         if (_audBitRate.HasValue)
-          videoAspect.SetAttribute(VideoAspect.ATTR_AUDIOBITRATE, _audBitRate.Value);
-        videoAspect.SetAttribute(VideoAspect.ATTR_AUDIOENCODING, StringUtils.Join(", ", _audCodecs));
+          MediaItemAspect.SetAttribute(metadata, extractedAspectData, VideoAspect.ASPECT_ID, VideoAspect.Metadata, VideoAspect.ATTR_AUDIOBITRATE, _audBitRate.Value);
+
+        MediaItemAspect.SetAttribute(metadata, extractedAspectData, VideoAspect.ASPECT_ID, VideoAspect.Metadata, VideoAspect.ATTR_AUDIOENCODING, StringUtils.Join(", ", _audCodecs));
         // TODO: extract cover art (see Mantis #1977)
 
 
@@ -296,9 +297,9 @@ namespace MediaPortal.Extensions.MetadataExtractors.VideoMetadataExtractor
             string episodeNum = string.Empty;
 
             if (tagsToExtract[TAG_SERIES_TITLE] != null)
-             seriesName = tagsToExtract[TAG_SERIES_TITLE].FirstOrDefault();
+              seriesName = tagsToExtract[TAG_SERIES_TITLE].FirstOrDefault();
             if (tagsToExtract[TAG_SEASON_NUMBER] != null)
-             seasonNum = tagsToExtract[TAG_SEASON_NUMBER].FirstOrDefault();
+              seasonNum = tagsToExtract[TAG_SEASON_NUMBER].FirstOrDefault();
             if (tagsToExtract[TAG_EPISODE_NUMBER] != null)
               episodeNum = tagsToExtract[TAG_EPISODE_NUMBER].FirstOrDefault();
 
@@ -306,22 +307,22 @@ namespace MediaPortal.Extensions.MetadataExtractors.VideoMetadataExtractor
               title = string.Format("{0} S{1}E{2} - {3}", seriesName, seasonNum.PadLeft(2, '0'), episodeNum.PadLeft(2, '0'), episodeName);
 
             if (!string.IsNullOrEmpty(episodeName))
-              seriesAspect.SetAttribute(SeriesAspect.ATTR_SERIESNAME, seriesName);
+              MediaItemAspect.SetAttribute(metadata, extractedAspectData, SeriesAspect.ASPECT_ID, SeriesAspect.Metadata, SeriesAspect.ATTR_SERIESNAME, title);
             if (!string.IsNullOrEmpty(episodeName))
-              seriesAspect.SetAttribute(SeriesAspect.ATTR_EPISODENAME, episodeName);
+              MediaItemAspect.SetAttribute(metadata, extractedAspectData, SeriesAspect.ASPECT_ID, SeriesAspect.Metadata, SeriesAspect.ATTR_EPISODENAME, episodeName);
 
             int seasonNumber;
             if (int.TryParse(seasonNum, out seasonNumber))
-              seriesAspect.SetAttribute(SeriesAspect.ATTR_SEASONNUMBER, seasonNumber);
+              MediaItemAspect.SetAttribute(metadata, extractedAspectData, SeriesAspect.ASPECT_ID, SeriesAspect.Metadata, SeriesAspect.ATTR_EPISODENUMBER, seasonNumber);
 
             // TODO: how does Tve3/EPG/EpisodeScanner store combined episodes?
             int episodeNumber;
             if (int.TryParse(episodeNum, out episodeNumber))
-              seriesAspect.SetCollectionAttribute(SeriesAspect.ATTR_EPISODENUMBER, new List<int> { episodeNumber });
+              MediaItemAspect.SetCollectionAttribute(metadata, extractedAspectData, SeriesAspect.ASPECT_ID, SeriesAspect.Metadata, SeriesAspect.ATTR_EPISODENUMBER, new List<int> { episodeNumber });
           }
 
           if (!string.IsNullOrEmpty(title))
-            mediaAspect.SetAttribute(MediaAspect.ATTR_TITLE, title);
+            MediaItemAspect.SetAttribute(metadata, extractedAspectData, MediaAspect.ASPECT_ID, MediaAspect.Metadata, MediaAspect.ATTR_TITLE, title);
 
           string yearCandidate = null;
           if (tagsToExtract[TAG_EPISODE_YEAR] != null)
@@ -332,10 +333,10 @@ namespace MediaPortal.Extensions.MetadataExtractors.VideoMetadataExtractor
 
           int year;
           if (int.TryParse(yearCandidate, out year))
-            mediaAspect.SetAttribute(MediaAspect.ATTR_RECORDINGTIME, new DateTime(year, 1, 1));
+            MediaItemAspect.SetAttribute(metadata, extractedAspectData, MediaAspect.ASPECT_ID, MediaAspect.Metadata, MediaAspect.ATTR_RECORDINGTIME, new DateTime(year, 1, 1));
 
           if (tagsToExtract[TAG_SERIES_GENRE] != null)
-            videoAspect.SetCollectionAttribute(VideoAspect.ATTR_GENRES, tagsToExtract[TAG_SERIES_GENRE]);
+            MediaItemAspect.SetCollectionAttribute(metadata, extractedAspectData, VideoAspect.ASPECT_ID, VideoAspect.Metadata, VideoAspect.ATTR_GENRES, tagsToExtract[TAG_SERIES_GENRE]);
 
           IEnumerable<string> actors;
           // Combine series actors and episode actors if both are available
@@ -345,10 +346,10 @@ namespace MediaPortal.Extensions.MetadataExtractors.VideoMetadataExtractor
             actors = tagsToExtract[TAG_SERIES_ACTORS] ?? tagsToExtract[TAG_ACTORS];
 
           if (actors != null)
-            videoAspect.SetCollectionAttribute(VideoAspect.ATTR_ACTORS, actors);
+            MediaItemAspect.SetCollectionAttribute(metadata, extractedAspectData, VideoAspect.ASPECT_ID, VideoAspect.Metadata, VideoAspect.ATTR_ACTORS, actors);
 
           if (tagsToExtract[TAG_EPISODE_SUMMARY] != null)
-            videoAspect.SetAttribute(VideoAspect.ATTR_STORYPLOT, tagsToExtract[TAG_EPISODE_SUMMARY].FirstOrDefault());
+            MediaItemAspect.SetAttribute(metadata, extractedAspectData, VideoAspect.ASPECT_ID, VideoAspect.Metadata, VideoAspect.ATTR_STORYPLOT, tagsToExtract[TAG_EPISODE_SUMMARY].FirstOrDefault());
         }
 
 
@@ -360,9 +361,9 @@ namespace MediaPortal.Extensions.MetadataExtractors.VideoMetadataExtractor
         byte[] thumbData;
         ImageType imageType;
         if (generator.GetThumbnail(localFsResourcePath, 96, 96, cachedOnly, out thumbData, out imageType))
-          thumbnailSmallAspect.SetAttribute(ThumbnailSmallAspect.ATTR_THUMBNAIL, thumbData);
+          MediaItemAspect.SetAttribute(metadata, extractedAspectData, ThumbnailSmallAspect.ASPECT_ID, ThumbnailSmallAspect.Metadata, ThumbnailSmallAspect.ATTR_THUMBNAIL, thumbData);
         if (generator.GetThumbnail(localFsResourcePath, 256, 256, cachedOnly, out thumbData, out imageType))
-          thumbnailLargeAspect.SetAttribute(ThumbnailLargeAspect.ATTR_THUMBNAIL, thumbData);
+          MediaItemAspect.SetAttribute(metadata, extractedAspectData, ThumbnailLargeAspect.ASPECT_ID, ThumbnailLargeAspect.Metadata, ThumbnailLargeAspect.ATTR_THUMBNAIL, thumbData);
       }
 
       public bool IsDVD
@@ -432,17 +433,11 @@ namespace MediaPortal.Extensions.MetadataExtractors.VideoMetadataExtractor
         }
         if (result != null)
         {
-          MediaItemAspect mediaAspect = MediaItemAspect.GetOrCreateAspect(extractedAspectData, MediaAspect.ASPECT_ID, MediaAspect.Metadata);
-          MediaItemAspect videoAspect = MediaItemAspect.GetOrCreateAspect(extractedAspectData, VideoAspect.ASPECT_ID, VideoAspect.Metadata);
-          MediaItemAspect seriesAspect = MediaItemAspect.GetOrCreateAspect(extractedAspectData, SeriesAspect.ASPECT_ID, SeriesAspect.Metadata);
-          MediaItemAspect thumbnailSmallAspect = MediaItemAspect.GetOrCreateAspect(extractedAspectData, ThumbnailSmallAspect.ASPECT_ID, ThumbnailSmallAspect.Metadata);
-          MediaItemAspect thumbnailLargeAspect = MediaItemAspect.GetOrCreateAspect(extractedAspectData, ThumbnailLargeAspect.ASPECT_ID, ThumbnailLargeAspect.Metadata);
-
           IResourceAccessor ra = mediaItemAccessor.Clone();
           try
           {
             using (ILocalFsResourceAccessor lfsra = StreamedResourceToLocalFsAccessBridge.GetLocalFsResourceAccessor(ra))
-              result.UpdateMetadata(mediaAspect, videoAspect, thumbnailSmallAspect, thumbnailLargeAspect, seriesAspect, lfsra.LocalFileSystemPath, forceQuickMode);
+              result.UpdateMetadata(_metadata, extractedAspectData, lfsra.LocalFileSystemPath, forceQuickMode);
           }
           catch
           {
