@@ -34,6 +34,14 @@ using MediaPortal.Utilities.DeepCopy;
 
 namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 {
+  /// <summary>
+  /// Invisible element which provides a key binding which can be triggered with a <see cref="Key"/>. If the configured <see cref="Key"/> is pressed,
+  /// the configured <see cref="Command"/> is executed.
+  /// </summary>
+  /// <remarks>
+  /// This element just provides an "invisible" key handler for the screen where it is defined (or where it is copied to using styling).
+  /// This element can be temporarily enabled and disabled using the <see cref="UIElement.IsEnabled"/> property.
+  /// </remarks>
   public class KeyBinding : FrameworkElement
   {
     #region Protected fields

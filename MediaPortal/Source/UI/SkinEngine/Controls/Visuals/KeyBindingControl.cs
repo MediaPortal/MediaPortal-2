@@ -33,8 +33,9 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
   /// <summary>
   /// Control to provide a key binding which can be triggered with a <see cref="Key"/>. This control can also
   /// provide a visible feedback for the user; it shows the key and a description for the shortcut.
-  /// It is similar to a <see cref="KeyBinding"/>, which doesn't provide a view.
+  /// It is similar to a <see cref="KeyBinding"/>, which doesn't provide a view element.
   /// </summary>
+  // TODO Albert, 2012-04-01: Maybe this functionality should better be provided as an attached property which can be used with buttons?
   public class KeyBindingControl : Button
   {
     #region Protected fields
