@@ -30,6 +30,7 @@ using MediaPortal.Common;
 using MediaPortal.Common.Logging;
 using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
+using MediaPortal.Common.MediaManagement.Helpers;
 using MediaPortal.Common.ResourceAccess;
 using MediaPortal.Extensions.MetadataExtractors.Aspects;
 
@@ -146,39 +147,10 @@ namespace MediaPortal.Extensions.MetadataExtractors
         using (FileStream fileStream = new FileStream(metaFile, FileMode.Open))
           tags = (Tags) serializer.Deserialize(fileStream);
 
-        string title;
-        if (TryGet(tags, TAG_TITLE, out title))
-        {
-          string episodeName;
-          string seasonNum;
-          string episodeNum = null;
-          string formattedTitle = title;
-
-          if (TryGet(tags, TAG_SERIESNUM, out seasonNum) && TryGet(tags, TAG_EPISODENUM, out episodeNum))
-            formattedTitle = string.Format("{0} - S{1}E{2}", formattedTitle, seasonNum, episodeNum);
-
-          if (TryGet(tags, TAG_EPISODENAME, out episodeName))
-            formattedTitle = string.Format("{0} - {1}", formattedTitle, episodeName);
-
-          mediaAspect.SetAttribute(MediaAspect.ATTR_TITLE, formattedTitle);
-
-          int seasonNumber;
-          if (int.TryParse(seasonNum, out seasonNumber))
-            MediaItemAspect.SetAttribute(extractedAspectData, SeriesAspect.ASPECT_ID, SeriesAspect.Metadata, SeriesAspect.ATTR_SEASONNUMBER, seasonNumber);
-
-          // TODO: how does Tve3/EPG/EpisodeScanner store combined episodes?
-          int episodeNumber;
-          if (int.TryParse(episodeNum, out episodeNumber))
-            MediaItemAspect.SetCollectionAttribute(extractedAspectData, SeriesAspect.ASPECT_ID, SeriesAspect.Metadata, SeriesAspect.ATTR_EPISODENUMBER, new List<int> { episodeNumber });
-
-          // Only fill the series name if there is also an episode. Otherwise the normal media item title will be enough.
-          // This check needs to be done, because the EpisodeName tag is often filled with the original title (i.e. by TvMovie EPG importer)
-          if (!string.IsNullOrEmpty(episodeName) && episodeNumber > 0)
-          {
-            MediaItemAspect.SetAttribute(extractedAspectData, SeriesAspect.ASPECT_ID, SeriesAspect.Metadata, SeriesAspect.ATTR_SERIESNAME, title);
-            MediaItemAspect.SetAttribute(extractedAspectData, SeriesAspect.ASPECT_ID, SeriesAspect.Metadata, SeriesAspect.ATTR_EPISODENAME, episodeName);
-          }
-        }
+        // Handle series information
+        SeriesInfo seriesInfo = GetSeriesFromTags(tags);
+        if (seriesInfo.IsCompleteMatch)
+          seriesInfo.SetMetadata(extractedAspectData);
 
         string value;
         if (TryGet(tags, TAG_GENRE, out value))
@@ -210,6 +182,29 @@ namespace MediaPortal.Extensions.MetadataExtractors
         ServiceRegistration.Get<ILogger>().Info("Tve3RecordingMetadataExtractor: Exception reading resource '{0}' (Text: '{1}')", mediaItemAccessor.CanonicalLocalResourcePath, e.Message);
       }
       return false;
+    }
+
+    public SeriesInfo GetSeriesFromTags(Tags extractedTags)
+    {
+      SeriesInfo seriesInfo = new SeriesInfo();
+      string tmpString;
+
+      if (TryGet(extractedTags, TAG_TITLE, out tmpString))
+        seriesInfo.Series = tmpString;
+      
+      if (TryGet(extractedTags, TAG_EPISODENAME, out tmpString))
+        seriesInfo.Episode = tmpString;
+
+      if (TryGet(extractedTags, TAG_SERIESNUM, out tmpString) )
+        int.TryParse(tmpString, out seriesInfo.SeasonNumber);
+        
+      if (TryGet(extractedTags, TAG_EPISODENUM, out tmpString))
+      {
+        int episodeNum;
+        if (int.TryParse(tmpString, out episodeNum))
+          seriesInfo.EpisodeNumbers.Add(episodeNum);
+      }
+      return seriesInfo;
     }
 
     private static bool TryGet(Tags tags, string key, out string value)
