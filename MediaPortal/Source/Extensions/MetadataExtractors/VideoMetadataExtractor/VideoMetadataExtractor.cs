@@ -31,6 +31,7 @@ using MediaPortal.Common;
 using MediaPortal.Common.Logging;
 using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
+using MediaPortal.Common.MediaManagement.Helpers;
 using MediaPortal.Common.ResourceAccess;
 using MediaPortal.Common.Services.ResourceAccess.StreamedResourceToLocalFsAccessBridge;
 using MediaPortal.Common.Services.ThumbnailGenerator;
@@ -235,7 +236,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.VideoMetadataExtractor
         }
       }
 
-      public void UpdateMetadata(MetadataExtractorMetadata metadata, IDictionary<Guid, MediaItemAspect> extractedAspectData, string localFsResourcePath, bool forceQuickMode)
+      public void UpdateMetadata(IDictionary<Guid, MediaItemAspect> extractedAspectData, string localFsResourcePath, bool forceQuickMode)
       {
         MediaItemAspect.SetAttribute(extractedAspectData, MediaAspect.ASPECT_ID, MediaAspect.Metadata, MediaAspect.ATTR_TITLE, _title);
         MediaItemAspect.SetAttribute(extractedAspectData, MediaAspect.ASPECT_ID, MediaAspect.Metadata, MediaAspect.ATTR_MIME_TYPE, _mimeType);
@@ -290,36 +291,13 @@ namespace MediaPortal.Extensions.MetadataExtractors.VideoMetadataExtractor
             title = tagsToExtract[TAG_SIMPLE_TITLE].FirstOrDefault();
 
           // Series and episode handling
-          if (tagsToExtract[TAG_EPISODE_TITLE] != null)
+          SeriesInfo seriesInfo = GetSeriesFromTags(tagsToExtract);
+          if (seriesInfo.IsCompleteMatch)
           {
-            string episodeName = tagsToExtract[TAG_EPISODE_TITLE].FirstOrDefault();
-            string seriesName = string.Empty;
-            string seasonNum = string.Empty;
-            string episodeNum = string.Empty;
-
-            if (tagsToExtract[TAG_SERIES_TITLE] != null)
-              seriesName = tagsToExtract[TAG_SERIES_TITLE].FirstOrDefault();
-            if (tagsToExtract[TAG_SEASON_NUMBER] != null)
-              seasonNum = tagsToExtract[TAG_SEASON_NUMBER].FirstOrDefault();
-            if (tagsToExtract[TAG_EPISODE_NUMBER] != null)
-              episodeNum = tagsToExtract[TAG_EPISODE_NUMBER].FirstOrDefault();
-
-            if (!string.IsNullOrEmpty(seriesName) && !string.IsNullOrEmpty(seasonNum) && !string.IsNullOrEmpty(episodeNum))
-              title = string.Format("{0} S{1}E{2} - {3}", seriesName, seasonNum.PadLeft(2, '0'), episodeNum.PadLeft(2, '0'), episodeName);
-
-            if (!string.IsNullOrEmpty(seriesName))
-              MediaItemAspect.SetAttribute(extractedAspectData, SeriesAspect.ASPECT_ID, SeriesAspect.Metadata, SeriesAspect.ATTR_SERIESNAME, seriesName);
-            if (!string.IsNullOrEmpty(episodeName))
-              MediaItemAspect.SetAttribute(extractedAspectData, SeriesAspect.ASPECT_ID, SeriesAspect.Metadata, SeriesAspect.ATTR_EPISODENAME, episodeName);
-
-            int seasonNumber;
-            if (int.TryParse(seasonNum, out seasonNumber))
-              MediaItemAspect.SetAttribute(extractedAspectData, SeriesAspect.ASPECT_ID, SeriesAspect.Metadata, SeriesAspect.ATTR_SEASONNUMBER, seasonNumber);
-
-            // TODO: how does Tve3/EPG/EpisodeScanner store combined episodes?
-            int episodeNumber;
-            if (int.TryParse(episodeNum, out episodeNumber))
-              MediaItemAspect.SetCollectionAttribute(extractedAspectData, SeriesAspect.ASPECT_ID, SeriesAspect.Metadata, SeriesAspect.ATTR_EPISODENUMBER, new List<int> { episodeNumber });
+            MediaItemAspect.SetAttribute(extractedAspectData, SeriesAspect.ASPECT_ID, SeriesAspect.Metadata, SeriesAspect.ATTR_SERIESNAME, seriesInfo.Series);
+            MediaItemAspect.SetAttribute(extractedAspectData, SeriesAspect.ASPECT_ID, SeriesAspect.Metadata, SeriesAspect.ATTR_EPISODENAME, seriesInfo.Episode);
+            MediaItemAspect.SetAttribute(extractedAspectData, SeriesAspect.ASPECT_ID, SeriesAspect.Metadata, SeriesAspect.ATTR_SEASONNUMBER, seriesInfo.SeasonNumber);
+            MediaItemAspect.SetCollectionAttribute(extractedAspectData, SeriesAspect.ASPECT_ID, SeriesAspect.Metadata, SeriesAspect.ATTR_EPISODENUMBER, seriesInfo.EpisodeNumbers);
           }
 
           if (!string.IsNullOrEmpty(title))
@@ -365,6 +343,27 @@ namespace MediaPortal.Extensions.MetadataExtractors.VideoMetadataExtractor
           MediaItemAspect.SetAttribute(extractedAspectData, ThumbnailSmallAspect.ASPECT_ID, ThumbnailSmallAspect.Metadata, ThumbnailSmallAspect.ATTR_THUMBNAIL, thumbData);
         if (generator.GetThumbnail(localFsResourcePath, 256, 256, cachedOnly, out thumbData, out imageType))
           MediaItemAspect.SetAttribute(extractedAspectData, ThumbnailLargeAspect.ASPECT_ID, ThumbnailLargeAspect.Metadata, ThumbnailLargeAspect.ATTR_THUMBNAIL, thumbData);
+      }
+
+      public SeriesInfo GetSeriesFromTags(Dictionary<string, IList<string>> extractedTags)
+      {
+        SeriesInfo seriesInfo = new SeriesInfo();
+        if (extractedTags[TAG_EPISODE_TITLE] != null)
+          seriesInfo.Episode = extractedTags[TAG_EPISODE_TITLE].FirstOrDefault();
+
+        if (extractedTags[TAG_SERIES_TITLE] != null)
+          seriesInfo.Series = extractedTags[TAG_SERIES_TITLE].FirstOrDefault();
+
+        if (extractedTags[TAG_SEASON_NUMBER] != null)
+          int.TryParse(extractedTags[TAG_SEASON_NUMBER].FirstOrDefault(), out seriesInfo.SeasonNumber);
+
+        if (extractedTags[TAG_EPISODE_NUMBER] != null)
+        {
+          int episodeNum;
+          if (int.TryParse(extractedTags[TAG_EPISODE_NUMBER].FirstOrDefault(), out episodeNum))
+            seriesInfo.EpisodeNumbers.Add(episodeNum);
+        }
+        return seriesInfo;
       }
 
       public bool IsDVD
@@ -438,7 +437,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.VideoMetadataExtractor
           try
           {
             using (ILocalFsResourceAccessor lfsra = StreamedResourceToLocalFsAccessBridge.GetLocalFsResourceAccessor(ra))
-              result.UpdateMetadata(_metadata, extractedAspectData, lfsra.LocalFileSystemPath, forceQuickMode);
+              result.UpdateMetadata(extractedAspectData, lfsra.LocalFileSystemPath, forceQuickMode);
           }
           catch
           {
