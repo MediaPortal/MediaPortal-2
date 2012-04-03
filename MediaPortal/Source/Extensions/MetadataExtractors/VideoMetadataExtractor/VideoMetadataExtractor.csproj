@@ -61,6 +61,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Matroska\MatroskaInfoReader.cs" />
+    <Compile Include="NameMatchers\SeriesMatcher.cs" />
     <Compile Include="VideoMetadataExtractor.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Settings\VideoMetadataExtractorSettings.cs" />

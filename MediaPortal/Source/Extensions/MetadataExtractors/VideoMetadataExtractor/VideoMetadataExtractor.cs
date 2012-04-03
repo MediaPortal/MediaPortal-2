@@ -37,6 +37,7 @@ using MediaPortal.Common.Services.ResourceAccess.StreamedResourceToLocalFsAccess
 using MediaPortal.Common.Services.ThumbnailGenerator;
 using MediaPortal.Common.Settings;
 using MediaPortal.Extensions.MetadataExtractors.VideoMetadataExtractor.Matroska;
+using MediaPortal.Extensions.MetadataExtractors.VideoMetadataExtractor.NameMatchers;
 using MediaPortal.Extensions.MetadataExtractors.VideoMetadataExtractor.Settings;
 using MediaPortal.Utilities;
 using MediaPortal.Utilities.SystemAPI;
@@ -263,6 +264,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.VideoMetadataExtractor
         MediaItemAspect.SetAttribute(extractedAspectData, VideoAspect.ASPECT_ID, VideoAspect.Metadata, VideoAspect.ATTR_AUDIOENCODING, StringUtils.Join(", ", _audCodecs));
         // TODO: extract cover art (see Mantis #1977)
 
+        SeriesInfo seriesInfo = null;
 
         // Try to get extended information out of matroska files
         if (localFsResourcePath.EndsWith(".mkv") || localFsResourcePath.EndsWith(".mk3d"))
@@ -290,15 +292,10 @@ namespace MediaPortal.Extensions.MetadataExtractors.VideoMetadataExtractor
           if (tagsToExtract[TAG_SIMPLE_TITLE] != null)
             title = tagsToExtract[TAG_SIMPLE_TITLE].FirstOrDefault();
 
-          // Series and episode handling
-          SeriesInfo seriesInfo = GetSeriesFromTags(tagsToExtract);
+          // Series and episode handling. Prefer information from tags.
+          seriesInfo = GetSeriesFromTags(tagsToExtract);
           if (seriesInfo.IsCompleteMatch)
-          {
-            MediaItemAspect.SetAttribute(extractedAspectData, SeriesAspect.ASPECT_ID, SeriesAspect.Metadata, SeriesAspect.ATTR_SERIESNAME, seriesInfo.Series);
-            MediaItemAspect.SetAttribute(extractedAspectData, SeriesAspect.ASPECT_ID, SeriesAspect.Metadata, SeriesAspect.ATTR_EPISODENAME, seriesInfo.Episode);
-            MediaItemAspect.SetAttribute(extractedAspectData, SeriesAspect.ASPECT_ID, SeriesAspect.Metadata, SeriesAspect.ATTR_SEASONNUMBER, seriesInfo.SeasonNumber);
-            MediaItemAspect.SetCollectionAttribute(extractedAspectData, SeriesAspect.ASPECT_ID, SeriesAspect.Metadata, SeriesAspect.ATTR_EPISODENUMBER, seriesInfo.EpisodeNumbers);
-          }
+            seriesInfo.SetMetadata(extractedAspectData);
 
           if (!string.IsNullOrEmpty(title))
             MediaItemAspect.SetAttribute(extractedAspectData, MediaAspect.ASPECT_ID, MediaAspect.Metadata, MediaAspect.ATTR_TITLE, title);
@@ -331,6 +328,13 @@ namespace MediaPortal.Extensions.MetadataExtractors.VideoMetadataExtractor
             MediaItemAspect.SetAttribute(extractedAspectData, VideoAspect.ASPECT_ID, VideoAspect.Metadata, VideoAspect.ATTR_STORYPLOT, tagsToExtract[TAG_EPISODE_SUMMARY].FirstOrDefault());
         }
 
+        if (seriesInfo == null || !seriesInfo.IsCompleteMatch)
+        {
+          // Try to match series from folder and file namings
+          SeriesMatcher seriesMatcher = new SeriesMatcher();
+          if (seriesMatcher.MatchSeries(localFsResourcePath, out seriesInfo) && seriesInfo.IsCompleteMatch)
+            seriesInfo.SetMetadata(extractedAspectData);
+        }
 
         // In quick mode only allow thumbs taken from cache.
         bool cachedOnly = forceQuickMode;
