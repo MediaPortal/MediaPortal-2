@@ -1,6 +1,6 @@
 /*
-** Unused?
-** Applies a blur filter to a texture?
+** Used by the ShaderBlurEffect. 
+** Applies a blur filter to the UIElement.
 */
 
 float4x4 worldViewProj : WORLDVIEWPROJ; // Our world view projection matrix

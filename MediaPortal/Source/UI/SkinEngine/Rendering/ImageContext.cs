@@ -49,14 +49,8 @@ namespace MediaPortal.UI.SkinEngine.Rendering
   /// custom effect (such a greyscale) to be applied and for a belended transition between two <see cref="ImageContext"/>
   /// objects.
   /// </summary>
-  public class ImageContext
+  public class ImageContext : EffectContext
   {
-    /// <summary>
-    /// This event is fired when the context determines that an important property has changed (or <see cref="Refresh"/> is called), 
-    /// and allows the calling class to update any additonal effect parameters.
-    /// </summary>
-    public ImageContextRefreshHandler OnRefresh;
-    
     #region Consts
 
     protected const string EFFECT_DEFAULT_NAME = "imagecontext_default";
@@ -85,24 +79,17 @@ namespace MediaPortal.UI.SkinEngine.Rendering
 
     #region Protected fields
 
-    protected EffectAsset _effect;
     protected EffectAsset _effectTransition;
     protected SizeF _frameSize;
     protected SizeF _rotatedFrameSize;
     protected Vector4 _imageTransform;
     protected SizeF _lastImageSize;
-    protected Texture _lastTexture;
-    protected RectangleF _lastTextureClip;
-    protected Matrix _inverseRelativeTransformCache;
-    protected bool _refresh = true;
 
     protected string _shaderBaseName = null;
     protected string _shaderTransitionBaseName = null;
     protected string _shaderTransformName = null;
-    protected string _shaderEffectName = null;
     protected string _shaderTransitionName = null;
     protected RightAngledRotation _rotation = RightAngledRotation.Zero;
-    protected Dictionary<string, object> _extraParameters;
     
     #endregion
 
@@ -137,15 +124,6 @@ namespace MediaPortal.UI.SkinEngine.Rendering
     }
 
     /// <summary>
-    /// Gets or sets the extra effect parameters to use when rendering.
-    /// </summary>
-    public Dictionary<string, object> ExtraParameters
-    {
-      get { return _extraParameters; }
-      set { _extraParameters = value; }
-    }
-
-    /// <summary>
     /// Gets or sets the effect to be used as the base for rendering. Other shaders fragments may be added to
     /// create the final effect.
     /// </summary>
@@ -168,19 +146,6 @@ namespace MediaPortal.UI.SkinEngine.Rendering
       set
       {
         _shaderTransformName = value;
-        _refresh = true;
-      }
-    }
-
-    /// <summary>
-    /// Gets or sets the partial effect to be used for the image effect.
-    /// </summary>
-    public string ShaderEffect
-    {
-      get { return _shaderEffectName; }
-      set
-      {
-        _shaderEffectName = value;
         _refresh = true;
       }
     }
@@ -221,29 +186,6 @@ namespace MediaPortal.UI.SkinEngine.Rendering
     #endregion
 
     #region Public methods
-
-    public void Update(SizeF targetImageSize, Texture texture, RectangleF textureClip)
-    {
-      RefreshParameters(targetImageSize, texture, textureClip);
-    }
-
-    /// <summary>
-    /// Renders the <see cref="ImageContext"/>.
-    /// </summary>
-    /// <param name="renderContext">The current rendering context.</param>
-    /// <param name="targetImageSize">The size, the final image should take within the frame. This size is given in the same
-    /// orientation as the <paramref name="texture"/>, i.e. it is not rotated.</param>
-    /// <param name="texture">A texture object containing the image.</param>
-    /// <param name="textureClip">The section of the texture that should be rendered. Values are between 0 and 1.</param>
-    /// <param name="borderColor">The color to use outside the image's boundaries.</param>
-    /// <param name="frameData">Additional data to be used by the shaders.</param>
-    /// <returns><c>true</c> if the rendering operation was started.</returns>
-    public bool StartRender(RenderContext renderContext, SizeF targetImageSize, Texture texture, RectangleF textureClip,
-        int borderColor, Vector4 frameData)
-    {
-      RefreshParameters(targetImageSize, texture, textureClip);
-      return StartRender(renderContext, borderColor, frameData);
-    }
 
     /// <summary>
     /// Starts a rendering operation where two images are mixed together using a transition effect.
@@ -291,15 +233,6 @@ namespace MediaPortal.UI.SkinEngine.Rendering
     }
 
     /// <summary>
-    /// Completes a rendering operation.
-    /// </summary>
-    public void EndRender()
-    {
-      if (_effect != null)
-        _effect.EndRender();
-    }
-
-    /// <summary>
     /// Completes a transition rendering operation.
     /// </summary>
     public void EndRenderTransition()
@@ -327,14 +260,6 @@ namespace MediaPortal.UI.SkinEngine.Rendering
       return _rotation == RightAngledRotation.HalfPi || _rotation == RightAngledRotation.ThreeHalfPi ? new SizeF(size.Height, size.Width) : size;
     }
 
-    /// <summary>
-    /// Triggers a refresh of this <see cref="ImageContext"/>'s effect parameters.
-    /// </summary>
-    public void Refresh()
-    {
-      _refresh = true;
-    }
-
     public void Clear()
     {
       _effect = null;
@@ -346,7 +271,7 @@ namespace MediaPortal.UI.SkinEngine.Rendering
 
     #region Protected methods
 
-    protected bool StartRender(RenderContext renderContext, int borderColor, Vector4 frameData)
+    protected override bool StartRender(RenderContext renderContext, int borderColor, Vector4 frameData)
     {
       if (_effect == null || _lastTexture == null)
         return false;
@@ -372,7 +297,7 @@ namespace MediaPortal.UI.SkinEngine.Rendering
       return true;
     }
 
-    protected void RefreshParameters(SizeF targetImageSize, Texture texture, RectangleF textureClip)
+    protected override void RefreshParameters(SizeF targetImageSize, Texture texture, RectangleF textureClip)
     {
       // If necessary update our image transformation to best fit the frame
       if (_refresh || texture != _lastTexture ||
@@ -456,7 +381,7 @@ namespace MediaPortal.UI.SkinEngine.Rendering
       effect.Parameters[PARAM_FRAME_DATA_START] = frameData;
     }
 
-    protected string GetEffectName()
+    protected override string GetEffectName()
     {
       if (_shaderBaseName == null && _shaderEffectName == null && _shaderTransformName == null)
         return EFFECT_DEFAULT_NAME;

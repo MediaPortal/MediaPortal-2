@@ -1,8 +1,7 @@
 /*
-** Unused?
-** Applies a blur filter to a texture? From the name it seems this was intended to be used as a dialog background effect
-** (like Aero title bars) but I believe this is not currently possible as it would require pre-rendering the whole screen
-** to a buffer and then supplying it to this function.
+** Used by the DialogBackgroundEffect shader.
+** Applies a blur and darken filter to a texture. It can be applied to any UIElement or to the whole rendered backbuffer when using the
+** BackgroundCapture control.
 */
 
 float4x4 worldViewProj : WORLDVIEWPROJ; // Our world view projection matrix

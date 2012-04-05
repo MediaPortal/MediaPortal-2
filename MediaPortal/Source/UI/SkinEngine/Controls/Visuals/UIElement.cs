@@ -31,6 +31,7 @@ using System.Windows.Forms;
 using MediaPortal.Common;
 using MediaPortal.Common.General;
 using MediaPortal.Common.Logging;
+using MediaPortal.UI.SkinEngine.Controls.Visuals.Effects;
 using MediaPortal.UI.SkinEngine.MpfElements;
 using MediaPortal.UI.SkinEngine.ScreenManagement;
 using MediaPortal.UI.SkinEngine.Xaml;
@@ -235,6 +236,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     protected AbstractProperty _triggerProperty;
     protected AbstractProperty _renderTransformProperty;
     protected AbstractProperty _renderTransformOriginProperty;
+    protected AbstractProperty _effectProperty;
     protected AbstractProperty _layoutTransformProperty;
     protected AbstractProperty _visibilityProperty;
     protected AbstractProperty _isEnabledProperty;
@@ -269,6 +271,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       _renderTransformProperty = new SProperty(typeof(Transform), null);
       _layoutTransformProperty = new SProperty(typeof(Transform), null);
       _renderTransformOriginProperty = new SProperty(typeof(Vector2), new Vector2(0, 0));
+      _effectProperty = new SProperty(typeof(Effect), null);
       _visibilityProperty = new SProperty(typeof(VisibilityEnum), VisibilityEnum.Visible);
       _isEnabledProperty = new SProperty(typeof(bool), true);
       _freezableProperty = new SProperty(typeof(bool), false);
@@ -307,6 +310,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       LayoutTransform = copyManager.GetCopy(el.LayoutTransform);
       RenderTransform = copyManager.GetCopy(el.RenderTransform);
       RenderTransformOrigin = copyManager.GetCopy(el.RenderTransformOrigin);
+      Effect = copyManager.GetCopy(el.Effect);
       TemplateNameScope = copyManager.GetCopy(el.TemplateNameScope);
       _resources = copyManager.GetCopy(el._resources);
 
@@ -334,6 +338,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
         triggerBase.Dispose();
       MPF.TryCleanupAndDispose(RenderTransform);
       MPF.TryCleanupAndDispose(LayoutTransform);
+      MPF.TryCleanupAndDispose(Effect);
       MPF.TryCleanupAndDispose(TemplateNameScope);
       MPF.TryCleanupAndDispose(OpacityMask);
       MPF.TryCleanupAndDispose(_resources);
@@ -529,6 +534,17 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     {
       get { return (Vector2) _renderTransformOriginProperty.GetValue(); }
       set { _renderTransformOriginProperty.SetValue(value); }
+    }
+    
+    public AbstractProperty EffectProperty
+    {
+      get { return _effectProperty; }
+    }
+
+    public Effect Effect
+    {
+      get { return (Effect) _effectProperty.GetValue(); }
+      set { _effectProperty.SetValue(value); }
     }
 
     public bool IsTemplateControlRoot

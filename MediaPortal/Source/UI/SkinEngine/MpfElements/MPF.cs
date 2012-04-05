@@ -79,6 +79,7 @@ namespace MediaPortal.UI.SkinEngine.MpfElements
       _objectClassRegistrations.Add("GridLength", typeof(SkinEngine.Controls.Panels.GridLength));
       _objectClassRegistrations.Add("WrapPanel", typeof(SkinEngine.Controls.Panels.WrapPanel));
       _objectClassRegistrations.Add("UniformGrid", typeof(SkinEngine.Controls.Panels.UniformGrid));
+      _objectClassRegistrations.Add("BackgroundCapture", typeof(SkinEngine.Controls.Panels.BackgroundCapture));
 
       // Visuals
       _objectClassRegistrations.Add("ARRetainingControl", typeof(SkinEngine.Controls.Visuals.ARRetainingControl));
@@ -208,6 +209,21 @@ namespace MediaPortal.UI.SkinEngine.MpfElements
 
       // Others
       _objectClassRegistrations.Add("RelativeSource", typeof(SkinEngine.MarkupExtensions.RelativeSource));
+
+      // Effects
+      // Image effects based on ImageContext
+      _objectClassRegistrations.Add("GenericImageEffect", typeof(MediaPortal.UI.SkinEngine.Controls.Visuals.Effects.GenericImageEffect));
+      _objectClassRegistrations.Add("BlurEffect", typeof(MediaPortal.UI.SkinEngine.Controls.Visuals.Effects.BlurEffect));
+      _objectClassRegistrations.Add("ZoomBlurEffect", typeof(MediaPortal.UI.SkinEngine.Controls.Visuals.Effects.ZoomBlurEffect));
+      _objectClassRegistrations.Add("PixelateEffect", typeof(MediaPortal.UI.SkinEngine.Controls.Visuals.Effects.PixelateEffect));
+      _objectClassRegistrations.Add("SepiaEffect", typeof(MediaPortal.UI.SkinEngine.Controls.Visuals.Effects.SepiaEffect));
+      _objectClassRegistrations.Add("InvertEffect", typeof(MediaPortal.UI.SkinEngine.Controls.Visuals.Effects.InvertEffect));
+
+      // Generic shader effects based on EffectContext
+      _objectClassRegistrations.Add("GenericShaderEffect", typeof(MediaPortal.UI.SkinEngine.Controls.Visuals.Effects.GenericShaderEffect));
+      _objectClassRegistrations.Add("ShaderBlurEffect", typeof(MediaPortal.UI.SkinEngine.Controls.Visuals.Effects.ShaderBlurEffect));
+      _objectClassRegistrations.Add("DialogBackgroundEffect", typeof(MediaPortal.UI.SkinEngine.Controls.Visuals.Effects.DialogBackgroundEffect));
+
     }
 
     #endregion
