@@ -30,6 +30,7 @@ using System.Security;
 using System.Windows.Forms;
 using DirectShowLib;
 using MediaPortal.Common;
+using MediaPortal.Common.Localization;
 using MediaPortal.Common.Logging;
 using MediaPortal.Common.ResourceAccess;
 using MediaPortal.Common.Messaging;
@@ -48,7 +49,7 @@ using System.Globalization;
 
 namespace MediaPortal.UI.Players.Video
 {
-  public class VideoPlayer : ISlimDXVideoPlayer, IDisposable, IPlayerEvents, IInitializablePlayer, IMediaPlaybackControl, ISubtitlePlayer
+  public class VideoPlayer : ISlimDXVideoPlayer, IDisposable, IPlayerEvents, IInitializablePlayer, IMediaPlaybackControl, ISubtitlePlayer, IChapterPlayer, ITitlePlayer
   {
     #region Classes & interfaces
 
@@ -92,6 +93,16 @@ namespace MediaPortal.UI.Players.Video
     protected const string NO_SUBTITLES = "No subtitles";
 
     protected const double PLAYBACK_RATE_PLAY_THRESHOLD = 0.05;
+    public const string RES_PLAYBACK_CHAPTER = "[Playback.Chapter]";
+
+    public enum StreamGroup
+    {
+      Video = 0,
+      Audio = 1,
+      Subtitle = 2,
+      MatroskaEdition = 18,
+      DirectVobSubtitle = 6590033,
+    }
 
     #region Protected Properties
 
@@ -148,7 +159,18 @@ namespace MediaPortal.UI.Players.Video
 
     protected StreamInfoHandler _streamInfoAudio = null;
     protected StreamInfoHandler _streamInfoSubtitles = null;
+    protected StreamInfoHandler _streamInfoTitles = null; // Used mostly for MKV Editions
     private readonly object _syncObj = new object();
+
+    /// <summary>
+    /// List of chapter timestamps. Will be initialized lazily. <c>null</c> if not currently valid.
+    /// </summary>
+    protected double[] _chapterTimestamps = null;
+
+    /// <summary>
+    /// List of chapter names. Will be initialized lazily. <c>null</c> if not currently valid.
+    /// </summary>
+    protected string[] _chapterNames = null;
 
     protected bool _useTexture = true;
     protected bool _textureInvalid = true;
@@ -386,6 +408,8 @@ namespace MediaPortal.UI.Players.Video
     /// </summary>
     protected virtual void OnGraphRunning()
     {
+      EnumerateStreams();
+      EnumerateChapters();
       SetPreferredSubtitle();
       SetPreferredAudio();
     }
@@ -450,7 +474,7 @@ namespace MediaPortal.UI.Players.Video
       IBaseFilter tempFilter = FilterGraphTools.AddFilterByName(_graphBuilder, filterCategory, codecInfo.Name);
       return tempFilter != null;
     }
-    
+
     /// <summary>
     /// Adds the file source filter to the graph.
     /// </summary>
@@ -999,15 +1023,22 @@ namespace MediaPortal.UI.Players.Video
     /// <returns>True if information has been changed.</returns>
     protected virtual bool EnumerateStreams()
     {
+      return EnumerateStreams(false);
+    }
+
+    protected virtual bool EnumerateStreams(bool forceRefresh)
+    {
       if (_graphBuilder == null || !_initialized)
         return false;
 
-      if (_streamInfoAudio == null || _streamInfoSubtitles == null)
+      if (forceRefresh || _streamInfoAudio == null || _streamInfoSubtitles == null || _streamInfoTitles == null)
       {
         FilterGraphTools.TryDispose(ref _streamInfoAudio);
         FilterGraphTools.TryDispose(ref _streamInfoSubtitles);
+        FilterGraphTools.TryDispose(ref _streamInfoTitles);
         _streamInfoAudio = new StreamInfoHandler();
         _streamInfoSubtitles = new StreamInfoHandler();
+        _streamInfoTitles = new StreamInfoHandler();
 
         foreach (
           IAMStreamSelect streamSelector in FilterGraphTools.FindFiltersByInterface<IAMStreamSelect>(_graphBuilder))
@@ -1024,50 +1055,81 @@ namespace MediaPortal.UI.Players.Video
             string name;
             object pppunk, ppobject;
 
-            streamSelector.Info(i, out mediaType, out selectInfoFlags, out lcid, out groupNumber, out name,
-                                out pppunk, out ppobject);
-            ServiceRegistration.Get<ILogger>().Debug(
-              "Stream {4}|{0}: MajorType {1}; Name {2}; PWDGroup: {3}; LCID: {5}", i,
-              mediaType.majorType, name, groupNumber, fi.achName, lcid);
+            streamSelector.Info(i, out mediaType, out selectInfoFlags, out lcid, out groupNumber, out name, out pppunk, out ppobject);
+            ServiceRegistration.Get<ILogger>().Debug("Stream {4}|{0}: MajorType {1}; Name {2}; PWDGroup: {3}; LCID: {5}",
+              i, mediaType.majorType, name, groupNumber, fi.achName, lcid);
 
             StreamInfo currentStream = new StreamInfo(streamSelector, i, name, lcid);
-
-            if (groupNumber == 0)
+            switch ((StreamGroup) groupNumber)
             {
-              // video streams
-            }
-            if (groupNumber == 1)
-            {
-              if (mediaType.majorType == MediaType.AnalogAudio || mediaType.majorType == MediaType.Audio)
-              {
-                String streamName = name.Trim();
-                String streamAppendix;
-                if (CodecHandler.MediaSubTypes.TryGetValue(mediaType.subType, out streamAppendix))
+              case StreamGroup.Video:
+                break;
+              case StreamGroup.Audio:
+                if (mediaType.majorType == MediaType.AnalogAudio || mediaType.majorType == MediaType.Audio)
                 {
-                  // if audio information is available via WaveEx format, query the channel count
-                  if (mediaType.formatType == FormatType.WaveEx && mediaType.formatPtr != IntPtr.Zero)
+                  String streamName = name.Trim();
+                  String streamAppendix;
+                  if (CodecHandler.MediaSubTypes.TryGetValue(mediaType.subType, out streamAppendix))
                   {
-                    WaveFormatEx waveFormatEx = (WaveFormatEx) Marshal.PtrToStructure(mediaType.formatPtr, typeof(WaveFormatEx));
-                    streamAppendix = String.Format("{0} {1}ch", streamAppendix, waveFormatEx.nChannels);
+                    // If audio information is available via WaveEx format, query the channel count
+                    if (mediaType.formatType == FormatType.WaveEx && mediaType.formatPtr != IntPtr.Zero)
+                    {
+                      WaveFormatEx waveFormatEx = (WaveFormatEx) Marshal.PtrToStructure(mediaType.formatPtr, typeof(WaveFormatEx));
+                      streamAppendix = String.Format("{0} {1}ch", streamAppendix, waveFormatEx.nChannels);
+                    }
+                    currentStream.Name = String.Format("{0} ({1})", streamName, streamAppendix);
                   }
-                  currentStream.Name = String.Format("{0} ({1})", streamName, streamAppendix);
+                  _streamInfoAudio.AddUnique(currentStream);
                 }
-                _streamInfoAudio.AddUnique(currentStream);
-              }
+                break;
+              case StreamGroup.Subtitle:
+              case StreamGroup.DirectVobSubtitle:
+                _streamInfoSubtitles.AddUnique(currentStream, true);
+                break;
+              case StreamGroup.MatroskaEdition: // This is a MKV Edition handled by Haali splitter
+                _streamInfoTitles.AddUnique(currentStream, true);
+                break;
             }
-            if (groupNumber == 2 || groupNumber == 6590033 /*DirectVobSub*/)
-            {
-              // subtitles
-              _streamInfoSubtitles.AddUnique(currentStream, true);
-            }
-
-            // free MediaType and references
+            // Free MediaType and references
             FilterGraphTools.FreeAMMediaType(mediaType);
           }
         }
         return true;
       }
       return false;
+    }
+
+    protected virtual void EnumerateChapters()
+    {
+      EnumerateChapters(false);
+    }
+
+    protected virtual void EnumerateChapters(bool forceRefresh)
+    {
+      if (_graphBuilder == null || !_initialized || !forceRefresh && _chapterTimestamps != null)
+        return; 
+
+      // Try to find a filter implementing IAMExtendSeeking for chapter support
+      IAMExtendedSeeking extendSeeking = FilterGraphTools.FindFilterByInterface<IAMExtendedSeeking>(_graphBuilder);
+      if (extendSeeking == null)
+        return;
+
+      int markerCount;
+      if (extendSeeking.get_MarkerCount(out markerCount) != 0 || markerCount <= 0) 
+        return;
+
+      _chapterTimestamps = new double[markerCount];
+      _chapterNames = new string[markerCount];
+      for (int i = 1; i <= markerCount; i++)
+      {
+        double markerTime;
+        string markerName;
+        extendSeeking.GetMarkerTime(i, out markerTime);
+        extendSeeking.GetMarkerName(i, out markerName);
+
+        _chapterTimestamps[i - 1] = markerTime;
+        _chapterNames[i - 1] = !string.IsNullOrEmpty(markerName) ? markerName : GetChapterName(i);
+      }
     }
 
     #endregion
@@ -1146,7 +1208,7 @@ namespace MediaPortal.UI.Players.Video
 
     public virtual void ReallocGUIResources()
     {
-      if (_graphBuilder == null) 
+      if (_graphBuilder == null)
         return;
 
       CreateEvrCallback();
@@ -1185,7 +1247,6 @@ namespace MediaPortal.UI.Players.Video
 
     protected virtual void SetPreferredSubtitle()
     {
-      EnumerateStreams();
       if (_streamInfoSubtitles == null)
         return;
 
@@ -1261,9 +1322,170 @@ namespace MediaPortal.UI.Players.Video
       get
       {
         lock (SyncObj)
-        {
           return _streamInfoSubtitles != null ? _streamInfoSubtitles.CurrentStreamName : String.Empty;
+      }
+    }
+
+    #endregion
+
+    #region IChapterPlayer implementation
+
+    /// <summary>
+    /// Gets a list of available chapters.
+    /// </summary>
+    public virtual string[] Chapters
+    {
+      get
+      {
+        lock (SyncObj)
+        {
+          EnumerateChapters();
+          return _chapterNames ?? EMPTY_STRING_ARRAY;
         }
+      }
+    }
+
+    /// <summary>
+    /// Sets the chapter to play.
+    /// </summary>
+    /// <param name="chapter">Chapter name</param>
+    public virtual void SetChapter(string chapter)
+    {
+      string[] chapters = Chapters;
+      for (int i = 0; i < chapters.Length; i++)
+      {
+        if (chapter == chapters[i])
+        {
+          SetChapterByIndex(i);
+          return;
+        }
+      }
+    }
+
+    /// <summary>
+    /// Indicate if chapters are available.
+    /// </summary>
+    public virtual bool ChaptersAvailable
+    {
+      get { return _chapterNames != null; }
+    }
+
+    /// <summary>
+    /// Skip to next chapter.
+    /// </summary>
+    public virtual void NextChapter()
+    {
+      Int32 currentChapter;
+      if (GetCurrentChapter(out currentChapter))
+        SetChapterByIndex(currentChapter + 1);
+    }
+
+    /// <summary>
+    /// Skip to previous chapter.
+    /// </summary>
+    public virtual void PrevChapter()
+    {
+      Int32 currentChapter;
+      if (GetCurrentChapter(out currentChapter))
+        SetChapterByIndex(Math.Max(currentChapter - 1, 0));
+    }
+
+    /// <summary>
+    /// Gets the current chapter.
+    /// </summary>
+    public virtual string CurrentChapter
+    {
+      get
+      {
+        Int32 currentChapter;
+        return GetCurrentChapter(out currentChapter) ? _chapterNames[currentChapter] : null;
+      }
+    }
+
+    /// <summary>
+    /// Gets the current chapter.
+    /// </summary>
+    protected virtual bool GetCurrentChapter(out Int32 chapterIndex)
+    {
+      double currentTimestamp = CurrentTime.TotalSeconds;
+      for (int c = _chapterTimestamps.Length - 1; c >= 0; c--)
+      {
+        if (currentTimestamp > _chapterTimestamps[c])
+        {
+          chapterIndex = c;
+          return true;
+        }
+      }
+      chapterIndex = 0;
+      return false;
+    }
+
+    /// <summary>
+    /// Seek to the beginning of the chapter to play.
+    /// </summary>
+    /// <param name="chapterIndex">0 based chapter number.</param>
+    protected virtual void SetChapterByIndex(Int32 chapterIndex)
+    {
+      if (chapterIndex >= _chapterTimestamps.Length || chapterIndex < 0)
+        return;
+      TimeSpan seekTo = TimeSpan.FromSeconds(_chapterTimestamps[chapterIndex]);
+      CurrentTime = seekTo;
+      return;
+    }
+
+    /// <summary>
+    /// Returns a localized chapter name.
+    /// </summary>
+    /// <param name="chapterNumber">0 based chapter number.</param>
+    /// <returns>Localized chapter name.</returns>
+    protected virtual string GetChapterName(int chapterNumber)
+    {
+      // Idea: we could scrape chapter names and store them in MediaAspects. When they are available, return the full names here.
+      return ServiceRegistration.Get<ILocalization>().ToString(RES_PLAYBACK_CHAPTER, chapterNumber);
+    }
+
+    #endregion
+
+    #region ITitlePlayer implementation
+
+    public virtual string[] Titles
+    {
+      get
+      {
+        lock (SyncObj)
+        {
+          EnumerateStreams();
+
+          if (_streamInfoTitles == null)
+            return EMPTY_STRING_ARRAY;
+
+          // Check if there are real title streams available.
+          string[] titleStreamNames = _streamInfoTitles.GetStreamNames();
+          return titleStreamNames.Length == 0 ? EMPTY_STRING_ARRAY : titleStreamNames;
+        }
+      }
+    }
+
+    /// <summary>
+    /// Sets the current title.
+    /// </summary>
+    /// <param name="title">Title</param>
+    public virtual void SetTitle(string title)
+    {
+      lock (SyncObj)
+      {
+        _streamInfoTitles.EnableStream(title);
+        EnumerateStreams(true);
+        EnumerateChapters(true);
+      }
+    }
+
+    public virtual string CurrentTitle
+    {
+      get
+      {
+        lock (SyncObj)
+          return _streamInfoTitles != null ? _streamInfoTitles.CurrentStreamName : String.Empty;
       }
     }
 

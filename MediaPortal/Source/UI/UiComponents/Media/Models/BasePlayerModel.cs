@@ -43,6 +43,7 @@ namespace MediaPortal.UiComponents.Media.Models
     protected bool _inactive = false;
     protected string _screenName = null;
     protected bool _backgroundDisabled = false;
+    protected IPlayer _oldPlayer;
 
     protected BasePlayerModel(Guid currentlyPlayingWorkflowStateId, Guid fullscreenContentWorkflowStateId) : base(300)
     {
@@ -118,10 +119,11 @@ namespace MediaPortal.UiComponents.Media.Models
       {
         if (oldPlayerUIContributor != null && playerUIContributorType == oldPlayerUIContributor.GetType())
         { // Player UI contributor is already correct, but maybe must be initialized
-          if (oldPlayerUIContributor.MediaWorkflowStateType != stateType)
+          if (oldPlayerUIContributor.MediaWorkflowStateType != stateType || _oldPlayer != player)
             oldPlayerUIContributor.Initialize(stateType, player);
           _backgroundDisabled = oldPlayerUIContributor.BackgroundDisabled;
           _screenName = oldPlayerUIContributor.Screen;
+          _oldPlayer = player;
           return;
         }
         IPlayerUIContributor playerUIContributor = InstantiatePlayerUIContributor(playerUIContributorType);

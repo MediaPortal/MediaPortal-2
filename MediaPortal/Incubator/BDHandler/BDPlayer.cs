@@ -30,7 +30,6 @@ using System.Threading;
 using BDInfo;
 using DirectShowLib;
 using MediaPortal.Common;
-using MediaPortal.Common.Localization;
 using MediaPortal.Common.Settings;
 using MediaPortal.Plugins.BDHandler.Settings;
 using MediaPortal.UI.Players.Video.Tools;
@@ -46,21 +45,13 @@ namespace MediaPortal.UI.Players.Video
     #region Consts and delegates
        
     public const double MINIMAL_FULL_FEATURE_LENGTH = 3000;
-    public const string RES_PLAYBACK_CHAPTER = "[Playback.Chapter]";
-
+    
     /// <summary>
     /// Delegate for starting a BDInfo thread.
     /// </summary>
     /// <param name="path">Path to scan</param>
     /// <returns>BDInfo</returns>
     delegate BDInfoExt ScanProcess(string path);
-
-    #endregion
-
-    #region Variables
-
-    private double[] _chapterTimestamps;
-    private string[] _chapterNames;
 
     #endregion
 
@@ -129,43 +120,6 @@ namespace MediaPortal.UI.Players.Video
       // MSDN: "During the connection process, the Filter Graph Manager ignores pins on intermediate filters if the pin name begins with a tilde (~)."
       // then connect the skipped "~" output pins
       FilterGraphTools.RenderAllManualConnectPins(_graphBuilder);
-
-      AnalyseStreams();
-    }
-
-    #endregion
-
-    #region Methods
-
-    /// <summary>
-    /// Analyzes the current graph and extracts information about chapter markers and subtitle streams.
-    /// </summary>
-    /// <returns></returns>
-    public bool AnalyseStreams()
-    {
-      BDPlayerBuilder.LogDebug("Analyzing streams to filter duplicates...");
-      try
-      {
-        IAMExtendedSeeking pEs = FilterGraphTools.FindFilterByInterface<IAMExtendedSeeking>(_graphBuilder);
-        if (pEs != null)
-        {
-          int markerCount;
-          if (pEs.get_MarkerCount(out markerCount) == 0 && markerCount > 0)
-          {
-            _chapterTimestamps = new double[markerCount];
-            _chapterNames = new string[markerCount];
-            for (int i = 1; i <= markerCount; i++)
-            {
-              double markerTime;
-              pEs.GetMarkerTime(i, out markerTime);
-              _chapterTimestamps[i - 1] = markerTime;
-              _chapterNames[i - 1] = GetChapterName(i);
-            }
-          }
-        }
-      }
-      catch { }
-      return true;
     }
 
     #endregion
@@ -254,104 +208,8 @@ namespace MediaPortal.UI.Players.Video
       for (int c = 0; c < _chapterNames.Length; c++)
         _chapterNames[c] = GetChapterName(c + 1);
     }
-
+    
     #region IDVDPlayer Member
-
-    private readonly string[] _emptyStringArray = new string[0];
-
-    public string[] DvdTitles
-    {
-      get { return _emptyStringArray; }
-    }
-
-    public void SetDvdTitle(string title)
-    { }
-
-    public string CurrentDvdTitle
-    {
-      get { return null; }
-    }
-
-    /// <summary>
-    /// Returns a localized chapter name.
-    /// </summary>
-    /// <param name="chapterNumber">0 based chapter number.</param>
-    /// <returns>Localized chapter name.</returns>
-    private static String GetChapterName(int chapterNumber)
-    {
-      //Idea: we could scrape chapter names and store them in MediaAspects. When they are available, return the full names here.
-      return ServiceRegistration.Get<ILocalization>().ToString(RES_PLAYBACK_CHAPTER, chapterNumber);
-    }
-
-    public string[] Chapters
-    {
-      get { return _chapterNames; }
-    }
-
-    public void SetChapter(string chapter)
-    {
-      string[] chapters = Chapters;
-      for (int i = 0; i < chapters.Length; i++)
-      {
-        if (chapter == chapters[i])
-        {
-          SetDvdChapter(i);
-          return;
-        }
-      }
-    }
-
-    private void SetDvdChapter(Int32 chapterIndex)
-    {
-      if (chapterIndex > _chapterTimestamps.Length || chapterIndex < 0)
-        return;
-      TimeSpan seekTo = TimeSpan.FromSeconds(_chapterTimestamps[chapterIndex]);
-      CurrentTime = seekTo;
-      return;
-    }
-
-    public bool ChaptersAvailable
-    {
-      get { return _chapterNames != null; }
-    }
-
-    private bool GetCurrentChapterIndex(out Int32 chapterIndex)
-    {
-      double currentTimestamp = CurrentTime.TotalSeconds;
-      for (int c = _chapterTimestamps.Length - 1; c >= 0; c--)
-      {
-        if (currentTimestamp > _chapterTimestamps[c])
-        {
-          chapterIndex = c;
-          return true;
-        }
-      }
-      chapterIndex = 0;
-      return false;
-    }
-
-    public void NextChapter()
-    {
-      Int32 currentChapter;
-      if (GetCurrentChapterIndex(out currentChapter))
-      {
-        SetDvdChapter(currentChapter + 1);
-      }
-    }
-
-    public void PrevChapter()
-    {
-      Int32 currentChapter;
-      if (GetCurrentChapterIndex(out currentChapter))
-      {
-        SetDvdChapter(currentChapter - 1);
-      }
-    }
-
-    public string CurrentChapter
-    {
-      get { return null; }
-    }
 
     public bool IsHandlingUserInput
     {

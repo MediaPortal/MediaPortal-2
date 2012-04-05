@@ -244,10 +244,11 @@
     <String Name="PlaylistLoadSomeItemsMissingText" Text="Not all items of the playlist could be loaded. Some items are missing."/>
     <String Name="PlaylistLoadAllItemsMissingText" Text="The playlist could not be loaded, all items of the playlist are missing."/>
 
-    <!-- DVDPlayerUIContributor -->
+    <!-- VideoPlayerUIContributor -->
     <String Name="SubtitleOff" Text="Disable Subtitles"/>
     <String Name="ChooseChapterDialogHeader" Text="Choose chapter"/>
     <String Name="ChooseSubtitleDialogHeader" Text="Choose subtitle"/>
+    <String Name="ChooseTitleDialogHeader" Text="Choose title"/>
 
     <!-- Video Player time units -->
     <String Name="Seconds" Text="sec"/>
