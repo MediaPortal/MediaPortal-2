@@ -34,22 +34,22 @@
       </Control.Background>
     </Control>
 
-    <Control x:Name="GlassOverlay" Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2" Width="1050" Height="500"
+    <Control x:Name="GlassOverlay" Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2" Width="850" Height="500"
                Style="{ThemeResource GlassOverlayControl}" 
                DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}">
       <Control.Resources>
-        <ResourceWrapper x:Key="ControlWidth" Resource="1000"/>
+        <ResourceWrapper x:Key="ControlWidth" Resource="800"/>
         <ResourceWrapper x:Key="ControlHeight" Resource="450"/>
         <ControlTemplate x:Key="MakeGlass">
 
-          <mp_audio_viz:AudioSpectrumAnalyzer  Width="1000" Height="450"
-        HorizontalAlignment="Center" VerticalAlignment="Center"
-        x:Name="SpectrumAnalyzer" Style="{ThemeResource SpectrumAnalyzerStyle}"
-        BarSpacing="10" BarCount="41"/>
+          <mp_audio_viz:AudioSpectrumAnalyzer  Width="800" Height="450"
+              HorizontalAlignment="Center" VerticalAlignment="Center"
+              x:Name="SpectrumAnalyzer" Style="{ThemeResource SpectrumAnalyzerStyle}"
+              BarSpacing="10" BarCount="41"/>
         </ControlTemplate>
       </Control.Resources>
     </Control>
-    <Grid Grid.Row="3" Grid.Column="0">
+    <Grid Grid.Row="1" Grid.Column="0" Grid.RowSpan="2">
 
       <mp_special_controls:PlayerControl Margin="20" PlayerContext="CurrentPlayer"
           HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
@@ -58,18 +58,31 @@
             <Grid.RowDefinitions>
               <RowDefinition Height="Auto"/>
               <RowDefinition Height="Auto"/>
+              <RowDefinition Height="Auto"/>
             </Grid.RowDefinitions>
             <Grid.ColumnDefinitions>
+              <ColumnDefinition Width="450"/>
               <ColumnDefinition Width="Auto"/>
               <ColumnDefinition Width="*"/>
             </Grid.ColumnDefinitions>
-            <Label x:Name="ArtistsLabel" Grid.Row="0" Grid.Column="0"
+
+            <Control x:Name="CoverReflexion" Style="{ThemeResource ReflexionControl}" Grid.Row="0" Grid.RowSpan="2" Grid.Column="0" Margin="50,170,0,0">
+              <Control.Resources>
+                <ResourceWrapper x:Key="ControlWidth" Resource="250"/>
+                <ResourceWrapper x:Key="ControlHeight" Resource="250"/>
+                <ControlTemplate x:Key="MakeReflexion">
+                   <Image x:Name="ItemTypeImage" Stretch="Uniform" Source="{Binding MediaItem}" FallbackSource="AudioLarge.png" Width="250" Height="250"/>
+                </ControlTemplate>
+              </Control.Resources>
+            </Control>          
+
+            <Label x:Name="ArtistsLabel" Grid.Row="1" Grid.Column="1" VerticalAlignment="Bottom"
                 Content="[Media.AudioArtistsLabel]" Color="{ThemeResource TextColor}" FontSize="{ThemeResource BigFontSize}"/>
-            <Label x:Name="Artists" Grid.Row="0" Grid.Column="1"
+            <Label x:Name="Artists" Grid.Row="1" Grid.Column="2" VerticalAlignment="Bottom"
                 Content="{Binding AudioArtists}" Color="{ThemeResource TextColor}" FontSize="{ThemeResource BigFontSize}"/>
-            <Label x:Name="TitleLabel" Grid.Row="1" Grid.Column="0"
+            <Label x:Name="TitleLabel" Grid.Row="2" Grid.Column="1"
                 Content="[Media.AudioTitleLabel]" Color="{ThemeResource TextColor}" FontSize="{ThemeResource BigFontSize}"/>
-            <Label x:Name="Title" Grid.Row="1" Grid.Column="1" Scroll="Auto"
+            <Label x:Name="Title" Grid.Row="2" Grid.Column="2" Scroll="Auto"
                 Content="{Binding MediaItemTitle}" Color="{ThemeResource TextColor}" FontSize="{ThemeResource BigFontSize}"/>
           </Grid>
         </mp_special_controls:PlayerControl.TemplateControl>

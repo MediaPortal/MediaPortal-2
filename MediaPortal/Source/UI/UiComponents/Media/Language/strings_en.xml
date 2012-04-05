@@ -6,6 +6,7 @@
     <String Name="LocalMediaMenuItem" Text="Local media"/>
     <String Name="AudioMenuItem" Text="Audio"/>
     <String Name="VideosMenuItem" Text="Videos"/>
+    <String Name="SeriesMenuItem" Text="Series"/>
     <String Name="ImagesMenuItem" Text="Images"/>
 
     <!-- Filter titles -->
@@ -19,6 +20,9 @@
     <String Name="FilterByImageSizeMenuItem" Text="Filter by size"/>
     <String Name="FilterByImageYearMenuItem" Text="Filter by year"/>
     <String Name="FilterBySystemMenuItem" Text="Filter by system"/>
+    <String Name="FilterBySeriesNameMenuItem" Text="Filter by series"/>
+    <String Name="FilterBySeriesSeasonMenuItem" Text="Filter by season"/>
+    <String Name="FilterBySeriesEpisodeMenuItem" Text="Filter by episode"/>
     <String Name="SimpleSearchFilterMenuItem" Text="Search"/>
     <String Name="ShowAllAudioItemsMenuItem" Text="Show all"/>
     <String Name="ShowAllVideoItemsMenuItem" Text="Show all"/>
@@ -43,6 +47,8 @@
     <String Name="FilterImageYearNavbarDisplayLabel" Text="Year: {0}"/>
     <String Name="FilterAudioItemsNavbarDisplayLabel" Text="Name: {0}"/>
     <String Name="FilterVideoItemsNavbarDisplayLabel" Text="Name: {0}"/>
+    <String Name="FilterSeriesItemsNavbarDisplayLabel" Text="{0}"/>
+    <String Name="FilterSeriesSeasonNavbarDisplayLabel" Text="Season {0}"/>
     <String Name="FilterImageItemsNavbarDisplayLabel" Text="Name: {0}"/>
     <String Name="FilterSystemNavbarDisplayLabel" Text="System: {0}"/>
 
@@ -51,6 +57,7 @@
     <String Name="LocalMediaNavigationRootWorkflowNavigationContextDisplayLabel" Text="Local media"/>
     <String Name="AudioNavigationRootWorkflowNavigationContextDisplayLabel" Text="Audio library"/>
     <String Name="VideoNavigationRootWorkflowNavigationContextDisplayLabel" Text="Video library"/>
+    <String Name="SeriesNavigationRootWorkflowNavigationContextDisplayLabel" Text="Series library"/>
     <String Name="ImageNavigationRootWorkflowNavigationContextDisplayLabel" Text="Image library"/>
     <String Name="VideoCurrentlyPlayingWorkflowStateNavigationContextDisplayLabel" Text="Current video"/>
     <String Name="VideoFullscreenContentWorkflowStateNavigationContextDisplayLabel" Text="Fullscreen video"/>
@@ -75,11 +82,14 @@
     <String Name="MediaItemsHeader" Text="Media items"/>
     <String Name="VideoItemsHeader" Text="Videos"/>
     <String Name="AudioItemsHeader" Text="Audio items"/>
+    <String Name="SeriesItemsHeader" Text="Episodes"/>
     <String Name="ImageItemsHeader" Text="Images"/>
     <String Name="SimpleSearchHeader" Text="Simple search"/>
     <String Name="ChooseActorHeader" Text="Choose an actor"/>
     <String Name="ChooseVideoGenreHeader" Text="Choose a genre"/>
     <String Name="ChooseVideoYearHeader" Text="Choose a year"/>
+    <String Name="ChooseSeriesHeader" Text="Choose a serie"/>
+    <String Name="ChooseSeasonHeader" Text="Choose a season"/>
     <String Name="ChooseAudioDecadeHeader" Text="Choose a decade"/>
     <String Name="ChooseAlbumHeader" Text="Choose an album"/>
     <String Name="ChooseArtistHeader" Text="Choose an artist"/>
@@ -104,6 +114,7 @@
     <String Name="LocalMediaRootViewName" Text="Local media"/>
     <String Name="AudioRootViewName" Text="Audio"/>
     <String Name="VideosRootViewName" Text="Videos"/>
+    <String Name="SeriesRootViewName" Text="Series"/>
     <String Name="ImagesRootViewName" Text="Images"/>
     <String Name="SimpleSearchViewName" Text="Simple search"/>
 
@@ -270,6 +281,7 @@
     <String Name="SortByDuration" Text="Sort by duration"/>
     <String Name="SortByAspectRatio" Text="Sort by aspect ratio"/>
     <String Name="SortByDate" Text="Sort by recording date"/>
+    <String Name="SortByEpisode" Text="Sort by episode"/>
     <String Name="SortingBrowseDefault" Text="Default sorting"/>
   </Section>
   <Section Name="Settings">

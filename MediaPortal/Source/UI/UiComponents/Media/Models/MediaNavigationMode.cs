@@ -33,6 +33,7 @@ namespace MediaPortal.UiComponents.Media.Models
     BrowseMediaLibrary,
     Audio,
     Videos,
-    Images
+    Images,
+    Series
   }
 }

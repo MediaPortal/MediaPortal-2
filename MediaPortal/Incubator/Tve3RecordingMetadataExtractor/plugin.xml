@@ -1,0 +1,23 @@
+<Plugin
+    DescriptorVersion="1.0"
+    Name="Tve3RecordingMetadataExtractor"
+    PluginId="{89F8DD04-1CD5-4F78-8105-6979157E8936}"
+    Author = "Morpheus_xx"
+    Copyright="GPL"
+    Description="Metadata extractor for extracting information from MediaPortal TVEngine3 recordings"
+    PluginVersion="1.0">
+
+  <DependsOn>
+    <PluginReference PluginId="{D418C9C9-6D2A-44ed-ADC2-16345294B019}"/> <!-- MediaInfoPlugin -->
+  </DependsOn>
+
+  <Runtime>
+    <Assembly FileName="Tve3RecordingMetadataExtractor.dll"/>
+  </Runtime>
+
+  <Register Location="/Media/MetadataExtractors">
+    <Instance
+        Id="Tve3RecordingMetadataExtractor"
+        ClassName="MediaPortal.Extensions.MetadataExtractors.Tve3RecordingMetadataExtractor"/>
+  </Register>
+</Plugin>

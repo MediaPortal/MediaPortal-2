@@ -31,6 +31,7 @@ using MediaPortal.Common;
 using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.Common.ResourceAccess;
+using MediaPortal.Common.Services.ThumbnailGenerator;
 using MediaPortal.Common.Settings;
 using MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor.Settings;
 using MediaPortal.Utilities;
@@ -321,14 +322,11 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
       if (!HasAudioExtension(fileName))
         return false;
 
-      // TODO: The creation of new media item aspects could be moved to a general method
-      MediaItemAspect mediaAspect;
-      if (!extractedAspectData.TryGetValue(MediaAspect.ASPECT_ID, out mediaAspect))
-        extractedAspectData[MediaAspect.ASPECT_ID] = mediaAspect = new MediaItemAspect(MediaAspect.Metadata);
-      MediaItemAspect audioAspect;
-      if (!extractedAspectData.TryGetValue(AudioAspect.ASPECT_ID, out audioAspect))
-        extractedAspectData[AudioAspect.ASPECT_ID] = audioAspect = new MediaItemAspect(AudioAspect.Metadata);
-
+      MediaItemAspect mediaAspect = MediaItemAspect.GetOrCreateAspect(extractedAspectData, MediaAspect.ASPECT_ID, MediaAspect.Metadata);
+      MediaItemAspect audioAspect = MediaItemAspect.GetOrCreateAspect(extractedAspectData, AudioAspect.ASPECT_ID, AudioAspect.Metadata);
+      MediaItemAspect thumbnailSmallAspect = MediaItemAspect.GetOrCreateAspect(extractedAspectData, ThumbnailSmallAspect.ASPECT_ID, ThumbnailSmallAspect.Metadata);
+      MediaItemAspect thumbnailLargeAspect = MediaItemAspect.GetOrCreateAspect(extractedAspectData, ThumbnailLargeAspect.ASPECT_ID, ThumbnailLargeAspect.Metadata);
+      
       try
       {
         File tag;
@@ -384,14 +382,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
         if ((tag.TagTypes & TagTypes.Id3v2) != 0)
           composers = PatchID3v23Enumeration(composers);
         audioAspect.SetCollectionAttribute(AudioAspect.ATTR_COMPOSERS, ApplyAdditionalSeparator(composers));
-        // The following code gets cover art images - and there is no cover art attribute in any media item aspect
-        // defined yet. (Albert, 2008-11-19)
-        //IPicture[] pics = new IPicture[] { };
-        //pics = tag.Tag.Pictures;
-        //if (pics.Length > 0)
-        //{
-        //  musictag.CoverArtImageBytes = pics[0].Data.Data;
-        //}
+
         audioAspect.SetAttribute(AudioAspect.ATTR_DURATION, tag.Properties.Duration.TotalSeconds);
         if (tag.Tag.Genres.Length > 0)
         {
@@ -409,6 +400,29 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
           year += 1900;
         if (year >= 1930 && year <= 2030)
           mediaAspect.SetAttribute(MediaAspect.ATTR_RECORDINGTIME, new DateTime(year, 1, 1));
+
+
+        // The following code gets cover art images from file (embedded) or from windows explorer cache (supports folder.jpg).
+        IPicture[] pics = tag.Tag.Pictures;
+        if (pics.Length > 0)
+        {
+          thumbnailLargeAspect.SetAttribute(ThumbnailLargeAspect.ATTR_THUMBNAIL, pics[0].Data.Data);
+        }
+        else
+        {
+          // In quick mode only allow thumbs taken from cache.
+          bool cachedOnly = forceQuickMode;
+
+          // Thumbnail extraction
+          fileName = mediaItemAccessor.ResourcePathName;
+          IThumbnailGenerator generator = ServiceRegistration.Get<IThumbnailGenerator>();
+          byte[] thumbData;
+          ImageType imageType;
+          if (generator.GetThumbnail(fileName, 96, 96, cachedOnly, out thumbData, out imageType))
+            thumbnailSmallAspect.SetAttribute(ThumbnailSmallAspect.ATTR_THUMBNAIL, thumbData);
+          if (generator.GetThumbnail(fileName, 256, 256, cachedOnly, out thumbData, out imageType))
+            thumbnailLargeAspect.SetAttribute(ThumbnailLargeAspect.ATTR_THUMBNAIL, thumbData);
+        }
         return true;
       }
       catch (UnsupportedFormatException)

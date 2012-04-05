@@ -127,19 +127,10 @@ namespace MediaPortal.Extensions.MetadataExtractors.ImageMetadataExtractor
       if (!HasImageExtension(fileName))
         return false;
 
-      // TODO: The creation of new media item aspects could be moved to a general method
-      MediaItemAspect mediaAspect;
-      if (!extractedAspectData.TryGetValue(MediaAspect.ASPECT_ID, out mediaAspect))
-        extractedAspectData[MediaAspect.ASPECT_ID] = mediaAspect = new MediaItemAspect(MediaAspect.Metadata);
-      MediaItemAspect imageAspect;
-      if (!extractedAspectData.TryGetValue(ImageAspect.ASPECT_ID, out imageAspect))
-        extractedAspectData[ImageAspect.ASPECT_ID] = imageAspect = new MediaItemAspect(ImageAspect.Metadata);
-      MediaItemAspect thumbnailSmallAspect;
-      if (!extractedAspectData.TryGetValue(ThumbnailSmallAspect.ASPECT_ID, out thumbnailSmallAspect))
-        extractedAspectData[ThumbnailSmallAspect.ASPECT_ID] = thumbnailSmallAspect = new MediaItemAspect(ThumbnailSmallAspect.Metadata);
-      MediaItemAspect thumbnailLargeAspect;
-      if (!extractedAspectData.TryGetValue(ThumbnailLargeAspect.ASPECT_ID, out thumbnailLargeAspect))
-        extractedAspectData[ThumbnailLargeAspect.ASPECT_ID] = thumbnailLargeAspect = new MediaItemAspect(ThumbnailLargeAspect.Metadata);
+      MediaItemAspect mediaAspect = MediaItemAspect.GetOrCreateAspect(extractedAspectData, MediaAspect.ASPECT_ID, MediaAspect.Metadata);
+      MediaItemAspect imageAspect = MediaItemAspect.GetOrCreateAspect(extractedAspectData, ImageAspect.ASPECT_ID, ImageAspect.Metadata);
+      MediaItemAspect thumbnailSmallAspect = MediaItemAspect.GetOrCreateAspect(extractedAspectData, ThumbnailSmallAspect.ASPECT_ID, ThumbnailSmallAspect.Metadata);
+      MediaItemAspect thumbnailLargeAspect = MediaItemAspect.GetOrCreateAspect(extractedAspectData, ThumbnailLargeAspect.ASPECT_ID, ThumbnailLargeAspect.Metadata);
 
       try
       {

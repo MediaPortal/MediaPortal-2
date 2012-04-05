@@ -135,6 +135,7 @@
     <Compile Include="MediaManagement\ContentDirectoryMessaging.cs" />
     <Compile Include="MediaManagement\DefaultItemAspects\ImporterAspect.cs" />
     <Compile Include="MediaManagement\DefaultItemAspects\DirectoryAspect.cs" />
+    <Compile Include="MediaManagement\DefaultItemAspects\SeriesAspect.cs" />
     <Compile Include="MediaManagement\DefaultItemAspects\ThumbnailLargeAspect.cs" />
     <Compile Include="MediaManagement\DefaultItemAspects\ThumbnailSmallAspect.cs" />
     <Compile Include="MediaManagement\DefaultItemAspects\MediaAspect.cs" />
@@ -142,6 +143,7 @@
     <Compile Include="MediaManagement\DefaultItemAspects\AudioAspect.cs" />
     <Compile Include="MediaManagement\DefaultItemAspects\ImageAspect.cs" />
     <Compile Include="MediaManagement\DefaultItemAspects\ProviderResourceAspect.cs" />
+    <Compile Include="MediaManagement\Helpers\SeriesInfo.cs" />
     <Compile Include="MediaManagement\MLQueries\FalseFilter.cs" />
     <Compile Include="MediaManagement\MLQueries\MediaItemIdFilter.cs" />
     <Compile Include="MediaManagement\PlaylistBase.cs" />
