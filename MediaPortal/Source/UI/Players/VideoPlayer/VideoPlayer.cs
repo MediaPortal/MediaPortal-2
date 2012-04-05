@@ -576,8 +576,6 @@ namespace MediaPortal.UI.Players.Video
     {
       StopSeeking();
       _initialized = false;
-      lock (SyncObj)
-      {
         ServiceRegistration.Get<ILogger>().Debug("{0}: Stop playing", PlayerTitle);
 
         try
@@ -613,7 +611,6 @@ namespace MediaPortal.UI.Players.Video
 
           FreeCodecs();
         }
-      }
       // Dispose resource locator and accessor
       FilterGraphTools.TryDispose(ref _resourceAccessor);
       FilterGraphTools.TryDispose(ref _resourceLocator);
@@ -738,12 +735,11 @@ namespace MediaPortal.UI.Players.Video
     {
       get
       {
-        lock (SyncObj)
-        {
           if (!_initialized || !(_graphBuilder is IMediaSeeking))
             return new TimeSpan();
           IMediaSeeking mediaSeeking = (IMediaSeeking) _graphBuilder;
           long lStreamPos;
+
           mediaSeeking.GetCurrentPosition(out lStreamPos); // stream position
           double fCurrentPos = lStreamPos;
           fCurrentPos /= 10000000d;
@@ -755,7 +751,6 @@ namespace MediaPortal.UI.Players.Video
           fCurrentPos -= fContentStart;
           return new TimeSpan(0, 0, 0, 0, (int) (fCurrentPos * 1000.0f));
         }
-      }
       set
       {
         ServiceRegistration.Get<ILogger>().Debug("{0}: Seek to {1} seconds", PlayerTitle, value.TotalSeconds);
@@ -764,8 +759,7 @@ namespace MediaPortal.UI.Players.Video
           // If the player isn't active when setting its position, we will switch to pause mode to prevent the
           // player from run.
           Pause();
-        lock (SyncObj)
-        {
+
           IMediaSeeking mediaSeeking = _graphBuilder as IMediaSeeking;
           if (mediaSeeking == null)
             return;
@@ -773,6 +767,7 @@ namespace MediaPortal.UI.Players.Video
           dTimeInSecs *= 10000000d;
 
           long lContentStart, lContentEnd;
+
           mediaSeeking.GetAvailable(out lContentStart, out lContentEnd);
           double dContentStart = lContentStart;
           double dContentEnd = lContentEnd;
@@ -789,14 +784,11 @@ namespace MediaPortal.UI.Players.Video
             ServiceRegistration.Get<ILogger>().Warn("{0}: Failed to seek, hr: {1}", PlayerTitle, hr);
         }
       }
-    }
 
     public virtual TimeSpan Duration
     {
       get
       {
-        lock (SyncObj)
-        {
           if (!_initialized || !(_graphBuilder is IMediaSeeking))
             return new TimeSpan();
           IMediaSeeking mediaSeeking = (IMediaSeeking) _graphBuilder;
@@ -810,7 +802,6 @@ namespace MediaPortal.UI.Players.Video
           return new TimeSpan(0, 0, 0, 0, (int) (fContentEnd * 1000.0f));
         }
       }
-    }
 
     public virtual double PlaybackRate
     {
@@ -903,8 +894,9 @@ namespace MediaPortal.UI.Players.Video
 
     public void Pause()
     {
-      if (!_isPaused)
-      {
+      if (_isPaused)
+        return;
+
         ServiceRegistration.Get<ILogger>().Debug("{0}: Pause", PlayerTitle);
         IMediaControl mc = _graphBuilder as IMediaControl;
         if (mc != null)
@@ -914,12 +906,12 @@ namespace MediaPortal.UI.Players.Video
         _state = PlayerState.Active;
         FirePlaybackStateChanged();
       }
-    }
 
     public void Resume()
     {
-      if (_isPaused || IsSeeking)
-      {
+      if (!_isPaused && !IsSeeking)
+        return;
+
         ServiceRegistration.Get<ILogger>().Debug("{0}: Resume", PlayerTitle);
         IMediaControl mc = _graphBuilder as IMediaControl;
         if (mc != null)
@@ -938,7 +930,6 @@ namespace MediaPortal.UI.Players.Video
         _state = PlayerState.Active;
         FirePlaybackStateChanged();
       }
-    }
 
     public void Restart()
     {
@@ -981,8 +972,6 @@ namespace MediaPortal.UI.Players.Video
 
     public virtual void SetAudioStream(string audioStream)
     {
-      lock (SyncObj)
-      {
         if (_streamInfoAudio != null && _streamInfoAudio.EnableStream(audioStream))
         {
           VideoSettings settings = ServiceRegistration.Get<ISettingsManager>().Load<VideoSettings>() ?? new VideoSettings();
@@ -994,13 +983,11 @@ namespace MediaPortal.UI.Players.Video
           }
         }
       }
-    }
 
     public virtual string CurrentAudioStream
     {
       get
       {
-        lock (SyncObj)
           return _streamInfoAudio != null ? _streamInfoAudio.CurrentStreamName : null;
       }
     }
@@ -1009,13 +996,10 @@ namespace MediaPortal.UI.Players.Video
     {
       get
       {
-        lock (SyncObj)
-        {
           EnumerateStreams();
           return _streamInfoAudio == null ? DEFAULT_AUDIO_STREAM_NAMES : _streamInfoAudio.GetStreamNames();
         }
       }
-    }
 
     /// <summary>
     /// Enumerates streams from video (audio, subtitles).
@@ -1167,8 +1151,6 @@ namespace MediaPortal.UI.Players.Video
     public virtual void ReleaseGUIResources()
     {
       // Releases all Direct3D related resources
-      lock (_syncObj)
-      {
         _initialized = false;
 
         FilterState state;
@@ -1191,7 +1173,6 @@ namespace MediaPortal.UI.Players.Video
         EvrDeinit(_presenterInstance);
         FreeEvrCallback();
       }
-    }
 
     protected virtual void CreateEvrCallback()
     {
@@ -1267,8 +1248,6 @@ namespace MediaPortal.UI.Players.Video
     {
       get
       {
-        lock (SyncObj)
-        {
           EnumerateStreams();
 
           if (_streamInfoSubtitles == null)
@@ -1281,7 +1260,6 @@ namespace MediaPortal.UI.Players.Video
           return subtitleStreamNames;
         }
       }
-    }
 
     /// <summary>
     /// Sets the current subtitle stream.
@@ -1289,12 +1267,9 @@ namespace MediaPortal.UI.Players.Video
     /// <param name="subtitle">subtitle stream</param>
     public virtual void SetSubtitle(string subtitle)
     {
-      lock (SyncObj)
-      {
         if (_streamInfoSubtitles != null && _streamInfoSubtitles.EnableStream(subtitle))
           SaveSubtitlePreference();
       }
-    }
 
     protected virtual void SaveSubtitlePreference()
     {

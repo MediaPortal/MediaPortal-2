@@ -136,29 +136,30 @@ namespace MediaPortal.UI.Players.Video
 
     public int PresentSurface(short cx, short cy, short arx, short ary, uint dwSurface)
     {
-      lock (_lock)
-        if (dwSurface != 0 && cx != 0 && cy != 0)
+      if (dwSurface != 0 && cx != 0 && cy != 0)
+      {
+        if (cx != _originalVideoSize.Width || cy != _originalVideoSize.Height)
+          _originalVideoSize = new Size(cx, cy);
+
+        _aspectRatio.Width = arx;
+        _aspectRatio.Height = ary;
+
+        using (Surface surf = Surface.FromPointer(new IntPtr(dwSurface)))
         {
-          if (cx != _originalVideoSize.Width || cy != _originalVideoSize.Height)
-            _originalVideoSize = new Size(cx, cy);
-
-          _aspectRatio.Width = arx;
-          _aspectRatio.Height = ary;
-
-          using (Surface surf = Surface.FromPointer(new IntPtr(dwSurface)))
+          SurfaceDescription surfaceDesc = _surface == null ? new SurfaceDescription() : _surface.Description;
+          SurfaceDescription surfDesc = surf.Description;
+          lock (_lock)
           {
-            SurfaceDescription surfaceDesc = _surface == null ? new SurfaceDescription() : _surface.Description;
-            SurfaceDescription surfDesc = surf.Description;
             if (surfaceDesc.Width != surfDesc.Width || surfaceDesc.Height != surfDesc.Height)
             {
               if (_surface != null)
                 _surface.Dispose();
               _surface = Surface.CreateRenderTarget(_device, surfDesc.Width, surfDesc.Height, Format.A8R8G8B8, MultisampleType.None, 0, false);
             }
-
             _device.StretchRectangle(surf, _surface, TextureFilter.None);
           }
         }
+      }
 
       VideoSizePresentDlgt vsp = VideoSizePresent;
       if (vsp != null)

@@ -27,22 +27,28 @@ using System.Collections.Generic;
 
 namespace MediaPortal.Plugins.SlimTvClient.Interfaces.Items
 {
-  public interface ISchedule
+  [Flags]
+  public enum RecordingStatus
   {
-    int ScheduleId { get; }
-    int ChannelId { get; set; }
-    string Name { get; set; }
-    DateTime StartDate { get; }
-    DateTime StopDate { get; }
-    
-    PriorityType Priority { get; set; }
-
-    TimeSpan PreRecordInterval { get; set; }
-    TimeSpan PostRecordInterval { get; set; }
-
-    KeepMethodType KeepMethod { get; set; }
-    DateTime KeepDate { get; set; }
-    //TODO
+    None,
+    Scheduled,
+    SeriesScheduled,
+    RuleScheduled,
+    Recording
   }
 
+  public interface IScheduleControl
+  {
+    bool CreateSchedule(IProgram program); // , out ISchedule schedule ?
+    bool RemoveSchedule(IProgram program); // ISchedule schedule ?
+    bool GetRecordingStatus(IProgram program, out RecordingStatus recordingStatus);
+
+    //bool GetSchedules(IChannel channel, out IList<ISchedule> schedules);
+    //bool GetSchedules(out IList<ISchedule> schedules);
+
+    //bool AddRule(IScheduleRule rule);
+    //bool RemoveRule(IScheduleRule rule);
+    //bool GetRules(out IList<IScheduleRule> rules);
+    //TODO
+  }
 }

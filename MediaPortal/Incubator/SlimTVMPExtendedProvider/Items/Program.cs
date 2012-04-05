@@ -24,7 +24,7 @@
 
 using System;
 using MediaPortal.Plugins.SlimTvClient.Interfaces.Items;
-using TV4Home.Server.TVEInteractionLibrary.Interfaces;
+using MPExtended.Services.TVAccessService.Interfaces;
 
 namespace MediaPortal.Plugins.SlimTvClient.Providers.Items
 {
@@ -42,7 +42,8 @@ namespace MediaPortal.Plugins.SlimTvClient.Providers.Items
       Genre = webProgram.Genre;
       Title = webProgram.Title;
       ChannelId = webProgram.IdChannel;
-      ProgramId = webProgram.IdProgram;
+      ProgramId = webProgram.Id;
+      RecordingStatus = GetRecordingStatus(webProgram);
     }
 
     public static RecordingStatus GetRecordingStatus(WebProgramBasic programDetailed)

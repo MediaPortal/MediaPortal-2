@@ -1,4 +1,4 @@
-#region Copyright (C) 2007-2012 Team MediaPortal
+﻿#region Copyright (C) 2007-2012 Team MediaPortal
 
 /*
     Copyright (C) 2007-2012 Team MediaPortal
@@ -23,26 +23,24 @@
 #endregion
 
 using System;
-using System.Collections.Generic;
 
 namespace MediaPortal.Plugins.SlimTvClient.Interfaces.Items
 {
-  public interface ISchedule
+  public interface IProgramSeries: IProgram
   {
-    int ScheduleId { get; }
-    int ChannelId { get; set; }
-    string Name { get; set; }
-    DateTime StartDate { get; }
-    DateTime StopDate { get; }
-    
-    PriorityType Priority { get; set; }
+    /// <summary>
+    /// Gets or Sets the Season number of an Episode.
+    /// </summary>
+    String SeasonNumber { get; set; }
 
-    TimeSpan PreRecordInterval { get; set; }
-    TimeSpan PostRecordInterval { get; set; }
+    /// <summary>
+    /// Gets or Sets the Number of an Episode.
+    /// </summary>
+    String EpisodeNumber { get; set; }
 
-    KeepMethodType KeepMethod { get; set; }
-    DateTime KeepDate { get; set; }
-    //TODO
+    /// <summary>
+    /// Gets or Sets the Title of an Episode.
+    /// </summary>
+    String EpisodeTitle { get; set; }
   }
-
 }

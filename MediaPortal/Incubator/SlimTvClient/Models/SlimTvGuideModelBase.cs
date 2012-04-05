@@ -132,44 +132,66 @@ namespace MediaPortal.Plugins.SlimTvClient
       }
       else
       {
-        // check if program is currently running.
-        if (DateTime.Now >= program.StartTime && DateTime.Now <= program.EndTime)
+        // Check if program is currently running.
+        bool isRunning = DateTime.Now >= program.StartTime && DateTime.Now <= program.EndTime;
+        if (isRunning)
         {
           _programActions.Add(new ListItem(Consts.KEY_NAME, loc.ToString("[SlimTvClient.WatchNow]"))
                                 {
                                   Command =
                                     new MethodDelegateCommand(() =>
-                                    {
-                                      IChannel channel;
-                                      if (_tvHandler.ProgramInfo.GetChannel(program, out channel))
-                                        _tvHandler.StartTimeshift(PlayerManagerConsts.PRIMARY_SLOT, channel);
-                                    })
+                                                                {
+                                                                  IChannel channel;
+                                                                  if (_tvHandler.ProgramInfo.GetChannel(program, out channel))
+                                                                    _tvHandler.StartTimeshift(PlayerManagerConsts.PRIMARY_SLOT, channel);
+                                                                })
                                 });
         }
-        //TODO: define and implement recording info interfaces, add code again
-        //if (program.IsRecording || program.IsRecordingOncePending || program.IsRecordingSeriesPending)
-        //{
-        //  _programActions.Add(
-        //    new ListItem(Consts.KEY_NAME, loc.ToString("[SlimTvClient.DeleteSchedule]"))
-        //      {
-        //        Command = new MethodDelegateCommand(() => _tvServer.TvServer.CancelSchedule(programId))
-        //      });
-        //}
-        //else
-        //{
-        //  _programActions.Add(
-        //    new ListItem(Consts.KEY_NAME, loc.ToString("[SlimTvClient.CreateSchedule]"))
-        //      {
-        //        Command = new MethodDelegateCommand(() =>
-        //                                            _tvServer.TvServer.AddSchedule(_channelID, program.Title,
-        //                                                                           program.StartTime, program.EndTime, 0))
-        //      });
-        //}
+
+        if (_tvHandler.ScheduleControl != null)
+        {
+          RecordingStatus recordingStatus;
+          if (_tvHandler.ScheduleControl.GetRecordingStatus(program, out recordingStatus) && recordingStatus != RecordingStatus.None)
+          {
+            _programActions.Add(
+              new ListItem(Consts.KEY_NAME, loc.ToString("[SlimTvClient.DeleteSchedule]"))
+                {
+                  Command = new MethodDelegateCommand(() =>
+                                                        {
+                                                          if (_tvHandler.ScheduleControl.RemoveSchedule(program))
+                                                            UpdateRecordingStatus(program, RecordingStatus.None);
+                                                        }
+                    )
+                });
+          }
+          else
+          {
+            _programActions.Add(
+              new ListItem(Consts.KEY_NAME, loc.ToString(isRunning ? "[SlimTvClient.RecordNow]" : "[SlimTvClient.CreateSchedule]"))
+                {
+                  Command = new MethodDelegateCommand(() =>
+                                                        {
+                                                          if (_tvHandler.ScheduleControl.CreateSchedule(program))
+                                                            UpdateRecordingStatus(program, RecordingStatus.Scheduled);
+                                                        }
+                    )
+                });
+          }
+        }
       }
       IScreenManager screenManager = ServiceRegistration.Get<IScreenManager>();
       screenManager.ShowDialog(_programActionsDialogName);
     }
 
+    protected virtual bool UpdateRecordingStatus(IProgram program, RecordingStatus newStatus)
+    {
+      IProgramRecordingStatus status = program as IProgramRecordingStatus;
+      if (status == null)
+        return false;
+      
+      status.RecordingStatus = newStatus;
+      return true;
+    }
     #endregion
 
     #region Members

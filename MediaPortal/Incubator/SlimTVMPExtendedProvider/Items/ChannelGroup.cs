@@ -22,27 +22,20 @@
 
 #endregion
 
-using System;
-using System.Collections.Generic;
+using MediaPortal.Plugins.SlimTvClient.Interfaces.Items;
 
-namespace MediaPortal.Plugins.SlimTvClient.Interfaces.Items
+namespace MediaPortal.Plugins.SlimTvClient.Providers.Items
 {
-  public interface ISchedule
+  public class ChannelGroup : IChannelGroup
   {
-    int ScheduleId { get; }
-    int ChannelId { get; set; }
-    string Name { get; set; }
-    DateTime StartDate { get; }
-    DateTime StopDate { get; }
-    
-    PriorityType Priority { get; set; }
+    #region IChannelGroup Member
 
-    TimeSpan PreRecordInterval { get; set; }
-    TimeSpan PostRecordInterval { get; set; }
+    public int ServerIndex { get; set; }
 
-    KeepMethodType KeepMethod { get; set; }
-    DateTime KeepDate { get; set; }
-    //TODO
+    public int ChannelGroupId { get; set; }
+
+    public string Name { get; set; }
+
+    #endregion
   }
-
 }

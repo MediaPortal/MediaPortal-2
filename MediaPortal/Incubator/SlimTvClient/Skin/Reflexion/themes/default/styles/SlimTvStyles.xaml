@@ -269,13 +269,8 @@
 
   <!-- MultiChannel Program Guide, Item Width gets calculated of program's Duration and visible ViewPort (time). -->
   <DataTemplate x:Key="MultiChannelProgramGuideDataTemplate" DataType="{x:Type collections:ListItem}">
-    <StackPanel x:Name="ItemControl" VerticalAlignment="Center" HorizontalAlignment="Stretch" Height="{ThemeResource MultiGuideProgramHeight}">
-      <StackPanel.Width>
-        <!-- Use a ExpressionMultiValueConverter to calculate a matching Width (Duration in minutes * n) -->
-        <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} * 102 / 10">
-          <Binding Path="Program.RemainingDuration"/>
-        </MultiBinding>
-      </StackPanel.Width>
+    <StackPanel x:Name="ItemControl" VerticalAlignment="Center" HorizontalAlignment="Stretch" Height="{ThemeResource MultiGuideProgramHeight}"
+                Width="{Binding Program.ProgramWidth}">
       <Label x:Name="ItemLabel" VerticalAlignment="Center" Content="{Binding [Name]}" Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}" />
     </StackPanel>
   </DataTemplate>
@@ -333,6 +328,13 @@
             <ContentPresenter x:Name="ButtonContentPresenter" Margin="0,18,0,0" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"/>
           </Grid>
           <ControlTemplate.Triggers>
+            <!-- Handling of different program states -->
+            <DataTrigger Binding="{Binding IsRunning}" Value="True">
+              <Setter TargetName="ButtonBase" Property="Fill" Value="{ThemeResource ProgramRunningFill}"/>
+            </DataTrigger>
+            <DataTrigger Binding="{Binding Program.IsScheduled}" Value="True">
+              <Setter TargetName="ButtonOverlay" Property="Fill" Value="{ThemeResource ProgramScheduledFill}"/>
+            </DataTrigger>
             <Trigger Property="HasFocus" Value="True">
               <Trigger.EnterActions>
                 <BeginStoryboard x:Name="Focused_BeginStoryboard" Storyboard="{ThemeResource FocusedButtonStoryboard_Base}"/>

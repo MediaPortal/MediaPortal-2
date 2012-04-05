@@ -22,6 +22,8 @@
 
 #endregion
 
+using System;
+
 namespace MediaPortal.Plugins.SlimTvClient.Interfaces.Items
 {
   public interface IScheduleRule
@@ -29,6 +31,14 @@ namespace MediaPortal.Plugins.SlimTvClient.Interfaces.Items
     int RuleId { get; set; }
     int ScheduleControlId { get; set; }
     string Name { get; set; }
+
+    PriorityType Priority { get; set; }
+
+    TimeSpan PreRecordInterval { get; set; }
+    TimeSpan PostRecordInterval { get; set; }
+
+    KeepMethodType KeepMethod { get; set; }
+    DateTime KeepDate { get; set; }
     //TODO
   }
 }

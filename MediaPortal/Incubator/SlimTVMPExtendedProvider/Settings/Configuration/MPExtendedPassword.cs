@@ -22,27 +22,29 @@
 
 #endregion
 
-using System;
-using System.Collections.Generic;
+using MediaPortal.Common.Configuration.ConfigurationClasses;
+using MediaPortal.Plugins.SlimTvClient.Providers.Settings;
 
-namespace MediaPortal.Plugins.SlimTvClient.Interfaces.Items
+namespace MediaPortal.Plugins.SlimTv.Providers.Settings.Configuration
 {
-  public interface ISchedule
+  public class MPExtendedPassword : Entry
   {
-    int ScheduleId { get; }
-    int ChannelId { get; set; }
-    string Name { get; set; }
-    DateTime StartDate { get; }
-    DateTime StopDate { get; }
-    
-    PriorityType Priority { get; set; }
+    public override void Load()
+    {
+      _value = SettingsManager.Load<MPExtendedProviderSettings>().Password;
+    }
 
-    TimeSpan PreRecordInterval { get; set; }
-    TimeSpan PostRecordInterval { get; set; }
+    public override void Save()
+    {
+      base.Save();
+      MPExtendedProviderSettings settings = SettingsManager.Load<MPExtendedProviderSettings>();
+      settings.Password = _value;
+      SettingsManager.Save(settings);
+    }
 
-    KeepMethodType KeepMethod { get; set; }
-    DateTime KeepDate { get; set; }
-    //TODO
+    public override int DisplayLength
+    {
+      get { return 50; }
+    }
   }
-
 }

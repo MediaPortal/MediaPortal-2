@@ -35,14 +35,18 @@ namespace MediaPortal.Plugins.SlimTvClient.Helpers
   {
     private DateTime _viewPortMinTime;
     private DateTime _viewPortMaxTime;
+    private static readonly double ProgramWidthFactor = 6.5;
 
+    public AbstractProperty ProgramIdProperty { get; set; }
+    public AbstractProperty IsScheduledProperty { get; set; }
     public AbstractProperty TitleProperty { get; set; }
     public AbstractProperty DescriptionProperty { get; set; }
     public AbstractProperty StartTimeProperty { get; set; }
     public AbstractProperty EndTimeProperty { get; set; }
     public AbstractProperty RemainingDurationProperty { get; set; }
+    public AbstractProperty ProgramWidthProperty { get; set; }
     public AbstractProperty GenreProperty { get; set; }
-
+    
     /// <summary>
     /// Gets or Sets the Title.
     /// </summary>
@@ -69,7 +73,7 @@ namespace MediaPortal.Plugins.SlimTvClient.Helpers
       get { return (String)GenreProperty.GetValue(); }
       set { GenreProperty.SetValue(value); }
     }
-
+    
     /// <summary>
     /// Gets or Sets the Start time.
     /// </summary>
@@ -98,7 +102,36 @@ namespace MediaPortal.Plugins.SlimTvClient.Helpers
       set { RemainingDurationProperty.SetValue(value); }
     }
 
-    public ProgramProperties() : this(DateTime.Now, DateTime.Now.AddHours(SlimTvMultiChannelGuideModel.VISIBLE_HOURS))
+    /// <summary>
+    /// Gets or Sets an indicator if the program is scheduled or currently recording.
+    /// </summary>
+    public bool IsScheduled
+    {
+      get { return (bool) IsScheduledProperty.GetValue(); }
+      set { IsScheduledProperty.SetValue(value); }
+    }
+
+    /// <summary>
+    /// Gets or Sets an indicator if the program is scheduled or currently recording.
+    /// </summary>
+    public int ProgramId
+    {
+      get { return (int) ProgramIdProperty.GetValue(); }
+      set { ProgramIdProperty.SetValue(value); }
+    }
+
+    public double ProgramWidth
+    {
+      get { return (double) ProgramWidthProperty.GetValue(); }
+      set { ProgramWidthProperty.SetValue(value); }
+    }
+
+    static ProgramProperties()
+    {
+      ResourceHelper.ReadResourceDouble("MultiGuideProgramTimeFactor", ref ProgramWidthFactor);
+    }
+
+    public ProgramProperties() : this(DateTime.Now, DateTime.Now.AddHours(SlimTvMultiChannelGuideModel.VisibleHours))
     {
     }
 
@@ -106,18 +139,26 @@ namespace MediaPortal.Plugins.SlimTvClient.Helpers
     {
       _viewPortMinTime = viewPortMinTime;
       _viewPortMaxTime = viewPortMaxTime;
+      ProgramIdProperty = new WProperty(typeof(int), 0);
+      IsScheduledProperty = new WProperty(typeof(bool), false);
       TitleProperty = new WProperty(typeof(String), String.Empty);
       DescriptionProperty = new WProperty(typeof(String), String.Empty);
       GenreProperty = new WProperty(typeof(String), String.Empty);
       StartTimeProperty = new WProperty(typeof(DateTime), DateTime.MinValue);
       EndTimeProperty = new WProperty(typeof(DateTime), DateTime.MinValue);
       RemainingDurationProperty = new WProperty(typeof(int), 0);
+      ProgramWidthProperty = new WProperty(typeof(double), 0d);
     }
 
     public void SetProgram(IProgram program)
     {
+      IProgramRecordingStatus recordingStatus = program as IProgramRecordingStatus;
+      if (recordingStatus != null)
+        IsScheduled = recordingStatus.RecordingStatus != RecordingStatus.None;
+
       if (program != null)
       {
+        ProgramId = program.ProgramId;
         Title = program.Title;
         Description = program.Description;
         StartTime = program.StartTime;
@@ -145,6 +186,7 @@ namespace MediaPortal.Plugins.SlimTvClient.Helpers
         programEnd = _viewPortMaxTime;
 
       RemainingDuration = Math.Max((int)(programEnd - programStart).TotalMinutes, 0);
+      ProgramWidth = ProgramWidthFactor * RemainingDuration;
     }
   }
 }

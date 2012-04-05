@@ -57,6 +57,24 @@
             <CommandBridge x:Key="Menu_Command" Command="{Binding Path=Command,Mode=OneTime}"/>
           </ListView.Resources>
         </ListView>
+        
+        <Rectangle x:Name="TimeIndicator" Grid.Row="1" Grid.ColumnSpan="2" Width="8" HorizontalAlignment="Left" VerticalAlignment="Stretch"
+                   IsVisible="{Binding CurrentTimeVisible}">
+          <Rectangle.Fill>
+            <LinearGradientBrush StartPoint="0,0.5" EndPoint="1,0.5">
+              <GradientStop Offset="0" Color="#20A0A0A0"/>
+              <GradientStop Offset="0.4"  Color="#A0F0F0F0"/>
+              <GradientStop Offset="1" Color="#20E0E0E0"/>
+            </LinearGradientBrush >
+          </Rectangle.Fill>
+          <Rectangle.Margin>
+            <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0}+{1}">
+              <Binding Path="CurrentTimeLeftOffset"/>
+              <Binding Source=",0,0,0"/>
+            </MultiBinding>
+            <!--Thickness Left="{Binding CurrentTimeLeftOffset}" Top="5" Right="0" Bottom="5"/-->
+          </Rectangle.Margin>
+        </Rectangle>
 
         <GroupBox  Grid.Column="0" Grid.Row="2"  Grid.ColumnSpan="2" Header="[SlimTvClient.CurrentlyPlayingInformationHeader]" 
                    Style="{ThemeResource ContentGroupBoxStyle}" FontSize="{ThemeResource SmallFontSize}" Margin="10,0,10,15">

@@ -119,9 +119,9 @@ namespace MediaPortal.Plugins.SlimTvClient
 
     protected override void UpdatePrograms()
     {
+      _programsList.Clear();
       if (_channel != null)
       {
-        _programsList.Clear();
         if (_tvHandler.ProgramInfo.GetPrograms(_channel, DateTime.Now.AddHours(-2), DateTime.Now.AddHours(24), out _programs))
         {
           foreach (IProgram program in _programs)
@@ -143,11 +143,7 @@ namespace MediaPortal.Plugins.SlimTvClient
         ProgramsList.FireChange();
       }
       else
-      {
         _programs = null;
-        _programsList.Clear();
-      }
-
     }
 
     #endregion
