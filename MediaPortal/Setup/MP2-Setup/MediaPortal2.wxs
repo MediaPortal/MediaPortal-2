@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<Wix xmlns="http://schemas.microsoft.com/wix/2006/wi">
+<Wix xmlns="http://schemas.microsoft.com/wix/2006/wi"
+     xmlns:util="http://schemas.microsoft.com/wix/UtilExtension">
 
   <!-- This should NEVER be changed ! -->
   <?define UpgradeCode = "9743129C-FED3-404A-A66E-3C1557BE0178" ?>
@@ -59,7 +60,7 @@
             <Directory Id="SERVER.PLUGINS.FOLDER" Name="Plugins"/>
           </Directory>
         </Directory>
-        
+
         <Directory Id="DokanFolder" Name="Dokan">
           <Directory Id="DokanLibraryFolder" Name="DokanLibrary"/>
         </Directory>
@@ -67,6 +68,13 @@
 
       <Directory Id="CommonAppDataFolder">
         <Directory Id="TeamMediaPortal.DATA.FOLDER" Name="Team MediaPortal">
+          <Component Id="TeamMediaPortal.DATA.FOLDER" Guid="F681F96B-A41D-435B-A091-C9BF42179FB5">
+            <CreateFolder Directory="TeamMediaPortal.DATA.FOLDER">
+              <util:PermissionEx User="Users" GenericAll="yes"/>
+            </CreateFolder>
+          </Component>
+
+
           <Directory Id="CLIENT.DATA.FOLDER" Name="MP2-Client">
             <Component Id="CLIENT.DATA.FOLDER" Guid="3DF62027-81C3-4047-815C-4C530E0328EB">
               <CreateFolder/>
@@ -111,7 +119,7 @@
       <Directory Id="ProgramMenuFolder">
         <Directory Id="TeamMediaPortalStartMenu" Name="Team MediaPortal">
           <Directory Id="MP2StartMenu" Name="MediaPortal 2" />
-        </Directory>        
+        </Directory>
       </Directory>
 
       <Directory Id="DesktopFolder" />
@@ -161,6 +169,8 @@
              Description="!(loc.F_MediaPortal_Desc)">
       <FeatureRef Id="Client" />
       <FeatureRef Id="Server" />
+
+      <ComponentRef Id="TeamMediaPortal.DATA.FOLDER" />
       <ComponentRef Id="TeamMediaPortalStartMenu" />
       <ComponentRef Id="MP2StartMenu" />
     </Feature>
@@ -179,9 +189,9 @@
     <InstallUISequence>
 
       <Custom Action="ReadCustomPathsFromExistingPathsFile" Before="CostFinalize">NOT Installed</Custom>
-      
+
     </InstallUISequence>
-    
+
     <InstallExecuteSequence>
       <!-- Reads custom paths which maybe have been changed by the user in a former installation -->
       <Custom Action="ReadCustomPathsFromExistingPathsFile" Before="PrepareXmlPathVariables">(NOT Installed) AND (INSTALLTYPE_CUSTOM = 0)</Custom>
