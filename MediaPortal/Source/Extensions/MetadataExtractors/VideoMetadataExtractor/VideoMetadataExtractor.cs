@@ -153,15 +153,6 @@ namespace MediaPortal.Extensions.MetadataExtractors.VideoMetadataExtractor
       return result;
     }
 
-    #endregion
-
-    #region IMetadataExtractor implementation
-
-    public MetadataExtractorMetadata Metadata
-    {
-      get { return _metadata; }
-    }
-
     public class VideoResult
     {
       protected bool _isDVD;
@@ -237,7 +228,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.VideoMetadataExtractor
         }
       }
 
-      public void UpdateMetadata(IDictionary<Guid, MediaItemAspect> extractedAspectData, string localFsResourcePath, bool forceQuickMode)
+      public void UpdateMetadata(IDictionary<Guid, MediaItemAspect> extractedAspectData)
       {
         MediaItemAspect.SetAttribute(extractedAspectData, MediaAspect.ASPECT_ID, MediaAspect.Metadata, MediaAspect.ATTR_TITLE, _title);
         MediaItemAspect.SetAttribute(extractedAspectData, MediaAspect.ASPECT_ID, MediaAspect.Metadata, MediaAspect.ATTR_MIME_TYPE, _mimeType);
@@ -263,111 +254,6 @@ namespace MediaPortal.Extensions.MetadataExtractors.VideoMetadataExtractor
 
         MediaItemAspect.SetAttribute(extractedAspectData, VideoAspect.ASPECT_ID, VideoAspect.Metadata, VideoAspect.ATTR_AUDIOENCODING, StringUtils.Join(", ", _audCodecs));
         // TODO: extract cover art (see Mantis #1977)
-
-        SeriesInfo seriesInfo = null;
-
-        // Try to get extended information out of matroska files
-        if (localFsResourcePath.EndsWith(".mkv") || localFsResourcePath.EndsWith(".mk3d"))
-        {
-          MatroskaInfoReader mkvReader = new MatroskaInfoReader(localFsResourcePath);
-          // Add keys to be extracted to tags dictionary, matching results will returned as value
-          Dictionary<string, IList<string>> tagsToExtract = new Dictionary<string, IList<string>>
-                                                   {
-                                                     {TAG_SERIES_TITLE, null}, // Series title
-                                                     {TAG_SERIES_GENRE, null}, // Series genre(s)
-                                                     {TAG_SERIES_ACTORS, null}, // Series actor(s)
-                                                     {TAG_SEASON_NUMBER, null}, // Season number
-                                                     {TAG_SEASON_YEAR, null}, // Season year
-                                                     {TAG_SEASON_TITLE, null}, // Season title
-                                                     {TAG_EPISODE_TITLE, null}, // Episode title
-                                                     {TAG_EPISODE_SUMMARY, null}, // Episode summary
-                                                     {TAG_EPISODE_YEAR, null}, // Episode year
-                                                     {TAG_EPISODE_NUMBER, null}, // Episode number
-                                                     {TAG_ACTORS, null}, // Actor(s)
-                                                     {TAG_SIMPLE_TITLE, null} // File title
-                                                   };
-          mkvReader.ReadTags(tagsToExtract);
-
-          string title = string.Empty;
-          if (tagsToExtract[TAG_SIMPLE_TITLE] != null)
-            title = tagsToExtract[TAG_SIMPLE_TITLE].FirstOrDefault();
-
-          // Series and episode handling. Prefer information from tags.
-          seriesInfo = GetSeriesFromTags(tagsToExtract);
-          if (seriesInfo.IsCompleteMatch)
-            seriesInfo.SetMetadata(extractedAspectData);
-
-          if (!string.IsNullOrEmpty(title))
-            MediaItemAspect.SetAttribute(extractedAspectData, MediaAspect.ASPECT_ID, MediaAspect.Metadata, MediaAspect.ATTR_TITLE, title);
-
-          string yearCandidate = null;
-          if (tagsToExtract[TAG_EPISODE_YEAR] != null)
-            yearCandidate = tagsToExtract[TAG_EPISODE_YEAR].FirstOrDefault().Substring(0, 4);
-          else
-            if (tagsToExtract[TAG_SEASON_YEAR] != null)
-              yearCandidate = tagsToExtract[TAG_SEASON_YEAR].FirstOrDefault().Substring(0, 4);
-
-          int year;
-          if (int.TryParse(yearCandidate, out year))
-            MediaItemAspect.SetAttribute(extractedAspectData, MediaAspect.ASPECT_ID, MediaAspect.Metadata, MediaAspect.ATTR_RECORDINGTIME, new DateTime(year, 1, 1));
-
-          if (tagsToExtract[TAG_SERIES_GENRE] != null)
-            MediaItemAspect.SetCollectionAttribute(extractedAspectData, VideoAspect.ASPECT_ID, VideoAspect.Metadata, VideoAspect.ATTR_GENRES, tagsToExtract[TAG_SERIES_GENRE]);
-
-          IEnumerable<string> actors;
-          // Combine series actors and episode actors if both are available
-          if (tagsToExtract[TAG_SERIES_ACTORS] != null && tagsToExtract[TAG_ACTORS] != null)
-            actors = tagsToExtract[TAG_SERIES_ACTORS].Union(tagsToExtract[TAG_ACTORS]);
-          else
-            actors = tagsToExtract[TAG_SERIES_ACTORS] ?? tagsToExtract[TAG_ACTORS];
-
-          if (actors != null)
-            MediaItemAspect.SetCollectionAttribute(extractedAspectData, VideoAspect.ASPECT_ID, VideoAspect.Metadata, VideoAspect.ATTR_ACTORS, actors);
-
-          if (tagsToExtract[TAG_EPISODE_SUMMARY] != null)
-            MediaItemAspect.SetAttribute(extractedAspectData, VideoAspect.ASPECT_ID, VideoAspect.Metadata, VideoAspect.ATTR_STORYPLOT, tagsToExtract[TAG_EPISODE_SUMMARY].FirstOrDefault());
-        }
-
-        if (seriesInfo == null || !seriesInfo.IsCompleteMatch)
-        {
-          // Try to match series from folder and file namings
-          SeriesMatcher seriesMatcher = new SeriesMatcher();
-          if (seriesMatcher.MatchSeries(localFsResourcePath, out seriesInfo) && seriesInfo.IsCompleteMatch)
-            seriesInfo.SetMetadata(extractedAspectData);
-        }
-
-        // In quick mode only allow thumbs taken from cache.
-        bool cachedOnly = forceQuickMode;
-
-        // Thumbnail extraction
-        IThumbnailGenerator generator = ServiceRegistration.Get<IThumbnailGenerator>();
-        byte[] thumbData;
-        ImageType imageType;
-        if (generator.GetThumbnail(localFsResourcePath, 96, 96, cachedOnly, out thumbData, out imageType))
-          MediaItemAspect.SetAttribute(extractedAspectData, ThumbnailSmallAspect.ASPECT_ID, ThumbnailSmallAspect.Metadata, ThumbnailSmallAspect.ATTR_THUMBNAIL, thumbData);
-        if (generator.GetThumbnail(localFsResourcePath, 256, 256, cachedOnly, out thumbData, out imageType))
-          MediaItemAspect.SetAttribute(extractedAspectData, ThumbnailLargeAspect.ASPECT_ID, ThumbnailLargeAspect.Metadata, ThumbnailLargeAspect.ATTR_THUMBNAIL, thumbData);
-      }
-
-      public SeriesInfo GetSeriesFromTags(Dictionary<string, IList<string>> extractedTags)
-      {
-        SeriesInfo seriesInfo = new SeriesInfo();
-        if (extractedTags[TAG_EPISODE_TITLE] != null)
-          seriesInfo.Episode = extractedTags[TAG_EPISODE_TITLE].FirstOrDefault();
-
-        if (extractedTags[TAG_SERIES_TITLE] != null)
-          seriesInfo.Series = extractedTags[TAG_SERIES_TITLE].FirstOrDefault();
-
-        if (extractedTags[TAG_SEASON_NUMBER] != null)
-          int.TryParse(extractedTags[TAG_SEASON_NUMBER].FirstOrDefault(), out seriesInfo.SeasonNumber);
-
-        if (extractedTags[TAG_EPISODE_NUMBER] != null)
-        {
-          int episodeNum;
-          if (int.TryParse(extractedTags[TAG_EPISODE_NUMBER].FirstOrDefault(), out episodeNum))
-            seriesInfo.EpisodeNumbers.Add(episodeNum);
-        }
-        return seriesInfo;
       }
 
       public bool IsDVD
@@ -381,6 +267,128 @@ namespace MediaPortal.Extensions.MetadataExtractors.VideoMetadataExtractor
         get { return _mimeType; }
         set { _mimeType = value; }
       }
+    }
+
+    protected SeriesInfo GetSeriesFromTags(IDictionary<string, IList<string>> extractedTags)
+    {
+      SeriesInfo seriesInfo = new SeriesInfo();
+      if (extractedTags[TAG_EPISODE_TITLE] != null)
+        seriesInfo.Episode = extractedTags[TAG_EPISODE_TITLE].FirstOrDefault();
+
+      if (extractedTags[TAG_SERIES_TITLE] != null)
+        seriesInfo.Series = extractedTags[TAG_SERIES_TITLE].FirstOrDefault();
+
+      if (extractedTags[TAG_SEASON_NUMBER] != null)
+        int.TryParse(extractedTags[TAG_SEASON_NUMBER].FirstOrDefault(), out seriesInfo.SeasonNumber);
+
+      if (extractedTags[TAG_EPISODE_NUMBER] != null)
+      {
+        int episodeNum;
+        if (int.TryParse(extractedTags[TAG_EPISODE_NUMBER].FirstOrDefault(), out episodeNum))
+          seriesInfo.EpisodeNumbers.Add(episodeNum);
+      }
+      return seriesInfo;
+    }
+
+    protected void ExtractSeriesData(string localFsResourcePath, IDictionary<Guid, MediaItemAspect> extractedAspectData)
+    {
+      SeriesInfo seriesInfo = null;
+
+      string extensionUpper = StringUtils.TrimToEmpty(Path.GetExtension(localFsResourcePath)).ToUpper();
+
+      // Try to get extended information out of matroska files)
+      if (extensionUpper == ".MKV" || extensionUpper == ".MK3D")
+      {
+        MatroskaInfoReader mkvReader = new MatroskaInfoReader(localFsResourcePath);
+        // Add keys to be extracted to tags dictionary, matching results will returned as value
+        Dictionary<string, IList<string>> tagsToExtract = new Dictionary<string, IList<string>>
+            {
+              {TAG_SERIES_TITLE, null}, // Series title
+              {TAG_SERIES_GENRE, null}, // Series genre(s)
+              {TAG_SERIES_ACTORS, null}, // Series actor(s)
+              {TAG_SEASON_NUMBER, null}, // Season number
+              {TAG_SEASON_YEAR, null}, // Season year
+              {TAG_SEASON_TITLE, null}, // Season title
+              {TAG_EPISODE_TITLE, null}, // Episode title
+              {TAG_EPISODE_SUMMARY, null}, // Episode summary
+              {TAG_EPISODE_YEAR, null}, // Episode year
+              {TAG_EPISODE_NUMBER, null}, // Episode number
+              {TAG_ACTORS, null}, // Actor(s)
+              {TAG_SIMPLE_TITLE, null} // File title
+            };
+        mkvReader.ReadTags(tagsToExtract);
+
+        string title = string.Empty;
+        if (tagsToExtract[TAG_SIMPLE_TITLE] != null)
+          title = tagsToExtract[TAG_SIMPLE_TITLE].FirstOrDefault();
+
+        // Series and episode handling. Prefer information from tags.
+        seriesInfo = GetSeriesFromTags(tagsToExtract);
+        if (seriesInfo.IsCompleteMatch)
+          seriesInfo.SetMetadata(extractedAspectData);
+
+        if (!string.IsNullOrEmpty(title))
+          MediaItemAspect.SetAttribute(extractedAspectData, MediaAspect.ASPECT_ID, MediaAspect.Metadata, MediaAspect.ATTR_TITLE, title);
+
+        string yearCandidate = null;
+        if (tagsToExtract[TAG_EPISODE_YEAR] != null)
+          yearCandidate = tagsToExtract[TAG_EPISODE_YEAR].FirstOrDefault().Substring(0, 4);
+        else
+          if (tagsToExtract[TAG_SEASON_YEAR] != null)
+            yearCandidate = tagsToExtract[TAG_SEASON_YEAR].FirstOrDefault().Substring(0, 4);
+
+        int year;
+        if (int.TryParse(yearCandidate, out year))
+          MediaItemAspect.SetAttribute(extractedAspectData, MediaAspect.ASPECT_ID, MediaAspect.Metadata, MediaAspect.ATTR_RECORDINGTIME, new DateTime(year, 1, 1));
+
+        if (tagsToExtract[TAG_SERIES_GENRE] != null)
+          MediaItemAspect.SetCollectionAttribute(extractedAspectData, VideoAspect.ASPECT_ID, VideoAspect.Metadata, VideoAspect.ATTR_GENRES, tagsToExtract[TAG_SERIES_GENRE]);
+
+        IEnumerable<string> actors;
+        // Combine series actors and episode actors if both are available
+        if (tagsToExtract[TAG_SERIES_ACTORS] != null && tagsToExtract[TAG_ACTORS] != null)
+          actors = tagsToExtract[TAG_SERIES_ACTORS].Union(tagsToExtract[TAG_ACTORS]);
+        else
+          actors = tagsToExtract[TAG_SERIES_ACTORS] ?? tagsToExtract[TAG_ACTORS];
+
+        if (actors != null)
+          MediaItemAspect.SetCollectionAttribute(extractedAspectData, VideoAspect.ASPECT_ID, VideoAspect.Metadata, VideoAspect.ATTR_ACTORS, actors);
+
+        if (tagsToExtract[TAG_EPISODE_SUMMARY] != null)
+          MediaItemAspect.SetAttribute(extractedAspectData, VideoAspect.ASPECT_ID, VideoAspect.Metadata, VideoAspect.ATTR_STORYPLOT, tagsToExtract[TAG_EPISODE_SUMMARY].FirstOrDefault());
+      }
+
+      if (seriesInfo == null || !seriesInfo.IsCompleteMatch)
+      {
+        // Try to match series from folder and file namings
+        SeriesMatcher seriesMatcher = new SeriesMatcher();
+        if (seriesMatcher.MatchSeries(localFsResourcePath, out seriesInfo) && seriesInfo.IsCompleteMatch)
+          seriesInfo.SetMetadata(extractedAspectData);
+      }
+    }
+
+    protected void ExtractThumbnailData(string localFsResourcePath, IDictionary<Guid, MediaItemAspect> extractedAspectData, bool forceQuickMode)
+    {
+      // In quick mode only allow thumbs taken from cache.
+      bool cachedOnly = forceQuickMode;
+
+      // Thumbnail extraction
+      IThumbnailGenerator generator = ServiceRegistration.Get<IThumbnailGenerator>();
+      byte[] thumbData;
+      ImageType imageType;
+      if (generator.GetThumbnail(localFsResourcePath, 96, 96, cachedOnly, out thumbData, out imageType))
+        MediaItemAspect.SetAttribute(extractedAspectData, ThumbnailSmallAspect.ASPECT_ID, ThumbnailSmallAspect.Metadata, ThumbnailSmallAspect.ATTR_THUMBNAIL, thumbData);
+      if (generator.GetThumbnail(localFsResourcePath, 256, 256, cachedOnly, out thumbData, out imageType))
+        MediaItemAspect.SetAttribute(extractedAspectData, ThumbnailLargeAspect.ASPECT_ID, ThumbnailLargeAspect.Metadata, ThumbnailLargeAspect.ATTR_THUMBNAIL, thumbData);
+    }
+
+    #endregion
+
+    #region IMetadataExtractor implementation
+
+    public MetadataExtractorMetadata Metadata
+    {
+      get { return _metadata; }
     }
 
     public bool TryExtractMetadata(IResourceAccessor mediaItemAccessor, IDictionary<Guid, MediaItemAspect> extractedAspectData, bool forceQuickMode)
@@ -437,16 +445,30 @@ namespace MediaPortal.Extensions.MetadataExtractors.VideoMetadataExtractor
         }
         if (result != null)
         {
-          IResourceAccessor ra = mediaItemAccessor.Clone();
-          try
+          result.UpdateMetadata(extractedAspectData);
+          if (forceQuickMode)
           {
-            using (ILocalFsResourceAccessor lfsra = StreamedResourceToLocalFsAccessBridge.GetLocalFsResourceAccessor(ra))
-              result.UpdateMetadata(extractedAspectData, lfsra.LocalFileSystemPath, forceQuickMode);
+            ILocalFsResourceAccessor lfsra = mediaItemAccessor as ILocalFsResourceAccessor;
+            if (lfsra != null)
+              ExtractThumbnailData(lfsra.LocalFileSystemPath, extractedAspectData, true);
           }
-          catch
+          else
           {
-            ra.Dispose();
-            throw;
+            IResourceAccessor ra = mediaItemAccessor.Clone();
+            try
+            {
+              using (ILocalFsResourceAccessor lfsra = StreamedResourceToLocalFsAccessBridge.GetLocalFsResourceAccessor(ra))
+              {
+                string localFsPath = lfsra.LocalFileSystemPath;
+                ExtractSeriesData(localFsPath, extractedAspectData);
+                ExtractThumbnailData(localFsPath, extractedAspectData, false);
+              }
+            }
+            catch
+            {
+              ra.Dispose();
+              throw;
+            }
           }
           return true;
         }
