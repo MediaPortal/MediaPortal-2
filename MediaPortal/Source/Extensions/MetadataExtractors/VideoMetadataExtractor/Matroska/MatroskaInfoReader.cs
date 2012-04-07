@@ -66,7 +66,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.VideoMetadataExtractor.Matro
     /// <summary>
     /// Gets a list of attachments, is created after <see cref="ReadAttachments"/> was called once.
     /// </summary>
-    public List<MatroskaAttachment> Attachments
+    public IList<MatroskaAttachment> Attachments
     {
       get { return _attachments; }
     }
@@ -78,7 +78,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.VideoMetadataExtractor.Matro
     /// <summary>
     /// Constructs a new <see cref="MatroskaInfoReader"/>.
     /// </summary>
-    /// <param name="fileName">MKV file to extract information from</param>
+    /// <param name="fileName">MKV file to extract information from.</param>
     public MatroskaInfoReader(string fileName)
     {
       _fileName = fileName;
@@ -92,8 +92,8 @@ namespace MediaPortal.Extensions.MetadataExtractors.VideoMetadataExtractor.Matro
     /// <summary>
     /// Reads all tags from matroska file and parses the XML for the requested tags (<paramref name="tagsToExtract"/>).
     /// </summary>
-    /// <param name="tagsToExtract">Dictionary with tag names as keys</param>
-    public void ReadTags(Dictionary<string, IList<string>> tagsToExtract)
+    /// <param name="tagsToExtract">Dictionary with tag names as keys.</param>
+    public void ReadTags(IDictionary<string, IList<string>> tagsToExtract)
     {
       String output;
       if (TryExecuteReadString(@"mkvextract.exe", string.Format("tags \"{0}\"", _fileName), out output) && !string.IsNullOrEmpty(output))
