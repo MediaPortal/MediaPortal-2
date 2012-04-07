@@ -37,19 +37,19 @@ namespace MediaPortal.Common.MediaManagement.DefaultItemAspects
     public static readonly Guid ASPECT_ID = new Guid("9BA3C559-41F7-4a5f-917C-E3EF65516D14");
 
     /// <summary>
-    /// Enumeration of artist name strings.
+    /// Enumeration of artist names.
     /// </summary>
     public static readonly MediaItemAspectMetadata.AttributeSpecification ATTR_ARTISTS =
         MediaItemAspectMetadata.CreateStringAttributeSpecification("Artists", 100, Cardinality.ManyToMany, true);
 
     /// <summary>
-    /// Album string.
+    /// Album name.
     /// </summary>
     public static readonly MediaItemAspectMetadata.AttributeSpecification ATTR_ALBUM =
         MediaItemAspectMetadata.CreateStringAttributeSpecification("Album", 100, Cardinality.Inline, true);
 
     /// <summary>
-    /// Enumeration of genre strings.
+    /// Enumeration of genre names.
     /// </summary>
     public static readonly MediaItemAspectMetadata.AttributeSpecification ATTR_GENRES =
         MediaItemAspectMetadata.CreateStringAttributeSpecification("Genres", 100, Cardinality.ManyToMany, true);
