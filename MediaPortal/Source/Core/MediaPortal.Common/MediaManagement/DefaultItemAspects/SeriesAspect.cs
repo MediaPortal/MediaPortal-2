@@ -34,37 +34,38 @@ namespace MediaPortal.Common.MediaManagement.DefaultItemAspects
     /// <summary>
     /// Media item aspect id of the series aspect.
     /// </summary>
-    public static readonly Guid ASPECT_ID = new Guid("F2ADB6BA-C536-42B3-8F3C-817DA5C04D71");
+    public static readonly Guid ASPECT_ID = new Guid("82AB8F33-D085-41E3-A193-7DB7CAC9D193");
 
     /// <summary>
     /// Series name.
     /// </summary>
     public static readonly MediaItemAspectMetadata.AttributeSpecification ATTR_SERIESNAME =
-        MediaItemAspectMetadata.CreateStringAttributeSpecification("SeriesName", 50, Cardinality.Inline, false);
+        MediaItemAspectMetadata.CreateStringAttributeSpecification("SeriesName", 200, Cardinality.Inline, false);
 
     /// <summary>
-    /// Contains the season number.
+    /// Contains the number of the season, starting at 1.
     /// </summary>
-    public static readonly MediaItemAspectMetadata.AttributeSpecification ATTR_SEASONNUMBER =
-        MediaItemAspectMetadata.CreateAttributeSpecification("SeasonNumber", typeof(int), Cardinality.Inline, false);
+    public static readonly MediaItemAspectMetadata.AttributeSpecification ATTR_SEASON =
+        MediaItemAspectMetadata.CreateAttributeSpecification("Season", typeof(int), Cardinality.Inline, false);
 
     /// <summary>
-    /// Contains the episode number(s). If a file contains multiple episodes, all episode numbers are added separately.
+    /// Contains the number(s) of the episode(s). If a file contains multiple episodes, all episode numbers are added separately.
+    /// The numbers start at 1.
     /// </summary>
-    public static readonly MediaItemAspectMetadata.AttributeSpecification ATTR_EPISODENUMBER =
-        MediaItemAspectMetadata.CreateAttributeSpecification("EpisodeNumber", typeof(int), Cardinality.ManyToMany, false);
+    public static readonly MediaItemAspectMetadata.AttributeSpecification ATTR_EPISODE =
+        MediaItemAspectMetadata.CreateAttributeSpecification("Episode", typeof(int), Cardinality.ManyToMany, false);
 
     /// <summary>
-    /// Episode name. We store only the first episode name (or combined name) if the file contains multiple episodes.
+    /// Name of the episode. We only store the first episode name (or combined name) if the file contains multiple episodes.
     /// </summary>
     public static readonly MediaItemAspectMetadata.AttributeSpecification ATTR_EPISODENAME =
-        MediaItemAspectMetadata.CreateStringAttributeSpecification("EpisodeName", 100, Cardinality.Inline, false);
+        MediaItemAspectMetadata.CreateStringAttributeSpecification("EpisodeName", 300, Cardinality.Inline, false);
 
     public static readonly MediaItemAspectMetadata Metadata = new MediaItemAspectMetadata(
         ASPECT_ID, "SeriesItem", new[] {
             ATTR_SERIESNAME,
-            ATTR_SEASONNUMBER,
-            ATTR_EPISODENUMBER,
+            ATTR_SEASON,
+            ATTR_EPISODE,
             ATTR_EPISODENAME,
         });
   }

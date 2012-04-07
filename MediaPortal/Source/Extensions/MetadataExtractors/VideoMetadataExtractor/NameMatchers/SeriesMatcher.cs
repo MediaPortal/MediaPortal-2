@@ -36,12 +36,12 @@ namespace MediaPortal.Extensions.MetadataExtractors.VideoMetadataExtractor.NameM
     private const string GROUP_EPISODE = "episode";
 
     protected List<Regex> _matchers = new List<Regex>
-                               {
-                                 // Episode scanner recommendations for recordings
-                                 new Regex(@"(?<series>[^\\]+) - \((?<episode>.*)\) S(?<seasonnum>[0-9]+?)E(?<episodenum>[0-9]+?)", RegexOptions.IgnoreCase),
-                                 new Regex(@"(?<series>[^\\]+)\W(?<seasonnum>\d+)x((?<episodenum>\d+)_?)+ - (?<episode>.*)\.", RegexOptions.IgnoreCase),
-                                 new Regex(@"(?<series>[^\\]+)\WS(?<seasonnum>\d+)E((?<episodenum>\d+)_?)+ - (?<episode>.*)\.", RegexOptions.IgnoreCase),
-                               };
+        {
+          // Episode scanner recommendations for recordings
+          new Regex(@"(?<series>[^\\]+) - \((?<episode>.*)\) S(?<seasonnum>[0-9]+?)E(?<episodenum>[0-9]+?)", RegexOptions.IgnoreCase),
+          new Regex(@"(?<series>[^\\]+)\W(?<seasonnum>\d+)x((?<episodenum>\d+)_?)+ - (?<episode>.*)\.", RegexOptions.IgnoreCase),
+          new Regex(@"(?<series>[^\\]+)\WS(?<seasonnum>\d+)E((?<episodenum>\d+)_?)+ - (?<episode>.*)\.", RegexOptions.IgnoreCase),
+        };
 
     public bool MatchSeries(string folderOrFileName, out SeriesInfo seriesInfo)
     {

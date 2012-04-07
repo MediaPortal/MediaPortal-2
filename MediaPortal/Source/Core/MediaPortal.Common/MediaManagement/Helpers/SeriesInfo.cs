@@ -26,41 +26,47 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
+using MediaPortal.Utilities;
 
 namespace MediaPortal.Common.MediaManagement.Helpers
 {
   /// <summary>
-  /// <see cref="SeriesInfo"/> contains structured information about series. If all required fields are filled, the <see cref="IsCompleteMatch"/> 
-  /// returns true. The <see cref="ToString"/> method returns a well formatted series title if  <see cref="IsCompleteMatch"/> is true.
+  /// <see cref="SeriesInfo"/> contains metadata information about a series episode item.
   /// </summary>
+  /// <remarks>
+  /// If all required fields are filled, the <see cref="IsCompleteMatch"/> 
+  /// returns <c>true</c>. The <see cref="ToString"/> method returns a well formatted series title if <see cref="IsCompleteMatch"/> is <c>true</c>.
+  /// </remarks>
   public class SeriesInfo
   {
+    public static string EPISODE_FORMAT_STR = "{0} S{1}E{2} - {3}";
+
     /// <summary>
-    /// Indicates if all required fields are filled.
+    /// Indicates that all required fields are filled.
     /// </summary>
     public bool IsCompleteMatch
     {
-      get
-      {
-        return !(string.IsNullOrEmpty(Series) || string.IsNullOrEmpty(Episode) || SeasonNumber == 0 || EpisodeNumbers.Count == 0);
-      }
+      get { return !(string.IsNullOrEmpty(Series) || string.IsNullOrEmpty(Episode) || SeasonNumber == 0 || EpisodeNumbers.Count == 0); }
     }
     /// <summary>
     /// Gets or sets the series title.
     /// </summary>
     public string Series { get; set; }
+
     /// <summary>
     /// Gets or sets the episode title.
     /// </summary>
     public string Episode { get; set; }
+
     /// <summary>
     /// Gets or sets the season number.
     /// </summary>
     public int SeasonNumber;
+
     /// <summary>
-    /// Gets an list of episode numbers.
+    /// Gets a list of episode numbers.
     /// </summary>
-    public List<int> EpisodeNumbers { get; internal set; }
+    public IList<int> EpisodeNumbers { get; internal set; }
 
     #region Constructor 
 
@@ -76,16 +82,16 @@ namespace MediaPortal.Common.MediaManagement.Helpers
     /// <summary>
     /// Copies the contained series information into MediaItemAspect.
     /// </summary>
-    /// <param name="extractedAspectData">Dictionary with extracted aspects.</param>
-    public bool SetMetadata(IDictionary<Guid, MediaItemAspect> extractedAspectData)
+    /// <param name="aspectData">Dictionary with extracted aspects.</param>
+    public bool SetMetadata(IDictionary<Guid, MediaItemAspect> aspectData)
     {
       if (!IsCompleteMatch)
         return false;
 
-      MediaItemAspect.SetAttribute(extractedAspectData, SeriesAspect.ASPECT_ID, SeriesAspect.Metadata, SeriesAspect.ATTR_SERIESNAME, Series);
-      MediaItemAspect.SetAttribute(extractedAspectData, SeriesAspect.ASPECT_ID, SeriesAspect.Metadata, SeriesAspect.ATTR_EPISODENAME, Episode);
-      MediaItemAspect.SetAttribute(extractedAspectData, SeriesAspect.ASPECT_ID, SeriesAspect.Metadata, SeriesAspect.ATTR_SEASONNUMBER, SeasonNumber);
-      MediaItemAspect.SetCollectionAttribute(extractedAspectData, SeriesAspect.ASPECT_ID, SeriesAspect.Metadata, SeriesAspect.ATTR_EPISODENUMBER, EpisodeNumbers);
+      MediaItemAspect.SetAttribute(aspectData, SeriesAspect.ASPECT_ID, SeriesAspect.Metadata, SeriesAspect.ATTR_SERIESNAME, Series);
+      MediaItemAspect.SetAttribute(aspectData, SeriesAspect.ASPECT_ID, SeriesAspect.Metadata, SeriesAspect.ATTR_EPISODENAME, Episode);
+      MediaItemAspect.SetAttribute(aspectData, SeriesAspect.ASPECT_ID, SeriesAspect.Metadata, SeriesAspect.ATTR_SEASON, SeasonNumber);
+      MediaItemAspect.SetCollectionAttribute(aspectData, SeriesAspect.ASPECT_ID, SeriesAspect.Metadata, SeriesAspect.ATTR_EPISODE, EpisodeNumbers);
       return true;
     }
 
@@ -97,10 +103,10 @@ namespace MediaPortal.Common.MediaManagement.Helpers
     {
       if (IsCompleteMatch)
       {
-        return string.Format("{0} S{1}E{2} - {3}",
+        return string.Format(EPISODE_FORMAT_STR,
           Series,
           SeasonNumber.ToString().PadLeft(2, '0'),
-          string.Join(",", EpisodeNumbers.Select(episodeNumber => episodeNumber.ToString().PadLeft(2, '0')).ToArray()),
+          StringUtils.Join(", ", EpisodeNumbers.Select(episodeNumber => episodeNumber.ToString().PadLeft(2, '0'))),
           Episode);
       }
       return "SeriesInfo: No complete match";

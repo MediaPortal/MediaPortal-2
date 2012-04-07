@@ -39,9 +39,9 @@ namespace MediaPortal.UiComponents.Media.Models.Navigation
       {
         Series = (string) seriesAspect[SeriesAspect.ATTR_SERIESNAME] ?? string.Empty;
         EpisodeName = (string) seriesAspect[SeriesAspect.ATTR_EPISODENAME] ?? string.Empty;
-        Season = (seriesAspect[SeriesAspect.ATTR_SEASONNUMBER] ?? 0).ToString();
-        if (seriesAspect[SeriesAspect.ATTR_EPISODENUMBER] != null)
-          EpisodeNumber = string.Join(", ", (from num in (IList<int>) seriesAspect[SeriesAspect.ATTR_EPISODENUMBER] select num.ToString()).ToArray());
+        Season = (seriesAspect[SeriesAspect.ATTR_SEASON] ?? 0).ToString();
+        if (seriesAspect[SeriesAspect.ATTR_EPISODE] != null)
+          EpisodeNumber = string.Join(", ", (from num in (IList<int>) seriesAspect[SeriesAspect.ATTR_EPISODE] select num.ToString()).ToArray());
 
         SimpleTitle = string.Format("S{0} E{1} - {2}", Season.PadLeft(2, '0'), EpisodeNumber.PadLeft(2, '0'), EpisodeName);
       }

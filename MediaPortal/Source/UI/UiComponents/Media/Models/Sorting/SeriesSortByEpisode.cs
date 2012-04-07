@@ -43,14 +43,14 @@ namespace MediaPortal.UiComponents.Media.Models.Sorting
       MediaItemAspect seriesAspectY;
       if (item1.Aspects.TryGetValue(SeriesAspect.ASPECT_ID, out seriesAspectX) && item2.Aspects.TryGetValue(SeriesAspect.ASPECT_ID, out seriesAspectY))
       {
-        int seasonX = (int) (seriesAspectX.GetAttributeValue(SeriesAspect.ATTR_SEASONNUMBER) ?? 0);
-        int seasonY = (int) (seriesAspectY.GetAttributeValue(SeriesAspect.ATTR_SEASONNUMBER) ?? 0);
+        int seasonX = (int) (seriesAspectX.GetAttributeValue(SeriesAspect.ATTR_SEASON) ?? 0);
+        int seasonY = (int) (seriesAspectY.GetAttributeValue(SeriesAspect.ATTR_SEASON) ?? 0);
         int seasonRes = seasonX.CompareTo(seasonY);
         if (seasonRes != 0)
           return seasonRes;
 
-        IEnumerable<int> episodesX = seriesAspectX.GetCollectionAttribute<int>(SeriesAspect.ATTR_EPISODENUMBER);
-        IEnumerable<int> episodesY = seriesAspectY.GetCollectionAttribute<int>(SeriesAspect.ATTR_EPISODENUMBER);
+        IEnumerable<int> episodesX = seriesAspectX.GetCollectionAttribute<int>(SeriesAspect.ATTR_EPISODE);
+        IEnumerable<int> episodesY = seriesAspectY.GetCollectionAttribute<int>(SeriesAspect.ATTR_EPISODE);
         
         int episodeX = 0;
         int episodeY = 0;
