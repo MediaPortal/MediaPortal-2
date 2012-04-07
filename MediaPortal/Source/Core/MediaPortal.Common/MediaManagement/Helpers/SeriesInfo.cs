@@ -88,10 +88,10 @@ namespace MediaPortal.Common.MediaManagement.Helpers
       if (!IsCompleteMatch)
         return false;
 
-      MediaItemAspect.SetAttribute(aspectData, SeriesAspect.ASPECT_ID, SeriesAspect.Metadata, SeriesAspect.ATTR_SERIESNAME, Series);
-      MediaItemAspect.SetAttribute(aspectData, SeriesAspect.ASPECT_ID, SeriesAspect.Metadata, SeriesAspect.ATTR_EPISODENAME, Episode);
-      MediaItemAspect.SetAttribute(aspectData, SeriesAspect.ASPECT_ID, SeriesAspect.Metadata, SeriesAspect.ATTR_SEASON, SeasonNumber);
-      MediaItemAspect.SetCollectionAttribute(aspectData, SeriesAspect.ASPECT_ID, SeriesAspect.Metadata, SeriesAspect.ATTR_EPISODE, EpisodeNumbers);
+      MediaItemAspect.SetAttribute(aspectData, SeriesAspect.ATTR_SERIESNAME, Series);
+      MediaItemAspect.SetAttribute(aspectData, SeriesAspect.ATTR_EPISODENAME, Episode);
+      MediaItemAspect.SetAttribute(aspectData, SeriesAspect.ATTR_SEASON, SeasonNumber);
+      MediaItemAspect.SetCollectionAttribute(aspectData, SeriesAspect.ATTR_EPISODE, EpisodeNumbers);
       return true;
     }
 

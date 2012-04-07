@@ -409,11 +409,11 @@ namespace MediaPortal.Plugins.SlimTv.Providers
         IDictionary<Guid, MediaItemAspect> aspects = new Dictionary<Guid, MediaItemAspect>();
 
         SlimTvResourceAccessor resourceAccessor = new SlimTvResourceAccessor(slotIndex, streamUrl);
-        MediaItemAspect providerResourceAspect = MediaItemAspect.GetOrCreateAspect(aspects, ProviderResourceAspect.ASPECT_ID, ProviderResourceAspect.Metadata);
-        MediaItemAspect mediaAspect = MediaItemAspect.GetOrCreateAspect(aspects, MediaAspect.ASPECT_ID, MediaAspect.Metadata);
+        MediaItemAspect providerResourceAspect = MediaItemAspect.GetOrCreateAspect(aspects, ProviderResourceAspect.Metadata);
+        MediaItemAspect mediaAspect = MediaItemAspect.GetOrCreateAspect(aspects, MediaAspect.Metadata);
         
         // VideoAspect needs to be included to associate player later, even if it is empty
-        MediaItemAspect.GetOrCreateAspect(aspects, VideoAspect.ASPECT_ID, VideoAspect.Metadata);
+        MediaItemAspect.GetOrCreateAspect(aspects, VideoAspect.Metadata);
 
         providerResourceAspect.SetAttribute(ProviderResourceAspect.ATTR_SYSTEM_ID, systemResolver.LocalSystemId);
 

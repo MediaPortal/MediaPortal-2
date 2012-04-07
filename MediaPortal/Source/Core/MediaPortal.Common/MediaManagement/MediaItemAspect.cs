@@ -411,15 +411,16 @@ namespace MediaPortal.Common.MediaManagement
     }
 
     /// <summary>
-    /// Gets a MediaItemAspect from the given <paramref name="aspects"/> dictionary or creates a new instance which is then added to the dictionary.
+    /// Convenience method to get a <see cref="MediaItemAspect"/> from the given <paramref name="aspects"/> dictionary or add a new instance to the
+    /// dictionary and return it.
     /// </summary>
-    /// <param name="aspects">Dictionary of MediaItemAspects</param>
-    /// <param name="aspectId">ASPECT_ID of requested MediaItemAspect</param>
-    /// <param name="mediaItemAspectMetadata">Definiton of metadata that is used for creation</param>
-    /// <returns>MediaItemAspect</returns>
-    public static MediaItemAspect GetOrCreateAspect(IDictionary<Guid, MediaItemAspect> aspects, Guid aspectId, MediaItemAspectMetadata mediaItemAspectMetadata)
+    /// <param name="aspects">Dictionary of MediaItemAspects.</param>
+    /// <param name="mediaItemAspectMetadata">Definiton of metadata that is used for creation.</param>
+    /// <returns>Existing or new <see cref="MediaItemAspect"/> instance.</returns>
+    public static MediaItemAspect GetOrCreateAspect(IDictionary<Guid, MediaItemAspect> aspects, MediaItemAspectMetadata mediaItemAspectMetadata)
     {
       MediaItemAspect mediaAspect;
+      Guid aspectId = mediaItemAspectMetadata.AspectId;
       if (!aspects.TryGetValue(aspectId, out mediaAspect))
         aspects[aspectId] = mediaAspect = new MediaItemAspect(mediaItemAspectMetadata);
       return mediaAspect;
@@ -427,35 +428,35 @@ namespace MediaPortal.Common.MediaManagement
 
 
     /// <summary>
-    /// Sets a MetaData attribute for a MetadataAspect. This helper method only creates the MetadataAspect when it is needed to store values.
-    /// This way no "empty" aspects will be written to MediaLibrary.
-    /// If the MetadataAspect gets accessed the first time it will be added to the <paramref name="extractedAspectData"/>.
+    /// Convenience method to set a simple attribute in a dictionary of media item aspects. If the given <paramref name="aspectData"/>
+    /// dictionary contains the media item aspect of the requested aspect type, that aspect instance is used to store the
+    /// attribute corresponding to the given <paramref name="attributeSpecification"/>. If the corresponding aspect instance is not
+    /// present in the dictionary yet, it is created and added to the dictionary before setting the value.
     /// </summary>
-    /// <typeparam name="TE">Type parameter</typeparam>
-    /// <param name="extractedAspectData">Parameter of <see cref="IMetadataExtractor.TryExtractMetadata"/></param>
-    /// <param name="aspectId">ID of MediaItemAspect</param>
-    /// <param name="mediaItemAspectMetadata">MediaItemAspectMetadata</param>
-    /// <param name="attributeSpecification">The attribute to be set</param>
-    /// <param name="value">Value to be set</param>
-    public static void SetAttribute<TE>(IDictionary<Guid, MediaItemAspect> extractedAspectData, Guid aspectId, MediaItemAspectMetadata mediaItemAspectMetadata, MediaItemAspectMetadata.AttributeSpecification attributeSpecification, TE value)
+    /// <typeparam name="TE">Type parameter.</typeparam>
+    /// <param name="aspectData">Dictionary of aspect data to be written to.</param>
+    /// <param name="attributeSpecification">Type of the attribute to write.</param>
+    /// <param name="value">Value to be set.</param>
+    public static void SetAttribute<TE>(IDictionary<Guid, MediaItemAspect> aspectData,
+        MediaItemAspectMetadata.AttributeSpecification attributeSpecification, TE value)
     {
-      MediaItemAspect aspect = GetOrCreateAspect(extractedAspectData, aspectId, mediaItemAspectMetadata);
+      MediaItemAspect aspect = GetOrCreateAspect(aspectData, attributeSpecification.ParentMIAM);
       aspect.SetAttribute(attributeSpecification, value);
     }
 
     /// <summary>
-    /// Sets a MetaData collection attribute for a MetadataAspect. This helper method only creates the MetadataAspect when it is needed to store values.
-    /// This way no "empty" aspects will be written to MediaLibrary.
-    /// If the MetadataAspect gets accessed the first time it will be added to the <paramref name="extractedAspectData"/>.
+    /// Convenience method to set a collection attribute in a dictionary of media item aspects. If the given <paramref name="aspectData"/>
+    /// dictionary contains the media item aspect of the requested aspect type, that aspect instance is used to store the
+    /// attribute corresponding to the given <paramref name="attributeSpecification"/>. If the corresponding aspect instance is not
+    /// present in the dictionary yet, it is created and added to the dictionary before setting the value.
     /// </summary>
-    /// <param name="extractedAspectData">Parameter of <see cref="IMetadataExtractor.TryExtractMetadata"/></param>
-    /// <param name="aspectId">ID of MediaItemAspect</param>
-    /// <param name="mediaItemAspectMetadata">MediaItemAspectMetadata</param>
-    /// <param name="attributeSpecification">The attribute to be set</param>
-    /// <param name="value">Value to be set</param>
-    public static void SetCollectionAttribute(IDictionary<Guid, MediaItemAspect> extractedAspectData, Guid aspectId, MediaItemAspectMetadata mediaItemAspectMetadata, MediaItemAspectMetadata.AttributeSpecification attributeSpecification, IEnumerable value)
+    /// <param name="aspectData">Dictionary of aspect data to be written to.</param>
+    /// <param name="attributeSpecification">Type of the attribute to write.</param>
+    /// <param name="value">Value to be set.</param>
+    public static void SetCollectionAttribute(IDictionary<Guid, MediaItemAspect> aspectData,
+        MediaItemAspectMetadata.AttributeSpecification attributeSpecification, IEnumerable value)
     {
-      MediaItemAspect aspect = GetOrCreateAspect(extractedAspectData, aspectId, mediaItemAspectMetadata);
+      MediaItemAspect aspect = GetOrCreateAspect(aspectData, attributeSpecification.ParentMIAM);
       aspect.SetCollectionAttribute(attributeSpecification, value);
     }
 

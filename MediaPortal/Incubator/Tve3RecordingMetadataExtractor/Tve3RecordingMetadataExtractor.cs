@@ -138,9 +138,9 @@ namespace MediaPortal.Extensions.MetadataExtractors
         if (!filePath.EndsWith(".ts") || !File.Exists(metaFile))
           return false;
 
-        MediaItemAspect mediaAspect = MediaItemAspect.GetOrCreateAspect(extractedAspectData, MediaAspect.ASPECT_ID, MediaAspect.Metadata);
-        MediaItemAspect videoAspect = MediaItemAspect.GetOrCreateAspect(extractedAspectData, VideoAspect.ASPECT_ID, VideoAspect.Metadata);
-        MediaItemAspect recordingAspect = MediaItemAspect.GetOrCreateAspect(extractedAspectData, RecordingAspect.ASPECT_ID, RecordingAspect.Metadata);
+        MediaItemAspect mediaAspect = MediaItemAspect.GetOrCreateAspect(extractedAspectData, MediaAspect.Metadata);
+        MediaItemAspect videoAspect = MediaItemAspect.GetOrCreateAspect(extractedAspectData, VideoAspect.Metadata);
+        MediaItemAspect recordingAspect = MediaItemAspect.GetOrCreateAspect(extractedAspectData, RecordingAspect.Metadata);
 
         Tags tags;
         XmlSerializer serializer = new XmlSerializer(typeof(Tags));

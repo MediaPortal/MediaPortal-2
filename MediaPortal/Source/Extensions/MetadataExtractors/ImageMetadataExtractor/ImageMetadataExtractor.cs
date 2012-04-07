@@ -127,10 +127,10 @@ namespace MediaPortal.Extensions.MetadataExtractors.ImageMetadataExtractor
       if (!HasImageExtension(fileName))
         return false;
 
-      MediaItemAspect mediaAspect = MediaItemAspect.GetOrCreateAspect(extractedAspectData, MediaAspect.ASPECT_ID, MediaAspect.Metadata);
-      MediaItemAspect imageAspect = MediaItemAspect.GetOrCreateAspect(extractedAspectData, ImageAspect.ASPECT_ID, ImageAspect.Metadata);
-      MediaItemAspect thumbnailSmallAspect = MediaItemAspect.GetOrCreateAspect(extractedAspectData, ThumbnailSmallAspect.ASPECT_ID, ThumbnailSmallAspect.Metadata);
-      MediaItemAspect thumbnailLargeAspect = MediaItemAspect.GetOrCreateAspect(extractedAspectData, ThumbnailLargeAspect.ASPECT_ID, ThumbnailLargeAspect.Metadata);
+      MediaItemAspect mediaAspect = MediaItemAspect.GetOrCreateAspect(extractedAspectData, MediaAspect.Metadata);
+      MediaItemAspect imageAspect = MediaItemAspect.GetOrCreateAspect(extractedAspectData, ImageAspect.Metadata);
+      MediaItemAspect thumbnailSmallAspect = MediaItemAspect.GetOrCreateAspect(extractedAspectData, ThumbnailSmallAspect.Metadata);
+      MediaItemAspect thumbnailLargeAspect = MediaItemAspect.GetOrCreateAspect(extractedAspectData, ThumbnailLargeAspect.Metadata);
 
       try
       {

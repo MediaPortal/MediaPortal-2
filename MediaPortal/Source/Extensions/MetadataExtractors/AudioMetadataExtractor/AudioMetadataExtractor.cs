@@ -322,10 +322,10 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
       if (!HasAudioExtension(fileName))
         return false;
 
-      MediaItemAspect mediaAspect = MediaItemAspect.GetOrCreateAspect(extractedAspectData, MediaAspect.ASPECT_ID, MediaAspect.Metadata);
-      MediaItemAspect audioAspect = MediaItemAspect.GetOrCreateAspect(extractedAspectData, AudioAspect.ASPECT_ID, AudioAspect.Metadata);
-      MediaItemAspect thumbnailSmallAspect = MediaItemAspect.GetOrCreateAspect(extractedAspectData, ThumbnailSmallAspect.ASPECT_ID, ThumbnailSmallAspect.Metadata);
-      MediaItemAspect thumbnailLargeAspect = MediaItemAspect.GetOrCreateAspect(extractedAspectData, ThumbnailLargeAspect.ASPECT_ID, ThumbnailLargeAspect.Metadata);
+      MediaItemAspect mediaAspect = MediaItemAspect.GetOrCreateAspect(extractedAspectData, MediaAspect.Metadata);
+      MediaItemAspect audioAspect = MediaItemAspect.GetOrCreateAspect(extractedAspectData, AudioAspect.Metadata);
+      MediaItemAspect thumbnailSmallAspect = MediaItemAspect.GetOrCreateAspect(extractedAspectData, ThumbnailSmallAspect.Metadata);
+      MediaItemAspect thumbnailLargeAspect = MediaItemAspect.GetOrCreateAspect(extractedAspectData, ThumbnailLargeAspect.Metadata);
       
       try
       {
