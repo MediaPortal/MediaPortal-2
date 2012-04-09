@@ -34,12 +34,39 @@ namespace MediaPortal.UI.Presentation.Screens
 
   public interface IScreenControl
   {
+    /// <summary>
+    /// Returns the information if the MediaPortal 2 internal screen saver is currently active.
+    /// </summary>
     bool IsScreenSaverActive { get; }
 
+    /// <summary>
+    /// Returns the information if the MediaPortal 2 internal screen saver is enabled.
+    /// </summary>
     bool IsScreenSaverEnabled { get; }
 
+    /// <summary>
+    /// Returns the timeout minutes which is bided after the last user input before the MediaPortal 2 internal screen saver becomes active.
+    /// </summary>
     double ScreenSaverTimeoutMin { get; }
 
+    /// <summary>
+    /// Returns the information whether the application is in fullscreen mode or in windowed mode.
+    /// </summary>
+    /// <value>
+    /// <c>true</c> if this instance is fullscreen mode; otherwise, <c>false</c>.
+    /// </value>
+    bool IsFullScreen { get; }
+
+    /// <summary>
+    /// Returns the window handle of the main window.
+    /// </summary>
+    IntPtr MainWindowHandle { get; }
+
+    /// <summary>
+    /// Enables or disables the MediaPortal 2 internal screen saver or sets its timeout.
+    /// </summary>
+    /// <param name="screenSaverEnabled">If set to <c>true</c>, the screen saver becomes active, else it becomes inactive.</param>
+    /// <param name="screenSaverTimeoutMin">Sets the timeout in minutes before the screen saver becomes active.</param>
     void ConfigureScreenSaver(bool screenSaverEnabled, double screenSaverTimeoutMin);
 
     /// <summary>
@@ -67,18 +94,5 @@ namespace MediaPortal.UI.Presentation.Screens
     /// </summary>
     /// <param name="mode">The requested mode.</param>
     void SwitchMode(ScreenMode mode);
-
-    /// <summary>
-    /// Returns the information whether the application is in fullscreen mode or in windowed mode.
-    /// </summary>
-    /// <value>
-    /// <c>true</c> if this instance is fullscreen mode; otherwise, <c>false</c>.
-    /// </value>
-    bool IsFullScreen { get; }
-
-    /// <summary>
-    /// Returns the window handle of the main window.
-    /// </summary>
-    IntPtr MainWindowHandle { get; }
   }
 }
