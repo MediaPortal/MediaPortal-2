@@ -154,11 +154,11 @@ namespace MediaPortal.UI.Presentation.Workflow
         if (_predecessor == null || !_workflowState.InheritMenu)
           return _menuActions;
         // Try to inherit menu actions from predecessor
-        IDictionary<Guid, WorkflowAction> result =
-            new Dictionary<Guid, WorkflowAction>(_predecessor.MenuActions);
-        if (result.Count == 0)
+        IDictionary<Guid, WorkflowAction> predecessorMenuActions = _predecessor.MenuActions;
+        if (predecessorMenuActions.Count == 0)
           // Nothing to inherit
           return _menuActions;
+        IDictionary<Guid, WorkflowAction> result = new Dictionary<Guid, WorkflowAction>(predecessorMenuActions);
         foreach (KeyValuePair<Guid, WorkflowAction> pair in _menuActions)
           // Don't use method CollectionUtils.AddAll for the copying process, because we can get duplicate keys here
           // (for example if an action is visible in both our predecessor and in this context). We simply use the action
