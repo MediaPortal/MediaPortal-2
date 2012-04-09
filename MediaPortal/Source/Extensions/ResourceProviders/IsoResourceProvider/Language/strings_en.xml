@@ -2,6 +2,6 @@
 <Language>
   <Section Name="IsoResourceProvider">
     <String Name="Name" Text="ISO file resource provider"/>
-    <String Name="Description" Text="Provides access to files and directories in ISO images"/>
+    <String Name="Description" Text="Access files and directories in ISO images"/>
   </Section>
 </Language>

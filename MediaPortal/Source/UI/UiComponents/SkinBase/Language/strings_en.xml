@@ -82,11 +82,11 @@
   </Section>
   <Section Name="LocalFsResourceProvider">
     <String Name="Name" Text="Local filesystem resource provider"/>
-    <String Name="Description" Text="Provides access to the local filesystem"/>
+    <String Name="Description" Text="Access the local filesystem"/>
   </Section>
   <Section Name="RemoteResourceProvider">
     <String Name="Name" Text="Remote resource provider"/>
-    <String Name="Description" Text="Provides access to resources which are located at another MediaPortal 2 system"/>
+    <String Name="Description" Text="Access resources located at another MediaPortal 2 system"/>
   </Section>
   <Section Name="ScreenSaver">
     <String Name="MediaPortal2" Text="MediaPortal 2"/>

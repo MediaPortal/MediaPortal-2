@@ -2,6 +2,6 @@
 <Language>
   <Section Name="ZipMediaProvider">
     <String Name="Name" Text="Zip file mediaprovider"/>
-    <String Name="Description" Text="Provides access to files and directories in ZIP files"/>
+    <String Name="Description" Text="Access files and directories in ZIP files"/>
   </Section>
 </Language>
