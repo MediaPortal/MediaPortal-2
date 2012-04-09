@@ -43,6 +43,7 @@ using MediaPortal.UI.SkinEngine.SkinManagement;
 
 using MediaPortal.UI.SkinEngine.Settings;
 using MediaPortal.UI.SkinEngine.Utils;
+using MediaPortal.Utilities.SystemAPI;
 using SlimDX.Direct3D9;
 using Screen = MediaPortal.UI.SkinEngine.ScreenManagement.Screen;
 
@@ -149,7 +150,7 @@ namespace MediaPortal.UI.SkinEngine.GUI
             {
               IPlayerManager playerManager = ServiceRegistration.Get<IPlayerManager>();
               ISlimDXVideoPlayer player = playerManager[PlayerManagerConsts.PRIMARY_SLOT] as ISlimDXVideoPlayer;
-              SetEVRState(player);
+              UpdateVideoPlayerState(player);
               SynchronizeToVideoPlayerFramerate(player);
               break;
             }
@@ -157,7 +158,7 @@ namespace MediaPortal.UI.SkinEngine.GUI
             {
               IPlayerManager playerManager = ServiceRegistration.Get<IPlayerManager>();
               ISlimDXVideoPlayer player = playerManager[PlayerManagerConsts.PRIMARY_SLOT] as ISlimDXVideoPlayer;
-              SetEVRState(player);
+              UpdateVideoPlayerState(player);
               break;
             }
         }
@@ -165,13 +166,19 @@ namespace MediaPortal.UI.SkinEngine.GUI
     }
 
     /// <summary>
-    /// Checks if the given player is suspended (if it is paused).
+    /// Updates the local state corresponding to the current video player, given in parameter <paramref name="slimDxPlayer"/>.
+    /// This method will check if the given player is suspended (i.e. it is paused). It will also update the thread state so that the system
+    /// won't shut down while playing a video.
     /// </summary>
     /// <param name="slimDxPlayer">Player to check.</param>
-    private void SetEVRState(ISlimDXVideoPlayer slimDxPlayer)
+    private void UpdateVideoPlayerState(ISlimDXVideoPlayer slimDxPlayer)
     {
       IMediaPlaybackControl player = slimDxPlayer as IMediaPlaybackControl;
       _videoPlayerSuspended = player == null || player.IsPaused;
+      if (slimDxPlayer == null)
+        WindowsAPI.SetThreadExecutionState(WindowsAPI.EXECUTION_STATE.ES_CONTINUOUS);
+      else
+        WindowsAPI.SetThreadExecutionState(WindowsAPI.EXECUTION_STATE.ES_CONTINUOUS | WindowsAPI.EXECUTION_STATE.ES_DISPLAY_REQUIRED);
     }
 
     /// <summary>
