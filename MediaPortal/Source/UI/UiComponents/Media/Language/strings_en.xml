@@ -88,7 +88,7 @@
     <String Name="ChooseActorHeader" Text="Choose an actor"/>
     <String Name="ChooseVideoGenreHeader" Text="Choose a genre"/>
     <String Name="ChooseVideoYearHeader" Text="Choose a year"/>
-    <String Name="ChooseSeriesHeader" Text="Choose a serie"/>
+    <String Name="ChooseSeriesHeader" Text="Choose a series"/>
     <String Name="ChooseSeasonHeader" Text="Choose a season"/>
     <String Name="ChooseAudioDecadeHeader" Text="Choose a decade"/>
     <String Name="ChooseAlbumHeader" Text="Choose an album"/>
