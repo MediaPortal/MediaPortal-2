@@ -105,9 +105,7 @@ namespace MediaPortal.UI.SkinEngine.Xaml
           return ConvertEntryType((ICollection) obj, entryType, out result);
         if (obj is IEnumerable)
         {
-          List<object> col = new List<object>();
-          foreach (object o1 in (IEnumerable) obj)
-            col.Add(o1);
+          List<object> col = ((IEnumerable) obj).Cast<object>().ToList();
           return ConvertEntryType(col, entryType, out result);
         }
       }
@@ -191,10 +189,10 @@ namespace MediaPortal.UI.SkinEngine.Xaml
         result = resultList;
         return true;
       }
-      if (val is ICollection && ((ICollection) val).Count == 1) // From collection to non-collection target
+      ICollection sourceCol = val as ICollection;
+      if (sourceCol != null && sourceCol.Count == 1) // From collection to non-collection target
       {
         // Use the first (single) item of a collection or dictionary
-        ICollection sourceCol = (ICollection) val;
         IEnumerator enumerator = sourceCol.GetEnumerator();
         enumerator.MoveNext();
         object item = enumerator.Current;
