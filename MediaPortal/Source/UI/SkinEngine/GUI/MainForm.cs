@@ -43,7 +43,6 @@ using MediaPortal.UI.SkinEngine.SkinManagement;
 
 using MediaPortal.UI.SkinEngine.Settings;
 using MediaPortal.UI.SkinEngine.Utils;
-using MediaPortal.Utilities.SystemAPI;
 using SlimDX.Direct3D9;
 using Screen = MediaPortal.UI.SkinEngine.ScreenManagement.Screen;
 
@@ -175,10 +174,7 @@ namespace MediaPortal.UI.SkinEngine.GUI
     {
       IMediaPlaybackControl player = slimDxPlayer as IMediaPlaybackControl;
       _videoPlayerSuspended = player == null || player.IsPaused;
-      if (slimDxPlayer == null)
-        WindowsAPI.SetThreadExecutionState(WindowsAPI.EXECUTION_STATE.ES_CONTINUOUS);
-      else
-        WindowsAPI.SetThreadExecutionState(WindowsAPI.EXECUTION_STATE.ES_CONTINUOUS | WindowsAPI.EXECUTION_STATE.ES_DISPLAY_REQUIRED);
+      EnergySaverConfig.SetCurrentSuspendLevel(slimDxPlayer == null ? SuspendLevel.None : SuspendLevel.DisplayRequired);
     }
 
     /// <summary>
