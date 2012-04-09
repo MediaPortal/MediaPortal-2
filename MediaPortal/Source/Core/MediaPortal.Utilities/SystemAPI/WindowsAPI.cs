@@ -65,15 +65,16 @@ namespace MediaPortal.Utilities.SystemAPI
       // ES_USER_PRESENT = 0x00000004
     }
 
-    [DllImport("kernel32.dll", CharSet = CharSet.Auto,SetLastError = true)]
+    [DllImport("kernel32.dll", SetLastError = true)]
     public static extern EXECUTION_STATE SetThreadExecutionState(EXECUTION_STATE esFlags);
 
+    [DllImport("powrprof.dll", SetLastError = true)]
+    public static extern bool SetSuspendState(bool hibernate, bool forceCritical, bool disableWakeEvent);
+
     [DllImport("user32.dll", SetLastError = true)]
-    [return: MarshalAs(UnmanagedType.Bool)]
     static extern bool SystemParametersInfo(uint uiAction, bool uiParam, IntPtr pvParam, uint fWinIni);
 
     [DllImport("user32.dll", SetLastError = true)]
-    [return: MarshalAs(UnmanagedType.Bool)]
     static extern bool SystemParametersInfo(uint uiAction, uint uiParam, ref bool result, uint fWinIni);
 
     #endregion

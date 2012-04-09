@@ -102,7 +102,7 @@
     </Grid>
   </ControlTemplate>
 
-  <ControlTemplate x:Key="HibernateControlTemplate">
+  <ControlTemplate x:Key="SuspendControlTemplate">
     <Grid>
       <Grid.ColumnDefinitions>
         <ColumnDefinition Width="25"/>

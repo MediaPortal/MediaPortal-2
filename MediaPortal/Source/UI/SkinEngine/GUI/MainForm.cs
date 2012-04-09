@@ -429,9 +429,9 @@ namespace MediaPortal.UI.SkinEngine.GUI
       WindowState = _mode == ScreenMode.NormalWindowed ? FormWindowState.Normal : FormWindowState.Maximized;
     }
 
-    public void Hibernate()
+    public void Suspend()
     {
-      ServiceRegistration.Get<ISystemStateService>().Hibernate();
+      ServiceRegistration.Get<ISystemStateService>().Suspend();
     }
 
     public void ConfigureScreenSaver(bool screenSaverEnabled, double screenSaverTimeoutMin)

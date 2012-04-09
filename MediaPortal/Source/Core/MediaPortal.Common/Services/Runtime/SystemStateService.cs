@@ -24,12 +24,15 @@
 
 using MediaPortal.Common.Logging;
 using MediaPortal.Common.Runtime;
+using MediaPortal.Common.Services.Runtime.Settings;
+using MediaPortal.Common.Settings;
+using MediaPortal.Utilities.SystemAPI;
 
 namespace MediaPortal.Common.Services.Runtime
 {
   public class SystemStateService : ISystemStateService
   {
-    protected SystemState _state = SystemState.None;
+    protected SystemState _state = SystemState.Starting;
 
     public void SwitchSystemState(SystemState newState, bool sendMessage)
     {
@@ -45,10 +48,12 @@ namespace MediaPortal.Common.Services.Runtime
       get { return _state; }
     }
 
-    public void Hibernate()
+    public void Suspend()
     {
-      // TODO
-      ServiceRegistration.Get<ILogger>().Info("SystemStateService: ------ The hibernate function is not implemented yet -----");
+      ServiceRegistration.Get<ILogger>().Info("SystemStateService: Hibernating");
+      SystemMessaging.SendSystemStateChangeMessage(SystemState.Hibernating);
+      SystemSettings settings = ServiceRegistration.Get<ISettingsManager>().Load<SystemSettings>();
+      WindowsAPI.SetSuspendState(settings.UseHibernation, false, false);
     }
 
     #endregion

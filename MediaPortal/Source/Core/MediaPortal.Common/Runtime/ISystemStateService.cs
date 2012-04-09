@@ -29,10 +29,10 @@ namespace MediaPortal.Common.Runtime
     /// <summary>
     /// Not in a defined state yet.
     /// </summary>
-    None,
+    Starting,
 
     /// <summary>
-    /// The system is initializing. All services and components are configured and started.
+    /// The system is initializing. All services and components are being configured and started.
     /// </summary>
     Initializing,
 
@@ -50,11 +50,17 @@ namespace MediaPortal.Common.Runtime
     /// All services and components have been shut down and the system is exiting.
     /// </summary>
     Ending,
+
+    /// <summary>
+    /// The system is being hibernated. This enum is never set as current state; it is just used to inform the system about the
+    /// hibernation process.
+    /// </summary>
+    Hibernating,
   }
 
   public interface ISystemStateService
   {
     SystemState CurrentState { get; }
-    void Hibernate();
+    void Suspend();
   }
 }

@@ -1065,7 +1065,7 @@
 
   <!-- *************************** Play control buttons ****************************** -->
 
-  <Style x:Key="BasePlayerControlButtonStyle" TargetType="{x:Type Button}">
+  <Style x:Key="BaseWindowButtonStyle" TargetType="{x:Type Button}">
     <Setter Property="Template">
       <Setter.Value>
         <ControlTemplate TargetType="{x:Type Button}">
@@ -1145,6 +1145,8 @@
       </Setter.Value>
     </Setter>
   </Style>
+
+  <Style x:Key="BasePlayerControlButtonStyle" BasedOn="{ThemeResource BaseWindowButtonStyle}"/>
 
   <Style x:Key="PlayButtonStyle" BasedOn="{ThemeResource BasePlayerControlButtonStyle}">
     <Style.Resources>
@@ -1229,9 +1231,9 @@
     </Style.Resources>
   </Style>
 
-  <Style x:Key="HibernateButtonStyle" BasedOn="{ThemeResource GlobalButtonStyle}">
+  <Style x:Key="SuspendButtonStyle" BasedOn="{ThemeResource GlobalButtonStyle}">
     <Style.Resources>
-      <ResourceWrapper x:Key="ContentControlTemplate" Resource="{ThemeResource HibernateControlTemplate}" />
+      <ResourceWrapper x:Key="ContentControlTemplate" Resource="{ThemeResource SuspendControlTemplate}" />
     </Style.Resources>
   </Style>
 

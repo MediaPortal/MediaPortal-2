@@ -113,7 +113,7 @@
     </Grid>
   </ControlTemplate>
 
-  <ControlTemplate x:Key="HibernateControlTemplate">
+  <ControlTemplate x:Key="SuspendControlTemplate">
     <Grid>
       <Grid.ColumnDefinitions>
         <ColumnDefinition Width="25"/>
@@ -121,7 +121,7 @@
       <Grid.RowDefinitions>
         <RowDefinition Height="25"/>
       </Grid.RowDefinitions>
-      <Label Content="H" FontSize="15" Margin="3" Color="{ThemeResource WindowButtonColor}"
+      <Label Content="S" FontSize="15" Margin="3" Color="{ThemeResource WindowButtonColor}"
           HorizontalAlignment="Center" VerticalAlignment="Center"/>
     </Grid>
   </ControlTemplate>

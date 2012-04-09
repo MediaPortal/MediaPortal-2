@@ -75,9 +75,9 @@ Parameters which have to be accessible by a DynamicResource lookup:
           <Button x:Name="MinimizeButton" Style="{ThemeResource WindowMinimizeButtonStyle}" Margin="3"
               HorizontalAlignment="Left"
               Command="{Command Source={Service Window},Path=Minimize}"/>
-          <Button x:Name="HibernateButton" Style="{ThemeResource HibernateButtonStyle}" Margin="3"
+          <Button x:Name="SuspendButton" Style="{ThemeResource SuspendButtonStyle}" Margin="3"
               HorizontalAlignment="Left"
-              Command="{Command Source={Service Window},Path=Hibernate}"/>
+              Command="{Command Source={Service Window},Path=Suspend}"/>
         </StackPanel> <!-- WindowButtonsPanel -->
         <Grid x:Name="HeaderTextPanel" Grid.Column="1" Grid.Row="0">
           <Label x:Name="HeaderLabel"
