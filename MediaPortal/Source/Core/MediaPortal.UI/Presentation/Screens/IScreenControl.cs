@@ -23,6 +23,7 @@
 #endregion
 
 using System;
+using MediaPortal.Common.Runtime;
 
 namespace MediaPortal.UI.Presentation.Screens
 {
@@ -61,6 +62,11 @@ namespace MediaPortal.UI.Presentation.Screens
     /// Returns the window handle of the main window.
     /// </summary>
     IntPtr MainWindowHandle { get; }
+
+    /// <summary>
+    /// Gets or sets the maximum energy saver level which may be set by Windows.
+    /// </summary>
+    SuspendLevel ApplicationSuspendLevel { get; set; }
 
     /// <summary>
     /// Enables or disables the MediaPortal 2 internal screen saver or sets its timeout.

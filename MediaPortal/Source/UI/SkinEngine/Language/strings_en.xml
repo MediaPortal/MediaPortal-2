@@ -23,6 +23,12 @@
 
     <String Name="Players.Rendering.DefaultGeometry" Text="Default zoom mode"/>
     <String Name="Players.Rendering.DefaultGeometry.Help" Text="Sets the zoom mode which will be applied to video players by default"/>
+
+    <String Name="General.System.ApplicationSuspendLevel" Text="Configure Windows energy saving"/>
+    <String Name="General.System.ApplicationSuspendLevel.Help" Text="Disable Windows automatic suspend/shutdown or screen deactivation while MediaPortal 2 is running"/>
+    <String Name="General.System.ApplicationSuspendLevel.None" Text="Allow all system energy saving levels"/>
+    <String Name="General.System.ApplicationSuspendLevel.AvoidSuspend" Text="Avoid system suspension but allow deactivation of screen"/>
+    <String Name="General.System.ApplicationSuspendLevel.DisplayRequired" Text="Avoid system suspension and deactivation of screen"/>
   </Section>
   <Section Name="ScreenManager">
     <String Name="NotificationErrorLoadingSkinTitle" Text="Error loading skin"/>

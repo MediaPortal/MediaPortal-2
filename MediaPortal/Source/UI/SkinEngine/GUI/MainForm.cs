@@ -185,22 +185,6 @@ namespace MediaPortal.UI.SkinEngine.GUI
       PlayerSuspendLevel = slimDxPlayer == null ? SuspendLevel.None : SuspendLevel.DisplayRequired;
     }
 
-    public SuspendLevel ApplicationSuspendLevel
-    {
-      get { return _applicationSuspendLevel; }
-      set
-      {
-        if (_applicationSuspendLevel == value)
-          return;
-        _applicationSuspendLevel = value;
-        ISettingsManager settingsManager = ServiceRegistration.Get<ISettingsManager>();
-        AppSettings settings = settingsManager.Load<AppSettings>();
-        settings.SuspendLevel = _applicationSuspendLevel;
-        settingsManager.Save(settings);
-        UpdateSystemSuspendLevel();
-      }
-    }
-
     public SuspendLevel PlayerSuspendLevel
     {
       get { return _playerSuspendLevel; }
@@ -530,6 +514,22 @@ namespace MediaPortal.UI.SkinEngine.GUI
     public IntPtr MainWindowHandle
     {
       get { return Handle; }
+    }
+
+    public SuspendLevel ApplicationSuspendLevel
+    {
+      get { return _applicationSuspendLevel; }
+      set
+      {
+        if (_applicationSuspendLevel == value)
+          return;
+        _applicationSuspendLevel = value;
+        ISettingsManager settingsManager = ServiceRegistration.Get<ISettingsManager>();
+        AppSettings settings = settingsManager.Load<AppSettings>();
+        settings.SuspendLevel = _applicationSuspendLevel;
+        settingsManager.Save(settings);
+        UpdateSystemSuspendLevel();
+      }
     }
 
     protected static string ToString(DisplayMode mode)

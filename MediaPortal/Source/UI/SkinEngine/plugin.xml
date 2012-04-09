@@ -37,6 +37,29 @@
         Id="Players"
         Redundant="true"
         Text="[Settings.Players]"/>
+    <ConfigSection
+        Id="General"
+        Redundant="true"
+        Text="[Settings.General]"
+        IconSmallPath="Resources\ConfigurationImages\general-22.png"
+        IconLargePath="Resources\ConfigurationImages\general-48.png"/>
+  </Register>
+
+  <!-- Contents of '/General' section -->
+  <Register Location="/Configuration/Settings/General">
+    <ConfigGroup
+        Id="System"
+        Redundant="true"
+        Text="[Settings.General.System]"/>
+  </Register>
+
+  <!-- Contents of '/General/System' group -->
+  <Register Location="/Configuration/Settings/General/System">
+    <ConfigSetting
+        Id="ApplicationSuspendLevel"
+        Text="[Settings.General.System.ApplicationSuspendLevel]"
+        HelpText="[Settings.General.System.ApplicationSuspendLevel.Help]"
+        ClassName="MediaPortal.UI.SkinEngine.Settings.Configuration.General.ApplicationSuspendLevel"/>
   </Register>
 
   <!-- Contents of '/Appearance' section -->
