@@ -66,7 +66,7 @@ namespace MediaPortal.Common.Runtime
   /// the system.
   /// The Windows API function <c>SetThreadExecutionState</c> in <c>kernel32.dll</c> is used to provide that functionality.
   /// </remarks>
-  public class EnergySaverConfig
+  public class EnergySavingConfig
   {
     public static void SetCurrentSuspendLevel(SuspendLevel level)
     {

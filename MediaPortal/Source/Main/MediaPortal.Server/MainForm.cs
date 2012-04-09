@@ -95,7 +95,7 @@ namespace MediaPortal.Server
 
     protected void UpdateSystemSuspendLevel_MainThread()
     {
-      EnergySaverConfig.SetCurrentSuspendLevel(_applicationSuspendLevel);
+      EnergySavingConfig.SetCurrentSuspendLevel(_applicationSuspendLevel);
     }
 
     private void OnMainFormShown(object sender, System.EventArgs e)

@@ -38,6 +38,7 @@ using MediaPortal.UI.SkinEngine.GUI;
 using MediaPortal.Common.PluginManager;
 using MediaPortal.UI.SkinEngine.InputManagement;
 using MediaPortal.UI.SkinEngine.ScreenManagement;
+using MediaPortal.Utilities.SystemAPI;
 
 namespace MediaPortal.UI.SkinEngine
 {
@@ -49,6 +50,7 @@ namespace MediaPortal.UI.SkinEngine
 
     protected MainForm _mainForm = null;
     protected ScreenManager _screenManager = null;
+    protected bool _screenSaverWasEnabled = false;
 
     #endregion
 
@@ -154,7 +156,7 @@ namespace MediaPortal.UI.SkinEngine
       ServiceRegistration.RemoveAndDispose<IGeometryManager>();
 
       ServiceRegistration.Get<ILogger>().Debug("SkinEnginePlugin: Clearing BrushCache");
-      SkinEngine.Controls.Brushes.BrushCache.Instance.Clear();
+      Controls.Brushes.BrushCache.Instance.Clear();
 
       ServiceRegistration.Get<ILogger>().Debug("SkinEnginePlugin: Clearing ContentManager");
       ContentManager.Instance.Clear();
@@ -162,6 +164,8 @@ namespace MediaPortal.UI.SkinEngine
 
     public void Dispose()
     {
+      if (_mainForm == null)
+        return;
       _mainForm.DisposeDirectX();
       _mainForm.Dispose();
       _screenManager = null;
@@ -175,6 +179,8 @@ namespace MediaPortal.UI.SkinEngine
     public void Activated(PluginRuntime pluginRuntime)
     {
       ServiceRegistration.Set<ISkinEngine>(this);
+      _screenSaverWasEnabled = WindowsAPI.ScreenSaverEnabled;
+      WindowsAPI.ScreenSaverEnabled = false;
     }
 
     public bool RequestEnd()
@@ -192,6 +198,7 @@ namespace MediaPortal.UI.SkinEngine
 
     void IPluginStateTracker.Shutdown()
     {
+      WindowsAPI.ScreenSaverEnabled = _screenSaverWasEnabled;
       Dispose();
     }
 

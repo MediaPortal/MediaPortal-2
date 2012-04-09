@@ -68,6 +68,14 @@ namespace MediaPortal.Utilities.SystemAPI
     [DllImport("kernel32.dll", CharSet = CharSet.Auto,SetLastError = true)]
     public static extern EXECUTION_STATE SetThreadExecutionState(EXECUTION_STATE esFlags);
 
+    [DllImport("user32.dll", SetLastError = true)]
+    [return: MarshalAs(UnmanagedType.Bool)]
+    static extern bool SystemParametersInfo(uint uiAction, bool uiParam, IntPtr pvParam, uint fWinIni);
+
+    [DllImport("user32.dll", SetLastError = true)]
+    [return: MarshalAs(UnmanagedType.Bool)]
+    static extern bool SystemParametersInfo(uint uiAction, uint uiParam, ref bool result, uint fWinIni);
+
     #endregion
 
     public const string AUTOSTART_REGISTRY_KEY = @"Software\Microsoft\Windows\Currentversion\Run";
@@ -77,6 +85,9 @@ namespace MediaPortal.Utilities.SystemAPI
 
     public const int MAX_PATH = 260;
 
+    public const uint SPI_GETSCREENSAVEACTIVE = 0x0010;
+    public const uint SPI_SETSCREENSAVEACTIVE = 0x0011;
+
     /// <summary>
     /// Use this enum to denote special system folders.
     /// </summary>
@@ -85,6 +96,17 @@ namespace MediaPortal.Utilities.SystemAPI
       MyMusic,
       MyVideos,
       MyPictures,
+    }
+
+    public static bool ScreenSaverEnabled
+    {
+      get
+      {
+        bool result = false;
+        SystemParametersInfo(SPI_GETSCREENSAVEACTIVE, 0, ref result, 0);
+        return result;
+      }
+      set { SystemParametersInfo(SPI_SETSCREENSAVEACTIVE, value, IntPtr.Zero, 0); }
     }
 
     /// <summary>
@@ -127,7 +149,7 @@ namespace MediaPortal.Utilities.SystemAPI
           return false;
         default:
           throw new NotImplementedException(string.Format(
-              "The handling for special folder '{0}' isn't implemented yet", folder.ToString()));
+              "The handling for special folder '{0}' isn't implemented yet", folder));
       }
     }
 
