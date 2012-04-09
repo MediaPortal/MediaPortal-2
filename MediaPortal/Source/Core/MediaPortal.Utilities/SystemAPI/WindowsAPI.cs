@@ -54,6 +54,20 @@ namespace MediaPortal.Utilities.SystemAPI
         UInt32 dwFlags,          // Flags to specify which path is to be returned. It is used for cases where the folder associated with a CSIDL may be moved or renamed by the user. 
         StringBuilder pszPath);  // Pointer to a null-terminated string which will receive the path.
 
+    [FlagsAttribute]
+    public enum EXECUTION_STATE : uint
+    {
+      ES_AWAYMODE_REQUIRED = 0x00000040,
+      ES_CONTINUOUS = 0x80000000,
+      ES_DISPLAY_REQUIRED = 0x00000002,
+      ES_SYSTEM_REQUIRED = 0x00000001
+      // Legacy flag, should not be used.
+      // ES_USER_PRESENT = 0x00000004
+    }
+
+    [DllImport("kernel32.dll", CharSet = CharSet.Auto,SetLastError = true)]
+    public static extern EXECUTION_STATE SetThreadExecutionState(EXECUTION_STATE esFlags);
+
     #endregion
 
     public const string AUTOSTART_REGISTRY_KEY = @"Software\Microsoft\Windows\Currentversion\Run";
