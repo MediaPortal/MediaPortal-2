@@ -22,6 +22,7 @@
 
 #endregion
 
+using MediaPortal.Common.Runtime;
 using MediaPortal.Common.Settings;
 using SlimDX.Direct3D9;
 
@@ -37,6 +38,7 @@ namespace MediaPortal.UI.SkinEngine.Settings
     protected const bool DEFAULT_SCREEN_SAVER_ENABLED = true;
     protected const double DEFAULT_SCREEN_SAVER_TIMEOUT_MIN = 5;
     protected const MultisampleType DEFAULT_MULTISAMPLING_TYPE = MultisampleType.None;
+    protected const SuspendLevel DEFAULT_SUSPEND_LEVEL = SuspendLevel.None;
 
     #endregion
 
@@ -46,6 +48,7 @@ namespace MediaPortal.UI.SkinEngine.Settings
     protected bool _screenSaverEnabled = DEFAULT_SCREEN_SAVER_ENABLED;
     protected double _screenSaverTimoutMin = DEFAULT_SCREEN_SAVER_TIMEOUT_MIN;
     protected MultisampleType _multisampleType = DEFAULT_MULTISAMPLING_TYPE;
+    protected SuspendLevel _suspendLevel = DEFAULT_SUSPEND_LEVEL;
 
     [Setting(SettingScope.User, 0)]
     public MultisampleType MultisampleType
@@ -91,6 +94,16 @@ namespace MediaPortal.UI.SkinEngine.Settings
     {
       get { return _screenSaverTimoutMin; }
       set { _screenSaverTimoutMin = value; }
+    }
+
+    /// <summary>
+    /// Gets or sets a value which avoids Windows automatic energy saver.
+    /// </summary>
+    [Setting(SettingScope.User, DEFAULT_SUSPEND_LEVEL)]
+    public SuspendLevel SuspendLevel
+    {
+      get { return _suspendLevel; }
+      set { _suspendLevel = value; }
     }
   }
 }

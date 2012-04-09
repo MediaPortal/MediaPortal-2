@@ -52,6 +52,8 @@ namespace MediaPortal.UI.SkinEngine.GUI
 
   public partial class MainForm : Form, IScreenControl
   {
+    protected delegate void Dlgt();
+
     /// <summary>
     /// Maximum time between frames when our render thread is synchronized to the video player thread.
     /// </summary>
@@ -78,6 +80,9 @@ namespace MediaPortal.UI.SkinEngine.GUI
     private readonly ScreenManager _screenManager;
     protected bool _isScreenSaverEnabled = true;
     protected bool _isScreenSaverActive = false;
+    protected SuspendLevel _applicationSuspendLevel = SuspendLevel.None;
+    protected SuspendLevel _playerSuspendLevel = SuspendLevel.None;
+
     /// <summary>
     /// Timespan from the last user input to the start of the screen saver.
     /// </summary>
@@ -123,6 +128,9 @@ namespace MediaPortal.UI.SkinEngine.GUI
       // Read and apply ScreenSaver settings
       _screenSaverTimeOut = TimeSpan.FromMinutes(settings.ScreenSaverTimeoutMin);
       _isScreenSaverEnabled = settings.ScreenSaverEnabled;
+
+      _applicationSuspendLevel = settings.SuspendLevel;
+      UpdateSystemSuspendLevel_MainThread(); // Don't use UpdateSystemSuspendLevel() here because the window handle was not created yet
 
       Application.Idle += OnApplicationIdle;
       _adaptToSizeEnabled = true;
@@ -174,7 +182,55 @@ namespace MediaPortal.UI.SkinEngine.GUI
     {
       IMediaPlaybackControl player = slimDxPlayer as IMediaPlaybackControl;
       _videoPlayerSuspended = player == null || player.IsPaused;
-      EnergySaverConfig.SetCurrentSuspendLevel(slimDxPlayer == null ? SuspendLevel.None : SuspendLevel.DisplayRequired);
+      PlayerSuspendLevel = slimDxPlayer == null ? SuspendLevel.None : SuspendLevel.DisplayRequired;
+    }
+
+    public SuspendLevel ApplicationSuspendLevel
+    {
+      get { return _applicationSuspendLevel; }
+      set
+      {
+        if (_applicationSuspendLevel == value)
+          return;
+        _applicationSuspendLevel = value;
+        ISettingsManager settingsManager = ServiceRegistration.Get<ISettingsManager>();
+        AppSettings settings = settingsManager.Load<AppSettings>();
+        settings.SuspendLevel = _applicationSuspendLevel;
+        settingsManager.Save(settings);
+        UpdateSystemSuspendLevel();
+      }
+    }
+
+    public SuspendLevel PlayerSuspendLevel
+    {
+      get { return _playerSuspendLevel; }
+      set
+      {
+        if (_playerSuspendLevel == value)
+          return;
+        _playerSuspendLevel = value;
+        UpdateSystemSuspendLevel();
+      }
+    }
+
+    protected void ExecuteInMainThread(Dlgt method)
+    {
+      Invoke(method);
+    }
+
+    protected void UpdateSystemSuspendLevel()
+    {
+      ExecuteInMainThread(UpdateSystemSuspendLevel_MainThread);
+    }
+
+    protected void UpdateSystemSuspendLevel_MainThread()
+    {
+      // We'll use the maximum suspend level from main suspend level and player suspend level
+      SuspendLevel value = _applicationSuspendLevel;
+      _applicationSuspendLevel = value;
+      if (_playerSuspendLevel > value)
+        value = _playerSuspendLevel;
+      EnergySaverConfig.SetCurrentSuspendLevel(value);
     }
 
     /// <summary>
