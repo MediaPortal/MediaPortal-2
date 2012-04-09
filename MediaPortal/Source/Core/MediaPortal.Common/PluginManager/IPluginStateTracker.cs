@@ -38,7 +38,7 @@ namespace MediaPortal.Common.PluginManager
     /// Will be called when the plugin is started. This will happen as a result of a plugin auto-start
     /// or an item access which makes the plugin active.
     /// This method is called after the plugin's state was set to <see cref="PluginState.Active"/>.
-    /// </remarks>
+    /// </summary>
     void Activated(PluginRuntime pluginRuntime);
 
     /// <summary>
