@@ -96,6 +96,8 @@ namespace MediaPortal.Utilities.Network
       ErrorNoMoreItems = 259
     };
 
+    #region Windows API functions
+
     [DllImport("Mpr.dll", EntryPoint = "WNetOpenEnumA", CallingConvention = CallingConvention.Winapi)]
     protected static extern ErrorCodes WNetOpenEnum(ResourceScope dwScope, ResourceType dwType, ResourceUsage dwUsage, NetResource p, out IntPtr lphEnum);
 
@@ -104,6 +106,8 @@ namespace MediaPortal.Utilities.Network
 
     [DllImport("Mpr.dll", EntryPoint = "WNetEnumResourceA", CallingConvention = CallingConvention.Winapi)]
     protected static extern ErrorCodes WNetEnumResource(IntPtr hEnum, ref uint lpcCount, IntPtr buffer, ref uint lpBufferSize);
+
+    #endregion
 
     protected readonly ICollection<string> _resourceList = new List<String>();
 

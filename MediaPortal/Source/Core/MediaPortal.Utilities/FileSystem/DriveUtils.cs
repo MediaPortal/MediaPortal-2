@@ -25,9 +25,8 @@
 using System;
 using System.IO;
 using System.Management;
+using System.Runtime.InteropServices;
 using System.Text;
-
-using MediaPortal.Utilities.Win32;
 
 namespace MediaPortal.Utilities.FileSystem
 {
@@ -36,6 +35,19 @@ namespace MediaPortal.Utilities.FileSystem
   /// </summary>
   public class DriveUtils
   {
+    #region Windows API functions
+
+    [DllImport("Kernel32.dll", CharSet = CharSet.Auto, SetLastError = true)]
+    public extern static bool GetVolumeInformation(string RootPathName, StringBuilder VolumeNameBuffer, int VolumeNameSize,
+      out uint VolumeSerialNumber, out uint MaximumComponentLength, out uint FileSystemFlags, StringBuilder FileSystemNameBuffer,
+      int nFileSystemNameSize);
+
+    [DllImport("kernel32.dll")]
+    public extern static bool GetDiskFreeSpaceEx(string lpDirectoryName, out UInt64 lpFreeBytesAvailable, out UInt64 lpTotalNumberOfBytes,
+        out UInt64 lpTotalNumberOfFreeBytes);
+
+    #endregion
+
     public static string GetDriveNameWithoutRootDirectory(DriveInfo driveInfo)
     {
       return driveInfo.Name.Substring(0, 2);
@@ -127,7 +139,7 @@ namespace MediaPortal.Utilities.FileSystem
       uint sysflags;//receives file system flags
       StringBuilder sysname = new StringBuilder(256);//receives the file system name
 
-      bool retval = Win32API.GetVolumeInformation(drive.Substring(0, 2), volname, 256, out sn, out maxcomplen, out sysflags, sysname, 256);
+      bool retval = GetVolumeInformation(drive.Substring(0, 2), volname, 256, out sn, out maxcomplen, out sysflags, sysname, 256);
 
       if (retval)
       {
@@ -219,11 +231,7 @@ namespace MediaPortal.Utilities.FileSystem
         ulong freeBytesAvailable;
         ulong totalNumberOfBytes;
         ulong totalNumberOfFreeBytes;
-        Win32API.GetDiskFreeSpaceEx(
-            drive,
-            out freeBytesAvailable,
-            out totalNumberOfBytes,
-            out totalNumberOfFreeBytes);
+        GetDiskFreeSpaceEx(drive, out freeBytesAvailable, out totalNumberOfBytes, out totalNumberOfFreeBytes);
         return (long)freeBytesAvailable;
       }
     }

@@ -23,9 +23,9 @@
 #endregion
 
 using System;
+using System.Runtime.InteropServices;
 using System.Text;
 using MediaPortal.Utilities.Exceptions;
-using MediaPortal.Utilities.Win32;
 using Microsoft.Win32;
 
 namespace MediaPortal.Utilities.SystemAPI
@@ -37,9 +37,26 @@ namespace MediaPortal.Utilities.SystemAPI
   /// </summary>
   public static class WindowsAPI
   {
+    #region Windows API
+
+    private const int CSIDL_MYMUSIC = 0x000d;     // "My Music" folder
+    private const int CSIDL_MYVIDEO = 0x000e;     // "My Videos" folder
+    private const int CSIDL_MYPICTURES = 0x0027;  // "My Pictures" folder
+
+    private const int SHGFP_TYPE_CURRENT = 0;
+
+    [DllImport("shell32.dll")]
+    [Obsolete("Deprecated in Vista and later. Replaced by SHGetKnownFolderPath")]
+    private static extern Int32 SHGetFolderPath(
+        IntPtr hwndOwner,        // Handle to an owner window.
+        Int32 nFolder,           // A CSIDL value that identifies the folder whose path is to be retrieved.
+        IntPtr hToken,           // An access token that can be used to represent a particular user.
+        UInt32 dwFlags,          // Flags to specify which path is to be returned. It is used for cases where the folder associated with a CSIDL may be moved or renamed by the user. 
+        StringBuilder pszPath);  // Pointer to a null-terminated string which will receive the path.
+
+    #endregion
+
     public const string AUTOSTART_REGISTRY_KEY = @"Software\Microsoft\Windows\Currentversion\Run";
-    public const string BALLOONTIPS_REGISTRY_HIVE = @"Software\Microsoft\Windows\Currentversion\Explorer\Advanced";
-    public const string BALLOONTIPS_REGISTRY_NAME = "EnableBalloonTips";
 
     public const int S_OK = 0x0;
     public const int S_FALSE = 0x1;
@@ -86,7 +103,9 @@ namespace MediaPortal.Utilities.SystemAPI
           return true;
         case SpecialFolder.MyVideos:
           StringBuilder sb = new StringBuilder(MAX_PATH);
-          if (Win32API.SHGetFolderPath(IntPtr.Zero, Win32API.CSIDL_MYVIDEO, IntPtr.Zero, Win32API.SHGFP_TYPE_CURRENT, sb) == S_OK)
+          // TODO: .net 4.5 introduces Environment.SpecialFolder.MyVideos. Until we switch to .net 4.5, we need to use this
+          // deprecated function
+          if (SHGetFolderPath(IntPtr.Zero, CSIDL_MYVIDEO, IntPtr.Zero, SHGFP_TYPE_CURRENT, sb) == S_OK)
           {
             folderPath = sb.ToString();
             return true;
@@ -95,33 +114,6 @@ namespace MediaPortal.Utilities.SystemAPI
         default:
           throw new NotImplementedException(string.Format(
               "The handling for special folder '{0}' isn't implemented yet", folder.ToString()));
-      }
-    }
-
-    /// <summary>
-    /// Gets the information if Balloon Tips are enabled in this system, or sets the option in the registry.
-    /// </summary>
-    /// <exception cref="EnvironmentException">If the appropriate registry key cannot accessed
-    /// (will only be thrown in the setter).</exception>
-    public static bool IsShowBalloonTips
-    {
-      get
-      {
-        using (RegistryKey key = Registry.CurrentUser.OpenSubKey(BALLOONTIPS_REGISTRY_HIVE))
-          return key == null ? false : (int) key.GetValue(BALLOONTIPS_REGISTRY_NAME, 0) != 0;
-      }
-      set
-      {
-        using (RegistryKey key = Registry.CurrentUser.CreateSubKey(BALLOONTIPS_REGISTRY_HIVE))
-        {
-          if (key == null)
-            throw new EnvironmentException(@"Unable to access/create registry key 'HKCU\{0}'",
-                BALLOONTIPS_REGISTRY_HIVE);
-          if (value)
-            key.SetValue(BALLOONTIPS_REGISTRY_NAME, 0, RegistryValueKind.DWord);
-          else
-            key.DeleteValue(BALLOONTIPS_REGISTRY_NAME, false);
-        }
       }
     }
 
