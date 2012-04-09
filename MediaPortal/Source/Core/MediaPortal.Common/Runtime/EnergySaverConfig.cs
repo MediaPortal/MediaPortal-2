@@ -39,7 +39,7 @@ namespace MediaPortal.Common.Runtime
   public enum SuspendLevel
   {
     /// <summary>
-    /// All energy saver actions allowed.
+    /// All energy saving levels allowed.
     /// </summary>
     None,
 
@@ -55,7 +55,7 @@ namespace MediaPortal.Common.Runtime
   }
 
   /// <summary>
-  /// Allows control of the system's energy saver. Be careful: Methods of this class only affect the current thread!
+  /// Allows disabling some of the system's energy saving levels. Be careful: Methods of this class only affect the current thread!
   /// </summary>
   /// <remarks>
   /// Each thread can request its required maximum suspension level. The system won't advance the suspension further than the suspension

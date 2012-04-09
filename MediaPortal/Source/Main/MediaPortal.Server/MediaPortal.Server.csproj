@@ -63,6 +63,7 @@
   <ItemGroup>
     <Compile Include="CommandLineOptions.cs" />
     <Compile Include="ApplicationLauncher.cs" />
+    <Compile Include="Settings\AppSettings.cs" />
     <Compile Include="MainForm.cs">
       <SubType>Form</SubType>
     </Compile>
