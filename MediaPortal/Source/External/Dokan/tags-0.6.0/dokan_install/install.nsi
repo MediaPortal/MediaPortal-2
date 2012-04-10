@@ -30,20 +30,20 @@ UninstPage instfiles
     File ..\license.gpl.txt
     File ..\license.lgpl.txt
     File ..\license.mit.txt
-    File ..\dokan\objchk_${os}_x86\i386\dokan.lib
-    File ..\dokan_control\objchk_${os}_x86\i386\dokanctl.exe
-    File ..\dokan_mount\objchk_${os}_x86\i386\mounter.exe
+    File ..\..\release-${VERSION}\${os}\dll\dokan.lib
+    File ..\..\release-${VERSION}\${os}\dokanctrl\dokanctl.exe
+    File ..\..\release-${VERSION}\${os}\mounter\mounter.exe
 
   SetOutPath $PROGRAMFILES32\Dokan\DokanLibrary\sample\mirror
 
     File ..\dokan_mirror\makefile
     File ..\dokan_mirror\mirror.c
     File ..\dokan_mirror\sources
-    File ..\dokan_mirror\objchk_${os}_x86\i386\mirror.exe
+    File ..\..\release-${VERSION}\${os}\mirror\mirror.exe
 
   SetOutPath $SYSDIR
 
-    File ..\dokan\objchk_${os}_x86\i386\dokan.dll
+    File ..\..\release-${VERSION}\${os}\dll\dokan.dll
 
 !macroend
 
@@ -95,7 +95,7 @@ UninstPage instfiles
 
 !macro X86Driver os
   SetOutPath $SYSDIR\drivers
-    File ..\sys\objchk_${os}_x86\i386\dokan.sys
+    File ..\..\release-${VERSION}\${os}\sys\dokan.sys
 !macroend
 
 !macro X64Driver os
@@ -103,7 +103,7 @@ UninstPage instfiles
 
   SetOutPath $SYSDIR\drivers
 
-    File ..\sys\objchk_${os}_amd64\amd64\dokan.sys
+    File ..\..\release-${VERSION}\x64\${os}\sys\dokan.sys
 
   ${EnableX64FSRedirection}
 !macroend
