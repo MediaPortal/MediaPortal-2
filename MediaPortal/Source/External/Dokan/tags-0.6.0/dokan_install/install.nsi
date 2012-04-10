@@ -252,6 +252,6 @@ Function .onInit
 FunctionEnd
 
 Function .onInstSuccess
-  ExecShell "open" "$PROGRAMFILES32\Dokan\DokanLibrary"
+  ;ExecShell "open" "$PROGRAMFILES32\Dokan\DokanLibrary"
 FunctionEnd
 

@@ -13,3 +13,6 @@ To build the installer you need to install latest NSIS:
 
 .: Changes to the installer so far :.
 =====================================
+
+ * prevent to open the explorer window at the end of the installation
+
