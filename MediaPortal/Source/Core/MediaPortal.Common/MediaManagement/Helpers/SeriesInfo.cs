@@ -39,7 +39,30 @@ namespace MediaPortal.Common.MediaManagement.Helpers
   /// </remarks>
   public class SeriesInfo
   {
+    /// <summary>
+    /// Returns the index for "Series" used in <see cref="FormatString"/>.
+    /// </summary>
+    public static int SERIES_INDEX = 0;
+    /// <summary>
+    /// Returns the index for "Season" used in <see cref="FormatString"/>.
+    /// </summary>
+    public static int SEASON_INDEX = 1;
+    /// <summary>
+    /// Returns the index for "Episode Number(s)" used in <see cref="FormatString"/>.
+    /// </summary>
+    public static int EPISODENUM_INDEX = 2;
+    /// <summary>
+    /// Returns the index for "Episode" used in <see cref="FormatString"/>.
+    /// </summary>
+    public static int EPISODE_INDEX = 3;
+    /// <summary>
+    /// Format string that holds series name, season and episode numbers and episode name.
+    /// </summary>
     public static string EPISODE_FORMAT_STR = "{0} S{1}E{2} - {3}";
+    /// <summary>
+    /// Short format string that holds season and episode numbers and episode name. Used for browsing episodes by series name.
+    /// </summary>
+    public static string SHORT_FORMAT_STR = "S{1}E{2} - {3}";
 
     /// <summary>
     /// Indicates that all required fields are filled.
@@ -68,7 +91,7 @@ namespace MediaPortal.Common.MediaManagement.Helpers
     /// </summary>
     public IList<int> EpisodeNumbers { get; internal set; }
 
-    #region Constructor 
+    #region Constructor
 
     public SeriesInfo()
     {
@@ -95,15 +118,11 @@ namespace MediaPortal.Common.MediaManagement.Helpers
       return true;
     }
 
-    #endregion
-
-    #region Overrides
-
-    public override string ToString()
+    public string FormatString(string format)
     {
       if (IsCompleteMatch)
       {
-        return string.Format(EPISODE_FORMAT_STR,
+        return string.Format(format,
           Series,
           SeasonNumber.ToString().PadLeft(2, '0'),
           StringUtils.Join(", ", EpisodeNumbers.Select(episodeNumber => episodeNumber.ToString().PadLeft(2, '0'))),
@@ -112,6 +131,20 @@ namespace MediaPortal.Common.MediaManagement.Helpers
       return "SeriesInfo: No complete match";
     }
 
+    public string ToShortString()
+    {
+      return FormatString(SHORT_FORMAT_STR);
+    }
+
+    #endregion
+
+    #region Overrides
+
+    public override string ToString()
+    {
+      return FormatString(EPISODE_FORMAT_STR);
+    }
+    
     #endregion
   }
 }

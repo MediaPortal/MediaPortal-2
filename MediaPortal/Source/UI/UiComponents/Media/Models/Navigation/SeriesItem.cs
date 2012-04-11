@@ -23,9 +23,9 @@
 #endregion
 
 using System.Collections.Generic;
-using System.Linq;
 using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
+using MediaPortal.Common.MediaManagement.Helpers;
 using MediaPortal.UiComponents.Media.General;
 
 namespace MediaPortal.UiComponents.Media.Models.Navigation
@@ -34,17 +34,25 @@ namespace MediaPortal.UiComponents.Media.Models.Navigation
   {
     public SeriesItem(MediaItem mediaItem) : base(mediaItem)
     {
+      SeriesInfo seriesInfo = new SeriesInfo();
       MediaItemAspect seriesAspect;
-      if (mediaItem.Aspects.TryGetValue(SeriesAspect.ASPECT_ID, out seriesAspect))
-      {
-        Series = (string) seriesAspect[SeriesAspect.ATTR_SERIESNAME] ?? string.Empty;
-        EpisodeName = (string) seriesAspect[SeriesAspect.ATTR_EPISODENAME] ?? string.Empty;
-        Season = (seriesAspect[SeriesAspect.ATTR_SEASON] ?? 0).ToString();
-        if (seriesAspect[SeriesAspect.ATTR_EPISODE] != null)
-          EpisodeNumber = string.Join(", ", (from num in (IList<int>) seriesAspect[SeriesAspect.ATTR_EPISODE] select num.ToString()).ToArray());
+      if (!mediaItem.Aspects.TryGetValue(SeriesAspect.ASPECT_ID, out seriesAspect)) 
+        return;
 
-        SimpleTitle = string.Format("S{0} E{1} - {2}", Season.PadLeft(2, '0'), EpisodeNumber.PadLeft(2, '0'), EpisodeName);
+      Series = seriesInfo.Series = (string) seriesAspect[SeriesAspect.ATTR_SERIESNAME] ?? string.Empty;
+      EpisodeName = seriesInfo.Episode = (string) seriesAspect[SeriesAspect.ATTR_EPISODENAME] ?? string.Empty;
+      seriesInfo.SeasonNumber = (int) (seriesAspect[SeriesAspect.ATTR_SEASON] ?? 0);
+      Season = seriesInfo.SeasonNumber.ToString();
+
+      IList<int> episodes = seriesAspect[SeriesAspect.ATTR_EPISODE] as IList<int>;
+      if (episodes != null)
+      {
+        foreach (int episode in episodes)
+          seriesInfo.EpisodeNumbers.Add(episode);
+        EpisodeNumber = seriesInfo.FormatString(string.Format("{{{0}}}", SeriesInfo.EPISODENUM_INDEX));
       }
+      // Use the short string without series name here
+      SimpleTitle = seriesInfo.ToShortString();
     }
 
     public string Series
@@ -59,6 +67,10 @@ namespace MediaPortal.UiComponents.Media.Models.Navigation
       set { SetLabel(Consts.KEY_SERIES_SEASON, value); }
     }
 
+    /// <summary>
+    /// Gets a formatted string of the episode number. If a single video contains multiple episodes, they will be 
+    /// concatenated like '01, 02'.
+    /// </summary>
     public string EpisodeNumber
     {
       get { return this[Consts.KEY_SERIES_EPISODE_NUM]; }
