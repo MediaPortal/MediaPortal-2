@@ -35,11 +35,13 @@ namespace MediaPortal.Extensions.MetadataExtractors.VideoMetadataExtractor.NameM
     private const string GROUP_EPISODENUM = "episodenum";
     private const string GROUP_EPISODE = "episode";
 
-    protected List<Regex> _matchers = new List<Regex>
+    protected static List<Regex> _matchers = new List<Regex>
         {
-          // Episode scanner recommendations for recordings
+          // MP1 EpisodeScanner recommendations for recordings: Series - (Episode) S1E1
           new Regex(@"(?<series>[^\\]+) - \((?<episode>.*)\) S(?<seasonnum>[0-9]+?)E(?<episodenum>[0-9]+?)", RegexOptions.IgnoreCase),
+          // "Series 1x1 - Episode" and multi-episodes "Series 1x1_2 - Episodes"
           new Regex(@"(?<series>[^\\]+)\W(?<seasonnum>\d+)x((?<episodenum>\d+)_?)+ - (?<episode>.*)\.", RegexOptions.IgnoreCase),
+          // "Series S1E01 - Episode" and multi-episodes "Series S1E01_02 - Episodes"
           new Regex(@"(?<series>[^\\]+)\WS(?<seasonnum>\d+)E((?<episodenum>\d+)_?)+ - (?<episode>.*)\.", RegexOptions.IgnoreCase),
         };
 
@@ -59,18 +61,23 @@ namespace MediaPortal.Extensions.MetadataExtractors.VideoMetadataExtractor.NameM
     static SeriesInfo ParseSeries(Match ma)
     {
       SeriesInfo info = new SeriesInfo();
-      if (ma.Groups[GROUP_SERIES].Length > 0)
-        info.Series = ma.Groups[GROUP_SERIES].Value;
-      if (ma.Groups[GROUP_EPISODE].Length > 0)
-        info.Episode = ma.Groups[GROUP_EPISODE].Value;
-      if (ma.Groups[GROUP_SEASONNUM].Length > 0)
-        int.TryParse(ma.Groups[GROUP_SEASONNUM].Value, out info.SeasonNumber);
+      Group group = ma.Groups[GROUP_SERIES];
+      if (group.Length > 0)
+        info.Series = group.Value;
+      
+      group = ma.Groups[GROUP_EPISODE];
+      if (group.Length > 0)
+        info.Episode = group.Value;
+
+      group = ma.Groups[GROUP_SEASONNUM];
+      if (group.Length > 0)
+        int.TryParse(group.Value, out info.SeasonNumber);
 
       // There can be multipe episode numbers in one file
-      Group grpEpisodeNums = ma.Groups[GROUP_EPISODENUM];
-      if (grpEpisodeNums.Length > 0)
+      group = ma.Groups[GROUP_EPISODENUM];
+      if (group.Length > 0)
       {
-        foreach (Capture capture in grpEpisodeNums.Captures)
+        foreach (Capture capture in group.Captures)
         {
           int episodeNum;
           if (int.TryParse(capture.Value, out episodeNum))
