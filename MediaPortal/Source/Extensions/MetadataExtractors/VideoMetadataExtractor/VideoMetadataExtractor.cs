@@ -319,8 +319,9 @@ namespace MediaPortal.Extensions.MetadataExtractors.VideoMetadataExtractor
         mkvReader.ReadTags(tagsToExtract);
 
         string title = string.Empty;
-        if (tagsToExtract[TAG_SIMPLE_TITLE] != null)
-          title = tagsToExtract[TAG_SIMPLE_TITLE].FirstOrDefault();
+        var tags = tagsToExtract[TAG_SIMPLE_TITLE];
+        if (tags != null)
+          title = tags.FirstOrDefault();
 
         // Series and episode handling. Prefer information from tags.
         seriesInfo = GetSeriesFromTags(tagsToExtract);
@@ -331,40 +332,42 @@ namespace MediaPortal.Extensions.MetadataExtractors.VideoMetadataExtractor
           MediaItemAspect.SetAttribute(extractedAspectData, MediaAspect.ATTR_TITLE, title);
 
         string yearCandidate = null;
-        if (tagsToExtract[TAG_EPISODE_YEAR] != null)
-          yearCandidate = tagsToExtract[TAG_EPISODE_YEAR].FirstOrDefault().Substring(0, 4);
-        else
-          if (tagsToExtract[TAG_SEASON_YEAR] != null)
-            yearCandidate = tagsToExtract[TAG_SEASON_YEAR].FirstOrDefault().Substring(0, 4);
+        tags = tagsToExtract[TAG_EPISODE_YEAR] ?? tagsToExtract[TAG_SEASON_YEAR];
+        if (tags != null)
+          yearCandidate = tags.FirstOrDefault().Substring(0, 4);
 
         int year;
         if (int.TryParse(yearCandidate, out year))
           MediaItemAspect.SetAttribute(extractedAspectData, MediaAspect.ATTR_RECORDINGTIME, new DateTime(year, 1, 1));
 
-        if (tagsToExtract[TAG_SERIES_GENRE] != null)
-          MediaItemAspect.SetCollectionAttribute(extractedAspectData, VideoAspect.ATTR_GENRES, tagsToExtract[TAG_SERIES_GENRE]);
+        tags = tagsToExtract[TAG_SERIES_GENRE];
+        if (tags != null)
+          MediaItemAspect.SetCollectionAttribute(extractedAspectData, VideoAspect.ATTR_GENRES, tags);
 
         IEnumerable<string> actors;
         // Combine series actors and episode actors if both are available
-        if (tagsToExtract[TAG_SERIES_ACTORS] != null && tagsToExtract[TAG_ACTORS] != null)
-          actors = tagsToExtract[TAG_SERIES_ACTORS].Union(tagsToExtract[TAG_ACTORS]);
+        var tagSeriesActors = tagsToExtract[TAG_SERIES_ACTORS];
+        var tagActors = tagsToExtract[TAG_ACTORS];
+        if (tagSeriesActors != null && tagActors != null)
+          actors = tagSeriesActors.Union(tagActors);
         else
-          actors = tagsToExtract[TAG_SERIES_ACTORS] ?? tagsToExtract[TAG_ACTORS];
+          actors = tagSeriesActors ?? tagActors;
 
         if (actors != null)
           MediaItemAspect.SetCollectionAttribute(extractedAspectData, VideoAspect.ATTR_ACTORS, actors);
 
-        if (tagsToExtract[TAG_EPISODE_SUMMARY] != null)
-          MediaItemAspect.SetAttribute(extractedAspectData, VideoAspect.ATTR_STORYPLOT, tagsToExtract[TAG_EPISODE_SUMMARY].FirstOrDefault());
+        tags = tagsToExtract[TAG_EPISODE_SUMMARY];
+        if (tags != null)
+          MediaItemAspect.SetAttribute(extractedAspectData, VideoAspect.ATTR_STORYPLOT, tags.FirstOrDefault());
       }
 
-      if (seriesInfo == null || !seriesInfo.IsCompleteMatch)
-      {
-        // Try to match series from folder and file namings
-        SeriesMatcher seriesMatcher = new SeriesMatcher();
-        if (seriesMatcher.MatchSeries(localFsResourcePath, out seriesInfo) && seriesInfo.IsCompleteMatch)
-          seriesInfo.SetMetadata(extractedAspectData);
-      }
+      if (seriesInfo != null && seriesInfo.IsCompleteMatch) 
+        return;
+
+      // Try to match series from folder and file namings
+      SeriesMatcher seriesMatcher = new SeriesMatcher();
+      if (seriesMatcher.MatchSeries(localFsResourcePath, out seriesInfo) && seriesInfo.IsCompleteMatch)
+        seriesInfo.SetMetadata(extractedAspectData);
     }
 
     protected void ExtractThumbnailData(string localFsResourcePath, IDictionary<Guid, MediaItemAspect> extractedAspectData, bool forceQuickMode)
