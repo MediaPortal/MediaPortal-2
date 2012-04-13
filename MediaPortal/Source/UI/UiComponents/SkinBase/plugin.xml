@@ -10,6 +10,7 @@
   <DependsOn>
     <PluginReference PluginId="{1AFF4467-64B0-4ca1-AF28-9AEDF3525BCE}"/> <!-- ConfigurationManager -->
     <PluginReference PluginId="{B765A4B6-F455-4941-BDAE-2CE45208BFEB}"/> <!-- Configuration plugin -->
+    <PluginReference PluginId="{F6C71648-3874-4d27-9232-C41EBEDE0337}"/> <!-- BackgroundManager plugin -->
   </DependsOn>
 
   <Runtime>
