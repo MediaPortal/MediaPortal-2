@@ -93,6 +93,10 @@
       <Project>{4FE7B8AE-1330-424A-91A1-C68D7ABF9CB8}</Project>
       <Name>MediaPortal.Utilities</Name>
     </ProjectReference>
+    <ProjectReference Include="..\..\Source\Extensions\MetadataExtractors\OnlineLibraries\OnlineLibraries.csproj">
+      <Project>{DCA4D19E-75F4-4A8A-B70A-F3F4291DC62B}</Project>
+      <Name>OnlineLibraries</Name>
+    </ProjectReference>
     <ProjectReference Include="..\..\Source\UI\SkinEngine\SkinEngine.csproj">
       <Project>{7E943389-3589-40C9-B481-2E223554CC49}</Project>
       <Name>SkinEngine</Name>
@@ -130,6 +134,8 @@ robocopy "$(ProjectDir)Skin" "$(SolutionDir)..\Bin\$(SolutionName)\$(OutDir)Plug
 mkdir "$(SolutionDir)..\Bin\$(SolutionName)\$(OutDir)Plugins\$(ProjectName)\Language"
 robocopy "$(ProjectDir)Language" "$(SolutionDir)..\Bin\$(SolutionName)\$(OutDir)Plugins\$(ProjectName)\Language" /MIR /NP
 xcopy /Y "$(TargetDir)$(ProjectName).dll"  "$(SolutionDir)..\Bin\$(SolutionName)\$(OutDir)Plugins\$(ProjectName)\"
+xcopy /Y "$(TargetDir)OnlineLibraries.dll"  "$(SolutionDir)..\Bin\$(SolutionName)\$(OutDir)Plugins\$(ProjectName)\"
+xcopy /Y "$(TargetDir)TvdbLib.dll"  "$(SolutionDir)..\Bin\$(SolutionName)\$(OutDir)Plugins\$(ProjectName)\"
 @REM Reset RoboCopy's exit code which is different from 0
 IF %25ERRORLEVEL%25 LSS 8 SET ERRORLEVEL=0
 </PostBuildEvent>

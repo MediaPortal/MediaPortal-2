@@ -25,6 +25,7 @@
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
+using System.Xml.Serialization;
 using MediaPortal.Common;
 using MediaPortal.Common.Localization;
 using MediaPortal.Common.MediaManagement.Helpers;
@@ -39,16 +40,45 @@ namespace MediaPortal.Extensions.OnlineLibraries
   public class SeriesTvDbMatcher
   {
     public static readonly List<SeriesMatch> Matches = new List<SeriesMatch>();
+    public const string SETTINGS_MATCHES = @"C:\ProgramData\Team MediaPortal\MP2-Client\TvDB\Matches.xml";
+
+    static SeriesTvDbMatcher()
+    {
+      List<SeriesMatch> savedList = Settings.Load<List<SeriesMatch>>(SETTINGS_MATCHES);
+      if (savedList != null)
+        savedList.ForEach(Matches.Add);
+    }
+
+    public bool TryGetTvDbId(string seriesName, out int tvDbId)
+    {
+      SeriesMatch match = TryMatch(seriesName);
+      if (match != null)
+      {
+        tvDbId = match.TvDBID;
+        return true;
+      }
+      tvDbId = 0;
+      return false;
+    }
 
     public bool TryMatch(SeriesInfo seriesInfo)
     {
       // Use cached values before doing online query
-      SeriesMatch match = Matches.Find(m => m.SeriesName == seriesInfo.Series);
+      SeriesMatch match = TryMatch(seriesInfo.Series);
       if (match != null)
       {
         seriesInfo.Series = match.TvDBName;
         return true;
       }
+      return false;
+    }
+
+    protected SeriesMatch TryMatch(string seriesName)
+    {
+      // Use cached values before doing online query
+      SeriesMatch match = Matches.Find(m => m.SeriesName == seriesName);
+      if (match != null)
+        return match;
 
       // Try online lookup
       TvDbWrapper tv = new TvDbWrapper();
@@ -59,29 +89,31 @@ namespace MediaPortal.Extensions.OnlineLibraries
       tv.Init();
 
       List<TvdbSearchResult> series;
-      if (tv.SearchSeriesUnique(seriesInfo.Series, out series))
+      if (tv.SearchSeriesUnique(seriesName, out series))
       {
         TvdbSearchResult matchedSeries = series[0];
         TvdbSeries seriesDetail;
         if (tv.GetSeries(matchedSeries.Id, false, out seriesDetail))
         {
           // Add this match to cache
-          if (Matches.All(m => m.SeriesName != seriesInfo.Series))
-            Matches.Add(new SeriesMatch
-                          {
-                            SeriesName = seriesInfo.Series,
-                            TvDBID = seriesDetail.Id,
-                            TvDBName = seriesDetail.SeriesName
-                          });
+          SeriesMatch onlineMatch = new SeriesMatch
+          {
+            SeriesName = seriesName,
+            TvDBID = seriesDetail.Id,
+            TvDBName = seriesDetail.SeriesName
+          };
+
+          if (Matches.All(m => m.SeriesName != seriesName))
+            Matches.Add(onlineMatch);
+
+          // Save cache
+          Settings.Save(SETTINGS_MATCHES, Matches);
 
           // TODO: also load banners when requested first
-
-          // Use name of online library for import into ML.
-          seriesInfo.Series = seriesDetail.SeriesName;
-          return true;
+          return onlineMatch;
         }
       }
-      return false;
+      return null;
     }
   }
 }
