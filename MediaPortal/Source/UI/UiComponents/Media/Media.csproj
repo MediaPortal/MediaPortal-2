@@ -328,6 +328,8 @@
     <Content Include="Skin\default\screens\SavePlaylistEditName.xaml" />
     <Content Include="Skin\default\themes\default\images\FilterLarge.png" />
     <Content Include="Skin\default\themes\default\images\FilterSmall.png" />
+    <Content Include="Skin\default\themes\default\images\NoBanner.png" />
+    <Content Include="Skin\default\themes\default\images\NoPoster.png" />
     <Content Include="Skin\default\themes\default\images\VideoLarge.png" />
     <Content Include="Skin\default\themes\default\images\VideoSmall.png" />
     <Content Include="Skin\default\themes\default\images\AudioLarge.png" />
