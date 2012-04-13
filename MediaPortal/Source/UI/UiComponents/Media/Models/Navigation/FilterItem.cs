@@ -33,5 +33,8 @@ namespace MediaPortal.UiComponents.Media.Models.Navigation
     {
       SimpleTitle = name;
     }
+
+    public FilterItem() 
+    { }
   }
 }

@@ -31,6 +31,9 @@ namespace MediaPortal.UiComponents.Media.Models.Navigation
   /// </summary>
   public class ContainerItem : NavigationItem
   {
+    public ContainerItem()
+    { }
+
     public ContainerItem(int? absNumItems)
     {
       NumItems = absNumItems;

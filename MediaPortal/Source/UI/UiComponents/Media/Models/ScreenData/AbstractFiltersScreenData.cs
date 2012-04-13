@@ -38,7 +38,7 @@ using MediaPortal.UiComponents.Media.Models.Navigation;
 
 namespace MediaPortal.UiComponents.Media.Models.ScreenData
 {
-  public abstract class AbstractFiltersScreenData : AbstractScreenData
+  public abstract class AbstractFiltersScreenData<T> : AbstractScreenData where T : FilterItem, new()
   {
     protected MLFilterCriterion _filterCriterion;
     protected string _navbarSubViewNavigationDisplayLabel;
@@ -49,7 +49,7 @@ namespace MediaPortal.UiComponents.Media.Models.ScreenData
     protected bool _listDirty = false;
 
     /// <summary>
-    /// Creates a new instance of <see cref="AbstractFiltersScreenData"/>.
+    /// Creates a new instance of <see cref="AbstractFiltersScreenData&lt;T&gt;"/>.
     /// </summary>
     /// <param name="screen">The screen associated with this screen data.</param>
     /// <param name="menuItemLabel">Laben which will be shown in the menu to switch to this screen data.</param>
@@ -57,7 +57,8 @@ namespace MediaPortal.UiComponents.Media.Models.ScreenData
     /// navigate to a sub view.</param>
     /// <param name="filterCriterion">Specifies the filter criterion which provides the filter entries for this screen.</param>
     protected AbstractFiltersScreenData(string screen, string menuItemLabel, string navbarSubViewNavigationDisplayLabel,
-        MLFilterCriterion filterCriterion) : base(screen, menuItemLabel)
+        MLFilterCriterion filterCriterion)
+      : base(screen, menuItemLabel)
     {
       _navbarSubViewNavigationDisplayLabel = navbarSubViewNavigationDisplayLabel;
       _filterCriterion = filterCriterion;
@@ -78,7 +79,7 @@ namespace MediaPortal.UiComponents.Media.Models.ScreenData
     /// similar to this one. This method is responsible for creating the screen data instance for that sub view.
     /// </remarks>
     /// <returns>Screen data instance which looks the same as this view.</returns>
-    public abstract AbstractFiltersScreenData Derive();
+    public abstract AbstractFiltersScreenData<T> Derive();
 
     public override void Reload()
     {
@@ -168,11 +169,12 @@ namespace MediaPortal.UiComponents.Media.Models.ScreenData
               string filterTitle = filterValue.Title;
               IFilter selectAttributeFilter = filterValue.SelectAttributeFilter;
               MediaLibraryQueryViewSpecification subVS = currentVS.CreateSubViewSpecification(filterTitle, filterValue.Filter);
-              ListItem filterValueItem = new FilterItem(filterTitle, filterValue.NumItems)
-                {
-                    Command = grouping ? new MethodDelegateCommand(() => NavigateToGroup(subVS, selectAttributeFilter)) :
-                        new MethodDelegateCommand(() => NavigateToSubView(subVS, remainingScreens))
-                };
+              T filterValueItem = new T
+              {
+                SimpleTitle = filterTitle,
+                NumItems = filterValue.NumItems,
+                Command = grouping ? new MethodDelegateCommand(() => NavigateToGroup(subVS, selectAttributeFilter)) : new MethodDelegateCommand(() => NavigateToSubView(subVS, remainingScreens))
+              };
               items.Add(filterValueItem);
               if (filterValue.NumItems.HasValue)
                 totalNumItems += filterValue.NumItems.Value;
@@ -185,7 +187,7 @@ namespace MediaPortal.UiComponents.Media.Models.ScreenData
           ServiceRegistration.Get<ILogger>().Warn("AbstractFiltersScreenData: Error creating filter values list", e);
           Display_ItemsInvalid();
         }
-        RebuildView:
+      RebuildView:
         if (_listDirty)
         {
           lock (_syncObj)
@@ -207,7 +209,7 @@ namespace MediaPortal.UiComponents.Media.Models.ScreenData
 
     protected void NavigateToGroup(ViewSpecification subViewSpecification, IFilter clusterFilter)
     {
-      AbstractFiltersScreenData childScreenData = Derive();
+      AbstractFiltersScreenData<T> childScreenData = Derive();
       childScreenData.ClusterFilter = clusterFilter; // We already showed the clusters in the current screen - avoid clusters again else we would present the same grouped screen contents again
       _navigationData.StackSubordinateNavigationContext(subViewSpecification, childScreenData,
           LocalizationHelper.Translate(_navbarSubViewNavigationDisplayLabel,

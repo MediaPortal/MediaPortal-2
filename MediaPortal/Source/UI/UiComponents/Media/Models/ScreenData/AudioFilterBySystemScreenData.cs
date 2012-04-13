@@ -24,6 +24,7 @@
 
 using MediaPortal.UiComponents.Media.FilterCriteria;
 using MediaPortal.UiComponents.Media.General;
+using MediaPortal.UiComponents.Media.Models.Navigation;
 
 namespace MediaPortal.UiComponents.Media.Models.ScreenData
 {
@@ -35,7 +36,7 @@ namespace MediaPortal.UiComponents.Media.Models.ScreenData
     {
     }
 
-    public override AbstractFiltersScreenData Derive()
+    public override AbstractFiltersScreenData<FilterItem> Derive()
     {
       return new AudioFilterBySystemScreenData();
     }

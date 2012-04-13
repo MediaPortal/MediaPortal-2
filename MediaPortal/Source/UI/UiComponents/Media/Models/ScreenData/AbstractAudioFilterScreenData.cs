@@ -23,10 +23,11 @@
 #endregion
 
 using MediaPortal.UiComponents.Media.FilterCriteria;
+using MediaPortal.UiComponents.Media.Models.Navigation;
 
 namespace MediaPortal.UiComponents.Media.Models.ScreenData
 {
-  public abstract class AbstractAudioFilterScreenData : AbstractFiltersScreenData
+  public abstract class AbstractAudioFilterScreenData : AbstractFiltersScreenData<FilterItem>
   {
     protected AbstractAudioFilterScreenData(string screen, string menuItemLabel, string navbarSubViewNavigationDisplayLabel,
         MLFilterCriterion filterCriterion) : base(screen, menuItemLabel, navbarSubViewNavigationDisplayLabel, filterCriterion) { }

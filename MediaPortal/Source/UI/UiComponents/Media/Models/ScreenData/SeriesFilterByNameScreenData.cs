@@ -25,10 +25,11 @@
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.UiComponents.Media.FilterCriteria;
 using MediaPortal.UiComponents.Media.General;
+using MediaPortal.UiComponents.Media.Models.Navigation;
 
 namespace MediaPortal.UiComponents.Media.Models.ScreenData
 {
-  public class SeriesFilterByNameScreenData : AbstractVideosFilterScreenData
+  public class SeriesFilterByNameScreenData : AbstractSeriesFilterScreenData
   {
     public SeriesFilterByNameScreenData() :
         base(Consts.SCREEN_SERIES_FILTER_BY_NAME, Consts.RES_FILTER_BY_SERIES_NAME_MENU_ITEM,
@@ -36,7 +37,7 @@ namespace MediaPortal.UiComponents.Media.Models.ScreenData
     {
     }
 
-    public override AbstractFiltersScreenData Derive()
+    public override AbstractFiltersScreenData<SeriesFilterItem> Derive()
     {
       return new SeriesFilterByNameScreenData();
     }
