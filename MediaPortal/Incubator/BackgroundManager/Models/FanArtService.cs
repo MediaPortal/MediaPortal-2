@@ -31,9 +31,30 @@ namespace MediaPortal.UiComponents.BackgroundManager.Models
 {
   public class FanArtService : IFanArtService
   {
+    // TODO: Temporary lookup for series and their TvDB ID; This translation should be saved either in ML, Server settings,..
+    // TODO: Implement a series matcher and scraper to map series and then download fanart.
+    // TODO: Implement the features of this service as server plugin; change this class to act as proxy to access server
+    Dictionary<string, int> _seriesLookup = new Dictionary<string, int>
+                                                 {
+                                                   { "Eureka", 79334},
+                                                   { "EUReKA - Die geheime Stadt", 79334},
+                                                   { "Caprica", 85040},
+                                                   { "Fringe", 82066},
+                                                   { "Fringe - Grenzfälle des FBI", 82066},
+                                                   { "Bionic Woman", 80370},
+                                                   { "Falling Skies", 205281},
+                                                   { "FlashForward", 84024},
+                                                   { "Heroes", 79501},
+                                                   { "Haven", 158661},
+                                                 };
+
     public IList<string> GetFanArt(FanArtConstants.FanArtMediaType mediaType, FanArtConstants.FanArtType fanArtType, string name, bool singleRandom)
     {
       string baseFolder = GetBaseFolder(mediaType, name);
+      // No known series
+      if (baseFolder == null)
+        return new List<string> { fanArtType == FanArtConstants.FanArtType.Banner ? "NoBanner.png" : "NoPoster.png" };
+
       string pattern = GetPattern(fanArtType);
       DirectoryInfo directoryInfo = new DirectoryInfo(baseFolder);
       List<string> files = directoryInfo.GetFiles(pattern).Select(file => file.FullName).ToList();
@@ -66,7 +87,11 @@ namespace MediaPortal.UiComponents.BackgroundManager.Models
 
     protected string GetBaseFolder(FanArtConstants.FanArtMediaType mediaType, string name)
     {
-      return @"D:\Coding\MP\MP2\Series\TvdbLib\Cache\79334";
+      int part;
+      if (!_seriesLookup.TryGetValue(name, out part))
+        return null;
+
+      return @"D:\Coding\MP\MP2\Series\TvdbLib\Cache\" + part;
     }
   }
 }
