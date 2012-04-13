@@ -39,6 +39,7 @@ using MediaPortal.Common.Settings;
 using MediaPortal.Extensions.MetadataExtractors.VideoMetadataExtractor.Matroska;
 using MediaPortal.Extensions.MetadataExtractors.VideoMetadataExtractor.NameMatchers;
 using MediaPortal.Extensions.MetadataExtractors.VideoMetadataExtractor.Settings;
+using MediaPortal.Extensions.OnlineLibraries;
 using MediaPortal.Utilities;
 using MediaPortal.Utilities.SystemAPI;
 
@@ -333,7 +334,11 @@ namespace MediaPortal.Extensions.MetadataExtractors.VideoMetadataExtractor
         // Series and episode handling. Prefer information from tags.
         seriesInfo = GetSeriesFromTags(tagsToExtract);
         if (seriesInfo.IsCompleteMatch)
+        {
+          SeriesTvDbMatcher matcher = new SeriesTvDbMatcher();
+          matcher.TryMatch(seriesInfo);
           seriesInfo.SetMetadata(extractedAspectData);
+        }
 
         if (!string.IsNullOrEmpty(title))
           MediaItemAspect.SetAttribute(extractedAspectData, MediaAspect.ATTR_TITLE, title);
@@ -374,7 +379,11 @@ namespace MediaPortal.Extensions.MetadataExtractors.VideoMetadataExtractor
       // Try to match series from folder and file namings
       SeriesMatcher seriesMatcher = new SeriesMatcher();
       if (seriesMatcher.MatchSeries(localFsResourcePath, out seriesInfo) && seriesInfo.IsCompleteMatch)
+      {
+        SeriesTvDbMatcher matcher = new SeriesTvDbMatcher();
+        matcher.TryMatch(seriesInfo);
         seriesInfo.SetMetadata(extractedAspectData);
+      }
     }
 
     protected void ExtractThumbnailData(string localFsResourcePath, IDictionary<Guid, MediaItemAspect> extractedAspectData, bool forceQuickMode)

@@ -35,6 +35,7 @@ using MediaPortal.Common.ResourceAccess;
 using MediaPortal.Extensions.MetadataExtractors.Aspects;
 using MediaPortal.Utilities;
 using MediaPortal.Utilities.Exceptions;
+using MediaPortal.Extensions.OnlineLibraries;
 
 namespace MediaPortal.Extensions.MetadataExtractors
 {
@@ -167,7 +168,11 @@ namespace MediaPortal.Extensions.MetadataExtractors
         // Handle series information
         SeriesInfo seriesInfo = GetSeriesFromTags(tags);
         if (seriesInfo.IsCompleteMatch)
+        {
+          SeriesTvDbMatcher matcher= new SeriesTvDbMatcher();
+          matcher.TryMatch(seriesInfo);
           seriesInfo.SetMetadata(extractedAspectData);
+        }
 
         string value;
         if (TryGet(tags, TAG_GENRE, out value))
