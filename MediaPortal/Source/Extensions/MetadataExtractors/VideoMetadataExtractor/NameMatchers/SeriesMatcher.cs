@@ -43,6 +43,10 @@ namespace MediaPortal.Extensions.MetadataExtractors.VideoMetadataExtractor.NameM
           new Regex(@"(?<series>[^\\]+)\W(?<seasonnum>\d+)x((?<episodenum>\d+)_?)+ - (?<episode>.*)\.", RegexOptions.IgnoreCase),
           // "Series S1E01 - Episode" and multi-episodes "Series S1E01_02 - Episodes"
           new Regex(@"(?<series>[^\\]+)\WS(?<seasonnum>\d+)E((?<episodenum>\d+)_?)+ - (?<episode>.*)\.", RegexOptions.IgnoreCase),
+          // "Series.Name.1x01.Episode.Or.Release.Info"
+          new Regex(@"(?<series>[^\\]+).(?<seasonnum>\d+)x((?<episodenum>\d+)_?)+(?<episode>.*)\.", RegexOptions.IgnoreCase),
+          // "Series.Name.S01E01.Episode.Or.Release.Info"
+          new Regex(@"(?<series>[^\\]+).S(?<seasonnum>\d+)E((?<episodenum>\d+)_?)+(?<episode>.*)\.", RegexOptions.IgnoreCase),
         };
 
     public bool MatchSeries(string folderOrFileName, out SeriesInfo seriesInfo)
@@ -64,7 +68,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.VideoMetadataExtractor.NameM
       Group group = ma.Groups[GROUP_SERIES];
       if (group.Length > 0)
         info.Series = group.Value;
-      
+
       group = ma.Groups[GROUP_EPISODE];
       if (group.Length > 0)
         info.Episode = group.Value;
