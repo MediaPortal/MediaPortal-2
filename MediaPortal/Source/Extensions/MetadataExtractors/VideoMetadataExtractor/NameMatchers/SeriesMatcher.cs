@@ -47,6 +47,8 @@ namespace MediaPortal.Extensions.MetadataExtractors.VideoMetadataExtractor.NameM
           new Regex(@"(?<series>[^\\]+).(?<seasonnum>\d+)x((?<episodenum>\d+)_?)+(?<episode>.*)\.", RegexOptions.IgnoreCase),
           // "Series.Name.S01E01.Episode.Or.Release.Info"
           new Regex(@"(?<series>[^\\]+).S(?<seasonnum>\d+)E((?<episodenum>\d+)_?)+(?<episode>.*)\.", RegexOptions.IgnoreCase),
+          // "Series.Name.101.Episode.Or.Release.Info"
+          new Regex(@"(?<series>[^\\]+).(?<seasonnum>\d{1})(?<episodenum>\d{2})(?<episode>.*)\.", RegexOptions.IgnoreCase),
         };
 
     public bool MatchSeries(string folderOrFileName, out SeriesInfo seriesInfo)
