@@ -69,7 +69,11 @@ namespace MediaPortal.Common.MediaManagement.Helpers
     /// </summary>
     public bool IsCompleteMatch
     {
-      get { return !(string.IsNullOrEmpty(Series) || string.IsNullOrEmpty(Episode) || SeasonNumber == 0 || EpisodeNumbers.Count == 0); }
+      get
+      {
+        CleanUp();
+        return !(string.IsNullOrEmpty(Series) || string.IsNullOrEmpty(Episode) || SeasonNumber == 0 || EpisodeNumbers.Count == 0);
+      }
     }
     /// <summary>
     /// Gets or sets the series title.
@@ -101,6 +105,20 @@ namespace MediaPortal.Common.MediaManagement.Helpers
     #endregion
 
     #region Members 
+    
+    /// <summary>
+    /// Cleans up Series and Episode replaces unwanted characters ('.','_') by spaces.
+    /// </summary>
+    private void CleanUp()
+    {
+      Series = Replace(Series);
+      Episode = Replace(Episode);
+    }
+
+    private string Replace(string name)
+    {
+      return name == null ? null : name.Replace('.', ' ').Replace('_', ' ');
+    }
 
     /// <summary>
     /// Copies the contained series information into MediaItemAspect.
