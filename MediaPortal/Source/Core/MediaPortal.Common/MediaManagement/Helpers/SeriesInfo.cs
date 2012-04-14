@@ -72,7 +72,7 @@ namespace MediaPortal.Common.MediaManagement.Helpers
       get
       {
         CleanUp();
-        return !(string.IsNullOrEmpty(Series) || string.IsNullOrEmpty(Episode) || SeasonNumber == 0 || EpisodeNumbers.Count == 0);
+        return !(string.IsNullOrEmpty(Series) || SeasonNumber == 0 || EpisodeNumbers.Count == 0);
       }
     }
     /// <summary>
