@@ -57,7 +57,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.TheTvDB
     /// <returns></returns>
     public bool Init()
     {
-      ICacheProvider cacheProvider = new XmlCacheProvider(@"C:\ProgramData\Team MediaPortal\MP2-Client\TvDB");
+      ICacheProvider cacheProvider = new XmlCacheProvider(SeriesTvDbMatcher.CACHE_PATH);
       _tvdbHandler = new TvdbHandler(cacheProvider, "9628A4332A8F3487");
       _tvdbHandler.InitCache();
       if (!_tvdbHandler.IsLanguagesCached)

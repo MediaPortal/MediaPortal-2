@@ -40,12 +40,19 @@ namespace MediaPortal.UiComponents.BackgroundManager.Models
       string baseFolder = GetBaseFolder(mediaType, name);
       // No known series
       if (baseFolder == null || !Directory.Exists(baseFolder))
-        return new List<string> { fanArtType == FanArtConstants.FanArtType.Banner ? "NoBanner.png" : "NoPoster.png" };
+        return DefaultNames(fanArtType);
 
       string pattern = GetPattern(fanArtType);
       DirectoryInfo directoryInfo = new DirectoryInfo(baseFolder);
       List<string> files = directoryInfo.GetFiles(pattern).Select(file => file.FullName).ToList();
+      if (files.Count == 0)
+        return DefaultNames(fanArtType);
       return singleRandom ? GetSingleRandom(files) : files;
+    }
+
+    private static List<string> DefaultNames(FanArtConstants.FanArtType fanArtType)
+    {
+      return new List<string> { fanArtType == FanArtConstants.FanArtType.Banner ? "NoBanner.png" : "NoPoster.png" };
     }
 
     protected IList<string> GetSingleRandom(IList<string> fullList)
@@ -78,7 +85,7 @@ namespace MediaPortal.UiComponents.BackgroundManager.Models
       int tvDbId;
       if (!matcher.TryGetTvDbId(name, out tvDbId))
         return null;
-      return @"C:\ProgramData\Team MediaPortal\MP2-Client\TvDB\" + tvDbId;
+      return Path.Combine(SeriesTvDbMatcher.CACHE_PATH, tvDbId.ToString());
     }
   }
 }

@@ -24,10 +24,12 @@
 
 using System.Collections.Generic;
 using System.Globalization;
+using System.IO;
 using System.Linq;
 using MediaPortal.Common;
 using MediaPortal.Common.Localization;
 using MediaPortal.Common.MediaManagement.Helpers;
+using MediaPortal.Common.PathManager;
 using MediaPortal.Extensions.OnlineLibraries.TheTvDB;
 using TvdbLib.Data;
 
@@ -40,7 +42,18 @@ namespace MediaPortal.Extensions.OnlineLibraries
   {
     public const int MAX_FANART_IMAGES = 10;
     //TODO: store cache in server folder, make contents acessible via client-server communication (WCF, UPnP?)
-    public const string SETTINGS_MATCHES = @"C:\ProgramData\Team MediaPortal\MP2-Client\TvDB\Matches.xml";
+    public static string CACHE_PATH
+    {
+      get
+      {
+        // TODO: UGLY workaround to force common storage for both MP2-Client and MP2-Server
+        return ServiceRegistration.Get<IPathManager>().GetPath(@"<DATA>\TvDB\").Replace("MP2-Server", "MP2-Client");
+      }
+    }
+    public static string SETTINGS_MATCHES
+    {
+      get { return Path.Combine(CACHE_PATH, "Matches.xml"); }
+    }
 
     /// <summary>
     /// Locking object to access settings.
