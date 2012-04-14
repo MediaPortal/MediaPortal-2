@@ -281,7 +281,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.VideoMetadataExtractor.Matro
     {
       if (targetTypeValue.HasValue)
         return from simpleTag in doc.Descendants("Tags").Descendants("Tag")
-               where simpleTag.Element("Targets").HasElements && Convert.ToInt32(simpleTag.Element("Targets").Element("TargetTypeValue").Value) == targetTypeValue.Value
+               where simpleTag.Element("Targets").HasElements && simpleTag.Element("Targets").Element("TargetTypeValue") != null && Convert.ToInt32(simpleTag.Element("Targets").Element("TargetTypeValue").Value) == targetTypeValue.Value
                select simpleTag;
 
       return from simpleTag in doc.Descendants("Tags").Descendants("Tag")
