@@ -150,12 +150,24 @@ namespace MediaPortal.Extensions.OnlineLibraries.TheTvDB
     /// Gets Series information from TvDB. Results will be added automatically to cache.
     /// </summary>
     /// <param name="seriesId">TvDB ID of series</param>
-    /// <param name="loadBanners"><c>true</c> to load banners</param>
+    /// <param name="loadEpisodes"><c>true</c> to load episodes</param>
     /// <param name="series">Returns the Series information</param>
     /// <returns><c>true</c> if successful</returns>
-    public bool GetSeries(int seriesId, bool loadBanners, out TvdbSeries series)
+    public bool GetSeries(int seriesId, bool loadEpisodes, out TvdbSeries series)
     {
-      series = _tvdbHandler.GetSeries(seriesId, PreferredLanguage, false, false, loadBanners);
+      series = _tvdbHandler.GetSeries(seriesId, PreferredLanguage, loadEpisodes, false, false);
+      return series != null;
+    }
+
+    /// <summary>
+    /// Gets Series information from TvDB. Results will be added automatically to cache.
+    /// </summary>
+    /// <param name="seriesId">TvDB ID of series</param>
+    /// <param name="series">Returns the Series information</param>
+    /// <returns><c>true</c> if successful</returns>
+    public bool GetSeriesFanArt(int seriesId, out TvdbSeries series)
+    {
+      series = _tvdbHandler.GetSeries(seriesId, PreferredLanguage, false, false, true);
       return series != null;
     }
   }

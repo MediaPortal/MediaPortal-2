@@ -170,7 +170,7 @@ namespace MediaPortal.Extensions.MetadataExtractors
         if (seriesInfo.IsCompleteMatch)
         {
           SeriesTvDbMatcher matcher= new SeriesTvDbMatcher();
-          matcher.TryMatch(seriesInfo);
+          matcher.FindAndUpdateSeries(seriesInfo);
           seriesInfo.SetMetadata(extractedAspectData);
         }
 

@@ -38,20 +38,21 @@ namespace MediaPortal.Extensions.OnlineLibraries
   /// </summary>
   public class SeriesTvDbMatcher
   {
-    public static readonly List<SeriesMatch> Matches = new List<SeriesMatch>();
+    public const int MAX_FANART_IMAGES = 10;
+    //TODO: store cache in server folder, make contents acessible via client-server communication (WCF, UPnP?)
     public const string SETTINGS_MATCHES = @"C:\ProgramData\Team MediaPortal\MP2-Client\TvDB\Matches.xml";
 
-    static SeriesTvDbMatcher()
-    {
-      List<SeriesMatch> savedList = Settings.Load<List<SeriesMatch>>(SETTINGS_MATCHES);
-      if (savedList != null)
-        savedList.ForEach(Matches.Add);
-    }
-
+    /// <summary>
+    /// Tries to lookup the series from TheTvDB and return the found ID.
+    /// </summary>
+    /// <param name="seriesName">Series name to check</param>
+    /// <param name="tvDbId">Return the TvDB ID of series</param>
+    /// <returns><c>true</c> if successful</returns>
     public bool TryGetTvDbId(string seriesName, out int tvDbId)
     {
-      SeriesMatch match = TryMatch(seriesName);
-      if (match != null)
+      SeriesMatch match;
+      TvdbSeries seriesDetail;
+      if (TryMatch(seriesName, true, out match, out seriesDetail))
       {
         tvDbId = match.TvDBID;
         return true;
@@ -60,39 +61,60 @@ namespace MediaPortal.Extensions.OnlineLibraries
       return false;
     }
 
-    public bool TryMatch(SeriesInfo seriesInfo)
+    /// <summary>
+    /// Tries to lookup the series from TheTvDB and updates the given <paramref name="seriesInfo"/> with the online information (Series and Episode names).
+    /// </summary>
+    /// <param name="seriesInfo">Series to check</param>
+    /// <returns><c>true</c> if successful</returns>
+    public bool FindAndUpdateSeries(SeriesInfo seriesInfo)
     {
-      // Use cached values before doing online query
-      SeriesMatch match = TryMatch(seriesInfo.Series);
-      if (match != null)
+      SeriesMatch match;
+      TvdbSeries seriesDetail;
+      if (TryMatch(seriesInfo.Series, true, out match, out seriesDetail))
       {
         seriesInfo.Series = match.TvDBName;
+        // Also try to fill episode title from series details (most file names don't contain episode name).
+        TryMatchEpisode(seriesInfo, seriesDetail);
+
+        // TODO: download fanart asynch
+        DownloadFanArt(match.TvDBID);
         return true;
       }
       return false;
     }
 
-    protected SeriesMatch TryMatch(string seriesName)
+    protected bool TryMatchEpisode(SeriesInfo seriesInfo, TvdbSeries seriesDetail)
     {
+      TvdbEpisode episode = seriesDetail.Episodes.Find(e => e.EpisodeNumber == seriesInfo.EpisodeNumbers.FirstOrDefault() && e.SeasonNumber == seriesInfo.SeasonNumber);
+      if (episode != null)
+      {
+        seriesInfo.Episode = episode.EpisodeName;
+        return true;
+      }
+      return false;
+    }
+
+    protected bool TryMatch(string seriesName, bool cacheOnly, out SeriesMatch match, out TvdbSeries seriesDetail)
+    {
+      // Load cache or create new list
+      List<SeriesMatch> matches = Settings.Load<List<SeriesMatch>>(SETTINGS_MATCHES) ?? new List<SeriesMatch>();
+
+      // Init empty
+      seriesDetail = null;
+
       // Use cached values before doing online query
-      SeriesMatch match = Matches.Find(m => m.SeriesName == seriesName);
-      if (match != null)
-        return match;
+      match = matches.Find(m => m.SeriesName == seriesName || m.TvDBName == seriesName);
+      if (match != null || cacheOnly)
+        return match != null;
 
       // Try online lookup
-      TvDbWrapper tv = new TvDbWrapper();
-
-      // Try to lookup online content in the configured language
-      CultureInfo currentCulture = ServiceRegistration.Get<ILocalization>().CurrentCulture;
-      tv.SetPreferredLanguage(currentCulture.TwoLetterISOLanguageName);
-      tv.Init();
+      var tv = GetTvDbWrapper();
 
       List<TvdbSearchResult> series;
       if (tv.SearchSeriesUnique(seriesName, out series))
       {
         TvdbSearchResult matchedSeries = series[0];
-        TvdbSeries seriesDetail;
-        if (tv.GetSeries(matchedSeries.Id, false, out seriesDetail))
+        if (tv.GetSeries(matchedSeries.Id, true, out seriesDetail))
         {
           // Add this match to cache
           SeriesMatch onlineMatch = new SeriesMatch
@@ -102,17 +124,75 @@ namespace MediaPortal.Extensions.OnlineLibraries
             TvDBName = seriesDetail.SeriesName
           };
 
-          if (Matches.All(m => m.SeriesName != seriesName))
-            Matches.Add(onlineMatch);
+          if (matches.All(m => m.SeriesName != seriesName))
+            matches.Add(onlineMatch);
 
           // Save cache
-          Settings.Save(SETTINGS_MATCHES, Matches);
-
-          // TODO: also load banners when requested first
-          return onlineMatch;
+          Settings.Save(SETTINGS_MATCHES, matches);
+          return true;
         }
       }
-      return null;
+      return false;
+    }
+
+    private static TvDbWrapper GetTvDbWrapper()
+    {
+      TvDbWrapper tv = new TvDbWrapper();
+      // Try to lookup online content in the configured language
+      CultureInfo currentCulture = ServiceRegistration.Get<ILocalization>().CurrentCulture;
+      tv.SetPreferredLanguage(currentCulture.TwoLetterISOLanguageName);
+      tv.Init();
+      return tv;
+    }
+
+    public bool DownloadFanArt(int tvDbId)
+    {
+      var tv = GetTvDbWrapper();
+      TvdbSeries seriesDetail;
+      if (!tv.GetSeriesFanArt(tvDbId, out seriesDetail))
+        return false;
+      // Save Banners
+      SaveBanners(seriesDetail.SeriesBanners, tv.PreferredLanguage);
+
+      // Save Posters
+      SaveBanners(seriesDetail.PosterBanners, tv.PreferredLanguage);
+
+      // Save FanArt
+      //SaveBanners(seriesDetail.FanartBanners, tv.PreferredLanguage);
+      return true;
+    }
+
+    private static int SaveBanners<TE>(IEnumerable<TE> banners, TvdbLanguage language) where TE : TvdbBanner
+    {
+      int idx = 0;
+      foreach (TE tvdbBanner in banners)
+      {
+        if (tvdbBanner.Language != language)
+          continue;
+
+        if (idx++ >= 10)
+          break;
+
+        if (!tvdbBanner.IsLoaded)
+        {
+          // We need the image only loaded once, later we will access the cache directly
+          tvdbBanner.LoadBanner();
+          tvdbBanner.UnloadBanner();
+        }
+      }
+      if (idx > 0)
+        return idx;
+
+      // Try fallback languages if no images found for preferred
+      if (language != TvdbLanguage.UniversalLanguage && language != TvdbLanguage.DefaultLanguage)
+      {
+        idx = SaveBanners(banners, TvdbLanguage.UniversalLanguage);
+        if (idx > 0)
+          return idx;
+
+        idx = SaveBanners(banners, TvdbLanguage.DefaultLanguage);
+      }
+      return idx;
     }
   }
 }

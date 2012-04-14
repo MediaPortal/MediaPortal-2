@@ -336,7 +336,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.VideoMetadataExtractor
         if (seriesInfo.IsCompleteMatch)
         {
           SeriesTvDbMatcher matcher = new SeriesTvDbMatcher();
-          matcher.TryMatch(seriesInfo);
+          matcher.FindAndUpdateSeries(seriesInfo);
           seriesInfo.SetMetadata(extractedAspectData);
         }
 
@@ -381,7 +381,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.VideoMetadataExtractor
       if (seriesMatcher.MatchSeries(localFsResourcePath, out seriesInfo) && seriesInfo.IsCompleteMatch)
       {
         SeriesTvDbMatcher matcher = new SeriesTvDbMatcher();
-        matcher.TryMatch(seriesInfo);
+        matcher.FindAndUpdateSeries(seriesInfo);
         seriesInfo.SetMetadata(extractedAspectData);
       }
     }
