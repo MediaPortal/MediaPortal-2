@@ -70,14 +70,26 @@ namespace MediaPortal.Extensions.OnlineLibraries
     {
       SeriesMatch match;
       TvdbSeries seriesDetail;
-      if (TryMatch(seriesInfo.Series, true, out match, out seriesDetail))
+      if (TryMatch(seriesInfo.Series, false, out match, out seriesDetail))
       {
-        seriesInfo.Series = match.TvDBName;
-        // Also try to fill episode title from series details (most file names don't contain episode name).
-        TryMatchEpisode(seriesInfo, seriesDetail);
+        int tvDbId = 0;
+        if (seriesDetail != null)
+        {
+          tvDbId = seriesDetail.Id;
+          seriesInfo.Series = seriesDetail.SeriesName;
+          // Also try to fill episode title from series details (most file names don't contain episode name).
+          TryMatchEpisode(seriesInfo, seriesDetail);
+        }
+        else
+          if (match != null)
+          {
+            match.TvDBID = match.TvDBID;
+            seriesInfo.Series = match.TvDBName;
+          }
 
         // TODO: download fanart asynch
-        DownloadFanArt(match.TvDBID);
+        if (tvDbId > 0)
+          DownloadFanArt(tvDbId);
         return true;
       }
       return false;
@@ -85,7 +97,19 @@ namespace MediaPortal.Extensions.OnlineLibraries
 
     protected bool TryMatchEpisode(SeriesInfo seriesInfo, TvdbSeries seriesDetail)
     {
-      TvdbEpisode episode = seriesDetail.Episodes.Find(e => e.EpisodeNumber == seriesInfo.EpisodeNumbers.FirstOrDefault() && e.SeasonNumber == seriesInfo.SeasonNumber);
+      // We deal with two scenarios here:
+      //  - Having a real episode title, but the Season/Episode numbers might be wrong (seldom case)
+      //  - Having only Season/Episode numbers and we need to fill Episode title (more common)
+      TvdbEpisode episode = seriesDetail.Episodes.Find(e => e.EpisodeName == seriesInfo.Episode);
+      if (episode != null)
+      {
+        seriesInfo.SeasonNumber = episode.SeasonNumber;
+        seriesInfo.EpisodeNumbers.Clear();
+        seriesInfo.EpisodeNumbers.Add(episode.EpisodeNumber);
+        return true;
+      }
+      
+      episode = seriesDetail.Episodes.Find(e => e.EpisodeNumber == seriesInfo.EpisodeNumbers.FirstOrDefault() && e.SeasonNumber == seriesInfo.SeasonNumber);
       if (episode != null)
       {
         seriesInfo.Episode = episode.EpisodeName;
@@ -104,7 +128,7 @@ namespace MediaPortal.Extensions.OnlineLibraries
 
       // Use cached values before doing online query
       match = matches.Find(m => m.SeriesName == seriesName || m.TvDBName == seriesName);
-      if (match != null || cacheOnly)
+      if (cacheOnly)
         return match != null;
 
       // Try online lookup
