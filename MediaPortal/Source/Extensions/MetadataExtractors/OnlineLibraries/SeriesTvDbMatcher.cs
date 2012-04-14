@@ -43,6 +43,11 @@ namespace MediaPortal.Extensions.OnlineLibraries
     public const string SETTINGS_MATCHES = @"C:\ProgramData\Team MediaPortal\MP2-Client\TvDB\Matches.xml";
 
     /// <summary>
+    /// Locking object to access settings.
+    /// </summary>
+    protected object _syncObj = new object();
+
+    /// <summary>
     /// Tries to lookup the series from TheTvDB and return the found ID.
     /// </summary>
     /// <param name="seriesName">Series name to check</param>
@@ -108,7 +113,7 @@ namespace MediaPortal.Extensions.OnlineLibraries
         seriesInfo.EpisodeNumbers.Add(episode.EpisodeNumber);
         return true;
       }
-      
+
       episode = seriesDetail.Episodes.Find(e => e.EpisodeNumber == seriesInfo.EpisodeNumbers.FirstOrDefault() && e.SeasonNumber == seriesInfo.SeasonNumber);
       if (episode != null)
       {
@@ -148,11 +153,14 @@ namespace MediaPortal.Extensions.OnlineLibraries
             TvDBName = seriesDetail.SeriesName
           };
 
-          if (matches.All(m => m.SeriesName != seriesName))
-            matches.Add(onlineMatch);
-
           // Save cache
-          Settings.Save(SETTINGS_MATCHES, matches);
+          lock (_syncObj)
+          {
+            matches = Settings.Load<List<SeriesMatch>>(SETTINGS_MATCHES);
+            if (matches.All(m => m.SeriesName != seriesName))
+              matches.Add(onlineMatch);
+            Settings.Save(SETTINGS_MATCHES, matches);
+          }
           return true;
         }
       }
@@ -171,6 +179,23 @@ namespace MediaPortal.Extensions.OnlineLibraries
 
     public bool DownloadFanArt(int tvDbId)
     {
+      bool fanArtDownloaded = false;
+      lock (_syncObj)
+      {
+        // Load cache or create new list
+        List<SeriesMatch> matches = Settings.Load<List<SeriesMatch>>(SETTINGS_MATCHES) ?? new List<SeriesMatch>();
+        foreach (SeriesMatch seriesMatch in matches.FindAll(m => m.TvDBID == tvDbId))
+        {
+          // We can have multiple matches for one TvDbId in list, if one has FanArt downloaded already, update the flag for all matches.
+          if (seriesMatch.FanArtDownloaded)
+            fanArtDownloaded = true;
+          seriesMatch.FanArtDownloaded = true;
+        }
+        Settings.Save(SETTINGS_MATCHES, matches);
+      }
+      if (fanArtDownloaded)
+        return true;
+
       var tv = GetTvDbWrapper();
       TvdbSeries seriesDetail;
       if (!tv.GetSeriesFanArt(tvDbId, out seriesDetail))

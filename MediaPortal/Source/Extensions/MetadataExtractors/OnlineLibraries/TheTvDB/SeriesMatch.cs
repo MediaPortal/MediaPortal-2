@@ -5,6 +5,7 @@ namespace MediaPortal.Extensions.OnlineLibraries
     public string SeriesName;
     public string TvDBName;
     public int TvDBID;
+    public bool FanArtDownloaded;
     public override string ToString()
     {
       return string.Format("{0}: {1} [{2}]", SeriesName, TvDBName, TvDBID);
