@@ -156,7 +156,7 @@ namespace MediaPortal.Extensions.OnlineLibraries
           // Save cache
           lock (_syncObj)
           {
-            matches = Settings.Load<List<SeriesMatch>>(SETTINGS_MATCHES);
+            matches = Settings.Load<List<SeriesMatch>>(SETTINGS_MATCHES) ?? new List<SeriesMatch>();
             if (matches.All(m => m.SeriesName != seriesName))
               matches.Add(onlineMatch);
             Settings.Save(SETTINGS_MATCHES, matches);
