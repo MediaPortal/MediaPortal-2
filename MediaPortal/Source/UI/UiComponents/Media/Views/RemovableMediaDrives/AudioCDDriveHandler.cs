@@ -129,13 +129,9 @@ namespace MediaPortal.UiComponents.Media.Views.RemovableMediaDrives
     protected static MediaItem CreateMediaItem(BassUtils.AudioTrack track, char drive, int numTracks, string systemId)
     {
       IDictionary<Guid, MediaItemAspect> aspects = new Dictionary<Guid, MediaItemAspect>();
-      // TODO: The creation of new media item aspects could be moved to a general method
-      MediaItemAspect providerResourceAspect;
-      aspects[ProviderResourceAspect.ASPECT_ID] = providerResourceAspect = new MediaItemAspect(ProviderResourceAspect.Metadata);
-      MediaItemAspect mediaAspect;
-      aspects[MediaAspect.ASPECT_ID] = mediaAspect = new MediaItemAspect(MediaAspect.Metadata);
-      MediaItemAspect audioAspect;
-      aspects[AudioAspect.ASPECT_ID] = audioAspect = new MediaItemAspect(AudioAspect.Metadata);
+      MediaItemAspect providerResourceAspect = MediaItemAspect.GetOrCreateAspect(aspects, ProviderResourceAspect.Metadata);
+      MediaItemAspect mediaAspect = MediaItemAspect.GetOrCreateAspect(aspects, MediaAspect.Metadata);
+      MediaItemAspect audioAspect = MediaItemAspect.GetOrCreateAspect(aspects, AudioAspect.Metadata);
 
       // TODO: Collect data from internet for the current audio CD
       providerResourceAspect.SetAttribute(ProviderResourceAspect.ATTR_RESOURCE_ACCESSOR_PATH,

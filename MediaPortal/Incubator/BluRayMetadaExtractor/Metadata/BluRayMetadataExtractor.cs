@@ -101,12 +101,7 @@ namespace MediaPortal.Media.MetadataExtractors
               if (fsraBDMV != null && fsraBDMV.ResourceExists("index.bdmv"))
               {
                 // BluRay
-                MediaItemAspect mediaAspect;
-                if (!extractedAspectData.TryGetValue(MediaAspect.ASPECT_ID, out mediaAspect))
-                  extractedAspectData[MediaAspect.ASPECT_ID] = mediaAspect = new MediaItemAspect(MediaAspect.Metadata);
-                MediaItemAspect videoAspect;
-                if (!extractedAspectData.TryGetValue(VideoAspect.ASPECT_ID, out videoAspect))
-                  extractedAspectData[VideoAspect.ASPECT_ID] = new MediaItemAspect(VideoAspect.Metadata);
+                MediaItemAspect mediaAspect = MediaItemAspect.GetOrCreateAspect(extractedAspectData, MediaAspect.Metadata);
 
                 mediaAspect.SetAttribute(MediaAspect.ATTR_MIME_TYPE, "video/bluray"); // BluRay disc
 

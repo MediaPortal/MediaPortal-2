@@ -375,12 +375,7 @@ namespace MediaPortal.Common.Services.MediaManagement
       IDictionary<Guid, MediaItemAspect> aspects = ExtractMetadata(mediaItemAccessor, metadataExtractorIds, forceQuickMode);
       if (aspects == null)
         return null;
-      MediaItemAspect providerResourceAspect;
-      if (aspects.ContainsKey(ProviderResourceAspect.ASPECT_ID))
-        providerResourceAspect = aspects[ProviderResourceAspect.ASPECT_ID];
-      else
-        providerResourceAspect = aspects[ProviderResourceAspect.ASPECT_ID] = new MediaItemAspect(
-            ProviderResourceAspect.Metadata);
+      MediaItemAspect providerResourceAspect = MediaItemAspect.GetOrCreateAspect(aspects, ProviderResourceAspect.Metadata);
       providerResourceAspect.SetAttribute(ProviderResourceAspect.ATTR_SYSTEM_ID, systemResolver.LocalSystemId);
       providerResourceAspect.SetAttribute(ProviderResourceAspect.ATTR_RESOURCE_ACCESSOR_PATH, mediaItemAccessor.CanonicalLocalResourcePath.Serialize());
       return new MediaItem(Guid.Empty, aspects);
