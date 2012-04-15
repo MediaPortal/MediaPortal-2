@@ -9,11 +9,11 @@ using Effect = MediaPortal.UI.SkinEngine.Controls.Visuals.Effects.Effect;
 namespace MediaPortal.UI.SkinEngine.Controls.Panels
 {
   /// <summary>
-  /// BackgroundCapture is used as helper control to capture the already rendered screen from the backbuffer, so that any <see cref="Effect"/> can be applied to it.
-  /// This component always captures the complete backbuffer size. The position inside the XAML code does matter, because only elements that were rendered before 
-  /// are visible. It only processes the backbuffer if a <see cref="Effect"/> is set and rendering is required.
+  /// Helper control to capture the already rendered screen from the backbuffer, so that any <see cref="Effect"/> can be applied to it.
+  /// This component always captures the complete backbuffer size. The position inside the XAML code does matter, because only elements that
+  /// were rendered before are visible. It only processes the backbuffer if a <see cref="Effect"/> is set and rendering is required.
   /// </summary>
-  public class BackgroundCapture : FrameworkElement
+  public class BackgroundEffect : FrameworkElement
   {
     private Texture _texture;
 

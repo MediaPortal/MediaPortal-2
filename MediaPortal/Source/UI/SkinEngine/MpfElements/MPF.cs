@@ -79,7 +79,7 @@ namespace MediaPortal.UI.SkinEngine.MpfElements
       _objectClassRegistrations.Add("GridLength", typeof(SkinEngine.Controls.Panels.GridLength));
       _objectClassRegistrations.Add("WrapPanel", typeof(SkinEngine.Controls.Panels.WrapPanel));
       _objectClassRegistrations.Add("UniformGrid", typeof(SkinEngine.Controls.Panels.UniformGrid));
-      _objectClassRegistrations.Add("BackgroundCapture", typeof(SkinEngine.Controls.Panels.BackgroundCapture));
+      _objectClassRegistrations.Add("BackgroundEffect", typeof(SkinEngine.Controls.Panels.BackgroundEffect));
 
       // Visuals
       _objectClassRegistrations.Add("ARRetainingControl", typeof(SkinEngine.Controls.Visuals.ARRetainingControl));
@@ -212,12 +212,12 @@ namespace MediaPortal.UI.SkinEngine.MpfElements
 
       // Effects
       // Image effects based on ImageContext
-      _objectClassRegistrations.Add("GenericImageEffect", typeof(MediaPortal.UI.SkinEngine.Controls.Visuals.Effects.GenericImageEffect));
+      _objectClassRegistrations.Add("SimpleImageEffect", typeof(MediaPortal.UI.SkinEngine.Controls.Visuals.Effects.SimpleImageEffect));
       _objectClassRegistrations.Add("ZoomBlurEffect", typeof(MediaPortal.UI.SkinEngine.Controls.Visuals.Effects.ZoomBlurEffect));
       _objectClassRegistrations.Add("PixelateEffect", typeof(MediaPortal.UI.SkinEngine.Controls.Visuals.Effects.PixelateEffect));
 
       // Generic shader effects based on EffectContext
-      _objectClassRegistrations.Add("GenericShaderEffect", typeof(MediaPortal.UI.SkinEngine.Controls.Visuals.Effects.GenericShaderEffect));
+      _objectClassRegistrations.Add("SimpleShaderEffect", typeof(MediaPortal.UI.SkinEngine.Controls.Visuals.Effects.SimpleShaderEffect));
     }
 
     #endregion

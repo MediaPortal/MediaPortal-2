@@ -119,14 +119,14 @@
     <Compile Include="Controls\ImageSources\ImageSource.cs" />
     <Compile Include="Controls\ImageSources\MediaItemSource.cs" />
     <Compile Include="Controls\ImageSources\MultiImageSource.cs" />
-    <Compile Include="Controls\Panels\BackgroundCapture.cs" />
+    <Compile Include="Controls\Panels\BackgroundEffect.cs" />
     <Compile Include="Controls\Panels\DefinitionsCollectionBase.cs" />
     <Compile Include="Controls\Panels\IItemProvider.cs" />
     <Compile Include="Controls\Transforms\MatrixTransform.cs" />
     <Compile Include="Controls\Visuals\Effects\Effect.cs" />
     <Compile Include="Controls\Visuals\Effects\ImageEffect.cs" />
-    <Compile Include="Controls\Visuals\Effects\GenericShaderEffect.cs" />
-    <Compile Include="Controls\Visuals\Effects\GenericImageEffect.cs" />
+    <Compile Include="Controls\Visuals\Effects\SimpleShaderEffect.cs" />
+    <Compile Include="Controls\Visuals\Effects\SimpleImageEffect.cs" />
     <Compile Include="Controls\Visuals\Effects\PixelateEffect.cs" />
     <Compile Include="Controls\Visuals\Effects\ZoomBlurEffect.cs" />
     <Compile Include="Controls\Visuals\Effects\ShaderEffect.cs" />

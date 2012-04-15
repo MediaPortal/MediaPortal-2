@@ -50,15 +50,13 @@ Parameters which have to be accessible by a DynamicResource lookup:
   
   <DockPanel x:Name="ScreenAnimationElement" RenderTransformOrigin="0.5,0.5" Background="{ThemeResource DialogScreenBackgroundColor}"
       LastChildFill="False">
-  <BackgroundCapture x:Name="BackgroundCapture" IsVisible="True" DockPanel.Dock="Center">
-    <BackgroundCapture.Effect>
-        <!-- name of .fx file from Skin/default/shaders -->
-        <GenericShaderEffect ShaderEffectName="dialogbg"/>
-
-        <!-- name of partitial .fx file from Skin/default/shaders/effects -->
-        <!--<GenericImageEffect PartitialEffectName="sepia"/>-->
-    </BackgroundCapture.Effect>
-  </BackgroundCapture>
+    <BackgroundEffect DockPanel.Dock="Center">
+      <BackgroundEffect.Effect>
+          <SimpleShaderEffect ShaderEffectName="dialogbg"/>
+          <!-- We can also use partial effects here: -->
+          <!--<SimpleImageEffect PartitialEffectName="sepia"/>-->
+      </BackgroundEffect.Effect>
+    </BackgroundEffect>
     <DockPanel.RenderTransform>
       <TransformGroup>
         <ScaleTransform CenterX="0.5" CenterY="0.5" ScaleX="1" ScaleY="1"/>

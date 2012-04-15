@@ -28,20 +28,21 @@ using MediaPortal.Utilities.DeepCopy;
 namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Effects
 {
   /// <summary>
-  /// <see cref="GenericImageEffect"/> provides a shader that allows setting the partitial filename
-  /// (<see cref="PartitialEffectName"/>) of an image shader from XAML.
+  /// <see cref="SimpleShaderEffect"/> provides a shader that allows setting the filename (<see cref="ShaderEffectName"/>) of a shader from XAML. 
+  /// This way any parameterless .fx file can be used. Shaders that provide parameters should be handled with an own shader class 
+  /// that exposes the parameters as properties.
   /// </summary>
-  public class GenericImageEffect : ImageEffect
+  public class SimpleShaderEffect : ShaderEffect
   {
     #region Protected fields
 
-    protected AbstractProperty _partialShaderEffectProperty;
-
+    protected AbstractProperty _shaderEffectNameProperty;
+    
     #endregion
 
     #region Ctor & maintainance
 
-    public GenericImageEffect()
+    public SimpleShaderEffect()
     {
       Init();
       Attach();
@@ -49,31 +50,32 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Effects
 
     void Init()
     {
-      _partialShaderEffectProperty = new SProperty(typeof(string), "none");
+      _shaderEffectName = "normal";
+      _shaderEffectNameProperty = new SProperty(typeof(string), _shaderEffectName);
     }
 
     void Attach()
     {
-      _partialShaderEffectProperty.Attach(OnPropertyChanged);
+      _shaderEffectNameProperty.Attach(OnPropertyChanged);
     }
 
     void Detach()
     {
-      _partialShaderEffectProperty.Detach(OnPropertyChanged);
+      _shaderEffectNameProperty.Detach(OnPropertyChanged);
     }
 
     public override void DeepCopy(IDeepCopyable source, ICopyManager copyManager)
     {
       Detach();
       base.DeepCopy(source, copyManager);
-      GenericImageEffect el = (GenericImageEffect) source;
-      PartitialEffectName = el.PartitialEffectName;
+      SimpleShaderEffect el = (SimpleShaderEffect) source;
+      ShaderEffectName = el.ShaderEffectName;
       Attach();
     }
 
     private void OnPropertyChanged(AbstractProperty property, object oldvalue)
     {
-      _partialShaderEffect = PartitialEffectName;
+      _shaderEffectName = ShaderEffectName;
     }
 
     public override void Dispose()
@@ -81,25 +83,25 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Effects
       base.Dispose();
       Detach();
     }
-
+    
     #endregion
 
     #region Properties
 
-    public AbstractProperty PartialShaderEffectProperty
+    public AbstractProperty ShaderEffectNameProperty
     {
-      get { return _partialShaderEffectProperty; }
+      get { return _shaderEffectNameProperty; }
     }
 
     /// <summary>
-    /// Gets or sets the name of the partitial shader to use. A corresponding shader file must be present in the skin's shader effects
-    /// directory (directory <c>shaders\effects</c>). Only the file name without extension is required, folder name and <c>.fx</c> extension
-    /// are added internally.
+    /// Gets or sets the name of the shader to use. A corresponding shader file must be present in the
+    /// skin's shader directory (directory <c>shaders</c>). Only the file name without extension is required, folder name and
+    /// <c>.fx</c> extension are added internally.
     /// </summary>
-    public string PartitialEffectName
+    public string ShaderEffectName
     {
-      get { return (string) _partialShaderEffectProperty.GetValue(); }
-      set { _partialShaderEffectProperty.SetValue(value); }
+      get { return (string) _shaderEffectNameProperty.GetValue(); }
+      set { _shaderEffectNameProperty.SetValue(value); }
     }
 
     #endregion
