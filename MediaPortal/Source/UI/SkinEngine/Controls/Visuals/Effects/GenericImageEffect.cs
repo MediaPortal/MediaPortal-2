@@ -28,7 +28,8 @@ using MediaPortal.Utilities.DeepCopy;
 namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Effects
 {
   /// <summary>
-  /// <see cref="GenericImageEffect"/> provides a Shader that allows setting the partitial filename (<see cref="PartitialEffectName"/>) of an image shader from XAML. 
+  /// <see cref="GenericImageEffect"/> provides a shader that allows setting the partitial filename
+  /// (<see cref="PartitialEffectName"/>) of an image shader from XAML.
   /// </summary>
   public class GenericImageEffect : ImageEffect
   {
@@ -48,7 +49,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Effects
 
     void Init()
     {
-      _partialShaderEffectProperty = new SProperty(typeof(string), "effects\\none");
+      _partialShaderEffectProperty = new SProperty(typeof(string), "none");
     }
 
     void Attach()
@@ -72,7 +73,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Effects
 
     private void OnPropertyChanged(AbstractProperty property, object oldvalue)
     {
-      _partialShaderEffect = "effects\\" + PartitialEffectName;
+      _partialShaderEffect = PartitialEffectName;
     }
 
     public override void Dispose()
@@ -91,7 +92,9 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Effects
     }
 
     /// <summary>
-    /// Gets or sets the name of the partitial shader (directory \shaders\effects). Only the file name is required, folder name and .fx is added internally.
+    /// Gets or sets the name of the partitial shader to use. A corresponding shader file must be present in the skin's shader effects
+    /// directory (directory <c>shaders\effects</c>). Only the file name without extension is required, folder name and <c>.fx</c> extension
+    /// are added internally.
     /// </summary>
     public string PartitialEffectName
     {

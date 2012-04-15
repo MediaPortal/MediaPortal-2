@@ -32,7 +32,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Effects
   {
     #region Consts
 
-    private const string EFFECT_BLUR = "effects\\zoom_blur";
+    public const string EFFECT_BLUR = "zoom_blur";
 
     #endregion
 
@@ -45,7 +45,6 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Effects
     protected Dictionary<string, object> _effectParameters = new Dictionary<string, object>();
 
     #endregion
-
 
     #region Ctor & maintainance
 

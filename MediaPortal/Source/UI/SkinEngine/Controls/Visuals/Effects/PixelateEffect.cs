@@ -32,7 +32,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Effects
   {
     #region Consts
 
-    private const string EFFECT_PIXELATE = "effects\\pixelate";
+    public const string EFFECT_PIXELATE = "pixelate";
 
     #endregion
 

@@ -25,13 +25,14 @@
 using System.Collections.Generic;
 using System.Drawing;
 using MediaPortal.UI.SkinEngine.Rendering;
+using MediaPortal.UI.SkinEngine.SkinManagement;
 using SlimDX;
 using SlimDX.Direct3D9;
 
 namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Effects
 {
   /// <summary>
-  /// ImageEffect uses the <see cref="ImageContext"/> to use the partitial shader effects stored in "shaders\effects" directory of the Skin.
+  /// ImageEffect uses the <see cref="ImageContext"/> to apply a partitial shader effect stored in <c>shaders\effects</c> directory of the Skin.
   /// </summary>
   public abstract class ImageEffect : Effect
   {
@@ -53,7 +54,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Effects
       SizeF frameSize = new SizeF(rect.Width, rect.Height);
       _imageContext.FrameSize = frameSize;
       _imageContext.ExtraParameters = GetShaderParameters();
-      _imageContext.ShaderEffect = _partialShaderEffect;
+      _imageContext.ShaderEffect = SkinResources.EFFECTS_SUB_DIRECTORY + '\\' + _partialShaderEffect;
 
       Vector4 lastFrameData = new Vector4(rect.Width, rect.Height, 0.0f, 0.0f);
       _imageContext.StartRender(renderContext, frameSize, texture, CROP_FULLSIZE, 0, lastFrameData);
@@ -71,6 +72,5 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Effects
     }
 
     #endregion
-
   }
 }

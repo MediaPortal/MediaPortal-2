@@ -28,7 +28,7 @@ using MediaPortal.Utilities.DeepCopy;
 namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Effects
 {
   /// <summary>
-  /// <see cref="GenericShaderEffect"/> provides a Shader that allows setting the filename (<see cref="ShaderEffectName"/>) of a shader from XAML. 
+  /// <see cref="GenericShaderEffect"/> provides a shader that allows setting the filename (<see cref="ShaderEffectName"/>) of a shader from XAML. 
   /// This way any parameterless .fx file can be used. Shaders that provide parameters should be handled with an own shader class 
   /// that exposes the parameters as properties.
   /// </summary>
@@ -94,7 +94,9 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Effects
     }
 
     /// <summary>
-    /// Gets or sets the filename of the shader to use (without .fx extension).
+    /// Gets or sets the name of the shader to use. A corresponding shader file must be present in the
+    /// skin's shader directory (directory <c>shaders</c>). Only the file name without extension is required, folder name and
+    /// <c>.fx</c> extension are added internally.
     /// </summary>
     public string ShaderEffectName
     {

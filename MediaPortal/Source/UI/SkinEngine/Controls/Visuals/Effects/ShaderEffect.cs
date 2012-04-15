@@ -31,7 +31,8 @@ using SlimDX.Direct3D9;
 namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Effects
 {
   /// <summary>
-  /// Provides a custom bitmap effect by using a PixelShader. It uses the <see cref="EffectContext"/> to use any full shader file (in contrast to <see cref="ImageEffect"/>).
+  /// Provides a custom bitmap effect by using a PixelShader. It uses the <see cref="EffectContext"/> to use any
+  /// full shader file (in contrast to <see cref="ImageEffect"/>).
   /// </summary>
   public abstract class ShaderEffect : Effect
   {
@@ -70,6 +71,5 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Effects
     }
 
     #endregion
-
   }
 }
