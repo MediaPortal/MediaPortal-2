@@ -416,7 +416,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.VideoMetadataExtractor
             if (files != null)
               foreach (IFileSystemResourceAccessor file in files)
               {
-                string lowerPath = file.ResourcePathName.ToLowerInvariant();
+                string lowerPath = (file.ResourcePathName ?? string.Empty).ToLowerInvariant();
                 if (!lowerPath.EndsWith(".ifo") || lowerPath.EndsWith("video_ts.ifo"))
                   continue;
                 using (MediaInfoWrapper mediaInfo = ReadMediaInfo(file))

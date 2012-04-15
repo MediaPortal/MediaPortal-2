@@ -52,7 +52,6 @@ namespace MediaPortal.Extensions.MetadataExtractors
       public string Value { get; set; }
     }
 
-
     [XmlRoot(ElementName = "tags")]
     public class Tags
     {
@@ -105,14 +104,13 @@ namespace MediaPortal.Extensions.MetadataExtractors
 
     public Tve3RecordingMetadataExtractor()
     {
-      _metadata = new MetadataExtractorMetadata(METADATAEXTRACTOR_ID, "TVEngine3 recordings metadata extractor", true,
-          SHARE_CATEGORIES, new[]
-              {
-                MediaAspect.Metadata,
-                VideoAspect.Metadata,
-                RecordingAspect.Metadata,
-                SeriesAspect.Metadata
-              });
+      _metadata = new MetadataExtractorMetadata(METADATAEXTRACTOR_ID, "TVEngine3 recordings metadata extractor", true, SHARE_CATEGORIES, new[]
+          {
+            MediaAspect.Metadata,
+            VideoAspect.Metadata,
+            RecordingAspect.Metadata,
+            SeriesAspect.Metadata
+          });
     }
 
     #endregion
@@ -132,10 +130,9 @@ namespace MediaPortal.Extensions.MetadataExtractors
         if (fsra == null || !mediaItemAccessor.IsFile)
           return false;
 
-        string filePath = mediaItemAccessor.ResourcePathName;
+        string filePath = mediaItemAccessor.ResourcePathName ?? string.Empty;
         string metaFile = Path.ChangeExtension(filePath, ".xml");
-        // FIXME: how to access sibling file best way?
-        if (!filePath.EndsWith(".ts") || !File.Exists(metaFile))
+        if (!filePath.ToLowerInvariant().EndsWith(".ts") || !File.Exists(metaFile))
           return false;
 
         MediaItemAspect mediaAspect = MediaItemAspect.GetOrCreateAspect(extractedAspectData, MediaAspect.Metadata);
