@@ -252,6 +252,9 @@ Function .onInit
 FunctionEnd
 
 Function .onInstSuccess
+  ; chefkoch, Team MediaPortal, 2012-04-11: Commented out the opening of the Explorer window at the end of the
+  ; Dokan installation because it doesn't make sense for the user, especially when the installer is used silently
+  ; from the MP2 installer
   ;ExecShell "open" "$PROGRAMFILES32\Dokan\DokanLibrary"
 FunctionEnd
 
