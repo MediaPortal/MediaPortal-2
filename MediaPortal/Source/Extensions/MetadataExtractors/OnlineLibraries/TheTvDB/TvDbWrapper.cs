@@ -24,6 +24,8 @@
 
 using System.Collections.Generic;
 using System.Linq;
+using MediaPortal.Common;
+using MediaPortal.Common.Logging;
 using TvdbLib;
 using TvdbLib.Cache;
 using TvdbLib.Data;
@@ -115,15 +117,24 @@ namespace MediaPortal.Extensions.OnlineLibraries.TheTvDB
     private bool TestMatch(string seriesName, ref List<TvdbSearchResult> series)
     {
       // Exact match in preferred language
+      ServiceRegistration.Get<ILogger>().Debug("TvDbWrapper      : Test Match for \"{0}\"", seriesName);
+
       if (series.Count == 1)
+      {
+        ServiceRegistration.Get<ILogger>().Debug("TvDbWrapper      : Unique match found \"{0}\"!", seriesName);
         return true;
+      }
 
       // Multiple matches
       if (series.Count > 1)
       {
+        ServiceRegistration.Get<ILogger>().Debug("TvDbWrapper      : Multiple matches for \"{0}\" ({1}). Try to find exact name match.", seriesName, series.Count);
         series = series.FindAll(s => s.SeriesName == seriesName || IsSimilarOrEqual(s.SeriesName, seriesName));
         if (series.Count > 1)
+        {
+          ServiceRegistration.Get<ILogger>().Debug("TvDbWrapper      : Multiple matches for exact name \"{0}\" ({1}). Try to find match for preferred language {2}.", seriesName, series.Count, PreferredLanguage);
           series = series.FindAll(s => s.Language == PreferredLanguage);
+        }
         return series.Count == 1;
       }
       return false;

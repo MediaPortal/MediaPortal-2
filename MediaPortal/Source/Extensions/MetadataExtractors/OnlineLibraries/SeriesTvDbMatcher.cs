@@ -26,10 +26,13 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using System.Linq;
+using System.Threading;
 using MediaPortal.Common;
 using MediaPortal.Common.Localization;
+using MediaPortal.Common.Logging;
 using MediaPortal.Common.MediaManagement.Helpers;
 using MediaPortal.Common.PathManager;
+using MediaPortal.Common.Threading;
 using MediaPortal.Extensions.OnlineLibraries.TheTvDB;
 using TvdbLib.Data;
 
@@ -59,6 +62,11 @@ namespace MediaPortal.Extensions.OnlineLibraries
     /// Locking object to access settings.
     /// </summary>
     protected object _syncObj = new object();
+
+    /// <summary>
+    /// Contains the Series ID for Downloading FanArt asynchronously.
+    /// </summary>
+    protected int _currentTvDbId;
 
     /// <summary>
     /// Tries to lookup the series from TheTvDB and return the found ID.
@@ -146,18 +154,25 @@ namespace MediaPortal.Extensions.OnlineLibraries
 
       // Use cached values before doing online query
       match = matches.Find(m => m.SeriesName == seriesName || m.TvDBName == seriesName);
+      ServiceRegistration.Get<ILogger>().Debug("SeriesTvDbMatcher: Try to lookup series \"{0}\" from cache: {1}", seriesName, match != null);
       if (cacheOnly)
         return match != null;
 
       // Try online lookup
       var tv = GetTvDbWrapper();
 
+      // If this is a known series, only return the series details (including episodes).
+      if (match != null)
+        return tv.GetSeries(match.TvDBID, true, out seriesDetail);
+
       List<TvdbSearchResult> series;
       if (tv.SearchSeriesUnique(seriesName, out series))
       {
         TvdbSearchResult matchedSeries = series[0];
+        ServiceRegistration.Get<ILogger>().Debug("SeriesTvDbMatcher: Found unique online match for \"{0}\": \"{1}\" [Lang: {2}]", seriesName, matchedSeries.SeriesName, matchedSeries.Language);
         if (tv.GetSeries(matchedSeries.Id, true, out seriesDetail))
         {
+          ServiceRegistration.Get<ILogger>().Debug("SeriesTvDbMatcher: Loaded details for \"{0}\"", matchedSeries.SeriesName);
           // Add this match to cache
           SeriesMatch onlineMatch = new SeriesMatch
           {
@@ -177,6 +192,7 @@ namespace MediaPortal.Extensions.OnlineLibraries
           return true;
         }
       }
+      ServiceRegistration.Get<ILogger>().Debug("SeriesTvDbMatcher: No unique match found for \"{0}\"", seriesName);
       return false;
     }
 
@@ -209,19 +225,34 @@ namespace MediaPortal.Extensions.OnlineLibraries
       if (fanArtDownloaded)
         return true;
 
+      _currentTvDbId = tvDbId;
+      IThreadPool threadPool = ServiceRegistration.Get<IThreadPool>();
+      threadPool.Add(DownloadFanArt_Async, "FanArt Downloader " + tvDbId, QueuePriority.Low, ThreadPriority.Lowest);
+      return true;
+    }
+
+    protected void DownloadFanArt_Async()
+    {
+      int tvDbId = _currentTvDbId;
+      ServiceRegistration.Get<ILogger>().Debug("SeriesTvDbMatcher Download: Started for ID {0}", _currentTvDbId);
+
       var tv = GetTvDbWrapper();
       TvdbSeries seriesDetail;
       if (!tv.GetSeriesFanArt(tvDbId, out seriesDetail))
-        return false;
+        return;
+
       // Save Banners
+      ServiceRegistration.Get<ILogger>().Debug("SeriesTvDbMatcher Download: Begin saving banners for ID {0}", _currentTvDbId);
       SaveBanners(seriesDetail.SeriesBanners, tv.PreferredLanguage);
 
       // Save Posters
+      ServiceRegistration.Get<ILogger>().Debug("SeriesTvDbMatcher Download: Begin saving posters for ID {0}", _currentTvDbId);
       SaveBanners(seriesDetail.PosterBanners, tv.PreferredLanguage);
 
       // Save FanArt
-      //SaveBanners(seriesDetail.FanartBanners, tv.PreferredLanguage);
-      return true;
+      ServiceRegistration.Get<ILogger>().Debug("SeriesTvDbMatcher Download: Begin saving fanarts for ID {0}", _currentTvDbId);
+      SaveBanners(seriesDetail.FanartBanners, tv.PreferredLanguage);
+      ServiceRegistration.Get<ILogger>().Debug("SeriesTvDbMatcher Download: Finished ID {0}", _currentTvDbId);
     }
 
     private static int SaveBanners<TE>(IEnumerable<TE> banners, TvdbLanguage language) where TE : TvdbBanner
