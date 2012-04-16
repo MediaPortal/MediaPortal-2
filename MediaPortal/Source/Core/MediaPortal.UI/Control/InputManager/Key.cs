@@ -75,7 +75,7 @@ namespace MediaPortal.UI.Control.InputManager
     public static readonly Key Start = new Key("Start");
     public static readonly Key RecordedTV = new Key("RecordedTV");
     public static readonly Key Guide = new Key("Guide");
-    public static readonly Key LifeTV = new Key("LiveTV");
+    public static readonly Key LiveTV = new Key("LiveTV");
     public static readonly Key DVDMenu = new Key("DVDMenu");
 
     public static readonly Key Red = new Key("Red");
@@ -130,18 +130,18 @@ namespace MediaPortal.UI.Control.InputManager
     #region Protected fields
 
     /// <summary>
-    /// gets the raw code
+    /// Contains the raw code.
     /// </summary>
-    public readonly char? _rawCode = null;
+    protected readonly char? _rawCode;
 
     /// <summary>
-    /// gets the key name
+    /// Contains the key name.
     /// </summary>
-    public readonly string _name;
+    protected readonly string _name;
 
     #endregion
 
-    #region ctors
+    #region Constructors
 
     /// <summary>
     /// Creates a special key which has no character code.
