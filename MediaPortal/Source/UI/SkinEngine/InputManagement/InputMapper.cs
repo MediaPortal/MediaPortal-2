@@ -115,6 +115,8 @@ namespace MediaPortal.UI.SkinEngine.InputManagement
         case Keys.F3:
           return Key.F3;
         case Keys.F4:
+          if (alt)
+            return Key.Close;
           return Key.F4;
         case Keys.F5:
           return Key.F5;

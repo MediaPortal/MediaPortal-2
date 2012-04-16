@@ -638,7 +638,7 @@ namespace MediaPortal.UI.SkinEngine.GUI
       {
         // We'll handle special keys here
         Key key = InputMapper.MapSpecialKey(e.KeyCode, e.Alt);
-        if (key != Key.None)
+        if (key != Key.None && key != Key.Close)
         {
           IInputManager manager = ServiceRegistration.Get<IInputManager>();
           manager.KeyPress(key);

@@ -97,6 +97,8 @@ namespace MediaPortal.UI.Control.InputManager
     public static readonly Key BackSpace = Back;
     public static readonly Key Enter = new Key("Enter"); // Different button than Ok on MCE remote
     public static readonly Key Escape = new Key("Escape");
+    
+    public static readonly Key Close = new Key("Close"); // Close MP2 using key command
 
     public static readonly Key F1 = new Key("F1");
     public static readonly Key F2 = new Key("F2");
