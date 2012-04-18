@@ -571,6 +571,17 @@ namespace MediaPortal.UI.Services.ServerCommunication
       }
     }
 
+    public UPnPClientControlPoint ControlPoint
+    {
+      get
+      {
+        UPnPClientControlPoint cp;
+        lock (_syncObj)
+          cp = _controlPoint;
+        return cp;
+      }
+    }
+
     public void Startup()
     {
       UPnPServerWatcher watcher;

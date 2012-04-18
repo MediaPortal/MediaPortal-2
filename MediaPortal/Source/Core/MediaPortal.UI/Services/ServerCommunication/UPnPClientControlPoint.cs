@@ -95,6 +95,11 @@ namespace MediaPortal.UI.Services.ServerCommunication
       get { return _userProfileDataManagementService; }
     }
 
+    public DeviceConnection Connection
+    {
+      get { return _connection; }
+    }
+
     public void Start()
     {
       _controlPoint.Start(); // Start the control point before the network tracker starts. See docs of Start() method.

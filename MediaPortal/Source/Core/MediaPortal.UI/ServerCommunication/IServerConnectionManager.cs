@@ -25,6 +25,7 @@
 using System.Collections.Generic;
 using MediaPortal.Common.General;
 using MediaPortal.Common.ResourceAccess;
+using MediaPortal.UI.Services.ServerCommunication;
 
 namespace MediaPortal.UI.ServerCommunication
 {
@@ -80,6 +81,11 @@ namespace MediaPortal.UI.ServerCommunication
     /// If the home server is not connected, this value is <c>null</c>.
     /// </summary>
     IServerController ServerController { get; }
+
+    /// <summary>
+    /// Exposes the current UPnPClientControlPoint.
+    /// </summary>
+    UPnPClientControlPoint ControlPoint { get; }
 
     /// <summary>
     /// Starts the UPnP subsystem and tries to connect to the home server, if set.
