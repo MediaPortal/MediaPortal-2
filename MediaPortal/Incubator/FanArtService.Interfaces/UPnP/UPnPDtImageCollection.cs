@@ -27,16 +27,19 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Xml;
 using MediaPortal.Common.UPnP;
+using MediaPortal.Extensions.UserServices.FanArtService.Interfaces;
 using UPnP.Infrastructure.Common;
 using UPnP.Infrastructure.Utils;
 
 namespace MediaPortal.Extensions.UserServices.FanArtService.UPnP
 {
-  internal class UPnPDtImageCollection : UPnPExtendedDataType
+  public class UPnPDtImageCollection : UPnPExtendedDataType
   {
+    public static UPnPDtImageCollection Instance = new UPnPDtImageCollection();
+
     public const string DATATYPE_NAME = "DtImageCollection";
 
-    internal UPnPDtImageCollection()
+    public UPnPDtImageCollection()
       : base(DataTypesConfiguration.DATATYPES_SCHEMA_URI, DATATYPE_NAME)
     {
     }

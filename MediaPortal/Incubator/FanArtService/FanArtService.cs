@@ -33,34 +33,31 @@ namespace MediaPortal.Extensions.UserServices.FanArtService
 {
   public class FanArtService : IFanArtService
   {
-    public IList<string> GetFanArt(FanArtConstants.FanArtMediaType mediaType, FanArtConstants.FanArtType fanArtType, string name, bool singleRandom)
+    public IList<FanArtImage> GetFanArt(FanArtConstants.FanArtMediaType mediaType, FanArtConstants.FanArtType fanArtType, string name, bool singleRandom)
     {
       string baseFolder = GetBaseFolder(mediaType, name);
       // No known series
       if (baseFolder == null || !Directory.Exists(baseFolder))
-        return DefaultNames(fanArtType);
+        return null;
 
       string pattern = GetPattern(fanArtType);
       DirectoryInfo directoryInfo = new DirectoryInfo(baseFolder);
       List<string> files = directoryInfo.GetFiles(pattern).Select(file => file.FullName).ToList();
-      if (files.Count == 0)
-        return DefaultNames(fanArtType);
-      return singleRandom ? GetSingleRandom(files) : files;
+      List<FanArtImage> fanArtImages = files.Select(FanArtImage.FromFile).Where(fanArtImage => fanArtImage != null).ToList();
+
+      if (fanArtImages.Count == 0)
+        return null;
+      return singleRandom ? GetSingleRandom(fanArtImages) : fanArtImages;
     }
 
-    private static List<string> DefaultNames(FanArtConstants.FanArtType fanArtType)
-    {
-      return new List<string> { fanArtType == FanArtConstants.FanArtType.Banner ? "NoBanner.png" : "NoPoster.png" };
-    }
-
-    protected IList<string> GetSingleRandom(IList<string> fullList)
+    protected IList<FanArtImage> GetSingleRandom(IList<FanArtImage> fullList)
     {
       if (fullList.Count <= 1)
         return fullList;
 
       Random rnd = new Random(DateTime.Now.Millisecond);
       int rndIndex = rnd.Next(fullList.Count - 1);
-      return new List<string> { fullList[rndIndex] };
+      return new List<FanArtImage> { fullList[rndIndex] };
     }
 
     protected string GetPattern(FanArtConstants.FanArtType fanArtType)

@@ -38,11 +38,11 @@ namespace MediaPortal.UiComponents.BackgroundManager.Models
   {
     #region Protected fields
 
-    protected string _source = @"D:\Coding\MP\MP2\Series\TvdbLib\Cache\79334\img_graphical_79334-g4.jpg";
     protected TextureAsset _texture;
     protected AbstractProperty _fanArtMediaTypeProperty;
     protected AbstractProperty _fanArtTypeProperty;
     protected AbstractProperty _fanArtNameProperty;
+    protected IList<FanArtImage> _possibleSources;
 
     #endregion
 
@@ -50,8 +50,8 @@ namespace MediaPortal.UiComponents.BackgroundManager.Models
 
     public FanArtConstants.FanArtMediaType FanArtMediaType
     {
-      get { return (FanArtConstants.FanArtMediaType) _fanArtMediaTypeProperty.GetValue(); }
-      set { _fanArtMediaTypeProperty.SetValue(value);}
+      get { return (FanArtConstants.FanArtMediaType)_fanArtMediaTypeProperty.GetValue(); }
+      set { _fanArtMediaTypeProperty.SetValue(value); }
     }
     public AbstractProperty FanArtMediaTypeProperty
     {
@@ -61,12 +61,12 @@ namespace MediaPortal.UiComponents.BackgroundManager.Models
     public FanArtConstants.FanArtType FanArtType
     {
       get { return (FanArtConstants.FanArtType)_fanArtTypeProperty.GetValue(); }
-      set { _fanArtTypeProperty.SetValue(value);}
+      set { _fanArtTypeProperty.SetValue(value); }
     }
     public AbstractProperty FanArtTypeProperty
     {
       get { return _fanArtTypeProperty; }
-    }    
+    }
 
     public string FanArtName
     {
@@ -84,7 +84,7 @@ namespace MediaPortal.UiComponents.BackgroundManager.Models
 
     static FanArtImageSource()
     {
-       ServiceRegistration.Set<IFanArtService>(new FanArtService());
+      ServiceRegistration.Set<IFanArtService>(new FanArtServiceProxy());
     }
     /// <summary>
     /// Constructs a <see cref="FanArtImageSource"/>.
@@ -111,12 +111,12 @@ namespace MediaPortal.UiComponents.BackgroundManager.Models
 
     protected void Attach()
     {
-      
+
     }
 
     protected void Detach()
     {
-      
+
     }
 
     #region ImageSource implementation
@@ -143,25 +143,30 @@ namespace MediaPortal.UiComponents.BackgroundManager.Models
 
     public override void Allocate()
     {
-      if (FanArtMediaType == FanArtConstants.FanArtMediaType.Undefined || FanArtType == FanArtConstants.FanArtType.Undefined)
+      if (FanArtMediaType == FanArtConstants.FanArtMediaType.Undefined || 
+        FanArtType == FanArtConstants.FanArtType.Undefined || 
+        _possibleSources != null && _possibleSources.Count == 0 /* we already asked the service for image, do not ask again */ )
         return;
 
       IFanArtService fanArtService = ServiceRegistration.Get<IFanArtService>();
-      IList<string> possibleSources = fanArtService.GetFanArt(FanArtMediaType, FanArtType, FanArtName, true);
-      if (possibleSources.Count == 0)
+      _possibleSources = fanArtService.GetFanArt(FanArtMediaType, FanArtType, FanArtName, true);
+      if (_possibleSources == null || _possibleSources.Count == 0)
         return;
 
       if (_texture == null)
-        _texture = ContentManager.Instance.GetTexture(possibleSources[0], false);
-      
-      if (_texture == null || _texture.IsAllocated) 
+      {
+        FanArtImage image = _possibleSources[0];
+        _texture = ContentManager.Instance.GetTexture(image.XML_BinaryData, image.Name);
+      }
+
+      if (_texture == null || _texture.IsAllocated)
         return;
-      
+
       _texture.Allocate();
-      
-      if (!_texture.IsAllocated) 
+
+      if (!_texture.IsAllocated)
         return;
-      
+
       _imageContext.Refresh();
       FireChanged();
     }

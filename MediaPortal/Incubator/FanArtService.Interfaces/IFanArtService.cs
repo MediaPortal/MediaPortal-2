@@ -33,7 +33,7 @@ namespace MediaPortal.Extensions.UserServices.FanArtService.Interfaces
   public interface IFanArtService
   {
     /// <summary>
-    /// Gets a list of URIs of fanart images for a requested <paramref name="mediaType"/>, <paramref name="fanArtType"/> and <paramref name="name"/>.
+    /// Gets a list of <see cref="FanArtImage"/>s for a requested <paramref name="mediaType"/>, <paramref name="fanArtType"/> and <paramref name="name"/>.
     /// The name can be: Series name, Actor name, Artist name depending on the <paramref name="mediaType"/>.
     /// </summary>
     /// <param name="mediaType">Requested FanArtMediaType</param>
@@ -41,6 +41,6 @@ namespace MediaPortal.Extensions.UserServices.FanArtService.Interfaces
     /// <param name="name">Requested name of Series, Actor, Artist...</param>
     /// <param name="singleRandom">If <c>true</c> only one random image URI will be returned</param>
     /// <returns>List of fanart image URIs</returns>
-    IList<string> GetFanArt(FanArtConstants.FanArtMediaType mediaType, FanArtConstants.FanArtType fanArtType, string name, bool singleRandom);
+    IList<FanArtImage> GetFanArt(FanArtConstants.FanArtMediaType mediaType, FanArtConstants.FanArtType fanArtType, string name, bool singleRandom);
   }
 }

@@ -24,9 +24,9 @@
 
 using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using MediaPortal.Common;
 using MediaPortal.Extensions.UserServices.FanArtService.Interfaces;
+using MediaPortal.Extensions.UserServices.FanArtService.Interfaces.UPnP;
 using UPnP.Infrastructure.Common;
 using UPnP.Infrastructure.Dv;
 using UPnP.Infrastructure.Dv.DeviceTree;
@@ -35,12 +35,8 @@ namespace MediaPortal.Extensions.UserServices.FanArtService.UPnP
 {
   public class FanArtServiceImpl : DvService
   {
-    public const string FANART_SERVICE_TYPE = "schemas-team-mediaportal-com:service:FanArt";
-    public const int FANART_SERVICE_TYPE_VERSION = 1;
-    public const string FANART_SERVICE_ID = "urn:team-mediaportal-com:serviceId:FanArt";
-
     public FanArtServiceImpl()
-      : base(FANART_SERVICE_TYPE, FANART_SERVICE_TYPE_VERSION, FANART_SERVICE_ID)
+      : base(Consts.FANART_SERVICE_TYPE, Consts.FANART_SERVICE_TYPE_VERSION, Consts.FANART_SERVICE_ID)
     {
       DvStateVariable mediaType = new DvStateVariable("MediaType", new DvStandardDataType(UPnPStandardDataType.String)) { SendEvents = false };
       AddStateVariable(mediaType);
@@ -51,7 +47,10 @@ namespace MediaPortal.Extensions.UserServices.FanArtService.UPnP
       DvStateVariable name = new DvStateVariable("Name", new DvStandardDataType(UPnPStandardDataType.String)) { SendEvents = false };
       AddStateVariable(name);
 
-      DvStateVariable fanArts = new DvStateVariable("FanArts", new DvExtendedDataType(UPnPExtendedDataTypes.DtImageCollection)) { SendEvents = false };
+      DvStateVariable singleRandom = new DvStateVariable("SingleRandom", new DvStandardDataType(UPnPStandardDataType.Boolean)) { SendEvents = false };
+      AddStateVariable(singleRandom);
+
+      DvStateVariable fanArts = new DvStateVariable("FanArts", new DvExtendedDataType(UPnPDtImageCollection.Instance)) { SendEvents = false };
       AddStateVariable(fanArts);
 
       DvAction getFanArt = new DvAction("GetFanArt", OnGetFanArt,
@@ -59,7 +58,8 @@ namespace MediaPortal.Extensions.UserServices.FanArtService.UPnP
                                      {
                                        new DvArgument("MediaType", mediaType, ArgumentDirection.In),
                                        new DvArgument("FanArtType", fanArtType, ArgumentDirection.In),
-                                       new DvArgument("Name", name, ArgumentDirection.In)
+                                       new DvArgument("Name", name, ArgumentDirection.In),
+                                       new DvArgument("SingleRandom", singleRandom, ArgumentDirection.In)
                                      },
                                    new[]
                                      {
@@ -74,21 +74,13 @@ namespace MediaPortal.Extensions.UserServices.FanArtService.UPnP
       IFanArtService fanArtService = ServiceRegistration.Get<IFanArtService>();
       if (fanArtService == null)
         return new UPnPError(500, "FanArt service not available");
-      if (inParams.Count != 3)
-        return new UPnPError(500, "Invalid arguments");
 
       FanArtConstants.FanArtMediaType fanArtMediaType = (FanArtConstants.FanArtMediaType) Enum.Parse(typeof (FanArtConstants.FanArtMediaType), inParams[0].ToString());
       FanArtConstants.FanArtType fanArtType = (FanArtConstants.FanArtType)Enum.Parse(typeof(FanArtConstants.FanArtType), inParams[1].ToString());
       string name = inParams[2].ToString();
+      bool singleRandom = (bool)inParams[3];
 
-      ICollection<FanArtImage> fanArtImages= new Collection<FanArtImage>();
-      IList<string> fanArts = fanArtService.GetFanArt(fanArtMediaType, fanArtType, name, true);
-      foreach (string fanArt in fanArts)
-      {
-        FanArtImage fanArtImage = FanArtImage.FromFile(fanArt);
-        if (fanArtImage != null)
-          fanArtImages.Add(fanArtImage);
-      }
+      IList<FanArtImage> fanArtImages = fanArtService.GetFanArt(fanArtMediaType, fanArtType, name, singleRandom) ?? new List<FanArtImage>();
       outParams = new List<object> { fanArtImages };
       return null;
     }

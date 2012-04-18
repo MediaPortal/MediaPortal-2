@@ -27,7 +27,7 @@ using System.Text;
 using System.Xml;
 using System.Xml.Serialization;
 
-namespace MediaPortal.Extensions.UserServices.FanArtService
+namespace MediaPortal.Extensions.UserServices.FanArtService.Interfaces
 {
   /// <summary>
   /// Data object for fan art images.
@@ -44,6 +44,9 @@ namespace MediaPortal.Extensions.UserServices.FanArtService
     protected static XmlSerializer _xmlSerializer; // Lazy initialized
     private string _name;
     private byte[] _binaryData;
+
+    public FanArtImage()
+    { }
 
     public FanArtImage(string name, byte[] binaryData)
     {
