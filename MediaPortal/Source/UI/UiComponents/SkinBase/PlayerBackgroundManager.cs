@@ -90,38 +90,27 @@ namespace MediaPortal.UiComponents.SkinBase
       lock (_syncObj)
       {
         // ------------------ Play controls ---------------------
-        AddKeyBinding_NeedLock(
-            Key.Play, GeneralPlayerModel.Play);
-        AddKeyBinding_NeedLock(
-            Key.Pause, GeneralPlayerModel.Pause);
-        AddKeyBinding_NeedLock(
-            Key.PlayPause, GeneralPlayerModel.TogglePause);
-        AddKeyBinding_NeedLock(
-            Key.Printable(' '), GeneralPlayerModel.TogglePause);
-        AddKeyBinding_NeedLock(
-            Key.Stop, GeneralPlayerModel.Stop);
-        AddKeyBinding_NeedLock(
-            Key.Rew, GeneralPlayerModel.SeekBackward);
-        AddKeyBinding_NeedLock(
-            Key.Fwd, GeneralPlayerModel.SeekForward);
-        AddKeyBinding_NeedLock(
-            Key.Previous, GeneralPlayerModel.Previous);
-        AddKeyBinding_NeedLock(
-            Key.Next, GeneralPlayerModel.Next);
+        AddKeyBinding_NeedLock(Key.Play, GeneralPlayerModel.Play);
+        AddKeyBinding_NeedLock(Key.Pause, GeneralPlayerModel.Pause);
+        AddKeyBinding_NeedLock(Key.PlayPause, GeneralPlayerModel.TogglePause);
+        AddKeyBinding_NeedLock(Key.Printable(' '), GeneralPlayerModel.TogglePause);
+        AddKeyBinding_NeedLock(Key.Stop, GeneralPlayerModel.Stop);
+        AddKeyBinding_NeedLock(Key.Rew, GeneralPlayerModel.SeekBackward);
+        AddKeyBinding_NeedLock(Key.Fwd, GeneralPlayerModel.SeekForward);
+        AddKeyBinding_NeedLock(Key.Previous, GeneralPlayerModel.Previous);
+        AddKeyBinding_NeedLock(Key.Next, GeneralPlayerModel.Next);
 
         // ------------------------ Volume -----------------------
-        AddKeyBinding_NeedLock(
-            Key.Mute, GeneralPlayerModel.ToggleMute);
-        AddKeyBinding_NeedLock(
-            Key.VolumeUp, GeneralPlayerModel.VolumeUp);
-        AddKeyBinding_NeedLock(
-            Key.VolumeDown, GeneralPlayerModel.VolumeDown);
+        AddKeyBinding_NeedLock(Key.Mute, GeneralPlayerModel.ToggleMute);
+        AddKeyBinding_NeedLock(Key.VolumeUp, GeneralPlayerModel.VolumeUp);
+        AddKeyBinding_NeedLock(Key.VolumeDown, GeneralPlayerModel.VolumeDown);
 
         // --------------------- Player management --------------------
-        AddKeyBinding_NeedLock(
-            Key.Blue, GeneralPlayerModel.ToggleCurrentPlayer);
-        AddKeyBinding_NeedLock(
-            Key.Printable('c'), GeneralPlayerModel.ToggleCurrentPlayer);
+        AddKeyBinding_NeedLock(Key.Yellow, GeneralPlayerModel.SwitchPipPlayers);
+        AddKeyBinding_NeedLock(Key.Blue, GeneralPlayerModel.ToggleCurrentPlayer);
+
+        // Avoid registering of printable keys here. Otherwise this key is not available 
+        // i.e. inside MediaNavigation to skip to the first item with this letter.
 
         // Don't register player specific key bindings here.
         // They should only be available in the FSC/CP states.

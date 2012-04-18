@@ -220,6 +220,12 @@ namespace MediaPortal.UiComponents.SkinBase.Models
       playerContextManager.ToggleCurrentPlayer();
     }
 
+    public static void SwitchPipPlayers()
+    {
+      IPlayerContextManager playerContextManager = ServiceRegistration.Get<IPlayerContextManager>();
+      playerContextManager.SwitchPipPlayers();
+    }
+
     #endregion
 
     #endregion
