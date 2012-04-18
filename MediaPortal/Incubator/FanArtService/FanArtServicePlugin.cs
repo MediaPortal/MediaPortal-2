@@ -1,9 +1,34 @@
-﻿using System.Linq;
+﻿#region Copyright (C) 2007-2012 Team MediaPortal
+
+/*
+    Copyright (C) 2007-2012 Team MediaPortal
+    http://www.team-mediaportal.com
+
+    This file is part of MediaPortal 2
+
+    MediaPortal 2 is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    MediaPortal 2 is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with MediaPortal 2. If not, see <http://www.gnu.org/licenses/>.
+*/
+
+#endregion
+
+using System.Linq;
 using MediaPortal.Backend.BackendServer;
 using MediaPortal.Common;
 using MediaPortal.Common.Logging;
 using MediaPortal.Common.PluginManager;
 using MediaPortal.Common.UPnP;
+using MediaPortal.Extensions.UserServices.FanArtService.Interfaces;
 using MediaPortal.Extensions.UserServices.FanArtService.UPnP;
 using UPnP.Infrastructure.Dv.DeviceTree;
 
@@ -19,12 +44,14 @@ namespace MediaPortal.Extensions.UserServices.FanArtService
       DvDevice device = ServiceRegistration.Get<IBackendServer>().UPnPBackendServer.FindDevicesByDeviceTypeAndVersion(UPnPTypesAndIds.BACKEND_SERVER_DEVICE_TYPE, UPnPTypesAndIds.BACKEND_SERVER_DEVICE_TYPE_VERSION, true).FirstOrDefault();
       if (device != null)
       {
+        ServiceRegistration.Set<IFanArtService>(new FanArtService());
+        Logger.Debug("FanArtService: Registered IFanArtService.");
         device.AddService(new FanArtServiceImpl());
-        Logger.Debug("MediaServerPlugin: Adding FanArt service to MP2 backend root device");
+        Logger.Debug("FanArtService: Adding FanArt service to MP2 backend root device");
       }
       else
       {
-        Logger.Error("MediaServerPlugin: MP2 backend root device not found!");
+        Logger.Error("FanArtService: MP2 backend root device not found!");
       }
     }
 
