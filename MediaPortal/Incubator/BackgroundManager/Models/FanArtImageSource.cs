@@ -26,6 +26,7 @@ using System.Collections.Generic;
 using System.Drawing;
 using MediaPortal.Common;
 using MediaPortal.Common.General;
+using MediaPortal.Extensions.UserServices.FanArtService.Interfaces;
 using MediaPortal.UI.SkinEngine.ContentManagement;
 using MediaPortal.UI.SkinEngine.Controls.ImageSources;
 using MediaPortal.Utilities.DeepCopy;

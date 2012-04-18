@@ -71,10 +71,8 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Models\BackgroundManagerModel.cs" />
-    <Compile Include="Models\FanArtConstants.cs" />
     <Compile Include="Models\FanArtImageSource.cs" />
     <Compile Include="Models\FanArtService.cs" />
-    <Compile Include="Models\IFanArtService.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -100,6 +98,10 @@
     <ProjectReference Include="..\..\Source\UI\SkinEngine\SkinEngine.csproj">
       <Project>{7E943389-3589-40C9-B481-2E223554CC49}</Project>
       <Name>SkinEngine</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\FanArtService.Interfaces\FanArtService.Interfaces.csproj">
+      <Project>{587B806E-9AFC-47D7-A024-1CEC38C4D1D3}</Project>
+      <Name>FanArtService.Interfaces</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>

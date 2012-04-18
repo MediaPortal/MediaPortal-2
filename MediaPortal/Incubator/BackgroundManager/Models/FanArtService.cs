@@ -27,6 +27,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using MediaPortal.Extensions.OnlineLibraries;
+using MediaPortal.Extensions.UserServices.FanArtService.Interfaces;
 
 namespace MediaPortal.UiComponents.BackgroundManager.Models
 {

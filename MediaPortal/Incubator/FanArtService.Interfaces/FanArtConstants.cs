@@ -22,7 +22,7 @@
 
 #endregion
 
-namespace MediaPortal.UiComponents.BackgroundManager.Models
+namespace MediaPortal.Extensions.UserServices.FanArtService.Interfaces
 {
   public class FanArtConstants
   {

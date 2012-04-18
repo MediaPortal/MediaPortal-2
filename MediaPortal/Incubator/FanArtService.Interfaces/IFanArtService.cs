@@ -24,7 +24,7 @@
 
 using System.Collections.Generic;
 
-namespace MediaPortal.UiComponents.BackgroundManager.Models
+namespace MediaPortal.Extensions.UserServices.FanArtService.Interfaces
 {
   /// <summary>
   /// <see cref="IFanArtService"/> provides fanart images for different media types and allows scraping of information from internet sources

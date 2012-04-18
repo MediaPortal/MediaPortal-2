@@ -1,0 +1,16 @@
+﻿<Plugin
+    DescriptorVersion="1.0"
+    Name="FanArt Service Plugin"
+    PluginId="{BDA68C24-EEA3-47D0-B43A-86E086E43AE1}"
+    Author="Morpheus_xx"
+    Copyright="GPL"
+    Description="Provides access to fan art from MP2 clients"
+    AutoActivate="true"
+    PluginVersion="1.0">
+
+  <Runtime>
+    <Assembly FileName="FanArtService.dll"/>
+    <PluginStateTracker ClassName="MediaPortal.Extensions.UserServices.FanArtService.FanArtServicePlugin"/>
+  </Runtime>
+</Plugin>
+
