@@ -43,20 +43,10 @@ namespace MediaPortal.Extensions.OnlineLibraries
   /// </summary>
   public class SeriesTvDbMatcher
   {
-    public const int MAX_FANART_IMAGES = 10;
-    //TODO: store cache in server folder, make contents acessible via client-server communication (WCF, UPnP?)
-    public static string CACHE_PATH
-    {
-      get
-      {
-        // TODO: UGLY workaround to force common storage for both MP2-Client and MP2-Server
-        return ServiceRegistration.Get<IPathManager>().GetPath(@"<DATA>\TvDB\").Replace("MP2-Server", "MP2-Client");
-      }
-    }
-    public static string SETTINGS_MATCHES
-    {
-      get { return Path.Combine(CACHE_PATH, "Matches.xml"); }
-    }
+    public const int MAX_FANART_IMAGES = 5;
+
+    public static string CACHE_PATH = ServiceRegistration.Get<IPathManager>().GetPath(@"<DATA>\TvDB\");
+    protected static string SETTINGS_MATCHES = Path.Combine(CACHE_PATH, "Matches.xml");
 
     /// <summary>
     /// Locking object to access settings.
@@ -113,7 +103,6 @@ namespace MediaPortal.Extensions.OnlineLibraries
             seriesInfo.Series = match.TvDBName;
           }
 
-        // TODO: download fanart asynch
         if (tvDbId > 0)
           DownloadFanArt(tvDbId);
         return true;
