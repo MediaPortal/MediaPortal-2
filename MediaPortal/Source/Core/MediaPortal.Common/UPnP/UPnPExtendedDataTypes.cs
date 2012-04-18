@@ -79,7 +79,7 @@ namespace MediaPortal.Common.UPnP
       AddDataType(DtUserProfileEnumeration);
     }
 
-    protected static void AddDataType(UPnPExtendedDataType type)
+    public static void AddDataType(UPnPExtendedDataType type)
     {
       _dataTypes.Add(type.SchemaURI + ":" + type.DataTypeName, type);
     }
