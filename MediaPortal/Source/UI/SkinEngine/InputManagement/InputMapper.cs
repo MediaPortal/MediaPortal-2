@@ -32,7 +32,11 @@ namespace MediaPortal.UI.SkinEngine.InputManagement
   /// </summary>
   public static class InputMapper
   {
-    public static Key MapSpecialKey(Keys keycode, bool alt)
+    public static Key MapSpecialKey(KeyEventArgs args)
+    {
+      return MapSpecialKey(args.KeyCode, args.Alt, args.Shift, args.Control);
+    }
+    public static Key MapSpecialKey(Keys keycode, bool alt, bool shift, bool control)
     {
       switch (keycode)
       {
