@@ -104,6 +104,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.TheTvDB
           string namePart = seriesName.Split(new [] { '-' })[0].Trim();
           return SearchSeriesUnique(namePart, out series);
         }
+        return series.Count == 1;
       }
       return false;
     }
@@ -153,7 +154,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.TheTvDB
 
     protected string RemoveCharacters(string name)
     {
-      string result = new[] { "-", ",", "/", ":", " ", " " }.Aggregate(name, (current, s) => current.Replace(s, ""));
+      string result = new[] { "-", ",", "/", ":", " ", " ", "." }.Aggregate(name, (current, s) => current.Replace(s, ""));
       return result.ToLowerInvariant();
     }
 
