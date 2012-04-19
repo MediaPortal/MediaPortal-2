@@ -25,6 +25,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.RegularExpressions;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.Utilities;
 
@@ -63,6 +64,12 @@ namespace MediaPortal.Common.MediaManagement.Helpers
     /// Short format string that holds season and episode numbers and episode name. Used for browsing episodes by series name.
     /// </summary>
     public static string SHORT_FORMAT_STR = "S{1}E{2} - {3}";
+
+    /// <summary>
+    /// Used to replace all "." and "_" that are not followed by a whitespace by a space.
+    /// Replaces "Once.Upon.A.Time.S01E13" to "Once Upon A Time S01E13", but keeps the . inside "Dr. House"
+    /// </summary>
+    protected static Regex _cleanUp = new Regex(@"[\.|_](\S|$)");
 
     /// <summary>
     /// Indicates that all required fields are filled.
@@ -104,7 +111,7 @@ namespace MediaPortal.Common.MediaManagement.Helpers
 
     #endregion
 
-    #region Members 
+    #region Members
     
     /// <summary>
     /// Cleans up Series and Episode replaces unwanted characters ('.','_') by spaces.
@@ -117,7 +124,7 @@ namespace MediaPortal.Common.MediaManagement.Helpers
 
     private string Replace(string name)
     {
-      return name == null ? null : name.Replace('.', ' ').Replace('_', ' ');
+      return name == null ? null : _cleanUp.Replace(name, " $1").Trim(' ', '-');
     }
 
     /// <summary>
