@@ -47,6 +47,12 @@ namespace MediaPortal.Extensions.UserServices.FanArtService.UPnP
       DvStateVariable name = new DvStateVariable("Name", new DvStandardDataType(UPnPStandardDataType.String)) { SendEvents = false };
       AddStateVariable(name);
 
+      DvStateVariable maxWidth = new DvStateVariable("MaxWidth", new DvStandardDataType(UPnPStandardDataType.Int)) { SendEvents = false };
+      AddStateVariable(maxWidth);
+
+      DvStateVariable maxHeight = new DvStateVariable("MaxHeight", new DvStandardDataType(UPnPStandardDataType.Int)) { SendEvents = false };
+      AddStateVariable(maxHeight);
+
       DvStateVariable singleRandom = new DvStateVariable("SingleRandom", new DvStandardDataType(UPnPStandardDataType.Boolean)) { SendEvents = false };
       AddStateVariable(singleRandom);
 
@@ -59,6 +65,8 @@ namespace MediaPortal.Extensions.UserServices.FanArtService.UPnP
                                        new DvArgument("MediaType", mediaType, ArgumentDirection.In),
                                        new DvArgument("FanArtType", fanArtType, ArgumentDirection.In),
                                        new DvArgument("Name", name, ArgumentDirection.In),
+                                       new DvArgument("MaxWidth", maxWidth, ArgumentDirection.In),
+                                       new DvArgument("MaxHeight", maxHeight, ArgumentDirection.In),
                                        new DvArgument("SingleRandom", singleRandom, ArgumentDirection.In)
                                      },
                                    new[]
@@ -78,9 +86,11 @@ namespace MediaPortal.Extensions.UserServices.FanArtService.UPnP
       FanArtConstants.FanArtMediaType fanArtMediaType = (FanArtConstants.FanArtMediaType) Enum.Parse(typeof (FanArtConstants.FanArtMediaType), inParams[0].ToString());
       FanArtConstants.FanArtType fanArtType = (FanArtConstants.FanArtType)Enum.Parse(typeof(FanArtConstants.FanArtType), inParams[1].ToString());
       string name = inParams[2].ToString();
-      bool singleRandom = (bool)inParams[3];
+      int maxWidth = (int)inParams[3];
+      int maxHeight = (int)inParams[4];
+      bool singleRandom = (bool)inParams[5];
 
-      IList<FanArtImage> fanArtImages = fanArtService.GetFanArt(fanArtMediaType, fanArtType, name, singleRandom) ?? new List<FanArtImage>();
+      IList<FanArtImage> fanArtImages = fanArtService.GetFanArt(fanArtMediaType, fanArtType, name, maxWidth, maxHeight, singleRandom) ?? new List<FanArtImage>();
       outParams = new List<object> { fanArtImages };
       return null;
     }

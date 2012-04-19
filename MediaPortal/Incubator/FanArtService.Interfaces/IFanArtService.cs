@@ -32,9 +32,11 @@ namespace MediaPortal.Extensions.UserServices.FanArtService.Interfaces
   /// <param name="mediaType">Requested FanArtMediaType</param>
   /// <param name="fanArtType">Requested FanArtType</param>
   /// <param name="name">Requested name of Series, Actor, Artist...</param>
+  /// <param name="maxWidth">Maximum width for image. <c>0</c> returns image in original size.</param>
+  /// <param name="maxHeight">Maximum height for image. <c>0</c> returns image in original size.</param>
   /// <param name="singleRandom">If <c>true</c> only one random image URI will be returned</param>
   /// <returns>List of fanart image URIs</returns>
-  public delegate IList<FanArtImage> GetFanArtDelegate(FanArtConstants.FanArtMediaType mediaType, FanArtConstants.FanArtType fanArtType, string name, bool singleRandom);
+  public delegate IList<FanArtImage> GetFanArtDelegate(FanArtConstants.FanArtMediaType mediaType, FanArtConstants.FanArtType fanArtType, string name, int maxWidth, int maxHeight, bool singleRandom);
 
   /// <summary>
   /// <see cref="IFanArtService"/> provides fanart images for different media types and allows scraping of information from internet sources
@@ -49,8 +51,10 @@ namespace MediaPortal.Extensions.UserServices.FanArtService.Interfaces
     /// <param name="mediaType">Requested FanArtMediaType</param>
     /// <param name="fanArtType">Requested FanArtType</param>
     /// <param name="name">Requested name of Series, Actor, Artist...</param>
+    /// <param name="maxWidth">Maximum width for image. <c>0</c> returns image in original size.</param>
+    /// <param name="maxHeight">Maximum height for image. <c>0</c> returns image in original size.</param>
     /// <param name="singleRandom">If <c>true</c> only one random image URI will be returned</param>
     /// <returns>List of fanart image URIs</returns>
-    IList<FanArtImage> GetFanArt(FanArtConstants.FanArtMediaType mediaType, FanArtConstants.FanArtType fanArtType, string name, bool singleRandom);
+    IList<FanArtImage> GetFanArt(FanArtConstants.FanArtMediaType mediaType, FanArtConstants.FanArtType fanArtType, string name, int maxWidth, int maxHeight, bool singleRandom);
   }
 }

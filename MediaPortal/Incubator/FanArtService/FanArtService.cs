@@ -33,7 +33,7 @@ namespace MediaPortal.Extensions.UserServices.FanArtService
 {
   public class FanArtService : IFanArtService
   {
-    public IList<FanArtImage> GetFanArt(FanArtConstants.FanArtMediaType mediaType, FanArtConstants.FanArtType fanArtType, string name, bool singleRandom)
+    public IList<FanArtImage> GetFanArt(FanArtConstants.FanArtMediaType mediaType, FanArtConstants.FanArtType fanArtType, string name, int maxWidth, int maxHeight, bool singleRandom)
     {
       string baseFolder = GetBaseFolder(mediaType, name);
       // No known series
@@ -43,7 +43,7 @@ namespace MediaPortal.Extensions.UserServices.FanArtService
       string pattern = GetPattern(fanArtType);
       DirectoryInfo directoryInfo = new DirectoryInfo(baseFolder);
       List<string> files = directoryInfo.GetFiles(pattern).Select(file => file.FullName).ToList();
-      List<FanArtImage> fanArtImages = files.Select(FanArtImage.FromFile).Where(fanArtImage => fanArtImage != null).ToList();
+      List<FanArtImage> fanArtImages = files.Select(f => FanArtImage.FromFile(f, maxWidth, maxHeight)).Where(fanArtImage => fanArtImage != null).ToList();
 
       if (fanArtImages.Count == 0)
         return null;
@@ -62,7 +62,7 @@ namespace MediaPortal.Extensions.UserServices.FanArtService
 
     protected string GetPattern(FanArtConstants.FanArtType fanArtType)
     {
-      switch(fanArtType)
+      switch (fanArtType)
       {
         case FanArtConstants.FanArtType.Banner:
           return "img_graphical_*.jpg";

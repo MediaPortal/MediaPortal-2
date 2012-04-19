@@ -70,7 +70,7 @@ namespace MediaPortal.UiComponents.BackgroundManager.Models
       return _serviceStub != null;
     }
 
-    public IList<FanArtImage> GetFanArt(FanArtConstants.FanArtMediaType mediaType, FanArtConstants.FanArtType fanArtType, string name, bool singleRandom)
+    public IList<FanArtImage> GetFanArt(FanArtConstants.FanArtMediaType mediaType, FanArtConstants.FanArtType fanArtType, string name, int maxWidth, int maxHeight, bool singleRandom)
     {
       try
       {
@@ -83,6 +83,8 @@ namespace MediaPortal.UiComponents.BackgroundManager.Models
                                        mediaType.ToString(),
                                        fanArtType.ToString(),
                                        name,
+                                       maxWidth,
+                                       maxHeight,
                                        singleRandom
                                      };
         IList<object> outParameters = action.InvokeAction(inParameters);

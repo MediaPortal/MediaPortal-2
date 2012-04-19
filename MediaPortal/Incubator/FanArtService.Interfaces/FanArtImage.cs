@@ -42,46 +42,27 @@ namespace MediaPortal.Extensions.UserServices.FanArtService.Interfaces
   {
     // We could use some cache for this instance, if we would have one...
     protected static XmlSerializer _xmlSerializer; // Lazy initialized
-    private string _name;
-    private byte[] _binaryData;
 
     public FanArtImage()
     { }
 
     public FanArtImage(string name, byte[] binaryData)
     {
-      _name = name;
-      _binaryData = binaryData;
+      Name = name;
+      BinaryData = binaryData;
     }
 
     /// <summary>
     /// Returns the name of this FanArtImage.
     /// </summary>
-    [XmlIgnore]
-    public string Name
-    {
-      get { return _name; }
-    }
-
-    /// <summary>
-    /// For internal use of the XML serialization system only.
-    /// </summary>
     [XmlAttribute("Name")]
-    public string XML_Name
-    {
-      get { return _name; }
-      set { _name = value; }
-    }
+    public string Name { get; set; }
 
     /// <summary>
-    /// For internal use of the XML serialization system only.
+    /// Contains the binary data of the Image.
     /// </summary>
     [XmlElement("BinaryData")]
-    public byte[] XML_BinaryData
-    {
-      get { return _binaryData; }
-      set { _binaryData = value; }
-    }
+    public byte[] BinaryData { get; set; }
 
     /// <summary>
     /// Serializes this user profile instance to XML.
@@ -138,8 +119,10 @@ namespace MediaPortal.Extensions.UserServices.FanArtService.Interfaces
     /// Loads an image from filesystem an returns a new <see cref="FanArtImage"/>.
     /// </summary>
     /// <param name="fileName">File name to load</param>
+    /// <param name="maxWidth">Maximum width for image. <c>0</c> returns image in original size.</param>
+    /// <param name="maxHeight">Maximum height for image. <c>0</c> returns image in original size.</param>
     /// <returns>FanArtImage or <c>null</c>.</returns>
-    public static FanArtImage FromFile(string fileName)
+    public static FanArtImage FromFile(string fileName, int maxWidth, int maxHeight)
     {
       if (string.IsNullOrEmpty(fileName))
         return null;
