@@ -844,7 +844,8 @@
           Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}"/>
       <Image Width="{StaticResource MEDIA_BANNER_WIDTH}" Height="{StaticResource MEDIA_BANNER_HEIGHT}" Stretch="Uniform" Grid.Row="0" Grid.Column="0">
         <Image.Source>
-          <fanart:FanArtImageSource fanart:FanArtMediaType="Series" fanart:FanArtType="Banner" fanart:FanArtName="{Binding SimpleTitle}"/>
+          <fanart:FanArtImageSource fanart:FanArtMediaType="Series" fanart:FanArtType="Banner" fanart:FanArtName="{Binding SimpleTitle}"
+                                    fanart:MaxWidth="{StaticResource FANART_BANNER_WIDTH}" fanart:MaxHeight="{StaticResource FANART_BANNER_HEIGHT}"/>
         </Image.Source>
       </Image>
 
@@ -866,7 +867,8 @@
           Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}"/>
       <Image Width="{StaticResource MEDIA_POSTER_WIDTH}" Height="{StaticResource MEDIA_POSTER_HEIGHT}" Stretch="Uniform" Grid.Row="0" Grid.Column="1">
         <Image.Source>
-          <fanart:FanArtImageSource fanart:FanArtMediaType="Series" fanart:FanArtType="Poster" fanart:FanArtName="{Binding SimpleTitle}"/>
+          <fanart:FanArtImageSource fanart:FanArtMediaType="Series" fanart:FanArtType="Poster" fanart:FanArtName="{Binding SimpleTitle}"
+                                    fanart:MaxWidth="{StaticResource FANART_POSTER_WIDTH}" fanart:MaxHeight="{StaticResource FANART_POSTER_HEIGHT}"/>
         </Image.Source>
       </Image>
     </Grid>

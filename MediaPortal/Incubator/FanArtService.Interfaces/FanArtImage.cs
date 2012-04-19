@@ -22,10 +22,14 @@
 
 #endregion
 
+using System;
+using System.Drawing;
 using System.IO;
 using System.Text;
 using System.Xml;
 using System.Xml.Serialization;
+using MediaPortal.Common;
+using MediaPortal.Common.PathManager;
 
 namespace MediaPortal.Extensions.UserServices.FanArtService.Interfaces
 {
@@ -40,6 +44,8 @@ namespace MediaPortal.Extensions.UserServices.FanArtService.Interfaces
   /// </remarks>
   public class FanArtImage
   {
+    public static string CACHE_PATH = ServiceRegistration.Get<IPathManager>().GetPath(@"<DATA>\Thumbs\FanArt");
+
     // We could use some cache for this instance, if we would have one...
     protected static XmlSerializer _xmlSerializer; // Lazy initialized
 
@@ -126,6 +132,8 @@ namespace MediaPortal.Extensions.UserServices.FanArtService.Interfaces
     {
       if (string.IsNullOrEmpty(fileName))
         return null;
+
+      fileName = ResizeImage(fileName, maxWidth, maxHeight);
       FileInfo fileInfo = new FileInfo(fileName);
       if (!fileInfo.Exists)
         return null;
@@ -135,7 +143,47 @@ namespace MediaPortal.Extensions.UserServices.FanArtService.Interfaces
       using (BinaryReader binaryReader = new BinaryReader(fileStream))
         binaryReader.Read(binary, 0, binary.Length);
 
-      return  new FanArtImage(fileInfo.Name, binary);
+      return new FanArtImage(fileInfo.Name, binary);
+    }
+
+    protected static string ResizeImage(string originalFile, int maxWidth, int maxHeight)
+    {
+      if (maxWidth == 0 || maxHeight == 0)
+        return originalFile;
+
+      if (!Directory.Exists(CACHE_PATH))
+        Directory.CreateDirectory(CACHE_PATH);
+
+      string thumbFileName = Path.Combine(CACHE_PATH, string.Format("th_{0}x{1}_{2}", maxWidth, maxHeight, Path.GetFileName(originalFile)));
+      if (File.Exists(thumbFileName))
+        return thumbFileName;
+
+      try
+      {
+
+        Image fullsizeImage = Image.FromFile(originalFile);
+
+        if (fullsizeImage.Width <= maxWidth)
+          maxWidth = fullsizeImage.Width;
+
+        int newHeight = fullsizeImage.Height * maxWidth / fullsizeImage.Width;
+        if (newHeight > maxHeight)
+        {
+          // Resize with height instead
+          maxWidth = fullsizeImage.Width * maxHeight / fullsizeImage.Height;
+          newHeight = maxHeight;
+        }
+
+        using (fullsizeImage)
+        using (Image newImage = ImageUtilities.ResizeImage(fullsizeImage, maxWidth, newHeight))
+          ImageUtilities.SaveJpeg(thumbFileName, newImage, 95);
+
+        return thumbFileName;
+      }
+      catch (Exception)
+      {
+        return originalFile;
+      }
     }
   }
 }

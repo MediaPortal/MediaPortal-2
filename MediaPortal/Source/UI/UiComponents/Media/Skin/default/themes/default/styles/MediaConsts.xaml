@@ -17,4 +17,10 @@
   <ResourceWrapper x:Key="MEDIA_THUMB_HEIGHT_CP" Resource="200"/>
   <ResourceWrapper x:Key="MEDIA_BANNER_HEIGHT" Resource="60"/>
   <ResourceWrapper x:Key="MEDIA_POSTER_HEIGHT" Resource="200"/>
+  
+  <!-- FanArt thumbnail sizes -->
+  <ResourceWrapper x:Key="FANART_BANNER_WIDTH"  Resource="500"/>
+  <ResourceWrapper x:Key="FANART_BANNER_HEIGHT" Resource="100"/>
+  <ResourceWrapper x:Key="FANART_POSTER_WIDTH"  Resource="200"/>
+  <ResourceWrapper x:Key="FANART_POSTER_HEIGHT" Resource="300"/>
 </ResourceDictionary>
