@@ -22,6 +22,7 @@
 
 #endregion
 
+using System;
 using System.Collections.Generic;
 using System.Drawing;
 using MediaPortal.Common;
@@ -43,6 +44,9 @@ namespace MediaPortal.UiComponents.BackgroundManager.Models
     protected AbstractProperty _fanArtTypeProperty;
     protected AbstractProperty _fanArtNameProperty;
     protected IList<FanArtImage> _possibleSources;
+    protected GetFanArtDelegate _getFanArtDelegate;
+    protected IAsyncResult _fanArtResult;
+    protected bool _asyncCompleted;
 
     #endregion
 
@@ -144,12 +148,13 @@ namespace MediaPortal.UiComponents.BackgroundManager.Models
     public override void Allocate()
     {
       if (FanArtMediaType == FanArtConstants.FanArtMediaType.Undefined || 
-        FanArtType == FanArtConstants.FanArtType.Undefined || 
-        _possibleSources != null && _possibleSources.Count == 0 /* we already asked the service for image, do not ask again */ )
+        FanArtType == FanArtConstants.FanArtType.Undefined ||
+        _asyncCompleted)
         return;
 
-      IFanArtService fanArtService = ServiceRegistration.Get<IFanArtService>();
-      _possibleSources = fanArtService.GetFanArt(FanArtMediaType, FanArtType, FanArtName, true);
+      if (!Download_Async())
+        return;
+
       if (_possibleSources == null || _possibleSources.Count == 0)
         return;
 
@@ -169,6 +174,23 @@ namespace MediaPortal.UiComponents.BackgroundManager.Models
 
       _imageContext.Refresh();
       FireChanged();
+    }
+
+    protected bool Download_Async()
+    {
+      if (_fanArtResult == null)
+      {
+        IFanArtService fanArtService = ServiceRegistration.Get<IFanArtService>();
+        _getFanArtDelegate = fanArtService.GetFanArt;
+        _fanArtResult = _getFanArtDelegate.BeginInvoke(FanArtMediaType, FanArtType, FanArtName, true, null, fanArtService);
+      }
+      bool isCompleted = _fanArtResult.IsCompleted;
+      if (isCompleted && !_asyncCompleted)
+      {
+        _possibleSources = _getFanArtDelegate.EndInvoke(_fanArtResult);
+        _asyncCompleted = true;
+      }
+      return isCompleted;
     }
 
     #endregion

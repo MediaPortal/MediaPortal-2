@@ -27,6 +27,16 @@ using System.Collections.Generic;
 namespace MediaPortal.Extensions.UserServices.FanArtService.Interfaces
 {
   /// <summary>
+  /// Delegate definition for <see cref="IFanArtService.GetFanArt"/>.
+  /// </summary>
+  /// <param name="mediaType">Requested FanArtMediaType</param>
+  /// <param name="fanArtType">Requested FanArtType</param>
+  /// <param name="name">Requested name of Series, Actor, Artist...</param>
+  /// <param name="singleRandom">If <c>true</c> only one random image URI will be returned</param>
+  /// <returns>List of fanart image URIs</returns>
+  public delegate IList<FanArtImage> GetFanArtDelegate(FanArtConstants.FanArtMediaType mediaType, FanArtConstants.FanArtType fanArtType, string name, bool singleRandom);
+
+  /// <summary>
   /// <see cref="IFanArtService"/> provides fanart images for different media types and allows scraping of information from internet sources
   /// like <c>http://thetvdb.com</c>.
   /// </summary>
