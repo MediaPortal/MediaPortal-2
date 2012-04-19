@@ -33,7 +33,7 @@ using MediaPortal.UI.SkinEngine.Controls.ImageSources;
 using MediaPortal.Utilities.DeepCopy;
 using SlimDX.Direct3D9;
 
-namespace MediaPortal.UiComponents.BackgroundManager.Models
+namespace MediaPortal.Extensions.UserServices.FanArtService.Client
 {
   public class FanArtImageSource : TextureImageSource
   {

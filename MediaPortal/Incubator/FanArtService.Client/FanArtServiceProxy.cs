@@ -32,9 +32,8 @@ using MediaPortal.Extensions.UserServices.FanArtService.UPnP;
 using MediaPortal.UI.ServerCommunication;
 using UPnP.Infrastructure.CP;
 using UPnP.Infrastructure.CP.DeviceTree;
-using UPnPExtendedDataTypes = MediaPortal.Common.UPnP.UPnPExtendedDataTypes;
 
-namespace MediaPortal.UiComponents.BackgroundManager.Models
+namespace MediaPortal.Extensions.UserServices.FanArtService.Client
 {
   public class FanArtServiceProxy : UPnPServiceProxyBase, IFanArtService
   {
@@ -61,9 +60,6 @@ namespace MediaPortal.UiComponents.BackgroundManager.Models
         return false;
 
       CpService fanArtStub = connection.Device.FindServiceByServiceId(Consts.FANART_SERVICE_ID);
-      //if (fanArtStub == null)
-      //  throw new InvalidDataException("ContentDirectory service not found in device '{0}' of type '{1}:{2}'",
-      //      connection.Device.UUID, UPnPTypesAndIds.BACKEND_SERVER_DEVICE_TYPE, UPnPTypesAndIds.BACKEND_SERVER_DEVICE_TYPE_VERSION);
       if (fanArtStub != null)
         Init(fanArtStub, "FanArt");
 

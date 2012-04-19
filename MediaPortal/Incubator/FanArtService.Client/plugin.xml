@@ -1,0 +1,17 @@
+<Plugin
+    DescriptorVersion="1.0"
+    Name="FanArt Service Client"
+    PluginId="{15FD97A4-D925-4D8A-9DF0-5349743EED0C}"
+    Author="Morpheus_xx"
+    Copyright="GPL"
+    Description="Provides Client access to Fanart stored in MP2 Server"
+    PluginVersion="1.0">
+
+  <DependsOn>
+    <PluginReference PluginId="{D87D92F0-5E71-470a-A2A4-430F90A28BF3}"/> <!-- SkinEngine -->
+  </DependsOn>
+
+  <Runtime>
+    <Assembly FileName="FanArtService.Client.dll"/>
+  </Runtime>
+</Plugin>

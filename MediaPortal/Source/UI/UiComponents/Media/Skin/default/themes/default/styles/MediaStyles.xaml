@@ -5,7 +5,7 @@
     xmlns:collections="clr-namespace:MediaPortal.UI.Presentation.DataObjects;assembly=MediaPortal.UI"
     xmlns:navitems="clr-namespace:MediaPortal.UiComponents.Media.Models.Navigation;assembly=Media"
     xmlns:mp_special_controls="clr-namespace:MediaPortal.UI.SkinEngine.SpecialElements.Controls"
-    xmlns:fanart="clr-namespace:MediaPortal.UiComponents.BackgroundManager.Models;assembly=BackgroundManager"
+    xmlns:fanart="clr-namespace:MediaPortal.Extensions.UserServices.FanArtService.Client;assembly=FanArtService.Client"
     DependsOnStyleResources="FullScreenContentConsts,MediaButtons,MediaColors,Consts,Colors,Buttons,OtherControls"
     >
 

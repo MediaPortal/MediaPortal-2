@@ -2,7 +2,6 @@
 <Include
     xmlns="www.team-mediaportal.com/2008/mpf/directx"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-    xmlns:fanart="clr-namespace:MediaPortal.UiComponents.BackgroundManager.Models;assembly=BackgroundManager"
     Source="screens\master_menu.xaml"
     >
   <Include.Resources>
@@ -11,19 +10,8 @@
 
     <!-- Alternative contents -->
     <ControlTemplate x:Key="Alternative_Contents_Template">
-      <StackPanel>
-        <Image Width="400" Height="100" Stretch="Uniform">
-          <Image.Source>
-            <fanart:FanArtImageSource fanart:FanArtMediaType="Series" fanart:FanArtType="Banner" fanart:FanArtName="Eureka"/>
-          </Image.Source>
-        </Image>
-        <Image Width="400" Height="300" Stretch="Uniform">
-          <Image.Source>
-            <fanart:FanArtImageSource fanart:FanArtMediaType="Series" fanart:FanArtType="FanArt" fanart:FanArtName="Eureka"/>
-          </Image.Source>
-        </Image>
-        <Control x:Name="HomeScreenContentsControl" Template="{ThemeResource HomeScreenContentsControlTemplate}"/>
-      </StackPanel>
+      <Control x:Name="HomeScreenContentsControl" Template="{ThemeResource HomeScreenContentsControlTemplate}"/>
     </ControlTemplate>
+    
   </Include.Resources>
 </Include>
