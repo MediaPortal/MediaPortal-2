@@ -22,7 +22,6 @@
 
 #endregion
 
-using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
@@ -146,14 +145,14 @@ namespace MediaPortal.Extensions.OnlineLibraries
 
         // Use cached values before doing online query
         SeriesMatch match = matches.Find(m => m.SeriesName == seriesName || m.TvDBName == seriesName);
-        ServiceRegistration.Get<ILogger>().Debug("SeriesTvDbMatcher: Try to lookup series \"{0}\" from cache: {1}", seriesName, match != null);
+        ServiceRegistration.Get<ILogger>().Debug("SeriesTvDbMatcher: Try to lookup series \"{0}\" from cache: {1}", seriesName, match != null && match.TvDBID != 0);
 
         // Try online lookup
         var tv = GetTvDbWrapper();
 
         // If this is a known series, only return the series details (including episodes).
         if (match != null)
-          return tv.GetSeries(match.TvDBID, true, out seriesDetail);
+          return match.TvDBID != 0 && tv.GetSeries(match.TvDBID, true, out seriesDetail);
 
         if (cacheOnly)
           return false;
@@ -176,23 +175,31 @@ namespace MediaPortal.Extensions.OnlineLibraries
                                         };
 
             // Save cache
-            lock (_syncObj)
-            {
-              matches = Settings.Load<List<SeriesMatch>>(SETTINGS_MATCHES) ?? new List<SeriesMatch>();
-              if (matches.All(m => m.SeriesName != seriesName))
-                matches.Add(onlineMatch);
-              Settings.Save(SETTINGS_MATCHES, matches);
-            }
+            SaveNewMatch(seriesName, onlineMatch);
             return true;
           }
         }
         ServiceRegistration.Get<ILogger>().Debug("SeriesTvDbMatcher: No unique match found for \"{0}\"", seriesName);
+        // Also save "non matches" to avoid retrying
+        SaveNewMatch(seriesName, new SeriesMatch { SeriesName = seriesName });
         return false;
       }
       finally
       {
         if (seriesDetail != null && !_memoryCache.ContainsKey(seriesName))
           _memoryCache.Add(seriesName, seriesDetail);
+      }
+    }
+
+    private void SaveNewMatch(string seriesName, SeriesMatch onlineMatch)
+    {
+      List<SeriesMatch> matches;
+      lock (_syncObj)
+      {
+        matches = Settings.Load<List<SeriesMatch>>(SETTINGS_MATCHES) ?? new List<SeriesMatch>();
+        if (matches.All(m => m.SeriesName != seriesName))
+          matches.Add(onlineMatch);
+        Settings.Save(SETTINGS_MATCHES, matches);
       }
     }
 
