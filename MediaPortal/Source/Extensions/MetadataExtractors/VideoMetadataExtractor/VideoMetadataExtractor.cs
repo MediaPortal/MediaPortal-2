@@ -298,7 +298,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.VideoMetadataExtractor
       return seriesInfo;
     }
 
-    protected void ExtractSeriesData(string localFsResourcePath, IDictionary<Guid, MediaItemAspect> extractedAspectData)
+    protected void ExtractSeriesData(string localFsResourcePath, IDictionary<Guid, MediaItemAspect> extractedAspectData, bool forceQuickMode)
     {
       SeriesInfo seriesInfo = null;
 
@@ -335,8 +335,11 @@ namespace MediaPortal.Extensions.MetadataExtractors.VideoMetadataExtractor
         seriesInfo = GetSeriesFromTags(tagsToExtract);
         if (seriesInfo.IsCompleteMatch)
         {
-          SeriesTvDbMatcher matcher = new SeriesTvDbMatcher();
-          matcher.FindAndUpdateSeries(seriesInfo);
+          if (!forceQuickMode)
+          {
+            SeriesTvDbMatcher matcher = new SeriesTvDbMatcher();
+            matcher.FindAndUpdateSeries(seriesInfo);
+          }
           seriesInfo.SetMetadata(extractedAspectData);
         }
 
@@ -380,8 +383,11 @@ namespace MediaPortal.Extensions.MetadataExtractors.VideoMetadataExtractor
       SeriesMatcher seriesMatcher = new SeriesMatcher();
       if (seriesMatcher.MatchSeries(localFsResourcePath, out seriesInfo) && seriesInfo.IsCompleteMatch)
       {
-        SeriesTvDbMatcher matcher = new SeriesTvDbMatcher();
-        matcher.FindAndUpdateSeries(seriesInfo);
+        if (!forceQuickMode)
+        {
+          SeriesTvDbMatcher matcher = new SeriesTvDbMatcher();
+          matcher.FindAndUpdateSeries(seriesInfo);
+        }
         seriesInfo.SetMetadata(extractedAspectData);
       }
     }
@@ -420,7 +426,8 @@ namespace MediaPortal.Extensions.MetadataExtractors.VideoMetadataExtractor
         {
           IFileSystemResourceAccessor fsraVideoTs = fsra.GetResource("VIDEO_TS");
           if (fsraVideoTs != null && fsraVideoTs.ResourceExists("VIDEO_TS.IFO"))
-          { // Video DVD
+          {
+            // Video DVD
             using (MediaInfoWrapper videoTsInfo = ReadMediaInfo(fsraVideoTs.GetResource("VIDEO_TS.IFO")))
             {
               if (!videoTsInfo.IsValid || videoTsInfo.GetVideoCount() == 0)
@@ -465,28 +472,36 @@ namespace MediaPortal.Extensions.MetadataExtractors.VideoMetadataExtractor
         if (result != null)
         {
           result.UpdateMetadata(extractedAspectData);
+
+          ILocalFsResourceAccessor lfsra;
+          IResourceAccessor ra = null;
+
+          // forceQuickMode applies for local browsing, so use the ILocalFsResourceAccessor directly
           if (forceQuickMode)
-          {
-            ILocalFsResourceAccessor lfsra = mediaItemAccessor as ILocalFsResourceAccessor;
-            if (lfsra != null)
-              ExtractThumbnailData(lfsra.LocalFileSystemPath, extractedAspectData, true);
-          }
+            lfsra = mediaItemAccessor as ILocalFsResourceAccessor;
           else
           {
-            IResourceAccessor ra = mediaItemAccessor.Clone();
-            try
+            ra = mediaItemAccessor.Clone();
+            lfsra = StreamedResourceToLocalFsAccessBridge.GetLocalFsResourceAccessor(ra);
+          }
+
+          try
+          {
+            if (lfsra != null)
             {
-              using (ILocalFsResourceAccessor lfsra = StreamedResourceToLocalFsAccessBridge.GetLocalFsResourceAccessor(ra))
-              {
-                string localFsPath = lfsra.LocalFileSystemPath;
-                ExtractSeriesData(localFsPath, extractedAspectData);
-                ExtractThumbnailData(localFsPath, extractedAspectData, false);
-              }
+              string localFsPath = lfsra.LocalFileSystemPath;
+              ExtractSeriesData(localFsPath, extractedAspectData, forceQuickMode);
+              ExtractThumbnailData(localFsPath, extractedAspectData, forceQuickMode);
             }
-            catch
+          }
+          finally
+          {
+            if (ra != null)
             {
               ra.Dispose();
-              throw;
+              // Dispose the ILocalFsResourceAccessor only if we created a Clone before
+              if (lfsra != null)
+                lfsra.Dispose();
             }
           }
           return true;

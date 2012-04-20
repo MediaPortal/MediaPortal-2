@@ -169,8 +169,11 @@ namespace MediaPortal.Extensions.MetadataExtractors
         SeriesInfo seriesInfo = GetSeriesFromTags(tags);
         if (seriesInfo.IsCompleteMatch)
         {
-          SeriesTvDbMatcher matcher= new SeriesTvDbMatcher();
-          matcher.FindAndUpdateSeries(seriesInfo);
+          if (!forceQuickMode)
+          {
+            SeriesTvDbMatcher matcher = new SeriesTvDbMatcher();
+            matcher.FindAndUpdateSeries(seriesInfo);
+          }
           seriesInfo.SetMetadata(extractedAspectData);
         }
 
