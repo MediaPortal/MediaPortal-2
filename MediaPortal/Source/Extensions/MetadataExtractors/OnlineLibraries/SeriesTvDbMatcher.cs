@@ -22,6 +22,7 @@
 
 #endregion
 
+using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
@@ -184,6 +185,11 @@ namespace MediaPortal.Extensions.OnlineLibraries
         SaveNewMatch(seriesName, new SeriesMatch { SeriesName = seriesName });
         return false;
       }
+      catch(Exception ex)
+      {
+        ServiceRegistration.Get<ILogger>().Debug("SeriesTvDbMatcher: Exception while processing series {0}", ex, seriesName);
+        return false;
+      }
       finally
       {
         if (seriesDetail != null && !_memoryCache.ContainsKey(seriesName))
@@ -241,25 +247,32 @@ namespace MediaPortal.Extensions.OnlineLibraries
     protected void DownloadFanArt_Async()
     {
       int tvDbId = _currentTvDbId;
-      ServiceRegistration.Get<ILogger>().Debug("SeriesTvDbMatcher Download: Started for ID {0}", _currentTvDbId);
+      try
+      {
+        ServiceRegistration.Get<ILogger>().Debug("SeriesTvDbMatcher Download: Started for ID {0}", tvDbId);
 
-      var tv = GetTvDbWrapper();
-      TvdbSeries seriesDetail;
-      if (!tv.GetSeriesFanArt(tvDbId, out seriesDetail))
-        return;
+        var tv = GetTvDbWrapper();
+        TvdbSeries seriesDetail;
+        if (!tv.GetSeriesFanArt(tvDbId, out seriesDetail))
+          return;
 
-      // Save Banners
-      ServiceRegistration.Get<ILogger>().Debug("SeriesTvDbMatcher Download: Begin saving banners for ID {0}", _currentTvDbId);
-      SaveBanners(seriesDetail.SeriesBanners, tv.PreferredLanguage);
+        // Save Banners
+        ServiceRegistration.Get<ILogger>().Debug("SeriesTvDbMatcher Download: Begin saving banners for ID {0}", tvDbId);
+        SaveBanners(seriesDetail.SeriesBanners, tv.PreferredLanguage);
 
-      // Save Posters
-      ServiceRegistration.Get<ILogger>().Debug("SeriesTvDbMatcher Download: Begin saving posters for ID {0}", _currentTvDbId);
-      SaveBanners(seriesDetail.PosterBanners, tv.PreferredLanguage);
+        // Save Posters
+        ServiceRegistration.Get<ILogger>().Debug("SeriesTvDbMatcher Download: Begin saving posters for ID {0}", tvDbId);
+        SaveBanners(seriesDetail.PosterBanners, tv.PreferredLanguage);
 
-      // Save FanArt
-      ServiceRegistration.Get<ILogger>().Debug("SeriesTvDbMatcher Download: Begin saving fanarts for ID {0}", _currentTvDbId);
-      SaveBanners(seriesDetail.FanartBanners, tv.PreferredLanguage);
-      ServiceRegistration.Get<ILogger>().Debug("SeriesTvDbMatcher Download: Finished ID {0}", _currentTvDbId);
+        // Save FanArt
+        ServiceRegistration.Get<ILogger>().Debug("SeriesTvDbMatcher Download: Begin saving fanarts for ID {0}", tvDbId);
+        SaveBanners(seriesDetail.FanartBanners, tv.PreferredLanguage);
+        ServiceRegistration.Get<ILogger>().Debug("SeriesTvDbMatcher Download: Finished ID {0}", tvDbId);
+      }
+      catch (Exception ex)
+      {
+        ServiceRegistration.Get<ILogger>().Debug("SeriesTvDbMatcher: Exception downloading FanArt for ID {0}", ex, tvDbId);
+      }
     }
 
     private static int SaveBanners<TE>(IEnumerable<TE> banners, TvdbLanguage language) where TE : TvdbBanner
