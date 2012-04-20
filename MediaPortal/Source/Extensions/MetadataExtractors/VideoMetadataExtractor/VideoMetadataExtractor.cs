@@ -349,7 +349,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.VideoMetadataExtractor
         string yearCandidate = null;
         tags = tagsToExtract[TAG_EPISODE_YEAR] ?? tagsToExtract[TAG_SEASON_YEAR];
         if (tags != null)
-          yearCandidate = tags.FirstOrDefault().Substring(0, 4);
+          yearCandidate = (tags.FirstOrDefault() ?? string.Empty).Substring(0, 4);
 
         int year;
         if (int.TryParse(yearCandidate, out year))
@@ -376,7 +376,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.VideoMetadataExtractor
           MediaItemAspect.SetAttribute(extractedAspectData, VideoAspect.ATTR_STORYPLOT, tags.FirstOrDefault());
       }
 
-      if (seriesInfo != null && seriesInfo.IsCompleteMatch) 
+      if (seriesInfo != null && seriesInfo.IsCompleteMatch)
         return;
 
       // Try to match series from folder and file namings
