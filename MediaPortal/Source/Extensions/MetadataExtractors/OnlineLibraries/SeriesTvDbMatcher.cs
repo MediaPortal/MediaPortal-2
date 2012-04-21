@@ -169,11 +169,11 @@ namespace MediaPortal.Extensions.OnlineLibraries
             ServiceRegistration.Get<ILogger>().Debug("SeriesTvDbMatcher: Loaded details for \"{0}\"", matchedSeries.SeriesName);
             // Add this match to cache
             SeriesMatch onlineMatch = new SeriesMatch
-                                        {
-                                          SeriesName = seriesName,
-                                          TvDBID = seriesDetail.Id,
-                                          TvDBName = seriesDetail.SeriesName
-                                        };
+                {
+                  SeriesName = seriesName,
+                  TvDBID = seriesDetail.Id,
+                  TvDBName = seriesDetail.SeriesName
+                };
 
             // Save cache
             SaveNewMatch(seriesName, onlineMatch);
@@ -199,10 +199,9 @@ namespace MediaPortal.Extensions.OnlineLibraries
 
     private void SaveNewMatch(string seriesName, SeriesMatch onlineMatch)
     {
-      List<SeriesMatch> matches;
       lock (_syncObj)
       {
-        matches = Settings.Load<List<SeriesMatch>>(SETTINGS_MATCHES) ?? new List<SeriesMatch>();
+        List<SeriesMatch> matches = Settings.Load<List<SeriesMatch>>(SETTINGS_MATCHES) ?? new List<SeriesMatch>();
         if (matches.All(m => m.SeriesName != seriesName))
           matches.Add(onlineMatch);
         Settings.Save(SETTINGS_MATCHES, matches);
