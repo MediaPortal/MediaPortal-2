@@ -100,7 +100,8 @@ namespace MediaPortal.Media.MetadataExtractors
               IFileSystemResourceAccessor fsraBDMV = fsra.GetResource("BDMV");
               if (fsraBDMV != null && fsraBDMV.ResourceExists("index.bdmv"))
               {
-                // BluRay
+                // This line is important to keep in, if no VideoAspect is created here, the MediaItems is not detected as Video! 
+                MediaItemAspect.GetOrCreateAspect(extractedAspectData, VideoAspect.Metadata);
                 MediaItemAspect mediaAspect = MediaItemAspect.GetOrCreateAspect(extractedAspectData, MediaAspect.Metadata);
 
                 mediaAspect.SetAttribute(MediaAspect.ATTR_MIME_TYPE, "video/bluray"); // BluRay disc
