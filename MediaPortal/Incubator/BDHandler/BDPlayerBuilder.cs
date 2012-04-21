@@ -29,6 +29,7 @@ using MediaPortal.Common.Logging;
 using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.ResourceAccess;
 using MediaPortal.Common.Settings;
+using MediaPortal.Media.MetadataExtractors;
 using MediaPortal.Plugins.BDHandler.Settings.Configuration;
 using MediaPortal.UI.Players.Video.Tools;
 using MediaPortal.UI.Presentation.Players;
@@ -72,7 +73,7 @@ namespace MediaPortal.UI.Players.Video
     protected bool Enabled { get; set; }
 
     #endregion
-    
+
     #region IPlayerBuilder implementation
 
     public IPlayer GetPlayer(MediaItem mediaItem)
@@ -81,10 +82,10 @@ namespace MediaPortal.UI.Players.Video
       string title;
       if (!mediaItem.GetPlayData(out mimeType, out title))
         return null;
-      if (Enabled && mimeType == "video/bluray")
+      if (Enabled && (mimeType == BluRayMetadataExtractor.MIMETYPE_BLURAY || mimeType == BluRayMetadataExtractor.MIMETYPE_AVCHD))
       {
         IResourceLocator locator = mediaItem.GetResourceLocator();
-        BDPlayer player = new BDPlayer();
+        BDPlayer player = new BDPlayer(mimeType == BluRayMetadataExtractor.MIMETYPE_BLURAY);
         try
         {
           player.SetMediaItem(locator, title);

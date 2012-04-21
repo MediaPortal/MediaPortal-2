@@ -26,11 +26,11 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Threading;
 using BDInfo;
 using DirectShowLib;
 using MediaPortal.Common;
 using MediaPortal.Common.Settings;
+using MediaPortal.Media.MetadataExtractors;
 using MediaPortal.Plugins.BDHandler.Settings;
 using MediaPortal.UI.Players.Video.Tools;
 using MediaPortal.UI.Presentation.Players;
@@ -55,14 +55,21 @@ namespace MediaPortal.UI.Players.Video
 
     #endregion
 
+    #region Fields
+
+    protected bool _isBluRay;
+
+    #endregion
+
     #region Constructor
 
     /// <summary>
     /// Constructs a BDPlayer player object.
     /// </summary>
-    public BDPlayer()
+    public BDPlayer(bool isBluRay)
     {
-      PlayerTitle = "BDPlayer"; // for logging
+      _isBluRay = isBluRay;
+      PlayerTitle = isBluRay ? "BluRayPlayer" : "AVCHDPlayer"; // for logging
     }
 
     #endregion
@@ -84,7 +91,10 @@ namespace MediaPortal.UI.Players.Video
       string strFile = _resourceAccessor.LocalFileSystemPath;
       
       // Render the file
-      strFile = Path.Combine(strFile.ToLower(), @"BDMV\index.bdmv");
+      if (_isBluRay)
+        strFile = Path.Combine(Path.Combine(strFile.ToLower(), BluRayMetadataExtractor.BASEFOLDER_BLURAY), BluRayMetadataExtractor.INDEX_BLURAY);
+      else
+        strFile = Path.Combine(Path.Combine(strFile.ToLower(), BluRayMetadataExtractor.BASEFOLDER_AVCHD), BluRayMetadataExtractor.INDEX_AVCHD);
 
       // only continue with playback if a feature was selected or the extension was m2ts.
       if (DoFeatureSelection(ref strFile))
@@ -152,6 +162,15 @@ namespace MediaPortal.UI.Players.Video
         result.AsyncWaitHandle.WaitOne();
 
         BDInfoExt bluray = scanner.EndInvoke(result);
+        if (!_isBluRay)
+        {
+          // For AVCHD all playlist are considered as valid
+          List<TSPlaylistFile> titles = bluray.PlaylistFiles.Values.ToList();
+          if (titles.Count > 0)
+            filePath = Path.Combine(titles[0].BDROM.DirectoryPLAYLIST.FullName, titles[0].Name);
+          return true;
+        }
+
         List<TSPlaylistFile> allPlayLists = bluray.PlaylistFiles.Values.Where(p => p.IsValid).OrderByDescending(p => p.TotalLength).Distinct().ToList();
 
         // Feature selection logic 
