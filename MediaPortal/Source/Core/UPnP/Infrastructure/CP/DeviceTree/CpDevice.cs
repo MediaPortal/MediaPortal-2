@@ -317,14 +317,18 @@ namespace UPnP.Infrastructure.CP.DeviceTree
       DeviceConnection connection = _connection;
       if (connection == null)
         return;
+      ICollection<CpDevice> embeddedDevices;
+      ICollection<CpService> services;
       lock (connection.CPData.SyncObj)
       {
         _connection = null;
-        foreach (CpDevice embeddedDevice in _embeddedDevices.Values)
-          embeddedDevice.Disconnect();
-        foreach (CpService service in _services.Values)
-          service.Disconnect();
+        embeddedDevices = new List<CpDevice>(_embeddedDevices.Values);
+        services = new List<CpService>(_services.Values);
       }
+      foreach (CpDevice embeddedDevice in embeddedDevices)
+        embeddedDevice.Disconnect();
+      foreach (CpService service in services)
+        service.Disconnect();
     }
 
     #endregion

@@ -182,12 +182,9 @@ namespace UPnP.Infrastructure.CP
     /// services.</param>
     internal void DoDisconnect(bool unsubscribeEvents)
     {
-      lock (_cpData.SyncObj)
-      {
-        _genaClientController.Close(unsubscribeEvents);
-        if (_device.IsConnected)
-          _device.Disconnect();
-      }
+      _genaClientController.Close(unsubscribeEvents);
+      if (_device.IsConnected)
+        _device.Disconnect();
       InvokeDeviceDisconnected();
     }
 
@@ -240,7 +237,7 @@ namespace UPnP.Infrastructure.CP
         {
           response = (HttpWebResponse) e.Response;
           if (response == null)
-            SOAPHandler.ActionFailed(state.Action, state.ClientState, string.Format("Network error when invoking action '{0}'", state.Action.Name));
+            SOAPHandler.ActionFailed(state.Action, state.ClientState, string.Format("Network error when invoking action '{0}': {1}", state.Action.Name, e.Message));
           else if (response.StatusCode == HttpStatusCode.InternalServerError)
           {
             string mediaType;

@@ -316,15 +316,15 @@ namespace UPnP.Infrastructure.CP
 
     protected void DoDisconnect(string deviceUUID, bool unsubscribeEvents)
     {
+      DeviceConnection connection;
       lock (_cpData.SyncObj)
       {
-        DeviceConnection connection;
         if (!_connectedDevices.TryGetValue(deviceUUID, out connection))
           return;
-        connection.DoDisconnect(unsubscribeEvents);
-        connection.Dispose();
         _connectedDevices.Remove(deviceUUID);
       }
+      connection.DoDisconnect(unsubscribeEvents);
+      connection.Dispose();
     }
 
     protected void DoDisconnect(DeviceConnection connection, bool unsubscribeEvents)
