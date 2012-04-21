@@ -67,7 +67,7 @@ namespace MediaPortal.UI.Players.Video
 
     #endregion
 
-    #region VideoPlayer overrides 
+    #region VideoPlayer overrides
 
     protected override void CreateGraphBuilder()
     {
@@ -149,8 +149,7 @@ namespace MediaPortal.UI.Players.Video
         ScanProcess scanner = ScanWorker;
         IAsyncResult result = scanner.BeginInvoke(filePath, null, scanner);
 
-        while (result.IsCompleted == false)
-          Thread.Sleep(100);
+        result.AsyncWaitHandle.WaitOne();
 
         BDInfoExt bluray = scanner.EndInvoke(result);
         List<TSPlaylistFile> allPlayLists = bluray.PlaylistFiles.Values.Where(p => p.IsValid).OrderByDescending(p => p.TotalLength).Distinct().ToList();
