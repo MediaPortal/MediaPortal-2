@@ -134,6 +134,11 @@ namespace UPnP.Infrastructure
     /// </summary>
     public static readonly TimeSpan INFINITE_TIMESPAN = new TimeSpan(0, 0, 0, 0, -1);
 
+    /// <summary>
+    /// If deadlocks happen, don't wait for locks infinitely in periodic timer events.
+    /// </summary>
+    public static TimeSpan TIMEOUT_TIMER_LOCK_ACCESS = TimeSpan.FromSeconds(30);
+
     #region Mutlicast event levels
 
     /// <summary>

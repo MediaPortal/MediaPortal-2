@@ -72,22 +72,30 @@ namespace UPnP.Infrastructure.Dv.GENA
     /// </summary>
     private void OnExpirationTimerElapsed(object state)
     {
-      lock (_serverData.SyncObj)
-      {
-        // Tidy up expired event subscriptions
-        foreach (EndpointConfiguration config in _serverData.UPnPEndPoints)
+      // If we cannot acquire our lock for some reason, avoid blocking an infinite number of timer threads here
+      if (Monitor.TryEnter(_serverData.SyncObj, UPnPConsts.TIMEOUT_TIMER_LOCK_ACCESS))
+        try
         {
-          ICollection<EventSubscription> removeSubscriptions = new List<EventSubscription>();
-          DateTime now = DateTime.Now;
-          foreach (EventSubscription subscription in config.EventSubscriptions)
-            if (now > subscription.Expiration && subscription.EventingState.EventKey > 0) // Don't remove subscriptions whose initial notification was not sent yet
-            {
-              removeSubscriptions.Add(subscription);
-              subscription.Dispose();
-            }
-          CollectionUtils.RemoveAll(config.EventSubscriptions, removeSubscriptions);
+          // Tidy up expired event subscriptions
+          foreach (EndpointConfiguration config in _serverData.UPnPEndPoints)
+          {
+            ICollection<EventSubscription> removeSubscriptions = new List<EventSubscription>();
+            DateTime now = DateTime.Now;
+            foreach (EventSubscription subscription in config.EventSubscriptions)
+              if (now > subscription.Expiration && subscription.EventingState.EventKey > 0) // Don't remove subscriptions whose initial notification was not sent yet
+              {
+                removeSubscriptions.Add(subscription);
+                subscription.Dispose();
+              }
+            CollectionUtils.RemoveAll(config.EventSubscriptions, removeSubscriptions);
+          }
         }
-      }
+        finally
+        {
+          Monitor.Exit(_serverData.SyncObj);
+        }
+      else
+        UPnPConfiguration.LOGGER.Error("SSDPServerController.OnExpirationTimerElapsed: Cannot acquire synchronization lock. Maybe a deadlock happened.");
     }
 
     /// <summary>

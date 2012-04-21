@@ -361,9 +361,9 @@ namespace UPnP.Infrastructure.CP.GENA
 
     private void OnSubscriptionRenewalTimerElapsed(object state)
     {
-      ICollection<EventSubscription> remainingEventSubscriptions = new List<EventSubscription>(_subscriptions.Count);
       lock (_cpData.SyncObj)
       {
+        ICollection<EventSubscription> remainingEventSubscriptions = new List<EventSubscription>(_subscriptions.Count);
         DateTime threshold = DateTime.Now.AddSeconds(EVENT_SUBSCRIPTION_RENEWAL_GAP);
         foreach (EventSubscription subscription in _subscriptions.Values)
           if (threshold > subscription.Expiration)

@@ -78,14 +78,22 @@ namespace UPnP.Infrastructure.Dv.SSDP
 
     private void OnAdvertisementTimerElapsed(object state)
     {
-      lock (_serverData.SyncObj)
-      {
-        if (!_serverData.IsActive)
-          return;
-        Advertise();
-        // We currently only sent one set of advertisements for the initial time and each expiration interval
-        ReconfigureAdvertisementTimer();
-      }
+      // If we cannot acquire our lock for some reason, avoid blocking an infinite number of timer threads here
+      if (Monitor.TryEnter(_serverData.SyncObj, UPnPConsts.TIMEOUT_TIMER_LOCK_ACCESS))
+        try
+        {
+          if (!_serverData.IsActive)
+            return;
+          Advertise();
+          // We currently only sent one set of advertisements for the initial time and each expiration interval
+          ReconfigureAdvertisementTimer();
+        }
+        finally
+        {
+          Monitor.Exit(_serverData.SyncObj);
+        }
+      else
+        UPnPConfiguration.LOGGER.Error("SSDPServerController.OnAdvertisementTimerElapsed: Cannot acquire synchronization lock. Maybe a deadlock happened.");
     }
 
     private void OnSearchResponseTimerElapsed(object state)

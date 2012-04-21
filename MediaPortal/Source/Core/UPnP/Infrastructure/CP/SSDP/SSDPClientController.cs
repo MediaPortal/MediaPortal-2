@@ -182,17 +182,25 @@ namespace UPnP.Infrastructure.CP.SSDP
 
     private void OnExpirationTimerElapsed(object state)
     {
-      lock (_cpData.SyncObj)
-      {
-        DateTime now = DateTime.Now;
-        ICollection<KeyValuePair<string, RootEntry>> removeEntries = new List<KeyValuePair<string, RootEntry>>(
-            _cpData.DeviceEntries.Where(kvp => kvp.Value.ExpirationTime < now));
-        foreach (KeyValuePair<string, RootEntry> kvp in removeEntries)
+      // If we cannot acquire our lock for some reason, avoid blocking an infinite number of timer threads here
+      if (Monitor.TryEnter(_cpData.SyncObj, UPnPConsts.TIMEOUT_TIMER_LOCK_ACCESS))
+        try
         {
-          _cpData.DeviceEntries.Remove(kvp);
-          InvokeRootDeviceRemoved(kvp.Value);
+          DateTime now = DateTime.Now;
+          ICollection<KeyValuePair<string, RootEntry>> removeEntries = new List<KeyValuePair<string, RootEntry>>(
+              _cpData.DeviceEntries.Where(kvp => kvp.Value.ExpirationTime < now));
+          foreach (KeyValuePair<string, RootEntry> kvp in removeEntries)
+          {
+            _cpData.DeviceEntries.Remove(kvp);
+            InvokeRootDeviceRemoved(kvp.Value);
+          }
         }
-      }
+        finally
+        {
+          Monitor.Exit(_cpData.SyncObj);
+        }
+      else
+        UPnPConfiguration.LOGGER.Error("SSDPClientController.OnExpirationTimerElapsed: Cannot acquire synchronization lock. Maybe a deadlock happened.");
     }
 
     #endregion
