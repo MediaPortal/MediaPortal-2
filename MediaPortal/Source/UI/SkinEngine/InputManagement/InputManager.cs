@@ -166,15 +166,15 @@ namespace MediaPortal.UI.SkinEngine.InputManagement
     protected DateTime _lastInputTime = DateTime.MinValue;
     protected IDictionary<Key, KeyAction> _keyBindings = new Dictionary<Key, KeyAction>();
     protected PointF _mousePosition = new PointF();
-    protected DateTime? _callingClientStart;
-    protected bool _busyScreenVisible;
+    protected DateTime? _callingClientStart = null;
+    protected bool _busyScreenVisible = false;
     protected Thread _workThread;
     protected Queue<InputEvent> _inputEventQueue = new Queue<InputEvent>(30);
     protected Queue<ParameterlessMethod> _commandQueue = new Queue<ParameterlessMethod>(30);
     protected ManualResetEvent _terminatedEvent = new ManualResetEvent(false);
     protected AutoResetEvent _inputAvailableEvent = new AutoResetEvent(false);
 
-    protected static InputManager _instance;
+    protected static InputManager _instance = null;
     protected static object _syncObj = new object();
 
     #endregion
