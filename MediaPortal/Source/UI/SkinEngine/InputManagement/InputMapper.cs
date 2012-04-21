@@ -36,6 +36,7 @@ namespace MediaPortal.UI.SkinEngine.InputManagement
     {
       return MapSpecialKey(args.KeyCode, args.Alt, args.Shift, args.Control);
     }
+
     public static Key MapSpecialKey(Keys keycode, bool alt, bool shift, bool control)
     {
       switch (keycode)
