@@ -108,16 +108,17 @@ namespace MediaPortal.UI.Presentation.Models
     /// </summary>
     protected void StopTimer()
     {
+      WaitHandle notifyObject;
       lock (_syncObj)
       {
         if (_timer == null)
           return;
-        WaitHandle notifyObject = new ManualResetEvent(false);
+        notifyObject = new ManualResetEvent(false);
         _timer.Dispose(notifyObject);
-        notifyObject.WaitOne();
-        notifyObject.Close();
         _timer = null;
       }
+      notifyObject.WaitOne();
+      notifyObject.Close();
     }
 
     void OnMessageReceived(AsynchronousMessageQueue queue, SystemMessage message)
