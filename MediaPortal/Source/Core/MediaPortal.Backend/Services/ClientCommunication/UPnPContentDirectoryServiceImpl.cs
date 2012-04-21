@@ -513,17 +513,6 @@ namespace MediaPortal.Backend.Services.ClientCommunication
           });
       AddAction(exportPlaylistAction);
 
-      DvAction loadServerPlaylistAction = new DvAction("LoadServerPlaylist", OnLoadServerPlaylist,
-          new DvArgument[] {
-            new DvArgument("PlaylistId", A_ARG_TYPE_Uuid, ArgumentDirection.In),
-            new DvArgument("NecessaryMIATypes", A_ARG_TYPE_UuidEnumeration, ArgumentDirection.In),
-            new DvArgument("OptionalMIATypes", A_ARG_TYPE_UuidEnumeration, ArgumentDirection.In),
-          },
-          new DvArgument[] {
-            new DvArgument("PlaylistContents", A_ARG_TYPE_PlaylistContents, ArgumentDirection.Out, true)
-          });
-      AddAction(loadServerPlaylistAction);
-
       DvAction loadCustomPlaylistAction = new DvAction("LoadCustomPlaylist", OnLoadCustomPlaylist,
           new DvArgument[] {
             new DvArgument("MediaItemIds", A_ARG_TYPE_UuidEnumeration, ArgumentDirection.In),
@@ -1006,18 +995,6 @@ namespace MediaPortal.Backend.Services.ClientCommunication
     {
       Guid playlistId = MarshallingHelper.DeserializeGuid((string) inParams[0]);
       PlaylistRawData result = ServiceRegistration.Get<IMediaLibrary>().ExportPlaylist(playlistId);
-      outParams = new List<object> {result};
-      return null;
-    }
-
-    static UPnPError OnLoadServerPlaylist(DvAction action, IList<object> inParams, out IList<object> outParams,
-        CallContext context)
-    {
-      Guid playlistId = MarshallingHelper.DeserializeGuid((string) inParams[0]);
-      IEnumerable<Guid> necessaryMIATypes = MarshallingHelper.ParseCsvGuidCollection((string) inParams[1]);
-      IEnumerable<Guid> optionalMIATypes = MarshallingHelper.ParseCsvGuidCollection((string) inParams[2]);
-      PlaylistContents result = ServiceRegistration.Get<IMediaLibrary>().LoadServerPlaylist(
-          playlistId, necessaryMIATypes, optionalMIATypes);
       outParams = new List<object> {result};
       return null;
     }

@@ -209,19 +209,6 @@ namespace MediaPortal.Backend.MediaLibrary
     PlaylistRawData ExportPlaylist(Guid playlistId);
 
     /// <summary>
-    /// Loads the playlist with the given <paramref name="playlistId"/>.
-    /// </summary>
-    /// <param name="playlistId">Id of the playlist to load.</param>
-    /// <param name="necessaryMIATypes">Media item aspect types which must be present in all media items of the playlist.
-    /// If media items don't have those media item aspects attached, they won't be returned even if they are present in
-    /// the playlist.</param>
-    /// <param name="optionalMIATypes">Media item aspect types which will additionally be loaded, if present.</param>
-    /// <returns>Playlist instance or <c>null</c>, if there is no playlist present with the given
-    /// <paramref name="playlistId"/>.</returns>
-    PlaylistContents LoadServerPlaylist(Guid playlistId,
-        IEnumerable<Guid> necessaryMIATypes, IEnumerable<Guid> optionalMIATypes);
-
-    /// <summary>
     /// Loads the playlist contents for the given <paramref name="mediaItemIds"/>.
     /// </summary>
     /// <param name="mediaItemIds">Ids of the media items whose data should be loaded.</param>

@@ -355,21 +355,9 @@ namespace MediaPortal.UI.Services.ServerCommunication
     public PlaylistRawData ExportPlaylist(Guid playlistId)
     {
       CpAction action = GetAction("ExportPlaylist");
-      IList<object> inParameters = new List<object> {playlistId};
+      IList<object> inParameters = new List<object> {MarshallingHelper.SerializeGuid(playlistId)};
       IList<object> outParameters = action.InvokeAction(inParameters);
       return (PlaylistRawData) outParameters[0];
-    }
-
-    public PlaylistContents LoadServerPlaylist(Guid playlistId,
-      ICollection<Guid> necessaryMIATypes, ICollection<Guid> optionalMIATypes)
-    {
-      CpAction action = GetAction("LoadServerPlaylist");
-      IList<object> inParameters = new List<object> {
-            MarshallingHelper.SerializeGuid(playlistId),
-            MarshallingHelper.SerializeGuidEnumerationToCsv(necessaryMIATypes),
-            MarshallingHelper.SerializeGuidEnumerationToCsv(optionalMIATypes)};
-      IList<object> outParameters = action.InvokeAction(inParameters);
-      return (PlaylistContents) outParameters[0];
     }
 
     public IList<MediaItem> LoadCustomPlaylist(IList<Guid> mediaItemIds,

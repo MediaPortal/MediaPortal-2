@@ -650,43 +650,6 @@ namespace MediaPortal.Backend.Services.MediaLibrary
       }
     }
 
-    public PlaylistContents LoadServerPlaylist(Guid playlistId,
-        IEnumerable<Guid> necessaryMIATypes, IEnumerable<Guid> optionalMIATypes)
-    {
-      ISQLDatabase database = ServiceRegistration.Get<ISQLDatabase>();
-      ITransaction transaction = database.BeginTransaction();
-      try
-      {
-        int nameIndex;
-        int playlistTypeIndex;
-        string playlistName;
-        string playlistType;
-        using (IDbCommand command = MediaLibrary_SubSchema.SelectPlaylistIdentificationDataCommand(transaction, playlistId, out nameIndex, out playlistTypeIndex))
-          using (IDataReader reader = command.ExecuteReader(CommandBehavior.SingleRow))
-            if (reader.Read())
-            {
-              playlistName = database.ReadDBValue<string>(reader, nameIndex);
-              playlistType = database.ReadDBValue<string>(reader, playlistTypeIndex);
-            }
-            else
-              return null;
-
-        IList<Guid> mediaItemIds = new List<Guid>();
-        int mediaItemIdIndex;
-        using (IDbCommand command = MediaLibrary_SubSchema.SelectPlaylistContentsCommand(transaction, playlistId, out mediaItemIdIndex))
-          using (IDataReader reader = command.ExecuteReader())
-            while (reader.Read())
-              mediaItemIds.Add(database.ReadDBValue<Guid>(reader, mediaItemIdIndex));
-
-        IList<MediaItem> mediaItems = LoadCustomPlaylist(mediaItemIds, necessaryMIATypes, optionalMIATypes);
-        return new PlaylistContents(playlistId, playlistName, playlistType, mediaItems);
-      }
-      finally
-      {
-        transaction.Dispose();
-      }
-    }
-
     public IList<MediaItem> LoadCustomPlaylist(IList<Guid> mediaItemIds,
         IEnumerable<Guid> necessaryMIATypes, IEnumerable<Guid> optionalMIATypes)
     {

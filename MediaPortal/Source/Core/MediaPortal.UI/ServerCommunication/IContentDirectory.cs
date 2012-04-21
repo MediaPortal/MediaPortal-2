@@ -130,17 +130,6 @@ namespace MediaPortal.UI.ServerCommunication
     PlaylistRawData ExportPlaylist(Guid playlistId);
 
     /// <summary>
-    /// Loads a server-side playlist.
-    /// </summary>
-    /// <param name="playlistId">Id of the playlist to load.</param>
-    /// <param name="necessaryMIATypes">Ids of media item aspects which need to be present for a media item to be returned.</param>
-    /// <param name="optionalMIATypes">Ids of media item aspects which will be loaded for each returned media item, if present.</param>
-    /// <returns>PlaylistContents instance with the data of the given playlist and media items matching the given
-    /// <paramref name="necessaryMIATypes"/>.</returns>
-    PlaylistContents LoadServerPlaylist(Guid playlistId,
-        ICollection<Guid> necessaryMIATypes, ICollection<Guid> optionalMIATypes);
-
-    /// <summary>
     /// Loads a client-side playlist.
     /// </summary>
     /// <param name="mediaItemIds">Ids of the media items to load.</param>
