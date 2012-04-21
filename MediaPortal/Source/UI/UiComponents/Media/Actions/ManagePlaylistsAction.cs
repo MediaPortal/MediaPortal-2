@@ -23,6 +23,7 @@
 #endregion
 
 using MediaPortal.Common;
+using MediaPortal.Common.Messaging;
 using MediaPortal.UI.Presentation.Workflow;
 using MediaPortal.UiComponents.Media.General;
 using MediaPortal.UiComponents.Media.Models;
@@ -41,6 +42,26 @@ namespace MediaPortal.UiComponents.Media.Actions
 
     public ManagePlaylistsAction() : base(true, null, ADD_TO_PLAYLIST_RES) {}
 
+    void SubscribeToMessages()
+    {
+      _messageQueue.SubscribeToMessageChannel(WorkflowManagerMessaging.CHANNEL);
+      _messageQueue.MessageReceived += OnMessageReceived;
+    }
+
+    void OnMessageReceived(AsynchronousMessageQueue queue, SystemMessage message)
+    {
+      if (message.ChannelName == WorkflowManagerMessaging.CHANNEL)
+      {
+        WorkflowManagerMessaging.MessageType messageType = (WorkflowManagerMessaging.MessageType) message.MessageType;
+        switch (messageType)
+        {
+          case WorkflowManagerMessaging.MessageType.NavigationComplete:
+            Update();
+            break;
+        }
+      }
+    }
+
     /// <summary>
     /// Returns the information if the playlist management action should be visible in the current workflow state.
     /// </summary>
@@ -48,6 +69,12 @@ namespace MediaPortal.UiComponents.Media.Actions
     {
       IWorkflowManager workflowManager = ServiceRegistration.Get<IWorkflowManager>();
       return !workflowManager.IsStateContainedInNavigationStack(Consts.WF_STATE_ID_PLAYLISTS_OVERVIEW);
+    }
+
+    public override void Initialize()
+    {
+      base.Initialize();
+      SubscribeToMessages();
     }
 
     protected override bool IsVisibleOverride
