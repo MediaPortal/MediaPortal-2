@@ -630,7 +630,7 @@ namespace MediaPortal.UiComponents.Media.Models
         ICollection<MediaItem> items = new List<MediaItem>();
         foreach (MediaItem item in getMediaItemsFunction())
         {
-          SetNumItemsAddedToPlaylist(numItems++);
+          SetNumItemsAddedToPlaylist(++numItems);
           if (_stopAddToPlaylist)
             break;
           items.Add(item);
