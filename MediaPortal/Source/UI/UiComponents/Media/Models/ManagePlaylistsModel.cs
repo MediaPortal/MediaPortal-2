@@ -38,7 +38,6 @@ using MediaPortal.UI.Presentation.DataObjects;
 using MediaPortal.UI.Presentation.Models;
 using MediaPortal.UI.Presentation.Players;
 using MediaPortal.UI.Presentation.Screens;
-using MediaPortal.UI.Presentation.UiNotifications;
 using MediaPortal.UI.Presentation.Workflow;
 using MediaPortal.UI.ServerCommunication;
 using MediaPortal.UiComponents.Media.General;
@@ -312,28 +311,6 @@ namespace MediaPortal.UiComponents.Media.Models
           };
       PlaylistContents playlistContents = cd.LoadServerPlaylist(_playlist.PlaylistId, necessaryMIATypes, optionalMIATypes);
       IList<MediaItem> mediaItems = playlistContents.ItemList;
-      INotificationService notificationService = ServiceRegistration.Get<INotificationService>();
-      // Add notification if not all media items could be loaded
-      if (mediaItems.Count == 0)
-      {
-        DefaultNotification notification = new DefaultNotification(NotificationType.Info,
-            Consts.RES_PLAYLIST_LOAD_ITEMS_MISSING_TITLE, Consts.RES_PLAYLIST_LOAD_ALL_ITEMS_MISSING_TEXT)
-          {
-              Timeout = DateTime.Now + Consts.TS_PLAYLIST_LOAD_ITEMS_MISSING_NOTIFICATION
-          };
-        notificationService.EnqueueNotification(notification, false);
-        // No further processing - we don't have any items to load
-        return;
-      }
-      if (_playlist.NumItems > mediaItems.Count)
-      {
-        DefaultNotification notification = new DefaultNotification(NotificationType.Info,
-            Consts.RES_PLAYLIST_LOAD_ITEMS_MISSING_TITLE, Consts.RES_PLAYLIST_LOAD_SOME_ITEMS_MISSING_TEXT)
-          {
-              Timeout = DateTime.Now + Consts.TS_PLAYLIST_LOAD_ITEMS_MISSING_NOTIFICATION
-          };
-        notificationService.EnqueueNotification(notification, false);
-      }
       PlayItemsModel.CheckQueryPlayAction(() => mediaItems, avType.Value);
     }
 

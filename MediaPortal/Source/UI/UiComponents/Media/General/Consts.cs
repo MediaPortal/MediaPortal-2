@@ -212,10 +212,6 @@ namespace MediaPortal.UiComponents.Media.General
     public const string RES_PLAYLIST_LOAD_NO_PLAYLIST = "[Media.PlaylistLoadNoPlaylistText]";
     public const string RES_PLAYLIST_LOAD_ERROR_LOADING = "[Media.PlaylistLoadErrorLoadingPlaylist]";
 
-    public const string RES_PLAYLIST_LOAD_ITEMS_MISSING_TITLE = "[Media.PlaylistLoadItemsMissingTitle]";
-    public const string RES_PLAYLIST_LOAD_SOME_ITEMS_MISSING_TEXT = "[Media.PlaylistLoadSomeItemsMissingText]";
-    public const string RES_PLAYLIST_LOAD_ALL_ITEMS_MISSING_TEXT = "[Media.PlaylistLoadAllItemsMissingText]";
-
     // View mode
     public const string RES_SWITCH_VIEW_MODE = "[Media.SwitchViewModeMenuItem]";
 
@@ -306,8 +302,6 @@ namespace MediaPortal.UiComponents.Media.General
     public static TimeSpan TS_VIDEO_INFO_TIMEOUT = TimeSpan.FromSeconds(5);
 
     public static TimeSpan TS_ADD_TO_PLAYLIST_UPDATE_DIALOG_THRESHOLD = TimeSpan.FromSeconds(3);
-
-    public static TimeSpan TS_PLAYLIST_LOAD_ITEMS_MISSING_NOTIFICATION = TimeSpan.FromSeconds(20);
 
     /// <summary>
     /// Denotes the "infinite" timespan, used for <see cref="System.Threading.Timer.Change(System.TimeSpan,System.TimeSpan)"/>
