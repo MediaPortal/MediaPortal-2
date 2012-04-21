@@ -309,7 +309,7 @@ namespace MediaPortal.UiComponents.Media.Models
               VideoAspect.ASPECT_ID,
               ImageAspect.ASPECT_ID,
           };
-      // Big playlists cannot be loaded in one single step. We have can different problems if we tried to do so:
+      // Big playlists cannot be loaded in one single step. We can have different problems if we tried to do so:
       // 1) Loading the playlist at once at the server results in one huge SQL IN statement which might break the SQL engine
       // 2) The time to load the playlist might lead the UPnP call to break because of the timeout when calling methods
       // 3) The resulting UPnP XML document might be too big to fit into memory
