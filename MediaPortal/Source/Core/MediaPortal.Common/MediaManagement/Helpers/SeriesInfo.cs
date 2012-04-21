@@ -40,6 +40,13 @@ namespace MediaPortal.Common.MediaManagement.Helpers
   /// </remarks>
   public class SeriesInfo
   {
+    #region Fields
+
+    protected string _series;
+    protected string _episode;
+
+    #endregion
+
     /// <summary>
     /// Returns the index for "Series" used in <see cref="FormatString"/>.
     /// </summary>
@@ -79,19 +86,26 @@ namespace MediaPortal.Common.MediaManagement.Helpers
     {
       get
       {
-        CleanUp();
         return !(string.IsNullOrEmpty(Series) || SeasonNumber == 0 || EpisodeNumbers.Count == 0);
       }
     }
     /// <summary>
-    /// Gets or sets the series title.
+    /// Gets or sets the series title. When setting a value, whitespaces will be cleaned up (<see cref="CleanupWhiteSpaces"/>).
     /// </summary>
-    public string Series { get; set; }
+    public string Series
+    {
+      get { return _series; }
+      set { _series = CleanupWhiteSpaces(value); }
+    }
 
     /// <summary>
-    /// Gets or sets the episode title.
+    /// Gets or sets the episode title. When setting a value, whitespaces will be cleaned up (<see cref="CleanupWhiteSpaces"/>).
     /// </summary>
-    public string Episode { get; set; }
+    public string Episode
+    {
+      get { return _episode; }
+      set { _episode = CleanupWhiteSpaces(value); }
+    }
 
     /// <summary>
     /// Gets or sets the season number.
@@ -113,16 +127,10 @@ namespace MediaPortal.Common.MediaManagement.Helpers
     #endregion
 
     #region Members
-    
-    /// <summary>
-    /// Cleans up Series and Episode replaces unwanted characters (<c>'.'</c>, <c>'_'</c>) by spaces.
-    /// </summary>
-    private void CleanUp()
-    {
-      Series = CleanupWhiteSpaces(Series);
-      Episode = CleanupWhiteSpaces(Episode);
-    }
 
+    /// <summary>
+    /// Cleans up strings by replacing unwanted characters (<c>'.'</c>, <c>'_'</c>) by spaces.
+    /// </summary>
     private static string CleanupWhiteSpaces(string str)
     {
       return str == null ? null : _cleanUpWhiteSpaces.Replace(str, " $1").Trim(' ', '-');
@@ -170,7 +178,7 @@ namespace MediaPortal.Common.MediaManagement.Helpers
     {
       return FormatString(EPISODE_FORMAT_STR);
     }
-    
+
     #endregion
   }
 }
