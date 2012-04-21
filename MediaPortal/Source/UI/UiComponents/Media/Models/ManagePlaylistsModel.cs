@@ -269,12 +269,12 @@ namespace MediaPortal.UiComponents.Media.Models
       IWorkflowManager workflowManager = ServiceRegistration.Get<IWorkflowManager>();
       try
       {
-        if (ServerPlaylists.GetPlaylists().Any(p => p.Name == _playlist.Name))
-          SaveFailed(LocalizationHelper.Translate(Consts.RES_SAVE_PLAYLIST_FAILED_PLAYLIST_ALREADY_EXISTS, _playlist.Name));
+        if (ServerPlaylists.GetPlaylists().Any(p => p.Name == playlistData.Name))
+          SaveFailed(LocalizationHelper.Translate(Consts.RES_SAVE_PLAYLIST_FAILED_PLAYLIST_ALREADY_EXISTS, playlistData.Name));
         else
         {
           ServerPlaylists.SavePlaylist(playlistData);
-          _message = LocalizationHelper.Translate(Consts.RES_SAVE_PLAYLIST_SUCCESSFUL_TEXT);
+          _message = LocalizationHelper.Translate(Consts.RES_SAVE_PLAYLIST_SUCCESSFUL_TEXT, playlistData.Name);
           workflowManager.NavigatePush(Consts.WF_STATE_ID_PLAYLIST_SAVE_SUCCESSFUL);
         }
       }
@@ -453,6 +453,9 @@ namespace MediaPortal.UiComponents.Media.Models
     {
       lock (_syncObj)
       {
+        if (_playlists == null && !create)
+          // Can happen for example on async updates of the server's set of playlists
+          return;
         if (_updatingProperties)
           return;
         _updatingProperties = true;
@@ -543,7 +546,6 @@ namespace MediaPortal.UiComponents.Media.Models
         // IsHomeServerConnected = false;
         IsPlaylistsSelected = false;
         PlaylistName = string.Empty;
-        IsPlaylistsSelected = false;
         _playlists = null;
       }
     }

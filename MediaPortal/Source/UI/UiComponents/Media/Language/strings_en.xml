@@ -147,6 +147,21 @@
     <String Name="NItemsAdded" Text="{0} items added"/>
     <String Name="StopAddToPlaylistButton" Text="Stop"/>
 
+    <String Name="NoPlaylistsAvailable" Text="- No playlists available -"/>
+    <String Name="NoConfigPlaylistsHomeServerNotConnectedText" Text="The home server is currently not connected, so playlists cannot be managed at the moment"/>
+    <String Name="EditNameOfPlaylist" Text="Edit the name of the playlist"/>
+    <String Name="SavePlaylistSuccessfulText" Text="Playlist '{0}' was successfully saved at the server."/>
+    <String Name="SavePlaylistFailedText" Text="The playlist could not be saved. Error message: '{0}'"/>
+    <String Name="SavePlaylistFailedAlreadyExists" Text="The playlist could not be saved: Playlist '{0}' already exists"/>
+    <String Name="ChoosePlaylistsToBeRemovedText" Text="Choose playlists to be removed"/>
+    <String Name="PlaylistNameInfoLabel" Text="Playlist name"/>
+    <String Name="PlaylistTypeInfoLabel" Text="Playlist type"/>
+    <String Name="PlaylistNumItemsLabel" Text="Number of items"/>
+    <String Name="PlaylistIdInfoLabel" Text="Internal playlist id"/>
+    <String Name="PlaylistLoadItemsMissingTitle" Text="Items missing"/>
+    <String Name="PlaylistLoadSomeItemsMissingText" Text="Not all items of the playlist could be loaded. Some items are missing."/>
+    <String Name="PlaylistLoadAllItemsMissingText" Text="The playlist could not be loaded, all items of the playlist are missing."/>
+
     <!-- Play items dialog -->
     <String Name="PlayItemDialogHeader" Text="Play item"/>
 
@@ -227,22 +242,6 @@
     <String Name="CannotPlayItemsDialogText" Text="Unable to play media items"/>
 
     <String Name="ValueEmptyTitle" Text="&lt;Empty&gt;"/>
-    
-    <String Name="NoPlaylistsAvailable" Text="- No playlists available -"/>
-    <String Name="NoConfigPlaylistsHomeServerNotConnectedText" Text="The home server is currently not connected, so playlists cannot be managed at the moment"/>
-    <String Name="EditNameOfPlaylist" Text="Edit the name of the playlist"/>
-    <String Name="SavePlaylistSuccessfulText" Text="The playlist was successfully saved at the server."/>
-    <String Name="SavePlaylistFailedText" Text="The playlist could not be saved. Error message: '{0}'"/>
-    <String Name="SavePlaylistFailedAlreadyExists" Text="The playlist could not be saved: Playlist '{0}' already exists"/>
-    <String Name="ChoosePlaylistsToBeRemovedText" Text="Choose playlists to be removed"/>
-    <String Name="PlaylistNameInfoLabel" Text="Playlist name"/>
-    <String Name="PlaylistTypeInfoLabel" Text="Playlist type"/>
-    <String Name="PlaylistNumItemsLabel" Text="Number of items"/>
-    <String Name="PlaylistLocationInfoLabel" Text="Location"/>
-    <String Name="PlaylistIdInfoLabel" Text="Internal playlist id"/>
-    <String Name="PlaylistLoadItemsMissingTitle" Text="Items missing"/>
-    <String Name="PlaylistLoadSomeItemsMissingText" Text="Not all items of the playlist could be loaded. Some items are missing."/>
-    <String Name="PlaylistLoadAllItemsMissingText" Text="The playlist could not be loaded, all items of the playlist are missing."/>
 
     <!-- DVDPlayerUIContributor -->
     <String Name="SubtitleOff" Text="Disable Subtitles"/>
