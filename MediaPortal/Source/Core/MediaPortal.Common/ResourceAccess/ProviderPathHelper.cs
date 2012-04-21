@@ -44,13 +44,17 @@ namespace MediaPortal.Common.ResourceAccess
       {
         if (path.StartsWith("./"))
           path = path.Substring(2);
-        if (path.StartsWith("../"))
+        else if (path.StartsWith("../"))
         {
           path = path.Substring(3);
           rootPath = GetDirectoryName(rootPath);
           if (rootPath == null)
             throw new ArgumentException(string.Format("Paths '{0}' and '{1}' cannot be concatenated", rootPath, path));
         }
+        else
+          // First path segment starts with a '.', we don't need to adjust
+          break;
+        // We only come here if at least one './' or '../' was removed
         while (path.StartsWith("/"))
           // Remove double / characters in the middle of the path
           path = path.Substring(1);
@@ -84,11 +88,10 @@ namespace MediaPortal.Common.ResourceAccess
     /// doesn't have a file extension.</returns>
     public static string GetExtension(string path)
     {
-      string fileName = GetFileName(path);
-      if (fileName == null)
+      if (string.IsNullOrEmpty(path))
         return string.Empty;
-      int extIndex = fileName.LastIndexOf('.');
-      return extIndex == -1 ? string.Empty : fileName.Substring(extIndex);
+      int extIndex = path.LastIndexOf('.');
+      return extIndex == -1 ? string.Empty : path.Substring(extIndex);
     }
 
     /// <summary>
@@ -107,6 +110,14 @@ namespace MediaPortal.Common.ResourceAccess
         return string.Empty;
       int extIndex = fileName.LastIndexOf('.');
       return extIndex == -1 ? fileName : fileName.Substring(0, extIndex);
+    }
+
+    public static string ChangeExtension(string path, string extension)
+    {
+      if (string.IsNullOrEmpty(path))
+        return path;
+      string oldExtension = GetExtension(path);
+      return path.Substring(path.Length - oldExtension.Length - 1) + extension;
     }
   }
 }
