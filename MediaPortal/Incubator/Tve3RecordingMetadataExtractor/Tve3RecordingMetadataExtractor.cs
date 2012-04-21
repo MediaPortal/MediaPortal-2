@@ -33,6 +33,8 @@ using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.Common.MediaManagement.Helpers;
 using MediaPortal.Common.ResourceAccess;
 using MediaPortal.Extensions.MetadataExtractors.Aspects;
+using MediaPortal.Utilities;
+using MediaPortal.Utilities.Exceptions;
 
 namespace MediaPortal.Extensions.MetadataExtractors
 {
@@ -89,6 +91,7 @@ namespace MediaPortal.Extensions.MetadataExtractors
 
     protected static IList<string> SHARE_CATEGORIES = new List<string>();
     protected MetadataExtractorMetadata _metadata;
+    protected static XmlSerializer _xmlSerializer = null; // Lazy initialized
 
     #endregion
 
@@ -130,19 +133,32 @@ namespace MediaPortal.Extensions.MetadataExtractors
         if (fsra == null || !mediaItemAccessor.IsFile)
           return false;
 
-        string filePath = mediaItemAccessor.ResourcePathName ?? string.Empty;
-        string metaFile = Path.ChangeExtension(filePath, ".xml");
-        if (!filePath.ToLowerInvariant().EndsWith(".ts") || !File.Exists(metaFile))
+        string filePath = mediaItemAccessor.Path;
+        string lowerExtension = StringUtils.TrimToEmpty(ProviderPathHelper.GetExtension(filePath)).ToLowerInvariant();
+        if (lowerExtension != ".ts")
           return false;
+        string metaFilePath = ProviderPathHelper.ChangeExtension(filePath, ".xml");
+        IResourceAccessor metaFileAccessor;
+        try
+        {
+          metaFileAccessor = ResourcePath.Deserialize(metaFilePath).CreateLocalResourceAccessor();
+        }
+        catch (IllegalCallException)
+        {
+          // No meta file exists, i.e. we cannot extract TVE3 metadata
+          return false;
+        }
+
+        Tags tags;
+        using (metaFileAccessor)
+        {
+          using (Stream metaStream = metaFileAccessor.OpenRead())
+            tags = (Tags) GetTagsXmlSerializer().Deserialize(metaStream);
+        }
 
         MediaItemAspect mediaAspect = MediaItemAspect.GetOrCreateAspect(extractedAspectData, MediaAspect.Metadata);
         MediaItemAspect videoAspect = MediaItemAspect.GetOrCreateAspect(extractedAspectData, VideoAspect.Metadata);
         MediaItemAspect recordingAspect = MediaItemAspect.GetOrCreateAspect(extractedAspectData, RecordingAspect.Metadata);
-
-        Tags tags;
-        XmlSerializer serializer = new XmlSerializer(typeof(Tags));
-        using (FileStream fileStream = new FileStream(metaFile, FileMode.Open))
-          tags = (Tags) serializer.Deserialize(fileStream);
 
         // Handle series information
         SeriesInfo seriesInfo = GetSeriesFromTags(tags);
@@ -179,6 +195,11 @@ namespace MediaPortal.Extensions.MetadataExtractors
         ServiceRegistration.Get<ILogger>().Info("Tve3RecordingMetadataExtractor: Exception reading resource '{0}' (Text: '{1}')", mediaItemAccessor.CanonicalLocalResourcePath, e.Message);
       }
       return false;
+    }
+
+    protected XmlSerializer GetTagsXmlSerializer()
+    {
+      return _xmlSerializer ?? (_xmlSerializer = new XmlSerializer(typeof(Tags)));
     }
 
     public SeriesInfo GetSeriesFromTags(Tags extractedTags)
