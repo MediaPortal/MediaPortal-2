@@ -78,7 +78,7 @@ namespace MediaPortal.UI.Players.Video
 
 	    // 2nd chance: If no mimetype matches, try extension
 	    string path = locator.NativeResourcePath.LastPathSegment.Path;
-	    string extension = StringUtils.TrimToEmpty(DosPathHelper.GetExtension(path)).ToLowerInvariant();
+	    string extension = StringUtils.TrimToEmpty(ProviderPathHelper.GetExtension(path)).ToLowerInvariant();
 
       if (EXTENSIONS2PLAYER.TryGetValue(extension, out playerType))
         return playerType;
