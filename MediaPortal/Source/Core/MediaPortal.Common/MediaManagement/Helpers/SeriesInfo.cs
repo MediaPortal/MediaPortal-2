@@ -66,10 +66,11 @@ namespace MediaPortal.Common.MediaManagement.Helpers
     public static string SHORT_FORMAT_STR = "S{1}E{2} - {3}";
 
     /// <summary>
-    /// Used to replace all "." and "_" that are not followed by a whitespace by a space.
-    /// Replaces "Once.Upon.A.Time.S01E13" to "Once Upon A Time S01E13", but keeps the . inside "Dr. House"
+    /// Used to replace all "." and "_" that are not followed by a word character.
+    /// <example>Replaces <c>"Once.Upon.A.Time.S01E13"</c> to <c>"Once Upon A Time S01E13"</c>, but keeps the <c>"."</c> inside
+    /// <c>"Dr. House"</c>.</example>
     /// </summary>
-    protected static Regex _cleanUp = new Regex(@"[\.|_](\S|$)");
+    protected static Regex _cleanUpWhiteSpaces = new Regex(@"[\.|_](\S|$)");
 
     /// <summary>
     /// Indicates that all required fields are filled.
@@ -114,17 +115,17 @@ namespace MediaPortal.Common.MediaManagement.Helpers
     #region Members
     
     /// <summary>
-    /// Cleans up Series and Episode replaces unwanted characters ('.','_') by spaces.
+    /// Cleans up Series and Episode replaces unwanted characters (<c>'.'</c>, <c>'_'</c>) by spaces.
     /// </summary>
     private void CleanUp()
     {
-      Series = Replace(Series);
-      Episode = Replace(Episode);
+      Series = CleanupWhiteSpaces(Series);
+      Episode = CleanupWhiteSpaces(Episode);
     }
 
-    private string Replace(string name)
+    private static string CleanupWhiteSpaces(string str)
     {
-      return name == null ? null : _cleanUp.Replace(name, " $1").Trim(' ', '-');
+      return str == null ? null : _cleanUpWhiteSpaces.Replace(str, " $1").Trim(' ', '-');
     }
 
     /// <summary>
