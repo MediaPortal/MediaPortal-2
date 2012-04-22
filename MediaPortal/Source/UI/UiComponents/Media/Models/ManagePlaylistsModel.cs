@@ -325,10 +325,12 @@ namespace MediaPortal.UiComponents.Media.Models
     public void NavigateRemovePlaylistSaveWorkflow()
     {
       IWorkflowManager workflowManager = ServiceRegistration.Get<IWorkflowManager>();
-      if (!workflowManager.IsStateContainedInNavigationStack(Consts.WF_STATE_ID_PLAYLIST_SAVE_EDIT_NAME))
-        return;
-      ClearData();
-      workflowManager.NavigatePopToState(Consts.WF_STATE_ID_PLAYLIST_SAVE_EDIT_NAME, true);
+      workflowManager.NavigatePopStates(new Guid[]
+        {
+            Consts.WF_STATE_ID_PLAYLIST_SAVE_EDIT_NAME,
+            Consts.WF_STATE_ID_PLAYLIST_SAVE_FAILED,
+            Consts.WF_STATE_ID_PLAYLIST_SAVE_SUCCESSFUL
+        });
     }
 
     public bool NavigateBackToOverview()
@@ -337,7 +339,6 @@ namespace MediaPortal.UiComponents.Media.Models
       if (!workflowManager.IsStateContainedInNavigationStack(Consts.WF_STATE_ID_PLAYLISTS_OVERVIEW) ||
           workflowManager.CurrentNavigationContext.WorkflowState.StateId == Consts.WF_STATE_ID_PLAYLISTS_OVERVIEW)
         return false;
-      ClearData();
       workflowManager.NavigatePopToState(Consts.WF_STATE_ID_PLAYLISTS_OVERVIEW, false);
       return true;
     }
@@ -548,6 +549,7 @@ namespace MediaPortal.UiComponents.Media.Models
       Guid workflowStateId = navigationContext.WorkflowState.StateId;
       if (workflowStateId == Consts.WF_STATE_ID_PLAYLISTS_OVERVIEW)
       {
+        ClearData();
         UpdatePlaylists(true);
       }
       if (workflowStateId == Consts.WF_STATE_ID_PLAYLISTS_REMOVE)
