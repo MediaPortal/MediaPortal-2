@@ -32,10 +32,11 @@ namespace MediaPortal.UiComponents.Media.General
     {
       if (numItems == 0)
         return Consts.RES_NO_ITEMS;
-      if (numItems == 1 && !total.HasValue)
-        return Consts.RES_ONE_ITEM;
-      if (numItems == 1 && total.Value == 1)
-        return Consts.RES_ONE_OF_ONE_ITEM;
+      if (numItems == 1)
+        if (!total.HasValue)
+          return Consts.RES_ONE_ITEM;
+        else if (total == 1)
+          return Consts.RES_ONE_OF_ONE_ITEM;
       if (total.HasValue)
         return LocalizationHelper.Translate(Consts.RES_N_OF_M_ITEMS, numItems, total.Value);
       return LocalizationHelper.Translate(Consts.RES_N_ITEMS, numItems);
