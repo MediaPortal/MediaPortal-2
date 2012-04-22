@@ -37,12 +37,14 @@ namespace MediaPortal.Helpers.SkinHelper
     protected object _syncObj = new object();
 
     protected ReloadSkinActions _reloadSkinActions = null;
+    protected LoadSkinThemeActions _loadSkinThemeActions = null;
 
     #endregion
 
     public PluginStateTracker()
     {
       _reloadSkinActions = new ReloadSkinActions();
+      _loadSkinThemeActions = new LoadSkinThemeActions();
     }
 
     protected void DropMessageQueue()
@@ -61,7 +63,10 @@ namespace MediaPortal.Helpers.SkinHelper
     {
       ISystemStateService sss = ServiceRegistration.Get<ISystemStateService>();
       if (sss.CurrentState == SystemState.Running)
+      {
         _reloadSkinActions.RegisterKeyActions();
+        _loadSkinThemeActions.RegisterKeyActions();
+      }
       else
       {
         _messageQueue = new AsynchronousMessageQueue(typeof(ReloadSkinActions), new string[]
@@ -84,6 +89,7 @@ namespace MediaPortal.Helpers.SkinHelper
           if (newState == SystemState.Running)
           {
             _reloadSkinActions.RegisterKeyActions();
+            _loadSkinThemeActions.RegisterKeyActions();
             DropMessageQueue();
           }
         }
@@ -99,6 +105,7 @@ namespace MediaPortal.Helpers.SkinHelper
     {
       DropMessageQueue();
       _reloadSkinActions.UnregisterKeyActions();
+      _loadSkinThemeActions.UnregisterKeyActions();
     }
 
     public void Continue()

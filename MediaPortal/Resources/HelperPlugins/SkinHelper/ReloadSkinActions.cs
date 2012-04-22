@@ -23,6 +23,7 @@
 #endregion
 
 using MediaPortal.Common;
+using MediaPortal.Helpers.SkinHelper.General;
 using MediaPortal.UI.Control.InputManager;
 using MediaPortal.UI.Presentation.Actions;
 using MediaPortal.UI.Presentation.Screens;
@@ -33,15 +34,6 @@ namespace MediaPortal.Helpers.SkinHelper
 {
   public class ReloadSkinActions
   {
-    #region Consts
-
-    // F5 is already used for media screen refresh
-    public static readonly Key RELOAD_SCREEN_KEY = Key.F3;
-    public static readonly Key RELOAD_THEME_KEY = Key.F4;
-    public static readonly Key SAVE_SKIN_AND_THEME_KEY = Key.F12;
-
-    #endregion
-
     #region Protected fields
 
     protected string _skinName = null;
@@ -52,16 +44,17 @@ namespace MediaPortal.Helpers.SkinHelper
     public void RegisterKeyActions()
     {
       IInputManager inputManager = ServiceRegistration.Get<IInputManager>();
-      inputManager.AddKeyBinding(RELOAD_SCREEN_KEY, new VoidKeyActionDlgt(ReloadScreenAction));
-      inputManager.AddKeyBinding(RELOAD_THEME_KEY, new VoidKeyActionDlgt(ReloadThemeAction));
-      inputManager.AddKeyBinding(SAVE_SKIN_AND_THEME_KEY, new VoidKeyActionDlgt(SaveSkinAndThemeAction));
+      inputManager.AddKeyBinding(Consts.RELOAD_SCREEN_KEY, new VoidKeyActionDlgt(ReloadScreenAction));
+      inputManager.AddKeyBinding(Consts.RELOAD_THEME_KEY, new VoidKeyActionDlgt(ReloadThemeAction));
+      inputManager.AddKeyBinding(Consts.SAVE_SKIN_AND_THEME_KEY, new VoidKeyActionDlgt(SaveSkinAndThemeAction));
     }
 
     public void UnregisterKeyActions()
     {
       IInputManager inputManager = ServiceRegistration.Get<IInputManager>();
-      inputManager.RemoveKeyBinding(RELOAD_SCREEN_KEY);
-      inputManager.RemoveKeyBinding(RELOAD_THEME_KEY);
+      inputManager.RemoveKeyBinding(Consts.RELOAD_SCREEN_KEY);
+      inputManager.RemoveKeyBinding(Consts.RELOAD_THEME_KEY);
+      inputManager.RemoveKeyBinding(Consts.SAVE_SKIN_AND_THEME_KEY);
     }
 
     static void ReloadScreenAction()

@@ -26,6 +26,7 @@ using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
+using MediaPortal.Helpers.SkinHelper.General;
 using MediaPortal.UI.Presentation.DataObjects;
 using MediaPortal.UI.Presentation.Models;
 using MediaPortal.UI.Presentation.Workflow;
@@ -38,9 +39,6 @@ namespace MediaPortal.Helpers.SkinHelper.Models
   public class ThemeColorsModel : IWorkflowModel
   {
     #region Consts
-
-    public const string KEY_NAME = "Name";
-    public const string KEY_COLOR = "Color";
 
     protected const string MODEL_ID_STR = "1C27C172-AD96-45A5-9E72-736E6D4B1ED5";
 
@@ -72,7 +70,7 @@ namespace MediaPortal.Helpers.SkinHelper.Models
       lock (_syncObj)
       {
         _themeColors.Clear();
-        foreach (ListItem item in CollectSkinResourcesColors(SkinContext.SkinResources).OrderBy(item => item.Labels[KEY_NAME]))
+        foreach (ListItem item in CollectSkinResourcesColors(SkinContext.SkinResources).OrderBy(item => item.Labels[Consts.KEY_NAME]))
           _themeColors.Add(item);
         _themeColors.FireChange();
       }
@@ -106,8 +104,8 @@ namespace MediaPortal.Helpers.SkinHelper.Models
 
     protected ListItem BuildColorListItem(string name, Color color)
     {
-      ListItem result = new ListItem(KEY_NAME, name);
-      result.AdditionalProperties[KEY_COLOR] = color;
+      ListItem result = new ListItem(Consts.KEY_NAME, name);
+      result.AdditionalProperties[Consts.KEY_COLOR] = color;
       return result;
     }
 

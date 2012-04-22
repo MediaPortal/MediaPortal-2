@@ -19,6 +19,7 @@
 
   <Register Location="/Models">
     <Model Id="1C27C172-AD96-45A5-9E72-736E6D4B1ED5" Name="ThemeColorsModel" ClassName="MediaPortal.Helpers.SkinHelper.Models.ThemeColorsModel"/>
+    <Model Id="68E0A3EE-56BD-45E0-BACC-F614C278B4CD" Name="LoadSkinThemeModel" ClassName="MediaPortal.Helpers.SkinHelper.Models.LoadSkinThemeModel"/>
   </Register>
 
   <Register Location="/Workflow/States">

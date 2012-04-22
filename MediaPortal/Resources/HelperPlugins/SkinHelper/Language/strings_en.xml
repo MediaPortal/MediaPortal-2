@@ -5,5 +5,7 @@
     <String Name="MenuShowThemeColors" Text="Show theme colors"/>
     <String Name="ShowThemeColorsTitle" Text="Theme colors"/>
     <String Name="ShowThemeColorsText" Text="This screen shows all color resources defined in the current theme (and inherited resources)"/>
+    <String Name="LoadSkinTitle" Text="Load skin"/>
+    <String Name="LoadThemeTitle" Text="Load theme"/>
   </Section>
 </Language>
