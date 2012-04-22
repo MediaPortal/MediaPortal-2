@@ -647,6 +647,22 @@
     </Setter>
   </Style>
 
+  <DataTemplate x:Key="PlaylistsListItemDataTemplate" DataType="{x:Type collections:ListItem}">
+    <Grid x:Name="ItemControl">
+      <Grid.RowDefinitions>
+        <RowDefinition Height="*"/>
+      </Grid.RowDefinitions>
+      <Grid.ColumnDefinitions>
+        <ColumnDefinition Width="*"/>
+        <ColumnDefinition Width="100"/>
+      </Grid.ColumnDefinitions>
+      <Label x:Name="ItemLabel" Grid.Row="0" Grid.Column="0" Content="{Binding [Name]}"
+          HorizontalAlignment="Left" VerticalAlignment="Center" FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource TextColor}"/>
+      <Label Grid.Row="0" Grid.Column="1" Content="{Binding AdditionalProperties[PlaylistNumItems]}"
+          HorizontalAlignment="Left" VerticalAlignment="Center" FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource TextColor}"/>
+    </Grid>
+  </DataTemplate>
+
   <DataTemplate x:Key="PlaylistItemDataTemplate" DataType="{x:Type collections:ListItem}">
     <Grid Margin="0,3,0,3">
       <Grid.RowDefinitions>
@@ -721,6 +737,7 @@
         </ControlTemplate>
       </Setter.Value>
     </Setter>
+    <Setter Property="ItemTemplate" Value="{ThemeResource PlaylistsListItemDataTemplate}"/>
   </Style>
 
   <Style x:Key="MultiMarkablePlaylistsListViewStyle" BasedOn="{ThemeResource ContentsMenuListViewStyle}">
@@ -746,6 +763,7 @@
         </ControlTemplate>
       </Setter.Value>
     </Setter>
+    <Setter Property="ItemTemplate" Value="{ThemeResource PlaylistsListItemDataTemplate}"/>
     <Setter Property="ItemContainerStyle" Value="{ThemeResource MultiMarkableShareContainerStyle}"/>
   </Style>
 
