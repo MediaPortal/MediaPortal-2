@@ -64,8 +64,8 @@ namespace MediaPortal.UI.SkinEngine.Settings.Configuration.Appearance.Skin
         return;
       SkinSettings settings = SettingsManager.Load<SkinSettings>();
       string currentSkinName = settings.Skin;
-      SkinManagement.Skin currentSkin = skinManager.Skins.ContainsKey(currentSkinName) ? skinManager.Skins[currentSkinName] : null;
-      if (currentSkin == null)
+      SkinManagement.Skin currentSkin;
+      if (!skinManager.Skins.TryGetValue(currentSkinName, out currentSkin))
         return;
       _currentThemeName = settings.Theme;
       foreach (Theme theme in currentSkin.Themes.Values)
