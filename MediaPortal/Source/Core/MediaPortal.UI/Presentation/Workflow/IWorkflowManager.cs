@@ -162,6 +162,13 @@ namespace MediaPortal.UI.Presentation.Workflow
     void NavigatePopToStateAsync(Guid stateId, bool inclusive);
 
     /// <summary>
+    /// Removes all workflow states until non of the workflow states with any of the given workflow state ids is present
+    /// in the workflow navigation stack any more.
+    /// </summary>
+    /// <param name="workflowStateIds">Ids of the workflow states to remove.</param>
+    void NavigatePopStates(Guid[] workflowStateIds);
+
+    /// <summary>
     /// Removes all workflow states while the model with the given <paramref name="modelId"/> is present as workflowModel
     /// on the workflow navigation stack.
     /// </summary>
@@ -206,6 +213,15 @@ namespace MediaPortal.UI.Presentation.Workflow
     /// <returns><c>true</c>, if the specified workflow state is currently available on the workflow navigation stack,
     /// else <c>false</c>.</returns>
     bool IsStateContainedInNavigationStack(Guid workflowStateId);
+
+    /// <summary>
+    /// Returns the information if one of the active navigation contexts on the stack is any of the workflow states
+    /// with the given <paramref name="workflowStateIds"/>.
+    /// </summary>
+    /// <param name="workflowStateIds">Id of the workflow states to search.</param>
+    /// <returns><c>true</c>, if any of the specified workflow states is currently available on the workflow
+    /// navigation stack, else <c>false</c>.</returns>
+    bool IsAnyStateContainedInNavigationStack(Guid[] workflowStateIds);
 
     /// <summary>
     /// Returns the information if one of the active navigation contexts on the stack contains the model

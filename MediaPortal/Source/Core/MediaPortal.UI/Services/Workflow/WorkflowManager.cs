@@ -776,7 +776,7 @@ namespace MediaPortal.UI.Services.Workflow
         throw new EnvironmentException("Error showing screen '{0}'", screen);
     }
 
-    // Called asynchronously.
+    // Maybe called asynchronously.
     protected void NavigatePushInternal(Guid stateId, NavigationContextConfig config)
     {
       EnterWriteLock("NavigatePush");
@@ -803,7 +803,7 @@ namespace MediaPortal.UI.Services.Workflow
       }
     }
 
-    // Called asynchronously.
+    // Maybe called asynchronously.
     protected void NavigatePushTransientInternal(WorkflowState state, NavigationContextConfig config)
     {
       EnterWriteLock("NavigatePushTransient");
@@ -827,7 +827,7 @@ namespace MediaPortal.UI.Services.Workflow
       }
     }
 
-    // Called asynchronously.
+    // Maybe called asynchronously.
     protected void NavigatePopInternal(int count)
     {
       EnterWriteLock("NavigatePop");
@@ -852,7 +852,7 @@ namespace MediaPortal.UI.Services.Workflow
       }
     }
 
-    // Called asynchronously.
+    // Maybe called asynchronously.
     protected bool NavigatePopToStateInternal(Guid stateId, bool inclusive)
     {
       EnterWriteLock("NavigatePopToState");
@@ -897,7 +897,44 @@ namespace MediaPortal.UI.Services.Workflow
       }
     }
 
-    // Called asynchronously.
+    protected bool NavigatePopStatesInternal(Guid[] workflowStateIds)
+    {
+      EnterWriteLock("NavigatePopToState");
+      try
+      {
+        try
+        {
+          bool removed = false;
+          bool workflowStatePopped = false;
+          while (IsAnyStateContainedInNavigationStack(workflowStateIds))
+          {
+            removed = true;
+            if (!DoPopNavigationContext(1, out workflowStatePopped))
+              break;
+          }
+          if (removed)
+          {
+            UpdateScreen_NeedsLock(false, workflowStatePopped);
+            WorkflowManagerMessaging.SendNavigationCompleteMessage();
+            return true;
+          }
+          else
+            return false;
+        }
+        catch (Exception e)
+        {
+          ServiceRegistration.Get<ILogger>().Error("WorkflowManager.NavigatePopStatesInternal: Error in workflow model or screen", e);
+          NavigatePopInternal(1);
+          return false;
+        }
+      }
+      finally
+      {
+        ExitWriteLock();
+      }
+    }
+
+    // Maybe called asynchronously.
     protected void StartBatchUpdateInternal()
     {
       // We delegate the update lock for screens to the screen manager because it is easier to do it there.
@@ -1034,6 +1071,11 @@ namespace MediaPortal.UI.Services.Workflow
       NavigatePopToStateInternal(stateId, inclusive);
     }
 
+    public void NavigatePopStates(Guid[] workflowStateIds)
+    {
+      NavigatePopStatesInternal(workflowStateIds);
+    }
+
     public void NavigatePopToStateAsync(Guid stateId, bool inclusive)
     {
       IThreadPool threadPool = ServiceRegistration.Get<IThreadPool>();
@@ -1128,6 +1170,19 @@ namespace MediaPortal.UI.Services.Workflow
       try
       {
         return _navigationContextStack.Any(context => context.WorkflowState.StateId == workflowStateId);
+      }
+      finally
+      {
+        ExitReadLock();
+      }
+    }
+
+    public bool IsAnyStateContainedInNavigationStack(Guid[] workflowStateIds)
+    {
+      EnterReadLock("IsAnyStateContainedInNavigationStack");
+      try
+      {
+        return _navigationContextStack.Any(context => workflowStateIds.Contains(context.WorkflowState.StateId));
       }
       finally
       {
