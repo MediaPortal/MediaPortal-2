@@ -9,7 +9,6 @@
     <!-- Header -->
     <ResourceWrapper x:Key="Dialog_Header_Text" Resource="[Players.ChooseAudioStream]"/>
 
-    <!-- DataContext -->
     <Model x:Key="PlayerConfigurationDialogModel" Id="58A7F9E3-1514-47af-8E83-2AD60BA8A037"/>
 
     <!-- Menu -->

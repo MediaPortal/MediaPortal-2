@@ -6,7 +6,6 @@
     >
   <Include.Resources>
 
-    <!-- DataContext -->
     <Model x:Key="PlayerConfigurationDialogModel" Id="58A7F9E3-1514-47af-8E83-2AD60BA8A037"/>
 
     <!-- Header -->
