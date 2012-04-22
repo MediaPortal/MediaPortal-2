@@ -196,6 +196,8 @@ namespace MediaPortal.UI.SkinEngine.SkinManagement
 
     public abstract int SkinHeight { get; }
 
+    public abstract string SkinName { get; }
+
     public IDictionary<Guid, object> StyleGUIModels
     {
       get { return _styleGUIModels; }

@@ -147,6 +147,11 @@ namespace MediaPortal.UI.SkinEngine.SkinManagement
       get { return NativeHeight; }
     }
 
+    public override string SkinName
+    {
+      get { return _name; }
+    }
+
     /// <summary>
     /// Returns the width, this skin was designed for. All sizes given in
     /// the skinfiles and its theme are based on this skin width. This value

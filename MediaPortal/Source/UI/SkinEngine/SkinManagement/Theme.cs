@@ -122,12 +122,17 @@ namespace MediaPortal.UI.SkinEngine.SkinManagement
 
     public override int SkinWidth
     {
-      get { return ParentSkin.SkinWidth; }
+      get { return _parentSkin.SkinWidth; }
     }
 
     public override int SkinHeight
     {
-      get { return ParentSkin.SkinHeight; }
+      get { return _parentSkin.SkinHeight; }
+    }
+
+    public override string SkinName
+    {
+      get { return _parentSkin.Name; }
     }
 
     internal override void SetupResourceChain(IDictionary<string, Skin> skins, Skin defaultSkin)

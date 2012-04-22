@@ -46,6 +46,12 @@ namespace MediaPortal.UI.Presentation.SkinResources
     int SkinHeight { get; }
 
     /// <summary>
+    /// Gets the name of the skin which contains this resource bundle. If this bundle is a skin, this property returns this name,
+    /// else it returns the name of the parent skin.
+    /// </summary>
+    string SkinName { get; }
+
+    /// <summary>
     /// Gets or sets the <see cref="SkinResources"/> instance which inherits
     /// its resources to this instance.
     /// </summary>
