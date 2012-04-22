@@ -28,6 +28,10 @@ using MediaPortal.Common.MediaManagement.Helpers;
 
 namespace MediaPortal.Extensions.MetadataExtractors.VideoMetadataExtractor.NameMatchers
 {
+  /// <summary>
+  /// <see cref="SeriesMatcher"/> tries to match series episodes from file and folder names. It uses regular expressions to extract series name, 
+  /// season number, episode number and optional episode title.
+  /// </summary>
   public class SeriesMatcher
   {
     private const string GROUP_SERIES = "series";
@@ -37,6 +41,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.VideoMetadataExtractor.NameM
 
     protected static List<Regex> _matchers = new List<Regex>
         {
+          // Filename only pattern
           // MP1 EpisodeScanner recommendations for recordings: Series - (Episode) S1E1
           new Regex(@"(?<series>[^\\]+) - \((?<episode>.*)\) S(?<seasonnum>[0-9]+?)E(?<episodenum>[0-9]+?)", RegexOptions.IgnoreCase),
           // "Series 1x1 - Episode" and multi-episodes "Series 1x1_2 - Episodes"
@@ -49,8 +54,19 @@ namespace MediaPortal.Extensions.MetadataExtractors.VideoMetadataExtractor.NameM
           new Regex(@"(?<series>[^\\]+).S(?<seasonnum>\d+)E((?<episodenum>\d+)_?)+(?<episode>.*)\.", RegexOptions.IgnoreCase),
           // "Series.Name.101.Episode.Or.Release.Info", can lead to false matches for every filename with nnn included
           //new Regex(@"(?<series>[^\\]+).(?<seasonnum>\d{1})(?<episodenum>\d{2})(?<episode>.*)\.", RegexOptions.IgnoreCase),
+
+          // Folder + filename pattern
+          // "Series\1\11 - Episode" "Series\Staffel 2\11 - Episode" "Series\Season 3\12 Episode" "Series\3. Season\13-Episode"
+          new Regex(@"(?<series>[^\\]*)\\[^\\]*(?<seasonnum>\d+)[^\\]*\\(?<episodenum>\d+)\s*-*\s*(?<episode>.*)\.", RegexOptions.IgnoreCase),
         };
 
+    /// <summary>
+    /// Tries to match series by checking the <paramref name="folderOrFileName"/> for known patterns. The match is only successful,
+    /// if the <see cref="SeriesInfo.IsCompleteMatch"/> is <c>true</c>.
+    /// </summary>
+    /// <param name="folderOrFileName">Full path to file</param>
+    /// <param name="seriesInfo">Returns the parsed SeriesInfo</param>
+    /// <returns><c>true</c> if successful.</returns>
     public bool MatchSeries(string folderOrFileName, out SeriesInfo seriesInfo)
     {
       foreach (Regex matcher in _matchers)
