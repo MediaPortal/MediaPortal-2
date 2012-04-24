@@ -44,13 +44,28 @@ namespace MediaPortal.Extensions.OnlineLibraries
   /// </summary>
   public class SeriesTvDbMatcher
   {
+    #region Static instance
+    
+    private static SeriesTvDbMatcher _instance;
+    public static SeriesTvDbMatcher Instance
+    {
+     get { return _instance ?? (_instance = new SeriesTvDbMatcher()); }
+    }
+
+    #endregion
+
+    #region Constants
 
     public const int MAX_FANART_IMAGES = 5;
 
     public static string CACHE_PATH = ServiceRegistration.Get<IPathManager>().GetPath(@"<DATA>\TvDB\");
     protected static string SETTINGS_MATCHES = Path.Combine(CACHE_PATH, "Matches.xml");
 
-    protected static Dictionary<string, TvdbSeries> _memoryCache = new Dictionary<string, TvdbSeries>();
+    #endregion 
+
+    #region Fields
+
+    protected Dictionary<string, TvdbSeries> _memoryCache = new Dictionary<string, TvdbSeries>();
 
     /// <summary>
     /// Locking object to access settings.
@@ -61,6 +76,13 @@ namespace MediaPortal.Extensions.OnlineLibraries
     /// Contains the Series ID for Downloading FanArt asynchronously.
     /// </summary>
     protected int _currentTvDbId;
+
+    /// <summary>
+    /// Contains the initialized TvDbWrapper.
+    /// </summary>
+    private TvDbWrapper _tv;
+
+    #endregion
 
     /// <summary>
     /// Tries to lookup the series from TheTvDB and return the found ID.
@@ -149,22 +171,23 @@ namespace MediaPortal.Extensions.OnlineLibraries
         ServiceRegistration.Get<ILogger>().Debug("SeriesTvDbMatcher: Try to lookup series \"{0}\" from cache: {1}", seriesName, match != null && match.TvDBID != 0);
 
         // Try online lookup
-        var tv = GetTvDbWrapper();
+        if (!Init())
+          return false;
 
         // If this is a known series, only return the series details (including episodes).
         if (match != null)
-          return match.TvDBID != 0 && tv.GetSeries(match.TvDBID, true, out seriesDetail);
+          return match.TvDBID != 0 && _tv.GetSeries(match.TvDBID, true, out seriesDetail);
 
         if (cacheOnly)
           return false;
 
         List<TvdbSearchResult> series;
-        if (tv.SearchSeriesUnique(seriesName, out series))
+        if (_tv.SearchSeriesUnique(seriesName, out series))
         {
           TvdbSearchResult matchedSeries = series[0];
           ServiceRegistration.Get<ILogger>().Debug("SeriesTvDbMatcher: Found unique online match for \"{0}\": \"{1}\" [Lang: {2}]", seriesName, matchedSeries.SeriesName, matchedSeries.Language);
 
-          if (tv.GetSeries(matchedSeries.Id, true, out seriesDetail))
+          if (_tv.GetSeries(matchedSeries.Id, true, out seriesDetail))
           {
             ServiceRegistration.Get<ILogger>().Debug("SeriesTvDbMatcher: Loaded details for \"{0}\"", matchedSeries.SeriesName);
             // Add this match to cache
@@ -208,14 +231,16 @@ namespace MediaPortal.Extensions.OnlineLibraries
       }
     }
 
-    private static TvDbWrapper GetTvDbWrapper()
+    private bool Init()
     {
-      TvDbWrapper tv = new TvDbWrapper();
+      if (_tv != null)
+        return true;
+
+      _tv = new TvDbWrapper();
       // Try to lookup online content in the configured language
       CultureInfo currentCulture = ServiceRegistration.Get<ILocalization>().CurrentCulture;
-      tv.SetPreferredLanguage(currentCulture.TwoLetterISOLanguageName);
-      tv.Init();
-      return tv;
+      _tv.SetPreferredLanguage(currentCulture.TwoLetterISOLanguageName);
+      return _tv.Init();
     }
 
     public bool DownloadFanArt(int tvDbId)
@@ -250,22 +275,24 @@ namespace MediaPortal.Extensions.OnlineLibraries
       {
         ServiceRegistration.Get<ILogger>().Debug("SeriesTvDbMatcher Download: Started for ID {0}", tvDbId);
 
-        var tv = GetTvDbWrapper();
+        if  (!Init())
+          return;
+
         TvdbSeries seriesDetail;
-        if (!tv.GetSeriesFanArt(tvDbId, out seriesDetail))
+        if (!_tv.GetSeriesFanArt(tvDbId, out seriesDetail))
           return;
 
         // Save Banners
         ServiceRegistration.Get<ILogger>().Debug("SeriesTvDbMatcher Download: Begin saving banners for ID {0}", tvDbId);
-        SaveBanners(seriesDetail.SeriesBanners, tv.PreferredLanguage);
+        SaveBanners(seriesDetail.SeriesBanners, _tv.PreferredLanguage);
 
         // Save Posters
         ServiceRegistration.Get<ILogger>().Debug("SeriesTvDbMatcher Download: Begin saving posters for ID {0}", tvDbId);
-        SaveBanners(seriesDetail.PosterBanners, tv.PreferredLanguage);
+        SaveBanners(seriesDetail.PosterBanners, _tv.PreferredLanguage);
 
         // Save FanArt
         ServiceRegistration.Get<ILogger>().Debug("SeriesTvDbMatcher Download: Begin saving fanarts for ID {0}", tvDbId);
-        SaveBanners(seriesDetail.FanartBanners, tv.PreferredLanguage);
+        SaveBanners(seriesDetail.FanartBanners, _tv.PreferredLanguage);
         ServiceRegistration.Get<ILogger>().Debug("SeriesTvDbMatcher Download: Finished ID {0}", tvDbId);
       }
       catch (Exception ex)

@@ -76,11 +76,10 @@ namespace MediaPortal.Extensions.UserServices.FanArtService
 
     protected string GetBaseFolder(FanArtConstants.FanArtMediaType mediaType, string name)
     {
-      SeriesTvDbMatcher matcher = new SeriesTvDbMatcher();
       int tvDbId;
-      if (!matcher.TryGetTvDbId(name, out tvDbId))
-        return null;
-      return Path.Combine(SeriesTvDbMatcher.CACHE_PATH, tvDbId.ToString());
+      return !SeriesTvDbMatcher.Instance.TryGetTvDbId(name, out tvDbId) ? 
+        null : 
+        Path.Combine(SeriesTvDbMatcher.CACHE_PATH, tvDbId.ToString());
     }
   }
 }

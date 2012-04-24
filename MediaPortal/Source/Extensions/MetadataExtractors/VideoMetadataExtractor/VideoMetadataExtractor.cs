@@ -336,10 +336,8 @@ namespace MediaPortal.Extensions.MetadataExtractors.VideoMetadataExtractor
         if (seriesInfo.IsCompleteMatch)
         {
           if (!forceQuickMode)
-          {
-            SeriesTvDbMatcher matcher = new SeriesTvDbMatcher();
-            matcher.FindAndUpdateSeries(seriesInfo);
-          }
+            SeriesTvDbMatcher.Instance.FindAndUpdateSeries(seriesInfo);
+
           seriesInfo.SetMetadata(extractedAspectData);
         }
 
@@ -384,10 +382,8 @@ namespace MediaPortal.Extensions.MetadataExtractors.VideoMetadataExtractor
       if (seriesMatcher.MatchSeries(localFsResourcePath, out seriesInfo) && seriesInfo.IsCompleteMatch)
       {
         if (!forceQuickMode)
-        {
-          SeriesTvDbMatcher matcher = new SeriesTvDbMatcher();
-          matcher.FindAndUpdateSeries(seriesInfo);
-        }
+          SeriesTvDbMatcher.Instance.FindAndUpdateSeries(seriesInfo);
+
         seriesInfo.SetMetadata(extractedAspectData);
       }
     }

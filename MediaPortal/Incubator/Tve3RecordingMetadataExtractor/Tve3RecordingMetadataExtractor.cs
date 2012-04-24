@@ -170,10 +170,8 @@ namespace MediaPortal.Extensions.MetadataExtractors
         if (seriesInfo.IsCompleteMatch)
         {
           if (!forceQuickMode)
-          {
-            SeriesTvDbMatcher matcher = new SeriesTvDbMatcher();
-            matcher.FindAndUpdateSeries(seriesInfo);
-          }
+            SeriesTvDbMatcher.Instance.FindAndUpdateSeries(seriesInfo);
+
           seriesInfo.SetMetadata(extractedAspectData);
         }
 
