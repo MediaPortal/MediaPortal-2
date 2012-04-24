@@ -41,6 +41,7 @@ namespace MediaPortal.Extensions.UserServices.FanArtService.Client
 
     protected UPnPNetworkTracker _networkTracker;
     protected UPnPControlPoint _controlPoint;
+    protected readonly object _syncObj = new object();
     protected static List<FanArtImage> EMPTY_LIST = new List<FanArtImage>();
 
     #endregion
@@ -60,10 +61,14 @@ namespace MediaPortal.Extensions.UserServices.FanArtService.Client
         return false;
 
       CpService fanArtStub = connection.Device.FindServiceByServiceId(Consts.FANART_SERVICE_ID);
-      if (fanArtStub != null)
-        Init(fanArtStub, "FanArt");
 
-      return _serviceStub != null;
+      lock (_syncObj)
+      {
+        if (fanArtStub != null)
+          Init(fanArtStub, "FanArt");
+
+        return _serviceStub != null;
+      }
     }
 
     public IList<FanArtImage> GetFanArt(FanArtConstants.FanArtMediaType mediaType, FanArtConstants.FanArtType fanArtType, string name, int maxWidth, int maxHeight, bool singleRandom)
