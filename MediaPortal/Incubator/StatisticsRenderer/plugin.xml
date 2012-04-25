@@ -1,0 +1,26 @@
+<Plugin
+    DescriptorVersion="1.0" 
+    Name="StatisticsRenderer"
+    PluginId="{0C47610D-A6DB-475f-8304-BFF35E572AE2}"
+    Author="Morpheus_xx"
+    Copyright="GPL"
+    Description="The StatisticsRenderer plugin provides performance and video playback quality related information."
+    PluginVersion="1.0">
+
+  <Runtime>
+    <Assembly FileName="StatisticsRenderer.dll"/>
+  </Runtime>
+
+  <DependsOn>
+    <PluginReference PluginId="{D87D92F0-5E71-470a-A2A4-430F90A28BF3}"/>    <!-- SkinEngine -->
+  </DependsOn>
+
+  <Register Location="/Services">
+    <Service Id="StatisticsRendererService" RegistrationClassName="MediaPortal.Plugins.StatisticsRenderer.StatisticsRenderer"        
+        ServiceClassName="MediaPortal.Plugins.StatisticsRenderer.StatisticsRenderer"/>
+  </Register>
+  
+  <!--<Register Location="/Models">
+    <Model Id="38E05356-9FBC-4234-9910-4134AC077AAD" ClassName="MediaPortal.Plugins.StatisticsRenderer.StatisticsRenderer"/>
+  </Register>-->
+</Plugin>
