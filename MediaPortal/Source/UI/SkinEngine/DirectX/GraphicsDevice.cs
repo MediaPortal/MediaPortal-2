@@ -71,6 +71,11 @@ namespace MediaPortal.UI.SkinEngine.DirectX
     public static Matrix TransformProjection;
     public static Matrix FinalTransform;
 
+    // Render process related events
+    public static event EventHandler DeviceSceneBegin;
+    public static event EventHandler DeviceSceneEnd;
+    public static event EventHandler DeviceScenePresented;
+
     /// <summary>
     /// Returns the information if the graphics device is healthy, which means it was neither lost nor hung nor removed.
     /// </summary>
@@ -428,6 +433,23 @@ namespace MediaPortal.UI.SkinEngine.DirectX
     }
 
     /// <summary>
+    /// Fires an event if listeners are available.
+    /// </summary>
+    /// <param name="eventHandler"></param>
+    private static void Fire(EventHandler eventHandler)
+    {
+      try
+      {
+        if (eventHandler != null)
+          eventHandler(null, EventArgs.Empty);
+      }
+      catch (Exception e)
+      {
+        ServiceRegistration.Get<ILogger>().Error("Error executing render event handler:", e);
+      }
+    }
+
+    /// <summary>
     /// Renders the entire scene.
     /// </summary>
     /// <param name="doWaitForNextFame"><c>true</c>, if this method should wait to the correct frame start time
@@ -448,10 +470,17 @@ namespace MediaPortal.UI.SkinEngine.DirectX
         _device.Clear(ClearFlags.Target, Color.Black, 1.0f, 0);
         _device.BeginScene();
 
+        Fire(DeviceSceneBegin);
+
         _screenManager.Render();
 
+        Fire(DeviceSceneEnd);
+
         _device.EndScene();
+
         _device.PresentEx(_setup.Present);
+
+        Fire(DeviceScenePresented);
 
         _fpsCounter += 1;
         TimeSpan ts = DateTime.Now - _fpsTimer;

@@ -109,6 +109,62 @@ namespace MediaPortal.UI.SkinEngine.SkinManagement
     }
 
     /// <summary>
+    /// Exposes an event of the rendering process. It gets fired immediately after DeviceEx.BeginScene.
+    /// </summary>
+    public static event EventHandler DeviceSceneBegin
+    {
+      add { GraphicsDevice.DeviceSceneBegin += value; }
+      remove { GraphicsDevice.DeviceSceneBegin -= value; }
+    }
+
+    /// <summary>
+    /// Exposes an event of the rendering process. It gets fired immediately before DeviceEx.EndScene.
+    /// </summary>
+    public static event EventHandler DeviceSceneEnd
+    {
+      add { GraphicsDevice.DeviceSceneEnd += value; }
+      remove { GraphicsDevice.DeviceSceneEnd -= value; }
+    }
+
+    /// <summary>
+    /// Exposes an event of the rendering process. It gets fired immediately after DeviceEx.PresentEx.
+    /// </summary>
+    public static event EventHandler DeviceScenePresented
+    {
+      add { GraphicsDevice.DeviceScenePresented += value; }
+      remove { GraphicsDevice.DeviceScenePresented -= value; }
+    }
+
+    /// <summary>
+    /// Gets the back-buffer width of the DeviceEx.
+    /// </summary>
+    public static int BackBufferWidth
+    {
+      get { return GraphicsDevice.Width; }
+    }
+
+    /// <summary>
+    /// Gets the back-buffer height of the DeviceEx.
+    /// </summary>
+    public static int BackBufferHeight
+    {
+      get { return GraphicsDevice.Height; }
+    }
+
+    /// <summary>
+    /// Returns the current display mode used in the SkinEngine.
+    /// </summary>
+    public static DisplayMode CurrentDisplayMode
+    {
+      get
+      {
+        int ordinal = GraphicsDevice.Device.Capabilities.AdapterOrdinal;
+        AdapterInformation adapterInfo = MPDirect3D.Direct3D.Adapters[ordinal];
+        return adapterInfo.CurrentDisplayMode;
+      }
+    }
+
+    /// <summary>
     /// Gets or sets the skin resources currently in use.
     /// A query to this resource collection will automatically fallback on the
     /// next resource collection in the priority chain. For example,
