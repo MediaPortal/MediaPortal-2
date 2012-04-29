@@ -52,6 +52,10 @@ namespace MediaPortal.Extensions.MetadataExtractors
       public string Name { get; set; }
       [XmlElement(ElementName = "value")]
       public string Value { get; set; }
+      public override string ToString()
+      {
+        return string.Format("{0}: {1}", Name, Value);
+      }
     }
 
     [XmlRoot(ElementName = "tags")]
@@ -133,7 +137,7 @@ namespace MediaPortal.Extensions.MetadataExtractors
         if (fsra == null || !mediaItemAccessor.IsFile)
           return false;
 
-        string filePath = mediaItemAccessor.Path;
+        string filePath = mediaItemAccessor.CanonicalLocalResourcePath.ToString();
         string lowerExtension = StringUtils.TrimToEmpty(ProviderPathHelper.GetExtension(filePath)).ToLowerInvariant();
         if (lowerExtension != ".ts")
           return false;
