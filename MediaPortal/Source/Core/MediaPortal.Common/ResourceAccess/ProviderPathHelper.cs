@@ -112,12 +112,22 @@ namespace MediaPortal.Common.ResourceAccess
       return extIndex == -1 ? fileName : fileName.Substring(0, extIndex);
     }
 
+    /// <summary>
+    /// Replaces the extension of the given <paramref name="path"/> with the new <paramref name="extension"/>.
+    /// </summary>
+    /// <remarks>
+    /// This method works similar to <see cref="Path.ChangeExtension"/> but doesn't throw exceptions when the
+    /// given path contains illegal characters.
+    /// </remarks>
+    /// <param name="path">Provider path.</param>
+    /// <param name="extension">New extension for path.</param>
+    /// <returns>Replaced path.</returns>
     public static string ChangeExtension(string path, string extension)
     {
       if (string.IsNullOrEmpty(path))
         return path;
       string oldExtension = GetExtension(path);
-      return path.Substring(path.Length - oldExtension.Length - 1) + extension;
+      return path.Substring(0, path.Length - oldExtension.Length) + extension;
     }
   }
 }
