@@ -25,6 +25,7 @@
 using System;
 using MediaPortal.Common;
 using MediaPortal.Common.General;
+using MediaPortal.Common.Localization;
 using MediaPortal.Common.Logging;
 using MediaPortal.Common.Messaging;
 using MediaPortal.Common.Settings;
@@ -74,17 +75,17 @@ namespace MediaPortal.UiComponents.Weather.Models
     void SubscribeToMessages()
     {
       _messageQueue.SubscribeToMessageChannel(WeatherMessaging.CHANNEL);
+      _messageQueue.SubscribeToMessageChannel(LocalizationMessaging.CHANNEL);
       _messageQueue.MessageReceived += OnMessageReceived;
     }
 
     void OnMessageReceived(AsynchronousMessageQueue queue, SystemMessage message)
     {
-      if (message.ChannelName == WeatherMessaging.CHANNEL)
-      {
-        if (((WeatherMessaging.MessageType) message.MessageType) == WeatherMessaging.MessageType.LocationChanged)
-          Update();
-      }
+      if (message.ChannelName == WeatherMessaging.CHANNEL && ((WeatherMessaging.MessageType)message.MessageType) == WeatherMessaging.MessageType.LocationChanged ||
+          message.ChannelName == LocalizationMessaging.CHANNEL && ((LocalizationMessaging.MessageType)message.MessageType) == LocalizationMessaging.MessageType.LanguageChanged)
+        Update();
     }
+
     protected override void Update()
     {
       SetAndUpdatePreferredLocation();

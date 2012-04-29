@@ -50,18 +50,14 @@ namespace MediaPortal.UiComponents.Weather.Grabbers
     private const string MBAR = "mbar";
 
     private readonly TimeSpan _maxCacheDuration = TimeSpan.FromHours(1);
-
-    private readonly bool _preferCelcius = true;
-    private readonly bool _preferKph = true;
     private readonly string _parsefileLocation;
 
     private readonly Dictionary<int, int> _weatherCodeTranslation = new Dictionary<int, int>();
+    private bool _isMetricRegion;
 
     public WorldWeatherOnlineCatcher()
     {
       WeatherSettings settings = ServiceRegistration.Get<ISettingsManager>().Load<WeatherSettings>();
-      _preferCelcius = settings.TemperatureUnit == WeatherSettings.TempUnit.Celcius;
-      _preferKph = settings.WindSpeedUnit == WeatherSettings.SpeedUnit.Kph;
       _parsefileLocation = ServiceRegistration.Get<IPathManager>().GetPath(settings.ParsefileLocation);
 
       #region Weather code translation
@@ -233,7 +229,10 @@ namespace MediaPortal.UiComponents.Weather.Grabbers
     {
       if (city == null || doc == null)
         return false;
-      DateTimeFormatInfo dateFormat = ServiceRegistration.Get<ILocalization>().CurrentCulture.DateTimeFormat;
+      CultureInfo currentCulture = ServiceRegistration.Get<ILocalization>().CurrentCulture;
+      DateTimeFormatInfo dateFormat = currentCulture.DateTimeFormat;
+      _isMetricRegion = new RegionInfo(currentCulture.LCID).IsMetric;
+
       XPathNavigator navigator = doc.CreateNavigator();
       XPathNavigator condition = navigator.SelectSingleNode("/data/current_condition");
       if (condition != null)
@@ -299,8 +298,8 @@ namespace MediaPortal.UiComponents.Weather.Grabbers
 
     private string FormatWind(XPathNavigator condition)
     {
-      string nodeName = _preferKph ? "windspeedKmph" : "windspeedMiles";
-      string unit = _preferKph ? KPH : MPH;
+      string nodeName = _isMetricRegion ? "windspeedKmph" : "windspeedMiles";
+      string unit = _isMetricRegion ? KPH : MPH;
       XPathNavigator node = condition.SelectSingleNode(nodeName);
       string windSpeed = node != null ? node.Value : string.Empty;
 
@@ -311,19 +310,19 @@ namespace MediaPortal.UiComponents.Weather.Grabbers
 
     private string FormatCurrentTemp(XPathNavigator condition)
     {
-      string nodeName = _preferCelcius ? "temp_C" : "temp_F";
+      string nodeName = _isMetricRegion ? "temp_C" : "temp_F";
       return FormatTemp(condition.SelectSingleNode(nodeName));
     }
 
     private string FormatTempLow(XPathNavigator condition)
     {
-      string nodeName = _preferCelcius ? "tempMinC" : "tempMinF";
+      string nodeName = _isMetricRegion ? "tempMinC" : "tempMinF";
       return FormatTemp(condition.SelectSingleNode(nodeName));
     }
 
     private string FormatTempHigh(XPathNavigator condition)
     {
-      string nodeName = _preferCelcius ? "tempMaxC" : "tempMaxF";
+      string nodeName = _isMetricRegion ? "tempMaxC" : "tempMaxF";
       return FormatTemp(condition.SelectSingleNode(nodeName));
     }
 
@@ -331,7 +330,7 @@ namespace MediaPortal.UiComponents.Weather.Grabbers
     {
       if (tempNode == null)
         return string.Empty;
-      string unit = _preferCelcius ? CELCIUS : FAHRENHEIT;
+      string unit = _isMetricRegion ? CELCIUS : FAHRENHEIT;
       return string.Format("{0} {1}", tempNode.ValueAsDouble, unit);
     }
 

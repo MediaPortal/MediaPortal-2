@@ -33,18 +33,6 @@ namespace MediaPortal.UiComponents.Weather.Settings
   /// </summary>
   public class WeatherSettings
   {
-    public enum SpeedUnit
-    {
-      Kph,
-      Mph
-    }
-
-    public enum TempUnit
-    {
-      Celcius,
-      Fahrenheit
-    }
-
     /// <summary>
     /// Constructor
     /// </summary>
@@ -70,18 +58,6 @@ namespace MediaPortal.UiComponents.Weather.Settings
     /// </summary>
     [Setting(SettingScope.User, @"<CONFIG>\weather.location{0}.xml")]
     public string ParsefileLocation { get; set; }
-
-    /// <summary>
-    /// Preferred temperature unit.
-    /// </summary>
-    [Setting(SettingScope.User, TempUnit.Celcius)]
-    public TempUnit TemperatureUnit { get; set; }
-
-    /// <summary>
-    /// Preferred speed unit.
-    /// </summary>
-    [Setting(SettingScope.User, SpeedUnit.Kph)]
-    public SpeedUnit WindSpeedUnit { get; set; }
 
     /// <summary>
     /// Selected location code.
