@@ -23,6 +23,7 @@
 #endregion
 
 using System;
+using System.Globalization;
 
 namespace MediaPortal.Common.MediaManagement.DefaultItemAspects
 {
@@ -34,7 +35,7 @@ namespace MediaPortal.Common.MediaManagement.DefaultItemAspects
     /// <summary>
     /// Media item aspect id of the video aspect.
     /// </summary>
-    public static readonly Guid ASPECT_ID = new Guid("39B6A293-3E97-4873-8955-975A15359050");
+    public static readonly Guid ASPECT_ID = new Guid("89B0883D-0CEC-4B5B-8783-C923C59BB87C");
 
     /// <summary>
     /// Genre string.
@@ -71,6 +72,12 @@ namespace MediaPortal.Common.MediaManagement.DefaultItemAspects
     /// </summary>
     public static readonly MediaItemAspectMetadata.AttributeSpecification ATTR_AUDIOBITRATE =
         MediaItemAspectMetadata.CreateAttributeSpecification("AudioBitRate", typeof(long), Cardinality.Inline, false);
+    
+    /// <summary>
+    /// List of available audio languages. Values are stored as <see cref="CultureInfo.TwoLetterISOLanguageName"/>.
+    /// </summary>
+    public static readonly MediaItemAspectMetadata.AttributeSpecification ATTR_AUDIOLANGUAGES =
+        MediaItemAspectMetadata.CreateStringAttributeSpecification("AudioLanguages", 2, Cardinality.ManyToMany, true);
 
     /// <summary>
     /// Encoding of the video. TODO: Describe format.
@@ -136,6 +143,7 @@ namespace MediaPortal.Common.MediaManagement.DefaultItemAspects
             ATTR_AUDIOSTREAMCOUNT,
             ATTR_AUDIOENCODING,
             ATTR_AUDIOBITRATE,
+            ATTR_AUDIOLANGUAGES,
             ATTR_VIDEOENCODING,
             ATTR_VIDEOBITRATE,
             ATTR_WIDTH,

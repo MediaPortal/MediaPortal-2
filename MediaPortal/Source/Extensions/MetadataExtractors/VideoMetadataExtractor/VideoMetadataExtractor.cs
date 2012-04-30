@@ -170,6 +170,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.VideoMetadataExtractor
       protected int _audioStreamCount;
       protected ICollection<string> _vidCodecs = new List<string>();
       protected ICollection<string> _audCodecs = new List<string>();
+      protected ICollection<string> _audioLanguages = new List<string>();
 
       public VideoResult(string videoTitle, MediaInfoWrapper mainInfo)
       {
@@ -225,6 +226,10 @@ namespace MediaPortal.Extensions.MetadataExtractors.VideoMetadataExtractor
           string audCodec = mediaInfo.GetAudioCodec(i);
           if (!string.IsNullOrEmpty(audCodec) && !_audCodecs.Contains(audCodec))
             _audCodecs.Add(audCodec);
+
+          string audLang = mediaInfo.GetAudioLanguage(i);
+          if (!string.IsNullOrEmpty(audLang) && !_audioLanguages.Contains(audLang))
+            _audioLanguages.Add(audLang);
         }
       }
 
@@ -253,6 +258,8 @@ namespace MediaPortal.Extensions.MetadataExtractors.VideoMetadataExtractor
           MediaItemAspect.SetAttribute(extractedAspectData, VideoAspect.ATTR_AUDIOBITRATE, _audBitRate.Value);
 
         MediaItemAspect.SetAttribute(extractedAspectData, VideoAspect.ATTR_AUDIOENCODING, StringUtils.Join(", ", _audCodecs));
+
+        MediaItemAspect.SetCollectionAttribute(extractedAspectData, VideoAspect.ATTR_AUDIOLANGUAGES, _audioLanguages);
         // TODO: extract cover art (see Mantis #1977)
       }
 
