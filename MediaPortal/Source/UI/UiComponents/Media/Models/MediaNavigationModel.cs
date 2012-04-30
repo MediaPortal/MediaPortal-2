@@ -385,6 +385,7 @@ namespace MediaPortal.UiComponents.Media.Models
             {
               new SeriesShowItemsScreenData(picd),
               filterBySeries, // C# doesn't like it to have an assignment inside a collection initializer
+              new VideosFilterByLanguageScreenData(),
               new SeriesFilterBySeasonScreenData(),
               new VideosFilterByGenreScreenData(),
               new VideosSimpleSearchScreenData(picd),
