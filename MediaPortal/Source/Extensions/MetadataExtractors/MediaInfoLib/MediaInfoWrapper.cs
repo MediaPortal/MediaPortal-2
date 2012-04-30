@@ -1,4 +1,5 @@
 using System;
+using System.Globalization;
 using System.IO;
 using System.Runtime.InteropServices;
 using MediaPortal.Utilities;
@@ -277,6 +278,27 @@ namespace MediaInfoLib
     {
       return StringUtils.TrimToNull(_mediaInfo.Get(StreamKind.Audio, stream, "CodecID/Hint")) ??
              StringUtils.TrimToNull(_mediaInfo.Get(StreamKind.Audio, stream, "Codec/String"));
+    }
+
+    /// <summary>
+    /// Returns the language of the specified audio <paramref name="stream"/>.
+    /// </summary>
+    /// <param name="stream">Number of audio stream to examine.</param>
+    /// <returns><see cref="CultureInfo.TwoLetterISOLanguageName"/> if a valid language was matched, or <c>null</c>.</returns>
+    public string GetAudioLanguage(int stream)
+    {
+      string lang2 = StringUtils.TrimToNull(_mediaInfo.Get(StreamKind.Audio, stream, "Language/String2"));
+      if (lang2 == null)
+        return null;
+      try
+      {
+        CultureInfo cultureInfo = new CultureInfo(lang2);
+        return cultureInfo.TwoLetterISOLanguageName;
+      }
+      catch (ArgumentException)
+      {
+        return null;
+      }
     }
 
     /// <summary>
