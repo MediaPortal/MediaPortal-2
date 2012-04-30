@@ -141,6 +141,7 @@ namespace MediaPortal.UiComponents.Media.General
     public const string RES_FILTER_BY_VIDEO_YEAR_MENU_ITEM = "[Media.FilterByVideoYearMenuItem]";
     public const string RES_FILTER_BY_ACTOR_MENU_ITEM = "[Media.FilterByActorMenuItem]";
     public const string RES_FILTER_BY_VIDEO_GENRE_MENU_ITEM = "[Media.FilterByVideoGenreMenuItem]";
+    public const string RES_FILTER_BY_AUDIO_LANG_MENU_ITEM = "[Media.FilterByAudioLanguageMenuItem]";
     public const string RES_FILTER_BY_SYSTEM_MENU_ITEM = "[Media.FilterBySystemMenuItem]";
     public const string RES_FILTER_BY_IMAGE_SIZE_MENU_ITEM = "[Media.FilterByImageSizeMenuItem]";
     public const string RES_FILTER_BY_SERIES_NAME_MENU_ITEM = "[Media.FilterBySeriesNameMenuItem]";
@@ -166,6 +167,7 @@ namespace MediaPortal.UiComponents.Media.General
     public const string RES_FILTER_AUDIO_ITEMS_NAVBAR_DISPLAY_LABEL = "[Media.FilterAudioItemsNavbarDisplayLabel]";
     public const string RES_FILTER_VIDEO_ITEMS_NAVBAR_DISPLAY_LABEL = "[Media.FilterVideoItemsNavbarDisplayLabel]";
     public const string RES_FILTER_IMAGE_ITEMS_NAVBAR_DISPLAY_LABEL = "[Media.FilterImageItemsNavbarDisplayLabel]";
+    public const string RES_FILTER_AUDIO_LANG_NAVBAR_DISPLAY_LABEL = "[Media.FilterAudioLanguagesNavbarDisplayLabel]";
     public const string RES_FILTER_SYSTEM_NAVBAR_DISPLAY_LABEL = "[Media.FilterSystemNavbarDisplayLabel]";
     public const string RES_FILTER_SERIES_ITEMS_NAVBAR_DISPLAY_LABEL = "[Media.FilterSeriesItemsNavbarDisplayLabel]";
     public const string RES_FILTER_SERIES_SEASON_NAVBAR_DISPLAY_LABEL = "[Media.FilterSeriesSeasonNavbarDisplayLabel]";
@@ -285,6 +287,7 @@ namespace MediaPortal.UiComponents.Media.General
     public const string SCREEN_VIDEOS_FILTER_BY_GENRE = "VideoFilterByGenre";
     public const string SCREEN_VIDEOS_FILTER_BY_YEAR = "VideoFilterByYear";
     public const string SCREEN_VIDEOS_FILTER_BY_SYSTEM = "VideoFilterBySystem";
+    public const string SCREEN_VIDEOS_FILTER_BY_AUDIO_LANG = "VideoFilterByLanguage";
     public const string SCREEN_SERIES_SHOW_ITEMS = "SeriesShowItems";
     public const string SCREEN_SERIES_FILTER_BY_NAME = "SeriesFilterByName";
     public const string SCREEN_SERIES_FILTER_BY_SEASON = "SeriesFilterBySeason";

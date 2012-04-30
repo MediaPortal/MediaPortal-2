@@ -17,6 +17,7 @@
     <String Name="FilterByActorMenuItem" Text="Filter by actor"/>
     <String Name="FilterByVideoGenreMenuItem" Text="Filter by genre"/>
     <String Name="FilterByVideoYearMenuItem" Text="Filter by year"/>
+    <String Name="FilterByAudioLanguageMenuItem" Text="Filter by language"/>
     <String Name="FilterByImageSizeMenuItem" Text="Filter by size"/>
     <String Name="FilterByImageYearMenuItem" Text="Filter by year"/>
     <String Name="FilterBySystemMenuItem" Text="Filter by system"/>
@@ -46,6 +47,7 @@
     <String Name="FilterActorNavbarDisplayLabel" Text="Actor: {0}"/>
     <String Name="FilterVideoGenreNavbarDisplayLabel" Text="Genre: {0}"/>
     <String Name="FilterVideoYearNavbarDisplayLabel" Text="Year: {0}"/>
+    <String Name="FilterAudioLanguagesNavbarDisplayLabel" Text="Language: {0}"/>
     <String Name="FilterImageSizeNavbarDisplayLabel" Text="Size: {0}"/>
     <String Name="FilterImageYearNavbarDisplayLabel" Text="Year: {0}"/>
     <String Name="FilterAudioItemsNavbarDisplayLabel" Text="Name: {0}"/>
@@ -100,6 +102,7 @@
     <String Name="ChooseImageYearHeader" Text="Choose a year"/>
     <String Name="ChooseImageSizeHeader" Text="Choose a size"/>
     <String Name="ChooseSystemHeader" Text="Choose a system"/>
+    <String Name="ChooseVideoLanguageHeader" Text="Choose a language"/>
 
     <String Name="PlaylistsOverviewHeader" Text="Playlists"/>
     <String Name="SavePlaylistEditNameHeader" Text="Save playlist"/>
