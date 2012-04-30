@@ -118,6 +118,7 @@
     <Compile Include="Actions\BrowseLocalMediaAction.cs" />
     <Compile Include="Controls\AudioSpectrumAnalyzer.cs" />
     <Compile Include="FilterCriteria\FilterBySystemCriterion.cs" />
+    <Compile Include="FilterCriteria\LanguageFilterCriterion.cs" />
     <Compile Include="General\Consts.cs" />
     <Compile Include="Models\BasePlayerModel.cs" />
     <Compile Include="Models\MediaSortingModel.cs" />

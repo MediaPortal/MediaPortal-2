@@ -58,7 +58,7 @@ namespace MediaPortal.UiComponents.Media.FilterCriteria
       int numEmptyEntries = 0;
       foreach (KeyValuePair<object, object> group in valueGroups)
       {
-        string name = string.Format("{0}", group.Key).Trim();
+        string name = GetDisplayName(group.Key);
         if (name == string.Empty)
           numEmptyEntries += (int) group.Value;
         else
@@ -67,6 +67,11 @@ namespace MediaPortal.UiComponents.Media.FilterCriteria
       if (numEmptyEntries > 0)
         result.Insert(0, new FilterValue(Consts.RES_VALUE_EMPTY_TITLE, new EmptyFilter(_attributeType), null, numEmptyEntries, this));
       return result;
+    }
+
+    protected virtual string GetDisplayName (object groupKey)
+    {
+      return string.Format("{0}", groupKey).Trim();
     }
 
     public override ICollection<FilterValue> GroupValues(ICollection<Guid> necessaryMIATypeIds, IFilter selectAttributeFilter, IFilter filter)

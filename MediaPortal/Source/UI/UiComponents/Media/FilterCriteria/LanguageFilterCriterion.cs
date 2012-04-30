@@ -22,22 +22,40 @@
 
 #endregion
 
-using MediaPortal.Common.MediaManagement.DefaultItemAspects;
-using MediaPortal.UiComponents.Media.FilterCriteria;
-using MediaPortal.UiComponents.Media.General;
+using System;
+using System.Globalization;
+using MediaPortal.Common.MediaManagement;
 
-namespace MediaPortal.UiComponents.Media.Models.ScreenData
+namespace MediaPortal.UiComponents.Media.FilterCriteria
 {
-  public class VideosFilterByLanguageScreenData : AbstractVideosFilterScreenData
+  /// <summary>
+  /// Filter criterion which creates a filter by a simple attribute value.
+  /// </summary>
+  public class LanguageFilterCriterion : SimpleMLFilterCriterion
   {
-    public VideosFilterByLanguageScreenData() :
-        base(Consts.SCREEN_VIDEOS_FILTER_BY_AUDIO_LANG, Consts.RES_FILTER_BY_AUDIO_LANG_MENU_ITEM,
-        Consts.RES_FILTER_AUDIO_LANG_NAVBAR_DISPLAY_LABEL, new LanguageFilterCriterion(VideoAspect.ATTR_AUDIOLANGUAGES))
+    public LanguageFilterCriterion(MediaItemAspectMetadata.AttributeSpecification attributeType)
+      : base(attributeType)
     { }
 
-    public override AbstractFiltersScreenData Derive()
+    #region Base overrides
+
+    protected override string GetDisplayName(object groupKey)
     {
-      return new VideosFilterByLanguageScreenData();
+      if (groupKey == null)
+        return string.Empty;
+
+      string lang2 = groupKey.ToString();
+      try
+      {
+        CultureInfo cultureInfo = new CultureInfo(lang2);
+        return cultureInfo.DisplayName;
+      }
+      catch (ArgumentException)
+      { 
+        return string.Empty;
+      }
     }
+
+    #endregion
   }
 }
