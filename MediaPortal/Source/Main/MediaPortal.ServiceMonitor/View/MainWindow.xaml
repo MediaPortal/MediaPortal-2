@@ -1,0 +1,35 @@
+﻿<Window x:Class="MediaPortal.ServiceMonitor.View.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:TaskbarNotification="clr-namespace:Hardcodet.Wpf.TaskbarNotification;assembly=Hardcodet.Wpf.TaskbarNotification" Title="MP2-ServiceMonitor" 
+        Height="350" Width="525"
+        Background="{DynamicResource WindowBackgroundBrush}">
+
+  
+  <Grid x:Name="layoutRoot">
+    <Grid.RowDefinitions>
+      <RowDefinition Height="Auto" />
+      <RowDefinition Height="*" />
+      <RowDefinition Height="Auto" />
+    </Grid.RowDefinitions>
+
+    <TextBlock Grid.Row="0" Margin="10,20,10,0"
+      TextWrapping="Wrap"
+      VerticalAlignment="Top"
+      Height="22"
+      Style="{DynamicResource TitleLabel}"
+      Text="Attached Clients" />
+    
+      <ListView Grid.Row="1" Background="Transparent">
+      <ListView.View>
+        <GridView>
+          <GridViewColumn Header="Client" DisplayMemberBinding="{Binding Path=Client}" />
+          <GridViewColumn Header="System" DisplayMemberBinding="{Binding Path=System}" />
+          <GridViewColumn Header="Connection State" DisplayMemberBinding="{Binding Path=ConnectionState}" />
+        </GridView>
+      </ListView.View>
+
+    </ListView>
+
+  </Grid>
+  
+</Window>

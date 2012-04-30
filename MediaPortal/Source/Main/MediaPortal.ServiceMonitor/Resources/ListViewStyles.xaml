@@ -1,0 +1,29 @@
+﻿<ResourceDictionary
+  xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+  xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+   >
+
+  <!-- default listview style -->
+  <Style TargetType="{x:Type ListView}">
+    <Setter Property="Background" Value="{DynamicResource ListViewBackgroundBrush}" />
+    <Setter Property="Foreground" Value="{DynamicResource Foreground}" />
+    <Setter Property="BorderBrush" Value="{DynamicResource ListViewBorderBrush}" />
+    <Setter Property="SelectionMode" Value="Single" />
+    <Setter Property="FontSize" Value="14" />
+    <Setter Property="HorizontalAlignment" Value="Left" />
+    <Setter Property="VerticalAlignment" Value="Top" />
+  </Style>
+
+  <!--  x:Key="GridViewColumnHeaderStyle"-->
+  <Style TargetType="{x:Type GridViewColumnHeader}">
+    <Setter Property="Background" Value="{DynamicResource ListViewColumnHeaderBackground}" />
+    <Setter Property="Height" Value="30" />
+    <Setter Property="Padding" Value="2,0,0,0" />
+    <Setter Property="FontWeight" Value="Bold" />
+    <Setter Property="Foreground" Value="{DynamicResource Foreground}" />
+    <Setter Property="BorderBrush" Value="{DynamicResource ColumnHeaderBorder}" />
+    <Setter Property="BorderThickness" Value="0,0,0,1" />
+    <Setter Property="VerticalContentAlignment" Value="Center" />
+  </Style>
+  
+</ResourceDictionary>
