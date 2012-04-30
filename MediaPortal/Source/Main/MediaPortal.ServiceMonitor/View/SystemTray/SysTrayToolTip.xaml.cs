@@ -23,6 +23,8 @@
 #endregion
 
 using System.Windows.Controls;
+using MediaPortal.Common;
+using MediaPortal.ServiceMonitor.ViewModel;
 
 namespace MediaPortal.ServiceMonitor.View.SystemTray
 {
@@ -34,6 +36,9 @@ namespace MediaPortal.ServiceMonitor.View.SystemTray
     public SysTrayToolTip()
     {
       InitializeComponent();
+
+      var viewModel = ServiceRegistration.Get<IAppController>();
+      DataContext = viewModel;
     }
   }
 }

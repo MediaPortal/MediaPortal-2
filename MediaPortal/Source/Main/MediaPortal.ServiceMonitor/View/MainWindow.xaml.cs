@@ -23,6 +23,8 @@
 #endregion
 
 using System.Windows;
+using MediaPortal.Common;
+using MediaPortal.ServiceMonitor.ViewModel;
 
 namespace MediaPortal.ServiceMonitor.View
 {
@@ -34,6 +36,9 @@ namespace MediaPortal.ServiceMonitor.View
     public MainWindow()
     {
       InitializeComponent();
+
+      var viewModel = ServiceRegistration.Get<IAppController>();
+      DataContext = viewModel;
     }
   }
 }

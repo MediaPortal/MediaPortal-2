@@ -23,9 +23,12 @@
 #endregion
 
 using System;
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Windows;
 using Hardcodet.Wpf.TaskbarNotification;
+using MediaPortal.ServiceMonitor.Model;
 using MediaPortal.ServiceMonitor.View;
 
 namespace MediaPortal.ServiceMonitor.ViewModel
@@ -59,6 +62,36 @@ namespace MediaPortal.ServiceMonitor.ViewModel
 
     #endregion
 
+    #region Attached Clients
+    public ObservableCollection<ClientData> Clients { get; set; }
+
+
+    #endregion
+
+    #region ServerStatus
+
+    private ServerStatus _status;
+    public ServerStatus Status
+    {
+      get { return _status; }
+      set { SetProperty(ref _status, value, "Status"); }
+    }
+
+    #endregion
+
+
+    public AppController()
+    {
+      Clients = new ObservableCollection<ClientData>();
+      //---- FOR TESTING ONLY -----------------------------------
+      Clients.Add(new ClientData{ IsConnected = false, Name ="Test1", System ="System1"});
+      Clients.Add(new ClientData { IsConnected = true, Name = "Test2", System = "System2" });
+      Status = new ServerStatus{Message = "Server is not running"};
+      //---- FOR TESTING ONLY -----------------------------------
+    }
+
+
+
     #region Show Main Window
 
     /// <summary>
@@ -76,6 +109,10 @@ namespace MediaPortal.ServiceMonitor.ViewModel
         app.MainWindow.Show();
         app.MainWindow.Activate();
         app.MainWindow.Closing += OnMainWindowClosing;
+        if (TaskbarIcon == null)
+        {
+          TaskbarIcon = InitSystemTray();
+        }
       }
       else
       {
@@ -85,7 +122,7 @@ namespace MediaPortal.ServiceMonitor.ViewModel
       }
 
       //hide tray icon
-      if (TaskbarIcon != null) TaskbarIcon.Visibility = Visibility.Collapsed;
+      //if (TaskbarIcon != null) TaskbarIcon.Visibility = Visibility.Collapsed;
     }
 
 
@@ -180,6 +217,8 @@ namespace MediaPortal.ServiceMonitor.ViewModel
 
     public void Dispose()
     {
+      //reset system tray handler
+      TaskbarIcon = null;
     }
 
     #endregion
@@ -187,6 +226,15 @@ namespace MediaPortal.ServiceMonitor.ViewModel
     #region Implementation of INotifyPropertyChanged
 
     public event PropertyChangedEventHandler PropertyChanged;
+
+    protected void SetProperty<T>(ref T field, T value, string propertyName)
+    {
+      if (!EqualityComparer<T>.Default.Equals(field, value))
+      {
+        field = value;
+        OnPropertyChanged(propertyName);
+      }
+    }
 
     protected void OnPropertyChanged(string propertyName)
     {

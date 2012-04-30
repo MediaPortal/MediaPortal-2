@@ -41,6 +41,9 @@ namespace MediaPortal.ServiceMonitor.Commands
     /// </summary>
     public override void Execute(object parameter)
     {
+      if (!ServiceRegistration.IsRegistered<IAppController>())
+        return;
+
       var controller = ServiceRegistration.Get<IAppController>();
       switch ((string) parameter)
       {
@@ -70,22 +73,35 @@ namespace MediaPortal.ServiceMonitor.Commands
 
     public override bool CanExecute(object parameter)
     {
-      var controller = ServiceRegistration.Get<IAppController>();
-      if (controller.TaskbarIcon == null) return true;
-
+      Visibility visibility;
+      if (Application.Current.MainWindow != null)
+      {
+        visibility = Application.Current.MainWindow.Visibility;
+      }
+      else if (ServiceRegistration.IsRegistered<IAppController>())
+      {
+        var controller = ServiceRegistration.Get<IAppController>();
+        if (controller.TaskbarIcon != null)
+        {
+          visibility = controller.TaskbarIcon.Visibility == Visibility.Visible ? Visibility.Collapsed : Visibility.Visible;
+        }
+        else return true;
+      }
+        else return true;
+      
       switch ((string)parameter)
       {
         case "Open": // Open Main Window
-          return controller.TaskbarIcon.Visibility == Visibility.Visible;
+          return visibility != Visibility.Visible;
 
         case "Quit": // Quit Main Application
           return true;
 
         case "Close": // Close Main Window
-          return controller.TaskbarIcon.Visibility != Visibility.Visible;
+          return visibility == Visibility.Visible;
 
         case "Minimize": // Minimize to Tray
-          return controller.TaskbarIcon.Visibility != Visibility.Visible;
+          return visibility == Visibility.Visible;
 
         case "StartService": // Start the MP2-Server as Service
           return false;

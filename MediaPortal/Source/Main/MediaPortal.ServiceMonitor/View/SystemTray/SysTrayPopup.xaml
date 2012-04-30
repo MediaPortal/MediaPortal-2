@@ -8,7 +8,6 @@
   PopupAnimation="Fade"
   VerticalOffset="-2">
 
-
   <Grid MinHeight="60">
     <Border HorizontalAlignment="Stretch" CornerRadius="6,6,6,6" Background="{DynamicResource DialogBackgroundBrush}" Margin="5,5,5,5" BorderThickness="0,0,0,0">
       <Border.Effect>

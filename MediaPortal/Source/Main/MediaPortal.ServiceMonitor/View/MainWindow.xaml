@@ -1,14 +1,20 @@
 ﻿<Window x:Class="MediaPortal.ServiceMonitor.View.MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:TaskbarNotification="clr-namespace:Hardcodet.Wpf.TaskbarNotification;assembly=Hardcodet.Wpf.TaskbarNotification" Title="MP2-ServiceMonitor" 
-        Height="350" Width="525"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" 
+        xmlns:Converters="clr-namespace:MediaPortal.ServiceMonitor.Converters"
+        MinWidth="200" MinHeight="200"
+        Width="350" Height="250"
+        Title="MP2-ServiceMonitor" 
         Background="{DynamicResource WindowBackgroundBrush}">
 
-  
+  <Window.Resources>
+    <Converters:ConnectionStatusToImageConverter x:Key="ConStatusToImageConverter"/>
+  </Window.Resources>
+      
   <Grid x:Name="layoutRoot">
     <Grid.RowDefinitions>
       <RowDefinition Height="Auto" />
-      <RowDefinition Height="*" />
+      <RowDefinition Height="Auto" />
       <RowDefinition Height="Auto" />
     </Grid.RowDefinitions>
 
@@ -19,12 +25,21 @@
       Style="{DynamicResource TitleLabel}"
       Text="Attached Clients" />
     
-      <ListView Grid.Row="1" Background="Transparent">
+      <ListView Grid.Row="1" Background="Transparent" ItemsSource="{Binding Path=Clients}">
       <ListView.View>
         <GridView>
-          <GridViewColumn Header="Client" DisplayMemberBinding="{Binding Path=Client}" />
+          <GridViewColumn Header="Client" >
+            <GridViewColumn.CellTemplate>
+              <DataTemplate>
+                <DockPanel>
+                  <Image DockPanel.Dock="Left" Width="16" Height="16" VerticalAlignment="Center" HorizontalAlignment="Center"
+                         Source="{Binding Path=IsConnected, Converter={StaticResource ConStatusToImageConverter}}" />
+                  <TextBlock TextWrapping="WrapWithOverflow" Margin="2,0,2,0" Text="{Binding Path=Name}" VerticalAlignment="Center"  FontSize="14"  />
+                </DockPanel>
+              </DataTemplate>
+            </GridViewColumn.CellTemplate>
+          </GridViewColumn>
           <GridViewColumn Header="System" DisplayMemberBinding="{Binding Path=System}" />
-          <GridViewColumn Header="Connection State" DisplayMemberBinding="{Binding Path=ConnectionState}" />
         </GridView>
       </ListView.View>
 

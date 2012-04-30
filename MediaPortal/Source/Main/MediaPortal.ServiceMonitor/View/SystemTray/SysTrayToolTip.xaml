@@ -2,19 +2,35 @@
   x:Class="MediaPortal.ServiceMonitor.View.SystemTray.SysTrayToolTip"
   xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
   xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+  xmlns:Converters="clr-namespace:MediaPortal.ServiceMonitor.Converters"
   Height="56"
   Width="277">
-  <Grid>
-    <Border HorizontalAlignment="Stretch" Background="{DynamicResource DialogBackgroundBrush}" BorderThickness="1,1,1,1" BorderBrush="{DynamicResource PopupBorderBrush}"
-      Margin="0,0,5,5">
+  
+  <UserControl.Resources>
+    <Converters:ServerStatusToImageConverter x:Key="SrvStatToImgConverter"/>
+  </UserControl.Resources>
+
+
+    <Grid>
+    <Border HorizontalAlignment="Stretch" Background="{DynamicResource DialogBackgroundBrush}" 
+            BorderThickness="1,1,1,1" BorderBrush="{DynamicResource PopupBorderBrush}" Margin="0,0,5,5">
       <Border.Effect>
         <DropShadowEffect Color="#FF4D4D4D" />
       </Border.Effect>
     </Border>
+
+    <Image HorizontalAlignment="Left" Margin="13,10,0,14" Width="32"
+      Source="{Binding Path=Status, Converter={StaticResource SrvStatToImgConverter}, ConverterParameter=ToolTipImage}"
+      Stretch="Fill" />
     
-    
-    
-    
+    <TextBlock
+      HorizontalAlignment="Right"
+      Margin="0,10,10,0"
+      Style="{DynamicResource TitleLabel}"
+      VerticalAlignment="Top"
+      TextWrapping="Wrap"
+      Text="{Binding  Path=Status.Message}" />
+
     <TextBlock
       HorizontalAlignment="Right"
       Margin="0,0,10,10"

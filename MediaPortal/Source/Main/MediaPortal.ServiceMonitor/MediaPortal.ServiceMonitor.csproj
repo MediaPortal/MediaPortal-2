@@ -78,6 +78,10 @@
     <Compile Include="Commands\ApplicationCommand.cs" />
     <Compile Include="Commands\CommandExtension.cs" />
     <Compile Include="Converters\BooleanToCollapsedVisibilityConverter.cs" />
+    <Compile Include="Converters\ConnectionStatusToImageConverter.cs" />
+    <Compile Include="Converters\ServerStatusToImageConverter.cs" />
+    <Compile Include="Model\ClientData.cs" />
+    <Compile Include="Model\ServerStatus.cs" />
     <Compile Include="ViewModel\IAppController.cs" />
     <Compile Include="View\AboutDialog.xaml.cs">
       <DependentUpon>AboutDialog.xaml</DependentUpon>
@@ -163,6 +167,7 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Resources\TrayIcons\" />
+    <Folder Include="ServerCommunication\" />
   </ItemGroup>
   <ItemGroup>
     <Resource Include="Resources\Images\Logo.png" />
@@ -213,6 +218,10 @@
   </ItemGroup>
   <ItemGroup>
     <Resource Include="MP2-ServiceMonitor.ico" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resources\Images\Connected.png" />
+    <Resource Include="Resources\Images\Disconnected.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
