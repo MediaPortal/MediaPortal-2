@@ -82,6 +82,16 @@ namespace MediaInfoLib
         FileOption_Max          = 0x04
     };
 
+    [Flags]
+    public enum BufferResult
+    {
+        Accepted, // bit 0: Is Accepted (format is known)
+        Filled, // bit 1: Is Filled (main data is collected)
+        Updated, // bit 2: Is Updated (some data have beed updated, example: duration for a real time MPEG-TS stream)
+        Finalized // bit 3: Is Finalized (No more data is needed, will not use further data)
+        // bit 4-15: Reserved
+        // bit 16-31: User defined
+    }
 
     public class MediaInfo
     {
@@ -159,9 +169,9 @@ namespace MediaInfoLib
         {
             return (int)MediaInfo_Open_Buffer_Init(Handle, File_Size, File_Offset);
         }
-        public int Open_Buffer_Continue(IntPtr Buffer, IntPtr Buffer_Size)
+        public BufferResult Open_Buffer_Continue(IntPtr Buffer, IntPtr Buffer_Size)
         {
-            return (int)MediaInfo_Open_Buffer_Continue(Handle, Buffer, Buffer_Size);
+            return (BufferResult)MediaInfo_Open_Buffer_Continue(Handle, Buffer, Buffer_Size);
         }
         public Int64 Open_Buffer_Continue_GoTo_Get()
         {

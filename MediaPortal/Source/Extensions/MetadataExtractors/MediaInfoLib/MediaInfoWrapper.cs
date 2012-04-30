@@ -137,7 +137,7 @@ namespace MediaInfoLib
         {
           bytesRead = stream.Read(buffer, 0, bufferSize);
 
-          if (_mediaInfo.Open_Buffer_Continue(bufferPtr, (IntPtr) bytesRead) == 0)
+          if ((_mediaInfo.Open_Buffer_Continue(bufferPtr, (IntPtr)bytesRead) & BufferResult.Finalized) == BufferResult.Finalized)
             // MediaInfo doesn't need more information from us
             break;
 
