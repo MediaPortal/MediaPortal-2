@@ -19,11 +19,8 @@
  */
 
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 
-namespace TvdbLib.Exceptions
+namespace MediaPortal.Extensions.OnlineLibraries.Libraries.TvdbLib.Exceptions
 {
   /// <summary>
   /// Exception thrown when no user has been found
@@ -33,8 +30,8 @@ namespace TvdbLib.Exceptions
     /// <summary>
     /// TvdbUserNotFoundException constructor
     /// </summary>
-    /// <param name="_text">Message</param>
-    public TvdbUserNotFoundException(String _text): base(_text)
+    /// <param name="text">Message</param>
+    public TvdbUserNotFoundException(String text): base(text)
     {
     }
   }

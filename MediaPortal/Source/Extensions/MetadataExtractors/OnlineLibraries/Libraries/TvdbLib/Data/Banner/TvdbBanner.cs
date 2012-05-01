@@ -19,16 +19,12 @@
  */
 
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Drawing;
 using System.Net;
 using System.IO;
-using System.Threading;
-using TvdbLib.Cache;
+using MediaPortal.Extensions.OnlineLibraries.Libraries.TvdbLib.Cache;
 
-namespace TvdbLib.Data
+namespace MediaPortal.Extensions.OnlineLibraries.Libraries.TvdbLib.Data.Banner
 {
   /// <summary>
   /// Tvdb Banners are the graphical element of tvdb. There are different types of banners which are
@@ -44,7 +40,7 @@ namespace TvdbLib.Data
   /// </item>                    
   /// <item>
   ///   <term>TvdbSeasonBanner</term>
-  ///   <description>Banner for each season of a series, dvd-style (400 x 578) or banner style (758 x 140) (http://thetvdb.com/wiki/index.php/Wide_Season_Banners)</description>
+  ///   <description>Banner for each Season of a series, dvd-style (400 x 578) or banner style (758 x 140) (http://thetvdb.com/wiki/index.php/Wide_Season_Banners)</description>
   /// </item>                    
   /// <item>
   ///   <term>TvdbSeriesBanner</term>
@@ -60,16 +56,14 @@ namespace TvdbLib.Data
   public class TvdbBanner
   {
     #region private/protected fields
-    private String m_bannerPath;
-    private Image m_banner;
-    private bool m_isLoaded;
-    private int m_id;
-    private TvdbLanguage m_language;
-    private bool m_bannerLoading = false;
-    private System.Object m_bannerLoadingLock = new System.Object();
-    private DateTime m_lastUpdated;
-    private int m_seriesId;
-    private ICacheProvider m_cacheProvider;
+
+    private readonly object _bannerLoadingLock = new object();
+
+    public TvdbBanner ()
+    {
+      BannerLoading = false;
+    }
+
     #endregion
 
     /// <summary>
@@ -80,82 +74,47 @@ namespace TvdbLib.Data
     /// 
     /// todo: think of a better way to handle this
     /// </summary>
-    public ICacheProvider CacheProvider
-    {
-      get { return m_cacheProvider; }
-      set { m_cacheProvider = value; }
-    }
+    public ICacheProvider CacheProvider { get; set; }
 
     /// <summary>
     /// Language of the banner
     /// </summary>
-    public TvdbLanguage Language
-    {
-      get { return m_language; }
-      set { m_language = value; }
-    }
+    public TvdbLanguage Language { get; set; }
 
     /// <summary>
     /// Id of the banner
     /// </summary>
-    public int Id
-    {
-      get { return m_id; }
-      set { m_id = value; }
-    }
+    public int Id { get; set; }
 
     /// <summary>
     /// Image data of the banner
     /// </summary>
-    public Image BannerImage
-    {
-      get { return m_banner; }
-      set { m_banner = value; }
-    }
+    public Image BannerImage { get; set; }
 
     /// <summary>
     /// True if the image data has been already loaded, false otherwise
     /// </summary>
-    public bool IsLoaded
-    {
-      get { return m_isLoaded; }
-    }
+    public bool IsLoaded { get; private set; }
 
     /// <summary>
     /// Is the banner currently beeing loaded
     /// </summary>
-    public bool BannerLoading
-    {
-      get { return m_bannerLoading; }
-      set { m_bannerLoading = value; }
-    }
+    public bool BannerLoading { get; set; }
 
     /// <summary>
     /// Path to the location on the tvdb server where the image is located
     /// </summary>
-    public String BannerPath
-    {
-      get { return m_bannerPath; }
-      set { m_bannerPath = value; }
-    }
+    public string BannerPath { get; set; }
 
     /// <summary>
     /// When was the banner updated the last time
     /// </summary>
-    public DateTime LastUpdated
-    {
-      get { return m_lastUpdated; }
-      set { m_lastUpdated = value; }
-    }
+    public DateTime LastUpdated { get; set; }
 
     /// <summary>
     /// Id of the series this banner belongs to
     /// </summary>
-    public int SeriesId
-    {
-      get { return m_seriesId; }
-      set { m_seriesId = value; }
-    }
+    public int SeriesId { get; set; }
 
     /// <summary>
     /// Loads the actual image data of the banner
@@ -169,54 +128,54 @@ namespace TvdbLib.Data
     /// <summary>
     /// Loads the actual image data of the banner
     /// </summary>
-    /// <param name="_replaceOld">If true will replace an old image (if one exists already)</param>
+    /// <param name="replaceOld">If true will replace an old image (if one exists already)</param>
     /// <returns>true if the banner could be loaded successfully, false otherwise</returns>
-    public bool LoadBanner(bool _replaceOld)
+    public bool LoadBanner(bool replaceOld)
     {
-      bool wasLoaded = m_isLoaded;//is the banner already loaded at this point
-      lock (m_bannerLoadingLock)
+      bool wasLoaded = IsLoaded;//is the banner already loaded at this point
+      lock (_bannerLoadingLock)
       {//if another thread is already loading THIS banner, the lock will block this thread until the other thread
         //has finished loading
-        if (!wasLoaded && !_replaceOld && m_isLoaded)
+        if (!wasLoaded && !replaceOld && IsLoaded)
         {////the banner has already been loaded from a different thread and we don't want to replace it
           return false;
         }
 
-        m_bannerLoading = true;
-        if (m_bannerPath.Equals("")) return false;
+        BannerLoading = true;
+        if (BannerPath.Equals("")) return false;
         try
         {
           Image img = null;
-          String cacheName = CreateCacheName(m_bannerPath, false);
-          if (m_cacheProvider != null && m_cacheProvider.Initialised)
+          String cacheName = CreateCacheName(BannerPath, false);
+          if (CacheProvider != null && CacheProvider.Initialised)
           {//try to load the image from cache first
-            img = m_cacheProvider.LoadImageFromCache(m_seriesId, cacheName);
+            img = CacheProvider.LoadImageFromCache(SeriesId, cacheName);
           }
 
           if (img == null)
           {//couldn't load image from cache -> load it from http://thetvdb.com
-            img = LoadImage(TvdbLinkCreator.CreateBannerLink(m_bannerPath));
+            img = LoadImage(TvdbLinkCreator.CreateBannerLink(BannerPath));
 
-            if (img != null && m_cacheProvider != null && m_cacheProvider.Initialised)
+            if (img != null && CacheProvider != null && CacheProvider.Initialised)
             {//store the image to cache
-              m_cacheProvider.SaveToCache(img, m_seriesId, cacheName);
+              CacheProvider.SaveToCache(img, SeriesId, cacheName);
             }
           }
 
           if (img != null)
           {//image was successfully loaded
-            m_banner = img;
-            m_isLoaded = true;
-            m_bannerLoading = false;
+            BannerImage = img;
+            IsLoaded = true;
+            BannerLoading = false;
             return true;
           }
         }
         catch (WebException ex)
         {
-          Log.Error("Couldn't load banner " + m_bannerPath, ex);
+          Log.Error("Couldn't load banner " + BannerPath, ex);
         }
-        m_isLoaded = false;
-        m_bannerLoading = false;
+        IsLoaded = false;
+        BannerLoading = false;
         return false;
       }
     }
@@ -233,96 +192,84 @@ namespace TvdbLib.Data
     /// <summary>
     /// Unloads the image
     /// </summary>
-    /// <param name="_saveToCache">should the image kept in cache</param>
+    /// <param name="saveToCache">should the image kept in cache</param>
     /// <returns>true if successful, false otherwise</returns>
-    public bool UnloadBanner(bool _saveToCache)
+    public bool UnloadBanner(bool saveToCache)
     {
-      if (m_bannerLoading)
+      if (BannerLoading)
       {//banner is currently loading
         Log.Warn("Can't remove banner while it's loading");
         return false;
       }
-      else
+      try
       {
-        try
+        if (IsLoaded)
         {
-          if (m_isLoaded)
-          {
-            LoadBanner(null);
-          }
-          if (!_saveToCache)
-          {//we don't want the image in cache -> if we already cached it it should be deleted
-            String cacheName = CreateCacheName(m_bannerPath, false);
-            if (m_cacheProvider != null && m_cacheProvider.Initialised)
-            {//try to load the image from cache first
-              m_cacheProvider.RemoveImageFromCache(m_seriesId, cacheName);
-            }
+          LoadBanner(null);
+        }
+        if (!saveToCache)
+        {//we don't want the image in cache -> if we already cached it it should be deleted
+          String cacheName = CreateCacheName(BannerPath, false);
+          if (CacheProvider != null && CacheProvider.Initialised)
+          {//try to load the image from cache first
+            CacheProvider.RemoveImageFromCache(SeriesId, cacheName);
           }
         }
-        catch (Exception ex)
-        {
-          Log.Warn("Error while unloading banner", ex);
-        }
-        return true;
       }
+      catch (Exception ex)
+      {
+        Log.Warn("Error while unloading banner", ex);
+      }
+      return true;
     }
 
     /// <summary>
     /// Creates the name used to store images in cache
     /// </summary>
-    /// <param name="_path">Path of the image</param>
-    /// <param name="_thumb">Is the image a thumbnail</param>
+    /// <param name="path">Path of the image</param>
+    /// <param name="thumb">Is the image a thumbnail</param>
     /// <returns>Name used for caching image</returns>
-    protected String CreateCacheName(String _path, bool _thumb)
+    protected String CreateCacheName(String path, bool thumb)
     {
-      if (_path.Contains("_cache/"))
-      {
-        _path = _path.Replace("_cache/", "");
-      }
-      if (_path.Contains("fanart/original/"))
-      {
-        _path = _path.Replace("fanart/original/", "fan-");
-      }
-      else if (_path.Contains("fanart/vignette/"))
-      {
-        _path = _path.Replace("fanart/vignette/", "fan-vig-");
-      }
-      _path = _path.Replace('/', '_');
-      return (_thumb ? "thumb_": "img_") + _path;
+      if (path.Contains("_cache/"))
+        path = path.Replace("_cache/", "");
+      if (path.Contains("fanart/original/"))
+        path = path.Replace("fanart/original/", "fan-");
+      else if (path.Contains("fanart/vignette/"))
+        path = path.Replace("fanart/vignette/", "fan-vig-");
+      path = path.Replace('/', '_');
+      return (thumb ? "thumb_": "img_") + path;
     }
 
     /// <summary>
     /// Loads the banner with the given image
     /// </summary>
-    /// <param name="_img">Image object that should be used for this banner</param>
+    /// <param name="img">Image object that should be used for this banner</param>
     /// <returns>True if successful, false otherwise</returns>
-    public bool LoadBanner(Image _img)
+    public bool LoadBanner(Image img)
     {
-      if (_img != null)
+      if (img != null)
       {
-        m_banner = _img;
-        m_isLoaded = true;
+        BannerImage = img;
+        IsLoaded = true;
         return true;
       }
-      else
-      {
-        m_banner = null;
-        m_isLoaded = false;
-        return false;
-      }
+      BannerImage = null;
+      IsLoaded = false;
+      return false;
     }
 
     /// <summary>
     /// Loads the image from the given path
     /// </summary>
-    /// <param name="_path">Path of image that should be used for this banner</param>
+    /// <param name="path">Path of image that should be used for this banner</param>
     /// <returns>True if successful, false otherwise</returns>
-    protected Image LoadImage(String _path)
+    protected Image LoadImage(String path)
     {
       try
       {
         WebClient client = new WebClient();
-        byte[] imgData = client.DownloadData(_path);
+        byte[] imgData = client.DownloadData(path);
         MemoryStream ms = new MemoryStream(imgData);
         Image img = Image.FromStream(ms, true, true);
         return img;

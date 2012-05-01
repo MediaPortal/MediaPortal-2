@@ -22,10 +22,9 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using TvdbLib.Data.Banner;
-using TvdbLib.Data;
+using MediaPortal.Extensions.OnlineLibraries.Libraries.TvdbLib.Data.Banner;
 
-namespace TvdbLib.Data
+namespace MediaPortal.Extensions.OnlineLibraries.Libraries.TvdbLib.Data
 {
   /// <summary>
   /// Series class holds all the info that can be retrieved from http://thetvdb.com.  <br/>
@@ -68,7 +67,7 @@ namespace TvdbLib.Data
   public class TvdbSeries : TvdbSeriesFields
   {
     #region private properties
-    private Dictionary<TvdbLanguage, TvdbSeriesFields> m_seriesTranslations;
+    private Dictionary<TvdbLanguage, TvdbSeriesFields> _seriesTranslations;
     #endregion
 
     /// <summary>
@@ -76,95 +75,89 @@ namespace TvdbLib.Data
     /// </summary>
     public TvdbSeries()
     {
-      m_banners = new List<TvdbBanner>();
-      m_bannersLoaded = false;
-      m_tvdbActorsLoaded = false;
+      _banners = new List<TvdbBanner>();
+      _bannersLoaded = false;
+      _tvdbActorsLoaded = false;
 
     }
 
     /// <summary>
     /// Create a series object with all the information contained in the TvdbSeriesFields object
     /// </summary>
-    /// <param name="_fields"></param>
-    internal TvdbSeries(TvdbSeriesFields _fields)
+    /// <param name="fields"></param>
+    internal TvdbSeries(TvdbSeriesFields fields)
       : this()
     {
-      AddLanguage(_fields);
-      SetLanguage(_fields.Language);
+      AddLanguage(fields);
+      SetLanguage(fields.Language);
       //UpdateTvdbFields(_fields, true);
     }
 
 
-    internal void SetEpisodes(List<TvdbEpisode> _episodes)
+    internal void SetEpisodes(List<TvdbEpisode> episodes)
     {
-      foreach (KeyValuePair<TvdbLanguage, TvdbSeriesFields> kvp in m_seriesTranslations)
+      foreach (KeyValuePair<TvdbLanguage, TvdbSeriesFields> kvp in _seriesTranslations)
       {
-        if (kvp.Key.Abbriviation.Equals(this.Language.Abbriviation))
+        if (kvp.Key.Abbriviation.Equals(Language.Abbriviation))
         {
           kvp.Value.EpisodesLoaded = true;
           kvp.Value.Episodes.Clear();
-          kvp.Value.Episodes.AddRange(_episodes);
+          kvp.Value.Episodes.AddRange(episodes);
         }
       }
 
-      this.EpisodesLoaded = true;
-      this.Episodes.Clear();
-      this.Episodes.AddRange(_episodes);
+      EpisodesLoaded = true;
+      Episodes.Clear();
+      Episodes.AddRange(episodes);
     }
 
     /// <summary>
     /// Add a new language to the series
     /// </summary>
-    /// <param name="_fields"></param>
-    internal void AddLanguage(TvdbSeriesFields _fields)
+    /// <param name="fields"></param>
+    internal void AddLanguage(TvdbSeriesFields fields)
     {
-      if (m_seriesTranslations == null)
-      {
-        m_seriesTranslations = new Dictionary<TvdbLanguage, TvdbSeriesFields>();
-      }
+      if (_seriesTranslations == null)
+        _seriesTranslations = new Dictionary<TvdbLanguage, TvdbSeriesFields>();
 
       //delete translation if it already exists and overwrite it with a new one
-      if (m_seriesTranslations.ContainsKey(_fields.Language))
-      {
-        m_seriesTranslations.Remove(_fields.Language);
-      }
-      /*foreach (KeyValuePair<TvdbLanguage, TvdbSeriesFields> kvp in m_seriesTranslations)
+      if (_seriesTranslations.ContainsKey(fields.Language))
+        _seriesTranslations.Remove(fields.Language);
+
+      /*foreach (KeyValuePair<TvdbLanguage, TvdbSeriesFields> kvp in _seriesTranslations)
       {
         if (kvp.Key == _fields.Language)
         {
-          m_seriesTranslations.Remove(kvp.Key);
+          _seriesTranslations.Remove(kvp.Key);
         }
       }*/
 
-      m_seriesTranslations.Add(_fields.Language, _fields);
+      _seriesTranslations.Add(fields.Language, fields);
     }
 
     /// <summary>
     /// Set the language of the series to one of the languages that have
     /// already been loaded
     /// </summary>
-    /// <param name="_language">The new language for this series</param>
+    /// <param name="language">The new language for this series</param>
     /// <returns>true if success, false otherwise</returns>
-    public bool SetLanguage(TvdbLanguage _language)
+    public bool SetLanguage(TvdbLanguage language)
     {
-      return SetLanguage(_language.Abbriviation);
+      return SetLanguage(language.Abbriviation);
     }
 
     /// <summary>
     /// Set the language of the series to one of the languages that have
     /// already been loaded
     /// </summary>
-    /// <param name="_language">The new language abbriviation for this series</param>
+    /// <param name="language">The new language abbriviation for this series</param>
     /// <returns>true if success, false otherwise</returns>
-    public bool SetLanguage(String _language)
+    public bool SetLanguage(String language)
     {
-      foreach (KeyValuePair<TvdbLanguage, TvdbSeriesFields> kvp in m_seriesTranslations)
+      foreach (KeyValuePair<TvdbLanguage, TvdbSeriesFields> kvp in _seriesTranslations.Where(kvp => kvp.Key.Abbriviation.Equals(language)))
       {
-        if (kvp.Key.Abbriviation.Equals(_language))
-        {
-          this.UpdateTvdbFields(kvp.Value, true);
-          return true;
-        }
+        UpdateTvdbFields(kvp.Value, true);
+        return true;
       }
       return false;
     }
@@ -176,14 +169,7 @@ namespace TvdbLib.Data
     /// <returns>List of all translations that are loaded for this series</returns>
     public List<TvdbLanguage> GetAvailableLanguages()
     {
-      if (m_seriesTranslations != null)
-      {
-        return m_seriesTranslations.Keys.ToList();
-      }
-      else
-      {
-        return null;
-      }
+      return _seriesTranslations != null ? _seriesTranslations.Keys.ToList() : null;
     }
 
     /// <summary>
@@ -191,20 +177,20 @@ namespace TvdbLib.Data
     /// </summary>
     internal Dictionary<TvdbLanguage, TvdbSeriesFields> SeriesTranslations
     {
-      get { return m_seriesTranslations; }
-      set { m_seriesTranslations = value; }
+      get { return _seriesTranslations; }
+      set { _seriesTranslations = value; }
     }
 
     #region user properties
-    private bool m_isFavorite;
+    private bool _isFavorite;
 
     /// <summary>
     /// Is the series a favorite
     /// </summary>
     public bool IsFavorite
     {
-      get { return m_isFavorite; }
-      set { m_isFavorite = value; }
+      get { return _isFavorite; }
+      set { _isFavorite = value; }
     }
 
     #endregion
@@ -254,19 +240,19 @@ namespace TvdbLib.Data
     #region banners
 
     //all banners
-    private List<TvdbBanner> m_banners;
-    private bool m_bannersLoaded;
+    private List<TvdbBanner> _banners;
+    private bool _bannersLoaded;
 
     /// <summary>
     /// returns a list of all banners for this series
     /// </summary>
     public List<TvdbBanner> Banners
     {
-      get { return m_banners; }
+      get { return _banners; }
       set
       {
-        m_banners = value;
-        m_bannersLoaded = true;
+        _banners = value;
+        _bannersLoaded = true;
       }
     }
 
@@ -275,8 +261,8 @@ namespace TvdbLib.Data
     /// </summary>
     public bool BannersLoaded
     {
-      get { return m_bannersLoaded; }
-      set { m_bannersLoaded = value; }
+      get { return _bannersLoaded; }
+      set { _bannersLoaded = value; }
     }
 
     /// <summary>
@@ -286,53 +272,29 @@ namespace TvdbLib.Data
     {
       get
       {
-        List<TvdbSeriesBanner> retList = new List<TvdbSeriesBanner>();
-        foreach (TvdbBanner b in Banners)
-        {
-          if (b.GetType() == typeof(TvdbSeriesBanner))
-          {
-            retList.Add((TvdbSeriesBanner)b);
-          }
-        }
-        return retList;
+        return Banners.OfType<TvdbSeriesBanner>().ToList();
       }
     }
 
     /// <summary>
-    /// Returns a list of all season banners for this series
+    /// Returns a list of all Season banners for this series
     /// </summary>
     public List<TvdbSeasonBanner> SeasonBanners
     {
       get
       {
-        List<TvdbSeasonBanner> retList = new List<TvdbSeasonBanner>();
-        foreach (TvdbBanner b in Banners)
-        {
-          if (b.GetType() == typeof(TvdbSeasonBanner))
-          {
-            retList.Add((TvdbSeasonBanner)b);
-          }
-        }
-        return retList;
+        return Banners.OfType<TvdbSeasonBanner>().ToList();
       }
     }
 
     /// <summary>
-    /// Returns a list of all season banners for this series
+    /// Returns a list of all Season banners for this series
     /// </summary>
     public List<TvdbPosterBanner> PosterBanners
     {
       get
       {
-        List<TvdbPosterBanner> retList = new List<TvdbPosterBanner>();
-        foreach (TvdbBanner b in Banners)
-        {
-          if (b.GetType() == typeof(TvdbPosterBanner))
-          {
-            retList.Add((TvdbPosterBanner)b);
-          }
-        }
-        return retList;
+        return Banners.OfType<TvdbPosterBanner>().ToList();
       }
     }
 
@@ -343,15 +305,7 @@ namespace TvdbLib.Data
     {
       get
       {
-        List<TvdbFanartBanner> retList = new List<TvdbFanartBanner>();
-        foreach (TvdbBanner b in Banners)
-        {
-          if (b.GetType() == typeof(TvdbFanartBanner))
-          {
-            retList.Add((TvdbFanartBanner)b);
-          }
-        }
-        return retList;
+        return Banners.OfType<TvdbFanartBanner>().ToList();
       }
     }
 
@@ -360,23 +314,15 @@ namespace TvdbLib.Data
     #region episodes
 
     /// <summary>
-    /// Return a list of episodes for the given season
+    /// Return a list of episodes for the given Season
     /// </summary>
-    /// <param name="_season">Season for which episodes should be returned</param>
-    /// <returns>List of episodes for the given season</returns>
-    public List<TvdbEpisode> GetEpisodes(int _season)
+    /// <param name="season">Season for which episodes should be returned</param>
+    /// <returns>List of episodes for the given Season</returns>
+    public List<TvdbEpisode> GetEpisodes(int season)
     {
       List<TvdbEpisode> retList = new List<TvdbEpisode>();
       if (Episodes != null && Episodes.Count > 0 && EpisodesLoaded)
-      {
-        foreach (TvdbEpisode e in Episodes)
-        {
-          if (e.SeasonNumber == _season)
-          {
-            retList.Add(e);
-          }
-        }
-      }
+        retList.AddRange(Episodes.Where(e => e.SeasonNumber == season));
       return retList;
     }
 
@@ -387,22 +333,16 @@ namespace TvdbLib.Data
     {
       get
       {
+        int maxSeason = 0;
         if (Episodes != null && EpisodesLoaded && Episodes.Count > 0)
         {
-          int maxSeason = 0;
           foreach (TvdbEpisode e in Episodes)
           {
             if (e.SeasonNumber > maxSeason)
-            {
               maxSeason++;
-            }
           }
-          return maxSeason;
         }
-        else
-        {
-          return 0;
-        }
+        return maxSeason;
       }
     }
 
@@ -411,19 +351,19 @@ namespace TvdbLib.Data
 
     #region Actors
     //Actor Information
-    private List<TvdbActor> m_tvdbActors;
-    private bool m_tvdbActorsLoaded;
+    private List<TvdbActor> _tvdbActors;
+    private bool _tvdbActorsLoaded;
 
     /// <summary>
     /// List of loaded tvdb actors
     /// </summary>
     public List<TvdbActor> TvdbActors
     {
-      get { return m_tvdbActors; }
+      get { return _tvdbActors; }
       set
       {
-        m_tvdbActorsLoaded = true;
-        m_tvdbActors = value;
+        _tvdbActorsLoaded = true;
+        _tvdbActors = value;
       }
     }
 
@@ -432,8 +372,8 @@ namespace TvdbLib.Data
     /// </summary>
     public bool TvdbActorsLoaded
     {
-      get { return m_tvdbActorsLoaded; }
-      set { m_tvdbActorsLoaded = value; }
+      get { return _tvdbActorsLoaded; }
+      set { _tvdbActorsLoaded = value; }
     }
     #endregion
 
@@ -450,91 +390,83 @@ namespace TvdbLib.Data
     /// <summary>
     /// Uptdate the info of the current series with the updated one
     /// </summary>
-    /// <param name="_series">TvdbSeries object</param>
-    protected void UpdateSeriesInfo(TvdbSeries _series)
+    /// <param name="series">TvdbSeries object</param>
+    protected void UpdateSeriesInfo(TvdbSeries series)
     {
-      this.Actors = _series.Actors;
-      this.AirsDayOfWeek = _series.AirsDayOfWeek;
-      this.AirsTime = _series.AirsTime;
-      this.BannerPath = _series.BannerPath;
-      this.Banners = _series.Banners;
-      this.ContentRating = _series.ContentRating;
-      this.FanartPath = _series.FanartPath;
-      this.FirstAired = _series.FirstAired;
-      this.Genre = _series.Genre;
-      this.Id = _series.Id;
-      this.ImdbId = _series.ImdbId;
-      this.Language = _series.Language;
-      this.LastUpdated = _series.LastUpdated;
-      this.Network = _series.Network;
-      this.Overview = _series.Overview;
-      this.Rating = _series.Rating;
-      this.Runtime = _series.Runtime;
-      this.SeriesName = _series.SeriesName;
-      this.Status = _series.Status;
-      this.TvDotComId = _series.TvDotComId;
-      this.Zap2itId = _series.Zap2itId;
+      Actors = series.Actors;
+      AirsDayOfWeek = series.AirsDayOfWeek;
+      AirsTime = series.AirsTime;
+      BannerPath = series.BannerPath;
+      Banners = series.Banners;
+      ContentRating = series.ContentRating;
+      FanartPath = series.FanartPath;
+      FirstAired = series.FirstAired;
+      Genre = series.Genre;
+      Id = series.Id;
+      ImdbId = series.ImdbId;
+      Language = series.Language;
+      LastUpdated = series.LastUpdated;
+      Network = series.Network;
+      Overview = series.Overview;
+      Rating = series.Rating;
+      Runtime = series.Runtime;
+      SeriesName = series.SeriesName;
+      Status = series.Status;
+      TvDotComId = series.TvDotComId;
+      Zap2itId = series.Zap2itId;
 
-      if (_series.EpisodesLoaded)
+      if (series.EpisodesLoaded)
       {//check if the old series has any images loaded already -> if yes, save them
-        if (this.EpisodesLoaded)
+        if (EpisodesLoaded)
         {
-          foreach (TvdbEpisode oe in this.Episodes)
+          foreach (TvdbEpisode oe in Episodes)
           {
-            foreach (TvdbEpisode ne in _series.Episodes)
+            foreach (TvdbEpisode ne in series.Episodes)
             {
               if (oe.SeasonNumber == ne.SeasonNumber &&
                   oe.EpisodeNumber == ne.EpisodeNumber)
               {
                 if (oe.Banner != null && oe.Banner.IsLoaded)
-                {
                   ne.Banner = oe.Banner;
-                }
               }
             }
           }
         }
 
-        this.Episodes.Clear();
-        this.Episodes.AddRange(_series.Episodes);
+        Episodes.Clear();
+        Episodes.AddRange(series.Episodes);
       }
 
-      if (_series.TvdbActorsLoaded)
+      if (series.TvdbActorsLoaded)
       {//check if the old series has any images loaded already -> if yes, save them
-        if (this.TvdbActorsLoaded)
+        if (TvdbActorsLoaded)
         {
-          foreach (TvdbActor oa in this.TvdbActors)
+          foreach (TvdbActor oa in TvdbActors)
           {
-            foreach (TvdbActor na in _series.TvdbActors)
+            foreach (TvdbActor na in series.TvdbActors)
             {
               if (oa.Id == na.Id)
-              {
                 if (oa.ActorImage != null && oa.ActorImage.IsLoaded)
-                {
                   na.ActorImage = oa.ActorImage;
-                }
-              }
             }
           }
         }
-        this.TvdbActors = _series.TvdbActors;
+        TvdbActors = series.TvdbActors;
       }
 
-      if (_series.BannersLoaded)
+      if (series.BannersLoaded)
       {
         //check if the old series has any images loaded already -> if yes, save them
-        if (this.BannersLoaded)
+        if (BannersLoaded)
         {
-          foreach (TvdbBanner ob in this.Banners)
+          foreach (TvdbBanner ob in Banners)
           {
-            foreach (TvdbBanner nb in _series.Banners)
+            foreach (TvdbBanner nb in series.Banners)
             {
               if (ob.BannerPath.Equals(nb.BannerPath))//I have to check for the banner path since the Update file doesn't include IDs
               {
                 if (ob.BannerImage != null && ob.IsLoaded)
-                {
                   nb.BannerImage = ob.BannerImage;
-                }
 
                 if (ob.GetType() == typeof(TvdbFanartBanner))
                 {
@@ -542,23 +474,17 @@ namespace TvdbLib.Data
                   TvdbFanartBanner oldFaBanner = (TvdbFanartBanner)ob;
 
                   if (oldFaBanner.ThumbImage != null && oldFaBanner.IsThumbLoaded)
-                  {
                     newFaBanner.ThumbImage = oldFaBanner.ThumbImage;
-                  }
 
                   if (oldFaBanner.ThumbImage != null && oldFaBanner.IsVignetteLoaded)
-                  {
                     newFaBanner.VignetteImage = oldFaBanner.VignetteImage;
-                  }
                 }
               }
             }
           }
         }
-        this.Banners = _series.Banners;
+        Banners = series.Banners;
       }
     }
-
-
   }
 }

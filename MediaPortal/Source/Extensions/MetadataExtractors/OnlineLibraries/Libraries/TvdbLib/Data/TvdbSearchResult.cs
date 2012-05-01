@@ -19,12 +19,9 @@
  */
 
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using TvdbLib.Data.Banner;
+using MediaPortal.Extensions.OnlineLibraries.Libraries.TvdbLib.Data.Banner;
 
-namespace TvdbLib.Data
+namespace MediaPortal.Extensions.OnlineLibraries.Libraries.TvdbLib.Data
 {
   /// <summary>
   /// Class representing the result of a tvdb name query -> for further information
@@ -43,85 +40,53 @@ namespace TvdbLib.Data
     /// <summary>
     /// TvdbSearchResult constructor
     /// </summary>
-    /// <param name="_id">Id of series</param>
-    public TvdbSearchResult(int _id)
+    /// <param name="id">Id of series</param>
+    public TvdbSearchResult(int id)
     {
-      m_id = _id;
+      Id = id;
     }
 
     #region private properties
-    private int m_id;
-    private String m_seriesName;
-    private DateTime m_firstAired;
-    private TvdbLanguage m_language;
-    private String m_overview;
-    private TvdbSeriesBanner m_banner;
-    private String m_imdbId;
+
     #endregion
 
     #region tvdb properties
+
     /// <summary>
     /// Id of the returned series
     /// </summary>
-    public int Id
-    {
-      get { return m_id; }
-      set { m_id = value; }
-    }
+    public int Id { get; set; }
 
     /// <summary>
     /// Name of the returned series
     /// </summary>
-    public String SeriesName
-    {
-      get { return m_seriesName; }
-      set { m_seriesName = value; }
-    }
+    public string SeriesName { get; set; }
 
     /// <summary>
     /// When was the returned series aired first
     /// </summary>
-    public DateTime FirstAired
-    {
-      get { return m_firstAired; }
-      set { m_firstAired = value; }
-    }
+    public DateTime FirstAired { get; set; }
 
     /// <summary>
     /// Language of the returned series
     /// </summary>
-    public TvdbLanguage Language
-    {
-      get { return m_language; }
-      set { m_language = value; }
-    }
+    public TvdbLanguage Language { get; set; }
 
     /// <summary>
     /// Overview of the returned series
     /// </summary>
-    public String Overview
-    {
-      get { return m_overview; }
-      set { m_overview = value; }
-    }
+    public string Overview { get; set; }
 
     /// <summary>
     /// Banner of the returned series
     /// </summary>
-    public TvdbSeriesBanner Banner
-    {
-      get { return m_banner; }
-      set { m_banner = value; }
-    }
+    public TvdbSeriesBanner Banner { get; set; }
 
     /// <summary>
     /// Imdb id of the returned series
     /// </summary>
-    public String ImdbId
-    {
-      get { return m_imdbId;}
-      set { m_imdbId = value; }
-    }
+    public string ImdbId { get; set; }
+
     #endregion
   }
 }

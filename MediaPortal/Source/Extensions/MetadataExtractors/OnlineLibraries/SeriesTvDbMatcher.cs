@@ -34,9 +34,9 @@ using MediaPortal.Common.Logging;
 using MediaPortal.Common.MediaManagement.Helpers;
 using MediaPortal.Common.PathManager;
 using MediaPortal.Common.Threading;
+using MediaPortal.Extensions.OnlineLibraries.Libraries.TvdbLib.Data;
+using MediaPortal.Extensions.OnlineLibraries.Libraries.TvdbLib.Data.Banner;
 using MediaPortal.Extensions.OnlineLibraries.TheTvDB;
-using TvdbLib.Data;
-
 namespace MediaPortal.Extensions.OnlineLibraries
 {
   /// <summary>

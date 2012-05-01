@@ -20,12 +20,10 @@
 
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using TvdbLib.Data;
+using MediaPortal.Extensions.OnlineLibraries.Libraries.TvdbLib.Data;
 using System.Drawing;
 
-namespace TvdbLib.Cache
+namespace MediaPortal.Extensions.OnlineLibraries.Libraries.TvdbLib.Cache
 {
   /// <summary>
   /// A cache provider stores and loads the data that has been previously retrieved from http://thetvdb.com.
@@ -63,10 +61,10 @@ namespace TvdbLib.Cache
     /// <summary>
     /// Remove a specific series from cache
     /// </summary>
-    /// <param name="_seriesId">the id of the series</param>
+    /// <param name="seriesId">the id of the series</param>
     /// <returns>true if the series was removed from the cache successfully, 
     ///          false otherwise (e.g. series not cached)</returns>
-    bool RemoveFromCache(int _seriesId);
+    bool RemoveFromCache(int seriesId);
 
     /// <summary>
     /// Loads all cached series from cache -> can take a while
@@ -89,56 +87,56 @@ namespace TvdbLib.Cache
     /// <summary>
     /// Load the give series from cache
     /// </summary>
-    /// <param name="_seriesId">Id of the series to load</param>
+    /// <param name="seriesId">Id of the series to load</param>
     /// <returns>The TvdbSeries object from cache or null</returns>
-    TvdbSeries LoadSeriesFromCache(int _seriesId);
+    TvdbSeries LoadSeriesFromCache(int seriesId);
 
     /// <summary>
     /// Load user info from cache
     /// </summary>
-    /// <param name="_userId">Id of the user</param>
+    /// <param name="userId">Id of the user</param>
     /// <returns>TvdbUser object or null if the user couldn't be loaded</returns>
-    TvdbUser LoadUserInfoFromCache(String _userId);
+    TvdbUser LoadUserInfoFromCache(String userId);
 
     /// <summary>
     /// Saves cache settings
     /// </summary>
-    /// <param name="_content">settings</param>
-    void SaveToCache(TvdbData _content);
+    /// <param name="content">settings</param>
+    void SaveToCache(TvdbData content);
 
     /// <summary>
     /// Save the language to cache
     /// </summary>
-    /// <param name="_languageList">List of languages that are available on http://thetvdb.com</param>
-    void SaveToCache(List<TvdbLanguage> _languageList);
+    /// <param name="languageList">List of languages that are available on http://thetvdb.com</param>
+    void SaveToCache(List<TvdbLanguage> languageList);
 
     /// <summary>
     /// Saves the series to cache
     /// </summary>
-    /// <param name="_series">TvdbSeries object</param>
-    void SaveToCache(TvdbSeries _series);
+    /// <param name="series">TvdbSeries object</param>
+    void SaveToCache(TvdbSeries series);
 
     /// <summary>
     /// Saves the user data to cache
     /// </summary>
-    /// <param name="_user">TvdbUser object</param>
-    void SaveToCache(TvdbUser _user);
+    /// <param name="user">TvdbUser object</param>
+    void SaveToCache(TvdbUser user);
 
     /// <summary>
     /// Save the given image to cache
     /// </summary>
-    /// <param name="_image">banner to save</param>
-    /// <param name="_seriesId">id of series</param>
-    /// <param name="_fileName">filename (will be the same name used by LoadImageFromCache)</param>
-    void SaveToCache(Image _image, int _seriesId, String _fileName);
+    /// <param name="image">banner to save</param>
+    /// <param name="seriesId">id of series</param>
+    /// <param name="fileName">filename (will be the same name used by LoadImageFromCache)</param>
+    void SaveToCache(Image image, int seriesId, String fileName);
 
     /// <summary>
     /// Loads the specified image from the cache
     /// </summary>
-    /// <param name="_seriesId">series id</param>
-    /// <param name="_fileName">filename of the image (same one as used by SaveToCache)</param>
+    /// <param name="seriesId">series id</param>
+    /// <param name="fileName">filename of the image (same one as used by SaveToCache)</param>
     /// <returns>The loaded image or null if the image wasn't found</returns>
-    Image LoadImageFromCache(int _seriesId, String _fileName);
+    Image LoadImageFromCache(int seriesId, String fileName);
 
     /// <summary>
     /// Receives a list of all series that have been cached
@@ -149,20 +147,20 @@ namespace TvdbLib.Cache
     /// <summary>
     /// Check if the series is cached in the given configuration
     /// </summary>
-    /// <param name="_seriesId">Id of the series</param>
-    /// <param name="_lang">Language of the series</param>
-    /// <param name="_episodesLoaded">are episodes loaded</param>
-    /// <param name="_bannersLoaded">are banners loaded</param>
-    /// <param name="_actorsLoaded">are actors loaded</param>
+    /// <param name="seriesId">Id of the series</param>
+    /// <param name="lang">Language of the series</param>
+    /// <param name="checkEpisodesLoaded">are episodes loaded</param>
+    /// <param name="checkBannersLoaded">are banners loaded</param>
+    /// <param name="checkActorsLoaded">are actors loaded</param>
     /// <returns>true if the series is cached, false otherwise</returns>
-    bool IsCached(int _seriesId, TvdbLanguage _lang, bool _episodesLoaded, bool _bannersLoaded, bool _actorsLoaded);
+    bool IsCached(int seriesId, TvdbLanguage lang, bool checkEpisodesLoaded, bool checkBannersLoaded, bool checkActorsLoaded);
 
     /// <summary>
     /// Removes the specified image from cache (if it has been cached)
     /// </summary>
-    /// <param name="_seriesId">id of series</param>
-    /// <param name="_fileName">name of image</param>
+    /// <param name="seriesId">id of series</param>
+    /// <param name="fileName">name of image</param>
     /// <returns>true if image was removed successfully, false otherwise (e.g. image didn't exist)</returns>
-    bool RemoveImageFromCache(int _seriesId, string _fileName);
+    bool RemoveImageFromCache(int seriesId, string fileName);
   }
 }

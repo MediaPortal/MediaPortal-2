@@ -20,11 +20,8 @@
 
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using TvdbLib.Data;
 
-namespace TvdbLib
+namespace MediaPortal.Extensions.OnlineLibraries.Libraries.TvdbLib.Data
 {
   /// <summary>
   /// TvdbData contains a list of series, a list of languages and a list of mirror
@@ -33,8 +30,8 @@ namespace TvdbLib
   public class TvdbData
   {
     #region private properties
-    private List<TvdbLanguage> m_langInfo;
-    private DateTime m_lastUpdated;
+    private List<TvdbLanguage> _langInfo;
+
     #endregion
 
     /// <summary>
@@ -42,38 +39,34 @@ namespace TvdbLib
     /// </summary>
     public TvdbData()
     {
-      m_lastUpdated = new DateTime(1, 1, 1);
+      LastUpdated = new DateTime(1, 1, 1);
     }
 
     /// <summary>
     /// TvdbData constructor
     /// </summary>
-    /// <param name="_language">List of available languages</param>
-    public TvdbData(List<TvdbLanguage> _language)
+    /// <param name="language">List of available languages</param>
+    public TvdbData(List<TvdbLanguage> language)
       : this()
     {
-      m_langInfo = _language;
+      _langInfo = language;
     }
 
     /// <summary>
     /// When was the last time thetvdb has been checked
     /// for updates
     /// </summary>
-    public DateTime LastUpdated
-    {
-      get { return m_lastUpdated; }
-      set { m_lastUpdated = value; }
-    }
+    public DateTime LastUpdated { get; set; }
 
     /// <summary>
     /// List of all available languages
     /// </summary>
     public List<TvdbLanguage> LanguageList
     {
-      get { return m_langInfo; }
+      get { return _langInfo; }
       set 
       { 
-        m_langInfo = value;
+        _langInfo = value;
         Util.LanguageList = value;
       }
     }

@@ -19,11 +19,8 @@
  */
 
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 
-namespace TvdbLib.Data.Banner
+namespace MediaPortal.Extensions.OnlineLibraries.Libraries.TvdbLib.Data.Banner
 {
   /// <summary>
   /// Graphical representation of a series, tpyes are text, graphical or blank
@@ -38,7 +35,7 @@ namespace TvdbLib.Data.Banner
   public class TvdbSeriesBanner: TvdbBannerWithThumb
   {
     #region private fields
-    private Type m_bannerType;
+
     #endregion
 
     /// <summary>
@@ -48,19 +45,19 @@ namespace TvdbLib.Data.Banner
       /// <summary>
       /// Banners contains a text of the seriesname
       /// </summary>
-      text, 
+      Text, 
       /// <summary>
       /// Banner containing a graphical representation of the seriesname
       /// </summary>
-      graphical, 
+      Graphical, 
       /// <summary>
       /// Banner containing a free space on the left side to place your own series description
       /// </summary>
-      blank, 
+      Blank, 
       /// <summary>
       /// Nothing specified
       /// </summary>
-      none };
+      None };
 
     /// <summary>
     /// TvdbSeriesBanner constructor
@@ -73,25 +70,21 @@ namespace TvdbLib.Data.Banner
     /// <summary>
     /// TvdbSeriesBanner constructor
     /// </summary>
-    /// <param name="_id">Id of banner</param>
-    /// <param name="_path">Path of banner image</param>
-    /// <param name="_lang">Language of this banner</param>
-    /// <param name="_type">Banner type (text, graphical, blank, none)</param>
-    public TvdbSeriesBanner(int _id, String _path, TvdbLanguage _lang, Type _type)
+    /// <param name="id">Id of banner</param>
+    /// <param name="path">Path of banner image</param>
+    /// <param name="lang">Language of this banner</param>
+    /// <param name="type">Banner type (text, graphical, blank, None)</param>
+    public TvdbSeriesBanner(int id, String path, TvdbLanguage lang, Type type)
     {
-      this.BannerPath = _path;
-      this.Language = _lang;
-      this.Id = _id;
-      this.BannerType = _type;
+      BannerPath = path;
+      Language = lang;
+      Id = id;
+      BannerType = type;
     }
 
     /// <summary>
     /// Banner type of the series banner
     /// </summary>
-    public Type BannerType
-    {
-      get { return m_bannerType; }
-      set { m_bannerType = value; }
-    }
+    public Type BannerType { get; set; }
   }
 }

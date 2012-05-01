@@ -43,11 +43,11 @@ namespace MovieDb
   /// |           |     |---- <language>.zip  (Zipped version of Full Series Record and banners.xml)
   /// |           |
   /// |           |---- default/  (sorts using the default ordering method)
-  /// |           |     |---- <season#>/<episode#>/
+  /// |           |     |---- <Season#>/<episode#>/
   /// |           |           |---- <language>.xml  (Base Episode Record)
   /// |           |
   /// |           |---- dvd/  (sorts using the dvd ordering method)
-  /// |           |     |---- <season#>/<episode#>/
+  /// |           |     |---- <Season#>/<episode#>/
   /// |           |           |---- <language>.xml  (Base Episode Record)
   /// |           |
   /// |           |---- absolute/  (sorts using the absolute ordering method)

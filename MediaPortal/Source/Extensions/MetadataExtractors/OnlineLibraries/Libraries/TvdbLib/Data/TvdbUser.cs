@@ -20,10 +20,8 @@
 
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 
-namespace TvdbLib.Data
+namespace MediaPortal.Extensions.OnlineLibraries.Libraries.TvdbLib.Data
 {
   /// <summary>
   /// Class that holds all user information
@@ -32,22 +30,22 @@ namespace TvdbLib.Data
   public class TvdbUser
   {
     #region private properties
-    private String m_userName;
-    private String m_userIdentifier;
-    private TvdbLanguage m_userPreferredLanguage;
-    private List<int> m_userFavorites;
+    private String _userName;
+    private String _userIdentifier;
+    private TvdbLanguage _userPreferredLanguage;
+    private List<int> _userFavorites;
     #endregion
 
     /// <summary>
     /// TvdbUser constructor
     /// </summary>
-    /// <param name="_username">Name of the user, can be choosen freely</param>
-    /// <param name="_userIdentifier">User identifier from http://thetvdb.com</param>
-    public TvdbUser(String _username, String _userIdentifier)
+    /// <param name="username">Name of the user, can be choosen freely</param>
+    /// <param name="userIdentifier">User identifier from http://thetvdb.com</param>
+    public TvdbUser(String username, String userIdentifier)
       : this()
     {
-      m_userName = _username;
-      m_userIdentifier = _userIdentifier;
+      _userName = username;
+      _userIdentifier = userIdentifier;
     }
 
     /// <summary>
@@ -63,8 +61,8 @@ namespace TvdbLib.Data
     /// </summary>
     public TvdbLanguage UserPreferredLanguage
     {
-      get { return m_userPreferredLanguage; }
-      set { m_userPreferredLanguage = value; }
+      get { return _userPreferredLanguage; }
+      set { _userPreferredLanguage = value; }
     }
 
     /// <summary>
@@ -72,8 +70,8 @@ namespace TvdbLib.Data
     /// </summary>
     public String UserIdentifier
     {
-      get { return m_userIdentifier; }
-      set { m_userIdentifier = value; }
+      get { return _userIdentifier; }
+      set { _userIdentifier = value; }
     }
 
     /// <summary>
@@ -81,8 +79,8 @@ namespace TvdbLib.Data
     /// </summary>
     public String UserName
     {
-      get { return m_userName; }
-      set { m_userName = value; }
+      get { return _userName; }
+      set { _userName = value; }
     }
 
     /// <summary>
@@ -90,8 +88,8 @@ namespace TvdbLib.Data
     /// </summary>
     public List<int> UserFavorites
     {
-      get { return m_userFavorites; }
-      set { m_userFavorites = value; }
+      get { return _userFavorites; }
+      set { _userFavorites = value; }
     }
   }
 }

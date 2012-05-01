@@ -19,13 +19,10 @@
  */
 
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Drawing;
 using System.Net;
 
-namespace TvdbLib.Data.Banner
+namespace MediaPortal.Extensions.OnlineLibraries.Libraries.TvdbLib.Data.Banner
 {
   /// <summary>
   /// This class extends the regular banner class with the ability to retrieve thumbnails of the actual images.
@@ -36,40 +33,24 @@ namespace TvdbLib.Data.Banner
   public class TvdbBannerWithThumb : TvdbBanner
   {
     #region private fields
-    private String m_thumbPath;
-    private Image m_bannerThumb;
-    private bool m_thumbLoaded;
-    private bool m_thumbLoading;
-    private System.Object m_thumbLoadingLock = new System.Object();
-    #endregion
 
+    private readonly object _thumbLoadingLock = new object();
+    #endregion
 
     /// <summary>
     /// Is the thumbnail currently beeing loaded
     /// </summary>
-    public bool ThumbLoading
-    {
-      get { return m_thumbLoading; }
-      set { m_thumbLoading = value; }
-    }
+    public bool ThumbLoading { get; set; }
 
     /// <summary>
     /// Path to the fanart thumbnail
     /// </summary>
-    public String ThumbPath
-    {
-      get { return m_thumbPath; }
-      set { m_thumbPath = value; }
-    }
+    public string ThumbPath { get; set; }
 
     /// <summary>
     /// Image of the thumbnail
     /// </summary>
-    public Image ThumbImage
-    {
-      get { return m_bannerThumb; }
-      set { m_bannerThumb = value; }
-    }
+    public Image ThumbImage { get; set; }
 
 
     /// <summary>
@@ -86,68 +67,68 @@ namespace TvdbLib.Data.Banner
     /// <summary>
     /// Load the thumb from tvdb
     /// </summary>
-    /// <param name="_replaceOld">if true, an existing banner will be replaced, 
+    /// <param name="replaceOld">if true, an existing banner will be replaced, 
     /// if false the banner will only be loaded if there is no existing banner</param>
     /// <returns>true if the loading completed sccessfully, false otherwise</returns>
-    public bool LoadThumb(bool _replaceOld)
+    public bool LoadThumb(bool replaceOld)
     {
-      bool wasLoaded = m_thumbLoaded;//is the banner already loaded at this point
-      lock (m_thumbLoadingLock)
+      bool wasLoaded = IsThumbLoaded;//is the banner already loaded at this point
+      lock (_thumbLoadingLock)
       {//if another thread is already loading THIS banner, the lock will block this thread until the other thread
         //has finished loading
-        if (!wasLoaded && !_replaceOld && m_thumbLoaded)
+        if (!wasLoaded && !replaceOld && IsThumbLoaded)
         {////the banner has already been loaded from a different thread and we don't want to replace it
           return false;
         }
-        m_thumbLoading = true;
+        ThumbLoading = true;
 
         /*
          * every banner (except actors) has a cached thumbnail on tvdb... The path to the thumbnail
          * is only given for fanart banners via the api, however every thumbnail path is "_cache/" + image_path
          * so if no path for the thumbnail is given, it is assumed that there is a thumbnail at that location
          */
-        if (m_thumbPath == null && (BannerPath != null || BannerPath.Equals("")))
+        if (ThumbPath == null && (BannerPath != null || BannerPath.Equals("")))
         {
-          m_thumbPath = String.Concat("_cache/", BannerPath);
+          ThumbPath = String.Concat("_cache/", BannerPath);
         }
 
-        if (m_thumbPath != null)
+        if (ThumbPath != null)
         {
           try
           {
             Image img = null;
-            String cacheName = CreateCacheName(m_thumbPath, true);
+            String cacheName = CreateCacheName(ThumbPath, true);
 
-            if (this.CacheProvider != null && this.CacheProvider.Initialised)
+            if (CacheProvider != null && CacheProvider.Initialised)
             {//try to load the image from cache first
-              img = this.CacheProvider.LoadImageFromCache(this.SeriesId, cacheName);
+              img = CacheProvider.LoadImageFromCache(SeriesId, cacheName);
             }
 
             if (img == null)
             {
-              img = LoadImage(TvdbLinkCreator.CreateBannerLink(m_thumbPath));
+              img = LoadImage(TvdbLinkCreator.CreateBannerLink(ThumbPath));
 
-              if (img != null && this.CacheProvider != null && this.CacheProvider.Initialised)
+              if (img != null && CacheProvider != null && CacheProvider.Initialised)
               {//store the image to cache
-                this.CacheProvider.SaveToCache(img, this.SeriesId, cacheName);
+                CacheProvider.SaveToCache(img, SeriesId, cacheName);
               }
             }
 
             if (img != null)
             {
-              m_bannerThumb = img;
-              m_thumbLoaded = true;
-              m_thumbLoading = false;
+              ThumbImage = img;
+              IsThumbLoaded = true;
+              ThumbLoading = false;
               return true;
             }
           }
           catch (WebException ex)
           {
-            Log.Error("Couldn't load banner thumb" + m_thumbPath, ex);
+            Log.Error("Couldn't load banner thumb" + ThumbPath, ex);
           }
         }
-        m_thumbLoaded = false;
-        m_thumbLoading = false;
+        IsThumbLoaded = false;
+        ThumbLoading = false;
         return false;
       }
     }
@@ -155,21 +136,18 @@ namespace TvdbLib.Data.Banner
     /// <summary>
     /// Load thumbnail with given image
     /// </summary>
-    /// <param name="_img">the image to be used forthe banner</param>
+    /// <param name="img">the image to be used forthe banner</param>
     /// <returns>true if the loading completed sccessfully, false otherwise</returns>
-    public bool LoadThumb(Image _img)
+    public bool LoadThumb(Image img)
     {
-      if (_img != null)
+      if (img != null)
       {
-        m_bannerThumb = _img;
-        m_thumbLoaded = true;
+        ThumbImage = img;
+        IsThumbLoaded = true;
         return true;
       }
-      else
-      {
-        m_thumbLoaded = false;
-        return false;
-      }
+      IsThumbLoaded = false;
+      return false;
     }
 
     /// <summary>
@@ -184,46 +162,38 @@ namespace TvdbLib.Data.Banner
     /// <summary>
     /// Unloads the image
     /// </summary>
-    /// <param name="_saveToCache">should the image kept in cache</param>
+    /// <param name="saveToCache">should the image kept in cache</param>
     /// <returns>true if successful, false otherwise</returns>
-    public bool UnloadThumb(bool _saveToCache)
+    public bool UnloadThumb(bool saveToCache)
     {
-      if (m_thumbLoading)
+      if (ThumbLoading)
       {//banner is currently loading
         Log.Warn("Can't remove banner while it's loading");
         return false;
       }
-      else
+      try
       {
-        try
-        {
-          if (m_thumbLoaded)
-          {
-            LoadThumb(null);
-          }
-          if (!_saveToCache && m_thumbPath != null && !m_thumbPath.Equals(""))
-          {//we don't want the image in cache -> if we already cached it it should be deleted
-            String cacheName = CreateCacheName(m_thumbPath, true);
-            if (this.CacheProvider != null && this.CacheProvider.Initialised)
-            {//try to load the image from cache first
-              this.CacheProvider.RemoveImageFromCache(this.SeriesId, cacheName);
-            }
+        if (IsThumbLoaded)
+          LoadThumb(null);
+        if (!saveToCache && ThumbPath != null && !ThumbPath.Equals(""))
+        {//we don't want the image in cache -> if we already cached it it should be deleted
+          String cacheName = CreateCacheName(ThumbPath, true);
+          if (CacheProvider != null && CacheProvider.Initialised)
+          {//try to load the image from cache first
+            CacheProvider.RemoveImageFromCache(SeriesId, cacheName);
           }
         }
-        catch (Exception ex)
-        {
-          Log.Warn("Error while unloading banner", ex);
-        }
-        return true;
       }
+      catch (Exception ex)
+      {
+        Log.Warn("Error while unloading banner", ex);
+      }
+      return true;
     }
 
     /// <summary>
     /// Is the Image of the thumb already loaded
     /// </summary>
-    public bool IsThumbLoaded
-    {
-      get { return m_thumbLoaded; }
-    }
+    public bool IsThumbLoaded { get; private set; }
   }
 }

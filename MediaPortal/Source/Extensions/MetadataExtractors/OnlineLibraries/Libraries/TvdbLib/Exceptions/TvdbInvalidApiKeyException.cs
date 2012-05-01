@@ -19,24 +19,21 @@
  */
 
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 
-namespace TvdbLib.Exceptions
+namespace MediaPortal.Extensions.OnlineLibraries.Libraries.TvdbLib.Exceptions
 {
   /// <summary>
   /// Exception thrown when a request is made which requires a valid
-  /// api key but none is set
+  /// api key but None is set
   /// </summary>
   public class TvdbInvalidApiKeyException : TvdbException
   {
     /// <summary>
     /// TvdbInvalidAPIKeyException constructor
     /// </summary>
-    /// <param name="_text">Message</param>
-    public TvdbInvalidApiKeyException(String _text)
-      : base(_text)
+    /// <param name="text">Message</param>
+    public TvdbInvalidApiKeyException(String text)
+      : base(text)
     {
     }
 

@@ -19,11 +19,10 @@
  */
 
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+using MediaPortal.Common;
+using MediaPortal.Common.Logging;
 
-namespace TvdbLib
+namespace MediaPortal.Extensions.OnlineLibraries.Libraries.TvdbLib
 {
   /// <summary>
   /// Logs internal messages
@@ -31,166 +30,98 @@ namespace TvdbLib
   public static class Log
   {
     /// <summary>
-    /// Loglevel
+    /// Logs the message at level Debug
     /// </summary>
-    public enum LOGLEVEL
+    /// <param name="logMessage">Message to log</param>
+    internal static void Debug(String logMessage)
     {
-      /// <summary>Logs debug messages</summary>
-      Debug = 0,
-
-      /// <summary>Logs info messages</summary>
-      Info = 1,
-
-      /// <summary>Logs warn messages</summary>
-      Warn = 2,
-
-      /// <summary>Logs error messages</summary>
-      Error = 3,
-
-      /// <summary>Logs fatal messages</summary>
-      Fatal = 4
-    }
-
-    private static LOGLEVEL m_currentLogLevel = LOGLEVEL.Warn;
-
-
-    /// <summary>
-    /// The loglevel that is currently used (default = warn)
-    /// </summary>
-    public static LOGLEVEL LogLevel
-    {
-      get { return m_currentLogLevel; }
-      set { m_currentLogLevel = value; }
+      ServiceRegistration.Get<ILogger>().Debug(logMessage);
     }
 
     /// <summary>
     /// Logs the message at level Debug
     /// </summary>
-    /// <param name="_logMessage">Message to log</param>
-    internal static void Debug(String _logMessage)
+    /// <param name="logMessage">Message to log</param>
+    /// <param name="ex">Exception to log</param>
+    internal static void Debug(String logMessage, Exception ex)
     {
-      WriteLogMessage(_logMessage, LOGLEVEL.Debug);
-    }
-
-    /// <summary>
-    /// Logs the message at level Debug
-    /// </summary>
-    /// <param name="_logMessage">Message to log</param>
-    /// <param name="_ex">Exception to log</param>
-    internal static void Debug(String _logMessage, Exception _ex)
-    {
-      WriteLogMessage(_logMessage + _ex.ToString(), LOGLEVEL.Debug);
+      ServiceRegistration.Get<ILogger>().Debug(logMessage, ex);
     }
 
     /// <summary>
     /// Logs the message at level info
     /// </summary>
-    /// <param name="_logMessage">Message to log</param>
-    internal static void Info(String _logMessage)
+    /// <param name="logMessage">Message to log</param>
+    internal static void Info(String logMessage)
     {
-      WriteLogMessage(_logMessage, LOGLEVEL.Info);
+      ServiceRegistration.Get<ILogger>().Info(logMessage);
     }
 
     /// <summary>
     /// Logs the message at level info
     /// </summary>
-    /// <param name="_logMessage">Message to log</param>
-    /// <param name="_ex">Exception to log</param>
-    internal static void Info(String _logMessage, Exception _ex)
+    /// <param name="logMessage">Message to log</param>
+    /// <param name="ex">Exception to log</param>
+    internal static void Info(String logMessage, Exception ex)
     {
-      WriteLogMessage(_logMessage + _ex.ToString(), LOGLEVEL.Info);
+      ServiceRegistration.Get<ILogger>().Info(logMessage, ex);
     }
 
     /// <summary>
     /// Logs the message at level Warn
     /// </summary>
-    /// <param name="_logMessage">Message to log</param>
-    internal static void Warn(String _logMessage)
+    /// <param name="logMessage">Message to log</param>
+    internal static void Warn(String logMessage)
     {
-      WriteLogMessage(_logMessage, LOGLEVEL.Warn);
+      ServiceRegistration.Get<ILogger>().Warn(logMessage);
     }
 
     /// <summary>
     /// Logs the message at level Warn
     /// </summary>
-    /// <param name="_logMessage">Message to log</param>
-    /// <param name="_ex">Exception to log</param>
-    internal static void Warn(String _logMessage, Exception _ex)
+    /// <param name="logMessage">Message to log</param>
+    /// <param name="ex">Exception to log</param>
+    internal static void Warn(String logMessage, Exception ex)
     {
-      WriteLogMessage(_logMessage + _ex.ToString(), LOGLEVEL.Warn);
+      ServiceRegistration.Get<ILogger>().Warn(logMessage, ex);
     }
 
     /// <summary>
     /// Logs the message at level Error
     /// </summary>
-    /// <param name="_logMessage">Message to log</param>
-    internal static void Error(String _logMessage)
+    /// <param name="logMessage">Message to log</param>
+    internal static void Error(String logMessage)
     {
-      WriteLogMessage(_logMessage, LOGLEVEL.Error);
+      ServiceRegistration.Get<ILogger>().Error(logMessage);
     }
 
     /// <summary>
     /// Logs the message at level Error
     /// </summary>
-    /// <param name="_logMessage">Message to log</param>
-    /// <param name="_ex">Exception to log</param>
-    internal static void Error(String _logMessage, Exception _ex)
+    /// <param name="logMessage">Message to log</param>
+    /// <param name="ex">Exception to log</param>
+    internal static void Error(String logMessage, Exception ex)
     {
-      WriteLogMessage(_logMessage + _ex.ToString(), LOGLEVEL.Error);
+      ServiceRegistration.Get<ILogger>().Error(logMessage, ex);
     }
 
     /// <summary>
     /// Logs the message at level Fatal
     /// </summary>
-    /// <param name="_logMessage">Message to log</param>
-    internal static void Fatal(String _logMessage)
+    /// <param name="logMessage">Message to log</param>
+    internal static void Fatal(String logMessage)
     {
-      WriteLogMessage(_logMessage, LOGLEVEL.Fatal);
+      Error(logMessage);
     }
 
     /// <summary>
     /// Logs the message at level Fatal
     /// </summary>
-    /// <param name="_logMessage">Message to log</param>
-    /// <param name="_ex">Exception to log</param>
-    internal static void Fatal(String _logMessage, Exception _ex)
+    /// <param name="logMessage">Message to log</param>
+    /// <param name="ex">Exception to log</param>
+    internal static void Fatal(String logMessage, Exception ex)
     {
-      WriteLogMessage(_logMessage + _ex.ToString(), LOGLEVEL.Fatal);
-    }
-
-    /// <summary>
-    /// Logs the message at the given level
-    /// </summary>
-    /// <param name="_logMessage">Message to log</param>
-    /// <param name="_level">Level to log</param>
-    internal static void WriteLogMessage(String _logMessage, LOGLEVEL _level)
-    {
-      if (_level >= m_currentLogLevel)
-      {
-        switch (_level)
-        {
-          case LOGLEVEL.Debug:
-            //debug log processing
-            Console.WriteLine(_logMessage);
-            break;
-          case LOGLEVEL.Info:
-            //debug log processing
-            Console.WriteLine(_logMessage);
-            break;
-          case LOGLEVEL.Warn:
-            //debug log processing
-            Console.WriteLine(_logMessage);
-            break;
-          case LOGLEVEL.Error:
-            //debug log processing
-            Console.WriteLine(_logMessage);
-            break;
-          case LOGLEVEL.Fatal:
-            //debug log processing
-            Console.WriteLine(_logMessage);
-            break;
-        }
-      }
+      Error(logMessage, ex);
     }
   }
 }

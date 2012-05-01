@@ -593,7 +593,7 @@ namespace TvdbLib.SharpZipLib.Zip
 		/// Get the <see cref="ITaggedData">tagged data</see> for a tag.
 		/// </summary>
 		/// <param name="tag">The tag to search for.</param>
-		/// <returns>Returns a <see cref="ITaggedData">tagged value</see> or null if none found.</returns>
+		/// <returns>Returns a <see cref="ITaggedData">tagged value</see> or null if None found.</returns>
 		private ITaggedData GetData(short tag)
 		{
 			ITaggedData result = null;

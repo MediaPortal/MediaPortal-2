@@ -19,10 +19,8 @@
  */
 
 using System;
-using System.Collections.Generic;
-using System.Text;
 
-namespace TvdbLib.Data
+namespace MediaPortal.Extensions.OnlineLibraries.Libraries.TvdbLib.Data
 {
   /// <summary>
   /// Baseclass for a tvdb mirror. A mirror is defined in the tvdb xml by:
@@ -42,9 +40,7 @@ namespace TvdbLib.Data
   public class TvdbMirror
   {
     #region private properties
-    private int m_id;
-    private Uri m_mirrorPath;
-    private int m_typeMask;
+
     #endregion
 
     /// <summary>
@@ -57,24 +53,20 @@ namespace TvdbLib.Data
     /// <summary>
     /// TvdbMirror constructor
     /// </summary>
-    /// <param name="_id">Id of the mirror</param>
-    /// <param name="_mirror">Url to the mirror</param>
-    /// <param name="_typeMask">Typemask of the mirror, see property "TypeMask"</param>
-    public TvdbMirror(int _id, Uri _mirror, int _typeMask)
+    /// <param name="id">Id of the mirror</param>
+    /// <param name="mirror">Url to the mirror</param>
+    /// <param name="typeMask">Typemask of the mirror, see property "TypeMask"</param>
+    public TvdbMirror(int id, Uri mirror, int typeMask)
     {
-      m_id = _id;
-      m_mirrorPath = _mirror;
-      m_typeMask = _typeMask;
+      Id = id;
+      MirrorPath = mirror;
+      TypeMask = typeMask;
     }
 
     /// <summary>
     /// Id of the mirror
     /// </summary>
-    public int Id
-    {
-      get { return m_id; }
-      set { m_id = value; }
-    }
+    public int Id { get; set; }
 
     /// <summary>
     /// The value of typemask is the sum of whichever file types that mirror holds:
@@ -83,11 +75,7 @@ namespace TvdbLib.Data
     /// 4 zip files
     /// So, a mirror that has a typemask of 5 would hold XML and ZIP files, but no banner files. 
     /// </summary>
-    public int TypeMask
-    {
-      get { return m_typeMask; }
-      set { m_typeMask = value; }
-    }
+    public int TypeMask { get; set; }
 
     ///<summary>
     /// Returns true if the mirror offers images for downloading, false otherwise
@@ -129,10 +117,6 @@ namespace TvdbLib.Data
     /// <summary>
     /// Path to the mirror
     /// </summary>
-    public Uri MirrorPath
-    {
-      get { return m_mirrorPath; }
-      set { m_mirrorPath = value; }
-    }
+    public Uri MirrorPath { get; set; }
   }
 }

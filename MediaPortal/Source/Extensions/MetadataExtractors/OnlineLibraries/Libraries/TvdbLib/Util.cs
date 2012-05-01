@@ -21,14 +21,12 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using TvdbLib.Data;
-using TvdbLib.Cache;
+using MediaPortal.Extensions.OnlineLibraries.Libraries.TvdbLib.Data;
+using MediaPortal.Extensions.OnlineLibraries.Libraries.TvdbLib.Data.Banner;
 using System.Drawing;
 using System.Globalization;
-using TvdbLib.Data.Banner;
 
-namespace TvdbLib
+namespace MediaPortal.Extensions.OnlineLibraries.Libraries.TvdbLib
 {
   #region enums
   /// <summary>
@@ -52,19 +50,19 @@ namespace TvdbLib
     /// <summary>
     /// updated content since the last day
     /// </summary>
-    day = 0,
+    Day = 0,
     /// <summary>
     /// updated content since the last week
     /// </summary>
-    week = 1,
+    Week = 1,
     /// <summary>
     /// updated content since the last month
     /// </summary>
-    month = 2,
+    Month = 2,
     /// <summary>
     /// the interval is determined automatically
     /// </summary>
-    automatic = 3
+    Automatic = 3
   };
 
   internal class Util
@@ -72,14 +70,14 @@ namespace TvdbLib
     /// <summary>
     /// Type when handling user favorites
     /// </summary>
-    internal enum UserFavouriteAction { none, add, remove }
+    internal enum UserFavouriteAction { None, Add, Remove }
 
 
 
 
     #region private fields
-    private static List<TvdbLanguage> m_languageList;
-    private static NumberFormatInfo m_formatProvider;
+    private static List<TvdbLanguage> _languageList;
+    private static NumberFormatInfo _formatProvider;
 
     #endregion
 
@@ -88,62 +86,55 @@ namespace TvdbLib
     /// </summary>
     public static List<TvdbLanguage> LanguageList
     {
-      get { return m_languageList; }
-      set { m_languageList = value; }
+      get { return _languageList; }
+      set { _languageList = value; }
     }
 
     /// <summary>
     /// Parses an integer string and returns the number or -99 if the format
     /// is invalid
     /// </summary>
-    /// <param name="_number"></param>
+    /// <param name="number"></param>
     /// <returns></returns>
-    internal static int Int32Parse(String _number)
+    internal static int Int32Parse(String number)
     {
       //check this or we have a badass performance problem because everytime we have
       //an empty field an exception would be thrown
-      if (_number.Equals("")) return -99;
+      if (number.Equals("")) return -99;
 
       int result;
-      if (Int32.TryParse(_number, out result))
+      if (Int32.TryParse(number, out result))
       {
         return result;
       }
-      else
-      {
-        return -99;
-      }
+      return -99;
     }
 
     /// <summary>
     /// Parses an double string and returns the number or -99 if the format
     /// is invalid
     /// </summary>
-    /// <param name="_number"></param>
+    /// <param name="number"></param>
     /// <returns></returns>
-    internal static double DoubleParse(string _number)
+    internal static double DoubleParse(string number)
     {
       try
       {
-        if (m_formatProvider == null)
+        if (_formatProvider == null)
         {//format provider, so we can parse 23.23 as well as 23,23
-          m_formatProvider = new NumberFormatInfo();
-          m_formatProvider.NumberGroupSeparator = ".";
+          _formatProvider = new NumberFormatInfo { NumberGroupSeparator = "." };
         }
         //check this or we have a badass performance problem because everytime we have
         //an empty field an exception would be thrown
-        if (_number.Equals("")) return -99;
-        _number = _number.Replace(',', '.');
+        if (number.Equals("")) return -99;
+        number = number.Replace(',', '.');
 
         double result;
-        if (Double.TryParse(_number,NumberStyles.Float, m_formatProvider, out result))
+        if (Double.TryParse(number, NumberStyles.Float, _formatProvider, out result))
         {
           return result;
         }
-        else
-        {
-          return -99;
-        }
+        return -99;
       }
       catch (FormatException)
       {
@@ -154,18 +145,12 @@ namespace TvdbLib
     /// <summary>
     /// Splits a tvdb string (having the format | item1 | item2 | item3 |)
     /// </summary>
-    /// <param name="_text"></param>
+    /// <param name="text"></param>
     /// <returns></returns>
-    internal static List<String> SplitTvdbString(String _text)
+    internal static List<String> SplitTvdbString(String text)
     {
-      List<String> list = new List<string>();
-      String[] values = _text.Split('|');
-      foreach (String v in values)
-      {
-        if (!v.Equals("")) list.Add(v);
-      }
-
-      return list;
+      String[] values = text.Split('|');
+      return values.Where(v => !v.Equals("")).ToList();
     }
 
     /// <summary>
@@ -173,84 +158,71 @@ namespace TvdbLib
     /// object. If no such language exists yet (maybe the list of available
     /// languages hasn't been downloaded yet), a placeholder is created
     /// </summary>
-    /// <param name="_shortLanguageDesc"></param>
+    /// <param name="shortLanguageDesc"></param>
     /// <returns></returns>
-    internal static TvdbLanguage ParseLanguage(String _shortLanguageDesc)
+    internal static TvdbLanguage ParseLanguage(String shortLanguageDesc)
     {
-      if (m_languageList != null)
+      if (_languageList != null)
       {
-        foreach (TvdbLanguage l in m_languageList)
-        {
-          if (l.Abbriviation == _shortLanguageDesc)
-          {
-            return l;
-          }
-        }
+        foreach (TvdbLanguage l in _languageList.Where(l => l.Abbriviation == shortLanguageDesc))
+          return l;
       }
       else
-      {
-        m_languageList = new List<TvdbLanguage>();
-      }
+        _languageList = new List<TvdbLanguage>();
 
       //the language doesn't exist yet -> create placeholder
-      TvdbLanguage lang = new TvdbLanguage(-99, "unknown", _shortLanguageDesc);
-      m_languageList.Add(lang);
+      TvdbLanguage lang = new TvdbLanguage(-99, "unknown", shortLanguageDesc);
+      _languageList.Add(lang);
       return lang;
     }
 
     /// <summary>
     /// Converts a unix timestamp (used on tvdb) into a .net datetime object
     /// </summary>
-    /// <param name="_unixTimestamp">Timestamp to convert</param>
+    /// <param name="unixTimestamp">Timestamp to convert</param>
     /// <returns>.net DateTime object</returns>
-    internal static DateTime UnixToDotNet(String _unixTimestamp)
+    internal static DateTime UnixToDotNet(String unixTimestamp)
     {
-      System.DateTime date = System.DateTime.Parse("1/1/1970");
+      DateTime date = DateTime.Parse("1/1/1970");
 
       //remove , of float values
-      int index = _unixTimestamp.IndexOf(',');
-      if (index != -1) _unixTimestamp = _unixTimestamp.Remove(index);
+      int index = unixTimestamp.IndexOf(',');
+      if (index != -1) unixTimestamp = unixTimestamp.Remove(index);
 
       //remove , of float values
-      index = _unixTimestamp.IndexOf('.');
-      if (index != -1) _unixTimestamp = _unixTimestamp.Remove(index);
+      index = unixTimestamp.IndexOf('.');
+      if (index != -1) unixTimestamp = unixTimestamp.Remove(index);
 
       int seconds;
-      if(Int32.TryParse(_unixTimestamp, out seconds))
-      {
+      if (Int32.TryParse(unixTimestamp, out seconds))
         return date.AddSeconds(seconds);
-      }
-      else
-      {
-        Log.Warn("Couldn't convert " + _unixTimestamp + " to DateTime");
-        return new DateTime();
-      }      
+
+      Log.Warn("Couldn't convert " + unixTimestamp + " to DateTime");
+      return new DateTime();
     }
 
     /// <summary>
     /// Converts a .net datetime object into a unix timestamp (used on tvdb)  
     /// </summary>
-    /// <param name="_date">Date to convert</param>
+    /// <param name="date">Date to convert</param>
     /// <returns>Unix timestamp</returns>
-    internal static String DotNetToUnix(DateTime _date)
+    internal static String DotNetToUnix(DateTime date)
     {
-      System.TimeSpan span = new System.TimeSpan(System.DateTime.Parse("1/1/1970").Ticks);
-      System.DateTime time = _date.Subtract(span);
+      TimeSpan span = new TimeSpan(DateTime.Parse("1/1/1970").Ticks);
+      DateTime time = date.Subtract(span);
       int t = (int)(time.Ticks / 10000000);
 
       return t.ToString();
-      //TimeSpan span = (_date - new DateTime(1970, 1, 1, 0, 0, 0, 0).ToLocalTime());
-      //return ((int)span.TotalSeconds).ToString();
     }
 
     /// <summary>
     /// returns a day of the week object parsed from the string
     /// </summary>
-    /// <param name="_dayOfWeek">String representation of this day of the week</param>
+    /// <param name="dayOfWeek">String representation of this day of the week</param>
     /// <returns>.net DayOfWeek enum</returns>
-    internal static DayOfWeek? GetDayOfWeek(string _dayOfWeek)
+    internal static DayOfWeek? GetDayOfWeek(string dayOfWeek)
     {
-      switch (_dayOfWeek.ToLower())
+      switch (dayOfWeek.ToLower())
       {
         case "monday":
         case "montag":
@@ -288,166 +260,141 @@ namespace TvdbLib
     /// <summary>
     /// Returns a List of colors parsed from the _text
     /// </summary>
-    /// <param name="_text"></param>
+    /// <param name="text"></param>
     /// <returns></returns>
-    internal static List<Color> ParseColors(String _text)
+    internal static List<Color> ParseColors(String text)
     {
       List<Color> retList = new List<Color>();
-      List<String> colorList = SplitTvdbString(_text);
+      List<String> colorList = SplitTvdbString(text);
       for (int i = 0; i < colorList.Count; i++)
       {
         String[] color = colorList[i].Split(',');
         int red;
         int green;
         int blue;
-        if (Int32.TryParse(color[0], out red) && Int32.TryParse(color[1], out green) && 
+        if (Int32.TryParse(color[0], out red) && Int32.TryParse(color[1], out green) &&
             Int32.TryParse(color[2], out blue))
         {
           retList.Add(Color.FromArgb(red, green, blue));
         }
       }
       return null;
-      //throw new NotImplementedException();
     }
 
     /// <summary>
     /// Returns a point objects parsed from _text
     /// </summary>
-    /// <param name="_text"></param>
+    /// <param name="text"></param>
     /// <returns></returns>
-    internal static Point ParseResolution(String _text)
+    internal static Point ParseResolution(String text)
     {
-      String[] res = _text.Split('x');
+      String[] res = text.Split('x');
       int x;
       int y;
       if (Int32.TryParse(res[0], out x) && Int32.TryParse(res[1], out y))
-      {
         return new Point(x, y);
-      }
-      else
-      {
-        Log.Warn("Couldn't parse resolution" + _text);
-        return new Point();
-      }
-      //throw new NotImplementedException();
+
+      Log.Warn("Couldn't parse resolution" + text);
+      return new Point();
     }
 
     /// <summary>
     /// Parse a boolean value from thetvdb xml files
     /// </summary>
-    /// <param name="_boolean">Boolean value to parse</param>
+    /// <param name="boolean">Boolean value to parse</param>
     /// <returns></returns>
-    internal static bool ParseBoolean(String _boolean)
+    internal static bool ParseBoolean(String boolean)
     {
-      bool value = false;
-      if (Boolean.TryParse(_boolean, out value))
-      {
+      bool value;
+      if (Boolean.TryParse(boolean, out value))
         return value;
-      }
-      else
-      {
-        Log.Warn("Couldn't parse bool value of string " + _boolean);
-        return false;
-      }
+      Log.Warn("Couldn't parse bool value of string " + boolean);
+      return false;
     }
 
     /// <summary>
     /// 
     /// </summary>
-    /// <param name="_type"></param>
+    /// <param name="type"></param>
     /// <returns></returns>
-    internal static TvdbSeasonBanner.Type ParseSeasonBannerType(String _type)
+    internal static TvdbSeasonBanner.Type ParseSeasonBannerType(String type)
     {
-      if (_type.Equals("season")) return TvdbLib.Data.Banner.TvdbSeasonBanner.Type.season;
-      else if (_type.Equals("seasonwide")) return TvdbLib.Data.Banner.TvdbSeasonBanner.Type.seasonwide;
-      else return TvdbLib.Data.Banner.TvdbSeasonBanner.Type.none;
+      if (type.Equals("Season")) return TvdbSeasonBanner.Type.Season;
+      if (type.Equals("SeasonWide")) return TvdbSeasonBanner.Type.SeasonWide;
+      return TvdbSeasonBanner.Type.None;
     }
 
     /// <summary>
     /// Returns the fitting SeriesBanner type from parameter
     /// </summary>
-    /// <param name="_type"></param>
+    /// <param name="type"></param>
     /// <returns></returns>
-    internal static TvdbSeriesBanner.Type ParseSeriesBannerType(String _type)
+    internal static TvdbSeriesBanner.Type ParseSeriesBannerType(String type)
     {
-      if (_type.Equals("season")) return TvdbLib.Data.Banner.TvdbSeriesBanner.Type.blank;
-      else if (_type.Equals("graphical")) return TvdbLib.Data.Banner.TvdbSeriesBanner.Type.graphical;
-      else if (_type.Equals("text")) return TvdbLib.Data.Banner.TvdbSeriesBanner.Type.text;
-      else return TvdbLib.Data.Banner.TvdbSeriesBanner.Type.none;
+      if (type.Equals("Season")) return TvdbSeriesBanner.Type.Blank;
+      if (type.Equals("graphical")) return TvdbSeriesBanner.Type.Graphical;
+      if (type.Equals("text")) return TvdbSeriesBanner.Type.Text;
+      return TvdbSeriesBanner.Type.None;
     }
 
 
     /// <summary>
     /// Add the episode to the series
     /// </summary>
-    /// <param name="_episode"></param>
-    /// <param name="_series"></param>
-    internal static void AddEpisodeToSeries(TvdbEpisode _episode, TvdbSeries _series)
+    /// <param name="episode"></param>
+    /// <param name="series"></param>
+    internal static void AddEpisodeToSeries(TvdbEpisode episode, TvdbSeries series)
     {
-      bool episodeFound = false; ;
-      for (int i = 0; i < _series.Episodes.Count; i++)
+      bool episodeFound = false;
+      for (int i = 0; i < series.Episodes.Count; i++)
       {
-        if (_series.Episodes[i].Id == _episode.Id)
+        if (series.Episodes[i].Id == episode.Id)
         {//we have already stored this episode -> overwrite it
-          _series.Episodes[i].UpdateEpisodeInfo(_episode);
+          series.Episodes[i].UpdateEpisodeInfo(episode);
           episodeFound = true;
           break;
         }
       }
       if (!episodeFound)
       {//the episode doesn't exist yet
-        _series.Episodes.Add(_episode);
-        if (!_series.EpisodesLoaded) _series.EpisodesLoaded = true;
+        series.Episodes.Add(episode);
+        if (!series.EpisodesLoaded) series.EpisodesLoaded = true;
       }
     }
 
 
-      /// <summary>
-      /// Parse a datetime value from thetvdb
-      /// </summary>
-      /// <param name="_date">The date string that needs parsing</param>
-      /// <returns>DateTime object of the parsed date</returns>
-    internal static DateTime ParseDateTime(string _date)
+    /// <summary>
+    /// Parse a datetime value from thetvdb
+    /// </summary>
+    /// <param name="date">The date string that needs parsing</param>
+    /// <returns>DateTime object of the parsed date</returns>
+    internal static DateTime ParseDateTime(string date)
     {
-        DateTime retVal;
-        DateTime.TryParse(_date, out retVal);
-        return retVal;
+      DateTime retVal;
+      DateTime.TryParse(date, out retVal);
+      return retVal;
     }
 
     /// <summary>
     /// Tries to find an episode by a given id from a list of episodes
     /// </summary>
-    /// <param name="_episodeId">Id of the episode we're looking for</param>
-    /// <param name="_episodeList">List of episodes</param>
+    /// <param name="episodeId">Id of the episode we're looking for</param>
+    /// <param name="episodeList">List of episodes</param>
     /// <returns>The first found TvdbEpisode object or null if nothing was found</returns>
-    internal static TvdbEpisode FindEpisodeInList(int _episodeId, List<TvdbEpisode> _episodeList)
+    internal static TvdbEpisode FindEpisodeInList(int episodeId, List<TvdbEpisode> episodeList)
     {
-      foreach (TvdbEpisode e in _episodeList)
-      {
-        if (e.Id == _episodeId)
-        {//found episode
-          return e;
-        }
-      }
-      return null;//no episode found
+      return episodeList.FirstOrDefault(e => e.Id == episodeId);
     }
 
     /// <summary>
     /// Tries to find a series by a given id from a list of series
     /// </summary>
-    /// <param name="_seriesId">Id of the series we're looking for</param>
-    /// <param name="_seriesList">List of series objects</param>
+    /// <param name="seriesId">Id of the series we're looking for</param>
+    /// <param name="seriesList">List of series objects</param>
     /// <returns>The first found TvdbSeries object or null if nothing was found</returns>
-    internal static TvdbSeries FindSeriesInList(int _seriesId, List<TvdbSeries> _seriesList)
+    internal static TvdbSeries FindSeriesInList(int seriesId, List<TvdbSeries> seriesList)
     {
-      foreach (TvdbSeries s in _seriesList)
-      {
-        if (s.Id == _seriesId)
-        {//series found
-          return s;
-        }
-      }
-      return null;//no series found
+      return seriesList.FirstOrDefault(s => s.Id == seriesId);
     }
   }
 }

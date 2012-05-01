@@ -19,11 +19,8 @@
  */
 
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 
-namespace TvdbLib.Exceptions
+namespace MediaPortal.Extensions.OnlineLibraries.Libraries.TvdbLib.Exceptions
 {
   /// <summary>
   /// Exception that is thrown if http://thetvdb.com seems to be unavailable
@@ -33,9 +30,9 @@ namespace TvdbLib.Exceptions
     /// <summary>
     /// TvdbNotAvailableException constructor
     /// </summary>
-    /// <param name="_text">Message</param>
-    public TvdbNotAvailableException(String _text)
-      : base(_text)
+    /// <param name="text">Message</param>
+    public TvdbNotAvailableException(String text)
+      : base(text)
     {
     }
 

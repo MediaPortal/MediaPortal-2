@@ -19,11 +19,8 @@
  */
 
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 
-namespace TvdbLib.Data.Banner
+namespace MediaPortal.Extensions.OnlineLibraries.Libraries.TvdbLib.Data.Banner
 {
   /// <summary>
   /// Represents the episode banner, which is currently only one image
@@ -39,20 +36,19 @@ namespace TvdbLib.Data.Banner
     /// TvdbEpisodeBanner constructor
     /// </summary>
     public TvdbEpisodeBanner()
-      : base()
     {
-      this.Language = new TvdbLanguage(-99, "Universal, valid for all languages", "all");
+      Language = new TvdbLanguage(-99, "Universal, valid for all languages", "all");
     }
 
     /// <summary>
     /// TvdbEpisodeBanner constructor
     /// </summary>
-    /// <param name="_bannerPath">Path of banner</param>
-    /// <param name="_id">Id of episode banner</param>
-    public TvdbEpisodeBanner(int _id, String _bannerPath):this()
+    /// <param name="bannerPath">Path of banner</param>
+    /// <param name="id">Id of episode banner</param>
+    public TvdbEpisodeBanner(int id, String bannerPath):this()
     {
-      Id = _id;
-      BannerPath = _bannerPath;
+      Id = id;
+      BannerPath = bannerPath;
     }
   }
 }

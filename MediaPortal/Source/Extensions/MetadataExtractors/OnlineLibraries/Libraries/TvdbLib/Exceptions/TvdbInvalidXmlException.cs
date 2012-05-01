@@ -20,7 +20,7 @@
 
 using System;
 
-namespace TvdbLib.Exceptions
+namespace MediaPortal.Extensions.OnlineLibraries.Libraries.TvdbLib.Exceptions
 {
 	/// <summary>
 	/// Description of TvdbInvalidXmlException.
@@ -30,8 +30,8 @@ namespace TvdbLib.Exceptions
 		/// <summary>
 		/// TvdbInvalidXmlException constructor
 		/// </summary>
-		/// <param name="_text">Message</param>
-		public TvdbInvalidXmlException(String _text): base(_text)
+		/// <param name="text">Message</param>
+		public TvdbInvalidXmlException(String text): base(text)
 		{
 			
 		}

@@ -19,12 +19,9 @@
  */
 
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using TvdbLib.Data.Banner;
+using MediaPortal.Extensions.OnlineLibraries.Libraries.TvdbLib.Data.Banner;
 
-namespace TvdbLib.Data
+namespace MediaPortal.Extensions.OnlineLibraries.Libraries.TvdbLib.Data
 {
   /// <summary>
   /// Represents an tvdb actor -> for more information see http://thetvdb.com/wiki/index.php/API:actors.xml
@@ -33,56 +30,32 @@ namespace TvdbLib.Data
   public class TvdbActor
   {
     #region private member fields
-    private int m_id;
-    private TvdbActorBanner m_actorImage;
-    private String m_name;
-    private String m_role;
-    private int m_sortOrder;
+
     #endregion
 
     /// <summary>
     /// This matches the First, Second, Third, and Don't Care options on the site, which determine if the actor is shown on the series page or not. First (SortOrder=0), Second (SortOrder=1), and Third (SortOrder=2) generally mean the actor plays a primary role in the series. Don't Care (SortOrder=3) generally means the actor plays a lesser role. In some series there are no primary actors, so all actors will have a SortOrder of 3. The actors are also listed in the report in SortOrder, followed by those with images, and then finally by Name. So using the order they show up in the file is a valid method. 
     /// </summary>
-    public int SortOrder
-    {
-      get { return m_sortOrder; }
-      set { m_sortOrder = value; }
-    }
+    public int SortOrder { get; set; }
 
     /// <summary>
     /// The name of the actor's character in the series. This may include multiple roles in comma-separated format. 
     /// </summary>
-    public String Role
-    {
-      get { return m_role; }
-      set { m_role = value; }
-    }
+    public string Role { get; set; }
 
     /// <summary>
     /// The actual name of the actor. 
     /// </summary>
-    public String Name
-    {
-      get { return m_name; }
-      set { m_name = value; }
-    }
+    public string Name { get; set; }
 
     /// <summary>
     /// The image for the actor in this role.
     /// </summary>
-    public TvdbActorBanner ActorImage
-    {
-      get { return m_actorImage; }
-      set { m_actorImage = value; }
-    }
+    public TvdbActorBanner ActorImage { get; set; }
 
     /// <summary>
     /// A unique id per actor. At some point actors will be globally unique but for now they're just unique per series. 
     /// </summary>
-    public int Id
-    {
-      get { return m_id; }
-      set { m_id = value; }
-    }
+    public int Id { get; set; }
   }
 }

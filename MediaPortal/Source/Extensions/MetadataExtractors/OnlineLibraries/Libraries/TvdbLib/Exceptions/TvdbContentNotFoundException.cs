@@ -20,7 +20,7 @@
 
 using System;
 
-namespace TvdbLib.Exceptions
+namespace MediaPortal.Extensions.OnlineLibraries.Libraries.TvdbLib.Exceptions
 {
   /// <summary>
   /// Exception that is thrown when a nonexistent content is requested
@@ -30,9 +30,9 @@ namespace TvdbLib.Exceptions
         /// <summary>
     /// TvdbInvalidAPIKeyException constructor
     /// </summary>
-    /// <param name="_text">Message</param>
-    public TvdbContentNotFoundException(String _text)
-      : base(_text)
+    /// <param name="text">Message</param>
+    public TvdbContentNotFoundException(String text)
+      : base(text)
     {
     }
 

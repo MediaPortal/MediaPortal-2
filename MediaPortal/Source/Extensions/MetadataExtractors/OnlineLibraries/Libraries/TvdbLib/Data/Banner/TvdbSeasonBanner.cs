@@ -19,14 +19,11 @@
  */
 
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 
-namespace TvdbLib.Data.Banner
+namespace MediaPortal.Extensions.OnlineLibraries.Libraries.TvdbLib.Data.Banner
 {
   /// <summary>
-  /// Season bannners for each season of a series come in poster format (400 x 578) and wide format(758 x 140)
+  /// Season bannners for each Season of a series come in poster format (400 x 578) and wide format(758 x 140)
   /// - Wide format: http://thetvdb.com/wiki/index.php/Wide_Season_Banners
   /// - Poster format: http://thetvdb.com/wiki/index.php/Season_Banners
   /// </summary>
@@ -34,43 +31,34 @@ namespace TvdbLib.Data.Banner
   public class TvdbSeasonBanner: TvdbBannerWithThumb
   {
     /// <summary>
-    /// Type of the season banner
+    /// Type of the Season banner
     /// </summary>
     public enum Type  { 
       /// <summary>
       /// Season banner (poster format)
       /// </summary>
-      season = 0, 
+      Season = 0, 
       /// <summary>
-      /// Wide season banner (banner format)
+      /// Wide Season banner (banner format)
       /// </summary>
-      seasonwide = 1 , 
+      SeasonWide = 1 , 
       /// <summary>
       /// no format specified
       /// </summary>
-      none = 2};
+      None = 2};
 
     #region private fields
-    private Type m_bannerType;
-    private int m_season;
+
     #endregion
 
     /// <summary>
     /// Season of the banner
     /// </summary>
-    public int Season
-    {
-      get { return m_season; }
-      set { m_season = value; }
-    }
+    public int Season { get; set; }
 
     /// <summary>
     /// Type of the banner
     /// </summary>
-    public Type BannerType
-    {
-      get { return m_bannerType; }
-      set { m_bannerType = value; }
-    }
+    public Type BannerType { get; set; }
   }
 }

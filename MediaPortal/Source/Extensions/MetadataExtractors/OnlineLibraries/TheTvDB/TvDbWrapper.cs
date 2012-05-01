@@ -26,9 +26,9 @@ using System.Collections.Generic;
 using System.Linq;
 using MediaPortal.Common;
 using MediaPortal.Common.Logging;
-using TvdbLib;
-using TvdbLib.Cache;
-using TvdbLib.Data;
+using MediaPortal.Extensions.OnlineLibraries.Libraries.TvdbLib;
+using MediaPortal.Extensions.OnlineLibraries.Libraries.TvdbLib.Cache;
+using MediaPortal.Extensions.OnlineLibraries.Libraries.TvdbLib.Data;
 
 namespace MediaPortal.Extensions.OnlineLibraries.TheTvDB
 {

@@ -19,12 +19,10 @@
  */
 
 using System;
-using System.Collections.Generic;
-using TvdbLib.Data;
+using MediaPortal.Extensions.OnlineLibraries.Libraries.TvdbLib.Data;
 
-namespace TvdbLib
+namespace MediaPortal.Extensions.OnlineLibraries.Libraries.TvdbLib
 {
-
   /// <summary>
   /// Information on server structure and mirrors of tvdb
   /// 
@@ -43,11 +41,11 @@ namespace TvdbLib
   /// |           |     |---- <language>.zip  (Zipped version of Full Series Record and banners.xml)
   /// |           |
   /// |           |---- default/  (sorts using the default ordering method)
-  /// |           |     |---- <season#>/<episode#>/
+  /// |           |     |---- <Season#>/<episode#>/
   /// |           |           |---- <language>.xml  (Base Episode Record)
   /// |           |
   /// |           |---- dvd/  (sorts using the dvd ordering method)
-  /// |           |     |---- <season#>/<episode#>/
+  /// |           |     |---- <Season#>/<episode#>/
   /// |           |           |---- <language>.xml  (Base Episode Record)
   /// |           |
   /// |           |---- absolute/  (sorts using the absolute ordering method)
@@ -75,79 +73,79 @@ namespace TvdbLib
     /// </summary>
     internal const String LANG_PATH = "/languages.xml";
 
-    internal static String CreateSeriesLink(String _apiKey, int _seriesId, TvdbLanguage _lang, bool _full, bool _zipped)
+    internal static String CreateSeriesLink(String apiKey, int seriesId, TvdbLanguage lang, bool full, bool zipped)
     {
-      return String.Format("{0}/api/{1}/series/{2}{3}{4}.xml", BASE_SERVER, _apiKey,
-                           _seriesId, (_full ? "/all/" : "/"), (_lang != null ? _lang.Abbriviation : "en"));
+      return String.Format("{0}/api/{1}/series/{2}{3}{4}.xml", BASE_SERVER, apiKey,
+                           seriesId, (full ? "/all/" : "/"), (lang != null ? lang.Abbriviation : "en"));
     }
 
-    internal static String CreateSeriesLinkZipped(String _apiKey, int _seriesId, TvdbLanguage _lang)
+    internal static String CreateSeriesLinkZipped(String apiKey, int seriesId, TvdbLanguage lang)
     {
-      String link = String.Format("{0}/api/{1}/series/{2}/all/{3}.zip", BASE_SERVER, _apiKey, _seriesId,
-                                  (_lang != null ? _lang.Abbriviation : "en"));
+      String link = String.Format("{0}/api/{1}/series/{2}/all/{3}.zip", BASE_SERVER, apiKey, seriesId,
+                                  (lang != null ? lang.Abbriviation : "en"));
 
       return link;
     }
 
-    internal static String CreateSeriesBannersLink(String _apiKey, int _seriesId)
+    internal static String CreateSeriesBannersLink(String apiKey, int seriesId)
     {
-      String link = String.Format("{0}/api/{1}/series/{2}/banners.xml", BASE_SERVER, _apiKey, _seriesId);
+      String link = String.Format("{0}/api/{1}/series/{2}/banners.xml", BASE_SERVER, apiKey, seriesId);
       return link;
     }
 
-    internal static String CreateSeriesEpisodesLink(String _apiKey, int _seriesId, TvdbLanguage _lang)
+    internal static String CreateSeriesEpisodesLink(String apiKey, int seriesId, TvdbLanguage lang)
     {
       //this in fact returns the "full series page (http://thetvdb.com/wiki/index.php/API:Full_Series_Record)
       //which sucks because to retrieve all episodes I have to also download the series information (which isn't)
       //all that big on the other hand
-      String link = String.Format("{0}/api/{1}/series/{2}/all/{3}.xml", BASE_SERVER, _apiKey, _seriesId,
-                                  (_lang != null ? _lang.Abbriviation : "en"));
+      String link = String.Format("{0}/api/{1}/series/{2}/all/{3}.xml", BASE_SERVER, apiKey, seriesId,
+                                  (lang != null ? lang.Abbriviation : "en"));
       return link;
     }
 
-    internal static String CreateEpisodeLink(string _apiKey, int _episodeId, String _lang, bool p)
+    internal static String CreateEpisodeLink(string apiKey, int episodeId, String lang, bool p)
     {
-      String link = String.Format("{0}/api/{1}/episodes/{2}/{3}.xml", BASE_SERVER, _apiKey, _episodeId, _lang);
+      String link = String.Format("{0}/api/{1}/episodes/{2}/{3}.xml", BASE_SERVER, apiKey, episodeId, lang);
       return link;
     }
 
 
-    internal static String CreateEpisodeLink(string _apiKey, int _episodeId, TvdbLanguage _lang, bool p)
+    internal static String CreateEpisodeLink(string apiKey, int episodeId, TvdbLanguage lang, bool p)
     {
-      return CreateEpisodeLink(_apiKey, _episodeId, (_lang != null ? _lang.Abbriviation : "en"), p);
+      return CreateEpisodeLink(apiKey, episodeId, (lang != null ? lang.Abbriviation : "en"), p);
     }
 
-    internal static string CreateEpisodeLink(string _apiKey, int _seriesId, int _seasonNr,
-                                             int _episodeNr, string _order, TvdbLanguage _lang)
+    internal static string CreateEpisodeLink(string apiKey, int seriesId, int seasonNr,
+                                             int episodeNr, string order, TvdbLanguage lang)
     {
-      String link = String.Format("{0}/api/{1}/series/{2}/{3}/{4}//{5}/{6}.xml", BASE_SERVER, _apiKey,
-                                  _seriesId, _order, _seasonNr, _episodeNr, (_lang != null ? _lang.Abbriviation : "en"));
+      String link = String.Format("{0}/api/{1}/series/{2}/{3}/{4}//{5}/{6}.xml", BASE_SERVER, apiKey,
+                                  seriesId, order, seasonNr, episodeNr, (lang != null ? lang.Abbriviation : "en"));
       return link;
     }
 
-    internal static string CreateEpisodeLink(string _apiKey, int _seriesId, DateTime _airDate, TvdbLanguage _language)
+    internal static string CreateEpisodeLink(string apiKey, int seriesId, DateTime airDate, TvdbLanguage language)
     {
       String link = String.Format("{0}/api/GetEpisodeByAirDate.php?apikey={1}&seriesid={2}&airdate={3}&language={4}",
-                                  BASE_SERVER, _apiKey, _seriesId, _airDate.ToShortDateString(),
-                                  _language.Abbriviation);
+                                  BASE_SERVER, apiKey, seriesId, airDate.ToShortDateString(),
+                                  language.Abbriviation);
       return link;
     }
 
-    internal static String CreateUpdateLink(string _apiKey, Interval _interval, bool _zipped)
+    internal static String CreateUpdateLink(string apiKey, Interval interval, bool zipped)
     {
-      String link = String.Format("{0}/api/{1}/updates/updates_{2}{3}", BASE_SERVER, _apiKey,
-                                  _interval, (_zipped ? ".zip" : ".xml"));
+      String link = String.Format("{0}/api/{1}/updates/updates_{2}{3}", BASE_SERVER, apiKey,
+                                  interval, (zipped ? ".zip" : ".xml"));
       return link;
     }
 
-    internal static String CreateSearchLink(String _searchString, TvdbLanguage _language)
+    internal static String CreateSearchLink(String searchString, TvdbLanguage language)
     {
-      String link = String.Format("{0}/api/GetSeries.php?seriesname={1}&language={2}", BASE_SERVER.Trim('/'), _searchString, _language.Abbriviation);
+      String link = String.Format("{0}/api/GetSeries.php?seriesname={1}&language={2}", BASE_SERVER.Trim('/'), searchString, language.Abbriviation);
       return link;
     }
 
 
-    internal static string CreateBannerLink(string _bannerPath)
+    internal static string CreateBannerLink(string bannerPath)
     {
       //this was to test a random mirror choosing, which is done server-side now as it seems
       /*String mirror = null;
@@ -162,20 +160,20 @@ namespace TvdbLib
         mirror = BASE_SERVER;
       }*/
 
-      String link = BASE_SERVER + "/banners/" + _bannerPath;
+      String link = BASE_SERVER + "/banners/" + bannerPath;
       return link;
 
     }
 
-    internal static string CreateLanguageLink(string _apiKey)
+    internal static string CreateLanguageLink(string apiKey)
     {
-      String link = String.Format("{0}/api/{1}/languages.xml", BASE_SERVER, _apiKey);
+      String link = String.Format("{0}/api/{1}/languages.xml", BASE_SERVER, apiKey);
       return link;
     }
 
-    internal static String CreateUserLanguageLink(String _identifier)
+    internal static String CreateUserLanguageLink(String identifier)
     {
-      String link = String.Format("{0}/api/User_PreferredLanguage.php?accountid={1}", BASE_SERVER.Trim('/'), _identifier);
+      String link = String.Format("{0}/api/User_PreferredLanguage.php?accountid={1}", BASE_SERVER.Trim('/'), identifier);
       return link;
     }
 
@@ -183,53 +181,53 @@ namespace TvdbLib
     /// Creates link which (depending on params) gets user favorites, adds a series to user
     /// favorites or removes a series from the favorite lis
     /// </summary>
-    /// <param name="_identifier"></param>
-    /// <param name="_type"></param>
-    /// <param name="_seriesId"></param>
+    /// <param name="identifier"></param>
+    /// <param name="type"></param>
+    /// <param name="seriesId"></param>
     /// <returns>Link</returns>
-    internal static String CreateUserFavouriteLink(String _identifier, Util.UserFavouriteAction _type, int _seriesId)
+    internal static String CreateUserFavouriteLink(String identifier, Util.UserFavouriteAction type, int seriesId)
     {
-      String link = String.Format("{0}/api/User_Favorites.php?accountid={1}{2}", BASE_SERVER.Trim('/'), _identifier,
-                                  ((_type == Util.UserFavouriteAction.none) ? "" : ("&type=" + _type +
-                                  "&seriesid=" + _seriesId)));
+      String link = String.Format("{0}/api/User_Favorites.php?accountid={1}{2}", BASE_SERVER.Trim('/'), identifier,
+                                  ((type == Util.UserFavouriteAction.None) ? "" : ("&type=" + type +
+                                  "&seriesid=" + seriesId)));
       return link;
     }
     /// <summary>
     /// Creates link which only retrieves the user favourites
     /// </summary>
-    /// <param name="_identifier"></param>
+    /// <param name="identifier"></param>
     /// <returns>Link</returns>
-    internal static String CreateUserFavouriteLink(String _identifier)
+    internal static String CreateUserFavouriteLink(String identifier)
     {
-      return CreateUserFavouriteLink(_identifier, Util.UserFavouriteAction.none, 0);
+      return CreateUserFavouriteLink(identifier, Util.UserFavouriteAction.None, 0);
     }
 
     #region Rating
 
-    private static String CreateBasicRating(String _identifier)
+    private static String CreateBasicRating(String identifier)
     {
-      String link = String.Format("{0}/api/User_Rating.php?accountid={1}", BASE_SERVER.Trim('/'), _identifier);
+      String link = String.Format("{0}/api/User_Rating.php?accountid={1}", BASE_SERVER.Trim('/'), identifier);
       return link;
     }
 
-    internal static String CreateUserSeriesRating(String _identifier, int _seriesId)
+    internal static String CreateUserSeriesRating(String identifier, int seriesId)
     {
-      return CreateBasicRating(_identifier) + "&itemtype=series&itemid=" + _seriesId;
+      return CreateBasicRating(identifier) + "&itemtype=series&itemid=" + seriesId;
     }
 
-    internal static String CreateUserSeriesRating(String _identifier, int _seriesId, int _rating)
+    internal static String CreateUserSeriesRating(String identifier, int seriesId, int rating)
     {
-      return CreateUserSeriesRating(_identifier, _seriesId) + "&rating=" + _rating;
+      return CreateUserSeriesRating(identifier, seriesId) + "&rating=" + rating;
     }
 
-    internal static String CreateUserEpisodeRating(String _identifier, int _episodeId)
+    internal static String CreateUserEpisodeRating(String identifier, int episodeId)
     {
-      return CreateBasicRating(_identifier) + "&itemtype=episode&itemid=" + _episodeId;
+      return CreateBasicRating(identifier) + "&itemtype=episode&itemid=" + episodeId;
     }
 
-    internal static String CreateUserEpisodeRating(String _identifier, int _episodeId, int _rating)
+    internal static String CreateUserEpisodeRating(String identifier, int episodeId, int rating)
     {
-      return CreateUserEpisodeRating(_identifier, _episodeId) + "&rating=" + _rating;
+      return CreateUserEpisodeRating(identifier, episodeId) + "&rating=" + rating;
     }
 
     #endregion
@@ -237,38 +235,38 @@ namespace TvdbLib
     /// <summary>
     /// Create link to get actor info
     /// </summary>
-    /// <param name="_seriesId">series id</param>
-    /// <param name="_apiKey">api key</param>
+    /// <param name="seriesId">series id</param>
+    /// <param name="apiKey">api key</param>
     /// <returns>Link</returns>
-    internal static String CreateActorLink(int _seriesId, String _apiKey)
+    internal static String CreateActorLink(int seriesId, String apiKey)
     {
-      String link = String.Format("{0}/api/{1}/series/{2}/actors.xml", BASE_SERVER, _apiKey, _seriesId);
+      String link = String.Format("{0}/api/{1}/series/{2}/actors.xml", BASE_SERVER, apiKey, seriesId);
       return link;
     }
 
     /// <summary>
     /// create a link to all series rated by the user
     /// </summary>
-    /// <param name="_apiKey">api key</param>
-    /// <param name="_userIdentifier">user identifier</param>
+    /// <param name="apiKey">api key</param>
+    /// <param name="userIdentifier">user identifier</param>
     /// <returns>Link</returns>
-    internal static String CreateAllSeriesRatingsLink(String _apiKey, String _userIdentifier)
+    internal static String CreateAllSeriesRatingsLink(String apiKey, String userIdentifier)
     {
       String link = String.Format("{0}/api/GetRatingsForUser.php?apikey={1}&accountid={2}",
-                                  BASE_SERVER, _apiKey, _userIdentifier);
+                                  BASE_SERVER, apiKey, userIdentifier);
       return link;
     }
 
     /// <summary>
     /// create a link to all items rated by the user for this series
     /// </summary>
-    /// <param name="_apiKey">api key</param>
-    /// <param name="_userIdentifier">user identifier</param>
-    /// <param name="_seriesId">id of the series</param>
+    /// <param name="apiKey">api key</param>
+    /// <param name="userIdentifier">user identifier</param>
+    /// <param name="seriesId">id of the series</param>
     /// <returns>Link</returns>
-    internal static String CreateSeriesRatingsLink(String _apiKey, String _userIdentifier, int _seriesId)
+    internal static String CreateSeriesRatingsLink(String apiKey, String userIdentifier, int seriesId)
     {
-      String link = CreateAllSeriesRatingsLink(_apiKey, _userIdentifier) + "&seriesid=" + _seriesId;
+      String link = CreateAllSeriesRatingsLink(apiKey, userIdentifier) + "&seriesid=" + seriesId;
       return link;
     }
 
@@ -277,14 +275,14 @@ namespace TvdbLib
     /// 
     /// http://forums.thetvdb.com/viewtopic.php?f=8&t=3724&start=0
     /// </summary>
-    /// <param name="_apiKey">api key</param>
-    /// <param name="_site">type of external site</param>
-    /// <param name="_id">id on the site</param>
+    /// <param name="apiKey">api key</param>
+    /// <param name="site">type of external site</param>
+    /// <param name="id">id on the site</param>
     /// <returns></returns>
-    internal static String CreateGetSeriesByIdLink(String _apiKey, ExternalId _site, String _id)
+    internal static String CreateGetSeriesByIdLink(String apiKey, ExternalId site, String id)
     {
-      String siteString = "";
-      switch(_site)
+      String siteString;
+      switch (site)
       {
         case ExternalId.ImdbId:
           siteString = "imdbid";
@@ -293,11 +291,9 @@ namespace TvdbLib
           return "";//unknown site
       }
 
-      String link = String.Format("{0}/api/GetSeriesByRemoteID.php?{1}={2}", BASE_SERVER, siteString, _id);
+      String link = String.Format("{0}/api/GetSeriesByRemoteID.php?{1}={2}", BASE_SERVER, siteString, id);
       return link;
       //http://thetvdb.com/api/GetSeriesByRemoteID.php?imdbid=tt0411008
     }
-
-
   }
 }

@@ -27,7 +27,7 @@ namespace MovieDbLib.Exceptions
 {
   /// <summary>
   /// Exception thrown when a request is made which requires a valid
-  /// api key but none is set
+  /// api key but None is set
   /// </summary>
   public class MovieDbInvalidApiKeyException : MovieDbException
   {

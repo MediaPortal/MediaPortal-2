@@ -1,9 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+﻿using System.Collections.Generic;
 
-namespace TvdbLib.Data.Comparer
+namespace MediaPortal.Extensions.OnlineLibraries.Libraries.TvdbLib.Data.Comparer
 {
   /// <summary>
   /// Compare episodes according to their default episode numbers (aired)
@@ -34,7 +31,7 @@ namespace TvdbLib.Data.Comparer
   {
     public int Compare(TvdbEpisode x, TvdbEpisode y)
     {
-      return (int)(x.AbsoluteNumber - y.AbsoluteNumber);
+      return x.AbsoluteNumber - y.AbsoluteNumber;
     }
   }
 }

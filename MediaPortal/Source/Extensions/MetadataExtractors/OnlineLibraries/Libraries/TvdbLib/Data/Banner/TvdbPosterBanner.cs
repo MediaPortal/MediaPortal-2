@@ -19,12 +19,9 @@
  */
 
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Drawing;
 
-namespace TvdbLib.Data.Banner
+namespace MediaPortal.Extensions.OnlineLibraries.Libraries.TvdbLib.Data.Banner
 {
   /// <summary>
   /// Newest addition to the graphical section. Like the name says it has poster
@@ -33,23 +30,24 @@ namespace TvdbLib.Data.Banner
   /// More information at http://thetvdb.com/wiki/index.php/Posters
   /// </summary>
   [Serializable]
-  public class TvdbPosterBanner: TvdbBannerWithThumb
+  public class TvdbPosterBanner : TvdbBannerWithThumb
   {
     #region private fields
-        private Point m_resolution;
+
     #endregion
 
-        /// <summary>
+    /// <summary>
     /// TvdbPosterBanner constructor
     /// </summary>
-    /// <param name="_id">Id of fanart banner</param>
-    /// <param name="_lang">Language for this banner</param>
-    /// <param name="_path">Path of image for this banner</param>
-    public TvdbPosterBanner(int _id, String _path, TvdbLanguage _lang):this()
+    /// <param name="id">Id of fanart banner</param>
+    /// <param name="lang">Language for this banner</param>
+    /// <param name="path">Path of image for this banner</param>
+    public TvdbPosterBanner(int id, String path, TvdbLanguage lang)
+      : this()
     {
-      this.Id = _id;
-      this.BannerPath = _path;
-      this.Language = _lang;
+      Id = id;
+      BannerPath = path;
+      Language = lang;
     }
     /// <summary>
     /// TvdbPosterBanner constructor
@@ -62,10 +60,6 @@ namespace TvdbLib.Data.Banner
     /// <summary>
     /// Resolution of the Poster banner
     /// </summary>
-    public Point Resolution
-    {
-      get { return m_resolution; }
-      set { m_resolution = value; }
-    }
+    public Point Resolution { get; set; }
   }
 }

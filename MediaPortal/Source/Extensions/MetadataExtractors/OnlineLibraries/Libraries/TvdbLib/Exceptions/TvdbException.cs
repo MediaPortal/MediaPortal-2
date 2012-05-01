@@ -19,23 +19,20 @@
  */
 
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 
-namespace TvdbLib.Exceptions
+namespace MediaPortal.Extensions.OnlineLibraries.Libraries.TvdbLib.Exceptions
 {
   /// <summary>
   /// Base excpetion for tvdblib 
   /// </summary>
-  public class TvdbException : Exception
+  public class TvdbException : ApplicationException
   {
     /// <summary>
     /// TvdbException constructor
     /// </summary>
-    /// <param name="_text">Message</param>
-    public TvdbException(String _text)
-      : base(_text)
+    /// <param name="text">Message</param>
+    public TvdbException(String text)
+      : base(text)
     {
     }
 
