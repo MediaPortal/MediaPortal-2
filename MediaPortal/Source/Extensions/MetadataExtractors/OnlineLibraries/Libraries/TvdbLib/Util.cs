@@ -40,8 +40,6 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.TvdbLib
     ImdbId = 0
   }
 
-  #endregion
-
   /// <summary>
   /// Update interval
   /// </summary>
@@ -65,8 +63,12 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.TvdbLib
     Automatic = 3
   };
 
+  #endregion
+
   internal class Util
   {
+    public const int NO_VALUE = -99;
+
     /// <summary>
     /// Type when handling user favorites
     /// </summary>
@@ -91,7 +93,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.TvdbLib
     }
 
     /// <summary>
-    /// Parses an integer string and returns the number or -99 if the format
+    /// Parses an integer string and returns the number or <see cref="NO_VALUE"/> if the format
     /// is invalid
     /// </summary>
     /// <param name="number"></param>
@@ -100,18 +102,15 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.TvdbLib
     {
       //check this or we have a badass performance problem because everytime we have
       //an empty field an exception would be thrown
-      if (number.Equals("")) return -99;
+      if (string.IsNullOrEmpty(number)) 
+        return NO_VALUE;
 
       int result;
-      if (Int32.TryParse(number, out result))
-      {
-        return result;
-      }
-      return -99;
+      return Int32.TryParse(number, out result) ? result : NO_VALUE;
     }
 
     /// <summary>
-    /// Parses an double string and returns the number or -99 if the format
+    /// Parses an double string and returns the number or <see cref="NO_VALUE"/> if the format
     /// is invalid
     /// </summary>
     /// <param name="number"></param>
@@ -126,19 +125,15 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.TvdbLib
         }
         //check this or we have a badass performance problem because everytime we have
         //an empty field an exception would be thrown
-        if (number.Equals("")) return -99;
+        if (string.IsNullOrEmpty(number)) return NO_VALUE;
         number = number.Replace(',', '.');
 
         double result;
-        if (Double.TryParse(number, NumberStyles.Float, _formatProvider, out result))
-        {
-          return result;
-        }
-        return -99;
+        return Double.TryParse(number, NumberStyles.Float, _formatProvider, out result) ? result : NO_VALUE;
       }
       catch (FormatException)
       {
-        return -99;
+        return NO_VALUE;
       }
     }
 
@@ -171,7 +166,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.TvdbLib
         _languageList = new List<TvdbLanguage>();
 
       //the language doesn't exist yet -> create placeholder
-      TvdbLanguage lang = new TvdbLanguage(-99, "unknown", shortLanguageDesc);
+      TvdbLanguage lang = new TvdbLanguage(NO_VALUE, "unknown", shortLanguageDesc);
       _languageList.Add(lang);
       return lang;
     }

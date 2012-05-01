@@ -20,13 +20,13 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using MediaPortal.Extensions.OnlineLibraries.Libraries.TvdbLib.Cache;
 using MediaPortal.Extensions.OnlineLibraries.Libraries.TvdbLib.Data;
 using MediaPortal.Extensions.OnlineLibraries.Libraries.TvdbLib.Data.Banner;
 using MediaPortal.Extensions.OnlineLibraries.Libraries.TvdbLib.Data.Comparer;
 using MediaPortal.Extensions.OnlineLibraries.Libraries.TvdbLib.Exceptions;
-using System.Diagnostics;
 
 namespace MediaPortal.Extensions.OnlineLibraries.Libraries.TvdbLib
 {
@@ -1256,11 +1256,11 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.TvdbLib
                   //we have values for those, don't override them
                   //-> http://forums.thetvdb.com/viewtopic.php?f=8&t=3993
                   //todo: remove this once tvdb fixed that issue
-                  if (e.CombinedSeason != -99 && newEpisode.CombinedSeason == 0)
+                  if (e.CombinedSeason != Util.NO_VALUE && newEpisode.CombinedSeason == 0)
                   {
                     newEpisode.CombinedSeason = e.CombinedSeason;
                   }
-                  if (e.CombinedEpisodeNumber != -99 && newEpisode.CombinedEpisodeNumber == 0)
+                  if (e.CombinedEpisodeNumber != Util.NO_VALUE && newEpisode.CombinedEpisodeNumber == 0)
                   {
                     newEpisode.CombinedEpisodeNumber = e.CombinedEpisodeNumber;
                   }

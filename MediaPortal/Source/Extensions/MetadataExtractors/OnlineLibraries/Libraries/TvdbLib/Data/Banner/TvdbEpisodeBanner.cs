@@ -37,7 +37,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.TvdbLib.Data.Banner
     /// </summary>
     public TvdbEpisodeBanner()
     {
-      Language = new TvdbLanguage(-99, "Universal, valid for all languages", "all");
+      Language = new TvdbLanguage(Util.NO_VALUE, "Universal, valid for all languages", "all");
     }
 
     /// <summary>

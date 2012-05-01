@@ -54,7 +54,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.TvdbLib.Data
     /// TvdbLanguage constructor
     /// </summary>
     public TvdbLanguage()
-      : this(-99, "", "")
+      : this(Util.NO_VALUE, "", "")
     {
 
     }

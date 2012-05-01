@@ -46,7 +46,8 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.TvdbLib.Data
     /// <summary>
     /// TvdbMirror constructor
     /// </summary>
-    public TvdbMirror():this(-99,null, -99)
+    public TvdbMirror()
+      : this(Util.NO_VALUE, null, Util.NO_VALUE)
     {
     }
 

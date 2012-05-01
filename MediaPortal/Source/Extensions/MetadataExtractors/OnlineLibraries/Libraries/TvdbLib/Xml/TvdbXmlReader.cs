@@ -70,7 +70,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.TvdbLib.Xml
                            id = language.Element("id").Value
                          };
 
-      return allLanguages.Select(l => new TvdbLanguage { Name = l.name, Abbriviation = l.abbreviation, Id = Util.Int32Parse(l.id) }).Where(lang => lang.Id != -99).ToList();
+      return allLanguages.Select(l => new TvdbLanguage { Name = l.name, Abbriviation = l.abbreviation, Id = Util.Int32Parse(l.id) }).Where(lang => lang.Id != Util.NO_VALUE).ToList();
     }
 
     /// <summary>
@@ -106,7 +106,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.TvdbLib.Xml
                                           MirrorPath = new Uri(l.mirrorpath),
                                           TypeMask = Util.Int32Parse(l.typemask),
                                           Id = Util.Int32Parse(l.id)
-                                        }).Where(lang => lang.Id != -99).ToList();
+                                        }).Where(lang => lang.Id != Util.NO_VALUE).ToList();
     }
 
     /// <summary>
@@ -233,7 +233,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.TvdbLib.Xml
       foreach (var s in allSeries)
       {
         int id = Util.Int32Parse(s.Id);
-        if (id == -99)
+        if (id == Util.NO_VALUE)
           continue;
         TvdbSeriesFields series = new TvdbSeriesFields
                                     {
@@ -339,18 +339,18 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.TvdbLib.Xml
                           seasonid = episode.Element("seasonid").Value,
                           seriesid = episode.Element("seriesid").Value,
                           airsafter_season = episode.Elements("airsafter_season").Count() == 1
-                                           ? episode.Element("airsafter_season").Value : "-99",
+                                           ? episode.Element("airsafter_season").Value : Util.NO_VALUE.ToString(),
                           airsbefore_episode = episode.Elements("airsbefore_episode").Count() == 1
-                                             ? episode.Element("airsbefore_episode").Value : "-99",
+                                             ? episode.Element("airsbefore_episode").Value : Util.NO_VALUE.ToString(),
                           airsbefore_season = episode.Elements("airsbefore_season").Count() == 1
-                                            ? episode.Element("airsbefore_season").Value : "-99"
+                                            ? episode.Element("airsbefore_season").Value : Util.NO_VALUE.ToString()
                         };
       //Log.Debug("Parsed xml file in  " + watch.ElapsedMilliseconds + " milliseconds");
       List<TvdbEpisode> retList = new List<TvdbEpisode>();
       foreach (var e in allEpisodes)
       {
         int id = Util.Int32Parse(e.Id);
-        if (id == -99)
+        if (id == Util.NO_VALUE)
           continue;
         TvdbEpisode ep = new TvdbEpisode
                            {
@@ -419,7 +419,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.TvdbLib.Xml
                         LastUpdated = Util.UnixToDotNet(series.Element("time").Value)
                       };
 
-      return allSeries.Where(s => s != null && s.Id != -99).ToList();
+      return allSeries.Where(s => s != null && s.Id != Util.NO_VALUE).ToList();
     }
 
     /// <summary>
@@ -505,7 +505,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.TvdbLib.Xml
                         Id = Util.Int32Parse(series.Value),
                       };
 
-      return (from s in allSeries where s.Id != -99 select s.Id).ToList();
+      return (from s in allSeries where s.Id != Util.NO_VALUE select s.Id).ToList();
     }
 
     /// <summary>
@@ -519,11 +519,11 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.TvdbLib.Xml
     /// </Data>
     /// ]]>
     /// </summary>
-    /// <param name="_data"></param>
+    /// <param name="data"></param>
     /// <returns></returns>
-    internal double ExtractRating(String _data)
+    internal double ExtractRating(String data)
     {
-      XDocument xml = XDocument.Parse(_data);
+      XDocument xml = XDocument.Parse(data);
 
       var ratings = from series in xml.Descendants("Rating")
                     select new
@@ -532,7 +532,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.TvdbLib.Xml
                     };
       if (ratings.Count() == 1 && ratings.ElementAt(0).rating != null)
         return Util.DoubleParse(ratings.ElementAt(0).rating);
-      return -99;
+      return Util.NO_VALUE;
     }
 
     /// <summary>
@@ -561,7 +561,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.TvdbLib.Xml
                           SeriesId = Util.Int32Parse(episode.Element("Series").Value)
                         };
 
-      return allEpisodes.Where(e => e.Id != -99).ToList();
+      return allEpisodes.Where(e => e.Id != Util.NO_VALUE).ToList();
 
     }
 
@@ -726,7 +726,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.TvdbLib.Xml
                              where banner.Element("BannerType").Value.Equals("fanart")
                              select new TvdbFanartBanner
                              {
-                               Id = banner.Element("id") != null ? Util.Int32Parse(banner.Element("id").Value) : -99,
+                               Id = banner.Element("id") != null ? Util.Int32Parse(banner.Element("id").Value) : Util.NO_VALUE,
                                BannerPath = banner.Element("BannerPath") != null ? banner.Element("BannerPath").Value : "",
                                VignettePath = banner.Element("id") != null ? banner.Element("VignettePath").Value : "",
                                ThumbPath = banner.Element("ThumbnailPath") != null ? banner.Element("ThumbnailPath").Value : "",
@@ -741,7 +741,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.TvdbLib.Xml
                                              Util.UnixToDotNet(banner.Element("LastUpdated").Value) : DateTime.Now
                              };
 
-      List<TvdbBanner> retList = (from TvdbBanner e in allFanartBanners where e.Id != -99 select e).ToList();
+      List<TvdbBanner> retList = (from TvdbBanner e in allFanartBanners where e.Id != Util.NO_VALUE select e).ToList();
 
       //Extract the Season banners
       var allSeasonBanners = from banner in xml.Descendants("Banner")
@@ -757,7 +757,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.TvdbLib.Xml
                                              Util.UnixToDotNet(banner.Element("LastUpdated").Value) : DateTime.Now
                              };
 
-      retList.AddRange(from TvdbBanner e in allSeasonBanners where e.Id != -99 select e);
+      retList.AddRange(from TvdbBanner e in allSeasonBanners where e.Id != Util.NO_VALUE select e);
 
       //Extract the series banners
       var allSeriesBanners = from banner in xml.Descendants("Banner")
@@ -772,7 +772,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.TvdbLib.Xml
                                              Util.UnixToDotNet(banner.Element("LastUpdated").Value) : DateTime.Now
                              };
 
-      retList.AddRange(from TvdbBanner e in allSeriesBanners where e.Id != -99 select e);
+      retList.AddRange(from TvdbBanner e in allSeriesBanners where e.Id != Util.NO_VALUE select e);
 
       //Extract the poster banners
       var allPosterBanners = from banner in xml.Descendants("Banner")
@@ -788,7 +788,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.TvdbLib.Xml
                                              Util.UnixToDotNet(banner.Element("LastUpdated").Value) : DateTime.Now
                              };
 
-      retList.AddRange(allPosterBanners.Where(e => e.Id != -99).Cast<TvdbBanner>());
+      retList.AddRange(allPosterBanners.Where(e => e.Id != Util.NO_VALUE).Cast<TvdbBanner>());
       //watch.Stop();
       //Log.Debug("Extracted " + retList.Count + " banners in " + watch.ElapsedMilliseconds + " milliseconds");
       return retList;
@@ -831,7 +831,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.TvdbLib.Xml
       foreach (var a in allActors)
       {
         int id = Util.Int32Parse(a.Id);
-        if (id == -99)
+        if (id == Util.NO_VALUE)
           continue;
         TvdbActor actor = new TvdbActor
                             {
@@ -950,7 +950,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.TvdbLib.Xml
       foreach (var r in allRatings)
       {
         TvdbRating rating = new TvdbRating { UserRating = r.UserRating, CommunityRating = r.CommunityRating, RatingItemType = type };
-        if (r.SeriesId != -99 && !retList.ContainsKey(r.SeriesId)) 
+        if (r.SeriesId != Util.NO_VALUE && !retList.ContainsKey(r.SeriesId)) 
           retList.Add(r.SeriesId, rating);
       }
       return retList;
