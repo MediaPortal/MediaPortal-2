@@ -122,7 +122,6 @@ xcopy /Y "$(ProjectDir)plugin.xml" "$(SolutionDir)..\Bin\$(SolutionName)\$(OutDi
 xcopy "$(ProjectDir)References\*.*"  "$(SolutionDir)..\Bin\$(SolutionName)\$(OutDir)Plugins\$(ProjectName)\"
 xcopy /Y "$(TargetDir)$(ProjectName).dll"  "$(SolutionDir)..\Bin\$(SolutionName)\$(OutDir)Plugins\$(ProjectName)\"
 xcopy /Y "$(TargetDir)OnlineLibraries.dll"  "$(SolutionDir)..\Bin\$(SolutionName)\$(OutDir)Plugins\$(ProjectName)\"
-xcopy /Y "$(TargetDir)TvdbLib.dll"  "$(SolutionDir)..\Bin\$(SolutionName)\$(OutDir)Plugins\$(ProjectName)\"
 </PostBuildEvent>
   </PropertyGroup>
 </Project>

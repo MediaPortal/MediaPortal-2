@@ -81,7 +81,7 @@
 xcopy /Y "$(ProjectDir)plugin.xml" "$(SolutionDir)..\Bin\$(SolutionName)\$(OutDir)Plugins\$(ProjectName)\"
 xcopy /Y "$(TargetDir)$(ProjectName).dll"  "$(SolutionDir)..\Bin\$(SolutionName)\$(OutDir)Plugins\$(ProjectName)\"
 xcopy /Y "$(TargetDir)OnlineLibraries.dll"  "$(SolutionDir)..\Bin\$(SolutionName)\$(OutDir)Plugins\$(ProjectName)\"
-xcopy /Y "$(TargetDir)TvdbLib.dll"  "$(SolutionDir)..\Bin\$(SolutionName)\$(OutDir)Plugins\$(ProjectName)\"
+
 </PostBuildEvent>
   </PropertyGroup>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

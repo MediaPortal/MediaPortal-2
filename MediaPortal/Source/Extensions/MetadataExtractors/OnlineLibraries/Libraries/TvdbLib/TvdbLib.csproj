@@ -1,0 +1,155 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProductVersion>9.0.21022</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{23C34CF0-4E66-4F02-9EDC-83F292C6005C}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>TvdbLib</RootNamespace>
+    <AssemblyName>TvdbLib</AssemblyName>
+    <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <FileUpgradeFlags>
+    </FileUpgradeFlags>
+    <UpgradeBackupLocation>
+    </UpgradeBackupLocation>
+    <OldToolsVersion>3.5</OldToolsVersion>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <DocumentationFile>bin\Debug\TvdbLib.xml</DocumentationFile>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x86'">
+    <DebugSymbols>true</DebugSymbols>
+    <OutputPath>bin\x86\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <DocumentationFile>bin\Debug\TvdbLib.xml</DocumentationFile>
+    <DebugType>full</DebugType>
+    <PlatformTarget>x86</PlatformTarget>
+    <LangVersion>default</LangVersion>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisIgnoreBuiltInRuleSets>false</CodeAnalysisIgnoreBuiltInRuleSets>
+    <CodeAnalysisIgnoreBuiltInRules>false</CodeAnalysisIgnoreBuiltInRules>
+    <CodeAnalysisFailOnMissingRules>true</CodeAnalysisFailOnMissingRules>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x86'">
+    <OutputPath>bin\x86\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <Optimize>true</Optimize>
+    <DebugType>pdbonly</DebugType>
+    <PlatformTarget>x86</PlatformTarget>
+    <LangVersion>default</LangVersion>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisIgnoreBuiltInRuleSets>false</CodeAnalysisIgnoreBuiltInRuleSets>
+    <CodeAnalysisIgnoreBuiltInRules>false</CodeAnalysisIgnoreBuiltInRules>
+    <CodeAnalysisFailOnMissingRules>true</CodeAnalysisFailOnMissingRules>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="System" />
+    <Reference Include="System.Core">
+      <RequiredTargetFramework>3.5</RequiredTargetFramework>
+    </Reference>
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.Xml.Linq">
+      <RequiredTargetFramework>3.5</RequiredTargetFramework>
+    </Reference>
+    <Reference Include="System.Data.DataSetExtensions">
+      <RequiredTargetFramework>3.5</RequiredTargetFramework>
+    </Reference>
+    <Reference Include="System.Data" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Data\TvdbEpisode.cs" />
+    <Compile Include="Data\TvdbLanguage.cs" />
+    <Compile Include="Data\TvdbSeries.cs" />
+    <Compile Include="Exceptions\TvdbInvalidXmlException.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Xml\TvdbXmlReader.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Cache\ICacheProvider.cs" />
+    <Compile Include="TvdbHandler.cs" />
+    <Compile Include="Util.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Cache\BinaryCacheProvider.cs" />
+    <Compile Include="Cache\XmlCacheProvider.cs" />
+    <Compile Include="Data\Banner\TvdbActorBanner.cs" />
+    <Compile Include="Data\Banner\TvdbBannerWithThumb.cs" />
+    <Compile Include="Data\Comparer\EpisodeComparer.cs" />
+    <Compile Include="Data\TvdbActor.cs" />
+    <Compile Include="Data\TvdbData.cs" />
+    <Compile Include="Data\Banner\TvdbBanner.cs" />
+    <Compile Include="Data\Banner\TvdbEpisodeBanner.cs" />
+    <Compile Include="Data\Banner\TvdbFanartBanner.cs" />
+    <Compile Include="Data\Banner\TvdbPosterBanner.cs" />
+    <Compile Include="Data\Banner\TvdbSeasonBanner.cs" />
+    <Compile Include="Data\Banner\TvdbSeriesBanner.cs" />
+    <Compile Include="Exceptions\TvdbCacheNotInitialisedException.cs" />
+    <Compile Include="TvdbDownloader.cs" />
+    <Compile Include="Data\TvdbRating.cs" />
+    <Compile Include="Data\TvdbSearchResult.cs" />
+    <Compile Include="Data\TvdbSeriesFields.cs" />
+    <Compile Include="Data\TvdbUser.cs" />
+    <Compile Include="Exceptions\TvdbContentNotFoundException.cs" />
+    <Compile Include="Exceptions\TvdbException.cs" />
+    <Compile Include="Exceptions\TvdbInvalidApiKeyException.cs" />
+    <Compile Include="Log.cs" />
+    <Compile Include="TvdbLinkCreator.cs" />
+    <Compile Include="Data\TvdbMirror.cs" />
+    <Compile Include="Exceptions\TvdbNotAvailableException.cs" />
+    <Compile Include="Exceptions\TvdbUserNotFoundException.cs" />
+    <Compile Include="Xml\TvdbXmlWriter.cs" />
+    <Compile Include="Zip\Checksums\Adler32.cs" />
+    <Compile Include="Zip\Checksums\CRC32.cs" />
+    <Compile Include="Zip\Checksums\IChecksum.cs" />
+    <Compile Include="Zip\Checksums\StrangeCRC.cs" />
+    <Compile Include="Zip\Compression\Deflater.cs" />
+    <Compile Include="Zip\Compression\DeflaterConstants.cs" />
+    <Compile Include="Zip\Compression\DeflaterEngine.cs" />
+    <Compile Include="Zip\Compression\DeflaterHuffman.cs" />
+    <Compile Include="Zip\Compression\DeflaterPending.cs" />
+    <Compile Include="Zip\Compression\Inflater.cs" />
+    <Compile Include="Zip\Compression\InflaterDynHeader.cs" />
+    <Compile Include="Zip\Compression\InflaterHuffmanTree.cs" />
+    <Compile Include="Zip\Compression\PendingBuffer.cs" />
+    <Compile Include="Zip\Compression\Streams\DeflaterOutputStream.cs" />
+    <Compile Include="Zip\Compression\Streams\InflaterInputStream.cs" />
+    <Compile Include="Zip\Compression\Streams\OutputWindow.cs" />
+    <Compile Include="Zip\Compression\Streams\StreamManipulator.cs" />
+    <Compile Include="Zip\Encryption\PkzipClassic.cs" />
+    <Compile Include="Zip\SharpZipBaseException.cs" />
+    <Compile Include="Zip\ZipConstants.cs" />
+    <Compile Include="Zip\ZipEntry.cs" />
+    <Compile Include="Zip\ZipException.cs" />
+    <Compile Include="Zip\ZipExtraData.cs" />
+    <Compile Include="Zip\ZipHelperStream.cs" />
+    <Compile Include="Zip\ZipInputStream.cs" />
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>
