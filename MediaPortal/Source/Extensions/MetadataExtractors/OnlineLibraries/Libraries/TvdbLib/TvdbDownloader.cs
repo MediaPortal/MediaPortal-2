@@ -25,12 +25,11 @@ using System.Linq;
 using System.Net;
 using System.Text;
 using System.Xml;
+using ICSharpCode.SharpZipLib.Zip;
 using MediaPortal.Extensions.OnlineLibraries.Libraries.TvdbLib.Data;
 using MediaPortal.Extensions.OnlineLibraries.Libraries.TvdbLib.Data.Banner;
 using MediaPortal.Extensions.OnlineLibraries.Libraries.TvdbLib.Exceptions;
 using MediaPortal.Extensions.OnlineLibraries.Libraries.TvdbLib.Xml;
-using TvdbLib.ICSharpCode.SharpZipLib.Zip;
-using TvdbLib.SharpZipLib.Zip;
 
 namespace MediaPortal.Extensions.OnlineLibraries.Libraries.TvdbLib
 {

@@ -38,6 +38,9 @@
     <StartupObject />
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="ICSharpCode.SharpZipLib">
+      <HintPath>..\..\ResourceProviders\ZipResourceProvider\References\ICSharpCode.SharpZipLib.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Drawing" />
@@ -113,31 +116,6 @@
     <Compile Include="Libraries\TvdbLib\Util.cs" />
     <Compile Include="Libraries\TvdbLib\Xml\TvdbXmlReader.cs" />
     <Compile Include="Libraries\TvdbLib\Xml\TvdbXmlWriter.cs" />
-    <Compile Include="Libraries\TvdbLib\Zip\Checksums\Adler32.cs" />
-    <Compile Include="Libraries\TvdbLib\Zip\Checksums\CRC32.cs" />
-    <Compile Include="Libraries\TvdbLib\Zip\Checksums\IChecksum.cs" />
-    <Compile Include="Libraries\TvdbLib\Zip\Checksums\StrangeCRC.cs" />
-    <Compile Include="Libraries\TvdbLib\Zip\Compression\Deflater.cs" />
-    <Compile Include="Libraries\TvdbLib\Zip\Compression\DeflaterConstants.cs" />
-    <Compile Include="Libraries\TvdbLib\Zip\Compression\DeflaterEngine.cs" />
-    <Compile Include="Libraries\TvdbLib\Zip\Compression\DeflaterHuffman.cs" />
-    <Compile Include="Libraries\TvdbLib\Zip\Compression\DeflaterPending.cs" />
-    <Compile Include="Libraries\TvdbLib\Zip\Compression\Inflater.cs" />
-    <Compile Include="Libraries\TvdbLib\Zip\Compression\InflaterDynHeader.cs" />
-    <Compile Include="Libraries\TvdbLib\Zip\Compression\InflaterHuffmanTree.cs" />
-    <Compile Include="Libraries\TvdbLib\Zip\Compression\PendingBuffer.cs" />
-    <Compile Include="Libraries\TvdbLib\Zip\Compression\Streams\DeflaterOutputStream.cs" />
-    <Compile Include="Libraries\TvdbLib\Zip\Compression\Streams\InflaterInputStream.cs" />
-    <Compile Include="Libraries\TvdbLib\Zip\Compression\Streams\OutputWindow.cs" />
-    <Compile Include="Libraries\TvdbLib\Zip\Compression\Streams\StreamManipulator.cs" />
-    <Compile Include="Libraries\TvdbLib\Zip\Encryption\PkzipClassic.cs" />
-    <Compile Include="Libraries\TvdbLib\Zip\SharpZipBaseException.cs" />
-    <Compile Include="Libraries\TvdbLib\Zip\ZipConstants.cs" />
-    <Compile Include="Libraries\TvdbLib\Zip\ZipEntry.cs" />
-    <Compile Include="Libraries\TvdbLib\Zip\ZipException.cs" />
-    <Compile Include="Libraries\TvdbLib\Zip\ZipExtraData.cs" />
-    <Compile Include="Libraries\TvdbLib\Zip\ZipHelperStream.cs" />
-    <Compile Include="Libraries\TvdbLib\Zip\ZipInputStream.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="SeriesTvDbMatcher.cs" />
     <Compile Include="TheTvDB\SeriesMatch.cs" />
