@@ -26,6 +26,7 @@ using System;
 using System.Runtime.InteropServices;
 using DirectShowLib;
 using MediaPortal.Common;
+using MediaPortal.Common.Logging;
 using MediaPortal.Common.Settings;
 using MediaPortal.UI.Players.Video.Interfaces;
 using MediaPortal.UI.Players.Video.Settings;
@@ -60,6 +61,7 @@ namespace MediaPortal.UI.Players.Video
     protected GraphRebuilder _graphRebuilder;
     protected int _selectedSubtitleIndex = NO_STREAM_INDEX;
     protected ChangedMediaType _changedMediaType;
+    protected string _oldVideoFormat;
 
     #endregion
 
@@ -163,18 +165,19 @@ namespace MediaPortal.UI.Players.Video
     /// <param name="bitrate"></param>
     /// <param name="isInterlaced"></param>
     /// <returns></returns>
-    public int OnVideoFormatChanged(int streamType, int width, int height, int aspectRatioX, int aspectRatioY,
-                                    int bitrate, int isInterlaced)
+    public int OnVideoFormatChanged(int streamType, int width, int height, int aspectRatioX, int aspectRatioY, int bitrate, int isInterlaced)
     {
-      //_videoFormat.IsValid = true;
-      //_videoFormat.streamType = (VideoStreamType)streamType;
-      //_videoFormat.width = width;
-      //_videoFormat.height = height;
-      //_videoFormat.arX = aspectRatioX;
-      //_videoFormat.arY = aspectRatioY;
-      //_videoFormat.bitrate = bitrate;
-      //_videoFormat.isInterlaced = (isInterlaced == 1);
-      //Log.Info("TsReaderPlayer: OnVideoFormatChanged - {0}", _videoFormat.ToString());
+      string newFormat = string.Format("StreamType: {0} {1}x{2} [{3}/{4} @ {5} interlaced: {6}]",
+                                       streamType, width, height, aspectRatioX, aspectRatioY, bitrate, isInterlaced);
+
+      ServiceRegistration.Get<ILogger>().Debug("{0}: OnVideoFormatChanged: {1}", PlayerTitle, newFormat);
+
+      if (!string.IsNullOrEmpty(_oldVideoFormat) && newFormat != _oldVideoFormat)
+      {
+        // Check for new audio/subtitle streams.
+        EnumerateStreams(true);
+      }
+      _oldVideoFormat = newFormat;
       return 0;
     }
     #endregion
@@ -198,10 +201,10 @@ namespace MediaPortal.UI.Players.Video
 
     #region Subtitles
 
-    protected override bool EnumerateStreams()
+    protected override bool EnumerateStreams(bool forceRefresh)
     {
       //FIXME: TSReader only offers Audio in IAMStreamSelect, it would be cleaner to expose subs as well.
-      bool refreshed = base.EnumerateStreams();
+      bool refreshed = base.EnumerateStreams(forceRefresh);
       if (refreshed)
       {
         // If base class has refreshed the stream infos, then update the subtitle streams.
