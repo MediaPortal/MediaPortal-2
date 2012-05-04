@@ -925,14 +925,20 @@ namespace MediaPortal.UI.Players.Video
 
     #region Audio streams
 
-    protected void SetPreferredAudio()
+    /// <summary>
+    /// Sets the preferred audio stream. The stream is chosen either by LCID or the last used stream name.
+    /// If there is no matching stream, the first available can be chosen if <paramref name="useFirstAsDefault"/> 
+    /// is set to <c>true</c>. This is especially required for the <see cref="TsVideoPlayer"/>.
+    /// </summary>
+    /// <param name="useFirstAsDefault"><c>true</c> to enable the first stream as default, if no language match found</param>
+    protected void SetPreferredAudio(bool useFirstAsDefault = false)
     {
       EnumerateStreams();
       StreamInfoHandler audioStreams;
       lock (SyncObj)
         audioStreams = _streamInfoAudio;
 
-      if (audioStreams == null)
+      if (audioStreams == null || audioStreams.Count == 0)
         return;
 
       VideoSettings settings = ServiceRegistration.Get<ISettingsManager>().Load<VideoSettings>();
@@ -947,6 +953,9 @@ namespace MediaPortal.UI.Players.Video
       }
       if (streamInfo != null)
         audioStreams.EnableStream(streamInfo.Name);
+      else 
+        if (useFirstAsDefault)
+          audioStreams.EnableStream(audioStreams[0].Name);
     }
 
 

@@ -190,13 +190,7 @@ namespace MediaPortal.UI.Players.Video
       // This is a special workaround for enumerating streams the first time: the callback happens before _initialized is set usually set to true (in AddFileSource).
        _initialized = true;
 
-      EnumerateStreams();
-      if (_streamInfoAudio == null || _streamInfoAudio.Count == 0)
-        return 0;
-
-      //FIXME: TsReader request an explicit choice for Audio Stream! Otherwise there is a 5 seconds delay, because
-      // the demuxer is waiting...
-      _streamInfoAudio.EnableStream(_streamInfoAudio[0].Name);
+      SetPreferredAudio(true);
       return 0;
     }
 
