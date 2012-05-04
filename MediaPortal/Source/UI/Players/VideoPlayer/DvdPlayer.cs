@@ -639,13 +639,11 @@ namespace MediaPortal.UI.Players.Video
       ServiceRegistration.Get<ILogger>().Debug("EVT: DvdTitleChange: {0}", title);
       lock (SyncObj)
       {
-        _streamInfoSubtitles = null; // Invalidate subtitles - could be different in other title
-        _streamInfoAudio = null; // Invalidate audio streams - could be different in other title
         _chapters = null; // Invalidate chapters - they are different per title
         _currTitle = title;
       }
       EnumerateChapters();
-      EnumerateStreams();
+      EnumerateStreams(true);
       CalculateDuration();
       ServiceRegistration.Get<ILogger>().Debug("  _duration: {0}", _currentTime);
     }
@@ -707,12 +705,23 @@ namespace MediaPortal.UI.Players.Video
 
     #region Audio stream handling
 
-    protected override bool EnumerateStreams()
+    protected override bool EnumerateStreams(bool forceRefresh)
     {
-      if (_initialized && _dvdInfo != null && (_streamInfoAudio == null || _streamInfoSubtitles == null))
+      if (_dvdInfo == null || !_initialized)
+        return false;
+
+      StreamInfoHandler audioStreams;
+      StreamInfoHandler subtitleStreams;
+      lock (SyncObj)
       {
-        _streamInfoAudio = new StreamInfoHandler();
-        _streamInfoSubtitles = new StreamInfoHandler();
+        audioStreams = _streamInfoAudio;
+        subtitleStreams = _streamInfoSubtitles;
+      }
+      
+      if (forceRefresh || audioStreams == null || subtitleStreams == null)
+      {
+        audioStreams = new StreamInfoHandler();
+        subtitleStreams = new StreamInfoHandler();
 
         int streamsAvailable, currentStream;
         _dvdInfo.GetCurrentAudio(out streamsAvailable, out currentStream);
@@ -727,8 +736,7 @@ namespace MediaPortal.UI.Players.Video
           string languageName = GetLanguageName(currentLCID);
 
           StringBuilder currentAudio = new StringBuilder();
-          currentAudio.AppendFormat("{0} ({1}/{2} ch/{3} KHz)",
-                                    languageName, attr.AudioFormat, attr.bNumberOfChannels, (attr.dwFrequency / 1000));
+          currentAudio.AppendFormat("{0} ({1}/{2} ch/{3} KHz)", languageName, attr.AudioFormat, attr.bNumberOfChannels, (attr.dwFrequency / 1000));
 
           switch (attr.LanguageExtension)
           {
@@ -738,12 +746,10 @@ namespace MediaPortal.UI.Players.Video
             case DvdAudioLangExt.VisuallyImpaired:
             case DvdAudioLangExt.DirectorComments1:
             case DvdAudioLangExt.DirectorComments2:
-              currentAudio.AppendFormat(" ({0})",
-                                        ServiceRegistration.Get<ILocalization>().ToString("[Playback." +
-                                                                                          attr.LanguageExtension + "]"));
+              currentAudio.AppendFormat(" ({0})", ServiceRegistration.Get<ILocalization>().ToString("[Playback." + attr.LanguageExtension + "]"));
               break;
           }
-          _streamInfoAudio.AddUnique(new StreamInfo(null, i, currentAudio.ToString(), currentLCID));
+          audioStreams.AddUnique(new StreamInfo(null, i, currentAudio.ToString(), currentLCID));
         }
 
         bool isDisabled;
@@ -758,27 +764,22 @@ namespace MediaPortal.UI.Players.Video
           string languageName = GetLanguageName(currentLCID);
 
           String localizationTag = attr.LanguageExtension.ToString();
-          String currentSubtitle = String.Format("{0} {1}", languageName,
-                                                 ServiceRegistration.Get<ILocalization>().ToString("[Playback." +
-                                                                                                   localizationTag + "]") ??
-                                                 localizationTag);
-          _streamInfoSubtitles.AddUnique(new StreamInfo(null, i, currentSubtitle, currentLCID));
+          String currentSubtitle = String.Format("{0} {1}", languageName, 
+            ServiceRegistration.Get<ILocalization>().ToString("[Playback." + localizationTag + "]") ?? localizationTag);
+          
+          subtitleStreams.AddUnique(new StreamInfo(null, i, currentSubtitle, currentLCID));
+        }
+
+        lock (SyncObj)
+        {
+          FilterGraphTools.TryDispose(ref _streamInfoAudio);
+          FilterGraphTools.TryDispose(ref _streamInfoSubtitles);
+          _streamInfoAudio = audioStreams;
+          _streamInfoSubtitles = subtitleStreams;
         }
         return true; // refreshed
       }
       return false;
-    }
-
-    /// <summary>
-    /// Gets the available audio streams.
-    /// </summary>
-    public override string[] AudioStreams
-    {
-      get
-      {
-        lock (SyncObj)
-          return _streamInfoAudio == null ? EMPTY_STRING_ARRAY : _streamInfoAudio.GetStreamNames();
-      }
     }
 
     /// <summary>
@@ -787,18 +788,25 @@ namespace MediaPortal.UI.Players.Video
     /// <param name="audioStream">audio stream</param>
     public override void SetAudioStream(string audioStream)
     {
-      VideoSettings settings = ServiceRegistration.Get<ISettingsManager>().Load<VideoSettings>();
-      StreamInfo selectedAudio = _streamInfoAudio.FindStream(audioStream);
-      if (selectedAudio != null)
-      {
-        int audioLanguage;
-        ServiceRegistration.Get<ILogger>().Debug("DvdPlayer: Select audio stream: {0}", audioStream);
-        _dvdCtrl.SelectAudioStream(selectedAudio.StreamIndex, DvdCmdFlags.None, out _cmdOption);
-        _dvdInfo.GetAudioLanguage(selectedAudio.StreamIndex, out audioLanguage);
-        settings.PreferredAudioLanguage = audioLanguage;
-        ServiceRegistration.Get<ISettingsManager>().Save(settings);
+      StreamInfoHandler audioStreams;
+      lock (SyncObj)
+        audioStreams = _streamInfoAudio;
+
+      if (audioStreams == null)
         return;
-      }
+
+      StreamInfo selectedAudio = audioStreams.FindStream(audioStream);
+      if (selectedAudio == null) 
+        return;
+
+      int audioLanguage;
+      ServiceRegistration.Get<ILogger>().Debug("DvdPlayer: Select audio stream: {0}", audioStream);
+      _dvdCtrl.SelectAudioStream(selectedAudio.StreamIndex, DvdCmdFlags.None, out _cmdOption);
+      _dvdInfo.GetAudioLanguage(selectedAudio.StreamIndex, out audioLanguage);
+
+      VideoSettings settings = ServiceRegistration.Get<ISettingsManager>().Load<VideoSettings>();
+      settings.PreferredAudioLanguage = audioLanguage;
+      ServiceRegistration.Get<ISettingsManager>().Save(settings);
     }
 
     /// <summary>
@@ -819,15 +827,6 @@ namespace MediaPortal.UI.Players.Video
     #endregion
 
     #region Subtitle stream handling
-
-    public override string[] Subtitles
-    {
-      get
-      {
-        lock (SyncObj)
-          return _streamInfoSubtitles == null ? EMPTY_STRING_ARRAY : _streamInfoSubtitles.GetStreamNames();
-      }
-    }
 
     /// <summary>
     /// Gets the DisplayName for the given LCID. If LCID is not valid, "unknown" is returned.
@@ -851,26 +850,34 @@ namespace MediaPortal.UI.Players.Video
 
     public override void SetSubtitle(string subtitle)
     {
-      VideoSettings settings = ServiceRegistration.Get<ISettingsManager>().Load<VideoSettings>();
-      StreamInfo selectedSubtitle = _streamInfoSubtitles.FindStream(subtitle);
-      if (selectedSubtitle != null)
-      {
-        int iLanguage;
-        ServiceRegistration.Get<ILogger>().Debug("DvdPlayer: Select subtitle: {0}", subtitle);
-        _dvdCtrl.SelectSubpictureStream(selectedSubtitle.StreamIndex, DvdCmdFlags.None, out _cmdOption);
-        _dvdCtrl.SetSubpictureState(true, DvdCmdFlags.None, out _cmdOption);
-        _dvdInfo.GetSubpictureLanguage(selectedSubtitle.StreamIndex, out iLanguage);
-        settings.PreferredSubtitleLanguage = iLanguage;
-        settings.EnableSubtitles = true;
-        ServiceRegistration.Get<ISettingsManager>().Save(settings);
+      StreamInfoHandler subtitleStreams;
+      lock (SyncObj)
+        subtitleStreams = _streamInfoSubtitles;
+
+      if (subtitleStreams == null)
         return;
-      }
+
+      StreamInfo selectedSubtitle = subtitleStreams.FindStream(subtitle);
+      if (selectedSubtitle == null) 
+        return;
+
+      int iLanguage;
+      ServiceRegistration.Get<ILogger>().Debug("DvdPlayer: Select subtitle: {0}", subtitle);
+      _dvdCtrl.SelectSubpictureStream(selectedSubtitle.StreamIndex, DvdCmdFlags.None, out _cmdOption);
+      _dvdCtrl.SetSubpictureState(true, DvdCmdFlags.None, out _cmdOption);
+      _dvdInfo.GetSubpictureLanguage(selectedSubtitle.StreamIndex, out iLanguage);
+
+      VideoSettings settings = ServiceRegistration.Get<ISettingsManager>().Load<VideoSettings>();
+      settings.PreferredSubtitleLanguage = iLanguage;
+      settings.EnableSubtitles = true;
+      ServiceRegistration.Get<ISettingsManager>().Save(settings);
     }
 
     public override void DisableSubtitle()
     {
       ServiceRegistration.Get<ILogger>().Debug("DvdPlayer: Disable subtitles");
       _dvdCtrl.SetSubpictureState(false, DvdCmdFlags.None, out _cmdOption);
+
       VideoSettings settings = ServiceRegistration.Get<ISettingsManager>().Load<VideoSettings>();
       settings.EnableSubtitles = false;
       ServiceRegistration.Get<ISettingsManager>().Save(settings);
