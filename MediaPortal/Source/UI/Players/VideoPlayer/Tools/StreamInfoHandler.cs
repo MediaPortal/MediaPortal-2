@@ -27,6 +27,8 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using DirectShowLib;
+using MediaPortal.Common;
+using MediaPortal.Common.Logging;
 
 namespace MediaPortal.UI.Players.Video.Tools
 {
@@ -142,9 +144,7 @@ namespace MediaPortal.UI.Players.Video.Tools
     /// <returns>String array containing the names of all streams.</returns>
     public string[] GetStreamNames()
     {
-      if (_streamNamesCache == null)
-        _streamNamesCache = _streamInfos.Select(streamInfo => streamInfo.Name).ToArray();
-      return _streamNamesCache;
+      return _streamNamesCache ?? (_streamNamesCache = _streamInfos.Select(streamInfo => streamInfo.Name).ToArray());
     }
 
     /// <summary>
@@ -157,6 +157,7 @@ namespace MediaPortal.UI.Players.Video.Tools
       if (streamInfo == null || streamInfo.StreamSelector == null)
         return false;
 
+      ServiceRegistration.Get<ILogger>().Debug("StreamInfoHandler: Enable stream '{0}'", selectedStream);
       streamInfo.StreamSelector.Enable(streamInfo.StreamIndex, AMStreamSelectEnableFlags.Enable);
       _currentStream = streamInfo;
       return true;
@@ -189,9 +190,7 @@ namespace MediaPortal.UI.Players.Video.Tools
     /// <returns>StreamInfo or null.</returns>
     public StreamInfo FindSimilarStream(string selectedStream)
     {
-      if (String.IsNullOrEmpty(selectedStream))
-        return null;
-      return _streamInfos.Find(s => s.Name.ToLowerInvariant().Contains(selectedStream.ToLowerInvariant()));
+      return String.IsNullOrEmpty(selectedStream) ? null : _streamInfos.Find(s => s.Name.ToLowerInvariant().Contains(selectedStream.ToLowerInvariant()));
     }
 
     #endregion
