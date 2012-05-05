@@ -1,0 +1,351 @@
+<Configuration>
+  <SettingsComponent>
+    <string>
+      <setting name="JetBrains.ReSharper.Intentions.CSharp.QuickFixes.CreateClassFromNewFixBase.DefaultInterfacePrefix">I</setting>
+      <setting name="JetBrains.ReSharper.Intentions.CSharp.QuickFixes.InvokeEventFix.Format">Invoke{0}</setting>
+      <setting name="JiraProxyHost">
+      </setting>
+      <setting name="KeyboardScheme">VS</setting>
+      <setting name="LocalizationOptions.ResourceNameTemplate">$TypeName$_$MemberName$_$Value$</setting>
+    </string>
+    <integer>
+      <setting name="bracketMatchHighlightingPosition">2</setting>
+      <setting name="bracketMatchHighlightingStyle">1</setting>
+      <setting name="JetBrains.ReSharper.Intentions.CSharp.QuickFixes.GenerateSwitchLabelsFix.MAGIC_CONST">65535</setting>
+      <setting name="JiraProxyPort">0</setting>
+      <setting name="MoveToResource.MoveSameElementsScope">1</setting>
+      <setting name="RefactoringWizardFormLocationX">123</setting>
+      <setting name="RefactoringWizardFormLocationY">-175</setting>
+      <setting name="SMART_BRACE_INSERT">1</setting>
+      <setting name="UserInputDeferTime">300</setting>
+    </integer>
+    <boolean>
+      <setting name="AlwaysShowDialogAboutException-v2">False</setting>
+      <setting name="CodeViewManager.AutoExpandResults">True</setting>
+      <setting name="CreateVariableFixBase">False</setting>
+      <setting name="CSharpLocalizationOptions.DontAnalyseVerbatimStrings">True</setting>
+      <setting name="FixMouseWheel">True</setting>
+      <setting name="FORMAT_BLOCK_ON_RBRACE">True</setting>
+      <setting name="FORMAT_STATEMENT_ON_SEMICOLON">False</setting>
+      <setting name="GotoFile.IncludeFolders">False</setting>
+      <setting name="HideVsMenuItems">True</setting>
+      <setting name="JetBrains.ReSharper.Refactorings.Move.SearchInStrings">True</setting>
+      <setting name="JetBrains.ReSharper.Refactorings.Rename.RenameFile">True</setting>
+      <setting name="JetBrains.ReSharper.Refactorings.Rename.SearchInStrings">True</setting>
+      <setting name="JetBrains.ReSharper.Refactorings.RenameNamespace.SearchInStrings">True</setting>
+      <setting name="jetbrains.resharper.treeview.filter">True</setting>
+      <setting name="JiraIsAnonymous">False</setting>
+      <setting name="JiraProxyAuthentication">False</setting>
+      <setting name="JiraUseDefaultProxy">True</setting>
+      <setting name="MoveToResource.MoveSameElements">True</setting>
+      <setting name="NavigateByControlClick">True</setting>
+      <setting name="PopupListCyclicScroll">True</setting>
+      <setting name="showMemoryUsage">True</setting>
+      <setting name="skipResultsForSingleHierarchyItem">True</setting>
+      <setting name="skipResultsForSingleUsage">True</setting>
+      <setting name="SMART_INDENT_ON_ENTER_NEW">False</setting>
+      <setting name="SMART_PARENTH_INSERT">False</setting>
+      <setting name="SolutionAnalysisIndicator.RoundProgress">True</setting>
+      <setting name="SolutionAnalysisIndicator.ShowErorsCount">True</setting>
+      <setting name="SubmitActivityLogs">True</setting>
+      <setting name="SynchronizeOnFrameActivation">True</setting>
+      <setting name="USE_VS_ICONS">True</setting>
+      <setting name="UseCamelHumps">False</setting>
+    </boolean>
+  </SettingsComponent>
+  <HighlightingSettings>
+    <SeverityTable>
+      <SuggestUseVarKeywordEverywhere>DO_NOT_SHOW</SuggestUseVarKeywordEverywhere>
+      <SuggestUseVarKeywordEvident>DO_NOT_SHOW</SuggestUseVarKeywordEvident>
+      <RedundantExplicitArrayCreation>DO_NOT_SHOW</RedundantExplicitArrayCreation>
+      <RedundantDefaultFieldInitializer>DO_NOT_SHOW</RedundantDefaultFieldInitializer>
+      <RedundantTypeArgumentsOfMethod>HINT</RedundantTypeArgumentsOfMethod>
+      <LocalizableElement>DO_NOT_SHOW</LocalizableElement>
+      <ConvertToAutoProperty>DO_NOT_SHOW</ConvertToAutoProperty>
+    </SeverityTable>
+  </HighlightingSettings>
+  <LiveTemplatesManager>
+    <UserTemplates />
+    <PredefinedChanges>
+      <Changed />
+    </PredefinedChanges>
+    <FileTemplates />
+    <DisabledTemplates />
+  </LiveTemplatesManager>
+  <SurroundManager>
+    <QuickLists>
+      <QuickList name="Other Files">
+        <Removed />
+      </QuickList>
+      <QuickList name="C# files">
+        <TemplateReference uid="d00002ec-552b-43a7-855a-4d9056bc5e44" name="if" />
+        <TemplateReference uid="0d6efb3f-0a28-49ac-a840-a5c18a10820c" name="while" />
+        <TemplateReference uid="38772f22-c779-4535-87ae-f2cbfc28d8bb" name="for" />
+        <TemplateReference uid="3e5873f5-71b2-4323-a98d-c864e3553e95" name="do..while" />
+        <TemplateReference uid="539867cb-c2bb-4a76-9be4-43499424a817" name="#region" />
+        <TemplateReference uid="bf9aa46f-cf30-446c-80d3-943eade77764" name="#if..#endif" />
+        <TemplateReference uid="5525b896-5c99-477c-aa55-871b4e64d487" name="{}" />
+        <TemplateReference uid="2c7fbadc-e259-40d3-9346-89277c463fdc" name="try..catch" />
+        <TemplateReference uid="03562c81-32c2-43e8-95f2-ccae5fce50fc" name="try..finally" />
+        <TemplateReference uid="2cdb716b-61fd-4a31-b148-2052fa256b96" name="cast" />
+        <TemplateReference uid="d1a7844c-e289-438a-aa26-31bbe4694112" name="tag" />
+        <TemplateReference uid="bfed504b-c6a2-492a-8098-6067ce44f7ca" name="lock" />
+        <TemplateReference uid="ce403579-55e1-4d4d-869c-de09fe5bf5a5" name="namespace" />
+        <TemplateReference uid="2025ca6a-c03e-4da6-ab1b-a4e6c572a94a" name="()" />
+        <Removed />
+      </QuickList>
+      <QuickList name="Visual Basic files">
+        <TemplateReference uid="6a01b8ff-4981-4873-9bc3-bf8e1c434865" name="If" />
+        <TemplateReference uid="389a11c8-54d3-4e96-9b10-0d6736b93044" name="If..Else" />
+        <TemplateReference uid="8c6134b0-b6f4-48a3-a5bc-3878f9a96f04" name="SyncLock" />
+        <TemplateReference uid="ab9b078f-4a86-45d8-b5fb-e27910cbb720" name="Using" />
+        <TemplateReference uid="9ee3a98e-24ed-4993-98ae-ac77c05bc93f" name="CType" />
+        <TemplateReference uid="c4d6ceb3-d45f-4d8e-838d-d1e64a1f671b" name="DirectCast" />
+        <TemplateReference uid="c5765f81-208e-4342-9e83-460d2906a8f5" name="TryCast" />
+        <Removed />
+      </QuickList>
+      <QuickList name="XML files">
+        <TemplateReference uid="c44a28a4-c56c-4ff4-b8db-9b563ae61b01" name="using" />
+        <Removed />
+      </QuickList>
+      <QuickList name="ASP.NET files">
+        <TemplateReference uid="db3304b5-a0fe-433f-a745-2407f990073e" name="tag" />
+        <TemplateReference uid="8600f923-3358-4842-acb7-2588dbc8e506" name="link" />
+        <TemplateReference uid="02e32ab5-abf1-4580-8c6c-a122642f941e" name="foreach" />
+        <TemplateReference uid="68c3e345-0a7d-41cf-93ec-de9b0334be7e" name="foreach" />
+        <Removed />
+      </QuickList>
+      <QuickList name="Other files">
+        <Removed />
+      </QuickList>
+    </QuickLists>
+    <UserTemplates />
+    <PredefinedChanges>
+      <Changed />
+    </PredefinedChanges>
+    <FileTemplates />
+  </SurroundManager>
+  <ContextActions>
+    <JetBrains.ReSharper.Intentions.CSharp.ContextActions.InlineAsAnonymousTypeAction>False</JetBrains.ReSharper.Intentions.CSharp.ContextActions.InlineAsAnonymousTypeAction>
+    <JetBrains.ReSharper.Intentions.CSharp.ContextActions.NonI18n.CSharpSurroundWithQuotesAction>False</JetBrains.ReSharper.Intentions.CSharp.ContextActions.NonI18n.CSharpSurroundWithQuotesAction>
+  </ContextActions>
+  <FileTemplatesManager>
+    <QuickLists>
+      <QuickList name="Other Projects">
+        <Removed />
+      </QuickList>
+      <QuickList name="C# projects">
+        <TemplateReference uid="560aab2c-307f-4c70-a99a-a3ec249e3153" name="Class" />
+        <TemplateReference uid="3667aa6f-7d24-4446-89df-536819a6d103" name="Interface" />
+        <TemplateReference uid="d03eb89b-79ff-472e-baab-217c25589c77" name="Struct" />
+        <TemplateReference uid="30ac107b-32b0-4f0a-95a3-763001e1dbf6" name="Enum" />
+        <Removed />
+      </QuickList>
+      <QuickList name="Visual Basic projects">
+        <TemplateReference uid="b1ee1e2c-928e-43dd-97a7-2cd7e208d02e" name="Class" />
+        <TemplateReference uid="797a996f-97ef-4788-a0a6-0eb6e4f7e99e" name="Interface" />
+        <TemplateReference uid="3a76e258-e766-40f6-a093-00c04f653a65" name="Structure" />
+        <TemplateReference uid="7899541c-0e97-4670-8034-04bcc3b1ff03" name="Enum" />
+        <TemplateReference uid="2a5b7d0d-34bc-4537-a50a-b2e94d885702" name="Module" />
+        <Removed />
+      </QuickList>
+      <QuickList name="ASP.NET (C#) projects">
+        <TemplateReference uid="33b864ee-57c8-41d4-8935-e4c52774fca2" name="Web form without master page" />
+        <TemplateReference uid="4ae22a01-d37a-4407-8cf6-ef841f7dcab6" name="Web form with master page" />
+        <TemplateReference uid="d602a016-05af-48b6-bbfb-bb2ac28d13a6" name="Master page without base master page" />
+        <TemplateReference uid="a1b0a253-d992-43b7-9673-2c1f6f7fca7f" name="Master page with base master page" />
+        <TemplateReference uid="ef7287d8-1fd7-460f-9855-c2ee3cdf5ee4" name="Web control" />
+        <Removed />
+      </QuickList>
+      <QuickList name="ASP.NET (VB.NET) projects">
+        <TemplateReference uid="fee25fcf-ac69-4449-bb6c-55369553c527" name="Web form without master page" />
+        <TemplateReference uid="16e0ecb6-672c-484c-994c-86d57e73e343" name="Web form with master page" />
+        <TemplateReference uid="56c19cde-128d-438d-8c64-3b5380508d3d" name="Master page without base master page" />
+        <TemplateReference uid="672311b7-067e-4a57-b32f-79c7a06fa74f" name="Master page with base master page" />
+        <TemplateReference uid="6553602b-0f80-4ada-9b76-95055c0a747f" name="Web control" />
+        <Removed />
+      </QuickList>
+    </QuickLists>
+    <UserTemplates />
+    <PredefinedChanges>
+      <Changed />
+    </PredefinedChanges>
+    <FileTemplates />
+  </FileTemplatesManager>
+  <CodeStyleSettings>
+    <CSharp>
+      <FormatSettings>
+        <ALIGN_MULTILINE_ARGUMENT>False</ALIGN_MULTILINE_ARGUMENT>
+        <ALIGN_MULTILINE_ARRAY_AND_OBJECT_INITIALIZER>False</ALIGN_MULTILINE_ARRAY_AND_OBJECT_INITIALIZER>
+        <ALIGN_MULTILINE_EXPRESSION>False</ALIGN_MULTILINE_EXPRESSION>
+        <ALIGN_MULTILINE_EXTENDS_LIST>False</ALIGN_MULTILINE_EXTENDS_LIST>
+        <ALIGN_MULTILINE_FOR_STMT>False</ALIGN_MULTILINE_FOR_STMT>
+        <ALIGN_MULTILINE_PARAMETER>False</ALIGN_MULTILINE_PARAMETER>
+        <ALIGN_MULTIPLE_DECLARATION>False</ALIGN_MULTIPLE_DECLARATION>
+        <ALIGN_MULTLINE_TYPE_PARAMETER_CONSTRAINS>False</ALIGN_MULTLINE_TYPE_PARAMETER_CONSTRAINS>
+        <ALIGN_MULTLINE_TYPE_PARAMETER_LIST>False</ALIGN_MULTLINE_TYPE_PARAMETER_LIST>
+        <CONTINUOUS_INDENT_MULTIPLIER>2</CONTINUOUS_INDENT_MULTIPLIER>
+        <INDENT_ANONYMOUS_METHOD_BLOCK>False</INDENT_ANONYMOUS_METHOD_BLOCK>
+        <INDENT_EMBRACED_INITIALIZER_BLOCK>False</INDENT_EMBRACED_INITIALIZER_BLOCK>
+        <MODIFIERS_ORDER IsNull="False">
+          <Item>public</Item>
+          <Item>protected</Item>
+          <Item>internal</Item>
+          <Item>private</Item>
+          <Item>new</Item>
+          <Item>abstract</Item>
+          <Item>virtual</Item>
+          <Item>override</Item>
+          <Item>sealed</Item>
+          <Item>static</Item>
+          <Item>readonly</Item>
+          <Item>extern</Item>
+          <Item>unsafe</Item>
+          <Item>volatile</Item>
+        </MODIFIERS_ORDER>
+        <SPACE_BEFORE_ATTRIBUTE_COLON>True</SPACE_BEFORE_ATTRIBUTE_COLON>
+        <SPACE_BEFORE_TYPEOF_PARENTHESES>False</SPACE_BEFORE_TYPEOF_PARENTHESES>
+        <WRAP_AFTER_DECLARATION_LPAR>True</WRAP_AFTER_DECLARATION_LPAR>
+        <WRAP_AFTER_INVOCATION_LPAR>True</WRAP_AFTER_INVOCATION_LPAR>
+      </FormatSettings>
+      <UsingsSettings>
+        <KeepNontrivialAlias>False</KeepNontrivialAlias>
+      </UsingsSettings>
+      <Naming2>
+        <EventHandlerPatternLong>$object$_On$event$</EventHandlerPatternLong>
+        <EventHandlerPatternShort>$event$Handler</EventHandlerPatternShort>
+        <ExceptionName IsNull="False">
+        </ExceptionName>
+        <PredefinedRule Inspect="True" Prefix="" Suffix="" Style="AaBb" ElementKind="TypesAndNamespaces" />
+        <PredefinedRule Inspect="True" Prefix="I" Suffix="" Style="AaBb" ElementKind="Interfaces" />
+        <PredefinedRule Inspect="True" Prefix="T" Suffix="" Style="AaBb" ElementKind="TypeParameters" />
+        <PredefinedRule Inspect="True" Prefix="" Suffix="" Style="AaBb" ElementKind="MethodPropertyEvent" />
+        <PredefinedRule Inspect="True" Prefix="" Suffix="" Style="aaBb" ElementKind="Locals" />
+        <PredefinedRule Inspect="True" Prefix="" Suffix="" Style="aaBb" ElementKind="LocalConstants" />
+        <PredefinedRule Inspect="True" Prefix="" Suffix="" Style="aaBb" ElementKind="Parameters" />
+        <PredefinedRule Inspect="True" Prefix="" Suffix="" Style="AaBb" ElementKind="PublicFields" />
+        <PredefinedRule Inspect="True" Prefix="" Suffix="" Style="AaBb" ElementKind="Constants" />
+        <PredefinedRule Inspect="True" Prefix="" Suffix="" Style="AaBb" ElementKind="StaticReadonly" />
+        <PredefinedRule Inspect="True" Prefix="" Suffix="" Style="AaBb" ElementKind="EnumMember" />
+        <PredefinedRule Inspect="True" Prefix="" Suffix="" Style="AaBb" ElementKind="Other" />
+        <PredefinedRule Inspect="True" Prefix="_" Suffix="" Style="aaBb" ElementKind="PrivateInstanceFields" />
+        <PredefinedRule Inspect="True" Prefix="_" Suffix="" Style="aaBb" ElementKind="PrivateStaticFields" />
+        <PredefinedRule Inspect="True" Prefix="" Suffix="" Style="AaBb" ElementKind="PrivateConstants" />
+        <PredefinedRule Inspect="True" Prefix="" Suffix="" Style="AaBb" ElementKind="PrivateStaticReadonly" />
+      </Naming2>
+    </CSharp>
+    <VB>
+      <FormatSettings />
+      <ImportsSettings />
+      <Naming2>
+        <EventHandlerPatternLong>$object$_On$event$</EventHandlerPatternLong>
+        <EventHandlerPatternShort>$event$Handler</EventHandlerPatternShort>
+      </Naming2>
+    </VB>
+    <Web>
+      <Naming2 />
+    </Web>
+    <Xaml>
+      <Naming2>
+        <UserRule Name="XAML_FIELD" Inspect="True" Prefix="_" Suffix="" Style="aaBb" />
+        <UserRule Name="NAMESPACE_ALIAS" Inspect="True" Prefix="" Suffix="" Style="AaBb" />
+        <UserRule Name="XAML_RESOURCE" Inspect="True" Prefix="" Suffix="" Style="AaBb" />
+      </Naming2>
+    </Xaml>
+    <XML>
+      <FormatSettings>
+        <ProcessingInstructionAttributeIndenting>TwoSteps</ProcessingInstructionAttributeIndenting>
+        <TagAttributeIndenting>TwoSteps</TagAttributeIndenting>
+        <TagSpaceBeforeHeaderEnd1>False</TagSpaceBeforeHeaderEnd1>
+      </FormatSettings>
+    </XML>
+    <FileHeader><![CDATA[#region Copyright (C) 2007-2012 Team MediaPortal
+
+/*
+    Copyright (C) 2007-2012 Team MediaPortal
+    http://www.team-mediaportal.com
+
+    This file is part of MediaPortal 2
+
+    MediaPortal 2 is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    MediaPortal 2 is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with MediaPortal 2.  If not, see <http://www.gnu.org/licenses/>.
+*/
+
+#endregion
+
+]]></FileHeader>
+    <GenerateMemberBody />
+    <Naming2>
+      <EventHandlerPatternLong>$object$_On$event$</EventHandlerPatternLong>
+      <EventHandlerPatternShort>$event$Handler</EventHandlerPatternShort>
+      <ExceptionName IsNull="False">
+      </ExceptionName>
+      <PredefinedRule Inspect="False" Prefix="" Suffix="" Style="aaBb" ElementKind="Locals" />
+      <PredefinedRule Inspect="False" Prefix="" Suffix="" Style="aaBb" ElementKind="Parameters" />
+      <PredefinedRule Inspect="False" Prefix="" Suffix="" Style="AaBb" ElementKind="MethodPropertyEvent" />
+      <PredefinedRule Inspect="False" Prefix="" Suffix="" Style="AaBb" ElementKind="TypesAndNamespaces" />
+      <PredefinedRule Inspect="False" Prefix="I" Suffix="" Style="AaBb" ElementKind="Interfaces" />
+      <PredefinedRule Inspect="False" Prefix="T" Suffix="" Style="AaBb" ElementKind="TypeParameters" />
+      <PredefinedRule Inspect="False" Prefix="" Suffix="" Style="aaBb" ElementKind="LocalConstants" />
+      <PredefinedRule Inspect="False" Prefix="" Suffix="" Style="AaBb" ElementKind="PublicFields" />
+      <PredefinedRule Inspect="False" Prefix="" Suffix="" Style="AA_BB" ElementKind="Constants" />
+      <PredefinedRule Inspect="False" Prefix="" Suffix="" Style="AaBb" ElementKind="StaticReadonly" />
+      <PredefinedRule Inspect="False" Prefix="" Suffix="" Style="AaBb" ElementKind="EnumMember" />
+      <PredefinedRule Inspect="True" Prefix="" Suffix="" Style="AaBb" ElementKind="Other" />
+      <PredefinedRule Inspect="False" Prefix="_" Suffix="" Style="aaBb" ElementKind="PrivateInstanceFields" />
+      <PredefinedRule Inspect="True" Prefix="_" Suffix="" Style="aaBb" ElementKind="PrivateStaticFields" />
+      <PredefinedRule Inspect="True" Prefix="" Suffix="" Style="AA_BB" ElementKind="PrivateConstants" />
+      <PredefinedRule Inspect="False" Prefix="" Suffix="" Style="AaBb" ElementKind="PrivateStaticReadonly" />
+    </Naming2>
+  </CodeStyleSettings>
+  <TodoManager ActiveGrouping="0">
+    <Pattern Name="Todo" Id="961894CCC510410ABE2B99132B253C80" Regexp="(\W|^)(?&lt;TAG&gt;TODO)(\W|$)(.*)" CaseSensitive="False" Color="Blue" Icon="Normal" LookInComments="True" LookInIdentifiers="False" LookInStringLiterals="False" />
+    <Pattern Name="Note" Id="961894CCC510410ABE2B99132B253C81" Regexp="(\W|^)(?&lt;TAG&gt;NOTE)(\W|$)(.*)" CaseSensitive="False" Color="ffff8000" Icon="Warning" LookInComments="True" LookInIdentifiers="False" LookInStringLiterals="False" />
+    <Pattern Name="Bug" Id="9F4E80481F12431CB36D19D6738780F1" Regexp="(\W|^)(?&lt;TAG&gt;BUG)(\W|$)(.*)" CaseSensitive="False" Color="Red" Icon="Error" LookInComments="True" LookInIdentifiers="False" LookInStringLiterals="False" />
+    <Pattern Name="Not Implemented" Id="9F4E80481F12431CB36D19D6738780F2" Regexp="NotImplementedException" CaseSensitive="False" Color="Red" Icon="Edit" LookInComments="False" LookInIdentifiers="True" LookInStringLiterals="False" />
+    <Filter Name="Todos" Id="6E3EB9662CFB491EBD2103D8654051DF" Active="False">
+      <PatternRef Id="961894CCC510410ABE2B99132B253C80" />
+    </Filter>
+    <Filter Name="Notes" Id="0069D9FE451E44B181256291430424FC" Active="False">
+      <PatternRef Id="961894CCC510410ABE2B99132B253C81" />
+    </Filter>
+    <Filter Name="Bugs" Id="A674BC0145094E3D8C9C867C0FDAF288" Active="False">
+      <PatternRef Id="9F4E80481F12431CB36D19D6738780F1" />
+    </Filter>
+    <Filter Name="Not Implemented" Id="A674BC0145094E3D8C9C867C0FDAF289" Active="False">
+      <PatternRef Id="9F4E80481F12431CB36D19D6738780F2" />
+    </Filter>
+  </TodoManager>
+  <ExceptionReporting>
+    <UserName>
+    </UserName>
+    <Password>E.FVL8jaRtGis=</Password>
+    <Anonymous>False</Anonymous>
+  </ExceptionReporting>
+  <DefaultTextControlSchemeManager>
+    <CaretRow>True</CaretRow>
+  </DefaultTextControlSchemeManager>
+  <ProductUsageFeedbackSubmitter>
+    <myPromptedAboutLogUpload>True</myPromptedAboutLogUpload>
+  </ProductUsageFeedbackSubmitter>
+  <CachePersistenceSettingsManager>
+    <myLocation>TEMP_FOLDER</myLocation>
+  </CachePersistenceSettingsManager>
+  <MetadataViewerSettings ShowExternalAnnotations="False" ShowNonVisibleMembers="False" ShowXmlDoc="False" ReorderMembers="True" Language="CSHARP" />
+  <ExternalSourcesSettings EnableNavigation="True" FirstTimeFormShown="True">
+    <ProvidersOrder enabled="True" id="pdb" />
+    <ProvidersOrder enabled="True" id="metadata" />
+    <ProvidersOrder enabled="True" id="objectBrowser" />
+  </ExternalSourcesSettings>
+  <Pdb EnableDownloading="False" />
+</Configuration>
