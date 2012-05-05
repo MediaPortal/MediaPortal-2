@@ -1091,12 +1091,12 @@ namespace MediaPortal.UI.Players.Video
         subtitleStreams = _streamInfoSubtitles;
         titleStreams = _streamInfoTitles;
       }
-      _streamInfoTitles = new StreamInfoHandler();
-
-      if (forceRefresh || audioStreams == null || subtitleStreams == null)
+      if (forceRefresh || audioStreams == null || subtitleStreams == null || titleStreams == null)
       {
         audioStreams = new StreamInfoHandler();
         subtitleStreams = new StreamInfoHandler();
+        titleStreams = new StreamInfoHandler();
+
         foreach (IAMStreamSelect streamSelector in FilterGraphTools.FindFiltersByInterface<IAMStreamSelect>(_graphBuilder))
         {
           FilterInfo fi = FilterGraphTools.QueryFilterInfoAndFree(((IBaseFilter) streamSelector));
@@ -1446,11 +1446,13 @@ namespace MediaPortal.UI.Players.Video
     {
       get
       {
+        EnumerateChapters();
+
+        string[] chapters;
         lock (SyncObj)
-        {
-          EnumerateChapters();
-          return _chapterNames ?? EMPTY_STRING_ARRAY;
-        }
+          chapters = _chapterNames;
+
+        return chapters ?? EMPTY_STRING_ARRAY;
       }
     }
 
@@ -1516,15 +1518,20 @@ namespace MediaPortal.UI.Players.Video
     /// </summary>
     protected virtual bool GetCurrentChapter(out Int32 chapterIndex)
     {
+      double[] chapterTimestamps;
       double currentTimestamp = CurrentTime.TotalSeconds;
-      for (int c = _chapterTimestamps.Length - 1; c >= 0; c--)
-      {
-        if (currentTimestamp > _chapterTimestamps[c])
+      lock (SyncObj)
+        chapterTimestamps = _chapterTimestamps;
+
+      if (chapterTimestamps != null)
+        for (int c = chapterTimestamps.Length - 1; c >= 0; c--)
         {
-          chapterIndex = c;
-          return true;
+          if (currentTimestamp > chapterTimestamps[c])
+          {
+            chapterIndex = c;
+            return true;
+          }
         }
-      }
       chapterIndex = 0;
       return false;
     }
@@ -1535,11 +1542,15 @@ namespace MediaPortal.UI.Players.Video
     /// <param name="chapterIndex">0 based chapter number.</param>
     protected virtual void SetChapterByIndex(Int32 chapterIndex)
     {
-      if (chapterIndex >= _chapterTimestamps.Length || chapterIndex < 0)
+      double[] chapterTimestamps;
+      lock (SyncObj)
+        chapterTimestamps = _chapterTimestamps;
+
+      if (chapterIndex >= chapterTimestamps.Length || chapterIndex < 0)
         return;
-      TimeSpan seekTo = TimeSpan.FromSeconds(_chapterTimestamps[chapterIndex]);
+
+      TimeSpan seekTo = TimeSpan.FromSeconds(chapterTimestamps[chapterIndex]);
       CurrentTime = seekTo;
-      return;
     }
 
     /// <summary>
@@ -1561,17 +1572,16 @@ namespace MediaPortal.UI.Players.Video
     {
       get
       {
+        EnumerateStreams();
+        StreamInfoHandler titleStreams;
         lock (SyncObj)
-        {
-          EnumerateStreams();
+          titleStreams = _streamInfoTitles;
 
-          if (_streamInfoTitles == null)
-            return EMPTY_STRING_ARRAY;
+        // Check if there are real title streams available.
+        if (titleStreams == null || titleStreams.Count == 0)
+          return EMPTY_STRING_ARRAY;
 
-          // Check if there are real title streams available.
-          string[] titleStreamNames = _streamInfoTitles.GetStreamNames();
-          return titleStreamNames.Length == 0 ? EMPTY_STRING_ARRAY : titleStreamNames;
-        }
+        return titleStreams.GetStreamNames();
       }
     }
 
@@ -1581,20 +1591,30 @@ namespace MediaPortal.UI.Players.Video
     /// <param name="title">Title</param>
     public virtual void SetTitle(string title)
     {
+      StreamInfoHandler titleStreams;
       lock (SyncObj)
-      {
-        _streamInfoTitles.EnableStream(title);
-        EnumerateStreams(true);
-        EnumerateChapters(true);
-      }
+        titleStreams = _streamInfoTitles;
+
+      // Check if there are real title streams available.
+      if (titleStreams == null || titleStreams.Count == 0)
+        return;
+
+      if (!titleStreams.EnableStream(title)) 
+        return;
+
+      EnumerateStreams(true);
+      EnumerateChapters(true);
     }
 
     public virtual string CurrentTitle
     {
       get
       {
+        StreamInfoHandler titleStreams;
         lock (SyncObj)
-          return _streamInfoTitles != null ? _streamInfoTitles.CurrentStreamName : String.Empty;
+          titleStreams = _streamInfoTitles;
+
+        return titleStreams != null ? titleStreams.CurrentStreamName : String.Empty;
       }
     }
 
