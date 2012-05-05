@@ -22,12 +22,10 @@
 
 #endregion
 
-using MediaPortal.UI.Control.InputManager;
-
 namespace MediaPortal.UI.Presentation.Players
 {
   /// <summary>
-  /// Interface for players that support chapters handling.
+  /// Interface for players that support chapters handling. Chapters are usually supported by DVD, BluRay or video files with embedded metadata (like mkv).
   /// </summary>
   public interface IChapterPlayer 
   {
