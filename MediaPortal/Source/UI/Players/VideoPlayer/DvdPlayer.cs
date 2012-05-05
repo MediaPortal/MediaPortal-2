@@ -772,8 +772,6 @@ namespace MediaPortal.UI.Players.Video
 
         lock (SyncObj)
         {
-          FilterGraphTools.TryDispose(ref _streamInfoAudio);
-          FilterGraphTools.TryDispose(ref _streamInfoSubtitles);
           _streamInfoAudio = audioStreams;
           _streamInfoSubtitles = subtitleStreams;
         }
