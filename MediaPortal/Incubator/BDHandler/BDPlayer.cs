@@ -26,32 +26,40 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Threading;
 using BDInfo;
 using DirectShowLib;
 using MediaPortal.Common;
 using MediaPortal.Common.Settings;
 using MediaPortal.Plugins.BDHandler.Settings;
 using MediaPortal.UI.Players.Video.Tools;
-using MediaPortal.UI.Presentation.Players;
 
 namespace MediaPortal.UI.Players.Video
 {
   /// <summary>
   /// BDPlayer implements a BluRay player based on the raw files. Currently there is no menu support available.
   /// </summary>
-  public class BDPlayer : VideoPlayer, IDVDPlayer
+  public class BDPlayer : VideoPlayer
   {
     #region Consts and delegates
-       
-    public const double MINIMAL_FULL_FEATURE_LENGTH = 3000;
-    
+
+    public const double MINIMAL_FULL_FEATURE_LENGTH = 300;
+
     /// <summary>
     /// Delegate for starting a BDInfo thread.
     /// </summary>
     /// <param name="path">Path to scan</param>
     /// <returns>BDInfo</returns>
     delegate BDInfoExt ScanProcess(string path);
+
+    #endregion
+
+    #region Fields
+
+    protected List<TSPlaylistFile> _bdTitles;
+    protected string[] _bdTitleNames;
+    protected string _currentTitleName;
+    protected TSPlaylistFile _manualTitleSelection;
+    protected string _playlistFolder;
 
     #endregion
 
@@ -75,14 +83,14 @@ namespace MediaPortal.UI.Players.Video
       // configure EVR
       _streamCount = 2; // Allow Video and Subtitle
     }
-    
+
     /// <summary>
     /// Adds the file source filter to the graph.
     /// </summary>
     protected override void AddFileSource()
     {
       string strFile = _resourceAccessor.LocalFileSystemPath;
-      
+
       // Render the file
       strFile = Path.Combine(strFile.ToLower(), @"BDMV\index.bdmv");
 
@@ -124,6 +132,17 @@ namespace MediaPortal.UI.Players.Video
 
     #endregion
 
+    private string FormatTitle(TSPlaylistFile playlist, int counter)
+    {
+      return string.Format("{0} Title {1} - {2}", _mediaItemTitle, counter, FormatLength(playlist.TotalLength));
+    }
+
+    private static string FormatLength(double playLength)
+    {
+      TimeSpan duration = TimeSpan.FromSeconds(playLength);
+      return string.Format("{0}h {1:00}min", duration.Hours, duration.Minutes);
+    }
+
     /// <summary>
     /// Scans a bluray folder and returns a BDInfo object
     /// </summary>
@@ -132,8 +151,8 @@ namespace MediaPortal.UI.Players.Video
     private static BDInfoExt ScanWorker(string path)
     {
       BDPlayerBuilder.LogInfo("Scanning bluray structure: {0}", path);
-      BDInfoExt bluray = new BDInfoExt(path.ToUpper(), false); // We do not need all information here, only the playlists
-      bluray.ScanPlaylists();
+      BDInfoExt bluray = new BDInfoExt(path.ToUpper(), true); // For title selection we need all information here, but this can cause quite big delays for remote resources!
+      bluray.Scan();
       return bluray;
     }
 
@@ -146,31 +165,45 @@ namespace MediaPortal.UI.Players.Video
     {
       try
       {
+        // If we have chosen a specific playlist, build the path directly without scanning the complete structure again
+        if (_manualTitleSelection != null && !string.IsNullOrEmpty(_playlistFolder))
+        {
+          filePath = Path.Combine(_playlistFolder, _manualTitleSelection.Name);
+          GetChapters(_manualTitleSelection);
+          _manualTitleSelection = null;
+          return true;
+        }
+
         ScanProcess scanner = ScanWorker;
         IAsyncResult result = scanner.BeginInvoke(filePath, null, scanner);
-
         result.AsyncWaitHandle.WaitOne();
-
         BDInfoExt bluray = scanner.EndInvoke(result);
-        List<TSPlaylistFile> allPlayLists = bluray.PlaylistFiles.Values.Where(p => p.IsValid).OrderByDescending(p => p.TotalLength).Distinct().ToList();
+
+        // Store all playlist files for title selection
+        _bdTitles = bluray.PlaylistFiles.Values.Where(p => p.IsValid && !p.HasLoops).Distinct().ToList();
+        int counter = 0;
+        _bdTitleNames = _bdTitles.Select(t => FormatTitle(t, ++counter)).ToArray();
+        _playlistFolder = bluray.DirectoryPLAYLIST.FullName;
+
+        List<TSPlaylistFile> allPlayLists = _bdTitles.OrderByDescending(p => p.TotalLength).ToList();
 
         // Feature selection logic 
         TSPlaylistFile listToPlay;
         if (allPlayLists.Count == 0)
         {
-          BDPlayerBuilder.LogInfo("No playlists found, bypassing dialog.", allPlayLists.Count);
+          BDPlayerBuilder.LogInfo("No valid playlists found, use default INDEX.BDMV.");
           return true;
         }
         if (allPlayLists.Count == 1)
         {
           // if we have only one playlist to show just move on
-          BDPlayerBuilder.LogInfo("Found one valid playlist, bypassing dialog.", filePath);
+          BDPlayerBuilder.LogInfo("Found one valid playlist {0}.", allPlayLists[0].Name);
           listToPlay = allPlayLists[0];
         }
         else
         {
           // Show selection dialog
-          BDPlayerBuilder.LogInfo("Found {0} playlists, showing selection dialog.", allPlayLists.Count);
+          BDPlayerBuilder.LogInfo("Found {0} playlists, title selection available.", allPlayLists.Count);
 
           // first make an educated guess about what the real features are (more than one chapter, no loops and longer than one hour)
           // todo: make a better filter on the playlists containing the real features
@@ -183,11 +216,18 @@ namespace MediaPortal.UI.Players.Video
           listToPlay = playLists[0];
         }
 
+        BDPlayerBuilder.LogInfo("Using playlist {0}.", listToPlay.Name);
+        for (int idx = 0; idx < _bdTitles.Count; idx++)
+        {
+          if (_bdTitles[idx] != listToPlay) continue;
+          _currentTitleName = _bdTitleNames[idx];
+          break;
+        }
+
         GetChapters(listToPlay);
 
         // Combine the chosen file path (playlist)
         filePath = Path.Combine(bluray.DirectoryPLAYLIST.FullName, listToPlay.Name);
-
         return true;
       }
       catch (Exception e)
@@ -207,25 +247,44 @@ namespace MediaPortal.UI.Players.Video
       for (int c = 0; c < _chapterNames.Length; c++)
         _chapterNames[c] = GetChapterName(c + 1);
     }
-    
-    #region IDVDPlayer Member
 
-    public bool IsHandlingUserInput
+    #region ITitlePlayer implementation
+
+    public override string[] Titles
     {
-      get { return false; }
+      get
+      {
+        return _bdTitleNames.Length > 1 ? _bdTitleNames : EMPTY_STRING_ARRAY;
+      }
     }
 
-    public void ShowDvdMenu()
-    { }
+    /// <summary>
+    /// Sets the current title.
+    /// </summary>
+    /// <param name="title">Title</param>
+    public override void SetTitle(string title)
+    {
+      bool found = false;
+      int idx;
+      for (idx = 0; idx < Titles.Length; idx++)
+        if (Titles[idx] == title)
+        {
+          found = true;
+          break;
+        }
 
-    public void OnMouseMove(float x, float y)
-    { }
+      if (!found)
+        return;
 
-    public void OnMouseClick(float x, float y)
-    { }
+      _manualTitleSelection = _bdTitles[idx];
+      Shutdown(true);
+      SetMediaItem(_resourceLocator, Titles[idx]);
+    }
 
-    public void OnKeyPress(Control.InputManager.Key key)
-    { }
+    public override string CurrentTitle
+    {
+      get { return _currentTitleName; }
+    }
 
     #endregion
   }

@@ -573,7 +573,7 @@ namespace MediaPortal.UI.Players.Video
       FilterGraphTools.TryRelease(ref _graphBuilder);
     }
 
-    protected void Shutdown()
+    protected void Shutdown(bool keepResourceAccessor = false)
     {
       StopSeeking();
       _initialized = false;
@@ -613,8 +613,11 @@ namespace MediaPortal.UI.Players.Video
         FreeCodecs();
       }
       // Dispose resource locator and accessor
-      FilterGraphTools.TryDispose(ref _resourceAccessor);
-      FilterGraphTools.TryDispose(ref _resourceLocator);
+      if (!keepResourceAccessor)
+      {
+        FilterGraphTools.TryDispose(ref _resourceAccessor);
+        FilterGraphTools.TryDispose(ref _resourceLocator);
+      }
     }
 
     #endregion
