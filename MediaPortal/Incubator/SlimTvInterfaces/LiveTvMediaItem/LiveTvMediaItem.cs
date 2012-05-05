@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using MediaPortal.Common.MediaManagement;
 using MediaPortal.Plugins.SlimTvClient.Interfaces.Items;
 
-namespace MediaPortal.Plugins.SlimTvClient.Interfaces.LiveTvMediaItem
+namespace MediaPortal.Plugins.SlimTvClient.Interfaces
 {
   public class LiveTvMediaItem: MediaItem
   {

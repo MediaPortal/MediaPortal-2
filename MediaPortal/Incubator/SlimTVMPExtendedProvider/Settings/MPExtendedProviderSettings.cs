@@ -22,48 +22,34 @@
 
 #endregion
 
-using System;
+using MediaPortal.Common.Settings;
 
-namespace MediaPortal.Plugins.SlimTvClient.Interfaces.Items
+namespace MediaPortal.Plugins.SlimTvClient.Providers.Settings
 {
-  /// <summary>
-  /// IProgram represents a single program on a channel.
-  /// </summary>
-  public interface IProgram
+  class MPExtendedProviderSettings
   {
     /// <summary>
-    /// Gets or Sets the Program ID.
+    /// Holds the host name or IP adress of the TV4home service (running on same machine as TvServer).
     /// </summary>
-    int ProgramId { get; set; }
+    [Setting(SettingScope.User, "localhost")]
+    public string TvServerHost { get; set; }
+    
+    /// <summary>
+    /// When MPExtended is configured to require authentication, this Username is used for establishing the connection.
+    /// </summary>
+    [Setting(SettingScope.User)]
+    public string Username { get; set; }
 
     /// <summary>
-    /// Gets or Sets the Channel ID where this program is on.
+    /// When MPExtended is configured to require authentication, this Password is used for establishing the connection.
     /// </summary>
-    int ChannelId { get; set; }
+    [Setting(SettingScope.User)]
+    public string Password { get; set; }
 
     /// <summary>
-    /// Gets or Sets the Title.
+    /// Holds the last selected channel group ID.
     /// </summary>
-    String Title { get; set; }
-
-    /// <summary>
-    /// Gets or Sets the Long Description.
-    /// </summary>
-    String Description { get; set; }
-
-    /// <summary>
-    /// Gets or Sets the Genre.
-    /// </summary>
-    String Genre { get; set; }
-
-    /// <summary>
-    /// Gets or Sets the Start time.
-    /// </summary>
-    DateTime StartTime { get; set; }
-
-    /// <summary>
-    /// Gets or Sets the End time.
-    /// </summary>
-    DateTime EndTime { get; set; }
+    [Setting(SettingScope.User)]
+    public int LastChannelGroupId { get; set; }
   }
 }

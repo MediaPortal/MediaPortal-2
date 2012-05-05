@@ -24,10 +24,13 @@
 
 using System;
 using System.Runtime.InteropServices;
+using System.Threading;
 using System.Timers;
 using DirectShowLib;
 using MediaPortal.Common;
 using MediaPortal.Common.Logging;
+using MediaPortal.UI.Players.Video.Interfaces;
+using Timer = System.Timers.Timer;
 
 namespace MediaPortal.UI.Players.Video.Tools
 {
@@ -40,7 +43,10 @@ namespace MediaPortal.UI.Players.Video.Tools
 
     private readonly IGraphBuilder _graphBuilder;
     private readonly IBaseFilter _fileSource;
-    private readonly object _syncObj;
+    private readonly Action _afterRebuild;
+    private bool _rebuilding = false;
+
+    public delegate void GraphRebuiltCallback(ChangedMediaType changedMediaTypes);
 
     #endregion
 
@@ -57,12 +63,12 @@ namespace MediaPortal.UI.Players.Video.Tools
     /// </summary>
     /// <param name="graphBuilder">The IGraphBuilder that originally created the graph</param>
     /// <param name="fileSource">The input source filter (usually IFileSourceFilter)</param>
-    /// <param name="syncObj">Reference to external object for locking</param>
-    public GraphRebuilder(IGraphBuilder graphBuilder, IBaseFilter fileSource, object syncObj)
+    /// <param name="afterRebuild">Action to be called after rebuild is done</param>
+    public GraphRebuilder(IGraphBuilder graphBuilder, IBaseFilter fileSource, Action afterRebuild)
     {
       _graphBuilder = graphBuilder;
       _fileSource = fileSource;
-      _syncObj = syncObj;
+      _afterRebuild = afterRebuild;
     }
 
     #endregion
@@ -74,6 +80,8 @@ namespace MediaPortal.UI.Players.Video.Tools
     /// </summary>
     public void DoAsynchRebuild()
     {
+      if (_rebuilding)
+        return;
       Timer timer = new Timer(1) { AutoReset = false };
       timer.Elapsed += AsynchRebuild;
       timer.Enabled = true;
@@ -81,7 +89,12 @@ namespace MediaPortal.UI.Players.Video.Tools
 
     void AsynchRebuild(object sender, ElapsedEventArgs e)
     {
+      _rebuilding = true;
       DoGraphRebuild();
+      if (_afterRebuild != null)
+        _afterRebuild();
+
+      _rebuilding = false;
     }
 
     /// <summary>
@@ -93,47 +106,43 @@ namespace MediaPortal.UI.Players.Video.Tools
     {
       IMediaControl mediaCtrl = _graphBuilder as IMediaControl;
       ServiceRegistration.Get<ILogger>().Info(string.Format("{0}: DoGraphRebuild()", PlayerName));
-      if (mediaCtrl != null)
+      if (mediaCtrl == null)
+        return;
+      int hr = mediaCtrl.Stop();
+      if (hr != 0)
+        ServiceRegistration.Get<ILogger>().Error("Error stopping graph: ({0:x})", hr);
+
+      for (; ; )
       {
-        lock (_syncObj)
-        {
-          int hr = mediaCtrl.Stop();
-          if (hr != 0)
-            ServiceRegistration.Get<ILogger>().Error("Error stopping graph: ({0:x})", hr);
+        FilterState state;
+        hr = mediaCtrl.GetState(200, out state);
+        if (hr != 0)
+          ServiceRegistration.Get<ILogger>().Info("GetState failed: {0:x}", hr);
+        else if (state == FilterState.Stopped)
+          break;
 
-          for (; ; )
-          {
-            FilterState state;
-            hr = mediaCtrl.GetState(200, out state);
-            if (hr != 0)
-              ServiceRegistration.Get<ILogger>().Info("GetState failed: {0:x}", hr);
-            else if (state == FilterState.Stopped)
-              break;
-
-            ServiceRegistration.Get<ILogger>().Info(string.Format("{0}:OnMediaTypeChanged(): Graph not yet stopped, waiting some more.", PlayerName));
-            mediaCtrl.Stop();
-            System.Threading.Thread.Sleep(100);
-          }
-
-          ServiceRegistration.Get<ILogger>().Info("Graph stopped.");
-          bool needRebuild = GraphNeedsRebuild(_fileSource);
-
-          if (needRebuild)
-          {
-            ServiceRegistration.Get<ILogger>().Info("Doing full graph rebuild.");
-            DisconnectAllPins(_graphBuilder, _fileSource);
-            FilterGraphTools.RenderOutputPins(_graphBuilder, _fileSource);
-          }
-          else
-          {
-            ServiceRegistration.Get<ILogger>().Info("Reconnecting all pins of base filter.");
-            ReConnectAll(_graphBuilder, _fileSource);
-          }
-          mediaCtrl.Run();
-        }
-        ServiceRegistration.Get<ILogger>().Info("Reconfigure graph done");
+        ServiceRegistration.Get<ILogger>().Info(
+          string.Format("{0}:OnMediaTypeChanged(): Graph not yet stopped, waiting some more.", PlayerName));
+        mediaCtrl.Stop();
+        Thread.Sleep(100);
       }
-      return;
+
+      ServiceRegistration.Get<ILogger>().Info("Graph stopped.");
+      bool needRebuild = GraphNeedsRebuild(_fileSource);
+
+      if (needRebuild)
+      {
+        ServiceRegistration.Get<ILogger>().Info("Doing full graph rebuild.");
+        DisconnectAllPins(_graphBuilder, _fileSource);
+        FilterGraphTools.RenderOutputPins(_graphBuilder, _fileSource);
+      }
+      else
+      {
+        ServiceRegistration.Get<ILogger>().Info("Reconnecting all pins of base filter.");
+        ReConnectAll(_graphBuilder, _fileSource);
+      }
+      mediaCtrl.Run();
+      ServiceRegistration.Get<ILogger>().Info("Reconfigure graph done");
     }
 
     /// <summary>
@@ -145,7 +154,7 @@ namespace MediaPortal.UI.Players.Video.Tools
     {
       IEnumPins pinEnum;
       int hr = baseFilter.EnumPins(out pinEnum);
-      if (hr != 0 || pinEnum == null) 
+      if (hr != 0 || pinEnum == null)
         return true;
       IPin[] pins = new IPin[1];
       IntPtr ptrFetched = Marshal.AllocCoTaskMem(4);
@@ -302,10 +311,10 @@ namespace MediaPortal.UI.Players.Video.Tools
                 other.QueryPinInfo(out otherPinInfo);
                 ReConnectAll(graphBuilder, otherPinInfo.filter);
                 FilterGraphTools.FreePinInfo(otherPinInfo);
-                FilterGraphTools.TryRelease(ref other);
+                Marshal.ReleaseComObject(other);
               }
             }
-            FilterGraphTools.TryRelease(ref pins[0]);
+            Marshal.ReleaseComObject(pins[0]);
           }
           else
           {

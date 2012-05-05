@@ -5,11 +5,11 @@
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProductVersion>9.0.30729</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
-    <ProjectGuid>{F31C71FA-4A24-4D33-B0EE-52CF667DCEF4}</ProjectGuid>
+    <ProjectGuid>{6D42C77D-370B-48B1-B454-25C0D71F7CB1}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>MediaPortal.Plugins.SlimTvClient.Interfaces</RootNamespace>
-    <AssemblyName>SlimTvInterfaces</AssemblyName>
+    <RootNamespace>MediaPortal.Plugins.SlimTvClient.Providers</RootNamespace>
+    <AssemblyName>SlimTVMPExtendedProvider</AssemblyName>
     <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <FileUpgradeFlags>
@@ -51,9 +51,16 @@
     <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="MPExtended.Services.TVAccessService.Interfaces, Version=0.4.0.0, Culture=neutral, PublicKeyToken=8ccaf7b9f3e31d46, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>References\MPExtended.Services.TVAccessService.Interfaces.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core">
       <RequiredTargetFramework>3.5</RequiredTargetFramework>
+    </Reference>
+    <Reference Include="System.ServiceModel">
+      <RequiredTargetFramework>3.0</RequiredTargetFramework>
     </Reference>
     <Reference Include="System.Xml.Linq">
       <RequiredTargetFramework>3.5</RequiredTargetFramework>
@@ -65,33 +72,34 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Items\IChannelGroup.cs" />
-    <Compile Include="Items\IChannel.cs" />
-    <Compile Include="Items\IProgram.cs" />
-    <Compile Include="Items\IProgramRecordingStatus.cs" />
-    <Compile Include="Items\IProgramSeries.cs" />
-    <Compile Include="Items\ISchedule.cs" />
-    <Compile Include="IScheduleControl.cs" />
-    <Compile Include="Items\IScheduleRule.cs" />
-    <Compile Include="Items\ITimeshiftContext.cs" />
-    <Compile Include="Items\KeepMethodType.cs" />
-    <Compile Include="Items\PriorityType.cs" />
-    <Compile Include="ITimeshiftControl.cs" />
-    <Compile Include="ITvHandler.cs" />
-    <Compile Include="ITvProvider.cs" />
-    <Compile Include="IChannelAndGroupInfo.cs" />
-    <Compile Include="IProgramInfo.cs" />
-    <Compile Include="LiveTvMediaItem\LiveTvMediaItem.cs" />
+    <Compile Include="Items\ChannelGroup.cs" />
+    <Compile Include="Items\Channel.cs" />
+    <Compile Include="Items\Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="ResourceProvider\SlimTvMediaItemBuilder.cs" />
-    <Compile Include="ResourceProvider\SlimTvResourceAccessor.cs" />
-    <Compile Include="ResourceProvider\SlimTvResourceProvider.cs" />
+    <Compile Include="Settings\Configuration\MPExtendedPassword.cs" />
+    <Compile Include="Settings\Configuration\MPExtendedUsername.cs" />
+    <Compile Include="Settings\Configuration\MPExtendedServerAddress.cs" />
+    <Compile Include="Settings\MPExtendedProviderSettings.cs" />
+    <Compile Include="SlimTVMPExtendedProvider.cs" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\..\Incubator\SlimTvInterfaces\SlimTvInterfaces.csproj">
+      <Project>{F31C71FA-4A24-4D33-B0EE-52CF667DCEF4}</Project>
+      <Name>SlimTvInterfaces</Name>
+    </ProjectReference>
     <ProjectReference Include="..\..\Source\Core\MediaPortal.Common\MediaPortal.Common.csproj">
       <Project>{ECF060E7-CAA1-4466-851F-F80B857641EA}</Project>
       <Name>MediaPortal.Common</Name>
     </ProjectReference>
+    <ProjectReference Include="..\..\Source\Core\MediaPortal.UI\MediaPortal.UI.csproj">
+      <Project>{52E587D0-A274-44DA-8846-8EEAF5414923}</Project>
+      <Name>MediaPortal.UI</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Language\strings_en.xml" />
+    <Content Include="plugin.xml" />
+    <Content Include="References\MPExtended.Services.TVAccessService.Interfaces.dll" />
   </ItemGroup>
   <ItemGroup>
     <BootstrapperPackage Include="Microsoft.Net.Client.3.5">
@@ -118,4 +126,13 @@
   <Target Name="AfterBuild">
   </Target>
   -->
+  <PropertyGroup>
+    <PostBuildEvent>xcopy /Y "$(ProjectDir)plugin.xml" "$(SolutionDir)..\Bin\$(SolutionName)\$(OutDir)Plugins\$(ProjectName)\"
+xcopy /Y "$(ProjectDir)\References\MPExtended.Services.TVAccessService.Interfaces.dll" "$(SolutionDir)..\Bin\$(SolutionName)\$(OutDir)Plugins\$(ProjectName)\"
+mkdir "$(SolutionDir)..\Bin\$(SolutionName)\$(OutDir)Plugins\$(ProjectName)\Language"
+robocopy "$(ProjectDir)Language" "$(SolutionDir)..\Bin\$(SolutionName)\$(OutDir)Plugins\$(ProjectName)\Language" /MIR /NP
+xcopy /Y "$(ProjectDir)$(OutDir)SlimTvInterfaces.dll" "$(SolutionDir)..\Bin\$(SolutionName)\$(OutDir)Plugins\$(ProjectName)\"
+xcopy /Y "$(TargetDir)$(ProjectName).dll"  "$(SolutionDir)..\Bin\$(SolutionName)\$(OutDir)Plugins\$(ProjectName)\"
+</PostBuildEvent>
+  </PropertyGroup>
 </Project>

@@ -57,6 +57,9 @@
 
     <KeyBinding Key="Escape" Command="{Command CloseOSD}" IsEnabled="{Binding IsOSDVisible}"/>
 
+    <KeyBinding Key="PageUp" Command="{Command ZapNextChannel}"/>
+    <KeyBinding Key="PageDown" Command="{Command ZapPrevChannel}"/>
+
     <KeyBinding Key="Ok" Command="{Command Source={Service ScreenManager},Path=ShowDialog,Parameters=SlimTVClient-miniguide}" IsEnabled="{Binding !IsOSDVisible}"/>
   </Grid>
 </Screen>

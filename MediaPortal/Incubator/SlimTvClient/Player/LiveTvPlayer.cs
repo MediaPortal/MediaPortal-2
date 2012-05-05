@@ -28,11 +28,11 @@ using MediaPortal.Common;
 using MediaPortal.Common.Localization;
 using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.ResourceAccess;
+using MediaPortal.Plugins.SlimTvClient.Interfaces;
 using MediaPortal.Plugins.SlimTvClient.Interfaces.Items;
 using MediaPortal.UI.Players.Video;
 using MediaPortal.UI.Players.Video.Tools;
 using MediaPortal.UI.Presentation.Players;
-using MediaPortal.Plugins.SlimTvClient.Interfaces.LiveTvMediaItem;
 
 namespace MediaPortal.Plugins.SlimTvClient
 {
@@ -68,12 +68,10 @@ namespace MediaPortal.Plugins.SlimTvClient
 
     public ITimeshiftContext CurrentTimeshiftContext
     {
-      get 
+      get
       {
         int index;
-        if (GetContextIndex(CurrentTime, out index))
-          return _timeshiftContexes[index];
-        return null;
+        return GetContextIndex(CurrentTime, out index) ? _timeshiftContexes[index] : null;
       }
     }
 
@@ -103,14 +101,14 @@ namespace MediaPortal.Plugins.SlimTvClient
       }
       return false;
     }
-    
+
     private TimeSpan GetContextStart(int index)
     {
       if (_chapterInfo == null)
         EnumerateChapters();
 
       TimeSpan totalTime = new TimeSpan();
-      int i=0;
+      int i = 0;
       foreach (ITimeshiftContext timeshiftContext in _timeshiftContexes)
       {
         if (i >= index)
@@ -215,14 +213,8 @@ namespace MediaPortal.Plugins.SlimTvClient
     {
       get
       {
-        lock (SyncObj)
-        {
-          int index;
-          if (GetContextIndex(CurrentTime, out index))
-            return _chapterInfo[index].Name;
-
-          return string.Empty;
-        }
+        int index;
+        return GetContextIndex(CurrentTime, out index) ? _chapterInfo[index].Name : string.Empty;
       }
     }
 

@@ -26,11 +26,10 @@ using System;
 using System.IO;
 using MediaPortal.Common;
 using MediaPortal.Common.ResourceAccess;
-using MediaPortal.Plugins.SlimTvClient.Interfaces;
 
-namespace MediaPortal.Plugins.SlimTv.Providers
+namespace MediaPortal.Plugins.SlimTvClient.Interfaces
 {
-  class SlimTvResourceAccessor : ILocalFsResourceAccessor
+  public class SlimTvResourceAccessor : ILocalFsResourceAccessor
   {
     private readonly string _path;
     private readonly int _slotIndex;

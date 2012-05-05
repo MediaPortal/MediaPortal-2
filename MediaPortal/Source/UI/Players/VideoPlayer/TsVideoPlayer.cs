@@ -55,11 +55,11 @@ namespace MediaPortal.UI.Players.Video
     #region Variables
 
     protected IBaseFilter _fileSource = null;
-    protected bool _bMediaTypeChanged = false;
     SubtitleRenderer _subtitleRenderer;
     IBaseFilter _subtitleFilter;
     protected GraphRebuilder _graphRebuilder;
     protected int _selectedSubtitleIndex = NO_STREAM_INDEX;
+    protected ChangedMediaType _changedMediaType;
 
     #endregion
 
@@ -117,7 +117,7 @@ namespace MediaPortal.UI.Players.Video
       f.Load(_resourceAccessor.LocalFileSystemPath, null);
 
       // Init GraphRebuilder
-      _graphRebuilder = new GraphRebuilder(_graphBuilder, _fileSource, SyncObj) { PlayerName = PlayerTitle };
+      _graphRebuilder = new GraphRebuilder(_graphBuilder, _fileSource, OnAfterGraphRebuild) { PlayerName = PlayerTitle };
     }
 
     protected override void OnBeforeGraphRunning()
@@ -125,18 +125,31 @@ namespace MediaPortal.UI.Players.Video
       FilterGraphTools.RenderOutputPins(_graphBuilder, _fileSource);
     }
 
+
     #endregion
 
     #region ITSReaderCallback members
+    
     /// <summary>
     /// Callback when MediaType has changed.
     /// </summary>
     /// <param name="mediaType">new MediaType</param>
     /// <returns>0</returns>
-    public int OnMediaTypeChanged(int mediaType)
+    public int OnMediaTypeChanged(ChangedMediaType mediaType)
     {
+      // Graph cannot be rebuilt inside this callback, it would lead to deadlocking when accessing the graphbuilder for rebuild.
       _graphRebuilder.DoAsynchRebuild();
+      _changedMediaType = mediaType;
       return 0;
+    }
+
+    /// <summary>
+    /// Informs the ITsReader that the graph rebuild was done.
+    /// </summary>
+    protected void OnAfterGraphRebuild()
+    {
+      ITsReader tsReader = (ITsReader) _fileSource;
+      tsReader.OnGraphRebuild(_changedMediaType);
     }
 
     /// <summary>

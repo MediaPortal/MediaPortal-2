@@ -28,6 +28,17 @@ using System.Runtime.InteropServices;
 namespace MediaPortal.UI.Players.Video.Interfaces
 {
   /// <summary>
+  /// ChangedMediaType is used to indicated what media types have been changed. Combinations of values are possible.
+  /// </summary>
+  [Flags]
+  public enum ChangedMediaType
+  {
+    None = 0,
+    Audio = 1,
+    Video = 2,
+  }
+
+  /// <summary>
   /// Structure for callbacks by TsReader.
   /// </summary>
   [ComVisible(true), ComImport,
@@ -36,7 +47,7 @@ namespace MediaPortal.UI.Players.Video.Interfaces
   public interface ITsReaderCallback
   {
     [PreserveSig]
-    int OnMediaTypeChanged(int mediaType);
+    int OnMediaTypeChanged(ChangedMediaType mediaType);
 
     [PreserveSig]
     int OnVideoFormatChanged(int streamType, int width, int height, int aspectRatioX, int aspectRatioY, int bitrate,
@@ -98,7 +109,7 @@ namespace MediaPortal.UI.Players.Video.Interfaces
     int OnZapping(int info);
 
     [PreserveSig]
-    int OnGraphRebuild(int info);
+    int OnGraphRebuild(ChangedMediaType info);
 
     [PreserveSig]
     int SetMediaPosition(long mediaPos);
