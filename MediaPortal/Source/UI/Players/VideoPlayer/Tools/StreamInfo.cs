@@ -67,6 +67,11 @@ namespace MediaPortal.UI.Players.Video.Tools
     /// </summary>
     public int LCID { get; set; }
 
+    /// <summary>
+    /// Gets or Sets the channel count. This property is used only for audio streams.
+    /// </summary>
+    public int ChannelCount { get; set; }
+
     #endregion
 
     #region Overrides

@@ -25,6 +25,8 @@
 using System;
 using System.Collections.Generic;
 using System.Drawing;
+using System.Globalization;
+using System.Linq;
 using System.Runtime.InteropServices;
 using System.Security;
 using System.Windows.Forms;
@@ -32,8 +34,8 @@ using DirectShowLib;
 using MediaPortal.Common;
 using MediaPortal.Common.Localization;
 using MediaPortal.Common.Logging;
-using MediaPortal.Common.ResourceAccess;
 using MediaPortal.Common.Messaging;
+using MediaPortal.Common.ResourceAccess;
 using MediaPortal.Common.Settings;
 using MediaPortal.UI.General;
 using MediaPortal.UI.Players.Video.Interfaces;
@@ -45,7 +47,6 @@ using MediaPortal.UI.SkinEngine.Players;
 using MediaPortal.UI.SkinEngine.SkinManagement;
 using MediaPortal.Utilities.Exceptions;
 using SlimDX.Direct3D9;
-using System.Globalization;
 
 namespace MediaPortal.UI.Players.Video
 {
@@ -879,17 +880,17 @@ namespace MediaPortal.UI.Players.Video
 
     public virtual void Stop()
     {
-      if (_state != PlayerState.Stopped)
-      {
-        ServiceRegistration.Get<ILogger>().Debug("{0}: Stop", PlayerTitle);
-        // FIXME
-        //        ResetRefreshRate();
-        // TODO: WriteResumeData();
-        StopSeeking();
-        _isPaused = false;
-        Shutdown();
-        FireStopped();
-      }
+      if (_state == PlayerState.Stopped)
+        return;
+
+      ServiceRegistration.Get<ILogger>().Debug("{0}: Stop", PlayerTitle);
+      // FIXME
+      //        ResetRefreshRate();
+      // TODO: WriteResumeData();
+      StopSeeking();
+      _isPaused = false;
+      Shutdown();
+      FireStopped();
     }
 
     public void Pause()
@@ -949,35 +950,88 @@ namespace MediaPortal.UI.Players.Video
 
     #region Audio streams
 
-    protected void SetPreferredAudio()
+    /// <summary>
+    /// Sets the preferred audio stream. The stream is chosen either by LCID or the last used stream name.
+    /// If there is no matching stream, the first available can be chosen if <paramref name="useFirstAsDefault"/> 
+    /// is set to <c>true</c>. This is especially required for the <see cref="TsVideoPlayer"/>.
+    /// </summary>
+    /// <param name="useFirstAsDefault"><c>true</c> to enable the first stream as default, if no language match found</param>
+    protected void SetPreferredAudio(bool useFirstAsDefault = false)
     {
       EnumerateStreams();
-      if (_streamInfoAudio == null)
+      StreamInfoHandler audioStreams;
+      lock (SyncObj)
+        audioStreams = _streamInfoAudio;
+
+      if (audioStreams == null || audioStreams.Count == 0)
         return;
+
       VideoSettings settings = ServiceRegistration.Get<ISettingsManager>().Load<VideoSettings>();
 
-      // First try to find a stream by it's exact LCID...
-      StreamInfo streamInfo = _streamInfoAudio.FindStream(settings.PreferredAudioLanguage);
-      if (streamInfo == null && settings.PreferredAudioLanguage != 0)
-      {
-        // ... then try to find a stream by it's name part.
-        CultureInfo ci = new CultureInfo(settings.PreferredAudioLanguage);
-        string languagePart = ci.EnglishName.Substring(0, ci.EnglishName.IndexOf("(") - 1);
-        streamInfo = _streamInfoAudio.FindSimilarStream(languagePart);
-      }
-      if (streamInfo != null)
-        _streamInfoAudio.EnableStream(streamInfo.Name);
-    }
+      // When multiple streams are available, we select the stream by channel count preference (PreferMultiChannelAudio).
+      Predicate<StreamInfo> channelCountPreference;
+      if (settings.PreferMultiChannelAudio)
+        channelCountPreference = (a => a.ChannelCount > 2); // Prefer more then stereo (usually 6ch)
+      else
+        channelCountPreference = (a => a.ChannelCount <= 2); // Stereo or even mono
 
+      // Check if there are multiple audio streams for the PreferredAudioLanguage.
+      int preferredAudioLCID = settings.PreferredAudioLanguage;
+
+      List<StreamInfo> streamsForLCID = audioStreams.ToList().FindAll(a => a.LCID == preferredAudioLCID && a.LCID != 0);
+      int count = streamsForLCID.Count;
+      if (count > 0)
+      {
+        // If we have only one choice, select this stream.
+        if (count == 1)
+        {
+          audioStreams.EnableStream(streamsForLCID[0].Name);
+          return;
+        }
+
+        StreamInfo bestChannelStream = streamsForLCID.Find(channelCountPreference);
+        if (bestChannelStream != null)
+        {
+          audioStreams.EnableStream(bestChannelStream.Name);
+          return;
+        }
+      }
+
+      // If we did not find matching languages by LCID no try to find them by name.
+      StreamInfo streamInfo = null;
+      if (preferredAudioLCID != 0)
+      {
+        CultureInfo ci = new CultureInfo(preferredAudioLCID);
+        string languagePart = ci.EnglishName.Substring(0, ci.EnglishName.IndexOf("(") - 1);
+        streamInfo = audioStreams.FindSimilarStream(languagePart);
+      }
+
+      // Still no matching languages? Then select the first that matches channelCountPreference.
+      if (streamInfo == null)
+        streamInfo = audioStreams.ToList().Find(channelCountPreference);
+
+      if (streamInfo != null)
+        audioStreams.EnableStream(streamInfo.Name);
+      else
+        if (useFirstAsDefault)
+          audioStreams.EnableStream(audioStreams[0].Name);
+    }
 
     public virtual void SetAudioStream(string audioStream)
     {
-      if (_streamInfoAudio != null && _streamInfoAudio.EnableStream(audioStream))
+      StreamInfoHandler audioStreams;
+      lock (SyncObj)
+        audioStreams = _streamInfoAudio;
+
+      if (audioStreams == null)
+        return;
+
+      if (audioStreams.EnableStream(audioStream))
       {
-        VideoSettings settings = ServiceRegistration.Get<ISettingsManager>().Load<VideoSettings>() ?? new VideoSettings();
-        int lcid = _streamInfoAudio.CurrentStream.LCID;
+        int lcid = audioStreams.CurrentStream.LCID;
         if (lcid != 0)
         {
+          VideoSettings settings = ServiceRegistration.Get<ISettingsManager>().Load<VideoSettings>() ?? new VideoSettings();
           settings.PreferredAudioLanguage = lcid;
           ServiceRegistration.Get<ISettingsManager>().Save(settings);
         }
@@ -988,7 +1042,11 @@ namespace MediaPortal.UI.Players.Video
     {
       get
       {
-        return _streamInfoAudio != null ? _streamInfoAudio.CurrentStreamName : null;
+        StreamInfoHandler audioStreams;
+        lock (SyncObj)
+          audioStreams = _streamInfoAudio;
+
+        return audioStreams == null ? null : audioStreams.CurrentStreamName;
       }
     }
 
@@ -997,35 +1055,49 @@ namespace MediaPortal.UI.Players.Video
       get
       {
         EnumerateStreams();
-        return _streamInfoAudio == null ? DEFAULT_AUDIO_STREAM_NAMES : _streamInfoAudio.GetStreamNames();
+        StreamInfoHandler audioStreams;
+        lock (SyncObj)
+          audioStreams = _streamInfoAudio;
+
+        return audioStreams == null ? DEFAULT_AUDIO_STREAM_NAMES : audioStreams.GetStreamNames();
       }
     }
 
     /// <summary>
     /// Enumerates streams from video (audio, subtitles).
     /// </summary>
-    /// <returns>True if information has been changed.</returns>
+    /// <returns><c>true</c> if information has been changed.</returns>
     protected virtual bool EnumerateStreams()
     {
       return EnumerateStreams(false);
     }
 
+    /// <summary>
+    /// Enumerates streams from video (audio, subtitles).
+    /// </summary>
+    /// <param name="forceRefresh">Force refresh</param>
+    /// <returns><c>true</c> if information has been changed.</returns>
     protected virtual bool EnumerateStreams(bool forceRefresh)
     {
       if (_graphBuilder == null || !_initialized)
         return false;
 
-      if (forceRefresh || _streamInfoAudio == null || _streamInfoSubtitles == null || _streamInfoTitles == null)
+      StreamInfoHandler audioStreams;
+      StreamInfoHandler subtitleStreams;
+      StreamInfoHandler titleStreams;
+      lock (SyncObj)
       {
-        FilterGraphTools.TryDispose(ref _streamInfoAudio);
-        FilterGraphTools.TryDispose(ref _streamInfoSubtitles);
-        FilterGraphTools.TryDispose(ref _streamInfoTitles);
-        _streamInfoAudio = new StreamInfoHandler();
-        _streamInfoSubtitles = new StreamInfoHandler();
-        _streamInfoTitles = new StreamInfoHandler();
+        audioStreams = _streamInfoAudio;
+        subtitleStreams = _streamInfoSubtitles;
+        titleStreams = _streamInfoTitles;
+      }
+      _streamInfoTitles = new StreamInfoHandler();
 
-        foreach (
-          IAMStreamSelect streamSelector in FilterGraphTools.FindFiltersByInterface<IAMStreamSelect>(_graphBuilder))
+      if (forceRefresh || audioStreams == null || subtitleStreams == null)
+      {
+        audioStreams = new StreamInfoHandler();
+        subtitleStreams = new StreamInfoHandler();
+        foreach (IAMStreamSelect streamSelector in FilterGraphTools.FindFiltersByInterface<IAMStreamSelect>(_graphBuilder))
         {
           FilterInfo fi = FilterGraphTools.QueryFilterInfoAndFree(((IBaseFilter) streamSelector));
           int streamCount;
@@ -1040,6 +1112,11 @@ namespace MediaPortal.UI.Players.Video
             object pppunk, ppobject;
 
             streamSelector.Info(i, out mediaType, out selectInfoFlags, out lcid, out groupNumber, out name, out pppunk, out ppobject);
+
+            // If stream does not contain a LCID, try a lookup from stream name.
+            if (lcid == 0)
+              lcid = LookupLcidFromName(name);
+
             ServiceRegistration.Get<ILogger>().Debug("Stream {4}|{0}: MajorType {1}; Name {2}; PWDGroup: {3}; LCID: {5}",
               i, mediaType.majorType, name, groupNumber, fi.achName, lcid);
 
@@ -1053,34 +1130,68 @@ namespace MediaPortal.UI.Players.Video
                 {
                   String streamName = name.Trim();
                   String streamAppendix;
-                  if (CodecHandler.MediaSubTypes.TryGetValue(mediaType.subType, out streamAppendix))
+                  if (!CodecHandler.MediaSubTypes.TryGetValue(mediaType.subType, out streamAppendix))
+                    streamAppendix = string.Empty;
+
+                  // if audio information is available via WaveEx format, query the channel count
+                  if (mediaType.formatType == FormatType.WaveEx && mediaType.formatPtr != IntPtr.Zero)
                   {
-                    // If audio information is available via WaveEx format, query the channel count
-                    if (mediaType.formatType == FormatType.WaveEx && mediaType.formatPtr != IntPtr.Zero)
-                    {
-                      WaveFormatEx waveFormatEx = (WaveFormatEx) Marshal.PtrToStructure(mediaType.formatPtr, typeof(WaveFormatEx));
-                      streamAppendix = String.Format("{0} {1}ch", streamAppendix, waveFormatEx.nChannels);
-                    }
-                    currentStream.Name = String.Format("{0} ({1})", streamName, streamAppendix);
+                    WaveFormatEx waveFormatEx = (WaveFormatEx) Marshal.PtrToStructure(mediaType.formatPtr, typeof(WaveFormatEx));
+                    currentStream.ChannelCount = waveFormatEx.nChannels;
+                    streamAppendix = String.Format("{0} {1}ch", streamAppendix, currentStream.ChannelCount);
                   }
-                  _streamInfoAudio.AddUnique(currentStream);
+
+                  if (!string.IsNullOrEmpty(streamAppendix))
+                    currentStream.Name = String.Format("{0} ({1})", streamName, streamAppendix);
+
+                  audioStreams.AddUnique(currentStream);
                 }
                 break;
               case StreamGroup.Subtitle:
               case StreamGroup.DirectVobSubtitle:
-                _streamInfoSubtitles.AddUnique(currentStream, true);
+                subtitleStreams.AddUnique(currentStream, true);
                 break;
               case StreamGroup.MatroskaEdition: // This is a MKV Edition handled by Haali splitter
-                _streamInfoTitles.AddUnique(currentStream, true);
+                titleStreams.AddUnique(currentStream, true);
                 break;
             }
             // Free MediaType and references
             FilterGraphTools.FreeAMMediaType(mediaType);
           }
+
+          lock (SyncObj)
+          {
+            _streamInfoAudio = audioStreams;
+            _streamInfoSubtitles = subtitleStreams;
+            _streamInfoTitles = titleStreams;
+          }
         }
         return true;
       }
       return false;
+    }
+
+    /// <summary>    /// Helper method to try a lookup of missing LCID from stream names. It compares the given <paramref name="streamName"/> 
+    /// with the available <see cref="CultureInfo.ThreeLetterISOLanguageName"/> and <see cref="CultureInfo.TwoLetterISOLanguageName"/>.
+    /// </summary>
+    /// <param name="streamName">Stream name to check.</param>
+    /// <returns>Found LCID or <c>0</c></returns>
+    protected int LookupLcidFromName(string streamName)
+    {
+      if (string.IsNullOrEmpty(streamName))
+        return 0;
+
+      int len = streamName.Length;
+      if (len < 2 || len > 3)
+        return 0;
+
+      streamName = streamName.ToLowerInvariant();
+      CultureInfo culture = CultureInfo.GetCultures(CultureTypes.SpecificCultures).FirstOrDefault
+        (c =>
+          len == 3 && c.ThreeLetterISOLanguageName == streamName ||
+          len == 2 && c.TwoLetterISOLanguageName == streamName
+        );
+      return culture == null ? 0 : culture.LCID;
     }
 
     protected virtual void EnumerateChapters()
@@ -1091,7 +1202,7 @@ namespace MediaPortal.UI.Players.Video
     protected virtual void EnumerateChapters(bool forceRefresh)
     {
       if (_graphBuilder == null || !_initialized || !forceRefresh && _chapterTimestamps != null)
-        return; 
+        return;
 
       // Try to find a filter implementing IAMExtendSeeking for chapter support
       IAMExtendedSeeking extendSeeking = FilterGraphTools.FindFilterByInterface<IAMExtendedSeeking>(_graphBuilder);
@@ -1099,7 +1210,7 @@ namespace MediaPortal.UI.Players.Video
         return;
 
       int markerCount;
-      if (extendSeeking.get_MarkerCount(out markerCount) != 0 || markerCount <= 0) 
+      if (extendSeeking.get_MarkerCount(out markerCount) != 0 || markerCount <= 0)
         return;
 
       _chapterTimestamps = new double[markerCount];
@@ -1228,17 +1339,21 @@ namespace MediaPortal.UI.Players.Video
 
     protected virtual void SetPreferredSubtitle()
     {
-      if (_streamInfoSubtitles == null)
+      StreamInfoHandler subtitleStreams;
+      lock (SyncObj)
+        subtitleStreams = _streamInfoSubtitles;
+
+      if (subtitleStreams == null)
         return;
 
       VideoSettings settings = ServiceRegistration.Get<ISettingsManager>().Load<VideoSettings>() ?? new VideoSettings();
 
       // first try to find a stream by it's exact LCID.
-      StreamInfo streamInfo = _streamInfoSubtitles.FindStream(settings.PreferredSubtitleLanguage) ?? _streamInfoSubtitles.FindSimilarStream(settings.PreferredSubtitleSteamName);
+      StreamInfo streamInfo = subtitleStreams.FindStream(settings.PreferredSubtitleLanguage) ?? subtitleStreams.FindSimilarStream(settings.PreferredSubtitleSteamName);
       if (streamInfo == null || !settings.EnableSubtitles)
-        _streamInfoSubtitles.EnableStream(NO_SUBTITLES);
+        subtitleStreams.EnableStream(NO_SUBTITLES);
       else
-        _streamInfoSubtitles.EnableStream(streamInfo.Name);
+        subtitleStreams.EnableStream(streamInfo.Name);
     }
 
     /// <summary>
@@ -1249,15 +1364,18 @@ namespace MediaPortal.UI.Players.Video
       get
       {
         EnumerateStreams();
+        StreamInfoHandler subtitleStreams;
+        lock (SyncObj)
+          subtitleStreams = _streamInfoSubtitles;
 
-        if (_streamInfoSubtitles == null)
+        if (subtitleStreams == null)
           return EMPTY_STRING_ARRAY;
 
         // Check if there are real subtitle streams available. If not, the splitter only offers "No subtitles".
-        string[] subtitleStreamNames = _streamInfoSubtitles.GetStreamNames();
-        if (subtitleStreamNames.Length == 1 && subtitleStreamNames[0] == NO_SUBTITLES)
-          return EMPTY_STRING_ARRAY;
-        return subtitleStreamNames;
+        string[] subtitleStreamNames = subtitleStreams.GetStreamNames();
+        return subtitleStreamNames.Length == 1 && subtitleStreamNames[0] == NO_SUBTITLES
+                 ? EMPTY_STRING_ARRAY
+                 : subtitleStreamNames;
       }
     }
 
@@ -1267,21 +1385,35 @@ namespace MediaPortal.UI.Players.Video
     /// <param name="subtitle">subtitle stream</param>
     public virtual void SetSubtitle(string subtitle)
     {
-      if (_streamInfoSubtitles != null && _streamInfoSubtitles.EnableStream(subtitle))
+      StreamInfoHandler subtitleStreams;
+      lock (SyncObj)
+        subtitleStreams = _streamInfoSubtitles;
+
+      if (subtitleStreams == null)
+        return;
+
+      if (subtitleStreams.EnableStream(subtitle))
         SaveSubtitlePreference();
     }
 
     protected virtual void SaveSubtitlePreference()
     {
+      StreamInfoHandler subtitleStreams;
+      lock (SyncObj)
+        subtitleStreams = _streamInfoSubtitles;
+
+      if (subtitleStreams == null)
+        return;
+
       VideoSettings settings = ServiceRegistration.Get<ISettingsManager>().Load<VideoSettings>() ?? new VideoSettings();
-      settings.PreferredSubtitleSteamName = _streamInfoSubtitles.CurrentStreamName;
+      settings.PreferredSubtitleSteamName = subtitleStreams.CurrentStreamName;
       // if the subtitle stream has proper LCID, remember it.
-      int lcid = _streamInfoAudio.CurrentStream.LCID;
+      int lcid = subtitleStreams.CurrentStream.LCID;
       if (lcid != 0)
-        settings.PreferredAudioLanguage = lcid;
+        settings.PreferredSubtitleLanguage = lcid;
 
       // if selected stream is "No subtitles", we disable the setting
-      settings.EnableSubtitles = _streamInfoSubtitles.CurrentStreamName != NO_SUBTITLES;
+      settings.EnableSubtitles = subtitleStreams.CurrentStreamName != NO_SUBTITLES;
       ServiceRegistration.Get<ISettingsManager>().Save(settings);
     }
 
@@ -1296,8 +1428,10 @@ namespace MediaPortal.UI.Players.Video
     {
       get
       {
+        StreamInfoHandler subtitleStreams;
         lock (SyncObj)
-          return _streamInfoSubtitles != null ? _streamInfoSubtitles.CurrentStreamName : String.Empty;
+          subtitleStreams = _streamInfoSubtitles;
+        return subtitleStreams == null ? String.Empty : subtitleStreams.CurrentStreamName;
       }
     }
 

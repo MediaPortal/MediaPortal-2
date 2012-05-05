@@ -39,9 +39,16 @@ namespace MediaPortal.Plugins.SlimTvClient
     public const string SCREEN_FULLSCREEN_TV = "FullscreenContentTv";
     public const string SCREEN_CURRENTLY_PLAYING_TV = "CurrentlyPlayingTv";
 
+    protected static string[] EMPTY_STRING_ARRAY = new string[] { };
+
     protected MediaWorkflowStateType _mediaWorkflowStateType;
     protected IChapterPlayer _player;
     protected ItemsList _chapterMenuItems;
+    
+    protected ISubtitlePlayer _subtitlePlayer;
+    protected AbstractProperty _subtitlesAvailableProperty;
+    protected string[] _subtitles = EMPTY_STRING_ARRAY;
+    protected ItemsList _subtitleMenuItems;
 
     private readonly AbstractProperty _chaptersAvailableProperty;
 
@@ -50,6 +57,7 @@ namespace MediaPortal.Plugins.SlimTvClient
     public SlimTvUIContributor(): base (500)
     {
       _chaptersAvailableProperty = new WProperty(typeof(bool), false);
+      _subtitlesAvailableProperty = new WProperty(typeof(bool), false);
     }
 
     #endregion
@@ -57,6 +65,57 @@ namespace MediaPortal.Plugins.SlimTvClient
     public bool BackgroundDisabled
     {
       get { return false; }
+    }
+
+    public AbstractProperty SubtitlesAvailableProperty
+    {
+      get { return _subtitlesAvailableProperty; }
+    }
+
+    public bool SubtitlesAvailable
+    {
+      get { return (bool)_subtitlesAvailableProperty.GetValue(); }
+      set { _subtitlesAvailableProperty.SetValue(value); }
+    }
+
+    /// <summary>
+    /// Provides a list of items to be shown in the subtitle selection menu.
+    /// </summary>
+    public ItemsList SubtitleMenuItems
+    {
+      get
+      {
+        _subtitleMenuItems.Clear();
+        ISubtitlePlayer subtitlePlayer = _subtitlePlayer;
+        if (subtitlePlayer != null && _subtitles.Length > 0)
+        {
+          string currentSubtitle = subtitlePlayer.CurrentSubtitle;
+
+          foreach (string subtitle in _subtitles)
+          {
+            // Use local variable, otherwise delegate argument is not fixed
+            string localSubtitle = subtitle;
+
+            ListItem item = new ListItem(Consts.KEY_NAME, localSubtitle)
+            {
+              Command = new MethodDelegateCommand(() => subtitlePlayer.SetSubtitle(localSubtitle)),
+              // Check if it is the selected subtitle, then mark it
+              Selected = localSubtitle == currentSubtitle
+            };
+
+            _subtitleMenuItems.Add(item);
+          }
+        }
+        return _subtitleMenuItems;
+      }
+    }
+
+    /// <summary>
+    /// Opens the subtitle selection dialog.
+    /// </summary>
+    public void OpenChooseSubtitleDialog()
+    {
+      ServiceRegistration.Get<IScreenManager>().ShowDialog("DialogChooseSubtitle");
     }
 
     public AbstractProperty ChaptersAvailableProperty
@@ -86,7 +145,6 @@ namespace MediaPortal.Plugins.SlimTvClient
         return null;
       }
     }
-
 
     /// <summary>
     /// Provides a list of items to be shown in the chapter selection menu.
@@ -155,17 +213,25 @@ namespace MediaPortal.Plugins.SlimTvClient
         command.Execute();
     }
 
-
     public void Initialize(MediaWorkflowStateType stateType, IPlayer player)
     {
       _mediaWorkflowStateType = stateType;
       _player = player as IChapterPlayer;
+      _subtitlePlayer = player as ISubtitlePlayer;
+      _subtitleMenuItems = new ItemsList();
       _chapterMenuItems = new ItemsList();
     }
 
     protected override void Update()
     {
       ChaptersAvailable = _player.ChaptersAvailable;
+      if (_subtitlePlayer != null)
+      {
+        _subtitles = _subtitlePlayer.Subtitles;
+        SubtitlesAvailable = _subtitles.Length > 0;
+      }
+      else
+        _subtitles = EMPTY_STRING_ARRAY;
     }
   }
 }

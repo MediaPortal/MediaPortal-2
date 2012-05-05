@@ -19,6 +19,9 @@
     <String Name="Players.Codecs.AudioCodecs.AudioCodecAAC.Help" Text="Set the AAC audio codec"/>
     <String Name="Players.Codecs.AudioCodecs.AudioRenderer" Text="Audio Renderer"/>
     <String Name="Players.Codecs.AudioCodecs.AudioRenderer.Help" Text="Set the audio renderer"/>
+    <String Name="Players.VideoPlayer" Text="Video Player"/>
+    <String Name="Players.VideoPlayer.PreferMultiChannelAudio" Text="Prefer multichannel audio streams"/>
+    <String Name="Players.VideoPlayer.PreferMultiChannelAudio.Help" Text="If enabled, 6ch streams are preferred (i.e. AC3, AAC)"/>
     <String Name="Players.DVDPlayer" Text="DVD Player"/>
     <String Name="Players.DVDPlayer.EnableClosedCaption" Text="Closed Captions"/>
     <String Name="Players.DVDPlayer.EnableClosedCaption.Help" Text="Select if Closed Captions should be enabled by default"/>

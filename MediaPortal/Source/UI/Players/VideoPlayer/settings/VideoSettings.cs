@@ -120,6 +120,11 @@ namespace MediaPortal.UI.Players.Video.Settings
     [Setting(SettingScope.User, false)]
     public bool EnableSubtitles { get; set; }
 
+    /// <summary>
+    /// Gets or sets a flag if multichannel audio streams should be preferred (i.e. 6ch AC3 over stereo).
+    /// </summary>
+    [Setting(SettingScope.User, false)]
+    public bool PreferMultiChannelAudio { get; set; }
 
     /// <summary>
     /// Gets or sets the preferred subtitle stream name for video playback.
