@@ -193,5 +193,10 @@ namespace MediaPortal.UiComponents.Media.Views
       CollectionUtils.AddAll(viewSpecifications, SubViews.Select(subView => subView.Specification));
       return CombinedViewChangeNotificator.CombineViewChangeNotificators(viewSpecifications);
     }
+
+    public override string ToString()
+    {
+      return _displayName;
+    }
   }
 }
