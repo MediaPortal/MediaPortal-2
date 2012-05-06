@@ -22,16 +22,14 @@
 
 #endregion
 
-using System.Runtime.InteropServices;
 using DirectShowLib;
-using System;
 
 namespace MediaPortal.UI.Players.Video.Tools
 {
   /// <summary>
   /// StreamInfo class holds information about available StreamSelectors, Indexes and Names.
   /// </summary>
-  public class StreamInfo: IDisposable
+  public class StreamInfo
   {
     #region Contructor
 
@@ -79,16 +77,6 @@ namespace MediaPortal.UI.Players.Video.Tools
     public override string ToString()
     {
       return Name;
-    }
-
-    #endregion
-
-    #region IDisposable Member
-
-    public void Dispose()
-    {
-      if (StreamSelector != null)
-        Marshal.ReleaseComObject(StreamSelector);
     }
 
     #endregion

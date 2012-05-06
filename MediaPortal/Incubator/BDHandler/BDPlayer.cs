@@ -26,6 +26,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Runtime.InteropServices;
 using BDInfo;
 using DirectShowLib;
 using MediaPortal.Common;
@@ -106,6 +107,7 @@ namespace MediaPortal.UI.Players.Video
           IFileSourceFilter fileSourceFilter = FilterGraphTools.FindFilterByInterface<IFileSourceFilter>(_graphBuilder);
           // load the file
           int hr = fileSourceFilter.Load(strFile, null);
+          Marshal.ReleaseComObject(fileSourceFilter);
           DsError.ThrowExceptionForHR(hr);
         }
         else
@@ -120,10 +122,12 @@ namespace MediaPortal.UI.Players.Video
     {
       base.OnBeforeGraphRunning();
 
-      IBaseFilter fileSourceFilter = FilterGraphTools.FindFilterByInterface<IFileSourceFilter>(_graphBuilder) as IBaseFilter;
+      IFileSourceFilter fileSourceFilter = FilterGraphTools.FindFilterByInterface<IFileSourceFilter>(_graphBuilder);
 
-      // first all automatically rendered pins
-      FilterGraphTools.RenderOutputPins(_graphBuilder, fileSourceFilter);
+      // First all automatically rendered pins
+      FilterGraphTools.RenderOutputPins(_graphBuilder, (IBaseFilter) fileSourceFilter);
+      
+      Marshal.ReleaseComObject(fileSourceFilter);
 
       // MSDN: "During the connection process, the Filter Graph Manager ignores pins on intermediate filters if the pin name begins with a tilde (~)."
       // then connect the skipped "~" output pins

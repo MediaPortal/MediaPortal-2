@@ -1161,13 +1161,15 @@ namespace MediaPortal.UI.Players.Video
             // Free MediaType and references
             FilterGraphTools.FreeAMMediaType(mediaType);
           }
+          // Release the enumerated filter
+          Marshal.ReleaseComObject(streamSelector);
+        }
 
-          lock (SyncObj)
-          {
-            _streamInfoAudio = audioStreams;
-            _streamInfoSubtitles = subtitleStreams;
-            _streamInfoTitles = titleStreams;
-          }
+        lock (SyncObj)
+        {
+          _streamInfoAudio = audioStreams;
+          _streamInfoSubtitles = subtitleStreams;
+          _streamInfoTitles = titleStreams;
         }
         return true;
       }
@@ -1211,22 +1213,28 @@ namespace MediaPortal.UI.Players.Video
       IAMExtendedSeeking extendSeeking = FilterGraphTools.FindFilterByInterface<IAMExtendedSeeking>(_graphBuilder);
       if (extendSeeking == null)
         return;
-
-      int markerCount;
-      if (extendSeeking.get_MarkerCount(out markerCount) != 0 || markerCount <= 0)
-        return;
-
-      _chapterTimestamps = new double[markerCount];
-      _chapterNames = new string[markerCount];
-      for (int i = 1; i <= markerCount; i++)
+      try
       {
-        double markerTime;
-        string markerName;
-        extendSeeking.GetMarkerTime(i, out markerTime);
-        extendSeeking.GetMarkerName(i, out markerName);
+        int markerCount;
+        if (extendSeeking.get_MarkerCount(out markerCount) != 0 || markerCount <= 0)
+          return;
 
-        _chapterTimestamps[i - 1] = markerTime;
-        _chapterNames[i - 1] = !string.IsNullOrEmpty(markerName) ? markerName : GetChapterName(i);
+        _chapterTimestamps = new double[markerCount];
+        _chapterNames = new string[markerCount];
+        for (int i = 1; i <= markerCount; i++)
+        {
+          double markerTime;
+          string markerName;
+          extendSeeking.GetMarkerTime(i, out markerTime);
+          extendSeeking.GetMarkerName(i, out markerName);
+
+          _chapterTimestamps[i - 1] = markerTime;
+          _chapterNames[i - 1] = !string.IsNullOrEmpty(markerName) ? markerName : GetChapterName(i);
+        }
+      }
+      finally
+      {
+        Marshal.ReleaseComObject(extendSeeking);
       }
     }
 
@@ -1602,7 +1610,7 @@ namespace MediaPortal.UI.Players.Video
       if (titleStreams == null || titleStreams.Count == 0)
         return;
 
-      if (!titleStreams.EnableStream(title)) 
+      if (!titleStreams.EnableStream(title))
         return;
 
       EnumerateStreams(true);

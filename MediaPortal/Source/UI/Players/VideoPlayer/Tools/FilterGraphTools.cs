@@ -307,7 +307,8 @@ namespace MediaPortal.UI.Players.Video.Tools
     }
 
     /// <summary>
-    /// Find a filter in a DirectShow Graph that implements a given interface.
+    /// Find a filter in a DirectShow Graph that implements a given interface. The caller must call <see cref="Marshal.ReleaseComObject"/> on
+    /// the returned instance when it is no longer needed.
     /// </summary>
     /// <param name="graphBuilder">the IGraphBuilder interface of the graph</param>
     /// <returns>an instance of the filter if found, null if not</returns>
@@ -346,7 +347,8 @@ namespace MediaPortal.UI.Players.Video.Tools
     }
 
     /// <summary>
-    /// Find all filter in a DirectShow Graph that implement a given interface.
+    /// Find all filter in a DirectShow Graph that implement a given interface. The caller must call <see cref="Marshal.ReleaseComObject"/> on
+    /// all returned instances when they are no longer needed.
     /// </summary>
     /// <param name="graphBuilder">the IGraphBuilder interface of the graph</param>
     /// <returns>an instance of the filter if found, null if not</returns>

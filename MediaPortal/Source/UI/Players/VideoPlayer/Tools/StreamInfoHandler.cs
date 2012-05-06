@@ -35,7 +35,7 @@ namespace MediaPortal.UI.Players.Video.Tools
   /// <summary>
   /// StreamInfoHandler contains list of StreamInfo objects of same kind (audio, video, subtitles). 
   /// </summary>
-  public class StreamInfoHandler : IEnumerable<StreamInfo>, IDisposable
+  public class StreamInfoHandler : IEnumerable<StreamInfo>
   {
     #region Properties
 
@@ -191,17 +191,6 @@ namespace MediaPortal.UI.Players.Video.Tools
     public StreamInfo FindSimilarStream(string selectedStream)
     {
       return String.IsNullOrEmpty(selectedStream) ? null : _streamInfos.Find(s => s.Name.ToLowerInvariant().Contains(selectedStream.ToLowerInvariant()));
-    }
-
-    #endregion
-
-    #region IDisposable Member
-
-    public void Dispose()
-    {
-      // Dispose every StreamInfo to allow Marshal.ReleaseComObject of IAMStreamSelect.
-      foreach (StreamInfo streamInfo in this)
-        streamInfo.Dispose();
     }
 
     #endregion
