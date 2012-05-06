@@ -213,9 +213,10 @@
     <Compile Include="Settings\ViewSettings.cs" />
     <Compile Include="Settings\MediaModelSettings.cs" />
     <Compile Include="General\MultimediaDirectory.cs" />
-    <Compile Include="Views\AllSharesViewSpecification.cs" />
+    <Compile Include="Views\SystemSharesViewSpecification.cs" />
     <Compile Include="Views\AddedRemovableMediaViewSpecificationFacade.cs" />
     <Compile Include="Views\CombinedViewChangeNotificator.cs" />
+    <Compile Include="Views\AllSystemsViewSpecification.cs" />
     <Compile Include="Views\IViewChangeNotificator.cs" />
     <Compile Include="Views\LocalDirectoryViewSpecification.cs" />
     <Compile Include="Views\LocalSharesViewSpecification.cs" />

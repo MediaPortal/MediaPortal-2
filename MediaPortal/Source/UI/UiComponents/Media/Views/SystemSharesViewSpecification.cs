@@ -33,9 +33,9 @@ using MediaPortal.UI.ServerCommunication;
 namespace MediaPortal.UiComponents.Media.Views
 {
   /// <summary>
-  /// View implementation which presents a list of of all shares registered at the media library, one sub view for each share.
+  /// View implementation which presents a list of all shares of a given system registered at the media library, one sub view for each share.
   /// </summary>
-  public class AllSharesViewSpecification : ViewSpecification
+  public class SystemSharesViewSpecification : ViewSpecification
   {
     #region Consts
 
@@ -49,11 +49,20 @@ namespace MediaPortal.UiComponents.Media.Views
 
     #endregion
 
+    #region Protected fields
+
+    protected string _systemId;
+
+    #endregion
+
     #region Ctor
 
-    public AllSharesViewSpecification(string viewDisplayName,
+    public SystemSharesViewSpecification(string systemId, string viewDisplayName,
         IEnumerable<Guid> necessaryMIATypeIds, IEnumerable<Guid> optionalMIATypeIds) :
-        base(viewDisplayName, necessaryMIATypeIds, optionalMIATypeIds) { }
+        base(viewDisplayName, necessaryMIATypeIds, optionalMIATypeIds)
+    {
+      _systemId = systemId;
+    }
 
     #endregion
 
@@ -76,7 +85,7 @@ namespace MediaPortal.UiComponents.Media.Views
       IContentDirectory cd = scm.ContentDirectory;
       if (cd == null)
         return;
-      foreach (Share share in cd.GetShares(null, SharesFilter.All))
+      foreach(Share share in cd.GetShares(_systemId, SharesFilter.All))
       {
         MediaItem parentDirectory = cd.LoadItem(share.SystemId, share.BaseResourcePath, DIRECTORY_MIA_ID_ENUMERATION, EMPTY_ID_ENUMERATION);
         if (parentDirectory == null)
