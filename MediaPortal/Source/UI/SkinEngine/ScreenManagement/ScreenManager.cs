@@ -681,6 +681,7 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
 
     protected internal void DoShowDialog_NoLock(DialogData dialogData)
     {
+      ServiceRegistration.Get<ILogger>().Debug("ScreenManager: Showing dialog '{0}'...", dialogData.DialogName);
       dialogData.DialogScreen.Prepare();
       dialogData.DialogScreen.TriggerScreenShowingEvent();
 
@@ -700,6 +701,11 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
 
     protected internal void DoCloseDialogs_NoLock(Guid? dialogInstanceId, CloseDialogsMode mode, bool fireCloseDelegates, bool dialogPersistence)
     {
+      if (dialogInstanceId.HasValue)
+        if (mode == CloseDialogsMode.CloseSingleDialog)
+          ServiceRegistration.Get<ILogger>().Debug("ScreenManager: Closing dialog with dialog id '{0}'...", dialogInstanceId.Value);
+        else
+          ServiceRegistration.Get<ILogger>().Debug("ScreenManager: Closing all dialogs dialogs until dialog with dialog id '{0}' ({1})...", dialogInstanceId.Value, mode == CloseDialogsMode.CloseAllOnTopIncluding ? "including" : "excluding");
       ICollection<DialogData> oldDialogData = new List<DialogData>();
       LinkedListNode<DialogData> bottomDialogNode;
       lock(_syncObj)
@@ -743,6 +749,7 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
 
     protected internal void DoCloseDialog_NoLock(DialogData dd, bool fireCloseDelegates, bool dialogPersistence)
     {
+      ServiceRegistration.Get<ILogger>().Debug("ScreenManager: Closing dialog '{0}'...", dd.DialogName);
       Screen oldDialog = dd.DialogScreen;
       if (dialogPersistence)
       {
@@ -806,6 +813,7 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
         if (_currentScreen == null)
           return;
         screen = _currentScreen;
+        ServiceRegistration.Get<ILogger>().Debug("ScreenManager: Closing screen '{0}'...", screen.ResourceName);
         _currentScreen = null;
         _screenPersistenceTime = DateTime.MinValue;
 
@@ -1013,6 +1021,7 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
     /// </summary>
     public void Startup()
     {
+      ServiceRegistration.Get<ILogger>().Debug("ScreenManager: Startup");
       SkinSettings screenSettings = ServiceRegistration.Get<ISettingsManager>().Load<SkinSettings>();
       string skinName = screenSettings.Skin;
       string themeName = screenSettings.Theme;
