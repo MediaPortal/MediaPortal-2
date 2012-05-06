@@ -395,6 +395,8 @@ namespace MediaPortal.UiComponents.Media.General
     public static readonly string MEDIA_SKIN_SETTINGS_REGISTRATION_PATH = "/Media/SkinSettings";
     public static readonly string MEDIA_SKIN_SETTINGS_REGISTRATION_OPTIONAL_TYPES_PATH = "OptionalMIATypes";
 
+    public const string FILTERS_WORKFLOW_CATEGORY = "a-Filters";
+
     public const int MAX_NUM_ITEMS_VISIBLE = 5000;
   }
 }

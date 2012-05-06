@@ -39,13 +39,14 @@ namespace MediaPortal.UiComponents.Media.Models
   /// Corresponds to the current media navigation step. The navigation data basically specifies the current underlaying set of
   /// media items, which are presented in one of the <see cref="AvailableScreens"/>, represented to the user as
   /// <see cref="DynamicWorkflowActions"/> in the menu.
-  /// The <see cref="CurrentScreenData"/> holds the concrete data for that representation mode of the current navigation
-  /// position, i.e. it provides the concrete UI data for the skin.
   /// </summary>
+  /// <remarks>
+  /// The <see cref="CurrentScreenData"/> holds the concrete data for that representation mode of the current navigation
+  /// position, i.e. it provides the concrete UI data for the skin. The <see cref="CurrentScreenData"/> can change to present
+  /// the current media items in a different way, for example grouped by different criteria.
+  /// </remarks>
   public class NavigationData
   {
-    public const string FILTERS_WORKFLOW_CATEGORY = "a-Filters";
-
     #region Protected properties
 
     protected NavigationData _parent;
@@ -202,9 +203,20 @@ namespace MediaPortal.UiComponents.Media.Models
     /// <summary>
     /// Enters a new media navigation context by inheriting all currently available screens. This is used for
     /// presenting the contents of a media items or filter group, where the current menu should remain available.
-    /// Only the current visible screen can be exchanged to configure another presentation mode for the group to
+    /// Only the currently visible screen can be exchanged to configure another presentation mode for the group to
     /// be stepped-in.
     /// </summary>
+    /// <remarks>
+    /// Actually, we mix two different concerns in this method:
+    /// <list type="number">
+    /// <item>The setting that the new navigation context will be subordinated, i.e. it will be removed/exchanged by a filter action</item>
+    /// <item>The setting that all menu actions will be adopted from the parent navigation context</item>
+    /// </list>
+    /// But in fact, filter actions are only used together with the concept that there exist two different kind of navigation contexts;
+    /// autonomous contexts and subordinated contexts.
+    /// If there are no filter actions present (like in the browse media navigation modes), the only difference between the methods
+    /// <see cref="StackSubordinateNavigationContext"/> and <see cref="StackAutonomousNavigationContext"/> is the inheritance of the menu.
+    /// </remarks>
     /// <param name="subViewSpecification">Specification for the sub view to be shown in the new navigation context.</param>
     /// <param name="visibleScreen">Screen which should be visible in the new navigation context.</param>
     /// <param name="navbarDisplayLabel">Display label to be shown in the navigation bar for the new navigation context.</param>
@@ -221,7 +233,7 @@ namespace MediaPortal.UiComponents.Media.Models
 
     /// <summary>
     /// Enters a new media navigation context by modifying the list of available screens. This is used for
-    /// presenting a the result of a filter, where the menu must be changed.
+    /// presenting the result of a filter, where the menu must be changed.
     /// </summary>
     /// <param name="subViewSpecification">Specification for the sub view to be shown in the new navigation context.</param>
     /// <param name="remainingScreens">New collection of remaining available screens.</param>
@@ -277,7 +289,7 @@ namespace MediaPortal.UiComponents.Media.Models
                   workflowManager.NavigatePopToState(_baseWorkflowStateId, false);
               })
           {
-              DisplayCategory = FILTERS_WORKFLOW_CATEGORY,
+              DisplayCategory = Consts.FILTERS_WORKFLOW_CATEGORY,
               SortOrder = ct++.ToString(), // Sort in the order we have built up the filters
           };
         _dynamicWorkflowActions.Add(action);
