@@ -35,11 +35,9 @@ namespace MediaPortal.UiComponents.Media.Actions
 
     public static readonly Guid VIDEOS_CONTRIBUTOR_MODEL_ID = new Guid(VIDEOS_CONTRIBUTOR_MODEL_ID_STR);
 
-    public const string RES_SERIES_MENU_ITEM = "[Media.SeriesMenuItem]";
-
     #endregion
 
     public SeriesAction() :
-        base(true, Consts.WF_STATE_ID_SERIES_NAVIGATION_ROOT, RES_SERIES_MENU_ITEM) { }
+        base(true, Consts.WF_STATE_ID_SERIES_NAVIGATION_ROOT, Consts.RES_SERIES_MENU_ITEM) { }
   }
 }

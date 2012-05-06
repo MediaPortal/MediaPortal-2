@@ -28,6 +28,7 @@ using MediaPortal.Common.Localization;
 using MediaPortal.Common.Messaging;
 using MediaPortal.UI.Presentation.Players;
 using MediaPortal.UI.Presentation.Workflow;
+using MediaPortal.UiComponents.Media.General;
 
 namespace MediaPortal.UiComponents.Media.Actions
 {
@@ -37,10 +38,6 @@ namespace MediaPortal.UiComponents.Media.Actions
 
     public const string SHOW_PLAYLIST_WORKFLOW_STATE_ID_STR = "95E38A80-234C-4494-9F7A-006D8E4D6FDA";
     public static readonly Guid SHOW_PLAYLIST_WORKFLOW_STATE_ID = new Guid(SHOW_PLAYLIST_WORKFLOW_STATE_ID_STR);
-
-    public const string RES_SHOW_AUDIO_PLAYLIST = "[Media.ShowAudioPlaylistAction]";
-    public const string RES_SHOW_VIDEO_IMAGE_PLAYLIST_RES = "[Media.ShowVideoImagePlaylistAction]";
-    public const string RES_SHOW_PIP_PLAYLIST = "[Media.ShowPiPPlaylistAction]";
 
     #endregion
 
@@ -120,11 +117,11 @@ namespace MediaPortal.UiComponents.Media.Actions
         switch (pc.AVType)
         {
           case AVType.Audio:
-            displayTitleRes = RES_SHOW_AUDIO_PLAYLIST;
+            displayTitleRes = Consts.RES_SHOW_AUDIO_PLAYLIST;
             break;
           case AVType.Video:
             displayTitleRes = pc.PlayerSlotController.SlotIndex == PlayerManagerConsts.PRIMARY_SLOT ?
-                RES_SHOW_VIDEO_IMAGE_PLAYLIST_RES : RES_SHOW_PIP_PLAYLIST;
+                Consts.RES_SHOW_VIDEO_IMAGE_PLAYLIST_RES : Consts.RES_SHOW_PIP_PLAYLIST;
             break;
           default:
             // Unknown player context type

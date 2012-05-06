@@ -35,11 +35,9 @@ namespace MediaPortal.UiComponents.Media.Actions
 
     public static readonly Guid LOCAL_MEDIA_CONTRIBUTOR_MODEL_ID = new Guid(LOCAL_MEDIA_CONTRIBUTOR_MODEL_ID_STR);
 
-    public const string LOCAL_MEDIA_RESOURCE = "[Media.LocalMediaMenuItem]";
-
     #endregion
 
     public BrowseLocalMediaAction() :
-        base(false, Consts.WF_STATE_ID_LOCAL_MEDIA_NAVIGATION_ROOT, LOCAL_MEDIA_RESOURCE) { }
+        base(false, Consts.WF_STATE_ID_LOCAL_MEDIA_NAVIGATION_ROOT, Consts.RES_LOCAL_MEDIA_MENU_ITEM) { }
   }
 }

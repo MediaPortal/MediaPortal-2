@@ -35,11 +35,9 @@ namespace MediaPortal.UiComponents.Media.Actions
 
     public static readonly Guid AUDIO_CONTRIBUTOR_MODEL_ID = new Guid(AUDIO_CONTRIBUTOR_MODEL_ID_STR);
 
-    public const string RES_AUDIO_MENU_ITEM = "[Media.AudioMenuItem]";
-
     #endregion
 
     public AudioAction() :
-        base(true, Consts.WF_STATE_ID_AUDIO_NAVIGATION_ROOT, RES_AUDIO_MENU_ITEM) { }
+        base(true, Consts.WF_STATE_ID_AUDIO_NAVIGATION_ROOT, Consts.RES_AUDIO_MENU_ITEM) { }
   }
 }

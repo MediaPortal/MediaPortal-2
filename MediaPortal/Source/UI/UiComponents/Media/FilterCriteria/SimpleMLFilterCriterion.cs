@@ -39,8 +39,6 @@ namespace MediaPortal.UiComponents.Media.FilterCriteria
   /// </summary>
   public class SimpleMLFilterCriterion : MLFilterCriterion
   {
-    public const string NITEMS_RESOURCE = "[Media.NItems]";
-
     protected MediaItemAspectMetadata.AttributeSpecification _attributeType;
 
     public SimpleMLFilterCriterion(MediaItemAspectMetadata.AttributeSpecification attributeType)
@@ -67,7 +65,7 @@ namespace MediaPortal.UiComponents.Media.FilterCriteria
           result.Add(new FilterValue(name, new RelationalFilter(_attributeType, RelationalOperator.EQ, group.Key), null, (int) group.Value, this));
       }
       if (numEmptyEntries > 0)
-        result.Insert(0, new FilterValue(Consts.VALUE_EMPTY_TITLE, new EmptyFilter(_attributeType), null, numEmptyEntries, this));
+        result.Insert(0, new FilterValue(Consts.RES_VALUE_EMPTY_TITLE, new EmptyFilter(_attributeType), null, numEmptyEntries, this));
       return result;
     }
 
@@ -90,7 +88,7 @@ namespace MediaPortal.UiComponents.Media.FilterCriteria
           result.Add(new FilterValue(name, null, group.AdditionalFilter, group.NumItemsInGroup, this));
       }
       if (numEmptyEntries > 0)
-        result.Insert(0, new FilterValue(Consts.VALUE_EMPTY_TITLE, new EmptyFilter(_attributeType), null, numEmptyEntries, this));
+        result.Insert(0, new FilterValue(Consts.RES_VALUE_EMPTY_TITLE, new EmptyFilter(_attributeType), null, numEmptyEntries, this));
       return result;
     }
 

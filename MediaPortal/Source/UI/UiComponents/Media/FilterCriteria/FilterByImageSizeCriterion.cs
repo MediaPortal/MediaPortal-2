@@ -68,7 +68,7 @@ namespace MediaPortal.UiComponents.Media.FilterCriteria
       int numBigItems = cd.CountMediaItems(necessaryMIATypeIds, bigFilter, true);
       return new List<FilterValue>(new FilterValue[]
         {
-            new FilterValue(Consts.VALUE_EMPTY_TITLE, emptyFilter, null, numEmptyItems, this),
+            new FilterValue(Consts.RES_VALUE_EMPTY_TITLE, emptyFilter, null, numEmptyItems, this),
             new FilterValue(Consts.RES_IMAGE_FILTER_SMALL, smallFilter, null, numSmallItems, this),
             new FilterValue(Consts.RES_IMAGE_FILTER_MEDIUM, mediumFilter, null, numMediumItems, this),
             new FilterValue(Consts.RES_IMAGE_FILTER_BIG, bigFilter, null, numBigItems, this),

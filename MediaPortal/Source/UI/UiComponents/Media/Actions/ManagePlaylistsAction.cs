@@ -36,11 +36,9 @@ namespace MediaPortal.UiComponents.Media.Actions
 
     public const string MANAGE_PLAYLISTS_ACTION_CONTRIBUTOR_MODEL_ID_STR = "2C3A747D-7FD7-408b-8843-31842A2EB6F3";
 
-    public const string ADD_TO_PLAYLIST_RES = "[Media.ManagePlaylists]";
-
     #endregion
 
-    public ManagePlaylistsAction() : base(true, null, ADD_TO_PLAYLIST_RES) {}
+    public ManagePlaylistsAction() : base(true, null, Consts.RES_ADD_TO_PLAYLIST_MENU_ITEM) {}
 
     void SubscribeToMessages()
     {

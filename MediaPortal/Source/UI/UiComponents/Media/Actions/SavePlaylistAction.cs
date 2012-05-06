@@ -38,9 +38,6 @@ namespace MediaPortal.UiComponents.Media.Actions
 
     public const string SAVE_PLAYLISTS_ACTION_CONTRIBUTOR_MODEL_ID_STR = "02848CDD-34F0-4719-9A52-DA959E848409";
 
-    public const string SAVE_PLAYLIST_RES = "[Media.SavePlaylistAction]";
-    public const string SAVE_CURRENT_PLAYLIST_RES = "[Media.SaveCurrentPlaylistAction]";
-
     #endregion
 
     #region Protected fields
@@ -120,7 +117,7 @@ namespace MediaPortal.UiComponents.Media.Actions
       bool showSavePL = workflowManager.CurrentNavigationContext.WorkflowState.StateId == Consts.WF_STATE_ID_SHOW_PLAYLIST ||
           workflowManager.CurrentNavigationContext.WorkflowState.StateId == Consts.WF_STATE_ID_EDIT_PLAYLIST;
       bool showSaveCurrentPL = workflowManager.CurrentNavigationContext.WorkflowState.StateId == Consts.WF_STATE_ID_PLAYLISTS_OVERVIEW;
-      string displayTitleResource = showSavePL ? SAVE_PLAYLIST_RES : SAVE_CURRENT_PLAYLIST_RES;
+      string displayTitleResource = showSavePL ? Consts.RES_SAVE_PLAYLIST : Consts.RES_SAVE_CURRENT_PLAYLIST;
       bool isVisible = (showSavePL || showSaveCurrentPL) &&
           ServiceRegistration.Get<IPlayerContextManager>().CurrentPlayerIndex > -1;
       if (isVisible == _isVisible && displayTitleResource == _displayTitleResource)

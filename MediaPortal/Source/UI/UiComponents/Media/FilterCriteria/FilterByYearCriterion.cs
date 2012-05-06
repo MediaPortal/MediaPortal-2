@@ -68,7 +68,7 @@ namespace MediaPortal.UiComponents.Media.FilterCriteria
           numEmptyEntries += (int) group.Value;
       }
       if (numEmptyEntries > 0)
-        result.Insert(0, new FilterValue(Consts.VALUE_EMPTY_TITLE, new EmptyFilter(MediaAspect.ATTR_RECORDINGTIME), null, numEmptyEntries, this));
+        result.Insert(0, new FilterValue(Consts.RES_VALUE_EMPTY_TITLE, new EmptyFilter(MediaAspect.ATTR_RECORDINGTIME), null, numEmptyEntries, this));
       return result;
     }
 

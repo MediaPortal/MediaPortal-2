@@ -35,11 +35,9 @@ namespace MediaPortal.UiComponents.Media.Actions
 
     public static readonly Guid LOCAL_MEDIA_CONTRIBUTOR_MODEL_ID = new Guid(BROWSE_MEDIA_CONTRIBUTOR_MODEL_ID_STR);
 
-    public const string BROWSE_MEDIA_RESOURCE = "[Media.BrowseMediaMenuItem]";
-
     #endregion
 
     public BrowseMediaAction() :
-        base(true, Consts.WF_STATE_ID_BROWSE_MEDIA_NAVIGATION_ROOT, BROWSE_MEDIA_RESOURCE) { }
+        base(true, Consts.WF_STATE_ID_BROWSE_MEDIA_NAVIGATION_ROOT, Consts.RES_BROWSE_MEDIA_MENU_ITEM) { }
   }
 }

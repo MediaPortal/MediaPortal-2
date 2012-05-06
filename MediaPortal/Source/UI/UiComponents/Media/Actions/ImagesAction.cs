@@ -35,11 +35,9 @@ namespace MediaPortal.UiComponents.Media.Actions
 
     public static readonly Guid IMAGES_CONTRIBUTOR_MODEL_ID = new Guid(IMAGES_CONTRIBUTOR_MODEL_ID_STR);
 
-    public const string RES_IMAGES_MENU_ITEM = "[Media.ImagesMenuItem]";
-
     #endregion
 
     public ImagesAction() :
-        base(true, Consts.WF_STATE_ID_IMAGES_NAVIGATION_ROOT, RES_IMAGES_MENU_ITEM) { }
+        base(true, Consts.WF_STATE_ID_IMAGES_NAVIGATION_ROOT, Consts.RES_IMAGES_MENU_ITEM) { }
   }
 }

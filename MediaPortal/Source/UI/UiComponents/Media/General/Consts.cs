@@ -167,7 +167,7 @@ namespace MediaPortal.UiComponents.Media.General
     public const string RES_FILTER_SERIES_ITEMS_NAVBAR_DISPLAY_LABEL = "[Media.FilterSeriesItemsNavbarDisplayLabel]";
     public const string RES_FILTER_SERIES_SEASON_NAVBAR_DISPLAY_LABEL = "[Media.FilterSeriesSeasonNavbarDisplayLabel]";
 
-    public const string VALUE_EMPTY_TITLE = "[Media.ValueEmptyTitle]";
+    public const string RES_VALUE_EMPTY_TITLE = "[Media.ValueEmptyTitle]";
 
     public const string RES_IMAGE_FILTER_SMALL = "[Media.ImageFilterSmall]";
     public const string RES_IMAGE_FILTER_MEDIUM = "[Media.ImageFilterMedium]";
@@ -195,6 +195,20 @@ namespace MediaPortal.UiComponents.Media.General
     public const string RES_ADD_ALL_IMAGES = "[Media.AddAllImages]";
     public const string RES_ADD_VIDEOS_AND_IMAGES = "[Media.AddAllVideosAndImages]";
     public const string RES_N_ITEMS_ADDED = "[Media.NItemsAdded]";
+
+    public const string RES_LOCAL_MEDIA_MENU_ITEM = "[Media.LocalMediaMenuItem]";
+    public const string RES_BROWSE_MEDIA_MENU_ITEM = "[Media.BrowseMediaMenuItem]";
+    public const string RES_AUDIO_MENU_ITEM = "[Media.AudioMenuItem]";
+    public const string RES_VIDEOS_MENU_ITEM = "[Media.VideosMenuItem]";
+    public const string RES_IMAGES_MENU_ITEM = "[Media.ImagesMenuItem]";
+    public const string RES_SERIES_MENU_ITEM = "[Media.SeriesMenuItem]";
+    public const string RES_SERIES_SEASON_MENU_ITEM = "[Media.SeriesSeasonMenuItem]";
+    public const string RES_ADD_TO_PLAYLIST_MENU_ITEM = "[Media.ManagePlaylists]";
+    public const string RES_SAVE_PLAYLIST = "[Media.SavePlaylistAction]";
+    public const string RES_SAVE_CURRENT_PLAYLIST = "[Media.SaveCurrentPlaylistAction]";
+    public const string RES_SHOW_AUDIO_PLAYLIST = "[Media.ShowAudioPlaylistAction]";
+    public const string RES_SHOW_VIDEO_IMAGE_PLAYLIST_RES = "[Media.ShowVideoImagePlaylistAction]";
+    public const string RES_SHOW_PIP_PLAYLIST = "[Media.ShowPiPPlaylistAction]";
 
     // DVD
     public const string RES_SUBTITLE_OFF = "[Media.SubtitleOff]";

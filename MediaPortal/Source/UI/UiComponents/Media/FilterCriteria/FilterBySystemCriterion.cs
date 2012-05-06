@@ -71,7 +71,7 @@ namespace MediaPortal.UiComponents.Media.FilterCriteria
         }
       }
       if (numEmptyEntries > 0)
-        result.Insert(0, new FilterValue(Consts.VALUE_EMPTY_TITLE, new EmptyFilter(ProviderResourceAspect.ATTR_SYSTEM_ID), null, numEmptyEntries, this));
+        result.Insert(0, new FilterValue(Consts.RES_VALUE_EMPTY_TITLE, new EmptyFilter(ProviderResourceAspect.ATTR_SYSTEM_ID), null, numEmptyEntries, this));
       return result;
     }
 
