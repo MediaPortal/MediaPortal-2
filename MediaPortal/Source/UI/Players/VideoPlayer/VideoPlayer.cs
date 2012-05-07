@@ -161,6 +161,7 @@ namespace MediaPortal.UI.Players.Video
     protected StreamInfoHandler _streamInfoAudio = null;
     protected StreamInfoHandler _streamInfoSubtitles = null;
     protected StreamInfoHandler _streamInfoTitles = null; // Used mostly for MKV Editions
+    protected List<IAMStreamSelect> _streamSelectors = null;
     private readonly object _syncObj = new object();
 
     /// <summary>
@@ -173,7 +174,6 @@ namespace MediaPortal.UI.Players.Video
     /// </summary>
     protected string[] _chapterNames = null;
 
-    protected bool _useTexture = true;
     protected bool _textureInvalid = true;
 
     #endregion
@@ -552,13 +552,23 @@ namespace MediaPortal.UI.Players.Video
     #region Graph shutdown
 
     /// <summary>
+    /// Release all COM object references to IAMStreamSelect instances.
+    /// </summary>
+    protected virtual void ReleaseStreamSelectors()
+    {
+      // Release all existing stream selector references
+      if (_streamSelectors != null)
+        foreach (IAMStreamSelect streamSelector in _streamSelectors)
+          Marshal.ReleaseComObject(streamSelector);
+    }
+
+    /// <summary>
     /// Frees the audio/video codecs.
     /// </summary>
     protected virtual void FreeCodecs()
     {
-      // Free stream infos and references to IAMStreamSelect
-      FilterGraphTools.TryDispose(ref _streamInfoAudio);
-      FilterGraphTools.TryDispose(ref _streamInfoSubtitles);
+      // Release stream selectors
+      ReleaseStreamSelectors();
 
       // Free all filters from graph
       if (_graphBuilder != null)
@@ -1100,7 +1110,10 @@ namespace MediaPortal.UI.Players.Video
         subtitleStreams = new StreamInfoHandler();
         titleStreams = new StreamInfoHandler();
 
-        foreach (IAMStreamSelect streamSelector in FilterGraphTools.FindFiltersByInterface<IAMStreamSelect>(_graphBuilder))
+        // Release stream selectors
+        ReleaseStreamSelectors();
+        _streamSelectors = FilterGraphTools.FindFiltersByInterface<IAMStreamSelect>(_graphBuilder);
+        foreach (IAMStreamSelect streamSelector in _streamSelectors)
         {
           FilterInfo fi = FilterGraphTools.QueryFilterInfoAndFree(((IBaseFilter) streamSelector));
           int streamCount;
@@ -1161,8 +1174,6 @@ namespace MediaPortal.UI.Players.Video
             // Free MediaType and references
             FilterGraphTools.FreeAMMediaType(mediaType);
           }
-          // Release the enumerated filter
-          Marshal.ReleaseComObject(streamSelector);
         }
 
         lock (SyncObj)
