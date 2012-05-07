@@ -36,12 +36,13 @@ using MediaPortal.UI.Presentation.Players;
 
 namespace MediaPortal.Plugins.SlimTvClient
 {
-  public class LiveTvPlayer : TsVideoPlayer, IUIContributorPlayer, IChapterPlayer//, IReusablePlayer
+  public class LiveTvPlayer : TsVideoPlayer, IUIContributorPlayer
   {
     #region Variables
 
     protected IList<ITimeshiftContext> _timeshiftContexes;
     protected StreamInfoHandler _chapterInfo = null;
+    protected static TimeSpan TIMESPAN_LIVE = TimeSpan.FromSeconds(1.5);
 
     #endregion
 
@@ -70,59 +71,91 @@ namespace MediaPortal.Plugins.SlimTvClient
     {
       get
       {
-        int index;
-        return GetContextIndex(CurrentTime, out index) ? _timeshiftContexes[index] : null;
+        return GetContext(CurrentTime);
       }
     }
 
     private TimeSpan GetStartDuration(int chapterIndex)
     {
-      return _timeshiftContexes[chapterIndex].TuneInTime - _timeshiftContexes[0].TuneInTime;
+      lock (SyncObj)
+      {
+        if (_timeshiftContexes == null || chapterIndex >= _timeshiftContexes.Count)
+          return TimeSpan.Zero;
+        return _timeshiftContexes[chapterIndex].TuneInTime - _timeshiftContexes[0].TuneInTime;
+      }
     }
 
-    private bool GetContextIndex(TimeSpan timeSpan, out int index)
+    private ITimeshiftContext GetContext(TimeSpan timeSpan)
     {
-      if (_chapterInfo == null)
-        EnumerateChapters();
+      IList<ITimeshiftContext> timeshiftContexes;
+      lock (SyncObj)
+        timeshiftContexes = _timeshiftContexes;
+
+      if (timeshiftContexes == null)
+        return null;
 
       TimeSpan totalTime = new TimeSpan();
-      index = 0;
-      foreach (ITimeshiftContext timeshiftContext in _timeshiftContexes)
+      foreach (ITimeshiftContext timeshiftContext in timeshiftContexes)
+      {
+        if (timeSpan >= totalTime && 
+          (
+            (timeSpan <= totalTime + timeshiftContext.TimeshiftDuration) || timeshiftContext.TimeshiftDuration.TotalSeconds == 0 /* currently playing */
+          ))
+          return timeshiftContext;
+        
+        totalTime += timeshiftContext.TimeshiftDuration;
+      }
+      return null;
+    }
+
+    private void SeekChapter(bool next)
+    {
+      IList<ITimeshiftContext> timeshiftContexes;
+      lock (SyncObj)
+        timeshiftContexes = _timeshiftContexes;
+
+      if (timeshiftContexes == null)
+        return;
+
+      TimeSpan timeSpan = CurrentTime;
+      TimeSpan totalTime = new TimeSpan();
+      int index = 0;
+      bool found = false;
+      foreach (ITimeshiftContext timeshiftContext in timeshiftContexes)
       {
         if (timeSpan >= totalTime &&
           (
           (timeSpan <= totalTime + timeshiftContext.TimeshiftDuration) ||
           timeshiftContext.TimeshiftDuration.TotalSeconds == 0 /* currently playing */
           ))
-          return true;
-
+        {
+          found = true;
+          break;
+        }
         index++;
         totalTime += timeshiftContext.TimeshiftDuration;
       }
-      return false;
+
+      if (!found) 
+        return;
+
+      if (next && index < timeshiftContexes.Count - 1)
+        CurrentTime = GetStartDuration(index + 1);
+
+      if (!next && index > 0)
+        CurrentTime = GetStartDuration(index - 1);
     }
-
-    private TimeSpan GetContextStart(int index)
+    
+    protected override void EnumerateChapters(bool forceRefresh)
     {
-      if (_chapterInfo == null)
-        EnumerateChapters();
+      StreamInfoHandler chapterInfo;
+      lock (SyncObj)
+        chapterInfo = _chapterInfo;
 
-      TimeSpan totalTime = new TimeSpan();
-      int i = 0;
-      foreach (ITimeshiftContext timeshiftContext in _timeshiftContexes)
-      {
-        if (i >= index)
-          break;
-        i++;
-        totalTime += timeshiftContext.TimeshiftDuration;
-      }
-      return totalTime;
-    }
+      if (chapterInfo != null && !forceRefresh)
+        return;
 
-    private void EnumerateChapters()
-    {
-      _chapterInfo = new StreamInfoHandler();
-
+      chapterInfo = new StreamInfoHandler();
       IPlayerContextManager playerContextManager = ServiceRegistration.Get<IPlayerContextManager>();
       for (int index = 0; index < playerContextManager.NumActivePlayerContexts; index++)
       {
@@ -137,15 +170,32 @@ namespace MediaPortal.Plugins.SlimTvClient
         _timeshiftContexes = liveTvMediaItem.TimeshiftContexes;
         int i = 0;
         foreach (ITimeshiftContext timeshiftContext in _timeshiftContexes)
-        {
-          string program = timeshiftContext.Program != null ? timeshiftContext.Program.Title :
-            ServiceRegistration.Get<ILocalization>().ToString("[SlimTvClient.NoProgram]");
+          chapterInfo.AddUnique(new StreamInfo(null, i++, GetContextTitle(timeshiftContext), 0));
 
-          _chapterInfo.AddUnique(new StreamInfo(null, i++,
-                                                string.Format("{0}: {1}", timeshiftContext.Channel.Name,
-                                                              program), 0));
-        }
       }
+      lock (SyncObj)
+        _chapterInfo = chapterInfo;
+    }
+
+    protected string GetContextTitle(ITimeshiftContext timeshiftContext)
+    {
+      if (timeshiftContext == null)
+        return string.Empty;
+
+      string program = timeshiftContext.Program != null ? timeshiftContext.Program.Title : 
+        ServiceRegistration.Get<ILocalization>().ToString("[SlimTvClient.NoProgram]");
+      return string.Format("{0}: {1}", timeshiftContext.Channel.Name, program);
+    }
+
+    public void ChannelZap()
+    {
+      // Call a seek only if the stream is not "live"
+      if (Duration - CurrentTime > TIMESPAN_LIVE)
+        CurrentTime = Duration; // Seek to end
+
+      EnumerateStreams(true);
+      EnumerateChapters(true);
+      SetPreferredSubtitle();
     }
 
     #region IChapterPlayer overrides
@@ -154,90 +204,44 @@ namespace MediaPortal.Plugins.SlimTvClient
     {
       get
       {
+        EnumerateChapters();
+        StreamInfoHandler chapters;
         lock (SyncObj)
-        {
-          //if (_chapterInfo == null)
-          EnumerateChapters();
+          chapters = _chapterInfo;
 
-          return _chapterInfo.Count == 0 ? EMPTY_STRING_ARRAY : _chapterInfo.GetStreamNames();
-        }
+        return chapters == null || chapters.Count == 0 ? EMPTY_STRING_ARRAY : chapters.GetStreamNames();
       }
     }
-
     public override void SetChapter(string chapter)
     {
+      StreamInfoHandler chapters;
       lock (SyncObj)
-      {
-        if (_chapterInfo != null)
-        {
-          StreamInfo chapterInfo = _chapterInfo.FindStream(chapter);
-          if (chapterInfo != null)
-          {
-            CurrentTime = GetStartDuration(chapterInfo.StreamIndex);
-          }
-        }
-      }
-    }
+        chapters = _chapterInfo;
 
-    public override bool ChaptersAvailable
-    {
-      get
-      {
-        lock (SyncObj)
-        {
-          //if (_chapterInfo == null)
-            EnumerateChapters();
+      if (chapters == null || chapters.Count == 0)
+        return;
 
-          return _chapterInfo.Count > 1;
-        }
-      }
+      StreamInfo chapterInfo = chapters.FindStream(chapter);
+      if (chapterInfo != null)
+        CurrentTime = GetStartDuration(chapterInfo.StreamIndex);
     }
 
     public override void NextChapter()
     {
-      int index;
-      if (GetContextIndex(CurrentTime, out index))
-        if (index < _chapterInfo.Count - 1)
-          CurrentTime = GetContextStart(index + 1);
+      SeekChapter(true);
     }
 
     public override void PrevChapter()
     {
-      int index;
-      if (GetContextIndex(CurrentTime, out index))
-        if (index > 0)
-          CurrentTime = GetContextStart(index - 1);
+      SeekChapter(false);
     }
 
     public override string CurrentChapter
     {
       get
       {
-        int index;
-        return GetContextIndex(CurrentTime, out index) ? _chapterInfo[index].Name : string.Empty;
+        return GetContextTitle(GetContext(CurrentTime));
       }
-    }
-
-    #endregion
-
-    #region IReusablePlayer Member
-
-    public event RequestNextItemDlgt NextItemRequest;
-
-    public bool NextItem(MediaItem mediaItem, StartTime startTime)
-    {
-      string mimeType;
-      string title;
-      if (!mediaItem.GetPlayData(out mimeType, out title))
-        return false;
-      if (mimeType != "video/livetv")
-        return false;
-      IResourceLocator locator = mediaItem.GetResourceLocator();
-      if (locator == null)
-        return false;
-      Shutdown();
-      SetMediaItem(locator, title);
-      return true;
     }
 
     #endregion

@@ -1500,7 +1500,7 @@ namespace MediaPortal.UI.Players.Video
     /// </summary>
     public virtual bool ChaptersAvailable
     {
-      get { return _chapterNames != null; }
+      get { return Chapters.Length > 1; }
     }
 
     /// <summary>

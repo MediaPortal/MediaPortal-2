@@ -414,8 +414,7 @@ namespace MediaPortal.Plugins.SlimTvClient
     {
       if (SlotPlayer != null)
       {
-        SlotPlayer.CurrentTime = SlotPlayer.Duration;
-        //SlotPlayer.Resume();
+        SlotPlayer.ChannelZap();
       }
     }
 
