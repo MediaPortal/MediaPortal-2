@@ -37,20 +37,33 @@ namespace MediaPortal.UI.Players.Video.Tools
   /// </summary>
   public class StreamInfoHandler : IEnumerable<StreamInfo>
   {
+    protected readonly object _syncObj = new object();
+
     #region Properties
 
     public int Count
     {
-      get { return _streamInfos.Count; }
+      get
+      {
+        lock (_syncObj)
+          return _streamInfos.Count;
+      }
     }
 
     public StreamInfo this[int index]
     {
-      get { return _streamInfos[index]; }
+      get
+      {
+        lock (_syncObj)
+          return _streamInfos[index];
+      }
       set
       {
-        _streamNamesCache = null;
-        _streamInfos[index] = value;
+        lock (_syncObj)
+        {
+          _streamNamesCache = null;
+          _streamInfos[index] = value;
+        }
       }
     }
 
@@ -59,7 +72,11 @@ namespace MediaPortal.UI.Players.Video.Tools
     /// </summary>
     public string CurrentStreamName
     {
-      get { return CurrentStream != null ? CurrentStream.Name : String.Empty; }
+      get
+      {
+        lock (_syncObj)
+          return CurrentStream != null ? CurrentStream.Name : String.Empty;
+      }
     }
 
     /// <summary>
@@ -69,9 +86,12 @@ namespace MediaPortal.UI.Players.Video.Tools
     {
       get
       {
-        if (_currentStream != null)
-          return _currentStream;
-        return Count > 0 ? this[0]: null;
+        lock (_syncObj)
+        {
+          if (_currentStream != null)
+            return _currentStream;
+          return Count > 0 ? this[0] : null;
+        }
       }
     }
     #endregion
@@ -88,8 +108,11 @@ namespace MediaPortal.UI.Players.Video.Tools
 
     protected void Add(StreamInfo item)
     {
-      _streamNamesCache = null;
-      _streamInfos.Add(item);
+      lock (_syncObj)
+      {
+        _streamNamesCache = null;
+        _streamInfos.Add(item);
+      }
     }
 
     #endregion
@@ -109,30 +132,37 @@ namespace MediaPortal.UI.Players.Video.Tools
     /// AddUnique adds a StreamInfo and either avoids duplicates by adding a counting number or skips existing values.
     /// </summary>
     /// <param name="valueToAdd">StreamInfo to add</param>
-    /// <param name="skipExistingNames">True to skip existing names</param>
+    /// <param name="skipExistingNames"><c>true</c> to skip existing names</param>
     /// <remarks>
-    /// Use <paramref name="skipExistingNames"/> = true to filter different IAMStreamSelect instances that support same stream kinds.
+    /// Use <paramref name="skipExistingNames"/> = <c>true</c> to filter different IAMStreamSelect instances that support same stream kinds.
     /// This happens i.e. with Haali splitter and FFDShow video decoder used in graph. If DirectVobSub is installed it also implements
     /// IAMStreamSelect.
     /// </remarks>
+    /// <exception cref="ArgumentNullException">If <paramref name="valueToAdd"/> is null</exception>
     public void AddUnique(StreamInfo valueToAdd, bool skipExistingNames)
     {
-      if (_streamInfos.Find(s => (s.Name == valueToAdd.Name && (s.StreamSelector == valueToAdd.StreamSelector || skipExistingNames))) == null)
-        Add(valueToAdd);
-      else
-      {
-        // If we want to have the same stream only once, exit here. 
-        if (skipExistingNames)
-          return;
+      if (valueToAdd == null)
+        throw new ArgumentNullException("valueToAdd");
 
-        // Try a maximum of 2..5 numbers to append.
-        for (int i = 2; i <= 5; i++)
+      lock (_syncObj)
+      {
+        if (_streamInfos.Find(s => (s.Name == valueToAdd.Name && (s.StreamSelector == valueToAdd.StreamSelector || skipExistingNames))) == null)
+          Add(valueToAdd);
+        else
         {
-          String countedName = String.Format("{0} ({1})", valueToAdd, i);
-          if (_streamInfos.Find(s => (s.Name == countedName) && s.StreamSelector == valueToAdd.StreamSelector) == null)
-          {
-            Add(new StreamInfo(valueToAdd.StreamSelector, valueToAdd.StreamIndex, countedName, valueToAdd.LCID));
+          // If we want to have the same stream only once, exit here. 
+          if (skipExistingNames)
             return;
+
+          // Try a maximum of 2..5 numbers to append.
+          for (int i = 2; i <= 5; i++)
+          {
+            String countedName = String.Format("{0} ({1})", valueToAdd, i);
+            if (_streamInfos.Find(s => (s.Name == countedName) && s.StreamSelector == valueToAdd.StreamSelector) == null)
+            {
+              Add(new StreamInfo(valueToAdd.StreamSelector, valueToAdd.StreamIndex, countedName, valueToAdd.LCID));
+              return;
+            }
           }
         }
       }
@@ -144,7 +174,8 @@ namespace MediaPortal.UI.Players.Video.Tools
     /// <returns>String array containing the names of all streams.</returns>
     public string[] GetStreamNames()
     {
-      return _streamNamesCache ?? (_streamNamesCache = _streamInfos.Select(streamInfo => streamInfo.Name).ToArray());
+      lock (_syncObj)
+        return _streamNamesCache ?? (_streamNamesCache = _streamInfos.Select(streamInfo => streamInfo.Name).ToArray());
     }
 
     /// <summary>
@@ -153,13 +184,18 @@ namespace MediaPortal.UI.Players.Video.Tools
     /// <param name="selectedStream"></param>
     public bool EnableStream(string selectedStream)
     {
-      StreamInfo streamInfo = FindStream(selectedStream);
+      StreamInfo streamInfo;
+      lock (_syncObj)
+        streamInfo = FindStream(selectedStream);
+
       if (streamInfo == null || streamInfo.StreamSelector == null)
         return false;
 
       ServiceRegistration.Get<ILogger>().Debug("StreamInfoHandler: Enable stream '{0}'", selectedStream);
       streamInfo.StreamSelector.Enable(streamInfo.StreamIndex, AMStreamSelectEnableFlags.Enable);
-      _currentStream = streamInfo;
+      
+      lock (_syncObj)
+        _currentStream = streamInfo;
       return true;
     }
 
@@ -170,7 +206,8 @@ namespace MediaPortal.UI.Players.Video.Tools
     /// <returns>StreamInfo or null.</returns>
     public StreamInfo FindStream(string selectedStream)
     {
-      return _streamInfos.Find(s => s.Name == selectedStream);
+      lock (_syncObj)
+        return _streamInfos.Find(s => s.Name == selectedStream);
     }
 
     /// <summary>
@@ -180,7 +217,8 @@ namespace MediaPortal.UI.Players.Video.Tools
     /// <returns>StreamInfo or null.</returns>
     public StreamInfo FindStream(int lcid)
     {
-      return _streamInfos.Find(s => s.LCID == lcid);
+      lock (_syncObj)
+        return _streamInfos.Find(s => s.LCID == lcid);
     }
     
     /// <summary>
@@ -190,7 +228,8 @@ namespace MediaPortal.UI.Players.Video.Tools
     /// <returns>StreamInfo or null.</returns>
     public StreamInfo FindSimilarStream(string selectedStream)
     {
-      return String.IsNullOrEmpty(selectedStream) ? null : _streamInfos.Find(s => s.Name.ToLowerInvariant().Contains(selectedStream.ToLowerInvariant()));
+      lock (_syncObj)
+        return String.IsNullOrEmpty(selectedStream) ? null : _streamInfos.Find(s => s.Name.ToLowerInvariant().Contains(selectedStream.ToLowerInvariant()));
     }
 
     #endregion
@@ -199,7 +238,8 @@ namespace MediaPortal.UI.Players.Video.Tools
 
     public IEnumerator<StreamInfo> GetEnumerator()
     {
-      return _streamInfos.GetEnumerator();
+      lock (_syncObj)
+        return _streamInfos.GetEnumerator();
     }
 
     IEnumerator IEnumerable.GetEnumerator()
