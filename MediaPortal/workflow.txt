@@ -1,0 +1,32 @@
+
+
+ - set up transifex (once?)
+
+ - create ressources (ones?)
+ 
+ - find all template language files. These are:
+      - English language files:   strings_en.xml
+      - in each of dozens language directories:   Language\strings_en.xml
+      - the language dir is in a sudirectory, i.e.:   Incubator\BDHandler
+                                                      Incubator\SlimTvClient
+
+ - transform all those files using
+      - the xslt: Transform-MP2 to Android.xslt
+      - replace the intput file
+
+  OBSOLETE    - save that transformed file to   Transifex\Incubator\BDHandler
+                                        Transifex\Incubator\SlimTvClient
+ 
+ - for new files run now the following command
+    
+ 
+ 
+ 
+1. create a batch file to create all template ressources to be read to be uploaded
+
+2. create a batch file to upload the files
+
+3. create a batch file to download the files 
+
+4. create a batch file to transform them back to the directories
+
