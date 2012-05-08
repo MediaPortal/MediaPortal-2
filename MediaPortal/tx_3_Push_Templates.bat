@@ -7,7 +7,7 @@ echo.
 echo   Read it carefully, it might end up in loosing translations!!!!
 echo.
 echo   to execute it un-echo the following command.
-echo      tx.exe push -s
+echo      tx push -s
 echo.
 
 pause
