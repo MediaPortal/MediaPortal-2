@@ -1,0 +1,15 @@
+[main]
+host = https://www.transifex.net
+
+[MP2.Incubator_BDHandler]
+file_filter = Incubator\BDHandler\Language\strings_<lang>.xml
+source_file = Incubator\BDHandler\Language\strings_en.xml
+source_lang = en
+type = ANDROID
+
+[MP2.Incubator_SlimTvClient]
+file_filter = Incubator\SlimTvClient\Language\strings_<lang>.xml
+source_file = Incubator\SlimTvClient\Language\strings_en.xml
+source_lang = en
+type = ANDROID
+
