@@ -1,24 +1,19 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 
-namespace MovieDbLib.Data
+namespace MediaPortal.Extensions.OnlineLibraries.Libraries.MovieDbLib.Data
 {
   public class MovieDbLanguage
   {
     #region private properties
-    private String m_abbriviation;
-    private String m_name;
-    private int m_id;
+
     #endregion
 
-    public MovieDbLanguage(int _id, String _abbriviation, String _name)
+    public MovieDbLanguage(int id, String abbriviation, String name)
       : this()
     {
-      m_id = _id;
-      m_abbriviation = _abbriviation;
-      m_name = _name;
+      Id = id;
+      Abbriviation = abbriviation;
+      Name = name;
     }
 
     public MovieDbLanguage()
@@ -26,22 +21,10 @@ namespace MovieDbLib.Data
 
     }
 
-    public int Id
-    {
-      get { return m_id; }
-      set { m_id = value; }
-    }
+    public int Id { get; set; }
 
-    public String Name
-    {
-      get { return m_name; }
-      set { m_name = value; }
-    }
+    public string Name { get; set; }
 
-    public String Abbriviation
-    {
-      get { return m_abbriviation; }
-      set { m_abbriviation = value; }
-    }
+    public string Abbriviation { get; set; }
   }
 }

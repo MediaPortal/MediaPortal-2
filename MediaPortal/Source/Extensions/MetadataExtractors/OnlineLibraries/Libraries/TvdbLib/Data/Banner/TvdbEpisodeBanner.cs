@@ -19,6 +19,7 @@
  */
 
 using System;
+using MediaPortal.Extensions.OnlineLibraries.Libraries.Common;
 
 namespace MediaPortal.Extensions.OnlineLibraries.Libraries.TvdbLib.Data.Banner
 {

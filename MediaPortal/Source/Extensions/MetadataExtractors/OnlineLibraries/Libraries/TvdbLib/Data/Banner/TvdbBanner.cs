@@ -22,6 +22,7 @@ using System;
 using System.Drawing;
 using System.Net;
 using System.IO;
+using MediaPortal.Extensions.OnlineLibraries.Libraries.Common;
 using MediaPortal.Extensions.OnlineLibraries.Libraries.TvdbLib.Cache;
 
 namespace MediaPortal.Extensions.OnlineLibraries.Libraries.TvdbLib.Data.Banner

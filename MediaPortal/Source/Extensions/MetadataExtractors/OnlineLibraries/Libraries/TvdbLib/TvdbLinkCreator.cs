@@ -19,6 +19,7 @@
  */
 
 using System;
+using MediaPortal.Extensions.OnlineLibraries.Libraries.Common;
 using MediaPortal.Extensions.OnlineLibraries.Libraries.TvdbLib.Data;
 
 namespace MediaPortal.Extensions.OnlineLibraries.Libraries.TvdbLib

@@ -23,7 +23,7 @@ using System;
 namespace MediaPortal.Extensions.OnlineLibraries.Libraries.TvdbLib.Data.Banner
 {
   /// <summary>
-  /// Season bannners for each Season of a series come in poster format (400 x 578) and wide format(758 x 140)
+  /// Season bannners for each Season of a series come in Poster format (400 x 578) and wide format(758 x 140)
   /// - Wide format: http://thetvdb.com/wiki/index.php/Wide_Season_Banners
   /// - Poster format: http://thetvdb.com/wiki/index.php/Season_Banners
   /// </summary>
@@ -35,7 +35,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.TvdbLib.Data.Banner
     /// </summary>
     public enum Type  { 
       /// <summary>
-      /// Season banner (poster format)
+      /// Season banner (Poster format)
       /// </summary>
       Season = 0, 
       /// <summary>

@@ -19,11 +19,8 @@
  */
 
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 
-namespace MovieDbLib.Exceptions
+namespace MediaPortal.Extensions.OnlineLibraries.Libraries.MovieDbLib.Exceptions
 {
   /// <summary>
   /// Exception thrown when a request is made which requires a valid
@@ -34,9 +31,9 @@ namespace MovieDbLib.Exceptions
     /// <summary>
     /// TvdbInvalidAPIKeyException constructor
     /// </summary>
-    /// <param name="_text">Message</param>
-    public MovieDbInvalidApiKeyException(String _text)
-      : base(_text)
+    /// <param name="text">Message</param>
+    public MovieDbInvalidApiKeyException(String text)
+      : base(text)
     {
     }
 
@@ -44,7 +41,6 @@ namespace MovieDbLib.Exceptions
     /// TvdbInvalidAPIKeyException constructor
     /// </summary>
     public MovieDbInvalidApiKeyException()
-      : base()
     {
 
     }

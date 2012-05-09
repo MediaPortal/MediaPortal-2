@@ -21,12 +21,10 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using MovieDbLib.Data.Comparer;
-using MovieDbLib.Data.Banner;
-using MovieDbLib.Data.Persons;
+using MediaPortal.Extensions.OnlineLibraries.Libraries.MovieDbLib.Data.Banner;
+using MediaPortal.Extensions.OnlineLibraries.Libraries.MovieDbLib.Data.Persons;
 
-namespace MovieDbLib.Data
+namespace MediaPortal.Extensions.OnlineLibraries.Libraries.MovieDbLib.Data
 {
   /// <summary>
   /// This class represents all fields that are available on http://TheMovieDb.org and
@@ -50,7 +48,7 @@ namespace MovieDbLib.Data
   ///       <SeriesName>Lost</SeriesName>
   ///       <Status>Continuing</Status>
   ///       <banner>graphical/24313-g2.jpg</banner>
-  ///       <fanart>fanart/original/73739-1.jpg</fanart>
+  ///       <fanart>fanart/Original/73739-1.jpg</fanart>
   ///       <lastupdated>1205694666</lastupdated>
   ///       <zap2it_id>SH672362</zap2it_id>
   /// </summary>
@@ -58,32 +56,13 @@ namespace MovieDbLib.Data
   public class MovieFields
   {
     #region private fields
-    private int m_id;
-    private String m_name;
-    private String m_alternativeName;
-    private String m_imdbId;
-    private String m_url;
-    private String m_overview;
-    private double m_rating;
-    private DateTime m_released;
-    private int m_runtime;
-    private int m_budget;
-    private int m_revenue;
-    private String m_homepage;
-    private String m_trailer;
-    private int m_popularity;
 
-    private List<MovieDbCast> m_cast;
-    private List<MovieDbCategory> m_categories;
-    private List<MovieDbStudios> m_studios;
-    private List<MovieDbCountries> m_countries;
-    private MovieDbLanguage m_language;
     #endregion
 
     public MovieFields()
     {
-      m_banners = new List<MovieDbBanner>();
-      m_bannersLoaded = false;
+      _banners = new List<MovieDbBanner>();
+      BannersLoaded = false;
     }
 
     /// <summary>
@@ -92,142 +71,68 @@ namespace MovieDbLib.Data
     /// <returns>short description of the episode</returns>
     public override string ToString()
     {
-      return m_name + "[" + m_language.Abbriviation + "]";;
+      return MovieName + "[" + Language.Abbriviation + "]";
     }
 
     /// <summary>
     /// Series Id
     /// </summary>
-    public int Id
-    {
-      get { return m_id; }
-      set { m_id = value; }
-    }
+    public int Id { get; set; }
 
     /// <summary>
     /// Series Name
     /// </summary>
-    public String MovieName
-    {
-      get { return m_name; }
-      set { m_name = value; }
-    }
+    public string MovieName { get; set; }
 
-    public int Popularity
-    {
-      get { return m_popularity; }
-      set { m_popularity = value; }
-    }
+    public int Popularity { get; set; }
 
 
-    public MovieDbLanguage Language
-    {
-      get { return m_language; }
-      set { m_language = value; }
-    }
+    public MovieDbLanguage Language { get; set; }
 
-    public List<MovieDbCountries> Countries
-    {
-      get { return m_countries; }
-      set { m_countries = value; }
-    }
+    public List<MovieDbCountries> Countries { get; set; }
 
-    public List<MovieDbStudios> Studios
-    {
-      get { return m_studios; }
-      set { m_studios = value; }
-    }
+    public List<MovieDbStudios> Studios { get; set; }
 
-    public List<MovieDbCategory> Categories
-    {
-      get { return m_categories; }
-      set { m_categories = value; }
-    }
+    public List<MovieDbCategory> Categories { get; set; }
 
-    public String Trailer
-    {
-      get { return m_trailer; }
-      set { m_trailer = value; }
-    }
+    public string Trailer { get; set; }
 
-    public String Homepage
-    {
-      get { return m_homepage; }
-      set { m_homepage = value; }
-    }
+    public string Homepage { get; set; }
 
-    public int Revenue
-    {
-      get { return m_revenue; }
-      set { m_revenue = value; }
-    }
+    public int Revenue { get; set; }
 
-    public int Budget
-    {
-      get { return m_budget; }
-      set { m_budget = value; }
-    }
+    public int Budget { get; set; }
 
-    public int Runtime
-    {
-      get { return m_runtime; }
-      set { m_runtime = value; }
-    }
+    public int Runtime { get; set; }
 
-    public DateTime Released
-    {
-      get { return m_released; }
-      set { m_released = value; }
-    }
+    public DateTime Released { get; set; }
 
-    public double Rating
-    {
-      get { return m_rating; }
-      set { m_rating = value; }
-    }
+    public double Rating { get; set; }
 
-    public String Overview
-    {
-      get { return m_overview; }
-      set { m_overview = value; }
-    }
+    public string Overview { get; set; }
 
 
-    public String Url
-    {
-      get { return m_url; }
-      set { m_url = value; }
-    }
+    public string Url { get; set; }
 
-    public String ImdbId
-    {
-      get { return m_imdbId; }
-      set { m_imdbId = value; }
-    }
+    public string ImdbId { get; set; }
 
-    public String AlternativeName
-    {
-      get { return m_alternativeName; }
-      set { m_alternativeName = value; }
-    }
-
+    public string AlternativeName { get; set; }
 
     #region banners
 
     //all banners
-    private List<MovieDbBanner> m_banners;
-    private bool m_bannersLoaded;
+    private List<MovieDbBanner> _banners;
 
     /// <summary>
     /// returns a list of all banners for this series
     /// </summary>
     public List<MovieDbBanner> Banners
     {
-      get { return m_banners; }
+      get { return _banners; }
       set
       {
-        m_banners = value;
-        m_bannersLoaded = true;
+        _banners = value;
+        BannersLoaded = true;
       }
     }
 
@@ -235,15 +140,7 @@ namespace MovieDbLib.Data
     {
       get
       {
-        List<MovieDbPoster> posters = new List<MovieDbPoster>();
-        foreach (MovieDbBanner b in m_banners)
-        {
-          if (b.GetType() == typeof(MovieDbPoster))
-          {
-            posters.Add((MovieDbPoster)b);
-          }
-        }
-        return posters;
+        return _banners.OfType<MovieDbPoster>().ToList();
       }
     }
 
@@ -251,65 +148,50 @@ namespace MovieDbLib.Data
     {
       get
       {
-        List<MovieDbBackdrop> posters = new List<MovieDbBackdrop>();
-        foreach (MovieDbBanner b in m_banners)
-        {
-          if (b.GetType() == typeof(MovieDbBackdrop))
-          {
-            posters.Add((MovieDbBackdrop)b);
-          }
-        }
-        return posters;
+        return _banners.OfType<MovieDbBackdrop>().ToList();
       }
     }
 
     /// <summary>
     /// Is the banner info loaded
     /// </summary>
-    public bool BannersLoaded
-    {
-      get { return m_bannersLoaded; }
-      set { m_bannersLoaded = value; }
-    }
+    public bool BannersLoaded { get; set; }
 
     #endregion
 
     #region Cast
-    public List<MovieDbCast> Cast
-    {
-      get { return m_cast; }
-      set { m_cast = value; }
-    }
+
+    public List<MovieDbCast> Cast { get; set; }
+
     #endregion
 
     /// <summary>
     /// Update all fields of the object with the given information
     /// </summary>
-    /// <param name="_fields">the fields for the update</param>
-    /// <param name="_replaceEpisodes">Should the episodes be replaced or kept</param>
-    internal void UpdateTvdbFields(MovieFields _fields, bool _replaceEpisodes)
+    /// <param name="fields">the fields for the update</param>
+    /// <param name="replaceEpisodes">Should the episodes be replaced or kept</param>
+    internal void UpdateTvdbFields(MovieFields fields, bool replaceEpisodes)
     {
       //Update series details
-      this.Popularity = _fields.Popularity;
-      this.MovieName = _fields.MovieName;
-      this.AlternativeName = _fields.AlternativeName;
-      this.Id = _fields.Id;
-      this.ImdbId = _fields.ImdbId;
-      this.Url = _fields.Url;
-      this.Overview = _fields.Overview;
-      this.Rating = _fields.Rating;
-      this.Released = _fields.Released;
-      this.Runtime = _fields.Runtime;
-      this.Budget = _fields.Budget;
-      this.Revenue = _fields.Revenue;
-      this.Homepage = _fields.Homepage;
-      this.Trailer = _fields.Trailer;
-      this.Banners = _fields.Banners;
-      this.Cast = _fields.Cast;
-      this.Categories = _fields.Categories;
-      this.Countries = _fields.Countries;
-      this.Studios = _fields.Studios;
-
+      Popularity = fields.Popularity;
+      MovieName = fields.MovieName;
+      AlternativeName = fields.AlternativeName;
+      Id = fields.Id;
+      ImdbId = fields.ImdbId;
+      Url = fields.Url;
+      Overview = fields.Overview;
+      Rating = fields.Rating;
+      Released = fields.Released;
+      Runtime = fields.Runtime;
+      Budget = fields.Budget;
+      Revenue = fields.Revenue;
+      Homepage = fields.Homepage;
+      Trailer = fields.Trailer;
+      Banners = fields.Banners;
+      Cast = fields.Cast;
+      Categories = fields.Categories;
+      Countries = fields.Countries;
+      Studios = fields.Studios;
     }
   }
 }

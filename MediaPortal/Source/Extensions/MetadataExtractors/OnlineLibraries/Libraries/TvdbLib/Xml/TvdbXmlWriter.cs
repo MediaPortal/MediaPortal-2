@@ -21,6 +21,7 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
+using MediaPortal.Extensions.OnlineLibraries.Libraries.Common;
 using MediaPortal.Extensions.OnlineLibraries.Libraries.TvdbLib.Data;
 using MediaPortal.Extensions.OnlineLibraries.Libraries.TvdbLib.Data.Banner;
 using System.IO;
@@ -197,7 +198,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.TvdbLib.Xml
                   new XElement("Status", series.Status),
                   new XElement("banner", series.BannerPath ?? ""),
                   new XElement("fanart", series.FanartPath ?? ""),
-                  new XElement("poster", series.PosterPath ?? ""),
+                  new XElement("Poster", series.PosterPath ?? ""),
                   new XElement("lastupdated", Util.DotNetToUnix(series.LastUpdated)),
                   new XElement("zap2it_id", series.Zap2itId))
              );
@@ -326,7 +327,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.TvdbLib.Xml
         else if (b.GetType() == typeof(TvdbPosterBanner))
         {
           TvdbPosterBanner pb = (TvdbPosterBanner)b;
-          banner.Add(new XElement("BannerType", "poster"));
+          banner.Add(new XElement("BannerType", "Poster"));
           banner.Add(new XElement("BannerType2", pb.Resolution.X + "x" + pb.Resolution.Y));
           banner.Add(new XElement("Language", (pb.Language != null ? pb.Language.Abbriviation : "")));
         }

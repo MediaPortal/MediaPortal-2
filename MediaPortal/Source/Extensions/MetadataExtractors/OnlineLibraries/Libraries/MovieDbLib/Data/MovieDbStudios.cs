@@ -1,16 +1,11 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 
-namespace MovieDbLib.Data
+namespace MediaPortal.Extensions.OnlineLibraries.Libraries.MovieDbLib.Data
 {
   public class MovieDbStudios
   {
     #region private/protected fields
-    private int m_studioId;
-    private String m_studioUrl;
-    private String m_studioName;
+
     #endregion
 
     public MovieDbStudios()
@@ -18,35 +13,23 @@ namespace MovieDbLib.Data
 
     }
 
-    public MovieDbStudios(int _id, String _name)
+    public MovieDbStudios(int id, String name)
       : this()
     {
-      m_studioId = _id;
-      m_studioName = _name;
+      Id = id;
+      Name = name;
     }
 
-    public MovieDbStudios(int _id, String _name, String _url)
-      : this(_id, _name)
+    public MovieDbStudios(int id, String name, String url)
+      : this(id, name)
     {
-      m_studioUrl = _url;
+      Url = url;
     }
 
-    public String Name
-    {
-      get { return m_studioName; }
-      set { m_studioName = value; }
-    }
+    public string Name { get; set; }
 
-    public String Url
-    {
-      get { return m_studioUrl; }
-      set { m_studioUrl = value; }
-    }
+    public string Url { get; set; }
 
-    public int Id
-    {
-      get { return m_studioId; }
-      set { m_studioId = value; }
-    }
+    public int Id { get; set; }
   }
 }

@@ -22,6 +22,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Xml.Linq;
+using MediaPortal.Extensions.OnlineLibraries.Libraries.Common;
 using MediaPortal.Extensions.OnlineLibraries.Libraries.TvdbLib.Data;
 using MediaPortal.Extensions.OnlineLibraries.Libraries.TvdbLib.Data.Banner;
 using System.Drawing;
@@ -224,7 +225,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.TvdbLib.Xml
                         Status = series.Element("Status").Value,
                         banner = series.Elements("banner").Count() == 1 ? series.Element("banner").Value : string.Empty,
                         fanart = series.Elements("fanart").Count() == 1 ? series.Element("fanart").Value : string.Empty,
-                        poster = series.Elements("poster").Count() == 1 ? series.Element("poster").Value : string.Empty,
+                        poster = series.Elements("Poster").Count() == 1 ? series.Element("Poster").Value : string.Empty,
                         lastupdated = series.Element("lastupdated").Value,
                         zap2it_id = series.Element("zap2it_id").Value
                       };
@@ -245,7 +246,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.TvdbLib.Xml
                                       FirstAired = Util.ParseDateTime(s.FirstAired),
                                       Genre = Util.SplitTvdbString(s.Genre),
                                       ImdbId = s.IMDB_ID,
-                                      Language = Util.ParseLanguage(s.Language),
+                                      Language = TvDbUtils.ParseLanguage(s.Language),
                                       Network = s.Network,
                                       Overview = s.Overview,
                                       Rating = Util.DoubleParse(s.Rating),
@@ -369,7 +370,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.TvdbLib.Xml
                              AirsBeforeSeason = Util.Int32Parse(e.airsbefore_season),
                              GuestStars = Util.SplitTvdbString(e.GuestStars),
                              ImdbId = e.IMDB_ID,
-                             Language = Util.ParseLanguage(e.Language),
+                             Language = TvDbUtils.ParseLanguage(e.Language),
                              Overview = e.Overview,
                              ProductionCode = e.ProductionCode,
                              Rating = Util.DoubleParse(e.Rating),
@@ -466,7 +467,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.TvdbLib.Xml
       {
         TvdbSearchResult res = new TvdbSearchResult { Id = s.Id, ImdbId = s.IMDB_ID };
         if (!s.FirstAired.Equals("")) res.FirstAired = DateTime.Parse(s.FirstAired);
-        if (!s.Language.Equals("")) res.Language = Util.ParseLanguage(s.Language);
+        if (!s.Language.Equals("")) res.Language = TvDbUtils.ParseLanguage(s.Language);
         res.SeriesName = s.SeriesName;
         res.Overview = s.Overview;
         res.Banner = !s.BannerPath.Equals("") ?
@@ -603,7 +604,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.TvdbLib.Xml
                           ThumbPath = "_cache/" + banner.Element("path").Value,
                           Resolution = Util.ParseResolution(banner.Element("format").Value),
                           //Colors = Util.ParseColors(episode.Element("Colors").Value),
-                          //Language = Util.ParseLanguage(episode.Element("Language").Value)
+                          //Language = TvDbUtils.ParseLanguage(episode.Element("Language").Value)
                           SeriesId = Util.Int32Parse(banner.Element("Series").Value),
                           LastUpdated = Util.UnixToDotNet(banner.Element("time").Value)
                         };
@@ -618,8 +619,8 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.TvdbLib.Xml
                          Id = banner.Element("path").Value.GetHashCode(),
                          BannerPath = banner.Element("path").Value,
                          Season = Util.Int32Parse(banner.Element("SeasonNum").Value),
-                         BannerType = Util.ParseSeasonBannerType(banner.Element("format").Value),
-                         Language = Util.ParseLanguage(banner.Element("language").Value),
+                         BannerType = TvDbUtils.ParseSeasonBannerType(banner.Element("format").Value),
+                         Language = TvDbUtils.ParseLanguage(banner.Element("language").Value),
                          SeriesId = Util.Int32Parse(banner.Element("Series").Value),
                          LastUpdated = Util.UnixToDotNet(banner.Element("time").Value)
                        };
@@ -633,17 +634,17 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.TvdbLib.Xml
                         {
                           Id = banner.Element("path").Value.GetHashCode(),
                           BannerPath = banner.Element("path").Value,
-                          BannerType = Util.ParseSeriesBannerType(banner.Element("format").Value),
-                          Language = Util.ParseLanguage(banner.Element("language").Value),
+                          BannerType = TvDbUtils.ParseSeriesBannerType(banner.Element("format").Value),
+                          Language = TvDbUtils.ParseLanguage(banner.Element("language").Value),
                           SeriesId = Util.Int32Parse(banner.Element("Series").Value),
                           LastUpdated = Util.UnixToDotNet(banner.Element("time").Value)
                         };
 
       retList.AddRange(allBanners2.Cast<TvdbBanner>());
 
-      //Extract the poster banners
+      //Extract the Poster banners
       var allPosters = from banner in xml.Descendants("Banner")
-                       where banner.Element("type").Value.Equals("poster")
+                       where banner.Element("type").Value.Equals("Poster")
                        select new TvdbPosterBanner
                        {
                          Id = banner.Element("path").Value.GetHashCode(),
@@ -734,7 +735,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.TvdbLib.Xml
                                             Util.ParseResolution(banner.Element("BannerType2").Value) : new Point(),
                                Colors = banner.Element("Colors") != null ? Util.ParseColors(banner.Element("Colors").Value) : null,
                                Language = banner.Element("Language") != null ?
-                                          Util.ParseLanguage(banner.Element("Language").Value) : TvdbLanguage.DefaultLanguage,
+                                          TvDbUtils.ParseLanguage(banner.Element("Language").Value) : TvdbLanguage.DefaultLanguage,
                                ContainsSeriesName = banner.Element("SeriesName") != null ?
                                                     Util.ParseBoolean(banner.Element("SeriesName").Value) : false,
                                LastUpdated = banner.Element("LastUpdated") != null ?
@@ -751,8 +752,8 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.TvdbLib.Xml
                                Id = Util.Int32Parse(banner.Element("id").Value),
                                BannerPath = banner.Element("BannerPath").Value,
                                Season = Util.Int32Parse(banner.Element("Season").Value),
-                               BannerType = Util.ParseSeasonBannerType(banner.Element("BannerType2").Value),
-                               Language = Util.ParseLanguage(banner.Element("Language").Value),
+                               BannerType = TvDbUtils.ParseSeasonBannerType(banner.Element("BannerType2").Value),
+                               Language = TvDbUtils.ParseLanguage(banner.Element("Language").Value),
                                LastUpdated = banner.Element("LastUpdated") != null ?
                                              Util.UnixToDotNet(banner.Element("LastUpdated").Value) : DateTime.Now
                              };
@@ -766,24 +767,24 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.TvdbLib.Xml
                              {
                                Id = Util.Int32Parse(banner.Element("id").Value),
                                BannerPath = banner.Element("BannerPath").Value,
-                               BannerType = Util.ParseSeriesBannerType(banner.Element("BannerType2").Value),
-                               Language = Util.ParseLanguage(banner.Element("Language").Value),
+                               BannerType = TvDbUtils.ParseSeriesBannerType(banner.Element("BannerType2").Value),
+                               Language = TvDbUtils.ParseLanguage(banner.Element("Language").Value),
                                LastUpdated = banner.Element("LastUpdated") != null ?
                                              Util.UnixToDotNet(banner.Element("LastUpdated").Value) : DateTime.Now
                              };
 
       retList.AddRange(from TvdbBanner e in allSeriesBanners where e.Id != Util.NO_VALUE select e);
 
-      //Extract the poster banners
+      //Extract the Poster banners
       var allPosterBanners = from banner in xml.Descendants("Banner")
-                             where banner.Element("BannerType").Value.Equals("poster")
+                             where banner.Element("BannerType").Value.Equals("Poster")
                              select new TvdbPosterBanner
                              {
 
                                Id = Util.Int32Parse(banner.Element("id").Value),
                                BannerPath = banner.Element("BannerPath").Value,
                                Resolution = Util.ParseResolution(banner.Element("BannerType2").Value),
-                               Language = Util.ParseLanguage(banner.Element("Language").Value),
+                               Language = TvDbUtils.ParseLanguage(banner.Element("Language").Value),
                                LastUpdated = banner.Element("LastUpdated") != null ?
                                              Util.UnixToDotNet(banner.Element("LastUpdated").Value) : DateTime.Now
                              };
@@ -878,7 +879,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.TvdbLib.Xml
                             UserIdentifier = a.Identifier,
                             UserName = a.Name,
                             UserPreferredLanguage = a.Preferred.HasAttributes
-                                                      ? Util.ParseLanguage(a.Preferred.FirstAttribute.NextAttribute.Value)
+                                                      ? TvDbUtils.ParseLanguage(a.Preferred.FirstAttribute.NextAttribute.Value)
                                                       : TvdbLanguage.DefaultLanguage
                           };
         List<int> favList = new List<int>();

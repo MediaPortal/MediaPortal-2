@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-
-namespace MovieDbLib.Data
+﻿namespace MediaPortal.Extensions.OnlineLibraries.Libraries.MovieDbLib.Data
 {
   public class MovieDbCategory
   {
@@ -33,46 +28,26 @@ namespace MovieDbLib.Data
     };
 
     #region private/protected fields
-    private CategoryTypes m_type;
-    private String m_name;
-    private String m_url;
-    private int m_id;
 
     #endregion
 
     public override string ToString()
     {
-      return m_type.ToString() + ": " + m_name;
+      return Type.ToString() + ": " + Name;
     }
 
     /// <summary>
     /// Name of property
     /// </summary>
-    public String Name
-    {
-      get { return m_name; }
-      set { m_name = value; }
-    }
+    public string Name { get; set; }
 
     /// <summary>
     /// Type of property
     /// </summary>
-    public CategoryTypes Type
-    {
-      get { return m_type; }
-      set { m_type = value; }
-    }
+    public CategoryTypes Type { get; set; }
 
-    public int Id
-    {
-      get { return m_id; }
-      set { m_id = value; }
-    }
+    public int Id { get; set; }
 
-    public String Url
-    {
-      get { return m_url; }
-      set { m_url = value; }
-    }
+    public string Url { get; set; }
   }
 }

@@ -1,18 +1,11 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 
-namespace MovieDbLib.Data.Persons
+namespace MediaPortal.Extensions.OnlineLibraries.Libraries.MovieDbLib.Data.Persons
 {
   class MovieDbPersonMovieJob
   {
     #region private/protected fields
-    private String m_jobType;
-    private int m_movieId;
-    private String m_movieName;
-    private String m_movieUrl;
-    private String m_character;
+
     #endregion
 
     public MovieDbPersonMovieJob()
@@ -20,53 +13,34 @@ namespace MovieDbLib.Data.Persons
 
     }
 
-    public MovieDbPersonMovieJob(String _jobType, int _movieId)
+    public MovieDbPersonMovieJob(String jobType, int movieId)
       : this()
     {
-      m_jobType = _jobType;
-      m_movieId = _movieId;
+      JobType = jobType;
+      MovieId = movieId;
     }
 
-    public MovieDbPersonMovieJob(String _jobType, int _movieId, String _movieName)
-      : this(_jobType, _movieId)
+    public MovieDbPersonMovieJob(String jobType, int movieId, String movieName)
+      : this(jobType, movieId)
     {
-      m_movieName = _movieName;
+      MovieName = movieName;
     }
 
-    public MovieDbPersonMovieJob(String _jobType, int _movieId, String _movieName, String _character, String _url)
-      : this(_jobType, _movieId, _movieName)
+    public MovieDbPersonMovieJob(String jobType, int movieId, String movieName, String character, String url)
+      : this(jobType, movieId, movieName)
     {
-      m_movieUrl = _url;
+      Character = character;
+      MovieUrl = url;
     }
 
-    public String Character
-    {
-      get { return m_character; }
-      set { m_character = value; }
-    }
+    public string Character { get; set; }
 
-    public String MovieName
-    {
-      get { return m_movieName; }
-      set { m_movieName = value; }
-    }
+    public string MovieName { get; set; }
 
-    public String MovieUrl
-    {
-      get { return m_movieUrl; }
-      set { m_movieUrl = value; }
-    }
+    public string MovieUrl { get; set; }
 
-    public int MovieId
-    {
-      get { return m_movieId; }
-      set { m_movieId = value; }
-    }
+    public int MovieId { get; set; }
 
-    public String JobType
-    {
-      get { return m_jobType; }
-      set { m_jobType = value; }
-    }
+    public string JobType { get; set; }
   }
 }

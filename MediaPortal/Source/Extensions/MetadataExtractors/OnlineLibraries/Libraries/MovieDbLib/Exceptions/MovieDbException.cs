@@ -19,23 +19,20 @@
  */
 
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 
-namespace MovieDbLib.Exceptions
+namespace MediaPortal.Extensions.OnlineLibraries.Libraries.MovieDbLib.Exceptions
 {
   /// <summary>
   /// Base excpetion for MovieDbLib 
   /// </summary>
-  public class MovieDbException : Exception
+  public class MovieDbException : ApplicationException
   {
     /// <summary>
     /// TvdbException constructor
     /// </summary>
-    /// <param name="_text">Message</param>
-    public MovieDbException(String _text)
-      : base(_text)
+    /// <param name="text">Message</param>
+    public MovieDbException(String text)
+      : base(text)
     {
     }
 
@@ -43,7 +40,6 @@ namespace MovieDbLib.Exceptions
     /// TvdbException constructor
     /// </summary>
     public MovieDbException()
-      : base()
     {
     }
   }

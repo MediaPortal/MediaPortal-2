@@ -23,7 +23,7 @@ using System;
 namespace MediaPortal.Extensions.OnlineLibraries.Libraries.TvdbLib.Data.Banner
 {
   /// <summary>
-  /// An actor poster
+  /// An actor Poster
   ///     *  Actor images must be 300px x 450px and must fill the entire image. Do not add black bars to the sides to get it to that size.
   ///         * Actor images must be smaller than 100kb
   ///         * Low quality images should not be scaled up to fit the resolution. Use only high quality art.

@@ -1,38 +1,37 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using MovieDbLib.Data;
+using MediaPortal.Extensions.OnlineLibraries.Libraries.Common;
+using MediaPortal.Extensions.OnlineLibraries.Libraries.MovieDbLib.Data;
+using MediaPortal.Extensions.OnlineLibraries.Libraries.MovieDbLib.Data.Persons;
+using MediaPortal.Extensions.OnlineLibraries.Libraries.MovieDbLib.Exceptions;
+using MediaPortal.Extensions.OnlineLibraries.Libraries.MovieDbLib.Xml;
 using System.Net;
 using System.Xml;
-using MovieDbLib.Exceptions;
-using MovieDb;
-using MovieDbLib.Xml;
 
-namespace MovieDbLib
+namespace MediaPortal.Extensions.OnlineLibraries.Libraries.MovieDbLib
 {
   public class MovieDbDownloader
   {
-    private String m_apiKey;
-    private WebClient m_webClient;
-    private MovieDbXmlReader m_xmlHandler;
+    private readonly String _apiKey;
+    private readonly WebClient _webClient;
+    private readonly MovieDbXmlReader _xmlHandler;
 
-    public MovieDbDownloader(String _apiKey)
+    public MovieDbDownloader(String apiKey)
     {
-      m_webClient = new WebClient();
-      m_xmlHandler = new MovieDbXmlReader();
-      m_apiKey = _apiKey;
+      _webClient = new WebClient();
+      _xmlHandler = new MovieDbXmlReader();
+      _apiKey = apiKey;
     }
 
-    private MovieDbMovie DownloadMovieFromUrl(String _url)
+    private MovieDbMovie DownloadMovieFromUrl(String url)
     {
       String xml = null;
       try
       {
-        xml = m_webClient.DownloadString(_url);
+        xml = _webClient.DownloadString(url);
 
         //extract all series the xml file contains
-        List<MovieDbMovie> seriesList = m_xmlHandler.ExtractMovies(xml);
+        List<MovieDbMovie> seriesList = _xmlHandler.ExtractMovies(xml);
 
         //if a request is made on a movie id, one and only one result
         //should be returned, otherwise there obviously was an error
@@ -41,64 +40,61 @@ namespace MovieDbLib
           MovieDbMovie series = seriesList[0];
           return series;
         }
-        else
-        {
-          Log.Warn("More than one series returned when trying to retrieve movie (" + _url + ")");
-          return null;
-        }
+        Log.Warn("More than one series returned when trying to retrieve movie (" + url + ")");
+        return null;
       }
       catch (XmlException ex)
       {
-        Log.Error("Error parsing the xml file " + _url + "\n\n" + xml, ex);
-        throw new MovieDbInvalidXmlException("Error parsing the xml file " + _url + "\n\n" + xml);
+        Log.Error("Error parsing the xml file " + url + "\n\n" + xml, ex);
+        throw new MovieDbInvalidXmlException("Error parsing the xml file " + url + "\n\n" + xml);
       }
       catch (WebException ex)
       {
         Log.Warn("Request not successfull", ex);
         if (ex.Message.Equals("The remote server returned an error: (404) Not Found."))
         {
-          throw new MovieDbInvalidApiKeyException("Couldn't connect to TheMovieDb.org to retrieve " + _url +
+          throw new MovieDbInvalidApiKeyException("Couldn't connect to TheMovieDb.org to retrieve " + url +
                                                ", you may use an invalid api key  or the series doesn't exists");
         }
         else
         {
-          throw new MovieDbNotAvailableException("Couldn't connect to TheMovieDb.org to retrieve " + _url +
+          throw new MovieDbNotAvailableException("Couldn't connect to TheMovieDb.org to retrieve " + url +
                                               ", check your internet connection and the status of http://TheMovieDb.org");
         }
       }
     }
 
-    public MovieDbMovie DownloadMovie(int _movieId, MovieDbLanguage _language)
+    public MovieDbMovie DownloadMovie(int movieId, MovieDbLanguage language)
     {
       //download the xml data from this request
       
-      String link = MovieDbLinkCreator.CreateMovieLink(m_apiKey, _movieId, _language, false);
+      String link = MovieDbLinkCreator.CreateMovieLink(_apiKey, movieId, language, false);
       return DownloadMovieFromUrl(link);
     }
 
 
-    internal MovieDbMovie DownloadMovie(string _imdbId, MovieDbLanguage _language)
+    internal MovieDbMovie DownloadMovie(string imdbId, MovieDbLanguage language)
     {
-      String link = MovieDbLinkCreator.CreateImdbLookupLink(m_apiKey, _imdbId, _language, false);
+      String link = MovieDbLinkCreator.CreateImdbLookupLink(_apiKey, imdbId, language, false);
       return DownloadMovieFromUrl(link);
     }
 
-    public List<MovieDbMovie> MovieSearch(String _movieName, MovieDbLanguage _language)
+    public List<MovieDbMovie> MovieSearch(String movieName, MovieDbLanguage language)
     {
       //download the xml data from this request
       String xml = "";
       String link = "";
       try
       {
-        link = MovieDbLinkCreator.CreateMovieSearchLink(m_apiKey, _movieName, _language);
-        xml = m_webClient.DownloadString(link);
+        link = MovieDbLinkCreator.CreateMovieSearchLink(_apiKey, movieName, language);
+        xml = _webClient.DownloadString(link);
 
         if (xml.Contains("Nothing found"))
         {
           return new List<MovieDbMovie>();
         }
         //extract all series the xml file contains
-        List<MovieDbMovie> seriesList = m_xmlHandler.ExtractMovies(xml);
+        List<MovieDbMovie> seriesList = _xmlHandler.ExtractMovies(xml);
 
         //if a request is made on a movie id, one and only one result
         //should be returned, otherwise there obviously was an error
@@ -109,7 +105,7 @@ namespace MovieDbLib
         }
         else
         {
-          Log.Warn("Search for " + _movieName + " returned no results");
+          Log.Warn("Search for " + movieName + " returned no results");
           return null;
         }
       }
@@ -123,46 +119,42 @@ namespace MovieDbLib
         Log.Warn("Request not successfull", ex);
         if (ex.Message.Equals("The remote server returned an error: (404) Not Found."))
         {
-          throw new MovieDbInvalidApiKeyException("Couldn't connect to TheMovieDb.org to retrieve " + _movieName +
+          throw new MovieDbInvalidApiKeyException("Couldn't connect to TheMovieDb.org to retrieve " + movieName +
                                                ", you may use an invalid api key  or the series doesn't exists");
         }
         else
         {
-          throw new MovieDbNotAvailableException("Couldn't connect to TheMovieDb.org to retrieve " + _movieName +
+          throw new MovieDbNotAvailableException("Couldn't connect to TheMovieDb.org to retrieve " + movieName +
                                               ", check your internet connection and the status of http://TheMovieDb.org");
         }
       }
     }
 
-    internal List<MovieDbMovie> MovieSearchByHash(string _movieHash)
+    internal List<MovieDbMovie> MovieSearchByHash(string movieHash)
     {
       //download the xml data from this request
       String xml = "";
       String link = "";
       try
       {
-        link = MovieDbLinkCreator.CreateHashLink(m_apiKey, _movieHash);
-        xml = m_webClient.DownloadString(link);
+        link = MovieDbLinkCreator.CreateHashLink(_apiKey, movieHash);
+        xml = _webClient.DownloadString(link);
 
         if (xml.Contains("Nothing found"))
         {
           return new List<MovieDbMovie>();
         }
         //extract all series the xml file contains
-        List<MovieDbMovie> movieList = m_xmlHandler.ExtractMovies(xml);
+        List<MovieDbMovie> movieList = _xmlHandler.ExtractMovies(xml);
 
         //if a request is made on a movie id, one and only one result
         //should be returned, otherwise there obviously was an error
         if (movieList != null)
         {
-          MovieDbMovie series = movieList[0];
           return movieList;
         }
-        else
-        {
-          Log.Warn("Search for movie hash " + _movieHash + " returned no results");
-          return null;
-        }
+        Log.Warn("Search for movie hash " + movieHash + " returned no results");
+        return null;
       }
       catch (XmlException ex)
       {
@@ -174,29 +166,29 @@ namespace MovieDbLib
         Log.Warn("Request not successfull", ex);
         if (ex.Message.Equals("The remote server returned an error: (404) Not Found."))
         {
-          throw new MovieDbInvalidApiKeyException("Couldn't connect to TheMovieDb.org to retrieve " + _movieHash +
+          throw new MovieDbInvalidApiKeyException("Couldn't connect to TheMovieDb.org to retrieve " + movieHash +
                                                ", you may use an invalid api key  or the series doesn't exists");
         }
         else
         {
-          throw new MovieDbNotAvailableException("Couldn't connect to TheMovieDb.org to retrieve " + _movieHash +
+          throw new MovieDbNotAvailableException("Couldn't connect to TheMovieDb.org to retrieve " + movieHash +
                                               ", check your internet connection and the status of http://TheMovieDb.org");
         }
       }
     }
 
-    internal MovieDbPerson DownloadPerson(int _personId, MovieDbLanguage _language)
+    internal MovieDbPerson DownloadPerson(int personId, MovieDbLanguage language)
     {
       //download the xml data from this request
       String xml = "";
       String link = "";
       try
       {
-        link = MovieDbLinkCreator.CreatePersonLink(m_apiKey, _personId, _language);
-        xml = m_webClient.DownloadString(link);
+        link = MovieDbLinkCreator.CreatePersonLink(_apiKey, personId, language);
+        xml = _webClient.DownloadString(link);
 
         //extract all series the xml file contains
-        List<MovieDbPerson> personList = m_xmlHandler.ExtractPersons(xml);
+        List<MovieDbPerson> personList = _xmlHandler.ExtractPersons(xml);
 
         //if a request is made on a movie id, one and only one result
         //should be returned, otherwise there obviously was an error
@@ -205,11 +197,8 @@ namespace MovieDbLib
           MovieDbPerson person = personList[0];
           return person;
         }
-        else
-        {
-          Log.Warn("More than one series returned when trying to retrieve person " + _personId);
-          return null;
-        }
+        Log.Warn("More than one series returned when trying to retrieve Person " + personId);
+        return null;
       }
       catch (XmlException ex)
       {
@@ -221,34 +210,31 @@ namespace MovieDbLib
         Log.Warn("Request not successfull", ex);
         if (ex.Message.Equals("The remote server returned an error: (404) Not Found."))
         {
-          throw new MovieDbInvalidApiKeyException("Couldn't connect to TheMovieDb.org to retrieve person " + _personId +
+          throw new MovieDbInvalidApiKeyException("Couldn't connect to TheMovieDb.org to retrieve Person " + personId +
                                                ", you may use an invalid api key  or the series doesn't exists");
         }
-        else
-        {
-          throw new MovieDbNotAvailableException("Couldn't connect to TheMovieDb.org to retrieve person " + _personId +
-                                              ", check your internet connection and the status of http://TheMovieDb.org");
-        }
+        throw new MovieDbNotAvailableException("Couldn't connect to TheMovieDb.org to retrieve Person " + personId +
+          ", check your internet connection and the status of http://TheMovieDb.org");
       }
     }
 
 
-    internal List<MovieDbPerson> PersonSearch(String _personName, MovieDbLanguage _language)
+    internal List<MovieDbPerson> PersonSearch(String personName, MovieDbLanguage language)
     {
       //download the xml data from this request
       String xml = "";
       String link = "";
       try
       {
-        link = MovieDbLinkCreator.CreatePersonSearchLink(m_apiKey, _personName, _language);
-        xml = m_webClient.DownloadString(link);
+        link = MovieDbLinkCreator.CreatePersonSearchLink(_apiKey, personName, language);
+        xml = _webClient.DownloadString(link);
 
         if (xml.Contains("Nothing found"))
         {
           return new List<MovieDbPerson>();
         }
         //extract all series the xml file contains
-        List<MovieDbPerson> personList = m_xmlHandler.ExtractPersons(xml);
+        List<MovieDbPerson> personList = _xmlHandler.ExtractPersons(xml);
 
         //if a request is made on a movie id, one and only one result
         //should be returned, otherwise there obviously was an error
@@ -259,7 +245,7 @@ namespace MovieDbLib
         }
         else
         {
-          Log.Warn("Search for " + _personName + " returned no results");
+          Log.Warn("Search for " + personName + " returned no results");
           return null;
         }
       }
@@ -273,14 +259,11 @@ namespace MovieDbLib
         Log.Warn("Request not successfull", ex);
         if (ex.Message.Equals("The remote server returned an error: (404) Not Found."))
         {
-          throw new MovieDbInvalidApiKeyException("Couldn't connect to TheMovieDb.org to retrieve " + _personName +
+          throw new MovieDbInvalidApiKeyException("Couldn't connect to TheMovieDb.org to retrieve " + personName +
                                                ", you may use an invalid api key  or the series doesn't exists");
         }
-        else
-        {
-          throw new MovieDbNotAvailableException("Couldn't connect to TheMovieDb.org to retrieve " + _personName +
-                                              ", check your internet connection and the status of http://TheMovieDb.org");
-        }
+        throw new MovieDbNotAvailableException("Couldn't connect to TheMovieDb.org to retrieve " + personName +
+          ", check your internet connection and the status of http://TheMovieDb.org");
       }
     }
 

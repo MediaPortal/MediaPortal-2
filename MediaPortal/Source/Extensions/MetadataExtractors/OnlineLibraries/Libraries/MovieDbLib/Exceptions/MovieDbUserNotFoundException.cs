@@ -19,11 +19,8 @@
  */
 
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 
-namespace MovieDbLib.Exceptions
+namespace MediaPortal.Extensions.OnlineLibraries.Libraries.MovieDbLib.Exceptions
 {
   /// <summary>
   /// Exception thrown when no user has been found
@@ -33,8 +30,9 @@ namespace MovieDbLib.Exceptions
     /// <summary>
     /// TvdbUserNotFoundException constructor
     /// </summary>
-    /// <param name="_text">Message</param>
-    public MovieDbUserNotFoundException(String _text): base(_text)
+    /// <param name="text">Message</param>
+    public MovieDbUserNotFoundException(String text)
+      : base(text)
     {
     }
   }

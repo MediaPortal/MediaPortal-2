@@ -1,25 +1,18 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Drawing;
-using MovieDbLib.Cache;
-using System.Net;
-using System.IO;
-using MovieDb;
+using MediaPortal.Extensions.OnlineLibraries.Libraries.Common;
+using MediaPortal.Extensions.OnlineLibraries.Libraries.MovieDbLib.Cache;
 
-namespace MovieDbLib.Data.Banner
+namespace MediaPortal.Extensions.OnlineLibraries.Libraries.MovieDbLib.Data.Banner
 {
   public abstract class MovieDbBanner
   {
     #region private/protected fields
-    private string m_id;
-    private MovieDbLanguage m_language;
-    private int m_objectId;
-    private ICacheProvider m_cacheProvider;
-    private BannerSize m_originalSize;
-    private BannerSize m_thumbSize;
-    private Dictionary<BannerSizes, BannerSize> m_imageSizes;
+
+    private ICacheProvider _cacheProvider;
+    private BannerSize _originalSize;
+    private BannerSize _thumbSize;
+
     #endregion
 
 
@@ -28,42 +21,42 @@ namespace MovieDbLib.Data.Banner
     /// <summary>
     /// 
     /// </summary>
-    /// <param name="_objectId">id of the object of this banner (person, movie,...)</param>
-    /// <param name="_bannerId">id of banner</param>
-    /// <param name="_images">list of image sizes available for this banner</param>
+    /// <param name="objectId">id of the object of this banner (Person, movie,...)</param>
+    /// <param name="bannerId">id of banner</param>
+    /// <param name="images">list of image sizes available for this banner</param>
     /// <returns></returns>
-    internal static MovieDbBanner CreateBanner(int _objectId, string _bannerId, List<string[]> _images)
+    internal static MovieDbBanner CreateBanner(int objectId, string bannerId, List<string[]> images)
     {
-      //get type of banner (poster or backdrop for now)
-      switch (_images[0][0])
+      //get type of banner (Poster or Backdrop for now)
+      switch (images[0][0])
       {
-        case "poster":
-          return CreatePoster(_objectId, _bannerId, _images);
-        case "backdrop":
-          return CreateBackdrop(_objectId, _bannerId, _images);
+        case "Poster":
+          return CreatePoster(objectId, bannerId, images);
+        case "Backdrop":
+          return CreateBackdrop(objectId, bannerId, images);
         case "profile":
-          return CreateProfile(_objectId, _bannerId, _images);
+          return CreateProfile(objectId, bannerId, images);
       }
       return null;
     }
 
-    private static MovieDbBanner CreateProfile(int _personId, string _bannerId, List<string[]> _images)
+    private static MovieDbBanner CreateProfile(int personId, string bannerId, List<string[]> images)
     {
       MovieDbPersonImage image = new MovieDbPersonImage();
-      image.Id = _bannerId;
-      image.PersonId = _personId;
-      foreach (string[] i in _images)
+      image.Id = bannerId;
+      image.PersonId = personId;
+      foreach (string[] i in images)
       {
-        switch (i[1])
+        switch (i[1].ToLowerInvariant())
         {
           case "original":
-            image.Original = new BannerSize(null, _personId, _bannerId, BannerTypes.person, BannerSizes.original, i[2]);
+            image.Original = new BannerSize(null, personId, bannerId, BannerTypes.Person, BannerSizes.Original, i[2]);
             break;
           case "thumb":
-            image.Thumbnail = new BannerSize(null, _personId, _bannerId, BannerTypes.person, BannerSizes.thumb, i[2]);
+            image.Thumbnail = new BannerSize(null, personId, bannerId, BannerTypes.Person, BannerSizes.Thumb, i[2]);
             break;
           case "profile":
-            image.Profile = new BannerSize(null, _personId, _bannerId, BannerTypes.person, BannerSizes.profile, i[2]);
+            image.Profile = new BannerSize(null, personId, bannerId, BannerTypes.Person, BannerSizes.Profile, i[2]);
             break;
           default:
             Log.Warn("Parsing the unknown image size \"" + i[1] + "\"");
@@ -75,26 +68,26 @@ namespace MovieDbLib.Data.Banner
     }
 
 
-    private static MovieDbBanner CreatePoster(int _movieId, string _bannerId, List<string[]> _images)
+    private static MovieDbBanner CreatePoster(int movieId, string bannerId, List<string[]> images)
     {
       MovieDbPoster banner = new MovieDbPoster();
-      banner.Id = _bannerId;
-      banner.ObjectId = _movieId;
-      foreach (string[] i in _images)
+      banner.Id = bannerId;
+      banner.ObjectId = movieId;
+      foreach (string[] i in images)
       {
-        switch (i[1])
+        switch (i[1].ToLowerInvariant())
         {
           case "original":
-            banner.Original = new BannerSize(null, _movieId, _bannerId, BannerTypes.poster, BannerSizes.original, i[2]);
+            banner.Original = new BannerSize(null, movieId, bannerId, BannerTypes.Poster, BannerSizes.Original, i[2]);
             break;
           case "thumb":
-            banner.Thumbnail = new BannerSize(null, _movieId, _bannerId, BannerTypes.poster, BannerSizes.thumb, i[2]);
+            banner.Thumbnail = new BannerSize(null, movieId, bannerId, BannerTypes.Poster, BannerSizes.Thumb, i[2]);
             break;
           case "mid":
-            banner.Mid = new BannerSize(null, _movieId, _bannerId, BannerTypes.poster, BannerSizes.mid, i[2]);
+            banner.Mid = new BannerSize(null, movieId, bannerId, BannerTypes.Poster, BannerSizes.Mid, i[2]);
             break;
           case "cover":
-            banner.Cover = new BannerSize(null, _movieId, _bannerId, BannerTypes.poster, BannerSizes.cover, i[2]);
+            banner.Cover = new BannerSize(null, movieId, bannerId, BannerTypes.Poster, BannerSizes.Cover, i[2]);
             break;
           default:
             Log.Warn("Parsing the unknown image size \"" + i[1] + "\"");
@@ -105,23 +98,23 @@ namespace MovieDbLib.Data.Banner
       return banner;
     }
 
-    private static MovieDbBanner CreateBackdrop(int _movieId, string _bannerId, List<string[]> _images)
+    private static MovieDbBanner CreateBackdrop(int movieId, string bannerId, List<string[]> images)
     {
       MovieDbBackdrop banner = new MovieDbBackdrop();
-      banner.Id = _bannerId;
-      banner.ObjectId = _movieId;
-      foreach (string[] i in _images)
+      banner.Id = bannerId;
+      banner.ObjectId = movieId;
+      foreach (string[] i in images)
       {
-        switch (i[1])
+        switch (i[1].ToLowerInvariant())
         {
           case "original":
-            banner.Original = new BannerSize(null, _movieId, _bannerId, BannerTypes.backdrop, BannerSizes.original, i[2]);
+            banner.Original = new BannerSize(null, movieId, bannerId, BannerTypes.Backdrop, BannerSizes.Original, i[2]);
             break;
           case "thumb":
-            banner.Thumbnail = new BannerSize(null, _movieId, _bannerId, BannerTypes.backdrop, BannerSizes.thumb, i[2]);
+            banner.Thumbnail = new BannerSize(null, movieId, bannerId, BannerTypes.Backdrop, BannerSizes.Thumb, i[2]);
             break;
           case "poster":
-            banner.Poster = new BannerSize(null, _movieId, _bannerId, BannerTypes.backdrop, BannerSizes.poster, i[2]);
+            banner.Poster = new BannerSize(null, movieId, bannerId, BannerTypes.Backdrop, BannerSizes.Poster, i[2]);
             break;
           default:
             Log.Warn("Parsing the unknown image size \"" + i[1] + "\"");
@@ -134,29 +127,29 @@ namespace MovieDbLib.Data.Banner
 
     public MovieDbBanner()
     {
-      m_imageSizes = new Dictionary<BannerSizes, BannerSize>();
+      ImageSizes = new Dictionary<BannerSizes, BannerSize>();
     }
 
     public enum BannerTypes
     {
-      poster = 0,
-      backdrop = 1,
-      person = 2
+      Poster = 0,
+      Backdrop = 1,
+      Person = 2
     };
 
     public enum BannerSizes
     {
-      original = 0,
-      thumb = 1,
-      mid = 2,
-      poster = 3,
-      cover = 4,
-      profile = 5
+      Original = 0,
+      Thumb = 1,
+      Mid = 2,
+      Poster = 3,
+      Cover = 4,
+      Profile = 5
     };
 
     public override string ToString()
     {
-      return "Movie Banner (" + this.Id + ")";
+      return "Movie Banner (" + Id + ")";
     }
 
     /// <summary>
@@ -169,22 +162,16 @@ namespace MovieDbLib.Data.Banner
     /// </summary>
     public virtual ICacheProvider CacheProvider
     {
-      get { return m_cacheProvider; }
+      get { return _cacheProvider; }
       set
       {
-        m_cacheProvider = value;
-        this.Original.CacheProvider = value;
-        this.Thumbnail.CacheProvider = value;
+        _cacheProvider = value;
+        Original.CacheProvider = value;
+        Thumbnail.CacheProvider = value;
       }
     }
 
-    public Dictionary<BannerSizes, BannerSize> ImageSizes
-    {
-      get
-      {
-        return m_imageSizes;
-      }
-    }
+    public Dictionary<BannerSizes, BannerSize> ImageSizes { get; private set; }
 
     public abstract String ImageType
     {
@@ -194,40 +181,28 @@ namespace MovieDbLib.Data.Banner
     /// <summary>
     /// Language of the banner
     /// </summary>
-    public MovieDbLanguage Language
-    {
-      get { return m_language; }
-      set { m_language = value; }
-    }
+    public MovieDbLanguage Language { get; set; }
 
     /// <summary>
     /// Id of the banner
     /// </summary>
-    public string Id
-    {
-      get { return m_id; }
-      set { m_id = value; }
-    }
+    public string Id { get; set; }
 
     /// <summary>
-    /// Id of the person/movie/... this banner belongs to
+    /// Id of the Person/movie/... this banner belongs to
     /// </summary>
-    public int ObjectId
-    {
-      get { return m_objectId; }
-      set { m_objectId = value; }
-    }
+    public int ObjectId { get; set; }
 
     /// <summary>
-    /// The original sized banner
+    /// The Original sized banner
     /// </summary>
     public BannerSize Original
     {
-      get { return m_originalSize; }
+      get { return _originalSize; }
       set
       {
-        m_originalSize = value;
-        AddBannerSize(BannerSizes.original, value);
+        _originalSize = value;
+        AddBannerSize(BannerSizes.Original, value);
       }
     }
 
@@ -236,20 +211,19 @@ namespace MovieDbLib.Data.Banner
     /// </summary>
     public BannerSize Thumbnail
     {
-      get { return m_thumbSize; }
-      set { 
-        m_thumbSize = value;
-        AddBannerSize(BannerSizes.thumb, value);
+      get { return _thumbSize; }
+      set
+      {
+        _thumbSize = value;
+        AddBannerSize(BannerSizes.Thumb, value);
       }
     }
 
-    protected void AddBannerSize(BannerSizes _key, BannerSize _value)
+    protected void AddBannerSize(BannerSizes key, BannerSize value)
     {
-      if (m_imageSizes.ContainsKey(_key))
-      {
-        m_imageSizes.Remove(_key);
-      }
-      m_imageSizes.Add(_key, _value);
+      if (ImageSizes.ContainsKey(key))
+        ImageSizes.Remove(key);
+      ImageSizes.Add(key, value);
     }
   }
 }

@@ -18,15 +18,13 @@
  * 
  */
 
-using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Drawing;
-using MovieDbLib.Data;
-using MovieDbLib.Data.Banner;
+using MediaPortal.Extensions.OnlineLibraries.Libraries.MovieDbLib.Data;
+using MediaPortal.Extensions.OnlineLibraries.Libraries.MovieDbLib.Data.Banner;
+using MediaPortal.Extensions.OnlineLibraries.Libraries.MovieDbLib.Data.Persons;
 
-namespace MovieDbLib.Cache
+namespace MediaPortal.Extensions.OnlineLibraries.Libraries.MovieDbLib.Cache
 {
   /// <summary>
   /// A cache provider stores and loads the data that has been previously retrieved from http://TheMovieDb.org.
@@ -65,10 +63,10 @@ namespace MovieDbLib.Cache
     /// <summary>
     /// Remove a specific series from cache
     /// </summary>
-    /// <param name="_movieId">the id of the movie</param>
+    /// <param name="seriesId">the id of the movie</param>
     /// <returns>true if the series was removed from the cache successfully, 
     ///          false otherwise (e.g. series not cached)</returns>
-    bool RemoveFromCache(int _movieId);
+    bool RemoveFromCache(int seriesId);
 
     /// <summary>
     /// Loads the available languages from cache
@@ -85,33 +83,33 @@ namespace MovieDbLib.Cache
     /// <summary>
     /// Load the given movie from cache
     /// </summary>
-    /// <param name="_movieId">Id of the movie to load</param>
+    /// <param name="movieId">Id of the movie to load</param>
     /// <returns>The MovieDbMovie object from cache or null</returns>
-    MovieDbMovie LoadMovieFromCache(int _movieId);
+    MovieDbMovie LoadMovieFromCache(int movieId);
 
 
     /// <summary>
-    /// Load the given person from cache
+    /// Load the given Person from cache
     /// </summary>
-    /// <param name="_movieId">Id of the person to load</param>
+    /// <param name="personId">Id of the Person to load</param>
     /// <returns>The MovieDbPerson object from cache or null</returns>
-    MovieDbPerson LoadPersonFromCache(int _personId);
+    MovieDbPerson LoadPersonFromCache(int personId);
 
     /// <summary>
     /// Save the language to cache
     /// </summary>
-    /// <param name="_languageList">List of languages that are available on http://TheMovieDb.org</param>
-    void SaveToCache(List<MovieDbLanguage> _languageList);
+    /// <param name="languageList">List of languages that are available on http://TheMovieDb.org</param>
+    void SaveToCache(List<MovieDbLanguage> languageList);
 
     /// <summary>
     /// Saves the movie to cache
     /// </summary>
-    /// <param name="_movie">MovieDbMovie object</param>
-    void SaveToCache(MovieDbMovie _movie);
+    /// <param name="movie">MovieDbMovie object</param>
+    void SaveToCache(MovieDbMovie movie);
 
 
     /// <summary>
-    /// Saves the person to cache
+    /// Saves the Person to cache
     /// </summary>
     /// <param name="person">MovieDbPerson object</param>
     void SaveToCache(MovieDbPerson person);
@@ -119,20 +117,22 @@ namespace MovieDbLib.Cache
     /// <summary>
     /// Save the given image to cache
     /// </summary>
-    /// <param name="_image">banner to save</param>
-    /// <param name="_objectId">id of movie/person/...</param>
-    /// <param name="_bannerId">id of banner</param>
-    /// <param name="_type">type of the banner</param>
-    /// <param name="_size">size of the banner</param>
-    void SaveToCache(Image _image, int _objectId, string _bannerId, MovieDbBanner.BannerTypes _type, MovieDbBanner.BannerSizes _size);
+    /// <param name="image">banner to save</param>
+    /// <param name="objectId">id of movie/Person/...</param>
+    /// <param name="bannerId">id of banner</param>
+    /// <param name="type">type of the banner</param>
+    /// <param name="size">size of the banner</param>
+    void SaveToCache(Image image, int objectId, string bannerId, MovieDbBanner.BannerTypes type, MovieDbBanner.BannerSizes size);
 
     /// <summary>
     /// Loads the specified image from the cache
     /// </summary>
-    /// <param name="_seriesId">series id</param>
-    /// <param name="_fileName">filename of the image (same one as used by SaveToCache)</param>
+    /// <param name="objectId"> </param>
+    /// <param name="bannerId"> </param>
+    /// <param name="type"> </param>
+    /// <param name="size"> </param>
     /// <returns>The loaded image or null if the image wasn't found</returns>
-    Image LoadImageFromCache(int _objectId, string _bannerId, MovieDbBanner.BannerTypes _type, MovieDbBanner.BannerSizes _size);
+    Image LoadImageFromCache(int objectId, string bannerId, MovieDbBanner.BannerTypes type, MovieDbBanner.BannerSizes size);
 
     /// <summary>
     /// Returns a list of all series that have been cached
@@ -149,25 +149,23 @@ namespace MovieDbLib.Cache
     /// <summary>
     /// Check if the movie is already cached
     /// </summary>
-    /// <param name="_movieId">Id of the movie</param>
+    /// <param name="movieId">Id of the movie</param>
     /// <returns>true if the series is cached, false otherwise</returns>
-    bool IsMovieCached(int _movieId);
+    bool IsMovieCached(int movieId);
 
     /// <summary>
     /// Removes the specified image from cache (if it has been cached)
     /// </summary>
-    /// <param name="_seriesId">id of series</param>
-    /// <param name="_fileName">name of image</param>
+    /// <param name="movieId">id of movie</param>
+    /// <param name="fileName">name of image</param>
     /// <returns>true if image was removed successfully, false otherwise (e.g. image didn't exist)</returns>
-    bool RemoveImageFromCache(int _movieId, string _fileName);
+    bool RemoveImageFromCache(int movieId, string fileName);
 
     /// <summary>
-    /// Check if the person is already cached
+    /// Check if the Person is already cached
     /// </summary>
-    /// <param name="_personId">Id of the person</param>
-    /// <returns>true if the person is cached, false otherwise</returns>
-    bool IsPersonCached(int _personId);
-
-
+    /// <param name="personId">Id of the Person</param>
+    /// <returns>true if the Person is cached, false otherwise</returns>
+    bool IsPersonCached(int personId);
   }
 }

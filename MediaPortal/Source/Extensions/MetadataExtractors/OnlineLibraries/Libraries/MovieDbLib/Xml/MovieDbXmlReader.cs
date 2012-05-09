@@ -21,15 +21,13 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Xml.Linq;
-using MovieDbLib.Data;
-using System.Diagnostics;
-using System.Drawing;
-using MovieDbLib.Data.Banner;
-using MovieDbLib.Data.Persons;
+using MediaPortal.Extensions.OnlineLibraries.Libraries.Common;
+using MediaPortal.Extensions.OnlineLibraries.Libraries.MovieDbLib.Data;
+using MediaPortal.Extensions.OnlineLibraries.Libraries.MovieDbLib.Data.Banner;
+using MediaPortal.Extensions.OnlineLibraries.Libraries.MovieDbLib.Data.Persons;
 
-namespace MovieDbLib.Xml
+namespace MediaPortal.Extensions.OnlineLibraries.Libraries.MovieDbLib.Xml
 {
   /// <summary>
   /// Class for parsing the xml info from thetvdb
@@ -68,19 +66,18 @@ namespace MovieDbLib.Xml
     ///       <SeriesName>Lost</SeriesName>
     ///       <Status>Continuing</Status>
     ///       <banner>graphical/24313-g2.jpg</banner>
-    ///       <fanart>fanart/original/73739-1.jpg</fanart>
+    ///       <fanart>fanart/Original/73739-1.jpg</fanart>
     ///       <lastupdated>1205694666</lastupdated>
     ///       <zap2it_id>SH672362</zap2it_id>
     ///    </Series>
     /// </Data>
     /// ]]>
     /// </summary>
-    /// <param name="_data"></param>
+    /// <param name="data"></param>
     /// <returns></returns>
-    internal List<MovieDbMovie> ExtractMovies(String _data)
+    internal List<MovieDbMovie> ExtractMovies(String data)
     {
-
-      List<MovieFields> moviedbInfo = ExtractMovieFields(_data);
+      List<MovieFields> moviedbInfo = ExtractMovieFields(data);
       List<MovieDbMovie> retList = new List<MovieDbMovie>();
       foreach (MovieFields m in moviedbInfo)
       {
@@ -128,7 +125,7 @@ namespace MovieDbLib.Xml
     ///       <SeriesName>Lost</SeriesName>
     ///       <Status>Continuing</Status>
     ///       <banner>graphical/24313-g2.jpg</banner>
-    ///       <fanart>fanart/original/73739-1.jpg</fanart>
+    ///       <fanart>fanart/Original/73739-1.jpg</fanart>
     ///       <lastupdated>1205694666</lastupdated>
     ///       <zap2it_id>SH672362</zap2it_id>
     ///    </Series>
@@ -136,14 +133,14 @@ namespace MovieDbLib.Xml
     /// </Data>
     /// ]]>
     /// </summary>
-    /// <param name="_data"></param>
+    /// <param name="data"></param>
     /// <returns></returns>
-    internal List<MovieFields> ExtractMovieFields(String _data)
+    internal List<MovieFields> ExtractMovieFields(String data)
     {
       //Stopwatch watch = new Stopwatch();
       //watch.Start();
       List<MovieFields> retList = new List<MovieFields>();
-      XDocument xml = XDocument.Parse(_data);
+      XDocument xml = XDocument.Parse(data);
 
       var allMovies = from movie in xml.Descendants("movie")
                       select new
@@ -229,7 +226,7 @@ namespace MovieDbLib.Xml
                                    }
                                   ).ToList() : null,
                         cast = movie.Elements("cast").Count() == 1 ?
-                                 (from image in movie.Elements("cast").Descendants("person")
+                                 (from image in movie.Elements("cast").Descendants("Person")
                                   select new
                                   {
                                     character = image.Attributes("character").Count() == 1 ?
@@ -252,18 +249,18 @@ namespace MovieDbLib.Xml
         MovieFields movie = new MovieFields();
         movie.Language = new MovieDbLanguage(0, "en", "English");
 
-        movie.Popularity = MovieDbUtils.Int32Parse(m.popularity);
-        movie.Id = MovieDbUtils.Int32Parse(m.id);
+        movie.Popularity = Util.Int32Parse(m.popularity);
+        movie.Id = Util.Int32Parse(m.id);
         movie.MovieName = m.name;
         movie.AlternativeName = m.alternative_name;
         movie.ImdbId = m.imdb_id;
         movie.Url = m.url;
         movie.Overview = m.overview;
-        movie.Rating = MovieDbUtils.DoubleParse(m.rating);
-        movie.Released = MovieDbUtils.DateTimeParse(m.released);
-        movie.Runtime = MovieDbUtils.Int32Parse(m.runtime);
-        movie.Budget = MovieDbUtils.Int32Parse(m.budget);
-        movie.Revenue = MovieDbUtils.Int32Parse(m.revenue);
+        movie.Rating = Util.DoubleParse(m.rating);
+        movie.Released = Util.ParseDateTime(m.released);
+        movie.Runtime = Util.Int32Parse(m.runtime);
+        movie.Budget = Util.Int32Parse(m.budget);
+        movie.Revenue = Util.Int32Parse(m.revenue);
         movie.Homepage = m.homepage;
         movie.Trailer = m.trailer;
 
@@ -274,7 +271,7 @@ namespace MovieDbLib.Xml
           {
             MovieDbCategory cat = new MovieDbCategory();
             String url = c.url;
-            int id = MovieDbUtils.Int32Parse(url.Substring(url.LastIndexOf("/") + 1));
+            int id = Util.Int32Parse(url.Substring(url.LastIndexOf("/") + 1));
             if (id != -99)
             {
               cat.Id = id;
@@ -305,7 +302,7 @@ namespace MovieDbLib.Xml
           {
             MovieDbStudios cat = new MovieDbStudios();
             String url = c.url;
-            int id = MovieDbUtils.Int32Parse(url.Substring(url.LastIndexOf("/")+1));
+            int id = Util.Int32Parse(url.Substring(url.LastIndexOf("/")+1));
             if (id != -99)
             {
               cat.Id = id;
@@ -327,7 +324,7 @@ namespace MovieDbLib.Xml
           {
             MovieDbCountries country = new MovieDbCountries();
             String url = c.url;
-            int id = MovieDbUtils.Int32Parse(url.Substring(url.LastIndexOf("/") + 1));
+            int id = Util.Int32Parse(url.Substring(url.LastIndexOf("/") + 1));
             if (id != -99)
             {
               country.Id = id;
@@ -348,7 +345,7 @@ namespace MovieDbLib.Xml
           movie.Cast = new List<MovieDbCast>();
           foreach (var p in m.cast)
           {
-            int id = MovieDbUtils.Int32Parse(p.id);
+            int id = Util.Int32Parse(p.id);
             if (id != -99)
             {
               MovieDbCast cast = new MovieDbCast(id, p.name, p.url, p.job, p.character);
@@ -356,7 +353,7 @@ namespace MovieDbLib.Xml
             }
             else
             {
-              Log.Warn("Error adding person (id=" + p.id + ", name=" + p.name + ") to cast");
+              Log.Warn("Error adding Person (id=" + p.id + ", name=" + p.name + ") to cast");
             }
           }
         }
@@ -403,7 +400,7 @@ namespace MovieDbLib.Xml
       List<MovieDbPerson> retList = new List<MovieDbPerson>();
       XDocument xml = XDocument.Parse(_data);
 
-      var allPersons = from movie in xml.Descendants("person")
+      var allPersons = from movie in xml.Descendants("Person")
                       select new
                       {
                         popularity = movie.Elements("popularity").Count() == 1 ?
@@ -463,14 +460,11 @@ namespace MovieDbLib.Xml
       foreach (var p in allPersons)
       {
         MovieDbPerson person = new MovieDbPerson();
-
-
-        
-        person.Popularity = MovieDbUtils.Int32Parse(p.popularity);
-        person.Id = MovieDbUtils.Int32Parse(p.id);
+        person.Popularity = Util.Int32Parse(p.popularity);
+        person.Id = Util.Int32Parse(p.id);
         person.Name = p.name;
-        person.KnownMovies = MovieDbUtils.Int32Parse(p.known_movies);
-        person.Birthday = MovieDbUtils.DateTimeParse(p.birthday);
+        person.KnownMovies = Util.Int32Parse(p.known_movies);
+        person.Birthday = Util.ParseDateTime(p.birthday);
         person.Birthplace = p.birthplace;
         person.Url = p.url;
 
@@ -488,7 +482,7 @@ namespace MovieDbLib.Xml
           person.Filmography = new List<MovieDbPersonMovieJob>();
           foreach (var m in p.filmography)
           {
-            person.Filmography.Add(new MovieDbPersonMovieJob(m.job, MovieDbUtils.Int32Parse(m.id), m.name,
+            person.Filmography.Add(new MovieDbPersonMovieJob(m.job, Util.Int32Parse(m.id), m.name,
                                                              m.character, m.url));
           }
         }

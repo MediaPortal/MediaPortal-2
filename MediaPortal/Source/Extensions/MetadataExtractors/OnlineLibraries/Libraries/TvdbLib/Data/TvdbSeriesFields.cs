@@ -236,7 +236,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.TvdbLib.Data
     }
 
     /// <summary>
-    /// Path to the primary poster
+    /// Path to the primary Poster
     /// </summary>
     public String PosterPath
     {

@@ -19,17 +19,13 @@
 
 
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using MovieDbLib.Data;
+using MediaPortal.Extensions.OnlineLibraries.Libraries.MovieDbLib.Data;
+using MediaPortal.Extensions.OnlineLibraries.Libraries.MovieDbLib.Data.Banner;
+using MediaPortal.Extensions.OnlineLibraries.Libraries.MovieDbLib.Data.Persons;
 using System.IO;
 using System.Xml.Linq;
-using MovieDbLib.Data.Banner;
-using System.Drawing;
-using MovieDbLib.Data.Persons;
 
-namespace MovieDbLib.Xml
+namespace MediaPortal.Extensions.OnlineLibraries.Libraries.MovieDbLib.Xml
 {
   /// <summary>
   /// Writes tvdb data to xml files
@@ -48,14 +44,14 @@ namespace MovieDbLib.Xml
     /// <summary>
     /// Create the movie content
     /// </summary>
-    /// <param name="_movie">Movie to store</param>
+    /// <param name="movie">Movie to store</param>
     /// <returns>xml content</returns>
-    internal String CreateMovieContent(MovieDbMovie _movie)
+    internal String CreateMovieContent(MovieDbMovie movie)
     {
       XElement xmlCat = new XElement("categories");
-      if (_movie.Categories != null)
+      if (movie.Categories != null)
       {
-        foreach (MovieDbCategory e in _movie.Categories)
+        foreach (MovieDbCategory e in movie.Categories)
         {
           xmlCat.Add(new XElement("category",
                   new XAttribute("type", e.Type.ToString()),
@@ -68,9 +64,9 @@ namespace MovieDbLib.Xml
       }
 
       XElement xmlStudios = new XElement("studios");
-      if (_movie.Studios != null)
+      if (movie.Studios != null)
       {
-        foreach (MovieDbStudios s in _movie.Studios)
+        foreach (MovieDbStudios s in movie.Studios)
         {
           xmlStudios.Add(new XElement("studio",
                          new XAttribute("url", s.Url),      
@@ -82,9 +78,9 @@ namespace MovieDbLib.Xml
       }
 
       XElement xmlCountries = new XElement("countries");
-      if (_movie.Countries != null)
+      if (movie.Countries != null)
       {
-        foreach (MovieDbCountries c in _movie.Countries)
+        foreach (MovieDbCountries c in movie.Countries)
         {
           xmlCountries.Add(new XElement("country",
                            new XAttribute("url", c.Url),
@@ -97,9 +93,9 @@ namespace MovieDbLib.Xml
       }
 
       XElement xmlImages = new XElement("images");
-      if (_movie.Banners != null)
+      if (movie.Banners != null)
       {
-        foreach (MovieDbBanner b in _movie.Banners)
+        foreach (MovieDbBanner b in movie.Banners)
         {
           foreach (BannerSize s in b.ImageSizes.Values)
           {
@@ -114,11 +110,11 @@ namespace MovieDbLib.Xml
       }
 
       XElement xmlCast = new XElement("cast");
-      if (_movie.Cast != null)
+      if (movie.Cast != null)
       {
-        foreach (MovieDbCast p in _movie.Cast)
+        foreach (MovieDbCast p in movie.Cast)
         {
-          xmlCast.Add(new XElement("person",
+          xmlCast.Add(new XElement("Person",
                           new XAttribute("job", p.Job),
                           new XAttribute("url", p.Url),
                           new XAttribute("name", p.Name),
@@ -134,21 +130,21 @@ namespace MovieDbLib.Xml
 
       xml.Add(new XElement("movies",
                   new XElement("movie",
-                      new XElement("popularity", _movie.Id),
-                      new XElement("name", _movie.MovieName),
-                      new XElement("alternative_name", _movie.AlternativeName),
-                      new XElement("type", _movie.Budget),
-                      new XElement("id", _movie.Id),
-                      new XElement("imdb_id", _movie.ImdbId),
-                      new XElement("url", _movie.Url),
-                      new XElement("overview", _movie.Overview),
-                      new XElement("rating", _movie.Rating),
-                      new XElement("released", _movie.Released.ToShortDateString()),
-                      new XElement("runtime", _movie.Runtime),
-                      new XElement("budget", _movie.Rating),
-                      new XElement("revenue", _movie.Revenue),
-                      new XElement("homepage", _movie.Homepage),
-                      new XElement("trailer", _movie.Trailer),
+                      new XElement("popularity", movie.Id),
+                      new XElement("name", movie.MovieName),
+                      new XElement("alternative_name", movie.AlternativeName),
+                      new XElement("type", movie.Budget),
+                      new XElement("id", movie.Id),
+                      new XElement("imdb_id", movie.ImdbId),
+                      new XElement("url", movie.Url),
+                      new XElement("overview", movie.Overview),
+                      new XElement("rating", movie.Rating),
+                      new XElement("released", movie.Released.ToShortDateString()),
+                      new XElement("runtime", movie.Runtime),
+                      new XElement("budget", movie.Rating),
+                      new XElement("revenue", movie.Revenue),
+                      new XElement("homepage", movie.Homepage),
+                      new XElement("trailer", movie.Trailer),
                       xmlCat, xmlStudios, xmlCountries, xmlImages, xmlCast
              )));
 
@@ -158,17 +154,17 @@ namespace MovieDbLib.Xml
     }
 
     /// <summary>
-    /// Write the series content to file
+    /// Write the movie content to file
     /// </summary>
-    /// <param name="_series">Series to store</param>
-    /// <param name="_path">Path on disk</param>
+    /// <param name="movie">Movie</param>
+    /// <param name="path">Path on disk</param>
     /// <returns>true if the file could be stored, false otherwise</returns>
-    internal bool WriteMovieContent(MovieDbMovie _movie, String _path)
+    internal bool WriteMovieContent(MovieDbMovie movie, String path)
     {
-      String fileContent = CreateMovieContent(_movie);
+      String fileContent = CreateMovieContent(movie);
       try
       {
-        FileInfo info = new FileInfo(_path);
+        FileInfo info = new FileInfo(path);
         if (!info.Directory.Exists) info.Directory.Create();
         File.WriteAllText(info.FullName, fileContent);
         return true;
@@ -182,15 +178,15 @@ namespace MovieDbLib.Xml
     /// <summary>
     /// 
     /// </summary>
-    /// <param name="_person"></param>
+    /// <param name="person"></param>
     /// <returns></returns>
-    internal String CreatePersonContent(MovieDbPerson _person)
+    internal String CreatePersonContent(MovieDbPerson person)
     {
 
       XElement xmlAka = new XElement("also_known_as");
-      if (_person.AlsoKnownAs != null)
+      if (person.AlsoKnownAs != null)
       {
-        foreach (String aka in _person.AlsoKnownAs)
+        foreach (String aka in person.AlsoKnownAs)
         {
           xmlAka.Add(new XElement("name", aka));
 
@@ -198,9 +194,9 @@ namespace MovieDbLib.Xml
       }
 
       XElement xmlFilmography = new XElement("filmography");
-      if (_person.Filmography != null)
+      if (person.Filmography != null)
       {
-        foreach (MovieDbPersonMovieJob j in _person.Filmography)
+        foreach (MovieDbPersonMovieJob j in person.Filmography)
         {
           xmlFilmography.Add(new XElement("movie",
                            new XAttribute("job", j.JobType),
@@ -214,9 +210,9 @@ namespace MovieDbLib.Xml
       }
 
       XElement xmlImages = new XElement("images");
-      if (_person.Images != null)
+      if (person.Images != null)
       {
-        foreach (MovieDbBanner b in _person.Images)
+        foreach (MovieDbBanner b in person.Images)
         {
           foreach (BannerSize s in b.ImageSizes.Values)
           {
@@ -233,15 +229,15 @@ namespace MovieDbLib.Xml
       XElement xml = new XElement("OpenSearchDescription");
 
       xml.Add(new XElement("persons",
-                  new XElement("person",
-                      new XElement("popularity", _person.Popularity.ToString()),
-                      new XElement("name", _person.Name),
+                  new XElement("Person",
+                      new XElement("popularity", person.Popularity.ToString()),
+                      new XElement("name", person.Name),
                       xmlAka,
-                      new XElement("id", _person.Id),
-                      new XElement("known_movies", _person.KnownMovies.ToString()),
-                      new XElement("birthday", _person.Birthday.ToShortDateString()),
-                      new XElement("birthplace", _person.Birthplace),
-                      new XElement("url", _person.Url),
+                      new XElement("id", person.Id),
+                      new XElement("known_movies", person.KnownMovies.ToString()),
+                      new XElement("birthday", person.Birthday.ToShortDateString()),
+                      new XElement("birthplace", person.Birthplace),
+                      new XElement("url", person.Url),
                       xmlFilmography, xmlImages
              )));
 
@@ -250,12 +246,12 @@ namespace MovieDbLib.Xml
       return xml.ToString();
     }
 
-    internal bool WritePersonContent(MovieDbPerson _person, string _path)
+    internal bool WritePersonContent(MovieDbPerson person, string path)
     {
-      String fileContent = CreatePersonContent(_person);
+      String fileContent = CreatePersonContent(person);
       try
       {
-        FileInfo info = new FileInfo(_path);
+        FileInfo info = new FileInfo(path);
         if (!info.Directory.Exists) info.Directory.Create();
         File.WriteAllText(info.FullName, fileContent);
         return true;

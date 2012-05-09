@@ -20,6 +20,7 @@
 
 using System;
 using System.Collections.Generic;
+using MediaPortal.Extensions.OnlineLibraries.Libraries.Common;
 
 namespace MediaPortal.Extensions.OnlineLibraries.Libraries.TvdbLib.Data
 {
@@ -67,7 +68,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.TvdbLib.Data
       set 
       { 
         _langInfo = value;
-        Util.LanguageList = value;
+        TvDbUtils.LanguageList = value;
       }
     }
   }

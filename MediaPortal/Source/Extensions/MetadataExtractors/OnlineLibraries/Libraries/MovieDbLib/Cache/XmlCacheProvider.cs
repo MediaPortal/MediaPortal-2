@@ -2,33 +2,36 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using MovieDbLib.Xml;
-using MovieDbLib.Data;
+using MediaPortal.Extensions.OnlineLibraries.Libraries.Common;
+using MediaPortal.Extensions.OnlineLibraries.Libraries.MovieDbLib.Data;
+using MediaPortal.Extensions.OnlineLibraries.Libraries.MovieDbLib.Data.Banner;
+using MediaPortal.Extensions.OnlineLibraries.Libraries.MovieDbLib.Data.Persons;
+using MediaPortal.Extensions.OnlineLibraries.Libraries.MovieDbLib.Xml;
 using System.IO;
 using System.Drawing;
-using MovieDbLib.Data.Banner;
-using System.Text.RegularExpressions;
 
-namespace MovieDbLib.Cache
+namespace MediaPortal.Extensions.OnlineLibraries.Libraries.MovieDbLib.Cache
 {
   public class XmlCacheProvider : ICacheProvider
   {
     #region private fields
-    MovieDbXmlWriter m_xmlWriter;
-    MovieDbXmlReader m_xmlReader;
-    String m_rootFolder;
-    private bool m_initialised = false;
+
+    readonly MovieDbXmlWriter _xmlWriter;
+    readonly MovieDbXmlReader _xmlReader;
+    readonly String _rootFolder;
+    private bool _initialised = false;
+
     #endregion
 
     /// <summary>
     /// Constructor for XmlCacheProvider
     /// </summary>
-    /// <param name="_rootFolder">This is the folder on the disk where all the information are stored</param>
-    public XmlCacheProvider(String _rootFolder)
+    /// <param name="rootFolder">This is the folder on the disk where all the information are stored</param>
+    public XmlCacheProvider(String rootFolder)
     {
-      m_xmlWriter = new MovieDbXmlWriter();
-      m_xmlReader = new MovieDbXmlReader();
-      m_rootFolder = _rootFolder;
+      _xmlWriter = new MovieDbXmlWriter();
+      _xmlReader = new MovieDbXmlReader();
+      _rootFolder = rootFolder;
     }
 
     #region ICacheProvider Members
@@ -38,7 +41,7 @@ namespace MovieDbLib.Cache
     /// </summary>
     public bool Initialised
     {
-      get { return m_initialised; }
+      get { return _initialised; }
     }
 
     /// <summary>
@@ -53,17 +56,17 @@ namespace MovieDbLib.Cache
     {
       try
       {
-        if (!Directory.Exists(m_rootFolder))
+        if (!Directory.Exists(_rootFolder))
         {
-          Directory.CreateDirectory(m_rootFolder);
+          Directory.CreateDirectory(_rootFolder);
         }
 
-        m_initialised = true;
+        _initialised = true;
         return true;
       }
       catch (Exception ex)
       {
-        Log.Error("Couldn't initialise cache: " + ex.ToString());
+        Log.Error("Couldn't initialise cache: " + ex);
         return false;
       }
     }
@@ -79,7 +82,7 @@ namespace MovieDbLib.Cache
       throw new NotImplementedException();
     }
 
-    public bool RemoveFromCache(int _seriesId)
+    public bool RemoveFromCache(int seriesId)
     {
       throw new NotImplementedException();
     }
@@ -94,9 +97,9 @@ namespace MovieDbLib.Cache
       throw new NotImplementedException();
     }
 
-    public MovieDbMovie LoadMovieFromCache(int _movieId)
+    public MovieDbMovie LoadMovieFromCache(int movieId)
     {
-      String movieRoot = m_rootFolder + Path.DirectorySeparatorChar + "movies" + Path.DirectorySeparatorChar + _movieId;
+      String movieRoot = Path.Combine(_rootFolder, "movies" + Path.DirectorySeparatorChar + movieId);
       if (!Directory.Exists(movieRoot)) return null;
       MovieDbMovie movie = new MovieDbMovie();
 
@@ -105,7 +108,7 @@ namespace MovieDbLib.Cache
       foreach (String l in movieLanguages)
       {
         String content = File.ReadAllText(l);
-        List<MovieFields> movieList = m_xmlReader.ExtractMovieFields(content);
+        List<MovieFields> movieList = _xmlReader.ExtractMovieFields(content);
         if (movieList != null && movieList.Count == 1)
         {
           MovieFields s = movieList[0];
@@ -116,11 +119,13 @@ namespace MovieDbLib.Cache
 
 
       if (movie.SeriesTranslations != null && movie.SeriesTranslations.Count > 0)
-      {//change language of the series to the default language
+      {
+        //change language of the series to the default language
         movie.SetLanguage(movie.SeriesTranslations.Keys.First());
       }
       else
-      {//no series info could be loaded
+      {
+        //no series info could be loaded
         return null;
       }
 
@@ -131,7 +136,7 @@ namespace MovieDbLib.Cache
       //load cached banners
       if (File.Exists(bannerFile))
       {//banners have been already loaded
-        List<TvdbBanner> bannerList = m_xmlReader.ExtractBanners(File.ReadAllText(bannerFile));
+        List<TvdbBanner> bannerList = _xmlReader.ExtractBanners(File.ReadAllText(bannerFile));
 
         String[] banners = Directory.GetFiles(movieRoot, "banner*.jpg");
         foreach (String b in banners)
@@ -143,7 +148,7 @@ namespace MovieDbLib.Cache
             {
               if (banner.Id == bannerId)
               {
-                if (b.Contains("thumb") && banner.GetType().BaseType == typeof(TvdbBannerWithThumb))
+                if (b.Contains("Thumb") && banner.GetType().BaseType == typeof(TvdbBannerWithThumb))
                 {
                   ((TvdbBannerWithThumb)banner).LoadThumb(Image.FromFile(b));
                 }
@@ -173,7 +178,7 @@ namespace MovieDbLib.Cache
       String actorFile = movieRoot + Path.DirectorySeparatorChar + "actors.xml";
       if (File.Exists(actorFile))
       {
-        List<TvdbActor> actorList = m_xmlReader.ExtractActors(File.ReadAllText(actorFile));
+        List<TvdbActor> actorList = _xmlReader.ExtractActors(File.ReadAllText(actorFile));
 
         String[] banners = Directory.GetFiles(movieRoot, "actor_*.jpg");
         foreach (String b in banners)
@@ -195,7 +200,7 @@ namespace MovieDbLib.Cache
             Log.Warn("Couldn't load image file " + b);
           }
         }
-        movie.TvdbActors = actorList;
+        movie.Persons = actorList;
       }
       #endregion
       */
@@ -203,39 +208,34 @@ namespace MovieDbLib.Cache
     }
 
     /// <summary>
-    /// Load the given person from cache
+    /// Load the given Person from cache
     /// </summary>
-    /// <param name="_movieId">Id of the person to load</param>
+    /// <param name="personId">Id of the Person to load</param>
     /// <returns>The MovieDbPerson object from cache or null</returns>
-    public MovieDbPerson LoadPersonFromCache(int _personId)
+    public MovieDbPerson LoadPersonFromCache(int personId)
     {
-      String personFile = m_rootFolder + Path.DirectorySeparatorChar + "persons" +
-                          Path.DirectorySeparatorChar + _personId + Path.DirectorySeparatorChar
-                          + _personId + ".xml";
-      if (!File.Exists(personFile)) return null;//person not cached
+      String personFile = Path.Combine(_rootFolder, "persons" + Path.DirectorySeparatorChar + personId + ".xml");
+      if (!File.Exists(personFile)) return null;//Person not cached
 
       try
       {
         String content = File.ReadAllText(personFile);
 
-        List<MovieDbPerson> persons = m_xmlReader.ExtractPersons(content);
+        List<MovieDbPerson> persons = _xmlReader.ExtractPersons(content);
         if (persons != null && persons.Count == 1)
         {
           return persons[0];
         }
-        else
-        {
-          Log.Warn("Couldn't extract person " + _personId + " from xml content");
-        }
+        Log.Warn("Couldn't extract Person " + personId + " from xml content");
       }
       catch (Exception ex)
       {
-        Log.Warn("Couldn't load person " + _personId + " from cache: ", ex);
+        Log.Warn("Couldn't load Person " + personId + " from cache: ", ex);
       }
       return null;
     }
 
-    public void SaveToCache(List<MovieDbLanguage> _languageList)
+    public void SaveToCache(List<MovieDbLanguage> languageList)
     {
       throw new NotImplementedException();
     }
@@ -243,10 +243,10 @@ namespace MovieDbLib.Cache
     /// <summary>
     /// Saves the movie to cache
     /// </summary>
-    /// <param name="_movie">MovieDbMovie object</param>
-    public void SaveToCache(MovieDbMovie _movie)
+    /// <param name="movie">MovieDbMovie object</param>
+    public void SaveToCache(MovieDbMovie movie)
     {
-      String root = m_rootFolder + Path.DirectorySeparatorChar + "movies" + Path.DirectorySeparatorChar + _movie.Id;
+      String root = Path.Combine(_rootFolder, "movies" + Path.DirectorySeparatorChar + movie.Id);
       if (!Directory.Exists(root)) Directory.CreateDirectory(root);
       try
       {//delete old cached content
@@ -261,18 +261,17 @@ namespace MovieDbLib.Cache
         Log.Warn("Couldn't delete old cache files", ex);
       }
 
-      foreach (MovieDbLanguage l in _movie.GetAvailableLanguages())
+      foreach (MovieDbLanguage l in movie.GetAvailableLanguages())
       {//write all languages to file
         String fName = root + Path.DirectorySeparatorChar + l.Abbriviation + ".xml";
-        _movie.SetLanguage(l);
-        m_xmlWriter.WriteMovieContent(_movie, fName);
+        movie.SetLanguage(l);
+        _xmlWriter.WriteMovieContent(movie, fName);
       }
     }
 
-    public void SaveToCache(MovieDbPerson _person)
+    public void SaveToCache(MovieDbPerson person)
     {
-      String root = m_rootFolder + Path.DirectorySeparatorChar + "persons" + 
-                    Path.DirectorySeparatorChar + _person.Id;
+      String root = Path.Combine(_rootFolder, "persons" + Path.DirectorySeparatorChar + person.Id);
       if (!Directory.Exists(root)) Directory.CreateDirectory(root);
       try
       {//delete old cached content
@@ -287,100 +286,65 @@ namespace MovieDbLib.Cache
         Log.Warn("Couldn't delete old cache files", ex);
       }
 
-      //write person to file
-      String fName = root + Path.DirectorySeparatorChar + _person.Id + ".xml";
-      m_xmlWriter.WritePersonContent(_person, fName);
+      //write Person to file
+      String fName = root + Path.DirectorySeparatorChar + person.Id + ".xml";
+      _xmlWriter.WritePersonContent(person, fName);
     }
 
     /// <summary>
     /// Save the given image to cache
     /// </summary>
-    /// <param name="_image">banner to save</param>
-    /// <param name="_objectId">id of movie/person/...</param>
-    /// <param name="_bannerId">id of banner</param>
-    /// <param name="_type">type of the banner</param>
-    /// <param name="_size">size of the banner</param>
-    public void SaveToCache(Image _image, int _objectId, string _bannerId, MovieDbBanner.BannerTypes _type, MovieDbBanner.BannerSizes _size)
+    /// <param name="image">banner to save</param>
+    /// <param name="objectId">id of movie/Person/...</param>
+    /// <param name="bannerId">id of banner</param>
+    /// <param name="type">type of the banner</param>
+    /// <param name="size">size of the banner</param>
+    public void SaveToCache(Image image, int objectId, string bannerId, MovieDbBanner.BannerTypes type, MovieDbBanner.BannerSizes size)
     {
-      if (_image != null)
+      if (image != null)
       {
-        FileInfo cacheName = new FileInfo(CreateBannerCacheName(m_rootFolder, _objectId, _bannerId, _type, _size));
+        FileInfo cacheName = new FileInfo(CreateBannerCacheName(_rootFolder, objectId, bannerId, type, size));
         try
         {
           if (cacheName.Directory.Exists)
           {
             cacheName.Directory.Create();
           }
-          _image.Save(cacheName.FullName);
+          image.Save(cacheName.FullName);
         }
         catch (Exception ex)
         {
-          Log.Error("Error while storing banner " + _bannerId + " as " + cacheName);
+          Log.Error("Error while storing banner " + bannerId + " as " + cacheName, ex);
         }
       }
-
       else
       {
-        Log.Warn("Couldn't save image " + _bannerId + ", no image given (null)");
+        Log.Warn("Couldn't save image " + bannerId + ", no image given (null)");
       }
     }
 
-    private String CreateBannerCacheName(String _root, int _objectId, string _bannerId, MovieDbBanner.BannerTypes _type, MovieDbBanner.BannerSizes _size)
+    private String CreateBannerCacheName(String root, int objectId, string bannerId, MovieDbBanner.BannerTypes type, MovieDbBanner.BannerSizes size)
     {
-      StringBuilder builder = new StringBuilder(_root);
+      StringBuilder builder = new StringBuilder(root);
 
-      switch (_type)
+      switch (type)
       {
-        case MovieDbBanner.BannerTypes.backdrop:
-          builder.Append(Path.DirectorySeparatorChar);
-          builder.Append("movies");
-          builder.Append(Path.DirectorySeparatorChar);
-          builder.Append(_objectId);
-          builder.Append(Path.DirectorySeparatorChar);
-          builder.Append("backdrop_");
-          builder.Append(_objectId);
-          builder.Append("_");
-          builder.Append(_size);
-          builder.Append("_");
-          builder.Append(_bannerId);
-          builder.Append(".jpg");
-          break;
-        case MovieDbBanner.BannerTypes.poster:
-          builder.Append(Path.DirectorySeparatorChar);
-          builder.Append("movies");
-          builder.Append(Path.DirectorySeparatorChar);
-          builder.Append(_objectId);
-          builder.Append(Path.DirectorySeparatorChar);
-          builder.Append("poster_");
-          builder.Append(_objectId);
-          builder.Append("_");
-          builder.Append(_size);
-          builder.Append("_");
-          builder.Append(_bannerId);
-          builder.Append(".jpg");
-          break;
-        case MovieDbBanner.BannerTypes.person:
-          builder.Append(Path.DirectorySeparatorChar);
-          builder.Append("persons");
-          builder.Append(Path.DirectorySeparatorChar);
-          builder.Append(_objectId);
-          builder.Append(Path.DirectorySeparatorChar);
-          builder.Append("person_");
-          builder.Append(_objectId);
-          builder.Append("_");
-          builder.Append(_size);
-          builder.Append("_");
-          builder.Append(_bannerId);
-          builder.Append(".jpg");
-          break;
+        case MovieDbBanner.BannerTypes.Backdrop:
+          return string.Format("{0}movies{0}{1}{0}backdrop_{1}_{2}_{3}.jpg", Path.DirectorySeparatorChar, objectId, size, bannerId);
+          
+        case MovieDbBanner.BannerTypes.Poster:
+          return string.Format("{0}movies{0}{1}{0}poster_{1}_{2}_{3}.jpg", Path.DirectorySeparatorChar, objectId, size, bannerId);
+
+        case MovieDbBanner.BannerTypes.Person:
+          return string.Format("{0}persons{0}{1}{0}person_{1}_{2}_{3}.jpg", Path.DirectorySeparatorChar, objectId, size, bannerId);
       }
       return builder.ToString();
     }
 
-    public Image LoadImageFromCache(int _objectId, string _bannerId, MovieDbBanner.BannerTypes _type, MovieDbBanner.BannerSizes _size)
+    public Image LoadImageFromCache(int objectId, string bannerId, MovieDbBanner.BannerTypes type, MovieDbBanner.BannerSizes size)
     {
 
-      String fName = CreateBannerCacheName(m_rootFolder, _objectId, _bannerId, _type, _size);
+      String fName = CreateBannerCacheName(_rootFolder, objectId, bannerId, type, size);
       if (File.Exists(fName))
       {
         try
@@ -389,14 +353,14 @@ namespace MovieDbLib.Cache
         }
         catch (Exception ex)
         {
-          Log.Warn("Couldn't load image " + fName + " for banner " + _bannerId, ex);
+          Log.Warn("Couldn't load image " + fName + " for banner " + bannerId, ex);
         }
       }
 
       return null;
     }
 
-    public bool RemoveImageFromCache(int _movieId, string _fileName)
+    public bool RemoveImageFromCache(int movieId, string fileName)
     {
       throw new NotImplementedException();
     }
@@ -411,35 +375,25 @@ namespace MovieDbLib.Cache
       return new List<int>();
     }
 
-    public bool IsMovieCached(int _movieId)
+    public bool IsMovieCached(int movieId)
     {
       try
       {
-        if (Directory.Exists(m_rootFolder + Path.DirectorySeparatorChar +
-                             "movies" + Path.DirectorySeparatorChar + _movieId))
-        {
-          return true;
-        }
-        return false;
+        return Directory.Exists(Path.Combine(_rootFolder, "movies" + Path.DirectorySeparatorChar + movieId));
       }
-      catch (Exception ex)
+      catch (Exception)
       {
         return false;
       }
     }
 
-    public bool IsPersonCached(int _personId)
+    public bool IsPersonCached(int personId)
     {
       try
       {
-        if (Directory.Exists(m_rootFolder + Path.DirectorySeparatorChar +
-                             "persons" + Path.DirectorySeparatorChar + _personId))
-        {
-          return true;
-        }
-        return false;
+        return Directory.Exists(Path.Combine(_rootFolder, "persons" + Path.DirectorySeparatorChar + personId));
       }
-      catch (Exception ex)
+      catch (Exception)
       {
         return false;
       }

@@ -1,24 +1,19 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using MovieDbLib.Cache;
+﻿using MediaPortal.Extensions.OnlineLibraries.Libraries.MovieDbLib.Cache;
 
-namespace MovieDbLib.Data.Banner
+namespace MediaPortal.Extensions.OnlineLibraries.Libraries.MovieDbLib.Data.Banner
 {
   public class MovieDbPersonImage : MovieDbBanner
   {
 
     #region private/protected properties
     private const string IMAGE_TYPE = "Persons";
-    private BannerSize m_profile;
-    private int m_personId;
+    private BannerSize _profile;
+
     #endregion
 
     public MovieDbPersonImage()
-      : base()
     {
-      this.PersonId = this.ObjectId;
+      PersonId = ObjectId;
     }
 
     /// <summary>
@@ -34,23 +29,19 @@ namespace MovieDbLib.Data.Banner
       set
       {
         base.CacheProvider = value;
-        this.Profile.CacheProvider = value;
+        Profile.CacheProvider = value;
       }
     }
 
-    public int PersonId
-    {
-      get { return m_personId; }
-      set { m_personId = value; }
-    }
+    public int PersonId { get; set; }
 
     public BannerSize Profile
     {
-      get { return m_profile; }
+      get { return _profile; }
       set
       {
-        m_profile = value;
-        AddBannerSize(BannerSizes.profile, value);
+        _profile = value;
+        AddBannerSize(BannerSizes.Profile, value);
       }
     }
 

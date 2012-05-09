@@ -22,6 +22,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using MediaPortal.Extensions.OnlineLibraries.Libraries.Common;
 using MediaPortal.Extensions.OnlineLibraries.Libraries.TvdbLib.Cache;
 using MediaPortal.Extensions.OnlineLibraries.Libraries.TvdbLib.Data;
 using MediaPortal.Extensions.OnlineLibraries.Libraries.TvdbLib.Data.Banner;
@@ -766,24 +767,24 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.TvdbLib
 
       if (interval == Interval.Automatic)
       {
-        //MakeUpdate(Util.UpdateInterval.month);
+        //MakeUpdate(TvDbUtils.UpdateInterval.month);
         //return true;
         TimeSpan timespanLastUpdate = (DateTime.Now - _loadedData.LastUpdated);
         //MakeUpdate(TvdbLinks.CreateUpdateLink(_apiKey, TvdbLinks.UpdateInterval.day));
         if (timespanLastUpdate < new TimeSpan(1, 0, 0, 0))
         {//last update is less than a day ago -> make a daily update
-          //MakeUpdate(TvdbLinks.CreateUpdateLink(_apiKey, Util.UpdateInterval.day));
+          //MakeUpdate(TvdbLinks.CreateUpdateLink(_apiKey, TvDbUtils.UpdateInterval.day));
           return UpdateAllSeries(Interval.Day, zipped, false);
         }
         if (timespanLastUpdate < new TimeSpan(7, 0, 0, 0))
         {//last update is less than a week ago -> make a weekly update
-          //MakeUpdate(TvdbLinks.CreateUpdateLink(_apiKey, Util.UpdateInterval.week));
+          //MakeUpdate(TvdbLinks.CreateUpdateLink(_apiKey, TvDbUtils.UpdateInterval.week));
           return UpdateAllSeries(Interval.Week, zipped, false);
         }
         if (timespanLastUpdate < new TimeSpan(31, 0, 0, 0) ||
             _loadedData.LastUpdated == new DateTime())//lastUpdated not available -> make longest possible upgrade
         {//last update is less than a month ago -> make a monthly update
-          //MakeUpdate(TvdbLinks.CreateUpdateLink(_apiKey, Util.UpdateInterval.month));
+          //MakeUpdate(TvdbLinks.CreateUpdateLink(_apiKey, TvDbUtils.UpdateInterval.month));
           return UpdateAllSeries(Interval.Month, zipped, true);
         }
         //todo: Make a full update -> full update deosn't make sense... (do a complete re-scan?)
@@ -930,7 +931,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.TvdbLib
               {
                 if (e.LastUpdated < DateTime.Now - span)
                 {
-                  if (Util.FindEpisodeInList(e.Id, updateEpisodes) == null)
+                  if (TvDbUtils.FindEpisodeInList(e.Id, updateEpisodes) == null)
                   {//The episode is not in the updates.xml file
                     TvdbEpisode newEp = new TvdbEpisode();
                     newEp.Id = e.Id;

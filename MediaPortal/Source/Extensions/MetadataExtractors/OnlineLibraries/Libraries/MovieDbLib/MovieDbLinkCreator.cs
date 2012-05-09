@@ -19,50 +19,10 @@
  */
 
 using System;
-using System.Collections.Generic;
-using MovieDbLib.Data;
+using MediaPortal.Extensions.OnlineLibraries.Libraries.MovieDbLib.Data;
 
-namespace MovieDb
+namespace MediaPortal.Extensions.OnlineLibraries.Libraries.MovieDbLib
 {
-
-  /// <summary>
-  /// Information on server structure and mirrors of tvdb
-  /// 
-  /// <![CDATA[
-  /// <mirrorpath>/api/<apikey>/
-  /// |---- mirrors.xml
-  /// |---- languages.xml
-  /// |
-  /// |---- series/
-  /// |     |---- <seriesid>/
-  /// |           |---- <language>.xml  (Base Series Record)
-  /// |           |---- banners.xml  (All banners related to this series)
-  /// |           |
-  /// |           |---- all/
-  /// |           |     |---- <language>.xml  (Full Series Record)
-  /// |           |     |---- <language>.zip  (Zipped version of Full Series Record and banners.xml)
-  /// |           |
-  /// |           |---- default/  (sorts using the default ordering method)
-  /// |           |     |---- <Season#>/<episode#>/
-  /// |           |           |---- <language>.xml  (Base Episode Record)
-  /// |           |
-  /// |           |---- dvd/  (sorts using the dvd ordering method)
-  /// |           |     |---- <Season#>/<episode#>/
-  /// |           |           |---- <language>.xml  (Base Episode Record)
-  /// |           |
-  /// |           |---- absolute/  (sorts using the absolute ordering method)
-  /// |                 |---- <absolute#>/
-  /// |                   |---- <language>.xml  (Base Episode Record)
-  /// |
-  /// |---- episodes
-  /// |     |---- <episodeid>/  (will return en.xml by default)
-  /// |           |---- <language>.xml  (Base Episode Record)
-  /// |
-  /// |---- (updates)
-  ///       |---- s<timeframe>.xml
-  ///       |---- updates_<timeframe>.zip
-  /// ]]>
-  /// </summary>
   internal class MovieDbLinkCreator
   {
     /// <summary>
@@ -79,53 +39,34 @@ namespace MovieDb
     /// <summary>
     /// Creates a Link for a movie
     /// </summary>
-    /// <param name="_apiKey"></param>
-    /// <param name="_seriesId"></param>
-    /// <param name="_lang"></param>
-    /// <param name="_full"></param>
-    /// <param name="_zipped"></param>
-    /// <returns></returns>
-    internal static String CreateMovieLink(String _apiKey, int _movieId, MovieDbLanguage _lang, bool _zipped)
+    internal static String CreateMovieLink(String apiKey, int movieId, MovieDbLanguage lang, bool zipped)
     {
-      return String.Format("{0}/Movie.getInfo/{1}/xml/{2}/{3}", BASE_SERVER, (_lang != null ? _lang.Abbriviation : "en"), _apiKey,
-                           _movieId);
+      return String.Format("{0}/Movie.getInfo/{1}/xml/{2}/{3}", BASE_SERVER, (lang != null ? lang.Abbriviation : "en"), apiKey, movieId);
     }
 
-    internal static String CreateImdbLookupLink(string _apiKey, String _imdbKey, MovieDbLanguage _lang, bool _zipped)
+    internal static String CreateImdbLookupLink(string apiKey, String imdbKey, MovieDbLanguage lang, bool zipped)
     {
-      return String.Format("{0}/Movie.imdbLookup/{1}/xml/{2}/{3}", BASE_SERVER, (_lang != null ? _lang.Abbriviation : "en"), _apiKey,
-                     _imdbKey);
+      return String.Format("{0}/Movie.imdbLookup/{1}/xml/{2}/{3}", BASE_SERVER, (lang != null ? lang.Abbriviation : "en"), apiKey, imdbKey);
     }
 
-    internal static string CreateBannerLink(string _bannerPath)
+    internal static String CreateMovieSearchLink(string apiKey, String searchString, MovieDbLanguage lang)
     {
-      return "";
+      return String.Format("{0}/Movie.search/{1}/xml/{2}/{3}", BASE_SERVER, (lang != null ? lang.Abbriviation : "en"), apiKey, searchString);
+    }
+    
+    internal static String CreatePersonSearchLink(string apiKey, String personName, MovieDbLanguage lang)
+    {
+      return String.Format("{0}/Person.search/{1}/xml/{2}/{3}", BASE_SERVER, (lang != null ? lang.Abbriviation : "en"), apiKey, personName);
     }
 
-    internal static String CreateMovieSearchLink(string _apiKey, String _searchString, MovieDbLanguage _lang)
+    internal static String CreatePersonLink(string apiKey, int personId, MovieDbLanguage lang)
     {
-      return String.Format("{0}/Movie.search/{1}/xml/{2}/{3}", BASE_SERVER, (_lang != null ? _lang.Abbriviation : "en"), _apiKey,
-                           _searchString);
+      return String.Format("{0}/Person.getInfo/{1}/xml/{2}/{3}", BASE_SERVER, (lang != null ? lang.Abbriviation : "en"), apiKey, personId);
     }
 
-
-
-    internal static String CreatePersonSearchLink(string _apiKey, String _personName, MovieDbLanguage _lang)
+    internal static String CreateHashLink(string apiKey, String hash)
     {
-      return String.Format("{0}/Person.search/{1}/xml/{2}/{3}", BASE_SERVER, (_lang != null ? _lang.Abbriviation : "en"), _apiKey,
-                     _personName);
+      return String.Format("{0}/Hash.getInfo/{1}/xml/{2}/{3}", BASE_SERVER, "en", apiKey, hash);
     }
-
-    internal static String CreatePersonLink(string _apiKey, int _personId, MovieDbLanguage _lang)
-    {
-      return String.Format("{0}/Person.getInfo/{1}/xml/{2}/{3}", BASE_SERVER, (_lang != null ? _lang.Abbriviation : "en"), _apiKey,
-                     _personId);
-    }
-
-    internal static String CreateHashLink(string _apiKey, String _hash)
-    {
-      return String.Format("{0}/Hash.getInfo/{1}/xml/{2}/{3}", BASE_SERVER, "en", _apiKey, _hash);
-    }
-
   }
 }

@@ -20,7 +20,7 @@
 
 using System;
 
-namespace MovieDbLib.Exceptions
+namespace MediaPortal.Extensions.OnlineLibraries.Libraries.MovieDbLib.Exceptions
 {
   /// <summary>
   /// Exception that is thrown when a nonexistent content is requested
@@ -30,9 +30,9 @@ namespace MovieDbLib.Exceptions
         /// <summary>
     /// TvdbInvalidAPIKeyException constructor
     /// </summary>
-    /// <param name="_text">Message</param>
-    public MovieDbContentNotFoundException(String _text)
-      : base(_text)
+    /// <param name="text">Message</param>
+    public MovieDbContentNotFoundException(String text)
+      : base(text)
     {
     }
 
@@ -40,7 +40,6 @@ namespace MovieDbLib.Exceptions
     /// TvdbInvalidAPIKeyException constructor
     /// </summary>
     public MovieDbContentNotFoundException()
-      : base()
     {
 
     }

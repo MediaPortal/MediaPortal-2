@@ -20,28 +20,27 @@
 
 using System;
 
-namespace MovieDbLib.Exceptions
+namespace MediaPortal.Extensions.OnlineLibraries.Libraries.MovieDbLib.Exceptions
 {
-	/// <summary>
-	/// Description of TvdbInvalidXmlException.
-	/// </summary>
-	public class MovieDbInvalidXmlException: MovieDbException
-	{
-		/// <summary>
-		/// TvdbInvalidXmlException constructor
-		/// </summary>
-		/// <param name="_text">Message</param>
-		public MovieDbInvalidXmlException(String _text): base(_text)
-		{
-			
-		}
-		
-		/// <summary>
-		/// TvdbInvalidXmlException constructor
-		/// </summary>
-		public MovieDbInvalidXmlException(): base()
-		{
-			
-		}
-	}
+  /// <summary>
+  /// Description of TvdbInvalidXmlException.
+  /// </summary>
+  public class MovieDbInvalidXmlException : MovieDbException
+  {
+    /// <summary>
+    /// TvdbInvalidXmlException constructor
+    /// </summary>
+    /// <param name="text">Message</param>
+    public MovieDbInvalidXmlException(String text)
+      : base(text)
+    {
+
+    }
+
+    /// <summary>
+    /// TvdbInvalidXmlException constructor
+    /// </summary>
+    public MovieDbInvalidXmlException()
+    { }
+  }
 }

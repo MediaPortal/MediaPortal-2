@@ -1,61 +1,50 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using MovieDbLib.Cache;
-
-namespace MovieDbLib.Data.Banner
+﻿namespace MediaPortal.Extensions.OnlineLibraries.Libraries.MovieDbLib.Data.Banner
 {
   public class MovieDbPoster : MovieDbBanner
   {
     #region private/protected properties
     private const string IMAGE_TYPE = "Posters";
-    private BannerSize m_mid;
-    private BannerSize m_cover;
-    private int m_movieId;
+    private BannerSize _mid;
+    private BannerSize _cover;
+
     #endregion
 
     public MovieDbPoster()
-      : base()
     {
-      this.MovieId = this.ObjectId;
+      MovieId = ObjectId;
     }
 
     public override string ToString()
     {
-      return "Movie Poster (" + this.Id + ")";
+      return "Movie Poster (" + Id + ")";
     }
 
-    public int MovieId
-    {
-      get { return m_movieId; }
-      set { m_movieId = value; }
-    }
+    public int MovieId { get; set; }
 
     public BannerSize Mid
     {
-      get { return m_mid; }
+      get { return _mid; }
       set
       {
-        m_mid = value;
-        AddBannerSize(BannerSizes.mid, value);
+        _mid = value;
+        AddBannerSize(BannerSizes.Mid, value);
       }
     }
 
 
     public BannerSize Cover
     {
-      get { return m_cover; }
+      get { return _cover; }
       set
       {
-        m_cover = value;
-        AddBannerSize(BannerSizes.cover, value);
+        _cover = value;
+        AddBannerSize(BannerSizes.Cover, value);
       }
     }
 
     public override string ImageType
     {
-      get { throw new NotImplementedException(); }
+      get { return IMAGE_TYPE; }
     }
   }
 }

@@ -73,7 +73,6 @@
     <Compile Include="Libraries\MovieDbLib\Exceptions\MovieDbInvalidXmlException.cs" />
     <Compile Include="Libraries\MovieDbLib\Exceptions\MovieDbNotAvailableException.cs" />
     <Compile Include="Libraries\MovieDbLib\Exceptions\MovieDbUserNotFoundException.cs" />
-    <Compile Include="Libraries\MovieDbLib\Log.cs" />
     <Compile Include="Libraries\MovieDbLib\MovieDbDownloader.cs" />
     <Compile Include="Libraries\MovieDbLib\MovieDbHandler.cs" />
     <Compile Include="Libraries\MovieDbLib\MovieDbLinkCreator.cs" />
@@ -109,11 +108,12 @@
     <Compile Include="Libraries\TvdbLib\Exceptions\TvdbInvalidXmlException.cs" />
     <Compile Include="Libraries\TvdbLib\Exceptions\TvdbNotAvailableException.cs" />
     <Compile Include="Libraries\TvdbLib\Exceptions\TvdbUserNotFoundException.cs" />
-    <Compile Include="Libraries\TvdbLib\Log.cs" />
+    <Compile Include="Libraries\Common\Log.cs" />
     <Compile Include="Libraries\TvdbLib\TvdbDownloader.cs" />
     <Compile Include="Libraries\TvdbLib\TvdbHandler.cs" />
     <Compile Include="Libraries\TvdbLib\TvdbLinkCreator.cs" />
-    <Compile Include="Libraries\TvdbLib\Util.cs" />
+    <Compile Include="Libraries\Common\Util.cs" />
+    <Compile Include="Libraries\TvdbLib\TvDbUtils.cs" />
     <Compile Include="Libraries\TvdbLib\Xml\TvdbXmlReader.cs" />
     <Compile Include="Libraries\TvdbLib\Xml\TvdbXmlWriter.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

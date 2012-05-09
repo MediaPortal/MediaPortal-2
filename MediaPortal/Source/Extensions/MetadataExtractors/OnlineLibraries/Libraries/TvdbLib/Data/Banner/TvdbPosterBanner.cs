@@ -24,7 +24,7 @@ using System.Drawing;
 namespace MediaPortal.Extensions.OnlineLibraries.Libraries.TvdbLib.Data.Banner
 {
   /// <summary>
-  /// Newest addition to the graphical section. Like the name says it has poster
+  /// Newest addition to the graphical section. Like the name says it has Poster
   /// format (680px x 1000px) and is not smaller than 500 kb
   /// 
   /// More information at http://thetvdb.com/wiki/index.php/Posters

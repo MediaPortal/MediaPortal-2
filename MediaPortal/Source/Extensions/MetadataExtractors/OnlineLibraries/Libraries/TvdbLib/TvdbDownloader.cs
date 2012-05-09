@@ -26,6 +26,7 @@ using System.Net;
 using System.Text;
 using System.Xml;
 using ICSharpCode.SharpZipLib.Zip;
+using MediaPortal.Extensions.OnlineLibraries.Libraries.Common;
 using MediaPortal.Extensions.OnlineLibraries.Libraries.TvdbLib.Data;
 using MediaPortal.Extensions.OnlineLibraries.Libraries.TvdbLib.Data.Banner;
 using MediaPortal.Extensions.OnlineLibraries.Libraries.TvdbLib.Exceptions;

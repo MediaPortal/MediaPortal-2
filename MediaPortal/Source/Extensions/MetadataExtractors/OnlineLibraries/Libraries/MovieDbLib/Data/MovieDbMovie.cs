@@ -21,53 +21,15 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using MovieDbLib.Data.Banner;
+using MediaPortal.Extensions.OnlineLibraries.Libraries.MovieDbLib.Data.Persons;
 
-namespace MovieDbLib.Data
+namespace MediaPortal.Extensions.OnlineLibraries.Libraries.MovieDbLib.Data
 {
-  /// <summary>
-  /// Series class holds all the info that can be retrieved from http://TheMovieDb.org.  <br/>
-  /// <br/>
-  /// Those are as follows:<br/>
-  /// <br/>
-  ///  - Base information: <br/>
-  ///  <code>
-  ///    <Series>
-  ///       <id>73739</id>
-  ///       <Actors>|Malcolm David Kelley|Jorge Garcia|Maggie Grace|...|</Actors>
-  ///       <Airs_DayOfWeek>Thursday</Airs_DayOfWeek>
-  ///       <Airs_Time>9:00 PM</Airs_Time>
-  ///       <ContentRating>TV-14</ContentRating>
-  ///       <FirstAired>2004-09-22</FirstAired>
-  ///       <Genre>|Action and Adventure|Drama|Science-Fiction|</Genre>
-  ///       <IMDB_ID>tt0411008</IMDB_ID>
-  ///       <Language>en</Language>
-  ///       <Network>ABC</Network>
-  ///       <Overview>After Oceanic Air flight 815...</Overview>
-  ///       <Rating>8.9</Rating>
-  ///       <Runtime>60</Runtime>
-  ///       <SeriesID>24313</SeriesID>
-  ///       <SeriesName>Lost</SeriesName>
-  ///       <Status>Continuing</Status>
-  ///       <banner>graphical/24313-g2.jpg</banner>
-  ///       <fanart>fanart/original/73739-1.jpg</fanart>
-  ///       <lastupdated>1205694666</lastupdated>
-  ///       <zap2it_id>SH672362</zap2it_id>
-  ///    </Series>
-  ///  </code>
-  ///  - Banner information <br/>
-  ///  - Episode information <br/>
-  ///  - Extended actor information <br/>
-  ///  <br/>
-  /// Each of those can be downloaded seperately. If the information is downloaded as 
-  /// zipped file, everything is downloaded at once
-  /// </summary>
   [Serializable]
   public class MovieDbMovie : MovieFields
   {
     #region private properties
-    private Dictionary<MovieDbLanguage, MovieFields> m_seriesTranslations;
+
     #endregion
 
     /// <summary>
@@ -80,68 +42,68 @@ namespace MovieDbLib.Data
     /// <summary>
     /// Create a series object with all the information contained in the TvdbSeriesFields object
     /// </summary>
-    /// <param name="_fields"></param>
-    internal MovieDbMovie(MovieFields _fields)
+    /// <param name="fields"></param>
+    internal MovieDbMovie(MovieFields fields)
       : this()
     {
-      AddLanguage(_fields);
-      SetLanguage(_fields.Language);
+      AddLanguage(fields);
+      SetLanguage(fields.Language);
       //UpdateTvdbFields(_fields, true);
     }
 
     /// <summary>
     /// Add a new language to the series
     /// </summary>
-    /// <param name="_fields"></param>
-    internal void AddLanguage(MovieFields _fields)
+    /// <param name="fields"></param>
+    internal void AddLanguage(MovieFields fields)
     {
-      if (m_seriesTranslations == null)
+      if (SeriesTranslations == null)
       {
-        m_seriesTranslations = new Dictionary<MovieDbLanguage, MovieFields>();
+        SeriesTranslations = new Dictionary<MovieDbLanguage, MovieFields>();
       }
 
       //delete translation if it already exists and overwrite it with a new one
-      if (m_seriesTranslations.ContainsKey(_fields.Language))
+      if (SeriesTranslations.ContainsKey(fields.Language))
       {
-        m_seriesTranslations.Remove(_fields.Language);
+        SeriesTranslations.Remove(fields.Language);
       }
-      /*foreach (KeyValuePair<TvdbLanguage, TvdbSeriesFields> kvp in m_seriesTranslations)
+      /*foreach (KeyValuePair<TvdbLanguage, TvdbSeriesFields> kvp in _seriesTranslations)
       {
         if (kvp.Key == _fields.Language)
         {
-          m_seriesTranslations.Remove(kvp.Key);
+          _seriesTranslations.Remove(kvp.Key);
         }
       }*/
 
-      m_seriesTranslations.Add(_fields.Language, _fields);
+      SeriesTranslations.Add(fields.Language, fields);
     }
 
     /// <summary>
     /// Set the language of the series to one of the languages that have
     /// already been loaded
     /// </summary>
-    /// <param name="_language">The new language for this series</param>
+    /// <param name="language">The new language for this series</param>
     /// <returns>true if success, false otherwise</returns>
-    public bool SetLanguage(MovieDbLanguage _language)
+    public bool SetLanguage(MovieDbLanguage language)
     {
-      return SetLanguage(_language.Abbriviation);
+      return SetLanguage(language.Abbriviation);
     }
 
     /// <summary>
     /// Set the language of the series to one of the languages that have
     /// already been loaded
     /// </summary>
-    /// <param name="_language">The new language abbriviation for this series</param>
+    /// <param name="language">The new language abbriviation for this series</param>
     /// <returns>true if success, false otherwise</returns>
-    public bool SetLanguage(String _language)
+    public bool SetLanguage(String language)
     {
-      foreach (KeyValuePair<MovieDbLanguage, MovieFields> kvp in m_seriesTranslations)
+      foreach (KeyValuePair<MovieDbLanguage, MovieFields> kvp in SeriesTranslations)
       {
-        if (kvp.Key.Abbriviation.Equals(_language))
-        {
-          this.UpdateTvdbFields(kvp.Value, true);
-          return true;
-        }
+        if (!kvp.Key.Abbriviation.Equals(language)) 
+          continue;
+
+        UpdateTvdbFields(kvp.Value, true);
+        return true;
       }
       return false;
     }
@@ -153,98 +115,37 @@ namespace MovieDbLib.Data
     /// <returns>List of all translations that are loaded for this series</returns>
     public List<MovieDbLanguage> GetAvailableLanguages()
     {
-      if (m_seriesTranslations != null)
-      {
-        return m_seriesTranslations.Keys.ToList();
-      }
-      else
-      {
-        return null;
-      }
+      return SeriesTranslations != null ? SeriesTranslations.Keys.ToList() : null;
     }
 
     /// <summary>
     /// Get all available Translations
     /// </summary>
-    internal Dictionary<MovieDbLanguage, MovieFields> SeriesTranslations
-    {
-      get { return m_seriesTranslations; }
-      set { m_seriesTranslations = value; }
-    }
-
-/*
-
-    #region tvdb properties
-    /// <summary>
-    /// Returns the genre string in the format | genre1 | genre2 | genre3 |
-    /// </summary>
-    public String GenreString
-    {
-      get
-      {
-        if (Genre == null || Genre.Count == 0) return "";
-        StringBuilder retString = new StringBuilder();
-        retString.Append("|");
-        foreach (String s in Genre)
-        {
-          retString.Append(s);
-          retString.Append("|");
-        }
-        return retString.ToString();
-      }
-    }
-
-    /// <summary>
-    /// Formatted String of actors that appear during this episode in the 
-    /// format | actor1 | actor2 | actor3 |
-    /// </summary>
-    public String ActorsString
-    {
-      get
-      {
-        if (Actors == null || Actors.Count == 0) return "";
-        StringBuilder retString = new StringBuilder();
-        retString.Append("|");
-        foreach (String s in Actors)
-        {
-          retString.Append(s);
-          retString.Append("|");
-        }
-        return retString.ToString();
-      }
-    }
-
-    #endregion
-    */
-
-    
+    internal Dictionary<MovieDbLanguage, MovieFields> SeriesTranslations { get; set; }
 
     #region Actors
+
     //Actor Information
-    private List<MovieDbPerson> m_tvdbActors;
-    private bool m_tvdbActorsLoaded;
+    private List<MovieDbPerson> _persons;
 
     /// <summary>
     /// List of loaded tvdb actors
     /// </summary>
-    public List<MovieDbPerson> TvdbActors
+    public List<MovieDbPerson> Persons
     {
-      get { return m_tvdbActors; }
+      get { return _persons; }
       set
       {
-        m_tvdbActorsLoaded = true;
-        m_tvdbActors = value;
+        PersonsLoaded = true;
+        _persons = value;
       }
     }
 
     /// <summary>
     /// Is the actor info loaded
     /// </summary>
-    public bool TvdbActorsLoaded
-    {
-      get { return m_tvdbActorsLoaded; }
-      set { m_tvdbActorsLoaded = value; }
-    }
+    public bool PersonsLoaded { get; set; }
+
     #endregion
 
     /// <summary>
@@ -259,38 +160,38 @@ namespace MovieDbLib.Data
     /// <summary>
     /// Uptdate the info of the current series with the updated one
     /// </summary>
-    /// <param name="_series">TvdbSeries object</param>
-    protected void UpdateMovieInfo(MovieDbMovie _series)
+    /// <param name="movie">TvdbSeries object</param>
+    protected void UpdateMovieInfo(MovieDbMovie movie)
     {
-     /* this.Actors = _series.Actors;
-      this.AirsDayOfWeek = _series.AirsDayOfWeek;
-      this.AirsTime = _series.AirsTime;
-      this.BannerPath = _series.BannerPath;
-      this.Banners = _series.Banners;
-      this.ContentRating = _series.ContentRating;
-      this.FanartPath = _series.FanartPath;
-      this.FirstAired = _series.FirstAired;
-      this.Genre = _series.Genre;
-      this.Id = _series.Id;
-      this.ImdbId = _series.ImdbId;
-      this.Language = _series.Language;
-      this.LastUpdated = _series.LastUpdated;
-      this.Network = _series.Network;
-      this.Overview = _series.Overview;
-      this.Rating = _series.Rating;
-      this.Runtime = _series.Runtime;
-      this.MovieName = _series.MovieName;
-      this.Status = _series.Status;
-      this.TvDotComId = _series.TvDotComId;
-      this.Zap2itId = _series.Zap2itId;
+     /* this.Actors = movie.Actors;
+      this.AirsDayOfWeek = movie.AirsDayOfWeek;
+      this.AirsTime = movie.AirsTime;
+      this.BannerPath = movie.BannerPath;
+      this.Banners = movie.Banners;
+      this.ContentRating = movie.ContentRating;
+      this.FanartPath = movie.FanartPath;
+      this.FirstAired = movie.FirstAired;
+      this.Genre = movie.Genre;
+      this.Id = movie.Id;
+      this.ImdbId = movie.ImdbId;
+      this.Language = movie.Language;
+      this.LastUpdated = movie.LastUpdated;
+      this.Network = movie.Network;
+      this.Overview = movie.Overview;
+      this.Rating = movie.Rating;
+      this.Runtime = movie.Runtime;
+      this.MovieName = movie.MovieName;
+      this.Status = movie.Status;
+      this.TvDotComId = movie.TvDotComId;
+      this.Zap2itId = movie.Zap2itId;
 
-      if (_series.EpisodesLoaded)
+      if (movie.EpisodesLoaded)
       {//check if the old series has any images loaded already -> if yes, save them
         if (this.EpisodesLoaded)
         {
           foreach (TvdbEpisode oe in this.Episodes)
           {
-            foreach (TvdbEpisode ne in _series.Episodes)
+            foreach (TvdbEpisode ne in movie.Episodes)
             {
               if (oe.SeasonNumber == ne.SeasonNumber &&
                   oe.EpisodeNumber == ne.EpisodeNumber)
@@ -304,16 +205,16 @@ namespace MovieDbLib.Data
           }
         }
 
-        this.Episodes = _series.Episodes;
+        this.Episodes = movie.Episodes;
       }
 
-      if (_series.TvdbActorsLoaded)
+      if (movie.PersonsLoaded)
       {//check if the old series has any images loaded already -> if yes, save them
-        if (this.TvdbActorsLoaded)
+        if (this.PersonsLoaded)
         {
-          foreach (TvdbActor oa in this.TvdbActors)
+          foreach (TvdbActor oa in this.Persons)
           {
-            foreach (TvdbActor na in _series.TvdbActors)
+            foreach (TvdbActor na in movie.Persons)
             {
               if (oa.Id == na.Id)
               {
@@ -325,17 +226,17 @@ namespace MovieDbLib.Data
             }
           }
         }
-        this.TvdbActors = _series.TvdbActors;
+        this.Persons = movie.Persons;
       }
 
-      if (_series.BannersLoaded)
+      if (movie.BannersLoaded)
       {
         //check if the old series has any images loaded already -> if yes, save them
         if (this.BannersLoaded)
         {
           foreach (TvdbBanner ob in this.Banners)
           {
-            foreach (TvdbBanner nb in _series.Banners)
+            foreach (TvdbBanner nb in movie.Banners)
             {
               if (ob.BannerPath.Equals(nb.BannerPath))//I have to check for the banner path since the Update file doesn't include IDs
               {
@@ -363,7 +264,7 @@ namespace MovieDbLib.Data
             }
           }
         }
-        this.Banners = _series.Banners;
+        this.Banners = movie.Banners;
       }/*/
     }
   }

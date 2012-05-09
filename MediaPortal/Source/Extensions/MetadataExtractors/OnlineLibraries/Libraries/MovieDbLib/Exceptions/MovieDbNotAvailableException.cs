@@ -19,11 +19,8 @@
  */
 
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 
-namespace MovieDbLib.Exceptions
+namespace MediaPortal.Extensions.OnlineLibraries.Libraries.MovieDbLib.Exceptions
 {
   /// <summary>
   /// Exception that is thrown if http://TheMovieDb.org seems to be unavailable
@@ -33,9 +30,9 @@ namespace MovieDbLib.Exceptions
     /// <summary>
     /// TvdbNotAvailableException constructor
     /// </summary>
-    /// <param name="_text">Message</param>
-    public MovieDbNotAvailableException(String _text)
-      : base(_text)
+    /// <param name="text">Message</param>
+    public MovieDbNotAvailableException(String text)
+      : base(text)
     {
     }
 
@@ -43,7 +40,6 @@ namespace MovieDbLib.Exceptions
     /// TvdbNotAvailableException constructor
     /// </summary>
     public MovieDbNotAvailableException()
-      : base()
     {
     }
   }

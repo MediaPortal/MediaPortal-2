@@ -1,34 +1,31 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using MovieDbLib.Data;
 using System.Diagnostics;
-using MovieDbLib.Cache;
-using MovieDbLib.Data.Banner;
-using MovieDbLib.Data.Persons;
+using MediaPortal.Extensions.OnlineLibraries.Libraries.Common;
+using MediaPortal.Extensions.OnlineLibraries.Libraries.MovieDbLib.Cache;
+using MediaPortal.Extensions.OnlineLibraries.Libraries.MovieDbLib.Data;
+using MediaPortal.Extensions.OnlineLibraries.Libraries.MovieDbLib.Data.Banner;
+using MediaPortal.Extensions.OnlineLibraries.Libraries.MovieDbLib.Data.Persons;
 
-namespace MovieDbLib
+namespace MediaPortal.Extensions.OnlineLibraries.Libraries.MovieDbLib
 {
   public class MovieDbHandler
   {
-    private MovieDbDownloader m_movieDownloader;
-    private String m_apiKey;
-    private ICacheProvider m_cacheProvider;
+    private readonly MovieDbDownloader _movieDownloader;
+    private readonly ICacheProvider _cacheProvider;
 
-    public MovieDbHandler(String _apiKey)
+    public MovieDbHandler(String apiKey)
     {
-      m_apiKey = _apiKey;
-      m_movieDownloader = new MovieDbDownloader(_apiKey);
+      _movieDownloader = new MovieDbDownloader(apiKey);
     }
 
-    public MovieDbHandler(String _apiKey, ICacheProvider _cacheProvider)
-      : this(_apiKey)
+    public MovieDbHandler(String apiKey, ICacheProvider cacheProvider)
+      : this(apiKey)
     {
-      m_cacheProvider = _cacheProvider;
+      _cacheProvider = cacheProvider;
     }
 
-    public MovieDbMovie GetMovie(String _imdbId, MovieDbLanguage _language)
+    public MovieDbMovie GetMovie(String imdbId, MovieDbLanguage language)
     {
       Stopwatch watch = new Stopwatch();
       watch.Start();
@@ -38,54 +35,52 @@ namespace MovieDbLib
 
       if (movie == null)
       {
-        movie = m_movieDownloader.DownloadMovie(_imdbId, _language);
+        movie = _movieDownloader.DownloadMovie(imdbId, language);
         loadedAdditionalInfo = true;
       }
-      else if (!movie.GetAvailableLanguages().Contains(_language))
+      else if (!movie.GetAvailableLanguages().Contains(language))
       {//add additional movie to already existing movie
 
       }
 
-      if (movie != null)
+      if (movie != null && _cacheProvider != null)
       {
-        if (m_cacheProvider != null)
-        {//we're using a cache provider
-          //if we've loaded data from online source -> save to cache
-          if (m_cacheProvider.Initialised && loadedAdditionalInfo)
-          {
-            Log.Info("Store movie " + movie.Id + " with " + m_cacheProvider.ToString());
-            m_cacheProvider.SaveToCache(movie);
-          }
-
-          AddCacheProviderToBanner(movie, m_cacheProvider);
+        //we're using a cache provider
+        //if we've loaded data from online source -> save to cache
+        if (_cacheProvider.Initialised && loadedAdditionalInfo)
+        {
+          Log.Info("Store movie " + movie.Id + " with " + _cacheProvider);
+          _cacheProvider.SaveToCache(movie);
         }
+
+        AddCacheProviderToBanner(movie, _cacheProvider);
       }
       return movie;
     }
 
-    private void AddCacheProviderToBanner(MovieDbMovie _movie, ICacheProvider _cacheProvider)
+    private void AddCacheProviderToBanner(MovieDbMovie movie, ICacheProvider cacheProvider)
     {
       //Store a ref to the cacheprovider and series id in each banner, so the banners
       //can be stored/loaded to/from cache
       #region add cache provider/series id
-      if (_movie.Banners != null)
+      if (movie.Banners != null)
       {
-        _movie.Banners.ForEach(delegate(MovieDbBanner b)
+        movie.Banners.ForEach(delegate(MovieDbBanner b)
         {
-          b.CacheProvider = _cacheProvider;
-          b.ObjectId = _movie.Id;
+          b.CacheProvider = cacheProvider;
+          b.ObjectId = movie.Id;
         });
       }
 
-      if (_movie.Cast != null)
+      if (movie.Cast != null)
       {
-        _movie.Cast.ForEach(delegate(MovieDbCast p)
+        movie.Cast.ForEach(delegate(MovieDbCast p)
         {
           if (p.Images != null)
           {
             p.Images.ForEach(delegate(MovieDbBanner b)
             {
-              b.CacheProvider = _cacheProvider;
+              b.CacheProvider = cacheProvider;
               b.ObjectId = p.Id;
             });
           }
@@ -94,7 +89,7 @@ namespace MovieDbLib
       #endregion
     }
 
-    public MovieDbMovie GetMovie(int _movieId, MovieDbLanguage _language)
+    public MovieDbMovie GetMovie(int movieId, MovieDbLanguage language)
     {
       Stopwatch watch = new Stopwatch();
       watch.Start();
@@ -102,55 +97,56 @@ namespace MovieDbLib
       //Did I get the movie completely from cache or did I have to make an additional online request
       bool loadedAdditionalInfo = false;
 
-      if (m_cacheProvider != null && m_cacheProvider.Initialised)
+      if (_cacheProvider != null && _cacheProvider.Initialised)
       {
-        if (m_cacheProvider.IsMovieCached(_movieId))
+        if (_cacheProvider.IsMovieCached(movieId))
         {
-          movie = m_cacheProvider.LoadMovieFromCache(_movieId);
+          movie = _cacheProvider.LoadMovieFromCache(movieId);
         }
       }
 
       if (movie == null)
       {
-        movie = m_movieDownloader.DownloadMovie(_movieId, _language);
+        movie = _movieDownloader.DownloadMovie(movieId, language);
         loadedAdditionalInfo = true;
       }
-      else if (!movie.GetAvailableLanguages().Contains(_language))
-      {//add additional movie to already existing movie
-
+      else if (!movie.GetAvailableLanguages().Contains(language))
+      {
+        //add additional movie to already existing movie
       }
 
-      if (m_cacheProvider != null)
-      {//we're using a cache provider
+      if (_cacheProvider != null)
+      {
+        //we're using a cache provider
         //if we've loaded data from online source -> save to cache
-        if (m_cacheProvider.Initialised && loadedAdditionalInfo)
+        if (_cacheProvider.Initialised && loadedAdditionalInfo)
         {
-          Log.Info("Store movie " + _movieId + " with " + m_cacheProvider.ToString());
-          m_cacheProvider.SaveToCache(movie);
+          Log.Info("Store movie " + movieId + " with " + _cacheProvider.ToString());
+          _cacheProvider.SaveToCache(movie);
         }
-        AddCacheProviderToBanner(movie, m_cacheProvider);
+        AddCacheProviderToBanner(movie, _cacheProvider);
       }
 
       return movie;
     }
 
-    public List<MovieDbMovie> SearchMovie(String _movieName, MovieDbLanguage _language)
+    public List<MovieDbMovie> SearchMovie(String movieName, MovieDbLanguage language)
     {
-      return m_movieDownloader.MovieSearch(_movieName, _language);
+      return _movieDownloader.MovieSearch(movieName, language);
     }
 
-    public List<MovieDbMovie> SearchMovieByHash(String _movieHash)
+    public List<MovieDbMovie> SearchMovieByHash(String movieHash)
     {
 
-      return m_movieDownloader.MovieSearchByHash(_movieHash);
+      return _movieDownloader.MovieSearchByHash(movieHash);
     }
 
-    public List<MovieDbPerson> SearchPerson(String _personName, MovieDbLanguage _language)
+    public List<MovieDbPerson> SearchPerson(String personName, MovieDbLanguage language)
     {
-      return m_movieDownloader.PersonSearch(_personName, _language);
+      return _movieDownloader.PersonSearch(personName, language);
     }
 
-    public MovieDbPerson GetPerson(int _personId, MovieDbLanguage _language)
+    public MovieDbPerson GetPerson(int personId, MovieDbLanguage language)
     {
       Stopwatch watch = new Stopwatch();
       watch.Start();
@@ -158,27 +154,27 @@ namespace MovieDbLib
       //Did I get the movie completely from cache or did I have to make an additional online request
       bool loadedAdditionalInfo = false;
 
-      if (m_cacheProvider != null && m_cacheProvider.Initialised)
+      if (_cacheProvider != null && _cacheProvider.Initialised)
       {
-        if (m_cacheProvider.IsPersonCached(_personId))
+        if (_cacheProvider.IsPersonCached(personId))
         {
-          person = m_cacheProvider.LoadPersonFromCache(_personId);
+          person = _cacheProvider.LoadPersonFromCache(personId);
         }
       }
 
       if (person == null)
       {
-        person = m_movieDownloader.DownloadPerson(_personId, _language);
+        person = _movieDownloader.DownloadPerson(personId, language);
         loadedAdditionalInfo = true;
       }
 
-      if (m_cacheProvider != null)
+      if (_cacheProvider != null)
       {//we're using a cache provider
         //if we've loaded data from online source -> save to cache
-        if (m_cacheProvider.Initialised && loadedAdditionalInfo)
+        if (_cacheProvider.Initialised && loadedAdditionalInfo)
         {
-          Log.Info("Store person " + _personId + " with " + m_cacheProvider.ToString());
-          m_cacheProvider.SaveToCache(person);
+          Log.Info("Store Person " + personId + " with " + _cacheProvider);
+          _cacheProvider.SaveToCache(person);
         }
         //Store a ref to the cacheprovider and series id in each banner, so the banners
         //can be stored/loaded to/from cache
@@ -187,7 +183,7 @@ namespace MovieDbLib
         {
           person.Images.ForEach(delegate(MovieDbBanner b)
           {
-            b.CacheProvider = m_cacheProvider;
+            b.CacheProvider = _cacheProvider;
             b.ObjectId = person.Id;
           });
         }

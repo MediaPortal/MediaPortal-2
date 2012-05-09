@@ -1,29 +1,24 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using MovieDbLib.Cache;
+﻿using MediaPortal.Extensions.OnlineLibraries.Libraries.MovieDbLib.Cache;
 
-namespace MovieDbLib.Data.Banner
+namespace MediaPortal.Extensions.OnlineLibraries.Libraries.MovieDbLib.Data.Banner
 {
   public class MovieDbBackdrop : MovieDbBanner
   {
     #region private/protected properties
     private const string IMAGE_TYPE = "Backdrops";
-    private BannerSize m_poster;
-    private int m_movieId;
+    private BannerSize _poster;
+
     #endregion
 
     public MovieDbBackdrop()
-      : base()
     {
-      this.MovieId = this.ObjectId;
+      MovieId = ObjectId;
     }
 
 
     public override string ToString()
     {
-      return "Movie Backdrop (" + this.Id + ")";
+      return "Movie Backdrop (" + Id + ")";
     }
 
     /// <summary>
@@ -39,23 +34,19 @@ namespace MovieDbLib.Data.Banner
       set
       {
         base.CacheProvider = value;
-        this.Poster.CacheProvider = value;
+        Poster.CacheProvider = value;
       }
     }
 
-    public int MovieId
-    {
-      get { return m_movieId; }
-      set { m_movieId = value; }
-    }
+    public int MovieId { get; set; }
 
     public BannerSize Poster
     {
-      get { return m_poster; }
+      get { return _poster; }
       set 
       { 
-        m_poster = value;
-        AddBannerSize(BannerSizes.poster, value);
+        _poster = value;
+        AddBannerSize(BannerSizes.Poster, value);
       }
     }
 
