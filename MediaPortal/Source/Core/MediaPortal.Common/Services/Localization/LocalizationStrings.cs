@@ -69,7 +69,7 @@ namespace MediaPortal.Common.Services.Localization
       _culture = culture;
       LoadStrings(languageDirectories, culture);
     }
-  
+
     protected void LoadStrings(IEnumerable<string> languageDirectories, CultureInfo culture2Load)
     {
       if (culture2Load.Parent != CultureInfo.InvariantCulture)
@@ -140,7 +140,14 @@ namespace MediaPortal.Common.Services.Localization
         int pos = filePath.LastIndexOf('_') + 1;
         string cultName = filePath.Substring(pos, filePath.Length - Path.GetExtension(filePath).Length - pos);
 
-        result.Add(CultureInfo.GetCultureInfo(cultName));
+        try
+        {
+          result.Add(CultureInfo.GetCultureInfo(cultName));
+        }
+        catch (ArgumentException)
+        {
+          ServiceRegistration.Get<ILogger>().Warn("Failed to create CultureInfo for language resource file '{0}'", filePath);
+        }
       }
     }
 
@@ -165,34 +172,34 @@ namespace MediaPortal.Common.Services.Localization
       string fileName = string.Format("strings_{0}.xml", culture2Load.Name);
       string filePath = Path.Combine(directory, fileName);
 
-      if (File.Exists(filePath))
-      {
-        StringFile strings;
-        try
-        {
-          XmlSerializer s = new XmlSerializer(typeof(StringFile));
-          Encoding encoding = Encoding.UTF8;
-          using (TextReader r = new StreamReader(filePath, encoding))
-          {
-            strings = (StringFile) s.Deserialize(r);
+      if (!File.Exists(filePath))
+        return;
 
-            foreach (StringSection section in strings.Sections)
-            {
-              IDictionary<string, StringLocalized> sectionContents = _languageStrings.ContainsKey(section.SectionName) ?
-                  _languageStrings[section.SectionName] : new Dictionary<string, StringLocalized>(
-                      StringComparer.Create(CultureInfo.InvariantCulture, true));
-              foreach (StringLocalized languageString in section.LocalizedStrings)
-                sectionContents[languageString.StringName] = languageString;
-              if (sectionContents.Count > 0)
-                _languageStrings[section.SectionName] = sectionContents;
-            }
+      try
+      {
+        XmlSerializer s = new XmlSerializer(typeof(StringFile));
+        Encoding encoding = Encoding.UTF8;
+        using (TextReader r = new StreamReader(filePath, encoding))
+        {
+          StringFile strings = (StringFile) s.Deserialize(r);
+
+          foreach (StringSection section in strings.Sections)
+          {
+            IDictionary<string, StringLocalized> sectionContents = _languageStrings.ContainsKey(section.SectionName) ?
+               _languageStrings[section.SectionName] :
+               new Dictionary<string, StringLocalized>(StringComparer.Create(CultureInfo.InvariantCulture, true));
+
+            foreach (StringLocalized languageString in section.LocalizedStrings)
+              sectionContents[languageString.StringName] = languageString;
+
+            if (sectionContents.Count > 0)
+              _languageStrings[section.SectionName] = sectionContents;
           }
         }
-        catch (Exception ex)
-        {
-          ServiceRegistration.Get<ILogger>().Warn("Failed to load language resource file '{0}'", ex, filePath);
-          return;
-        }
+      }
+      catch (Exception ex)
+      {
+        ServiceRegistration.Get<ILogger>().Warn("Failed to load language resource file '{0}'", ex, filePath);
       }
     }
 
