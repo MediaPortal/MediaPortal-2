@@ -214,6 +214,8 @@
     <Content Include="Skin\Reflexion\themes\default\images\PictureLarge.png" />
     <Content Include="Skin\Reflexion\themes\default\images\PictureSmall.png" />
     <Content Include="Skin\Reflexion\themes\default\images\preview.png" />
+    <None Include="Skin\Reflexion\fonts\DejaVuSans.ttf" />
+    <None Include="Skin\Reflexion\fonts\DejaVuSans.desc" />
     <None Include="Skin\Reflexion\fonts\TitleCaps.desc" />
     <None Include="Skin\Reflexion\fonts\TitleCaps.ttf" />
     <None Include="Skin\Reflexion\themes\default\styles\OtherControlsOverrides.xaml">
