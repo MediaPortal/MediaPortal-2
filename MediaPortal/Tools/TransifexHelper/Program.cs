@@ -1,14 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Globalization;
 using System.IO;
-using System.Linq;
-using System.Reflection;
-using System.Text;
 using System.Threading;
-using System.Xml;
-using System.Xml.XPath;
 using System.Xml.Xsl;
 using CommandLine;
 
@@ -43,9 +37,9 @@ namespace TransifexHelper
 
       targetDir = mpArgs.TargetDir;
 
-      if (mpArgs.Verify)
-        if (!Verify())
-          Environment.Exit(2);
+      // always run verification first
+      if (!Verify())
+        Environment.Exit(2);
 
       if (mpArgs.Push)
         if (!Push())
@@ -94,9 +88,15 @@ namespace TransifexHelper
 
     private static bool Verify()
     {
+      Console.WriteLine();
+      Console.WriteLine("Verifing the Transifex project file against the folder structure...");
+
       bool result = true;
 
-      SearchLangDirs(new DirectoryInfo(targetDir));
+      DirectoryInfo targetDirInfo = new DirectoryInfo(targetDir);
+      Console.WriteLine("Searching language directories in: {0}", targetDirInfo.FullName);
+
+      SearchLangDirs(targetDirInfo);
       LoadTxProjectFile(TransifexConfig());
 
       foreach (IniFile.IniSection section in transifexIni.Sections)
@@ -105,21 +105,23 @@ namespace TransifexHelper
 
         if (!languageDirectories.ContainsKey(section.Name.Split('.')[1]))
         {
-          Console.WriteLine(
-            "A value in TransifexConfig can't be found in folder structure. Please check and fix renamed or deleted project folders. {0}",
-            section.Name);
+          if (result)
+            Console.WriteLine(
+              "A value in TransifexConfig can't be found in folder structure." + Environment.NewLine +
+              "Please check and fix the following projects folders:");
+
+          Console.WriteLine("   " + section.Name);
           result = false;
         }
       }
 
+      if (result)
+        Console.WriteLine("Verifification done. No issues found.");
       return result;
     }
 
     private static bool Push()
     {
-      if (!Verify())
-        Environment.Exit(2);
-
       TransformMP2toAndroid();
       UpdateTransifexConfig();
       ExecutePush();
@@ -133,18 +135,18 @@ namespace TransifexHelper
       processStartInfo.FileName = TransifexClientExe();
       processStartInfo.Arguments = " push -s";
       processStartInfo.WorkingDirectory = TransifexRoot();
+      processStartInfo.RedirectStandardOutput = true;
+      processStartInfo.UseShellExecute = false;
 
       Process process = Process.Start(processStartInfo);
+      Console.Write(process.StandardOutput.ReadToEnd());
       process.WaitForExit();
     }
 
     private static bool Pull()
     {
-      if (!Verify())
-        Environment.Exit(2);
-
-      TransformAndroidToMP2();
       ExecutePull();
+      TransformAndroidToMP2();
 
       return true;
     }
@@ -155,8 +157,11 @@ namespace TransifexHelper
       processStartInfo.FileName = TransifexClientExe();
       processStartInfo.Arguments = " pull -f";
       processStartInfo.WorkingDirectory = TransifexRoot();
+      processStartInfo.RedirectStandardOutput = true;
+      processStartInfo.UseShellExecute = false;
 
       Process process = Process.Start(processStartInfo);
+      Console.Write(process.StandardOutput.ReadToEnd());
       process.WaitForExit();
     }
 
@@ -177,7 +182,8 @@ namespace TransifexHelper
         if (!File.Exists(subDirectory.FullName + "\\strings_en.xml")) break;
 
         // füge langdir zur liste hinzu
-        Console.WriteLine("Language directory found: {0}", subDirectory.FullName);
+        Console.WriteLine("Language directory found: {0}",
+          subDirectory.FullName.Replace(targetDir, string.Empty));
         languageDirectories.Add(subDirectory.Parent.Name, subDirectory);
         langDirFound = true;
       }
@@ -195,8 +201,10 @@ namespace TransifexHelper
 
     private static void TransformMP2toAndroid()
     {
+      Console.WriteLine("Transforming MP2 files to Android file format...");
       foreach (KeyValuePair<string, DirectoryInfo> pair in languageDirectories)
       {
+        Console.WriteLine("   " + pair.Value.FullName.Replace(targetDir, string.Empty));
         string outputDir = TransifexCache() + "\\" + pair.Key;
 
         if (!Directory.Exists(outputDir))
@@ -211,6 +219,7 @@ namespace TransifexHelper
 
     private static void UpdateTransifexConfig()
     {
+      Console.WriteLine("Updating Transifex project file...");
       foreach (KeyValuePair<string, DirectoryInfo> pair in languageDirectories)
       {
         //[MP2.SlimTvClient]
@@ -231,12 +240,14 @@ namespace TransifexHelper
 
     private static void TransformAndroidToMP2()
     {
+      Console.WriteLine("Transforming Android files to MP2 file format...");
       foreach (KeyValuePair<string, DirectoryInfo> pair in languageDirectories)
       {
         string inputDir = TransifexCache() + "\\" + pair.Key;
 
         foreach (FileInfo file in new DirectoryInfo(inputDir).GetFiles())
         {
+          Console.WriteLine("   " + file.FullName.Replace(targetDir, string.Empty));
           XslTransform myXslTransform;
           myXslTransform = new XslTransform();
           myXslTransform.Load(XsltAndroidtoMP2());
