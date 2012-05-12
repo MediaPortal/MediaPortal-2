@@ -1,0 +1,11 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<resources>
+  <string name="Configuration/Name">Einstellungen</string>
+  <string name="Configuration/ConfigurationMainWorkflowNavigationContextDisplayLabel">Einstellungen</string>
+  <string name="Configuration/MainSettings">Haupteinstellungen</string>
+  <string name="Configuration/NoSettingsInThisSection">Keine Einstellungen in diesem Abschnitt</string>
+  <string name="Configuration/ErrorFloatingPointValue">\'{0}\' ist keine gültige Fließkommazahl</string>
+  <string name="Configuration/ErrorIntegerValue">\'{0}\' ist keine gültige Ganzzahl</string>
+  <string name="Configuration/ErrorNumericLowerLimit">Verwenden Sie einen Wert zwischen \'{1}\' und \'{2}\'</string>
+  <string name="Configuration/ErrorNumericUpperLimit">Verwenden Sie einen Wert zwischen \'{1}\' und \'{2}\'</string>
+</resources>

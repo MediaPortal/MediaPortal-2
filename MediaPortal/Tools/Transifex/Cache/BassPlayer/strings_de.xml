@@ -1,0 +1,10 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<resources>
+  <string name="Settings/Players">Player</string>
+  <string name="Settings/Players.Rendering">Ausgabe</string>
+  <string name="Settings/Players.Rendering.CrossFading">Überblenden</string>
+  <string name="Settings/Players.Rendering.CrossFading.CrossFadingEnabled">Überblenden aktiviert</string>
+  <string name="Settings/Players.Rendering.CrossFading.CrossFadingEnabled.Help">Legt fest ob MediaPortal Lieder, wenn möglich, überblenden soll</string>
+  <string name="Settings/Players.Rendering.CrossFading.CrossFadeDuration">Überblendungsdauer</string>
+  <string name="Settings/Players.Rendering.CrossFading.CrossFadeDuration.Help">Dauer der Überblendung in Sekunden</string>
+</resources>

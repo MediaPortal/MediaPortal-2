@@ -1,0 +1,45 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<resources>
+  <string name="Settings/Players.Codecs">Codecs</string>
+  <string name="Settings/Players.Codecs.VideoCodecs">Video Codec</string>
+  <string name="Settings/Players.Codecs.VideoCodecs.MPEG2">MPEG2 Video Codec</string>
+  <string name="Settings/Players.Codecs.VideoCodecs.MPEG2.Help">Legt den Codec für MPEG2 Video fest (DVD, DVB-SD)</string>
+  <string name="Settings/Players.Codecs.VideoCodecs.MPEG4">MPEG4 Video Codec</string>
+  <string name="Settings/Players.Codecs.VideoCodecs.MPEG4.Help">Legt den Codec für MPEG4 Video fest (H.264, x264)</string>
+  <string name="Settings/Players.Codecs.VideoCodecs.AVC">AVC Video Codec</string>
+  <string name="Settings/Players.Codecs.VideoCodecs.AVC.Help">Legt den Codec für AVC Video fest (HDTV, BluRay)</string>
+  <string name="Settings/Players.Codecs.AudioCodecs">Audio Codecs</string>
+  <string name="Settings/Players.Codecs.AudioRenderer">Audio Ausgabegerät</string>
+  <string name="Settings/Players.Codecs.AudioCodecs.AudioCodec">MPEG1/2 Audio Codec</string>
+  <string name="Settings/Players.Codecs.AudioCodecs.AudioCodec.Help">Legt den Codec für MPEG1/2 Audio fest</string>
+  <string name="Settings/Players.Codecs.AudioCodecs.AudioCodecLATMAAC">LATM-AAC Audio Codec</string>
+  <string name="Settings/Players.Codecs.AudioCodecs.AudioCodecLATMAAC.Help">Legt den Codec für LATM-AAC Audio fest</string>
+  <string name="Settings/Players.Codecs.AudioCodecs.AudioCodecAAC">AAC Audio Codec</string>
+  <string name="Settings/Players.Codecs.AudioCodecs.AudioCodecAAC.Help">Legt den Codec für AAC Audio fest</string>
+  <string name="Settings/Players.Codecs.AudioCodecs.AudioRenderer">Audio Ausgabegerät</string>
+  <string name="Settings/Players.Codecs.AudioCodecs.AudioRenderer.Help">Legt das Audio Ausgabegerät fest</string>
+  <string name="Settings/Players.VideoPlayer">Video Player</string>
+  <string name="Settings/Players.VideoPlayer.PreferMultiChannelAudio">Mehrkanalton bevorzugen</string>
+  <string name="Settings/Players.VideoPlayer.PreferMultiChannelAudio.Help">Wenn aktiviert, werden Tonspuren mit 6 Kanälen bevorzugt (z.B. AC3, AAC)</string>
+  <string name="Settings/Players.DVDPlayer">DVD Wiedergabe</string>
+  <string name="Settings/Players.DVDPlayer.EnableClosedCaption">Closed Captions</string>
+  <string name="Settings/Players.DVDPlayer.EnableClosedCaption.Help">Wählen Sie, ob \"Closed Captions\" automatisch aktiviert werden sollen</string>
+  <string name="Settings/Players.DVDPlayer.EnableSubtitles">Untertitel</string>
+  <string name="Settings/Players.DVDPlayer.EnableSubtitles.Help">Legt fest, ob Untertitel aktiviert werden sollen</string>
+  <string name="Playback/NotSpecified">Nicht angegeben</string>
+  <string name="Playback/CaptionNormal">Normal Caption</string>
+  <string name="Playback/CaptionBig">Big Caption</string>
+  <string name="Playback/CaptionChildren">Children Caption</string>
+  <string name="Playback/CCNormal">Normal CC</string>
+  <string name="Playback/CCBig">Big CC</string>
+  <string name="Playback/CCChildren">Children CC</string>
+  <string name="Playback/Forced">Forced</string>
+  <string name="Playback/DirectorCommentsNormal">Director Comments Normal</string>
+  <string name="Playback/DirectorCommentsBig">Director Comments Big</string>
+  <string name="Playback/DirectorCommentsChildren">Director Comments Children</string>
+  <string name="Playback/VisuallyImpaired">Visually Impaired</string>
+  <string name="Playback/DirectorComments1">Director Comments</string>
+  <string name="Playback/DirectorComments2">Director Comments (2)</string>
+  <string name="Playback/Chapter">Kapitel {0}</string>
+  <string name="Playback/Title">Titel {0}</string>
+</resources>

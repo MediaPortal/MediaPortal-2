@@ -29,4 +29,7 @@ rem ..\tx push -t -r MP2.Weather -l de
 rem pulling translations from Transifex
 rem tx pull -f -a
 
+rem pulling translations for a special language from Transifex.
+rem ..\tx pull -f -l de
+
 pause
