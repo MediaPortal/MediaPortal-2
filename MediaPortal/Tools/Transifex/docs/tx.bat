@@ -22,7 +22,11 @@ rem pushing the templates to Transifex
 rem tx push -s
 
 
+rem pushing a single translation (translated language file - non-english) to Transifex
+rem ..\tx push -t -r MP2.Weather -l de
+
+
 rem pulling translations from Transifex
-tx pull -f -a
+rem tx pull -f -a
 
 pause
