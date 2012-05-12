@@ -81,7 +81,7 @@ namespace MediaPortal.UiComponents.Media.Models
     #region Public members
 
     /// <summary>
-    /// Gets the current media navigation mode.
+    /// Gets or sets the current media navigation mode.
     /// </summary>
     /// <remarks>
     /// The media navigation mode determines the media library part which is navigated: Audio, Videos or Images. Other
@@ -90,18 +90,7 @@ namespace MediaPortal.UiComponents.Media.Models
     /// </remarks>
     public MediaNavigationMode Mode
     {
-      get
-      {
-        if (_currentNavigationContext == null)
-          return MediaNavigationMode.BrowseLocalMedia;
-        return (_currentNavigationContext.GetContextVariable(Consts.KEY_NAVIGATION_MODE, true) as MediaNavigationMode?) ?? MediaNavigationMode.BrowseLocalMedia;
-      }
-      internal set
-      {
-        if (_currentNavigationContext == null)
-          return;
-        _currentNavigationContext.SetContextVariable(Consts.KEY_NAVIGATION_MODE, value);
-      }
+      get { return GetMode(_currentNavigationContext); }
     }
 
     /// <summary>
@@ -175,6 +164,20 @@ namespace MediaPortal.UiComponents.Media.Models
 
     #region Protected members
 
+    protected internal static MediaNavigationMode GetMode(NavigationContext context)
+    {
+      if (context == null)
+        return MediaNavigationMode.BrowseLocalMedia;
+      return (context.GetContextVariable(Consts.KEY_NAVIGATION_MODE, true) as MediaNavigationMode?) ?? MediaNavigationMode.BrowseLocalMedia;
+    }
+
+    protected internal static void SetMode(MediaNavigationMode mode, NavigationContext context)
+    {
+      if (context == null)
+        return;
+      context.SetContextVariable(Consts.KEY_NAVIGATION_MODE, mode);
+    }
+
     protected internal static NavigationData GetNavigationData(NavigationContext navigationContext, bool inheritFromPredecessor)
     {
       return navigationContext.GetContextVariable(Consts.KEY_NAVIGATION_DATA, inheritFromPredecessor) as NavigationData;
@@ -243,13 +246,13 @@ namespace MediaPortal.UiComponents.Media.Models
     // Currently, we don't track skin changes while we're in the media navigation. Normally, that should not be necessary because to switch the skin,
     // the user has to navigate out of media navigation. If we wanted to track skin changes and then update all our navigation data,
     // we would need to register a plugin item registration change listener, which would need to trigger an update of all active media state data.
-    protected IEnumerable<Guid> GetMediaSkinOptionalMIATypes(MediaNavigationMode navigationMode)
+    protected static IEnumerable<Guid> GetMediaSkinOptionalMIATypes(MediaNavigationMode navigationMode)
     {
       IScreenManager screenManager = ServiceRegistration.Get<IScreenManager>();
       return GetMediaSkinOptionalMIATypes(navigationMode, screenManager.CurrentSkinResourceBundle);
     }
 
-    protected IEnumerable<Guid> GetMediaSkinOptionalMIATypes(MediaNavigationMode navigationMode, ISkinResourceBundle bundle)
+    protected static IEnumerable<Guid> GetMediaSkinOptionalMIATypes(MediaNavigationMode navigationMode, ISkinResourceBundle bundle)
     {
       if (bundle == null)
         return EMPTY_GUID_LIST;
@@ -267,18 +270,22 @@ namespace MediaPortal.UiComponents.Media.Models
       return result.Union(GetMediaSkinOptionalMIATypes(navigationMode, bundle.InheritedSkinResources));
     }
 
-    protected void PrepareRootState()
+    /// <summary>
+    /// Returns context variables to be set for the given workflow state id.
+    /// </summary>
+    /// <param name="workflowStateId">Workflow state which determines the root media navigation state.</param>
+    /// <returns>Mapping of context variable keys to values.</returns>
+    protected static IDictionary<string, object> PrepareRootState(Guid workflowStateId)
     {
-      // Initialize root media navigation state. We will set up all sub processes for each media model "part", i.e.
-      // audio, videos, images, browse local media and browse media library.
-      Guid currentStateId = _currentNavigationContext.WorkflowState.StateId;
+      IDictionary<string, object> result = new Dictionary<string, object>();
       // The initial state ID determines the media model "part" to initialize: Browse local media, browse media library, audio, videos or images.
       // The media model part determines the media navigation mode and the view contents to be set.
       NavigationData navigationData;
-      if (currentStateId == Consts.WF_STATE_ID_AUDIO_NAVIGATION_ROOT)
+      MediaNavigationMode mode;
+      if (workflowStateId == Consts.WF_STATE_ID_AUDIO_NAVIGATION_ROOT)
       {
-        Mode = MediaNavigationMode.Audio;
-        IEnumerable<Guid> skinDependentOptionalMIATypeIDs = GetMediaSkinOptionalMIATypes(Mode);
+        mode = MediaNavigationMode.Audio;
+        IEnumerable<Guid> skinDependentOptionalMIATypeIDs = GetMediaSkinOptionalMIATypes(mode);
         AbstractItemsScreenData.PlayableItemCreatorDelegate picd = mi => new AudioItem(mi)
           {
               Command = new MethodDelegateCommand(() => PlayItemsModel.CheckQueryPlayAction(mi))
@@ -311,16 +318,16 @@ namespace MediaPortal.UiComponents.Media.Models
               new SortByYear(),
               new SortBySystem(),
           };
-        navigationData = new NavigationData(null, Consts.RES_AUDIO_VIEW_NAME, currentStateId,
-            currentStateId, rootViewSpecification, filterByAlbum, availableScreens, sortByAlbumTrack)
+        navigationData = new NavigationData(null, Consts.RES_AUDIO_VIEW_NAME, workflowStateId,
+            workflowStateId, rootViewSpecification, filterByAlbum, availableScreens, sortByAlbumTrack)
           {
               AvailableSortings = availableSortings
           };
       }
-      else if (currentStateId == Consts.WF_STATE_ID_VIDEOS_NAVIGATION_ROOT)
+      else if (workflowStateId == Consts.WF_STATE_ID_VIDEOS_NAVIGATION_ROOT)
       {
-        Mode = MediaNavigationMode.Videos;
-        IEnumerable<Guid> skinDependentOptionalMIATypeIDs = GetMediaSkinOptionalMIATypes(Mode);
+        mode = MediaNavigationMode.Videos;
+        IEnumerable<Guid> skinDependentOptionalMIATypeIDs = GetMediaSkinOptionalMIATypes(mode);
         AbstractItemsScreenData.PlayableItemCreatorDelegate picd = mi => new VideoItem(mi)
           {
               Command = new MethodDelegateCommand(() => PlayItemsModel.CheckQueryPlayAction(mi))
@@ -353,16 +360,16 @@ namespace MediaPortal.UiComponents.Media.Models
               new VideoSortByAspectRatio(),
               new SortBySystem(),
           };
-        navigationData = new NavigationData(null, Consts.RES_VIDEOS_VIEW_NAME, currentStateId,
-            currentStateId, rootViewSpecification, filterByGenre, availableScreens, sortByTitle)
+        navigationData = new NavigationData(null, Consts.RES_VIDEOS_VIEW_NAME, workflowStateId,
+            workflowStateId, rootViewSpecification, filterByGenre, availableScreens, sortByTitle)
           {
               AvailableSortings = availableSortings
           };
       } 
-      else if (currentStateId == Consts.WF_STATE_ID_SERIES_NAVIGATION_ROOT)
+      else if (workflowStateId == Consts.WF_STATE_ID_SERIES_NAVIGATION_ROOT)
       {
-        Mode = MediaNavigationMode.Videos;
-        IEnumerable<Guid> skinDependentOptionalMIATypeIDs = GetMediaSkinOptionalMIATypes(Mode);
+        mode = MediaNavigationMode.Videos;
+        IEnumerable<Guid> skinDependentOptionalMIATypeIDs = GetMediaSkinOptionalMIATypes(mode);
         AbstractItemsScreenData.PlayableItemCreatorDelegate picd = mi => new SeriesItem(mi)
           {
               Command = new MethodDelegateCommand(() => PlayItemsModel.CheckQueryPlayAction(mi))
@@ -389,16 +396,16 @@ namespace MediaPortal.UiComponents.Media.Models
               new SortByDate(),
               new SortBySystem(),
           };
-        navigationData = new NavigationData(null, Consts.RES_SERIES_VIEW_NAME, currentStateId,
-            currentStateId, rootViewSpecification, filterBySeries, availableScreens, sortByEpisode)
+        navigationData = new NavigationData(null, Consts.RES_SERIES_VIEW_NAME, workflowStateId,
+            workflowStateId, rootViewSpecification, filterBySeries, availableScreens, sortByEpisode)
           {
               AvailableSortings = availableSortings
           };
       }
-      else if (currentStateId == Consts.WF_STATE_ID_IMAGES_NAVIGATION_ROOT)
+      else if (workflowStateId == Consts.WF_STATE_ID_IMAGES_NAVIGATION_ROOT)
       {
-        Mode = MediaNavigationMode.Images;
-        IEnumerable<Guid> skinDependentOptionalMIATypeIDs = GetMediaSkinOptionalMIATypes(Mode);
+        mode = MediaNavigationMode.Images;
+        IEnumerable<Guid> skinDependentOptionalMIATypeIDs = GetMediaSkinOptionalMIATypes(mode);
         AbstractItemsScreenData.PlayableItemCreatorDelegate picd = mi => new ImageItem(mi)
           {
               Command = new MethodDelegateCommand(() => PlayItemsModel.CheckQueryPlayAction(mi))
@@ -425,8 +432,8 @@ namespace MediaPortal.UiComponents.Media.Models
               new ImageSortBySize(),
               new SortBySystem(),
           };
-        navigationData = new NavigationData(null, Consts.RES_IMAGES_VIEW_NAME, currentStateId,
-            currentStateId, rootViewSpecification, filterByYear, availableScreens, sortByYear)
+        navigationData = new NavigationData(null, Consts.RES_IMAGES_VIEW_NAME, workflowStateId,
+            workflowStateId, rootViewSpecification, filterByYear, availableScreens, sortByYear)
           {
               AvailableSortings = availableSortings
           };
@@ -435,17 +442,17 @@ namespace MediaPortal.UiComponents.Media.Models
       {
         // If we were called with a supported root state, we should be either in state WF_STATE_ID_LOCAL_MEDIA_NAVIGATION_ROOT
         // or WF_STATE_ID_MEDIA_BROWSE_NAVIGATION_ROOT here
-        if (currentStateId != Consts.WF_STATE_ID_LOCAL_MEDIA_NAVIGATION_ROOT &&
-            currentStateId != Consts.WF_STATE_ID_BROWSE_MEDIA_NAVIGATION_ROOT)
+        if (workflowStateId != Consts.WF_STATE_ID_LOCAL_MEDIA_NAVIGATION_ROOT &&
+            workflowStateId != Consts.WF_STATE_ID_BROWSE_MEDIA_NAVIGATION_ROOT)
         {
           // Error case: We cannot handle the given state
-          ServiceRegistration.Get<ILogger>().Warn("MediaNavigationModel: Unknown root workflow state with ID '{0}', initializing local media navigation", currentStateId);
+          ServiceRegistration.Get<ILogger>().Warn("MediaNavigationModel: Unknown root workflow state with ID '{0}', initializing local media navigation", workflowStateId);
           // We simply use the local media mode as fallback for this case, so we go on
-          currentStateId = Consts.WF_STATE_ID_LOCAL_MEDIA_NAVIGATION_ROOT;
+          workflowStateId = Consts.WF_STATE_ID_LOCAL_MEDIA_NAVIGATION_ROOT;
         }
-        Mode = currentStateId == Consts.WF_STATE_ID_LOCAL_MEDIA_NAVIGATION_ROOT ? MediaNavigationMode.BrowseLocalMedia :
+        mode = workflowStateId == Consts.WF_STATE_ID_LOCAL_MEDIA_NAVIGATION_ROOT ? MediaNavigationMode.BrowseLocalMedia :
             MediaNavigationMode.BrowseMediaLibrary;
-        IEnumerable<Guid> skinDependentOptionalMIATypeIDs = GetMediaSkinOptionalMIATypes(Mode);
+        IEnumerable<Guid> skinDependentOptionalMIATypeIDs = GetMediaSkinOptionalMIATypes(mode);
         AbstractItemsScreenData.PlayableItemCreatorDelegate picd = mi =>
           {
             if (mi.Aspects.ContainsKey(AudioAspect.ASPECT_ID))
@@ -476,13 +483,13 @@ namespace MediaPortal.UiComponents.Media.Models
                 VideoAspect.ASPECT_ID,
                 ImageAspect.ASPECT_ID,
             }.Union(skinDependentOptionalMIATypeIDs);
-        string viewName = currentStateId == Consts.WF_STATE_ID_LOCAL_MEDIA_NAVIGATION_ROOT ?
+        string viewName = workflowStateId == Consts.WF_STATE_ID_LOCAL_MEDIA_NAVIGATION_ROOT ?
             Consts.RES_LOCAL_MEDIA_ROOT_VIEW_NAME : Consts.RES_BROWSE_MEDIA_ROOT_VIEW_NAME;
-        ViewSpecification rootViewSpecification = currentStateId == Consts.WF_STATE_ID_LOCAL_MEDIA_NAVIGATION_ROOT ?
+        ViewSpecification rootViewSpecification = workflowStateId == Consts.WF_STATE_ID_LOCAL_MEDIA_NAVIGATION_ROOT ?
             new AddedRemovableMediaViewSpecificationFacade(new LocalSharesViewSpecification(viewName, necessaryMIATypeIDs, optionalMIATypeIDs)) :
             new AddedRemovableMediaViewSpecificationFacade(new AllSystemsViewSpecification(viewName, necessaryMIATypeIDs, optionalMIATypeIDs));
         // Dynamic screens remain null - browse media states don't provide dynamic filters
-        AbstractScreenData screenData = currentStateId == Consts.WF_STATE_ID_LOCAL_MEDIA_NAVIGATION_ROOT ?
+        AbstractScreenData screenData = workflowStateId == Consts.WF_STATE_ID_LOCAL_MEDIA_NAVIGATION_ROOT ?
             (AbstractScreenData) new LocalMediaNavigationScreenData(picd) : new BrowseMediaNavigationScreenData(picd);
         Sorting.Sorting browseDefaultSorting = new BrowseDefaultSorting();
         ICollection<Sorting.Sorting> availableSortings = new List<Sorting.Sorting>
@@ -492,13 +499,15 @@ namespace MediaPortal.UiComponents.Media.Models
               new SortByDate(),
               // We could offer sortings here which are specific for one media item type but which will cope with all three item types (and sort items of the three types in a defined order)
           };
-        navigationData = new NavigationData(null, viewName, currentStateId,
-            currentStateId, rootViewSpecification, screenData, null, browseDefaultSorting)
+        navigationData = new NavigationData(null, viewName, workflowStateId,
+            workflowStateId, rootViewSpecification, screenData, null, browseDefaultSorting)
           {
               AvailableSortings = availableSortings
           };
       }
-      SetNavigationData(navigationData, _currentNavigationContext);
+      result.Add(Consts.KEY_NAVIGATION_MODE, mode);
+      result.Add(Consts.KEY_NAVIGATION_DATA, navigationData);
+      return result;
     }
 
     /// <summary>
@@ -509,8 +518,13 @@ namespace MediaPortal.UiComponents.Media.Models
     {
       _currentNavigationContext = context;
       NavigationData navigationData = GetNavigationData(context, false);
-      if (navigationData == null)
-        PrepareRootState();
+      if (navigationData != null)
+        return;
+      // Initialize root media navigation state. We will set up all sub processes for each media model "part", i.e.
+      // audio, videos, images, browse local media and browse media library.
+      IDictionary<string, object > contextVariables = PrepareRootState(context.WorkflowState.StateId);
+      foreach (KeyValuePair<string, object> variable in contextVariables)
+        context.SetContextVariable(variable.Key, variable.Value);
     }
 
     protected void ReleaseModelData()

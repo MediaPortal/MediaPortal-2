@@ -417,31 +417,29 @@ namespace MediaPortal.Common.ResourceAccess
       }
     }
 
-    /// <summary>
-    /// Returns the information whether this path shares the same path prefix of the given <paramref name="prefixLen"/>
-    /// with the given <paramref name="other"/> path.
-    /// </summary>
-    /// <param name="other">Other path to compare to this path.</param>
-    /// <param name="prefixLen">Count of path segments to compare.</param>
-    /// <returns></returns>
-    public bool HasSamePrefix(ResourcePath other, int prefixLen)
+    protected static ICollection<string> UnrollPathSegments(ResourcePath rp)
     {
-      if (prefixLen > _pathSegments.Count || prefixLen > other._pathSegments.Count)
-        return false;
-      for (int i = 0; i < prefixLen; i++)
-        if (_pathSegments[i] != other._pathSegments[i])
-          return false;
-      return true;
+      ICollection<string> result = new List<string>();
+      foreach (ProviderPathSegment segment in rp._pathSegments)
+      {
+        result.Add(segment.ProviderId.ToString());
+        CollectionUtils.AddAll(result, segment.Path.Split(new char[] {'/'}, StringSplitOptions.RemoveEmptyEntries));
+      }
+      return result;
     }
 
     public bool IsSameOrParentOf(ResourcePath other)
     {
-      return HasSamePrefix(other, _pathSegments.Count);
+      ICollection<string> thisPathSegments = UnrollPathSegments(this);
+      ICollection<string> thatPathSegments = UnrollPathSegments(other);
+      return thatPathSegments.StartsWith(thisPathSegments, StringComparer.InvariantCulture);
     }
 
     public bool IsParentOf(ResourcePath other)
     {
-      return _pathSegments.Count < other._pathSegments.Count && HasSamePrefix(other, _pathSegments.Count);
+      ICollection<string> thisPathSegments = UnrollPathSegments(this);
+      ICollection<string> thatPathSegments = UnrollPathSegments(other);
+      return thisPathSegments.Count < thatPathSegments.Count && thatPathSegments.StartsWith(thisPathSegments, StringComparer.InvariantCulture);
     }
 
     #region IEnumerable<ProviderPathSegment> implementation

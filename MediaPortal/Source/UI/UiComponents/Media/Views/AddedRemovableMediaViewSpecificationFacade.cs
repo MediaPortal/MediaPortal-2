@@ -37,7 +37,7 @@ namespace MediaPortal.UiComponents.Media.Views
     #region Protected fields
 
     protected ICollection<RemovableDriveViewSpecification> _removableDriveVS = new List<RemovableDriveViewSpecification>();
-    protected ViewSpecification _delegate;
+    protected ViewSpecification _delegateVS;
 
     #endregion
 
@@ -50,22 +50,27 @@ namespace MediaPortal.UiComponents.Media.Views
         IEnumerable<Guid> necessaryMIATypeIds, IEnumerable<Guid> optionalMIATypeIds) :
         base(viewDisplayName, necessaryMIATypeIds, optionalMIATypeIds)
     {
-      _delegate = dlgt;
+      _delegateVS = dlgt;
       _removableDriveVS = RemovableDriveViewSpecification.CreateViewSpecificationsForRemovableDrives(_necessaryMIATypeIds, _optionalMIATypeIds);
     }
 
     #endregion
 
+    public ViewSpecification DelegateViewSpecification
+    {
+      get { return _delegateVS; }
+    }
+
     #region Base overrides
 
     public override bool CanBeBuilt
     {
-      get { return _delegate.CanBeBuilt; }
+      get { return _delegateVS.CanBeBuilt; }
     }
 
     public override IViewChangeNotificator GetChangeNotificator()
     {
-      IViewChangeNotificator delegateChangeNotificator = _delegate.GetChangeNotificator();
+      IViewChangeNotificator delegateChangeNotificator = _delegateVS.GetChangeNotificator();
       IViewChangeNotificator removableDriveChangeNotificator = CombinedViewChangeNotificator.CombineViewChangeNotificators(_removableDriveVS);
       IList<IViewChangeNotificator> subChangeNotificators = new List<IViewChangeNotificator>(2);
       if (delegateChangeNotificator != null)
@@ -81,7 +86,7 @@ namespace MediaPortal.UiComponents.Media.Views
 
     protected internal override void ReLoadItemsAndSubViewSpecifications(out IList<MediaItem> mediaItems, out IList<ViewSpecification> subViewSpecifications)
     {
-      _delegate.ReLoadItemsAndSubViewSpecifications(out mediaItems, out subViewSpecifications);
+      _delegateVS.ReLoadItemsAndSubViewSpecifications(out mediaItems, out subViewSpecifications);
       foreach (RemovableDriveViewSpecification rdvs in _removableDriveVS)
       {
         IList<MediaItem> rdvsItems;

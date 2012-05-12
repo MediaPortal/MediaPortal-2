@@ -101,6 +101,8 @@
   <ItemGroup>
     <Compile Include="Actions\AddViewToPlaylistAction.cs" />
     <Compile Include="Actions\BrowseMediaAction.cs" />
+    <Compile Include="Actions\BaseTrackServerConnectionAction.cs" />
+    <Compile Include="Actions\SwitchBrowseLocalMLAction.cs" />
     <Compile Include="Actions\SeriesSeasonAction.cs" />
     <Compile Include="Actions\SeriesAction.cs" />
     <Compile Include="Actions\SwitchSortingAction.cs" />
@@ -112,7 +114,7 @@
     <Compile Include="Actions\VideosAction.cs" />
     <Compile Include="Actions\AudioAction.cs" />
     <Compile Include="Actions\ShowPlaylistAction.cs" />
-    <Compile Include="Actions\TrackServerConnectionBaseAction.cs" />
+    <Compile Include="Actions\VisibilityDependsOnServerConnectStateAction.cs" />
     <Compile Include="Actions\BrowseLocalMediaAction.cs" />
     <Compile Include="Controls\AudioSpectrumAnalyzer.cs" />
     <Compile Include="FilterCriteria\FilterBySystemCriterion.cs" />
@@ -125,6 +127,7 @@
     <Compile Include="Models\IPlayerUIContributor.cs" />
     <Compile Include="Models\DVDPlayerUIContributor.cs" />
     <Compile Include="Models\Navigation\SeriesItem.cs" />
+    <Compile Include="Models\ScreenData\AbstractBrowseMediaNavigationScreenData.cs" />
     <Compile Include="Models\ScreenData\SeriesShowItemsScreenData.cs" />
     <Compile Include="Models\ScreenData\SeriesFilterBySeasonScreenData.cs" />
     <Compile Include="Models\ScreenData\SeriesFilterByNameScreenData.cs" />

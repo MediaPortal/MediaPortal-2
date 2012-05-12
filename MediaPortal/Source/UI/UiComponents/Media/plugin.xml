@@ -44,6 +44,7 @@
     <Model Id="3CE266A6-95C9-412E-B93F-FA15DFD63442" Name="RemovePlaylistsContributorModel" ClassName="MediaPortal.UiComponents.Media.Actions.RemovePlaylistsAction"/>
     <Model Id="4BDAE589-15AF-4B84-B930-9F24E66841BB" Name="SwitchViewModeContributorModel" ClassName="MediaPortal.UiComponents.Media.Actions.SwitchViewModeAction"/>
     <Model Id="D447F742-5592-48FF-B189-C1868FB6740F" Name="SwitchSortingContributorModel" ClassName="MediaPortal.UiComponents.Media.Actions.SwitchSortingAction"/>
+    <Model Id="F1DBEDCB-CB95-4CF5-8787-07390869DE44" Name="SwitchBrowseLocalMLContributorModel" ClassName="MediaPortal.UiComponents.Media.Actions.SwitchBrowseLocalMLAction"/>
 
     <Model Id="8573DBD8-A257-426a-9875-9DB155D32D47" Name="ExtendedVideoSkip" ClassName="MediaPortal.UiComponents.Media.Models.ExtendedVideoSkip" />
   </Register>

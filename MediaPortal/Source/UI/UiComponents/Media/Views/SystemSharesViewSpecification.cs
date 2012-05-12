@@ -66,6 +66,11 @@ namespace MediaPortal.UiComponents.Media.Views
 
     #endregion
 
+    public string SystemId
+    {
+      get { return _systemId; }
+    }
+
     #region Base overrides
 
     public override bool CanBeBuilt

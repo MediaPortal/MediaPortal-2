@@ -30,7 +30,7 @@ using MediaPortal.UiComponents.Media.Models;
 
 namespace MediaPortal.UiComponents.Media.Actions
 {
-  public class ManagePlaylistsAction : TrackServerConnectionBaseAction
+  public class ManagePlaylistsAction : VisibilityDependsOnServerConnectStateAction
   {
     #region Consts
 

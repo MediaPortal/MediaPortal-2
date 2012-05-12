@@ -33,6 +33,9 @@
     <String Name="ImageFilterMedium" Text="Medium"/>
     <String Name="ImageFilterBig" Text="Big"/>
 
+    <String Name="SwitchToBrowseMLView" Text="To server view"/>
+    <String Name="SwitchToLocalMediaView" Text="To local view"/>
+
     <!-- Navbar display labels for sub view navigation -->
     <String Name="BrowseMediaNavigationNavbarDisplayLabel" Text="{0}"/> <!-- For example: "R.E.M." -->
     <String Name="LocalMediaNavigationNavbarDisplayLabel" Text="{0}"/> <!-- For example: "R.E.M." -->

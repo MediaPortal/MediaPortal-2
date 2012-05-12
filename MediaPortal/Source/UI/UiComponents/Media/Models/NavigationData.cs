@@ -220,7 +220,8 @@ namespace MediaPortal.UiComponents.Media.Models
     /// <param name="subViewSpecification">Specification for the sub view to be shown in the new navigation context.</param>
     /// <param name="visibleScreen">Screen which should be visible in the new navigation context.</param>
     /// <param name="navbarDisplayLabel">Display label to be shown in the navigation bar for the new navigation context.</param>
-    public void StackSubordinateNavigationContext(ViewSpecification subViewSpecification, AbstractScreenData visibleScreen,
+    /// <returns>Newly created navigation data.</returns>
+    public NavigationData StackSubordinateNavigationContext(ViewSpecification subViewSpecification, AbstractScreenData visibleScreen,
         string navbarDisplayLabel)
     {
       WorkflowState newState = WorkflowState.CreateTransientState(
@@ -229,6 +230,7 @@ namespace MediaPortal.UiComponents.Media.Models
       NavigationData newNavigationData = new NavigationData(this, subViewSpecification.ViewDisplayName,
           _baseWorkflowStateId, newState.StateId, subViewSpecification, visibleScreen, _availableScreens, _currentSorting, true);
       PushNewNavigationWorkflowState(newState, navbarDisplayLabel, newNavigationData);
+      return newNavigationData;
     }
 
     /// <summary>
@@ -238,7 +240,8 @@ namespace MediaPortal.UiComponents.Media.Models
     /// <param name="subViewSpecification">Specification for the sub view to be shown in the new navigation context.</param>
     /// <param name="remainingScreens">New collection of remaining available screens.</param>
     /// <param name="navbarDisplayLabel">Display label to be shown in the navigation bar for the new navigation context.</param>
-    public void StackAutonomousNavigationContext(ViewSpecification subViewSpecification,
+    /// <returns>Newly created navigation data.</returns>
+    public NavigationData StackAutonomousNavigationContext(ViewSpecification subViewSpecification,
         ICollection<AbstractScreenData> remainingScreens, string navbarDisplayLabel)
     {
       WorkflowState newState = WorkflowState.CreateTransientState(
@@ -248,6 +251,7 @@ namespace MediaPortal.UiComponents.Media.Models
           newState.StateId, newState.StateId, subViewSpecification, remainingScreens.FirstOrDefault(), remainingScreens,
           _currentSorting);
       PushNewNavigationWorkflowState(newState, navbarDisplayLabel, newNavigationData);
+      return newNavigationData;
     }
 
     protected static void PushNewNavigationWorkflowState(WorkflowState newState, string navbarDisplayLabel, NavigationData newNavigationData)

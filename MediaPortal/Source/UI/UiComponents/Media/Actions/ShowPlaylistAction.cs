@@ -121,7 +121,7 @@ namespace MediaPortal.UiComponents.Media.Actions
             break;
           case AVType.Video:
             displayTitleRes = pc.PlayerSlotController.SlotIndex == PlayerManagerConsts.PRIMARY_SLOT ?
-                Consts.RES_SHOW_VIDEO_IMAGE_PLAYLIST_RES : Consts.RES_SHOW_PIP_PLAYLIST;
+                Consts.RES_SHOW_VIDEO_IMAGE_PLAYLIST : Consts.RES_SHOW_PIP_PLAYLIST;
             break;
           default:
             // Unknown player context type

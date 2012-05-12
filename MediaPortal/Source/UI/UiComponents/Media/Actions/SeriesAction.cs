@@ -27,7 +27,7 @@ using MediaPortal.UiComponents.Media.General;
 
 namespace MediaPortal.UiComponents.Media.Actions
 {
-  public class SeriesAction : TrackServerConnectionBaseAction
+  public class SeriesAction : VisibilityDependsOnServerConnectStateAction
   {
     #region Consts
 

@@ -207,8 +207,10 @@ namespace MediaPortal.UiComponents.Media.General
     public const string RES_SAVE_PLAYLIST = "[Media.SavePlaylistAction]";
     public const string RES_SAVE_CURRENT_PLAYLIST = "[Media.SaveCurrentPlaylistAction]";
     public const string RES_SHOW_AUDIO_PLAYLIST = "[Media.ShowAudioPlaylistAction]";
-    public const string RES_SHOW_VIDEO_IMAGE_PLAYLIST_RES = "[Media.ShowVideoImagePlaylistAction]";
+    public const string RES_SHOW_VIDEO_IMAGE_PLAYLIST = "[Media.ShowVideoImagePlaylistAction]";
     public const string RES_SHOW_PIP_PLAYLIST = "[Media.ShowPiPPlaylistAction]";
+    public const string RES_SWITCH_TO_BROWSE_ML_VIEW = "[Media.SwitchToBrowseMLView]";
+    public const string RES_SWITCH_TO_LOCAL_MEDIA_VIEW = "[Media.SwitchToLocalMediaView]";
 
     // DVD
     public const string RES_SUBTITLE_OFF = "[Media.SubtitleOff]";

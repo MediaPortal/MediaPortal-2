@@ -27,13 +27,13 @@ using MediaPortal.UiComponents.Media.General;
 
 namespace MediaPortal.UiComponents.Media.Actions
 {
-  public class BrowseMediaAction : TrackServerConnectionBaseAction
+  public class BrowseMediaAction : VisibilityDependsOnServerConnectStateAction
   {
     #region Consts
 
     public const string BROWSE_MEDIA_CONTRIBUTOR_MODEL_ID_STR = "92F6CE34-CB28-40f7-9136-AB576F479F94";
 
-    public static readonly Guid LOCAL_MEDIA_CONTRIBUTOR_MODEL_ID = new Guid(BROWSE_MEDIA_CONTRIBUTOR_MODEL_ID_STR);
+    public static readonly Guid BROWSE_MEDIA_CONTRIBUTOR_MODEL_ID = new Guid(BROWSE_MEDIA_CONTRIBUTOR_MODEL_ID_STR);
 
     #endregion
 

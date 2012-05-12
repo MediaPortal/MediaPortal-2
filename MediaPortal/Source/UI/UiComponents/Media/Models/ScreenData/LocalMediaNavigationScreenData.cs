@@ -26,7 +26,7 @@ using MediaPortal.UiComponents.Media.General;
 
 namespace MediaPortal.UiComponents.Media.Models.ScreenData
 {
-  public class LocalMediaNavigationScreenData : AbstractItemsScreenData
+  public class LocalMediaNavigationScreenData : AbstractBrowseMediaNavigationScreenData
   {
     public LocalMediaNavigationScreenData(PlayableItemCreatorDelegate playableItemCreator) :
         base(Consts.SCREEN_LOCAL_MEDIA_NAVIGATION, null, Consts.RES_LOCAL_MEDIA_NAVIGATION_NAVBAR_DISPLAY_LABEL,

@@ -37,6 +37,12 @@
         SortOrder="f"
         SourceStates="7F702D9C-F2DD-42da-9ED8-0BA92F07787F"
         ContributorModelId="7190C5BB-430E-48be-A6B2-C651A840C54A"/> <!-- Images action -->
+    <WorkflowContributorAction Id="69283181-C137-493B-891C-F95DA99C9AC6"
+        Name="*->SwitchBrowseLocalML"
+        DisplayCategory="z-Additional"
+        SortOrder="a"
+        SourceStates="*"
+        ContributorModelId="F1DBEDCB-CB95-4CF5-8787-07390869DE44"/> <!-- SwitchBrowseLocalML action -->
     <WorkflowContributorAction Id="09243059-EE44-460d-8412-2E994CCB5A98"
         Name="*->AddToPlaylist"
         DisplayCategory="a-Media"

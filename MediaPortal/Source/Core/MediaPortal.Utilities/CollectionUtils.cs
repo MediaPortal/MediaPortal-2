@@ -25,6 +25,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace MediaPortal.Utilities
 {
@@ -431,6 +432,21 @@ namespace MediaPortal.Utilities
     {
       IEnumerator<T> enumer = enumerable.GetEnumerator();
       return enumer.MoveNext() ? enumer.Current : new T?();
+    }
+
+    /// <summary>
+    /// Checks if this enumeration has the given <paramref name="prefix"/>, applying the given <paramref name="comparer"/>
+    /// to compare the equality of the elements.
+    /// </summary>
+    /// <typeparam name="T">Type of elements.</typeparam>
+    /// <param name="check">This enumeration to check the given <paramref name="prefix"/>.</param>
+    /// <param name="prefix">Prefix to check.</param>
+    /// <param name="comparer">Equality comparer to determine equality of two elements.</param>
+    /// <returns><c>true</c>, if this enumeration starts with the given <paramref name="prefix"/>, else <c>false</c>.</returns>
+    public static bool StartsWith<T>(this IEnumerable<T> check, IEnumerable<T> prefix, IEqualityComparer<T> comparer)
+    {
+      IEnumerator<T> checkEnumer = check.GetEnumerator();
+      return prefix.All(entry => checkEnumer.MoveNext() && comparer.Equals(checkEnumer.Current, entry));
     }
   }
 }

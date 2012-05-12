@@ -22,7 +22,7 @@
 
 #endregion
 
-using System;
+using System.Collections.Generic;
 using MediaPortal.Common;
 using MediaPortal.Common.Localization;
 using MediaPortal.Common.Messaging;
@@ -31,39 +31,32 @@ using MediaPortal.UI.ServerCommunication;
 
 namespace MediaPortal.UiComponents.Media.Actions
 {
-  public class TrackServerConnectionBaseAction : IWorkflowContributor
+  public abstract class BaseTrackServerConnectionAction : IWorkflowContributor
   {
     #region Protected fields
 
     protected AsynchronousMessageQueue _messageQueue = null;
 
-    protected readonly bool _visibleOnServerConnect;
-    protected readonly Guid? _targetWorkflowStateId;
-    protected readonly IResourceString _displayTitle;
-
-    // This is the only attribute to be updated so we can optimize using volatile instead of using a lock
-    protected volatile bool _isVisible;
+    protected bool _isHomeServerConnected = false;
 
     #endregion
 
-    public TrackServerConnectionBaseAction(bool visibleOnServerConnect, Guid? targetWorkflowStateId, string displayTitleResource)
+    void InitializeMessageQueue()
     {
-      _visibleOnServerConnect = visibleOnServerConnect;
-      _targetWorkflowStateId = targetWorkflowStateId;
-      _displayTitle = LocalizationHelper.CreateResourceString(displayTitleResource);
-    }
-
-    void SubscribeToMessages()
-    {
-      _messageQueue = new AsynchronousMessageQueue(this, new string[]
-        {
-           ServerConnectionMessaging.CHANNEL
-        });
+      _messageQueue = new AsynchronousMessageQueue(this, GetMessageChannels());
       _messageQueue.MessageReceived += OnMessageReceived;
       _messageQueue.Start();
     }
 
-    void UnsubscribeFromMessages()
+    /// <summary>
+    /// Can be overridden by decendents to register additional message channels and to add additional message handlers to the queue.
+    /// </summary>
+    protected virtual IEnumerable<string> GetMessageChannels()
+    {
+      return new List<string> {ServerConnectionMessaging.CHANNEL};
+    }
+
+    void DisposeMessageQueue()
     {
       if (_messageQueue == null)
         return;
@@ -71,7 +64,7 @@ namespace MediaPortal.UiComponents.Media.Actions
       _messageQueue = null;
     }
 
-    void OnMessageReceived(AsynchronousMessageQueue queue, SystemMessage message)
+    protected virtual void OnMessageReceived(AsynchronousMessageQueue queue, SystemMessage message)
     {
       if (message.ChannelName == ServerConnectionMessaging.CHANNEL)
       {
@@ -86,18 +79,10 @@ namespace MediaPortal.UiComponents.Media.Actions
       }
     }
 
-    protected void Update()
+    protected virtual void Update()
     {
       IServerConnectionManager scm = ServiceRegistration.Get<IServerConnectionManager>();
-      bool lastVisible = _isVisible;
-      _isVisible = (scm.IsHomeServerConnected ^ !_visibleOnServerConnect) && IsVisibleOverride;
-      if (lastVisible != _isVisible)
-        FireStateChanged();
-    }
-
-    protected virtual bool IsVisibleOverride
-    {
-      get { return true; }
+      _isHomeServerConnected = scm.IsHomeServerConnected;
     }
 
     protected void FireStateChanged()
@@ -110,39 +95,24 @@ namespace MediaPortal.UiComponents.Media.Actions
 
     public event ContributorStateChangeDelegate StateChanged;
 
-    public virtual IResourceString DisplayTitle
-    {
-      get { return _displayTitle; }
-    }
+    public abstract IResourceString DisplayTitle { get; }
 
     public virtual void Initialize()
     {
-      SubscribeToMessages();
+      InitializeMessageQueue();
       Update();
     }
 
     public virtual void Uninitialize()
     {
-      UnsubscribeFromMessages();
+      DisposeMessageQueue();
     }
 
-    public virtual bool IsActionVisible(NavigationContext context)
-    {
-      return _isVisible;
-    }
+    public abstract bool IsActionVisible(NavigationContext context);
 
-    public virtual bool IsActionEnabled(NavigationContext context)
-    {
-      return true;
-    }
+    public abstract bool IsActionEnabled(NavigationContext context);
 
-    public virtual void Execute()
-    {
-      if (!_targetWorkflowStateId.HasValue)
-        return;
-      IWorkflowManager workflowManager = ServiceRegistration.Get<IWorkflowManager>();
-      workflowManager.NavigatePush(_targetWorkflowStateId.Value);
-    }
+    public abstract void Execute();
 
     #endregion
   }

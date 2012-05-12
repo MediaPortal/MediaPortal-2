@@ -284,9 +284,9 @@ namespace MediaPortal.UiComponents.Media.Models.ScreenData
     /// instance for the new screen and push a new transient workflow state onto the workflow navigation stack.
     /// </summary>
     /// <param name="subViewSpecification">Specification of the sub view to navigate to.</param>
-    protected void NavigateToView(ViewSpecification subViewSpecification)
+    protected internal NavigationData NavigateToView(ViewSpecification subViewSpecification)
     {
-      _navigationData.StackSubordinateNavigationContext(subViewSpecification, Derive(),
+      return _navigationData.StackSubordinateNavigationContext(subViewSpecification, Derive(),
           LocalizationHelper.Translate(_navbarSubViewNavigationDisplayLabel,
               LocalizationHelper.Translate(subViewSpecification.ViewDisplayName)));
     }
