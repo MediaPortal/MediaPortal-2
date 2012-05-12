@@ -26,24 +26,31 @@ namespace TransifexHelper
       ICommandLineParser parser = new CommandLineParser(new CommandLineParserSettings(Console.Error));
       if (!parser.ParseArguments(args, mpArgs, Console.Out))
         Environment.Exit(1);
-      
-      if (mpArgs.Verify ^ (!mpArgs.Push && !mpArgs.Pull))
-        if (mpArgs.Pull ^ (!mpArgs.Verify && !mpArgs.Push))
-          if (mpArgs.Push ^ (!mpArgs.Pull && !mpArgs.Verify))
-      {
-        Console.WriteLine("Specify exact one of the options 'verify', 'push' or 'pull'.");
-        Environment.Exit(1);
-      }
+
+      //todo: ??? ensure that only one switch of them is used at once? or atleast only correct combinations are used???
+      //if (!mpArgs.Verify && !(mpArgs.Push || mpArgs.MP2toAndroid || mpArgs.Pull || mpArgs.AndroidToMP2))
+      //{
+      //  Console.WriteLine("Specify exact one of the actions 'verify', 'push' or 'pull', 'pushonly', 'pullonly'.");
+      //  Environment.Exit(1);
+      //}
 
       targetDir = mpArgs.TargetDir;
 
       // always run verification first
       if (!Verify())
         Environment.Exit(2);
+      if (mpArgs.Verify) Environment.Exit(0);
+
+
+      if (mpArgs.MP2toAndroid)
+        TransformMP2toAndroid();
 
       if (mpArgs.Push)
         if (!Push())
           Environment.Exit(3);
+
+      if (mpArgs.AndroidToMP2)
+        TransformAndroidToMP2();
 
       if (mpArgs.Pull)
         if (!Pull())
@@ -122,7 +129,6 @@ namespace TransifexHelper
 
     private static bool Push()
     {
-      TransformMP2toAndroid();
       UpdateTransifexConfig();
       ExecutePush();
 
@@ -146,7 +152,6 @@ namespace TransifexHelper
     private static bool Pull()
     {
       ExecutePull();
-      TransformAndroidToMP2();
 
       return true;
     }
