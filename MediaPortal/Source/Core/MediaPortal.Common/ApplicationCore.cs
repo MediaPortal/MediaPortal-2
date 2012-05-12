@@ -52,7 +52,12 @@ namespace MediaPortal.Common
   /// </summary>
   public class ApplicationCore
   {
-    public static void RegisterCoreServices()
+    /// <summary>
+    /// Creates core service instances and registers them in <see cref="ServiceRegistration"/>. The optional <paramref name="dataDirectory"/> argument can
+    /// be used to startup the application using a custom directory for data storage.
+    /// </summary>
+    /// <param name="dataDirectory">Path to custom data directory</param>
+    public static void RegisterCoreServices(string dataDirectory = null)
     {
       // Insert a dummy while loading the path manager to break circular dependency of logger and path manager. This should not
       // be considered as a hack - simply the logger needs a path managed by the path manager and I don't want to remove log
@@ -61,6 +66,9 @@ namespace MediaPortal.Common
 
       Services.PathManager.PathManager pathManager = new Services.PathManager.PathManager();
       pathManager.InitializeDefaults();
+      if (!string.IsNullOrEmpty(dataDirectory))
+        pathManager.SetPath("DATA", dataDirectory);
+
       ServiceRegistration.Set<IPathManager>(pathManager);
 
       ILogger logger = new Log4NetLogger(pathManager.GetPath(@"<LOG>")); 

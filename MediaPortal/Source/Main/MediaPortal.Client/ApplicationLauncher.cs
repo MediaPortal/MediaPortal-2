@@ -101,18 +101,13 @@ namespace MediaPortal.Client
         ILogger logger = null;
         try
         {
-
-          ApplicationCore.RegisterCoreServices();
+          // Check if user wants to override the default Application Data location.
+          ApplicationCore.RegisterCoreServices(mpArgs.DataDirectory);
 
           logger = ServiceRegistration.Get<ILogger>();
 
-          IPathManager pathManager = ServiceRegistration.Get<IPathManager>();
-
-          // Check if user wants to override the default Application Data location.
-          if (!string.IsNullOrEmpty(mpArgs.DataDirectory))
-            pathManager.SetPath("DATA", mpArgs.DataDirectory);
-
 #if !DEBUG
+          IPathManager pathManager = ServiceRegistration.Get<IPathManager>();
           logPath = pathManager.GetPath("<LOG>");
 #endif
 
