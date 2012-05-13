@@ -40,21 +40,6 @@ namespace UPnP.Infrastructure.Dv.SSDP
   /// </summary>
   public class SSDPServerController : IDisposable
   {
-    /// <summary>
-    /// Maximum random time in milliseconds to wait until an initial advertisement of all devices is made.
-    /// </summary>
-    public static int INITIAL_ADVERTISEMENT_MAX_WAIT_MS = 100;
-
-    /// <summary>
-    /// Time in seconds until UPnP advertisments will expire.
-    /// </summary>
-    public static int DEFAULT_ADVERTISEMENT_EXPIRATION_TIME = 1800;
-
-    /// <summary>
-    /// Minimum advertisement interval in seconds.
-    /// </summary>
-    public static int MIN_ADVERTISEMENT_INTERVAL = 600;
-
     protected Timer _advertisementTimer = null;
     protected Timer _searchResponseTimer = null;
     protected static Random _rnd = new Random();
@@ -177,7 +162,7 @@ namespace UPnP.Infrastructure.Dv.SSDP
         _searchResponseTimer = new Timer(OnSearchResponseTimerElapsed, null, Timeout.Infinite, Timeout.Infinite);
         // Wait a random time from 0 to 100 milliseconds, as proposed in the UPnP device architecture specification
         _advertisementTimer = new Timer(OnAdvertisementTimerElapsed, null,
-            _rnd.Next(INITIAL_ADVERTISEMENT_MAX_WAIT_MS), Timeout.Infinite);
+            _rnd.Next(UPnPConsts.INITIAL_ADVERTISEMENT_MAX_WAIT_MS), Timeout.Infinite);
       }
     }
 
@@ -389,9 +374,9 @@ namespace UPnP.Infrastructure.Dv.SSDP
     protected int GetAdvertisementRepetitionTime()
     {
       int advertisementTime = _serverData.AdvertisementExpirationTime;
-      if (advertisementTime / 2 < MIN_ADVERTISEMENT_INTERVAL)
+      if (advertisementTime / 2 < UPnPConsts.MIN_ADVERTISEMENT_INTERVAL)
         return _rnd.Next((advertisementTime/2)*1000);
-      return MIN_ADVERTISEMENT_INTERVAL * 1000 + _rnd.Next((advertisementTime/2 - MIN_ADVERTISEMENT_INTERVAL)*1000);
+      return UPnPConsts.MIN_ADVERTISEMENT_INTERVAL * 1000 + _rnd.Next((advertisementTime/2 - UPnPConsts.MIN_ADVERTISEMENT_INTERVAL)*1000);
     }
 
     protected void ReconfigureAdvertisementTimer()

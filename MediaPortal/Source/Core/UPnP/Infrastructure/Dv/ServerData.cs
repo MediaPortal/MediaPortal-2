@@ -94,7 +94,7 @@ namespace UPnP.Infrastructure.Dv
     /// <summary>
     /// Time in seconds after that a UPnP advertisment expires.
     /// </summary>
-    public int AdvertisementExpirationTime = SSDPServerController.DEFAULT_ADVERTISEMENT_EXPIRATION_TIME;
+    public int AdvertisementExpirationTime = UPnPConsts.DEFAULT_ADVERTISEMENT_EXPIRATION_TIME;
 
     /// <summary>
     /// UPnP BOOTID. Contains a value that is increased at every startup of the UPnP subsystem.
