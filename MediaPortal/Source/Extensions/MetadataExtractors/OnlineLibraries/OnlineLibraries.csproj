@@ -116,10 +116,13 @@
     <Compile Include="Libraries\TvdbLib\TvDbUtils.cs" />
     <Compile Include="Libraries\TvdbLib\Xml\TvdbXmlReader.cs" />
     <Compile Include="Libraries\TvdbLib\Xml\TvdbXmlWriter.cs" />
+    <Compile Include="MovieTheMovieDbMatcher.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="SeriesTvDbMatcher.cs" />
+    <Compile Include="TheMovieDB\MovieMatch.cs" />
+    <Compile Include="TheMovieDB\TheMovieDbWrapper.cs" />
     <Compile Include="TheTvDB\SeriesMatch.cs" />
-    <Compile Include="TheTvDB\Settings.cs" />
+    <Compile Include="Libraries\Common\Settings.cs" />
     <Compile Include="TheTvDB\TvDbWrapper.cs" />
   </ItemGroup>
   <ItemGroup>

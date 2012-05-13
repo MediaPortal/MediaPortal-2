@@ -118,10 +118,10 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.MovieDbLib.Cache
 
 
 
-      if (movie.SeriesTranslations != null && movie.SeriesTranslations.Count > 0)
+      if (movie.MovieTranslations != null && movie.MovieTranslations.Count > 0)
       {
         //change language of the series to the default language
-        movie.SetLanguage(movie.SeriesTranslations.Keys.First());
+        movie.SetLanguage(movie.MovieTranslations.Keys.First());
       }
       else
       {
@@ -263,7 +263,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.MovieDbLib.Cache
 
       foreach (MovieDbLanguage l in movie.GetAvailableLanguages())
       {//write all languages to file
-        String fName = root + Path.DirectorySeparatorChar + l.Abbriviation + ".xml";
+        String fName = root + Path.DirectorySeparatorChar + l.Abbreviation + ".xml";
         movie.SetLanguage(l);
         _xmlWriter.WriteMovieContent(movie, fName);
       }

@@ -41,27 +41,27 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.MovieDbLib
     /// </summary>
     internal static String CreateMovieLink(String apiKey, int movieId, MovieDbLanguage lang, bool zipped)
     {
-      return String.Format("{0}/Movie.getInfo/{1}/xml/{2}/{3}", BASE_SERVER, (lang != null ? lang.Abbriviation : "en"), apiKey, movieId);
+      return String.Format("{0}/Movie.getInfo/{1}/xml/{2}/{3}", BASE_SERVER, (lang != null ? lang.Abbreviation : "en"), apiKey, movieId);
     }
 
     internal static String CreateImdbLookupLink(string apiKey, String imdbKey, MovieDbLanguage lang, bool zipped)
     {
-      return String.Format("{0}/Movie.imdbLookup/{1}/xml/{2}/{3}", BASE_SERVER, (lang != null ? lang.Abbriviation : "en"), apiKey, imdbKey);
+      return String.Format("{0}/Movie.imdbLookup/{1}/xml/{2}/{3}", BASE_SERVER, (lang != null ? lang.Abbreviation : "en"), apiKey, imdbKey);
     }
 
     internal static String CreateMovieSearchLink(string apiKey, String searchString, MovieDbLanguage lang)
     {
-      return String.Format("{0}/Movie.search/{1}/xml/{2}/{3}", BASE_SERVER, (lang != null ? lang.Abbriviation : "en"), apiKey, searchString);
+      return String.Format("{0}/Movie.search/{1}/xml/{2}/{3}", BASE_SERVER, (lang != null ? lang.Abbreviation : "en"), apiKey, searchString);
     }
     
     internal static String CreatePersonSearchLink(string apiKey, String personName, MovieDbLanguage lang)
     {
-      return String.Format("{0}/Person.search/{1}/xml/{2}/{3}", BASE_SERVER, (lang != null ? lang.Abbriviation : "en"), apiKey, personName);
+      return String.Format("{0}/Person.search/{1}/xml/{2}/{3}", BASE_SERVER, (lang != null ? lang.Abbreviation : "en"), apiKey, personName);
     }
 
     internal static String CreatePersonLink(string apiKey, int personId, MovieDbLanguage lang)
     {
-      return String.Format("{0}/Person.getInfo/{1}/xml/{2}/{3}", BASE_SERVER, (lang != null ? lang.Abbriviation : "en"), apiKey, personId);
+      return String.Format("{0}/Person.getInfo/{1}/xml/{2}/{3}", BASE_SERVER, (lang != null ? lang.Abbreviation : "en"), apiKey, personId);
     }
 
     internal static String CreateHashLink(string apiKey, String hash)

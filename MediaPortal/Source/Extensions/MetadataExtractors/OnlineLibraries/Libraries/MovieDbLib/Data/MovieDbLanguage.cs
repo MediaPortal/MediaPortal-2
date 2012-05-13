@@ -4,27 +4,13 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.MovieDbLib.Data
 {
   public class MovieDbLanguage
   {
-    #region private properties
-
-    #endregion
-
-    public MovieDbLanguage(int id, String abbriviation, String name)
-      : this()
+    public static MovieDbLanguage DefaultLanguage = new MovieDbLanguage("en");
+    
+    public MovieDbLanguage(String iso2LetterCode)
     {
-      Id = id;
-      Abbriviation = abbriviation;
-      Name = name;
+      Abbreviation = iso2LetterCode;
     }
 
-    public MovieDbLanguage()
-    {
-
-    }
-
-    public int Id { get; set; }
-
-    public string Name { get; set; }
-
-    public string Abbriviation { get; set; }
+    public string Abbreviation { get; set; }
   }
 }

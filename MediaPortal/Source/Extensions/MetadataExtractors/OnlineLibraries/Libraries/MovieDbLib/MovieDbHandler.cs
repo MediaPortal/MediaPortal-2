@@ -19,7 +19,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.MovieDbLib
       _movieDownloader = new MovieDbDownloader(apiKey);
     }
 
-    public MovieDbHandler(String apiKey, ICacheProvider cacheProvider)
+    public MovieDbHandler(ICacheProvider cacheProvider, String apiKey)
       : this(apiKey)
     {
       _cacheProvider = cacheProvider;

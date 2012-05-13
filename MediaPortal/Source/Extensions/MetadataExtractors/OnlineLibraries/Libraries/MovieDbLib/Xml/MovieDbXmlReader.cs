@@ -226,7 +226,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.MovieDbLib.Xml
                                    }
                                   ).ToList() : null,
                         cast = movie.Elements("cast").Count() == 1 ?
-                                 (from image in movie.Elements("cast").Descendants("Person")
+                                 (from image in movie.Elements("cast").Descendants("person")
                                   select new
                                   {
                                     character = image.Attributes("character").Count() == 1 ?
@@ -246,23 +246,25 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.MovieDbLib.Xml
 
       foreach (var m in allMovies)
       {
-        MovieFields movie = new MovieFields();
-        movie.Language = new MovieDbLanguage(0, "en", "English");
+        MovieFields movie = new MovieFields
+          {
+            Language = MovieDbLanguage.DefaultLanguage,
+            Popularity = Util.Int32Parse(m.popularity),
+            Id = Util.Int32Parse(m.id),
+            MovieName = m.name,
+            AlternativeName = m.alternative_name,
+            ImdbId = m.imdb_id,
+            Url = m.url,
+            Overview = m.overview,
+            Rating = Util.DoubleParse(m.rating),
+            Released = Util.ParseDateTime(m.released),
+            Runtime = Util.Int32Parse(m.runtime),
+            Budget = Util.LongParse(m.budget),
+            Revenue = Util.LongParse(m.revenue),
+            Homepage = m.homepage,
+            Trailer = m.trailer
+          };
 
-        movie.Popularity = Util.Int32Parse(m.popularity);
-        movie.Id = Util.Int32Parse(m.id);
-        movie.MovieName = m.name;
-        movie.AlternativeName = m.alternative_name;
-        movie.ImdbId = m.imdb_id;
-        movie.Url = m.url;
-        movie.Overview = m.overview;
-        movie.Rating = Util.DoubleParse(m.rating);
-        movie.Released = Util.ParseDateTime(m.released);
-        movie.Runtime = Util.Int32Parse(m.runtime);
-        movie.Budget = Util.Int32Parse(m.budget);
-        movie.Revenue = Util.Int32Parse(m.revenue);
-        movie.Homepage = m.homepage;
-        movie.Trailer = m.trailer;
 
         if (m.categories != null)
         {
@@ -272,7 +274,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.MovieDbLib.Xml
             MovieDbCategory cat = new MovieDbCategory();
             String url = c.url;
             int id = Util.Int32Parse(url.Substring(url.LastIndexOf("/") + 1));
-            if (id != -99)
+            if (id != Util.NO_VALUE)
             {
               cat.Id = id;
               switch (c.type.ToLower())
@@ -302,8 +304,8 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.MovieDbLib.Xml
           {
             MovieDbStudios cat = new MovieDbStudios();
             String url = c.url;
-            int id = Util.Int32Parse(url.Substring(url.LastIndexOf("/")+1));
-            if (id != -99)
+            int id = Util.Int32Parse(url.Substring(url.LastIndexOf("/") + 1));
+            if (id != Util.NO_VALUE)
             {
               cat.Id = id;
               cat.Name = c.name;
@@ -325,7 +327,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.MovieDbLib.Xml
             MovieDbCountries country = new MovieDbCountries();
             String url = c.url;
             int id = Util.Int32Parse(url.Substring(url.LastIndexOf("/") + 1));
-            if (id != -99)
+            if (id != Util.NO_VALUE)
             {
               country.Id = id;
               country.Name = c.name;
@@ -346,7 +348,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.MovieDbLib.Xml
           foreach (var p in m.cast)
           {
             int id = Util.Int32Parse(p.id);
-            if (id != -99)
+            if (id != Util.NO_VALUE)
             {
               MovieDbCast cast = new MovieDbCast(id, p.name, p.url, p.job, p.character);
               movie.Cast.Add(cast);
@@ -377,7 +379,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.MovieDbLib.Xml
           movie.Banners = new List<MovieDbBanner>();
           foreach (KeyValuePair<string, List<String[]>> kvp in bannerList)
           {
-            MovieDbBanner banner = MovieDbBanner.CreateBanner(movie.Id,  kvp.Key, kvp.Value);
+            MovieDbBanner banner = MovieDbBanner.CreateBanner(movie.Id, kvp.Key, kvp.Value);
             if (banner != null)
             {
               movie.Banners.Add(banner);
@@ -385,7 +387,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.MovieDbLib.Xml
           }
         }
         #endregion
-        if (movie.Id != -99) retList.Add(movie);
+        if (movie.Id != Util.NO_VALUE) retList.Add(movie);
       }
 
       //watch.Stop();
@@ -393,68 +395,68 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.MovieDbLib.Xml
       return retList;
     }
 
-    internal List<MovieDbPerson> ExtractPersons(String _data)
+    internal List<MovieDbPerson> ExtractPersons(String data)
     {
       //Stopwatch watch = new Stopwatch();
       //watch.Start();
       List<MovieDbPerson> retList = new List<MovieDbPerson>();
-      XDocument xml = XDocument.Parse(_data);
+      XDocument xml = XDocument.Parse(data);
 
       var allPersons = from movie in xml.Descendants("Person")
-                      select new
-                      {
-                        popularity = movie.Elements("popularity").Count() == 1 ?
-                                     movie.Element("popularity").Value : null,
-                        name = movie.Elements("name").Count() == 1 ?
-                               movie.Element("name").Value : null,
-                        known_movies = movie.Elements("known_movies").Count() == 1 ?
-                                           movie.Element("known_movies").Value : null,
-                        birthday = movie.Elements("birthday").Count() == 1 ?
-                                   movie.Element("birthday").Value : null,
-                        id = movie.Elements("id").Count() == 1 ?
-                             movie.Element("id").Value : null,
-                        birthplace = movie.Elements("birthplace").Count() == 1 ?
-                                  movie.Element("birthplace").Value : null,
-                        url = movie.Elements("url").Count() == 1 ?
-                              movie.Element("url").Value : null,
-                        filmography = movie.Elements("filmography").Count() == 1 ?
-                                      (from subelement in movie.Elements("filmography").Descendants("movie")
-                                       select new
-                                       {
-                                         job = subelement.Attributes("job").Count() == 1 ?
-                                               subelement.Attribute("job").Value : null,
-                                         name = subelement.Attributes("name").Count() == 1 ?
-                                                subelement.Attribute("name").Value : null,
-                                         url = subelement.Attributes("url").Count() == 1 ?
-                                               subelement.Attribute("url").Value : null,
-                                         character = subelement.Attributes("character").Count() == 1 ?
-                                                     subelement.Attribute("character").Value : null,
-                                         id = subelement.Attributes("id").Count() == 1 ?
-                                              subelement.Attribute("id").Value : null
-                                       }
-                                      ).ToList() : null,
-                        also_known_as = movie.Elements("also_known_as").Count() == 1 ?
-                                    (from subelement in movie.Elements("also_known_as").Descendants("name")
-                                     select new
-                                     {
-                                       alias = subelement.Value
-                                     }
-                                    ).ToList() : null,
-                        images = movie.Elements("images").Count() == 1 ?
-                                  (from image in movie.Elements("images").Descendants("image")
-                                   select new
-                                   {
-                                     type = image.Attributes("type").Count() == 1 ?
-                                            image.Attribute("type").Value : null,
-                                     size = image.Attributes("size").Count() == 1 ?
-                                            image.Attribute("size").Value : null,
-                                     url = image.Attributes("url").Count() == 1 ?
-                                           image.Attribute("url").Value : null,
-                                     id = image.Attributes("id").Count() == 1 ?
-                                          image.Attribute("id").Value : null
-                                   }
-                                  ).ToList() : null
-                      };
+                       select new
+                       {
+                         popularity = movie.Elements("popularity").Count() == 1 ?
+                                      movie.Element("popularity").Value : null,
+                         name = movie.Elements("name").Count() == 1 ?
+                                movie.Element("name").Value : null,
+                         known_movies = movie.Elements("known_movies").Count() == 1 ?
+                                            movie.Element("known_movies").Value : null,
+                         birthday = movie.Elements("birthday").Count() == 1 ?
+                                    movie.Element("birthday").Value : null,
+                         id = movie.Elements("id").Count() == 1 ?
+                              movie.Element("id").Value : null,
+                         birthplace = movie.Elements("birthplace").Count() == 1 ?
+                                   movie.Element("birthplace").Value : null,
+                         url = movie.Elements("url").Count() == 1 ?
+                               movie.Element("url").Value : null,
+                         filmography = movie.Elements("filmography").Count() == 1 ?
+                                       (from subelement in movie.Elements("filmography").Descendants("movie")
+                                        select new
+                                        {
+                                          job = subelement.Attributes("job").Count() == 1 ?
+                                                subelement.Attribute("job").Value : null,
+                                          name = subelement.Attributes("name").Count() == 1 ?
+                                                 subelement.Attribute("name").Value : null,
+                                          url = subelement.Attributes("url").Count() == 1 ?
+                                                subelement.Attribute("url").Value : null,
+                                          character = subelement.Attributes("character").Count() == 1 ?
+                                                      subelement.Attribute("character").Value : null,
+                                          id = subelement.Attributes("id").Count() == 1 ?
+                                               subelement.Attribute("id").Value : null
+                                        }
+                                       ).ToList() : null,
+                         also_known_as = movie.Elements("also_known_as").Count() == 1 ?
+                                     (from subelement in movie.Elements("also_known_as").Descendants("name")
+                                      select new
+                                      {
+                                        alias = subelement.Value
+                                      }
+                                     ).ToList() : null,
+                         images = movie.Elements("images").Count() == 1 ?
+                                   (from image in movie.Elements("images").Descendants("image")
+                                    select new
+                                    {
+                                      type = image.Attributes("type").Count() == 1 ?
+                                             image.Attribute("type").Value : null,
+                                      size = image.Attributes("size").Count() == 1 ?
+                                             image.Attribute("size").Value : null,
+                                      url = image.Attributes("url").Count() == 1 ?
+                                            image.Attribute("url").Value : null,
+                                      id = image.Attributes("id").Count() == 1 ?
+                                           image.Attribute("id").Value : null
+                                    }
+                                   ).ToList() : null
+                       };
 
 
       foreach (var p in allPersons)
@@ -515,7 +517,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.MovieDbLib.Xml
           }
         }
         #endregion
-        if (person.Id != -99) retList.Add(person);
+        if (person.Id != Util.NO_VALUE) retList.Add(person);
       }
 
       //watch.Stop();

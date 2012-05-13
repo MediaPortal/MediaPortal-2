@@ -387,7 +387,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.TvdbLib.Xml
       if (user.UserPreferredLanguage != null)
       {
         preferred.Add(new XAttribute("Id", user.UserPreferredLanguage.Id));
-        preferred.Add(new XAttribute("Abbriviation", user.UserPreferredLanguage.Abbriviation));
+        preferred.Add(new XAttribute("Abbreviation", user.UserPreferredLanguage.Abbriviation));
         preferred.Add(new XAttribute("Name", user.UserPreferredLanguage.Name));
       }
 

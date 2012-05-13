@@ -96,6 +96,23 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.Common
     }
 
     /// <summary>
+    /// Parses an long string and returns the number or <see cref="NO_VALUE"/> if the format
+    /// is invalid
+    /// </summary>
+    /// <param name="number"></param>
+    /// <returns></returns>
+    internal static long LongParse(String number)
+    {
+      //check this or we have a badass performance problem because everytime we have
+      //an empty field an exception would be thrown
+      if (string.IsNullOrEmpty(number)) 
+        return NO_VALUE;
+
+      long result;
+      return long.TryParse(number, out result) ? result : NO_VALUE;
+    }
+
+    /// <summary>
     /// Parses an double string and returns the number or <see cref="NO_VALUE"/> if the format
     /// is invalid
     /// </summary>

@@ -25,6 +25,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Text.RegularExpressions;
 using System.Xml.Serialization;
 using MediaPortal.Common;
 using MediaPortal.Common.Logging;
@@ -97,6 +98,8 @@ namespace MediaPortal.Extensions.MetadataExtractors
     protected static IList<string> SHARE_CATEGORIES = new List<string>();
     protected MetadataExtractorMetadata _metadata;
     protected static XmlSerializer _xmlSerializer = null; // Lazy initialized
+
+    protected static Regex _yearMatcher = new Regex(@"\d{4}$", RegexOptions.Multiline);
 
     #endregion
 
@@ -175,12 +178,17 @@ namespace MediaPortal.Extensions.MetadataExtractors
           seriesInfo.SetMetadata(extractedAspectData);
         }
 
+        int guessedYear = 0;
         string value;
         if (TryGet(tags, TAG_GENRE, out value))
           videoAspect.SetCollectionAttribute(VideoAspect.ATTR_GENRES, new List<String> { value });
 
         if (TryGet(tags, TAG_PLOT, out value))
+        {
           videoAspect.SetAttribute(VideoAspect.ATTR_STORYPLOT, value);
+          Match yearMatch = _yearMatcher.Match(value);
+          int.TryParse(yearMatch.Value, out guessedYear);
+        }
 
         if (TryGet(tags, TAG_CHANNEL, out value))
           recordingAspect.SetAttribute(RecordingAspect.ATTR_CHANNEL, value);
@@ -196,6 +204,18 @@ namespace MediaPortal.Extensions.MetadataExtractors
         if (TryGet(tags, TAG_ENDTIME, out value) && DateTime.TryParse(value, out recordingEnd))
           recordingAspect.SetAttribute(RecordingAspect.ATTR_ENDTIME, recordingEnd);
 
+
+        string title;
+        if (TryGet(tags, TAG_TITLE, out title))
+        {
+          MovieInfo movieInfo = new MovieInfo
+            {
+              MovieName = title,
+              Year = guessedYear
+            };
+          if (MovieTheMovieDbMatcher.Instance.FindAndUpdateMovie(movieInfo))
+            movieInfo.SetMetadata(extractedAspectData);
+        }
         return true;
       }
       catch (Exception e)
@@ -219,13 +239,13 @@ namespace MediaPortal.Extensions.MetadataExtractors
 
       if (TryGet(extractedTags, TAG_TITLE, out tmpString))
         seriesInfo.Series = tmpString;
-      
+
       if (TryGet(extractedTags, TAG_EPISODENAME, out tmpString))
         seriesInfo.Episode = tmpString;
 
-      if (TryGet(extractedTags, TAG_SERIESNUM, out tmpString) )
+      if (TryGet(extractedTags, TAG_SERIESNUM, out tmpString))
         int.TryParse(tmpString, out seriesInfo.SeasonNumber);
-        
+
       if (TryGet(extractedTags, TAG_EPISODENUM, out tmpString))
       {
         int episodeNum;

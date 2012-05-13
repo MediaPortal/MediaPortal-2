@@ -71,7 +71,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.MovieDbLib.Data
     /// <returns>short description of the episode</returns>
     public override string ToString()
     {
-      return MovieName + "[" + Language.Abbriviation + "]";
+      return MovieName + " [" + Language.Abbreviation + "]";
     }
 
     /// <summary>
@@ -99,9 +99,9 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.MovieDbLib.Data
 
     public string Homepage { get; set; }
 
-    public int Revenue { get; set; }
+    public long Revenue { get; set; }
 
-    public int Budget { get; set; }
+    public long Budget { get; set; }
 
     public int Runtime { get; set; }
 
@@ -169,8 +169,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.MovieDbLib.Data
     /// Update all fields of the object with the given information
     /// </summary>
     /// <param name="fields">the fields for the update</param>
-    /// <param name="replaceEpisodes">Should the episodes be replaced or kept</param>
-    internal void UpdateTvdbFields(MovieFields fields, bool replaceEpisodes)
+    internal void UpdateTvdbFields(MovieFields fields)
     {
       //Update series details
       Popularity = fields.Popularity;

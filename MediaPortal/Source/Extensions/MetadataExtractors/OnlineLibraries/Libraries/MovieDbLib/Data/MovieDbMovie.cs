@@ -57,15 +57,15 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.MovieDbLib.Data
     /// <param name="fields"></param>
     internal void AddLanguage(MovieFields fields)
     {
-      if (SeriesTranslations == null)
+      if (MovieTranslations == null)
       {
-        SeriesTranslations = new Dictionary<MovieDbLanguage, MovieFields>();
+        MovieTranslations = new Dictionary<MovieDbLanguage, MovieFields>();
       }
 
       //delete translation if it already exists and overwrite it with a new one
-      if (SeriesTranslations.ContainsKey(fields.Language))
+      if (MovieTranslations.ContainsKey(fields.Language))
       {
-        SeriesTranslations.Remove(fields.Language);
+        MovieTranslations.Remove(fields.Language);
       }
       /*foreach (KeyValuePair<TvdbLanguage, TvdbSeriesFields> kvp in _seriesTranslations)
       {
@@ -75,7 +75,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.MovieDbLib.Data
         }
       }*/
 
-      SeriesTranslations.Add(fields.Language, fields);
+      MovieTranslations.Add(fields.Language, fields);
     }
 
     /// <summary>
@@ -86,7 +86,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.MovieDbLib.Data
     /// <returns>true if success, false otherwise</returns>
     public bool SetLanguage(MovieDbLanguage language)
     {
-      return SetLanguage(language.Abbriviation);
+      return SetLanguage(language.Abbreviation);
     }
 
     /// <summary>
@@ -97,12 +97,12 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.MovieDbLib.Data
     /// <returns>true if success, false otherwise</returns>
     public bool SetLanguage(String language)
     {
-      foreach (KeyValuePair<MovieDbLanguage, MovieFields> kvp in SeriesTranslations)
+      foreach (KeyValuePair<MovieDbLanguage, MovieFields> kvp in MovieTranslations)
       {
-        if (!kvp.Key.Abbriviation.Equals(language)) 
+        if (!kvp.Key.Abbreviation.Equals(language)) 
           continue;
 
-        UpdateTvdbFields(kvp.Value, true);
+        UpdateTvdbFields(kvp.Value);
         return true;
       }
       return false;
@@ -115,13 +115,13 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.MovieDbLib.Data
     /// <returns>List of all translations that are loaded for this series</returns>
     public List<MovieDbLanguage> GetAvailableLanguages()
     {
-      return SeriesTranslations != null ? SeriesTranslations.Keys.ToList() : null;
+      return MovieTranslations != null ? MovieTranslations.Keys.ToList() : null;
     }
 
     /// <summary>
     /// Get all available Translations
     /// </summary>
-    internal Dictionary<MovieDbLanguage, MovieFields> SeriesTranslations { get; set; }
+    internal Dictionary<MovieDbLanguage, MovieFields> MovieTranslations { get; set; }
 
     #region Actors
 

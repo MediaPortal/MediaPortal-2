@@ -32,7 +32,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.TvdbLib.Data
     /// <summary>
     /// The default language (which is English)
     /// Id:           7
-    /// Abbriviation: en
+    /// Abbreviation: en
     /// Name:         English
     /// 
     /// </summary>
@@ -41,7 +41,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.TvdbLib.Data
     /// <summary>
     /// language valid for all available languages
     /// Id:           7
-    /// Abbriviation: en
+    /// Abbreviation: en
     /// Name:         English
     /// 
     /// </summary>
@@ -65,7 +65,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.TvdbLib.Data
     /// </summary>
     /// <param name="id">Id of language</param>
     /// <param name="name">Name of language (e.g. English)</param>
-    /// <param name="abbr">Abbriviation of language (e.g. en)</param>
+    /// <param name="abbr">Abbreviation of language (e.g. en)</param>
     public TvdbLanguage(int id, String name, String abbr)
     {
       Id = id;
@@ -79,7 +79,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.TvdbLib.Data
     public int Id { get; set; }
 
     /// <summary>
-    /// Abbriviation of the series
+    /// Abbreviation of the series
     /// </summary>
     public string Abbriviation { get; set; }
 
@@ -89,7 +89,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.TvdbLib.Data
     public string Name { get; set; }
 
     /// <summary>
-    /// Returns String that describes the language in the format "Name (Abbriviation)"
+    /// Returns String that describes the language in the format "Name (Abbreviation)"
     /// </summary>
     /// <returns>String representing this object (e.g. "English (en)")</returns>
     public override string ToString()

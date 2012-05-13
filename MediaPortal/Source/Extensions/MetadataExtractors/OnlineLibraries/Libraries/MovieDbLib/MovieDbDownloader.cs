@@ -94,14 +94,14 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.MovieDbLib
           return new List<MovieDbMovie>();
         }
         //extract all series the xml file contains
-        List<MovieDbMovie> seriesList = _xmlHandler.ExtractMovies(xml);
+        List<MovieDbMovie> moviesList = _xmlHandler.ExtractMovies(xml);
 
         //if a request is made on a movie id, one and only one result
         //should be returned, otherwise there obviously was an error
-        if (seriesList != null)
+        if (moviesList != null)
         {
-          MovieDbMovie series = seriesList[0];
-          return seriesList;
+          MovieDbMovie movie = moviesList[0];
+          return moviesList;
         }
         else
         {

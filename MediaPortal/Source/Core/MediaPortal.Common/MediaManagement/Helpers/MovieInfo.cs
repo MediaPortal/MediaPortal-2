@@ -1,0 +1,87 @@
+﻿#region Copyright (C) 2007-2012 Team MediaPortal
+
+/*
+    Copyright (C) 2007-2012 Team MediaPortal
+    http://www.team-mediaportal.com
+
+    This file is part of MediaPortal 2
+
+    MediaPortal 2 is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    MediaPortal 2 is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with MediaPortal 2. If not, see <http://www.gnu.org/licenses/>.
+*/
+
+#endregion
+
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using MediaPortal.Common.MediaManagement.DefaultItemAspects;
+
+namespace MediaPortal.Common.MediaManagement.Helpers
+{
+  /// <summary>
+  /// <see cref="MovieInfo"/> contains information about a movie. It's used as an interface structure for external 
+  /// online data scrapers to fill in metadata.
+  /// </summary>
+  public class MovieInfo
+  {
+    public bool Matched { get; set; }
+
+    public int MovieDbId { get; set; }
+    public int OfdbId { get; set; }
+    public string ImdbId { get; set; }
+
+    public string MovieName { get; set; }
+    public int Year { get; set; }
+    public int Runtime { get; set; }
+    public string Certification { get; set; }
+    public string Tagline { get; set; }
+    public string Summary { get; set; }
+
+    public int Popularity { get; set; }
+    public long Budget { get; set; }
+    public long Revenue { get; set; }
+    public double Score { get; set; }
+
+    public List<string> Directors { get; internal set; }
+    public List<string> Writers { get; internal set; }
+    public List<string> Actors { get; internal set; }
+    public List<string> Genres { get; internal set; }
+
+    public MovieInfo ()
+    {
+      Actors = new List<string>();
+      Directors = new List<string>();
+      Writers = new List<string>();
+      Genres = new List<string>();
+    }
+
+    /// <summary>
+    /// Copies the contained movie information into MediaItemAspect.
+    /// </summary>
+    /// <param name="aspectData">Dictionary with extracted aspects.</param>
+    public bool SetMetadata(IDictionary<Guid, MediaItemAspect> aspectData)
+    {
+      if (!string.IsNullOrEmpty(MovieName)) MediaItemAspect.SetAttribute(aspectData, MediaAspect.ATTR_TITLE, MovieName);
+      if (!string.IsNullOrEmpty(Summary)) MediaItemAspect.SetAttribute(aspectData, VideoAspect.ATTR_STORYPLOT, Summary);
+
+      if (Year > 0)
+        MediaItemAspect.SetAttribute(aspectData, MediaAspect.ATTR_RECORDINGTIME, new DateTime(Year, 1, 1));
+
+      if (Directors.Count > 0) MediaItemAspect.SetAttribute(aspectData, VideoAspect.ATTR_DIRECTOR, Directors.First());
+      if (Actors.Count > 0) MediaItemAspect.SetCollectionAttribute(aspectData, VideoAspect.ATTR_ACTORS, Actors);
+      if (Genres.Count > 0) MediaItemAspect.SetCollectionAttribute(aspectData, VideoAspect.ATTR_GENRES, Genres);
+      return true;
+    }
+  }
+}

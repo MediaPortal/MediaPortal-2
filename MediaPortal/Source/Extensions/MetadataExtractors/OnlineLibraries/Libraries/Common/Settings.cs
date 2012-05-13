@@ -26,7 +26,7 @@ using System;
 using System.IO;
 using System.Xml.Serialization;
 
-namespace MediaPortal.Extensions.OnlineLibraries.TheTvDB
+namespace MediaPortal.Extensions.OnlineLibraries.Libraries.Common
 {
   internal static class Settings
   {
