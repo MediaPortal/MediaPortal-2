@@ -373,7 +373,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.MovieDbLib.Xml
               {
                 bannerList.Add(id, new List<String[]>());
               }
-              bannerList[id].Add(new String[] { i.type, i.size, i.url });
+              bannerList[id].Add(new[] { i.type, i.size, i.url });
             }
           }
           movie.Banners = new List<MovieDbBanner>();
@@ -503,7 +503,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.MovieDbLib.Xml
               {
                 bannerList.Add(id, new List<String[]>());
               }
-              bannerList[id].Add(new String[] { i.type, i.size, i.url });
+              bannerList[id].Add(new[] { i.type, i.size, i.url });
             }
           }
           person.Images = new List<MovieDbBanner>();

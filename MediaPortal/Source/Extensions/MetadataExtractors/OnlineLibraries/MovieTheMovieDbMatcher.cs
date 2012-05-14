@@ -27,13 +27,16 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using System.Linq;
+using System.Threading;
 using MediaPortal.Common;
 using MediaPortal.Common.Localization;
 using MediaPortal.Common.Logging;
 using MediaPortal.Common.MediaManagement.Helpers;
 using MediaPortal.Common.PathManager;
+using MediaPortal.Common.Threading;
 using MediaPortal.Extensions.OnlineLibraries.Libraries.Common;
 using MediaPortal.Extensions.OnlineLibraries.Libraries.MovieDbLib.Data;
+using MediaPortal.Extensions.OnlineLibraries.Libraries.MovieDbLib.Data.Banner;
 using MediaPortal.Extensions.OnlineLibraries.TheMovieDB;
 
 namespace MediaPortal.Extensions.OnlineLibraries
@@ -116,8 +119,8 @@ namespace MediaPortal.Extensions.OnlineLibraries
             movieInfo.Year = year;
         }
 
-        //if (movieDbId > 0)
-        //  DownloadFanArt(movieDbId);
+        if (movieDbId > 0)
+          DownloadFanArt(movieDbId);
         return true;
       }
       return false;
@@ -212,6 +215,72 @@ namespace MediaPortal.Extensions.OnlineLibraries
           matches.Add(onlineMatch);
         Settings.Save(SETTINGS_MATCHES, matches);
       }
+    }
+
+    public bool DownloadFanArt(int tvDbId)
+    {
+      bool fanArtDownloaded = false;
+      lock (_syncObj)
+      {
+        // Load cache or create new list
+        List<MovieMatch> matches = Settings.Load<List<MovieMatch>>(SETTINGS_MATCHES) ?? new List<MovieMatch>();
+        foreach (MovieMatch movieMatch in matches.FindAll(m => m.ID == tvDbId))
+        {
+          // We can have multiple matches for one TvDbId in list, if one has FanArt downloaded already, update the flag for all matches.
+          if (movieMatch.FanArtDownloaded)
+            fanArtDownloaded = true;
+          movieMatch.FanArtDownloaded = true;
+        }
+        Settings.Save(SETTINGS_MATCHES, matches);
+      }
+      if (fanArtDownloaded)
+        return true;
+
+      _currentMovieDbId = tvDbId;
+      IThreadPool threadPool = ServiceRegistration.Get<IThreadPool>();
+      threadPool.Add(DownloadFanArt_Async, "FanArt Downloader " + tvDbId, QueuePriority.Low, ThreadPriority.Lowest);
+      return true;
+    }
+
+    protected void DownloadFanArt_Async()
+    {
+      int movieDbId = _currentMovieDbId;
+      try
+      {
+        ServiceRegistration.Get<ILogger>().Debug("MovieTheMovieDbMatcher Download: Started for ID {0}", movieDbId);
+
+        if (!Init())
+          return;
+
+        MovieDbMovie movieDetail;
+        if (!_movieDb.GetMovie(movieDbId, out movieDetail))
+          return;
+
+        // Save Banners
+        ServiceRegistration.Get<ILogger>().Debug("MovieTheMovieDbMatcher Download: Begin saving banners for ID {0}", movieDbId);
+        SaveBanners(movieDetail.Banners);
+      }
+      catch (Exception ex)
+      {
+        ServiceRegistration.Get<ILogger>().Debug("MovieTheMovieDbMatcher: Exception downloading FanArt for ID {0}", ex, movieDbId);
+      }
+    }
+
+    private static int SaveBanners<TE>(IEnumerable<TE> banners) where TE : MovieDbBanner
+    {
+      int idx = 0;
+      foreach (TE banner in banners)
+      {
+        if (idx++ >= 10)
+          break;
+
+        foreach (MovieDbBanner.BannerSizes size in banner.ImageSizes.Keys)
+        {
+          banner.ImageSizes[size].LoadBanner();
+          banner.ImageSizes[size].UnloadBanner();
+        }
+      }
+      return idx;
     }
   }
 }

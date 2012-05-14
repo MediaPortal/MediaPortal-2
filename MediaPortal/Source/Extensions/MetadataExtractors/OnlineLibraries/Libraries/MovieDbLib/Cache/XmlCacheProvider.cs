@@ -325,20 +325,22 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.MovieDbLib.Cache
 
     private String CreateBannerCacheName(String root, int objectId, string bannerId, MovieDbBanner.BannerTypes type, MovieDbBanner.BannerSizes size)
     {
-      StringBuilder builder = new StringBuilder(root);
-
+      string relativeCachePath = string.Empty;
       switch (type)
       {
         case MovieDbBanner.BannerTypes.Backdrop:
-          return string.Format("{0}movies{0}{1}{0}backdrop_{1}_{2}_{3}.jpg", Path.DirectorySeparatorChar, objectId, size, bannerId);
-          
+          relativeCachePath = string.Format("movies{0}{1}{0}backdrop_{1}_{2}_{3}.jpg", Path.DirectorySeparatorChar, objectId, size, bannerId);
+          break;
+
         case MovieDbBanner.BannerTypes.Poster:
-          return string.Format("{0}movies{0}{1}{0}poster_{1}_{2}_{3}.jpg", Path.DirectorySeparatorChar, objectId, size, bannerId);
+          relativeCachePath = string.Format("movies{0}{1}{0}poster_{1}_{2}_{3}.jpg", Path.DirectorySeparatorChar, objectId, size, bannerId);
+          break;
 
         case MovieDbBanner.BannerTypes.Person:
-          return string.Format("{0}persons{0}{1}{0}person_{1}_{2}_{3}.jpg", Path.DirectorySeparatorChar, objectId, size, bannerId);
+          relativeCachePath = string.Format("persons{0}{1}{0}person_{1}_{2}_{3}.jpg", Path.DirectorySeparatorChar, objectId, size, bannerId);
+          break;
       }
-      return builder.ToString();
+      return Path.Combine(root, relativeCachePath);
     }
 
     public Image LoadImageFromCache(int objectId, string bannerId, MovieDbBanner.BannerTypes type, MovieDbBanner.BannerSizes size)

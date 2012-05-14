@@ -30,9 +30,9 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.MovieDbLib.Data.Banne
       //get type of banner (Poster or Backdrop for now)
       switch (images[0][0])
       {
-        case "Poster":
+        case "poster":
           return CreatePoster(objectId, bannerId, images);
-        case "Backdrop":
+        case "backdrop":
           return CreateBackdrop(objectId, bannerId, images);
         case "profile":
           return CreateProfile(objectId, bannerId, images);
@@ -55,6 +55,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.MovieDbLib.Data.Banne
           case "thumb":
             image.Thumbnail = new BannerSize(null, personId, bannerId, BannerTypes.Person, BannerSizes.Thumb, i[2]);
             break;
+          case "h632":
           case "profile":
             image.Profile = new BannerSize(null, personId, bannerId, BannerTypes.Person, BannerSizes.Profile, i[2]);
             break;
@@ -77,12 +78,15 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.MovieDbLib.Data.Banne
       {
         switch (i[1].ToLowerInvariant())
         {
+          case "w1280":
           case "original":
             banner.Original = new BannerSize(null, movieId, bannerId, BannerTypes.Poster, BannerSizes.Original, i[2]);
             break;
+          case "w154":
           case "thumb":
             banner.Thumbnail = new BannerSize(null, movieId, bannerId, BannerTypes.Poster, BannerSizes.Thumb, i[2]);
             break;
+          case "w342":
           case "mid":
             banner.Mid = new BannerSize(null, movieId, bannerId, BannerTypes.Poster, BannerSizes.Mid, i[2]);
             break;
@@ -107,9 +111,11 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.MovieDbLib.Data.Banne
       {
         switch (i[1].ToLowerInvariant())
         {
+          case "w1280":
           case "original":
             banner.Original = new BannerSize(null, movieId, bannerId, BannerTypes.Backdrop, BannerSizes.Original, i[2]);
             break;
+          case "w154":
           case "thumb":
             banner.Thumbnail = new BannerSize(null, movieId, bannerId, BannerTypes.Backdrop, BannerSizes.Thumb, i[2]);
             break;
