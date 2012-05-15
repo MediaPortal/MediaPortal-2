@@ -31,7 +31,7 @@ namespace MediaPortal.UI.Services.ServerCommunication
   /// </summary>
   public class UPnPFrontendServer : UPnPServer
   {
-    public const int SSDP_ADVERTISMENT_INTERVAL = 1800;
+    public const int SSDP_ADVERTISMENT_INTERVAL = 180;
 
     public UPnPFrontendServer(string frontendServerSystemId)
     {
