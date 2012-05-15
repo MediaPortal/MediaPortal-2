@@ -272,28 +272,18 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.MovieDbLib.Xml
           foreach (var c in m.categories)
           {
             MovieDbCategory cat = new MovieDbCategory();
-            String url = c.url;
-            int id = Util.Int32Parse(url.Substring(url.LastIndexOf("/") + 1));
-            if (id != Util.NO_VALUE)
+            switch (c.type.ToLower())
             {
-              cat.Id = id;
-              switch (c.type.ToLower())
-              {
-                case "genre":
-                  cat.Type = MovieDbCategory.CategoryTypes.Genre;
-                  break;
-                default:
-                  cat.Type = MovieDbCategory.CategoryTypes.Unknown;
-                  throw new Exception("unknown category tpye");
-              }
-              cat.Name = c.name;
-              cat.Url = c.url;
-              movie.Categories.Add(cat);
+              case "genre":
+                cat.Type = MovieDbCategory.CategoryTypes.Genre;
+                break;
+              default:
+                cat.Type = MovieDbCategory.CategoryTypes.Unknown;
+                throw new Exception("unknown category tpye");
             }
-            else
-            {
-              Log.Warn("Error adding category (id=" + c.id + ", name=" + c.name + ") to cast");
-            }
+            cat.Name = c.name;
+            cat.Url = c.url;
+            movie.Categories.Add(cat);
           }
         }
 
@@ -302,20 +292,8 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.MovieDbLib.Xml
           movie.Studios = new List<MovieDbStudios>();
           foreach (var c in m.studios)
           {
-            MovieDbStudios cat = new MovieDbStudios();
-            String url = c.url;
-            int id = Util.Int32Parse(url.Substring(url.LastIndexOf("/") + 1));
-            if (id != Util.NO_VALUE)
-            {
-              cat.Id = id;
-              cat.Name = c.name;
-              cat.Url = c.url;
-              movie.Studios.Add(cat);
-            }
-            else
-            {
-              Log.Warn("Error adding category (url=" + c.url + "name=" + c.name + ") to cast");
-            }
+            MovieDbStudios cat = new MovieDbStudios { Name = c.name, Url = c.url };
+            movie.Studios.Add(cat);
           }
         }
 
@@ -324,21 +302,8 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.MovieDbLib.Xml
           movie.Countries = new List<MovieDbCountries>();
           foreach (var c in m.countries)
           {
-            MovieDbCountries country = new MovieDbCountries();
-            String url = c.url;
-            int id = Util.Int32Parse(url.Substring(url.LastIndexOf("/") + 1));
-            if (id != Util.NO_VALUE)
-            {
-              country.Id = id;
-              country.Name = c.name;
-              country.Url = c.url;
-              country.Code = c.code;
-              movie.Countries.Add(country);
-            }
-            else
-            {
-              Log.Warn("Error adding category (url=" + c.url + "name=" + c.name + ") to cast");
-            }
+            MovieDbCountries country = new MovieDbCountries { Name = c.name, Url = c.url, Code = c.code };
+            movie.Countries.Add(country);
           }
         }
 

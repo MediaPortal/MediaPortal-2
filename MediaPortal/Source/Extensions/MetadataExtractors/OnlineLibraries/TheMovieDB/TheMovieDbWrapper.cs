@@ -174,7 +174,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.TheMovieDB
 
     protected string RemoveCharacters(string name)
     {
-      string result = new[] { "-", ",", "/", ":", " ", " ", "." }.Aggregate(name, (current, s) => current.Replace(s, ""));
+      string result = new[] { "-", ",", "/", ":", " ", " ", ".", "'" }.Aggregate(name, (current, s) => current.Replace(s, ""));
       return result.ToLowerInvariant();
     }
 

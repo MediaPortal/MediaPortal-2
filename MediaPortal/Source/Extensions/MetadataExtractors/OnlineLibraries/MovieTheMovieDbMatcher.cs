@@ -105,8 +105,11 @@ namespace MediaPortal.Extensions.OnlineLibraries
           movieInfo.Popularity = movieDetails.Popularity;
           movieInfo.ImdbId = movieDetails.ImdbId;
           movieInfo.MovieDbId = movieDetails.Id;
-          // todo: genres 
-          // movieInfo.Genres;
+          if (movieDetails.Categories.Count > 0)
+          {
+            movieInfo.Genres.Clear();
+            movieInfo.Genres.AddRange(movieDetails.Categories.Select(p => p.Name));
+          }
           if (movieDetails.Cast != null)
           {
             movieInfo.Actors.Clear();
