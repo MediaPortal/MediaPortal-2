@@ -165,9 +165,11 @@ namespace UPnP.Infrastructure.Dv
     /// Starts this UPnP server, i.e. starts a network listener and sends notifications about provided devices.
     /// </summary>
     /// <param name="advertisementInterval">Interval in seconds to repeat UPnP advertisements in the network.
-    /// The UPnP architecture document () states a minimum of 1800 seconds. For servers which will frequently change their
+    /// The UPnP architecture document (UPnP-arch-DeviceArchitecture-v1 1-20081015, 1.2.2, page 21) states a
+    /// minimum of 1800 seconds. But in the world of today, that value is much to high for many applications and in many
+    /// cases, a value of much less than 1800 seconds is choosen. For servers which will frequently change their
     /// availability, this value should be short, for more durable serves, this interval can be much longer (maybe a day).</param>
-    public void Bind(int advertisementInterval)
+    public void Bind(int advertisementInterval = UPnPConsts.DEFAULT_ADVERTISEMENT_EXPIRATION_TIME)
     {
       lock (_serverData.SyncObj)
       {

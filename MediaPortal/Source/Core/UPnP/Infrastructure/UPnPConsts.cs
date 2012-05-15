@@ -33,14 +33,14 @@ namespace UPnP.Infrastructure
   public class UPnPConsts
   {
     /// <summary>
+    /// Time in seconds until UPnP advertisments will expire.
+    /// </summary>
+    public const int DEFAULT_ADVERTISEMENT_EXPIRATION_TIME = 1800;
+
+    /// <summary>
     /// Maximum random time in milliseconds to wait until an initial advertisement of all devices is made.
     /// </summary>
     public static int INITIAL_ADVERTISEMENT_MAX_WAIT_MS = 100;
-
-    /// <summary>
-    /// Time in seconds until UPnP advertisments will expire.
-    /// </summary>
-    public static int DEFAULT_ADVERTISEMENT_EXPIRATION_TIME = 1800;
 
     /// <summary>
     /// Minimum advertisement interval in seconds.
