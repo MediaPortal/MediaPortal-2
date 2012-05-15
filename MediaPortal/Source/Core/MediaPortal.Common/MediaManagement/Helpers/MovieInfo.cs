@@ -48,7 +48,7 @@ namespace MediaPortal.Common.MediaManagement.Helpers
     public string Tagline { get; set; }
     public string Summary { get; set; }
 
-    public int Popularity { get; set; }
+    public float Popularity { get; set; }
     public long Budget { get; set; }
     public long Revenue { get; set; }
     public double Score { get; set; }

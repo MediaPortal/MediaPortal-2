@@ -41,9 +41,15 @@
     <Reference Include="ICSharpCode.SharpZipLib">
       <HintPath>..\..\ResourceProviders\ZipResourceProvider\References\ICSharpCode.SharpZipLib.dll</HintPath>
     </Reference>
+    <Reference Include="Newtonsoft.Json">
+      <HintPath>References\Newtonsoft.Json.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Drawing" />
+    <Reference Include="System.Runtime.Serialization" />
+    <Reference Include="System.ServiceModel.Web" />
+    <Reference Include="System.Web.Extensions" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="System.Data" />
@@ -79,6 +85,9 @@
     <Compile Include="Libraries\MovieDbLib\MovieDbUtils.cs" />
     <Compile Include="Libraries\MovieDbLib\Xml\MovieDbXmlReader.cs" />
     <Compile Include="Libraries\MovieDbLib\Xml\MovieDbXmlWriter.cs" />
+    <Compile Include="Libraries\MovieDbV3\Data\ImageCollection.cs" />
+    <Compile Include="Libraries\MovieDbV3\Data\Configuration.cs" />
+    <Compile Include="Libraries\MovieDbV3\Data\MovieImage.cs" />
     <Compile Include="Libraries\TvdbLib\Cache\BinaryCacheProvider.cs" />
     <Compile Include="Libraries\TvdbLib\Cache\ICacheProvider.cs" />
     <Compile Include="Libraries\TvdbLib\Cache\XmlCacheProvider.cs" />
@@ -119,7 +128,12 @@
     <Compile Include="MovieTheMovieDbMatcher.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="SeriesTvDbMatcher.cs" />
+    <Compile Include="Libraries\MovieDbV3\Data\Genre.cs" />
+    <Compile Include="Libraries\MovieDbV3\Data\Movie.cs" />
+    <Compile Include="Libraries\MovieDbV3\MovieDbApiV3.cs" />
     <Compile Include="TheMovieDB\MovieMatch.cs" />
+    <Compile Include="Libraries\MovieDbV3\Data\MovieSearchResult.cs" />
+    <Compile Include="Libraries\MovieDbV3\Data\PagedMovieSearchResult.cs" />
     <Compile Include="TheMovieDB\TheMovieDbWrapper.cs" />
     <Compile Include="TheTvDB\SeriesMatch.cs" />
     <Compile Include="Libraries\Common\Settings.cs" />

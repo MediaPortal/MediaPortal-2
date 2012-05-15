@@ -26,16 +26,15 @@ using System.Collections.Generic;
 using System.Linq;
 using MediaPortal.Common;
 using MediaPortal.Common.Logging;
-using MediaPortal.Extensions.OnlineLibraries.Libraries.MovieDbLib;
-using MediaPortal.Extensions.OnlineLibraries.Libraries.MovieDbLib.Cache;
-using MediaPortal.Extensions.OnlineLibraries.Libraries.MovieDbLib.Data;
+using MediaPortal.Extensions.OnlineLibraries.Libraries.MovieDbV3;
+using MediaPortal.Extensions.OnlineLibraries.Libraries.MovieDbV3.Data;
 
 namespace MediaPortal.Extensions.OnlineLibraries.TheMovieDB
 {
   class TheMovieDbWrapper
   {
-    protected MovieDbHandler _movieDbHandler;
-    protected MovieDbLanguage _preferredLanguage;
+    protected MovieDbApiV3 _movieDbHandler;
+    protected string _preferredLanguage;
 
     /// <summary>
     /// Sets the preferred language in short format like: en, de, ...
@@ -43,15 +42,15 @@ namespace MediaPortal.Extensions.OnlineLibraries.TheMovieDB
     /// <param name="langShort">Short language</param>
     public void SetPreferredLanguage(string langShort)
     {
-      _preferredLanguage = new MovieDbLanguage(langShort);
+      _preferredLanguage = langShort;
     }
 
     /// <summary>
     /// Returns the language that matches the value set by <see cref="SetPreferredLanguage"/> or the default language (en).
     /// </summary>
-    public MovieDbLanguage PreferredLanguage
+    public string PreferredLanguage
     {
-      get { return _preferredLanguage ?? MovieDbLanguage.DefaultLanguage; }
+      get { return _preferredLanguage ?? MovieDbApiV3.DefaultLanguage; }
     }
 
     /// <summary>
@@ -60,10 +59,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.TheMovieDB
     /// <returns></returns>
     public bool Init()
     {
-      ICacheProvider cacheProvider = new XmlCacheProvider(MovieTheMovieDbMatcher.CACHE_PATH);
-      if (!cacheProvider.InitCache())
-        return false;
-      _movieDbHandler = new MovieDbHandler(cacheProvider, "1e3f311b50e6ca53bbc3fcade2214b5e");
+      _movieDbHandler = new MovieDbApiV3("1e3f311b50e6ca53bbc3fcade2214b5e", MovieTheMovieDbMatcher.CACHE_PATH);
       return true;
     }
 
@@ -73,7 +69,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.TheMovieDB
     /// <param name="movieName">Name</param>
     /// <param name="movies">Returns the list of matches.</param>
     /// <returns><c>true</c> if at least one Series was found.</returns>
-    public bool SearchMovie(string movieName, out List<MovieDbMovie> movies)
+    public bool SearchMovie(string movieName, out List<MovieSearchResult> movies)
     {
       movies = _movieDbHandler.SearchMovie(movieName, PreferredLanguage);
       return movies.Count > 0;
@@ -89,15 +85,15 @@ namespace MediaPortal.Extensions.OnlineLibraries.TheMovieDB
     /// <param name="movies">Returns the list of matches.</param>
     /// <param name="year">Optional year of movie</param>
     /// <returns><c>true</c> if at exactly one Movie was found.</returns>
-    public bool SearchMovieUnique(string movieName, int year, out List<MovieDbMovie> movies)
+    public bool SearchMovieUnique(string movieName, int year, out List<MovieSearchResult> movies)
     {
       movies = _movieDbHandler.SearchMovie(movieName, PreferredLanguage);
       if (TestMatch(movieName, year, ref movies))
         return true;
 
-      if (movies.Count == 0 && PreferredLanguage != MovieDbLanguage.DefaultLanguage)
+      if (movies.Count == 0 && PreferredLanguage != MovieDbApiV3.DefaultLanguage)
       {
-        movies = _movieDbHandler.SearchMovie(movieName, MovieDbLanguage.DefaultLanguage);
+        movies = _movieDbHandler.SearchMovie(movieName, MovieDbApiV3.DefaultLanguage);
         // If also no match in default language is found, we will look for combined movies names:
         // i.e. "Sanctuary - Wächter der Kreaturen" is not found, but "Sanctuary" is.
         if (!TestMatch(movieName, year, ref movies) && movieName.Contains("-"))
@@ -117,7 +113,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.TheMovieDB
     /// <param name="year">Optional year</param>
     /// <param name="movies">Potential online matches. The collection will be modified inside this method.</param>
     /// <returns><c>true</c> if unique match</returns>
-    private bool TestMatch(string moviesName, int year, ref List<MovieDbMovie> movies)
+    private bool TestMatch(string moviesName, int year, ref List<MovieSearchResult> movies)
     {
       // Exact match in preferred language
       ServiceRegistration.Get<ILogger>().Debug("TheMovieDbWrapper      : Test Match for \"{0}\"", moviesName);
@@ -132,13 +128,13 @@ namespace MediaPortal.Extensions.OnlineLibraries.TheMovieDB
       if (movies.Count > 1)
       {
         ServiceRegistration.Get<ILogger>().Debug("TheMovieDbWrapper      : Multiple matches for \"{0}\" ({1}). Try to find exact name match.", moviesName, movies.Count);
-        movies = movies.FindAll(s => s.MovieName == moviesName || IsSimilarOrEqual(s.MovieName, moviesName));
+        movies = movies.FindAll(s => s.Title == moviesName || s.OriginalTitle == moviesName || IsSimilarOrEqual(s.Title, moviesName));
         if (movies.Count > 1)
         {
           // Try to match the year, if available
           if (year > 0)
           {
-            var yearFiltered = movies.FindAll(s => s.Released.Year == year);
+            var yearFiltered = movies.FindAll(s => s.ReleaseDate.Year == year);
             if (yearFiltered.Count == 1)
             {
               ServiceRegistration.Get<ILogger>().Debug("TheMovieDbWrapper      : Unique match found \"{0}\" [{1}]!", moviesName, year);
@@ -146,15 +142,15 @@ namespace MediaPortal.Extensions.OnlineLibraries.TheMovieDB
               return true;
             }
           }
-          ServiceRegistration.Get<ILogger>().Debug("TheMovieDbWrapper      : Multiple matches for exact name \"{0}\" ({1}). Try to find match for preferred language {2}.", moviesName, movies.Count, PreferredLanguage);
-          movies = movies.FindAll(s => s.Language == PreferredLanguage);
+          //ServiceRegistration.Get<ILogger>().Debug("TheMovieDbWrapper      : Multiple matches for exact name \"{0}\" ({1}). Try to find match for preferred language {2}.", moviesName, movies.Count, PreferredLanguage);
+          //movies = movies.FindAll(s => s.Language == PreferredLanguage);
         }
         return movies.Count == 1;
       }
       return false;
     }
     
-    public bool GetMovie(int id, out MovieDbMovie movieDetail)
+    public bool GetMovie(int id, out Movie movieDetail)
     {
       movieDetail = _movieDbHandler.GetMovie(id, PreferredLanguage);
       return movieDetail != null;
@@ -178,16 +174,21 @@ namespace MediaPortal.Extensions.OnlineLibraries.TheMovieDB
       return result.ToLowerInvariant();
     }
 
-    ///// <summary>
-    ///// Gets Series information from TvDB. Results will be added automatically to cache.
-    ///// </summary>
-    ///// <param name="seriesId">TvDB ID of movies</param>
-    ///// <param name="movie">Returns the Series information</param>
-    ///// <returns><c>true</c> if successful</returns>
-    //public bool GetMovieFanArt(int seriesId, out MovieDbMovie movie)
-    //{
-    //  movie = _movieDbHandler.GetSeries(seriesId, PreferredLanguage, false, false, true);
-    //  return movie != null;
-    //}
+    /// <summary>
+    /// Gets images for the requested movie.
+    /// </summary>
+    /// <param name="id">TMDB ID of movie</param>
+    /// <param name="imageCollection">Returns the ImageCollection</param>
+    /// <returns><c>true</c> if successful</returns>
+    public bool GetMovieFanArt(int id, out ImageCollection imageCollection)
+    {
+      imageCollection = _movieDbHandler.GetImages(id, null); // Download all image information, filter later!
+      return imageCollection != null;
+    }
+
+    public bool DownloadImage(MovieImage image, string category)
+    {
+      return _movieDbHandler.DownloadImage(image, category);
+    }
   }
 }

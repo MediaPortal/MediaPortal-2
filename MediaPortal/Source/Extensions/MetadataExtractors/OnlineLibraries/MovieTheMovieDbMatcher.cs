@@ -35,8 +35,7 @@ using MediaPortal.Common.MediaManagement.Helpers;
 using MediaPortal.Common.PathManager;
 using MediaPortal.Common.Threading;
 using MediaPortal.Extensions.OnlineLibraries.Libraries.Common;
-using MediaPortal.Extensions.OnlineLibraries.Libraries.MovieDbLib.Data;
-using MediaPortal.Extensions.OnlineLibraries.Libraries.MovieDbLib.Data.Banner;
+using MediaPortal.Extensions.OnlineLibraries.Libraries.MovieDbV3.Data;
 using MediaPortal.Extensions.OnlineLibraries.TheMovieDB;
 
 namespace MediaPortal.Extensions.OnlineLibraries
@@ -64,7 +63,7 @@ namespace MediaPortal.Extensions.OnlineLibraries
 
     #region Fields
 
-    protected Dictionary<string, MovieDbMovie> _memoryCache = new Dictionary<string, MovieDbMovie>();
+    protected Dictionary<string, Movie> _memoryCache = new Dictionary<string, Movie>();
 
     /// <summary>
     /// Locking object to access settings.
@@ -90,14 +89,14 @@ namespace MediaPortal.Extensions.OnlineLibraries
     /// <returns><c>true</c> if successful</returns>
     public bool FindAndUpdateMovie(MovieInfo movieInfo)
     {
-      MovieDbMovie movieDetails;
+      Movie movieDetails;
       if (TryMatch(movieInfo.MovieName, movieInfo.Year, false, out movieDetails))
       {
         int movieDbId = 0;
         if (movieDetails != null)
         {
           movieDbId = movieDetails.Id;
-          movieInfo.MovieName = movieDetails.MovieName;
+          movieInfo.MovieName = movieDetails.Title;
           movieInfo.Summary = movieDetails.Overview;
           movieInfo.Budget = movieDetails.Budget;
           movieInfo.Revenue = movieDetails.Revenue;
@@ -105,19 +104,19 @@ namespace MediaPortal.Extensions.OnlineLibraries
           movieInfo.Popularity = movieDetails.Popularity;
           movieInfo.ImdbId = movieDetails.ImdbId;
           movieInfo.MovieDbId = movieDetails.Id;
-          if (movieDetails.Categories.Count > 0)
+          if (movieDetails.Genres.Count > 0)
           {
             movieInfo.Genres.Clear();
-            movieInfo.Genres.AddRange(movieDetails.Categories.Select(p => p.Name));
+            movieInfo.Genres.AddRange(movieDetails.Genres.Select(p => p.Name));
           }
-          if (movieDetails.Cast != null)
-          {
-            movieInfo.Actors.Clear();
-            movieInfo.Actors.AddRange(movieDetails.Cast.Where(p => p.Job == "Actor").Select(p => p.Name));
-            movieInfo.Directors.Clear();
-            movieInfo.Directors.AddRange(movieDetails.Cast.Where(p => p.Job == "Director").Select(p => p.Name));
-          }
-          int year = movieDetails.Released.Year;
+          //if (movieDetails.Cast != null)
+          //{
+          //  movieInfo.Actors.Clear();
+          //  movieInfo.Actors.AddRange(movieDetails.Cast.Where(p => p.Job == "Actor").Select(p => p.Name));
+          //  movieInfo.Directors.Clear();
+          //  movieInfo.Directors.AddRange(movieDetails.Cast.Where(p => p.Job == "Director").Select(p => p.Name));
+          //}
+          int year = movieDetails.ReleaseDate.Year;
           if (year > 0)
             movieInfo.Year = year;
         }
@@ -129,8 +128,7 @@ namespace MediaPortal.Extensions.OnlineLibraries
       return false;
     }
 
-
-    protected bool TryMatch(string movieName, int year, bool cacheOnly, out MovieDbMovie movieDetail)
+    protected bool TryMatch(string movieName, int year, bool cacheOnly, out Movie movieDetail)
     {
       movieDetail = null;
       try
@@ -160,11 +158,11 @@ namespace MediaPortal.Extensions.OnlineLibraries
         if (cacheOnly)
           return false;
 
-        List<MovieDbMovie> movies;
+        List<MovieSearchResult> movies;
         if (_movieDb.SearchMovieUnique(movieName, year, out movies))
         {
-          movieDetail = movies[0];
-          ServiceRegistration.Get<ILogger>().Debug("MovieTheMovieDbMatcher: Found unique online match for \"{0}\": \"{1}\" [Lang: {2}]", movieName, movieDetail.MovieName, movieDetail.Language);
+          MovieSearchResult movieResult = movies[0];
+          ServiceRegistration.Get<ILogger>().Debug("MovieTheMovieDbMatcher: Found unique online match for \"{0}\": \"{1}\"", movieName, movieResult.Title);
           if (_movieDb.GetMovie(movies[0].Id, out movieDetail))
           {
             // Add this match to cache
@@ -172,7 +170,7 @@ namespace MediaPortal.Extensions.OnlineLibraries
               {
                 MovieName = movieName,
                 ID = movieDetail.Id,
-                MovieDBName = movieDetail.MovieName
+                MovieDBName = movieDetail.Title
               };
 
             // Save cache
@@ -255,13 +253,15 @@ namespace MediaPortal.Extensions.OnlineLibraries
         if (!Init())
           return;
 
-        MovieDbMovie movieDetail;
-        if (!_movieDb.GetMovie(movieDbId, out movieDetail))
+        ImageCollection imageCollection;
+        if (!_movieDb.GetMovieFanArt(movieDbId, out imageCollection))
           return;
 
         // Save Banners
         ServiceRegistration.Get<ILogger>().Debug("MovieTheMovieDbMatcher Download: Begin saving banners for ID {0}", movieDbId);
-        SaveBanners(movieDetail.Banners);
+        SaveBanners(imageCollection.Backdrops, "Backdrops");
+        SaveBanners(imageCollection.Covers, "Covers");
+        SaveBanners(imageCollection.Posters, "Posters");
       }
       catch (Exception ex)
       {
@@ -269,19 +269,18 @@ namespace MediaPortal.Extensions.OnlineLibraries
       }
     }
 
-    private static int SaveBanners<TE>(IEnumerable<TE> banners) where TE : MovieDbBanner
+    private int SaveBanners(IEnumerable<MovieImage> banners, string category)
     {
-      int idx = 0;
-      foreach (TE banner in banners)
-      {
-        if (idx++ >= 10)
-          break;
+      if (banners == null)
+        return 0;
 
-        foreach (MovieDbBanner.BannerSizes size in banner.ImageSizes.Keys)
-        {
-          banner.ImageSizes[size].LoadBanner();
-          banner.ImageSizes[size].UnloadBanner();
-        }
+      int idx = 0;
+      foreach (MovieImage banner in banners.Where(b=> b.Language == null || b.Language == _movieDb.PreferredLanguage))
+      {
+        if (idx >= MAX_FANART_IMAGES)
+          break;
+        if (_movieDb.DownloadImage(banner, category))
+          idx++;
       }
       return idx;
     }
