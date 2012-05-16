@@ -56,35 +56,6 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Libraries\MovieDbLib\Cache\ICacheProvider.cs" />
-    <Compile Include="Libraries\MovieDbLib\Cache\XmlCacheProvider.cs" />
-    <Compile Include="Libraries\MovieDbLib\Data\Banner\BannerSize.cs" />
-    <Compile Include="Libraries\MovieDbLib\Data\Banner\MovieDbBackdrop.cs" />
-    <Compile Include="Libraries\MovieDbLib\Data\Banner\MovieDbBanner.cs" />
-    <Compile Include="Libraries\MovieDbLib\Data\Banner\MovieDbPersonImage.cs" />
-    <Compile Include="Libraries\MovieDbLib\Data\Banner\MovieDbPoster.cs" />
-    <Compile Include="Libraries\MovieDbLib\Data\Comparer\MovieComparer.cs" />
-    <Compile Include="Libraries\MovieDbLib\Data\MovieDbCategory.cs" />
-    <Compile Include="Libraries\MovieDbLib\Data\MovieDbCountries.cs" />
-    <Compile Include="Libraries\MovieDbLib\Data\MovieDbLanguage.cs" />
-    <Compile Include="Libraries\MovieDbLib\Data\MovieDbMovie.cs" />
-    <Compile Include="Libraries\MovieDbLib\Data\MovieDbStudios.cs" />
-    <Compile Include="Libraries\MovieDbLib\Data\MovieFields.cs" />
-    <Compile Include="Libraries\MovieDbLib\Data\Persons\MovieDbCast.cs" />
-    <Compile Include="Libraries\MovieDbLib\Data\Persons\MovieDbPerson.cs" />
-    <Compile Include="Libraries\MovieDbLib\Data\Persons\MovieDbPersonMovieJob.cs" />
-    <Compile Include="Libraries\MovieDbLib\Exceptions\MovieDbContentNotFoundException.cs" />
-    <Compile Include="Libraries\MovieDbLib\Exceptions\MovieDbException.cs" />
-    <Compile Include="Libraries\MovieDbLib\Exceptions\MovieDbInvalidApiKeyException.cs" />
-    <Compile Include="Libraries\MovieDbLib\Exceptions\MovieDbInvalidXmlException.cs" />
-    <Compile Include="Libraries\MovieDbLib\Exceptions\MovieDbNotAvailableException.cs" />
-    <Compile Include="Libraries\MovieDbLib\Exceptions\MovieDbUserNotFoundException.cs" />
-    <Compile Include="Libraries\MovieDbLib\MovieDbDownloader.cs" />
-    <Compile Include="Libraries\MovieDbLib\MovieDbHandler.cs" />
-    <Compile Include="Libraries\MovieDbLib\MovieDbLinkCreator.cs" />
-    <Compile Include="Libraries\MovieDbLib\MovieDbUtils.cs" />
-    <Compile Include="Libraries\MovieDbLib\Xml\MovieDbXmlReader.cs" />
-    <Compile Include="Libraries\MovieDbLib\Xml\MovieDbXmlWriter.cs" />
     <Compile Include="Libraries\MovieDbV3\Data\ImageCollection.cs" />
     <Compile Include="Libraries\MovieDbV3\Data\Configuration.cs" />
     <Compile Include="Libraries\MovieDbV3\Data\MovieImage.cs" />

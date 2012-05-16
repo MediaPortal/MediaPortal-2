@@ -262,6 +262,7 @@ namespace MediaPortal.Extensions.OnlineLibraries
         SaveBanners(imageCollection.Backdrops, "Backdrops");
         SaveBanners(imageCollection.Covers, "Covers");
         SaveBanners(imageCollection.Posters, "Posters");
+        ServiceRegistration.Get<ILogger>().Debug("MovieTheMovieDbMatcher Download: Finished saving banners for ID {0}", movieDbId);
       }
       catch (Exception ex)
       {
@@ -282,6 +283,7 @@ namespace MediaPortal.Extensions.OnlineLibraries
         if (_movieDb.DownloadImage(banner, category))
           idx++;
       }
+      ServiceRegistration.Get<ILogger>().Debug("MovieTheMovieDbMatcher Download: Saved {0} {1}", idx, category);
       return idx;
     }
   }
