@@ -113,18 +113,11 @@ namespace MediaPortal.UI.SkinEngine.Controls.ImageSources
 
     public override void Allocate()
     {
+      _imageContext.Rotation = _rotation;
       if (_texture == null && _thumbBinary != null)
         _texture = ContentManager.Instance.GetTexture(_thumbBinary, _key);
       if (_texture != null && !_texture.IsAllocated)
-      {
         _texture.Allocate();
-        if (_texture.IsAllocated)
-        {
-          _imageContext.Refresh();
-          _imageContext.Rotation = _rotation;
-          FireChanged();
-        }
-      }
     }
 
     #endregion

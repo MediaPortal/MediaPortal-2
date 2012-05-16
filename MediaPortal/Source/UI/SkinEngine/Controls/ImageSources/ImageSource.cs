@@ -22,7 +22,6 @@
 
 #endregion
 
-using System;
 using System.Drawing;
 using MediaPortal.Common.General;
 using MediaPortal.UI.SkinEngine.MpfElements;
