@@ -265,7 +265,7 @@ namespace MediaPortal.UI.Services.ServerCommunication
         }
         catch (Exception e)
         {
-          ServiceRegistration.Get<ILogger>().Warn("ServerConnectionManager: Error attaching to home server '{0}'", e, HomeServerSystemId);
+          ServiceRegistration.Get<ILogger>().Warn("ServerConnectionManager: Error checking attachment state at home server '{0}'", e, HomeServerSystemId);
           return; // This is a real error case, we don't need to try any other service calls
         }
       IImporterWorker importerWorker = ServiceRegistration.Get<IImporterWorker>();
