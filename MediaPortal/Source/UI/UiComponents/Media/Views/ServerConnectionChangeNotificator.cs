@@ -65,7 +65,7 @@ namespace MediaPortal.UiComponents.Media.Views
     {
       if (_messageQueue != null)
       {
-        _messageQueue.Shutdown();
+        _messageQueue.Terminate();
         _messageQueue = null;
       }
     }
