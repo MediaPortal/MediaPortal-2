@@ -23,7 +23,6 @@
 #endregion
 
 using System.Collections.Generic;
-using System.Linq;
 
 namespace MediaPortal.UiComponents.Media.Views
 {
@@ -34,8 +33,6 @@ namespace MediaPortal.UiComponents.Media.Views
     public CombinedViewChangeNotificator(IEnumerable<IViewChangeNotificator> changeNotificators)
     {
       _changeNotificators = new List<IViewChangeNotificator>(changeNotificators);
-      foreach (IViewChangeNotificator vcn in changeNotificators)
-        vcn.Changed += OnSubChangeNotificatorChanged;
     }
 
     private void OnSubChangeNotificatorChanged()
@@ -50,7 +47,10 @@ namespace MediaPortal.UiComponents.Media.Views
     public void install()
     {
       foreach (IViewChangeNotificator vcn in _changeNotificators)
+      {
+        vcn.Changed += OnSubChangeNotificatorChanged;
         vcn.install();
+      }
     }
 
     public void Dispose()
@@ -62,14 +62,19 @@ namespace MediaPortal.UiComponents.Media.Views
       }
     }
 
-    public static IViewChangeNotificator CombineViewChangeNotificators<T>(IEnumerable<T> viewSpecifications) where T : ViewSpecification
+    public static IViewChangeNotificator CombineViewChangeNotificators(params IViewChangeNotificator[] changeNotificators)
     {
-      IList<IViewChangeNotificator> subChangeNotificators = viewSpecifications.Select(vs => vs.GetChangeNotificator()).Where(vcn => vcn != null).ToList();
-      if (subChangeNotificators.Count == 0)
+      return CombineViewChangeNotificators((IEnumerable<IViewChangeNotificator>) changeNotificators);
+    }
+
+    public static IViewChangeNotificator CombineViewChangeNotificators(IEnumerable<IViewChangeNotificator> changeNotificators)
+    {
+      IList<IViewChangeNotificator> changeNotificatorsCopy = new List<IViewChangeNotificator>(changeNotificators);
+      if (changeNotificatorsCopy.Count == 0)
         return null;
-      if (subChangeNotificators.Count == 1)
-        return subChangeNotificators[0];
-      return new CombinedViewChangeNotificator(subChangeNotificators);
+      if (changeNotificatorsCopy.Count == 1)
+        return changeNotificatorsCopy[0];
+      return new CombinedViewChangeNotificator(changeNotificatorsCopy);
     }
   }
 }

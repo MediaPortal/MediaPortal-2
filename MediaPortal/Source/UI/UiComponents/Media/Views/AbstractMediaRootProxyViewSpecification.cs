@@ -46,7 +46,7 @@ namespace MediaPortal.UiComponents.Media.Views
 
     #region Base overrides
 
-    public override IViewChangeNotificator GetChangeNotificator()
+    public override IViewChangeNotificator CreateChangeNotificator()
     {
       // Actually, we should also watch the client's and the server's set of shares. If they change, we should also generate a change event.
       return new ServerConnectionChangeNotificator();

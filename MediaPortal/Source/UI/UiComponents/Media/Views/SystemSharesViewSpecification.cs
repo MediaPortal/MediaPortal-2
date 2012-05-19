@@ -82,6 +82,11 @@ namespace MediaPortal.UiComponents.Media.Views
       }
     }
 
+    public override IViewChangeNotificator CreateChangeNotificator()
+    {
+      return new ServerConnectionChangeNotificator();
+    }
+
     protected internal override void ReLoadItemsAndSubViewSpecifications(out IList<MediaItem> mediaItems, out IList<ViewSpecification> subViewSpecifications)
     {
       mediaItems = new List<MediaItem>();

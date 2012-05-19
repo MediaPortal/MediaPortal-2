@@ -24,9 +24,7 @@
 
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using MediaPortal.Common.MediaManagement;
-using MediaPortal.Utilities;
 
 namespace MediaPortal.UiComponents.Media.Views
 {
@@ -184,14 +182,9 @@ namespace MediaPortal.UiComponents.Media.Views
       _subViews = null;
     }
 
-    public IViewChangeNotificator GetViewChangeNotificator()
+    public IViewChangeNotificator CreateViewChangeNotificator()
     {
-      List<ViewSpecification> viewSpecifications = new List<ViewSpecification> {_viewSpecification};
-      IList<View> subViews = SubViews;
-      if (subViews == null)
-        return null;
-      CollectionUtils.AddAll(viewSpecifications, SubViews.Select(subView => subView.Specification));
-      return CombinedViewChangeNotificator.CombineViewChangeNotificators(viewSpecifications);
+      return _viewSpecification.CreateChangeNotificator();
     }
 
     public override string ToString()

@@ -104,7 +104,7 @@ namespace MediaPortal.UiComponents.Media.Views
       get { return _driveInfo.IsReady; }
     }
 
-    public override IViewChangeNotificator GetChangeNotificator()
+    public override IViewChangeNotificator CreateChangeNotificator()
     {
       return new RemovableDriveChangeNotificator(_driveInfo.Name);
     }

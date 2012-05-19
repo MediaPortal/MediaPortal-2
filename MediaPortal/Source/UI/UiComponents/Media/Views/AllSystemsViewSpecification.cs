@@ -56,6 +56,11 @@ namespace MediaPortal.UiComponents.Media.Views
       }
     }
 
+    public override IViewChangeNotificator CreateChangeNotificator()
+    {
+      return new ServerConnectionChangeNotificator();
+    }
+
     protected string BuildExtendedDisplayName(string systemId, string systemName)
     {
       return string.Format("{1} ({0})", systemId, systemName);

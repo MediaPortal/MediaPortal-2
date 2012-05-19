@@ -34,7 +34,7 @@ namespace MediaPortal.UiComponents.Media.Views
 
     public RemovableDriveChangeNotificator(string drive)
     {
-      _drive = drive.Substring(0, 2);
+      _drive = drive == null ? null : drive.Substring(0, 2);
     }
 
     void SubscribeToMessages()
@@ -64,7 +64,7 @@ namespace MediaPortal.UiComponents.Media.Views
             messageType == RemovableMediaMessaging.MessageType.MediaRemoved)
         {
           string drive = (string) message.MessageData[RemovableMediaMessaging.DRIVE_LETTER];
-          if (drive == _drive)
+          if (drive == null || drive == _drive)
             FireChanged();
         }
       }

@@ -179,7 +179,7 @@ namespace MediaPortal.UiComponents.Media.Models.ScreenData
         }
         // Mark the list as being built
         view = _view;
-        InstallViewChangeNotificator(_view.GetViewChangeNotificator());
+        InstallViewChangeNotificator(_view.CreateViewChangeNotificator());
         _buildingList = true;
         _listDirty = false;
       }
