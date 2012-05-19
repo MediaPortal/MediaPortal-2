@@ -122,6 +122,9 @@ namespace MediaPortal.UiComponents.Media.General
     public const string RES_CANNOT_PLAY_ITEM_DIALOG_TEXT = "[Media.CannotPlayItemDialogText]";
     public const string RES_CANNOT_PLAY_ITEMS_DIALOG_TEXT = "[Media.CannotPlayItemsDialogText]";
 
+    public const string RES_CLIENT_SHARES = "[Media.ClientShares]";
+    public const string RES_SERVER_SHARES = "[Media.ServerShares]";
+
     public const string RES_BROWSE_MEDIA_ROOT_VIEW_NAME = "[Media.BrowseMediaRootViewName]";
     public const string RES_LOCAL_MEDIA_ROOT_VIEW_NAME = "[Media.LocalMediaRootViewName]";
     public const string RES_AUDIO_VIEW_NAME = "[Media.AudioRootViewName]";

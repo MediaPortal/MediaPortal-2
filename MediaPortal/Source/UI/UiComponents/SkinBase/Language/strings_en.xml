@@ -192,8 +192,6 @@
     <String Name="ChooseResourceProviderPathForShare" Text="Choose the path of the share"/>
     <String Name="EditShareName" Text="Edit the share's display name"/>
     <String Name="ChooseShareCategories" Text="Choose the categories of media contents located in the share"/>
-    <String Name="ChooseMetadataExtractorsManually" Text="Choose metadata extractors manually"/>
-    <String Name="ChooseShareMetadataExtractors" Text="Choose the metadata extractors which should be applied to the share"/>
     <String Name="MenuAddShare" Text="Add"/>
     <String Name="MenuEditShares" Text="Edit"/>
     <String Name="MenuRemoveShares" Text="Remove"/>

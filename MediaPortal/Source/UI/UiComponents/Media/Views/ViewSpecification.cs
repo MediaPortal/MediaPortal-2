@@ -133,8 +133,8 @@ namespace MediaPortal.UiComponents.Media.Views
     /// The uppercase L of the name is no spelling error; it denotes that this method is for
     /// Loading and Reloading of media items.
     /// </remarks>
-    /// <param name="mediaItems">Media items to this view specification.</param>
-    /// <param name="subViewSpecifications">Sub view specifications to this view specification.</param>
+    /// <param name="mediaItems">Media items to this view specification. <c>null</c> if the loading of items didn't succeed.</param>
+    /// <param name="subViewSpecifications">Sub view specifications to this view specification. <c>null</c> if the loading of sub views didn't succeed.</param>
     /// <exception cref="Exception">If there are problems accessing the datasource of this view. Exceptions in reading
     /// and/or parsing media items should not be thrown; those media items should simply be ignored.</exception>
     protected internal abstract void ReLoadItemsAndSubViewSpecifications(out IList<MediaItem> mediaItems, out IList<ViewSpecification> subViewSpecifications);

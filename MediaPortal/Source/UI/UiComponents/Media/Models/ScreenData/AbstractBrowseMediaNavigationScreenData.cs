@@ -23,12 +23,9 @@
 #endregion
 
 using System;
-using System.Collections.Generic;
 using MediaPortal.Common;
-using MediaPortal.Common.ClientCommunication;
 using MediaPortal.Common.Logging;
 using MediaPortal.Common.MediaManagement;
-using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.Common.ResourceAccess;
 using MediaPortal.Common.SystemResolver;
 using MediaPortal.UI.Presentation.Workflow;
@@ -45,6 +42,21 @@ namespace MediaPortal.UiComponents.Media.Models.ScreenData
         PlayableItemCreatorDelegate playableItemCreator, bool presentsBaseView) :
         base(screen, menuItemLabel, navbarSubViewNavigationDisplayLabel, playableItemCreator, presentsBaseView) { }
 
+    protected static ViewSpecification Unwrap(ViewSpecification vs)
+    {
+      // Unwrap potentially available removable media VS to get access to the inner ML VS or Local Browsing VS
+      AddedRemovableMediaViewSpecificationFacade armvs = vs as AddedRemovableMediaViewSpecificationFacade;
+      return armvs == null ? vs : armvs.DelegateViewSpecification;
+    }
+
+    protected static T FindParentViewSpecification<T>(NavigationData nd) where T : class
+    {
+      T result = null;
+      while (nd != null && (result = Unwrap(nd.BaseViewSpecification) as T) == null)
+        nd = nd.Parent;
+      return result;
+    }
+
     /// <summary>
     /// There are two modes for browsing media in its directory structure; ML browsing and local browsing.
     /// This method switches between those modes and tries to navigate to the most sensible sibling state, i.e.
@@ -60,19 +72,21 @@ namespace MediaPortal.UiComponents.Media.Models.ScreenData
         ServiceRegistration.Get<ILogger>().Warn("AbstractBrowseMediaNavigationScreenData: Cannot navigate to sibling browse media state - there is no active media screen");
         return;
       }
-      ViewSpecification vs = nd.BaseViewSpecification;
-
-      // Unwrap potentially available removable media VS to get access to the inner ML VS or Local Browsing VS
-      AddedRemovableMediaViewSpecificationFacade armvs = vs as AddedRemovableMediaViewSpecificationFacade;
-      if (armvs != null)
-        vs = armvs.DelegateViewSpecification;
+      AbstractBrowseMediaNavigationScreenData screenData = nd.CurrentScreenData as AbstractBrowseMediaNavigationScreenData;
+      if (screenData == null)
+      {
+        ServiceRegistration.Get<ILogger>().Warn("AbstractBrowseMediaNavigationScreenData: Cannot navigate to sibling browse media state - there is no active media items screen");
+        return;
+      }
+      ViewSpecification vs = Unwrap(nd.BaseViewSpecification);
 
       // Check Browse view states
 
       MediaLibraryBrowseViewSpecification mlbvs = vs as MediaLibraryBrowseViewSpecification;
       if (mlbvs != null)
       { // We're in some MediaLibrary browsing state - match the local media browsing which corresponds to the state
-        if (mlbvs.SystemId != localSystemId)
+        IServerConnectionManager serverConnectionManager = ServiceRegistration.Get<IServerConnectionManager>();
+        if (mlbvs.SystemId != localSystemId && mlbvs.SystemId != serverConnectionManager.HomeServerSystemId)
         { // If the currently browsed system is a different one, we can just navigate to the local browsing root view
           NavigateToLocalBrowse(null);
           return;
@@ -81,15 +95,21 @@ namespace MediaPortal.UiComponents.Media.Models.ScreenData
         NavigateToLocalBrowse(mlbvs.BasePath);
         return;
       }
+
+      BrowseMediaRootProxyViewSpecification bmrvs = vs as BrowseMediaRootProxyViewSpecification;
       SystemSharesViewSpecification ssvs = vs as SystemSharesViewSpecification;
       AllSystemsViewSpecification asvs = vs as AllSystemsViewSpecification;
-      if (ssvs != null || asvs != null)
-      { // If the current browsing state shows all systems or the shares of a single system, we can just navigate to the local browsing root view
+      if (ssvs != null || asvs != null || bmrvs != null)
+      { // If the current browsing state shows one of the root browse states, we can just navigate to the local browsing root view
         NavigateToLocalBrowse(null);
         return;
       }
+
+      // Check local view states
+
+      LocalMediaRootProxyViewSpecification lmrpvs = vs as LocalMediaRootProxyViewSpecification;
       LocalSharesViewSpecification lsvs = vs as LocalSharesViewSpecification;
-      if (lsvs != null)
+      if (lmrpvs != null || lsvs != null)
       { // If the current browsing state shows the local shares, we can just switch to the shares view of the local system as ML browsing view
         NavigateToMLBrowse(null);
         return;
@@ -130,66 +150,17 @@ namespace MediaPortal.UiComponents.Media.Models.ScreenData
       return bestMatchShare;
     }
 
-    protected delegate ViewSpecification CreateVSDlgt(IFileSystemResourceAccessor viewRA);
-
-    protected static void Build(IResourceAccessor startRA, ResourcePath targetPath, NavigationData nd, CreateVSDlgt createVsDlgt)
-    {
-      AbstractItemsScreenData sd = (AbstractItemsScreenData) nd.CurrentScreenData;
-      IFileSystemResourceAccessor current = startRA as IFileSystemResourceAccessor;
-      if (current == null)
-      {
-        // Wrong path resource, cannot navigate. Should not happen if the share is based on a filesystem resource,
-        // but might happen if we have found a non-standard share.
-        startRA.Dispose();
-        return;
-      }
-      while (true)
-      {
-        ICollection<IFileSystemResourceAccessor> children = FileSystemResourceNavigator.GetChildDirectories(current);
-        current.Dispose();
-        current = null;
-        foreach (IFileSystemResourceAccessor childDirectory in children)
-        {
-          if (childDirectory.CanonicalLocalResourcePath.IsSameOrParentOf(targetPath))
-          {
-            current = childDirectory;
-            break;
-          }
-          childDirectory.Dispose();
-        }
-        if (current == null)
-          break;
-        ViewSpecification newVS = createVsDlgt(current);
-        if (newVS == null)
-          return;
-        nd = sd.NavigateToView(newVS);
-        sd = (AbstractItemsScreenData) nd.CurrentScreenData;
-      }
-    }
-
-    protected static bool GetLocalSystemData(out string localSystemId, out string localSystemName)
-    {
-      localSystemName = null;
-      ISystemResolver systemResolver = ServiceRegistration.Get<ISystemResolver>();
-      localSystemId = systemResolver.LocalSystemId;
-      IServerConnectionManager scm = ServiceRegistration.Get<IServerConnectionManager>();
-      if (scm == null)
-        return false;
-      IServerController sc = scm.ServerController;
-      if (sc == null)
-        return false;
-      foreach (MPClientMetadata client in sc.GetAttachedClients())
-      {
-        if (client.SystemId == localSystemId)
-        {
-          localSystemName = client.LastClientName;
-          return true;
-        }
-      }
-      return false;
-    }
-
     protected static void NavigateToLocalBrowse(ResourcePath path)
+    {
+      Navigate(path, Consts.WF_STATE_ID_LOCAL_MEDIA_NAVIGATION_ROOT);
+    }
+
+    protected static void NavigateToMLBrowse(ResourcePath path)
+    {
+      Navigate(path, Consts.WF_STATE_ID_BROWSE_MEDIA_NAVIGATION_ROOT);
+    }
+
+    protected static void Navigate(ResourcePath path, Guid targetState)
     {
       IWorkflowManager workflowManager = ServiceRegistration.Get<IWorkflowManager>();
       workflowManager.StartBatchUpdate();
@@ -197,7 +168,7 @@ namespace MediaPortal.UiComponents.Media.Models.ScreenData
       {
         workflowManager.NavigatePopStates(new Guid[] {Consts.WF_STATE_ID_LOCAL_MEDIA_NAVIGATION_ROOT, Consts.WF_STATE_ID_BROWSE_MEDIA_NAVIGATION_ROOT});
 
-        workflowManager.NavigatePush(Consts.WF_STATE_ID_LOCAL_MEDIA_NAVIGATION_ROOT);
+        workflowManager.NavigatePush(targetState);
 
         Share localShare = FindLocalShareContainingPath(path);
         if (localShare == null)
@@ -205,84 +176,25 @@ namespace MediaPortal.UiComponents.Media.Models.ScreenData
           ServiceRegistration.Get<ILogger>().Warn("AbstractBrowseMediaNavigationScreenData: Cannot navigate to local browse view - no local share countaining path '{0}' found", path);
           return;
         }
-        NavigationData nd = MediaNavigationModel.GetNavigationData(workflowManager.CurrentNavigationContext, false);
-        if (nd == null)
-        {
-          ServiceRegistration.Get<ILogger>().Warn("AbstractBrowseMediaNavigationScreenData: Cannot navigate to local browse view - no navigation data found");
-          return;
-        }
-        AbstractItemsScreenData sd = (AbstractItemsScreenData) nd.CurrentScreenData;
-
-        ViewSpecification vs = nd.BaseViewSpecification;
-        ICollection<Guid> necessaryMIATypeIds = vs.NecessaryMIATypeIds;
-        ICollection<Guid> optionalMIATypeIds = vs.OptionalMIATypeIds;
-        nd = sd.NavigateToView(new LocalDirectoryViewSpecification(localShare.Name, localShare.BaseResourcePath,
-            necessaryMIATypeIds, optionalMIATypeIds));
-
-        IResourceAccessor startRa = localShare.BaseResourcePath.CreateLocalResourceAccessor();
-        Build(startRa, path, nd, viewRA =>
-            new LocalDirectoryViewSpecification(null, viewRA.CanonicalLocalResourcePath, necessaryMIATypeIds, optionalMIATypeIds));
-      }
-      finally
-      {
-        workflowManager.EndBatchUpdate();
-      }
-    }
-
-    protected static void NavigateToMLBrowse(ResourcePath path)
-    {
-      IWorkflowManager workflowManager = ServiceRegistration.Get<IWorkflowManager>();
-      workflowManager.StartBatchUpdate();
-      try
-      {
-        IServerConnectionManager scm = ServiceRegistration.Get<IServerConnectionManager>();
-        IContentDirectory cd = scm.ContentDirectory;
-        if (cd == null)
-        {
-          ServiceRegistration.Get<ILogger>().Error("AbstractBrowseMediaNavigationScreenData: Cannot navigate to ML browse view - the MP2 server is not connected");
-          return;
-        }
-
-        workflowManager.NavigatePopStates(new Guid[] {Consts.WF_STATE_ID_LOCAL_MEDIA_NAVIGATION_ROOT, Consts.WF_STATE_ID_BROWSE_MEDIA_NAVIGATION_ROOT});
-        workflowManager.NavigatePush(Consts.WF_STATE_ID_BROWSE_MEDIA_NAVIGATION_ROOT);
 
         NavigationData nd = MediaNavigationModel.GetNavigationData(workflowManager.CurrentNavigationContext, false);
         if (nd == null)
-        {
-          ServiceRegistration.Get<ILogger>().Error("AbstractBrowseMediaNavigationScreenData: Cannot navigate to ML browse view - no navigation data found");
           return;
-        }
-        AbstractItemsScreenData sd = (AbstractItemsScreenData) nd.CurrentScreenData;
-        ViewSpecification vs = nd.BaseViewSpecification;
-        string localSystemId;
-        string localSystemName;
-        if (!GetLocalSystemData(out localSystemId, out localSystemName))
-        {
-          ServiceRegistration.Get<ILogger>().Warn("AbstractBrowseMediaNavigationScreenData: Cannot navigate to ML browse view - error retrieving local system data");
-          return;
-        }
-        ICollection<Guid> necessaryMIATypeIds = vs.NecessaryMIATypeIds;
-        ICollection<Guid> optionalMIATypeIds = vs.OptionalMIATypeIds;
-        nd = sd.NavigateToView(new SystemSharesViewSpecification(localSystemId, localSystemName, vs.NecessaryMIATypeIds, vs.OptionalMIATypeIds));
-        sd = (AbstractItemsScreenData) nd.CurrentScreenData;
+        AbstractMediaRootProxyViewSpecification root = FindParentViewSpecification<AbstractMediaRootProxyViewSpecification>(nd);
 
-        Share localShare = FindLocalShareContainingPath(path);
-        if (localShare == null)
-        {
-          ServiceRegistration.Get<ILogger>().Warn("AbstractBrowseMediaNavigationScreenData: Cannot navigate to ML browse view - no local share countaining path '{0}' found", path);
+        if (root == null)
           return;
-        }
-        IResourceAccessor startRa = localShare.BaseResourcePath.CreateLocalResourceAccessor();
-        ResourcePath shareDirectoryPath = startRa.CanonicalLocalResourcePath;
-        MediaItem shareDirectoryItem = cd.LoadItem(localSystemId, shareDirectoryPath, new Guid[] {DirectoryAspect.ASPECT_ID}, new Guid[] {});
-        nd = sd.NavigateToView(new MediaLibraryBrowseViewSpecification(startRa.ResourceName, shareDirectoryItem.MediaItemId, localSystemId,
-            shareDirectoryPath, necessaryMIATypeIds, optionalMIATypeIds));
 
-        Build(startRa, path, nd, viewRA =>
+        root.Navigate(localShare, path, navigateVS =>
           {
-            ResourcePath directoryPath = viewRA.CanonicalLocalResourcePath;
-            MediaItem directoryItem = cd.LoadItem(localSystemId, directoryPath, new Guid[] {DirectoryAspect.ASPECT_ID}, new Guid[] {});
-            return new MediaLibraryBrowseViewSpecification(viewRA.ResourceName, directoryItem.MediaItemId, localSystemId, directoryPath, necessaryMIATypeIds, optionalMIATypeIds);
+            NavigationData currentNd = MediaNavigationModel.GetNavigationData(workflowManager.CurrentNavigationContext, false);
+            if (currentNd == null)
+            {
+              ServiceRegistration.Get<ILogger>().Warn("AbstractBrowseMediaNavigationScreenData: Cannot navigate to local browse view - no navigation data found");
+              return;
+            }
+            AbstractItemsScreenData sd = (AbstractItemsScreenData) currentNd.CurrentScreenData;
+            sd.NavigateToView(navigateVS);
           });
       }
       finally

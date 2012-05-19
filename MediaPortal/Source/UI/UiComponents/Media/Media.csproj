@@ -216,6 +216,10 @@
     <Compile Include="Settings\ViewSettings.cs" />
     <Compile Include="Settings\MediaModelSettings.cs" />
     <Compile Include="General\MultimediaDirectory.cs" />
+    <Compile Include="Views\BrowseMediaRootProxyViewSpecification.cs" />
+    <Compile Include="Views\AbstractMediaRootProxyViewSpecification.cs" />
+    <Compile Include="Views\LocalMediaRootProxyViewSpecification.cs" />
+    <Compile Include="Views\ServerConnectionChangeNotificator.cs" />
     <Compile Include="Views\SystemSharesViewSpecification.cs" />
     <Compile Include="Views\AddedRemovableMediaViewSpecificationFacade.cs" />
     <Compile Include="Views\CombinedViewChangeNotificator.cs" />

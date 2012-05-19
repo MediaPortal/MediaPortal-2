@@ -140,6 +140,7 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Presentation\Screens\IScreenManager.cs" />
     <Compile Include="RemovableMedia\RemovableMediaMessaging.cs" />
+    <Compile Include="ServerCommunication\ServerCommunicationHelper.cs" />
     <Compile Include="ServerCommunication\ServerDescriptor.cs" />
     <Compile Include="ServerCommunication\IServerConnectionManager.cs" />
     <Compile Include="ServerCommunication\ServerConnectionMessaging.cs" />

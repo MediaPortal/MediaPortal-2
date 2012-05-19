@@ -24,22 +24,29 @@
 
 using System;
 using System.Collections.Generic;
-using MediaPortal.Common;
 using MediaPortal.Common.MediaManagement;
-using MediaPortal.UI.Shares;
 
 namespace MediaPortal.UiComponents.Media.Views
 {
   /// <summary>
-  /// View implementation which presents a list of of all local shares, one sub view for each share.
+  /// View implementation which presents a list of of local shares, one sub view for each share.
   /// </summary>
   public class LocalSharesViewSpecification : ViewSpecification
   {
+    #region Protected fields
+
+    protected ICollection<Share> _shares;
+
+    #endregion
+
     #region Ctor
 
-    public LocalSharesViewSpecification(string viewDisplayName,
+    public LocalSharesViewSpecification(ICollection<Share> shares, string viewDisplayName,
         IEnumerable<Guid> necessaryMIATypeIds, IEnumerable<Guid> optionalMIATypeIds) :
-        base(viewDisplayName, necessaryMIATypeIds, optionalMIATypeIds) { }
+        base(viewDisplayName, necessaryMIATypeIds, optionalMIATypeIds)
+    {
+      _shares = shares;
+    }
 
     #endregion
 
@@ -54,8 +61,7 @@ namespace MediaPortal.UiComponents.Media.Views
     {
       mediaItems = new List<MediaItem>();
       subViewSpecifications = new List<ViewSpecification>();
-      ILocalSharesManagement sharesManagement = ServiceRegistration.Get<ILocalSharesManagement>();
-      foreach (Share share in sharesManagement.Shares.Values)
+      foreach (Share share in _shares)
         subViewSpecifications.Add(new LocalDirectoryViewSpecification(share.Name, share.BaseResourcePath, _necessaryMIATypeIds, _optionalMIATypeIds));
     }
 

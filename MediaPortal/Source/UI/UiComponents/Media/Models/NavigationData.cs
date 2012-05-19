@@ -135,6 +135,11 @@ namespace MediaPortal.UiComponents.Media.Models
       internal set { _currentScreenData = value; }
     }
 
+    public NavigationData Parent
+    {
+      get { return _parent; }
+    }
+
     public ICollection<AbstractScreenData> AvailableScreens
     {
       get { return _availableScreens; }

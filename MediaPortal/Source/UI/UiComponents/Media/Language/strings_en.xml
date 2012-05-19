@@ -115,6 +115,8 @@
     <!-- View names (names for the view instances) -->
     <String Name="BrowseMediaRootViewName" Text="Browse media"/>
     <String Name="LocalMediaRootViewName" Text="Local media"/>
+    <String Name="ClientShares" Text="Client shares"/>
+    <String Name="ServerShares" Text="Server shares"/>
     <String Name="AudioRootViewName" Text="Audio"/>
     <String Name="VideosRootViewName" Text="Videos"/>
     <String Name="SeriesRootViewName" Text="Series"/>
