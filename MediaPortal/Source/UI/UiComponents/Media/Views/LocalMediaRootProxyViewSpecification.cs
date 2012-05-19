@@ -57,6 +57,33 @@ namespace MediaPortal.UiComponents.Media.Views
       get { return true; }
     }
 
+    /// <summary>
+    /// Tries to find the resource path corresponding to the given local <paramref name="viewSpecification"/>.
+    /// </summary>
+    /// <param name="viewSpecification">View specification to be examined.</param>
+    /// <param name="path">Path corresponding to the given <paramref name="viewSpecification"/>, if it is a local view specification (i.e. one of the
+    /// view specifications which are created in any of the sub views of this view specification). Else, this parameter will return <c>null</c>.</param>
+    /// <returns><c>true</c>, if the given <paramref name="viewSpecification"/> is one of the direct or indirect view specifications which are created as sub view specifications
+    /// of this view specification.</returns>
+    public static bool TryGetLocalBrowseViewPath(ViewSpecification viewSpecification, out ResourcePath path)
+    {
+      LocalMediaRootProxyViewSpecification lmrpvs = viewSpecification as LocalMediaRootProxyViewSpecification;
+      LocalSharesViewSpecification lsvs = viewSpecification as LocalSharesViewSpecification;
+      if (lmrpvs != null || lsvs != null)
+      { // If the current browsing state shows one of the root states, the path must be set to null
+        path = null;
+        return true;
+      }
+      LocalDirectoryViewSpecification ldvs = viewSpecification as LocalDirectoryViewSpecification;
+      if (ldvs != null)
+      { // In a local browsing state, we can return the browsing path
+        path = ldvs.ViewPath;
+        return true;
+      }
+      path = null;
+      return false;
+    }
+
     protected override void NavigateToLocalRootView(Share localShare, NavigateToViewDlgt navigateToViewDlgt)
     {
       // We need to simulate the logic from method ReLoadItemsAndSubViewSpecifications

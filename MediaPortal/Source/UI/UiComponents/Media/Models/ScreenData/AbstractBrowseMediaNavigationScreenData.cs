@@ -23,11 +23,11 @@
 #endregion
 
 using System;
+using System.Collections.Generic;
 using MediaPortal.Common;
 using MediaPortal.Common.Logging;
 using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.ResourceAccess;
-using MediaPortal.Common.SystemResolver;
 using MediaPortal.UI.Presentation.Workflow;
 using MediaPortal.UI.ServerCommunication;
 using MediaPortal.UI.Shares;
@@ -59,13 +59,14 @@ namespace MediaPortal.UiComponents.Media.Models.ScreenData
 
     /// <summary>
     /// There are two modes for browsing media in its directory structure; ML browsing and local browsing.
-    /// This method switches between those modes and tries to navigate to the most sensible sibling state, i.e.
+    /// This method switches between those modes. It takes the current media navigation state and tries to navigate to the most sensible sibling state, i.e.
     /// tries to navigate as close as possible to the current directory navigation in the other mode.
     /// </summary>
-    /// <param name="workflowNavigationContext">Workflow navigation context to start navigation.</param>
-    public static void NavigateToSiblingState(NavigationContext workflowNavigationContext)
+    public static void NavigateToSiblingState()
     {
-      string localSystemId = ServiceRegistration.Get<ISystemResolver>().LocalSystemId;
+      IWorkflowManager workflowManager = ServiceRegistration.Get<IWorkflowManager>();
+      NavigationContext workflowNavigationContext = workflowManager.CurrentNavigationContext;
+
       NavigationData nd = MediaNavigationModel.GetNavigationData(workflowNavigationContext, false);
       if (nd == null)
       {
@@ -80,56 +81,20 @@ namespace MediaPortal.UiComponents.Media.Models.ScreenData
       }
       ViewSpecification vs = Unwrap(nd.BaseViewSpecification);
 
-      // Check Browse view states
-
-      MediaLibraryBrowseViewSpecification mlbvs = vs as MediaLibraryBrowseViewSpecification;
-      if (mlbvs != null)
-      { // We're in some MediaLibrary browsing state - match the local media browsing which corresponds to the state
-        IServerConnectionManager serverConnectionManager = ServiceRegistration.Get<IServerConnectionManager>();
-        if (mlbvs.SystemId != localSystemId && mlbvs.SystemId != serverConnectionManager.HomeServerSystemId)
-        { // If the currently browsed system is a different one, we can just navigate to the local browsing root view
-          NavigateToLocalBrowse(null);
-          return;
-        }
-        // In a browsing state for the local system, we should be able to navigate to the corresponding local media browsing view
-        NavigateToLocalBrowse(mlbvs.BasePath);
-        return;
-      }
-
-      BrowseMediaRootProxyViewSpecification bmrvs = vs as BrowseMediaRootProxyViewSpecification;
-      SystemSharesViewSpecification ssvs = vs as SystemSharesViewSpecification;
-      AllSystemsViewSpecification asvs = vs as AllSystemsViewSpecification;
-      if (ssvs != null || asvs != null || bmrvs != null)
-      { // If the current browsing state shows one of the root browse states, we can just navigate to the local browsing root view
-        NavigateToLocalBrowse(null);
-        return;
-      }
-
-      // Check local view states
-
-      LocalMediaRootProxyViewSpecification lmrpvs = vs as LocalMediaRootProxyViewSpecification;
-      LocalSharesViewSpecification lsvs = vs as LocalSharesViewSpecification;
-      if (lmrpvs != null || lsvs != null)
-      { // If the current browsing state shows the local shares, we can just switch to the shares view of the local system as ML browsing view
-        NavigateToMLBrowse(null);
-        return;
-      }
-      LocalDirectoryViewSpecification ldvs = vs as LocalDirectoryViewSpecification;
-      if (ldvs != null)
-      {
-        NavigateToMLBrowse(ldvs.ViewPath);
-        return;
-      }
+      ResourcePath path;
+      if (BrowseMediaRootProxyViewSpecification.TryGetLocalBrowseViewPath(vs, out path))
+        NavigateToLocalBrowsing(path);
+      else if (LocalMediaRootProxyViewSpecification.TryGetLocalBrowseViewPath(vs, out path))
+        NavigateToMLBrowsing(path);
     }
 
-    protected static Share FindLocalShareContainingPath(ResourcePath path)
+    protected static Share FindShareContainingPath(ICollection<Share> shares, ResourcePath path)
     {
       if (path == null)
         return null;
       int bestMatchPathLength = int.MaxValue;
       Share bestMatchShare = null;
-      ILocalSharesManagement lsm = ServiceRegistration.Get<ILocalSharesManagement>();
-      foreach (Share share in lsm.Shares.Values)
+      foreach (Share share in shares)
       {
         ResourcePath sharePath = share.BaseResourcePath;
         if (!sharePath.IsSameOrParentOf(path))
@@ -150,17 +115,41 @@ namespace MediaPortal.UiComponents.Media.Models.ScreenData
       return bestMatchShare;
     }
 
-    protected static void NavigateToLocalBrowse(ResourcePath path)
+    protected static Share FindLocalShareContainingPath(ResourcePath path)
     {
-      Navigate(path, Consts.WF_STATE_ID_LOCAL_MEDIA_NAVIGATION_ROOT);
+      if (path == null)
+        return null;
+      ILocalSharesManagement lsm = ServiceRegistration.Get<ILocalSharesManagement>();
+      Share result = FindShareContainingPath(lsm.Shares.Values, path);
+      if (result == null)
+      {
+        IServerConnectionManager serverConnectionManager = ServiceRegistration.Get<IServerConnectionManager>();
+        IContentDirectory contentDirectory = serverConnectionManager.ContentDirectory;
+        if (contentDirectory != null)
+          result = FindShareContainingPath(contentDirectory.GetShares(serverConnectionManager.HomeServerSystemId, SharesFilter.All), path);
+      }
+      return result;
     }
 
-    protected static void NavigateToMLBrowse(ResourcePath path)
+    /// <summary>
+    /// Navigates to the local browsing state to the given <paramref name="path"/> if that path is located in a local share.
+    /// </summary>
+    /// <param name="path">Local path in a local share to navigate to. The share can be a client share or a server share.</param>
+    public static void NavigateToLocalBrowsing(ResourcePath path)
     {
-      Navigate(path, Consts.WF_STATE_ID_BROWSE_MEDIA_NAVIGATION_ROOT);
+      Navigate(Consts.WF_STATE_ID_LOCAL_MEDIA_NAVIGATION_ROOT, path);
     }
 
-    protected static void Navigate(ResourcePath path, Guid targetState)
+    /// <summary>
+    /// Navigates to the media library browsing state to the given <paramref name="path"/> if that path is located in a share.
+    /// </summary>
+    /// <param name="path">Local path in a local share to navigate to. The share can be a client share or a server share.</param>
+    public static void NavigateToMLBrowsing(ResourcePath path)
+    {
+      Navigate(Consts.WF_STATE_ID_BROWSE_MEDIA_NAVIGATION_ROOT, path);
+    }
+
+    protected static void Navigate(Guid rootWorkflowState, ResourcePath path)
     {
       IWorkflowManager workflowManager = ServiceRegistration.Get<IWorkflowManager>();
       workflowManager.StartBatchUpdate();
@@ -168,7 +157,7 @@ namespace MediaPortal.UiComponents.Media.Models.ScreenData
       {
         workflowManager.NavigatePopStates(new Guid[] {Consts.WF_STATE_ID_LOCAL_MEDIA_NAVIGATION_ROOT, Consts.WF_STATE_ID_BROWSE_MEDIA_NAVIGATION_ROOT});
 
-        workflowManager.NavigatePush(targetState);
+        workflowManager.NavigatePush(rootWorkflowState);
 
         Share localShare = FindLocalShareContainingPath(path);
         if (localShare == null)
@@ -180,12 +169,12 @@ namespace MediaPortal.UiComponents.Media.Models.ScreenData
         NavigationData nd = MediaNavigationModel.GetNavigationData(workflowManager.CurrentNavigationContext, false);
         if (nd == null)
           return;
-        AbstractMediaRootProxyViewSpecification root = FindParentViewSpecification<AbstractMediaRootProxyViewSpecification>(nd);
+        AbstractMediaRootProxyViewSpecification rootVS = FindParentViewSpecification<AbstractMediaRootProxyViewSpecification>(nd);
 
-        if (root == null)
+        if (rootVS == null)
           return;
 
-        root.Navigate(localShare, path, navigateVS =>
+        rootVS.Navigate(localShare, path, navigateVS =>
           {
             NavigationData currentNd = MediaNavigationModel.GetNavigationData(workflowManager.CurrentNavigationContext, false);
             if (currentNd == null)

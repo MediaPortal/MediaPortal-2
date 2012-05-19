@@ -103,8 +103,7 @@ namespace MediaPortal.UiComponents.Media.Actions
 
     public override void Execute()
     {
-      IWorkflowManager workflowManager = ServiceRegistration.Get<IWorkflowManager>();
-      AbstractBrowseMediaNavigationScreenData.NavigateToSiblingState(workflowManager.CurrentNavigationContext);
+      AbstractBrowseMediaNavigationScreenData.NavigateToSiblingState();
     }
   }
 }

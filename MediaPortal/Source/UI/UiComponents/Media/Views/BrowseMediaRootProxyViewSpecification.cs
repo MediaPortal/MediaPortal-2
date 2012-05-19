@@ -36,8 +36,8 @@ namespace MediaPortal.UiComponents.Media.Views
 {
   /// <summary>
   /// View implementation which can be used for the root view of the browse media view hierarchy.
-  /// Depending on the information if the home server is located on the local machine and/or if both the home server and this client
-  /// have shares configured, this view specification only shows the client's shares or the server's shares or both system's shares in different sub views.
+  /// Depending on the information if we are in a single-seat configuration or not, this view specification shows
+  /// only shows the server's shares or different sub views for each system.
   /// </summary>
   public class BrowseMediaRootProxyViewSpecification : AbstractMediaRootProxyViewSpecification
   {
@@ -54,6 +54,43 @@ namespace MediaPortal.UiComponents.Media.Views
     public override bool CanBeBuilt
     {
       get { return ServiceRegistration.Get<IServerConnectionManager>().IsHomeServerConnected; }
+    }
+
+    /// <summary>
+    /// Tries to find the resource path corresponding to the given media library <paramref name="viewSpecification"/>.
+    /// </summary>
+    /// <param name="viewSpecification">View specification to be examined.</param>
+    /// <param name="path">Path corresponding to the given <paramref name="viewSpecification"/>, if it is a media library view specification (i.e. one of the
+    /// view specifications which are created in any of the sub views of this view specification). Else, this parameter will return <c>null</c>.</param>
+    /// <returns><c>true</c>, if the given <paramref name="viewSpecification"/> is one of the direct or indirect view specifications which are created as sub view specifications
+    /// of this view specification.</returns>
+    public static bool TryGetLocalBrowseViewPath(ViewSpecification viewSpecification, out ResourcePath path)
+    {
+      MediaLibraryBrowseViewSpecification mlbvs = viewSpecification as MediaLibraryBrowseViewSpecification;
+      if (mlbvs != null)
+      { // We're in some MediaLibrary browsing state
+        IServerConnectionManager serverConnectionManager = ServiceRegistration.Get<IServerConnectionManager>();
+        string localSystemId = ServiceRegistration.Get<ISystemResolver>().LocalSystemId;
+        if (mlbvs.SystemId != localSystemId && mlbvs.SystemId != serverConnectionManager.HomeServerSystemId)
+        { // If the currently browsed system is a different one, the path must be set to null
+          path = null;
+          return true;
+        }
+        // In a browsing state for the local system, we can return the base path from the view specification
+        path = mlbvs.BasePath;
+        return true;
+      }
+
+      BrowseMediaRootProxyViewSpecification bmrvs = viewSpecification as BrowseMediaRootProxyViewSpecification;
+      SystemSharesViewSpecification ssvs = viewSpecification as SystemSharesViewSpecification;
+      AllSystemsViewSpecification asvs = viewSpecification as AllSystemsViewSpecification;
+      if (ssvs != null || asvs != null || bmrvs != null)
+      { // If the current browsing state shows one of the root browse states, we can just set the path to null
+        path = null;
+        return true;
+      }
+      path = null;
+      return false;
     }
 
     protected static bool IsSingleSeat(IServerConnectionManager serverConnectionManager)

@@ -24,12 +24,8 @@
 
 using System;
 using System.Collections.Generic;
-using MediaPortal.Common;
-using MediaPortal.Common.ClientCommunication;
 using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.ResourceAccess;
-using MediaPortal.Common.SystemResolver;
-using MediaPortal.UI.ServerCommunication;
 
 namespace MediaPortal.UiComponents.Media.Views
 {
@@ -65,6 +61,11 @@ namespace MediaPortal.UiComponents.Media.Views
     /// <param name="navigateToViewDlgt">Callback which will be called for each view specification to navigate to to do the actual navigation.</param>
     protected abstract void NavigateToLocalRootView(Share localShare, NavigateToViewDlgt navigateToViewDlgt);
 
+    /// <summary>
+    /// Creates a view specification for the given resource accessor in the context of a <see cref="Navigate"/> call.
+    /// </summary>
+    /// <param name="viewRa">Resource accessor representing a sub view.</param>
+    /// <returns>View specification which matches the views that are created in the navigation under this class.</returns>
     protected abstract ViewSpecification NavigateCreateViewSpecification(IFileSystemResourceAccessor viewRa);
 
     /// <summary>
