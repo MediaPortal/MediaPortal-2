@@ -34,6 +34,11 @@ namespace MediaPortal.Utilities.UPnP
       return StringUtils.Join(",", guids);
     }
 
+    public static string SerializeStringEnumerationToCsv(IEnumerable<string> values)
+    {
+      return StringUtils.Join(",", values);
+    }
+
     public static IList<Guid> ParseCsvGuidCollection(string csvGuids)
     {
       if (string.IsNullOrEmpty(csvGuids))
@@ -43,6 +48,11 @@ namespace MediaPortal.Utilities.UPnP
       foreach (string guidStr in guids)
         result.Add(new Guid(guidStr));
       return result;
+    }
+
+    public static IList<string> ParseCsvStringCollection(string csvValues)
+    {
+      return string.IsNullOrEmpty(csvValues) ? null : new List<string>(csvValues.Split(','));
     }
 
     public static string SerializeGuid(Guid guid)
