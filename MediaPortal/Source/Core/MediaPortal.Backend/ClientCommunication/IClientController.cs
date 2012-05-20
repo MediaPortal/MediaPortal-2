@@ -35,10 +35,11 @@ namespace MediaPortal.Backend.ClientCommunication
 
   /// <summary>
   /// Interface of the MP 2 client's ClientController service.
+  /// This service controls several functions of an MP2 client which can be called via UPnP.
   /// </summary>
   public interface IClientController
   {
-    string GetHomeServer();
+    string GetHomeServerSystemId();
     void ImportLocation(ResourcePath path, IEnumerable<string> mediaCategories, ImportMode importMode);
   }
 }

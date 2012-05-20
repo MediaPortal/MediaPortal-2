@@ -83,9 +83,9 @@ namespace MediaPortal.Backend.Services.ClientCommunication
       ClientConnection connection = _controlPoint.GetClientConnection(clientSystemId);
       if (connection != null)
       {
-        string homeServer = connection.ClientController.GetHomeServer();
+        string homeServerSystemId = connection.ClientController.GetHomeServerSystemId();
         ISystemResolver systemResolver = ServiceRegistration.Get<ISystemResolver>();
-        if (homeServer != systemResolver.LocalSystemId)
+        if (homeServerSystemId != systemResolver.LocalSystemId)
         {
           ServiceRegistration.Get<ILogger>().Info(
               "ClientManager: Client '{0}' is no longer attached to this server, cleaning up client data", clientSystemId);

@@ -39,9 +39,9 @@ namespace MediaPortal.Backend.Services.ClientCommunication
   {
     public UPnPClientControllerServiceProxy(CpService serviceStub) : base(serviceStub, "ClientController") { }
 
-    public string GetHomeServer()
+    public string GetHomeServerSystemId()
     {
-      CpAction action = GetAction("GetHomeServer");
+      CpAction action = GetAction("GetHomeServerSystemId");
       IList<object> outParameters = action.InvokeAction(null);
       return (string) outParameters[0];
     }

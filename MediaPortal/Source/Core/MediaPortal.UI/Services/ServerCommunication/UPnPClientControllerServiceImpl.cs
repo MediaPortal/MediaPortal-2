@@ -73,13 +73,13 @@ namespace MediaPortal.UI.Services.ServerCommunication
 
       // More state variables go here
 
-      DvAction getHomeServerAction = new DvAction("GetHomeServer", OnGetHomeServer,
+      DvAction getHomeServerSystemIdAction = new DvAction("GetHomeServerSystemId", OnGetHomeServerSystemId,
           new DvArgument[] {
           },
           new DvArgument[] {
             new DvArgument("HomeServerSystemId", A_ARG_TYPE_SystemId, ArgumentDirection.Out),
           });
-      AddAction(getHomeServerAction);
+      AddAction(getHomeServerSystemIdAction);
 
       DvAction importLocationAction = new DvAction("ImportLocation", OnImportLocation,
           new DvArgument[] {
@@ -94,7 +94,7 @@ namespace MediaPortal.UI.Services.ServerCommunication
       // More actions go here
     }
 
-    static UPnPError OnGetHomeServer(DvAction action, IList<object> inParams, out IList<object> outParams,
+    static UPnPError OnGetHomeServerSystemId(DvAction action, IList<object> inParams, out IList<object> outParams,
         CallContext context)
     {
       outParams = new List<object> {ServiceRegistration.Get<IServerConnectionManager>().HomeServerSystemId};
