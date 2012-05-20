@@ -22,6 +22,7 @@
 
 #endregion
 
+using System;
 using MediaPortal.Common.Messaging;
 
 namespace MediaPortal.Common.MediaManagement
@@ -42,9 +43,41 @@ namespace MediaPortal.Common.MediaManagement
     /// </summary>
     public enum MessageType
     {
+      /// <summary>
+      /// This message will be sent from the media library when a playlist registration changed.
+      /// It is sent if a playlist was registered or removed as well as if one was changed.
+      /// This message doesn't have any parameters.
+      /// </summary>
       PlaylistsChanged,
+
+      /// <summary>
+      /// This message will be sent from the media library when the registration of MIA types changed.
+      /// This message doesn't have any parameters.
+      /// </summary>
       MIATypesChanged,
+
+      /// <summary>
+      /// This message will be sent from the media library when the registration of shares changed.
+      /// This message doesn't have any parameters.
+      /// </summary>
+      RegisteredSharesChanged,
+
+      /// <summary>
+      /// This message will be sent from the media library when it is notified that a client started a share import and when
+      /// the local importer starts an import.
+      /// This message has a parameter <see cref="SHARE_ID"/>.
+      /// </summary>
+      ShareImportStarted,
+
+      /// <summary>
+      /// This message will be sent from the media library when it is notified that a client completed a share import and when
+      /// the local importer completes an import.
+      /// This message has a parameter <see cref="SHARE_ID"/>.
+      /// </summary>
+      ShareImportCompleted,
     }
+
+    public const string SHARE_ID = "ShareId"; // Parameter type: Guid
 
     public static void SendPlaylistsChangedMessage()
     {
@@ -55,6 +88,19 @@ namespace MediaPortal.Common.MediaManagement
     public static void SendMIATypesChangedMessage()
     {
       SystemMessage msg = new SystemMessage(MessageType.PlaylistsChanged);
+      ServiceRegistration.Get<IMessageBroker>().Send(CHANNEL, msg);
+    }
+
+    public static void SendRegisteredSharesChangedMessage()
+    {
+      SystemMessage msg = new SystemMessage(MessageType.RegisteredSharesChanged);
+      ServiceRegistration.Get<IMessageBroker>().Send(CHANNEL, msg);
+    }
+
+    public static void SendShareImportMessage(MessageType messageType, Guid shareId)
+    {
+      SystemMessage msg = new SystemMessage(messageType);
+      msg.MessageData[SHARE_ID] = shareId;
       ServiceRegistration.Get<IMessageBroker>().Send(CHANNEL, msg);
     }
   }

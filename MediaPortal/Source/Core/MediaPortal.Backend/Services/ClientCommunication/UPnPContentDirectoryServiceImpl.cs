@@ -56,8 +56,12 @@ namespace MediaPortal.Backend.Services.ClientCommunication
 
     protected DvStateVariable PlaylistsChangeCounter;
     protected DvStateVariable MIATypeRegistrationsChangeCounter;
+    protected DvStateVariable CurrentlyImportingShares;
+    protected DvStateVariable RegisteredSharesChangeCounter;
+
     protected UInt32 _playlistsChangeCt = 0;
     protected UInt32 _miaTypeRegistrationsChangeCt = 0;
+    protected UInt32 _registeredSharesChangeCt = 0;
 
     public UPnPContentDirectoryServiceImpl() : base(
         UPnPTypesAndIds.CONTENT_DIRECTORY_SERVICE_TYPE, UPnPTypesAndIds.CONTENT_DIRECTORY_SERVICE_TYPE_VERSION,
@@ -272,17 +276,35 @@ namespace MediaPortal.Backend.Services.ClientCommunication
 
       // Change event for playlists
       PlaylistsChangeCounter = new DvStateVariable("PlaylistsChangeCounter", new DvStandardDataType(UPnPStandardDataType.Ui4))
-          {
-            SendEvents = true
-          };
+        {
+            SendEvents = true,
+            Value = (uint) 0
+        };
       AddStateVariable(PlaylistsChangeCounter);
 
       // Change event for MIA type registrations
       MIATypeRegistrationsChangeCounter = new DvStateVariable("MIATypeRegistrationsChangeCounter", new DvStandardDataType(UPnPStandardDataType.Ui4))
-          {
-            SendEvents = true
-          };
+        {
+            SendEvents = true,
+            Value = (uint) 0
+        };
       AddStateVariable(MIATypeRegistrationsChangeCounter);
+
+      // Change event for registered shares
+      RegisteredSharesChangeCounter = new DvStateVariable("RegisteredSharesChangeCounter", new DvStandardDataType(UPnPStandardDataType.Ui4))
+        {
+            SendEvents = true,
+            Value = (uint) 0
+        };
+      AddStateVariable(RegisteredSharesChangeCounter);
+
+      // Change event for registered shares
+      CurrentlyImportingShares = new DvStateVariable("CurrentlyImportingShares", new DvStandardDataType(UPnPStandardDataType.String))
+        {
+            SendEvents = true,
+            Value = MarshallingHelper.SerializeGuidEnumerationToCsv(new Guid[] {})
+        };
+      AddStateVariable(CurrentlyImportingShares);
 
       // More state variables go here
 
@@ -548,6 +570,22 @@ namespace MediaPortal.Backend.Services.ClientCommunication
           });
       AddAction(deleteMediaItemOrPathAction);
 
+      DvAction clientStartedShareImportAction = new DvAction("ClientStartedShareImport", OnClientStartedShareImport,
+          new DvArgument[] {
+            new DvArgument("ShareId", A_ARG_TYPE_Uuid, ArgumentDirection.In),
+          },
+          new DvArgument[] {
+          });
+      AddAction(clientStartedShareImportAction);
+
+      DvAction clientCompletedShareImportAction = new DvAction("ClientCompletedShareImport", OnClientCompletedShareImport,
+          new DvArgument[] {
+            new DvArgument("ShareId", A_ARG_TYPE_Uuid, ArgumentDirection.In),
+          },
+          new DvArgument[] {
+          });
+      AddAction(clientCompletedShareImportAction);
+
       // More actions go here
 
       _messageQueue = new AsynchronousMessageQueue(this, new string[]
@@ -575,6 +613,14 @@ namespace MediaPortal.Backend.Services.ClientCommunication
             break;
           case ContentDirectoryMessaging.MessageType.MIATypesChanged:
             MIATypeRegistrationsChangeCounter.Value = _miaTypeRegistrationsChangeCt++;
+            break;
+          case ContentDirectoryMessaging.MessageType.RegisteredSharesChanged:
+            RegisteredSharesChangeCounter.Value = _registeredSharesChangeCt++;
+            break;
+          case ContentDirectoryMessaging.MessageType.ShareImportStarted:
+          case ContentDirectoryMessaging.MessageType.ShareImportCompleted:
+            IMediaLibrary mediaLibrary = ServiceRegistration.Get<IMediaLibrary>();
+            CurrentlyImportingShares.Value = MarshallingHelper.SerializeGuidEnumerationToCsv(mediaLibrary.GetCurrentlyImportingShareIds());
             break;
         }
       }
@@ -1030,6 +1076,24 @@ namespace MediaPortal.Backend.Services.ClientCommunication
       ResourcePath path = ResourcePath.Deserialize((string) inParams[1]);
       bool inclusive = (bool) inParams[2];
       ServiceRegistration.Get<IMediaLibrary>().DeleteMediaItemOrPath(systemId, path, inclusive);
+      outParams = null;
+      return null;
+    }
+
+    static UPnPError OnClientStartedShareImport(DvAction action, IList<object> inParams, out IList<object> outParams,
+        CallContext context)
+    {
+      Guid shareId = MarshallingHelper.DeserializeGuid((string) inParams[0]);
+      ServiceRegistration.Get<IMediaLibrary>().ClientStartedShareImport(shareId);
+      outParams = null;
+      return null;
+    }
+
+    static UPnPError OnClientCompletedShareImport(DvAction action, IList<object> inParams, out IList<object> outParams,
+        CallContext context)
+    {
+      Guid shareId = MarshallingHelper.DeserializeGuid((string) inParams[0]);
+      ServiceRegistration.Get<IMediaLibrary>().ClientCompletedShareImport(shareId);
       outParams = null;
       return null;
     }

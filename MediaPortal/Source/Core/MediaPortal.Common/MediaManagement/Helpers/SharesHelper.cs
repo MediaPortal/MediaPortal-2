@@ -7,7 +7,7 @@ namespace MediaPortal.Common.MediaManagement.Helpers
   {
     /// <summary>
     /// Extension method which is added on <see cref="IEnumerable{Share}"/> to find that share in the given enumeration
-    /// which contains the given <paramref name="path"/>.
+    /// which best matches the given <paramref name="path"/>.
     /// </summary>
     /// <remarks>
     /// If there are shares where one share path contains the path of another share in the given <paramref name="shares"/> enumeration,
@@ -17,7 +17,7 @@ namespace MediaPortal.Common.MediaManagement.Helpers
     /// <param name="shares">Enumeration of shares to search through.</param>
     /// <param name="path">Path to find a share for.</param>
     /// <returns>Share which best matches the given <paramref name="path"/>, if one exists. Else, <c>null</c> will be returned.</returns>
-    public static Share ContainingPath(this IEnumerable<Share> shares, ResourcePath path)
+    public static Share BestContainingPath(this IEnumerable<Share> shares, ResourcePath path)
     {
       if (path == null)
         return null;

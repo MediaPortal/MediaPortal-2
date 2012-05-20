@@ -24,10 +24,12 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using MediaPortal.Common;
 using MediaPortal.Common.General;
 using MediaPortal.Common.Logging;
 using MediaPortal.Common.MediaManagement;
+using MediaPortal.Common.MediaManagement.Helpers;
 using MediaPortal.Common.ResourceAccess;
 using MediaPortal.Common.Messaging;
 using MediaPortal.Common.Settings;
@@ -98,13 +100,15 @@ namespace MediaPortal.UI.Services.ServerCommunication
     protected UPnPServerWatcher _serverWatcher = null;
     protected UPnPClientControlPoint _controlPoint = null;
     protected bool _isHomeServerConnected = false;
+    protected ICollection<Guid> _currentlyImportingSharesProxy = new List<Guid>();
     protected object _syncObj = new object();
 
     public ServerConnectionManager()
     {
       _messageQueue = new AsynchronousMessageQueue(this, new string[]
           {
-            SharesMessaging.CHANNEL
+            SharesMessaging.CHANNEL,
+            ImporterWorkerMessaging.CHANNEL,
           });
       _messageQueue.MessageReceived += OnMessageReceived;
       _messageQueue.Start();
@@ -175,6 +179,29 @@ namespace MediaPortal.UI.Services.ServerCommunication
             break;
         }
       }
+      else if (message.ChannelName == ImporterWorkerMessaging.CHANNEL)
+      {
+        IContentDirectory cd = ContentDirectory;
+        ImporterWorkerMessaging.MessageType messageType = (ImporterWorkerMessaging.MessageType) message.MessageType;
+        switch (messageType)
+        {
+          case ImporterWorkerMessaging.MessageType.ImportStarted:
+          case ImporterWorkerMessaging.MessageType.ImportCompleted:
+            if (cd == null)
+              break;
+            ResourcePath path = (ResourcePath) message.MessageData[ImporterWorkerMessaging.RESOURCE_PATH];
+            ILocalSharesManagement lsm = ServiceRegistration.Get<ILocalSharesManagement>();
+            ICollection<Share> shares = lsm.Shares.Values;
+            Share share = shares.BestContainingPath(path);
+            if (share == null)
+              break;
+            if (messageType == ImporterWorkerMessaging.MessageType.ImportStarted)
+              cd.ClientStartedShareImport(share.ShareId);
+            else
+              cd.ClientCompletedShareImport(share.ShareId);
+            break;
+        }
+      }
     }
 
     static void OnAvailableBackendServersChanged(ICollection<ServerDescriptor> allAvailableServers, bool serversWereAdded)
@@ -206,6 +233,7 @@ namespace MediaPortal.UI.Services.ServerCommunication
     {
       lock (_syncObj)
         _isHomeServerConnected = false;
+      CurrentlyImportingSharesProxy = null; // Mark all shares as not being imported
       ServerConnectionMessaging.SendConnectionStateChangedMessage(ServerConnectionMessaging.MessageType.HomeServerDisconnected);
     }
 
@@ -337,10 +365,12 @@ namespace MediaPortal.UI.Services.ServerCommunication
           ServiceRegistration.Get<ILogger>().Warn("ServerConnectionManager: Could not synchronize local media item aspect types with server", e);
         }
 
-        // Register state variables
+        // Register state variables change events
         UPnPContentDirectoryServiceProxy contentDirectoryServiceProxy = cd;
         contentDirectoryServiceProxy.PlaylistsChanged += OnContentDirectoryPlaylistsChanged;
         contentDirectoryServiceProxy.MIATypeRegistrationsChanged += OnContentDirectoryMIATypeRegistrationsChanged;
+        contentDirectoryServiceProxy.RegisteredSharesChangeCounterChanged += OnRegisteredSharesChangeCounterChanged;
+        contentDirectoryServiceProxy.CurrentlyImportingSharesChanged += OnCurrentlyImportingSharesChanged;
 
         // Activate importer worker
         ServiceRegistration.Get<ILogger>().Debug("ServerConnectionManager: Activating importer worker");
@@ -359,6 +389,37 @@ namespace MediaPortal.UI.Services.ServerCommunication
     static void OnContentDirectoryMIATypeRegistrationsChanged()
     {
       ContentDirectoryMessaging.SendMIATypesChangedMessage();
+    }
+
+    static void OnRegisteredSharesChangeCounterChanged()
+    {
+      ContentDirectoryMessaging.SendRegisteredSharesChangedMessage();
+    }
+
+    /// <summary>
+    /// This property just maintains the last state of the content directory's <c>CurrentlyImportingShares</c> state variable and
+    /// generates the appropriate content directory messages.
+    /// </summary>
+    IEnumerable<Guid> CurrentlyImportingSharesProxy
+    {
+      set
+      {
+        ICollection<Guid> oldImportingShares = _currentlyImportingSharesProxy;
+        ICollection<Guid> newImportingShares = value == null ? new HashSet<Guid>() : new HashSet<Guid>(value);
+        _currentlyImportingSharesProxy = newImportingShares;
+        foreach (Guid importingShare in
+            newImportingShares.Where(importingShare => !oldImportingShares.Contains(importingShare)))
+          ContentDirectoryMessaging.SendShareImportMessage(ContentDirectoryMessaging.MessageType.ShareImportStarted, importingShare);
+        foreach (Guid oldShare in
+            oldImportingShares.Where(oldShare => !newImportingShares.Contains(oldShare)))
+          ContentDirectoryMessaging.SendShareImportMessage(ContentDirectoryMessaging.MessageType.ShareImportCompleted, oldShare);
+      }
+    }
+
+    void OnCurrentlyImportingSharesChanged()
+    {
+      UPnPContentDirectoryServiceProxy cd = ContentDirectoryServiceProxy;
+      CurrentlyImportingSharesProxy = cd == null ? new List<Guid>() : cd.CurrentlyImportingShares;
     }
 
     #region IServerCommunicationManager implementation
@@ -506,6 +567,7 @@ namespace MediaPortal.UI.Services.ServerCommunication
         settingsManager.Save(settings);
         _controlPoint = null;
       }
+      CurrentlyImportingSharesProxy = null; // Mark all shares as not being imported
       ServerConnectionMessaging.SendConnectionStateChangedMessage(ServerConnectionMessaging.MessageType.HomeServerDetached);
 
       ServiceRegistration.Get<ILogger>().Debug("ServerConnectionManager: Starting to watch for MediaPortal servers");

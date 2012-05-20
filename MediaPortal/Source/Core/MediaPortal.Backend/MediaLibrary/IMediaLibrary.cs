@@ -248,6 +248,24 @@ namespace MediaPortal.Backend.MediaLibrary
     /// if <paramref name="path"/> is not <c>null</c>.</param>
     void DeleteMediaItemOrPath(string systemId, ResourcePath path, bool inclusive);
 
+    /// <summary>
+    /// Notifies the media library about a start of a share import which is done by an MP2 client.
+    /// </summary>
+    /// <param name="shareId">Id of the share which is being imported.</param>
+    void ClientStartedShareImport(Guid shareId);
+
+    /// <summary>
+    /// Notifies the media library about the completion of a share import which was done by an MP2 client.
+    /// </summary>
+    /// <param name="shareId">Id of the share which has been imported.</param>
+    void ClientCompletedShareImport(Guid shareId);
+
+    /// <summary>
+    /// Gets the ids of all shares which are marked as currently being imported.
+    /// </summary>
+    /// <returns>Collection of share ids.</returns>
+    ICollection<Guid> GetCurrentlyImportingShareIds();
+
     #endregion
 
     #region Media item aspect schema management

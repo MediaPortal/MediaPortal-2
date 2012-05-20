@@ -32,11 +32,13 @@ using MediaPortal.Common.General;
 using MediaPortal.Common.Logging;
 using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
+using MediaPortal.Common.MediaManagement.Helpers;
 using MediaPortal.Common.MediaManagement.MLQueries;
 using MediaPortal.Backend.Database;
 using MediaPortal.Backend.Exceptions;
 using MediaPortal.Backend.MediaLibrary;
 using MediaPortal.Backend.Services.MediaLibrary.QueryEngine;
+using MediaPortal.Common.Messaging;
 using MediaPortal.Common.ResourceAccess;
 using MediaPortal.Common.SystemResolver;
 using MediaPortal.Utilities;
@@ -103,12 +105,15 @@ namespace MediaPortal.Backend.Services.MediaLibrary
 
     #region Protected fields
 
-    protected MIA_Management _miaManagement = null;
     protected IDictionary<string, SystemName> _systemsOnline = new Dictionary<string, SystemName>(); // System ids mapped to system names
+    protected ICollection<Guid> _currentlyImportingClientShares = new HashSet<Guid>();
+
+    protected MIA_Management _miaManagement = null;
     protected object _syncObj = new object();
     protected string _localSystemId;
     protected IMediaBrowsing _mediaBrowsingCallback;
     protected IImportResultHandler _importResultHandler;
+    protected AsynchronousMessageQueue _messageQueue;
 
     #endregion
 
@@ -121,10 +126,39 @@ namespace MediaPortal.Backend.Services.MediaLibrary
 
       _mediaBrowsingCallback = new MediaBrowsingCallback(this);
       _importResultHandler = new ImportResultHandler(this);
+      _messageQueue = new AsynchronousMessageQueue(this, new string[]
+        {
+            ImporterWorkerMessaging.CHANNEL,
+        });
+      _messageQueue.MessageReceived += OnMessageReceived;
     }
 
     public void Dispose()
     {
+      _messageQueue.Shutdown();
+    }
+
+    void OnMessageReceived(AsynchronousMessageQueue queue, SystemMessage message)
+    {
+      if (message.ChannelName == ImporterWorkerMessaging.CHANNEL)
+      {
+        ImporterWorkerMessaging.MessageType messageType = (ImporterWorkerMessaging.MessageType) message.MessageType;
+        switch (messageType)
+        {
+          case ImporterWorkerMessaging.MessageType.ImportStarted:
+          case ImporterWorkerMessaging.MessageType.ImportCompleted:
+            ResourcePath path = (ResourcePath) message.MessageData[ImporterWorkerMessaging.RESOURCE_PATH];
+            ICollection<Share> shares = GetShares(null).Values;
+            Share share = shares.BestContainingPath(path);
+            if (share == null)
+              break;
+            if (messageType == ImporterWorkerMessaging.MessageType.ImportStarted)
+              ContentDirectoryMessaging.SendShareImportMessage(ContentDirectoryMessaging.MessageType.ShareImportStarted, share.ShareId);
+            else
+              ContentDirectoryMessaging.SendShareImportMessage(ContentDirectoryMessaging.MessageType.ShareImportStarted, share.ShareId);
+            break;
+        }
+      }
     }
 
     #endregion
@@ -750,6 +784,32 @@ namespace MediaPortal.Backend.Services.MediaLibrary
       }
     }
 
+    public void ClientStartedShareImport(Guid shareId)
+    {
+      lock (_currentlyImportingClientShares)
+        _currentlyImportingClientShares.Add(shareId);
+      ContentDirectoryMessaging.SendShareImportMessage(ContentDirectoryMessaging.MessageType.ShareImportStarted, shareId);
+    }
+
+    public void ClientCompletedShareImport(Guid shareId)
+    {
+      lock (_currentlyImportingClientShares)
+        _currentlyImportingClientShares.Remove(shareId);
+      ContentDirectoryMessaging.SendShareImportMessage(ContentDirectoryMessaging.MessageType.ShareImportCompleted, shareId);
+    }
+
+    public ICollection<Guid> GetCurrentlyImportingShareIds()
+    {
+      ICollection<Guid> result;
+      lock (_currentlyImportingClientShares)
+        result = new List<Guid>(_currentlyImportingClientShares);
+      IImporterWorker importerWorker = ServiceRegistration.Get<IImporterWorker>();
+      ICollection<Share> shares = GetShares(null).Values;
+      CollectionUtils.AddAll(result, importerWorker.ImportJobs.Select(importJobInfo => shares.BestContainingPath(importJobInfo.BasePath)).
+          Where(share => share != null).Select(share => share.ShareId));
+      return result;
+    }
+
     #endregion
 
     #region Media item aspect schema management
@@ -823,6 +883,8 @@ namespace MediaPortal.Backend.Services.MediaLibrary
 
         transaction.Commit();
 
+        ContentDirectoryMessaging.SendRegisteredSharesChangedMessage();
+
         TryScheduleLocalShareImport(share);
       }
       catch (Exception e)
@@ -858,6 +920,8 @@ namespace MediaPortal.Backend.Services.MediaLibrary
 
         DeleteAllMediaItemsUnderPath(transaction, share.SystemId, share.BaseResourcePath, true);
         transaction.Commit();
+
+        ContentDirectoryMessaging.SendRegisteredSharesChangedMessage();
       }
       catch (Exception e)
       {
@@ -884,6 +948,8 @@ namespace MediaPortal.Backend.Services.MediaLibrary
         DeleteAllMediaItemsUnderPath(transaction, systemId, null, true);
 
         transaction.Commit();
+
+        ContentDirectoryMessaging.SendRegisteredSharesChangedMessage();
       }
       catch (Exception e)
       {
@@ -941,6 +1007,9 @@ namespace MediaPortal.Backend.Services.MediaLibrary
             break;
         }
         transaction.Commit();
+
+        ContentDirectoryMessaging.SendRegisteredSharesChangedMessage();
+
         return numAffected;
       }
       catch (Exception e)

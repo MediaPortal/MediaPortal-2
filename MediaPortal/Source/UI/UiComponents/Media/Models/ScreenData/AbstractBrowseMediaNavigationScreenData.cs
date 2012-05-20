@@ -93,13 +93,13 @@ namespace MediaPortal.UiComponents.Media.Models.ScreenData
       if (path == null)
         return null;
       ILocalSharesManagement lsm = ServiceRegistration.Get<ILocalSharesManagement>();
-      Share result = lsm.Shares.Values.ContainingPath(path);
+      Share result = lsm.Shares.Values.BestContainingPath(path);
       if (result == null)
       {
         IServerConnectionManager serverConnectionManager = ServiceRegistration.Get<IServerConnectionManager>();
         IContentDirectory contentDirectory = serverConnectionManager.ContentDirectory;
         if (contentDirectory != null)
-          result = contentDirectory.GetShares(serverConnectionManager.HomeServerSystemId, SharesFilter.All).ContainingPath(path);
+          result = contentDirectory.GetShares(serverConnectionManager.HomeServerSystemId, SharesFilter.All).BestContainingPath(path);
       }
       return result;
     }

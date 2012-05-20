@@ -37,8 +37,22 @@ namespace MediaPortal.Common.MediaManagement
     /// </summary>
     public enum MessageType
     {
+      /// <summary>
+      /// This message is sent when the importer worker started the import of the given path.
+      /// This message has one parameter <see cref="RESOURCE_PATH"/>.
+      /// </summary>
       ImportStarted,
+
+      /// <summary>
+      /// This message is sent during an import when the importer worker processes the given resource path.
+      /// This message has one parameter <see cref="RESOURCE_PATH"/>.
+      /// </summary>
       ImportStatus,
+
+      /// <summary>
+      /// This message is sent when the importer worker finishes the import of the given path.
+      /// This message has one parameter <see cref="RESOURCE_PATH"/>.
+      /// </summary>
       ImportCompleted,
     }
 

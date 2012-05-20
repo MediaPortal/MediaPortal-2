@@ -594,13 +594,14 @@ namespace MediaPortal.Common.Services.MediaManagement
             if (importJob.State == ImportJobState.Started)
               importJob.State = ImportJobState.Finished;
           ServiceRegistration.Get<ILogger>().Info("ImporterWorker: Finished import job '{0}'", importJob);
-            ImporterWorkerMessaging.SendImportMessage(ImporterWorkerMessaging.MessageType.ImportCompleted, importJob.BasePath);
+          ImporterWorkerMessaging.SendImportMessage(ImporterWorkerMessaging.MessageType.ImportCompleted, importJob.BasePath);
           return;
         }
         catch (Exception e)
         {
           CheckSuspended(); // Throw ImportAbortException if suspended - will skip warning and tagging job as erroneous
           ServiceRegistration.Get<ILogger>().Warn("ImporterWorker: Problem processing '{0}'", e, importJob);
+          ImporterWorkerMessaging.SendImportMessage(ImporterWorkerMessaging.MessageType.ImportCompleted, importJob.BasePath);
           importJob.State = ImportJobState.Erroneous;
         }
       }

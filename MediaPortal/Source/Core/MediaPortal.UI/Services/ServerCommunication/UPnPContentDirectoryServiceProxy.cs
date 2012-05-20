@@ -42,6 +42,11 @@ namespace MediaPortal.UI.Services.ServerCommunication
   /// </summary>
   public class UPnPContentDirectoryServiceProxy : UPnPServiceProxyBase, IContentDirectory
   {
+    protected const string SV_PLAYLISTS_CHANGE_COUNTER = "PlaylistsChangeCounter";
+    protected const string SV_MIA_TYPE_REGISTRATIONS_CHANGE_COUNTER = "MIATypeRegistrationsChangeCounter";
+    protected const string SV_REGISTERED_SHARES_CHANGE_COUNTER = "RegisteredSharesChangeCounter";
+    protected const string SV_CURRENTLY_IMPORTING_SHARES = "CurrentlyImportingShares";
+
     public UPnPContentDirectoryServiceProxy(CpService serviceStub) : base(serviceStub, "ContentDirectory")
     {
       serviceStub.StateVariableChanged += OnStateVariableChanged;
@@ -50,10 +55,14 @@ namespace MediaPortal.UI.Services.ServerCommunication
 
     private void OnStateVariableChanged(CpStateVariable statevariable)
     {
-      if (statevariable.Name == "PlaylistsChangeCounter")
+      if (statevariable.Name == SV_PLAYLISTS_CHANGE_COUNTER)
         FirePlaylistsChanged();
-      else if (statevariable.Name == "MIATypeRegistrationsChangeCounter")
+      else if (statevariable.Name == SV_MIA_TYPE_REGISTRATIONS_CHANGE_COUNTER)
         FireMIATypeRegistrationsChanged();
+      else if (statevariable.Name == SV_REGISTERED_SHARES_CHANGE_COUNTER)
+        FireRegisteredSharesChangeCounterChanged();
+      else if (statevariable.Name == SV_CURRENTLY_IMPORTING_SHARES)
+        FireCurrentlyImportingSharesChanged();
     }
 
     // We could also provide the asynchronous counterparts of the following methods... do we need them?
@@ -100,10 +109,26 @@ namespace MediaPortal.UI.Services.ServerCommunication
         dlgt();
     }
 
+    protected void FireRegisteredSharesChangeCounterChanged()
+    {
+      ParameterlessMethod dlgt = RegisteredSharesChangeCounterChanged;
+      if (dlgt != null)
+        dlgt();
+    }
+
+    protected void FireCurrentlyImportingSharesChanged()
+    {
+      ParameterlessMethod dlgt = CurrentlyImportingSharesChanged;
+      if (dlgt != null)
+        dlgt();
+    }
+
     #region State variables
 
     public event ParameterlessMethod PlaylistsChanged;
     public event ParameterlessMethod MIATypeRegistrationsChanged;
+    public event ParameterlessMethod RegisteredSharesChangeCounterChanged;
+    public event ParameterlessMethod CurrentlyImportingSharesChanged;
 
     #endregion
 
@@ -376,6 +401,15 @@ namespace MediaPortal.UI.Services.ServerCommunication
 
     #region Media import
 
+    public IEnumerable<Guid> CurrentlyImportingShares
+    {
+      get
+      {
+        CpStateVariable variable = GetStateVariable(SV_CURRENTLY_IMPORTING_SHARES);
+        return MarshallingHelper.ParseCsvGuidCollection((string) variable.Value);
+      }
+    }
+
     public Guid AddOrUpdateMediaItem(Guid parentDirectoryId, string systemId, ResourcePath path,
         IEnumerable<MediaItemAspect> mediaItemAspects)
     {
@@ -395,6 +429,20 @@ namespace MediaPortal.UI.Services.ServerCommunication
     {
       CpAction action = GetAction("DeleteMediaItemOrPath");
       IList<object> inParameters = new List<object> {systemId, path.Serialize(), inclusive};
+      action.InvokeAction(inParameters);
+    }
+
+    public void ClientStartedShareImport(Guid shareId)
+    {
+      CpAction action = GetAction("ClientStartedShareImport");
+      IList<object> inParameters = new List<object> {MarshallingHelper.SerializeGuid(shareId)};
+      action.InvokeAction(inParameters);
+    }
+
+    public void ClientCompletedShareImport(Guid shareId)
+    {
+      CpAction action = GetAction("ClientCompletedShareImport");
+      IList<object> inParameters = new List<object> {MarshallingHelper.SerializeGuid(shareId)};
       action.InvokeAction(inParameters);
     }
 

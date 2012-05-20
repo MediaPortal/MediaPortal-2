@@ -46,6 +46,14 @@ namespace MediaPortal.Common.UPnP
         throw new FatalException("Method '{0}' is not present in the connected {1} service", actionName, _serviceName);
       return result;
     }
+
+    protected CpStateVariable GetStateVariable(string stateVariableName)
+    {
+      CpStateVariable result;
+      if (!_serviceStub.StateVariables.TryGetValue(stateVariableName, out result))
+        throw new FatalException("State variable '{0}' is not present in the connected {1} service", stateVariableName, _serviceName);
+      return result;
+    }
   }
 
 }
