@@ -95,9 +95,9 @@ namespace MediaPortal.UiComponents.Media.Views
         IServerConnectionManager serverConnectionManager = ServiceRegistration.Get<IServerConnectionManager>();
         ISystemResolver systemResolver = ServiceRegistration.Get<ISystemResolver>();
         if (localShare.SystemId == serverConnectionManager.HomeServerSystemId)
-          navigateToViewDlgt(new LocalSharesViewSpecification(localServerShares, Consts.RES_SERVER_SHARES, _necessaryMIATypeIds, _optionalMIATypeIds));
+          navigateToViewDlgt(new LocalSharesViewSpecification(localServerShares, Consts.RES_SERVER_SHARES_VIEW_NAME, _necessaryMIATypeIds, _optionalMIATypeIds));
         else if (localShare.SystemId == systemResolver.LocalSystemId)
-          navigateToViewDlgt(new LocalSharesViewSpecification(localClientShares, Consts.RES_CLIENT_SHARES, _necessaryMIATypeIds, _optionalMIATypeIds));
+          navigateToViewDlgt(new LocalSharesViewSpecification(localClientShares, Consts.RES_CLIENT_SHARES_VIEW_NAME, _necessaryMIATypeIds, _optionalMIATypeIds));
       }
       navigateToViewDlgt(new LocalDirectoryViewSpecification(localShare.Name, localShare.BaseResourcePath, _necessaryMIATypeIds, _optionalMIATypeIds));
     }
@@ -133,8 +133,8 @@ namespace MediaPortal.UiComponents.Media.Views
         mediaItems = new List<MediaItem>();
         subViewSpecifications = new List<ViewSpecification>
           {
-              new LocalSharesViewSpecification(localClientShares, Consts.RES_CLIENT_SHARES, _necessaryMIATypeIds, _optionalMIATypeIds),
-              new LocalSharesViewSpecification(localServerShares, Consts.RES_SERVER_SHARES, _necessaryMIATypeIds, _optionalMIATypeIds)
+              new LocalSharesViewSpecification(localClientShares, Consts.RES_CLIENT_SHARES_VIEW_NAME, _necessaryMIATypeIds, _optionalMIATypeIds),
+              new LocalSharesViewSpecification(localServerShares, Consts.RES_SERVER_SHARES_VIEW_NAME, _necessaryMIATypeIds, _optionalMIATypeIds)
           };
       }
       else
