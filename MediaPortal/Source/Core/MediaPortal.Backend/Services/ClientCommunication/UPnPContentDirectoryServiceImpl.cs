@@ -598,6 +598,7 @@ namespace MediaPortal.Backend.Services.ClientCommunication
 
     public override void Dispose()
     {
+      base.Dispose();
       _messageQueue.Shutdown();
     }
 
