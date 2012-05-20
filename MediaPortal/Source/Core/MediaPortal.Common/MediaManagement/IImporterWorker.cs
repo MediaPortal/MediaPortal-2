@@ -22,11 +22,175 @@
 
 #endregion
 
+using System;
 using System.Collections.Generic;
+using System.Xml.Serialization;
 using MediaPortal.Common.ResourceAccess;
 
 namespace MediaPortal.Common.MediaManagement
 {
+  public enum ImportJobType
+  {
+    Import,
+    Refresh
+  }
+
+  public enum ImportJobState
+  {
+    None,
+    Scheduled,
+    Started,
+    Finished,
+    Cancelled,
+    Erroneous
+  }
+
+  /// <summary>
+  /// Holds the data which specifies the basic data of an import job.
+  /// </summary>
+  /// <remarks>
+  /// <para>
+  /// Note: This class is serialized/deserialized by the <see cref="XmlSerializer"/>.
+  /// If changed, this has to be taken into consideration.
+  /// </para>
+  /// </remarks>
+  public struct ImportJobInformation
+  {
+    private ImportJobType _jobType;
+    private ResourcePath _basePath;
+    private ICollection<Guid> _metadataExtractorIds;
+    private bool _includeSubDirectories;
+    private ImportJobState _state;
+
+    public ImportJobInformation(ImportJobType jobType, ResourcePath basePath, ICollection<Guid> metadataExtractorIds, bool includeSubDirectories)
+    {
+      _jobType = jobType;
+      _basePath = basePath;
+      _metadataExtractorIds = metadataExtractorIds;
+      _includeSubDirectories = includeSubDirectories;
+      _state = ImportJobState.None;
+    }
+
+    public ImportJobInformation(ImportJobInformation other)
+    {
+      _jobType = other.JobType;
+      _basePath = other.BasePath;
+      _metadataExtractorIds = other.MetadataExtractorIds;
+      _includeSubDirectories = other.IncludeSubDirectories;
+      _state = other.State;
+    }
+
+    [XmlIgnore]
+    public ImportJobType JobType
+    {
+      get { return _jobType; }
+      set { _jobType = value; }
+    }
+
+    [XmlIgnore]
+    public ResourcePath BasePath
+    {
+      get { return _basePath; }
+      set { _basePath = value; }
+    }
+
+    [XmlIgnore]
+    public ICollection<Guid> MetadataExtractorIds
+    {
+      get { return _metadataExtractorIds; }
+      set { _metadataExtractorIds = value; }
+    }
+
+    [XmlIgnore]
+    public bool IncludeSubDirectories
+    {
+      get { return _includeSubDirectories; }
+      set { _includeSubDirectories = value; }
+    }
+
+    [XmlIgnore]
+    public ImportJobState State
+    {
+      get { return _state; }
+      set { _state = value; }
+    }
+
+    public override bool Equals(object obj)
+    {
+      if (!(obj is ImportJobInformation))
+        return false;
+      ImportJobInformation other = (ImportJobInformation) obj;
+      return _basePath == other._basePath && _jobType == other._jobType &&
+          _includeSubDirectories == other._includeSubDirectories &&
+          _state == other._state;
+    }
+
+    public override int GetHashCode()
+    {
+      return _basePath.GetHashCode();
+    }
+
+    public override string ToString()
+    {
+      return string.Format("ImportJob '{0}'", _basePath.Serialize());
+    }
+
+    #region Additional members for the XML serialization
+
+    /// <summary>
+    /// For internal use of the XML serialization system only.
+    /// </summary>
+    [XmlAttribute("JobType")]
+    public ImportJobType XML_JobType
+    {
+      get { return _jobType; }
+      set { _jobType = value; }
+    }
+
+    /// <summary>
+    /// For internal use of the XML serialization system only.
+    /// </summary>
+    [XmlAttribute("State")]
+    public ImportJobState XML_State
+    {
+      get { return _state; }
+      set { _state = value; }
+    }
+
+    /// <summary>
+    /// For internal use of the XML serialization system only.
+    /// </summary>
+    [XmlElement("BasePath", IsNullable = false)]
+    public string XML_BasePath
+    {
+      get { return _basePath.Serialize(); }
+      set { _basePath = ResourcePath.Deserialize(value); }
+    }
+
+    /// <summary>
+    /// For internal use of the XML serialization system only.
+    /// </summary>
+    [XmlArray("MetadataExtractorIds", IsNullable = false)]
+    [XmlArrayItem("Id")]
+    public HashSet<Guid> XML_MetadataExtractorIds
+    {
+      get { return new HashSet<Guid>(_metadataExtractorIds); }
+      set { _metadataExtractorIds = value; }
+    }
+
+    /// <summary>
+    /// For internal use of the XML serialization system only.
+    /// </summary>
+    [XmlAttribute("IncludeSubDirectories")]
+    public bool XML_IncludeSubDirectories
+    {
+      get { return _includeSubDirectories; }
+      set { _includeSubDirectories = value; }
+    }
+
+    #endregion
+  }
+
   /// <summary>
   /// Importer worker instance. Accepts import jobs and processes them, when possible.
   /// </summary>
@@ -58,6 +222,11 @@ namespace MediaPortal.Common.MediaManagement
     /// with the callback interfaces provided by method <see cref="Activate"/>.
     /// </summary>
     bool IsSuspended { get; }
+
+    /// <summary>
+    /// Returns a collection of objects holding information about all current import jobs.
+    /// </summary>
+    ICollection<ImportJobInformation> ImportJobs { get; }
 
     /// <summary>
     /// Starts the importer worker service.

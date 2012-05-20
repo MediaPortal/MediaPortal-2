@@ -637,6 +637,15 @@ namespace MediaPortal.Common.Services.MediaManagement
       }
     }
 
+    public ICollection<ImportJobInformation> ImportJobs
+    {
+      get
+      {
+        lock (_syncObj)
+          return _importJobs.Select(job => new ImportJobInformation(job.JobInformation)).ToList();
+      }
+    }
+
     public void Startup()
     {
       IsSuspended = true;
