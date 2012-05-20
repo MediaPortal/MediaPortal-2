@@ -288,7 +288,7 @@ namespace MediaPortal.UI.Services.ServerCommunication
         try
         {
           // Check if we're attached to the server. If the server lost its state, it might have forgotten us.
-          if (!sc.IsClientAttached(systemResolver.LocalSystemId))
+          if (!sc.AttachedClients.Select(clientMetadata => clientMetadata.SystemId).Contains(systemResolver.LocalSystemId))
             sc.AttachClient(systemResolver.LocalSystemId);
         }
         catch (Exception e)

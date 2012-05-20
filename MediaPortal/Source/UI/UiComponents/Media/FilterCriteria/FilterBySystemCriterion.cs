@@ -46,7 +46,7 @@ namespace MediaPortal.UiComponents.Media.FilterCriteria
       if (serverController == null)
         throw new NotConnectedException("The MediaLibrary is not connected");
       IDictionary<string, string> systemNames = new Dictionary<string, string>();
-      foreach (MPClientMetadata client in serverController.GetAttachedClients())
+      foreach (MPClientMetadata client in serverController.AttachedClients)
         systemNames.Add(client.SystemId, client.LastClientName);
       systemNames.Add(serverConnectionManager.HomeServerSystemId, serverConnectionManager.LastHomeServerName);
       IContentDirectory cd = ServiceRegistration.Get<IServerConnectionManager>().ContentDirectory;

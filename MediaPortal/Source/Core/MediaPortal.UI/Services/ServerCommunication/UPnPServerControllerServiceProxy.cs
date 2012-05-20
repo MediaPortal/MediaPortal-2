@@ -27,6 +27,7 @@ using MediaPortal.Common.ClientCommunication;
 using MediaPortal.Common.General;
 using MediaPortal.Common.UPnP;
 using MediaPortal.UI.ServerCommunication;
+using MediaPortal.Utilities.UPnP;
 using UPnP.Infrastructure.CP.DeviceTree;
 
 namespace MediaPortal.UI.Services.ServerCommunication
@@ -36,13 +37,63 @@ namespace MediaPortal.UI.Services.ServerCommunication
   /// </summary>
   public class UPnPServerControllerServiceProxy : UPnPServiceProxyBase, IServerController
   {
-    public UPnPServerControllerServiceProxy(CpService serviceStub) : base(serviceStub, "ServerController") { }
+    protected const string SV_ATTACHED_CLIENTS = "AttachedClients";
+    protected const string SV_CONNECTED_CLIENTS = "ConnectedClients";
 
-    public bool IsClientAttached(string clientSystemId)
+    public UPnPServerControllerServiceProxy(CpService serviceStub) : base(serviceStub, "ServerController")
     {
-      CpAction action = GetAction("IsClientAttached");
-      IList<object> outParams = action.InvokeAction(new List<object> {clientSystemId});
-      return (bool) outParams[0];
+      serviceStub.StateVariableChanged += OnStateVariableChanged;
+      serviceStub.SubscribeStateVariables();
+    }
+
+    private void OnStateVariableChanged(CpStateVariable statevariable)
+    {
+      if (statevariable.Name == SV_ATTACHED_CLIENTS)
+        FireAttachedClientsChanged();
+      else if (statevariable.Name == SV_CONNECTED_CLIENTS)
+        FireConnectedClientsChanged();
+    }
+
+    protected void FireAttachedClientsChanged()
+    {
+      ParameterlessMethod dlgt = AttachedClientsChanged;
+      if (dlgt != null)
+        dlgt();
+    }
+
+    protected void FireConnectedClientsChanged()
+    {
+      ParameterlessMethod dlgt = ConnectedClientsChanged;
+      if (dlgt != null)
+        dlgt();
+    }
+
+    #region State variables
+
+    // We don't make those events available via the public interface because .net event registrations are not allowed between MP2 modules.
+    // It is the job of the class which instanciates this class to publicize those events.
+
+    public event ParameterlessMethod AttachedClientsChanged;
+    public event ParameterlessMethod ConnectedClientsChanged;
+
+    #endregion
+
+    public ICollection<MPClientMetadata> AttachedClients
+    {
+      get
+      {
+        CpStateVariable variable = GetStateVariable(SV_ATTACHED_CLIENTS);
+        return (ICollection<MPClientMetadata>) variable.Value;
+      }
+    }
+
+    public ICollection<string> ConnectedClients
+    {
+      get
+      {
+        CpStateVariable variable = GetStateVariable(SV_CONNECTED_CLIENTS);
+        return MarshallingHelper.ParseCsvStringCollection((string) variable.Value);
+      }
     }
 
     public void AttachClient(string clientSystemId)
@@ -55,13 +106,6 @@ namespace MediaPortal.UI.Services.ServerCommunication
     {
       CpAction action = GetAction("DetachClient");
       action.InvokeAction(new List<object> {clientSystemId});
-    }
-
-    public ICollection<MPClientMetadata> GetAttachedClients()
-    {
-      CpAction action = GetAction("GetAttachedClients");
-      IList<object> outParams = action.InvokeAction(new List<object> {});
-      return (ICollection<MPClientMetadata>) outParams[0];
     }
 
     public SystemName GetSystemNameForSystemId(string systemId)

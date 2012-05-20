@@ -114,7 +114,7 @@ namespace MediaPortal.UiComponents.Media.Views
       if (cd == null || sc == null)
         return;
       ICollection<KeyValuePair<string, string>> systems = new List<KeyValuePair<string, string>>(
-          sc.GetAttachedClients().Select(client => new KeyValuePair<string, string>(client.SystemId, client.LastClientName)))
+          sc.AttachedClients.Select(client => new KeyValuePair<string, string>(client.SystemId, client.LastClientName)))
         {
             new KeyValuePair<string, string>(scm.HomeServerSystemId, scm.LastHomeServerName) // Add the server too
         };

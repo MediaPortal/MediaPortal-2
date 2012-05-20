@@ -23,12 +23,14 @@
 #endregion
 
 using System.Collections.Generic;
+using System.Linq;
 using MediaPortal.Backend.ClientCommunication;
 using MediaPortal.Common;
-using MediaPortal.Common.ClientCommunication;
 using MediaPortal.Common.General;
+using MediaPortal.Common.Messaging;
 using MediaPortal.Common.SystemResolver;
 using MediaPortal.Common.UPnP;
+using MediaPortal.Utilities.UPnP;
 using UPnP.Infrastructure.Common;
 using UPnP.Infrastructure.Dv;
 using UPnP.Infrastructure.Dv.DeviceTree;
@@ -40,6 +42,11 @@ namespace MediaPortal.Backend.Services.ClientCommunication
   /// </summary>
   public class UPnPServerControllerServiceImpl : DvService
   {
+    protected DvStateVariable AttachedClients;
+    protected DvStateVariable ConnectedClients;
+
+    protected AsynchronousMessageQueue _messageQueue;
+
     public UPnPServerControllerServiceImpl() : base(
         UPnPTypesAndIds.SERVER_CONTROLLER_SERVICE_TYPE, UPnPTypesAndIds.SERVER_CONTROLLER_SERVICE_TYPE_VERSION,
         UPnPTypesAndIds.SERVER_CONTROLLER_SERVICE_ID)
@@ -65,23 +72,22 @@ namespace MediaPortal.Backend.Services.ClientCommunication
           };
       AddStateVariable(A_ARG_TYPE_SystemName);
 
-      // Used to transport an enumeration of attached client data
-      DvStateVariable A_ARG_TYPE_MPClientMetadata = new DvStateVariable("A_ARG_TYPE_MPClientMetadata", new DvExtendedDataType(UPnPExtendedDataTypes.DtMPClientMetadata))
-          {
-            SendEvents = false
-          };
-      AddStateVariable(A_ARG_TYPE_MPClientMetadata);
+      AttachedClients = new DvStateVariable("AttachedClients", new DvExtendedDataType(UPnPExtendedDataTypes.DtMPClientMetadata))
+        {
+            SendEvents = true
+        };
+      UpdateAttachedClients();
+      AddStateVariable(AttachedClients);
+
+      // Csv of client's system ids
+      ConnectedClients = new DvStateVariable("ConnectedClients", new DvStandardDataType(UPnPStandardDataType.String))
+        {
+            SendEvents = true
+        };
+      UpdateClientsConnectionState();
+      AddStateVariable(ConnectedClients);
 
       // More state variables go here
-
-      DvAction isClientAttachedAction = new DvAction("IsClientAttached", OnIsClientAttached,
-          new DvArgument[] {
-            new DvArgument("ClientSystemId", A_ARG_TYPE_SystemId, ArgumentDirection.In),
-          },
-          new DvArgument[] {
-            new DvArgument("IsAttached", A_ARG_TYPE_Bool, ArgumentDirection.Out),
-          });
-      AddAction(isClientAttachedAction);
 
       DvAction attachClientAction = new DvAction("AttachClient", OnAttachClient,
           new DvArgument[] {
@@ -99,14 +105,6 @@ namespace MediaPortal.Backend.Services.ClientCommunication
           });
       AddAction(detachClientAction);
 
-      DvAction getAttachedClientsAction = new DvAction("GetAttachedClients", OnGetAttachedClients,
-          new DvArgument[] {
-          },
-          new DvArgument[] {
-            new DvArgument("AttachedClients", A_ARG_TYPE_MPClientMetadata, ArgumentDirection.Out, true),
-          });
-      AddAction(getAttachedClientsAction);
-
       DvAction getSystemNameForSytemIdAction = new DvAction("GetSystemNameForSystemId", OnGetSystemNameForSytemId,
           new DvArgument[] {
             new DvArgument("SystemId", A_ARG_TYPE_SystemId, ArgumentDirection.In),
@@ -117,15 +115,49 @@ namespace MediaPortal.Backend.Services.ClientCommunication
       AddAction(getSystemNameForSytemIdAction);
 
       // More actions go here
+
+      _messageQueue = new AsynchronousMessageQueue(this, new string[]
+        {
+            ClientManagerMessaging.CHANNEL,
+        });
+      _messageQueue.MessageReceived += OnMessageReceived;
+      _messageQueue.Start();
     }
 
-    static UPnPError OnIsClientAttached(DvAction action, IList<object> inParams, out IList<object> outParams,
-        CallContext context)
+    public override void Dispose()
     {
-      string clientSystemId = (string) inParams[0];
-      bool isAttached = ServiceRegistration.Get<IClientManager>().AttachedClients.ContainsKey(clientSystemId);
-      outParams = new List<object> {isAttached};
-      return null;
+      base.Dispose();
+      _messageQueue.Shutdown();
+    }
+
+    private void OnMessageReceived(AsynchronousMessageQueue queue, SystemMessage message)
+    {
+      if (message.ChannelName == ClientManagerMessaging.CHANNEL)
+      {
+        ClientManagerMessaging.MessageType messageType = (ClientManagerMessaging.MessageType) message.MessageType;
+        switch (messageType)
+        {
+          case ClientManagerMessaging.MessageType.ClientAttached:
+          case ClientManagerMessaging.MessageType.ClientDetached:
+            UpdateAttachedClients();
+            break;
+          case ClientManagerMessaging.MessageType.ClientOnline:
+          case ClientManagerMessaging.MessageType.ClientOffline:
+            UpdateClientsConnectionState();
+            break;
+        }
+      }
+    }
+
+    protected void UpdateAttachedClients()
+    {
+      AttachedClients.Value = ServiceRegistration.Get<IClientManager>().AttachedClients;
+    }
+
+    protected void UpdateClientsConnectionState()
+    {
+      ConnectedClients.Value = MarshallingHelper.SerializeStringEnumerationToCsv(
+          ServiceRegistration.Get<IClientManager>().ConnectedClients.Select(clientConnection => clientConnection.Descriptor.MPFrontendServerUUID));
     }
 
     static UPnPError OnAttachClient(DvAction action, IList<object> inParams, out IList<object> outParams,
@@ -143,14 +175,6 @@ namespace MediaPortal.Backend.Services.ClientCommunication
       string clientSystemId = (string) inParams[0];
       ServiceRegistration.Get<IClientManager>().DetachClientAndRemoveShares(clientSystemId);
       outParams = null;
-      return null;
-    }
-
-    static UPnPError OnGetAttachedClients(DvAction action, IList<object> inParams, out IList<object> outParams,
-        CallContext context)
-    {
-      IDictionary<string, MPClientMetadata> attachedClients = ServiceRegistration.Get<IClientManager>().AttachedClients;
-      outParams = new List<object> {attachedClients.Values};
       return null;
     }
 
