@@ -23,10 +23,10 @@
 #endregion
 
 using System;
-using System.Collections.Generic;
 using MediaPortal.Common;
 using MediaPortal.Common.Logging;
 using MediaPortal.Common.MediaManagement;
+using MediaPortal.Common.MediaManagement.Helpers;
 using MediaPortal.Common.ResourceAccess;
 using MediaPortal.UI.Presentation.Workflow;
 using MediaPortal.UI.ServerCommunication;
@@ -88,45 +88,18 @@ namespace MediaPortal.UiComponents.Media.Models.ScreenData
         NavigateToMLBrowsing(path);
     }
 
-    protected static Share FindShareContainingPath(ICollection<Share> shares, ResourcePath path)
-    {
-      if (path == null)
-        return null;
-      int bestMatchPathLength = int.MaxValue;
-      Share bestMatchShare = null;
-      foreach (Share share in shares)
-      {
-        ResourcePath sharePath = share.BaseResourcePath;
-        if (!sharePath.IsSameOrParentOf(path))
-          // The path is not located in the current share
-          continue;
-        if (bestMatchShare == null)
-        {
-          bestMatchShare = share;
-          continue;
-        }
-        // We want to find a share which is as close as possible to the given path
-        int sharePathLength = sharePath.Serialize().Length;
-        if (bestMatchPathLength >= sharePathLength)
-          continue;
-        bestMatchShare = share;
-        bestMatchPathLength = sharePathLength;
-      }
-      return bestMatchShare;
-    }
-
     protected static Share FindLocalShareContainingPath(ResourcePath path)
     {
       if (path == null)
         return null;
       ILocalSharesManagement lsm = ServiceRegistration.Get<ILocalSharesManagement>();
-      Share result = FindShareContainingPath(lsm.Shares.Values, path);
+      Share result = lsm.Shares.Values.ContainingPath(path);
       if (result == null)
       {
         IServerConnectionManager serverConnectionManager = ServiceRegistration.Get<IServerConnectionManager>();
         IContentDirectory contentDirectory = serverConnectionManager.ContentDirectory;
         if (contentDirectory != null)
-          result = FindShareContainingPath(contentDirectory.GetShares(serverConnectionManager.HomeServerSystemId, SharesFilter.All), path);
+          result = contentDirectory.GetShares(serverConnectionManager.HomeServerSystemId, SharesFilter.All).ContainingPath(path);
       }
       return result;
     }

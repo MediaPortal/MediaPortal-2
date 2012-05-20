@@ -144,6 +144,7 @@
     <Compile Include="MediaManagement\DefaultItemAspects\ImageAspect.cs" />
     <Compile Include="MediaManagement\DefaultItemAspects\ProviderResourceAspect.cs" />
     <Compile Include="MediaManagement\Helpers\SeriesInfo.cs" />
+    <Compile Include="MediaManagement\Helpers\SharesHelper.cs" />
     <Compile Include="MediaManagement\MLQueries\FalseFilter.cs" />
     <Compile Include="MediaManagement\MLQueries\MediaItemIdFilter.cs" />
     <Compile Include="MediaManagement\PlaylistBase.cs" />
