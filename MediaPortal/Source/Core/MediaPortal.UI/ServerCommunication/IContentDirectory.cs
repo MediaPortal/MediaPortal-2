@@ -148,7 +148,7 @@ namespace MediaPortal.UI.ServerCommunication
     /// <summary>
     /// Returns all shares which are marked as currently being imported.
     /// </summary>
-    IEnumerable<Guid> CurrentlyImportingShares { get; }
+    ICollection<Guid> CurrentlyImportingShares { get; }
 
     /// <summary>
     /// Adds the media item with the given path or updates it if it already exists.

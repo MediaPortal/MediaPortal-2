@@ -125,6 +125,9 @@ namespace MediaPortal.UI.Services.ServerCommunication
 
     #region State variables
 
+    // We don't make those events available via the public interface because .net event registrations are not allowed between MP2 modules.
+    // It is the job of the class which instanciates this class to publicize those events.
+
     public event ParameterlessMethod PlaylistsChanged;
     public event ParameterlessMethod MIATypeRegistrationsChanged;
     public event ParameterlessMethod RegisteredSharesChangeCounterChanged;
@@ -401,7 +404,7 @@ namespace MediaPortal.UI.Services.ServerCommunication
 
     #region Media import
 
-    public IEnumerable<Guid> CurrentlyImportingShares
+    public ICollection<Guid> CurrentlyImportingShares
     {
       get
       {
