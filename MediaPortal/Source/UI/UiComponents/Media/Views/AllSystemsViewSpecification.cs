@@ -58,6 +58,8 @@ namespace MediaPortal.UiComponents.Media.Views
 
     public override IViewChangeNotificator CreateChangeNotificator()
     {
+      // We could also try to be notified when new clients are attached. Currently, that event is only reflected in the client manager's state variable
+      // AttachedClients but isn't routed to a system message in the client yet.
       return new ServerConnectionChangeNotificator();
     }
 
