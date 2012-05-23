@@ -132,7 +132,7 @@ namespace UPnP.Infrastructure.Dv.GENA
       lock (_serverData.SyncObj)
       {
         _disposed = true;
-        foreach (AsyncRequestState state in _pendingRequests)
+        foreach (AsyncRequestState state in new List<AsyncRequestState>(_pendingRequests))
           state.Request.Abort();
       }
     }

@@ -46,7 +46,7 @@ namespace MediaPortal.Common.Runtime
     }
 
     // Message data
-    public const string NEW_STATE = "NewState"; // Parameter depends on the message type, see the docs in MessageType enum
+    public const string NEW_STATE = "NewState"; // Type: SystemState
 
     /// <summary>
     /// Sends a <see cref="MessageType.SystemStateChanged"/> message.
