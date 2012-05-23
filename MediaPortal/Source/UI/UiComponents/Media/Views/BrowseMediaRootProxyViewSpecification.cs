@@ -100,7 +100,7 @@ namespace MediaPortal.UiComponents.Media.Views
       IServerController serverController = serverConnectionManager.ServerController;
       ILocalSharesManagement localSharesManagement = ServiceRegistration.Get<ILocalSharesManagement>();
       ICollection<Share> localClientShares = localSharesManagement.Shares.Values;
-      return serverController != null && serverController.AttachedClients.Count == 1 && isLocalHomeServer && localClientShares.Count == 0;
+      return serverController != null && serverController.GetAttachedClients().Count == 1 && isLocalHomeServer && localClientShares.Count == 0;
     }
 
     protected override void NavigateToLocalRootView(Share localShare, NavigateToViewDlgt navigateToViewDlgt)

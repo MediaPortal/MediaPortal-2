@@ -22,6 +22,7 @@
 
 #endregion
 
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using MediaPortal.Backend.ClientCommunication;
@@ -42,8 +43,11 @@ namespace MediaPortal.Backend.Services.ClientCommunication
   /// </summary>
   public class UPnPServerControllerServiceImpl : DvService
   {
-    protected DvStateVariable AttachedClients;
-    protected DvStateVariable ConnectedClients;
+    protected DvStateVariable AttachedClientsChangeCounter;
+    protected DvStateVariable ConnectedClientsChangeCounter;
+
+    protected UInt32 _attachedClientsChangeCt = 0;
+    protected UInt32 _connectedClientsChangeCt = 0;
 
     protected AsynchronousMessageQueue _messageQueue;
 
@@ -72,20 +76,34 @@ namespace MediaPortal.Backend.Services.ClientCommunication
           };
       AddStateVariable(A_ARG_TYPE_SystemName);
 
-      AttachedClients = new DvStateVariable("AttachedClients", new DvExtendedDataType(UPnPExtendedDataTypes.DtMPClientMetadata))
+      // Used to transport an enumeration of MPClientMetadata objects
+      DvStateVariable A_ARG_TYPE_ClientMetadataEnumeration = new DvStateVariable("A_ARG_TYPE_ClientMetadataEnumeration", new DvExtendedDataType(UPnPExtendedDataTypes.DtMPClientMetadataEnumeration))
         {
-            SendEvents = true
+            SendEvents = false
         };
-      UpdateAttachedClients();
-      AddStateVariable(AttachedClients);
+      AddStateVariable(A_ARG_TYPE_ClientMetadataEnumeration);
+
+      // CSV of GUID strings
+      DvStateVariable A_ARG_TYPE_UuidEnumeration = new DvStateVariable("A_ARG_TYPE_UuidEnumeration", new DvStandardDataType(UPnPStandardDataType.String))
+          {
+            SendEvents = false
+          };
+      AddStateVariable(A_ARG_TYPE_UuidEnumeration);
+
+      AttachedClientsChangeCounter = new DvStateVariable("AttachedClientsChangeCounter", new DvStandardDataType(UPnPStandardDataType.Ui4))
+        {
+            SendEvents = true,
+            Value = (uint) 0
+        };
+      AddStateVariable(AttachedClientsChangeCounter);
 
       // Csv of client's system ids
-      ConnectedClients = new DvStateVariable("ConnectedClients", new DvStandardDataType(UPnPStandardDataType.String))
+      ConnectedClientsChangeCounter = new DvStateVariable("ConnectedClientsChangeCounter", new DvStandardDataType(UPnPStandardDataType.Ui4))
         {
-            SendEvents = true
+            SendEvents = true,
+            Value = (uint) 0
         };
-      UpdateClientsConnectionState();
-      AddStateVariable(ConnectedClients);
+      AddStateVariable(ConnectedClientsChangeCounter);
 
       // More state variables go here
 
@@ -104,6 +122,22 @@ namespace MediaPortal.Backend.Services.ClientCommunication
           new DvArgument[] {
           });
       AddAction(detachClientAction);
+
+      DvAction getAttachedClientsAction = new DvAction("GetAttachedClients", OnGetAttachedClients,
+          new DvArgument[] {
+          },
+          new DvArgument[] {
+            new DvArgument("AttachedClients", A_ARG_TYPE_ClientMetadataEnumeration, ArgumentDirection.Out, true),
+          });
+      AddAction(getAttachedClientsAction);
+
+      DvAction getConnectedClientsAction = new DvAction("GetConnectedClients", OnGetConnectedClients,
+          new DvArgument[] {
+          },
+          new DvArgument[] {
+            new DvArgument("ConnectedClients", A_ARG_TYPE_UuidEnumeration, ArgumentDirection.Out, true),
+          });
+      AddAction(getConnectedClientsAction);
 
       DvAction getSystemNameForSytemIdAction = new DvAction("GetSystemNameForSystemId", OnGetSystemNameForSytemId,
           new DvArgument[] {
@@ -139,25 +173,14 @@ namespace MediaPortal.Backend.Services.ClientCommunication
         {
           case ClientManagerMessaging.MessageType.ClientAttached:
           case ClientManagerMessaging.MessageType.ClientDetached:
-            UpdateAttachedClients();
+            AttachedClientsChangeCounter.Value = ++_attachedClientsChangeCt;
             break;
           case ClientManagerMessaging.MessageType.ClientOnline:
           case ClientManagerMessaging.MessageType.ClientOffline:
-            UpdateClientsConnectionState();
+            ConnectedClientsChangeCounter.Value = ++_connectedClientsChangeCt;
             break;
         }
       }
-    }
-
-    protected void UpdateAttachedClients()
-    {
-      AttachedClients.Value = ServiceRegistration.Get<IClientManager>().AttachedClients;
-    }
-
-    protected void UpdateClientsConnectionState()
-    {
-      ConnectedClients.Value = MarshallingHelper.SerializeStringEnumerationToCsv(
-          ServiceRegistration.Get<IClientManager>().ConnectedClients.Select(clientConnection => clientConnection.Descriptor.MPFrontendServerUUID));
     }
 
     static UPnPError OnAttachClient(DvAction action, IList<object> inParams, out IList<object> outParams,
@@ -175,6 +198,21 @@ namespace MediaPortal.Backend.Services.ClientCommunication
       string clientSystemId = (string) inParams[0];
       ServiceRegistration.Get<IClientManager>().DetachClientAndRemoveShares(clientSystemId);
       outParams = null;
+      return null;
+    }
+
+    static UPnPError OnGetAttachedClients(DvAction action, IList<object> inParams, out IList<object> outParams,
+        CallContext context)
+    {
+      outParams = new List<object> {ServiceRegistration.Get<IClientManager>().AttachedClients.Values};
+      return null;
+    }
+
+    static UPnPError OnGetConnectedClients(DvAction action, IList<object> inParams, out IList<object> outParams,
+        CallContext context)
+    {
+      outParams = new List<object> {MarshallingHelper.SerializeStringEnumerationToCsv(
+          ServiceRegistration.Get<IClientManager>().ConnectedClients.Select(clientConnection => clientConnection.Descriptor.MPFrontendServerUUID))};
       return null;
     }
 

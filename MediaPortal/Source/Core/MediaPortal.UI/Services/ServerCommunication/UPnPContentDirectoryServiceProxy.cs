@@ -45,7 +45,7 @@ namespace MediaPortal.UI.Services.ServerCommunication
     protected const string SV_PLAYLISTS_CHANGE_COUNTER = "PlaylistsChangeCounter";
     protected const string SV_MIA_TYPE_REGISTRATIONS_CHANGE_COUNTER = "MIATypeRegistrationsChangeCounter";
     protected const string SV_REGISTERED_SHARES_CHANGE_COUNTER = "RegisteredSharesChangeCounter";
-    protected const string SV_CURRENTLY_IMPORTING_SHARES = "CurrentlyImportingShares";
+    protected const string SV_CURRENTLY_IMPORTING_SHARES_CHANGE_COUNTER = "CurrentlyImportingSharesChangeCounter";
 
     public UPnPContentDirectoryServiceProxy(CpService serviceStub) : base(serviceStub, "ContentDirectory")
     {
@@ -53,7 +53,7 @@ namespace MediaPortal.UI.Services.ServerCommunication
       serviceStub.SubscribeStateVariables();
     }
 
-    private void OnStateVariableChanged(CpStateVariable statevariable)
+    private void OnStateVariableChanged(CpStateVariable statevariable, object newValue)
     {
       if (statevariable.Name == SV_PLAYLISTS_CHANGE_COUNTER)
         FirePlaylistsChanged();
@@ -61,7 +61,7 @@ namespace MediaPortal.UI.Services.ServerCommunication
         FireMIATypeRegistrationsChanged();
       else if (statevariable.Name == SV_REGISTERED_SHARES_CHANGE_COUNTER)
         FireRegisteredSharesChangeCounterChanged();
-      else if (statevariable.Name == SV_CURRENTLY_IMPORTING_SHARES)
+      else if (statevariable.Name == SV_CURRENTLY_IMPORTING_SHARES_CHANGE_COUNTER)
         FireCurrentlyImportingSharesChanged();
     }
 
@@ -404,15 +404,6 @@ namespace MediaPortal.UI.Services.ServerCommunication
 
     #region Media import
 
-    public ICollection<Guid> CurrentlyImportingShares
-    {
-      get
-      {
-        CpStateVariable variable = GetStateVariable(SV_CURRENTLY_IMPORTING_SHARES);
-        return MarshallingHelper.ParseCsvGuidCollection((string) variable.Value);
-      }
-    }
-
     public Guid AddOrUpdateMediaItem(Guid parentDirectoryId, string systemId, ResourcePath path,
         IEnumerable<MediaItemAspect> mediaItemAspects)
     {
@@ -447,6 +438,13 @@ namespace MediaPortal.UI.Services.ServerCommunication
       CpAction action = GetAction("ClientCompletedShareImport");
       IList<object> inParameters = new List<object> {MarshallingHelper.SerializeGuid(shareId)};
       action.InvokeAction(inParameters);
+    }
+
+    public ICollection<Guid> GetCurrentlyImportingShares()
+    {
+      CpAction action = GetAction("GetCurrentlyImportingShares");
+      IList<object> outParameters = action.InvokeAction(null);
+      return MarshallingHelper.ParseCsvGuidCollection((string) outParameters[0]);
     }
 
     #endregion

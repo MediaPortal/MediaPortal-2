@@ -38,7 +38,7 @@ namespace MediaPortal.UI.ServerCommunication
       IServerController sc = scm.ServerController;
       if (sc == null)
         return null;
-      MPClientMetadata clientData = sc.AttachedClients.FirstOrDefault(client => client.SystemId == systemId);
+      MPClientMetadata clientData = sc.GetAttachedClients().FirstOrDefault(client => client.SystemId == systemId);
       if (clientData != null)
         return clientData.LastClientName;
       return null;

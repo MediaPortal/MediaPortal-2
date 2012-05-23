@@ -233,7 +233,7 @@ namespace MediaPortal.UI.Services.ServerCommunication
     {
       lock (_syncObj)
         _isHomeServerConnected = false;
-      CurrentlyImportingSharesProxy = null; // Mark all shares as not being imported
+      UpdateCurrentlyImportingShares(null); // Mark all shares as not being imported
       ServerConnectionMessaging.SendConnectionStateChangedMessage(ServerConnectionMessaging.MessageType.HomeServerDisconnected);
     }
 
@@ -245,6 +245,17 @@ namespace MediaPortal.UI.Services.ServerCommunication
         lock (_syncObj)
           cp = _controlPoint;
         return cp == null ? null : cp.ContentDirectoryService;
+      }
+    }
+
+    protected internal UPnPServerControllerServiceProxy ServerControllerServiceProxy
+    {
+      get
+      {
+        UPnPClientControlPoint cp;
+        lock (_syncObj)
+          cp = _controlPoint;
+        return cp == null ? null : cp.ServerControllerService;
       }
     }
 
@@ -282,13 +293,14 @@ namespace MediaPortal.UI.Services.ServerCommunication
     /// </summary>
     protected void CompleteServerConnection()
     {
-      IServerController sc = ServerController;
+      UPnPServerControllerServiceProxy sc = ServerControllerServiceProxy;
       ISystemResolver systemResolver = ServiceRegistration.Get<ISystemResolver>();
       if (sc != null)
+      {
         try
         {
           // Check if we're attached to the server. If the server lost its state, it might have forgotten us.
-          if (!sc.AttachedClients.Select(clientMetadata => clientMetadata.SystemId).Contains(systemResolver.LocalSystemId))
+          if (!sc.GetAttachedClients().Select(clientMetadata => clientMetadata.SystemId).Contains(systemResolver.LocalSystemId))
             sc.AttachClient(systemResolver.LocalSystemId);
         }
         catch (Exception e)
@@ -296,6 +308,10 @@ namespace MediaPortal.UI.Services.ServerCommunication
           ServiceRegistration.Get<ILogger>().Warn("ServerConnectionManager: Error checking attachment state at home server '{0}'", e, HomeServerSystemId);
           return; // This is a real error case, we don't need to try any other service calls
         }
+
+        // Register state variables change events
+        sc.AttachedClientsChanged += OnAttachedClientsChanged;
+      }
       IImporterWorker importerWorker = ServiceRegistration.Get<IImporterWorker>();
       ICollection<Share> newShares = new List<Share>();
       UPnPContentDirectoryServiceProxy cd = ContentDirectoryServiceProxy;
@@ -366,11 +382,10 @@ namespace MediaPortal.UI.Services.ServerCommunication
         }
 
         // Register state variables change events
-        UPnPContentDirectoryServiceProxy contentDirectoryServiceProxy = cd;
-        contentDirectoryServiceProxy.PlaylistsChanged += OnContentDirectoryPlaylistsChanged;
-        contentDirectoryServiceProxy.MIATypeRegistrationsChanged += OnContentDirectoryMIATypeRegistrationsChanged;
-        contentDirectoryServiceProxy.RegisteredSharesChangeCounterChanged += OnRegisteredSharesChangeCounterChanged;
-        contentDirectoryServiceProxy.CurrentlyImportingSharesChanged += OnCurrentlyImportingSharesChanged;
+        cd.PlaylistsChanged += OnContentDirectoryPlaylistsChanged;
+        cd.MIATypeRegistrationsChanged += OnContentDirectoryMIATypeRegistrationsChanged;
+        cd.RegisteredSharesChangeCounterChanged += OnRegisteredSharesChangeCounterChanged;
+        cd.CurrentlyImportingSharesChanged += OnCurrentlyImportingSharesChanged;
 
         // Activate importer worker
         ServiceRegistration.Get<ILogger>().Debug("ServerConnectionManager: Activating importer worker");
@@ -396,30 +411,33 @@ namespace MediaPortal.UI.Services.ServerCommunication
       ContentDirectoryMessaging.SendRegisteredSharesChangedMessage();
     }
 
-    /// <summary>
-    /// This property just maintains the last state of the content directory's <c>CurrentlyImportingShares</c> state variable and
-    /// generates the appropriate content directory messages.
-    /// </summary>
-    IEnumerable<Guid> CurrentlyImportingSharesProxy
+    static void OnAttachedClientsChanged()
     {
-      set
-      {
-        ICollection<Guid> oldImportingShares = _currentlyImportingSharesProxy;
-        ICollection<Guid> newImportingShares = value == null ? new HashSet<Guid>() : new HashSet<Guid>(value);
-        _currentlyImportingSharesProxy = newImportingShares;
-        foreach (Guid importingShare in
-            newImportingShares.Where(importingShare => !oldImportingShares.Contains(importingShare)))
-          ContentDirectoryMessaging.SendShareImportMessage(ContentDirectoryMessaging.MessageType.ShareImportStarted, importingShare);
-        foreach (Guid oldShare in
-            oldImportingShares.Where(oldShare => !newImportingShares.Contains(oldShare)))
-          ContentDirectoryMessaging.SendShareImportMessage(ContentDirectoryMessaging.MessageType.ShareImportCompleted, oldShare);
-      }
+      // Not implemented because that event isn't really interesting for the MP2 client yet
+    }
+
+    /// <summary>
+    /// This method maintains the content directory's last importing shares state and generates the appropriate content directory messages.
+    /// </summary>
+    void UpdateCurrentlyImportingShares(ICollection<Guid> currentlyImportingShares)
+    {
+      if (currentlyImportingShares == null)
+        currentlyImportingShares = new List<Guid>();
+      ICollection<Guid> oldImportingShares = _currentlyImportingSharesProxy;
+      ICollection<Guid> newImportingShares = currentlyImportingShares;
+      _currentlyImportingSharesProxy = newImportingShares;
+      foreach (Guid importingShare in
+          newImportingShares.Where(importingShare => !oldImportingShares.Contains(importingShare)))
+        ContentDirectoryMessaging.SendShareImportMessage(ContentDirectoryMessaging.MessageType.ShareImportStarted, importingShare);
+      foreach (Guid oldShare in
+          oldImportingShares.Where(oldShare => !newImportingShares.Contains(oldShare)))
+        ContentDirectoryMessaging.SendShareImportMessage(ContentDirectoryMessaging.MessageType.ShareImportCompleted, oldShare);
     }
 
     void OnCurrentlyImportingSharesChanged()
     {
-      UPnPContentDirectoryServiceProxy cd = ContentDirectoryServiceProxy;
-      CurrentlyImportingSharesProxy = cd == null ? new List<Guid>() : cd.CurrentlyImportingShares;
+      IContentDirectory cd = ContentDirectory;
+      UpdateCurrentlyImportingShares(cd == null ? null : cd.GetCurrentlyImportingShares());
     }
 
     #region IServerCommunicationManager implementation
@@ -541,16 +559,30 @@ namespace MediaPortal.UI.Services.ServerCommunication
       importerWorker.CancelPendingJobs();
 
       ServiceRegistration.Get<ILogger>().Debug("ServerConnectionManager: Notifying the MediaPortal server about the detachment");
-      IServerController sc = ServerController;
+      UPnPServerControllerServiceProxy sc = ServerControllerServiceProxy;
       ISystemResolver systemResolver = ServiceRegistration.Get<ISystemResolver>();
       if (sc != null)
         try
         {
           sc.DetachClient(systemResolver.LocalSystemId);
+          sc.AttachedClientsChanged += OnAttachedClientsChanged;
         }
         catch (Exception e)
         {
           ServiceRegistration.Get<ILogger>().Warn("ServerConnectionManager: Error detaching from home server '{0}'", e, HomeServerSystemId);
+        }
+      UPnPContentDirectoryServiceProxy cd = ContentDirectoryServiceProxy;
+      if (cd != null)
+        try
+        {
+          cd.PlaylistsChanged += OnContentDirectoryPlaylistsChanged;
+          cd.MIATypeRegistrationsChanged += OnContentDirectoryMIATypeRegistrationsChanged;
+          cd.RegisteredSharesChangeCounterChanged += OnRegisteredSharesChangeCounterChanged;
+          cd.CurrentlyImportingSharesChanged += OnCurrentlyImportingSharesChanged;
+        }
+        catch (Exception e)
+        {
+          ServiceRegistration.Get<ILogger>().Warn("ServerConnectionManager: Error unregistering from state variable change events", e);
         }
 
       ServiceRegistration.Get<ILogger>().Debug("ServerConnectionManager: Closing server connection");
@@ -567,7 +599,7 @@ namespace MediaPortal.UI.Services.ServerCommunication
         settingsManager.Save(settings);
         _controlPoint = null;
       }
-      CurrentlyImportingSharesProxy = null; // Mark all shares as not being imported
+      UpdateCurrentlyImportingShares(null); // Mark all shares as not being imported
       ServerConnectionMessaging.SendConnectionStateChangedMessage(ServerConnectionMessaging.MessageType.HomeServerDetached);
 
       ServiceRegistration.Get<ILogger>().Debug("ServerConnectionManager: Starting to watch for MediaPortal servers");

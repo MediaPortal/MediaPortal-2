@@ -34,10 +34,11 @@ namespace MediaPortal.UI.ServerCommunication
   /// </summary>
   public interface IServerController
   {
-    ICollection<MPClientMetadata> AttachedClients { get; }
-    ICollection<string> ConnectedClients { get; }
     void AttachClient(string clientSystemId);
     void DetachClient(string clientSystemId);
+    ICollection<MPClientMetadata> GetAttachedClients();
+    ICollection<string> GetConnectedClients();
+
     SystemName GetSystemNameForSystemId(string systemId);
   }
 }

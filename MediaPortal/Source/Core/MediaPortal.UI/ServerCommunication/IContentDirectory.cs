@@ -146,11 +146,6 @@ namespace MediaPortal.UI.ServerCommunication
     // TODO: We don't have a way to remove media item aspects from media items yet. This function has to be added.
 
     /// <summary>
-    /// Returns all shares which are marked as currently being imported.
-    /// </summary>
-    ICollection<Guid> CurrentlyImportingShares { get; }
-
-    /// <summary>
     /// Adds the media item with the given path or updates it if it already exists.
     /// </summary>
     /// <param name="parentDirectoryId">Id of the parent directory media item.</param>
@@ -183,6 +178,12 @@ namespace MediaPortal.UI.ServerCommunication
     /// </summary>
     /// <param name="shareId">Id of the share which has been imported.</param>
     void ClientCompletedShareImport(Guid shareId);
+
+    /// <summary>
+    /// Returns all shares which are marked as currently being imported.
+    /// </summary>
+    /// <returns>Collection of share ids.</returns>
+    ICollection<Guid> GetCurrentlyImportingShares();
 
     #endregion
   }

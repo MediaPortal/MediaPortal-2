@@ -37,8 +37,8 @@ namespace MediaPortal.UI.Services.ServerCommunication
   /// </summary>
   public class UPnPServerControllerServiceProxy : UPnPServiceProxyBase, IServerController
   {
-    protected const string SV_ATTACHED_CLIENTS = "AttachedClients";
-    protected const string SV_CONNECTED_CLIENTS = "ConnectedClients";
+    protected const string SV_ATTACHED_CLIENTS_CHANGE_COUNTER = "AttachedClientsChangeCounter";
+    protected const string SV_CONNECTED_CLIENTS_CHANGE_COUNTER = "ConnectedClientsChangeCounter";
 
     public UPnPServerControllerServiceProxy(CpService serviceStub) : base(serviceStub, "ServerController")
     {
@@ -46,11 +46,11 @@ namespace MediaPortal.UI.Services.ServerCommunication
       serviceStub.SubscribeStateVariables();
     }
 
-    private void OnStateVariableChanged(CpStateVariable statevariable)
+    private void OnStateVariableChanged(CpStateVariable statevariable, object newValue)
     {
-      if (statevariable.Name == SV_ATTACHED_CLIENTS)
+      if (statevariable.Name == SV_ATTACHED_CLIENTS_CHANGE_COUNTER)
         FireAttachedClientsChanged();
-      else if (statevariable.Name == SV_CONNECTED_CLIENTS)
+      else if (statevariable.Name == SV_CONNECTED_CLIENTS_CHANGE_COUNTER)
         FireConnectedClientsChanged();
     }
 
@@ -78,24 +78,6 @@ namespace MediaPortal.UI.Services.ServerCommunication
 
     #endregion
 
-    public ICollection<MPClientMetadata> AttachedClients
-    {
-      get
-      {
-        CpStateVariable variable = GetStateVariable(SV_ATTACHED_CLIENTS);
-        return (ICollection<MPClientMetadata>) variable.Value;
-      }
-    }
-
-    public ICollection<string> ConnectedClients
-    {
-      get
-      {
-        CpStateVariable variable = GetStateVariable(SV_CONNECTED_CLIENTS);
-        return MarshallingHelper.ParseCsvStringCollection((string) variable.Value);
-      }
-    }
-
     public void AttachClient(string clientSystemId)
     {
       CpAction action = GetAction("AttachClient");
@@ -106,6 +88,20 @@ namespace MediaPortal.UI.Services.ServerCommunication
     {
       CpAction action = GetAction("DetachClient");
       action.InvokeAction(new List<object> {clientSystemId});
+    }
+
+    public ICollection<MPClientMetadata> GetAttachedClients()
+    {
+      CpAction action = GetAction("GetAttachedClients");
+      IList<object> outParams = action.InvokeAction(null);
+      return (ICollection<MPClientMetadata>) outParams[0];
+    }
+
+    public ICollection<string> GetConnectedClients()
+    {
+      CpAction action = GetAction("GetConnectedClients");
+      IList<object> outParams = action.InvokeAction(null);
+      return MarshallingHelper.ParseCsvStringCollection((string) outParams[0]);
     }
 
     public SystemName GetSystemNameForSystemId(string systemId)

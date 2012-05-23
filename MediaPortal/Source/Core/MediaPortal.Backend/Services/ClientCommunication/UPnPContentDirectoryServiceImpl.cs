@@ -56,11 +56,12 @@ namespace MediaPortal.Backend.Services.ClientCommunication
 
     protected DvStateVariable PlaylistsChangeCounter;
     protected DvStateVariable MIATypeRegistrationsChangeCounter;
-    protected DvStateVariable CurrentlyImportingShares;
+    protected DvStateVariable CurrentlyImportingSharesCounter;
     protected DvStateVariable RegisteredSharesChangeCounter;
 
     protected UInt32 _playlistsChangeCt = 0;
     protected UInt32 _miaTypeRegistrationsChangeCt = 0;
+    protected UInt32 _currentlyImportingSharesChangeCt = 0;
     protected UInt32 _registeredSharesChangeCt = 0;
 
     public UPnPContentDirectoryServiceImpl() : base(
@@ -298,13 +299,13 @@ namespace MediaPortal.Backend.Services.ClientCommunication
         };
       AddStateVariable(RegisteredSharesChangeCounter);
 
-      // Change event for registered shares
-      CurrentlyImportingShares = new DvStateVariable("CurrentlyImportingShares", new DvStandardDataType(UPnPStandardDataType.String))
+      // Change event for currently importing shares
+      CurrentlyImportingSharesCounter = new DvStateVariable("CurrentlyImportingSharesCounter", new DvStandardDataType(UPnPStandardDataType.Ui4))
         {
             SendEvents = true,
-            Value = MarshallingHelper.SerializeGuidEnumerationToCsv(new Guid[] {})
+            Value = (uint) 0
         };
-      AddStateVariable(CurrentlyImportingShares);
+      AddStateVariable(CurrentlyImportingSharesCounter);
 
       // More state variables go here
 
@@ -586,6 +587,14 @@ namespace MediaPortal.Backend.Services.ClientCommunication
           });
       AddAction(clientCompletedShareImportAction);
 
+      DvAction getCurrentlyImportingSharesAction = new DvAction("GetCurrentlyImportingShares", OnGetCurrentlyImportingShares,
+          new DvArgument[] {
+          },
+          new DvArgument[] {
+            new DvArgument("ShareIds", A_ARG_TYPE_UuidEnumeration, ArgumentDirection.Out, true), 
+          });
+      AddAction(getCurrentlyImportingSharesAction);
+
       // More actions go here
 
       _messageQueue = new AsynchronousMessageQueue(this, new string[]
@@ -610,18 +619,17 @@ namespace MediaPortal.Backend.Services.ClientCommunication
         switch (messageType)
         {
           case ContentDirectoryMessaging.MessageType.PlaylistsChanged:
-            PlaylistsChangeCounter.Value = _playlistsChangeCt++;
+            PlaylistsChangeCounter.Value = ++_playlistsChangeCt;
             break;
           case ContentDirectoryMessaging.MessageType.MIATypesChanged:
-            MIATypeRegistrationsChangeCounter.Value = _miaTypeRegistrationsChangeCt++;
+            MIATypeRegistrationsChangeCounter.Value = ++_miaTypeRegistrationsChangeCt;
             break;
           case ContentDirectoryMessaging.MessageType.RegisteredSharesChanged:
-            RegisteredSharesChangeCounter.Value = _registeredSharesChangeCt++;
+            RegisteredSharesChangeCounter.Value = ++_registeredSharesChangeCt;
             break;
           case ContentDirectoryMessaging.MessageType.ShareImportStarted:
           case ContentDirectoryMessaging.MessageType.ShareImportCompleted:
-            IMediaLibrary mediaLibrary = ServiceRegistration.Get<IMediaLibrary>();
-            CurrentlyImportingShares.Value = MarshallingHelper.SerializeGuidEnumerationToCsv(mediaLibrary.GetCurrentlyImportingShareIds());
+            CurrentlyImportingSharesCounter.Value = ++_currentlyImportingSharesChangeCt;
             break;
         }
       }
@@ -1096,6 +1104,14 @@ namespace MediaPortal.Backend.Services.ClientCommunication
       Guid shareId = MarshallingHelper.DeserializeGuid((string) inParams[0]);
       ServiceRegistration.Get<IMediaLibrary>().ClientCompletedShareImport(shareId);
       outParams = null;
+      return null;
+    }
+
+    static UPnPError OnGetCurrentlyImportingShares(DvAction action, IList<object> inParams, out IList<object> outParams,
+        CallContext context)
+    {
+      IMediaLibrary mediaLibrary = ServiceRegistration.Get<IMediaLibrary>();
+      outParams = new List<object> {MarshallingHelper.SerializeGuidEnumerationToCsv(mediaLibrary.GetCurrentlyImportingShareIds())};
       return null;
     }
   }
