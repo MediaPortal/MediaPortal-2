@@ -42,7 +42,8 @@ namespace UPnP.Infrastructure.CP.DeviceTree
   /// Delegate to be used for the client side state variable change event.
   /// </summary>
   /// <param name="stateVariable">State variable which was changed.</param>
-  public delegate void StateVariableChangedDlgt(CpStateVariable stateVariable);
+  /// <param name="newValue">New value of the variable.</param>
+  public delegate void StateVariableChangedDlgt(CpStateVariable stateVariable, object newValue);
 
   /// <summary>
   /// UPnP service template which gets instantiated at the client (control point) side for each service
@@ -265,11 +266,11 @@ namespace UPnP.Infrastructure.CP.DeviceTree
       connection.OnUnsubscribeEvents(this);
     }
 
-    internal void InvokeStateVariableChanged(CpStateVariable variable)
+    internal void InvokeStateVariableChanged(CpStateVariable variable, object newValue)
     {
       StateVariableChangedDlgt stateVariableChanged = StateVariableChanged;
       if (stateVariableChanged != null)
-        stateVariableChanged(variable);
+        stateVariableChanged(variable, newValue);
     }
 
     internal void InvokeEventSubscriptionFailed(UPnPError error)

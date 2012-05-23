@@ -164,20 +164,6 @@ namespace UPnP.Infrastructure.CP.DeviceTree
     }
 
     /// <summary>
-    /// Gets or sets the value of this state variable.
-    /// Will be set by the UPnP system.
-    /// </summary>
-    public object Value
-    {
-      get { return _value; }
-      internal set
-      {
-        _value = value;
-        FireStateVariableChanged();
-      }
-    }
-
-    /// <summary>
     /// Checks if the given <paramref name="value"/> can be assigned to this state variable.
     /// </summary>
     /// <param name="value">Value to be checked.</param>
@@ -197,12 +183,6 @@ namespace UPnP.Infrastructure.CP.DeviceTree
       if (_allowedValueRange == null)
         return true;
       return _allowedValueRange.IsValueInRange(value);
-    }
-
-    private void FireStateVariableChanged()
-    {
-      if (_parentService != null)
-        _parentService.InvokeStateVariableChanged(this);
     }
 
     #region Connection

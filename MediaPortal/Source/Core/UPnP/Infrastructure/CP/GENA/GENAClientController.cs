@@ -558,7 +558,7 @@ namespace UPnP.Infrastructure.CP.GENA
         // We don't know that variable - this is an error case but we won't raise an exception here
         return;
       object value = stateVariable.DataType.SoapDeserializeValue(reader, upnpVersion.VerMin == 0);
-      stateVariable.Value = value;
+      service.InvokeStateVariableChanged(stateVariable, value);
     }
   }
 }
