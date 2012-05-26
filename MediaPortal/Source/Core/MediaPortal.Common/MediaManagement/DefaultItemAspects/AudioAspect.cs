@@ -34,7 +34,7 @@ namespace MediaPortal.Common.MediaManagement.DefaultItemAspects
     /// <summary>
     /// Media item aspect id of the audio aspect.
     /// </summary>
-    public static readonly Guid ASPECT_ID = new Guid("9BA3C559-41F7-4a5f-917C-E3EF65516D14");
+    public static readonly Guid ASPECT_ID = new Guid("435E2E99-1546-444C-AE83-4843A3094533");
 
     /// <summary>
     /// Enumeration of artist names.
@@ -71,12 +71,6 @@ namespace MediaPortal.Common.MediaManagement.DefaultItemAspects
     /// </summary>
     public static readonly MediaItemAspectMetadata.AttributeSpecification ATTR_NUMTRACKS =
         MediaItemAspectMetadata.CreateAttributeSpecification("NumTracks", typeof(int), Cardinality.Inline, false);
-
-    /// <summary>
-    /// Number of times played.
-    /// </summary>
-    public static readonly MediaItemAspectMetadata.AttributeSpecification ATTR_PLAYCOUNT =
-        MediaItemAspectMetadata.CreateAttributeSpecification("PlayCount", typeof(int), Cardinality.Inline, false);
 
     /// <summary>
     /// Enumeration of album artist name strings.
@@ -123,7 +117,6 @@ namespace MediaPortal.Common.MediaManagement.DefaultItemAspects
             ATTR_DURATION,
             ATTR_TRACK,
             ATTR_NUMTRACKS,
-            ATTR_PLAYCOUNT,
             ATTR_ALBUMARTISTS,
             ATTR_COMPOSERS,
             ATTR_ENCODING,

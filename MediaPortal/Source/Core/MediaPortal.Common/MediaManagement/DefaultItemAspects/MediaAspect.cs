@@ -34,7 +34,7 @@ namespace MediaPortal.Common.MediaManagement.DefaultItemAspects
     /// <summary>
     /// Media item aspect id of the media aspect.
     /// </summary>
-    public static readonly Guid ASPECT_ID = new Guid("A01B7D6E-A6F2-434b-AC12-49D7D5CBD377");
+    public static readonly Guid ASPECT_ID = new Guid("17AF940C-66CE-4D23-9D06-BF7F21C04201");
 
     /// <summary>
     /// Contains a human readable title of the media item.
@@ -68,6 +68,12 @@ namespace MediaPortal.Common.MediaManagement.DefaultItemAspects
         MediaItemAspectMetadata.CreateStringAttributeSpecification("Comment", 1000, Cardinality.Inline, false);
 
     /// <summary>
+    /// Number of times played.
+    /// </summary>
+    public static readonly MediaItemAspectMetadata.AttributeSpecification ATTR_PLAYCOUNT =
+        MediaItemAspectMetadata.CreateAttributeSpecification("PlayCount", typeof(int), Cardinality.Inline, false);
+
+    /// <summary>
     /// Contains the date when the media item was last played.
     /// </summary>
     public static readonly MediaItemAspectMetadata.AttributeSpecification ATTR_LASTPLAYED =
@@ -81,6 +87,7 @@ namespace MediaPortal.Common.MediaManagement.DefaultItemAspects
             ATTR_RECORDINGTIME,
             ATTR_RATING,
             ATTR_COMMENT,
+            ATTR_PLAYCOUNT,
             ATTR_LASTPLAYED,
         });
   }
