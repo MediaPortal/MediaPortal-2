@@ -128,20 +128,20 @@ namespace MediaPortal.UiComponents.Media.Views
             localShare.SystemId, localShare.BaseResourcePath, _necessaryMIATypeIds, _optionalMIATypeIds));
     }
 
-    protected override ViewSpecification NavigateCreateViewSpecification(IFileSystemResourceAccessor viewRA)
+    protected override ViewSpecification NavigateCreateViewSpecification(string systemId, IFileSystemResourceAccessor viewRA)
     {
       IServerConnectionManager serverConnectionManager = ServiceRegistration.Get<IServerConnectionManager>();
-      ISystemResolver systemResolver = ServiceRegistration.Get<ISystemResolver>();
 
       IContentDirectory cd = serverConnectionManager.ContentDirectory;
       if (cd == null)
         return null;
 
-      string localSystemId = systemResolver.LocalSystemId;
       ResourcePath directoryPath = viewRA.CanonicalLocalResourcePath;
-      MediaItem directoryItem = cd.LoadItem(localSystemId, directoryPath,
+      MediaItem directoryItem = cd.LoadItem(systemId, directoryPath,
           SystemSharesViewSpecification.DIRECTORY_MIA_ID_ENUMERATION, SystemSharesViewSpecification.EMPTY_ID_ENUMERATION);
-      return new MediaLibraryBrowseViewSpecification(viewRA.ResourceName, directoryItem.MediaItemId, localSystemId,
+      if (directoryItem == null)
+        return null;
+      return new MediaLibraryBrowseViewSpecification(viewRA.ResourceName, directoryItem.MediaItemId, systemId,
           directoryPath, _necessaryMIATypeIds, _optionalMIATypeIds);
     }
 

@@ -102,7 +102,7 @@ namespace MediaPortal.UiComponents.Media.Views
       navigateToViewDlgt(new LocalDirectoryViewSpecification(localShare.Name, localShare.BaseResourcePath, _necessaryMIATypeIds, _optionalMIATypeIds));
     }
 
-    protected override ViewSpecification NavigateCreateViewSpecification(IFileSystemResourceAccessor viewRa)
+    protected override ViewSpecification NavigateCreateViewSpecification(string systemId, IFileSystemResourceAccessor viewRa)
     {
       return new LocalDirectoryViewSpecification(null, viewRa.CanonicalLocalResourcePath, _necessaryMIATypeIds, _optionalMIATypeIds);
     }

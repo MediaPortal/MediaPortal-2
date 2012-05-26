@@ -64,9 +64,11 @@ namespace MediaPortal.UiComponents.Media.Views
     /// <summary>
     /// Creates a view specification for the given resource accessor in the context of a <see cref="Navigate"/> call.
     /// </summary>
+    /// <param name="systemId">System id where the given <paramref name="viewRa"/> is located. This can be the local system id or the system id of
+    /// the server.</param>
     /// <param name="viewRa">Resource accessor representing a sub view.</param>
     /// <returns>View specification which matches the views that are created in the navigation under this class.</returns>
-    protected abstract ViewSpecification NavigateCreateViewSpecification(IFileSystemResourceAccessor viewRa);
+    protected abstract ViewSpecification NavigateCreateViewSpecification(string systemId, IFileSystemResourceAccessor viewRa);
 
     /// <summary>
     /// Helper method which simulates a user navigation under this view specification to the given <paramref name="targetPath"/>
@@ -103,7 +105,7 @@ namespace MediaPortal.UiComponents.Media.Views
         }
         if (current == null)
           break;
-        ViewSpecification newVS = NavigateCreateViewSpecification(current);
+        ViewSpecification newVS = NavigateCreateViewSpecification(localShare.SystemId, current);
         if (newVS == null)
           return;
         navigateToViewDlgt(newVS);
