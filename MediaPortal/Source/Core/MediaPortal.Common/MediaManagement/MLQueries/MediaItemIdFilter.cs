@@ -42,6 +42,11 @@ namespace MediaPortal.Common.MediaManagement.MLQueries
       _mediaItemIds = new List<Guid>(mediaItemIds);
     }
 
+    public MediaItemIdFilter(Guid mediaItemId)
+    {
+      _mediaItemIds = new List<Guid> {mediaItemId};
+    }
+
     /// <summary>
     /// Returns a collection of media item ids which the filtered items must match.
     /// </summary>

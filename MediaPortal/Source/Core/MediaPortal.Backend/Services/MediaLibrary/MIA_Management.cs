@@ -1512,6 +1512,12 @@ namespace MediaPortal.Backend.Services.MediaLibrary
       CleanupAllManyToOneOrphanedAttributeValues(transaction, miaType);
     }
 
+    /// <summary>
+    /// Adds or updates the given media item aspect on the media item with the given id.
+    /// </summary>
+    /// <param name="transaction">Database transaction to use.</param>
+    /// <param name="mediaItemId">Id of the media item to be added or updated.</param>
+    /// <param name="mia">Media item aspect to write to DB.</param>
     public void AddOrUpdateMIA(ITransaction transaction, Guid mediaItemId, MediaItemAspect mia)
     {
       AddOrUpdateMIA(transaction, mediaItemId, mia, !MIAExists(transaction, mediaItemId, mia.Metadata.AspectId));
