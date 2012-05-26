@@ -766,6 +766,37 @@ namespace MediaPortal.Backend.Services.MediaLibrary
       }
     }
 
+    public void UpdateMediaItem(Guid mediaItemId, IEnumerable<MediaItemAspect> mediaItemAspects)
+    {
+      // TODO: Avoid multiple write operations to the same media item
+      ISQLDatabase database = ServiceRegistration.Get<ISQLDatabase>();
+      ITransaction transaction = database.BeginTransaction();
+      try
+      {
+        bool result = false;
+        foreach (MediaItemAspect mia in mediaItemAspects)
+        {
+          if (!_miaManagement.ManagedMediaItemAspectTypes.ContainsKey(mia.Metadata.AspectId))
+            // Simply skip unknown MIA types. All types should have been added before update.
+            continue;
+          if (mia.Metadata.AspectId == ImporterAspect.ASPECT_ID ||
+              mia.Metadata.AspectId == ProviderResourceAspect.ASPECT_ID)
+          { // Those aspects are managed by the MediaLibrary
+            ServiceRegistration.Get<ILogger>().Warn("MediaLibrary.AddOrUpdateMediaItem: Client tried to update either ImporterAspect or ProviderResourceAspect");
+            continue;
+          }
+          _miaManagement.AddOrUpdateMIA(transaction, mediaItemId, mia, false);
+        }
+        transaction.Commit();
+      }
+      catch (Exception e)
+      {
+        ServiceRegistration.Get<ILogger>().Error("MediaLibrary: Error updating media item with id '{0}'", e, mediaItemId);
+        transaction.Rollback();
+        throw;
+      }
+    }
+
     public void DeleteMediaItemOrPath(string systemId, ResourcePath path, bool inclusive)
     {
       ISQLDatabase database = ServiceRegistration.Get<ISQLDatabase>();
@@ -808,6 +839,22 @@ namespace MediaPortal.Backend.Services.MediaLibrary
       CollectionUtils.AddAll(result, importerWorker.ImportJobs.Select(importJobInfo => shares.BestContainingPath(importJobInfo.BasePath)).
           Where(share => share != null).Select(share => share.ShareId));
       return result;
+    }
+
+    #endregion
+
+    #region Playback
+
+    public void NotifyPlayback(Guid mediaItemId)
+    {
+      MediaItem item = Search(new MediaItemQuery(new Guid[] {MediaAspect.ASPECT_ID}, null, new MediaItemIdFilter(mediaItemId)), false).FirstOrDefault();
+      if (item == null)
+        return;
+      MediaItemAspect mediaAspect = item[MediaAspect.ASPECT_ID];
+      mediaAspect.SetAttribute(MediaAspect.ATTR_LASTPLAYED, DateTime.Now);
+      uint playCount = (uint) mediaAspect.GetAttributeValue(MediaAspect.ATTR_PLAYCOUNT);
+      mediaAspect.SetAttribute(MediaAspect.ATTR_PLAYCOUNT, playCount + 1);
+      UpdateMediaItem(mediaItemId, new MediaItemAspect[] {mediaAspect});
     }
 
     #endregion

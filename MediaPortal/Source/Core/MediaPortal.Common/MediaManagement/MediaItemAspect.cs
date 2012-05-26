@@ -407,7 +407,7 @@ namespace MediaPortal.Common.MediaManagement
     {
       _aspectData.Clear();
       foreach (MediaItemAspectMetadata.AttributeSpecification attributeSpecification in _metadata.AttributeSpecifications.Values)
-        _aspectData[attributeSpecification] = IGNORE;
+        Ignore(attributeSpecification);
     }
 
     /// <summary>

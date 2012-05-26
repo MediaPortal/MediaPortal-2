@@ -52,6 +52,8 @@ namespace MediaPortal.UI.Services.Players
 
     #endregion
 
+    #region Protected fields
+
     protected PlayerManager _playerManager;
     protected int _slotIndex;
     protected bool _isAudioSlot = false;
@@ -61,6 +63,8 @@ namespace MediaPortal.UI.Services.Players
     protected int _volume = 100;
     protected bool _isMuted = false;
     protected uint _activationSequence = 0;
+
+    #endregion
 
     internal PlayerSlotController(PlayerManager parent, int slotIndex)
     {
@@ -277,8 +281,17 @@ namespace MediaPortal.UI.Services.Players
         dlgt(this, slotState);
     }
 
+    /// <summary>
+    /// This method handles two cases:
+    /// <list type="bullet">
+    /// <item>No player available to play the resource</item>
+    /// <item>The resouce to play is broken</item>
+    /// </list>
+    /// </summary>
+    /// <param name="item"></param>
+    /// <param name="exceptions"></param>
     protected void HandleUnableToPlay(MediaItem item, ICollection<Exception> exceptions)
-    { // We come here in two cases: 1) No player available to play the resource and 2) resouce broken
+    {
       INotificationService notificationService = ServiceRegistration.Get<INotificationService>();
       // Start a heuristics to find a proper error message for the user
       IResourceLocator locator = item.GetResourceLocator();

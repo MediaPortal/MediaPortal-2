@@ -447,6 +447,13 @@ namespace MediaPortal.UI.Services.ServerCommunication
       return MarshallingHelper.ParseCsvGuidCollection((string) outParameters[0]);
     }
 
+    public void NotifyPlayback(Guid mediaItemId)
+    {
+      CpAction action = GetAction("NotifyPlayback");
+      IList<object> inParameters = new List<object> {MarshallingHelper.SerializeGuid(mediaItemId)};
+      action.InvokeAction(inParameters);
+    }
+
     #endregion
 
     // TODO: State variables, if present

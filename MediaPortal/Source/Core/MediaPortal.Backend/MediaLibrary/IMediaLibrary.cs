@@ -226,6 +226,7 @@ namespace MediaPortal.Backend.MediaLibrary
 
     /// <summary>
     /// Adds or updates the media item specified by its location (<paramref name="systemId"/> and <paramref name="path"/>).
+    /// This method will typically be used by a media item importer.
     /// </summary>
     /// <param name="parentDirectoryId">Id of the parent directory's media item or <see cref="Guid.Empty"/>, if the
     /// parent directory is not present in the media library.</param>
@@ -234,6 +235,13 @@ namespace MediaPortal.Backend.MediaLibrary
     /// <param name="mediaItemAspects">Media item aspects to be updated.</param>
     /// <returns>Id of the media item which has been added or updated.</returns>
     Guid AddOrUpdateMediaItem(Guid parentDirectoryId, string systemId, ResourcePath path, IEnumerable<MediaItemAspect> mediaItemAspects);
+
+    /// <summary>
+    /// Writes some media item aspects of an existing media item to the media library.
+    /// </summary>
+    /// <param name="mediaItemId">Id of the media item to be updated.</param>
+    /// <param name="mediaItemAspects">Media item aspects to be written.</param>
+    void UpdateMediaItem(Guid mediaItemId, IEnumerable<MediaItemAspect> mediaItemAspects);
 
     /// <summary>
     /// Deletes all media items and directories from the media library which are located at the client with the given
@@ -265,6 +273,12 @@ namespace MediaPortal.Backend.MediaLibrary
     /// </summary>
     /// <returns>Collection of share ids.</returns>
     ICollection<Guid> GetCurrentlyImportingShareIds();
+
+    #endregion
+
+    #region Playback
+
+    void NotifyPlayback(Guid mediaItemId);
 
     #endregion
 

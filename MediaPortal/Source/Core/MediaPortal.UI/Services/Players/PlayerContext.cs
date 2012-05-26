@@ -28,6 +28,7 @@ using MediaPortal.Common;
 using MediaPortal.Common.MediaManagement;
 using MediaPortal.UI.Presentation.Geometries;
 using MediaPortal.UI.Presentation.Players;
+using MediaPortal.UI.ServerCommunication;
 using MediaPortal.Utilities.Exceptions;
 
 namespace MediaPortal.UI.Services.Players
@@ -118,6 +119,10 @@ namespace MediaPortal.UI.Services.Players
 
     protected bool DoPlay_NoLock(MediaItem mediaItem, StartTime startTime)
     {
+      IServerConnectionManager scm = ServiceRegistration.Get<IServerConnectionManager>();
+      IContentDirectory cd = scm.ContentDirectory;
+      if (cd != null)
+        cd.NotifyPlayback(mediaItem.MediaItemId);
       _currentMediaItem = mediaItem;
       IPlayerSlotController psc = _slotController;
       if (psc == null)

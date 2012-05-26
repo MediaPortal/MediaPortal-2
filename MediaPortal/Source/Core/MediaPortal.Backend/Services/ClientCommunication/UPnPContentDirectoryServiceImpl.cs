@@ -595,6 +595,16 @@ namespace MediaPortal.Backend.Services.ClientCommunication
           });
       AddAction(getCurrentlyImportingSharesAction);
 
+      // Media playback
+
+      DvAction notifyPlaybackAction = new DvAction("NotifyPlayback", OnNotifyPlayback,
+          new DvArgument[] {
+            new DvArgument("MediaItemId", A_ARG_TYPE_Uuid, ArgumentDirection.In), 
+          },
+          new DvArgument[] {
+          });
+      AddAction(notifyPlaybackAction);
+
       // More actions go here
 
       _messageQueue = new AsynchronousMessageQueue(this, new string[]
@@ -1112,6 +1122,16 @@ namespace MediaPortal.Backend.Services.ClientCommunication
     {
       IMediaLibrary mediaLibrary = ServiceRegistration.Get<IMediaLibrary>();
       outParams = new List<object> {MarshallingHelper.SerializeGuidEnumerationToCsv(mediaLibrary.GetCurrentlyImportingShareIds())};
+      return null;
+    }
+
+    static UPnPError OnNotifyPlayback(DvAction action, IList<object> inParams, out IList<object> outParams,
+        CallContext context)
+    {
+      IMediaLibrary mediaLibrary = ServiceRegistration.Get<IMediaLibrary>();
+      Guid mediaItemId = MarshallingHelper.DeserializeGuid((string) inParams[0]);
+      mediaLibrary.NotifyPlayback(mediaItemId);
+      outParams = null;
       return null;
     }
   }

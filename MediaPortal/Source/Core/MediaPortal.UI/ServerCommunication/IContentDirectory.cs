@@ -186,5 +186,11 @@ namespace MediaPortal.UI.ServerCommunication
     ICollection<Guid> GetCurrentlyImportingShares();
 
     #endregion
+
+    #region Playback
+
+    void NotifyPlayback(Guid mediaItemId);
+
+    #endregion
   }
 }
