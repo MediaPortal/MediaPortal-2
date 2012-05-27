@@ -245,8 +245,12 @@ ${If} ${Silent}
   ${EndIf}
 
   ${If} $4 == "DokanIsInstalled"
-    ${If} $5 == "SameVersion" 
+    ${If} $5 == "SameVersion"
       ; nothing to do, simply stop the installer
+      ; Abort <-- Does not work. It sets the error level to 2 and MSI installer raises this error
+      SectionSetFlags ${section_x86} ${SF_RO}  ; disable
+      SectionSetFlags ${section_x86_driver} ${SF_RO}  ; disable
+      SectionSetFlags ${section_x64_driver} ${SF_RO}  ; disable
     ${Else}
       ; different version is installed, uninstall current one
       ; clearerrors, to catch if uninstall fails
