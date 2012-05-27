@@ -3,6 +3,9 @@
 !include LogicLib.nsh
 !include x64.nsh
 !include WinVer.nsh
+; chefkoch, Team MediaPortal, 2012-05-27:
+; FileFunc is needed for GetSize comparison to check if the same version is already installed.
+!include FileFunc.nsh
 
 Name "DokanLibraryInstaller ${VERSION}"
 OutFile "DokanInstall_${VERSION}.exe"
@@ -188,9 +191,13 @@ Section "Uninstall"
   ; Remove registry keys
   DeleteRegKey HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\DokanLibrary"
 
+; chefkoch, Team MediaPortal, 2012-05-27:
+; Show message box only if uninstaller is not started silently.
+${IfNot} ${Silent}
   MessageBox MB_YESNO "A reboot is required to finish the uninstallation. Do you wish to reboot now?" IDNO noreboot
     Reboot
   noreboot:
+${EndIf}
 
 SectionEnd
 
@@ -205,6 +212,54 @@ Function .onInit
     SectionSetFlags ${section_x86_driver} $0
     SectionSetFlags ${section_x64_driver} ${SF_RO}  ; disable
   ${EndIf}
+
+; chefkoch, Team MediaPortal, 2012-05-27: START
+; Don't show message boxes if installer is started silently.
+; The operating system checks are done within the parent installer.
+${If} ${Silent}
+
+  ${If} ${RunningX64}
+    ${DisableX64FSRedirection}
+
+    ${GetSize} "$SYSDIR\drivers" "/M=dokan.sys /S=0B /G=0" $0 $1 $2
+    ;<!-- 120408 is the exact filesize of dokan.sys v0.60 on Windows 64 -->
+    ${If} ${FileExists} "$SYSDIR\drivers\dokan.sys"
+      StrCpy $4 "DokanIsInstalled"
+      ${If} $0 = 120408
+        StrCpy $5 "SameVersion"
+      ${EndIf}
+    ${EndIf}
+
+    ${EnableX64FSRedirection}
+  ${Else}
+
+    ${GetSize} "$SYSDIR\drivers" "/M=dokan.sys /S=0B /G=0" $0 $1 $2
+    ;<!-- 95744 is the exact filesize of dokan.sys v0.60 on Windows 32 -->
+    ${If} ${FileExists} "$SYSDIR\drivers\dokan.sys"
+      StrCpy $4 "DokanIsInstalled"
+      ${If} $0 = 95744
+        StrCpy $5 "SameVersion"
+      ${EndIf}
+    ${EndIf}
+
+  ${EndIf}
+
+  ${If} $4 == "DokanIsInstalled"
+    ${If} $5 == "SameVersion" 
+      ; nothing to do, simply stop the installer
+    ${Else}
+      ; different version is installed, uninstall current one
+      ; clearerrors, to catch if uninstall fails
+      ClearErrors
+      ; copy uninstaller to temp, to make sure uninstaller.exe in instdir is deleted, too
+      CopyFiles "$PROGRAMFILES32\Dokan\DokanLibrary\DokanUninstall.exe" "$TEMP\uninstall-temp.exe"
+      ; launch uninstaller
+      ExecWait '"$TEMP\uninstall-temp.exe" /S _?=$PROGRAMFILES32\Dokan\DokanLibrary'
+    ${EndIf}
+  ${EndIf}
+
+${Else}
+; chefkoch, Team MediaPortal, 2012-05-27: END
 
   ; Windows Version check
 
@@ -248,14 +303,16 @@ Function .onInit
     NoPreviousVersion:
   ${EndIf}
 
+; chefkoch, Team MediaPortal, 2012-05-27
+${EndIf}
 
 FunctionEnd
 
 Function .onInstSuccess
-  ; chefkoch, Team MediaPortal, 2012-05-27: Don't open the Explorer window at the end of the
+  ; chefkoch, Team MediaPortal, 2012-05-27:
+  ; Don't open the Explorer window at the end of the
   ; Dokan installation, if the installer is used silently
   ${IfNot} ${Silent}
     ExecShell "open" "$PROGRAMFILES32\Dokan\DokanLibrary"
   ${EndIf}
 FunctionEnd
-
