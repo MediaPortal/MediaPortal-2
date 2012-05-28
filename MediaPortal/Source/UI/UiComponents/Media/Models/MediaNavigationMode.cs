@@ -34,6 +34,7 @@ namespace MediaPortal.UiComponents.Media.Models
     Audio,
     Videos,
     Images,
-    Series
+    Series,
+    Movies
   }
 }

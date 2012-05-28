@@ -38,6 +38,7 @@ namespace MediaPortal.UiComponents.Media.General
     public const string STR_WF_STATE_ID_IMAGES_NAVIGATION_ROOT = "76019AEB-3445-4da9-9A10-63A87549A7CF";
     public const string STR_WF_STATE_ID_SERIES_NAVIGATION_ROOT = "30F57CBA-459C-4202-A587-09FFF5098251";
     public const string STR_WF_STATE_ID_SERIES_SEASON_NAVIGATION = "ECD9729E-AE51-448E-85C2-A8302E9BB392";
+    public const string STR_WF_STATE_ID_MOVIES_NAVIGATION_ROOT = "312016AA-3DF6-4C1D-B8F7-44D34C456FFE";
 
     public const string STR_WF_STATE_ID_ADD_TO_PLAYLIST = "76CDF664-F49C-40a4-8108-E478AB199595";
 
@@ -73,6 +74,7 @@ namespace MediaPortal.UiComponents.Media.General
     public static readonly Guid WF_STATE_ID_IMAGES_NAVIGATION_ROOT = new Guid(STR_WF_STATE_ID_IMAGES_NAVIGATION_ROOT);
     public static readonly Guid WF_STATE_ID_SERIES_NAVIGATION_ROOT = new Guid(STR_WF_STATE_ID_SERIES_NAVIGATION_ROOT);
     public static readonly Guid WF_STATE_ID_SERIES_SEASON_NAVIGATION = new Guid(STR_WF_STATE_ID_SERIES_SEASON_NAVIGATION);
+    public static readonly Guid WF_STATE_ID_MOVIES_NAVIGATION_ROOT = new Guid(STR_WF_STATE_ID_MOVIES_NAVIGATION_ROOT);
 
     public static readonly Guid WF_STATE_ID_CURRENTLY_PLAYING_VIDEO = new Guid(STR_WF_STATE_ID_CURRENTLY_PLAYING_VIDEO);
     public static readonly Guid WF_STATE_ID_FULLSCREEN_VIDEO = new Guid(STR_WF_STATE_ID_FULLSCREEN_VIDEO);
@@ -130,6 +132,7 @@ namespace MediaPortal.UiComponents.Media.General
     public const string RES_AUDIO_VIEW_NAME = "[Media.AudioRootViewName]";
     public const string RES_VIDEOS_VIEW_NAME = "[Media.VideosRootViewName]";
     public const string RES_SERIES_VIEW_NAME = "[Media.SeriesRootViewName]";
+    public const string RES_MOVIES_VIEW_NAME = "[Media.MoviesRootViewName]";
     public const string RES_IMAGES_VIEW_NAME = "[Media.ImagesRootViewName]";
     public const string RES_SIMPLE_SEARCH_VIEW_NAME = "[Media.SimpleSearchViewName]";
 
@@ -398,6 +401,14 @@ namespace MediaPortal.UiComponents.Media.General
           MediaAspect.ASPECT_ID,
           VideoAspect.ASPECT_ID,
           SeriesAspect.ASPECT_ID,
+      };
+
+    public static readonly Guid[] NECESSARY_MOVIES_MIAS = new Guid[]
+      {
+          ProviderResourceAspect.ASPECT_ID,
+          MediaAspect.ASPECT_ID,
+          VideoAspect.ASPECT_ID,
+          MovieAspect.ASPECT_ID,
       };
 
     public static readonly Guid[] NECESSARY_AUDIO_MIAS = new Guid[]

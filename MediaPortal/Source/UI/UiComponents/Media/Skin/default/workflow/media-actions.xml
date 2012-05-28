@@ -31,6 +31,12 @@
         SortOrder="e"
         SourceStates="7F702D9C-F2DD-42da-9ED8-0BA92F07787F"
         ContributorModelId="A772B6E4-352D-46F8-B328-C2F4F2FCEA0F"/> <!-- Series action -->
+    <WorkflowContributorAction Id="80D2E2CC-BAAA-4750-807B-F37714153751"
+        Name="Home->Movies"
+        DisplayCategory="a-Media"
+        SortOrder="e"
+        SourceStates="7F702D9C-F2DD-42da-9ED8-0BA92F07787F"
+        ContributorModelId="4F075A64-A8D5-4A6F-86C0-DA1FD86000DD"/> <!-- Movies action -->
     <WorkflowContributorAction Id="55556593-9FE9-436c-A3B6-A971E10C9D44"
         Name="Home->Images"
         DisplayCategory="a-Media"

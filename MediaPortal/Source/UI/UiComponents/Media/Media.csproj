@@ -103,6 +103,7 @@
     <Compile Include="Actions\BrowseMediaAction.cs" />
     <Compile Include="Actions\BaseTrackServerConnectionAction.cs" />
     <Compile Include="Actions\SwitchBrowseLocalMLAction.cs" />
+    <Compile Include="Actions\MoviesAction.cs" />
     <Compile Include="Actions\SeriesSeasonAction.cs" />
     <Compile Include="Actions\SeriesAction.cs" />
     <Compile Include="Actions\SwitchSortingAction.cs" />

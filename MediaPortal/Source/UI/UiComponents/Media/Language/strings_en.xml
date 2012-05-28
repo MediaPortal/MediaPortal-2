@@ -6,6 +6,7 @@
   <string name="Media.AudioMenuItem">Audio</string>
   <string name="Media.VideosMenuItem">Videos</string>
   <string name="Media.SeriesMenuItem">Series</string>
+  <string name="Media.MoviesMenuItem">Movies</string>
   <string name="Media.ImagesMenuItem">Images</string>
 
   <!-- Filter titles -->
@@ -62,6 +63,7 @@
   <string name="Media.AudioNavigationRootWorkflowNavigationContextDisplayLabel">Audio library</string>
   <string name="Media.VideoNavigationRootWorkflowNavigationContextDisplayLabel">Video library</string>
   <string name="Media.SeriesNavigationRootWorkflowNavigationContextDisplayLabel">Series library</string>
+  <string name="Media.MoviesNavigationRootWorkflowNavigationContextDisplayLabel">Movies library</string>
   <string name="Media.ImageNavigationRootWorkflowNavigationContextDisplayLabel">Image library</string>
   <string name="Media.VideoCurrentlyPlayingWorkflowStateNavigationContextDisplayLabel">Current video</string>
   <string name="Media.VideoFullscreenContentWorkflowStateNavigationContextDisplayLabel">Fullscreen video</string>
