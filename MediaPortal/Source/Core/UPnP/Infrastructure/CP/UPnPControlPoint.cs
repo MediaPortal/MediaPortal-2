@@ -235,22 +235,30 @@ namespace UPnP.Infrastructure.CP
     /// </summary>
     public void Close()
     {
+      ICollection<HttpListener> listenersToClose = new List<HttpListener>();
       lock (_cpData.SyncObj)
       {
         if (!_isActive)
           return;
         _isActive = false;
-
-        DisconnectAll();
         if (_httpListenerV4 != null)
-          _httpListenerV4.Stop();
+        {
+          listenersToClose.Add(_httpListenerV4);
+          _httpListenerV4 = null;
+        }
         _httpListenerV4 = null;
         if (_httpListenerV6 != null)
-          _httpListenerV6.Stop();
-        _httpListenerV6 = null;
+        {
+          listenersToClose.Add(_httpListenerV6);
+          _httpListenerV6 = null;
+        }
         _networkTracker.RootDeviceRemoved -= OnRootDeviceRemoved;
         _networkTracker.DeviceRebooted -= OnDeviceRebooted;
       }
+      // Outside the lock
+      DisconnectAll();
+      foreach (HttpListener httpListener in listenersToClose)
+        httpListener.Stop();
     }
 
     /// <summary>
@@ -298,7 +306,10 @@ namespace UPnP.Infrastructure.CP
     /// </summary>
     public void DisconnectAll()
     {
-      foreach (string deviceUUID in new List<string>(_connectedDevices.Keys))
+      ICollection<string> connectedUUIDs;
+      lock (_cpData.SyncObj)
+        connectedUUIDs = new List<string>(_connectedDevices.Keys);
+      foreach (string deviceUUID in connectedUUIDs)
         DoDisconnect(deviceUUID, true);
     }
 

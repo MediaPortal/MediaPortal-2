@@ -51,4 +51,13 @@ namespace UPnP.Infrastructure.CP
       get { return _error; }
     }
   }
+
+  public class UPnPDisconnectedException : Exception
+  {
+    public UPnPDisconnectedException() { }
+    public UPnPDisconnectedException(string message, params object[] parameters) :
+        base(string.Format(message, parameters)) { }
+    public UPnPDisconnectedException(string message, Exception innerException, params object[] parameters) :
+        base(string.Format(message, parameters), innerException) { }
+  }
 }

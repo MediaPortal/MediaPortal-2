@@ -197,7 +197,7 @@ namespace UPnP.Infrastructure.CP
     internal void OnActionCalled(CpAction action, IList<object> inParams, object clientState)
     {
       if (!action.IsConnected)
-        throw new IllegalCallException("Action '{0}' is not connected to a UPnP network action", action.FullQualifiedName);
+        throw new UPnPDisconnectedException("Action '{0}' is not connected to a UPnP network action", action.FullQualifiedName);
       CpService service = action.ParentService;
       ServiceDescriptor sd = GetServiceDescriptor(service);
       string message = SOAPHandler.EncodeCall(action, inParams, _rootDescriptor.SSDPRootEntry.UPnPVersion);

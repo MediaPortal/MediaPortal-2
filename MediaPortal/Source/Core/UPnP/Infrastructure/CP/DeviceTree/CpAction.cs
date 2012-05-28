@@ -290,7 +290,7 @@ namespace UPnP.Infrastructure.CP.DeviceTree
       if (!MatchesSignature(inParameters))
         throw new IllegalCallException("The given parameters don't match the formal input arguments of action '{0}'", _name);
       if (!IsConnected)
-        throw new IllegalCallException("Action '{0}' isn't connected to a UPnP network action", _name);
+        throw new UPnPDisconnectedException("Action '{0}' isn't connected to a UPnP network action", _name);
       AsyncActionCallResult ar = new AsyncActionCallResult(callback, state);
       _connection.OnActionCalled(this, inParameters, ar);
       return ar;
