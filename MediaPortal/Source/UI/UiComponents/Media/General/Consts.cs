@@ -359,6 +359,8 @@ namespace MediaPortal.UiComponents.Media.General
     public const string KEY_SERIES_EPISODE_NUM = "SeriesEpisodeNum";
     public const string KEY_SERIES_EPISODE_NAME = "SeriesEpisodeName";
 
+    public const string KEY_MOVIE_YEAR = "MovieYear";
+
     public const string KEY_IS_CURRENT_ITEM = "IsCurrentItem";
 
     public const string KEY_NUMBERSTR = "NumberStr";
