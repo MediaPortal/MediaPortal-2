@@ -44,6 +44,11 @@ namespace MediaPortal.Backend.ClientCommunication
     void Shutdown();
 
     /// <summary>
+    /// Returns the object the client manager synchronizes on.
+    /// </summary>
+    object SyncObj { get; }
+
+    /// <summary>
     /// Gets a collection of descriptor objects for all connected MediaPortal clients. This is a subset of
     /// <see cref="AttachedClients"/>, i.e. only attached clients are contained in this collection.
     /// </summary>

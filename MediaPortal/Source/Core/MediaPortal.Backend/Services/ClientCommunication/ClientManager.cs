@@ -160,7 +160,9 @@ namespace MediaPortal.Backend.Services.ClientCommunication
         transaction.Rollback();
         throw;
       }
-      _attachedClients = ReadAttachedClientsFromDB();
+      IDictionary<string, MPClientMetadata> attachedClients = ReadAttachedClientsFromDB();
+      lock (_syncObj)
+        _attachedClients = attachedClients;
     }
 
     #region IClientManager implementation
@@ -177,8 +179,10 @@ namespace MediaPortal.Backend.Services.ClientCommunication
         throw new IllegalCallException(string.Format(
             "Unable to update the ClientManager's subschema version to expected version {0}.{1}",
             ClientManager_SubSchema.EXPECTED_SCHEMA_VERSION_MAJOR, ClientManager_SubSchema.EXPECTED_SCHEMA_VERSION_MINOR));
-      _attachedClients = ReadAttachedClientsFromDB();
-      _controlPoint.AttachedClientSystemIds = _attachedClients.Keys;
+      IDictionary<string, MPClientMetadata> attachedClients = ReadAttachedClientsFromDB();
+      lock (_syncObj)
+        _attachedClients = attachedClients;
+      _controlPoint.AttachedClientSystemIds = attachedClients.Keys;
       _controlPoint.Start();
     }
 
@@ -187,14 +191,27 @@ namespace MediaPortal.Backend.Services.ClientCommunication
       _controlPoint.Stop();
     }
 
+    public object SyncObj
+    {
+      get { return _syncObj; }
+    }
+
     public ICollection<ClientConnection> ConnectedClients
     {
-      get { return _controlPoint.ClientConnections.Values; }
+      get
+      {
+        lock (_syncObj)
+          return new List<ClientConnection>(_controlPoint.ClientConnections.Values);
+      }
     }
 
     public IDictionary<string, MPClientMetadata> AttachedClients
     {
-      get { return _attachedClients; }
+      get
+      {
+        lock (_syncObj)
+          return new Dictionary<string, MPClientMetadata>(_attachedClients);
+      }
     }
 
     public void AttachClient(string clientSystemId)
@@ -215,7 +232,9 @@ namespace MediaPortal.Backend.Services.ClientCommunication
       }
       ServiceRegistration.Get<ILogger>().Info("ClientManager: Client with system ID '{0}' attached", clientSystemId);
       // Establish the UPnP connection to the client, if available in the network
-      _attachedClients = ReadAttachedClientsFromDB();
+      IDictionary<string, MPClientMetadata> attachedClients = ReadAttachedClientsFromDB();
+      lock (_syncObj)
+        _attachedClients = attachedClients;
       _controlPoint.AddAttachedClient(clientSystemId);
       ClientManagerMessaging.SendClientAttachmentChangeMessage(ClientManagerMessaging.MessageType.ClientAttached, clientSystemId);
     }
