@@ -24,12 +24,15 @@
 
 using System;
 using System.Collections.Generic;
+using System.IO;
 using MediaPortal.Common;
 using MediaPortal.Common.Logging;
 using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
+using MediaPortal.Common.MediaManagement.Helpers;
 using MediaPortal.Common.ResourceAccess;
 using MediaPortal.Common.Services.ResourceAccess.StreamedResourceToLocalFsAccessBridge;
+using MediaPortal.Extensions.OnlineLibraries;
 using MediaPortal.UI.Players.Video;
 
 namespace MediaPortal.Media.MetadataExtractors
@@ -108,7 +111,31 @@ namespace MediaPortal.Media.MetadataExtractors
 
                 string bdmvDirectory = fsra.LocalFileSystemPath;
                 BDInfoExt bdinfo = new BDInfoExt(bdmvDirectory);
-                mediaAspect.SetAttribute(MediaAspect.ATTR_TITLE, bdinfo.GetTitle() ?? mediaItemAccessor.ResourceName);
+                string title = bdinfo.GetTitle();
+                mediaAspect.SetAttribute(MediaAspect.ATTR_TITLE, title ?? mediaItemAccessor.ResourceName);
+
+                // Check for BD disc thumbs
+                FileInfo thumbnail = bdinfo.GetBiggestThumb();
+                if (thumbnail != null)
+                {
+                  byte[] binary = new byte[thumbnail.Length];
+                  using (FileStream fileStream = new FileStream(thumbnail.FullName, FileMode.Open))
+                  using (BinaryReader binaryReader = new BinaryReader(fileStream))
+                    binaryReader.Read(binary, 0, binary.Length);
+
+                  MediaItemAspect.SetAttribute(extractedAspectData, ThumbnailLargeAspect.ATTR_THUMBNAIL, binary);
+                }
+
+                // Movie handling
+                if (!string.IsNullOrEmpty(title) && !forceQuickMode)
+                {
+                  MovieInfo movieInfo = new MovieInfo
+                  {
+                    MovieName = title,
+                  };
+                  if (MovieTheMovieDbMatcher.Instance.FindAndUpdateMovie(movieInfo))
+                    movieInfo.SetMetadata(extractedAspectData);
+                }
                 return true;
               }
             }

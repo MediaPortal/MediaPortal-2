@@ -42,6 +42,7 @@ namespace MediaPortal.Common.MediaManagement.Helpers
     public string ImdbId { get; set; }
 
     public string MovieName { get; set; }
+    public string OriginalName { get; set; }
     public int Year { get; set; }
     public int Runtime { get; set; }
     public string Certification { get; set; }
@@ -72,8 +73,22 @@ namespace MediaPortal.Common.MediaManagement.Helpers
     /// <param name="aspectData">Dictionary with extracted aspects.</param>
     public bool SetMetadata(IDictionary<Guid, MediaItemAspect> aspectData)
     {
-      if (!string.IsNullOrEmpty(MovieName)) MediaItemAspect.SetAttribute(aspectData, MediaAspect.ATTR_TITLE, MovieName);
+      if (!string.IsNullOrEmpty(MovieName))
+      {
+        MediaItemAspect.SetAttribute(aspectData, MediaAspect.ATTR_TITLE, MovieName);
+        MediaItemAspect.SetAttribute(aspectData, MovieAspect.ATTR_MOVIE_NAME, MovieName);
+      }
       if (!string.IsNullOrEmpty(Summary)) MediaItemAspect.SetAttribute(aspectData, VideoAspect.ATTR_STORYPLOT, Summary);
+      if (!string.IsNullOrEmpty(Tagline)) MediaItemAspect.SetAttribute(aspectData, MovieAspect.ATTR_TAGLINE, Tagline);
+      if (!string.IsNullOrEmpty(Certification)) MediaItemAspect.SetAttribute(aspectData, MovieAspect.ATTR_CERTIFICATION, Certification);
+      if (!string.IsNullOrEmpty(ImdbId)) MediaItemAspect.SetAttribute(aspectData, MovieAspect.ATTR_IMDB_ID, ImdbId);
+      if (MovieDbId > 0) MediaItemAspect.SetAttribute(aspectData, MovieAspect.ATTR_TMDB_ID, MovieDbId);
+      if (OfdbId > 0) MediaItemAspect.SetAttribute(aspectData, MovieAspect.ATTR_OFDB_ID, OfdbId);
+      if (Runtime > 0) MediaItemAspect.SetAttribute(aspectData, MovieAspect.ATTR_RUNTIME_M, Runtime);
+      if (Popularity > 0f) MediaItemAspect.SetAttribute(aspectData, MovieAspect.ATTR_POPULARITY, Popularity);
+      if (Budget > 0) MediaItemAspect.SetAttribute(aspectData, MovieAspect.ATTR_BUDGET, Budget);
+      if (Revenue > 0) MediaItemAspect.SetAttribute(aspectData, MovieAspect.ATTR_REVENUE, Revenue);
+      if (Score > 0d) MediaItemAspect.SetAttribute(aspectData, MovieAspect.ATTR_SCORE, Score);
 
       if (Year > 0)
         MediaItemAspect.SetAttribute(aspectData, MediaAspect.ATTR_RECORDINGTIME, new DateTime(Year, 1, 1));

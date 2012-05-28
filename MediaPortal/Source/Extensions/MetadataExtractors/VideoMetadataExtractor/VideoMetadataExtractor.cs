@@ -298,11 +298,13 @@ namespace MediaPortal.Extensions.MetadataExtractors.VideoMetadataExtractor
       return seriesInfo;
     }
 
-    protected void ExtractSeriesData(string localFsResourcePath, IDictionary<Guid, MediaItemAspect> extractedAspectData, bool forceQuickMode)
+    protected void ExtractSeriesAndMovieData(string localFsResourcePath, IDictionary<Guid, MediaItemAspect> extractedAspectData, bool forceQuickMode)
     {
       SeriesInfo seriesInfo = null;
 
       string extensionUpper = StringUtils.TrimToEmpty(Path.GetExtension(localFsResourcePath)).ToUpper();
+      string title = string.Empty;
+      int year = 0;
 
       // Try to get extended information out of matroska files)
       if (extensionUpper == ".MKV" || extensionUpper == ".MK3D")
@@ -326,7 +328,6 @@ namespace MediaPortal.Extensions.MetadataExtractors.VideoMetadataExtractor
             };
         mkvReader.ReadTags(tagsToExtract);
 
-        string title = string.Empty;
         var tags = tagsToExtract[TAG_SIMPLE_TITLE];
         if (tags != null)
           title = tags.FirstOrDefault();
@@ -349,7 +350,6 @@ namespace MediaPortal.Extensions.MetadataExtractors.VideoMetadataExtractor
         if (tags != null)
           yearCandidate = (tags.FirstOrDefault() ?? string.Empty).Substring(0, 4);
 
-        int year;
         if (int.TryParse(yearCandidate, out year))
           MediaItemAspect.SetAttribute(extractedAspectData, MediaAspect.ATTR_RECORDINGTIME, new DateTime(year, 1, 1));
 
@@ -372,6 +372,19 @@ namespace MediaPortal.Extensions.MetadataExtractors.VideoMetadataExtractor
         tags = tagsToExtract[TAG_EPISODE_SUMMARY];
         if (tags != null)
           MediaItemAspect.SetAttribute(extractedAspectData, VideoAspect.ATTR_STORYPLOT, tags.FirstOrDefault());
+      }
+
+      // Movie handling
+      if (!string.IsNullOrEmpty(title) && !forceQuickMode)
+      {
+        // TODO: online information can overwrite information read out of mkv tags, how to handle this?
+        MovieInfo movieInfo = new MovieInfo
+        {
+          MovieName = title,
+          Year = year
+        };
+        if (MovieTheMovieDbMatcher.Instance.FindAndUpdateMovie(movieInfo))
+          movieInfo.SetMetadata(extractedAspectData);
       }
 
       if (seriesInfo != null && seriesInfo.IsCompleteMatch)
@@ -486,7 +499,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.VideoMetadataExtractor
             if (lfsra != null)
             {
               string localFsPath = lfsra.LocalFileSystemPath;
-              ExtractSeriesData(localFsPath, extractedAspectData, forceQuickMode);
+              ExtractSeriesAndMovieData(localFsPath, extractedAspectData, forceQuickMode);
               ExtractThumbnailData(localFsPath, extractedAspectData, forceQuickMode);
             }
           }

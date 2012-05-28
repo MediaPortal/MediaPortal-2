@@ -24,6 +24,7 @@
 
 using System;
 using System.IO;
+using System.Linq;
 using System.Xml;
 using System.Xml.XPath;
 using BDInfo;
@@ -102,6 +103,17 @@ namespace MediaPortal.UI.Players.Video
         ServiceRegistration.Get<ILogger>().Error("BDMEx: Meta File Error: ", e);
       }
       return null;
+    }
+
+    public FileInfo GetBiggestThumb()
+    {
+      string metaFolder = Path.Combine(DirectoryBDMV.FullName, @"META\DL\");
+      DirectoryInfo directory = new DirectoryInfo(metaFolder);
+      if (!directory.Exists)
+        return null;
+
+      FileInfo thumb = directory.GetFiles("*.jpg").OrderByDescending(f => f.Length).FirstOrDefault();
+      return thumb;
     }
 
     #endregion
