@@ -133,6 +133,18 @@ namespace MediaPortal.Extensions.OnlineLibraries
       return false;
     }
 
+    public bool TryGetMovieDbId(string movieName, out int movieDbId)
+    {
+      Movie movieDetails;
+      if (TryMatch(movieName, 0, true, out movieDetails))
+      {
+        movieDbId = movieDetails.Id;
+        return true;
+      }
+      movieDbId = 0;
+      return false;
+    }
+
     protected bool TryMatch(string movieName, int year, bool cacheOnly, out Movie movieDetail)
     {
       movieDetail = null;
