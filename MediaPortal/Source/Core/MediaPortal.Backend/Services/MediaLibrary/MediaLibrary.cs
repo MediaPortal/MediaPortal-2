@@ -26,6 +26,7 @@ using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
+using MediaPortal.Backend.ClientCommunication;
 using MediaPortal.Backend.Services.Database;
 using MediaPortal.Common;
 using MediaPortal.Common.General;
@@ -138,10 +139,15 @@ namespace MediaPortal.Backend.Services.MediaLibrary
 
     #endregion
 
+    #region Consts
+
+    protected const string KEY_CURRENTLY_IMPORTING_SHARE_IDS = "CurrentlyImportingShareIds";
+
+    #endregion
+
     #region Protected fields
 
     protected IDictionary<string, SystemName> _systemsOnline = new Dictionary<string, SystemName>(); // System ids mapped to system names
-    protected ICollection<Guid> _currentlyImportingClientShares = new HashSet<Guid>();
 
     protected MIA_Management _miaManagement = null;
     protected object _syncObj = new object();
@@ -852,27 +858,61 @@ namespace MediaPortal.Backend.Services.MediaLibrary
 
     public void ClientStartedShareImport(Guid shareId)
     {
-      lock (_currentlyImportingClientShares)
-        _currentlyImportingClientShares.Add(shareId);
+      Share share = GetShare(shareId);
+      if (share == null)
+      {
+        ServiceRegistration.Get<ILogger>().Warn("MediaLibrary.ClientStartedShareImport: Unknown share id {0}", shareId);
+        return;
+      }
+      IClientManager clientManager = ServiceRegistration.Get<IClientManager>();
+      lock (clientManager.SyncObj)
+      {
+        ClientConnection client = clientManager.ConnectedClients.Where(c => c.Descriptor.MPFrontendServerUUID == share.SystemId).FirstOrDefault();
+        object value;
+        if (client.Properties.TryGetValue(KEY_CURRENTLY_IMPORTING_SHARE_IDS, out value))
+          ((ICollection<Guid>) value).Add(shareId);
+        else
+          client.Properties[KEY_CURRENTLY_IMPORTING_SHARE_IDS] = new List<Guid> {shareId};
+      }
       ContentDirectoryMessaging.SendShareImportMessage(ContentDirectoryMessaging.MessageType.ShareImportStarted, shareId);
     }
 
     public void ClientCompletedShareImport(Guid shareId)
     {
-      lock (_currentlyImportingClientShares)
-        _currentlyImportingClientShares.Remove(shareId);
+      Share share = GetShare(shareId);
+      if (share == null)
+      {
+        ServiceRegistration.Get<ILogger>().Warn("MediaLibrary.ClientCompletedShareImport: Unknown share id {0}", shareId);
+        return;
+      }
+      IClientManager clientManager = ServiceRegistration.Get<IClientManager>();
+      lock (clientManager.SyncObj)
+      {
+        ClientConnection client = clientManager.ConnectedClients.Where(c => c.Descriptor.MPFrontendServerUUID == share.SystemId).FirstOrDefault();
+        object value;
+        if (client.Properties.TryGetValue(KEY_CURRENTLY_IMPORTING_SHARE_IDS, out value))
+          ((ICollection<Guid>) value).Remove(shareId);
+      }
       ContentDirectoryMessaging.SendShareImportMessage(ContentDirectoryMessaging.MessageType.ShareImportCompleted, shareId);
     }
 
     public ICollection<Guid> GetCurrentlyImportingShareIds()
     {
-      ICollection<Guid> result;
-      lock (_currentlyImportingClientShares)
-        result = new List<Guid>(_currentlyImportingClientShares);
+      ICollection<Guid> result = new List<Guid>();
       IImporterWorker importerWorker = ServiceRegistration.Get<IImporterWorker>();
+      // Shares of media library
       ICollection<Share> shares = GetShares(null).Values;
       CollectionUtils.AddAll(result, importerWorker.ImportJobs.Where(importJobInfo => importJobInfo.State == ImportJobState.Active).
           Select(importJobInfo => shares.BestContainingPath(importJobInfo.BasePath)).Where(share => share != null).Select(share => share.ShareId));
+      // Client shares
+      IClientManager clientManager = ServiceRegistration.Get<IClientManager>();
+      lock (clientManager.SyncObj)
+        CollectionUtils.AddAll(result, clientManager.ConnectedClients.Select(client =>
+          {
+            object value;
+            return client.Properties.TryGetValue(KEY_CURRENTLY_IMPORTING_SHARE_IDS, out value) ? (ICollection<Guid>) value : null;
+          }).Where(clientShares => clientShares != null).SelectMany(clientShares => clientShares).ToList());
+
       return result;
     }
 
@@ -1193,8 +1233,6 @@ namespace MediaPortal.Backend.Services.MediaLibrary
       ServiceRegistration.Get<ILogger>().Info("MediaLibrary: Client '{0}' is offline", systemId);
       lock (_syncObj)
         _systemsOnline.Remove(systemId);
-      lock (_currentlyImportingClientShares)
-        CollectionUtils.RemoveAll(_currentlyImportingClientShares, GetShares(systemId).Values.Select(share => share.ShareId));
     }
 
     #endregion

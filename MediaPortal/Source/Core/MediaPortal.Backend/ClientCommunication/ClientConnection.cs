@@ -23,6 +23,7 @@
 #endregion
 
 using System;
+using System.Collections.Generic;
 using MediaPortal.Backend.Services.ClientCommunication;
 using MediaPortal.Common.UPnP;
 using MediaPortal.Utilities.Exceptions;
@@ -39,6 +40,7 @@ namespace MediaPortal.Backend.ClientCommunication
     protected DeviceConnection _connection;
     protected ClientDescriptor _clientDescriptor;
     protected IClientController _clientController;
+    protected IDictionary<string, object> _properties = new Dictionary<string, object>();
 
     public ClientConnection(UPnPControlPoint controlPoint, DeviceConnection connection, ClientDescriptor clientDescriptor)
     {
@@ -79,6 +81,23 @@ namespace MediaPortal.Backend.ClientCommunication
     public DeviceConnection UnderlayingConnection
     {
       get { return _connection; }
+    }
+
+    /// <summary>
+    /// Holds a dictionary of key-value mappings for this client connection. Arbitrary values can be added here which
+    /// are valid during the client connection.
+    /// </summary>
+    /// <param name="key">Key to access the value.</param>
+    /// <returns>Stored value.</returns>
+    public object this[string key]
+    {
+      get { return _properties[key]; }
+      set { _properties[key] = value; }
+    }
+
+    public IDictionary<string, object> Properties
+    {
+      get { return _properties; }
     }
 
     public void Disconnect()
