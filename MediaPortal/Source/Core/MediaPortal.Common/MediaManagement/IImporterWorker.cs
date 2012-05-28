@@ -39,7 +39,7 @@ namespace MediaPortal.Common.MediaManagement
   {
     None,
     Scheduled,
-    Started,
+    Active,
     Finished,
     Cancelled,
     Erroneous
@@ -58,15 +58,15 @@ namespace MediaPortal.Common.MediaManagement
   {
     private ImportJobType _jobType;
     private ResourcePath _basePath;
-    private ICollection<Guid> _metadataExtractorIds;
+    private HashSet<Guid> _metadataExtractorIds;
     private bool _includeSubDirectories;
     private ImportJobState _state;
 
-    public ImportJobInformation(ImportJobType jobType, ResourcePath basePath, ICollection<Guid> metadataExtractorIds, bool includeSubDirectories)
+    public ImportJobInformation(ImportJobType jobType, ResourcePath basePath, IEnumerable<Guid> metadataExtractorIds, bool includeSubDirectories)
     {
       _jobType = jobType;
       _basePath = basePath;
-      _metadataExtractorIds = metadataExtractorIds;
+      _metadataExtractorIds = new HashSet<Guid>(metadataExtractorIds);
       _includeSubDirectories = includeSubDirectories;
       _state = ImportJobState.None;
     }
@@ -75,7 +75,7 @@ namespace MediaPortal.Common.MediaManagement
     {
       _jobType = other.JobType;
       _basePath = other.BasePath;
-      _metadataExtractorIds = other.MetadataExtractorIds;
+      _metadataExtractorIds = new HashSet<Guid>(other.MetadataExtractorIds);
       _includeSubDirectories = other.IncludeSubDirectories;
       _state = other.State;
     }
@@ -98,7 +98,7 @@ namespace MediaPortal.Common.MediaManagement
     public ICollection<Guid> MetadataExtractorIds
     {
       get { return _metadataExtractorIds; }
-      set { _metadataExtractorIds = value; }
+      set { _metadataExtractorIds = new HashSet<Guid>(value); }
     }
 
     [XmlIgnore]
@@ -174,7 +174,7 @@ namespace MediaPortal.Common.MediaManagement
     [XmlArrayItem("Id")]
     public HashSet<Guid> XML_MetadataExtractorIds
     {
-      get { return new HashSet<Guid>(_metadataExtractorIds); }
+      get { return _metadataExtractorIds; }
       set { _metadataExtractorIds = value; }
     }
 

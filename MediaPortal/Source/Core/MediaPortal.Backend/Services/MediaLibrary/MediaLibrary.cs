@@ -836,8 +836,8 @@ namespace MediaPortal.Backend.Services.MediaLibrary
         result = new List<Guid>(_currentlyImportingClientShares);
       IImporterWorker importerWorker = ServiceRegistration.Get<IImporterWorker>();
       ICollection<Share> shares = GetShares(null).Values;
-      CollectionUtils.AddAll(result, importerWorker.ImportJobs.Select(importJobInfo => shares.BestContainingPath(importJobInfo.BasePath)).
-          Where(share => share != null).Select(share => share.ShareId));
+      CollectionUtils.AddAll(result, importerWorker.ImportJobs.Where(importJobInfo => importJobInfo.State == ImportJobState.Active).
+          Select(importJobInfo => shares.BestContainingPath(importJobInfo.BasePath)).Where(share => share != null).Select(share => share.ShareId));
       return result;
     }
 
