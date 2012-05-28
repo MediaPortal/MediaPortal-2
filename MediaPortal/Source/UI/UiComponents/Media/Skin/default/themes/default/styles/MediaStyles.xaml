@@ -937,7 +937,7 @@
         <RowDefinition Height="Auto"/>
         <RowDefinition Height="Auto"/>
       </Grid.RowDefinitions>
-      <Label x:Name="ItemLabel" Grid.Row="1" Grid.Column="0" Content="{Binding SimpleTitle}" HorizontalAlignment="Center"
+      <Label x:Name="ItemLabel" Grid.Row="1" Grid.Column="0" Content="{Binding MovieName}" HorizontalAlignment="Center"
           Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}"/>
       <Image Width="{StaticResource MEDIA_POSTER_WIDTH}" Height="{StaticResource MEDIA_POSTER_HEIGHT}" Stretch="Uniform" Grid.Row="0" Grid.Column="1">
         <Image.Source>
