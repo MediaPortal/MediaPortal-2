@@ -74,19 +74,16 @@ namespace UPnP.Infrastructure.Dv.GENA
     {
       // If we cannot acquire our lock for some reason, avoid blocking an infinite number of timer threads here
       if (Monitor.TryEnter(_serverData.SyncObj, UPnPConsts.TIMEOUT_TIMER_LOCK_ACCESS))
+      {
+        List<EventSubscription> removeSubscriptions = new List<EventSubscription>();
         try
         {
           // Tidy up expired event subscriptions
           foreach (EndpointConfiguration config in _serverData.UPnPEndPoints)
           {
-            ICollection<EventSubscription> removeSubscriptions = new List<EventSubscription>();
             DateTime now = DateTime.Now;
-            foreach (EventSubscription subscription in config.EventSubscriptions)
-              if (now > subscription.Expiration && subscription.EventingState.EventKey > 0) // Don't remove subscriptions whose initial notification was not sent yet
-              {
-                removeSubscriptions.Add(subscription);
-                subscription.Dispose();
-              }
+            // Don't remove subscriptions whose initial notification was not sent yet
+            removeSubscriptions.AddRange(config.EventSubscriptions.Where(subscription => now > subscription.Expiration && subscription.EventingState.EventKey > 0));
             CollectionUtils.RemoveAll(config.EventSubscriptions, removeSubscriptions);
           }
         }
@@ -94,6 +91,10 @@ namespace UPnP.Infrastructure.Dv.GENA
         {
           Monitor.Exit(_serverData.SyncObj);
         }
+        // Outside the lock
+        foreach (EventSubscription subscription in removeSubscriptions)
+          subscription.Dispose();
+      }
       else
         UPnPConfiguration.LOGGER.Error("SSDPServerController.OnExpirationTimerElapsed: Cannot acquire synchronization lock. Maybe a deadlock happened.");
     }

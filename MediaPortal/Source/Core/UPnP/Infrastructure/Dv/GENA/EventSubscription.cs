@@ -139,14 +139,15 @@ namespace UPnP.Infrastructure.Dv.GENA
 
     private void OnNotificationTimerElapsed(object state)
     {
+      ICollection<DvStateVariable> variablesToEvent;
       lock (_serverData.SyncObj)
       {
         if (_disposed)
           return;
-        ICollection<DvStateVariable> variablesToEvent = _eventingState.GetDueEvents();
-        if (variablesToEvent != null)
-          SendEventNotification(variablesToEvent);
+        variablesToEvent = _eventingState.GetDueEvents();
       }
+      if (variablesToEvent != null)
+        SendEventNotification(variablesToEvent);
     }
 
     /// <summary>
@@ -158,7 +159,8 @@ namespace UPnP.Infrastructure.Dv.GENA
       IEnumerator<string> e = state.PendingCallbackURLs.GetEnumerator();
       if (!e.MoveNext())
       {
-        _pendingRequests.Remove(state);
+        lock (_serverData.SyncObj)
+          _pendingRequests.Remove(state);
         return;
       }
       string callbackURL = e.Current;
@@ -294,8 +296,9 @@ namespace UPnP.Infrastructure.Dv.GENA
           // Avoid sending "normal" change events before the initial event was sent
           return;
         _eventingState.ModerateChangeEvent(variable);
-        ScheduleEvents();
       }
+      // Outside the lock
+      ScheduleEvents();
     }
 
     /// <summary>
@@ -339,6 +342,7 @@ namespace UPnP.Infrastructure.Dv.GENA
     /// </summary>
     protected void SendEventNotification(IEnumerable<DvStateVariable> variables)
     {
+      AsyncRequestState state;
       lock (_serverData.SyncObj)
       {
         foreach (DvStateVariable variable in variables)
@@ -348,11 +352,12 @@ namespace UPnP.Infrastructure.Dv.GENA
           body = GENAMessageBuilder.BuildEventNotificationMessage(variables, !_subscriberSupportsUPnP11);
         byte[] bodyData = Encoding.UTF8.GetBytes(body);
 
-        AsyncRequestState state = new AsyncRequestState(_config, _sid, _callbackURLs, _eventingState.EventKey, bodyData);
+        state = new AsyncRequestState(_config, _sid, _callbackURLs, _eventingState.EventKey, bodyData);
         _pendingRequests.Add(state);
-        ContinueEventNotification(state);
         _eventingState.IncEventKey();
       }
+      // Outside the lock
+      ContinueEventNotification(state);
     }
   }
 }

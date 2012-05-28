@@ -111,11 +111,9 @@ namespace UPnP.Infrastructure.Dv
     {
       IHttpClientContext context = (IHttpClientContext) sender;
       lock (_serverData.SyncObj)
-      {
         if (!_serverData.IsActive)
           return;
-        HandleHTTPRequest(context, e.Request);
-      }
+      HandleHTTPRequest_NoLock(context, e.Request);
     }
 
     #endregion
@@ -306,7 +304,7 @@ namespace UPnP.Infrastructure.Dv
     /// </summary>
     /// <param name="context">HTTP client context of the current request.</param>
     /// <param name="request">HTTP request to handle.</param>
-    protected void HandleHTTPRequest(IHttpClientContext context, IHttpRequest request)
+    protected void HandleHTTPRequest_NoLock(IHttpClientContext context, IHttpRequest request)
     {
       Uri uri = request.Uri;
       string hostName = uri.Host;
@@ -314,7 +312,10 @@ namespace UPnP.Infrastructure.Dv
       try
       {
         DvService service;
-        foreach (EndpointConfiguration config in _serverData.UPnPEndPoints)
+        ICollection<EndpointConfiguration> endpoints;
+        lock (_serverData.SyncObj)
+          endpoints = _serverData.UPnPEndPoints;
+        foreach (EndpointConfiguration config in endpoints)
         {
           if (!NetworkHelper.HostNamesEqual(hostName, NetworkHelper.IPAddrToHostName(config.EndPointIPAddress)))
             continue;
@@ -328,10 +329,11 @@ namespace UPnP.Infrastructure.Dv
 
               string description = null;
               DvDevice rootDevice;
-              if (config.RootDeviceDescriptionPathsToRootDevices.TryGetValue(pathAndQuery, out rootDevice))
-                description = rootDevice.BuildRootDeviceDescription(_serverData, config, culture);
-              else if (config.SCPDPathsToServices.TryGetValue(pathAndQuery, out service))
-                description = service.BuildSCPDDocument(config, _serverData);
+              lock (_serverData.SyncObj)
+                if (config.RootDeviceDescriptionPathsToRootDevices.TryGetValue(pathAndQuery, out rootDevice))
+                  description = rootDevice.BuildRootDeviceDescription(_serverData, config, culture);
+                else if (config.SCPDPathsToServices.TryGetValue(pathAndQuery, out service))
+                  description = service.BuildSCPDDocument(config, _serverData);
               if (description != null)
               {
                 IHttpResponse response = request.CreateResponse(context);
@@ -398,7 +400,10 @@ namespace UPnP.Infrastructure.Dv
           }
           else if (request.Method == "SUBSCRIBE" || request.Method == "UNSUBSCRIBE")
           {
-            if (_serverData.GENAController.HandleHTTPRequest(request, context, config))
+            GENAServerController gsc;
+            lock (_serverData.SyncObj)
+              gsc = _serverData.GENAController;
+            if (gsc.HandleHTTPRequest(request, context, config))
               return;
           }
           else
@@ -444,6 +449,7 @@ namespace UPnP.Infrastructure.Dv
       result = config.SCPDPathsToServices.Values.Select(service => service.BuildSCPDDocument(
           config, _serverData)).Aggregate(result, (current, description) => current + HashGenerator.CalculateHash(0, description));
       result += HashGenerator.CalculateHash(0, NetworkHelper.IPAddrToString(config.EndPointIPAddress));
+      result += config.HTTPServerPort;
       result += HashGenerator.CalculateHash(0, config.ControlPathBase + config.DescriptionPathBase + config.EventSubPathBase);
       return (int) result;
     }
