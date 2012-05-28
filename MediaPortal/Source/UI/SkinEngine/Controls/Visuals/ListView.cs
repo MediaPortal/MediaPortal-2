@@ -52,7 +52,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 
     public void AddChild(object o)
     {
-      Items.Add(o);
+      _items.Add(o);
     }
 
     #endregion

@@ -126,7 +126,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     {
       // We must consider both the Items count and the ItemsSource count because
       // if ItemsSource is set, the TreeViewItem avoids the eager setup of the Items
-      bool result = ForceExpander || Items.Count > 0;
+      bool result = ForceExpander || _items.Count > 0;
       if (!result)
       {
         IEnumerable itemsSource = ItemsSource;

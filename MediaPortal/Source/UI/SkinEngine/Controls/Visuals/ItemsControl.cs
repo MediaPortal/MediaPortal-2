@@ -100,7 +100,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       _itemContainerStyleProperty.Attach(OnItemContainerStyleChanged);
 
       _templateControlProperty.Attach(OnTemplateControlChanged);
-      AttachToItems(Items);
+      AttachToItems(_items);
       AttachToItemsSource(ItemsSource);
     }
 
@@ -113,7 +113,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       _itemContainerStyleProperty.Detach(OnItemContainerStyleChanged);
 
       _templateControlProperty.Detach(OnTemplateControlChanged);
-      DetachFromItems(Items);
+      DetachFromItems(_items);
       DetachFromItemsSource(ItemsSource);
     }
 
@@ -124,6 +124,9 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       base.DeepCopy(source, copyManager);
       ItemsControl c = (ItemsControl) source;
       ItemsSource = copyManager.GetCopy(c.ItemsSource);
+      _items.Clear();
+      foreach (object item in c.Items)
+        _items.Add(copyManager.GetCopy(item));
       ItemContainerStyle = copyManager.GetCopy(c.ItemContainerStyle);
       SelectionChanged = copyManager.GetCopy(c.SelectionChanged);
       ItemTemplate = copyManager.GetCopy(c.ItemTemplate);
@@ -139,7 +142,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     {
       Detach();
       DetachFromItemsSource(ItemsSource);
-      ItemCollection items = Items;
+      ItemCollection items = _items;
       if (items != null)
       {
         DetachFromItems(items);
@@ -534,7 +537,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       IEnumerable itemsSource = ItemsSource;
       if (itemsSource == null)
       { // In this case, we must set up the items control using the Items property
-        ItemCollection items = Items;
+        ItemCollection items = _items;
         ItemCollection preparedChildren = new ItemCollection();
         bool setItems = false;
         if (items == null)
@@ -672,10 +675,10 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       }
       if (doSetItems)
       {
-        Items.Clear();
+        _items.Clear();
         if (preparedItems != null)
         {
-          Items.AddAll(preparedItems.ExtractElements());
+          _items.AddAll(preparedItems.ExtractElements());
           preparedItems.Dispose();
         }
       }
