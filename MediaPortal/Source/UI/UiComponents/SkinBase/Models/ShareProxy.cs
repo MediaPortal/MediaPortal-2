@@ -29,6 +29,7 @@ using MediaPortal.Common.General;
 using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.ResourceAccess;
 using MediaPortal.UI.Presentation.DataObjects;
+using MediaPortal.UiComponents.SkinBase.General;
 using MediaPortal.Utilities;
 
 namespace MediaPortal.UiComponents.SkinBase.Models
@@ -383,8 +384,8 @@ namespace MediaPortal.UiComponents.SkinBase.Models
       ResourceProviderMetadata choosenBaseResourceProvider = BaseResourceProvider;
       foreach (ResourceProviderMetadata metadata in resourceProviderMDs)
       {
-        ListItem resourceProviderItem = new ListItem(SharesConfigModel.KEY_NAME, metadata.Name);
-        resourceProviderItem.AdditionalProperties[SharesConfigModel.KEY_RESOURCE_PROVIDER_METADATA] = metadata;
+        ListItem resourceProviderItem = new ListItem(Consts.KEY_NAME, metadata.Name);
+        resourceProviderItem.AdditionalProperties[Consts.KEY_RESOURCE_PROVIDER_METADATA] = metadata;
         if ((choosenBaseResourceProvider != null && choosenBaseResourceProvider.ResourceProviderId == metadata.ResourceProviderId) ||
             resourceProviderMDs.Count == 1)
         {
@@ -401,7 +402,7 @@ namespace MediaPortal.UiComponents.SkinBase.Models
     {
       return _allBaseResourceProvidersList.Where(resourceProviderItem => resourceProviderItem.Selected).Select(
           resourceProviderItem => resourceProviderItem.AdditionalProperties[
-              SharesConfigModel.KEY_RESOURCE_PROVIDER_METADATA] as ResourceProviderMetadata).FirstOrDefault();
+              Consts.KEY_RESOURCE_PROVIDER_METADATA] as ResourceProviderMetadata).FirstOrDefault();
     }
 
     public void UpdateIsResourceProviderSelected()
@@ -417,14 +418,14 @@ namespace MediaPortal.UiComponents.SkinBase.Models
         pathItem.SubItems.FireChange();
       }
       else
-        RefreshResourceProviderPathList(pathItem.SubItems, (ResourcePath) pathItem.AdditionalProperties[SharesConfigModel.KEY_RESOURCE_PATH]);
+        RefreshResourceProviderPathList(pathItem.SubItems, (ResourcePath) pathItem.AdditionalProperties[Consts.KEY_RESOURCE_PATH]);
     }
 
     protected static ResourcePath FindChoosenResourcePath(ItemsList items)
     {
       foreach (TreeItem directoryItem in items)
         if (directoryItem.Selected)
-          return (ResourcePath) directoryItem.AdditionalProperties[SharesConfigModel.KEY_RESOURCE_PATH];
+          return (ResourcePath) directoryItem.AdditionalProperties[Consts.KEY_RESOURCE_PATH];
         else
         {
           ResourcePath childPath = FindChoosenResourcePath(directoryItem.SubItems);
@@ -467,7 +468,7 @@ namespace MediaPortal.UiComponents.SkinBase.Models
       _mediaCategories.Clear();
       foreach (ListItem categoryItem in _allMediaCategoriesList)
         if (categoryItem.Selected)
-          _mediaCategories.Add(categoryItem[SharesConfigModel.KEY_NAME]);
+          _mediaCategories.Add(categoryItem[Consts.KEY_NAME]);
     }
 
     /// <summary>
@@ -515,13 +516,13 @@ namespace MediaPortal.UiComponents.SkinBase.Models
         directories.Sort((a, b) => a.ResourceName.CompareTo(b.ResourceName));
         foreach (ResourcePathMetadata childDirectory in directories)
         {
-          TreeItem directoryItem = new TreeItem(SharesConfigModel.KEY_NAME, childDirectory.ResourceName);
-          directoryItem.AdditionalProperties[SharesConfigModel.KEY_RESOURCE_PATH] = childDirectory.ResourcePath;
-          directoryItem.SetLabel(SharesConfigModel.KEY_PATH, childDirectory.HumanReadablePath);
+          TreeItem directoryItem = new TreeItem(Consts.KEY_NAME, childDirectory.ResourceName);
+          directoryItem.AdditionalProperties[Consts.KEY_RESOURCE_PATH] = childDirectory.ResourcePath;
+          directoryItem.SetLabel(Consts.KEY_PATH, childDirectory.HumanReadablePath);
           if (ChoosenResourcePath == childDirectory.ResourcePath)
             directoryItem.Selected = true;
           directoryItem.SelectedProperty.Attach(OnTreePathSelectionChanged);
-          directoryItem.AdditionalProperties[SharesConfigModel.KEY_EXPANSION] = new ExpansionHelper(directoryItem, this);
+          directoryItem.AdditionalProperties[Consts.KEY_EXPANSION] = new ExpansionHelper(directoryItem, this);
           items.Add(directoryItem);
         }
       }
@@ -551,7 +552,7 @@ namespace MediaPortal.UiComponents.SkinBase.Models
       allCategories.Sort();
       foreach (string mediaCategory in allCategories)
       {
-        ListItem categoryItem = new ListItem(SharesConfigModel.KEY_NAME, mediaCategory);
+        ListItem categoryItem = new ListItem(Consts.KEY_NAME, mediaCategory);
         if (MediaCategories.Contains(mediaCategory))
           categoryItem.Selected = true;
         categoryItem.SelectedProperty.Attach(OnMediaCategoryItemSelectionChanged);

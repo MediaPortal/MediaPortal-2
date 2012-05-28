@@ -56,7 +56,7 @@ namespace MediaPortal.Backend.Services.ClientCommunication
 
     protected DvStateVariable PlaylistsChangeCounter;
     protected DvStateVariable MIATypeRegistrationsChangeCounter;
-    protected DvStateVariable CurrentlyImportingSharesCounter;
+    protected DvStateVariable CurrentlyImportingSharesChangeCounter;
     protected DvStateVariable RegisteredSharesChangeCounter;
 
     protected UInt32 _playlistsChangeCt = 0;
@@ -300,12 +300,12 @@ namespace MediaPortal.Backend.Services.ClientCommunication
       AddStateVariable(RegisteredSharesChangeCounter);
 
       // Change event for currently importing shares
-      CurrentlyImportingSharesCounter = new DvStateVariable("CurrentlyImportingSharesCounter", new DvStandardDataType(UPnPStandardDataType.Ui4))
+      CurrentlyImportingSharesChangeCounter = new DvStateVariable("CurrentlyImportingSharesChangeCounter", new DvStandardDataType(UPnPStandardDataType.Ui4))
         {
             SendEvents = true,
             Value = (uint) 0
         };
-      AddStateVariable(CurrentlyImportingSharesCounter);
+      AddStateVariable(CurrentlyImportingSharesChangeCounter);
 
       // More state variables go here
 
@@ -610,6 +610,7 @@ namespace MediaPortal.Backend.Services.ClientCommunication
       _messageQueue = new AsynchronousMessageQueue(this, new string[]
         {
             ContentDirectoryMessaging.CHANNEL,
+            ImporterWorkerMessaging.CHANNEL,
         });
       _messageQueue.MessageReceived += OnMessageReceived;
       _messageQueue.Start();
@@ -639,7 +640,18 @@ namespace MediaPortal.Backend.Services.ClientCommunication
             break;
           case ContentDirectoryMessaging.MessageType.ShareImportStarted:
           case ContentDirectoryMessaging.MessageType.ShareImportCompleted:
-            CurrentlyImportingSharesCounter.Value = ++_currentlyImportingSharesChangeCt;
+            CurrentlyImportingSharesChangeCounter.Value = ++_currentlyImportingSharesChangeCt;
+            break;
+        }
+      }
+      else if (message.ChannelName == ImporterWorkerMessaging.CHANNEL)
+      {
+        ImporterWorkerMessaging.MessageType messageType = (ImporterWorkerMessaging.MessageType) message.MessageType;
+        switch (messageType)
+        {
+          case ImporterWorkerMessaging.MessageType.ImportStarted:
+          case ImporterWorkerMessaging.MessageType.ImportCompleted:
+            CurrentlyImportingSharesChangeCounter.Value = ++_currentlyImportingSharesChangeCt;
             break;
         }
       }

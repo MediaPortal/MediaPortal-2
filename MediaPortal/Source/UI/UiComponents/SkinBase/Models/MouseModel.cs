@@ -35,7 +35,8 @@ namespace MediaPortal.UiComponents.SkinBase.Models
   /// </summary>
   public class MouseModel : BaseTimerControlledModel
   {
-    protected const string MODEL_ID_STR = "CA6428A7-A6E2-4dd3-9661-F89CEBAF8E62";
+    public const string MOUSE_MODEL_ID_STR = "CA6428A7-A6E2-4dd3-9661-F89CEBAF8E62";
+    public static readonly Guid MOUSE_MODEL_ID = new Guid(MOUSE_MODEL_ID_STR);
 
     #region Protected fields
 
@@ -50,7 +51,7 @@ namespace MediaPortal.UiComponents.SkinBase.Models
 
     public Guid ModelId
     {
-      get { return new Guid(MODEL_ID_STR); }
+      get { return MOUSE_MODEL_ID; }
     }
 
     protected override void Update()

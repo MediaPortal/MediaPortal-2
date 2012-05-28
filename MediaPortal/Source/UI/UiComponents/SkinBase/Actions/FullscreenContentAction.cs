@@ -28,6 +28,7 @@ using MediaPortal.Common.Messaging;
 using MediaPortal.Common.Localization;
 using MediaPortal.UI.Presentation.Players;
 using MediaPortal.UI.Presentation.Workflow;
+using MediaPortal.UiComponents.SkinBase.General;
 
 namespace MediaPortal.UiComponents.SkinBase.Actions
 {
@@ -36,12 +37,7 @@ namespace MediaPortal.UiComponents.SkinBase.Actions
     #region Consts
 
     public const string FULLSCREEN_CONTENT_CONTRIBUTOR_MODEL_ID_STR = "08E19EDA-7BB3-4e74-8079-FFB0D52F3838";
-
     public static readonly Guid FULLSCREEN_CONTENT_CONTRIBUTOR_MODEL_ID = new Guid(FULLSCREEN_CONTENT_CONTRIBUTOR_MODEL_ID_STR);
-
-    public const string RES_FULLSCREEN_VIDEO = "[Players.FullscreenVideo]";
-    public const string RES_AUDIO_VISUALIZATION = "[Players.AudioVisualization]";
-    public const string RES_FULLSCREEN_IMAGE = "[Players.FullscreenImage]";
 
     #endregion
 
@@ -124,12 +120,12 @@ namespace MediaPortal.UiComponents.SkinBase.Actions
           !workflowManager.IsStateContainedInNavigationStack(pcPrimary.FullscreenContentWorkflowStateId);
       IResourceString displayTitleRes;
       if (ap != null)
-        displayTitleRes = LocalizationHelper.CreateResourceString(RES_AUDIO_VISUALIZATION);
+        displayTitleRes = LocalizationHelper.CreateResourceString(Consts.RES_AUDIO_VISUALIZATION);
       else if (vp != null)
         displayTitleRes = LocalizationHelper.CreateStaticString(
-            LocalizationHelper.CreateResourceString(RES_FULLSCREEN_VIDEO).Evaluate(vp.Name));
+            LocalizationHelper.CreateResourceString(Consts.RES_FULLSCREEN_VIDEO).Evaluate(vp.Name));
       else
-        displayTitleRes = LocalizationHelper.CreateResourceString(RES_FULLSCREEN_IMAGE);
+        displayTitleRes = LocalizationHelper.CreateResourceString(Consts.RES_FULLSCREEN_IMAGE);
       lock (_syncObj)
       {
         _isVisible = visible;

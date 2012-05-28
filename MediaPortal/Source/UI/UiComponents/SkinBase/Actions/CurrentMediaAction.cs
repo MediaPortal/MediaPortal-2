@@ -28,6 +28,7 @@ using MediaPortal.Common.Messaging;
 using MediaPortal.Common.Localization;
 using MediaPortal.UI.Presentation.Players;
 using MediaPortal.UI.Presentation.Workflow;
+using MediaPortal.UiComponents.SkinBase.General;
 
 namespace MediaPortal.UiComponents.SkinBase.Actions
 {
@@ -40,10 +41,7 @@ namespace MediaPortal.UiComponents.SkinBase.Actions
     #region Consts
 
     public const string CURRENT_MEDIA_CONTRIBUTOR_MODEL_ID_STR = "04854BDB-0933-4194-8AAE-DEC50062F37F";
-
     public static readonly Guid CURRENT_MEDIA_CONTRIBUTOR_MODEL_ID = new Guid(CURRENT_MEDIA_CONTRIBUTOR_MODEL_ID_STR);
-
-    public const string CURRENT_MEDIA_RESOURCE = "[Players.CurrentMediaInfo]";
 
     #endregion
 
@@ -59,7 +57,7 @@ namespace MediaPortal.UiComponents.SkinBase.Actions
 
     public CurrentMediaAction()
     {
-      _displayTitle = LocalizationHelper.CreateResourceString(CURRENT_MEDIA_RESOURCE);
+      _displayTitle = LocalizationHelper.CreateResourceString(Consts.RES_CURRENT_MEDIA);
     }
 
     void SubscribeToMessages()

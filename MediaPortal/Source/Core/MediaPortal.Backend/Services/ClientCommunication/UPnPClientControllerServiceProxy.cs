@@ -24,6 +24,7 @@
 
 using System;
 using System.Collections.Generic;
+using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.ResourceAccess;
 using MediaPortal.Backend.ClientCommunication;
 using MediaPortal.Common.UPnP;
@@ -46,26 +47,26 @@ namespace MediaPortal.Backend.Services.ClientCommunication
       return (string) outParameters[0];
     }
 
-    public void ImportLocation(ResourcePath path, IEnumerable<string> mediaCategories, ImportMode importMode)
+    public void ImportLocation(ResourcePath path, IEnumerable<string> mediaCategories, ImportJobType importJobType)
     {
       CpAction action = GetAction("ImportLocation");
-      string importModeStr;
-      switch (importMode)
+      string importJobTypeStr;
+      switch (importJobType)
       {
-        case ImportMode.Import:
-          importModeStr = "Import";
+        case ImportJobType.Import:
+          importJobTypeStr = "Import";
           break;
-        case ImportMode.Refresh:
-          importModeStr = "Refresh";
+        case ImportJobType.Refresh:
+          importJobTypeStr = "Refresh";
           break;
         default:
-          throw new NotImplementedException(string.Format("ImportMode '{0}' is not implemented", importMode));
+          throw new NotImplementedException(string.Format("Import job type '{0}' is not implemented", importJobType));
       }
       IList<object> inParameters = new List<object>
           {
-            path,
+            path.Serialize(),
             StringUtils.Join(", ", mediaCategories),
-            importModeStr
+            importJobTypeStr
           };
       action.InvokeAction(inParameters);
     }

@@ -88,6 +88,7 @@
     <Compile Include="CommonNotificationService.cs" />
     <Compile Include="General\Consts.cs" />
     <Compile Include="IConnectionListenerService.cs" />
+    <Compile Include="Models\SharesOverviewModel.cs" />
     <Compile Include="Models\MouseModel.cs" />
     <Compile Include="Models\LocalShares.cs" />
     <Compile Include="Models\HomeServerModel.cs" />
@@ -109,6 +110,7 @@
     <Compile Include="Settings\Configuration\General\ClientName.cs" />
     <Compile Include="Settings\Configuration\General\ServerListener.cs" />
     <Compile Include="Settings\Configuration\Regional\MainLanguage.cs" />
+    <Compile Include="Settings\Configuration\Shares\SharesOverviewSetting.cs" />
     <Compile Include="Settings\Configuration\Shares\SharesConfigSetting.cs" />
     <Compile Include="Settings\SkinBaseSettings.cs" />
     <Compile Include="Settings\Configuration\General\Autostart.cs" />
@@ -117,7 +119,9 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="plugin.xml" />
-    <Content Include="Language\strings_en.xml" />
+    <Content Include="Language\strings_en.xml">
+      <SubType>Designer</SubType>
+    </Content>
     <Content Include="Resources\ConfigurationImages\default-22.png" />
     <Content Include="Resources\ConfigurationImages\default-48.png" />
     <Content Include="Resources\ConfigurationImages\folders-22.png" />
@@ -243,6 +247,11 @@
     <None Include="Skin\default\fonts\SansBetween.ttf" />
     <None Include="Skin\default\fonts\SketchyTimes.desc" />
     <None Include="Skin\default\fonts\SketchyTimes.ttf" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Skin\default\screens\SharesOverview.xaml">
+      <SubType>Designer</SubType>
+    </Content>
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

@@ -26,10 +26,14 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using MediaPortal.Backend.ClientCommunication;
+using MediaPortal.Backend.MediaLibrary;
 using MediaPortal.Common;
 using MediaPortal.Common.General;
+using MediaPortal.Common.Logging;
+using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.Messaging;
 using MediaPortal.Common.SystemResolver;
+using MediaPortal.Common.Threading;
 using MediaPortal.Common.UPnP;
 using MediaPortal.Utilities.UPnP;
 using UPnP.Infrastructure.Common;
@@ -90,6 +94,20 @@ namespace MediaPortal.Backend.Services.ClientCommunication
           };
       AddStateVariable(A_ARG_TYPE_UuidEnumeration);
 
+      // CSV of system id strings
+      DvStateVariable A_ARG_TYPE_SystemIdEnumeration = new DvStateVariable("A_ARG_TYPE_SystemIdEnumeration", new DvStandardDataType(UPnPStandardDataType.String))
+          {
+            SendEvents = false
+          };
+      AddStateVariable(A_ARG_TYPE_SystemIdEnumeration);
+
+      // Used to transport the import modes "Import" and "Refresh" for the ImportLocation action
+      DvStateVariable A_ARG_TYPE_ImportMode = new DvStateVariable("A_ARG_TYPE_ImportMode", new DvStandardDataType(UPnPStandardDataType.String))
+          {
+            SendEvents = false
+          };
+      AddStateVariable(A_ARG_TYPE_ImportMode);
+
       AttachedClientsChangeCounter = new DvStateVariable("AttachedClientsChangeCounter", new DvStandardDataType(UPnPStandardDataType.Ui4))
         {
             SendEvents = true,
@@ -135,9 +153,18 @@ namespace MediaPortal.Backend.Services.ClientCommunication
           new DvArgument[] {
           },
           new DvArgument[] {
-            new DvArgument("ConnectedClients", A_ARG_TYPE_UuidEnumeration, ArgumentDirection.Out, true),
+            new DvArgument("ConnectedClients", A_ARG_TYPE_SystemIdEnumeration, ArgumentDirection.Out, true),
           });
       AddAction(getConnectedClientsAction);
+
+      DvAction scheduleImportsAction = new DvAction("ScheduleImports", OnScheduleImports,
+          new DvArgument[] {
+            new DvArgument("ShareIds", A_ARG_TYPE_UuidEnumeration, ArgumentDirection.In, true),
+            new DvArgument("ImportMode", A_ARG_TYPE_ImportMode, ArgumentDirection.In, true),
+          },
+          new DvArgument[] {
+          });
+      AddAction(scheduleImportsAction);
 
       DvAction getSystemNameForSytemIdAction = new DvAction("GetSystemNameForSystemId", OnGetSystemNameForSytemId,
           new DvArgument[] {
@@ -183,6 +210,23 @@ namespace MediaPortal.Backend.Services.ClientCommunication
       }
     }
 
+    static UPnPError ParseImportJobType(string argumentName, string importModeStr, out ImportJobType importJobType)
+    {
+      switch (importModeStr)
+      {
+        case "Import":
+          importJobType = ImportJobType.Import;
+          break;
+        case "Refresh":
+          importJobType = ImportJobType.Refresh;
+          break;
+        default:
+          importJobType = ImportJobType.Import;
+          return new UPnPError(600, string.Format("Argument '{0}' must be of value 'Import' or 'Refresh'", argumentName));
+      }
+      return null;
+    }
+
     static UPnPError OnAttachClient(DvAction action, IList<object> inParams, out IList<object> outParams,
         CallContext context)
     {
@@ -214,6 +258,66 @@ namespace MediaPortal.Backend.Services.ClientCommunication
       outParams = new List<object> {MarshallingHelper.SerializeStringEnumerationToCsv(
           ServiceRegistration.Get<IClientManager>().ConnectedClients.Select(clientConnection => clientConnection.Descriptor.MPFrontendServerUUID))};
       return null;
+    }
+
+    static UPnPError OnScheduleImports(DvAction action, IList<object> inParams, out IList<object> outParams,
+        CallContext context)
+    {
+      outParams = null;
+      ICollection<Guid> shareIds = MarshallingHelper.ParseCsvGuidCollection((string) inParams[0]);
+      string importJobTypeStr = (string) inParams[1];
+      ImportJobType importJobType;
+      UPnPError error = ParseImportJobType("ImportJobType", importJobTypeStr, out importJobType);
+      if (error != null)
+        return error;
+
+      IMediaLibrary mediaLibrary = ServiceRegistration.Get<IMediaLibrary>();
+      IDictionary<Guid, Share> allShares = mediaLibrary.GetShares(null);
+      IDictionary<string, ICollection<Share>> importRequests = new Dictionary<string, ICollection<Share>>();
+      foreach (Guid shareId in shareIds)
+      {
+        Share importShare;
+        if (!allShares.TryGetValue(shareId, out importShare))
+          // Share not found
+          continue;
+        ICollection<Share> systemShares;
+        if (!importRequests.TryGetValue(importShare.SystemId, out systemShares))
+          importRequests[importShare.SystemId] = new List<Share> {importShare};
+        else
+          systemShares.Add(importShare);
+      }
+      // Local imports at the server
+      ISystemResolver systemResolver = ServiceRegistration.Get<ISystemResolver>();
+      ICollection<Share> shares;
+      if (importRequests.TryGetValue(systemResolver.LocalSystemId, out shares))
+      {
+        IImporterWorker importerWorker = ServiceRegistration.Get<IImporterWorker>();
+        foreach (Share share in shares)
+          if (importJobType == ImportJobType.Import)
+            importerWorker.ScheduleImport(share.BaseResourcePath, share.MediaCategories, true);
+          else
+            importerWorker.ScheduleRefresh(share.BaseResourcePath, share.MediaCategories, true);
+      }
+      ServiceRegistration.Get<IThreadPool>().Add(() => ScheduleClientImports(importRequests, importJobType));
+      return null;
+    }
+
+    static void ScheduleClientImports(IDictionary<string, ICollection<Share>> importRequests, ImportJobType importJobType)
+    {
+      // Client imports
+      ICollection<ClientConnection> connectedClients = ServiceRegistration.Get<IClientManager>().ConnectedClients;
+      foreach (ClientConnection clientConnection in connectedClients)
+        try
+        {
+          ICollection<Share> systemShares;
+          if (importRequests.TryGetValue(clientConnection.Descriptor.MPFrontendServerUUID, out systemShares))
+            foreach (Share share in systemShares)
+              clientConnection.ClientController.ImportLocation(share.BaseResourcePath, share.MediaCategories, importJobType);
+        }
+        catch (Exception)
+        {
+          ServiceRegistration.Get<ILogger>().Info("UPnPServerControllerServiceImpl: Could not import shares of system '{0}'", clientConnection.Descriptor.MPFrontendServerUUID);
+        }
     }
 
     static UPnPError OnGetSystemNameForSytemId(DvAction action, IList<object> inParams, out IList<object> outParams,

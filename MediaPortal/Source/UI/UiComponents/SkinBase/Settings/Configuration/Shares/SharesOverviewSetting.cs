@@ -22,26 +22,11 @@
 
 #endregion
 
-using System;
-using System.Collections.Generic;
-using MediaPortal.Common.ClientCommunication;
-using MediaPortal.Common.General;
-using MediaPortal.Common.MediaManagement;
+using MediaPortal.Common.Configuration.ConfigurationClasses;
 
-namespace MediaPortal.UI.ServerCommunication
+namespace MediaPortal.UiComponents.SkinBase.Settings.Configuration.Shares
 {
-  /// <summary>
-  /// Interface of the MediaPortal 2 server's ServerController service. This service is implemented by the
-  /// MediaPortal 2 server.
-  /// </summary>
-  public interface IServerController
+  public class SharesOverviewSetting : CustomConfigSetting
   {
-    void AttachClient(string clientSystemId);
-    void DetachClient(string clientSystemId);
-    ICollection<MPClientMetadata> GetAttachedClients();
-    ICollection<string> GetConnectedClients();
-    void ScheduleImports(IEnumerable<Guid> shareIds, ImportJobType importJobType);
-
-    SystemName GetSystemNameForSystemId(string systemId);
   }
 }

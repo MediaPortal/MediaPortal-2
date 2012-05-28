@@ -38,7 +38,8 @@ namespace MediaPortal.UiComponents.SkinBase.Models
   /// </summary>
   public class ScreenSaverModel : BaseTimerControlledModel
   {
-    public const string SCREENSAVER_MODEL_ID_STR = "D4B7FEDD-243F-4afc-A8BE-28BBBF17D799";
+    public const string STR_SCREENSAVER_MODEL_ID = "D4B7FEDD-243F-4afc-A8BE-28BBBF17D799";
+    public static readonly Guid SCREENSAVER_MODEL_ID = new Guid(STR_SCREENSAVER_MODEL_ID);
 
     public const string RES_MEDIAPORTAL_2 = "[ScreenSaver.MediaPortal2]";
 
@@ -57,7 +58,7 @@ namespace MediaPortal.UiComponents.SkinBase.Models
 
     public Guid ModelId
     {
-      get { return new Guid(SCREENSAVER_MODEL_ID_STR); }
+      get { return SCREENSAVER_MODEL_ID; }
     }
 
     protected override void Update()

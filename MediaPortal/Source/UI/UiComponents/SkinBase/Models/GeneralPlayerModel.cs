@@ -29,6 +29,7 @@ using MediaPortal.Common.Messaging;
 using MediaPortal.UI.Presentation.Models;
 using MediaPortal.UI.Presentation.Players;
 using MediaPortal.UI.Presentation.Screens;
+using MediaPortal.UiComponents.SkinBase.General;
 
 namespace MediaPortal.UiComponents.SkinBase.Models
 {
@@ -43,7 +44,6 @@ namespace MediaPortal.UiComponents.SkinBase.Models
     public const string PLAYER_MODEL_ID_STR = "A2F24149-B44C-498b-AE93-288213B87A1A";
     public static Guid PLAYER_MODEL_ID = new Guid(PLAYER_MODEL_ID_STR);
 
-    public const string VOLUME_SUPERLAYER_SCREEN_NAME = "Volume";
     public const int VOLUME_INCREMENT = 5;
 
     public static TimeSpan VOLUME_SUPERLAYER_TIME = TimeSpan.FromSeconds(2);
@@ -84,7 +84,7 @@ namespace MediaPortal.UiComponents.SkinBase.Models
     protected static void ChangeVolume(int delta)
     {
       ISuperLayerManager superLayerManager = ServiceRegistration.Get<ISuperLayerManager>();
-      superLayerManager.ShowSuperLayer(VOLUME_SUPERLAYER_SCREEN_NAME, VOLUME_SUPERLAYER_TIME);
+      superLayerManager.ShowSuperLayer(Consts.SCREEN_SUPERLAYER_VOLUME, VOLUME_SUPERLAYER_TIME);
       IPlayerManager playerManager = ServiceRegistration.Get<IPlayerManager>();
       playerManager.Volume += delta;
     }

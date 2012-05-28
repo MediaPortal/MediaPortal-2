@@ -44,8 +44,8 @@ namespace MediaPortal.UiComponents.SkinBase.Models
   {
     #region Consts
 
-    public const string STR_MODEL_ID = "843F373D-0B4B-47ba-8DD1-0D18F00FAAD3";
-    public static readonly Guid MODEL_ID = new Guid(STR_MODEL_ID);
+    public const string STR_NOTIFICATION_MODEL_ID = "843F373D-0B4B-47ba-8DD1-0D18F00FAAD3";
+    public static readonly Guid NOTIFICATION_MODEL_ID = new Guid(STR_NOTIFICATION_MODEL_ID);
     
     #endregion
 
@@ -278,7 +278,7 @@ namespace MediaPortal.UiComponents.SkinBase.Models
 
     public Guid ModelId
     {
-      get { return MODEL_ID; }
+      get { return NOTIFICATION_MODEL_ID; }
     }
 
     public bool CanEnterState(NavigationContext oldContext, NavigationContext newContext)

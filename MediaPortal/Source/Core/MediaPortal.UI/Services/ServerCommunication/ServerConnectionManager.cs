@@ -62,16 +62,30 @@ namespace MediaPortal.UI.Services.ServerCommunication
 
       #region IMediaBrowsing implementation
 
-      public MediaItem LoadItem(ResourcePath path,
+      public MediaItem LoadLocalItem(ResourcePath path,
           IEnumerable<Guid> necessaryRequestedMIATypeIDs, IEnumerable<Guid> optionalRequestedMIATypeIDs)
       {
-        return _contentDirectory.LoadItem(_localSystemId, path, necessaryRequestedMIATypeIDs, optionalRequestedMIATypeIDs);
+        try
+        {
+          return _contentDirectory.LoadItem(_localSystemId, path, necessaryRequestedMIATypeIDs, optionalRequestedMIATypeIDs);
+        }
+        catch (Exception)
+        {
+          throw new DisconnectedException();
+        }
       }
 
       public ICollection<MediaItem> Browse(Guid parentDirectoryId,
           IEnumerable<Guid> necessaryRequestedMIATypeIDs, IEnumerable<Guid> optionalRequestedMIATypeIDs)
       {
-        return _contentDirectory.Browse(parentDirectoryId, necessaryRequestedMIATypeIDs, optionalRequestedMIATypeIDs);
+        try
+        {
+          return _contentDirectory.Browse(parentDirectoryId, necessaryRequestedMIATypeIDs, optionalRequestedMIATypeIDs);
+        }
+        catch (Exception)
+        {
+          throw new DisconnectedException();
+        }
       }
 
       #endregion
@@ -80,17 +94,38 @@ namespace MediaPortal.UI.Services.ServerCommunication
 
       public Guid UpdateMediaItem(Guid parentDirectoryId, ResourcePath path, IEnumerable<MediaItemAspect> updatedAspects)
       {
-        return _contentDirectory.AddOrUpdateMediaItem(parentDirectoryId, _localSystemId, path, updatedAspects);
+        try
+        {
+          return _contentDirectory.AddOrUpdateMediaItem(parentDirectoryId, _localSystemId, path, updatedAspects);
+        }
+        catch (Exception)
+        {
+          throw new DisconnectedException();
+        }
       }
 
       public void DeleteMediaItem(ResourcePath path)
       {
-        _contentDirectory.DeleteMediaItemOrPath(_localSystemId, path, true);
+        try
+        {
+          _contentDirectory.DeleteMediaItemOrPath(_localSystemId, path, true);
+        }
+        catch (Exception)
+        {
+          throw new DisconnectedException();
+        }
       }
 
       public void DeleteUnderPath(ResourcePath path)
       {
-        _contentDirectory.DeleteMediaItemOrPath(_localSystemId, path, false);
+        try
+        {
+          _contentDirectory.DeleteMediaItemOrPath(_localSystemId, path, false);
+        }
+        catch (Exception)
+        {
+          throw new DisconnectedException();
+        }
       }
 
       #endregion
@@ -225,7 +260,7 @@ namespace MediaPortal.UI.Services.ServerCommunication
         SaveLastHomeServerData(serverDescriptor);
       }
 
-      ServerConnectionMessaging.SendConnectionStateChangedMessage(ServerConnectionMessaging.MessageType.HomeServerConnected);
+      ServerConnectionMessaging.SendServerConnectionStateChangedMessage(ServerConnectionMessaging.MessageType.HomeServerConnected);
       ServiceRegistration.Get<IThreadPool>().Add(CompleteServerConnection);
     }
 
@@ -233,8 +268,10 @@ namespace MediaPortal.UI.Services.ServerCommunication
     {
       lock (_syncObj)
         _isHomeServerConnected = false;
+      IImporterWorker importerWorker = ServiceRegistration.Get<IImporterWorker>();
+      importerWorker.Suspend();
       UpdateCurrentlyImportingShares(null); // Mark all shares as not being imported
-      ServerConnectionMessaging.SendConnectionStateChangedMessage(ServerConnectionMessaging.MessageType.HomeServerDisconnected);
+      ServerConnectionMessaging.SendServerConnectionStateChangedMessage(ServerConnectionMessaging.MessageType.HomeServerDisconnected);
     }
 
     protected internal UPnPContentDirectoryServiceProxy ContentDirectoryServiceProxy
@@ -311,6 +348,7 @@ namespace MediaPortal.UI.Services.ServerCommunication
 
         // Register state variables change events
         sc.AttachedClientsChanged += OnAttachedClientsChanged;
+        sc.ConnectedClientsChanged += OnConnectedClientsChanged;
       }
       IImporterWorker importerWorker = ServiceRegistration.Get<IImporterWorker>();
       ICollection<Share> newShares = new List<Share>();
@@ -413,7 +451,12 @@ namespace MediaPortal.UI.Services.ServerCommunication
 
     static void OnAttachedClientsChanged()
     {
-      // Not implemented because that event isn't really interesting for the MP2 client yet
+      // Not implemented because this event isn't really interesting for the MP2 client yet
+    }
+
+    static void OnConnectedClientsChanged()
+    {
+      ServerConnectionMessaging.SendClientConnectionStateChangedMessage();
     }
 
     /// <summary>
@@ -565,7 +608,8 @@ namespace MediaPortal.UI.Services.ServerCommunication
         try
         {
           sc.DetachClient(systemResolver.LocalSystemId);
-          sc.AttachedClientsChanged += OnAttachedClientsChanged;
+          sc.AttachedClientsChanged -= OnAttachedClientsChanged;
+          sc.ConnectedClientsChanged -= OnConnectedClientsChanged;
         }
         catch (Exception e)
         {
@@ -575,10 +619,10 @@ namespace MediaPortal.UI.Services.ServerCommunication
       if (cd != null)
         try
         {
-          cd.PlaylistsChanged += OnContentDirectoryPlaylistsChanged;
-          cd.MIATypeRegistrationsChanged += OnContentDirectoryMIATypeRegistrationsChanged;
-          cd.RegisteredSharesChangeCounterChanged += OnRegisteredSharesChangeCounterChanged;
-          cd.CurrentlyImportingSharesChanged += OnCurrentlyImportingSharesChanged;
+          cd.PlaylistsChanged -= OnContentDirectoryPlaylistsChanged;
+          cd.MIATypeRegistrationsChanged -= OnContentDirectoryMIATypeRegistrationsChanged;
+          cd.RegisteredSharesChangeCounterChanged -= OnRegisteredSharesChangeCounterChanged;
+          cd.CurrentlyImportingSharesChanged -= OnCurrentlyImportingSharesChanged;
         }
         catch (Exception e)
         {
@@ -600,7 +644,7 @@ namespace MediaPortal.UI.Services.ServerCommunication
         _controlPoint = null;
       }
       UpdateCurrentlyImportingShares(null); // Mark all shares as not being imported
-      ServerConnectionMessaging.SendConnectionStateChangedMessage(ServerConnectionMessaging.MessageType.HomeServerDetached);
+      ServerConnectionMessaging.SendServerConnectionStateChangedMessage(ServerConnectionMessaging.MessageType.HomeServerDetached);
 
       ServiceRegistration.Get<ILogger>().Debug("ServerConnectionManager: Starting to watch for MediaPortal servers");
       if (_serverWatcher == null)
@@ -640,7 +684,7 @@ namespace MediaPortal.UI.Services.ServerCommunication
         _controlPoint = BuildClientControlPoint(backendServerSystemId);
       }
       _controlPoint.Start(); // Outside the lock
-      ServerConnectionMessaging.SendConnectionStateChangedMessage(ServerConnectionMessaging.MessageType.HomeServerAttached);
+      ServerConnectionMessaging.SendServerConnectionStateChangedMessage(ServerConnectionMessaging.MessageType.HomeServerAttached);
     }
 
     #endregion

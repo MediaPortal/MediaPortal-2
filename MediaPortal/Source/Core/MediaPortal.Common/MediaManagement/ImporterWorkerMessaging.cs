@@ -38,6 +38,18 @@ namespace MediaPortal.Common.MediaManagement
     public enum MessageType
     {
       /// <summary>
+      /// This message is sent when the importer worker was told to schedule an import.
+      /// This message has two parameters <see cref="RESOURCE_PATH"/> and <see cref="IMPORT_JOB_TYPE"/>.
+      /// </summary>
+      ImportScheduled,
+
+      /// <summary>
+      /// This message is sent when the importer worker was told to cancel an import schedule.
+      /// This message has one parameter <see cref="RESOURCE_PATH"/>.
+      /// </summary>
+      ImportScheduleCanceled,
+
+      /// <summary>
       /// This message is sent when the importer worker started the import of the given path.
       /// This message has one parameter <see cref="RESOURCE_PATH"/>.
       /// </summary>
@@ -58,11 +70,20 @@ namespace MediaPortal.Common.MediaManagement
 
     // Message data
     public const string RESOURCE_PATH = "ResourcePath"; // Type: ResourcePath
+    public const string IMPORT_JOB_TYPE = "ImportJobType"; // Type: ImportJobType
 
     internal static void SendImportMessage(MessageType messageType, ResourcePath path)
     {
       SystemMessage msg = new SystemMessage(messageType);
       msg.MessageData[RESOURCE_PATH] = path;
+      ServiceRegistration.Get<IMessageBroker>().Send(CHANNEL, msg);
+    }
+
+    internal static void SendImportMessage(MessageType messageType, ResourcePath path, ImportJobType importJobType)
+    {
+      SystemMessage msg = new SystemMessage(messageType);
+      msg.MessageData[RESOURCE_PATH] = path;
+      msg.MessageData[IMPORT_JOB_TYPE] = importJobType;
       ServiceRegistration.Get<IMessageBroker>().Send(CHANNEL, msg);
     }
   }

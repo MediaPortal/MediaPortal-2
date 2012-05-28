@@ -39,7 +39,8 @@ namespace MediaPortal.UiComponents.SkinBase.Models
   /// </summary>
   public class TimeModel : BaseTimerControlledModel
   {
-    protected const string MODEL_ID_STR = "E821B1C8-0666-4339-8027-AA45A4F6F107";
+    public const string STR_TIME_MODEL_ID = "E821B1C8-0666-4339-8027-AA45A4F6F107";
+    public static readonly Guid TIME_MODEL_ID = new Guid(STR_TIME_MODEL_ID);
 
     #region Protected fields
 
@@ -90,7 +91,7 @@ namespace MediaPortal.UiComponents.SkinBase.Models
 
     public Guid ModelId
     {
-      get { return new Guid(MODEL_ID_STR); }
+      get { return TIME_MODEL_ID; }
     }
 
     protected override void Update()

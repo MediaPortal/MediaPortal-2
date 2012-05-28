@@ -40,11 +40,7 @@ namespace MediaPortal.UiComponents.SkinBase.Actions
     #region Consts
 
     public const string ATTACH_DETACH_CONTRIBUTOR_MODEL_ID_STR = "793DAD9F-F64C-4c7a-86C0-F5AA222D0CDB";
-
     public static readonly Guid ATTACH_DETACH_CONTRIBUTOR_MODEL_ID = new Guid(ATTACH_DETACH_CONTRIBUTOR_MODEL_ID_STR);
-
-    public const string SEARCH_FOR_SERVERS_RES = "[ServerConnection.SearchForServers]";
-    public const string DETACH_FROM_SERVER_RES = "[ServerConnection.DetachFromServer]";
 
     #endregion
 
@@ -94,7 +90,7 @@ namespace MediaPortal.UiComponents.SkinBase.Actions
     protected void Update()
     {
       IServerConnectionManager scm = ServiceRegistration.Get<IServerConnectionManager>();
-      _titleRes = LocalizationHelper.CreateResourceString(string.IsNullOrEmpty(scm.HomeServerSystemId) ? SEARCH_FOR_SERVERS_RES : DETACH_FROM_SERVER_RES);
+      _titleRes = LocalizationHelper.CreateResourceString(string.IsNullOrEmpty(scm.HomeServerSystemId) ? Consts.RES_SEARCH_FOR_SERVERS : Consts.RES_DETACH_FROM_SERVER);
       FireStateChanged();
     }
 

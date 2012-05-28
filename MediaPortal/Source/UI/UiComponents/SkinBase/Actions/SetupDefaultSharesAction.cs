@@ -42,10 +42,7 @@ namespace MediaPortal.UiComponents.SkinBase.Actions
     #region Consts
 
     public const string SETUP_DEFAULT_SHARES_CONTRIBUTOR_MODEL_ID_STR = "35907215-09EE-4886-9E8B-8A222B9B6DCA";
-
     public static readonly Guid SETUP_DEFAULT_SHARES_CONTRIBUTOR_MODEL_ID = new Guid(SETUP_DEFAULT_SHARES_CONTRIBUTOR_MODEL_ID_STR);
-
-    public const string SETUP_DEFAULT_SHARES_RES = "[SharesConfig.SetupDefaultShares]";
 
     #endregion
 

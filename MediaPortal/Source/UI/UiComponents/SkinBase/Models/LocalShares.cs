@@ -31,19 +31,13 @@ using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.ResourceAccess;
 using MediaPortal.Common.SystemResolver;
 using MediaPortal.UI.Shares;
+using MediaPortal.UiComponents.SkinBase.General;
 using MediaPortal.Utilities;
 
 namespace MediaPortal.UiComponents.SkinBase.Models
 {
   public class LocalShares : SharesProxy
   {
-    #region Consts
-
-    public const string ADD_SHARE_TITLE_RES = "[SharesConfig.AddLocalShare]";
-    public const string EDIT_SHARE_TITLE_RES = "[SharesConfig.EditLocalShare]";
-
-    #endregion
-
     public LocalShares() : base(ShareEditMode.AddShare) { }
 
     public LocalShares(Share share) : base(ShareEditMode.EditShare)
@@ -55,7 +49,7 @@ namespace MediaPortal.UiComponents.SkinBase.Models
 
     public override string ConfigShareTitle
     {
-      get { return _editMode == ShareEditMode.AddShare ? ADD_SHARE_TITLE_RES : EDIT_SHARE_TITLE_RES; }
+      get { return _editMode == ShareEditMode.AddShare ? Consts.RES_ADD_SHARE_TITLE : Consts.RES_EDIT_SHARE_TITLE; }
     }
 
     public override bool ResourceProviderSupportsResourceTreeNavigation

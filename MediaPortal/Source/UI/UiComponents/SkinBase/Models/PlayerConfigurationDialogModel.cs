@@ -33,6 +33,7 @@ using MediaPortal.Common.Localization;
 using MediaPortal.UI.Presentation.Models;
 using MediaPortal.UI.Presentation.Players;
 using MediaPortal.UI.Presentation.Workflow;
+using MediaPortal.UiComponents.SkinBase.General;
 
 namespace MediaPortal.UiComponents.SkinBase.Models
 {
@@ -56,37 +57,6 @@ namespace MediaPortal.UiComponents.SkinBase.Models
 
     public const string STR_MODEL_ID_PLAYER_CONFIGURATION_DIALOG = "58A7F9E3-1514-47af-8E83-2AD60BA8A037";
     public static Guid MODEL_ID_PLAYER_CONFIGURATION_DIALOG = new Guid(STR_MODEL_ID_PLAYER_CONFIGURATION_DIALOG);
-
-    public const string STR_STATE_ID_CHOOSE_AUDIO_STREAM_DIALOG = "A3F53310-4D93-4f93-8B09-D53EE8ACD829";
-    public static Guid STATE_ID_CHOOSE_AUDIO_STREAM_DIALOG = new Guid(STR_STATE_ID_CHOOSE_AUDIO_STREAM_DIALOG);
-    public const string STR_STATE_ID_PLAYER_CONFIGURATION_DIALOG = "D0B79345-69DF-4870-B80E-39050434C8B3";
-    public static Guid STATE_ID_PLAYER_CONFIGURATION_DIALOG = new Guid(STR_STATE_ID_PLAYER_CONFIGURATION_DIALOG);
-    public const string STR_STATE_ID_PLAYER_SLOT_AUDIO_MENU_DIALOG = "428326CE-9DE1-41ff-A33B-BBB80C8AFAC5";
-    public static Guid STATE_ID_PLAYER_SLOT_AUDIO_MENU_DIALOG = new Guid(STR_STATE_ID_PLAYER_SLOT_AUDIO_MENU_DIALOG);
-    public const string STR_STATE_ID_PLAYER_CHOOSE_GEOMETRY_MENU_DIALOG = "D46F66DD-9E91-4788-ADFE-EBD96F1A489E";
-    public static Guid STATE_ID_PLAYER_CHOOSE_GEOMETRY_MENU_DIALOG = new Guid(STR_STATE_ID_PLAYER_CHOOSE_GEOMETRY_MENU_DIALOG);
-    public const string STR_STATE_ID_PLAYER_CHOOSE_EFFECT_MENU_DIALOG = "DAD585DF-16FC-45AB-A6D7-FE5600080C7A";
-    public static Guid STATE_ID_PLAYER_CHOOSE_EFFECT_MENU_DIALOG = new Guid(STR_STATE_ID_PLAYER_CHOOSE_EFFECT_MENU_DIALOG);
-
-    public const string KEY_PLAYER_SLOT = "PlayerSlot";
-    public const string KEY_PLAYER_CONTEXT = "PlayerContext";
-    public const string KEY_SHOW_MUTE = "ShowMute";
-
-    protected const string KEY_NAME = "Name";
-    protected const string KEY_NAVIGATION_MODE = "NavigationMode";
-
-    protected const string RES_PLAYER_OF_TYPE = "[Players.PlayerOfType]";
-    protected const string RES_SLOT_NO = "[Players.SlotNo]";
-    protected const string RES_FOCUS_PLAYER = "[Players.FocusPlayer]";
-    protected const string RES_SWITCH_PIP_PLAYERS = "[Players.SwitchPipPlayers]";
-    protected const string RES_CHOOSE_AUDIO_STREAM = "[Players.ChooseAudioStream]";
-    protected const string RES_MUTE = "[Players.Mute]";
-    protected const string RES_MUTE_OFF = "[Players.MuteOff]";
-    protected const string RES_CLOSE_PLAYER_CONTEXT = "[Players.ClosePlayerContext]";
-    protected const string RES_CHOOSE_PLAYER_GEOMETRY = "[Players.ChoosePlayerGeometry]";
-    protected const string RES_CHOOSE_PLAYER_EFFECT = "[Players.ChoosePlayerEffect]";
-
-    protected const string RES_PLAYER_SLOT_AUDIO_MENU = "[Players.PlayerSlotAudioMenu]";
 
     #endregion
 
@@ -196,8 +166,8 @@ namespace MediaPortal.UiComponents.SkinBase.Models
       IPlayer player = pc.CurrentPlayer;
       if (player == null)
       {
-        IResourceString playerOfType = LocalizationHelper.CreateResourceString(RES_PLAYER_OF_TYPE); // "{0} player"
-        IResourceString slotNo = LocalizationHelper.CreateResourceString(RES_SLOT_NO); // "Slot #{0}"
+        IResourceString playerOfType = LocalizationHelper.CreateResourceString(Consts.RES_PLAYER_OF_TYPE); // "{0} player"
+        IResourceString slotNo = LocalizationHelper.CreateResourceString(Consts.RES_SLOT_NO); // "Slot #{0}"
         return playerOfType.Evaluate(pc.AVType.ToString()) + " (" + slotNo.Evaluate((playerSlot + 1).ToString()) + ")"; // "Video player (Slot #1)"
       }
       return player.Name + ": " + player.MediaItemTitle;
@@ -224,22 +194,22 @@ namespace MediaPortal.UiComponents.SkinBase.Models
           string name = playerNames[newCurrentPlayer];
           if (name != null)
           {
-            ListItem item = new ListItem(KEY_NAME, LocalizationHelper.CreateResourceString(RES_FOCUS_PLAYER).Evaluate(name))
+            ListItem item = new ListItem(Consts.KEY_NAME, LocalizationHelper.CreateResourceString(Consts.RES_FOCUS_PLAYER).Evaluate(name))
               {
                   Command = new MethodDelegateCommand(() => SetCurrentPlayer(newCurrentPlayer))
               };
-            item.AdditionalProperties[KEY_NAVIGATION_MODE] = NavigationMode.ExitPCWorkflow;
+            item.AdditionalProperties[Consts.KEY_NAVIGATION_MODE] = NavigationMode.ExitPCWorkflow;
             _playerConfigurationMenu.Add(item);
           }
         }
         // Switch players
         if (numActiveSlots > 1 && playerContextManager.IsPipActive)
         {
-          ListItem item = new ListItem(KEY_NAME, RES_SWITCH_PIP_PLAYERS)
+          ListItem item = new ListItem(Consts.KEY_NAME, Consts.RES_SWITCH_PIP_PLAYERS)
             {
                 Command = new MethodDelegateCommand(SwitchPrimarySecondaryPlayer)
             };
-          item.AdditionalProperties[KEY_NAVIGATION_MODE] = NavigationMode.ExitPCWorkflow;
+          item.AdditionalProperties[Consts.KEY_NAVIGATION_MODE] = NavigationMode.ExitPCWorkflow;
           _playerConfigurationMenu.Add(item);
         }
         // Change geometry
@@ -253,14 +223,14 @@ namespace MediaPortal.UiComponents.SkinBase.Models
         for (int i = 0; i < videoPCs.Count; i++)
         {
           IPlayerContext pc = videoPCs[i];
-          string zoomMode = LocalizationHelper.CreateResourceString(RES_CHOOSE_PLAYER_GEOMETRY).Evaluate();
+          string zoomMode = LocalizationHelper.CreateResourceString(Consts.RES_CHOOSE_PLAYER_GEOMETRY).Evaluate();
           string entryName = videoPCs.Count > 1 ?
               string.Format("{0} ({1})", zoomMode, GetNameForPlayerContext(playerContextManager, i)) : zoomMode;
-          ListItem item = new ListItem(KEY_NAME, entryName)
+          ListItem item = new ListItem(Consts.KEY_NAME, entryName)
             {
               Command = new MethodDelegateCommand(() => OpenChooseGeometryDialog(pc))
             };
-          item.AdditionalProperties[KEY_NAVIGATION_MODE] = NavigationMode.SuccessorDialog;
+          item.AdditionalProperties[Consts.KEY_NAVIGATION_MODE] = NavigationMode.SuccessorDialog;
           _playerChooseGeometryHeader = entryName;
           _playerConfigurationMenu.Add(item);
         }
@@ -268,14 +238,14 @@ namespace MediaPortal.UiComponents.SkinBase.Models
         for (int i = 0; i < videoPCs.Count; i++)
         {
           IPlayerContext pc = videoPCs[i];
-          string zoomMode = LocalizationHelper.CreateResourceString(RES_CHOOSE_PLAYER_EFFECT).Evaluate();
+          string zoomMode = LocalizationHelper.CreateResourceString(Consts.RES_CHOOSE_PLAYER_EFFECT).Evaluate();
           string entryName = videoPCs.Count > 1 ?
               string.Format("{0} ({1})", zoomMode, GetNameForPlayerContext(playerContextManager, i)) : zoomMode;
-          ListItem item = new ListItem(KEY_NAME, entryName)
+          ListItem item = new ListItem(Consts.KEY_NAME, entryName)
           {
             Command = new MethodDelegateCommand(() => OpenChooseEffectDialog(pc))
           };
-          item.AdditionalProperties[KEY_NAVIGATION_MODE] = NavigationMode.SuccessorDialog;
+          item.AdditionalProperties[Consts.KEY_NAVIGATION_MODE] = NavigationMode.SuccessorDialog;
           _playerChooseEffectHeader = entryName;
           _playerConfigurationMenu.Add(item);
         }
@@ -284,11 +254,11 @@ namespace MediaPortal.UiComponents.SkinBase.Models
         ICollection<AudioStreamDescriptor> audioStreams = playerContextManager.GetAvailableAudioStreams(out currentAudioStream);
         if (audioStreams.Count > 1)
         {
-          ListItem item = new ListItem(KEY_NAME, RES_CHOOSE_AUDIO_STREAM)
+          ListItem item = new ListItem(Consts.KEY_NAME, Consts.RES_CHOOSE_AUDIO_STREAM)
             {
                 Command = new MethodDelegateCommand(OpenChooseAudioStreamDialog)
             };
-          item.AdditionalProperties[KEY_NAVIGATION_MODE] = NavigationMode.SuccessorDialog;
+          item.AdditionalProperties[Consts.KEY_NAVIGATION_MODE] = NavigationMode.SuccessorDialog;
           _playerConfigurationMenu.Add(item);
         }
         // Mute
@@ -296,16 +266,16 @@ namespace MediaPortal.UiComponents.SkinBase.Models
         {
           ListItem item;
           if (playerManager.Muted)
-            item = new ListItem(KEY_NAME, RES_MUTE_OFF)
+            item = new ListItem(Consts.KEY_NAME, Consts.RES_MUTE_OFF)
               {
                   Command = new MethodDelegateCommand(PlayersResetMute)
               };
           else
-            item = new ListItem(KEY_NAME, RES_MUTE)
+            item = new ListItem(Consts.KEY_NAME, Consts.RES_MUTE)
               {
                   Command = new MethodDelegateCommand(PlayersMute)
               };
-          item.AdditionalProperties[KEY_NAVIGATION_MODE] = NavigationMode.ExitPCWorkflow;
+          item.AdditionalProperties[Consts.KEY_NAVIGATION_MODE] = NavigationMode.ExitPCWorkflow;
           _playerConfigurationMenu.Add(item);
         }
         // Close player
@@ -315,7 +285,7 @@ namespace MediaPortal.UiComponents.SkinBase.Models
           if (name != null)
           {
             int indexClosureCopy = i;
-            ListItem item = new ListItem(KEY_NAME, LocalizationHelper.CreateResourceString(RES_CLOSE_PLAYER_CONTEXT).Evaluate(name))
+            ListItem item = new ListItem(Consts.KEY_NAME, LocalizationHelper.CreateResourceString(Consts.RES_CLOSE_PLAYER_CONTEXT).Evaluate(name))
               {
                   Command = new MethodDelegateCommand(() => ClosePlayerContext(indexClosureCopy))
               };
@@ -351,12 +321,12 @@ namespace MediaPortal.UiComponents.SkinBase.Models
             else
               choiceItemName = playedItem;
             AudioStreamDescriptor asdClosureCopy = asd;
-            ListItem item = new ListItem(KEY_NAME, choiceItemName)
+            ListItem item = new ListItem(Consts.KEY_NAME, choiceItemName)
               {
                   Command = new MethodDelegateCommand(() => ChooseAudioStream(asdClosureCopy)),
                   Selected = asd == currentAudioStream,
               };
-            item.AdditionalProperties[KEY_NAVIGATION_MODE] = NavigationMode.ExitPCWorkflow;
+            item.AdditionalProperties[Consts.KEY_NAVIGATION_MODE] = NavigationMode.ExitPCWorkflow;
             _audioStreamsMenu.Add(item);
           }
         }
@@ -387,34 +357,35 @@ namespace MediaPortal.UiComponents.SkinBase.Models
           else
             choiceItemName = playedItem;
           AudioStreamDescriptor asdClosureCopy = asd;
-          ListItem item = new ListItem(KEY_NAME, choiceItemName)
+          ListItem item = new ListItem(Consts.KEY_NAME, choiceItemName)
             {
                 Command = new MethodDelegateCommand(() => ChooseAudioStream(asdClosureCopy)),
                 Selected = asd == currentAudioStream,
             };
-          item.AdditionalProperties[KEY_NAVIGATION_MODE] = NavigationMode.ExitPCWorkflow;
+          item.AdditionalProperties[Consts.KEY_NAVIGATION_MODE] = NavigationMode.ExitPCWorkflow;
           _playerSlotAudioMenu.Add(item);
         }
         if (_showToggleMute)
         {
           ListItem item;
           if (playerManager.Muted)
-            item = new ListItem(KEY_NAME, RES_MUTE_OFF)
+            item = new ListItem(Consts.KEY_NAME, Consts.RES_MUTE_OFF)
               {
                   Command = new MethodDelegateCommand(PlayersResetMute),
                   Selected = true,
               };
           else
-            item = new ListItem(KEY_NAME, RES_MUTE)
+            item = new ListItem(Consts.KEY_NAME, Consts.RES_MUTE)
               {
                   Command = new MethodDelegateCommand(PlayersMute)
               };
-          item.AdditionalProperties[KEY_NAVIGATION_MODE] = NavigationMode.ExitPCWorkflow;
+          item.AdditionalProperties[Consts.KEY_NAVIGATION_MODE] = NavigationMode.ExitPCWorkflow;
           _playerSlotAudioMenu.Add(item);
         }
 
         _playerSlotAudioMenu.FireChange();
-        _playerSlotAudioMenuHeader = LocalizationHelper.CreateResourceString(RES_PLAYER_SLOT_AUDIO_MENU).Evaluate(GetNameForPlayerContext(playerContextManager, _playerSlotAudioMenuSlotIndex));
+        _playerSlotAudioMenuHeader = LocalizationHelper.CreateResourceString(Consts.RES_PLAYER_SLOT_AUDIO_MENU).Evaluate(
+            GetNameForPlayerContext(playerContextManager, _playerSlotAudioMenuSlotIndex));
       }
     }
 
@@ -430,12 +401,12 @@ namespace MediaPortal.UiComponents.SkinBase.Models
         {
           IGeometry geometry = nameToGeometry.Value;
           IGeometry vpGeometry = videoPlayer == null ? null : videoPlayer.GeometryOverride ?? defaultGeometry;
-          ListItem item = new ListItem(KEY_NAME, nameToGeometry.Key)
+          ListItem item = new ListItem(Consts.KEY_NAME, nameToGeometry.Key)
             {
                 Command = new MethodDelegateCommand(() => SetGeometry(_playerGeometryMenuPlayerContext, geometry)),
                 Selected = vpGeometry == geometry,
             };
-          item.AdditionalProperties[KEY_NAVIGATION_MODE] = NavigationMode.ExitPCWorkflow;
+          item.AdditionalProperties[Consts.KEY_NAVIGATION_MODE] = NavigationMode.ExitPCWorkflow;
           _playerChooseGeometryMenu.Add(item);
         }
       }
@@ -453,12 +424,12 @@ namespace MediaPortal.UiComponents.SkinBase.Models
         {
           string file = nameToEffect.Key;
           string vpEffectFile = videoPlayer == null ? null : videoPlayer.EffectOverride ?? standardEffectFile;
-          ListItem item = new ListItem(KEY_NAME, nameToEffect.Value)
+          ListItem item = new ListItem(Consts.KEY_NAME, nameToEffect.Value)
           {
             Command = new MethodDelegateCommand(() => SetEffect(_playerEffectMenuPlayerContext, file)),
             Selected = file == vpEffectFile,
           };
-          item.AdditionalProperties[KEY_NAVIGATION_MODE] = NavigationMode.ExitPCWorkflow;
+          item.AdditionalProperties[Consts.KEY_NAVIGATION_MODE] = NavigationMode.ExitPCWorkflow;
           _playerChooseEffectMenu.Add(item);
         }
       }
@@ -479,21 +450,21 @@ namespace MediaPortal.UiComponents.SkinBase.Models
           UpdatePlayerConfigurationMenu();
           if (_playerConfigurationMenu.Count == 0)
             // Automatically close player configuration dialog if no menu items are available any more
-            workflowManager.NavigatePopToStateAsync(STATE_ID_PLAYER_CONFIGURATION_DIALOG, true);
+            workflowManager.NavigatePopToStateAsync(Consts.WF_STATE_ID_PLAYER_CONFIGURATION_DIALOG, true);
         }
         if (_inChooseAudioStreamDialog)
         {
           UpdateAudioStreamsMenu();
           if (_audioStreamsMenu.Count <= 1)
             // Automatically close audio stream choice dialog if less than two audio streams are available
-            workflowManager.NavigatePopToStateAsync(STATE_ID_CHOOSE_AUDIO_STREAM_DIALOG, true);
+            workflowManager.NavigatePopToStateAsync(Consts.WF_STATE_ID_CHOOSE_AUDIO_STREAM_DIALOG, true);
         }
         if (_inPlayerSlotAudioMenuDialog)
         {
           UpdatePlayerSlotAudioMenu();
           if (_playerSlotAudioMenu.Count <= 1)
             // Automatically close audio stream choice dialog if less than two audio streams are available
-            workflowManager.NavigatePopToStateAsync(STATE_ID_PLAYER_SLOT_AUDIO_MENU_DIALOG, true);
+            workflowManager.NavigatePopToStateAsync(Consts.WF_STATE_ID_PLAYER_SLOT_AUDIO_MENU_DIALOG, true);
         }
         if (_inPlayerChooseGeometryMenuDialog)
         {
@@ -501,7 +472,7 @@ namespace MediaPortal.UiComponents.SkinBase.Models
           if (_playerGeometryMenuPlayerContext == null || !_playerGeometryMenuPlayerContext.IsValid ||
               !(_playerGeometryMenuPlayerContext.CurrentPlayer is IVideoPlayer))
             // Automatically close geometry stream choice dialog
-            workflowManager.NavigatePopToStateAsync(STATE_ID_PLAYER_CHOOSE_GEOMETRY_MENU_DIALOG, true);
+            workflowManager.NavigatePopToStateAsync(Consts.WF_STATE_ID_PLAYER_CHOOSE_GEOMETRY_MENU_DIALOG, true);
           else
             UpdatePlayerChooseGeometryMenu();
         }
@@ -533,34 +504,34 @@ namespace MediaPortal.UiComponents.SkinBase.Models
     protected void EnterContext(NavigationContext newContext)
     {
       _messageQueue.Start();
-      if (newContext.WorkflowState.StateId == STATE_ID_PLAYER_CONFIGURATION_DIALOG)
+      if (newContext.WorkflowState.StateId == Consts.WF_STATE_ID_PLAYER_CONFIGURATION_DIALOG)
       {
         UpdatePlayerConfigurationMenu();
         _inPlayerConfigurationDialog = true;
       }
-      else if (newContext.WorkflowState.StateId == STATE_ID_CHOOSE_AUDIO_STREAM_DIALOG)
+      else if (newContext.WorkflowState.StateId == Consts.WF_STATE_ID_CHOOSE_AUDIO_STREAM_DIALOG)
       {
         UpdateAudioStreamsMenu();
         _inChooseAudioStreamDialog = true;
       }
-      else if (newContext.WorkflowState.StateId == STATE_ID_PLAYER_SLOT_AUDIO_MENU_DIALOG)
+      else if (newContext.WorkflowState.StateId == Consts.WF_STATE_ID_PLAYER_SLOT_AUDIO_MENU_DIALOG)
       {
-        int? slotIndex = newContext.GetContextVariable(KEY_PLAYER_SLOT, false) as int?;
+        int? slotIndex = newContext.GetContextVariable(Consts.KEY_PLAYER_SLOT, false) as int?;
         _playerSlotAudioMenuSlotIndex = slotIndex ?? 0;
-        bool? showToggleMute = newContext.GetContextVariable(KEY_SHOW_MUTE, false) as bool?;
+        bool? showToggleMute = newContext.GetContextVariable(Consts.KEY_SHOW_MUTE, false) as bool?;
         _showToggleMute = showToggleMute ?? true;
         UpdatePlayerSlotAudioMenu();
         _inPlayerSlotAudioMenuDialog = true;
       }
-      else if (newContext.WorkflowState.StateId == STATE_ID_PLAYER_CHOOSE_GEOMETRY_MENU_DIALOG)
+      else if (newContext.WorkflowState.StateId == Consts.WF_STATE_ID_PLAYER_CHOOSE_GEOMETRY_MENU_DIALOG)
       {
-        _playerGeometryMenuPlayerContext = newContext.GetContextVariable(KEY_PLAYER_CONTEXT, false) as IPlayerContext;
+        _playerGeometryMenuPlayerContext = newContext.GetContextVariable(Consts.KEY_PLAYER_CONTEXT, false) as IPlayerContext;
         UpdatePlayerChooseGeometryMenu();
         _inPlayerChooseGeometryMenuDialog = true;
       }
-      else if (newContext.WorkflowState.StateId == STATE_ID_PLAYER_CHOOSE_EFFECT_MENU_DIALOG)
+      else if (newContext.WorkflowState.StateId == Consts.WF_STATE_ID_PLAYER_CHOOSE_EFFECT_MENU_DIALOG)
       {
-        _playerEffectMenuPlayerContext = newContext.GetContextVariable(KEY_PLAYER_CONTEXT, false) as IPlayerContext;
+        _playerEffectMenuPlayerContext = newContext.GetContextVariable(Consts.KEY_PLAYER_CONTEXT, false) as IPlayerContext;
         UpdatePlayerChooseEffectMenu();
         _inPlayerChooseEffectMenuDialog = true;
       }
@@ -569,27 +540,27 @@ namespace MediaPortal.UiComponents.SkinBase.Models
     protected void ExitContext(NavigationContext oldContext)
     {
       _messageQueue.Shutdown();
-      if (oldContext.WorkflowState.StateId == STATE_ID_PLAYER_CONFIGURATION_DIALOG)
+      if (oldContext.WorkflowState.StateId == Consts.WF_STATE_ID_PLAYER_CONFIGURATION_DIALOG)
       {
         _inPlayerConfigurationDialog = false;
         _playerConfigurationMenu.Clear();
       }
-      else if (oldContext.WorkflowState.StateId == STATE_ID_CHOOSE_AUDIO_STREAM_DIALOG)
+      else if (oldContext.WorkflowState.StateId == Consts.WF_STATE_ID_CHOOSE_AUDIO_STREAM_DIALOG)
       {
         _inChooseAudioStreamDialog = false;
         _audioStreamsMenu.Clear();
       }
-      else if (oldContext.WorkflowState.StateId == STATE_ID_PLAYER_SLOT_AUDIO_MENU_DIALOG)
+      else if (oldContext.WorkflowState.StateId == Consts.WF_STATE_ID_PLAYER_SLOT_AUDIO_MENU_DIALOG)
       {
         _inPlayerSlotAudioMenuDialog = false;
         _playerSlotAudioMenu.Clear();
       }
-      else if (oldContext.WorkflowState.StateId == STATE_ID_PLAYER_CHOOSE_GEOMETRY_MENU_DIALOG)
+      else if (oldContext.WorkflowState.StateId == Consts.WF_STATE_ID_PLAYER_CHOOSE_GEOMETRY_MENU_DIALOG)
       {
         _inPlayerChooseGeometryMenuDialog = false;
         _playerChooseGeometryMenu.Clear();
       }
-      else if (oldContext.WorkflowState.StateId == STATE_ID_PLAYER_CHOOSE_EFFECT_MENU_DIALOG)
+      else if (oldContext.WorkflowState.StateId == Consts.WF_STATE_ID_PLAYER_CHOOSE_EFFECT_MENU_DIALOG)
       {
         _inPlayerChooseEffectMenuDialog = false;
         _playerChooseEffectMenu.Clear();
@@ -603,11 +574,11 @@ namespace MediaPortal.UiComponents.SkinBase.Models
     public static void OpenChooseGeometryDialog(IPlayerContext playerContext)
     {
       IWorkflowManager workflowManager = ServiceRegistration.Get<IWorkflowManager>();
-      workflowManager.NavigatePush(STATE_ID_PLAYER_CHOOSE_GEOMETRY_MENU_DIALOG, new NavigationContextConfig
+      workflowManager.NavigatePush(Consts.WF_STATE_ID_PLAYER_CHOOSE_GEOMETRY_MENU_DIALOG, new NavigationContextConfig
         {
           AdditionalContextVariables = new Dictionary<string, object>
           {
-              {KEY_PLAYER_CONTEXT, playerContext}
+              {Consts.KEY_PLAYER_CONTEXT, playerContext}
           }
         });
     }
@@ -615,11 +586,11 @@ namespace MediaPortal.UiComponents.SkinBase.Models
     public static void OpenChooseEffectDialog(IPlayerContext playerContext)
     {
       IWorkflowManager workflowManager = ServiceRegistration.Get<IWorkflowManager>();
-      workflowManager.NavigatePush(STATE_ID_PLAYER_CHOOSE_EFFECT_MENU_DIALOG, new NavigationContextConfig
+      workflowManager.NavigatePush(Consts.WF_STATE_ID_PLAYER_CHOOSE_EFFECT_MENU_DIALOG, new NavigationContextConfig
       {
         AdditionalContextVariables = new Dictionary<string, object>
           {
-              {KEY_PLAYER_CONTEXT, playerContext}
+              {Consts.KEY_PLAYER_CONTEXT, playerContext}
           }
       });
     }
@@ -627,18 +598,18 @@ namespace MediaPortal.UiComponents.SkinBase.Models
     public static void OpenPlayerConfigurationDialog()
     {
       IWorkflowManager workflowManager = ServiceRegistration.Get<IWorkflowManager>();
-      workflowManager.NavigatePush(STATE_ID_PLAYER_CONFIGURATION_DIALOG);
+      workflowManager.NavigatePush(Consts.WF_STATE_ID_PLAYER_CONFIGURATION_DIALOG);
     }
 
     public static void OpenAudioMenuDialog(int slotIndex, bool showMute)
     {
       IWorkflowManager workflowManager = ServiceRegistration.Get<IWorkflowManager>();
-      workflowManager.NavigatePush(STATE_ID_PLAYER_SLOT_AUDIO_MENU_DIALOG, new NavigationContextConfig
+      workflowManager.NavigatePush(Consts.WF_STATE_ID_PLAYER_SLOT_AUDIO_MENU_DIALOG, new NavigationContextConfig
         {
           AdditionalContextVariables = new Dictionary<string, object>
             {
-                {KEY_PLAYER_SLOT, slotIndex},
-                {KEY_SHOW_MUTE, showMute}
+                {Consts.KEY_PLAYER_SLOT, slotIndex},
+                {Consts.KEY_SHOW_MUTE, showMute}
             }
         });
     }
@@ -696,12 +667,12 @@ namespace MediaPortal.UiComponents.SkinBase.Models
         command.Execute();
       object obj;
       NavigationMode mode = NavigationMode.ExitPCWorkflow;
-      if (item.AdditionalProperties.TryGetValue(KEY_NAVIGATION_MODE, out obj))
+      if (item.AdditionalProperties.TryGetValue(Consts.KEY_NAVIGATION_MODE, out obj))
         mode = (NavigationMode) obj;
       if (mode == NavigationMode.ExitPCWorkflow)
       {
         IWorkflowManager workflowManager = ServiceRegistration.Get<IWorkflowManager>();
-        workflowManager.NavigatePopToState(STATE_ID_PLAYER_CONFIGURATION_DIALOG, true);
+        workflowManager.NavigatePopToState(Consts.WF_STATE_ID_PLAYER_CONFIGURATION_DIALOG, true);
       }
     }
 
@@ -738,7 +709,7 @@ namespace MediaPortal.UiComponents.SkinBase.Models
     public void OpenChooseAudioStreamDialog()
     {
       IWorkflowManager workflowManager = ServiceRegistration.Get<IWorkflowManager>();
-      workflowManager.NavigatePush(STATE_ID_CHOOSE_AUDIO_STREAM_DIALOG);
+      workflowManager.NavigatePush(Consts.WF_STATE_ID_CHOOSE_AUDIO_STREAM_DIALOG);
     }
 
     public void ChooseAudioStream(AudioStreamDescriptor asd)
@@ -772,32 +743,32 @@ namespace MediaPortal.UiComponents.SkinBase.Models
 
     public bool CanEnterState(NavigationContext oldContext, NavigationContext newContext)
     {
-      if (newContext.WorkflowState.StateId == STATE_ID_PLAYER_CONFIGURATION_DIALOG)
+      if (newContext.WorkflowState.StateId == Consts.WF_STATE_ID_PLAYER_CONFIGURATION_DIALOG)
       {
         UpdatePlayerConfigurationMenu();
         return _playerConfigurationMenu.Count > 0;
       }
-      else if (newContext.WorkflowState.StateId == STATE_ID_CHOOSE_AUDIO_STREAM_DIALOG)
+      else if (newContext.WorkflowState.StateId == Consts.WF_STATE_ID_CHOOSE_AUDIO_STREAM_DIALOG)
       {
         UpdateAudioStreamsMenu();
         return _audioStreamsMenu.Count > 0;
       }
-      else if (newContext.WorkflowState.StateId == STATE_ID_PLAYER_SLOT_AUDIO_MENU_DIALOG)
+      else if (newContext.WorkflowState.StateId == Consts.WF_STATE_ID_PLAYER_SLOT_AUDIO_MENU_DIALOG)
       {
         // Check if we got our necessary player slot parameter
-        if (newContext.GetContextVariable(KEY_PLAYER_SLOT, false) != null)
+        if (newContext.GetContextVariable(Consts.KEY_PLAYER_SLOT, false) != null)
           return true;
       }
-      else if (newContext.WorkflowState.StateId == STATE_ID_PLAYER_CHOOSE_GEOMETRY_MENU_DIALOG)
+      else if (newContext.WorkflowState.StateId == Consts.WF_STATE_ID_PLAYER_CHOOSE_GEOMETRY_MENU_DIALOG)
       {
         // Check if we got our necessary player context parameter
-        if (newContext.GetContextVariable(KEY_PLAYER_CONTEXT, false) != null)
+        if (newContext.GetContextVariable(Consts.KEY_PLAYER_CONTEXT, false) != null)
           return true;
       }
-      else if (newContext.WorkflowState.StateId == STATE_ID_PLAYER_CHOOSE_EFFECT_MENU_DIALOG)
+      else if (newContext.WorkflowState.StateId == Consts.WF_STATE_ID_PLAYER_CHOOSE_EFFECT_MENU_DIALOG)
       {
         // Check if we got our necessary player context parameter
-        if (newContext.GetContextVariable(KEY_PLAYER_CONTEXT, false) != null)
+        if (newContext.GetContextVariable(Consts.KEY_PLAYER_CONTEXT, false) != null)
           return true;
       }
       return false;

@@ -29,6 +29,7 @@ using MediaPortal.Common.Localization;
 using MediaPortal.UI.Presentation.Screens;
 using MediaPortal.UI.Presentation.Workflow;
 using MediaPortal.UI.ServerCommunication;
+using MediaPortal.UiComponents.SkinBase.General;
 
 namespace MediaPortal.UiComponents.SkinBase.Actions
 {
@@ -44,17 +45,7 @@ namespace MediaPortal.UiComponents.SkinBase.Actions
     #region Consts
 
     public const string ADD_SHARE_CONTRIBUTOR_MODEL_ID_STR = "9E456C79-3FF1-4040-8CD7-4247C4C12817";
-
-    public const string SHARE_ADD_CHOOSE_SYSTEM_STATE_ID_STR = "6F7EB06A-2AC6-4bcb-9003-F5DA44E03C26";
-    public const string SHARE_EDIT_CHOOSE_RESOURCE_PROVIDER_STATE_ID_STR = "F3163500-3015-4a6f-91F6-A3DA5DC3593C";
-
     public static readonly Guid ADD_SHARE_CONTRIBUTOR_MODEL_ID = new Guid(ADD_SHARE_CONTRIBUTOR_MODEL_ID_STR);
-
-    public static readonly Guid SHARE_ADD_CHOOSE_SYSTEM_STATE_ID = new Guid(SHARE_ADD_CHOOSE_SYSTEM_STATE_ID_STR);
-    public static readonly Guid SHARE_EDIT_CHOOSE_RESOURCE_PROVIDER_STATE_ID = new Guid(SHARE_EDIT_CHOOSE_RESOURCE_PROVIDER_STATE_ID_STR);
-
-    public const string CANNOT_ADD_SHARES_TITLE_RES = "[SharesConfig.CannotAddSharesTitle]";
-    public const string CANNOT_ADD_SHARE_LOCAL_HOME_SERVER_NOT_CONNECTED_RES = "[SharesConfig.CannotAddShareLocalHomeServerNotConnected]";
 
     #endregion
 
@@ -95,15 +86,14 @@ namespace MediaPortal.UiComponents.SkinBase.Actions
       bool homeServerConnected = serverConnectionManager.IsHomeServerConnected;
       if (localHomeServer && !homeServerConnected)
       {
-        // This situation is an error condition: Our home server is local, i.e. all shares of this system must be configured
-        // at the server, but the server is not online at the moment.
+        // Our home server is local, i.e. all shares of this system must be configured at the server, but the server is not online at the moment.
         IDialogManager dialogManager = ServiceRegistration.Get<IDialogManager>();
-        dialogManager.ShowDialog(CANNOT_ADD_SHARES_TITLE_RES, CANNOT_ADD_SHARE_LOCAL_HOME_SERVER_NOT_CONNECTED_RES, DialogType.OkDialog, false,
+        dialogManager.ShowDialog(Consts.RES_CANNOT_ADD_SHARES_TITLE, Consts.RES_CANNOT_ADD_SHARE_LOCAL_HOME_SERVER_NOT_CONNECTED, DialogType.OkDialog, false,
             DialogButtonType.Ok);
         return;
       }
       IWorkflowManager workflowManager = ServiceRegistration.Get<IWorkflowManager>();
-      workflowManager.NavigatePush(SHARE_ADD_CHOOSE_SYSTEM_STATE_ID);
+      workflowManager.NavigatePush(Consts.WF_STATE_ID_SHARE_ADD_CHOOSE_SYSTEM);
     }
 
     #endregion

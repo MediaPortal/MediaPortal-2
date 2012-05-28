@@ -28,6 +28,7 @@ using MediaPortal.Common.General;
 using MediaPortal.Common.Localization;
 using MediaPortal.Common.Messaging;
 using MediaPortal.UI.ServerCommunication;
+using MediaPortal.UiComponents.SkinBase.General;
 
 namespace MediaPortal.UiComponents.SkinBase.Models
 {
@@ -38,14 +39,8 @@ namespace MediaPortal.UiComponents.SkinBase.Models
   {
     #region Consts
 
-    protected const string MODEL_ID_STR = "854ABA9A-71A1-420b-A657-9641815F9C01";
-
-    protected const string SERVER_FORMAT_TEXT_RES = "[ServerConnection.ServerFormatText]";
-
-    protected const string UNKNOWN_SERVER_NAME_RES = "[ServerConnection.UnknownServerName]";
-    protected const string UNKNOWN_SERVER_SYSTEM_RES = "[ServerConnection.UnknownServerSystem]";
-
-    protected static Guid MODEL_ID = new Guid(MODEL_ID_STR);
+    public const string STR_HOME_SERVER_MODEL_ID = "854ABA9A-71A1-420b-A657-9641815F9C01";
+    public static Guid HOME_SERVER_MODEL_ID = new Guid(STR_HOME_SERVER_MODEL_ID);
 
     #endregion
 
@@ -107,10 +102,10 @@ namespace MediaPortal.UiComponents.SkinBase.Models
       }
       else
       {
-        string serverName = scm.LastHomeServerName ?? LocalizationHelper.Translate(UNKNOWN_SERVER_NAME_RES);
+        string serverName = scm.LastHomeServerName ?? LocalizationHelper.Translate(Consts.RES_UNKNOWN_SERVER_NAME);
         SystemName system = scm.LastHomeServerSystem;
-        HomeServer = LocalizationHelper.Translate(SERVER_FORMAT_TEXT_RES, serverName,
-            system == null ? LocalizationHelper.Translate(UNKNOWN_SERVER_SYSTEM_RES) : system.HostName);
+        HomeServer = LocalizationHelper.Translate(Consts.RES_SERVER_FORMAT_TEXT, serverName,
+            system == null ? LocalizationHelper.Translate(Consts.RES_UNKNOWN_SERVER_SYSTEM) : system.HostName);
         IsHomeServerConnected = scm.IsHomeServerConnected;
         IsHomeServerAttached = true;
       }
@@ -118,7 +113,7 @@ namespace MediaPortal.UiComponents.SkinBase.Models
 
     public Guid ModelId
     {
-      get { return MODEL_ID; }
+      get { return HOME_SERVER_MODEL_ID; }
     }
 
     #region Public members to be called from the GUI

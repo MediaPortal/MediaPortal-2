@@ -22,9 +22,11 @@
 
 #endregion
 
+using System;
 using System.Collections.Generic;
 using MediaPortal.Common.ClientCommunication;
 using MediaPortal.Common.General;
+using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.UPnP;
 using MediaPortal.UI.ServerCommunication;
 using MediaPortal.Utilities.UPnP;
@@ -102,6 +104,13 @@ namespace MediaPortal.UI.Services.ServerCommunication
       CpAction action = GetAction("GetConnectedClients");
       IList<object> outParams = action.InvokeAction(null);
       return MarshallingHelper.ParseCsvStringCollection((string) outParams[0]);
+    }
+
+    public void ScheduleImports(IEnumerable<Guid> shareIds, ImportJobType importJobType)
+    {
+      CpAction action = GetAction("ScheduleImports");
+      IList<object> inParams = new List<object> {MarshallingHelper.SerializeGuidEnumerationToCsv(shareIds), importJobType == ImportJobType.Refresh ? "Refresh" : "Import"};
+      action.InvokeAction(inParams);
     }
 
     public SystemName GetSystemNameForSystemId(string systemId)

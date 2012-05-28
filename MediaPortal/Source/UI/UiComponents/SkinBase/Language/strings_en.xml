@@ -142,12 +142,32 @@
     <String Name="Regional.Language.Main" Text="Language"/>
     <String Name="Regional.Language.Main.Help" Text="Set the main language used in the application"/>
 
-    <String Name="Shares" Text="Shares"/>
-    <String Name="Shares.Configure" Text="Configure shares"/>
-    <String Name="Shares.ConfigureShares.SharesConfiguration" Text="Shares configuration"/>
+    <String Name="Shares" Text="Shares"/> <!-- Section name -->
+    <String Name="Shares.Configure" Text="Configure shares"/> <!-- Group name -->
+    <String Name="Shares.ConfigureShares.SharesConfiguration" Text="Shares configuration"/> <!-- Setting -->
     <String Name="Shares.ConfigureShares.SharesConfiguration.Help" Text="Configure all local shares"/>
 
+    <String Name="Shares.Overview" Text="Overview"/> <!-- Group name -->
+    <String Name="Shares.Overview.SharesOverview" Text="Shares overview"/> <!-- Setting -->
+    <String Name="Shares.Overview.SharesOverview.Help" Text="Global overview over shares"/>
+
+    <String Name="Shares.Imports.ReImportAllShares" Text="ReImport all shares"/>
+
     <String Name="Plugins" Text="Plugins"/>
+  </Section>
+  <Section Name="SharesOverview">
+    <String Name="OverviewWorkflowNavigationContextDisplayLabel" Text="Shares overview"/>
+    <String Name="Title" Text="Shares overview"/>
+    <String Name="ReImportAllShares" Text="ReImport all shares"/>
+    <String Name="NotConnectedToHomeServer" Text="The home server is not connected, system shares information cannot be retrieved"/>
+  </Section>
+  <Section Name="Shares">
+    <String Name="NoSharesInThisView" Text="- No shares in this view -"/>
+    <String Name="InvalidPath" Text="INVALID PATH: '{0}'"/> <!-- For example: INVALID PATH: 'C:\XXX\YYY' -->
+    <String Name="Online" Text="Online"/>
+    <String Name="Offline" Text="Offline"/>
+    <String Name="ReImport" Text="ReImport"/>
+    <String Name="Importing" Text="Importing..."/>
   </Section>
   <!-- Shares configuration workflow -->
   <Section Name="SharesConfig">
@@ -163,7 +183,6 @@
     <String Name="CannotAddSharesTitle" Text="Cannot add shares"/>
     <String Name="CannotAddShareLocalHomeServerNotConnected" Text="The home server is located at the same computer, thus all shares must be registered at the server. But the server is not connected at the moment. Please start the home server and try again."/>
     <String Name="SharesOverview" Text="Shares overview"/>
-    <String Name="NoSharesInThisView" Text="- No shares in this view -"/>
     <String Name="NoSharesAvailable" Text="There are no shares available"/>
     <String Name="ShareInformationHeader" Text="Share information"/>
     <String Name="ShareNameInfo" Text="Name:"/>
@@ -174,7 +193,6 @@
     <String Name="ShareMediaCategoriesInfo" Text="Media categories:"/>
     <String Name="ReImportShare" Text="ReImport share"/>
     <String Name="SetupDefaultShares" Text="Setup default shares"/>
-    <String Name="InvalidPath" Text="INVALID PATH: '{0}'"/> <!-- For example: INVALID PATH: 'C:\XXX\YYY' -->
     <String Name="RemoveShares" Text="Remove shares"/>
     <String Name="EditShare" Text="Edit share"/>
     <String Name="ChooseSystem" Text="Choose system"/>

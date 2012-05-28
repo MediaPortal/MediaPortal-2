@@ -52,29 +52,8 @@ namespace MediaPortal.UiComponents.SkinBase.Models
 
     #region Consts
 
-    protected const string MODEL_ID_STR = "81A130E1-F417-47e4-AC9C-0B2E4912331F";
-
-    protected const string ATTACH_TO_SERVER_DIALOG = "AttachToServerDialog";
-
-    protected const string ATTACH_INFO_DIALOG_HEADER_RES = "[ServerConnection.AttachInfoDialogHeader]";
-    protected const string ATTACH_INFO_DIALOG_TEXT_RES = "[ServerConnection.AttachInfoDialogText]";
-
-    protected const string DETACH_CONFIRM_DIALOG_HEADER_RES = "[ServerConnection.DetachConfirmDialogHeader]";
-    protected const string DETACH_CONFIRM_DIALOG_TEXT_RES = "[ServerConnection.DetachConfirmDialogText]";
-
-    protected const string SERVER_FORMAT_TEXT_RES = "[ServerConnection.ServerFormatText]";
-
-    protected const string UNKNOWN_SERVER_NAME_RES = "[ServerConnection.UnknownServerName]";
-    protected const string UNKNOWN_SERVER_SYSTEM_RES = "[ServerConnection.UnknownServerSystem]";
-
-    public const string SERVER_DESCRIPTOR_KEY = "ServerDescriptor";
-    public const string NAME_KEY = "Name";
-    public const string SERVER_NAME_KEY = "ServerName";
-    public const string SYSTEM_KEY = "System";
-
-    public const string AUTO_CLOSE_ON_NO_SERVER_KEY = "AutoCloseOnNoServer";
-
-    protected static Guid MODEL_ID = new Guid(MODEL_ID_STR);
+    public const string STR_SERVER_ATTACHMENT_MODEL_ID = "81A130E1-F417-47e4-AC9C-0B2E4912331F";
+    public static Guid SERVER_ATTACHMENT_MODEL_ID = new Guid(STR_SERVER_ATTACHMENT_MODEL_ID);
 
     #endregion
 
@@ -186,7 +165,7 @@ namespace MediaPortal.UiComponents.SkinBase.Models
       lock (_syncObj)
       {
         foreach (ListItem sdItem in _availableServers)
-          shownServers.Add(((ServerDescriptor) sdItem.AdditionalProperties[SERVER_DESCRIPTOR_KEY]).MPBackendServerUUID, sdItem);
+          shownServers.Add(((ServerDescriptor) sdItem.AdditionalProperties[Consts.KEY_SERVER_DESCRIPTOR]).MPBackendServerUUID, sdItem);
         foreach (string uuid in shownServers.Keys)
           if (!availableServers.ContainsKey(uuid))
           {
@@ -213,11 +192,11 @@ namespace MediaPortal.UiComponents.SkinBase.Models
     {
       ListItem result = new ListItem();
       SystemName system = sd.GetPreferredLink();
-      result.SetLabel(NAME_KEY, LocalizationHelper.Translate(SERVER_FORMAT_TEXT_RES,
+      result.SetLabel(Consts.KEY_NAME, LocalizationHelper.Translate(Consts.RES_SERVER_FORMAT_TEXT,
           sd.ServerName, system.HostName));
-      result.SetLabel(SERVER_NAME_KEY, sd.ServerName);
-      result.SetLabel(SYSTEM_KEY, system.HostName);
-      result.AdditionalProperties[SERVER_DESCRIPTOR_KEY] = sd;
+      result.SetLabel(Consts.KEY_SERVER_NAME, sd.ServerName);
+      result.SetLabel(Consts.KEY_SYSTEM, system.HostName);
+      result.AdditionalProperties[Consts.KEY_SERVER_DESCRIPTOR] = sd;
       result.Command = new MethodDelegateCommand(() => ChooseNewHomeServerAndClose(result));
       return result;
     }
@@ -225,7 +204,7 @@ namespace MediaPortal.UiComponents.SkinBase.Models
     protected void ShowAttachToServerDialog()
     {
       IScreenManager screenManager = ServiceRegistration.Get<IScreenManager>();
-      screenManager.ShowDialog(ATTACH_TO_SERVER_DIALOG, (dialogName, instanceId) =>
+      screenManager.ShowDialog(Consts.DIALOG_ATTACH_TO_SERVER, (dialogName, instanceId) =>
           {
             if (_attachInfoDialogHandle == null)
               LeaveConfiguration();
@@ -242,8 +221,8 @@ namespace MediaPortal.UiComponents.SkinBase.Models
       IDialogManager dialogManager = ServiceRegistration.Get<IDialogManager>();
       _attachInfoDialogHandle = Guid.Empty; // Set this to value != null here to make the attachment dialog's close handler know we are not finished in our WF-state
       screenManager.CloseTopmostDialog();
-      string header = LocalizationHelper.Translate(ATTACH_INFO_DIALOG_HEADER_RES);
-      string text = LocalizationHelper.Translate(ATTACH_INFO_DIALOG_TEXT_RES, sd.ServerName, sd.GetPreferredLink().HostName);
+      string header = LocalizationHelper.Translate(Consts.RES_ATTACH_INFO_DIALOG_HEADER);
+      string text = LocalizationHelper.Translate(Consts.RES_ATTACH_INFO_DIALOG_TEXT, sd.ServerName, sd.GetPreferredLink().HostName);
       Guid handle = dialogManager.ShowDialog(header, text, DialogType.OkDialog, false, DialogButtonType.Ok);
       lock (_syncObj)
         _attachInfoDialogHandle = handle;
@@ -258,11 +237,11 @@ namespace MediaPortal.UiComponents.SkinBase.Models
     {
       IServerConnectionManager scm = ServiceRegistration.Get<IServerConnectionManager>();
       IDialogManager dialogManager = ServiceRegistration.Get<IDialogManager>();
-      string header = LocalizationHelper.Translate(DETACH_CONFIRM_DIALOG_HEADER_RES);
-      string serverName = scm.LastHomeServerName ?? LocalizationHelper.Translate(UNKNOWN_SERVER_NAME_RES);
+      string header = LocalizationHelper.Translate(Consts.RES_DETACH_CONFIRM_DIALOG_HEADER);
+      string serverName = scm.LastHomeServerName ?? LocalizationHelper.Translate(Consts.RES_UNKNOWN_SERVER_NAME);
       SystemName system = scm.LastHomeServerSystem;
-      string text = LocalizationHelper.Translate(DETACH_CONFIRM_DIALOG_TEXT_RES,
-          serverName, system == null ? LocalizationHelper.Translate(UNKNOWN_SERVER_SYSTEM_RES) : system.HostName);
+      string text = LocalizationHelper.Translate(Consts.RES_DETACH_CONFIRM_DIALOG_TEXT,
+          serverName, system == null ? LocalizationHelper.Translate(Consts.RES_UNKNOWN_SERVER_SYSTEM) : system.HostName);
       Guid handle = dialogManager.ShowDialog(header, text, DialogType.YesNoDialog, false, DialogButtonType.No);
       lock (_syncObj)
         _detachConfirmDialogHandle = handle;
@@ -327,7 +306,7 @@ namespace MediaPortal.UiComponents.SkinBase.Models
     /// <param name="availableServerItem">One of the items in the <see cref="AvailableServers"/> collection</param>
     public void ChooseNewHomeServerAndClose(ListItem availableServerItem)
     {
-      ServerDescriptor sd = (ServerDescriptor) availableServerItem.AdditionalProperties[SERVER_DESCRIPTOR_KEY];
+      ServerDescriptor sd = (ServerDescriptor) availableServerItem.AdditionalProperties[Consts.KEY_SERVER_DESCRIPTOR];
       IServerConnectionManager scm = ServiceRegistration.Get<IServerConnectionManager>();
       scm.SetNewHomeServer(sd.MPBackendServerUUID);
       ShowAttachInformationDialogAndClose(sd);
@@ -339,7 +318,7 @@ namespace MediaPortal.UiComponents.SkinBase.Models
 
     public Guid ModelId
     {
-      get { return MODEL_ID; }
+      get { return SERVER_ATTACHMENT_MODEL_ID; }
     }
 
     public bool CanEnterState(NavigationContext oldContext, NavigationContext newContext)
@@ -370,7 +349,7 @@ namespace MediaPortal.UiComponents.SkinBase.Models
       {
         lock (_syncObj)
           _mode = Mode.AttachToServer;
-        object o = newContext.GetContextVariable(AUTO_CLOSE_ON_NO_SERVER_KEY, false);
+        object o = newContext.GetContextVariable(Consts.KEY_AUTO_CLOSE_ON_NO_SERVER, false);
         if (o != null)
           _autoCloseOnNoServer = (bool) o;
       }

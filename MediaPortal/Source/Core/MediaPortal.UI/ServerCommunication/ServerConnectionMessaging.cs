@@ -70,6 +70,11 @@ namespace MediaPortal.UI.ServerCommunication
       /// The home server was detached.
       /// </summary>
       HomeServerDetached,
+
+      /// <summary>
+      /// The online state of a client has changed.
+      /// </summary>
+      ClientsOnlineStateChanged,
     }
 
     // Message data
@@ -81,9 +86,18 @@ namespace MediaPortal.UI.ServerCommunication
     /// </summary>
     /// <param name="messageType">One of the <see cref="MessageType.HomeServerConnected"/> or
     /// <see cref="MessageType.HomeServerDisconnected"/> messages.</param>
-    public static void SendConnectionStateChangedMessage(MessageType messageType)
+    public static void SendServerConnectionStateChangedMessage(MessageType messageType)
     {
       SystemMessage msg = new SystemMessage(messageType);
+      ServiceRegistration.Get<IMessageBroker>().Send(CHANNEL, msg);
+    }
+
+    /// <summary>
+    /// Sends a <see cref="MessageType.ClientsOnlineStateChanged"/> message.
+    /// </summary>
+    public static void SendClientConnectionStateChangedMessage()
+    {
+      SystemMessage msg = new SystemMessage(MessageType.ClientsOnlineStateChanged);
       ServiceRegistration.Get<IMessageBroker>().Send(CHANNEL, msg);
     }
 

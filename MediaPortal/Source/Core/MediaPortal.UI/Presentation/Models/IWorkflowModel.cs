@@ -266,7 +266,8 @@ namespace MediaPortal.UI.Presentation.Models
     /// <paramref name="context"/>, where this model can add additional menu actions valid for the specified navigation
     /// <paramref name="context"/>.
     /// As input, the workflow manager gives already scheduled actions. This workflow model can then change (add, remove)
-    /// the dictionary.</param>
+    /// the dictionary. New actions which are added to this dictionary are present in the given <paramref name="context"/>,
+    /// independent of their <see cref="WorkflowAction.SourceStateIds"/>.</param>
     void UpdateMenuActions(NavigationContext context, IDictionary<Guid, WorkflowAction> actions);
 
     /// <summary>

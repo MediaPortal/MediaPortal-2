@@ -46,16 +46,66 @@ namespace MediaPortal.UiComponents.SkinBase.General
     public const string RES_NOTIFICATION_HOME_SERVER_AVAILABLE_IN_NETWORK_TITLE = "[ServerConnection.NotificationServerAvailableTitle]";
     public const string RES_NOTIFICATION_HOME_SERVER_AVAILABLE_IN_NETWORK_TEXT = "[ServerConnection.NotificationServerAvailableText]";
 
+    public const string RES_SERVER_FORMAT_TEXT = "[ServerConnection.ServerFormatText]";
+    public const string RES_UNKNOWN_SERVER_NAME = "[ServerConnection.UnknownServerName]";
+    public const string RES_UNKNOWN_SERVER_SYSTEM = "[ServerConnection.UnknownServerSystem]";
+
+    public const string RES_ATTACH_INFO_DIALOG_HEADER = "[ServerConnection.AttachInfoDialogHeader]";
+    public const string RES_ATTACH_INFO_DIALOG_TEXT = "[ServerConnection.AttachInfoDialogText]";
+
+    public const string RES_DETACH_CONFIRM_DIALOG_HEADER = "[ServerConnection.DetachConfirmDialogHeader]";
+    public const string RES_DETACH_CONFIRM_DIALOG_TEXT = "[ServerConnection.DetachConfirmDialogText]";
+
+    public const string RES_SEARCH_FOR_SERVERS = "[ServerConnection.SearchForServers]";
+    public const string RES_DETACH_FROM_SERVER = "[ServerConnection.DetachFromServer]";
+
     public const string RES_IMPORT_STARTED_TITLE = "[ImporterMessages.ImportStartedTitle]";
     public const string RES_IMPORT_STARTED_TEXT = "[ImporterMessages.ImportStartedText]";
     public const string RES_IMPORT_COMPLETED_TITLE = "[ImporterMessages.ImportCompletedTitle]";
     public const string RES_IMPORT_COMPLETED_TEXT = "[ImporterMessages.ImportCompletedText]";
+
+    public const string RES_SHARES_CONFIG_LOCAL_SHARE = "[SharesConfig.LocalShare]";
+    public const string RES_SHARES_CONFIG_GLOBAL_SHARE = "[SharesConfig.GlobalShare]";
+    public const string RES_INVALID_PATH = "[Shares.InvalidPath]";
+
+    public const string RES_CANNOT_ADD_SHARES_TITLE = "[SharesConfig.CannotAddSharesTitle]";
+    public const string RES_CANNOT_ADD_SHARE_LOCAL_HOME_SERVER_NOT_CONNECTED = "[SharesConfig.CannotAddShareLocalHomeServerNotConnected]";
+
+    public const string RES_ADD_SHARE_TITLE = "[SharesConfig.AddLocalShare]";
+    public const string RES_EDIT_SHARE_TITLE = "[SharesConfig.EditLocalShare]";
+
+    public const string RES_REIMPORT_ALL_SHARES = "[SharesOverview.ReImportAllShares]";
+
+    public const string RES_CURRENT_MEDIA = "[Players.CurrentMediaInfo]";
+
+    public const string RES_FULLSCREEN_VIDEO = "[Players.FullscreenVideo]";
+    public const string RES_AUDIO_VISUALIZATION = "[Players.AudioVisualization]";
+    public const string RES_FULLSCREEN_IMAGE = "[Players.FullscreenImage]";
+
+    public const string RES_PLAYER_CONFIGURATION = "[Players.PlayerConfiguration]";
+
+    public const string RES_PLAYER_OF_TYPE = "[Players.PlayerOfType]";
+    public const string RES_SLOT_NO = "[Players.SlotNo]";
+    public const string RES_FOCUS_PLAYER = "[Players.FocusPlayer]";
+    public const string RES_SWITCH_PIP_PLAYERS = "[Players.SwitchPipPlayers]";
+    public const string RES_CHOOSE_AUDIO_STREAM = "[Players.ChooseAudioStream]";
+    public const string RES_MUTE = "[Players.Mute]";
+    public const string RES_MUTE_OFF = "[Players.MuteOff]";
+    public const string RES_CLOSE_PLAYER_CONTEXT = "[Players.ClosePlayerContext]";
+    public const string RES_CHOOSE_PLAYER_GEOMETRY = "[Players.ChoosePlayerGeometry]";
+    public const string RES_CHOOSE_PLAYER_EFFECT = "[Players.ChoosePlayerEffect]";
+
+    public const string RES_PLAYER_SLOT_AUDIO_MENU = "[Players.PlayerSlotAudioMenu]";
 
     // Images and icons
     public const string REL_PATH_USER_INTERACTION_REQUIRED_ICON = "user-interaction-required-icon.png";
     public const string REL_PATH_INFO_ICON = "info-icon.png";
     public const string REL_PATH_WARNING_ICON = "warning-icon.png";
     public const string REL_PATH_ERROR_ICON = "error-icon.png";
+
+    // Action ids
+    public const string STR_ACTION_ID_REIMPORT_ALL_SHARES = "FD35E282-5563-4D79-B600-A752DD8A57D2";
+    public static readonly Guid ACTION_ID_REIMPORT_ALL_SHARES = new Guid(STR_ACTION_ID_REIMPORT_ALL_SHARES);
 
     // Workflow states
     public const string STR_WF_STATE_ID_WATCH_NOTIFICATIONS = "9B1EADDC-C5CD-4a3a-B26A-91B943F680AD";
@@ -78,5 +128,82 @@ namespace MediaPortal.UiComponents.SkinBase.General
     /// </summary>
     public static Guid WF_STATE_ID_DETACH_FROM_SERVER = new Guid(STR_WF_STATE_ID_DETACH_FROM_SERVER);
 
+    public const string STR_WF_STATE_ID_SHARES_OVERVIEW = "36B3F24A-29B4-4cb4-BC7D-434C51491CD2";
+    public static readonly Guid WF_STATE_ID_SHARES_OVERVIEW = new Guid(STR_WF_STATE_ID_SHARES_OVERVIEW);
+
+    public const string STR_WF_STATE_ID_SHARES_REMOVE = "900BA520-F989-48c0-B076-5DAD61945845";
+    public static readonly Guid WF_STATE_ID_SHARES_REMOVE = new Guid(STR_WF_STATE_ID_SHARES_REMOVE);
+
+    public const string STR_WF_STATE_ID_SHARE_INFO = "1D5618C2-61F4-403c-8946-E80B043BA021";
+    public static readonly Guid WF_STATE_ID_SHARE_INFO = new Guid(STR_WF_STATE_ID_SHARE_INFO);
+
+    public const string STR_WF_STATE_ID_SHARE_ADD_CHOOSE_SYSTEM = "6F7EB06A-2AC6-4bcb-9003-F5DA44E03C26";
+    public static readonly Guid WF_STATE_ID_SHARE_ADD_CHOOSE_SYSTEM = new Guid(STR_WF_STATE_ID_SHARE_ADD_CHOOSE_SYSTEM);
+
+    public const string STR_WF_STATE_ID_SHARE_EDIT_CHOOSE_RESOURCE_PROVIDER = "F3163500-3015-4a6f-91F6-A3DA5DC3593C";
+    public static readonly Guid WF_STATE_ID_SHARE_EDIT_CHOOSE_RESOURCE_PROVIDER = new Guid(STR_WF_STATE_ID_SHARE_EDIT_CHOOSE_RESOURCE_PROVIDER);
+
+    public const string STR_WF_STATE_ID_SHARE_EDIT_EDIT_PATH = "652C5A9F-EA50-4076-886B-B28FD167AD66";
+    public static readonly Guid WF_STATE_ID_SHARE_EDIT_EDIT_PATH = new Guid(STR_WF_STATE_ID_SHARE_EDIT_EDIT_PATH);
+
+    public const string STR_WF_STATE_ID_SHARE_EDIT_CHOOSE_PATH = "5652A9C9-6B20-45f0-889E-CFBF6086FB0A";
+    public static readonly Guid WF_STATE_ID_SHARE_EDIT_CHOOSE_PATH = new Guid(STR_WF_STATE_ID_SHARE_EDIT_CHOOSE_PATH);
+
+    public const string STR_WF_STATE_ID_SHARE_EDIT_EDIT_NAME = "ACDD705B-E60B-454a-9671-1A12A3A3985A";
+    public static readonly Guid WF_STATE_ID_SHARE_EDIT_EDIT_NAME = new Guid(STR_WF_STATE_ID_SHARE_EDIT_EDIT_NAME);
+
+    public const string STR_WF_STATE_ID_SHARE_EDIT_CHOOSE_CATEGORIES = "6218FE5B-767E-48e6-9691-65E466B6020B";
+    public static readonly Guid WF_STATE_ID_SHARE_EDIT_CHOOSE_CATEGORIES = new Guid(STR_WF_STATE_ID_SHARE_EDIT_CHOOSE_CATEGORIES);
+
+    public const string STR_WF_STATE_ID_IMPORT_OVERVIEW = "53139C8E-F7CE-4D49-AEAF-7B061DE175F8";
+    public static readonly Guid WF_STATE_ID_IMPORT_OVERVIEW = new Guid(STR_WF_STATE_ID_IMPORT_OVERVIEW);
+
+    public const string STR_WF_STATE_ID_PLAYER_CONFIGURATION_DIALOG = "D0B79345-69DF-4870-B80E-39050434C8B3";
+    public static readonly Guid WF_STATE_ID_PLAYER_CONFIGURATION_DIALOG = new Guid(STR_WF_STATE_ID_PLAYER_CONFIGURATION_DIALOG);
+
+    public const string STR_WF_STATE_ID_CHOOSE_AUDIO_STREAM_DIALOG = "A3F53310-4D93-4f93-8B09-D53EE8ACD829";
+    public static Guid WF_STATE_ID_CHOOSE_AUDIO_STREAM_DIALOG = new Guid(STR_WF_STATE_ID_CHOOSE_AUDIO_STREAM_DIALOG);
+
+    public const string STR_WF_STATE_ID_PLAYER_SLOT_AUDIO_MENU_DIALOG = "428326CE-9DE1-41ff-A33B-BBB80C8AFAC5";
+    public static Guid WF_STATE_ID_PLAYER_SLOT_AUDIO_MENU_DIALOG = new Guid(STR_WF_STATE_ID_PLAYER_SLOT_AUDIO_MENU_DIALOG);
+
+    public const string STR_WF_STATE_ID_PLAYER_CHOOSE_GEOMETRY_MENU_DIALOG = "D46F66DD-9E91-4788-ADFE-EBD96F1A489E";
+    public static Guid WF_STATE_ID_PLAYER_CHOOSE_GEOMETRY_MENU_DIALOG = new Guid(STR_WF_STATE_ID_PLAYER_CHOOSE_GEOMETRY_MENU_DIALOG);
+
+    public const string STR_WF_STATE_ID_PLAYER_CHOOSE_EFFECT_MENU_DIALOG = "DAD585DF-16FC-45AB-A6D7-FE5600080C7A";
+    public static Guid WF_STATE_ID_PLAYER_CHOOSE_EFFECT_MENU_DIALOG = new Guid(STR_WF_STATE_ID_PLAYER_CHOOSE_EFFECT_MENU_DIALOG);
+
+    // Keys for the ListItem's Labels in the ItemsLists
+    public const string KEY_NAME = "Name";
+    public const string KEY_SHARE = "Share";
+    public const string KEY_RESOURCE_PROVIDER_METADATA = "ResourceProviderMetadata";
+    public const string KEY_RESOURCE_PATH = "ResourcePath";
+    public const string KEY_PATH = "Path";
+    public const string KEY_SHARE_CATEGORIES = "Categories";
+    public const string KEY_SHARES_PROXY = "SharesProxy";
+    public const string KEY_EXPANSION = "Expansion";
+    public const string KEY_SYSTEM_SHARES = "SystemShares";
+    public const string KEY_IS_IMPORTING = "IsImporting";
+    public const string KEY_IS_CONNECTED = "IsConnected";
+
+    public const string KEY_ITEM_ACTION = "MenuModel: Item-Action";
+    public const string KEY_REGISTERED_ACTIONS = "MenuModel: RegisteredActions";
+    public const string KEY_MENU_ITEMS = "MenuModel: MenuItems";
+
+    public const string KEY_PLAYER_SLOT = "PlayerSlot";
+    public const string KEY_PLAYER_CONTEXT = "PlayerContext";
+    public const string KEY_SHOW_MUTE = "ShowMute";
+
+    public const string KEY_NAVIGATION_MODE = "NavigationMode";
+
+    public const string KEY_SERVER_DESCRIPTOR = "ServerDescriptor";
+    public const string KEY_SERVER_NAME = "ServerName";
+    public const string KEY_SYSTEM = "System";
+    public const string KEY_AUTO_CLOSE_ON_NO_SERVER = "AutoCloseOnNoServer";
+
+    // Screens
+    public const string SCREEN_SHARES_CONFIG_RELOCATE_DIALOG = "shares_config_relocate_dialog";
+    public const string SCREEN_SUPERLAYER_VOLUME = "Volume";
+    public const string DIALOG_ATTACH_TO_SERVER = "AttachToServerDialog";
   }
 }

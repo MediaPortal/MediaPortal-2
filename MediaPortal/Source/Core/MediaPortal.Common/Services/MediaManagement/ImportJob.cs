@@ -113,7 +113,7 @@ namespace MediaPortal.Common.Services.MediaManagement
 
     /// <summary>
     /// Collection of pending directories to import. This property only has a sensible value in import job state
-    /// <see cref="ImportJobState.Started"/>.
+    /// <see cref="ImportJobState.Active"/>.
     /// </summary>
     [XmlIgnore]
     public IList<PendingImportResource> PendingResources

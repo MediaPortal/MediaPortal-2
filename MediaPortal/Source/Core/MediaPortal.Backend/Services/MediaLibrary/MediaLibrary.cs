@@ -63,16 +63,30 @@ namespace MediaPortal.Backend.Services.MediaLibrary
         _parent = parent;
       }
 
-      public MediaItem LoadItem(ResourcePath path,
+      public MediaItem LoadLocalItem(ResourcePath path,
           IEnumerable<Guid> necessaryRequestedMIATypeIDs, IEnumerable<Guid> optionalRequestedMIATypeIDs)
       {
-        return _parent.LoadItem(_parent.LocalSystemId, path, necessaryRequestedMIATypeIDs, optionalRequestedMIATypeIDs);
+        try
+        {
+          return _parent.LoadItem(_parent.LocalSystemId, path, necessaryRequestedMIATypeIDs, optionalRequestedMIATypeIDs);
+        }
+        catch (Exception)
+        {
+          throw new DisconnectedException();
+        }
       }
 
       public ICollection<MediaItem> Browse(Guid parentDirectoryId,
           IEnumerable<Guid> necessaryRequestedMIATypeIDs, IEnumerable<Guid> optionalRequestedMIATypeIDs)
       {
-        return _parent.Browse(parentDirectoryId, necessaryRequestedMIATypeIDs, optionalRequestedMIATypeIDs);
+        try
+        {
+          return _parent.Browse(parentDirectoryId, necessaryRequestedMIATypeIDs, optionalRequestedMIATypeIDs);
+        }
+        catch (Exception)
+        {
+          throw new DisconnectedException();
+        }
       }
     }
 
@@ -87,17 +101,38 @@ namespace MediaPortal.Backend.Services.MediaLibrary
 
       public Guid UpdateMediaItem(Guid parentDirectoryId, ResourcePath path, IEnumerable<MediaItemAspect> updatedAspects)
       {
-        return _parent.AddOrUpdateMediaItem(parentDirectoryId, _parent.LocalSystemId, path, updatedAspects);
+        try
+        {
+          return _parent.AddOrUpdateMediaItem(parentDirectoryId, _parent.LocalSystemId, path, updatedAspects);
+        }
+        catch (Exception)
+        {
+          throw new DisconnectedException();
+        }
       }
 
       public void DeleteMediaItem(ResourcePath path)
       {
-        _parent.DeleteMediaItemOrPath(_parent.LocalSystemId, path, true);
+        try
+        {
+          _parent.DeleteMediaItemOrPath(_parent.LocalSystemId, path, true);
+        }
+        catch (Exception)
+        {
+          throw new DisconnectedException();
+        }
       }
 
       public void DeleteUnderPath(ResourcePath path)
       {
-        _parent.DeleteMediaItemOrPath(_parent.LocalSystemId, path, false);
+        try
+        {
+          _parent.DeleteMediaItemOrPath(_parent.LocalSystemId, path, false);
+        }
+        catch (Exception)
+        {
+          throw new DisconnectedException();
+        }
       }
     }
 
@@ -1158,6 +1193,8 @@ namespace MediaPortal.Backend.Services.MediaLibrary
       ServiceRegistration.Get<ILogger>().Info("MediaLibrary: Client '{0}' is offline", systemId);
       lock (_syncObj)
         _systemsOnline.Remove(systemId);
+      lock (_currentlyImportingClientShares)
+        CollectionUtils.RemoveAll(_currentlyImportingClientShares, GetShares(systemId).Values.Select(share => share.ShareId));
     }
 
     #endregion

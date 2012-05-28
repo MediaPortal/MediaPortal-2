@@ -30,8 +30,25 @@ namespace MediaPortal.Common.MediaManagement
 {
   public interface IMediaBrowsing
   {
-    MediaItem LoadItem(ResourcePath path,
+    /// <summary>
+    /// Loads the specified media item located on the local system.
+    /// </summary>
+    /// <param name="path">Path of the media item.</param>
+    /// <param name="necessaryRequestedMIATypeIDs">Necessary MIA ids the returned item must support.</param>
+    /// <param name="optionalRequestedMIATypeIDs">Optional MIA ids the returned item can support.</param>
+    /// <returns>Loaded media item.</returns>
+    /// <exception cref="DisconnectedException">If the connection to the media library was disconnected.</exception>
+    MediaItem LoadLocalItem(ResourcePath path,
         IEnumerable<Guid> necessaryRequestedMIATypeIDs, IEnumerable<Guid> optionalRequestedMIATypeIDs);
+
+    /// <summary>
+    /// Loads the media items in the directory with the given <paramref name="parentDirectoryId"/>.
+    /// </summary>
+    /// <param name="parentDirectoryId">Id of the directory whose contents should be loaded.</param>
+    /// <param name="necessaryRequestedMIATypeIDs">Necessary MIA ids the returned items must support.</param>
+    /// <param name="optionalRequestedMIATypeIDs">Optional MIA ids the returned items can support.</param>
+    /// <returns>Collection of media items.</returns>
+    /// <exception cref="DisconnectedException">If the connection to the media library was disconnected.</exception>
     ICollection<MediaItem> Browse(Guid parentDirectoryId, IEnumerable<Guid> necessaryRequestedMIATypeIDs,
         IEnumerable<Guid> optionalRequestedMIATypeIDs);
   }

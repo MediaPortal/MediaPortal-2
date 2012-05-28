@@ -24,7 +24,8 @@
     <Model Id="CA6428A7-A6E2-4dd3-9661-F89CEBAF8E62" Name="MouseModel" ClassName="MediaPortal.UiComponents.SkinBase.Models.MouseModel"/>
     <Model Id="81A130E1-F417-47e4-AC9C-0B2E4912331F" Name="ServerAttachmentModel" ClassName="MediaPortal.UiComponents.SkinBase.Models.ServerAttachmentModel"/>
     <Model Id="854ABA9A-71A1-420b-A657-9641815F9C01" Name="HomeServerModel" ClassName="MediaPortal.UiComponents.SkinBase.Models.HomeServerModel"/>
-    <Model Id="1768FC91-86B9-4f78-8A4C-E204F0D51502" Name="SharesModel" ClassName="MediaPortal.UiComponents.SkinBase.Models.SharesConfigModel"/>
+    <Model Id="1768FC91-86B9-4f78-8A4C-E204F0D51502" Name="SharesConfigModel" ClassName="MediaPortal.UiComponents.SkinBase.Models.SharesConfigModel"/>
+    <Model Id="0F1B04C1-0914-4AEB-BBE6-44708BADB25D" Name="SharesOverviewModel" ClassName="MediaPortal.UiComponents.SkinBase.Models.SharesOverviewModel"/>
     <Model Id="A2F24149-B44C-498b-AE93-288213B87A1A" Name="GeneralPlayerModel" ClassName="MediaPortal.UiComponents.SkinBase.Models.GeneralPlayerModel"/>
     <Model Id="58A7F9E3-1514-47af-8E83-2AD60BA8A037" Name="PlayerConfigurationDialogModel" ClassName="MediaPortal.UiComponents.SkinBase.Models.PlayerConfigurationDialogModel"/>
 
@@ -49,42 +50,42 @@
   <Register Location="/Workflow/States">
     <!-- Shares configuration -->
     
-    <!-- Shows an overview screen for all configured shares at the server and at the client -->
+    <!-- Overview screen for all configured shares at the server and at the client -->
     <WorkflowState Id="36B3F24A-29B4-4cb4-BC7D-434C51491CD2"
         Name="SharesConfigurationOverview"
         DisplayLabel="[SharesConfig.SharesOverviewWorkflowNavigationContextDisplayLabel]"
         MainScreen="shares_config_overview"
         WorkflowModel="1768FC91-86B9-4f78-8A4C-E204F0D51502"/> <!-- Shares config model -->
 
-    <!-- Provides a screen to select to-be-deleted shares from a list of server and client shares -->
+    <!-- Select to-be-deleted shares from a list of server and client shares -->
     <WorkflowState Id="900BA520-F989-48c0-B076-5DAD61945845"
         Name="SharesRemove"
         DisplayLabel="[SharesConfig.SharesRemoveWorkflowNavigationContextDisplayLabel]"
         MainScreen="shares_config_remove_shares"
         WorkflowModel="1768FC91-86B9-4f78-8A4C-E204F0D51502"/> <!-- Shares config model -->
 
-    <!-- Provides an info screen for a given schare -->
+    <!-- Info screen for a given schare -->
     <WorkflowState Id="1D5618C2-61F4-403c-8946-E80B043BA021"
         Name="SharesInfo"
         DisplayLabel="[SharesConfig.ShareInfoWorkflowNavigationContextDisplayLabel]"
         MainScreen="shares_config_share_info"
         WorkflowModel="1768FC91-86B9-4f78-8A4C-E204F0D51502"/> <!-- Shares config model -->
 
-    <!-- Provides a screen to select if a new share should be created on the server or on the client -->
+    <!-- Select if a new share should be created on the server or on the client -->
     <WorkflowState Id="6F7EB06A-2AC6-4bcb-9003-F5DA44E03C26"
         Name="SharesAddChooseSystem"
         DisplayLabel="[SharesConfig.SharesAddChooseSystemWorkflowNavigationContextDisplayLabel]"
         MainScreen="shares_config_choose_system"
         WorkflowModel="1768FC91-86B9-4f78-8A4C-E204F0D51502"/> <!-- Shares config model -->
 
-    <!-- Provides a screen to select the base media provider of a share -->
+    <!-- Select the base media provider of a share -->
     <WorkflowState Id="F3163500-3015-4a6f-91F6-A3DA5DC3593C"
         Name="SharesEditChooseResourceProvider"
         DisplayLabel="[SharesConfig.SharesEditChooseResourceProviderWorkflowNavigationContextDisplayLabel]"
         MainScreen="shares_config_choose_resource_provider"
         WorkflowModel="1768FC91-86B9-4f78-8A4C-E204F0D51502"/> <!-- Shares config model -->
 
-    <!-- Provides a screen to edit the media provider path of a share,
+    <!-- Edit the media provider path of a share,
          if the base media provider is no filesystem media provider -->
     <WorkflowState Id="652C5A9F-EA50-4076-886B-B28FD167AD66"
         Name="SharesEditEditPath"
@@ -92,7 +93,7 @@
         MainScreen="shares_config_edit_path"
         WorkflowModel="1768FC91-86B9-4f78-8A4C-E204F0D51502"/> <!-- Shares config model -->
 
-    <!-- Provides a screen to edit the media provider path of a share,
+    <!-- Edit the media provider path of a share,
          if the base media provider is a filesystem media provider -->
     <WorkflowState Id="5652A9C9-6B20-45f0-889E-CFBF6086FB0A"
         Name="SharesEditChoosePath"
@@ -100,19 +101,26 @@
         MainScreen="shares_config_choose_path"
         WorkflowModel="1768FC91-86B9-4f78-8A4C-E204F0D51502"/> <!-- Shares config model -->
 
-    <!-- Provides a screen to edit the name of a share -->
+    <!-- Edit the name of a share -->
     <WorkflowState Id="ACDD705B-E60B-454a-9671-1A12A3A3985A"
         Name="SharesEditEditName"
         DisplayLabel="[SharesConfig.SharesEditEditNameWorkflowNavigationContextDisplayLabel]"
         MainScreen="shares_config_edit_name"
         WorkflowModel="1768FC91-86B9-4f78-8A4C-E204F0D51502"/> <!-- Shares config model -->
 
-    <!-- Provides a screen to edit media categories of a share -->
+    <!-- Edit media categories of a share -->
     <WorkflowState Id="6218FE5B-767E-48e6-9691-65E466B6020B"
         Name="SharesEditChooseCategories"
         DisplayLabel="[SharesConfig.SharesEditChooseCategoriesWorkflowNavigationContextDisplayLabel]"
         MainScreen="shares_config_choose_categories"
         WorkflowModel="1768FC91-86B9-4f78-8A4C-E204F0D51502"/> <!-- Shares config model -->
+
+    <!-- Shares overview state -->
+    <WorkflowState Id="53139C8E-F7CE-4D49-AEAF-7B061DE175F8"
+        Name="SharesOverview"
+        DisplayLabel="[SharesOverview.OverviewWorkflowNavigationContextDisplayLabel]"
+        MainScreen="SharesOverview"
+        WorkflowModel="0F1B04C1-0914-4AEB-BBE6-44708BADB25D"/> <!-- Shares config model -->
 
     <!-- Server connection -->
 
@@ -318,6 +326,10 @@
         Id="ConfigureShares"
         Redundant="true"
         Text="[Settings.Shares.Configure]"/>
+    <ConfigGroup
+        Id="Overview"
+        Redundant="true"
+        Text="[Settings.Shares.Overview]"/>
   </Register>
 
   <!-- Contents of '/Shares/ConfigureShares' group -->
@@ -328,5 +340,15 @@
         HelpText="[Settings.Shares.ConfigureShares.SharesConfiguration.Help]"
         ClassName="MediaPortal.UiComponents.SkinBase.Settings.Configuration.Shares.SharesConfigSetting"
         AdditionalData="WorkflowState=36B3F24A-29B4-4cb4-BC7D-434C51491CD2,ConfAppPanel=..."/>
+  </Register>
+
+  <!-- Contents of '/Shares/Import' group -->
+  <Register Location="/Configuration/Settings/Shares/Overview">
+    <CustomConfigSetting
+        Id="SharesOverview"
+        Text="[Settings.Shares.Overview.SharesOverview]"
+        HelpText="[Settings.Shares.Overview.SharesOverview.Help]"
+        ClassName="MediaPortal.UiComponents.SkinBase.Settings.Configuration.Shares.SharesOverviewSetting"
+        AdditionalData="WorkflowState=53139C8E-F7CE-4D49-AEAF-7B061DE175F8,ConfAppPanel=..."/>
   </Register>
 </Plugin>

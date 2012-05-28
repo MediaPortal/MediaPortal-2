@@ -170,15 +170,25 @@ namespace MediaPortal.Common.Services.MediaManagement
       }
     }
 
-    protected void CheckSuspended()
+    protected void CheckSuspended(Exception e)
     {
+      if (e is ImportSuspendedException)
+      {
+        IsSuspended = true;
+        throw e;
+      }
+      if (e is DisconnectedException)
+      {
+        IsSuspended = true;
+        throw new ImportSuspendedException();
+      }
       if (IsSuspended)
         throw new ImportSuspendedException();
     }
 
     protected void CheckImportStillRunning(ImportJobState state)
     {
-      CheckSuspended();
+      CheckSuspended(null);
       if (state == ImportJobState.Cancelled || state == ImportJobState.Erroneous)
         throw new ImportAbortException();
     }
@@ -319,7 +329,7 @@ namespace MediaPortal.Common.Services.MediaManagement
       {
         if (importJob.JobType == ImportJobType.Refresh)
         {
-          MediaItem mediaItem = mediaBrowsing.LoadItem(currentFilePath,
+          MediaItem mediaItem = mediaBrowsing.LoadLocalItem(currentFilePath,
               IMPORTER_MIA_ID_ENUMERATION, EMPTY_MIA_ID_ENUMERATION);
           MediaItemAspect importerAspect;
           if (mediaItem != null && mediaItem.Aspects.TryGetValue(ImporterAspect.ASPECT_ID, out importerAspect) &&
@@ -330,7 +340,7 @@ namespace MediaPortal.Common.Services.MediaManagement
       }
       catch (Exception e)
       {
-        CheckSuspended(); // Throw ImportAbortException if suspended - will skip warning and tagging job as erroneous
+        CheckSuspended(e); // Throw ImportAbortException if suspended - will skip warning and tagging job as erroneous
         ServiceRegistration.Get<ILogger>().Warn("ImporterWorker: Problem while importing resource '{0}'", e, currentFilePath);
         importJob.State = ImportJobState.Erroneous;
       }
@@ -340,7 +350,7 @@ namespace MediaPortal.Common.Services.MediaManagement
         IMediaBrowsing mediaBrowsing, IImportResultHandler resultHandler)
     {
       ResourcePath directoryPath = directoryAccessor.CanonicalLocalResourcePath;
-      MediaItem directoryItem = mediaBrowsing.LoadItem(directoryPath, EMPTY_MIA_ID_ENUMERATION, DIRECTORY_MIA_ID_ENUMERATION);
+      MediaItem directoryItem = mediaBrowsing.LoadLocalItem(directoryPath, EMPTY_MIA_ID_ENUMERATION, DIRECTORY_MIA_ID_ENUMERATION);
       if (directoryItem != null)
       {
         MediaItemAspect da;
@@ -434,7 +444,7 @@ namespace MediaPortal.Common.Services.MediaManagement
               }
               catch (Exception e)
               {
-                CheckSuspended(); // Throw ImportAbortException if suspended - will skip warning and tagging job as erroneous
+                CheckSuspended(e); // Throw ImportAbortException if suspended - will skip warning and tagging job as erroneous
                 ServiceRegistration.Get<ILogger>().Warn("ImporterWorker: Problem while importing resource '{0}'", e, serializedFilePath);
                 importJob.State = ImportJobState.Erroneous;
               }
@@ -478,7 +488,7 @@ namespace MediaPortal.Common.Services.MediaManagement
       }
       catch (Exception e)
       {
-        CheckSuspended(); // Throw ImportAbortException if suspended - will skip warning and tagging job as erroneous
+        CheckSuspended(e); // Throw ImportAbortException if suspended - will skip warning and tagging job as erroneous
         ServiceRegistration.Get<ILogger>().Warn("ImporterWorker: Problem while importing directory '{0}'", e, currentDirectoryPath);
         importJob.State = ImportJobState.Erroneous;
       }
@@ -536,13 +546,13 @@ namespace MediaPortal.Common.Services.MediaManagement
               if (fsra != null)
               { // Prepare complex import process
                 importJob.PendingResources.Add(new PendingImportResource(Guid.Empty, (IFileSystemResourceAccessor) fsra.Clone()));
-                importJob.State = ImportJobState.Started;
+                importJob.State = ImportJobState.Active;
               }
               else
               { // Simple single-item-import
                 ImportSingleFile(importJob, accessor, metadataExtractors, mediaBrowsing, resultHandler, mediaAccessor);
                 lock (importJob.SyncObj)
-                  if (importJob.State == ImportJobState.Started)
+                  if (importJob.State == ImportJobState.Active)
                     importJob.State = ImportJobState.Finished;
                 return;
               }
@@ -591,7 +601,7 @@ namespace MediaPortal.Common.Services.MediaManagement
             pendingImportResource.Dispose();
           }
           lock (importJob.SyncObj)
-            if (importJob.State == ImportJobState.Started)
+            if (importJob.State == ImportJobState.Active)
               importJob.State = ImportJobState.Finished;
           ServiceRegistration.Get<ILogger>().Info("ImporterWorker: Finished import job '{0}'", importJob);
           ImporterWorkerMessaging.SendImportMessage(ImporterWorkerMessaging.MessageType.ImportCompleted, importJob.BasePath);
@@ -599,7 +609,7 @@ namespace MediaPortal.Common.Services.MediaManagement
         }
         catch (Exception e)
         {
-          CheckSuspended(); // Throw ImportAbortException if suspended - will skip warning and tagging job as erroneous
+          CheckSuspended(e); // Throw ImportAbortException if suspended - will skip warning and tagging job as erroneous
           ServiceRegistration.Get<ILogger>().Warn("ImporterWorker: Problem processing '{0}'", e, importJob);
           ImporterWorkerMessaging.SendImportMessage(ImporterWorkerMessaging.MessageType.ImportCompleted, importJob.BasePath);
           importJob.State = ImportJobState.Erroneous;
@@ -616,7 +626,6 @@ namespace MediaPortal.Common.Services.MediaManagement
         return;
       }
     }
-
     #region IImporterWorker implementation
 
     public bool IsSuspended
@@ -704,7 +713,8 @@ namespace MediaPortal.Common.Services.MediaManagement
       }
       lock (_syncObj)
         foreach (ImportJob job in cancelImportJobs)
-          _importJobs.Remove(job);
+          if (_importJobs.Remove(job))
+            ImporterWorkerMessaging.SendImportMessage(ImporterWorkerMessaging.MessageType.ImportScheduleCanceled, path);
     }
 
     public void ScheduleImport(ResourcePath path, IEnumerable<string> mediaCategories, bool includeSubDirectories)
@@ -720,6 +730,7 @@ namespace MediaPortal.Common.Services.MediaManagement
       ICollection<Guid> metadataExtractorIds = GetMetadataExtractorIdsForMediaCategories(mediaCategories);
       ImportJob job = new ImportJob(ImportJobType.Import, path, metadataExtractorIds, includeSubDirectories);
       EnqueueImportJob(job);
+      ImporterWorkerMessaging.SendImportMessage(ImporterWorkerMessaging.MessageType.ImportScheduled, path, ImportJobType.Import);
     }
 
     public void ScheduleRefresh(ResourcePath path, IEnumerable<string> mediaCategories, bool includeSubDirectories)
@@ -749,6 +760,7 @@ namespace MediaPortal.Common.Services.MediaManagement
       ICollection<Guid> metadataExtractorIds = GetMetadataExtractorIdsForMediaCategories(mediaCategories);
       ImportJob job = new ImportJob(ImportJobType.Refresh, path, metadataExtractorIds, includeSubDirectories);
       EnqueueImportJob(job);
+      ImporterWorkerMessaging.SendImportMessage(ImporterWorkerMessaging.MessageType.ImportScheduled, path, ImportJobType.Import);
     }
 
     #endregion

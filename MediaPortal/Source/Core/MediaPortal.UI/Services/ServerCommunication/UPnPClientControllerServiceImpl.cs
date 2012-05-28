@@ -94,6 +94,23 @@ namespace MediaPortal.UI.Services.ServerCommunication
       // More actions go here
     }
 
+    static UPnPError ParseImportJobType(string argumentName, string importModeStr, out ImportJobType importJobType)
+    {
+      switch (importModeStr)
+      {
+        case "Import":
+          importJobType = ImportJobType.Import;
+          break;
+        case "Refresh":
+          importJobType = ImportJobType.Refresh;
+          break;
+        default:
+          importJobType = ImportJobType.Import;
+          return new UPnPError(600, string.Format("Argument '{0}' must be of value 'Import' or 'Refresh'", argumentName));
+      }
+      return null;
+    }
+
     static UPnPError OnGetHomeServerSystemId(DvAction action, IList<object> inParams, out IList<object> outParams,
         CallContext context)
     {
@@ -107,20 +124,12 @@ namespace MediaPortal.UI.Services.ServerCommunication
       outParams = null;
       ResourcePath path = ResourcePath.Deserialize((string) inParams[0]);
       string[] mediaCategories = ((string) inParams[1]).Split(',');
-      string importModeStr = (string) inParams[2];
-      bool refresh;
-      switch (importModeStr)
-      {
-        case "Import":
-          refresh = false;
-          break;
-        case "Refresh":
-          refresh = true;
-          break;
-        default:
-          return new UPnPError(600, "Argument 'ImportMode' must be of value 'Import' or 'Refresh'");
-      }
-      if (refresh)
+      string importJobTypeStr = (string) inParams[2];
+      ImportJobType importJobType;
+      UPnPError error = ParseImportJobType("ImportJobType", importJobTypeStr, out importJobType);
+      if (error != null)
+        return error;
+      if (importJobType == ImportJobType.Refresh)
         ServiceRegistration.Get<IImporterWorker>().ScheduleRefresh(path, mediaCategories, true);
       else
         ServiceRegistration.Get<IImporterWorker>().ScheduleImport(path, mediaCategories, true);

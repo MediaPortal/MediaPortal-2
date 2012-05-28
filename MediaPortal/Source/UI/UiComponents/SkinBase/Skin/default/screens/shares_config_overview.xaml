@@ -25,7 +25,7 @@
           </Grid.ColumnDefinitions>
           <Label Grid.Row="0" Margin="10" Content="[SharesConfig.GlobalShares]" Color="{ThemeResource TextColor}"/>
           <ListView Margin="10" Grid.Row="1" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
-              Style="{ThemeResource SharesListViewStyle}"
+              Style="{ThemeResource SharesConfigListViewStyle}"
               IsVisible="{Binding IsHomeServerConnected}"
               ItemsSource="{Binding Path=ServerSharesList,Mode=OneTime}"/>
           <Label Margin="10" Grid.Row="1" IsVisible="{Binding !IsHomeServerConnected}"
@@ -42,7 +42,7 @@
           </Grid.ColumnDefinitions>
           <Label Margin="10" Grid.Row="0" Content="[SharesConfig.LocalShares]" Color="{ThemeResource TextColor}"/>
           <ListView Margin="10" Grid.Row="1" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
-              Style="{ThemeResource SharesListViewStyle}"
+              Style="{ThemeResource SharesConfigListViewStyle}"
               IsVisible="{Binding ShowLocalShares}"
               ItemsSource="{Binding Path=LocalSharesList,Mode=OneTime}"/>
           <Label Margin="10" Grid.Row="1" IsVisible="{Binding !ShowLocalShares}"

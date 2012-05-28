@@ -33,6 +33,7 @@ using MediaPortal.Common.Runtime;
 using MediaPortal.UI.Presentation.DataObjects;
 using MediaPortal.UI.Presentation.Models;
 using MediaPortal.UI.Presentation.Workflow;
+using MediaPortal.UiComponents.SkinBase.General;
 
 namespace MediaPortal.UiComponents.SkinBase.Models
 {
@@ -40,10 +41,8 @@ namespace MediaPortal.UiComponents.SkinBase.Models
   {
     #region Consts
 
-    protected const string MODEL_ID_STR = "9E9D0CD9-4FDB-4c0f-A0C4-F356E151BDE0";
-    protected const string ITEM_ACTION_KEY = "MenuModel: Item-Action";
-    protected const string REGISTERED_ACTIONS_KEY = "MenuModel: RegisteredActions";
-    protected const string MENU_ITEMS_KEY = "MenuModel: MenuItems";
+    public const string STR_MENU_MODEL_ID = "9E9D0CD9-4FDB-4c0f-A0C4-F356E151BDE0";
+    public static readonly Guid MENU_MODEL_ID = new Guid(STR_MENU_MODEL_ID);
 
     #endregion
 
@@ -158,10 +157,10 @@ namespace MediaPortal.UiComponents.SkinBase.Models
       {
         object regs;
         ICollection<WorkflowAction> registrations;
-        if (context.ContextVariables.TryGetValue(REGISTERED_ACTIONS_KEY, out regs))
+        if (context.ContextVariables.TryGetValue(Consts.KEY_REGISTERED_ACTIONS, out regs))
           registrations = (ICollection<WorkflowAction>) regs;
         else
-          context.ContextVariables[REGISTERED_ACTIONS_KEY] = registrations = new List<WorkflowAction>();
+          context.ContextVariables[Consts.KEY_REGISTERED_ACTIONS] = registrations = new List<WorkflowAction>();
         action.StateChanged += OnMenuActionStateChanged;
         registrations.Add(action);
       }
@@ -172,18 +171,18 @@ namespace MediaPortal.UiComponents.SkinBase.Models
       lock (context.SyncRoot)
       {
         ICollection<WorkflowAction> registeredActions =
-            (ICollection<WorkflowAction>) context.GetContextVariable(REGISTERED_ACTIONS_KEY, false);
+            (ICollection<WorkflowAction>) context.GetContextVariable(Consts.KEY_REGISTERED_ACTIONS, false);
         if (registeredActions == null)
           return;
         foreach (WorkflowAction action in registeredActions)
           action.StateChanged -= OnMenuActionStateChanged;
-        context.ContextVariables.Remove(REGISTERED_ACTIONS_KEY);
+        context.ContextVariables.Remove(Consts.KEY_REGISTERED_ACTIONS);
       }
     }
 
     protected ItemsList GetMenuItems(NavigationContext context)
     {
-      return (ItemsList) context.GetContextVariable(MENU_ITEMS_KEY, false);
+      return (ItemsList) context.GetContextVariable(Consts.KEY_MENU_ITEMS, false);
     }
 
     protected ItemsList GetOrCreateMenuItems(NavigationContext context)
@@ -192,7 +191,7 @@ namespace MediaPortal.UiComponents.SkinBase.Models
       {
         ItemsList result = GetMenuItems(context);
         if (result == null)
-          context.ContextVariables[MENU_ITEMS_KEY] = result = new ItemsList();
+          context.ContextVariables[Consts.KEY_MENU_ITEMS] = result = new ItemsList();
         return result;
       }
     }
@@ -276,7 +275,7 @@ namespace MediaPortal.UiComponents.SkinBase.Models
           ListItem item = menuItems[newNumEntries];
           newNumEntries++;
           // Check if it is still the same action at this place
-          if (item.AdditionalProperties[ITEM_ACTION_KEY] != action)
+          if (item.AdditionalProperties[Consts.KEY_ITEM_ACTION] != action)
             return false;
           // Check and update all properties of the current item
           IResourceString rs;
@@ -332,7 +331,7 @@ namespace MediaPortal.UiComponents.SkinBase.Models
                 Command = new MethodDelegateCommand(action.Execute),
                 Enabled = action.IsEnabled(context),
               };
-          item.AdditionalProperties[ITEM_ACTION_KEY] = action;
+          item.AdditionalProperties[Consts.KEY_ITEM_ACTION] = action;
           menuItems.Add(item);
         }
       }
@@ -344,7 +343,7 @@ namespace MediaPortal.UiComponents.SkinBase.Models
 
     public Guid ModelId
     {
-      get { return new Guid(MODEL_ID_STR); }
+      get { return MENU_MODEL_ID; }
     }
 
     public ItemsList MenuItems

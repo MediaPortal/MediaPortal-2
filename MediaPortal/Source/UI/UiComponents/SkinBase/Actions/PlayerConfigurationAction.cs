@@ -28,6 +28,7 @@ using MediaPortal.Common.Messaging;
 using MediaPortal.Common.Localization;
 using MediaPortal.UI.Presentation.Players;
 using MediaPortal.UI.Presentation.Workflow;
+using MediaPortal.UiComponents.SkinBase.General;
 
 namespace MediaPortal.UiComponents.SkinBase.Actions
 {
@@ -40,12 +41,7 @@ namespace MediaPortal.UiComponents.SkinBase.Actions
     #region Consts
 
     public const string PLAYER_CONFIGURATION_CONTRIBUTOR_MODEL_ID_STR = "95DD6923-058A-4481-AF33-2455CEBB7A03";
-    public const string PLAYER_CONFIGURATION_DIALOG_STATE_ID = "D0B79345-69DF-4870-B80E-39050434C8B3";
-
     public static readonly Guid PLAYER_CONFIGURATION_CONTRIBUTOR_MODEL_ID = new Guid(PLAYER_CONFIGURATION_CONTRIBUTOR_MODEL_ID_STR);
-    public static readonly Guid PLAYER_CONFIGURATION_DIALOG_STATE = new Guid(PLAYER_CONFIGURATION_DIALOG_STATE_ID);
-
-    public const string PLAYER_CONFIGURATION_RES = "[Players.PlayerConfiguration]";
 
     #endregion
 
@@ -61,7 +57,7 @@ namespace MediaPortal.UiComponents.SkinBase.Actions
 
     public PlayerConfigurationAction()
     {
-      _displayTitle = LocalizationHelper.CreateResourceString(PLAYER_CONFIGURATION_RES);
+      _displayTitle = LocalizationHelper.CreateResourceString(Consts.RES_PLAYER_CONFIGURATION);
     }
 
     void SubscribeToMessages()
@@ -147,7 +143,7 @@ namespace MediaPortal.UiComponents.SkinBase.Actions
     public void Execute()
     {
       IWorkflowManager workflowManager = ServiceRegistration.Get<IWorkflowManager>();
-      workflowManager.NavigatePush(PLAYER_CONFIGURATION_DIALOG_STATE);
+      workflowManager.NavigatePush(Consts.WF_STATE_ID_PLAYER_CONFIGURATION_DIALOG);
     }
 
     #endregion

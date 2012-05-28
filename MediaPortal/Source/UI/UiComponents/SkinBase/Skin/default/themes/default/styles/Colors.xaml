@@ -52,6 +52,8 @@
   <!-- White -->
   <ResourceWrapper x:Key="TextColor" Resource="White"/>
 
+  <ResourceWrapper x:Key="GrayedOutTextColor" Resource="DarkGray"/>
+
   <!-- Light gray -->
   <ResourceWrapper x:Key="HintTextColor" Resource="LightGray"/>
 

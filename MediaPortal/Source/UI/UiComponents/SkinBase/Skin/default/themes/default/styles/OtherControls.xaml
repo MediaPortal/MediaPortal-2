@@ -518,6 +518,38 @@
     </Grid>
   </DataTemplate>
 
+  <ResourceWrapper x:Key="EmptyString" Resource=""/>
+
+  <DataTemplate x:Key="ShareOverviewItemDataTemplate" DataType="{x:Type collections:ListItem}">
+    <Grid x:Name="ItemControl">
+      <Grid.RowDefinitions>
+        <RowDefinition Height="*"/>
+      </Grid.RowDefinitions>
+      <Grid.ColumnDefinitions>
+        <ColumnDefinition Width="200"/>
+        <ColumnDefinition Width="250"/>
+        <ColumnDefinition Width="*"/>
+        <ColumnDefinition Width="Auto"/>
+      </Grid.ColumnDefinitions>
+      <Label x:Name="ShareName" Grid.Column="0" Content="{Binding [Name]}" FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource TextColor}"/>
+      <Label x:Name="Categories" Grid.Column="1" Content="{Binding [Categories]}" FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource TextColor}"/>
+      <Label x:Name="OnlineState" Grid.Column="2" FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource TextColor}">
+        <Label.Content>
+          <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
+            <Binding Path="AdditionalProperties[IsImporting]"/>
+            <Binding Source="[Shares.Importing]"/>
+            <Binding Source="{StaticResource EmptyString}"/>
+          </MultiBinding>
+        </Label.Content>
+      </Label>
+      <Button x:Name="ReImportButton" Grid.Column="3" Content="[Shares.ReImport]" Command="{Binding Command}"/>
+<!-- Additionally available properties to show here:
+      <Label x:Name="SharePath" Grid.Column="1" Content="{Binding [Path]}"
+          FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource HintTextColor}"/>
+-->
+    </Grid>
+  </DataTemplate>
+
   <DataStringProvider x:Key="ShareItemDataStringProvider" Path="[Name]"/>
 
   <!-- Data template for a simple resource provider entry in the resource providers list -->
@@ -595,7 +627,7 @@
   </Style>
 
   <!-- ListView style to be used for the shares list -->
-  <Style x:Key="SharesListViewStyle" BasedOn="{ThemeResource ContentsMenuListViewStyle}">
+  <Style x:Key="SharesConfigListViewStyle" BasedOn="{ThemeResource ContentsMenuListViewStyle}">
     <Setter Property="Template">
       <Setter.Value>
         <ControlTemplate TargetType="{x:Type ListView}">
@@ -611,7 +643,7 @@
                 Background="{ThemeResource ItemsControlShadowBackgroundColor}">
               <ItemsPresenter VerticalAlignment="Stretch" HorizontalAlignment="Stretch"/>
             </ScrollViewer>
-            <Label Content="[SharesConfig.NoSharesInThisView]" IsVisible="{Binding RelativeSource={RelativeSource TemplatedParent},Path=IsEmpty}"
+            <Label Content="[Shares.NoSharesInThisView]" IsVisible="{Binding RelativeSource={RelativeSource TemplatedParent},Path=IsEmpty}"
                 HorizontalAlignment="Center" VerticalAlignment="Center"
                 Color="{ThemeResource HintTextColor}" FontSize="{ThemeResource SmallFontSize}"/>
           </Grid>
@@ -621,6 +653,101 @@
     <Setter Property="ItemTemplate" Value="{ThemeResource ShareItemDataTemplate}"/>
     <Setter Property="DataStringProvider" Value="{ThemeResource ShareItemDataStringProvider}"/>
     <Setter Property="ItemContainerStyle" Value="{ThemeResource SelectableShareContainerStyle}"/>
+  </Style>
+
+  <!-- ListView style to be used for the shares overview system shares sublist -->
+  <Style x:Key="SystemSharesListViewStyle" BasedOn="{ThemeResource DefaultListViewStyle}">
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate TargetType="{x:Type ListView}">
+          <ItemsPresenter/>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+    <Setter Property="ItemTemplate" Value="{ThemeResource ShareOverviewItemDataTemplate}"/>
+    <Setter Property="ItemContainerStyle" Value="{ThemeResource DefaultItemContainerStyle}"/>
+  </Style>
+
+  <DataTemplate x:Key="SystemSharesItemDataTemplate" DataType="{x:Type collections:ListItem}">
+    <DockPanel LastChildFill="True">
+      <DockPanel DockPanel.Dock="Top">
+        <Label x:Name="SystemName" DockPanel.Dock="Left" Content="{Binding [Name]}">
+          <Label.Color>
+            <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
+              <Binding Path="AdditionalProperties[IsConnected]"/>
+              <Binding Source="{ThemeResource TextColor}"/>
+              <Binding Source="{ThemeResource GrayedOutTextColor}"/>
+            </MultiBinding>
+          </Label.Color>
+        </Label>
+        <Label DockPanel.Dock="Left" Content=" (">
+          <Label.Color>
+            <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
+              <Binding Path="AdditionalProperties[IsConnected]"/>
+              <Binding Source="{ThemeResource TextColor}"/>
+              <Binding Source="{ThemeResource GrayedOutTextColor}"/>
+            </MultiBinding>
+          </Label.Color>
+        </Label>
+        <Label x:Name="OnlineState" DockPanel.Dock="Left">
+          <Label.Content>
+            <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
+              <Binding Path="AdditionalProperties[IsConnected]"/>
+              <Binding Source="[Shares.Online]"/>
+              <Binding Source="[Shares.Offline]"/>
+            </MultiBinding>
+          </Label.Content>
+          <Label.Color>
+            <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
+              <Binding Path="AdditionalProperties[IsConnected]"/>
+              <Binding Source="{ThemeResource TextColor}"/>
+              <Binding Source="{ThemeResource GrayedOutTextColor}"/>
+            </MultiBinding>
+          </Label.Color>
+        </Label>
+        <Label DockPanel.Dock="Left" Content=")">
+          <Label.Color>
+            <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
+              <Binding Path="AdditionalProperties[IsConnected]"/>
+              <Binding Source="{ThemeResource TextColor}"/>
+              <Binding Source="{ThemeResource GrayedOutTextColor}"/>
+            </MultiBinding>
+          </Label.Color>
+        </Label>
+      </DockPanel>
+      <ListView x:Name="SystemSharesList" Margin="10" HorizontalAlignment="Stretch" VerticalAlignment="Top"
+            DockPanel.Dock="Top"
+            Style="{ThemeResource SystemSharesListViewStyle}"
+            ItemsSource="{Binding Path=AdditionalProperties[SystemShares],Mode=OneTime}"/>
+    </DockPanel>
+  </DataTemplate>
+
+  <!-- ListView style to be used for the shares overview list -->
+  <Style x:Key="SharesOverviewListViewStyle" BasedOn="{ThemeResource DefaultListViewStyle}">
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate TargetType="{x:Type ListView}">
+          <Grid>
+            <Grid.RowDefinitions>
+              <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+            <Grid.ColumnDefinitions>
+              <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+            <ScrollViewer CanContentScroll="False" Margin="5" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+                IsVisible="{Binding RelativeSource={RelativeSource TemplatedParent},Path=!IsEmpty}"
+                Background="{ThemeResource ItemsControlShadowBackgroundColor}">
+              <ItemsPresenter x:Name="OverviewPresenter" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"/>
+            </ScrollViewer>
+            <Label Content="[Shares.NoSharesInThisView]" IsVisible="{Binding RelativeSource={RelativeSource TemplatedParent},Path=IsEmpty}"
+                HorizontalAlignment="Center" VerticalAlignment="Center"
+                Color="{ThemeResource HintTextColor}" FontSize="{ThemeResource SmallFontSize}"/>
+          </Grid>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+    <Setter Property="ItemTemplate" Value="{ThemeResource SystemSharesItemDataTemplate}"/>
+    <Setter Property="ItemContainerStyle" Value="{ThemeResource DefaultItemContainerStyle}"/>
   </Style>
 
   <!-- ListView style to be used for the shares list -->
@@ -640,7 +767,7 @@
                 Background="{ThemeResource ItemsControlShadowBackgroundColor}">
               <ItemsPresenter VerticalAlignment="Stretch" HorizontalAlignment="Stretch"/>
             </ScrollViewer>
-            <Label Content="[SharesConfig.NoSharesInThisView]" IsVisible="{Binding RelativeSource={RelativeSource TemplatedParent},Path=IsEmpty}"
+            <Label Content="[Shares.NoSharesInThisView]" IsVisible="{Binding RelativeSource={RelativeSource TemplatedParent},Path=IsEmpty}"
                 HorizontalAlignment="Center" VerticalAlignment="Center"
                 Color="{ThemeResource HintTextColor}" FontSize="{ThemeResource SmallFontSize}"/>
           </Grid>
@@ -669,7 +796,7 @@
                 Background="{ThemeResource ItemsControlShadowBackgroundColor}">
               <ItemsPresenter VerticalAlignment="Stretch" HorizontalAlignment="Stretch"/>
             </ScrollViewer>
-            <Label Content="[SharesConfig.NoSharesInThisView]" IsVisible="{Binding RelativeSource={RelativeSource TemplatedParent},Path=IsEmpty}"
+            <Label Content="[Shares.NoSharesInThisView]" IsVisible="{Binding RelativeSource={RelativeSource TemplatedParent},Path=IsEmpty}"
                 HorizontalAlignment="Center" VerticalAlignment="Center"
                 Color="{ThemeResource HintTextColor}" FontSize="{ThemeResource SmallFontSize}"/>
           </Grid>

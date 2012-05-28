@@ -45,6 +45,14 @@ namespace MediaPortal.Common.MediaManagement
     Erroneous
   }
 
+  public class DisconnectedException : ApplicationException
+  {
+    public DisconnectedException() {}
+    public DisconnectedException(string message, params object[] parameters) : base(string.Format(message, parameters)) {}
+    public DisconnectedException(string message, Exception innerException, params object[] parameters) :
+        base(string.Format(message, parameters), innerException) {}
+  }
+
   /// <summary>
   /// Holds the data which specifies the basic data of an import job.
   /// </summary>
