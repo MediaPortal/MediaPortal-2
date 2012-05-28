@@ -29,6 +29,6 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.MovieDbV3.Data
     public string BackdropPath { get; set; }
 
     [DataMember(Name = "release_date")]
-    public DateTime ReleaseDate { get; set; }
+    public DateTime? ReleaseDate { get; set; }
   }
 }

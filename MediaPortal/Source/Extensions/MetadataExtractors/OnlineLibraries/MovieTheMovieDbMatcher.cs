@@ -97,11 +97,13 @@ namespace MediaPortal.Extensions.OnlineLibraries
         {
           movieDbId = movieDetails.Id;
           movieInfo.MovieName = movieDetails.Title;
+          movieInfo.OriginalName = movieDetails.OriginalTitle;
           movieInfo.Summary = movieDetails.Overview;
-          movieInfo.Budget = movieDetails.Budget;
-          movieInfo.Revenue = movieDetails.Revenue;
-          movieInfo.Runtime = movieDetails.Runtime;
-          movieInfo.Popularity = movieDetails.Popularity;
+          movieInfo.Tagline = movieDetails.Tagline;
+          if (movieDetails.Budget.HasValue) movieInfo.Budget = movieDetails.Budget.Value;
+          if (movieDetails.Revenue.HasValue) movieInfo.Revenue = movieDetails.Revenue.Value;
+          if (movieDetails.Runtime.HasValue) movieInfo.Runtime = movieDetails.Runtime.Value;
+          if (movieDetails.Popularity.HasValue) movieInfo.Popularity = movieDetails.Popularity.Value;
           movieInfo.ImdbId = movieDetails.ImdbId;
           movieInfo.MovieDbId = movieDetails.Id;
           if (movieDetails.Genres.Count > 0)
@@ -116,9 +118,12 @@ namespace MediaPortal.Extensions.OnlineLibraries
           //  movieInfo.Directors.Clear();
           //  movieInfo.Directors.AddRange(movieDetails.Cast.Where(p => p.Job == "Director").Select(p => p.Name));
           //}
-          int year = movieDetails.ReleaseDate.Year;
-          if (year > 0)
-            movieInfo.Year = year;
+          if (movieDetails.ReleaseDate.HasValue)
+          {
+            int year = movieDetails.ReleaseDate.Value.Year;
+            if (year > 0)
+              movieInfo.Year = year;
+          }
         }
 
         if (movieDbId > 0)

@@ -134,7 +134,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.TheMovieDB
           // Try to match the year, if available
           if (year > 0)
           {
-            var yearFiltered = movies.FindAll(s => s.ReleaseDate.Year == year);
+            var yearFiltered = movies.FindAll(s => s.ReleaseDate.HasValue && s.ReleaseDate.Value.Year == year);
             if (yearFiltered.Count == 1)
             {
               ServiceRegistration.Get<ILogger>().Debug("TheMovieDbWrapper      : Unique match found \"{0}\" [{1}]!", moviesName, year);

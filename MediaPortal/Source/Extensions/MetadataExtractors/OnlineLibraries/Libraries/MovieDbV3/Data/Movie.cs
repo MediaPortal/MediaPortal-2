@@ -76,16 +76,16 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.MovieDbV3.Data
     public string Tagline { get; set; }    
 
     [DataMember(Name = "revenue")]
-    public long Revenue { get; set; }
+    public long? Revenue { get; set; }
 
     [DataMember(Name = "budget")]
-    public long Budget { get; set; }
+    public long? Budget { get; set; }
 
     [DataMember(Name = "runtime")]
-    public int Runtime { get; set; }
+    public int? Runtime { get; set; }
 
     [DataMember(Name = "popularity")]
-    public float Popularity { get; set; }
+    public float? Popularity { get; set; }
     
     [DataMember(Name = "homepage")]
     public string Homepage { get; set; }
