@@ -60,6 +60,7 @@ namespace MediaPortal.Extensions.UserServices.FanArtService.Client
       get { return (FanArtConstants.FanArtMediaType)_fanArtMediaTypeProperty.GetValue(); }
       set { _fanArtMediaTypeProperty.SetValue(value); }
     }
+
     public AbstractProperty FanArtMediaTypeProperty
     {
       get { return _fanArtMediaTypeProperty; }
@@ -70,6 +71,7 @@ namespace MediaPortal.Extensions.UserServices.FanArtService.Client
       get { return (FanArtConstants.FanArtType)_fanArtTypeProperty.GetValue(); }
       set { _fanArtTypeProperty.SetValue(value); }
     }
+
     public AbstractProperty FanArtTypeProperty
     {
       get { return _fanArtTypeProperty; }
@@ -80,6 +82,7 @@ namespace MediaPortal.Extensions.UserServices.FanArtService.Client
       get { return (string)_fanArtNameProperty.GetValue(); }
       set { _fanArtNameProperty.SetValue(value); }
     }
+
     public AbstractProperty FanArtNameProperty
     {
       get { return _fanArtNameProperty; }
@@ -90,6 +93,7 @@ namespace MediaPortal.Extensions.UserServices.FanArtService.Client
       get { return (int)_maxWidthProperty.GetValue(); }
       set { _maxWidthProperty.SetValue(value); }
     }
+
     public AbstractProperty MaxWidthProperty
     {
       get { return _maxWidthProperty; }
@@ -100,6 +104,7 @@ namespace MediaPortal.Extensions.UserServices.FanArtService.Client
       get { return (int)_maxHeightProperty.GetValue(); }
       set { _maxHeightProperty.SetValue(value); }
     }
+
     public AbstractProperty MaxHeightProperty
     {
       get { return _maxHeightProperty; }
@@ -118,11 +123,12 @@ namespace MediaPortal.Extensions.UserServices.FanArtService.Client
     /// </summary>
     public FanArtImageSource()
     {
-      _fanArtMediaTypeProperty = new WProperty(typeof(FanArtConstants.FanArtMediaType), FanArtConstants.FanArtMediaType.Undefined);
-      _fanArtTypeProperty = new WProperty(typeof(FanArtConstants.FanArtType), FanArtConstants.FanArtType.Undefined);
-      _fanArtNameProperty = new WProperty(typeof(string), string.Empty);
-      _maxWidthProperty = new WProperty(typeof(int), 0);
-      _maxHeightProperty = new WProperty(typeof(int), 0);
+      _fanArtMediaTypeProperty = new SProperty(typeof(FanArtConstants.FanArtMediaType), FanArtConstants.FanArtMediaType.Undefined);
+      _fanArtTypeProperty = new SProperty(typeof(FanArtConstants.FanArtType), FanArtConstants.FanArtType.Undefined);
+      _fanArtNameProperty = new SProperty(typeof(string), string.Empty);
+      _maxWidthProperty = new SProperty(typeof(int), 0);
+      _maxHeightProperty = new SProperty(typeof(int), 0);
+      Attach();
     }
 
     #endregion
@@ -142,12 +148,20 @@ namespace MediaPortal.Extensions.UserServices.FanArtService.Client
 
     protected void Attach()
     {
-
+      FanArtMediaTypeProperty.Attach(UpdateSource);
+      FanArtNameProperty.Attach(UpdateSource);
     }
 
     protected void Detach()
     {
+      FanArtMediaTypeProperty.Detach(UpdateSource);
+      FanArtNameProperty.Detach(UpdateSource);
+    }
 
+    private void UpdateSource(AbstractProperty property, object oldvalue)
+    {
+      FreeData();
+      FireChanged();
     }
 
     #region ImageSource implementation
@@ -228,6 +242,8 @@ namespace MediaPortal.Extensions.UserServices.FanArtService.Client
     {
       _texture = null;
       base.FreeData();
+      _fanArtResult = null;
+      _asyncCompleted = false;
     }
 
     #endregion

@@ -14,4 +14,8 @@
   <Runtime>
     <Assembly FileName="FanArtService.Client.dll"/>
   </Runtime>
+
+  <Register Location="/Models">
+    <Model Id="8F42C8E9-E8A3-475C-A50A-99E1E644DC91" Name="FanArtBackgroundModel" ClassName="MediaPortal.Extensions.UserServices.FanArtService.Client.Models.FanArtBackgroundModel"/>
+  </Register>
 </Plugin>

@@ -61,6 +61,7 @@
   <ItemGroup>
     <Compile Include="FanArtImageSource.cs" />
     <Compile Include="FanArtServiceProxy.cs" />
+    <Compile Include="Models\FanArtBackgroundModel.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -86,6 +87,10 @@
     <ProjectReference Include="..\..\Source\UI\SkinEngine\SkinEngine.csproj">
       <Project>{7E943389-3589-40C9-B481-2E223554CC49}</Project>
       <Name>SkinEngine</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\Source\UI\UiComponents\Media\Media.csproj">
+      <Project>{CD37E2FF-4CF7-4F96-8C73-C6764988D408}</Project>
+      <Name>Media</Name>
     </ProjectReference>
     <ProjectReference Include="..\FanArtService.Interfaces\FanArtService.Interfaces.csproj">
       <Project>{587B806E-9AFC-47D7-A024-1CEC38C4D1D3}</Project>
