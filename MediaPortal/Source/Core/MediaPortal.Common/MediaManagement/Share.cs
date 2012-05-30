@@ -47,6 +47,12 @@ namespace MediaPortal.Common.MediaManagement
     Image,
   }
 
+  public enum SpecializedCategory
+  {
+    Series,
+    Movie,
+  }
+
   /// <summary>
   /// Holds all configuration data of a share. A share descriptor globally describes a share
   /// in an MP 2 system.

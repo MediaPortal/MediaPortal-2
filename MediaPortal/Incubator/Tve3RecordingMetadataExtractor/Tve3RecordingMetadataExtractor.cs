@@ -108,6 +108,8 @@ namespace MediaPortal.Extensions.MetadataExtractors
     static Tve3RecordingMetadataExtractor()
     {
       SHARE_CATEGORIES.Add(DefaultMediaCategory.Video.ToString());
+      SHARE_CATEGORIES.Add(SpecializedCategory.Series.ToString());
+      SHARE_CATEGORIES.Add(SpecializedCategory.Movie.ToString());
       // Register the Recording aspect
       IMediaItemAspectTypeRegistration miatr = ServiceRegistration.Get<IMediaItemAspectTypeRegistration>();
       miatr.RegisterLocallyKnownMediaItemAspectType(RecordingAspect.Metadata);

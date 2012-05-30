@@ -96,6 +96,8 @@ namespace MediaPortal.Extensions.MetadataExtractors.VideoMetadataExtractor
     static VideoMetadataExtractor()
     {
       SHARE_CATEGORIES.Add(DefaultMediaCategory.Video.ToString());
+      SHARE_CATEGORIES.Add(SpecializedCategory.Series.ToString());
+      SHARE_CATEGORIES.Add(SpecializedCategory.Movie.ToString());
       VideoMetadataExtractorSettings settings = ServiceRegistration.Get<ISettingsManager>().Load<VideoMetadataExtractorSettings>();
       InitializeExtensions(settings);
     }

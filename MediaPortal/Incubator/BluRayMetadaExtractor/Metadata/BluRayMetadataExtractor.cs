@@ -69,6 +69,7 @@ namespace MediaPortal.Media.MetadataExtractors
     static BluRayMetadataExtractor()
     {
       SHARE_CATEGORIES.Add(DefaultMediaCategory.Video.ToString());
+      SHARE_CATEGORIES.Add(SpecializedCategory.Movie.ToString());
     }
 
     public BluRayMetadataExtractor()
