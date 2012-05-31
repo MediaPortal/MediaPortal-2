@@ -113,6 +113,10 @@ UninstPage instfiles
 
 
 Section "Dokan Library x86" section_x86
+  ; chefkoch, 2012-06-01: removed conditional installation, as
+  ; MediaPortal 2 supports only Windows 7 and above.
+  !insertmacro X86Files "win7"
+/*
   ${If} ${IsWin7}
     !insertmacro X86Files "win7"
   ${ElseIf} ${IsWin2008R2}
@@ -126,9 +130,14 @@ Section "Dokan Library x86" section_x86
   ${ElseIf} ${IsWinXp}
     !insertmacro X86Files "wxp"
   ${EndIf}
+*/
 SectionEnd
 
 Section "Dokan Driver x86" section_x86_driver
+  ; chefkoch, 2012-06-01: removed conditional installation, as
+  ; MediaPortal 2 supports only Windows 7 and above.
+  !insertmacro X86Driver "win7"
+/*
   ${If} ${IsWin7}
     !insertmacro X86Driver "win7"
   ${ElseIf} ${IsWinVista}
@@ -140,10 +149,15 @@ Section "Dokan Driver x86" section_x86_driver
   ${ElseIf} ${IsWinXp}
     !insertmacro X86Driver "wxp"
   ${EndIf}
+*/
   !insertmacro DokanSetup
 SectionEnd
 
 Section "Dokan Driver x64" section_x64_driver
+  ; chefkoch, 2012-06-01: removed conditional installation, as
+  ; MediaPortal 2 supports only Windows 7 and above.
+  !insertmacro X64Driver "win7"
+/*
   ${If} ${IsWin7}
     !insertmacro X64Driver "win7"
   ${ElseIf} ${IsWin2008R2}
@@ -155,6 +169,7 @@ Section "Dokan Driver x64" section_x64_driver
   ${ElseIf} ${IsWin2003}
     !insertmacro X64Driver "wnet"
   ${EndIf}
+*/
   !insertmacro DokanSetup
 SectionEnd
 
