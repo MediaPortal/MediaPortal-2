@@ -350,7 +350,8 @@ namespace MediaPortal.Common.Services.MediaManagement
     {
       IDictionary<Guid, MediaItemAspect> result = new Dictionary<Guid, MediaItemAspect>();
       bool success = false;
-      foreach (IMetadataExtractor extractor in metadataExtractors)
+      // Execute all metadata extractors in order of their priority
+      foreach (IMetadataExtractor extractor in metadataExtractors.OrderBy(m => m.Metadata.Priority))
       {
         try
         {

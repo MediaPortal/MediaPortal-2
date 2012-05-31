@@ -113,7 +113,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.VideoMetadataExtractor
 
     public VideoMetadataExtractor()
     {
-      _metadata = new MetadataExtractorMetadata(METADATAEXTRACTOR_ID, "Video metadata extractor", true,
+      _metadata = new MetadataExtractorMetadata(METADATAEXTRACTOR_ID, "Video metadata extractor", MetadataExtractorPriority.Core, true,
           SHARE_CATEGORIES, new[]
               {
                 MediaAspect.Metadata,

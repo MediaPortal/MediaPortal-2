@@ -88,7 +88,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.ImageMetadataExtractor
 
     public ImageMetadataExtractor()
     {
-      _metadata = new MetadataExtractorMetadata(METADATAEXTRACTOR_ID, "Image metadata extractor", true,
+      _metadata = new MetadataExtractorMetadata(METADATAEXTRACTOR_ID, "Image metadata extractor", MetadataExtractorPriority.Core, true,
           SHARE_CATEGORIES, new[]
               {
                 MediaAspect.Metadata,

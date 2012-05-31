@@ -74,7 +74,7 @@ namespace MediaPortal.Media.MetadataExtractors
 
     public BluRayMetadataExtractor()
     {
-      _metadata = new MetadataExtractorMetadata(METADATAEXTRACTOR_ID, "BluRay metadata extractor", true, 
+      _metadata = new MetadataExtractorMetadata(METADATAEXTRACTOR_ID, "BluRay metadata extractor", MetadataExtractorPriority.Core, false, 
           SHARE_CATEGORIES, new[]
               {
                 MediaAspect.Metadata,

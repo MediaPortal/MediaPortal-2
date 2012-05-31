@@ -28,6 +28,29 @@ using System.Collections.Generic;
 namespace MediaPortal.Common.MediaManagement
 {
   /// <summary>
+  /// <see cref="MetadataExtractorPriority"/> defines the different levels of <see cref="IMetadataExtractor"/>s in terms of availability,
+  /// quantity and quality of information they can extract. Metadata extractors will be run in ascending order from lowest (<see cref="Core"/>) 
+  /// to highest (<see cref="External"/>). This way a higher level extractor can work with the already extracted metadata, i.e. to do an 
+  /// online lookup.
+  /// </summary>
+  public enum MetadataExtractorPriority
+  {
+    /// <summary>
+    /// Lowest level for metadata extractors, like detecting audio and video files, reading stream informationen and metadata of files.
+    /// </summary>
+    Core,
+    /// <summary>
+    /// Extended level extractors provide additional information, that can be read of additional files (.xml, .nfo, ...).
+    /// </summary>
+    Extended,
+    /// <summary>
+    /// External extractors provide information that can be retrieved from online sources (like IMDB, TMDB, TvDB, ...). They can already
+    /// use all metadata that were extracted before to do a successful online lookup.
+    /// </summary>
+    External,
+  }
+
+  /// <summary>
   /// Holds all metadata for a the metadata extractor specified by the <see cref="MetadataExtractorId"/>.
   /// </summary>
   /// <remarks>
@@ -40,17 +63,19 @@ namespace MediaPortal.Common.MediaManagement
     protected Guid _metadataExtractorId;
     protected string _name;
     protected bool _processesNonFiles;
+    protected MetadataExtractorPriority _metadataExtractorPriority;
     protected ICollection<string> _shareCategories;
     protected IDictionary<Guid, MediaItemAspectMetadata> _extractedAspectTypes;
 
     #endregion
 
-    public MetadataExtractorMetadata(Guid metadataExtractorId, string name, bool processesNonFiles,
+    public MetadataExtractorMetadata(Guid metadataExtractorId, string name, MetadataExtractorPriority metadataExtractorPriority, bool processesNonFiles,
         IEnumerable<string> shareCategories, IEnumerable<MediaItemAspectMetadata> extractedAspectTypes)
     {
       _metadataExtractorId = metadataExtractorId;
       _name = name;
       _processesNonFiles = processesNonFiles;
+      _metadataExtractorPriority = metadataExtractorPriority;
       _shareCategories = new List<string>(shareCategories);
       _extractedAspectTypes = new Dictionary<Guid, MediaItemAspectMetadata>();
       foreach (MediaItemAspectMetadata aspectMetadata in extractedAspectTypes)
@@ -71,6 +96,14 @@ namespace MediaPortal.Common.MediaManagement
     public string Name
     {
       get { return _name; }
+    }
+
+    /// <summary>
+    /// Returns the priority of the metadata extractor.
+    /// </summary>
+    public MetadataExtractorPriority Priority
+    {
+      get { return _metadataExtractorPriority; }
     }
 
     /// <summary>

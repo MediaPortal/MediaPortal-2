@@ -117,13 +117,14 @@ namespace MediaPortal.Extensions.MetadataExtractors
 
     public Tve3RecordingMetadataExtractor()
     {
-      _metadata = new MetadataExtractorMetadata(METADATAEXTRACTOR_ID, "TVEngine3 recordings metadata extractor", true, SHARE_CATEGORIES, new[]
-          {
-            MediaAspect.Metadata,
-            VideoAspect.Metadata,
-            RecordingAspect.Metadata,
-            SeriesAspect.Metadata
-          });
+      _metadata = new MetadataExtractorMetadata(METADATAEXTRACTOR_ID, "TVEngine3 recordings metadata extractor", MetadataExtractorPriority.Extended, false,
+          SHARE_CATEGORIES, new[]
+              {
+                MediaAspect.Metadata,
+                VideoAspect.Metadata,
+                RecordingAspect.Metadata,
+                SeriesAspect.Metadata
+              });
     }
 
     #endregion
