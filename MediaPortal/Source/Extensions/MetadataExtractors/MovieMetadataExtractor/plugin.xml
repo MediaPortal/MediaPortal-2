@@ -1,0 +1,25 @@
+<Plugin
+    DescriptorVersion="1.0"
+    Name="MoviesMetadataExtractor"
+    PluginId="{C2800928-8A57-4979-A95F-3CE6F3EBAB92}"
+    Author = "Morpheus_xx"
+    Copyright="GPL"
+    Description="Metadata extractor to detect and lookup Movie information"
+    PluginVersion="1.0">
+
+  <DependsOn>
+    <PluginReference PluginId="{D418C9C9-6D2A-44ed-ADC2-16345294B019}"/> <!-- MediaInfoPlugin -->
+    <PluginReference PluginId="{3F5077F0-16E8-47E7-AD4B-E295812C174A}"/> <!-- MatroskaLib -->
+    <PluginReference PluginId="{B32504F3-4374-4640-94A1-16E1DEE84C3C}"/> <!-- OnlineLibraries -->
+  </DependsOn>
+
+  <Runtime>
+    <Assembly FileName="MovieMetadataExtractor.dll"/>
+  </Runtime>
+
+  <Register Location="/Media/MetadataExtractors">
+    <Instance
+        Id="MoviesMetadataExtractor"
+        ClassName="MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor.MovieMetadataExtractor"/>
+  </Register>
+</Plugin>
