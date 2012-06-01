@@ -181,7 +181,6 @@ namespace MediaPortal.Extensions.MetadataExtractors
           seriesInfo.SetMetadata(extractedAspectData);
         }
 
-        int guessedYear = 0;
         string value;
         if (TryGet(tags, TAG_GENRE, out value))
           videoAspect.SetCollectionAttribute(VideoAspect.ATTR_GENRES, new List<String> { value });
@@ -190,7 +189,9 @@ namespace MediaPortal.Extensions.MetadataExtractors
         {
           videoAspect.SetAttribute(VideoAspect.ATTR_STORYPLOT, value);
           Match yearMatch = _yearMatcher.Match(value);
-          int.TryParse(yearMatch.Value, out guessedYear);
+          int guessedYear;
+          if (int.TryParse(yearMatch.Value, out guessedYear))
+            MediaItemAspect.SetAttribute(extractedAspectData, MediaAspect.ATTR_RECORDINGTIME, new DateTime(guessedYear, 1, 1));
         }
 
         if (TryGet(tags, TAG_CHANNEL, out value))
@@ -207,18 +208,6 @@ namespace MediaPortal.Extensions.MetadataExtractors
         if (TryGet(tags, TAG_ENDTIME, out value) && DateTime.TryParse(value, out recordingEnd))
           recordingAspect.SetAttribute(RecordingAspect.ATTR_ENDTIME, recordingEnd);
 
-
-        string title;
-        if (TryGet(tags, TAG_TITLE, out title))
-        {
-          MovieInfo movieInfo = new MovieInfo
-            {
-              MovieName = title,
-              Year = guessedYear
-            };
-          if (MovieTheMovieDbMatcher.Instance.FindAndUpdateMovie(movieInfo))
-            movieInfo.SetMetadata(extractedAspectData);
-        }
         return true;
       }
       catch (Exception e)
