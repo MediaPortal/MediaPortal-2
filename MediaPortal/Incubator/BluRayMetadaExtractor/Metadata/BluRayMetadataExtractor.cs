@@ -29,10 +29,8 @@ using MediaPortal.Common;
 using MediaPortal.Common.Logging;
 using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
-using MediaPortal.Common.MediaManagement.Helpers;
 using MediaPortal.Common.ResourceAccess;
 using MediaPortal.Common.Services.ResourceAccess.StreamedResourceToLocalFsAccessBridge;
-using MediaPortal.Extensions.OnlineLibraries;
 using MediaPortal.UI.Players.Video;
 
 namespace MediaPortal.Media.MetadataExtractors
@@ -125,17 +123,6 @@ namespace MediaPortal.Media.MetadataExtractors
                     binaryReader.Read(binary, 0, binary.Length);
 
                   MediaItemAspect.SetAttribute(extractedAspectData, ThumbnailLargeAspect.ATTR_THUMBNAIL, binary);
-                }
-
-                // Movie handling
-                if (!string.IsNullOrEmpty(title) && !forceQuickMode)
-                {
-                  MovieInfo movieInfo = new MovieInfo
-                  {
-                    MovieName = title,
-                  };
-                  if (MovieTheMovieDbMatcher.Instance.FindAndUpdateMovie(movieInfo))
-                    movieInfo.SetMetadata(extractedAspectData);
                 }
                 return true;
               }

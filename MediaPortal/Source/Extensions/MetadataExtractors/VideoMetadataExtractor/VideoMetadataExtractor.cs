@@ -37,9 +37,7 @@ using MediaPortal.Common.Services.ResourceAccess.StreamedResourceToLocalFsAccess
 using MediaPortal.Common.Services.ThumbnailGenerator;
 using MediaPortal.Common.Settings;
 using MediaPortal.Extensions.MetadataExtractors.VideoMetadataExtractor.Matroska;
-using MediaPortal.Extensions.MetadataExtractors.VideoMetadataExtractor.NameMatchers;
 using MediaPortal.Extensions.MetadataExtractors.VideoMetadataExtractor.Settings;
-using MediaPortal.Extensions.OnlineLibraries;
 using MediaPortal.Utilities;
 using MediaPortal.Utilities.SystemAPI;
 
@@ -56,24 +54,6 @@ namespace MediaPortal.Extensions.MetadataExtractors.VideoMetadataExtractor
     /// GUID string for the video metadata extractor.
     /// </summary>
     public const string METADATAEXTRACTOR_ID_STR = "F2D86BE4-07E6-40F2-9D12-C0076861CAB8";
-
-    #region Matroska reader tags
-
-    // Tags are constructed by using TargetTypeValue (i.e. 70) and the name of the <Simple> tag (i.e. TITLE).
-    private const string TAG_SERIES_TITLE = "70.TITLE";
-    private const string TAG_SERIES_GENRE = "70.GENRE";
-    private const string TAG_SERIES_ACTORS = "70.ACTOR";
-    private const string TAG_SEASON_YEAR = "60.DATE_RELEASE";
-    private const string TAG_SEASON_TITLE = "60.TITLE";
-    private const string TAG_EPISODE_TITLE = "50.TITLE";
-    private const string TAG_EPISODE_SUMMARY = "50.SUMMARY";
-    private const string TAG_ACTORS = "50.ACTOR";
-    private const string TAG_SEASON_NUMBER = "60.PART_NUMBER";
-    private const string TAG_EPISODE_YEAR = "50.DATE_RELEASED";
-    private const string TAG_EPISODE_NUMBER = "50.PART_NUMBER";
-    private const string TAG_SIMPLE_TITLE = "TITLE";
-
-    #endregion
 
     /// <summary>
     /// Video metadata extractor GUID.
@@ -96,8 +76,6 @@ namespace MediaPortal.Extensions.MetadataExtractors.VideoMetadataExtractor
     static VideoMetadataExtractor()
     {
       SHARE_CATEGORIES.Add(DefaultMediaCategory.Video.ToString());
-      SHARE_CATEGORIES.Add(SpecializedCategory.Series.ToString());
-      SHARE_CATEGORIES.Add(SpecializedCategory.Movie.ToString());
       VideoMetadataExtractorSettings settings = ServiceRegistration.Get<ISettingsManager>().Load<VideoMetadataExtractorSettings>();
       InitializeExtensions(settings);
     }
@@ -279,31 +257,8 @@ namespace MediaPortal.Extensions.MetadataExtractors.VideoMetadataExtractor
       }
     }
 
-    protected SeriesInfo GetSeriesFromTags(IDictionary<string, IList<string>> extractedTags)
+    protected void ExtractMatroskaTags(string localFsResourcePath, IDictionary<Guid, MediaItemAspect> extractedAspectData, bool forceQuickMode)
     {
-      SeriesInfo seriesInfo = new SeriesInfo();
-      if (extractedTags[TAG_EPISODE_TITLE] != null)
-        seriesInfo.Episode = extractedTags[TAG_EPISODE_TITLE].FirstOrDefault();
-
-      if (extractedTags[TAG_SERIES_TITLE] != null)
-        seriesInfo.Series = extractedTags[TAG_SERIES_TITLE].FirstOrDefault();
-
-      if (extractedTags[TAG_SEASON_NUMBER] != null)
-        int.TryParse(extractedTags[TAG_SEASON_NUMBER].FirstOrDefault(), out seriesInfo.SeasonNumber);
-
-      if (extractedTags[TAG_EPISODE_NUMBER] != null)
-      {
-        int episodeNum;
-        if (int.TryParse(extractedTags[TAG_EPISODE_NUMBER].FirstOrDefault(), out episodeNum))
-          seriesInfo.EpisodeNumbers.Add(episodeNum);
-      }
-      return seriesInfo;
-    }
-
-    protected void ExtractSeriesAndMovieData(string localFsResourcePath, IDictionary<Guid, MediaItemAspect> extractedAspectData, bool forceQuickMode)
-    {
-      SeriesInfo seriesInfo = null;
-
       string extensionUpper = StringUtils.TrimToEmpty(Path.GetExtension(localFsResourcePath)).ToUpper();
       string title = string.Empty;
       int year = 0;
@@ -313,56 +268,32 @@ namespace MediaPortal.Extensions.MetadataExtractors.VideoMetadataExtractor
       {
         MatroskaInfoReader mkvReader = new MatroskaInfoReader(localFsResourcePath);
         // Add keys to be extracted to tags dictionary, matching results will returned as value
-        Dictionary<string, IList<string>> tagsToExtract = new Dictionary<string, IList<string>>
-            {
-              {TAG_SERIES_TITLE, null}, // Series title
-              {TAG_SERIES_GENRE, null}, // Series genre(s)
-              {TAG_SERIES_ACTORS, null}, // Series actor(s)
-              {TAG_SEASON_NUMBER, null}, // Season number
-              {TAG_SEASON_YEAR, null}, // Season year
-              {TAG_SEASON_TITLE, null}, // Season title
-              {TAG_EPISODE_TITLE, null}, // Episode title
-              {TAG_EPISODE_SUMMARY, null}, // Episode summary
-              {TAG_EPISODE_YEAR, null}, // Episode year
-              {TAG_EPISODE_NUMBER, null}, // Episode number
-              {TAG_ACTORS, null}, // Actor(s)
-              {TAG_SIMPLE_TITLE, null} // File title
-            };
+        Dictionary<string, IList<string>> tagsToExtract = MatroskaConsts.DefaultTags;
         mkvReader.ReadTags(tagsToExtract);
 
-        var tags = tagsToExtract[TAG_SIMPLE_TITLE];
+        var tags = tagsToExtract[MatroskaConsts.TAG_SIMPLE_TITLE];
         if (tags != null)
           title = tags.FirstOrDefault();
-
-        // Series and episode handling. Prefer information from tags.
-        seriesInfo = GetSeriesFromTags(tagsToExtract);
-        if (seriesInfo.IsCompleteMatch)
-        {
-          if (!forceQuickMode)
-            SeriesTvDbMatcher.Instance.FindAndUpdateSeries(seriesInfo);
-
-          seriesInfo.SetMetadata(extractedAspectData);
-        }
 
         if (!string.IsNullOrEmpty(title))
           MediaItemAspect.SetAttribute(extractedAspectData, MediaAspect.ATTR_TITLE, title);
 
         string yearCandidate = null;
-        tags = tagsToExtract[TAG_EPISODE_YEAR] ?? tagsToExtract[TAG_SEASON_YEAR];
+        tags = tagsToExtract[MatroskaConsts.TAG_EPISODE_YEAR] ?? tagsToExtract[MatroskaConsts.TAG_SEASON_YEAR];
         if (tags != null)
           yearCandidate = (tags.FirstOrDefault() ?? string.Empty).Substring(0, 4);
 
         if (int.TryParse(yearCandidate, out year))
           MediaItemAspect.SetAttribute(extractedAspectData, MediaAspect.ATTR_RECORDINGTIME, new DateTime(year, 1, 1));
 
-        tags = tagsToExtract[TAG_SERIES_GENRE];
+        tags = tagsToExtract[MatroskaConsts.TAG_SERIES_GENRE];
         if (tags != null)
           MediaItemAspect.SetCollectionAttribute(extractedAspectData, VideoAspect.ATTR_GENRES, tags);
 
         IEnumerable<string> actors;
         // Combine series actors and episode actors if both are available
-        var tagSeriesActors = tagsToExtract[TAG_SERIES_ACTORS];
-        var tagActors = tagsToExtract[TAG_ACTORS];
+        var tagSeriesActors = tagsToExtract[MatroskaConsts.TAG_SERIES_ACTORS];
+        var tagActors = tagsToExtract[MatroskaConsts.TAG_ACTORS];
         if (tagSeriesActors != null && tagActors != null)
           actors = tagSeriesActors.Union(tagActors);
         else
@@ -370,37 +301,20 @@ namespace MediaPortal.Extensions.MetadataExtractors.VideoMetadataExtractor
 
         if (actors != null)
           MediaItemAspect.SetCollectionAttribute(extractedAspectData, VideoAspect.ATTR_ACTORS, actors);
-
-        tags = tagsToExtract[TAG_EPISODE_SUMMARY];
-        if (tags != null)
-          MediaItemAspect.SetAttribute(extractedAspectData, VideoAspect.ATTR_STORYPLOT, tags.FirstOrDefault());
       }
 
       // Movie handling
-      if (!string.IsNullOrEmpty(title) && !forceQuickMode)
-      {
-        // TODO: online information can overwrite information read out of mkv tags, how to handle this?
-        MovieInfo movieInfo = new MovieInfo
-        {
-          MovieName = title,
-          Year = year
-        };
-        if (MovieTheMovieDbMatcher.Instance.FindAndUpdateMovie(movieInfo))
-          movieInfo.SetMetadata(extractedAspectData);
-      }
-
-      if (seriesInfo != null && seriesInfo.IsCompleteMatch)
-        return;
-
-      // Try to match series from folder and file namings
-      SeriesMatcher seriesMatcher = new SeriesMatcher();
-      if (seriesMatcher.MatchSeries(localFsResourcePath, out seriesInfo) && seriesInfo.IsCompleteMatch)
-      {
-        if (!forceQuickMode)
-          SeriesTvDbMatcher.Instance.FindAndUpdateSeries(seriesInfo);
-
-        seriesInfo.SetMetadata(extractedAspectData);
-      }
+      //if (!string.IsNullOrEmpty(title) && !forceQuickMode)
+      //{
+      //  // TODO: online information can overwrite information read out of mkv tags, how to handle this?
+      //  MovieInfo movieInfo = new MovieInfo
+      //  {
+      //    MovieName = title,
+      //    Year = year
+      //  };
+      //  if (MovieTheMovieDbMatcher.Instance.FindAndUpdateMovie(movieInfo))
+      //    movieInfo.SetMetadata(extractedAspectData);
+      //}
     }
 
     protected void ExtractThumbnailData(string localFsResourcePath, IDictionary<Guid, MediaItemAspect> extractedAspectData, bool forceQuickMode)
@@ -501,7 +415,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.VideoMetadataExtractor
             if (lfsra != null)
             {
               string localFsPath = lfsra.LocalFileSystemPath;
-              ExtractSeriesAndMovieData(localFsPath, extractedAspectData, forceQuickMode);
+              ExtractMatroskaTags(localFsPath, extractedAspectData, forceQuickMode);
               ExtractThumbnailData(localFsPath, extractedAspectData, forceQuickMode);
             }
           }

@@ -1,0 +1,23 @@
+<Plugin
+    DescriptorVersion="1.0"
+    Name="SeriesMetadataExtractor"
+    PluginId="{A2D018D4-97E9-4B37-A7C3-31FD270277D0}"
+    Author = "Morpheus_xx"
+    Copyright="GPL"
+    Description="Metadata extractor to detect and lookup Series information"
+    PluginVersion="1.0">
+
+  <DependsOn>
+    <PluginReference PluginId="{D418C9C9-6D2A-44ed-ADC2-16345294B019}"/> <!-- MediaInfoPlugin -->
+  </DependsOn>
+
+  <Runtime>
+    <Assembly FileName="SeriesMetadataExtractor.dll"/>
+  </Runtime>
+
+  <Register Location="/Media/MetadataExtractors">
+    <Instance
+        Id="SeriesMetadataExtractor"
+        ClassName="MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor.SeriesMetadataExtractor"/>
+  </Register>
+</Plugin>
