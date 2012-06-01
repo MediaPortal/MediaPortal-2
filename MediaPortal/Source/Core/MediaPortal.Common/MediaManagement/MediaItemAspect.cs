@@ -426,7 +426,6 @@ namespace MediaPortal.Common.MediaManagement
       return mediaAspect;
     }
 
-
     /// <summary>
     /// Convenience method to set a simple attribute in a dictionary of media item aspects. If the given <paramref name="aspectData"/>
     /// dictionary contains the media item aspect of the requested aspect type, that aspect instance is used to store the
@@ -442,6 +441,27 @@ namespace MediaPortal.Common.MediaManagement
     {
       MediaItemAspect aspect = GetOrCreateAspect(aspectData, attributeSpecification.ParentMIAM);
       aspect.SetAttribute(attributeSpecification, value);
+    }
+
+    /// <summary>
+    /// Convenience method to get a simple attribute in a dictionary of media item aspects.
+    /// </summary>
+    /// <typeparam name="TE">Type parameter.</typeparam>
+    /// <param name="aspectData">Dictionary of aspect data to be read from.</param>
+    /// <param name="attributeSpecification">Type of the attribute to read.</param>
+    /// <param name="value">Returns the value.</param>
+    /// <returns><c>true</c> if value exists.</returns>
+    public static bool TryGetAttribute<TE>(IDictionary<Guid, MediaItemAspect> aspectData,
+        MediaItemAspectMetadata.AttributeSpecification attributeSpecification, out TE value)
+    {
+      value = default(TE);
+      MediaItemAspect mediaAspect;
+      Guid aspectId = attributeSpecification.ParentMIAM.AspectId;
+      if (!aspectData.TryGetValue(aspectId, out mediaAspect))
+        return false;
+
+      value = (TE) mediaAspect[attributeSpecification];
+      return true;
     }
 
     /// <summary>
