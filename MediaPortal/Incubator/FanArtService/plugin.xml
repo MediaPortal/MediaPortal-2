@@ -8,6 +8,10 @@
     AutoActivate="true"
     PluginVersion="1.0">
 
+  <DependsOn>
+    <PluginReference PluginId="{B32504F3-4374-4640-94A1-16E1DEE84C3C}"/> <!-- OnlineLibraries -->
+  </DependsOn>
+
   <Runtime>
     <Assembly FileName="FanArtService.dll"/>
     <PluginStateTracker ClassName="MediaPortal.Extensions.UserServices.FanArtService.FanArtServicePlugin"/>
