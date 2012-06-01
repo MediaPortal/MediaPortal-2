@@ -84,7 +84,7 @@
     <Compile Include="Metadata\BDROM\TSStreamClipFile.cs" />
     <Compile Include="Metadata\BDROM\TSStreamFile.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Metadata\BluRayMetadataExtractor.cs" />
+    <Compile Include="BluRayMetadataExtractor.cs" />
     <Compile Include="Settings\BDInfoSettings.cs">
       <SubType>Code</SubType>
     </Compile>

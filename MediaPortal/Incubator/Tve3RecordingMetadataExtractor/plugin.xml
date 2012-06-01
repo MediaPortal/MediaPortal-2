@@ -9,6 +9,7 @@
 
   <DependsOn>
     <PluginReference PluginId="{D418C9C9-6D2A-44ed-ADC2-16345294B019}"/> <!-- MediaInfoPlugin -->
+    <PluginReference PluginId="{B32504F3-4374-4640-94A1-16E1DEE84C3C}"/> <!-- OnlineLibraries -->
   </DependsOn>
 
   <Runtime>

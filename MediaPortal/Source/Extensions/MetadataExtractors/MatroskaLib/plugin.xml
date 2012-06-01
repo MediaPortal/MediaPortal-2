@@ -1,0 +1,13 @@
+<Plugin
+    DescriptorVersion="1.0"
+    Name="MatroskaLib"
+    PluginId="{3F5077F0-16E8-47E7-AD4B-E295812C174A}"
+    Author="Morpheus_xx"
+    Copyright="GPL"
+    Description="Library plugin providing the Matroska metadata extractor functionality needed for some default metadata extractors"
+    PluginVersion="1.0">
+
+  <Runtime>
+    <Assembly FileName="MatroskaLib.dll"/>
+  </Runtime>
+</Plugin>

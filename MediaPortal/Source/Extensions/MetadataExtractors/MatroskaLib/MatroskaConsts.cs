@@ -24,7 +24,7 @@
 
 using System.Collections.Generic;
 
-namespace MediaPortal.Extensions.MetadataExtractors.VideoMetadataExtractor.Matroska
+namespace MediaPortal.Extensions.MetadataExtractors.MatroskaLib
 {
   public class MatroskaConsts
   {

@@ -2,11 +2,14 @@
     DescriptorVersion="1.0"
     Name="BluRayMetadataExtractor"
     PluginId="{FE6076A1-8C38-416C-8129-A80942FCFB68}"
-    Author="ArmandP, Morpheus_xx"
+    Author="Morpheus_xx"
     Copyright="GPL"
     Description="BluRayMetadataExtractor"
     PluginVersion="1.0">
 
+  <DependsOn>
+    <PluginReference PluginId="{B32504F3-4374-4640-94A1-16E1DEE84C3C}"/> <!-- OnlineLibraries -->
+  </DependsOn>
 
   <Runtime>
     <Assembly FileName="BluRayMetadataExtractor.dll"/>
@@ -14,8 +17,6 @@
 
   <!-- The Metadata extractor. -->
   <Register Location="/Media/MetadataExtractors">
-    <Instance
-        Id="BluRayMetadataExtractor"
-        ClassName="MediaPortal.Media.MetadataExtractors.BluRayMetadataExtractor"/>
+    <Instance Id="BluRayMetadataExtractor" ClassName="MediaPortal.Media.MetadataExtractors.BluRayMetadataExtractor"/>
   </Register>
 </Plugin>

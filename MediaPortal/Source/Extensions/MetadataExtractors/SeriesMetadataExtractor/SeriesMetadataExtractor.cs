@@ -33,8 +33,8 @@ using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.Common.MediaManagement.Helpers;
 using MediaPortal.Common.ResourceAccess;
 using MediaPortal.Common.Services.ResourceAccess.StreamedResourceToLocalFsAccessBridge;
+using MediaPortal.Extensions.MetadataExtractors.MatroskaLib;
 using MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor.NameMatchers;
-using MediaPortal.Extensions.MetadataExtractors.VideoMetadataExtractor.Matroska;
 using MediaPortal.Extensions.OnlineLibraries;
 using MediaPortal.Utilities;
 
