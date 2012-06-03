@@ -123,11 +123,7 @@ namespace MediaPortal.Extensions.UserServices.FanArtService.Client
     /// </summary>
     public FanArtImageSource()
     {
-      _fanArtMediaTypeProperty = new SProperty(typeof(FanArtConstants.FanArtMediaType), FanArtConstants.FanArtMediaType.Undefined);
-      _fanArtTypeProperty = new SProperty(typeof(FanArtConstants.FanArtType), FanArtConstants.FanArtType.Undefined);
-      _fanArtNameProperty = new SProperty(typeof(string), string.Empty);
-      _maxWidthProperty = new SProperty(typeof(int), 0);
-      _maxHeightProperty = new SProperty(typeof(int), 0);
+      Init();
       Attach();
     }
 
@@ -144,6 +140,23 @@ namespace MediaPortal.Extensions.UserServices.FanArtService.Client
       MaxWidth = fanArtImageSource.MaxWidth;
       MaxHeight = fanArtImageSource.MaxHeight;
       Attach();
+    }
+
+    public override void Dispose()
+    {
+      base.Dispose();
+      Detach();
+      Deallocate();
+    }
+
+    protected void Init()
+    {
+      _fanArtMediaTypeProperty = new SProperty(typeof(FanArtConstants.FanArtMediaType),
+        FanArtConstants.FanArtMediaType.Undefined);
+      _fanArtTypeProperty = new SProperty(typeof(FanArtConstants.FanArtType), FanArtConstants.FanArtType.Undefined);
+      _fanArtNameProperty = new SProperty(typeof(string), string.Empty);
+      _maxWidthProperty = new SProperty(typeof(int), 0);
+      _maxHeightProperty = new SProperty(typeof(int), 0);
     }
 
     protected void Attach()
@@ -241,9 +254,9 @@ namespace MediaPortal.Extensions.UserServices.FanArtService.Client
     protected override void FreeData()
     {
       _texture = null;
-      base.FreeData();
       _fanArtResult = null;
       _asyncCompleted = false;
+      base.FreeData();
     }
 
     #endregion
