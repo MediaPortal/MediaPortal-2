@@ -1,7 +1,5 @@
-<?xml version="1.0" encoding="utf-8" ?>
-<Language>
-  <Section Name="AudioCDResourceProvider">
-    <String Name="Name" Text="Audio CD resource provider"/>
-    <String Name="Description" Text="Access audio CD tracks"/>
-  </Section>
-</Language>
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+  <string name="AudioCDResourceProvider.Name">Audio CD resource provider</string>
+  <string name="AudioCDResourceProvider.Description">Access audio CD tracks</string>
+</resources>

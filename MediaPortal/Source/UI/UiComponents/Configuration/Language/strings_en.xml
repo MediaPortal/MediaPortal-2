@@ -1,14 +1,12 @@
-<?xml version="1.0" encoding="utf-8" ?>
-<Language>
-  <Section Name="Configuration">
-    <String Name="Name" Text="Settings"/>
-    <String Name="ConfigurationMainWorkflowNavigationContextDisplayLabel" Text="Settings"/>
-    <String Name="MainSettings" Text="Main settings"/> <!-- 2nd Header for root configuration section -->
-    <String Name="NoSettingsInThisSection" Text="There are no settings in this section"/>
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+  <string name="Configuration.Name">Settings</string>
+  <string name="Configuration.ConfigurationMainWorkflowNavigationContextDisplayLabel">Settings</string>
+  <string name="Configuration.MainSettings">Main settings</string> <!-- 2nd Header for root configuration section -->
+  <string name="Configuration.NoSettingsInThisSection">There are no settings in this section</string>
 
-    <String Name="ErrorFloatingPointValue" Text="'{0}' is not a valid floating point number"/>
-    <String Name="ErrorIntegerValue" Text="'{0}' is not a valid integer number"/>
-    <String Name="ErrorNumericLowerLimit" Text="Use a value between '{1}' and '{2}'"/> <!-- 0 = current value, 1 = lower limit, 2 = upper limit -->
-    <String Name="ErrorNumericUpperLimit" Text="Use a value between '{1}' and '{2}'"/> <!-- 0 = current value, 1 = lower limit, 2 = upper limit -->
-  </Section>
-</Language>
+  <string name="Configuration.ErrorFloatingPointValue">'{0}' is not a valid floating point number</string>
+  <string name="Configuration.ErrorIntegerValue">'{0}' is not a valid integer number</string>
+  <string name="Configuration.ErrorNumericLowerLimit">Use a value between '{1}' and '{2}'</string> <!-- 0 = current value, 1 = lower limit, 2 = upper limit -->
+  <string name="Configuration.ErrorNumericUpperLimit">Use a value between '{1}' and '{2}'</string> <!-- 0 = current value, 1 = lower limit, 2 = upper limit -->
+</resources>

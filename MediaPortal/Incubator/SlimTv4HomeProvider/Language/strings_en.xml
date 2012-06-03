@@ -1,10 +1,8 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
-<Language>
-  <Section Name="Settings">
-    <String Name="Plugins.TV" Text="TV"/>
-    <String Name="Plugins.TV.TV4HomeServerAddress" Text="Tv4Home server addresses"/>
-    <String Name="Plugins.TV.TV4HomeServerAddress.Help" Text="Enter server names or IP addresses, separated by ';' (defaults to localhost)."/>
-    <String Name="Plugins.TV.ConnectionErrorTitle" Text="Connection error"/>
-    <String Name="Plugins.TV.ConnectionErrorText" Text="Could not connect Tv4Home-Server: {0}"/>
-  </Section>
-</Language>
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+  <string name="Settings.Plugins.TV">TV</string>
+  <string name="Settings.Plugins.TV.TV4HomeServerAddress">Tv4Home server addresses</string>
+  <string name="Settings.Plugins.TV.TV4HomeServerAddress.Help">Enter server names or IP addresses, separated by ';' (defaults to localhost).</string>
+  <string name="Settings.Plugins.TV.ConnectionErrorTitle">Connection error</string>
+  <string name="Settings.Plugins.TV.ConnectionErrorText">Could not connect Tv4Home-Server: {0}</string>
+</resources>

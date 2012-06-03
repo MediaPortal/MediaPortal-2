@@ -49,9 +49,8 @@ namespace MediaPortal.Common.Services.Localization
   {
     #region Variables
 
-    protected readonly IDictionary<string, IDictionary<string, StringLocalized>> _languageStrings =
-        new Dictionary<string, IDictionary<string, StringLocalized>>(
-            StringComparer.Create(CultureInfo.InvariantCulture, true)); // Map: Sections to Map: Resource name to resource
+    protected readonly IDictionary<string, StringLocalized> _languageStrings =
+        new Dictionary<string, StringLocalized>(StringComparer.Create(CultureInfo.InvariantCulture, true)); // Map: Resource names to resource
     protected CultureInfo _culture;
 
     #endregion
@@ -100,15 +99,18 @@ namespace MediaPortal.Common.Services.Localization
     /// <summary>
     /// Returns the localized string specified by its <paramref name="section"/> and <paramref name="name"/>.
     /// </summary>
+    /// <remarks>
+    /// Technically, it would not be necessary to force a string name "section". But for the sake of better maintainance, we want each string to have
+    /// at least one section (i.e. at least one '.' in the name).
+    /// </remarks>
     /// <param name="section">The section of the string to translate.</param>
     /// <param name="name">The name of the string to translate.</param>
     /// <returns>Translated string or <c>null</c>, if the string isn't available.</returns>
     public string ToString(string section, string name)
     {
-      if (_languageStrings.ContainsKey(section) && _languageStrings[section].ContainsKey(name))
-        return _languageStrings[section][name].Text;
-
-      return null;
+      string resName = section + '.' + name;
+      StringLocalized res;
+      return _languageStrings.TryGetValue(resName, out res) ? res.Text : null;
     }
 
     /// <summary>
@@ -181,20 +183,10 @@ namespace MediaPortal.Common.Services.Localization
         Encoding encoding = Encoding.UTF8;
         using (TextReader r = new StreamReader(filePath, encoding))
         {
-          StringFile strings = (StringFile) s.Deserialize(r);
+          StringFile resources = (StringFile) s.Deserialize(r);
 
-          foreach (StringSection section in strings.Sections)
-          {
-            IDictionary<string, StringLocalized> sectionContents = _languageStrings.ContainsKey(section.SectionName) ?
-               _languageStrings[section.SectionName] :
-               new Dictionary<string, StringLocalized>(StringComparer.Create(CultureInfo.InvariantCulture, true));
-
-            foreach (StringLocalized languageString in section.LocalizedStrings)
-              sectionContents[languageString.StringName] = languageString;
-
-            if (sectionContents.Count > 0)
-              _languageStrings[section.SectionName] = sectionContents;
-          }
+          foreach (StringLocalized languageString in resources.Strings)
+            _languageStrings[languageString.StringName] = languageString;
         }
       }
       catch (Exception ex)

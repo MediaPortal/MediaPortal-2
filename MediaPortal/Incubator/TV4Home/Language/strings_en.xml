@@ -1,6 +1,4 @@
-<?xml version="1.0" encoding="utf-8" ?>
-<Language>
-  <Section Name="Tve3MediaProvider">
-    <String Name="Name" Text="TvServer WebService mediaprovider"/>
-  </Section>
-</Language>
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+  <string name="Tve3MediaProvider.Name">TvServer WebService mediaprovider</string>
+</resources>

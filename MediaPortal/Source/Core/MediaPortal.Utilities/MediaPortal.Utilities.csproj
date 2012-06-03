@@ -105,7 +105,6 @@
     <Compile Include="FileSystem\FileUtils.cs" />
     <Compile Include="Localization\StringsFile\StringFile.cs" />
     <Compile Include="Localization\StringsFile\StringLocalized.cs" />
-    <Compile Include="Localization\StringsFile\StringSection.cs" />
     <Compile Include="Network\NetworkUtils.cs" />
     <Compile Include="Screens\SplashScreen.cs">
       <SubType>Form</SubType>

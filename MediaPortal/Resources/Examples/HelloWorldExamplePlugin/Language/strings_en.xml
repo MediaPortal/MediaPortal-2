@@ -1,12 +1,10 @@
-<?xml version="1.0" encoding="utf-8" ?>
-<Language>
-  <Section Name="HelloWorld">
-    <String Name="MenuEntry" Text="Hello world"/>
-    <String Name="StateDisplayLabel" Text="Hello world state"/>
-    <String Name="ScreenTitle" Text="Hello world screen"/>
-    <String Name="HelloWorldText" Text="Pressing the button will change this text"/>
-    <String Name="SampleText" Text="This is the sample screen of the HelloWorld plugin"/>
-    <String Name="ButtonText" Text="Press me"/>
-    <String Name="ButtonTextCommandExecuted" Text="Congrats, you just triggered a Command!"/>
-  </Section>
-</Language>
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+  <string name="HelloWorld.MenuEntry">Hello world</string>
+  <string name="HelloWorld.StateDisplayLabel">Hello world state</string>
+  <string name="HelloWorld.ScreenTitle">Hello world screen</string>
+  <string name="HelloWorld.HelloWorldText">Pressing the button will change this text</string>
+  <string name="HelloWorld.SampleText">This is the sample screen of the HelloWorld plugin</string>
+  <string name="HelloWorld.ButtonText">Press me</string>
+  <string name="HelloWorld.ButtonTextCommandExecuted">Congrats, you just triggered a Command!</string>
+</resources>

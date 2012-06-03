@@ -1,27 +1,24 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
-<Language>
-  <Section Name="SlimTvClient">
-    <String Name="Title" Text="Slim TV Client"/>
-    
-    <String Name="CurrentlyPlayingInformationHeader" Text="Program information"/>
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+  <string name="SlimTvClient.Title">Slim TV Client</string>
 
-    <String Name="ChannelLabel" Text="Channel"/>
-    <String Name="ProgramLabel" Text="Program"/>
-    <String Name="DescriptionLabel" Text="Description"/>
-    <String Name="GenreLabel" Text="Genre"/>
-    <String Name="ProgramStartLabel" Text="Start time"/>
-    <String Name="ProgramEndLabel" Text="End time"/>
-    <String Name="EpisodeLabel" Text="Episode"/>
+  <string name="SlimTvClient.CurrentlyPlayingInformationHeader">Program information</string>
 
-    <String Name="Guide" Text="TV Guide"/>
-    <String Name="NoProgram" Text="No program data."/>
-    <String Name="ChooseProgramAction" Text="Choose program action..."/>
+  <string name="SlimTvClient.ChannelLabel">Channel</string>
+  <string name="SlimTvClient.ProgramLabel">Program</string>
+  <string name="SlimTvClient.DescriptionLabel">Description</string>
+  <string name="SlimTvClient.GenreLabel">Genre</string>
+  <string name="SlimTvClient.ProgramStartLabel">Start time</string>
+  <string name="SlimTvClient.ProgramEndLabel">End time</string>
+  <string name="SlimTvClient.EpisodeLabel">Episode</string>
 
-    <String Name="ProgramOver" Text="Program already over"/>
-    <String Name="WatchNow" Text="Watch program now"/>
-    <String Name="RecordNow" Text="Record now"/>
-    <String Name="DeleteSchedule" Text="Delete schedule"/>
-    <String Name="CreateSchedule" Text="Schedule recording"/>
+  <string name="SlimTvClient.Guide">TV Guide</string>
+  <string name="SlimTvClient.NoProgram">No program data.</string>
+  <string name="SlimTvClient.ChooseProgramAction">Choose program action...</string>
 
-  </Section>
-</Language>
+  <string name="SlimTvClient.ProgramOver">Program already over</string>
+  <string name="SlimTvClient.WatchNow">Watch program now</string>
+  <string name="SlimTvClient.RecordNow">Record now</string>
+  <string name="SlimTvClient.DeleteSchedule">Delete schedule</string>
+  <string name="SlimTvClient.CreateSchedule">Schedule recording</string>
+</resources>

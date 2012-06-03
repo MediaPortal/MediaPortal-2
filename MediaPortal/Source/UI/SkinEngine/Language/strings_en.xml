@@ -1,86 +1,81 @@
 <?xml version="1.0" encoding="utf-8"?>
-<Language>
-  <Section Name="Settings">
-    <String Name="Appearance.System" Text="System"/>
-    <String Name="Appearance.System.Fullscreen" Text="Fullscreen"/>
-    <String Name="Appearance.System.Fullscreen.Help" Text="Show MediaPortal in fullscreen mode"/>
-    <String Name="Appearance.System.CellPhoneInputStyle" Text="Cell phone input style"/>
-    <String Name="Appearance.System.CellPhoneInputStyle.Help" Text="Use cell phone/SMS input style"/>
-    <String Name="Appearance.System.ScreenSaverEnabled" Text="Enable screen saver"/>    <String Name="Appearance.System.ScreenSaverEnabled.Help" Text="Configure if the screen saver should be displayed"/>
-    <String Name="Appearance.System.ScreenSaverTimeout" Text="Screen saver timeout"/>
-    <String Name="Appearance.System.ScreenSaverTimeout.Help" Text="Configure the timespan in minutes when the screen saver should be displayed after the last user input"/>
+<resources>
+  <string name="Settings.Appearance.System">System</string>
+  <string name="Settings.Appearance.System.Fullscreen">Fullscreen</string>
+  <string name="Settings.Appearance.System.Fullscreen.Help">Show MediaPortal in fullscreen mode</string>
+  <string name="Settings.Appearance.System.CellPhoneInputStyle">Cell phone input style</string>
+  <string name="Settings.Appearance.System.CellPhoneInputStyle.Help">Use cell phone/SMS input style</string>
+  <string name="Settings.Appearance.System.ScreenSaverEnabled">Enable screen saver</string>    <string name="Settings.Appearance.System.ScreenSaverEnabled.Help">Configure if the screen saver should be displayed</string>
+  <string name="Settings.Appearance.System.ScreenSaverTimeout">Screen saver timeout</string>
+  <string name="Settings.Appearance.System.ScreenSaverTimeout.Help">Configure the timespan in minutes when the screen saver should be displayed after the last user input</string>
 
-    <String Name="Appearance.System.Antialiasing" Text="GUI antialiasing"/>
-    <String Name="Appearance.System.Antialiasing.Help" Text="Antialiasing improves the visual GUI quality but can decrease video performance"/>
-    <String Name="Appearance.Skin" Text="Skin"/>    <String Name="Appearance.Skin.SkinAndTheme" Text="Skin and theme"/>
-    <String Name="Appearance.Skin.SkinAndTheme.ChangeSkin" Text="Change skin"/>
-    <String Name="Appearance.Skin.SkinAndTheme.ChangeSkin.Help" Text="Change the look&amp;feel of MediaPortal 2"/>
-    <String Name="Appearance.Skin.SkinAndTheme.ChangeTheme" Text="Change theme"/>
-    <String Name="Appearance.Skin.SkinAndTheme.ChangeTheme.Help" Text="Change the current skin's presentation"/>
+  <string name="Settings.Appearance.System.Antialiasing">GUI antialiasing</string>
+  <string name="Settings.Appearance.System.Antialiasing.Help">Antialiasing improves the visual GUI quality but can decrease video performance</string>
+  <string name="Settings.Appearance.Skin">Skin</string>    <string name="Settings.Appearance.Skin.SkinAndTheme">Skin and theme</string>
+  <string name="Settings.Appearance.Skin.SkinAndTheme.ChangeSkin">Change skin</string>
+  <string name="Settings.Appearance.Skin.SkinAndTheme.ChangeSkin.Help">Change the look&amp;feel of MediaPortal 2</string>
+  <string name="Settings.Appearance.Skin.SkinAndTheme.ChangeTheme">Change theme</string>
+  <string name="Settings.Appearance.Skin.SkinAndTheme.ChangeTheme.Help">Change the current skin's presentation</string>
 
-    <String Name="Players" Text="Players"/>
-    <String Name="Players.Rendering" Text="Rendering"/>
+  <string name="Settings.Players">Players</string>
+  <string name="Settings.Players.Rendering">Rendering</string>
 
-    <String Name="Players.Rendering.DefaultGeometry" Text="Default zoom mode"/>
-    <String Name="Players.Rendering.DefaultGeometry.Help" Text="Sets the zoom mode which will be applied to video players by default"/>
+  <string name="Settings.Players.Rendering.DefaultGeometry">Default zoom mode</string>
+  <string name="Settings.Players.Rendering.DefaultGeometry.Help">Sets the zoom mode which will be applied to video players by default</string>
 
-    <String Name="General.System.ApplicationSuspendLevel" Text="Configure Windows energy saving"/>
-    <String Name="General.System.ApplicationSuspendLevel.Help" Text="Disable Windows automatic suspend/shutdown or screen deactivation while MediaPortal 2 is running"/>
-    <String Name="General.System.ApplicationSuspendLevel.None" Text="Allow all system energy saving levels"/>
-    <String Name="General.System.ApplicationSuspendLevel.AvoidSuspend" Text="Avoid system suspension but allow deactivation of screen"/>
-    <String Name="General.System.ApplicationSuspendLevel.DisplayRequired" Text="Avoid system suspension and deactivation of screen"/>
-  </Section>
-  <Section Name="ScreenManager">
-    <String Name="NotificationErrorLoadingSkinTitle" Text="Error loading skin"/>
-    <String Name="NotificationErrorLoadingSkinFallingBackToCurrentText" Text="Falling back to current skin"/>
-    <String Name="NotificationErrorLoadingSkinFallingBackToDefaultText" Text="Falling back to default skin"/>
-    <String Name="ErrorLoadingSkinResource" Text="Error loading skin resource"/>
-    <String Name="ScreenMissing" Text="Cannot find the skin resource for screen '{0}'"/>
-    <String Name="ScreenBroken" Text="The skin resource for screen '{0}' seems to be broken"/>
-    <String Name="BackgroundScreenMissing" Text="Cannot find the skin resource for background screen '{0}'"/>
-    <String Name="BackgroundScreenBroken" Text="The skin resource for background screen '{0}' seems to be broken"/>
-    <String Name="SuperLayerScreenMissing" Text="Cannot find the skin resource for super layer screen '{0}'"/>
-    <String Name="SuperLayerScreenBroken" Text="The skin resource for super layer screen '{0}' seems to be broken"/>
-  </Section>
-  <Section Name="Geometries">
-    <String Name="IntelligentZoom" Text="Intelligent Zoom"/>
-    <String Name="LetterBox" Text="Letterbox 4:3"/>
-    <String Name="Normal" Text="Normal"/>
-    <String Name="Original" Text="Original"/>
-    <String Name="PanAndScan" Text="Pan&amp;Scan"/>
-    <String Name="Stretch" Text="Stretch"/>
-    <String Name="Zoom" Text="Zoom"/>
-    <String Name="Zoom149" Text="Zoom 14:9"/>
-  </Section>
-  <Section Name="Effects"> <!-- File names (files in shaders/effects, without extension) to effect names to be shown in the GUI -->
-    <String Name="denoise" Text="Denoise"/>
-    <String Name="directional_blur" Text="Directional blur"/>
-    <String Name="glass_tiles" Text="Glass tiles"/>
-    <String Name="greyscale" Text="Greyscale"/>
-    <String Name="invert" Text="Invert"/>
-    <String Name="none" Text="None"/>
-    <String Name="pixelate" Text="Pixelate"/>
-    <String Name="sepia" Text="Sepia"/>
-    <String Name="sharpen" Text="Sharpen"/>
-    <String Name="sharpen_complex" Text="Sharpen (complex)"/>
-    <String Name="zoom_blur" Text="Zoom blur"/>
-  </Section>
-  <Section Name="PlayerControl">
-    <String Name="NoPlayer" Text="No player"/>
-    <String Name="NoMediaItem" Text="- No media item -"/>
-    <String Name="UnknownMediaItem" Text="Unknown media item"/>
-    <String Name="UnknownPlayerContextName" Text="Player"/>
-    <String Name="HeaderNormal" Text="{0}"/> <!-- {0} = media item title -->
-    <String Name="HeaderPiP" Text="{0} (PiP)"/> <!-- {0} = media item title -->
-    <String Name="Playing" Text="Playing"/>
-    <String Name="Paused" Text="Paused"/>
-    <String Name="SeekingForward" Text="Seeking forward ({0})"/> <!-- For example: "Seeking forward (2x)" -->
-    <String Name="SeekingBackward" Text="Seeking backward ({0})"/> <!-- For example: "Seeking forward (2x)" -->
-    <String Name="SlowMotionForward" Text="Slowmotion forward ({0})"/> <!-- For example: "Slowmotion forward (0.5x)" -->
-    <String Name="SlowMotionBackward" Text="Slowmotion backward ({0})"/> <!-- For example: "Slowmotion backward (0.5x)" -->
-    <String Name="PlaybackRateHint" Text="{0}x"/> <!-- For example: 2x or 0.5x -->
-    <String Name="Stopped" Text="Stopped"/>
-    <String Name="Ended" Text="Ended"/>
-    <String Name="Active" Text="Active"/>
-  </Section>
-</Language>
+  <string name="Settings.General.System.ApplicationSuspendLevel">Configure Windows energy saving</string>
+  <string name="Settings.General.System.ApplicationSuspendLevel.Help">Disable Windows automatic suspend/shutdown or screen deactivation while MediaPortal 2 is running</string>
+  <string name="Settings.General.System.ApplicationSuspendLevel.None">Allow all system energy saving levels</string>
+  <string name="Settings.General.System.ApplicationSuspendLevel.AvoidSuspend">Avoid system suspension but allow deactivation of screen</string>
+  <string name="Settings.General.System.ApplicationSuspendLevel.DisplayRequired">Avoid system suspension and deactivation of screen</string>
+
+  <string name="ScreenManager.NotificationErrorLoadingSkinTitle">Error loading skin</string>
+  <string name="ScreenManager.NotificationErrorLoadingSkinFallingBackToCurrentText">Falling back to current skin</string>
+  <string name="ScreenManager.NotificationErrorLoadingSkinFallingBackToDefaultText">Falling back to default skin</string>
+  <string name="ScreenManager.ErrorLoadingSkinResource">Error loading skin resource</string>
+  <string name="ScreenManager.ScreenMissing">Cannot find the skin resource for screen '{0}'</string>
+  <string name="ScreenManager.ScreenBroken">The skin resource for screen '{0}' seems to be broken</string>
+  <string name="ScreenManager.BackgroundScreenMissing">Cannot find the skin resource for background screen '{0}'</string>
+  <string name="ScreenManager.BackgroundScreenBroken">The skin resource for background screen '{0}' seems to be broken</string>
+  <string name="ScreenManager.SuperLayerScreenMissing">Cannot find the skin resource for super layer screen '{0}'</string>
+  <string name="ScreenManager.SuperLayerScreenBroken">The skin resource for super layer screen '{0}' seems to be broken</string>
+
+  <string name="Geometries.IntelligentZoom">Intelligent Zoom</string>
+  <string name="Geometries.LetterBox">Letterbox 4:3</string>
+  <string name="Geometries.Normal">Normal</string>
+  <string name="Geometries.Original">Original</string>
+  <string name="Geometries.PanAndScan">Pan&amp;Scan</string>
+  <string name="Geometries.Stretch">Stretch</string>
+  <string name="Geometries.Zoom">Zoom</string>
+  <string name="Geometries.Zoom149">Zoom 14:9</string>
+
+  <!-- File names (files in shaders/effects, without extension) to effect names to be shown in the GUI -->
+  <string name="Effects.denoise">Denoise</string>
+  <string name="Effects.directional_blur">Directional blur</string>
+  <string name="Effects.glass_tiles">Glass tiles</string>
+  <string name="Effects.greyscale">Greyscale</string>
+  <string name="Effects.invert">Invert</string>
+  <string name="Effects.none">None</string>
+  <string name="Effects.pixelate">Pixelate</string>
+  <string name="Effects.sepia">Sepia</string>
+  <string name="Effects.sharpen">Sharpen</string>
+  <string name="Effects.sharpen_complex">Sharpen (complex)</string>
+  <string name="Effects.zoom_blur">Zoom blur</string>
+
+  <string name="PlayerControl.NoPlayer">No player</string>
+  <string name="PlayerControl.NoMediaItem">- No media item -</string>
+  <string name="PlayerControl.UnknownMediaItem">Unknown media item</string>
+  <string name="PlayerControl.UnknownPlayerContextName">Player</string>
+  <string name="PlayerControl.HeaderNormal">{0}</string> <!-- {0} = media item title -->
+  <string name="PlayerControl.HeaderPiP">{0} (PiP)</string> <!-- {0} = media item title -->
+  <string name="PlayerControl.Playing">Playing</string>
+  <string name="PlayerControl.Paused">Paused</string>
+  <string name="PlayerControl.SeekingForward">Seeking forward ({0})</string> <!-- For example: "Seeking forward (2x)" -->
+  <string name="PlayerControl.SeekingBackward">Seeking backward ({0})</string> <!-- For example: "Seeking forward (2x)" -->
+  <string name="PlayerControl.SlowMotionForward">Slowmotion forward ({0})</string> <!-- For example: "Slowmotion forward (0.5x)" -->
+  <string name="PlayerControl.SlowMotionBackward">Slowmotion backward ({0})</string> <!-- For example: "Slowmotion backward (0.5x)" -->
+  <string name="PlayerControl.PlaybackRateHint">{0}x</string> <!-- For example: 2x or 0.5x -->
+  <string name="PlayerControl.Stopped">Stopped</string>
+  <string name="PlayerControl.Ended">Ended</string>
+  <string name="PlayerControl.Active">Active</string>
+</resources>

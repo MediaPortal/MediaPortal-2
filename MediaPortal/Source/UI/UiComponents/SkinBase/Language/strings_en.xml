@@ -1,278 +1,259 @@
 <?xml version="1.0" encoding="utf-8"?>
-<Language>
-  <Section Name="System">
-    <String Name="Yes" Text="Yes"/>
-    <String Name="No" Text="No"/>
-    <String Name="Done" Text="Done"/>
-    <String Name="Finish" Text="Finish"/>
-    <String Name="Ok" Text="Ok"/>
-    <String Name="Cancel" Text="Cancel"/>
-    <String Name="Discard" Text="Discard"/>
-    <String Name="Back" Text="Back"/>
-    <String Name="Continue" Text="Continue"/>
-    <String Name="Add" Text="Add"/>
-    <String Name="Remove" Text="Remove"/>
+<resources>
+  <string name="System.Yes">Yes</string>
+  <string name="System.No">No</string>
+  <string name="System.Done">Done</string>
+  <string name="System.Finish">Finish</string>
+  <string name="System.Ok">Ok</string>
+  <string name="System.Cancel">Cancel</string>
+  <string name="System.Discard">Discard</string>
+  <string name="System.Back">Back</string>
+  <string name="System.Continue">Continue</string>
+  <string name="System.Add">Add</string>
+  <string name="System.Remove">Remove</string>
 
-    <String Name="Hint" Text="Hint"/>
-    <String Name="Information" Text="Information"/>
-    <String Name="Warning" Text="Warning"/>
-    <String Name="Error" Text="Error"/>
-  </Section>
-  <Section Name="Keys">
-    <String Name="Shift" Text="Shift"/>
-    <String Name="CapsLock" Text="Caps Lock"/>
-    <String Name="AltGr" Text="Alt Gr"/>
-  </Section>
-  <Section Name="Home">
-    <String Name="Title" Text="MediaPortal 2"/>
-    <String Name="HomeStateDisplayLabel" Text="Home"/>
-  </Section>
-  <Section Name="Dialogs">
-    <String Name="InfoHeaderText" Text="Info"/>
-    <String Name="WarningHeaderText" Text="Warning"/>
-    <String Name="ErrorHeaderText" Text="Error"/>
-  </Section>
-  <Section Name="Media">
-    <String Name="MyMusic" Text="Music"/>
-    <String Name="MyVideos" Text="Videos"/>
-    <String Name="MyPictures" Text="Pictures"/>
-    <String Name="InvalidShareName" Text="Invalid share"/>
-  </Section>
-  <Section Name="ServerConnection">
-    <String Name="NotificationServerAvailableTitle" Text="MP2 server available"/>
-    <String Name="NotificationServerAvailableText" Text="There is at least one MediaPortal 2 server available in the network. Attach to it to get all features of MediaPortal 2."/>
-    <String Name="ServerFormatText" Text="'{0}' at host '{1}'"/> <!-- {0} = server name, {1} = host name -->
-    <String Name="UnknownServerName" Text="&lt;Unknown&gt;"/>
-    <String Name="UnknownServerSystem" Text="&lt;Unknown&gt;"/>
-    <String Name="HomeServer" Text="Home server"/>
-    <String Name="AttachToServerWorkflowStateLabel" Text="Attach to server"/>
-    <String Name="DetachFromServerWorkflowStateLabel" Text="Detach from server"/>
-    <String Name="HomeServerWorkflowStateLabel" Text="HomeServer"/>
-    <String Name="AttachedText.Before" Text="This MediaPortal 2 client is currently attached to home server"/>
-    <String Name="AttachedText.After" Text=""/>
-    <String Name="NoHomeServerAttached" Text="Currently, this MediaPortal 2 client is not attached to a home server."/>
-    <String Name="HomeServerIsConnected" Text="The home server is currently connected."/>
-    <String Name="HomeServerIsNotConnected" Text="The home server is currently disconnected."/>
-    <String Name="DetachMenu" Text="Detach"/>
-    <String Name="DetachConfirmDialogHeader" Text="Detach from home server"/>
-    <String Name="DetachConfirmDialogText" Text="If you detach from the home server, all data about the local shares and their media items will be removed from the home server's media library. You can attach again later. Do you really want to detach from home server '{0}' at host '{1}'?"/>
-    <String Name="SearchForServers" Text="Search for servers"/>
-    <String Name="DetachFromServer" Text="Detach from home server"/>
-    <String Name="AttachToServerHeader" Text="Attach to MediaPortal 2 server"/>
-    <String Name="AttachToMultipleText" Text="There are multiple MP 2 servers available in the network. Do you want to choose one of them as home server?"/>
-    <String Name="AttachToSingleText.Before" Text="The MP 2 server"/>
-    <String Name="AttachToSingleText.After" Text="is available in the network. Do you want to attach to it?"/>
-    <String Name="AttachToServerNoServerText" Text="Currently, there is no MediaPortal 2 server available in the network."/>
-    <String Name="AttachButton" Text="Attach"/>
-    <String Name="AttachInfoDialogHeader" Text="Server attached"/>
-    <String Name="AttachInfoDialogText" Text="This MediaPortal 2 client was attached to its new home server '{0}' at host '{1}'"/> <!-- {0} = server name, {1} = host name -->
-  </Section>
-  <Section Name="Notifications">
-    <String Name="Title" Text="Notifications"/>
-    <String Name="OneMoreNotification" Text="(1 more)"/>
-    <String Name="NMoreNotifications" Text="({0} more)"/>
-    <String Name="WatchNotificationsWorkflowStateLabel" Text="Notifications"/>
-    <String Name="Handle" Text="Handle"/>
-  </Section>
-  <Section Name="ImporterMessages">
-    <String Name="ImportStartedTitle" Text="Import started"/>
-    <String Name="ImportStartedText" Text="The import of '{0}' has started."/>
-    <String Name="ImportCompletedTitle" Text="Import completed"/>
-    <String Name="ImportCompletedText" Text="The import of '{0}' has finished."/>
-  </Section>
-  <Section Name="LocalFsResourceProvider">
-    <String Name="Name" Text="Local filesystem resource provider"/>
-    <String Name="Description" Text="Access the local filesystem"/>
-  </Section>
-  <Section Name="RemoteResourceProvider">
-    <String Name="Name" Text="Remote resource provider"/>
-    <String Name="Description" Text="Access resources located at another MediaPortal 2 system"/>
-  </Section>
-  <Section Name="ScreenSaver">
-    <String Name="MediaPortal2" Text="MediaPortal 2"/>
-  </Section>
-  <Section Name="Players">
-    <!-- For MP UI player subsystem -->
-    <String Name="NoPlayerAvailableNotificationTitle" Text="No player"/>
-    <String Name="NoPlayerAvailableNotificationText" Text="There is no player registered to play media item '{0}'"/>
-    <String Name="ErrorPlayingMediaItemTitle" Text="Error playing media item"/>
-    <String Name="UnableToPlayMediaItemText" Text="Unable to play media item '{0}'"/>
-    <String Name="ResourceNotFoundText" Text="Resource '{0}' not found"/>
-    
-    <String Name="PlayerConfiguration" Text="Player configuration"/>
-    <String Name="CurrentMediaInfo" Text="Current media info"/>
-    <String Name="FullscreenVideo" Text="Fullscreen {0}"/> <!--for example "Fullscreen TV" -->
-    <String Name="FullscreenImage" Text="Fullscreen image"/>
-    <String Name="AudioVisualization" Text="Audio visualization"/>
-    <String Name="PlayerOfType" Text="{0} player"/> <!-- for example "Video player" -->
-    <String Name="SlotNo" Text="Slot #{0}"/>
-    <String Name="FocusPlayer" Text="Focus {0}"/> <!-- for example "Focus video player" -->
-    <String Name="SwitchPipPlayers" Text="Switch PiP players"/>
-    <String Name="ChooseAudioStream" Text="Choose audio stream"/>
-    <String Name="PlayerSlotAudioMenu" Text="Audio menu for {0}"/> <!-- for example "Audio menu for Lammbock" -->
-    <String Name="Mute" Text="Mute"/>
-    <String Name="MuteOff" Text="Mute off"/>
-    <String Name="ClosePlayerContext" Text="Close {0}"/> <!-- for example "Close video player" -->
-    <String Name="ChoosePlayerGeometry" Text="Zoom mode"/>
-    <String Name="ChoosePlayerEffect" Text="Effect"/>
-  </Section>
-  <Section Name="Settings">
-    <String Name="Appearance" Text="Appearance"/>
-    <String Name="Appearance.Skin" Text="Skin"/>
-    <String Name="Appearance.Skin.Formats.DateFormat" Text="Date format"/>
-    <String Name="Appearance.Skin.Formats.DateFormat.Help" Text="Date format used in the skin. Use the format specification of the .net DateTime class."/>
-    <String Name="Appearance.Skin.Formats.TimeFormat" Text="Time format"/>
-    <String Name="Appearance.Skin.Formats.TimeFormat.Help" Text="Time format used in the skin. Use the format specification of the .net DateTime class."/>
+  <string name="System.Hint">Hint</string>
+  <string name="System.Information">Information</string>
+  <string name="System.Warning">Warning</string>
+  <string name="System.Error">Error</string>
 
-    <String Name="General" Text="General"/>
-    <String Name="General.System" Text="System"/>
-    <String Name="General.System.Autostart" Text="Autostart"/>
-    <String Name="General.System.Autostart.Help" Text="Start MediaPortal automatically on Windows startup"/>
+  <string name="Keys.Shift">Shift</string>
+  <string name="Keys.CapsLock">Caps Lock</string>
+  <string name="Keys.AltGr">Alt Gr</string>
 
-    <String Name="General.Connectivity" Text="Connectivity"/>
-    <String Name="General.Connectivity.HomeServer" Text="Home server"/>
-    <String Name="General.Connectivity.HomeServer.Help" Text="Home server information, attach to and detach from home server"/>
-    <String Name="General.Connectivity.ServerListener" Text="Server listener"/>
-    <String Name="General.Connectivity.ServerListener.Help" Text="Enable notification in detached state, when a MediaPortal 2 server becomes available in the network"/>
-    <String Name="General.Connectivity.ClientName" Text="Client name"/>
-    <String Name="General.Connectivity.ClientName.Help" Text="Set the name of this MediaPortal 2 client"/>
+  <string name="Home.Title">MediaPortal 2</string>
+  <string name="Home.HomeStateDisplayLabel">Home</string>
 
-    <String Name="Regional" Text="Regional"/>
-    <String Name="Regional.Language" Text="Language"/>
-    <String Name="Regional.Language.Main" Text="Language"/>
-    <String Name="Regional.Language.Main.Help" Text="Set the main language used in the application"/>
+  <string name="Dialogs.InfoHeaderText">Info</string>
+  <string name="Dialogs.WarningHeaderText">Warning</string>
+  <string name="Dialogs.ErrorHeaderText">Error</string>
 
-    <String Name="Shares" Text="Shares"/> <!-- Section name -->
-    <String Name="Shares.Configure" Text="Configure shares"/> <!-- Group name -->
-    <String Name="Shares.ConfigureShares.SharesConfiguration" Text="Shares configuration"/> <!-- Setting -->
-    <String Name="Shares.ConfigureShares.SharesConfiguration.Help" Text="Configure all local shares"/>
+  <string name="Media.MyMusic">Music</string>
+  <string name="Media.MyVideos">Videos</string>
+  <string name="Media.MyPictures">Pictures</string>
+  <string name="Media.InvalidShareName">Invalid share</string>
 
-    <String Name="Shares.Overview" Text="Overview"/> <!-- Group name -->
-    <String Name="Shares.Overview.SharesOverview" Text="Shares overview"/> <!-- Setting -->
-    <String Name="Shares.Overview.SharesOverview.Help" Text="Global overview over shares"/>
+  <string name="ServerConnection.NotificationServerAvailableTitle">MP2 server available</string>
+  <string name="ServerConnection.NotificationServerAvailableText">There is at least one MediaPortal 2 server available in the network. Attach to it to get all features of MediaPortal 2.</string>
+  <string name="ServerConnection.ServerFormatText">'{0}' at host '{1}'</string> <!-- {0} = server name, {1} = host name -->
+  <string name="ServerConnection.UnknownServerName">&lt;Unknown&gt;</string>
+  <string name="ServerConnection.UnknownServerSystem">&lt;Unknown&gt;</string>
+  <string name="ServerConnection.HomeServer">Home server</string>
+  <string name="ServerConnection.AttachToServerWorkflowStateLabel">Attach to server</string>
+  <string name="ServerConnection.DetachFromServerWorkflowStateLabel">Detach from server</string>
+  <string name="ServerConnection.HomeServerWorkflowStateLabel">HomeServer</string>
+  <string name="ServerConnection.AttachedText.Before">This MediaPortal 2 client is currently attached to home server</string>
+  <string name="ServerConnection.AttachedText.After"></string>
+  <string name="ServerConnection.NoHomeServerAttached">Currently, this MediaPortal 2 client is not attached to a home server.</string>
+  <string name="ServerConnection.HomeServerIsConnected">The home server is currently connected.</string>
+  <string name="ServerConnection.HomeServerIsNotConnected">The home server is currently disconnected.</string>
+  <string name="ServerConnection.DetachMenu">Detach</string>
+  <string name="ServerConnection.DetachConfirmDialogHeader">Detach from home server</string>
+  <string name="ServerConnection.DetachConfirmDialogText">If you detach from the home server, all data about the local shares and their media items will be removed from the home server's media library. You can attach again later. Do you really want to detach from home server '{0}' at host '{1}'?</string>
+  <string name="ServerConnection.SearchForServers">Search for servers</string>
+  <string name="ServerConnection.DetachFromServer">Detach from home server</string>
+  <string name="ServerConnection.AttachToServerHeader">Attach to MediaPortal 2 server</string>
+  <string name="ServerConnection.AttachToMultipleText">There are multiple MP 2 servers available in the network. Do you want to choose one of them as home server?</string>
+  <string name="ServerConnection.AttachToSingleText.Before">The MP 2 server</string>
+  <string name="ServerConnection.AttachToSingleText.After">is available in the network. Do you want to attach to it?</string>
+  <string name="ServerConnection.AttachToServerNoServerText">Currently, there is no MediaPortal 2 server available in the network.</string>
+  <string name="ServerConnection.AttachButton">Attach</string>
+  <string name="ServerConnection.AttachInfoDialogHeader">Server attached</string>
+  <string name="ServerConnection.AttachInfoDialogText">This MediaPortal 2 client was attached to its new home server '{0}' at host '{1}'</string> <!-- {0} = server name, {1} = host name -->
 
-    <String Name="Shares.Imports.ReImportAllShares" Text="ReImport all shares"/>
+  <string name="Notifications.Title">Notifications</string>
+  <string name="Notifications.OneMoreNotification">(1 more)</string>
+  <string name="Notifications.NMoreNotifications">({0} more)</string>
+  <string name="Notifications.WatchNotificationsWorkflowStateLabel">Notifications</string>
+  <string name="Notifications.Handle">Handle</string>
 
-    <String Name="Plugins" Text="Plugins"/>
-  </Section>
-  <Section Name="SharesOverview">
-    <String Name="OverviewWorkflowNavigationContextDisplayLabel" Text="Shares overview"/>
-    <String Name="Title" Text="Shares overview"/>
-    <String Name="ReImportAllShares" Text="ReImport all shares"/>
-    <String Name="NotConnectedToHomeServer" Text="The home server is not connected, system shares information cannot be retrieved"/>
-  </Section>
-  <Section Name="Shares">
-    <String Name="NoSharesInThisView" Text="- No shares in this view -"/>
-    <String Name="InvalidPath" Text="INVALID PATH: '{0}'"/> <!-- For example: INVALID PATH: 'C:\XXX\YYY' -->
-    <String Name="Online" Text="Online"/>
-    <String Name="Offline" Text="Offline"/>
-    <String Name="ReImport" Text="ReImport"/>
-    <String Name="Importing" Text="Importing..."/>
-  </Section>
+  <string name="ImporterMessages.ImportStartedTitle">Import started</string>
+  <string name="ImporterMessages.ImportStartedText">The import of '{0}' has started.</string>
+  <string name="ImporterMessages.ImportCompletedTitle">Import completed</string>
+  <string name="ImporterMessages.ImportCompletedText">The import of '{0}' has finished.</string>
+
+  <string name="LocalFsResourceProvider.Name">Local filesystem resource provider</string>
+  <string name="LocalFsResourceProvider.Description">Access the local filesystem</string>
+
+  <string name="RemoteResourceProvider.Name">Remote resource provider</string>
+  <string name="RemoteResourceProvider.Description">Access resources located at another MediaPortal 2 system</string>
+
+  <string name="ScreenSaver.MediaPortal2">MediaPortal 2</string>
+
+  <!-- For MP UI player subsystem -->
+  <string name="Players.NoPlayerAvailableNotificationTitle">No player</string>
+  <string name="Players.NoPlayerAvailableNotificationText">There is no player registered to play media item '{0}'</string>
+  <string name="Players.ErrorPlayingMediaItemTitle">Error playing media item</string>
+  <string name="Players.UnableToPlayMediaItemText">Unable to play media item '{0}'</string>
+  <string name="Players.ResourceNotFoundText">Resource '{0}' not found</string>
+
+  <string name="Players.PlayerConfiguration">Player configuration</string>
+  <string name="Players.CurrentMediaInfo">Current media info</string>
+  <string name="Players.FullscreenVideo">Fullscreen {0}</string> <!--for example "Fullscreen TV" -->
+  <string name="Players.FullscreenImage">Fullscreen image</string>
+  <string name="Players.AudioVisualization">Audio visualization</string>
+  <string name="Players.PlayerOfType">{0} player</string> <!-- for example "Video player" -->
+  <string name="Players.SlotNo">Slot #{0}</string>
+  <string name="Players.FocusPlayer">Focus {0}</string> <!-- for example "Focus video player" -->
+  <string name="Players.SwitchPipPlayers">Switch PiP players</string>
+  <string name="Players.ChooseAudioStream">Choose audio stream</string>
+  <string name="Players.PlayerSlotAudioMenu">Audio menu for {0}</string> <!-- for example "Audio menu for Lammbock" -->
+  <string name="Players.Mute">Mute</string>
+  <string name="Players.MuteOff">Mute off</string>
+  <string name="Players.ClosePlayerContext">Close {0}</string> <!-- for example "Close video player" -->
+  <string name="Players.ChoosePlayerGeometry">Zoom mode</string>
+  <string name="Players.ChoosePlayerEffect">Effect</string>
+
+  <string name="Settings.Appearance">Appearance</string>
+  <string name="Settings.Appearance.Skin">Skin</string>
+  <string name="Settings.Appearance.Skin.Formats.DateFormat">Date format</string>
+  <string name="Settings.Appearance.Skin.Formats.DateFormat.Help">Date format used in the skin. Use the format specification of the .net DateTime class.</string>
+  <string name="Settings.Appearance.Skin.Formats.TimeFormat">Time format</string>
+  <string name="Settings.Appearance.Skin.Formats.TimeFormat.Help">Time format used in the skin. Use the format specification of the .net DateTime class.</string>
+
+  <string name="Settings.General">General</string>
+  <string name="Settings.General.System">System</string>
+  <string name="Settings.General.System.Autostart">Autostart</string>
+  <string name="Settings.General.System.Autostart.Help">Start MediaPortal automatically on Windows startup</string>
+
+  <string name="Settings.General.Connectivity">Connectivity</string>
+  <string name="Settings.General.Connectivity.HomeServer">Home server</string>
+  <string name="Settings.General.Connectivity.HomeServer.Help">Home server information, attach to and detach from home server</string>
+  <string name="Settings.General.Connectivity.ServerListener">Server listener</string>
+  <string name="Settings.General.Connectivity.ServerListener.Help">Enable notification in detached state, when a MediaPortal 2 server becomes available in the network</string>
+  <string name="Settings.General.Connectivity.ClientName">Client name</string>
+  <string name="Settings.General.Connectivity.ClientName.Help">Set the name of this MediaPortal 2 client</string>
+
+  <string name="Settings.Regional">Regional</string>
+  <string name="Settings.Regional.Language">Language</string>
+  <string name="Settings.Regional.Language.Main">Language</string>
+  <string name="Settings.Regional.Language.Main.Help">Set the main language used in the application</string>
+
+  <string name="Settings.Shares">Shares</string> <!-- Section name -->
+  <string name="Settings.Shares.Configure">Configure shares</string> <!-- Group name -->
+  <string name="Settings.Shares.ConfigureShares.SharesConfiguration">Shares configuration</string> <!-- Setting -->
+  <string name="Settings.Shares.ConfigureShares.SharesConfiguration.Help">Configure all local shares</string>
+
+  <string name="Settings.Shares.Overview">Overview</string> <!-- Group name -->
+  <string name="Settings.Shares.Overview.SharesOverview">Shares overview</string> <!-- Setting -->
+  <string name="Settings.Shares.Overview.SharesOverview.Help">Global overview over shares</string>
+
+  <string name="Settings.Shares.Imports.ReImportAllShares">ReImport all shares</string>
+
+  <string name="Settings.Plugins">Plugins</string>
+
+  <string name="SharesOverview.OverviewWorkflowNavigationContextDisplayLabel">Shares overview</string>
+  <string name="SharesOverview.Title">Shares overview</string>
+  <string name="SharesOverview.ReImportAllShares">ReImport all shares</string>
+  <string name="SharesOverview.NotConnectedToHomeServer">The home server is not connected, system shares information cannot be retrieved</string>
+
+  <string name="Shares.NoSharesInThisView">- No shares in this view -</string>
+  <string name="Shares.InvalidPath">INVALID PATH: '{0}'</string> <!-- For example: INVALID PATH: 'C:\XXX\YYY' -->
+  <string name="Shares.Online">Online</string>
+  <string name="Shares.Offline">Offline</string>
+  <string name="Shares.ReImport">ReImport</string>
+  <string name="Shares.Importing">Importing...</string>
+
   <!-- Shares configuration workflow -->
-  <Section Name="SharesConfig">
-    <String Name="SharesOverviewWorkflowNavigationContextDisplayLabel" Text="Shares configuration"/>
-    <String Name="SharesRemoveWorkflowNavigationContextDisplayLabel" Text="Remove shares"/>
-    <String Name="ShareInfoWorkflowNavigationContextDisplayLabel" Text="Share info"/>
-    <String Name="SharesAddChooseSystemWorkflowNavigationContextDisplayLabel" Text="Choose system"/>
-    <String Name="SharesEditChooseResourceProviderWorkflowNavigationContextDisplayLabel" Text="Choose resource provider"/>
-    <String Name="SharesEditEditPathWorkflowNavigationContextDisplayLabel" Text="Edit path"/>
-    <String Name="SharesEditChoosePathWorkflowNavigationContextDisplayLabel" Text="Choose path"/>
-    <String Name="SharesEditEditNameWorkflowNavigationContextDisplayLabel" Text="Edit name"/>
-    <String Name="SharesEditChooseCategoriesWorkflowNavigationContextDisplayLabel" Text="Choose categories"/>
-    <String Name="CannotAddSharesTitle" Text="Cannot add shares"/>
-    <String Name="CannotAddShareLocalHomeServerNotConnected" Text="The home server is located at the same computer, thus all shares must be registered at the server. But the server is not connected at the moment. Please start the home server and try again."/>
-    <String Name="SharesOverview" Text="Shares overview"/>
-    <String Name="NoSharesAvailable" Text="There are no shares available"/>
-    <String Name="ShareInformationHeader" Text="Share information"/>
-    <String Name="ShareNameInfo" Text="Name:"/>
-    <String Name="ShareResourceProviderInfo" Text="Base resource provider:"/>
-    <String Name="ShareSystem" Text="System:"/>
-    <String Name="SharePathInfo" Text="Path:"/>
-    <String Name="ShareResourcePathInfo" Text="Technical path:"/>
-    <String Name="ShareMediaCategoriesInfo" Text="Media categories:"/>
-    <String Name="ReImportShare" Text="ReImport share"/>
-    <String Name="SetupDefaultShares" Text="Setup default shares"/>
-    <String Name="RemoveShares" Text="Remove shares"/>
-    <String Name="EditShare" Text="Edit share"/>
-    <String Name="ChooseSystem" Text="Choose system"/>
-    <String Name="ChooseSharesToBeRemoved" Text="Please select the shares to be removed"/>
-    <String Name="ChooseSystemForShare" Text="Choose the system for the new share"/>
-    <String Name="LocalShare" Text="Local share"/>
-    <String Name="LocalShares" Text="Local shares"/>
-    <String Name="GlobalShare" Text="Global share"/>
-    <String Name="GlobalShares" Text="Global shares"/>
-    <String Name="NoConfigGlobalSharesHomeServerNotConnected" Text="The home server is currently not connected, so global shares cannot be managed at the moment."/>
-    <String Name="NoConfigLocalSharesHomeServerLocal" Text="The home server is located at the same machine, so only global shares can be configured."/>
-    <String Name="ChooseResourceProviderForShare" Text="Please select a resource provider for the share"/>
-    <String Name="EditResourceProviderPathForShare" Text="Edit the path to the share"/>
-    <String Name="ResourceProviderPathIsNotValid" Text="Edit a valid path in the choosen resource provider. You can edit a simple path which is understandable by the resource provider. You can also edit a complex path in the format {[Base-ResourceProvider-ID]}://[Base-ResourceProvider-Path]>{[Chained-ResourceProvider-ID]}://[Chained-ResourceProvider-Path]>..."/>
-    <String Name="ChooseResourceProviderPathForShare" Text="Choose the path of the share"/>
-    <String Name="EditShareName" Text="Edit the share's display name"/>
-    <String Name="ChooseShareCategories" Text="Choose the categories of media contents located in the share"/>
-    <String Name="MenuAddShare" Text="Add"/>
-    <String Name="MenuEditShares" Text="Edit"/>
-    <String Name="MenuRemoveShares" Text="Remove"/>
-    <String Name="AddServerShare" Text="Add global share"/> <!-- Must fit for both multiseat and singleseat, that's why we don't write "server share" -->
-    <String Name="EditServerShare" Text="Edit global share"/> <!-- Must fit for both multiseat and singleseat, that's why we don't write "server share" -->
-    <String Name="AddLocalShare" Text="Add local share"/>
-    <String Name="EditLocalShare" Text="Edit local share"/>
-    <String Name="UpdateShareRelocateItemsQueryDialogHeader" Text="Update share"/>
-    <String Name="UpdateShareRelocateItemsQueryText.Info" Text="The share's resource provider and/or path have been updated."/>
-    <String Name="UpdateShareRelocateItemsQueryText.Description" Text="The media library's information about the media items in that share can be updated (relocated) or cleared and reimported."/>
-    <String Name="UpdateShareRelocateItemsQueryText.Query" Text="Do you want to relocate or clear and reimport?"/>
-    <String Name="Relocate" Text="Relocate"/>
-    <String Name="ReImport" Text="ReImport"/>
-  </Section>
-  <Section Name="UPnPFrontendServer">
-    <String Name="DefaultFriendlyName" Text="MediaPortal 2 client"/>
-    <String Name="Manufacturer" Text="Team Mediaportal"/>
-    <String Name="ManufacturerUrl" Text="www.team-mediaportal.com"/>
-    <String Name="ModelDescription" Text="MediaPortal 2 client - the MediaPortal GUI. Plays media content, hosts local shares and provides the user interface."/>
-    <String Name="ModelName" Text="MediaPortal 2 client"/>
-    <String Name="ModelNumber" Text="1"/>
-<!--    <String Name="ModelUrl" Text="..."/> -->
-  </Section>
-  <Section Name="DaysOfWeek">
-    <String Name="1" Text="Monday"/>
-    <String Name="2" Text="Tuesday"/>
-    <String Name="3" Text="Wednesday"/>
-    <String Name="4" Text="Thursday"/>
-    <String Name="5" Text="Friday"/>
-    <String Name="6" Text="Saturday"/>
-    <String Name="7" Text="Sunday"/>
-    <String Name="Monday" Text="Monday"/>
-    <String Name="Tuesday" Text="Tuesday"/>
-    <String Name="Wednesday" Text="Wednesday"/>
-    <String Name="Thursday" Text="Thursday"/>
-    <String Name="Friday" Text="Friday"/>
-    <String Name="Saturday" Text="Saturday"/>
-    <String Name="Sunday" Text="Sunday"/>
-  </Section>
-  <Section Name="Months">
-    <String Name="1" Text="January"/>
-    <String Name="2" Text="February"/>
-    <String Name="3" Text="March"/>
-    <String Name="4" Text="April"/>
-    <String Name="5" Text="May"/>
-    <String Name="6" Text="June"/>
-    <String Name="7" Text="July"/>
-    <String Name="8" Text="August"/>
-    <String Name="9" Text="September"/>
-    <String Name="10" Text="October"/>
-    <String Name="11" Text="November"/>
-    <String Name="12" Text="December"/>
-    <String Name="January" Text="January"/>
-    <String Name="February" Text="February"/>
-    <String Name="March" Text="March"/>
-    <String Name="April" Text="April"/>
-    <String Name="May" Text="May"/>
-    <String Name="June" Text="June"/>
-    <String Name="July" Text="July"/>
-    <String Name="August" Text="August"/>
-    <String Name="September" Text="September"/>
-    <String Name="October" Text="October"/>
-    <String Name="November" Text="November"/>
-    <String Name="December" Text="December"/>
-  </Section>
-</Language>
+
+  <string name="SharesConfig.SharesOverviewWorkflowNavigationContextDisplayLabel">Shares configuration</string>
+  <string name="SharesConfig.SharesRemoveWorkflowNavigationContextDisplayLabel">Remove shares</string>
+  <string name="SharesConfig.ShareInfoWorkflowNavigationContextDisplayLabel">Share info</string>
+  <string name="SharesConfig.SharesAddChooseSystemWorkflowNavigationContextDisplayLabel">Choose system</string>
+  <string name="SharesConfig.SharesEditChooseResourceProviderWorkflowNavigationContextDisplayLabel">Choose resource provider</string>
+  <string name="SharesConfig.SharesEditEditPathWorkflowNavigationContextDisplayLabel">Edit path</string>
+  <string name="SharesConfig.SharesEditChoosePathWorkflowNavigationContextDisplayLabel">Choose path</string>
+  <string name="SharesConfig.SharesEditEditNameWorkflowNavigationContextDisplayLabel">Edit name</string>
+  <string name="SharesConfig.SharesEditChooseCategoriesWorkflowNavigationContextDisplayLabel">Choose categories</string>
+  <string name="SharesConfig.CannotAddSharesTitle">Cannot add shares</string>
+  <string name="SharesConfig.CannotAddShareLocalHomeServerNotConnected">The home server is located at the same computer, thus all shares must be registered at the server. But the server is not connected at the moment. Please start the home server and try again.</string>
+  <string name="SharesConfig.SharesOverview">Shares overview</string>
+  <string name="SharesConfig.NoSharesAvailable">There are no shares available</string>
+  <string name="SharesConfig.ShareInformationHeader">Share information</string>
+  <string name="SharesConfig.ShareNameInfo">Name:</string>
+  <string name="SharesConfig.ShareResourceProviderInfo">Base resource provider:</string>
+  <string name="SharesConfig.ShareSystem">System:</string>
+  <string name="SharesConfig.SharePathInfo">Path:</string>
+  <string name="SharesConfig.ShareResourcePathInfo">Technical path:</string>
+  <string name="SharesConfig.ShareMediaCategoriesInfo">Media categories:</string>
+  <string name="SharesConfig.ReImportShare">ReImport share</string>
+  <string name="SharesConfig.SetupDefaultShares">Setup default shares</string>
+  <string name="SharesConfig.RemoveShares">Remove shares</string>
+  <string name="SharesConfig.EditShare">Edit share</string>
+  <string name="SharesConfig.ChooseSystem">Choose system</string>
+  <string name="SharesConfig.ChooseSharesToBeRemoved">Please select the shares to be removed</string>
+  <string name="SharesConfig.ChooseSystemForShare">Choose the system for the new share</string>
+  <string name="SharesConfig.LocalShare">Local share</string>
+  <string name="SharesConfig.LocalShares">Local shares</string>
+  <string name="SharesConfig.GlobalShare">Global share</string>
+  <string name="SharesConfig.GlobalShares">Global shares</string>
+  <string name="SharesConfig.NoConfigGlobalSharesHomeServerNotConnected">The home server is currently not connected, so global shares cannot be managed at the moment.</string>
+  <string name="SharesConfig.NoConfigLocalSharesHomeServerLocal">The home server is located at the same machine, so only global shares can be configured.</string>
+  <string name="SharesConfig.ChooseResourceProviderForShare">Please select a resource provider for the share</string>
+  <string name="SharesConfig.EditResourceProviderPathForShare">Edit the path to the share</string>
+  <string name="SharesConfig.ResourceProviderPathIsNotValid">Edit a valid path in the choosen resource provider. You can edit a simple path which is understandable by the resource provider. You can also edit a complex path in the format {[Base-ResourceProvider-ID]}://[Base-ResourceProvider-Path]&gt;{[Chained-ResourceProvider-ID]}://[Chained-ResourceProvider-Path]&gt;...</string>
+  <string name="SharesConfig.ChooseResourceProviderPathForShare">Choose the path of the share</string>
+  <string name="SharesConfig.EditShareName">Edit the share's display name</string>
+  <string name="SharesConfig.ChooseShareCategories">Choose the categories of media contents located in the share</string>
+  <string name="SharesConfig.MenuAddShare">Add</string>
+  <string name="SharesConfig.MenuEditShares">Edit</string>
+  <string name="SharesConfig.MenuRemoveShares">Remove</string>
+  <string name="SharesConfig.AddServerShare">Add global share</string> <!-- Must fit for both multiseat and singleseat, that's why we don't write "server share" -->
+  <string name="SharesConfig.EditServerShare">Edit global share</string> <!-- Must fit for both multiseat and singleseat, that's why we don't write "server share" -->
+  <string name="SharesConfig.AddLocalShare">Add local share</string>
+  <string name="SharesConfig.EditLocalShare">Edit local share</string>
+  <string name="SharesConfig.UpdateShareRelocateItemsQueryDialogHeader">Update share</string>
+  <string name="SharesConfig.UpdateShareRelocateItemsQueryText.Info">The share's resource provider and/or path have been updated.</string>
+  <string name="SharesConfig.UpdateShareRelocateItemsQueryText.Description">The media library's information about the media items in that share can be updated (relocated) or cleared and reimported.</string>
+  <string name="SharesConfig.UpdateShareRelocateItemsQueryText.Query">Do you want to relocate or clear and reimport?</string>
+  <string name="SharesConfig.Relocate">Relocate</string>
+  <string name="SharesConfig.ReImport">ReImport</string>
+
+  <string name="UPnPFrontendServer.DefaultFriendlyName">MediaPortal 2 client</string>
+  <string name="UPnPFrontendServer.Manufacturer">Team Mediaportal</string>
+  <string name="UPnPFrontendServer.ManufacturerUrl">www.team-mediaportal.com</string>
+  <string name="UPnPFrontendServer.ModelDescription">MediaPortal 2 client - the MediaPortal GUI. Plays media content, hosts local shares and provides the user interface.</string>
+  <string name="UPnPFrontendServer.ModelName">MediaPortal 2 client</string>
+  <string name="UPnPFrontendServer.ModelNumber">1</string>
+<!--  <string Name="UPnPFrontendServer.ModelUrl">...</string> -->
+
+  <string name="DaysOfWeek.1">Monday</string>
+  <string name="DaysOfWeek.2">Tuesday</string>
+  <string name="DaysOfWeek.3">Wednesday</string>
+  <string name="DaysOfWeek.4">Thursday</string>
+  <string name="DaysOfWeek.5">Friday</string>
+  <string name="DaysOfWeek.6">Saturday</string>
+  <string name="DaysOfWeek.7">Sunday</string>
+  <string name="DaysOfWeek.Monday">Monday</string>
+  <string name="DaysOfWeek.Tuesday">Tuesday</string>
+  <string name="DaysOfWeek.Wednesday">Wednesday</string>
+  <string name="DaysOfWeek.Thursday">Thursday</string>
+  <string name="DaysOfWeek.Friday">Friday</string>
+  <string name="DaysOfWeek.Saturday">Saturday</string>
+  <string name="DaysOfWeek.Sunday">Sunday</string>
+
+  <string name="Months.1">January</string>
+  <string name="Months.2">February</string>
+  <string name="Months.3">March</string>
+  <string name="Months.4">April</string>
+  <string name="Months.5">May</string>
+  <string name="Months.6">June</string>
+  <string name="Months.7">July</string>
+  <string name="Months.8">August</string>
+  <string name="Months.9">September</string>
+  <string name="Months.10">October</string>
+  <string name="Months.11">November</string>
+  <string name="Months.12">December</string>
+  <string name="Months.January">January</string>
+  <string name="Months.February">February</string>
+  <string name="Months.March">March</string>
+  <string name="Months.April">April</string>
+  <string name="Months.May">May</string>
+  <string name="Months.June">June</string>
+  <string name="Months.July">July</string>
+  <string name="Months.August">August</string>
+  <string name="Months.September">September</string>
+  <string name="Months.October">October</string>
+  <string name="Months.November">November</string>
+  <string name="Months.December">December</string>
+</resources>

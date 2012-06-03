@@ -23,20 +23,21 @@
 #endregion
 
 using System.Collections.Generic;
+using System.Linq;
 using System.Xml.Serialization;
 
 namespace MediaPortal.Utilities.Localization.StringsFile
 {
-  [XmlRoot("Language")]
+  [XmlRoot("resources")]
   public class StringFile
   {
     #region Variables
 
-    [XmlAttribute("Name")]
+    [XmlAttribute("languagename")]
     public string _languageName;
 
-    [XmlElement("Section")]
-    public List<StringSection> _sections;
+    [XmlElement("string")]
+    public List<StringLocalized> _localizedStrings = new List<StringLocalized>();
 
     #endregion
 
@@ -49,30 +50,19 @@ namespace MediaPortal.Utilities.Localization.StringsFile
     }
 
     [XmlIgnore]
-    public ICollection<StringSection> Sections
+    public ICollection<StringLocalized> Strings
     {
-      get { return _sections; }
+      get { return _localizedStrings; }
     }
 
-    public bool IsSection(string sectionName)
+    public bool IsString(string stringName)
     {
-      if (_sections != null)
-      {
-        foreach (StringSection section in _sections)
-        {
-          if (section.SectionName == sectionName)
-            return true;
-        }
-      }
-      return false;
+      return _localizedStrings.Any(str => str.StringName == stringName);
     }
 
-    public void AddSection(StringSection section)
+    public void AddString(StringLocalized stringLocalized)
     {
-      if (_sections == null)
-        _sections = new List<StringSection>();
-
-      _sections.Add(section);
+      _localizedStrings.Add(stringLocalized);
     }
 
     #endregion

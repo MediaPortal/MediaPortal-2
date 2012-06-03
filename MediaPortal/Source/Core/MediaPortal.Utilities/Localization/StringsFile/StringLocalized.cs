@@ -30,10 +30,10 @@ namespace MediaPortal.Utilities.Localization.StringsFile
   {
     #region Variables
 
-    [XmlAttribute("Name")]
+    [XmlAttribute("name")]
     public string _name;
 
-    [XmlAttribute("Text")]
+    [XmlText]
     public string _text;
 
     #endregion
@@ -56,7 +56,7 @@ namespace MediaPortal.Utilities.Localization.StringsFile
 
     public override string ToString()
     {
-      return "[" + _name + "]" + ":" + _text;
+      return "[" + _name + "]" + ": " + _text;
     }
   }
 }
