@@ -83,7 +83,7 @@ namespace MediaPortal.Extensions.OnlineLibraries
     #endregion
 
     /// <summary>
-    /// Tries to lookup the series from TheMovieDB and updates the given <paramref name="movieInfo"/> with the online information.
+    /// Tries to lookup the Movie from TheMovieDB and updates the given <paramref name="movieInfo"/> with the online information.
     /// </summary>
     /// <param name="movieInfo">Movie to check</param>
     /// <returns><c>true</c> if successful</returns>
@@ -162,13 +162,13 @@ namespace MediaPortal.Extensions.OnlineLibraries
 
         // Use cached values before doing online query
         MovieMatch match = matches.Find(m => m.MovieName == movieName || m.MovieDBName == movieName);
-        ServiceRegistration.Get<ILogger>().Debug("MovieTheMovieDbMatcher: Try to lookup series \"{0}\" from cache: {1}", movieName, match != null && match.ID != 0);
+        ServiceRegistration.Get<ILogger>().Debug("MovieTheMovieDbMatcher: Try to lookup movie \"{0}\" from cache: {1}", movieName, match != null && match.ID != 0);
 
         // Try online lookup
         if (!Init())
           return false;
 
-        // If this is a known series, only return the series details (including episodes).
+        // If this is a known movie, only return the movie details.
         if (match != null)
           return match.ID != 0 && _movieDb.GetMovie(match.ID, out movieDetail);
 
@@ -202,7 +202,7 @@ namespace MediaPortal.Extensions.OnlineLibraries
       }
       catch (Exception ex)
       {
-        ServiceRegistration.Get<ILogger>().Debug("MovieTheMovieDbMatcher: Exception while processing series {0}", ex, movieName);
+        ServiceRegistration.Get<ILogger>().Debug("MovieTheMovieDbMatcher: Exception while processing movie {0}", ex, movieName);
         return false;
       }
       finally

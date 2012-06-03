@@ -68,7 +68,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.TheMovieDB
     /// </summary>
     /// <param name="movieName">Name</param>
     /// <param name="movies">Returns the list of matches.</param>
-    /// <returns><c>true</c> if at least one Series was found.</returns>
+    /// <returns><c>true</c> if at least one Movie was found.</returns>
     public bool SearchMovie(string movieName, out List<MovieSearchResult> movies)
     {
       movies = _movieDbHandler.SearchMovie(movieName, PreferredLanguage);
@@ -109,7 +109,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.TheMovieDB
     /// <summary>
     /// Tests for matches. 
     /// </summary>
-    /// <param name="moviesName">Series name</param>
+    /// <param name="moviesName">Movie name</param>
     /// <param name="year">Optional year</param>
     /// <param name="movies">Potential online matches. The collection will be modified inside this method.</param>
     /// <returns><c>true</c> if unique match</returns>
