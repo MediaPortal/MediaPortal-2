@@ -65,6 +65,7 @@ namespace MediaPortal.Common.MediaManagement
     protected bool _processesNonFiles;
     protected MetadataExtractorPriority _metadataExtractorPriority;
     protected ICollection<string> _shareCategories;
+    protected ICollection<string> _requiredBaseCategories;
     protected IDictionary<Guid, MediaItemAspectMetadata> _extractedAspectTypes;
 
     #endregion
@@ -77,6 +78,7 @@ namespace MediaPortal.Common.MediaManagement
       _processesNonFiles = processesNonFiles;
       _metadataExtractorPriority = metadataExtractorPriority;
       _shareCategories = new List<string>(shareCategories);
+      _requiredBaseCategories = new List<string>();
       _extractedAspectTypes = new Dictionary<Guid, MediaItemAspectMetadata>();
       foreach (MediaItemAspectMetadata aspectMetadata in extractedAspectTypes)
         _extractedAspectTypes.Add(aspectMetadata.AspectId, aspectMetadata);
@@ -88,6 +90,17 @@ namespace MediaPortal.Common.MediaManagement
     public Guid MetadataExtractorId
     {
       get { return _metadataExtractorId; }
+    }
+
+    /// <summary>
+    /// Returns a list of additional categories, that are mandatory to be included in extraction process for this metadata extractor.
+    /// This can be required for extractors of <see cref="MetadataExtractorPriority.Extended"/> or <see cref="MetadataExtractorPriority.External"/>
+    /// to use some of the <see cref="MetadataExtractorPriority.Core"/>.
+    /// Example: Series metadata extractor requires, that the video metadata extractor has filled the video informations before.
+    /// </summary>
+    public ICollection<string> RequiredBaseCategories
+    {
+      get { return _requiredBaseCategories; }
     }
 
     /// <summary>

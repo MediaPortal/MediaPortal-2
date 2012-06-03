@@ -83,6 +83,8 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
                 MediaAspect.Metadata,
                 SeriesAspect.Metadata
               });
+      // Add Video category as required base
+      _metadata.RequiredBaseCategories.Add(DefaultMediaCategory.Video.ToString());
     }
 
     #endregion

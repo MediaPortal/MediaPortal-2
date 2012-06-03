@@ -33,6 +33,7 @@ using MediaPortal.Common.PluginManager;
 using MediaPortal.Common.Services.ResourceAccess.LocalFsResourceProvider;
 using MediaPortal.Common.Services.ResourceAccess.RemoteResourceProvider;
 using MediaPortal.Common.SystemResolver;
+using MediaPortal.Utilities;
 using MediaPortal.Utilities.SystemAPI;
 
 namespace MediaPortal.Common.Services.MediaManagement
@@ -320,9 +321,18 @@ namespace MediaPortal.Common.Services.MediaManagement
 
     public ICollection<Guid> GetMetadataExtractorsForCategory(string mediaCategory)
     {
-      return new List<Guid>(LocalMetadataExtractors.Values.Select(
-          metadataExtractor => new KeyValuePair<MetadataExtractorMetadata, IMetadataExtractor>(metadataExtractor.Metadata, metadataExtractor)).Where(md2me =>
-          mediaCategory == null || md2me.Key.ShareCategories.Contains(mediaCategory)).Select(md2me => md2me.Key.MetadataExtractorId));
+      ICollection<Guid> ids = new HashSet<Guid>();
+      foreach (KeyValuePair<Guid, IMetadataExtractor> localMetadataExtractor in LocalMetadataExtractors)
+      {
+        if (mediaCategory == null || localMetadataExtractor.Value.Metadata.ShareCategories.Contains(mediaCategory))
+        {
+          ids.Add(localMetadataExtractor.Value.Metadata.MetadataExtractorId);
+
+          foreach (string requiredBaseCategory in localMetadataExtractor.Value.Metadata.RequiredBaseCategories)
+            CollectionUtils.AddAll(ids, GetMetadataExtractorsForCategory(requiredBaseCategory));
+        }
+      }
+      return ids;
     }
 
     public ICollection<Guid> GetMetadataExtractorsForMIATypes(IEnumerable<Guid> miaTypeIDs)
