@@ -460,7 +460,9 @@ namespace MediaPortal.Common.MediaManagement
       if (!aspectData.TryGetValue(aspectId, out mediaAspect))
         return false;
 
-      value = (TE) mediaAspect[attributeSpecification];
+      object attribute = mediaAspect[attributeSpecification];
+      if (attribute != null)
+        value = (TE) attribute;
       return true;
     }
 
