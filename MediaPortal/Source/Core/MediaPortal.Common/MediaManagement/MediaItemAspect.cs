@@ -461,8 +461,10 @@ namespace MediaPortal.Common.MediaManagement
         return false;
 
       object attribute = mediaAspect[attributeSpecification];
-      if (attribute != null)
-        value = (TE) attribute;
+      if (attribute == null)
+        return false;
+
+      value = (TE) attribute;
       return true;
     }
 
