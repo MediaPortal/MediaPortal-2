@@ -192,7 +192,9 @@ namespace MediaPortal.Plugins.SlimTvClient
       // Call a seek only if the stream is not "live"
       if (Duration - CurrentTime > TIMESPAN_LIVE)
         CurrentTime = Duration; // Seek to end
-
+      
+      // Clear any subtitle that might be currently displayed
+      _subtitleRenderer.Reset();
       EnumerateStreams(true);
       EnumerateChapters(true);
       SetPreferredSubtitle();

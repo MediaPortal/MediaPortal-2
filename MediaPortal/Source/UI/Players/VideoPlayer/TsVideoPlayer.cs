@@ -56,8 +56,8 @@ namespace MediaPortal.UI.Players.Video
     #region Variables
 
     protected IBaseFilter _fileSource = null;
-    SubtitleRenderer _subtitleRenderer;
-    IBaseFilter _subtitleFilter;
+    protected SubtitleRenderer _subtitleRenderer;
+    protected IBaseFilter _subtitleFilter;
     protected GraphRebuilder _graphRebuilder;
     protected int _selectedSubtitleIndex = NO_STREAM_INDEX;
     protected ChangedMediaType _changedMediaType;
