@@ -13,7 +13,7 @@
   <xsl:template match="String">
     <string>
       <xsl:attribute name="name">
-        <xsl:value-of select="../@Name"/>/<xsl:value-of select="@Name"/>
+        <xsl:value-of select="../@Name"/>.<xsl:value-of select="@Name"/>
       </xsl:attribute>
       <xsl:value-of select="@Text"/>
     </string>

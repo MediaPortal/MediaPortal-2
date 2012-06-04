@@ -50,7 +50,7 @@ namespace TransifexHelper
           Environment.Exit(3);
 
       if (mpArgs.AndroidToMP2)
-        TransformAndroidToMP2();
+        TransformAndroidToMP2(mpArgs.AllTranslations);
 
       if (mpArgs.Pull)
         if (!Pull())
@@ -218,7 +218,10 @@ namespace TransifexHelper
         XslTransform myXslTransform;
         myXslTransform = new XslTransform();
         myXslTransform.Load(XsltMP2toAndroid());
-        myXslTransform.Transform(pair.Value.FullName + @"\strings_en.xml", outputDir + @"\strings_en.xml"); 
+        foreach (FileInfo langFile in pair.Value.GetFiles())
+        {
+          myXslTransform.Transform(langFile.FullName, outputDir + @"\" + langFile.Name); 
+        }
       }
     }
 
@@ -243,7 +246,7 @@ namespace TransifexHelper
       transifexIni.Save(TransifexConfig());
     }
 
-    private static void TransformAndroidToMP2()
+    private static void TransformAndroidToMP2(bool allTranslations)
     {
       Console.WriteLine("Transforming Android files to MP2 file format...");
       foreach (KeyValuePair<string, DirectoryInfo> pair in languageDirectories)
@@ -252,6 +255,9 @@ namespace TransifexHelper
 
         foreach (FileInfo file in new DirectoryInfo(inputDir).GetFiles())
         {
+          if (!allTranslations)
+            if (!file.Name.ToLower().Equals("strings_en.xml"))
+              continue;
           Console.WriteLine("   " + file.FullName.Replace(targetDir, string.Empty));
           XslTransform myXslTransform;
           myXslTransform = new XslTransform();

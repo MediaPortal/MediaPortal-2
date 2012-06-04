@@ -51,5 +51,9 @@ namespace TransifexHelper
     [Option(null, "AndroidToMP2", Required = false,
         HelpText = "Transform only, from Android to MP2.")]
     public bool AndroidToMP2 = false;
+
+    [Option(null, "AllTranslations", Required = false,
+        HelpText = "Transform all translations to cache, not only strings_en.xml.")]
+    public bool AllTranslations = false;
   }
 }
