@@ -13,5 +13,5 @@
   <string name="UPnPBackendServer/ModelDescription">MediaPortal 2 server - host audio bestanden, video\'s en afbeeldingen en levert een mediadatabank</string>
   <string name="UPnPBackendServer/ModelName">MediaPortal 2 server</string>
   <string name="UPnPBackendServer/ModelNumber">1</string>
-  <string name="MediaLibrary/EmptyOrMiscCharGroupName"><Geen of een divers karakter></string>
+  <string name="MediaLibrary/EmptyOrMiscCharGroupName">&lt;Geen of een divers karakter&gt;</string>
 </resources>

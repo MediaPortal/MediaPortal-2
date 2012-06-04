@@ -102,7 +102,7 @@
   <string name="Media/ImagesRootViewName">Bilder</string>
   <string name="Media/SimpleSearchViewName">Einfache Suche</string>
   <string name="Media/ViewInvalid">Die Ansicht konnte nicht erzeugt werden</string>
-  <string name="Media/ViewEmpty"><Keine Elemente></string>
+  <string name="Media/ViewEmpty">&lt;Keine Elemente&gt;</string>
   <string name="Media/NoItems">Keine Elemente</string>
   <string name="Media/OneItem">Ein Element</string>
   <string name="Media/OneOfOneItem">1/1 Element</string>
@@ -191,10 +191,10 @@
   <string name="Media/SaveCurrentPlaylistAction">Aktuelle Wiedergabeliste speichern</string>
   <string name="Media/RemovePlaylistsAction">Wiedergabelisten entfernen</string>
   <string name="Media/LoadPlaylistButton">Wiedergabeliste laden</string>
-  <string name="Media/PlaylistEmpty"><Keine Elemente in Wiedergabeliste></string>
+  <string name="Media/PlaylistEmpty">&lt;Keine Elemente in Wiedergabeliste&gt;</string>
   <string name="Media/CannotPlayItemDialogText">Kann Medienelement nicht wiedergeben</string>
   <string name="Media/CannotPlayItemsDialogText">Kann Medienelemente nicht wiedergeben</string>
-  <string name="Media/ValueEmptyTitle"><Leer></string>
+  <string name="Media/ValueEmptyTitle">&lt;Leer&gt;</string>
   <string name="Media/SubtitleOff">Untertitel deaktivieren</string>
   <string name="Media/ChooseChapterDialogHeader">Kapitel wählen</string>
   <string name="Media/ChooseSubtitleDialogHeader">Untertitel wählen</string>

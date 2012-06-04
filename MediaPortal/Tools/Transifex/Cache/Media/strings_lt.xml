@@ -102,7 +102,7 @@
   <string name="Media/ImagesRootViewName">Vaizdai</string>
   <string name="Media/SimpleSearchViewName">Paprasta paieška</string>
   <string name="Media/ViewInvalid">Šio vaizdo nepavyko sukurti</string>
-  <string name="Media/ViewEmpty"><Nėra įrašų rodymui></string>
+  <string name="Media/ViewEmpty">&lt;Nėra įrašų rodymui&gt;</string>
   <string name="Media/NoItems">Nėra įrašų</string>
   <string name="Media/OneItem">Vienas Įrašas</string>
   <string name="Media/OneOfOneItem">1/1 įrašas</string>
@@ -191,10 +191,10 @@
   <string name="Media/SaveCurrentPlaylistAction">Saugoti šį grojaraštį</string>
   <string name="Media/RemovePlaylistsAction">Išimti grojaraščius</string>
   <string name="Media/LoadPlaylistButton">Krauti grojaraštį</string>
-  <string name="Media/PlaylistEmpty"><Grojaraštyje nėra įrašųt></string>
+  <string name="Media/PlaylistEmpty">&lt;Grojaraštyje nėra įrašųt&gt;</string>
   <string name="Media/CannotPlayItemDialogText">Negalima atkurti media įrašo</string>
   <string name="Media/CannotPlayItemsDialogText">Negalima atkurti media įrašų</string>
-  <string name="Media/ValueEmptyTitle"><Tuščia></string>
+  <string name="Media/ValueEmptyTitle">&lt;Tuščia&gt;</string>
   <string name="Media/SubtitleOff">Išjungti subtitrus</string>
   <string name="Media/ChooseChapterDialogHeader">Pasirinkti skyrių</string>
   <string name="Media/ChooseSubtitleDialogHeader">Pasirinkti subtitrus</string>

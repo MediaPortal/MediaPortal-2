@@ -102,7 +102,7 @@
   <string name="Media/ImagesRootViewName">Afbeeldingen</string>
   <string name="Media/SimpleSearchViewName">Eenvoudig zoeken</string>
   <string name="Media/ViewInvalid">Deze weergave kan niet worden opgebouwd</string>
-  <string name="Media/ViewEmpty"><Geen items om weer te geven></string>
+  <string name="Media/ViewEmpty">&lt;Geen items om weer te geven&gt;</string>
   <string name="Media/NoItems">Geen items</string>
   <string name="Media/OneItem">Een item</string>
   <string name="Media/OneOfOneItem">1/1 item</string>
@@ -191,10 +191,10 @@
   <string name="Media/SaveCurrentPlaylistAction">Huidige afspeellijst opslaan</string>
   <string name="Media/RemovePlaylistsAction">Afspeellijsten verwijderen</string>
   <string name="Media/LoadPlaylistButton">Afspeellijst laden</string>
-  <string name="Media/PlaylistEmpty"><Geen items in afspeellijst></string>
+  <string name="Media/PlaylistEmpty">&lt;Geen items in afspeellijst&gt;</string>
   <string name="Media/CannotPlayItemDialogText">Kan media-item niet afspelen</string>
   <string name="Media/CannotPlayItemsDialogText">Kan media-items niet afspelen</string>
-  <string name="Media/ValueEmptyTitle"><Leeg></string>
+  <string name="Media/ValueEmptyTitle">&lt;Leeg&gt;</string>
   <string name="Media/SubtitleOff">Ondertitels uitschakelen</string>
   <string name="Media/ChooseChapterDialogHeader">Kies hoofdstuk</string>
   <string name="Media/ChooseSubtitleDialogHeader">Kies ondertitel</string>

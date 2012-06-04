@@ -102,7 +102,7 @@
   <string name="Media/ImagesRootViewName">Bilder</string>
   <string name="Media/SimpleSearchViewName">Enkelt søk</string>
   <string name="Media/ViewInvalid">Visning kunne ikke hentes</string>
-  <string name="Media/ViewEmpty"><Ingen elementer å vise></string>
+  <string name="Media/ViewEmpty">&lt;Ingen elementer å vise&gt;</string>
   <string name="Media/NoItems">Ingen elementer</string>
   <string name="Media/OneItem">Et element</string>
   <string name="Media/OneOfOneItem">1/1 element</string>
@@ -191,10 +191,10 @@
   <string name="Media/SaveCurrentPlaylistAction">Lagre gjeldende spilleliste</string>
   <string name="Media/RemovePlaylistsAction">Fjern spilleliste</string>
   <string name="Media/LoadPlaylistButton">Hent spilleliste</string>
-  <string name="Media/PlaylistEmpty"><Ingen elementer i spillelisten></string>
+  <string name="Media/PlaylistEmpty">&lt;Ingen elementer i spillelisten&gt;</string>
   <string name="Media/CannotPlayItemDialogText">Kan ikke spille av media elementet</string>
   <string name="Media/CannotPlayItemsDialogText">Kan ikke spille av media elementer</string>
-  <string name="Media/ValueEmptyTitle"><Tom></string>
+  <string name="Media/ValueEmptyTitle">&lt;Tom&gt;</string>
   <string name="Media/SubtitleOff">Slå av undertekst</string>
   <string name="Media/ChooseChapterDialogHeader">Velg kapittel</string>
   <string name="Media/ChooseSubtitleDialogHeader">Velg undertekst</string>

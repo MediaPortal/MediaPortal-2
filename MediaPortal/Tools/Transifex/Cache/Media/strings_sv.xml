@@ -102,7 +102,7 @@
   <string name="Media/ImagesRootViewName">Bilder</string>
   <string name="Media/SimpleSearchViewName">Enkel sökning</string>
   <string name="Media/ViewInvalid">Denna vy kunde in skapas</string>
-  <string name="Media/ViewEmpty"><Inga objekt att visa></string>
+  <string name="Media/ViewEmpty">&lt;Inga objekt att visa&gt;</string>
   <string name="Media/NoItems">Inga objekt</string>
   <string name="Media/OneItem">Ett objekt</string>
   <string name="Media/OneOfOneItem">1/1 objekt</string>
@@ -191,10 +191,10 @@
   <string name="Media/SaveCurrentPlaylistAction">Spara aktuell spellista</string>
   <string name="Media/RemovePlaylistsAction">Ta bort spellista</string>
   <string name="Media/LoadPlaylistButton">Ladda spellista</string>
-  <string name="Media/PlaylistEmpty"><Inga objekt i spellistan></string>
+  <string name="Media/PlaylistEmpty">&lt;Inga objekt i spellistan&gt;</string>
   <string name="Media/CannotPlayItemDialogText">Kan inte spela mediaobjekt</string>
   <string name="Media/CannotPlayItemsDialogText">Kan inte spela mediaobjekt</string>
-  <string name="Media/ValueEmptyTitle"><Tomt></string>
+  <string name="Media/ValueEmptyTitle">&lt;Tomt&gt;</string>
   <string name="Media/SubtitleOff">Avaktivera textning</string>
   <string name="Media/ChooseChapterDialogHeader">Välj kapitel</string>
   <string name="Media/ChooseSubtitleDialogHeader">Välj textning</string>

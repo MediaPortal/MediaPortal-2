@@ -102,7 +102,7 @@
   <string name="Media/ImagesRootViewName">Immagini</string>
   <string name="Media/SimpleSearchViewName">Ricerca semplice</string>
   <string name="Media/ViewInvalid">Questa vista non può essere creata</string>
-  <string name="Media/ViewEmpty"><Non ci sono voci da mostrare></string>
+  <string name="Media/ViewEmpty">&lt;Non ci sono voci da mostrare&gt;</string>
   <string name="Media/NoItems">Non ci sono voci</string>
   <string name="Media/OneItem">Una voce</string>
   <string name="Media/OneOfOneItem">1/1 voce</string>
@@ -191,10 +191,10 @@
   <string name="Media/SaveCurrentPlaylistAction">Salva playlist corrente</string>
   <string name="Media/RemovePlaylistsAction">Rimuovi playlist</string>
   <string name="Media/LoadPlaylistButton">Carica playlist</string>
-  <string name="Media/PlaylistEmpty"><Non ci sono voci nella playlist></string>
+  <string name="Media/PlaylistEmpty">&lt;Non ci sono voci nella playlist&gt;</string>
   <string name="Media/CannotPlayItemDialogText">Impossibile riprodurre media</string>
   <string name="Media/CannotPlayItemsDialogText">Impossibile riprodurre media</string>
-  <string name="Media/ValueEmptyTitle"><Vuoto></string>
+  <string name="Media/ValueEmptyTitle">&lt;Vuoto&gt;</string>
   <string name="Media/SubtitleOff">Disabilita sottotitoli</string>
   <string name="Media/ChooseChapterDialogHeader">Scegli capitolo</string>
   <string name="Media/ChooseSubtitleDialogHeader">Scegli sottotitolo</string>

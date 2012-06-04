@@ -30,8 +30,8 @@
   <string name="ServerConnection/NotificationServerAvailableTitle">MP serveris nepasiekiamas</string>
   <string name="ServerConnection/NotificationServerAvailableText">Bent vienas MediaPortal 2 serveris yra pasieiamas. Prijunkite prie jo norint naudotis visomis MediaPortal 2 funkcijomis.</string>
   <string name="ServerConnection/ServerFormatText">{0}\' pagrindiniame kompiuteryje \'{1}</string>
-  <string name="ServerConnection/UnknownServerName"><Nežinomas></string>
-  <string name="ServerConnection/UnknownServerSystem"><Nežinomas></string>
+  <string name="ServerConnection/UnknownServerName">&lt;Nežinomas&gt;</string>
+  <string name="ServerConnection/UnknownServerSystem">&lt;Nežinomas&gt;</string>
   <string name="ServerConnection/HomeServer">Pagrindinis serveris</string>
   <string name="ServerConnection/AttachToServerWorkflowStateLabel">Prijungti prie serverio</string>
   <string name="ServerConnection/DetachFromServerWorkflowStateLabel">Atjungti nuo serverio</string>
