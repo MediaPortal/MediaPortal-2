@@ -3,8 +3,8 @@
   <string name="Settings/Appearance.System">System</string>
   <string name="Settings/Appearance.System.Fullscreen">Vollbild</string>
   <string name="Settings/Appearance.System.Fullscreen.Help">MediaPortal im Vollbildmodus anzeigen</string>
-  <string name="Settings/Appearance.System.CellPhoneInputStyle">Cell phone input style</string>
-  <string name="Settings/Appearance.System.CellPhoneInputStyle.Help">Use cell phone/SMS input style</string>
+  <string name="Settings/Appearance.System.CellPhoneInputStyle">Handy-Tastatur</string>
+  <string name="Settings/Appearance.System.CellPhoneInputStyle.Help">Benutze die Handy-Tastatur</string>
   <string name="Settings/Appearance.System.ScreenSaverEnabled">Bildschirmschoner verwenden</string>
   <string name="Settings/Appearance.System.ScreenSaverEnabled.Help">Legt fest, ob der Bildschirmschoner verwendet werden soll</string>
   <string name="Settings/Appearance.System.ScreenSaverTimeout">Zeitlimit für Bildschirmschoner</string>

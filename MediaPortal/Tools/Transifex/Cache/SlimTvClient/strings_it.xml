@@ -1,0 +1,20 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<resources>
+  <string name="SlimTvClient/Title">Client Slim TV</string>
+  <string name="SlimTvClient/CurrentlyPlayingInformationHeader">Informazioni programma</string>
+  <string name="SlimTvClient/ChannelLabel">Canale</string>
+  <string name="SlimTvClient/ProgramLabel">Programma</string>
+  <string name="SlimTvClient/DescriptionLabel">Descrizione</string>
+  <string name="SlimTvClient/GenreLabel">Genere</string>
+  <string name="SlimTvClient/ProgramStartLabel">Ora inizio</string>
+  <string name="SlimTvClient/ProgramEndLabel">Ora fine</string>
+  <string name="SlimTvClient/EpisodeLabel">Episodio</string>
+  <string name="SlimTvClient/Guide">Guida TV</string>
+  <string name="SlimTvClient/NoProgram">Non ci sono informazioni sul programma</string>
+  <string name="SlimTvClient/ChooseProgramAction">Scegli azione programma..</string>
+  <string name="SlimTvClient/ProgramOver">Programma già finito</string>
+  <string name="SlimTvClient/WatchNow">Vedi programma ora</string>
+  <string name="SlimTvClient/RecordNow">Registra ora</string>
+  <string name="SlimTvClient/DeleteSchedule">Cancella schedulazione</string>
+  <string name="SlimTvClient/CreateSchedule">Registra Schedulazione</string>
+</resources>

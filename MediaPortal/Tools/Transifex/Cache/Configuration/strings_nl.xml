@@ -1,0 +1,11 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<resources>
+  <string name="Configuration/Name">Instellingen</string>
+  <string name="Configuration/ConfigurationMainWorkflowNavigationContextDisplayLabel">Instellingen</string>
+  <string name="Configuration/MainSettings">Hoofdinstellingen</string>
+  <string name="Configuration/NoSettingsInThisSection">Er zijn geen instellingen voor deze sectie</string>
+  <string name="Configuration/ErrorFloatingPointValue">\'{0}\' is geen geldig zwevend kommagetal</string>
+  <string name="Configuration/ErrorIntegerValue">\'{0}\' is geen geldig geheel getal</string>
+  <string name="Configuration/ErrorNumericLowerLimit">Gebruik een waarde tussen \'{1}\' en \'{2}\'</string>
+  <string name="Configuration/ErrorNumericUpperLimit">Gebruik een waarde tussen \'{1}\' en \'{2}\'</string>
+</resources>

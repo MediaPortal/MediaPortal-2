@@ -1,0 +1,8 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<resources>
+  <string name="configuration/save_on_exit">Ar norėtumėte išsaugoti pakeitimus prieš uždarant?</string>
+  <string name="configuration/unsaved_warning">Įspėjame: neišsaugoti pakeitimai</string>
+  <string name="configuration/browse">Naršyti</string>
+  <string name="configuration/areas.settings">Nustatymai</string>
+  <string name="configuration/areas.logs">Logai</string>
+</resources>

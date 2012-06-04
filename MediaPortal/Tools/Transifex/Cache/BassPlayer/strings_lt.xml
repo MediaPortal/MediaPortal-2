@@ -1,0 +1,10 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<resources>
+  <string name="Settings/Players">Grotuvai</string>
+  <string name="Settings/Players.Rendering">Generuojama</string>
+  <string name="Settings/Players.Rendering.CrossFading">Suliejimas</string>
+  <string name="Settings/Players.Rendering.CrossFading.CrossFadingEnabled">Suliejimas įgalintas</string>
+  <string name="Settings/Players.Rendering.CrossFading.CrossFadingEnabled.Help">Jei galima, nustato MediaPortal sulieti dainas</string>
+  <string name="Settings/Players.Rendering.CrossFading.CrossFadeDuration">Suliejimo trukmė</string>
+  <string name="Settings/Players.Rendering.CrossFading.CrossFadeDuration.Help">Suliejimo trukmė sekundėmis</string>
+</resources>

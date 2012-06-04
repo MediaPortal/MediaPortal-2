@@ -1,0 +1,5 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<resources>
+  <string name="NetworkNeighborhoodResourceProvider/Name">Netwerkomgeving bron provider</string>
+  <string name="NetworkNeighborhoodResourceProvider/Description">Toegang tot gedeelde bronnen op computers in de lokale netwerkomgeving</string>
+</resources>

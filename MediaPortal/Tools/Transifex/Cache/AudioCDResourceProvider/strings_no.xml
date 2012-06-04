@@ -1,0 +1,5 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<resources>
+  <string name="AudioCDResourceProvider/Name">Lyd CD ressurstilbyder</string>
+  <string name="AudioCDResourceProvider/Description">Hent sporene til lyd CD</string>
+</resources>

@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<resources>
+  <string name="MyPlugin/String1">Stringa 1 inglese</string>
+  <string name="MyPlugin/String2">Stringa 2 inglese</string>
+  <string name="MyPlugin/StateDisplayLabel">Navbar state name</string>
+  <string name="MyPlugin/MenuEntry">MyPlugin</string>
+</resources>

@@ -1,0 +1,11 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<resources>
+  <string name="Configuration/Name">Innstillinger</string>
+  <string name="Configuration/ConfigurationMainWorkflowNavigationContextDisplayLabel">Innstillinger</string>
+  <string name="Configuration/MainSettings">Hoved innstillinger</string>
+  <string name="Configuration/NoSettingsInThisSection">I denne seksjonen er det ingen innstillinger</string>
+  <string name="Configuration/ErrorFloatingPointValue">\'{0}\' er ikke et gyldig flyttall</string>
+  <string name="Configuration/ErrorIntegerValue">\'{0}\' er ikke et gyldig heltall</string>
+  <string name="Configuration/ErrorNumericLowerLimit">Bruk en verdi mellom \'{1}\' og \'{2}\'</string>
+  <string name="Configuration/ErrorNumericUpperLimit">Bruk en verdi mellom \'{1}\' og \'{2}\'</string>
+</resources>

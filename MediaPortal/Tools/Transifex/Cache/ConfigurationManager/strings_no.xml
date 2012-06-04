@@ -1,0 +1,8 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<resources>
+  <string name="configuration/save_on_exit">Vil du lagre endringene før det avsluttes?</string>
+  <string name="configuration/unsaved_warning">Advarsel: Ikke lagrede endringer</string>
+  <string name="configuration/browse">Utforsk</string>
+  <string name="configuration/areas.settings">Innstillinger</string>
+  <string name="configuration/areas.logs">Logger</string>
+</resources>

@@ -1,0 +1,8 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<resources>
+  <string name="Settings/Plugins.TV">TV</string>
+  <string name="Settings/Plugins.TV.TV4HomeServerAddress">Tv4Home server adresse</string>
+  <string name="Settings/Plugins.TV.TV4HomeServerAddress.Help">Skriv server navn eller ip-adresse, adskilt af \';\' (standard for localhost)</string>
+  <string name="Settings/Plugins.TV.ConnectionErrorTitle">Forbindelses problem</string>
+  <string name="Settings/Plugins.TV.ConnectionErrorText">Kunne ikke forbinde til Tv4Home-Server: {0}</string>
+</resources>

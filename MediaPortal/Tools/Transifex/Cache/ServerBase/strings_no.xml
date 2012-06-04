@@ -1,0 +1,17 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<resources>
+  <string name="MainForm/Title">MediaPortal 2 Server program</string>
+  <string name="MainForm/AttachedClients">Tilkoblede klienter</string>
+  <string name="MainForm/Client">Klient</string>
+  <string name="MainForm/System">System</string>
+  <string name="MainForm/ConnectionState">Tilkoblingsstatus</string>
+  <string name="MainForm/Connected">Tilkoblet</string>
+  <string name="MainForm/Disconnected">Frakoblet</string>
+  <string name="UPnPBackendServer/DefaultFriendlyName">MediaPortal 2 server</string>
+  <string name="UPnPBackendServer/Manufacturer">Team MediaPortal</string>
+  <string name="UPnPBackendServer/ManufacturerUrl">www.team-mediaportal.com</string>
+  <string name="UPnPBackendServer/ModelDescription">MediaPortal 2 server - er vert for lyd, bilde og video filer. Den tilbyr også en media database.</string>
+  <string name="UPnPBackendServer/ModelName">MediaPortal 2 server</string>
+  <string name="UPnPBackendServer/ModelNumber">1</string>
+  <string name="MediaLibrary/EmptyOrMiscCharGroupName"><Tom eller tilfeldig karakter></string>
+</resources>

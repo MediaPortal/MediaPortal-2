@@ -1,0 +1,10 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<resources>
+  <string name="HelloWorld/MenuEntry">Hei verden</string>
+  <string name="HelloWorld/StateDisplayLabel">Hei verden status</string>
+  <string name="HelloWorld/ScreenTitle">Hei verden skjerm</string>
+  <string name="HelloWorld/HelloWorldText">Ved å trykke på denne knappen vil teksten forandres</string>
+  <string name="HelloWorld/SampleText">Dette er eksempel skjerm for HelloWorld plugin</string>
+  <string name="HelloWorld/ButtonText">Trykk på meg</string>
+  <string name="HelloWorld/ButtonTextCommandExecuted">Gratulerer, du utførte nettopp en handling!</string>
+</resources>

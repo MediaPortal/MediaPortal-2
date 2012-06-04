@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<resources>
+  <string name="MyPlugin/String1">Engelsk streng 1</string>
+  <string name="MyPlugin/String2">Engelsk streng 2</string>
+  <string name="MyPlugin/StateDisplayLabel">Navigasjons barens navn</string>
+  <string name="MyPlugin/MenuEntry">MittTillegg</string>
+</resources>

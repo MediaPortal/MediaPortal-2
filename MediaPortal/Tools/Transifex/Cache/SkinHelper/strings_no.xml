@@ -1,0 +1,9 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<resources>
+  <string name="SkinHelper/ThemeColorsWorkflowNavigationContextDisplayLabel">Farger for tema</string>
+  <string name="SkinHelper/MenuShowThemeColors">Vis fargene for tema</string>
+  <string name="SkinHelper/ShowThemeColorsTitle">Farger for tema</string>
+  <string name="SkinHelper/ShowThemeColorsText">Denne skjermen viser alle farge ressursene som er tilgjengelig for dette tema (og nedarvede ressurser)</string>
+  <string name="SkinHelper/LoadSkinTitle">Last skinn</string>
+  <string name="SkinHelper/LoadThemeTitle">Last tema</string>
+</resources>

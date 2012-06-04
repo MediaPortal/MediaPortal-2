@@ -1,0 +1,10 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<resources>
+  <string name="Settings/Players"></string>
+  <string name="Settings/Players.Rendering"></string>
+  <string name="Settings/Players.Rendering.CrossFading"></string>
+  <string name="Settings/Players.Rendering.CrossFading.CrossFadingEnabled"></string>
+  <string name="Settings/Players.Rendering.CrossFading.CrossFadingEnabled.Help"></string>
+  <string name="Settings/Players.Rendering.CrossFading.CrossFadeDuration"></string>
+  <string name="Settings/Players.Rendering.CrossFading.CrossFadeDuration.Help"></string>
+</resources>

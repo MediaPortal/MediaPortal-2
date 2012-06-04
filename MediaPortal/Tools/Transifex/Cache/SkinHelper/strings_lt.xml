@@ -1,0 +1,9 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<resources>
+  <string name="SkinHelper/ThemeColorsWorkflowNavigationContextDisplayLabel">Temos spalvos</string>
+  <string name="SkinHelper/MenuShowThemeColors">Rodyti temos spalvas</string>
+  <string name="SkinHelper/ShowThemeColorsTitle">Temos spalvos</string>
+  <string name="SkinHelper/ShowThemeColorsText">Ekrane rodomos visos spalvos numatytos šioje temoje (ir susijusiuose šaltiniuose)</string>
+  <string name="SkinHelper/LoadSkinTitle">Krauti apvalkalą</string>
+  <string name="SkinHelper/LoadThemeTitle">Krauti temą</string>
+</resources>

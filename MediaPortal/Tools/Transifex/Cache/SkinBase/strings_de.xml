@@ -30,8 +30,8 @@
   <string name="ServerConnection/NotificationServerAvailableTitle">MP2 Server verfügbar</string>
   <string name="ServerConnection/NotificationServerAvailableText">Es gibt mindestens einen MediaPortal 2 Server im Netzwerk. Verbinden Sie diesen Client mit ihm, um alle Funktionen nutzen zu können.</string>
   <string name="ServerConnection/ServerFormatText">{0}\' auf \'{1}</string>
-  <string name="ServerConnection/UnknownServerName">&lt;Unbekannt&gt;</string>
-  <string name="ServerConnection/UnknownServerSystem">&lt;Unbekannt&gt;</string>
+  <string name="ServerConnection/UnknownServerName"><Unbekannt></string>
+  <string name="ServerConnection/UnknownServerSystem"><Unbekannt></string>
   <string name="ServerConnection/HomeServer">Heimserver</string>
   <string name="ServerConnection/AttachToServerWorkflowStateLabel">An Server anbinden</string>
   <string name="ServerConnection/DetachFromServerWorkflowStateLabel">Vom Server abkoppeln</string>

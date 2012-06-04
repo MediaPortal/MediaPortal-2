@@ -1,0 +1,8 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<resources>
+  <string name="Settings/Players.Image">Vaizdų grotuvas</string>
+  <string name="Settings/Players.Image.SlideShowImageDuration">Skaidrių rodymo trukmė</string>
+  <string name="Settings/Players.Image.SlideShowImageDuration.Help">Numato kiek ilgai bus rodomas kiekvienas vaizdas sekundėmis skaidrių rodymo režime</string>
+  <string name="Settings/Players.Image.KenBurnsEffect">Naudoti Ken Burns efektą</string>
+  <string name="Settings/Players.Image.KenBurnsEffect.Help">Rodant vaizdą naudoti paslinkimo ir pritraukimo animacijas </string>
+</resources>
