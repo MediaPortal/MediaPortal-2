@@ -1,8 +1,8 @@
-<?xml version='1.0' encoding='UTF-8'?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <resources>
-  <string name="configuration/save_on_exit">Wil je de wijzigingen opslaan voordat wordt afgesloten?</string>
-  <string name="configuration/unsaved_warning">Waarschuwing: niet opgeslagen wijzigingen</string>
-  <string name="configuration/browse">Bladeren</string>
-  <string name="configuration/areas.settings">Instellingen</string>
-  <string name="configuration/areas.logs">Logboek</string>
+  <string name="configuration.save_on_exit">Wil je de wijzigingen opslaan voordat wordt afgesloten?</string>
+  <string name="configuration.unsaved_warning">Waarschuwing: niet opgeslagen wijzigingen</string>
+  <string name="configuration.browse">Bladeren</string>
+  <string name="configuration.areas.settings">Instellingen</string>
+  <string name="configuration.areas.logs">Logboek</string>
 </resources>

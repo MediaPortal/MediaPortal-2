@@ -1,20 +1,20 @@
-<?xml version='1.0' encoding='UTF-8'?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <resources>
-  <string name="SlimTvClient/Title">Slim TV klientas</string>
-  <string name="SlimTvClient/CurrentlyPlayingInformationHeader">Programos informacija</string>
-  <string name="SlimTvClient/ChannelLabel">Kanalas</string>
-  <string name="SlimTvClient/ProgramLabel">Programa</string>
-  <string name="SlimTvClient/DescriptionLabel">Aprašymas</string>
-  <string name="SlimTvClient/GenreLabel">Žanras</string>
-  <string name="SlimTvClient/ProgramStartLabel">Pradžios laikas</string>
-  <string name="SlimTvClient/ProgramEndLabel">Pabaigos laikas</string>
-  <string name="SlimTvClient/EpisodeLabel">Epizodas</string>
-  <string name="SlimTvClient/Guide">TV programa</string>
-  <string name="SlimTvClient/NoProgram">Nėra programos duomenų.</string>
-  <string name="SlimTvClient/ChooseProgramAction">Pasirinkite programos veiksmą...</string>
-  <string name="SlimTvClient/ProgramOver">Programa jau pasibaigusi</string>
-  <string name="SlimTvClient/WatchNow">Žiūrėti programą dabar</string>
-  <string name="SlimTvClient/RecordNow">Įrašyti dabar</string>
-  <string name="SlimTvClient/DeleteSchedule">Trinti tvarkaraštį</string>
-  <string name="SlimTvClient/CreateSchedule">Nustatyti įrašymo tvarkaraštį</string>
+  <string name="SlimTvClient.Title">Slim TV klientas</string>
+  <string name="SlimTvClient.CurrentlyPlayingInformationHeader">Programos informacija</string>
+  <string name="SlimTvClient.ChannelLabel">Kanalas</string>
+  <string name="SlimTvClient.ProgramLabel">Programa</string>
+  <string name="SlimTvClient.DescriptionLabel">Aprašymas</string>
+  <string name="SlimTvClient.GenreLabel">Žanras</string>
+  <string name="SlimTvClient.ProgramStartLabel">Pradžios laikas</string>
+  <string name="SlimTvClient.ProgramEndLabel">Pabaigos laikas</string>
+  <string name="SlimTvClient.EpisodeLabel">Epizodas</string>
+  <string name="SlimTvClient.Guide">TV programa</string>
+  <string name="SlimTvClient.NoProgram">Nėra programos duomenų.</string>
+  <string name="SlimTvClient.ChooseProgramAction">Pasirinkite programos veiksmą...</string>
+  <string name="SlimTvClient.ProgramOver">Programa jau pasibaigusi</string>
+  <string name="SlimTvClient.WatchNow">Žiūrėti programą dabar</string>
+  <string name="SlimTvClient.RecordNow">Įrašyti dabar</string>
+  <string name="SlimTvClient.DeleteSchedule">Trinti tvarkaraštį</string>
+  <string name="SlimTvClient.CreateSchedule">Nustatyti įrašymo tvarkaraštį</string>
 </resources>

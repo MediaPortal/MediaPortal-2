@@ -1,4 +1,4 @@
-<?xml version='1.0' encoding='UTF-8'?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <resources>
-  <string name="Tve3MediaProvider/Name">TVServer WebService medietjener</string>
+  <string name="Tve3MediaProvider.Name">TVServer WebService medietjener</string>
 </resources>

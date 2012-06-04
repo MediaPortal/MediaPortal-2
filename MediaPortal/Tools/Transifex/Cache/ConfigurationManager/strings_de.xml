@@ -1,8 +1,8 @@
-<?xml version='1.0' encoding='UTF-8'?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <resources>
-  <string name="configuration/save_on_exit">Möchten Sie die Änderungen vor dem Schließen speichern?</string>
-  <string name="configuration/unsaved_warning">Achtung: nicht gespeicherte Änderungen</string>
-  <string name="configuration/browse">Durchsuchen</string>
-  <string name="configuration/areas.settings">Einstellungen</string>
-  <string name="configuration/areas.logs">Protokolle</string>
+  <string name="configuration.save_on_exit">Möchten Sie die Änderungen vor dem Schließen speichern?</string>
+  <string name="configuration.unsaved_warning">Achtung: nicht gespeicherte Änderungen</string>
+  <string name="configuration.browse">Durchsuchen</string>
+  <string name="configuration.areas.settings">Einstellungen</string>
+  <string name="configuration.areas.logs">Protokolle</string>
 </resources>

@@ -1,20 +1,20 @@
-<?xml version='1.0' encoding='UTF-8'?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <resources>
-  <string name="SlimTvClient/Title">Slim TV klient</string>
-  <string name="SlimTvClient/CurrentlyPlayingInformationHeader">Programoversigt</string>
-  <string name="SlimTvClient/ChannelLabel">Kanal</string>
-  <string name="SlimTvClient/ProgramLabel">Program</string>
-  <string name="SlimTvClient/DescriptionLabel">Beskrivelse</string>
-  <string name="SlimTvClient/GenreLabel">Genre</string>
-  <string name="SlimTvClient/ProgramStartLabel">Starttid</string>
-  <string name="SlimTvClient/ProgramEndLabel">Sluttid</string>
-  <string name="SlimTvClient/EpisodeLabel">Afsnit</string>
-  <string name="SlimTvClient/Guide">TV guide</string>
-  <string name="SlimTvClient/NoProgram">Ingen program data.</string>
-  <string name="SlimTvClient/ChooseProgramAction">Vælg programhandling...</string>
-  <string name="SlimTvClient/ProgramOver">Programmer er afsluttet</string>
-  <string name="SlimTvClient/WatchNow">Se program nu</string>
-  <string name="SlimTvClient/RecordNow">Optag nu</string>
-  <string name="SlimTvClient/DeleteSchedule">Slet planlagt optagelse</string>
-  <string name="SlimTvClient/CreateSchedule">Planlagt optagelse</string>
+  <string name="SlimTvClient.Title">Slim TV klient</string>
+  <string name="SlimTvClient.CurrentlyPlayingInformationHeader">Programoversigt</string>
+  <string name="SlimTvClient.ChannelLabel">Kanal</string>
+  <string name="SlimTvClient.ProgramLabel">Program</string>
+  <string name="SlimTvClient.DescriptionLabel">Beskrivelse</string>
+  <string name="SlimTvClient.GenreLabel">Genre</string>
+  <string name="SlimTvClient.ProgramStartLabel">Starttid</string>
+  <string name="SlimTvClient.ProgramEndLabel">Sluttid</string>
+  <string name="SlimTvClient.EpisodeLabel">Afsnit</string>
+  <string name="SlimTvClient.Guide">TV guide</string>
+  <string name="SlimTvClient.NoProgram">Ingen program data.</string>
+  <string name="SlimTvClient.ChooseProgramAction">Vælg programhandling...</string>
+  <string name="SlimTvClient.ProgramOver">Programmer er afsluttet</string>
+  <string name="SlimTvClient.WatchNow">Se program nu</string>
+  <string name="SlimTvClient.RecordNow">Optag nu</string>
+  <string name="SlimTvClient.DeleteSchedule">Slet planlagt optagelse</string>
+  <string name="SlimTvClient.CreateSchedule">Planlagt optagelse</string>
 </resources>

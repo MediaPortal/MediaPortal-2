@@ -1,10 +1,10 @@
-<?xml version='1.0' encoding='UTF-8'?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <resources>
-  <string name="Settings/Players">Spelare</string>
-  <string name="Settings/Players.Rendering">Uppspelning</string>
-  <string name="Settings/Players.Rendering.CrossFading">Tonade övergångar</string>
-  <string name="Settings/Players.Rendering.CrossFading.CrossFadingEnabled">Tonade övergångar är aktiverade</string>
-  <string name="Settings/Players.Rendering.CrossFading.CrossFadingEnabled.Help">Avgör om MediaPortal 2 bör tona övergångar mellan låtar om det är möjligt</string>
-  <string name="Settings/Players.Rendering.CrossFading.CrossFadeDuration">Längd på tonade övergångar</string>
-  <string name="Settings/Players.Rendering.CrossFading.CrossFadeDuration.Help">Längd på tonade övergångar i sekunder</string>
+  <string name="Settings.Players">Spelare</string>
+  <string name="Settings.Players.Rendering">Uppspelning</string>
+  <string name="Settings.Players.Rendering.CrossFading">Tonade övergångar</string>
+  <string name="Settings.Players.Rendering.CrossFading.CrossFadingEnabled">Tonade övergångar är aktiverade</string>
+  <string name="Settings.Players.Rendering.CrossFading.CrossFadingEnabled.Help">Avgör om MediaPortal 2 bör tona övergångar mellan låtar om det är möjligt</string>
+  <string name="Settings.Players.Rendering.CrossFading.CrossFadeDuration">Längd på tonade övergångar</string>
+  <string name="Settings.Players.Rendering.CrossFading.CrossFadeDuration.Help">Längd på tonade övergångar i sekunder</string>
 </resources>

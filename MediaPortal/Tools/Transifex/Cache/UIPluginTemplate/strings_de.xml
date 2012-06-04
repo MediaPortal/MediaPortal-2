@@ -1,7 +1,7 @@
-<?xml version='1.0' encoding='UTF-8'?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <resources>
-  <string name="MyPlugin/String1">Englischer Text 1</string>
-  <string name="MyPlugin/String2">Englischer Text 2</string>
-  <string name="MyPlugin/StateDisplayLabel">Navbar state name</string>
-  <string name="MyPlugin/MenuEntry">Mein Plugin</string>
+  <string name="MyPlugin.String1">Englischer Text 1</string>
+  <string name="MyPlugin.String2">Englischer Text 2</string>
+  <string name="MyPlugin.StateDisplayLabel">Navbar state name</string>
+  <string name="MyPlugin.MenuEntry">Mein Plugin</string>
 </resources>

@@ -1,5 +1,5 @@
-<?xml version='1.0' encoding='UTF-8'?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <resources>
-  <string name="NetworkNeighborhoodResourceProvider/Name">Nabo nettverk ressurs tilbyder</string>
-  <string name="NetworkNeighborhoodResourceProvider/Description">Bruk windows deling på andre datamaskiner i det lokale nabo nettverket</string>
+  <string name="NetworkNeighborhoodResourceProvider.Name">Nabo nettverk ressurs tilbyder</string>
+  <string name="NetworkNeighborhoodResourceProvider.Description">Bruk windows deling på andre datamaskiner i det lokale nabo nettverket</string>
 </resources>

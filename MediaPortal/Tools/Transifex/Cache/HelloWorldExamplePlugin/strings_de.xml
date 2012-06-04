@@ -1,10 +1,10 @@
-<?xml version='1.0' encoding='UTF-8'?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <resources>
-  <string name="HelloWorld/MenuEntry">Hallo Welt</string>
-  <string name="HelloWorld/StateDisplayLabel">Hallo Welt Status</string>
-  <string name="HelloWorld/ScreenTitle">Hallo Welt Screen</string>
-  <string name="HelloWorld/HelloWorldText">Drücken des Knopfes führt zu Änderung dieses Textes</string>
-  <string name="HelloWorld/SampleText">Dies ist ein Beispiel Screen des HelloWorld Plugins</string>
-  <string name="HelloWorld/ButtonText">Drück mich</string>
-  <string name="HelloWorld/ButtonTextCommandExecuted">Gratulation, Sie haben ein Kommando ausgelöst!</string>
+  <string name="HelloWorld.MenuEntry">Hallo Welt</string>
+  <string name="HelloWorld.StateDisplayLabel">Hallo Welt Status</string>
+  <string name="HelloWorld.ScreenTitle">Hallo Welt Screen</string>
+  <string name="HelloWorld.HelloWorldText">Drücken des Knopfes führt zu Änderung dieses Textes</string>
+  <string name="HelloWorld.SampleText">Dies ist ein Beispiel Screen des HelloWorld Plugins</string>
+  <string name="HelloWorld.ButtonText">Drück mich</string>
+  <string name="HelloWorld.ButtonTextCommandExecuted">Gratulation, Sie haben ein Kommando ausgelöst!</string>
 </resources>

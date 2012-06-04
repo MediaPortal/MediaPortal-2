@@ -1,8 +1,8 @@
-<?xml version='1.0' encoding='UTF-8'?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <resources>
-  <string name="Settings/Players.Image">Afbeelding speler</string>
-  <string name="Settings/Players.Image.SlideShowImageDuration">Diavoorstelling afbeeldingsduur</string>
-  <string name="Settings/Players.Image.SlideShowImageDuration.Help">Stel de tijdsduur in voor hoelang een afbeelding zichtbaar is in een diavoorstelling in seconden</string>
-  <string name="Settings/Players.Image.KenBurnsEffect">Gebruik \'Ken Burns\' effect</string>
-  <string name="Settings/Players.Image.KenBurnsEffect.Help">Gebruik \'pan\' en \'zoom\' animaties wanneer een afbeelding wordt weergegeven</string>
+  <string name="Settings.Players.Image">Afbeelding speler</string>
+  <string name="Settings.Players.Image.SlideShowImageDuration">Diavoorstelling afbeeldingsduur</string>
+  <string name="Settings.Players.Image.SlideShowImageDuration.Help">Stel de tijdsduur in voor hoelang een afbeelding zichtbaar is in een diavoorstelling in seconden</string>
+  <string name="Settings.Players.Image.KenBurnsEffect">Gebruik \'Ken Burns\' effect</string>
+  <string name="Settings.Players.Image.KenBurnsEffect.Help">Gebruik \'pan\' en \'zoom\' animaties wanneer een afbeelding wordt weergegeven</string>
 </resources>

@@ -1,9 +1,9 @@
-<?xml version='1.0' encoding='UTF-8'?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <resources>
-  <string name="SkinHelper/ThemeColorsWorkflowNavigationContextDisplayLabel">Temafärger</string>
-  <string name="SkinHelper/MenuShowThemeColors">Visa temafärger</string>
-  <string name="SkinHelper/ShowThemeColorsTitle">Temafärger</string>
-  <string name="SkinHelper/ShowThemeColorsText">Denna bild visar alla färger för temat samt alla ärvda färger</string>
-  <string name="SkinHelper/LoadSkinTitle">Läs in skinn</string>
-  <string name="SkinHelper/LoadThemeTitle">Läs in tema</string>
+  <string name="SkinHelper.ThemeColorsWorkflowNavigationContextDisplayLabel">Temafärger</string>
+  <string name="SkinHelper.MenuShowThemeColors">Visa temafärger</string>
+  <string name="SkinHelper.ShowThemeColorsTitle">Temafärger</string>
+  <string name="SkinHelper.ShowThemeColorsText">Denna bild visar alla färger för temat samt alla ärvda färger</string>
+  <string name="SkinHelper.LoadSkinTitle">Läs in skinn</string>
+  <string name="SkinHelper.LoadThemeTitle">Läs in tema</string>
 </resources>

@@ -1,11 +1,11 @@
-<?xml version='1.0' encoding='UTF-8'?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <resources>
-  <string name="Configuration/Name">Settaggio</string>
-  <string name="Configuration/ConfigurationMainWorkflowNavigationContextDisplayLabel">Settaggio</string>
-  <string name="Configuration/MainSettings">Settaggio Principale</string>
-  <string name="Configuration/NoSettingsInThisSection">Non ci sono settaggi in questa sezione</string>
-  <string name="Configuration/ErrorFloatingPointValue">\'{0}\' non è un valido numero floating point</string>
-  <string name="Configuration/ErrorIntegerValue">\'{0}\' non è un valido numero integer</string>
-  <string name="Configuration/ErrorNumericLowerLimit">Usa un valore tra \'{1}\' e \'{2}\'</string>
-  <string name="Configuration/ErrorNumericUpperLimit">Usa un valore tra \'{1}\' e \'{2}\'</string>
+  <string name="Configuration.Name">Settaggio</string>
+  <string name="Configuration.ConfigurationMainWorkflowNavigationContextDisplayLabel">Settaggio</string>
+  <string name="Configuration.MainSettings">Settaggio Principale</string>
+  <string name="Configuration.NoSettingsInThisSection">Non ci sono settaggi in questa sezione</string>
+  <string name="Configuration.ErrorFloatingPointValue">\'{0}\' non è un valido numero floating point</string>
+  <string name="Configuration.ErrorIntegerValue">\'{0}\' non è un valido numero integer</string>
+  <string name="Configuration.ErrorNumericLowerLimit">Usa un valore tra \'{1}\' e \'{2}\'</string>
+  <string name="Configuration.ErrorNumericUpperLimit">Usa un valore tra \'{1}\' e \'{2}\'</string>
 </resources>

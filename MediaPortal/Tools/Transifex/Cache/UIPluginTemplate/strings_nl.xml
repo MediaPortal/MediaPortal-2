@@ -1,7 +1,7 @@
-<?xml version='1.0' encoding='UTF-8'?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <resources>
-  <string name="MyPlugin/String1">Engelse string 1</string>
-  <string name="MyPlugin/String2">Engelse string 2</string>
-  <string name="MyPlugin/StateDisplayLabel">Navigatiebalk statusnaam</string>
-  <string name="MyPlugin/MenuEntry">MijnPlug-in</string>
+  <string name="MyPlugin.String1">Engelse string 1</string>
+  <string name="MyPlugin.String2">Engelse string 2</string>
+  <string name="MyPlugin.StateDisplayLabel">Navigatiebalk statusnaam</string>
+  <string name="MyPlugin.MenuEntry">MijnPlug-in</string>
 </resources>

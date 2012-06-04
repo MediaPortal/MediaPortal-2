@@ -1,10 +1,10 @@
-<?xml version='1.0' encoding='UTF-8'?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <resources>
-  <string name="Settings/Players">Players</string>
-  <string name="Settings/Players.Rendering">Rendering</string>
-  <string name="Settings/Players.Rendering.CrossFading">CrossFading</string>
-  <string name="Settings/Players.Rendering.CrossFading.CrossFadingEnabled">Cross fading abilitato</string>
-  <string name="Settings/Players.Rendering.CrossFading.CrossFadingEnabled.Help">Determina se Mediaportal deve usare il cross-fade nelle canzoni, se possibile</string>
-  <string name="Settings/Players.Rendering.CrossFading.CrossFadeDuration">Durata Cross fade</string>
-  <string name="Settings/Players.Rendering.CrossFading.CrossFadeDuration.Help">Tempo di cross-fade in secondi</string>
+  <string name="Settings.Players">Players</string>
+  <string name="Settings.Players.Rendering">Rendering</string>
+  <string name="Settings.Players.Rendering.CrossFading">CrossFading</string>
+  <string name="Settings.Players.Rendering.CrossFading.CrossFadingEnabled">Cross fading abilitato</string>
+  <string name="Settings.Players.Rendering.CrossFading.CrossFadingEnabled.Help">Determina se Mediaportal deve usare il cross-fade nelle canzoni, se possibile</string>
+  <string name="Settings.Players.Rendering.CrossFading.CrossFadeDuration">Durata Cross fade</string>
+  <string name="Settings.Players.Rendering.CrossFading.CrossFadeDuration.Help">Tempo di cross-fade in secondi</string>
 </resources>

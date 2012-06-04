@@ -1,0 +1,8 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<resources>
+  <string name="configuration.save_on_exit">Would you like to save the changes before closing?</string>
+  <string name="configuration.unsaved_warning">Warning: Unsaved Changes</string>
+  <string name="configuration.browse">Browse</string>
+  <string name="configuration.areas.settings">Settings</string>
+  <string name="configuration.areas.logs">Logs</string>
+</resources>

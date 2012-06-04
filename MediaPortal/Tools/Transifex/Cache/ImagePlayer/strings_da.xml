@@ -1,8 +1,8 @@
-<?xml version='1.0' encoding='UTF-8'?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <resources>
-  <string name="Settings/Players.Image">Billedeafspiller</string>
-  <string name="Settings/Players.Image.SlideShowImageDuration">Diasshow billedtid</string>
-  <string name="Settings/Players.Image.SlideShowImageDuration.Help">Indstil tiden i sekunder hvert billede bliver vist i diasshow</string>
-  <string name="Settings/Players.Image.KenBurnsEffect">Benyt Ken Burns effekter</string>
-  <string name="Settings/Players.Image.KenBurnsEffect.Help">Benyt pan og zoom animationer når et billede vises</string>
+  <string name="Settings.Players.Image">Billedeafspiller</string>
+  <string name="Settings.Players.Image.SlideShowImageDuration">Diasshow billedtid</string>
+  <string name="Settings.Players.Image.SlideShowImageDuration.Help">Indstil tiden i sekunder hvert billede bliver vist i diasshow</string>
+  <string name="Settings.Players.Image.KenBurnsEffect">Benyt Ken Burns effekter</string>
+  <string name="Settings.Players.Image.KenBurnsEffect.Help">Benyt pan og zoom animationer når et billede vises</string>
 </resources>

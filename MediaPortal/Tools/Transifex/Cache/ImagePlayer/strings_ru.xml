@@ -1,8 +1,8 @@
-<?xml version='1.0' encoding='UTF-8'?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <resources>
-  <string name="Settings/Players.Image"></string>
-  <string name="Settings/Players.Image.SlideShowImageDuration">Время показа изображения</string>
-  <string name="Settings/Players.Image.SlideShowImageDuration.Help">Устанавливает время (в секундах), в течение которого будет показываться каждое изображение в режиме слайд-шоу</string>
-  <string name="Settings/Players.Image.KenBurnsEffect"></string>
-  <string name="Settings/Players.Image.KenBurnsEffect.Help">Использовать эффекты панорамирования и приближения при смене изображений</string>
+  <string name="Settings.Players.Image"></string>
+  <string name="Settings.Players.Image.SlideShowImageDuration">Время показа изображения</string>
+  <string name="Settings.Players.Image.SlideShowImageDuration.Help">Устанавливает время (в секундах), в течение которого будет показываться каждое изображение в режиме слайд-шоу</string>
+  <string name="Settings.Players.Image.KenBurnsEffect"></string>
+  <string name="Settings.Players.Image.KenBurnsEffect.Help">Использовать эффекты панорамирования и приближения при смене изображений</string>
 </resources>

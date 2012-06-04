@@ -1,0 +1,11 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<resources>
+  <string name="Configuration.Name">Settings</string>
+  <string name="Configuration.ConfigurationMainWorkflowNavigationContextDisplayLabel">Settings</string>
+  <string name="Configuration.MainSettings">Main settings</string>
+  <string name="Configuration.NoSettingsInThisSection">There are no settings in this section</string>
+  <string name="Configuration.ErrorFloatingPointValue">'{0}' is not a valid floating point number</string>
+  <string name="Configuration.ErrorIntegerValue">'{0}' is not a valid integer number</string>
+  <string name="Configuration.ErrorNumericLowerLimit">Use a value between '{1}' and '{2}'</string>
+  <string name="Configuration.ErrorNumericUpperLimit">Use a value between '{1}' and '{2}'</string>
+</resources>

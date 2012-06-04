@@ -1,10 +1,10 @@
-<?xml version='1.0' encoding='UTF-8'?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <resources>
-  <string name="HelloWorld/MenuEntry">Pasisveikinimas</string>
-  <string name="HelloWorld/StateDisplayLabel">Pasisveikinimo būsena</string>
-  <string name="HelloWorld/ScreenTitle">Pasisveikinimo ekranas</string>
-  <string name="HelloWorld/HelloWorldText">Paspaudus mygtuką pasikeis šis tekstas</string>
-  <string name="HelloWorld/SampleText">Tai pasisveikinimo įskiepio ekrano pavyzdys</string>
-  <string name="HelloWorld/ButtonText">Paspausk mane</string>
-  <string name="HelloWorld/ButtonTextCommandExecuted">Sveikiname, Jūs pasiuntėte komandą!</string>
+  <string name="HelloWorld.MenuEntry">Pasisveikinimas</string>
+  <string name="HelloWorld.StateDisplayLabel">Pasisveikinimo būsena</string>
+  <string name="HelloWorld.ScreenTitle">Pasisveikinimo ekranas</string>
+  <string name="HelloWorld.HelloWorldText">Paspaudus mygtuką pasikeis šis tekstas</string>
+  <string name="HelloWorld.SampleText">Tai pasisveikinimo įskiepio ekrano pavyzdys</string>
+  <string name="HelloWorld.ButtonText">Paspausk mane</string>
+  <string name="HelloWorld.ButtonTextCommandExecuted">Sveikiname, Jūs pasiuntėte komandą!</string>
 </resources>

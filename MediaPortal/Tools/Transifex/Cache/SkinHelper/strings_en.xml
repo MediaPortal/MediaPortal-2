@@ -1,0 +1,9 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<resources>
+  <string name="SkinHelper.ThemeColorsWorkflowNavigationContextDisplayLabel">Theme colors</string>
+  <string name="SkinHelper.MenuShowThemeColors">Show theme colors</string>
+  <string name="SkinHelper.ShowThemeColorsTitle">Theme colors</string>
+  <string name="SkinHelper.ShowThemeColorsText">This screen shows all color resources defined in the current theme (and inherited resources)</string>
+  <string name="SkinHelper.LoadSkinTitle">Load skin</string>
+  <string name="SkinHelper.LoadThemeTitle">Load theme</string>
+</resources>

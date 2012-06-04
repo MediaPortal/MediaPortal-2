@@ -1,11 +1,11 @@
-<?xml version='1.0' encoding='UTF-8'?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <resources>
-  <string name="Configuration/Name"></string>
-  <string name="Configuration/ConfigurationMainWorkflowNavigationContextDisplayLabel"></string>
-  <string name="Configuration/MainSettings"></string>
-  <string name="Configuration/NoSettingsInThisSection"></string>
-  <string name="Configuration/ErrorFloatingPointValue"></string>
-  <string name="Configuration/ErrorIntegerValue"></string>
-  <string name="Configuration/ErrorNumericLowerLimit"></string>
-  <string name="Configuration/ErrorNumericUpperLimit"></string>
+  <string name="Configuration.Name"></string>
+  <string name="Configuration.ConfigurationMainWorkflowNavigationContextDisplayLabel"></string>
+  <string name="Configuration.MainSettings"></string>
+  <string name="Configuration.NoSettingsInThisSection"></string>
+  <string name="Configuration.ErrorFloatingPointValue"></string>
+  <string name="Configuration.ErrorIntegerValue"></string>
+  <string name="Configuration.ErrorNumericLowerLimit"></string>
+  <string name="Configuration.ErrorNumericUpperLimit"></string>
 </resources>

@@ -1,0 +1,10 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<resources>
+  <string name="HelloWorld.MenuEntry">Hello world</string>
+  <string name="HelloWorld.StateDisplayLabel">Hello world state</string>
+  <string name="HelloWorld.ScreenTitle">Hello world screen</string>
+  <string name="HelloWorld.HelloWorldText">Pressing the button will change this text</string>
+  <string name="HelloWorld.SampleText">This is the sample screen of the HelloWorld plugin</string>
+  <string name="HelloWorld.ButtonText">Press me</string>
+  <string name="HelloWorld.ButtonTextCommandExecuted">Congrats, you just triggered a Command!</string>
+</resources>
