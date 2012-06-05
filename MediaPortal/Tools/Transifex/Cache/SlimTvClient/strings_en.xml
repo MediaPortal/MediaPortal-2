@@ -1,7 +1,9 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <resources>
   <string name="SlimTvClient.Title">Slim TV Client</string>
+
   <string name="SlimTvClient.CurrentlyPlayingInformationHeader">Program information</string>
+
   <string name="SlimTvClient.ChannelLabel">Channel</string>
   <string name="SlimTvClient.ProgramLabel">Program</string>
   <string name="SlimTvClient.DescriptionLabel">Description</string>
@@ -9,9 +11,11 @@
   <string name="SlimTvClient.ProgramStartLabel">Start time</string>
   <string name="SlimTvClient.ProgramEndLabel">End time</string>
   <string name="SlimTvClient.EpisodeLabel">Episode</string>
+
   <string name="SlimTvClient.Guide">TV Guide</string>
   <string name="SlimTvClient.NoProgram">No program data.</string>
   <string name="SlimTvClient.ChooseProgramAction">Choose program action...</string>
+
   <string name="SlimTvClient.ProgramOver">Program already over</string>
   <string name="SlimTvClient.WatchNow">Watch program now</string>
   <string name="SlimTvClient.RecordNow">Record now</string>

@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <resources>
   <string name="ZipMediaProvider.Name">Zip file mediaprovider</string>
   <string name="ZipMediaProvider.Description">Access files and directories in ZIP files</string>

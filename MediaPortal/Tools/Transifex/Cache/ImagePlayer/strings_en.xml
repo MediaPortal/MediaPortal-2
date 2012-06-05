@@ -1,8 +1,8 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <resources>
-  <string name="Settings.Players.Image">Image Player</string>
-  <string name="Settings.Players.Image.SlideShowImageDuration">Slideshow image duration</string>
-  <string name="Settings.Players.Image.SlideShowImageDuration.Help">Sets the duration in seconds how long each image is visible in slideshow mode</string>
-  <string name="Settings.Players.Image.KenBurnsEffect">Use Ken Burns effect</string>
-  <string name="Settings.Players.Image.KenBurnsEffect.Help">Uses pan and zoom animations when showing an image</string>
+    <string name="Settings.Players.Image">Image Player</string>
+    <string name="Settings.Players.Image.SlideShowImageDuration">Slideshow image duration</string>
+    <string name="Settings.Players.Image.SlideShowImageDuration.Help">Sets the duration in seconds how long each image is visible in slideshow mode</string>
+    <string name="Settings.Players.Image.KenBurnsEffect">Use Ken Burns effect</string>
+    <string name="Settings.Players.Image.KenBurnsEffect.Help">Uses pan and zoom animations when showing an image</string>
 </resources>

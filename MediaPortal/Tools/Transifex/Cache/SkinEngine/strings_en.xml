@@ -1,31 +1,34 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <resources>
   <string name="Settings.Appearance.System">System</string>
   <string name="Settings.Appearance.System.Fullscreen">Fullscreen</string>
   <string name="Settings.Appearance.System.Fullscreen.Help">Show MediaPortal in fullscreen mode</string>
   <string name="Settings.Appearance.System.CellPhoneInputStyle">Cell phone input style</string>
   <string name="Settings.Appearance.System.CellPhoneInputStyle.Help">Use cell phone/SMS input style</string>
-  <string name="Settings.Appearance.System.ScreenSaverEnabled">Enable screen saver</string>
-  <string name="Settings.Appearance.System.ScreenSaverEnabled.Help">Configure if the screen saver should be displayed</string>
+  <string name="Settings.Appearance.System.ScreenSaverEnabled">Enable screen saver</string>    <string name="Settings.Appearance.System.ScreenSaverEnabled.Help">Configure if the screen saver should be displayed</string>
   <string name="Settings.Appearance.System.ScreenSaverTimeout">Screen saver timeout</string>
   <string name="Settings.Appearance.System.ScreenSaverTimeout.Help">Configure the timespan in minutes when the screen saver should be displayed after the last user input</string>
+
   <string name="Settings.Appearance.System.Antialiasing">GUI antialiasing</string>
   <string name="Settings.Appearance.System.Antialiasing.Help">Antialiasing improves the visual GUI quality but can decrease video performance</string>
-  <string name="Settings.Appearance.Skin">Skin</string>
-  <string name="Settings.Appearance.Skin.SkinAndTheme">Skin and theme</string>
+  <string name="Settings.Appearance.Skin">Skin</string>    <string name="Settings.Appearance.Skin.SkinAndTheme">Skin and theme</string>
   <string name="Settings.Appearance.Skin.SkinAndTheme.ChangeSkin">Change skin</string>
   <string name="Settings.Appearance.Skin.SkinAndTheme.ChangeSkin.Help">Change the look&amp;feel of MediaPortal 2</string>
   <string name="Settings.Appearance.Skin.SkinAndTheme.ChangeTheme">Change theme</string>
   <string name="Settings.Appearance.Skin.SkinAndTheme.ChangeTheme.Help">Change the current skin's presentation</string>
+
   <string name="Settings.Players">Players</string>
   <string name="Settings.Players.Rendering">Rendering</string>
+
   <string name="Settings.Players.Rendering.DefaultGeometry">Default zoom mode</string>
   <string name="Settings.Players.Rendering.DefaultGeometry.Help">Sets the zoom mode which will be applied to video players by default</string>
+
   <string name="Settings.General.System.ApplicationSuspendLevel">Configure Windows energy saving</string>
   <string name="Settings.General.System.ApplicationSuspendLevel.Help">Disable Windows automatic suspend/shutdown or screen deactivation while MediaPortal 2 is running</string>
   <string name="Settings.General.System.ApplicationSuspendLevel.None">Allow all system energy saving levels</string>
   <string name="Settings.General.System.ApplicationSuspendLevel.AvoidSuspend">Avoid system suspension but allow deactivation of screen</string>
   <string name="Settings.General.System.ApplicationSuspendLevel.DisplayRequired">Avoid system suspension and deactivation of screen</string>
+
   <string name="ScreenManager.NotificationErrorLoadingSkinTitle">Error loading skin</string>
   <string name="ScreenManager.NotificationErrorLoadingSkinFallingBackToCurrentText">Falling back to current skin</string>
   <string name="ScreenManager.NotificationErrorLoadingSkinFallingBackToDefaultText">Falling back to default skin</string>
@@ -36,6 +39,7 @@
   <string name="ScreenManager.BackgroundScreenBroken">The skin resource for background screen '{0}' seems to be broken</string>
   <string name="ScreenManager.SuperLayerScreenMissing">Cannot find the skin resource for super layer screen '{0}'</string>
   <string name="ScreenManager.SuperLayerScreenBroken">The skin resource for super layer screen '{0}' seems to be broken</string>
+
   <string name="Geometries.IntelligentZoom">Intelligent Zoom</string>
   <string name="Geometries.LetterBox">Letterbox 4:3</string>
   <string name="Geometries.Normal">Normal</string>
@@ -44,6 +48,8 @@
   <string name="Geometries.Stretch">Stretch</string>
   <string name="Geometries.Zoom">Zoom</string>
   <string name="Geometries.Zoom149">Zoom 14:9</string>
+
+  <!-- File names (files in shaders/effects, without extension) to effect names to be shown in the GUI -->
   <string name="Effects.denoise">Denoise</string>
   <string name="Effects.directional_blur">Directional blur</string>
   <string name="Effects.glass_tiles">Glass tiles</string>
@@ -55,19 +61,20 @@
   <string name="Effects.sharpen">Sharpen</string>
   <string name="Effects.sharpen_complex">Sharpen (complex)</string>
   <string name="Effects.zoom_blur">Zoom blur</string>
+
   <string name="PlayerControl.NoPlayer">No player</string>
   <string name="PlayerControl.NoMediaItem">- No media item -</string>
   <string name="PlayerControl.UnknownMediaItem">Unknown media item</string>
   <string name="PlayerControl.UnknownPlayerContextName">Player</string>
-  <string name="PlayerControl.HeaderNormal">{0}</string>
-  <string name="PlayerControl.HeaderPiP">{0} (PiP)</string>
+  <string name="PlayerControl.HeaderNormal">{0}</string> <!-- {0} = media item title -->
+  <string name="PlayerControl.HeaderPiP">{0} (PiP)</string> <!-- {0} = media item title -->
   <string name="PlayerControl.Playing">Playing</string>
   <string name="PlayerControl.Paused">Paused</string>
-  <string name="PlayerControl.SeekingForward">Seeking forward ({0})</string>
-  <string name="PlayerControl.SeekingBackward">Seeking backward ({0})</string>
-  <string name="PlayerControl.SlowMotionForward">Slowmotion forward ({0})</string>
-  <string name="PlayerControl.SlowMotionBackward">Slowmotion backward ({0})</string>
-  <string name="PlayerControl.PlaybackRateHint">{0}x</string>
+  <string name="PlayerControl.SeekingForward">Seeking forward ({0})</string> <!-- For example: "Seeking forward (2x)" -->
+  <string name="PlayerControl.SeekingBackward">Seeking backward ({0})</string> <!-- For example: "Seeking forward (2x)" -->
+  <string name="PlayerControl.SlowMotionForward">Slowmotion forward ({0})</string> <!-- For example: "Slowmotion forward (0.5x)" -->
+  <string name="PlayerControl.SlowMotionBackward">Slowmotion backward ({0})</string> <!-- For example: "Slowmotion backward (0.5x)" -->
+  <string name="PlayerControl.PlaybackRateHint">{0}x</string> <!-- For example: 2x or 0.5x -->
   <string name="PlayerControl.Stopped">Stopped</string>
   <string name="PlayerControl.Ended">Ended</string>
   <string name="PlayerControl.Active">Active</string>

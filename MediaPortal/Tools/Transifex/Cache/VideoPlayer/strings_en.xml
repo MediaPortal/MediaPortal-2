@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <resources>
   <string name="Settings.Players.Codecs">Codecs</string>
   <string name="Settings.Players.Codecs.VideoCodecs">Video Codecs</string>
@@ -26,6 +26,7 @@
   <string name="Settings.Players.DVDPlayer.EnableClosedCaption.Help">Select if Closed Captions should be enabled by default</string>
   <string name="Settings.Players.DVDPlayer.EnableSubtitles">Subtitles</string>
   <string name="Settings.Players.DVDPlayer.EnableSubtitles.Help">Select if subtitles should be enabled by default</string>
+
   <string name="Playback.NotSpecified">Not specified</string>
   <string name="Playback.CaptionNormal">Normal Caption</string>
   <string name="Playback.CaptionBig">Big Caption</string>
@@ -40,6 +41,7 @@
   <string name="Playback.VisuallyImpaired">Visually Impaired</string>
   <string name="Playback.DirectorComments1">Director Comments</string>
   <string name="Playback.DirectorComments2">Director Comments (2)</string>
-  <string name="Playback.Chapter">Chapter {0}</string>
-  <string name="Playback.Title">Title {0}</string>
+
+  <string name="Playback.Chapter">Chapter {0}</string> <!-- For example: "Chapter 1" -->
+  <string name="Playback.Title">Title {0}</string> <!-- For example: "Title 1" -->
 </resources>

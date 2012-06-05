@@ -1,8 +1,9 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <resources>
   <string name="Weather.WeatherStateDisplayLabel">Weather</string>
-  <string name="Weather.WeatherSetupStateDisplayLabel">Weather Setup</string>
-  <string name="Weather.WeatherLocationStateDisplayLabel">Choose Location</string>
+  <string name="Weather.WeatherSetupStateDisplayLabel">Weather Setup</string> <!-- Dialog state, doesn't appear at the UI -->
+  <string name="Weather.WeatherLocationStateDisplayLabel">Choose Location</string> <!-- Dialog state, doesn't appear at the UI -->
+
   <string name="Weather.Title">Weather</string>
   <string name="Weather.ChooseLocation">Choose location</string>
   <string name="Weather.Refresh">Refresh</string>
@@ -21,6 +22,8 @@
   <string name="Weather.Sunset">Sunset</string>
   <string name="Weather.LastUpdateTime">Last time updated: {0}</string>
   <string name="Weather.NotUpdatedYet">-</string>
+
+  <!-- Forecast names are mostly assigned 1:1 -->
   <string name="Weather.TStorms">T-Storms</string>
   <string name="Weather.Partly">Partly</string>
   <string name="Weather.Mostly">Mostly</string>
@@ -71,9 +74,11 @@
   <string name="Weather.NoWind">No wind</string>
   <string name="Weather.InTheVicinity">in the vicinity</string>
   <string name="Weather.Clearing">Clearing</string>
+
   <string name="Settings.Plugins.Weather">Weather</string>
   <string name="Settings.Plugins.Weather.LocationSetup">Setup locations</string>
   <string name="Settings.Plugins.Weather.LocationSetup.Help">Configures cities to be available for the weather screen</string>
+
   <string name="WeatherSetup.Title">Configure cities</string>
   <string name="WeatherSetup.ConfiguredCities">Configured cities</string>
   <string name="WeatherSetup.EnterCity">Please enter the name of the city to add:</string>
