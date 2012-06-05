@@ -40,20 +40,16 @@ namespace TransifexHelper
         HelpText = "Push the english template files to Transifex.")]
     public bool Push = false;
 
-    [Option(null, "MP2toAndroid", Required = false,
-        HelpText = "Transform only, from MP2 to Android.")]
-    public bool MP2toAndroid = false;
+    [Option(null, "ToCache", Required = false,
+        HelpText = "Copy English template files to Transifex cache.")]
+    public bool ToCache = false;
 
     [Option(null, "pull", Required = false,
         HelpText = "Pull the translations from Transifex.")]
     public bool Pull = false;
 
-    [Option(null, "AndroidToMP2", Required = false,
-        HelpText = "Transform only, from Android to MP2.")]
-    public bool AndroidToMP2 = false;
-
-    [Option(null, "AllTranslations", Required = false,
-        HelpText = "Transform all translations to cache, not only strings_en.xml.")]
-    public bool AllTranslations = false;
+    [Option(null, "FromCache", Required = false,
+        HelpText = "Copy non-English translation files from Transifex cache.")]
+    public bool FromCache = false;
   }
 }

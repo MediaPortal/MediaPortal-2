@@ -42,19 +42,19 @@ namespace TransifexHelper
       if (mpArgs.Verify) Environment.Exit(0);
 
 
-      if (mpArgs.MP2toAndroid)
-        TransformMP2toAndroid();
+      if (mpArgs.ToCache)
+        CopyToCache();
 
       if (mpArgs.Push)
         if (!Push())
           Environment.Exit(3);
 
-      if (mpArgs.AndroidToMP2)
-        TransformAndroidToMP2(mpArgs.AllTranslations);
-
       if (mpArgs.Pull)
         if (!Pull())
           Environment.Exit(4);
+
+      if (mpArgs.FromCache)
+        CopyFromCache();
     }
 
     #region Helper methods
@@ -204,9 +204,9 @@ namespace TransifexHelper
       transifexIni.Load(s);
     }
 
-    private static void TransformMP2toAndroid()
+    private static void CopyToCache()
     {
-      Console.WriteLine("Transforming MP2 files to Android file format...");
+      Console.WriteLine("Copying English language files to Transifex cache...");
       foreach (KeyValuePair<string, DirectoryInfo> pair in languageDirectories)
       {
         Console.WriteLine("   " + pair.Value.FullName.Replace(targetDir, string.Empty));
@@ -215,12 +215,12 @@ namespace TransifexHelper
         if (!Directory.Exists(outputDir))
           Directory.CreateDirectory(outputDir);
 
-        XslTransform myXslTransform;
-        myXslTransform = new XslTransform();
-        myXslTransform.Load(XsltMP2toAndroid());
         foreach (FileInfo langFile in pair.Value.GetFiles())
         {
-          myXslTransform.Transform(langFile.FullName, outputDir + @"\" + langFile.Name); 
+          if (!langFile.Name.ToLower().Equals("strings_en.xml"))
+            continue;
+
+          langFile.CopyTo(outputDir + @"\" + langFile.Name, true); 
         }
       }
     }
@@ -246,23 +246,20 @@ namespace TransifexHelper
       transifexIni.Save(TransifexConfig());
     }
 
-    private static void TransformAndroidToMP2(bool allTranslations)
+    private static void CopyFromCache()
     {
-      Console.WriteLine("Transforming Android files to MP2 file format...");
+      Console.WriteLine("Copying non-English language files from Transifex cache...");
       foreach (KeyValuePair<string, DirectoryInfo> pair in languageDirectories)
       {
         string inputDir = TransifexCache() + "\\" + pair.Key;
 
-        foreach (FileInfo file in new DirectoryInfo(inputDir).GetFiles())
+        foreach (FileInfo langFile in new DirectoryInfo(inputDir).GetFiles())
         {
-          if (!allTranslations)
-            if (!file.Name.ToLower().Equals("strings_en.xml"))
-              continue;
-          Console.WriteLine("   " + file.FullName.Replace(targetDir, string.Empty));
-          XslTransform myXslTransform;
-          myXslTransform = new XslTransform();
-          myXslTransform.Load(XsltAndroidtoMP2());
-          myXslTransform.Transform(file.FullName, pair.Value.FullName + "\\" + file.Name);
+          if (langFile.Name.ToLower().Equals("strings_en.xml"))
+            continue;
+          
+          Console.WriteLine("   " + langFile.FullName.Replace(targetDir, string.Empty));
+          langFile.CopyTo(pair.Value.FullName + "\\" + langFile.Name);
         }
       }
     }
