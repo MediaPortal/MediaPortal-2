@@ -927,7 +927,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
         return;
       MediaItemAspect mediaAspect = item[MediaAspect.ASPECT_ID];
       mediaAspect.SetAttribute(MediaAspect.ATTR_LASTPLAYED, DateTime.Now);
-      uint playCount = (uint) mediaAspect.GetAttributeValue(MediaAspect.ATTR_PLAYCOUNT);
+      int playCount = (int) (mediaAspect.GetAttributeValue(MediaAspect.ATTR_PLAYCOUNT) ?? 0);
       mediaAspect.SetAttribute(MediaAspect.ATTR_PLAYCOUNT, playCount + 1);
       UpdateMediaItem(mediaItemId, new MediaItemAspect[] {mediaAspect});
     }
