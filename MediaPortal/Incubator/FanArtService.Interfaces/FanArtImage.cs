@@ -138,12 +138,19 @@ namespace MediaPortal.Extensions.UserServices.FanArtService.Interfaces
       if (!fileInfo.Exists)
         return null;
 
-      byte[] binary = new byte[fileInfo.Length];
-      using (FileStream fileStream = new FileStream(fileName, FileMode.Open))
-      using (BinaryReader binaryReader = new BinaryReader(fileStream))
-        binaryReader.Read(binary, 0, binary.Length);
+      try
+      {
+        byte[] binary = new byte[fileInfo.Length];
+        using (FileStream fileStream = new FileStream(fileName, FileMode.Open))
+        using (BinaryReader binaryReader = new BinaryReader(fileStream))
+          binaryReader.Read(binary, 0, binary.Length);
 
-      return new FanArtImage(fileInfo.Name, binary);
+        return new FanArtImage(fileInfo.Name, binary);
+      }
+      catch
+      {
+        return null;
+      }
     }
 
     protected static string ResizeImage(string originalFile, int maxWidth, int maxHeight)
