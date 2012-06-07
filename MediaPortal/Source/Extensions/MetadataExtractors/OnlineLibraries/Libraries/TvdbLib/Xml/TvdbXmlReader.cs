@@ -111,7 +111,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.TvdbLib.Xml
     }
 
     /// <summary>
-    /// Extract a list of movies in the format:
+    /// Extract a list of series in the format:
     /// <![CDATA[
     /// <?xml version="1.0" encoding="UTF-8" ?>
     /// <Data>
@@ -166,7 +166,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.TvdbLib.Xml
     }
 
     /// <summary>
-    /// Extract all the movies fields that are available on thetvdb
+    /// Extract all the series fields that are available on thetvdb
     /// <![CDATA[
     /// <?xml version="1.0" encoding="UTF-8" ?>
     /// <Data>
@@ -264,7 +264,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.TvdbLib.Xml
       }
 
       //watch.Stop();
-      //Log.Debug("Extracted " + retList.Count + " movies in " + watch.ElapsedMilliseconds + " milliseconds");
+      //Log.Debug("Extracted " + retList.Count + " series in " + watch.ElapsedMilliseconds + " milliseconds");
       return retList;
     }
 
@@ -395,7 +395,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.TvdbLib.Xml
     }
 
     /// <summary>
-    /// Extract list of updated movies
+    /// Extract list of updated series
     /// <![CDATA[
     /// <?xml version="1.0" encoding="UTF-8" ?>
     /// <Data time="1203923101">
@@ -424,7 +424,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.TvdbLib.Xml
     }
 
     /// <summary>
-    /// Extract the results of a movies search with format:
+    /// Extract the results of a series search with format:
     /// <![CDATA[
     /// <?xml version="1.0" encoding="UTF-8" ?>
     /// <Data>
@@ -480,7 +480,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.TvdbLib.Xml
     }
 
     /// <summary>
-    /// Exctract the movies favorites
+    /// Exctract the series favorites
     /// <![CDATA[
     /// <?xml version="1.0" encoding="UTF-8" ?>
     /// <Favorites>
@@ -627,9 +627,9 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.TvdbLib.Xml
 
       retList.AddRange(allBanners.Cast<TvdbBanner>());
 
-      //Extract the movies banners
+      //Extract the series banners
       var allBanners2 = from banner in xml.Descendants("Banner")
-                        where banner.Element("type").Value.Equals("movies")
+                        where banner.Element("type").Value.Equals("series")
                         select new TvdbSeriesBanner
                         {
                           Id = banner.Element("path").Value.GetHashCode(),
@@ -706,7 +706,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.TvdbLib.Xml
     ///    <Banner>
     ///       <id>9529</id>
     ///       <BannerPath>graphical/73739-g.jpg</BannerPath>
-    ///       <BannerType>movies</BannerType>
+    ///       <BannerType>series</BannerType>
     ///       <BannerType2>graphical</BannerType2>
     ///       <Language>en</Language>
     ///    </Banner>
@@ -760,9 +760,9 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.TvdbLib.Xml
 
       retList.AddRange(from TvdbBanner e in allSeasonBanners where e.Id != Util.NO_VALUE select e);
 
-      //Extract the movies banners
+      //Extract the series banners
       var allSeriesBanners = from banner in xml.Descendants("Banner")
-                             where banner.Element("BannerType").Value.Equals("movies")
+                             where banner.Element("BannerType").Value.Equals("series")
                              select new TvdbSeriesBanner
                              {
                                Id = Util.Int32Parse(banner.Element("id").Value),
@@ -898,7 +898,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.TvdbLib.Xml
     }
 
     /// <summary>
-    /// Extract a list of movies ratings
+    /// Extract a list of series ratings
     /// 
     /// The xml file is in the following format:
     /// <![CDATA[
