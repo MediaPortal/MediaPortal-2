@@ -25,6 +25,7 @@
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.UiComponents.Media.FilterCriteria;
 using MediaPortal.UiComponents.Media.General;
+using MediaPortal.UiComponents.Media.Models.Navigation;
 
 namespace MediaPortal.UiComponents.Media.Models.ScreenData
 {
@@ -35,7 +36,7 @@ namespace MediaPortal.UiComponents.Media.Models.ScreenData
         Consts.RES_FILTER_AUDIO_LANG_NAVBAR_DISPLAY_LABEL, new LanguageFilterCriterion(VideoAspect.ATTR_AUDIOLANGUAGES))
     { }
 
-    public override AbstractFiltersScreenData Derive()
+    public override AbstractFiltersScreenData<FilterItem> Derive()
     {
       return new VideosFilterByLanguageScreenData();
     }
