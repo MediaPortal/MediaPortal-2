@@ -22,6 +22,8 @@
 
 #endregion
 
+using System;
+
 namespace MediaPortal.Extensions.OnlineLibraries
 {
   public class SeriesMatch
@@ -29,7 +31,8 @@ namespace MediaPortal.Extensions.OnlineLibraries
     public string SeriesName;
     public string TvDBName;
     public int TvDBID;
-    public bool FanArtDownloaded;
+    public DateTime? FanArtDownloadStarted;
+    public DateTime? FanArtDownloadFinished;
     public override string ToString()
     {
       return string.Format("{0}: {1} [{2}]", SeriesName, TvDBName, TvDBID);

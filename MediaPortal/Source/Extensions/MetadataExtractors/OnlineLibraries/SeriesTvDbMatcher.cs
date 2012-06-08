@@ -94,14 +94,7 @@ namespace MediaPortal.Extensions.OnlineLibraries
     /// <returns><c>true</c> if successful</returns>
     public bool TryGetTvDbId(string seriesName, out int tvDbId)
     {
-      TvdbSeries seriesDetail;
-      if (TryMatch(seriesName, true, out seriesDetail))
-      {
-        tvDbId = seriesDetail.Id;
-        return true;
-      }
-      tvDbId = 0;
-      return false;
+      return TryGetId(seriesName, out tvDbId);
     }
 
     /// <summary>
@@ -153,6 +146,32 @@ namespace MediaPortal.Extensions.OnlineLibraries
       return false;
     }
 
+    protected bool TryGetId(string seriesName, out int tvDbId)
+    {
+      tvDbId = 0;
+      // Prefer memory cache
+      TvdbSeries seriesDetail;
+      if (_memoryCache.TryGetValue(seriesName, out seriesDetail))
+      {
+        tvDbId = seriesDetail.Id;
+        return true;
+      }
+
+      // Load cache or create new list
+      List<SeriesMatch> matches;
+      lock (_syncObj)
+        matches = Settings.Load<List<SeriesMatch>>(SETTINGS_MATCHES) ?? new List<SeriesMatch>();
+
+      // Use cached values before doing online query
+      SeriesMatch match = matches.Find(m => m.SeriesName == seriesName || m.TvDBName == seriesName);
+      if (match != null && match.TvDBID != 0)
+      {
+        tvDbId = match.TvDBID;
+        return true;
+      }
+      return false;
+    }
+
     protected bool TryMatch(string seriesName, bool cacheOnly, out TvdbSeries seriesDetail)
     {
       seriesDetail = null;
@@ -163,7 +182,9 @@ namespace MediaPortal.Extensions.OnlineLibraries
           return true;
 
         // Load cache or create new list
-        List<SeriesMatch> matches = Settings.Load<List<SeriesMatch>>(SETTINGS_MATCHES) ?? new List<SeriesMatch>();
+        List<SeriesMatch> matches;
+        lock (_syncObj)
+          matches = Settings.Load<List<SeriesMatch>>(SETTINGS_MATCHES) ?? new List<SeriesMatch>();
 
         // Init empty
         seriesDetail = null;
@@ -247,6 +268,19 @@ namespace MediaPortal.Extensions.OnlineLibraries
 
     public bool DownloadFanArt(int tvDbId)
     {
+      bool fanArtDownloaded = CheckBeginDownloadFanArt(tvDbId);
+      if (fanArtDownloaded)
+        return true;
+
+      _currentTvDbId = tvDbId;
+      IThreadPool threadPool = ServiceRegistration.Get<IThreadPool>();
+      threadPool.Add(DownloadFanArt_Async, "FanArt Downloader " + tvDbId, QueuePriority.Low, ThreadPriority.Lowest);
+      return true;
+    }
+
+    // TODO: implement lookup table and download stats in database
+    private bool CheckBeginDownloadFanArt(int tvDbId)
+    {
       bool fanArtDownloaded = false;
       lock (_syncObj)
       {
@@ -255,18 +289,30 @@ namespace MediaPortal.Extensions.OnlineLibraries
         foreach (SeriesMatch seriesMatch in matches.FindAll(m => m.TvDBID == tvDbId))
         {
           // We can have multiple matches for one TvDbId in list, if one has FanArt downloaded already, update the flag for all matches.
-          if (seriesMatch.FanArtDownloaded)
+          if (seriesMatch.FanArtDownloadFinished.HasValue)
             fanArtDownloaded = true;
-          seriesMatch.FanArtDownloaded = true;
+          
+          if (!seriesMatch.FanArtDownloadStarted.HasValue)
+            seriesMatch.FanArtDownloadStarted = DateTime.Now;
         }
+
         Settings.Save(SETTINGS_MATCHES, matches);
       }
-      if (fanArtDownloaded)
-        return true;
+      return fanArtDownloaded;
+    }
 
-      _currentTvDbId = tvDbId;
-      IThreadPool threadPool = ServiceRegistration.Get<IThreadPool>();
-      threadPool.Add(DownloadFanArt_Async, "FanArt Downloader " + tvDbId, QueuePriority.Low, ThreadPriority.Lowest);
+    private bool FinishDownloadFanArt(int tvDbId)
+    {
+      lock (_syncObj)
+      {
+        // Load cache or create new list
+        List<SeriesMatch> matches = Settings.Load<List<SeriesMatch>>(SETTINGS_MATCHES) ?? new List<SeriesMatch>();
+        foreach (SeriesMatch seriesMatch in matches.FindAll(m => m.TvDBID == tvDbId))
+          if (!seriesMatch.FanArtDownloadFinished.HasValue)
+            seriesMatch.FanArtDownloadFinished = DateTime.Now;
+
+        Settings.Save(SETTINGS_MATCHES, matches);
+      }
       return true;
     }
 
@@ -296,6 +342,9 @@ namespace MediaPortal.Extensions.OnlineLibraries
         ServiceRegistration.Get<ILogger>().Debug("SeriesTvDbMatcher Download: Begin saving fanarts for ID {0}", tvDbId);
         SaveBanners(seriesDetail.FanartBanners, _tv.PreferredLanguage);
         ServiceRegistration.Get<ILogger>().Debug("SeriesTvDbMatcher Download: Finished ID {0}", tvDbId);
+
+        // Remember we are finished
+        FinishDownloadFanArt(tvDbId);
       }
       catch (Exception ex)
       {
