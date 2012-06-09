@@ -225,7 +225,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.TvdbLib.Xml
                         Status = series.Element("Status").Value,
                         banner = series.Elements("banner").Count() == 1 ? series.Element("banner").Value : string.Empty,
                         fanart = series.Elements("fanart").Count() == 1 ? series.Element("fanart").Value : string.Empty,
-                        poster = series.Elements("Poster").Count() == 1 ? series.Element("Poster").Value : string.Empty,
+                        poster = series.Elements("poster").Count() == 1 ? series.Element("poster").Value : string.Empty,
                         lastupdated = series.Element("lastupdated").Value,
                         zap2it_id = series.Element("zap2it_id").Value
                       };
@@ -644,7 +644,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.TvdbLib.Xml
 
       //Extract the Poster banners
       var allPosters = from banner in xml.Descendants("Banner")
-                       where banner.Element("type").Value.Equals("Poster")
+                       where banner.Element("type").Value.Equals("poster")
                        select new TvdbPosterBanner
                        {
                          Id = banner.Element("path").Value.GetHashCode(),
@@ -777,7 +777,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.TvdbLib.Xml
 
       //Extract the Poster banners
       var allPosterBanners = from banner in xml.Descendants("Banner")
-                             where banner.Element("BannerType").Value.Equals("Poster")
+                             where banner.Element("BannerType").Value.Equals("poster")
                              select new TvdbPosterBanner
                              {
 
