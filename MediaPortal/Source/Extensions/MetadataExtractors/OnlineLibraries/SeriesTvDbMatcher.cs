@@ -32,8 +32,9 @@ using MediaPortal.Common;
 using MediaPortal.Common.Localization;
 using MediaPortal.Common.Logging;
 using MediaPortal.Common.MediaManagement.Helpers;
+using MediaPortal.Common.Messaging;
 using MediaPortal.Common.PathManager;
-using MediaPortal.Common.Threading;
+using MediaPortal.Common.Runtime;
 using MediaPortal.Extensions.OnlineLibraries.Libraries.Common;
 using MediaPortal.Extensions.OnlineLibraries.Libraries.TvdbLib.Data;
 using MediaPortal.Extensions.OnlineLibraries.Libraries.TvdbLib.Data.Banner;
@@ -47,11 +48,11 @@ namespace MediaPortal.Extensions.OnlineLibraries
   public class SeriesTvDbMatcher
   {
     #region Static instance
-    
+
     private static SeriesTvDbMatcher _instance;
     public static SeriesTvDbMatcher Instance
     {
-     get { return _instance ?? (_instance = new SeriesTvDbMatcher()); }
+      get { return _instance ?? (_instance = new SeriesTvDbMatcher()); }
     }
 
     #endregion
@@ -59,11 +60,12 @@ namespace MediaPortal.Extensions.OnlineLibraries
     #region Constants
 
     public const int MAX_FANART_IMAGES = 5;
+    public const int MAX_FANART_DOWNLOADERS = 3;
 
     public static string CACHE_PATH = ServiceRegistration.Get<IPathManager>().GetPath(@"<DATA>\TvDB\");
     protected static string SETTINGS_MATCHES = Path.Combine(CACHE_PATH, "Matches.xml");
 
-    #endregion 
+    #endregion
 
     #region Fields
 
@@ -77,15 +79,41 @@ namespace MediaPortal.Extensions.OnlineLibraries
     /// <summary>
     /// Contains the Series ID for Downloading FanArt asynchronously.
     /// </summary>
-    protected int _currentTvDbId;
+    protected EventedQueue<int> _downloadQueue = new EventedQueue<int>();
+    protected List<Thread> _downloadThreads = new List<Thread>(MAX_FANART_DOWNLOADERS);
+    protected bool _downloadAllowed = true;
 
     /// <summary>
     /// Contains the initialized TvDbWrapper.
     /// </summary>
     private TvDbWrapper _tv;
 
+    private AsynchronousMessageQueue _messageQueue;
+
     #endregion
 
+    public SeriesTvDbMatcher ()
+    {
+      SubscribeToMessages();
+    }
+
+    void SubscribeToMessages()
+    {
+      _messageQueue = new AsynchronousMessageQueue(this, new[] { SystemMessaging.CHANNEL });
+      _messageQueue.Start();
+      _messageQueue.MessageReceived += OnMessageReceived;
+    }
+
+    void OnMessageReceived(AsynchronousMessageQueue queue, SystemMessage message)
+    {
+      if (message.ChannelName == SystemMessaging.CHANNEL &&
+        ((SystemMessaging.MessageType) message.MessageType) == SystemMessaging.MessageType.SystemStateChanged)
+      {
+        SystemState newState = (SystemState) message.MessageData[SystemMessaging.NEW_STATE];
+        if (newState == SystemState.ShuttingDown)
+          EndDownloads();
+      }
+    }
     /// <summary>
     /// Tries to lookup the series from TheTvDB and return the found ID.
     /// </summary>
@@ -117,7 +145,7 @@ namespace MediaPortal.Extensions.OnlineLibraries
         }
 
         if (tvDbId > 0)
-          DownloadFanArt(tvDbId);
+          ScheduleDownload(tvDbId);
         return true;
       }
       return false;
@@ -231,7 +259,7 @@ namespace MediaPortal.Extensions.OnlineLibraries
         SaveNewMatch(seriesName, new SeriesMatch { SeriesName = seriesName });
         return false;
       }
-      catch(Exception ex)
+      catch (Exception ex)
       {
         ServiceRegistration.Get<ILogger>().Debug("SeriesTvDbMatcher: Exception while processing series {0}", ex, seriesName);
         return false;
@@ -266,16 +294,37 @@ namespace MediaPortal.Extensions.OnlineLibraries
       return _tv.Init();
     }
 
-    public bool DownloadFanArt(int tvDbId)
+    public bool ScheduleDownload(int tvDbId)
     {
       bool fanArtDownloaded = CheckBeginDownloadFanArt(tvDbId);
       if (fanArtDownloaded)
         return true;
 
-      _currentTvDbId = tvDbId;
-      IThreadPool threadPool = ServiceRegistration.Get<IThreadPool>();
-      threadPool.Add(DownloadFanArt_Async, "FanArt Downloader " + tvDbId, QueuePriority.Low, ThreadPriority.Lowest);
+      lock (_downloadQueue.SyncObj)
+      {
+        bool newEnqueued = _downloadQueue.TryEnqueue(tvDbId);
+        if (newEnqueued && _downloadThreads.Count < _downloadThreads.Capacity)
+        {
+          Thread downloader = new Thread(DownloadFanArtQueue) { Name = "FanArt Downloader " + _downloadThreads.Count, Priority = ThreadPriority.Lowest };
+          downloader.Start();
+          _downloadThreads.Add(downloader);
+        }
+      }
       return true;
+    }
+
+    public void EndDownloads()
+    {
+      lock (_downloadQueue.SyncObj)
+      {
+        _downloadQueue.Clear();
+        _downloadAllowed = false;
+      }
+      foreach (Thread downloadThread in _downloadThreads)
+        if (!downloadThread.Join(2000))
+          downloadThread.Abort();
+
+      _downloadThreads.Clear();
     }
 
     // TODO: implement lookup table and download stats in database
@@ -291,11 +340,10 @@ namespace MediaPortal.Extensions.OnlineLibraries
           // We can have multiple matches for one TvDbId in list, if one has FanArt downloaded already, update the flag for all matches.
           if (seriesMatch.FanArtDownloadFinished.HasValue)
             fanArtDownloaded = true;
-          
+
           if (!seriesMatch.FanArtDownloadStarted.HasValue)
             seriesMatch.FanArtDownloadStarted = DateTime.Now;
         }
-
         Settings.Save(SETTINGS_MATCHES, matches);
       }
       return fanArtDownloaded;
@@ -316,14 +364,29 @@ namespace MediaPortal.Extensions.OnlineLibraries
       return true;
     }
 
-    protected void DownloadFanArt_Async()
+    protected void DownloadFanArtQueue()
     {
-      int tvDbId = _currentTvDbId;
+      while (_downloadAllowed)
+      {
+        _downloadQueue.OnEnqueued.WaitOne(1000);
+        int tvDbId;
+        lock (_downloadQueue.SyncObj)
+        {
+          if (_downloadQueue.Count == 0)
+            continue;
+          tvDbId = _downloadQueue.Dequeue();
+        }
+        DownloadFanArt(tvDbId);
+      }
+    }
+
+    protected void DownloadFanArt(int tvDbId)
+    {
       try
       {
         ServiceRegistration.Get<ILogger>().Debug("SeriesTvDbMatcher Download: Started for ID {0}", tvDbId);
 
-        if  (!Init())
+        if (!Init())
           return;
 
         TvdbSeries seriesDetail;
@@ -360,14 +423,21 @@ namespace MediaPortal.Extensions.OnlineLibraries
         if (tvdbBanner.Language != language)
           continue;
 
-        if (idx++ >= 10)
+        if (idx++ >= MAX_FANART_IMAGES)
           break;
 
         if (!tvdbBanner.IsLoaded)
         {
           // We need the image only loaded once, later we will access the cache directly
-          tvdbBanner.LoadBanner();
-          tvdbBanner.UnloadBanner();
+          try
+          {
+            tvdbBanner.LoadBanner();
+            tvdbBanner.UnloadBanner();
+          }
+          catch (Exception ex)
+          {
+            ServiceRegistration.Get<ILogger>().Warn("SeriesTvDbMatcher: Exception saving FanArt image", ex);
+          }
         }
       }
       if (idx > 0)
@@ -383,6 +453,33 @@ namespace MediaPortal.Extensions.OnlineLibraries
         idx = SaveBanners(banners, TvdbLanguage.DefaultLanguage);
       }
       return idx;
+    }
+  }
+
+  public class EventedQueue<T> : Queue<T>
+  {
+    protected readonly HashSet<T> _index = new HashSet<T>();
+    public readonly AutoResetEvent OnEnqueued = new AutoResetEvent(false);
+    public readonly object SyncObj = new object();
+
+    public new virtual void Enqueue(T item)
+    {
+      if (_index.Contains(item))
+        return;
+
+      _index.Add(item);
+      base.Enqueue(item);
+      OnEnqueued.Set();
+    }
+    public virtual bool TryEnqueue(T item)
+    {
+      if (_index.Contains(item))
+        return false;
+
+      _index.Add(item);
+      base.Enqueue(item);
+      OnEnqueued.Set();
+      return true;
     }
   }
 }
