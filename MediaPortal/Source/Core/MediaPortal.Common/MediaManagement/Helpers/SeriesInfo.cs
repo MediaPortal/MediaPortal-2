@@ -117,11 +117,34 @@ namespace MediaPortal.Common.MediaManagement.Helpers
     /// </summary>
     public IList<int> EpisodeNumbers { get; internal set; }
 
+    /// <summary>
+    /// Gets or sets the episode summary.
+    /// </summary>
+    public string Summary { get; set; }
+
+    /// <summary>
+    /// Gets a list of directors.
+    /// </summary>
+    public ICollection<string> Directors { get; internal set; }
+
+    /// <summary>
+    /// Gets a list of actors.
+    /// </summary>
+    public ICollection<string> Actors { get; internal set; }
+
+    /// <summary>
+    /// Gets a list of genres.
+    /// </summary>
+    public ICollection<string> Genres { get; internal set; }
+
     #region Constructor
 
     public SeriesInfo()
     {
       EpisodeNumbers = new List<int>();
+      Directors = new HashSet<string>();
+      Actors = new HashSet<string>();
+      Genres = new HashSet<string>();
     }
 
     #endregion
@@ -149,6 +172,11 @@ namespace MediaPortal.Common.MediaManagement.Helpers
       MediaItemAspect.SetAttribute(aspectData, SeriesAspect.ATTR_EPISODENAME, Episode);
       MediaItemAspect.SetAttribute(aspectData, SeriesAspect.ATTR_SEASON, SeasonNumber);
       MediaItemAspect.SetCollectionAttribute(aspectData, SeriesAspect.ATTR_EPISODE, EpisodeNumbers);
+
+      if (!string.IsNullOrEmpty(Summary)) MediaItemAspect.SetAttribute(aspectData, VideoAspect.ATTR_STORYPLOT, Summary);
+      if (Directors.Count > 0) MediaItemAspect.SetAttribute(aspectData, VideoAspect.ATTR_DIRECTOR, Directors.First());
+      if (Actors.Count > 0) MediaItemAspect.SetCollectionAttribute(aspectData, VideoAspect.ATTR_ACTORS, Actors);
+      if (Genres.Count > 0) MediaItemAspect.SetCollectionAttribute(aspectData, VideoAspect.ATTR_GENRES, Genres);
       return true;
     }
 

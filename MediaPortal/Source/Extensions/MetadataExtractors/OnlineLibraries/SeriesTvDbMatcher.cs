@@ -37,6 +37,7 @@ using MediaPortal.Extensions.OnlineLibraries.Libraries.Common;
 using MediaPortal.Extensions.OnlineLibraries.Libraries.TvdbLib.Data;
 using MediaPortal.Extensions.OnlineLibraries.Libraries.TvdbLib.Data.Banner;
 using MediaPortal.Extensions.OnlineLibraries.TheTvDB;
+using MediaPortal.Utilities;
 
 namespace MediaPortal.Extensions.OnlineLibraries
 {
@@ -113,6 +114,11 @@ namespace MediaPortal.Extensions.OnlineLibraries
         {
           tvDbId = seriesDetail.Id;
           seriesInfo.Series = seriesDetail.SeriesName;
+          if (seriesDetail.Actors.Count > 0)
+            CollectionUtils.AddAll(seriesInfo.Actors, seriesDetail.Actors);
+          if (seriesDetail.Genre.Count > 0)
+            CollectionUtils.AddAll(seriesInfo.Genres, seriesDetail.Genre);
+
           // Also try to fill episode title from series details (most file names don't contain episode name).
           TryMatchEpisode(seriesInfo, seriesDetail);
         }
@@ -135,6 +141,7 @@ namespace MediaPortal.Extensions.OnlineLibraries
         seriesInfo.SeasonNumber = episode.SeasonNumber;
         seriesInfo.EpisodeNumbers.Clear();
         seriesInfo.EpisodeNumbers.Add(episode.EpisodeNumber);
+        SetEpisodeDetails(seriesInfo, episode);
         return true;
       }
 
@@ -142,9 +149,19 @@ namespace MediaPortal.Extensions.OnlineLibraries
       if (episode != null)
       {
         seriesInfo.Episode = episode.EpisodeName;
+        SetEpisodeDetails(seriesInfo, episode);
         return true;
       }
       return false;
+    }
+
+    private static void SetEpisodeDetails(SeriesInfo seriesInfo, TvdbEpisode episode)
+    {
+      seriesInfo.Summary = episode.Overview;
+      if (episode.Directors.Count > 0)
+        CollectionUtils.AddAll(seriesInfo.Directors, episode.Directors);
+      if (episode.GuestStars.Count > 0)
+        CollectionUtils.AddAll(seriesInfo.Actors, episode.GuestStars);
     }
 
     protected bool TryGetId(string seriesName, out int tvDbId)
