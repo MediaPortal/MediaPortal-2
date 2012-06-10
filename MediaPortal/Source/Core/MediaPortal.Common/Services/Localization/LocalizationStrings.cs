@@ -29,6 +29,7 @@ using System.Xml.Serialization;
 using System.IO;
 using System.Globalization;
 using MediaPortal.Common.Logging;
+using MediaPortal.Utilities;
 using MediaPortal.Utilities.Localization.StringsFile;
 
 namespace MediaPortal.Common.Services.Localization
@@ -49,8 +50,8 @@ namespace MediaPortal.Common.Services.Localization
   {
     #region Variables
 
-    protected readonly IDictionary<string, StringLocalized> _languageStrings =
-        new Dictionary<string, StringLocalized>(StringComparer.Create(CultureInfo.InvariantCulture, true)); // Map: Resource names to resource
+    protected readonly IDictionary<string, string> _languageStrings =
+        new Dictionary<string, string>(StringComparer.Create(CultureInfo.InvariantCulture, true)); // Map: Resource names to resource
     protected CultureInfo _culture;
 
     #endregion
@@ -109,8 +110,8 @@ namespace MediaPortal.Common.Services.Localization
     public string ToString(string section, string name)
     {
       string resName = section + '.' + name;
-      StringLocalized res;
-      return _languageStrings.TryGetValue(resName, out res) ? res.Text : null;
+      string res;
+      return _languageStrings.TryGetValue(resName, out res) ? res : null;
     }
 
     /// <summary>
@@ -186,7 +187,7 @@ namespace MediaPortal.Common.Services.Localization
           StringFile resources = (StringFile) s.Deserialize(r);
 
           foreach (StringLocalized languageString in resources.Strings)
-            _languageStrings[languageString.StringName] = languageString;
+            _languageStrings[languageString.StringName] = StringUtils.TrimToEmpty(languageString.Text);
         }
       }
       catch (Exception ex)

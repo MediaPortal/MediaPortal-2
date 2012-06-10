@@ -60,11 +60,6 @@ namespace MediaPortal.Utilities.Localization.StringsFile
       return _localizedStrings.Any(str => str.StringName == stringName);
     }
 
-    public void AddString(StringLocalized stringLocalized)
-    {
-      _localizedStrings.Add(stringLocalized);
-    }
-
     #endregion
   }
 }
