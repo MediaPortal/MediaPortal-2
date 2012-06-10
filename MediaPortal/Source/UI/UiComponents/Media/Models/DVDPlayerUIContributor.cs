@@ -27,41 +27,27 @@ using MediaPortal.Common;
 using MediaPortal.Common.Logging;
 using MediaPortal.UI.Control.InputManager;
 using MediaPortal.UI.Presentation.DataObjects;
-using MediaPortal.UI.Presentation.Models;
 using MediaPortal.UI.Presentation.Players;
-using MediaPortal.UI.Presentation.Screens;
 using MediaPortal.UiComponents.Media.General;
 using MediaPortal.Common.General;
 using MediaPortal.Common.Commands;
 
 namespace MediaPortal.UiComponents.Media.Models
 {
-  public class DVDPlayerUIContributor : BaseTimerControlledModel, IPlayerUIContributor
+  public class DVDVideoPlayerUIContributor : BaseVideoPlayerUIContributor
   {
-    protected static string[] EMPTY_STRING_ARRAY = new string[] { };
-
     #region Protected fields
 
-    protected MediaWorkflowStateType _mediaWorkflowStateType;
-    protected IDVDPlayer _player;
+    protected IDVDPlayer _dvdPlayer;
     protected AbstractProperty _dvdPlayerHandlesInputProperty;
-    protected AbstractProperty _chaptersAvailableProperty;
-    protected AbstractProperty _subtitlesAvailableProperty;
-    protected string[] _subtitles = EMPTY_STRING_ARRAY;
-    protected ItemsList _subtitleMenuItems;
-    protected ItemsList _chapterMenuItems;
-    protected bool _updating;
 
     #endregion
 
     #region Constructor & maintainance
 
-    public DVDPlayerUIContributor() : base(300)
+    public DVDVideoPlayerUIContributor()
     {
       _dvdPlayerHandlesInputProperty = new WProperty(typeof(bool), false);
-      _chaptersAvailableProperty = new WProperty(typeof(bool), false);
-      _subtitlesAvailableProperty = new WProperty(typeof(bool), false);
-      StartTimer();
     }
 
     #endregion
@@ -79,46 +65,23 @@ namespace MediaPortal.UiComponents.Media.Models
       set { _dvdPlayerHandlesInputProperty.SetValue(value); }
     }
 
-    public AbstractProperty ChaptersAvailableProperty
-    {
-      get { return _chaptersAvailableProperty; }
-    }
-
-    public bool ChaptersAvailable
-    {
-      get { return (bool) _chaptersAvailableProperty.GetValue(); }
-      set { _chaptersAvailableProperty.SetValue(value); }
-    }
-
-    public AbstractProperty SubtitlesAvailableProperty
-    {
-      get { return _subtitlesAvailableProperty; }
-    }
-
-    public bool SubtitlesAvailable
-    {
-      get { return (bool) _subtitlesAvailableProperty.GetValue(); }
-      set { _subtitlesAvailableProperty.SetValue(value); }
-    }
-
     /// <summary>
     /// Provides a list of items to be shown in the subtitle selection menu.
     /// </summary>
-    public ItemsList SubtitleMenuItems
+    public override ItemsList SubtitleMenuItems
     {
       get
       {
         _subtitleMenuItems.Clear();
-        ISubtitlePlayer subtitlePlayer = _player as ISubtitlePlayer;
-        if (subtitlePlayer != null && _subtitles.Length > 0)
+        if (_subtitlePlayer != null && _subtitles.Length > 0)
         {
-          string currentSubtitle = subtitlePlayer.CurrentSubtitle;
+          string currentSubtitle = _subtitlePlayer.CurrentSubtitle;
           ListItem item = new ListItem(Consts.KEY_NAME, Consts.RES_SUBTITLE_OFF)
-              {
-                Command = new MethodDelegateCommand(subtitlePlayer.DisableSubtitle),
-                // Check if it is the selected subtitle, then mark it
-                Selected = currentSubtitle != null
-              };
+          {
+            Command = new MethodDelegateCommand(_subtitlePlayer.DisableSubtitle),
+            // Check if it is the selected subtitle, then mark it
+            Selected = currentSubtitle != null
+          };
           _subtitleMenuItems.Add(item); // Subtitles off
           foreach (string subtitle in _subtitles)
           {
@@ -127,7 +90,7 @@ namespace MediaPortal.UiComponents.Media.Models
 
             item = new ListItem(Consts.KEY_NAME, localSubtitle)
                 {
-                  Command = new MethodDelegateCommand(() => subtitlePlayer.SetSubtitle(localSubtitle)),
+                  Command = new MethodDelegateCommand(() => _subtitlePlayer.SetSubtitle(localSubtitle)),
                   // Check if it is the selected subtitle, then mark it
                   Selected = localSubtitle == currentSubtitle
                 };
@@ -139,46 +102,14 @@ namespace MediaPortal.UiComponents.Media.Models
       }
     }
 
-    /// <summary>
-    /// Provides a list of items to be shown in the chapter selection menu.
-    /// </summary>
-    public ItemsList ChapterMenuItems
-    {
-      get
-      {
-        string currentChapter = _player.CurrentChapter;
-        _chapterMenuItems.Clear();
-        if (ChaptersAvailable)
-        {
-          foreach (string chapter in _player.Chapters)
-          {
-            // use local variable, otherwise delegate argument is not fixed
-            string localChapter = chapter;
-
-            ListItem item = new ListItem(Consts.KEY_NAME, localChapter)
-                {
-                  Command = new MethodDelegateCommand(() => _player.SetChapter(localChapter)),
-                  // check if it is the selected chapter, then mark it
-                  Selected = (localChapter == currentChapter)
-                };
-
-            _chapterMenuItems.Add(item);
-          }
-        }
-        return _chapterMenuItems;
-      }
-    }
-
     #endregion
 
     #region Public Members
 
-    public void Initialize(MediaWorkflowStateType stateType, IPlayer player)
+    public override void Initialize(MediaWorkflowStateType stateType, IPlayer player)
     {
-      _mediaWorkflowStateType = stateType;
-      _player = player as IDVDPlayer;
-      _subtitleMenuItems = new ItemsList();
-      _chapterMenuItems = new ItemsList();
+      base.Initialize(stateType, player);
+      _dvdPlayer = player as IDVDPlayer;
     }
 
     // Update GUI properties
@@ -190,51 +121,24 @@ namespace MediaPortal.UiComponents.Media.Models
         return;
       }
 
-      if (_player == null)
-        return;
-
       try
       {
+        base.Update();
         _updating = true;
-        DvdPlayerHandlesInput = _player.IsHandlingUserInput;
-        ChaptersAvailable = _player.ChaptersAvailable;
-        ISubtitlePlayer subtitlePlayer = _player as ISubtitlePlayer;
-        if (subtitlePlayer != null)
-        {
-          _subtitles = subtitlePlayer.Subtitles;
-          SubtitlesAvailable = _subtitles.Length > 0;
-        }
-        else
-          _subtitles = EMPTY_STRING_ARRAY;
+        DvdPlayerHandlesInput = _dvdPlayer.IsHandlingUserInput;
       }
       finally
       {
         _updating = false;
       }
     }
-
-    /// <summary>
-    /// Opens the subtitle selection dialog.
-    /// </summary>
-    public void OpenChooseSubtitleDialog()
-    {
-      ServiceRegistration.Get<IScreenManager>().ShowDialog("DialogChooseSubtitle");
-    }
-
-    /// <summary>
-    /// Opens the chapter selection dialog.
-    /// </summary>
-    public void OpenChooseChapterDialog()
-    {
-      ServiceRegistration.Get<IScreenManager>().ShowDialog("DialogChooseChapter");
-    }
-
+    
     /// <summary>
     /// Shows the DVD menu.
     /// </summary>
     public void ShowDvdMenu()
     {
-      _player.ShowDvdMenu();
+      _dvdPlayer.ShowDvdMenu();
     }
 
     /// <summary>
@@ -243,7 +147,7 @@ namespace MediaPortal.UiComponents.Media.Models
     /// <param name="key">Key that was pressed.</param>
     public void OnKeyPress(Key key)
     {
-      _player.OnKeyPress(key);
+      _dvdPlayer.OnKeyPress(key);
     }
 
     /// <summary>
@@ -253,7 +157,7 @@ namespace MediaPortal.UiComponents.Media.Models
     /// <param name="y">Y coordinate relative to the video size.</param>
     public void OnMouseMove(float x, float y)
     {
-      _player.OnMouseMove(x, y);
+      _dvdPlayer.OnMouseMove(x, y);
     }
 
     /// <summary>
@@ -265,49 +169,14 @@ namespace MediaPortal.UiComponents.Media.Models
     public void OnMouseClick(MouseButtons buttons, float x, float y)
     {
       if (buttons == MouseButtons.Left)
-        _player.OnMouseClick(x, y);
-    }
-
-    /// <summary>
-    /// Skips to previous chapter.
-    /// </summary>
-    public void PrevChapter()
-    {
-      _player.PrevChapter();
-    }
-
-    /// <summary>
-    /// Skips to next chapter.
-    /// </summary>
-    public void NextChapter()
-    {
-      _player.NextChapter();
-    }
-
-    /// <summary>
-    /// Execute selected menu item for subtitle and chapter selection.
-    /// </summary>
-    /// <param name="item">One of the items of <see cref="SubtitleMenuItems"/> or
-    /// <see cref="ChapterMenuItems"/>.</param>
-    public void Select(ListItem item)
-    {
-      if (item == null)
-        return;
-      ICommand command = item.Command;
-      if (command != null)
-        command.Execute();
+        _dvdPlayer.OnMouseClick(x, y);
     }
 
     #endregion
 
     #region IPlayerUIContributor implementation
 
-    public MediaWorkflowStateType MediaWorkflowStateType
-    {
-      get { return _mediaWorkflowStateType; }
-    }
-
-    public string Screen
+    public override string Screen
     {
       get
       {
@@ -319,12 +188,7 @@ namespace MediaPortal.UiComponents.Media.Models
         return null;
       }
     }
-
-    public bool BackgroundDisabled
-    {
-      get { return _mediaWorkflowStateType == MediaWorkflowStateType.FullscreenContent; }
-    }
-
+    
     #endregion
   }
 }

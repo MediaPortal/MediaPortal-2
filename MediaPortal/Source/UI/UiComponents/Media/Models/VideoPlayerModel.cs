@@ -80,10 +80,10 @@ namespace MediaPortal.UiComponents.Media.Models
         return typeof(ImagePlayerUIContributor);
 
       if (player is IDVDPlayer)
-        return typeof(DVDPlayerUIContributor);
+        return typeof(DVDVideoPlayerUIContributor);
 
       if ((player is IVideoPlayer))
-        return typeof(DefaultVideoPlayerUIContributor);
+        return typeof(DefaultVideoVideoPlayerUIContributor);
 
       return null;
     }

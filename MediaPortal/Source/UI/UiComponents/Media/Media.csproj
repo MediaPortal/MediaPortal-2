@@ -122,6 +122,7 @@
     <Compile Include="FilterCriteria\LanguageFilterCriterion.cs" />
     <Compile Include="General\Consts.cs" />
     <Compile Include="Models\BasePlayerModel.cs" />
+    <Compile Include="Models\BaseVideoPlayerUIContributor.cs" />
     <Compile Include="Models\MediaSortingModel.cs" />
     <Compile Include="Models\DefaultAudioPlayerUIContributor.cs" />
     <Compile Include="Models\DefaultVideoPlayerUIContributor.cs" />
