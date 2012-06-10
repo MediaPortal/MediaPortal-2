@@ -92,7 +92,7 @@ namespace MediaInfoLib
       if (string.IsNullOrEmpty(strValue))
         return null;
       float result;
-      return float.TryParse(strValue, out result) ? result : new float?();
+      return float.TryParse(strValue, NumberStyles.Float, CultureInfo.InvariantCulture, out result) ? result : new float?();
     }
 
     #endregion
