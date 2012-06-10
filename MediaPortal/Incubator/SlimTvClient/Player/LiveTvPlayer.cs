@@ -26,8 +26,6 @@ using System;
 using System.Collections.Generic;
 using MediaPortal.Common;
 using MediaPortal.Common.Localization;
-using MediaPortal.Common.MediaManagement;
-using MediaPortal.Common.ResourceAccess;
 using MediaPortal.Plugins.SlimTvClient.Interfaces;
 using MediaPortal.Plugins.SlimTvClient.Interfaces.Items;
 using MediaPortal.UI.Players.Video;
@@ -155,7 +153,6 @@ namespace MediaPortal.Plugins.SlimTvClient
       if (chapterInfo != null && !forceRefresh)
         return;
 
-      chapterInfo = new StreamInfoHandler();
       IPlayerContextManager playerContextManager = ServiceRegistration.Get<IPlayerContextManager>();
       for (int index = 0; index < playerContextManager.NumActivePlayerContexts; index++)
       {
@@ -168,10 +165,10 @@ namespace MediaPortal.Plugins.SlimTvClient
           continue;
 
         _timeshiftContexes = liveTvMediaItem.TimeshiftContexes;
+        chapterInfo = new StreamInfoHandler();
         int i = 0;
         foreach (ITimeshiftContext timeshiftContext in _timeshiftContexes)
           chapterInfo.AddUnique(new StreamInfo(null, i++, GetContextTitle(timeshiftContext), 0));
-
       }
       lock (SyncObj)
         _chapterInfo = chapterInfo;
