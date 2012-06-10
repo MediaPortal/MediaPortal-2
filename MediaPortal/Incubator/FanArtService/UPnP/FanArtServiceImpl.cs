@@ -38,40 +38,40 @@ namespace MediaPortal.Extensions.UserServices.FanArtService.UPnP
     public FanArtServiceImpl()
       : base(Consts.FANART_SERVICE_TYPE, Consts.FANART_SERVICE_TYPE_VERSION, Consts.FANART_SERVICE_ID)
     {
-      DvStateVariable mediaType = new DvStateVariable("MediaType", new DvStandardDataType(UPnPStandardDataType.String)) { SendEvents = false };
-      AddStateVariable(mediaType);
+      DvStateVariable A_ARG_TYPE_MediaType = new DvStateVariable("A_ARG_TYPE_MediaType", new DvStandardDataType(UPnPStandardDataType.String)) { SendEvents = false };
+      AddStateVariable(A_ARG_TYPE_MediaType);
 
-      DvStateVariable fanArtType = new DvStateVariable("FanArtType", new DvStandardDataType(UPnPStandardDataType.String)) { SendEvents = false };
-      AddStateVariable(fanArtType);
+      DvStateVariable A_ARG_TYPE_FanArtType = new DvStateVariable("A_ARG_TYPE_FanArtType", new DvStandardDataType(UPnPStandardDataType.String)) { SendEvents = false };
+      AddStateVariable(A_ARG_TYPE_FanArtType);
 
-      DvStateVariable name = new DvStateVariable("Name", new DvStandardDataType(UPnPStandardDataType.String)) { SendEvents = false };
-      AddStateVariable(name);
+      DvStateVariable A_ARG_TYPE_Name = new DvStateVariable("A_ARG_TYPE_Name", new DvStandardDataType(UPnPStandardDataType.String)) { SendEvents = false };
+      AddStateVariable(A_ARG_TYPE_Name);
 
-      DvStateVariable maxWidth = new DvStateVariable("MaxWidth", new DvStandardDataType(UPnPStandardDataType.Int)) { SendEvents = false };
-      AddStateVariable(maxWidth);
+      DvStateVariable A_ARG_TYPE_Width = new DvStateVariable("A_ARG_TYPE_Width", new DvStandardDataType(UPnPStandardDataType.Int)) { SendEvents = false };
+      AddStateVariable(A_ARG_TYPE_Width);
 
-      DvStateVariable maxHeight = new DvStateVariable("MaxHeight", new DvStandardDataType(UPnPStandardDataType.Int)) { SendEvents = false };
-      AddStateVariable(maxHeight);
+      DvStateVariable A_ARG_TYPE_Height = new DvStateVariable("A_ARG_TYPE_Height", new DvStandardDataType(UPnPStandardDataType.Int)) { SendEvents = false };
+      AddStateVariable(A_ARG_TYPE_Height);
 
-      DvStateVariable singleRandom = new DvStateVariable("SingleRandom", new DvStandardDataType(UPnPStandardDataType.Boolean)) { SendEvents = false };
-      AddStateVariable(singleRandom);
+      DvStateVariable A_ARG_TYPE_Bool = new DvStateVariable("A_ARG_TYPE_Bool", new DvStandardDataType(UPnPStandardDataType.Boolean)) { SendEvents = false };
+      AddStateVariable(A_ARG_TYPE_Bool);
 
-      DvStateVariable fanArts = new DvStateVariable("FanArts", new DvExtendedDataType(UPnPDtImageCollection.Instance)) { SendEvents = false };
-      AddStateVariable(fanArts);
+      DvStateVariable A_ARG_TYPE_ImgCollection = new DvStateVariable("A_ARG_TYPE_ImgCollection", new DvExtendedDataType(UPnPDtImageCollection.Instance)) { SendEvents = false };
+      AddStateVariable(A_ARG_TYPE_ImgCollection);
 
       DvAction getFanArt = new DvAction("GetFanArt", OnGetFanArt,
                                    new[]
                                      {
-                                       new DvArgument("MediaType", mediaType, ArgumentDirection.In),
-                                       new DvArgument("FanArtType", fanArtType, ArgumentDirection.In),
-                                       new DvArgument("Name", name, ArgumentDirection.In),
-                                       new DvArgument("MaxWidth", maxWidth, ArgumentDirection.In),
-                                       new DvArgument("MaxHeight", maxHeight, ArgumentDirection.In),
-                                       new DvArgument("SingleRandom", singleRandom, ArgumentDirection.In)
+                                       new DvArgument("MediaType", A_ARG_TYPE_MediaType, ArgumentDirection.In),
+                                       new DvArgument("FanArtType", A_ARG_TYPE_FanArtType, ArgumentDirection.In),
+                                       new DvArgument("Name", A_ARG_TYPE_Name, ArgumentDirection.In),
+                                       new DvArgument("MaxWidth", A_ARG_TYPE_Width, ArgumentDirection.In),
+                                       new DvArgument("MaxHeight", A_ARG_TYPE_Height, ArgumentDirection.In),
+                                       new DvArgument("SingleRandom", A_ARG_TYPE_Bool, ArgumentDirection.In)
                                      },
                                    new[]
                                      {
-                                       new DvArgument("FanArts", fanArts, ArgumentDirection.Out, true)
+                                       new DvArgument("FanArts", A_ARG_TYPE_ImgCollection, ArgumentDirection.Out, true)
                                      });
       AddAction(getFanArt);
     }
@@ -83,12 +83,12 @@ namespace MediaPortal.Extensions.UserServices.FanArtService.UPnP
       if (fanArtService == null)
         return new UPnPError(500, "FanArt service not available");
 
-      FanArtConstants.FanArtMediaType fanArtMediaType = (FanArtConstants.FanArtMediaType) Enum.Parse(typeof (FanArtConstants.FanArtMediaType), inParams[0].ToString());
-      FanArtConstants.FanArtType fanArtType = (FanArtConstants.FanArtType)Enum.Parse(typeof(FanArtConstants.FanArtType), inParams[1].ToString());
+      FanArtConstants.FanArtMediaType fanArtMediaType = (FanArtConstants.FanArtMediaType) Enum.Parse(typeof(FanArtConstants.FanArtMediaType), inParams[0].ToString());
+      FanArtConstants.FanArtType fanArtType = (FanArtConstants.FanArtType) Enum.Parse(typeof(FanArtConstants.FanArtType), inParams[1].ToString());
       string name = inParams[2].ToString();
-      int maxWidth = (int)inParams[3];
-      int maxHeight = (int)inParams[4];
-      bool singleRandom = (bool)inParams[5];
+      int maxWidth = (int) inParams[3];
+      int maxHeight = (int) inParams[4];
+      bool singleRandom = (bool) inParams[5];
 
       IList<FanArtImage> fanArtImages = fanArtService.GetFanArt(fanArtMediaType, fanArtType, name, maxWidth, maxHeight, singleRandom) ?? new List<FanArtImage>();
       outParams = new List<object> { fanArtImages };
