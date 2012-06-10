@@ -27,7 +27,7 @@ using MediaPortal.UiComponents.Media.General;
 
 namespace MediaPortal.UiComponents.Media.Models
 {
-  public class DefaultVideoVideoPlayerUIContributor : BaseVideoPlayerUIContributor
+  public class DefaultVideoPlayerUIContributor : BaseVideoPlayerUIContributor
   {
     public override string Screen
     {
