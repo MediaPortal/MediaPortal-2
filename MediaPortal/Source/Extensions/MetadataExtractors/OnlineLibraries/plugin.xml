@@ -10,4 +10,10 @@
   <Runtime>
     <Assembly FileName="OnlineLibraries.dll"/>
   </Runtime>
+
+  <Register Location="/Services">
+    <Service Id="SeriesTvDbMatcher" RegistrationClassName="MediaPortal.Extensions.OnlineLibraries.SeriesTvDbMatcher"
+        ServiceClassName="MediaPortal.Extensions.OnlineLibraries.SeriesTvDbMatcher"/>
+  </Register>
+
 </Plugin>

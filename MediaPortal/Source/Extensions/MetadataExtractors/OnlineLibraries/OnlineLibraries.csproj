@@ -109,6 +109,7 @@
     <Compile Include="TheTvDB\SeriesMatch.cs" />
     <Compile Include="Libraries\Common\Settings.cs" />
     <Compile Include="TheTvDB\TvDbWrapper.cs" />
+    <Compile Include="UniqueEventedQueue.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\..\Core\MediaPortal.Common\MediaPortal.Common.csproj">
