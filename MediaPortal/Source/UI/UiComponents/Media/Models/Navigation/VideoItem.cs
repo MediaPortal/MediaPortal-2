@@ -42,6 +42,7 @@ namespace MediaPortal.UiComponents.Media.Models.Navigation
         Duration = duration.HasValue ? FormattingUtils.FormatMediaDuration(TimeSpan.FromSeconds((int) duration.Value)) : string.Empty;
         AudioEncoding = (string) videoAspect[VideoAspect.ATTR_AUDIOENCODING];
         VideoEncoding = (string) videoAspect[VideoAspect.ATTR_VIDEOENCODING];
+        StoryPlot = (string) videoAspect[VideoAspect.ATTR_STORYPLOT];
       }
     }
 
@@ -61,6 +62,12 @@ namespace MediaPortal.UiComponents.Media.Models.Navigation
     {
       get { return this[Consts.KEY_VIDEO_ENCODING]; }
       set { SetLabel(Consts.KEY_VIDEO_ENCODING, value); }
+    }
+
+    public string StoryPlot
+    {
+      get { return this[Consts.KEY_STORY_PLOT]; }
+      set { SetLabel(Consts.KEY_STORY_PLOT, value); }
     }
   }
 }

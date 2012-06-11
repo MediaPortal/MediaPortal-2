@@ -49,12 +49,11 @@
             <Grid.ColumnDefinitions>
               <ColumnDefinition Width="*"/>
             </Grid.ColumnDefinitions>
-            <ScrollViewer Grid.Row="0" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" HorizontalScrollBarVisibility="Disabled" Focusable="True">
+            <ScrollViewer Grid.Row="0" Margin="10" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" HorizontalScrollBarVisibility="Disabled" Focusable="True">
               <Label x:Name="StoryPlot" Wrap="True"
                     HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
-                    Content="Dummy clselfkdf fsf jdfhdsc fhdf hksndqwäewmnd erwref vdsfyn erjqemrndsf qrj fmnvs"
-                    Color="{ThemeResource TextColor}"/>
-              <!--{Binding VideoStoryPlot}-->
+                    Content="{Binding Source={StaticResource FanArtBackgroundModel}, Path=ItemDescription}"
+                    Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}"/>
             </ScrollViewer>
             <Image  Grid.Row="1" HorizontalAlignment="Center" Stretch="UniformToFill" Width="580" Height="360" Margin="10">
               <Image.Source>

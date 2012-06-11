@@ -42,6 +42,7 @@ namespace MediaPortal.Extensions.UserServices.FanArtService.Client.Models
     protected AbstractProperty _selectedItemProperty;
     protected AbstractProperty _fanArtMediaTypeProperty;
     protected AbstractProperty _fanArtNameProperty;
+    protected AbstractProperty _itemDescriptionProperty;
 
     public FanArtBackgroundModel()
     {
@@ -49,6 +50,7 @@ namespace MediaPortal.Extensions.UserServices.FanArtService.Client.Models
       _selectedItemProperty.Attach(SetFanArtType);
       _fanArtMediaTypeProperty = new SProperty(typeof(FanArtConstants.FanArtMediaType), FanArtConstants.FanArtMediaType.Undefined);
       _fanArtNameProperty = new SProperty(typeof(string), string.Empty);
+      _itemDescriptionProperty = new SProperty(typeof(string), string.Empty);
       SetFanArtType();
     }
 
@@ -92,6 +94,17 @@ namespace MediaPortal.Extensions.UserServices.FanArtService.Client.Models
       internal set { _fanArtNameProperty.SetValue(value); }
     }
 
+    public AbstractProperty ItemDescriptionProperty
+    {
+      get { return _itemDescriptionProperty; }
+    }
+
+    public string ItemDescription
+    {
+      get { return (string) _itemDescriptionProperty.GetValue(); }
+      internal set { _itemDescriptionProperty.SetValue(value); }
+    }
+
     public void SetSelectedItem(ListItem item)
     {
       SelectedItem = item;
@@ -118,6 +131,7 @@ namespace MediaPortal.Extensions.UserServices.FanArtService.Client.Models
       {
         FanArtMediaType = FanArtConstants.FanArtMediaType.Series;
         FanArtName = episode.Series;
+        ItemDescription = episode.StoryPlot;
         return;
       }
       MovieItem movie = SelectedItem as MovieItem;
@@ -125,10 +139,12 @@ namespace MediaPortal.Extensions.UserServices.FanArtService.Client.Models
       {
         FanArtMediaType = FanArtConstants.FanArtMediaType.Movie;
         FanArtName = movie.MovieName;
+        ItemDescription = movie.StoryPlot;
         return;
       }
       FanArtMediaType = FanArtConstants.FanArtMediaType.Undefined;
       FanArtName = string.Empty;
+      ItemDescription = string.Empty;
     }
   }
 }
