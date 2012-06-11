@@ -26,15 +26,7 @@
           <Grid.RowDefinitions>
             <RowDefinition Height="*"/>
           </Grid.RowDefinitions>
-          <Image VerticalAlignment="Stretch" Stretch="Uniform" Grid.Row="0" Grid.Column="0" FallbackSource="Reflex.jpg">
-            <Image.Source>
-              <fanart:FanArtImageSource 
-                  fanart:FanArtMediaType="{Binding Source={StaticResource FanArtBackgroundModel}, Path=FanArtMediaType}" 
-                  fanart:FanArtType="FanArt" 
-                  fanart:FanArtName="{Binding Source={StaticResource FanArtBackgroundModel}, Path=FanArtName}"
-                  fanart:MaxWidth="1920" fanart:MaxHeight="1080"/>
-            </Image.Source>
-          </Image>
+          <Image VerticalAlignment="Stretch" Stretch="Uniform" Grid.Row="0" Grid.Column="0" Source="Reflex.jpg"/>
         </Grid>
       </VisualBrush.Visual>
     </VisualBrush>

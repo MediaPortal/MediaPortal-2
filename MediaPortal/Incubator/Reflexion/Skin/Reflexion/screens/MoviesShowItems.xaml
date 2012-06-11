@@ -1,0 +1,118 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- TODO: This screen should be adapted to match its special function, i.e. add images etc. -->
+<Include
+    xmlns="www.team-mediaportal.com/2008/mpf/directx"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:fanart="clr-namespace:MediaPortal.Extensions.UserServices.FanArtService.Client;assembly=FanArtService.Client"
+    Source="screens\master_bare.xaml"
+    >
+  <Include.Resources>
+    <!-- TODO: menu is currently completly missing, use slide-in menu later -->
+    <ResourceWrapper x:Key="Header_Text" Resource="[Media.MoviesItemsHeader]"/>
+    <ControlTemplate x:Key="Client_Template">
+      <Grid>
+        <Grid.Resources>
+          <Model x:Key="MediaModel" Id="4CDD601F-E280-43b9-AD0A-6D7B2403C856"/>
+        </Grid.Resources>
+        <Grid.RowDefinitions>
+          <RowDefinition Height="Auto"/>
+          <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+          <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+        <Control Grid.Column="0" Grid.Row="0" HorizontalAlignment="Stretch">
+          <Control.TemplateControl>
+            <Include Source="screens\MediaItemsListHeader.inc"/>
+          </Control.TemplateControl>
+        </Control>
+        <Grid Grid.Column="0" Grid.Row="1" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"
+          DataContext="{Binding Source={Model 4CDD601F-E280-43b9-AD0A-6D7B2403C856},Path=NavigationData.CurrentScreenData}">
+          <Grid.RowDefinitions>
+            <RowDefinition Height="*"/>
+          </Grid.RowDefinitions>
+          <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="580"/>
+            <ColumnDefinition Width="530"/>
+            <ColumnDefinition Width="800"/>
+          </Grid.ColumnDefinitions>
+          
+          <!-- Screen and plot view -->
+          <Grid Grid.Column="2" Grid.Row="0" HorizontalAlignment="Center" VerticalAlignment="Center" Width="840" Height="580" Background="#F0202020">
+            <Grid.RenderTransform>
+              <TranslateTransform X="-45"/>
+            </Grid.RenderTransform>
+            <Grid.RowDefinitions>
+              <RowDefinition Height="*"/>
+              <RowDefinition Height="400"/>
+            </Grid.RowDefinitions>
+            <Grid.ColumnDefinitions>
+              <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+            <ScrollViewer Grid.Row="0" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" HorizontalScrollBarVisibility="Disabled" Focusable="True">
+              <Label x:Name="StoryPlot" Wrap="True"
+                    HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+                    Content="Dummy clselfkdf fsf jdfhdsc fhdf hksndqwäewmnd erwref vdsfyn erjqemrndsf qrj fmnvs"
+                    Color="{ThemeResource TextColor}"/>
+              <!--{Binding VideoStoryPlot}-->
+            </ScrollViewer>
+            <Image  Grid.Row="1" HorizontalAlignment="Center" Stretch="UniformToFill" Width="580" Height="360" Margin="10">
+              <Image.Source>
+                <fanart:FanArtImageSource 
+                  fanart:FanArtMediaType="{Binding Source={StaticResource FanArtBackgroundModel}, Path=FanArtMediaType}" 
+                  fanart:FanArtType="FanArt" 
+                  fanart:FanArtName="{Binding Source={StaticResource FanArtBackgroundModel}, Path=FanArtName}"
+                  fanart:MaxWidth="580" fanart:MaxHeight="360"/>
+              </Image.Source>
+            </Image>
+          </Grid>
+
+          <!-- Poster view -->
+          <Grid Grid.Column="1" Grid.Row="0" HorizontalAlignment="Center" VerticalAlignment="Center" Width="460" Height="660" Background="#F0202020">
+            <Grid.RenderTransform>
+              <TranslateTransform X="-10"/>
+            </Grid.RenderTransform>
+            <Image VerticalAlignment="Center"  HorizontalAlignment="Center" Stretch="UniformToFill" Margin="5">
+              <Image.Source>
+                <fanart:FanArtImageSource 
+                  fanart:FanArtMediaType="{Binding Source={StaticResource FanArtBackgroundModel}, Path=FanArtMediaType}" 
+                  fanart:FanArtType="Poster" 
+                  fanart:FanArtName="{Binding Source={StaticResource FanArtBackgroundModel}, Path=FanArtName}"
+                  fanart:MaxWidth="500" fanart:MaxHeight="660"/>
+              </Image.Source>
+            </Image>
+          </Grid>
+
+          <!-- Itemslist -->
+          <Grid Grid.Column="0" Grid.Row="0" HorizontalAlignment="Center" VerticalAlignment="Center" IsVisible="{Binding IsItemsValid}" Background="#F0353535"
+                Width="600" Height="760">
+            <Grid.RenderTransform>
+              <TranslateTransform X="25"/>
+            </Grid.RenderTransform>
+            <Grid.RowDefinitions>
+              <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+            <Grid.ColumnDefinitions>
+              <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+            <ListView x:Name="MediaItemsList" Style="{ThemeResource BasicMediaItemsListListViewStyle}" ItemsSource="{Binding Items}"
+              HorizontalAlignment="Stretch" VerticalAlignment="Stretch" IsVisible="{Binding ShowList}" Margin="5">
+              <ListView.Resources>
+                <Command x:Key="Menu_Command" Source="{StaticResource MediaModel}" Path="Select"
+                  Parameters="{LateBoundValue BindingValue={Binding}}"/>
+              </ListView.Resources>
+            </ListView>
+            <Label IsVisible="{Binding ShowListHint}"
+              HorizontalAlignment="Center" VerticalAlignment="Center" Wrap="true"
+              Content="{Binding ListHint}" Color="{ThemeResource HintTextColor}"/>
+          </Grid>
+
+          <Label IsVisible="{Binding !IsItemsValid}"
+            HorizontalAlignment="Center" VerticalAlignment="Center"
+            Content="[Media.ViewInvalid]" Color="{ThemeResource ErrorTextColor}"/>
+          <KeyBinding Key="F5" Command="{Command Reload}"/>
+        </Grid>
+      </Grid>
+    </ControlTemplate>
+  </Include.Resources>
+</Include>
