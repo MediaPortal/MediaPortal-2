@@ -421,7 +421,7 @@ namespace MediaPortal.UiComponents.Media.Models
         AbstractScreenData filterByGenre = new VideosFilterByGenreScreenData();
         ICollection<AbstractScreenData> availableScreens = new List<AbstractScreenData>
             {
-              new VideosShowItemsScreenData(picd),
+              new MoviesShowItemsScreenData(picd),
               new VideosFilterByActorScreenData(),
               filterByGenre, // C# doesn't like it to have an assignment inside a collection initializer
               new VideosFilterByYearScreenData(),

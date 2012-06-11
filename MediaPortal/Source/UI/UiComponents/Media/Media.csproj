@@ -133,6 +133,7 @@
     <Compile Include="Models\Navigation\SeriesFilterItem.cs" />
     <Compile Include="Models\Navigation\SeriesItem.cs" />
     <Compile Include="Models\ScreenData\AbstractBrowseMediaNavigationScreenData.cs" />
+    <Compile Include="Models\ScreenData\MovieShowItemsScreenData.cs" />
     <Compile Include="Models\ScreenData\VideosFilterByLanguageScreenData.cs" />
     <Compile Include="Models\ScreenData\AbstractSeriesFilterScreenData.cs" />
     <Compile Include="Models\ScreenData\SeriesShowItemsScreenData.cs" />
@@ -365,7 +366,11 @@
     <Content Include="Skin\default\screens\SavePlaylistSuccessful.xaml" />
     <Content Include="Skin\default\screens\DialogSwitchViewMode.xaml" />
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <Content Include="Skin\default\screens\MoviesShowItems.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
   <ItemGroup>
     <Content Include="Skin\default\themes\default\styles\AudioSpectrumAnalyzer.xaml">
       <SubType>Designer</SubType>

@@ -155,6 +155,7 @@ namespace MediaPortal.UiComponents.Media.General
     public const string RES_SHOW_ALL_AUDIO_ITEMS_MENU_ITEM = "[Media.ShowAllAudioItemsMenuItem]";
     public const string RES_SHOW_ALL_VIDEO_ITEMS_MENU_ITEM = "[Media.ShowAllVideoItemsMenuItem]";
     public const string RES_SHOW_ALL_IMAGE_ITEMS_MENU_ITEM = "[Media.ShowAllImageItemsMenuItem]";
+    public const string RES_SHOW_ALL_MOVIES_MENU_ITEM = "[Media.ShowAllMoviesMenuItem]";
 
     public const string RES_BROWSE_MEDIA_NAVIGATION_NAVBAR_DISPLAY_LABEL = "[Media.BrowseMediaNavigationNavbarDisplayLabel]";
     public const string RES_LOCAL_MEDIA_NAVIGATION_NAVBAR_DISPLAY_LABEL = "[Media.LocalMediaNavigationNavbarDisplayLabel]";
@@ -174,6 +175,7 @@ namespace MediaPortal.UiComponents.Media.General
     public const string RES_FILTER_SYSTEM_NAVBAR_DISPLAY_LABEL = "[Media.FilterSystemNavbarDisplayLabel]";
     public const string RES_FILTER_SERIES_ITEMS_NAVBAR_DISPLAY_LABEL = "[Media.FilterSeriesItemsNavbarDisplayLabel]";
     public const string RES_FILTER_SERIES_SEASON_NAVBAR_DISPLAY_LABEL = "[Media.FilterSeriesSeasonNavbarDisplayLabel]";
+    public const string RES_FILTER_MOVIES_NAVBAR_DISPLAY_LABEL = "[Media.FilterMoviesNavbarDisplayLabel]";
 
     public const string RES_VALUE_EMPTY_TITLE = "[Media.ValueEmptyTitle]";
 
@@ -291,6 +293,7 @@ namespace MediaPortal.UiComponents.Media.General
     public const string SCREEN_VIDEOS_FILTER_BY_YEAR = "VideoFilterByYear";
     public const string SCREEN_VIDEOS_FILTER_BY_SYSTEM = "VideoFilterBySystem";
     public const string SCREEN_VIDEOS_FILTER_BY_AUDIO_LANG = "VideoFilterByLanguage";
+    public const string SCREEN_MOVIES_SHOW_ITEMS = "MoviesShowItems";
     public const string SCREEN_SERIES_SHOW_ITEMS = "SeriesShowItems";
     public const string SCREEN_SERIES_FILTER_BY_NAME = "SeriesFilterByName";
     public const string SCREEN_SERIES_FILTER_BY_SEASON = "SeriesFilterBySeason";
