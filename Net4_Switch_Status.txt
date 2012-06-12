@@ -1,0 +1,10 @@
+WindowsAPI Codec pack .Net4 (**)
+SharpZipLib (*)
+DirectShowLib v2.1 (*)
+Bass dlls (others than Bass.Net.dll)
+
+MPExtended
+Tv4Home (deprecated)
+
+(*) source available
+(**) source available, won't compile
