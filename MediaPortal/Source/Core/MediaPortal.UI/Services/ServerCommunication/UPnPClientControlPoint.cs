@@ -23,8 +23,6 @@
 #endregion
 
 using System;
-using System.Xml;
-using System.Xml.XPath;
 using MediaPortal.Common;
 using MediaPortal.Common.General;
 using MediaPortal.Common.Logging;
@@ -32,8 +30,8 @@ using MediaPortal.Common.Services.ResourceAccess;
 using MediaPortal.Common.UPnP;
 using MediaPortal.Utilities.Exceptions;
 using UPnP.Infrastructure.CP;
+using UPnP.Infrastructure.CP.Description;
 using UPnP.Infrastructure.CP.DeviceTree;
-using UPnP.Infrastructure.Utils;
 
 namespace MediaPortal.UI.Services.ServerCommunication
 {
@@ -125,14 +123,13 @@ namespace MediaPortal.UI.Services.ServerCommunication
       {
         if (_connection != null)
           return;
-        XPathNavigator deviceElementNav = rootDescriptor.FindFirstDeviceElement(
+        DeviceDescriptor rootDeviceDescriptor = DeviceDescriptor.CreateRootDeviceDescriptor(rootDescriptor);
+        DeviceDescriptor backendServerDescriptor = rootDeviceDescriptor.FindFirstDevice(
             UPnPTypesAndIds.BACKEND_SERVER_DEVICE_TYPE, UPnPTypesAndIds.BACKEND_SERVER_DEVICE_TYPE_VERSION);
-        if (deviceElementNav == null)
+        if (backendServerDescriptor == null)
           return;
-        deviceUuid = RootDescriptor.GetDeviceUUID(deviceElementNav);
-        XmlNamespaceManager nsmgr = new XmlNamespaceManager(deviceElementNav.NameTable);
-        nsmgr.AddNamespace("d", UPnP.Infrastructure.UPnPConsts.NS_DEVICE_DESCRIPTION);
-        string friendlyName = ParserHelper.SelectText(deviceElementNav, "d:friendlyName/text()", nsmgr);
+        deviceUuid = backendServerDescriptor.DeviceUUID;
+        string friendlyName = backendServerDescriptor.FriendlyName;
         SystemName system = new SystemName(new Uri(rootDescriptor.SSDPRootEntry.PreferredLink.DescriptionLocation).Host);
         if (deviceUuid == _homeServerSystemId)
           ServiceRegistration.Get<ILogger>().Debug("UPnPClientControlPoint: Found MP 2 home server '{0}' (system ID '{1}') at host '{2}' (IP address: '{3}')",

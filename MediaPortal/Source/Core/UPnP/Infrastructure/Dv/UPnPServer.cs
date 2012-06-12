@@ -43,12 +43,6 @@ using HttpListener=HttpServer.HttpListener;
 namespace UPnP.Infrastructure.Dv
 {
   /// <summary>
-  /// Delegate for the change event telling subscribers that a server's configuration changed.
-  /// </summary>
-  /// <param name="server">The server which changed its configuration.</param>
-  public delegate void ServerConfigurationChangedDlgt(UPnPServer server);
-
-  /// <summary>
   /// Represents a container for all UPnP devices and services and provides the network functionality for the UPnP system.
   /// </summary>
   public class UPnPServer : IDisposable

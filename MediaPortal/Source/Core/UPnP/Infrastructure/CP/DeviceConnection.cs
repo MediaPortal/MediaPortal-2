@@ -27,11 +27,10 @@ using System.Collections.Generic;
 using System.IO;
 using System.Net;
 using System.Text;
-using System.Xml;
-using System.Xml.XPath;
 using MediaPortal.Utilities.Exceptions;
 using MediaPortal.Utilities.Network;
 using UPnP.Infrastructure.Common;
+using UPnP.Infrastructure.CP.Description;
 using UPnP.Infrastructure.CP.DeviceTree;
 using UPnP.Infrastructure.CP.GENA;
 using UPnP.Infrastructure.CP.SOAP;
@@ -165,14 +164,9 @@ namespace UPnP.Infrastructure.CP
     {
       if (rootDescriptor.State != RootDescriptorState.Ready)
         throw new ArgumentException("Root descriptor is not ready - cannot connect");
-      XPathNavigator nav = rootDescriptor.DeviceDescription.CreateNavigator();
-      nav.MoveToChild(XPathNodeType.Element);
-      XmlNamespaceManager nsmgr = new XmlNamespaceManager(nav.NameTable);
-      nsmgr.AddNamespace("d", UPnPConsts.NS_DEVICE_DESCRIPTION);
-      XPathNodeIterator deviceIt = nav.Select("descendant::d:device[d:UDN/text()=concat(\"uuid:\",\"" + deviceUUID + "\")]", nsmgr);
-      if (!deviceIt.MoveNext())
-        throw new ArgumentException(string.Format("Device with the specified id '{0}' isn't present in the given root descriptor", _deviceUUID));
-      _device = CpDevice.ConnectDevice(this, rootDescriptor, deviceIt.Current, nsmgr, dataTypeResolver);
+      DeviceDescriptor rootDeviceDescriptor = DeviceDescriptor.CreateRootDeviceDescriptor(rootDescriptor);
+      DeviceDescriptor deviceDescriptor = rootDeviceDescriptor.FindDevice(deviceUUID);
+      _device = CpDevice.ConnectDevice(this, deviceDescriptor, dataTypeResolver);
     }
 
     /// <summary>
@@ -307,16 +301,30 @@ namespace UPnP.Infrastructure.CP
 
     protected void InvokeDeviceDisconnected()
     {
-      DeviceDisconnectedDlgt dlgt = DeviceDisconnected;
-      if (dlgt != null)
-        dlgt(this);
+      try
+      {
+        DeviceDisconnectedDlgt dlgt = DeviceDisconnected;
+        if (dlgt != null)
+          dlgt(this);
+      }
+      catch (Exception e)
+      {
+        UPnPConfiguration.LOGGER.Warn("DeviceConnection: Error invoking DeviceDisconnected delegate", e);
+      }
     }
 
     protected void InvokeDeviceRebooted()
     {
-      DeviceRebootedDlgt dlgt = DeviceRebooted;
-      if (dlgt != null)
-        dlgt(this);
+      try
+      {
+        DeviceRebootedDlgt dlgt = DeviceRebooted;
+        if (dlgt != null)
+          dlgt(this);
+      }
+      catch (Exception e)
+      {
+        UPnPConfiguration.LOGGER.Warn("DeviceConnection: Error invoking DeviceRebooted delegate", e);
+      }
     }
 
     protected ServiceDescriptor GetServiceDescriptor(CpService service)

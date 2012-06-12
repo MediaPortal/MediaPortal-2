@@ -30,7 +30,7 @@ namespace MediaPortal.UI.ServerCommunication
 {
   public class ServerCommunicationHelper
   {
-    public static string GetClientName(string systemId)
+    public static MPClientMetadata GetClientMetadata(string systemId)
     {
       IServerConnectionManager scm = ServiceRegistration.Get<IServerConnectionManager>();
       if (scm == null)
@@ -40,7 +40,7 @@ namespace MediaPortal.UI.ServerCommunication
         return null;
       MPClientMetadata clientData = sc.GetAttachedClients().FirstOrDefault(client => client.SystemId == systemId);
       if (clientData != null)
-        return clientData.LastClientName;
+        return clientData;
       return null;
     }
   }

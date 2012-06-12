@@ -185,6 +185,7 @@ namespace MediaPortal.UiComponents.SkinBase.General
     public const string KEY_SYSTEM_SHARES = "SystemShares";
     public const string KEY_IS_IMPORTING = "IsImporting";
     public const string KEY_IS_CONNECTED = "IsConnected";
+    public const string KEY_REIMPORT_ENABLED = "ReImportEnabled";
 
     public const string KEY_ITEM_ACTION = "MenuModel: Item-Action";
     public const string KEY_REGISTERED_ACTIONS = "MenuModel: RegisteredActions";
@@ -199,6 +200,7 @@ namespace MediaPortal.UiComponents.SkinBase.General
     public const string KEY_SERVER_DESCRIPTOR = "ServerDescriptor";
     public const string KEY_SERVER_NAME = "ServerName";
     public const string KEY_SYSTEM = "System";
+    public const string KEY_HOSTNAME = "HostName";
     public const string KEY_AUTO_CLOSE_ON_NO_SERVER = "AutoCloseOnNoServer";
 
     // Screens

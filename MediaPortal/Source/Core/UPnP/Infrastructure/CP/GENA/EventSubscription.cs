@@ -23,6 +23,7 @@
 #endregion
 
 using System;
+using UPnP.Infrastructure.CP.Description;
 using UPnP.Infrastructure.CP.DeviceTree;
 
 namespace UPnP.Infrastructure.CP.GENA

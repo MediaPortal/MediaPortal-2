@@ -24,16 +24,12 @@
 
 using System;
 using System.Collections.Generic;
-using System.Xml;
-using System.Xml.XPath;
+using System.Linq;
 using MediaPortal.Backend.ClientCommunication;
 using MediaPortal.Common;
-using MediaPortal.Common.General;
 using MediaPortal.Common.Logging;
 using MediaPortal.Common.UPnP;
-using UPnP.Infrastructure.CP.SSDP;
 using UPnP.Infrastructure.CP;
-using UPnP.Infrastructure.Utils;
 
 namespace MediaPortal.Backend.Services.ClientCommunication
 {
@@ -134,17 +130,12 @@ namespace MediaPortal.Backend.Services.ClientCommunication
 
     public void AddAttachedClient(string systemId)
     {
-      ClientDescriptor availableClientDescriptor = null;
+      ClientDescriptor availableClientDescriptor;
       lock (_networkTracker.SharedControlPointData.SyncObj)
       {
         _attachedClientSystemIds.Add(systemId);
         // Check if the attached client is available in the network...
-        foreach (ClientDescriptor client in _availableClients)
-          if (client.MPFrontendServerUUID == systemId)
-          {
-            availableClientDescriptor = client;
-            break;
-          }
+        availableClientDescriptor = _availableClients.FirstOrDefault(client => client.MPFrontendServerUUID == systemId);
       }
       if (availableClientDescriptor != null)
         // ... and connect to it
@@ -172,36 +163,12 @@ namespace MediaPortal.Backend.Services.ClientCommunication
         }
     }
 
-    public static ClientDescriptor GetMPFrontendServerDescriptor(RootDescriptor rootDescriptor)
-    {
-      try
-      {
-        XPathNavigator deviceElementNav = rootDescriptor.FindFirstDeviceElement(
-            UPnPTypesAndIds.FRONTEND_SERVER_DEVICE_TYPE, UPnPTypesAndIds.FRONTEND_SERVER_DEVICE_TYPE_VERSION);
-        if (deviceElementNav == null)
-          return null;
-        XmlNamespaceManager nsmgr = new XmlNamespaceManager(deviceElementNav.NameTable);
-        nsmgr.AddNamespace("d", UPnP.Infrastructure.UPnPConsts.NS_DEVICE_DESCRIPTION);
-        string udn = RootDescriptor.GetDeviceUDN(deviceElementNav, nsmgr);
-        string friendlyName = ParserHelper.SelectText(deviceElementNav, "d:friendlyName/text()", nsmgr);
-        SystemName system = new SystemName(new Uri(rootDescriptor.SSDPRootEntry.PreferredLink.DescriptionLocation).Host);
-        return new ClientDescriptor(rootDescriptor, ParserHelper.ExtractUUIDFromUDN(udn), friendlyName, system);
-      }
-      catch (Exception e)
-      {
-        RootEntry rootEntry = rootDescriptor.SSDPRootEntry;
-        ServiceRegistration.Get<ILogger>().Warn("UPnPServerControlPoint: Error parsing UPnP device description for root device '{0}' at location '{1}'", e,
-            rootEntry.RootDeviceID, rootEntry.PreferredLink.DescriptionLocation);
-        return null;
-      }
-    }
-
     void OnUPnPRootDeviceAdded(RootDescriptor rootDescriptor)
     {
       ClientDescriptor clientDescriptor;
       lock (_networkTracker.SharedControlPointData.SyncObj)
       {
-        clientDescriptor = GetMPFrontendServerDescriptor(rootDescriptor);
+        clientDescriptor = ClientDescriptor.GetMPFrontendServerDescriptor(rootDescriptor);
         if (clientDescriptor == null || _availableClients.Contains(clientDescriptor))
           return;
         ServiceRegistration.Get<ILogger>().Debug("UPnPServerControlPoint: Found MP 2 client '{0}' (system ID '{1}') at host '{2}' ({3})",
@@ -218,7 +185,7 @@ namespace MediaPortal.Backend.Services.ClientCommunication
       ClientDescriptor clientDescriptor;
       lock (_networkTracker.SharedControlPointData.SyncObj)
       {
-        clientDescriptor = GetMPFrontendServerDescriptor(rootDescriptor);
+        clientDescriptor = ClientDescriptor.GetMPFrontendServerDescriptor(rootDescriptor);
         if (clientDescriptor == null || !_availableClients.Contains(clientDescriptor))
           return;
         ServiceRegistration.Get<ILogger>().Debug("UPnPServerControlPoint: MP 2 client '{0}' (system ID '{1}') at host '{2}' was removed from the network",
@@ -257,7 +224,7 @@ namespace MediaPortal.Backend.Services.ClientCommunication
       DeviceConnection connection;
       try
       {
-        connection = _controlPoint.Connect(clientDescriptor.UPnPRootDescriptor, clientSystemId,
+        connection = _controlPoint.Connect(clientDescriptor.ClientDeviceDescriptor.RootDescriptor, clientSystemId,
             UPnPExtendedDataTypes.ResolveDataType);
       }
       catch (Exception e)

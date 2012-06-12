@@ -22,12 +22,14 @@
 
 #endregion
 
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Xml;
 using System.Xml.XPath;
 using MediaPortal.Utilities.Exceptions;
 using UPnP.Infrastructure.Common;
+using UPnP.Infrastructure.CP.Description;
 
 namespace UPnP.Infrastructure.CP.DeviceTree
 {
@@ -268,15 +270,29 @@ namespace UPnP.Infrastructure.CP.DeviceTree
 
     internal void InvokeStateVariableChanged(CpStateVariable variable, object newValue)
     {
-      StateVariableChangedDlgt stateVariableChanged = StateVariableChanged;
-      if (stateVariableChanged != null)
-        stateVariableChanged(variable, newValue);
+      try
+      {
+        StateVariableChangedDlgt stateVariableChanged = StateVariableChanged;
+        if (stateVariableChanged != null)
+          stateVariableChanged(variable, newValue);
+      }
+      catch (Exception e)
+      {
+        UPnPConfiguration.LOGGER.Warn("CpService: Error invoking StateVariableChanged delegate", e);
+      }
     }
 
     internal void InvokeEventSubscriptionFailed(UPnPError error)
     {
-      if (_eventSubscriptionFailed != null)
-        _eventSubscriptionFailed(this, error);
+      try
+      {
+        if (_eventSubscriptionFailed != null)
+          _eventSubscriptionFailed(this, error);
+      }
+      catch (Exception e)
+      {
+        UPnPConfiguration.LOGGER.Warn("CpService: Error invoking EventSubscriptionFailed delegate", e);
+      }
     }
 
     #region Connection

@@ -25,13 +25,13 @@
 using System;
 using System.Collections.Generic;
 using System.Net;
-using System.Xml.XPath;
 using MediaPortal.Common.Exceptions;
 using MediaPortal.Common.Logging;
 using MediaPortal.Common.ResourceAccess;
 using MediaPortal.Common.UPnP;
 using MediaPortal.Utilities.Exceptions;
 using UPnP.Infrastructure.CP;
+using UPnP.Infrastructure.CP.Description;
 using UPnP.Infrastructure.CP.DeviceTree;
 
 namespace MediaPortal.Common.Services.ResourceAccess
@@ -66,13 +66,13 @@ namespace MediaPortal.Common.Services.ResourceAccess
         if (rootDescriptor.SSDPRootEntry.ClientProperties.TryGetValue(KEY_RESOURCE_INFORMATION_SERVICE, out service))
           return service as IResourceInformationService;
       }
-      XPathNavigator deviceElementNav = rootDescriptor.FindFirstDeviceElement(
+      DeviceDescriptor rootDevice = DeviceDescriptor.CreateRootDeviceDescriptor(rootDescriptor);
+      DeviceDescriptor frontendServerDevice = rootDevice.FindFirstDevice(
           UPnPTypesAndIds.BACKEND_SERVER_DEVICE_TYPE, UPnPTypesAndIds.BACKEND_SERVER_DEVICE_TYPE_VERSION) ??
-              rootDescriptor.FindFirstDeviceElement(
-                  UPnPTypesAndIds.FRONTEND_SERVER_DEVICE_TYPE, UPnPTypesAndIds.FRONTEND_SERVER_DEVICE_TYPE_VERSION);
-      if (deviceElementNav == null)
+              rootDevice.FindFirstDevice(UPnPTypesAndIds.FRONTEND_SERVER_DEVICE_TYPE, UPnPTypesAndIds.FRONTEND_SERVER_DEVICE_TYPE_VERSION);
+      if (frontendServerDevice == null)
         return null;
-      string deviceUuid = RootDescriptor.GetDeviceUUID(deviceElementNav);
+      string deviceUuid = frontendServerDevice.DeviceUUID;
       try
       {
         connection = _controlPoint.Connect(rootDescriptor, deviceUuid, UPnPExtendedDataTypes.ResolveDataType);
@@ -111,7 +111,7 @@ namespace MediaPortal.Common.Services.ResourceAccess
     {
       lock (_networkTracker.SharedControlPointData.SyncObj)
         foreach (RootDescriptor rootDeviceDescriptor in _networkTracker.KnownRootDevices.Values)
-          if (rootDeviceDescriptor.SSDPRootEntry.RootDeviceID == systemId)
+          if (rootDeviceDescriptor.State == RootDescriptorState.Ready && rootDeviceDescriptor.SSDPRootEntry.RootDeviceUUID == systemId)
           {
             IResourceInformationService ris = TryGetResourceInformationService(rootDeviceDescriptor);
             if (ris != null)

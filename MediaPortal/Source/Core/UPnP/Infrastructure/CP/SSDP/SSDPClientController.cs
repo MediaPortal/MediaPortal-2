@@ -91,6 +91,7 @@ namespace UPnP.Infrastructure.CP.SSDP
     protected bool _isActive = false;
     protected Timer _expirationTimer = null;
     protected CPData _cpData;
+    protected ICollection<RootEntry> _pendingDeviceEntries = new List<RootEntry>();
 
     /// <summary>
     /// Creates a new instance of <see cref="SSDPClientController"/>.
@@ -189,6 +190,11 @@ namespace UPnP.Infrastructure.CP.SSDP
         try
         {
           DateTime now = DateTime.Now;
+          // Expire pending entries
+          ICollection<RootEntry> removePendingEntries = _pendingDeviceEntries.Where(entry => entry.ExpirationTime < now).ToList();
+          foreach (RootEntry entry in removePendingEntries)
+            _pendingDeviceEntries.Remove(entry);
+          // Expire finished entries
           removeEntries = new List<KeyValuePair<string, RootEntry>>(
               _cpData.DeviceEntries.Where(kvp => kvp.Value.ExpirationTime < now));
           foreach (KeyValuePair<string, RootEntry> kvp in removeEntries)
@@ -212,7 +218,7 @@ namespace UPnP.Infrastructure.CP.SSDP
 
     /// <summary>
     /// Invoked when the first notification message for a root device arrives. At the time this event gets invoked, at least
-    /// the <see cref="RootEntry.RootDeviceID"/> is set and the <see cref="RootEntry.Devices"/> entry with that uuid is filled.
+    /// the <see cref="RootEntry.RootDeviceUUID"/> is set and the <see cref="RootEntry.Devices"/> entry with that uuid is filled.
     /// </summary>
     public event RootDeviceAddedDlgt RootDeviceAdded;
 
@@ -258,6 +264,9 @@ namespace UPnP.Infrastructure.CP.SSDP
     /// <summary>
     /// Returns a collection of root entries which are available at the network.
     /// </summary>
+    /// <remarks>
+    /// The returned collection contains those entries for whom the <c>upnp:rootdevice</c> message was received.
+    /// </remarks>
     public ICollection<RootEntry> RootEntries
     {
       get
@@ -347,17 +356,30 @@ namespace UPnP.Infrastructure.CP.SSDP
         if (!_isActive)
           return;
         _isActive = false;
-        foreach (EndpointConfiguration config in _cpData.Endpoints)
+      }
+      foreach (EndpointConfiguration config in _cpData.Endpoints)
+      {
+        Socket socket;
+        lock (_cpData.SyncObj)
         {
-          Socket socket = config.SSDP_UDP_MulticastReceiveSocket;
-          if (socket != null)
-            NetworkHelper.DisposeSSDPMulticastSocket(socket);
-          socket = config.SSDP_UDP_UnicastSocket;
-          if (socket != null)
-            socket.Close();
+          socket = config.SSDP_UDP_MulticastReceiveSocket;
+          config.SSDP_UDP_MulticastReceiveSocket = null;
         }
+        if (socket != null)
+          NetworkHelper.DisposeSSDPMulticastSocket(socket);
+        lock (_cpData.SyncObj)
+        {
+          socket = config.SSDP_UDP_UnicastSocket;
+          config.SSDP_UDP_UnicastSocket = null;
+        }
+        if (socket != null)
+          socket.Close();
+      }
+      lock (_cpData.SyncObj)
+      {
         _cpData.Endpoints.Clear();
         _cpData.DeviceEntries.Clear();
+        _pendingDeviceEntries.Clear();
       }
     }
 
@@ -459,21 +481,33 @@ namespace UPnP.Infrastructure.CP.SSDP
       return false;
     }
 
-    protected RootEntry GetOrCreateRootEntry(string rootDeviceUUID, UPnPVersion upnpVersion,
-        string osVersion, string productVersion, DateTime expirationTime,
-        EndpointConfiguration endpoint, string descriptionLocation, HTTPVersion httpVersion, int searchPort, out LinkData link, out bool wasAdded)
+    protected RootEntry GetOrCreateRootEntry(string deviceUUID, string descriptionLocation, UPnPVersion upnpVersion, string osVersion,
+        string productVersion, DateTime expirationTime, EndpointConfiguration endpoint, HTTPVersion httpVersion, int searchPort, out LinkData link, out bool wasAdded)
     {
+      // Because the order of the UDP advertisement packets isn't guaranteed (and even not really specified by the UPnP specification),
+      // in the general case it is not possible to find the correct root entry for each advertisement message.
+      // - We cannot search by root device UUID because the upnp:rootdevice message might not be the first message, so before that message, we don't know the root device ID and
+      //   thus we cannot use the root device id as unique key to find the root entry
+      // - We cannot use the device description because for multi-homed devices, more than one device description can belong to the same root device
+      //
+      // Assume the message arrive in an order so that device A over network interface N1 is announced first. Second, device B over network interface N2 is announced.
+      // In that case, we cannot judge if those two devices belong to the same root device or not.
+      //
+      // To face that situation, we first add all advertised devices to _pendingDeviceEntries. When a upnp:rootdevice message is received,
+      // we either simply move the root entry from _pendingDeviceEntries into _cpData.DeviceEntries or we merge the pending entry with an already existing
+      // entry in _cpData.DeviceEntries. At that time the merge is possible because we then have the root device id for both root entries.
       lock (_cpData.SyncObj)
       {
-        RootEntry result;
-        if (_cpData.DeviceEntries.TryGetValue(rootDeviceUUID, out result))
+        RootEntry result = GetRootEntryByContainedDeviceUUID(deviceUUID) ?? GetRootEntryByDescriptionLocation(descriptionLocation);
+        if (result != null)
         {
           result.ExpirationTime = expirationTime;
           wasAdded = false;
         }
         else
         {
-          result = _cpData.DeviceEntries[rootDeviceUUID] = new RootEntry(_cpData.SyncObj, rootDeviceUUID, upnpVersion, osVersion, productVersion, expirationTime);
+          result = new RootEntry(_cpData.SyncObj, upnpVersion, osVersion, productVersion, expirationTime);
+          _pendingDeviceEntries.Add(result);
           wasAdded = true;
         }
         link = result.AddOrUpdateLink(endpoint, descriptionLocation, httpVersion, searchPort);
@@ -481,37 +515,54 @@ namespace UPnP.Infrastructure.CP.SSDP
       }
     }
 
-    protected RootEntry GetRootEntryByRootDeviceUUID(string deviceUUID)
+    protected RootEntry MergeOrMoveRootEntry(RootEntry pendingRootEntry, string rootDeviceUUID)
     {
       lock (_cpData.SyncObj)
       {
-        RootEntry result;
-        if (_cpData.DeviceEntries.TryGetValue(deviceUUID, out result))
-          return result;
+        _pendingDeviceEntries.Remove(pendingRootEntry);
+        RootEntry targetEntry;
+        if (_cpData.DeviceEntries.TryGetValue(rootDeviceUUID, out targetEntry))
+        {
+          targetEntry.MergeRootEntry(pendingRootEntry);
+          return targetEntry;
+        }
+        targetEntry = pendingRootEntry; // From here on, the entry is not pending any more, so we use the variable targetEntry for clearness
+        targetEntry.RootDeviceUUID = rootDeviceUUID;
+        _cpData.DeviceEntries[rootDeviceUUID] = targetEntry;
+        return targetEntry;
       }
-      return null;
+    }
+
+    /// <summary>
+    /// Returns the root entry which contains any device of the given <paramref name="deviceUUID"/>.
+    /// </summary>
+    /// <param name="deviceUUID">UUID of any device to search the enclosing root entry for.</param>
+    /// <returns>Root entry instance or <c>null</c>, if no device with the given UUID was found.</returns>
+    protected RootEntry GetRootEntryByContainedDeviceUUID(string deviceUUID)
+    {
+      lock (_cpData.SyncObj)
+      {
+        RootEntry result = _cpData.DeviceEntries.Values.Where(rootEntry => rootEntry.Devices.ContainsKey(deviceUUID)).FirstOrDefault();
+        if (result != null)
+          return result;
+        return _pendingDeviceEntries.Where(rootEntry => rootEntry.Devices.ContainsKey(deviceUUID)).FirstOrDefault();
+      }
+    }
+
+    protected RootEntry GetRootEntryByDescriptionLocation(string descriptionLocation)
+    {
+      RootEntry rootEntry = _cpData.DeviceEntries.Values.Where(entry => entry.AllLinks.ContainsKey(descriptionLocation)).FirstOrDefault() ??
+          _pendingDeviceEntries.Where(entry => entry.AllLinks.ContainsKey(descriptionLocation)).FirstOrDefault();
+      return rootEntry;
     }
 
     protected void RemoveRootEntry(RootEntry rootEntry)
     {
       lock (_cpData.SyncObj)
-        _cpData.DeviceEntries.Remove(rootEntry.RootDeviceID);
-    }
-
-    /// <summary>
-    /// Returns the root entry which contains any device of the given <paramref name="uuid"/>.
-    /// </summary>
-    /// <param name="uuid">UUID of any device to search the enclosing root entry for.</param>
-    /// <returns>Root entry instance or <c>null</c>, if no device with the given UUID was found.</returns>
-    protected RootEntry GetRootEntryByContainedDeviceUUID(string uuid)
-    {
-      lock (_cpData.SyncObj)
       {
-        foreach (KeyValuePair<string, RootEntry> kvp in _cpData.DeviceEntries)
-          if (kvp.Value.Devices.ContainsKey(uuid))
-            return kvp.Value;
+        _cpData.DeviceEntries.Remove(rootEntry.RootDeviceUUID);
+        _pendingDeviceEntries.Remove(rootEntry);
       }
-      return null;
     }
 
     protected void SearchForST(string st, IPEndPoint endPoint)
@@ -700,8 +751,8 @@ namespace UPnP.Infrastructure.CP.SSDP
           // Use fail-safe code, see comment above about the different SERVER headers
           string osVersion = versionInfos.Length < 1 ? string.Empty : versionInfos[0];
           string productVersion = versionInfos.Length < 3 ? string.Empty : versionInfos[2];
-          rootEntry = GetOrCreateRootEntry(deviceUUID, upnpVersion, osVersion, productVersion,
-              expirationTime, config, location, httpVersion, searchPort, out link, out rootEntryAdded);
+          rootEntry = GetOrCreateRootEntry(deviceUUID, location, upnpVersion, osVersion,
+              productVersion, expirationTime, config, httpVersion, searchPort, out link, out rootEntryAdded);
           if (bi != null && rootEntry.BootID > bootID)
             // Invalid message
             return;
@@ -716,8 +767,13 @@ namespace UPnP.Infrastructure.CP.SSDP
           if (messageType == "upnp:rootdevice")
           {
             rootEntry.GetOrCreateDeviceEntry(deviceUUID);
-            if (rootEntryAdded)
+            object value;
+            if (!rootEntry.ClientProperties.TryGetValue("RootDeviceSetUp", out value))
+            {
+              rootEntry = MergeOrMoveRootEntry(rootEntry, deviceUUID);
               fireRootDeviceAdded = true;
+              rootEntry.ClientProperties["RootDeviceSetUp"] = true;
+            }
           }
           else if (messageType.StartsWith("urn:"))
           {
@@ -729,7 +785,7 @@ namespace UPnP.Infrastructure.CP.SSDP
                 // Invalid message
                 return;
               deviceEntry = rootEntry.GetOrCreateDeviceEntry(deviceUUID);
-              fireDeviceAdded = string.IsNullOrEmpty(deviceEntry.DeviceTypeVersion_URN);
+              fireDeviceAdded = string.IsNullOrEmpty(deviceEntry.DeviceType);
               deviceEntry.DeviceType = deviceType;
               deviceEntry.DeviceTypeVersion = deviceTypeVersion;
             }
@@ -806,7 +862,7 @@ namespace UPnP.Infrastructure.CP.SSDP
         // We only use messages containing a "::" substring and discard the "uuid:device-UUID" message
         return;
       string deviceUUID = usn.Substring(5, separatorIndex - 5);
-      RootEntry rootEntry = GetRootEntryByRootDeviceUUID(deviceUUID);
+      RootEntry rootEntry = GetRootEntryByContainedDeviceUUID(deviceUUID);
       if (rootEntry == null)
         return;
       if (rootEntry.BootID > bootID)
@@ -826,44 +882,86 @@ namespace UPnP.Infrastructure.CP.SSDP
 
     protected void InvokeRootDeviceAdded(RootEntry rootEntry)
     {
-      RootDeviceAddedDlgt dlgt = RootDeviceAdded;
-      if (dlgt != null)
-        dlgt(rootEntry);
+      try
+      {
+        RootDeviceAddedDlgt dlgt = RootDeviceAdded;
+        if (dlgt != null)
+          dlgt(rootEntry);
+      }
+      catch (Exception e)
+      {
+        UPnPConfiguration.LOGGER.Warn("SSDPClientController: Error invoking RootDeviceAdded delegate", e);
+      }
     }
 
     protected void InvokeDeviceAdded(RootEntry rootEntry, DeviceEntry deviceEntry)
     {
-      DeviceAddedDlgt dlgt = DeviceAdded;
-      if (dlgt != null)
-        dlgt(rootEntry, deviceEntry);
+      try
+      {
+        DeviceAddedDlgt dlgt = DeviceAdded;
+        if (dlgt != null)
+          dlgt(rootEntry, deviceEntry);
+      }
+      catch (Exception e)
+      {
+        UPnPConfiguration.LOGGER.Warn("SSDPClientController: Error invoking DeviceAdded delegate", e);
+      }
     }
 
     protected void InvokeServiceAdded(RootEntry rootEntry, DeviceEntry deviceEntry, string serviceTypeVersion_URN)
     {
-      ServiceAddedDlgt dlgt = ServiceAdded;
-      if (dlgt != null)
-        dlgt(rootEntry, deviceEntry, serviceTypeVersion_URN);
+      try
+      {
+        ServiceAddedDlgt dlgt = ServiceAdded;
+        if (dlgt != null)
+          dlgt(rootEntry, deviceEntry, serviceTypeVersion_URN);
+      }
+      catch (Exception e)
+      {
+        UPnPConfiguration.LOGGER.Warn("SSDPClientController: Error invoking ServiceAdded delegate", e);
+      }
     }
 
     protected void InvokeRootDeviceRemoved(RootEntry rootEntry)
     {
-      RootDeviceRemovedDlgt dlgt = RootDeviceRemoved;
-      if (dlgt != null)
-        dlgt(rootEntry);
+      try
+      {
+        RootDeviceRemovedDlgt dlgt = RootDeviceRemoved;
+        if (dlgt != null)
+          dlgt(rootEntry);
+      }
+      catch (Exception e)
+      {
+        UPnPConfiguration.LOGGER.Warn("SSDPClientController: Error invoking RootDeviceRemoved delegate", e);
+      }
     }
 
     protected void InvokeDeviceRebooted(RootEntry rootEntry, bool configChanged)
     {
-      DeviceRebootedDlgt dlgt = DeviceRebooted;
-      if (dlgt != null)
-        dlgt(rootEntry, configChanged);
+      try
+      {
+        DeviceRebootedDlgt dlgt = DeviceRebooted;
+        if (dlgt != null)
+          dlgt(rootEntry, configChanged);
+      }
+      catch (Exception e)
+      {
+        UPnPConfiguration.LOGGER.Warn("SSDPClientController: Error invoking DeviceRebooted delegate", e);
+      }
     }
 
     protected void InvokeDeviceConfigurationChanged(RootEntry rootEntry)
     {
-      DeviceConfigurationChangedDlgt dlgt = DeviceConfigurationChanged;
-      if (dlgt != null)
-        dlgt(rootEntry);
+      try
+      {
+        DeviceConfigurationChangedDlgt dlgt = DeviceConfigurationChanged;
+        if (dlgt != null)
+          dlgt(rootEntry);
+      }
+      catch (Exception e)
+      {
+        UPnPConfiguration.LOGGER.Warn("SSDPClientController: Error invoking DeviceConfigurationChanged delegate", e);
+      }
     }
 
     #endregion

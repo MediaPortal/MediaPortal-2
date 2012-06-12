@@ -202,9 +202,16 @@ namespace UPnP.Infrastructure.Dv.DeviceTree
 
     internal void FireStateVariableChanged(DvStateVariable variable)
     {
-      StateVariableChangedDlgt stateVariableChanged = StateVariableChanged;
-      if (stateVariableChanged != null)
-        stateVariableChanged(variable);
+      try
+      {
+        StateVariableChangedDlgt stateVariableChanged = StateVariableChanged;
+        if (stateVariableChanged != null)
+          stateVariableChanged(variable);
+      }
+      catch (Exception e)
+      {
+        UPnPConfiguration.LOGGER.Warn("DvService: Error invoking StateVariableChanged delegate", e);
+      }
     }
 
     #region Description generation

@@ -26,10 +26,10 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Net;
-using System.Xml;
 using System.Xml.XPath;
 using MediaPortal.Utilities.Exceptions;
 using MediaPortal.Utilities.Network;
+using UPnP.Infrastructure.CP.Description;
 using UPnP.Infrastructure.CP.SSDP;
 using UPnP.Infrastructure.Utils;
 
@@ -67,8 +67,7 @@ namespace UPnP.Infrastructure.CP
     {
       protected RootDescriptor _rootDescriptor;
       protected HttpWebRequest _httpWebRequest;
-      protected IDictionary<ServiceDescriptor, string> _pendingServiceDescriptions =
-          new Dictionary<ServiceDescriptor, string>();
+      protected ICollection<ServiceDescriptor> _pendingServiceDescriptions = new List<ServiceDescriptor>();
       protected ServiceDescriptor _currentServiceDescriptor = null;
 
       public DescriptionRequestState(RootDescriptor rootDescriptor, HttpWebRequest httpWebRequest)
@@ -94,7 +93,7 @@ namespace UPnP.Infrastructure.CP
         set { _currentServiceDescriptor = value; }
       }
 
-      public IDictionary<ServiceDescriptor, string> PendingServiceDescriptions
+      public ICollection<ServiceDescriptor> PendingServiceDescriptions
       {
         get { return _pendingServiceDescriptions; }
       }
@@ -175,7 +174,7 @@ namespace UPnP.Infrastructure.CP
             RootDescriptor rd = GetRootDescriptor(entry);
             if (rd == null)
               continue;
-            result.Add(rd.SSDPRootEntry.RootDeviceID, rd);
+            result.Add(rd.SSDPRootEntry.RootDeviceUUID, rd);
           }
           return result;
         }
@@ -250,23 +249,44 @@ namespace UPnP.Infrastructure.CP
 
     protected void InvokeRootDeviceAdded(RootDescriptor rd)
     {
-      DeviceAddedDlgt dlgt = RootDeviceAdded;
-      if (dlgt != null)
-        dlgt(rd);
+      try
+      {
+        DeviceAddedDlgt dlgt = RootDeviceAdded;
+        if (dlgt != null)
+          dlgt(rd);
+      }
+      catch (Exception e)
+      {
+        UPnPConfiguration.LOGGER.Warn("UPnPNetworkTracker: Error invoking RootDeviceAdded delegate", e);
+      }
     }
 
     protected void InvokeRootDeviceRemoved(RootDescriptor rd)
     {
-      DeviceRemovedDlgt dlgt = RootDeviceRemoved;
-      if (dlgt != null)
-        dlgt(rd);
+      try
+      {
+        DeviceRemovedDlgt dlgt = RootDeviceRemoved;
+        if (dlgt != null)
+          dlgt(rd);
+      }
+      catch (Exception e)
+      {
+        UPnPConfiguration.LOGGER.Warn("UPnPNetworkTracker: Error invoking RootDeviceRemoved delegate", e);
+      }
     }
 
     protected void InvokeDeviceRebooted(RootDescriptor rd)
     {
-      DeviceRebootedDlgt dlgt = DeviceRebooted;
-      if (dlgt != null)
-        dlgt(rd);
+      try
+      {
+        DeviceRebootedDlgt dlgt = DeviceRebooted;
+        if (dlgt != null)
+          dlgt(rd);
+      }
+      catch (Exception e)
+      {
+        UPnPConfiguration.LOGGER.Warn("UPnPNetworkTracker: Error invoking DeviceRebooted delegate", e);
+      }
     }
 
     private void OnSSDPRootDeviceAdded(RootEntry rootEntry)
@@ -313,20 +333,18 @@ namespace UPnP.Infrastructure.CP
         {
           using (Stream body = response.GetResponseStream())
           {
-            XPathDocument doc = new XPathDocument(body);
+            XPathDocument xmlDeviceDescription = new XPathDocument(body);
             lock (_cpData.SyncObj)
             {
-              rd.DeviceDescription = doc;
-              XPathNavigator nav = doc.CreateNavigator();
-              nav.MoveToChild(XPathNodeType.Element);
-              XPathNodeIterator rootDeviceIt = nav.SelectChildren("device", "urn:schemas-upnp-org:device-1-0");
-              if (rootDeviceIt.MoveNext())
-              {
-                XmlNamespaceManager nsmgr = new XmlNamespaceManager(nav.NameTable);
-                nsmgr.AddNamespace("d", UPnPConsts.NS_DEVICE_DESCRIPTION);
-                ExtractServiceDescriptorsRecursive(rd, rootDeviceIt.Current, nsmgr, rd.ServiceDescriptors,
-                    state.PendingServiceDescriptions);
+              rd.DeviceDescription = xmlDeviceDescription;
+              DeviceDescriptor rootDeviceDescriptor = DeviceDescriptor.CreateRootDeviceDescriptor(rd);
+              if (rootDeviceDescriptor == null)
+              { // No root device description available
+                rd.State = RootDescriptorState.Erroneous;
+                return;
               }
+
+              ExtractServiceDescriptorsRecursive(rootDeviceDescriptor, rd.ServiceDescriptors, state.PendingServiceDescriptions);
               rd.State = RootDescriptorState.AwaitingServiceDescriptions;
             }
           }
@@ -353,7 +371,7 @@ namespace UPnP.Infrastructure.CP
     {
       RootDescriptor rootDescriptor = state.RootDescriptor;
 
-      IEnumerator<KeyValuePair<ServiceDescriptor, string>> enumer = state.PendingServiceDescriptions.GetEnumerator();
+      IEnumerator<ServiceDescriptor> enumer = state.PendingServiceDescriptions.GetEnumerator();
       if (!enumer.MoveNext())
       {
         lock (_cpData.SyncObj)
@@ -370,8 +388,8 @@ namespace UPnP.Infrastructure.CP
         lock (_cpData.SyncObj)
           if (rootDescriptor.State != RootDescriptorState.AwaitingServiceDescriptions)
             return;
-        state.CurrentServiceDescriptor = enumer.Current.Key;
-        string url = state.PendingServiceDescriptions[state.CurrentServiceDescriptor];
+        state.CurrentServiceDescriptor = enumer.Current;
+        string url = state.CurrentServiceDescriptor.DescriptionURL;
         state.PendingServiceDescriptions.Remove(state.CurrentServiceDescriptor);
         state.CurrentServiceDescriptor.State = ServiceDescriptorState.AwaitingDescription;
         try
@@ -408,8 +426,8 @@ namespace UPnP.Infrastructure.CP
             {
               using (Stream body = response.GetResponseStream())
               {
-                XPathDocument doc = new XPathDocument(body);
-                state.CurrentServiceDescriptor.ServiceDescription = doc;
+                XPathDocument xmlServiceDescription = new XPathDocument(body);
+                state.CurrentServiceDescriptor.ServiceDescription = xmlServiceDescription;
                 state.CurrentServiceDescriptor.State = ServiceDescriptorState.Ready;
               }
             }
@@ -484,71 +502,37 @@ namespace UPnP.Infrastructure.CP
     }
 
     /// <summary>
-    /// Given an XML &lt;device&gt; element containing a device description, this method extracts two kinds of
-    /// data:
+    /// Given a <paramref name="deviceDescriptor"/>, this method extracts two kinds of data:
     /// <list type="bullet">
-    /// <item><see cref="ServiceDescriptor"/>s for services of the given device and all embedded devices (organized
-    /// in a dictionary mapping device UUIDs to lists of service descriptors for services in the device) in
+    /// <item><see cref="ServiceDescriptor"/>s for services of the given device and all embedded devices (organized in a dictionary mapping
+    /// device UUIDs to dictionaries mapping service type and version to service descriptors for all services in the device) in
     /// <paramref name="serviceDescriptors"/></item>
-    /// <item>A mapping of all service descriptors which are returned in <paramref name="serviceDescriptors"/> to
-    /// their SCPD urls in <paramref name="pendingServiceDescriptions"/></item>
+    /// <item>A collection of all service descriptors which are returned in <paramref name="serviceDescriptors"/>
+    /// in <paramref name="pendingServiceDescriptions"/></item>
     /// </list>
     /// </summary>
-    /// <param name="rd">Root descriptor of the services.</param>
-    /// <param name="deviceNav">XPath navigator pointing to an XML &lt;device&gt; element containing the device
-    /// description.</param>
-    /// <param name="nsmgr">Namespace manager mapping the "d" namespace prefix to the namespace URI
-    /// "urn:schemas-upnp-org:device-1-0".</param>
-    /// <param name="serviceDescriptors">Dictionary of device UUIDs to collections of service descriptors, containing
-    /// descriptors of services which are contained in the device with the key UUID.</param>
+    /// <param name="deviceDescriptor">Descriptor of the device to start extracting service descriptors.</param>
+    /// <param name="serviceDescriptors">Dictionary of device UUIDs to dictionaries mapping service type and version to service descriptors of services
+    /// which are contained in the device with the key UUID.</param>
     /// <param name="pendingServiceDescriptions">Dictionary of device service descriptors mapped to the SCPD url of the
     /// service.</param>
-    private static void ExtractServiceDescriptorsRecursive(RootDescriptor rd, XPathNavigator deviceNav, IXmlNamespaceResolver nsmgr,
+    private static void ExtractServiceDescriptorsRecursive(DeviceDescriptor deviceDescriptor,
         IDictionary<string, IDictionary<string, ServiceDescriptor>> serviceDescriptors,
-        IDictionary<ServiceDescriptor, string> pendingServiceDescriptions)
+        ICollection<ServiceDescriptor> pendingServiceDescriptions)
     {
-      string deviceUuid = ParserHelper.ExtractUUIDFromUDN(RootDescriptor.GetDeviceUDN(deviceNav, nsmgr));
-      XPathNodeIterator it = deviceNav.Select("d:serviceList/d:service", nsmgr);
-      if (it.MoveNext())
+      string deviceUuid = deviceDescriptor.DeviceUUID;
+      ICollection<ServiceDescriptor> services = deviceDescriptor.CreateServiceDescriptors();
+      if (services.Count > 0)
       {
         IDictionary<string, ServiceDescriptor> sds = serviceDescriptors[deviceUuid] = new Dictionary<string, ServiceDescriptor>();
-        do
+        foreach (ServiceDescriptor service in services)
         {
-          string descriptionURL;
-          ServiceDescriptor sd = ExtractServiceDescriptor(rd, it.Current, nsmgr, out descriptionURL);
-          sds.Add(sd.ServiceTypeVersion_URN, sd);
-          pendingServiceDescriptions[sd] = descriptionURL;
-        } while (it.MoveNext());
+          sds.Add(service.ServiceTypeVersion_URN, service);
+          pendingServiceDescriptions.Add(service);
+        }
       }
-      it = deviceNav.Select("d:deviceList/d:device", nsmgr);
-      while (it.MoveNext())
-        ExtractServiceDescriptorsRecursive(rd, it.Current, nsmgr, serviceDescriptors, pendingServiceDescriptions);
-    }
-
-    /// <summary>
-    /// Given an XML &lt;service&gt; element containing a service description, this method extracts the returned
-    /// <see cref="ServiceDescriptor"/> and the SCPD description url.
-    /// </summary>
-    /// <param name="rd">Root descriptor of the service descriptor to be built.</param>
-    /// <param name="serviceNav">XPath navigator pointing to an XML &lt;service&gt; element containing the service
-    /// description.</param>
-    /// <param name="nsmgr">Namespace manager mapping the "d" namespace prefix to the namespace URI
-    /// "urn:schemas-upnp-org:device-1-0".</param>
-    /// <param name="descriptionURL">Returns the description URL for the service.</param>
-    /// <returns>Extracted service descriptor.</returns>
-    private static ServiceDescriptor ExtractServiceDescriptor(RootDescriptor rd, XPathNavigator serviceNav, IXmlNamespaceResolver nsmgr,
-        out string descriptionURL)
-    {
-      descriptionURL = ParserHelper.SelectText(serviceNav, "d:SCPDURL/text()", nsmgr);
-      string serviceType;
-      int serviceTypeVersion;
-      if (!ParserHelper.TryParseTypeVersion_URN(ParserHelper.SelectText(serviceNav, "d:serviceType/text()", nsmgr),
-          out serviceType, out serviceTypeVersion))
-        throw new ArgumentException("'serviceType' content has the wrong format");
-      string controlURL = ParserHelper.SelectText(serviceNav, "d:controlURL", nsmgr);
-      string eventSubURL = ParserHelper.SelectText(serviceNav, "d:eventSubURL", nsmgr);
-      return new ServiceDescriptor(rd, serviceType, serviceTypeVersion,
-          ParserHelper.SelectText(serviceNav, "d:serviceId/text()", nsmgr), controlURL, eventSubURL);
+      foreach (DeviceDescriptor childDevice in deviceDescriptor.ChildDevices)
+        ExtractServiceDescriptorsRecursive(childDevice, serviceDescriptors, pendingServiceDescriptions);
     }
 
     private static HttpWebRequest CreateHttpGetRequest(Uri uri, IPAddress localIpAddress)

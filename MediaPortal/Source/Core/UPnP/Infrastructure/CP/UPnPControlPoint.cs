@@ -129,7 +129,7 @@ namespace UPnP.Infrastructure.CP
 
     private void OnRootDeviceRemoved(RootDescriptor rootdescriptor)
     {
-      DoDisconnect(rootdescriptor.SSDPRootEntry.RootDeviceID, false);
+      DoDisconnect(rootdescriptor.SSDPRootEntry.RootDeviceUUID, false);
     }
 
     #endregion

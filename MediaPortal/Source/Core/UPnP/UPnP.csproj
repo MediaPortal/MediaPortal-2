@@ -90,6 +90,7 @@
   <ItemGroup>
     <Compile Include="Infrastructure\ConsoleLogger.cs" />
     <Compile Include="Infrastructure\CP\AsyncWebRequestState.cs" />
+    <Compile Include="Infrastructure\CP\Description\DeviceDescriptor.cs" />
     <Compile Include="Infrastructure\CP\Exceptions.cs" />
     <Compile Include="Infrastructure\CP\GENA\EventSubscription.cs" />
     <Compile Include="Infrastructure\Dv\CallContext.cs" />
@@ -111,7 +112,7 @@
     <Compile Include="Infrastructure\CP\EndpointConfiguration.cs" />
     <Compile Include="Infrastructure\CP\GENA\GENAClientController.cs" />
     <Compile Include="Infrastructure\CP\RootDescriptor.cs" />
-    <Compile Include="Infrastructure\CP\ServiceDescriptor.cs" />
+    <Compile Include="Infrastructure\CP\Description\ServiceDescriptor.cs" />
     <Compile Include="Infrastructure\CP\SOAP\SOAPHandler.cs" />
     <Compile Include="Infrastructure\CP\SSDP\DeviceEntry.cs" />
     <Compile Include="Infrastructure\CP\SSDP\RootEntry.cs" />

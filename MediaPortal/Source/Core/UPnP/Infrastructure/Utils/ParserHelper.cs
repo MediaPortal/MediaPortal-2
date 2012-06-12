@@ -68,6 +68,8 @@ namespace UPnP.Infrastructure.Utils
     {
       type = null;
       version = 0;
+      if (string.IsNullOrEmpty(typeVersionURN))
+        return false;
       int index = typeVersionURN.LastIndexOf(':');
       if (!typeVersionURN.StartsWith("urn:") || index == -1)
         return false;
@@ -89,6 +91,8 @@ namespace UPnP.Infrastructure.Utils
     {
       deviceUUID = null;
       remainingPart = null;
+      if (string.IsNullOrEmpty(usn))
+        return false;
       int separatorIndex = usn.IndexOf("::");
       if (separatorIndex < 6 ||  // separatorIndex == -1 or separatorIndex not after "uuid:" prefix with at least one char UUID
           usn.Substring(0, 5) != "uuid:")

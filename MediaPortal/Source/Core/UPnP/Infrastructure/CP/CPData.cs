@@ -74,7 +74,7 @@ namespace UPnP.Infrastructure.CP
     }
 
     /// <summary>
-    /// Returns UUIDs of root devices mapped to their root device data entry.
+    /// Returns dictionary of root device description locations mapped to their root device entry.
     /// </summary>
     public IDictionary<string, RootEntry> DeviceEntries
     {

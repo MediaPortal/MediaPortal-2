@@ -116,13 +116,21 @@ namespace UPnP.Infrastructure.CP.SSDP
   }
 
   /// <summary>
-  /// Contains SSDP advertisement data for a collection of device and service advertisements which are located in the same root
-  /// device.
+  /// Contains SSDP advertisement data for a UPnP server. A server contains a root device and perhaps multiple child devices, each with a number of services.
   /// </summary>
   /// <remarks>
+  /// <para>
   /// The entries are lazily initialized, as the SSDP protocol doesn't provide a strict order of advertisement messages of
   /// the single entries.
+  /// </para>
+  /// <para>
   /// The access to all properties and methods must be synchronized using the <see cref="SyncObj"/>.
+  /// </para>
+  /// <para>
+  /// Instances of this class are used as proxy objects for a root device on a UPnP server. In this case, the <see cref="RootDeviceUUID"/> is set.
+  /// This class is also used to store pending advertisement notifications where it is not yet clear for which root device the request
+  /// was sent. In this case, the <see cref="RootDeviceUUID"/> is not set.
+  /// </para>
   /// </remarks>
   public class RootEntry
   {
@@ -133,8 +141,8 @@ namespace UPnP.Infrastructure.CP.SSDP
     protected DateTime _expirationTime;
     protected LinkData _preferredLink = null;
     protected readonly IDictionary<string, LinkData> _linkConfigurations = new Dictionary<string, LinkData>();
-    protected readonly string _rootDeviceID; // UUID of the root device
-    protected readonly IDictionary<string, DeviceEntry> _devices = new Dictionary<string, DeviceEntry>(); // Device UIDs to DeviceEntry structures
+    protected string _rootDeviceUUID = null; // UUID of the root device
+    protected readonly IDictionary<string, DeviceEntry> _devices = new Dictionary<string, DeviceEntry>(); // Device UUIDs to DeviceEntry structures
     protected uint _bootID = 0;
     protected readonly IDictionary<IPEndPoint, uint> _configIDs = new Dictionary<IPEndPoint, uint>();
     protected readonly IDictionary<string, object> _clientProperties = new Dictionary<string, object>();
@@ -143,16 +151,14 @@ namespace UPnP.Infrastructure.CP.SSDP
     /// Creates a new <see cref="RootEntry"/> instance.
     /// </summary>
     /// <param name="syncObj">Synchronization object to use for multithread access.</param>
-    /// <param name="rootDeviceUUID">UUID of the root device.</param>
     /// <param name="upnpVersion">UPnP version the remote device is using.</param>
     /// <param name="osVersion">OS and version our partner is using.</param>
     /// <param name="productVersion">Product and version our partner is using.</param>
     /// <param name="expirationTime">Time when the advertisement will expire.</param>
-    public RootEntry(object syncObj, string rootDeviceUUID, UPnPVersion upnpVersion, string osVersion,
+    public RootEntry(object syncObj, UPnPVersion upnpVersion, string osVersion,
         string productVersion, DateTime expirationTime)
     {
       _syncObj = syncObj;
-      _rootDeviceID = rootDeviceUUID;
       _upnpVersion = upnpVersion;
       _osVersion = osVersion;
       _productVersion = productVersion;
@@ -218,11 +224,11 @@ namespace UPnP.Infrastructure.CP.SSDP
     }
 
     /// <summary>
-    /// Gets a collection of all available links to the device of this device root entry.
+    /// Gets a dictionary mapping all available description locations for this root entry to its link data.
     /// </summary>
-    public ICollection<LinkData> AllLinks
+    public IDictionary<string, LinkData> AllLinks
     {
-      get { return _linkConfigurations.Values; }
+      get { return _linkConfigurations; }
     }
 
     /// <summary>
@@ -236,9 +242,10 @@ namespace UPnP.Infrastructure.CP.SSDP
     /// <summary>
     /// Gets the root device's UUID.
     /// </summary>
-    public string RootDeviceID
+    public string RootDeviceUUID
     {
-      get { return _rootDeviceID; }
+      get { return _rootDeviceUUID; }
+      internal set { _rootDeviceUUID = value; }
     }
 
     /// <summary>
@@ -303,5 +310,28 @@ namespace UPnP.Infrastructure.CP.SSDP
         return result;
       return _devices[uuid] = new DeviceEntry(uuid);
     }
+
+    /// <summary>
+    /// Merges the data of the <paramref name="other"/> root entry into this entry.
+    /// </summary>
+    /// <param name="other">Other root entry to merge. The <paramref name="other"/> entry must not contain any of this entry's link data nor
+    /// any of this entry's devices.</param>
+    internal void MergeRootEntry(RootEntry other)
+    {
+      _expirationTime = _expirationTime > other.ExpirationTime ? _expirationTime : other.ExpirationTime;
+      foreach (LinkData linkData in other.AllLinks.Values)
+        AddOrUpdateLink(linkData.Endpoint, linkData.DescriptionLocation, linkData.HTTPVersion, linkData.SearchPort);
+      foreach (DeviceEntry deviceEntry in other.Devices.Values)
+        _devices.Add(deviceEntry.UUID, deviceEntry);
+      _bootID = Math.Max(_bootID, other.BootID);
+      foreach (KeyValuePair<IPEndPoint, uint> kvp in other._configIDs)
+        _configIDs[kvp.Key] = kvp.Value;
+      foreach (KeyValuePair<string, object> clientProperty in other.ClientProperties)
+        if (!_clientProperties.ContainsKey(clientProperty.Key))
+          _clientProperties[clientProperty.Key] = clientProperty.Value;
+    }
+
+    // Be careful with GetHashCode(), Equals() and equality operators: This class is also used for pending devices where the typical primary key
+    // (root device id) is not set yet.
   }
 }

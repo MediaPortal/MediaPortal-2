@@ -25,6 +25,7 @@
 using System;
 using System.Collections.Generic;
 using MediaPortal.Common;
+using MediaPortal.Common.ClientCommunication;
 using MediaPortal.Common.General;
 using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.ResourceAccess;
@@ -110,8 +111,14 @@ namespace MediaPortal.UiComponents.Media.Views
 
       if (!IsSingleSeat(serverConnectionManager))
       {
-        string viewName = localShare.SystemId == serverConnectionManager.HomeServerSystemId ?
-            serverConnectionManager.LastHomeServerName : ServerCommunicationHelper.GetClientName(localShare.SystemId);
+        string viewName;
+        if (localShare.SystemId == serverConnectionManager.HomeServerSystemId)
+          viewName = serverConnectionManager.LastHomeServerName;
+        else
+        {
+          MPClientMetadata clientMetadata = ServerCommunicationHelper.GetClientMetadata(localShare.SystemId);
+          viewName = clientMetadata == null ? null : clientMetadata.LastClientName;
+        }
         if (viewName != null)
           navigateToViewDlgt(new SystemSharesViewSpecification(localShare.SystemId, viewName, _necessaryMIATypeIds, _optionalMIATypeIds));
       }

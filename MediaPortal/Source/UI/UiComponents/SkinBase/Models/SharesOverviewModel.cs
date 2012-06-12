@@ -26,6 +26,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using MediaPortal.Common;
+using MediaPortal.Common.ClientCommunication;
 using MediaPortal.Common.Commands;
 using MediaPortal.Common.General;
 using MediaPortal.Common.Localization;
@@ -196,60 +197,96 @@ namespace MediaPortal.UiComponents.SkinBase.Models
           _sharesList = new ItemsList();
         else
           _sharesList.Clear();
-      IServerConnectionManager scm = ServiceRegistration.Get<IServerConnectionManager>();
-      IContentDirectory cd = scm.ContentDirectory;
-      IServerController sc = scm.ServerController;
-      IResourceInformationService ris = scm.ResourceInformationService;
-      if (cd == null || sc == null || ris == null)
-        return;
-      ICollection<Share> allShares = cd.GetShares(null, SharesFilter.All);
-      IDictionary<string, ICollection<Share>> systems2Shares = new Dictionary<string, ICollection<Share>>();
-      foreach (Share share in allShares)
+      try
       {
-        ICollection<Share> systemShares;
-        if (systems2Shares.TryGetValue(share.SystemId, out systemShares))
-          systemShares.Add(share);
-        else
-          systems2Shares[share.SystemId] = new List<Share> {share};
-      }
-      ICollection<Guid> importingShares = cd.GetCurrentlyImportingShares() ?? new List<Guid>();
-      ICollection<string> onlineSystems = sc.GetConnectedClients();
-      onlineSystems = onlineSystems == null ? new List<string> {scm.HomeServerSystemId} : new List<string>(onlineSystems) {scm.HomeServerSystemId};
-      foreach (KeyValuePair<string, ICollection<Share>> system2Shares in systems2Shares)
-      {
-        string systemId = system2Shares.Key;
-        ICollection<Share> systemShares = system2Shares.Value;
-        string systemName = systemId == scm.HomeServerSystemId ? scm.LastHomeServerName : ServerCommunicationHelper.GetClientName(systemId);
-        ListItem systemSharesItem = new ListItem(Consts.KEY_NAME, systemName);
-        systemSharesItem.AdditionalProperties[Consts.KEY_SYSTEM] = systemId;
-        UpdateSystemItemConnectionState_NoLock(systemSharesItem, onlineSystems.Contains(systemId));
-        ItemsList sharesItemsList = new ItemsList();
-        foreach (Share share in systemShares)
+        IServerConnectionManager scm = ServiceRegistration.Get<IServerConnectionManager>();
+        IContentDirectory cd = scm.ContentDirectory;
+        IServerController sc = scm.ServerController;
+        if (cd == null || sc == null)
+          return;
+        IRemoteResourceInformationService rris = ServiceRegistration.Get<IRemoteResourceInformationService>();
+        ICollection<Share> allShares = cd.GetShares(null, SharesFilter.All);
+        IDictionary<string, ICollection<Share>> systems2Shares = new Dictionary<string, ICollection<Share>>();
+        foreach (Share share in allShares)
         {
-          ListItem shareItem = new ListItem(Consts.KEY_NAME, share.Name);
-          shareItem.AdditionalProperties[Consts.KEY_SHARE] = share;
-          string path = ris.GetResourcePathDisplayName(share.BaseResourcePath);
-          if (string.IsNullOrEmpty(path))
-            // Error case: The path is invalid
-            path = LocalizationHelper.Translate(Consts.RES_INVALID_PATH, share.BaseResourcePath);
-          shareItem.SetLabel(Consts.KEY_PATH, path);
-          string categories = StringUtils.Join(", ", share.MediaCategories);
-          shareItem.SetLabel(Consts.KEY_SHARE_CATEGORIES, categories);
-          UpdateShareImportState_NoLock(shareItem, importingShares.Contains(share.ShareId));
-          Share shareCopy = share;
-          shareItem.Command = new MethodDelegateCommand(() => ReImportShare(shareCopy));
-          sharesItemsList.Add(shareItem);
+          ICollection<Share> systemShares;
+          if (systems2Shares.TryGetValue(share.SystemId, out systemShares))
+            systemShares.Add(share);
+          else
+            systems2Shares[share.SystemId] = new List<Share> {share};
         }
-        systemSharesItem.AdditionalProperties[Consts.KEY_SYSTEM_SHARES] = sharesItemsList;
-        lock (_syncObj)
-          _sharesList.Add(systemSharesItem);
+        ICollection<Guid> importingShares = cd.GetCurrentlyImportingShares() ?? new List<Guid>();
+        ICollection<string> onlineSystems = sc.GetConnectedClients();
+        onlineSystems = onlineSystems == null ? new List<string> {scm.HomeServerSystemId} : new List<string>(onlineSystems) {scm.HomeServerSystemId};
+        foreach (KeyValuePair<string, ICollection<Share>> system2Shares in systems2Shares)
+        {
+          string systemId = system2Shares.Key;
+          ICollection<Share> systemShares = system2Shares.Value;
+          string systemName;
+          string hostName;
+          if (systemId == scm.HomeServerSystemId)
+          {
+            systemName = scm.LastHomeServerName;
+            hostName = scm.LastHomeServerSystem.HostName;
+          }
+          else
+          {
+            MPClientMetadata clientMetadata = ServerCommunicationHelper.GetClientMetadata(systemId);
+            if (clientMetadata == null)
+            {
+              systemName = null;
+              hostName = null;
+            }
+            else
+            {
+              systemName = clientMetadata.LastClientName;
+              hostName = clientMetadata.LastSystem.HostName;
+            }
+          }
+          ListItem systemSharesItem = new ListItem(Consts.KEY_NAME, systemName);
+          systemSharesItem.AdditionalProperties[Consts.KEY_SYSTEM] = systemId;
+          systemSharesItem.AdditionalProperties[Consts.KEY_HOSTNAME] = hostName;
+          bool isConnected = onlineSystems.Contains(systemId);
+          systemSharesItem.AdditionalProperties[Consts.KEY_IS_CONNECTED] = isConnected;
+          ItemsList sharesItemsList = new ItemsList();
+          foreach (Share share in systemShares)
+          {
+            ListItem shareItem = new ListItem(Consts.KEY_NAME, share.Name);
+            shareItem.AdditionalProperties[Consts.KEY_SHARE] = share;
+            string resourcePathName;
+            try
+            {
+              bool isFileSystemResource;
+              bool isFile;
+              string resourceName;
+              DateTime lastChanged;
+              long size;
+              if (!rris.GetResourceInformation(share.SystemId, share.BaseResourcePath, out isFileSystemResource, out isFile, out resourcePathName, out resourceName, out lastChanged, out size))
+                // Error case: The path is invalid
+                resourcePathName = LocalizationHelper.Translate(Consts.RES_INVALID_PATH, share.BaseResourcePath);
+            }
+            catch (Exception) // NotConnectedException when remote system is not connected at all, UPnPDisconnectedException when remote system gets disconnected during the call
+            {
+              resourcePathName = share.BaseResourcePath.ToString();
+            }
+            shareItem.SetLabel(Consts.KEY_PATH, resourcePathName);
+            string categories = StringUtils.Join(", ", share.MediaCategories);
+            shareItem.SetLabel(Consts.KEY_SHARE_CATEGORIES, categories);
+            UpdateShareImportState_NoLock(shareItem, importingShares.Contains(share.ShareId));
+            Share shareCopy = share;
+            shareItem.Command = new MethodDelegateCommand(() => ReImportShare(shareCopy));
+            shareItem.AdditionalProperties[Consts.KEY_REIMPORT_ENABLED] = isConnected;
+            sharesItemsList.Add(shareItem);
+          }
+          systemSharesItem.AdditionalProperties[Consts.KEY_SYSTEM_SHARES] = sharesItemsList;
+          lock (_syncObj)
+            _sharesList.Add(systemSharesItem);
+        }
       }
-      _sharesList.FireChange();
-    }
-
-    protected void UpdateSystemItemConnectionState_NoLock(ListItem systemSharesItem, bool isConnected)
-    {
-      systemSharesItem.AdditionalProperties[Consts.KEY_IS_CONNECTED] = isConnected;
+      finally
+      {
+        _sharesList.FireChange();
+      }
     }
 
     protected void UpdateShareImportState_NoLock(Guid shareId, bool isImporting)

@@ -33,18 +33,6 @@ using UPnP.Infrastructure.Utils;
 namespace UPnP.Infrastructure.Dv.DeviceTree
 {
   /// <summary>
-  /// Delegate for the change event telling subscribers that a device's configuration changed.
-  /// </summary>
-  /// <param name="device">The device which changed its configuration.</param>
-  public delegate void DeviceConfigurationChangedDlgt(DvDevice device);
-
-  /// <summary>
-  /// Delegate for the change event telling subscribers that a service's configuration changed.
-  /// </summary>
-  /// <param name="service">The service which changed its configuration.</param>
-  public delegate void ServiceConfigurationChangedDlgt(DvService service);
-
-  /// <summary>
   /// Base UPnP device class with all functionality to host a UPnP device.
   /// To build special device configurations, either subclasses can be implemented doing the device initialization or
   /// an instance of this class can be created and configured from outside.
@@ -183,7 +171,7 @@ namespace UPnP.Infrastructure.Dv.DeviceTree
     /// <summary>
     /// If assigned, this hook delegate will be called during the generation of the device description;
     /// </summary>
-    public GenerateDescriptionDlgt DescriptionGenerateHook;
+    public GenerateDescriptionDlgt DescriptionGenerateHook = null;
 
     /// <summary>
     /// Adds the specified embedded <paramref name="device"/>.

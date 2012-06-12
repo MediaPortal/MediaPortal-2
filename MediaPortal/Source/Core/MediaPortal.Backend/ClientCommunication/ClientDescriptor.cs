@@ -22,39 +22,44 @@
 
 #endregion
 
+using System;
 using MediaPortal.Common.General;
+using MediaPortal.Common.UPnP;
 using UPnP.Infrastructure.CP;
+using UPnP.Infrastructure.CP.Description;
 
 namespace MediaPortal.Backend.ClientCommunication
 {
   public class ClientDescriptor
   {
-    protected RootDescriptor _rootDescriptor;
-    protected string _clientName;
-    protected SystemName _system;
-    protected string _mpFrontendServerUUID;
+    protected readonly DeviceDescriptor _clientDeviceDescriptor;
 
-    public ClientDescriptor(RootDescriptor rootDescriptor, string mpFrontendServerUUID, string clientName, SystemName system)
+    public ClientDescriptor(DeviceDescriptor clientDeviceDescriptor)
     {
-      _rootDescriptor = rootDescriptor;
-      _clientName = clientName;
-      _system = system;
-      _mpFrontendServerUUID = mpFrontendServerUUID;
+      _clientDeviceDescriptor = clientDeviceDescriptor;
     }
 
-    public RootDescriptor UPnPRootDescriptor
+    public static ClientDescriptor GetMPFrontendServerDescriptor(RootDescriptor uPnPRootDescriptor)
     {
-      get { return _rootDescriptor; }
+      DeviceDescriptor rootDescriptor = DeviceDescriptor.CreateRootDeviceDescriptor(uPnPRootDescriptor);
+      DeviceDescriptor serverDeviceDescriptor = rootDescriptor.FindFirstDevice(
+          UPnPTypesAndIds.FRONTEND_SERVER_DEVICE_TYPE, UPnPTypesAndIds.FRONTEND_SERVER_DEVICE_TYPE_VERSION);
+      return serverDeviceDescriptor == null ? null : new ClientDescriptor(serverDeviceDescriptor);
+    }
+
+    public DeviceDescriptor ClientDeviceDescriptor
+    {
+      get { return _clientDeviceDescriptor; }
     }
 
     public string ClientName
     {
-      get { return _clientName; }
+      get { return _clientDeviceDescriptor.FriendlyName; }
     }
 
     public SystemName System
     {
-      get { return _system; }
+      get { return new SystemName(new Uri(_clientDeviceDescriptor.RootDescriptor.SSDPRootEntry.PreferredLink.DescriptionLocation).Host); }
     }
 
     /// <summary>
@@ -62,7 +67,7 @@ namespace MediaPortal.Backend.ClientCommunication
     /// </summary>
     public string MPFrontendServerUUID
     {
-      get { return _mpFrontendServerUUID; }
+      get { return _clientDeviceDescriptor.DeviceUUID; }
     }
 
     public static bool operator ==(ClientDescriptor a, ClientDescriptor b)
@@ -90,12 +95,13 @@ namespace MediaPortal.Backend.ClientCommunication
 
     public override int GetHashCode()
     {
-      return _mpFrontendServerUUID.GetHashCode();
+      return MPFrontendServerUUID.GetHashCode();
     }
 
     public override string ToString()
     {
-      return string.Format("MP frontend server '{0}' at system '{1}' (IP address: '{2}')", _mpFrontendServerUUID, _system.HostName, _system.Address);
+      SystemName systemName = System;
+      return string.Format("MP frontend server '{0}' at system '{1}' (IP address: '{2}')", MPFrontendServerUUID, systemName.HostName, systemName.Address);
     }
   }
 }

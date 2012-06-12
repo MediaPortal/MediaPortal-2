@@ -167,7 +167,7 @@
   <string name="SharesConfig.SharesEditChooseCategoriesWorkflowNavigationContextDisplayLabel">Choose categories</string>
   <string name="SharesConfig.CannotAddSharesTitle">Cannot add shares</string>
   <string name="SharesConfig.CannotAddShareLocalHomeServerNotConnected">The home server is located at the same computer, thus all shares must be registered at the server. But the server is not connected at the moment. Please start the home server and try again.</string>
-  <string name="SharesConfig.SharesOverview">Shares overview</string>
+  <string name="SharesConfig.SharesConfiguration.Title">Shares configuration</string>
   <string name="SharesConfig.NoSharesAvailable">There are no shares available</string>
   <string name="SharesConfig.ShareInformationHeader">Share information</string>
   <string name="SharesConfig.ShareNameInfo">Name:</string>

@@ -542,7 +542,7 @@
           </MultiBinding>
         </Label.Content>
       </Label>
-      <Button x:Name="ReImportButton" Grid.Column="3" Content="[Shares.ReImport]" Command="{Binding Command}"/>
+      <Button x:Name="ReImportButton" Grid.Column="3" Content="[Shares.ReImport]" IsVisible="{Binding AdditionalProperties[ReImportEnabled]}" Command="{Binding Command}"/>
 <!-- Additionally available properties to show here:
       <Label x:Name="SharePath" Grid.Column="1" Content="{Binding [Path]}"
           FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource HintTextColor}"/>
@@ -681,6 +681,24 @@
           </Label.Color>
         </Label>
         <Label DockPanel.Dock="Left" Content=" (">
+          <Label.Color>
+            <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
+              <Binding Path="AdditionalProperties[IsConnected]"/>
+              <Binding Source="{ThemeResource TextColor}"/>
+              <Binding Source="{ThemeResource GrayedOutTextColor}"/>
+            </MultiBinding>
+          </Label.Color>
+        </Label>
+        <Label DockPanel.Dock="Left" Content="{Binding AdditionalProperties[HostName]}">
+          <Label.Color>
+            <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
+              <Binding Path="AdditionalProperties[IsConnected]"/>
+              <Binding Source="{ThemeResource TextColor}"/>
+              <Binding Source="{ThemeResource GrayedOutTextColor}"/>
+            </MultiBinding>
+          </Label.Color>
+        </Label>
+        <Label DockPanel.Dock="Left" Content=", ">
           <Label.Color>
             <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
               <Binding Path="AdditionalProperties[IsConnected]"/>

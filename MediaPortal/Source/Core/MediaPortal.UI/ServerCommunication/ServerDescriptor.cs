@@ -24,41 +24,47 @@
 
 using System;
 using MediaPortal.Common.General;
+using MediaPortal.Common.UPnP;
 using UPnP.Infrastructure.CP;
+using UPnP.Infrastructure.CP.Description;
 
 namespace MediaPortal.UI.ServerCommunication
 {
   public class ServerDescriptor
   {
-    protected RootDescriptor _rootDescriptor;
-    protected string _serverName;
-    protected string _mpBackendServerUUID;
+    protected readonly DeviceDescriptor _serverDeviceDescriptor;
 
-    public ServerDescriptor(RootDescriptor rootDescriptor, string mpBackendServerUUID, string serverName)
+    internal ServerDescriptor(DeviceDescriptor serverDeviceDescriptor)
     {
-      _rootDescriptor = rootDescriptor;
-      _serverName = serverName;
-      _mpBackendServerUUID = mpBackendServerUUID;
+      _serverDeviceDescriptor = serverDeviceDescriptor;
     }
 
-    public RootDescriptor UPnPRootDescriptor
+    public static ServerDescriptor GetMPBackendServerDescriptor(RootDescriptor uPnPRootDescriptor)
     {
-      get { return _rootDescriptor; }
+      DeviceDescriptor rootDescriptor = DeviceDescriptor.CreateRootDeviceDescriptor(uPnPRootDescriptor);
+      DeviceDescriptor serverDeviceDescriptor = rootDescriptor.FindFirstDevice(
+          UPnPTypesAndIds.BACKEND_SERVER_DEVICE_TYPE, UPnPTypesAndIds.BACKEND_SERVER_DEVICE_TYPE_VERSION);
+      return serverDeviceDescriptor == null ? null : new ServerDescriptor(serverDeviceDescriptor);
+    }
+
+    public DeviceDescriptor ServerDeviceDescriptor
+    {
+      get { return _serverDeviceDescriptor; }
     }
 
     public string ServerName
     {
-      get { return _serverName; }
+      get { return _serverDeviceDescriptor.FriendlyName; }
     }
 
     public string MPBackendServerUUID
     {
-      get { return _mpBackendServerUUID; }
+      get { return _serverDeviceDescriptor.DeviceUUID; }
     }
 
     public SystemName GetPreferredLink()
     {
-      return new SystemName(new Uri(_rootDescriptor.SSDPRootEntry.PreferredLink.DescriptionLocation).Host);
+      return new SystemName(new Uri(_serverDeviceDescriptor.RootDescriptor.SSDPRootEntry.PreferredLink.DescriptionLocation).Host);
     }
 
     public static bool operator == (ServerDescriptor a, ServerDescriptor b)
@@ -86,13 +92,13 @@ namespace MediaPortal.UI.ServerCommunication
 
     public override int GetHashCode()
     {
-      return _mpBackendServerUUID.GetHashCode();
+      return MPBackendServerUUID.GetHashCode();
     }
 
     public override string ToString()
     {
       SystemName preferredLink = GetPreferredLink();
-      return string.Format("MP backend server '{0}' at host '{1}' (IP address: '{2}')", _mpBackendServerUUID, preferredLink.HostName, preferredLink.Address);
+      return string.Format("MP backend server '{0}' at host '{1}' (IP address: '{2}')", MPBackendServerUUID, preferredLink.HostName, preferredLink.Address);
     }
   }
 }

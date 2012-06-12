@@ -22,17 +22,12 @@
 
 #endregion
 
-using System;
 using System.Collections.Generic;
-using System.Xml;
-using System.Xml.XPath;
 using MediaPortal.Common;
 using MediaPortal.Common.General;
 using MediaPortal.Common.Logging;
-using MediaPortal.Common.UPnP;
 using MediaPortal.UI.ServerCommunication;
 using UPnP.Infrastructure.CP;
-using UPnP.Infrastructure.Utils;
 
 namespace MediaPortal.UI.Services.ServerCommunication
 {
@@ -76,33 +71,12 @@ namespace MediaPortal.UI.Services.ServerCommunication
       _networkTracker.Close();
     }
 
-    public static ServerDescriptor GetMPBackendServerDescriptor(RootDescriptor rootDescriptor)
-    {
-      try
-      {
-        XPathNavigator deviceElementNav = rootDescriptor.FindFirstDeviceElement(
-            UPnPTypesAndIds.BACKEND_SERVER_DEVICE_TYPE, UPnPTypesAndIds.BACKEND_SERVER_DEVICE_TYPE_VERSION);
-        if (deviceElementNav == null)
-          return null;
-        XmlNamespaceManager nsmgr = new XmlNamespaceManager(deviceElementNav.NameTable);
-        nsmgr.AddNamespace("d", UPnP.Infrastructure.UPnPConsts.NS_DEVICE_DESCRIPTION);
-        string udn = RootDescriptor.GetDeviceUDN(deviceElementNav, nsmgr);
-        string friendlyName = ParserHelper.SelectText(deviceElementNav, "d:friendlyName/text()", nsmgr);
-        return new ServerDescriptor(rootDescriptor, ParserHelper.ExtractUUIDFromUDN(udn), friendlyName);
-      }
-      catch (Exception e)
-      {
-        ServiceRegistration.Get<ILogger>().Warn("Error parsing UPnP device description", e);
-        return null;
-      }
-    }
-
     void OnUPnPRootDeviceAdded(RootDescriptor rootDescriptor)
     {
       ICollection<ServerDescriptor> availableServers;
       lock (_networkTracker.SharedControlPointData.SyncObj)
       {
-        ServerDescriptor serverDescriptor = GetMPBackendServerDescriptor(rootDescriptor);
+        ServerDescriptor serverDescriptor = ServerDescriptor.GetMPBackendServerDescriptor(rootDescriptor);
         if (serverDescriptor == null || _availableServers.Contains(serverDescriptor))
           return;
         SystemName preferredLink = serverDescriptor.GetPreferredLink();
@@ -119,7 +93,7 @@ namespace MediaPortal.UI.Services.ServerCommunication
       ICollection<ServerDescriptor> availableServers;
       lock (_networkTracker.SharedControlPointData.SyncObj)
       {
-        ServerDescriptor serverDescriptor = GetMPBackendServerDescriptor(rootDescriptor);
+        ServerDescriptor serverDescriptor = ServerDescriptor.GetMPBackendServerDescriptor(rootDescriptor);
         if (serverDescriptor == null || !_availableServers.Contains(serverDescriptor))
           return;
         SystemName preferredLink = serverDescriptor.GetPreferredLink();

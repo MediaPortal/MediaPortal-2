@@ -41,8 +41,7 @@ namespace UPnP.Infrastructure.Dv.DeviceTree
   /// <param name="context">Context object holding context data of the current action call.</param>
   /// <returns><c>null</c>, if the action invocation was successful, else UPnP error instance with error code and error
   /// description.</returns>
-  public delegate UPnPError ActionInvokeDlgt(DvAction action, IList<object> inParams, out IList<object> outParams,
-      CallContext context);
+  public delegate UPnPError ActionInvokeDlgt(DvAction action, IList<object> inParams, out IList<object> outParams, CallContext context);
 
   /// <summary>
   /// Base UPnP action class providing the functionality for an UPnP service action.

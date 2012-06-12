@@ -25,9 +25,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Xml;
-using System.Xml.XPath;
-using UPnP.Infrastructure.Utils;
+using UPnP.Infrastructure.CP.Description;
 
 namespace UPnP.Infrastructure.CP.DeviceTree
 {
@@ -286,28 +284,26 @@ namespace UPnP.Infrastructure.CP.DeviceTree
       _services.Add(service.ServiceId, service);
     }
 
-    internal static CpDevice ConnectDevice(DeviceConnection connection, RootDescriptor rootDescriptor, XPathNavigator deviceNav,
-        IXmlNamespaceResolver nsmgr, DataTypeResolverDlgt dataTypeResolver)
+    internal static CpDevice ConnectDevice(DeviceConnection connection, DeviceDescriptor deviceDescriptor, DataTypeResolverDlgt dataTypeResolver)
     {
       lock (connection.CPData.SyncObj)
       {
-        string deviceUUID = ParserHelper.ExtractUUIDFromUDN(RootDescriptor.GetDeviceUDN(deviceNav, nsmgr));
-        // Check current device
-        string typeVersion_URN = ParserHelper.SelectText(deviceNav, "d:deviceType/text()", nsmgr);
         string type;
         int version;
-        if (!ParserHelper.TryParseTypeVersion_URN(typeVersion_URN, out type, out version))
-          throw new ArgumentException(string.Format("Invalid device type/version URN '{0}'", typeVersion_URN));
-        CpDevice result = new CpDevice(connection, type, version, deviceUUID);
+        if (!deviceDescriptor.GetTypeAndVersion(out type, out version))
+          throw new ArgumentException(string.Format("Invalid device type/version URN '{0}'", deviceDescriptor.TypeVersion_URN));
+        CpDevice result = new CpDevice(connection, type, version, deviceDescriptor.DeviceUUID);
 
-        XPathNodeIterator dvIt = deviceNav.Select("d:deviceList/d:device", nsmgr);
-        while (dvIt.MoveNext())
-          result.AddEmbeddedDevice(ConnectDevice(connection, rootDescriptor, dvIt.Current, nsmgr, dataTypeResolver));
-        IDictionary<string, ServiceDescriptor> sds;
-        if (!rootDescriptor.ServiceDescriptors.TryGetValue(deviceUUID, out sds))
-          return result;
-        foreach (ServiceDescriptor serviceDescriptor in sds.Values)
-          result.AddService(CpService.ConnectService(connection, result, serviceDescriptor, dataTypeResolver));
+        foreach (DeviceDescriptor childDevice in deviceDescriptor.ChildDevices)
+          result.AddEmbeddedDevice(ConnectDevice(connection, childDevice, dataTypeResolver));
+        IDictionary<string, ServiceDescriptor> serviceDescriptors;
+        if (deviceDescriptor.RootDescriptor.ServiceDescriptors.TryGetValue(deviceDescriptor.DeviceUUID, out serviceDescriptors))
+          foreach (ServiceDescriptor serviceDescriptor in serviceDescriptors.Values)
+            if (serviceDescriptor.State == ServiceDescriptorState.Ready)
+              result.AddService(CpService.ConnectService(connection, result, serviceDescriptor, dataTypeResolver));
+            else
+              UPnPConfiguration.LOGGER.Warn("CpDevice.ConnectDevice: Unable to connect to service '{0}' (type '{1}', version '{2}') - the service descriptor was not initialized properly",
+                  serviceDescriptor.ServiceId, serviceDescriptor.ServiceType, serviceDescriptor.ServiceTypeVersion);
         return result;
       }
     }

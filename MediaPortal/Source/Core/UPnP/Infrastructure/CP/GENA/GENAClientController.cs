@@ -35,6 +35,7 @@ using HttpServer;
 using MediaPortal.Utilities.Exceptions;
 using MediaPortal.Utilities.Network;
 using UPnP.Infrastructure.Common;
+using UPnP.Infrastructure.CP.Description;
 using UPnP.Infrastructure.CP.DeviceTree;
 using UPnP.Infrastructure.CP.SSDP;
 using UPnP.Infrastructure.Utils;

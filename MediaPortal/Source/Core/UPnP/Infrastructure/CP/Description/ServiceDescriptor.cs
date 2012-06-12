@@ -24,7 +24,7 @@
 
 using System.Xml.XPath;
 
-namespace UPnP.Infrastructure.CP
+namespace UPnP.Infrastructure.CP.Description
 {
   /// <summary>
   /// State enumeration for the <see cref="ServiceDescriptor"/>.
@@ -69,17 +69,20 @@ namespace UPnP.Infrastructure.CP
     protected string _serviceType;
     protected int _serviceTypeVersion;
     protected string _serviceId;
+    protected string _descriptionURL;
     protected string _controlURL;
     protected string _eventSubURL;
     protected XPathDocument _serviceDescription = null;
     protected ServiceDescriptorState _state = ServiceDescriptorState.Initializing;
 
-    internal ServiceDescriptor(RootDescriptor rootDescriptor, string serviceType, int serviceTypeVersion, string serviceId, string controlURL, string eventSubURL)
+    internal ServiceDescriptor(RootDescriptor rootDescriptor, string serviceType, int serviceTypeVersion, string serviceId,
+        string descriptionURL, string controlURL, string eventSubURL)
     {
       _rootDescriptor = rootDescriptor;
       _serviceType = serviceType;
       _serviceTypeVersion = serviceTypeVersion;
       _serviceId = serviceId;
+      _descriptionURL = descriptionURL;
       _controlURL = controlURL;
       _eventSubURL = eventSubURL;
     }
@@ -125,6 +128,14 @@ namespace UPnP.Infrastructure.CP
     public string ServiceId
     {
       get { return _serviceId; }
+    }
+
+    /// <summary>
+    /// Gets the URL where the service description can be found.
+    /// </summary>
+    public string DescriptionURL
+    {
+      get { return _descriptionURL; }
     }
 
     /// <summary>

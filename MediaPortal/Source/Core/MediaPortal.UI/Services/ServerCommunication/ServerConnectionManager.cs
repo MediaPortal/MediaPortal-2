@@ -246,7 +246,7 @@ namespace MediaPortal.UI.Services.ServerCommunication
 
     void OnBackendServerConnected(DeviceConnection connection)
     {
-      ServerDescriptor serverDescriptor = UPnPServerWatcher.GetMPBackendServerDescriptor(connection.RootDescriptor);
+      ServerDescriptor serverDescriptor = ServerDescriptor.GetMPBackendServerDescriptor(connection.RootDescriptor);
       if (serverDescriptor == null)
       {
         ServiceRegistration.Get<ILogger>().Warn("ServerConnectionManager: Could not connect to home server - Unable to verify UPnP root descriptor");
@@ -479,8 +479,20 @@ namespace MediaPortal.UI.Services.ServerCommunication
 
     void OnCurrentlyImportingSharesChanged()
     {
-      IContentDirectory cd = ContentDirectory;
-      UpdateCurrentlyImportingShares(cd == null ? null : cd.GetCurrentlyImportingShares());
+      ServiceRegistration.Get<IThreadPool>().Add(() =>
+        {
+          ICollection<Guid> currentlyImportingShares = null;
+          try
+          {
+            IContentDirectory cd = ContentDirectory;
+            currentlyImportingShares = cd == null ? null : cd.GetCurrentlyImportingShares();
+          }
+          catch (Exception)
+          {
+            ServiceRegistration.Get<ILogger>().Warn("ServerConnectionManager.OnCurrentlyImportingSharesChanged: Failed to update currently importing shares.");
+          }
+          UpdateCurrentlyImportingShares(currentlyImportingShares);
+        });
     }
 
     #region IServerCommunicationManager implementation
