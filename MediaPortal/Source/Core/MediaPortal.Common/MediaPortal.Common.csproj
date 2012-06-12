@@ -399,6 +399,7 @@
     </BootstrapperPackage>
   </ItemGroup>
   <ItemGroup>
+    <Content Include="References\log4net.dll" />
     <Content Include="References\Microsoft.WindowsAPICodePack.dll" />
     <Content Include="References\Microsoft.WindowsAPICodePack.Shell.dll" />
   </ItemGroup>
