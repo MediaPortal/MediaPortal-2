@@ -77,21 +77,15 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="plugin.xml" />
-    <Content Include="References\sqlceca35.dll">
-    </Content>
-    <Content Include="References\sqlcecompact35.dll">
-    </Content>
-    <Content Include="References\sqlceer35EN.dll">
-    </Content>
-    <Content Include="References\sqlceme35.dll">
-    </Content>
-    <Content Include="References\sqlceoledb35.dll">
-    </Content>
-    <Content Include="References\sqlceqp35.dll">
-    </Content>
-    <Content Include="References\sqlcese35.dll">
-    </Content>
+    <Content Include="References\sqlceca40.dll" />
+    <Content Include="References\sqlcecompact40.dll" />
+    <Content Include="References\sqlceer40EN.dll" />
+    <Content Include="References\sqlceme40.dll" />
+    <Content Include="References\sqlceoledb40.dll" />
+    <Content Include="References\sqlceqp40.dll" />
+    <Content Include="References\sqlcese40.dll" />
     <Content Include="References\System.Data.SqlServerCe.dll" />
+    <Content Include="References\System.Data.SqlServerCe.Entity.dll" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\..\Core\MediaPortal.Backend\MediaPortal.Backend.csproj">
