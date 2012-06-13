@@ -868,6 +868,8 @@ namespace MediaPortal.Backend.Services.MediaLibrary
       lock (clientManager.SyncObj)
       {
         ClientConnection client = clientManager.ConnectedClients.Where(c => c.Descriptor.MPFrontendServerUUID == share.SystemId).FirstOrDefault();
+        if (client == null)
+          return;
         object value;
         if (client.Properties.TryGetValue(KEY_CURRENTLY_IMPORTING_SHARE_IDS, out value))
           ((ICollection<Guid>) value).Add(shareId);
@@ -889,6 +891,8 @@ namespace MediaPortal.Backend.Services.MediaLibrary
       lock (clientManager.SyncObj)
       {
         ClientConnection client = clientManager.ConnectedClients.Where(c => c.Descriptor.MPFrontendServerUUID == share.SystemId).FirstOrDefault();
+        if (client == null)
+          return;
         object value;
         if (client.Properties.TryGetValue(KEY_CURRENTLY_IMPORTING_SHARE_IDS, out value))
           ((ICollection<Guid>) value).Remove(shareId);
