@@ -94,7 +94,7 @@
             <Grid.ColumnDefinitions>
               <ColumnDefinition Width="*"/>
             </Grid.ColumnDefinitions>
-            <ListView x:Name="MediaItemsList" Style="{ThemeResource BasicMediaItemsListListViewStyle}" ItemsSource="{Binding Items}"
+            <ListView x:Name="MediaItemsList" Style="{ThemeResource MoviesListViewStyle}" ItemsSource="{Binding Items}"
               HorizontalAlignment="Stretch" VerticalAlignment="Stretch" IsVisible="{Binding ShowList}" Margin="5">
               <ListView.Resources>
                 <Command x:Key="Menu_Command" Source="{StaticResource MediaModel}" Path="Select"

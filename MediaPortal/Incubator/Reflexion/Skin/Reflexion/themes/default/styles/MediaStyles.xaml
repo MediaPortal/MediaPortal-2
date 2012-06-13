@@ -664,6 +664,20 @@
     </Grid>
   </ControlTemplate>
 
+  <!-- Movie -->
+  <ControlTemplate x:Key="ListViewMovieItemTemplate">
+    <Grid x:Name="ItemControl">
+      <Grid.ColumnDefinitions>
+        <ColumnDefinition Width="*"/>
+      </Grid.ColumnDefinitions>
+      <Grid.RowDefinitions>
+        <RowDefinition Height="*"/>
+      </Grid.RowDefinitions>
+      <Label x:Name="ItemLabel" Grid.Row="0" Grid.Column="0" Content="{Binding SimpleTitle}" Margin="5"
+          Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}"/>
+    </Grid>
+  </ControlTemplate>
+
   <!-- Video -->
   <ControlTemplate x:Key="ListViewVideoItemTemplate">
     <Grid x:Name="ItemControl">
@@ -888,6 +902,11 @@
     </Control>
   </DataTemplate>
 
+  <!-- For movie we like to have only a simple list here, without thumbs  -->
+  <DataTemplate DataType="{x:Type navitems:MovieItem}">
+    <Control Template="{StaticResource ListViewMovieItemTemplate}"/>
+  </DataTemplate>
+
   <DataTemplate DataType="{x:Type navitems:VideoItem}">
     <Control>
       <Control.Template>
@@ -988,34 +1007,11 @@
     </BindingSetter>
   </Style>
 
-  <ControlTemplate x:Key="BasicMediaItemItemTemplate">
-    <Grid x:Name="ItemControl">
-      <Grid.ColumnDefinitions>
-        <ColumnDefinition Width="*"/>
-        <ColumnDefinition Width="Auto"/>
-      </Grid.ColumnDefinitions>
-      <Label x:Name="ItemLabel" Grid.Column="0" Content="{Binding SimpleTitle}"
-          Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}"/>
-      <Label x:Name="NumItems" Grid.Column="1" Content="{Binding NumItems}"
-          Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}"/>
-    </Grid>
-  </ControlTemplate>
+  <ControlTemplate x:Key="MovieItemTemplate" />
 
-  <Style x:Key="BasicMediaItemsListListViewStyle" BasedOn="{ThemeResource ContentsMenuListViewStyle}">
+  <Style x:Key="MoviesListViewStyle" BasedOn="{ThemeResource MenuListViewStyle}">
     <Setter Property="SelectionChanged" Value="{CommandStencil Source={StaticResource FanArtBackgroundModel}, Path=SetSelectedItem}"/>
-    <Setter Property="ItemTemplate" Value="{ThemeResource BasicMediaItemItemTemplate}"/>
-    <Setter Property="DataStringProvider" Value="{ThemeResource MediaItemDataStringProvider}"/>
-    <Setter Property="ItemContainerStyle" Value="{ThemeResource MediaItemContainerStyle}"/>
-    <Setter Property="Template">
-      <Setter.Value>
-        <ControlTemplate TargetType="{x:Type ListView}">
-          <ScrollViewer CanContentScroll="True" Margin="5"
-              HorizontalScrollBarVisibility="Disabled" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
-            <ItemsPresenter VerticalAlignment="Stretch" HorizontalAlignment="Stretch"/>
-          </ScrollViewer>
-        </ControlTemplate>
-      </Setter.Value>
-    </Setter>
+    <Setter Property="ItemTemplate" Value="{ThemeResource MovieItemTemplate}"/>
   </Style>
 
 
