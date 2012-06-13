@@ -24,7 +24,9 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Net;
+using System.Net.NetworkInformation;
 using System.Net.Sockets;
 using System.Security;
 using System.Threading;
@@ -53,20 +55,46 @@ namespace UPnP.Infrastructure.Utils
     /// <returns>Collection of local IP addresses.</returns>
     public static ICollection<IPAddress> GetExternalIPAddresses()
     {
-      ICollection<IPAddress> result = new List<IPAddress>();
       try
       {
         string hostName = Dns.GetHostName();
-        CollectionUtils.AddAll(result, Dns.GetHostAddresses(hostName));
+        return new List<IPAddress>(Dns.GetHostAddresses(hostName));
       }
-      catch (SocketException) { }
+      catch (SocketException)
+      {
+        UPnPConfiguration.LOGGER.Error("NetworkHelper: Error retrieving external IP addresses for the UPnP system");
+        return new List<IPAddress>();
+      }
+    }
+
+    /// <summary>
+    /// Returns all local ip addresses.
+    /// </summary>
+    /// <remarks>
+    /// This is an alternative way to find network interfaces to <see cref="GetExternalIPAddresses"/>. Doesn't find all addresses, especially those IPv6 addresses
+    /// with scope id 0.
+    /// </remarks>
+    /// <returns>Collection of local IP addresses.</returns>
+    public static ICollection<IPAddress> GetLocalIPAddresses()
+    {
+      ICollection<IPAddress> result = new List<IPAddress>();
+      NetworkInterface[] interfaces = NetworkInterface.GetAllNetworkInterfaces();  
+      foreach (NetworkInterface intf in
+          interfaces.Where(intf => !intf.IsReceiveOnly && intf.OperationalStatus == OperationalStatus.Up && intf.SupportsMulticast))
+        CollectionUtils.AddAll(result, intf.GetIPProperties().UnicastAddresses.Select(addrInfo => addrInfo.Address).Where(addr => !addr.Equals(IPAddress.IPv6Loopback)));
       return result;
     }
 
+    /// <summary>
+    /// Collects all interfaces where the UPnP system should be active.
+    /// </summary>
+    /// <returns>Collection of IP addresses to bind to receive UPnP messages.</returns>
     public static ICollection<IPAddress> GetUPnPEnabledIPAddresses()
     {
-      // Collect all interfaces where the UPnP system should be active
-      return GetExternalIPAddresses();
+      ICollection<IPAddress> result = new List<IPAddress>(GetExternalIPAddresses());
+      if (!result.Contains(IPAddress.Loopback))
+        result.Add(IPAddress.Loopback);
+      return result;
     }
 
     /// <summary>
