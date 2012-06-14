@@ -1,5 +1,4 @@
 Bass dlls (skipped, compatibility error, will be done later https://github.com/MediaPortal/MediaPortal-1/commit/1578775a5ce2c40b99c4ad74a86ff3c2f94309b4)
 IrssComms (*)
 IrssUtils (*)
-Tv4Home (deprecated)
 (*) source available
