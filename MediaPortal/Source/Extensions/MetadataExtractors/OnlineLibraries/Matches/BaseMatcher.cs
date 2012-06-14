@@ -35,7 +35,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matches
   /// </summary>
   /// <typeparam name="TMatch">Type of match, must be derived from <see cref="BaseMatch{T}"/>.</typeparam>
   /// <typeparam name="TId">Type of internal ID of the match.</typeparam>
-  public abstract class BaseMatcher<TMatch,TId> : IDisposable
+  public abstract class BaseMatcher<TMatch, TId> : IDisposable
     where TMatch : BaseMatch<TId>
   {
     #region Constants
@@ -63,10 +63,17 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matches
     protected Predicate<TMatch> _matchPredicate;
 
     #endregion
-    
-    public bool ScheduleDownload(TId tvDbId)
+
+    protected BaseMatcher ()
     {
-      bool fanArtDownloaded = CheckBeginDownloadFanArt(tvDbId);
+      ResumeDownloads();
+    }
+
+    protected abstract bool Init();
+
+    public bool ScheduleDownload(TId tvDbId, bool force = false)
+    {
+      bool fanArtDownloaded = !force && CheckBeginDownloadFanArt(tvDbId);
       if (fanArtDownloaded)
         return true;
 
@@ -114,7 +121,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matches
         Settings.Save(MatchesSettingsFile, matches);
       }
     }
-    
+
     // TODO: implement lookup table and download stats in database
     protected bool CheckBeginDownloadFanArt(TId itemId)
     {
@@ -123,7 +130,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matches
       {
         // Load cache or create new list
         List<TMatch> matches = LoadMatches();
-        foreach (TMatch match in matches.FindAll(m=> m.Id.Equals(itemId)))
+        foreach (TMatch match in matches.FindAll(m => m.Id.Equals(itemId)))
         {
           // We can have multiple matches for one TvDbId in list, if one has FanArt downloaded already, update the flag for all matches.
           if (match.FanArtDownloadFinished.HasValue)
@@ -149,6 +156,25 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matches
 
         Settings.Save(MatchesSettingsFile, matches);
       }
+    }
+
+    protected void ResumeDownloads()
+    {
+      if (!Init())
+        return;
+
+      List<TMatch> matches;
+      lock (_syncObj)
+        matches = LoadMatches();
+
+      foreach (TMatch match in matches.FindAll(m => m.FanArtDownloadStarted.HasValue && !m.FanArtDownloadFinished.HasValue ||
+          !m.Id.Equals(default(TId)) && !m.FanArtDownloadStarted.HasValue))
+      {
+        if (!match.FanArtDownloadStarted.HasValue)
+          match.FanArtDownloadStarted = DateTime.Now;
+        ScheduleDownload(match.Id, true);
+      }
+      Settings.Save(MatchesSettingsFile, matches);
     }
 
     protected void DownloadFanArtQueue()

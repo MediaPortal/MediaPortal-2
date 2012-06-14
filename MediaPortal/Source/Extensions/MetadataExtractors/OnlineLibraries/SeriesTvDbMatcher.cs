@@ -250,8 +250,8 @@ namespace MediaPortal.Extensions.OnlineLibraries
           _memoryCache.Add(seriesName, seriesDetail);
       }
     }
-    
-    private bool Init()
+
+    protected override bool Init()
     {
       if (_tv != null)
         return true;

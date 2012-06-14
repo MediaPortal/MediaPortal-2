@@ -202,7 +202,7 @@ namespace MediaPortal.Extensions.OnlineLibraries
       }
     }
 
-    private bool Init()
+    protected override bool Init()
     {
       if (_movieDb != null)
         return true;
@@ -238,6 +238,9 @@ namespace MediaPortal.Extensions.OnlineLibraries
         SaveBanners(imageCollection.Covers, "Covers");
         SaveBanners(imageCollection.Posters, "Posters");
         ServiceRegistration.Get<ILogger>().Debug("MovieTheMovieDbMatcher Download: Finished saving banners for ID {0}", movieDbId);
+
+        // Remember we are finished
+        FinishDownloadFanArt(movieDbId);
       }
       catch (Exception ex)
       {
