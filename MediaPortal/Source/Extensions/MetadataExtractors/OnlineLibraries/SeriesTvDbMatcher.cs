@@ -27,7 +27,6 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using System.Linq;
-using System.Threading;
 using MediaPortal.Common;
 using MediaPortal.Common.Localization;
 using MediaPortal.Common.Logging;
@@ -36,6 +35,7 @@ using MediaPortal.Common.PathManager;
 using MediaPortal.Extensions.OnlineLibraries.Libraries.Common;
 using MediaPortal.Extensions.OnlineLibraries.Libraries.TvdbLib.Data;
 using MediaPortal.Extensions.OnlineLibraries.Libraries.TvdbLib.Data.Banner;
+using MediaPortal.Extensions.OnlineLibraries.Matches;
 using MediaPortal.Extensions.OnlineLibraries.TheTvDB;
 using MediaPortal.Utilities;
 
@@ -44,7 +44,7 @@ namespace MediaPortal.Extensions.OnlineLibraries
   /// <summary>
   /// <see cref="SeriesTvDbMatcher"/> is used to look up online series information from TheTvDB.com.
   /// </summary>
-  public class SeriesTvDbMatcher : IDisposable
+  public class SeriesTvDbMatcher : BaseMatcher<SeriesMatch, int>
   {
     #region Static instance
 
@@ -57,30 +57,20 @@ namespace MediaPortal.Extensions.OnlineLibraries
 
     #region Constants
 
-    public const int MAX_FANART_IMAGES = 5;
-    public const int MAX_FANART_DOWNLOADERS = 3;
-
     public static string CACHE_PATH = ServiceRegistration.Get<IPathManager>().GetPath(@"<DATA>\TvDB\");
-    protected static string SETTINGS_MATCHES = Path.Combine(CACHE_PATH, "Matches.xml");
+    protected static string _matchesSettingsFile = Path.Combine(CACHE_PATH, "Matches.xml");
+
+    protected override string MatchesSettingsFile
+    {
+      get { return _matchesSettingsFile; }
+    }
 
     #endregion
 
     #region Fields
 
     protected Dictionary<string, TvdbSeries> _memoryCache = new Dictionary<string, TvdbSeries>();
-
-    /// <summary>
-    /// Locking object to access settings.
-    /// </summary>
-    protected object _syncObj = new object();
-
-    /// <summary>
-    /// Contains the Series ID for Downloading FanArt asynchronously.
-    /// </summary>
-    protected UniqueEventedQueue<int> _downloadQueue = new UniqueEventedQueue<int>();
-    protected List<Thread> _downloadThreads = new List<Thread>(MAX_FANART_DOWNLOADERS);
-    protected bool _downloadAllowed = true;
-
+    
     /// <summary>
     /// Contains the initialized TvDbWrapper.
     /// </summary>
@@ -178,13 +168,13 @@ namespace MediaPortal.Extensions.OnlineLibraries
       // Load cache or create new list
       List<SeriesMatch> matches;
       lock (_syncObj)
-        matches = Settings.Load<List<SeriesMatch>>(SETTINGS_MATCHES) ?? new List<SeriesMatch>();
+        matches = Settings.Load<List<SeriesMatch>>(MatchesSettingsFile) ?? new List<SeriesMatch>();
 
       // Use cached values before doing online query
-      SeriesMatch match = matches.Find(m => m.SeriesName == seriesName || m.TvDBName == seriesName);
-      if (match != null && match.TvDBID != 0)
+      SeriesMatch match = matches.Find(m => m.ItemName == seriesName || m.TvDBName == seriesName);
+      if (match != null && match.Id != 0)
       {
-        tvDbId = match.TvDBID;
+        tvDbId = match.Id;
         return true;
       }
       return false;
@@ -202,14 +192,14 @@ namespace MediaPortal.Extensions.OnlineLibraries
         // Load cache or create new list
         List<SeriesMatch> matches;
         lock (_syncObj)
-          matches = Settings.Load<List<SeriesMatch>>(SETTINGS_MATCHES) ?? new List<SeriesMatch>();
+          matches = Settings.Load<List<SeriesMatch>>(MatchesSettingsFile) ?? new List<SeriesMatch>();
 
         // Init empty
         seriesDetail = null;
 
         // Use cached values before doing online query
-        SeriesMatch match = matches.Find(m => m.SeriesName == seriesName || m.TvDBName == seriesName);
-        ServiceRegistration.Get<ILogger>().Debug("SeriesTvDbMatcher: Try to lookup series \"{0}\" from cache: {1}", seriesName, match != null && match.TvDBID != 0);
+        SeriesMatch match = matches.Find(m => m.ItemName == seriesName || m.TvDBName == seriesName);
+        ServiceRegistration.Get<ILogger>().Debug("SeriesTvDbMatcher: Try to lookup series \"{0}\" from cache: {1}", seriesName, match != null && match.Id != 0);
 
         // Try online lookup
         if (!Init())
@@ -217,7 +207,7 @@ namespace MediaPortal.Extensions.OnlineLibraries
 
         // If this is a known series, only return the series details (including episodes).
         if (match != null)
-          return match.TvDBID != 0 && _tv.GetSeries(match.TvDBID, true, out seriesDetail);
+          return match.Id != 0 && _tv.GetSeries(match.Id, true, out seriesDetail);
 
         if (cacheOnly)
           return false;
@@ -234,8 +224,8 @@ namespace MediaPortal.Extensions.OnlineLibraries
             // Add this match to cache
             SeriesMatch onlineMatch = new SeriesMatch
                 {
-                  SeriesName = seriesName,
-                  TvDBID = seriesDetail.Id,
+                  ItemName = seriesName,
+                  Id = seriesDetail.Id,
                   TvDBName = seriesDetail.SeriesName
                 };
 
@@ -246,7 +236,7 @@ namespace MediaPortal.Extensions.OnlineLibraries
         }
         ServiceRegistration.Get<ILogger>().Debug("SeriesTvDbMatcher: No unique match found for \"{0}\"", seriesName);
         // Also save "non matches" to avoid retrying
-        SaveNewMatch(seriesName, new SeriesMatch { SeriesName = seriesName });
+        SaveNewMatch(seriesName, new SeriesMatch { ItemName = seriesName });
         return false;
       }
       catch (Exception ex)
@@ -260,18 +250,7 @@ namespace MediaPortal.Extensions.OnlineLibraries
           _memoryCache.Add(seriesName, seriesDetail);
       }
     }
-
-    private void SaveNewMatch(string seriesName, SeriesMatch onlineMatch)
-    {
-      lock (_syncObj)
-      {
-        List<SeriesMatch> matches = Settings.Load<List<SeriesMatch>>(SETTINGS_MATCHES) ?? new List<SeriesMatch>();
-        if (matches.All(m => m.SeriesName != seriesName))
-          matches.Add(onlineMatch);
-        Settings.Save(SETTINGS_MATCHES, matches);
-      }
-    }
-
+    
     private bool Init()
     {
       if (_tv != null)
@@ -284,92 +263,12 @@ namespace MediaPortal.Extensions.OnlineLibraries
       return _tv.Init();
     }
 
-    public bool ScheduleDownload(int tvDbId)
+    protected override List<SeriesMatch> FindNameMatch (List<SeriesMatch> matches, string name)
     {
-      bool fanArtDownloaded = CheckBeginDownloadFanArt(tvDbId);
-      if (fanArtDownloaded)
-        return true;
-
-      lock (_downloadQueue.SyncObj)
-      {
-        bool newEnqueued = _downloadQueue.TryEnqueue(tvDbId);
-        if (newEnqueued && _downloadThreads.Count < _downloadThreads.Capacity)
-        {
-          Thread downloader = new Thread(DownloadFanArtQueue) { Name = "FanArt Downloader " + _downloadThreads.Count, Priority = ThreadPriority.Lowest };
-          downloader.Start();
-          _downloadThreads.Add(downloader);
-        }
-      }
-      return true;
+      return matches.FindAll(m => m.ItemName == name);
     }
-
-    public void EndDownloads()
-    {
-      lock (_downloadQueue.SyncObj)
-      {
-        _downloadQueue.Clear();
-        _downloadAllowed = false;
-      }
-      foreach (Thread downloadThread in _downloadThreads)
-        if (!downloadThread.Join(2000))
-          downloadThread.Abort();
-
-      _downloadThreads.Clear();
-    }
-
-    // TODO: implement lookup table and download stats in database
-    private bool CheckBeginDownloadFanArt(int tvDbId)
-    {
-      bool fanArtDownloaded = false;
-      lock (_syncObj)
-      {
-        // Load cache or create new list
-        List<SeriesMatch> matches = Settings.Load<List<SeriesMatch>>(SETTINGS_MATCHES) ?? new List<SeriesMatch>();
-        foreach (SeriesMatch seriesMatch in matches.FindAll(m => m.TvDBID == tvDbId))
-        {
-          // We can have multiple matches for one TvDbId in list, if one has FanArt downloaded already, update the flag for all matches.
-          if (seriesMatch.FanArtDownloadFinished.HasValue)
-            fanArtDownloaded = true;
-
-          if (!seriesMatch.FanArtDownloadStarted.HasValue)
-            seriesMatch.FanArtDownloadStarted = DateTime.Now;
-        }
-        Settings.Save(SETTINGS_MATCHES, matches);
-      }
-      return fanArtDownloaded;
-    }
-
-    private void FinishDownloadFanArt(int tvDbId)
-    {
-      lock (_syncObj)
-      {
-        // Load cache or create new list
-        List<SeriesMatch> matches = Settings.Load<List<SeriesMatch>>(SETTINGS_MATCHES) ?? new List<SeriesMatch>();
-        foreach (SeriesMatch seriesMatch in matches.FindAll(m => m.TvDBID == tvDbId))
-          if (!seriesMatch.FanArtDownloadFinished.HasValue)
-            seriesMatch.FanArtDownloadFinished = DateTime.Now;
-
-        Settings.Save(SETTINGS_MATCHES, matches);
-      }
-    }
-
-    protected void DownloadFanArtQueue()
-    {
-      while (_downloadAllowed)
-      {
-        _downloadQueue.OnEnqueued.WaitOne(1000);
-        int tvDbId;
-        lock (_downloadQueue.SyncObj)
-        {
-          if (_downloadQueue.Count == 0)
-            continue;
-          tvDbId = _downloadQueue.Dequeue();
-        }
-        DownloadFanArt(tvDbId);
-      }
-    }
-
-    protected void DownloadFanArt(int tvDbId)
+    
+    protected override void DownloadFanArt(int tvDbId)
     {
       try
       {
@@ -443,14 +342,5 @@ namespace MediaPortal.Extensions.OnlineLibraries
       }
       return idx;
     }
-
-    #region IDisposable members
-
-    public void Dispose()
-    {
-      EndDownloads();
-    }
-
-    #endregion
   }
 }

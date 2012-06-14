@@ -27,54 +27,44 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using System.Linq;
-using System.Threading;
 using MediaPortal.Common;
 using MediaPortal.Common.Localization;
 using MediaPortal.Common.Logging;
 using MediaPortal.Common.MediaManagement.Helpers;
 using MediaPortal.Common.PathManager;
-using MediaPortal.Common.Threading;
-using MediaPortal.Extensions.OnlineLibraries.Libraries.Common;
 using MediaPortal.Extensions.OnlineLibraries.Libraries.MovieDbV3.Data;
+using MediaPortal.Extensions.OnlineLibraries.Matches;
 using MediaPortal.Extensions.OnlineLibraries.TheMovieDB;
 
 namespace MediaPortal.Extensions.OnlineLibraries
 {
-  public class MovieTheMovieDbMatcher
+  public class MovieTheMovieDbMatcher : BaseMatcher<MovieMatch, int>
   {
     #region Static instance
 
-    private static MovieTheMovieDbMatcher _instance;
     public static MovieTheMovieDbMatcher Instance
     {
-      get { return _instance ?? (_instance = new MovieTheMovieDbMatcher()); }
+      get { return ServiceRegistration.Get<MovieTheMovieDbMatcher>(); }
     }
 
     #endregion
 
     #region Constants
 
-    public const int MAX_FANART_IMAGES = 5;
-
     public static string CACHE_PATH = ServiceRegistration.Get<IPathManager>().GetPath(@"<DATA>\TheMovieDB\");
-    protected static string SETTINGS_MATCHES = Path.Combine(CACHE_PATH, "Matches.xml");
+    protected static string _matchesSettingsFile = Path.Combine(CACHE_PATH, "Matches.xml");
+
+    protected override string MatchesSettingsFile
+    {
+      get { return _matchesSettingsFile; }
+    }
 
     #endregion
 
     #region Fields
 
     protected Dictionary<string, Movie> _memoryCache = new Dictionary<string, Movie>();
-
-    /// <summary>
-    /// Locking object to access settings.
-    /// </summary>
-    protected object _syncObj = new object();
-
-    /// <summary>
-    /// Contains the Movie ID for Downloading FanArt asynchronously.
-    /// </summary>
-    protected int _currentMovieDbId;
-
+    
     /// <summary>
     /// Contains the initialized TheMovieDbWrapper.
     /// </summary>
@@ -127,7 +117,7 @@ namespace MediaPortal.Extensions.OnlineLibraries
         }
 
         if (movieDbId > 0)
-          DownloadFanArt(movieDbId);
+          ScheduleDownload(movieDbId);
         return true;
       }
       return false;
@@ -155,14 +145,14 @@ namespace MediaPortal.Extensions.OnlineLibraries
           return true;
 
         // Load cache or create new list
-        List<MovieMatch> matches = Settings.Load<List<MovieMatch>>(SETTINGS_MATCHES) ?? new List<MovieMatch>();
+        List<MovieMatch> matches = LoadMatches();
 
         // Init empty
         movieDetail = null;
 
         // Use cached values before doing online query
-        MovieMatch match = matches.Find(m => m.MovieName == movieName || m.MovieDBName == movieName);
-        ServiceRegistration.Get<ILogger>().Debug("MovieTheMovieDbMatcher: Try to lookup movie \"{0}\" from cache: {1}", movieName, match != null && match.ID != 0);
+        MovieMatch match = matches.Find(m => m.ItemName == movieName || m.MovieDBName == movieName);
+        ServiceRegistration.Get<ILogger>().Debug("MovieTheMovieDbMatcher: Try to lookup movie \"{0}\" from cache: {1}", movieName, match != null && match.Id != 0);
 
         // Try online lookup
         if (!Init())
@@ -170,7 +160,7 @@ namespace MediaPortal.Extensions.OnlineLibraries
 
         // If this is a known movie, only return the movie details.
         if (match != null)
-          return match.ID != 0 && _movieDb.GetMovie(match.ID, out movieDetail);
+          return match.Id != 0 && _movieDb.GetMovie(match.Id, out movieDetail);
 
         if (cacheOnly)
           return false;
@@ -185,8 +175,8 @@ namespace MediaPortal.Extensions.OnlineLibraries
             // Add this match to cache
             MovieMatch onlineMatch = new MovieMatch
               {
-                MovieName = movieName,
-                ID = movieDetail.Id,
+                Id = movieDetail.Id,
+                ItemName = movieName,
                 MovieDBName = movieDetail.Title
               };
 
@@ -197,7 +187,7 @@ namespace MediaPortal.Extensions.OnlineLibraries
         }
         ServiceRegistration.Get<ILogger>().Debug("MovieTheMovieDbMatcher: No unique match found for \"{0}\"", movieName);
         // Also save "non matches" to avoid retrying
-        SaveNewMatch(movieName, new MovieMatch { MovieName = movieName });
+        SaveNewMatch(movieName, new MovieMatch { ItemName = movieName });
         return false;
       }
       catch (Exception ex)
@@ -224,45 +214,13 @@ namespace MediaPortal.Extensions.OnlineLibraries
       return _movieDb.Init();
     }
 
-    private void SaveNewMatch(string movieName, MovieMatch onlineMatch)
+    protected override List<MovieMatch> FindNameMatch (List<MovieMatch> matches, string name)
     {
-      lock (_syncObj)
-      {
-        List<MovieMatch> matches = Settings.Load<List<MovieMatch>>(SETTINGS_MATCHES) ?? new List<MovieMatch>();
-        if (matches.All(m => m.MovieName != movieName))
-          matches.Add(onlineMatch);
-        Settings.Save(SETTINGS_MATCHES, matches);
-      }
+      return matches.FindAll(m => m.ItemName == name);
     }
 
-    public bool DownloadFanArt(int tvDbId)
+    protected override void DownloadFanArt(int movieDbId)
     {
-      bool fanArtDownloaded = false;
-      lock (_syncObj)
-      {
-        // Load cache or create new list
-        List<MovieMatch> matches = Settings.Load<List<MovieMatch>>(SETTINGS_MATCHES) ?? new List<MovieMatch>();
-        foreach (MovieMatch movieMatch in matches.FindAll(m => m.ID == tvDbId))
-        {
-          // We can have multiple matches for one TvDbId in list, if one has FanArt downloaded already, update the flag for all matches.
-          if (movieMatch.FanArtDownloaded)
-            fanArtDownloaded = true;
-          movieMatch.FanArtDownloaded = true;
-        }
-        Settings.Save(SETTINGS_MATCHES, matches);
-      }
-      if (fanArtDownloaded)
-        return true;
-
-      _currentMovieDbId = tvDbId;
-      IThreadPool threadPool = ServiceRegistration.Get<IThreadPool>();
-      threadPool.Add(DownloadFanArt_Async, "FanArt Downloader " + tvDbId, QueuePriority.Low, ThreadPriority.Lowest);
-      return true;
-    }
-
-    protected void DownloadFanArt_Async()
-    {
-      int movieDbId = _currentMovieDbId;
       try
       {
         ServiceRegistration.Get<ILogger>().Debug("MovieTheMovieDbMatcher Download: Started for ID {0}", movieDbId);
@@ -293,7 +251,7 @@ namespace MediaPortal.Extensions.OnlineLibraries
         return 0;
 
       int idx = 0;
-      foreach (MovieImage banner in banners.Where(b=> b.Language == null || b.Language == _movieDb.PreferredLanguage))
+      foreach (MovieImage banner in banners.Where(b => b.Language == null || b.Language == _movieDb.PreferredLanguage))
       {
         if (idx >= MAX_FANART_IMAGES)
           break;

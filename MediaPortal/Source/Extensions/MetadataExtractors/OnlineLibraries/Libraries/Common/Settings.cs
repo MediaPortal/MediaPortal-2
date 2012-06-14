@@ -47,6 +47,10 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.Common
     {
       try
       {
+        string directoryName = Path.GetDirectoryName(fileName);
+        if (!Directory.Exists(directoryName))
+          Directory.CreateDirectory(directoryName);
+
         XmlSerializer serializer = new XmlSerializer(typeof(TE));
         using (FileStream fileStream = new FileStream(fileName, FileMode.Create))
           serializer.Serialize(fileStream, settingsObject);

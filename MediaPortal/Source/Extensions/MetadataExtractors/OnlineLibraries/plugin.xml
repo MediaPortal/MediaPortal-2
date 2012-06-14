@@ -14,6 +14,8 @@
   <Register Location="/Services">
     <Service Id="SeriesTvDbMatcher" RegistrationClassName="MediaPortal.Extensions.OnlineLibraries.SeriesTvDbMatcher"
         ServiceClassName="MediaPortal.Extensions.OnlineLibraries.SeriesTvDbMatcher"/>
+    <Service Id="MovieTheMovieDbMatcher" RegistrationClassName="MediaPortal.Extensions.OnlineLibraries.MovieTheMovieDbMatcher"
+        ServiceClassName="MediaPortal.Extensions.OnlineLibraries.MovieTheMovieDbMatcher"/>
   </Register>
 
 </Plugin>

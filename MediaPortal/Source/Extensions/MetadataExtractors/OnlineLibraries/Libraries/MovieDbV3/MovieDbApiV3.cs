@@ -207,6 +207,8 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.MovieDbV3
     /// <returns><c>true</c> if successful</returns>
     protected bool DownloadFile(string url, string downloadFile)
     {
+      if (File.Exists(downloadFile))
+        return true;
       try
       {
         WebClient webClient = new WebClient();

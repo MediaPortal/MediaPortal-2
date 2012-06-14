@@ -24,18 +24,30 @@
 
 using System;
 
-namespace MediaPortal.Extensions.OnlineLibraries
+namespace MediaPortal.Extensions.OnlineLibraries.Matches
 {
-  public class SeriesMatch
+  /// <summary>
+  /// Base class for matches of Series or Movies. It contains required fields for the <see cref="BaseMatcher{TMatch,TId}"/> download management feature.
+  /// </summary>
+  /// <typeparam name="T"></typeparam>
+  public abstract class BaseMatch<T>
   {
-    public string SeriesName;
-    public string TvDBName;
-    public int TvDBID;
+    /// <summary>
+    /// Item name (Series, Movie)
+    /// </summary>
+    public string ItemName;
+    /// <summary>
+    /// ID of the online library, type is specified by <typeparamref name="T"/>.
+    /// </summary>
+    public T Id;
+    /// <summary>
+    /// Contains the start time of download. If it is not <c>null</c> and <see cref="FanArtDownloadFinished"/> is <c>null</c>, download should be still
+    /// in progress.
+    /// </summary>
     public DateTime? FanArtDownloadStarted;
+    /// <summary>
+    /// Contains the end time of download. If it is not <c>null</c>, download has been completed.
+    /// </summary>
     public DateTime? FanArtDownloadFinished;
-    public override string ToString()
-    {
-      return string.Format("{0}: {1} [{2}]", SeriesName, TvDBName, TvDBID);
-    }
   }
 }

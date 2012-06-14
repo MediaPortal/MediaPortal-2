@@ -22,17 +22,21 @@
 
 #endregion
 
-namespace MediaPortal.Extensions.OnlineLibraries
+namespace MediaPortal.Extensions.OnlineLibraries.Matches
 {
-  public class MovieMatch
+  /// <summary>
+  /// MovieMatch stores name matches for Movies.
+  /// </summary>
+  public class MovieMatch : BaseMatch<int>
   {
-    public string MovieName;
+    /// <summary>
+    /// Contains the name found in online library.
+    /// </summary>
     public string MovieDBName;
-    public int ID;
-    public bool FanArtDownloaded;
+
     public override string ToString()
     {
-      return string.Format("{0}: {1} [{2}]", MovieName, MovieDBName, ID);
+      return string.Format("{0}: {1} [{2}]", ItemName, MovieDBName, Id);
     }
   }
 }
