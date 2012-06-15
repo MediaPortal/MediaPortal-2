@@ -170,7 +170,7 @@ namespace MediaPortal.UiComponents.IrInput
     {
       ISettingsManager settingsManager = ServiceRegistration.Get<ISettingsManager>();
       IrInputSettings settings = settingsManager.Load<IrInputSettings>();
-      IPAddress serverIP = Client.GetIPFromName(settings.ServerHost);
+      IPAddress serverIP = Network.GetIPFromName(settings.ServerHost);
       IPEndPoint endPoint = new IPEndPoint(serverIP, Server.DefaultPort);
 
       return StartClient(endPoint);
