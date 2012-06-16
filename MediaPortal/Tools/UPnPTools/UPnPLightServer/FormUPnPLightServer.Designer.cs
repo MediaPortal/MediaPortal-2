@@ -91,6 +91,7 @@
       this.cbActivateServer.TabIndex = 1;
       this.cbActivateServer.Text = "Server &activated";
       this.cbActivateServer.UseVisualStyleBackColor = true;
+      this.cbActivateServer.CheckedChanged += new System.EventHandler(this.cbActivateServer_CheckedChanged);
       // 
       // label1
       // 
@@ -98,8 +99,8 @@
       this.label1.Name = "label1";
       this.label1.Size = new System.Drawing.Size(181, 55);
       this.label1.TabIndex = 2;
-      this.label1.Text = "The implementation of this device is not finished yet; currently the device is si" +
-    "mply empty.";
+      this.label1.Text = "The implementation of this device is not finished yet; currently the root device " +
+    "is simply empty.";
       // 
       // FormUPnPLightServer
       // 

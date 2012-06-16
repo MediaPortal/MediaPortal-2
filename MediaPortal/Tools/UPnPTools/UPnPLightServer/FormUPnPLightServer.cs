@@ -64,5 +64,10 @@ namespace UPnPLightServer
     {
       UpdateServer();
     }
+
+    private void cbActivateServer_CheckedChanged(object sender, EventArgs e)
+    {
+      UpdateServer();
+    }
   }
 }
