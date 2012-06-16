@@ -1,13 +1,14 @@
-﻿
 Microsoft Visual Studio Solution File, Format Version 11.00
 # Visual Studio 2010
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UPnPDeviceSpy", "UPnPDeviceSpy.csproj", "{40C6F126-9893-4EBF-8A21-BE52E9F92C6A}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UPnPDeviceSpy", "UPnPDeviceSpy\UPnPDeviceSpy.csproj", "{40C6F126-9893-4EBF-8A21-BE52E9F92C6A}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UPnP", "..\..\Source\Core\UPnP\UPnP.csproj", "{455E7D70-1C85-4D7F-9F01-DC801B8B8C34}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HttpServer", "..\..\Source\Core\HttpServer\HttpServer.csproj", "{B1C97BB7-8E27-4C1B-B086-A1204EF8FB79}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MediaPortal.Utilities", "..\..\Source\Core\MediaPortal.Utilities\MediaPortal.Utilities.csproj", "{4FE7B8AE-1330-424A-91A1-C68D7ABF9CB8}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UPnPLightServer", "UPnPLightServer\UPnPLightServer.csproj", "{AB9CF458-77DB-416A-B5F4-128C7B37DCB0}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -40,6 +41,12 @@ Global
 		{4FE7B8AE-1330-424A-91A1-C68D7ABF9CB8}.Release|x86.Build.0 = Release|x86
 		{4FE7B8AE-1330-424A-91A1-C68D7ABF9CB8}.Test|x86.ActiveCfg = Release|x86
 		{4FE7B8AE-1330-424A-91A1-C68D7ABF9CB8}.Test|x86.Build.0 = Release|x86
+		{AB9CF458-77DB-416A-B5F4-128C7B37DCB0}.Debug|x86.ActiveCfg = Debug|x86
+		{AB9CF458-77DB-416A-B5F4-128C7B37DCB0}.Debug|x86.Build.0 = Debug|x86
+		{AB9CF458-77DB-416A-B5F4-128C7B37DCB0}.Release|x86.ActiveCfg = Release|x86
+		{AB9CF458-77DB-416A-B5F4-128C7B37DCB0}.Release|x86.Build.0 = Release|x86
+		{AB9CF458-77DB-416A-B5F4-128C7B37DCB0}.Test|x86.ActiveCfg = Release|x86
+		{AB9CF458-77DB-416A-B5F4-128C7B37DCB0}.Test|x86.Build.0 = Release|x86
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
