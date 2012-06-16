@@ -104,10 +104,10 @@ namespace UPnP.Infrastructure.Dv.DeviceTree
 
     /// <summary>
     /// Returns the descriptors for 0-n icons for the device. The icon resources must be managed outside and available
-    /// via the URL returned by 
+    /// via the URL returned by the delegate method from <see cref="IconDescriptor.GetIconURLDelegate"/>.
     /// </summary>
     /// <param name="culture">The culture to localize the returned icons.</param>
-    /// <returns>Collection of icon descriptors.</returns>
+    /// <returns>Collection of icon descriptors or <c>null</c>.</returns>
     ICollection<IconDescriptor> GetIcons(CultureInfo culture);
   }
 }

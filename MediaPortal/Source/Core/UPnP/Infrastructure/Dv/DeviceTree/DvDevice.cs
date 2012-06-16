@@ -337,7 +337,7 @@ namespace UPnP.Infrastructure.Dv.DeviceTree
       if (!string.IsNullOrEmpty(upc))
         writer.WriteElementString("UPC", upc);
       ICollection<IconDescriptor> icons = deviceInformation.GetIcons(culture);
-      if (icons.Count > 0)
+      if (icons != null && icons.Count > 0)
       {
         writer.WriteStartElement("iconList");
         foreach (IconDescriptor icon in icons)
