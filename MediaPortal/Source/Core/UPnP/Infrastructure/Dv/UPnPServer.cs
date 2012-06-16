@@ -302,7 +302,7 @@ namespace UPnP.Infrastructure.Dv
     {
       Uri uri = request.Uri;
       string hostName = uri.Host;
-      string pathAndQuery = uri.PathAndQuery;
+      string pathAndQuery = uri.LocalPath; // Unfortunately, Uri.PathAndQuery doesn't decode characters like '{' and '}', so we use the Uri.LocalPath property
       try
       {
         DvService service;
