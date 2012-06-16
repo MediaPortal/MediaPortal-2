@@ -88,7 +88,7 @@ namespace UPnP.Infrastructure.Dv.SSDP
         if (!_serverData.IsActive)
           return;
         foreach (PendingSearchRequest ps in _serverData.PendingSearches)
-          ProcessSearch(ps);
+          ProcessSearchRequest(ps);
         _serverData.PendingSearches.Clear();
       }
     }
@@ -389,7 +389,7 @@ namespace UPnP.Infrastructure.Dv.SSDP
       _searchResponseTimer.Change(milliseconds, Timeout.Infinite);
     }
 
-    protected void ProcessSearch(PendingSearchRequest ps)
+    protected void ProcessSearchRequest(PendingSearchRequest ps)
     {
       lock (_serverData.SyncObj)
       {
