@@ -37,7 +37,7 @@
 
   <!-- Launch Conditions -->
   <String Id="LC_OS">[ProductName] nécessite au minimum Windows 7 / 2008 R2 comme système d'exploitation.</String>
-  <String Id="LC_NET">[ProductName] nécessite que soit installé le Framework .NET 3.5.</String>
+  <String Id="LC_NET">[ProductName] nécessite que soit installé le Framework .NET 4.0 Full.</String>
   <String Id="LC_ADMIN">Vous devez être administrateur pour installer [ProductName].</String>
 
   <!-- User Interfaces -->
