@@ -55,7 +55,7 @@
                     Content="{Binding Source={StaticResource FanArtBackgroundModel}, Path=ItemDescription}"
                     Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}"/>
             </ScrollViewer>
-            <Image  Grid.Row="1" HorizontalAlignment="Center" Stretch="UniformToFill" Width="580" Height="360" Margin="10">
+            <Image  Grid.Row="1" HorizontalAlignment="Center" Stretch="UniformToFill" Width="580" Height="360" Margin="10" FallbackSource="{Binding MediaItem}">
               <Image.Source>
                 <fanart:FanArtImageSource 
                   fanart:FanArtMediaType="{Binding Source={StaticResource FanArtBackgroundModel}, Path=FanArtMediaType}" 
