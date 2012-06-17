@@ -27,6 +27,7 @@ using System.Collections.Generic;
 using System.Threading;
 using MediaPortal.Common;
 using MediaPortal.Common.Commands;
+using MediaPortal.Common.General;
 using MediaPortal.Common.Localization;
 using MediaPortal.Common.Messaging;
 using MediaPortal.Common.Runtime;
@@ -49,6 +50,7 @@ namespace MediaPortal.UiComponents.SkinBase.Models
     #region Protected fields
 
     protected ICollection<WorkflowAction> _registeredActions = new List<WorkflowAction>();
+    protected AbstractProperty _showMenuProperty;
     protected object _syncObj = new object();
     protected bool _dirty = true;
 
@@ -57,6 +59,7 @@ namespace MediaPortal.UiComponents.SkinBase.Models
     public MenuModel()
     {
       SubscribeToMessages();
+      _showMenuProperty = new SProperty(typeof(bool), true);
     }
 
     #region Private & protected methods
@@ -359,6 +362,22 @@ namespace MediaPortal.UiComponents.SkinBase.Models
           return UpdateMenu(currentContext);
         }
       }
+    }
+
+    public AbstractProperty ShowMenuProperty
+    {
+      get { return _showMenuProperty; }
+    }
+
+    public bool ShowMenu
+    {
+      get { return (bool) _showMenuProperty.GetValue(); }
+      set { _showMenuProperty.SetValue(value); }
+    }
+
+    public void ToggleMenu()
+    {
+      ShowMenu = !ShowMenu;
     }
 
     #endregion
