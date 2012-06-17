@@ -78,11 +78,15 @@ namespace MediaPortal.Extensions.ResourceProviders.NetworkNeighborhoodResourcePr
       return NetworkNeighborhoodResourceAccessor.IsResource(path);
     }
 
-    public IResourceAccessor CreateResourceAccessor(string path)
+    public bool TryCreateResourceAccessor(string path, out IResourceAccessor result)
     {
       if (!IsResource(path))
-        throw new ArgumentException(string.Format("Unable to access resource '{0}'", path));
-      return new NetworkNeighborhoodResourceAccessor(this, path);
+      {
+        result = null;
+        return false;
+      }
+      result = new NetworkNeighborhoodResourceAccessor(this, path);
+      return true;
     }
 
     public ResourcePath ExpandResourcePathFromString(string pathStr)

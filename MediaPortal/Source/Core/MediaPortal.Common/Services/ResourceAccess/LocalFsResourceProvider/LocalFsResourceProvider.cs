@@ -230,11 +230,13 @@ namespace MediaPortal.Common.Services.ResourceAccess.LocalFsResourceProvider
       return File.Exists(dosPath) || Directory.Exists(dosPath);
     }
 
-    public IResourceAccessor CreateResourceAccessor(string path)
+    public bool TryCreateResourceAccessor(string path, out IResourceAccessor result)
     {
+      result = null;
       if (!IsResource(path))
-        throw new ArgumentException(string.Format("Unable to access resource '{0}'", path));
-      return new LocalFsResourceAccessor(this, path);
+        return false;
+      result = new LocalFsResourceAccessor(this, path);
+      return true;
     }
 
     public ResourcePath ExpandResourcePathFromString(string pathStr)

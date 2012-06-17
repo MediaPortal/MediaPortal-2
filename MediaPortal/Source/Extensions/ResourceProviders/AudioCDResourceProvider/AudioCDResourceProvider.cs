@@ -107,13 +107,17 @@ namespace MediaPortal.Extensions.ResourceProviders.AudioCDResourceProvider
       return BassUtils.GetNumAudioTracks(drive + ":") > trackNo;
     }
 
-    public IResourceAccessor CreateResourceAccessor(string path)
+    public bool TryCreateResourceAccessor(string path, out IResourceAccessor result)
     {
       char drive;
       byte trackNo;
-      if (!TryExtract(path, out drive, out trackNo))
-        throw new ArgumentException(string.Format("Path '{0}' is not valid in the {1}", path, GetType().Name));
-      return new AudioCDResourceAccessor(this, drive, trackNo);
+      if (TryExtract(path, out drive, out trackNo))
+      {
+        result = new AudioCDResourceAccessor(this, drive, trackNo);
+        return true;
+      }
+      result = null;
+      return false;
     }
 
     public ResourcePath ExpandResourcePathFromString(string pathStr)

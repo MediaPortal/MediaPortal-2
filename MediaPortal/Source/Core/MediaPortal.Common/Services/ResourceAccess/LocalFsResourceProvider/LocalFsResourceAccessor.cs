@@ -104,7 +104,10 @@ namespace MediaPortal.Common.Services.ResourceAccess.LocalFsResourceProvider
 
     public IFileSystemResourceAccessor GetResource(string path)
     {
-      return (IFileSystemResourceAccessor) _provider.CreateResourceAccessor(ProviderPathHelper.Combine(_path, path));
+      IResourceAccessor result;
+      if (_provider.TryCreateResourceAccessor(ProviderPathHelper.Combine(_path, path), out result))
+        return (IFileSystemResourceAccessor) result;
+      return null;
     }
 
     public void PrepareStreamAccess()

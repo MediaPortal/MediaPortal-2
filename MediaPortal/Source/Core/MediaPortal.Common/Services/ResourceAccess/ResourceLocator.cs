@@ -79,8 +79,9 @@ namespace MediaPortal.Common.Services.ResourceAccess
       if (nativeSystem == null)
         throw new IllegalCallException("Cannot create resource accessor for resource location '{0}' at system '{1}': System is not available", _nativeResourcePath, _nativeSystemId);
       // Try to access resource locally. This might work if we have the correct resource providers installed.
-      if (nativeSystem.IsLocalSystem() && _nativeResourcePath.IsValidLocalPath)
-        return _nativeResourcePath.CreateLocalResourceAccessor();
+      IResourceAccessor result;
+      if (nativeSystem.IsLocalSystem() && _nativeResourcePath.IsValidLocalPath && _nativeResourcePath.TryCreateLocalResourceAccessor(out result))
+        return result;
       IFileSystemResourceAccessor fsra;
       if (RemoteFileSystemResourceAccessor.ConnectFileSystem(_nativeSystemId, _nativeResourcePath, out fsra))
         return fsra;

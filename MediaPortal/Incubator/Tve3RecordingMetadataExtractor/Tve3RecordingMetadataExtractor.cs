@@ -35,7 +35,6 @@ using MediaPortal.Common.MediaManagement.Helpers;
 using MediaPortal.Common.ResourceAccess;
 using MediaPortal.Extensions.MetadataExtractors.Aspects;
 using MediaPortal.Utilities;
-using MediaPortal.Utilities.Exceptions;
 using MediaPortal.Extensions.OnlineLibraries;
 
 namespace MediaPortal.Extensions.MetadataExtractors
@@ -157,15 +156,8 @@ namespace MediaPortal.Extensions.MetadataExtractors
           return false;
         string metaFilePath = ProviderPathHelper.ChangeExtension(filePath, ".xml");
         IResourceAccessor metaFileAccessor;
-        try
-        {
-          metaFileAccessor = ResourcePath.Deserialize(metaFilePath).CreateLocalResourceAccessor();
-        }
-        catch (IllegalCallException)
-        {
-          // No meta file exists, i.e. we cannot extract TVE3 metadata
+        if (!ResourcePath.Deserialize(metaFilePath).TryCreateLocalResourceAccessor(out metaFileAccessor))
           return false;
-        }
 
         Tags tags;
         using (metaFileAccessor)

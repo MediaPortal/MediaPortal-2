@@ -61,7 +61,10 @@ namespace MediaPortal.UiComponents.Media.Views.RemovableMediaDrives
     {
       IMediaAccessor mediaAccessor = ServiceRegistration.Get<IMediaAccessor>();
       ResourcePath rp = LocalFsResourceProviderBase.ToResourcePath(driveInfo.Name);
-      using (IResourceAccessor ra = rp.CreateLocalResourceAccessor())
+      IResourceAccessor ra;
+      if (!rp.TryCreateLocalResourceAccessor(out ra))
+        throw new ArgumentException(string.Format("Unable to access drive '{0}'", driveInfo.Name));
+      using (ra)
         _mediaItem = mediaAccessor.CreateLocalMediaItem(ra, mediaAccessor.GetMetadataExtractorsForMIATypes(extractedMIATypeIds));
       MediaItemAspect mia = _mediaItem.Aspects[MediaAspect.ASPECT_ID];
       mia.SetAttribute(MediaAspect.ATTR_TITLE, mia.GetAttributeValue(MediaAspect.ATTR_TITLE) +

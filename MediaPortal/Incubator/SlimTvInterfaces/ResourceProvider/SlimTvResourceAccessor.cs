@@ -44,10 +44,11 @@ namespace MediaPortal.Plugins.SlimTvClient.Interfaces
 
     public static IFileSystemResourceAccessor GetResourceAccessor(string path)
     {
-      // parse slotindex from path and cut the prefix off.
+      // Parse slotindex from path and cut the prefix off.
       int slotIndex;
-      if (int.TryParse(path.Substring(0, 1), out slotIndex))
-        path = path.Substring(2, path.Length - 2);
+      if (!int.TryParse(path.Substring(0, 1), out slotIndex))
+        return null;
+      path = path.Substring(2, path.Length - 2);
 
       return new SlimTvResourceAccessor(slotIndex, path);
     }

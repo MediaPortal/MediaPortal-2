@@ -94,22 +94,16 @@ namespace MediaPortal.Common.Services.ResourceAccess.RemoteResourceProvider
 
     public bool IsResource(string path)
     {
-      try
+      IResourceAccessor ra;
+      if (TryCreateResourceAccessor(path, out ra))
       {
-        CreateResourceAccessor(path).Dispose(); // If this doesn't throw an exception, the resource exists
+        ra.Dispose();
         return true;
       }
-      catch (IllegalCallException)
-      {
-        return false;
-      }
-      catch (InvalidDataException)
-      {
-        return false;
-      }
+      return false;
     }
 
-    public IResourceAccessor CreateResourceAccessor(string path)
+    public bool TryCreateResourceAccessor(string path, out IResourceAccessor result)
     {
       string nativeSystemId;
       ResourcePath nativeResourcePath;
@@ -120,15 +114,22 @@ namespace MediaPortal.Common.Services.ResourceAccess.RemoteResourceProvider
       if (nativeSystem == null)
         throw new IllegalCallException("Cannot create resource accessor for resource location '{0}' at system '{1}': System is not available", nativeResourcePath, nativeSystemId);
       // Try to access resource locally. This might work if we have the correct resource providers installed.
-      if (nativeSystem.IsLocalSystem() && nativeResourcePath.IsValidLocalPath)
-        return nativeResourcePath.CreateLocalResourceAccessor();
+      if (nativeSystem.IsLocalSystem() && nativeResourcePath.IsValidLocalPath && nativeResourcePath.TryCreateLocalResourceAccessor(out result))
+        return true;
       IFileSystemResourceAccessor fsra;
       if (RemoteFileSystemResourceAccessor.ConnectFileSystem(nativeSystemId, nativeResourcePath, out fsra))
-        return fsra;
+      {
+        result = fsra;
+        return true;
+      }
       IResourceAccessor ra;
       if (RemoteFileResourceAccessor.ConnectFile(nativeSystemId, nativeResourcePath, out ra))
-        return ra;
-      throw new IllegalCallException("Cannot create resource accessor for resource location '{0}' at system '{1}'", nativeResourcePath, nativeSystemId);
+      {
+        result = ra;
+        return true;
+      }
+      result = null;
+      return false;
     }
 
     public ResourcePath ExpandResourcePathFromString(string pathStr)

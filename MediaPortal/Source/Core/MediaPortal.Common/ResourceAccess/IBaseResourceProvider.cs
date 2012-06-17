@@ -22,8 +22,6 @@
 
 #endregion
 
-using System;
-
 namespace MediaPortal.Common.ResourceAccess
 {
   /// <summary>
@@ -40,13 +38,13 @@ namespace MediaPortal.Common.ResourceAccess
     bool IsResource(string path);
 
     /// <summary>
-    /// Creates a resource accessor for the given <paramref name="path"/>.
+    /// Tries to create a resource accessor for the given <paramref name="path"/>.
     /// </summary>
     /// <param name="path">Path to be accessed by the result resource accessor.</param>
-    /// <returns>Resource accessor instance.</returns>
-    /// <exception cref="ArgumentException">If the given <paramref name="path"/> is not a valid path or if the resource
-    /// described by the path doesn't exist.</exception>
-    IResourceAccessor CreateResourceAccessor(string path);
+    /// <param name="result">Resource accessor which was created for the given <paramref name="path"/>. This parameter is only
+    /// valid if this method returns <c>true</c>.</param>
+    /// <returns><c>true</c>, if the requested resource accessor could be built for the given <paramref name="path"/>, else false.</returns>
+    bool TryCreateResourceAccessor(string path, out IResourceAccessor result);
 
     /// <summary>
     /// Given the specified <paramref name="pathStr"/>, this method tries to expand it to a resource path by trying

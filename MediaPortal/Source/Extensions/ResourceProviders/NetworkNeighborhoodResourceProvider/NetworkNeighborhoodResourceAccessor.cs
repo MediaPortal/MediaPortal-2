@@ -48,8 +48,12 @@ namespace MediaPortal.Extensions.ResourceProviders.NetworkNeighborhoodResourcePr
     {
       _parent = parent;
       _path = path;
-      if (!IsServerPath(path))
-        _underlayingResource = (ILocalFsResourceAccessor) LocalFsResourceProvider.Instance.CreateResourceAccessor("/" + path);
+      if (IsServerPath(path))
+        return;
+      IResourceAccessor ra;
+      if (!LocalFsResourceProvider.Instance.TryCreateResourceAccessor("/" + path, out ra))
+        throw new ArgumentException(string.Format("Unable to access resource '{0}'", path));
+      _underlayingResource = (ILocalFsResourceAccessor) ra;
     }
 
     protected ICollection<IFileSystemResourceAccessor> WrapLocalFsResourceAccessors(ICollection<IFileSystemResourceAccessor> localFsResourceAccessors)
@@ -177,7 +181,10 @@ namespace MediaPortal.Extensions.ResourceProviders.NetworkNeighborhoodResourcePr
 
     public IFileSystemResourceAccessor GetResource(string path)
     {
-      return (IFileSystemResourceAccessor) _parent.CreateResourceAccessor(ProviderPathHelper.Combine(_path, path));
+      IResourceAccessor ra;
+      if (_parent.TryCreateResourceAccessor(ProviderPathHelper.Combine(_path, path), out ra))
+        return (IFileSystemResourceAccessor) ra;
+      return null;
     }
 
     public ICollection<IFileSystemResourceAccessor> GetFiles()

@@ -80,7 +80,9 @@ namespace MediaPortal.UiComponents.Media.Views
     public void Navigate(Share localShare, ResourcePath targetPath, NavigateToViewDlgt navigateToViewDlgt)
     {
       NavigateToLocalRootView(localShare, navigateToViewDlgt);
-      IResourceAccessor startRA = localShare.BaseResourcePath.CreateLocalResourceAccessor();
+      IResourceAccessor startRA;
+      if (!localShare.BaseResourcePath.TryCreateLocalResourceAccessor(out startRA))
+        return;
       IFileSystemResourceAccessor current = startRA as IFileSystemResourceAccessor;
       if (current == null)
       {
@@ -94,20 +96,24 @@ namespace MediaPortal.UiComponents.Media.Views
         ICollection<IFileSystemResourceAccessor> children = FileSystemResourceNavigator.GetChildDirectories(current);
         current.Dispose();
         current = null;
-        foreach (IFileSystemResourceAccessor childDirectory in children)
-        {
-          if (childDirectory.CanonicalLocalResourcePath.IsSameOrParentOf(targetPath))
-          {
-            current = childDirectory;
-            break;
-          }
-          childDirectory.Dispose();
-        }
+        if (children != null)
+          foreach (IFileSystemResourceAccessor childDirectory in children)
+            using (childDirectory)
+            {
+              if (childDirectory.CanonicalLocalResourcePath.IsSameOrParentOf(targetPath))
+              {
+                current = childDirectory;
+                break;
+              }
+            }
         if (current == null)
           break;
         ViewSpecification newVS = NavigateCreateViewSpecification(localShare.SystemId, current);
         if (newVS == null)
+        {
+          current.Dispose();
           return;
+        }
         navigateToViewDlgt(newVS);
       }
     }

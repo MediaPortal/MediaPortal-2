@@ -80,9 +80,10 @@ namespace MediaPortal.Plugins.SlimTvClient.Interfaces
       return true;
     }
 
-    public IResourceAccessor CreateResourceAccessor(string path)
+    public bool TryCreateResourceAccessor(string path, out IResourceAccessor result)
     {
-      return SlimTvResourceAccessor.GetResourceAccessor(path);
+      result = SlimTvResourceAccessor.GetResourceAccessor(path);
+      return result != null;
     }
 
     #endregion

@@ -59,23 +59,10 @@ namespace MediaPortal.UiComponents.SkinBase.Models
         if (rpm == null)
           return false;
         IResourceAccessor rootAccessor;
-        try
-        {
-          rootAccessor = GetResourceProvider(rpm.ResourceProviderId).CreateResourceAccessor("/");
-        }
-        catch (Exception)
-        {
+        if (!GetResourceProvider(rpm.ResourceProviderId).TryCreateResourceAccessor("/", out rootAccessor))
           return false;
-        }
-        try
-        {
+        using (rootAccessor)
           return rootAccessor is IFileSystemResourceAccessor;
-        }
-        finally
-        {
-          if (rootAccessor != null)
-            rootAccessor.Dispose();
-        }
       }
     }
 
@@ -137,17 +124,11 @@ namespace MediaPortal.UiComponents.SkinBase.Models
       ResourcePath rp = path;
       if (rp == null)
         return false;
-      try
-      {
-        // Check if we can create an item accessor - if we get an exception, the path is not valid
-        IResourceAccessor ra = rp.CreateLocalResourceAccessor();
-        ra.Dispose();
-        return true;
-      }
-      catch (Exception) // No logging necessary - exception is used to determine an invalid path
-      {
-        return false;
-      }
+      IResourceAccessor ra;
+      if (rp.TryCreateLocalResourceAccessor(out ra))
+        using (ra)
+          return true;
+      return false;
     }
 
     protected override bool ShareNameExists(string shareName)
@@ -171,37 +152,37 @@ namespace MediaPortal.UiComponents.SkinBase.Models
     {
       if (path == null)
         return string.Empty;
-      try
-      {
-        IResourceAccessor ra = path.CreateLocalResourceAccessor();
-        try
-        {
+      IResourceAccessor ra;
+      if (path.TryCreateLocalResourceAccessor(out ra))
+        using (ra)
           return ra.ResourcePathName;
-        }
-        finally
-        {
-          ra.Dispose();
-        }
-      }
-      catch (Exception e)
-      {
-        ServiceRegistration.Get<ILogger>().Warn("Problem updating display name of choosen path '{0}'", e, path);
-        return string.Empty;
-      }
+      ServiceRegistration.Get<ILogger>().Warn("Cannot access resource path '{0}' for updating display name", path);
+      return string.Empty;
     }
 
     protected override IEnumerable<ResourcePathMetadata> GetChildDirectoriesData(ResourcePath path)
     {
-      IResourceAccessor accessor = path.CreateLocalResourceAccessor();
-      ICollection<IFileSystemResourceAccessor> res = FileSystemResourceNavigator.GetChildDirectories(accessor);
-      if (res != null)
-        foreach (IFileSystemResourceAccessor childAccessor in res)
-          yield return new ResourcePathMetadata
-          {
-            ResourceName = childAccessor.ResourceName,
-            HumanReadablePath = childAccessor.ResourcePathName,
-            ResourcePath = childAccessor.CanonicalLocalResourcePath
-          };
+      IResourceAccessor ra;
+      if (path.TryCreateLocalResourceAccessor(out ra))
+      {
+        using (ra)
+        {
+          ICollection<IFileSystemResourceAccessor> res = FileSystemResourceNavigator.GetChildDirectories(ra);
+          if (res != null)
+            foreach (IFileSystemResourceAccessor childAccessor in res)
+              yield return new ResourcePathMetadata
+                {
+                    ResourceName = childAccessor.ResourceName,
+                    HumanReadablePath = childAccessor.ResourcePathName,
+                    ResourcePath = childAccessor.CanonicalLocalResourcePath
+                };
+        }
+      }
+      else
+      {
+        ServiceRegistration.Get<ILogger>().Warn("Cannot access resource path '{0}' for getting child directories", path);
+        yield break;
+      }
     }
 
     protected override IDictionary<string, MediaCategory> GetAllAvailableCategories()
@@ -212,23 +193,12 @@ namespace MediaPortal.UiComponents.SkinBase.Models
 
     protected override string SuggestShareName()
     {
-      try
-      {
-        IResourceAccessor ra = ChoosenResourcePath.CreateLocalResourceAccessor();
-        try
-        {
+      IResourceAccessor ra;
+      if (ChoosenResourcePath.TryCreateLocalResourceAccessor(out ra))
+        using (ra)
           return ra.ResourceName;
-        }
-        finally
-        {
-          ra.Dispose();
-        }
-      }
-      catch (Exception e)
-      {
-        ServiceRegistration.Get<ILogger>().Warn("Problem generating suggestion for share name for path '{0}'", e, ChoosenResourcePath);
-        return string.Empty;
-      }
+      ServiceRegistration.Get<ILogger>().Warn("Cannot access resource path '{0}' for suggesting share name", ChoosenResourcePath);
+      return string.Empty;
     }
 
     public override void UpdateShare(RelocationMode relocationMode)

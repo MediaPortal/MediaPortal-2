@@ -120,7 +120,7 @@ namespace MediaPortal.Common.ResourceAccess
       }
     }
 
-    protected static bool TryGetFromCache(ResourcePath path, out IResourceAccessor ra)
+    protected static bool TryGetCloneFromCache(ResourcePath path, out IResourceAccessor ra)
     {
       lock (_cachedResourceAccessors.SyncObj)
         if (_cachedResourceAccessors.TryGetValue(path, out ra))
@@ -349,17 +349,21 @@ namespace MediaPortal.Common.ResourceAccess
     /// Creates a local resource provider chain for this resource path, if it is a local path
     /// (see <see cref="CheckValidLocalPath"/>), and returns its result in a <see cref="IResourceAccessor"/> instance.
     /// </summary>
-    /// <returns>Resource accessor to access the resource represented by this path.</returns>
+    /// <param name="result">Returns the resource accessor to access the resource represented by this path, if the
+    /// return value is <c>true</c>. Else, this parameter doesn't return a meaningful value.</param>
+    /// <returns><c>true</c>, if a resource accessor could successfully be built for this path.</returns>
     /// <exception cref="IllegalCallException">If one of the referenced resource providers is not available in the system or
-    /// has the wrong type, or if this path doesn't represent a valid resource in this system.</exception>
+    /// has the wrong type.</exception>
     /// <exception cref="UnexpectedStateException">If this path is empty.</exception>
-    public IResourceAccessor CreateLocalResourceAccessor()
+    public bool TryCreateLocalResourceAccessor(out IResourceAccessor result)
     {
       IResourceAccessor resourceAccessor = null;
       if (USE_RA_CACHE)
-        if (TryGetFromCache(this, out resourceAccessor))
-          return resourceAccessor;
-
+        if (TryGetCloneFromCache(this, out resourceAccessor))
+        {
+          result = resourceAccessor;
+          return true;
+        }
       IMediaAccessor mediaAccessor = ServiceRegistration.Get<IMediaAccessor>();
       IEnumerator<ProviderPathSegment> enumer = _pathSegments.GetEnumerator();
       if (!enumer.MoveNext())
@@ -377,13 +381,10 @@ namespace MediaPortal.Common.ResourceAccess
             IBaseResourceProvider baseProvider = resourceProvider as IBaseResourceProvider;
             if (baseProvider == null)
               throw new IllegalCallException("The resource provider with id '{0}' does not implement the {1} interface", pathSegment.ProviderId, typeof(IBaseResourceProvider).Name);
-            try
+            if (!baseProvider.TryCreateResourceAccessor(pathSegment.Path, out resourceAccessor))
             {
-              resourceAccessor = baseProvider.CreateResourceAccessor(pathSegment.Path);
-            }
-            catch (ArgumentException e)
-            {
-              throw new IllegalCallException("ResourcePath '{0}' doesn't represent a valid resource in this system", e, this);
+              result = null;
+              return false;
             }
           }
           else
@@ -391,8 +392,14 @@ namespace MediaPortal.Common.ResourceAccess
             IChainedResourceProvider chainedProvider = resourceProvider as IChainedResourceProvider;
             if (chainedProvider == null)
               throw new IllegalCallException("The resource provider with id '{0}' does not implement the {1} interface", pathSegment.ProviderId, typeof(IChainedResourceProvider).Name);
-            if (!chainedProvider.TryChainUp(resourceAccessor, pathSegment.Path, out resourceAccessor))
-              throw new IllegalCallException("ResourcePath '{0}' doesn't represent a valid resource in this system", this);
+            IResourceAccessor chainedRa;
+            if (!chainedProvider.TryChainUp(resourceAccessor, pathSegment.Path, out chainedRa))
+            {
+              resourceAccessor.Dispose();
+              result = null;
+              return false;
+            }
+            resourceAccessor = chainedRa;
           }
         } while (enumer.MoveNext());
       }
@@ -404,7 +411,8 @@ namespace MediaPortal.Common.ResourceAccess
       }
       if (USE_RA_CACHE)
         AddToCache(this, resourceAccessor);
-      return resourceAccessor;
+      result = resourceAccessor;
+      return true;
     }
 
     public static void ClearResourceCache()

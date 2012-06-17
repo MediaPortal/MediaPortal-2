@@ -132,50 +132,46 @@ namespace MediaPortal.UiComponents.Media.Views
       subViewSpecifications = new List<ViewSpecification>();
       IMediaAccessor mediaAccessor = ServiceRegistration.Get<IMediaAccessor>();
       IEnumerable<Guid> metadataExtractorIds = mediaAccessor.GetMetadataExtractorsForMIATypes(_necessaryMIATypeIds.Union(_optionalMIATypeIds));
-      using (IResourceAccessor baseResourceAccessor = _viewPath.CreateLocalResourceAccessor())
+      IResourceAccessor baseResourceAccessor;
+      if (!_viewPath.TryCreateLocalResourceAccessor(out baseResourceAccessor))
+      {
+        ServiceRegistration.Get<ILogger>().Warn("LocalDirectoryViewSpecification.ReLoadItemsAndSubViewSpecifications: Cannot access local view path '{0}'", _viewPath);
+        return;
+      }
+      using (baseResourceAccessor)
       {
         // Add all items at the specified path
         ICollection<IFileSystemResourceAccessor> files = FileSystemResourceNavigator.GetFiles(baseResourceAccessor);
         if (files != null)
           foreach (IFileSystemResourceAccessor childAccessor in files)
-          {
-            try
-            {
-              MediaItem result = mediaAccessor.CreateLocalMediaItem(childAccessor, metadataExtractorIds);
-              if (result != null)
-                mediaItems.Add(result);
-            }
-            catch (Exception e)
-            {
-              ServiceRegistration.Get<ILogger>().Warn("LocalDirectoryViewSpecification: Error creating local media item for '{0}'", e, childAccessor);
-            }
-            finally
-            {
-              childAccessor.Dispose();
-            }
-          }
+            using (childAccessor)
+              try
+              {
+                MediaItem result = mediaAccessor.CreateLocalMediaItem(childAccessor, metadataExtractorIds);
+                if (result != null)
+                  mediaItems.Add(result);
+              }
+              catch (Exception e)
+              {
+                ServiceRegistration.Get<ILogger>().Warn("LocalDirectoryViewSpecification: Error creating local media item for '{0}'", e, childAccessor);
+              }
         ICollection<IFileSystemResourceAccessor> directories = FileSystemResourceNavigator.GetChildDirectories(baseResourceAccessor);
         if (directories != null)
           foreach (IFileSystemResourceAccessor childAccessor in directories)
-          {
-            try
-            {
-              MediaItem result = mediaAccessor.CreateLocalMediaItem(childAccessor, metadataExtractorIds);
-              if (result == null)
-                subViewSpecifications.Add(new LocalDirectoryViewSpecification(null, childAccessor.CanonicalLocalResourcePath,
-                  _necessaryMIATypeIds, _optionalMIATypeIds));
-              else
-                mediaItems.Add(result);
-            }
-            catch (Exception e)
-            {
-              ServiceRegistration.Get<ILogger>().Warn("LocalDirectoryViewSpecification: Error creating media item or view specification for '{0}'", e, childAccessor);
-            }
-            finally
-            {
-              childAccessor.Dispose();
-            }
-          }
+            using (childAccessor)
+              try
+              {
+                MediaItem result = mediaAccessor.CreateLocalMediaItem(childAccessor, metadataExtractorIds);
+                if (result == null)
+                  subViewSpecifications.Add(new LocalDirectoryViewSpecification(null, childAccessor.CanonicalLocalResourcePath,
+                    _necessaryMIATypeIds, _optionalMIATypeIds));
+                else
+                  mediaItems.Add(result);
+              }
+              catch (Exception e)
+              {
+                ServiceRegistration.Get<ILogger>().Warn("LocalDirectoryViewSpecification: Error creating media item or view specification for '{0}'", e, childAccessor);
+              }
       }
     }
 
@@ -184,8 +180,13 @@ namespace MediaPortal.UiComponents.Media.Views
     protected void UpdateDisplayName()
     {
       if (string.IsNullOrEmpty(_overrideName))
-        using (IResourceAccessor accessor = _viewPath.CreateLocalResourceAccessor())
-          _viewDisplayName = accessor.ResourceName;
+      {
+        IResourceAccessor ra;
+        if (!_viewPath.TryCreateLocalResourceAccessor(out ra))
+          return;
+        using (ra)
+          _viewDisplayName = ra.ResourceName;
+      }
       else
         _viewDisplayName = _overrideName;
     }

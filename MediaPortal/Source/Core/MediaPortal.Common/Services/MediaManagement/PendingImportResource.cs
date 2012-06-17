@@ -111,10 +111,18 @@ namespace MediaPortal.Common.Services.MediaManagement
       {
         try
         {
-          IResourceAccessor ra = ResourcePath.Deserialize(value).CreateLocalResourceAccessor();
+          IResourceAccessor ra;
+          if (!ResourcePath.Deserialize(value).TryCreateLocalResourceAccessor(out ra))
+          {
+            _isValid = false;
+            return;
+          }
           IFileSystemResourceAccessor fsra = ra as IFileSystemResourceAccessor;
           if (fsra == null)
+          {
+            ra.Dispose();
             ServiceRegistration.Get<ILogger>().Error("PendingImportResource: Could not load resource '{0}': It is no filesystem resource", value);
+          }
           _resourceAccessor = fsra;
         }
         catch (Exception)

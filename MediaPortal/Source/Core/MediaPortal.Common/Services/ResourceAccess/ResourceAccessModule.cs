@@ -158,7 +158,9 @@ namespace MediaPortal.Common.Services.ResourceAccess
           return resource.ResourceAccessor;
         // TODO: Security check. Only deliver resources which are located inside local shares.
         ServiceRegistration.Get<ILogger>().Debug("ResourceAccessModule: Access of resource '{0}'", resourcePathStr);
-        IResourceAccessor result = resourcePath.CreateLocalResourceAccessor();
+        IResourceAccessor result;
+        if (!resourcePath.TryCreateLocalResourceAccessor(out result))
+          throw new ArgumentException("Unable to access resource path '{0}'", resourcePathStr);
         _resourceAccessorCache[resourcePathStr] = new CachedResource(result);
         return result;
       }

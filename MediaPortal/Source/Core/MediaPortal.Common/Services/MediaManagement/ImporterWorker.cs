@@ -457,7 +457,10 @@ namespace MediaPortal.Common.Services.MediaManagement
             ResourcePath path = ResourcePath.Deserialize(pathStr);
             try
             {
-              using (IResourceAccessor ra = path.CreateLocalResourceAccessor())
+              IResourceAccessor ra;
+              if (!path.TryCreateLocalResourceAccessor(out ra))
+                throw new ArgumentException(string.Format("Unable to access resource path '{0}'", importJob.BasePath));
+              using (ra)
                 if (!ra.IsFile)
                   // Don't touch directories because they will be imported in a different call of ImportDirectory
                   continue;
@@ -540,9 +543,12 @@ namespace MediaPortal.Common.Services.MediaManagement
           {
             ServiceRegistration.Get<ILogger>().Info("ImporterWorker: Starting import job '{0}'", importJob);
             ImporterWorkerMessaging.SendImportMessage(ImporterWorkerMessaging.MessageType.ImportStarted, importJob.BasePath);
-            using (IResourceAccessor accessor = importJob.BasePath.CreateLocalResourceAccessor())
+            IResourceAccessor ra;
+            if (!importJob.BasePath.TryCreateLocalResourceAccessor(out ra))
+              throw new ArgumentException(string.Format("Unable to access resource path '{0}'", importJob.BasePath));
+            using (ra)
             {
-              IFileSystemResourceAccessor fsra = accessor as IFileSystemResourceAccessor;
+              IFileSystemResourceAccessor fsra = ra as IFileSystemResourceAccessor;
               if (fsra != null)
               { // Prepare complex import process
                 importJob.PendingResources.Add(new PendingImportResource(Guid.Empty, (IFileSystemResourceAccessor) fsra.Clone()));
@@ -550,7 +556,7 @@ namespace MediaPortal.Common.Services.MediaManagement
               }
               else
               { // Simple single-item-import
-                ImportSingleFile(importJob, accessor, metadataExtractors, mediaBrowsing, resultHandler, mediaAccessor);
+                ImportSingleFile(importJob, ra, metadataExtractors, mediaBrowsing, resultHandler, mediaAccessor);
                 lock (importJob.SyncObj)
                   if (importJob.State == ImportJobState.Active)
                     importJob.State = ImportJobState.Finished;
