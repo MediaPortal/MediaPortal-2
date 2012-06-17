@@ -40,28 +40,16 @@ Parameters which have to be accessible by a DynamicResource lookup:
 
     <!-- Client_Template -->
     <ControlTemplate x:Key="Client_Template">
-      <DockPanel LastChildFill="True" Margin="10">
-        <Grid x:Name="LeftPanel" DockPanel.Dock="Left" Margin="10,0,0,10" VerticalAlignment="Stretch" IsVisible="{Binding Source={StaticResource MenuModel},Path=ShowMenu}">
-          <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="400"/>
-          </Grid.ColumnDefinitions>
-          <Grid.RowDefinitions>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="*"/>
-            <RowDefinition Height="Auto"/>
-          </Grid.RowDefinitions>
-
-          <ListView x:Name="MainMenu" Grid.Column="0" Grid.Row="1" Style="{ThemeResource MainMenuListViewStyle}"
-              HorizontalAlignment="Stretch" VerticalAlignment="Stretch" SetFocusPrio="Default"
-              ItemsSource="{Binding Source={StaticResource MenuModel},Path=MenuItems,Mode=OneTime}">
-            <ListView.Resources>
-              <CommandBridge x:Key="Menu_Command" Command="{Binding Path=Command,Mode=OneTime}"/>
-            </ListView.Resources>
-          </ListView>
-        </Grid>
+      <Grid x:Name="MainPanel" Margin="10" VerticalAlignment="Stretch">
+        <Grid.ColumnDefinitions>
+          <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+          <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
 
         <!-- Order matters here: The content grid has to be the last control to fill the rest of the space -->
-        <Grid x:Name="ContentPanel" DockPanel.Dock="Center" SetFocusPrio="DefaultHigh">
+        <Grid x:Name="ContentPanel" Margin="50,0,0,0"  SetFocusPrio="DefaultHigh">
           <Grid.ColumnDefinitions>
             <ColumnDefinition Width="*"/>
           </Grid.ColumnDefinitions>
@@ -72,8 +60,70 @@ Parameters which have to be accessible by a DynamicResource lookup:
               Template="{DynamicResource ResourceKey=Contents_Template}" SetFocus="true"/>
         </Grid>
 
+        <Grid x:Name="LeftPanel" Margin="-10,-10,0,-10" VerticalAlignment="Stretch"
+              Background="#E0000000" Width="450" HorizontalAlignment="Left">
+
+          <Grid.Resources>
+            <Storyboard x:Key="SlideInStoryboard" FillBehavior="HoldEnd">
+              <DoubleAnimationUsingKeyFrames BeginTime="00:00:00" FillBehavior="HoldEnd" Storyboard.TargetName="LeftPanel" Storyboard.TargetProperty="RenderTransform.X">
+                <SplineDoubleKeyFrame KeyTime="00:00:00" Value="-400"/>
+                <SplineDoubleKeyFrame KeyTime="00:00:00.30" Value="0"/>
+              </DoubleAnimationUsingKeyFrames>
+            </Storyboard>
+          </Grid.Resources>
+
+          <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="450"/>
+          </Grid.ColumnDefinitions>
+          <Grid.RowDefinitions>
+            <RowDefinition Height="*"/>
+          </Grid.RowDefinitions>
+
+          <ListView x:Name="MainMenu" Style="{ThemeResource MainMenuListViewStyle}" Margin="10,10,50,10"
+              HorizontalAlignment="Stretch" VerticalAlignment="Stretch" SetFocusPrio="Default"
+              ItemsSource="{Binding Source={StaticResource MenuModel},Path=MenuItems,Mode=OneTime}"
+              SetFocus="{Binding Source={StaticResource MenuModel},Path=ShowMenu,Mode=OneTime}">
+            <ListView.Resources>
+              <CommandBridge x:Key="Menu_Command" Command="{Binding Path=Command,Mode=OneTime}"/>
+            </ListView.Resources>
+          </ListView>
+
+          <Button x:Name="MenuShowButton" Content="Menu" Style="{ThemeResource ButtonWideStyle}" Grid.Row="0" Grid.Column="0" HorizontalAlignment="Right"
+                   Command="{Command Source={StaticResource MenuModel}, Path=ToggleMenu}">
+            <Button.LayoutTransform>
+              <RotateTransform Angle="270"/>
+            </Button.LayoutTransform>
+          </Button>
+
+          <Grid.RenderTransform>
+            <TranslateTransform X="-400"/>
+          </Grid.RenderTransform>
+
+          <Grid.Triggers>
+            <!-- Setting default state of menu to hidden -->
+            <EventTrigger RoutedEvent="Screen.Show">
+              <TriggerCommand Command="{Command Source={StaticResource MenuModel}, Path=CloseMenu}"/>
+            </EventTrigger>
+
+            <!-- Slide-In animation when the MenuModel.ShowMenu gets true -->
+            <DataTrigger Binding="{Binding Source={StaticResource MenuModel},Path=ShowMenu}" Value="True">
+              <DataTrigger.EnterActions>
+                <BeginStoryboard x:Name="SlideIn_BeginStoryboard" Storyboard="{ThemeResource SlideInStoryboard}"/>
+              </DataTrigger.EnterActions>
+              <DataTrigger.ExitActions>
+                <StopStoryboard BeginStoryboardName="SlideIn_BeginStoryboard"/>
+              </DataTrigger.ExitActions>
+
+              <!-- Test: Set focus to opened menu (not working!) -->
+              <Setter TargetName="MainMenu" Property="SetFocus" Value="True" />
+            </DataTrigger>
+          </Grid.Triggers>
+
+        </Grid>
+
         <KeyBinding Key="F12" Command="{Command Source={StaticResource MenuModel}, Path=ToggleMenu}"/>
-      </DockPanel>
+      
+      </Grid>
     </ControlTemplate>
 
   </Include.Resources>
