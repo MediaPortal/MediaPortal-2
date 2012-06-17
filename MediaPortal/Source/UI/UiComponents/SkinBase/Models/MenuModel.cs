@@ -380,6 +380,16 @@ namespace MediaPortal.UiComponents.SkinBase.Models
       ShowMenu = !ShowMenu;
     }
 
+    public void OpenMenu()
+    {
+      ShowMenu = true;
+    }
+
+    public void CloseMenu()
+    {
+      ShowMenu = false;
+    }
+
     #endregion
   }
 }
