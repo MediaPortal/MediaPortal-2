@@ -33,4 +33,7 @@ Adapted by Team-MediaPortal for Custom Dialogs insertions
   <String Id="msierrXmlFileFailedSelect">Erreur de sélection de fichier XML</String>
   <String Id="msierrXmlFileFailedSave">Erreur de sauvegarde de fichier XML</String>
 
+  <String Id="msierrSecureObjectsFailedCreateSD" Overridable="yes">Impossible de créer le security descriptor [3]\[4], erreur: [2]</String>
+  <String Id="msierrSecureObjectsFailedSet" Overridable="yes">Impossible d'appliquer le security descriptor de l'objet [3], erreur: [2]</String>
+  <String Id="msierrSecureObjectsUnknownType" Overridable="yes">Type d'objet [3] inconnu, erreur: [2]</String>
 </WixLocalization>

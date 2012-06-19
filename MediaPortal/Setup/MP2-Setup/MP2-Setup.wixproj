@@ -87,6 +87,7 @@
     <EmbeddedResource Include="Language\en-us.wxl" />
     <EmbeddedResource Include="Language\fr-fr.wxl" />
     <EmbeddedResource Include="Language\WixExt_de-de.wxl" />
+    <EmbeddedResource Include="Language\WixExt_en-us.wxl" />
     <EmbeddedResource Include="Language\WixExt_fr-fr.wxl" />
   </ItemGroup>
   <Import Project="$(WixTargetsPath)" />
