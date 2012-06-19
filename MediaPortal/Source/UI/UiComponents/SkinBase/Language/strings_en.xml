@@ -215,7 +215,7 @@
   <string name="UPnPFrontendServer.ModelDescription">MediaPortal 2 client - the MediaPortal GUI. Plays media content, hosts local shares and provides the user interface.</string>
   <string name="UPnPFrontendServer.ModelName">MediaPortal 2 client</string>
   <string name="UPnPFrontendServer.ModelNumber">1</string>
-<!--  <string Name="UPnPFrontendServer.ModelUrl">...</string> -->
+<!--  <string name="UPnPFrontendServer.ModelUrl">...</string> -->
 
   <string name="DaysOfWeek.1">Monday</string>
   <string name="DaysOfWeek.2">Tuesday</string>
