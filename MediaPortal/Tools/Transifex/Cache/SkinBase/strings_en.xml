@@ -145,7 +145,7 @@
   <string name="SharesOverview.OverviewWorkflowNavigationContextDisplayLabel">Shares overview</string>
   <string name="SharesOverview.Title">Shares overview</string>
   <string name="SharesOverview.ReImportAllShares">ReImport all shares</string>
-  <string name="SharesOverview.NotConnectedToHomeServer">The home server is not connected, system shares information cannot be retrieved</string>
+  <string name="SharesOverview.NotConnectedToHomeServer">The home server is not connected, system shares information cannot be retrieved.</string>
 
   <string name="Shares.NoSharesInThisView">- No shares in this view -</string>
   <string name="Shares.InvalidPath">INVALID PATH: '{0}'</string> <!-- For example: INVALID PATH: 'C:\XXX\YYY' -->
@@ -195,9 +195,9 @@
   <string name="SharesConfig.ChooseResourceProviderPathForShare">Choose the path of the share</string>
   <string name="SharesConfig.EditShareName">Edit the share's display name</string>
   <string name="SharesConfig.ChooseShareCategories">Choose the categories of media contents located in the share</string>
-  <string name="SharesConfig.MenuAddShare">Add</string>
+  <string name="SharesConfig.MenuAddShare">Add share</string>
   <string name="SharesConfig.MenuEditShares">Edit</string>
-  <string name="SharesConfig.MenuRemoveShares">Remove</string>
+  <string name="SharesConfig.MenuRemoveShares">Remove shares</string>
   <string name="SharesConfig.AddServerShare">Add global share</string> <!-- Must fit for both multiseat and singleseat, that's why we don't write "server share" -->
   <string name="SharesConfig.EditServerShare">Edit global share</string> <!-- Must fit for both multiseat and singleseat, that's why we don't write "server share" -->
   <string name="SharesConfig.AddLocalShare">Add local share</string>
