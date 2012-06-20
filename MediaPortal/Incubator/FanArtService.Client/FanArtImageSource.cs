@@ -22,11 +22,11 @@
 
 #endregion
 
-using System;
 using System.Collections.Generic;
 using System.Drawing;
 using MediaPortal.Common;
 using MediaPortal.Common.General;
+using MediaPortal.Common.Threading;
 using MediaPortal.Extensions.UserServices.FanArtService.Interfaces;
 using MediaPortal.UI.SkinEngine.ContentManagement;
 using MediaPortal.UI.SkinEngine.Controls.ImageSources;
@@ -47,9 +47,9 @@ namespace MediaPortal.Extensions.UserServices.FanArtService.Client
     protected AbstractProperty _maxHeightProperty;
 
     protected IList<FanArtImage> _possibleSources;
-    protected GetFanArtDelegate _getFanArtDelegate;
-    protected IAsyncResult _fanArtResult;
-    protected bool _asyncCompleted;
+    protected bool _asyncStarted = false;
+
+    protected readonly object _syncObj = new object();
 
     #endregion
 
@@ -57,7 +57,7 @@ namespace MediaPortal.Extensions.UserServices.FanArtService.Client
 
     public FanArtConstants.FanArtMediaType FanArtMediaType
     {
-      get { return (FanArtConstants.FanArtMediaType)_fanArtMediaTypeProperty.GetValue(); }
+      get { return (FanArtConstants.FanArtMediaType) _fanArtMediaTypeProperty.GetValue(); }
       set { _fanArtMediaTypeProperty.SetValue(value); }
     }
 
@@ -68,7 +68,7 @@ namespace MediaPortal.Extensions.UserServices.FanArtService.Client
 
     public FanArtConstants.FanArtType FanArtType
     {
-      get { return (FanArtConstants.FanArtType)_fanArtTypeProperty.GetValue(); }
+      get { return (FanArtConstants.FanArtType) _fanArtTypeProperty.GetValue(); }
       set { _fanArtTypeProperty.SetValue(value); }
     }
 
@@ -79,7 +79,7 @@ namespace MediaPortal.Extensions.UserServices.FanArtService.Client
 
     public string FanArtName
     {
-      get { return (string)_fanArtNameProperty.GetValue(); }
+      get { return (string) _fanArtNameProperty.GetValue(); }
       set { _fanArtNameProperty.SetValue(value); }
     }
 
@@ -90,7 +90,7 @@ namespace MediaPortal.Extensions.UserServices.FanArtService.Client
 
     public int MaxWidth
     {
-      get { return (int)_maxWidthProperty.GetValue(); }
+      get { return (int) _maxWidthProperty.GetValue(); }
       set { _maxWidthProperty.SetValue(value); }
     }
 
@@ -101,7 +101,7 @@ namespace MediaPortal.Extensions.UserServices.FanArtService.Client
 
     public int MaxHeight
     {
-      get { return (int)_maxHeightProperty.GetValue(); }
+      get { return (int) _maxHeightProperty.GetValue(); }
       set { _maxHeightProperty.SetValue(value); }
     }
 
@@ -133,7 +133,7 @@ namespace MediaPortal.Extensions.UserServices.FanArtService.Client
     {
       Detach();
       base.DeepCopy(source, copyManager);
-      FanArtImageSource fanArtImageSource = (FanArtImageSource)source;
+      FanArtImageSource fanArtImageSource = (FanArtImageSource) source;
       FanArtType = fanArtImageSource.FanArtType;
       FanArtMediaType = fanArtImageSource.FanArtMediaType;
       FanArtName = fanArtImageSource.FanArtName;
@@ -201,20 +201,22 @@ namespace MediaPortal.Extensions.UserServices.FanArtService.Client
 
     public override void Allocate()
     {
-      if (FanArtMediaType == FanArtConstants.FanArtMediaType.Undefined || 
-        FanArtType == FanArtConstants.FanArtType.Undefined ||
-        _asyncCompleted)
+      if (FanArtMediaType == FanArtConstants.FanArtMediaType.Undefined ||
+        FanArtType == FanArtConstants.FanArtType.Undefined)
         return;
 
-      if (!Download_Async())
-        return;
+      Download_Async();
 
-      if (_possibleSources == null || _possibleSources.Count == 0)
+      IList<FanArtImage> possibleSources;
+      lock (_syncObj)
+        possibleSources = _possibleSources;
+
+      if (possibleSources == null || possibleSources.Count == 0)
         return;
 
       if (_texture == null)
       {
-        FanArtImage image = _possibleSources[0];
+        FanArtImage image = possibleSources[0];
         _texture = ContentManager.Instance.GetTexture(image.BinaryData, image.Name);
       }
 
@@ -234,28 +236,26 @@ namespace MediaPortal.Extensions.UserServices.FanArtService.Client
 
     #region Protected methods
 
-    protected bool Download_Async()
+    protected void Download_Async()
     {
-      if (_fanArtResult == null)
+      if (!_asyncStarted)
       {
         IFanArtService fanArtService = ServiceRegistration.Get<IFanArtService>();
-        _getFanArtDelegate = fanArtService.GetFanArt;
-        _fanArtResult = _getFanArtDelegate.BeginInvoke(FanArtMediaType, FanArtType, FanArtName, MaxWidth, MaxHeight, true, null, fanArtService);
+        IThreadPool threadPool = ServiceRegistration.Get<IThreadPool>();
+        threadPool.Add(() =>
+                         {
+                           IList<FanArtImage> possibleSources = fanArtService.GetFanArt(FanArtMediaType, FanArtType, FanArtName, MaxWidth, MaxHeight, true);
+                           lock (_syncObj)
+                             _possibleSources = possibleSources;
+                         });
+        _asyncStarted = true;
       }
-      bool isCompleted = _fanArtResult.IsCompleted;
-      if (isCompleted && !_asyncCompleted)
-      {
-        _possibleSources = _getFanArtDelegate.EndInvoke(_fanArtResult);
-        _asyncCompleted = true;
-      }
-      return isCompleted;
     }
 
     protected override void FreeData()
     {
       _texture = null;
-      _fanArtResult = null;
-      _asyncCompleted = false;
+      _asyncStarted = false;
       base.FreeData();
     }
 
