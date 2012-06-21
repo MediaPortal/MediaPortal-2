@@ -34,7 +34,9 @@ using MediaPortal.Common.PathManager;
 namespace MediaPortal.Extensions.UserServices.FanArtService.Interfaces
 {
   /// <summary>
-  /// Data object for fan art images.
+  /// <see cref="FanArtImage"/> represents a fanart image that can be transmitted from server to clients using UPnP.
+  /// It supports resizing of existing images to different resolutions. The resized images will be cached on server data folder
+  /// (<see cref="CACHE_PATH"/>), so they can be reused later.
   /// </summary>
   /// <remarks>
   /// <para>
@@ -153,6 +155,14 @@ namespace MediaPortal.Extensions.UserServices.FanArtService.Interfaces
       }
     }
 
+    /// <summary>
+    /// Resizes an image to given size. The resized image will be saved to cache, so it can be reused later. Images that
+    /// are smaller than the requested target size will not be scaled up, but returned in original size.
+    /// </summary>
+    /// <param name="originalFile">Image to resize</param>
+    /// <param name="maxWidth">Maximum image width</param>
+    /// <param name="maxHeight">Maximum image height</param>
+    /// <returns></returns>
     protected static string ResizeImage(string originalFile, int maxWidth, int maxHeight)
     {
       if (maxWidth == 0 || maxHeight == 0)
@@ -167,9 +177,7 @@ namespace MediaPortal.Extensions.UserServices.FanArtService.Interfaces
 
       try
       {
-
         Image fullsizeImage = Image.FromFile(originalFile);
-
         if (fullsizeImage.Width <= maxWidth)
           maxWidth = fullsizeImage.Width;
 
