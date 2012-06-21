@@ -27,15 +27,12 @@ using System.Collections.Generic;
 using MediaPortal.Common;
 using MediaPortal.Common.UPnP;
 using MediaPortal.Extensions.UserServices.FanArtService.Interfaces;
-using MediaPortal.Extensions.UserServices.FanArtService.Interfaces.UPnP;
-using MediaPortal.Extensions.UserServices.FanArtService.UPnP;
-using MediaPortal.UI.ServerCommunication;
 using UPnP.Infrastructure.CP;
 using UPnP.Infrastructure.CP.DeviceTree;
 
 namespace MediaPortal.Extensions.UserServices.FanArtService.Client
 {
-  public class FanArtServiceProxy : UPnPServiceProxyBase, IFanArtService
+  public class FanArtServiceProxy : UPnPServiceProxyBase, IFanArtService, IDisposable
   {
     #region Protected fields
 
@@ -46,38 +43,13 @@ namespace MediaPortal.Extensions.UserServices.FanArtService.Client
 
     #endregion
 
-    public FanArtServiceProxy()
-    {
-      UPnPExtendedDataTypes.AddDataType(UPnPDtImageCollection.Instance);
-    }
-
-    protected bool TryInit()
-    {
-      if (_serviceStub != null)
-        return true;
-
-      DeviceConnection connection = ServiceRegistration.Get<IServerConnectionManager>().ControlPoint.Connection;
-      if (connection == null)
-        return false;
-
-      CpService fanArtStub = connection.Device.FindServiceByServiceId(Consts.FANART_SERVICE_ID);
-
-      lock (_syncObj)
-      {
-        if (fanArtStub != null)
-          Init(fanArtStub, "FanArt");
-
-        return _serviceStub != null;
-      }
-    }
+    public FanArtServiceProxy(CpService serviceStub) : base(serviceStub, "FanArt") 
+    {}
 
     public IList<FanArtImage> GetFanArt(FanArtConstants.FanArtMediaType mediaType, FanArtConstants.FanArtType fanArtType, string name, int maxWidth, int maxHeight, bool singleRandom)
     {
       try
       {
-        if (!TryInit())
-          return null; // allow to retry
-
         CpAction action = GetAction("GetFanArt");
         IList<object> inParameters = new List<object>
                                      {
@@ -95,6 +67,11 @@ namespace MediaPortal.Extensions.UserServices.FanArtService.Client
       {
         return EMPTY_LIST;
       }
+    }
+
+    public void Dispose()
+    {
+      ServiceRegistration.Remove<IFanArtService>();
     }
   }
 }

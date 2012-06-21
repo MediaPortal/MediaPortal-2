@@ -116,7 +116,7 @@ namespace MediaPortal.Extensions.UserServices.FanArtService.Client
 
     static FanArtImageSource()
     {
-      ServiceRegistration.Set<IFanArtService>(new FanArtServiceProxy());
+      FanArtServiceProxyRegistration.RegisterService();
     }
     /// <summary>
     /// Constructs a <see cref="FanArtImageSource"/>.
@@ -240,7 +240,10 @@ namespace MediaPortal.Extensions.UserServices.FanArtService.Client
     {
       if (!_asyncStarted)
       {
-        IFanArtService fanArtService = ServiceRegistration.Get<IFanArtService>();
+        IFanArtService fanArtService = ServiceRegistration.Get<IFanArtService>(false);
+        if (fanArtService == null)
+          return;
+
         IThreadPool threadPool = ServiceRegistration.Get<IThreadPool>();
         threadPool.Add(() =>
                          {

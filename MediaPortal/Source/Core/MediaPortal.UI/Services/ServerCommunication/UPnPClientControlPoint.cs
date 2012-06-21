@@ -23,6 +23,8 @@
 #endregion
 
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using MediaPortal.Common;
 using MediaPortal.Common.General;
 using MediaPortal.Common.Logging;
@@ -37,6 +39,7 @@ namespace MediaPortal.UI.Services.ServerCommunication
 {
   public delegate void BackendServerConnectedDlgt(DeviceConnection connection);
   public delegate void BackendServerDisconnectedDlgt(DeviceConnection connection);
+  public delegate UPnPServiceProxyBase UserServiceRegisterDlgt(DeviceConnection connection);
 
   /// <summary>
   /// Tracks the connection state of a defined home server.
@@ -52,6 +55,8 @@ namespace MediaPortal.UI.Services.ServerCommunication
     protected UPnPServerControllerServiceProxy _serverControllerService = null;
     protected UPnPResourceInformationServiceProxy _resourceInformationService = null;
     protected UPnPUserProfileDataManagementServiceProxy _userProfileDataManagementService = null;
+    protected IList<UserServiceRegisterDlgt> _userServiceRegistrations = new List<UserServiceRegisterDlgt>();
+    protected IList<UPnPServiceProxyBase> _userServices = new List<UPnPServiceProxyBase>();
 
     public UPnPClientControlPoint(string homeServerSystemId)
     {
@@ -98,6 +103,17 @@ namespace MediaPortal.UI.Services.ServerCommunication
     public DeviceConnection Connection
     {
       get { return _connection; }
+    }
+
+    /// <summary>
+    /// Registers user services into this client control point. All registered service will be created once the <see cref="DeviceConnection"/> is
+    /// established. On disconnections the registered services will be disposed, but the <paramref name="userServiceRegister"/> will be kept.
+    /// If the <see cref="DeviceConnection"/> is re-established, the service will be instantiated again.
+    /// </summary>
+    /// <param name="userServiceRegister"></param>
+    public void RegisterUserService(UserServiceRegisterDlgt userServiceRegister)
+    {
+      _userServiceRegistrations.Add(userServiceRegister);
     }
 
     public void Start()
@@ -181,7 +197,19 @@ namespace MediaPortal.UI.Services.ServerCommunication
           _serverControllerService = new UPnPServerControllerServiceProxy(scsStub);
           _userProfileDataManagementService = new UPnPUserProfileDataManagementServiceProxy(updmStub);
         }
-        // TODO: other services
+
+        // Register user services, instances will be hold until the device connection is available
+        foreach (UserServiceRegisterDlgt userServiceRegistration in _userServiceRegistrations)
+        {
+          try
+          {
+            _userServices.Add(userServiceRegistration(connection));
+          }
+          catch (Exception e)
+          {
+            ServiceRegistration.Get<ILogger>().Warn("UPnPClientControlPoint: Error registering user service of UPnP MP 2 backend server '{0}'", e, deviceUuid);
+          }
+        }
       }
       catch (Exception e)
       {
@@ -202,6 +230,9 @@ namespace MediaPortal.UI.Services.ServerCommunication
         _resourceInformationService = null;
         _serverControllerService = null;
       }
+      // Dispose all user services if possible, to allow proper shutdown and cleanup
+      _userServices.OfType<IDisposable>().ToList().ForEach(d => d.Dispose());
+      _userServices.Clear();
       InvokeBackendServerDeviceDisconnected(connection);
     }
 

@@ -32,15 +32,7 @@ namespace MediaPortal.Common.UPnP
     protected CpService _serviceStub;
     protected string _serviceName;
 
-    protected UPnPServiceProxyBase()
-    { }
-
     protected UPnPServiceProxyBase(CpService serviceStub, string serviceName)
-    {
-      Init(serviceStub, serviceName);
-    }
-
-    protected void Init(CpService serviceStub, string serviceName)
     {
       _serviceName = serviceName;
       _serviceStub = serviceStub;
