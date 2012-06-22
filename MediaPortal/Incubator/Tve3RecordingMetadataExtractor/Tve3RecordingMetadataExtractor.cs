@@ -203,10 +203,8 @@ namespace MediaPortal.Extensions.MetadataExtractors
         DateTime recordingStart;
         DateTime recordingEnd;
         if (TryGet(tags, TAG_STARTTIME, out value) && DateTime.TryParse(value, out recordingStart))
-        {
-          mediaAspect.SetAttribute(MediaAspect.ATTR_RECORDINGTIME, recordingStart);
           recordingAspect.SetAttribute(RecordingAspect.ATTR_STARTTIME, recordingStart);
-        }
+
         if (TryGet(tags, TAG_ENDTIME, out value) && DateTime.TryParse(value, out recordingEnd))
           recordingAspect.SetAttribute(RecordingAspect.ATTR_ENDTIME, recordingEnd);
 
