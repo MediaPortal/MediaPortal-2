@@ -109,7 +109,6 @@ namespace MediaPortal.Extensions.MetadataExtractors
     {
       SHARE_CATEGORIES.Add(DefaultMediaCategory.Video.ToString());
       SHARE_CATEGORIES.Add(SpecializedCategory.Series.ToString());
-      SHARE_CATEGORIES.Add(SpecializedCategory.Movie.ToString());
       // Register the Recording aspect
       IMediaItemAspectTypeRegistration miatr = ServiceRegistration.Get<IMediaItemAspectTypeRegistration>();
       miatr.RegisterLocallyKnownMediaItemAspectType(RecordingAspect.Metadata);
@@ -182,6 +181,9 @@ namespace MediaPortal.Extensions.MetadataExtractors
         }
 
         string value;
+        if (TryGet(tags, TAG_TITLE, out value) && !string.IsNullOrEmpty(value))
+          mediaAspect.SetAttribute(MediaAspect.ATTR_TITLE, value);
+
         if (TryGet(tags, TAG_GENRE, out value))
           videoAspect.SetCollectionAttribute(VideoAspect.ATTR_GENRES, new List<String> { value });
 
