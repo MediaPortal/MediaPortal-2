@@ -97,7 +97,7 @@ namespace TransifexHelper
       Console.WriteLine("Searching language directories in: {0}", targetDirInfo.FullName);
 
       SearchLangDirs(targetDirInfo);
-      transifexIni.Load(TransifexRootFolder);
+      transifexIni.Load(TransifexConfigFile);
 
       foreach (IniFile.IniSection section in transifexIni.Sections)
       {
