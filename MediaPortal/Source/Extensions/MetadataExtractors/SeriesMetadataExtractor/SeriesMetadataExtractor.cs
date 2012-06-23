@@ -45,7 +45,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
   /// </summary>
   public class SeriesMetadataExtractor : IMetadataExtractor
   {
-    #region Public constants
+    #region Constants
 
     /// <summary>
     /// GUID string for the video metadata extractor.
@@ -57,12 +57,14 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
     /// </summary>
     public static Guid METADATAEXTRACTOR_ID = new Guid(METADATAEXTRACTOR_ID_STR);
 
+    public const string MEDIA_CATEGORY_NAME_SERIES = "Series";
+
     #endregion
 
     #region Protected fields and classes
 
-    protected static IList<string> SHARE_CATEGORIES = new List<string>();
-    protected static IList<string> VIDEO_FILE_EXTENSIONS = new List<string>();
+    protected static ICollection<MediaCategory> MEDIA_CATEGORIES = new List<MediaCategory>();
+    protected static ICollection<string> VIDEO_FILE_EXTENSIONS = new List<string>();
 
     protected MetadataExtractorMetadata _metadata;
 
@@ -72,19 +74,21 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
 
     static SeriesMetadataExtractor()
     {
-      SHARE_CATEGORIES.Add(SpecializedCategory.Series.ToString());
+      MediaCategory seriesCategory;
+      IMediaAccessor mediaAccessor = ServiceRegistration.Get<IMediaAccessor>();
+      if (!mediaAccessor.MediaCategories.TryGetValue(MEDIA_CATEGORY_NAME_SERIES, out seriesCategory))
+        seriesCategory = mediaAccessor.RegisterMediaCategory(MEDIA_CATEGORY_NAME_SERIES, new List<MediaCategory> {DefaultMediaCategories.Video});
+      MEDIA_CATEGORIES.Add(seriesCategory);
     }
 
     public SeriesMetadataExtractor()
     {
       _metadata = new MetadataExtractorMetadata(METADATAEXTRACTOR_ID, "Series metadata extractor", MetadataExtractorPriority.External, true,
-          SHARE_CATEGORIES, new[]
+          MEDIA_CATEGORIES, new[]
               {
                 MediaAspect.Metadata,
                 SeriesAspect.Metadata
               });
-      // Add Video category as required base
-      _metadata.RequiredBaseCategories.Add(DefaultMediaCategory.Video.ToString());
     }
 
     #endregion
@@ -117,8 +121,6 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
       SeriesInfo seriesInfo = null;
 
       string extensionUpper = StringUtils.TrimToEmpty(Path.GetExtension(localFsResourcePath)).ToUpper();
-      string title = string.Empty;
-      int year = 0;
 
       // Try to get extended information out of matroska files)
       if (extensionUpper == ".MKV" || extensionUpper == ".MK3D")
@@ -128,7 +130,8 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
         Dictionary<string, IList<string>> tagsToExtract = MatroskaConsts.DefaultTags;
         mkvReader.ReadTags(tagsToExtract);
 
-        var tags = tagsToExtract[MatroskaConsts.TAG_SIMPLE_TITLE];
+        string title = string.Empty;
+        IList<string> tags = tagsToExtract[MatroskaConsts.TAG_SIMPLE_TITLE];
         if (tags != null)
           title = tags.FirstOrDefault();
 
@@ -140,6 +143,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
         if (tags != null)
           yearCandidate = (tags.FirstOrDefault() ?? string.Empty).Substring(0, 4);
 
+        int year;
         if (int.TryParse(yearCandidate, out year))
           MediaItemAspect.SetAttribute(extractedAspectData, MediaAspect.ATTR_RECORDINGTIME, new DateTime(year, 1, 1));
 

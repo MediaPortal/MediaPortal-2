@@ -33,7 +33,6 @@ using MediaPortal.Common.PluginManager;
 using MediaPortal.Common.Services.ResourceAccess.LocalFsResourceProvider;
 using MediaPortal.Common.Services.ResourceAccess.RemoteResourceProvider;
 using MediaPortal.Common.SystemResolver;
-using MediaPortal.Utilities;
 using MediaPortal.Utilities.SystemAPI;
 
 namespace MediaPortal.Common.Services.MediaManagement
@@ -127,6 +126,7 @@ namespace MediaPortal.Common.Services.MediaManagement
     protected MetadataExtractorPluginItemChangeListener _metadataExtractorsPluginItemChangeListener;
     protected IDictionary<Guid, IResourceProvider> _providers = null;
     protected IDictionary<Guid, IMetadataExtractor> _metadataExtractors = null;
+    protected IDictionary<string, MediaCategory> _mediaCategories;
 
     #endregion
 
@@ -134,6 +134,12 @@ namespace MediaPortal.Common.Services.MediaManagement
 
     public MediaAccessor()
     {
+      _mediaCategories = new Dictionary<string, MediaCategory>
+        {
+            {DefaultMediaCategories.Audio.CategoryName, DefaultMediaCategories.Audio},
+            {DefaultMediaCategories.Video.CategoryName, DefaultMediaCategories.Video},
+            {DefaultMediaCategories.Image.CategoryName, DefaultMediaCategories.Image},
+        };
       _resourceProvidersPluginItemChangeListener = new ResourceProviderPluginItemChangeListener(this);
       _metadataExtractorsPluginItemChangeListener = new MetadataExtractorPluginItemChangeListener(this);
     }
@@ -231,9 +237,29 @@ namespace MediaPortal.Common.Services.MediaManagement
           _metadataExtractorsPluginItemChangeListener);
     }
 
+    protected ICollection<MediaCategory> GetAllMediaCategoriesInHierarchy(MediaCategory category)
+    {
+      ICollection<MediaCategory> result = new HashSet<MediaCategory>();
+      Stack<MediaCategory> remaining = new Stack<MediaCategory>();
+      remaining.Push(category);
+      while (remaining.Count > 0)
+      {
+        MediaCategory current = remaining.Pop();
+        result.Add(current);
+        foreach (MediaCategory parentCategory in current.ParentCategories)
+          remaining.Push(parentCategory);
+      }
+      return result;
+    }
+
     #endregion
 
     #region IMediaAccessor implementation
+
+    public IDictionary<string, MediaCategory> MediaCategories
+    {
+      get { return _mediaCategories; }
+    }
 
     public IDictionary<Guid, IResourceProvider> LocalResourceProviders
     {
@@ -287,7 +313,7 @@ namespace MediaPortal.Common.Services.MediaManagement
         if (WindowsAPI.GetSpecialFolder(WindowsAPI.SpecialFolder.MyMusic, out folderPath))
         {
           folderPath = LocalFsResourceProviderBase.ToProviderPath(folderPath);
-          string[] mediaCategories = new[] {DefaultMediaCategory.Audio.ToString()};
+          string[] mediaCategories = new[] {DefaultMediaCategories.Audio.ToString()};
           Share sd = Share.CreateNewLocalShare(ResourcePath.BuildBaseProviderPath(localFsResourceProviderId, folderPath),
               MY_MUSIC_SHARE_NAME_RESOURE, mediaCategories);
           result.Add(sd);
@@ -296,7 +322,7 @@ namespace MediaPortal.Common.Services.MediaManagement
         if (WindowsAPI.GetSpecialFolder(WindowsAPI.SpecialFolder.MyVideos, out folderPath))
         {
           folderPath = LocalFsResourceProviderBase.ToProviderPath(folderPath);
-          string[] mediaCategories = new[] { DefaultMediaCategory.Video.ToString() };
+          string[] mediaCategories = new[] { DefaultMediaCategories.Video.ToString() };
           Share sd = Share.CreateNewLocalShare(ResourcePath.BuildBaseProviderPath(localFsResourceProviderId, folderPath),
               MY_VIDEOS_SHARE_NAME_RESOURCE, mediaCategories);
           result.Add(sd);
@@ -305,7 +331,7 @@ namespace MediaPortal.Common.Services.MediaManagement
         if (WindowsAPI.GetSpecialFolder(WindowsAPI.SpecialFolder.MyPictures, out folderPath))
         {
           folderPath = LocalFsResourceProviderBase.ToProviderPath(folderPath);
-          string[] mediaCategories = new[] { DefaultMediaCategory.Image.ToString() };
+          string[] mediaCategories = new[] { DefaultMediaCategories.Image.ToString() };
           Share sd = Share.CreateNewLocalShare(ResourcePath.BuildBaseProviderPath(localFsResourceProviderId, folderPath),
               MY_PICTURES_SHARE_NAME_RESOURCE, mediaCategories);
           result.Add(sd);
@@ -319,19 +345,23 @@ namespace MediaPortal.Common.Services.MediaManagement
       return result;
     }
 
+    public MediaCategory RegisterMediaCategory(string name, ICollection<MediaCategory> parentCategories)
+    {
+      MediaCategory result = new MediaCategory(name, parentCategories);
+      _mediaCategories.Add(name, result);
+      return result;
+    }
+
     public ICollection<Guid> GetMetadataExtractorsForCategory(string mediaCategory)
     {
       ICollection<Guid> ids = new HashSet<Guid>();
+      MediaCategory category;
+      if (!_mediaCategories.TryGetValue(mediaCategory, out category))
+        return ids;
+      ICollection<MediaCategory> categoriesToConsider = GetAllMediaCategoriesInHierarchy(category);
       foreach (KeyValuePair<Guid, IMetadataExtractor> localMetadataExtractor in LocalMetadataExtractors)
-      {
-        if (mediaCategory == null || localMetadataExtractor.Value.Metadata.ShareCategories.Contains(mediaCategory))
-        {
+        if (mediaCategory == null || localMetadataExtractor.Value.Metadata.MediaCategories.Intersect(categoriesToConsider).Count() > 0)
           ids.Add(localMetadataExtractor.Value.Metadata.MetadataExtractorId);
-
-          foreach (string requiredBaseCategory in localMetadataExtractor.Value.Metadata.RequiredBaseCategories)
-            CollectionUtils.AddAll(ids, GetMetadataExtractorsForCategory(requiredBaseCategory));
-        }
-      }
       return ids;
     }
 
@@ -390,19 +420,6 @@ namespace MediaPortal.Common.Services.MediaManagement
       providerResourceAspect.SetAttribute(ProviderResourceAspect.ATTR_SYSTEM_ID, systemResolver.LocalSystemId);
       providerResourceAspect.SetAttribute(ProviderResourceAspect.ATTR_RESOURCE_ACCESSOR_PATH, mediaItemAccessor.CanonicalLocalResourcePath.Serialize());
       return new MediaItem(Guid.Empty, aspects);
-    }
-
-    #endregion
-
-    #region IStatus Implementation
-
-    public IList<string> GetStatus()
-    {
-      List<string> status = new List<string> {"=== MediaManager - ResourceProviders"};
-      status.AddRange(_providers.Values.Select(provider => string.Format("     Provider '{0}'", provider.Metadata.Name)));
-      status.Add("=== MediaManager - MetadataExtractors");
-      status.AddRange(_metadataExtractors.Values.Select(metadataExtractor => string.Format("     MetadataExtractor '{0}'", metadataExtractor.Metadata.Name)));
-      return status;
     }
 
     #endregion

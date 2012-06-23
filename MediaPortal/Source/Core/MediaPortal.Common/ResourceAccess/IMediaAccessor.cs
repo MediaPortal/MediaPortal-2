@@ -34,6 +34,14 @@ namespace MediaPortal.Common.ResourceAccess
   public interface IMediaAccessor
   {
     /// <summary>
+    /// Returns a mapping of names to media categories for all registered media categories in this system.
+    /// </summary>
+    /// <remarks>
+    /// Modules can register additional media categories using method <see cref="RegisterMediaCategory"/>.
+    /// </remarks>
+    IDictionary<string, MediaCategory> MediaCategories { get; }
+
+    /// <summary>
     /// Collection of all registered local resource providers, organized as a dictionary of
     /// (GUID; provider) mappings.
     /// This resource provider collection is the proposed entry point to get access to physical media
@@ -74,6 +82,19 @@ namespace MediaPortal.Common.ResourceAccess
     /// </summary>
     /// <returns>Collection of shares. The shares are not saved to the settings yet.</returns>
     ICollection<Share> CreateDefaultShares();
+
+    /// <summary>
+    /// Registers a media category in this system.
+    /// </summary>
+    /// <remarks>
+    /// Metadata extractors, which are registered for special media categories, aren't invoked before their media categories have been
+    /// registered via this method. I.e. if a metadata extractor is provided in an MP2 system by a plugin, that plugin must refresh the
+    /// media category registrations for that metadata extractor each time it is loaded.
+    /// </remarks>
+    /// <param name="name">Unique name for the new media category.</param>
+    /// <param name="parentCategories">Parent categories for the new media category.</param>
+    /// <returns>New media category which has been created and registered.</returns>
+    MediaCategory RegisterMediaCategory(string name, ICollection<MediaCategory> parentCategories);
 
     /// <summary>
     /// Returns the ids of all local metadata extractors which are classified into the specified

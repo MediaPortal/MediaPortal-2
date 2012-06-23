@@ -200,7 +200,7 @@ namespace MediaPortal.UiComponents.SkinBase.Models
       foreach (IMetadataExtractor me in mediaAccessor.LocalMetadataExtractors.Values)
       {
         MetadataExtractorMetadata metadata = me.Metadata;
-        CollectionUtils.AddAll(result, metadata.ShareCategories);
+        CollectionUtils.AddAll(result, metadata.MediaCategories.Select(mediaCategory => mediaCategory.CategoryName));
       }
       return result;
     }

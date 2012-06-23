@@ -69,7 +69,7 @@ namespace MediaPortal.Extensions.MetadataExtractors
 
     #endregion
 
-    #region Public constants
+    #region Constants
 
     /// <summary>
     /// GUID string for the Tve3Recording metadata extractor.
@@ -77,9 +77,11 @@ namespace MediaPortal.Extensions.MetadataExtractors
     public const string METADATAEXTRACTOR_ID_STR = "C7080745-8EAE-459E-8A9A-25D87DF8565F";
 
     /// <summary>
-    /// Video metadata extractor GUID.
+    /// Tve3 metadata extractor GUID.
     /// </summary>
     public static Guid METADATAEXTRACTOR_ID = new Guid(METADATAEXTRACTOR_ID_STR);
+
+    public const string MEDIA_CATEGORY_NAME_SERIES = "Series";
 
     const string TAG_TITLE = "TITLE";
     const string TAG_PLOT = "COMMENT";
@@ -95,7 +97,7 @@ namespace MediaPortal.Extensions.MetadataExtractors
 
     #region Protected fields and classes
 
-    protected static IList<string> SHARE_CATEGORIES = new List<string>();
+    protected static IList<MediaCategory> MEDIA_CATEGORIES = new List<MediaCategory>();
     protected MetadataExtractorMetadata _metadata;
     protected static XmlSerializer _xmlSerializer = null; // Lazy initialized
 
@@ -107,9 +109,15 @@ namespace MediaPortal.Extensions.MetadataExtractors
 
     static Tve3RecordingMetadataExtractor()
     {
-      SHARE_CATEGORIES.Add(DefaultMediaCategory.Video.ToString());
-      SHARE_CATEGORIES.Add(SpecializedCategory.Series.ToString());
-      // Register the Recording aspect
+      MEDIA_CATEGORIES.Add(DefaultMediaCategories.Video);
+
+      MediaCategory seriesCategory;
+      IMediaAccessor mediaAccessor = ServiceRegistration.Get<IMediaAccessor>();
+      if (!mediaAccessor.MediaCategories.TryGetValue(MEDIA_CATEGORY_NAME_SERIES, out seriesCategory))
+        seriesCategory = mediaAccessor.RegisterMediaCategory(MEDIA_CATEGORY_NAME_SERIES, new List<MediaCategory> {DefaultMediaCategories.Video});
+      MEDIA_CATEGORIES.Add(seriesCategory);
+
+      // All non-default media item aspects must be registered
       IMediaItemAspectTypeRegistration miatr = ServiceRegistration.Get<IMediaItemAspectTypeRegistration>();
       miatr.RegisterLocallyKnownMediaItemAspectType(RecordingAspect.Metadata);
     }
@@ -117,7 +125,7 @@ namespace MediaPortal.Extensions.MetadataExtractors
     public Tve3RecordingMetadataExtractor()
     {
       _metadata = new MetadataExtractorMetadata(METADATAEXTRACTOR_ID, "TVEngine3 recordings metadata extractor", MetadataExtractorPriority.Extended, false,
-          SHARE_CATEGORIES, new[]
+          MEDIA_CATEGORIES, new[]
               {
                 MediaAspect.Metadata,
                 VideoAspect.Metadata,

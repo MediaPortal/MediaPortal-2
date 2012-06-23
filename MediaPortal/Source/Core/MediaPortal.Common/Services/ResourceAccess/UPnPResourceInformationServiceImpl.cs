@@ -267,13 +267,13 @@ namespace MediaPortal.Common.Services.ResourceAccess
         CallContext context)
     {
       IMediaAccessor mediaAccessor = ServiceRegistration.Get<IMediaAccessor>();
-      ICollection<string> result = new HashSet<string>();
+      ICollection<MediaCategory> result = new HashSet<MediaCategory>();
       foreach (IMetadataExtractor me in mediaAccessor.LocalMetadataExtractors.Values)
       {
         MetadataExtractorMetadata metadata = me.Metadata;
-        CollectionUtils.AddAll(result, metadata.ShareCategories);
+        CollectionUtils.AddAll(result, metadata.MediaCategories);
       }
-      outParams = new List<object> {StringUtils.Join(",", result)};
+      outParams = new List<object> {StringUtils.Join(",", result.Select(mediaCategory => mediaCategory.CategoryName))};
       return null;
     }
 

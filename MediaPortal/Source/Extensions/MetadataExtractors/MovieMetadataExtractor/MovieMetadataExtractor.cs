@@ -40,7 +40,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
   /// </summary>
   public class MovieMetadataExtractor : IMetadataExtractor
   {
-    #region Public constants
+    #region Constants
 
     /// <summary>
     /// GUID string for the video metadata extractor.
@@ -52,12 +52,14 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
     /// </summary>
     public static Guid METADATAEXTRACTOR_ID = new Guid(METADATAEXTRACTOR_ID_STR);
 
+    protected const string MEDIA_CATEGORY_NAME_MOVIE = "Movie";
+
     #endregion
 
     #region Protected fields and classes
 
-    protected static IList<string> SHARE_CATEGORIES = new List<string>();
-    protected static IList<string> VIDEO_FILE_EXTENSIONS = new List<string>();
+    protected static ICollection<MediaCategory> MEDIA_CATEGORIES = new List<MediaCategory>();
+    protected static ICollection<string> VIDEO_FILE_EXTENSIONS = new List<string>();
 
     protected MetadataExtractorMetadata _metadata;
 
@@ -67,19 +69,21 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
 
     static MovieMetadataExtractor()
     {
-      SHARE_CATEGORIES.Add(SpecializedCategory.Movie.ToString());
+      MediaCategory movieCategory;
+      IMediaAccessor mediaAccessor = ServiceRegistration.Get<IMediaAccessor>();
+      if (!mediaAccessor.MediaCategories.TryGetValue(MEDIA_CATEGORY_NAME_MOVIE, out movieCategory))
+        movieCategory = mediaAccessor.RegisterMediaCategory(MEDIA_CATEGORY_NAME_MOVIE, new List<MediaCategory> {DefaultMediaCategories.Video});
+      MEDIA_CATEGORIES.Add(movieCategory);
     }
 
     public MovieMetadataExtractor()
     {
       _metadata = new MetadataExtractorMetadata(METADATAEXTRACTOR_ID, "Movies metadata extractor", MetadataExtractorPriority.External, true,
-          SHARE_CATEGORIES, new[]
+          MEDIA_CATEGORIES, new[]
               {
                 MediaAspect.Metadata,
                 MovieAspect.Metadata
               });
-      // Add Video category as required base
-      _metadata.RequiredBaseCategories.Add(DefaultMediaCategory.Video.ToString());
     }
 
     #endregion
@@ -114,7 +118,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
       return false;
     }
 
-    private bool ExtractMovieData(string localFsPath, IDictionary<Guid, MediaItemAspect> extractedAspectData)
+    private static bool ExtractMovieData(string localFsPath, IDictionary<Guid, MediaItemAspect> extractedAspectData)
     {
       string title;
       if (MediaItemAspect.TryGetAttribute(extractedAspectData, MediaAspect.ATTR_TITLE, out title) && !string.IsNullOrEmpty(title))

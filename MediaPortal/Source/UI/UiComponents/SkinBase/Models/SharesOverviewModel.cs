@@ -271,7 +271,7 @@ namespace MediaPortal.UiComponents.SkinBase.Models
             }
             shareItem.SetLabel(Consts.KEY_PATH, resourcePathName);
             string categories = StringUtils.Join(", ", share.MediaCategories);
-            shareItem.SetLabel(Consts.KEY_SHARE_CATEGORIES, categories);
+            shareItem.SetLabel(Consts.KEY_MEDIA_CATEGORIES, categories);
             UpdateShareImportState_NoLock(shareItem, importingShares.Contains(share.ShareId));
             Share shareCopy = share;
             shareItem.Command = new MethodDelegateCommand(() => ReImportShare(shareCopy));

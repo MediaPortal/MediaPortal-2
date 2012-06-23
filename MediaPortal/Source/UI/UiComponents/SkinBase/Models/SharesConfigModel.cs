@@ -601,7 +601,7 @@ namespace MediaPortal.UiComponents.SkinBase.Models
             shareItem.AdditionalProperties[Consts.KEY_RESOURCE_PROVIDER_METADATA] = firstResourceProviderMetadata;
           }
           string categories = StringUtils.Join(", ", share.MediaCategories);
-          shareItem.SetLabel(Consts.KEY_SHARE_CATEGORIES, categories);
+          shareItem.SetLabel(Consts.KEY_MEDIA_CATEGORIES, categories);
           Share shareCopy = share;
           shareItem.Command = new MethodDelegateCommand(() => ShowShareInfo(shareCopy, origin));
         }

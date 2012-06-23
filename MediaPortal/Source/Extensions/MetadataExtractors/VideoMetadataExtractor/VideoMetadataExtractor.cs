@@ -47,7 +47,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.VideoMetadataExtractor
   /// </summary>
   public class VideoMetadataExtractor : IMetadataExtractor
   {
-    #region Public constants
+    #region Constants
 
     /// <summary>
     /// GUID string for the video metadata extractor.
@@ -63,8 +63,8 @@ namespace MediaPortal.Extensions.MetadataExtractors.VideoMetadataExtractor
 
     #region Protected fields and classes
 
-    protected static IList<string> SHARE_CATEGORIES = new List<string>();
-    protected static IList<string> VIDEO_FILE_EXTENSIONS = new List<string>();
+    protected static ICollection<MediaCategory> MEDIA_CATEGORIES = new List<MediaCategory>();
+    protected static ICollection<string> VIDEO_FILE_EXTENSIONS = new List<string>();
 
     protected MetadataExtractorMetadata _metadata;
 
@@ -74,7 +74,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.VideoMetadataExtractor
 
     static VideoMetadataExtractor()
     {
-      SHARE_CATEGORIES.Add(DefaultMediaCategory.Video.ToString());
+      MEDIA_CATEGORIES.Add(DefaultMediaCategories.Video);
       VideoMetadataExtractorSettings settings = ServiceRegistration.Get<ISettingsManager>().Load<VideoMetadataExtractorSettings>();
       InitializeExtensions(settings);
     }
@@ -91,7 +91,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.VideoMetadataExtractor
     public VideoMetadataExtractor()
     {
       _metadata = new MetadataExtractorMetadata(METADATAEXTRACTOR_ID, "Video metadata extractor", MetadataExtractorPriority.Core, true,
-          SHARE_CATEGORIES, new[]
+          MEDIA_CATEGORIES, new[]
               {
                 MediaAspect.Metadata,
                 VideoAspect.Metadata,
@@ -259,8 +259,6 @@ namespace MediaPortal.Extensions.MetadataExtractors.VideoMetadataExtractor
     protected void ExtractMatroskaTags(string localFsResourcePath, IDictionary<Guid, MediaItemAspect> extractedAspectData, bool forceQuickMode)
     {
       string extensionUpper = StringUtils.TrimToEmpty(Path.GetExtension(localFsResourcePath)).ToUpper();
-      string title = string.Empty;
-      int year = 0;
 
       // Try to get extended information out of matroska files)
       if (extensionUpper == ".MKV" || extensionUpper == ".MK3D")
@@ -270,10 +268,12 @@ namespace MediaPortal.Extensions.MetadataExtractors.VideoMetadataExtractor
         Dictionary<string, IList<string>> tagsToExtract = MatroskaConsts.DefaultTags;
         mkvReader.ReadTags(tagsToExtract);
 
-        var tags = tagsToExtract[MatroskaConsts.TAG_SIMPLE_TITLE];
+        string title = string.Empty;
+        IList<string> tags = tagsToExtract[MatroskaConsts.TAG_SIMPLE_TITLE];
         if (tags != null)
           title = tags.FirstOrDefault();
 
+        int year;
         if (!string.IsNullOrEmpty(title))
           MediaItemAspect.SetAttribute(extractedAspectData, MediaAspect.ATTR_TITLE, title);
 

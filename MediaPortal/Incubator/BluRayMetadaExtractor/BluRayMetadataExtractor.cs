@@ -40,7 +40,7 @@ namespace MediaPortal.Media.MetadataExtractors
   /// </summary>
   public class BluRayMetadataExtractor : IMetadataExtractor
   {
-    #region Public constants
+    #region Constants
 
     /// <summary>
     /// GUID string for the BluRayMetadataExtractor.
@@ -52,11 +52,13 @@ namespace MediaPortal.Media.MetadataExtractors
     /// </summary>
     public static Guid METADATAEXTRACTOR_ID = new Guid(METADATAEXTRACTOR_ID_STR);
 
+    protected const string MEDIA_CATEGORY_NAME_MOVIE = "Movie";
+
     #endregion
 
     #region Protected fields and classes
 
-    protected static IList<string> SHARE_CATEGORIES = new List<string>();
+    protected static ICollection<MediaCategory> MEDIA_CATEGORIES = new List<MediaCategory>();
 
     protected MetadataExtractorMetadata _metadata;
 
@@ -66,14 +68,19 @@ namespace MediaPortal.Media.MetadataExtractors
 
     static BluRayMetadataExtractor()
     {
-      SHARE_CATEGORIES.Add(DefaultMediaCategory.Video.ToString());
-      SHARE_CATEGORIES.Add(SpecializedCategory.Movie.ToString());
+      MEDIA_CATEGORIES.Add(DefaultMediaCategories.Video);
+
+      MediaCategory movieCategory;
+      IMediaAccessor mediaAccessor = ServiceRegistration.Get<IMediaAccessor>();
+      if (!mediaAccessor.MediaCategories.TryGetValue(MEDIA_CATEGORY_NAME_MOVIE, out movieCategory))
+        movieCategory = mediaAccessor.RegisterMediaCategory(MEDIA_CATEGORY_NAME_MOVIE, new List<MediaCategory> {DefaultMediaCategories.Video});
+      MEDIA_CATEGORIES.Add(movieCategory);
     }
 
     public BluRayMetadataExtractor()
     {
       _metadata = new MetadataExtractorMetadata(METADATAEXTRACTOR_ID, "BluRay metadata extractor", MetadataExtractorPriority.Core, false, 
-          SHARE_CATEGORIES, new[]
+          MEDIA_CATEGORIES, new[]
               {
                 MediaAspect.Metadata,
                 VideoAspect.Metadata

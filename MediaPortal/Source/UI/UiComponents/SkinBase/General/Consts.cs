@@ -179,7 +179,7 @@ namespace MediaPortal.UiComponents.SkinBase.General
     public const string KEY_RESOURCE_PROVIDER_METADATA = "ResourceProviderMetadata";
     public const string KEY_RESOURCE_PATH = "ResourcePath";
     public const string KEY_PATH = "Path";
-    public const string KEY_SHARE_CATEGORIES = "Categories";
+    public const string KEY_MEDIA_CATEGORIES = "Categories";
     public const string KEY_SHARES_PROXY = "SharesProxy";
     public const string KEY_EXPANSION = "Expansion";
     public const string KEY_SYSTEM_SHARES = "SystemShares";

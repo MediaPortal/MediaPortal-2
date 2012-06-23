@@ -64,21 +64,19 @@ namespace MediaPortal.Common.MediaManagement
     protected string _name;
     protected bool _processesNonFiles;
     protected MetadataExtractorPriority _metadataExtractorPriority;
-    protected ICollection<string> _shareCategories;
-    protected ICollection<string> _requiredBaseCategories;
+    protected ICollection<MediaCategory> _mediaCategories;
     protected IDictionary<Guid, MediaItemAspectMetadata> _extractedAspectTypes;
 
     #endregion
 
     public MetadataExtractorMetadata(Guid metadataExtractorId, string name, MetadataExtractorPriority metadataExtractorPriority, bool processesNonFiles,
-        IEnumerable<string> shareCategories, IEnumerable<MediaItemAspectMetadata> extractedAspectTypes)
+        IEnumerable<MediaCategory> shareCategories, IEnumerable<MediaItemAspectMetadata> extractedAspectTypes)
     {
       _metadataExtractorId = metadataExtractorId;
       _name = name;
       _processesNonFiles = processesNonFiles;
       _metadataExtractorPriority = metadataExtractorPriority;
-      _shareCategories = new List<string>(shareCategories);
-      _requiredBaseCategories = new List<string>();
+      _mediaCategories = new List<MediaCategory>(shareCategories);
       _extractedAspectTypes = new Dictionary<Guid, MediaItemAspectMetadata>();
       foreach (MediaItemAspectMetadata aspectMetadata in extractedAspectTypes)
         _extractedAspectTypes.Add(aspectMetadata.AspectId, aspectMetadata);
@@ -90,17 +88,6 @@ namespace MediaPortal.Common.MediaManagement
     public Guid MetadataExtractorId
     {
       get { return _metadataExtractorId; }
-    }
-
-    /// <summary>
-    /// Returns a list of additional categories, that are mandatory to be included in extraction process for this metadata extractor.
-    /// This can be required for extractors of <see cref="MetadataExtractorPriority.Extended"/> or <see cref="MetadataExtractorPriority.External"/>
-    /// to use some of the <see cref="MetadataExtractorPriority.Core"/>.
-    /// Example: Series metadata extractor requires, that the video metadata extractor has filled the video informations before.
-    /// </summary>
-    public ICollection<string> RequiredBaseCategories
-    {
-      get { return _requiredBaseCategories; }
     }
 
     /// <summary>
@@ -123,15 +110,16 @@ namespace MediaPortal.Common.MediaManagement
     /// Returns the categories of media items which are supported by the metadata extractor.
     /// </summary>
     /// <remarks>
-    /// The categories can be used by the system to classify shares and metadata extractors. The system might
+    /// The categories can be used by the system to classify shares and metadata extractors. The system will
     /// offer all metadata extractors of category "Audio" for shares classified as "Audio", for example.
+    /// It will also offer the metadata extractors for parent categories.
     /// <br/>
-    /// There are default categories which can be taken from the enum <see cref="DefaultMediaCategory"/>,
+    /// There are default categories which can be taken from the enum <see cref="DefaultMediaCategories"/>,
     /// but also user-defined categories can be returned.
     /// </remarks>
-    public ICollection<string> ShareCategories
+    public ICollection<MediaCategory> MediaCategories
     {
-      get { return _shareCategories; }
+      get { return _mediaCategories; }
     }
 
     /// <summary>

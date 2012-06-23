@@ -45,7 +45,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.ImageMetadataExtractor
   /// </summary>
   public class ImageMetadataExtractor : IMetadataExtractor
   {
-    #region Public constants
+    #region Constants
 
     /// <summary>
     /// GUID string for the image metadata extractor.
@@ -61,8 +61,8 @@ namespace MediaPortal.Extensions.MetadataExtractors.ImageMetadataExtractor
 
     #region Protected fields and classes
 
-    protected static IList<string> SHARE_CATEGORIES = new List<string>();
-    protected static IList<string> IMAGE_FILE_EXTENSIONS = new List<string>();
+    protected static ICollection<MediaCategory> MEDIA_CATEGORIES = new List<MediaCategory>();
+    protected static ICollection<string> IMAGE_FILE_EXTENSIONS = new List<string>();
 
     protected MetadataExtractorMetadata _metadata;
 
@@ -72,7 +72,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.ImageMetadataExtractor
 
     static ImageMetadataExtractor()
     {
-      SHARE_CATEGORIES.Add(DefaultMediaCategory.Image.ToString());
+      MEDIA_CATEGORIES.Add(DefaultMediaCategories.Image);
       ImageMetadataExtractorSettings settings = ServiceRegistration.Get<ISettingsManager>().Load<ImageMetadataExtractorSettings>();
       InitializeExtensions(settings);
     }
@@ -89,7 +89,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.ImageMetadataExtractor
     public ImageMetadataExtractor()
     {
       _metadata = new MetadataExtractorMetadata(METADATAEXTRACTOR_ID, "Image metadata extractor", MetadataExtractorPriority.Core, true,
-          SHARE_CATEGORIES, new[]
+          MEDIA_CATEGORIES, new[]
               {
                 MediaAspect.Metadata,
                 ImageAspect.Metadata

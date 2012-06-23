@@ -40,17 +40,15 @@ namespace MediaPortal.Common.MediaManagement
     ClearAndReImport
   }
 
-  public enum DefaultMediaCategory
+  /// <summary>
+  /// Media categories which are registered in the system by default. Those media categories and maybe additional media categories from plugins
+  /// can be retrieved by the <see cref="IMediaAccessor"/> using property <see cref="IMediaAccessor.MediaCategories"/>.
+  /// </summary>
+  public static class DefaultMediaCategories
   {
-    Audio,
-    Video,
-    Image,
-  }
-
-  public enum SpecializedCategory
-  {
-    Series,
-    Movie,
+    public static readonly MediaCategory Audio = new MediaCategory("Audio", null);
+    public static readonly MediaCategory Video = new MediaCategory("Video", null);
+    public static readonly MediaCategory Image = new MediaCategory("Image", null);
   }
 
   /// <summary>

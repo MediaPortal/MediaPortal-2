@@ -46,7 +46,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
   /// </summary>
   public class AudioMetadataExtractor : IMetadataExtractor
   {
-    #region Public constants
+    #region Constants
 
     /// <summary>
     /// GUID string for the audio metadata extractor.
@@ -62,12 +62,12 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
 
     #region Protected fields and classes
 
-    protected static IList<string> SHARE_CATEGORIES = new List<string>();
-    protected static IList<string> AUDIO_EXTENSIONS = new List<string>();
-    protected static IList<string> UNSPLITTABLE_ID3V23_VALUES = new List<string>();
+    protected static ICollection<MediaCategory> MEDIA_CATEGORIES = new List<MediaCategory>();
+    protected static ICollection<string> AUDIO_EXTENSIONS = new List<string>();
+    protected static ICollection<string> UNSPLITTABLE_ID3V23_VALUES = new List<string>();
     protected static bool USE_ADDITIONAL_SEPARATOR;
     protected static char ADDITIONAL_SEPARATOR;
-    protected static IList<string> UNSPLITTABLE_ADDITIONAL_SEPARATOR_VALUES = new List<string>();
+    protected static ICollection<string> UNSPLITTABLE_ADDITIONAL_SEPARATOR_VALUES = new List<string>();
 
     /// <summary>
     /// Audio file accessor class needed for our tag library implementation. This class maps
@@ -115,7 +115,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
 
     static AudioMetadataExtractor()
     {
-      SHARE_CATEGORIES.Add(DefaultMediaCategory.Audio.ToString());
+      MEDIA_CATEGORIES.Add(DefaultMediaCategories.Audio);
 
       AudioMetadataExtractorSettings settings = ServiceRegistration.Get<ISettingsManager>().Load<AudioMetadataExtractorSettings>();
       InitializeExtensions(settings);
@@ -155,7 +155,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
     public AudioMetadataExtractor()
     {
       _metadata = new MetadataExtractorMetadata(METADATAEXTRACTOR_ID, "Audio metadata extractor", MetadataExtractorPriority.Core, false,
-          SHARE_CATEGORIES, new[]
+          MEDIA_CATEGORIES, new[]
               {
                 MediaAspect.Metadata,
                 AudioAspect.Metadata
@@ -257,7 +257,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
     /// <param name="valuesEnumer">Enumerable of artists or other values, which have potentially been separated.</param>
     /// <param name="unsplittableValues">Artists or other values each containing at least one separator character.</param>
     /// <param name="separator">Character, which was used as separator.</param>
-    protected static IEnumerable<string> JoinUnsplittableValues(IEnumerable<string> valuesEnumer, IList<string> unsplittableValues, char separator)
+    protected static IEnumerable<string> JoinUnsplittableValues(IEnumerable<string> valuesEnumer, ICollection<string> unsplittableValues, char separator)
     {
       if (valuesEnumer == null)
         return null;
