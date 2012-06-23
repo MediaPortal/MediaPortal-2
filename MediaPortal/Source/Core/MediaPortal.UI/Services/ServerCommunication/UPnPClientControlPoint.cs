@@ -24,7 +24,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using MediaPortal.Common;
 using MediaPortal.Common.General;
 using MediaPortal.Common.Logging;
@@ -39,7 +38,7 @@ namespace MediaPortal.UI.Services.ServerCommunication
 {
   public delegate void BackendServerConnectedDlgt(DeviceConnection connection);
   public delegate void BackendServerDisconnectedDlgt(DeviceConnection connection);
-  public delegate UPnPServiceProxyBase UserServiceRegisterDlgt(DeviceConnection connection);
+  public delegate UPnPServiceProxyBase AdditionalServiceRegisterDlgt(DeviceConnection connection);
 
   /// <summary>
   /// Tracks the connection state of a defined home server.
@@ -55,8 +54,8 @@ namespace MediaPortal.UI.Services.ServerCommunication
     protected UPnPServerControllerServiceProxy _serverControllerService = null;
     protected UPnPResourceInformationServiceProxy _resourceInformationService = null;
     protected UPnPUserProfileDataManagementServiceProxy _userProfileDataManagementService = null;
-    protected IList<UserServiceRegisterDlgt> _userServiceRegistrations = new List<UserServiceRegisterDlgt>();
-    protected IList<UPnPServiceProxyBase> _userServices = new List<UPnPServiceProxyBase>();
+    protected ICollection<AdditionalServiceRegisterDlgt> _additionalServiceRegistrations = new List<AdditionalServiceRegisterDlgt>();
+    protected ICollection<UPnPServiceProxyBase> _additionalServices = new List<UPnPServiceProxyBase>();
 
     public UPnPClientControlPoint(string homeServerSystemId)
     {
@@ -106,14 +105,35 @@ namespace MediaPortal.UI.Services.ServerCommunication
     }
 
     /// <summary>
-    /// Registers user services into this client control point. All registered service will be created once the <see cref="DeviceConnection"/> is
-    /// established. On disconnections the registered services will be disposed, but the <paramref name="userServiceRegister"/> will be kept.
-    /// If the <see cref="DeviceConnection"/> is re-established, the service will be instantiated again.
+    /// Returns all additional registered services which have been created by registered service creator delegates.
     /// </summary>
-    /// <param name="userServiceRegister"></param>
-    public void RegisterUserService(UserServiceRegisterDlgt userServiceRegister)
+    /// <remarks>
+    /// <see cref="RegisterAdditionalService"/>
+    /// </remarks>
+    public ICollection<UPnPServiceProxyBase> AdditionalServices
     {
-      _userServiceRegistrations.Add(userServiceRegister);
+      get
+      {
+        lock (_networkTracker.SharedControlPointData.SyncObj)
+          return new List<UPnPServiceProxyBase>(_additionalServices);
+      }
+    }
+
+    /// <summary>
+    /// Registers a delegate for creating an additional UPnP service proxy object upon device connection. This control point keeps track of the
+    /// connection state, i.e. calls the given <paramref name="additionalServiceCreatorDlgt"/> delegate when the device is connected and disposes the
+    /// service proxy object when the device is disconnected.
+    /// </summary>
+    /// <remarks>
+    /// This method will typically be used by plugins which want to register custom UPnP service proxy objects. The service proxy object, which is created
+    /// by the caller of this method, will typically be made available for usage in the given <paramref name="additionalServiceCreatorDlgt"/> method and
+    /// revoked by the <see cref="IDisposable.Dispose"/> method of the custom service proxy object.
+    /// </remarks>
+    /// <param name="additionalServiceCreatorDlgt">Delegate which is able to create a service proxy object.</param>
+    public void RegisterAdditionalService(AdditionalServiceRegisterDlgt additionalServiceCreatorDlgt)
+    {
+      lock (_networkTracker.SharedControlPointData.SyncObj)
+        _additionalServiceRegistrations.Add(additionalServiceCreatorDlgt);
     }
 
     public void Start()
@@ -198,18 +218,20 @@ namespace MediaPortal.UI.Services.ServerCommunication
           _userProfileDataManagementService = new UPnPUserProfileDataManagementServiceProxy(updmStub);
         }
 
-        // Register user services, instances will be hold until the device connection is available
-        foreach (UserServiceRegisterDlgt userServiceRegistration in _userServiceRegistrations)
+        ICollection<UPnPServiceProxyBase> additionalServices = new List<UPnPServiceProxyBase>();
+        foreach (AdditionalServiceRegisterDlgt additionalServiceRegistration in _additionalServiceRegistrations)
         {
           try
           {
-            _userServices.Add(userServiceRegistration(connection));
+            additionalServices.Add(additionalServiceRegistration(connection));
           }
           catch (Exception e)
           {
-            ServiceRegistration.Get<ILogger>().Warn("UPnPClientControlPoint: Error registering user service of UPnP MP 2 backend server '{0}'", e, deviceUuid);
+            ServiceRegistration.Get<ILogger>().Warn("UPnPClientControlPoint: Error registering user service for UPnP MP 2 backend server '{0}'", e, deviceUuid);
           }
         }
+        lock (_networkTracker.SharedControlPointData.SyncObj)
+          _additionalServices = additionalServices;
       }
       catch (Exception e)
       {
@@ -223,16 +245,31 @@ namespace MediaPortal.UI.Services.ServerCommunication
 
     void OnUPnPDeviceDisconnected(DeviceConnection connection)
     {
+      IEnumerable<UPnPServiceProxyBase> servicesToDispose;
       lock (_networkTracker.SharedControlPointData.SyncObj)
       {
         _connection = null;
         _contentDirectoryService = null;
         _resourceInformationService = null;
         _serverControllerService = null;
+        servicesToDispose = _additionalServices;
+        _additionalServices.Clear();
       }
-      // Dispose all user services if possible, to allow proper shutdown and cleanup
-      _userServices.OfType<IDisposable>().ToList().ForEach(d => d.Dispose());
-      _userServices.Clear();
+      // Dispose all additional services if possible, to allow proper shutdown and cleanup
+      foreach (UPnPServiceProxyBase service in servicesToDispose)
+      {
+        IDisposable disposable = service as IDisposable;
+        if (disposable == null)
+          continue;
+        try
+        {
+          disposable.Dispose();
+        }
+        catch (Exception e)
+        {
+          ServiceRegistration.Get<ILogger>().Warn("UPnPClientControlPoint: Error disposing additional service '{0}'", service, e);
+        }
+      }
       InvokeBackendServerDeviceDisconnected(connection);
     }
 

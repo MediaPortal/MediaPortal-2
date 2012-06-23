@@ -39,6 +39,11 @@ namespace MediaPortal.Common.UPnP
       _serviceStub.SubscribeStateVariables();
     }
 
+    public CpService ServiceStub
+    {
+      get { return _serviceStub; }
+    }
+
     protected CpAction GetAction(string actionName)
     {
       CpAction result;
@@ -54,6 +59,10 @@ namespace MediaPortal.Common.UPnP
         throw new FatalException("State variable '{0}' is not present in the connected {1} service", stateVariableName, _serviceName);
       return result;
     }
-  }
 
+    public override string ToString()
+    {
+      return string.Format("UPnP service proxy of type '{0}', version '{1}'", _serviceStub.ServiceType, _serviceStub.ServiceTypeVersion);
+    }
+  }
 }
