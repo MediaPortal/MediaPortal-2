@@ -3,19 +3,22 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Threading;
-using System.Xml.Xsl;
 using CommandLine;
 
 namespace TransifexHelper
 {
   class Program
   {
-    private static Dictionary<string,DirectoryInfo> languageDirectories = new Dictionary<string, DirectoryInfo>();
+    #region Members & Constants
+
+    private static Dictionary<string, DirectoryInfo> languageDirectories = new Dictionary<string, DirectoryInfo>();
     private static IniFile transifexIni = new IniFile();
     private static string targetDir = string.Empty;
+
     private const string ProjectSlug = "MP2";
     private const string CacheDir = "Cache";
 
+    #endregion
     
     static void Main(string[] args)
     {
@@ -27,72 +30,62 @@ namespace TransifexHelper
       if (!parser.ParseArguments(args, mpArgs, Console.Out))
         Environment.Exit(1);
 
-      //todo: ??? ensure that only one switch of them is used at once? or atleast only correct combinations are used???
-      //if (!mpArgs.Verify && !(mpArgs.Push || mpArgs.MP2toAndroid || mpArgs.Pull || mpArgs.AndroidToMP2))
-      //{
-      //  Console.WriteLine("Specify exact one of the actions 'verify', 'push' or 'pull', 'pushonly', 'pullonly'.");
-      //  Environment.Exit(1);
-      //}
-
       targetDir = mpArgs.TargetDir;
 
       // always run verification first
       if (!Verify())
         Environment.Exit(2);
-      if (mpArgs.Verify) Environment.Exit(0);
 
+      if (mpArgs.Verify)
+        Environment.Exit(0);
 
       if (mpArgs.ToCache)
         CopyToCache();
 
       if (mpArgs.Push)
-        if (!Push())
-          Environment.Exit(3);
+      {
+        UpdateTransifexConfig();
+        ExecutePush();
+      }
 
       if (mpArgs.Pull)
-        if (!Pull())
-          Environment.Exit(4);
+        ExecutePull();
 
       if (mpArgs.FromCache)
         CopyFromCache();
     }
 
-    #region Helper methods
+    #region Properties
 
-    private static string TransifexRoot()
+    private static string TransifexRootFolder
     {
-      return targetDir + @"\Tools\Transifex";
+      get { return targetDir + @"\Tools\Transifex"; }
     }
 
-    private static string TransifexConfig()
+    private static string TransifexConfigFile
     {
-      return TransifexRoot() + @"\.tx\config";
+      get { return TransifexRootFolder + @"\.tx\config"; }
     }
 
-    private static string TransifexCache()
+    private static string TransifexCacheFolder
     {
-      return TransifexRoot() + "\\" + CacheDir;
+      get { return TransifexRootFolder + "\\" + CacheDir; }
     }
 
-    private static string TransifexClientExe()
+    private static string TransifexClientExeFile
     {
-      return TransifexRoot() + @"\tx.exe";
-    }
-
-    private static string XsltMP2toAndroid()
-    {
-      return TransifexRoot() + @"\Transform-MP2 to Android.xslt";
-    }
-
-    private static string XsltAndroidtoMP2()
-    {
-      return TransifexRoot() + @"\Transform-Android to MP2.xslt";
+      get { return TransifexRootFolder + @"\tx.exe"; }
     }
 
     #endregion
 
-    #region Main methods
+    #region Implementation
 
+    /// <summary>
+    /// Initializes <see cref="languageDirectories"/> and checks <see cref="TransifexConfigFile"/> for old/wrong references.
+    /// </summary>
+    /// <returns>true if <see cref="TransifexConfigFile"/> is OK.</returns>
+    /// <returns>false if <see cref="TransifexConfigFile"/> contains old/wrong references.</returns>
     private static bool Verify()
     {
       Console.WriteLine();
@@ -104,7 +97,7 @@ namespace TransifexHelper
       Console.WriteLine("Searching language directories in: {0}", targetDirInfo.FullName);
 
       SearchLangDirs(targetDirInfo);
-      LoadTxProjectFile(TransifexConfig());
+      transifexIni.Load(TransifexRootFolder);
 
       foreach (IniFile.IniSection section in transifexIni.Sections)
       {
@@ -127,20 +120,15 @@ namespace TransifexHelper
       return result;
     }
 
-    private static bool Push()
-    {
-      UpdateTransifexConfig();
-      ExecutePush();
-
-      return true;
-    }
-
+    /// <summary>
+    /// Starts TransifexClient to push all English template files from Transifex Cache to Transifex.net.
+    /// </summary>
     private static void ExecutePush()
     {
       ProcessStartInfo processStartInfo = new ProcessStartInfo();
-      processStartInfo.FileName = TransifexClientExe();
+      processStartInfo.FileName = TransifexClientExeFile;
       processStartInfo.Arguments = " push -s";
-      processStartInfo.WorkingDirectory = TransifexRoot();
+      processStartInfo.WorkingDirectory = TransifexRootFolder;
       processStartInfo.RedirectStandardOutput = true;
       processStartInfo.UseShellExecute = false;
 
@@ -149,19 +137,15 @@ namespace TransifexHelper
       process.WaitForExit();
     }
 
-    private static bool Pull()
-    {
-      ExecutePull();
-
-      return true;
-    }
-
+    /// <summary>
+    /// Starts TransifexClient to pull all translations from Transifex.net to Transifex Cache.
+    /// </summary>
     private static void ExecutePull()
     {
       ProcessStartInfo processStartInfo = new ProcessStartInfo();
-      processStartInfo.FileName = TransifexClientExe();
+      processStartInfo.FileName = TransifexClientExeFile;
       processStartInfo.Arguments = " pull -f";
-      processStartInfo.WorkingDirectory = TransifexRoot();
+      processStartInfo.WorkingDirectory = TransifexRootFolder;
       processStartInfo.RedirectStandardOutput = true;
       processStartInfo.UseShellExecute = false;
 
@@ -170,8 +154,11 @@ namespace TransifexHelper
       process.WaitForExit();
     }
 
-    #endregion
-
+    /// <summary>
+    /// Searches all subdirectories of <param name="parentDirectory">parentDirectory</param> recursively
+    /// for "language\string_en.xml"-folder structures and add them to <see cref="languageDirectories"/>-list.
+    /// </summary>
+    /// <param name="parentDirectory">The </param>
     private static void SearchLangDirs(DirectoryInfo parentDirectory)
     {
       if (parentDirectory.Name.ToLower() == "bin") return;
@@ -179,38 +166,38 @@ namespace TransifexHelper
       List<DirectoryInfo> subDirectories = new List<DirectoryInfo>(parentDirectory.GetDirectories());
       bool langDirFound = false;
 
+      // check if current parentDirectory contains a "language\strings_en.xml"-subdirectory
       foreach (DirectoryInfo subDirectory in subDirectories)
       {
-        // enthält language??
-        if (subDirectory.Name.ToLower() != "language") continue;
-        // enthält language strings_en.xml??
-        if (!File.Exists(subDirectory.FullName + "\\strings_en.xml")) break;
+        if (subDirectory.Name.ToLower() != "language")
+          continue;
 
-        // füge langdir zur liste hinzu
+        if (!File.Exists(subDirectory.FullName + "\\strings_en.xml"))
+          break;
+
         Console.WriteLine("Language directory found: {0}",
           subDirectory.FullName.Replace(targetDir, string.Empty));
+
         languageDirectories.Add(subDirectory.Parent.Name, subDirectory);
         langDirFound = true;
       }
 
-      // wenn kein langdir gefunden wurde getlangdirs für alle subdirs
+      // search all subdirectories, if no "language\strings_en.xml"-subdirectory was found
       if (!langDirFound)
         foreach (DirectoryInfo subDirectory in subDirectories)
           SearchLangDirs(subDirectory);
     }
 
-    private static void LoadTxProjectFile(string s)
-    {
-      transifexIni.Load(s);
-    }
-
+    /// <summary>
+    /// Copies all English language files (strings_en.xml) from language directories to Transifex cache.
+    /// </summary>
     private static void CopyToCache()
     {
       Console.WriteLine("Copying English language files to Transifex cache...");
       foreach (KeyValuePair<string, DirectoryInfo> pair in languageDirectories)
       {
         Console.WriteLine("   " + pair.Value.FullName.Replace(targetDir, string.Empty));
-        string outputDir = TransifexCache() + "\\" + pair.Key;
+        string outputDir = TransifexCacheFolder + "\\" + pair.Key;
 
         if (!Directory.Exists(outputDir))
           Directory.CreateDirectory(outputDir);
@@ -220,11 +207,15 @@ namespace TransifexHelper
           if (!langFile.Name.ToLower().Equals("strings_en.xml"))
             continue;
 
-          langFile.CopyTo(outputDir + @"\" + langFile.Name, true); 
+          langFile.CopyTo(outputDir + @"\" + langFile.Name, true);
         }
       }
     }
 
+    /// <summary>
+    /// Adds ressource information to <see cref="transifexIni">Transifex config</see>
+    /// for each item in <see cref="languageDirectories">list of languageDirectories</see>.
+    /// </summary>
     private static void UpdateTransifexConfig()
     {
       Console.WriteLine("Updating Transifex project file...");
@@ -243,25 +234,30 @@ namespace TransifexHelper
         transifexIni.AddSection(section).AddKey("type").Value = "ANDROID";
       }
 
-      transifexIni.Save(TransifexConfig());
+      transifexIni.Save(TransifexConfigFile);
     }
 
+    /// <summary>
+    /// Copies all non-English language files from Transifex cache to language pack plugin.
+    /// </summary>
     private static void CopyFromCache()
     {
       Console.WriteLine("Copying non-English language files from Transifex cache...");
       foreach (KeyValuePair<string, DirectoryInfo> pair in languageDirectories)
       {
-        string inputDir = TransifexCache() + "\\" + pair.Key;
+        string inputDir = TransifexCacheFolder + "\\" + pair.Key;
 
         foreach (FileInfo langFile in new DirectoryInfo(inputDir).GetFiles())
         {
           if (langFile.Name.ToLower().Equals("strings_en.xml"))
             continue;
-          
+
           Console.WriteLine("   " + langFile.FullName.Replace(targetDir, string.Empty));
           langFile.CopyTo(pair.Value.FullName + "\\" + langFile.Name);
         }
       }
     }
+
+    #endregion
   }
 }

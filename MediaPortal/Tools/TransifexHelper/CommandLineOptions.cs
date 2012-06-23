@@ -29,27 +29,27 @@ namespace TransifexHelper
   public class CommandLineOptions
   {
     [Option("t", "TargetDir", Required = true,
-        HelpText = "Specifies the directory where to search for Language\\string_en.xml.")]
+        HelpText = "Specifies the directory, where to search for Language\\string_en.xml.")]
     public string TargetDir = null;
 
     [Option(null, "verify", Required = false,
         HelpText = "Verify the tx project against the folder structure.")]
     public bool Verify = false;
 
-    [Option(null, "push", Required = false,
-        HelpText = "Push the english template files to Transifex.")]
-    public bool Push = false;
-
     [Option(null, "ToCache", Required = false,
-        HelpText = "Copy English template files to Transifex cache.")]
+        HelpText = "Copy English template files from plugin sources to Transifex cache.")]
     public bool ToCache = false;
 
+    [Option(null, "push", Required = false,
+        HelpText = "Push English template files from Transifex cache to Transifex.net.")]
+    public bool Push = false;
+
     [Option(null, "pull", Required = false,
-        HelpText = "Pull the translations from Transifex.")]
+        HelpText = "Pull non-English translation files from Transifex.net to Transifex cache.")]
     public bool Pull = false;
 
     [Option(null, "FromCache", Required = false,
-        HelpText = "Copy non-English translation files from Transifex cache.")]
+        HelpText = "Copy non-English translation files from Transifex cache to language pack plugin.")]
     public bool FromCache = false;
   }
 }
