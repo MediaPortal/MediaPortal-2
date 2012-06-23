@@ -25,7 +25,6 @@
 using System;
 using MediaPortal.Common;
 using MediaPortal.Common.UPnP;
-using MediaPortal.Extensions.UserServices.FanArtService.Interfaces;
 using MediaPortal.Extensions.UserServices.FanArtService.Interfaces.UPnP;
 using MediaPortal.Extensions.UserServices.FanArtService.UPnP;
 using MediaPortal.UI.ServerCommunication;
@@ -35,7 +34,7 @@ using UPnP.Infrastructure.CP.DeviceTree;
 
 namespace MediaPortal.Extensions.UserServices.FanArtService.Client
 {
-  public class FanArtServiceProxyRegistration
+  public static class FanArtServiceProxyRegistration
   {
     static FanArtServiceProxyRegistration()
     {
@@ -48,7 +47,7 @@ namespace MediaPortal.Extensions.UserServices.FanArtService.Client
       if (controlPoint == null)
         return;
 
-      controlPoint.RegisterUserService(RegisterFanArtServiceProxy);
+      controlPoint.RegisterAdditionalService(RegisterFanArtServiceProxy);
     }
 
     public static FanArtServiceProxy RegisterFanArtServiceProxy(DeviceConnection connection)
@@ -59,7 +58,6 @@ namespace MediaPortal.Extensions.UserServices.FanArtService.Client
         throw new NotSupportedException("FanArtService not supported by this UPnP device.");
 
       FanArtServiceProxy fanArtProxy = new FanArtServiceProxy(fanArtStub);
-      ServiceRegistration.Set<IFanArtService>(fanArtProxy);
       return fanArtProxy;
     }
   }

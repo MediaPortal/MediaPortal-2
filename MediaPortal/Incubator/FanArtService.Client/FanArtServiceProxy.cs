@@ -43,8 +43,10 @@ namespace MediaPortal.Extensions.UserServices.FanArtService.Client
 
     #endregion
 
-    public FanArtServiceProxy(CpService serviceStub) : base(serviceStub, "FanArt") 
-    {}
+    public FanArtServiceProxy(CpService serviceStub) : base(serviceStub, "FanArt")
+    {
+      ServiceRegistration.Set<IFanArtService>(this);
+    }
 
     public IList<FanArtImage> GetFanArt(FanArtConstants.FanArtMediaType mediaType, FanArtConstants.FanArtType fanArtType, string name, int maxWidth, int maxHeight, bool singleRandom)
     {
@@ -52,14 +54,14 @@ namespace MediaPortal.Extensions.UserServices.FanArtService.Client
       {
         CpAction action = GetAction("GetFanArt");
         IList<object> inParameters = new List<object>
-                                     {
-                                       mediaType.ToString(),
-                                       fanArtType.ToString(),
-                                       name,
-                                       maxWidth,
-                                       maxHeight,
-                                       singleRandom
-                                     };
+            {
+              mediaType.ToString(),
+              fanArtType.ToString(),
+              name,
+              maxWidth,
+              maxHeight,
+              singleRandom
+            };
         IList<object> outParameters = action.InvokeAction(inParameters);
         return (IList<FanArtImage>)outParameters[0];
       }
