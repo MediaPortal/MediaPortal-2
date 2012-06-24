@@ -101,6 +101,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     void OnSubItemsProviderChanged(AbstractProperty prop, object oldVal)
     {
       PrepareItems(true);
+      InitializeSubItemsSource();
     }
 
     void OnSelectedChanged(AbstractProperty prop, object oldVal)

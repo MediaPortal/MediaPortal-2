@@ -28,7 +28,7 @@
           <ColumnDefinition Width="*"/>
         </Grid.ColumnDefinitions>
         <Label Grid.Row="0" Content="[SharesConfig.ChooseResourceProviderPathForShare]" Color="{ThemeResource TextColor}" Wrap="True"/>
-        <TreeView Grid.Row="1" Style="{ThemeResource DefaultSingleMarkableTreeViewStyle}"
+        <TreeView Grid.Row="1" Style="{ThemeResource SingleMarkableTreeViewStyle}"
             VerticalAlignment="Stretch" HorizontalAlignment="Stretch"
             ForceExpander="True"
             ItemsSource="{Binding Path=ShareProxy.ResourceProviderPathsTree,Mode=OneTime}">

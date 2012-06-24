@@ -1045,11 +1045,11 @@
   <!-- Implicit default style for TreeView controls -->
   <Style BasedOn="{ThemeResource DefaultTreeViewStyle}" TargetType="{x:Type TreeView}"/>
 
-  <Style x:Key="DefaultMultiMarkableTreeViewStyle" BasedOn="{ThemeResource DefaultTreeViewStyle}">
+  <Style x:Key="MultiMarkableTreeViewStyle" BasedOn="{ThemeResource DefaultTreeViewStyle}">
     <Setter Property="ItemContainerStyle" Value="{ThemeResource DefaultMultiMarkableTreeItemContainerStyle}"/>
   </Style>
 
-  <Style x:Key="DefaultSingleMarkableTreeViewStyle" BasedOn="{ThemeResource DefaultTreeViewStyle}">
+  <Style x:Key="SingleMarkableTreeViewStyle" BasedOn="{ThemeResource DefaultTreeViewStyle}">
     <Setter Property="ItemContainerStyle" Value="{ThemeResource DefaultSingleMarkableTreeItemContainerStyle}"/>
     <Setter Property="RadioButton.GroupContext" Value="RadioButtonGroup"/>
   </Style>
