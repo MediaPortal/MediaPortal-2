@@ -182,7 +182,7 @@ namespace MediaPortal.UiComponents.SkinBase.General
     public const string KEY_MEDIA_CATEGORIES = "Categories";
     public const string KEY_MEDIA_CATEGORY = "Category";
     public const string KEY_PARENT_ITEM = "Parent";
-        
+
     public const string KEY_SHARES_PROXY = "SharesProxy";
     public const string KEY_EXPANSION = "Expansion";
     public const string KEY_SYSTEM_SHARES = "SystemShares";
