@@ -118,7 +118,7 @@ namespace MediaPortal.UiComponents.SkinBase.Models
     public override void UpdateShare(RelocationMode relocationMode)
     {
       IContentDirectory contentDirectory = GetContentDirectoryService();
-      contentDirectory.UpdateShare(_origShare.ShareId, ChoosenResourcePath, ShareName, MediaCategories, relocationMode);
+      contentDirectory.UpdateShare(_origShare.ShareId, ChoosenResourcePath, ShareName, GetMediaCategoriesCleanedUp(), relocationMode);
     }
 
     public override void ReImportShare()

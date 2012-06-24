@@ -222,7 +222,7 @@ namespace MediaPortal.UiComponents.SkinBase.Models
     public override void UpdateShare(RelocationMode relocationMode)
     {
       ILocalSharesManagement sharesManagement = ServiceRegistration.Get<ILocalSharesManagement>();
-      sharesManagement.UpdateShare(_origShare.ShareId, ChoosenResourcePath, ShareName, MediaCategories, relocationMode);
+      sharesManagement.UpdateShare(_origShare.ShareId, ChoosenResourcePath, ShareName, GetMediaCategoriesCleanedUp(), relocationMode);
     }
 
     public override void ReImportShare()

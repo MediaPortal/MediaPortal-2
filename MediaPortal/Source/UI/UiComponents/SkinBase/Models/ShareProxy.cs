@@ -65,7 +65,7 @@ namespace MediaPortal.UiComponents.SkinBase.Models
     protected ItemsList _resourceProviderPathsTree;
     protected AbstractProperty _shareNameProperty;
     protected AbstractProperty _isShareNameValidProperty;
-    protected ItemsList _allMediaCategoriesList;
+    protected ItemsList _allMediaCategoriesTree;
     protected ICollection<string> _mediaCategories = new HashSet<string>();
     protected Share _origShare = null;
 
@@ -88,7 +88,7 @@ namespace MediaPortal.UiComponents.SkinBase.Models
       _shareNameProperty = new WProperty(typeof(string), string.Empty);
       _shareNameProperty.Attach(OnShareNameChanged);
       _isShareNameValidProperty = new WProperty(typeof(bool), true);
-      _allMediaCategoriesList = new ItemsList();
+      _allMediaCategoriesTree = new ItemsList();
       _mediaCategories = new HashSet<string>();
     }
 
@@ -121,8 +121,28 @@ namespace MediaPortal.UiComponents.SkinBase.Models
       UpdateIsShareNameValid();
     }
 
-    void OnMediaCategoryItemSelectionChanged(AbstractProperty property, object oldValue)
+    static void SelectMediaCategoryHierarchy(TreeItem item)
     {
+      item.Selected = true;
+      TreeItem parent = (TreeItem) item.AdditionalProperties[Consts.KEY_PARENT_ITEM];
+      if (parent == null)
+        return;
+      SelectMediaCategoryHierarchy(parent);
+    }
+
+    static void DeselectMediaCategoryHierarchy(TreeItem item)
+    {
+      item.Selected = false;
+      foreach (TreeItem childItem in item.SubItems)
+        DeselectMediaCategoryHierarchy(childItem);
+    }
+
+    void OnMediaCategoryItemSelectionChanged(TreeItem changedItem)
+    {
+      if (changedItem.Selected)
+        SelectMediaCategoryHierarchy(changedItem);
+      else
+        DeselectMediaCategoryHierarchy(changedItem);
       UpdateMediaCategories();
     }
 
@@ -314,11 +334,11 @@ namespace MediaPortal.UiComponents.SkinBase.Models
     }
 
     /// <summary>
-    /// List of all media categories.
+    /// Tree of all media categories.
     /// </summary>
     public ItemsList AllMediaCategories
     {
-      get { return _allMediaCategoriesList; }
+      get { return _allMediaCategoriesTree; }
     }
 
     /// <summary>
@@ -463,12 +483,22 @@ namespace MediaPortal.UiComponents.SkinBase.Models
       IsShareNameValid = !string.IsNullOrEmpty(ShareName);
     }
 
+    protected ICollection<string> GetSelectedMediaCategories(ItemsList list)
+    {
+      ICollection<string> result = new List<string>();
+      foreach (TreeItem categoryItem in list)
+      {
+        if (categoryItem.Selected)
+          result.Add(categoryItem[Consts.KEY_NAME]);
+        CollectionUtils.AddAll(result, GetSelectedMediaCategories(categoryItem.SubItems));
+      }
+      return result;
+    }
+
     protected void UpdateMediaCategories()
     {
       _mediaCategories.Clear();
-      foreach (ListItem categoryItem in _allMediaCategoriesList)
-        if (categoryItem.Selected)
-          _mediaCategories.Add(categoryItem[Consts.KEY_NAME]);
+      CollectionUtils.AddAll(_mediaCategories, GetSelectedMediaCategories(_allMediaCategoriesTree));
     }
 
     /// <summary>
@@ -531,6 +561,9 @@ namespace MediaPortal.UiComponents.SkinBase.Models
 
     protected abstract IEnumerable<ResourcePathMetadata> GetChildDirectoriesData(ResourcePath path);
 
+    /// <summary>
+    /// Updates the data for the resource provider path tree.
+    /// </summary>
     public void UpdateResourceProviderPathTree()
     {
       ResourceProviderMetadata rpm = BaseResourceProvider;
@@ -545,19 +578,105 @@ namespace MediaPortal.UiComponents.SkinBase.Models
 
     protected abstract IDictionary<string, MediaCategory> GetAllAvailableCategories();
 
-    public void UpdateMediaCategoriesList()
+    /// <summary>
+    /// Builds the data for the media categories tree.
+    /// </summary>
+    public void UpdateMediaCategoriesTree()
     {
-      _allMediaCategoriesList.Clear();
-      List<string> allCategories = new List<string>(GetAllAvailableCategories().Select(kvp => kvp.Key));
-      allCategories.Sort();
-      foreach (string mediaCategory in allCategories)
+      _allMediaCategoriesTree.Clear();
+
+      IDictionary<string, MediaCategory> allCategories = GetAllAvailableCategories();
+      ICollection<string> rootCategories;
+      ICollection<string> selectedMediaCategoriesIncludingParents = new List<string>();
+      foreach (string mediaCategory in _mediaCategories)
       {
-        ListItem categoryItem = new ListItem(Consts.KEY_NAME, mediaCategory);
-        if (MediaCategories.Contains(mediaCategory))
-          categoryItem.Selected = true;
-        categoryItem.SelectedProperty.Attach(OnMediaCategoryItemSelectionChanged);
-        _allMediaCategoriesList.Add(categoryItem);
+        MediaCategory category;
+        if (!allCategories.TryGetValue(mediaCategory, out category))
+          continue;
+        CollectionUtils.AddAll(selectedMediaCategoriesIncludingParents, GetMediaCategoryIncludingParents(category));
       }
+      IDictionary<string, ICollection<string>> categories2Children = BuildCategoriesChildrenMapping(allCategories.Values, out rootCategories);
+      BuildCategoriesTree(_allMediaCategoriesTree, null, rootCategories, selectedMediaCategoriesIncludingParents, categories2Children, allCategories);
+    }
+
+    /// <summary>
+    /// Returns all media category names of the given <paramref name="mediaCategory"/> and all its direct and indirect parent categories.
+    /// </summary>
+    /// <param name="mediaCategory">Media category to start building the hierarchy.</param>
+    /// <returns>Collection of media category names.</returns>
+    protected ICollection<string> GetMediaCategoryIncludingParents(MediaCategory mediaCategory)
+    {
+      ICollection<string> result = new List<string> {mediaCategory.CategoryName};
+      foreach (MediaCategory parentCategory in mediaCategory.ParentCategories)
+        CollectionUtils.AddAll(result, GetMediaCategoryIncludingParents(parentCategory));
+      return result;
+    }
+
+    /// <summary>
+    /// Takes all media categories from property <see cref="MediaCategories"/> and retains for each path of media categories from all category leaves to the roots only the
+    /// category items which are the most far away from the root. All other media categories which are located in a path from one of the resulting media categories
+    /// up to one of the roots of the hierarchy are implicit.
+    /// </summary>
+    /// <returns>Collection of media category names.</returns>
+    protected ICollection<string> GetMediaCategoriesCleanedUp()
+    {
+      IDictionary<string, MediaCategory> allCategories = GetAllAvailableCategories();
+      ICollection<string> result = new List<string>(MediaCategories);
+      ICollection<string> remove = new List<string>();
+      foreach (string mediaCategory in result)
+      {
+        MediaCategory category;
+        if (!allCategories.TryGetValue(mediaCategory, out category))
+          continue;
+        CollectionUtils.AddAll(remove, GetMediaCategoryIncludingParents(category));
+        remove.Remove(mediaCategory);
+      }
+      CollectionUtils.RemoveAll(result, remove);
+      return result;
+    }
+
+    protected void BuildCategoriesTree(ItemsList contents, TreeItem parentItem, ICollection<string> categories, ICollection<string> allSelectedCategories,
+        IDictionary<string, ICollection<string>> categories2Children, IDictionary<string, MediaCategory> allCategories)
+    {
+      contents.Clear();
+      List<string> categoriesSorted = new List<string>(categories);
+      categoriesSorted.Sort();
+      foreach (string mediaCategory in categoriesSorted)
+      {
+        TreeItem categoryItem = new TreeItem(Consts.KEY_NAME, mediaCategory);
+        categoryItem.AdditionalProperties[Consts.KEY_MEDIA_CATEGORY] = allCategories[mediaCategory];
+        categoryItem.AdditionalProperties[Consts.KEY_PARENT_ITEM] = parentItem;
+        if (allSelectedCategories.Contains(mediaCategory))
+          categoryItem.Selected = true;
+        PropertyChangedHandler handler = (property, oldValue) => OnMediaCategoryItemSelectionChanged(categoryItem);
+        categoryItem.SelectedProperty.Attach(handler);
+        categoryItem.AdditionalProperties["HandlerStrongReference"] = handler; // SelectedProperty only manages weak references to its handlers -> avoid handler to be removed
+        ICollection<string> childCategories;
+        if (!categories2Children.TryGetValue(mediaCategory, out childCategories))
+          childCategories = new List<string>();
+        BuildCategoriesTree(categoryItem.SubItems, categoryItem, childCategories, allSelectedCategories, categories2Children, allCategories);
+        contents.Add(categoryItem);
+      }
+    }
+
+    protected IDictionary<string, ICollection<string>> BuildCategoriesChildrenMapping(ICollection<MediaCategory> allCategories, out ICollection<string> rootCategories)
+    {
+      rootCategories = new HashSet<string>();
+      IDictionary<string, ICollection<string>> result = new Dictionary<string, ICollection<string>>();
+      foreach (MediaCategory mediaCategory in allCategories)
+      {
+        if (mediaCategory.ParentCategories.Count == 0)
+          rootCategories.Add(mediaCategory.CategoryName);
+        else
+          foreach (MediaCategory parentCategory in mediaCategory.ParentCategories)
+          {
+            ICollection<string> children;
+            if (!result.TryGetValue(parentCategory.CategoryName, out children))
+              result[parentCategory.CategoryName] = children = new HashSet<string>();
+            children.Add(mediaCategory.CategoryName);
+          }
+      }
+      return result;
     }
 
     protected abstract string SuggestShareName();
