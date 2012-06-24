@@ -29,7 +29,6 @@ using System.Net.Sockets;
 using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.ResourceAccess;
 using MediaPortal.Common.UPnP;
-using MediaPortal.Utilities;
 using MediaPortal.Utilities.UPnP;
 using UPnP.Infrastructure.Common;
 using UPnP.Infrastructure.Dv;
@@ -102,7 +101,7 @@ namespace MediaPortal.Common.Services.ResourceAccess
       AddStateVariable(A_ARG_TYPE_URL_String);
 
       // CSV of media category strings
-      DvStateVariable A_ARG_TYPE_MediaCategoryEnumeration = new DvStateVariable("A_ARG_TYPE_MediaCategoryEnumeration", new DvStandardDataType(UPnPStandardDataType.String))
+      DvStateVariable A_ARG_TYPE_MediaCategoryEnumeration = new DvStateVariable("A_ARG_TYPE_MediaCategoryEnumeration", new DvExtendedDataType(UPnPExtendedDataTypes.DtMediaCategoryEnumeration))
         {
             SendEvents = false
         };
@@ -267,13 +266,7 @@ namespace MediaPortal.Common.Services.ResourceAccess
         CallContext context)
     {
       IMediaAccessor mediaAccessor = ServiceRegistration.Get<IMediaAccessor>();
-      ICollection<MediaCategory> result = new HashSet<MediaCategory>();
-      foreach (IMetadataExtractor me in mediaAccessor.LocalMetadataExtractors.Values)
-      {
-        MetadataExtractorMetadata metadata = me.Metadata;
-        CollectionUtils.AddAll(result, metadata.MediaCategories);
-      }
-      outParams = new List<object> {StringUtils.Join(",", result.Select(mediaCategory => mediaCategory.CategoryName))};
+      outParams = new List<object> {mediaAccessor.MediaCategories.Values};
       return null;
     }
 

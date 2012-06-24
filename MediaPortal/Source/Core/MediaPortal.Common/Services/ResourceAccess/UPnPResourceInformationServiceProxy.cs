@@ -43,11 +43,11 @@ namespace MediaPortal.Common.Services.ResourceAccess
 
     // We could also provide the asynchronous counterparts of the following methods... do we need them?
 
-    public ICollection<string> GetMediaCategoriesFromMetadataExtractors()
+    public ICollection<MediaCategory> GetMediaCategoriesFromMetadataExtractors()
     {
       CpAction action = GetAction("GetMediaCategoriesFromMetadataExtractors");
       IList<object> outParameters = action.InvokeAction(null);
-      return new List<string>(((string) outParameters[0]).Split(','));
+      return new List<MediaCategory>((IEnumerable<MediaCategory>) outParameters[0]);
     }
 
     public ICollection<ResourceProviderMetadata> GetAllBaseResourceProviderMetadata()

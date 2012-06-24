@@ -543,12 +543,12 @@ namespace MediaPortal.UiComponents.SkinBase.Models
       RefreshResourceProviderPathList(_resourceProviderPathsTree, ResourcePath.BuildBaseProviderPath(rpm.ResourceProviderId, "/"));
     }
 
-    protected abstract IEnumerable<string> GetAllAvailableCategories();
+    protected abstract IDictionary<string, MediaCategory> GetAllAvailableCategories();
 
     public void UpdateMediaCategoriesList()
     {
       _allMediaCategoriesList.Clear();
-      List<string> allCategories = new List<string>(GetAllAvailableCategories());
+      List<string> allCategories = new List<string>(GetAllAvailableCategories().Select(kvp => kvp.Key));
       allCategories.Sort();
       foreach (string mediaCategory in allCategories)
       {

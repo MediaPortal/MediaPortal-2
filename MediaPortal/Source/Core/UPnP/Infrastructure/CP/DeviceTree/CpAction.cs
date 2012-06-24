@@ -311,7 +311,14 @@ namespace UPnP.Infrastructure.CP.DeviceTree
       AsyncActionCallResult ar = result as AsyncActionCallResult;
       if (ar == null)
         throw new IllegalCallException("Provided 'result' parameter doesn't belong to a 'BeginInvokeAction' call (action '{0}')");
-      return ar.GetOutParams();
+      try
+      {
+        return ar.GetOutParams();
+      }
+      catch (Exception e)
+      {
+        throw new UPnPException("Error invoking action '{0}'", e, _name);
+      }
     }
 
     /// <summary>

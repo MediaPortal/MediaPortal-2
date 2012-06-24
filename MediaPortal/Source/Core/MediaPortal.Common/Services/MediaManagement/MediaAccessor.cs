@@ -258,7 +258,13 @@ namespace MediaPortal.Common.Services.MediaManagement
 
     public IDictionary<string, MediaCategory> MediaCategories
     {
-      get { return _mediaCategories; }
+      get
+      {
+        // Media categories are registered from the metadata extractor plugins - check we're loaded all metadata extractors to ensure the media categories have been registered
+        CheckMetadataExtractorsLoaded();
+        lock (_syncObj)
+          return new Dictionary<string, MediaCategory>(_mediaCategories);
+      }
     }
 
     public IDictionary<Guid, IResourceProvider> LocalResourceProviders

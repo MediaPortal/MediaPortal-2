@@ -35,7 +35,7 @@ namespace MediaPortal.Common.ResourceAccess
   /// </summary>
   public interface IResourceInformationService
   {
-    ICollection<string> GetMediaCategoriesFromMetadataExtractors();
+    ICollection<MediaCategory> GetMediaCategoriesFromMetadataExtractors();
     ICollection<ResourceProviderMetadata> GetAllBaseResourceProviderMetadata();
     ResourceProviderMetadata GetResourceProviderMetadata(Guid resourceProviderId);
     string GetResourcePathDisplayName(ResourcePath path);

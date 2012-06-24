@@ -23,19 +23,26 @@
 #endregion
 
 using System;
+using System.Collections;
+using System.Collections.Generic;
+using System.Linq;
 using System.Xml;
-using MediaPortal.Utilities.Exceptions;
+using MediaPortal.Common.MediaManagement;
 using UPnP.Infrastructure.Common;
+using UPnP.Infrastructure.Utils;
 
-namespace UPnP.Infrastructure.CP.DeviceTree
+namespace MediaPortal.Common.UPnP
 {
   /// <summary>
-  /// Placeholder for all extended data types at control point side, for which the application didn't provide an
-  /// implementation.
+  /// Data type serializing and deserializing enumerations of <see cref="MediaCategory"/> objects.
   /// </summary>
-  public class ExtendedDataTypeDummy : UPnPExtendedDataType
+  public class UPnPDtMediaCategoryEnumeration : UPnPExtendedDataType
   {
-    public ExtendedDataTypeDummy(string schemaURI, string dataTypeName) : base(schemaURI, dataTypeName) { }
+    public const string DATATYPE_NAME = "DtMediaCategoryEnumeration";
+
+    internal UPnPDtMediaCategoryEnumeration() : base(DataTypesConfiguration.DATATYPES_SCHEMA_URI, DATATYPE_NAME)
+    {
+    }
 
     public override bool SupportsStringEquivalent
     {
@@ -49,17 +56,28 @@ namespace UPnP.Infrastructure.CP.DeviceTree
 
     public override bool IsAssignableFrom(Type type)
     {
-      return false;
+      return typeof(IEnumerable).IsAssignableFrom(type);
     }
 
     protected override void DoSerializeValue(object value, bool forceSimpleValue, XmlWriter writer)
     {
-      throw new IllegalCallException("Dummy extended data type '{0}' cannot serialize values", _dataTypeName);
+      IEnumerable mediaCategories = (IEnumerable) value;
+      foreach (MediaCategory mCat in mediaCategories)
+        new MediaCategory_DTO(mCat).Serialize(writer);
     }
 
     protected override object DoDeserializeValue(XmlReader reader, bool isSimpleValue)
     {
-      throw new IllegalCallException("Dummy extended data type '{0}' cannot deserialize values", _dataTypeName);
+      IDictionary<string, MediaCategory_DTO> result_dtos = new Dictionary<string, MediaCategory_DTO>();
+      if (SoapHelper.ReadEmptyStartElement(reader)) // Read start of enclosing element
+        return new List<MediaCategory>();
+      while (reader.NodeType != XmlNodeType.EndElement)
+      {
+        MediaCategory_DTO result_dto = MediaCategory_DTO.Deserialize(reader);
+        result_dtos.Add(result_dto.CategoryName, result_dto);
+      }
+      reader.ReadEndElement(); // End of enclosing element
+      return new List<MediaCategory>(result_dtos.Select(mCatDtoKvp => mCatDtoKvp.Value.GetMediaCategory(result_dtos)));
     }
   }
 }

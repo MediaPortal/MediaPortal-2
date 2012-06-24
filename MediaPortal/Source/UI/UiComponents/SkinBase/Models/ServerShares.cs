@@ -24,6 +24,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using MediaPortal.Common;
 using MediaPortal.Common.Exceptions;
 using MediaPortal.Common.General;
@@ -155,10 +156,11 @@ namespace MediaPortal.UiComponents.SkinBase.Models
       return ris.GetChildDirectoriesData(path);
     }
 
-    protected override IEnumerable<string> GetAllAvailableCategories()
+    protected override IDictionary<string, MediaCategory> GetAllAvailableCategories()
     {
       IResourceInformationService ris = GetResourceInformationService();
-      return ris.GetMediaCategoriesFromMetadataExtractors();
+      return new Dictionary<string, MediaCategory>(
+          ris.GetMediaCategoriesFromMetadataExtractors().ToDictionary(mediaCategory => mediaCategory.CategoryName));
     }
 
     public static string GetServerResourcePathDisplayName(ResourcePath path)

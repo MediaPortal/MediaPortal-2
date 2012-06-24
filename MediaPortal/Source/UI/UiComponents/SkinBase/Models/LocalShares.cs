@@ -32,7 +32,6 @@ using MediaPortal.Common.ResourceAccess;
 using MediaPortal.Common.SystemResolver;
 using MediaPortal.UI.Shares;
 using MediaPortal.UiComponents.SkinBase.General;
-using MediaPortal.Utilities;
 
 namespace MediaPortal.UiComponents.SkinBase.Models
 {
@@ -193,16 +192,10 @@ namespace MediaPortal.UiComponents.SkinBase.Models
           };
     }
 
-    protected override IEnumerable<string> GetAllAvailableCategories()
+    protected override IDictionary<string, MediaCategory> GetAllAvailableCategories()
     {
       IMediaAccessor mediaAccessor = ServiceRegistration.Get<IMediaAccessor>();
-      ICollection<string> result = new HashSet<string>();
-      foreach (IMetadataExtractor me in mediaAccessor.LocalMetadataExtractors.Values)
-      {
-        MetadataExtractorMetadata metadata = me.Metadata;
-        CollectionUtils.AddAll(result, metadata.MediaCategories.Select(mediaCategory => mediaCategory.CategoryName));
-      }
-      return result;
+      return mediaAccessor.MediaCategories;
     }
 
     protected override string SuggestShareName()

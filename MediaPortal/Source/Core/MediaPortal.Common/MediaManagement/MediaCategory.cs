@@ -61,7 +61,7 @@ namespace MediaPortal.Common.MediaManagement
     }
 
     /// <summary>
-    /// All parent media categories of this category.
+    /// Gets all parent media categories of this category.
     /// </summary>
     public ICollection<MediaCategory> ParentCategories
     {

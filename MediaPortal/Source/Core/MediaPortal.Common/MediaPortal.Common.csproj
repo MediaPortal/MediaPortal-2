@@ -133,6 +133,7 @@
     <Compile Include="Logging\LogLevel.cs" />
     <Compile Include="Logging\NoLogger.cs" />
     <Compile Include="MediaManagement\ContentDirectoryMessaging.cs" />
+    <Compile Include="MediaManagement\MediaCategory_DTO.cs" />
     <Compile Include="MediaManagement\MediaCategory.cs" />
     <Compile Include="MediaManagement\DefaultItemAspects\ImporterAspect.cs" />
     <Compile Include="MediaManagement\DefaultItemAspects\DirectoryAspect.cs" />
@@ -334,6 +335,7 @@
     <Compile Include="Services\FileEventNotification\FileWatcherInfo.cs" />
     <Compile Include="Services\FileEventNotification\FileWatchEvent.cs" />
     <Compile Include="Services\FileEventNotification\FileWatchEventArgs.cs" />
+    <Compile Include="UPnP\UPnPDtMediaCategoryEnumeration.cs" />
     <Compile Include="UPnP\UPnPTypesAndIds.cs" />
     <Compile Include="UPnP\UPnPExtendedDataTypes.cs" />
     <Compile Include="UPnP\DataTypesConfiguration.cs" />
