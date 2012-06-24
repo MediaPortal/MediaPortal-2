@@ -33,6 +33,7 @@ using MediaPortal.Common.PluginManager;
 using MediaPortal.Common.Services.ResourceAccess.LocalFsResourceProvider;
 using MediaPortal.Common.Services.ResourceAccess.RemoteResourceProvider;
 using MediaPortal.Common.SystemResolver;
+using MediaPortal.Utilities;
 using MediaPortal.Utilities.SystemAPI;
 
 namespace MediaPortal.Common.Services.MediaManagement
@@ -237,21 +238,6 @@ namespace MediaPortal.Common.Services.MediaManagement
           _metadataExtractorsPluginItemChangeListener);
     }
 
-    protected ICollection<MediaCategory> GetAllMediaCategoriesInHierarchy(MediaCategory category)
-    {
-      ICollection<MediaCategory> result = new HashSet<MediaCategory>();
-      Stack<MediaCategory> remaining = new Stack<MediaCategory>();
-      remaining.Push(category);
-      while (remaining.Count > 0)
-      {
-        MediaCategory current = remaining.Pop();
-        result.Add(current);
-        foreach (MediaCategory parentCategory in current.ParentCategories)
-          remaining.Push(parentCategory);
-      }
-      return result;
-    }
-
     #endregion
 
     #region IMediaAccessor implementation
@@ -355,6 +341,14 @@ namespace MediaPortal.Common.Services.MediaManagement
     {
       MediaCategory result = new MediaCategory(name, parentCategories);
       _mediaCategories.Add(name, result);
+      return result;
+    }
+
+    public ICollection<MediaCategory> GetAllMediaCategoriesInHierarchy(MediaCategory mediaCategory)
+    {
+      ICollection<MediaCategory> result = new HashSet<MediaCategory> {mediaCategory};
+      foreach (MediaCategory parentCategory in mediaCategory.ParentCategories)
+        CollectionUtils.AddAll(result, GetAllMediaCategoriesInHierarchy(parentCategory));
       return result;
     }
 

@@ -97,6 +97,14 @@ namespace MediaPortal.Common.ResourceAccess
     MediaCategory RegisterMediaCategory(string name, ICollection<MediaCategory> parentCategories);
 
     /// <summary>
+    /// Returns the given <paramref name="mediaCategory"/> and all direct and indirect parent categories.
+    /// </summary>
+    /// <param name="mediaCategory">Media category to start building the hierarchy collection.</param>
+    /// <returns>Collection of media categories from the given <paramref name="mediaCategory"/> along the
+    /// <see cref="MediaCategory.ParentCategories"/> up to the root.</returns>
+    ICollection<MediaCategory> GetAllMediaCategoriesInHierarchy(MediaCategory mediaCategory);
+
+    /// <summary>
     /// Returns the ids of all local metadata extractors which are classified into the specified
     /// <paramref name="mediaCategory"/>.
     /// </summary>
