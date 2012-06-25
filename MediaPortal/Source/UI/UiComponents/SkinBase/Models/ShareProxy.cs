@@ -296,6 +296,11 @@ namespace MediaPortal.UiComponents.SkinBase.Models
       get { return ChoosenResourcePath != _origShare.BaseResourcePath; }
     }
 
+    public bool IsCategoriesChanged
+    {
+      get { return !CollectionUtils.CompareObjectCollections(_mediaCategories, _origShare.MediaCategories); }
+    }
+
     /// <summary>
     /// Paths tree of the selected resource provider, if the resource provider supports path
     /// navigation.

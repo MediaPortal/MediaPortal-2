@@ -382,6 +382,8 @@ namespace MediaPortal.UiComponents.SkinBase.Models
             IScreenManager screenManager = ServiceRegistration.Get<IScreenManager>();
             screenManager.ShowDialog(Consts.SCREEN_SHARES_CONFIG_RELOCATE_DIALOG);
           }
+          else if (_shareProxy.IsCategoriesChanged)
+            UpdateShareAndFinish(RelocationMode.ClearAndReImport);
           else
             UpdateShareAndFinish(RelocationMode.None);
         }
