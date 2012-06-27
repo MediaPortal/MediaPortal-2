@@ -42,6 +42,8 @@ namespace MediaPortal.Backend.ClientCommunication
     public static ClientDescriptor GetMPFrontendServerDescriptor(RootDescriptor uPnPRootDescriptor)
     {
       DeviceDescriptor rootDescriptor = DeviceDescriptor.CreateRootDeviceDescriptor(uPnPRootDescriptor);
+      if (rootDescriptor == null)
+        return null;
       DeviceDescriptor serverDeviceDescriptor = rootDescriptor.FindFirstDevice(
           UPnPTypesAndIds.FRONTEND_SERVER_DEVICE_TYPE, UPnPTypesAndIds.FRONTEND_SERVER_DEVICE_TYPE_VERSION);
       return serverDeviceDescriptor == null ? null : new ClientDescriptor(serverDeviceDescriptor);

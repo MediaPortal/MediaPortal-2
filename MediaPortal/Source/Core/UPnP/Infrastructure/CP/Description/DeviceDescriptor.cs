@@ -66,6 +66,8 @@ namespace UPnP.Infrastructure.CP.Description
     public static DeviceDescriptor CreateRootDeviceDescriptor(RootDescriptor rootDescriptor)
     {
       XPathDocument xmlDeviceDescription = rootDescriptor.DeviceDescription;
+      if (xmlDeviceDescription == null)
+        return null;
       XPathNavigator nav = xmlDeviceDescription.CreateNavigator();
       nav.MoveToChild(XPathNodeType.Element);
       XPathNodeIterator rootDeviceIt = nav.SelectChildren("device", "urn:schemas-upnp-org:device-1-0");
