@@ -723,6 +723,24 @@ namespace MediaPortal.Common.Services.PluginManager
     /// be enabled, else <c>false</c>.</returns>
     public bool TryEnable(PluginRuntime plugin, bool doAutoActivate)
     {
+      ICollection<PluginRuntime> autoActivatePlugins = new List<PluginRuntime>();
+      bool result = TryEnable(plugin, autoActivatePlugins);
+      if (doAutoActivate)
+        foreach (PluginRuntime autoActivatePlugin in autoActivatePlugins)
+          TryActivate(autoActivatePlugin);
+      return result;
+    }
+
+    /// <summary>
+    /// Tries to enable the given <paramref name="plugin"/>. The caller has to activate the plugins which are given in
+    /// <paramref name="autoActivatePlugins"/>, if auto activation is desired.
+    /// </summary>
+    /// <param name="plugin">Plugin to enable.</param>
+    /// <param name="autoActivatePlugins">This collection will be filled with plugins which have their auto-activate flag set.</param>
+    /// <returns><c>true</c>, if the specified <paramref name="plugin"/> and all its dependencies could
+    /// be enabled, else <c>false</c>.</returns>
+    protected bool TryEnable(PluginRuntime plugin, ICollection<PluginRuntime> autoActivatePlugins)
+    {
       LockPluginStateDependency(plugin, false); // First lock for read
       ICollection<PluginRuntime> lockedPluginStates = new List<PluginRuntime> {plugin};
       try
@@ -756,7 +774,7 @@ namespace MediaPortal.Common.Services.PluginManager
               logger.Warn("Plugin '{0}' (id '{1}'): Dependency '{2}' is not available", pluginName, pluginId, parentId);
               return false;
             }
-          if (!TryEnable(parentPlugin, doAutoActivate))
+          if (!TryEnable(parentPlugin, autoActivatePlugins))
           {
             logger.Warn("Plugin '{0}' (id '{1}'): Dependency '{2}' cannot be enabled", pluginName, pluginId, parentId);
             return false;
@@ -822,8 +840,8 @@ namespace MediaPortal.Common.Services.PluginManager
         foreach (PluginRuntime lockedPlugin in lockedPluginStates)
           UnlockPluginState(lockedPlugin);
       }
-      if (doAutoActivate && plugin.Metadata.AutoActivate)
-        TryActivate(plugin);
+      if (plugin.Metadata.AutoActivate)
+        autoActivatePlugins.Add(plugin);
       return true;
     }
 
