@@ -162,7 +162,8 @@
     <Setter Property="Template">
       <Setter.Value>
         <ControlTemplate>
-          <Rectangle x:Name="ButtonControlRectangle" Stroke="{ThemeResource ButtonStrokeColor}" RadiusX="4" RadiusY="4">
+          <Rectangle x:Name="ButtonControlRectangle" Stroke="{ThemeResource ButtonStrokeColor}"
+              RadiusX="{ThemeResource ButtonControlRadiusX}" RadiusY="{ThemeResource ButtonControlRadiusY}">
             <Rectangle.Fill>
               <RadialGradientBrush GradientOrigin="0.85,0.82">
                 <RadialGradientBrush.RelativeTransform>
@@ -185,7 +186,9 @@
     <Setter Property="Template">
       <Setter.Value>
         <ControlTemplate>
-          <Rectangle x:Name="ButtonControlRectangle" Stroke="{ThemeResource ButtonStrokeColor}" RadiusX="5" RadiusY="5" Width="18" Height="18">
+          <Rectangle x:Name="ButtonControlRectangle" Stroke="{ThemeResource ButtonStrokeColor}"
+              RadiusX="{ThemeResource RadioButtonControlRadiusX}" RadiusY="{ThemeResource RadioButtonControlRadiusY}"
+              Width="{ThemeResource RadioButtonControlWidth}" Height="{ThemeResource RadioButtonControlHeight}">
             <Rectangle.Fill>
               <RadialGradientBrush GradientOrigin="0.85,0.82">
                 <RadialGradientBrush.RelativeTransform>
@@ -401,7 +404,8 @@
                   <ScaleTransform ScaleX="1" ScaleY="1"/>
                 </TransformGroup>
               </Grid.RenderTransform>
-              <Control Grid.Column="0" Grid.Row="0" Width="26" Height="26" Style="{ThemeResource ButtonControlStyle}"/>
+              <Control Grid.Column="0" Grid.Row="0" Width="{ThemeResource CheckBoxControlWidth}" Height="{ThemeResource CheckBoxControlHeight}"
+                  Style="{ThemeResource ButtonControlStyle}"/>
               <Path x:Name="Check" Grid.Column="0" Grid.Row="0" Width="26" Height="26" Visibility="Hidden" Stretch="None"
                   Stroke="{ThemeResource ControlHandleColor}" StrokeThickness="2" Data="M8,13 L11,18 L18,6"/>
             </Grid>

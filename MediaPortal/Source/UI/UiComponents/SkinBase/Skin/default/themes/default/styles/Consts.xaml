@@ -33,6 +33,16 @@
   <ResourceWrapper x:Key="PressedButtonScaleAnimationTime1" Resource="00:00:00.1"/>
   <ResourceWrapper x:Key="DisabledButtonScaleAnimationTime1" Resource="00:00:00.1"/>
 
+  <ResourceWrapper x:Key="ButtonControlRadiusX" Resource="4"/>
+  <ResourceWrapper x:Key="ButtonControlRadiusY" Resource="4"/>
+  <ResourceWrapper x:Key="RadioButtonControlRadiusX" Resource="5"/>
+  <ResourceWrapper x:Key="RadioButtonControlRadiusY" Resource="5"/>
+  <ResourceWrapper x:Key="RadioButtonControlWidth" Resource="18"/>
+  <ResourceWrapper x:Key="RadioButtonControlHeight" Resource="18"/>
+
+  <ResourceWrapper x:Key="CheckBoxControlWidth" Resource="26"/>
+  <ResourceWrapper x:Key="CheckBoxControlHeight" Resource="26"/>
+
   <!-- Text boxes -->
   <ResourceWrapper x:Key="TextBoxBorderThickness" Resource="3"/>
   <ResourceWrapper x:Key="TextBoxCornerRadius" Resource="2"/>
