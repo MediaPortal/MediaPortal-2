@@ -257,6 +257,7 @@ namespace MediaPortal.Extensions.UserServices.FanArtService.Client
 
     protected override void FreeData()
     {
+      _possibleSources = null;
       _texture = null;
       _asyncStarted = false;
       base.FreeData();
