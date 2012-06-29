@@ -32,79 +32,83 @@
             <RowDefinition Height="*"/>
           </Grid.RowDefinitions>
           <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="580"/>
-            <ColumnDefinition Width="530"/>
-            <ColumnDefinition Width="800"/>
+            <ColumnDefinition Width="560"/>
+            <ColumnDefinition Width="460"/>
+            <ColumnDefinition Width="820"/>
           </Grid.ColumnDefinitions>
-          
+
           <!-- Screen and plot view -->
-          <Grid Grid.Column="2" Grid.Row="0" HorizontalAlignment="Center" VerticalAlignment="Center" Width="840" Height="580" Background="#F0202020">
-            <Grid.RenderTransform>
-              <TranslateTransform X="-45"/>
-            </Grid.RenderTransform>
-            <Grid.RowDefinitions>
-              <RowDefinition Height="*"/>
-              <RowDefinition Height="400"/>
-            </Grid.RowDefinitions>
-            <Grid.ColumnDefinitions>
-              <ColumnDefinition Width="*"/>
-            </Grid.ColumnDefinitions>
-            <ScrollViewer Grid.Row="0" Margin="10" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" HorizontalScrollBarVisibility="Disabled" Focusable="True">
-              <Label x:Name="StoryPlot" Wrap="True"
+          <Border Grid.Column="2" Grid.Row="0" x:Name="FanartBorder" BorderBrush="#000000" CornerRadius="20" BorderThickness="2" Width="820" Height="570" Background="#E4000000">
+            <Border.RenderTransform>
+              <TranslateTransform X="-20"/>
+            </Border.RenderTransform>
+
+            <Grid HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+              <Grid.RowDefinitions>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="400"/>
+              </Grid.RowDefinitions>
+              <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+              </Grid.ColumnDefinitions>
+              <ScrollViewer Grid.Row="0" Margin="10" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" HorizontalScrollBarVisibility="Disabled" Focusable="True">
+                <Label x:Name="StoryPlot" Wrap="True" Scroll="Auto"
                     HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
                     Content="{Binding Source={StaticResource FanArtBackgroundModel}, Path=ItemDescription}"
                     Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}"/>
-            </ScrollViewer>
-            <Image  Grid.Row="1" HorizontalAlignment="Center" Stretch="UniformToFill" Width="580" Height="360" Margin="10" FallbackSource="{Binding MediaItem}">
-              <Image.Source>
-                <fanart:FanArtImageSource 
+              </ScrollViewer>
+              <Image Grid.Row="1" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Stretch="UniformToFill" Margin="15" FallbackSource="{Binding MediaItem}">
+                <Image.Source>
+                  <fanart:FanArtImageSource 
                   fanart:FanArtMediaType="{Binding Source={StaticResource FanArtBackgroundModel}, Path=FanArtMediaType}" 
                   fanart:FanArtType="FanArt" 
                   fanart:FanArtName="{Binding Source={StaticResource FanArtBackgroundModel}, Path=FanArtName}"
                   fanart:MaxWidth="580" fanart:MaxHeight="360"/>
-              </Image.Source>
-            </Image>
-          </Grid>
+                </Image.Source>
+              </Image>
+            </Grid>
+          </Border>
 
           <!-- Poster view -->
-          <Grid Grid.Column="1" Grid.Row="0" HorizontalAlignment="Center" VerticalAlignment="Center" Width="460" Height="660" Background="#F0202020">
-            <Grid.RenderTransform>
-              <TranslateTransform X="-10"/>
-            </Grid.RenderTransform>
-            <Image VerticalAlignment="Center"  HorizontalAlignment="Center" Stretch="UniformToFill" Margin="5">
+          <Border Grid.Column="1" Grid.Row="0" x:Name="CoverBorder" BorderBrush="#000000" CornerRadius="20" BorderThickness="2" Width="460" Height="665" Background="#E4000000">
+            <Image VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Stretch="UniformToFill" Margin="15">
               <Image.Source>
                 <fanart:FanArtImageSource 
-                  fanart:FanArtMediaType="{Binding Source={StaticResource FanArtBackgroundModel}, Path=FanArtMediaType}" 
-                  fanart:FanArtType="Poster" 
-                  fanart:FanArtName="{Binding Source={StaticResource FanArtBackgroundModel}, Path=FanArtName}"
-                  fanart:MaxWidth="500" fanart:MaxHeight="660"/>
+                fanart:FanArtMediaType="{Binding Source={StaticResource FanArtBackgroundModel}, Path=FanArtMediaType}" 
+                fanart:FanArtType="Poster" 
+                fanart:FanArtName="{Binding Source={StaticResource FanArtBackgroundModel}, Path=FanArtName}"
+                fanart:MaxWidth="500" fanart:MaxHeight="660"/>
               </Image.Source>
             </Image>
-          </Grid>
+            
+          </Border>
 
           <!-- Itemslist -->
-          <Grid Grid.Column="0" Grid.Row="0" HorizontalAlignment="Center" VerticalAlignment="Center" IsVisible="{Binding IsItemsValid}" Background="#F0353535"
-                Width="600" Height="760">
-            <Grid.RenderTransform>
-              <TranslateTransform X="25"/>
-            </Grid.RenderTransform>
-            <Grid.RowDefinitions>
-              <RowDefinition Height="*"/>
-            </Grid.RowDefinitions>
-            <Grid.ColumnDefinitions>
-              <ColumnDefinition Width="*"/>
-            </Grid.ColumnDefinitions>
-            <ListView x:Name="MediaItemsList" Style="{ThemeResource MoviesListViewStyle}" ItemsSource="{Binding Items}"
-              HorizontalAlignment="Stretch" VerticalAlignment="Stretch" IsVisible="{Binding ShowList}" Margin="5">
-              <ListView.Resources>
-                <Command x:Key="Menu_Command" Source="{StaticResource MediaModel}" Path="Select"
+          <Border Grid.Column="0" Grid.Row="0" x:Name="ListBorder" BorderBrush="#000000" CornerRadius="20" BorderThickness="2" Width="560" Height="750" Background="#E4000000">
+            <Border.RenderTransform>
+              <TranslateTransform X="20"/>
+            </Border.RenderTransform>
+
+            <Grid HorizontalAlignment="Stretch" VerticalAlignment="Stretch" IsVisible="{Binding IsItemsValid}">
+              <Grid.RowDefinitions>
+                <RowDefinition Height="*"/>
+              </Grid.RowDefinitions>
+              <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+              </Grid.ColumnDefinitions>
+              <ListView x:Name="MediaItemsList" Style="{ThemeResource MoviesListViewStyle}" ItemsSource="{Binding Items}"
+              HorizontalAlignment="Stretch" VerticalAlignment="Stretch" IsVisible="{Binding ShowList}" Margin="10">
+                <ListView.Resources>
+                  <Command x:Key="Menu_Command" Source="{StaticResource MediaModel}" Path="Select"
                   Parameters="{LateBoundValue BindingValue={Binding}}"/>
-              </ListView.Resources>
-            </ListView>
-            <Label IsVisible="{Binding ShowListHint}"
+                </ListView.Resources>
+              </ListView>
+              <Label IsVisible="{Binding ShowListHint}"
               HorizontalAlignment="Center" VerticalAlignment="Center" Wrap="true"
               Content="{Binding ListHint}" Color="{ThemeResource HintTextColor}"/>
-          </Grid>
+            </Grid>
+            
+          </Border>
 
           <Label IsVisible="{Binding !IsItemsValid}"
             HorizontalAlignment="Center" VerticalAlignment="Center"
