@@ -28,15 +28,21 @@ using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Windows;
 using Hardcodet.Wpf.TaskbarNotification;
+using MediaPortal.Common;
+using MediaPortal.Common.Logging;
+using MediaPortal.Common.Messaging;
 using MediaPortal.ServiceMonitor.Model;
+using MediaPortal.ServiceMonitor.UPNP;
 using MediaPortal.ServiceMonitor.View;
+using MediaPortal.Utilities.Collections;
 
 namespace MediaPortal.ServiceMonitor.ViewModel
 {
   /// <summary>
   /// Main controller of the application.
   /// </summary>
-  public class AppController : IDisposable, INotifyPropertyChanged, IAppController
+  public class AppController : IDisposable, INotifyPropertyChanged, IAppController, IMessageReceiver
+
   {
     #region TaskbarIcon
 
@@ -63,7 +69,7 @@ namespace MediaPortal.ServiceMonitor.ViewModel
     #endregion
 
     #region Attached Clients
-    public ObservableCollection<ClientData> Clients { get; set; }
+    public AsyncObservableCollection<ClientData> Clients { get; set; }
 
 
     #endregion
@@ -82,12 +88,12 @@ namespace MediaPortal.ServiceMonitor.ViewModel
 
     public AppController()
     {
-      Clients = new ObservableCollection<ClientData>();
-      //---- FOR TESTING ONLY -----------------------------------
-      Clients.Add(new ClientData{ IsConnected = false, Name ="Test1", System ="System1"});
-      Clients.Add(new ClientData { IsConnected = true, Name = "Test2", System = "System2" });
-      Status = new ServerStatus{Message = "Server is not running"};
-      //---- FOR TESTING ONLY -----------------------------------
+      Clients = new AsyncObservableCollection<ClientData>();
+      
+      // Init ServerConnection Messaging
+      ServiceRegistration.Get<IMessageBroker>().RegisterMessageReceiver(ServerConnectionMessaging.CHANNEL, this);
+      // Set Init ServerStatus
+      Status = new ServerStatus{Message = "Not Connected to Server"};
     }
 
 
@@ -247,5 +253,64 @@ namespace MediaPortal.ServiceMonitor.ViewModel
 
 
     #endregion
+
+    #region Implementation of IMessageReceiver
+
+    public void Receive(SystemMessage message)
+    {
+      var type = (ServerConnectionMessaging.MessageType)message.MessageType;
+      switch (type)
+      {
+        case ServerConnectionMessaging.MessageType.AvailableServersChanged:
+          //var serverAdded = (bool)message.MessageData[ServerConnectionMessaging.SERVERS_WERE_ADDED];
+          //var availableServers = (ICollection<ServerDescriptor>)message.MessageData[ServerConnectionMessaging.AVAILABLE_SERVERS];
+          break;
+        case ServerConnectionMessaging.MessageType.HomeServerAttached:
+          Status = new ServerStatus { Message = "Attached to Server" };
+          break;
+        case ServerConnectionMessaging.MessageType.HomeServerConnected:
+          Status = new ServerStatus { Message = "Connected to Server" };
+          UpdateClients();
+          break;
+        case ServerConnectionMessaging.MessageType.HomeServerDetached:
+          Status = new ServerStatus { Message = "Detached from Server" };
+          break;
+        case ServerConnectionMessaging.MessageType.HomeServerDisconnected:
+          Status = new ServerStatus { Message = "Disconnected from Server" };
+          break;
+      }
+    }
+
+    #endregion
+
+
+    public void UpdateClients()
+    {
+      try
+      {
+        Clients.Clear();
+        var serverConnectionManager = ServiceRegistration.Get<IServerConnectionManager>();
+        if (!serverConnectionManager.IsHomeServerConnected) return;
+
+        var serverControler = serverConnectionManager.ServerController;
+        if (serverControler == null) return;
+
+        foreach (var attachedClient in serverControler.GetAttachedClients())
+        {
+          Clients.Add(new ClientData
+                        {
+                          IsConnected = !string.IsNullOrEmpty(attachedClient.SystemId),
+                          Name = attachedClient.LastClientName,
+                          System = attachedClient.LastSystem == null ? string.Empty : attachedClient.LastSystem.HostName
+                        });
+        }
+      }
+      catch (Exception ex)
+      {
+        ServiceRegistration.Get<ILogger>().Error("AppController.UpDateClients", ex);
+      }
+    }
+
+
   }
 }

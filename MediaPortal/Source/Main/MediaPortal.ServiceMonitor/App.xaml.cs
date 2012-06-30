@@ -32,6 +32,7 @@ using MediaPortal.Common.Logging;
 using MediaPortal.Common.Runtime;
 using MediaPortal.Common.Services.Logging;
 using MediaPortal.Common.Services.Runtime;
+using MediaPortal.ServiceMonitor.UPNP;
 using MediaPortal.ServiceMonitor.ViewModel;
 
 namespace MediaPortal.ServiceMonitor
@@ -77,6 +78,10 @@ namespace MediaPortal.ServiceMonitor
           logger = ServiceRegistration.Get<ILogger>();
           //ApplicationCore.StartCoreServices();
 
+          logger.Debug("UiExtension: Registering IServerConnectionManager service");
+          ServiceRegistration.Set<IServerConnectionManager>(new ServerConnectionManager());
+          
+
 #if !DEBUG
           logPath = ServiceRegistration.Get<IPathManager>().GetPath("<LOG>");
 #endif
@@ -101,7 +106,7 @@ namespace MediaPortal.ServiceMonitor
         logger.Debug("Starting application");
         try
         {
-          
+          ServiceRegistration.Get<IServerConnectionManager>().Startup();
           if (mpArgs.IsMinimized)
           {
             appController.MinimizeToTray();
@@ -141,6 +146,7 @@ namespace MediaPortal.ServiceMonitor
 
       systemStateService.SwitchSystemState(SystemState.ShuttingDown, true);
       ServiceRegistration.IsShuttingDown = true;
+      ServiceRegistration.Get<IServerConnectionManager>().Shutdown();
       //ApplicationCore.StopCoreServices();
       ApplicationCore.DisposeCoreServices();
       systemStateService.SwitchSystemState(SystemState.Ending, false);
