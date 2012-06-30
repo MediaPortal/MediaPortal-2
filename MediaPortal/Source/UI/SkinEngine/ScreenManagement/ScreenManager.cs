@@ -517,7 +517,7 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
 
     public void DoSwitchSkinAndTheme_NoLock(string newSkinName, string newThemeName)
     {
-      ServiceRegistration.Get<ILogger>().Info("ScreenManager: Loading skin '{0}' with theme '{1}'", newSkinName, newThemeName);
+      ServiceRegistration.Get<ILogger>().Info("ScreenManager: Switching skin and theme");
 
       ScreenManagerMemento memento;
 
@@ -641,7 +641,7 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
 
     protected internal void DoShowScreen_NoLock(Screen screen, bool closeDialogs)
     {
-      ServiceRegistration.Get<ILogger>().Debug("ScreenManager: Showing screen '{0}'...", screen.ResourceName);
+      ServiceRegistration.Get<ILogger>().Debug("ScreenManager: Showing screen '{0}'", screen.ResourceName);
       DoStartClosingScreen_NoLock(_currentScreen);
       if (closeDialogs)
         DoCloseDialogs_NoLock(true, false);
@@ -681,7 +681,7 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
 
     protected internal void DoShowDialog_NoLock(DialogData dialogData)
     {
-      ServiceRegistration.Get<ILogger>().Debug("ScreenManager: Showing dialog '{0}'...", dialogData.DialogName);
+      ServiceRegistration.Get<ILogger>().Debug("ScreenManager: Showing dialog '{0}'", dialogData.DialogName);
       dialogData.DialogScreen.Prepare();
       dialogData.DialogScreen.TriggerScreenShowingEvent();
 
@@ -703,9 +703,9 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
     {
       if (dialogInstanceId.HasValue)
         if (mode == CloseDialogsMode.CloseSingleDialog)
-          ServiceRegistration.Get<ILogger>().Debug("ScreenManager: Closing dialog with dialog id '{0}'...", dialogInstanceId.Value);
+          ServiceRegistration.Get<ILogger>().Debug("ScreenManager: Closing dialog with dialog id '{0}'", dialogInstanceId.Value);
         else
-          ServiceRegistration.Get<ILogger>().Debug("ScreenManager: Closing all dialogs dialogs until dialog with dialog id '{0}' ({1})...", dialogInstanceId.Value, mode == CloseDialogsMode.CloseAllOnTopIncluding ? "including" : "excluding");
+          ServiceRegistration.Get<ILogger>().Debug("ScreenManager: Closing all dialogs dialogs until dialog with dialog id '{0}' ({1})", dialogInstanceId.Value, mode == CloseDialogsMode.CloseAllOnTopIncluding ? "including" : "excluding");
       ICollection<DialogData> oldDialogData = new List<DialogData>();
       LinkedListNode<DialogData> bottomDialogNode;
       lock(_syncObj)
@@ -749,7 +749,7 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
 
     protected internal void DoCloseDialog_NoLock(DialogData dd, bool fireCloseDelegates, bool dialogPersistence)
     {
-      ServiceRegistration.Get<ILogger>().Debug("ScreenManager: Closing dialog '{0}'...", dd.DialogName);
+      ServiceRegistration.Get<ILogger>().Debug("ScreenManager: Closing dialog '{0}'", dd.DialogName);
       Screen oldDialog = dd.DialogScreen;
       if (dialogPersistence)
       {
@@ -813,7 +813,7 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
         if (_currentScreen == null)
           return;
         screen = _currentScreen;
-        ServiceRegistration.Get<ILogger>().Debug("ScreenManager: Closing screen '{0}'...", screen.ResourceName);
+        ServiceRegistration.Get<ILogger>().Debug("ScreenManager: Closing screen '{0}'", screen.ResourceName);
         _currentScreen = null;
         _screenPersistenceTime = DateTime.MinValue;
 
@@ -894,8 +894,13 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
 
     protected internal void DoSetSuperLayer_NoLock(Screen screen)
     {
-      if (screen != null)
+      if (screen == null)
+        ServiceRegistration.Get<ILogger>().Debug("ScreenManager: Hiding superlayer");
+      else
+      {
+        ServiceRegistration.Get<ILogger>().Debug("ScreenManager: Showing superlayer '{0}'");
         screen.Prepare();
+      }
       lock (_syncObj)
       {
         if (_currentSuperLayer != null)
@@ -1050,6 +1055,7 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
           IsBackground = true
         };
       _garbageCollectorThread.Start();
+      ServiceRegistration.Get<ILogger>().Debug("ScreenManager: Started");
     }
 
     /// <summary>
@@ -1058,6 +1064,7 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
     // Don't hold the ScreenManager's lock while calling this method; At least one _NoLock method is called inside here
     public void Shutdown()
     {
+      ServiceRegistration.Get<ILogger>().Debug("ScreenManager: Shutting down");
       UnsubscribeFromMessages();
       // Close all screens to make sure all SlimDX objects are correctly cleaned up
       DoCloseCurrentScreenAndDialogs_NoLock(true, true, false);
@@ -1425,7 +1432,7 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
 
     public void SwitchSkinAndTheme(string newSkinName, string newThemeName)
     {
-      ServiceRegistration.Get<ILogger>().Info("ScreenManager: Preparing to load skin '{0}' with theme '{1}'", newSkinName, newThemeName);
+      ServiceRegistration.Get<ILogger>().Info("ScreenManager: Preparing to load skin '{0}' with theme '{1}'...", newSkinName, newThemeName);
 
       IncPendingOperations();
       ScreenManagerMessaging.SendMessageSwitchSkinAndTheme(newSkinName, newThemeName);
@@ -1512,14 +1519,17 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
 
     public void CloseDialog(Guid dialogInstanceId)
     {
-      ServiceRegistration.Get<ILogger>().Debug("ScreenManager: Preparing to close dialog '{0}'", dialogInstanceId);
+      ServiceRegistration.Get<ILogger>().Debug("ScreenManager: Preparing to close dialog '{0}'...", dialogInstanceId);
       IncPendingOperations();
       ScreenManagerMessaging.SendMessageCloseDialogs(dialogInstanceId, CloseDialogsMode.CloseSingleDialog);
     }
 
     public void CloseDialogs(Guid dialogInstanceId, bool inclusive)
     {
-      ServiceRegistration.Get<ILogger>().Debug("ScreenManager: Preparing to close dialog '{0}' and all dialogs on top of it", dialogInstanceId);
+      if (inclusive)
+        ServiceRegistration.Get<ILogger>().Debug("ScreenManager: Preparing to close dialog '{0}' and all dialogs on top of it...", dialogInstanceId);
+      else
+        ServiceRegistration.Get<ILogger>().Debug("ScreenManager: Preparing to close all dialogs on top of dialog '{0}'...", dialogInstanceId);
       IncPendingOperations();
       ScreenManagerMessaging.SendMessageCloseDialogs(dialogInstanceId, inclusive ? CloseDialogsMode.CloseAllOnTopIncluding : CloseDialogsMode.CloseAllOnTopExcluding);
     }
@@ -1529,7 +1539,7 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
       Guid? dialogInstanceId = TopmostDialogInstanceId;
       if (dialogInstanceId.HasValue)
       {
-        ServiceRegistration.Get<ILogger>().Debug("ScreenManager: Preparing to close dialog '{0}'", dialogInstanceId);
+        ServiceRegistration.Get<ILogger>().Debug("ScreenManager: Preparing to close topmost dialog '{0}'...", dialogInstanceId);
         IncPendingOperations();
         ScreenManagerMessaging.SendMessageCloseDialogs(dialogInstanceId.Value, CloseDialogsMode.CloseSingleDialog);
       }
@@ -1570,7 +1580,7 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
 
     public void Reload()
     {
-      ServiceRegistration.Get<ILogger>().Debug("ScreenManager: Preparing to reload screens");
+      ServiceRegistration.Get<ILogger>().Debug("ScreenManager: Preparing to reload screens...");
       IncPendingOperations();
       ScreenManagerMessaging.SendMessageReloadScreens();
     }
