@@ -36,6 +36,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
   public class Label : Control
   {
     public const double DEFAULT_SCROLL_SPEED = 20.0;
+    public const double DEFAULT_SCROLL_DELAY = 2.0;
 
     #region Protected fields
 
@@ -43,6 +44,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     protected AbstractProperty _colorProperty;
     protected AbstractProperty _scrollProperty;
     protected AbstractProperty _scrollSpeedProperty;
+    protected AbstractProperty _scrollDelayProperty;
     protected AbstractProperty _wrapProperty;
     protected TextBuffer _asset = null;
     protected string _resourceString;
@@ -63,6 +65,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       _colorProperty = new SProperty(typeof(Color), Color.DarkViolet);
       _scrollProperty = new SProperty(typeof(TextScrollEnum), TextScrollEnum.None);
       _scrollSpeedProperty = new SProperty(typeof(double), DEFAULT_SCROLL_SPEED);
+      _scrollDelayProperty = new SProperty(typeof(double), DEFAULT_SCROLL_DELAY);
       _wrapProperty = new SProperty(typeof(bool), false);
 
       HorizontalAlignment = HorizontalAlignmentEnum.Left;
@@ -109,6 +112,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       VerticalAlignment = l.VerticalAlignment;
       Color = l.Color;
       Scroll = l.Scroll;
+      ScrollDelay = l.ScrollDelay;
       Wrap = l.Wrap;
 
       InitializeResourceString();
@@ -193,6 +197,20 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     }
 
     /// <summary>
+    /// Sets the delay in seconds before scrolling starts.
+    /// </summary>
+    public Double ScrollDelay
+    {
+      get { return (double) _scrollDelayProperty.GetValue(); }
+      set { _scrollDelayProperty.SetValue(value); }
+    }
+
+    public AbstractProperty ScrollDelayProperty
+    {
+      get { return _scrollDelayProperty; }
+    }
+
+    /// <summary>
     /// Gets or sets the scroll speed for text in skin units per second (1 unit = 1 pixel at native skin resolution).
     /// <see cref="Scroll"/> must also be set for this to have an effect.
     /// </summary>
@@ -273,7 +291,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       color.Alpha *= (float) localRenderContext.Opacity;
 
       _asset.Render(_innerRect, horzAlign, vertAlign, color, Wrap, true, localRenderContext.ZOrder, 
-        Scroll, (float) ScrollSpeed, localRenderContext.Transform);
+        Scroll, (float) ScrollSpeed, (float) ScrollDelay, localRenderContext.Transform);
     }
 
     public override void Deallocate()

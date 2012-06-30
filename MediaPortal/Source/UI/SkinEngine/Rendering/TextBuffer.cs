@@ -147,6 +147,7 @@ namespace MediaPortal.UI.SkinEngine.Rendering
     protected Vector2 _scrollPos;
     protected Vector2 _scrollWrapOffset;
     protected DateTime _lastTimeUsed;
+    protected DateTime _scrollInitialized;
     // Vertex buffer
     protected PrimitiveBuffer _buffer = new PrimitiveBuffer();
 
@@ -426,9 +427,10 @@ namespace MediaPortal.UI.SkinEngine.Rendering
     /// <param name="zOrder">A value indicating the depth (and thus position in the visual heirachy) that this element should be rendered at.</param>
     /// <param name="scrollMode">Text scrolling behaviour.</param>
     /// <param name="scrollSpeed">Text scrolling speed in units (pixels at original skin size) per second.</param>
+    /// <param name="scrollDelay">Text scrolling delay in seconds.</param>
     /// <param name="finalTransform">The final combined layout/render-transform.</param>
     public void Render(RectangleF textBox, HorizontalTextAlignEnum horzAlignment, VerticalTextAlignEnum vertAlignment, Color4 color,
-        bool wrap, bool fade, float zOrder, TextScrollEnum scrollMode, float scrollSpeed, Matrix finalTransform)
+        bool wrap, bool fade, float zOrder, TextScrollEnum scrollMode, float scrollSpeed, float scrollDelay, Matrix finalTransform)
     {
       if (!IsAllocated || wrap != _lastWrap || _textChanged || (wrap && textBox.Width != _lastTextBoxWidth))
       {
@@ -440,7 +442,7 @@ namespace MediaPortal.UI.SkinEngine.Rendering
       // Update scrolling
       TextScrollEnum actualScrollMode = scrollMode;
       if (scrollMode != TextScrollEnum.None && _lastTimeUsed != DateTime.MinValue)
-        actualScrollMode = UpdateScrollPosition(textBox, scrollMode, scrollSpeed);
+        actualScrollMode = UpdateScrollPosition(textBox, scrollMode, scrollSpeed, scrollDelay);
 
       // Prepare horizontal alignment info for shader. X is position offset, Y is multiplyer for line width.
       Vector4 alignParam;
@@ -558,7 +560,7 @@ namespace MediaPortal.UI.SkinEngine.Rendering
       }
 
       // No fading
-       _effect = ContentManager.Instance.GetEffect(EFFECT_FONT);
+      _effect = ContentManager.Instance.GetEffect(EFFECT_FONT);
 
       // Render
       _effect.Parameters[PARAM_COLOR] = color;
@@ -580,8 +582,11 @@ namespace MediaPortal.UI.SkinEngine.Rendering
       _effect.EndRender();
     }
 
-    protected TextScrollEnum UpdateScrollPosition(RectangleF textBox, TextScrollEnum mode, float speed)
+    protected TextScrollEnum UpdateScrollPosition(RectangleF textBox, TextScrollEnum mode, float speed, float scrollDelay)
     {
+      if ((SkinContext.FrameRenderingStartTime - _scrollInitialized).TotalSeconds < scrollDelay)
+        return TextScrollEnum.None;
+
       float dif = speed * (float) SkinContext.FrameRenderingStartTime.Subtract(_lastTimeUsed).TotalSeconds;
 
       if (mode == TextScrollEnum.Auto)
@@ -628,7 +633,7 @@ namespace MediaPortal.UI.SkinEngine.Rendering
           }
           else if (_scrollWrapOffset.Y + _scrollPos.Y > textBox.Height)
             _scrollWrapOffset.Y = float.NaN;
-          break;        
+          break;
         //case TextScrollEnum.Up:
         default:
           _scrollPos.Y -= dif;
@@ -649,6 +654,7 @@ namespace MediaPortal.UI.SkinEngine.Rendering
     {
       _scrollPos = new Vector2(0.0f, 0.0f);
       _scrollWrapOffset = new Vector2(float.NaN, float.NaN);
+      _scrollInitialized = DateTime.Now;
     }
 
     #endregion
