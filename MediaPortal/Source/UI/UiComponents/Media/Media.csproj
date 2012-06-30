@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="4.0">
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
@@ -104,7 +104,6 @@
     <Compile Include="Actions\BaseTrackServerConnectionAction.cs" />
     <Compile Include="Actions\SwitchBrowseLocalMLAction.cs" />
     <Compile Include="Actions\MoviesAction.cs" />
-    <Compile Include="Actions\SeriesSeasonAction.cs" />
     <Compile Include="Actions\SeriesAction.cs" />
     <Compile Include="Actions\SwitchSortingAction.cs" />
     <Compile Include="Actions\RemovePlaylistsAction.cs" />
@@ -251,10 +250,8 @@
     <Compile Include="Views\ViewSpecification.cs" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="Language\strings_en.xml">
-      <SubType>Designer</SubType>
-    </Content>
-    <Content Include="plugin.xml" />
+    <Content Include="Language\strings_en.xml"/>
+    <Content Include="plugin.xml"/>
     <Content Include="Skin\default\screens\DialogAddToPlaylistProgress.xaml" />
     <Content Include="Skin\default\screens\DialogChooseAVType.xaml" />
     <Content Include="Skin\default\screens\DialogPlayMenu.xaml" />
@@ -267,62 +264,26 @@
     <Content Include="Skin\default\screens\BrowseMediaNavigation.xaml" />
     <Content Include="Skin\default\screens\MediaItemsList.inc" />
     <Content Include="Skin\default\screens\MediaItemsListHeader.inc" />
-    <Content Include="Skin\default\screens\AudioShowItems.xaml">
-      <SubType>Designer</SubType>
-    </Content>
-    <Content Include="Skin\default\screens\VideoShowItems.xaml">
-      <SubType>Designer</SubType>
-    </Content>
-    <Content Include="Skin\default\screens\ImageShowItems.xaml">
-      <SubType>Designer</SubType>
-    </Content>
-    <Content Include="Skin\default\screens\ImageFilterBySystem.xaml">
-      <SubType>Designer</SubType>
-    </Content>
+    <Content Include="Skin\default\screens\AudioShowItems.xaml"/>
+    <Content Include="Skin\default\screens\VideoShowItems.xaml"/>
+    <Content Include="Skin\default\screens\ImageShowItems.xaml"/>
+    <Content Include="Skin\default\screens\ImageFilterBySystem.xaml"/>
     <Content Include="Skin\default\screens\SimpleFilterItems.xaml" />
     <Content Include="Skin\default\screens\SimpleShowItems.xaml" />
-    <Content Include="Skin\default\screens\VideoFilterByActor.xaml">
-      <SubType>Designer</SubType>
-    </Content>
-    <Content Include="Skin\default\screens\VideoFilterByGenre.xaml">
-      <SubType>Designer</SubType>
-    </Content>
-    <Content Include="Skin\default\screens\VideoFilterByYear.xaml">
-      <SubType>Designer</SubType>
-    </Content>
-    <Content Include="Skin\default\screens\VideoFilterBySystem.xaml">
-      <SubType>Designer</SubType>
-    </Content>
-    <Content Include="Skin\default\screens\AudioFilterByAlbum.xaml">
-      <SubType>Designer</SubType>
-    </Content>
-    <Content Include="Skin\default\screens\AudioFilterByArtist.xaml">
-      <SubType>Designer</SubType>
-    </Content>
-    <Content Include="Skin\default\screens\AudioFilterByDecade.xaml">
-      <SubType>Designer</SubType>
-    </Content>
-    <Content Include="Skin\default\screens\AudioFilterByGenre.xaml">
-      <SubType>Designer</SubType>
-    </Content>
-    <Content Include="Skin\default\screens\AudioFilterBySystem.xaml">
-      <SubType>Designer</SubType>
-    </Content>
-    <Content Include="Skin\default\screens\ImageFilterBySize.xaml">
-      <SubType>Designer</SubType>
-    </Content>
-    <Content Include="Skin\default\screens\ImageFilterByYear.xaml">
-      <SubType>Designer</SubType>
-    </Content>
-    <Content Include="Skin\default\screens\VideoSimpleSearch.xaml">
-      <SubType>Designer</SubType>
-    </Content>
-    <Content Include="Skin\default\screens\AudioSimpleSearch.xaml">
-      <SubType>Designer</SubType>
-    </Content>
-    <Content Include="Skin\default\screens\ImageSimpleSearch.xaml">
-      <SubType>Designer</SubType>
-    </Content>
+    <Content Include="Skin\default\screens\VideoFilterByActor.xaml"/>
+    <Content Include="Skin\default\screens\VideoFilterByGenre.xaml"/>
+    <Content Include="Skin\default\screens\VideoFilterByYear.xaml"/>
+    <Content Include="Skin\default\screens\VideoFilterBySystem.xaml"/>
+    <Content Include="Skin\default\screens\AudioFilterByAlbum.xaml"/>
+    <Content Include="Skin\default\screens\AudioFilterByArtist.xaml"/>
+    <Content Include="Skin\default\screens\AudioFilterByDecade.xaml"/>
+    <Content Include="Skin\default\screens\AudioFilterByGenre.xaml"/>
+    <Content Include="Skin\default\screens\AudioFilterBySystem.xaml"/>
+    <Content Include="Skin\default\screens\ImageFilterBySize.xaml"/>
+    <Content Include="Skin\default\screens\ImageFilterByYear.xaml"/>
+    <Content Include="Skin\default\screens\VideoSimpleSearch.xaml"/>
+    <Content Include="Skin\default\screens\AudioSimpleSearch.xaml"/>
+    <Content Include="Skin\default\screens\ImageSimpleSearch.xaml"/>
     <Content Include="Skin\default\screens\SimpleSearch.xaml" />
     <Content Include="Skin\default\screens\ShowPlaylist.xaml" />
     <Content Include="Skin\default\screens\EditPlaylist.xaml" />
@@ -349,12 +310,8 @@
     <Content Include="Skin\default\workflow\sorting-actions.xml" />
     <Content Include="Skin\default\workflow\media-actions.xml" />
     <Content Include="Skin\default\workflow\viewmode-actions.xml" />
-    <Content Include="Skin\default\screens\CurrentlyPlayingImage.xaml">
-      <SubType>Designer</SubType>
-    </Content>
-    <Content Include="Skin\default\screens\FullscreenContentImage.xaml">
-      <SubType>Designer</SubType>
-    </Content>
+    <Content Include="Skin\default\screens\CurrentlyPlayingImage.xaml"/>
+    <Content Include="Skin\default\screens\FullscreenContentImage.xaml"/>
     <Content Include="Skin\default\screens\CurrentlyPlayingDVD.xaml" />
     <Content Include="Skin\default\screens\FullscreenContentDVD.xaml" />
     <Content Include="Skin\default\screens\DialogChooseSubtitle.xaml" />
@@ -365,39 +322,13 @@
     <Content Include="Skin\default\screens\SavePlaylistFailed.xaml" />
     <Content Include="Skin\default\screens\SavePlaylistSuccessful.xaml" />
     <Content Include="Skin\default\screens\DialogSwitchViewMode.xaml" />
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="Skin\default\screens\MoviesShowItems.xaml">
-      <SubType>Designer</SubType>
-    </Content>
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="Skin\default\themes\default\styles\AudioSpectrumAnalyzer.xaml">
-      <SubType>Designer</SubType>
-    </Content>
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="Skin\default\screens\DialogSwitchSorting.xaml">
-      <SubType>Designer</SubType>
-    </Content>
-    <Content Include="Skin\default\screens\SeriesFilterByName.xaml">
-      <SubType>Designer</SubType>
-    </Content>
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="Skin\default\screens\SeriesFilterBySeason.xaml">
-      <SubType>Designer</SubType>
-    </Content>
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="Skin\default\screens\SeriesShowItems.xaml">
-      <SubType>Designer</SubType>
-    </Content>
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="Skin\default\screens\VideoFilterByLanguage.xaml">
-      <SubType>Designer</SubType>
-    </Content>
+    <Content Include="Skin\default\screens\MoviesShowItems.xaml"/>
+    <Content Include="Skin\default\themes\default\styles\AudioSpectrumAnalyzer.xaml"/>
+    <Content Include="Skin\default\screens\DialogSwitchSorting.xaml"/>
+    <Content Include="Skin\default\screens\SeriesFilterByName.xaml"/>
+    <Content Include="Skin\default\screens\SeriesFilterBySeason.xaml"/>
+    <Content Include="Skin\default\screens\SeriesShowItems.xaml"/>
+    <Content Include="Skin\default\screens\VideoFilterByLanguage.xaml"/>
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
