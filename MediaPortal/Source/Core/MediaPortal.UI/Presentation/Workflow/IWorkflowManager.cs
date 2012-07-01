@@ -178,6 +178,17 @@ namespace MediaPortal.UI.Presentation.Workflow
     bool NavigatePopModel(Guid modelId);
 
     /// <summary>
+    /// Shows the default screen of the currently active workflow context.
+    /// </summary>
+    /// <remarks>
+    /// This method can be helpful if there are multiple screens which can be visible in a workflow state. This method returns to
+    /// the main screen.
+    /// </remarks>
+    void ShowDefaultScreen();
+
+    void ShowDefaultScreenAsync();
+
+    /// <summary>
     /// Avoids screen updates during a batch workflow navigation.
     /// </summary>
     /// <remarks>

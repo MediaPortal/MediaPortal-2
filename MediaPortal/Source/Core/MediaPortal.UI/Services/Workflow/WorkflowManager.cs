@@ -1119,6 +1119,17 @@ namespace MediaPortal.UI.Services.Workflow
       }
     }
 
+    public void ShowDefaultScreen()
+    {
+      UpdateScreen_NeedsLock(false, false);
+    }
+
+    public void ShowDefaultScreenAsync()
+    {
+      IThreadPool threadPool = ServiceRegistration.Get<IThreadPool>();
+      threadPool.Add(ShowDefaultScreen);
+    }
+
     public void StartBatchUpdate()
     {
       StartBatchUpdateInternal();
