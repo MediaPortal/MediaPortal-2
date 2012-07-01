@@ -15,7 +15,7 @@
     <!-- Contents -->
     <ControlTemplate x:Key="Contents_Template">
       <UniformGrid Columns="1" DataContext="{Binding Source={StaticResource Model}}">
-        <Grid Margin="0,0,0,10">
+        <Grid>
           <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
@@ -32,7 +32,7 @@
               Content="[SharesConfig.NoConfigGlobalSharesHomeServerNotConnected]" Wrap="true"
               Color="{ThemeResource HintTextColor}" FontSize="{ThemeResource SmallFontSize}"/>
         </Grid>
-        <Grid Margin="0,0,0,10">
+        <Grid>
           <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>

@@ -366,8 +366,7 @@
     <Setter Property="Template">
       <Setter.Value>
         <ControlTemplate TargetType="{x:Type ListViewItem}">
-          <Button Style="{ThemeResource ButtonWideStyle}"
-              Command="{Binding Command}">
+          <Button Style="{ThemeResource ButtonWideStyle}" Command="{Binding Command}">
             <Button.Triggers>
               <Trigger Property="HasFocus" Value="True">
                 <Setter TargetName="ShareName" Property="Scroll" Value="Auto"/>
@@ -578,7 +577,7 @@
     <Setter Property="Template">
       <Setter.Value>
         <ControlTemplate TargetType="{x:Type ListView}">
-          <ScrollViewer CanContentScroll="True" Margin="5">
+          <ScrollViewer CanContentScroll="True">
             <ItemsPresenter VerticalAlignment="Stretch" HorizontalAlignment="Stretch"/>
           </ScrollViewer>
         </ControlTemplate>
@@ -639,7 +638,7 @@
             <Grid.ColumnDefinitions>
               <ColumnDefinition Width="*"/>
             </Grid.ColumnDefinitions>
-            <ScrollViewer CanContentScroll="True" Margin="5" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+            <ScrollViewer CanContentScroll="True" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
                 IsVisible="{Binding RelativeSource={RelativeSource TemplatedParent},Path=!IsEmpty}"
                 Background="{ThemeResource ItemsControlShadowBackgroundColor}">
               <ItemsPresenter VerticalAlignment="Stretch" HorizontalAlignment="Stretch"/>
@@ -670,7 +669,7 @@
   </Style>
 
   <DataTemplate x:Key="SystemSharesItemDataTemplate" DataType="{x:Type collections:ListItem}">
-    <DockPanel LastChildFill="True">
+    <DockPanel Margin="5" LastChildFill="True">
       <DockPanel DockPanel.Dock="Top">
         <Label x:Name="SystemName" DockPanel.Dock="Left" Content="{Binding [Name]}">
           <Label.Color>
@@ -753,7 +752,7 @@
             <Grid.ColumnDefinitions>
               <ColumnDefinition Width="*"/>
             </Grid.ColumnDefinitions>
-            <ScrollViewer CanContentScroll="False" Margin="5" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+            <ScrollViewer CanContentScroll="False" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
                 IsVisible="{Binding RelativeSource={RelativeSource TemplatedParent},Path=!IsEmpty}"
                 Background="{ThemeResource ItemsControlShadowBackgroundColor}">
               <ItemsPresenter x:Name="OverviewPresenter" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"/>
@@ -781,7 +780,7 @@
             <Grid.ColumnDefinitions>
               <ColumnDefinition Width="*"/>
             </Grid.ColumnDefinitions>
-            <ScrollViewer CanContentScroll="True" Margin="5" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+            <ScrollViewer CanContentScroll="True" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
                 IsVisible="{Binding RelativeSource={RelativeSource TemplatedParent},Path=!IsEmpty}"
                 Background="{ThemeResource ItemsControlShadowBackgroundColor}">
               <ItemsPresenter VerticalAlignment="Stretch" HorizontalAlignment="Stretch"/>
@@ -810,7 +809,7 @@
             <Grid.ColumnDefinitions>
               <ColumnDefinition Width="*"/>
             </Grid.ColumnDefinitions>
-            <ScrollViewer CanContentScroll="True" Margin="5" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+            <ScrollViewer CanContentScroll="True" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
                 IsVisible="{Binding RelativeSource={RelativeSource TemplatedParent},Path=!IsEmpty}"
                 Background="{ThemeResource ItemsControlShadowBackgroundColor}">
               <ItemsPresenter VerticalAlignment="Stretch" HorizontalAlignment="Stretch"/>
@@ -839,7 +838,7 @@
             <Grid.ColumnDefinitions>
               <ColumnDefinition Width="*"/>
             </Grid.ColumnDefinitions>
-            <ScrollViewer CanContentScroll="True" Margin="5" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+            <ScrollViewer CanContentScroll="True" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
                 Background="{ThemeResource ItemsControlShadowBackgroundColor}">
               <ItemsPresenter VerticalAlignment="Stretch" HorizontalAlignment="Stretch"/>
             </ScrollViewer>
