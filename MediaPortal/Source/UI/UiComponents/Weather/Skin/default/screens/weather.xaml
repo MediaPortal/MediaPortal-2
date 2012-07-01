@@ -82,11 +82,11 @@
         </Grid>
 
         <!-- Forecasts (dynamic count) -->
-        <ListView Margin="30,20,30,20" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+        <ListView Margin="10" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
               Style="{ThemeResource ForecastContainerStyle}"
               ItemsSource="{Binding Path=CurrentLocation.ForecastCollection}" />
 
-        <StackPanel HorizontalAlignment="Left">
+        <StackPanel HorizontalAlignment="Left" Margin="0,10,0,0">
           <Label FontSize="{ThemeResource SmallerFontSize}" Content="{Binding LastUpdateTime}" Color="{ThemeResource HintTextColor}" IsVisible="{Binding !IsUpdating}"/>
           <Label FontSize="{ThemeResource SmallerFontSize}" x:Name="RefreshingHintLabel" Content="[Weather.Updating]" IsVisible="{Binding IsUpdating}"
               HorizontalAlignment="Center" VerticalAlignment="Center" Wrap="true" Color="{ThemeResource HintTextColor}"/>
