@@ -197,6 +197,8 @@
     <Compile Include="MarkupExtensions\StaticResourceBase.cs" />
     <Compile Include="MarkupExtensions\ThemeResourceMarkupExtension.cs" />
     <Compile Include="MpfElements\Converters\CommaSeparatedValuesConverter.cs" />
+    <Compile Include="MpfElements\Converters\AbstractSingleDirectionConverter.cs" />
+    <Compile Include="MpfElements\Converters\EmptyString2FalseConverter.cs" />
     <Compile Include="MpfElements\Converters\DateFormatConverter.cs" />
     <Compile Include="MpfElements\Converters\ExpressionMultiValueConverter.cs" />
     <Compile Include="MpfElements\Converters\ExpressionValueConverter.cs" />

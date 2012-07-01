@@ -24,39 +24,27 @@
 
 using System;
 using System.Globalization;
-using MediaPortal.UI.SkinEngine.MarkupExtensions;
+using MediaPortal.UI.SkinEngine.Xaml;
 
 namespace MediaPortal.UI.SkinEngine.MpfElements.Converters
 {
   /// <summary>
-  /// DateFormatConverter formats DateTime values to string.
+  /// Converter which converts each string which is not empty to <c>true</c>. If the given string is empty or <c>null</c>,
+  /// the conversion result is <c>false</c>.
   /// </summary>
-  public class DateFormatConverter : IValueConverter
+  public class EmptyString2FalseConverter : AbstractSingleDirectionConverter
   {
     #region IValueConverter implementation
 
-    public bool Convert(object val, Type targetType, object parameter, CultureInfo culture, out object result)
+    public override bool Convert(object val, Type targetType, object parameter, CultureInfo culture, out object result)
     {
-      result = null;
-      if (val == null)
+      if (targetType == typeof(bool))
+      {
+        string str = val as string;
+        result = !string.IsNullOrEmpty(str);
         return true;
-
-      string format = culture.DateTimeFormat.ShortTimePattern;
-      if (parameter != null)
-        format = parameter.ToString();
-
-      result = ((DateTime) val).ToString(format);
-      return true;
-    }
-
-    public bool ConvertBack(object val, Type targetType, object parameter, CultureInfo culture, out object result)
-    {
-      result = null;
-      if (val == null)
-        return true;
-      
-      //TODO: Convert date string to DateTime
-      return true;
+      }
+      return TypeConverter.Convert(val, targetType, out result);
     }
 
     #endregion

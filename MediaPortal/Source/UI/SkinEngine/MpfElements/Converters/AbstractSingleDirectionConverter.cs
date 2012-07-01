@@ -29,34 +29,19 @@ using MediaPortal.UI.SkinEngine.MarkupExtensions;
 namespace MediaPortal.UI.SkinEngine.MpfElements.Converters
 {
   /// <summary>
-  /// DateFormatConverter formats DateTime values to string.
+  /// Abstract converter implementation which only converts in forward direction (i.e. <see cref="ConvertBack"/> is not supported).
   /// </summary>
-  public class DateFormatConverter : IValueConverter
+  public abstract class AbstractSingleDirectionConverter : IValueConverter
   {
     #region IValueConverter implementation
 
-    public bool Convert(object val, Type targetType, object parameter, CultureInfo culture, out object result)
-    {
-      result = null;
-      if (val == null)
-        return true;
-
-      string format = culture.DateTimeFormat.ShortTimePattern;
-      if (parameter != null)
-        format = parameter.ToString();
-
-      result = ((DateTime) val).ToString(format);
-      return true;
-    }
+    public abstract bool Convert(object val, Type targetType, object parameter, CultureInfo culture, out object result);
 
     public bool ConvertBack(object val, Type targetType, object parameter, CultureInfo culture, out object result)
     {
+      // Back conversion not supported
       result = null;
-      if (val == null)
-        return true;
-      
-      //TODO: Convert date string to DateTime
-      return true;
+      return false;
     }
 
     #endregion

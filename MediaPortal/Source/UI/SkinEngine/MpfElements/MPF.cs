@@ -189,6 +189,7 @@ namespace MediaPortal.UI.SkinEngine.MpfElements
 
       // Converters
       _objectClassRegistrations.Add("ReferenceNotNull_BoolConverter", typeof(SkinEngine.MpfElements.Converters.ReferenceNotNull_BoolConverter));
+      _objectClassRegistrations.Add("EmptyString2FalseConverter", typeof(SkinEngine.MpfElements.Converters.EmptyString2FalseConverter));
       _objectClassRegistrations.Add("ExpressionMultiValueConverter", typeof(SkinEngine.MpfElements.Converters.ExpressionMultiValueConverter));
       _objectClassRegistrations.Add("ExpressionValueConverter", typeof(SkinEngine.MpfElements.Converters.ExpressionValueConverter));
       _objectClassRegistrations.Add("CommaSeparatedValuesConverter", typeof(SkinEngine.MpfElements.Converters.CommaSeparatedValuesConverter));

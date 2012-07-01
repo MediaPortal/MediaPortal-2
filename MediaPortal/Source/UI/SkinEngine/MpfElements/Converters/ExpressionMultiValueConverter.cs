@@ -39,7 +39,7 @@ namespace MediaPortal.UI.SkinEngine.MpfElements.Converters
   /// <item>Arithmetic: +, -, *, /</item>
   /// <item>Boolean: !, ||, &&, ^</item>
   /// <item>String: +</item>
-  /// <item>Relational: ==, !=, <, >, <=, >=</item>
+  /// <item>Relational: ==, !=, &lt;, &gt;, &lt;=, &gt;=</item>
   /// <item>Conditional: ?:</item>
   /// </list>
   /// Supported types:
@@ -60,9 +60,9 @@ namespace MediaPortal.UI.SkinEngine.MpfElements.Converters
     /// Evaluates a simple expression, given via the parameter <paramref name="parameter"/>.
     /// </summary>
     /// <remarks>
-    /// This converter will often be used in XAML files. Note that in XAML, an attribute beginning with a '{' character
-    /// is interpreted as an invocation of a markup extension. So the expression "{0} || {1}" must be escaped like this:
-    /// "{}{0} || {1}". Note also that the boolean AND operator (&&) must be escaped too like this: "{}{0} &amp;&amp; {1}".
+    /// This converter will often be used in XAML files. Note that in XAML, an attribute beginning with a <c>'{'</c> character
+    /// is interpreted as an invocation of a markup extension. So the expression "{0} + 5" must be escaped like this:
+    /// <c>"{}{0} + 5"</c>. Note also that the boolean AND operator (<c>"&&"</c>) must be escaped too like this: <c>"{}{0} &amp;&amp; true"</c>.
     /// </remarks>
     /// <param name="values">The values used for the variables {0} .. {n}.</param>
     /// <param name="targetType">Type to that the evaluated result should be converted.</param>

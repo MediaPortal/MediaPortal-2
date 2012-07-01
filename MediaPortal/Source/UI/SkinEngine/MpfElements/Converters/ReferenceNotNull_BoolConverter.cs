@@ -24,16 +24,15 @@
 
 using System;
 using System.Globalization;
-using MediaPortal.UI.SkinEngine.MarkupExtensions;
 using MediaPortal.UI.SkinEngine.Xaml;
 
 namespace MediaPortal.UI.SkinEngine.MpfElements.Converters
 {
-  public class ReferenceNotNull_BoolConverter : IValueConverter
+  public class ReferenceNotNull_BoolConverter : AbstractSingleDirectionConverter
   {
     #region IValueConverter implementation
 
-    public bool Convert(object val, Type targetType, object parameter, CultureInfo culture, out object result)
+    public override bool Convert(object val, Type targetType, object parameter, CultureInfo culture, out object result)
     {
       if (targetType == typeof(bool))
       {
@@ -41,13 +40,6 @@ namespace MediaPortal.UI.SkinEngine.MpfElements.Converters
         return true;
       }
       return TypeConverter.Convert(val, targetType, out result);
-    }
-
-    public bool ConvertBack(object val, Type targetType, object parameter, CultureInfo culture, out object result)
-    {
-      // We cannot invert the function given by this converter
-      result = null;
-      return false;
     }
 
     #endregion

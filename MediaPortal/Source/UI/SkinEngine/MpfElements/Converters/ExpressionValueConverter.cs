@@ -40,7 +40,7 @@ namespace MediaPortal.UI.SkinEngine.MpfElements.Converters
   /// <item>Arithmetic: +, -, *, /</item>
   /// <item>Boolean: !, ||, &&, ^</item>
   /// <item>String: +</item>
-  /// <item>Relational: ==, !=, <, >, <=, >=</item>
+  /// <item>Relational: ==, !=, &lt;, &gt;, &lt;=, &gt;=</item>
   /// <item>Conditional: ?:</item>
   /// </list>
   /// Supported types:
@@ -61,14 +61,14 @@ namespace MediaPortal.UI.SkinEngine.MpfElements.Converters
     /// Evaluates a simple expression, given via the parameter <paramref name="parameter"/>.
     /// </summary>
     /// <remarks>
-    /// This converter will often be used in XAML files. Note that in XAML, an attribute beginning with a '{' character
+    /// This converter will often be used in XAML files. Note that in XAML, an attribute beginning with a <c>'{'</c> character
     /// is interpreted as an invocation of a markup extension. So the expression "{0} + 5" must be escaped like this:
-    /// "{}{0} + 5". Note also that the boolean AND operator (&&) must be escaped too like this: "{}{0} &amp;&amp; true".
+    /// <c>"{}{0} + 5"</c>. Note also that the boolean AND operator (<c>"&&"</c>) must be escaped too like this: <c>"{}{0} &amp;&amp; true"</c>.
     /// </remarks>
     /// <param name="val">The value used for the variable {0}.</param>
     /// <param name="targetType">Type to that the evaluated result should be converted.</param>
     /// <param name="parameter">String containing the expression. The input variable can be accessed via {0},
-    /// for example "{0} * 9 > 5 ? 6 : 20".</param>
+    /// for example <c>"{0} * 9 > 5 ? 6 : 20"</c>.</param>
     /// <param name="culture">The current culture, which will be used for formatting.</param>
     /// <param name="result">Will return the evaluated result of the given <paramref name="targetType"/>.</param>
     public bool Convert(object val, Type targetType, object parameter, CultureInfo culture, out object result)
