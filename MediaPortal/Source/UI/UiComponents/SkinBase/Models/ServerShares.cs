@@ -40,7 +40,12 @@ namespace MediaPortal.UiComponents.SkinBase.Models
 {
   public class ServerShares : SharesProxy
   {
-    public ServerShares() : base(ShareEditMode.AddShare) { }
+    protected static ICollection<Share> _sharesCache = null;
+
+    public ServerShares() : base(ShareEditMode.AddShare)
+    {
+      _sharesCache = null;
+    }
 
     public ServerShares(Share share) : base(ShareEditMode.EditShare)
     {
@@ -92,7 +97,8 @@ namespace MediaPortal.UiComponents.SkinBase.Models
     {
       IServerConnectionManager serverConnectionManager = ServiceRegistration.Get<IServerConnectionManager>();
       IContentDirectory contentDirectory = GetContentDirectoryService();
-      return contentDirectory.GetShares(serverConnectionManager.HomeServerSystemId, SharesFilter.All);
+      _sharesCache = new List<Share>(contentDirectory.GetShares(serverConnectionManager.HomeServerSystemId, SharesFilter.All));
+      return _sharesCache;
     }
 
     public static void RemoveShares(IEnumerable<Share> shares)
@@ -106,6 +112,7 @@ namespace MediaPortal.UiComponents.SkinBase.Models
       }
       foreach (Share share in shares)
         contentDirectory.RemoveShare(share.ShareId);
+      _sharesCache = null;
     }
 
     public override void AddShare()
@@ -113,12 +120,14 @@ namespace MediaPortal.UiComponents.SkinBase.Models
       IServerConnectionManager serverConnectionManager = ServiceRegistration.Get<IServerConnectionManager>();
       IContentDirectory contentDirectory = GetContentDirectoryService();
       contentDirectory.RegisterShare(Share.CreateNewShare(serverConnectionManager.HomeServerSystemId, ChoosenResourcePath, ShareName, MediaCategories));
+      _sharesCache = null;
     }
 
     public override void UpdateShare(RelocationMode relocationMode)
     {
       IContentDirectory contentDirectory = GetContentDirectoryService();
       contentDirectory.UpdateShare(_origShare.ShareId, ChoosenResourcePath, ShareName, GetMediaCategoriesCleanedUp(), relocationMode);
+      _sharesCache = null;
     }
 
     public override void ReImportShare()
@@ -143,6 +152,20 @@ namespace MediaPortal.UiComponents.SkinBase.Models
     {
       IResourceInformationService ris = GetResourceInformationService();
       return ris.DoesResourceExist(path);
+    }
+
+    protected override bool ShareNameExists(string shareName)
+    {
+      if (_sharesCache == null)
+        GetShares();
+      return _sharesCache.Any(share => share.Name == shareName);
+    }
+
+    protected override bool SharePathExists(ResourcePath sharePath)
+    {
+      if (_sharesCache == null)
+        GetShares();
+      return _sharesCache.Any(share => share.BaseResourcePath == sharePath);
     }
 
     public override string GetResourcePathDisplayName(ResourcePath path)

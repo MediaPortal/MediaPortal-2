@@ -74,6 +74,10 @@ namespace MediaPortal.UiComponents.SkinBase.General
     public const string RES_ADD_SHARE_TITLE = "[SharesConfig.AddLocalShare]";
     public const string RES_EDIT_SHARE_TITLE = "[SharesConfig.EditLocalShare]";
 
+    public const string RES_SHARE_NAME_EXISTS = "[SharesConfig.ShareNameExists]";
+    public const string RES_SHARE_PATH_EXISTS = "[SharesConfig.SharePathExists]";
+    public const string RES_SHARE_NAME_EMPTY = "[SharesConfig.ShareNameEmpty]";
+
     public const string RES_EDIT_SHARE_PROBLEM = "[SharesConfig.EditShareProblemHeader]";
 
     public const string RES_REIMPORT_ALL_SHARES = "[SharesOverview.ReImportAllShares]";

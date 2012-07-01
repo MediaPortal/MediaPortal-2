@@ -753,7 +753,7 @@ namespace MediaPortal.UiComponents.SkinBase.Models
         }
         else if (workflowState == Consts.WF_STATE_ID_SHARE_EDIT_EDIT_PATH)
         {
-          // Nothing to prepare
+          _shareProxy.UpdateIsChoosenPathValid();
         }
         else if (workflowState == Consts.WF_STATE_ID_SHARE_EDIT_CHOOSE_PATH)
         {

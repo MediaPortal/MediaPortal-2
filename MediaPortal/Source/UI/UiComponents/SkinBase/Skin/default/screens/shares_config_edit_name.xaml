@@ -32,7 +32,9 @@
         <Label Grid.Row="0" Content="[SharesConfig.EditShareName]" Color="{ThemeResource TextColor}" Wrap="True"/>
         <TextBox Grid.Row="2" Margin="0,10,0,0"
             Text="{Binding Path=ShareProxy.ShareName,Mode=TwoWay}" PreferredTextLength="30"/>
-        <!-- Row 3 contains error message - not necessary here -->
+        <Label Content="{Binding ShareProxy.InvalidShareHint}" Color="{ThemeResource ErrorTextColor}" Wrap="True"
+            Grid.Row="3"
+            IsVisible="{Binding Converter={StaticResource EmptyStringToFalseConverter},Path=ShareProxy.InvalidShareHint}"/>
         <Grid Grid.Row="5" Margin="10,10,10,0">
           <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>

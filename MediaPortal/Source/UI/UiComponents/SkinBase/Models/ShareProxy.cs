@@ -65,6 +65,7 @@ namespace MediaPortal.UiComponents.SkinBase.Models
     protected ItemsList _resourceProviderPathsTree;
     protected AbstractProperty _shareNameProperty;
     protected AbstractProperty _isShareNameValidProperty;
+    protected AbstractProperty _invalidShareHintProperty;
     protected ItemsList _allMediaCategoriesTree;
     protected ICollection<string> _mediaCategories = new HashSet<string>();
     protected Share _origShare = null;
@@ -88,6 +89,7 @@ namespace MediaPortal.UiComponents.SkinBase.Models
       _shareNameProperty = new WProperty(typeof(string), string.Empty);
       _shareNameProperty.Attach(OnShareNameChanged);
       _isShareNameValidProperty = new WProperty(typeof(bool), true);
+      _invalidShareHintProperty = new WProperty(typeof(string), null);
       _allMediaCategoriesTree = new ItemsList();
       _mediaCategories = new HashSet<string>();
     }
@@ -114,6 +116,7 @@ namespace MediaPortal.UiComponents.SkinBase.Models
     void OnTreePathSelectionChanged(AbstractProperty property, object oldValue)
     {
       UpdateChoosenResourcePath();
+      UpdateIsChoosenPathValid();
     }
 
     void OnShareNameChanged(AbstractProperty shareName, object oldValue)
@@ -208,7 +211,13 @@ namespace MediaPortal.UiComponents.SkinBase.Models
     public ResourceProviderMetadata BaseResourceProvider
     {
       get { return (ResourceProviderMetadata) _baseResourceProviderProperty.GetValue(); }
-      set { _baseResourceProviderProperty.SetValue(value); }
+      set
+      {
+        ResourceProviderMetadata oldVAlue = (ResourceProviderMetadata) _baseResourceProviderProperty.GetValue();
+        _baseResourceProviderProperty.SetValue(value);
+        if (value == null || oldVAlue == null || value.ResourceProviderId != oldVAlue.ResourceProviderId)
+          ChoosenResourcePath = null;
+      }
     }
 
     public AbstractProperty NativeSystemProperty
@@ -336,6 +345,20 @@ namespace MediaPortal.UiComponents.SkinBase.Models
     {
       get { return (bool) _isShareNameValidProperty.GetValue(); }
       set { _isShareNameValidProperty.SetValue(value); }
+    }
+
+    public AbstractProperty InvalidShareHintProperty
+    {
+      get { return _invalidShareHintProperty; }
+    }
+
+    /// <summary>
+    /// Hint which tells the user why the choosen resource path or share name is not valid.
+    /// </summary>
+    public string InvalidShareHint
+    {
+      get { return (string) _invalidShareHintProperty.GetValue(); }
+      set { _invalidShareHintProperty.SetValue(value); }
     }
 
     /// <summary>
@@ -467,10 +490,21 @@ namespace MediaPortal.UiComponents.SkinBase.Models
 
     protected abstract ResourcePath ExpandResourcePathFromString(string path);
 
-    protected void UpdateIsChoosenPathValid()
+    protected abstract bool SharePathExists(ResourcePath sharePath);
+
+    protected internal void UpdateIsChoosenPathValid()
     {
-      ResourcePath path = ChoosenResourcePath;
-      IsChoosenPathValid = path == null ? false : GetIsPathValid(ChoosenResourcePath);
+      ResourcePath choosenResourcePath = ChoosenResourcePath;
+      ResourcePath path = choosenResourcePath;
+      bool result = path == null ? false : GetIsPathValid(choosenResourcePath);
+      if (SharePathExists(path))
+      {
+        InvalidShareHint = Consts.RES_SHARE_PATH_EXISTS;
+        result = false;
+      }
+      else
+        InvalidShareHint = null;
+      IsChoosenPathValid = result;
     }
 
     protected abstract bool GetIsPathValid(ResourcePath path);
@@ -483,9 +517,25 @@ namespace MediaPortal.UiComponents.SkinBase.Models
 
     public abstract string GetResourcePathDisplayName(ResourcePath path);
 
+    protected abstract bool ShareNameExists(string shareName);
+
     protected void UpdateIsShareNameValid()
     {
-      IsShareNameValid = !string.IsNullOrEmpty(ShareName);
+      string shareName = ShareName;
+      bool result = true;
+      string hint = null;
+      if (string.IsNullOrEmpty(shareName))
+      {
+        hint = Consts.RES_SHARE_NAME_EMPTY;
+        result = false;
+      }
+      else if (ShareNameExists(shareName))
+      {
+        hint = Consts.RES_SHARE_NAME_EXISTS;
+        result = false;
+      }
+      IsShareNameValid = result;
+      InvalidShareHint = hint;
     }
 
     protected ICollection<string> GetSelectedMediaCategories(ItemsList list)
@@ -579,6 +629,7 @@ namespace MediaPortal.UiComponents.SkinBase.Models
         return;
       }
       RefreshResourceProviderPathList(_resourceProviderPathsTree, ResourcePath.BuildBaseProviderPath(rpm.ResourceProviderId, "/"));
+      UpdateIsChoosenPathValid();
     }
 
     protected abstract IDictionary<string, MediaCategory> GetAllAvailableCategories();
@@ -694,6 +745,7 @@ namespace MediaPortal.UiComponents.SkinBase.Models
     {
       if (string.IsNullOrEmpty(ShareName))
         ShareName = SuggestShareName();
+      UpdateIsShareNameValid();
     }
 
     public abstract void ReImportShare();

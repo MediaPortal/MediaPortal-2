@@ -150,6 +150,18 @@ namespace MediaPortal.UiComponents.SkinBase.Models
       }
     }
 
+    protected override bool ShareNameExists(string shareName)
+    {
+      ILocalSharesManagement sharesManagement = ServiceRegistration.Get<ILocalSharesManagement>();
+      return sharesManagement.Shares.Values.Any(share => share.Name == shareName);
+    }
+
+    protected override bool SharePathExists(ResourcePath sharePath)
+    {
+      ILocalSharesManagement sharesManagement = ServiceRegistration.Get<ILocalSharesManagement>();
+      return sharesManagement.Shares.Values.Any(share => share.BaseResourcePath == sharePath);
+    }
+
     public override string GetResourcePathDisplayName(ResourcePath path)
     {
       return GetLocalResourcePathDisplayName(path);
