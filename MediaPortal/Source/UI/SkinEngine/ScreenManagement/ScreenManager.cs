@@ -898,7 +898,7 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
         ServiceRegistration.Get<ILogger>().Debug("ScreenManager: Hiding superlayer");
       else
       {
-        ServiceRegistration.Get<ILogger>().Debug("ScreenManager: Showing superlayer '{0}'");
+        ServiceRegistration.Get<ILogger>().Debug("ScreenManager: Showing superlayer '{0}'", screen.ResourceName);
         screen.Prepare();
       }
       lock (_syncObj)
