@@ -336,6 +336,10 @@ namespace MediaPortal.UiComponents.SkinBase.Models
       {
         DisconnectedError();
       }
+      catch (Exception e)
+      {
+        ErrorEditShare(e);
+      }
     }
 
     public void SelectResourceProviderAndContinue()
@@ -363,6 +367,10 @@ namespace MediaPortal.UiComponents.SkinBase.Models
       catch (NotConnectedException)
       {
         DisconnectedError();
+      }
+      catch (Exception e)
+      {
+        ErrorEditShare(e);
       }
     }
 
@@ -394,6 +402,10 @@ namespace MediaPortal.UiComponents.SkinBase.Models
       {
         DisconnectedError();
       }
+      catch (Exception e)
+      {
+        ErrorEditShare(e);
+      }
     }
 
     public void FinishDoRelocate()
@@ -418,6 +430,17 @@ namespace MediaPortal.UiComponents.SkinBase.Models
       {
         DisconnectedError();
       }
+      catch (Exception e)
+      {
+        ErrorEditShare(e);
+      }
+    }
+
+    protected void ErrorEditShare(Exception exc)
+    {
+      ServiceRegistration.Get<ILogger>().Warn("SharesConfigModel: Problem adding/editing share", exc);
+      IScreenManager screenManager = ServiceRegistration.Get<IScreenManager>();
+      screenManager.ShowScreen(Consts.SCREEN_SHARES_CONFIG_PROBLEM);
     }
 
     // Currently not used; the shares edit workflow is started from the shares info screen calling EditCurrentShare.
@@ -445,6 +468,10 @@ namespace MediaPortal.UiComponents.SkinBase.Models
       {
         DisconnectedError();
       }
+      catch (Exception e)
+      {
+        ErrorEditShare(e);
+      }
     }
 
     public void ReImportShare()
@@ -456,6 +483,10 @@ namespace MediaPortal.UiComponents.SkinBase.Models
       catch (NotConnectedException)
       {
         DisconnectedError();
+      }
+      catch (Exception e)
+      {
+        ErrorEditShare(e);
       }
     }
 
@@ -652,6 +683,10 @@ namespace MediaPortal.UiComponents.SkinBase.Models
       {
         DisconnectedError();
       }
+      catch (Exception e)
+      {
+        ErrorEditShare(e);
+      }
     }
 
     protected void UpdateProperties_NoLock()
@@ -736,6 +771,10 @@ namespace MediaPortal.UiComponents.SkinBase.Models
       catch (NotConnectedException)
       {
         DisconnectedError();
+      }
+      catch (Exception e)
+      {
+        ErrorEditShare(e);
       }
     }
 

@@ -195,6 +195,8 @@
   <string name="SharesConfig.ChooseResourceProviderPathForShare">Choose the path of the share</string>
   <string name="SharesConfig.EditShareName">Edit the share's display name</string>
   <string name="SharesConfig.ChooseShareCategories">Choose the categories of media contents located in the share</string>
+  <string name="SharesConfig.EditShareProblemHeader">Problem configuring share</string>
+  <string name="SharesConfig.EditShareProblemText">There was an internal error while configuring the share</string>
   <string name="SharesConfig.MenuAddShare">Add share</string>
   <string name="SharesConfig.MenuEditShares">Edit</string>
   <string name="SharesConfig.MenuRemoveShares">Remove shares</string>

@@ -74,6 +74,8 @@ namespace MediaPortal.UiComponents.SkinBase.General
     public const string RES_ADD_SHARE_TITLE = "[SharesConfig.AddLocalShare]";
     public const string RES_EDIT_SHARE_TITLE = "[SharesConfig.EditLocalShare]";
 
+    public const string RES_EDIT_SHARE_PROBLEM = "[SharesConfig.EditShareProblemHeader]";
+
     public const string RES_REIMPORT_ALL_SHARES = "[SharesOverview.ReImportAllShares]";
 
     public const string RES_CURRENT_MEDIA = "[Players.CurrentMediaInfo]";
@@ -210,5 +212,6 @@ namespace MediaPortal.UiComponents.SkinBase.General
     public const string SCREEN_SHARES_CONFIG_RELOCATE_DIALOG = "shares_config_relocate_dialog";
     public const string SCREEN_SUPERLAYER_VOLUME = "Volume";
     public const string DIALOG_ATTACH_TO_SERVER = "AttachToServerDialog";
+    public const string SCREEN_SHARES_CONFIG_PROBLEM = "shares_config_problem";
   }
 }
