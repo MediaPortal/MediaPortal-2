@@ -324,6 +324,27 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
             startPosition += desiredExtendsInOrientationDirection;
           }
         }
+        // 4) Add size gap for the last item if we use logical scrolling. If we scroll to the bottom/to the right, there might be a gap from the last item
+        //    to the end of the area. We need to add that gap to make the scroll bars show the correct size.
+        if (_doScroll)
+        {
+          float spaceLeft = actualExtendsInOrientationDirection;
+          for (int i = numVisibleChildren - 1; i > 0; i--)
+          {
+            FrameworkElement child = visibleChildren[i];
+            float childSize = GetExtendsInOrientationDirection(Orientation, child.DesiredSize);
+            if (childSize < spaceLeft + DELTA_DOUBLE)
+              spaceLeft -= childSize;
+            else
+            {
+              if (Orientation == Orientation.Vertical)
+                _totalHeight += spaceLeft;
+              else
+                _totalWidth += spaceLeft;
+              break;
+            }
+          }
+        }
       }
       else
       {

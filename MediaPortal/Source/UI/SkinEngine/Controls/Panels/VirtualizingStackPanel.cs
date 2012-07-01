@@ -496,10 +496,13 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
             _arrangedItems.Add(item);
           }
           int numInvisible = numItems - _arrangedItems.Count;
+          float invisibleRequiredSize = numInvisible * _averageItemSize;
+          if (_doScroll)
+            invisibleRequiredSize += actualExtendsInOrientationDirection % _averageItemSize; // Size gap from the last item to the end of the actual extends
           if (Orientation == Orientation.Vertical)
-            _totalHeight += numInvisible * _averageItemSize;
+            _totalHeight += invisibleRequiredSize;
           else
-            _totalWidth += numInvisible * _averageItemSize;
+            _totalWidth += invisibleRequiredSize;
 
           itemProvider.Keep(_arrangedItemsStartIndex - INVISIBLE_KEEP_THRESHOLD,
               _arrangedItemsStartIndex + _arrangedItems.Count + INVISIBLE_KEEP_THRESHOLD);
