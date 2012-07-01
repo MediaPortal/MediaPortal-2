@@ -153,13 +153,13 @@ namespace MediaPortal.UiComponents.SkinBase.Models
     protected override bool ShareNameExists(string shareName)
     {
       ILocalSharesManagement sharesManagement = ServiceRegistration.Get<ILocalSharesManagement>();
-      return sharesManagement.Shares.Values.Any(share => share.Name == shareName);
+      return sharesManagement.Shares.Values.Any(share => share.ShareId != _origShare.ShareId && share.Name == shareName);
     }
 
     protected override bool SharePathExists(ResourcePath sharePath)
     {
       ILocalSharesManagement sharesManagement = ServiceRegistration.Get<ILocalSharesManagement>();
-      return sharesManagement.Shares.Values.Any(share => share.BaseResourcePath == sharePath);
+      return sharesManagement.Shares.Values.Any(share => share.ShareId != _origShare.ShareId && share.BaseResourcePath == sharePath);
     }
 
     public override string GetResourcePathDisplayName(ResourcePath path)

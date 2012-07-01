@@ -158,14 +158,14 @@ namespace MediaPortal.UiComponents.SkinBase.Models
     {
       if (_sharesCache == null)
         GetShares();
-      return _sharesCache.Any(share => share.Name == shareName);
+      return _sharesCache.Any(share => share.ShareId != _origShare.ShareId && share.Name == shareName);
     }
 
     protected override bool SharePathExists(ResourcePath sharePath)
     {
       if (_sharesCache == null)
         GetShares();
-      return _sharesCache.Any(share => share.BaseResourcePath == sharePath);
+      return _sharesCache.Any(share => share.ShareId != _origShare.ShareId && share.BaseResourcePath == sharePath);
     }
 
     public override string GetResourcePathDisplayName(ResourcePath path)
