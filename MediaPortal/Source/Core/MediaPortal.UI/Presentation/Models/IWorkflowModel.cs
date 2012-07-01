@@ -282,7 +282,8 @@ namespace MediaPortal.UI.Presentation.Models
     /// must contain a valid screen. In case the return value is <see cref="ScreenUpdateMode.ManualWorkflowModel"/>,
     /// the callee is responsible for showing the correct screen. It might do that in this method or
     /// in one of the <see cref="EnterModelContext"/>/<see cref="ChangeModelContext"/> methods.
-    /// This parameter won't be evaluated by the caller and may be ignored.</param>
+    /// If the return value is <see cref="ScreenUpdateMode.ManualWorkflowModel"/>, this parameter won't be evaluated
+    /// by the caller.</param>
     /// <returns>Mode to configure how the screen for the current workflow navigation <paramref name="context"/> should
     /// be set.</returns>
     ScreenUpdateMode UpdateScreen(NavigationContext context, ref string screen);
