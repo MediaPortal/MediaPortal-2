@@ -939,7 +939,8 @@
       </Grid.RowDefinitions>
       <Label x:Name="ItemLabel" Grid.Row="1" Grid.Column="0" Content="{Binding MovieName}" HorizontalAlignment="Center"
           Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}"/>
-      <Image Width="{StaticResource MEDIA_POSTER_WIDTH}" Height="{StaticResource MEDIA_POSTER_HEIGHT}" Stretch="Uniform" Grid.Row="0" Grid.Column="1">
+      <Image Width="{StaticResource MEDIA_POSTER_WIDTH}" Height="{StaticResource MEDIA_POSTER_HEIGHT}" Stretch="Uniform" Grid.Row="0" Grid.Column="1"
+        FallbackSource="VideoLarge.png">
         <Image.Source>
           <fanart:FanArtImageSource fanart:FanArtMediaType="Movie" fanart:FanArtType="Poster" fanart:FanArtName="{Binding MovieName}"
                                     fanart:MaxWidth="{StaticResource FANART_POSTER_WIDTH}" fanart:MaxHeight="{StaticResource FANART_POSTER_HEIGHT}"/>
