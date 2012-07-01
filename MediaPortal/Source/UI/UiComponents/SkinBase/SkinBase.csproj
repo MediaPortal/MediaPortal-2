@@ -119,7 +119,7 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="plugin.xml" />
-    <Content Include="Language\strings_en.xml"/>
+    <Content Include="Language\strings_en.xml" />
     <Content Include="Resources\ConfigurationImages\default-22.png" />
     <Content Include="Resources\ConfigurationImages\default-48.png" />
     <Content Include="Resources\ConfigurationImages\folders-22.png" />
@@ -205,7 +205,7 @@
     <Content Include="Skin\default\themes\black\styles\Colors.xaml" />
     <Content Include="Skin\default\backgrounds\default-background.xaml" />
     <Content Include="Skin\default\backgrounds\video-background.xaml" />
-    <Content Include="Skin\default\backgrounds\image-background.xaml"/>
+    <Content Include="Skin\default\backgrounds\image-background.xaml" />
     <Content Include="Skin\default\superlayers\BusyCursor.xaml" />
     <Content Include="Skin\default\superlayers\Volume.xaml" />
     <Content Include="Skin\default\superlayers\ScreenSaver.xaml" />
@@ -232,7 +232,7 @@
     <Content Include="Skin\default\themes\default\styles\Brushes.xaml" />
     <Content Include="Skin\default\themes\default\styles\BusyCursor.xaml" />
     <Content Include="Skin\default\screens\DialogPlayerConfiguration.xaml" />
-    <Content Include="Skin\default\screens\SharesOverview.xaml"/>
+    <Content Include="Skin\default\screens\SharesOverview.xaml" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Skin\default\fonts\DejaVuSans.desc" />

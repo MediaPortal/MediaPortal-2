@@ -236,7 +236,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
         if (_newItemProvider != null)
         {
           if (children.Count > 0)
-          children.Clear(false);
+            children.Clear(false);
           if (_itemProvider != null)
             MPF.TryCleanupAndDispose(_itemProvider);
           _itemProvider = _newItemProvider;
