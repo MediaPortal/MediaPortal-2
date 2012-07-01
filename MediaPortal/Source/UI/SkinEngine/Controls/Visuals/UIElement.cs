@@ -1175,11 +1175,11 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       return null;
     }
 
-    public UIElement FindElementInNamescope(string name)
+    public DependencyObject FindElementInNamescope(string name)
     {
       INameScope nameScope = FindNameScope();
       if (nameScope != null)
-        return nameScope.FindName(name) as UIElement;
+        return nameScope.FindName(name) as DependencyObject;
       return null;
     }
 
