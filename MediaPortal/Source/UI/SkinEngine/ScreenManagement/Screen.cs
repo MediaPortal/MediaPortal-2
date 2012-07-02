@@ -653,7 +653,7 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
     public RenderContext CreateInitialRenderContext()
     {
       Matrix transform = Matrix.Scaling((float) SkinContext.WindowSize.Width / _skinWidth, (float) SkinContext.WindowSize.Height / _skinHeight, 1);
-      return new RenderContext(transform, null, new RectangleF(0, 0, _skinWidth, _skinHeight));
+      return new RenderContext(transform, new RectangleF(0, 0, _skinWidth, _skinHeight));
     }
 
     protected RectangleF CreateCenterRect()

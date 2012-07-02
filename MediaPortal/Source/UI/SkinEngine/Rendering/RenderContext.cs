@@ -34,7 +34,6 @@ namespace MediaPortal.UI.SkinEngine.Rendering
     protected readonly float _zOrder = 1.0f;
     protected readonly double _opacity = 1.0f;
     protected readonly Matrix _transform;
-    protected readonly Matrix? _additionalMouseTransform;
     protected RectangleF _transformedRenderBounds = RectangleF.Empty;
 
     #endregion
@@ -45,15 +44,10 @@ namespace MediaPortal.UI.SkinEngine.Rendering
     /// Creates a new instance of this class.
     /// </summary>
     /// <param name="startingTransform">Initial transform to use in this context.</param>
-    /// <param name="additionalMouseTransform">If the render position differs from the final screen position (for example
-    /// in case the element gets rendered into a texture which will be transformed again), this parameter should be set to
-    /// the transform which will be applied to the rendered element after the actual rendering procedure this context
-    /// is built for.</param>
     /// <param name="untransformedBounds">Bounds of the element currently being rendered, in local space.</param>
-    public RenderContext(Matrix startingTransform, Matrix? additionalMouseTransform, RectangleF untransformedBounds)
+    public RenderContext(Matrix startingTransform, RectangleF untransformedBounds)
     {
       _transform = startingTransform;
-      _additionalMouseTransform = additionalMouseTransform;
       SetUntransformedContentsBounds(untransformedBounds);
     }
 
@@ -61,16 +55,14 @@ namespace MediaPortal.UI.SkinEngine.Rendering
     /// Creates a new instance of this class. This constructor gets typically called from the <see cref="Derive"/> method.
     /// </summary>
     /// <param name="transform">Combined current transformation to use in this context.</param>
-    /// <param name="additionalMouseTransform">Combined additional transformation matrix for mouse coordinates.</param>
     /// <param name="opacity">Combined opacity value.</param>
     /// <param name="untransformedBounds">Bounds of the element currently being rendered, in local space.</param>
     /// <param name="zOrder">Z coordinate of the currently rendered element.</param>
-    public RenderContext(Matrix transform, Matrix? additionalMouseTransform, double opacity, RectangleF untransformedBounds, float zOrder)
+    public RenderContext(Matrix transform, double opacity, RectangleF untransformedBounds, float zOrder)
     {
       _zOrder = zOrder;
       _opacity = opacity;
       _transform = transform;
-      _additionalMouseTransform = additionalMouseTransform;
       SetUntransformedContentsBounds(untransformedBounds);
     }
 
@@ -108,7 +100,7 @@ namespace MediaPortal.UI.SkinEngine.Rendering
         transform *= Matrix.Translation(new Vector3(origin.X, origin.Y, 0));
         finalTransform = transform * finalTransform;
       }
-      RenderContext result = new RenderContext(finalTransform, _additionalMouseTransform, _opacity * localOpacity, bounds, _zOrder - 0.001f);
+      RenderContext result = new RenderContext(finalTransform, _opacity * localOpacity, bounds, _zOrder - 0.001f);
       return result;
     }
 
@@ -129,11 +121,6 @@ namespace MediaPortal.UI.SkinEngine.Rendering
     public Matrix Transform
     {
       get { return _transform; }
-    }
-
-    public Matrix MouseTransform
-    {
-      get { return _additionalMouseTransform.HasValue ? _transform * _additionalMouseTransform.Value : _transform; }
     }
 
     public RectangleF OccupiedTransformedBounds

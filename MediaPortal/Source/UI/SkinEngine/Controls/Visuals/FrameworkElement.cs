@@ -1322,8 +1322,10 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 
     public override bool IsInArea(float x, float y)
     {
-      return x >= ActualPosition.X && x <= ActualPosition.X + ActualWidth &&
-          y >= ActualPosition.Y && y <= ActualPosition.Y + ActualHeight;
+      PointF actualPosition = ActualPosition;
+      double actualWidth = ActualWidth;
+      double actualHeight = ActualHeight;
+      return x >= actualPosition.X && x <= actualPosition.X + actualWidth && y >= actualPosition.Y && y <= actualPosition.Y + actualHeight;
     }
 
     public Style CopyDefaultStyle()
@@ -1707,7 +1709,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 
       RenderContext localRenderContext = parentRenderContext.Derive(bounds, layoutTransformMatrix,
           renderTransformMatrix, RenderTransformOrigin, Opacity);
-      _inverseFinalTransform = Matrix.Invert(localRenderContext.MouseTransform);
+      _inverseFinalTransform = Matrix.Invert(localRenderContext.Transform);
 
       Brushes.Brush opacityMask = OpacityMask;
       if (opacityMask == null && Effect == null)
@@ -1727,7 +1729,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
           return;
 
         // Create a temporary render context and render the control to the render texture
-        RenderContext tempRenderContext = new RenderContext(localRenderContext.Transform, Matrix.Identity, localRenderContext.Opacity, bounds, localRenderContext.ZOrder);
+        RenderContext tempRenderContext = new RenderContext(localRenderContext.Transform, localRenderContext.Opacity, bounds, localRenderContext.ZOrder);
         RenderToSurface(renderSurface, tempRenderContext);
 
         // Unfortunately, brushes/brush effects are based on textures and cannot work with surfaces, so we need this additional copy step
@@ -1761,7 +1763,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
           }
 
           // Now render the opacity texture with the OpacityMask brush)
-          if (opacityMask.BeginRenderOpacityBrush(renderTexture.Texture, new RenderContext(Matrix.Identity, Matrix.Identity, bounds)))
+          if (opacityMask.BeginRenderOpacityBrush(renderTexture.Texture, new RenderContext(Matrix.Identity, bounds)))
           {
             _opacityMaskContext.Render(0);
             opacityMask.EndRender();
@@ -1773,7 +1775,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
         if (effect != null)
         {
           UpdateEffectMask(tempRenderContext.OccupiedTransformedBounds, renderTexture.Width, renderTexture.Height, localRenderContext.ZOrder);
-          if (effect.BeginRender(renderTexture.Texture, new RenderContext(Matrix.Identity, Matrix.Identity, 1.0d, bounds, localRenderContext.ZOrder)))
+          if (effect.BeginRender(renderTexture.Texture, new RenderContext(Matrix.Identity, 1.0d, bounds, localRenderContext.ZOrder)))
           {
             _effectContext.Render(0);
             effect.EndRender();

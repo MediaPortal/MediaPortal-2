@@ -79,10 +79,10 @@ namespace MediaPortal.UI.SkinEngine.MpfElements
       _objectClassRegistrations.Add("GridLength", typeof(SkinEngine.Controls.Panels.GridLength));
       _objectClassRegistrations.Add("WrapPanel", typeof(SkinEngine.Controls.Panels.WrapPanel));
       _objectClassRegistrations.Add("UniformGrid", typeof(SkinEngine.Controls.Panels.UniformGrid));
-      _objectClassRegistrations.Add("BackgroundEffect", typeof(SkinEngine.Controls.Panels.BackgroundEffect));
 
       // Visuals
       _objectClassRegistrations.Add("ARRetainingControl", typeof(SkinEngine.Controls.Visuals.ARRetainingControl));
+      _objectClassRegistrations.Add("BackgroundEffect", typeof(SkinEngine.Controls.Visuals.BackgroundEffect));
       _objectClassRegistrations.Add("Control", typeof(SkinEngine.Controls.Visuals.Control));
       _objectClassRegistrations.Add("ContentControl", typeof(SkinEngine.Controls.Visuals.ContentControl));
       _objectClassRegistrations.Add("Border", typeof(SkinEngine.Controls.Visuals.Border));

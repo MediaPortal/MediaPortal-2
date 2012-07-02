@@ -108,8 +108,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
 
     void UpdateRenderTarget(FrameworkElement fe)
     {
-      fe.RenderToSurface(_visualSurface, new RenderContext(Matrix.Identity, Matrix.Identity, Opacity,
-          new RectangleF(new PointF(0.0f, 0.0f), _vertsBounds.Size), 1.0f));
+      fe.RenderToSurface(_visualSurface, new RenderContext(Matrix.Identity, Opacity, new RectangleF(new PointF(0.0f, 0.0f), _vertsBounds.Size), 1.0f));
 
       // Unfortunately, brushes/brush effects are based on textures and cannot work with surfaces, so we need this additional copy step
       GraphicsDevice.Device.StretchRectangle(
