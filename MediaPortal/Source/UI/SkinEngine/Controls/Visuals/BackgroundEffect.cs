@@ -1,12 +1,35 @@
-﻿using System.Drawing;
-using MediaPortal.UI.SkinEngine.Controls.Visuals;
+﻿#region Copyright (C) 2007-2012 Team MediaPortal
+
+/*
+    Copyright (C) 2007-2012 Team MediaPortal
+    http://www.team-mediaportal.com
+
+    This file is part of MediaPortal 2
+
+    MediaPortal 2 is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    MediaPortal 2 is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with MediaPortal 2. If not, see <http://www.gnu.org/licenses/>.
+*/
+
+#endregion
+
+using System.Drawing;
 using MediaPortal.UI.SkinEngine.Rendering;
 using MediaPortal.UI.SkinEngine.SkinManagement;
 using SlimDX;
 using SlimDX.Direct3D9;
 using Effect = MediaPortal.UI.SkinEngine.Controls.Visuals.Effects.Effect;
 
-namespace MediaPortal.UI.SkinEngine.Controls.Panels
+namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 {
   /// <summary>
   /// Helper control to capture the already rendered screen from the backbuffer, so that any <see cref="Effect"/> can be applied to it.
@@ -30,7 +53,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
       Matrix? renderTransformMatrix = RenderTransform == null ? new Matrix?() : RenderTransform.GetTransform();
 
       RenderContext localRenderContext = parentRenderContext.Derive(bounds, layoutTransformMatrix, renderTransformMatrix, RenderTransformOrigin, Opacity);
-      _inverseFinalTransform = Matrix.Invert(localRenderContext.MouseTransform);
+      _inverseFinalTransform = Matrix.Invert(localRenderContext.Transform);
 
       DeviceEx device = SkinContext.Device;
       Surface backBuffer = device.GetRenderTarget(0);
@@ -46,7 +69,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
       Effect effect = Effect;
 
       UpdateEffectMask(localRenderContext.OccupiedTransformedBounds, desc.Width, desc.Height, localRenderContext.ZOrder);
-      if (effect.BeginRender(_texture, new RenderContext(Matrix.Identity, Matrix.Identity, 1.0d, bounds, localRenderContext.ZOrder)))
+      if (effect.BeginRender(_texture, new RenderContext(Matrix.Identity, 1.0d, bounds, localRenderContext.ZOrder)))
       {
         _effectContext.Render(0);
         effect.EndRender();
