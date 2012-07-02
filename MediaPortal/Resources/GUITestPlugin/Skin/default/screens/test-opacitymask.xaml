@@ -7,7 +7,7 @@
         Content="OpacityMask tests"
         Color="{ThemeResource TextColor}" Wrap="True"/>
     <Label DockPanel.Dock="Top" HorizontalAlignment="Center"
-        Content="This screen shows different controls, somtimes animated, with an OpacityMask. The opacity mask should always cover the complete enclosing panel, adapt its size to the panel and span from the left side (transparent) to the right side (opaque)."
+        Content="This screen shows different controls, sometimes animated, with an OpacityMask. The opacity mask should always cover the complete enclosing panel, adapt its size to the panel and span from the left side (transparent) to the right side (opaque)."
         Wrap="True" FontSize="{ThemeResource SmallFontSize}"
         Color="{ThemeResource TextColor}"/>
     <Grid DockPanel.Dock="Center">
