@@ -1,8 +1,3 @@
 @echo off
-
-set ProgramDir=%ProgramFiles%
-if exist "%ProgramFiles(x86)%" set ProgramDir=%ProgramFiles(x86)%
-
-"%ProgramDir%\Microsoft Visual Studio 10.0\Common7\IDE\devenv.com" /rebuild Release ..\TransifexHelper\TransifexHelper.sln > push.log
-
-..\TransifexHelper\bin\Release\TransifexHelper_MP2.exe --ToCache -t "%cd%\..\.." >> push.log
+@"%WINDIR%\Microsoft.NET\Framework\v4.0.30319\MSBUILD.exe" /target:Rebuild /property:Configuration=Release;Platform=x86 ..\TransifexHelper\TransifexHelper.sln > verify.log
+..\TransifexHelper\bin\x86\Release\TransifexHelper.exe --ToCache -t "%cd%\..\.." >> push.log
