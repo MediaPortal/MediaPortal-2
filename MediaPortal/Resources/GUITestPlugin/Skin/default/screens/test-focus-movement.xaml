@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Screen
+    xmlns="www.team-mediaportal.com/2008/mpf/directx"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+  <DockPanel LastChildFill="False">
+    <Label DockPanel.Dock="Top" HorizontalAlignment="Center"
+        Content="Focus movement test"
+        Color="{ThemeResource TextColor}" Wrap="True"/>
+    <Label DockPanel.Dock="Top" HorizontalAlignment="Center"
+        Content="This screen various elements which are focusable and not focusable. The focus movement system should move the focus to the next focusable element and skip not focusable elements."
+        Wrap="True" FontSize="{ThemeResource SmallFontSize}"
+        Color="{ThemeResource TextColor}"/>
+    <Grid x:Name="ContentPanel" DockPanel.Dock="Center" SetFocusPrio="DefaultHigh"
+        HorizontalAlignment="Center" VerticalAlignment="Center">
+      <Grid.ColumnDefinitions>
+        <ColumnDefinition Width="*"/>
+      </Grid.ColumnDefinitions>
+      <Grid.RowDefinitions>
+        <RowDefinition Height="Auto"/>
+        <RowDefinition Height="Auto"/>
+        <RowDefinition Height="Auto"/>
+        <RowDefinition Height="Auto"/>
+        <RowDefinition Height="Auto"/>
+      </Grid.RowDefinitions>
+      <Button Grid.Row="0" Content="Focusable button"/>
+      <Button Grid.Row="1" Content="Disabled - not focusable" IsEnabled="false"/>
+      <Button Grid.Row="2" Content="Other focusable button"/>
+      <StackPanel Grid.Row="3">
+        <Label Content="Not focusable label"/>
+      </StackPanel>
+      <Button Grid.Row="4" Content="Focusable button"/>
+    </Grid>
+  </DockPanel>
+
+</Screen>

@@ -41,14 +41,14 @@
             <Button Style="{StaticResource ButtonWideStyle}" Content="VirtualKeyboard test"
                 HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
                 Command="{Command Source={StaticResource Model},Path=ShowScreenInTransientState,Parameters=test-virtualkeyboardcontrol}"/>
-            <Button Style="{StaticResource ButtonWideStyle}" Content="Button 'Focus Down' issue"
-                HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
-                Command="{Command Source={StaticResource Model},Path=ShowScreenInTransientState,Parameters=bug-button-focus}"/>
           </StackPanel>
           <StackPanel Orientation="Vertical" Margin="5,0,0,0">
             <Button Style="{StaticResource ButtonWideStyle}" Content="Border test"
                 HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
                 Command="{Command Source={StaticResource Model},Path=ShowScreenInTransientState,Parameters=test-border}"/>
+            <Button Style="{StaticResource ButtonWideStyle}" Content="Focus movement test"
+                HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+                Command="{Command Source={StaticResource Model},Path=ShowScreenInTransientState,Parameters=test-focus-movement}"/>
           </StackPanel>
         </UniformGrid>
       </DockPanel>

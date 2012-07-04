@@ -1432,7 +1432,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     /// visible, focusable and enabled.</returns>
     public virtual FrameworkElement PredictFocus(RectangleF? currentFocusRect, MoveFocusDirection dir)
     {
-      if (!IsVisible)
+      if (!IsVisible ||!IsEnabled)
         return null;
       ICollection<FrameworkElement> focusableChildren = new List<FrameworkElement>();
       AddPotentialFocusableElements(currentFocusRect, focusableChildren);
@@ -1607,7 +1607,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     /// <param name="elements">Collection to add elements which are able to get the focus.</param>
     public virtual void AddPotentialFocusableElements(RectangleF? startingRect, ICollection<FrameworkElement> elements)
     {
-      if (!IsVisible)
+      if (!IsVisible || !IsEnabled)
         return;
       if (Focusable)
         elements.Add(this);
@@ -1615,7 +1615,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       ICollection<FrameworkElement> children = GetFEChildren();
       foreach (FrameworkElement child in children)
       {
-        if (!child.IsVisible)
+        if (!child.IsVisible || !child.IsEnabled)
           continue;
         child.AddPotentialFocusableElements(startingRect, elements);
       }
