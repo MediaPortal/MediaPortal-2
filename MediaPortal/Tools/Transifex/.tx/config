@@ -9,7 +9,7 @@ file_filter=Cache\SlimTvClient\strings_<lang>.xml
 source_file=Cache\SlimTvClient\strings_en.xml
 type=ANDROID
 [main]
-host= https://www.transifex.net
+host= https://www.transifex.com
 [MP2.TV4Home]
 source_lang=en
 file_filter=Cache\TV4Home\strings_<lang>.xml
