@@ -50,7 +50,7 @@ namespace MediaPortal.UiComponents.SkinBase.Models
     #region Protected fields
 
     protected ICollection<WorkflowAction> _registeredActions = new List<WorkflowAction>();
-    protected AbstractProperty _showMenuProperty;
+    protected AbstractProperty _isMenuOpenProperty;
     protected object _syncObj = new object();
     protected bool _dirty = true;
 
@@ -59,7 +59,7 @@ namespace MediaPortal.UiComponents.SkinBase.Models
     public MenuModel()
     {
       SubscribeToMessages();
-      _showMenuProperty = new SProperty(typeof(bool), true);
+      _isMenuOpenProperty = new SProperty(typeof(bool), true);
     }
 
     #region Private & protected methods
@@ -364,30 +364,42 @@ namespace MediaPortal.UiComponents.SkinBase.Models
       }
     }
 
-    public AbstractProperty ShowMenuProperty
+    public AbstractProperty IsMenuOpenProperty
     {
-      get { return _showMenuProperty; }
+      get { return _isMenuOpenProperty; }
     }
 
-    public bool ShowMenu
+    /// <summary>
+    /// Gets or sets an indicator if the menu is open (<c>true</c>) or closed (<c>false</c>).
+    /// </summary>
+    public bool IsMenuOpen
     {
-      get { return (bool) _showMenuProperty.GetValue(); }
-      set { _showMenuProperty.SetValue(value); }
+      get { return (bool) _isMenuOpenProperty.GetValue(); }
+      set { _isMenuOpenProperty.SetValue(value); }
     }
 
+    /// <summary>
+    /// Toggles the menu state from open to close and back.
+    /// </summary>
     public void ToggleMenu()
     {
-      ShowMenu = !ShowMenu;
+      IsMenuOpen = !IsMenuOpen;
     }
 
+    /// <summary>
+    /// Opens the menu by setting the <see cref="IsMenuOpen"/> to <c>true</c>.
+    /// </summary>
     public void OpenMenu()
     {
-      ShowMenu = true;
+      IsMenuOpen = true;
     }
 
+    /// <summary>
+    /// Closes the menu by setting the <see cref="IsMenuOpen"/> to <c>false</c>.
+    /// </summary>
     public void CloseMenu()
     {
-      ShowMenu = false;
+      IsMenuOpen = false;
     }
 
     #endregion
