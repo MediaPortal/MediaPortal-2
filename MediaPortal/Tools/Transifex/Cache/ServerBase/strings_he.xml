@@ -1,0 +1,18 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<resources>
+  <string name="MainForm.Title">אפליקצית שרת של מדיה פורטל 2</string>
+  <string name="MainForm.AttachedClients">לקוחות מחוברים</string>
+  <string name="MainForm.Client">לקוח</string>
+  <string name="MainForm.System">מערכת</string>
+  <string name="MainForm.ConnectionState">מצב חיבור</string>
+  <string name="MainForm.Connected">מחובר</string>
+  <string name="MainForm.Disconnected">מנותק</string>
+  <string name="UPnPBackendServer.DefaultFriendlyName">שרת מדיה פורטל 2</string>
+  <string name="UPnPBackendServer.Manufacturer">Team Mediaportal</string>
+  <string name="UPnPBackendServer.ManufacturerUrl">www.team-mediaportal.com</string>
+  <string name="UPnPBackendServer.ModelDescription">שרת מדיה פורטל 2 - מאחסן קבצי אודיו, וידאו ותמונות, ומספק מסד נתוני מדיה</string>
+  <string name="UPnPBackendServer.ModelName">שרת מדיה פורטל 2</string>
+  <string name="UPnPBackendServer.ModelNumber">1</string>
+  <!--<string Name="UPnPBackendServer.ModelUrl">...</string>-->
+  <string name="MediaLibrary.EmptyOrMiscCharGroupName"><Empty or misc. character></string>
+</resources>

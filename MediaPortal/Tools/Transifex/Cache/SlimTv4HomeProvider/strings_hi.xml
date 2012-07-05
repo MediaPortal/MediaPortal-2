@@ -1,0 +1,8 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<resources>
+  <string name="Settings.Plugins.TV">टीवी</string>
+  <string name="Settings.Plugins.TV.TV4HomeServerAddress">Tv4Home सर्वर पता</string>
+  <string name="Settings.Plugins.TV.TV4HomeServerAddress.Help">सर्वर नाम या IP पता,  \';\' के द्वारा अलग (लोकलहोस्ट के लिए डिफ़ॉल्ट रखें).</string>
+  <string name="Settings.Plugins.TV.ConnectionErrorTitle">कनेक्शन त्रुटि</string>
+  <string name="Settings.Plugins.TV.ConnectionErrorText">Tv4Home - सर्वर से जुड़ नहीं सका: {0}</string>
+</resources>

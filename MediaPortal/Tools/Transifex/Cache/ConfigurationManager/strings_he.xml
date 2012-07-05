@@ -1,0 +1,9 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<resources>
+  <!--FIXME: Move those language resources to Manager application (or to a support plugin)-->
+  <string name="configuration.save_on_exit">האם לשמור שינויים?</string>
+  <string name="configuration.unsaved_warning">אזהרה: ישנם שינויים שלא נשמרו</string>
+  <string name="configuration.browse">בחר</string>
+  <string name="configuration.areas.settings">הגדרות</string>
+  <string name="configuration.areas.logs">יומן</string>
+</resources>

@@ -1,0 +1,8 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<resources>
+  <string name="Settings.Players.Image">छवि प्लेयर</string>
+  <string name="Settings.Players.Image.SlideShowImageDuration">स्लाइडशो छवि की अवधि</string>
+  <string name="Settings.Players.Image.SlideShowImageDuration.Help">स्लाइडशो मोड में हरेक छवि के दृश्यमान होने की अवधि सेकेंड में निर्धारित करें</string>
+  <string name="Settings.Players.Image.KenBurnsEffect">केन बर्न्स प्रभाव का उपयोग करें</string>
+  <string name="Settings.Players.Image.KenBurnsEffect.Help">किसी छवि को दिखाने के दौरान पैन और ज़ूम एनिमेशन का उपयोग करें</string>
+</resources>

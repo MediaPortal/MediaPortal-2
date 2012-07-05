@@ -1,0 +1,10 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<resources>
+  <string name="HelloWorld.MenuEntry"></string>
+  <string name="HelloWorld.StateDisplayLabel"></string>
+  <string name="HelloWorld.ScreenTitle"></string>
+  <string name="HelloWorld.HelloWorldText"></string>
+  <string name="HelloWorld.SampleText"></string>
+  <string name="HelloWorld.ButtonText"></string>
+  <string name="HelloWorld.ButtonTextCommandExecuted"></string>
+</resources>

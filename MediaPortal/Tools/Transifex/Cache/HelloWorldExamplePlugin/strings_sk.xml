@@ -1,0 +1,10 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<resources>
+  <string name="HelloWorld.MenuEntry">Hello world</string>
+  <string name="HelloWorld.StateDisplayLabel">Stav Hello world</string>
+  <string name="HelloWorld.ScreenTitle">Obrazovka Hello world</string>
+  <string name="HelloWorld.HelloWorldText">Stlačenie tlačidla zmení tento text</string>
+  <string name="HelloWorld.SampleText">Toto je ukážka obrazovky doplnku HelloWorld</string>
+  <string name="HelloWorld.ButtonText">Stlačte ma</string>
+  <string name="HelloWorld.ButtonTextCommandExecuted">Gratulujeme, práve ste spustili príkaz.</string>
+</resources>

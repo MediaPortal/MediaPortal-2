@@ -1,0 +1,10 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<resources>
+  <string name="Settings.Players">Lecteurs</string>
+  <string name="Settings.Players.Rendering">Type de rendu</string>
+  <string name="Settings.Players.Rendering.CrossFading">Fondu enchainé</string>
+  <string name="Settings.Players.Rendering.CrossFading.CrossFadingEnabled">Fondu enchainé activé</string>
+  <string name="Settings.Players.Rendering.CrossFading.CrossFadingEnabled.Help">Détermine si MediaPortal doit activer le fondu enchainé, si possible</string>
+  <string name="Settings.Players.Rendering.CrossFading.CrossFadeDuration">Durée du fondu enchainé</string>
+  <string name="Settings.Players.Rendering.CrossFading.CrossFadeDuration.Help">Temps de fondu enchainé en seconde</string>
+</resources>

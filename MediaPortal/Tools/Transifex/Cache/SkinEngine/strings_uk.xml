@@ -1,0 +1,82 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<resources>
+  <string name="Settings.Appearance.System">Система</string>
+  <string name="Settings.Appearance.System.Fullscreen"></string>
+  <string name="Settings.Appearance.System.Fullscreen.Help"></string>
+  <string name="Settings.Appearance.System.CellPhoneInputStyle"></string>
+  <string name="Settings.Appearance.System.CellPhoneInputStyle.Help"></string>
+  <string name="Settings.Appearance.System.ScreenSaverEnabled"></string>
+  <string name="Settings.Appearance.System.ScreenSaverEnabled.Help"></string>
+  <string name="Settings.Appearance.System.ScreenSaverTimeout"></string>
+  <string name="Settings.Appearance.System.ScreenSaverTimeout.Help"></string>
+  <string name="Settings.Appearance.System.Antialiasing"></string>
+  <string name="Settings.Appearance.System.Antialiasing.Help"></string>
+  <string name="Settings.Appearance.Skin"></string>
+  <string name="Settings.Appearance.Skin.SkinAndTheme"></string>
+  <string name="Settings.Appearance.Skin.SkinAndTheme.ChangeSkin"></string>
+  <string name="Settings.Appearance.Skin.SkinAndTheme.ChangeSkin.Help"></string>
+  <string name="Settings.Appearance.Skin.SkinAndTheme.ChangeTheme"></string>
+  <string name="Settings.Appearance.Skin.SkinAndTheme.ChangeTheme.Help"></string>
+  <string name="Settings.Players"></string>
+  <string name="Settings.Players.Rendering"></string>
+  <string name="Settings.Players.Rendering.DefaultGeometry"></string>
+  <string name="Settings.Players.Rendering.DefaultGeometry.Help"></string>
+  <string name="Settings.General.System.ApplicationSuspendLevel"></string>
+  <string name="Settings.General.System.ApplicationSuspendLevel.Help"></string>
+  <string name="Settings.General.System.ApplicationSuspendLevel.None"></string>
+  <string name="Settings.General.System.ApplicationSuspendLevel.AvoidSuspend"></string>
+  <string name="Settings.General.System.ApplicationSuspendLevel.DisplayRequired"></string>
+  <string name="ScreenManager.NotificationErrorLoadingSkinTitle"></string>
+  <string name="ScreenManager.NotificationErrorLoadingSkinFallingBackToCurrentText"></string>
+  <string name="ScreenManager.NotificationErrorLoadingSkinFallingBackToDefaultText"></string>
+  <string name="ScreenManager.ErrorLoadingSkinResource"></string>
+  <string name="ScreenManager.ScreenMissing"></string>
+  <string name="ScreenManager.ScreenBroken"></string>
+  <string name="ScreenManager.BackgroundScreenMissing"></string>
+  <string name="ScreenManager.BackgroundScreenBroken"></string>
+  <string name="ScreenManager.SuperLayerScreenMissing"></string>
+  <string name="ScreenManager.SuperLayerScreenBroken"></string>
+  <string name="Geometries.IntelligentZoom">Розумний Zoom</string>
+  <string name="Geometries.LetterBox">Letterbox 4:3</string>
+  <string name="Geometries.Normal">Нормальний</string>
+  <string name="Geometries.Original">Оригінальний</string>
+  <string name="Geometries.PanAndScan"></string>
+  <string name="Geometries.Stretch"></string>
+  <string name="Geometries.Zoom"></string>
+  <string name="Geometries.Zoom149"></string>
+  <!--File names (files in shaders/effects, without extension) to effect names to be shown in the GUI-->
+  <string name="Effects.denoise"></string>
+  <string name="Effects.directional_blur"></string>
+  <string name="Effects.glass_tiles"></string>
+  <string name="Effects.greyscale"></string>
+  <string name="Effects.invert"></string>
+  <string name="Effects.none"></string>
+  <string name="Effects.pixelate"></string>
+  <string name="Effects.sepia">Сепія</string>
+  <string name="Effects.sharpen"></string>
+  <string name="Effects.sharpen_complex"></string>
+  <string name="Effects.zoom_blur"></string>
+  <string name="PlayerControl.NoPlayer"></string>
+  <string name="PlayerControl.NoMediaItem"></string>
+  <string name="PlayerControl.UnknownMediaItem"></string>
+  <string name="PlayerControl.UnknownPlayerContextName"></string>
+  <string name="PlayerControl.HeaderNormal"></string>
+  <!--{0} = media item title-->
+  <string name="PlayerControl.HeaderPiP"></string>
+  <!--{0} = media item title-->
+  <string name="PlayerControl.Playing"></string>
+  <string name="PlayerControl.Paused"></string>
+  <string name="PlayerControl.SeekingForward"></string>
+  <!--For example: "Seeking forward (2x)"-->
+  <string name="PlayerControl.SeekingBackward"></string>
+  <!--For example: "Seeking forward (2x)"-->
+  <string name="PlayerControl.SlowMotionForward"></string>
+  <!--For example: "Slowmotion forward (0.5x)"-->
+  <string name="PlayerControl.SlowMotionBackward"></string>
+  <!--For example: "Slowmotion backward (0.5x)"-->
+  <string name="PlayerControl.PlaybackRateHint"></string>
+  <!--For example: 2x or 0.5x-->
+  <string name="PlayerControl.Stopped"></string>
+  <string name="PlayerControl.Ended"></string>
+  <string name="PlayerControl.Active"></string>
+</resources>

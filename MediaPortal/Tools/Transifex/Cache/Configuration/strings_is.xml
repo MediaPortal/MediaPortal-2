@@ -1,0 +1,14 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<resources>
+  <string name="Configuration.Name">Stillingar</string>
+  <string name="Configuration.ConfigurationMainWorkflowNavigationContextDisplayLabel">Stillingar</string>
+  <string name="Configuration.MainSettings">Helstu stillingar</string>
+  <!--2nd Header for root configuration section-->
+  <string name="Configuration.NoSettingsInThisSection">Það eru engar stillingar í þessum flokki</string>
+  <string name="Configuration.ErrorFloatingPointValue">\'{0}\' er ekki gild kommutala</string>
+  <string name="Configuration.ErrorIntegerValue">\'{0}\' er ekki gild heiltala</string>
+  <string name="Configuration.ErrorNumericLowerLimit">Notið gildi á milli \'[1}\' og \'{2}\'</string>
+  <!--0 = current value, 1 = lower limit, 2 = upper limit-->
+  <string name="Configuration.ErrorNumericUpperLimit">Notið gildi á milli \'[1}\' og \'{2}\'</string>
+  <!--0 = current value, 1 = lower limit, 2 = upper limit-->
+</resources>

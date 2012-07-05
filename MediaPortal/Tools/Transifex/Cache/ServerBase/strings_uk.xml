@@ -1,0 +1,18 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<resources>
+  <string name="MainForm.Title"></string>
+  <string name="MainForm.AttachedClients"></string>
+  <string name="MainForm.Client"></string>
+  <string name="MainForm.System"></string>
+  <string name="MainForm.ConnectionState"></string>
+  <string name="MainForm.Connected"></string>
+  <string name="MainForm.Disconnected"></string>
+  <string name="UPnPBackendServer.DefaultFriendlyName"></string>
+  <string name="UPnPBackendServer.Manufacturer"></string>
+  <string name="UPnPBackendServer.ManufacturerUrl"></string>
+  <string name="UPnPBackendServer.ModelDescription"></string>
+  <string name="UPnPBackendServer.ModelName"></string>
+  <string name="UPnPBackendServer.ModelNumber"></string>
+  <!--<string Name="UPnPBackendServer.ModelUrl">...</string>-->
+  <string name="MediaLibrary.EmptyOrMiscCharGroupName"></string>
+</resources>

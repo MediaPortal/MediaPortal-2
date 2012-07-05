@@ -1,0 +1,18 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<resources>
+  <string name="MainForm.Title">Εφαρμογή Διακομιστή MediaPortal 2</string>
+  <string name="MainForm.AttachedClients">Ενωμένοι πελάτες</string>
+  <string name="MainForm.Client">Πελάτης</string>
+  <string name="MainForm.System">Σύστημα</string>
+  <string name="MainForm.ConnectionState">Κατάσταση σύνδεσης</string>
+  <string name="MainForm.Connected">Ενωμένο</string>
+  <string name="MainForm.Disconnected">Αποσυνδεδεμένο</string>
+  <string name="UPnPBackendServer.DefaultFriendlyName">Διακομιστής MediaPortal 2</string>
+  <string name="UPnPBackendServer.Manufacturer">Ομάδα Mediaportal</string>
+  <string name="UPnPBackendServer.ManufacturerUrl">www.team-mediaportal.com</string>
+  <string name="UPnPBackendServer.ModelDescription">Διακομιστής MediaPortal 2 - φιλοξενεί αρχείο ήχου, εικόνας και βίντεο, και κρατά τη βάση πολυμέσων</string>
+  <string name="UPnPBackendServer.ModelName">Διακομιστής MediaPortal 2</string>
+  <string name="UPnPBackendServer.ModelNumber">1</string>
+  <!--<string Name="UPnPBackendServer.ModelUrl">...</string>-->
+  <string name="MediaLibrary.EmptyOrMiscCharGroupName"><Άδειος ή άκυρος χαρακτήρας></string>
+</resources>

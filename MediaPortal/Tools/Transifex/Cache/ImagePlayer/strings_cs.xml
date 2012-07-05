@@ -1,0 +1,8 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<resources>
+  <string name="Settings.Players.Image">Přehrávač obrázků</string>
+  <string name="Settings.Players.Image.SlideShowImageDuration">Délka prezentace obrázku</string>
+  <string name="Settings.Players.Image.SlideShowImageDuration.Help">Nastaví délku v sekundách, po kterou bude každý obrázek viditelný v režimu prezentace</string>
+  <string name="Settings.Players.Image.KenBurnsEffect">Používat efekt Ken Burns</string>
+  <string name="Settings.Players.Image.KenBurnsEffect.Help">Používá animaci posunu a zvětšení při zobrazení obrázku</string>
+</resources>

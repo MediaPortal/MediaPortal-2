@@ -1,0 +1,20 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<resources>
+  <string name="SlimTvClient.Title">Slim TV klient</string>
+  <string name="SlimTvClient.CurrentlyPlayingInformationHeader">Informácie o programe</string>
+  <string name="SlimTvClient.ChannelLabel">Kanál</string>
+  <string name="SlimTvClient.ProgramLabel">Program</string>
+  <string name="SlimTvClient.DescriptionLabel">Popis</string>
+  <string name="SlimTvClient.GenreLabel">Žáner</string>
+  <string name="SlimTvClient.ProgramStartLabel">Začiatok</string>
+  <string name="SlimTvClient.ProgramEndLabel">Koniec</string>
+  <string name="SlimTvClient.EpisodeLabel">Epizóda</string>
+  <string name="SlimTvClient.Guide">TV program</string>
+  <string name="SlimTvClient.NoProgram">Bez údajov o programe.</string>
+  <string name="SlimTvClient.ChooseProgramAction">Vyberte akciu programu...</string>
+  <string name="SlimTvClient.ProgramOver">Program už skončil</string>
+  <string name="SlimTvClient.WatchNow">Sledovať program</string>
+  <string name="SlimTvClient.RecordNow">Nahrať</string>
+  <string name="SlimTvClient.DeleteSchedule">Vymazať tento plán</string>
+  <string name="SlimTvClient.CreateSchedule">Naplánovať záznam</string>
+</resources>

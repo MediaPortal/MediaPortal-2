@@ -1,0 +1,9 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<resources>
+  <string name="SkinHelper.ThemeColorsWorkflowNavigationContextDisplayLabel">Farby témy</string>
+  <string name="SkinHelper.MenuShowThemeColors">Ukázať farby témy</string>
+  <string name="SkinHelper.ShowThemeColorsTitle">Farby témy</string>
+  <string name="SkinHelper.ShowThemeColorsText">Táto obrazovka ukazuje všetky farby definované v tejto téme (a zdedených vlastnostiach)</string>
+  <string name="SkinHelper.LoadSkinTitle">Načítať vzhľad</string>
+  <string name="SkinHelper.LoadThemeTitle">Načítať tému</string>
+</resources>

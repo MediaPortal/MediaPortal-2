@@ -1,0 +1,273 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<resources>
+  <!--Menu items for the five Media navigation parts-->
+  <string name="Media.BrowseMediaMenuItem">Selaa medioita</string>
+  <string name="Media.LocalMediaMenuItem">Paikallinen media</string>
+  <string name="Media.AudioMenuItem">Ääni</string>
+  <string name="Media.VideosMenuItem">Videot</string>
+  <string name="Media.SeriesMenuItem">Sarjat</string>
+  <string name="Media.ImagesMenuItem">Kuvat</string>
+  <!--Filter titles-->
+  <string name="Media.FilterByArtistMenuItem">Suodata artistin mukaan</string>
+  <string name="Media.FilterByAlbumMenuItem">Suodata albumin mukaan</string>
+  <string name="Media.FilterByAudioGenreMenuItem">Suodata tyylilajin mukaan</string>
+  <string name="Media.FilterByDecadeMenuItem">Suodata vuosikymmenen mukaan</string>
+  <string name="Media.FilterByActorMenuItem">Suodata näyttelijän mukaan</string>
+  <string name="Media.FilterByVideoGenreMenuItem">Suodata tyylilajin mukaan</string>
+  <string name="Media.FilterByVideoYearMenuItem">Suodata vuoden mukaan</string>
+  <string name="Media.FilterByAudioLanguageMenuItem">Suodata kielen mukaan</string>
+  <string name="Media.FilterByImageSizeMenuItem">Suodata koon mukaan</string>
+  <string name="Media.FilterByImageYearMenuItem">Suodata vuoden mukaan</string>
+  <string name="Media.FilterBySystemMenuItem">Suodata järjestelmän mukaan</string>
+  <string name="Media.FilterBySeriesNameMenuItem">Suodata sarjojen mukaan</string>
+  <string name="Media.FilterBySeriesSeasonMenuItem">Suodata kauden mukaan</string>
+  <string name="Media.FilterBySeriesEpisodeMenuItem">Suodata jakson mukaan</string>
+  <string name="Media.SimpleSearchFilterMenuItem">Etsi</string>
+  <string name="Media.ShowAllAudioItemsMenuItem">Näytä kaikki</string>
+  <string name="Media.ShowAllVideoItemsMenuItem">Näytä kaikki</string>
+  <string name="Media.ShowAllImageItemsMenuItem">Näytä kaikki</string>
+  <!--Special filters names-->
+  <string name="Media.ImageFilterSmall">Pieni</string>
+  <string name="Media.ImageFilterMedium">Keskikokoinen</string>
+  <string name="Media.ImageFilterBig">Suuri</string>
+  <string name="Media.SwitchToBrowseMLView">Palvelin näkymään</string>
+  <string name="Media.SwitchToLocalMediaView">Paikalliseen näkymään</string>
+  <!--Navbar display labels for sub view navigation-->
+  <string name="Media.BrowseMediaNavigationNavbarDisplayLabel">{0}</string>
+  <!--For example: "R.E.M."-->
+  <string name="Media.LocalMediaNavigationNavbarDisplayLabel">{0}</string>
+  <!--For example: "R.E.M."-->
+  <string name="Media.FilterArtistNavbarDisplayLabel">Artisti: {0}</string>
+  <!--For example: "Artist: R.E.M."-->
+  <string name="Media.FilterAlbumNavbarDisplayLabel">Albumi: {0}</string>
+  <string name="Media.FilterAudioGenreNavbarDisplayLabel">Tyylilaji: {0}</string>
+  <string name="Media.FilterDecadeNavbarDisplayLabel">Vuosikymmen: {0}</string>
+  <string name="Media.FilterActorNavbarDisplayLabel">Näyttelijä: {0}</string>
+  <string name="Media.FilterVideoGenreNavbarDisplayLabel">Tyylilaji: {0}</string>
+  <string name="Media.FilterVideoYearNavbarDisplayLabel">Vuosi: {0}</string>
+  <string name="Media.FilterAudioLanguagesNavbarDisplayLabel">Kieli: {0}</string>
+  <string name="Media.FilterImageSizeNavbarDisplayLabel">Koko: {0}</string>
+  <string name="Media.FilterImageYearNavbarDisplayLabel">Vuosi: {0}</string>
+  <string name="Media.FilterAudioItemsNavbarDisplayLabel">Nimi: {0}</string>
+  <string name="Media.FilterVideoItemsNavbarDisplayLabel">Nimi: {0}</string>
+  <string name="Media.FilterSeriesItemsNavbarDisplayLabel">{0}</string>
+  <string name="Media.FilterSeriesSeasonNavbarDisplayLabel">Kausi {0}</string>
+  <string name="Media.FilterImageItemsNavbarDisplayLabel">Nimi: {0}</string>
+  <string name="Media.FilterSystemNavbarDisplayLabel">Järjestelmä: {0}</string>
+  <!--Display labels for workflow navigation contexts-->
+  <string name="Media.BrowseMediaNavigationRootWorkflowNavigationContextDisplayLabel">Selaa medioita</string>
+  <string name="Media.LocalMediaNavigationRootWorkflowNavigationContextDisplayLabel">Paikallinen media</string>
+  <string name="Media.AudioNavigationRootWorkflowNavigationContextDisplayLabel">Äänikirjasto</string>
+  <string name="Media.VideoNavigationRootWorkflowNavigationContextDisplayLabel">Videokirjasto</string>
+  <string name="Media.SeriesNavigationRootWorkflowNavigationContextDisplayLabel">Sarjakirjasto</string>
+  <string name="Media.ImageNavigationRootWorkflowNavigationContextDisplayLabel">Kuvakirjasto</string>
+  <string name="Media.VideoCurrentlyPlayingWorkflowStateNavigationContextDisplayLabel">Nykyinen video</string>
+  <string name="Media.VideoFullscreenContentWorkflowStateNavigationContextDisplayLabel">Kokonäytön videokuva</string>
+  <string name="Media.AudioCurrentlyPlayingWorkflowStateNavigationContextDisplayLabel">Nykyinen audio</string>
+  <string name="Media.AudioFullscreenContentWorkflowStateNavigationContextDisplayLabel">Audio visualisointi</string>
+  <string name="Media.ShowPlaylistWorkflowStateNavigationContextDisplayLabel">Soittolista</string>
+  <string name="Media.EditPlaylistWorkflowStateNavigationContextDisplayLabel">Muokkaa soittolistaa</string>
+  <string name="Media.PlaylistsOverviewWorkflowStateNavigationContextDisplayLabel">Soittolistat</string>
+  <string name="Media.PlaylistInfoWorkflowStateNavigationContextDisplayLabel">Soittolistan tiedot</string>
+  <string name="Media.RemovePlaylistsWorkflowStateNavigationContextDisplayLabel">Poista soittolistat</string>
+  <string name="Media.SavePlaylistEditNameWorkflowStateNavigationContextDisplayLabel">Muokkaa soittolistan nimeä</string>
+  <string name="Media.SavePlaylistSuccessfulWorkflowStateNavigationContextDisplayLabel">Onnistui</string>
+  <string name="Media.SavePlaylistFailedWorkflowStateNavigationContextDisplayLabel">Epäonnistui</string>
+  <string name="Media.PlayOrEnqueueItemsWorkflowStateNavigationContextDisplayLabel">Toista/laita jonoon kohteet</string>
+  <string name="Media.CheckQueryPlayActionSingleItemWorkflowStateNavigationContextDisplayLabel">Toista toiminto</string>
+  <string name="Media.CheckQueryPlayActionMultipleItemsWorkflowStateNavigationContextDisplayLabel">Toista toiminto</string>
+  <string name="Media.CheckQueryPlayActionMultipleItemsChooseMediaTypeWorkflowStateNavigationContextDisplayLabel">Valitse mediatyyppi</string>
+  <!--Screen headers-->
+  <string name="Media.BrowseMediaNavigationHeader">Selaa medianavigointi</string>
+  <string name="Media.LocalMediaNavigationHeader">Paikallinen medianavigointi</string>
+  <string name="Media.MediaItemsHeader">Media kohteet</string>
+  <string name="Media.VideoItemsHeader">Videot</string>
+  <string name="Media.AudioItemsHeader">Audio kohteet</string>
+  <string name="Media.SeriesItemsHeader">Jaksot</string>
+  <string name="Media.ImageItemsHeader">Kuvat</string>
+  <string name="Media.SimpleSearchHeader">Yksinkertainen haku</string>
+  <string name="Media.ChooseActorHeader">Valitse näyttelijä</string>
+  <string name="Media.ChooseVideoGenreHeader">Valitse lajityyppi</string>
+  <string name="Media.ChooseVideoYearHeader">Valitse vuosi</string>
+  <string name="Media.ChooseSeriesHeader">Valitse sarja</string>
+  <string name="Media.ChooseSeasonHeader">Valitse kausi</string>
+  <string name="Media.ChooseAudioDecadeHeader">Valitse vuosikymmen</string>
+  <string name="Media.ChooseAlbumHeader">Valitse albumi</string>
+  <string name="Media.ChooseArtistHeader">Valitse laulaja</string>
+  <string name="Media.ChooseAudioGenreHeader">Valitse lajityyppi</string>
+  <string name="Media.ChooseImageYearHeader">Valitse vuosi</string>
+  <string name="Media.ChooseImageSizeHeader">Valitse koko</string>
+  <string name="Media.ChooseSystemHeader">Valitse järjestelmä</string>
+  <string name="Media.ChooseVideoLanguageHeader">Valitse kieli</string>
+  <string name="Media.PlaylistsOverviewHeader">Soittolistat</string>
+  <string name="Media.SavePlaylistEditNameHeader">Tallenna soittolista</string>
+  <string name="Media.SavePlaylistFailedHeader">Tallenna soittolista</string>
+  <string name="Media.SavePlaylistSuccessfulHeader">Tallenna soittolista</string>
+  <string name="Media.RemovePlaylistsHeader">Poista soittolistat</string>
+  <string name="Media.PlaylistDetailsHeader">Soittolistan tiedot</string>
+  <string name="Media.PlaylistLoadNoPlaylistText">Ei ladattavia soittolistoja</string>
+  <string name="Media.PlaylistLoadErrorLoadingPlaylist">Virhe soittolistan lataamisessa</string>
+  <string name="Media.CannotSavePlaylistWithLocalMediaItems">Soittolista voidaan tallentaa vain, jos kaikki tiedostot on haettu kotipalvelimelta (eli ei irtikytketyn paikallisen mediakohteiden navigoinnin kautta).</string>
+  <!--View names (names for the view instances)-->
+  <string name="Media.BrowseMediaRootViewName">Selaa media</string>
+  <string name="Media.LocalMediaRootViewName">Paikallinen media</string>
+  <string name="Media.ClientSharesViewName">Asiakaskoneet verkkojaot</string>
+  <string name="Media.ServerSharesViewName">Palvelimen verkkojaot</string>
+  <string name="Media.AudioRootViewName">Audio</string>
+  <string name="Media.VideosRootViewName">Videot</string>
+  <string name="Media.SeriesRootViewName">Sarjat</string>
+  <string name="Media.ImagesRootViewName">Kuvat</string>
+  <string name="Media.SimpleSearchViewName">Yksinkertainen haku</string>
+  <!--General strings used in views-->
+  <string name="Media.ViewInvalid">Tätä näkymää ei voitu luoda</string>
+  <string name="Media.ViewEmpty"><Ei näytettäviä kohteita></string>
+  <string name="Media.NoItems">Ei kohteita</string>
+  <!--Shown in the header of an items list-->
+  <string name="Media.OneItem">Yksi kohde</string>
+  <!--Shown in the header of an items list-->
+  <string name="Media.OneOfOneItem">1/1 kohde</string>
+  <!--Shown in the header of an items list-->
+  <string name="Media.NOfMItems">{0}/{1} kohdetta</string>
+  <!--Shown in the header of an items list, e.g. "15/350 items"-->
+  <string name="Media.NItems">{0} kohdetta</string>
+  <!--Shown in the header of an items list, e.g. "45 items"-->
+  <string name="Media.MoreThanMaxItemsHint">Tämä näkymä sisältää enemmän kuin {0} kohdetta. Ole hyvä ja rajoita kohteiden määrää lisäämällä suodattimia</string>
+  <string name="Media.MoreThanMaxItemsBrowseHint">Tämä näkymä sisältää yli {0} kohdetta</string>
+  <string name="Media.MoreThanMaxItemsSearchResultHint">Hakutulos sisältää yli {0} kohdetta. Ole hyvä ja rajaa hakua</string>
+  <string name="Media.ListIsBeingBuiltHint">Kohdelistaa luodaan</string>
+  <string name="Media.SearchResultIsBeingBuiltHint">Etsitään...</string>
+  <!--Playlists-->
+  <string name="Media.ManagePlaylists">Soittolistat</string>
+  <string name="Media.AddAllToPlaylist">Lisää kaikkii soittolistoihin</string>
+  <string name="Media.NoItemsToAddHeader">Ei lisättäviä kohteita</string>
+  <string name="Media.NoItemsToAddText">Nykyisessä näkymässä ei ole kohteita</string>
+  <string name="Media.ChooseAVTypeDialogHeader">Valitse kohteen tyyppi</string>
+  <string name="Media.AddAllAudio">Lisää audioita</string>
+  <string name="Media.AddAllVideo">Lisää videoita</string>
+  <string name="Media.AddAllImages">Lisää kuvia</string>
+  <string name="Media.AddAllVideosAndImages">Lisää videoita ja kuvia</string>
+  <string name="Media.AddToPlaylistProgressDialogHeader">Edistyminen</string>
+  <string name="Media.AddToPlaylistProgressText">Lisätään kohteita soittolistaan...</string>
+  <string name="Media.NItemsAdded">{0} kohdetta lisätty</string>
+  <string name="Media.StopAddToPlaylistButton">Seis</string>
+  <string name="Media.NoPlaylistsAvailable">- Soittolistoja ei saatavilla -</string>
+  <string name="Media.NoConfigPlaylistsHomeServerNotConnectedText">Kotipalvelin ei ole kytkettynä, joten soittolistoja ei voi hallita tällä hetkellä</string>
+  <string name="Media.EditNameOfPlaylist">Muokkaa soittolistan nimeä</string>
+  <string name="Media.SavePlaylistSuccessfulText">Soittolista \'{0}\' tallennettiin onnistuneesti palvelimelle.</string>
+  <string name="Media.SavePlaylistFailedText">Soittolistaa ei voitu tallentaa. Virheilmoitus: \'{0}\'</string>
+  <string name="Media.SavePlaylistFailedAlreadyExists">Soittolistaa ei voitu tallentaa: Soittolista \'{0}\' on jo olemassa</string>
+  <string name="Media.ChoosePlaylistsToBeRemovedText">Valitse poistettavat soittolistat</string>
+  <string name="Media.PlaylistNameInfoLabel">Soittolistan nimi</string>
+  <string name="Media.PlaylistTypeInfoLabel">Soittolistan tyyppi</string>
+  <string name="Media.PlaylistNumItemsLabel">Kappaleiden määrä</string>
+  <string name="Media.PlaylistIdInfoLabel">Sisäinen soittolistan id</string>
+  <!--Play items dialog-->
+  <string name="Media.PlayItemDialogHeader">Toista kappale</string>
+  <string name="Media.PlayAudioItems">Toista audiokappaleita</string>
+  <string name="Media.EnqueueAudioItems">Laita audiokappaleet jonoon</string>
+  <string name="Media.MuteVideoAndPlayAudioItems">Toista audiokappaleet samanaikaisesti</string>
+  <string name="Media.PlayVideoImageItems">Toista video-/kuvakohteita</string>
+  <string name="Media.EnqueueVideoImageItems">Laita video-/kuvakohteet jonoon</string>
+  <string name="Media.PlayVideoImageItemsMutedConcurrentAudio">Toista video/kuva kohteita taustalla ja jatka samanaikaisesti audiokohdetta</string>
+  <string name="Media.PlayVideoImageItemsPiP">Toista video/kuvakohteet kuva-kuvassa-tilassa</string>
+  <string name="Media.PlayAudioItem">Toista äänikappale</string>
+  <string name="Media.EnqueueAudioItem">Lisää jonoon äänikappale</string>
+  <string name="Media.MuteVideoAndPlayAudioItem">Toista äänikappale samanaikaisesti</string>
+  <string name="Media.PlayVideoImageItem">Toista video/kuva kohde</string>
+  <string name="Media.EnqueueVideoImageItem">Lisää jonoon video/kuva kohde</string>
+  <string name="Media.PlayVideoImageItemMutedConcurrentAudio">Toista video/kuva kohde taustalla ja jatka samanaikaisesti äänikappaleen toistoa</string>
+  <string name="Media.PlayVideoImageItemPiP">Toista video/kuvakohteet kuva-kuvassa-tilassa</string>
+  <!--Player context names-->
+  <string name="Media.VideoImageContextName">Video/kuva</string>
+  <string name="Media.AudioContextName">Ääni</string>
+  <!--Video currently playing-->
+  <string name="Media.VideoCurrentlyPlayingHeader">Nykyisen videon tiedot</string>
+  <string name="Media.VideoTitleLabel">Otsikko:</string>
+  <string name="Media.VideoGenreLabel">Tyyli:</string>
+  <string name="Media.VideoYearLabel">Vuosi:</string>
+  <string name="Media.VideoDurationLabel">Kesto:</string>
+  <string name="Media.VideoActorsLabel">Näyttelijä(t):</string>
+  <string name="Media.VideoStoryPlotLabel">Juoni:</string>
+  <!--Image currently playing-->
+  <string name="Media.ImageCurrentlyPlayingHeader">Nykyisen kuvan tiedot</string>
+  <string name="Media.ImageTitleLabel">Nimi:</string>
+  <string name="Media.ImageDimensions">Mitat: </string>
+  <string name="Media.CameraMake">Kameran valmistaja:</string>
+  <string name="Media.CameraModel">Kameran malli:</string>
+  <string name="Media.ImageISOSpeedLabel">ISO nopeus:</string>
+  <string name="Media.ImageFNumberLabel">F-luku:</string>
+  <string name="Media.ImageShutterSpeedLabel">Valotusaika:</string>
+  <string name="Media.ImageMeteringModeLabel">Mittaustapa:</string>
+  <string name="Media.ImageExposureTimeLabel">Valotusaika:</string>
+  <!--DVD currently playing-->
+  <string name="Media.DVDCurrentlyPlayingHeader">Nykyisen DVD:n tiedot</string>
+  <!--Audio currently playing-->
+  <string name="Media.AudioCurrentlyPlayingHeader">Nykyisen audion tiedot:</string>
+  <string name="Media.AudioArtistsLabel">Laulajat:</string>
+  <string name="Media.AudioTitleLabel">Otsikko:</string>
+  <string name="Media.AudioYearLabel">Vuosi:</string>
+  <string name="Media.AudioDurationLabel">Kesto:</string>
+  <string name="Media.AudioPlaylistHeader">Soittolista</string>
+  <string name="Media.VideoImagePlaylistHeader">Video/Kuva soittolista</string>
+  <string name="Media.PiPPlaylistHeader">Kuva-kuvassa soittolista</string>
+  <string name="Media.SavePLAtServer">Tallenna palvelimelle</string>
+  <string name="Media.SavePLLocally">Tallenna paikallisesti</string>
+  <string name="Media.ShowAudioPlaylistAction">Näytä audio soittolista</string>
+  <string name="Media.ShowVideoImagePlaylistAction">Näytä video/kuva soittolista</string>
+  <string name="Media.ShowPiPPlaylistAction">Näytä kuva-kuvassa soittolista</string>
+  <string name="Media.EditPlaylistAction">Muokkaa soittolistaa</string>
+  <string name="Media.ClearPlaylistAction">Tyhjennä soittolista</string>
+  <string name="Media.SavePlaylistAction">Tallenna soittolista</string>
+  <string name="Media.SaveCurrentPlaylistAction">Tallenna nykyinen soittolista</string>
+  <string name="Media.RemovePlaylistsAction">Poista soittolistat</string>
+  <string name="Media.LoadPlaylistButton">Lataa soittolista</string>
+  <string name="Media.PlaylistEmpty"><Ei kohteita soittolistassa></string>
+  <string name="Media.CannotPlayItemDialogText">Ei voi toistaa media kohdetta</string>
+  <string name="Media.CannotPlayItemsDialogText">Ei voi toistaa mediakohteita</string>
+  <string name="Media.ValueEmptyTitle"><Tyhjä></string>
+  <!--VideoPlayerUIContributor-->
+  <string name="Media.SubtitleOff">Poista tekstitys käytöstä</string>
+  <string name="Media.ChooseChapterDialogHeader">Valitse kappale</string>
+  <string name="Media.ChooseSubtitleDialogHeader">Valitse tekstitys</string>
+  <string name="Media.ChooseTitleDialogHeader">Valitse otsikko</string>
+  <!--Video Player time units-->
+  <string name="Media.Seconds">sek.</string>
+  <string name="Media.Minutes">min.</string>
+  <string name="Media.Hours">tun.</string>
+  <string name="Media.Start">Alku</string>
+  <string name="Media.End">Loppu</string>
+  <string name="Media.DontSkip">Älä ohita</string>
+  <string name="Media.SwitchViewModeMenuItem">Näyttötila</string>
+  <string name="Media.SwitchViewModeDialogTitle">Valitse näyttötila</string>
+  <string name="Media.SmallList">Pieni lista</string>
+  <string name="Media.MediumList">Medium lista</string>
+  <string name="Media.LargeList">Suuri lista</string>
+  <string name="Media.LargeGrid">Ruudukko</string>
+  <string name="Media.SwitchSortingMenuItem">Lajittelu</string>
+  <string name="Media.SwitchSortingDialogTitle">Lajittelu</string>
+  <string name="Media.SortByTitle">Lajittele otsikon mukaan</string>
+  <string name="Media.SortByAlbumTrack">Lajittele albumin ja kappaleen mukaan</string>
+  <string name="Media.SortByGenre">Lajittele tyylilajin mukaan</string>
+  <string name="Media.SortByAlbum">Lajittele albumin ja otsikon mukaan</string>
+  <string name="Media.SortByTrack">Lajittele kappaleen mukaan</string>
+  <string name="Media.SortByArtist">Lajittele esittäjän mukaan</string>
+  <string name="Media.SortByYear">Lajittele vuoden mukaan</string>
+  <string name="Media.SortBySize">Lajittele koon mukaan</string>
+  <string name="Media.SortBySystem">Lajittele järjestelmän mukaan</string>
+  <string name="Media.SortByActor">Lajittele näyttelijän mukaan</string>
+  <string name="Media.SortByDirector">Lajittele ohjaajan mukaan</string>
+  <string name="Media.SortByDuration">Lajittele keston mukaan</string>
+  <string name="Media.SortByAspectRatio">Lajittele kuvasuhteen mukaan</string>
+  <string name="Media.SortByDate">Lajittele tallennuspäivän mukaan</string>
+  <string name="Media.SortByEpisode">Lajittele jakson mukaan</string>
+  <string name="Media.SortingBrowseDefault">Oletus lajittelu</string>
+  <string name="Settings.Players">Soittimet</string>
+  <string name="Settings.Players.ClosePlayersWhenFinished">Sammuta soittimet lopuksi</string>
+  <string name="Settings.Players.ClosePlayersWhenFinished.Help">Aseta tämä asetus päälle jotta MediaPortal sammuttaa soittimet automaattisesti</string>
+  <string name="Settings.Players.InstantSkipPercent">Välittömän hypyn prosentti</string>
+  <string name="Settings.Players.InstantSkipPercent.Help">Valitse kuinka monta prosenttia videon kestosta haluat hypätä välittömästi</string>
+  <string name="Settings.Players.SkipStepTimeout">Sekunti määräisen hypyn pituus</string>
+  <string name="Settings.Players.SkipStepTimeout.Help">Aseta  aikakatkaisu käyttäjän syöttämän painalluksien välillä ennen hyppyä</string>
+  <string name="Settings.Players.SkipStepList">Soittimen hyppy määrät</string>
+  <string name="Settings.Players.SkipStepList.Help">Syötä hypyn pituus sekunteina eroteltuna pilkulla,</string>
+</resources>

@@ -1,0 +1,47 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<resources>
+  <string name="Settings.Players.Codecs">Codecs</string>
+  <string name="Settings.Players.Codecs.VideoCodecs">Codecs Vidéos</string>
+  <string name="Settings.Players.Codecs.VideoCodecs.MPEG2">Codec vidéo MPEG2</string>
+  <string name="Settings.Players.Codecs.VideoCodecs.MPEG2.Help">Définir le codec utilisé pour le lecture des flux vidéo MPEG2 (DVD, DVB-SD)</string>
+  <string name="Settings.Players.Codecs.VideoCodecs.MPEG4">Codec vidéo MPEG4</string>
+  <string name="Settings.Players.Codecs.VideoCodecs.MPEG4.Help">Définir le codec utilisé pour le lecture des flux vidéo MPEG4 (H.264, x264)</string>
+  <string name="Settings.Players.Codecs.VideoCodecs.AVC">Codec vidéo AVC</string>
+  <string name="Settings.Players.Codecs.VideoCodecs.AVC.Help">Définir le codec utilisé pour le lecture des flux vidéo AVC (HDTV, Bluray)</string>
+  <string name="Settings.Players.Codecs.AudioCodecs">Codecs audios</string>
+  <string name="Settings.Players.Codecs.AudioRenderer">Rendu audio</string>
+  <string name="Settings.Players.Codecs.AudioCodecs.AudioCodec">Codec audio MPEG1 et 2</string>
+  <string name="Settings.Players.Codecs.AudioCodecs.AudioCodec.Help">Définir le codec utilisé pour le lecture des flux audio MPEG 1 et 2</string>
+  <string name="Settings.Players.Codecs.AudioCodecs.AudioCodecLATMAAC">Codec audio LATM-AAC</string>
+  <string name="Settings.Players.Codecs.AudioCodecs.AudioCodecLATMAAC.Help">Définir le codec utilisé pour le lecture des flux audio LATM-AAC</string>
+  <string name="Settings.Players.Codecs.AudioCodecs.AudioCodecAAC">Codec audio AAC</string>
+  <string name="Settings.Players.Codecs.AudioCodecs.AudioCodecAAC.Help">Définir le codec utilisé pour le lecture des flux audio AAC</string>
+  <string name="Settings.Players.Codecs.AudioCodecs.AudioRenderer">Rendu audio</string>
+  <string name="Settings.Players.Codecs.AudioCodecs.AudioRenderer.Help">Définir le type de rendu audio</string>
+  <string name="Settings.Players.VideoPlayer">Programme de lecture vidéo</string>
+  <string name="Settings.Players.VideoPlayer.PreferMultiChannelAudio">Préférer les flux audio multicanaux</string>
+  <string name="Settings.Players.VideoPlayer.PreferMultiChannelAudio.Help">Si disponibles, les flux 6 canaux sont préférrés (ex : AC3, AAC...)</string>
+  <string name="Settings.Players.DVDPlayer">Programme de lecture DVD</string>
+  <string name="Settings.Players.DVDPlayer.EnableClosedCaption">Audio description</string>
+  <string name="Settings.Players.DVDPlayer.EnableClosedCaption.Help">Définir sir l\'audio description doit être activée par défaut</string>
+  <string name="Settings.Players.DVDPlayer.EnableSubtitles">Sous-titres</string>
+  <string name="Settings.Players.DVDPlayer.EnableSubtitles.Help">Définir si le sous-titrage doit être activé par défaut</string>
+  <string name="Playback.NotSpecified">Non spécifié</string>
+  <string name="Playback.CaptionNormal">Audio description normale</string>
+  <string name="Playback.CaptionBig">Audio description étendue</string>
+  <string name="Playback.CaptionChildren">Audio description avec contrôle parental</string>
+  <string name="Playback.CCNormal">Audio description normale</string>
+  <string name="Playback.CCBig">Audio description étendue</string>
+  <string name="Playback.CCChildren">Audio description avec contrôle parental</string>
+  <string name="Playback.Forced">Forcé</string>
+  <string name="Playback.DirectorCommentsNormal">Commentaires du réalisateur</string>
+  <string name="Playback.DirectorCommentsBig">Commentaires poussés du réalisateur</string>
+  <string name="Playback.DirectorCommentsChildren">Commentaires du réalisateur (avec contôle parental)</string>
+  <string name="Playback.VisuallyImpaired">Malvoyant</string>
+  <string name="Playback.DirectorComments1">Commentaires du réalisateur</string>
+  <string name="Playback.DirectorComments2">Commentaires du réalisateur (seconde piste)</string>
+  <string name="Playback.Chapter">Chapitre {0}</string>
+  <!--For example: "Chapter 1"-->
+  <string name="Playback.Title">Scène {0}</string>
+  <!--For example: "Title 1"-->
+</resources>

@@ -1,0 +1,47 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<resources>
+  <string name="Settings.Players.Codecs">Κωδικοποιητές</string>
+  <string name="Settings.Players.Codecs.VideoCodecs">Κωδικοποιητές Βίντεο</string>
+  <string name="Settings.Players.Codecs.VideoCodecs.MPEG2">Κωδικοποιητής MPEG2</string>
+  <string name="Settings.Players.Codecs.VideoCodecs.MPEG2.Help"></string>
+  <string name="Settings.Players.Codecs.VideoCodecs.MPEG4">Κωδικοποιητής MPEG4</string>
+  <string name="Settings.Players.Codecs.VideoCodecs.MPEG4.Help"></string>
+  <string name="Settings.Players.Codecs.VideoCodecs.AVC">Κωδικοποιητής AVC</string>
+  <string name="Settings.Players.Codecs.VideoCodecs.AVC.Help"></string>
+  <string name="Settings.Players.Codecs.AudioCodecs">Κωδικοποιητές Ήχου</string>
+  <string name="Settings.Players.Codecs.AudioRenderer"></string>
+  <string name="Settings.Players.Codecs.AudioCodecs.AudioCodec">Κωδικοποιητής MPEG1/2</string>
+  <string name="Settings.Players.Codecs.AudioCodecs.AudioCodec.Help"></string>
+  <string name="Settings.Players.Codecs.AudioCodecs.AudioCodecLATMAAC">Κωδικοποιητής LATM-AAC</string>
+  <string name="Settings.Players.Codecs.AudioCodecs.AudioCodecLATMAAC.Help"></string>
+  <string name="Settings.Players.Codecs.AudioCodecs.AudioCodecAAC">Κωδικοποιητής AAC</string>
+  <string name="Settings.Players.Codecs.AudioCodecs.AudioCodecAAC.Help"></string>
+  <string name="Settings.Players.Codecs.AudioCodecs.AudioRenderer"></string>
+  <string name="Settings.Players.Codecs.AudioCodecs.AudioRenderer.Help"></string>
+  <string name="Settings.Players.VideoPlayer"></string>
+  <string name="Settings.Players.VideoPlayer.PreferMultiChannelAudio"></string>
+  <string name="Settings.Players.VideoPlayer.PreferMultiChannelAudio.Help">Εαν ενεργό, πρoτίμηση 6καναλου (π.χ. AC3, AAC)</string>
+  <string name="Settings.Players.DVDPlayer"></string>
+  <string name="Settings.Players.DVDPlayer.EnableClosedCaption"></string>
+  <string name="Settings.Players.DVDPlayer.EnableClosedCaption.Help"></string>
+  <string name="Settings.Players.DVDPlayer.EnableSubtitles">Υποτίτλοι</string>
+  <string name="Settings.Players.DVDPlayer.EnableSubtitles.Help"></string>
+  <string name="Playback.NotSpecified"></string>
+  <string name="Playback.CaptionNormal"></string>
+  <string name="Playback.CaptionBig"></string>
+  <string name="Playback.CaptionChildren"></string>
+  <string name="Playback.CCNormal"></string>
+  <string name="Playback.CCBig"></string>
+  <string name="Playback.CCChildren"></string>
+  <string name="Playback.Forced"></string>
+  <string name="Playback.DirectorCommentsNormal">Κανονικά Σχόλια Σκηνοθέτη</string>
+  <string name="Playback.DirectorCommentsBig">Μεγάλα Σχόλια Σκηνοθέτη</string>
+  <string name="Playback.DirectorCommentsChildren"></string>
+  <string name="Playback.VisuallyImpaired"></string>
+  <string name="Playback.DirectorComments1">Σχόλια Σκηνοθέτη</string>
+  <string name="Playback.DirectorComments2">Σχόλια Σκηνοθέτη (2)</string>
+  <string name="Playback.Chapter">Κεφάλαιο {0}</string>
+  <!--For example: "Chapter 1"-->
+  <string name="Playback.Title">Τίτλος {0}</string>
+  <!--For example: "Title 1"-->
+</resources>

@@ -1,0 +1,20 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<resources>
+  <string name="SlimTvClient.Title">Vékony TV kliens</string>
+  <string name="SlimTvClient.CurrentlyPlayingInformationHeader">Programinformáció</string>
+  <string name="SlimTvClient.ChannelLabel">Csatorna</string>
+  <string name="SlimTvClient.ProgramLabel">Műsor</string>
+  <string name="SlimTvClient.DescriptionLabel">Leírás</string>
+  <string name="SlimTvClient.GenreLabel">Műfaj</string>
+  <string name="SlimTvClient.ProgramStartLabel">Kezdet</string>
+  <string name="SlimTvClient.ProgramEndLabel">Vége</string>
+  <string name="SlimTvClient.EpisodeLabel">Epizód</string>
+  <string name="SlimTvClient.Guide">Tv műsorújság</string>
+  <string name="SlimTvClient.NoProgram">Nincs adat a műsorról.</string>
+  <string name="SlimTvClient.ChooseProgramAction">Tevékenység kiválasztása</string>
+  <string name="SlimTvClient.ProgramOver">Már vége a műsornak</string>
+  <string name="SlimTvClient.WatchNow">Műsor megnézése most</string>
+  <string name="SlimTvClient.RecordNow">Felvétel indítása</string>
+  <string name="SlimTvClient.DeleteSchedule">Ütemezés törlése</string>
+  <string name="SlimTvClient.CreateSchedule">Rögzítés ütemezése</string>
+</resources>

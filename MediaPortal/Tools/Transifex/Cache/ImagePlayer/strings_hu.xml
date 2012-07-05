@@ -1,0 +1,8 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<resources>
+  <string name="Settings.Players.Image">Képtár</string>
+  <string name="Settings.Players.Image.SlideShowImageDuration">Diavetítés sebessége</string>
+  <string name="Settings.Players.Image.SlideShowImageDuration.Help">Ennyi ideig látható minden egyes kép diavetítés üzemmódban</string>
+  <string name="Settings.Players.Image.KenBurnsEffect">Ken Burns hatás használata</string>
+  <string name="Settings.Players.Image.KenBurnsEffect.Help">Forgatás és nagyítás animációk használata a képek megjelenítésénél</string>
+</resources>

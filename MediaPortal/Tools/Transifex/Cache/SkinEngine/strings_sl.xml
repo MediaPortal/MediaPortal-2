@@ -1,0 +1,82 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<resources>
+  <string name="Settings.Appearance.System">Sistem</string>
+  <string name="Settings.Appearance.System.Fullscreen">Celoten zaslon</string>
+  <string name="Settings.Appearance.System.Fullscreen.Help">Prikazuj MediaPoortal celozaslonsko</string>
+  <string name="Settings.Appearance.System.CellPhoneInputStyle">Način vnosa kot na mobilnem telefonu</string>
+  <string name="Settings.Appearance.System.CellPhoneInputStyle.Help">Uporabi način vnosa, kot pri SMS na telefonu</string>
+  <string name="Settings.Appearance.System.ScreenSaverEnabled">Omogoči ohranjevalnik zaslona</string>
+  <string name="Settings.Appearance.System.ScreenSaverEnabled.Help">Nastavi, ali naj se ohranjevalnik zaslona prikazuje</string>
+  <string name="Settings.Appearance.System.ScreenSaverTimeout">Čas čakanja do vključitve ohranjevalnika zaslona</string>
+  <string name="Settings.Appearance.System.ScreenSaverTimeout.Help">Nastavi čas v minutah od zadnje uporabnikove akcije do vključitve ohranjevalnika zaslona</string>
+  <string name="Settings.Appearance.System.Antialiasing">Glajenje robov uporabniškega vmesnika</string>
+  <string name="Settings.Appearance.System.Antialiasing.Help">Glajenje robov izboljša kvaliteto prikaza uporabniškega vmesnika, lahko pa deluje rahlo počasneje</string>
+  <string name="Settings.Appearance.Skin">Izgled</string>
+  <string name="Settings.Appearance.Skin.SkinAndTheme">Izgled in tema</string>
+  <string name="Settings.Appearance.Skin.SkinAndTheme.ChangeSkin">Spremeni izgled</string>
+  <string name="Settings.Appearance.Skin.SkinAndTheme.ChangeSkin.Help">Spremeni videz in delovanje MediaPortala 2</string>
+  <string name="Settings.Appearance.Skin.SkinAndTheme.ChangeTheme">Spremeni temo</string>
+  <string name="Settings.Appearance.Skin.SkinAndTheme.ChangeTheme.Help">Spremeni videz trenutnega izgleda</string>
+  <string name="Settings.Players">Predvajalniki</string>
+  <string name="Settings.Players.Rendering">Risanje</string>
+  <string name="Settings.Players.Rendering.DefaultGeometry">Privzeti način povečave</string>
+  <string name="Settings.Players.Rendering.DefaultGeometry.Help">Nastavi način povečevanja, ki ga bodo vieo predvajalniki privzeto uporabili</string>
+  <string name="Settings.General.System.ApplicationSuspendLevel">Nastavi upravljanje z energijo v Windows</string>
+  <string name="Settings.General.System.ApplicationSuspendLevel.Help">Onemogoči avtomatično zaustavitev ali hibernacijo Windows operacijskega sistema ali ugašanje ekrana, kadar teče MediaPortal 2</string>
+  <string name="Settings.General.System.ApplicationSuspendLevel.None">Dovoli vse nastavitve upravljanja z energijo</string>
+  <string name="Settings.General.System.ApplicationSuspendLevel.AvoidSuspend">Prepreči zaustavitev sistema, dovoli pa ugašanje ekrana</string>
+  <string name="Settings.General.System.ApplicationSuspendLevel.DisplayRequired">Prepreči zaustavitev sistema in ugašanje ekrana</string>
+  <string name="ScreenManager.NotificationErrorLoadingSkinTitle">Napaka pri nalaganju izgleda</string>
+  <string name="ScreenManager.NotificationErrorLoadingSkinFallingBackToCurrentText">Vračam na trenutni izgled</string>
+  <string name="ScreenManager.NotificationErrorLoadingSkinFallingBackToDefaultText">Vračam na privzeti izgled</string>
+  <string name="ScreenManager.ErrorLoadingSkinResource">Napaka pri nalaganju datotek izgleda</string>
+  <string name="ScreenManager.ScreenMissing">Ne morem najti datoteke za ekran {0}</string>
+  <string name="ScreenManager.ScreenBroken">Datoteka izgleda za ekran {0} je pokvarjena</string>
+  <string name="ScreenManager.BackgroundScreenMissing">Ne najdem datoteke izgleda za ozadje {0}</string>
+  <string name="ScreenManager.BackgroundScreenBroken">Datoteka za ozadje {0} je pokvarjena</string>
+  <string name="ScreenManager.SuperLayerScreenMissing">Ne najdem datoteke izgleda za prekrivni ekran {0}</string>
+  <string name="ScreenManager.SuperLayerScreenBroken">Datoteka izgleda za prekrivni ekran {0} je pokvarjena</string>
+  <string name="Geometries.IntelligentZoom">Pametno povečevanje</string>
+  <string name="Geometries.LetterBox">Rezanje 4:3</string>
+  <string name="Geometries.Normal">Normalno</string>
+  <string name="Geometries.Original">Prvotno</string>
+  <string name="Geometries.PanAndScan">Premikanje in pregledovanje</string>
+  <string name="Geometries.Stretch">Raztegni</string>
+  <string name="Geometries.Zoom">Povečaj</string>
+  <string name="Geometries.Zoom149">Povečaj na 14:9</string>
+  <!--File names (files in shaders/effects, without extension) to effect names to be shown in the GUI-->
+  <string name="Effects.denoise">Zmanjšanje šuma</string>
+  <string name="Effects.directional_blur">Usmerjena zameglitev</string>
+  <string name="Effects.glass_tiles">Steklene plošče</string>
+  <string name="Effects.greyscale">Sivinski odtenki</string>
+  <string name="Effects.invert">Obrni</string>
+  <string name="Effects.none">Nič</string>
+  <string name="Effects.pixelate">Velike točke</string>
+  <string name="Effects.sepia">Stare barve</string>
+  <string name="Effects.sharpen">Poostri</string>
+  <string name="Effects.sharpen_complex">Poostri (zapleteno)</string>
+  <string name="Effects.zoom_blur">Zameglitev pri povečavi</string>
+  <string name="PlayerControl.NoPlayer">Ni predvajalnika</string>
+  <string name="PlayerControl.NoMediaItem">- Ni vsebine -</string>
+  <string name="PlayerControl.UnknownMediaItem">Nepoznana vsebina</string>
+  <string name="PlayerControl.UnknownPlayerContextName">Predvajalnik</string>
+  <string name="PlayerControl.HeaderNormal">{0}</string>
+  <!--{0} = media item title-->
+  <string name="PlayerControl.HeaderPiP">{0} (PiP)</string>
+  <!--{0} = media item title-->
+  <string name="PlayerControl.Playing">Predvajam</string>
+  <string name="PlayerControl.Paused">Zaustavljeno</string>
+  <string name="PlayerControl.SeekingForward">Preskok naprej {0}</string>
+  <!--For example: "Seeking forward (2x)"-->
+  <string name="PlayerControl.SeekingBackward">Preskok nazaj {0}</string>
+  <!--For example: "Seeking forward (2x)"-->
+  <string name="PlayerControl.SlowMotionForward">Počasni posnetek naprej {0}</string>
+  <!--For example: "Slowmotion forward (0.5x)"-->
+  <string name="PlayerControl.SlowMotionBackward">Počasni posnetek nazaj {0}</string>
+  <!--For example: "Slowmotion backward (0.5x)"-->
+  <string name="PlayerControl.PlaybackRateHint">{0}x</string>
+  <!--For example: 2x or 0.5x-->
+  <string name="PlayerControl.Stopped">Zaustavljeno</string>
+  <string name="PlayerControl.Ended">Končano</string>
+  <string name="PlayerControl.Active">Aktivno</string>
+</resources>
