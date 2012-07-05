@@ -6,6 +6,7 @@
   <string name="Media.AudioMenuItem">Audio</string>
   <string name="Media.VideosMenuItem">Videos</string>
   <string name="Media.SeriesMenuItem">Series</string>
+  <string name="Media.MoviesMenuItem">Movies</string>
   <string name="Media.ImagesMenuItem">Images</string>
 
   <!-- Filter titles -->
@@ -27,6 +28,7 @@
   <string name="Media.ShowAllAudioItemsMenuItem">Show all</string>
   <string name="Media.ShowAllVideoItemsMenuItem">Show all</string>
   <string name="Media.ShowAllImageItemsMenuItem">Show all</string>
+  <string name="Media.ShowAllMoviesMenuItem">Show all</string>
 
   <!-- Special filters names -->
   <string name="Media.ImageFilterSmall">Small</string>
@@ -55,6 +57,7 @@
   <string name="Media.FilterSeriesSeasonNavbarDisplayLabel">Season {0}</string>
   <string name="Media.FilterImageItemsNavbarDisplayLabel">Name: {0}</string>
   <string name="Media.FilterSystemNavbarDisplayLabel">System: {0}</string>
+  <string name="Media.FilterMoviesNavbarDisplayLabel">Movies: {0}</string>
 
   <!-- Display labels for workflow navigation contexts -->
   <string name="Media.BrowseMediaNavigationRootWorkflowNavigationContextDisplayLabel">Browse media</string>
@@ -62,6 +65,7 @@
   <string name="Media.AudioNavigationRootWorkflowNavigationContextDisplayLabel">Audio library</string>
   <string name="Media.VideoNavigationRootWorkflowNavigationContextDisplayLabel">Video library</string>
   <string name="Media.SeriesNavigationRootWorkflowNavigationContextDisplayLabel">Series library</string>
+  <string name="Media.MoviesNavigationRootWorkflowNavigationContextDisplayLabel">Movies library</string>
   <string name="Media.ImageNavigationRootWorkflowNavigationContextDisplayLabel">Image library</string>
   <string name="Media.VideoCurrentlyPlayingWorkflowStateNavigationContextDisplayLabel">Current video</string>
   <string name="Media.VideoFullscreenContentWorkflowStateNavigationContextDisplayLabel">Fullscreen video</string>
@@ -87,6 +91,7 @@
   <string name="Media.VideoItemsHeader">Videos</string>
   <string name="Media.AudioItemsHeader">Audio items</string>
   <string name="Media.SeriesItemsHeader">Episodes</string>
+  <string name="Media.MoviesItemsHeader">Movies</string>
   <string name="Media.ImageItemsHeader">Images</string>
   <string name="Media.SimpleSearchHeader">Simple search</string>
   <string name="Media.ChooseActorHeader">Choose an actor</string>
