@@ -6,6 +6,7 @@
     xmlns:collections="clr-namespace:MediaPortal.UI.Presentation.DataObjects;assembly=MediaPortal.UI"
     xmlns:mp_special_controls="clr-namespace:MediaPortal.UI.SkinEngine.SpecialElements.Controls"
     xmlns:fanart="clr-namespace:MediaPortal.Extensions.UserServices.FanArtService.Client;assembly=FanArtService.Client"
+    xmlns:animation="clr-namespace:MediaPortal.UI.SkinEngine.Controls.Brushes.Animation;assembly=SkinEngine"
     DependsOnStyleResources="Colors,Buttons,Consts,OtherControls,Widgets"
     >
 
@@ -14,7 +15,10 @@
 
   <!-- default brush used to paint the background of a page/window -->
   <ResourceWrapper x:Key="BackgroundBrush">
-    <VisualBrush>
+    <VisualBrush AnimationEnabled="True">
+      <VisualBrush.Animation>
+        <animation:KenBurnsAnimator Duration="20" /> <!-- Temporaty longer duration to have enough time to test effect in Series -->
+      </VisualBrush.Animation>
       <VisualBrush.Visual>
         <Grid VerticalAlignment="Stretch" HorizontalAlignment="Stretch">
           <Grid.Resources>

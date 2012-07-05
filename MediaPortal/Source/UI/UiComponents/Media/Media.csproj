@@ -290,7 +290,9 @@
     <Content Include="Skin\default\screens\FullscreenContentAudio.xaml" />
     <Content Include="Skin\default\screens\LocalMediaNavigation.xaml" />
     <Content Include="Skin\default\screens\BrowseMediaNavigation.xaml" />
-    <Content Include="Skin\default\screens\MediaItemsList.inc" />
+    <Content Include="Skin\default\screens\MediaItemsList.inc">
+      <SubType>Designer</SubType>
+    </Content>
     <Content Include="Skin\default\screens\MediaItemsListHeader.inc" />
     <Content Include="Skin\default\screens\AudioShowItems.xaml" />
     <Content Include="Skin\default\screens\VideoShowItems.xaml" />

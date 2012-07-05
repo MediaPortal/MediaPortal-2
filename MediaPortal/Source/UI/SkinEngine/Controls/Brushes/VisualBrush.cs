@@ -101,7 +101,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
 
     #endregion
 
-    void OnVisualChanged(AbstractProperty prop, object oldVal)
+    void OnVisualChanged(AbstractProperty prop, object oldValue)
     {
       PrepareVisual();
     }
@@ -114,7 +114,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
       // Unfortunately, brushes/brush effects are based on textures and cannot work with surfaces, so we need this additional copy step
       GraphicsDevice.Device.StretchRectangle(
           _visualSurface.Surface, new Rectangle(Point.Empty, _visualSurface.Size),
-          _visualTexture.Surface0, new Rectangle(Point.Empty,  _visualTexture.Size),
+          _visualTexture.Surface0, new Rectangle(Point.Empty, _visualTexture.Size),
           TextureFilter.None);
     }
 

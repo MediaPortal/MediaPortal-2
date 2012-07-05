@@ -22,13 +22,17 @@
 
 #endregion
 
+using System;
+using System.Drawing;
 using MediaPortal.Common.General;
 using MediaPortal.UI.SkinEngine.ContentManagement;
+using MediaPortal.UI.SkinEngine.Controls.Brushes.Animation;
 using MediaPortal.UI.SkinEngine.Controls.Visuals;
 using MediaPortal.UI.SkinEngine.Rendering;
 using SlimDX;
 using SlimDX.Direct3D9;
 using MediaPortal.Utilities.DeepCopy;
+using Stretch = MediaPortal.UI.SkinEngine.Controls.Visuals.Stretch;
 
 namespace MediaPortal.UI.SkinEngine.Controls.Brushes
 {
@@ -79,6 +83,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
     protected AbstractProperty _stretchProperty;
     protected AbstractProperty _viewPortProperty;
     protected AbstractProperty _tileModeProperty;
+    protected AbstractProperty _animationProperty;
+    protected AbstractProperty _animationEnabledProperty;
 
     protected bool _refresh = true;
     protected bool _simplemode = false;
@@ -86,6 +92,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
     protected Vector4 _textureViewport;
     protected Vector4 _brushTransform;
     protected Matrix _relativeTransformCache;
+
     #endregion
 
     #region Ctor
@@ -109,6 +116,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
       _stretchProperty = new SProperty(typeof(Stretch), Stretch.Fill);
       _tileModeProperty = new SProperty(typeof(TileMode), TileMode.None);
       _viewPortProperty = new SProperty(typeof(Vector4), new Vector4(0, 0, 1, 1));
+      _animationProperty = new SProperty(typeof(IImageAnimator), null);
+      _animationEnabledProperty = new SProperty(typeof(bool), false);
     }
 
     void Attach()
@@ -118,6 +127,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
       _stretchProperty.Attach(OnPropertyChanged);
       _tileModeProperty.Attach(OnPropertyChanged);
       _viewPortProperty.Attach(OnPropertyChanged);
+      _animationProperty.Attach(OnAnimationChanged);
+      _animationEnabledProperty.Attach(OnPropertyChanged);
     }
 
     void Detach()
@@ -127,6 +138,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
       _stretchProperty.Detach(OnPropertyChanged);
       _tileModeProperty.Detach(OnPropertyChanged);
       _viewPortProperty.Detach(OnPropertyChanged);
+      _animationProperty.Detach(OnAnimationChanged);
+      _animationEnabledProperty.Detach(OnPropertyChanged);
     }
 
     public override void DeepCopy(IDeepCopyable source, ICopyManager copyManager)
@@ -139,6 +152,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
       Stretch = b.Stretch;
       Tile = b.Tile;
       ViewPort = copyManager.GetCopy(b.ViewPort);
+      Animation = copyManager.GetCopy(b.Animation);
+      AnimationEnabled = b.AnimationEnabled;
       _refresh = true;
       Attach();
     }
@@ -217,6 +232,28 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
       set { _tileModeProperty.SetValue(value); }
     }
 
+    public AbstractProperty AnimationProperty
+    {
+      get { return _animationProperty; }
+    }
+
+    public IImageAnimator Animation
+    {
+      get { return (IImageAnimator) _animationProperty.GetValue(); }
+      set { _animationProperty.SetValue(value); }
+    }
+
+    public AbstractProperty AnimationEnabledProperty
+    {
+      get { return _animationEnabledProperty; }
+    }
+
+    public bool AnimationEnabled
+    {
+      get { return (bool) _animationEnabledProperty.GetValue(); }
+      set { _animationEnabledProperty.SetValue(value); }
+    }
+
     #endregion
 
     /// <summary>
@@ -239,6 +276,11 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
       base.OnPropertyChanged(prop, oldValue);
     }
 
+    private void OnAnimationChanged(AbstractProperty property, object oldvalue)
+    {
+      Reset();
+    }
+
     protected override bool BeginRenderBrushOverride(PrimitiveBuffer primitiveContext, RenderContext renderContext)
     {
       if (Texture == null)
@@ -246,7 +288,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
 
       Matrix finalTransform = renderContext.Transform.Clone();
 
-      if (_refresh) 
+      if (_refresh)
       {
         RefreshEffectParameters();
         _effect = ContentManager.Instance.GetEffect(_simplemode ? EFFECT_TILE_SIMPLE : EFFECT_TILE);
@@ -254,9 +296,9 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
       }
 
       if (_simplemode)
-        SetSimpleEffectParameters(renderContext);   
+        SetSimpleEffectParameters(renderContext);
       else
-        SetEffectParameters(renderContext);  
+        SetEffectParameters(renderContext);
 
       _effect.StartRender(Texture, finalTransform);
 
@@ -294,7 +336,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
           case Stretch.Uniform:
             // Center (or alignment), keep aspect ratio and show borders
             {
-              float ratio = System.Math.Min(ViewPort.Z / brushSize.X, ViewPort.W / brushSize.Y);
+              float ratio = Math.Min(ViewPort.Z / brushSize.X, ViewPort.W / brushSize.Y);
               brushSize.X *= ratio;
               brushSize.Y *= ratio;
             }
@@ -303,7 +345,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
           case Stretch.UniformToFill:
             // Center (or alignment), keep aspect ratio, zoom in to avoid borders
             {
-              float ratio = System.Math.Max(ViewPort.Z / brushSize.X, ViewPort.W / brushSize.Y);
+              float ratio = Math.Max(ViewPort.Z / brushSize.X, ViewPort.W / brushSize.Y);
               brushSize.X *= ratio;
               brushSize.Y *= ratio;
             }
@@ -322,10 +364,10 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
       // Transform ViewPort into Texture-space and store for later use in tiling
       _textureViewport = new Vector4
         {
-            X = ViewPort.X*repeatx - brushRect.X*repeatx,
-            Y = ViewPort.Y*repeaty - brushRect.Y*repeaty,
-            Z = ViewPort.Z*repeatx,
-            W = ViewPort.W*repeaty
+          X = ViewPort.X * repeatx - brushRect.X * repeatx,
+          Y = ViewPort.Y * repeaty - brushRect.Y * repeaty,
+          Z = ViewPort.Z * repeatx,
+          W = ViewPort.W * repeaty
         };
 
       // This structure is used for modifying vertex texture coords to position the brush texture
@@ -384,7 +426,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
       _effect.Parameters[PARAM_TRANSFORM] = GetCachedFinalBrushTransform();
       _effect.Parameters[PARAM_OPACITY] = (float) (Opacity * renderContext.Opacity);
       _effect.Parameters[PARAM_TEXTURE_VIEWPORT] = _textureViewport;
-      _effect.Parameters[PARAM_BRUSH_TRANSFORM] = _brushTransform;
+      _effect.Parameters[PARAM_BRUSH_TRANSFORM] = GetTextureClip();
       _effect.Parameters[PARAM_U_OFFSET] = uvoffset.X;
       _effect.Parameters[PARAM_V_OFFSET] = uvoffset.Y;
     }
@@ -395,7 +437,34 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
       _effect.Parameters[PARAM_TRANSFORM] = GetCachedFinalBrushTransform();
       _effect.Parameters[PARAM_OPACITY] = (float) (Opacity * renderContext.Opacity);
       _effect.Parameters[PARAM_TEXTURE_VIEWPORT] = _textureViewport;
-      _effect.Parameters[PARAM_BRUSH_TRANSFORM] = _brushTransform;
+      _effect.Parameters[PARAM_BRUSH_TRANSFORM] = GetTextureClip();
+
+    }
+
+    public void Reset()
+    {
+      if (Animation != null)
+        Animation.Initialize();
+      _refresh = true;
+    }
+
+    public Vector4 GetTextureClip()
+    {
+      // TODO: Execute animation in own timer
+      if (Animation == null || !AnimationEnabled)
+        return _brushTransform;
+
+      Size size = new Size((int) BrushDimensions.X, (int) BrushDimensions.Y);
+      Size outputSize = new Size((int) _vertsBounds.Width, (int) _vertsBounds.Height);
+      RectangleF textureClip = Animation.GetZoomRect(size, outputSize);
+
+      var vector4 = new Vector4(
+        -textureClip.X * TextureMaxUV.X, 
+        -textureClip.Y * TextureMaxUV.Y,
+        textureClip.Width * TextureMaxUV.X, 
+        textureClip.Height * TextureMaxUV.Y
+        );
+      return vector4;
     }
 
     protected virtual Vector4 AlignBrushInViewport(Vector2 brush_size)
