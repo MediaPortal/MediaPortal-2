@@ -1,3 +1,5 @@
+[main]
+host= https://www.transifex.com
 [MP2.SlimTv4HomeProvider]
 source_lang=en
 file_filter=Cache\SlimTv4HomeProvider\strings_<lang>.xml
@@ -8,8 +10,6 @@ source_lang=en
 file_filter=Cache\SlimTvClient\strings_<lang>.xml
 source_file=Cache\SlimTvClient\strings_en.xml
 type=ANDROID
-[main]
-host= https://www.transifex.com
 [MP2.TV4Home]
 source_lang=en
 file_filter=Cache\TV4Home\strings_<lang>.xml
@@ -109,9 +109,4 @@ type=ANDROID
 source_lang=en
 file_filter=Cache\ZipResourceProvider\strings_<lang>.xml
 source_file=Cache\ZipResourceProvider\strings_en.xml
-type=ANDROID
-[MP2.RemovableMediaManager]
-source_lang=en
-file_filter=Cache\RemovableMediaManager\strings_<lang>.xml
-source_file=Cache\RemovableMediaManager\strings_en.xml
 type=ANDROID
