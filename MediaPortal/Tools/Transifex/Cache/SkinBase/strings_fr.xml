@@ -155,7 +155,7 @@
   <string name="SharesConfig.SharesEditChooseCategoriesWorkflowNavigationContextDisplayLabel">Choisir des catégories</string>
   <string name="SharesConfig.CannotAddSharesTitle">Impossible d\'ajouter les partages réseau</string>
   <string name="SharesConfig.CannotAddShareLocalHomeServerNotConnected">Le serveur local est situé sur le même ordinateur, donc toutes les actions doivent être enregistrées au niveau du serveur. Mais le serveur n\'est pas connecté en ce moment. SVP lancez le serveur local et essayez à nouveau.</string>
-  <string name="SharesConfig.SharesOverview">Aperçu des partages réseau</string>
+  <string name="SharesConfig.SharesConfiguration.Title">Configuration des partages réseau</string>
   <string name="SharesConfig.NoSharesAvailable">Absence de partage réseau disponible</string>
   <string name="SharesConfig.ShareInformationHeader">Information sur le partage réseau</string>
   <string name="SharesConfig.ShareNameInfo">Nom : </string>
@@ -183,6 +183,11 @@
   <string name="SharesConfig.ChooseResourceProviderPathForShare">Choisir le chemin d\'accès du partage réseau</string>
   <string name="SharesConfig.EditShareName">Définir le nom du partage réseau</string>
   <string name="SharesConfig.ChooseShareCategories">Choisir la catégorie de fichiers multimédia présent dans le partage réseau</string>
+  <string name="SharesConfig.SharePathExists"></string>
+  <string name="SharesConfig.ShareNameExists"></string>
+  <string name="SharesConfig.ShareNameEmpty"></string>
+  <string name="SharesConfig.EditShareProblemHeader"></string>
+  <string name="SharesConfig.EditShareProblemText"></string>
   <string name="SharesConfig.MenuAddShare">Ajouter</string>
   <string name="SharesConfig.MenuEditShares">Éditer</string>
   <string name="SharesConfig.MenuRemoveShares">Supprimer</string>
@@ -204,7 +209,7 @@
   <string name="UPnPFrontendServer.ModelDescription">Client MediaPortal 2 - l\'interface graphique MediaPortal. Lit les fichiers multimédias, abrite les partages réseau locaux et donne accès à l\'interface utilisateur.</string>
   <string name="UPnPFrontendServer.ModelName">Client MediaPortal 2</string>
   <string name="UPnPFrontendServer.ModelNumber">1</string>
-  <!--<string Name="UPnPFrontendServer.ModelUrl">...</string>-->
+  <!--<string name="UPnPFrontendServer.ModelUrl">...</string>-->
   <string name="DaysOfWeek.1">Lundi</string>
   <string name="DaysOfWeek.2">Mardi</string>
   <string name="DaysOfWeek.3">Mercredi</string>

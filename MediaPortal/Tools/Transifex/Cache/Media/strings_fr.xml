@@ -6,6 +6,7 @@
   <string name="Media.AudioMenuItem">Audio</string>
   <string name="Media.VideosMenuItem">Vidéos</string>
   <string name="Media.SeriesMenuItem">Séries</string>
+  <string name="Media.MoviesMenuItem"></string>
   <string name="Media.ImagesMenuItem">Images</string>
   <!--Filter titles-->
   <string name="Media.FilterByArtistMenuItem">Filtrer par artiste</string>
@@ -26,6 +27,7 @@
   <string name="Media.ShowAllAudioItemsMenuItem">Tout afficher</string>
   <string name="Media.ShowAllVideoItemsMenuItem">Tout afficher</string>
   <string name="Media.ShowAllImageItemsMenuItem">Tout afficher</string>
+  <string name="Media.ShowAllMoviesMenuItem">Tout afficher</string>
   <!--Special filters names-->
   <string name="Media.ImageFilterSmall">Petit</string>
   <string name="Media.ImageFilterMedium">Moyen</string>
@@ -54,12 +56,14 @@
   <string name="Media.FilterSeriesSeasonNavbarDisplayLabel">Saison : {0}</string>
   <string name="Media.FilterImageItemsNavbarDisplayLabel">Nom : {0}</string>
   <string name="Media.FilterSystemNavbarDisplayLabel">Système : {0}</string>
+  <string name="Media.FilterMoviesNavbarDisplayLabel"></string>
   <!--Display labels for workflow navigation contexts-->
   <string name="Media.BrowseMediaNavigationRootWorkflowNavigationContextDisplayLabel">Parcourir les fichiers multimédias</string>
   <string name="Media.LocalMediaNavigationRootWorkflowNavigationContextDisplayLabel">Fichiers multimédias locaux</string>
   <string name="Media.AudioNavigationRootWorkflowNavigationContextDisplayLabel">Bibliothèque audio</string>
   <string name="Media.VideoNavigationRootWorkflowNavigationContextDisplayLabel">Bibliothèque vidéo</string>
   <string name="Media.SeriesNavigationRootWorkflowNavigationContextDisplayLabel">Bibliothèque Série</string>
+  <string name="Media.MoviesNavigationRootWorkflowNavigationContextDisplayLabel"></string>
   <string name="Media.ImageNavigationRootWorkflowNavigationContextDisplayLabel">Bibliothèque image</string>
   <string name="Media.VideoCurrentlyPlayingWorkflowStateNavigationContextDisplayLabel">Vidéos en cours de lecture</string>
   <string name="Media.VideoFullscreenContentWorkflowStateNavigationContextDisplayLabel">Vidéo en plein écran</string>
@@ -84,6 +88,7 @@
   <string name="Media.VideoItemsHeader">Vidéos</string>
   <string name="Media.AudioItemsHeader">Musique</string>
   <string name="Media.SeriesItemsHeader">Épiodes</string>
+  <string name="Media.MoviesItemsHeader"></string>
   <string name="Media.ImageItemsHeader">Images</string>
   <string name="Media.SimpleSearchHeader">Recherche simple</string>
   <string name="Media.ChooseActorHeader">Choisir un acteur </string>

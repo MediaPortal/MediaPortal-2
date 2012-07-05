@@ -6,6 +6,7 @@
   <string name="Media.AudioMenuItem">Ääni</string>
   <string name="Media.VideosMenuItem">Videot</string>
   <string name="Media.SeriesMenuItem">Sarjat</string>
+  <string name="Media.MoviesMenuItem"></string>
   <string name="Media.ImagesMenuItem">Kuvat</string>
   <!--Filter titles-->
   <string name="Media.FilterByArtistMenuItem">Suodata artistin mukaan</string>
@@ -26,6 +27,7 @@
   <string name="Media.ShowAllAudioItemsMenuItem">Näytä kaikki</string>
   <string name="Media.ShowAllVideoItemsMenuItem">Näytä kaikki</string>
   <string name="Media.ShowAllImageItemsMenuItem">Näytä kaikki</string>
+  <string name="Media.ShowAllMoviesMenuItem">Näytä kaikki</string>
   <!--Special filters names-->
   <string name="Media.ImageFilterSmall">Pieni</string>
   <string name="Media.ImageFilterMedium">Keskikokoinen</string>
@@ -54,12 +56,14 @@
   <string name="Media.FilterSeriesSeasonNavbarDisplayLabel">Kausi {0}</string>
   <string name="Media.FilterImageItemsNavbarDisplayLabel">Nimi: {0}</string>
   <string name="Media.FilterSystemNavbarDisplayLabel">Järjestelmä: {0}</string>
+  <string name="Media.FilterMoviesNavbarDisplayLabel"></string>
   <!--Display labels for workflow navigation contexts-->
   <string name="Media.BrowseMediaNavigationRootWorkflowNavigationContextDisplayLabel">Selaa medioita</string>
   <string name="Media.LocalMediaNavigationRootWorkflowNavigationContextDisplayLabel">Paikallinen media</string>
   <string name="Media.AudioNavigationRootWorkflowNavigationContextDisplayLabel">Äänikirjasto</string>
   <string name="Media.VideoNavigationRootWorkflowNavigationContextDisplayLabel">Videokirjasto</string>
   <string name="Media.SeriesNavigationRootWorkflowNavigationContextDisplayLabel">Sarjakirjasto</string>
+  <string name="Media.MoviesNavigationRootWorkflowNavigationContextDisplayLabel"></string>
   <string name="Media.ImageNavigationRootWorkflowNavigationContextDisplayLabel">Kuvakirjasto</string>
   <string name="Media.VideoCurrentlyPlayingWorkflowStateNavigationContextDisplayLabel">Nykyinen video</string>
   <string name="Media.VideoFullscreenContentWorkflowStateNavigationContextDisplayLabel">Kokonäytön videokuva</string>
@@ -84,6 +88,7 @@
   <string name="Media.VideoItemsHeader">Videot</string>
   <string name="Media.AudioItemsHeader">Audio kohteet</string>
   <string name="Media.SeriesItemsHeader">Jaksot</string>
+  <string name="Media.MoviesItemsHeader"></string>
   <string name="Media.ImageItemsHeader">Kuvat</string>
   <string name="Media.SimpleSearchHeader">Yksinkertainen haku</string>
   <string name="Media.ChooseActorHeader">Valitse näyttelijä</string>

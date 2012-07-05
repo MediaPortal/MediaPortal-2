@@ -13,6 +13,6 @@
   <string name="UPnPBackendServer.ModelDescription">Servidor MediaPortal 2 - allotja fitxers d\'àudio, vídeos i imatges, i proporciona una base de dades de mèdia</string>
   <string name="UPnPBackendServer.ModelName">Servidor MediaPortal 2</string>
   <string name="UPnPBackendServer.ModelNumber">1</string>
-  <!--<string Name="UPnPBackendServer.ModelUrl">...</string>-->
+  <string name="UPnPBackendServer.ModelUrl"></string>
   <string name="MediaLibrary.EmptyOrMiscCharGroupName"><Caràcter buit o miscel·lània></string>
 </resources>

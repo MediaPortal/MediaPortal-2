@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version='1.0' encoding='UTF-8'?>
 <resources>
   <string name="MainForm.Title">MediaPortal 2 Server program</string>
   <string name="MainForm.AttachedClients">Tilkoblede klienter</string>
@@ -13,5 +13,6 @@
   <string name="UPnPBackendServer.ModelDescription">MediaPortal 2 server - er vert for lyd, bilde og video filer. Den tilbyr også en media database.</string>
   <string name="UPnPBackendServer.ModelName">MediaPortal 2 server</string>
   <string name="UPnPBackendServer.ModelNumber">1</string>
-  <string name="MediaLibrary.EmptyOrMiscCharGroupName">&lt;Tom eller tilfeldig karakter&gt;</string>
+  <string name="UPnPBackendServer.ModelUrl"></string>
+  <string name="MediaLibrary.EmptyOrMiscCharGroupName"><Tom eller tilfeldig karakter></string>
 </resources>

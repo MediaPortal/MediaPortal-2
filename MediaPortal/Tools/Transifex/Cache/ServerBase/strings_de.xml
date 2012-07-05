@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version='1.0' encoding='UTF-8'?>
 <resources>
   <string name="MainForm.Title">MediaPortal 2 Server Anwendung</string>
   <string name="MainForm.AttachedClients">Verbundene Clients</string>
@@ -13,5 +13,6 @@
   <string name="UPnPBackendServer.ModelDescription">MediaPortal 2 Server - verwaltet Audio-, Video- und Bilddateien und bietet eine gemeinsame Medien-Datenbank an</string>
   <string name="UPnPBackendServer.ModelName">MediaPortal 2 Server</string>
   <string name="UPnPBackendServer.ModelNumber">1</string>
-  <string name="MediaLibrary.EmptyOrMiscCharGroupName">&lt;Leer oder sonst. Zeichen&gt;</string>
+  <string name="UPnPBackendServer.ModelUrl"></string>
+  <string name="MediaLibrary.EmptyOrMiscCharGroupName"><Leer oder sonst. Zeichen></string>
 </resources>

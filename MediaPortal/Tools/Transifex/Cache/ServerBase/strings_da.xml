@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version='1.0' encoding='UTF-8'?>
 <resources>
   <string name="MainForm.Title">MediaPortal 2 Server Applikation</string>
   <string name="MainForm.AttachedClients">Tilsluttede klienter</string>
@@ -13,5 +13,6 @@
   <string name="UPnPBackendServer.ModelDescription">MediaPortal 2 server - hoster lyd-, video-, billed-filer og giver en medie database</string>
   <string name="UPnPBackendServer.ModelName">MediaPortal 2 server</string>
   <string name="UPnPBackendServer.ModelNumber">1</string>
+  <string name="UPnPBackendServer.ModelUrl"></string>
   <string name="MediaLibrary.EmptyOrMiscCharGroupName">Tom og div. bogstaver</string>
 </resources>

@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version='1.0' encoding='UTF-8'?>
 <resources>
   <string name="System.Yes">Si</string>
   <string name="System.No">No</string>
@@ -30,14 +30,15 @@
   <string name="ServerConnection.NotificationServerAvailableTitle">Server MP2 disponibile</string>
   <string name="ServerConnection.NotificationServerAvailableText">C\'è almeno un server MediaPortal 2 nella rete. Collegati ad esso per avere tutte le opzioni di MediaPortal 2.</string>
   <string name="ServerConnection.ServerFormatText">{0}\' al host \'{1}</string>
-  <string name="ServerConnection.UnknownServerName">&lt;Sconosciuto&gt;</string>
-  <string name="ServerConnection.UnknownServerSystem">&lt;Sconosciuto&gt;</string>
+  <!--{0} = server name, {1} = host name-->
+  <string name="ServerConnection.UnknownServerName"><Sconosciuto></string>
+  <string name="ServerConnection.UnknownServerSystem"><Sconosciuto></string>
   <string name="ServerConnection.HomeServer">Server Home server</string>
   <string name="ServerConnection.AttachToServerWorkflowStateLabel">Collega al server</string>
   <string name="ServerConnection.DetachFromServerWorkflowStateLabel">Scollega dal server</string>
   <string name="ServerConnection.HomeServerWorkflowStateLabel">ServerHome</string>
   <string name="ServerConnection.AttachedText.Before">Questo client MediaPortal 2 è attualmente collegato al server home</string>
-  <string name="ServerConnection.AttachedText.After"></string>
+  <string name="ServerConnection.AttachedText.After"/>
   <string name="ServerConnection.NoHomeServerAttached">Questo client MediaPortal 2 non è attualmente collegato al server home.</string>
   <string name="ServerConnection.HomeServerIsConnected">Il Sever home è attualmente collegato.</string>
   <string name="ServerConnection.HomeServerIsNotConnected">Il Sever home è attualmente scollegato.</string>
@@ -54,6 +55,7 @@
   <string name="ServerConnection.AttachButton">Collega</string>
   <string name="ServerConnection.AttachInfoDialogHeader">Server collegati</string>
   <string name="ServerConnection.AttachInfoDialogText">Questo client MediaPortal 2 era collegato al suo nuovo server home  \'{0}\' sul host \'{1}\'</string>
+  <!--{0} = server name, {1} = host name-->
   <string name="Notifications.Title">Notifiche</string>
   <string name="Notifications.OneMoreNotification">(1 più)</string>
   <string name="Notifications.NMoreNotifications">({0} più)</string>
@@ -68,6 +70,7 @@
   <string name="RemoteResourceProvider.Name">Provider risorsa remota</string>
   <string name="RemoteResourceProvider.Description">Accesso alle risorse localizzate in un altro sistema MediaPortal 2</string>
   <string name="ScreenSaver.MediaPortal2">MediaPortal 2</string>
+  <!--For MP UI player subsystem-->
   <string name="Players.NoPlayerAvailableNotificationTitle">No player</string>
   <string name="Players.NoPlayerAvailableNotificationText">Non ci sono player registrati per riprodurre il media \'{0}\'</string>
   <string name="Players.ErrorPlayingMediaItemTitle">Errore nella riproduzione del media</string>
@@ -76,17 +79,22 @@
   <string name="Players.PlayerConfiguration">Configurazione Player</string>
   <string name="Players.CurrentMediaInfo">Info Media Corrente</string>
   <string name="Players.FullscreenVideo">Schermopieno {0}</string>
+  <!--for example "Fullscreen TV"-->
   <string name="Players.FullscreenImage">Immagine a schermopieno</string>
   <string name="Players.AudioVisualization">Visualizzazione audio</string>
   <string name="Players.PlayerOfType">{0} player</string>
+  <!--for example "Video player"-->
   <string name="Players.SlotNo">Slot #{0}</string>
   <string name="Players.FocusPlayer">Focus {0}</string>
+  <!--for example "Focus video player"-->
   <string name="Players.SwitchPipPlayers">Scambia players PiP</string>
   <string name="Players.ChooseAudioStream">Scegli flusso audio</string>
   <string name="Players.PlayerSlotAudioMenu">Audio menu per {0}</string>
+  <!--for example "Audio menu for Lammbock"-->
   <string name="Players.Mute">Mute</string>
   <string name="Players.MuteOff">Mute off</string>
   <string name="Players.ClosePlayerContext">Chiudi {0}</string>
+  <!--for example "Close video player"-->
   <string name="Players.ChoosePlayerGeometry">Modalità zoom</string>
   <string name="Players.ChoosePlayerEffect">Effetto</string>
   <string name="Settings.Appearance">Apparenza</string>
@@ -111,10 +119,31 @@
   <string name="Settings.Regional.Language.Main">Lingua</string>
   <string name="Settings.Regional.Language.Main.Help">Configura la lingua principale usata nell\'applicazione</string>
   <string name="Settings.Shares">Shares</string>
+  <!--Section name-->
   <string name="Settings.Shares.Configure">Configura shares</string>
+  <!--Group name-->
   <string name="Settings.Shares.ConfigureShares.SharesConfiguration">Configurazione Shares</string>
+  <!--Setting-->
   <string name="Settings.Shares.ConfigureShares.SharesConfiguration.Help">Configura tutte le share locali</string>
+  <string name="Settings.Shares.Overview">Panoramica</string>
+  <!--Group name-->
+  <string name="Settings.Shares.Overview.SharesOverview">Veduta generale shares</string>
+  <!--Setting-->
+  <string name="Settings.Shares.Overview.SharesOverview.Help">Panoramica globale sulle share</string>
+  <string name="Settings.Shares.Imports.ReImportAllShares">Reimporta tutte le share</string>
   <string name="Settings.Plugins">Plugins</string>
+  <string name="SharesOverview.OverviewWorkflowNavigationContextDisplayLabel">Veduta generale shares</string>
+  <string name="SharesOverview.Title">Veduta generale shares</string>
+  <string name="SharesOverview.ReImportAllShares">Reimporta tutte le share</string>
+  <string name="SharesOverview.NotConnectedToHomeServer">Il server Home non è connesso, le informazioni di sistema delle share non possono essere recuperate</string>
+  <string name="Shares.NoSharesInThisView">- Non ci sono shares in questa vista -</string>
+  <string name="Shares.InvalidPath">PERCORSO NON VALIDO: \'{0}\'</string>
+  <!--For example: INVALID PATH: 'C:\XXX\YYY'-->
+  <string name="Shares.Online">Online</string>
+  <string name="Shares.Offline">Offline</string>
+  <string name="Shares.ReImport">Reimportare</string>
+  <string name="Shares.Importing">Importazione...</string>
+  <!--Shares configuration workflow-->
   <string name="SharesConfig.SharesOverviewWorkflowNavigationContextDisplayLabel">Configurazione Shares</string>
   <string name="SharesConfig.SharesRemoveWorkflowNavigationContextDisplayLabel">Rimuovi shares</string>
   <string name="SharesConfig.ShareInfoWorkflowNavigationContextDisplayLabel">Info shares</string>
@@ -126,8 +155,7 @@
   <string name="SharesConfig.SharesEditChooseCategoriesWorkflowNavigationContextDisplayLabel">Scegli categorie</string>
   <string name="SharesConfig.CannotAddSharesTitle">Non è possibile aggiungere shares</string>
   <string name="SharesConfig.CannotAddShareLocalHomeServerNotConnected">Il server home è installato nello stesso computer, in questo modo tutte le shares devono essere registrate nel server.Ma il server al momento non è connesso.Perfare fai partire il server home e prova nuovamente.</string>
-  <string name="SharesConfig.SharesOverview">Veduta generale shares</string>
-  <string name="SharesConfig.NoSharesInThisView">- Non ci sono shares in questa vista -</string>
+  <string name="SharesConfig.SharesConfiguration.Title">Configurazione Shares</string>
   <string name="SharesConfig.NoSharesAvailable">Non ci sono shares disponibili</string>
   <string name="SharesConfig.ShareInformationHeader">Informazioni shares</string>
   <string name="SharesConfig.ShareNameInfo">Nome:</string>
@@ -138,7 +166,6 @@
   <string name="SharesConfig.ShareMediaCategoriesInfo">Categorie media:</string>
   <string name="SharesConfig.ReImportShare">eimporta Share</string>
   <string name="SharesConfig.SetupDefaultShares">Configura shares di default</string>
-  <string name="SharesConfig.InvalidPath">PERCORSO NON VALIDO: \'{0}\'</string>
   <string name="SharesConfig.RemoveShares">Rimuovi shares</string>
   <string name="SharesConfig.EditShare">Edita shares</string>
   <string name="SharesConfig.ChooseSystem">Scegli sistema</string>
@@ -152,17 +179,22 @@
   <string name="SharesConfig.NoConfigLocalSharesHomeServerLocal">Il server home è installato nella stessa macchina,così possono essere configurate solo le shares globali</string>
   <string name="SharesConfig.ChooseResourceProviderForShare">Perfavore seleziona un provider per la share</string>
   <string name="SharesConfig.EditResourceProviderPathForShare">Modifica il percorso per la share</string>
-  <string name="SharesConfig.ResourceProviderPathIsNotValid">Configura un percorso valido nel provider di risorse scelto.Puoi inserire un semplice percorso che è capibile per il provider di risorsa.Puoi anche inserire un percorso complesso nel formato {[Base-ResourceProvider-ID]}://[Base-ResourceProvider-Path]&gt;{[Chained-ResourceProvider-ID]}://[Chained-ResourceProvider-Path]&gt;...</string>
+  <string name="SharesConfig.ResourceProviderPathIsNotValid">Configura un percorso valido nel provider di risorse scelto.Puoi inserire un semplice percorso che è capibile per il provider di risorsa.Puoi anche inserire un percorso complesso nel formato {[Base-ResourceProvider-ID]}://[Base-ResourceProvider-Path]>{[Chained-ResourceProvider-ID]}://[Chained-ResourceProvider-Path]>...</string>
   <string name="SharesConfig.ChooseResourceProviderPathForShare">Scegli il percorso della share</string>
   <string name="SharesConfig.EditShareName">Configura il nome mostrato dalla share</string>
   <string name="SharesConfig.ChooseShareCategories">Scegli le categorie del contenuto dei media nella share</string>
-  <string name="SharesConfig.ChooseMetadataExtractorsManually">Scegli l\'estrattore dei metadati manualmente</string>
-  <string name="SharesConfig.ChooseShareMetadataExtractors">Scegli l\'estrattore dei metadati che dovrebbe essere applicato alla share</string>
+  <string name="SharesConfig.SharePathExists"></string>
+  <string name="SharesConfig.ShareNameExists"></string>
+  <string name="SharesConfig.ShareNameEmpty"></string>
+  <string name="SharesConfig.EditShareProblemHeader"></string>
+  <string name="SharesConfig.EditShareProblemText"></string>
   <string name="SharesConfig.MenuAddShare">Aggiungi</string>
   <string name="SharesConfig.MenuEditShares">Modifica</string>
   <string name="SharesConfig.MenuRemoveShares">Rimuovi</string>
   <string name="SharesConfig.AddServerShare">Aggiungi share globale</string>
+  <!--Must fit for both multiseat and singleseat, that's why we don't write "server share"-->
   <string name="SharesConfig.EditServerShare">Modifica share globale</string>
+  <!--Must fit for both multiseat and singleseat, that's why we don't write "server share"-->
   <string name="SharesConfig.AddLocalShare">Aggiungi share locale</string>
   <string name="SharesConfig.EditLocalShare">Modifica share locale</string>
   <string name="SharesConfig.UpdateShareRelocateItemsQueryDialogHeader">Aggiorna share</string>
@@ -177,6 +209,7 @@
   <string name="UPnPFrontendServer.ModelDescription">Client MediaPortal 2 t - IL GUI MediaPortal. Riproduce contenuti multimediali, contiene le shares locali e fornisce l\'interfaccia utente.</string>
   <string name="UPnPFrontendServer.ModelName">Client MediaPortal 2</string>
   <string name="UPnPFrontendServer.ModelNumber">1</string>
+  <!--<string name="UPnPFrontendServer.ModelUrl">...</string>-->
   <string name="DaysOfWeek.1">Lunedì</string>
   <string name="DaysOfWeek.2">Martedì</string>
   <string name="DaysOfWeek.3">Mercoledì</string>

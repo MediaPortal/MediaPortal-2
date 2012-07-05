@@ -155,7 +155,7 @@
   <string name="SharesConfig.SharesEditChooseCategoriesWorkflowNavigationContextDisplayLabel">Valitse luokat</string>
   <string name="SharesConfig.CannotAddSharesTitle">Ei voi lisätä verkkojakoja</string>
   <string name="SharesConfig.CannotAddShareLocalHomeServerNotConnected">Kotipalvelin sijaitsee samassa tietokoneessa, joten kaikki jaot on rekisteröitävä palvelimella. Mutta palvelin ei ole yhdistetty tällä hetkellä. Käynnistä kotipalvelin ja yritä uudelleen.</string>
-  <string name="SharesConfig.SharesOverview">Verkkojakojen yleiskatsaus</string>
+  <string name="SharesConfig.SharesConfiguration.Title">Verkkojakojen määritykset</string>
   <string name="SharesConfig.NoSharesAvailable">Verkkojakoja ei ole käytettävissä</string>
   <string name="SharesConfig.ShareInformationHeader">Tietoja verkkojaoista</string>
   <string name="SharesConfig.ShareNameInfo">Nimi:</string>
@@ -183,6 +183,11 @@
   <string name="SharesConfig.ChooseResourceProviderPathForShare">Valitse verkkojaon polku</string>
   <string name="SharesConfig.EditShareName">Muokkaa verkkojaon näyttönimi</string>
   <string name="SharesConfig.ChooseShareCategories">Valitse verkkojaolla sijaitsevien media-sisältöjen luokat</string>
+  <string name="SharesConfig.SharePathExists"></string>
+  <string name="SharesConfig.ShareNameExists"></string>
+  <string name="SharesConfig.ShareNameEmpty"></string>
+  <string name="SharesConfig.EditShareProblemHeader"></string>
+  <string name="SharesConfig.EditShareProblemText"></string>
   <string name="SharesConfig.MenuAddShare">Lisää</string>
   <string name="SharesConfig.MenuEditShares">Muokkaa</string>
   <string name="SharesConfig.MenuRemoveShares">Poista</string>
@@ -204,7 +209,7 @@
   <string name="UPnPFrontendServer.ModelDescription">MediaPortal 2 asiakasohjelma - MediaPortal GUI. Toistaa mediasisältöä, isännöi paikallisia verkkojakoja ja tarjoaa käyttöliittymän.</string>
   <string name="UPnPFrontendServer.ModelName">MediaPortal 2 asiakaskone</string>
   <string name="UPnPFrontendServer.ModelNumber">1</string>
-  <!--<string Name="UPnPFrontendServer.ModelUrl">...</string>-->
+  <!--<string name="UPnPFrontendServer.ModelUrl">...</string>-->
   <string name="DaysOfWeek.1">Maanantai</string>
   <string name="DaysOfWeek.2">Tiistai</string>
   <string name="DaysOfWeek.3">Keskiviikko</string>

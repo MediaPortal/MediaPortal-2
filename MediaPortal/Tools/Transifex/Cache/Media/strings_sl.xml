@@ -6,6 +6,7 @@
   <string name="Media.AudioMenuItem">Audio</string>
   <string name="Media.VideosMenuItem">Video</string>
   <string name="Media.SeriesMenuItem">Nanizanke</string>
+  <string name="Media.MoviesMenuItem"></string>
   <string name="Media.ImagesMenuItem">Slike</string>
   <!--Filter titles-->
   <string name="Media.FilterByArtistMenuItem">Omeji po izvajalcu</string>
@@ -26,6 +27,7 @@
   <string name="Media.ShowAllAudioItemsMenuItem">Prikaži vse</string>
   <string name="Media.ShowAllVideoItemsMenuItem">Prikaži vse</string>
   <string name="Media.ShowAllImageItemsMenuItem">Prikaži vse</string>
+  <string name="Media.ShowAllMoviesMenuItem">Prikaži vse</string>
   <!--Special filters names-->
   <string name="Media.ImageFilterSmall">Male</string>
   <string name="Media.ImageFilterMedium">Srednje</string>
@@ -54,12 +56,14 @@
   <string name="Media.FilterSeriesSeasonNavbarDisplayLabel">Sezona {0}</string>
   <string name="Media.FilterImageItemsNavbarDisplayLabel">Ime: {0}</string>
   <string name="Media.FilterSystemNavbarDisplayLabel">Sistem: {0}</string>
+  <string name="Media.FilterMoviesNavbarDisplayLabel"></string>
   <!--Display labels for workflow navigation contexts-->
   <string name="Media.BrowseMediaNavigationRootWorkflowNavigationContextDisplayLabel">Preglej vsebine</string>
   <string name="Media.LocalMediaNavigationRootWorkflowNavigationContextDisplayLabel">Lokalne vsebine</string>
   <string name="Media.AudioNavigationRootWorkflowNavigationContextDisplayLabel">Audio knjižnjica</string>
   <string name="Media.VideoNavigationRootWorkflowNavigationContextDisplayLabel">Video knjižnjica</string>
   <string name="Media.SeriesNavigationRootWorkflowNavigationContextDisplayLabel">Knjižnjica nanizank</string>
+  <string name="Media.MoviesNavigationRootWorkflowNavigationContextDisplayLabel"></string>
   <string name="Media.ImageNavigationRootWorkflowNavigationContextDisplayLabel">Knjižnjica slik</string>
   <string name="Media.VideoCurrentlyPlayingWorkflowStateNavigationContextDisplayLabel">Trenutni film</string>
   <string name="Media.VideoFullscreenContentWorkflowStateNavigationContextDisplayLabel">Celozaslonski viseo</string>
@@ -84,6 +88,7 @@
   <string name="Media.VideoItemsHeader">Filmi</string>
   <string name="Media.AudioItemsHeader">Audio datoteke</string>
   <string name="Media.SeriesItemsHeader">Epizode</string>
+  <string name="Media.MoviesItemsHeader"></string>
   <string name="Media.ImageItemsHeader">Slike</string>
   <string name="Media.SimpleSearchHeader">Preprosto iskanje</string>
   <string name="Media.ChooseActorHeader">Izberi igralca</string>

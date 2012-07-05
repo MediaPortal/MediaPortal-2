@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version='1.0' encoding='UTF-8'?>
 <resources>
   <string name="System.Yes">Да</string>
   <string name="System.No">Нет</string>
@@ -30,6 +30,7 @@
   <string name="ServerConnection.NotificationServerAvailableTitle">Доступен сервер MP2</string>
   <string name="ServerConnection.NotificationServerAvailableText">По крайней мере один MediaPortal 2 сервер доступен в сети. Подключитесь к нему чтобы получить все возможности MediaPortal 2.</string>
   <string name="ServerConnection.ServerFormatText"></string>
+  <!--{0} = server name, {1} = host name-->
   <string name="ServerConnection.UnknownServerName">Неизвестный сервер</string>
   <string name="ServerConnection.UnknownServerSystem">Неизвестная система</string>
   <string name="ServerConnection.HomeServer">Основной сервер</string>
@@ -37,7 +38,7 @@
   <string name="ServerConnection.DetachFromServerWorkflowStateLabel">Отключиться от сервера</string>
   <string name="ServerConnection.HomeServerWorkflowStateLabel">ОсновнойСервер</string>
   <string name="ServerConnection.AttachedText.Before">Этот клиент MediaPortal 2 подключен к основному серверу</string>
-  <string name="ServerConnection.AttachedText.After"></string>
+  <string name="ServerConnection.AttachedText.After"/>
   <string name="ServerConnection.NoHomeServerAttached">Этот клиент MediaPortal 2 не подключен к основному серверу</string>
   <string name="ServerConnection.HomeServerIsConnected">Основной сервер подключен</string>
   <string name="ServerConnection.HomeServerIsNotConnected">Основной сервер не подключен</string>
@@ -54,6 +55,7 @@
   <string name="ServerConnection.AttachButton"></string>
   <string name="ServerConnection.AttachInfoDialogHeader"></string>
   <string name="ServerConnection.AttachInfoDialogText"></string>
+  <!--{0} = server name, {1} = host name-->
   <string name="Notifications.Title"></string>
   <string name="Notifications.OneMoreNotification"></string>
   <string name="Notifications.NMoreNotifications"></string>
@@ -68,6 +70,7 @@
   <string name="RemoteResourceProvider.Name"></string>
   <string name="RemoteResourceProvider.Description"></string>
   <string name="ScreenSaver.MediaPortal2"></string>
+  <!--For MP UI player subsystem-->
   <string name="Players.NoPlayerAvailableNotificationTitle"></string>
   <string name="Players.NoPlayerAvailableNotificationText"></string>
   <string name="Players.ErrorPlayingMediaItemTitle"></string>
@@ -76,17 +79,22 @@
   <string name="Players.PlayerConfiguration"></string>
   <string name="Players.CurrentMediaInfo"></string>
   <string name="Players.FullscreenVideo"></string>
+  <!--for example "Fullscreen TV"-->
   <string name="Players.FullscreenImage"></string>
-  <string name="Players.AudioVisualization"></string>
+  <string name="Players.AudioVisualization">Визуализация</string>
   <string name="Players.PlayerOfType"></string>
+  <!--for example "Video player"-->
   <string name="Players.SlotNo"></string>
   <string name="Players.FocusPlayer"></string>
+  <!--for example "Focus video player"-->
   <string name="Players.SwitchPipPlayers"></string>
   <string name="Players.ChooseAudioStream"></string>
   <string name="Players.PlayerSlotAudioMenu"></string>
+  <!--for example "Audio menu for Lammbock"-->
   <string name="Players.Mute"></string>
   <string name="Players.MuteOff"></string>
   <string name="Players.ClosePlayerContext"></string>
+  <!--for example "Close video player"-->
   <string name="Players.ChoosePlayerGeometry"></string>
   <string name="Players.ChoosePlayerEffect"></string>
   <string name="Settings.Appearance"></string>
@@ -100,7 +108,7 @@
   <string name="Settings.General.System.Autostart"></string>
   <string name="Settings.General.System.Autostart.Help"></string>
   <string name="Settings.General.Connectivity"></string>
-  <string name="Settings.General.Connectivity.HomeServer"></string>
+  <string name="Settings.General.Connectivity.HomeServer">Основной сервер</string>
   <string name="Settings.General.Connectivity.HomeServer.Help"></string>
   <string name="Settings.General.Connectivity.ServerListener"></string>
   <string name="Settings.General.Connectivity.ServerListener.Help"></string>
@@ -111,12 +119,33 @@
   <string name="Settings.Regional.Language.Main"></string>
   <string name="Settings.Regional.Language.Main.Help"></string>
   <string name="Settings.Shares"></string>
+  <!--Section name-->
   <string name="Settings.Shares.Configure"></string>
+  <!--Group name-->
   <string name="Settings.Shares.ConfigureShares.SharesConfiguration"></string>
+  <!--Setting-->
   <string name="Settings.Shares.ConfigureShares.SharesConfiguration.Help"></string>
+  <string name="Settings.Shares.Overview"></string>
+  <!--Group name-->
+  <string name="Settings.Shares.Overview.SharesOverview"></string>
+  <!--Setting-->
+  <string name="Settings.Shares.Overview.SharesOverview.Help"></string>
+  <string name="Settings.Shares.Imports.ReImportAllShares"></string>
   <string name="Settings.Plugins"></string>
+  <string name="SharesOverview.OverviewWorkflowNavigationContextDisplayLabel"></string>
+  <string name="SharesOverview.Title"></string>
+  <string name="SharesOverview.ReImportAllShares"></string>
+  <string name="SharesOverview.NotConnectedToHomeServer"></string>
+  <string name="Shares.NoSharesInThisView"></string>
+  <string name="Shares.InvalidPath"></string>
+  <!--For example: INVALID PATH: 'C:\XXX\YYY'-->
+  <string name="Shares.Online"></string>
+  <string name="Shares.Offline"></string>
+  <string name="Shares.ReImport"></string>
+  <string name="Shares.Importing"></string>
+  <!--Shares configuration workflow-->
   <string name="SharesConfig.SharesOverviewWorkflowNavigationContextDisplayLabel"></string>
-  <string name="SharesConfig.SharesRemoveWorkflowNavigationContextDisplayLabel"></string>
+  <string name="SharesConfig.SharesRemoveWorkflowNavigationContextDisplayLabel">Удалить</string>
   <string name="SharesConfig.ShareInfoWorkflowNavigationContextDisplayLabel"></string>
   <string name="SharesConfig.SharesAddChooseSystemWorkflowNavigationContextDisplayLabel"></string>
   <string name="SharesConfig.SharesEditChooseResourceProviderWorkflowNavigationContextDisplayLabel"></string>
@@ -126,8 +155,7 @@
   <string name="SharesConfig.SharesEditChooseCategoriesWorkflowNavigationContextDisplayLabel"></string>
   <string name="SharesConfig.CannotAddSharesTitle"></string>
   <string name="SharesConfig.CannotAddShareLocalHomeServerNotConnected"></string>
-  <string name="SharesConfig.SharesOverview"></string>
-  <string name="SharesConfig.NoSharesInThisView"></string>
+  <string name="SharesConfig.SharesConfiguration.Title"></string>
   <string name="SharesConfig.NoSharesAvailable"></string>
   <string name="SharesConfig.ShareInformationHeader"></string>
   <string name="SharesConfig.ShareNameInfo"></string>
@@ -138,8 +166,7 @@
   <string name="SharesConfig.ShareMediaCategoriesInfo"></string>
   <string name="SharesConfig.ReImportShare"></string>
   <string name="SharesConfig.SetupDefaultShares"></string>
-  <string name="SharesConfig.InvalidPath"></string>
-  <string name="SharesConfig.RemoveShares"></string>
+  <string name="SharesConfig.RemoveShares">Удалить</string>
   <string name="SharesConfig.EditShare"></string>
   <string name="SharesConfig.ChooseSystem"></string>
   <string name="SharesConfig.ChooseSharesToBeRemoved"></string>
@@ -156,13 +183,18 @@
   <string name="SharesConfig.ChooseResourceProviderPathForShare"></string>
   <string name="SharesConfig.EditShareName"></string>
   <string name="SharesConfig.ChooseShareCategories"></string>
-  <string name="SharesConfig.ChooseMetadataExtractorsManually"></string>
-  <string name="SharesConfig.ChooseShareMetadataExtractors"></string>
-  <string name="SharesConfig.MenuAddShare"></string>
+  <string name="SharesConfig.SharePathExists"></string>
+  <string name="SharesConfig.ShareNameExists"></string>
+  <string name="SharesConfig.ShareNameEmpty"></string>
+  <string name="SharesConfig.EditShareProblemHeader"></string>
+  <string name="SharesConfig.EditShareProblemText"></string>
+  <string name="SharesConfig.MenuAddShare">Добавить</string>
   <string name="SharesConfig.MenuEditShares"></string>
-  <string name="SharesConfig.MenuRemoveShares"></string>
+  <string name="SharesConfig.MenuRemoveShares">Удалить</string>
   <string name="SharesConfig.AddServerShare"></string>
+  <!--Must fit for both multiseat and singleseat, that's why we don't write "server share"-->
   <string name="SharesConfig.EditServerShare"></string>
+  <!--Must fit for both multiseat and singleseat, that's why we don't write "server share"-->
   <string name="SharesConfig.AddLocalShare"></string>
   <string name="SharesConfig.EditLocalShare"></string>
   <string name="SharesConfig.UpdateShareRelocateItemsQueryDialogHeader"></string>
@@ -177,6 +209,7 @@
   <string name="UPnPFrontendServer.ModelDescription"></string>
   <string name="UPnPFrontendServer.ModelName"></string>
   <string name="UPnPFrontendServer.ModelNumber"></string>
+  <!--<string name="UPnPFrontendServer.ModelUrl">...</string>-->
   <string name="DaysOfWeek.1"></string>
   <string name="DaysOfWeek.2"></string>
   <string name="DaysOfWeek.3"></string>

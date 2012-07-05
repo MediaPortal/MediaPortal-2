@@ -6,6 +6,7 @@
   <string name="Media.AudioMenuItem">אודיו</string>
   <string name="Media.VideosMenuItem">וידאו</string>
   <string name="Media.SeriesMenuItem">סדרה</string>
+  <string name="Media.MoviesMenuItem"></string>
   <string name="Media.ImagesMenuItem">תמונות</string>
   <!--Filter titles-->
   <string name="Media.FilterByArtistMenuItem">סנן לפי אמן</string>
@@ -26,6 +27,7 @@
   <string name="Media.ShowAllAudioItemsMenuItem">הצג הכל</string>
   <string name="Media.ShowAllVideoItemsMenuItem">הצג הכל</string>
   <string name="Media.ShowAllImageItemsMenuItem">הצג הכל</string>
+  <string name="Media.ShowAllMoviesMenuItem">הצג הכל</string>
   <!--Special filters names-->
   <string name="Media.ImageFilterSmall">קטן</string>
   <string name="Media.ImageFilterMedium">בינוני</string>
@@ -54,12 +56,14 @@
   <string name="Media.FilterSeriesSeasonNavbarDisplayLabel">עונה {0}</string>
   <string name="Media.FilterImageItemsNavbarDisplayLabel">שם: {0}</string>
   <string name="Media.FilterSystemNavbarDisplayLabel">מערכת: {0}</string>
+  <string name="Media.FilterMoviesNavbarDisplayLabel"></string>
   <!--Display labels for workflow navigation contexts-->
   <string name="Media.BrowseMediaNavigationRootWorkflowNavigationContextDisplayLabel">דפדף במדיה</string>
   <string name="Media.LocalMediaNavigationRootWorkflowNavigationContextDisplayLabel">מדיה מקומית</string>
   <string name="Media.AudioNavigationRootWorkflowNavigationContextDisplayLabel">ספרית אודיו</string>
   <string name="Media.VideoNavigationRootWorkflowNavigationContextDisplayLabel">ספרית וידאו</string>
   <string name="Media.SeriesNavigationRootWorkflowNavigationContextDisplayLabel">ספרית סדרות</string>
+  <string name="Media.MoviesNavigationRootWorkflowNavigationContextDisplayLabel"></string>
   <string name="Media.ImageNavigationRootWorkflowNavigationContextDisplayLabel">ספרית תמונות</string>
   <string name="Media.VideoCurrentlyPlayingWorkflowStateNavigationContextDisplayLabel">וידאו נוכחי</string>
   <string name="Media.VideoFullscreenContentWorkflowStateNavigationContextDisplayLabel"></string>
@@ -67,7 +71,7 @@
   <string name="Media.AudioFullscreenContentWorkflowStateNavigationContextDisplayLabel"></string>
   <string name="Media.ShowPlaylistWorkflowStateNavigationContextDisplayLabel"></string>
   <string name="Media.EditPlaylistWorkflowStateNavigationContextDisplayLabel"></string>
-  <string name="Media.PlaylistsOverviewWorkflowStateNavigationContextDisplayLabel"></string>
+  <string name="Media.PlaylistsOverviewWorkflowStateNavigationContextDisplayLabel">רשימות השמעה</string>
   <string name="Media.PlaylistInfoWorkflowStateNavigationContextDisplayLabel"></string>
   <string name="Media.RemovePlaylistsWorkflowStateNavigationContextDisplayLabel"></string>
   <string name="Media.SavePlaylistEditNameWorkflowStateNavigationContextDisplayLabel"></string>
@@ -84,8 +88,9 @@
   <string name="Media.VideoItemsHeader">וידאו</string>
   <string name="Media.AudioItemsHeader"></string>
   <string name="Media.SeriesItemsHeader">פרקים</string>
+  <string name="Media.MoviesItemsHeader"></string>
   <string name="Media.ImageItemsHeader">תמונות</string>
-  <string name="Media.SimpleSearchHeader"></string>
+  <string name="Media.SimpleSearchHeader">חיפוש פשוט</string>
   <string name="Media.ChooseActorHeader">בחר שחקן</string>
   <string name="Media.ChooseVideoGenreHeader">בחר סגנון</string>
   <string name="Media.ChooseVideoYearHeader">בחר שנה</string>
@@ -137,7 +142,7 @@
   <string name="Media.ListIsBeingBuiltHint"></string>
   <string name="Media.SearchResultIsBeingBuiltHint"></string>
   <!--Playlists-->
-  <string name="Media.ManagePlaylists"></string>
+  <string name="Media.ManagePlaylists">רשימות השמעה</string>
   <string name="Media.AddAllToPlaylist"></string>
   <string name="Media.NoItemsToAddHeader"></string>
   <string name="Media.NoItemsToAddText"></string>

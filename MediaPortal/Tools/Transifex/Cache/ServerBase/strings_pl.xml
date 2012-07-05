@@ -13,6 +13,6 @@
   <string name="UPnPBackendServer.ModelDescription"></string>
   <string name="UPnPBackendServer.ModelName"></string>
   <string name="UPnPBackendServer.ModelNumber"></string>
-  <!--<string Name="UPnPBackendServer.ModelUrl">...</string>-->
+  <string name="UPnPBackendServer.ModelUrl"></string>
   <string name="MediaLibrary.EmptyOrMiscCharGroupName"></string>
 </resources>

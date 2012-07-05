@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version='1.0' encoding='UTF-8'?>
 <resources>
   <string name="MainForm.Title"></string>
   <string name="MainForm.AttachedClients"></string>
@@ -13,5 +13,6 @@
   <string name="UPnPBackendServer.ModelDescription"></string>
   <string name="UPnPBackendServer.ModelName"></string>
   <string name="UPnPBackendServer.ModelNumber"></string>
+  <string name="UPnPBackendServer.ModelUrl"></string>
   <string name="MediaLibrary.EmptyOrMiscCharGroupName"></string>
 </resources>

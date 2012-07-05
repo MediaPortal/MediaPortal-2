@@ -1,7 +1,7 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version='1.0' encoding='UTF-8'?>
 <resources>
   <string name="MainForm.Title">MediaPortal 2 server applicatie</string>
-  <string name="MainForm.AttachedClients">Aangesloten clients</string>
+  <string name="MainForm.AttachedClients">Verbonden clients</string>
   <string name="MainForm.Client">Client</string>
   <string name="MainForm.System">Systeem</string>
   <string name="MainForm.ConnectionState">Verbindingsstatus</string>
@@ -13,5 +13,6 @@
   <string name="UPnPBackendServer.ModelDescription">MediaPortal 2 server - host audio bestanden, video\'s en afbeeldingen en levert een mediadatabank</string>
   <string name="UPnPBackendServer.ModelName">MediaPortal 2 server</string>
   <string name="UPnPBackendServer.ModelNumber">1</string>
-  <string name="MediaLibrary.EmptyOrMiscCharGroupName">&lt;Geen of een divers karakter&gt;</string>
+  <string name="UPnPBackendServer.ModelUrl"></string>
+  <string name="MediaLibrary.EmptyOrMiscCharGroupName"><Geen of een divers karakter></string>
 </resources>

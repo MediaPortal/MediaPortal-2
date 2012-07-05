@@ -6,6 +6,7 @@
   <string name="Media.AudioMenuItem">Audio</string>
   <string name="Media.VideosMenuItem">Videá</string>
   <string name="Media.SeriesMenuItem">Seriály</string>
+  <string name="Media.MoviesMenuItem"></string>
   <string name="Media.ImagesMenuItem">Fotky</string>
   <!--Filter titles-->
   <string name="Media.FilterByArtistMenuItem">Filtrovať podľa umelca</string>
@@ -26,6 +27,7 @@
   <string name="Media.ShowAllAudioItemsMenuItem">Ukázať všetko</string>
   <string name="Media.ShowAllVideoItemsMenuItem">Ukázať všetko</string>
   <string name="Media.ShowAllImageItemsMenuItem">Ukázať všetko</string>
+  <string name="Media.ShowAllMoviesMenuItem">Ukázať všetko</string>
   <!--Special filters names-->
   <string name="Media.ImageFilterSmall">Malé</string>
   <string name="Media.ImageFilterMedium">Stredné</string>
@@ -54,12 +56,14 @@
   <string name="Media.FilterSeriesSeasonNavbarDisplayLabel">Sezóna {0}</string>
   <string name="Media.FilterImageItemsNavbarDisplayLabel">Meno: {0}</string>
   <string name="Media.FilterSystemNavbarDisplayLabel">Systém: {0}</string>
+  <string name="Media.FilterMoviesNavbarDisplayLabel"></string>
   <!--Display labels for workflow navigation contexts-->
   <string name="Media.BrowseMediaNavigationRootWorkflowNavigationContextDisplayLabel">Prezerať médiá</string>
   <string name="Media.LocalMediaNavigationRootWorkflowNavigationContextDisplayLabel">Lokálne médiá</string>
   <string name="Media.AudioNavigationRootWorkflowNavigationContextDisplayLabel">Audio knižnica</string>
   <string name="Media.VideoNavigationRootWorkflowNavigationContextDisplayLabel">Video knižnica</string>
   <string name="Media.SeriesNavigationRootWorkflowNavigationContextDisplayLabel">Seriály (knižnica)</string>
+  <string name="Media.MoviesNavigationRootWorkflowNavigationContextDisplayLabel"></string>
   <string name="Media.ImageNavigationRootWorkflowNavigationContextDisplayLabel">Fotky (knižnica)</string>
   <string name="Media.VideoCurrentlyPlayingWorkflowStateNavigationContextDisplayLabel">Aktuálne video</string>
   <string name="Media.VideoFullscreenContentWorkflowStateNavigationContextDisplayLabel">Video na celú obrazovku</string>
@@ -84,6 +88,7 @@
   <string name="Media.VideoItemsHeader">Videá</string>
   <string name="Media.AudioItemsHeader">Audio položky</string>
   <string name="Media.SeriesItemsHeader">Epizódy</string>
+  <string name="Media.MoviesItemsHeader"></string>
   <string name="Media.ImageItemsHeader">Fotky</string>
   <string name="Media.SimpleSearchHeader">Jednoduché hľadanie</string>
   <string name="Media.ChooseActorHeader">Vyberte si herca</string>

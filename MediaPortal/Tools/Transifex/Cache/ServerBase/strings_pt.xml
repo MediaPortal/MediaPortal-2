@@ -1,17 +1,18 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version='1.0' encoding='UTF-8'?>
 <resources>
-  <string name="MainForm.Title"></string>
-  <string name="MainForm.AttachedClients"></string>
-  <string name="MainForm.Client"></string>
-  <string name="MainForm.System"></string>
-  <string name="MainForm.ConnectionState"></string>
-  <string name="MainForm.Connected"></string>
-  <string name="MainForm.Disconnected"></string>
-  <string name="UPnPBackendServer.DefaultFriendlyName"></string>
-  <string name="UPnPBackendServer.Manufacturer"></string>
-  <string name="UPnPBackendServer.ManufacturerUrl"></string>
-  <string name="UPnPBackendServer.ModelDescription"></string>
-  <string name="UPnPBackendServer.ModelName"></string>
-  <string name="UPnPBackendServer.ModelNumber"></string>
-  <string name="MediaLibrary.EmptyOrMiscCharGroupName"></string>
+  <string name="MainForm.Title">Aplicação Servidor MediaPortal 2</string>
+  <string name="MainForm.AttachedClients">Clientes conectados</string>
+  <string name="MainForm.Client">Cliente</string>
+  <string name="MainForm.System">Sistema</string>
+  <string name="MainForm.ConnectionState">Estado da conexão</string>
+  <string name="MainForm.Connected">Conectado</string>
+  <string name="MainForm.Disconnected">Desconectado</string>
+  <string name="UPnPBackendServer.DefaultFriendlyName">Servidor MediaPortal 2</string>
+  <string name="UPnPBackendServer.Manufacturer">Time Mediaportal</string>
+  <string name="UPnPBackendServer.ManufacturerUrl">www.team-mediaportal.com</string>
+  <string name="UPnPBackendServer.ModelDescription">Servidor MediaPortal 2 - hospeda arquivos de áudio, vídeo e imagem e fornece uma base de dados de mídia</string>
+  <string name="UPnPBackendServer.ModelName">Servidor MediaPortal 2</string>
+  <string name="UPnPBackendServer.ModelNumber">1</string>
+  <string name="UPnPBackendServer.ModelUrl"></string>
+  <string name="MediaLibrary.EmptyOrMiscCharGroupName"><Caractere vazio ou misc.></string>
 </resources>

@@ -81,7 +81,7 @@
   <string name="Players.FullscreenVideo"></string>
   <!--for example "Fullscreen TV"-->
   <string name="Players.FullscreenImage"></string>
-  <string name="Players.AudioVisualization"></string>
+  <string name="Players.AudioVisualization">Ásýnd hljóðskráar</string>
   <string name="Players.PlayerOfType">{0} spilari</string>
   <!--for example "Video player"-->
   <string name="Players.SlotNo">Rauf #{0}</string>
@@ -132,8 +132,8 @@
   <string name="Settings.Shares.Overview.SharesOverview.Help"></string>
   <string name="Settings.Shares.Imports.ReImportAllShares"></string>
   <string name="Settings.Plugins">Viðbætur</string>
-  <string name="SharesOverview.OverviewWorkflowNavigationContextDisplayLabel"></string>
-  <string name="SharesOverview.Title"></string>
+  <string name="SharesOverview.OverviewWorkflowNavigationContextDisplayLabel">Yfirlit deilinga</string>
+  <string name="SharesOverview.Title">Yfirlit deilinga</string>
   <string name="SharesOverview.ReImportAllShares"></string>
   <string name="SharesOverview.NotConnectedToHomeServer"></string>
   <string name="Shares.NoSharesInThisView"></string>
@@ -155,7 +155,7 @@
   <string name="SharesConfig.SharesEditChooseCategoriesWorkflowNavigationContextDisplayLabel">Veljið flokka</string>
   <string name="SharesConfig.CannotAddSharesTitle">Get ekki bætt við deilingu</string>
   <string name="SharesConfig.CannotAddShareLocalHomeServerNotConnected"></string>
-  <string name="SharesConfig.SharesOverview">Yfirlit deilingar</string>
+  <string name="SharesConfig.SharesConfiguration.Title">Uppsetning deilingar</string>
   <string name="SharesConfig.NoSharesAvailable">Það eru engar deilingar tiltækar</string>
   <string name="SharesConfig.ShareInformationHeader">Upplýsingar um deilingu</string>
   <string name="SharesConfig.ShareNameInfo">Nafn:</string>
@@ -183,6 +183,11 @@
   <string name="SharesConfig.ChooseResourceProviderPathForShare">Veljið möppu fyrir deilingu</string>
   <string name="SharesConfig.EditShareName"></string>
   <string name="SharesConfig.ChooseShareCategories"></string>
+  <string name="SharesConfig.SharePathExists"></string>
+  <string name="SharesConfig.ShareNameExists"></string>
+  <string name="SharesConfig.ShareNameEmpty"></string>
+  <string name="SharesConfig.EditShareProblemHeader"></string>
+  <string name="SharesConfig.EditShareProblemText"></string>
   <string name="SharesConfig.MenuAddShare">Bæta við deilingu</string>
   <string name="SharesConfig.MenuEditShares">Breyta</string>
   <string name="SharesConfig.MenuRemoveShares">Eyða deilingum</string>
@@ -197,14 +202,14 @@
   <string name="SharesConfig.UpdateShareRelocateItemsQueryText.Description"></string>
   <string name="SharesConfig.UpdateShareRelocateItemsQueryText.Query"></string>
   <string name="SharesConfig.Relocate"></string>
-  <string name="SharesConfig.ReImport"></string>
+  <string name="SharesConfig.ReImport">Endurinnflutningur</string>
   <string name="UPnPFrontendServer.DefaultFriendlyName">MediaPortal 2 biðlari</string>
   <string name="UPnPFrontendServer.Manufacturer">Team Mediaportal</string>
   <string name="UPnPFrontendServer.ManufacturerUrl">www.team-mediaportal.com</string>
   <string name="UPnPFrontendServer.ModelDescription"></string>
   <string name="UPnPFrontendServer.ModelName">MediaPortal 2 biðlari</string>
   <string name="UPnPFrontendServer.ModelNumber">1</string>
-  <!--<string Name="UPnPFrontendServer.ModelUrl">...</string>-->
+  <!--<string name="UPnPFrontendServer.ModelUrl">...</string>-->
   <string name="DaysOfWeek.1">Mánudagur</string>
   <string name="DaysOfWeek.2">Þriðjudagur</string>
   <string name="DaysOfWeek.3">MIðvikudagur</string>

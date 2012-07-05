@@ -13,6 +13,6 @@
   <string name="UPnPBackendServer.ModelDescription">MediaPortal 2 miðlari - geymir hljóðskrár, myndaskrár og ljósmyndir og er með gagnagrunn fyrir þessa miðla</string>
   <string name="UPnPBackendServer.ModelName">MediaPortal 2 miðlari</string>
   <string name="UPnPBackendServer.ModelNumber">1</string>
-  <!--<string Name="UPnPBackendServer.ModelUrl">...</string>-->
+  <string name="UPnPBackendServer.ModelUrl"></string>
   <string name="MediaLibrary.EmptyOrMiscCharGroupName"><Auður eða ýmsir stafir></string>
 </resources>

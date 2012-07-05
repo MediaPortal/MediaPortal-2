@@ -1,15 +1,17 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version='1.0' encoding='UTF-8'?>
 <resources>
   <string name="Weather.WeatherStateDisplayLabel">Väder</string>
   <string name="Weather.WeatherSetupStateDisplayLabel">Väderinställningar</string>
-  <string name="Weather.WeatherLocationStateDisplayLabel">Välj ort</string>
+  <!--Dialog state, doesn't appear at the UI-->
+  <string name="Weather.WeatherLocationStateDisplayLabel">Välj plats</string>
+  <!--Dialog state, doesn't appear at the UI-->
   <string name="Weather.Title">Väder</string>
-  <string name="Weather.ChooseLocation">Välj ort</string>
+  <string name="Weather.ChooseLocation">Välj plats</string>
   <string name="Weather.Refresh">Uppdatera</string>
   <string name="Weather.Updating">Uppdaterar...</string>
   <string name="Weather.Weather">Väder</string>
-  <string name="Weather.NoData">inga data</string>
-  <string name="Weather.Temp">Temp</string>
+  <string name="Weather.NoData">uppgift saknas</string>
+  <string name="Weather.Temp">Temperatur</string>
   <string name="Weather.TempFeel">Känns som</string>
   <string name="Weather.UVIndex">UV index</string>
   <string name="Weather.Wind">Vind</string>
@@ -21,6 +23,7 @@
   <string name="Weather.Sunset">Solnedgång</string>
   <string name="Weather.LastUpdateTime">Senast uppdaterad: {0}</string>
   <string name="Weather.NotUpdatedYet">-</string>
+  <!--Forecast names are mostly assigned 1:1-->
   <string name="Weather.TStorms">Åskoväder</string>
   <string name="Weather.Partly">Delvis</string>
   <string name="Weather.Mostly">Mestadels</string>
@@ -43,7 +46,7 @@
   <string name="Weather.Windy">Blåsigt</string>
   <string name="Weather.Drizzle">Duggregn</string>
   <string name="Weather.Freezing">Frost</string>
-  <string name="Weather.NA">I.U.</string>
+  <string name="Weather.NA">Ej tillämpbar</string>
   <string name="Weather.Mist">Dis</string>
   <string name="Weather.Low">låg</string>
   <string name="Weather.High">hög</string>
@@ -57,7 +60,7 @@
   <string name="Weather.SE">SO</string>
   <string name="Weather.SW">SV</string>
   <string name="Weather.NW">NV</string>
-  <string name="Weather.NNE">NNV</string>
+  <string name="Weather.NNE">NNO</string>
   <string name="Weather.ENE">ONO</string>
   <string name="Weather.ESE">OSO</string>
   <string name="Weather.SSE">SSO</string>
@@ -69,15 +72,15 @@
   <string name="Weather.Various">varierande</string>
   <string name="Weather.Calm">lugnt</string>
   <string name="Weather.NoWind">Vindstilla</string>
-  <string name="Weather.InTheVicinity">i närheten av</string>
+  <string name="Weather.InTheVicinity">omkring</string>
   <string name="Weather.Clearing">Uppklarnande</string>
   <string name="Settings.Plugins.Weather">Väder</string>
-  <string name="Settings.Plugins.Weather.LocationSetup">Konfigurera orter</string>
-  <string name="Settings.Plugins.Weather.LocationSetup.Help">Konfigurerar orter som blir tillgängliga i väder modulen</string>
-  <string name="WeatherSetup.Title">Konfigurerar orter</string>
-  <string name="WeatherSetup.ConfiguredCities">Konfigurerade orter</string>
-  <string name="WeatherSetup.EnterCity">Skriv in namnet på orten som du vill lägga till:</string>
-  <string name="WeatherSetup.SearchCity">Sök ort</string>
-  <string name="WeatherSetup.AddCity">Lägg till ort</string>
-  <string name="WeatherSetup.RemoveCity">Ta bort ort</string>
+  <string name="Settings.Plugins.Weather.LocationSetup">Konfigurera platser</string>
+  <string name="Settings.Plugins.Weather.LocationSetup.Help">Konfigurerar platser som ska bli tillgängliga på vädersidan</string>
+  <string name="WeatherSetup.Title">Konfigurera platser</string>
+  <string name="WeatherSetup.ConfiguredCities">Konfigurerade platser</string>
+  <string name="WeatherSetup.EnterCity">Skriv in namnet på platsen som du vill lägga till:</string>
+  <string name="WeatherSetup.SearchCity">Sök plats</string>
+  <string name="WeatherSetup.AddCity">Lägg till plats</string>
+  <string name="WeatherSetup.RemoveCity">Ta bort plats</string>
 </resources>

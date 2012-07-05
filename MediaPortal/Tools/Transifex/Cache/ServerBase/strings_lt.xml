@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version='1.0' encoding='UTF-8'?>
 <resources>
   <string name="MainForm.Title">MediaPortal 2  Serverio programa</string>
   <string name="MainForm.AttachedClients">Prijungti klientai</string>
@@ -13,5 +13,6 @@
   <string name="UPnPBackendServer.ModelDescription">MediaPortal 2 serveris - saugo audio bylas, video įrašus ir vaizdus, teikia media duomenų bazę</string>
   <string name="UPnPBackendServer.ModelName">MediaPortal 2 serveris</string>
   <string name="UPnPBackendServer.ModelNumber">1</string>
-  <string name="MediaLibrary.EmptyOrMiscCharGroupName">&lt;Tuščias arba bet koks simbolis&gt;</string>
+  <string name="UPnPBackendServer.ModelUrl"></string>
+  <string name="MediaLibrary.EmptyOrMiscCharGroupName"><Tuščias arba bet koks simbolis></string>
 </resources>

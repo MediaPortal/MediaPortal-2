@@ -6,6 +6,7 @@
   <string name="Media.AudioMenuItem">Hljóð</string>
   <string name="Media.VideosMenuItem">Myndbönd</string>
   <string name="Media.SeriesMenuItem">Þættir</string>
+  <string name="Media.MoviesMenuItem"></string>
   <string name="Media.ImagesMenuItem">Ljósmyndir</string>
   <!--Filter titles-->
   <string name="Media.FilterByArtistMenuItem">Síun á flytjanda</string>
@@ -26,6 +27,7 @@
   <string name="Media.ShowAllAudioItemsMenuItem">Sýna allt</string>
   <string name="Media.ShowAllVideoItemsMenuItem">Sýna allt</string>
   <string name="Media.ShowAllImageItemsMenuItem">Sýna allt</string>
+  <string name="Media.ShowAllMoviesMenuItem">Sýna allt</string>
   <!--Special filters names-->
   <string name="Media.ImageFilterSmall">Lítið</string>
   <string name="Media.ImageFilterMedium">Miðlungs</string>
@@ -54,12 +56,14 @@
   <string name="Media.FilterSeriesSeasonNavbarDisplayLabel"></string>
   <string name="Media.FilterImageItemsNavbarDisplayLabel">Nafn: {0}</string>
   <string name="Media.FilterSystemNavbarDisplayLabel"></string>
+  <string name="Media.FilterMoviesNavbarDisplayLabel"></string>
   <!--Display labels for workflow navigation contexts-->
   <string name="Media.BrowseMediaNavigationRootWorkflowNavigationContextDisplayLabel">Vafra um miðilsskrár</string>
   <string name="Media.LocalMediaNavigationRootWorkflowNavigationContextDisplayLabel">Staðbundnar miðilsskrár</string>
   <string name="Media.AudioNavigationRootWorkflowNavigationContextDisplayLabel">Hljóðskrár</string>
   <string name="Media.VideoNavigationRootWorkflowNavigationContextDisplayLabel">Kvikmyndir</string>
   <string name="Media.SeriesNavigationRootWorkflowNavigationContextDisplayLabel">Sjónvarpsþættir</string>
+  <string name="Media.MoviesNavigationRootWorkflowNavigationContextDisplayLabel"></string>
   <string name="Media.ImageNavigationRootWorkflowNavigationContextDisplayLabel">Ljósmyndir</string>
   <string name="Media.VideoCurrentlyPlayingWorkflowStateNavigationContextDisplayLabel"></string>
   <string name="Media.VideoFullscreenContentWorkflowStateNavigationContextDisplayLabel"></string>
@@ -84,6 +88,7 @@
   <string name="Media.VideoItemsHeader">Myndbönd</string>
   <string name="Media.AudioItemsHeader">Hljóðaskrár</string>
   <string name="Media.SeriesItemsHeader">Þættir</string>
+  <string name="Media.MoviesItemsHeader"></string>
   <string name="Media.ImageItemsHeader">Ljósmyndir</string>
   <string name="Media.SimpleSearchHeader">Einföld leit</string>
   <string name="Media.ChooseActorHeader">Veljið leikara</string>

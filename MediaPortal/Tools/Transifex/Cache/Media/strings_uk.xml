@@ -6,6 +6,7 @@
   <string name="Media.AudioMenuItem">Аудіо</string>
   <string name="Media.VideosMenuItem">Відео</string>
   <string name="Media.SeriesMenuItem"></string>
+  <string name="Media.MoviesMenuItem"></string>
   <string name="Media.ImagesMenuItem">Зображення</string>
   <!--Filter titles-->
   <string name="Media.FilterByArtistMenuItem"></string>
@@ -14,7 +15,7 @@
   <string name="Media.FilterByDecadeMenuItem"></string>
   <string name="Media.FilterByActorMenuItem"></string>
   <string name="Media.FilterByVideoGenreMenuItem"></string>
-  <string name="Media.FilterByVideoYearMenuItem"></string>
+  <string name="Media.FilterByVideoYearMenuItem">Епізоди</string>
   <string name="Media.FilterByAudioLanguageMenuItem"></string>
   <string name="Media.FilterByImageSizeMenuItem"></string>
   <string name="Media.FilterByImageYearMenuItem">Епізоди</string>
@@ -26,6 +27,7 @@
   <string name="Media.ShowAllAudioItemsMenuItem"></string>
   <string name="Media.ShowAllVideoItemsMenuItem"></string>
   <string name="Media.ShowAllImageItemsMenuItem"></string>
+  <string name="Media.ShowAllMoviesMenuItem"></string>
   <!--Special filters names-->
   <string name="Media.ImageFilterSmall"></string>
   <string name="Media.ImageFilterMedium"></string>
@@ -54,12 +56,14 @@
   <string name="Media.FilterSeriesSeasonNavbarDisplayLabel"></string>
   <string name="Media.FilterImageItemsNavbarDisplayLabel"></string>
   <string name="Media.FilterSystemNavbarDisplayLabel"></string>
+  <string name="Media.FilterMoviesNavbarDisplayLabel"></string>
   <!--Display labels for workflow navigation contexts-->
   <string name="Media.BrowseMediaNavigationRootWorkflowNavigationContextDisplayLabel"></string>
   <string name="Media.LocalMediaNavigationRootWorkflowNavigationContextDisplayLabel"></string>
   <string name="Media.AudioNavigationRootWorkflowNavigationContextDisplayLabel"></string>
   <string name="Media.VideoNavigationRootWorkflowNavigationContextDisplayLabel"></string>
   <string name="Media.SeriesNavigationRootWorkflowNavigationContextDisplayLabel"></string>
+  <string name="Media.MoviesNavigationRootWorkflowNavigationContextDisplayLabel"></string>
   <string name="Media.ImageNavigationRootWorkflowNavigationContextDisplayLabel"></string>
   <string name="Media.VideoCurrentlyPlayingWorkflowStateNavigationContextDisplayLabel"></string>
   <string name="Media.VideoFullscreenContentWorkflowStateNavigationContextDisplayLabel"></string>
@@ -84,6 +88,7 @@
   <string name="Media.VideoItemsHeader">Відео</string>
   <string name="Media.AudioItemsHeader"></string>
   <string name="Media.SeriesItemsHeader">Епізоди</string>
+  <string name="Media.MoviesItemsHeader"></string>
   <string name="Media.ImageItemsHeader">Зображення</string>
   <string name="Media.SimpleSearchHeader"></string>
   <string name="Media.ChooseActorHeader"></string>
@@ -100,9 +105,9 @@
   <string name="Media.ChooseSystemHeader"></string>
   <string name="Media.ChooseVideoLanguageHeader">Виберіть мову</string>
   <string name="Media.PlaylistsOverviewHeader"></string>
-  <string name="Media.SavePlaylistEditNameHeader"></string>
-  <string name="Media.SavePlaylistFailedHeader"></string>
-  <string name="Media.SavePlaylistSuccessfulHeader"></string>
+  <string name="Media.SavePlaylistEditNameHeader">Зберегти плейлист</string>
+  <string name="Media.SavePlaylistFailedHeader">Зберегти плейлист</string>
+  <string name="Media.SavePlaylistSuccessfulHeader">Зберегти плейлист</string>
   <string name="Media.RemovePlaylistsHeader"></string>
   <string name="Media.PlaylistDetailsHeader"></string>
   <string name="Media.PlaylistLoadNoPlaylistText"></string>
