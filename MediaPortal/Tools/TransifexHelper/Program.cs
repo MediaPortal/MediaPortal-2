@@ -115,6 +115,15 @@ namespace TransifexHelper
         }
       }
 
+      foreach (KeyValuePair<string, DirectoryInfo> pair in languageDirectories)
+      {
+        if (transifexIni.GetSection(ProjectSlug + "." + pair.Key) == null)
+        {
+          Console.WriteLine(
+              "WARNING - A language directory for plugin {0} was found, but the entry does not exist in Transifex project file.", pair.Key);
+        }
+      }
+
       if (result)
         Console.WriteLine("Verifification done. No issues found.");
       return result;
@@ -253,7 +262,7 @@ namespace TransifexHelper
             continue;
 
           Console.WriteLine("   " + langFile.FullName.Replace(targetDir, string.Empty));
-          langFile.CopyTo(pair.Value.FullName + "\\" + langFile.Name);
+          langFile.CopyTo(pair.Value.FullName + "\\" + langFile.Name, true);
         }
       }
     }
