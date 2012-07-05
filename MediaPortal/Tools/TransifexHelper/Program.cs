@@ -40,13 +40,13 @@ namespace TransifexHelper
         Environment.Exit(0);
 
       if (mpArgs.ToCache)
-        CopyToCache();
-
-      if (mpArgs.Push)
       {
         UpdateTransifexConfig();
-        ExecutePush();
+        CopyToCache();
       }
+
+      if (mpArgs.Push)
+        ExecutePush();
 
       if (mpArgs.Pull)
         ExecutePull();
