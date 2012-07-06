@@ -1294,19 +1294,14 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     {
       if (IsVisible)
       {
-        float xTrans = x;
-        float yTrans = y;
-        if (!TransformMouseCoordinates(ref xTrans, ref yTrans))
-          return;
-        if (ActualBounds.Contains(xTrans, yTrans))
+        if (IsInVisibleArea(x, y))
         {
           if (!IsMouseOver)
           {
             IsMouseOver = true;
             FireEvent(MOUSEENTER_EVENT, RoutingStrategyEnum.Direct);
           }
-          if (IsInVisibleArea(xTrans, yTrans))
-            focusCandidates.Add(new FocusCandidate(this, _lastZIndex));
+          focusCandidates.Add(new FocusCandidate(this, _lastZIndex));
         }
         else
         {
@@ -1325,7 +1320,11 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       PointF actualPosition = ActualPosition;
       double actualWidth = ActualWidth;
       double actualHeight = ActualHeight;
-      return x >= actualPosition.X && x <= actualPosition.X + actualWidth && y >= actualPosition.Y && y <= actualPosition.Y + actualHeight;
+      float xTrans = x;
+      float yTrans = y;
+      if (!TransformMouseCoordinates(ref xTrans, ref yTrans))
+        return false;
+      return xTrans >= actualPosition.X && xTrans <= actualPosition.X + actualWidth && yTrans >= actualPosition.Y && yTrans <= actualPosition.Y + actualHeight;
     }
 
     public Style CopyDefaultStyle()
