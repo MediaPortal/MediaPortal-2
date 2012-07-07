@@ -198,6 +198,7 @@ namespace MediaPortal.Common.PluginManager
     /// but in this case, the <paramref name="stateTracker"/> won't be registered at the item.
     /// </remarks>
     /// <exception cref="PluginLockException">If the plugin is locked by an ongoing plugin action.</exception>
+    /// <exception cref="PluginInvalidStateException">If the plugin is in an invalid state and cannot be used.</exception>
     /// <seealso cref="RequestAllPluginItems{T}"/>
     T RequestPluginItem<T>(string location, string id, IPluginItemStateTracker stateTracker) where T : class;
 
@@ -211,6 +212,7 @@ namespace MediaPortal.Common.PluginManager
     /// <returns>The plugin item instance or <c>null</c>, if an item with the specified
     /// criteria was not registered.</returns>
     /// <exception cref="PluginLockException">If the plugin is locked by an ongoing plugin action.</exception>
+    /// <exception cref="PluginInvalidStateException">If the plugin is in an invalid state and cannot be used.</exception>
     object RequestPluginItem(string location, string id, Type type, IPluginItemStateTracker stateTracker);
 
     /// <summary>
@@ -229,6 +231,7 @@ namespace MediaPortal.Common.PluginManager
     /// type <see cref="T"/>, the <paramref name="stateTracker"/> won't be registered.
     /// </remarks>
     /// <exception cref="PluginLockException">If the plugin is locked by an ongoing plugin action.</exception>
+    /// <exception cref="PluginInvalidStateException">If the plugin is in an invalid state and cannot be used.</exception>
     ICollection<T> RequestAllPluginItems<T>(string location, IPluginItemStateTracker stateTracker) where T : class;
 
     /// <summary>
@@ -239,6 +242,7 @@ namespace MediaPortal.Common.PluginManager
     /// <param name="stateTracker">Instance used to manage the item's state.</param>
     /// <returns>Collection of plugin items registered at the specified location in the plugin tree.</returns>
     /// <exception cref="PluginLockException">If the plugin is locked by an ongoing plugin action.</exception>
+    /// <exception cref="PluginInvalidStateException">If the plugin is in an invalid state and cannot be used.</exception>
     ICollection RequestAllPluginItems(string location, Type type, IPluginItemStateTracker stateTracker);
 
     /// <summary>

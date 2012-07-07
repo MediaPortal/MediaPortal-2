@@ -309,7 +309,18 @@ namespace MediaPortal.Common.Services.PluginManager
     public ICollection<T> RequestAllPluginItems<T>(string location, IPluginItemStateTracker stateTracker) where T : class
     {
       return PluginRuntime.GetItemRegistrations(location).Select(
-          itemRegistration => (T) RequestItem(itemRegistration, typeof(T), stateTracker)).Where(item => item != null).ToList();
+          itemRegistration =>
+            {
+              try
+              {
+                return (T) RequestItem(itemRegistration, typeof(T), stateTracker);
+              }
+              catch (PluginInvalidStateException e)
+              {
+                ServiceRegistration.Get<ILogger>().Warn("Cannot request {0}", e, itemRegistration.Metadata);
+              }
+              return null;
+            }).Where(item => item != null).ToList();
     }
 
     public ICollection RequestAllPluginItems(string location, Type type, IPluginItemStateTracker stateTracker)
@@ -317,9 +328,16 @@ namespace MediaPortal.Common.Services.PluginManager
       IList result = new ArrayList();
       foreach (PluginItemRegistration itemRegistration in PluginRuntime.GetItemRegistrations(location))
       {
-        object item = RequestItem(itemRegistration, type, stateTracker);
-        if (item != null)
-          result.Add(item);
+        try
+        {
+          object item = RequestItem(itemRegistration, type, stateTracker);
+          if (item != null)
+            result.Add(item);
+        }
+        catch (PluginInvalidStateException e)
+        {
+          ServiceRegistration.Get<ILogger>().Warn("Cannot request {0}", e, itemRegistration.Metadata);
+        }
       }
       return result;
     }

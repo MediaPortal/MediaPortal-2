@@ -29,6 +29,7 @@ using System.Linq;
 using MediaPortal.Common;
 using MediaPortal.Common.Logging;
 using MediaPortal.Common.PluginManager;
+using MediaPortal.Common.PluginManager.Exceptions;
 using MediaPortal.Common.Services.PluginManager;
 using MediaPortal.UI.Presentation.Screens;
 using MediaPortal.UI.Presentation.SkinResources;
@@ -67,11 +68,19 @@ namespace MediaPortal.UI.SkinEngine.SkinManagement
         PluginItemMetadata md = pluginManager.GetPluginItemMetadata(location, BACKGROUND_PLUGIN_ITEM_ID);
         if (md == null)
           return false;
-        _backgroundLocation = location;
-        _backgroundManager = pluginManager.RequestPluginItem<IBackgroundManager>(
-              _backgroundLocation, BACKGROUND_PLUGIN_ITEM_ID, this);
-        _backgroundManager.Install();
-        return true;
+        try
+        {
+          _backgroundLocation = location;
+          _backgroundManager = pluginManager.RequestPluginItem<IBackgroundManager>(
+                _backgroundLocation, BACKGROUND_PLUGIN_ITEM_ID, this);
+          _backgroundManager.Install();
+          return true;
+        }
+        catch (PluginInvalidStateException e)
+        {
+          ServiceRegistration.Get<ILogger>().Warn("Cannot install background manager for {0}", e, location);
+        }
+        return false;
       }
 
       public void Uninstall()

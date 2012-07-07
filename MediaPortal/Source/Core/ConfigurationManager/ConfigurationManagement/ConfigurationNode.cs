@@ -29,6 +29,7 @@ using MediaPortal.Common;
 using MediaPortal.Common.Configuration;
 using MediaPortal.Common.Logging;
 using MediaPortal.Common.PluginManager;
+using MediaPortal.Common.PluginManager.Exceptions;
 using MediaPortal.Common.Registry;
 using MediaPortal.Utilities;
 
@@ -108,15 +109,21 @@ namespace MediaPortal.Configuration.ConfigurationManagement
       _childPluginItemStateTracker = new FixedItemStateTracker(string.Format("ConfigurationManager: ConfigurationNode '{0}'", itemLocation));
       ICollection<PluginItemMetadata> items = pluginManager.GetAllPluginItemMetadata(itemLocation);
       IDictionary<string, object> childSet = new Dictionary<string, object>();
-      foreach (PluginItemMetadata item in items)
+      foreach (PluginItemMetadata itemMetadata in items)
       {
-        ConfigBaseMetadata metadata = pluginManager.RequestPluginItem<ConfigBaseMetadata>(
-          item.RegistrationLocation, item.Id, _childPluginItemStateTracker);
-        ConfigBase childObj = Instantiate(metadata, item.PluginRuntime);
-        if (childObj == null)
-          continue;
-        AddChildNode(childObj);
-        childSet.Add(metadata.Id, null);
+        try
+        {
+          ConfigBaseMetadata metadata = pluginManager.RequestPluginItem<ConfigBaseMetadata>(itemMetadata.RegistrationLocation, itemMetadata.Id, _childPluginItemStateTracker);
+          ConfigBase childObj = Instantiate(metadata, itemMetadata.PluginRuntime);
+          if (childObj == null)
+            continue;
+          AddChildNode(childObj);
+          childSet.Add(metadata.Id, null);
+        }
+        catch (PluginInvalidStateException e)
+        {
+          logger.Warn("Cannot add configuration node for {0}", e, itemMetadata);
+        }
       }
       ICollection<string> childLocations = pluginManager.GetAvailableChildLocations(itemLocation);
       foreach (string childLocation in childLocations)

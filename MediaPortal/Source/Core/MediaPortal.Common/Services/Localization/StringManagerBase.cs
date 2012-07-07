@@ -28,6 +28,7 @@ using System.Collections.Generic;
 using System.IO;
 using MediaPortal.Common.Logging;
 using MediaPortal.Common.PluginManager;
+using MediaPortal.Common.PluginManager.Exceptions;
 using MediaPortal.Common.Services.PluginManager;
 
 namespace MediaPortal.Common.Services.Localization
@@ -117,12 +118,19 @@ namespace MediaPortal.Common.Services.Localization
     protected void AddLanguageResources(ICollection<PluginItemMetadata> items)
     {
       lock (_syncObj)
-        foreach (PluginItemMetadata item in items)
+        foreach (PluginItemMetadata itemMetadata in items)
         {
-          PluginResource resource = ServiceRegistration.Get<IPluginManager>().RequestPluginItem<PluginResource>(
-                item.RegistrationLocation, item.Id, _languagePluginStateTracker);
-          if (resource != null && Directory.Exists(resource.Path))
-            _languageDirectories.Add(resource.Path);
+          try
+          {
+            PluginResource resource = ServiceRegistration.Get<IPluginManager>().RequestPluginItem<PluginResource>(
+                  itemMetadata.RegistrationLocation, itemMetadata.Id, _languagePluginStateTracker);
+            if (resource != null && Directory.Exists(resource.Path))
+              _languageDirectories.Add(resource.Path);
+          }
+          catch (PluginInvalidStateException e)
+          {
+            ServiceRegistration.Get<ILogger>().Warn("Cannot add language resource for {0}", e, itemMetadata);
+          }
         }
       ReLoad();
     }

@@ -26,6 +26,7 @@ using System;
 using MediaPortal.Common;
 using MediaPortal.Common.Logging;
 using MediaPortal.Common.MediaManagement;
+using MediaPortal.Common.PluginManager.Exceptions;
 using MediaPortal.Common.ResourceAccess;
 using MediaPortal.UI.Players.Video.Interfaces;
 using MediaPortal.UI.Presentation.Players;
@@ -102,12 +103,19 @@ namespace MediaPortal.UI.Players.Video
       IPluginManager pluginManager = ServiceRegistration.Get<IPluginManager>();
       foreach (PluginItemMetadata itemMetadata in pluginManager.GetAllPluginItemMetadata(VIDEOPLAYERBUILDERMIMETYPES_REGISTRATION_PATH))
       {
-        VideoPlayerMimeTypeMapping playerMapping = pluginManager.RequestPluginItem<VideoPlayerMimeTypeMapping>(
-            VIDEOPLAYERBUILDERMIMETYPES_REGISTRATION_PATH, itemMetadata.Id, _videoPlayerBuilderPluginItemStateTracker);
-        if (playerMapping == null)
-          ServiceRegistration.Get<ILogger>().Warn("Could not instantiate VideoPlayerMimeTypeMapping with id '{0}'", itemMetadata.Id);
-        else
-          PlayerRegistration.AddMimeTypeMapping(playerMapping.MimeType, playerMapping.PlayerClass);
+        try
+        {
+          VideoPlayerMimeTypeMapping playerMapping = pluginManager.RequestPluginItem<VideoPlayerMimeTypeMapping>(
+              VIDEOPLAYERBUILDERMIMETYPES_REGISTRATION_PATH, itemMetadata.Id, _videoPlayerBuilderPluginItemStateTracker);
+          if (playerMapping == null)
+            ServiceRegistration.Get<ILogger>().Warn("Could not instantiate VideoPlayerMimeTypeMapping with id '{0}'", itemMetadata.Id);
+          else
+            PlayerRegistration.AddMimeTypeMapping(playerMapping.MimeType, playerMapping.PlayerClass);
+        }
+        catch (PluginInvalidStateException e)
+        {
+          ServiceRegistration.Get<ILogger>().Warn("Cannot add video player MIME type mapping for {0}", e, itemMetadata);
+        }
       }
     }
     

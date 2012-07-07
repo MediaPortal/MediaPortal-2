@@ -28,6 +28,7 @@ using MediaPortal.Common;
 using MediaPortal.Common.Logging;
 using MediaPortal.Common.PluginManager;
 using MediaPortal.Common.Localization;
+using MediaPortal.Common.PluginManager.Exceptions;
 
 namespace MediaPortal.UI.Presentation.Workflow
 {
@@ -72,8 +73,16 @@ namespace MediaPortal.UI.Presentation.Workflow
 
     protected void Bind()
     {
-      object model = ServiceRegistration.Get<IPluginManager>().RequestPluginItem<object>(
-          MODELS_REGISTRATION_LOCATION, _contributorModelId.ToString(), _modelItemStateTracker);
+      object model = null;
+      try
+      {
+        model = ServiceRegistration.Get<IPluginManager>().RequestPluginItem<object>(
+            MODELS_REGISTRATION_LOCATION, _contributorModelId.ToString(), _modelItemStateTracker);
+      }
+      catch (PluginInvalidStateException e)
+      {
+        ServiceRegistration.Get<ILogger>().Warn("Cannot add workflow contributor model for model id '{0}'", e, _contributorModelId);
+      }
       if (model == null)
       {
         ServiceRegistration.Get<ILogger>().Warn(string.Format("WorkflowContributorAction: Workflow contributor model with id '{0}' is not available", _contributorModelId));

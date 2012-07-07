@@ -27,6 +27,7 @@ using System.Collections.Generic;
 using MediaPortal.Common.Exceptions;
 using MediaPortal.Common.Logging;
 using MediaPortal.Common.PluginManager;
+using MediaPortal.Common.PluginManager.Exceptions;
 using MediaPortal.Common.Services.PluginManager.Builders;
 using MediaPortal.Utilities.Exceptions;
 
@@ -238,19 +239,26 @@ namespace MediaPortal.Common
       IPluginManager pluginManager = Get<IPluginManager>();
       foreach (PluginItemMetadata itemMetadata in items)
       {
-        // We cannot use an item state tracker which is able to revoke the service because we cannot
-        // know which methods are using the service, so the only safe way is to use a fixed item state tracker
-        ServiceBuilder.ServiceItem item = pluginManager.RequestPluginItem<ServiceBuilder.ServiceItem>(
-            PLUGIN_TREE_SERVICES_LOCATION, itemMetadata.Id, new FixedItemStateTracker(string.Format("System services")));
-        if (item == null)
+        try
         {
-          Get<ILogger>().Warn("ServiceRegistration: Could not register dynamic service with id '{0}'", itemMetadata.Id);
-          continue;
+          // We cannot use an item state tracker which is able to revoke the service because we cannot
+          // know which methods are using the service, so the only safe way is to use a fixed item state tracker
+          ServiceBuilder.ServiceItem item = pluginManager.RequestPluginItem<ServiceBuilder.ServiceItem>(
+              PLUGIN_TREE_SERVICES_LOCATION, itemMetadata.Id, new FixedItemStateTracker(string.Format("System services")));
+          if (item == null)
+          {
+            Get<ILogger>().Warn("ServiceRegistration: Could not register dynamic service with id '{0}'", itemMetadata.Id);
+            continue;
+          }
+          if (_services.ContainsKey(item.RegistrationType))
+            throw new EnvironmentException("ServiceRegistration: A Service with registration type '{0}' is already registered", item.RegistrationType);
+          _services.Add(item.RegistrationType, item.ServiceInstance);
+          _pluginServices.Add(item.RegistrationType);
         }
-        if (_services.ContainsKey(item.RegistrationType))
-          throw new EnvironmentException("ServiceRegistration: A Service with registration type '{0}' is already registered", item.RegistrationType);
-        _services.Add(item.RegistrationType, item.ServiceInstance);
-        _pluginServices.Add(item.RegistrationType);
+        catch (PluginInvalidStateException e)
+        {
+          Get<ILogger>().Warn("Cannot add service for {0}", e, itemMetadata);
+        }
       }
     }
 

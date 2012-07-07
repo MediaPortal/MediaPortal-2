@@ -30,6 +30,7 @@ using MediaPortal.Common.Logging;
 using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.Messaging;
 using MediaPortal.Common.PluginManager;
+using MediaPortal.Common.PluginManager.Exceptions;
 using MediaPortal.Common.Settings;
 using MediaPortal.UI.Presentation.Players;
 
@@ -225,11 +226,20 @@ namespace MediaPortal.UI.Services.Players
     protected void LoadPlayerBuilder(string playerBuilderId)
     {
       IPluginManager pluginManager = ServiceRegistration.Get<IPluginManager>();
-      IPlayerBuilder playerBuilder = pluginManager.RequestPluginItem<IPlayerBuilder>(PLAYERBUILDERS_REGISTRATION_PATH,
-              playerBuilderId, _playerBuilderPluginItemStateTracker);
-      if (playerBuilder == null)
+      IPlayerBuilder playerBuilder;
+      try
       {
-        ServiceRegistration.Get<ILogger>().Warn("Could not instantiate player builder with id '{0}'", playerBuilderId);
+        playerBuilder = pluginManager.RequestPluginItem<IPlayerBuilder>(PLAYERBUILDERS_REGISTRATION_PATH,
+                playerBuilderId, _playerBuilderPluginItemStateTracker);
+        if (playerBuilder == null)
+        {
+          ServiceRegistration.Get<ILogger>().Warn("Could not instantiate player builder with id '{0}'", playerBuilderId);
+          return;
+        }
+      }
+      catch (PluginInvalidStateException e)
+      {
+        ServiceRegistration.Get<ILogger>().Warn("Cannot load player builder for player builder id '{0}'", e, playerBuilderId);
         return;
       }
       lock (_syncObj)

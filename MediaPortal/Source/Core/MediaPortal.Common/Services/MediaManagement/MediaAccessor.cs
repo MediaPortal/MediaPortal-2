@@ -28,6 +28,7 @@ using System.Linq;
 using MediaPortal.Common.Logging;
 using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
+using MediaPortal.Common.PluginManager.Exceptions;
 using MediaPortal.Common.ResourceAccess;
 using MediaPortal.Common.PluginManager;
 using MediaPortal.Common.Services.ResourceAccess.LocalFsResourceProvider;
@@ -78,11 +79,18 @@ namespace MediaPortal.Common.Services.MediaManagement
       public void ItemsWereAdded(string location, ICollection<PluginItemMetadata> items)
       {
         IPluginManager pluginManager = ServiceRegistration.Get<IPluginManager>();
-        foreach (PluginItemMetadata item in items)
+        foreach (PluginItemMetadata itemMetadata in items)
         {
-          IMetadataExtractor metadataExtractor = pluginManager.RequestPluginItem<IMetadataExtractor>(
-              item.RegistrationLocation, item.Id, new FixedItemStateTracker(METADATA_EXTRACTORS_USE_COMPONENT_NAME));
-          _parent.RegisterMetadataExtractor(metadataExtractor);
+          try
+          {
+            IMetadataExtractor metadataExtractor = pluginManager.RequestPluginItem<IMetadataExtractor>(
+                itemMetadata.RegistrationLocation, itemMetadata.Id, new FixedItemStateTracker(METADATA_EXTRACTORS_USE_COMPONENT_NAME));
+            _parent.RegisterMetadataExtractor(metadataExtractor);
+          }
+          catch (PluginInvalidStateException e)
+          {
+            ServiceRegistration.Get<ILogger>().Warn("Cannot add metadata extractor for {0}", e, itemMetadata);
+          }
         }
       }
 
@@ -104,11 +112,18 @@ namespace MediaPortal.Common.Services.MediaManagement
       public void ItemsWereAdded(string location, ICollection<PluginItemMetadata> items)
       {
         IPluginManager pluginManager = ServiceRegistration.Get<IPluginManager>();
-        foreach (PluginItemMetadata item in items)
+        foreach (PluginItemMetadata itemMetadata in items)
         {
-          IResourceProvider resourceProvider = pluginManager.RequestPluginItem<IResourceProvider>(
-              item.RegistrationLocation, item.Id, new FixedItemStateTracker(RESOURCE_PROVIDERS_USE_COMPONENT_NAME));
-          _parent.RegisterProvider(resourceProvider);
+          try
+          {
+            IResourceProvider resourceProvider = pluginManager.RequestPluginItem<IResourceProvider>(
+                itemMetadata.RegistrationLocation, itemMetadata.Id, new FixedItemStateTracker(RESOURCE_PROVIDERS_USE_COMPONENT_NAME));
+            _parent.RegisterProvider(resourceProvider);
+          }
+          catch (PluginInvalidStateException e)
+          {
+            ServiceRegistration.Get<ILogger>().Warn("Cannot add resource provider for {0}", e, itemMetadata);
+          }
         }
       }
 
