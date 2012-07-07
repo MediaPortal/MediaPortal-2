@@ -36,8 +36,6 @@ namespace MediaPortal.Common.Localization
   /// </remarks>
   public class StringId : IComparable<StringId>, IEquatable<StringId>
   {
-    public const string INVALID_LABEL = "[System.Invalid]";
-
     #region Protected fields
 
     /// <summary>
@@ -86,12 +84,6 @@ namespace MediaPortal.Common.Localization
     #endregion
 
     #region Ctor
-
-    /// <summary>
-    /// Initializes a new invalid string descriptor. The invalid string descriptor uses
-    /// <see cref="INVALID_LABEL"/> as label.
-    /// </summary>
-    public StringId() : this(INVALID_LABEL) { }
 
     /// <summary>
     /// Initializes a new string descriptor with the specified data.
