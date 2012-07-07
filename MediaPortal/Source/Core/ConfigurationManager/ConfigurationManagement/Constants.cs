@@ -22,6 +22,8 @@
 
 #endregion
 
+using MediaPortal.Common.Configuration;
+
 namespace MediaPortal.Configuration.ConfigurationManagement
 {
   public class Constants
