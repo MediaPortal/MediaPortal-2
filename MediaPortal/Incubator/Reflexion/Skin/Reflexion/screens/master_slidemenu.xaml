@@ -100,13 +100,15 @@ Parameters which have to be accessible by a DynamicResource lookup:
 
               <!-- Test: Set focus to opened menu (not working!) -->
               <Setter TargetName="MainMenu" Property="SetFocus" Value="True" />
+              <!-- Enable ListView to allow focusing buttons-->
+              <Setter TargetName="MainMenu" Property="IsEnabled" Value="True" />
             </DataTrigger>
           </Grid.Triggers>
 
           <ListView x:Name="MainMenu" Style="{ThemeResource MainMenuListViewStyle}" Margin="10,10,50,10"
               HorizontalAlignment="Stretch" VerticalAlignment="Stretch" SetFocusPrio="Default"
               ItemsSource="{Binding Source={StaticResource MenuModel},Path=MenuItems,Mode=OneTime}"
-              SetFocus="{Binding Source={StaticResource MenuModel},Path=ShowMenu,Mode=OneTime}">
+              IsEnabled="False">
             <ListView.Resources>
               <CommandBridge x:Key="Menu_Command" Command="{Binding Path=Command,Mode=OneTime}"/>
             </ListView.Resources>
