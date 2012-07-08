@@ -227,6 +227,7 @@
             <Button.Triggers>
               <Trigger Property="HasFocus" Value="True">
                 <Setter TargetName="ItemLabel" Property="Scroll" Value="Auto"/>
+                <Setter Property="StackPanel.ZIndex" Value="100.0"/>
               </Trigger>
             </Button.Triggers>
           </Button>
@@ -249,6 +250,7 @@
                     <SolidColorBrush Color="{ThemeResource PassiveFocusBackgroundColor}"/>
                   </Setter.Value>
                 </Setter>
+                <Setter Property="StackPanel.ZIndex" Value="100.0"/>
               </Trigger>
             </Control.Triggers>
             <Control.TemplateControl>
@@ -277,6 +279,7 @@
             <Button.Triggers>
               <Trigger Property="HasFocus" Value="True">
                 <Setter TargetName="ItemLabel" Property="Scroll" Value="Auto"/>
+                <Setter Property="StackPanel.ZIndex" Value="100.0"/>
               </Trigger>
             </Button.Triggers>
           </Button>
@@ -302,6 +305,7 @@
                     <SolidColorBrush Color="{ThemeResource PassiveFocusBackgroundColor}"/>
                   </Setter.Value>
                 </Setter>
+                <Setter Property="StackPanel.ZIndex" Value="100.0"/>
               </Trigger>
             </CheckBox.Triggers>
           </CheckBox>
@@ -326,6 +330,7 @@
                     <SolidColorBrush Color="{ThemeResource PassiveFocusBackgroundColor}"/>
                   </Setter.Value>
                 </Setter>
+                <Setter Property="StackPanel.ZIndex" Value="100.0"/>
               </Trigger>
             </RadioButton.Triggers>
           </RadioButton>
@@ -350,6 +355,7 @@
                     <SolidColorBrush Color="{ThemeResource PassiveFocusBackgroundColor}"/>
                   </Setter.Value>
                 </Setter>
+                <Setter Property="StackPanel.ZIndex" Value="100.0"/>
               </Trigger>
             </Control.Triggers>
             <Control.TemplateControl>
@@ -371,6 +377,7 @@
               <Trigger Property="HasFocus" Value="True">
                 <Setter TargetName="ShareName" Property="Scroll" Value="Auto"/>
                 <Setter TargetName="SharePath" Property="Scroll" Value="Auto"/>
+                <Setter Property="StackPanel.ZIndex" Value="100.0"/>
               </Trigger>
             </Button.Triggers>
           </Button>
@@ -396,6 +403,7 @@
                     <SolidColorBrush Color="{ThemeResource PassiveFocusBackgroundColor}"/>
                   </Setter.Value>
                 </Setter>
+                <Setter Property="StackPanel.ZIndex" Value="100.0"/>
               </Trigger>
             </CheckBox.Triggers>
           </CheckBox>
@@ -421,6 +429,7 @@
                     <SolidColorBrush Color="{ThemeResource PassiveFocusBackgroundColor}"/>
                   </Setter.Value>
                 </Setter>
+                <Setter Property="StackPanel.ZIndex" Value="100.0"/>
               </Trigger>
             </RadioButton.Triggers>
           </RadioButton>
@@ -446,6 +455,7 @@
                     <SolidColorBrush Color="{ThemeResource PassiveFocusBackgroundColor}"/>
                   </Setter.Value>
                 </Setter>
+                <Setter Property="StackPanel.ZIndex" Value="100.0"/>
               </Trigger>
             </RadioButton.Triggers>
           </RadioButton>
