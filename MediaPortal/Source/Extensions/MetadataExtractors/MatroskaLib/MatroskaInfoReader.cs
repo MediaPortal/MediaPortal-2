@@ -230,7 +230,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.MatroskaLib
           return false;
 
         binaryData = new byte[fileSize];
-        using (FileStream fileStream = new FileStream(tempFileName, FileMode.Open))
+        using (FileStream fileStream = new FileStream(tempFileName, FileMode.Open, FileAccess.Read))
         {
           int offset = 0;
           int read;

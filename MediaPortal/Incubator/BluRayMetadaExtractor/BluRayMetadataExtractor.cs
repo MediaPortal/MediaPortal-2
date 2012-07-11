@@ -125,7 +125,7 @@ namespace MediaPortal.Media.MetadataExtractors
                 if (thumbnail != null)
                 {
                   byte[] binary = new byte[thumbnail.Length];
-                  using (FileStream fileStream = new FileStream(thumbnail.FullName, FileMode.Open))
+                  using (FileStream fileStream = new FileStream(thumbnail.FullName, FileMode.Open, FileAccess.Read))
                   using (BinaryReader binaryReader = new BinaryReader(fileStream))
                     binaryReader.Read(binary, 0, binary.Length);
 

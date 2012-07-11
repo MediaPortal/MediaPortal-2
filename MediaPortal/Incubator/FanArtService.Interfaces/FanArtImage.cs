@@ -143,7 +143,7 @@ namespace MediaPortal.Extensions.UserServices.FanArtService.Interfaces
       try
       {
         byte[] binary = new byte[fileInfo.Length];
-        using (FileStream fileStream = new FileStream(fileName, FileMode.Open))
+        using (FileStream fileStream = new FileStream(fileName, FileMode.Open, FileAccess.Read))
         using (BinaryReader binaryReader = new BinaryReader(fileStream))
           binaryReader.Read(binary, 0, binary.Length);
 

@@ -92,7 +92,7 @@ namespace MediaPortal.Utilities.SystemAPI
       if (!File.Exists(filename))
         throw new FileNotFoundException(filename + " not found");
 
-      FileStream fs = new FileStream(filename, FileMode.Open);
+      FileStream fs = new FileStream(filename, FileMode.Open, FileAccess.Read);
       return GetMimeFromStream(fs);
     }
 
