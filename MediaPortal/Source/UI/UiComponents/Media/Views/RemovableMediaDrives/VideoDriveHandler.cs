@@ -66,6 +66,8 @@ namespace MediaPortal.UiComponents.Media.Views.RemovableMediaDrives
         throw new ArgumentException(string.Format("Unable to access drive '{0}'", driveInfo.Name));
       using (ra)
         _mediaItem = mediaAccessor.CreateLocalMediaItem(ra, mediaAccessor.GetMetadataExtractorsForMIATypes(extractedMIATypeIds));
+      if (_mediaItem == null)
+        throw new Exception(string.Format("Could not create media item for drive '{0}'", driveInfo.Name));
       MediaItemAspect mia = _mediaItem.Aspects[MediaAspect.ASPECT_ID];
       mia.SetAttribute(MediaAspect.ATTR_TITLE, mia.GetAttributeValue(MediaAspect.ATTR_TITLE) +
           " (" + DriveUtils.GetDriveNameWithoutRootDirectory(driveInfo) + ")");
@@ -83,7 +85,17 @@ namespace MediaPortal.UiComponents.Media.Views.RemovableMediaDrives
         IEnumerable<Guid> extractedMIATypeIds)
     {
       VideoMediaType vmt;
-      return DetectVideoMedia(driveInfo.Name, out vmt) ? new VideoDriveHandler(driveInfo, extractedMIATypeIds) : null;
+      if (!DetectVideoMedia(driveInfo.Name, out vmt))
+        return null;
+      try
+      {
+        return new VideoDriveHandler(driveInfo, extractedMIATypeIds);
+      }
+      catch (Exception ex)
+      {
+        ServiceRegistration.Get<ILogger>().Error("RemovableMediaManager: Error accessing video disc {0}", ex, driveInfo.Name);
+      }
+      return null;
     }
 
     /// <summary>
