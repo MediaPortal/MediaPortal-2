@@ -1,8 +1,0 @@
-<?xml version='1.0' encoding='UTF-8'?>
-<resources>
-  <string name="Settings.Plugins.TV">TV</string>
-  <string name="Settings.Plugins.TV.TV4HomeServerAddress">Adresy serverů Tv4Home</string>
-  <string name="Settings.Plugins.TV.TV4HomeServerAddress.Help">Zadejte názvy serverů nebo IP adresy oddělené \';\' (výchozí je localhost).</string>
-  <string name="Settings.Plugins.TV.ConnectionErrorTitle">Chyba připojení</string>
-  <string name="Settings.Plugins.TV.ConnectionErrorText">Nelze se připojit k serveru Tv4Home: {0}</string>
-</resources>

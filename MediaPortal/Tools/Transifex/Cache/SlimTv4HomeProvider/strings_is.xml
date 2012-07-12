@@ -1,8 +1,0 @@
-<?xml version='1.0' encoding='UTF-8'?>
-<resources>
-  <string name="Settings.Plugins.TV">Sjónvarp</string>
-  <string name="Settings.Plugins.TV.TV4HomeServerAddress">IPtala sjónvarpsþjóns</string>
-  <string name="Settings.Plugins.TV.TV4HomeServerAddress.Help">Sláðu inn nafn sjónvarpsþjóns eða IP tölur, aðgreint með \';\' (localhost sjálfgefið)</string>
-  <string name="Settings.Plugins.TV.ConnectionErrorTitle">Sambandsvilla</string>
-  <string name="Settings.Plugins.TV.ConnectionErrorText">Gat ekki tengst sjónvarpsþjóni: {0}</string>
-</resources>

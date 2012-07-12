@@ -1,8 +1,0 @@
-<?xml version='1.0' encoding='UTF-8'?>
-<resources>
-  <string name="Settings.Plugins.TV">TV</string>
-  <string name="Settings.Plugins.TV.TV4HomeServerAddress">Tv4Home serverien osoitteet</string>
-  <string name="Settings.Plugins.TV.TV4HomeServerAddress.Help">Kirjoita servereiden nimet tai IP osoitteet, erotettuna \';\' (oletusosoite on localhost)</string>
-  <string name="Settings.Plugins.TV.ConnectionErrorTitle">Yhteysongelma</string>
-  <string name="Settings.Plugins.TV.ConnectionErrorText">Ei yhteyttä Tv4Home-Serveriin: {0}</string>
-</resources>

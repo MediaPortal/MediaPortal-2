@@ -1,8 +1,0 @@
-<?xml version='1.0' encoding='UTF-8'?>
-<resources>
-  <string name="Settings.Plugins.TV">TV</string>
-  <string name="Settings.Plugins.TV.TV4HomeServerAddress">TV4Home naslov strežnika</string>
-  <string name="Settings.Plugins.TV.TV4HomeServerAddress.Help">Vpiši imena strežnikov ali njihove IP naslove, ločene s \';\' (privzeto localhost).</string>
-  <string name="Settings.Plugins.TV.ConnectionErrorTitle">Napaka pri povezovanju</string>
-  <string name="Settings.Plugins.TV.ConnectionErrorText">Ne morem se povezati na TV4Home strežnik {0}</string>
-</resources>
