@@ -70,11 +70,6 @@ file_filter=Cache\SkinHelper\strings_<lang>.xml
 source_file=Cache\SkinHelper\strings_en.xml
 source_lang=en
 type=ANDROID
-[MP2.SlimTv4HomeProvider]
-file_filter=Cache\SlimTv4HomeProvider\strings_<lang>.xml
-source_file=Cache\SlimTv4HomeProvider\strings_en.xml
-source_lang=en
-type=ANDROID
 [MP2.SlimTvClient]
 file_filter=Cache\SlimTvClient\strings_<lang>.xml
 source_file=Cache\SlimTvClient\strings_en.xml
@@ -83,11 +78,6 @@ type=ANDROID
 [MP2.SlimTVMPExtendedProvider]
 file_filter=Cache\SlimTVMPExtendedProvider\strings_<lang>.xml
 source_file=Cache\SlimTVMPExtendedProvider\strings_en.xml
-source_lang=en
-type=ANDROID
-[MP2.TV4Home]
-file_filter=Cache\TV4Home\strings_<lang>.xml
-source_file=Cache\TV4Home\strings_en.xml
 source_lang=en
 type=ANDROID
 [MP2.UIPluginTemplate]
