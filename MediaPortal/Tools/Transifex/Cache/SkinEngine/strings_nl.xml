@@ -1,34 +1,34 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version='1.0' encoding='UTF-8'?>
 <resources>
   <string name="Settings.Appearance.System">Systeem</string>
   <string name="Settings.Appearance.System.Fullscreen">Volledig scherm</string>
   <string name="Settings.Appearance.System.Fullscreen.Help">Geef MediaPortal schermvullend weer</string>
-  <string name="Settings.Appearance.System.CellPhoneInputStyle">Mobiele telefoon invoer stijl</string>
-  <string name="Settings.Appearance.System.CellPhoneInputStyle.Help">Gebruik het mobiele telefoon/SMS stijl toetsenbord voor gegevensinvoer</string>
+  <string name="Settings.Appearance.System.CellPhoneInputStyle">Mobiele telefoon invoerstijl</string>
+  <string name="Settings.Appearance.System.CellPhoneInputStyle.Help">Gebruik de mobiele telefoon/SMS invoerstijl</string>
   <string name="Settings.Appearance.System.ScreenSaverEnabled">Schermbeveiliging inschakelen</string>
   <string name="Settings.Appearance.System.ScreenSaverEnabled.Help">Configureer of de schermbeveiliging moet worden weergegeven</string>
   <string name="Settings.Appearance.System.ScreenSaverTimeout">Schermbeveiliging inschakelvertraging</string>
-  <string name="Settings.Appearance.System.ScreenSaverTimeout.Help">Configureer de inschakelvertraging in minuten wanneer de schermbeveiliging moet worden weergeven na de laatste gebruikers invoer</string>
+  <string name="Settings.Appearance.System.ScreenSaverTimeout.Help">Configureer hoeveel minuten na de laatste gebruikersinvoer de schermbeveiliging moet worden weergeven</string>
   <string name="Settings.Appearance.System.Antialiasing">GUI antialiasing</string>
   <string name="Settings.Appearance.System.Antialiasing.Help">\'Antialiasing\' verbeterd de kwaliteit van de gebruikersinterface weergave maar kan de prestatie van video verminderen</string>
   <string name="Settings.Appearance.Skin">Skin</string>
   <string name="Settings.Appearance.Skin.SkinAndTheme">Skin en thema</string>
   <string name="Settings.Appearance.Skin.SkinAndTheme.ChangeSkin">Wissel van skin</string>
   <string name="Settings.Appearance.Skin.SkinAndTheme.ChangeSkin.Help">Verander de \'look&amp;feel\' van MediaPortal 2</string>
-  <string name="Settings.Appearance.Skin.SkinAndTheme.ChangeTheme">Wissel van thema</string>
+  <string name="Settings.Appearance.Skin.SkinAndTheme.ChangeTheme">Verander het thema</string>
   <string name="Settings.Appearance.Skin.SkinAndTheme.ChangeTheme.Help">Verander de presentatie van de huidige skin</string>
   <string name="Settings.Players">Spelers</string>
   <string name="Settings.Players.Rendering">Weergave</string>
   <string name="Settings.Players.Rendering.DefaultGeometry">Standaard zoom mode</string>
-  <string name="Settings.Players.Rendering.DefaultGeometry.Help">Stel de zoom mode in welke standaard wordt gebruikt door de video speler</string>
+  <string name="Settings.Players.Rendering.DefaultGeometry.Help">Stelt de zoom mode in die standaard door video spelers wordt gebruikt.</string>
   <string name="Settings.General.System.ApplicationSuspendLevel">Configureer Windows energie besparing</string>
-  <string name="Settings.General.System.ApplicationSuspendLevel.Help">Uitschakelen van het automatisch in slaapstand gaan/uitschakelen of het scherm deactiveren van Windows tijdens het uitvoeren van MediaPortal 2</string>
+  <string name="Settings.General.System.ApplicationSuspendLevel.Help">Schakel het automatisch in slaapstand gaan / uitschakelen van het systeem en het deactiveren van het scherm uit zolang MediaPortal 2 wordt uitgevoerd</string>
   <string name="Settings.General.System.ApplicationSuspendLevel.None">Alle systeem energiebesparing niveaus toestaan</string>
   <string name="Settings.General.System.ApplicationSuspendLevel.AvoidSuspend">Voorkom systeem onderbreking maar sta deactiveren van het scherm toe</string>
   <string name="Settings.General.System.ApplicationSuspendLevel.DisplayRequired">Voorkom systeem onderbreking en deactiveren van het scherm</string>
   <string name="ScreenManager.NotificationErrorLoadingSkinTitle">Fout tijdens het laden van de skin</string>
-  <string name="ScreenManager.NotificationErrorLoadingSkinFallingBackToCurrentText">Valt terug naar de huidige skin</string>
-  <string name="ScreenManager.NotificationErrorLoadingSkinFallingBackToDefaultText">Valt terug naar de standaard skin</string>
+  <string name="ScreenManager.NotificationErrorLoadingSkinFallingBackToCurrentText">Terugvallen op de huidige skin</string>
+  <string name="ScreenManager.NotificationErrorLoadingSkinFallingBackToDefaultText">Terugvallen op de standaard skin</string>
   <string name="ScreenManager.ErrorLoadingSkinResource">Fout tijdens het laden van de skin bron</string>
   <string name="ScreenManager.ScreenMissing">Kan de skin bron niet vinden voor scherm \'{0}\'</string>
   <string name="ScreenManager.ScreenBroken">De skin bron voor scherm \'{0}\' lijkt beschadigd te zijn</string>
@@ -44,6 +44,7 @@
   <string name="Geometries.Stretch">Uitrekken</string>
   <string name="Geometries.Zoom">Zoom</string>
   <string name="Geometries.Zoom149">Zoom 14:9</string>
+  <!--File names (files in shaders/effects, without extension) to effect names to be shown in the GUI-->
   <string name="Effects.denoise">Ruisvermindering</string>
   <string name="Effects.directional_blur">Directionele onscherpte</string>
   <string name="Effects.glass_tiles">Glazen tegels</string>
@@ -60,14 +61,21 @@
   <string name="PlayerControl.UnknownMediaItem">Onbekend media item</string>
   <string name="PlayerControl.UnknownPlayerContextName">Speler</string>
   <string name="PlayerControl.HeaderNormal">{0}</string>
+  <!--{0} = media item title-->
   <string name="PlayerControl.HeaderPiP">{0} (PiP)</string>
+  <!--{0} = media item title-->
   <string name="PlayerControl.Playing">Speelt af</string>
   <string name="PlayerControl.Paused">Gepauzeerd</string>
-  <string name="PlayerControl.SeekingForward">Voorwaarts zoeken ({0})</string>
-  <string name="PlayerControl.SeekingBackward">Achterwaarts zoeken ({0})</string>
-  <string name="PlayerControl.SlowMotionForward">Vertraagd voorwaarts ({0})</string>
-  <string name="PlayerControl.SlowMotionBackward">Vertraagd achterwaarts ({0})</string>
+  <string name="PlayerControl.SeekingForward">Vooruit spoelen ({0})</string>
+  <!--For example: "Seeking forward (2x)"-->
+  <string name="PlayerControl.SeekingBackward">Achteruit spoelen ({0})</string>
+  <!--For example: "Seeking forward (2x)"-->
+  <string name="PlayerControl.SlowMotionForward">Vertraagd vooruit ({0})</string>
+  <!--For example: "Slowmotion forward (0.5x)"-->
+  <string name="PlayerControl.SlowMotionBackward">Vertraagd achteruit ({0})</string>
+  <!--For example: "Slowmotion backward (0.5x)"-->
   <string name="PlayerControl.PlaybackRateHint">{0}x</string>
+  <!--For example: 2x or 0.5x-->
   <string name="PlayerControl.Stopped">Gestopt</string>
   <string name="PlayerControl.Ended">Beëindigd</string>
   <string name="PlayerControl.Active">Actief</string>

@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version='1.0' encoding='UTF-8'?>
 <resources>
   <string name="ZipMediaProvider.Name">ZIP fil media-tilbyder</string>
   <string name="ZipMediaProvider.Description">Åpne filer og foldere i ZIP filen</string>

@@ -1,9 +1,9 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version='1.0' encoding='UTF-8'?>
 <resources>
   <string name="Settings.Players.Codecs">Codecs</string>
   <string name="Settings.Players.Codecs.VideoCodecs">Video codecs</string>
   <string name="Settings.Players.Codecs.VideoCodecs.MPEG2">MPEG2 video codec</string>
-  <string name="Settings.Players.Codecs.VideoCodecs.MPEG2.Help">Stel de codec in die gebruikt wordt voor MPEG2 video (DVD, DVB-SD)</string>
+  <string name="Settings.Players.Codecs.VideoCodecs.MPEG2.Help">Stel de codec in die gebruikt wordt voor MPEG2 video (DVD, Digitale TV in SD)</string>
   <string name="Settings.Players.Codecs.VideoCodecs.MPEG4">MPEG4 video codec</string>
   <string name="Settings.Players.Codecs.VideoCodecs.MPEG4.Help">Stel de codec in die gebruikt wordt voor MPEG4 video (H.264, x264)</string>
   <string name="Settings.Players.Codecs.VideoCodecs.AVC">AVC video codec</string>
@@ -41,5 +41,7 @@
   <string name="Playback.DirectorComments1">Regisseur commentaar</string>
   <string name="Playback.DirectorComments2">Regisseur commentaar (2)</string>
   <string name="Playback.Chapter">Hoofdstuk {0}</string>
+  <!--For example: "Chapter 1"-->
   <string name="Playback.Title">Titel {0}</string>
+  <!--For example: "Title 1"-->
 </resources>

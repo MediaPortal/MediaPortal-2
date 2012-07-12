@@ -1,24 +1,24 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version='1.0' encoding='UTF-8'?>
 <resources>
   <string name="Settings.Players.Codecs">Kodek</string>
   <string name="Settings.Players.Codecs.VideoCodecs">Videokodek</string>
-  <string name="Settings.Players.Codecs.VideoCodecs.MPEG2">MPEG2 Videokodek</string>
-  <string name="Settings.Players.Codecs.VideoCodecs.MPEG2.Help">Velg hvilken kodek som skal brukes ved MPEG2 video-avspilling (DVD, DVB-SD)</string>
+  <string name="Settings.Players.Codecs.VideoCodecs.MPEG2">MPEG2 videokodek</string>
+  <string name="Settings.Players.Codecs.VideoCodecs.MPEG2.Help">Velg hvilken kodek som skal brukes ved avspilling av MPEG2 video-(DVD, DVB-SD)</string>
   <string name="Settings.Players.Codecs.VideoCodecs.MPEG4">MPEG4 videokodek</string>
-  <string name="Settings.Players.Codecs.VideoCodecs.MPEG4.Help">Velg hvilken kodek for bruk ved MPEG4 video-avspilling (H.264, x264)</string>
+  <string name="Settings.Players.Codecs.VideoCodecs.MPEG4.Help">Velg hvilken kodek for bruk ved avspilling av MPEG4 video (H.264, x264)</string>
   <string name="Settings.Players.Codecs.VideoCodecs.AVC">AVC videokodek</string>
-  <string name="Settings.Players.Codecs.VideoCodecs.AVC.Help">Velg hvilken kodek som skal brukes ved AVC video-avspilling (HDTV, BluRay)</string>
+  <string name="Settings.Players.Codecs.VideoCodecs.AVC.Help">Velg hvilken kodek som skal brukes ved avspilling av AVC video (HDTV, BluRay)</string>
   <string name="Settings.Players.Codecs.AudioCodecs">Lydkodek</string>
   <string name="Settings.Players.Codecs.AudioRenderer">Lyd gjengiver</string>
   <string name="Settings.Players.Codecs.AudioCodecs.AudioCodec">MPEG1/2 lydkodek</string>
   <string name="Settings.Players.Codecs.AudioCodecs.AudioCodec.Help">Velg hvilken kodek som skal brukes for MPEG1/2 lyd-avspilling</string>
   <string name="Settings.Players.Codecs.AudioCodecs.AudioCodecLATMAAC">LATM-AAC lydkodek</string>
-  <string name="Settings.Players.Codecs.AudioCodecs.AudioCodecLATMAAC.Help">Velg hvilken kodek som skal brukes for MPEG1/2 lyd-avspilling</string>
+  <string name="Settings.Players.Codecs.AudioCodecs.AudioCodecLATMAAC.Help">Velg hvilken kodek som skal brukes for avspilling av MPEG1/2 lyd</string>
   <string name="Settings.Players.Codecs.AudioCodecs.AudioCodecAAC">AAC lydkodek</string>
-  <string name="Settings.Players.Codecs.AudioCodecs.AudioCodecAAC.Help">Velg hvilken kodek som skal brukes for AAC lyd-avspilling</string>
+  <string name="Settings.Players.Codecs.AudioCodecs.AudioCodecAAC.Help">Velg hvilken kodek som skal brukes for avspilling av AAC lyd</string>
   <string name="Settings.Players.Codecs.AudioCodecs.AudioRenderer">Lyd gjengiver</string>
   <string name="Settings.Players.Codecs.AudioCodecs.AudioRenderer.Help">Velg hvilken lyd gjengiver som skal brukes</string>
-  <string name="Settings.Players.VideoPlayer">Video-avspiller</string>
+  <string name="Settings.Players.VideoPlayer">Video avspiller</string>
   <string name="Settings.Players.VideoPlayer.PreferMultiChannelAudio">Foretrekker fler-kanal strøm</string>
   <string name="Settings.Players.VideoPlayer.PreferMultiChannelAudio.Help">Hvis valgt, 6-kanal strøm er foretrukket (f.eks. AC3, AAC)</string>
   <string name="Settings.Players.DVDPlayer">DVD-avspiller</string>
@@ -41,5 +41,7 @@
   <string name="Playback.DirectorComments1">Regissørrens kommentarer</string>
   <string name="Playback.DirectorComments2">Regissørrens kommentarer (2)</string>
   <string name="Playback.Chapter">Kapittel {0}</string>
+  <!--For example: "Chapter 1"-->
   <string name="Playback.Title">Tittel {0}</string>
+  <!--For example: "Title 1"-->
 </resources>

@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version='1.0' encoding='UTF-8'?>
 <resources>
   <string name="IsoResourceProvider.Name">ISO-Datei Provider</string>
   <string name="IsoResourceProvider.Description">Ermöglicht den Zugriff auf Ordner und Dateien in ISO-Dateien</string>

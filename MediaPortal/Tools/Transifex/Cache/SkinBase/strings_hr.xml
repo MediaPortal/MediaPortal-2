@@ -189,7 +189,7 @@
   <string name="SharesConfig.EditShareProblemHeader"></string>
   <string name="SharesConfig.EditShareProblemText"></string>
   <string name="SharesConfig.MenuAddShare"></string>
-  <string name="SharesConfig.MenuEditShares"></string>
+  <string name="SharesConfig.MenuEditShares">Uredi</string>
   <string name="SharesConfig.MenuRemoveShares"></string>
   <string name="SharesConfig.AddServerShare"></string>
   <!--Must fit for both multiseat and singleseat, that's why we don't write "server share"-->

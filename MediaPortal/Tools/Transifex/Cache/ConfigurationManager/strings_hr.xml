@@ -5,5 +5,5 @@
   <string name="configuration.unsaved_warning"></string>
   <string name="configuration.browse"></string>
   <string name="configuration.areas.settings"></string>
-  <string name="configuration.areas.logs"></string>
+  <string name="configuration.areas.logs">Zapisi</string>
 </resources>

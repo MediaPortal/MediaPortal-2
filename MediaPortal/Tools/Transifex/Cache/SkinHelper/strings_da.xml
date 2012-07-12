@@ -1,9 +1,9 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version='1.0' encoding='UTF-8'?>
 <resources>
-  <string name="SkinHelper.ThemeColorsWorkflowNavigationContextDisplayLabel"></string>
-  <string name="SkinHelper.MenuShowThemeColors"></string>
-  <string name="SkinHelper.ShowThemeColorsTitle"></string>
-  <string name="SkinHelper.ShowThemeColorsText"></string>
-  <string name="SkinHelper.LoadSkinTitle"></string>
-  <string name="SkinHelper.LoadThemeTitle"></string>
+  <string name="SkinHelper.ThemeColorsWorkflowNavigationContextDisplayLabel">Temafarver</string>
+  <string name="SkinHelper.MenuShowThemeColors">Vis temafarver</string>
+  <string name="SkinHelper.ShowThemeColorsTitle">Temafarver</string>
+  <string name="SkinHelper.ShowThemeColorsText">Denne skærm viser alle farve ressourcer der er defineret i det aktuelle tema (og nedarvede ressourcer)</string>
+  <string name="SkinHelper.LoadSkinTitle">Hent skin</string>
+  <string name="SkinHelper.LoadThemeTitle">Hent tema</string>
 </resources>

@@ -1,20 +1,20 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version='1.0' encoding='UTF-8'?>
 <resources>
-  <string name="SlimTvClient.Title"></string>
-  <string name="SlimTvClient.CurrentlyPlayingInformationHeader"></string>
-  <string name="SlimTvClient.ChannelLabel"></string>
-  <string name="SlimTvClient.ProgramLabel"></string>
-  <string name="SlimTvClient.DescriptionLabel"></string>
-  <string name="SlimTvClient.GenreLabel"></string>
-  <string name="SlimTvClient.ProgramStartLabel"></string>
-  <string name="SlimTvClient.ProgramEndLabel"></string>
-  <string name="SlimTvClient.EpisodeLabel"></string>
-  <string name="SlimTvClient.Guide"></string>
-  <string name="SlimTvClient.NoProgram"></string>
-  <string name="SlimTvClient.ChooseProgramAction"></string>
-  <string name="SlimTvClient.ProgramOver"></string>
-  <string name="SlimTvClient.WatchNow"></string>
-  <string name="SlimTvClient.RecordNow"></string>
-  <string name="SlimTvClient.DeleteSchedule"></string>
-  <string name="SlimTvClient.CreateSchedule"></string>
+  <string name="SlimTvClient.Title">Cliente de TV Slim</string>
+  <string name="SlimTvClient.CurrentlyPlayingInformationHeader">Informações do programa</string>
+  <string name="SlimTvClient.ChannelLabel">Canal</string>
+  <string name="SlimTvClient.ProgramLabel">Programa</string>
+  <string name="SlimTvClient.DescriptionLabel">Descrição</string>
+  <string name="SlimTvClient.GenreLabel">Gênero</string>
+  <string name="SlimTvClient.ProgramStartLabel">Hora de início</string>
+  <string name="SlimTvClient.ProgramEndLabel">Hora de término</string>
+  <string name="SlimTvClient.EpisodeLabel">Episódio</string>
+  <string name="SlimTvClient.Guide">Guia da TV</string>
+  <string name="SlimTvClient.NoProgram">Sem dados do programa.</string>
+  <string name="SlimTvClient.ChooseProgramAction">Escolha a ação do programa...</string>
+  <string name="SlimTvClient.ProgramOver">O programa já acabou</string>
+  <string name="SlimTvClient.WatchNow">Assistir agora</string>
+  <string name="SlimTvClient.RecordNow">Gravar agora</string>
+  <string name="SlimTvClient.DeleteSchedule">Deletar agendamento</string>
+  <string name="SlimTvClient.CreateSchedule">Agendar gravação</string>
 </resources>

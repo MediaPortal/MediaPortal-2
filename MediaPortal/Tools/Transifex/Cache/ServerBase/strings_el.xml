@@ -14,5 +14,5 @@
   <string name="UPnPBackendServer.ModelName">Διακομιστής MediaPortal 2</string>
   <string name="UPnPBackendServer.ModelNumber">1</string>
   <string name="UPnPBackendServer.ModelUrl"></string>
-  <string name="MediaLibrary.EmptyOrMiscCharGroupName"><Άδειος ή άκυρος χαρακτήρας></string>
+  <string name="MediaLibrary.EmptyOrMiscCharGroupName">&lt;Άδειος ή άκυρος χαρακτήρας&gt;</string>
 </resources>

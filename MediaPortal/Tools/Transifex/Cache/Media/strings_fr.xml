@@ -226,10 +226,10 @@
   <string name="Media.SaveCurrentPlaylistAction">Sauvegarder la playlist actuelle</string>
   <string name="Media.RemovePlaylistsAction">Supprimer les playlists</string>
   <string name="Media.LoadPlaylistButton">Charger une playlist</string>
-  <string name="Media.PlaylistEmpty"><Aucun élément dans la playlist></string>
+  <string name="Media.PlaylistEmpty">&lt;Aucun élément dans la playlist&gt;</string>
   <string name="Media.CannotPlayItemDialogText">Imposible de lire les fichiers multimédias</string>
   <string name="Media.CannotPlayItemsDialogText">Imposible de lire les fichiers multimédias</string>
-  <string name="Media.ValueEmptyTitle"><Vide></string>
+  <string name="Media.ValueEmptyTitle">&lt;Vide&gt;</string>
   <!--VideoPlayerUIContributor-->
   <string name="Media.SubtitleOff">Désactiver les sous-titres</string>
   <string name="Media.ChooseChapterDialogHeader">Choisir le chapitre</string>

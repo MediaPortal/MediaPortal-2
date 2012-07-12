@@ -6,7 +6,7 @@
   <string name="Media.AudioMenuItem">Audio</string>
   <string name="Media.VideosMenuItem">Video</string>
   <string name="Media.SeriesMenuItem">Serijos</string>
-  <string name="Media.MoviesMenuItem"></string>
+  <string name="Media.MoviesMenuItem">Filmai</string>
   <string name="Media.ImagesMenuItem">Vaizdai</string>
   <!--Filter titles-->
   <string name="Media.FilterByArtistMenuItem">Filtruoti pagal atlikėją</string>
@@ -16,7 +16,7 @@
   <string name="Media.FilterByActorMenuItem">Filtruoti pagal aktorių</string>
   <string name="Media.FilterByVideoGenreMenuItem">Filtruoti pagal žanrą</string>
   <string name="Media.FilterByVideoYearMenuItem">Filtruoti pagal metus</string>
-  <string name="Media.FilterByAudioLanguageMenuItem"></string>
+  <string name="Media.FilterByAudioLanguageMenuItem">Rūšiuoti pagal kalbą</string>
   <string name="Media.FilterByImageSizeMenuItem">Filtruoti pagal dydį</string>
   <string name="Media.FilterByImageYearMenuItem">Filtruoti pagal metus</string>
   <string name="Media.FilterBySystemMenuItem">Filtruoti pagal sistemą</string>
@@ -47,7 +47,7 @@
   <string name="Media.FilterActorNavbarDisplayLabel">Aktorius: {0}</string>
   <string name="Media.FilterVideoGenreNavbarDisplayLabel">Žanras: {0}</string>
   <string name="Media.FilterVideoYearNavbarDisplayLabel">Metai: {0}</string>
-  <string name="Media.FilterAudioLanguagesNavbarDisplayLabel"></string>
+  <string name="Media.FilterAudioLanguagesNavbarDisplayLabel">Kalba: {0}</string>
   <string name="Media.FilterImageSizeNavbarDisplayLabel">Dydis: {0}</string>
   <string name="Media.FilterImageYearNavbarDisplayLabel">Metai: {0}</string>
   <string name="Media.FilterAudioItemsNavbarDisplayLabel">Vardas: {0}</string>
@@ -56,14 +56,14 @@
   <string name="Media.FilterSeriesSeasonNavbarDisplayLabel">Sezonas: {0}</string>
   <string name="Media.FilterImageItemsNavbarDisplayLabel">Vardas: {0}</string>
   <string name="Media.FilterSystemNavbarDisplayLabel">Sistema: {0}</string>
-  <string name="Media.FilterMoviesNavbarDisplayLabel"></string>
+  <string name="Media.FilterMoviesNavbarDisplayLabel">Filmai: {0}</string>
   <!--Display labels for workflow navigation contexts-->
   <string name="Media.BrowseMediaNavigationRootWorkflowNavigationContextDisplayLabel">Naršyti media</string>
   <string name="Media.LocalMediaNavigationRootWorkflowNavigationContextDisplayLabel">Lokali media</string>
   <string name="Media.AudioNavigationRootWorkflowNavigationContextDisplayLabel">Audio biblioteka</string>
   <string name="Media.VideoNavigationRootWorkflowNavigationContextDisplayLabel">Video biblioteka</string>
   <string name="Media.SeriesNavigationRootWorkflowNavigationContextDisplayLabel">Serijų biblioteka</string>
-  <string name="Media.MoviesNavigationRootWorkflowNavigationContextDisplayLabel"></string>
+  <string name="Media.MoviesNavigationRootWorkflowNavigationContextDisplayLabel">Filmų biblioteka</string>
   <string name="Media.ImageNavigationRootWorkflowNavigationContextDisplayLabel">Vaizdų biblioteka</string>
   <string name="Media.VideoCurrentlyPlayingWorkflowStateNavigationContextDisplayLabel">Šis video</string>
   <string name="Media.VideoFullscreenContentWorkflowStateNavigationContextDisplayLabel">Video visu ekranu</string>
@@ -88,7 +88,7 @@
   <string name="Media.VideoItemsHeader">Video</string>
   <string name="Media.AudioItemsHeader">Audio įrašai</string>
   <string name="Media.SeriesItemsHeader">Epizodai</string>
-  <string name="Media.MoviesItemsHeader"></string>
+  <string name="Media.MoviesItemsHeader">Filmai</string>
   <string name="Media.ImageItemsHeader">Vaizdai</string>
   <string name="Media.SimpleSearchHeader">Paprasta paieška</string>
   <string name="Media.ChooseActorHeader">Pasirinkti aktorių</string>
@@ -103,7 +103,7 @@
   <string name="Media.ChooseImageYearHeader">Pasirinkti metus</string>
   <string name="Media.ChooseImageSizeHeader">Pasirinkti dydį</string>
   <string name="Media.ChooseSystemHeader">Pasirinkti sistemą</string>
-  <string name="Media.ChooseVideoLanguageHeader"></string>
+  <string name="Media.ChooseVideoLanguageHeader">Pasirinkite kalbą</string>
   <string name="Media.PlaylistsOverviewHeader">Grojaraščiai</string>
   <string name="Media.SavePlaylistEditNameHeader">Išsaugoti grojaraštį</string>
   <string name="Media.SavePlaylistFailedHeader">Išsaugoti grojaraštį</string>
@@ -125,7 +125,7 @@
   <string name="Media.SimpleSearchViewName">Paprasta paieška</string>
   <!--General strings used in views-->
   <string name="Media.ViewInvalid">Šio vaizdo nepavyko sukurti</string>
-  <string name="Media.ViewEmpty"><Nėra įrašų rodymui></string>
+  <string name="Media.ViewEmpty">&lt;Nėra įrašų rodymui&gt;</string>
   <string name="Media.NoItems">Nėra įrašų</string>
   <!--Shown in the header of an items list-->
   <string name="Media.OneItem">Vienas Įrašas</string>
@@ -226,10 +226,10 @@
   <string name="Media.SaveCurrentPlaylistAction">Saugoti šį grojaraštį</string>
   <string name="Media.RemovePlaylistsAction">Išimti grojaraščius</string>
   <string name="Media.LoadPlaylistButton">Krauti grojaraštį</string>
-  <string name="Media.PlaylistEmpty"><Grojaraštyje nėra įrašųt></string>
+  <string name="Media.PlaylistEmpty">&lt;Grojaraštyje nėra įrašųt&gt;</string>
   <string name="Media.CannotPlayItemDialogText">Negalima atkurti media įrašo</string>
   <string name="Media.CannotPlayItemsDialogText">Negalima atkurti media įrašų</string>
-  <string name="Media.ValueEmptyTitle"><Tuščia></string>
+  <string name="Media.ValueEmptyTitle">&lt;Tuščia&gt;</string>
   <!--VideoPlayerUIContributor-->
   <string name="Media.SubtitleOff">Išjungti subtitrus</string>
   <string name="Media.ChooseChapterDialogHeader">Pasirinkti skyrių</string>

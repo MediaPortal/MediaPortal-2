@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version='1.0' encoding='UTF-8'?>
 <resources>
   <string name="Settings.Players.Codecs"></string>
   <string name="Settings.Players.Codecs.VideoCodecs"></string>
@@ -41,5 +41,7 @@
   <string name="Playback.DirectorComments1"></string>
   <string name="Playback.DirectorComments2"></string>
   <string name="Playback.Chapter"></string>
+  <!--For example: "Chapter 1"-->
   <string name="Playback.Title"></string>
+  <!--For example: "Title 1"-->
 </resources>

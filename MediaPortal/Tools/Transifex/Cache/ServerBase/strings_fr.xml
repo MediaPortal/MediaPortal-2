@@ -14,5 +14,5 @@
   <string name="UPnPBackendServer.ModelName">Serveur MediaPortal 2</string>
   <string name="UPnPBackendServer.ModelNumber">1</string>
   <string name="UPnPBackendServer.ModelUrl"></string>
-  <string name="MediaLibrary.EmptyOrMiscCharGroupName"><Vide ou caractère inconnu></string>
+  <string name="MediaLibrary.EmptyOrMiscCharGroupName">&lt;Vide ou caractère inconnu&gt;</string>
 </resources>

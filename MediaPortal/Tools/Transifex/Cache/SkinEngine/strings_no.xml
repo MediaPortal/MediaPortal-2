@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version='1.0' encoding='UTF-8'?>
 <resources>
   <string name="Settings.Appearance.System">System</string>
   <string name="Settings.Appearance.System.Fullscreen">Fullskjerm</string>
@@ -44,6 +44,7 @@
   <string name="Geometries.Stretch">Strekk</string>
   <string name="Geometries.Zoom">Zoom</string>
   <string name="Geometries.Zoom149">Zoom 14:9</string>
+  <!--File names (files in shaders/effects, without extension) to effect names to be shown in the GUI-->
   <string name="Effects.denoise">Denoise</string>
   <string name="Effects.directional_blur">Directional blur</string>
   <string name="Effects.glass_tiles">Glassfliser</string>
@@ -60,14 +61,21 @@
   <string name="PlayerControl.UnknownMediaItem">Ukjent media</string>
   <string name="PlayerControl.UnknownPlayerContextName">Avspiller</string>
   <string name="PlayerControl.HeaderNormal">{0}</string>
+  <!--{0} = media item title-->
   <string name="PlayerControl.HeaderPiP">{0} (PiP)</string>
+  <!--{0} = media item title-->
   <string name="PlayerControl.Playing">Spiller</string>
   <string name="PlayerControl.Paused">Pauset</string>
   <string name="PlayerControl.SeekingForward">Søker forover ({0}) </string>
+  <!--For example: "Seeking forward (2x)"-->
   <string name="PlayerControl.SeekingBackward">Søker bakover ({0})</string>
+  <!--For example: "Seeking forward (2x)"-->
   <string name="PlayerControl.SlowMotionForward">Sakte forover ({0})</string>
+  <!--For example: "Slowmotion forward (0.5x)"-->
   <string name="PlayerControl.SlowMotionBackward">Sakte bakover ({0})</string>
+  <!--For example: "Slowmotion backward (0.5x)"-->
   <string name="PlayerControl.PlaybackRateHint">{0}x</string>
+  <!--For example: 2x or 0.5x-->
   <string name="PlayerControl.Stopped">Stoppet</string>
   <string name="PlayerControl.Ended">Slutt</string>
   <string name="PlayerControl.Active">Aktiv</string>

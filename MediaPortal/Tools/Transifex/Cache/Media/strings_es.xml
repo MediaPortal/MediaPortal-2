@@ -125,7 +125,7 @@
   <string name="Media.SimpleSearchViewName">Búsqueda simple</string>
   <!--General strings used in views-->
   <string name="Media.ViewInvalid">Esta vista no puede realizarse</string>
-  <string name="Media.ViewEmpty">&amp;It;Sin elementos que mostrar></string>
+  <string name="Media.ViewEmpty">&amp;It;Sin elementos que mostrar&gt;</string>
   <string name="Media.NoItems">Sin elementos</string>
   <!--Shown in the header of an items list-->
   <string name="Media.OneItem">Un elemento</string>
@@ -226,10 +226,10 @@
   <string name="Media.SaveCurrentPlaylistAction">Guardar lista de reproducción actual</string>
   <string name="Media.RemovePlaylistsAction">Quitar listas de reproducción</string>
   <string name="Media.LoadPlaylistButton">Cargar lista de eproducción</string>
-  <string name="Media.PlaylistEmpty">&amp;It;Sin elementos en la lista de reproducción></string>
+  <string name="Media.PlaylistEmpty">&amp;It;Sin elementos en la lista de reproducción&gt;</string>
   <string name="Media.CannotPlayItemDialogText">Imposible reproducir elemento multimedia</string>
   <string name="Media.CannotPlayItemsDialogText">Imposible reproducir elementos multimedia</string>
-  <string name="Media.ValueEmptyTitle">&amp;It;Vacío></string>
+  <string name="Media.ValueEmptyTitle">&amp;It;Vacío&gt;</string>
   <!--VideoPlayerUIContributor-->
   <string name="Media.SubtitleOff">Quitar Subtítulos</string>
   <string name="Media.ChooseChapterDialogHeader">Elegir capítulo</string>

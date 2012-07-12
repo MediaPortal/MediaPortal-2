@@ -1,41 +1,41 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version='1.0' encoding='UTF-8'?>
 <resources>
   <string name="Settings.Appearance.System">System</string>
   <string name="Settings.Appearance.System.Fullscreen">Vollbild</string>
   <string name="Settings.Appearance.System.Fullscreen.Help">MediaPortal im Vollbildmodus anzeigen</string>
   <string name="Settings.Appearance.System.CellPhoneInputStyle">Handy-Tastatur</string>
-  <string name="Settings.Appearance.System.CellPhoneInputStyle.Help">Benutze die Handy-Tastatur</string>
-  <string name="Settings.Appearance.System.ScreenSaverEnabled">Bildschirmschoner verwenden</string>
+  <string name="Settings.Appearance.System.CellPhoneInputStyle.Help">Handy-Tastatur benutzen</string>
+  <string name="Settings.Appearance.System.ScreenSaverEnabled">Bildschirmschoner aktivieren</string>
   <string name="Settings.Appearance.System.ScreenSaverEnabled.Help">Legt fest, ob der Bildschirmschoner verwendet werden soll</string>
-  <string name="Settings.Appearance.System.ScreenSaverTimeout">Zeitlimit für Bildschirmschoner</string>
+  <string name="Settings.Appearance.System.ScreenSaverTimeout">Wartezeit für Bildschirmschoner</string>
   <string name="Settings.Appearance.System.ScreenSaverTimeout.Help">Legt die Zeitspanne seit der letzen Benutzereingabe in Minuten fest, nach der der Bildschirmschoner angezeigt wird</string>
   <string name="Settings.Appearance.System.Antialiasing">Kantenglättung</string>
   <string name="Settings.Appearance.System.Antialiasing.Help">Kantenglättung verbessert die Darstellung der Oberfläche, kann aber die Performance der Videowiedergabe beeinflussen</string>
-  <string name="Settings.Appearance.Skin">Skin</string>
-  <string name="Settings.Appearance.Skin.SkinAndTheme">Skin und Thema</string>
-  <string name="Settings.Appearance.Skin.SkinAndTheme.ChangeSkin">Skin wechseln</string>
+  <string name="Settings.Appearance.Skin">Oberfläche</string>
+  <string name="Settings.Appearance.Skin.SkinAndTheme">Oberfläche und Thema</string>
+  <string name="Settings.Appearance.Skin.SkinAndTheme.ChangeSkin">Oberfläche wechseln</string>
   <string name="Settings.Appearance.Skin.SkinAndTheme.ChangeSkin.Help">Ändert das Aussehen und Verhalten von MediaPortal 2</string>
   <string name="Settings.Appearance.Skin.SkinAndTheme.ChangeTheme">Thema wechseln</string>
-  <string name="Settings.Appearance.Skin.SkinAndTheme.ChangeTheme.Help">Ändert das Aussehen des aktuellen Skins</string>
+  <string name="Settings.Appearance.Skin.SkinAndTheme.ChangeTheme.Help">Ändert das Aussehen der aktuellen Oberfläche</string>
   <string name="Settings.Players">Player</string>
   <string name="Settings.Players.Rendering">Ausgabe</string>
-  <string name="Settings.Players.Rendering.DefaultGeometry">Standard Zoom-Modus</string>
-  <string name="Settings.Players.Rendering.DefaultGeometry.Help">Legt den Zoom-Modus fest, den Video-Player automatisch verwenden sollen</string>
+  <string name="Settings.Players.Rendering.DefaultGeometry">Standard-Ansichtsverhältnis</string>
+  <string name="Settings.Players.Rendering.DefaultGeometry.Help">Legt das Ansichtsverhältnis fest, mit dem der Video-Player standardmäßig startet</string>
   <string name="Settings.General.System.ApplicationSuspendLevel">Windows Energieoptionen einstellen</string>
   <string name="Settings.General.System.ApplicationSuspendLevel.Help">Deaktiviert das automatische Herunterfahren/Energiesparen bzw. die Bildschirmabschaltung während MediaPortal 2 läuft</string>
-  <string name="Settings.General.System.ApplicationSuspendLevel.None">Alle System Energiespar-Level zulassen</string>
+  <string name="Settings.General.System.ApplicationSuspendLevel.None">Alle Energiesparstufen zulassen</string>
   <string name="Settings.General.System.ApplicationSuspendLevel.AvoidSuspend">Energiesparen verbieten, aber Bildschirmabschaltung erlauben</string>
   <string name="Settings.General.System.ApplicationSuspendLevel.DisplayRequired">Energiesparen und Bildschirmabschaltung verbieten</string>
-  <string name="ScreenManager.NotificationErrorLoadingSkinTitle">Fehler beim Laden des Skins</string>
-  <string name="ScreenManager.NotificationErrorLoadingSkinFallingBackToCurrentText">Greife auf aktuelles Skin zurück</string>
-  <string name="ScreenManager.NotificationErrorLoadingSkinFallingBackToDefaultText">Greife auf Standard-Skin zurück</string>
-  <string name="ScreenManager.ErrorLoadingSkinResource">Fehler beim Laden einer Skin-Ressource</string>
-  <string name="ScreenManager.ScreenMissing">Die Skin-Ressource für den Screen \'{0}\' kann nicht gefunden werden</string>
-  <string name="ScreenManager.ScreenBroken">Die Skin-Ressource für den Screen \'{0}\' scheint defekt zu sein</string>
-  <string name="ScreenManager.BackgroundScreenMissing">Die Skin-Ressource für den Hintergrund-Screen \'{0}\' kann nicht gefunden werden</string>
-  <string name="ScreenManager.BackgroundScreenBroken">Die Skin-Ressource für den Hintergrund-Screen \'{0}\' scheint defekt zu sein</string>
-  <string name="ScreenManager.SuperLayerScreenMissing">Die Skin-Ressource für den Superlayer-Screen \'{0}\' kann nicht gefunden werden</string>
-  <string name="ScreenManager.SuperLayerScreenBroken">Die Skin-Ressource für den Superlayer-Screen \'{0}\' scheint defekt zu sein</string>
+  <string name="ScreenManager.NotificationErrorLoadingSkinTitle">Fehler beim Laden der Oberfläche</string>
+  <string name="ScreenManager.NotificationErrorLoadingSkinFallingBackToCurrentText">Greife auf aktuelle Oberfläche zurück</string>
+  <string name="ScreenManager.NotificationErrorLoadingSkinFallingBackToDefaultText">Greife auf Standardoberfläche zurück</string>
+  <string name="ScreenManager.ErrorLoadingSkinResource">Fehler beim Laden einer Oberflächen-Ressource</string>
+  <string name="ScreenManager.ScreenMissing">Die Oberflächen-Ressource für den Screen \'{0}\' kann nicht gefunden werden.</string>
+  <string name="ScreenManager.ScreenBroken">Die Oberflächen-Ressource für den Screen \'{0}\' scheint defekt zu sein.</string>
+  <string name="ScreenManager.BackgroundScreenMissing">Die Oberflächen-Ressource für den Hintergrund-Screen \'{0}\' kann nicht gefunden werden.</string>
+  <string name="ScreenManager.BackgroundScreenBroken">Die Oberflächen-Ressource für den Hintergrund-Screen \'{0}\' scheint defekt zu sein.</string>
+  <string name="ScreenManager.SuperLayerScreenMissing">Die Oberflächen-Ressource für den Superlayer-Screen \'{0}\' kann nicht gefunden werden.</string>
+  <string name="ScreenManager.SuperLayerScreenBroken">Die Oberflächen-Ressource für den Superlayer-Screen \'{0}\' scheint defekt zu sein.</string>
   <string name="Geometries.IntelligentZoom">Intelligenter Zoom</string>
   <string name="Geometries.LetterBox">Letterbox 4:3</string>
   <string name="Geometries.Normal">Normal</string>
@@ -44,6 +44,7 @@
   <string name="Geometries.Stretch">Strecken</string>
   <string name="Geometries.Zoom">Zoom</string>
   <string name="Geometries.Zoom149">Zoom 14:9</string>
+  <!--File names (files in shaders/effects, without extension) to effect names to be shown in the GUI-->
   <string name="Effects.denoise">Entrauschen</string>
   <string name="Effects.directional_blur">Gerichtetes Verwischen</string>
   <string name="Effects.glass_tiles">Glaskacheln</string>
@@ -56,18 +57,25 @@
   <string name="Effects.sharpen_complex">Schärfen (komplex)</string>
   <string name="Effects.zoom_blur">Zoom Verwischen</string>
   <string name="PlayerControl.NoPlayer">Kein Player</string>
-  <string name="PlayerControl.NoMediaItem">- No media item -</string>
+  <string name="PlayerControl.NoMediaItem">- Kein Medienelement -</string>
   <string name="PlayerControl.UnknownMediaItem">Unbekanntes Medienelement</string>
   <string name="PlayerControl.UnknownPlayerContextName">Player</string>
   <string name="PlayerControl.HeaderNormal">{0}</string>
+  <!--{0} = media item title-->
   <string name="PlayerControl.HeaderPiP">{0} (PiP)</string>
+  <!--{0} = media item title-->
   <string name="PlayerControl.Playing">Wiedergabe</string>
   <string name="PlayerControl.Paused">Pause</string>
   <string name="PlayerControl.SeekingForward">Schneller Vorlauf ({0})</string>
+  <!--For example: "Seeking forward (2x)"-->
   <string name="PlayerControl.SeekingBackward">Schneller Rücklauf ({0})</string>
+  <!--For example: "Seeking forward (2x)"-->
   <string name="PlayerControl.SlowMotionForward">Langsamer Vorlauf ({0})</string>
+  <!--For example: "Slowmotion forward (0.5x)"-->
   <string name="PlayerControl.SlowMotionBackward">Langsamer Rücklauf ({0})</string>
+  <!--For example: "Slowmotion backward (0.5x)"-->
   <string name="PlayerControl.PlaybackRateHint">{0}x</string>
+  <!--For example: 2x or 0.5x-->
   <string name="PlayerControl.Stopped">Gestoppt</string>
   <string name="PlayerControl.Ended">Beendet</string>
   <string name="PlayerControl.Active">Aktiv</string>

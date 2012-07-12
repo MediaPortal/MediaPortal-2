@@ -1,8 +1,10 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version='1.0' encoding='UTF-8'?>
 <resources>
   <string name="Weather.WeatherStateDisplayLabel">Orai</string>
   <string name="Weather.WeatherSetupStateDisplayLabel">Orų nustatymai</string>
+  <!--Dialog state, doesn't appear at the UI-->
   <string name="Weather.WeatherLocationStateDisplayLabel">Pasirinkti vietovę</string>
+  <!--Dialog state, doesn't appear at the UI-->
   <string name="Weather.Title">Orai</string>
   <string name="Weather.ChooseLocation">Pasirinkti vietovę</string>
   <string name="Weather.Refresh">Atnaujinti</string>
@@ -21,6 +23,7 @@
   <string name="Weather.Sunset">Saulėlydis</string>
   <string name="Weather.LastUpdateTime">Paskutini kartą atnaujinta: {0}</string>
   <string name="Weather.NotUpdatedYet">-</string>
+  <!--Forecast names are mostly assigned 1:1-->
   <string name="Weather.TStorms">Škvalas</string>
   <string name="Weather.Partly">Dalinai</string>
   <string name="Weather.Mostly">Daugiausia</string>

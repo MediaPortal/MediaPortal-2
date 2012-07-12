@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version='1.0' encoding='UTF-8'?>
 <resources>
   <string name="AudioCDResourceProvider.Name">Audio CD šaltinio tiekėjas</string>
   <string name="AudioCDResourceProvider.Description">Pasiekti audio CD takelius</string>

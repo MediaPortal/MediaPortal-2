@@ -125,7 +125,7 @@
   <string name="Media.SimpleSearchViewName">Простой поиск</string>
   <!--General strings used in views-->
   <string name="Media.ViewInvalid">Список не может быть создан</string>
-  <string name="Media.ViewEmpty"><Нет элементов для показа></string>
+  <string name="Media.ViewEmpty">&lt;Нет элементов для показа&gt;</string>
   <string name="Media.NoItems">Нет элементов</string>
   <!--Shown in the header of an items list-->
   <string name="Media.OneItem">Один элемент</string>
@@ -226,10 +226,10 @@
   <string name="Media.SaveCurrentPlaylistAction">Сохранить текущий плейлист</string>
   <string name="Media.RemovePlaylistsAction">Удалить плейлист</string>
   <string name="Media.LoadPlaylistButton">Загрузить плейлист</string>
-  <string name="Media.PlaylistEmpty"><Пустой плейлист></string>
+  <string name="Media.PlaylistEmpty">&lt;Пустой плейлист&gt;</string>
   <string name="Media.CannotPlayItemDialogText">Нельзя проиграть</string>
   <string name="Media.CannotPlayItemsDialogText">Нельзя проиграть</string>
-  <string name="Media.ValueEmptyTitle"><Пусто></string>
+  <string name="Media.ValueEmptyTitle">&lt;Пусто&gt;</string>
   <!--VideoPlayerUIContributor-->
   <string name="Media.SubtitleOff">Отключить субтитры</string>
   <string name="Media.ChooseChapterDialogHeader">Выбрать часть</string>

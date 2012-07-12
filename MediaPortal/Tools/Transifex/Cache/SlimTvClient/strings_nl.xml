@@ -1,7 +1,7 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version='1.0' encoding='UTF-8'?>
 <resources>
-  <string name="SlimTvClient.Title">Slim TV client</string>
-  <string name="SlimTvClient.CurrentlyPlayingInformationHeader">Programma informatie</string>
+  <string name="SlimTvClient.Title">Slim TV Client</string>
+  <string name="SlimTvClient.CurrentlyPlayingInformationHeader">Programma-informatie</string>
   <string name="SlimTvClient.ChannelLabel">Zender</string>
   <string name="SlimTvClient.ProgramLabel">Programma</string>
   <string name="SlimTvClient.DescriptionLabel">Beschrijving</string>
@@ -10,7 +10,7 @@
   <string name="SlimTvClient.ProgramEndLabel">Eindtijd</string>
   <string name="SlimTvClient.EpisodeLabel">Aflevering</string>
   <string name="SlimTvClient.Guide">TV-gids</string>
-  <string name="SlimTvClient.NoProgram">Geen programma data.</string>
+  <string name="SlimTvClient.NoProgram">Geen programma-informatie</string>
   <string name="SlimTvClient.ChooseProgramAction">Kies programma actie...</string>
   <string name="SlimTvClient.ProgramOver">Programma is reeds afgelopen</string>
   <string name="SlimTvClient.WatchNow">Programma nu bekijken</string>

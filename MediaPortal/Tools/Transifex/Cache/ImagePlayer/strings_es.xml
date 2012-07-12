@@ -1,8 +1,8 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version='1.0' encoding='UTF-8'?>
 <resources>
-  <string name="Settings.Players.Image"></string>
-  <string name="Settings.Players.Image.SlideShowImageDuration"></string>
-  <string name="Settings.Players.Image.SlideShowImageDuration.Help"></string>
-  <string name="Settings.Players.Image.KenBurnsEffect"></string>
-  <string name="Settings.Players.Image.KenBurnsEffect.Help"></string>
+  <string name="Settings.Players.Image">Reproductor de Imágenes</string>
+  <string name="Settings.Players.Image.SlideShowImageDuration">Duración del pase de imágenes</string>
+  <string name="Settings.Players.Image.SlideShowImageDuration.Help">Establecer la duración de cada imagen en segundos  en el modo de pase de imágenes</string>
+  <string name="Settings.Players.Image.KenBurnsEffect">Usar efecto Ken Burns</string>
+  <string name="Settings.Players.Image.KenBurnsEffect.Help">Usar animaciones pan y zoom cuando se muestra una imagen</string>
 </resources>

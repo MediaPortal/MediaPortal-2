@@ -6,7 +6,7 @@
   <string name="Media.AudioMenuItem">Audio</string>
   <string name="Media.VideosMenuItem">Videá</string>
   <string name="Media.SeriesMenuItem">Seriály</string>
-  <string name="Media.MoviesMenuItem"></string>
+  <string name="Media.MoviesMenuItem">Filmy</string>
   <string name="Media.ImagesMenuItem">Fotky</string>
   <!--Filter titles-->
   <string name="Media.FilterByArtistMenuItem">Filtrovať podľa umelca</string>
@@ -56,14 +56,14 @@
   <string name="Media.FilterSeriesSeasonNavbarDisplayLabel">Sezóna {0}</string>
   <string name="Media.FilterImageItemsNavbarDisplayLabel">Meno: {0}</string>
   <string name="Media.FilterSystemNavbarDisplayLabel">Systém: {0}</string>
-  <string name="Media.FilterMoviesNavbarDisplayLabel"></string>
+  <string name="Media.FilterMoviesNavbarDisplayLabel">Filmy: {0}</string>
   <!--Display labels for workflow navigation contexts-->
   <string name="Media.BrowseMediaNavigationRootWorkflowNavigationContextDisplayLabel">Prezerať médiá</string>
   <string name="Media.LocalMediaNavigationRootWorkflowNavigationContextDisplayLabel">Lokálne médiá</string>
   <string name="Media.AudioNavigationRootWorkflowNavigationContextDisplayLabel">Audio knižnica</string>
   <string name="Media.VideoNavigationRootWorkflowNavigationContextDisplayLabel">Video knižnica</string>
   <string name="Media.SeriesNavigationRootWorkflowNavigationContextDisplayLabel">Seriály (knižnica)</string>
-  <string name="Media.MoviesNavigationRootWorkflowNavigationContextDisplayLabel"></string>
+  <string name="Media.MoviesNavigationRootWorkflowNavigationContextDisplayLabel">Filmotéka:</string>
   <string name="Media.ImageNavigationRootWorkflowNavigationContextDisplayLabel">Fotky (knižnica)</string>
   <string name="Media.VideoCurrentlyPlayingWorkflowStateNavigationContextDisplayLabel">Aktuálne video</string>
   <string name="Media.VideoFullscreenContentWorkflowStateNavigationContextDisplayLabel">Video na celú obrazovku</string>
@@ -88,7 +88,7 @@
   <string name="Media.VideoItemsHeader">Videá</string>
   <string name="Media.AudioItemsHeader">Audio položky</string>
   <string name="Media.SeriesItemsHeader">Epizódy</string>
-  <string name="Media.MoviesItemsHeader"></string>
+  <string name="Media.MoviesItemsHeader">Filmy</string>
   <string name="Media.ImageItemsHeader">Fotky</string>
   <string name="Media.SimpleSearchHeader">Jednoduché hľadanie</string>
   <string name="Media.ChooseActorHeader">Vyberte si herca</string>
@@ -125,7 +125,7 @@
   <string name="Media.SimpleSearchViewName">Jednoduché hľadanie</string>
   <!--General strings used in views-->
   <string name="Media.ViewInvalid">Tento pohľad sa nedá zostaviť</string>
-  <string name="Media.ViewEmpty"><Nič na zobrazenie></string>
+  <string name="Media.ViewEmpty">&lt;Nič na zobrazenie&gt;</string>
   <string name="Media.NoItems">Žiadne položky</string>
   <!--Shown in the header of an items list-->
   <string name="Media.OneItem">Jedna položka</string>
@@ -226,10 +226,10 @@
   <string name="Media.SaveCurrentPlaylistAction">Uložiť aktuálny playlist</string>
   <string name="Media.RemovePlaylistsAction">Odstrániť playlisty</string>
   <string name="Media.LoadPlaylistButton">Načítať playlist</string>
-  <string name="Media.PlaylistEmpty"><V playliste nie sú žiadne položky></string>
+  <string name="Media.PlaylistEmpty">&lt;V playliste nie sú žiadne položky&gt;</string>
   <string name="Media.CannotPlayItemDialogText">Položka média sa nedá prehrať</string>
   <string name="Media.CannotPlayItemsDialogText">Nie je možne prehrať médiá</string>
-  <string name="Media.ValueEmptyTitle"><Prázdny></string>
+  <string name="Media.ValueEmptyTitle">&lt;Prázdny&gt;</string>
   <!--VideoPlayerUIContributor-->
   <string name="Media.SubtitleOff">Zrušiť titulky</string>
   <string name="Media.ChooseChapterDialogHeader">Vybrať kapitolu</string>

@@ -31,8 +31,8 @@
   <string name="ServerConnection.NotificationServerAvailableText">Il y a au moins un serveur MediaPortal 2 disponible sur le réseau. Rejoignez le pour disposer de toutes les fonctionnalités de MediaPortal 2.</string>
   <string name="ServerConnection.ServerFormatText">{0}\' sur l\'hôte \'{1}</string>
   <!--{0} = server name, {1} = host name-->
-  <string name="ServerConnection.UnknownServerName"><Inconnu></string>
-  <string name="ServerConnection.UnknownServerSystem"><Inconnu></string>
+  <string name="ServerConnection.UnknownServerName">&lt;Inconnu&gt;</string>
+  <string name="ServerConnection.UnknownServerSystem">&lt;Inconnu&gt;</string>
   <string name="ServerConnection.HomeServer">Serveur local</string>
   <string name="ServerConnection.AttachToServerWorkflowStateLabel">Se connecter au serveur</string>
   <string name="ServerConnection.DetachFromServerWorkflowStateLabel">Quitter le serveur</string>

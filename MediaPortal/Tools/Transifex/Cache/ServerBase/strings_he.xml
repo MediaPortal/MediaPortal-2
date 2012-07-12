@@ -14,5 +14,5 @@
   <string name="UPnPBackendServer.ModelName">שרת מדיה פורטל 2</string>
   <string name="UPnPBackendServer.ModelNumber">1</string>
   <string name="UPnPBackendServer.ModelUrl"></string>
-  <string name="MediaLibrary.EmptyOrMiscCharGroupName"><Empty or misc. character></string>
+  <string name="MediaLibrary.EmptyOrMiscCharGroupName">&lt;Empty or misc. character&gt;</string>
 </resources>

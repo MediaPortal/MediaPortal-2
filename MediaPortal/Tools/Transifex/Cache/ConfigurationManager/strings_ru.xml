@@ -1,8 +1,9 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version='1.0' encoding='UTF-8'?>
 <resources>
-  <string name="configuration.save_on_exit"></string>
-  <string name="configuration.unsaved_warning"></string>
-  <string name="configuration.browse"></string>
-  <string name="configuration.areas.settings"></string>
-  <string name="configuration.areas.logs"></string>
+  <!--FIXME: Move those language resources to Manager application (or to a support plugin)-->
+  <string name="configuration.save_on_exit">Вы желаете сохранять изменения перед закрытием?</string>
+  <string name="configuration.unsaved_warning">Внимание: Изменения не сохранены.</string>
+  <string name="configuration.browse">Просмотр</string>
+  <string name="configuration.areas.settings">Настройки</string>
+  <string name="configuration.areas.logs">Логи</string>
 </resources>

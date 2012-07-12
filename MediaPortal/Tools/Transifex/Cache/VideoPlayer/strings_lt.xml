@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version='1.0' encoding='UTF-8'?>
 <resources>
   <string name="Settings.Players.Codecs">Kodekai</string>
   <string name="Settings.Players.Codecs.VideoCodecs">Video kodekai</string>
@@ -41,5 +41,7 @@
   <string name="Playback.DirectorComments1">Režisieriaus komentarai</string>
   <string name="Playback.DirectorComments2">Režisieriaus komentarai (2)</string>
   <string name="Playback.Chapter">Skyrius {0}</string>
+  <!--For example: "Chapter 1"-->
   <string name="Playback.Title">Antraštė {0}</string>
+  <!--For example: "Title 1"-->
 </resources>

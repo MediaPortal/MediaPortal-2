@@ -125,7 +125,7 @@
   <string name="Media.SimpleSearchViewName">Yksinkertainen haku</string>
   <!--General strings used in views-->
   <string name="Media.ViewInvalid">Tätä näkymää ei voitu luoda</string>
-  <string name="Media.ViewEmpty"><Ei näytettäviä kohteita></string>
+  <string name="Media.ViewEmpty">&lt;Ei näytettäviä kohteita&gt;</string>
   <string name="Media.NoItems">Ei kohteita</string>
   <!--Shown in the header of an items list-->
   <string name="Media.OneItem">Yksi kohde</string>
@@ -226,10 +226,10 @@
   <string name="Media.SaveCurrentPlaylistAction">Tallenna nykyinen soittolista</string>
   <string name="Media.RemovePlaylistsAction">Poista soittolistat</string>
   <string name="Media.LoadPlaylistButton">Lataa soittolista</string>
-  <string name="Media.PlaylistEmpty"><Ei kohteita soittolistassa></string>
+  <string name="Media.PlaylistEmpty">&lt;Ei kohteita soittolistassa&gt;</string>
   <string name="Media.CannotPlayItemDialogText">Ei voi toistaa media kohdetta</string>
   <string name="Media.CannotPlayItemsDialogText">Ei voi toistaa mediakohteita</string>
-  <string name="Media.ValueEmptyTitle"><Tyhjä></string>
+  <string name="Media.ValueEmptyTitle">&lt;Tyhjä&gt;</string>
   <!--VideoPlayerUIContributor-->
   <string name="Media.SubtitleOff">Poista tekstitys käytöstä</string>
   <string name="Media.ChooseChapterDialogHeader">Valitse kappale</string>

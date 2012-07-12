@@ -31,8 +31,8 @@
   <string name="ServerConnection.NotificationServerAvailableText">Er is ten minste een MediaPortal 2 server beschikbaar in het netwerk. Maak verbinding met deze server om alle mogelijkheden van MediaPortal 2 te benutten.</string>
   <string name="ServerConnection.ServerFormatText">{0}\' op host \'{1}</string>
   <!--{0} = server name, {1} = host name-->
-  <string name="ServerConnection.UnknownServerName"><Onbekend></string>
-  <string name="ServerConnection.UnknownServerSystem"><Onbekend></string>
+  <string name="ServerConnection.UnknownServerName">&lt;Onbekend&gt;</string>
+  <string name="ServerConnection.UnknownServerSystem">&lt;Onbekend&gt;</string>
   <string name="ServerConnection.HomeServer">Thuisserver</string>
   <string name="ServerConnection.AttachToServerWorkflowStateLabel">Maak verbinding met server</string>
   <string name="ServerConnection.DetachFromServerWorkflowStateLabel">Verbreek verbinding met server</string>
@@ -183,11 +183,11 @@
   <string name="SharesConfig.ChooseResourceProviderPathForShare">Selecteer het pad naar de gedeelde map</string>
   <string name="SharesConfig.EditShareName">Bewerk de weergegeven naam van de gedeelde map</string>
   <string name="SharesConfig.ChooseShareCategories">Selecteer de categorieën van de media content in de gedeelde map</string>
-  <string name="SharesConfig.SharePathExists"></string>
-  <string name="SharesConfig.ShareNameExists"></string>
-  <string name="SharesConfig.ShareNameEmpty"></string>
-  <string name="SharesConfig.EditShareProblemHeader"></string>
-  <string name="SharesConfig.EditShareProblemText"></string>
+  <string name="SharesConfig.SharePathExists">Er bestaat al een gedeelde map met dit pad</string>
+  <string name="SharesConfig.ShareNameExists">Er bestaat al een gedeelde map met deze naam</string>
+  <string name="SharesConfig.ShareNameEmpty">Bewerk de naam van de gedeelde map</string>
+  <string name="SharesConfig.EditShareProblemHeader">Probleem bij het configureren van de gedeelde map</string>
+  <string name="SharesConfig.EditShareProblemText">Er was een interne fout tijdens het configureren van de gedeelde map</string>
   <string name="SharesConfig.MenuAddShare">Toevoegen</string>
   <string name="SharesConfig.MenuEditShares">Bewerken</string>
   <string name="SharesConfig.MenuRemoveShares">Verwijderen</string>

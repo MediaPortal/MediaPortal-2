@@ -125,7 +125,7 @@
   <string name="Media.SimpleSearchViewName">Einföld leit</string>
   <!--General strings used in views-->
   <string name="Media.ViewInvalid"></string>
-  <string name="Media.ViewEmpty"><Engar miðilsskrár til birtingar ></string>
+  <string name="Media.ViewEmpty">&lt;Engar miðilsskrár til birtingar &gt;</string>
   <string name="Media.NoItems">Ekkert atriði</string>
   <!--Shown in the header of an items list-->
   <string name="Media.OneItem">Eitt atriði</string>
@@ -229,7 +229,7 @@
   <string name="Media.PlaylistEmpty"></string>
   <string name="Media.CannotPlayItemDialogText">Get ekki spilað þessa miðilsskrá</string>
   <string name="Media.CannotPlayItemsDialogText">Get ekki spilað þessa miðilsskrá</string>
-  <string name="Media.ValueEmptyTitle"><autt></string>
+  <string name="Media.ValueEmptyTitle">&lt;autt&gt;</string>
   <!--VideoPlayerUIContributor-->
   <string name="Media.SubtitleOff">Textar óvirkir</string>
   <string name="Media.ChooseChapterDialogHeader">Velja kafla</string>

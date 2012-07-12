@@ -1,8 +1,10 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version='1.0' encoding='UTF-8'?>
 <resources>
   <string name="Weather.WeatherStateDisplayLabel">Wetter</string>
-  <string name="Weather.WeatherSetupStateDisplayLabel">Wetter-Setup</string>
+  <string name="Weather.WeatherSetupStateDisplayLabel">Wetter-Einstellungen</string>
+  <!--Dialog state, doesn't appear at the UI-->
   <string name="Weather.WeatherLocationStateDisplayLabel">Ort auswählen</string>
+  <!--Dialog state, doesn't appear at the UI-->
   <string name="Weather.Title">Wetter</string>
   <string name="Weather.ChooseLocation">Stadt wählen</string>
   <string name="Weather.Refresh">Aktualisieren</string>
@@ -11,7 +13,7 @@
   <string name="Weather.NoData">Keine Daten</string>
   <string name="Weather.Temp">Temperatur</string>
   <string name="Weather.TempFeel">Gefühlt</string>
-  <string name="Weather.UVIndex">UV Index</string>
+  <string name="Weather.UVIndex">UV-Index</string>
   <string name="Weather.Wind">Wind</string>
   <string name="Weather.Humidity">Luftfeuchte</string>
   <string name="Weather.Precipitation">Niederschlag</string>
@@ -21,9 +23,10 @@
   <string name="Weather.Sunset">Sonnenuntergang</string>
   <string name="Weather.LastUpdateTime">Zuletzt aktualisiert: {0}</string>
   <string name="Weather.NotUpdatedYet">-</string>
+  <!--Forecast names are mostly assigned 1:1-->
   <string name="Weather.TStorms">Gewitter</string>
-  <string name="Weather.Partly">Teilweise</string>
-  <string name="Weather.Mostly">Meist</string>
+  <string name="Weather.Partly">teilweise</string>
+  <string name="Weather.Mostly">meist</string>
   <string name="Weather.Sunny">sonnig</string>
   <string name="Weather.Cloudy">bewölkt</string>
   <string name="Weather.Snow">Schnee</string>
@@ -32,23 +35,23 @@
   <string name="Weather.AM">AM</string>
   <string name="Weather.PM">PM</string>
   <string name="Weather.Showers">Schauer</string>
-  <string name="Weather.Few">Wenig</string>
+  <string name="Weather.Few">wenig</string>
   <string name="Weather.Scattered">aufgelockert</string>
   <string name="Weather.Wind">Wind</string>
-  <string name="Weather.Strong">Stark</string>
-  <string name="Weather.Clear">Klar</string>
-  <string name="Weather.Early">Früh</string>
+  <string name="Weather.Strong">strong</string>
+  <string name="Weather.Clear">klar</string>
+  <string name="Weather.Early">früh</string>
   <string name="Weather.Fog">Nebel</string>
-  <string name="Weather.Haze">Trüb</string>
-  <string name="Weather.Windy">Windig</string>
+  <string name="Weather.Haze">trüb</string>
+  <string name="Weather.Windy">windig</string>
   <string name="Weather.Drizzle">Sprühregen</string>
-  <string name="Weather.Freezing">Gefrierender</string>
+  <string name="Weather.Freezing">gefrierender</string>
   <string name="Weather.NA">k.A.</string>
   <string name="Weather.Mist">Nebel</string>
   <string name="Weather.Low">niedrigste</string>
   <string name="Weather.High">höchste</string>
   <string name="Weather.Thunder">Donner</string>
-  <string name="Weather.Late">Spät</string>
+  <string name="Weather.Late">spät</string>
   <string name="Weather.N">N</string>
   <string name="Weather.E">O</string>
   <string name="Weather.S">S</string>
@@ -68,14 +71,14 @@
   <string name="Weather.From">Aus {0} mit {1} {2}</string>
   <string name="Weather.Various">verschiedene</string>
   <string name="Weather.Calm">ruhig</string>
-  <string name="Weather.NoWind">Kein wind</string>
+  <string name="Weather.NoWind">Kein Wind</string>
   <string name="Weather.InTheVicinity">Im Umkreis</string>
   <string name="Weather.Clearing">aufklarend</string>
   <string name="Settings.Plugins.Weather">Wetter</string>
-  <string name="Settings.Plugins.Weather.LocationSetup">Städte konfigurieren</string>
+  <string name="Settings.Plugins.Weather.LocationSetup">Orte konfigurieren</string>
   <string name="Settings.Plugins.Weather.LocationSetup.Help">Wählt die Städte aus, die im Wetter-Bereich angezeigt werden</string>
   <string name="WeatherSetup.Title">Städte konfigurieren</string>
-  <string name="WeatherSetup.ConfiguredCities">Verfügbare Städte</string>
+  <string name="WeatherSetup.ConfiguredCities">Gewählte Städte</string>
   <string name="WeatherSetup.EnterCity">Geben Sie den Namen der Stadt ein, die Sie hinzufügen möchten:</string>
   <string name="WeatherSetup.SearchCity">Stadt suchen</string>
   <string name="WeatherSetup.AddCity">Stadt hinzufügen</string>

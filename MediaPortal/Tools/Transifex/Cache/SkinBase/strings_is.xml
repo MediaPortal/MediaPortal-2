@@ -31,8 +31,8 @@
   <string name="ServerConnection.NotificationServerAvailableText"></string>
   <string name="ServerConnection.ServerFormatText"></string>
   <!--{0} = server name, {1} = host name-->
-  <string name="ServerConnection.UnknownServerName"><Óþekkt></string>
-  <string name="ServerConnection.UnknownServerSystem"><Óþekkt></string>
+  <string name="ServerConnection.UnknownServerName">&lt;Óþekkt&gt;</string>
+  <string name="ServerConnection.UnknownServerSystem">&lt;Óþekkt&gt;</string>
   <string name="ServerConnection.HomeServer">Aðalmiðlari</string>
   <string name="ServerConnection.AttachToServerWorkflowStateLabel">Tengjast við miðlara</string>
   <string name="ServerConnection.DetachFromServerWorkflowStateLabel">Aftengjast miðlara</string>

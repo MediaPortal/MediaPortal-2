@@ -6,7 +6,7 @@
   <string name="Media.AudioMenuItem">Lyd</string>
   <string name="Media.VideosMenuItem">Video</string>
   <string name="Media.SeriesMenuItem">Serier</string>
-  <string name="Media.MoviesMenuItem"></string>
+  <string name="Media.MoviesMenuItem">Filmer</string>
   <string name="Media.ImagesMenuItem">Bilder</string>
   <!--Filter titles-->
   <string name="Media.FilterByArtistMenuItem">Filtrer etter artist</string>
@@ -16,7 +16,7 @@
   <string name="Media.FilterByActorMenuItem">Filtrer etter skuespiller</string>
   <string name="Media.FilterByVideoGenreMenuItem">Filtrer etter sjanger</string>
   <string name="Media.FilterByVideoYearMenuItem">Filtrer etter år</string>
-  <string name="Media.FilterByAudioLanguageMenuItem"></string>
+  <string name="Media.FilterByAudioLanguageMenuItem">Filtrer etter språk</string>
   <string name="Media.FilterByImageSizeMenuItem">Filtrer etter størrelse</string>
   <string name="Media.FilterByImageYearMenuItem">Filtrer etter år</string>
   <string name="Media.FilterBySystemMenuItem">Filtrer etter  system</string>
@@ -47,7 +47,7 @@
   <string name="Media.FilterActorNavbarDisplayLabel">Skuespiller: {0}</string>
   <string name="Media.FilterVideoGenreNavbarDisplayLabel">Sjanger: {0}</string>
   <string name="Media.FilterVideoYearNavbarDisplayLabel">År: {0}</string>
-  <string name="Media.FilterAudioLanguagesNavbarDisplayLabel"></string>
+  <string name="Media.FilterAudioLanguagesNavbarDisplayLabel">Språk</string>
   <string name="Media.FilterImageSizeNavbarDisplayLabel">Størrelse: {0}</string>
   <string name="Media.FilterImageYearNavbarDisplayLabel">År: {0}</string>
   <string name="Media.FilterAudioItemsNavbarDisplayLabel">Navn: {0}</string>
@@ -56,14 +56,14 @@
   <string name="Media.FilterSeriesSeasonNavbarDisplayLabel">Sesong {0}</string>
   <string name="Media.FilterImageItemsNavbarDisplayLabel">Navn: {0}</string>
   <string name="Media.FilterSystemNavbarDisplayLabel">System: {0}</string>
-  <string name="Media.FilterMoviesNavbarDisplayLabel"></string>
+  <string name="Media.FilterMoviesNavbarDisplayLabel">Filmer: {0}</string>
   <!--Display labels for workflow navigation contexts-->
   <string name="Media.BrowseMediaNavigationRootWorkflowNavigationContextDisplayLabel">Utforsk media</string>
   <string name="Media.LocalMediaNavigationRootWorkflowNavigationContextDisplayLabel">Lokal media</string>
   <string name="Media.AudioNavigationRootWorkflowNavigationContextDisplayLabel">Lydbibliotek</string>
   <string name="Media.VideoNavigationRootWorkflowNavigationContextDisplayLabel">Videobibliotek</string>
   <string name="Media.SeriesNavigationRootWorkflowNavigationContextDisplayLabel">Seriebibliotek</string>
-  <string name="Media.MoviesNavigationRootWorkflowNavigationContextDisplayLabel"></string>
+  <string name="Media.MoviesNavigationRootWorkflowNavigationContextDisplayLabel">Filmbibliotek</string>
   <string name="Media.ImageNavigationRootWorkflowNavigationContextDisplayLabel">Bildebibliotek</string>
   <string name="Media.VideoCurrentlyPlayingWorkflowStateNavigationContextDisplayLabel">Gjeldende video</string>
   <string name="Media.VideoFullscreenContentWorkflowStateNavigationContextDisplayLabel">Fullskjermvideo</string>
@@ -88,7 +88,7 @@
   <string name="Media.VideoItemsHeader">Videoer</string>
   <string name="Media.AudioItemsHeader">Lyd elementer</string>
   <string name="Media.SeriesItemsHeader">Episoder</string>
-  <string name="Media.MoviesItemsHeader"></string>
+  <string name="Media.MoviesItemsHeader">Filmer</string>
   <string name="Media.ImageItemsHeader">Bilder</string>
   <string name="Media.SimpleSearchHeader">Enkelt søk</string>
   <string name="Media.ChooseActorHeader">Velg en skuespiller</string>
@@ -103,7 +103,7 @@
   <string name="Media.ChooseImageYearHeader">Velg et årstall</string>
   <string name="Media.ChooseImageSizeHeader">Velg en størrelse</string>
   <string name="Media.ChooseSystemHeader">Velg et system</string>
-  <string name="Media.ChooseVideoLanguageHeader"></string>
+  <string name="Media.ChooseVideoLanguageHeader">Velg språk</string>
   <string name="Media.PlaylistsOverviewHeader">Spilleliste</string>
   <string name="Media.SavePlaylistEditNameHeader">Lagre spilleliste</string>
   <string name="Media.SavePlaylistFailedHeader">Lagre spilleliste</string>
@@ -125,7 +125,7 @@
   <string name="Media.SimpleSearchViewName">Enkelt søk</string>
   <!--General strings used in views-->
   <string name="Media.ViewInvalid">Visning kunne ikke hentes</string>
-  <string name="Media.ViewEmpty"><Ingen elementer å vise></string>
+  <string name="Media.ViewEmpty">&lt;Ingen elementer å vise&gt;</string>
   <string name="Media.NoItems">Ingen elementer</string>
   <!--Shown in the header of an items list-->
   <string name="Media.OneItem">Et element</string>
@@ -226,10 +226,10 @@
   <string name="Media.SaveCurrentPlaylistAction">Lagre gjeldende spilleliste</string>
   <string name="Media.RemovePlaylistsAction">Fjern spilleliste</string>
   <string name="Media.LoadPlaylistButton">Hent spilleliste</string>
-  <string name="Media.PlaylistEmpty"><Ingen elementer i spillelisten></string>
+  <string name="Media.PlaylistEmpty">&lt;Ingen elementer i spillelisten&gt;</string>
   <string name="Media.CannotPlayItemDialogText">Kan ikke spille av media elementet</string>
   <string name="Media.CannotPlayItemsDialogText">Kan ikke spille av media elementer</string>
-  <string name="Media.ValueEmptyTitle"><Tom></string>
+  <string name="Media.ValueEmptyTitle">&lt;Tom&gt;</string>
   <!--VideoPlayerUIContributor-->
   <string name="Media.SubtitleOff">Slå av undertekst</string>
   <string name="Media.ChooseChapterDialogHeader">Velg kapittel</string>

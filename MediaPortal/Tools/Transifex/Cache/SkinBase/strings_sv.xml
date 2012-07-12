@@ -31,8 +31,8 @@
   <string name="ServerConnection.NotificationServerAvailableText">Det finns minst en MediaPortal 2 server tillgänglig på nätverket. Anslut för att få tillgång till alla funktioner i MediaPortal 2.</string>
   <string name="ServerConnection.ServerFormatText">{0}\' på värd \'{1}</string>
   <!--{0} = server name, {1} = host name-->
-  <string name="ServerConnection.UnknownServerName"><Okänd></string>
-  <string name="ServerConnection.UnknownServerSystem"><Okänd></string>
+  <string name="ServerConnection.UnknownServerName">&lt;Okänd&gt;</string>
+  <string name="ServerConnection.UnknownServerSystem">&lt;Okänd&gt;</string>
   <string name="ServerConnection.HomeServer">Hemmaserver</string>
   <string name="ServerConnection.AttachToServerWorkflowStateLabel">Anslut till server</string>
   <string name="ServerConnection.DetachFromServerWorkflowStateLabel">Koppla från servern</string>
@@ -183,11 +183,11 @@
   <string name="SharesConfig.ChooseResourceProviderPathForShare">Välj sökväg till den utdelade mappen</string>
   <string name="SharesConfig.EditShareName">Redigera den utdelade mappens visningsnamn</string>
   <string name="SharesConfig.ChooseShareCategories">Välj kategorier för mediainnehållet i den utdelade mappen</string>
-  <string name="SharesConfig.SharePathExists"></string>
-  <string name="SharesConfig.ShareNameExists"></string>
-  <string name="SharesConfig.ShareNameEmpty"></string>
-  <string name="SharesConfig.EditShareProblemHeader"></string>
-  <string name="SharesConfig.EditShareProblemText"></string>
+  <string name="SharesConfig.SharePathExists">Det finns redan en mapp med den sökvägen</string>
+  <string name="SharesConfig.ShareNameExists">Det finns redan en mapp med det namnet</string>
+  <string name="SharesConfig.ShareNameEmpty">Redigera ett namn för mappen</string>
+  <string name="SharesConfig.EditShareProblemHeader">Problem vid konfigurering av mappen</string>
+  <string name="SharesConfig.EditShareProblemText">Det blev ett internt fel vid konfigurering av mappen</string>
   <string name="SharesConfig.MenuAddShare">Lägg till utdelad mapp</string>
   <string name="SharesConfig.MenuEditShares">Redigera</string>
   <string name="SharesConfig.MenuRemoveShares">Ta bort utdelade mappar</string>

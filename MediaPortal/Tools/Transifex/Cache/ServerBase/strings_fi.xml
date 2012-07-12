@@ -14,5 +14,5 @@
   <string name="UPnPBackendServer.ModelName">MediaPortal 2 palvelin</string>
   <string name="UPnPBackendServer.ModelNumber">1</string>
   <string name="UPnPBackendServer.ModelUrl"></string>
-  <string name="MediaLibrary.EmptyOrMiscCharGroupName"><Tyhjä tai sekalainen merkki></string>
+  <string name="MediaLibrary.EmptyOrMiscCharGroupName">&lt;Tyhjä tai sekalainen merkki&gt;</string>
 </resources>

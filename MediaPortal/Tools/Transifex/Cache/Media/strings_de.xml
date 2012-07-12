@@ -6,7 +6,7 @@
   <string name="Media.AudioMenuItem">Audio</string>
   <string name="Media.VideosMenuItem">Videos</string>
   <string name="Media.SeriesMenuItem">Serien</string>
-  <string name="Media.MoviesMenuItem"></string>
+  <string name="Media.MoviesMenuItem">Filme</string>
   <string name="Media.ImagesMenuItem">Bilder</string>
   <!--Filter titles-->
   <string name="Media.FilterByArtistMenuItem">Filter nach Künstler</string>
@@ -32,7 +32,7 @@
   <string name="Media.ImageFilterSmall">Klein</string>
   <string name="Media.ImageFilterMedium">Mittel</string>
   <string name="Media.ImageFilterBig">Groß</string>
-  <string name="Media.SwitchToBrowseMLView">Zur Server Ansicht</string>
+  <string name="Media.SwitchToBrowseMLView">Zur Server-Ansicht</string>
   <string name="Media.SwitchToLocalMediaView">Zur lokaler Ansicht</string>
   <!--Navbar display labels for sub view navigation-->
   <string name="Media.BrowseMediaNavigationNavbarDisplayLabel">{0}</string>
@@ -56,19 +56,19 @@
   <string name="Media.FilterSeriesSeasonNavbarDisplayLabel">Staffel {0}</string>
   <string name="Media.FilterImageItemsNavbarDisplayLabel">Name: {0}</string>
   <string name="Media.FilterSystemNavbarDisplayLabel">System: {0}</string>
-  <string name="Media.FilterMoviesNavbarDisplayLabel"></string>
+  <string name="Media.FilterMoviesNavbarDisplayLabel">Filme: {0}</string>
   <!--Display labels for workflow navigation contexts-->
   <string name="Media.BrowseMediaNavigationRootWorkflowNavigationContextDisplayLabel">Medien durchsuchen</string>
   <string name="Media.LocalMediaNavigationRootWorkflowNavigationContextDisplayLabel">Lokale Medien</string>
-  <string name="Media.AudioNavigationRootWorkflowNavigationContextDisplayLabel">Audio Bibliothek</string>
-  <string name="Media.VideoNavigationRootWorkflowNavigationContextDisplayLabel">Video Bibliothek</string>
-  <string name="Media.SeriesNavigationRootWorkflowNavigationContextDisplayLabel">Serien Bibliothek</string>
-  <string name="Media.MoviesNavigationRootWorkflowNavigationContextDisplayLabel"></string>
-  <string name="Media.ImageNavigationRootWorkflowNavigationContextDisplayLabel">Bilder Bibliothek</string>
+  <string name="Media.AudioNavigationRootWorkflowNavigationContextDisplayLabel">Audio-Bibliothek</string>
+  <string name="Media.VideoNavigationRootWorkflowNavigationContextDisplayLabel">Video-Bibliothek</string>
+  <string name="Media.SeriesNavigationRootWorkflowNavigationContextDisplayLabel">Serien-Bibliothek</string>
+  <string name="Media.MoviesNavigationRootWorkflowNavigationContextDisplayLabel">Film-Bibliothek</string>
+  <string name="Media.ImageNavigationRootWorkflowNavigationContextDisplayLabel">Bilder-Bibliothek</string>
   <string name="Media.VideoCurrentlyPlayingWorkflowStateNavigationContextDisplayLabel">Aktuelles Video</string>
-  <string name="Media.VideoFullscreenContentWorkflowStateNavigationContextDisplayLabel">Video Vollbild</string>
-  <string name="Media.AudioCurrentlyPlayingWorkflowStateNavigationContextDisplayLabel">Aktuelle Audiotitel</string>
-  <string name="Media.AudioFullscreenContentWorkflowStateNavigationContextDisplayLabel">Audio Visualisierung</string>
+  <string name="Media.VideoFullscreenContentWorkflowStateNavigationContextDisplayLabel">Video-Vollbild</string>
+  <string name="Media.AudioCurrentlyPlayingWorkflowStateNavigationContextDisplayLabel">Aktueller Audiotitel</string>
+  <string name="Media.AudioFullscreenContentWorkflowStateNavigationContextDisplayLabel">Audio-Visualisierung</string>
   <string name="Media.ShowPlaylistWorkflowStateNavigationContextDisplayLabel">Wiedergabeliste</string>
   <string name="Media.EditPlaylistWorkflowStateNavigationContextDisplayLabel">Wiedergabeliste bearbeiten</string>
   <string name="Media.PlaylistsOverviewWorkflowStateNavigationContextDisplayLabel">Wiedergabelisten</string>
@@ -88,7 +88,7 @@
   <string name="Media.VideoItemsHeader">Videos</string>
   <string name="Media.AudioItemsHeader">Audiotitel</string>
   <string name="Media.SeriesItemsHeader">Epsioden</string>
-  <string name="Media.MoviesItemsHeader"></string>
+  <string name="Media.MoviesItemsHeader">Filme</string>
   <string name="Media.ImageItemsHeader">Bilder</string>
   <string name="Media.SimpleSearchHeader">Einfache Suche</string>
   <string name="Media.ChooseActorHeader">Wähle einen Darsteller</string>
@@ -125,7 +125,7 @@
   <string name="Media.SimpleSearchViewName">Einfache Suche</string>
   <!--General strings used in views-->
   <string name="Media.ViewInvalid">Die Ansicht konnte nicht erzeugt werden</string>
-  <string name="Media.ViewEmpty"><Keine Elemente></string>
+  <string name="Media.ViewEmpty">&lt;Keine Elemente&gt;</string>
   <string name="Media.NoItems">Keine Elemente</string>
   <!--Shown in the header of an items list-->
   <string name="Media.OneItem">Ein Element</string>
@@ -143,7 +143,7 @@
   <string name="Media.SearchResultIsBeingBuiltHint">Suche...</string>
   <!--Playlists-->
   <string name="Media.ManagePlaylists">Wiedergabelisten</string>
-  <string name="Media.AddAllToPlaylist">Alles zur Wiedergabelisten hinzufügen</string>
+  <string name="Media.AddAllToPlaylist">Alles zur Wiedergabeliste hinzufügen</string>
   <string name="Media.NoItemsToAddHeader">Keine Elemente zum Hinzufügen</string>
   <string name="Media.NoItemsToAddText">Keine Elemente in aktueller Ansicht</string>
   <string name="Media.ChooseAVTypeDialogHeader">Wähle den Typ der Elemente</string>
@@ -212,24 +212,24 @@
   <string name="Media.AudioTitleLabel">Titel:</string>
   <string name="Media.AudioYearLabel">Jahr:</string>
   <string name="Media.AudioDurationLabel">Dauer:</string>
-  <string name="Media.AudioPlaylistHeader">Audio Wiedergabeliste</string>
-  <string name="Media.VideoImagePlaylistHeader">Video/Bild Wiedergabeliste</string>
-  <string name="Media.PiPPlaylistHeader">PiP Wiedergabeliste</string>
+  <string name="Media.AudioPlaylistHeader">Audio-Wiedergabeliste</string>
+  <string name="Media.VideoImagePlaylistHeader">Video/Bild-Wiedergabeliste</string>
+  <string name="Media.PiPPlaylistHeader">PiP-Wiedergabeliste</string>
   <string name="Media.SavePLAtServer">Auf dem Server speichern</string>
   <string name="Media.SavePLLocally">Lokal speichern</string>
-  <string name="Media.ShowAudioPlaylistAction">Audio Wiedergabeliste anzeigen</string>
-  <string name="Media.ShowVideoImagePlaylistAction">Video/Bild Wiedergabeliste anzeigen</string>
-  <string name="Media.ShowPiPPlaylistAction">PiP Wiedergabeliste anzeigen</string>
+  <string name="Media.ShowAudioPlaylistAction">Audio-Wiedergabeliste anzeigen</string>
+  <string name="Media.ShowVideoImagePlaylistAction">Video/Bild-Wiedergabeliste anzeigen</string>
+  <string name="Media.ShowPiPPlaylistAction">PiP-Wiedergabeliste anzeigen</string>
   <string name="Media.EditPlaylistAction">Wiedergabeliste bearbeiten</string>
   <string name="Media.ClearPlaylistAction">Wiedergabeliste leeren</string>
   <string name="Media.SavePlaylistAction">Wiedergabeliste speichern</string>
   <string name="Media.SaveCurrentPlaylistAction">Aktuelle Wiedergabeliste speichern</string>
   <string name="Media.RemovePlaylistsAction">Wiedergabelisten entfernen</string>
   <string name="Media.LoadPlaylistButton">Wiedergabeliste laden</string>
-  <string name="Media.PlaylistEmpty"><Keine Elemente in Wiedergabeliste></string>
+  <string name="Media.PlaylistEmpty">&lt;Keine Elemente in Wiedergabeliste&gt;</string>
   <string name="Media.CannotPlayItemDialogText">Kann Medienelement nicht wiedergeben</string>
   <string name="Media.CannotPlayItemsDialogText">Kann Medienelemente nicht wiedergeben</string>
-  <string name="Media.ValueEmptyTitle"><Leer></string>
+  <string name="Media.ValueEmptyTitle">&lt;Leer&gt;</string>
   <!--VideoPlayerUIContributor-->
   <string name="Media.SubtitleOff">Untertitel deaktivieren</string>
   <string name="Media.ChooseChapterDialogHeader">Kapitel wählen</string>

@@ -1,7 +1,7 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
-  <string name="Configuration.Name"></string>
-  <string name="Configuration.ConfigurationMainWorkflowNavigationContextDisplayLabel"></string>
+  <string name="Configuration.Name">Postavke</string>
+  <string name="Configuration.ConfigurationMainWorkflowNavigationContextDisplayLabel">Postavke</string>
   <string name="Configuration.MainSettings"></string>
   <!--2nd Header for root configuration section-->
   <string name="Configuration.NoSettingsInThisSection"></string>

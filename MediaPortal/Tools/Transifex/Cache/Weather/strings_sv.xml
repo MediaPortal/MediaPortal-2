@@ -46,7 +46,7 @@
   <string name="Weather.Windy">Blåsigt</string>
   <string name="Weather.Drizzle">Duggregn</string>
   <string name="Weather.Freezing">Frost</string>
-  <string name="Weather.NA">Ej tillämpbar</string>
+  <string name="Weather.NA">i.u.</string>
   <string name="Weather.Mist">Dis</string>
   <string name="Weather.Low">låg</string>
   <string name="Weather.High">hög</string>

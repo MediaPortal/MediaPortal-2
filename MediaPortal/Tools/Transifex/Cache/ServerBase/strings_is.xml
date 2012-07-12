@@ -14,5 +14,5 @@
   <string name="UPnPBackendServer.ModelName">MediaPortal 2 miðlari</string>
   <string name="UPnPBackendServer.ModelNumber">1</string>
   <string name="UPnPBackendServer.ModelUrl"></string>
-  <string name="MediaLibrary.EmptyOrMiscCharGroupName"><Auður eða ýmsir stafir></string>
+  <string name="MediaLibrary.EmptyOrMiscCharGroupName">&lt;Auður eða ýmsir stafir&gt;</string>
 </resources>

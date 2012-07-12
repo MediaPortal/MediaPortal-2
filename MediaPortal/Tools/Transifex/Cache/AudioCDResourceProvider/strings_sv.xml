@@ -1,5 +1,5 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version='1.0' encoding='UTF-8'?>
 <resources>
   <string name="AudioCDResourceProvider.Name">Resursförsörjare för ljud-CD</string>
-  <string name="AudioCDResourceProvider.Description">Aktiverar åtkomst till spår på ljud-CD</string>
+  <string name="AudioCDResourceProvider.Description">Åtkomst till spår på ljud-CD</string>
 </resources>

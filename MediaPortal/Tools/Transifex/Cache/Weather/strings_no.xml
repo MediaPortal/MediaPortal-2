@@ -1,8 +1,10 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version='1.0' encoding='UTF-8'?>
 <resources>
   <string name="Weather.WeatherStateDisplayLabel">Vær</string>
   <string name="Weather.WeatherSetupStateDisplayLabel">Vær-innstillinger</string>
+  <!--Dialog state, doesn't appear at the UI-->
   <string name="Weather.WeatherLocationStateDisplayLabel">Velg lokasjon</string>
+  <!--Dialog state, doesn't appear at the UI-->
   <string name="Weather.Title">Vær</string>
   <string name="Weather.ChooseLocation">Velg lokasjon</string>
   <string name="Weather.Refresh">Oppdater</string>
@@ -21,6 +23,7 @@
   <string name="Weather.Sunset">Solnedgang</string>
   <string name="Weather.LastUpdateTime">Sist oppdatert: {0}</string>
   <string name="Weather.NotUpdatedYet">-</string>
+  <!--Forecast names are mostly assigned 1:1-->
   <string name="Weather.TStorms">Tordenvær</string>
   <string name="Weather.Partly">Delvis</string>
   <string name="Weather.Mostly">Mest</string>

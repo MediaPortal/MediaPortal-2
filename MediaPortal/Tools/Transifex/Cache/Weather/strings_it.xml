@@ -1,8 +1,10 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version='1.0' encoding='UTF-8'?>
 <resources>
   <string name="Weather.WeatherStateDisplayLabel">Meteo</string>
   <string name="Weather.WeatherSetupStateDisplayLabel">Configurazione meteo</string>
+  <!--Dialog state, doesn't appear at the UI-->
   <string name="Weather.WeatherLocationStateDisplayLabel">Scegli località</string>
+  <!--Dialog state, doesn't appear at the UI-->
   <string name="Weather.Title">Meteo</string>
   <string name="Weather.ChooseLocation">Scegli località</string>
   <string name="Weather.Refresh">Ricarica</string>
@@ -21,6 +23,7 @@
   <string name="Weather.Sunset">Tramonto</string>
   <string name="Weather.LastUpdateTime">Ultimo aggiornamento: {0}</string>
   <string name="Weather.NotUpdatedYet">-</string>
+  <!--Forecast names are mostly assigned 1:1-->
   <string name="Weather.TStorms">Tempeste</string>
   <string name="Weather.Partly">Parzialmente</string>
   <string name="Weather.Mostly">Prevalentemente</string>

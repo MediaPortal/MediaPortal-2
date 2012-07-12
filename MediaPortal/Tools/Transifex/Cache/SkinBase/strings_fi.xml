@@ -31,8 +31,8 @@
   <string name="ServerConnection.NotificationServerAvailableText">Ainakin yksi MediaPorta 2-palvelin on käytettävissä verkossa. Ota siihen yhteys saadaksesi käyttöön kaikki MediaPortal 2:den ominaisuudet.</string>
   <string name="ServerConnection.ServerFormatText">{0}\' isännälle \'{1}</string>
   <!--{0} = server name, {1} = host name-->
-  <string name="ServerConnection.UnknownServerName"><Tuntematon></string>
-  <string name="ServerConnection.UnknownServerSystem"><Tuntematon></string>
+  <string name="ServerConnection.UnknownServerName">&lt;Tuntematon&gt;</string>
+  <string name="ServerConnection.UnknownServerSystem">&lt;Tuntematon&gt;</string>
   <string name="ServerConnection.HomeServer">Koti palvelin</string>
   <string name="ServerConnection.AttachToServerWorkflowStateLabel">Liity serveriin</string>
   <string name="ServerConnection.DetachFromServerWorkflowStateLabel">Katkaise yhteys serveriin</string>

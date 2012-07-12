@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version='1.0' encoding='UTF-8'?>
 <resources>
   <string name="Settings.Players.Codecs.VideoCodecs.BDSourceFilter">Bluray šaltinio filtras</string>
   <string name="Settings.Players.Codecs.VideoCodecs.BDSourceFilter.Help">Numatyti šaltinio filtrą Bluray atkūrimui. Dabar palaikomi tik Gabest ir LAV Splitter šaltiniai.</string>

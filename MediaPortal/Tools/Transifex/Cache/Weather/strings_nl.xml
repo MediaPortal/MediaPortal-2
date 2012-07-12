@@ -1,14 +1,16 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version='1.0' encoding='UTF-8'?>
 <resources>
   <string name="Weather.WeatherStateDisplayLabel">Weer</string>
-  <string name="Weather.WeatherSetupStateDisplayLabel">Weer set-up</string>
+  <string name="Weather.WeatherSetupStateDisplayLabel">Weer instellingen</string>
+  <!--Dialog state, doesn't appear at the UI-->
   <string name="Weather.WeatherLocationStateDisplayLabel">Kies locatie</string>
+  <!--Dialog state, doesn't appear at the UI-->
   <string name="Weather.Title">Weer</string>
   <string name="Weather.ChooseLocation">Kies locatie</string>
   <string name="Weather.Refresh">Vernieuw</string>
   <string name="Weather.Updating">Bijwerken...</string>
   <string name="Weather.Weather">Weer</string>
-  <string name="Weather.NoData">geen data</string>
+  <string name="Weather.NoData">geen gegevens</string>
   <string name="Weather.Temp">Temperatuur</string>
   <string name="Weather.TempFeel">Voelt als</string>
   <string name="Weather.UVIndex">UV-index</string>
@@ -21,6 +23,7 @@
   <string name="Weather.Sunset">Zonsondergang</string>
   <string name="Weather.LastUpdateTime">Laatste keer bijgewerkt: {0}</string>
   <string name="Weather.NotUpdatedYet">-</string>
+  <!--Forecast names are mostly assigned 1:1-->
   <string name="Weather.TStorms">Onweersbuien</string>
   <string name="Weather.Partly">Gedeeltelijk</string>
   <string name="Weather.Mostly">Overwegend</string>
@@ -35,14 +38,14 @@
   <string name="Weather.Few">Enkele</string>
   <string name="Weather.Scattered">Verspreid</string>
   <string name="Weather.Wind">Wind</string>
-  <string name="Weather.Strong">Sterk</string>
+  <string name="Weather.Strong">Sterke</string>
   <string name="Weather.Clear">Helder</string>
   <string name="Weather.Early">Vroeg</string>
   <string name="Weather.Fog">Mist</string>
   <string name="Weather.Haze">Nevel</string>
   <string name="Weather.Windy">Winderig</string>
   <string name="Weather.Drizzle">Motregen</string>
-  <string name="Weather.Freezing">Bevriezend</string>
+  <string name="Weather.Freezing">Vorst</string>
   <string name="Weather.NA">n.v.t.</string>
   <string name="Weather.Mist">Nevel</string>
   <string name="Weather.Low">laag</string>
@@ -70,14 +73,14 @@
   <string name="Weather.Calm">rustig</string>
   <string name="Weather.NoWind">Geen wind</string>
   <string name="Weather.InTheVicinity">in de omgeving</string>
-  <string name="Weather.Clearing">Opklaren</string>
+  <string name="Weather.Clearing">Opklaringen</string>
   <string name="Settings.Plugins.Weather">Weer</string>
-  <string name="Settings.Plugins.Weather.LocationSetup">Locatie set-up</string>
-  <string name="Settings.Plugins.Weather.LocationSetup.Help">Configureer de steden die beschikbaar zullen zijn in het weer-scherm</string>
-  <string name="WeatherSetup.Title">Configureer steden</string>
-  <string name="WeatherSetup.ConfiguredCities">Geconfigureerde steden</string>
-  <string name="WeatherSetup.EnterCity">Voer de naam in van de toe te voegen stad:</string>
-  <string name="WeatherSetup.SearchCity">Stad zoeken</string>
-  <string name="WeatherSetup.AddCity">Stad toevoegen</string>
-  <string name="WeatherSetup.RemoveCity">Stad verwijderen</string>
+  <string name="Settings.Plugins.Weather.LocationSetup">Locaties instellen</string>
+  <string name="Settings.Plugins.Weather.LocationSetup.Help">Configureer de plaatsen die beschikbaar zijn in het weer-scherm</string>
+  <string name="WeatherSetup.Title">Configueer plaatsen</string>
+  <string name="WeatherSetup.ConfiguredCities">Geconfigureerde plaatsen</string>
+  <string name="WeatherSetup.EnterCity">Voer de naam van de toe te voegen plaats:</string>
+  <string name="WeatherSetup.SearchCity">Plaats zoeken</string>
+  <string name="WeatherSetup.AddCity">Plaats toevoegen</string>
+  <string name="WeatherSetup.RemoveCity">Plaats verwijderen</string>
 </resources>

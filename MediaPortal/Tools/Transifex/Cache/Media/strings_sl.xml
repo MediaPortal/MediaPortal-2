@@ -125,7 +125,7 @@
   <string name="Media.SimpleSearchViewName">Preprosto iskanje</string>
   <!--General strings used in views-->
   <string name="Media.ViewInvalid">Tega pogleda nisem mogel ustvariti</string>
-  <string name="Media.ViewEmpty"><Ni zadetkov za prikaz></string>
+  <string name="Media.ViewEmpty">&lt;Ni zadetkov za prikaz&gt;</string>
   <string name="Media.NoItems">Ni zadetkov</string>
   <!--Shown in the header of an items list-->
   <string name="Media.OneItem">En zadetek</string>
@@ -226,10 +226,10 @@
   <string name="Media.SaveCurrentPlaylistAction">Shrani trenutni seznam</string>
   <string name="Media.RemovePlaylistsAction">Odstrani sezname</string>
   <string name="Media.LoadPlaylistButton">Naloži seznam</string>
-  <string name="Media.PlaylistEmpty"><Seznam predvajanja je prazen></string>
+  <string name="Media.PlaylistEmpty">&lt;Seznam predvajanja je prazen&gt;</string>
   <string name="Media.CannotPlayItemDialogText">Ne morem predvajati vsebine</string>
   <string name="Media.CannotPlayItemsDialogText">Ne morem predvajati vsebin</string>
-  <string name="Media.ValueEmptyTitle"><Prazno></string>
+  <string name="Media.ValueEmptyTitle">&lt;Prazno&gt;</string>
   <!--VideoPlayerUIContributor-->
   <string name="Media.SubtitleOff">Izključi podnapise</string>
   <string name="Media.ChooseChapterDialogHeader">Izberi poglavje</string>

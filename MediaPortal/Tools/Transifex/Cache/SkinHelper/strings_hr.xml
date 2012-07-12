@@ -5,5 +5,5 @@
   <string name="SkinHelper.ShowThemeColorsTitle"></string>
   <string name="SkinHelper.ShowThemeColorsText"></string>
   <string name="SkinHelper.LoadSkinTitle"></string>
-  <string name="SkinHelper.LoadThemeTitle"></string>
+  <string name="SkinHelper.LoadThemeTitle">Učitaj temu</string>
 </resources>

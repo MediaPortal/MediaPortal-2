@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version='1.0' encoding='UTF-8'?>
 <resources>
   <string name="SkinHelper.ThemeColorsWorkflowNavigationContextDisplayLabel">Temafärger</string>
   <string name="SkinHelper.MenuShowThemeColors">Visa temafärger</string>

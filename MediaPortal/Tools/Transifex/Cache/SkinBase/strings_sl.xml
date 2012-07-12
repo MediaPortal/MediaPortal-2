@@ -31,8 +31,8 @@
   <string name="ServerConnection.NotificationServerAvailableText">Na omrežju je na voljo vsaj eden MediaPortal 2 strežnik. Prijavi se nanj, da izkoristiš njegove storitve.</string>
   <string name="ServerConnection.ServerFormatText">{0} pri strežniku {1}</string>
   <!--{0} = server name, {1} = host name-->
-  <string name="ServerConnection.UnknownServerName"><Neznano></string>
-  <string name="ServerConnection.UnknownServerSystem"><Neznano></string>
+  <string name="ServerConnection.UnknownServerName">&lt;Neznano&gt;</string>
+  <string name="ServerConnection.UnknownServerSystem">&lt;Neznano&gt;</string>
   <string name="ServerConnection.HomeServer">Domači strežnik</string>
   <string name="ServerConnection.AttachToServerWorkflowStateLabel">Prijavi se na strežnik</string>
   <string name="ServerConnection.DetachFromServerWorkflowStateLabel">Odjavi se s strežnika</string>

@@ -1,12 +1,12 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version='1.0' encoding='UTF-8'?>
 <resources>
   <string name="SlimTvClient.Title">Slim TV Client</string>
-  <string name="SlimTvClient.CurrentlyPlayingInformationHeader">Programminformation</string>
+  <string name="SlimTvClient.CurrentlyPlayingInformationHeader">Programminformationen</string>
   <string name="SlimTvClient.ChannelLabel">Kanal</string>
   <string name="SlimTvClient.ProgramLabel">Programm</string>
   <string name="SlimTvClient.DescriptionLabel">Beschreibung</string>
   <string name="SlimTvClient.GenreLabel">Genre</string>
-  <string name="SlimTvClient.ProgramStartLabel">Anfang</string>
+  <string name="SlimTvClient.ProgramStartLabel">Beginn</string>
   <string name="SlimTvClient.ProgramEndLabel">Ende</string>
   <string name="SlimTvClient.EpisodeLabel">Episode</string>
   <string name="SlimTvClient.Guide">TV Guide</string>

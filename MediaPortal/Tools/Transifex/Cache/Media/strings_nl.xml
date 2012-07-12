@@ -6,7 +6,7 @@
   <string name="Media.AudioMenuItem">Audio</string>
   <string name="Media.VideosMenuItem">Video\'s</string>
   <string name="Media.SeriesMenuItem">Series</string>
-  <string name="Media.MoviesMenuItem"></string>
+  <string name="Media.MoviesMenuItem">Films</string>
   <string name="Media.ImagesMenuItem">Afbeeldingen</string>
   <!--Filter titles-->
   <string name="Media.FilterByArtistMenuItem">Filter op artiest</string>
@@ -56,14 +56,14 @@
   <string name="Media.FilterSeriesSeasonNavbarDisplayLabel">Seizoen: {0}</string>
   <string name="Media.FilterImageItemsNavbarDisplayLabel">Name: {0}</string>
   <string name="Media.FilterSystemNavbarDisplayLabel">Systeem: {0}</string>
-  <string name="Media.FilterMoviesNavbarDisplayLabel"></string>
+  <string name="Media.FilterMoviesNavbarDisplayLabel">Films: {0}</string>
   <!--Display labels for workflow navigation contexts-->
   <string name="Media.BrowseMediaNavigationRootWorkflowNavigationContextDisplayLabel">Blader door media</string>
   <string name="Media.LocalMediaNavigationRootWorkflowNavigationContextDisplayLabel">Lokale media</string>
   <string name="Media.AudioNavigationRootWorkflowNavigationContextDisplayLabel">Audio bibliotheek</string>
   <string name="Media.VideoNavigationRootWorkflowNavigationContextDisplayLabel">Video bibliotheek</string>
   <string name="Media.SeriesNavigationRootWorkflowNavigationContextDisplayLabel">Series bibliotheek</string>
-  <string name="Media.MoviesNavigationRootWorkflowNavigationContextDisplayLabel"></string>
+  <string name="Media.MoviesNavigationRootWorkflowNavigationContextDisplayLabel">Film bibliotheek</string>
   <string name="Media.ImageNavigationRootWorkflowNavigationContextDisplayLabel">Afbeelding bibliotheek</string>
   <string name="Media.VideoCurrentlyPlayingWorkflowStateNavigationContextDisplayLabel">Huidige video</string>
   <string name="Media.VideoFullscreenContentWorkflowStateNavigationContextDisplayLabel">Video beeldvullend</string>
@@ -88,7 +88,7 @@
   <string name="Media.VideoItemsHeader">Video\'s</string>
   <string name="Media.AudioItemsHeader">Audio items</string>
   <string name="Media.SeriesItemsHeader">Afleveringen</string>
-  <string name="Media.MoviesItemsHeader"></string>
+  <string name="Media.MoviesItemsHeader">Films</string>
   <string name="Media.ImageItemsHeader">Afbeeldingen</string>
   <string name="Media.SimpleSearchHeader">Eenvoudig zoeken</string>
   <string name="Media.ChooseActorHeader">Selecteer een acteur</string>
@@ -125,7 +125,7 @@
   <string name="Media.SimpleSearchViewName">Eenvoudig zoeken</string>
   <!--General strings used in views-->
   <string name="Media.ViewInvalid">Deze weergave kan niet worden opgebouwd</string>
-  <string name="Media.ViewEmpty"><Geen items om weer te geven></string>
+  <string name="Media.ViewEmpty">&lt;Geen items om weer te geven&gt;</string>
   <string name="Media.NoItems">Geen items</string>
   <!--Shown in the header of an items list-->
   <string name="Media.OneItem">Een item</string>
@@ -226,10 +226,10 @@
   <string name="Media.SaveCurrentPlaylistAction">Huidige afspeellijst opslaan</string>
   <string name="Media.RemovePlaylistsAction">Afspeellijsten verwijderen</string>
   <string name="Media.LoadPlaylistButton">Afspeellijst laden</string>
-  <string name="Media.PlaylistEmpty"><Geen items in afspeellijst></string>
+  <string name="Media.PlaylistEmpty">&lt;Geen items in afspeellijst&gt;</string>
   <string name="Media.CannotPlayItemDialogText">Kan media-item niet afspelen</string>
   <string name="Media.CannotPlayItemsDialogText">Kan media-items niet afspelen</string>
-  <string name="Media.ValueEmptyTitle"><Leeg></string>
+  <string name="Media.ValueEmptyTitle">&lt;Leeg&gt;</string>
   <!--VideoPlayerUIContributor-->
   <string name="Media.SubtitleOff">Ondertitels uitschakelen</string>
   <string name="Media.ChooseChapterDialogHeader">Kies hoofdstuk</string>

@@ -31,8 +31,8 @@
   <string name="ServerConnection.NotificationServerAvailableText">Υπάρχει τουλάχιστο ένας διακομιστής MediaPortal 2 στο δίκτυο. </string>
   <string name="ServerConnection.ServerFormatText">{0}\' στο σύστημα\'{1}</string>
   <!--{0} = server name, {1} = host name-->
-  <string name="ServerConnection.UnknownServerName"><Άγνωστο></string>
-  <string name="ServerConnection.UnknownServerSystem"><Άγνωστο></string>
+  <string name="ServerConnection.UnknownServerName">&lt;Άγνωστο&gt;</string>
+  <string name="ServerConnection.UnknownServerSystem">&lt;Άγνωστο&gt;</string>
   <string name="ServerConnection.HomeServer">Αρχικός διακομιστής</string>
   <string name="ServerConnection.AttachToServerWorkflowStateLabel">Σύνδεση στον διακομιστή</string>
   <string name="ServerConnection.DetachFromServerWorkflowStateLabel">Αποσύνδεση απο διακομιστή</string>

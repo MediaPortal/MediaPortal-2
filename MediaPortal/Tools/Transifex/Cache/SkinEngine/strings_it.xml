@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version='1.0' encoding='UTF-8'?>
 <resources>
   <string name="Settings.Appearance.System">Sistema</string>
   <string name="Settings.Appearance.System.Fullscreen">Pieno Schermo</string>
@@ -44,6 +44,7 @@
   <string name="Geometries.Stretch">Stretch</string>
   <string name="Geometries.Zoom">Zoom</string>
   <string name="Geometries.Zoom149">Zoom 14:9</string>
+  <!--File names (files in shaders/effects, without extension) to effect names to be shown in the GUI-->
   <string name="Effects.denoise">Riduzione rumore</string>
   <string name="Effects.directional_blur">Sfocatura direzionale</string>
   <string name="Effects.glass_tiles">Glass tiles</string>
@@ -60,14 +61,21 @@
   <string name="PlayerControl.UnknownMediaItem">Media item sconosciuto</string>
   <string name="PlayerControl.UnknownPlayerContextName">Player</string>
   <string name="PlayerControl.HeaderNormal">{0}</string>
+  <!--{0} = media item title-->
   <string name="PlayerControl.HeaderPiP">{0} (PiP)</string>
+  <!--{0} = media item title-->
   <string name="PlayerControl.Playing">Playing</string>
   <string name="PlayerControl.Paused">Paused</string>
   <string name="PlayerControl.SeekingForward">Ricerca avanti ({0})</string>
+  <!--For example: "Seeking forward (2x)"-->
   <string name="PlayerControl.SeekingBackward">Ricerca indietro ({0})</string>
+  <!--For example: "Seeking forward (2x)"-->
   <string name="PlayerControl.SlowMotionForward">Slowmotion avanti ({0})</string>
+  <!--For example: "Slowmotion forward (0.5x)"-->
   <string name="PlayerControl.SlowMotionBackward">Slowmotion indietro({0})</string>
+  <!--For example: "Slowmotion backward (0.5x)"-->
   <string name="PlayerControl.PlaybackRateHint">{0}x</string>
+  <!--For example: 2x or 0.5x-->
   <string name="PlayerControl.Stopped">Fermato</string>
   <string name="PlayerControl.Ended">Finito</string>
   <string name="PlayerControl.Active">Attivo</string>

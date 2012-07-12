@@ -1,6 +1,6 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
-  <string name="Settings.Plugins.TV"></string>
+  <string name="Settings.Plugins.TV">TV</string>
   <string name="Settings.Plugins.TV.MPExtendedServerAddress"></string>
   <string name="Settings.Plugins.TV.MPExtendedServerAddress.Help"></string>
   <string name="Settings.Plugins.TV.MPExtendedUsername"></string>
