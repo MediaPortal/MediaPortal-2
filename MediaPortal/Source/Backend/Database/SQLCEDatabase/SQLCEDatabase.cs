@@ -38,7 +38,7 @@ namespace MediaPortal.Database.SQLCE
   public class SQLCEDatabase : ISQLDatabase
   {
     public const string SQLCE_DATABASE_TYPE = "SQLCE";
-    public const string DATABASE_VERSION = "3.5.1.0";
+    public const string DATABASE_VERSION = "4.0.0.1";
     public const int MAX_NUM_CHARS_CHAR_VARCHAR = 4000;
     public const int LOCK_TIMEOUT = 30000; // Time in ms the database will wait for a lock
     public const int MAX_BUFFER_SIZE = 2048;
@@ -83,11 +83,36 @@ namespace MediaPortal.Database.SQLCE
           engine.CreateDatabase();
           engine.Dispose();
         }
+        else
+          CheckUpgrade(engine);
       }
       catch (Exception e)
       {
         ServiceRegistration.Get<ILogger>().Critical("Error establishing database connection", e);
         throw;
+      }
+    }
+
+    /// <summary>
+    /// Tries to establish a connection to existing database. If this fails with <see cref="SqlCeInvalidDatabaseFormatException"/> we try
+    /// to update the database to current engine version.
+    /// </summary>
+    /// <param name="engine">Current SqlCeEngine</param>
+    private void CheckUpgrade(SqlCeEngine engine)
+    {
+      try
+      {
+        using (SqlCeConnection conn = new SqlCeConnection(_connectionString))
+        {
+          conn.Open();
+          conn.Close();
+        }
+      }
+      catch (SqlCeInvalidDatabaseFormatException)
+      {
+        ServiceRegistration.Get<ILogger>().Warn("Upgrading existing SQL CE database format to v4.0...");
+        engine.Upgrade();
+        ServiceRegistration.Get<ILogger>().Warn("Upgrading successful!");
       }
     }
 
