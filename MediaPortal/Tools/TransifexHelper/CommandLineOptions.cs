@@ -48,6 +48,11 @@ namespace TransifexHelper
         HelpText = "Pull non-English translation files from Transifex.net to Transifex cache.")]
     public bool Pull = false;
 
+    [Option(null, "fix", Required = false,
+        HelpText = "(Temporary) Fix xml encodings for &lt; &gt; tags.")]
+    public bool Fix = false;
+
+
     [Option(null, "FromCache", Required = false,
         HelpText = "Copy non-English translation files from Transifex cache to language pack plugin.")]
     public bool FromCache = false;

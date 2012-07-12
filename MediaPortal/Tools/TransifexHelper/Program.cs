@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
+using System.Text.RegularExpressions;
 using System.Threading;
 using CommandLine;
 
@@ -11,6 +12,9 @@ namespace TransifexHelper
   {
     #region Members & Constants
 
+    static readonly Regex REPLACE1 = new Regex("(<string[^>]*>)<(.*</string>)");
+    static readonly Regex REPLACE2 = new Regex("(<string[^>]*>.*)>(</string>)");
+
     private static Dictionary<string, DirectoryInfo> languageDirectories = new Dictionary<string, DirectoryInfo>();
     private static IniFile transifexIni = new IniFile();
     private static string targetDir = string.Empty;
@@ -19,7 +23,7 @@ namespace TransifexHelper
     private const string CacheDir = "Cache";
 
     #endregion
-    
+
     static void Main(string[] args)
     {
       Thread.CurrentThread.Name = "Main";
@@ -50,6 +54,9 @@ namespace TransifexHelper
 
       if (mpArgs.Pull)
         ExecutePull();
+
+      if (mpArgs.Fix)
+        FixEncodings();
 
       if (mpArgs.FromCache)
         CopyFromCache();
@@ -263,6 +270,46 @@ namespace TransifexHelper
 
           Console.WriteLine("   " + langFile.FullName.Replace(targetDir, string.Empty));
           langFile.CopyTo(pair.Value.FullName + "\\" + langFile.Name, true);
+        }
+      }
+    }
+
+    /// <summary>
+    /// Temporary workaround: Open all language xml and replace &lt; and &gt; tags by valid xml encodings.
+    /// </summary>
+    private static void FixEncodings()
+    {
+      Console.WriteLine("Fixing encoding of language files...");
+      foreach (KeyValuePair<string, DirectoryInfo> pair in languageDirectories)
+      {
+        string inputDir = TransifexCacheFolder + "\\" + pair.Key;
+
+        foreach (FileInfo langFile in new DirectoryInfo(inputDir).GetFiles())
+        {
+          string content;
+          bool changed = false;
+          using (FileStream stream = new FileStream(langFile.FullName, FileMode.Open, FileAccess.Read))
+          using (StreamReader streamReader = new StreamReader(stream))
+          {
+            content = streamReader.ReadToEnd();
+            string orig = content;
+            content = REPLACE1.Replace(content, "$1&lt;$2");
+            content = REPLACE2.Replace(content, "$1&gt;$2");
+            changed = (orig != content);
+            streamReader.Close();
+            stream.Close();
+          }
+          if (changed)
+          {
+            using (FileStream stream = new FileStream(langFile.FullName, FileMode.OpenOrCreate, FileAccess.Write))
+            using (StreamWriter streamWriter = new StreamWriter(stream))
+            {
+              streamWriter.Write(content);
+              streamWriter.Close();
+              stream.Close();
+            }
+            Console.WriteLine("Fixed file {0}!", langFile);
+          }
         }
       }
     }
