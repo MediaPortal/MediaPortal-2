@@ -65,6 +65,9 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="..\..\Source\Core\MediaPortal.Common\VersionInfo\VersionInfo.cs">
+      <Link>Properties\VersionInfo.cs</Link>
+    </Compile>
     <Compile Include="Metadata\BDInfoExt.cs" />
     <Compile Include="Metadata\BDROM\BDROM.cs" />
     <Compile Include="Metadata\BDROM\LanguageCodes.cs" />

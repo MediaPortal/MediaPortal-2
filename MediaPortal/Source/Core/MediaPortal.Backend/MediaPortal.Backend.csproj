@@ -60,6 +60,9 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="..\MediaPortal.Common\VersionInfo\VersionInfo.cs">
+      <Link>Properties\VersionInfo.cs</Link>
+    </Compile>
     <Compile Include="BackendServer\IBackendServer.cs" />
     <Compile Include="ClientCommunication\ClientDescriptor.cs" />
     <Compile Include="ClientCommunication\ClientManagerMessaging.cs" />

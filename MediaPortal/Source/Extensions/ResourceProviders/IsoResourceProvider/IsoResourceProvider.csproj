@@ -53,6 +53,9 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="..\..\..\Core\MediaPortal.Common\VersionInfo\VersionInfo.cs">
+      <Link>Properties\VersionInfo.cs</Link>
+    </Compile>
     <Compile Include="IsoResourceProxy.cs" />
     <Compile Include="IsoResourceProvider.cs" />
     <Compile Include="IsoResourceAccessor.cs" />

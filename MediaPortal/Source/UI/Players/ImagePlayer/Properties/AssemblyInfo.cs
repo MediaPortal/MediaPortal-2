@@ -1,29 +1,4 @@
-#region Copyright (C) 2007-2012 Team MediaPortal
-
-/*
-    Copyright (C) 2007-2012 Team MediaPortal
-    http://www.team-mediaportal.com
-
-    This file is part of MediaPortal 2
-
-    MediaPortal 2 is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
-
-    MediaPortal 2 is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with MediaPortal 2. If not, see <http://www.gnu.org/licenses/>.
-*/
-
-#endregion
-
 using System.Reflection;
-using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
 // General Information about an assembly is controlled through the following 
@@ -32,9 +7,6 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyTitle("ImagePlayer")]
 [assembly: AssemblyDescription("Image player plugin for MediaPortal 2 which plays images of different formats")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("Team MediaPortal")]
-[assembly: AssemblyProduct("MediaPortal 2")]
-[assembly: AssemblyCopyright("Copyright © Team MediaPortal 2011")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 
@@ -46,14 +18,4 @@ using System.Runtime.InteropServices;
 // The following GUID is for the ID of the typelib if this project is exposed to COM
 [assembly: Guid("95dee642-f244-4aac-b7e3-cc110e618e65")]
 
-// Version information for an assembly consists of the following four values:
-//
-//      Major Version
-//      Minor Version 
-//      Build Number
-//      Revision
-//
-// You can specify all the values or you can default the Revision and Build Numbers 
-// by using the '*' as shown below:
-[assembly: AssemblyVersion("1.0.0.0")]
-[assembly: AssemblyFileVersion("1.0.0.0")]
+// Other attributes are included from VersionInfo.cs!

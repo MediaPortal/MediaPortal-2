@@ -89,6 +89,9 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="..\MediaPortal.Common\VersionInfo\VersionInfo.cs">
+      <Link>Properties\VersionInfo.cs</Link>
+    </Compile>
     <Compile Include="Infrastructure\ConsoleLogger.cs" />
     <Compile Include="Infrastructure\CP\AsyncWebRequestState.cs" />
     <Compile Include="Infrastructure\CP\Description\DeviceDescriptor.cs" />

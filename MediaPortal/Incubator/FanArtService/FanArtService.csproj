@@ -46,6 +46,9 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="..\..\Source\Core\MediaPortal.Common\VersionInfo\VersionInfo.cs">
+      <Link>Properties\VersionInfo.cs</Link>
+    </Compile>
     <Compile Include="FanArtService.cs" />
     <Compile Include="FanArtServicePlugin.cs" />
     <Compile Include="UPnP\FanArtServiceImpl.cs" />

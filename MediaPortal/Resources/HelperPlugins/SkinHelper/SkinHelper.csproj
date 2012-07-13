@@ -50,6 +50,9 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="..\..\..\Source\Core\MediaPortal.Common\VersionInfo\VersionInfo.cs">
+      <Link>Properties\VersionInfo.cs</Link>
+    </Compile>
     <Compile Include="LoadSkinThemeActions.cs" />
     <Compile Include="General\Consts.cs" />
     <Compile Include="Models\ThemeColorsModel.cs" />

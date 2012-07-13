@@ -68,6 +68,9 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="..\..\..\Core\MediaPortal.Common\VersionInfo\VersionInfo.cs">
+      <Link>Properties\VersionInfo.cs</Link>
+    </Compile>
     <Compile Include="FreeDB\CDInfo.cs" />
     <Compile Include="FreeDB\CDInfoDetail.cs" />
     <Compile Include="FreeDB\CDTrackDetail.cs" />
