@@ -24,11 +24,10 @@
 
 using System;
 using System.Collections.Generic;
-using MediaPortal.Common.ClientCommunication;
 using MediaPortal.Common.General;
 using MediaPortal.Common.MediaManagement;
 
-namespace MediaPortal.UI.ServerCommunication
+namespace MediaPortal.Common.SystemCommunication
 {
   /// <summary>
   /// Interface of the MediaPortal 2 server's ServerController service. This service is implemented by the

@@ -25,11 +25,11 @@
 using System;
 using System.Collections.Generic;
 using MediaPortal.Common;
-using MediaPortal.Common.ClientCommunication;
 using MediaPortal.Common.Exceptions;
 using MediaPortal.Common.General;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.Common.MediaManagement.MLQueries;
+using MediaPortal.Common.SystemCommunication;
 using MediaPortal.UI.ServerCommunication;
 using MediaPortal.UiComponents.Media.General;
 

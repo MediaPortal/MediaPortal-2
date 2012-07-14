@@ -28,7 +28,7 @@ using System.Xml;
 using System.Xml.Serialization;
 using MediaPortal.Common.General;
 
-namespace MediaPortal.Common.ClientCommunication
+namespace MediaPortal.Common.SystemCommunication
 {
   /// <summary>
   /// Contains data about a MediaPortal client which is attached to a MediaPortal server.

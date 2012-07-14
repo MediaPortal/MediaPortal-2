@@ -149,13 +149,10 @@
     <Compile Include="Presentation\Screens\IScreenManager.cs" />
     <Compile Include="RemovableMedia\RemovableMediaMessaging.cs" />
     <Compile Include="ServerCommunication\ServerCommunicationHelper.cs" />
-    <Compile Include="ServerCommunication\ServerDescriptor.cs" />
     <Compile Include="ServerCommunication\IServerConnectionManager.cs" />
     <Compile Include="ServerCommunication\ServerConnectionMessaging.cs" />
     <Compile Include="ServerCommunication\Settings\FrontendServerSettings.cs" />
     <Compile Include="ServerCommunication\Settings\ServerConnectionSettings.cs" />
-    <Compile Include="ServerCommunication\IServerController.cs" />
-    <Compile Include="ServerCommunication\IContentDirectory.cs" />
     <Compile Include="Services\FrontendServer\FrontendServer.cs" />
     <Compile Include="Services\Logging\UiCrashLogger.cs" />
     <Compile Include="Services\Players\Builders\PlayerBuilder.cs" />
@@ -178,12 +175,7 @@
     <Compile Include="Services\ServerCommunication\MP2FrontendServerDevice.cs" />
     <Compile Include="Services\ServerCommunication\ServerConnectionManager.cs" />
     <Compile Include="Services\ServerCommunication\UPnPClientControllerServiceImpl.cs" />
-    <Compile Include="Services\ServerCommunication\UPnPClientControlPoint.cs" />
     <Compile Include="Services\ServerCommunication\UPnPFrontendServer.cs" />
-    <Compile Include="Services\ServerCommunication\UPnPServerWatcher.cs" />
-    <Compile Include="Services\ServerCommunication\UPnPServerControllerServiceProxy.cs" />
-    <Compile Include="Services\ServerCommunication\UPnPContentDirectoryServiceProxy.cs" />
-    <Compile Include="Services\ServerCommunication\UPnPUserProfileDataManagementServiceProxy.cs" />
     <Compile Include="Services\Shares\LocalSharesManagement.cs" />
     <Compile Include="Presentation\UiNotifications\DefaultNotification.cs" />
     <Compile Include="Services\UiNotifications\NotificationService.cs" />

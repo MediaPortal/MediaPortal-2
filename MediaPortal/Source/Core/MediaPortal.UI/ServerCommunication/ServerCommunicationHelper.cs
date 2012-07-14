@@ -24,7 +24,7 @@
 
 using System.Linq;
 using MediaPortal.Common;
-using MediaPortal.Common.ClientCommunication;
+using MediaPortal.Common.SystemCommunication;
 
 namespace MediaPortal.UI.ServerCommunication
 {

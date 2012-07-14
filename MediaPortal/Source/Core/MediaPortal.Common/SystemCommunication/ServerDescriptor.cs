@@ -28,7 +28,7 @@ using MediaPortal.Common.UPnP;
 using UPnP.Infrastructure.CP;
 using UPnP.Infrastructure.CP.Description;
 
-namespace MediaPortal.UI.ServerCommunication
+namespace MediaPortal.Common.SystemCommunication
 {
   public class ServerDescriptor
   {

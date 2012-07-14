@@ -25,10 +25,10 @@
 using System;
 using System.Collections.Generic;
 using MediaPortal.Common;
-using MediaPortal.Common.ClientCommunication;
 using MediaPortal.Common.General;
 using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.ResourceAccess;
+using MediaPortal.Common.SystemCommunication;
 using MediaPortal.Common.SystemResolver;
 using MediaPortal.UI.ServerCommunication;
 using MediaPortal.UI.Shares;

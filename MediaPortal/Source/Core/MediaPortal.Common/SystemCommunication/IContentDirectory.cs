@@ -29,7 +29,7 @@ using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.MediaManagement.MLQueries;
 using MediaPortal.Common.ResourceAccess;
 
-namespace MediaPortal.UI.ServerCommunication
+namespace MediaPortal.Common.SystemCommunication
 {
   public enum SharesFilter
   {

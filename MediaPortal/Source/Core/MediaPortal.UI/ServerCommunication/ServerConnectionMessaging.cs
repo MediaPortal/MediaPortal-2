@@ -25,6 +25,7 @@
 using System.Collections.Generic;
 using MediaPortal.Common;
 using MediaPortal.Common.Messaging;
+using MediaPortal.Common.SystemCommunication;
 
 namespace MediaPortal.UI.ServerCommunication
 {

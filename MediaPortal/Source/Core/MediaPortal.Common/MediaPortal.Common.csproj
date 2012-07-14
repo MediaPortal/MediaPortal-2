@@ -74,7 +74,8 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ApplicationCore.cs" />
-    <Compile Include="ClientCommunication\MPClientMetadata.cs" />
+    <Compile Include="Services\ServerCommunication\UPnPServerWatcher.cs" />
+    <Compile Include="SystemCommunication\MPClientMetadata.cs" />
     <Compile Include="Commands\CommandList.cs" />
     <Compile Include="Commands\ICommand.cs" />
     <Compile Include="Commands\MethodDelegateCommand.cs" />
@@ -201,6 +202,9 @@
     <Compile Include="MediaManagement\MLQueries\MLQueryResultGroup.cs" />
     <Compile Include="Messaging\MessageWatcher.cs" />
     <Compile Include="Runtime\EnergySavingConfig.cs" />
+    <Compile Include="SystemCommunication\IContentDirectory.cs" />
+    <Compile Include="SystemCommunication\IServerController.cs" />
+    <Compile Include="SystemCommunication\ServerDescriptor.cs" />
     <Compile Include="Services\Dokan\DokanNet.cs" />
     <Compile Include="Services\Dokan\DokanOperations.cs" />
     <Compile Include="Services\Dokan\FileHandle.cs" />
@@ -283,6 +287,10 @@
     <Compile Include="ServiceCreatorCallback.cs" />
     <Compile Include="Exceptions\ServiceNotFoundException.cs" />
     <Compile Include="ServiceRegistration.cs" />
+    <Compile Include="Services\ServerCommunication\UPnPClientControlPoint.cs" />
+    <Compile Include="Services\ServerCommunication\UPnPContentDirectoryServiceProxy.cs" />
+    <Compile Include="Services\ServerCommunication\UPnPServerControllerServiceProxy.cs" />
+    <Compile Include="Services\ServerCommunication\UPnPUserProfileDataManagementServiceProxy.cs" />
     <Compile Include="Services\Settings\SettingsCache.cs" />
     <Compile Include="Services\Settings\SettingsFileHandler.cs" />
     <Compile Include="Services\Settings\SettingsManager.cs" />

@@ -29,7 +29,7 @@ using MediaPortal.Common.UserProfileDataManagement;
 using MediaPortal.Utilities.UPnP;
 using UPnP.Infrastructure.CP.DeviceTree;
 
-namespace MediaPortal.UI.Services.ServerCommunication
+namespace MediaPortal.Common.Services.ServerCommunication
 {
   /// <summary>
   /// Provides the MediaPortal 2 UPnP client's proxy for the user profile data management service.

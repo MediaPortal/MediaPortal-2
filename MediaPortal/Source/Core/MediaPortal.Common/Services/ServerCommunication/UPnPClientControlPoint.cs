@@ -24,7 +24,6 @@
 
 using System;
 using System.Collections.Generic;
-using MediaPortal.Common;
 using MediaPortal.Common.General;
 using MediaPortal.Common.Logging;
 using MediaPortal.Common.Services.ResourceAccess;
@@ -34,7 +33,7 @@ using UPnP.Infrastructure.CP;
 using UPnP.Infrastructure.CP.Description;
 using UPnP.Infrastructure.CP.DeviceTree;
 
-namespace MediaPortal.UI.Services.ServerCommunication
+namespace MediaPortal.Common.Services.ServerCommunication
 {
   public delegate void BackendServerConnectedDlgt(DeviceConnection connection);
   public delegate void BackendServerDisconnectedDlgt(DeviceConnection connection);

@@ -25,7 +25,8 @@
 using System.Collections.Generic;
 using MediaPortal.Common.General;
 using MediaPortal.Common.ResourceAccess;
-using MediaPortal.UI.Services.ServerCommunication;
+using MediaPortal.Common.SystemCommunication;
+using MediaPortal.Common.Services.ServerCommunication;
 
 namespace MediaPortal.UI.ServerCommunication
 {
