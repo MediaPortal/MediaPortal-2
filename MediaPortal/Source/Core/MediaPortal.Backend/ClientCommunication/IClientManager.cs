@@ -23,8 +23,8 @@
 #endregion
 
 using System.Collections.Generic;
-using MediaPortal.Common.ClientCommunication;
 using MediaPortal.Common.General;
+using MediaPortal.Common.SystemCommunication;
 
 namespace MediaPortal.Backend.ClientCommunication
 {

@@ -26,11 +26,11 @@ using System.Collections.Generic;
 using System.Windows.Forms;
 using MediaPortal.Backend.ClientCommunication;
 using MediaPortal.Common;
-using MediaPortal.Common.ClientCommunication;
 using MediaPortal.Common.Localization;
 using MediaPortal.Common.Messaging;
 using MediaPortal.Common.Runtime;
 using MediaPortal.Common.Settings;
+using MediaPortal.Common.SystemCommunication;
 using MediaPortal.Server.Settings;
 
 namespace MediaPortal.Server
