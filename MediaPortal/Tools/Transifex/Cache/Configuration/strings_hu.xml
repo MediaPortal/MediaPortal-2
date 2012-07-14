@@ -5,10 +5,10 @@
   <string name="Configuration.MainSettings">Fő beállítások</string>
   <!--2nd Header for root configuration section-->
   <string name="Configuration.NoSettingsInThisSection">Nincsenek beállítások ebben a szekcióban</string>
-  <string name="Configuration.ErrorFloatingPointValue">\'{0}\' nem érvényes lebegőpontos szám</string>
-  <string name="Configuration.ErrorIntegerValue">\'{0}\' nem érvényes egész szám</string>
-  <string name="Configuration.ErrorNumericLowerLimit">Használjon \'{1}\' és \'{2}\' közé eső értéket</string>
+  <string name="Configuration.ErrorFloatingPointValue">'{0}' nem érvényes lebegőpontos szám</string>
+  <string name="Configuration.ErrorIntegerValue">'{0}' nem érvényes egész szám</string>
+  <string name="Configuration.ErrorNumericLowerLimit">Használjon '{1}' és '{2}' közé eső értéket</string>
   <!--0 = current value, 1 = lower limit, 2 = upper limit-->
-  <string name="Configuration.ErrorNumericUpperLimit">Használjon \'{1}\' és \'{2}\' közé eső értéket</string>
+  <string name="Configuration.ErrorNumericUpperLimit">Használjon '{1}' és '{2}' közé eső értéket</string>
   <!--0 = current value, 1 = lower limit, 2 = upper limit-->
 </resources>

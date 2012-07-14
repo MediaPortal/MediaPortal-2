@@ -13,6 +13,5 @@
   <string name="UPnPBackendServer.ModelDescription">MediaPortal 2 सर्वर ऑडियो फ़ाइलें, वीडियो और छवियों को होस्ट, और एक मीडिया डेटाबेस प्रदान करता है</string>
   <string name="UPnPBackendServer.ModelName">MediaPortal 2 सर्वर</string>
   <string name="UPnPBackendServer.ModelNumber">1</string>
-  <string name="UPnPBackendServer.ModelUrl"></string>
   <string name="MediaLibrary.EmptyOrMiscCharGroupName">&lt;रिक्त या विविध. character&gt;</string>
 </resources>

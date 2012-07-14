@@ -4,11 +4,11 @@
   <string name="Configuration.ConfigurationMainWorkflowNavigationContextDisplayLabel">Paramètres</string>
   <string name="Configuration.MainSettings">Paramètres principaux</string>
   <!--2nd Header for root configuration section-->
-  <string name="Configuration.NoSettingsInThisSection">Il n\'y a pas réglages de cette section</string>
-  <string name="Configuration.ErrorFloatingPointValue">\'{0}\' n\'est pas un nombre décimal valide</string>
-  <string name="Configuration.ErrorIntegerValue">\'{0}\' n\'est pas un nombre entier valide</string>
-  <string name="Configuration.ErrorNumericLowerLimit">Utilisez une valeur comprise entre  \'{1}\' et \'{2}\'</string>
+  <string name="Configuration.NoSettingsInThisSection">Il n'y a pas réglages de cette section</string>
+  <string name="Configuration.ErrorFloatingPointValue">'{0}' n'est pas un nombre décimal valide</string>
+  <string name="Configuration.ErrorIntegerValue">'{0}' n'est pas un nombre entier valide</string>
+  <string name="Configuration.ErrorNumericLowerLimit">Utilisez une valeur comprise entre  '{1}' et '{2}'</string>
   <!--0 = current value, 1 = lower limit, 2 = upper limit-->
-  <string name="Configuration.ErrorNumericUpperLimit">Utilisez une valeur comprise entre  \'{1}\' et \'{2}\'</string>
+  <string name="Configuration.ErrorNumericUpperLimit">Utilisez une valeur comprise entre  '{1}' et '{2}'</string>
   <!--0 = current value, 1 = lower limit, 2 = upper limit-->
 </resources>

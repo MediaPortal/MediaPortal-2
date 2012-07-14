@@ -7,6 +7,5 @@
      language.-->
   <string name="MyPlugin.String1">Enskur strengur 1</string>
   <string name="MyPlugin.String2">Enskur strengur 2</string>
-  <string name="MyPlugin.StateDisplayLabel"></string>
   <string name="MyPlugin.MenuEntry">Mínar viðbætur</string>
 </resources>

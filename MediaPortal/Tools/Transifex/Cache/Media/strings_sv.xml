@@ -158,9 +158,9 @@
   <string name="Media.NoPlaylistsAvailable">- Inga spellistor är tillgängliga -</string>
   <string name="Media.NoConfigPlaylistsHomeServerNotConnectedText">Hemmaservern är för närvarande inte uppkopplad, så spellistor kan inte hanteras</string>
   <string name="Media.EditNameOfPlaylist">Redigera namnet på spellistan</string>
-  <string name="Media.SavePlaylistSuccessfulText">Spellistan \'{0}\' sparades till servern.</string>
-  <string name="Media.SavePlaylistFailedText">Spellistan kunde inte sparas. Felmeddelande: \'{0}\'</string>
-  <string name="Media.SavePlaylistFailedAlreadyExists">Spellistan kunde inte sparas. Spellistan \'{0}\' finns redan</string>
+  <string name="Media.SavePlaylistSuccessfulText">Spellistan '{0}' sparades till servern.</string>
+  <string name="Media.SavePlaylistFailedText">Spellistan kunde inte sparas. Felmeddelande: '{0}'</string>
+  <string name="Media.SavePlaylistFailedAlreadyExists">Spellistan kunde inte sparas. Spellistan '{0}' finns redan</string>
   <string name="Media.ChoosePlaylistsToBeRemovedText">Välj vilka spellistor du vill ta bort</string>
   <string name="Media.PlaylistNameInfoLabel">Namn på spellistan</string>
   <string name="Media.PlaylistTypeInfoLabel">Typ av spellista</string>

@@ -2,7 +2,7 @@
 <resources>
   <string name="Settings.Plugins.TV">Televize</string>
   <string name="Settings.Plugins.TV.MPExtendedServerAddress">Adresy serverů MPExtended</string>
-  <string name="Settings.Plugins.TV.MPExtendedServerAddress.Help">Zadejte názvy severů nebo IP adresy oddělené \';\' (výchozí je localhost).</string>
+  <string name="Settings.Plugins.TV.MPExtendedServerAddress.Help">Zadejte názvy severů nebo IP adresy oddělené ';' (výchozí je localhost).</string>
   <string name="Settings.Plugins.TV.MPExtendedUsername">Uživatelské jméno služby MPExtended</string>
   <string name="Settings.Plugins.TV.MPExtendedUsername.Help">Zadejte uživatelské jméno pro připojení. Prázdné jméno použije anonymní připojení.</string>
   <string name="Settings.Plugins.TV.MPExtendedPassword">Heslo služby MPExtended</string>

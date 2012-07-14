@@ -13,6 +13,5 @@
   <string name="UPnPBackendServer.ModelDescription">Server MediaPortalu 2 - zpřístupňuje audio soubory, videa a obrázky a poskytuje databázi médií</string>
   <string name="UPnPBackendServer.ModelName">Server MediaPortalu 2</string>
   <string name="UPnPBackendServer.ModelNumber">1</string>
-  <string name="UPnPBackendServer.ModelUrl"></string>
   <string name="MediaLibrary.EmptyOrMiscCharGroupName">&lt;Prázdný nebo různý znak&gt;</string>
 </resources>

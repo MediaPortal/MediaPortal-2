@@ -6,7 +6,6 @@
   <string name="Media.AudioMenuItem">Áudio</string>
   <string name="Media.VideosMenuItem">Vídeos</string>
   <string name="Media.SeriesMenuItem">Séries</string>
-  <string name="Media.MoviesMenuItem"></string>
   <string name="Media.ImagesMenuItem">Imagens</string>
   <!--Filter titles-->
   <string name="Media.FilterByArtistMenuItem">Filtrar por artista</string>
@@ -16,7 +15,6 @@
   <string name="Media.FilterByActorMenuItem">Filtrar por ator</string>
   <string name="Media.FilterByVideoGenreMenuItem">Filtrar por género</string>
   <string name="Media.FilterByVideoYearMenuItem">Filtrar por ano</string>
-  <string name="Media.FilterByAudioLanguageMenuItem"></string>
   <string name="Media.FilterByImageSizeMenuItem">Filtrar por tamanho</string>
   <string name="Media.FilterByImageYearMenuItem">Filtrar por ano</string>
   <string name="Media.FilterBySystemMenuItem">Filtrar por sistema</string>
@@ -47,7 +45,6 @@
   <string name="Media.FilterActorNavbarDisplayLabel">Ator: {0}</string>
   <string name="Media.FilterVideoGenreNavbarDisplayLabel">Género: {0}</string>
   <string name="Media.FilterVideoYearNavbarDisplayLabel">Ano: {0}</string>
-  <string name="Media.FilterAudioLanguagesNavbarDisplayLabel"></string>
   <string name="Media.FilterImageSizeNavbarDisplayLabel">Tamanho: {0}</string>
   <string name="Media.FilterImageYearNavbarDisplayLabel">Ano: {0}</string>
   <string name="Media.FilterAudioItemsNavbarDisplayLabel">Nome: {0}</string>
@@ -56,14 +53,12 @@
   <string name="Media.FilterSeriesSeasonNavbarDisplayLabel">Temporada {0}</string>
   <string name="Media.FilterImageItemsNavbarDisplayLabel">Nome: {0}</string>
   <string name="Media.FilterSystemNavbarDisplayLabel">Sistema: {0}</string>
-  <string name="Media.FilterMoviesNavbarDisplayLabel"></string>
   <!--Display labels for workflow navigation contexts-->
   <string name="Media.BrowseMediaNavigationRootWorkflowNavigationContextDisplayLabel">Explorar conteúdos</string>
   <string name="Media.LocalMediaNavigationRootWorkflowNavigationContextDisplayLabel">Conteúdos locais</string>
   <string name="Media.AudioNavigationRootWorkflowNavigationContextDisplayLabel">Biblioteca de áudio</string>
   <string name="Media.VideoNavigationRootWorkflowNavigationContextDisplayLabel">Biblioteca de vídeo</string>
   <string name="Media.SeriesNavigationRootWorkflowNavigationContextDisplayLabel">Biblioteca de séries</string>
-  <string name="Media.MoviesNavigationRootWorkflowNavigationContextDisplayLabel"></string>
   <string name="Media.ImageNavigationRootWorkflowNavigationContextDisplayLabel">Biblioteca de imagens</string>
   <string name="Media.VideoCurrentlyPlayingWorkflowStateNavigationContextDisplayLabel">Vídeo atual</string>
   <string name="Media.VideoFullscreenContentWorkflowStateNavigationContextDisplayLabel">Vídeo de tela inteira</string>
@@ -88,7 +83,6 @@
   <string name="Media.VideoItemsHeader">Vídeos</string>
   <string name="Media.AudioItemsHeader">Itens de áudio</string>
   <string name="Media.SeriesItemsHeader">Episódios</string>
-  <string name="Media.MoviesItemsHeader"></string>
   <string name="Media.ImageItemsHeader">Imagens</string>
   <string name="Media.SimpleSearchHeader">Busca simples</string>
   <string name="Media.ChooseActorHeader">Escolha um ator</string>
@@ -103,7 +97,6 @@
   <string name="Media.ChooseImageYearHeader">Escolha um ano</string>
   <string name="Media.ChooseImageSizeHeader">Escolha um tamanho</string>
   <string name="Media.ChooseSystemHeader">Escolha um sistema</string>
-  <string name="Media.ChooseVideoLanguageHeader"></string>
   <string name="Media.PlaylistsOverviewHeader">Listas de Reprodução</string>
   <string name="Media.SavePlaylistEditNameHeader">Salvar lista de reprodução</string>
   <string name="Media.SavePlaylistFailedHeader">Salvar lista de reprodução</string>
@@ -158,9 +151,9 @@
   <string name="Media.NoPlaylistsAvailable">- Nenhuma lista de reprodução disponível -</string>
   <string name="Media.NoConfigPlaylistsHomeServerNotConnectedText">O servidor local está desconectado, as lista de reprodução não podem ser gerenciadas no momento</string>
   <string name="Media.EditNameOfPlaylist">Alterar o nome da lista de reprodução</string>
-  <string name="Media.SavePlaylistSuccessfulText">A lista de reprodução \'{0}\' foi salva no servidor com sucesso.</string>
-  <string name="Media.SavePlaylistFailedText">A lista de reprodução não pôde ser salva. Mensagem de erro: \'{0}\'</string>
-  <string name="Media.SavePlaylistFailedAlreadyExists">A lista de reprodução não pôde ser salva: A lista de reprodução \'{0}\' já existe</string>
+  <string name="Media.SavePlaylistSuccessfulText">A lista de reprodução '{0}' foi salva no servidor com sucesso.</string>
+  <string name="Media.SavePlaylistFailedText">A lista de reprodução não pôde ser salva. Mensagem de erro: '{0}'</string>
+  <string name="Media.SavePlaylistFailedAlreadyExists">A lista de reprodução não pôde ser salva: A lista de reprodução '{0}' já existe</string>
   <string name="Media.ChoosePlaylistsToBeRemovedText">Escolha a lista de reprodução para remover</string>
   <string name="Media.PlaylistNameInfoLabel">Nome da lista de reprodução</string>
   <string name="Media.PlaylistTypeInfoLabel">Tipo da lista de reprodução</string>

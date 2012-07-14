@@ -2,7 +2,7 @@
 <resources>
   <string name="Settings.Plugins.TV">TV</string>
   <string name="Settings.Plugins.TV.MPExtendedServerAddress">MPExtended server adresse</string>
-  <string name="Settings.Plugins.TV.MPExtendedServerAddress.Help">Skriv server navn eller ip-adresse, adskilt af \';\' (standard for localhost)</string>
+  <string name="Settings.Plugins.TV.MPExtendedServerAddress.Help">Skriv server navn eller ip-adresse, adskilt af ';' (standard for localhost)</string>
   <string name="Settings.Plugins.TV.MPExtendedUsername">MPExtended service brugernavn</string>
   <string name="Settings.Plugins.TV.MPExtendedUsername.Help">Indtast brugernavn for at forbinde. Ingen navn vil medføre anonym forbindelse.</string>
   <string name="Settings.Plugins.TV.MPExtendedPassword">MPExtended service adgangskode</string>

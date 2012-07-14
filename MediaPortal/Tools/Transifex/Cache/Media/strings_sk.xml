@@ -158,9 +158,9 @@
   <string name="Media.NoPlaylistsAvailable">- Playlist nedostupný -</string>
   <string name="Media.NoConfigPlaylistsHomeServerNotConnectedText">Domáci server nie je momentálne pripojený, práve teraz teda nie je možné upravovať playlist</string>
   <string name="Media.EditNameOfPlaylist">Upravte meno playlistu</string>
-  <string name="Media.SavePlaylistSuccessfulText">Playlist \'{0}\' bol uložený na serveri.</string>
-  <string name="Media.SavePlaylistFailedText">The playlist could not be saved. Error message: \'{0}\'</string>
-  <string name="Media.SavePlaylistFailedAlreadyExists">Playlist sa nedá uložiť, playlist s menom \'{0}\' už esistuje</string>
+  <string name="Media.SavePlaylistSuccessfulText">Playlist '{0}' bol uložený na serveri.</string>
+  <string name="Media.SavePlaylistFailedText">The playlist could not be saved. Error message: '{0}'</string>
+  <string name="Media.SavePlaylistFailedAlreadyExists">Playlist sa nedá uložiť, playlist s menom '{0}' už esistuje</string>
   <string name="Media.ChoosePlaylistsToBeRemovedText">Vybrať playlisty, ktoré majú byť odstránené</string>
   <string name="Media.PlaylistNameInfoLabel">Meno playlistu</string>
   <string name="Media.PlaylistTypeInfoLabel">Typ playlistu</string>

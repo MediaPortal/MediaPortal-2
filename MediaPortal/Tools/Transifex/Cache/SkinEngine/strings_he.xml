@@ -30,12 +30,10 @@
   <string name="ScreenManager.NotificationErrorLoadingSkinFallingBackToCurrentText">חוזר לסקין הנוכחי</string>
   <string name="ScreenManager.NotificationErrorLoadingSkinFallingBackToDefaultText">חוזר לסקין ברירת המחדל</string>
   <string name="ScreenManager.ErrorLoadingSkinResource">שגיאה בטעינת משאב של הסקין</string>
-  <string name="ScreenManager.ScreenMissing">לא מוצא את המשאב של הסקין עבור מסך \'{0}\'</string>
-  <string name="ScreenManager.ScreenBroken">משאב הסקין עבור מסך \'{0}\' אינו תקין</string>
-  <string name="ScreenManager.BackgroundScreenMissing">לא מוצא את המשאב של הסקין עבור מסך הרקע \'{0}\'</string>
-  <string name="ScreenManager.BackgroundScreenBroken">משאב הסקין עבור מסך הרקע  \'{0}\' אינו תקין</string>
-  <string name="ScreenManager.SuperLayerScreenMissing"></string>
-  <string name="ScreenManager.SuperLayerScreenBroken"></string>
+  <string name="ScreenManager.ScreenMissing">לא מוצא את המשאב של הסקין עבור מסך '{0}'</string>
+  <string name="ScreenManager.ScreenBroken">משאב הסקין עבור מסך '{0}' אינו תקין</string>
+  <string name="ScreenManager.BackgroundScreenMissing">לא מוצא את המשאב של הסקין עבור מסך הרקע '{0}'</string>
+  <string name="ScreenManager.BackgroundScreenBroken">משאב הסקין עבור מסך הרקע  '{0}' אינו תקין</string>
   <string name="Geometries.IntelligentZoom">זום חכם</string>
   <string name="Geometries.LetterBox">תיבה 4:3</string>
   <string name="Geometries.Normal">רגיל</string>
@@ -47,15 +45,12 @@
   <!--File names (files in shaders/effects, without extension) to effect names to be shown in the GUI-->
   <string name="Effects.denoise">הפחת רעשים</string>
   <string name="Effects.directional_blur">טשטוש כיווני</string>
-  <string name="Effects.glass_tiles"></string>
   <string name="Effects.greyscale">גווני אפור</string>
   <string name="Effects.invert">הפוך</string>
   <string name="Effects.none">ללא</string>
-  <string name="Effects.pixelate"></string>
   <string name="Effects.sepia">ספיה</string>
   <string name="Effects.sharpen">חדד</string>
   <string name="Effects.sharpen_complex">חדד (מורכב)</string>
-  <string name="Effects.zoom_blur"></string>
   <string name="PlayerControl.NoPlayer">אין נגן</string>
   <string name="PlayerControl.NoMediaItem">- אין פריט מדיה -</string>
   <string name="PlayerControl.UnknownMediaItem">פריט מדיה לא מוכר</string>

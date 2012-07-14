@@ -2,46 +2,15 @@
 <resources>
   <string name="Settings.Players.Codecs">Kodeki</string>
   <string name="Settings.Players.Codecs.VideoCodecs">Kodeki Wideo</string>
-  <string name="Settings.Players.Codecs.VideoCodecs.MPEG2"></string>
   <string name="Settings.Players.Codecs.VideoCodecs.MPEG2.Help">Ustaw kodek dla: MPEG2 video (DVD, DVB-SD)</string>
-  <string name="Settings.Players.Codecs.VideoCodecs.MPEG4"></string>
   <string name="Settings.Players.Codecs.VideoCodecs.MPEG4.Help">Ustaw kodek dla: MPEG4 video (H.264, x264)</string>
-  <string name="Settings.Players.Codecs.VideoCodecs.AVC"></string>
   <string name="Settings.Players.Codecs.VideoCodecs.AVC.Help">Ustaw kodek dla: AVC video (HDTV, BluRay)</string>
   <string name="Settings.Players.Codecs.AudioCodecs">Kodeki Audio</string>
-  <string name="Settings.Players.Codecs.AudioRenderer"></string>
-  <string name="Settings.Players.Codecs.AudioCodecs.AudioCodec"></string>
   <string name="Settings.Players.Codecs.AudioCodecs.AudioCodec.Help">Ustaw kodek audio dla: MPEG1/2</string>
-  <string name="Settings.Players.Codecs.AudioCodecs.AudioCodecLATMAAC"></string>
   <string name="Settings.Players.Codecs.AudioCodecs.AudioCodecLATMAAC.Help">Ustaw kodek audio dla: LATM-AAC</string>
-  <string name="Settings.Players.Codecs.AudioCodecs.AudioCodecAAC"></string>
   <string name="Settings.Players.Codecs.AudioCodecs.AudioCodecAAC.Help">Ustaw kodek audio dla:  AAC</string>
-  <string name="Settings.Players.Codecs.AudioCodecs.AudioRenderer"></string>
-  <string name="Settings.Players.Codecs.AudioCodecs.AudioRenderer.Help"></string>
-  <string name="Settings.Players.VideoPlayer"></string>
-  <string name="Settings.Players.VideoPlayer.PreferMultiChannelAudio"></string>
-  <string name="Settings.Players.VideoPlayer.PreferMultiChannelAudio.Help"></string>
-  <string name="Settings.Players.DVDPlayer"></string>
-  <string name="Settings.Players.DVDPlayer.EnableClosedCaption"></string>
-  <string name="Settings.Players.DVDPlayer.EnableClosedCaption.Help"></string>
   <string name="Settings.Players.DVDPlayer.EnableSubtitles">Napisy</string>
   <string name="Settings.Players.DVDPlayer.EnableSubtitles.Help">Zaznacz jeżeli napisy maja być włączone domyślnie</string>
-  <string name="Playback.NotSpecified"></string>
-  <string name="Playback.CaptionNormal"></string>
-  <string name="Playback.CaptionBig"></string>
-  <string name="Playback.CaptionChildren"></string>
-  <string name="Playback.CCNormal"></string>
-  <string name="Playback.CCBig"></string>
-  <string name="Playback.CCChildren"></string>
-  <string name="Playback.Forced"></string>
-  <string name="Playback.DirectorCommentsNormal"></string>
-  <string name="Playback.DirectorCommentsBig"></string>
-  <string name="Playback.DirectorCommentsChildren"></string>
-  <string name="Playback.VisuallyImpaired"></string>
-  <string name="Playback.DirectorComments1"></string>
-  <string name="Playback.DirectorComments2"></string>
-  <string name="Playback.Chapter"></string>
   <!--For example: "Chapter 1"-->
-  <string name="Playback.Title"></string>
   <!--For example: "Title 1"-->
 </resources>

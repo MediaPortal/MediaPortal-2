@@ -158,9 +158,9 @@
   <string name="Media.NoPlaylistsAvailable">- Ingen afspilningsliste til rådighed -</string>
   <string name="Media.NoConfigPlaylistsHomeServerNotConnectedText">Der er ikke forbindelse til hjemmeserveren i øjeblikket. Derfor kan afspilningslister ikke vedligeholdes.</string>
   <string name="Media.EditNameOfPlaylist">Rediger afspilningslistens navn</string>
-  <string name="Media.SavePlaylistSuccessfulText">Afspilningsliste \'{0}\' blev gemt på serveren.</string>
-  <string name="Media.SavePlaylistFailedText">Afspilningslisten kunne ikke gemmes. Fejlmeddelse: \'{0}\'</string>
-  <string name="Media.SavePlaylistFailedAlreadyExists">Afspilningslisten kunne ikke gemmes: \'{0}\' findes allerede.</string>
+  <string name="Media.SavePlaylistSuccessfulText">Afspilningsliste '{0}' blev gemt på serveren.</string>
+  <string name="Media.SavePlaylistFailedText">Afspilningslisten kunne ikke gemmes. Fejlmeddelse: '{0}'</string>
+  <string name="Media.SavePlaylistFailedAlreadyExists">Afspilningslisten kunne ikke gemmes: '{0}' findes allerede.</string>
   <string name="Media.ChoosePlaylistsToBeRemovedText">Vælg afspilningsliste der skal fjernes.</string>
   <string name="Media.PlaylistNameInfoLabel">Afspilningslistenavn</string>
   <string name="Media.PlaylistTypeInfoLabel">Afspilningslistetype</string>

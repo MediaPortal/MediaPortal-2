@@ -1,20 +1,15 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
-  <string name="SlimTvClient.Title"></string>
   <string name="SlimTvClient.CurrentlyPlayingInformationHeader">מידע אודות התוכנית</string>
   <string name="SlimTvClient.ChannelLabel">ערוץ</string>
   <string name="SlimTvClient.ProgramLabel">תוכנית</string>
   <string name="SlimTvClient.DescriptionLabel">תיאור</string>
-  <string name="SlimTvClient.GenreLabel"></string>
   <string name="SlimTvClient.ProgramStartLabel">זמן התחלה</string>
   <string name="SlimTvClient.ProgramEndLabel">זמן סיום</string>
   <string name="SlimTvClient.EpisodeLabel">פרק</string>
   <string name="SlimTvClient.Guide">מדריך הטלויזיה</string>
   <string name="SlimTvClient.NoProgram">אין מידע</string>
-  <string name="SlimTvClient.ChooseProgramAction"></string>
   <string name="SlimTvClient.ProgramOver">התוכנית כבר הסתיימה</string>
   <string name="SlimTvClient.WatchNow">צפה בתוכנית כעת</string>
   <string name="SlimTvClient.RecordNow">הקלט כעת</string>
-  <string name="SlimTvClient.DeleteSchedule"></string>
-  <string name="SlimTvClient.CreateSchedule"></string>
 </resources>

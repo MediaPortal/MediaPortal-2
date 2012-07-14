@@ -158,9 +158,9 @@
   <string name="Media.NoPlaylistsAvailable">-Ingen spilleliste tilgjengelig-</string>
   <string name="Media.NoConfigPlaylistsHomeServerNotConnectedText">Hjemme serveren er ikke tilkoblet, så spilleliste kan ikke behandles i øyeblikket</string>
   <string name="Media.EditNameOfPlaylist">Redigere spillelistens navn</string>
-  <string name="Media.SavePlaylistSuccessfulText">Spilleliste \'{0}\' ble lagret på serveren.</string>
-  <string name="Media.SavePlaylistFailedText">Spillelisten kunne ikke lagres. Feil melding: \'{0}\'</string>
-  <string name="Media.SavePlaylistFailedAlreadyExists">Spillelisten kunne ikke lagres: Spilleliste \'{0}\' eksisterer allerede</string>
+  <string name="Media.SavePlaylistSuccessfulText">Spilleliste '{0}' ble lagret på serveren.</string>
+  <string name="Media.SavePlaylistFailedText">Spillelisten kunne ikke lagres. Feil melding: '{0}'</string>
+  <string name="Media.SavePlaylistFailedAlreadyExists">Spillelisten kunne ikke lagres: Spilleliste '{0}' eksisterer allerede</string>
   <string name="Media.ChoosePlaylistsToBeRemovedText">Velg spillelisten som skal fjernes</string>
   <string name="Media.PlaylistNameInfoLabel">Spillelistens navn</string>
   <string name="Media.PlaylistTypeInfoLabel">Type spilleliste</string>

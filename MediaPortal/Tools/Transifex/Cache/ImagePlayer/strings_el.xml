@@ -1,8 +1,4 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
-  <string name="Settings.Players.Image"></string>
-  <string name="Settings.Players.Image.SlideShowImageDuration"></string>
-  <string name="Settings.Players.Image.SlideShowImageDuration.Help"></string>
   <string name="Settings.Players.Image.KenBurnsEffect">Χρησιμοποίηση εφφέ Ken Burns</string>
-  <string name="Settings.Players.Image.KenBurnsEffect.Help"></string>
 </resources>

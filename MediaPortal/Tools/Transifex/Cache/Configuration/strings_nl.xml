@@ -5,10 +5,10 @@
   <string name="Configuration.MainSettings">Hoofdinstellingen</string>
   <!--2nd Header for root configuration section-->
   <string name="Configuration.NoSettingsInThisSection">Er zijn geen instellingen voor deze sectie</string>
-  <string name="Configuration.ErrorFloatingPointValue">\'{0}\' is geen geldig kommagetal</string>
-  <string name="Configuration.ErrorIntegerValue">\'{0}\' is geen geldig geheel getal</string>
-  <string name="Configuration.ErrorNumericLowerLimit">Gebruik een waarde tussen \'{1}\' en \'{2}\'</string>
+  <string name="Configuration.ErrorFloatingPointValue">'{0}' is geen geldig kommagetal</string>
+  <string name="Configuration.ErrorIntegerValue">'{0}' is geen geldig geheel getal</string>
+  <string name="Configuration.ErrorNumericLowerLimit">Gebruik een waarde tussen '{1}' en '{2}'</string>
   <!--0 = current value, 1 = lower limit, 2 = upper limit-->
-  <string name="Configuration.ErrorNumericUpperLimit">Gebruik een waarde tussen \'{1}\' en \'{2}\'</string>
+  <string name="Configuration.ErrorNumericUpperLimit">Gebruik een waarde tussen '{1}' en '{2}'</string>
   <!--0 = current value, 1 = lower limit, 2 = upper limit-->
 </resources>

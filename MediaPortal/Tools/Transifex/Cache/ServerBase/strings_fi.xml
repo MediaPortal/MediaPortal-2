@@ -13,6 +13,5 @@
   <string name="UPnPBackendServer.ModelDescription">MediaPortal 2-palvelin - isännöi äänitiedostoja, videoita ja kuvia, ja tarjoaa media-tietokannan</string>
   <string name="UPnPBackendServer.ModelName">MediaPortal 2 palvelin</string>
   <string name="UPnPBackendServer.ModelNumber">1</string>
-  <string name="UPnPBackendServer.ModelUrl"></string>
   <string name="MediaLibrary.EmptyOrMiscCharGroupName">&lt;Tyhjä tai sekalainen merkki&gt;</string>
 </resources>

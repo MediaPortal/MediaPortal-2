@@ -2,7 +2,6 @@
 <resources>
   <string name="Settings.Plugins.TV">TV</string>
   <string name="Settings.Plugins.TV.MPExtendedServerAddress">MPExtended szerver címek</string>
-  <string name="Settings.Plugins.TV.MPExtendedServerAddress.Help"></string>
   <string name="Settings.Plugins.TV.MPExtendedUsername">MPExtended szolgáltatás felhasználónév</string>
   <string name="Settings.Plugins.TV.MPExtendedUsername.Help">Adja meg a felhasználónevet a csatlakozáshoz. Üres név anonymus kapcsolatot fog eredményezni.</string>
   <string name="Settings.Plugins.TV.MPExtendedPassword">MPExtended szolgáltatás jelszó</string>

@@ -6,7 +6,5 @@
      default (english) language when a string isn't present in the localization resources for the user's configured
      language.-->
   <string name="MyPlugin.String1">Αγγλικ</string>
-  <string name="MyPlugin.String2"></string>
-  <string name="MyPlugin.StateDisplayLabel"></string>
   <string name="MyPlugin.MenuEntry">ΤοΠρόσθετοΜου</string>
 </resources>

@@ -29,7 +29,7 @@
   <string name="Media.InvalidShareName">Άκυρη τοποθεσία</string>
   <string name="ServerConnection.NotificationServerAvailableTitle">Διακομιστής MP2 διαθέσιμος</string>
   <string name="ServerConnection.NotificationServerAvailableText">Υπάρχει τουλάχιστο ένας διακομιστής MediaPortal 2 στο δίκτυο. </string>
-  <string name="ServerConnection.ServerFormatText">{0}\' στο σύστημα\'{1}</string>
+  <string name="ServerConnection.ServerFormatText">{0}' στο σύστημα'{1}</string>
   <!--{0} = server name, {1} = host name-->
   <string name="ServerConnection.UnknownServerName">&lt;Άγνωστο&gt;</string>
   <string name="ServerConnection.UnknownServerSystem">&lt;Άγνωστο&gt;</string>
@@ -37,14 +37,12 @@
   <string name="ServerConnection.AttachToServerWorkflowStateLabel">Σύνδεση στον διακομιστή</string>
   <string name="ServerConnection.DetachFromServerWorkflowStateLabel">Αποσύνδεση απο διακομιστή</string>
   <string name="ServerConnection.HomeServerWorkflowStateLabel">Αρχικός Διακομιστής</string>
-  <string name="ServerConnection.AttachedText.Before"></string>
   <string name="ServerConnection.AttachedText.After"/>
-  <string name="ServerConnection.NoHomeServerAttached"></string>
   <string name="ServerConnection.HomeServerIsConnected">Ο αρχικός διακομιστής είναι ενωμένος</string>
   <string name="ServerConnection.HomeServerIsNotConnected">Ο αρχικός διακομιστής δεν είναι ενωμένος</string>
   <string name="ServerConnection.DetachMenu">Αποσύνδεση</string>
   <string name="ServerConnection.DetachConfirmDialogHeader">Αποσύνδεση απο αρχικό διακομιστή</string>
-  <string name="ServerConnection.DetachConfirmDialogText">Εαν αποσυνδεθείτε απο τον αρχικό διακομιστή, όλες η πληροφορίες για τις τοπικές τοποθεσίες και αρχεία θα αφαιρεθούν απο τη βάση δεδομένων του διακομιστή. Μπορείτε να συνδεθείτε ξανά αργότερα. Σίγουρα θέλετε να αποσυνδεθείτε απο τον διακομιστή \'{0}\' που βρίσκετε στο σύστημα \'{1}\'?</string>
+  <string name="ServerConnection.DetachConfirmDialogText">Εαν αποσυνδεθείτε απο τον αρχικό διακομιστή, όλες η πληροφορίες για τις τοπικές τοποθεσίες και αρχεία θα αφαιρεθούν απο τη βάση δεδομένων του διακομιστή. Μπορείτε να συνδεθείτε ξανά αργότερα. Σίγουρα θέλετε να αποσυνδεθείτε απο τον διακομιστή '{0}' που βρίσκετε στο σύστημα '{1}'?</string>
   <string name="ServerConnection.SearchForServers">Αναζήτηση διακομιστών</string>
   <string name="ServerConnection.DetachFromServer">Αποσύνδεση απο αρχικό διακομιστή</string>
   <string name="ServerConnection.AttachToServerHeader">Σύνδεση σε διακομιστή MP2</string>
@@ -53,61 +51,29 @@
   <string name="ServerConnection.AttachToSingleText.After">είναι διαθέσιμος στο δίκτυο. Θέλετε να συνδεθείτε ;</string>
   <string name="ServerConnection.AttachToServerNoServerText">Δεν υπάρχουν διαθέσιμοι διακομιστές MediaPortal 2 στο δίκτυο αυτή τη στιγμή.</string>
   <string name="ServerConnection.AttachButton">Σύνδεση</string>
-  <string name="ServerConnection.AttachInfoDialogHeader"></string>
-  <string name="ServerConnection.AttachInfoDialogText"></string>
   <!--{0} = server name, {1} = host name-->
   <string name="Notifications.Title">Ειδοποιήσεις</string>
-  <string name="Notifications.OneMoreNotification"></string>
-  <string name="Notifications.NMoreNotifications"></string>
   <string name="Notifications.WatchNotificationsWorkflowStateLabel">Ειδοποιήσεις</string>
-  <string name="Notifications.Handle"></string>
-  <string name="ImporterMessages.ImportStartedTitle"></string>
-  <string name="ImporterMessages.ImportStartedText"></string>
-  <string name="ImporterMessages.ImportCompletedTitle"></string>
-  <string name="ImporterMessages.ImportCompletedText"></string>
-  <string name="LocalFsResourceProvider.Name"></string>
-  <string name="LocalFsResourceProvider.Description"></string>
-  <string name="RemoteResourceProvider.Name"></string>
-  <string name="RemoteResourceProvider.Description"></string>
   <string name="ScreenSaver.MediaPortal2">MediaPortal 2</string>
   <!--For MP UI player subsystem-->
-  <string name="Players.NoPlayerAvailableNotificationTitle"></string>
-  <string name="Players.NoPlayerAvailableNotificationText"></string>
-  <string name="Players.ErrorPlayingMediaItemTitle"></string>
-  <string name="Players.UnableToPlayMediaItemText"></string>
-  <string name="Players.ResourceNotFoundText"></string>
-  <string name="Players.PlayerConfiguration"></string>
-  <string name="Players.CurrentMediaInfo"></string>
   <string name="Players.FullscreenVideo">Πλήρη Οθόνη{0}</string>
   <!--for example "Fullscreen TV"-->
   <string name="Players.FullscreenImage">Εικόνα πλήρης οθόνης</string>
-  <string name="Players.AudioVisualization"></string>
-  <string name="Players.PlayerOfType"></string>
   <!--for example "Video player"-->
-  <string name="Players.SlotNo"></string>
-  <string name="Players.FocusPlayer"></string>
   <!--for example "Focus video player"-->
-  <string name="Players.SwitchPipPlayers"></string>
   <string name="Players.ChooseAudioStream">Επιλέξτε ροή ήχου</string>
-  <string name="Players.PlayerSlotAudioMenu"></string>
   <!--for example "Audio menu for Lammbock"-->
   <string name="Players.Mute">Σιγή</string>
   <string name="Players.MuteOff">Σιγή σβηστή</string>
   <string name="Players.ClosePlayerContext">Κλειστό {0}</string>
   <!--for example "Close video player"-->
-  <string name="Players.ChoosePlayerGeometry"></string>
-  <string name="Players.ChoosePlayerEffect"></string>
   <string name="Settings.Appearance">Εμφάνιση</string>
   <string name="Settings.Appearance.Skin">Δέρμα</string>
   <string name="Settings.Appearance.Skin.Formats.DateFormat">Μορφή ημερομηνίας</string>
-  <string name="Settings.Appearance.Skin.Formats.DateFormat.Help"></string>
   <string name="Settings.Appearance.Skin.Formats.TimeFormat">Μορφή ώρας</string>
-  <string name="Settings.Appearance.Skin.Formats.TimeFormat.Help"></string>
   <string name="Settings.General">Γενικά</string>
   <string name="Settings.General.System">Σύστημα</string>
   <string name="Settings.General.System.Autostart">Αυτόματη εκκίνηση</string>
-  <string name="Settings.General.System.Autostart.Help"></string>
-  <string name="Settings.General.Connectivity"></string>
   <string name="Settings.General.Connectivity.HomeServer">Αρχικός διακομιστής</string>
   <string name="Settings.General.Connectivity.HomeServer.Help">Πληροφορίες αρχικού διακομιστή, σύνδεση και αποσύνδεση απο αρχικό διακομιστή</string>
   <string name="Settings.General.Connectivity.ServerListener">Listener διακομιστή</string>
@@ -129,15 +95,13 @@
   <!--Group name-->
   <string name="Settings.Shares.Overview.SharesOverview">Επισκόπηση τοποθεσιών</string>
   <!--Setting-->
-  <string name="Settings.Shares.Overview.SharesOverview.Help"></string>
   <string name="Settings.Shares.Imports.ReImportAllShares">Επαναεισαγωγή όλων των τοποθεσιών</string>
   <string name="Settings.Plugins">Πρόσθετα</string>
   <string name="SharesOverview.OverviewWorkflowNavigationContextDisplayLabel">Επισκόπηση τοποθεσιών</string>
   <string name="SharesOverview.Title">Επισκόπηση τοποθεσιών</string>
   <string name="SharesOverview.ReImportAllShares">Επαναεισαγωγή όλων των τοποθεσιών</string>
   <string name="SharesOverview.NotConnectedToHomeServer">Ο αρχικός διακομιστής δεν είναι συνδεδεμένος, </string>
-  <string name="Shares.NoSharesInThisView"></string>
-  <string name="Shares.InvalidPath">Άκυρο μονοπάτι: \'{0}\'</string>
+  <string name="Shares.InvalidPath">Άκυρο μονοπάτι: '{0}'</string>
   <!--For example: INVALID PATH: 'C:\XXX\YYY'-->
   <string name="Shares.Online">Συνδεδεμένος</string>
   <string name="Shares.Offline">Αποσυνδεδεμένος</string>
@@ -153,53 +117,28 @@
   <string name="SharesConfig.SharesEditChoosePathWorkflowNavigationContextDisplayLabel">Επιλογή μονοπατιού</string>
   <string name="SharesConfig.SharesEditEditNameWorkflowNavigationContextDisplayLabel">Επεξεργασία ονόματος</string>
   <string name="SharesConfig.SharesEditChooseCategoriesWorkflowNavigationContextDisplayLabel">Επίλεξε κατηγορίες</string>
-  <string name="SharesConfig.CannotAddSharesTitle"></string>
-  <string name="SharesConfig.CannotAddShareLocalHomeServerNotConnected"></string>
   <string name="SharesConfig.SharesConfiguration.Title">Ρυθμίσεις τοποθεσιών</string>
-  <string name="SharesConfig.NoSharesAvailable"></string>
-  <string name="SharesConfig.ShareInformationHeader"></string>
   <string name="SharesConfig.ShareNameInfo">Όνομα:</string>
   <string name="SharesConfig.ShareResourceProviderInfo">Παροχέας βάσης:</string>
   <string name="SharesConfig.ShareSystem">Σύστημα:</string>
   <string name="SharesConfig.SharePathInfo">Μονοπάτι:</string>
-  <string name="SharesConfig.ShareResourcePathInfo"></string>
   <string name="SharesConfig.ShareMediaCategoriesInfo">Κατηγορίες μέσων:</string>
-  <string name="SharesConfig.ReImportShare"></string>
-  <string name="SharesConfig.SetupDefaultShares"></string>
   <string name="SharesConfig.RemoveShares">Αφαίρεση τοποθεσιών</string>
   <string name="SharesConfig.EditShare">Επεξεργασία τοποθεσιών</string>
   <string name="SharesConfig.ChooseSystem">Επιλογή συστήματος</string>
-  <string name="SharesConfig.ChooseSharesToBeRemoved"></string>
-  <string name="SharesConfig.ChooseSystemForShare"></string>
   <string name="SharesConfig.LocalShare">Τοπική τοποθεσία</string>
   <string name="SharesConfig.LocalShares">Τοπικές τοποθεσίες</string>
-  <string name="SharesConfig.GlobalShare"></string>
-  <string name="SharesConfig.GlobalShares"></string>
-  <string name="SharesConfig.NoConfigGlobalSharesHomeServerNotConnected"></string>
-  <string name="SharesConfig.NoConfigLocalSharesHomeServerLocal"></string>
-  <string name="SharesConfig.ChooseResourceProviderForShare"></string>
   <string name="SharesConfig.EditResourceProviderPathForShare">Επεξεργασία μονοπατιού προς τοποθεσία</string>
-  <string name="SharesConfig.ResourceProviderPathIsNotValid"></string>
   <string name="SharesConfig.ChooseResourceProviderPathForShare">Επιλέξτε το μονοπάτι για την τοποθεσία</string>
   <string name="SharesConfig.EditShareName">Επεξεργασία ονόματος τοποθεσίας</string>
-  <string name="SharesConfig.ChooseShareCategories"></string>
-  <string name="SharesConfig.SharePathExists"></string>
-  <string name="SharesConfig.ShareNameExists"></string>
-  <string name="SharesConfig.ShareNameEmpty"></string>
-  <string name="SharesConfig.EditShareProblemHeader"></string>
-  <string name="SharesConfig.EditShareProblemText"></string>
   <string name="SharesConfig.MenuAddShare">Πρόσθεση τοποθεσίας</string>
   <string name="SharesConfig.MenuEditShares">Επεξεργασία</string>
   <string name="SharesConfig.MenuRemoveShares">Αφαίρεση τοποθεσιών</string>
-  <string name="SharesConfig.AddServerShare"></string>
   <!--Must fit for both multiseat and singleseat, that's why we don't write "server share"-->
-  <string name="SharesConfig.EditServerShare"></string>
   <!--Must fit for both multiseat and singleseat, that's why we don't write "server share"-->
   <string name="SharesConfig.AddLocalShare">Πρόσθεση τοπικής τοποθεσίας</string>
   <string name="SharesConfig.EditLocalShare">Επεξεργασία τοπικής τοποθεσίας</string>
   <string name="SharesConfig.UpdateShareRelocateItemsQueryDialogHeader">Ενημέρωση τοποθεσίας</string>
-  <string name="SharesConfig.UpdateShareRelocateItemsQueryText.Info"></string>
-  <string name="SharesConfig.UpdateShareRelocateItemsQueryText.Description"></string>
   <string name="SharesConfig.UpdateShareRelocateItemsQueryText.Query">Θέλετε να μεταφέρετε ή να καθαρίσετε και να επαναεισαγάγετε;</string>
   <string name="SharesConfig.Relocate">Μεταφορά</string>
   <string name="SharesConfig.ReImport">Επαναεισαγωγή</string>

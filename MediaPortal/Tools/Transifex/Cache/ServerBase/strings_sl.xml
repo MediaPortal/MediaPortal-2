@@ -13,6 +13,5 @@
   <string name="UPnPBackendServer.ModelDescription">MediaPortal 2 strežnik - streže video in glasbene datoteke ter slike, vodi bazo podatkov za vaše vsebine</string>
   <string name="UPnPBackendServer.ModelName">MediaPortal 2 strežnik</string>
   <string name="UPnPBackendServer.ModelNumber">1</string>
-  <string name="UPnPBackendServer.ModelUrl"></string>
   <string name="MediaLibrary.EmptyOrMiscCharGroupName">&lt;Prazno ali kateri koli znak&gt;</string>
 </resources>

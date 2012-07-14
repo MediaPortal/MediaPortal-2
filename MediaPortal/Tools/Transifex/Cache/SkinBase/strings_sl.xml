@@ -183,11 +183,6 @@
   <string name="SharesConfig.ChooseResourceProviderPathForShare">Izberi pot do delitve</string>
   <string name="SharesConfig.EditShareName">Uredi ime delitve za prikaz</string>
   <string name="SharesConfig.ChooseShareCategories">Izberi kategorije virov na delitvi</string>
-  <string name="SharesConfig.SharePathExists"></string>
-  <string name="SharesConfig.ShareNameExists"></string>
-  <string name="SharesConfig.ShareNameEmpty"></string>
-  <string name="SharesConfig.EditShareProblemHeader"></string>
-  <string name="SharesConfig.EditShareProblemText"></string>
   <string name="SharesConfig.MenuAddShare">Dodaj</string>
   <string name="SharesConfig.MenuEditShares">Uredi</string>
   <string name="SharesConfig.MenuRemoveShares">Odstrani</string>

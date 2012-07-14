@@ -4,5 +4,4 @@
   <string name="Settings.Players.Image.SlideShowImageDuration">Tímalengd á milli mynda í slæðusýningu</string>
   <string name="Settings.Players.Image.SlideShowImageDuration.Help">Setjið tímalengd í sekúndum um að hve lengi hver mynd er sjáanleg í slæðusýningu</string>
   <string name="Settings.Players.Image.KenBurnsEffect">Nota Ken Burns gildi</string>
-  <string name="Settings.Players.Image.KenBurnsEffect.Help"></string>
 </resources>
