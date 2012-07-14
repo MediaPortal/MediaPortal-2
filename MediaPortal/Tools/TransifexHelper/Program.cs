@@ -12,8 +12,7 @@ namespace TransifexHelper
   {
     #region Members & Constants
 
-    static readonly Regex REPLACE1 = new Regex("(<string[^>]*>)<(.*</string>)");
-    static readonly Regex REPLACE2 = new Regex("(<string[^>]*>.*)>(</string>)");
+    static readonly Regex REPLACE_EMPTY = new Regex("^.*(<string[^>]*></string>)\r\n", RegexOptions.Multiline);
 
     private static Dictionary<string, DirectoryInfo> languageDirectories = new Dictionary<string, DirectoryInfo>();
     private static IniFile transifexIni = new IniFile();
@@ -293,15 +292,15 @@ namespace TransifexHelper
           {
             content = streamReader.ReadToEnd();
             string orig = content;
-            content = REPLACE1.Replace(content, "$1&lt;$2");
-            content = REPLACE2.Replace(content, "$1&gt;$2");
+            content = REPLACE_EMPTY.Replace(content, "");
+            content = content.Replace("\\'", "'");
             changed = (orig != content);
             streamReader.Close();
             stream.Close();
           }
           if (changed)
           {
-            using (FileStream stream = new FileStream(langFile.FullName, FileMode.OpenOrCreate, FileAccess.Write))
+            using (FileStream stream = new FileStream(langFile.FullName, FileMode.Create, FileAccess.Write))
             using (StreamWriter streamWriter = new StreamWriter(stream))
             {
               streamWriter.Write(content);
