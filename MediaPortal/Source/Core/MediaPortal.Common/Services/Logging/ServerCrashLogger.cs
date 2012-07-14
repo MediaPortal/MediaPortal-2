@@ -25,10 +25,8 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
-using MediaPortal.Common;
-using MediaPortal.Common.Services.Logging;
 
-namespace MediaPortal.Backend.Services.Logging
+namespace MediaPortal.Common.Services.Logging
 {
   /// <summary>
   /// Logs as much information about a server crash as possible.

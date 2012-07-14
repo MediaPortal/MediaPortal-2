@@ -107,7 +107,6 @@
     <Compile Include="BackendServer\Settings\BackendServerSettings.cs" />
     <Compile Include="Services\Database\DatabaseManager.cs" />
     <Compile Include="Services\Database\MediaPortal_Basis_SubSchema.cs" />
-    <Compile Include="Services\Logging\ServerCrashLogger.cs" />
     <Compile Include="Services\MediaLibrary\MediaLibrary.cs" />
     <Compile Include="Services\MediaLibrary\MediaLibrary_SubSchema.cs" />
     <Compile Include="Services\MediaLibrary\MIA_Management.cs" />

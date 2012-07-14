@@ -23,6 +23,10 @@
 #endregion
 
 using System;
+#if !DEBUG
+using System.IO;
+using MediaPortal.Common.PathManager;
+#endif
 using System.Threading;
 using System.Windows;
 using System.Windows.Threading;
@@ -31,6 +35,7 @@ using MediaPortal.Common;
 using MediaPortal.Common.Logging;
 using MediaPortal.Common.Runtime;
 using MediaPortal.Common.Services.Logging;
+using MediaPortal.Common.Exceptions;
 using MediaPortal.Common.Services.Runtime;
 using MediaPortal.ServiceMonitor.UPNP;
 using MediaPortal.ServiceMonitor.ViewModel;
@@ -40,7 +45,7 @@ namespace MediaPortal.ServiceMonitor
   /// <summary>
   /// Interaction logic for App.xaml
   /// </summary>
-  public partial class App : Application
+  public partial class App
   {
 
     #region OnStartUp
@@ -60,7 +65,7 @@ namespace MediaPortal.ServiceMonitor
 
       //make sure we're properly handling exceptions
       DispatcherUnhandledException += OnUnhandledException;
-      AppDomain.CurrentDomain.UnhandledException += OnCurrentDomainUnhandledException;
+      AppDomain.CurrentDomain.UnhandledException += LauncherExceptionHandling.CurrentDomain_UnhandledException;
 
       var systemStateService = new SystemStateService();
       ServiceRegistration.Set<ISystemStateService>(systemStateService);
@@ -69,6 +74,7 @@ namespace MediaPortal.ServiceMonitor
 #if !DEBUG
       string logPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData), @"Team MediaPortal\MP2-ServiveMonitor\Log");
 #endif
+
       try
       {
         ILogger logger = null;
@@ -174,19 +180,6 @@ namespace MediaPortal.ServiceMonitor
       if (ServiceRegistration.IsRegistered<ILogger>())
       {
         ServiceRegistration.Get<ILogger>().Critical("An Unhandled Exception occured", e.Exception);
-      }
-    }
-
-    /// <summary>
-    /// Gets any unhandled exceptions.
-    /// </summary>
-    private static void OnCurrentDomainUnhandledException(object sender, UnhandledExceptionEventArgs e)
-    {
-      MessageBox.Show(((Exception) e.ExceptionObject).ToString(), "Unhandled UI Exception");
-      // here you can log the exception ...
-      if (ServiceRegistration.IsRegistered<ILogger>())
-      {
-        ServiceRegistration.Get<ILogger>().Critical("An Unhandled Cuurent Domain Exception occured", (Exception)e.ExceptionObject);
       }
     }
 

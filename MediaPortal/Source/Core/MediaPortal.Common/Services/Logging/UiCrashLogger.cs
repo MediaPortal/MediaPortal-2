@@ -28,10 +28,8 @@ using System.Diagnostics;
 using System.IO;
 using System.Text;
 using System.Windows.Forms;
-using MediaPortal.Common;
-using MediaPortal.Common.Services.Logging;
 
-namespace MediaPortal.UI.Services.Logging
+namespace MediaPortal.Common.Services.Logging
 {
   /// <summary>
   /// Logs as much information about an UI crash as possible.

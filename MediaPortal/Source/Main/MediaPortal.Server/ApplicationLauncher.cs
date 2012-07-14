@@ -26,14 +26,13 @@ using System;
 using System.Threading;
 using System.Windows.Forms;
 using MediaPortal.Backend;
+using MediaPortal.Common.Exceptions;
 using MediaPortal.Common.ResourceAccess;
 using MediaPortal.Common.PluginManager;
-#if DEBUG
 using MediaPortal.Common.Services.Logging;
-#else
-using MediaPortal.Common.PathManager;
-using MediaPortal.Backend.Services.Logging;
+#if !DEBUG
 using System.IO;
+using MediaPortal.Common.PathManager;
 #endif
 using MediaPortal.Common.Services.Runtime;
 using CommandLine;
@@ -64,9 +63,8 @@ namespace MediaPortal.Server
       string logPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData), @"Team MediaPortal\MP2-Server\Log");
 #endif
 
-      Application.ThreadException += Application_ThreadException;
-      AppDomain.CurrentDomain.UnhandledException += CurrentDomain_UnhandledException;
-
+      Application.ThreadException += LauncherExceptionHandling.Application_ThreadException;
+      AppDomain.CurrentDomain.UnhandledException += LauncherExceptionHandling.CurrentDomain_UnhandledException;
 
       SystemStateService systemStateService = new SystemStateService();
       ServiceRegistration.Set<ISystemStateService>(systemStateService);
@@ -158,18 +156,6 @@ namespace MediaPortal.Server
         systemStateService.SwitchSystemState(SystemState.Ending, false);
         Application.Exit();
       }
-    }
-
-    static void Application_ThreadException(object sender, ThreadExceptionEventArgs e)
-    {
-      MessageBox.Show(e.Exception.ToString(), "Unhandled Thread Exception");
-      // here you can log the exception ...
-    }
-
-    static void CurrentDomain_UnhandledException(object sender, UnhandledExceptionEventArgs e)
-    {
-      MessageBox.Show((e.ExceptionObject as Exception).ToString(), "Unhandled UI Exception");
-      // here you can log the exception ...
     }
   }
 }

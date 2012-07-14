@@ -25,16 +25,15 @@
 using System;
 using System.Threading;
 using System.Windows.Forms;
+using MediaPortal.Common.Exceptions;
 using MediaPortal.Common.ResourceAccess;
 using MediaPortal.Common.PluginManager;
 using MediaPortal.Common.Runtime;
 using MediaPortal.UI;
 using MediaPortal.UI.Presentation;
 using MediaPortal.UI.Presentation.Workflow;
-#if DEBUG
 using MediaPortal.Common.Services.Logging;
-#else
-using MediaPortal.UI.Services.Logging;
+#if !DEBUG
 using System.Drawing;
 using System.IO;
 using MediaPortal.Utilities.Screens;
@@ -87,6 +86,9 @@ namespace MediaPortal.Client
 #if !DEBUG
       string logPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData), @"Team MediaPortal\MP2-Client\Log");
 #endif
+
+      Application.ThreadException += LauncherExceptionHandling.Application_ThreadException;
+      AppDomain.CurrentDomain.UnhandledException += LauncherExceptionHandling.CurrentDomain_UnhandledException;
 
       SystemStateService systemStateService = new SystemStateService();
       ServiceRegistration.Set<ISystemStateService>(systemStateService);
