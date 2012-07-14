@@ -112,7 +112,7 @@ namespace MediaPortal.Database.SQLCE
       {
         ServiceRegistration.Get<ILogger>().Warn("Upgrading existing SQL CE database format to v4.0...");
         engine.Upgrade();
-        ServiceRegistration.Get<ILogger>().Warn("Upgrading successful!");
+        ServiceRegistration.Get<ILogger>().Warn("Upgrade successful!");
       }
     }
 
