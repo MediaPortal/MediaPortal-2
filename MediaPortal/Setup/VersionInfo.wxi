@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Include>
+
+  <!--
+  This file provides common information about company and version number for WiX (Windows Installer Toolkit) projects. It should be referenced
+  in any MP2 wix related project (as link).
+  -->
+  <?define Manufacturer = "Team MediaPortal" ?>
+  <?define Version = "2.0.0.0" ?>
+
+</Include>

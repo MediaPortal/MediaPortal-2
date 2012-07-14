@@ -3,13 +3,14 @@
 <Wix xmlns="http://schemas.microsoft.com/wix/2006/wi"
      xmlns:util="http://schemas.microsoft.com/wix/UtilExtension">
 
+  <?include $(var.SolutionDir)\VersionInfo.wxi?>
   <!-- This should NEVER be changed ! -->
   <?define UpgradeCode = "9743129C-FED3-404A-A66E-3C1557BE0178" ?>
 
   <Product Id="*"
            Name="MediaPortal 2"
-           Version="2.0.0.0"
-           Manufacturer="Team MediaPortal"
+           Version="$(var.Version)"
+           Manufacturer="$(var.Manufacturer)"
            Language="!(loc.ProductLanguage)"
            Codepage="0"
            UpgradeCode="$(var.UpgradeCode)">
