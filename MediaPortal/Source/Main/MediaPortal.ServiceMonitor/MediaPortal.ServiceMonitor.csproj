@@ -10,7 +10,7 @@
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>MediaPortal.ServiceMonitor</RootNamespace>
     <AssemblyName>MP2-ServiceMonitor</AssemblyName>
-    <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <TargetFrameworkProfile>
     </TargetFrameworkProfile>
     <FileAlignment>512</FileAlignment>
@@ -61,6 +61,7 @@
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Data" />
+    <Reference Include="System.Xaml" />
     <Reference Include="System.Xml" />
     <Reference Include="System.Core" />
     <Reference Include="System.Xml.Linq" />
@@ -84,14 +85,9 @@
     <Compile Include="Model\ClientData.cs" />
     <Compile Include="Model\ServerStatus.cs" />
     <Compile Include="UPNP\IServerConnectionManager.cs" />
-    <Compile Include="UPNP\IServerController.cs" />
     <Compile Include="UPNP\ServerConnectionManager.cs" />
     <Compile Include="UPNP\ServerConnectionMessaging.cs" />
-    <Compile Include="UPNP\ServerDescriptor.cs" />
     <Compile Include="UPNP\Settings\ServerConnectionSettings.cs" />
-    <Compile Include="UPNP\UPnPServerControllerServiceProxy.cs" />
-    <Compile Include="UPNP\UPnPServerWatcher.cs" />
-    <Compile Include="UPNP\UPnPServiceMonitorControlPoint.cs" />
     <Compile Include="ViewModel\IAppController.cs" />
     <Compile Include="View\AboutDialog.xaml.cs">
       <DependentUpon>AboutDialog.xaml</DependentUpon>

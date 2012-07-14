@@ -23,15 +23,15 @@
 #endregion
 
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using MediaPortal.Common;
 using MediaPortal.Common.General;
 using MediaPortal.Common.Logging;
-using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.ResourceAccess;
+using MediaPortal.Common.Services.ServerCommunication;
 using MediaPortal.Common.Settings;
+using MediaPortal.Common.SystemCommunication;
 using MediaPortal.Common.SystemResolver;
 using MediaPortal.Common.Threading;
 using MediaPortal.ServiceMonitor.UPNP.Settings;
@@ -42,35 +42,30 @@ namespace MediaPortal.ServiceMonitor.UPNP
   public class ServerConnectionManager : IServerConnectionManager
   {
     protected UPnPServerWatcher _serverWatcher = null;
-    protected UPnPServiceMonitorControlPoint _controlPoint = null;
+    protected UPnPClientControlPoint _controlPoint = null;
     protected bool _isHomeServerConnected = false;
+    protected ICollection<Guid> _currentlyImportingSharesProxy = new List<Guid>();
     protected object _syncObj = new object();
 
     public ServerConnectionManager()
     {
-      
       string homeServerSystemId = HomeServerSystemId;
       if (string.IsNullOrEmpty(homeServerSystemId))
         // Watch for all MP 2 media servers, if we don't have a homeserver yet
         _serverWatcher = BuildServerWatcher();
       else
         // If we have a homeserver set, we'll try to connect to it
-        _controlPoint = BuildServiceMonitorControlPoint(homeServerSystemId);
+        _controlPoint = BuildClientControlPoint(homeServerSystemId);
     }
 
     static void OnAvailableBackendServersChanged(ICollection<ServerDescriptor> allAvailableServers, bool serversWereAdded)
     {
       ServerConnectionMessaging.SendAvailableServersChangedMessage(allAvailableServers, serversWereAdded);
-
-      if (allAvailableServers.Count < 1) return;
-      var scm = ServiceRegistration.Get<IServerConnectionManager>();
-      var availableServersUUID = allAvailableServers.Select(sd => sd.MPBackendServerUUID).ToList();
-      scm.SetNewHomeServer(availableServersUUID[0]);
     }
 
     void OnBackendServerConnected(DeviceConnection connection)
     {
-      ServerDescriptor serverDescriptor = UPnPServerWatcher.GetMPBackendServerDescriptor(connection.RootDescriptor);
+      ServerDescriptor serverDescriptor = ServerDescriptor.GetMPBackendServerDescriptor(connection.RootDescriptor);
       if (serverDescriptor == null)
       {
         ServiceRegistration.Get<ILogger>().Warn("ServerConnectionManager: Could not connect to home server - Unable to verify UPnP root descriptor");
@@ -84,7 +79,7 @@ namespace MediaPortal.ServiceMonitor.UPNP
         SaveLastHomeServerData(serverDescriptor);
       }
 
-      ServerConnectionMessaging.SendConnectionStateChangedMessage(ServerConnectionMessaging.MessageType.HomeServerConnected);
+      ServerConnectionMessaging.SendServerConnectionStateChangedMessage(ServerConnectionMessaging.MessageType.HomeServerConnected);
       ServiceRegistration.Get<IThreadPool>().Add(CompleteServerConnection);
     }
 
@@ -92,7 +87,29 @@ namespace MediaPortal.ServiceMonitor.UPNP
     {
       lock (_syncObj)
         _isHomeServerConnected = false;
-      ServerConnectionMessaging.SendConnectionStateChangedMessage(ServerConnectionMessaging.MessageType.HomeServerDisconnected);
+      ServerConnectionMessaging.SendServerConnectionStateChangedMessage(ServerConnectionMessaging.MessageType.HomeServerDisconnected);
+    }
+
+    protected internal UPnPContentDirectoryServiceProxy ContentDirectoryServiceProxy
+    {
+      get
+      {
+        UPnPClientControlPoint cp;
+        lock (_syncObj)
+          cp = _controlPoint;
+        return cp == null ? null : cp.ContentDirectoryService;
+      }
+    }
+
+    protected internal UPnPServerControllerServiceProxy ServerControllerServiceProxy
+    {
+      get
+      {
+        UPnPClientControlPoint cp;
+        lock (_syncObj)
+          cp = _controlPoint;
+        return cp == null ? null : cp.ServerControllerService;
+      }
     }
 
     /// <summary>
@@ -116,9 +133,9 @@ namespace MediaPortal.ServiceMonitor.UPNP
       return result;
     }
 
-    protected UPnPServiceMonitorControlPoint BuildServiceMonitorControlPoint(string homeServerSystemId)
+    protected UPnPClientControlPoint BuildClientControlPoint(string homeServerSystemId)
     {
-      UPnPServiceMonitorControlPoint result = new UPnPServiceMonitorControlPoint(homeServerSystemId);
+      UPnPClientControlPoint result = new UPnPClientControlPoint(homeServerSystemId);
       result.BackendServerConnected += OnBackendServerConnected;
       result.BackendServerDisconnected += OnBackendServerDisconnected;
       return result;
@@ -129,23 +146,37 @@ namespace MediaPortal.ServiceMonitor.UPNP
     /// </summary>
     protected void CompleteServerConnection()
     {
-      var sc = ServerController;
-      var systemResolver = ServiceRegistration.Get<ISystemResolver>();
+      UPnPServerControllerServiceProxy sc = ServerControllerServiceProxy;
+      ISystemResolver systemResolver = ServiceRegistration.Get<ISystemResolver>();
       if (sc != null)
+      {
         try
         {
           // Check if we're attached to the server. If the server lost its state, it might have forgotten us.
-          if (!sc.IsClientAttached(systemResolver.LocalSystemId))
+          if (!sc.GetAttachedClients().Select(clientMetadata => clientMetadata.SystemId).Contains(systemResolver.LocalSystemId))
             sc.AttachClient(systemResolver.LocalSystemId);
         }
         catch (Exception e)
         {
-          ServiceRegistration.Get<ILogger>().Warn("ServerConnectionManager: Error attaching to home server '{0}'", e,
-                                                  HomeServerSystemId);
+          ServiceRegistration.Get<ILogger>().Warn("ServerConnectionManager: Error checking attachment state at home server '{0}'", e, HomeServerSystemId);
           return; // This is a real error case, we don't need to try any other service calls
         }
+
+        // Register state variables change events
+        sc.AttachedClientsChanged += OnAttachedClientsChanged;
+        sc.ConnectedClientsChanged += OnConnectedClientsChanged;
+      }
     }
 
+    static void OnAttachedClientsChanged()
+    {
+      // Not implemented because this event isn't really interesting for the MP2 client yet
+    }
+
+    static void OnConnectedClientsChanged()
+    {
+      ServerConnectionMessaging.SendClientConnectionStateChangedMessage();
+    }
 
     #region IServerCommunicationManager implementation
 
@@ -196,11 +227,16 @@ namespace MediaPortal.ServiceMonitor.UPNP
       }
     }
 
+    public IContentDirectory ContentDirectory
+    {
+      get { return ContentDirectoryServiceProxy; }
+    }
+
     public IResourceInformationService ResourceInformationService
     {
       get
       {
-        UPnPServiceMonitorControlPoint cp;
+        UPnPClientControlPoint cp;
         lock (_syncObj)
           cp = _controlPoint;
         return cp == null ? null : cp.ResourceInformationService;
@@ -211,17 +247,22 @@ namespace MediaPortal.ServiceMonitor.UPNP
     {
       get
       {
-        UPnPServiceMonitorControlPoint cp;
+        UPnPClientControlPoint cp;
         lock (_syncObj)
           cp = _controlPoint;
         return cp == null ? null : cp.ServerControllerService;
       }
     }
 
+    public UPnPClientControlPoint ControlPoint
+    {
+      get { return _controlPoint; }
+    }
+
     public void Startup()
     {
       UPnPServerWatcher watcher;
-      UPnPServiceMonitorControlPoint cp;
+      UPnPClientControlPoint cp;
       lock (_syncObj)
       {
         watcher = _serverWatcher;
@@ -236,7 +277,7 @@ namespace MediaPortal.ServiceMonitor.UPNP
     public void Shutdown()
     {
       UPnPServerWatcher watcher;
-      UPnPServiceMonitorControlPoint cp;
+      UPnPClientControlPoint cp;
       lock (_syncObj)
       {
         watcher = _serverWatcher;
@@ -254,18 +295,12 @@ namespace MediaPortal.ServiceMonitor.UPNP
       ServerConnectionSettings settings = settingsManager.Load<ServerConnectionSettings>();
       ServiceRegistration.Get<ILogger>().Info("ServerConnectionManager: Detaching from home server '{0}'", settings.HomeServerSystemId);
 
-      ServiceRegistration.Get<ILogger>().Debug("ServerConnectionManager: Clearing pending import jobs and suspending importer worker");
-      IImporterWorker importerWorker = ServiceRegistration.Get<IImporterWorker>();
-      importerWorker.Suspend();
-      importerWorker.CancelPendingJobs();
-
-      ServiceRegistration.Get<ILogger>().Debug("ServerConnectionManager: Notifying the MediaPortal server about the detachment");
-      IServerController sc = ServerController;
-      ISystemResolver systemResolver = ServiceRegistration.Get<ISystemResolver>();
+      UPnPServerControllerServiceProxy sc = ServerControllerServiceProxy;
       if (sc != null)
         try
         {
-          sc.DetachClient(systemResolver.LocalSystemId);
+          sc.AttachedClientsChanged -= OnAttachedClientsChanged;
+          sc.ConnectedClientsChanged -= OnConnectedClientsChanged;
         }
         catch (Exception e)
         {
@@ -273,7 +308,7 @@ namespace MediaPortal.ServiceMonitor.UPNP
         }
 
       ServiceRegistration.Get<ILogger>().Debug("ServerConnectionManager: Closing server connection");
-      UPnPServiceMonitorControlPoint cp;
+      UPnPClientControlPoint cp;
       lock (_syncObj)
         cp = _controlPoint;
       if (cp != null)
@@ -286,7 +321,7 @@ namespace MediaPortal.ServiceMonitor.UPNP
         settingsManager.Save(settings);
         _controlPoint = null;
       }
-      ServerConnectionMessaging.SendConnectionStateChangedMessage(ServerConnectionMessaging.MessageType.HomeServerDetached);
+      ServerConnectionMessaging.SendServerConnectionStateChangedMessage(ServerConnectionMessaging.MessageType.HomeServerDetached);
 
       ServiceRegistration.Get<ILogger>().Debug("ServerConnectionManager: Starting to watch for MediaPortal servers");
       if (_serverWatcher == null)
@@ -310,7 +345,7 @@ namespace MediaPortal.ServiceMonitor.UPNP
         }
 
       ServiceRegistration.Get<ILogger>().Debug("ServerConnectionManager: Building UPnP control point for communication with the new home server");
-      UPnPServiceMonitorControlPoint cp;
+      UPnPClientControlPoint cp;
       lock (_syncObj)
         cp = _controlPoint;
       if (cp != null)
@@ -323,10 +358,10 @@ namespace MediaPortal.ServiceMonitor.UPNP
         // until method SetNewHomeServer is called again.
         settings.HomeServerSystemId = backendServerSystemId;
         settingsManager.Save(settings);
-        _controlPoint = BuildServiceMonitorControlPoint(backendServerSystemId);
+        _controlPoint = BuildClientControlPoint(backendServerSystemId);
       }
       _controlPoint.Start(); // Outside the lock
-      ServerConnectionMessaging.SendConnectionStateChangedMessage(ServerConnectionMessaging.MessageType.HomeServerAttached);
+      ServerConnectionMessaging.SendServerConnectionStateChangedMessage(ServerConnectionMessaging.MessageType.HomeServerAttached);
     }
 
     #endregion

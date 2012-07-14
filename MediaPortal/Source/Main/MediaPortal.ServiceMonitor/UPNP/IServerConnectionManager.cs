@@ -25,6 +25,8 @@
 using System.Collections.Generic;
 using MediaPortal.Common.General;
 using MediaPortal.Common.ResourceAccess;
+using MediaPortal.Common.SystemCommunication;
+using MediaPortal.Common.Services.ServerCommunication;
 
 namespace MediaPortal.ServiceMonitor.UPNP
 {
@@ -64,6 +66,12 @@ namespace MediaPortal.ServiceMonitor.UPNP
     SystemName LastHomeServerSystem { get; }
 
     /// <summary>
+    /// Gets a proxy object to communicate with the MediaPortal server's content directory service.
+    /// If the home server is not connected, this value is <c>null</c>.
+    /// </summary>
+    IContentDirectory ContentDirectory { get; }
+
+    /// <summary>
     /// Gets a proxy object to communicate with the MediaPortal server's resource information service.
     /// If the home server is not connected, this value is <c>null</c>.
     /// </summary>
@@ -74,6 +82,11 @@ namespace MediaPortal.ServiceMonitor.UPNP
     /// If the home server is not connected, this value is <c>null</c>.
     /// </summary>
     IServerController ServerController { get; }
+
+    /// <summary>
+    /// Exposes the current UPnPClientControlPoint.
+    /// </summary>
+    UPnPClientControlPoint ControlPoint { get; }
 
     /// <summary>
     /// Starts the UPnP subsystem and tries to connect to the home server, if set.
