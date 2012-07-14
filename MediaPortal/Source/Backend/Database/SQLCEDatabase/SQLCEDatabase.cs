@@ -77,14 +77,14 @@ namespace MediaPortal.Database.SQLCE
 
         _connectionString = "Data Source='" + databaseFile + "'; Default Lock Timeout=" + LOCK_TIMEOUT + "; Max Buffer Size = " + MAX_BUFFER_SIZE + "; Max Database Size = " + databaseSize;
         SqlCeEngine engine = new SqlCeEngine(_connectionString);
-        if (!File.Exists(databaseFile))
+        if (File.Exists(databaseFile))
+          CheckUpgrade(engine);
+        else
         {
           Directory.CreateDirectory(dataDirectory);
           engine.CreateDatabase();
           engine.Dispose();
         }
-        else
-          CheckUpgrade(engine);
       }
       catch (Exception e)
       {
@@ -94,11 +94,11 @@ namespace MediaPortal.Database.SQLCE
     }
 
     /// <summary>
-    /// Tries to establish a connection to existing database. If this fails with <see cref="SqlCeInvalidDatabaseFormatException"/> we try
+    /// Tries to establish a connection to the given database. If this fails with a <see cref="SqlCeInvalidDatabaseFormatException"/>, we try
     /// to update the database to current engine version.
     /// </summary>
-    /// <param name="engine">Current SqlCeEngine</param>
-    private void CheckUpgrade(SqlCeEngine engine)
+    /// <param name="engine">Database engine instance to upgrade.</param>
+    protected void CheckUpgrade(SqlCeEngine engine)
     {
       try
       {
