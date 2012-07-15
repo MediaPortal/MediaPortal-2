@@ -49,5 +49,32 @@ namespace MediaPortal.ServiceMonitor.ViewModel
     /// <param name="forceShutdown">Whether the application
     /// should perform a shutdown anyway.</param>
     void CloseMainApplication(bool forceShutdown);
+
+
+    /// <summary>
+    /// Check if the MP-II Server Service is installed
+    /// </summary>
+    /// <returns></returns>
+    bool IsServerServiceInstalled();
+
+    /// <summary>
+    /// Verify if the MP-II Server Service is Started
+    /// </summary>
+    /// <returns></returns>
+    bool IsServerServiceRunning();
+
+    /// <summary>
+    /// Start the MP-II Server Service
+    /// </summary>
+    /// <returns></returns>
+    bool StartServerService();
+
+    /// <summary>
+    /// Stop the MP-II Server Service
+    /// </summary>
+    /// <returns></returns>
+    bool StopServerService();
+
+
   }
 }

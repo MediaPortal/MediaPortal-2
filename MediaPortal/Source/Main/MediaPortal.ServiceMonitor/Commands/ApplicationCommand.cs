@@ -60,10 +60,10 @@ namespace MediaPortal.ServiceMonitor.Commands
           controller.MinimizeToTray();
           break;
         case "StartService":
-          // Not implemented
+          controller.StartServerService();
           break;
         case "StopService":
-          // Not implemented
+          controller.StopServerService();
           break;
         default:
           var msg = String.Format("ApplicationCommand fired with missing or invalid parameter: {0}", parameter);
@@ -74,40 +74,45 @@ namespace MediaPortal.ServiceMonitor.Commands
     public override bool CanExecute(object parameter)
     {
       Visibility visibility;
+      IAppController controller = null;
+      if (ServiceRegistration.IsRegistered<IAppController>())
+        controller = ServiceRegistration.Get<IAppController>();
+      
       if (Application.Current.MainWindow != null)
       {
         visibility = Application.Current.MainWindow.Visibility;
       }
-      else if (ServiceRegistration.IsRegistered<IAppController>())
+      else if (controller != null)
       {
-        var controller = ServiceRegistration.Get<IAppController>();
+        controller = ServiceRegistration.Get<IAppController>();
         if (controller.TaskbarIcon != null)
         {
           visibility = controller.TaskbarIcon.Visibility == Visibility.Visible ? Visibility.Collapsed : Visibility.Visible;
         }
         else return true;
       }
-        else return true;
+      else return true;
       
+     
       switch ((string)parameter)
       {
         case "Open": // Open Main Window
           return visibility != Visibility.Visible;
 
-        case "Quit": // Quit Main Application
-          return true;
-
         case "Close": // Close Main Window
           return visibility == Visibility.Visible;
+
+        case "Quit": // Quit Main Application
+          return true;
 
         case "Minimize": // Minimize to Tray
           return visibility == Visibility.Visible;
 
         case "StartService": // Start the MP2-Server as Service
-          return false;
+          return (controller != null) && (controller.IsServerServiceInstalled()) && (!controller.IsServerServiceRunning());
 
         case "StopService": // Stop the MP2-Server Service
-          return false;
+          return (controller != null) && (controller.IsServerServiceInstalled()) && (controller.IsServerServiceRunning());
 
         default:
           var msg = String.Format("ApplicationCommand fired with missing or invalid parameter: {0}", parameter);

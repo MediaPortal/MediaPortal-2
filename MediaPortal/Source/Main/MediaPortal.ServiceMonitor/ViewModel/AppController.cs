@@ -24,8 +24,8 @@
 
 using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.Linq;
 using System.Windows;
 using Hardcodet.Wpf.TaskbarNotification;
 using MediaPortal.Common;
@@ -34,7 +34,7 @@ using MediaPortal.Common.Messaging;
 using MediaPortal.ServiceMonitor.Model;
 using MediaPortal.ServiceMonitor.UPNP;
 using MediaPortal.ServiceMonitor.View;
-using MediaPortal.Utilities.Collections;
+using System.ServiceProcess;
 
 namespace MediaPortal.ServiceMonitor.ViewModel
 {
@@ -42,14 +42,19 @@ namespace MediaPortal.ServiceMonitor.ViewModel
   /// Main controller of the application.
   /// </summary>
   public class AppController : IDisposable, INotifyPropertyChanged, IAppController, IMessageReceiver
-
   {
+    #region const variables
+    private const string MP2_SERVER_SERVICE_NAME = "MP-II Server Service";
+
+    #endregion
+
     #region TaskbarIcon
 
     /// <summary>
     /// Provides access to the system tray area.
     /// </summary>
     private TaskbarIcon _taskbarIcon;
+
     public TaskbarIcon TaskbarIcon
     {
       get { return _taskbarIcon; }
@@ -69,34 +74,39 @@ namespace MediaPortal.ServiceMonitor.ViewModel
     #endregion
 
     #region Attached Clients
+
     public AsyncObservableCollection<ClientData> Clients { get; set; }
 
 
     #endregion
 
-    #region ServerStatus
+    #region ServerStatus / ServerConnectionStatus
 
     private ServerStatus _status;
+
     public ServerStatus Status
     {
       get { return _status; }
       set { SetProperty(ref _status, value, "Status"); }
     }
 
+    public ServerConnectionMessaging.MessageType ServerConnectionType;
+
     #endregion
 
-
+    #region ctor
     public AppController()
     {
       Clients = new AsyncObservableCollection<ClientData>();
-      
+      ServerConnectionType = ServerConnectionMessaging.MessageType.HomeServerDisconnected;
+
       // Init ServerConnection Messaging
       ServiceRegistration.Get<IMessageBroker>().RegisterMessageReceiver(ServerConnectionMessaging.CHANNEL, this);
       // Set Init ServerStatus
-      Status = new ServerStatus{Message = "Not Connected to Server"};
+      UpdateServerStatus();
     }
 
-
+    #endregion
 
     #region Show Main Window
 
@@ -142,7 +152,7 @@ namespace MediaPortal.ServiceMonitor.ViewModel
     protected void OnMainWindowClosing(object sender, CancelEventArgs e)
     {
       //deregister event listener, if required
-      ((Window)sender).Closing -= OnMainWindowClosing;
+      ((Window) sender).Closing -= OnMainWindowClosing;
 
       //reset main window in order to prevent further code
       //to close it again while it is being closed
@@ -204,18 +214,115 @@ namespace MediaPortal.ServiceMonitor.ViewModel
     #endregion
 
     #region Init SystemTray
+
     /// <summary>
     /// Inits the component that displays status information in the
     /// system tray.
     /// </summary>
     public TaskbarIcon InitSystemTray()
     {
-      var taskbarIcon = (TaskbarIcon)Application.Current.FindResource("TrayIcon");
+      var taskbarIcon = (TaskbarIcon) Application.Current.FindResource("TrayIcon");
       if (taskbarIcon != null)
         taskbarIcon.DataContext = this;
       return taskbarIcon;
-      
+
     }
+
+    #endregion
+
+    #region Windows Service Functions
+
+    public bool IsServerServiceInstalled()
+    {
+      var services = ServiceController.GetServices();
+      return services.Any(service => String.Compare(service.ServiceName, MP2_SERVER_SERVICE_NAME, System.StringComparison.OrdinalIgnoreCase) == 0);
+    }
+
+    public bool IsServerServiceRunning()
+    {
+      try
+      {
+        using (var serviceController = new ServiceController(MP2_SERVER_SERVICE_NAME))
+        {
+          return serviceController.Status == ServiceControllerStatus.Running;
+        }
+      }
+      catch (Exception ex)
+      {
+        ServiceRegistration.Get<ILogger>().Error(
+          "Check whether the MP-II Server Service is running failed. Please check your installation.", ex);
+        return false;
+      }
+    }
+
+
+    public bool StartServerService()
+    {
+      try
+      {
+        using (var serviceController = new ServiceController(MP2_SERVER_SERVICE_NAME))
+        {
+          switch (serviceController.Status)
+          {
+            case ServiceControllerStatus.Stopped:
+              serviceController.Start();
+              break;
+            case ServiceControllerStatus.StartPending:
+              break;
+            case ServiceControllerStatus.Running:
+              return true;
+            default:
+              return false;
+          }
+          serviceController.WaitForStatus(ServiceControllerStatus.Running, TimeSpan.FromSeconds(60));
+          if (serviceController.Status == ServiceControllerStatus.Running)
+          {
+            Status = new ServerStatus {Message = "Not connected to Server"};
+            return true;
+          }
+        }
+      }
+      catch (Exception ex)
+      {
+        ServiceRegistration.Get<ILogger>().Error("Starting MP-II Server Service failed.", ex);
+        
+      }
+      Status = new ServerStatus { Message = "Service is NOT started"};
+      return false;
+    }
+
+
+    public bool StopServerService()
+    {
+      try
+      {
+        using (var serviceController = new ServiceController(MP2_SERVER_SERVICE_NAME))
+        {
+          switch (serviceController.Status)
+          {
+            case ServiceControllerStatus.Running:
+              serviceController.Stop();
+              break;
+            case ServiceControllerStatus.StopPending:
+              break;
+            case ServiceControllerStatus.Stopped:
+              return true;
+            default:
+              return false;
+          }
+          serviceController.WaitForStatus(ServiceControllerStatus.Stopped, TimeSpan.FromSeconds(60));
+          return serviceController.Status == ServiceControllerStatus.Stopped;
+        }
+      }
+      catch (Exception ex)
+      {
+        ServiceRegistration.Get<ILogger>().Error("Stopping MP-II Server Service failed.", ex);
+        return false;
+      }
+    }
+
+
+
 
     #endregion
 
@@ -258,31 +365,57 @@ namespace MediaPortal.ServiceMonitor.ViewModel
 
     public void Receive(SystemMessage message)
     {
-      var type = (ServerConnectionMessaging.MessageType)message.MessageType;
-      switch (type)
+      var connectionType = (ServerConnectionMessaging.MessageType)message.MessageType;
+      switch (connectionType)
       {
+        case ServerConnectionMessaging.MessageType.ClientsOnlineStateChanged:
+          UpdateClients();
+          break;
         case ServerConnectionMessaging.MessageType.AvailableServersChanged:
           //var serverAdded = (bool)message.MessageData[ServerConnectionMessaging.SERVERS_WERE_ADDED];
           //var availableServers = (ICollection<ServerDescriptor>)message.MessageData[ServerConnectionMessaging.AVAILABLE_SERVERS];
           break;
         case ServerConnectionMessaging.MessageType.HomeServerAttached:
-          Status = new ServerStatus { Message = "Attached to Server" };
-          break;
         case ServerConnectionMessaging.MessageType.HomeServerConnected:
-          Status = new ServerStatus { Message = "Connected to Server" };
-          UpdateClients();
-          break;
         case ServerConnectionMessaging.MessageType.HomeServerDetached:
-          Status = new ServerStatus { Message = "Detached from Server" };
-          break;
         case ServerConnectionMessaging.MessageType.HomeServerDisconnected:
-          Status = new ServerStatus { Message = "Disconnected from Server" };
+          ServerConnectionType = connectionType;
+          UpdateServerStatus();
           break;
       }
     }
 
     #endregion
 
+    #region Update visible Clients / Server Info
+    public void UpdateServerStatus()
+    {
+      if (!IsServerServiceInstalled())
+        Status = new ServerStatus { Message = "Service is NOT installed" };
+      else
+      {
+        if (!IsServerServiceRunning())
+          Status = new ServerStatus {Message = "Service is NOT started"};
+        else
+        {
+          switch (ServerConnectionType)
+          {
+            case ServerConnectionMessaging.MessageType.HomeServerAttached:
+              Status = new ServerStatus { Message = "Attached to Server" };
+              break;
+            case ServerConnectionMessaging.MessageType.HomeServerConnected:
+              Status = new ServerStatus { Message = "Connected to Server" };
+              break;
+            case ServerConnectionMessaging.MessageType.HomeServerDetached:
+              Status = new ServerStatus { Message = "Detached from Server" };
+              break;
+            default:
+              Status = new ServerStatus { Message = "Disconnected from Server" };
+              break;
+          }
+        }
+      }
+    }
 
     public void UpdateClients()
     {
@@ -310,7 +443,7 @@ namespace MediaPortal.ServiceMonitor.ViewModel
         ServiceRegistration.Get<ILogger>().Error("AppController.UpDateClients", ex);
       }
     }
-
+    #endregion
 
   }
 }
