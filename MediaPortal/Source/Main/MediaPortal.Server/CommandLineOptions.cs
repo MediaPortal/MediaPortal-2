@@ -28,12 +28,10 @@ namespace MediaPortal.Server
 {
   public class CommandLineOptions
   {
-    [Option("d", "data", Required = false,
-        HelpText = "Overrides the default application data directory.")]
+    [Option("d", "data", Required = false, HelpText = "Overrides the default application data directory.")]
     public string DataDirectory = null;
 
-    [Option("c", "console", Required = false,
-        HelpText = "Run MP2-Server as Console Application.")]
+    [Option("c", "console", Required = false, HelpText = "Run MP2 Server as Console Application.")]
     public bool RunAsConsoleApp = false;
   }
 }

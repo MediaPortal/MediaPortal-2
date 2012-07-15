@@ -23,10 +23,12 @@
 #endregion
 
 using System;
+using System.ServiceProcess;
 using System.Threading;
 using System.Windows.Forms;
 using CommandLine;
 using MediaPortal.Backend;
+using MediaPortal.Common.Exceptions;
 using MediaPortal.Common.PluginManager;
 using MediaPortal.Common.ResourceAccess;
 #if !DEBUG
@@ -40,12 +42,19 @@ using MediaPortal.Common.Runtime;
 using MediaPortal.Common.Logging;
 
 [assembly: CLSCompliant(true)]
-
 namespace MediaPortal.Server
 {
   public class ApplicationLauncher
   {
     protected static CommandLineOptions MpArgs = new CommandLineOptions();
+    protected SystemStateService _systemStateService = null;
+    protected string _dataDirectory = null;
+
+    public ApplicationLauncher(string dataDirectory)
+    {
+      _dataDirectory = dataDirectory;
+    }
+
     /// <summary>
     /// The main entry point for the MP2 server application.
     /// </summary>
@@ -57,18 +66,15 @@ namespace MediaPortal.Server
         Environment.Exit(1);
 
       if (MpArgs.RunAsConsoleApp)
-      {
-        RunAsConsole();
-      }
+        new ApplicationLauncher(MpArgs.DataDirectory).RunAsConsole();
       else
       {
-        var servicesToRun = new System.ServiceProcess.ServiceBase[] { new WindowsService() };
-        System.ServiceProcess.ServiceBase.Run(servicesToRun);
+        ServiceBase[] servicesToRun = new ServiceBase[] { new WindowsService() };
+        ServiceBase.Run(servicesToRun);
       }
     }
 
-
-    public static void Start()
+    public void Start()
     {
       Thread.CurrentThread.Name = "Main";
 
@@ -76,9 +82,9 @@ namespace MediaPortal.Server
       string logPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData), @"Team MediaPortal\MP2-Server\Log");
 #endif
 
-      var systemStateService = new SystemStateService();
-      ServiceRegistration.Set<ISystemStateService>(systemStateService);
-      systemStateService.SwitchSystemState(SystemState.Initializing, false);
+      _systemStateService = new SystemStateService();
+      ServiceRegistration.Set<ISystemStateService>(_systemStateService);
+      _systemStateService.SwitchSystemState(SystemState.Initializing, false);
 
       try
       {
@@ -86,7 +92,7 @@ namespace MediaPortal.Server
         try
         {
           // Check if user wants to override the default Application Data location.
-          ApplicationCore.RegisterVitalCoreServices(MpArgs.DataDirectory);
+          ApplicationCore.RegisterVitalCoreServices(_dataDirectory);
           ApplicationCore.RegisterCoreServices();
           logger = ServiceRegistration.Get<ILogger>();
 
@@ -101,7 +107,7 @@ namespace MediaPortal.Server
         {
           if (logger != null)
             logger.Critical("Error starting application", e);
-          systemStateService.SwitchSystemState(SystemState.ShuttingDown, true);
+          _systemStateService.SwitchSystemState(SystemState.ShuttingDown, true);
           ServiceRegistration.IsShuttingDown = true;
 
           BackendExtension.DisposeBackendServices();
@@ -126,44 +132,42 @@ namespace MediaPortal.Server
 
           mediaAccessor.Initialize();
 
-          systemStateService.SwitchSystemState(SystemState.Running, true);
+          _systemStateService.SwitchSystemState(SystemState.Running, true);
           BackendExtension.ActivateImporterWorker();
             // To be done after default media item aspect types are present and when the system is running (other plugins might also install media item aspect types)
         }
         catch (Exception e)
         {
           logger.Critical("Error starting application", e);
-          systemStateService.SwitchSystemState(SystemState.ShuttingDown, true);
+          _systemStateService.SwitchSystemState(SystemState.ShuttingDown, true);
           ServiceRegistration.IsShuttingDown = true;
           BackendExtension.DisposeBackendServices();
           ApplicationCore.DisposeCoreServices();
-          systemStateService.SwitchSystemState(SystemState.Ending, false);
+          _systemStateService.SwitchSystemState(SystemState.Ending, false);
           throw; // needed to cancel OnStart of the Service
         }
       }
       catch (Exception ex)
       {
 #if DEBUG
-        var log = new ConsoleLogger(LogLevel.All, false);
+        ConsoleLogger log = new ConsoleLogger(LogLevel.All, false);
         log.Error(ex);
 #else
         ServerCrashLogger crash = new ServerCrashLogger(logPath);
         crash.CreateLog(ex);
 #endif
-        systemStateService.SwitchSystemState(SystemState.Ending, false);
+        _systemStateService.SwitchSystemState(SystemState.Ending, false);
         throw; // needed to cancel OnStart of the Service
       }
     }
 
 
-    public static void Stop()
+    public void Stop()
     {
-      var systemStateService = ServiceRegistration.Get<ISystemStateService>() as SystemStateService;
       try
       {
-        systemStateService.SwitchSystemState(SystemState.ShuttingDown, true);
-        ServiceRegistration.IsShuttingDown = true;
-        // Block ServiceRegistration from trying to load new services in shutdown phase
+        _systemStateService.SwitchSystemState(SystemState.ShuttingDown, true);
+        ServiceRegistration.IsShuttingDown = true; // Block ServiceRegistration from trying to load new services in shutdown phase
 
         ServiceRegistration.Get<IMediaAccessor>().Shutdown();
         ServiceRegistration.Get<IPluginManager>().Shutdown();
@@ -174,7 +178,7 @@ namespace MediaPortal.Server
       {
         //ServiceRegistration.Get<ILogger.Critical("Error stopping application", e);
 #if DEBUG
-        var log = new ConsoleLogger(LogLevel.All, false);
+        ConsoleLogger log = new ConsoleLogger(LogLevel.All, false);
         log.Error(ex);
 #else
         var pathManager = ServiceRegistration.Get<IPathManager>();
@@ -182,34 +186,21 @@ namespace MediaPortal.Server
         ServerCrashLogger crash = new ServerCrashLogger(logPath);
         crash.CreateLog(ex);
 #endif
-        systemStateService.SwitchSystemState(SystemState.ShuttingDown, true);
+        _systemStateService.SwitchSystemState(SystemState.ShuttingDown, true);
         ServiceRegistration.IsShuttingDown = true;
       }
       finally
       {
         BackendExtension.DisposeBackendServices();
         ApplicationCore.DisposeCoreServices();
-        systemStateService.SwitchSystemState(SystemState.Ending, false);
+        _systemStateService.SwitchSystemState(SystemState.Ending, false);
       }
     }
 
-    static void ApplicationThreadException(object sender, ThreadExceptionEventArgs e)
+    protected void RunAsConsole()
     {
-      MessageBox.Show(e.Exception.ToString(), "Unhandled Thread Exception");
-      // here you can log the exception ...
-    }
-
-    static void CurrentDomainUnhandledException(object sender, UnhandledExceptionEventArgs e)
-    {
-      MessageBox.Show((e.ExceptionObject as Exception).ToString(), "Unhandled UI Exception");
-      // here you can log the exception ...
-    }
-
-    protected static void RunAsConsole()
-    {
-      // 
-      Application.ThreadException += new ThreadExceptionEventHandler(ApplicationThreadException);
-      AppDomain.CurrentDomain.UnhandledException += new UnhandledExceptionEventHandler(CurrentDomainUnhandledException);  
+      Application.ThreadException += LauncherExceptionHandling.Application_ThreadException;
+      AppDomain.CurrentDomain.UnhandledException += LauncherExceptionHandling.CurrentDomain_UnhandledException;
       Start();
 
       try
@@ -222,9 +213,8 @@ namespace MediaPortal.Server
       }
 
       Stop();
-      Application.ThreadException -= new ThreadExceptionEventHandler(ApplicationThreadException);
-      AppDomain.CurrentDomain.UnhandledException -= new UnhandledExceptionEventHandler(CurrentDomainUnhandledException);
-
+      Application.ThreadException -= LauncherExceptionHandling.Application_ThreadException;
+      AppDomain.CurrentDomain.UnhandledException -= LauncherExceptionHandling.CurrentDomain_UnhandledException;
     }
   }
 }

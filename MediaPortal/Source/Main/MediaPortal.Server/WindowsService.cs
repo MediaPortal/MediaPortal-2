@@ -22,41 +22,37 @@
 
 #endregion
 
-using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Diagnostics;
-using System.IO;
-using System.Linq;
 using System.ServiceProcess;
-using System.Text;
-
 
 namespace MediaPortal.Server
 {
   public partial class WindowsService : ServiceBase
   {
+    protected ApplicationLauncher _launcher = null;
+
     public WindowsService()
     {
       InitializeComponent();
-      this.ServiceName = "MP-II Server Service";
-      this.CanStop = true;
-      this.CanPauseAndContinue = false;
-      this.CanHandlePowerEvent = true;
-      this.AutoLog = false;
+      ServiceName = "MP2 Server Service";
+      CanStop = true;
+      CanPauseAndContinue = false;
+      CanHandlePowerEvent = true;
+      AutoLog = false;
     }
-
     
     protected override void OnStart(string[] args)
     {
-      ApplicationLauncher.Start();
+      if (_launcher != null)
+        return;
+      _launcher = new ApplicationLauncher(null);
+      _launcher.Start();
     }
 
     protected override void OnStop()
     {
-      ApplicationLauncher.Stop();
+      if (_launcher == null)
+        return;
+      _launcher.Stop();
     }
-    
   }
 }
