@@ -16,16 +16,20 @@
       <RowDefinition Height="Auto" />
       <RowDefinition Height="Auto" />
       <RowDefinition Height="Auto" />
+      <RowDefinition Height="Auto" />
+      <RowDefinition Height="Auto" />
     </Grid.RowDefinitions>
+      
+      <TextBlock Grid.Row="0" Margin="10,10,10,0" TextWrapping="Wrap" VerticalAlignment="Top"  Height="22"
+                 Style="{DynamicResource TitleLabel}" Text="Server Status:" />
 
-    <TextBlock Grid.Row="0" Margin="10,20,10,0"
-      TextWrapping="Wrap"
-      VerticalAlignment="Top"
-      Height="22"
-      Style="{DynamicResource TitleLabel}"
-      Text="Attached Clients" />
-    
-      <ListView Grid.Row="1" Background="Transparent" ItemsSource="{Binding Path=Clients}">
+      <TextBlock Grid.Row="1" Margin="20,5,10,0" TextWrapping="Wrap" VerticalAlignment="Top"  
+                 Style="{DynamicResource DefaultLabel}" Text="{Binding Path=Status.Message}" />
+
+      <TextBlock Grid.Row="2" Margin="10,20,10,0" TextWrapping="Wrap" VerticalAlignment="Top" Height="22"
+                 Style="{DynamicResource TitleLabel}" Text="Attached Clients" />
+
+      <ListView Grid.Row="3"  Margin="20,0,10,0" Background="Transparent" ItemsSource="{Binding Path=Clients}">
       <ListView.View>
         <GridView>
           <GridViewColumn Header="Client" >

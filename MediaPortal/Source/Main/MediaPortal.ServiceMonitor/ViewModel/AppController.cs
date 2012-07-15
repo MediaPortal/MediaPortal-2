@@ -275,20 +275,16 @@ namespace MediaPortal.ServiceMonitor.ViewModel
               return false;
           }
           serviceController.WaitForStatus(ServiceControllerStatus.Running, TimeSpan.FromSeconds(60));
-          if (serviceController.Status == ServiceControllerStatus.Running)
-          {
-            Status = new ServerStatus {Message = "Not connected to Server"};
-            return true;
-          }
+          UpdateServerStatus();
+          return (serviceController.Status == ServiceControllerStatus.Running);
         }
       }
       catch (Exception ex)
       {
         ServiceRegistration.Get<ILogger>().Error("Starting MP-II Server Service failed.", ex);
-        
+        UpdateServerStatus();
+        return false;
       }
-      Status = new ServerStatus { Message = "Service is NOT started"};
-      return false;
     }
 
 
@@ -311,19 +307,18 @@ namespace MediaPortal.ServiceMonitor.ViewModel
               return false;
           }
           serviceController.WaitForStatus(ServiceControllerStatus.Stopped, TimeSpan.FromSeconds(60));
+          UpdateServerStatus();
           return serviceController.Status == ServiceControllerStatus.Stopped;
         }
       }
       catch (Exception ex)
       {
         ServiceRegistration.Get<ILogger>().Error("Stopping MP-II Server Service failed.", ex);
+        UpdateServerStatus();
         return false;
       }
     }
-
-
-
-
+    
     #endregion
 
     #region Implementation of IDisposable
