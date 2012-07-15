@@ -140,6 +140,7 @@ namespace MediaPortal.ServiceMonitor
         crash.CreateLog(ex);
 #endif
         systemStateService.SwitchSystemState(SystemState.Ending, false);
+        Application.Current.Shutdown();
       }
     }
 

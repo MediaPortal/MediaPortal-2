@@ -4,8 +4,8 @@
   xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
   xmlns:tb="http://www.hardcodet.net/taskbar"
   x:Name="me"
-  Height="120"
-  Width="240">
+  MinHeight="100"
+  Width="250">
 	<UserControl.Resources>
 		<Storyboard x:Key="FadeIn">
 			<DoubleAnimationUsingKeyFrames BeginTime="00:00:00" Storyboard.TargetName="grid" Storyboard.TargetProperty="(UIElement.Opacity)">
@@ -37,32 +37,11 @@
         </LinearGradientBrush>
       </Border.Background>
     </Border>
-    <Image
-      HorizontalAlignment="Left"
-      Margin="0,10,0,0"
-      Width="72"
-      Source="..\..\Resources\Images\Info.png"
-      Stretch="Fill" Height="72" VerticalAlignment="Top" />
-    <TextBlock
-      Margin="72,49.2,10,0"
-      VerticalAlignment="Top"
-      Foreground="#FFECAD25"
-      TextWrapping="Wrap"><Run Text="This is a user control. The animation uses the attached " Language="de-ch"/><Run FontStyle="Italic" FontWeight="Bold" Text="BalloonShowing " Language="de-ch"/><Run Text="event." Language="de-ch"/></TextBlock>
-    <Path
-      Fill="#FFFFFFFF"
-      Stretch="Fill"
-      Margin="72,38.2,34,0"
-      VerticalAlignment="Top"
-      Height="1"
-      Data="M26,107 L220.04123,107" SnapsToDevicePixels="True">
-      <Path.Stroke>
-        <LinearGradientBrush EndPoint="0.973,0.5" StartPoint="0.005,0.5">
-          <GradientStop Color="#00ECAD25" Offset="1" />
-          <GradientStop Color="#87ECAD25" Offset="0" />
-        </LinearGradientBrush>
-      </Path.Stroke>
-    </Path>
-    <TextBlock Margin="72,10,10,0" VerticalAlignment="Top" Height="23.2" Text="{Binding Path=BalloonText, ElementName=me, Mode=Default}" TextWrapping="Wrap" Foreground="#FFECAD25" FontWeight="Bold"/>
+    <Image HorizontalAlignment="Left" Margin="0,10,0,0" Width="72"
+      Source="..\..\Resources\Images\Info.png" Stretch="Fill" Height="72" VerticalAlignment="Top" />
+
+        <TextBlock Margin="72,10,10,10" HorizontalAlignment="Center" VerticalAlignment="Center" Text="{Binding Path=BalloonText, ElementName=me, Mode=Default}"
+                Style="{DynamicResource TitleLabel}" TextWrapping="Wrap" Foreground="#FFECAD25" />
 
   </Grid>
 </UserControl>

@@ -27,6 +27,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
 using System.Windows;
+using System.Windows.Controls.Primitives;
 using Hardcodet.Wpf.TaskbarNotification;
 using MediaPortal.Common;
 using MediaPortal.Common.Logging;
@@ -35,6 +36,7 @@ using MediaPortal.ServiceMonitor.Model;
 using MediaPortal.ServiceMonitor.UPNP;
 using MediaPortal.ServiceMonitor.View;
 using System.ServiceProcess;
+using MediaPortal.ServiceMonitor.View.SystemTray;
 
 namespace MediaPortal.ServiceMonitor.ViewModel
 {
@@ -385,6 +387,7 @@ namespace MediaPortal.ServiceMonitor.ViewModel
     #region Update visible Clients / Server Info
     public void UpdateServerStatus()
     {
+      var oldStatus = Status;
       if (!IsServerServiceInstalled())
         Status = new ServerStatus { Message = "Service is NOT installed" };
       else
@@ -410,10 +413,22 @@ namespace MediaPortal.ServiceMonitor.ViewModel
           }
         }
       }
+      if ((oldStatus == null) || (oldStatus.Message.Equals(Status.Message))) return;
+
+      ServiceRegistration.Get<ILogger>().Info("ServerStatus: {0}", Status.Message);
+
+      var balloon = new BalloonPopup {BalloonText = Status.Message};
+      //show balloon and close it after 5 seconds
+      TaskbarIcon.ShowCustomBalloon(balloon, PopupAnimation.Slide, 5000);
     }
 
     public void UpdateClients()
     {
+
+      var balloon = new BalloonPopup { BalloonText = "Updating Client(s)..." };
+      //show balloon and close it after 5 seconds
+      TaskbarIcon.ShowCustomBalloon(balloon, PopupAnimation.Slide, 5000);
+
       try
       {
         Clients.Clear();
