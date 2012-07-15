@@ -78,10 +78,13 @@ namespace MediaPortal.UI.Services.RemovableMedia
 
     public bool StartListening()
     {
-      IScreenControl screenControl = ServiceRegistration.Get<IScreenControl>();
-      _windowHandle = screenControl.MainWindowHandle;
+      IScreenControl screenControl = ServiceRegistration.Get<IScreenControl>(false);
+      _windowHandle = screenControl == null ? IntPtr.Zero : screenControl.MainWindowHandle;
       if (_windowHandle == IntPtr.Zero)
+      {
+        ServiceRegistration.Get<ILogger>().Warn("RemovableMediaTracker: No main window handle available, cannot start listening for removable media messages");
         return false;
+      }
       RemovableMediaTrackerSettings settings = ServiceRegistration.Get<ISettingsManager>().Load<RemovableMediaTrackerSettings>();
       try
       {
