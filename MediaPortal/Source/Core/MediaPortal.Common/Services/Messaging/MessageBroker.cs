@@ -30,14 +30,15 @@ using MediaPortal.Common.Messaging;
 
 namespace MediaPortal.Common.Services.Messaging
 {
-  public class MessageBroker : IMessageBroker
+  public class MessageBroker : IMessageBroker, IDisposable
   {
-    protected const int GC_INTERVAL = 5000;
+    protected static readonly TimeSpan GC_INTERVAL = TimeSpan.FromSeconds(5);
 
     protected IDictionary<string, IList<WeakReference>> _registeredChannels =
         new Dictionary<string, IList<WeakReference>>();
     protected object _syncObj = new object();
     protected Thread _garbageCollectorThread;
+    protected ManualResetEvent _terminatedEvent = new ManualResetEvent(false);
 
     public MessageBroker()
     {
@@ -50,16 +51,10 @@ namespace MediaPortal.Common.Services.Messaging
       _garbageCollectorThread.Start();
     }
 
-    ~MessageBroker()
+    public void Dispose()
     {
-      if (_garbageCollectorThread != null)
-      {
-        if (_garbageCollectorThread.ThreadState != ThreadState.Stopped)
-        {
-          _garbageCollectorThread.Abort();
-        }
-        _garbageCollectorThread = null;
-      }
+      _terminatedEvent.Set();
+      _terminatedEvent.Close();
     }
 
     protected void GarbageCollectHandlers()
@@ -92,7 +87,8 @@ namespace MediaPortal.Common.Services.Messaging
       while (true)
       {
         GarbageCollectHandlers();
-        Thread.Sleep(GC_INTERVAL);
+        if (_terminatedEvent.WaitOne(GC_INTERVAL))
+          break;
       }
     }
 

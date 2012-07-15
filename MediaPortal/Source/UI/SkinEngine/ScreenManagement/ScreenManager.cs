@@ -308,6 +308,7 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
     public void Dispose()
     {
       _terminatedEvent.Set();
+      _garbageCollectionFinished.WaitOne(2000);
       _terminatedEvent.Close();
       _garbageScreensAvailable.Close();
       _pendingOperationsDecreasedEvent.Close();
