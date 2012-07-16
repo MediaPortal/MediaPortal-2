@@ -1,5 +1,5 @@
 @echo off
 
-tx pull -a -f --mode translator
+tx pull -a -f
 
 pause
