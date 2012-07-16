@@ -459,7 +459,7 @@ namespace MediaPortal.Common.Services.MediaManagement
             {
               IResourceAccessor ra;
               if (!path.TryCreateLocalResourceAccessor(out ra))
-                throw new ArgumentException(string.Format("Unable to access resource path '{0}'", importJob.BasePath));
+                throw new IllegalCallException("Unable to access resource path '{0}'", importJob.BasePath);
               using (ra)
                 if (!ra.IsFile)
                   // Don't touch directories because they will be imported in a different call of ImportDirectory
