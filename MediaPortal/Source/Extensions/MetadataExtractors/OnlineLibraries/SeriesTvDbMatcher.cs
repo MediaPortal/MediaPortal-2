@@ -70,7 +70,7 @@ namespace MediaPortal.Extensions.OnlineLibraries
     #region Fields
 
     protected Dictionary<string, TvdbSeries> _memoryCache = new Dictionary<string, TvdbSeries>();
-    
+
     /// <summary>
     /// Contains the initialized TvDbWrapper.
     /// </summary>
@@ -255,19 +255,27 @@ namespace MediaPortal.Extensions.OnlineLibraries
     {
       if (_tv != null)
         return true;
-
-      _tv = new TvDbWrapper();
-      // Try to lookup online content in the configured language
-      CultureInfo currentCulture = ServiceRegistration.Get<ILocalization>().CurrentCulture;
-      _tv.SetPreferredLanguage(currentCulture.TwoLetterISOLanguageName);
-      return _tv.Init();
+      try
+      {
+        TvDbWrapper tv = new TvDbWrapper();
+        // Try to lookup online content in the configured language
+        CultureInfo currentCulture = ServiceRegistration.Get<ILocalization>().CurrentCulture;
+        tv.SetPreferredLanguage(currentCulture.TwoLetterISOLanguageName);
+        bool res = tv.Init();
+        _tv = tv;
+        return res;
+      }
+      catch (Libraries.TvdbLib.Exceptions.TvdbNotAvailableException)
+      {
+        return false;
+      }
     }
 
-    protected override List<SeriesMatch> FindNameMatch (List<SeriesMatch> matches, string name)
+    protected override List<SeriesMatch> FindNameMatch(List<SeriesMatch> matches, string name)
     {
       return matches.FindAll(m => m.ItemName == name);
     }
-    
+
     protected override void DownloadFanArt(int tvDbId)
     {
       try

@@ -114,6 +114,25 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.MovieDbV3
     }
 
     /// <summary>
+    /// Returns detailed information for a single <see cref="Movie"/> with given <paramref name="id"/>. This method caches request
+    /// to same movies using the cache path given in <see cref="MovieDbApiV3"/> constructor.
+    /// </summary>
+    /// <param name="imdbId">IMDB id of movie</param>
+    /// <param name="language">Language</param>
+    /// <returns>Movie information</returns>
+    public Movie GetMovie(string imdbId, string language)
+    {
+      string cache = CreateAndGetCacheName(imdbId, language);
+      if (!string.IsNullOrEmpty(cache) && File.Exists(cache))
+      {
+        string json = File.ReadAllText(cache);
+        return JsonConvert.DeserializeObject<Movie>(json);
+      }
+      string url = GetUrl(URL_GETMOVIE, language, imdbId);
+      return Download<Movie>(url, cache);
+    }
+
+    /// <summary>
     /// Returns configuration about image download servers and available sizes.
     /// </summary>
     /// <returns></returns>
@@ -245,12 +264,12 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.MovieDbV3
     }
 
     /// <summary>
-    /// Creates a local file name for loading and saving details for movie.
+    /// Creates a local file name for loading and saving details for movie. It supports both TMDB id and IMDB id.
     /// </summary>
     /// <param name="movieId"></param>
     /// <param name="language"></param>
     /// <returns>Cache file name or <c>null</c> if directory could not be created</returns>
-    protected string CreateAndGetCacheName(int movieId, string language)
+    protected string CreateAndGetCacheName<TE>(TE movieId, string language)
     {
       try
       {

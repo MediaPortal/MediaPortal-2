@@ -156,6 +156,11 @@ namespace MediaPortal.Extensions.OnlineLibraries.TheMovieDB
       return movieDetail != null;
     }
 
+    public bool GetMovie(string imdbId, out Movie movieDetail)
+    {
+      movieDetail = _movieDbHandler.GetMovie(imdbId, PreferredLanguage);
+      return movieDetail != null;
+    }
     
     /// <summary>
     /// Removes special characters and compares the remaining strings.

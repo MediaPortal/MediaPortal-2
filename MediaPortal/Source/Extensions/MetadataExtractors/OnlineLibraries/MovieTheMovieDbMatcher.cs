@@ -80,7 +80,7 @@ namespace MediaPortal.Extensions.OnlineLibraries
     public bool FindAndUpdateMovie(MovieInfo movieInfo)
     {
       Movie movieDetails;
-      if (TryMatch(movieInfo.MovieName, movieInfo.Year, false, out movieDetails))
+      if (MatchByImdbId(movieInfo, out movieDetails) || TryMatch(movieInfo.MovieName, movieInfo.Year, false, out movieDetails))
       {
         int movieDbId = 0;
         if (movieDetails != null)
@@ -120,6 +120,25 @@ namespace MediaPortal.Extensions.OnlineLibraries
           ScheduleDownload(movieDbId);
         return true;
       }
+      return false;
+    }
+
+    private bool MatchByImdbId(MovieInfo movieInfo, out Movie movieDetails)
+    {
+      if (!string.IsNullOrEmpty(movieInfo.ImdbId) && _movieDb.GetMovie(movieInfo.ImdbId, out movieDetails))
+      {
+        // Add this match to cache
+        MovieMatch onlineMatch = new MovieMatch
+        {
+          Id = movieDetails.Id,
+          ItemName = movieDetails.Title,
+          MovieDBName = movieDetails.Title
+        };
+        // Save cache
+        SaveNewMatch(movieDetails.Title, onlineMatch);
+        return true;
+      }
+      movieDetails = null;
       return false;
     }
 
