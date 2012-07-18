@@ -116,8 +116,9 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matches
       lock (_syncObj)
       {
         List<TMatch> matches = LoadMatches();
-        if (matches.All(m => m.ItemName != itemName))
-          matches.Add(onlineMatch);
+        if (matches.Any(m => m.ItemName == itemName))
+          return;
+        matches.Add(onlineMatch);
         Settings.Save(MatchesSettingsFile, matches);
       }
     }
