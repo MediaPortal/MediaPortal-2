@@ -59,7 +59,6 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
     #region Protected fields and classes
 
     protected static ICollection<MediaCategory> MEDIA_CATEGORIES = new List<MediaCategory>();
-    protected static ICollection<string> VIDEO_FILE_EXTENSIONS = new List<string>();
 
     protected MetadataExtractorMetadata _metadata;
 
@@ -127,7 +126,14 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
         {
           MovieName = title,
         };
-      
+
+        // Try to use an existing IMDB id for exact mapping
+        string imdbId;
+        if (MediaItemAspect.TryGetAttribute(extractedAspectData, MovieAspect.ATTR_IMDB_ID, out imdbId) || 
+          ImdbIdMatcher.MatchImdbId(localFsPath, out imdbId))
+          movieInfo.ImdbId = imdbId;
+
+        // When searching movie title, the year can be relevant for mulitple titles with same name but different years
         DateTime recordingDate;
         if (MediaItemAspect.TryGetAttribute(extractedAspectData, MediaAspect.ATTR_RECORDINGTIME, out recordingDate))
           movieInfo.Year = recordingDate.Year;
