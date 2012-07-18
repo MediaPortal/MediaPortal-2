@@ -26,12 +26,14 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
+using System.Threading;
 using System.Windows;
 using System.Windows.Controls.Primitives;
 using Hardcodet.Wpf.TaskbarNotification;
 using MediaPortal.Common;
 using MediaPortal.Common.Logging;
 using MediaPortal.Common.Messaging;
+using MediaPortal.ServiceMonitor.Collections;
 using MediaPortal.ServiceMonitor.Model;
 using MediaPortal.ServiceMonitor.UPNP;
 using MediaPortal.ServiceMonitor.View;
@@ -45,10 +47,15 @@ namespace MediaPortal.ServiceMonitor.ViewModel
   /// </summary>
   public class AppController : IDisposable, INotifyPropertyChanged, IAppController, IMessageReceiver
   {
-    #region const variables
-    private const string MP2_SERVER_SERVICE_NAME = "MP-II Server Service";
+    #region private variables
+
+    private string _serverServiceName = "MP-II Server Service"; // the name of the installed MP2 Server Service
+    private SynchronizationContext _synchronizationContext; // to avoid cross thread calls
+    private ServerConnectionMessaging.MessageType _serverConnectionStatus; // store last server connection status
 
     #endregion
+
+    #region properties
 
     #region TaskbarIcon
 
@@ -77,30 +84,31 @@ namespace MediaPortal.ServiceMonitor.ViewModel
 
     #region Attached Clients
 
-    public AsyncObservableCollection<ClientData> Clients { get; set; }
-
+    public ObservableCollectionMt<ClientData> Clients { get; set; }
 
     #endregion
 
-    #region ServerStatus / ServerConnectionStatus
+    #region ServerStatus
 
-    private ServerStatus _status;
+    private string _serverStatus;
 
-    public ServerStatus Status
+    public string ServerStatus
     {
-      get { return _status; }
-      set { SetProperty(ref _status, value, "Status"); }
+      get { return _serverStatus; }
+      set { SetProperty(ref _serverStatus, value, "ServerStatus"); }
     }
 
-    public ServerConnectionMessaging.MessageType ServerConnectionType;
+    #endregion
 
     #endregion
 
     #region ctor
+
     public AppController()
     {
-      Clients = new AsyncObservableCollection<ClientData>();
-      ServerConnectionType = ServerConnectionMessaging.MessageType.HomeServerDisconnected;
+      _synchronizationContext = SynchronizationContext.Current;
+      Clients = new ObservableCollectionMt<ClientData>();
+      _serverConnectionStatus = ServerConnectionMessaging.MessageType.HomeServerDisconnected;
 
       // Init ServerConnection Messaging
       ServiceRegistration.Get<IMessageBroker>().RegisterMessageReceiver(ServerConnectionMessaging.CHANNEL, this);
@@ -110,7 +118,7 @@ namespace MediaPortal.ServiceMonitor.ViewModel
 
     #endregion
 
-    #region Show Main Window
+    #region Main Window handling
 
     /// <summary>
     /// Displays the main application window and assigns
@@ -144,12 +152,8 @@ namespace MediaPortal.ServiceMonitor.ViewModel
     }
 
 
-    #endregion
-
-    #region Close / Minimize
-
     /// <summary>
-    /// Closes the main window and 
+    /// Closes the main window 
     /// </summary>
     protected void OnMainWindowClosing(object sender, CancelEventArgs e)
     {
@@ -213,10 +217,6 @@ namespace MediaPortal.ServiceMonitor.ViewModel
       }
     }
 
-    #endregion
-
-    #region Init SystemTray
-
     /// <summary>
     /// Inits the component that displays status information in the
     /// system tray.
@@ -234,17 +234,26 @@ namespace MediaPortal.ServiceMonitor.ViewModel
 
     #region Windows Service Functions
 
+    /// <summary>
+    /// Verify if the MP2 Server Service is installed
+    /// </summary>
     public bool IsServerServiceInstalled()
     {
       var services = ServiceController.GetServices();
-      return services.Any(service => String.Compare(service.ServiceName, MP2_SERVER_SERVICE_NAME, System.StringComparison.OrdinalIgnoreCase) == 0);
+      return
+        services.Any(
+          service =>
+          String.Compare(service.ServiceName, _serverServiceName, System.StringComparison.OrdinalIgnoreCase) == 0);
     }
 
+    /// <summary>
+    /// Checks if the installed MP2 Server Service is running
+    /// </summary>
     public bool IsServerServiceRunning()
     {
       try
       {
-        using (var serviceController = new ServiceController(MP2_SERVER_SERVICE_NAME))
+        using (var serviceController = new ServiceController(_serverServiceName))
         {
           return serviceController.Status == ServiceControllerStatus.Running;
         }
@@ -257,12 +266,14 @@ namespace MediaPortal.ServiceMonitor.ViewModel
       }
     }
 
-
+    /// <summary>
+    /// Starts the installed MP2 Server Service in case it is not running
+    /// </summary>
     public bool StartServerService()
     {
       try
       {
-        using (var serviceController = new ServiceController(MP2_SERVER_SERVICE_NAME))
+        using (var serviceController = new ServiceController(_serverServiceName))
         {
           switch (serviceController.Status)
           {
@@ -289,12 +300,14 @@ namespace MediaPortal.ServiceMonitor.ViewModel
       }
     }
 
-
+    /// <summary>
+    /// Stops the installed MP2 Server Service
+    /// </summary>
     public bool StopServerService()
     {
       try
       {
-        using (var serviceController = new ServiceController(MP2_SERVER_SERVICE_NAME))
+        using (var serviceController = new ServiceController(_serverServiceName))
         {
           switch (serviceController.Status)
           {
@@ -320,15 +333,94 @@ namespace MediaPortal.ServiceMonitor.ViewModel
         return false;
       }
     }
-    
+
     #endregion
 
-    #region Implementation of IDisposable
+    #region Implementation of IMessageReceiver (ServerConnectionManager)
 
-    public void Dispose()
+    /// <summary>
+    /// Receive Server change messages from the ServerConnectionManager which is connected with the MP2 Server Service
+    /// </summary>
+    public void Receive(SystemMessage message)
     {
-      //reset system tray handler
-      TaskbarIcon = null;
+      var connectionType = (ServerConnectionMessaging.MessageType) message.MessageType;
+      switch (connectionType)
+      {
+        case ServerConnectionMessaging.MessageType.HomeServerAttached:
+        case ServerConnectionMessaging.MessageType.HomeServerConnected:
+        case ServerConnectionMessaging.MessageType.HomeServerDetached:
+        case ServerConnectionMessaging.MessageType.HomeServerDisconnected:
+          _serverConnectionStatus = connectionType;
+          break;
+      }
+      UpdateServerStatus();
+    }
+
+    #endregion
+
+    #region Update Server (& Clients) Status
+
+    /// <summary>
+    /// Common routine to set the ServerStatus information
+    /// </summary>
+    public void UpdateServerStatus()
+    {
+      if (SynchronizationContext.Current == _synchronizationContext)
+        RaiseUpdateServerStatus(); // Execute on the current thread
+      else
+        _synchronizationContext.Post(state => RaiseUpdateServerStatus(), null);
+    }
+
+    private void RaiseUpdateServerStatus()
+    {
+      if (IsServerServiceInstalled() && !IsServerServiceRunning())
+      {
+        ServerStatus = "Service is NOT started";
+      }
+      switch (_serverConnectionStatus)
+      {
+        case ServerConnectionMessaging.MessageType.HomeServerAttached:
+          ServerStatus = "Attached to Server";
+          break;
+        case ServerConnectionMessaging.MessageType.HomeServerConnected:
+          ServerStatus = "Connected to Server";
+          break;
+        case ServerConnectionMessaging.MessageType.HomeServerDetached:
+          ServerStatus = "Detached from Server";
+          break;
+        default:
+          ServerStatus = "Disconnected from Server";
+          break;
+      }
+
+      ServiceRegistration.Get<ILogger>().Debug("ServerStatus: {0}", ServerStatus);
+      
+      try
+      {
+        Clients.Clear();
+        var serverConnectionManager = ServiceRegistration.Get<IServerConnectionManager>();
+        if (!serverConnectionManager.IsHomeServerConnected) return;
+
+        var serverControler = serverConnectionManager.ServerController;
+        if (serverControler == null) return;
+        ICollection<string> connectedClientSystemIDs = serverControler.GetConnectedClients();
+
+        foreach (var attachedClient in serverControler.GetAttachedClients())
+        {
+          if (string.IsNullOrEmpty(attachedClient.LastClientName)) 
+            continue;
+          Clients.Add(new ClientData
+                        {
+                          IsConnected = connectedClientSystemIDs != null && connectedClientSystemIDs.Contains(attachedClient.SystemId),
+                          Name = attachedClient.LastClientName,
+                          System = attachedClient.LastSystem == null ? string.Empty : attachedClient.LastSystem.HostName
+                        });
+        }
+      }
+      catch (Exception ex)
+      {
+        ServiceRegistration.Get<ILogger>().Error("AppController.UpDateClients", ex);
+      }
     }
 
     #endregion
@@ -355,105 +447,18 @@ namespace MediaPortal.ServiceMonitor.ViewModel
       }
     }
 
-
     #endregion
 
-    #region Implementation of IMessageReceiver
+    #region Implementation of IDisposable
 
-    public void Receive(SystemMessage message)
+    public void Dispose()
     {
-      var connectionType = (ServerConnectionMessaging.MessageType)message.MessageType;
-      switch (connectionType)
-      {
-        case ServerConnectionMessaging.MessageType.ClientsOnlineStateChanged:
-          UpdateClients();
-          break;
-        case ServerConnectionMessaging.MessageType.AvailableServersChanged:
-          //var serverAdded = (bool)message.MessageData[ServerConnectionMessaging.SERVERS_WERE_ADDED];
-          //var availableServers = (ICollection<ServerDescriptor>)message.MessageData[ServerConnectionMessaging.AVAILABLE_SERVERS];
-          break;
-        case ServerConnectionMessaging.MessageType.HomeServerAttached:
-        case ServerConnectionMessaging.MessageType.HomeServerConnected:
-        case ServerConnectionMessaging.MessageType.HomeServerDetached:
-        case ServerConnectionMessaging.MessageType.HomeServerDisconnected:
-          ServerConnectionType = connectionType;
-          UpdateServerStatus();
-          break;
-      }
+      //reset system tray handler
+      TaskbarIcon = null;
     }
 
     #endregion
 
-    #region Update visible Clients / Server Info
-    public void UpdateServerStatus()
-    {
-      var oldStatus = Status;
-      if (!IsServerServiceInstalled())
-        Status = new ServerStatus { Message = "Service is NOT installed" };
-      else
-      {
-        if (!IsServerServiceRunning())
-          Status = new ServerStatus {Message = "Service is NOT started"};
-        else
-        {
-          switch (ServerConnectionType)
-          {
-            case ServerConnectionMessaging.MessageType.HomeServerAttached:
-              Status = new ServerStatus { Message = "Attached to Server" };
-              break;
-            case ServerConnectionMessaging.MessageType.HomeServerConnected:
-              Status = new ServerStatus { Message = "Connected to Server" };
-              break;
-            case ServerConnectionMessaging.MessageType.HomeServerDetached:
-              Status = new ServerStatus { Message = "Detached from Server" };
-              break;
-            default:
-              Status = new ServerStatus { Message = "Disconnected from Server" };
-              break;
-          }
-        }
-      }
-      if ((oldStatus == null) || (oldStatus.Message.Equals(Status.Message))) return;
-
-      ServiceRegistration.Get<ILogger>().Info("ServerStatus: {0}", Status.Message);
-
-      var balloon = new BalloonPopup {BalloonText = Status.Message};
-      //show balloon and close it after 5 seconds
-      TaskbarIcon.ShowCustomBalloon(balloon, PopupAnimation.Slide, 5000);
-    }
-
-    public void UpdateClients()
-    {
-
-      var balloon = new BalloonPopup { BalloonText = "Updating Client(s)..." };
-      //show balloon and close it after 5 seconds
-      TaskbarIcon.ShowCustomBalloon(balloon, PopupAnimation.Slide, 5000);
-
-      try
-      {
-        Clients.Clear();
-        var serverConnectionManager = ServiceRegistration.Get<IServerConnectionManager>();
-        if (!serverConnectionManager.IsHomeServerConnected) return;
-
-        var serverControler = serverConnectionManager.ServerController;
-        if (serverControler == null) return;
-
-        foreach (var attachedClient in serverControler.GetAttachedClients())
-        {
-          Clients.Add(new ClientData
-                        {
-                          IsConnected = !string.IsNullOrEmpty(attachedClient.SystemId),
-                          Name = attachedClient.LastClientName,
-                          System = attachedClient.LastSystem == null ? string.Empty : attachedClient.LastSystem.HostName
-                        });
-        }
-      }
-      catch (Exception ex)
-      {
-        ServiceRegistration.Get<ILogger>().Error("AppController.UpDateClients", ex);
-      }
-    }
-    #endregion
 
   }
 }

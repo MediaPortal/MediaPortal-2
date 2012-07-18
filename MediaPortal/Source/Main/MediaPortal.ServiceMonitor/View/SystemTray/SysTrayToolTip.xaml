@@ -29,7 +29,7 @@
       Style="{DynamicResource TitleLabel}"
       VerticalAlignment="Top"
       TextWrapping="Wrap"
-      Text="{Binding  Path=Status.Message}" />
+      Text="{Binding  Path=ServerStatus}" />
 
     <TextBlock
       HorizontalAlignment="Right"

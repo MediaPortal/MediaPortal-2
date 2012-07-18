@@ -37,6 +37,7 @@ using MediaPortal.Common.Runtime;
 using MediaPortal.Common.Services.Logging;
 using MediaPortal.Common.Exceptions;
 using MediaPortal.Common.Services.Runtime;
+using MediaPortal.Common.SystemResolver;
 using MediaPortal.ServiceMonitor.UPNP;
 using MediaPortal.ServiceMonitor.ViewModel;
 
@@ -56,6 +57,7 @@ namespace MediaPortal.ServiceMonitor
     private void OnStartup(object sender, StartupEventArgs args)
     {
       Thread.CurrentThread.Name = "Main";
+      Thread.CurrentThread.SetApartmentState(ApartmentState.STA);
 
       // Parse Command Line options
       var mpArgs = new CommandLineOptions();
@@ -84,9 +86,13 @@ namespace MediaPortal.ServiceMonitor
           logger = ServiceRegistration.Get<ILogger>();
           //ApplicationCore.StartCoreServices();
 
+          logger.Debug("UiExtension: Registering ISystemResolver service");
+          ServiceRegistration.Set<ISystemResolver>(new SystemResolver());
+
           logger.Debug("UiExtension: Registering IServerConnectionManager service");
           ServiceRegistration.Set<IServerConnectionManager>(new ServerConnectionManager());
           
+
 
 #if !DEBUG
           logPath = ServiceRegistration.Get<IPathManager>().GetPath("<LOG>");

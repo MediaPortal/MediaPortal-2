@@ -86,5 +86,6 @@ namespace MediaPortal.ServiceMonitor
       // We are in the creator thread, call the base implementation directly
       base.OnPropertyChanged((PropertyChangedEventArgs)param);
     }
+
   }
 }

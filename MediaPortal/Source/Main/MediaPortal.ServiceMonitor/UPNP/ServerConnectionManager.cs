@@ -61,6 +61,11 @@ namespace MediaPortal.ServiceMonitor.UPNP
     static void OnAvailableBackendServersChanged(ICollection<ServerDescriptor> allAvailableServers, bool serversWereAdded)
     {
       ServerConnectionMessaging.SendAvailableServersChangedMessage(allAvailableServers, serversWereAdded);
+
+      if (allAvailableServers.Count < 1) return;
+      var scm = ServiceRegistration.Get<IServerConnectionManager>();
+      var availableServersUUID = allAvailableServers.Select(sd => sd.MPBackendServerUUID).ToList();
+      scm.SetNewHomeServer(availableServersUUID[0]);
     }
 
     void OnBackendServerConnected(DeviceConnection connection)
