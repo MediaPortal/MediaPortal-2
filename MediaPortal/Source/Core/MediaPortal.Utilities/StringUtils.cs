@@ -25,6 +25,8 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Globalization;
+using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 
@@ -63,20 +65,17 @@ namespace MediaPortal.Utilities
     /// 
     public static void ReplaceTag(ref string input, string tag, string value)
     {
-
       Regex r = new Regex(String.Format(@"\[[^%]*{0}[^\]]*[\]]", tag));
       if (value == string.Empty)
       {
         Match match = r.Match(input);
-        if (match != null && match.Length > 0)
-        {
+        if (match.Length > 0)
           input = input.Remove(match.Index, match.Length);
-        }
       }
       else
       {
         Match match = r.Match(input);
-        if (match != null && match.Length > 0)
+        if (match.Length > 0)
         {
           input = input.Remove(match.Index, match.Length);
           string m = match.Value.Substring(1, match.Value.Length - 2);
@@ -234,6 +233,18 @@ namespace MediaPortal.Utilities
           result.Append(filler);
       }
       return result.ToString();
+    }
+
+    /// <summary>
+    /// Replaces diacritics from strings by their base character like <c>Beyoncé</c> to <c>Beyonce</c>. 
+    /// </summary>
+    /// <param name="text">Text to replace</param>
+    /// <returns>Replaced text</returns>
+    public static string RemoveDiacritics(string text)
+    {
+      return string.Concat(
+        text.Normalize(NormalizationForm.FormD).Where(ch => CharUnicodeInfo.GetUnicodeCategory(ch) != UnicodeCategory.NonSpacingMark)
+        ).Normalize(NormalizationForm.FormC);
     }
   }
 }

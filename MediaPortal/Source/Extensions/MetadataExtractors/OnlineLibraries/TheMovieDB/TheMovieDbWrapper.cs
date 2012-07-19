@@ -23,13 +23,12 @@
 #endregion
 
 using System.Collections.Generic;
-using System.Globalization;
 using System.Linq;
-using System.Text;
 using MediaPortal.Common;
 using MediaPortal.Common.Logging;
 using MediaPortal.Extensions.OnlineLibraries.Libraries.MovieDbV3;
 using MediaPortal.Extensions.OnlineLibraries.Libraries.MovieDbV3.Data;
+using MediaPortal.Utilities;
 
 namespace MediaPortal.Extensions.OnlineLibraries.TheMovieDB
 {
@@ -178,14 +177,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.TheMovieDB
     protected string RemoveCharacters(string name)
     {
       string result = new[] { "-", ",", "/", ":", " ", " ", ".", "'" }.Aggregate(name, (current, s) => current.Replace(s, ""));
-      return RemoveDiacritics(result.ToLowerInvariant());
-    }
-
-    protected static string RemoveDiacritics(string text)
-    {
-      return string.Concat(
-        text.Normalize(NormalizationForm.FormD).Where(ch => CharUnicodeInfo.GetUnicodeCategory(ch) != UnicodeCategory.NonSpacingMark)
-        ).Normalize(NormalizationForm.FormC);
+      return StringUtils.RemoveDiacritics(result.ToLowerInvariant());
     }
 
     /// <summary>
