@@ -32,6 +32,7 @@ using MediaPortal.Common.MediaManagement.Helpers;
 using MediaPortal.Common.ResourceAccess;
 using MediaPortal.Common.Services.ResourceAccess.StreamedResourceToLocalFsAccessBridge;
 using MediaPortal.Extensions.OnlineLibraries;
+using MediaPortal.Extensions.OnlineLibraries.TheMovieDB;
 
 namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
 {
@@ -71,7 +72,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
       MediaCategory movieCategory;
       IMediaAccessor mediaAccessor = ServiceRegistration.Get<IMediaAccessor>();
       if (!mediaAccessor.MediaCategories.TryGetValue(MEDIA_CATEGORY_NAME_MOVIE, out movieCategory))
-        movieCategory = mediaAccessor.RegisterMediaCategory(MEDIA_CATEGORY_NAME_MOVIE, new List<MediaCategory> {DefaultMediaCategories.Video});
+        movieCategory = mediaAccessor.RegisterMediaCategory(MEDIA_CATEGORY_NAME_MOVIE, new List<MediaCategory> { DefaultMediaCategories.Video });
       MEDIA_CATEGORIES.Add(movieCategory);
     }
 
@@ -129,11 +130,19 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
 
         // Try to use an existing IMDB id for exact mapping
         string imdbId;
-        if (MediaItemAspect.TryGetAttribute(extractedAspectData, MovieAspect.ATTR_IMDB_ID, out imdbId) || 
+        if (MediaItemAspect.TryGetAttribute(extractedAspectData, MovieAspect.ATTR_IMDB_ID, out imdbId) ||
           ImdbIdMatcher.MatchImdbId(localFsPath, out imdbId))
           movieInfo.ImdbId = imdbId;
 
-        // When searching movie title, the year can be relevant for mulitple titles with same name but different years
+        // Also test the full path year, using a dummy. This is useful if the path contains the real name and year.
+        MovieInfo dummy = new MovieInfo { MovieName = localFsPath };
+        if (NamePreprocessor.MatchTitleYear(dummy))
+        {
+          movieInfo.MovieName = dummy.MovieName;
+          movieInfo.Year = dummy.Year;
+        }
+
+        // When searching movie title, the year can be relevant for multiple titles with same name but different years
         DateTime recordingDate;
         if (MediaItemAspect.TryGetAttribute(extractedAspectData, MediaAspect.ATTR_RECORDINGTIME, out recordingDate))
           movieInfo.Year = recordingDate.Year;

@@ -64,7 +64,7 @@ namespace MediaPortal.Extensions.OnlineLibraries
     #region Fields
 
     protected Dictionary<string, Movie> _memoryCache = new Dictionary<string, Movie>();
-    
+
     /// <summary>
     /// Contains the initialized TheMovieDbWrapper.
     /// </summary>
@@ -79,8 +79,17 @@ namespace MediaPortal.Extensions.OnlineLibraries
     /// <returns><c>true</c> if successful</returns>
     public bool FindAndUpdateMovie(MovieInfo movieInfo)
     {
+      /* Clear the names from unwanted strings */
+      NamePreprocessor.CleanupTitle(movieInfo);
+
       Movie movieDetails;
-      if (MatchByImdbId(movieInfo, out movieDetails) || TryMatch(movieInfo.MovieName, movieInfo.Year, false, out movieDetails))
+      if (
+        /* Best way is to get a unique IMDB id */
+        MatchByImdbId(movieInfo, out movieDetails) ||
+        TryMatch(movieInfo.MovieName, movieInfo.Year, false, out movieDetails) ||
+        /* Prefer passed year, if no year given, try to process movie title and split between title and year */
+        (movieInfo.Year != 0 || NamePreprocessor.MatchTitleYear(movieInfo)) && TryMatch(movieInfo.MovieName, movieInfo.Year, false, out movieDetails)
+        )
       {
         int movieDbId = 0;
         if (movieDetails != null)
@@ -233,7 +242,7 @@ namespace MediaPortal.Extensions.OnlineLibraries
       return _movieDb.Init();
     }
 
-    protected override List<MovieMatch> FindNameMatch (List<MovieMatch> matches, string name)
+    protected override List<MovieMatch> FindNameMatch(List<MovieMatch> matches, string name)
     {
       return matches.FindAll(m => m.ItemName == name);
     }

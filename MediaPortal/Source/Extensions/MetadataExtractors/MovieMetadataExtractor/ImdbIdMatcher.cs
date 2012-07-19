@@ -22,9 +22,6 @@
 
 #endregion
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Text.RegularExpressions;
 
 namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
@@ -34,8 +31,8 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
   /// </summary>
   public class ImdbIdMatcher
   {
-    static string GROUP_IMDBID = "imdbid";
-    static Regex REGEXP_IMDBID = new Regex(@"(?<imdbid>tt\d{7})", RegexOptions.IgnoreCase);
+    public static string GROUP_IMDBID = "imdbid";
+    public static Regex REGEXP_IMDBID = new Regex(@"(?<imdbid>tt\d{7})", RegexOptions.IgnoreCase);
 
     public static bool MatchImdbId(string folderOrFileName, out string imdbId)
     {

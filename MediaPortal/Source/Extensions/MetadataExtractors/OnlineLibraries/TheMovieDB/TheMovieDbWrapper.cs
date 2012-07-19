@@ -23,7 +23,9 @@
 #endregion
 
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
+using System.Text;
 using MediaPortal.Common;
 using MediaPortal.Common.Logging;
 using MediaPortal.Extensions.OnlineLibraries.Libraries.MovieDbV3;
@@ -128,7 +130,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.TheMovieDB
       if (movies.Count > 1)
       {
         ServiceRegistration.Get<ILogger>().Debug("TheMovieDbWrapper      : Multiple matches for \"{0}\" ({1}). Try to find exact name match.", moviesName, movies.Count);
-        movies = movies.FindAll(s => s.Title == moviesName || s.OriginalTitle == moviesName || IsSimilarOrEqual(s.Title, moviesName));
+        movies = movies.FindAll(s => s.Title == moviesName || s.OriginalTitle == moviesName || IsSimilarOrEqual(s.Title, moviesName) || IsSimilarOrEqual(s.OriginalTitle, moviesName));
         if (movies.Count > 1)
         {
           // Try to match the year, if available
@@ -176,7 +178,14 @@ namespace MediaPortal.Extensions.OnlineLibraries.TheMovieDB
     protected string RemoveCharacters(string name)
     {
       string result = new[] { "-", ",", "/", ":", " ", " ", ".", "'" }.Aggregate(name, (current, s) => current.Replace(s, ""));
-      return result.ToLowerInvariant();
+      return RemoveDiacritics(result.ToLowerInvariant());
+    }
+
+    protected static string RemoveDiacritics(string text)
+    {
+      return string.Concat(
+        text.Normalize(NormalizationForm.FormD).Where(ch => CharUnicodeInfo.GetUnicodeCategory(ch) != UnicodeCategory.NonSpacingMark)
+        ).Normalize(NormalizationForm.FormC);
     }
 
     /// <summary>
