@@ -15,17 +15,17 @@
   </Style>
 
   <ContextMenu x:Key="SystemTrayMenu">
-    <MenuItem Header="Open" Command="{cmd:ApplicationCommand}" CommandParameter="Open" 
+    <MenuItem Header="Open Win" Command="{cmd:ApplicationCommand}" CommandParameter="Open" 
               Visibility="{Binding Path=IsEnabled, RelativeSource={RelativeSource Self}, Mode=OneWay, Converter={StaticResource BoolToVisConverter}}">
       <MenuItem.Icon>
-        <Image Style="{StaticResource MenuIcon}" Source="../Resources/Images/OpenSmall.png" />
+        <Image Style="{StaticResource MenuIcon}" Source="../Resources/Images/WindowOpenSmall.png" />
       </MenuItem.Icon>
     </MenuItem>
 
-    <MenuItem Header="Close" Command="{cmd:ApplicationCommand}" CommandParameter="Close"
+    <MenuItem Header="Close Win" Command="{cmd:ApplicationCommand}" CommandParameter="Close"
               Visibility="{Binding Path=IsEnabled, RelativeSource={RelativeSource Self}, Mode=OneWay, Converter={StaticResource BoolToVisConverter}}">
       <MenuItem.Icon>
-        <Image Style="{StaticResource MenuIcon}" Source="../Resources/Images/OpenSmall.png" />
+        <Image Style="{StaticResource MenuIcon}" Source="../Resources/Images/WindowCloseSmall.png" />
       </MenuItem.Icon>
     </MenuItem>
 
@@ -33,13 +33,13 @@
     
     <MenuItem Header="Start Service" Command="{cmd:ApplicationCommand}" CommandParameter="StartService" >
       <MenuItem.Icon>
-        <Image Style="{StaticResource MenuIcon}" Source="../Resources/Images/ExitSmall.png" />
+                <Image Style="{StaticResource MenuIcon}" Source="../Resources/Images/StartSmall.png" Stretch="Fill" />
       </MenuItem.Icon>
     </MenuItem>
 
     <MenuItem Header="Stop Service" Command="{cmd:ApplicationCommand}" CommandParameter="StopService" >
       <MenuItem.Icon>
-        <Image Style="{StaticResource MenuIcon}" Source="../Resources/Images/ExitSmall.png" />
+                <Image Style="{StaticResource MenuIcon}" Source="../Resources/Images/StopSmall.png" Stretch="Fill" />
       </MenuItem.Icon>
     </MenuItem>
 
@@ -47,7 +47,7 @@
   
     <MenuItem Header="Exit" Command="{cmd:ApplicationCommand}" CommandParameter="Quit" >
       <MenuItem.Icon>
-        <Image Style="{StaticResource MenuIcon}" Source="../Resources/Images/ExitSmall.png" />
+        <Image Style="{StaticResource MenuIcon}" Source="../Resources/Images/QuitSmall.png" />
       </MenuItem.Icon>
     </MenuItem>
 

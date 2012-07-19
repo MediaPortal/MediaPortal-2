@@ -25,6 +25,7 @@
 using System;
 using System.Windows;
 using MediaPortal.Common;
+using MediaPortal.Common.Threading;
 using MediaPortal.ServiceMonitor.ViewModel;
 
 namespace MediaPortal.ServiceMonitor.Commands
@@ -60,10 +61,12 @@ namespace MediaPortal.ServiceMonitor.Commands
           controller.MinimizeToTray();
           break;
         case "StartService":
-          controller.StartServerService();
+          // avoid any delay due to starting of the MP2 Server Service
+          ServiceRegistration.Get<IThreadPool>().Add(() => controller.StartServerService());
           break;
         case "StopService":
-          controller.StopServerService();
+          // avoid any delay due to stopping of the MP2 Server Service
+          ServiceRegistration.Get<IThreadPool>().Add(() => controller.StopServerService());
           break;
         default:
           var msg = String.Format("ApplicationCommand fired with missing or invalid parameter: {0}", parameter);

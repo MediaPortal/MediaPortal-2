@@ -30,7 +30,7 @@ using MediaPortal.ServiceMonitor.Model;
 
 namespace MediaPortal.ServiceMonitor.Converters
 {
-  [ValueConversion(typeof(ServerStatus), typeof(string))]
+  [ValueConversion(typeof(string), typeof(string))]
   public class ServerStatusToImageConverter : MarkupExtension, IValueConverter
   {
     #region Overrides of MarkupExtension
@@ -46,11 +46,19 @@ namespace MediaPortal.ServiceMonitor.Converters
 
     public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
     {
-      var serverStatus = (ServerStatus) value;
-
-      //ToDo: fill with logic
-
-      return "/Resources/Images/Info.png";
+      var serverStatus = (string) value;
+      if (!string.IsNullOrEmpty(serverStatus))
+        switch (serverStatus)
+        {
+      	  case "Attached to Server":
+      	  case "Connected to Server":
+        		return "../../Resources/Images/connected.png";
+         case "Detached from Server":
+      	  case "Disconnected from Server":
+      		  return "../../Resources/Images/disconnected.png";
+      	}
+       
+      return "../../Resources/Images/Info.png";
     }
 
     public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)

@@ -20,10 +20,10 @@
     </Border>
 
     <Image HorizontalAlignment="Left" Margin="13,10,0,14" Width="32"
-      Source="{Binding Path=Status, Converter={StaticResource SrvStatToImgConverter}, ConverterParameter=ToolTipImage}"
-      Stretch="Fill" />
+      Source="{Binding Path=ServerStatus, Converter={StaticResource SrvStatToImgConverter}}" Stretch="Fill" />
     
-    <TextBlock
+
+      <TextBlock
       HorizontalAlignment="Right"
       Margin="0,10,10,0"
       Style="{DynamicResource TitleLabel}"

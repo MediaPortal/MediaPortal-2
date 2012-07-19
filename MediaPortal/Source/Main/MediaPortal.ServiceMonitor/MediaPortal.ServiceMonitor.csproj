@@ -76,7 +76,6 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
-    <Compile Include="AsyncObservableCollection.cs" />
     <Compile Include="Collections\ObservableCollectionMt.cs" />
     <Compile Include="Collections\ObservableCollectionMtNotifyItemChanged.cs" />
     <Compile Include="Collections\PropertyChangedEventArgsWrapper.cs" />
@@ -87,7 +86,6 @@
     <Compile Include="Converters\ConnectionStatusToImageConverter.cs" />
     <Compile Include="Converters\ServerStatusToImageConverter.cs" />
     <Compile Include="Model\ClientData.cs" />
-    <Compile Include="Model\ServerStatus.cs" />
     <Compile Include="UPNP\IServerConnectionManager.cs" />
     <Compile Include="UPNP\ServerConnectionManager.cs" />
     <Compile Include="UPNP\ServerConnectionMessaging.cs" />
@@ -177,9 +175,6 @@
     <AppDesigner Include="Properties\" />
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="Resources\TrayIcons\" />
-  </ItemGroup>
-  <ItemGroup>
     <Resource Include="Resources\Images\Logo.png" />
   </ItemGroup>
   <ItemGroup>
@@ -221,7 +216,7 @@
     <Resource Include="Resources\Images\Info.png" />
   </ItemGroup>
   <ItemGroup>
-    <Resource Include="Resources\Images\OpenSmall.png" />
+    <Resource Include="Resources\Images\StartSmall.png" />
   </ItemGroup>
   <ItemGroup>
     <Resource Include="Resources\Images\ExitSmall.png" />
@@ -232,6 +227,16 @@
   <ItemGroup>
     <Resource Include="Resources\Images\Connected.png" />
     <Resource Include="Resources\Images\Disconnected.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resources\Images\WindowCloseSmall.png" />
+    <Resource Include="Resources\Images\WindowOpenSmall.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resources\Images\StopSmall.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resources\Images\QuitSmall.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>

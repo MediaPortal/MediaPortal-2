@@ -1,4 +1,4 @@
-﻿<Window x:Class="MediaPortal.ServiceMonitor.View.MainWindow"
+<Window x:Class="MediaPortal.ServiceMonitor.View.MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" 
         xmlns:Converters="clr-namespace:MediaPortal.ServiceMonitor.Converters"
@@ -9,7 +9,7 @@
 
   <Window.Resources>
     <Converters:ConnectionStatusToImageConverter x:Key="ConStatusToImageConverter"/>
-    </Window.Resources>
+  </Window.Resources>
       
   <Grid x:Name="layoutRoot">
     <Grid.RowDefinitions>
@@ -19,10 +19,10 @@
       <RowDefinition Height="Auto" />
       <RowDefinition Height="Auto" />
     </Grid.RowDefinitions>
-        <TextBlock Grid.Row="0" Margin="10,10,10,0" TextWrapping="Wrap" VerticalAlignment="Top" 
+      <TextBlock Grid.Row="0" Margin="10,10,10,0" TextWrapping="Wrap" VerticalAlignment="Top" 
                  Style="{DynamicResource TitleLabel}" Text="Server Status:" />
 
-            <TextBlock Grid.Row="1" Margin="20,5,20,0" TextWrapping="Wrap" VerticalAlignment="Top"  
+      <TextBlock Grid.Row="1" Margin="20,5,20,0" TextWrapping="Wrap" VerticalAlignment="Top"  
                  Style="{DynamicResource DefaultLabel}" Text="{Binding Path=ServerStatus}" />
        
       <TextBlock Grid.Row="2" Margin="10,20,10,0" TextWrapping="Wrap" VerticalAlignment="Top" 
