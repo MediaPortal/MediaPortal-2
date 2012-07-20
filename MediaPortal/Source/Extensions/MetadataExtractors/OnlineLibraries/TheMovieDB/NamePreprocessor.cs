@@ -47,9 +47,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.TheMovieDB
         // Removing "disc n" from name, this can be used in future to detect multipart titles!
         new Regex(@"(\s|-|_)*Disc\s*\d{1,2}", RegexOptions.IgnoreCase), 
         new Regex(@"(\s|-|_)*Disc\s*\d{1,2}", RegexOptions.IgnoreCase), 
-        new Regex(@"\s*3D", RegexOptions.IgnoreCase), 
-        new Regex(@"\s*BD", RegexOptions.IgnoreCase), 
-        new Regex(@"\s*Blu-ray™", RegexOptions.IgnoreCase), 
+        new Regex(@"\s*(Blu-ray|BD|3D|®|™)", RegexOptions.IgnoreCase), 
         new Regex(@"(\s|-)*$", RegexOptions.IgnoreCase), 
         // Can be extended
       };
