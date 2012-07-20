@@ -246,5 +246,45 @@ namespace MediaPortal.Utilities
         text.Normalize(NormalizationForm.FormD).Where(ch => CharUnicodeInfo.GetUnicodeCategory(ch) != UnicodeCategory.NonSpacingMark)
         ).Normalize(NormalizationForm.FormC);
     }
+
+    /// <summary>
+    /// Compute Levenshtein distance. Lower numbers represent more similar terms, larger numbers more distinct.
+    /// </summary>
+    /// <param name="s">String 1</param>
+    /// <param name="t">String 2</param>
+    /// <returns>Distance between the two strings. The larger the number, the bigger the difference.</returns>
+    public static int GetLevenshteinDistance(string s, string t)
+    {
+      // Step 1
+      if (s.Length == 0)
+        return t.Length;
+
+      if (t.Length == 0)
+        return s.Length;
+
+      int n = s.Length; // Length of s
+      int m = t.Length; // Length of t
+      int[,] d = new int[n + 1, m + 1]; // Computing matrix
+
+      // Step 2
+      for (int i = 0; i <= n; d[i, 0] = i++) ;
+      for (int j = 0; j <= m; d[0, j] = j++) ;
+
+      // Step 3
+      for (int i = 1; i <= n; i++)
+      {
+        // Step 4
+        for (int j = 1; j <= m; j++)
+        {
+          // Step 5
+          int cost = (t.Substring(j - 1, 1) == s.Substring(i - 1, 1) ? 0 : 1); // cost
+
+          // Step 6
+          d[i, j] = Math.Min(Math.Min(d[i - 1, j] + 1, d[i, j - 1] + 1), d[i - 1, j - 1] + cost);
+        }
+      }
+      // Step 7
+      return d[n, m];
+    }
   }
 }
