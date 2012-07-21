@@ -36,6 +36,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.TheMovieDB
   {
     protected MovieDbApiV3 _movieDbHandler;
     protected string _preferredLanguage;
+    public const int MAX_LEVENSHTEIN_DIST = 2;
 
     /// <summary>
     /// Sets the preferred language in short format like: en, de, ...
@@ -164,19 +165,26 @@ namespace MediaPortal.Extensions.OnlineLibraries.TheMovieDB
     }
     
     /// <summary>
-    /// Removes special characters and compares the remaining strings.
+    /// Removes special characters and compares the remaining strings. Strings are processed by <see cref="RemoveCharacters"/> before comparing.
+    /// The result is <c>true</c>, if the cleaned strings are equal or have a Levenshtein distance less or equal to <see cref="MAX_LEVENSHTEIN_DIST"/>.
     /// </summary>
-    /// <param name="name1"></param>
-    /// <param name="name2"></param>
-    /// <returns></returns>
+    /// <param name="name1">Name 1</param>
+    /// <param name="name2">Name 2</param>
+    /// <returns><c>true</c> if similar or equal</returns>
     protected bool IsSimilarOrEqual(string name1, string name2)
     {
-      return string.Equals(RemoveCharacters(name1), RemoveCharacters(name2));
+      return string.Equals(RemoveCharacters(name1), RemoveCharacters(name2)) || StringUtils.GetLevenshteinDistance(name1, name2) <= MAX_LEVENSHTEIN_DIST;
     }
 
+    /// <summary>
+    /// Replaces characters that are not necessary for comparing (like whitespaces) and diacritics. The result is returned as <see cref="string.ToLowerInvariant"/>.
+    /// </summary>
+    /// <param name="name">Name to clean up</param>
+    /// <returns>Cleaned string</returns>
     protected string RemoveCharacters(string name)
     {
       string result = new[] { "-", ",", "/", ":", " ", " ", ".", "'" }.Aggregate(name, (current, s) => current.Replace(s, ""));
+      result = result.Replace("&", "and");
       return StringUtils.RemoveDiacritics(result.ToLowerInvariant());
     }
 
