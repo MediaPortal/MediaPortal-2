@@ -128,6 +128,11 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
           MovieName = title,
         };
 
+        // Allow the online lookup to choose best matching language for metadata
+        ICollection<string> movieLanguages;
+        if (MediaItemAspect.TryGetAttribute(extractedAspectData, VideoAspect.ATTR_AUDIOLANGUAGES, out movieLanguages) && movieLanguages.Count > 0)
+          movieInfo.Languages.AddRange(movieLanguages);
+
         // Try to use an existing IMDB id for exact mapping
         string imdbId;
         if (MediaItemAspect.TryGetAttribute(extractedAspectData, MovieAspect.ATTR_IMDB_ID, out imdbId) ||

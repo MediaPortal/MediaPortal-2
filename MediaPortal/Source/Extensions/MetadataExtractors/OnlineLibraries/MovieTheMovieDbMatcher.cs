@@ -81,14 +81,14 @@ namespace MediaPortal.Extensions.OnlineLibraries
     {
       /* Clear the names from unwanted strings */
       NamePreprocessor.CleanupTitle(movieInfo);
-
+      string preferredLookupLanguage = FindBestMatchingLanguage(movieInfo);
       Movie movieDetails;
       if (
         /* Best way is to get a unique IMDB id */
         MatchByImdbId(movieInfo, out movieDetails) ||
-        TryMatch(movieInfo.MovieName, movieInfo.Year, false, out movieDetails) ||
+        TryMatch(movieInfo.MovieName, movieInfo.Year, preferredLookupLanguage, false, out movieDetails) ||
         /* Prefer passed year, if no year given, try to process movie title and split between title and year */
-        (movieInfo.Year != 0 || NamePreprocessor.MatchTitleYear(movieInfo)) && TryMatch(movieInfo.MovieName, movieInfo.Year, false, out movieDetails)
+        (movieInfo.Year != 0 || NamePreprocessor.MatchTitleYear(movieInfo)) && TryMatch(movieInfo.MovieName, movieInfo.Year, preferredLookupLanguage, false, out movieDetails)
         )
       {
         int movieDbId = 0;
@@ -132,6 +132,22 @@ namespace MediaPortal.Extensions.OnlineLibraries
       return false;
     }
 
+    private string FindBestMatchingLanguage(MovieInfo movieInfo)
+    {
+      CultureInfo mpLocal = ServiceRegistration.Get<ILocalization>().CurrentCulture;
+      // If we don't have movie languages available, or the MP2 setting language is available, prefer it.
+      if (movieInfo.Languages.Count == 0 || movieInfo.Languages.Contains(mpLocal.TwoLetterISOLanguageName))
+        return mpLocal.TwoLetterISOLanguageName;
+
+      // If there is only one language available, use this one.
+      if (movieInfo.Languages.Count == 1)
+        return movieInfo.Languages[0];
+
+      // If there are multiple languages, that are different to MP2 setting, we cannot guess which one is the "best".
+      // By returnin null we allow fallback to the default language of the online source (en).
+      return null;
+    }
+
     private bool MatchByImdbId(MovieInfo movieInfo, out Movie movieDetails)
     {
       if (!string.IsNullOrEmpty(movieInfo.ImdbId) && _movieDb.GetMovie(movieInfo.ImdbId, out movieDetails))
@@ -154,7 +170,7 @@ namespace MediaPortal.Extensions.OnlineLibraries
     public bool TryGetMovieDbId(string movieName, out int movieDbId)
     {
       Movie movieDetails;
-      if (TryMatch(movieName, 0, true, out movieDetails))
+      if (TryMatch(movieName, 0, null, true, out movieDetails))
       {
         movieDbId = movieDetails.Id;
         return true;
@@ -163,7 +179,7 @@ namespace MediaPortal.Extensions.OnlineLibraries
       return false;
     }
 
-    protected bool TryMatch(string movieName, int year, bool cacheOnly, out Movie movieDetail)
+    protected bool TryMatch(string movieName, int year, string language, bool cacheOnly, out Movie movieDetail)
     {
       movieDetail = null;
       try
@@ -194,7 +210,7 @@ namespace MediaPortal.Extensions.OnlineLibraries
           return false;
 
         List<MovieSearchResult> movies;
-        if (_movieDb.SearchMovieUnique(movieName, year, out movies))
+        if (_movieDb.SearchMovieUnique(movieName, year, language, out movies))
         {
           MovieSearchResult movieResult = movies[0];
           ServiceRegistration.Get<ILogger>().Debug("MovieTheMovieDbMatcher: Found unique online match for \"{0}\": \"{1}\"", movieName, movieResult.Title);

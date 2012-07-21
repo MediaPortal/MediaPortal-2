@@ -24,6 +24,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 
@@ -54,6 +55,11 @@ namespace MediaPortal.Common.MediaManagement.Helpers
     public long Revenue { get; set; }
     public double Score { get; set; }
 
+    /// <summary>
+    /// Contains a list of <see cref="CultureInfo.TwoLetterISOLanguageName"/> of the medium. This can be used
+    /// to do an online lookup in the best matching language.
+    /// </summary>
+    public List<string> Languages { get; internal set; }
     public List<string> Directors { get; internal set; }
     public List<string> Writers { get; internal set; }
     public List<string> Actors { get; internal set; }
@@ -61,6 +67,7 @@ namespace MediaPortal.Common.MediaManagement.Helpers
 
     public MovieInfo ()
     {
+      Languages = new List<string>();
       Actors = new List<string>();
       Directors = new List<string>();
       Writers = new List<string>();

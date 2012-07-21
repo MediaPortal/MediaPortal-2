@@ -69,11 +69,12 @@ namespace MediaPortal.Extensions.OnlineLibraries.TheMovieDB
     /// Search for Movie by name.
     /// </summary>
     /// <param name="movieName">Name</param>
+    /// <param name="language">Language, if <c>null</c> it takes the <see cref="PreferredLanguage"/></param>
     /// <param name="movies">Returns the list of matches.</param>
     /// <returns><c>true</c> if at least one Movie was found.</returns>
-    public bool SearchMovie(string movieName, out List<MovieSearchResult> movies)
+    public bool SearchMovie(string movieName, string language, out List<MovieSearchResult> movies)
     {
-      movies = _movieDbHandler.SearchMovie(movieName, PreferredLanguage);
+      movies = _movieDbHandler.SearchMovie(movieName, language);
       return movies.Count > 0;
     }
 
@@ -84,16 +85,18 @@ namespace MediaPortal.Extensions.OnlineLibraries.TheMovieDB
     /// - If movies name contains " - ", it splits on this and tries to runs again using the first part (combined titles)
     /// </summary>
     /// <param name="movieName">Name</param>
-    /// <param name="movies">Returns the list of matches.</param>
     /// <param name="year">Optional year of movie</param>
+    /// <param name="language">Language, if <c>null</c> it takes the <see cref="PreferredLanguage"/></param>
+    /// <param name="movies">Returns the list of matches.</param>
     /// <returns><c>true</c> if at exactly one Movie was found.</returns>
-    public bool SearchMovieUnique(string movieName, int year, out List<MovieSearchResult> movies)
+    public bool SearchMovieUnique(string movieName, int year, string language, out List<MovieSearchResult> movies)
     {
-      movies = _movieDbHandler.SearchMovie(movieName, PreferredLanguage);
+      language = language ?? PreferredLanguage;
+      movies = _movieDbHandler.SearchMovie(movieName, language);
       if (TestMatch(movieName, year, ref movies))
         return true;
 
-      if (movies.Count == 0 && PreferredLanguage != MovieDbApiV3.DefaultLanguage)
+      if (movies.Count == 0 && language != MovieDbApiV3.DefaultLanguage)
       {
         movies = _movieDbHandler.SearchMovie(movieName, MovieDbApiV3.DefaultLanguage);
         // If also no match in default language is found, we will look for combined movies names:
@@ -101,7 +104,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.TheMovieDB
         if (!TestMatch(movieName, year, ref movies) && movieName.Contains("-"))
         {
           string namePart = movieName.Split(new [] { '-' })[0].Trim();
-          return SearchMovieUnique(namePart, year, out movies);
+          return SearchMovieUnique(namePart, year, language, out movies);
         }
         return movies.Count == 1;
       }
@@ -144,8 +147,6 @@ namespace MediaPortal.Extensions.OnlineLibraries.TheMovieDB
               return true;
             }
           }
-          //ServiceRegistration.Get<ILogger>().Debug("TheMovieDbWrapper      : Multiple matches for exact name \"{0}\" ({1}). Try to find match for preferred language {2}.", moviesName, movies.Count, PreferredLanguage);
-          //movies = movies.FindAll(s => s.Language == PreferredLanguage);
         }
         return movies.Count == 1;
       }
