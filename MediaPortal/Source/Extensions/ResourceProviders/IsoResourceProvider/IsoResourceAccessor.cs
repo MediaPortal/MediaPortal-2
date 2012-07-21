@@ -61,33 +61,41 @@ namespace MediaPortal.Extensions.ResourceProviders.IsoResourceProvider
         throw new ArgumentException("Wrong path '{0}': Path in ISO file must start with a '/' character", pathToDirOrFile);
       _isoProxy = isoProxy;
       _isoProxy.IncUsage();
-      _isoProvider = isoProvider;
-      _pathToDirOrFile = pathToDirOrFile;
-
-      _isDirectory = true;
-      _lastChanged = _isoProxy.IsoFileResourceAccessor.LastChanged;
-      _size = -1;
-
-      if (IsEmptyOrRoot)
-        return;
-      lock (_isoProxy.SyncObj)
+      try
       {
-        string isoPath = ToIsoPath(pathToDirOrFile);
-        if (_isoProxy.DiskFileSystem.FileExists(isoPath))
-        {
-          _isDirectory = false;
-          _size = _isoProxy.DiskFileSystem.GetFileLength(isoPath);
-          _lastChanged = _isoProxy.DiskFileSystem.GetLastWriteTime(isoPath);
+        _isoProvider = isoProvider;
+        _pathToDirOrFile = pathToDirOrFile;
+
+        _isDirectory = true;
+        _lastChanged = _isoProxy.IsoFileResourceAccessor.LastChanged;
+        _size = -1;
+
+        if (IsEmptyOrRoot)
           return;
-        }
-        if (_isoProxy.DiskFileSystem.DirectoryExists(isoPath))
+        lock (_isoProxy.SyncObj)
         {
-          _isDirectory = true;
-          _size = -1;
-          _lastChanged = _isoProxy.DiskFileSystem.GetLastWriteTime(isoPath);
-          return;
+          string isoPath = ToIsoPath(pathToDirOrFile);
+          if (_isoProxy.DiskFileSystem.FileExists(isoPath))
+          {
+            _isDirectory = false;
+            _size = _isoProxy.DiskFileSystem.GetFileLength(isoPath);
+            _lastChanged = _isoProxy.DiskFileSystem.GetLastWriteTime(isoPath);
+            return;
+          }
+          if (_isoProxy.DiskFileSystem.DirectoryExists(isoPath))
+          {
+            _isDirectory = true;
+            _size = -1;
+            _lastChanged = _isoProxy.DiskFileSystem.GetLastWriteTime(isoPath);
+            return;
+          }
+          throw new ArgumentException("IsoResourceAccessor cannot access path or file '{0}' in iso-file", isoPath);
         }
-        throw new ArgumentException("IsoResourceAccessor cannot access path or file '{0}' in iso-file", isoPath);
+      }
+      catch (Exception)
+      {
+        _isoProxy.DecUsage();
+        throw;
       }
     }
 

@@ -61,13 +61,20 @@ namespace MediaPortal.Extensions.ResourceProviders.ZipResourceProvider
       _pathToDirOrFile = pathToDirOrFile;
 
       _zipProxy.IncUsage();
-
-      ReadCurrentDirectory();
-      if (!_isDirectory && _zipEntry == null)
+      try
+      {
+        ReadCurrentDirectory();
+        if (!_isDirectory && _zipEntry == null)
+        {
+          _zipProxy.DecUsage();
+          throw new ArgumentException(string.Format("ZipResourceAccessor: Cannot find zip entry for path '{0}' in ZIP file '{1}'",
+              pathToDirOrFile, _zipProxy.ZipFileResourceAccessor.CanonicalLocalResourcePath));
+        }
+      }
+      catch (Exception)
       {
         _zipProxy.DecUsage();
-        throw new ArgumentException(string.Format("ZipResourceAccessor: Cannot find zip entry for path '{0}' in ZIP file '{1}'",
-            pathToDirOrFile, _zipProxy.ZipFileResourceAccessor.CanonicalLocalResourcePath));
+        throw;
       }
     }
 
