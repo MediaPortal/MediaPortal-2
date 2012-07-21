@@ -242,9 +242,11 @@ namespace MediaPortal.Utilities
     /// <returns>Replaced text</returns>
     public static string RemoveDiacritics(string text)
     {
-      return string.Concat(
-        text.Normalize(NormalizationForm.FormD).Where(ch => CharUnicodeInfo.GetUnicodeCategory(ch) != UnicodeCategory.NonSpacingMark)
-        ).Normalize(NormalizationForm.FormC);
+      return text.Normalize(NormalizationForm.FormD).
+        Where(ch => CharUnicodeInfo.GetUnicodeCategory(ch) != UnicodeCategory.NonSpacingMark).
+        Select(c => c.ToString()).
+        Aggregate((a, b) => a + b).
+        Normalize(NormalizationForm.FormC);
     }
 
     /// <summary>
@@ -267,8 +269,8 @@ namespace MediaPortal.Utilities
       int[,] d = new int[n + 1, m + 1]; // Computing matrix
 
       // Step 2
-      for (int i = 0; i <= n; d[i, 0] = i++) ;
-      for (int j = 0; j <= m; d[0, j] = j++) ;
+      for (int i = 0; i <= n; d[i, 0] = i++) {}
+      for (int j = 0; j <= m; d[0, j] = j++) {}
 
       // Step 3
       for (int i = 1; i <= n; i++)
