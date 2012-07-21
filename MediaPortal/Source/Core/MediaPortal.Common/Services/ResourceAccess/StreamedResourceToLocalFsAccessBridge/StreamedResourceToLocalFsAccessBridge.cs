@@ -113,6 +113,11 @@ namespace MediaPortal.Common.Services.ResourceAccess.StreamedResourceToLocalFsAc
     /// a new instance of <see cref="StreamedResourceToLocalFsAccessBridge"/> to provide the <see cref="ILocalFsResourceAccessor"/>
     /// instance.
     /// </summary>
+    /// <remarks>
+    /// The ownership of the given <paramref name="baseResourceAccessor"/> transferred from the caller to the returned
+    /// result value. That means, if this method succeeds, the caller must dispose the result value, it must not dispose
+    /// the given <paramref name="baseResourceAccessor"/> any more.
+    /// </remarks>
     /// <param name="baseResourceAccessor">Resource accessor which is used to provide the resource contents.</param>
     /// <param name="path">Relative path based on the given baseResourceAccessor.</param>
     /// <returns>Resource accessor which implements <see cref="ILocalFsResourceAccessor"/>.</returns>
@@ -142,6 +147,11 @@ namespace MediaPortal.Common.Services.ResourceAccess.StreamedResourceToLocalFsAc
       return new StreamedResourceToLocalFsAccessBridge(md, path);
     }
 
+    /// <summary>
+    /// Convenience method for <see cref="GetLocalFsResourceAccessor(IResourceAccessor,string)"/> for the root path (<c>"/"</c>).
+    /// </summary>
+    /// <param name="baseResourceAccessor">Resource accessor which is used to provide the resource contents.</param>
+    /// <returns>Resource accessor which implements <see cref="ILocalFsResourceAccessor"/>.</returns>
     public static ILocalFsResourceAccessor GetLocalFsResourceAccessor(IResourceAccessor baseResourceAccessor)
     {
       return GetLocalFsResourceAccessor(baseResourceAccessor, "/");
