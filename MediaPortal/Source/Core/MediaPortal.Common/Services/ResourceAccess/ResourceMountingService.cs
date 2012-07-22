@@ -176,8 +176,8 @@ namespace MediaPortal.Common.Services.ResourceAccess
         string resourceName = resourceAccessor.ResourceName;
         IFileSystemResourceAccessor fsra = resourceAccessor as IFileSystemResourceAccessor;
         rootDirectory.AddResource(resourceName, fsra != null && fsra.IsDirectory ?
-                                                                                     (VirtualFileSystemResource) new VirtualDirectory(resourceName, fsra) :
-                                                                                                                                                              new VirtualFile(resourceName, resourceAccessor));
+            (VirtualFileSystemResource) new VirtualDirectory(resourceName, fsra) :
+            new VirtualFile(resourceName, resourceAccessor));
         char driveLetter = _dokanExecutor.DriveLetter;
         return Path.Combine(driveLetter + ":\\", rootDirectoryName + "\\" + resourceName);
       }

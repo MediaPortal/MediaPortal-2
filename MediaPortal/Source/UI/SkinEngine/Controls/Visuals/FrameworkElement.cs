@@ -698,6 +698,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       }
     }
 
+    #region Focus handling
+
     /// <summary>
     /// Checks if this element is focusable. This is the case if the element is visible, enabled and
     /// focusable. If this is the case, this method will set the focus to this element.
@@ -761,6 +763,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       }
       return false;
     }
+
+    #endregion
 
     #region Replacing methods for the == operator which evaluate two float.NaN values to equal
 
@@ -1274,6 +1278,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       Arrange(new RectangleF(new PointF(0, 0), skinSize));
     }
 
+    #region Mouse handling
+
     protected bool TransformMouseCoordinates(ref float x, ref float y)
     {
       Matrix? ift = _inverseFinalTransform;
@@ -1314,6 +1320,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       }
       base.OnMouseMove(x, y, focusCandidates);
     }
+
+    #endregion
 
     public override bool IsInArea(float x, float y)
     {
