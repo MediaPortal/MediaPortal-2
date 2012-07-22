@@ -53,13 +53,12 @@ namespace MediaPortal.Common.Services.ResourceAccess.StreamedResourceToLocalFsAc
     public void Dispose()
     {
       if (_baseAccessor == null)
-          // Already disposed
+        // Already disposed
         return;
-      if (UnmountResource())
-        // Don't dispose the base accessor - ownership was transferred to the resource mounting service
-        _baseAccessor = null;
-      else
+      if (!UnmountResource())
+        // The ownership was transferred to the resource mounting service, so if unmounting was succesful, we must not dispose our base accessor
         _baseAccessor.Dispose();
+      _baseAccessor = null;
     }
 
     #region Protected methods
@@ -110,6 +109,8 @@ namespace MediaPortal.Common.Services.ResourceAccess.StreamedResourceToLocalFsAc
 
     /// <summary>
     /// Returns a resource path which points to the transient local resource provided by this resource access bridge.
+    /// The resource referred by this transient path is available until <see cref="UnmountResource"/> is called, which is called
+    /// in the <see cref="Dispose"/> method.
     /// </summary>
     public ResourcePath TransientLocalResourcePath
     {
