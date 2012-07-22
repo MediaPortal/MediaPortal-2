@@ -53,6 +53,8 @@ namespace MediaPortal.UI.Players.Video
 
       EXTENSIONS2PLAYER.Add(".mts", typeof(VideoPlayer));
       EXTENSIONS2PLAYER.Add(".m2ts", typeof(VideoPlayer));
+      EXTENSIONS2PLAYER.Add(".dvr-ms", typeof(VideoPlayer));
+      EXTENSIONS2PLAYER.Add(".wtv", typeof(VideoPlayer));
       EXTENSIONS2PLAYER.Add(".mp4", typeof(VideoPlayer));
       EXTENSIONS2PLAYER.Add(".mkv", typeof(VideoPlayer));
       EXTENSIONS2PLAYER.Add(".mov", typeof(VideoPlayer));

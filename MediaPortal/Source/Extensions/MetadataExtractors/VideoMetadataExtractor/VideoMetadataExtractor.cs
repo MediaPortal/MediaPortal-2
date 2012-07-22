@@ -384,7 +384,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.VideoMetadataExtractor
           using (MediaInfoWrapper fileInfo = ReadMediaInfo(mediaItemAccessor))
           {
             // Before we start evaluating the file, check if it is a video at all
-            if (fileInfo.IsValid && fileInfo.GetVideoCount() == 0)
+            if (!fileInfo.IsValid || (fileInfo.GetVideoCount() == 0 && !IsWorkaroundRequired(filePath)))
               return false;
 
             string mediaTitle = DosPathHelper.GetFileNameWithoutExtension(mediaItemAccessor.ResourceName);
@@ -436,6 +436,16 @@ namespace MediaPortal.Extensions.MetadataExtractors.VideoMetadataExtractor
         ServiceRegistration.Get<ILogger>().Info("VideoMetadataExtractor: Exception reading resource '{0}' (Text: '{1}')", mediaItemAccessor.CanonicalLocalResourcePath, e.Message);
       }
       return false;
+    }
+
+    /// <summary>
+    /// Helper method that contains overrides for video detection for certain formats, because video count information is not always correct.
+    /// </summary>
+    /// <param name="filePath">File path</param>
+    /// <returns><c>true</c> if this file should be treated as video.</returns>
+    protected bool IsWorkaroundRequired(string filePath)
+    {
+      return filePath.ToLowerInvariant().EndsWith(".wtv");
     }
 
     // The following code should be used in the slow batch mode (see Mantis #1977)

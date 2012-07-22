@@ -44,6 +44,8 @@ namespace MediaPortal.Extensions.MetadataExtractors.VideoMetadataExtractor.Setti
           ".m2ts",
           ".mts",
           ".mov",
+          ".wtv",
+          ".dvr-ms",
       };
 
     protected List<string> _videoFileExtensions = new List<string>(DEFAULT_VIDEO_FILE_EXTENSIONS);
