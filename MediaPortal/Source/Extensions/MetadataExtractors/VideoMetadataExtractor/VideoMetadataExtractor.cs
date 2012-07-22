@@ -397,20 +397,23 @@ namespace MediaPortal.Extensions.MetadataExtractors.VideoMetadataExtractor
         {
           result.UpdateMetadata(extractedAspectData);
 
-          ILocalFsResourceAccessor lfsra;
-          IResourceAccessor ra = null;
-
-          // forceQuickMode applies for local browsing, so use the ILocalFsResourceAccessor directly
-          if (forceQuickMode)
-            lfsra = mediaItemAccessor as ILocalFsResourceAccessor;
-          else
-          {
-            ra = mediaItemAccessor.Clone();
-            lfsra = StreamedResourceToLocalFsAccessBridge.GetLocalFsResourceAccessor(ra);
-          }
-
+          ILocalFsResourceAccessor disposeLfsra = null;
           try
           {
+            ILocalFsResourceAccessor lfsra = mediaItemAccessor as ILocalFsResourceAccessor;
+            if (lfsra == null && !forceQuickMode)
+            { // In case forceQuickMode, we only want local browsing
+              IResourceAccessor ra = mediaItemAccessor.Clone();
+              try
+              {
+                lfsra = StreamedResourceToLocalFsAccessBridge.GetLocalFsResourceAccessor(ra);
+                disposeLfsra = lfsra; // Remember to dispose the extra resource accessor instance
+              }
+              catch (Exception)
+              {
+                ra.Dispose();
+              }
+            }
             if (lfsra != null)
             {
               string localFsPath = lfsra.LocalFileSystemPath;
@@ -420,13 +423,8 @@ namespace MediaPortal.Extensions.MetadataExtractors.VideoMetadataExtractor
           }
           finally
           {
-            if (ra != null)
-            {
-              ra.Dispose();
-              // Dispose the ILocalFsResourceAccessor only if we created a Clone before
-              if (lfsra != null)
-                lfsra.Dispose();
-            }
+            if (disposeLfsra != null)
+              disposeLfsra.Dispose();
           }
           return true;
         }
