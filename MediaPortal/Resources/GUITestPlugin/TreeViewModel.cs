@@ -28,7 +28,7 @@ using MediaPortal.UI.Presentation.DataObjects;
 using MediaPortal.UI.Presentation.Models;
 using MediaPortal.UI.Presentation.Workflow;
 
-namespace MediaPortal.Test.GUITestPlugin
+namespace MediaPortal.Test.GUITest
 {
   /// <summary>
   /// Model which holds the GUI state for the TreeView state.

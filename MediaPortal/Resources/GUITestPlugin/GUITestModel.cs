@@ -28,17 +28,14 @@ using MediaPortal.Common;
 using MediaPortal.UI.Presentation.Models;
 using MediaPortal.UI.Presentation.Workflow;
 
-namespace MediaPortal.Test.GUITestPlugin
+namespace MediaPortal.Test.GUITest
 {
   /// <summary>
-  /// Model which holds the GUI state for the GUI test state.
+  /// Model which holds the GUI state for the GUI test workflow state.
   /// </summary>
   public class GUITestModel : IWorkflowModel
   {
     public const string MODEL_ID_STR = "F4FC1599-F412-40d0-82BF-46FC352E93BE";
-    public const string TEST_MAIN_WORKFLOW_STATE_ID_STR = "F660C2CA-A340-4694-A7F4-9E68AB9721C4";
-
-    protected static Guid TEST_MAIN_WORKFLOW_STATE_ID = new Guid(TEST_MAIN_WORKFLOW_STATE_ID_STR);
 
     #region Protected fields
 
