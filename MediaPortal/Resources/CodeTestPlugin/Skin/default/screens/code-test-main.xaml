@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Include
+    xmlns="www.team-mediaportal.com/2008/mpf/directx"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    Source="screens\master_menu.xaml"
+    >
+  <Include.Resources>
+
+    <!-- Header -->
+    <ResourceWrapper x:Key="Header_Text" Resource="Code tests"/>
+
+    <!-- Contents -->
+    <ControlTemplate x:Key="Contents_Template">
+      <DockPanel LastChildFill="True">
+        <UniformGrid Columns="2" DockPanel.Dock="Center">
+          <UniformGrid.Resources>
+            <Model x:Key="Model" Id="3E07F585-C3DE-4FB0-BD18-707AD9C78861"/> <!-- Code-Test-Model -->
+          </UniformGrid.Resources>
+          <StackPanel x:Name="LeftPanel" Orientation="Vertical" Margin="0,0,5,0">
+            <Button Style="{StaticResource ButtonWideStyle}" Content="Create resource accessor"
+                HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+                Command="{Command Source={StaticResource Model},Path=ShowScreenInTransientState,Parameters=test-create-resource-accessor}"/>
+          </StackPanel>
+          <StackPanel x:Name="RightPanel" Orientation="Vertical" Margin="5,0,0,0">
+          </StackPanel>
+        </UniformGrid>
+      </DockPanel>
+    </ControlTemplate>
+
+  </Include.Resources>
+</Include>

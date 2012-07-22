@@ -1,0 +1,29 @@
+<Plugin
+    DescriptorVersion="1.0" 
+    Name="Code Test"
+    PluginId="{96CDD6D8-BC76-421F-AE22-956DE6857FA0}"
+    Author="Albert"
+    Copyright="GPL"
+    Description="Test Plugin for executing test code fragments"
+    PluginVersion="1.0">
+
+  <Runtime>
+    <Assembly FileName="CodeTestPlugin.dll"/>
+  </Runtime>
+
+  <Register Location="/Models">
+    <Model Id="3E07F585-C3DE-4FB0-BD18-707AD9C78861" ClassName="MediaPortal.Test.CodeTest.CodeTestModel"/>
+    <Model Id="81679E2D-C267-4E7E-97F6-792989123DAF" ClassName="MediaPortal.Test.CodeTest.RATestModel"/>
+  </Register>
+
+  <Register Location="/Workflow/States">
+    <WorkflowState Id="EBB54224-96DF-4E19-9DE3-8F07EFF9D413"
+        Name="CodeTestMain" MainScreen="code-test-main"
+        DisplayLabel="Code-Test"
+        WorkflowModel="3E07F585-C3DE-4FB0-BD18-707AD9C78861"/> <!-- Workflow model = GUITestModel -->
+  </Register>
+
+  <Register Location="/Resources/Skin">
+    <Resource Id="CodeTestSkin" Directory="Skin" Type="Skin"/>
+  </Register>
+</Plugin>

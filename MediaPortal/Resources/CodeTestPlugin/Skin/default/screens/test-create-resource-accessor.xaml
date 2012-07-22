@@ -1,0 +1,24 @@
+<Screen
+    xmlns="www.team-mediaportal.com/2008/mpf/directx"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+  <DockPanel LastChildFill="False">
+    <DockPanel.Resources>
+      <Model x:Key="Model" Id="81679E2D-C267-4E7E-97F6-792989123DAF"/> <!-- RA-Test-Model -->
+    </DockPanel.Resources>
+    <Label DockPanel.Dock="Top" HorizontalAlignment="Center"
+        Content="Create resource accessor test"
+        Color="{ThemeResource TextColor}" Wrap="True"/>
+    <Label DockPanel.Dock="Top" HorizontalAlignment="Center"
+        Content="Creates a resource accessor"
+        Wrap="True" FontSize="{ThemeResource SmallFontSize}"
+        Color="{ThemeResource TextColor}"/>
+    <StackPanel DockPanel.Dock="Center" Orientation="Vertical"
+        HorizontalAlignment="Center" VerticalAlignment="Center">
+      <Button x:Name="ImportButton" Content="Import"
+          Command="{Command Source={StaticResource Model},Path=DoImport}"/>
+      <TextBox Text="{Binding Source={StaticResource Model},Path=ResourcePathStr,Mode=TwoWay}"/>
+      <Button x:Name="TestButton" Content="Create resource accessor"
+          Command="{Command Source={StaticResource Model},Path=CreateResourceAccessor}"/>
+    </StackPanel>
+  </DockPanel>
+</Screen>

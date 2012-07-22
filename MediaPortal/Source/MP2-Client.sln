@@ -120,6 +120,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MatroskaLib", "Extensions\M
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MovieMetadataExtractor", "Extensions\MetadataExtractors\MovieMetadataExtractor\MovieMetadataExtractor.csproj", "{E73C038E-FD47-40AD-9256-4457316F8A97}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CodeTestPlugin", "..\Resources\CodeTestPlugin\CodeTestPlugin.csproj", "{756486CC-35FF-4B52-9E4E-DE5E41A7B6FC}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x86 = Debug|x86
@@ -312,6 +314,10 @@ Global
 		{E73C038E-FD47-40AD-9256-4457316F8A97}.Debug|x86.Build.0 = Debug|x86
 		{E73C038E-FD47-40AD-9256-4457316F8A97}.Release|x86.ActiveCfg = Release|x86
 		{E73C038E-FD47-40AD-9256-4457316F8A97}.Release|x86.Build.0 = Release|x86
+		{756486CC-35FF-4B52-9E4E-DE5E41A7B6FC}.Debug|x86.ActiveCfg = Debug|x86
+		{756486CC-35FF-4B52-9E4E-DE5E41A7B6FC}.Debug|x86.Build.0 = Debug|x86
+		{756486CC-35FF-4B52-9E4E-DE5E41A7B6FC}.Release|x86.ActiveCfg = Release|x86
+		{756486CC-35FF-4B52-9E4E-DE5E41A7B6FC}.Release|x86.Build.0 = Release|x86
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

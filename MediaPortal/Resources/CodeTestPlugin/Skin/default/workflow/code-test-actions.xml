@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Workflow DescriptorVersion="1.0">
+  <MenuActions>
+    <PushNavigationTransition Id="76D0D121-0B4B-400D-9104-09C7F20EE3A7"
+        Name="Home->Code-Test"
+        DisplayCategory="z-Test"
+        SortOrder="b"
+        SourceStates="7F702D9C-F2DD-42da-9ED8-0BA92F07787F"
+        TargetState="EBB54224-96DF-4E19-9DE3-8F07EFF9D413"
+        DisplayTitle="Code-Test"/>
+  </MenuActions>
+</Workflow>
