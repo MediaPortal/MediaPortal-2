@@ -25,7 +25,9 @@ Adapted by Team-MediaPortal from a WIX dialog
 
         <Control Id="Client_and_Server" Type="PushButton" X="30" Y="60" Width="75" Height="17" Text="!(loc.SelectInstallTypeDlg_Client_and_Server)">
           <Publish Property="INSTALLTYPE_CUSTOM" Value="0">1</Publish>
-          <Publish Event="AddLocal" Value="ALL">1</Publish>
+          <Publish Event="AddLocal" Value="Client">1</Publish>
+          <Publish Event="AddLocal" Value="Server">1</Publish>
+          <Publish Event="AddLocal" Value="ServiceMonitor">1</Publish>
         </Control>
         <Control Id="Client_and_Server_Desc" Type="Text" X="115" Y="58" Width="230" Height="35" Text="!(loc.SelectInstallTypeDlg_Client_and_Server_Desc)" />
 
@@ -33,13 +35,15 @@ Adapted by Team-MediaPortal from a WIX dialog
           <Publish Property="INSTALLTYPE_CUSTOM" Value="0">1</Publish>
           <Publish Event="AddLocal" Value="Client">1</Publish>
           <Publish Event="Remove" Value="Server">1</Publish>
+          <Publish Event="AddLocal" Value="ServiceMonitor">1</Publish>
         </Control>
         <Control Id="Client_only_Desc" Type="Text" X="115" Y="98" Width="230" Height="35" Text="!(loc.SelectInstallTypeDlg_Client_only_Desc)" />
 
         <Control Id="Server_only" Type="PushButton" X="30" Y="140" Width="75" Height="17" Text="!(loc.SelectInstallTypeDlg_Server_only)">
           <Publish Property="INSTALLTYPE_CUSTOM" Value="0">1</Publish>
-          <Publish Event="AddLocal" Value="Server">1</Publish>
           <Publish Event="Remove" Value="Client">1</Publish>
+          <Publish Event="AddLocal" Value="Server">1</Publish>
+          <Publish Event="AddLocal" Value="ServiceMonitor">1</Publish>
         </Control>
         <Control Id="Server_only_Desc"  Type="Text" X="115" Y="138" Width="230" Height="35" Text="!(loc.SelectInstallTypeDlg_Server_only_Desc)" />
 

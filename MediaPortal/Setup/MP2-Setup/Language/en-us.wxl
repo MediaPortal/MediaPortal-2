@@ -7,35 +7,39 @@
   <String Id="SummaryCodepage">1252</String>
   <String Id="ProductLanguage">1033</String>
 
-  <!-- AddRemove -->
+  <!-- General strings -->
   <String Id="AR_Comment">MediaPortal 2</String>
 
-  <!-- Shortcuts -->
-  <String Id="SC_Client">MediaPortal 2</String>
-  <String Id="SC_Client_Desc">Start MediaPortal 2</String>
-  <String Id="SC_Server">MediaPortal 2 Server</String>
-  <String Id="SC_Server_Desc">Start MediaPortal 2 Server</String>
-  <String Id="SC_ServiceMonitor">MediaPortal 2 ServiceMonitor</String>
-  <String Id="SC_ServiceMonitor_Desc">Start MediaPortal 2 ServiceMonitor</String>
-  <String Id="SC_Uninstall">Uninstall MediaPortal 2</String>
-  <String Id="SC_Uninstall_Desc">Removes MediaPortal 2 or parts of it from the computer</String>
-
-  <!-- Features -->
   <String Id="F_MediaPortal">MediaPortal 2</String>
   <String Id="F_MediaPortal_Desc">MediaPortal 2 - Main programs installations.</String>
 
+  <String Id="SC_Uninstall">Uninstall MediaPortal 2</String>
+  <String Id="SC_Uninstall_Desc">Removes MediaPortal 2 or parts of it from the computer</String>
+
+  <!-- Client related strings -->
   <String Id="F_Client">Client</String>
   <String Id="F_Client_Desc">The user interface. Plays media files.</String>
   <String Id="F_Client_Plugins">Plugins</String>
   <String Id="F_Client_Plugins_Desc">Plugins for the client.</String>
 
+  <String Id="SC_Client">MediaPortal 2</String>
+  <String Id="SC_Client_Desc">Start MediaPortal 2</String>
+
+  <!-- Server related strings -->
   <String Id="F_Server">Server</String>
   <String Id="F_Server_Desc">The server part of MediaPortal 2. Provides the MediaLibrary and other services.</String>
   <String Id="F_Server_Plugins">Plugins</String>
   <String Id="F_Server_Plugins_Desc">Plugins for the server.</String>
 
+  <String Id="Service_DisplayName">MediaPortal 2 Server Service</String>
+  <String Id="Service_Description">This service runs the MediaPortal 2 Server.</String>
+
+  <!-- ServiceMonitor related strings -->
   <String Id="F_ServiceMonitor">ServiceMonitor</String>
   <String Id="F_ServiceMonitor_Desc">The GUI for the server part of MediaPortal 2. Provides monitoring and configuration for MP2-Server.</String>
+  
+  <String Id="SC_ServiceMonitor">MediaPortal 2 ServiceMonitor</String>
+  <String Id="SC_ServiceMonitor_Desc">Start MediaPortal 2 ServiceMonitor</String>
 
   <!-- Launch Conditions -->
   <String Id="LC_OS">[ProductName] requires minimum Windows 7 / 2008 R2 as operating system.</String>

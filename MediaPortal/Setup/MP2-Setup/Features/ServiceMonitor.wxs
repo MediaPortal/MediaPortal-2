@@ -91,8 +91,8 @@
     <DirectoryRef Id="MP2StartMenu">
       <Component Id="ServiceMonitor.StartMenu.Shortcut" Guid="859CAD90-107F-4526-9607-CB340B4D59E8">
         <Shortcut Id="ServiceMonitor.StartMenu.Shortcut"
-                  Name="!(loc.SC_Client)"
-                  Description="!(loc.SC_Client_Desc)"
+                  Name="!(loc.SC_ServiceMonitor)"
+                  Description="!(loc.SC_ServiceMonitor_Desc)"
                   Target="[!ServiceMonitor.exe]"
                   Icon="ServiceMonitor"
                   WorkingDirectory="INSTALLDIR_SERVICE_MONITOR" />
@@ -111,8 +111,8 @@
     <DirectoryRef Id="DesktopFolder">
       <Component Id="ServiceMonitor.Desktop.Shortcut" Guid="44C19D8A-48F8-4B0A-98B4-5E02C0F2BE2D">
         <Shortcut Id="ServiceMonitor.Desktop.Shortcut"
-                  Name="!(loc.SC_Client)"
-                  Description="!(loc.SC_Client_Desc)"
+                  Name="!(loc.SC_ServiceMonitor)"
+                  Description="!(loc.SC_ServiceMonitor_Desc)"
                   Target="[!ServiceMonitor.exe]"
                   Icon="ServiceMonitor"
                   WorkingDirectory="INSTALLDIR_SERVICE_MONITOR" />

@@ -42,8 +42,6 @@
 
       <ComponentRef Id="Server.exe" />
       <ComponentRef Id="MP2Server.config" />
-      <ComponentRef Id="Server.Desktop.Shortcut" />
-      <ComponentRef Id="Server.StartMenu.Shortcut" />
       <ComponentRef Id="Server.Registry.InstallDir" />
 
       <ComponentRef Id="S__HttpServer" />

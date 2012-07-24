@@ -84,6 +84,11 @@
           <fire:FirewallException Id="MP2ServerExUDPDom" Name="MP2-Server UDP Domain" Profile="domain" Protocol="udp" Scope="any" IgnoreFailure="yes" />
           <fire:FirewallException Id="MP2ServerExUDPPriv" Name="MP2-Server UDP Private" Profile="private" Protocol="udp" Scope="any" IgnoreFailure="yes" />
         </File>
+        <ServiceInstall Id="ServiceInstaller" Type="ownProcess" Vital="yes" Name="MP2-Server"
+            DisplayName="!(loc.Service_DisplayName)"
+            Description="!(loc.Service_Description)"
+            Start="auto" Account="LocalSystem" ErrorControl="ignore" Interactive="no" />
+        <ServiceControl Id="StartService" Start="install" Stop="both" Remove="uninstall" Name="MP2-Server" Wait="yes" />
       </Component>
       <Component Id="MP2Server.config" Guid="1015AFE2-59B7-47B0-A1F8-F96053572A6F">
         <File Id="MP2Server.exe.config" Name="MP2-Server.exe.config" KeyPath="yes" Checksum="yes" />
@@ -113,48 +118,6 @@
         <File Id="S__UPnP.dll" Name="UPnP.dll" KeyPath="yes" Checksum="yes" />
       </Component>
 
-    </DirectoryRef>
-
-    <!-- Shortcuts -->
-    <DirectoryRef Id="MP2StartMenu">
-      <Component Id="Server.StartMenu.Shortcut" Guid="6A4D291B-5143-48F5-A277-65DAAE31623F">
-        <Shortcut Id="Server.StartMenu.Shortcut"
-                  Name="!(loc.SC_Server)"
-                  Description="!(loc.SC_Server_Desc)"
-                  Target="[!Server.exe]"
-                  Icon="Server"
-                  WorkingDirectory="INSTALLDIR_SERVER" />
-        <!--
-        Fix ICE 38 by adding a dummy registry key that is the key for this shortcut.
-        http://msdn.microsoft.com/library/en-us/msi/setup/ice38.asp
-        -->
-        <RegistryValue Root="HKCU"
-                       Key="$(var.RegKeyInstall)"
-                       Name="Server.StartMenu.Shortcut"
-                       Type="string"
-                       Value="1"
-                       KeyPath="yes" />
-      </Component>
-    </DirectoryRef>
-    <DirectoryRef Id="DesktopFolder">
-      <Component Id="Server.Desktop.Shortcut" Guid="751AD25F-D690-4C01-8915-CD5DA4029F8E">
-        <Shortcut Id="Server.Desktop.Shortcut"
-                  Name="!(loc.SC_Server)"
-                  Description="!(loc.SC_Server_Desc)"
-                  Target="[!Server.exe]"
-                  Icon="Server"
-                  WorkingDirectory="INSTALLDIR_SERVER" />
-        <!--
-        Fix ICE 38 by adding a dummy registry key that is the key for this shortcut.
-        http://msdn.microsoft.com/library/en-us/msi/setup/ice38.asp
-        -->
-        <RegistryValue Root="HKCU"
-                       Key="$(var.RegKeyInstall)"
-                       Name="Server.Desktop.Shortcut"
-                       Type="string"
-                       Value="1"
-                       KeyPath="yes" />
-      </Component>
     </DirectoryRef>
 
   </Fragment>
