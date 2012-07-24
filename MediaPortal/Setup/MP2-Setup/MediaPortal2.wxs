@@ -120,6 +120,7 @@
              Description="!(loc.F_MediaPortal_Desc)">
       <FeatureRef Id="Client" />
       <FeatureRef Id="Server" />
+      <FeatureRef Id="ServiceMonitor" />
 
       <ComponentRef Id="TeamMediaPortal.DATA.FOLDER" />
       <ComponentRef Id="TeamMediaPortalStartMenu" />

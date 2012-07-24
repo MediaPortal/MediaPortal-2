@@ -1,0 +1,133 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<Wix xmlns="http://schemas.microsoft.com/wix/2006/wi"
+     xmlns:fire="http://schemas.microsoft.com/wix/FirewallExtension">
+
+  <Fragment>
+
+    <?include ..\Includes.wxi ?>
+    <?define OutDirServiceMonitor="$(var.OutDirRoot)\MP2-ServiceMonitor\bin\x86\Release" ?>
+
+    <!-- Icon -->
+    <Icon Id="ServiceMonitor" SourceFile="$(var.OutDirServiceMonitor)\MP2-ServiceMonitor.exe" />
+
+    <!-- Directories -->
+    <DirectoryRef Id="TeamMediaPortalFolder">
+      <Directory Id="INSTALLDIR_SERVICE_MONITOR" Name="MP2-ServiceMonitor"/>
+    </DirectoryRef>
+    
+    <DirectoryRef Id="INSTALLDIR_SERVICE_MONITOR" FileSource="$(var.OutDirServiceMonitor)">
+
+      <Directory Id="ServiceMonitor.Defaults" Name="Defaults">
+        <Component Id="ServiceMonitor.Paths" Guid="7EBFECB3-292A-4CC2-9AC2-08E0C788C5B0">
+          <File Id="ServiceMonitor.Paths.xml" Name="Paths.xml" KeyPath="yes" Checksum="yes" />
+        </Component>
+
+        <!-- Albert, 2012-03-04: If we would let the user change the custom paths, we could write them here to the Paths.xml file.
+                                 We would need to call our custom action PrepareXmlPathVariables(). -->
+        <!--
+        <Component Id="WriteCustomClientPaths" Guid="52711D1B-E2EE-4ACD-9993-F5B3FCF87701">
+          <?foreach LABEL in $(var.ClientPathLabels)?>
+          <util:XmlFile Id="WriteCustomClientPaths_$(var.LABEL)"
+                        Action="setValue" File="[Defaults]\Paths.xml"
+                        ElementPath="//Paths/Path[\[]@name='$(var.LABEL)'[\]]"
+                        Value="[XML.CLIENT.$(var.LABEL).FOLDER]" Name="value" SelectionLanguage="XPath" />
+          <?endforeach?>
+        </Component>
+        -->
+
+        <Component Id="ServiceMonitor.Registry.InstallDir" Guid="6B87D8D0-1C8E-4A5A-AF9E-AD2E89698660">
+          <RegistryKey Root="HKLM"
+                       Key="Software\[Manufacturer]\[ProductName]"
+                       Action="createAndRemoveOnUninstall">
+            <RegistryValue Type="string" Name="INSTALLDIR_SERVICE_MONITOR" Value="[INSTALLDIR_SERVICE_MONITOR]"/>
+          </RegistryKey>
+          <CreateFolder />
+        </Component>
+      </Directory>
+
+      <Component Id="ServiceMonitor" Guid="440393DC-C511-4C73-8A92-184CB119CA49">
+        <File Id="ServiceMonitor.exe" Name="MP2-ServiceMonitor.exe" KeyPath="yes" Checksum="yes">
+          <!--
+          <fire:FirewallException Id="MP2ClientExTCPDom" Name="MP2-Client TCP Domain" Profile="domain" Protocol="tcp" Scope="any" IgnoreFailure="yes" />
+          <fire:FirewallException Id="MP2ClientExTCPPriv" Name="MP2-Client TCP Private" Profile="private" Protocol="tcp" Scope="any" IgnoreFailure="yes" />
+          <fire:FirewallException Id="MP2ClientExUDPDom" Name="MP2-Client UDP Domain" Profile="domain" Protocol="udp" Scope="any" IgnoreFailure="yes" />
+          <fire:FirewallException Id="MP2ClientExUDPPriv" Name="MP2-Client UDP Private" Profile="private" Protocol="udp" Scope="any" IgnoreFailure="yes" />
+          -->
+        </File>
+      </Component>
+      <Component Id="ServiceMonitor.config" Guid="D6A4C744-82E5-41E6-B9B9-676DFCC5C822">
+        <File Id="ServiceMonitor.exe.config" Name="MP2-ServiceMonitor.exe.config" KeyPath="yes" Checksum="yes" />
+      </Component>
+
+      <Component Id="ServiceMonitor.Hardcodet.Wpf.TaskbarNotification" Guid="6918A735-4016-4200-8906-FF0ED809C8F8">
+        <File Id="ServiceMonitor.Hardcodet.Wpf.TaskbarNotification.dll" Name="Hardcodet.Wpf.TaskbarNotification.dll" KeyPath="yes" Checksum="yes" />
+      </Component>
+      <Component Id="ServiceMonitor.HttpServer" Guid="740C2AD6-B5A6-4CF5-897C-E217507E14D5">
+        <File Id="ServiceMonitor.HttpServer.dll" Name="HttpServer.dll" KeyPath="yes" Checksum="yes" />
+      </Component>
+      <Component Id="ServiceMonitor.log4net" Guid="4A93EBA8-B0A1-444B-9D23-D1DD3319C2C3">
+        <File Id="ServiceMonitor.log4net.dll" Name="log4net.dll" KeyPath="yes" Checksum="yes" />
+      </Component>
+      <Component Id="ServiceMonitor.MediaPortal.Common" Guid="F2610C22-9D83-43E4-B6D3-E2EF77674817">
+        <File Id="ServiceMonitor.MediaPortal.Common.dll" Name="MediaPortal.Common.dll" KeyPath="yes" Checksum="yes" />
+      </Component>
+      <Component Id="ServiceMonitor.MediaPortal.Utilities" Guid="7BFE3D39-2B1E-43EB-9A0F-ED77CA615685">
+        <File Id="ServiceMonitor.MediaPortal.Utilities.dll" Name="MediaPortal.Utilities.dll" KeyPath="yes" Checksum="yes" />
+      </Component>
+      <Component Id="ServiceMonitor.Microsoft.WindowsAPICodePack" Guid="F88F5F01-9252-4A56-9D6D-BC72B5076D5D">
+        <File Id="ServiceMonitor.Microsoft.WindowsAPICodePack.dll" Name="Microsoft.WindowsAPICodePack.dll" KeyPath="yes" Checksum="yes" />
+      </Component>
+      <Component Id="ServiceMonitor.Microsoft.WindowsAPICodePack.Shell" Guid="52160EA3-224B-4674-9D7F-07A5F8E3E7F5">
+        <File Id="ServiceMonitor.Microsoft.WindowsAPICodePack.Shell.dll" Name="Microsoft.WindowsAPICodePack.Shell.dll" KeyPath="yes" Checksum="yes" />
+      </Component>
+      <Component Id="ServiceMonitor.UPnP" Guid="7DF3E0AA-59ED-4611-BAC2-81E07D1DB725">
+        <File Id="ServiceMonitor.UPnP.dll" Name="UPnP.dll" KeyPath="yes" Checksum="yes" />
+      </Component>
+
+    </DirectoryRef>
+
+    <!-- Shortcuts -->
+    <DirectoryRef Id="MP2StartMenu">
+      <Component Id="ServiceMonitor.StartMenu.Shortcut" Guid="859CAD90-107F-4526-9607-CB340B4D59E8">
+        <Shortcut Id="ServiceMonitor.StartMenu.Shortcut"
+                  Name="!(loc.SC_Client)"
+                  Description="!(loc.SC_Client_Desc)"
+                  Target="[!ServiceMonitor.exe]"
+                  Icon="ServiceMonitor"
+                  WorkingDirectory="INSTALLDIR_SERVICE_MONITOR" />
+        <!--
+        Fix ICE 38 by adding a dummy registry key that is the key for this shortcut.
+        http://msdn.microsoft.com/library/en-us/msi/setup/ice38.asp
+        -->
+        <RegistryValue Root="HKCU"
+                       Key="$(var.RegKeyInstall)"
+                       Name="ServiceMonitor.StartMenu.Shortcut"
+                       Type="string"
+                       Value="1"
+                       KeyPath="yes" />
+      </Component>
+    </DirectoryRef>
+    <DirectoryRef Id="DesktopFolder">
+      <Component Id="ServiceMonitor.Desktop.Shortcut" Guid="44C19D8A-48F8-4B0A-98B4-5E02C0F2BE2D">
+        <Shortcut Id="ServiceMonitor.Desktop.Shortcut"
+                  Name="!(loc.SC_Client)"
+                  Description="!(loc.SC_Client_Desc)"
+                  Target="[!ServiceMonitor.exe]"
+                  Icon="ServiceMonitor"
+                  WorkingDirectory="INSTALLDIR_SERVICE_MONITOR" />
+        <!--
+        Fix ICE 38 by adding a dummy registry key that is the key for this shortcut.
+        http://msdn.microsoft.com/library/en-us/msi/setup/ice38.asp
+        -->
+        <RegistryValue Root="HKCU"
+                       Key="$(var.RegKeyInstall)"
+                       Name="ServiceMonitor.Desktop.Shortcut"
+                       Type="string"
+                       Value="1"
+                       KeyPath="yes" />
+      </Component>
+    </DirectoryRef>
+
+  </Fragment>
+</Wix>

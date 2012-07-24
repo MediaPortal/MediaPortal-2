@@ -38,6 +38,8 @@
     <Compile Include="Features\ClientFeatures.wxs" />
     <Compile Include="Features\Server.wxs" />
     <Compile Include="Features\ServerFeatures.wxs" />
+    <Compile Include="Features\ServiceMonitor.wxs" />
+    <Compile Include="Features\ServiceMonitorFeatures.wxs" />
     <Compile Include="Fragments\AddRemoveProperties.wxs" />
     <Compile Include="Fragments\Upgrades.wxs" />
     <Compile Include="Fragments\LaunchConditions.wxs" />
