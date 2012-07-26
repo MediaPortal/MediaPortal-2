@@ -144,7 +144,7 @@ namespace MediaPortal.Extensions.OnlineLibraries
         return movieInfo.Languages[0];
 
       // If there are multiple languages, that are different to MP2 setting, we cannot guess which one is the "best".
-      // By returnin null we allow fallback to the default language of the online source (en).
+      // By returning null we allow fallback to the default language of the online source (en).
       return null;
     }
 

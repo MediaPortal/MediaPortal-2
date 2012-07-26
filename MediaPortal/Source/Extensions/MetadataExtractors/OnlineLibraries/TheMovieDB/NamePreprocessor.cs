@@ -45,8 +45,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.TheMovieDB
     public static readonly IList<Regex> REGEXP_CLEANUPS = new List<Regex>
       {
         // Removing "disc n" from name, this can be used in future to detect multipart titles!
-        new Regex(@"(\s|-|_)*Disc\s*\d{1,2}", RegexOptions.IgnoreCase), 
-        new Regex(@"(\s|-|_)*Disc\s*\d{1,2}", RegexOptions.IgnoreCase), 
+        new Regex(@"(\s|-|_)*(Disc|CD|DVD|Part)\s*\d{1,2}", RegexOptions.IgnoreCase), 
         new Regex(@"\s*(Blu-ray|BD|3D|®|™)", RegexOptions.IgnoreCase), 
         // If source is an ISO or ZIP medium, remove the extensions for lookup
         new Regex(@".(iso|zip)$", RegexOptions.IgnoreCase), 
