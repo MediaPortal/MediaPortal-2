@@ -14,16 +14,15 @@ namespace MediaPortal.Server
     {
       _serviceInstaller = new ServiceInstaller
                             {
-                              ServiceName = "MP-II Server Service", 
-                              Description = "Provides MediaPortal-II Server Service for all Clients",
+                              ServiceName = "MP2 Server Service", 
+                              Description = "Provides MediaPortal2 Server Service for all Clients",
                               StartType = ServiceStartMode.Manual
                             };
 
-      _serviceProcessInstaller = new ServiceProcessInstaller { Account = ServiceAccount.LocalService };
+      _serviceProcessInstaller = new ServiceProcessInstaller { Account = ServiceAccount.NetworkService };
       
       Installers.Add(_serviceInstaller);
       Installers.Add(_serviceProcessInstaller);
     }
   }
-
 }
