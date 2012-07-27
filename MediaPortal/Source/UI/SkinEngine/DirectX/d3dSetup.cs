@@ -112,9 +112,14 @@ namespace MediaPortal.UI.SkinEngine.DirectX
       get { return _currentGraphicsConfiguration; }
     }
 
+    public bool IsMultiSample
+    {
+      get { return _presentParams.Multisample != MultisampleType.None; }
+    }
+
     public Present Present
     {
-      get { return _presentParams.Multisample == MultisampleType.None ? Present.ForceImmediate : Present.None; }
+      get { return IsMultiSample ? Present.None : Present.ForceImmediate; }
     }
 
     /// <summary>

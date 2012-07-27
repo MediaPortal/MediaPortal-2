@@ -31,7 +31,7 @@ using MediaPortal.UI.SkinEngine.DirectX;
 using SlimDX.Direct3D9;
 
 namespace MediaPortal.UI.SkinEngine.SkinManagement
-{                         
+{
   public delegate void SkinResourcesChangedHandler(SkinResources newResources);
 
   /// <summary>
@@ -51,6 +51,25 @@ namespace MediaPortal.UI.SkinEngine.SkinManagement
     public static uint SystemTickCount;
 
     #endregion
+
+    /// <summary>
+    /// Defines different available rendering modes.
+    /// </summary>
+    public enum RenderModeType
+    {
+      /// <summary>
+      /// If MultiSampling is used, this mode uses <see cref="Present.None"/>, otherwise <see cref="Present.ForceImmediate"/>.
+      /// </summary>
+      Default,
+      /// <summary>
+      /// For maximum performance, rendering will be done without manual waiting and presenting using <see cref="Present.ForceImmediate"/>.
+      /// </summary>
+      MaxPerformance,
+      /// <summary>
+      /// The presenting is using <see cref="Present.None"/>, so each frame will be syncronized with v-blank. If MultiSampling is used, this mode is equal to <see cref="Default"/>.
+      /// </summary>
+      VSync,
+    }
 
     public static event SkinResourcesChangedHandler SkinResourcesChanged
     {
@@ -106,6 +125,37 @@ namespace MediaPortal.UI.SkinEngine.SkinManagement
     public static Direct3DEx Direct3D
     {
       get { return MPDirect3D.Direct3D; }
+    }
+
+    /// <summary>
+    /// Get or Sets different RenderModes (affects frame sync and present mode).
+    /// </summary>
+    public static RenderModeType RenderMode
+    {
+      get
+      {
+        return GraphicsDevice.RenderMode;
+      }
+      set
+      {
+        GraphicsDevice.RenderMode = value;
+      }
+    }
+
+    /// <summary>
+    /// Toggles between different RenderModes (affects frame sync and present mode).
+    /// </summary>
+    public static void NextRenderMode()
+    {
+      RenderMode = (RenderModeType)((((int)RenderMode) + 1) % 3);
+    }
+
+    /// <summary>
+    /// Indicates if device is using multi sample antialiasing (MSAA).
+    /// </summary>
+    public static bool IsMultiSample
+    {
+      get { return GraphicsDevice.Setup.IsMultiSample; }
     }
 
     /// <summary>

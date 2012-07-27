@@ -76,6 +76,11 @@ namespace MediaPortal.UI.SkinEngine.DirectX
     public static event EventHandler DeviceSceneEnd;
     public static event EventHandler DeviceScenePresented;
 
+    // RenderModeType related fields
+    private static SkinContext.RenderModeType _currentRenderMode;
+    private static Present _presentMode;
+    private static bool _manualWaitFrame;
+
     /// <summary>
     /// Returns the information if the graphics device is healthy, which means it was neither lost nor hung nor removed.
     /// </summary>
@@ -229,6 +234,7 @@ namespace MediaPortal.UI.SkinEngine.DirectX
             MessageBox.Show(text, "GraphicAdapter", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
           }
         }
+        RenderMode = SkinContext.RenderModeType.Default;
         SetRenderState();
         ResetPerformanceData();
         UIResourcesHelper.ReallocUIResources();
@@ -296,6 +302,8 @@ namespace MediaPortal.UI.SkinEngine.DirectX
 
             _setup.BuildPresentParamsFromSettings();
             _device.ResetEx(_setup.PresentParameters);
+
+            RenderMode = SkinContext.RenderModeType.Default;
 
             ResetPerformanceData();
 
@@ -433,6 +441,37 @@ namespace MediaPortal.UI.SkinEngine.DirectX
     }
 
     /// <summary>
+    /// Gets or Sets the current RenderModeType.
+    /// </summary>
+    public static SkinContext.RenderModeType RenderMode
+    {
+      get
+      {
+        return _currentRenderMode;
+      }
+      set
+      {
+        // MultiSample Antialiasing requires Default render mode.
+        _currentRenderMode = Setup.IsMultiSample ? SkinContext.RenderModeType.Default : value;
+        switch (_currentRenderMode)
+        {
+          case SkinContext.RenderModeType.Default:
+            _manualWaitFrame = !Setup.IsMultiSample;
+            _presentMode = _setup.Present;
+            break;          
+          case SkinContext.RenderModeType.MaxPerformance:
+            _manualWaitFrame = false;
+            _presentMode = Present.ForceImmediate;
+            break;
+          case SkinContext.RenderModeType.VSync:
+            _manualWaitFrame = false;
+            _presentMode = Present.None;
+            break;
+        }
+      }
+    }
+
+    /// <summary>
     /// Fires an event if listeners are available.
     /// </summary>
     /// <param name="eventHandler"></param>
@@ -460,7 +499,7 @@ namespace MediaPortal.UI.SkinEngine.DirectX
       if (_device == null || !_deviceOk)
         return true;
 #if (MAX_FRAMERATE == false)
-      if (doWaitForNextFame)
+      if (_manualWaitFrame && doWaitForNextFame)
         WaitForNextFrame();
 #endif
       _frameRenderingStartTime = DateTime.Now;
@@ -478,7 +517,7 @@ namespace MediaPortal.UI.SkinEngine.DirectX
 
         _device.EndScene();
 
-        _device.PresentEx(_setup.Present);
+        _device.PresentEx(_presentMode);
 
         Fire(DeviceScenePresented);
 
