@@ -49,7 +49,7 @@ namespace MediaPortal.ServiceMonitor.ViewModel
   {
     #region private variables
 
-    private string _serverServiceName = "MP-II Server Service"; // the name of the installed MP2 Server Service
+    private string _serverServiceName = "MP2 Server Service"; // the name of the installed MP2 Server Service
     private SynchronizationContext _synchronizationContext; // to avoid cross thread calls
     private ServerConnectionMessaging.MessageType _serverConnectionStatus; // store last server connection status
 
@@ -261,7 +261,7 @@ namespace MediaPortal.ServiceMonitor.ViewModel
       catch (Exception ex)
       {
         ServiceRegistration.Get<ILogger>().Error(
-          "Check whether the MP-II Server Service is running failed. Please check your installation.", ex);
+          "Check whether the MP2 Server Service is running failed. Please check your installation.", ex);
         return false;
       }
     }
@@ -294,7 +294,7 @@ namespace MediaPortal.ServiceMonitor.ViewModel
       }
       catch (Exception ex)
       {
-        ServiceRegistration.Get<ILogger>().Error("Starting MP-II Server Service failed.", ex);
+        ServiceRegistration.Get<ILogger>().Error("Starting MP2 Server Service failed.", ex);
         UpdateServerStatus();
         return false;
       }
@@ -328,7 +328,7 @@ namespace MediaPortal.ServiceMonitor.ViewModel
       }
       catch (Exception ex)
       {
-        ServiceRegistration.Get<ILogger>().Error("Stopping MP-II Server Service failed.", ex);
+        ServiceRegistration.Get<ILogger>().Error("Stopping MP2 Server Service failed.", ex);
         UpdateServerStatus();
         return false;
       }

@@ -52,25 +52,25 @@ namespace MediaPortal.ServiceMonitor.ViewModel
 
 
     /// <summary>
-    /// Check if the MP-II Server Service is installed
+    /// Check if the MP2 Server Service is installed
     /// </summary>
     /// <returns></returns>
     bool IsServerServiceInstalled();
 
     /// <summary>
-    /// Verify if the MP-II Server Service is Started
+    /// Verify if the MP2 Server Service is Started
     /// </summary>
     /// <returns></returns>
     bool IsServerServiceRunning();
 
     /// <summary>
-    /// Start the MP-II Server Service
+    /// Start the MP2 Server Service
     /// </summary>
     /// <returns></returns>
     bool StartServerService();
 
     /// <summary>
-    /// Stop the MP-II Server Service
+    /// Stop the MP2 Server Service
     /// </summary>
     /// <returns></returns>
     bool StopServerService();

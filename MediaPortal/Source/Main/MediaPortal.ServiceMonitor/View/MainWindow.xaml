@@ -5,7 +5,7 @@
         MinWidth="300" MinHeight="200"
         Width="400" Height="300"
         Title="MP2-ServiceMonitor" 
-        Background="{DynamicResource WindowBackgroundBrush}">
+        Background="{DynamicResource WindowBackgroundBrush}" Icon="/MP2-ServiceMonitor;component/MP2-ServiceMonitor.ico">
 
   <Window.Resources>
     <Converters:ConnectionStatusToImageConverter x:Key="ConStatusToImageConverter"/>
