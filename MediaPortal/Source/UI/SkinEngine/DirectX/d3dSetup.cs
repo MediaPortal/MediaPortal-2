@@ -220,7 +220,7 @@ namespace MediaPortal.UI.SkinEngine.DirectX
           configuration.AdapterInfo.AdapterOrdinal,
           configuration.DeviceInfo.DevType,
           _renderTarget.Handle,
-          createFlags | CreateFlags.Multithreaded,
+          createFlags | CreateFlags.Multithreaded | CreateFlags.EnablePresentStatistics,
           _presentParams);
 
       // When moving from fullscreen to windowed mode, it is important to
