@@ -27,6 +27,7 @@ using MediaPortal.Common;
 using MediaPortal.Common.General;
 using MediaPortal.Common.Messaging;
 using MediaPortal.Common.Localization;
+using MediaPortal.Common.SystemCommunication;
 using MediaPortal.UI.Presentation.Workflow;
 using MediaPortal.UI.ServerCommunication;
 using MediaPortal.UI.Shares;

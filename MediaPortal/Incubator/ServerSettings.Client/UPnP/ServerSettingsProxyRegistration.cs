@@ -24,8 +24,8 @@
 
 using System;
 using MediaPortal.Common;
+using MediaPortal.Common.Services.ServerCommunication;
 using MediaPortal.UI.ServerCommunication;
-using MediaPortal.UI.Services.ServerCommunication;
 using UPnP.Infrastructure.CP;
 using UPnP.Infrastructure.CP.DeviceTree;
 

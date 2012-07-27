@@ -26,6 +26,7 @@ using System;
 using System.Collections.Generic;
 using MediaPortal.Common;
 using MediaPortal.Common.MediaManagement;
+using MediaPortal.Common.SystemCommunication;
 using MediaPortal.UI.Presentation.Geometries;
 using MediaPortal.UI.Presentation.Players;
 using MediaPortal.UI.ServerCommunication;

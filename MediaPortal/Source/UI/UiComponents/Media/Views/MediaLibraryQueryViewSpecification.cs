@@ -30,6 +30,7 @@ using MediaPortal.Common.Logging;
 using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.Common.MediaManagement.MLQueries;
+using MediaPortal.Common.SystemCommunication;
 using MediaPortal.UI.ServerCommunication;
 using UPnP.Infrastructure.CP;
 

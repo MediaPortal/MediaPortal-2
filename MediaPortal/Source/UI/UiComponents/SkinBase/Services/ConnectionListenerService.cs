@@ -27,6 +27,7 @@ using System.Collections.Generic;
 using MediaPortal.Common;
 using MediaPortal.Common.Messaging;
 using MediaPortal.Common.Settings;
+using MediaPortal.Common.SystemCommunication;
 using MediaPortal.UI.Presentation.UiNotifications;
 using MediaPortal.UI.Presentation.Workflow;
 using MediaPortal.UI.ServerCommunication;
