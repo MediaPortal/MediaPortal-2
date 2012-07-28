@@ -28,7 +28,6 @@ using System.ComponentModel;
 using System.Linq;
 using System.Threading;
 using System.Windows;
-using System.Windows.Controls.Primitives;
 using Hardcodet.Wpf.TaskbarNotification;
 using MediaPortal.Common;
 using MediaPortal.Common.Logging;
@@ -38,7 +37,6 @@ using MediaPortal.ServiceMonitor.Model;
 using MediaPortal.ServiceMonitor.UPNP;
 using MediaPortal.ServiceMonitor.View;
 using System.ServiceProcess;
-using MediaPortal.ServiceMonitor.View.SystemTray;
 
 namespace MediaPortal.ServiceMonitor.ViewModel
 {
@@ -49,8 +47,8 @@ namespace MediaPortal.ServiceMonitor.ViewModel
   {
     #region private variables
 
-    private string _serverServiceName = "MP2 Server Service"; // the name of the installed MP2 Server Service
-    private SynchronizationContext _synchronizationContext; // to avoid cross thread calls
+    private const string SERVER_SERVICE_NAME = "MP2 Server Service"; // the name of the installed MP2 Server Service
+    private readonly SynchronizationContext _synchronizationContext; // to avoid cross thread calls
     private ServerConnectionMessaging.MessageType _serverConnectionStatus; // store last server connection status
 
     #endregion
@@ -243,7 +241,7 @@ namespace MediaPortal.ServiceMonitor.ViewModel
       return
         services.Any(
           service =>
-          String.Compare(service.ServiceName, _serverServiceName, System.StringComparison.OrdinalIgnoreCase) == 0);
+          String.Compare(service.ServiceName, SERVER_SERVICE_NAME, StringComparison.OrdinalIgnoreCase) == 0);
     }
 
     /// <summary>
@@ -253,7 +251,7 @@ namespace MediaPortal.ServiceMonitor.ViewModel
     {
       try
       {
-        using (var serviceController = new ServiceController(_serverServiceName))
+        using (var serviceController = new ServiceController(SERVER_SERVICE_NAME))
         {
           return serviceController.Status == ServiceControllerStatus.Running;
         }
@@ -273,7 +271,7 @@ namespace MediaPortal.ServiceMonitor.ViewModel
     {
       try
       {
-        using (var serviceController = new ServiceController(_serverServiceName))
+        using (var serviceController = new ServiceController(SERVER_SERVICE_NAME))
         {
           switch (serviceController.Status)
           {
@@ -307,7 +305,7 @@ namespace MediaPortal.ServiceMonitor.ViewModel
     {
       try
       {
-        using (var serviceController = new ServiceController(_serverServiceName))
+        using (var serviceController = new ServiceController(SERVER_SERVICE_NAME))
         {
           switch (serviceController.Status)
           {
