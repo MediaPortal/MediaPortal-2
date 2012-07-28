@@ -316,7 +316,12 @@ namespace TransifexHelper
       Console.WriteLine("Copying non-English language files from Transifex cache...");
       foreach (var res in TransifexResources)
       {
-        foreach (FileInfo langFile in new DirectoryInfo(res.GetCacheFullDirectory()).GetFiles())
+        string inputDir = TransifexCacheFolder + "\\" + pair.Key;
+        DirectoryInfo sourceDir = new DirectoryInfo(inputDir);
+        if (!sourceDir.Exists)
+          continue;
+
+        foreach (FileInfo langFile in sourceDir.GetFiles())
         {
           if (langFile.Name.ToLower().Equals("strings_en.xml"))
             continue;
