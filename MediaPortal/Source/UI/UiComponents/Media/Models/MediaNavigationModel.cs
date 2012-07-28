@@ -137,6 +137,11 @@ namespace MediaPortal.UiComponents.Media.Models
       }
     }
 
+    public static NavigationData GetNavigationData(NavigationContext navigationContext, bool inheritFromPredecessor)
+    {
+      return navigationContext.GetContextVariable(Consts.KEY_NAVIGATION_DATA, inheritFromPredecessor) as NavigationData;
+    }
+
     /// <summary>
     /// Adds the current view to the playlist of the current player.
     /// </summary>
@@ -176,11 +181,6 @@ namespace MediaPortal.UiComponents.Media.Models
       if (context == null)
         return;
       context.SetContextVariable(Consts.KEY_NAVIGATION_MODE, mode);
-    }
-
-    protected internal static NavigationData GetNavigationData(NavigationContext navigationContext, bool inheritFromPredecessor)
-    {
-      return navigationContext.GetContextVariable(Consts.KEY_NAVIGATION_DATA, inheritFromPredecessor) as NavigationData;
     }
 
     protected static void SetNavigationData(NavigationData navigationData, NavigationContext navigationContext)

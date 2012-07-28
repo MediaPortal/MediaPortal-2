@@ -82,7 +82,7 @@ namespace MediaPortal.UiComponents.Media.Actions
         {
             Consts.WF_STATE_ID_LOCAL_MEDIA_NAVIGATION_ROOT,
             Consts.WF_STATE_ID_BROWSE_MEDIA_NAVIGATION_ROOT,
-        }) && MediaNavigationModel.IsNavigationDataEnabled;
+        }) && MediaNavigationModel.GetNavigationData(workflowManager.CurrentNavigationContext, false) != null;
     }
 
     public override IResourceString DisplayTitle
@@ -92,7 +92,6 @@ namespace MediaPortal.UiComponents.Media.Actions
 
     public override bool IsActionVisible(NavigationContext context)
     {
-      IWorkflowManager workflowManager = ServiceRegistration.Get<IWorkflowManager>();
       return _isHomeServerConnected && _isInBrowseState;
     }
 
