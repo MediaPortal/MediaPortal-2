@@ -443,20 +443,22 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
 
     public void Reset()
     {
-      if (Animation != null)
-        Animation.Initialize();
+      IImageAnimator animator = Animation;
+      if (animator != null)
+        animator.Initialize();
       _refresh = true;
     }
 
     public Vector4 GetTextureClip()
     {
+      IImageAnimator animator = Animation;
       // TODO: Execute animation in own timer
-      if (Animation == null || !AnimationEnabled)
+      if (animator == null || !AnimationEnabled)
         return _brushTransform;
 
       Size size = new Size((int) BrushDimensions.X, (int) BrushDimensions.Y);
       Size outputSize = new Size((int) _vertsBounds.Width, (int) _vertsBounds.Height);
-      RectangleF textureClip = Animation.GetZoomRect(size, outputSize);
+      RectangleF textureClip = animator.GetZoomRect(size, outputSize);
 
       var vector4 = new Vector4(
         -textureClip.X * TextureMaxUV.X, 
