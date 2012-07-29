@@ -34,7 +34,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
     public static string GROUP_IMDBID = "imdbid";
     public static Regex REGEXP_IMDBID = new Regex(@"(?<imdbid>tt\d{7})", RegexOptions.IgnoreCase);
 
-    public static bool MatchImdbId(string folderOrFileName, out string imdbId)
+    public static bool TryMatchImdbId(string folderOrFileName, out string imdbId)
     {
       imdbId = null;
       if (string.IsNullOrEmpty(folderOrFileName))

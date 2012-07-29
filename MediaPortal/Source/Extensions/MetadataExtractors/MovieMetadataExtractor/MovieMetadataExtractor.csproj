@@ -57,6 +57,7 @@
       <Link>Properties\VersionInfo.cs</Link>
     </Compile>
     <Compile Include="ImdbIdMatcher.cs" />
+    <Compile Include="NfoReader.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="MovieMetadataExtractor.cs" />
   </ItemGroup>

@@ -104,10 +104,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
 
         using (IResourceAccessor ra = mediaItemAccessor.Clone())
         using (ILocalFsResourceAccessor lfsra = StreamedResourceToLocalFsAccessBridge.GetLocalFsResourceAccessor(ra))
-        {
-          string localFsPath = lfsra.LocalFileSystemPath;
-          return ExtractMovieData(localFsPath, extractedAspectData);
-        }
+          return ExtractMovieData(lfsra, extractedAspectData);
       }
       catch (Exception e)
       {
@@ -118,8 +115,9 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
       return false;
     }
 
-    private static bool ExtractMovieData(string localFsPath, IDictionary<Guid, MediaItemAspect> extractedAspectData)
+    private static bool ExtractMovieData(ILocalFsResourceAccessor lfsra, IDictionary<Guid, MediaItemAspect> extractedAspectData)
     {
+      string localFsPath = lfsra.LocalFileSystemPath;
       string title;
       if (MediaItemAspect.TryGetAttribute(extractedAspectData, MediaAspect.ATTR_TITLE, out title) && !string.IsNullOrEmpty(title))
       {
@@ -136,7 +134,8 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
         // Try to use an existing IMDB id for exact mapping
         string imdbId;
         if (MediaItemAspect.TryGetAttribute(extractedAspectData, MovieAspect.ATTR_IMDB_ID, out imdbId) ||
-          ImdbIdMatcher.MatchImdbId(localFsPath, out imdbId))
+          ImdbIdMatcher.TryMatchImdbId(localFsPath, out imdbId) || 
+          NfoReader.TryMatchImdbId(lfsra, out imdbId))
           movieInfo.ImdbId = imdbId;
 
         // Also test the full path year, using a dummy. This is useful if the path contains the real name and year.
