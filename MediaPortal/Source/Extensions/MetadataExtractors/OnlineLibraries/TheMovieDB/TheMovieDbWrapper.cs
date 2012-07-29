@@ -22,6 +22,7 @@
 
 #endregion
 
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using MediaPortal.Common;
@@ -133,13 +134,19 @@ namespace MediaPortal.Extensions.OnlineLibraries.TheMovieDB
       if (movies.Count > 1)
       {
         ServiceRegistration.Get<ILogger>().Debug("TheMovieDbWrapper      : Multiple matches for \"{0}\" ({1}). Try to find exact name match.", moviesName, movies.Count);
-        movies = movies.FindAll(s => s.Title == moviesName || s.OriginalTitle == moviesName || IsSimilarOrEqual(s.Title, moviesName) || IsSimilarOrEqual(s.OriginalTitle, moviesName));
-        if (movies.Count > 1)
+        var exactMatches = movies.FindAll(s => s.Title == moviesName || s.OriginalTitle == moviesName);
+        if (exactMatches.Count == 1)
+        {
+          ServiceRegistration.Get<ILogger>().Debug("TheMovieDbWrapper      : Unique match found \"{0}\"!", moviesName);
+          return true;
+        }
+
+        if (exactMatches.Count > 1)
         {
           // Try to match the year, if available
           if (year > 0)
           {
-            var yearFiltered = movies.FindAll(s => s.ReleaseDate.HasValue && s.ReleaseDate.Value.Year == year);
+            var yearFiltered = exactMatches.FindAll(s => s.ReleaseDate.HasValue && s.ReleaseDate.Value.Year == year);
             if (yearFiltered.Count == 1)
             {
               ServiceRegistration.Get<ILogger>().Debug("TheMovieDbWrapper      : Unique match found \"{0}\" [{1}]!", moviesName, year);
@@ -148,11 +155,16 @@ namespace MediaPortal.Extensions.OnlineLibraries.TheMovieDB
             }
           }
         }
+
+        movies = movies.Where(s => GetLevenshteinDistance(s, moviesName) < MAX_LEVENSHTEIN_DIST).ToList();
+        if (movies.Count > 1)
+          ServiceRegistration.Get<ILogger>().Debug("TheMovieDbWrapper      : Multiple matches found for \"{0}\" (count: {1})", moviesName, movies.Count);
+
         return movies.Count == 1;
       }
       return false;
     }
-    
+
     public bool GetMovie(int id, out Movie movieDetail)
     {
       movieDetail = _movieDbHandler.GetMovie(id, PreferredLanguage);
@@ -164,7 +176,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.TheMovieDB
       movieDetail = _movieDbHandler.GetMovie(imdbId, PreferredLanguage);
       return movieDetail != null;
     }
-    
+
     /// <summary>
     /// Removes special characters and compares the remaining strings. Strings are processed by <see cref="RemoveCharacters"/> before comparing.
     /// The result is <c>true</c>, if the cleaned strings are equal or have a Levenshtein distance less or equal to <see cref="MAX_LEVENSHTEIN_DIST"/>.
@@ -175,6 +187,22 @@ namespace MediaPortal.Extensions.OnlineLibraries.TheMovieDB
     protected bool IsSimilarOrEqual(string name1, string name2)
     {
       return string.Equals(RemoveCharacters(name1), RemoveCharacters(name2)) || StringUtils.GetLevenshteinDistance(name1, name2) <= MAX_LEVENSHTEIN_DIST;
+    }
+
+    /// <summary>
+    /// Returns the Levenshtein distance for a <see cref="MovieSearchResult"/> and a given <paramref name="movieName"/>.
+    /// It considers both <see cref="MovieSearchResult.Title"/> and <see cref="MovieSearchResult.OriginalTitle"/>
+    /// </summary>
+    /// <param name="movie">MovieSearchResult</param>
+    /// <param name="movieName">Movie name</param>
+    /// <returns>Levenshtein distance</returns>
+    protected int GetLevenshteinDistance(MovieSearchResult movie, string movieName)
+    {
+      string cleanedName = RemoveCharacters(movieName);
+      return Math.Min(
+        StringUtils.GetLevenshteinDistance(RemoveCharacters(movie.Title), cleanedName),
+        StringUtils.GetLevenshteinDistance(RemoveCharacters(movie.OriginalTitle), cleanedName)
+        );
     }
 
     /// <summary>
