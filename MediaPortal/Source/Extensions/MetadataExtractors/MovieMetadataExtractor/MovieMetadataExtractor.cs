@@ -23,6 +23,7 @@
 #endregion
 
 using System;
+using System.Linq;
 using System.Collections.Generic;
 using MediaPortal.Common;
 using MediaPortal.Common.Logging;
@@ -117,7 +118,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
 
     private static bool ExtractMovieData(ILocalFsResourceAccessor lfsra, IDictionary<Guid, MediaItemAspect> extractedAspectData)
     {
-      string localFsPath = lfsra.LocalFileSystemPath;
+      string[] pathsToTest = new [] { lfsra.LocalFileSystemPath , lfsra.CanonicalLocalResourcePath.ToString() };
       string title;
       if (MediaItemAspect.TryGetAttribute(extractedAspectData, MediaAspect.ATTR_TITLE, out title) && !string.IsNullOrEmpty(title))
       {
@@ -134,16 +135,20 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
         // Try to use an existing IMDB id for exact mapping
         string imdbId;
         if (MediaItemAspect.TryGetAttribute(extractedAspectData, MovieAspect.ATTR_IMDB_ID, out imdbId) ||
-          ImdbIdMatcher.TryMatchImdbId(localFsPath, out imdbId) || 
+          pathsToTest.Any(path => ImdbIdMatcher.TryMatchImdbId(path, out imdbId)) ||
           NfoReader.TryMatchImdbId(lfsra, out imdbId))
           movieInfo.ImdbId = imdbId;
 
         // Also test the full path year, using a dummy. This is useful if the path contains the real name and year.
-        MovieInfo dummy = new MovieInfo { MovieName = localFsPath };
-        if (NamePreprocessor.MatchTitleYear(dummy))
+        foreach (string path in pathsToTest)
         {
-          movieInfo.MovieName = dummy.MovieName;
-          movieInfo.Year = dummy.Year;
+          MovieInfo dummy = new MovieInfo { MovieName = path };
+          if (NamePreprocessor.MatchTitleYear(dummy))
+          {
+            movieInfo.MovieName = dummy.MovieName;
+            movieInfo.Year = dummy.Year;
+            break;
+          }
         }
 
         // When searching movie title, the year can be relevant for multiple titles with same name but different years
