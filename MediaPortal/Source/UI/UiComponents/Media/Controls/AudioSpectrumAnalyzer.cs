@@ -89,6 +89,12 @@ namespace MediaPortal.UiComponents.Media.Controls
     #region Consts
 
     protected const int FREQUENCY_BUFFER_SIZE = 2048;
+    private const int SCALE_FACTOR_LINEAR = 9;
+    private const int SCALE_FACTOR_SQR = 2;
+    private const double MIN_DB_VALUE = -90;
+    private const double MAX_DB_VALUE = 0;
+    private const double DB_SCALE = (MAX_DB_VALUE - MIN_DB_VALUE);
+
     #endregion
 
     #region Fields
@@ -103,20 +109,10 @@ namespace MediaPortal.UiComponents.Media.Controls
     private readonly float[] _channelData = new float[FREQUENCY_BUFFER_SIZE];
     private float[] _channelPeakData;
     private double _barWidth = 1;
-    private int _maximumFrequencyIndex = 2047;
+    private int _maximumFrequencyIndex = FREQUENCY_BUFFER_SIZE - 1;
     private int _minimumFrequencyIndex;
     private int[] _barIndexMax;
     private int[] _barLogScaleIndexMax;
-
-    #endregion
-
-    #region Constants
-
-    private const int SCALE_FACTOR_LINEAR = 9;
-    private const int SCALE_FACTOR_SQR = 2;
-    private const double MIN_DB_VALUE = -90;
-    private const double MAX_DB_VALUE = 0;
-    private const double DB_SCALE = (MAX_DB_VALUE - MIN_DB_VALUE);
 
     #endregion
 
@@ -144,26 +140,26 @@ namespace MediaPortal.UiComponents.Media.Controls
 
     private void Attach()
     {
-      MaximumFrequencyProperty.Attach(RequireUpdateLayout);
-      MinimumFrequencyProperty.Attach(RequireUpdateLayout);
-      BarCountProperty.Attach(RequireUpdateLayout);
-      BarSpacingProperty.Attach(RequireUpdateLayout);
-      IsFrequencyScaleLinearProperty.Attach(RequireUpdateLayout);
-      BarStyleProperty.Attach(RequireUpdateLayout);
-      PeakStyleProperty.Attach(RequireUpdateLayout);
+      MaximumFrequencyProperty.Attach(OnRequireUpdateLayout);
+      MinimumFrequencyProperty.Attach(OnRequireUpdateLayout);
+      BarCountProperty.Attach(OnRequireUpdateLayout);
+      BarSpacingProperty.Attach(OnRequireUpdateLayout);
+      IsFrequencyScaleLinearProperty.Attach(OnRequireUpdateLayout);
+      BarStyleProperty.Attach(OnRequireUpdateLayout);
+      PeakStyleProperty.Attach(OnRequireUpdateLayout);
       RefreshIntervalProperty.Attach(OnRefreshIntervalChanged);
       TemplateProperty.Attach(OnSpectrumTemplateChanged);
     }
 
     private void Detach()
     {
-      MaximumFrequencyProperty.Detach(RequireUpdateLayout);
-      MinimumFrequencyProperty.Detach(RequireUpdateLayout);
-      BarCountProperty.Detach(RequireUpdateLayout);
-      BarSpacingProperty.Detach(RequireUpdateLayout);
-      IsFrequencyScaleLinearProperty.Detach(RequireUpdateLayout);
-      BarStyleProperty.Detach(RequireUpdateLayout);
-      PeakStyleProperty.Detach(RequireUpdateLayout);
+      MaximumFrequencyProperty.Detach(OnRequireUpdateLayout);
+      MinimumFrequencyProperty.Detach(OnRequireUpdateLayout);
+      BarCountProperty.Detach(OnRequireUpdateLayout);
+      BarSpacingProperty.Detach(OnRequireUpdateLayout);
+      IsFrequencyScaleLinearProperty.Detach(OnRequireUpdateLayout);
+      BarStyleProperty.Detach(OnRequireUpdateLayout);
+      PeakStyleProperty.Detach(OnRequireUpdateLayout);
       RefreshIntervalProperty.Detach(OnRefreshIntervalChanged);
       TemplateProperty.Detach(OnSpectrumTemplateChanged);
     }
@@ -196,7 +192,7 @@ namespace MediaPortal.UiComponents.Media.Controls
       base.Dispose();
     }
 
-    private void RequireUpdateLayout(AbstractProperty property, object oldvalue)
+    private void OnRequireUpdateLayout(AbstractProperty property, object oldvalue)
     {
       _refreshShapes = true;
     }
@@ -400,10 +396,16 @@ namespace MediaPortal.UiComponents.Media.Controls
       if (!_refreshShapes || _spectrumCanvas == null)
         return;
 
-      _barWidth = Math.Max(((_spectrumCanvas.ActualWidth - (BarSpacing * (BarCount + 1))) / BarCount), 1);
-      _maximumFrequencyIndex = Math.Min(player.GetFFTFrequencyIndex(MaximumFrequency) + 1, FREQUENCY_BUFFER_SIZE - 1);
-      _minimumFrequencyIndex = Math.Min(player.GetFFTFrequencyIndex(MinimumFrequency), FREQUENCY_BUFFER_SIZE - 1);
+      int maxIndex;
+      int minIndex;
+      bool res = player.GetFFTFrequencyIndex(MaximumFrequency, out maxIndex);
+      res |= player.GetFFTFrequencyIndex(MinimumFrequency, out minIndex);
+      if (!res)
+        return;
+      _maximumFrequencyIndex = Math.Min(maxIndex + 1, FREQUENCY_BUFFER_SIZE - 1);
+      _minimumFrequencyIndex = Math.Min(minIndex, FREQUENCY_BUFFER_SIZE - 1);
 
+      _barWidth = Math.Max(((_spectrumCanvas.ActualWidth - (BarSpacing * (BarCount + 1))) / BarCount), 1);
       int actualBarCount = _barWidth >= 1.0d ? BarCount : Math.Max((int) ((_spectrumCanvas.ActualWidth - BarSpacing) / (_barWidth + BarSpacing)), 1);
       _channelPeakData = new float[actualBarCount];
 
@@ -424,40 +426,47 @@ namespace MediaPortal.UiComponents.Media.Controls
       _barLogScaleIndexMax = maxLogScaleIndexList.ToArray();
 
       FrameworkElementCollection canvasChildren = _spectrumCanvas.Children;
-      canvasChildren.Clear();
-
-      double height = _spectrumCanvas.ActualHeight;
-      double peakDotHeight = Math.Max(_barWidth / 2.0f, 1);
-      for (int i = 0; i < actualBarCount; i++)
+      canvasChildren.StartUpdate();
+      try
       {
-        // Deep copy the styles to each bar
-        Style barStyleCopy = MpfCopyManager.DeepCopyCutLVPs(BarStyle);
-        Style peakStyleCopy = MpfCopyManager.DeepCopyCutLVPs(PeakStyle);
+        canvasChildren.Clear();
 
-        double xCoord = BarSpacing + (_barWidth * i) + (BarSpacing * i) + 1;
-        Control barControl = new Control
-            {
-              Width = _barWidth,
-              Height = height,
-              Style = barStyleCopy
-            };
-        Canvas.SetLeft(barControl, xCoord);
-        Canvas.SetBottom(barControl, height);
-        _barShapes.Add(barControl);
-        canvasChildren.Add(barControl);
+        double height = _spectrumCanvas.ActualHeight;
+        double peakDotHeight = Math.Max(_barWidth / 2.0f, 1);
+        for (int i = 0; i < actualBarCount; i++)
+        {
+          // Deep copy the styles to each bar
+          Style barStyleCopy = MpfCopyManager.DeepCopyCutLVPs(BarStyle);
+          Style peakStyleCopy = MpfCopyManager.DeepCopyCutLVPs(PeakStyle);
 
-        Control peakControl = new Control
-            {
-              Width = _barWidth,
-              Height = peakDotHeight,
-              Style = peakStyleCopy
-            };
-        Canvas.SetLeft(peakControl, xCoord);
-        Canvas.SetBottom(peakControl, height);
-        _peakShapes.Add(peakControl);
-        canvasChildren.Add(peakControl);
+          double xCoord = BarSpacing + (_barWidth * i) + (BarSpacing * i) + 1;
+          Control barControl = new Control
+              {
+                Width = _barWidth,
+                Height = height,
+                Style = barStyleCopy
+              };
+          Canvas.SetLeft(barControl, xCoord);
+          Canvas.SetBottom(barControl, height);
+          _barShapes.Add(barControl);
+          canvasChildren.Add(barControl);
+
+          Control peakControl = new Control
+              {
+                Width = _barWidth,
+                Height = peakDotHeight,
+                Style = peakStyleCopy
+              };
+          Canvas.SetLeft(peakControl, xCoord);
+          Canvas.SetBottom(peakControl, height);
+          _peakShapes.Add(peakControl);
+          canvasChildren.Add(peakControl);
+        }
       }
-
+      finally
+      {
+        canvasChildren.EndUpdate();
+      }
       ActualBarWidth = _barWidth;
       _refreshShapes = false;
     }

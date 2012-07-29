@@ -37,6 +37,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     protected IList<FrameworkElement> _elements;
     protected object _syncObj = new object();
 
+    protected int _batchUpdateModeCt = 0;
+
     public FrameworkElementCollection(FrameworkElement parent)
     {
       _parent = parent;
@@ -58,6 +60,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 
     public void FireCollectionChanged()
     {
+      if (_batchUpdateModeCt > 0)
+        return;
       FrameworkElementCollectionChangedDlgt dlgt = CollectionChanged;
       if (dlgt != null)
         dlgt(this);
@@ -138,6 +142,29 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
           element.InvalidateLayout(true, true);
         }
       }
+    }
+
+    /// <summary>
+    /// Start batch update mode. During batch update mode, collection change notifications are suppressed. When this method was called,
+    /// later method <see cref="EndUpdate"/> must be called.
+    /// </summary>
+    /// <remarks>
+    /// <see cref="StartUpdate"/> and <see cref="EndUpdate"/> call pairs can be nested, but it is necessary that each call of <see cref="StartUpdate"/> is
+    /// followed by a call of <see cref="EndUpdate"/> to re-enable collection change notifications.
+    /// </remarks>
+    public void StartUpdate()
+    {
+      _batchUpdateModeCt++;
+    }
+
+    /// <summary>
+    /// Ends batch update mode. This method must be called after <see cref="StartUpdate"/> was called, each call of <see cref="StartUpdate"/> must be
+    /// followed by a call of <see cref="EndUpdate"/>.
+    /// </summary>
+    public void EndUpdate()
+    {
+      _batchUpdateModeCt--;
+      FireCollectionChanged();
     }
 
     public void Add(FrameworkElement element)

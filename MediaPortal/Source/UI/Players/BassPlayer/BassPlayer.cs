@@ -432,21 +432,24 @@ namespace Ui.Players.BassPlayer
 
     public bool GetFFTData(float[] fftDataBuffer)
     {
-      BassStream currentStream = _controller.PlaybackProcessor.VizStream;
-      if (currentStream == null)
+      BassStream vizStream = _controller.PlaybackProcessor.VizStream;
+      if (vizStream == null)
         return false;
 
-      // FIXME: reading the FFT data corrupts playback, speed increases
-      return (Bass.BASS_ChannelGetData(currentStream.Handle, fftDataBuffer, _maxFFT)) > 0;
+      return Bass.BASS_ChannelGetData(vizStream.Handle, fftDataBuffer, _maxFFT) > 0;
     }
 
-    public int GetFFTFrequencyIndex(int frequency)
+    public bool GetFFTFrequencyIndex(int frequency, out int frequencyIndex)
     {
-      BassStream currentStream = _controller.PlaybackProcessor.VizStream;
-      if (_sampleFrequency == 0 && currentStream != null)
-        _sampleFrequency = currentStream.SampleRate;
+      frequencyIndex = 0;
+      BassStream vizStream = _controller.PlaybackProcessor.VizStream;
+      if (vizStream == null)
+        return false;
+      if (_sampleFrequency == 0)
+        _sampleFrequency = vizStream.SampleRate;
 
-      return Un4seen.Bass.Utils.FFTFrequency2Index(frequency, 4096, _sampleFrequency);
+      frequencyIndex = Un4seen.Bass.Utils.FFTFrequency2Index(frequency, 4096, _sampleFrequency);
+      return true;
     }
 
     #endregion

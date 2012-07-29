@@ -72,7 +72,9 @@ namespace MediaPortal.UI.Presentation.Players
     /// Gets the index in the FFT data buffer for a given frequency.
     /// </summary>
     /// <param name="frequency">The frequency for which to obtain a buffer index.</param>
-    /// <returns>An index in the FFT data buffer which was returned by method <see cref="GetFFTData"/>.</returns>
-    int GetFFTFrequencyIndex(int frequency);
+    /// <param name="frequencyIndex">If the return value is <c>true</c>, this value will return an index in the FFT data buffer which was returned
+    /// by method <see cref="GetFFTData"/>.</param>
+    /// <returns><c>true</c>, if the FFT buffer was already created, else <c>false</c>.</returns>
+    bool GetFFTFrequencyIndex(int frequency, out int frequencyIndex);
   }
 }
