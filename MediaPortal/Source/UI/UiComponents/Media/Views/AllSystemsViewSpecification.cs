@@ -90,7 +90,7 @@ namespace MediaPortal.UiComponents.Media.Views
       ICollection<string> doubleNames = new HashSet<string>();
       foreach (KeyValuePair<string, string> rawSystemsId2Name in rawSystemsIds2Names)
       {
-        string name = rawSystemsId2Name.Value;
+        string name = rawSystemsId2Name.Value ?? string.Empty;
         if (rawNames.Contains(name))
           doubleNames.Add(name);
         else
@@ -99,7 +99,7 @@ namespace MediaPortal.UiComponents.Media.Views
       foreach (KeyValuePair<string, string> kvp in rawSystemsIds2Names)
       {
         string systemId = kvp.Key;
-        string systemName = kvp.Value;
+        string systemName = kvp.Value ?? string.Empty;
         systemNames2Ids.Add(doubleNames.Contains(systemName) ? BuildExtendedDisplayName(systemId, systemName) : BuildDisplayName(systemId, systemName), systemId);
       }
 
