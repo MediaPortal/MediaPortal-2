@@ -273,7 +273,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     public override void OnKeyPreview(ref Key key)
     {
       AbstractTextInputHandler textInputHandler = _textInputHandler;
-      if (textInputHandler != null)
+      if (textInputHandler != null && IsEnabled)
         textInputHandler.HandleInput(ref key);
       base.OnKeyPreview(ref key);
     }

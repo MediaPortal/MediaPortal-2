@@ -129,7 +129,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 
     public HorizontalAlignmentEnum TextAlign
     {
-      get { return (HorizontalAlignmentEnum)_textAlignProperty.GetValue(); }
+      get { return (HorizontalAlignmentEnum) _textAlignProperty.GetValue(); }
       set { _textAlignProperty.SetValue(value); }
     }
   }
