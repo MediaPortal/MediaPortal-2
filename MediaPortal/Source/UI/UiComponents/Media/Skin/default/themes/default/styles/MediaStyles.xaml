@@ -519,6 +519,35 @@
     <Setter Property="PlayerContext" Value="SecondaryPlayer"/>
   </Style>
 
+  <!-- ************************************** FSC Audio ************************************************ -->
+
+  <Style x:Key="FullScreenContentAudioCurrentTitleInformationStyle" TargetType="{x:Type mp_special_controls:PlayerControl}">
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate TargetType="{x:Type mp_special_controls:PlayerControl}">
+          <Grid DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}">
+            <Grid.RowDefinitions>
+              <RowDefinition Height="Auto"/>
+              <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+            <Grid.ColumnDefinitions>
+              <ColumnDefinition Width="Auto"/>
+              <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+            <Label x:Name="ArtistsLabel" Grid.Row="0" Grid.Column="0"
+                Content="[Media.AudioArtistsLabel]" Color="{ThemeResource TextColor}" FontSize="{ThemeResource BigFontSize}"/>
+            <Label x:Name="Artists" Grid.Row="0" Grid.Column="1"
+                Content="{Binding AudioArtists}" Color="{ThemeResource TextColor}" FontSize="{ThemeResource BigFontSize}"/>
+            <Label x:Name="TitleLabel" Grid.Row="1" Grid.Column="0"
+                Content="[Media.AudioTitleLabel]" Color="{ThemeResource TextColor}" FontSize="{ThemeResource BigFontSize}"/>
+            <Label x:Name="Title" Grid.Row="1" Grid.Column="1" Scroll="Auto"
+                Content="{Binding MediaItemTitle}" Color="{ThemeResource TextColor}" FontSize="{ThemeResource BigFontSize}"/>
+          </Grid>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
+
   <!-- ************************************** Playlist ************************************************ -->
 
   <Style x:Key="RemoveButtonStyle" TargetType="{x:Type Button}">
