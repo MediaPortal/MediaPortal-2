@@ -80,6 +80,7 @@ namespace MediaPortal.UI.SkinEngine.GUI
     private readonly ScreenManager _screenManager;
     protected bool _isScreenSaverEnabled = true;
     protected bool _isScreenSaverActive = false;
+    protected ScreenSaverController _screenSaverController = null;
     protected SuspendLevel _applicationSuspendLevel = SuspendLevel.None;
     protected SuspendLevel _playerSuspendLevel = SuspendLevel.None;
 
@@ -443,6 +444,16 @@ namespace MediaPortal.UI.SkinEngine.GUI
       _isScreenSaverEnabled = screenSaverEnabled;
     }
 
+    public ScreenSaverController GetScreenSaverController()
+    {
+      if (_screenSaverController != null)
+      {
+        ServiceRegistration.Get<ILogger>().Warn("SkinEngine MainForm: ScreenSaverControl is already registered, prevent creation of another ScreenSaverControl");
+        return null;
+      }
+      return _screenSaverController = new ScreenSaverController(() => { _screenSaverController = null; });
+    }
+
     public void SwitchMode(ScreenMode mode)
     {
       if (InvokeRequired)
@@ -557,6 +568,13 @@ namespace MediaPortal.UI.SkinEngine.GUI
           _isScreenSaverActive = !preventScreenSaver &&
               SkinContext.FrameRenderingStartTime - inputManager.LastMouseUsageTime > _screenSaverTimeOut &&
               SkinContext.FrameRenderingStartTime - inputManager.LastInputTime > _screenSaverTimeOut;
+
+          if (_screenSaverController != null)
+          {
+            bool? activeOverride = _screenSaverController.IsScreenSaverActiveOverride;
+            if (activeOverride.HasValue)
+            _isScreenSaverActive = activeOverride.Value;
+          }
         }
         else
           _isScreenSaverActive = false;

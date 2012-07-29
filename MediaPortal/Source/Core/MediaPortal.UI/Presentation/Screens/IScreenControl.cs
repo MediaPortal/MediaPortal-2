@@ -70,10 +70,18 @@ namespace MediaPortal.UI.Presentation.Screens
 
     /// <summary>
     /// Enables or disables the MediaPortal 2 internal screen saver or sets its timeout.
+    /// This method changes the global MP2 screen saver setting. To temporary gather control to the screen saver, use the
+    /// <see cref="ScreenSaverController"/> returned by method <see cref="GetScreenSaverController"/>.
     /// </summary>
     /// <param name="screenSaverEnabled">If set to <c>true</c>, the screen saver becomes active, else it becomes inactive.</param>
     /// <param name="screenSaverTimeoutMin">Sets the timeout in minutes before the screen saver becomes active.</param>
     void ConfigureScreenSaver(bool screenSaverEnabled, double screenSaverTimeoutMin);
+
+    /// <summary>
+    /// Returns a <see cref="ScreenSaverController"/> instance which provides temporary control over the screen saver.
+    /// </summary>
+    /// <returns>Screen saver controller, if supported by this instance.</returns>
+    ScreenSaverController GetScreenSaverController();
 
     /// <summary>
     /// Shuts MediaPortal down.
