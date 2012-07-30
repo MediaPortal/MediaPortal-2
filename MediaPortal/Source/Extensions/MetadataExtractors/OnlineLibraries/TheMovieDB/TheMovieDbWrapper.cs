@@ -134,10 +134,11 @@ namespace MediaPortal.Extensions.OnlineLibraries.TheMovieDB
       if (movies.Count > 1)
       {
         ServiceRegistration.Get<ILogger>().Debug("TheMovieDbWrapper      : Multiple matches for \"{0}\" ({1}). Try to find exact name match.", moviesName, movies.Count);
-        var exactMatches = movies.FindAll(s => s.Title == moviesName || s.OriginalTitle == moviesName);
+        var exactMatches = movies.FindAll(s => s.Title == moviesName || s.OriginalTitle == moviesName || GetLevenshteinDistance(s, moviesName) == 0);
         if (exactMatches.Count == 1)
         {
           ServiceRegistration.Get<ILogger>().Debug("TheMovieDbWrapper      : Unique match found \"{0}\"!", moviesName);
+          movies = exactMatches;
           return true;
         }
 
