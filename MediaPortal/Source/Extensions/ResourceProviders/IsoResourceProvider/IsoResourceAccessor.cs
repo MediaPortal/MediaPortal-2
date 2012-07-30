@@ -89,7 +89,7 @@ namespace MediaPortal.Extensions.ResourceProviders.IsoResourceProvider
             _lastChanged = _isoProxy.DiskFileSystem.GetLastWriteTime(isoPath);
             return;
           }
-          throw new ArgumentException("IsoResourceAccessor cannot access path or file '{0}' in iso-file", isoPath);
+          throw new ArgumentException(string.Format("IsoResourceAccessor cannot access path or file '{0}' in iso-file", isoPath));
         }
       }
       catch (Exception)
