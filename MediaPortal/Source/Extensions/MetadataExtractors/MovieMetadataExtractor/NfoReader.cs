@@ -22,9 +22,9 @@
 
 #endregion
 
+using System.Collections.Generic;
 using System.IO;
 using MediaPortal.Common.ResourceAccess;
-using MediaPortal.Common.Services.ResourceAccess.StreamedResourceToLocalFsAccessBridge;
 
 namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
 {
@@ -45,25 +45,35 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
     public static bool TryMatchImdbId(IFileSystemResourceAccessor fsra, out string imdbId)
     {
       imdbId = null;
-      if (fsra == null || !fsra.IsFile)
+      if (fsra == null)
         return false;
 
       // First try to find a nfo file that has the same name as our main movie.
-      foreach (string extension in NFO_EXTENSIONS)
+      if (fsra.IsFile)
+        foreach (string extension in NFO_EXTENSIONS)
+        {
+          string metaFilePath = ProviderPathHelper.ChangeExtension(fsra.CanonicalLocalResourcePath.ToString(), extension);
+          if (TryRead(metaFilePath, out imdbId))
+            return true;
+        }
+
+      // Prepare a list of paths to check: for chained resource path we will also check relative parent paths (like for DVD-ISO files)
+      List<string> pathsToCheck = new List<string> { fsra.CanonicalLocalResourcePath.ToString() };
+      if (fsra.CanonicalLocalResourcePath.PathSegments.Count > 1)
       {
-        string metaFilePath = ProviderPathHelper.ChangeExtension(fsra.CanonicalLocalResourcePath.ToString(), extension);
-        if (TryRead(metaFilePath, out imdbId)) 
-          return true;
+        string canocialPath = fsra.CanonicalLocalResourcePath.ToString();
+        pathsToCheck.Add(canocialPath.Substring(0, canocialPath.LastIndexOf('>')));
       }
 
       // Then test for special named files, like "movie.nfo"
-      foreach (string fileName in NFO_FILENAMES)
-      {
-        string metaFilePath = ProviderPathHelper.GetDirectoryName(fsra.CanonicalLocalResourcePath.ToString());
-        metaFilePath = ProviderPathHelper.Combine(metaFilePath, fileName);
-        if (TryRead(metaFilePath, out imdbId))
-          return true;
-      }
+      foreach (string path in pathsToCheck)
+        foreach (string fileName in NFO_FILENAMES)
+        {
+          string metaFilePath = ProviderPathHelper.GetDirectoryName(path);
+          metaFilePath = ProviderPathHelper.Combine(metaFilePath, fileName);
+          if (TryRead(metaFilePath, out imdbId))
+            return true;
+        }
 
       return false;
     }
@@ -83,21 +93,11 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
 
       using (metaFileAccessor)
       {
-        ILocalFsResourceAccessor disposeLfsra = null;
         ILocalFsResourceAccessor lfsra = metaFileAccessor as ILocalFsResourceAccessor;
-        try
-        {
-          if (lfsra == null)
-            disposeLfsra = lfsra = StreamedResourceToLocalFsAccessBridge.GetLocalFsResourceAccessor(metaFileAccessor);
-
-          string content = File.ReadAllText(lfsra.LocalFileSystemPath);
-          return ImdbIdMatcher.TryMatchImdbId(content, out imdbId);
-        }
-        finally
-        {
-          if (disposeLfsra != null)
-            disposeLfsra.Dispose();
-        }
+        if (lfsra == null || !lfsra.Exists)
+          return false;
+        string content = File.ReadAllText(lfsra.LocalFileSystemPath);
+        return ImdbIdMatcher.TryMatchImdbId(content, out imdbId);
       }
     }
   }
