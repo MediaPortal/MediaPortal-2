@@ -1,6 +1,7 @@
 Bin
 bin
 obj
+*.log
 *.suo
 *.sln.cache
 *.resharper
