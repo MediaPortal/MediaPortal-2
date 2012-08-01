@@ -1,5 +1,3 @@
 @echo off
 
-tx pull -a -f
-
-pause
+tx pull -a -f > pull.log

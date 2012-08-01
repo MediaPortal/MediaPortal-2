@@ -1,5 +1,3 @@
 @echo off
 
-tx push -s
-
-pause
+tx push -s > push.log
