@@ -1,0 +1,63 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 11.00
+# Visual Studio 2010
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MP2-PluginWizard", "MP2-PluginWizard.csproj", "{19B90DC7-DBDB-452A-B990-EEEB71B5E5E2}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Core", "Core", "{5397C375-244D-4FDB-A469-A74BAC99C82A}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MediaPortal.Common", "..\..\Source\Core\MediaPortal.Common\MediaPortal.Common.csproj", "{ECF060E7-CAA1-4466-851F-F80B857641EA}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MediaPortal.Utilities", "..\..\Source\Core\MediaPortal.Utilities\MediaPortal.Utilities.csproj", "{4FE7B8AE-1330-424A-91A1-C68D7ABF9CB8}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HttpServer", "..\..\Source\Core\HttpServer\HttpServer.csproj", "{B1C97BB7-8E27-4C1B-B086-A1204EF8FB79}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UPnP", "..\..\Source\Core\UPnP\UPnP.csproj", "{455E7D70-1C85-4D7F-9F01-DC801B8B8C34}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|x86 = Debug|x86
+		Release|x86 = Release|x86
+		Test|x86 = Test|x86
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{19B90DC7-DBDB-452A-B990-EEEB71B5E5E2}.Debug|x86.ActiveCfg = Debug|x86
+		{19B90DC7-DBDB-452A-B990-EEEB71B5E5E2}.Debug|x86.Build.0 = Debug|x86
+		{19B90DC7-DBDB-452A-B990-EEEB71B5E5E2}.Release|x86.ActiveCfg = Release|x86
+		{19B90DC7-DBDB-452A-B990-EEEB71B5E5E2}.Release|x86.Build.0 = Release|x86
+		{19B90DC7-DBDB-452A-B990-EEEB71B5E5E2}.Test|x86.ActiveCfg = Release|x86
+		{19B90DC7-DBDB-452A-B990-EEEB71B5E5E2}.Test|x86.Build.0 = Release|x86
+		{ECF060E7-CAA1-4466-851F-F80B857641EA}.Debug|x86.ActiveCfg = Debug|x86
+		{ECF060E7-CAA1-4466-851F-F80B857641EA}.Debug|x86.Build.0 = Debug|x86
+		{ECF060E7-CAA1-4466-851F-F80B857641EA}.Release|x86.ActiveCfg = Release|x86
+		{ECF060E7-CAA1-4466-851F-F80B857641EA}.Release|x86.Build.0 = Release|x86
+		{ECF060E7-CAA1-4466-851F-F80B857641EA}.Test|x86.ActiveCfg = Release|x86
+		{ECF060E7-CAA1-4466-851F-F80B857641EA}.Test|x86.Build.0 = Release|x86
+		{4FE7B8AE-1330-424A-91A1-C68D7ABF9CB8}.Debug|x86.ActiveCfg = Debug|x86
+		{4FE7B8AE-1330-424A-91A1-C68D7ABF9CB8}.Debug|x86.Build.0 = Debug|x86
+		{4FE7B8AE-1330-424A-91A1-C68D7ABF9CB8}.Release|x86.ActiveCfg = Release|x86
+		{4FE7B8AE-1330-424A-91A1-C68D7ABF9CB8}.Release|x86.Build.0 = Release|x86
+		{4FE7B8AE-1330-424A-91A1-C68D7ABF9CB8}.Test|x86.ActiveCfg = Release|x86
+		{4FE7B8AE-1330-424A-91A1-C68D7ABF9CB8}.Test|x86.Build.0 = Release|x86
+		{B1C97BB7-8E27-4C1B-B086-A1204EF8FB79}.Debug|x86.ActiveCfg = Debug|x86
+		{B1C97BB7-8E27-4C1B-B086-A1204EF8FB79}.Debug|x86.Build.0 = Debug|x86
+		{B1C97BB7-8E27-4C1B-B086-A1204EF8FB79}.Release|x86.ActiveCfg = Release|x86
+		{B1C97BB7-8E27-4C1B-B086-A1204EF8FB79}.Release|x86.Build.0 = Release|x86
+		{B1C97BB7-8E27-4C1B-B086-A1204EF8FB79}.Test|x86.ActiveCfg = Test|x86
+		{B1C97BB7-8E27-4C1B-B086-A1204EF8FB79}.Test|x86.Build.0 = Test|x86
+		{455E7D70-1C85-4D7F-9F01-DC801B8B8C34}.Debug|x86.ActiveCfg = Debug|x86
+		{455E7D70-1C85-4D7F-9F01-DC801B8B8C34}.Debug|x86.Build.0 = Debug|x86
+		{455E7D70-1C85-4D7F-9F01-DC801B8B8C34}.Release|x86.ActiveCfg = Release|x86
+		{455E7D70-1C85-4D7F-9F01-DC801B8B8C34}.Release|x86.Build.0 = Release|x86
+		{455E7D70-1C85-4D7F-9F01-DC801B8B8C34}.Test|x86.ActiveCfg = Test|x86
+		{455E7D70-1C85-4D7F-9F01-DC801B8B8C34}.Test|x86.Build.0 = Test|x86
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{ECF060E7-CAA1-4466-851F-F80B857641EA} = {5397C375-244D-4FDB-A469-A74BAC99C82A}
+		{4FE7B8AE-1330-424A-91A1-C68D7ABF9CB8} = {5397C375-244D-4FDB-A469-A74BAC99C82A}
+		{B1C97BB7-8E27-4C1B-B086-A1204EF8FB79} = {5397C375-244D-4FDB-A469-A74BAC99C82A}
+		{455E7D70-1C85-4D7F-9F01-DC801B8B8C34} = {5397C375-244D-4FDB-A469-A74BAC99C82A}
+	EndGlobalSection
+EndGlobal

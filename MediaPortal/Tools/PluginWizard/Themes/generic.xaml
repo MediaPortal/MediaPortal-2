@@ -1,0 +1,91 @@
+<ResourceDictionary
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" 
+    xmlns:local="clr-namespace:MP2_PluginWizard.Converter">
+
+    <!-- Brushes -->
+    <SolidColorBrush x:Key="LabelNormalForeground" Color="WhiteSmoke"/>
+    <SolidColorBrush x:Key="LabelNormalBackground" Color="Transparent"/>
+
+    <SolidColorBrush x:Key="WizardButtonForeground" Color="Black"/>
+    <SolidColorBrush x:Key="WizardButtonBackground" Color="LightGray"/>
+
+    <SolidColorBrush x:Key="ComboBoxForeground" Color="Black"/>
+    <SolidColorBrush x:Key="ComboBoxBackground" Color="White"/>
+
+    <SolidColorBrush x:Key="TrueBrush" Color="LightGreen" />
+    <SolidColorBrush x:Key="TrueForegroundBrush" Color="Black" />
+    <SolidColorBrush x:Key="FalseBrush" Color="LightCoral" />
+    <SolidColorBrush x:Key="FalseForegroundBrush" Color="WhiteSmoke" />
+
+    <local:BoolToValueConverter x:Key="BoolBackground" TrueValue="{StaticResource TrueBrush}" FalseValue="{StaticResource FalseBrush}" />
+    <local:BoolToValueConverter x:Key="BoolForeground" TrueValue="{StaticResource TrueForegroundBrush}" FalseValue="{StaticResource FalseForegroundBrush}" />
+    
+    <!-- Label Style  -->
+    <Style x:Key="LabelStyle" TargetType="{x:Type Label}">
+        <Setter Property="Foreground" Value="{StaticResource LabelNormalForeground}" />
+        <Setter Property="Background" Value="{StaticResource LabelNormalBackground}" />
+        <Setter Property="FontSize" Value="16"/> 
+    </Style>
+
+    <Style x:Key="HeaderLabelStyle" TargetType="{x:Type Label}">
+        <Setter Property="Foreground" Value="{StaticResource LabelNormalForeground}" />
+        <Setter Property="Background" Value="{StaticResource LabelNormalBackground}" />
+        <Setter Property="FontSize" Value="24" />
+        <Setter Property="FontWeight" Value="Bold" />
+        
+    </Style>
+
+    <Style x:Key="SubHeaderLabelStyle" TargetType="{x:Type Label}">
+        <Setter Property="Foreground" Value="{StaticResource LabelNormalForeground}" />
+        <Setter Property="Background" Value="{StaticResource LabelNormalBackground}" />
+        <Setter Property="FontSize" Value="16" />
+        <Setter Property="FontWeight" Value="Normal" />
+        <Setter Property="Margin" Value="10,-10,0,0" />
+    </Style>
+
+
+    <!-- Wizard Button Style  -->
+    <Style x:Key="WizardButtonStyle" TargetType="{x:Type Button}">
+        <Setter Property="Foreground" Value="{StaticResource WizardButtonForeground}" />
+        <Setter Property="Background" Value="{StaticResource WizardButtonBackground}" />
+        <Setter Property="MinWidth" Value="70"/>
+        <Setter Property="FontSize" Value="16"/>
+    </Style>
+
+    <!-- ComboBox Style  -->
+    <Style x:Key="ComboBoxStyle" TargetType="{x:Type ComboBox}">
+        <Setter Property="Foreground" Value="{StaticResource ComboBoxForeground}" />
+        <Setter Property="Background" Value="{StaticResource ComboBoxBackground}" />
+        <Setter Property="FontSize" Value="16"/>
+    </Style>
+
+    <Style TargetType="{x:Type ComboBoxItem}">
+        <Setter Property="FontSize" Value="14"/>
+    </Style>
+
+
+    <!-- TextBox Style  -->
+    <Style x:Key="TextBoxStyle" TargetType="{x:Type TextBox}">
+        <Setter Property="Foreground" Value="{StaticResource ComboBoxForeground}" />
+        <Setter Property="Background" Value="{StaticResource ComboBoxBackground}" />
+        <Setter Property="VerticalAlignment" Value="Center" />
+        <Setter Property="FontSize" Value="16"/>
+    </Style>
+
+    <!-- TextBlock Style  -->
+    <Style x:Key="TextBlockStyle" TargetType="{x:Type TextBlock}">
+        <Setter Property="Foreground" Value="{StaticResource LabelNormalForeground}" />
+        <Setter Property="Background" Value="{StaticResource LabelNormalBackground}" />
+        <Setter Property="VerticalAlignment" Value="Center" />
+        <Setter Property="FontSize" Value="16"/>
+    </Style>
+
+    <Style TargetType="ListViewItem">
+        <Style.Resources>
+            <SolidColorBrush x:Key="{x:Static SystemColors.HighlightBrushKey}" Color="Green"/>
+            <SolidColorBrush x:Key="{x:Static SystemColors.ControlBrushKey}" Color="Gray"/>
+         </Style.Resources>     
+    </Style>    
+
+</ResourceDictionary>

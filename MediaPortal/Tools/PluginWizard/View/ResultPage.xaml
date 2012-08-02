@@ -1,0 +1,25 @@
+﻿<View:WizardPage x:Class="MP2_PluginWizard.View.ResultPage"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:View="clr-namespace:MP2_PluginWizard.View"
+             mc:Ignorable="d"
+             d:DesignHeight="300" d:DesignWidth="450">
+	
+    <DockPanel >
+        <Border DockPanel.Dock="Top" Margin="10">
+            <StackPanel>
+                <Label Style="{StaticResource HeaderLabelStyle}" Content="Please verify Plugin.xml content" />
+                <Label Style="{StaticResource SubHeaderLabelStyle}" Content="-> hit Finish button to save plugin.xml" />
+            </StackPanel>
+        </Border>
+        <Border DockPanel.Dock="Top" Margin="10" BorderThickness="2" BorderBrush="White">
+            <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto" Name="Scroller" Foreground="White">
+                <TextBlock Margin="10" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Width="{Binding ElementName=Scroller, Path=ViewportWidth}"
+                        TextWrapping="Wrap" FontSize="14" Text="{Binding PluginText}" />
+            </ScrollViewer>
+        </Border>
+    </DockPanel>
+
+</View:WizardPage>

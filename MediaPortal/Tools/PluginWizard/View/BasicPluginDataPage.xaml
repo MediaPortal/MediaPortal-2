@@ -1,0 +1,105 @@
+﻿<View:WizardPage x:Class="MP2_PluginWizard.View.BasicPluginDataPage"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:View="clr-namespace:MP2_PluginWizard.View" 
+             mc:Ignorable="d" 
+             d:DesignHeight="380" d:DesignWidth="300">
+    <DockPanel>
+        <Border DockPanel.Dock="Top" Margin="10">
+            <StackPanel>
+                <Label Style="{StaticResource HeaderLabelStyle}" Content="Basic Plugin Data" />
+                <Label Style="{StaticResource SubHeaderLabelStyle}" Content="-> hit Next when you are done" />
+            </StackPanel>
+        </Border>
+        <Grid Margin="10">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+            </Grid.RowDefinitions>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="*" />
+            </Grid.ColumnDefinitions>
+
+            <Label Grid.Row="0" Grid.Column="0" Style="{StaticResource LabelStyle}" Content="PluginName"/>
+            <TextBox Grid.Row="0" Grid.Column="1" Style="{StaticResource TextBoxStyle}" Text="{Binding Path=Name, Mode=TwoWay}" FontSize="18" Foreground="Blue"/>
+
+            <Label Grid.Row="1" Grid.Column="0" Style="{StaticResource LabelStyle}" Content="PluginID"/>
+            <TextBlock Grid.Row="1" Grid.Column="1" Style="{StaticResource TextBlockStyle}" Text="{Binding Path=PluginId}" />
+
+            <Label Grid.Row="2" Grid.Column="0" Style="{StaticResource LabelStyle}" Content="Author"/>
+            <TextBox Grid.Row="2" Grid.Column="1" Style="{StaticResource TextBoxStyle}" Text="{Binding Path=Author}"/>
+
+            <Label Grid.Row="3" Grid.Column="0" Style="{StaticResource LabelStyle}" Content="Description"/>
+            <TextBox Grid.Row="3" Grid.Column="1" Style="{StaticResource TextBoxStyle}" Text="{Binding Path=Description}"/>
+
+            <Label Grid.Row="4" Grid.Column="0" Style="{StaticResource LabelStyle}" Content="Auto Activate"/>
+            <CheckBox Grid.Row="4" Grid.Column="1" IsChecked="{Binding Path=AutoActivate}" VerticalAlignment="Center" />
+
+            <Label Grid.Row="5" Grid.Column="0" Style="{StaticResource LabelStyle}" Content="Plugin Version"/>
+            <TextBox Grid.Row="5" Grid.Column="1" Style="{StaticResource TextBoxStyle}" Text="{Binding Path=PluginVersion}" />
+
+            <Label Grid.Row="6" Grid.Column="0" Style="{StaticResource LabelStyle}" Content="Copyright"/>
+            <TextBlock Grid.Row="6" Grid.Column="1" Style="{StaticResource TextBlockStyle}" Text="{Binding Path=Copyright}" />
+
+            <Label Grid.Row="7" Grid.Column="0" Style="{StaticResource LabelStyle}" Content="StateTrackerClassName" Margin="0,0,10,0"/>
+            <TextBox Grid.Row="7" Grid.Column="1" Style="{StaticResource TextBoxStyle}" Text="{Binding Path=StateTrackerClassName}"/>
+
+            <Label Grid.Row="8" Grid.Column="0" Style="{StaticResource LabelStyle}" Content="Runtime"/>
+            <Grid Grid.Row="8" Grid.Column="1">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="*" />
+                </Grid.RowDefinitions>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
+                <TextBox Grid.Row="0" Grid.Column="0" Style="{StaticResource TextBoxStyle}" Text="{Binding NewRuntime}"/>
+                <Button Grid.Row="0" Grid.Column="1" Margin="3,0,0,0" Command="{Binding AddRuntimeCommand}" 
+                        BorderThickness="0" Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}">
+                    <Rectangle Width="21" Height="21">
+                        <Rectangle.Fill>
+                            <ImageBrush ImageSource="..\Resources\Images\Plus.png"/>
+                        </Rectangle.Fill>
+                    </Rectangle>
+                </Button>
+                
+                <ListView Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2" ItemsSource="{Binding Path=AssemblyFiles}" HorizontalContentAlignment="Stretch"
+                          Background="Transparent" Foreground="White" Margin="0,0,0,40">
+                    <ListView.ItemTemplate>
+                        <DataTemplate>
+                            <Grid Margin="2">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="Auto" />
+                                </Grid.ColumnDefinitions>
+                                <TextBlock Grid.Column="0" Style="{StaticResource TextBlockStyle}" Text="{Binding }"/>
+                                <Button Grid.Column="1" 
+                                        Command="{Binding RemoveRuntimeCommand}" DataContext="{Binding DataContext, RelativeSource ={RelativeSource AncestorType=ListView}}"
+                                        CommandParameter="{Binding RelativeSource={RelativeSource AncestorType=Grid}, Path=DataContext}"
+                                        BorderThickness="0" Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}">
+                                    <Rectangle Width="14" Height="14" Name="myRectangle">
+                                        <Rectangle.Fill>
+                                            <ImageBrush ImageSource="..\Resources\Images\Minus.png"/>
+                                        </Rectangle.Fill>
+                                    </Rectangle>
+                                </Button>
+                            </Grid>
+                        </DataTemplate>
+                    </ListView.ItemTemplate>
+                </ListView>
+            </Grid>
+        	
+        </Grid>
+    </DockPanel>
+</View:WizardPage>
