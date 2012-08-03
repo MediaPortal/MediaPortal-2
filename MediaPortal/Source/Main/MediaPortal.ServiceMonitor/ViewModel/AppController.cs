@@ -32,6 +32,7 @@ using Hardcodet.Wpf.TaskbarNotification;
 using MediaPortal.Common;
 using MediaPortal.Common.Logging;
 using MediaPortal.Common.Messaging;
+using MediaPortal.Common.Localization;
 using MediaPortal.ServiceMonitor.Collections;
 using MediaPortal.ServiceMonitor.Model;
 using MediaPortal.ServiceMonitor.UPNP;
@@ -110,6 +111,8 @@ namespace MediaPortal.ServiceMonitor.ViewModel
 
       // Init ServerConnection Messaging
       ServiceRegistration.Get<IMessageBroker>().RegisterMessageReceiver(ServerConnectionMessaging.CHANNEL, this);
+      // Init Localization Messaging
+      ServiceRegistration.Get<IMessageBroker>().RegisterMessageReceiver(LocalizationMessaging.CHANNEL, this);
       // Set Init ServerStatus
       UpdateServerStatus();
     }
@@ -341,17 +344,25 @@ namespace MediaPortal.ServiceMonitor.ViewModel
     /// </summary>
     public void Receive(SystemMessage message)
     {
-      var connectionType = (ServerConnectionMessaging.MessageType) message.MessageType;
-      switch (connectionType)
-      {
-        case ServerConnectionMessaging.MessageType.HomeServerAttached:
-        case ServerConnectionMessaging.MessageType.HomeServerConnected:
-        case ServerConnectionMessaging.MessageType.HomeServerDetached:
-        case ServerConnectionMessaging.MessageType.HomeServerDisconnected:
-          _serverConnectionStatus = connectionType;
-          break;
-      }
-      UpdateServerStatus();
+    	if (message.ChannelName == ServerConnectionMessaging.CHANNEL) 
+    	{
+        var connectionType = (ServerConnectionMessaging.MessageType) message.MessageType;
+        switch (connectionType)
+        { 
+          case ServerConnectionMessaging.MessageType.HomeServerAttached:
+          case ServerConnectionMessaging.MessageType.HomeServerConnected:
+          case ServerConnectionMessaging.MessageType.HomeServerDetached:
+          case ServerConnectionMessaging.MessageType.HomeServerDisconnected:
+            _serverConnectionStatus = connectionType;
+            break;
+        }
+        UpdateServerStatus();
+    	}
+    	else if (message.ChannelName == LocalizationMessaging.CHANNEL)
+        if (((LocalizationMessaging.MessageType) message.MessageType) == LocalizationMessaging.MessageType.LanguageChanged)
+    	  {
+    		   UpdateServerStatus();
+    	  }
     }
 
     #endregion
@@ -373,21 +384,21 @@ namespace MediaPortal.ServiceMonitor.ViewModel
     {
       if (IsServerServiceInstalled() && !IsServerServiceRunning())
       {
-        ServerStatus = "Service is NOT started";
+      	ServerStatus = ServiceRegistration.Get<ILocalization>().ToString("[ServerStatus.NotStarted]");
       }
       switch (_serverConnectionStatus)
       {
         case ServerConnectionMessaging.MessageType.HomeServerAttached:
-          ServerStatus = "Attached to Server";
+      		ServerStatus = ServiceRegistration.Get<ILocalization>().ToString("[ServerStatus.Attached]");
           break;
         case ServerConnectionMessaging.MessageType.HomeServerConnected:
-          ServerStatus = "Connected to Server";
+          ServerStatus = ServiceRegistration.Get<ILocalization>().ToString("[ServerStatus.Connected]");
           break;
         case ServerConnectionMessaging.MessageType.HomeServerDetached:
-          ServerStatus = "Detached from Server";
+          ServerStatus = ServiceRegistration.Get<ILocalization>().ToString("[ServerStatus.Detached]");
           break;
         default:
-          ServerStatus = "Disconnected from Server";
+          ServerStatus = ServiceRegistration.Get<ILocalization>().ToString("[ServerStatus.Disconnected]");
           break;
       }
 

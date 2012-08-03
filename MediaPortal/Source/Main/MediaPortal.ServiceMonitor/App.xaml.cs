@@ -32,6 +32,7 @@ using System.Windows;
 using System.Windows.Threading;
 using CommandLine;
 using MediaPortal.Common;
+using MediaPortal.Common.Localization;
 using MediaPortal.Common.Logging;
 using MediaPortal.Common.Runtime;
 using MediaPortal.Common.Services.Logging;
@@ -39,7 +40,9 @@ using MediaPortal.Common.Exceptions;
 using MediaPortal.Common.Services.Runtime;
 using MediaPortal.Common.SystemResolver;
 using MediaPortal.ServiceMonitor.UPNP;
+using MediaPortal.ServiceMonitor.Utilities;
 using MediaPortal.ServiceMonitor.ViewModel;
+using Localization = MediaPortal.ServiceMonitor.Utilities.Localization;
 
 namespace MediaPortal.ServiceMonitor
 {
@@ -84,6 +87,11 @@ namespace MediaPortal.ServiceMonitor
         {
           ApplicationCore.RegisterCoreServices();
           logger = ServiceRegistration.Get<ILogger>();
+
+          logger.Debug("Starting Localization");
+          ServiceRegistration.Set<ILocalization>(new Localization());
+          ServiceRegistration.Get<ILocalization>().Startup();
+
           //ApplicationCore.StartCoreServices();
 
           logger.Debug("UiExtension: Registering ISystemResolver service");

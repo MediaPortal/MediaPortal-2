@@ -85,12 +85,16 @@
     <Compile Include="Converters\BooleanToCollapsedVisibilityConverter.cs" />
     <Compile Include="Converters\ConnectionStatusToImageConverter.cs" />
     <Compile Include="Converters\ServerStatusToImageConverter.cs" />
+    <Compile Include="Extensions\LocalizationData.cs" />
+    <Compile Include="Extensions\LocExtension.cs" />
     <Compile Include="Model\ClientData.cs" />
     <Compile Include="UPNP\IServerConnectionManager.cs" />
     <Compile Include="UPNP\ServerConnectionManager.cs" />
     <Compile Include="UPNP\ServerConnectionMessaging.cs" />
     <Compile Include="UPNP\Settings\ServerConnectionSettings.cs" />
     <Compile Include="UPNP\SystemResolver.cs" />
+    <Compile Include="Utilities\Localization.cs" />
+    <Compile Include="Utilities\UacServiceHelper.cs" />
     <Compile Include="ViewModel\IAppController.cs" />
     <Compile Include="View\AboutDialog.xaml.cs">
       <DependentUpon>AboutDialog.xaml</DependentUpon>
@@ -238,6 +242,7 @@
   <ItemGroup>
     <Resource Include="Resources\Images\QuitSmall.png" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
     <PostBuildEvent>"$(ProjectDir)postbuild.bat" "$(SolutionDir)" "$(SolutionDir)..\Bin\$(SolutionName)\bin\$(PlatformName)\$(ConfigurationName)\"</PostBuildEvent>
