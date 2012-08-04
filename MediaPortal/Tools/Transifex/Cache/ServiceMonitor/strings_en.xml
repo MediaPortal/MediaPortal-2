@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+  <string name="ServerStatus.NotStarted">Server not started</string>
+  <string name="ServerStatus.Attached">Attached to Server</string>
+  <string name="ServerStatus.Connected">Connected to Server</string>
+  <string name="ServerStatus.Detached">Detached from Server</string>
+  <string name="ServerStatus.Disconnected">Disconnected from Server</string>
+  <string name="MainWindow.ServerStatus">Server Status</string>
+  <string name="MainWindow.AttachedClients">Attached Clients:</string>
+  <string name="ContextMenu.OpenWin">Open Win</string>
+  <string name="ContextMenu.CloseWin">Close Win</string>
+  <string name="ContextMenu.StartService">Start Service</string>
+  <string name="ContextMenu.StopService">Stop Service</string>
+  <string name="ContextMenu.Exit">Exit</string>
+</resources>
