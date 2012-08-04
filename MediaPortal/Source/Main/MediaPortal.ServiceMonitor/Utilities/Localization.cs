@@ -16,7 +16,7 @@ namespace MediaPortal.ServiceMonitor.Utilities
 	public class Localization: ILocalization
 	{
 
-    public const string LANGUAGE_RESOURCES_REGISTRATION_PATH = "Resources/Language";
+    public const string LANGUAGE_RESOURCES_REGISTRATION_PATH = "Language";
 
     #region Protected fields
 
