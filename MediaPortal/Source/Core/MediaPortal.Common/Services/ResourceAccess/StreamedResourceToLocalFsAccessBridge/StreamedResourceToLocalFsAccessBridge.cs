@@ -114,7 +114,7 @@ namespace MediaPortal.Common.Services.ResourceAccess.StreamedResourceToLocalFsAc
     /// instance.
     /// </summary>
     /// <remarks>
-    /// The ownership of the given <paramref name="baseResourceAccessor"/> transferred from the caller to the returned
+    /// The ownership of the given <paramref name="baseResourceAccessor"/> is transferred from the caller to the returned
     /// result value. That means, if this method succeeds, the caller must dispose the result value, it must not dispose
     /// the given <paramref name="baseResourceAccessor"/> any more.
     /// </remarks>
