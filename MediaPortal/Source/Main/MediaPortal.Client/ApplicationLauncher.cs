@@ -38,11 +38,11 @@ using MediaPortal.UI.Services.Logging;
 using System.Drawing;
 using System.IO;
 using MediaPortal.Utilities.Screens;
+using MediaPortal.Common.PathManager;
 #endif
 using MediaPortal.UI.Shares;
 using CommandLine;
 using MediaPortal.Common;
-using MediaPortal.Common.PathManager;
 using MediaPortal.Common.Services.Runtime;
 using MediaPortal.Common.Logging;
 
