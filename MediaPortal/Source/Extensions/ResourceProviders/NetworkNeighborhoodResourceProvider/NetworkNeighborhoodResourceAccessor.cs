@@ -52,7 +52,7 @@ namespace MediaPortal.Extensions.ResourceProviders.NetworkNeighborhoodResourcePr
         return;
       IResourceAccessor ra;
       if (!LocalFsResourceProvider.Instance.TryCreateResourceAccessor("/" + path, out ra))
-        throw new ArgumentException(string.Format("Unable to access resource '{0}'", path));
+        throw new IllegalCallException("Unable to access resource '{0}'", path);
       _underlayingResource = (ILocalFsResourceAccessor) ra;
     }
 
@@ -206,7 +206,7 @@ namespace MediaPortal.Extensions.ResourceProviders.NetworkNeighborhoodResourcePr
             share => share.ShareType == ShareType.Disk).Select(
             share => {
               try { return new NetworkNeighborhoodResourceAccessor(_parent, share.UNCPath.Replace('\\', '/')); }
-              catch(ArgumentException) { return null; }
+              catch(IllegalCallException) { return null; }
             }
           ).Where(share => share != null).Cast<IFileSystemResourceAccessor>().ToList();
       return _underlayingResource == null ? null : WrapLocalFsResourceAccessors(_underlayingResource.GetChildDirectories());

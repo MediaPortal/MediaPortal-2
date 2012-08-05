@@ -31,6 +31,7 @@ using MediaPortal.Common.Logging;
 using MediaPortal.Common.ResourceAccess;
 using MediaPortal.Utilities;
 using ICSharpCode.SharpZipLib.Zip;
+using MediaPortal.Utilities.Exceptions;
 
 namespace MediaPortal.Extensions.ResourceProviders.ZipResourceProvider
 {
@@ -67,8 +68,8 @@ namespace MediaPortal.Extensions.ResourceProviders.ZipResourceProvider
         if (!_isDirectory && _zipEntry == null)
         {
           _zipProxy.DecUsage();
-          throw new ArgumentException(string.Format("ZipResourceAccessor: Cannot find zip entry for path '{0}' in ZIP file '{1}'",
-              pathToDirOrFile, _zipProxy.ZipFileResourceAccessor.CanonicalLocalResourcePath));
+          throw new IllegalCallException("ZipResourceAccessor: Cannot find zip entry for path '{0}' in ZIP file '{1}'",
+              pathToDirOrFile, _zipProxy.ZipFileResourceAccessor.CanonicalLocalResourcePath);
         }
       }
       catch (Exception)
@@ -120,13 +121,13 @@ namespace MediaPortal.Extensions.ResourceProviders.ZipResourceProvider
         return null;
       if (providerPath.StartsWith("/"))
         return providerPath.Substring(1);
-      throw new ArgumentException(string.Format("ZipResourceProvider: '{0}' is not a valid provider path", providerPath));
+      throw new IllegalCallException("ZipResourceProvider: '{0}' is not a valid provider path", providerPath);
     }
 
     protected internal static string ToProviderPath(string entryPath)
     {
       if (entryPath.StartsWith("/"))
-        throw new ArgumentException(string.Format("ZipResourceProvider: '{0}' is not a valid entry path", entryPath));
+        throw new IllegalCallException("ZipResourceProvider: '{0}' is not a valid entry path", entryPath);
       return '/' + entryPath;
     }
 
