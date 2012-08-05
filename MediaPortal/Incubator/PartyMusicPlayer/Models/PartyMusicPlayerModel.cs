@@ -36,6 +36,7 @@ using MediaPortal.UI.Presentation.Players;
 using MediaPortal.UI.Presentation.Screens;
 using MediaPortal.UI.Presentation.Workflow;
 using MediaPortal.UI.ServerCommunication;
+using MediaPortal.UiComponents.Media.Models;
 using MediaPortal.UiComponents.PartyMusicPlayer.General;
 using MediaPortal.UiComponents.PartyMusicPlayer.Settings;
 
@@ -198,6 +199,11 @@ namespace MediaPortal.UiComponents.PartyMusicPlayer.Models
 
       IWorkflowManager workflowManager = ServiceRegistration.Get<IWorkflowManager>();
       workflowManager.NavigatePushAsync(Consts.WF_STATE_ID_PARTY_MUSIC_PLAYER);
+    }
+
+    public void ShowPlaylist()
+    {
+      ShowPlaylistModel.ShowPlaylist(true);
     }
 
     /// <summary>

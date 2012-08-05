@@ -40,8 +40,20 @@
       </Control.RenderTransform>
     </Control>
 
-    <mp_special_controls:PlayerControl Margin="20" PlayerContext="CurrentPlayer" Grid.Row="2" Grid.Column="0"
-        HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Style="{ThemeResource PartyMusicPlayerCurrentItemInfoControlStyle}"/>
+    <Grid Grid.Row="2" Grid.Column="0"
+        HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+      <Grid.ColumnDefinitions>
+        <ColumnDefinition Width="*"/>
+        <ColumnDefinition Width="Auto"/>
+      </Grid.ColumnDefinitions>
+      <Grid.RowDefinitions>
+        <RowDefinition Height="*"/>
+      </Grid.RowDefinitions>
+      <mp_special_controls:PlayerControl Margin="20" PlayerContext="CurrentPlayer" Grid.Row="0" Grid.Column="0"
+          HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Style="{ThemeResource PartyMusicPlayerCurrentItemInfoControlStyle}"/>
+      <Button Content="[PartyMusicPlayer.ShowPlaylist]" Style="{ThemeResource ButtonWideStyle}"
+          Command="{Command ShowPlaylist}"/>
+    </Grid>
 
     <KeyBinding Key="Escape" Command="{Command QueryLeavePartyMode}"/>
     <KeyBinding Key="Back" Command="{Command QueryLeavePartyMode}"/>

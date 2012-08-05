@@ -25,4 +25,6 @@
 
   <string name="PartyMusicPlayer.AudioArtistLabel">Artist</string>
   <string name="PartyMusicPlayer.AudioTitleLabel">Title</string>
+
+  <string name="PartyMusicPlayer.ShowPlaylist">Show playlist</string>
 </resources>
