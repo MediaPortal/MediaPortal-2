@@ -23,7 +23,6 @@
 #endregion
 
 using System;
-using System.Collections.Generic;
 using Ui.Players.BassPlayer.InputSources;
 using Ui.Players.BassPlayer.Interfaces;
 using Ui.Players.BassPlayer.Utils;
@@ -54,7 +53,7 @@ namespace Ui.Players.BassPlayer.PlayerComponents
     protected readonly object _syncObj = new object();
 
     protected readonly Controller _controller;
-    protected readonly Queue<IInputSource> _inputSourceQueue;
+    protected  IInputSource _nextInputSource = null;
 
     protected PlaybackMode _playbackMode = PlaybackMode.Normal;
     protected PlaybackSession _playbackSession = null;
@@ -72,7 +71,6 @@ namespace Ui.Players.BassPlayer.PlayerComponents
     public PlaybackProcessor(Controller controller)
     {
       _controller = controller;
-      _inputSourceQueue = new Queue<IInputSource>();
     }
 
     #region IDisposable implementation
@@ -80,10 +78,10 @@ namespace Ui.Players.BassPlayer.PlayerComponents
     public void Dispose()
     {
       lock (_syncObj)
-        while (_inputSourceQueue.Count > 0)
+        if (_nextInputSource != null)
         {
-          IInputSource item = _inputSourceQueue.Dequeue();
-          item.Dispose();
+          _nextInputSource.Dispose();
+          _nextInputSource = null;
         }
       PlaybackSession playbackSession = _playbackSession;
       if (playbackSession != null)
@@ -126,7 +124,7 @@ namespace Ui.Players.BassPlayer.PlayerComponents
           if (bcdtisOld.SwitchTo(bcdtisNew))
           {
             _playbackSession.IsAwaitingNextInputSource = false;
-            DequeueNextInputSource(); // Remove from queue
+            ClearNextInputSource();
             return;
           }
         }
@@ -144,7 +142,7 @@ namespace Ui.Players.BassPlayer.PlayerComponents
         if (_playbackSession.InitializeWithNewInputSource(inputSource))
         {
           _playbackSession.Play();
-          DequeueNextInputSource(); // Remove from queue
+          ClearNextInputSource();
           return;
         }
         _playbackSession.Dispose();
@@ -191,7 +189,7 @@ namespace Ui.Players.BassPlayer.PlayerComponents
     internal void CheckInputSourceAvailable()
     {
       lock (_syncObj)
-        if (_inputSourceQueue.Count == 0)
+        if (_nextInputSource == null)
           _controller.RequestNextMediaItem_Async();
     }
 
@@ -240,22 +238,36 @@ namespace Ui.Players.BassPlayer.PlayerComponents
       get { return _playbackSession; }
     }
 
-    public void EnqueueInputSource(IInputSource item)
+    public void SetNextInputSource(IInputSource item)
     {
       lock (_syncObj)
-        _inputSourceQueue.Enqueue(item);
+      {
+        if (_nextInputSource != null)
+          _nextInputSource.Dispose();
+        _nextInputSource = item;
+      }
     }
 
-    public IInputSource DequeueNextInputSource()
+    public void ClearNextInputSource()
     {
       lock (_syncObj)
-        return _inputSourceQueue.Count == 0 ? null : _inputSourceQueue.Dequeue();
+        _nextInputSource = null;
+    }
+
+    public IInputSource GetAndClearNextInputSource()
+    {
+      lock (_syncObj)
+      {
+        IInputSource result = _nextInputSource;
+        _nextInputSource = null;
+        return result;
+      }
     }
 
     public IInputSource PeekNextInputSource()
     {
       lock (_syncObj)
-        return _inputSourceQueue.Count == 0 ? null : _inputSourceQueue.Peek();
+        return _nextInputSource;
     }
 
     public void Stop()

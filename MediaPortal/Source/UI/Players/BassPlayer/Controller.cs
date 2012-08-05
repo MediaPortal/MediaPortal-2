@@ -269,7 +269,7 @@ namespace Ui.Players.BassPlayer
     public void MoveToNextItem_Async(IInputSource inputSource, StartTime startTime)
     {
       Log.Info("Preparing for playback: '{0}'", inputSource);
-      _playbackProcessor.EnqueueInputSource(inputSource);
+      _playbackProcessor.SetNextInputSource(inputSource);
       if (startTime == StartTime.AtOnce)
         _playbackProcessor.ScheduleMoveToNextInputSource();
       else

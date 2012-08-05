@@ -80,7 +80,7 @@ namespace Ui.Players.BassPlayer.PlayerComponents
     /// <param name="controller">Reference to controller object.</param>
     public static PlaybackSession Create(Controller controller)
     {
-      IInputSource inputSource = controller.PlaybackProcessor.DequeueNextInputSource();
+      IInputSource inputSource = controller.PlaybackProcessor.GetAndClearNextInputSource();
       if (inputSource == null)
         return null;
       BassStream stream = inputSource.OutputStream;
@@ -362,7 +362,7 @@ namespace Ui.Players.BassPlayer.PlayerComponents
         {
           if (bcdtisOld.SwitchTo(bcdtisNew))
           {
-            _playbackProcessor.DequeueNextInputSource();
+            _playbackProcessor.ClearNextInputSource();
             return OutputStreamWriteProc(streamHandle, buffer, requestedBytes, userData);
           }
         }
@@ -384,7 +384,7 @@ namespace Ui.Players.BassPlayer.PlayerComponents
             _state = SessionState.Ended;
           return (int) BASSStreamProc.BASS_STREAMPROC_END;
         }
-        _playbackProcessor.DequeueNextInputSource(); // Should be the contents of newInputSource
+        _playbackProcessor.ClearNextInputSource(); // Should be the contents of newInputSource
         lock (_syncObj)
         {
           _currentInputSource = newInputSource;
