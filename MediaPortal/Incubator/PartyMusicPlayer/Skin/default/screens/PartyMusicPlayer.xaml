@@ -50,8 +50,9 @@
         <RowDefinition Height="*"/>
       </Grid.RowDefinitions>
       <mp_special_controls:PlayerControl Margin="20" PlayerContext="CurrentPlayer" Grid.Row="0" Grid.Column="0"
-          HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Style="{ThemeResource PartyMusicPlayerCurrentItemInfoControlStyle}"/>
-      <Button Content="[PartyMusicPlayer.ShowPlaylist]" Style="{ThemeResource ButtonWideStyle}"
+          HorizontalAlignment="Stretch" VerticalAlignment="Center" Style="{ThemeResource PartyMusicPlayerCurrentItemInfoControlStyle}"/>
+      <Button Content="[PartyMusicPlayer.ShowPlaylist]" Style="{ThemeResource ButtonWideStyle}" Grid.Row="0" Grid.Column="1"
+          Margin="20" HorizontalAlignment="Center" VerticalAlignment="Center" 
           Command="{Command ShowPlaylist}"/>
     </Grid>
 
