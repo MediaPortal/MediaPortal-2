@@ -125,6 +125,7 @@ namespace MediaPortal.Common.ResourceAccess
       lock (_cachedResourceAccessors.SyncObj)
         if (_cachedResourceAccessors.TryGetValue(path, out ra))
         {
+          _cachedResourceAccessors.Touch(path);
           ra = ra.Clone();
           return true;
         }
