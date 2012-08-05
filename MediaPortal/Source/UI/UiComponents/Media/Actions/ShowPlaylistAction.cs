@@ -22,25 +22,18 @@
 
 #endregion
 
-using System;
 using MediaPortal.Common;
 using MediaPortal.Common.Localization;
 using MediaPortal.Common.Messaging;
 using MediaPortal.UI.Presentation.Players;
 using MediaPortal.UI.Presentation.Workflow;
 using MediaPortal.UiComponents.Media.General;
+using MediaPortal.UiComponents.Media.Models;
 
 namespace MediaPortal.UiComponents.Media.Actions
 {
   public class ShowPlaylistAction : IWorkflowContributor
   {
-    #region Consts
-
-    public const string SHOW_PLAYLIST_WORKFLOW_STATE_ID_STR = "95E38A80-234C-4494-9F7A-006D8E4D6FDA";
-    public static readonly Guid SHOW_PLAYLIST_WORKFLOW_STATE_ID = new Guid(SHOW_PLAYLIST_WORKFLOW_STATE_ID_STR);
-
-    #endregion
-
     #region Protected fields
 
     protected AsynchronousMessageQueue _messageQueue = null;
@@ -128,7 +121,7 @@ namespace MediaPortal.UiComponents.Media.Actions
             visible = false;
             break;
         }
-      visible = visible && !workflowManager.IsStateContainedInNavigationStack(SHOW_PLAYLIST_WORKFLOW_STATE_ID);
+      visible = visible && !workflowManager.IsStateContainedInNavigationStack(Consts.WF_STATE_ID_SHOW_PLAYLIST);
       lock (_syncObj)
       {
         if (visible == _isVisible && displayTitleRes == _displayTitleResource)
@@ -182,8 +175,7 @@ namespace MediaPortal.UiComponents.Media.Actions
 
     public void Execute()
     {
-      IWorkflowManager workflowManager = ServiceRegistration.Get<IWorkflowManager>();
-      workflowManager.NavigatePush(SHOW_PLAYLIST_WORKFLOW_STATE_ID);
+      ShowPlaylistModel.ShowPlaylist(false);
     }
 
     #endregion

@@ -57,6 +57,7 @@ namespace MediaPortal.UiComponents.Media.Models
 
     protected AsynchronousMessageQueue _messageQueue;
     protected ItemsList _items = new ItemsList();
+    protected bool _disableEditMode = false;
 
     #endregion
 
@@ -189,11 +190,37 @@ namespace MediaPortal.UiComponents.Media.Models
       // TODO: Other properties
     }
 
+    #region Static members to be called from other parts of the system
+
+    /// <summary>
+    /// Shows a dialog with all items of the current playlist.
+    /// </summary>
+    /// <param name="disableEditMode">If this parameter is set to <c>true</c>, the button to enter the edit
+    /// playlist mode won't be available.</param>
+    public static void ShowPlaylist(bool disableEditMode)
+    {
+      IWorkflowManager workflowManager = ServiceRegistration.Get<IWorkflowManager>();
+      workflowManager.NavigatePush(Consts.WF_STATE_ID_SHOW_PLAYLIST, new NavigationContextConfig()
+        {
+            AdditionalContextVariables = new Dictionary<string, object>()
+              {
+                  {Consts.KEY_DISABLE_EDIT_MODE, disableEditMode}
+              }
+        });
+    }
+
+    #endregion
+
     #region Members to be accessed by the GUI
 
     public ItemsList Items
     {
       get { return _items; }
+    }
+
+    public bool DisableEditMode
+    {
+      get { return _disableEditMode; }
     }
 
     #endregion
@@ -216,6 +243,8 @@ namespace MediaPortal.UiComponents.Media.Models
     {
       _playlist = null;
       _messageQueue.Start();
+      bool? disableEditMode = (bool?) newContext.GetContextVariable(Consts.KEY_DISABLE_EDIT_MODE, false);
+      _disableEditMode = disableEditMode.HasValue && disableEditMode.Value;
       UpdatePlaylist();
       UpdateProperties();
     }

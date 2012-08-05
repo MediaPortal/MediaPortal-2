@@ -286,7 +286,7 @@
     <Content Include="Skin\default\screens\AudioSimpleSearch.xaml"/>
     <Content Include="Skin\default\screens\ImageSimpleSearch.xaml"/>
     <Content Include="Skin\default\screens\SimpleSearch.xaml" />
-    <Content Include="Skin\default\screens\ShowPlaylist.xaml" />
+    <Content Include="Skin\default\screens\DialogShowPlaylist.xaml" />
     <Content Include="Skin\default\screens\EditPlaylist.xaml" />
     <Content Include="Skin\default\screens\PlaylistsOverview.xaml" />
     <Content Include="Skin\default\screens\PlaylistInfo.xaml" />

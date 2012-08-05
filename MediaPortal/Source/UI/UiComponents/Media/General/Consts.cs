@@ -377,6 +377,8 @@ namespace MediaPortal.UiComponents.Media.General
     public const string KEY_PLAYLIST_DATA = "PlaylistData";
     public const string KEY_MESSAGE = "Message";
 
+    public const string KEY_DISABLE_EDIT_MODE = "DisableEditMode";
+
     public const string KEY_LAYOUT_TYPE = "LayoutType";
     public const string KEY_LAYOUT_SIZE = "LayoutSize";
 
