@@ -75,7 +75,43 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
             return true;
         }
 
+      // Now check siblings of movie for any IMDB id containing filename.
+      IFileSystemResourceAccessor directoryFsra = null;
+      if (fsra.IsDirectory)
+        directoryFsra = fsra.Clone() as IFileSystemResourceAccessor;
+      if (fsra.IsFile)
+        directoryFsra = GetContainingDirectory(fsra);
+
+      if (directoryFsra == null)
+        return false;
+
+      using (directoryFsra)
+        foreach (IFileSystemResourceAccessor file in directoryFsra.GetFiles())
+          using (file)
+            if (ImdbIdMatcher.TryMatchImdbId(file.ResourceName, out imdbId))
+              return true;
+
       return false;
+    }
+
+    /// <summary>
+    /// Tries to create a <see cref="IFileSystemResourceAccessor"/> for the directory of a given file.
+    /// </summary>
+    /// <param name="fsra">IFileSystemResourceAccessor of file.</param>
+    /// <returns>IFileSystemResourceAccessor or <c>null</c>, if no fsra could be created.</returns>
+    private static IFileSystemResourceAccessor GetContainingDirectory(IFileSystemResourceAccessor fsra)
+    {
+      string filePath = fsra.CanonicalLocalResourcePath.ToString();
+      string directoryPath = ProviderPathHelper.GetDirectoryName(filePath);
+      IResourceAccessor metaFileAccessor;
+      if (!ResourcePath.Deserialize(directoryPath).TryCreateLocalResourceAccessor(out metaFileAccessor))
+        return null;
+      if (!(metaFileAccessor is IFileSystemResourceAccessor))
+      {
+        metaFileAccessor.Dispose();
+        return null;
+      }
+      return (IFileSystemResourceAccessor) metaFileAccessor;
     }
 
     /// <summary>
