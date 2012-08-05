@@ -42,7 +42,7 @@ namespace MediaPortal.Utilities.Cache
   /// </remarks>
   /// <typeparam name="TKey">Key type parameter.</typeparam>
   /// <typeparam name="TValue">Value type parameter.</typeparam>
-  public class SmallLRUCache<TKey, TValue>
+  public class SmallLRUCache<TKey, TValue> : ILRUCache<TKey, TValue>
   {
     #region Protected fields
 
@@ -52,9 +52,7 @@ namespace MediaPortal.Utilities.Cache
 
     #endregion
 
-    public delegate void ObjectPrunedDlgt(SmallLRUCache<TKey, TValue> sender, TKey key, TValue value);
-
-    public event ObjectPrunedDlgt ObjectPruned;
+    public event ObjectPrunedDlgt<TKey, TValue> ObjectPruned;
 
     /// <summary>
     /// Creates a new instance of the <see cref="SmallLRUCache{TKey,TValue}"/> with the specified
@@ -68,9 +66,8 @@ namespace MediaPortal.Utilities.Cache
     }
 
     /// <summary>
-    /// Gets or sets the cache size. The cache will be truncated if its size is bigger than
-    /// the value set to this property.
-    /// The size should be small, see the class docs.
+    /// Gets or sets the cache size.
+    /// The size should be small for this implementation, see the class docs.
     /// </summary>
     public int CacheSize
     {
@@ -85,9 +82,6 @@ namespace MediaPortal.Utilities.Cache
       }
     }
 
-    /// <summary>
-    /// Returns a collection with all available values.
-    /// </summary>
     public ICollection<TValue> Values
     {
       get
@@ -97,9 +91,6 @@ namespace MediaPortal.Utilities.Cache
       }
     }
 
-    /// <summary>
-    /// Returns a collection with all available keys.
-    /// </summary>
     public ICollection<TKey> Keys
     {
       get
@@ -117,14 +108,6 @@ namespace MediaPortal.Utilities.Cache
       get { return _syncObj; }
     }
 
-    /// <summary>
-    /// Adds the given key; value pair to this cache.
-    /// </summary>
-    /// <remarks>
-    /// If the given <paramref name="key"/> already exists, the new entry will replace the old entry.
-    /// </remarks>
-    /// <param name="key">Key of the new entry.</param>
-    /// <param name="value">Value of the new entry.</param>
     public void Add(TKey key, TValue value)
     {
       lock (_syncObj)
@@ -133,13 +116,10 @@ namespace MediaPortal.Utilities.Cache
         if (current != null)
           _data.Remove(current);
         _data.AddFirst(new KeyValuePair<TKey, TValue>(key, value));
+        Clip();
       }
     }
 
-    /// <summary>
-    /// Removes the entry with the given key. The <see cref="ObjectPruned"/> event will not be fired here.
-    /// </summary>
-    /// <param name="key">Key of the entry to remove.</param>
     public void Remove(TKey key)
     {
       lock (_syncObj)
@@ -156,13 +136,6 @@ namespace MediaPortal.Utilities.Cache
         return FindEntry(key) != null;
     }
 
-    /// <summary>
-    /// Returns the value which is stored in the cache for the specified <paramref name="key"/> if
-    /// it is present in the cache.
-    /// </summary>
-    /// <param name="key">Key to retrieve the value for.</param>
-    /// <param name="value">Contained value if the key is found in the cache.</param>
-    /// <returns><c>true</c>, if the given <paramref name="key"/> is found in the cache, else <c>false</c>.</returns>
     public bool TryGetValue(TKey key, out TValue value)
     {
       lock (_syncObj)
@@ -180,10 +153,6 @@ namespace MediaPortal.Utilities.Cache
       return false;
     }
 
-    /// <summary>
-    /// This method has to be called when a cache entry is used. It will set the entry to the beginning of the backing LRU list.
-    /// </summary>
-    /// <param name="key">Key of the used entry.</param>
     public void Touch(TKey key)
     {
       lock (_syncObj)
@@ -197,9 +166,6 @@ namespace MediaPortal.Utilities.Cache
       }
     }
 
-    /// <summary>
-    /// Removes all entries from this cache. The <see cref="ObjectPruned"/> event will not be fired here.
-    /// </summary>
     public void Clear()
     {
       lock (_syncObj)
@@ -233,7 +199,7 @@ namespace MediaPortal.Utilities.Cache
 
     protected void FireObjectPruned(TKey key, TValue value)
     {
-      ObjectPrunedDlgt dlgt = ObjectPruned;
+      ObjectPrunedDlgt<TKey, TValue> dlgt = ObjectPruned;
       if (dlgt != null)
         dlgt(this, key, value);
     }

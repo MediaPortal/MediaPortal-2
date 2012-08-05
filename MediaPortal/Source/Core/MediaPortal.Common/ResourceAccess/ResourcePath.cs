@@ -106,7 +106,7 @@ namespace MediaPortal.Common.ResourceAccess
               _pathSegments[i].Serialize(), Serialize()));
     }
 
-    static void OnResourcePathObjectsPruned(SmallLRUCache<ResourcePath, IResourceAccessor> sender, ResourcePath key, IResourceAccessor value)
+    static void OnResourcePathObjectsPruned(ILRUCache<ResourcePath, IResourceAccessor> sender, ResourcePath key, IResourceAccessor value)
     {
       value.Dispose();
     }
