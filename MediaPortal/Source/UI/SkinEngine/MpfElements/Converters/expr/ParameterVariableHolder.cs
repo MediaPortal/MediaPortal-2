@@ -14,7 +14,7 @@ namespace Jyc.Expr
             get { return _parameters; } 
         }
 
-        object  GetVariable(string name)
+        object GetVariable(string name)
         {
             return _parameters[name].Value;
         }
