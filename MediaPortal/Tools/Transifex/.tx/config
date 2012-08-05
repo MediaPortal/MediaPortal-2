@@ -50,6 +50,11 @@ file_filter=Cache\NetworkNeighborhoodResourceProvider\strings_<lang>.xml
 source_file=Cache\NetworkNeighborhoodResourceProvider\strings_en.xml
 source_lang=en
 type=ANDROID
+[MP2.PartyMusicPlayer]
+file_filter=Cache\PartyMusicPlayer\strings_<lang>.xml
+source_file=Cache\PartyMusicPlayer\strings_en.xml
+source_lang=en
+type=ANDROID
 [MP2.ServerBase]
 file_filter=Cache\ServerBase\strings_<lang>.xml
 source_file=Cache\ServerBase\strings_en.xml

@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+  <string name="PartyMusicPlayer.MenuItem">Party music player</string>
+  <string name="PartyMusicPlayer.ConfigWorkflowNavigationContextDisplayLabel">Party music player</string>
+  <string name="PartyMusicPlayer.PlayerWorkflowNavigationContextDisplayLabel">Party music player</string>
+  <string name="PartyMusicPlayer.ConfigScreenTitle">Party music player configuration</string>
+  <string name="PartyMusicPlayer.Playlist">Playlist</string>
+  <string name="PartyMusicPlayer.ChoosePlaylist">Choose playlist</string>
+  <string name="PartyMusicPlayer.UseEscapePassword">Use escape password</string>
+  <string name="PartyMusicPlayer.DisableScreenSaver">Disable screen saver</string>
+  <string name="PartyMusicPlayer.StartPartyMode">Start party mode</string>
+
+  <string name="PartyMusicPlayer.ChoosePlaylistDialogHeader">Choose playlist</string>
+
+  <string name="PartyMusicPlayer.EnterEscapePasswordDialogHeader">Escape password</string>
+  <string name="PartyMusicPlayer.EnterEscapePasswordDialogText">Please enter the party mode escape password</string>
+
+  <string name="PartyMusicPlayer.WrongEscapePasswordDialogHeader">Wrong escape password</string>
+  <string name="PartyMusicPlayer.WrongEscapePasswordDialogText">Sorry, that's the wrong escape password!</string>
+
+  <string name="PartyMusicPlayer.ServerNotConnectedDialogHeader">Server not connected</string>
+  <string name="PartyMusicPlayer.ServerNotConnectedDialogText">For this action, the home server must be connected</string>
+
+  <string name="PartyMusicPlayer.PlayerContextName">Party music player</string>
+
+  <string name="PartyMusicPlayer.AudioArtistLabel">Artist</string>
+  <string name="PartyMusicPlayer.AudioTitleLabel">Title</string>
+
+  <string name="PartyMusicPlayer.ShowPlaylist">Show playlist</string>
+</resources>
