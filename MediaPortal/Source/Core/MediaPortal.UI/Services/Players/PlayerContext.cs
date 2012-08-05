@@ -119,6 +119,8 @@ namespace MediaPortal.UI.Services.Players
 
     protected bool DoPlay_NoLock(MediaItem mediaItem, StartTime startTime)
     {
+      if (mediaItem == null)
+        return false;
       IServerConnectionManager scm = ServiceRegistration.Get<IServerConnectionManager>();
       IContentDirectory cd = scm.ContentDirectory;
       if (cd != null)
@@ -133,9 +135,7 @@ namespace MediaPortal.UI.Services.Players
     internal bool RequestNextItem_NoLock()
     {
       MediaItem item = _playlist.MoveAndGetNext();
-      if (item == null)
-        return false;
-      return DoPlay_NoLock(item, StartTime.Enqueue);
+      return item != null && DoPlay_NoLock(item, StartTime.Enqueue);
     }
 
     protected void Seek(double startValue)
@@ -505,11 +505,15 @@ namespace MediaPortal.UI.Services.Players
       if (psc == null)
         return false;
       int countLeft = _playlist.ItemList.Count; // Limit number of tries to current playlist size. If the PL doesn't contain any playable item, this avoids an endless loop.
+      MediaItem previousItem;
       do // Loop: Try until we find an item which is able to play
       {
         if (--countLeft < 0 || !_playlist.HasPrevious) // Break loop if we don't have any more items left
           return false;
-      } while (!DoPlay_NoLock(_playlist.MoveAndGetPrevious(), StartTime.AtOnce));
+        previousItem = _playlist.MoveAndGetPrevious();
+        if (previousItem == null)
+          return false;
+      } while (!DoPlay_NoLock(previousItem, StartTime.AtOnce));
       return true;
     }
 

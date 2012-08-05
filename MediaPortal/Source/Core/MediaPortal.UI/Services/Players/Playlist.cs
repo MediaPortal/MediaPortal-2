@@ -87,7 +87,7 @@ namespace MediaPortal.UI.Services.Players
         {
           if (_repeatMode == RepeatMode.None)
             return -1;
-          while (playIndex > _playIndexList.Count)
+          while (playIndex >= _playIndexList.Count)
             playIndex -= _playIndexList.Count;
           while (playIndex < 0)
             playIndex += _playIndexList.Count;
@@ -234,13 +234,13 @@ namespace MediaPortal.UI.Services.Players
       {
         if (_repeatMode == RepeatMode.One)
           return Current;
+        int oldPlayIndex = _currentPlayIndex;
         if (_currentPlayIndex > -1)
           _currentPlayIndex--;
-        else if (_repeatMode == RepeatMode.All)
+        if (_currentPlayIndex == -1 && _repeatMode == RepeatMode.All)
           _currentPlayIndex = _itemList.Count - 1;
-        else
-          return null;
-        PlaylistMessaging.SendPlaylistMessage(PlaylistMessaging.MessageType.CurrentItemChange, _playerContext);
+        if (_currentPlayIndex != oldPlayIndex)
+          PlaylistMessaging.SendPlaylistMessage(PlaylistMessaging.MessageType.CurrentItemChange, _playerContext);
         return Current;
       }
     }
