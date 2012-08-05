@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Include
+    xmlns="www.team-mediaportal.com/2008/mpf/directx"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    Source="screens\simple_dialog_menu.xaml"
+    >
+  <Include.Resources>
+
+    <!-- Header -->
+    <ResourceWrapper x:Key="Dialog_Header_Text" Resource="[PartyMusicPlayer.ChoosePlaylistDialogHeader]"/>
+
+    <Model x:Key="PartyMusicPlayerModel" Id="6B3B9024-5B7A-44C0-9B9A-C83FB49FB8D6"/>
+
+    <!-- Menu -->
+    <ResourceWrapper x:Key="Menu_Items" EnableBindings="True">
+      <Binding Source="{StaticResource PartyMusicPlayerModel}" Path="Playlists" Mode="OneTime"/>
+    </ResourceWrapper>
+
+    <!-- Command -->
+    <CommandStencil x:Key="Execute_Command_Stencil"
+        Source="{StaticResource PartyMusicPlayerModel}" Path="Select"/>
+
+  </Include.Resources>
+</Include>

@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Include
+    xmlns="www.team-mediaportal.com/2008/mpf/directx"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:mp_special_controls="clr-namespace:MediaPortal.UI.SkinEngine.SpecialElements.Controls"
+    xmlns:mp_special_workflow="clr-namespace:MediaPortal.UI.SkinEngine.SpecialElements.Workflow"
+    Source="screens\master_menu.xaml"
+    >
+  <Include.Resources>
+    <Model x:Key="PartyMusicPlayerModel" Id="6B3B9024-5B7A-44C0-9B9A-C83FB49FB8D6"/>
+
+    <ResourceWrapper x:Key="Header_Text" Resource="[PartyMusicPlayer.ConfigScreenTitle]"/>
+
+    <!-- Contents -->
+    <ControlTemplate x:Key="Contents_Template">
+      <Grid DataContext="{Binding Source={StaticResource PartyMusicPlayerModel}}">
+        <Grid.ColumnDefinitions>
+          <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+          <RowDefinition Height="Auto"/>
+          <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <StackPanel Orientation="Vertical" HorizontalAlignment="Stretch" Grid.Row="0" Grid.Column="0">
+          <Label Content="[PartyMusicPlayer.Playlist]" Color="{ThemeResource TextColor}" Margin="10,10,10,0"/>
+          <DockPanel LastChildFill="True">
+            <Button Content="[PartyMusicPlayer.ChoosePlaylist]" Margin="0,10,10,10" DockPanel.Dock="Right"
+                Command="{Command ChoosePlaylist}"/>
+            <Label Content="{Binding PlaylistName}" Color="{ThemeResource TextColor}" Margin="10"
+                DockPanel.Dock="Center"/>
+          </DockPanel>
+  
+          <CheckBox x:Name="UseEscapePasswordCheckBox" Content="[PartyMusicPlayer.UseEscapePassword]"
+              Margin="10,10,10,0" IsChecked="{Binding Path=UseEscapePassword,Mode=TwoWay}"/>
+          <TextBox Text="{Binding Path=EscapePassword,Mode=TwoWay}" Margin="10"
+              IsEnabled="{Binding UseEscapePassword}"/>
+  
+          <CheckBox x:Name="DisableScreenSaverCheckBox" Content="[PartyMusicPlayer.DisableScreenSaver]"
+              Margin="10,10,10,0" IsChecked="{Binding Path=DisableScreenSaver,Mode=TwoWay}"/>
+        </StackPanel>
+
+        <Button x:Name="StartPartyMode" Content="[PartyMusicPlayer.StartPartyMode]" Grid.Row="1" Grid.Column="0"
+            HorizontalAlignment="Center" VerticalAlignment="Center"
+            Command="{Command StartPartyMode}"/>
+      </Grid>
+    </ControlTemplate>
+  </Include.Resources>
+</Include>

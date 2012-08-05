@@ -1,0 +1,48 @@
+<Plugin
+    DescriptorVersion="1.0" 
+    Name="PartyMusicPlayer"
+    PluginId="{21535124-561D-4884-81E1-F325372B45ED}"
+    Author="Albert"
+    Copyright="GPL"
+    AutoActivate="false"
+    Description="Party Music Player Plugin"
+    PluginVersion="1.0">
+
+  <DependsOn>
+    <PluginReference PluginId="{1AFF4467-64B0-4ca1-AF28-9AEDF3525BCE}"/> <!-- ConfigurationManager -->
+    <PluginReference PluginId="{B765A4B6-F455-4941-BDAE-2CE45208BFEB}"/> <!-- Configuration plugin -->
+    <PluginReference PluginId="{5D239050-02B8-4f58-8301-7630A1C4CF85}"/> <!-- SkinBase -->
+  </DependsOn>
+
+  <Runtime>
+    <Assembly FileName="PartyMusicPlayer.dll"/>
+  </Runtime>
+
+  <Register Location="/Models">
+    <Model Id="6B3B9024-5B7A-44C0-9B9A-C83FB49FB8D6" Name="PartyMusicPlayerModel" ClassName="MediaPortal.UiComponents.PartyMusicPlayer.Models.PartyMusicPlayerModel"/>
+  </Register>
+
+  <Register Location="/Workflow/States">
+    <!-- Party music player main -->
+
+    <WorkflowState Id="53278FDC-C3B1-4AE5-B767-9C6864D0E84C"
+        Name="PartyMusicConfig"
+        MainScreen="PartyMusicConfig"
+        DisplayLabel="[PartyMusicPlayer.ConfigWorkflowNavigationContextDisplayLabel]"
+        WorkflowModel="6B3B9024-5B7A-44C0-9B9A-C83FB49FB8D6"/> <!-- Workflow model = PartyMusicPlayer model -->
+
+    <WorkflowState Id="6D81BA15-25FA-4D15-9780-6C84CC4551A6"
+        Name="PartyMusicPlayer"
+        MainScreen="PartyMusicPlayer"
+        DisplayLabel="[PartyMusicPlayer.PlayerWorkflowNavigationContextDisplayLabel]"
+        WorkflowModel="6B3B9024-5B7A-44C0-9B9A-C83FB49FB8D6"/> <!-- Workflow model = PartyMusicPlayer model -->
+  </Register>
+
+  <Register Location="/Resources/Language">
+    <Resource Id="PartyMusicPlayerLanguage" Directory="Language" Type="Language"/>
+  </Register>
+
+  <Register Location="/Resources/Skin">
+    <Resource Id="PartyMusicPlayerSkin" Directory="Skin" Type="Skin"/>
+  </Register>
+</Plugin>

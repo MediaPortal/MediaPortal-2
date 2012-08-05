@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Screen
+    xmlns="www.team-mediaportal.com/2008/mpf/directx"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:mp_special_workflow="clr-namespace:MediaPortal.UI.SkinEngine.SpecialElements.Workflow"
+    xmlns:mp_audio_viz="clr-namespace:MediaPortal.UiComponents.Media.Controls;assembly=Media"
+    mp_special_workflow:WorkflowContext.StateSlot="Root"
+    xmlns:mp_special_controls="clr-namespace:MediaPortal.UI.SkinEngine.SpecialElements.Controls"
+    x:Name="PartyMusicPlayerScreen"
+    >
+  <Screen.Resources>
+    <Model x:Key="PartyMusicPlayerModel" Id="6B3B9024-5B7A-44C0-9B9A-C83FB49FB8D6"/>
+  </Screen.Resources>
+  <Grid DataContext="{Binding Source={StaticResource PartyMusicPlayerModel}}">
+    <Grid.ColumnDefinitions>
+      <ColumnDefinition Width="*"/>
+    </Grid.ColumnDefinitions>
+    <Grid.RowDefinitions>
+      <RowDefinition Height="150"/>
+      <RowDefinition Height="300"/>
+      <RowDefinition Height="*"/>
+    </Grid.RowDefinitions>
+
+    <mp_special_controls:PlayerControl Margin="0,20,0,0" PlayerContext="CurrentPlayer" Grid.Row="0" Grid.Column="0"
+        HorizontalAlignment="Center" VerticalAlignment="Stretch" Style="{ThemeResource PartyMusicPlayerControllerControlStyle}"/>
+
+    <mp_audio_viz:AudioSpectrumAnalyzer Grid.ZIndex="100" Grid.Row="1" Grid.Column="0" Width="600" Height="300"
+        HorizontalAlignment="Center" VerticalAlignment="Center"
+        x:Name="SpectrumAnalyzer" Style="{ThemeResource SpectrumAnalyzerStyle}"/>
+    
+    <Control Grid.Row="2" Grid.Column="0">
+      <Control.Background>
+        <LinearGradientBrush StartPoint="0.5,0" EndPoint="0.5,1">
+          <GradientStop Offset="0" Color="#A0000000"/>
+          <GradientStop Offset="1" Color="#14000000"/>
+        </LinearGradientBrush >
+      </Control.Background>
+      <Control.RenderTransform>
+        <TranslateTransform X="0" Y="-50"/>
+      </Control.RenderTransform>
+    </Control>
+
+    <mp_special_controls:PlayerControl Margin="20" PlayerContext="CurrentPlayer" Grid.Row="2" Grid.Column="0"
+        HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Style="{ThemeResource PartyMusicPlayerCurrentItemInfoControlStyle}"/>
+
+    <KeyBinding Key="Escape" Command="{Command QueryLeavePartyMode}"/>
+    <KeyBinding Key="Back" Command="{Command QueryLeavePartyMode}"/>
+  </Grid>
+</Screen>

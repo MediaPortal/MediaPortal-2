@@ -1,0 +1,160 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ResourceDictionary
+    xmlns="www.team-mediaportal.com/2008/mpf/directx"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:collections="clr-namespace:MediaPortal.UI.Presentation.DataObjects;assembly=MediaPortal.UI"
+    xmlns:navitems="clr-namespace:MediaPortal.UiComponents.Media.Models.Navigation;assembly=Media"
+    xmlns:mp_special_controls="clr-namespace:MediaPortal.UI.SkinEngine.SpecialElements.Controls"
+    xmlns:fanart="clr-namespace:MediaPortal.Extensions.UserServices.FanArtService.Client;assembly=FanArtService.Client"
+    DependsOnStyleResources="Consts,Colors,Buttons,OtherControls"
+    >
+  <ControlTemplate x:Key="PartyMusicPlayerPlayControlTemplate">
+    <Image Source="play-icon.png"/>
+  </ControlTemplate>
+
+  <ControlTemplate x:Key="PartyMusicPlayerPauseControlTemplate">
+    <Image Source="pause-icon.png"/>
+  </ControlTemplate>
+
+  <ControlTemplate x:Key="PartyMusicPlayerStopControlTemplate">
+    <Image Source="stop-icon.png"/>
+  </ControlTemplate>
+
+  <ControlTemplate x:Key="PartyMusicPlayerForwardControlTemplate">
+    <Image Source="fast-forward-icon.png"/>
+  </ControlTemplate>
+
+  <ControlTemplate x:Key="PartyMusicPlayerRewindControlTemplate">
+    <Image Source="rewind-icon.png"/>
+  </ControlTemplate>
+
+  <ControlTemplate x:Key="PartyMusicPlayerSkipForwardControlTemplate">
+    <Image Source="skip-forward-icon.png"/>
+  </ControlTemplate>
+
+  <ControlTemplate x:Key="PartyMusicPlayerSkipBackControlTemplate">
+    <Image Source="skip-backward-icon.png"/>
+  </ControlTemplate>
+
+  <Style x:Key="PartyMusicPlayerPlayButtonStyle" BasedOn="{ThemeResource BasePlayerControlButtonStyle}">
+    <Style.Resources>
+      <ResourceWrapper x:Key="ContentControlTemplate" Resource="{ThemeResource PartyMusicPlayerPlayControlTemplate}" />
+    </Style.Resources>
+  </Style>
+
+  <Style x:Key="PartyMusicPlayerPauseButtonStyle" BasedOn="{ThemeResource BasePlayerControlButtonStyle}">
+    <Style.Resources>
+      <ResourceWrapper x:Key="ContentControlTemplate" Resource="{ThemeResource PartyMusicPlayerPauseControlTemplate}" />
+    </Style.Resources>
+  </Style>
+
+  <Style x:Key="PartyMusicPlayerStopButtonStyle" BasedOn="{ThemeResource BasePlayerControlButtonStyle}">
+    <Style.Resources>
+      <ResourceWrapper x:Key="ContentControlTemplate" Resource="{ThemeResource PartyMusicPlayerStopControlTemplate}" />
+    </Style.Resources>
+  </Style>
+
+  <Style x:Key="PartyMusicPlayerForwardButtonStyle" BasedOn="{ThemeResource BasePlayerControlButtonStyle}">
+    <Style.Resources>
+      <ResourceWrapper x:Key="ContentControlTemplate" Resource="{ThemeResource PartyMusicPlayerForwardControlTemplate}" />
+    </Style.Resources>
+  </Style>
+
+  <Style x:Key="PartyMusicPlayerRewindButtonStyle" BasedOn="{ThemeResource BasePlayerControlButtonStyle}">
+    <Style.Resources>
+      <ResourceWrapper x:Key="ContentControlTemplate" Resource="{ThemeResource PartyMusicPlayerRewindControlTemplate}" />
+    </Style.Resources>
+  </Style>
+
+  <Style x:Key="PartyMusicPlayerSkipForwardButtonStyle" BasedOn="{ThemeResource BasePlayerControlButtonStyle}">
+    <Style.Resources>
+      <ResourceWrapper x:Key="ContentControlTemplate" Resource="{ThemeResource PartyMusicPlayerSkipForwardControlTemplate}" />
+    </Style.Resources>
+  </Style>
+
+  <Style x:Key="PartyMusicPlayerSkipBackButtonStyle" BasedOn="{ThemeResource BasePlayerControlButtonStyle}">
+    <Style.Resources>
+      <ResourceWrapper x:Key="ContentControlTemplate" Resource="{ThemeResource PartyMusicPlayerSkipBackControlTemplate}" />
+    </Style.Resources>
+  </Style>
+
+  <Style x:Key="PartyMusicPlayerControllerControlStyle" TargetType="{x:Type mp_special_controls:PlayerControl}">
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate TargetType="{x:Type mp_special_controls:PlayerControl}">
+          <StackPanel x:Name="MouseControlsPanel" DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}"
+              HorizontalAlignment="Center" VerticalAlignment="Center"
+              Orientation="Horizontal" IsVisible="{Binding ShowMouseControls}">
+            <Button x:Name="SkipBackButton" Style="{ThemeResource PartyMusicPlayerSkipBackButtonStyle}" Margin="5,0,5,0" IsVisible="{Binding CanSkipBack}"
+                Command="{Command Previous}"/>
+            <Button x:Name="RewindButton" Style="{ThemeResource PartyMusicPlayerRewindButtonStyle}" Margin="5,0,5,0" IsVisible="{Binding CanSeekBackward}"
+                Command="{Command SeekBackward}"/>
+            <Button x:Name="PlayButton" Style="{ThemeResource PartyMusicPlayerPlayButtonStyle}" Margin="5,0,5,0" IsVisible="{Binding CanPlay}"
+                Command="{Command Play}"/>
+            <Button x:Name="PauseButton" Style="{ThemeResource PartyMusicPlayerPauseButtonStyle}" Margin="5,0,5,0" IsVisible="{Binding CanPause}"
+                Command="{Command Pause}"/>
+            <Button x:Name="StopButton" Style="{ThemeResource PartyMusicPlayerStopButtonStyle}" Margin="5,0,5,0" IsVisible="{Binding CanStop}"
+                Command="{Command Stop}"/>
+            <Button x:Name="ForwardButton" Style="{ThemeResource PartyMusicPlayerForwardButtonStyle}" Margin="5,0,5,0" IsVisible="{Binding CanSeekForward}"
+                Command="{Command SeekForward}"/>
+            <Button x:Name="SkipForwardButton" Style="{ThemeResource PartyMusicPlayerSkipForwardButtonStyle}" Margin="5,0,5,0" IsVisible="{Binding CanSkipForward}"
+                Command="{Command Next}"/>
+          </StackPanel>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
+
+  <Style x:Key="PartyMusicPlayerCurrentItemInfoControlStyle" TargetType="{x:Type mp_special_controls:PlayerControl}">
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate TargetType="{x:Type mp_special_controls:PlayerControl}">
+          <Grid DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}">
+            <Grid.RowDefinitions>
+              <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+            <Grid.ColumnDefinitions>
+              <ColumnDefinition Width="Auto"/>
+              <ColumnDefinition Width="Auto"/>
+              <ColumnDefinition Width="*"/>
+              <ColumnDefinition Width="250"/>
+            </Grid.ColumnDefinitions>
+            <Image x:Name="ItemTypeImage" Grid.Row="0" Grid.Column="0" Stretch="Uniform"
+                VerticalAlignment="Center"
+                Source="{Binding MediaItem}" Height="50" Margin="10"/>
+            <Grid x:Name="PlayerStatePanel" Grid.Row="0" Grid.Column="1" VerticalAlignment="Center" Margin="10">
+              <Control x:Name="StatePlay" IsVisible="{Binding IsPlaying}" Template="{ThemeResource PlayControlTemplate}"
+                  VerticalAlignment="Center"/>
+              <Control x:Name="StatePause" IsVisible="{Binding IsPaused}" Template="{ThemeResource PauseControlTemplate}"
+                  VerticalAlignment="Center"/>
+              <Control x:Name="StateForward" IsVisible="{Binding IsSeekingForward}" Template="{ThemeResource ForwardControlTemplate}"
+                  VerticalAlignment="Center"/>
+              <Control x:Name="StateRewind" IsVisible="{Binding IsSeekingBackward}" Template="{ThemeResource RewindControlTemplate}"
+                  VerticalAlignment="Center"/>
+              <Label x:Name="SeekHint" FontSize="{ThemeResource TinyFontSize}" Content="{Binding SeekHint}" Color="{ThemeResource TextColor}"/>
+            </Grid>
+            <Grid Grid.Row="0" Grid.Column="2">
+              <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+              </Grid.RowDefinitions>
+              <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="10"/>
+                <ColumnDefinition Width="*"/>
+              </Grid.ColumnDefinitions>
+              <Label x:Name="ArtistLabel" Grid.Row="0" Grid.Column="0"
+                  Content="[PartyMusicPlayer.AudioArtistLabel]" Color="{ThemeResource TextColor}" FontSize="{ThemeResource BigFontSize}"/>
+              <Label x:Name="Artist" Grid.Row="0" Grid.Column="2"
+                  Content="{Binding AudioArtists}" Color="{ThemeResource TextColor}" FontSize="{ThemeResource BigFontSize}"/>
+              <Label x:Name="TitleLabel" Grid.Row="1" Grid.Column="0"
+                  Content="[PartyMusicPlayer.AudioTitleLabel]" Color="{ThemeResource TextColor}" FontSize="{ThemeResource BigFontSize}"/>
+              <Label x:Name="Title" Grid.Row="1" Grid.Column="2" Scroll="Auto"
+                  Content="{Binding MediaItemTitle}" Color="{ThemeResource TextColor}" FontSize="{ThemeResource BigFontSize}"/>
+            </Grid>
+          </Grid>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
+</ResourceDictionary>
