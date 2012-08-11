@@ -43,6 +43,11 @@ namespace MediaPortal.UI.Presentation.Screens
   /// <summary>
   /// Dialog management API.
   /// </summary>
+  /// <remarks>
+  /// This service provides an API to show general dialogs. To show a dialog, use method <see cref="ShowDialog"/>.
+  /// To track the outcome of that dialog, you can register at the message channel <see cref="DialogManagerMessaging.CHANNEL"/> or
+  /// use the convenience class <see cref="DialogCloseWatcher"/>.
+  /// </remarks>
   public interface IDialogManager
   {
     /// <summary>
