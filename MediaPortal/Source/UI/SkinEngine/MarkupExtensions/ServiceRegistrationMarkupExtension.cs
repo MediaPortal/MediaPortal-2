@@ -30,6 +30,7 @@ using MediaPortal.Common;
 using MediaPortal.Common.Logging;
 using MediaPortal.UI.Presentation.Players;
 using MediaPortal.UI.Presentation.Screens;
+using MediaPortal.UI.Presentation.Utilities;
 using MediaPortal.UI.Presentation.Workflow;
 using MediaPortal.UI.SkinEngine.MpfElements;
 using MediaPortal.UI.SkinEngine.Xaml.Exceptions;
@@ -50,6 +51,7 @@ namespace MediaPortal.UI.SkinEngine.MarkupExtensions
       TYPE_MAPPING.Add("Players", typeof(IPlayerManager));
       TYPE_MAPPING.Add("DialogManager", typeof(IDialogManager));
       TYPE_MAPPING.Add("Window", typeof(IScreenControl));
+      TYPE_MAPPING.Add("FileBrowser", typeof(IFileBrowser));
     }
 
     protected string _interfaceName = null;
@@ -83,9 +85,9 @@ namespace MediaPortal.UI.SkinEngine.MarkupExtensions
     {
       if (_interfaceName == null)
         throw new XamlBindingException("ServiceRegistrationMarkupExtension: Property InterfaceName has to be set");
-      if (!TYPE_MAPPING.ContainsKey(_interfaceName))
+      Type t;
+      if (!TYPE_MAPPING.TryGetValue(_interfaceName, out t))
         throw new XamlBindingException("ServiceRegistrationMarkupExtension: Type '{0}' is not known", _interfaceName);
-      Type t = TYPE_MAPPING[_interfaceName];
       try
       {
         Type scType = typeof(ServiceRegistration);

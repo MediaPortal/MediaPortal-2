@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="4.0">
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
@@ -85,10 +85,11 @@
     <Compile Include="Actions\FullscreenContentAction.cs" />
     <Compile Include="Actions\PlayerConfigurationAction.cs" />
     <Compile Include="Actions\SetupDefaultSharesAction.cs" />
-    <Compile Include="ConnectionListenerService.cs" />
-    <Compile Include="CommonNotificationService.cs" />
+    <Compile Include="Services\ConnectionListenerService.cs" />
+    <Compile Include="Services\CommonNotificationService.cs" />
     <Compile Include="General\Consts.cs" />
-    <Compile Include="IConnectionListenerService.cs" />
+    <Compile Include="Services\IConnectionListenerService.cs" />
+    <Compile Include="Services\FileBrowserService.cs" />
     <Compile Include="Models\SharesOverviewModel.cs" />
     <Compile Include="Models\MouseModel.cs" />
     <Compile Include="Models\LocalShares.cs" />
@@ -119,7 +120,9 @@
     <Compile Include="Models\TimeModel.cs" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="plugin.xml" />
+    <Content Include="plugin.xml">
+      <SubType>Designer</SubType>
+    </Content>
     <Content Include="Language\strings_en.xml" />
     <Content Include="Resources\ConfigurationImages\default-22.png" />
     <Content Include="Resources\ConfigurationImages\default-48.png" />
@@ -234,6 +237,7 @@
     <Content Include="Skin\default\themes\default\styles\BusyCursor.xaml" />
     <Content Include="Skin\default\screens\DialogPlayerConfiguration.xaml" />
     <Content Include="Skin\default\screens\SharesOverview.xaml" />
+    <Content Include="Skin\default\screens\DialogFileBrowser.xaml" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Skin\default\fonts\DejaVuSans.desc" />

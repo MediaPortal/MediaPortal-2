@@ -30,9 +30,18 @@ namespace MediaPortal.UiComponents.SkinBase.General
   public class Consts
   {
     // Screens
-    public static string SCREEN_DEFAULT_BACKGROUND = "default-background";
-    public static string SCREEN_VIDEO_BACKGROUND = "video-background";
-    public static string SCREEN_IMAGE_BACKGROUND = "image-background";
+    public const string SCREEN_SHARES_CONFIG_RELOCATE_DIALOG = "shares_config_relocate_dialog";
+    public const string SCREEN_SUPERLAYER_VOLUME = "Volume";
+    public const string SCREEN_SHARES_CONFIG_PROBLEM = "shares_config_problem";
+
+    public const string SCREEN_DEFAULT_BACKGROUND = "default-background";
+    public const string SCREEN_VIDEO_BACKGROUND = "video-background";
+    public const string SCREEN_IMAGE_BACKGROUND = "image-background";
+
+    // Dialogs
+    public const string DIALOG_ATTACH_TO_SERVER = "AttachToServerDialog";
+
+    public const string DIALOG_FILE_BROWSER = "DialogFileBrowser";
 
     // Language resources
     public const string RES_SYSTEM_HINT = "[System.Hint]";
@@ -211,11 +220,5 @@ namespace MediaPortal.UiComponents.SkinBase.General
     public const string KEY_SYSTEM = "System";
     public const string KEY_HOSTNAME = "HostName";
     public const string KEY_AUTO_CLOSE_ON_NO_SERVER = "AutoCloseOnNoServer";
-
-    // Screens
-    public const string SCREEN_SHARES_CONFIG_RELOCATE_DIALOG = "shares_config_relocate_dialog";
-    public const string SCREEN_SUPERLAYER_VOLUME = "Volume";
-    public const string DIALOG_ATTACH_TO_SERVER = "AttachToServerDialog";
-    public const string SCREEN_SHARES_CONFIG_PROBLEM = "shares_config_problem";
   }
 }

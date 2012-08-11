@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Include
+    xmlns="www.team-mediaportal.com/2008/mpf/directx"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    Source="screens\master_dialog_bare.xaml"
+    >
+  <Include.Resources>
+
+    <ResourceWrapper x:Key="FileBrowser" Resource="{Service FileBrowser}"/>
+
+    <!-- Header -->
+    <ResourceWrapper x:Key="Dialog_Header_Text" EnableBindings="True"
+        Resource="{Binding Source={StaticResource FileBrowser},Path=Resource.HeaderText}"/>
+
+    <!-- Contents -->
+    <ControlTemplate x:Key="Contents_Template">
+      <Grid Margin="10" DataContext="{Binding Source={StaticResource FileBrowser},Path=Resource}">
+        <Grid.RowDefinitions>
+          <RowDefinition Height="*"/>
+          <RowDefinition Height="Auto"/>
+          <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+          <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+        <TreeView Grid.Row="0" Style="{ThemeResource SingleMarkableTreeViewStyle}"
+            VerticalAlignment="Stretch" HorizontalAlignment="Stretch"
+            ForceExpander="True"
+            ItemsSource="{Binding Path=PathTreeRoot,Mode=OneTime}">
+          <TreeView.Resources>
+            <BindingWrapper x:Key="Expander_Binding" Binding="{Binding Path=AdditionalProperties[Expansion].IsExpanded,Mode=OneWayToSource}"/>
+
+            <!-- Expander_Command isn't necessary here - the expansion event will be visible in the model
+                 by the change handler of the property which gets bound via Expander_Binding. -->
+            <ResourceWrapper x:Key="Expander_Command"/>
+
+            <!-- Checker_Command isn't necessary here - the selection state will be propagated via the Selected property.
+                 We use a dummy. -->
+            <ResourceWrapper x:Key="Checker_Command"/>
+          </TreeView.Resources>
+        </TreeView>
+        <Label Content="{Binding ChoosenResourcePathDisplayName}" Color="{ThemeResource TextColor}"
+            Grid.Row="1" Margin="10,5,10,0"
+            DockPanel.Dock="Center"
+            IsVisible="{Binding IsChoosenPathValid}" Scroll="Auto"/>
+        <Button x:Name="OkButton" Grid.Row="2" Margin="10,10,10,0" Style="{ThemeResource DialogButtonStyle}"
+            Content="[System.Ok]"
+            IsEnabled="{Binding IsChoosenPathValid}"
+            Command="{Command AcceptPath}"/>
+      </Grid>
+    </ControlTemplate>
+
+  </Include.Resources>
+</Include>

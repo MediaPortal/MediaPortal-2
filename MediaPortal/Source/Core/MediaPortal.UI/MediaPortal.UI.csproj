@@ -73,6 +73,8 @@
     <Compile Include="Presentation\Actions\KeyAction.cs" />
     <Compile Include="Presentation\Players\ISpectrumPlayer.cs" />
     <Compile Include="Presentation\Players\ITitlePlayer.cs" />
+    <Compile Include="Presentation\Utilities\FileBrowserMessaging.cs" />
+    <Compile Include="Presentation\Utilities\IFileBrowser.cs" />
     <Compile Include="Presentation\Screens\ScreenSaverController.cs" />
     <Compile Include="Presentation\SkinResources\ISkin.cs" />
     <Compile Include="Presentation\SkinResources\ISkinResourceBundle.cs" />

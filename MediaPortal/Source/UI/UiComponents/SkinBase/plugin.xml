@@ -38,10 +38,13 @@
   </Register>
 
   <Register Location="/Services">
-    <Service Id="ConnectionListenerService" RegistrationClassName="MediaPortal.UiComponents.SkinBase.IConnectionListenerService"
-        ServiceClassName="MediaPortal.UiComponents.SkinBase.ConnectionListenerService"/>
-    <Service Id="CommonNotificationService" ServiceClassName="MediaPortal.UiComponents.SkinBase.CommonNotificationService"/>
+    <Service Id="ConnectionListenerService" RegistrationClassName="MediaPortal.UiComponents.SkinBase.Services.IConnectionListenerService"
+        ServiceClassName="MediaPortal.UiComponents.SkinBase.Services.ConnectionListenerService"/>
+    <Service Id="CommonNotificationService" ServiceClassName="MediaPortal.UiComponents.SkinBase.Services.CommonNotificationService"/>
+    <Service Id="FileBrowserService" RegistrationClassName="MediaPortal.UI.Presentation.Utilities.IFileBrowser"
+        RegistrationClassAssembly="MediaPortal.UI" ServiceClassName="MediaPortal.UiComponents.SkinBase.Services.FileBrowserService"/>
   </Register>
+
 
   <Register Location="/Skins/default">
     <Background Id="Background" BackgroundManagerClassName="MediaPortal.UiComponents.SkinBase.PlayerBackgroundManager"/>

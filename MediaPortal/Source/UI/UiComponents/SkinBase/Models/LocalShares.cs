@@ -156,7 +156,7 @@ namespace MediaPortal.UiComponents.SkinBase.Models
       if (path.TryCreateLocalResourceAccessor(out ra))
         using (ra)
           return ra.ResourcePathName;
-      ServiceRegistration.Get<ILogger>().Warn("Cannot access resource path '{0}' for updating display name", path);
+      ServiceRegistration.Get<ILogger>().Warn("LocalShares: Cannot access resource path '{0}' for updating display name", path);
       return string.Empty;
     }
 
@@ -170,17 +170,20 @@ namespace MediaPortal.UiComponents.SkinBase.Models
           ICollection<IFileSystemResourceAccessor> res = FileSystemResourceNavigator.GetChildDirectories(ra);
           if (res != null)
             foreach (IFileSystemResourceAccessor childAccessor in res)
-              yield return new ResourcePathMetadata
-                {
-                    ResourceName = childAccessor.ResourceName,
-                    HumanReadablePath = childAccessor.ResourcePathName,
-                    ResourcePath = childAccessor.CanonicalLocalResourcePath
-                };
+              using (childAccessor)
+              {
+                yield return new ResourcePathMetadata
+                  {
+                      ResourceName = childAccessor.ResourceName,
+                      HumanReadablePath = childAccessor.ResourcePathName,
+                      ResourcePath = childAccessor.CanonicalLocalResourcePath
+                  };
+              }
         }
       }
       else
       {
-        ServiceRegistration.Get<ILogger>().Warn("Cannot access resource path '{0}' for getting child directories", path);
+        ServiceRegistration.Get<ILogger>().Warn("LocalShares: Cannot access resource path '{0}' for getting child directories", path);
         yield break;
       }
     }
@@ -197,7 +200,7 @@ namespace MediaPortal.UiComponents.SkinBase.Models
       if (ChoosenResourcePath.TryCreateLocalResourceAccessor(out ra))
         using (ra)
           return ra.ResourceName;
-      ServiceRegistration.Get<ILogger>().Warn("Cannot access resource path '{0}' for suggesting share name", ChoosenResourcePath);
+      ServiceRegistration.Get<ILogger>().Warn("LocalShares: Cannot access resource path '{0}' for suggesting share name", ChoosenResourcePath);
       return string.Empty;
     }
 
