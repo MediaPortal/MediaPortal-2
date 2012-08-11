@@ -41,8 +41,8 @@
     <Service Id="ConnectionListenerService" RegistrationClassName="MediaPortal.UiComponents.SkinBase.Services.IConnectionListenerService"
         ServiceClassName="MediaPortal.UiComponents.SkinBase.Services.ConnectionListenerService"/>
     <Service Id="CommonNotificationService" ServiceClassName="MediaPortal.UiComponents.SkinBase.Services.CommonNotificationService"/>
-    <Service Id="FileBrowserService" RegistrationClassName="MediaPortal.UI.Presentation.Utilities.IFileBrowser"
-        RegistrationClassAssembly="MediaPortal.UI" ServiceClassName="MediaPortal.UiComponents.SkinBase.Services.FileBrowserService"/>
+    <Service Id="PathBrowserService" RegistrationClassName="MediaPortal.UI.Presentation.Utilities.IPathBrowser"
+        RegistrationClassAssembly="MediaPortal.UI" ServiceClassName="MediaPortal.UiComponents.SkinBase.Services.PathBrowserService"/>
   </Register>
 
 

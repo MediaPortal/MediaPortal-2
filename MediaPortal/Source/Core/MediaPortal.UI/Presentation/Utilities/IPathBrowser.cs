@@ -35,11 +35,15 @@ namespace MediaPortal.UI.Presentation.Utilities
   public delegate bool ValidatePathDlgt(ResourcePath path);
 
   /// <summary>
-  /// Generic file browser API.
+  /// Generic path browser API.
   /// </summary>
-  public interface IFileBrowser
+  /// <remarks>
+  /// This service provides an API to show a browser for files and/or directories.
+  /// To track the outcome of the path browser dialog, you can register at the message channel <see cref="PathBrowserMessaging.CHANNEL"/>.
+  /// </remarks>
+  public interface IPathBrowser
   {
-    Guid ShowFileBrowser(string headerText, bool enumerateFiles, ValidatePathDlgt validatePathDlgt);
-    Guid ShowFileBrowser(string headerText, bool enumerateFiles, ResourcePath initialPath, ValidatePathDlgt validatePathDlgt);
+    Guid ShowPathBrowser(string headerText, bool enumerateFiles, ValidatePathDlgt validatePathDlgt);
+    Guid ShowPathBrowser(string headerText, bool enumerateFiles, ResourcePath initialPath, ValidatePathDlgt validatePathDlgt);
   }
 }

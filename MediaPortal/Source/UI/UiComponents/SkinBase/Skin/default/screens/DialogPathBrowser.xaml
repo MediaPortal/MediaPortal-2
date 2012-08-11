@@ -6,15 +6,15 @@
     >
   <Include.Resources>
 
-    <ResourceWrapper x:Key="FileBrowser" Resource="{Service FileBrowser}"/>
+    <ResourceWrapper x:Key="PathBrowser" Resource="{Service PathBrowser}"/>
 
     <!-- Header -->
     <ResourceWrapper x:Key="Dialog_Header_Text" EnableBindings="True"
-        Resource="{Binding Source={StaticResource FileBrowser},Path=Resource.HeaderText}"/>
+        Resource="{Binding Source={StaticResource PathBrowser},Path=Resource.HeaderText}"/>
 
     <!-- Contents -->
     <ControlTemplate x:Key="Contents_Template">
-      <Grid Margin="10" DataContext="{Binding Source={StaticResource FileBrowser},Path=Resource}">
+      <Grid Margin="10" DataContext="{Binding Source={StaticResource PathBrowser},Path=Resource}">
         <Grid.RowDefinitions>
           <RowDefinition Height="*"/>
           <RowDefinition Height="Auto"/>

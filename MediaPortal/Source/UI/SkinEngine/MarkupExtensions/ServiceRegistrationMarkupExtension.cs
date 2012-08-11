@@ -51,7 +51,7 @@ namespace MediaPortal.UI.SkinEngine.MarkupExtensions
       TYPE_MAPPING.Add("Players", typeof(IPlayerManager));
       TYPE_MAPPING.Add("DialogManager", typeof(IDialogManager));
       TYPE_MAPPING.Add("Window", typeof(IScreenControl));
-      TYPE_MAPPING.Add("FileBrowser", typeof(IFileBrowser));
+      TYPE_MAPPING.Add("PathBrowser", typeof(IPathBrowser));
     }
 
     protected string _interfaceName = null;

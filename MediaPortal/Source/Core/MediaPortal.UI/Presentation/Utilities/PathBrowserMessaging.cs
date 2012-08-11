@@ -30,13 +30,13 @@ using MediaPortal.Common.ResourceAccess;
 namespace MediaPortal.UI.Presentation.Utilities
 {
   /// <summary>
-  /// This class provides an interface for the messages sent by the dialog manager.
-  /// This class is part of the dialog manager API.
+  /// This class provides an interface for the messages sent by the path browser.
+  /// This class is part of the path browser API.
   /// </summary>
-  public static class FileBrowserMessaging
+  public static class PathBrowserMessaging
   {
     // Message Queue name
-    public const string CHANNEL = "FileBrowser";
+    public const string CHANNEL = "PathBrowser";
 
     // Message type
     public enum MessageType

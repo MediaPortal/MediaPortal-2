@@ -37,9 +37,9 @@ using MediaPortal.Utilities.Exceptions;
 namespace MediaPortal.UiComponents.SkinBase.Services
 {
   /// <summary>
-  /// Service which implements the <see cref="IFileBrowser"/> API.
+  /// Service which implements the <see cref="IPathBrowser"/> API.
   /// </summary>
-  public class FileBrowserService : IFileBrowser
+  public class PathBrowserService : IPathBrowser
   {
     #region Protected fields
 
@@ -58,7 +58,7 @@ namespace MediaPortal.UiComponents.SkinBase.Services
 
     #endregion
 
-    public FileBrowserService()
+    public PathBrowserService()
     {
       _choosenResourcePathProperty.Attach(OnChoosenResourcePathChanged);
     }
@@ -171,9 +171,9 @@ namespace MediaPortal.UiComponents.SkinBase.Services
       if (_dialogInstanceId != dialogInstanceId)
         return;
       if (_dialogAccepted)
-        FileBrowserMessaging.SendPathChoosenMessage(_dialogHandle, ChoosenResourcePath);
+        PathBrowserMessaging.SendPathChoosenMessage(_dialogHandle, ChoosenResourcePath);
       else
-        FileBrowserMessaging.SendDialogCancelledMessage(_dialogHandle);
+        PathBrowserMessaging.SendDialogCancelledMessage(_dialogHandle);
 
       _dialogInstanceId = Guid.Empty;
       _dialogHandle = Guid.Empty;
@@ -224,10 +224,10 @@ namespace MediaPortal.UiComponents.SkinBase.Services
     protected class ExpansionHelper
     {
       protected AbstractProperty _isExpandedProperty = new WProperty(typeof(bool), false);
-      protected FileBrowserService _parent;
+      protected PathBrowserService _parent;
       protected TreeItem _directoryItem;
 
-      public ExpansionHelper(TreeItem directoryItem, FileBrowserService parent)
+      public ExpansionHelper(TreeItem directoryItem, PathBrowserService parent)
       {
         _parent = parent;
         _directoryItem = directoryItem;
@@ -349,14 +349,14 @@ namespace MediaPortal.UiComponents.SkinBase.Services
       UpdateIsChoosenPathValid();
     }
 
-    #region IFileBrowser implementation
+    #region IPathBrowser implementation
 
-    public Guid ShowFileBrowser(string headerText, bool enumerateFiles, ValidatePathDlgt validatePathDlgt)
+    public Guid ShowPathBrowser(string headerText, bool enumerateFiles, ValidatePathDlgt validatePathDlgt)
     {
-      return ShowFileBrowser(headerText, enumerateFiles, null, validatePathDlgt);
+      return ShowPathBrowser(headerText, enumerateFiles, null, validatePathDlgt);
     }
 
-    public Guid ShowFileBrowser(string headerText, bool enumerateFiles, ResourcePath initialPath, ValidatePathDlgt validatePathDlgt)
+    public Guid ShowPathBrowser(string headerText, bool enumerateFiles, ResourcePath initialPath, ValidatePathDlgt validatePathDlgt)
     {
       ChoosenResourcePath = null;
       UpdateResourceProviderPathTree();
@@ -367,7 +367,7 @@ namespace MediaPortal.UiComponents.SkinBase.Services
       _validatePathDlgt = validatePathDlgt;
 
       IScreenManager screenManager = ServiceRegistration.Get<IScreenManager>();
-      Guid? dialogInstanceId = screenManager.ShowDialog(Consts.DIALOG_FILE_BROWSER, OnDialogClosed);
+      Guid? dialogInstanceId = screenManager.ShowDialog(Consts.DIALOG_PATH_BROWSER, OnDialogClosed);
       if (!dialogInstanceId.HasValue)
         throw new InvalidDataException("File browser could not be shown");
       _dialogInstanceId = dialogInstanceId.Value;

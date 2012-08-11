@@ -41,7 +41,7 @@ namespace MediaPortal.UiComponents.SkinBase.General
     // Dialogs
     public const string DIALOG_ATTACH_TO_SERVER = "AttachToServerDialog";
 
-    public const string DIALOG_FILE_BROWSER = "DialogFileBrowser";
+    public const string DIALOG_PATH_BROWSER = "DialogPathBrowser";
 
     // Language resources
     public const string RES_SYSTEM_HINT = "[System.Hint]";
