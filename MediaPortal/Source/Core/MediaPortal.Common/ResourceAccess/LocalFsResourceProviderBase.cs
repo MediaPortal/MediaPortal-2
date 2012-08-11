@@ -89,7 +89,17 @@ namespace MediaPortal.Common.ResourceAccess
     /// <returns>Resource path instance for the given DOS path.</returns>
     public static ResourcePath ToResourcePath(string dosPath)
     {
-      return ResourcePath.BuildBaseProviderPath(LOCAL_FS_RESOURCE_PROVIDER_ID, ToProviderPath(dosPath));
+      return GetResourcePath(ToProviderPath(dosPath));
+    }
+
+    /// <summary>
+    /// Returns a <see cref="ResourcePath"/> pointing to the local file system using the given <paramref name="providerPath"/>.
+    /// </summary>
+    /// <param name="providerPath">Path which must be valid inside the local filesystem provider.</param>
+    /// <returns>Resource path to the given path.</returns>
+    public static ResourcePath GetResourcePath(string providerPath)
+    {
+      return ResourcePath.BuildBaseProviderPath(LOCAL_FS_RESOURCE_PROVIDER_ID, providerPath);
     }
 
     #endregion
