@@ -55,7 +55,8 @@ namespace MediaPortal.UI.Presentation.Screens
               DialogResult dialogResult = (DialogResult) message.MessageData[DialogManagerMessaging.DIALOG_RESULT];
               if (closedDialogHandle == dialogHandleId)
               {
-                handler(dialogResult);
+                if (handler != null)
+                  handler(dialogResult);
                 return true;
               }
             }
