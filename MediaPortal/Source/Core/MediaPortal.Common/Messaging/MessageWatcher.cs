@@ -23,6 +23,7 @@
 #endregion
 
 using System;
+using MediaPortal.Utilities.Exceptions;
 
 namespace MediaPortal.Common.Messaging
 {
@@ -46,7 +47,8 @@ namespace MediaPortal.Common.Messaging
     protected AsynchronousMessageQueue _messageQueue;
     protected MessageHandlerDlgt _handler;
     protected bool _autoDispose;
-    protected bool _isDisposed;
+
+    protected bool _isDisposed = false;
 
     public MessageWatcher(object owner, string messageChannel, MessageHandlerDlgt handler, bool autoDispose)
     {
@@ -64,8 +66,15 @@ namespace MediaPortal.Common.Messaging
 
     public void Dispose()
     {
-      _isDisposed = true;
+      if (_isDisposed)
+        return;
       _messageQueue.Shutdown();
+      _isDisposed = true;
+    }
+
+    public bool IsDisposed
+    {
+      get { return _isDisposed; }
     }
 
     public bool AutoDispose
@@ -76,11 +85,15 @@ namespace MediaPortal.Common.Messaging
 
     public void Start()
     {
+      if (_isDisposed)
+        throw new IllegalCallException("MessageWatcher is already disposed");
       _messageQueue.Start();
     }
 
     public void Shutdown()
     {
+      if (_isDisposed)
+        throw new IllegalCallException("MessageWatcher is already disposed");
       _messageQueue.Shutdown();
     }
   }
