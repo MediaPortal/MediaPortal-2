@@ -301,8 +301,6 @@ namespace MediaPortal.UiComponents.Media.General
     public const string SCREEN_IMAGE_FILTER_BY_SIZE = "ImageFilterBySize";
     public const string SCREEN_IMAGE_FILTER_BY_SYSTEM = "ImageFilterBySystem";
     public const string SCREEN_IMAGE_SIMPLE_SEARCH = "ImageSimpleSearch";
-    public const string SCREEN_PLAY_MENU_DIALOG = "DialogPlayMenu";
-    public const string SCREEN_CHOOSE_AV_TYPE_DIALOG = "DialogChooseAVType";
 
     public const string SCREEN_FULLSCREEN_AUDIO = "FullscreenContentAudio";
     public const string SCREEN_CURRENTLY_PLAYING_AUDIO = "CurrentlyPlayingAudio";
@@ -314,7 +312,10 @@ namespace MediaPortal.UiComponents.Media.General
     public const string SCREEN_FULLSCREEN_DVD = "FullscreenContentDVD";
     public const string SCREEN_CURRENTLY_PLAYING_DVD = "CurrentlyPlayingDVD";
 
-    public const string SCREEN_VIDEOCONTEXTMENU_DIALOG = "DialogVideoContextMenu";
+    public const string DIALOG_PLAY_MENU = "DialogPlayMenu";
+    public const string DIALOG_CHOOSE_AV_TYPE = "DialogChooseAVType";
+
+    public const string DIALOG_VIDEOCONTEXTMENU = "DialogVideoContextMenu";
 
     public const string DIALOG_ADD_TO_PLAYLIST_PROGRESS = "DialogAddToPlaylistProgress";
 

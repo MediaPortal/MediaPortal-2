@@ -391,7 +391,14 @@ namespace MediaPortal.UiComponents.Media.Models
           });
     }
 
-    public static void SaveFailed(string errorMessage)
+    public static string ConvertAVTypeToPlaylistType(AVType avType)
+    {
+      return avType.ToString();
+    }
+
+    #endregion
+
+    protected static void SaveFailed(string errorMessage)
     {
       IWorkflowManager workflowManager = ServiceRegistration.Get<IWorkflowManager>();
       workflowManager.NavigatePush(Consts.WF_STATE_ID_PLAYLIST_SAVE_FAILED, new NavigationContextConfig
@@ -403,8 +410,6 @@ namespace MediaPortal.UiComponents.Media.Models
           });
     }
 
-    #endregion
-
     protected static bool ContainsLocalMediaItems(PlaylistRawData playlistData)
     {
       return playlistData.MediaItemIds.Any(mediaItemId => mediaItemId == Guid.Empty);
@@ -413,11 +418,6 @@ namespace MediaPortal.UiComponents.Media.Models
     protected static AVType? ConvertPlaylistTypeToAVType(string playlistType)
     {
       return (AVType?) Enum.Parse(typeof(AVType), playlistType);
-    }
-
-    protected static string ConvertAVTypeToPlaylistType(AVType avType)
-    {
-      return avType.ToString();
     }
 
     protected ICollection<Guid> GetSelectedPlaylists()

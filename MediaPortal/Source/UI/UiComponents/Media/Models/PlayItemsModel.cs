@@ -461,7 +461,7 @@ namespace MediaPortal.UiComponents.Media.Models
           break;
       }
       IScreenManager screenManager = ServiceRegistration.Get<IScreenManager>();
-      screenManager.ShowDialog(Consts.SCREEN_PLAY_MENU_DIALOG, (dialogName, dialogInstanceId) =>
+      screenManager.ShowDialog(Consts.DIALOG_PLAY_MENU, (dialogName, dialogInstanceId) =>
           LeaveCheckQueryPlayActionMultipleItemsState());
     }
 
@@ -582,7 +582,7 @@ namespace MediaPortal.UiComponents.Media.Models
           break;
       }
       IScreenManager screenManager = ServiceRegistration.Get<IScreenManager>();
-      screenManager.ShowDialog(Consts.SCREEN_PLAY_MENU_DIALOG, (dialogName, dialogInstanceId) =>
+      screenManager.ShowDialog(Consts.DIALOG_PLAY_MENU, (dialogName, dialogInstanceId) =>
           LeaveCheckQueryPlayActionSingleItemState());
     }
 
@@ -692,7 +692,7 @@ namespace MediaPortal.UiComponents.Media.Models
               },
         };
       IScreenManager screenManager = ServiceRegistration.Get<IScreenManager>();
-      screenManager.ShowDialog(Consts.SCREEN_CHOOSE_AV_TYPE_DIALOG, (dialogName, dialogInstanceId) => LeaveQueryAVTypeState());
+      screenManager.ShowDialog(Consts.DIALOG_CHOOSE_AV_TYPE, (dialogName, dialogInstanceId) => LeaveQueryAVTypeState());
     }
 
     protected void PrepareState(NavigationContext context)
