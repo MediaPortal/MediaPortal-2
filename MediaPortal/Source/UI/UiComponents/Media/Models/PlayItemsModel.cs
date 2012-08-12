@@ -456,11 +456,7 @@ namespace MediaPortal.UiComponents.Media.Models
             IDialogManager dialogManager = ServiceRegistration.Get<IDialogManager>();
             Guid dialogHandleId = dialogManager.ShowDialog(Consts.RES_SYSTEM_INFORMATION, Consts.RES_CANNOT_PLAY_ITEMS_DIALOG_TEXT,
                 DialogType.OkDialog, false, DialogButtonType.Ok);
-            _dialogCloseWatcher = new DialogCloseWatcher(this, dialogHandleId, dialogResult =>
-              {
-                LeaveCheckQueryPlayActionMultipleItemsState();
-                return true;
-              });
+            _dialogCloseWatcher = new DialogCloseWatcher(this, dialogHandleId, dialogResult => LeaveCheckQueryPlayActionMultipleItemsState());
           }
           break;
       }
@@ -581,11 +577,7 @@ namespace MediaPortal.UiComponents.Media.Models
             IDialogManager dialogManager = ServiceRegistration.Get<IDialogManager>();
             Guid dialogHandleId = dialogManager.ShowDialog(Consts.RES_SYSTEM_INFORMATION, Consts.RES_CANNOT_PLAY_ITEM_DIALOG_TEXT,
                 DialogType.OkDialog, false, DialogButtonType.Ok);
-            _dialogCloseWatcher = new DialogCloseWatcher(this, dialogHandleId, dialogResult =>
-              {
-                LeaveCheckQueryPlayActionSingleItemState();
-                return true;
-              });
+            _dialogCloseWatcher = new DialogCloseWatcher(this, dialogHandleId, dialogResult => LeaveCheckQueryPlayActionSingleItemState());
           }
           break;
       }

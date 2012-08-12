@@ -27,14 +27,16 @@ using MediaPortal.Common.Messaging;
 
 namespace MediaPortal.UI.Presentation.Screens
 {
-  public delegate bool CloseHandlerDlgt(DialogResult dialogResult);
+  public delegate void CloseHandlerDlgt(DialogResult dialogResult);
 
   /// <summary>
-  /// Watcher class to react to close messages from the <see cref="IDialogManager"/>.
+  /// Watcher class to react to the close message from a <see cref="IDialogManager"/> dialog.
   /// </summary>
   /// <remarks>
   /// The caller must hold a strong reference to instances of this class, else it might be collected by the garbage collector
   /// before it receives the dialog's close message.
+  /// Instances of this class are automatically disposed when the result message of the dialog of the given dialog handle arrives.
+  /// To stop this close watcher, just dispose it by calling <see cref="Dispose"/>.
   /// </remarks>
   public class DialogCloseWatcher : IDisposable
   {
@@ -52,7 +54,10 @@ namespace MediaPortal.UI.Presentation.Screens
               Guid closedDialogHandle = (Guid) message.MessageData[DialogManagerMessaging.DIALOG_HANDLE];
               DialogResult dialogResult = (DialogResult) message.MessageData[DialogManagerMessaging.DIALOG_RESULT];
               if (closedDialogHandle == dialogHandleId)
-                return handler(dialogResult);
+              {
+                handler(dialogResult);
+                return true;
+              }
             }
           }
           return false;
