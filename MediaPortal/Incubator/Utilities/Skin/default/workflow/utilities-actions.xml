@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Workflow DescriptorVersion="1.0">
+  <MenuActions>
+    <PushNavigationTransition Id="02992BEC-1E6D-4C29-8D79-F95F59E3F625"
+        Name="Home->UtilitiesMain"
+        DisplayCategory="b-Utilities"
+        SortOrder="a"
+        SourceStates="7F702D9C-F2DD-42da-9ED8-0BA92F07787F"
+        TargetState="EC855467-09DE-41B9-87D9-20387E62C3CE"
+        DisplayTitle="[Utilities.MenuItem]"/>
+  </MenuActions>
+</Workflow>

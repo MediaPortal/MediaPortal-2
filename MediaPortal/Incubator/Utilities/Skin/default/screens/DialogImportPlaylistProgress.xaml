@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Include
+    xmlns="www.team-mediaportal.com/2008/mpf/directx"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    Source="screens\master_dialog_bare.xaml"
+    >
+  <Include.Resources>
+
+    <!-- Dialog title -->
+    <ResourceWrapper x:Key="Dialog_Header_Text" Resource="[Utilities.ImportPlaylistProgressTitle]"/>
+
+    <Model x:Key="PlaylistImportModel" Id="D8E1EF69-1372-430D-9F36-3F163E0D12A8"/>
+
+    <!-- Contents -->
+    <ControlTemplate x:Key="Contents_Template">
+      <StackPanel Margin="20" DataContext="{Binding Source={StaticResource PlaylistImportModel}}">
+        <Label Content="[Utilities.ImportPlaylistProgressHeaderText]" Color="{ThemeResource TextColor}"/>
+        <Label Margin="20" Content="{Binding CurrentImportOperation.ProgressText}" Color="{ThemeResource TextColor}" HorizontalAlignment="Center"/>
+        <Button Style="{ThemeResource DialogButtonStyle}" Content="[Utilities.StopImportPlaylistButton]"
+            Command="{Command Source={Service ScreenManager},Path=CloseTopmostDialog}"/>
+      </StackPanel>
+    </ControlTemplate>
+
+  </Include.Resources>
+</Include>

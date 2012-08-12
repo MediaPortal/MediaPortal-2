@@ -1,0 +1,48 @@
+<Plugin
+    DescriptorVersion="1.0" 
+    Name="Utilities"
+    PluginId="{5FA039F0-5577-4CAE-9A79-572F201D8080}"
+    Author="Albert"
+    Copyright="GPL"
+    AutoActivate="false"
+    Description="Utility Plugin"
+    PluginVersion="1.0">
+
+  <DependsOn>
+    <PluginReference PluginId="{1AFF4467-64B0-4ca1-AF28-9AEDF3525BCE}"/> <!-- ConfigurationManager -->
+    <PluginReference PluginId="{B765A4B6-F455-4941-BDAE-2CE45208BFEB}"/> <!-- Configuration plugin -->
+    <PluginReference PluginId="{5D239050-02B8-4f58-8301-7630A1C4CF85}"/> <!-- SkinBase -->
+    <PluginReference PluginId="{15FB35F7-8C85-4404-BC67-BFF28446158A}"/> <!-- Media -->
+  </DependsOn>
+
+  <Runtime>
+    <Assembly FileName="Utilities.dll"/>
+  </Runtime>
+
+  <Register Location="/Models">
+    <Model Id="D8E1EF69-1372-430D-9F36-3F163E0D12A8" Name="PlaylistImportModel" ClassName="MediaPortal.UiComponents.Utilities.Models.PlaylistImportModel"/>
+  </Register>
+
+  <Register Location="/Workflow/States">
+    <!-- Utilities main -->
+
+    <WorkflowState Id="EC855467-09DE-41B9-87D9-20387E62C3CE"
+        Name="UtilitiesMain"
+        MainScreen="UtilitiesMain"
+        DisplayLabel="[Utilities.MainWorkflowNavigationContextDisplayLabel]"/>
+
+    <WorkflowState Id="FC8CB306-6EFD-476C-BFF1-DAD0254451A5"
+        Name="PlaylistImport"
+        MainScreen="PlaylistImport"
+        DisplayLabel="[Utilities.PlaylistImportWorkflowNavigationContextDisplayLabel]"
+        WorkflowModel="D8E1EF69-1372-430D-9F36-3F163E0D12A8"/> <!-- Workflow model = Playlist import model -->
+  </Register>
+
+  <Register Location="/Resources/Language">
+    <Resource Id="UtilitiesLanguage" Directory="Language" Type="Language"/>
+  </Register>
+
+  <Register Location="/Resources/Skin">
+    <Resource Id="UtilitiesSkin" Directory="Skin" Type="Skin"/>
+  </Register>
+</Plugin>

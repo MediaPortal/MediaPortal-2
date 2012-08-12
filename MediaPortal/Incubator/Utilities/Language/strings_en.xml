@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+  <string name="Utilities.MenuItem">Utilities</string>
+  <string name="Utilities.MainWorkflowNavigationContextDisplayLabel">Utilities</string>
+  <string name="Utilities.PlaylistImportWorkflowNavigationContextDisplayLabel">Playlist Import</string>
+  <string name="Utilities.MainScreenTitle">Utilities</string>
+  <string name="Utilities.PlaylistImport">Playlist Import</string>
+  <string name="Utilities.PlaylistImportScreenTitle">Playlist Import</string>
+  <string name="Utilities.ImportPlaylistFile">Import playlist file</string>
+  <string name="Utilities.ChoosePlaylistFile">Choose file</string>
+  <string name="Utilities.ChooseImportFileDialogHeader">Choose import file</string>
+  <string name="Utilities.EditPlaylistName">Edit the name of the new playlist</string>
+  <string name="Utilities.LocationOfShareContainingItems">Location of the share which contains the media items</string>
+  <string name="Utilities.LocalShareLocation">Local share</string>
+  <string name="Utilities.ServerShareLocation">Server share</string>
+  <string name="Utilities.StartPlaylistImport">Start playlist import</string>
+  <string name="Utilities.PlaylistSavedSuccessfullyTitle">Success</string>
+  <string name="Utilities.NoItemsWereImportedSkippingSaveText">No items were imported. Skipping save action.</string>
+  <string name="Utilities.PlaylistSavedSuccessfullyText">Playlist '{0}' was saved successfully.</string>
+  <string name="Utilities.PlaylistSaveFailedTitle">Save playlist failed</string>
+  <string name="Utilities.ImportPlaylistProgressTitle">Progress</string>
+  <string name="Utilities.ImportPlaylistProgressHeaderText">Importing playlist</string>
+  <string name="Utilities.ImportPlaylistProgressText">{0}/{1}, {2} skipped</string>
+  <string name="Utilities.StopImportPlaylistButton">Stop</string>
+
+  <string name="Utilities.PlaylistNameExists">Playlist name already exists</string>
+  <string name="Utilities.ImportFileInvalid">Invalid import file</string>
+  <string name="Utilities.PlaylistNameIsEmpty">Playlist name is empty</string>
+  <string name="Utilities.ServerNotConnected">The server is not connected</string>
+</resources>
