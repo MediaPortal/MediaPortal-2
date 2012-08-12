@@ -73,6 +73,7 @@
     <Compile Include="Presentation\Actions\KeyAction.cs" />
     <Compile Include="Presentation\Players\ISpectrumPlayer.cs" />
     <Compile Include="Presentation\Players\ITitlePlayer.cs" />
+    <Compile Include="Presentation\Utilities\PathBrowserCloseWatcher.cs" />
     <Compile Include="Presentation\Utilities\PathBrowserMessaging.cs" />
     <Compile Include="Presentation\Utilities\IPathBrowser.cs" />
     <Compile Include="Presentation\Screens\ScreenSaverController.cs" />
