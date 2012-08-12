@@ -38,6 +38,8 @@ namespace MediaPortal.Common.ResourceAccess
     /// <summary>
     /// Gets a path in the local filesystem where the represented media item is located.
     /// </summary>
+    /// <value>Dos path which is valid in the local file system or <c>null</c>, if this resource accessor doesn't denote a
+    /// valid file system path (i.e. it represents the root resource <c>"/"</c>).</value>
     string LocalFileSystemPath { get; }
   }
 }

@@ -61,13 +61,29 @@ namespace MediaPortal.Common.ResourceAccess
     /// </summary>
     /// <param name="providerPath">Path which is valid in the local filesystem resource provider.
     /// The specified resource may not exist in filesystem.</param>
-    /// <returns></returns>
+    /// <returns>Dos path to the given <paramref name="providerPath"/> or <c>null</c>.</returns>
     public static string ToDosPath(string providerPath)
     {
       if (string.IsNullOrEmpty(providerPath) || providerPath == "/")
-        return string.Empty;
+        return null;
       providerPath = StringUtils.RemovePrefixIfPresent(providerPath, "/");
       return providerPath.Replace('/', Path.DirectorySeparatorChar);
+    }
+
+    /// <summary>
+    /// Transforms a resource path denoting a local filesystem path to a DOS path.
+    /// </summary>
+    /// <param name="resourcePath">Resource path to transform.</param>
+    /// <returns>Dos path to the given <paramref name="resourcePath"/> or <c>null</c>, if the given path is <c>null</c> or
+    /// doesn't denote a path in the local filesystem provider.</returns>
+    public static string ToDosPath(ResourcePath resourcePath)
+    {
+      if (resourcePath == null)
+        return null;
+      ProviderPathSegment lastSegment = resourcePath.LastPathSegment;
+      if (lastSegment.ProviderId != LOCAL_FS_RESOURCE_PROVIDER_ID)
+        return null;
+      return ToDosPath(lastSegment.Path);
     }
 
 

@@ -24,6 +24,7 @@
 
 using System;
 using System.IO;
+using MediaPortal.Utilities;
 
 namespace MediaPortal.Common.ResourceAccess
 {
@@ -42,7 +43,20 @@ namespace MediaPortal.Common.ResourceAccess
       if (string.IsNullOrEmpty(path))
         return null;
       int sepIndex = Math.Max(path.LastIndexOf('/'), path.LastIndexOf('\\'));
-      return path.Substring(sepIndex + 1);
+      return StringUtils.TrimToNull(path.Substring(sepIndex + 1));
+    }
+
+    /// <summary>
+    /// Returns the directory of the given <paramref name="path"/>.
+    /// </summary>
+    /// <param name="path">DOS path to examine.</param>
+    /// <returns>Directory path of the given <paramref name="path"/> or <c>null</c> if the given path is empty.</returns>
+    public static string GetDirectory(string path)
+    {
+      if (string.IsNullOrEmpty(path))
+        return null;
+      int sepIndex = Math.Max(path.LastIndexOf('/'), path.LastIndexOf('\\'));
+      return sepIndex == -1 ? null : path.Substring(0, sepIndex);
     }
 
     /// <summary>

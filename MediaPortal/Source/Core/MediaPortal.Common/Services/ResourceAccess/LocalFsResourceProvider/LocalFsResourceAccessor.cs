@@ -62,7 +62,7 @@ namespace MediaPortal.Common.Services.ResourceAccess.LocalFsResourceProvider
 
     public string LocalFileSystemPath
     {
-      get { return LocalFsResourceProviderBase.ToDosPath(_path); }
+      get { return StringUtils.TrimToNull(LocalFsResourceProviderBase.ToDosPath(_path)); }
     }
 
     public ResourcePath CanonicalLocalResourcePath
@@ -219,7 +219,7 @@ namespace MediaPortal.Common.Services.ResourceAccess.LocalFsResourceProvider
           return string.Format("[{0}] {1}", path, driveName);
         }
         path = LocalFsResourceProviderBase.ToDosPath(StringUtils.RemoveSuffixIfPresent(path, "/"));
-        return System.IO.Path.GetFileName(path);
+        return string.IsNullOrEmpty(path) ? null : System.IO.Path.GetFileName(path);
       }
     }
 
