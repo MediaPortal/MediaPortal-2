@@ -123,7 +123,7 @@ namespace MediaPortal.Common.MediaManagement.DefaultItemAspects
             ATTR_POPULARITY,
             ATTR_BUDGET,
             ATTR_REVENUE,
-            ATTR_REVENUE
+            ATTR_SCORE
         });
   }
 }
