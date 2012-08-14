@@ -237,12 +237,12 @@
   <string name="Media.ShowAudioPlaylistAction">Show audio playlist</string>
   <string name="Media.ShowVideoImagePlaylistAction">Show video/image playlist</string>
   <string name="Media.ShowPiPPlaylistAction">Show PiP playlist</string>
-  <string name="Media.EditPlaylistAction">Edit playlist</string>
   <string name="Media.ClearPlaylistAction">Clear playlist</string>
   <string name="Media.SavePlaylistAction">Save playlist</string>
   <string name="Media.SaveCurrentPlaylistAction">Save current playlist</string>
   <string name="Media.RemovePlaylistsAction">Remove playlists</string>
 
+  <string name="Media.EditPlaylistButton">Edit playlist</string>
   <string name="Media.LoadPlaylistButton">Load playlist</string>
 
   <string name="Media.PlaylistEmpty">&lt;No items in playlist&gt;</string>

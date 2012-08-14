@@ -90,6 +90,11 @@ file_filter=Cache\UIPluginTemplate\strings_<lang>.xml
 source_file=Cache\UIPluginTemplate\strings_en.xml
 source_lang=en
 type=ANDROID
+[MP2.Utilities]
+file_filter=Cache\Utilities\strings_<lang>.xml
+source_file=Cache\Utilities\strings_en.xml
+source_lang=en
+type=ANDROID
 [MP2.VideoPlayer]
 file_filter=Cache\VideoPlayer\strings_<lang>.xml
 source_file=Cache\VideoPlayer\strings_en.xml
