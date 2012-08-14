@@ -1,3 +1,10 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
+  <string name="Settings.Players">Lejátszók</string>
+  <string name="Settings.Players.Rendering">Renderelés</string>
+  <string name="Settings.Players.Rendering.CrossFading">Átkeverés</string>
+  <string name="Settings.Players.Rendering.CrossFading.CrossFadingEnabled">Átkeverés engedélyezve</string>
+  <string name="Settings.Players.Rendering.CrossFading.CrossFadingEnabled.Help">Határozza meg, hogy a MediaPortal átkeverje-e a számokat, ha lehetséges</string>
+  <string name="Settings.Players.Rendering.CrossFading.CrossFadeDuration">Átkeverés időtartama</string>
+  <string name="Settings.Players.Rendering.CrossFading.CrossFadeDuration.Help">Az átkeverés időtartama másodpercekben</string>
 </resources>

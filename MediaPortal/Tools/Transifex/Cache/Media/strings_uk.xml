@@ -53,10 +53,10 @@
   <string name="Media.SavePLAtServer">Зберегти на сервері</string>
   <string name="Media.SavePLLocally">Зберегти локально</string>
   <string name="Media.ShowAudioPlaylistAction">Показати аудіо плейлист</string>
-  <string name="Media.EditPlaylistAction">Редагувати плейлист</string>
   <string name="Media.ClearPlaylistAction">Очистити плейлист</string>
   <string name="Media.SavePlaylistAction">Зберегти плейлист</string>
   <string name="Media.SaveCurrentPlaylistAction">Зберегти поточний плейлист</string>
+  <string name="Media.EditPlaylistButton">Редагувати плейлист</string>
   <!--VideoPlayerUIContributor-->
   <!--Video Player time units-->
   <string name="Media.Seconds">сек</string>

@@ -1,6 +1,11 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
+  <string name="Settings.Players.Codecs">Kodeci</string>
+  <string name="Settings.Players.Codecs.VideoCodecs">Video kodeci</string>
   <string name="Settings.Players.DVDPlayer.EnableSubtitles">Titlovi</string>
+  <string name="Playback.NotSpecified">Nije specificirano</string>
+  <string name="Playback.Chapter">Poglavlje {0}</string>
   <!--For example: "Chapter 1"-->
+  <string name="Playback.Title">Naslov {0}</string>
   <!--For example: "Title 1"-->
 </resources>

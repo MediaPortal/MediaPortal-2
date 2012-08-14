@@ -54,7 +54,7 @@
   <string name="Effects.pixelate">Pixla</string>
   <string name="Effects.sepia">Sepia (Gulnat papper)</string>
   <string name="Effects.sharpen">Skarpare</string>
-  <string name="Effects.sharpen_complex">Skarpare (komplex)</string>
+  <string name="Effects.sharpen_complex">Skarpare (komplext)</string>
   <string name="Effects.zoom_blur">Zooma suddigt</string>
   <string name="PlayerControl.NoPlayer">Ingen spelare</string>
   <string name="PlayerControl.NoMediaItem">- Inget mediaobjekt -</string>

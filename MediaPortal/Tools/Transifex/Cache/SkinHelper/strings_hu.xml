@@ -1,3 +1,9 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
+  <string name="SkinHelper.ThemeColorsWorkflowNavigationContextDisplayLabel">Téma színei</string>
+  <string name="SkinHelper.MenuShowThemeColors">Téma színeinek megjelenítése</string>
+  <string name="SkinHelper.ShowThemeColorsTitle">Téma színei</string>
+  <string name="SkinHelper.ShowThemeColorsText">Ez a képernyő megjeleníti az összes szín forrást a jelenlegi témában (és az örökölt forrásokban)</string>
+  <string name="SkinHelper.LoadSkinTitle">Kinézet betöltése</string>
+  <string name="SkinHelper.LoadThemeTitle">Téma betöltése</string>
 </resources>

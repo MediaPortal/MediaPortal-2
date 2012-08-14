@@ -1,0 +1,17 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<resources>
+  <string name="PartyMusicPlayer.Playlist">Playlist</string>
+  <string name="PartyMusicPlayer.ChoosePlaylist">Vyberte playlist</string>
+  <string name="PartyMusicPlayer.UseEscapePassword">Použiť ukončovacie heslo</string>
+  <string name="PartyMusicPlayer.DisableScreenSaver">Zakázať šetrič obrazovky</string>
+  <string name="PartyMusicPlayer.StartPartyMode">Spustiť párty mód</string>
+  <string name="PartyMusicPlayer.ChoosePlaylistDialogHeader">Vyberte playlist</string>
+  <string name="PartyMusicPlayer.EnterEscapePasswordDialogHeader">Ukončovacie heslo</string>
+  <string name="PartyMusicPlayer.EnterEscapePasswordDialogText">Zadajte heslo na ukončenie párty módu</string>
+  <string name="PartyMusicPlayer.WrongEscapePasswordDialogHeader">Nesprávne ukončovacie heslo</string>
+  <string name="PartyMusicPlayer.WrongEscapePasswordDialogText">Ľutujem, nesprávne ukončovacie heslo.</string>
+  <string name="PartyMusicPlayer.PlayerContextName">Party music player</string>
+  <string name="PartyMusicPlayer.AudioArtistLabel">Umelec</string>
+  <string name="PartyMusicPlayer.AudioTitleLabel">Názov</string>
+  <string name="PartyMusicPlayer.ShowPlaylist">Zobraziť playlist</string>
+</resources>

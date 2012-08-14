@@ -1,12 +1,12 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
   <string name="Weather.WeatherStateDisplayLabel">Vær</string>
-  <string name="Weather.WeatherSetupStateDisplayLabel">Vær-innstillinger</string>
+  <string name="Weather.WeatherSetupStateDisplayLabel">Værinnstillinger</string>
   <!--Dialog state, doesn't appear at the UI-->
-  <string name="Weather.WeatherLocationStateDisplayLabel">Velg lokasjon</string>
+  <string name="Weather.WeatherLocationStateDisplayLabel">Velg sted</string>
   <!--Dialog state, doesn't appear at the UI-->
   <string name="Weather.Title">Vær</string>
-  <string name="Weather.ChooseLocation">Velg lokasjon</string>
+  <string name="Weather.ChooseLocation">Velg sted</string>
   <string name="Weather.Refresh">Oppdater</string>
   <string name="Weather.Updating">Oppdaterer...</string>
   <string name="Weather.Weather">Vær</string>
@@ -34,7 +34,7 @@
   <string name="Weather.Light">Lyst</string>
   <string name="Weather.AM">AM</string>
   <string name="Weather.PM">PM</string>
-  <string name="Weather.Showers">Nedbør</string>
+  <string name="Weather.Showers">Regnbyger</string>
   <string name="Weather.Few">Få</string>
   <string name="Weather.Scattered">Spredt</string>
   <string name="Weather.Wind">Vind</string>
@@ -75,8 +75,8 @@
   <string name="Weather.InTheVicinity">i nærheten</string>
   <string name="Weather.Clearing">Klarner</string>
   <string name="Settings.Plugins.Weather">Vær</string>
-  <string name="Settings.Plugins.Weather.LocationSetup">Oppsett av lokasjon</string>
-  <string name="Settings.Plugins.Weather.LocationSetup.Help">Konfigurer byer som skal være tilgjengelig på vær skjermen</string>
+  <string name="Settings.Plugins.Weather.LocationSetup">Oppsett av sted</string>
+  <string name="Settings.Plugins.Weather.LocationSetup.Help">Konfigurer byer som skal være tilgjengelig på værskjermen</string>
   <string name="WeatherSetup.Title">Konfigurer byer</string>
   <string name="WeatherSetup.ConfiguredCities">Konfigurerte byer</string>
   <string name="WeatherSetup.EnterCity">Vennligst tast inn et navn på byen som skal legges til:</string>

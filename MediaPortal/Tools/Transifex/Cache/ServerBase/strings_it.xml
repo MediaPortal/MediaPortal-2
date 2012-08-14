@@ -13,5 +13,6 @@
   <string name="UPnPBackendServer.ModelDescription">Il server MediaPortal 2 - contiene file audio, video e immagini, e fornisce un database dei media</string>
   <string name="UPnPBackendServer.ModelName">Server MediaPortal 2 </string>
   <string name="UPnPBackendServer.ModelNumber">1</string>
+  <string name="UPnPBackendServer.ModelUrl">...</string>
   <string name="MediaLibrary.EmptyOrMiscCharGroupName">&lt;Vuoto o misc. carattere&gt;</string>
 </resources>

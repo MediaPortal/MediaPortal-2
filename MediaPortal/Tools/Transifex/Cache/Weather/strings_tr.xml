@@ -1,0 +1,66 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<resources>
+  <string name="Weather.WeatherStateDisplayLabel">Hava Durumu</string>
+  <string name="Weather.WeatherSetupStateDisplayLabel">Hava Durumu Kur</string>
+  <!--Dialog state, doesn't appear at the UI-->
+  <string name="Weather.WeatherLocationStateDisplayLabel">Bölge Seçiniz</string>
+  <!--Dialog state, doesn't appear at the UI-->
+  <string name="Weather.Title">Hava Durumu</string>
+  <string name="Weather.ChooseLocation">Bölge Seçiniz</string>
+  <string name="Weather.Refresh">Yenile</string>
+  <string name="Weather.Updating">Güncelleniyor...</string>
+  <string name="Weather.Weather">Hava Durumu</string>
+  <string name="Weather.NoData">veri yok</string>
+  <string name="Weather.Temp">Sıcaklık</string>
+  <string name="Weather.UVIndex">UV Indeksi</string>
+  <string name="Weather.Wind">Rüzgar</string>
+  <string name="Weather.Humidity">Nem</string>
+  <string name="Weather.Precipitation">Yağış</string>
+  <string name="Weather.Pressure">Basınç</string>
+  <string name="Weather.DewPoint">Yoğuşma Noktası</string>
+  <string name="Weather.Sunrise">Gün Doğumu</string>
+  <string name="Weather.Sunset">Gün Batımı</string>
+  <string name="Weather.LastUpdateTime">Son Güncelleme: {0}</string>
+  <string name="Weather.NotUpdatedYet">-</string>
+  <!--Forecast names are mostly assigned 1:1-->
+  <string name="Weather.Partly">Kısmen</string>
+  <string name="Weather.Mostly">Çoğunlukla</string>
+  <string name="Weather.Sunny">Güneşli</string>
+  <string name="Weather.Cloudy">Bulutlu</string>
+  <string name="Weather.Snow">Kar</string>
+  <string name="Weather.Rain">Yağmur</string>
+  <string name="Weather.AM">ÖÖ</string>
+  <string name="Weather.PM">ÖS</string>
+  <string name="Weather.Wind">Rüzgar</string>
+  <string name="Weather.Fog">Sis</string>
+  <string name="Weather.NA">Yok</string>
+  <string name="Weather.Low">alçak</string>
+  <string name="Weather.High">yüksek</string>
+  <string name="Weather.N">K</string>
+  <string name="Weather.E">D</string>
+  <string name="Weather.S">G</string>
+  <string name="Weather.W">B</string>
+  <string name="Weather.NE">KD</string>
+  <string name="Weather.SE">GD</string>
+  <string name="Weather.SW">GB</string>
+  <string name="Weather.NW">KB</string>
+  <string name="Weather.NNE">KKD</string>
+  <string name="Weather.ENE">DKD</string>
+  <string name="Weather.ESE">DGD</string>
+  <string name="Weather.SSE">GGD</string>
+  <string name="Weather.SSW">GGB</string>
+  <string name="Weather.WSW">BGB</string>
+  <string name="Weather.WNW">BKB</string>
+  <string name="Weather.NNW">KKB</string>
+  <string name="Weather.NoWind">Rüzgarsız</string>
+  <string name="Weather.InTheVicinity">yakınında</string>
+  <string name="Settings.Plugins.Weather">Hava durumu</string>
+  <string name="Settings.Plugins.Weather.LocationSetup">Bölgeleri Kur</string>
+  <string name="Settings.Plugins.Weather.LocationSetup.Help">Hava durumu ekranında görüntülenecek bölgeleri ayarla</string>
+  <string name="WeatherSetup.Title">Şehirleri ayarla</string>
+  <string name="WeatherSetup.ConfiguredCities">Ayarlanmış şehirler</string>
+  <string name="WeatherSetup.EnterCity">Lütfen ekleyeceğiniz şehrin adını giriniz:</string>
+  <string name="WeatherSetup.SearchCity">Şehir ara</string>
+  <string name="WeatherSetup.AddCity">Şehir ekle</string>
+  <string name="WeatherSetup.RemoveCity">Şehir çıkart</string>
+</resources>

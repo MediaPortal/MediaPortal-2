@@ -1,4 +1,6 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
+  <string name="SkinHelper.ThemeColorsWorkflowNavigationContextDisplayLabel">Boje teme</string>
+  <string name="SkinHelper.ShowThemeColorsTitle">Boje teme</string>
   <string name="SkinHelper.LoadThemeTitle">Učitaj temu</string>
 </resources>

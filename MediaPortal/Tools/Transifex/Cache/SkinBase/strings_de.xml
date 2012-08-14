@@ -29,7 +29,7 @@
   <string name="Media.InvalidShareName">Ungültige Freigabe</string>
   <string name="ServerConnection.NotificationServerAvailableTitle">MP2-Server verfügbar</string>
   <string name="ServerConnection.NotificationServerAvailableText">Es gibt mindestens einen MediaPortal-2-Server im Netzwerk. Verbinde diesen Client mit ihm, um alle Funktionen nutzen zu können.</string>
-  <string name="ServerConnection.ServerFormatText">{0}' auf Rechner '{1}</string>
+  <string name="ServerConnection.ServerFormatText">{0}\' auf Rechner \'{1}</string>
   <!--{0} = server name, {1} = host name-->
   <string name="ServerConnection.UnknownServerName">&lt;Unbekannt&gt;</string>
   <string name="ServerConnection.UnknownServerSystem">&lt;Unbekannt&gt;</string>
@@ -44,7 +44,7 @@
   <string name="ServerConnection.HomeServerIsNotConnected">Vom Heimserver getrennt.</string>
   <string name="ServerConnection.DetachMenu">Abkoppeln</string>
   <string name="ServerConnection.DetachConfirmDialogHeader">Vom Heimserver abkoppeln</string>
-  <string name="ServerConnection.DetachConfirmDialogText">Beim Abkoppeln vom Server werden alle Informationen über die lokalen Freigaben und deren Mediendateien vom Heimserver entfernt. Ein erneutes Anbinden ist möglich. Soll wirklich vom Server '{0}' ({1}) abgekoppelt werden?</string>
+  <string name="ServerConnection.DetachConfirmDialogText">Beim Abkoppeln vom Server werden alle Informationen über die lokalen Freigaben und deren Mediendateien vom Heimserver entfernt. Ein erneutes Anbinden ist möglich. Soll wirklich vom Server \'{0}\' ({1}) abgekoppelt werden?</string>
   <string name="ServerConnection.SearchForServers">Nach Servern suchen</string>
   <string name="ServerConnection.DetachFromServer">Vom Server abkoppeln</string>
   <string name="ServerConnection.AttachToServerHeader">An den Server anbinden</string>
@@ -54,7 +54,7 @@
   <string name="ServerConnection.AttachToServerNoServerText">Zur Zeit ist kein MediaPortal-2-Server im Netzwerk verfügbar.</string>
   <string name="ServerConnection.AttachButton">Anbinden</string>
   <string name="ServerConnection.AttachInfoDialogHeader">Server angebunden</string>
-  <string name="ServerConnection.AttachInfoDialogText">Dieser MediaPortal-2-Client wurde mit dem Heimserver '{0}' auf Rechner '{1}' verbunden.</string>
+  <string name="ServerConnection.AttachInfoDialogText">Dieser MediaPortal-2-Client wurde mit dem Heimserver \'{0}\' auf Rechner \'{1}\' verbunden.</string>
   <!--{0} = server name, {1} = host name-->
   <string name="Notifications.Title">Meldungen</string>
   <string name="Notifications.OneMoreNotification">(1 mehr)</string>
@@ -62,9 +62,9 @@
   <string name="Notifications.WatchNotificationsWorkflowStateLabel">Meldungen</string>
   <string name="Notifications.Handle">Details</string>
   <string name="ImporterMessages.ImportStartedTitle">Import gestartet</string>
-  <string name="ImporterMessages.ImportStartedText">Der Import '{0}' wurde gestartet.</string>
+  <string name="ImporterMessages.ImportStartedText">Der Import \'{0}\' wurde gestartet.</string>
   <string name="ImporterMessages.ImportCompletedTitle">Import abgeschlossen</string>
-  <string name="ImporterMessages.ImportCompletedText">Der Import '{0}' wurde abgeschlossen.</string>
+  <string name="ImporterMessages.ImportCompletedText">Der Import \'{0}\' wurde abgeschlossen.</string>
   <string name="LocalFsResourceProvider.Name">Ressourcen-Provider für das lokale Dateisystem</string>
   <string name="LocalFsResourceProvider.Description">Zugriff auf das lokale Dateisystem</string>
   <string name="RemoteResourceProvider.Name">Remote-Resourcen-Provider</string>
@@ -72,10 +72,10 @@
   <string name="ScreenSaver.MediaPortal2">MediaPortal 2</string>
   <!--For MP UI player subsystem-->
   <string name="Players.NoPlayerAvailableNotificationTitle">Fehlender Player</string>
-  <string name="Players.NoPlayerAvailableNotificationText">Es ist kein Player registriert, um das Medien-Objekt '{0}' wiedergeben zu können.</string>
+  <string name="Players.NoPlayerAvailableNotificationText">Es ist kein Player registriert, um das Medien-Objekt \'{0}\' wiedergeben zu können.</string>
   <string name="Players.ErrorPlayingMediaItemTitle">Wiedergabefehler</string>
-  <string name="Players.UnableToPlayMediaItemText">Wiedergabe von Medien-Objekt '{0}' nicht möglich.</string>
-  <string name="Players.ResourceNotFoundText">Ressource '{0}' nicht gefunden</string>
+  <string name="Players.UnableToPlayMediaItemText">Wiedergabe von Medien-Objekt \'{0}\' nicht möglich.</string>
+  <string name="Players.ResourceNotFoundText">Ressource \'{0}\' nicht gefunden</string>
   <string name="Players.PlayerConfiguration">Player-Einstellungen</string>
   <string name="Players.CurrentMediaInfo">Aktuelle Medien-Information</string>
   <string name="Players.FullscreenVideo">Vollbild-{0}</string>
@@ -117,7 +117,7 @@
   <string name="Settings.Regional">Spracheinstellungen</string>
   <string name="Settings.Regional.Language">Sprache</string>
   <string name="Settings.Regional.Language.Main">Sprache</string>
-  <string name="Settings.Regional.Language.Main.Help">Left die Hauptsprache des MediaPortal-2-Clients fest</string>
+  <string name="Settings.Regional.Language.Main.Help">Legt die Hauptsprache des MediaPortal-2-Clients fest</string>
   <string name="Settings.Shares">Freigaben</string>
   <!--Section name-->
   <string name="Settings.Shares.Configure">Freigaben konfigurieren</string>
@@ -137,7 +137,7 @@
   <string name="SharesOverview.ReImportAllShares">Alle Freigaben (erneut) importieren</string>
   <string name="SharesOverview.NotConnectedToHomeServer">Der Heimserver ist nicht verbunden, so dass keine Informationen zu System-Freigaben abgerufen werden können.</string>
   <string name="Shares.NoSharesInThisView">- Keine Freigaben in dieser Anzeige -</string>
-  <string name="Shares.InvalidPath">UNGÜLTIGER PFAD: '{0}'</string>
+  <string name="Shares.InvalidPath">UNGÜLTIGER PFAD: \'{0}\'</string>
   <!--For example: INVALID PATH: 'C:\XXX\YYY'-->
   <string name="Shares.Online">Online</string>
   <string name="Shares.Offline">Offline</string>
@@ -179,7 +179,7 @@
   <string name="SharesConfig.NoConfigLocalSharesHomeServerLocal">Der Heimserver befindet sich auf dem selben Computer, deshalb können nur globale Freigaben verwaltet werden.</string>
   <string name="SharesConfig.ChooseResourceProviderForShare">Wähle einen Resourcen-Provider für die Freigabe</string>
   <string name="SharesConfig.EditResourceProviderPathForShare">Setze den Pfad zur Freigabe</string>
-  <string name="SharesConfig.ResourceProviderPathIsNotValid">Gib einen Pfad ein, der für den gewählten Ressourcen-Provider gültig ist. Dies kann ein einfacher Pfad sein, der vom Provider verstanden wird. Es können auch komplexe Pfade in folgendem Format angegeben werden: {[Base-ResourceProvider-ID]}://[Base-ResourceProvider-Path]>{[Chained-ResourceProvider-ID]}://[Chained-ResourceProvider-Path]>...</string>
+  <string name="SharesConfig.ResourceProviderPathIsNotValid">Gib einen Pfad ein, der für den gewählten Ressourcen-Provider gültig ist. Dies kann ein einfacher Pfad sein, der vom Provider verstanden wird. Es können auch komplexe Pfade in folgendem Format angegeben werden: {[Base-ResourceProvider-ID]}://[Base-ResourceProvider-Path]&gt;{[Chained-ResourceProvider-ID]}://[Chained-ResourceProvider-Path]&gt;...</string>
   <string name="SharesConfig.ChooseResourceProviderPathForShare">Wähle den Pfad für die Freigabe</string>
   <string name="SharesConfig.EditShareName">Setze den Anzeigenamen der Freigabe</string>
   <string name="SharesConfig.ChooseShareCategories">Wähle die Medien-Kategorien der Elemente in der Freigabe</string>

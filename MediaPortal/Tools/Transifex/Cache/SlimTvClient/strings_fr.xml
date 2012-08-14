@@ -15,6 +15,6 @@
   <string name="SlimTvClient.ProgramOver">Programme déjà terminé</string>
   <string name="SlimTvClient.WatchNow">Regarder le programme en cours</string>
   <string name="SlimTvClient.RecordNow">Enregister</string>
-  <string name="SlimTvClient.DeleteSchedule">Effacer l'enregistrement programmé</string>
+  <string name="SlimTvClient.DeleteSchedule">Effacer l\'enregistrement programmé</string>
   <string name="SlimTvClient.CreateSchedule">Programmer un enregistrement</string>
 </resources>

@@ -7,4 +7,5 @@
   <string name="SlimTvClient.ProgramEndLabel">Vrijeme završetka</string>
   <string name="SlimTvClient.EpisodeLabel">Epizoda</string>
   <string name="SlimTvClient.Guide">TV Vodič</string>
+  <string name="SlimTvClient.NoProgram">Nema podataka o programu.</string>
 </resources>

@@ -1,8 +1,8 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
   <!--FIXME: Move those language resources to Manager application (or to a support plugin)-->
-  <string name="configuration.save_on_exit">Voulez vous enregistrer les changements avant de quitter ?</string>
-  <string name="configuration.unsaved_warning">Attention ! Changements non sauvegardés</string>
+  <string name="configuration.save_on_exit">Voulez vous enregistrer les modifications avant de quitter ?</string>
+  <string name="configuration.unsaved_warning">Attention ! Modifications non sauvegardées</string>
   <string name="configuration.browse">Parcourir</string>
   <string name="configuration.areas.settings">Réglages</string>
   <string name="configuration.areas.logs">Fichiers de logs</string>

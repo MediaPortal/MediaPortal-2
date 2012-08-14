@@ -41,7 +41,7 @@
   <string name="ServerConnection.HomeServerIsNotConnected">השרת הביתי כרגע מנותק</string>
   <string name="ServerConnection.DetachMenu">התנתק</string>
   <string name="ServerConnection.DetachConfirmDialogHeader">התנתק מהשרת הביתי</string>
-  <string name="ServerConnection.DetachConfirmDialogText">באם תתנתק מהשרת הביתי, כל הנתונים על אזורי השיתוף וקבצי המדיה שלהם יוסרו מספריית השרת הביתי. תוכל להתחבר מאוחר יותר שוב. האם ברצונך להתנתק מהשרת הביתי '{0}' ב-host הזה: '{1}'?</string>
+  <string name="ServerConnection.DetachConfirmDialogText">באם תתנתק מהשרת הביתי, כל הנתונים על אזורי השיתוף וקבצי המדיה שלהם יוסרו מספריית השרת הביתי. תוכל להתחבר מאוחר יותר שוב. האם ברצונך להתנתק מהשרת הביתי \'{0}\' ב-host הזה: \'{1}\'?</string>
   <string name="ServerConnection.SearchForServers">חפש שרתים</string>
   <string name="ServerConnection.DetachFromServer">התנתק מהשרת הביתי</string>
   <string name="ServerConnection.AttachToServerHeader">התחבר לשרת מדיה פורטל 2</string>

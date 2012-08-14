@@ -1,0 +1,23 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<resources>
+  <string name="PartyMusicPlayer.MenuItem">Lecteur en mode soirée</string>
+  <string name="PartyMusicPlayer.ConfigWorkflowNavigationContextDisplayLabel">Lecteur en mode Soirée</string>
+  <string name="PartyMusicPlayer.PlayerWorkflowNavigationContextDisplayLabel">Lecteur en mode Soirée</string>
+  <string name="PartyMusicPlayer.ConfigScreenTitle">Configuration du lecteur en mode Soirée</string>
+  <string name="PartyMusicPlayer.Playlist">Playlist</string>
+  <string name="PartyMusicPlayer.ChoosePlaylist">Choisir une playlist</string>
+  <string name="PartyMusicPlayer.UseEscapePassword">Utiliser le mot de passe pour quitter</string>
+  <string name="PartyMusicPlayer.DisableScreenSaver">Désactiver l\'économiseur d\'écran</string>
+  <string name="PartyMusicPlayer.StartPartyMode">Démarrer le mode Soirée</string>
+  <string name="PartyMusicPlayer.ChoosePlaylistDialogHeader">Choisir une playlist </string>
+  <string name="PartyMusicPlayer.EnterEscapePasswordDialogHeader">Mot de passe de sortie</string>
+  <string name="PartyMusicPlayer.EnterEscapePasswordDialogText">SVP, entrer le mot de passe permettant de quitter le mode Soirée</string>
+  <string name="PartyMusicPlayer.WrongEscapePasswordDialogHeader">Mot de passe pour quitter erroné</string>
+  <string name="PartyMusicPlayer.WrongEscapePasswordDialogText">Désolé, mot  passe incorrect!</string>
+  <string name="PartyMusicPlayer.ServerNotConnectedDialogHeader">Aucune connexion au Serveur</string>
+  <string name="PartyMusicPlayer.ServerNotConnectedDialogText">Pour cette action, le serveur (Home Serveur) doit être connecté</string>
+  <string name="PartyMusicPlayer.PlayerContextName">Lecteur en mode Soirée</string>
+  <string name="PartyMusicPlayer.AudioArtistLabel">Artiste</string>
+  <string name="PartyMusicPlayer.AudioTitleLabel">Titre</string>
+  <string name="PartyMusicPlayer.ShowPlaylist">Afficher la playlist</string>
+</resources>

@@ -1,0 +1,31 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<resources>
+  <!--Menu items for the five Media navigation parts-->
+  <string name="Media.VideosMenuItem">Videolar</string>
+  <!--Filter titles-->
+  <!--Special filters names-->
+  <!--Navbar display labels for sub view navigation-->
+  <!--For example: "R.E.M."-->
+  <!--For example: "R.E.M."-->
+  <!--For example: "Artist: R.E.M."-->
+  <!--Display labels for workflow navigation contexts-->
+  <!--Screen headers-->
+  <string name="Media.VideoItemsHeader">Videolar</string>
+  <!--View names (names for the view instances)-->
+  <string name="Media.VideosRootViewName">Videolar</string>
+  <!--General strings used in views-->
+  <!--Shown in the header of an items list-->
+  <!--Shown in the header of an items list-->
+  <!--Shown in the header of an items list-->
+  <!--Shown in the header of an items list, e.g. "15/350 items"-->
+  <!--Shown in the header of an items list, e.g. "45 items"-->
+  <!--Playlists-->
+  <!--Play items dialog-->
+  <!--Player context names-->
+  <!--Video currently playing-->
+  <!--Image currently playing-->
+  <!--DVD currently playing-->
+  <!--Audio currently playing-->
+  <!--VideoPlayerUIContributor-->
+  <!--Video Player time units-->
+</resources>

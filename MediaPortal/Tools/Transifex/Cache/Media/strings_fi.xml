@@ -154,9 +154,9 @@
   <string name="Media.NoPlaylistsAvailable">- Soittolistoja ei saatavilla -</string>
   <string name="Media.NoConfigPlaylistsHomeServerNotConnectedText">Kotipalvelin ei ole kytkettynä, joten soittolistoja ei voi hallita tällä hetkellä</string>
   <string name="Media.EditNameOfPlaylist">Muokkaa soittolistan nimeä</string>
-  <string name="Media.SavePlaylistSuccessfulText">Soittolista '{0}' tallennettiin onnistuneesti palvelimelle.</string>
-  <string name="Media.SavePlaylistFailedText">Soittolistaa ei voitu tallentaa. Virheilmoitus: '{0}'</string>
-  <string name="Media.SavePlaylistFailedAlreadyExists">Soittolistaa ei voitu tallentaa: Soittolista '{0}' on jo olemassa</string>
+  <string name="Media.SavePlaylistSuccessfulText">Soittolista \'{0}\' tallennettiin onnistuneesti palvelimelle.</string>
+  <string name="Media.SavePlaylistFailedText">Soittolistaa ei voitu tallentaa. Virheilmoitus: \'{0}\'</string>
+  <string name="Media.SavePlaylistFailedAlreadyExists">Soittolistaa ei voitu tallentaa: Soittolista \'{0}\' on jo olemassa</string>
   <string name="Media.ChoosePlaylistsToBeRemovedText">Valitse poistettavat soittolistat</string>
   <string name="Media.PlaylistNameInfoLabel">Soittolistan nimi</string>
   <string name="Media.PlaylistTypeInfoLabel">Soittolistan tyyppi</string>
@@ -216,11 +216,11 @@
   <string name="Media.ShowAudioPlaylistAction">Näytä audio soittolista</string>
   <string name="Media.ShowVideoImagePlaylistAction">Näytä video/kuva soittolista</string>
   <string name="Media.ShowPiPPlaylistAction">Näytä kuva-kuvassa soittolista</string>
-  <string name="Media.EditPlaylistAction">Muokkaa soittolistaa</string>
   <string name="Media.ClearPlaylistAction">Tyhjennä soittolista</string>
   <string name="Media.SavePlaylistAction">Tallenna soittolista</string>
   <string name="Media.SaveCurrentPlaylistAction">Tallenna nykyinen soittolista</string>
   <string name="Media.RemovePlaylistsAction">Poista soittolistat</string>
+  <string name="Media.EditPlaylistButton">Muokkaa soittolistaa</string>
   <string name="Media.LoadPlaylistButton">Lataa soittolista</string>
   <string name="Media.PlaylistEmpty">&lt;Ei kohteita soittolistassa&gt;</string>
   <string name="Media.CannotPlayItemDialogText">Ei voi toistaa media kohdetta</string>

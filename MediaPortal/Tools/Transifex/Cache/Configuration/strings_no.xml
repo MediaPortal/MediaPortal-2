@@ -2,13 +2,13 @@
 <resources>
   <string name="Configuration.Name">Innstillinger</string>
   <string name="Configuration.ConfigurationMainWorkflowNavigationContextDisplayLabel">Innstillinger</string>
-  <string name="Configuration.MainSettings">Hoved innstillinger</string>
+  <string name="Configuration.MainSettings">Hovedinnstillinger</string>
   <!--2nd Header for root configuration section-->
   <string name="Configuration.NoSettingsInThisSection">I denne seksjonen er det ingen innstillinger</string>
-  <string name="Configuration.ErrorFloatingPointValue">'{0}' er ikke et gyldig flyttall</string>
-  <string name="Configuration.ErrorIntegerValue">'{0}' er ikke et gyldig heltall</string>
-  <string name="Configuration.ErrorNumericLowerLimit">Bruk en verdi mellom '{1}' og '{2}'</string>
+  <string name="Configuration.ErrorFloatingPointValue">\'{0}\' er ikke et gyldig flyttall</string>
+  <string name="Configuration.ErrorIntegerValue">\'{0}\' er ikke et gyldig heltall</string>
+  <string name="Configuration.ErrorNumericLowerLimit">Bruk en verdi mellom \'{1}\' og \'{2}\'</string>
   <!--0 = current value, 1 = lower limit, 2 = upper limit-->
-  <string name="Configuration.ErrorNumericUpperLimit">Bruk en verdi mellom '{1}' og '{2}'</string>
+  <string name="Configuration.ErrorNumericUpperLimit">Bruk en verdi mellom \'{1}\' og \'{2}\'</string>
   <!--0 = current value, 1 = lower limit, 2 = upper limit-->
 </resources>

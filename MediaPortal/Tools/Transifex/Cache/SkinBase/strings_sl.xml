@@ -179,10 +179,15 @@
   <string name="SharesConfig.NoConfigLocalSharesHomeServerLocal">Strežnik je na istem računalniku, zato lahko urejaš le globalne delitve.</string>
   <string name="SharesConfig.ChooseResourceProviderForShare">Izberi ponudnika virov za delitev</string>
   <string name="SharesConfig.EditResourceProviderPathForShare">Uredi pot do delitve</string>
-  <string name="SharesConfig.ResourceProviderPathIsNotValid">Uredi pot za izbranega ponudnika vsebin. Urediš lahko preprosto pot, ki jo ponudnik razume ali pa zapleteno pot v formatu {[Base-ResourceProvider-ID]}://[Base-ResourceProvider-Path]>{[Chained-ResourceProvider-ID]}://[Chained-ResourceProvider-Path]>...</string>
+  <string name="SharesConfig.ResourceProviderPathIsNotValid">Uredi pot za izbranega ponudnika vsebin. Urediš lahko preprosto pot, ki jo ponudnik razume ali pa zapleteno pot v formatu {[Base-ResourceProvider-ID]}://[Base-ResourceProvider-Path]&gt;{[Chained-ResourceProvider-ID]}://[Chained-ResourceProvider-Path]&gt;...</string>
   <string name="SharesConfig.ChooseResourceProviderPathForShare">Izberi pot do delitve</string>
   <string name="SharesConfig.EditShareName">Uredi ime delitve za prikaz</string>
   <string name="SharesConfig.ChooseShareCategories">Izberi kategorije virov na delitvi</string>
+  <string name="SharesConfig.SharePathExists">Skupna raba s to potjo že obstaja</string>
+  <string name="SharesConfig.ShareNameExists">Skupna raba s tem imenom že obstaja</string>
+  <string name="SharesConfig.ShareNameEmpty">Vpiši ime za skupno rabo</string>
+  <string name="SharesConfig.EditShareProblemHeader">Problem pri nastavljanju skupne rabe</string>
+  <string name="SharesConfig.EditShareProblemText">Prišlo je do notranje napake pri nastavljanju</string>
   <string name="SharesConfig.MenuAddShare">Dodaj</string>
   <string name="SharesConfig.MenuEditShares">Uredi</string>
   <string name="SharesConfig.MenuRemoveShares">Odstrani</string>

@@ -10,7 +10,7 @@
   <string name="Settings.Appearance.System.ScreenSaverTimeout">Skjermsparer aktiveres etter</string>
   <string name="Settings.Appearance.System.ScreenSaverTimeout.Help">Innstilling for etter hvor lang tid i minutter det skal ta før skjermsparer aktiveres etter siste bruker aktivitet.</string>
   <string name="Settings.Appearance.System.Antialiasing">GUI kantutjevning</string>
-  <string name="Settings.Appearance.System.Antialiasing.Help">Kantutjevning bedrer det visuelle i GUI men kan minske video utførelse</string>
+  <string name="Settings.Appearance.System.Antialiasing.Help">Kantutjevning bedrer det visuelle i GUI men kan føre til dårlig videokvalitet</string>
   <string name="Settings.Appearance.Skin">Skinn</string>
   <string name="Settings.Appearance.Skin.SkinAndTheme">Skinn og tema</string>
   <string name="Settings.Appearance.Skin.SkinAndTheme.ChangeSkin">Bytte skinn</string>
@@ -20,7 +20,7 @@
   <string name="Settings.Players">Avspillere</string>
   <string name="Settings.Players.Rendering">Gjengivelse</string>
   <string name="Settings.Players.Rendering.DefaultGeometry">Standard zoom modus</string>
-  <string name="Settings.Players.Rendering.DefaultGeometry.Help">Stille inn zoom som skal brukes som standard ved video-avspilling</string>
+  <string name="Settings.Players.Rendering.DefaultGeometry.Help">Stille inn zoom som skal brukes som standard ved videoavspilling</string>
   <string name="Settings.General.System.ApplicationSuspendLevel">Innstillinger for Windows strømsparing</string>
   <string name="Settings.General.System.ApplicationSuspendLevel.Help">Slå av Windows automatiske hvile/avslutt eller slå av skjerm mens MediaPortal 2 kjører</string>
   <string name="Settings.General.System.ApplicationSuspendLevel.None">Tillat alle system strømsparing-nivåer</string>
@@ -30,12 +30,12 @@
   <string name="ScreenManager.NotificationErrorLoadingSkinFallingBackToCurrentText">Går tilbake til gjeldende skinn</string>
   <string name="ScreenManager.NotificationErrorLoadingSkinFallingBackToDefaultText">Går tilbake til standard skinn</string>
   <string name="ScreenManager.ErrorLoadingSkinResource">Feil ved lasting av en ressurs til skinn</string>
-  <string name="ScreenManager.ScreenMissing">Kan ikke finne ressurs skinnet til bilde '{0}'</string>
-  <string name="ScreenManager.ScreenBroken">Ressursen til skinnet for bilde '{0}' ser ut til å være ødelagt</string>
-  <string name="ScreenManager.BackgroundScreenMissing">Kan ikke finne ressursen til skinnet for bakgrunns-bilde '{0}' </string>
-  <string name="ScreenManager.BackgroundScreenBroken">Ressursen til skinnet for bakgrunns-bilde '{0}' ser ut til å være ødelagt</string>
-  <string name="ScreenManager.SuperLayerScreenMissing">Kan ikke finne ressursen for skinnet til det øvre laget til bilde '{0}'</string>
-  <string name="ScreenManager.SuperLayerScreenBroken">Ressursen til skinnet for det øvre laget til bilde '{0}' ser ut til å være ødelagt</string>
+  <string name="ScreenManager.ScreenMissing">Kan ikke finne ressurs skinnet til bilde \'{0}\'</string>
+  <string name="ScreenManager.ScreenBroken">Ressursen til skinnet for bilde \'{0}\' ser ut til å være ødelagt</string>
+  <string name="ScreenManager.BackgroundScreenMissing">Kan ikke finne ressursen til skinnet for bakgrunns-bilde \'{0}\' </string>
+  <string name="ScreenManager.BackgroundScreenBroken">Ressursen til skinnet for bakgrunns-bilde \'{0}\' ser ut til å være ødelagt</string>
+  <string name="ScreenManager.SuperLayerScreenMissing">Kan ikke finne ressursen for skinnet til det øvre laget til bilde \'{0}\'</string>
+  <string name="ScreenManager.SuperLayerScreenBroken">Ressursen til skinnet for det øvre laget til bilde \'{0}\' ser ut til å være ødelagt</string>
   <string name="Geometries.IntelligentZoom">Intelligent zoom</string>
   <string name="Geometries.LetterBox">Letterbox 4:3</string>
   <string name="Geometries.Normal">Normal</string>

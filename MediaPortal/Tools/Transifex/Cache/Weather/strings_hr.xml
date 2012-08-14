@@ -1,8 +1,27 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
+  <string name="Weather.WeatherStateDisplayLabel">Vrijeme</string>
   <!--Dialog state, doesn't appear at the UI-->
   <!--Dialog state, doesn't appear at the UI-->
+  <string name="Weather.Title">Vrijeme</string>
+  <string name="Weather.Refresh">Osvježi</string>
+  <string name="Weather.Weather">Vrijeme</string>
+  <string name="Weather.Temp">Temp</string>
+  <string name="Weather.UVIndex">UV indeks</string>
+  <string name="Weather.Wind">Vjetar</string>
+  <string name="Weather.Humidity">Vlažnost</string>
+  <string name="Weather.Pressure">Tlak</string>
+  <string name="Weather.NotUpdatedYet">-</string>
   <!--Forecast names are mostly assigned 1:1-->
+  <string name="Weather.Sunny">Sunčano</string>
+  <string name="Weather.Cloudy">Oblačno</string>
+  <string name="Weather.Snow">Snijeg</string>
+  <string name="Weather.Rain">Kiša</string>
+  <string name="Weather.Wind">Vjetar</string>
+  <string name="Weather.Clear">Vedro</string>
+  <string name="Weather.Fog">Magla</string>
+  <string name="Weather.Drizzle">Rosulja</string>
+  <string name="Weather.Thunder">Grmljavina</string>
   <string name="Weather.N">S</string>
   <string name="Weather.E">I</string>
   <string name="Weather.S">J</string>
@@ -19,4 +38,5 @@
   <string name="Weather.WSW">ZJZ</string>
   <string name="Weather.WNW">ZSZ</string>
   <string name="Weather.NNW">SSZ</string>
+  <string name="Settings.Plugins.Weather">Vrijeme</string>
 </resources>

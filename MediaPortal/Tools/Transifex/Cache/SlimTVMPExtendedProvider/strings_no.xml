@@ -1,12 +1,12 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
   <string name="Settings.Plugins.TV">TV</string>
-  <string name="Settings.Plugins.TV.MPExtendedServerAddress">MPExtended server adresse</string>
-  <string name="Settings.Plugins.TV.MPExtendedServerAddress.Help">Skriv inn server navn eller IP adresser, separeres med ';' (standard er localhost).</string>
+  <string name="Settings.Plugins.TV.MPExtendedServerAddress">MPExtended serveradresse</string>
+  <string name="Settings.Plugins.TV.MPExtendedServerAddress.Help">Skriv inn servernavn eller IP-adresser, separeres med \';\' (standard er localhost).</string>
   <string name="Settings.Plugins.TV.MPExtendedUsername">MPExtended service brukernavn</string>
   <string name="Settings.Plugins.TV.MPExtendedUsername.Help">Skriv inn brukernavn for tilkobling. Hvis ingen så vil anonym tilkobling brukes.</string>
   <string name="Settings.Plugins.TV.MPExtendedPassword">MPExtended service passord</string>
   <string name="Settings.Plugins.TV.MPExtendedPassword.Help">Skriv inn et passord for tilkoblingen. Hvis ingen så vil anonym tilkobling brukes.</string>
   <string name="Settings.Plugins.TV.ConnectionErrorTitle">Feil ved tilkobling</string>
-  <string name="Settings.Plugins.TV.ConnectionErrorText">Kan ikke koble til MPExtended server adresse: {0}</string>
+  <string name="Settings.Plugins.TV.ConnectionErrorText">Kan ikke koble til MPExtended serveradresse: {0}</string>
 </resources>

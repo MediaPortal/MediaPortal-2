@@ -1,0 +1,278 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<resources>
+  <!--Menu items for the five Media navigation parts-->
+  <string name="Media.BrowseMediaMenuItem">Погледајте медије</string>
+  <string name="Media.LocalMediaMenuItem">Локална медија</string>
+  <string name="Media.AudioMenuItem">Аудио</string>
+  <string name="Media.VideosMenuItem">Видео</string>
+  <string name="Media.SeriesMenuItem">Серије</string>
+  <string name="Media.MoviesMenuItem">Филмови</string>
+  <string name="Media.ImagesMenuItem">Слике</string>
+  <!--Filter titles-->
+  <string name="Media.FilterByArtistMenuItem">Филтрирање по извођачу</string>
+  <string name="Media.FilterByAlbumMenuItem">Филтрирање по албуму</string>
+  <string name="Media.FilterByAudioGenreMenuItem">Филтрирање по жанру</string>
+  <string name="Media.FilterByDecadeMenuItem">Филтрирање по декадама</string>
+  <string name="Media.FilterByActorMenuItem">Филтрирање по глумцу</string>
+  <string name="Media.FilterByVideoGenreMenuItem">Филтрирање по жанру</string>
+  <string name="Media.FilterByVideoYearMenuItem">Филтрирање по години</string>
+  <string name="Media.FilterByAudioLanguageMenuItem">Филтритрај по језику</string>
+  <string name="Media.FilterByImageSizeMenuItem">Филтрирање по величини</string>
+  <string name="Media.FilterByImageYearMenuItem">Филтрирање по години</string>
+  <string name="Media.FilterBySystemMenuItem">Филтрирање по систему</string>
+  <string name="Media.FilterBySeriesNameMenuItem">Филтрирање по серијама</string>
+  <string name="Media.FilterBySeriesSeasonMenuItem">Филтрирање по сезони</string>
+  <string name="Media.FilterBySeriesEpisodeMenuItem">Филтрирање по епизоди</string>
+  <string name="Media.SimpleSearchFilterMenuItem">Потражи</string>
+  <string name="Media.ShowAllAudioItemsMenuItem">Прикажи све</string>
+  <string name="Media.ShowAllVideoItemsMenuItem">Прикажи све</string>
+  <string name="Media.ShowAllImageItemsMenuItem">Прикажи све</string>
+  <string name="Media.ShowAllMoviesMenuItem">Прикажи све</string>
+  <!--Special filters names-->
+  <string name="Media.ImageFilterSmall">Мало</string>
+  <string name="Media.ImageFilterMedium">Средње</string>
+  <string name="Media.ImageFilterBig">Велико</string>
+  <string name="Media.SwitchToBrowseMLView">Сервер приказ</string>
+  <string name="Media.SwitchToLocalMediaView">Локални приказ</string>
+  <!--Navbar display labels for sub view navigation-->
+  <string name="Media.BrowseMediaNavigationNavbarDisplayLabel">{0}</string>
+  <!--For example: "R.E.M."-->
+  <string name="Media.LocalMediaNavigationNavbarDisplayLabel">{0}</string>
+  <!--For example: "R.E.M."-->
+  <string name="Media.FilterArtistNavbarDisplayLabel">Уметник: {0}</string>
+  <!--For example: "Artist: R.E.M."-->
+  <string name="Media.FilterAlbumNavbarDisplayLabel">Албум: {0}</string>
+  <string name="Media.FilterAudioGenreNavbarDisplayLabel">Жанр: {0}</string>
+  <string name="Media.FilterDecadeNavbarDisplayLabel">Декада: {0}</string>
+  <string name="Media.FilterActorNavbarDisplayLabel">Глумац; {0}</string>
+  <string name="Media.FilterVideoGenreNavbarDisplayLabel">Жанр: {0}</string>
+  <string name="Media.FilterVideoYearNavbarDisplayLabel">Година: {0}</string>
+  <string name="Media.FilterAudioLanguagesNavbarDisplayLabel">Језик: {0}</string>
+  <string name="Media.FilterImageSizeNavbarDisplayLabel">Величина: {0}</string>
+  <string name="Media.FilterImageYearNavbarDisplayLabel">Година: {0}</string>
+  <string name="Media.FilterAudioItemsNavbarDisplayLabel">Име: {0}</string>
+  <string name="Media.FilterVideoItemsNavbarDisplayLabel">Име: {0}</string>
+  <string name="Media.FilterSeriesItemsNavbarDisplayLabel">{0}</string>
+  <string name="Media.FilterSeriesSeasonNavbarDisplayLabel">Сезона: {0}</string>
+  <string name="Media.FilterImageItemsNavbarDisplayLabel">Име: {0}</string>
+  <string name="Media.FilterSystemNavbarDisplayLabel">Систем: {0}</string>
+  <string name="Media.FilterMoviesNavbarDisplayLabel">Филмови:  {0}</string>
+  <!--Display labels for workflow navigation contexts-->
+  <string name="Media.BrowseMediaNavigationRootWorkflowNavigationContextDisplayLabel">Погледајте медије</string>
+  <string name="Media.LocalMediaNavigationRootWorkflowNavigationContextDisplayLabel">Локална медија</string>
+  <string name="Media.AudioNavigationRootWorkflowNavigationContextDisplayLabel">Аудио библиотека</string>
+  <string name="Media.VideoNavigationRootWorkflowNavigationContextDisplayLabel">Видео библиотека</string>
+  <string name="Media.SeriesNavigationRootWorkflowNavigationContextDisplayLabel">Серије библиотека</string>
+  <string name="Media.MoviesNavigationRootWorkflowNavigationContextDisplayLabel">Библиотека филмова</string>
+  <string name="Media.ImageNavigationRootWorkflowNavigationContextDisplayLabel">Слике библиотека</string>
+  <string name="Media.VideoCurrentlyPlayingWorkflowStateNavigationContextDisplayLabel">Тренутни видео</string>
+  <string name="Media.VideoFullscreenContentWorkflowStateNavigationContextDisplayLabel">Водео на целом екрану</string>
+  <string name="Media.AudioCurrentlyPlayingWorkflowStateNavigationContextDisplayLabel">Тренутни аудио</string>
+  <string name="Media.AudioFullscreenContentWorkflowStateNavigationContextDisplayLabel">Аудио приказивање</string>
+  <string name="Media.ShowPlaylistWorkflowStateNavigationContextDisplayLabel">Плејлиста</string>
+  <string name="Media.EditPlaylistWorkflowStateNavigationContextDisplayLabel">Измени плејлисту</string>
+  <string name="Media.PlaylistsOverviewWorkflowStateNavigationContextDisplayLabel">Плејлисте</string>
+  <string name="Media.PlaylistInfoWorkflowStateNavigationContextDisplayLabel">Плејлиста - инфо</string>
+  <string name="Media.RemovePlaylistsWorkflowStateNavigationContextDisplayLabel">Уклони плејлисту</string>
+  <string name="Media.SavePlaylistEditNameWorkflowStateNavigationContextDisplayLabel">Измени име плејлисте</string>
+  <string name="Media.SavePlaylistSuccessfulWorkflowStateNavigationContextDisplayLabel">Успешно</string>
+  <string name="Media.SavePlaylistFailedWorkflowStateNavigationContextDisplayLabel">Неуспешно</string>
+  <string name="Media.PlayOrEnqueueItemsWorkflowStateNavigationContextDisplayLabel">Пусти/подеси ставке</string>
+  <string name="Media.CheckQueryPlayActionSingleItemWorkflowStateNavigationContextDisplayLabel">Пусти</string>
+  <string name="Media.CheckQueryPlayActionMultipleItemsWorkflowStateNavigationContextDisplayLabel">Пусти</string>
+  <string name="Media.CheckQueryPlayActionMultipleItemsChooseMediaTypeWorkflowStateNavigationContextDisplayLabel">Одабери медију</string>
+  <!--Screen headers-->
+  <string name="Media.BrowseMediaNavigationHeader">Медија навигација</string>
+  <string name="Media.LocalMediaNavigationHeader">Локална медија навигација</string>
+  <string name="Media.MediaItemsHeader">Медија ставке</string>
+  <string name="Media.VideoItemsHeader">Видео</string>
+  <string name="Media.AudioItemsHeader">Аудио ставке</string>
+  <string name="Media.SeriesItemsHeader">Епизоде</string>
+  <string name="Media.MoviesItemsHeader">Филмови</string>
+  <string name="Media.ImageItemsHeader">Слике</string>
+  <string name="Media.SimpleSearchHeader">Једноставно претраживање</string>
+  <string name="Media.ChooseActorHeader">Одабери глумца/глумицу</string>
+  <string name="Media.ChooseVideoGenreHeader">Одабери жанр</string>
+  <string name="Media.ChooseVideoYearHeader">Одабери годину</string>
+  <string name="Media.ChooseSeriesHeader">Одабери серију</string>
+  <string name="Media.ChooseSeasonHeader">Одабери сезону</string>
+  <string name="Media.ChooseAudioDecadeHeader">Одабери декаду</string>
+  <string name="Media.ChooseAlbumHeader">Одабери албум</string>
+  <string name="Media.ChooseArtistHeader">Одабери уметника/уметницу</string>
+  <string name="Media.ChooseAudioGenreHeader">Одабери жанр</string>
+  <string name="Media.ChooseImageYearHeader">Одабери годину</string>
+  <string name="Media.ChooseImageSizeHeader">Одабери величину</string>
+  <string name="Media.ChooseSystemHeader">Одабери систем</string>
+  <string name="Media.ChooseVideoLanguageHeader">Одабери језик</string>
+  <string name="Media.PlaylistsOverviewHeader">Плејлисте</string>
+  <string name="Media.SavePlaylistEditNameHeader">Сачувај плејлисте</string>
+  <string name="Media.SavePlaylistFailedHeader">Сачувај плејлисту</string>
+  <string name="Media.SavePlaylistSuccessfulHeader">Сачувај плејлисту</string>
+  <string name="Media.RemovePlaylistsHeader">Уклони плејлисту</string>
+  <string name="Media.PlaylistDetailsHeader">Детаљи плејлисту</string>
+  <string name="Media.PlaylistLoadNoPlaylistText">Плејлиста није учитана</string>
+  <string name="Media.PlaylistLoadErrorLoadingPlaylist">Грешка приликом учитавања плејлисте</string>
+  <string name="Media.CannotSavePlaylistWithLocalMediaItems">Плејлиста може бити сачувана само уколико се све ставке налазе на локалном серверу (који је прикључен).</string>
+  <!--View names (names for the view instances)-->
+  <string name="Media.BrowseMediaRootViewName">Претражи медије</string>
+  <string name="Media.LocalMediaRootViewName">Локални медији</string>
+  <string name="Media.ClientSharesViewName">Медија доступна од стране клијента</string>
+  <string name="Media.ServerSharesViewName">Медија доступна од стране сервера</string>
+  <string name="Media.AudioRootViewName">Аудио</string>
+  <string name="Media.VideosRootViewName">Видео</string>
+  <string name="Media.SeriesRootViewName">Серије</string>
+  <string name="Media.ImagesRootViewName">Слике</string>
+  <string name="Media.SimpleSearchViewName">Једноставно претраживање</string>
+  <!--General strings used in views-->
+  <string name="Media.ViewInvalid">Није омогућено приказивање</string>
+  <string name="Media.ViewEmpty">&lt;Нема садржаја за приказ&gt;</string>
+  <string name="Media.NoItems">Нема садржаја</string>
+  <!--Shown in the header of an items list-->
+  <string name="Media.OneItem">Једна ставка</string>
+  <!--Shown in the header of an items list-->
+  <string name="Media.OneOfOneItem">1/1 ставка</string>
+  <!--Shown in the header of an items list-->
+  <string name="Media.NOfMItems">{0}/{1} ставки</string>
+  <!--Shown in the header of an items list, e.g. "15/350 items"-->
+  <string name="Media.NItems">{0} ставке</string>
+  <!--Shown in the header of an items list, e.g. "45 items"-->
+  <string name="Media.MoreThanMaxItemsHint">Приказ садржи више од {0} ставки. Молимо вас, укључите додатне филтере како би број ставни био смањен.</string>
+  <string name="Media.MoreThanMaxItemsBrowseHint">Приказ садржи више од {0} ставки.</string>
+  <string name="Media.MoreThanMaxItemsSearchResultHint">Резултат претраживања садржи више од {0} ставки. Молимо вас да сузите претрагу</string>
+  <string name="Media.ListIsBeingBuiltHint">Садржај ставки се прави ...</string>
+  <string name="Media.SearchResultIsBeingBuiltHint">Претраживање је у току ...</string>
+  <!--Playlists-->
+  <string name="Media.ManagePlaylists">Плејлиста</string>
+  <string name="Media.AddAllToPlaylist">Додај у плејлисту</string>
+  <string name="Media.NoItemsToAddHeader">Нема ставке за додавање</string>
+  <string name="Media.NoItemsToAddText">Нема ставки у тренутном приказу</string>
+  <string name="Media.ChooseAVTypeDialogHeader">Одаберите врсту ставки</string>
+  <string name="Media.AddAllAudio">Додајте аудио</string>
+  <string name="Media.AddAllVideo">Додајте видео</string>
+  <string name="Media.AddAllImages">Додајте слике</string>
+  <string name="Media.AddAllVideosAndImages">Додајте видео и слике</string>
+  <string name="Media.AddToPlaylistProgressDialogHeader">Прогрес</string>
+  <string name="Media.AddToPlaylistProgressText">Додајте ставке у плејлисту</string>
+  <string name="Media.NItemsAdded">{0} додатих ставки</string>
+  <string name="Media.StopAddToPlaylistButton">Стоп</string>
+  <string name="Media.NoPlaylistsAvailable">Плејлиста није дефинисана</string>
+  <string name="Media.NoConfigPlaylistsHomeServerNotConnectedText">Home server тренутно није прикључен па се плејлиста не може мењати</string>
+  <string name="Media.EditNameOfPlaylist">Промени име плејлисте</string>
+  <string name="Media.SavePlaylistSuccessfulText">Плејлиста \'{0}\' је успешно сачувана на серверу</string>
+  <string name="Media.SavePlaylistFailedText">Плејлиста није могла бити сачувана. Грешка: \'{0}\'</string>
+  <string name="Media.SavePlaylistFailedAlreadyExists">Плејлиста није могла бити сачувана. Плејлиста \'{0}\' већ постоји.</string>
+  <string name="Media.ChoosePlaylistsToBeRemovedText">Изаберите плејлисту за уклањање</string>
+  <string name="Media.PlaylistNameInfoLabel">Име плејлисте</string>
+  <string name="Media.PlaylistTypeInfoLabel">Врста плејлисте</string>
+  <string name="Media.PlaylistNumItemsLabel">Број ставки</string>
+  <string name="Media.PlaylistIdInfoLabel">Сопствени плејлист идентификациони број</string>
+  <!--Play items dialog-->
+  <string name="Media.PlayItemDialogHeader">Пусти ставку</string>
+  <string name="Media.PlayAudioItems">Пусти аудио ставку</string>
+  <string name="Media.EnqueueAudioItems">Припреми аудио ставке</string>
+  <string name="Media.MuteVideoAndPlayAudioItems">Пусти аудио ставке истовремено</string>
+  <string name="Media.PlayVideoImageItems">Пусти видео/слике ставке</string>
+  <string name="Media.EnqueueVideoImageItems">Припреми видео/слике ставке</string>
+  <string name="Media.PlayVideoImageItemsMutedConcurrentAudio">Пусти видео/слике у позадини &amp; настави са пуштањем звука</string>
+  <string name="Media.PlayVideoImageItemsPiP">Пусти видео/слике у посебном прозору</string>
+  <string name="Media.PlayAudioItem">Пусти аудио ставке</string>
+  <string name="Media.EnqueueAudioItem">Припреми аудио ставке</string>
+  <string name="Media.MuteVideoAndPlayAudioItem">Пусти аудио истовремено</string>
+  <string name="Media.PlayVideoImageItem">Пусти видео/слике</string>
+  <string name="Media.EnqueueVideoImageItem">Припреми видео/слике</string>
+  <string name="Media.PlayVideoImageItemMutedConcurrentAudio">Прикажи видео/слике у позадини &amp; Истовремено настави са звуком</string>
+  <string name="Media.PlayVideoImageItemPiP">Прикажи видео/слике у \"Слика у Слици\" моду</string>
+  <!--Player context names-->
+  <string name="Media.VideoImageContextName">Видео/Слике</string>
+  <string name="Media.AudioContextName">Звук</string>
+  <!--Video currently playing-->
+  <string name="Media.VideoCurrentlyPlayingHeader">Информације оИнформације о слици видеу</string>
+  <string name="Media.VideoTitleLabel">Назив:</string>
+  <string name="Media.VideoGenreLabel">Жанр:</string>
+  <string name="Media.VideoYearLabel">Година:</string>
+  <string name="Media.VideoDurationLabel">Трајање:</string>
+  <string name="Media.VideoActorsLabel">Глумци:</string>
+  <string name="Media.VideoStoryPlotLabel">Опис:</string>
+  <!--Image currently playing-->
+  <string name="Media.ImageCurrentlyPlayingHeader">Информације о слици</string>
+  <string name="Media.ImageTitleLabel">Назив:</string>
+  <string name="Media.ImageDimensions">Димензије:</string>
+  <string name="Media.CameraMake">Произвођач камере:</string>
+  <string name="Media.CameraModel">Модел камере:</string>
+  <string name="Media.ImageISOSpeedLabel">ИСО брзина:</string>
+  <string name="Media.ImageFNumberLabel">Ф број:</string>
+  <string name="Media.ImageShutterSpeedLabel">Брзина затварача камере:</string>
+  <string name="Media.ImageMeteringModeLabel">Јачина светлости:</string>
+  <string name="Media.ImageExposureTimeLabel">Време експозиције:</string>
+  <!--DVD currently playing-->
+  <string name="Media.DVDCurrentlyPlayingHeader">ДВД информације</string>
+  <!--Audio currently playing-->
+  <string name="Media.AudioCurrentlyPlayingHeader">Аудио Информације</string>
+  <string name="Media.AudioArtistsLabel">Уметници:</string>
+  <string name="Media.AudioTitleLabel">Назив:</string>
+  <string name="Media.AudioYearLabel">Година:</string>
+  <string name="Media.AudioDurationLabel">Трајање:</string>
+  <string name="Media.AudioPlaylistHeader">Аудио плејлиста</string>
+  <string name="Media.VideoImagePlaylistHeader">Видео/Слика плејлиста</string>
+  <string name="Media.PiPPlaylistHeader">Слика у слици плејлиста</string>
+  <string name="Media.SavePLAtServer">Сачувај на серверу</string>
+  <string name="Media.SavePLLocally">Сачувај локално</string>
+  <string name="Media.ShowAudioPlaylistAction">Прикажи аудио плејлисту</string>
+  <string name="Media.ShowVideoImagePlaylistAction">Прикажи видео/слике плејлисту</string>
+  <string name="Media.ShowPiPPlaylistAction">Прикажи Слика у Слици плејлисту</string>
+  <string name="Media.ClearPlaylistAction">Испразни плејлисту</string>
+  <string name="Media.SavePlaylistAction">Сачувај плејлисту</string>
+  <string name="Media.SaveCurrentPlaylistAction">Сачувај тренутну плејлисту</string>
+  <string name="Media.RemovePlaylistsAction">Уклони плејлисту</string>
+  <string name="Media.EditPlaylistButton">Измени плејлисту</string>
+  <string name="Media.LoadPlaylistButton">Учитај плејлисту</string>
+  <string name="Media.PlaylistEmpty">&lt;Нема ставки у плејлисти&gt;</string>
+  <string name="Media.CannotPlayItemDialogText">Немогуће је пустити медија ставку</string>
+  <string name="Media.CannotPlayItemsDialogText">Немогуће је пустити медија ставке</string>
+  <string name="Media.ValueEmptyTitle">&lt;Празно&gt;</string>
+  <!--VideoPlayerUIContributor-->
+  <string name="Media.SubtitleOff">Онемогући приказивање превода</string>
+  <string name="Media.ChooseChapterDialogHeader">Одабери поглавље</string>
+  <string name="Media.ChooseSubtitleDialogHeader">Одабери превод</string>
+  <string name="Media.ChooseTitleDialogHeader">Одабери назив</string>
+  <!--Video Player time units-->
+  <string name="Media.Seconds">секунди</string>
+  <string name="Media.Minutes">минута</string>
+  <string name="Media.Hours">сати</string>
+  <string name="Media.Start">Почетак</string>
+  <string name="Media.End">Крај</string>
+  <string name="Media.DontSkip">Не прескачи</string>
+  <string name="Media.SwitchViewModeMenuItem">Начин приказа</string>
+  <string name="Media.SwitchViewModeDialogTitle">Одабери начин приказа</string>
+  <string name="Media.SmallList">Мала листа</string>
+  <string name="Media.MediumList">Средња величина листе</string>
+  <string name="Media.LargeList">Велика листа</string>
+  <string name="Media.LargeGrid">Решетка</string>
+  <string name="Media.SwitchSortingMenuItem">Ређање</string>
+  <string name="Media.SwitchSortingDialogTitle">Ређање</string>
+  <string name="Media.SortByTitle">Поређај по називима</string>
+  <string name="Media.SortByAlbumTrack">Поређај по албумима и композицијама</string>
+  <string name="Media.SortByGenre">Поређај по жанрима</string>
+  <string name="Media.SortByAlbum">Поређај по албумима и називима</string>
+  <string name="Media.SortByTrack">Поређај по нумерама</string>
+  <string name="Media.SortByArtist">Поређај по уметницима</string>
+  <string name="Media.SortByYear">Поређај по години</string>
+  <string name="Media.SortBySize">Поређај по величини</string>
+  <string name="Media.SortBySystem">Поређај по систему</string>
+  <string name="Media.SortByActor">Поређај по глумцима</string>
+  <string name="Media.SortByDirector">Поређај по режисерима</string>
+  <string name="Media.SortByDuration">Поређај по трајању</string>
+  <string name="Media.SortByAspectRatio">Поређај по размери</string>
+  <string name="Media.SortByDate">Поређај по датуму снимања</string>
+  <string name="Media.SortByEpisode">Поређај по епизоди</string>
+  <string name="Media.SortingBrowseDefault">Подразумевано ређање</string>
+  <string name="Settings.Players">Плејери</string>
+  <string name="Settings.Players.ClosePlayersWhenFinished">Одабери плејер</string>
+  <string name="Settings.Players.ClosePlayersWhenFinished.Help">Одабери ово подешавање да МедијаПортал затвори плејере који су завршили аутоматски</string>
+  <string name="Settings.Players.InstantSkipPercent">Тренутно прескакање у процентима</string>
+  <string name="Settings.Players.InstantSkipPercent.Help">Одаберите колико процената од трајања видеа желите да прескочите</string>
+  <string name="Settings.Players.SkipStepTimeout">Протекло време у секундама за прескакање</string>
+  <string name="Settings.Players.SkipStepTimeout.Help">Подеси протекло време за унос корисника пре него прескакање се обави</string>
+  <string name="Settings.Players.SkipStepList">Кораци за прескакање за плејер</string>
+  <string name="Settings.Players.SkipStepList.Help">Унесите кораке за прескакање одвојене зарезом</string>
+</resources>

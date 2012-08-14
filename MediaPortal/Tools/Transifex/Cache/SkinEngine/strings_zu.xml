@@ -1,0 +1,11 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<resources>
+  <!--File names (files in shaders/effects, without extension) to effect names to be shown in the GUI-->
+  <!--{0} = media item title-->
+  <!--{0} = media item title-->
+  <!--For example: "Seeking forward (2x)"-->
+  <!--For example: "Seeking forward (2x)"-->
+  <!--For example: "Slowmotion forward (0.5x)"-->
+  <!--For example: "Slowmotion backward (0.5x)"-->
+  <!--For example: 2x or 0.5x-->
+</resources>

@@ -13,5 +13,6 @@
   <string name="UPnPBackendServer.ModelDescription">MediaPortal 2 szerver - hang, videó és képfájlok szolgáltatása valamint médiaadatbázis funkciók </string>
   <string name="UPnPBackendServer.ModelName">MediaPortal 2 szerver</string>
   <string name="UPnPBackendServer.ModelNumber">1</string>
+  <string name="UPnPBackendServer.ModelUrl">...</string>
   <string name="MediaLibrary.EmptyOrMiscCharGroupName">&lt;Üres vagy egyéb karakter&gt;</string>
 </resources>

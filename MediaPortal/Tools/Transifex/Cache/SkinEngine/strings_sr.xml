@@ -1,0 +1,82 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<resources>
+  <string name="Settings.Appearance.System">Систем</string>
+  <string name="Settings.Appearance.System.Fullscreen">Цео екран</string>
+  <string name="Settings.Appearance.System.Fullscreen.Help">Прикажи МедијаПортал по целом екрану</string>
+  <string name="Settings.Appearance.System.CellPhoneInputStyle">Користи стил мобилног телефона за убацивање података</string>
+  <string name="Settings.Appearance.System.CellPhoneInputStyle.Help">Користи стил Мобилни телефон/СМС за убацивање података</string>
+  <string name="Settings.Appearance.System.ScreenSaverEnabled">Омогући чувара екрана</string>
+  <string name="Settings.Appearance.System.ScreenSaverEnabled.Help">Подеси да ли чувар екрана треба бити приказан</string>
+  <string name="Settings.Appearance.System.ScreenSaverTimeout">Временско трајање чувара екрана</string>
+  <string name="Settings.Appearance.System.ScreenSaverTimeout.Help">Подеси временски оквир у минутама када би требало чувар екрана да се прикаже после задњег уноса корисника</string>
+  <string name="Settings.Appearance.System.Antialiasing">Омекшавање приказа</string>
+  <string name="Settings.Appearance.System.Antialiasing.Help">Омекшавање приказа побољшава приказ али може да умањи брзину приказивања видеа</string>
+  <string name="Settings.Appearance.Skin">Изглед прогрма</string>
+  <string name="Settings.Appearance.Skin.SkinAndTheme">Изглед и тематике изгледа</string>
+  <string name="Settings.Appearance.Skin.SkinAndTheme.ChangeSkin">Изглед приказ</string>
+  <string name="Settings.Appearance.Skin.SkinAndTheme.ChangeSkin.Help">Промени изглед МедијаПортала 2</string>
+  <string name="Settings.Appearance.Skin.SkinAndTheme.ChangeTheme">Промени тематику изгледа</string>
+  <string name="Settings.Appearance.Skin.SkinAndTheme.ChangeTheme.Help">Промени тренутни изглед</string>
+  <string name="Settings.Players">Плејери</string>
+  <string name="Settings.Players.Rendering">Рендеровање</string>
+  <string name="Settings.Players.Rendering.DefaultGeometry">Подразумевано увеличање</string>
+  <string name="Settings.Players.Rendering.DefaultGeometry.Help">Подешава који ће увеличање да буде подразумевано током трајања видеа</string>
+  <string name="Settings.General.System.ApplicationSuspendLevel">Подеси уштеду енергије</string>
+  <string name="Settings.General.System.ApplicationSuspendLevel.Help">Онемогући гашење/суспендовање система уколико је активан МедијаПортал 2</string>
+  <string name="Settings.General.System.ApplicationSuspendLevel.None">Омогући све нивое уштеде енергије</string>
+  <string name="Settings.General.System.ApplicationSuspendLevel.AvoidSuspend">Онемогући суспендовање система али дозволи гашење екрана</string>
+  <string name="Settings.General.System.ApplicationSuspendLevel.DisplayRequired">Онемогући суспендовање система и гашење екрана</string>
+  <string name="ScreenManager.NotificationErrorLoadingSkinTitle">Грешка приликом учитавања изгледа програма</string>
+  <string name="ScreenManager.NotificationErrorLoadingSkinFallingBackToCurrentText">Враћање на текући изглед</string>
+  <string name="ScreenManager.NotificationErrorLoadingSkinFallingBackToDefaultText">Враћање на подразумевани изглед</string>
+  <string name="ScreenManager.ErrorLoadingSkinResource">Грешка приликом учитавања изгледа</string>
+  <string name="ScreenManager.ScreenMissing">Изглед није могуће пронаћи за екран \'{0}\'</string>
+  <string name="ScreenManager.ScreenBroken">Изгледа да је Изглед за екран \'{0}\' оштећен</string>
+  <string name="ScreenManager.BackgroundScreenMissing">Није могуће пронаћи Изглед за екран у позадини \'{0}\'</string>
+  <string name="ScreenManager.BackgroundScreenBroken">Изгледа да је Изглед за екран у позадини \'{0}\' оштећен</string>
+  <string name="ScreenManager.SuperLayerScreenMissing">Није могуће пронаћи Изглед за \"супер слој екран\" \'{0}\'</string>
+  <string name="ScreenManager.SuperLayerScreenBroken">Изгледа да је Изглед за \"супер слој екран\" у позадини \'{0}\' оштећен</string>
+  <string name="Geometries.IntelligentZoom">Паметно увећање</string>
+  <string name="Geometries.LetterBox">4:3</string>
+  <string name="Geometries.Normal">Нормалан</string>
+  <string name="Geometries.Original">Оригиналан</string>
+  <string name="Geometries.PanAndScan">Помери и скенирај</string>
+  <string name="Geometries.Stretch">Развуци</string>
+  <string name="Geometries.Zoom">Увећај</string>
+  <string name="Geometries.Zoom149">ећај 14:9</string>
+  <!--File names (files in shaders/effects, without extension) to effect names to be shown in the GUI-->
+  <string name="Effects.denoise">Уклањање шума на видеу</string>
+  <string name="Effects.directional_blur">Замућивање видеа</string>
+  <string name="Effects.glass_tiles">Поглед кроз наочаре видео</string>
+  <string name="Effects.greyscale">Црно-бели видео</string>
+  <string name="Effects.invert">Изврнути видео</string>
+  <string name="Effects.none">Без видео филтера</string>
+  <string name="Effects.pixelate">Закоцкај слику</string>
+  <string name="Effects.sepia">Тамно-браон видео (Сепиа)</string>
+  <string name="Effects.sharpen">Изоштри видео</string>
+  <string name="Effects.sharpen_complex">Изоштри видео (комплексан)</string>
+  <string name="Effects.zoom_blur">Увећај замућивање</string>
+  <string name="PlayerControl.NoPlayer">Без плејера</string>
+  <string name="PlayerControl.NoMediaItem">Без медије</string>
+  <string name="PlayerControl.UnknownMediaItem">Непозната медија ставка</string>
+  <string name="PlayerControl.UnknownPlayerContextName">Плејер</string>
+  <string name="PlayerControl.HeaderNormal">{0}</string>
+  <!--{0} = media item title-->
+  <string name="PlayerControl.HeaderPiP">{0} Слика у Слици</string>
+  <!--{0} = media item title-->
+  <string name="PlayerControl.Playing">Пуштање је у току</string>
+  <string name="PlayerControl.Paused">Паузирано</string>
+  <string name="PlayerControl.SeekingForward">Тражи напред ({0})</string>
+  <!--For example: "Seeking forward (2x)"-->
+  <string name="PlayerControl.SeekingBackward">Тражи уназад  ({0})</string>
+  <!--For example: "Seeking forward (2x)"-->
+  <string name="PlayerControl.SlowMotionForward">Успорен приказ унапред  ({0})</string>
+  <!--For example: "Slowmotion forward (0.5x)"-->
+  <string name="PlayerControl.SlowMotionBackward">Успорен приказ уназад  ({0})</string>
+  <!--For example: "Slowmotion backward (0.5x)"-->
+  <string name="PlayerControl.PlaybackRateHint"> ({0})x</string>
+  <!--For example: 2x or 0.5x-->
+  <string name="PlayerControl.Stopped">Заустављен</string>
+  <string name="PlayerControl.Ended">Завршен</string>
+  <string name="PlayerControl.Active">Активан</string>
+</resources>

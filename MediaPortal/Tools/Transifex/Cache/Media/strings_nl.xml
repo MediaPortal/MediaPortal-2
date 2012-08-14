@@ -4,7 +4,7 @@
   <string name="Media.BrowseMediaMenuItem">Blader door media</string>
   <string name="Media.LocalMediaMenuItem">Lokale media</string>
   <string name="Media.AudioMenuItem">Audio</string>
-  <string name="Media.VideosMenuItem">Video's</string>
+  <string name="Media.VideosMenuItem">Video\'s</string>
   <string name="Media.SeriesMenuItem">Series</string>
   <string name="Media.MoviesMenuItem">Films</string>
   <string name="Media.ImagesMenuItem">Afbeeldingen</string>
@@ -85,7 +85,7 @@
   <string name="Media.BrowseMediaNavigationHeader">Blader door media navigatie</string>
   <string name="Media.LocalMediaNavigationHeader">Lokale media navigatie</string>
   <string name="Media.MediaItemsHeader">Media-items</string>
-  <string name="Media.VideoItemsHeader">Video's</string>
+  <string name="Media.VideoItemsHeader">Video\'s</string>
   <string name="Media.AudioItemsHeader">Audio items</string>
   <string name="Media.SeriesItemsHeader">Afleveringen</string>
   <string name="Media.MoviesItemsHeader">Films</string>
@@ -112,14 +112,14 @@
   <string name="Media.PlaylistDetailsHeader">Details afspeellijst</string>
   <string name="Media.PlaylistLoadNoPlaylistText">Geen afspeellijst om te laden</string>
   <string name="Media.PlaylistLoadErrorLoadingPlaylist">Fout tijdens het laden van de afspeellijst</string>
-  <string name="Media.CannotSavePlaylistWithLocalMediaItems">Een afspeellijst kan alleen opgeslagen worden als alle media-items werden opgevraagd van de 'home server' (dus niet door de lokale media navigatie).</string>
+  <string name="Media.CannotSavePlaylistWithLocalMediaItems">Een afspeellijst kan alleen opgeslagen worden als alle media-items werden opgevraagd van de \'home server\' (dus niet door de lokale media navigatie).</string>
   <!--View names (names for the view instances)-->
   <string name="Media.BrowseMediaRootViewName">Blader door media</string>
   <string name="Media.LocalMediaRootViewName">Lokale media</string>
   <string name="Media.ClientSharesViewName">Gedeelde mappen op client</string>
   <string name="Media.ServerSharesViewName">Gedeelde mappen op server</string>
   <string name="Media.AudioRootViewName">Audio</string>
-  <string name="Media.VideosRootViewName">Video's</string>
+  <string name="Media.VideosRootViewName">Video\'s</string>
   <string name="Media.SeriesRootViewName">Series</string>
   <string name="Media.ImagesRootViewName">Afbeeldingen</string>
   <string name="Media.SimpleSearchViewName">Eenvoudig zoeken</string>
@@ -158,9 +158,9 @@
   <string name="Media.NoPlaylistsAvailable">- Geen afspeellijsten beschikbaar -</string>
   <string name="Media.NoConfigPlaylistsHomeServerNotConnectedText">De thuisserver is momenteel niet verbonden en de afspeellijsten kunnen op dit moment niet worden beheerd</string>
   <string name="Media.EditNameOfPlaylist">Bewerk de naam van de afspeellijst</string>
-  <string name="Media.SavePlaylistSuccessfulText">Afspeellijst '{0}' is succesvol opgeslagen op de server</string>
-  <string name="Media.SavePlaylistFailedText">De afspeellijst kan niet worden opgeslagen. Foutmelding: '{0}'</string>
-  <string name="Media.SavePlaylistFailedAlreadyExists">De afspeellijst kan niet worden opgeslagen: Afspeellijst '{0}' bestaat al</string>
+  <string name="Media.SavePlaylistSuccessfulText">Afspeellijst \'{0}\' is succesvol opgeslagen op de server</string>
+  <string name="Media.SavePlaylistFailedText">De afspeellijst kan niet worden opgeslagen. Foutmelding: \'{0}\'</string>
+  <string name="Media.SavePlaylistFailedAlreadyExists">De afspeellijst kan niet worden opgeslagen: Afspeellijst \'{0}\' bestaat al</string>
   <string name="Media.ChoosePlaylistsToBeRemovedText">Selecteer de afspeellijsten om te verwijderen</string>
   <string name="Media.PlaylistNameInfoLabel">Naam afspeellijst</string>
   <string name="Media.PlaylistTypeInfoLabel">Type afspeellijst</string>
@@ -220,11 +220,11 @@
   <string name="Media.ShowAudioPlaylistAction">Audio afspeellijst weergeven</string>
   <string name="Media.ShowVideoImagePlaylistAction">Video/afbeelding afspeellijst weergeven</string>
   <string name="Media.ShowPiPPlaylistAction">PiP afspeellijst weergeven</string>
-  <string name="Media.EditPlaylistAction">Afspeellijst bewerken</string>
   <string name="Media.ClearPlaylistAction">Afspeellijst leegmaken</string>
   <string name="Media.SavePlaylistAction">Afspeellijst opslaan</string>
   <string name="Media.SaveCurrentPlaylistAction">Huidige afspeellijst opslaan</string>
   <string name="Media.RemovePlaylistsAction">Afspeellijsten verwijderen</string>
+  <string name="Media.EditPlaylistButton">Afspeellijst bewerken</string>
   <string name="Media.LoadPlaylistButton">Afspeellijst laden</string>
   <string name="Media.PlaylistEmpty">&lt;Geen items in afspeellijst&gt;</string>
   <string name="Media.CannotPlayItemDialogText">Kan media-item niet afspelen</string>

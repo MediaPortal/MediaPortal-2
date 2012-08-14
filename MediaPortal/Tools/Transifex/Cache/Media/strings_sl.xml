@@ -6,6 +6,7 @@
   <string name="Media.AudioMenuItem">Audio</string>
   <string name="Media.VideosMenuItem">Video</string>
   <string name="Media.SeriesMenuItem">Nanizanke</string>
+  <string name="Media.MoviesMenuItem">Filmi</string>
   <string name="Media.ImagesMenuItem">Slike</string>
   <!--Filter titles-->
   <string name="Media.FilterByArtistMenuItem">Omeji po izvajalcu</string>
@@ -15,6 +16,7 @@
   <string name="Media.FilterByActorMenuItem">Omeji po igralcu</string>
   <string name="Media.FilterByVideoGenreMenuItem">Omeji po žanru</string>
   <string name="Media.FilterByVideoYearMenuItem">Omeji po letu</string>
+  <string name="Media.FilterByAudioLanguageMenuItem">Omeji po jeziku</string>
   <string name="Media.FilterByImageSizeMenuItem">Omeji po velikosti</string>
   <string name="Media.FilterByImageYearMenuItem">Omeji po letu</string>
   <string name="Media.FilterBySystemMenuItem">Omeji po sistemu</string>
@@ -45,6 +47,7 @@
   <string name="Media.FilterActorNavbarDisplayLabel">Igralec: {0}</string>
   <string name="Media.FilterVideoGenreNavbarDisplayLabel">Žanr: {0}</string>
   <string name="Media.FilterVideoYearNavbarDisplayLabel">Leto: {0}</string>
+  <string name="Media.FilterAudioLanguagesNavbarDisplayLabel">Jezik: {0}</string>
   <string name="Media.FilterImageSizeNavbarDisplayLabel">Velikost: {0}</string>
   <string name="Media.FilterImageYearNavbarDisplayLabel">Leto: {0}</string>
   <string name="Media.FilterAudioItemsNavbarDisplayLabel">Ime: {0}</string>
@@ -53,12 +56,14 @@
   <string name="Media.FilterSeriesSeasonNavbarDisplayLabel">Sezona {0}</string>
   <string name="Media.FilterImageItemsNavbarDisplayLabel">Ime: {0}</string>
   <string name="Media.FilterSystemNavbarDisplayLabel">Sistem: {0}</string>
+  <string name="Media.FilterMoviesNavbarDisplayLabel">Filmi: {0}</string>
   <!--Display labels for workflow navigation contexts-->
   <string name="Media.BrowseMediaNavigationRootWorkflowNavigationContextDisplayLabel">Preglej vsebine</string>
   <string name="Media.LocalMediaNavigationRootWorkflowNavigationContextDisplayLabel">Lokalne vsebine</string>
   <string name="Media.AudioNavigationRootWorkflowNavigationContextDisplayLabel">Audio knjižnjica</string>
   <string name="Media.VideoNavigationRootWorkflowNavigationContextDisplayLabel">Video knjižnjica</string>
   <string name="Media.SeriesNavigationRootWorkflowNavigationContextDisplayLabel">Knjižnjica nanizank</string>
+  <string name="Media.MoviesNavigationRootWorkflowNavigationContextDisplayLabel">Knjižnjica filmov</string>
   <string name="Media.ImageNavigationRootWorkflowNavigationContextDisplayLabel">Knjižnjica slik</string>
   <string name="Media.VideoCurrentlyPlayingWorkflowStateNavigationContextDisplayLabel">Trenutni film</string>
   <string name="Media.VideoFullscreenContentWorkflowStateNavigationContextDisplayLabel">Celozaslonski viseo</string>
@@ -83,6 +88,7 @@
   <string name="Media.VideoItemsHeader">Filmi</string>
   <string name="Media.AudioItemsHeader">Audio datoteke</string>
   <string name="Media.SeriesItemsHeader">Epizode</string>
+  <string name="Media.MoviesItemsHeader">Filmi</string>
   <string name="Media.ImageItemsHeader">Slike</string>
   <string name="Media.SimpleSearchHeader">Preprosto iskanje</string>
   <string name="Media.ChooseActorHeader">Izberi igralca</string>
@@ -97,6 +103,7 @@
   <string name="Media.ChooseImageYearHeader">Izberi leto</string>
   <string name="Media.ChooseImageSizeHeader">Izberi velikost</string>
   <string name="Media.ChooseSystemHeader">Izberi sistem</string>
+  <string name="Media.ChooseVideoLanguageHeader">Izberi jezik</string>
   <string name="Media.PlaylistsOverviewHeader">Seznami predvajanja</string>
   <string name="Media.SavePlaylistEditNameHeader">Shrani seznam predvajanja</string>
   <string name="Media.SavePlaylistFailedHeader">Shrani seznam predvajanja</string>
@@ -213,11 +220,11 @@
   <string name="Media.ShowAudioPlaylistAction">Prikaži audio seznam predvajanja</string>
   <string name="Media.ShowVideoImagePlaylistAction">Prikaži video / slikovni seznam predvajanja</string>
   <string name="Media.ShowPiPPlaylistAction">Prikaži PiP seznam predvajanja</string>
-  <string name="Media.EditPlaylistAction">Uredi seznam predvajanja</string>
   <string name="Media.ClearPlaylistAction">Izprazni seznam</string>
   <string name="Media.SavePlaylistAction">Shrani seznam</string>
   <string name="Media.SaveCurrentPlaylistAction">Shrani trenutni seznam</string>
   <string name="Media.RemovePlaylistsAction">Odstrani sezname</string>
+  <string name="Media.EditPlaylistButton">Uredi seznam predvajanja</string>
   <string name="Media.LoadPlaylistButton">Naloži seznam</string>
   <string name="Media.PlaylistEmpty">&lt;Seznam predvajanja je prazen&gt;</string>
   <string name="Media.CannotPlayItemDialogText">Ne morem predvajati vsebine</string>

@@ -151,9 +151,9 @@
   <string name="Media.NoPlaylistsAvailable">- Nenhuma lista de reprodução disponível -</string>
   <string name="Media.NoConfigPlaylistsHomeServerNotConnectedText">O servidor local está desconectado, as lista de reprodução não podem ser gerenciadas no momento</string>
   <string name="Media.EditNameOfPlaylist">Alterar o nome da lista de reprodução</string>
-  <string name="Media.SavePlaylistSuccessfulText">A lista de reprodução '{0}' foi salva no servidor com sucesso.</string>
-  <string name="Media.SavePlaylistFailedText">A lista de reprodução não pôde ser salva. Mensagem de erro: '{0}'</string>
-  <string name="Media.SavePlaylistFailedAlreadyExists">A lista de reprodução não pôde ser salva: A lista de reprodução '{0}' já existe</string>
+  <string name="Media.SavePlaylistSuccessfulText">A lista de reprodução \'{0}\' foi salva no servidor com sucesso.</string>
+  <string name="Media.SavePlaylistFailedText">A lista de reprodução não pôde ser salva. Mensagem de erro: \'{0}\'</string>
+  <string name="Media.SavePlaylistFailedAlreadyExists">A lista de reprodução não pôde ser salva: A lista de reprodução \'{0}\' já existe</string>
   <string name="Media.ChoosePlaylistsToBeRemovedText">Escolha a lista de reprodução para remover</string>
   <string name="Media.PlaylistNameInfoLabel">Nome da lista de reprodução</string>
   <string name="Media.PlaylistTypeInfoLabel">Tipo da lista de reprodução</string>
@@ -213,11 +213,11 @@
   <string name="Media.ShowAudioPlaylistAction">Exibir lista de reprodução de áudio</string>
   <string name="Media.ShowVideoImagePlaylistAction">Exibir lista de reprodução de vídeo/imagem</string>
   <string name="Media.ShowPiPPlaylistAction">Exibir lista de reprodução PiP</string>
-  <string name="Media.EditPlaylistAction">Editar lista de reprodução</string>
   <string name="Media.ClearPlaylistAction">Criar lista de reprodução</string>
   <string name="Media.SavePlaylistAction">Salvar lista de reprodução</string>
   <string name="Media.SaveCurrentPlaylistAction">Salvar lista de reprodução atual</string>
   <string name="Media.RemovePlaylistsAction">Remover listas de reprodução</string>
+  <string name="Media.EditPlaylistButton">Editar lista de reprodução</string>
   <string name="Media.LoadPlaylistButton">Carregar lista de reprodução</string>
   <string name="Media.PlaylistEmpty">&lt;Nenhum item na lista de reprodução&gt;</string>
   <string name="Media.CannotPlayItemDialogText">Não foi possível reproduzir o item de mídia</string>

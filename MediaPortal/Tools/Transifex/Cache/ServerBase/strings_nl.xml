@@ -10,7 +10,7 @@
   <string name="UPnPBackendServer.DefaultFriendlyName">MediaPortal 2 server</string>
   <string name="UPnPBackendServer.Manufacturer">Team MediaPortal</string>
   <string name="UPnPBackendServer.ManufacturerUrl">www.team-mediaportal.com</string>
-  <string name="UPnPBackendServer.ModelDescription">MediaPortal 2 server - host audio bestanden, video's en afbeeldingen en levert een mediadatabank</string>
+  <string name="UPnPBackendServer.ModelDescription">MediaPortal 2 server - host audio bestanden, video\'s en afbeeldingen en levert een mediadatabank</string>
   <string name="UPnPBackendServer.ModelName">MediaPortal 2 server</string>
   <string name="UPnPBackendServer.ModelNumber">1</string>
   <string name="UPnPBackendServer.ModelUrl">...</string>

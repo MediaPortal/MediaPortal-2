@@ -1,7 +1,7 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
   <string name="Weather.WeatherStateDisplayLabel">Veður</string>
-  <string name="Weather.WeatherSetupStateDisplayLabel">Uppsetning veðurs</string>
+  <string name="Weather.WeatherSetupStateDisplayLabel">Stillingar fyrir veðrið</string>
   <!--Dialog state, doesn't appear at the UI-->
   <string name="Weather.WeatherLocationStateDisplayLabel">Veldu staðsetningu</string>
   <!--Dialog state, doesn't appear at the UI-->

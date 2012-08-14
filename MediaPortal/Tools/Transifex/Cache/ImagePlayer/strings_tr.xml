@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<resources>
+  <string name="Settings.Players.Image">Resim Oynatıcı</string>
+  <string name="Settings.Players.Image.SlideShowImageDuration">Slayt resim süresi</string>
+  <string name="Settings.Players.Image.SlideShowImageDuration.Help">Slayt gösterimi esnasında her resmin kaç saniye görüntüleneceğini belirler</string>
+  <string name="Settings.Players.Image.KenBurnsEffect">Ken Burns efekti kullan</string>
+</resources>

@@ -2,6 +2,7 @@
 <resources>
   <string name="Configuration.Name">Postavke</string>
   <string name="Configuration.ConfigurationMainWorkflowNavigationContextDisplayLabel">Postavke</string>
+  <string name="Configuration.MainSettings">Glavne postavke</string>
   <!--2nd Header for root configuration section-->
   <!--0 = current value, 1 = lower limit, 2 = upper limit-->
   <!--0 = current value, 1 = lower limit, 2 = upper limit-->

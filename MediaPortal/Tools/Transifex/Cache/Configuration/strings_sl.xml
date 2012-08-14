@@ -5,10 +5,10 @@
   <string name="Configuration.MainSettings">Osnovne nastavitve</string>
   <!--2nd Header for root configuration section-->
   <string name="Configuration.NoSettingsInThisSection">V tem oddelku ni nastavitev</string>
-  <string name="Configuration.ErrorFloatingPointValue">'{0}' ni pravilna številčna vrednost</string>
-  <string name="Configuration.ErrorIntegerValue">'{0}' ni celo število</string>
-  <string name="Configuration.ErrorNumericLowerLimit">Vpiši vrednost med '{1}' in '{2}'</string>
+  <string name="Configuration.ErrorFloatingPointValue">\'{0}\' ni pravilna številčna vrednost</string>
+  <string name="Configuration.ErrorIntegerValue">\'{0}\' ni celo število</string>
+  <string name="Configuration.ErrorNumericLowerLimit">Vpiši vrednost med \'{1}\' in \'{2}\'</string>
   <!--0 = current value, 1 = lower limit, 2 = upper limit-->
-  <string name="Configuration.ErrorNumericUpperLimit">Vpiši vrednost med '{1}' in '{2}'</string>
+  <string name="Configuration.ErrorNumericUpperLimit">Vpiši vrednost med \'{1}\' in \'{2}\'</string>
   <!--0 = current value, 1 = lower limit, 2 = upper limit-->
 </resources>

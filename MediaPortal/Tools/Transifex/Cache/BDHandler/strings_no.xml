@@ -1,5 +1,5 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
-  <string name="Settings.Players.Codecs.VideoCodecs.BDSourceFilter">Bluray kilde filter</string>
-  <string name="Settings.Players.Codecs.VideoCodecs.BDSourceFilter.Help">Velg hvilket filter som skal brukes for Bluray avspilling. For øyeblikket fungerer kun Gabest og LAV filteret</string>
+  <string name="Settings.Players.Codecs.VideoCodecs.BDSourceFilter">Kildefilter for Bluray </string>
+  <string name="Settings.Players.Codecs.VideoCodecs.BDSourceFilter.Help">Velg hvilket filter som skal brukes for avspilling av BluRay. For øyeblikket fungerer kun Gabest og LAV-filteret</string>
 </resources>

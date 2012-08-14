@@ -4,5 +4,5 @@
   <string name="Settings.Players.Image.SlideShowImageDuration">Kuvaesityksen kuvan esitysaika</string>
   <string name="Settings.Players.Image.SlideShowImageDuration.Help">Määrittää ajan sekunteina, kuinka kauan kukin kuva näkyy diaesityksessä</string>
   <string name="Settings.Players.Image.KenBurnsEffect">Käytä Ken Burns-tehostetta</string>
-  <string name="Settings.Players.Image.KenBurnsEffect.Help">Käytä Pan &amp; zoom-animaatiota kuvaa esitettäessä</string>
+  <string name="Settings.Players.Image.KenBurnsEffect.Help"></string>
 </resources>

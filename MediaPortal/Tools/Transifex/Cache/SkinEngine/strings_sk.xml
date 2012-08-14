@@ -4,7 +4,7 @@
   <string name="Settings.Appearance.System.Fullscreen">Celá obrazovka</string>
   <string name="Settings.Appearance.System.Fullscreen.Help">Zobraziť MediaPortal na celej obrazovke</string>
   <string name="Settings.Appearance.System.CellPhoneInputStyle">Klávesnica mobilného telefónu</string>
-  <string name="Settings.Appearance.System.CellPhoneInputStyle.Help">Písať ako SMS na nuemrickej klávesnici telefónu</string>
+  <string name="Settings.Appearance.System.CellPhoneInputStyle.Help">Písať ako SMS na telefóne</string>
   <string name="Settings.Appearance.System.ScreenSaverEnabled">Povoliť šetrič obrazovky</string>
   <string name="Settings.Appearance.System.ScreenSaverEnabled.Help">Nastavenie zobrazovania šetriča</string>
   <string name="Settings.Appearance.System.ScreenSaverTimeout">Počkať pre spustením šetriča</string>
@@ -30,12 +30,12 @@
   <string name="ScreenManager.NotificationErrorLoadingSkinFallingBackToCurrentText">Vraciam sa k aktuálnemu vzhľadu</string>
   <string name="ScreenManager.NotificationErrorLoadingSkinFallingBackToDefaultText">Vraciam sa k predvolenému vzhľadu</string>
   <string name="ScreenManager.ErrorLoadingSkinResource">Chyba načítania vzhľadu</string>
-  <string name="ScreenManager.ScreenMissing">Neviem nájst zdroj pre obrazovku vzhľadu '{0}'</string>
-  <string name="ScreenManager.ScreenBroken">Zdroj pre obrazovku vzhľadu '{0}' je chybný</string>
-  <string name="ScreenManager.BackgroundScreenMissing">Neviem nájsť zdroj pre pozadie obrazovky '{0}'</string>
-  <string name="ScreenManager.BackgroundScreenBroken">Pozadie vzhľadu pre obrazovku '{0}' vyzerá chybne</string>
-  <string name="ScreenManager.SuperLayerScreenMissing">Neviem nájsť zdroj pre super vrstvu obrazovky '{0}'</string>
-  <string name="ScreenManager.SuperLayerScreenBroken">Super vrstva vzhľadu pre obrazovku '{0}' vyzerá chybne</string>
+  <string name="ScreenManager.ScreenMissing">Neviem nájst zdroj pre obrazovku vzhľadu \'{0}\'</string>
+  <string name="ScreenManager.ScreenBroken">Zdroj pre obrazovku vzhľadu \'{0}\' je chybný</string>
+  <string name="ScreenManager.BackgroundScreenMissing">Neviem nájsť zdroj pre pozadie obrazovky \'{0}\'</string>
+  <string name="ScreenManager.BackgroundScreenBroken">Pozadie vzhľadu pre obrazovku \'{0}\' vyzerá chybne</string>
+  <string name="ScreenManager.SuperLayerScreenMissing">Neviem nájsť zdroj pre super vrstvu obrazovky \'{0}\'</string>
+  <string name="ScreenManager.SuperLayerScreenBroken">Super vrstva vzhľadu pre obrazovku \'{0}\' vyzerá chybne</string>
   <string name="Geometries.IntelligentZoom">Inteligentný zoom</string>
   <string name="Geometries.LetterBox">Letterbox 4:3</string>
   <string name="Geometries.Normal">Normálny</string>

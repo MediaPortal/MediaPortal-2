@@ -2,7 +2,7 @@
 <resources>
   <!--Menu items for the five Media navigation parts-->
   <string name="Media.BrowseMediaMenuItem">Utforsk media</string>
-  <string name="Media.LocalMediaMenuItem">Lokal media</string>
+  <string name="Media.LocalMediaMenuItem">Lokalt media</string>
   <string name="Media.AudioMenuItem">Lyd</string>
   <string name="Media.VideosMenuItem">Video</string>
   <string name="Media.SeriesMenuItem">Serier</string>
@@ -19,7 +19,7 @@
   <string name="Media.FilterByAudioLanguageMenuItem">Filtrer etter språk</string>
   <string name="Media.FilterByImageSizeMenuItem">Filtrer etter størrelse</string>
   <string name="Media.FilterByImageYearMenuItem">Filtrer etter år</string>
-  <string name="Media.FilterBySystemMenuItem">Filtrer etter  system</string>
+  <string name="Media.FilterBySystemMenuItem">Filtrer etter system</string>
   <string name="Media.FilterBySeriesNameMenuItem">Filtrer etter serier</string>
   <string name="Media.FilterBySeriesSeasonMenuItem">Filtrer etter sesong</string>
   <string name="Media.FilterBySeriesEpisodeMenuItem">Filtrer etter episode</string>
@@ -32,7 +32,7 @@
   <string name="Media.ImageFilterSmall">Små</string>
   <string name="Media.ImageFilterMedium">Medium</string>
   <string name="Media.ImageFilterBig">Store</string>
-  <string name="Media.SwitchToBrowseMLView">Til server visning</string>
+  <string name="Media.SwitchToBrowseMLView">Til servervisning</string>
   <string name="Media.SwitchToLocalMediaView">Til lokal visning</string>
   <!--Navbar display labels for sub view navigation-->
   <string name="Media.BrowseMediaNavigationNavbarDisplayLabel">{0}</string>
@@ -59,7 +59,7 @@
   <string name="Media.FilterMoviesNavbarDisplayLabel">Filmer: {0}</string>
   <!--Display labels for workflow navigation contexts-->
   <string name="Media.BrowseMediaNavigationRootWorkflowNavigationContextDisplayLabel">Utforsk media</string>
-  <string name="Media.LocalMediaNavigationRootWorkflowNavigationContextDisplayLabel">Lokal media</string>
+  <string name="Media.LocalMediaNavigationRootWorkflowNavigationContextDisplayLabel">Lokalt media</string>
   <string name="Media.AudioNavigationRootWorkflowNavigationContextDisplayLabel">Lydbibliotek</string>
   <string name="Media.VideoNavigationRootWorkflowNavigationContextDisplayLabel">Videobibliotek</string>
   <string name="Media.SeriesNavigationRootWorkflowNavigationContextDisplayLabel">Seriebibliotek</string>
@@ -80,13 +80,13 @@
   <string name="Media.PlayOrEnqueueItemsWorkflowStateNavigationContextDisplayLabel">Spill/legg til elementer</string>
   <string name="Media.CheckQueryPlayActionSingleItemWorkflowStateNavigationContextDisplayLabel">Spill</string>
   <string name="Media.CheckQueryPlayActionMultipleItemsWorkflowStateNavigationContextDisplayLabel">Spill</string>
-  <string name="Media.CheckQueryPlayActionMultipleItemsChooseMediaTypeWorkflowStateNavigationContextDisplayLabel">Velg media type</string>
+  <string name="Media.CheckQueryPlayActionMultipleItemsChooseMediaTypeWorkflowStateNavigationContextDisplayLabel">Velg mediatype</string>
   <!--Screen headers-->
-  <string name="Media.BrowseMediaNavigationHeader">Utforsk media enheter</string>
-  <string name="Media.LocalMediaNavigationHeader">Lokale media enheter</string>
-  <string name="Media.MediaItemsHeader">Media elementer</string>
+  <string name="Media.BrowseMediaNavigationHeader">Utforsk mediaenheter</string>
+  <string name="Media.LocalMediaNavigationHeader">Lokale mediaenheter</string>
+  <string name="Media.MediaItemsHeader">Mediaelementer</string>
   <string name="Media.VideoItemsHeader">Videoer</string>
-  <string name="Media.AudioItemsHeader">Lyd elementer</string>
+  <string name="Media.AudioItemsHeader">Lydelementer</string>
   <string name="Media.SeriesItemsHeader">Episoder</string>
   <string name="Media.MoviesItemsHeader">Filmer</string>
   <string name="Media.ImageItemsHeader">Bilder</string>
@@ -96,7 +96,7 @@
   <string name="Media.ChooseVideoYearHeader">Velg et årstall</string>
   <string name="Media.ChooseSeriesHeader">Velg en serie</string>
   <string name="Media.ChooseSeasonHeader">Velg en sesong</string>
-  <string name="Media.ChooseAudioDecadeHeader">Velg ti-år</string>
+  <string name="Media.ChooseAudioDecadeHeader">Velg tiår</string>
   <string name="Media.ChooseAlbumHeader">Velg et album</string>
   <string name="Media.ChooseArtistHeader">Velg en artist</string>
   <string name="Media.ChooseAudioGenreHeader">Velg en sjanger</string>
@@ -112,10 +112,10 @@
   <string name="Media.PlaylistDetailsHeader">Spillelistens detaljer</string>
   <string name="Media.PlaylistLoadNoPlaylistText">Ingen spilleliste lastet</string>
   <string name="Media.PlaylistLoadErrorLoadingPlaylist">Feil ved innlasting av spilleliste</string>
-  <string name="Media.CannotSavePlaylistWithLocalMediaItems">En spilleliste kan bare lagres dersom alle media elementer er hentet fra hjemme serveren(og ikke fra ikke-tilkoblede media enheter).</string>
+  <string name="Media.CannotSavePlaylistWithLocalMediaItems">En spilleliste kan bare lagres dersom alle mediaelementer er hentet fra hjemmeserveren (og ikke fra frakoblede mediaenheter).</string>
   <!--View names (names for the view instances)-->
   <string name="Media.BrowseMediaRootViewName">Utforsk media</string>
-  <string name="Media.LocalMediaRootViewName">Lokal media</string>
+  <string name="Media.LocalMediaRootViewName">Lokalt media</string>
   <string name="Media.ClientSharesViewName">Klientens delte ressurser</string>
   <string name="Media.ServerSharesViewName">Serverens delte ressurser</string>
   <string name="Media.AudioRootViewName">Lyd</string>
@@ -138,7 +138,7 @@
   <!--Shown in the header of an items list, e.g. "45 items"-->
   <string name="Media.MoreThanMaxItemsHint">Denne visningen inneholder mer en {0} elementer. Vennligst legg til flere filter for å begrense antallet.</string>
   <string name="Media.MoreThanMaxItemsBrowseHint">Denne visningen inneholder mer en {0} elementer.</string>
-  <string name="Media.MoreThanMaxItemsSearchResultHint">Dette søke resultatet inneholder mer en {0} elementer. Vennligst spesifiser søket.</string>
+  <string name="Media.MoreThanMaxItemsSearchResultHint">Dette søkeresultatet inneholder mer en {0} elementer. Vennligst spesifiser søket.</string>
   <string name="Media.ListIsBeingBuiltHint">Listen over elementer bygges...</string>
   <string name="Media.SearchResultIsBeingBuiltHint">Søker...</string>
   <!--Playlists-->
@@ -147,20 +147,20 @@
   <string name="Media.NoItemsToAddHeader">Ingen elementer å legge til</string>
   <string name="Media.NoItemsToAddText">Det er ingen elementer i gjeldende visning</string>
   <string name="Media.ChooseAVTypeDialogHeader">Velg type elementer</string>
-  <string name="Media.AddAllAudio">Legg til lyd elementer</string>
-  <string name="Media.AddAllVideo">Legg til video elementer</string>
-  <string name="Media.AddAllImages">Legg til bilde elementer</string>
-  <string name="Media.AddAllVideosAndImages">Legg til vide og bilde elementer</string>
+  <string name="Media.AddAllAudio">Legg til lydelementer</string>
+  <string name="Media.AddAllVideo">Legg til videoelementer</string>
+  <string name="Media.AddAllImages">Legg til bildeelementer</string>
+  <string name="Media.AddAllVideosAndImages">Legg til video- og bildeelementer</string>
   <string name="Media.AddToPlaylistProgressDialogHeader">Fremgang</string>
   <string name="Media.AddToPlaylistProgressText">Legger til elementer i spillelisten...</string>
   <string name="Media.NItemsAdded">{0} elementer lagt til</string>
   <string name="Media.StopAddToPlaylistButton">Stopp</string>
   <string name="Media.NoPlaylistsAvailable">-Ingen spilleliste tilgjengelig-</string>
-  <string name="Media.NoConfigPlaylistsHomeServerNotConnectedText">Hjemme serveren er ikke tilkoblet, så spilleliste kan ikke behandles i øyeblikket</string>
+  <string name="Media.NoConfigPlaylistsHomeServerNotConnectedText">Hjemmeserveren er ikke tilkoblet, så spilleliste kan ikke behandles i øyeblikket</string>
   <string name="Media.EditNameOfPlaylist">Redigere spillelistens navn</string>
-  <string name="Media.SavePlaylistSuccessfulText">Spilleliste '{0}' ble lagret på serveren.</string>
-  <string name="Media.SavePlaylistFailedText">Spillelisten kunne ikke lagres. Feil melding: '{0}'</string>
-  <string name="Media.SavePlaylistFailedAlreadyExists">Spillelisten kunne ikke lagres: Spilleliste '{0}' eksisterer allerede</string>
+  <string name="Media.SavePlaylistSuccessfulText">Spilleliste \'{0}\' ble lagret på serveren.</string>
+  <string name="Media.SavePlaylistFailedText">Spillelisten kunne ikke lagres. Feil melding: \'{0}\'</string>
+  <string name="Media.SavePlaylistFailedAlreadyExists">Spillelisten kunne ikke lagres: Spilleliste \'{0}\' eksisterer allerede</string>
   <string name="Media.ChoosePlaylistsToBeRemovedText">Velg spillelisten som skal fjernes</string>
   <string name="Media.PlaylistNameInfoLabel">Spillelistens navn</string>
   <string name="Media.PlaylistTypeInfoLabel">Type spilleliste</string>
@@ -168,25 +168,25 @@
   <string name="Media.PlaylistIdInfoLabel">Intern spilleliste-id</string>
   <!--Play items dialog-->
   <string name="Media.PlayItemDialogHeader">Spill element</string>
-  <string name="Media.PlayAudioItems">Spill av lyd elementer</string>
-  <string name="Media.EnqueueAudioItems">Legg til lyd elementer</string>
-  <string name="Media.MuteVideoAndPlayAudioItems">Spill av lyd elementer samtidig</string>
-  <string name="Media.PlayVideoImageItems">Spill av video/bilde elementer</string>
-  <string name="Media.EnqueueVideoImageItems">Legg til video/bilde elementer</string>
-  <string name="Media.PlayVideoImageItemsMutedConcurrentAudio">Spill av video/bilde elementer i bakgrunnen &amp; fortsett med lyd elementer samtidig</string>
-  <string name="Media.PlayVideoImageItemsPiP">Spill av video/bilde elementer i PiP modus</string>
-  <string name="Media.PlayAudioItem">Spill av lyd elementer</string>
-  <string name="Media.EnqueueAudioItem">Legg til lyd elementer</string>
-  <string name="Media.MuteVideoAndPlayAudioItem">Spill av lyd elementer samtidig</string>
-  <string name="Media.PlayVideoImageItem">Spill av video/bilde elementer</string>
+  <string name="Media.PlayAudioItems">Spill av lydelementer</string>
+  <string name="Media.EnqueueAudioItems">Legg til lydelementer</string>
+  <string name="Media.MuteVideoAndPlayAudioItems">Spill av lydelementer samtidig</string>
+  <string name="Media.PlayVideoImageItems">Spill av video/bilde-elementer</string>
+  <string name="Media.EnqueueVideoImageItems">Legg til video/bilde-elementer</string>
+  <string name="Media.PlayVideoImageItemsMutedConcurrentAudio">Spill av video/bilde-elementer i bakgrunnen &amp; fortsett med lydelementer samtidig</string>
+  <string name="Media.PlayVideoImageItemsPiP">Spill av video/bilde-elementer i PiP-modus</string>
+  <string name="Media.PlayAudioItem">Spill av lydelementer</string>
+  <string name="Media.EnqueueAudioItem">Legg til lydelementer</string>
+  <string name="Media.MuteVideoAndPlayAudioItem">Spill av lydelementer samtidig</string>
+  <string name="Media.PlayVideoImageItem">Spill av video/bilde-elementer</string>
   <string name="Media.EnqueueVideoImageItem">Gjeldende video</string>
-  <string name="Media.PlayVideoImageItemMutedConcurrentAudio">Spill av video/bilde elementer i bakgrunnen &amp; fortsett med lyd elementer santidig</string>
-  <string name="Media.PlayVideoImageItemPiP">Spill av video/bilde elementer i PiP modus</string>
+  <string name="Media.PlayVideoImageItemMutedConcurrentAudio">Spill av video/bilde-elementer i bakgrunnen &amp; fortsett med lydelementer santidig</string>
+  <string name="Media.PlayVideoImageItemPiP">Spill av video/bilde-elementer i PiP modus</string>
   <!--Player context names-->
   <string name="Media.VideoImageContextName">Video/Bilde</string>
   <string name="Media.AudioContextName">Lyd</string>
   <!--Video currently playing-->
-  <string name="Media.VideoCurrentlyPlayingHeader">Gjeldende video informasjon</string>
+  <string name="Media.VideoCurrentlyPlayingHeader">Gjeldende videoinformasjon</string>
   <string name="Media.VideoTitleLabel">Tittel:</string>
   <string name="Media.VideoGenreLabel">Sjanger:</string>
   <string name="Media.VideoYearLabel">År:</string>
@@ -194,41 +194,41 @@
   <string name="Media.VideoActorsLabel">Skuespiller(e): </string>
   <string name="Media.VideoStoryPlotLabel">Handling:</string>
   <!--Image currently playing-->
-  <string name="Media.ImageCurrentlyPlayingHeader">Gjeldende bilde informasjon</string>
+  <string name="Media.ImageCurrentlyPlayingHeader">Gjeldende bildeinformasjon</string>
   <string name="Media.ImageTitleLabel">Navn:</string>
   <string name="Media.ImageDimensions">Dimensjoner:</string>
-  <string name="Media.CameraMake">Kamera type:</string>
-  <string name="Media.CameraModel">Kamera model:</string>
-  <string name="Media.ImageISOSpeedLabel">ISO hastighet:</string>
-  <string name="Media.ImageFNumberLabel">F Nummer:</string>
-  <string name="Media.ImageShutterSpeedLabel">Lukker hastighet:</string>
+  <string name="Media.CameraMake">Kameratype:</string>
+  <string name="Media.CameraModel">Kameramodell:</string>
+  <string name="Media.ImageISOSpeedLabel">ISO-hastighet:</string>
+  <string name="Media.ImageFNumberLabel">Blender:</string>
+  <string name="Media.ImageShutterSpeedLabel">Lukkerhastighet:</string>
   <string name="Media.ImageMeteringModeLabel">Målemetode:</string>
   <string name="Media.ImageExposureTimeLabel">Eksponeringstid:</string>
   <!--DVD currently playing-->
-  <string name="Media.DVDCurrentlyPlayingHeader">Gjeldende DVD informasjon</string>
+  <string name="Media.DVDCurrentlyPlayingHeader">Gjeldende DVD-informasjon</string>
   <!--Audio currently playing-->
-  <string name="Media.AudioCurrentlyPlayingHeader">Gjeldende lyd informasjon</string>
+  <string name="Media.AudioCurrentlyPlayingHeader">Gjeldende lydinformasjon</string>
   <string name="Media.AudioArtistsLabel">Artist:</string>
   <string name="Media.AudioTitleLabel">Tittel:</string>
   <string name="Media.AudioYearLabel">År:</string>
   <string name="Media.AudioDurationLabel">Varighet:</string>
   <string name="Media.AudioPlaylistHeader">Lyd-spilleliste</string>
-  <string name="Media.VideoImagePlaylistHeader">Video/bilde -spilleliste</string>
+  <string name="Media.VideoImagePlaylistHeader">Video/bilde-spilleliste</string>
   <string name="Media.PiPPlaylistHeader">PiP-spilleliste</string>
   <string name="Media.SavePLAtServer">Lagre på serveren</string>
   <string name="Media.SavePLLocally">Lagre lokalt</string>
   <string name="Media.ShowAudioPlaylistAction">Vis spilleliste for lyd</string>
-  <string name="Media.ShowVideoImagePlaylistAction">Vis video/bilde -spilleliste</string>
+  <string name="Media.ShowVideoImagePlaylistAction">Vis video/bilde-spilleliste</string>
   <string name="Media.ShowPiPPlaylistAction">Vis PiP-spilleliste</string>
-  <string name="Media.EditPlaylistAction">Rediger spilleliste</string>
   <string name="Media.ClearPlaylistAction">Nullstill spilleliste</string>
   <string name="Media.SavePlaylistAction">Lagre spilleliste</string>
   <string name="Media.SaveCurrentPlaylistAction">Lagre gjeldende spilleliste</string>
   <string name="Media.RemovePlaylistsAction">Fjern spilleliste</string>
+  <string name="Media.EditPlaylistButton">Rediger spilleliste</string>
   <string name="Media.LoadPlaylistButton">Hent spilleliste</string>
   <string name="Media.PlaylistEmpty">&lt;Ingen elementer i spillelisten&gt;</string>
-  <string name="Media.CannotPlayItemDialogText">Kan ikke spille av media elementet</string>
-  <string name="Media.CannotPlayItemsDialogText">Kan ikke spille av media elementer</string>
+  <string name="Media.CannotPlayItemDialogText">Kan ikke spille av mediaelementet</string>
+  <string name="Media.CannotPlayItemsDialogText">Kan ikke spille av mediaelementer</string>
   <string name="Media.ValueEmptyTitle">&lt;Tom&gt;</string>
   <!--VideoPlayerUIContributor-->
   <string name="Media.SubtitleOff">Slå av undertekst</string>
@@ -242,8 +242,8 @@
   <string name="Media.Start">Start</string>
   <string name="Media.End">Slutt</string>
   <string name="Media.DontSkip">Ikke hopp over</string>
-  <string name="Media.SwitchViewModeMenuItem">Visning modus</string>
-  <string name="Media.SwitchViewModeDialogTitle">Velg modus for visning</string>
+  <string name="Media.SwitchViewModeMenuItem">Visningsmodus</string>
+  <string name="Media.SwitchViewModeDialogTitle">Velg visningsmodus</string>
   <string name="Media.SmallList">Liten liste</string>
   <string name="Media.MediumList">Medium liste</string>
   <string name="Media.LargeList">Stor liste</string>
@@ -269,10 +269,10 @@
   <string name="Settings.Players">Avspillere</string>
   <string name="Settings.Players.ClosePlayersWhenFinished">Lukk spilleren når den er ferdig</string>
   <string name="Settings.Players.ClosePlayersWhenFinished.Help">Velg denne innstillingen for at MediaPortal skal lukke spilleren automatisk</string>
-  <string name="Settings.Players.InstantSkipPercent">Øyeblikkelig skipp prosent</string>
+  <string name="Settings.Players.InstantSkipPercent">Øyeblikkelig skipprosent</string>
   <string name="Settings.Players.InstantSkipPercent.Help">Velg hvor mange prosent videoen i varighet skal hoppe ved øyeblikkelig skipp</string>
-  <string name="Settings.Players.SkipStepTimeout">Ventetid i sekunder for skipp steg</string>
-  <string name="Settings.Players.SkipStepTimeout.Help">Still inn ventetid for brukerinngrep før skipp steg blir utført</string>
-  <string name="Settings.Players.SkipStepList">Av-spiller skipp steg</string>
-  <string name="Settings.Players.SkipStepList.Help">Legg inn skipp steg i sekunder separert med ,</string>
+  <string name="Settings.Players.SkipStepTimeout">Ventetid i sekunder for skippsteg</string>
+  <string name="Settings.Players.SkipStepTimeout.Help">Still inn ventetid for brukerinngrep før skippsteg blir utført</string>
+  <string name="Settings.Players.SkipStepList">Avspiller skippsteg</string>
+  <string name="Settings.Players.SkipStepList.Help">Legg inn skippsteg i sekunder separert med ,</string>
 </resources>

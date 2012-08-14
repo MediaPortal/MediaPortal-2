@@ -28,6 +28,7 @@
   <string name="Media.MyPictures">Ljósmyndir</string>
   <string name="Media.InvalidShareName">Ógild deiling</string>
   <string name="ServerConnection.NotificationServerAvailableTitle">MP2 þjónn tiltækur</string>
+  <string name="ServerConnection.NotificationServerAvailableText">Það er allavega einn MediaPortal miðlari á netkerfinu.  Tengist honum til að alla þá möguleika sem MediaPortal 2 býður uppá.</string>
   <!--{0} = server name, {1} = host name-->
   <string name="ServerConnection.UnknownServerName">&lt;Óþekkt&gt;</string>
   <string name="ServerConnection.UnknownServerSystem">&lt;Óþekkt&gt;</string>
@@ -57,15 +58,15 @@
   <string name="Notifications.NMoreNotifications">({0} í viðbót)</string>
   <string name="Notifications.WatchNotificationsWorkflowStateLabel">Tilkynningar</string>
   <string name="ImporterMessages.ImportStartedTitle">Innflutningur hafinn</string>
-  <string name="ImporterMessages.ImportStartedText">Innflutningur á '{0}' er hafinn.</string>
+  <string name="ImporterMessages.ImportStartedText">Innflutningur á \'{0}\' er hafinn.</string>
   <string name="ImporterMessages.ImportCompletedTitle">Innflutningi lokið</string>
-  <string name="ImporterMessages.ImportCompletedText">Innflutningur á '{0}' r lokið.</string>
+  <string name="ImporterMessages.ImportCompletedText">Innflutningur á \'{0}\' r lokið.</string>
   <string name="ScreenSaver.MediaPortal2">MediaPortal 2</string>
   <!--For MP UI player subsystem-->
   <string name="Players.NoPlayerAvailableNotificationTitle">Enginn spilari</string>
-  <string name="Players.NoPlayerAvailableNotificationText">Það er er enginn spilari skilgreindur til að spila '{0}'</string>
+  <string name="Players.NoPlayerAvailableNotificationText">Það er er enginn spilari skilgreindur til að spila \'{0}\'</string>
   <string name="Players.ErrorPlayingMediaItemTitle">Villa við að spila skrá</string>
-  <string name="Players.UnableToPlayMediaItemText">Get ekki spilað miðilsskrá '{0}'</string>
+  <string name="Players.UnableToPlayMediaItemText">Get ekki spilað miðilsskrá \'{0}\'</string>
   <string name="Players.PlayerConfiguration">Uppsetning spilara</string>
   <string name="Players.CurrentMediaInfo">Upplýsingar um miðilsskrá</string>
   <!--for example "Fullscreen TV"-->
@@ -76,11 +77,13 @@
   <!--for example "Focus video player"-->
   <string name="Players.SwitchPipPlayers">Víxlun á MíM spilara</string>
   <string name="Players.ChooseAudioStream">Veljið hljóðstraum</string>
+  <string name="Players.PlayerSlotAudioMenu">Valmynd fyrir {0}</string>
   <!--for example "Audio menu for Lammbock"-->
   <string name="Players.Mute">Hljóðlaust</string>
   <string name="Players.MuteOff">Hljóðlaust af</string>
   <string name="Players.ClosePlayerContext">Loka {0}</string>
   <!--for example "Close video player"-->
+  <string name="Players.ChoosePlayerGeometry">Stækkun</string>
   <string name="Settings.Appearance">Ásýnd</string>
   <string name="Settings.Appearance.Skin">Útlit</string>
   <string name="Settings.Appearance.Skin.Formats.DateFormat">Dagsetningarsnið</string>
@@ -112,10 +115,13 @@
   <!--Group name-->
   <string name="Settings.Shares.Overview.SharesOverview">Yfirlit deilinga</string>
   <!--Setting-->
+  <string name="Settings.Shares.Imports.ReImportAllShares">Endurinnflutningur á öllum deilingum</string>
   <string name="Settings.Plugins">Viðbætur</string>
   <string name="SharesOverview.OverviewWorkflowNavigationContextDisplayLabel">Yfirlit deilinga</string>
   <string name="SharesOverview.Title">Yfirlit deilinga</string>
-  <string name="Shares.InvalidPath">Ógild slóð: '{0}'</string>
+  <string name="SharesOverview.ReImportAllShares">Endurinnflutningur á öllum deilingum</string>
+  <string name="Shares.NoSharesInThisView">- Engin deiling í þessu útliti -</string>
+  <string name="Shares.InvalidPath">Ógild slóð: \'{0}\'</string>
   <!--For example: INVALID PATH: 'C:\XXX\YYY'-->
   <string name="Shares.Online">Tengdur</string>
   <string name="Shares.Offline">Ótengdur</string>
@@ -137,21 +143,30 @@
   <string name="SharesConfig.ShareNameInfo">Nafn:</string>
   <string name="SharesConfig.ShareSystem">Kerfi:</string>
   <string name="SharesConfig.SharePathInfo">Slóð:</string>
+  <string name="SharesConfig.ShareMediaCategoriesInfo">Flokkar miðlaskráa:</string>
+  <string name="SharesConfig.SetupDefaultShares">Skilgreining á sjálfgefinni deilingu</string>
   <string name="SharesConfig.RemoveShares">Fjarlægja deilingu</string>
   <string name="SharesConfig.EditShare">Breya deilingu</string>
   <string name="SharesConfig.ChooseSystem">Veljið kerfi</string>
   <string name="SharesConfig.ChooseSharesToBeRemoved">Vinsamlegast veljið deilingu sem á að fjarlægja</string>
+  <string name="SharesConfig.ChooseSystemForShare">Veljið kerfið fyrir nýja deilingu</string>
   <string name="SharesConfig.LocalShare">Staðbundin deiling</string>
   <string name="SharesConfig.LocalShares">Staðbundnar deilingar</string>
   <string name="SharesConfig.EditResourceProviderPathForShare">Breytið möppunni sem á að deila</string>
   <string name="SharesConfig.ChooseResourceProviderPathForShare">Veljið möppu fyrir deilingu</string>
+  <string name="SharesConfig.EditShareName">Breytið heiti deilingar</string>
+  <string name="SharesConfig.SharePathExists">Deiling með þessari möppu er til</string>
+  <string name="SharesConfig.ShareNameExists">Deiling með þessu heiti er til</string>
+  <string name="SharesConfig.ShareNameEmpty">Breytið heiti á deilingu</string>
   <string name="SharesConfig.MenuAddShare">Bæta við deilingu</string>
   <string name="SharesConfig.MenuEditShares">Breyta</string>
   <string name="SharesConfig.MenuRemoveShares">Eyða deilingum</string>
   <!--Must fit for both multiseat and singleseat, that's why we don't write "server share"-->
   <!--Must fit for both multiseat and singleseat, that's why we don't write "server share"-->
   <string name="SharesConfig.AddLocalShare">Bæta við staðbundinni deilingu</string>
+  <string name="SharesConfig.EditLocalShare">Breyta staðbundinni deilingu</string>
   <string name="SharesConfig.UpdateShareRelocateItemsQueryDialogHeader">Uppfæra deilingu</string>
+  <string name="SharesConfig.Relocate">Endurstaðsetja</string>
   <string name="SharesConfig.ReImport">Endurinnflutningur</string>
   <string name="UPnPFrontendServer.DefaultFriendlyName">MediaPortal 2 biðlari</string>
   <string name="UPnPFrontendServer.Manufacturer">Team Mediaportal</string>
