@@ -30,6 +30,7 @@ namespace MediaPortal.Common.MediaManagement.DefaultItemAspects
   /// Contains the metadata specification of the "Movie" media item aspect which is assigned to movie media items. It is a specialized type of the general
   /// <see cref="VideoAspect"/> for movies, that can be looked up by online libraries like TMDB, IMDB, OFDB...
   /// </summary>
+  /// TODO: Improve documentation for attributes. Is it related to some internet service? What is the meaning of the value? Where is the source of the values?
   public static class MovieAspect
   {
     /// <summary>
