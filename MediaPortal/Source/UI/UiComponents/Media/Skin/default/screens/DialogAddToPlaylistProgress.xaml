@@ -9,16 +9,15 @@
     <!-- Dialog title -->
     <ResourceWrapper x:Key="Dialog_Header_Text" Resource="[Media.AddToPlaylistProgressDialogHeader]"/>
 
-    <!-- PlayItemsModel -->
-    <Model x:Key="Model" Id="3750D3FE-CA2A-4c8a-97B3-A08EF305C084"/>
+    <Model x:Key="PlayItemsModel" Id="3750D3FE-CA2A-4c8a-97B3-A08EF305C084"/>
 
     <!-- Contents -->
     <ControlTemplate x:Key="Contents_Template">
-      <StackPanel Margin="20" DataContext="{Binding Source={StaticResource Model}}">
+      <StackPanel Margin="20" DataContext="{Binding Source={StaticResource PlayItemsModel}}">
         <Label Content="[Media.AddToPlaylistProgressText]" Color="{ThemeResource TextColor}"/>
         <Label Margin="20" Content="{Binding NumItemsAddedToPlaylistText}" Color="{ThemeResource TextColor}" HorizontalAlignment="Center"/>
         <Button Style="{ThemeResource DialogButtonStyle}" Content="[Media.StopAddToPlaylistButton]"
-            Command="{Command Source={StaticResource Model},Path=StopAddToPlaylist}"/>
+            Command="{Command StopAddToPlaylist}"/>
       </StackPanel>
     </ControlTemplate>
 
