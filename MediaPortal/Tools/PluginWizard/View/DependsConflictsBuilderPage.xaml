@@ -3,14 +3,15 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:e="clr-namespace:MP2_PluginWizard.Extensions"
              xmlns:View="clr-namespace:MP2_PluginWizard.View" 
              mc:Ignorable="d" 
              d:DesignHeight="300" d:DesignWidth="340">
     <DockPanel>
         <Border DockPanel.Dock="Top" Margin="10">
             <StackPanel>
-                <Label Style="{StaticResource HeaderLabelStyle}" Content="DependsOn and ConflictsWith Data" />
-                <Label Style="{StaticResource SubHeaderLabelStyle}" Content="-> hit Next when you are done " />
+                <Label Style="{StaticResource HeaderLabelStyle}" Content="{e:Loc [DependsConflictsBuilderPage.Header]}" />
+                <Label Style="{StaticResource SubHeaderLabelStyle}" Content="{e:Loc [DependsConflictsBuilderPage.SubHeader]}" />
             </StackPanel>
         </Border>
         <Grid Margin="10">
@@ -24,7 +25,7 @@
                 <ColumnDefinition Width="*" />
             </Grid.ColumnDefinitions>
 
-            <Label Grid.Row="0" Grid.Column="0" Style="{StaticResource LabelStyle}" Content="Depends On:"/>
+            <Label Grid.Row="0" Grid.Column="0" Style="{StaticResource LabelStyle}" Content="{e:Loc [DependsConflictsBuilderPage.DependsOn]}"/>
             <Grid Grid.Row="0" Grid.Column="1">
                 <Grid.RowDefinitions>
                     <RowDefinition Height="Auto" />
@@ -71,7 +72,7 @@
                 </ListView>
             </Grid>
 
-            <Label Grid.Row="1" Grid.Column="0" Style="{StaticResource LabelStyle}" Content="Conflicts with:" />
+            <Label Grid.Row="1" Grid.Column="0" Style="{StaticResource LabelStyle}" Content="{e:Loc [DependsConflictsBuilderPage.ConflictsWith]}" />
             <Grid Grid.Row="1" Grid.Column="1">
                 <Grid.RowDefinitions>
                     <RowDefinition Height="Auto" />
@@ -118,7 +119,7 @@
                 </ListView>
             </Grid>
 
-            <Label Grid.Row="2" Grid.Column="0" Style="{StaticResource LabelStyle}" Content="Builders:"/>
+            <Label Grid.Row="2" Grid.Column="0" Style="{StaticResource LabelStyle}" Content="{e:Loc [DependsConflictsBuilderPage.Builders]}"/>
             <Grid Grid.Row="2" Grid.Column="1">
                 <Grid.RowDefinitions>
                     <RowDefinition Height="Auto" />
@@ -132,10 +133,10 @@
                     <ColumnDefinition Width="Auto" />
                 </Grid.ColumnDefinitions>
                 
-                <Label Grid.Row="0" Grid.Column="0" Style="{StaticResource LabelStyle}" Content="Name: "/>
+                <Label Grid.Row="0" Grid.Column="0" Style="{StaticResource LabelStyle}" Content="{e:Loc [DependsConflictsBuilderPage.BuildersName]}"/>
                 <TextBox Grid.Row="0" Grid.Column="1" Style="{StaticResource TextBoxStyle}" Text="{Binding Path=NewBuilderName}" />
                 
-                <Label Grid.Row="0" Grid.Column="2" Style="{StaticResource LabelStyle}" Content="Class: "/>
+                <Label Grid.Row="0" Grid.Column="2" Style="{StaticResource LabelStyle}" Content="{e:Loc [DependsConflictsBuilderPage.BuildersClass]}"/>
                 <TextBox Grid.Row="0" Grid.Column="3" Style="{StaticResource TextBoxStyle}" Text="{Binding Path=NewBuilderClassName}" />
                                 
                 <Button Grid.Row="0" Grid.Column="4" Margin="3,0,0,0" Command="{Binding AddBuildersCommand}" 

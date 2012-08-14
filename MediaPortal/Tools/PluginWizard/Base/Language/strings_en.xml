@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+  <string name="WizardButton.Next">Next</string>
+  <string name="WizardButton.Previous">Prev</string>
+  <string name="WizardButton.Cancel">Cancel</string>
+  <string name="WizardButton.Finish">Finish</string>
+  <string name="WizardButton.Help">Help</string>
+
+  <string name="WelcomePage.Header">Welcome to the MP2 Plugin Wizard</string>
+  <string name="WelcomePage.SubHeader">This wizard will guide You (...)</string>
+  <string name="WelcomePage.CheckHeader">Check of basic information:</string>
+  <string name="WelcomePage.CheckMp2Info">-> MediaPortal2 plugin information's available</string>
+  <string name="WelcomePage.DirHeader">Select your plugin.xml directory</string>
+  <string name="WelcomePage.TypeHeader">Select Type:</string>
+  <string name="WelcomePage.TypePluginOnly">plugin.xml</string>
+  <string name="WelcomePage.TypePluginMeta">plugin.xml + MetadataExtractor project files</string>
+  <string name="WelcomePage.TypePluginRes">plugin.xml + ResourceProvider project files</string>
+  <string name="WelcomePage.TypePluginGui">plugin.xml + GUI project files</string>
+  
+  <string name="BasicPluginDataPage.Header">Basic Plugin Data</string>
+  <string name="BasicPluginDataPage.SubHeader">-> hit Next when you are done</string>
+  <string name="BasicPluginDataPage.Name">Plugin Name</string>
+  <string name="BasicPluginDataPage.Id">Plugin ID</string>
+  <string name="BasicPluginDataPage.Author">Author</string>
+  <string name="BasicPluginDataPage.Description">Description</string>
+  <string name="BasicPluginDataPage.AutoActivate">Auto Activate</string>
+  <string name="BasicPluginDataPage.Version">Plugin Version</string>
+  <string name="BasicPluginDataPage.Copyright">Copyright</string>
+  <string name="BasicPluginDataPage.StateTrackerClassName">StateTracker ClassName</string>	
+  <string name="BasicPluginDataPage.Runtime">Runtime</string>
+  
+  <string name="DependsConflictsBuilderPage.Header">DependsOn, ConflictsWith and Builder Data</string>
+  <string name="DependsConflictsBuilderPage.SubHeader">-> hit Next when you are done</string>
+  <string name="DependsConflictsBuilderPage.DependsOn">Depends on:</string>
+  <string name="DependsConflictsBuilderPage.ConflictsWith">Conflicts with:</string>
+  <string name="DependsConflictsBuilderPage.Builders">Builders:</string>
+  <string name="DependsConflictsBuilderPage.BuildersName">Name: </string>
+  <string name="DependsConflictsBuilderPage.BuildersClass">Class: </string>
+  
+  <string name="RegisterPage.Header">Register Items</string>
+  <string name="RegisterPage.SubHeader">-> hit Next when you are done</string>
+  <string name="RegisterPage.Register">Register:</string>
+  <string name="RegisterPage.Items">Items:</string>
+  <string name="RegisterPage.ItemsName">Name: </string>
+  <string name="RegisterPage.ItemsId">ID: </string>
+  <string name="RegisterPage.ItemsRedundant">Redundant: </string>
+  <string name="RegisterPage.Attributes">Attributes:</string>
+  <string name="RegisterPage.AttributesName">Name: </string>
+  <string name="RegisterPage.AttributesValue">Value: </string>
+  
+  <string name="ResultPage.Header">Please verify Plugin.xml content</string>
+  <string name="ResultPage.SubHeader">-> hit Finish button to save plugin.xml</string>
+  
+</resources>

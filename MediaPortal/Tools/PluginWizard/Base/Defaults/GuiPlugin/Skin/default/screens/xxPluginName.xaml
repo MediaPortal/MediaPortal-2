@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Include
+    xmlns="www.team-mediaportal.com/2008/mpf/directx"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    Source="screens\master_menu.xaml"
+    >
+  <Include.Resources>
+
+    <!-- Header -->
+    <ResourceWrapper x:Key="Header_Text" Resource="[xxPluginName.ScreenTitle]"/>
+
+    <!-- Contents -->
+    <ControlTemplate x:Key="Contents_Template">
+      <DockPanel
+          Context="{Model Id=5726DA5A-70D5-458f-AF67-611293D97912}" LastChildFill="False">
+        <Label Content="[xxPluginName.SampleText]" Color="{ThemeResource TextColor}" FontSize="36" DockPanel.Dock="Top" HorizontalAlignment="Center"/>
+        
+      </DockPanel>
+    </ControlTemplate>
+
+  </Include.Resources>
+</Include>

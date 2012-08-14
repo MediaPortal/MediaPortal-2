@@ -25,9 +25,11 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.IO;
 using System.Windows.Input;
 using System.ComponentModel;
 using System.Windows;
+using MP2_PluginWizard.Model;
 using MP2_PluginWizard.ViewModel;
 using MP2_PluginWizard.Utils;
 
@@ -187,7 +189,8 @@ namespace MP2_PluginWizard.View
 
     private void FinishButtonClick(object sender, RoutedEventArgs e)
     {
-      _viewModel.Save(_viewModel.PluginPathName);
+      _viewModel.Save();
+      
       Close();
     }
     

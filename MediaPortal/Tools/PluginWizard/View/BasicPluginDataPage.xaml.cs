@@ -33,8 +33,9 @@ namespace MP2_PluginWizard.View
     public BasicPluginDataPage()
     {
       InitializeComponent();
-
     }
+
+
     #endregion
   
   }

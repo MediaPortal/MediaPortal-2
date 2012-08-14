@@ -3,27 +3,28 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-             xmlns:View="clr-namespace:MP2_PluginWizard.View"
-                 mc:Ignorable="d" 
-             d:DesignHeight="300" d:DesignWidth="450">
+             xmlns:e="clr-namespace:MP2_PluginWizard.Extensions"
+             xmlns:View="clr-namespace:MP2_PluginWizard.View" 
+             mc:Ignorable="d" 
+             d:DesignHeight="400" d:DesignWidth="450">
 
         <DockPanel LastChildFill="False">
         <Border DockPanel.Dock="Top" Margin="10">
-            <StackPanel>
-                <Label Style="{StaticResource HeaderLabelStyle}" Content="Welcome to the MP2 Plugin Wizard" />
-                <Label Style="{StaticResource SubHeaderLabelStyle}" Content="This wizard will guide You (...)" />
+            <StackPanel> 
+                <Label Style="{StaticResource HeaderLabelStyle}" Content="{e:Loc [WelcomePage.Header]}" />
+                <Label Style="{StaticResource SubHeaderLabelStyle}" Content="{e:Loc [WelcomePage.SubHeader]}" />
             </StackPanel>
         </Border>
 
-        <Label DockPanel.Dock="Top" Style="{StaticResource LabelStyle}" Margin="10,10,10,0" Content="Check of basic information:"/>
+        <Label DockPanel.Dock="Top" Style="{StaticResource LabelStyle}" Margin="10,10,10,0" Content="{e:Loc [WelcomePage.CheckHeader]}"/>
         <DockPanel DockPanel.Dock="Top" Margin="30,0,30,10" >
             <Button DockPanel.Dock="Right" Width="70" Content="Update" Click="OnMp2UpdateClick"/>
-            <Label Content="-> MediaPortal2 plugin information's available"
+            <Label Content="{e:Loc [WelcomePage.CheckMp2Info]}"
                    Foreground="{Binding Mp2PluginsAvailable, Converter={StaticResource BoolForeground}}"
                    Background="{Binding Mp2PluginsAvailable, Converter={StaticResource BoolBackground}}"/>         
         </DockPanel>
 
-        <Label DockPanel.Dock="Top" Margin="10,30,10,0" Style="{StaticResource LabelStyle}" Content="Select your plugin.xml directory"/>
+        <Label DockPanel.Dock="Top" Margin="10,30,10,0" Style="{StaticResource LabelStyle}" Content="{e:Loc [WelcomePage.DirHeader]}"/>
 
         <DockPanel DockPanel.Dock="Top" Margin="30,0,30,10" >
             <Button DockPanel.Dock="Right" Margin="3,0,0,0" BorderThickness="0" Click="PluginDirButtonClick">
@@ -36,7 +37,22 @@
             <ComboBox ItemsSource="{Binding PluginPaths}" SelectedItem="{Binding PluginPathName}" SelectionChanged="PluginPathSelectionChanged"
                       />
         </DockPanel>
-
+        
+        <Label DockPanel.Dock="Top" Style="{StaticResource LabelStyle}" Margin="10,10,10,0" Content="{e:Loc [WelcomePage.TypeHeader]}"/>
+        <StackPanel Margin="30,0,10,0" >
+            <RadioButton GroupName="Type" IsChecked="{Binding IsPluginOnly}">
+                <Label Style="{StaticResource LabelStyle}" Content="{e:Loc [WelcomePage.TypePluginOnly]}"/>
+            </RadioButton>
+            <RadioButton GroupName="Type" IsChecked="{Binding IsPluginMeta}">
+                <Label Style="{StaticResource LabelStyle}"  Content="{e:Loc [WelcomePage.TypePluginMeta]}"/>
+            </RadioButton>
+            <RadioButton GroupName="Type" IsChecked="{Binding IsPluginRes}">
+                <Label Style="{StaticResource LabelStyle}"  Content="{e:Loc [WelcomePage.TypePluginRes]}"/>
+            </RadioButton>
+            <RadioButton GroupName="Type" IsChecked="{Binding IsPluginGui}" IsEnabled="False">
+                <Label Style="{StaticResource LabelStyle}"  Content="{e:Loc [WelcomePage.TypePluginGui]}"/>
+            </RadioButton>
+        </StackPanel>
 
     </DockPanel>
 

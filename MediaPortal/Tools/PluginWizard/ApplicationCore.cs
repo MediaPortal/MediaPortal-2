@@ -25,14 +25,19 @@
 using System;
 using System.IO;
 using System.Windows.Forms;
+using MP2_PluginWizard.Utils;
 using MediaPortal.Common;
 using MediaPortal.Common.Localization;
 using MediaPortal.Common.Logging;
+using MediaPortal.Common.Messaging;
 using MediaPortal.Common.PathManager;
 using MediaPortal.Common.Services.Logging;
+using MediaPortal.Common.Services.Messaging;
 using MediaPortal.Common.Services.PathManager;
 using MediaPortal.Common.Services.Settings;
+using MediaPortal.Common.Services.Threading;
 using MediaPortal.Common.Settings;
+using MediaPortal.Common.Threading;
 
 
 namespace MP2_PluginWizard
@@ -65,20 +70,42 @@ namespace MP2_PluginWizard
       logger.Debug("ApplicationCore: Registering ILogger service");
       ServiceRegistration.Set<ILogger>(logger);
 
+      logger.Debug("ApplicationCore: Registering IThreadPool service");
+      ServiceRegistration.Set<IThreadPool>(new ThreadPool());
+
+      logger.Debug("ApplicationCore: Registering IMessageBroker service");
+      ServiceRegistration.Set<IMessageBroker>(new MessageBroker());
+      
       logger.Debug("ApplicationCore: Registering ISettingsManager service");
       ServiceRegistration.Set<ISettingsManager>(new SettingsManager());
       
+      logger.Debug("ApplicationCore: Registering ILocalization service");
+      ServiceRegistration.Set<ILocalization>(new AppLocalization());
+      
+      logger.Debug("ApplicationCore: Starting ILocalization service");
+      ServiceRegistration.Get<ILocalization>().Startup();
     }
 
     
     public static void DisposeCoreServices()
     {
-      var logger = ServiceRegistration.Get<ILogger>();
+      ServiceRegistration.Get<IThreadPool>().Shutdown();
+    	
+    	var logger = ServiceRegistration.Get<ILogger>();
       logger.Info("ApplicationCore: Disposing CORE in AppDomain {0}...", AppDomain.CurrentDomain.FriendlyName);
+
+      logger.Debug("ApplicationCore: Removing ILocalization service");
+      ServiceRegistration.RemoveAndDispose<ILocalization>();
 
       logger.Debug("ApplicationCore: Removing ISettingsManager service");
       ServiceRegistration.RemoveAndDispose<ISettingsManager>();
 
+      logger.Debug("ApplicationCore: Removing IMessageBroker service");
+      ServiceRegistration.RemoveAndDispose<IMessageBroker>();
+
+      logger.Debug("ApplicationCore: Removing IThreadPool service");
+      ServiceRegistration.RemoveAndDispose<IThreadPool>();
+      
       logger.Debug("ApplicationCore: Removing IPathManager service");
       ServiceRegistration.RemoveAndDispose<IPathManager>();
 

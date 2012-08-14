@@ -126,6 +126,7 @@ namespace MP2_PluginWizard.ViewModel
       	
       // Init WelcomePage
       PluginPaths = new ObservableCollection<string>();
+		  IsPluginOnly = true;
       
       // Init BasicPluginDataPage
           
@@ -303,12 +304,19 @@ namespace MP2_PluginWizard.ViewModel
     /// </summary>
     public ObservableCollection<PluginRegister> Registers { get; private set; }
     
+    // for Project file creation
+    public string AssemblyId { get; set; }
+    public string ProjectId { get; set; }
+    public string ShortName { get; set; }
+    public string ProjectSourcePath { get; set; }
+    
     
     #endregion
     
 
     public void Reset()
     {
+      var settings = ServiceRegistration.Get<ISettingsManager>().Load<WizardSettings>();
       // Load default values
       DescriptorVersion = "1.0";
       Copyright = "GPL";
@@ -316,7 +324,7 @@ namespace MP2_PluginWizard.ViewModel
    
       PluginVersion = "1.0";
       PluginId = Guid.NewGuid();
-      Author = string.Empty;
+      Author = settings.Author;
       StateTrackerClassName = string.Empty;
       AutoActivate = false;
 
@@ -325,8 +333,17 @@ namespace MP2_PluginWizard.ViewModel
       ConflictsWith.Clear();
       Builders.Clear();
       Registers.Clear();
+      SetDefaultName();
     }
 
+    public void SetDefaultName()
+    {
+      if (!string.IsNullOrEmpty(Name) && !Name.Equals("MetadataExtractor") && !Name.Equals("ResourceProvider")) return;
+
+      Name = "";
+      if (IsPluginMeta) Name = "MetadataExtractor";
+      else if (IsPluginRes) Name = "ResourceProvider";
+    }
 
     
     #region Load
@@ -664,13 +681,47 @@ namespace MP2_PluginWizard.ViewModel
     #endregion
 
     #region Save
+    public bool Save()
+    {
+    	SavePluginFile(PluginPathName);
+    	
+    	if (!IsPluginOnly) {
+    		AssemblyId = Guid.NewGuid().ToString().ToUpper();
+    	  ProjectId = Guid.NewGuid().ToString().ToUpper();
+    	  ShortName = ProjectSourcePath = string.Empty;
+    		    		
+        var applicationPath = Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location);
+        if (applicationPath != null)
+        {
+          if (IsPluginMeta) 
+          {
+          	ProjectSourcePath = Path.Combine(applicationPath, @"Defaults\MetadataExtractor");
+          	ShortName = Name.Replace("MetadataExtractor", "");
+          }
+          else if (IsPluginRes) 
+          { 
+          	ProjectSourcePath = Path.Combine(applicationPath, @"Defaults\ResourceProviderWithOutProxy");
+          	ShortName = Name.Replace("ResourceProvider", "");
+          }
+          else if (IsPluginGui)
+          {
+          	ProjectSourcePath = Path.Combine(applicationPath, @"Defaults\GuiPlugin");
+          }
+          
+          SaveProjectData();
+        }
+      }
+    	return true;
+    }
+    
+    
     /// <summary>
     /// Saves the plugin file (plugin.xml) to the pluginDirectoryPath.
     /// </summary>
     /// <param name="pluginDirectoryPath">Root directory path of the plugin to save the metadata to.</param>
     /// <returns><c>true</c>, if the plugin file could successfully be saved, else <c>false</c>.</returns>
     /// <remarks>No XMLdocument class was used to have the possibillity to place comments in the XML file</remarks>
-    public bool Save(string pluginDirectoryPath)
+    public bool SavePluginFile(string pluginDirectoryPath)
     {
     	StreamWriter writer;
     	try
@@ -804,6 +855,63 @@ namespace MP2_PluginWizard.ViewModel
       }
       return true;
     }
+    
+    public bool SaveProjectData()
+    {
+    	if (!Directory.Exists(ProjectSourcePath) || !Directory.Exists(PluginPathName)) return false;
+         	
+      try
+      {
+        var stack = new Stack<string>();
+        stack.Push(ProjectSourcePath);
+
+        while (stack.Count > 0)
+        {
+          // Pop a directory
+          var dir = stack.Pop();
+
+          var files = Directory.GetFiles(dir);
+          foreach (var file in files)
+            ProcessAndCopyFile(file);
+
+          var directories = Directory.GetDirectories(dir);
+          foreach (var directory in directories)
+            stack.Push(directory);
+        }
+      }
+      catch (Exception ex)
+      {
+        return false;
+      }
+      return true;
+    }
+    
+    private void ProcessAndCopyFile(string filePath)
+    {
+      var fileContents = File.ReadAllText(filePath);
+
+      fileContents = fileContents.Replace("xxPluginName", Name);
+      fileContents = fileContents.Replace("xxShortName", ShortName);
+      fileContents = fileContents.Replace("xxPluginDescription", Description);
+      fileContents = fileContents.Replace("xxPluginId", PluginId.ToString().ToUpper());
+      fileContents = fileContents.Replace("xxCurrentYear", DateTime.Now.Year.ToString());
+      fileContents = fileContents.Replace("xxAssemblyId", AssemblyId);
+      fileContents = fileContents.Replace("xxProjectId", ProjectId);
+      
+      var destFilePath = filePath.Replace(ProjectSourcePath, PluginPathName);
+      var destPath = Path.GetDirectoryName(destFilePath);
+      destFilePath = destFilePath.Replace("xxPluginName", Name);
+      destFilePath = destFilePath.Replace("xxShortName", ShortName);
+      
+      if (destPath != null && !Directory.Exists(destPath))
+        Directory.CreateDirectory(destPath);
+
+      if (File.Exists(destFilePath))
+        File.Delete(destFilePath);
+      File.WriteAllText(destFilePath, fileContents);
+    }
+    
+    
   
     #endregion
     
@@ -825,7 +933,11 @@ namespace MP2_PluginWizard.ViewModel
 		
 		#region Private/protected fields
     private string _pluginPathName;
-      
+    private bool _isPluginOnly;
+    private bool _isPluginMeta;
+    private bool _isPluginRes;
+    private bool _isPluginGui;
+   
     #endregion
        
     #region Public properties
@@ -860,11 +972,35 @@ namespace MP2_PluginWizard.ViewModel
         PluginPaths.Add(value);
         PluginPathName = value;
       }
-
     }
 
     public ObservableCollection<string> PluginPaths { get; private set; }
-    #endregion
+    
+	  public bool IsPluginOnly
+	  {
+	    get { return _isPluginOnly; }
+      set { SetProperty(ref _isPluginOnly, value, "IsPluginOnly"); SetDefaultName(); }
+	  }
+
+	  public bool IsPluginMeta
+	  {
+	    get { return _isPluginMeta; }
+      set { SetProperty(ref _isPluginMeta, value, "IsPluginMeta"); SetDefaultName(); }
+	  }
+
+	  public bool IsPluginRes
+	  {
+	    get { return _isPluginRes; }
+      set { SetProperty(ref _isPluginRes, value, "IsPluginRes"); SetDefaultName(); }
+	  }
+
+	  public bool IsPluginGui
+	  {
+	    get { return _isPluginGui; }
+      set { SetProperty(ref _isPluginGui, value, "IsPluginGui"); SetDefaultName(); }
+	  }
+
+	  #endregion
   
     #region Private Methods
     private void OnPluginPathsChanged(object sender, NotifyCollectionChangedEventArgs e)
@@ -1339,6 +1475,7 @@ namespace MP2_PluginWizard.ViewModel
       if (CanAddRegisterItem)
       {
         RegisterItems.Add(new PluginRegisterItem(NewRegisterItemName, NewRegisterItemId, NewRegisterItemRedundant));
+        OnPropertyChanged("RegisterItems");
       }
     }
 
@@ -1382,6 +1519,7 @@ namespace MP2_PluginWizard.ViewModel
       if (CanAddRegisterAttribute)
       {
         RegisterAttributes.Add(new PluginRegisterAttribute(NewRegisterAttributeName, NewRegisterAttributeValue));
+        OnPropertyChanged("RegisterAttributes");
       }
     }
 

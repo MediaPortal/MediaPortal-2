@@ -3,14 +3,15 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:e="clr-namespace:MP2_PluginWizard.Extensions"
              xmlns:View="clr-namespace:MP2_PluginWizard.View" 
              mc:Ignorable="d" 
-             d:DesignHeight="380" d:DesignWidth="300">
+             d:DesignHeight="380" d:DesignWidth="600">
     <DockPanel>
         <Border DockPanel.Dock="Top" Margin="10">
             <StackPanel>
-                <Label Style="{StaticResource HeaderLabelStyle}" Content="Basic Plugin Data" />
-                <Label Style="{StaticResource SubHeaderLabelStyle}" Content="-> hit Next when you are done" />
+                <Label Style="{StaticResource HeaderLabelStyle}" Content="{e:Loc [BasicPluginDataPage.Header]}" />
+                <Label Style="{StaticResource SubHeaderLabelStyle}" Content="{e:Loc [BasicPluginDataPage.SubHeader]}" />
             </StackPanel>
         </Border>
         <Grid Margin="10">
@@ -30,31 +31,32 @@
                 <ColumnDefinition Width="*" />
             </Grid.ColumnDefinitions>
 
-            <Label Grid.Row="0" Grid.Column="0" Style="{StaticResource LabelStyle}" Content="PluginName"/>
-            <TextBox Grid.Row="0" Grid.Column="1" Style="{StaticResource TextBoxStyle}" Text="{Binding Path=Name, Mode=TwoWay}" FontSize="18" Foreground="Blue"/>
+            <Label Grid.Row="0" Grid.Column="0" Style="{StaticResource LabelStyle}" Content="{e:Loc [BasicPluginDataPage.Name]}"/>
+            <TextBox Grid.Row="0" Grid.Column="1" Style="{StaticResource TextBoxStyle}" Text="{Binding Path=Name, Mode=TwoWay}" 
+                     FontSize="18" Foreground="Blue"/>
 
-            <Label Grid.Row="1" Grid.Column="0" Style="{StaticResource LabelStyle}" Content="PluginID"/>
+            <Label Grid.Row="1" Grid.Column="0" Style="{StaticResource LabelStyle}" Content="{e:Loc [BasicPluginDataPage.Id]}"/>
             <TextBlock Grid.Row="1" Grid.Column="1" Style="{StaticResource TextBlockStyle}" Text="{Binding Path=PluginId}" />
 
-            <Label Grid.Row="2" Grid.Column="0" Style="{StaticResource LabelStyle}" Content="Author"/>
+            <Label Grid.Row="2" Grid.Column="0" Style="{StaticResource LabelStyle}" Content="{e:Loc [BasicPluginDataPage.Author]}"/>
             <TextBox Grid.Row="2" Grid.Column="1" Style="{StaticResource TextBoxStyle}" Text="{Binding Path=Author}"/>
 
-            <Label Grid.Row="3" Grid.Column="0" Style="{StaticResource LabelStyle}" Content="Description"/>
+            <Label Grid.Row="3" Grid.Column="0" Style="{StaticResource LabelStyle}" Content="{e:Loc [BasicPluginDataPage.Description]}"/>
             <TextBox Grid.Row="3" Grid.Column="1" Style="{StaticResource TextBoxStyle}" Text="{Binding Path=Description}"/>
 
-            <Label Grid.Row="4" Grid.Column="0" Style="{StaticResource LabelStyle}" Content="Auto Activate"/>
+            <Label Grid.Row="4" Grid.Column="0" Style="{StaticResource LabelStyle}" Content="{e:Loc [BasicPluginDataPage.AutoActivate]}"/>
             <CheckBox Grid.Row="4" Grid.Column="1" IsChecked="{Binding Path=AutoActivate}" VerticalAlignment="Center" />
 
-            <Label Grid.Row="5" Grid.Column="0" Style="{StaticResource LabelStyle}" Content="Plugin Version"/>
+            <Label Grid.Row="5" Grid.Column="0" Style="{StaticResource LabelStyle}" Content="{e:Loc [BasicPluginDataPage.Version]}"/>
             <TextBox Grid.Row="5" Grid.Column="1" Style="{StaticResource TextBoxStyle}" Text="{Binding Path=PluginVersion}" />
 
-            <Label Grid.Row="6" Grid.Column="0" Style="{StaticResource LabelStyle}" Content="Copyright"/>
+            <Label Grid.Row="6" Grid.Column="0" Style="{StaticResource LabelStyle}" Content="{e:Loc [BasicPluginDataPage.Copyright]}"/>
             <TextBlock Grid.Row="6" Grid.Column="1" Style="{StaticResource TextBlockStyle}" Text="{Binding Path=Copyright}" />
 
-            <Label Grid.Row="7" Grid.Column="0" Style="{StaticResource LabelStyle}" Content="StateTrackerClassName" Margin="0,0,10,0"/>
+            <Label Grid.Row="7" Grid.Column="0" Style="{StaticResource LabelStyle}" Content="{e:Loc [BasicPluginDataPage.StateTrackerClassName]}" Margin="0,0,10,0"/>
             <TextBox Grid.Row="7" Grid.Column="1" Style="{StaticResource TextBoxStyle}" Text="{Binding Path=StateTrackerClassName}"/>
 
-            <Label Grid.Row="8" Grid.Column="0" Style="{StaticResource LabelStyle}" Content="Runtime"/>
+            <Label Grid.Row="8" Grid.Column="0" Style="{StaticResource LabelStyle}" Content="{e:Loc [BasicPluginDataPage.Runtime]}"/>
             <Grid Grid.Row="8" Grid.Column="1">
                 <Grid.RowDefinitions>
                     <RowDefinition Height="Auto" />

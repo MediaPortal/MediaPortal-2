@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+  <string name="xxPluginName.MenuEntry">xxPluginName</string>
+  <string name="xxPluginName.StateDisplayLabel">xxPluginName state</string>
+  <string name="xxPluginName.ScreenTitle">xxPluginName screen</string>
+</resources>

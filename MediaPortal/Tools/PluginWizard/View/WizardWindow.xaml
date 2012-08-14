@@ -1,6 +1,8 @@
 ﻿<Window x:Class="MP2_PluginWizard.View.WizardWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:local="clr-namespace:MP2_PluginWizard.Converter"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" 
+        xmlns:local="clr-namespace:MP2_PluginWizard.Converter"
+        xmlns:e="clr-namespace:MP2_PluginWizard.Extensions"
         WindowStartupLocation="CenterScreen"
         Icon="/Resources/Images/MP2_PluginWizard.ico"
         Title="MP2 Plugin Wizard" Height="700" Width="800" Loaded="WizardWindowLoaded">
@@ -21,24 +23,28 @@
                 <Button DockPanel.Dock="Right" Margin="40,0,0,0" Style="{StaticResource WizardButtonStyle}"
                         Click="CancelButtonClick"
                         Visibility="{Binding ShowCancelButton, Converter={local:BoolToVisibilityConverter FalseValue=Collapsed}}"
-                        >Cancel</Button>
+                				Content="{e:Loc [WizardButton.Cancel]}"/>
+            	
                 <Button DockPanel.Dock="Right" Margin="10,0,0,0" Style="{StaticResource WizardButtonStyle}"
                         Click="FinishButtonClick"
                         Visibility="{Binding ShowFinishButton, Converter={local:BoolToVisibilityConverter FalseValue=Collapsed}}"
-                        >Finish</Button>
-
+                				Content="{e:Loc [WizardButton.Finish]}"/>
+            	
                 <Button DockPanel.Dock="Right" Margin="10,0,0,0" Style="{StaticResource WizardButtonStyle}"
                         Command="{Binding NextPageCommand}"
                         Visibility="{Binding ShowNextButton, Converter={local:BoolToVisibilityConverter FalseValue=Collapsed}}"
-                        >Next</Button>
+                        Content="{e:Loc [WizardButton.Next]}"/>
+            	
                 <Button DockPanel.Dock="Right" Style="{StaticResource WizardButtonStyle}"
                         Click="PrevButtonClick"
                         Visibility="{Binding ShowPrevButton, Converter={local:BoolToVisibilityConverter FalseValue=Collapsed}}"
-                        >Prev</Button>
+                        Content="{e:Loc [WizardButton.Previous]}"/>
+            	
                 <Button DockPanel.Dock="Left" Style="{StaticResource WizardButtonStyle}"
                         Click="HelpButtonClick"
                         Visibility="{Binding ShowHelpButton, Converter={local:BoolToVisibilityConverter FalseValue=Collapsed}}"
-                        >Help</Button>
+                        Content="{e:Loc [WizardButton.Help]}"/>
+            	
             </DockPanel>
         </Border>
         <Border Margin ="0,0,0,10">

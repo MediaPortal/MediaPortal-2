@@ -3,6 +3,7 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:e="clr-namespace:MP2_PluginWizard.Extensions"
              xmlns:View="clr-namespace:MP2_PluginWizard.View"
              mc:Ignorable="d" 
              d:DesignHeight="300" d:DesignWidth="450">
@@ -10,8 +11,8 @@
     <DockPanel >
         <Border DockPanel.Dock="Top" Margin="10">
             <StackPanel>
-                <Label Style="{StaticResource HeaderLabelStyle}" Content="Register Items" />
-                <Label Style="{StaticResource SubHeaderLabelStyle}" Content="-> hit Next when you are done" />
+                <Label Style="{StaticResource HeaderLabelStyle}" Content="{e:Loc [RegisterPage.Header]}" />
+                <Label Style="{StaticResource SubHeaderLabelStyle}" Content="{e:Loc [RegisterPage.SubHeader]}" />
             </StackPanel>
         </Border>
 	
@@ -27,7 +28,7 @@
             </Grid.ColumnDefinitions>
 
 
-            <Label Grid.Row="0" Grid.Column="0" Style="{StaticResource LabelStyle}" Content="Register"/>
+            <Label Grid.Row="0" Grid.Column="0" Style="{StaticResource LabelStyle}" Content="{e:Loc [RegisterPage.Register]}"/>
             <Grid Grid.Row="0" Grid.Column="1">
                 <Grid.RowDefinitions>
                     <RowDefinition Height="Auto" />
@@ -73,7 +74,7 @@
                 </ListView>
             </Grid>
 
-            <Label Grid.Row="1" Grid.Column="0" Style="{StaticResource LabelStyle}" Content="Items"/>
+            <Label Grid.Row="1" Grid.Column="0" Style="{StaticResource LabelStyle}" Content="{e:Loc [RegisterPage.Items]}"/>
             <Grid Grid.Row="1" Grid.Column="1">
                 <Grid.RowDefinitions>
                     <RowDefinition Height="Auto" />
@@ -89,13 +90,13 @@
                     <ColumnDefinition Width="Auto" />
                 </Grid.ColumnDefinitions>
 
-                <Label Grid.Row="0" Grid.Column="0" Style="{StaticResource LabelStyle}" Content="Name: "/>
+                <Label Grid.Row="0" Grid.Column="0" Style="{StaticResource LabelStyle}" Content="{e:Loc [RegisterPage.ItemsName]}"/>
                 <TextBox Grid.Row="0" Grid.Column="1" Style="{StaticResource TextBoxStyle}" Text="{Binding Path=NewRegisterItemName}" />
 
-                <Label Grid.Row="0" Grid.Column="2" Style="{StaticResource LabelStyle}" Content="ID: "/>
+                <Label Grid.Row="0" Grid.Column="2" Style="{StaticResource LabelStyle}" Content="{e:Loc [RegisterPage.ItemsId]}"/>
                 <TextBox Grid.Row="0" Grid.Column="3" Style="{StaticResource TextBoxStyle}" Text="{Binding Path=NewRegisterItemId}" />
 
-                <Label Grid.Row="0" Grid.Column="4" Style="{StaticResource LabelStyle}" Content="Redundant: "/>
+                <Label Grid.Row="0" Grid.Column="4" Style="{StaticResource LabelStyle}" Content="{e:Loc [RegisterPage.ItemsRedundant]}"/>
                 <CheckBox Grid.Row="0" Grid.Column="5" VerticalAlignment="Center" IsChecked="{Binding Path=NewRegisterItemRedundant}" />
                 
                 <Button Grid.Row="0" Grid.Column="6" Margin="3,0,0,0" Command="{Binding AddRegisterItemCommand}" 
@@ -134,7 +135,7 @@
             </Grid>
 
 
-            <Label Grid.Row="2" Grid.Column="0" Style="{StaticResource LabelStyle}" Content="Attributes"/>
+            <Label Grid.Row="2" Grid.Column="0" Style="{StaticResource LabelStyle}" Content="{e:Loc [RegisterPage.Attributes]}"/>
             <Grid Grid.Row="2" Grid.Column="1">
                 <Grid.RowDefinitions>
                     <RowDefinition Height="Auto" />
@@ -148,10 +149,10 @@
                     <ColumnDefinition Width="Auto" />
                 </Grid.ColumnDefinitions>
 
-                <Label Grid.Row="0" Grid.Column="0" Style="{StaticResource LabelStyle}" Content="Name: "/>
+                <Label Grid.Row="0" Grid.Column="0" Style="{StaticResource LabelStyle}" Content="{e:Loc [RegisterPage.AttributesName]}"/>
                 <TextBox Grid.Row="0" Grid.Column="1" Style="{StaticResource TextBoxStyle}" Text="{Binding Path=NewRegisterAttributeName}" />
 
-                <Label Grid.Row="0" Grid.Column="2" Style="{StaticResource LabelStyle}" Content="Value: "/>
+                <Label Grid.Row="0" Grid.Column="2" Style="{StaticResource LabelStyle}" Content="{e:Loc [RegisterPage.AttributesValue]}"/>
                 <TextBox Grid.Row="0" Grid.Column="3" Style="{StaticResource TextBoxStyle}" Text="{Binding Path=NewRegisterAttributeValue}" />
 
                 <Button Grid.Row="0" Grid.Column="4" Margin="3,0,0,0" Command="{Binding AddRegisterAttributeCommand}" 
