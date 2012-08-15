@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<resources>
+<resources name="PluginWizard_ResourceProviderWithProxy" project="MP2_Tools">
   <string name="xxResourceProviderName.Name">xxResourceProviderName</string>
   <string name="xResourceProviderName.Description">xxResourceProviderNameDescription</string>
 </resources>
