@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<resources name="ServiceMonitor">
+<resources name="ServiceMonitor" project="MP2">
   <string name="ServerStatus.NotStarted">Server not started</string>
   <string name="ServerStatus.Attached">Attached to Server</string>
   <string name="ServerStatus.Connected">Connected to Server</string>
