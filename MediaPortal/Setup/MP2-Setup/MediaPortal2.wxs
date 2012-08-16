@@ -17,7 +17,7 @@
     <Package Id='*'
              Keywords='Installer'
              Description='MediaPortal 2 Installer'
-             InstallerVersion='450'
+             InstallerVersion='405'
              SummaryCodepage="!(loc.SummaryCodepage)"
              Compressed='yes' />
 
