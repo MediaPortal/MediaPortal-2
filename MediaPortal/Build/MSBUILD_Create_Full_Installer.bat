@@ -1,4 +1,4 @@
-@ECHO OFF
+
 echo Deleting binary folder > BuildInstaller.log
 rmdir /s /q ..\bin
 
