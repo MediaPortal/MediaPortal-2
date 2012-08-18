@@ -136,6 +136,7 @@ namespace MediaPortal.UI.Services.Players
           if (_playMode == value)
             return;
           _playMode = value;
+          PlaylistMessaging.SendPlaylistMessage(PlaylistMessaging.MessageType.PropertiesChange, _playerContext);
           if (_playIndexList == null)
             return;
           int currentItemIndex = _currentPlayIndex > -1 ? _playIndexList[_currentPlayIndex] : -1;
