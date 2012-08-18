@@ -41,8 +41,6 @@
     <Property Id="ALLUSERS">1</Property>
 
     <Icon Id="MediaPortal2Icon" SourceFile="Ressources\MP2_Icon_General.ico" />
-    <Icon Id="MediaPortal2ClientIcon" SourceFile="$(var.SolutionDir)..\Bin\MP2-Client\bin\x86\Release\MP2-Client.exe" />
-    <Icon Id="MediaPortal2ServerIcon" SourceFile="$(var.SolutionDir)..\Bin\MP2-Server\bin\x86\Release\MP2-Server.exe" />
 
     <!-- Directories -->
     <Directory Id="TARGETDIR" Name="SourceDir">
@@ -51,14 +49,6 @@
         <Directory Id="TeamMediaPortalFolder" Name="Team MediaPortal">
           <!-- An empty Component needed to avoid a bug in Windows Installer -->
           <Component Id="EmptyComponent_WindowsInstallerBugWorkaround" KeyPath="yes" Guid="4D1E4904-0FB1-44B3-82E1-CFE5F01E6AC3"/>
-
-          <Directory Id="INSTALLDIR_CLIENT" Name="MP2-Client">
-            <Directory Id="CLIENT.PLUGINS.FOLDER" Name="Plugins"/>
-          </Directory>
-
-          <Directory Id="INSTALLDIR_SERVER" Name="MP2-Server">
-            <Directory Id="SERVER.PLUGINS.FOLDER" Name="Plugins"/>
-          </Directory>
         </Directory>
 
         <Directory Id="DokanFolder" Name="Dokan">
@@ -73,46 +63,6 @@
               <util:PermissionEx User="Users" GenericAll="yes"/>
             </CreateFolder>
           </Component>
-
-
-          <Directory Id="CLIENT.DATA.FOLDER" Name="MP2-Client">
-            <Component Id="CLIENT.DATA.FOLDER" Guid="3DF62027-81C3-4047-815C-4C530E0328EB">
-              <CreateFolder/>
-            </Component>
-
-            <Directory Id="CLIENT.CONFIG.FOLDER" Name="Config">
-              <Component Id="CLIENT.CONFIG.FOLDER" Guid="0165F58A-FCC9-460E-A88D-F32B5E0DE112">
-                <CreateFolder/>
-              </Component>
-            </Directory>
-            <Directory Id="CLIENT.LOG.FOLDER" Name="Log">
-              <Component Id="CLIENT.LOG.FOLDER" Guid="98590791-BDC0-44FD-B348-DF66A110EE70">
-                <CreateFolder/>
-              </Component>
-            </Directory>
-          </Directory>
-
-          <Directory Id="SERVER.DATA.FOLDER" Name="MP2-Server">
-            <Component Id="SERVER.DATA.FOLDER" Guid="4C918D8D-9925-49D9-8CC9-0369A32F6221">
-              <CreateFolder/>
-            </Component>
-
-            <Directory Id="SERVER.CONFIG.FOLDER" Name="Config">
-              <Component Id="SERVER.CONFIG.FOLDER" Guid="97054EC5-47F1-4072-ADC3-BB4BF26CF35A">
-                <CreateFolder/>
-              </Component>
-            </Directory>
-            <Directory Id="SERVER.LOG.FOLDER" Name="Log">
-              <Component Id="SERVER.LOG.FOLDER" Guid="4FF03809-8904-43E9-929B-A1397853A77F">
-                <CreateFolder/>
-              </Component>
-            </Directory>
-            <Directory Id="SERVER.DATABASE.FOLDER" Name="Database">
-              <Component Id="SERVER.DATABASE.FOLDER" Guid="A7ABDEB5-0D3F-48B7-A4EA-92B1B5DE6C2A">
-                <CreateFolder/>
-              </Component>
-            </Directory>
-          </Directory>
         </Directory>
       </Directory>
 

@@ -7,21 +7,55 @@
 
     <?include ..\Includes.wxi ?>
 
-    <!-- Directories -->
-    <DirectoryRef Id="INSTALLDIR_SERVER" FileSource="$(var.OutDirServer)">
+    <!-- Icon -->
+    <Icon Id="Server" SourceFile="$(var.MediaPortal.Server.TargetPath)" />
+
+    <!-- Directory definition -->
+    <DirectoryRef Id="TeamMediaPortalFolder">
+      <Directory Id="INSTALLDIR_SERVER" Name="MP2-Server">
+        <Directory Id="SERVER.PLUGINS.FOLDER" Name="Plugins"/>
+      </Directory>
+    </DirectoryRef>
+
+    <DirectoryRef Id="TeamMediaPortal.DATA.FOLDER">
+      <Directory Id="SERVER.DATA.FOLDER" Name="MP2-Server">
+        <Component Id="SERVER.DATA.FOLDER" Guid="4C918D8D-9925-49D9-8CC9-0369A32F6221">
+          <CreateFolder/>
+        </Component>
+
+        <Directory Id="SERVER.CONFIG.FOLDER" Name="Config">
+          <Component Id="SERVER.CONFIG.FOLDER" Guid="97054EC5-47F1-4072-ADC3-BB4BF26CF35A">
+            <CreateFolder/>
+          </Component>
+        </Directory>
+        <Directory Id="SERVER.LOG.FOLDER" Name="Log">
+          <Component Id="SERVER.LOG.FOLDER" Guid="4FF03809-8904-43E9-929B-A1397853A77F">
+            <CreateFolder/>
+          </Component>
+        </Directory>
+        <Directory Id="SERVER.DATABASE.FOLDER" Name="Database">
+          <Component Id="SERVER.DATABASE.FOLDER" Guid="A7ABDEB5-0D3F-48B7-A4EA-92B1B5DE6C2A">
+            <CreateFolder/>
+          </Component>
+        </Directory>
+      </Directory>
+    </DirectoryRef>
+
+    <!-- Directory content -->
+    <DirectoryRef Id="INSTALLDIR_SERVER" FileSource="$(var.MediaPortal.Server.TargetDir)">
+      
+      <Component Id="InstallDirServerRegistry" Guid="AB85C3C6-423A-484D-93B6-60A24057E683">
+        <RegistryKey Root="HKLM"
+                     Key="Software\[Manufacturer]\[ProductName]"
+                     Action="createAndRemoveOnUninstall">
+          <RegistryValue Type="string" Name="INSTALLDIR_SERVER" Value="[INSTALLDIR_SERVER]"/>
+        </RegistryKey>
+        <CreateFolder />
+      </Component>
 
       <Directory Id="S__Defaults" Name="Defaults">
         <Component Id="S__Defaults" Guid="9894844B-C89B-4F8D-A905-751B836A5DF3">
           <File Id="S__Paths.xml" Name="Paths.xml" KeyPath="yes" Checksum="yes" />
-        </Component>
-
-        <Component Id="InstallDirServerRegistry" Guid="AB85C3C6-423A-484D-93B6-60A24057E683">
-          <RegistryKey Root="HKLM"
-                       Key="Software\[Manufacturer]\[ProductName]"
-                       Action="createAndRemoveOnUninstall">
-            <RegistryValue Type="string" Name="INSTALLDIR_SERVER" Value="[INSTALLDIR_SERVER]"/>
-          </RegistryKey>
-          <CreateFolder />
         </Component>
       </Directory>
 
@@ -88,7 +122,7 @@
                   Name="!(loc.SC_Server)"
                   Description="!(loc.SC_Server_Desc)"
                   Target="[!MP2Server.exe]"
-                  Icon="MediaPortal2ServerIcon" 
+                  Icon="Server" 
                   WorkingDirectory="INSTALLDIR_SERVER" />
         <!--
         Fix ICE 38 by adding a dummy registry key that is the key for this shortcut.
@@ -108,7 +142,7 @@
                   Name="!(loc.SC_Server)"
                   Description="!(loc.SC_Server_Desc)"
                   Target="[!MP2Server.exe]"
-                  Icon="MediaPortal2ServerIcon"
+                  Icon="Server"
                   WorkingDirectory="INSTALLDIR_SERVER" />
         <!--
         Fix ICE 38 by adding a dummy registry key that is the key for this shortcut.
