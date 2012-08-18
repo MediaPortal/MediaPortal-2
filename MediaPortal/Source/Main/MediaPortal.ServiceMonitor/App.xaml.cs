@@ -77,7 +77,7 @@ namespace MediaPortal.ServiceMonitor
       systemStateService.SwitchSystemState(SystemState.Initializing, false);
 
 #if !DEBUG
-      string logPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData), @"Team MediaPortal\MP2-ServiveMonitor\Log");
+      string logPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData), @"Team MediaPortal\MP2-ServiceMonitor\Log");
 #endif
 
       try
