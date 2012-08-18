@@ -7,6 +7,6 @@ set solution_dir=%~f1.
 set target_dir=%~f2.
 
 echo Solution directory = %solution_dir%, target directory = %target_dir%
-RoboCopy "%solution_dir%\Base\ServiceMonitor" "%target_dir%" /E /NP /XD .svn
+RoboCopy "%solution_dir%\Base\ServiceMonitor" "%target_dir%" /E /NP
 @REM Reset RoboCopy's exit code which is different from 0
 IF %ERRORLEVEL% LSS 8 SET ERRORLEVEL=0
