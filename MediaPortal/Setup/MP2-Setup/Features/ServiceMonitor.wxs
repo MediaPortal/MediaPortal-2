@@ -129,5 +129,31 @@
       </Component>
     </DirectoryRef>
 
+    <Feature Id="ServiceMonitor"
+         Level="1"
+         AllowAdvertise="no"
+         ConfigurableDirectory="INSTALLDIR_SERVICE_MONITOR"
+         Title="!(loc.F_ServiceMonitor)"
+         Description="!(loc.F_ServiceMonitor_Desc)">
+
+      <ComponentRef Id="ServiceMonitor.Paths" />
+      <ComponentRef Id="ServiceMonitor.Registry.InstallDir" />
+
+      <ComponentRef Id="ServiceMonitor" />
+      <ComponentRef Id="ServiceMonitor.config" />
+      <ComponentRef Id="ServiceMonitor.Desktop.Shortcut" />
+      <ComponentRef Id="ServiceMonitor.StartMenu.Shortcut" />
+
+      <ComponentRef Id="ServiceMonitor.Hardcodet.Wpf.TaskbarNotification" />
+      <ComponentRef Id="ServiceMonitor.HttpServer" />
+      <ComponentRef Id="ServiceMonitor.log4net" />
+      <ComponentRef Id="ServiceMonitor.MediaPortal.Common" />
+      <ComponentRef Id="ServiceMonitor.MediaPortal.Utilities" />
+      <ComponentRef Id="ServiceMonitor.Microsoft.WindowsAPICodePack" />
+      <ComponentRef Id="ServiceMonitor.Microsoft.WindowsAPICodePack.Shell" />
+      <ComponentRef Id="ServiceMonitor.UPnP" />
+
+    </Feature>
+
   </Fragment>
 </Wix>
