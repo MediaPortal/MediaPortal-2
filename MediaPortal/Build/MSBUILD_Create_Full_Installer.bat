@@ -10,10 +10,10 @@ call tx_5_FromCache.bat
 
 cd ..\..\Build
 echo Rebuilding Server >> BuildInstaller.log
-call MSBUILD_Rebuild_Release_Server.bat
+call MSBUILD_Build_Report_Release_Server.bat
 
 echo Rebuilding Client >> BuildInstaller.log
-call MSBUILD_Rebuild_Release_Client.bat
+call MSBUILD_Build_Report_Release_Client.bat
 
 echo Rebuilding Setup >> BuildInstaller.log
 call MSBUILD_Rebuild_Release_Setup.bat
