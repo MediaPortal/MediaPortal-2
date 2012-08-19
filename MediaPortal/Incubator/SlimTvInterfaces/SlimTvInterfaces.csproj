@@ -66,6 +66,8 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Extensions\IProgramAction.cs" />
+    <Compile Include="Extensions\SlimTvExtensionBuilder.cs" />
     <Compile Include="Items\IChannelGroup.cs" />
     <Compile Include="Items\IChannel.cs" />
     <Compile Include="Items\IProgram.cs" />

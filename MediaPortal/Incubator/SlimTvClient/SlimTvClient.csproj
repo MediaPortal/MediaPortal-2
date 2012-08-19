@@ -75,6 +75,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Extensions\ProgramExample.cs" />
     <Compile Include="Helpers\FormatHelper.cs" />
     <Compile Include="Helpers\ChannelProgramListItem.cs" />
     <Compile Include="Helpers\ProgramListItem.cs" />

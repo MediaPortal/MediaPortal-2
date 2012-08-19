@@ -23,11 +23,16 @@
 #endregion
 
 using System;
+using System.Collections.Generic;
 using MediaPortal.Common;
 using MediaPortal.Common.Commands;
 using MediaPortal.Common.General;
 using MediaPortal.Common.Localization;
+using MediaPortal.Common.Logging;
+using MediaPortal.Common.PluginManager;
+using MediaPortal.Common.PluginManager.Exceptions;
 using MediaPortal.Plugins.SlimTvClient.Helpers;
+using MediaPortal.Plugins.SlimTvClient.Interfaces.Extensions;
 using MediaPortal.Plugins.SlimTvClient.Interfaces.Items;
 using MediaPortal.UI.Presentation.DataObjects;
 using MediaPortal.UI.Presentation.Players;
@@ -43,8 +48,17 @@ namespace MediaPortal.Plugins.SlimTvClient
   {
     #region Protected fields
 
+    protected IPluginItemStateTracker _slimTvExtensionsPluginItemStateTracker;
+    protected Dictionary<Guid, TvExtension> _programExtensions = new Dictionary<Guid, TvExtension>();
+
     protected AbstractProperty _groupNameProperty = null;
     protected AbstractProperty _currentProgramProperty = null;
+
+    public struct TvExtension
+    {
+      public string Caption;
+      public IProgramAction Extension;
+    }
 
     #endregion
 
@@ -179,6 +193,22 @@ namespace MediaPortal.Plugins.SlimTvClient
           }
         }
       }
+
+      // Add list entries for extensions
+      foreach (KeyValuePair<Guid, TvExtension> programExtension in _programExtensions)
+      {
+        TvExtension extension = programExtension.Value;
+        // First check if this extension applies for the selected program
+        if (!extension.Extension.IsAvailable(program))
+          continue;
+
+        _programActions.Add(
+            new ListItem(Consts.KEY_NAME, loc.ToString(extension.Caption))
+            {
+              Command = new MethodDelegateCommand(() => extension.Extension.ProgramAction(program))
+            });
+      }
+
       IScreenManager screenManager = ServiceRegistration.Get<IScreenManager>();
       screenManager.ShowDialog(_programActionsDialogName);
     }
@@ -202,12 +232,42 @@ namespace MediaPortal.Plugins.SlimTvClient
     {
       if (!_isInitialized)
       {
-        _groupNameProperty = new WProperty(typeof(string), string.Empty);
+        _groupNameProperty = new WProperty(typeof(string), String.Empty);
         _currentProgramProperty = new WProperty(typeof(ProgramProperties), new ProgramProperties());
+
+        BuildExtensions();
 
         _isInitialized = true;
       }
       base.InitModel();
+    }
+
+    protected void BuildExtensions()
+    {
+      _slimTvExtensionsPluginItemStateTracker = new FixedItemStateTracker("SlimTvHandler - Extension registration");
+
+      IPluginManager pluginManager = ServiceRegistration.Get<IPluginManager>();
+      foreach (PluginItemMetadata itemMetadata in pluginManager.GetAllPluginItemMetadata(SlimTvExtensionBuilder.SLIMTVEXTENSIONPATH))
+      {
+        try
+        {
+          SlimTvProgramExtension slimTvProgramExtension = pluginManager.RequestPluginItem<SlimTvProgramExtension>(
+              SlimTvExtensionBuilder.SLIMTVEXTENSIONPATH, itemMetadata.Id, _slimTvExtensionsPluginItemStateTracker);
+          if (slimTvProgramExtension == null)
+            ServiceRegistration.Get<ILogger>().Warn("Could not instantiate SlimTv extension with id '{0}'", itemMetadata.Id);
+          else
+          {
+            IProgramAction action = Activator.CreateInstance(slimTvProgramExtension.ExtensionClass) as IProgramAction;
+            if (action == null)
+              throw new PluginInvalidStateException("Could not create IProgramAction instance of class {0}", slimTvProgramExtension.ExtensionClass);
+            _programExtensions[slimTvProgramExtension.Id] = new TvExtension { Caption = slimTvProgramExtension.Caption, Extension = action };
+          }
+        }
+        catch (PluginInvalidStateException e)
+        {
+          ServiceRegistration.Get<ILogger>().Warn("Cannot add SlimTv extension with id '{0}'", e, itemMetadata.Id);
+        }
+      }
     }
 
     #endregion

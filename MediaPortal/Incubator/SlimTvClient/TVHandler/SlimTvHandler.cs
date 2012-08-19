@@ -33,7 +33,7 @@ using MediaPortal.UiComponents.Media.Models;
 
 namespace MediaPortal.Plugins.SlimTvClient
 {
-  public class SlimTvHandler: ITvHandler
+  public class SlimTvHandler : ITvHandler
   {
     private struct TVSlotContext
     {
@@ -42,6 +42,7 @@ namespace MediaPortal.Plugins.SlimTvClient
       public string AccessorPath;
       public IChannel Channel;
     }
+
     private ITvProvider _tvProvider;
     private readonly TVSlotContext[] _slotContexes = new TVSlotContext[2];
 
@@ -64,7 +65,7 @@ namespace MediaPortal.Plugins.SlimTvClient
     {
       get { return _tvProvider as IChannelAndGroupInfo; }
     }
-    
+
     public IProgramInfo ProgramInfo
     {
       get { return _tvProvider as IProgramInfo; }
@@ -186,7 +187,7 @@ namespace MediaPortal.Plugins.SlimTvClient
         string newAccessorPath =
           (string) timeshiftMediaItem.Aspects[ProviderResourceAspect.ASPECT_ID].GetAttributeValue(
             ProviderResourceAspect.ATTR_RESOURCE_ACCESSOR_PATH);
-        
+
         // if slot was empty, start a new player
         if (_slotContexes[newSlotIndex].AccessorPath == null)
         {
@@ -201,7 +202,7 @@ namespace MediaPortal.Plugins.SlimTvClient
             _slotContexes[newSlotIndex].CardChanging = true;
             UpdateExistingMediaItem(timeshiftMediaItem);
           }
-          finally 
+          finally
           {
             _slotContexes[newSlotIndex].CardChanging = false;
           }
@@ -245,7 +246,7 @@ namespace MediaPortal.Plugins.SlimTvClient
           if (liveTvMediaItem != null && newLiveTvMediaItem != null)
           {
             // check if this is "our" media item to update.
-            if ((int)liveTvMediaItem.AdditionalProperties[LiveTvMediaItem.SLOT_INDEX] == (int)newLiveTvMediaItem.AdditionalProperties[LiveTvMediaItem.SLOT_INDEX])
+            if ((int) liveTvMediaItem.AdditionalProperties[LiveTvMediaItem.SLOT_INDEX] == (int) newLiveTvMediaItem.AdditionalProperties[LiveTvMediaItem.SLOT_INDEX])
             {
               if (liveTvMediaItem.Aspects[ProviderResourceAspect.ASPECT_ID].GetAttributeValue(ProviderResourceAspect.ATTR_RESOURCE_ACCESSOR_PATH).ToString() !=
                 newLiveTvMediaItem.Aspects[ProviderResourceAspect.ASPECT_ID].GetAttributeValue(ProviderResourceAspect.ATTR_RESOURCE_ACCESSOR_PATH).ToString())
@@ -256,7 +257,7 @@ namespace MediaPortal.Plugins.SlimTvClient
                 liveTvMediaItem.TimeshiftContexes.Clear();
               }
               // add new timeshift context
-              AddTimeshiftContext(liveTvMediaItem, newLiveTvMediaItem.AdditionalProperties[LiveTvMediaItem.CHANNEL] as IChannel);  
+              AddTimeshiftContext(liveTvMediaItem, newLiveTvMediaItem.AdditionalProperties[LiveTvMediaItem.CHANNEL] as IChannel);
             }
           }
         }

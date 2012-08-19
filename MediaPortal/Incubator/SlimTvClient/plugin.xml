@@ -46,11 +46,23 @@
     <Resource Id="SlimTvClientLanguage" Directory="Language" Type="Language"/>
   </Register>
 
-
   <Register Location="/Services">
     <Service Id="SlimTvHandlerService" RegistrationClassName="MediaPortal.Plugins.SlimTvClient.Interfaces.ITvHandler"        
         ServiceClassName="MediaPortal.Plugins.SlimTvClient.SlimTvHandler"/>
   </Register>
+
+  <!-- Registration of the SlimTv extension builder for SlimTvProgramExtension items -->
+  <!--
+    Morpheus_xx:
+    This is an example for adding more actions for programs in TV Guide. Uncomment this item to see the "Example" action added.
+    This can  be done from any plugin!
+  -->
+  <!--
+  <Builder Name="SlimTvExtensionBuilder" ClassName="MediaPortal.Plugins.SlimTvClient.Interfaces.Extensions.SlimTvExtensionBuilder"/>
+  <Register Location="/SlimTv/Extensions">
+    <SlimTvExtensionBuilder Id="{197B0299-B411-4FC7-BA96-765371C77B3B}" Caption="Example" ClassName="MediaPortal.Plugins.SlimTvClient.Extensions.ProgramExample"/>
+  </Register>
+  -->
 
   <Register Location="/Models">
     <Model Id="8BEC1372-1C76-484c-8A69-C7F3103708EC" ClassName="MediaPortal.Plugins.SlimTvClient.SlimTvClientModel"/>
