@@ -182,7 +182,7 @@ namespace MediaPortal.UiComponents.Media.Models
         _focusedDownButton = -1;
         _focusedUpButton = -1;
         IsPlaylistEmpty = _items.Count == 0;
-        NumItemsStr = Utils.BuildNumItemsStr(_items.Count, null);
+        NumPlaylistItemsStr = Utils.BuildNumItemsStr(_items.Count, null);
       }
       _items.FireChange();
     }

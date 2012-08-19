@@ -236,6 +236,18 @@ namespace MediaPortal.UiComponents.Media.General
     public const string RES_PLAYLIST_LOAD_NO_PLAYLIST = "[Media.PlaylistLoadNoPlaylistText]";
     public const string RES_PLAYLIST_LOAD_ERROR_LOADING = "[Media.PlaylistLoadErrorLoadingPlaylist]";
 
+    public const string RES_PLAYMODE_SUFFIX = "[Media.PlayMode.";
+    public const string RES_PLAYMODE_PREFIX = "]";
+    public const string RES_REPEATMODE_SUFFIX = "[Media.RepeatMode.";
+    public const string RES_REPEATMODE_PREFIX = "]";
+
+    public const string RES_PLAYMODE_CONTINUOUS = "[Media.PlayMode.Continuous]";
+    public const string RES_PLAYMODE_SHUFFLE = "[Media.PlayMode.Shuffle]";
+
+    public const string RES_REPEATMODE_NONE = "[Media.RepeatMode.None]";
+    public const string RES_REPEATMODE_ALL = "[Media.RepeatMode.All]";
+    public const string RES_REPEATMODE_ONE = "[Media.RepeatMode.One]";
+
     // View mode
     public const string RES_SWITCH_VIEW_MODE = "[Media.SwitchViewModeMenuItem]";
 
@@ -379,6 +391,9 @@ namespace MediaPortal.UiComponents.Media.General
     public const string KEY_MESSAGE = "Message";
 
     public const string KEY_DISABLE_EDIT_MODE = "DisableEditMode";
+
+    public const string KEY_PLAYMODE = "PlayMode";
+    public const string KEY_REPEATMODE = "RepeatMode";
 
     public const string KEY_LAYOUT_TYPE = "LayoutType";
     public const string KEY_LAYOUT_SIZE = "LayoutSize";

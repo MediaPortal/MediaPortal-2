@@ -25,6 +25,9 @@
 using System;
 using System.Collections.Generic;
 using MediaPortal.Common;
+using MediaPortal.Common.Commands;
+using MediaPortal.Common.General;
+using MediaPortal.Common.Localization;
 using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.Messaging;
 using MediaPortal.Common.Runtime;
@@ -56,8 +59,14 @@ namespace MediaPortal.UiComponents.Media.Models
     #region Protected fields
 
     protected AsynchronousMessageQueue _messageQueue;
-    protected ItemsList _items = new ItemsList();
+    protected ItemsList _playlistItems = new ItemsList();
     protected bool _disableEditMode = false;
+
+    protected ItemsList _playModeItems = new ItemsList();
+    protected ItemsList _repeatModeItems = new ItemsList();
+
+    protected AbstractProperty _currentPlayModeProperty = new WProperty(typeof(string), null);
+    protected AbstractProperty _currentRepeatModeProperty = new WProperty(typeof(string), null);
 
     #endregion
 
@@ -142,7 +151,7 @@ namespace MediaPortal.UiComponents.Media.Models
       lock (_syncObj)
       {
         _playlist = playlist;
-        _items.Clear();
+        _playlistItems.Clear();
         if (playlist != null)
         {
           int ct = 0;
@@ -155,13 +164,13 @@ namespace MediaPortal.UiComponents.Media.Models
             item.SetLabel(Consts.KEY_NUMBERSTR, (idx + 1) + ".");
             item.AdditionalProperties[Consts.KEY_INDEX] = idx;
             item.AdditionalProperties[Consts.KEY_IS_CURRENT_ITEM] = currentItemIdx == idx;
-            _items.Add(item);
+            _playlistItems.Add(item);
           }
         }
-        IsPlaylistEmpty = _items.Count == 0;
-        NumItemsStr = Utils.BuildNumItemsStr(_items.Count, null);
+        IsPlaylistEmpty = _playlistItems.Count == 0;
+        NumPlaylistItemsStr = Utils.BuildNumItemsStr(_playlistItems.Count, null);
       }
-      _items.FireChange();
+      _playlistItems.FireChange();
     }
 
     protected void UpdateCurrentItem()
@@ -173,7 +182,7 @@ namespace MediaPortal.UiComponents.Media.Models
         if (playlist == null || playlist != _playlist)
           return;
       int idx = playlist.ItemListIndex;
-      foreach (PlayableMediaItem item in _items)
+      foreach (PlayableMediaItem item in _playlistItems)
       {
         bool isCurrentItem = idx-- == 0;
         bool? currentIsCurrentItem = (bool?) item.AdditionalProperties[Consts.KEY_IS_CURRENT_ITEM];
@@ -187,7 +196,75 @@ namespace MediaPortal.UiComponents.Media.Models
 
     protected void UpdateProperties()
     {
-      // TODO: Other properties
+      CurrentPlayMode = LocalizationHelper.Translate(Consts.RES_PLAYMODE_SUFFIX + _playlist.PlayMode + Consts.RES_PLAYMODE_PREFIX);
+      CurrentRepeatMode = LocalizationHelper.Translate(Consts.RES_REPEATMODE_SUFFIX + _playlist.RepeatMode + Consts.RES_REPEATMODE_PREFIX);
+    }
+
+    protected void UpdateSubMenuLists()
+    {
+      UpdateRepeatModes();
+      UpdatePlayModes();
+    }
+
+    protected void UpdateRepeatModes()
+    {
+      _repeatModeItems = new ItemsList();
+      ListItem noneItem = new ListItem(Consts.KEY_NAME, Consts.RES_REPEATMODE_NONE)
+        {
+            Command = new MethodDelegateCommand(() => SetRepeatMode(RepeatMode.None))
+        };
+      noneItem.AdditionalProperties[Consts.KEY_REPEATMODE] = RepeatMode.None;
+      _repeatModeItems.Add(noneItem);
+
+      ListItem allItem = new ListItem(Consts.KEY_NAME, Consts.RES_REPEATMODE_ALL)
+        {
+            Command = new MethodDelegateCommand(() => SetRepeatMode(RepeatMode.All))
+        };
+      allItem.AdditionalProperties[Consts.KEY_REPEATMODE] = RepeatMode.All;
+      _repeatModeItems.Add(allItem);
+
+      ListItem oneItem = new ListItem(Consts.KEY_NAME, Consts.RES_REPEATMODE_ONE)
+        {
+            Command = new MethodDelegateCommand(() => SetRepeatMode(RepeatMode.One))
+        };
+      oneItem.AdditionalProperties[Consts.KEY_REPEATMODE] = RepeatMode.One;
+      _repeatModeItems.Add(oneItem);
+    }
+
+    protected void UpdatePlayModes()
+    {
+      _playModeItems = new ItemsList();
+      ListItem continuousItem = new ListItem(Consts.KEY_NAME, Consts.RES_PLAYMODE_CONTINUOUS)
+        {
+            Command = new MethodDelegateCommand(() => SetPlayMode(PlayMode.Continuous))
+        };
+      continuousItem.AdditionalProperties[Consts.KEY_PLAYMODE] = PlayMode.Continuous;
+      _playModeItems.Add(continuousItem);
+
+      ListItem shuffleItem = new ListItem(Consts.KEY_NAME, Consts.RES_PLAYMODE_SHUFFLE)
+        {
+            Command = new MethodDelegateCommand(() => SetPlayMode(PlayMode.Shuffle))
+        };
+      shuffleItem.AdditionalProperties[Consts.KEY_PLAYMODE] = PlayMode.Shuffle;
+      _playModeItems.Add(shuffleItem);
+    }
+
+    protected void SetRepeatMode(RepeatMode mode)
+    {
+      IPlaylist playlist = _playlist;
+      if (playlist == null)
+        return;
+      playlist.RepeatMode = mode;
+      UpdateProperties();
+    }
+
+    protected void SetPlayMode(PlayMode mode)
+    {
+      IPlaylist playlist = _playlist;
+      if (playlist == null)
+        return;
+      playlist.PlayMode = mode;
+      UpdateProperties();
     }
 
     #region Static members to be called from other parts of the system
@@ -200,9 +277,9 @@ namespace MediaPortal.UiComponents.Media.Models
     public static void ShowPlaylist(bool disableEditMode)
     {
       IWorkflowManager workflowManager = ServiceRegistration.Get<IWorkflowManager>();
-      workflowManager.NavigatePush(Consts.WF_STATE_ID_SHOW_PLAYLIST, new NavigationContextConfig()
+      workflowManager.NavigatePush(Consts.WF_STATE_ID_SHOW_PLAYLIST, new NavigationContextConfig
         {
-            AdditionalContextVariables = new Dictionary<string, object>()
+            AdditionalContextVariables = new Dictionary<string, object>
               {
                   {Consts.KEY_DISABLE_EDIT_MODE, disableEditMode}
               }
@@ -213,14 +290,46 @@ namespace MediaPortal.UiComponents.Media.Models
 
     #region Members to be accessed by the GUI
 
-    public ItemsList Items
+    public ItemsList PlaylistItems
     {
-      get { return _items; }
+      get { return _playlistItems; }
     }
 
     public bool DisableEditMode
     {
       get { return _disableEditMode; }
+    }
+
+    public AbstractProperty CurrentPlayModeProperty
+    {
+      get { return _currentPlayModeProperty; }
+    }
+
+    public string CurrentPlayMode
+    {
+      get { return (string) _currentPlayModeProperty.GetValue(); }
+      set { _currentPlayModeProperty.SetValue(value); }
+    }
+
+    public AbstractProperty CurrentRepeatModeProperty
+    {
+      get { return _currentRepeatModeProperty; }
+    }
+
+    public string CurrentRepeatMode
+    {
+      get { return (string) _currentRepeatModeProperty.GetValue(); }
+      set { _currentRepeatModeProperty.SetValue(value); }
+    }
+
+    public ItemsList PlayModeItems
+    {
+      get { return _playModeItems; }
+    }
+
+    public ItemsList RepeatModeItems
+    {
+      get { return _repeatModeItems; }
     }
 
     #endregion
@@ -247,12 +356,15 @@ namespace MediaPortal.UiComponents.Media.Models
       _disableEditMode = disableEditMode.HasValue && disableEditMode.Value;
       UpdatePlaylist();
       UpdateProperties();
+      UpdateSubMenuLists();
     }
 
     public void ExitModelContext(NavigationContext oldContext, NavigationContext newContext)
     {
       _messageQueue.Shutdown();
       _playlist = null;
+      _repeatModeItems = null;
+      _playModeItems = null;
     }
 
     public void ChangeModelContext(NavigationContext oldContext, NavigationContext newContext, bool push)

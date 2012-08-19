@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<Include
+    xmlns="www.team-mediaportal.com/2008/mpf/directx"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    Source="screens\simple_dialog_menu.xaml"
+    >
+  <Include.Resources>
+    <!-- Dialog title -->
+    <ResourceWrapper x:Key="Dialog_Header_Text" Resource="[Media.ChooseRepeatModeDialogHeader]"/>
+
+    <Model x:Key="ShowPlaylistModel" Id="E30AA448-C1D1-4d8e-B08F-CF569624B51C"/>
+
+    <ResourceWrapper x:Key="Menu_Items" EnableBindings="True"
+        Resource="{Binding Source={StaticResource ShowPlaylistModel},Path=RepeatModeItems,Mode=OneTime}"/>
+
+    <!-- Command -->
+    <CommandStencil x:Key="Execute_Command_Stencil"
+        Source="{StaticResource ShowPlaylistModel}" Path="Select"/>
+  </Include.Resources>
+</Include>

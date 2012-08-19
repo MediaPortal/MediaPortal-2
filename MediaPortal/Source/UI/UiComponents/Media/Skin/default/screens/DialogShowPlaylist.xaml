@@ -20,6 +20,7 @@
           <RowDefinition Height="Auto"/>
           <RowDefinition Height="*"/>
           <RowDefinition Height="Auto"/>
+          <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
         <Grid.ColumnDefinitions>
           <ColumnDefinition Width="*"/>
@@ -27,7 +28,7 @@
         <DockPanel Grid.Row="0" Grid.Column="0" VerticalAlignment="Bottom" LastChildFill="false">
           <StackPanel Margin="10,0,10,10" Orientation="Horizontal" DockPanel.Dock="Right">
             <Label Color="{ThemeResource HintTextColor}" Content="(" FontSize="{ThemeResource SmallerFontSize}"/>
-            <Label Color="{ThemeResource HintTextColor}" Content="{Binding NumItemsStr}" FontSize="{ThemeResource SmallerFontSize}"/>
+            <Label Color="{ThemeResource HintTextColor}" Content="{Binding NumPlaylistItemsStr}" FontSize="{ThemeResource SmallerFontSize}"/>
             <Label Color="{ThemeResource HintTextColor}" Content=")" FontSize="{ThemeResource SmallerFontSize}"/>
           </StackPanel>
         </DockPanel>
@@ -39,7 +40,7 @@
           <Grid.ColumnDefinitions>
             <ColumnDefinition Width="*"/>
           </Grid.ColumnDefinitions>
-          <ListView Style="{ThemeResource PlaylistListViewStyle}" ItemsSource="{Binding Items}"
+          <ListView Style="{ThemeResource PlaylistListViewStyle}" ItemsSource="{Binding PlaylistItems}"
               HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
             <ListView.Resources>
               <Command x:Key="Select_Command" Source="{StaticResource ShowPlaylistModel}" Path="Play"
@@ -50,9 +51,29 @@
               HorizontalAlignment="Center" VerticalAlignment="Center"
               Content="[Media.PlaylistEmpty]" Color="{ThemeResource HintTextColor}"/>
         </Grid>
-        <Button Style="{ThemeResource DialogButtonStyle}" Grid.Row="2" Grid.Column="0" Margin="10"
+        <Button Style="{ThemeResource DialogButtonStyle}" Grid.Row="2" Grid.Column="0" Margin="5,15,5,0"
             Content="[Media.EditPlaylistButton]" IsVisible="{Binding !DisableEditMode}"
             Command="{Command Source={Service WorkflowManager},Path=NavigatePush,Parameters={StaticResource WF_STATE_ID_EDIT_PLAYLIST}}"/>
+        <Grid Grid.Row="3" Grid.Column="0">
+          <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+          </Grid.RowDefinitions>
+          <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="*"/>
+          </Grid.ColumnDefinitions>
+
+          <Label Grid.Row="0" Grid.Column="0" Margin="5" Color="{ThemeResource TextColor}" Content="[Media.PlayMode]" FontSize="{ThemeResource SmallerFontSize}"/>
+          <Button Style="{ThemeResource DialogButtonStyle}" Grid.Row="1" Grid.Column="0" Margin="5"
+              Content="{Binding CurrentPlayMode}"
+              Command="{Command Source={Service ScreenManager},Path=ShowDialog,Parameters=DialogChoosePlayMode}"/>
+
+          <Label Grid.Row="0" Grid.Column="1" Margin="5" Color="{ThemeResource TextColor}" Content="[Media.RepeatMode]" FontSize="{ThemeResource SmallerFontSize}"/>
+          <Button Style="{ThemeResource DialogButtonStyle}" Grid.Row="1" Grid.Column="1" Margin="5"
+              Content="{Binding CurrentRepeatMode}"
+              Command="{Command Source={Service ScreenManager},Path=ShowDialog,Parameters=DialogChooseRepeatMode}"/>
+        </Grid>
       </Grid>
     </ControlTemplate>
 

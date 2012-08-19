@@ -156,7 +156,7 @@ namespace MediaPortal.UiComponents.Media.Models
       get { return _numItemsStrProperty; }
     }
 
-    public string NumItemsStr
+    public string NumPlaylistItemsStr
     {
       get { return (string) _numItemsStrProperty.GetValue(); }
       internal set { _numItemsStrProperty.SetValue(value); }
@@ -216,6 +216,19 @@ namespace MediaPortal.UiComponents.Media.Models
       int index;
       if (TryGetIndex(item, out index))
         MoveItemDown(index, item);
+    }
+
+    /// <summary>
+    /// Provides a callable method for the skin to select an item of the media contents view.
+    /// Depending on the item type, we will navigate to the choosen view, play the choosen item or filter by the item.
+    /// </summary>
+    /// <param name="item">The choosen item. Should contain a <see cref="ListItem.Command"/>.</param>
+    public void Select(ListItem item)
+    {
+      if (item == null)
+        return;
+      if (item.Command != null)
+        item.Command.Execute();
     }
 
     #endregion
