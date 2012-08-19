@@ -354,7 +354,7 @@ namespace MediaPortal.UiComponents.PartyMusicPlayer.Models
     protected void LeavePartyMode()
     {
       IWorkflowManager workflowManager = ServiceRegistration.Get<IWorkflowManager>();
-      workflowManager.NavigatePopToStateAsync(Consts.WF_STATE_ID_PARTY_MUSIC_CONFIG, false);
+      workflowManager.NavigatePopToStateAsync(Consts.WF_STATE_ID_PARTY_MUSIC_PLAYER, true);
     }
 
     protected void CheckScreenSaver()
