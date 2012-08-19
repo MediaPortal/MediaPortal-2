@@ -357,7 +357,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
     protected IFilter AddOnlyOnlineFilter(IFilter innerFilter)
     {
       IFilter onlineFilter = new BooleanCombinationFilter(BooleanOperator.Or, _systemsOnline.Select(
-              systemEntry => new RelationalFilter(ProviderResourceAspect.ATTR_SYSTEM_ID, RelationalOperator.EQ, systemEntry.Key)).Cast<IFilter>());
+          systemEntry => new RelationalFilter(ProviderResourceAspect.ATTR_SYSTEM_ID, RelationalOperator.EQ, systemEntry.Key)));
       return innerFilter == null ? onlineFilter : BooleanCombinationFilter.CombineFilters(BooleanOperator.And, innerFilter, onlineFilter);
     }
 
@@ -481,7 +481,8 @@ namespace MediaPortal.Backend.Services.MediaLibrary
         MediaItemQuery loadItemQuery = BuildLoadItemQuery(systemId, path);
         loadItemQuery.SetNecessaryRequestedMIATypeIDs(necessaryRequestedMIATypeIDs);
         loadItemQuery.SetOptionalRequestedMIATypeIDs(optionalRequestedMIATypeIDs);
-        return Search(loadItemQuery, false).FirstOrDefault();
+        CompiledMediaItemQuery cmiq = CompiledMediaItemQuery.Compile(_miaManagement, loadItemQuery);
+        return cmiq.QueryMediaItem();
       }
     }
 
@@ -504,7 +505,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
               query.NecessaryRequestedMIATypeIDs.Union(new Guid[] {ProviderResourceAspect.ASPECT_ID}),
               query.OptionalRequestedMIATypeIDs, AddOnlyOnlineFilter(query.Filter)) : query;
       CompiledMediaItemQuery cmiq = CompiledMediaItemQuery.Compile(_miaManagement, executeQuery);
-      IList<MediaItem> items = cmiq.Execute();
+      IList<MediaItem> items = cmiq.QueryList();
       IList<MediaItem> result = new List<MediaItem>(items.Count);
       if (filterOnlyOnline && !query.NecessaryRequestedMIATypeIDs.Contains(ProviderResourceAspect.ASPECT_ID))
       { // The provider resource aspect was not requested and thus has to be removed from the result items
