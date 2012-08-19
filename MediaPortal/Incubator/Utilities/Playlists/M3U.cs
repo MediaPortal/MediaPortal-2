@@ -37,7 +37,7 @@ namespace MediaPortal.UiComponents.Utilities.Playlists
       ILogger logger = ServiceRegistration.Get<ILogger>();
       logger.Info("M3U: Extracting file names from playlist file '{0}'", playlistFilePath);
       IList<string> result = new List<string>();
-      StreamReader reader = new StreamReader(playlistFilePath, playlistFilePath.ToLowerInvariant().EndsWith(".m3u8") ? Encoding.UTF8 : Encoding.ASCII);
+      StreamReader reader = new StreamReader(playlistFilePath, playlistFilePath.ToLowerInvariant().EndsWith(".m3u8") ? Encoding.UTF8 : Encoding.Default);
       string line;
       while ((line = reader.ReadLine()) != null)
       {
