@@ -342,6 +342,8 @@ namespace MediaPortal.UiComponents.Media.General
 
     public static TimeSpan TS_ADD_TO_PLAYLIST_UPDATE_DIALOG_THRESHOLD = TimeSpan.FromSeconds(3);
 
+    public static TimeSpan TS_WAIT_FOR_PLAYLISTS_UPDATE = TimeSpan.FromSeconds(5);
+
     /// <summary>
     /// Denotes the "infinite" timespan, used for <see cref="System.Threading.Timer.Change(System.TimeSpan,System.TimeSpan)"/>
     /// method, for example.

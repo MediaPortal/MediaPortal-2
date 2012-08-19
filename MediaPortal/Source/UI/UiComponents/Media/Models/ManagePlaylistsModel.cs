@@ -25,6 +25,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using MediaPortal.Common;
 using MediaPortal.Common.Commands;
 using MediaPortal.Common.Exceptions;
@@ -45,7 +46,7 @@ using MediaPortal.Utilities;
 
 namespace MediaPortal.UiComponents.Media.Models
 {
-  public class ManagePlaylistsModel : IWorkflowModel
+  public class ManagePlaylistsModel : IWorkflowModel, IDisposable
   {
     #region Consts
 
@@ -57,7 +58,7 @@ namespace MediaPortal.UiComponents.Media.Models
     #region Protected fields
 
     protected object _syncObj = new object();
-    protected bool _updatingProperties = false;
+    protected AutoResetEvent _updateReadyEvent = new AutoResetEvent(true);
 
     protected AbstractProperty _isHomeServerConnectedProperty;
     protected AbstractProperty _isPlaylistsSelectedProperty;
@@ -81,6 +82,11 @@ namespace MediaPortal.UiComponents.Media.Models
       _playlistNameProperty = new WProperty(typeof(string), string.Empty);
       _playlistNameProperty.Attach(OnPlaylistNameChanged);
       _isPlaylistNameValidProperty = new WProperty(typeof(bool), false);
+    }
+
+    public void Dispose()
+    {
+      _updateReadyEvent.Close();
     }
 
     #endregion
@@ -437,34 +443,34 @@ namespace MediaPortal.UiComponents.Media.Models
 
     protected void UpdatePlaylists(bool create)
     {
-      lock (_syncObj)
-      {
-        if (_playlists == null && !create)
-          // Can happen for example on async updates of the server's set of playlists
-          return;
-        if (_updatingProperties)
-          return;
-        _updatingProperties = true;
-        if (create)
-          _playlists = new ItemsList();
-      }
+      if (!_updateReadyEvent.WaitOne(Consts.TS_WAIT_FOR_PLAYLISTS_UPDATE))
+        return;
       try
       {
-        List<PlaylistBase> playlists = new List<PlaylistBase>();
+        ItemsList playlistsList;
+        lock (_syncObj)
+        {
+          if (_playlists == null && !create)
+            // Can happen for example on async updates of the server's set of playlists
+            return;
+          if (create)
+            _playlists = new ItemsList();
+          playlistsList = _playlists;
+        }
+        List<PlaylistBase> serverPlaylists = new List<PlaylistBase>();
         try
         {
           if (IsHomeServerConnected)
-            CollectionUtils.AddAll(playlists, ServerPlaylists.GetPlaylists());
+            CollectionUtils.AddAll(serverPlaylists, ServerPlaylists.GetPlaylists());
         }
         catch (NotConnectedException) { }
-        int numPlaylists = playlists.Count;
-        UpdatePlaylists(_playlists, playlists, numPlaylists == 1);
+        int numPlaylists = serverPlaylists.Count;
+        UpdatePlaylists(playlistsList, serverPlaylists, numPlaylists == 1);
         IsPlaylistsSelected = numPlaylists == 1;
       }
       finally
       {
-        lock (_syncObj)
-          _updatingProperties = false;
+        _updateReadyEvent.Set();
       }
     }
 
@@ -507,12 +513,8 @@ namespace MediaPortal.UiComponents.Media.Models
 
     protected void UpdateProperties()
     {
-      lock (_syncObj)
-      {
-        if (_updatingProperties)
-          return;
-        _updatingProperties = true;
-      }
+      if (!_updateReadyEvent.WaitOne(Consts.TS_WAIT_FOR_PLAYLISTS_UPDATE))
+        return;
       try
       {
         IServerConnectionManager serverConnectionManager = ServiceRegistration.Get<IServerConnectionManager>();
@@ -520,8 +522,7 @@ namespace MediaPortal.UiComponents.Media.Models
       }
       finally
       {
-        lock (_syncObj)
-          _updatingProperties = false;
+        _updateReadyEvent.Set();
       }
     }
 
