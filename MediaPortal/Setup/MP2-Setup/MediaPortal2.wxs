@@ -122,6 +122,7 @@
       <FeatureRef Id="Server" />
       <FeatureRef Id="ServiceMonitor" />
 
+      <ComponentRef Id="EmptyComponent_WindowsInstallerBugWorkaround" />
       <ComponentRef Id="TeamMediaPortal.DATA.FOLDER" />
       <ComponentRef Id="TeamMediaPortalStartMenu" />
       <ComponentRef Id="MP2StartMenu" />

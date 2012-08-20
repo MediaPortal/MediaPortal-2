@@ -21,6 +21,7 @@
     </Wix>
   </xsl:template>
 
+  <!-- remove application executable from harvested file -->
   <xsl:template match="wix:Component[@Id = key('ServiceMonitor.exe', @Id)/@Id]"/>
   <xsl:template match="wix:ComponentRef[@Id = key('ServiceMonitor.exe', @Id)/@Id]"/>
 </xsl:stylesheet>

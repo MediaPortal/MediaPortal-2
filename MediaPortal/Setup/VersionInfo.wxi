@@ -6,6 +6,6 @@
   in any MP2 wix related project (as link).
   -->
   <?define Manufacturer = "Team MediaPortal" ?>
-  <?define Version="!(bind.FileVersion.MediaPortal.Common.dll)" ?>
+  <?define Version="!(bind.FileVersion.Client.exe)" ?>
 
 </Include>

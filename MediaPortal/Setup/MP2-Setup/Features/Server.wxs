@@ -9,9 +9,7 @@
 
     <!-- Directory definition -->
     <DirectoryRef Id="TeamMediaPortalFolder">
-      <Directory Id="INSTALLDIR_SERVER" Name="MP2-Server">
-        <Directory Id="SERVER.PLUGINS.FOLDER" Name="Plugins"/>
-      </Directory>
+      <Directory Id="INSTALLDIR_SERVER" Name="MP2-Server" />
     </DirectoryRef>
 
     <DirectoryRef Id="TeamMediaPortal.DATA.FOLDER">
@@ -49,29 +47,15 @@
         <CreateFolder />
       </Component>
 
+      <!-- Albert, 2012-03-04: If we would let the user change the custom paths, we could write them here to the Paths.xml file.
+                                 We would need to call our custom action PrepareXmlPathVariables(). -->
+      <!--
       <Directory Id="S__Defaults" Name="Defaults">
         <Component Id="S__Defaults" Guid="9894844B-C89B-4F8D-A905-751B836A5DF3">
           <File Id="S__Paths.xml" Name="Paths.xml" KeyPath="yes" Checksum="yes" />
         </Component>
       </Directory>
-
-      <Directory Id="Scripts" Name="Scripts">
-        <Component Id="ClientManager_create_1_0" Guid="C8345C2F-AC4F-44B7-8FC8-FC31CDB782B2">
-          <File Id="ClientManager_create_1.0.sql" Name="ClientManager-create-1.0.sql" KeyPath="yes" Checksum="yes" />
-        </Component>
-        <Component Id="MediaLibrary_create_1_0" Guid="FA84842F-A7F2-4DD4-B859-DBFB3931AF3D">
-          <File Id="MediaLibrary_create_1.0.sql" Name="MediaLibrary-create-1.0.sql" KeyPath="yes" Checksum="yes" />
-        </Component>
-        <Component Id="MediaPortal_Basis_create_1_0" Guid="87AEE59F-516D-463A-9221-5C82D0A5246D">
-          <File Id="MediaPortal_Basis_create_1.0.sql" Name="MediaPortal-Basis-create-1.0.sql" KeyPath="yes" Checksum="yes" />
-        </Component>
-        <Component Id="UserProfileDataManagement_create_1_0" Guid="24D425B0-27A0-4369-8614-5DFA0582F13C">
-          <File Id="UserProfileDataManagement_create_1.0.sql" Name="UserProfileDataManagement-create-1.0.sql" KeyPath="yes" Checksum="yes" />
-        </Component>
-        <Component Id="MediaLibrary_1_0_1_1" Guid="C8DF0330-F458-4088-90AC-3237D634D42C">
-          <File Id="MediaLibrary_1.0_1.1.sql" Name="MediaLibrary-1.0-1.1.sql" KeyPath="yes" Checksum="yes" />
-        </Component>
-      </Directory>
+      -->
 
       <Component Id="Server.exe" Guid="3AF13E59-DC3A-4C6F-A0EB-89462019140C">
         <File Id="Server.exe" Name="MP2-Server.exe" KeyPath="yes" Checksum="yes">
@@ -86,35 +70,27 @@
             Start="auto" Account="LocalSystem" ErrorControl="ignore" Interactive="no" />
         <ServiceControl Id="StartService" Start="install" Stop="both" Remove="uninstall" Name="MP2-Server" Wait="yes" />
       </Component>
-      <Component Id="MP2Server.config" Guid="1015AFE2-59B7-47B0-A1F8-F96053572A6F">
-        <File Id="MP2Server.exe.config" Name="MP2-Server.exe.config" KeyPath="yes" Checksum="yes" />
-      </Component>
-      <Component Id="S__HttpServer" Guid="85F6FE7A-B5C5-4934-BDE1-53EA8A166762">
-        <File Id="S__HttpServer.dll" Name="HttpServer.dll" KeyPath="yes" Checksum="yes" />
-      </Component>
-      <Component Id="S__log4net" Guid="B8B1CA85-3224-4287-86D0-06A391B0F43F">
-        <File Id="S__log4net.dll" Name="log4net.dll" KeyPath="yes" Checksum="yes" />
-      </Component>
-      <Component Id="MediaPortal.Backend" Guid="C6555D68-586C-45FF-9E5B-92C00F6E3A25">
-        <File Id="MediaPortal.Backend.dll" Name="MediaPortal.Backend.dll" KeyPath="yes" Checksum="yes" />
-      </Component>
-      <Component Id="S__MediaPortal.Common" Guid="51EFED2C-A252-4EEF-9C72-4829DA11FC27">
-        <File Id="S__MediaPortal.Common.dll" Name="MediaPortal.Common.dll" KeyPath="yes" Checksum="yes" />
-      </Component>
-      <Component Id="S__MediaPortal.Utilities" Guid="9726D595-7054-438A-9E77-39ECEE934769">
-        <File Id="S__MediaPortal.Utilities.dll" Name="MediaPortal.Utilities.dll" KeyPath="yes" Checksum="yes" />
-      </Component>
-      <Component Id="S_Microsoft.WindowsAPICodePack" Guid="BF43A8A4-47F1-43B4-9DC5-E4E883ADCE2C">
-        <File Id="S_Microsoft.WindowsAPICodePack.dll" Name="Microsoft.WindowsAPICodePack.dll" KeyPath="yes" Checksum="yes" />
-      </Component>
-      <Component Id="S_Microsoft.WindowsAPICodePack.Shell" Guid="F574F216-D789-4E41-B7E7-6CCFE16B55C6">
-        <File Id="S_Microsoft.WindowsAPICodePack.Shell.dll" Name="Microsoft.WindowsAPICodePack.Shell.dll" KeyPath="yes" Checksum="yes" />
-      </Component>
-      <Component Id="S__UPnP" Guid="EC221FE7-04DC-4734-AC0F-0527B6B6BB01">
-        <File Id="S__UPnP.dll" Name="UPnP.dll" KeyPath="yes" Checksum="yes" />
-      </Component>
 
     </DirectoryRef>
+
+    <!-- Feature -->
+    <Feature Id="Server"
+             Level="1"
+             AllowAdvertise="no"
+             ConfigurableDirectory="INSTALLDIR_SERVER"
+             Title="!(loc.F_Server)"
+             Description="!(loc.F_Server_Desc)">
+
+      <ComponentRef Id="SERVER.DATA.FOLDER" />
+      <ComponentRef Id="SERVER.CONFIG.FOLDER" />
+      <ComponentRef Id="SERVER.LOG.FOLDER" />
+      <ComponentRef Id="SERVER.DATABASE.FOLDER" />
+
+      <ComponentRef Id="Server.exe" />
+      <ComponentRef Id="Server.Registry.InstallDir" />
+
+      <ComponentGroupRef Id="Server.Heat"/>
+    </Feature>
 
   </Fragment>
 </Wix>
