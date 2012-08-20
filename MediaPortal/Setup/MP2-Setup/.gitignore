@@ -1,2 +1,2 @@
-ClientFeatures.wxs
-ServerFeatures.wxs
+Client.Heat.wxs
+Server.Heat.wxs
