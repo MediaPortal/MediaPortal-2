@@ -31,18 +31,17 @@
       <ComponentRef Id="CLIENT.CONFIG.FOLDER" />
       <ComponentRef Id="CLIENT.LOG.FOLDER" />
 
-      <ComponentRef Id="InstallDirClientRegistry" />
-
       <ComponentRef Id="Defaults" />
 
       <ComponentRef Id="BASSLicense" />
       <ComponentRef Id="MediaPortalLicense" />
 
-      <ComponentRef Id="MP2Client" />
+      <ComponentRef Id="Client.exe" />
       <ComponentRef Id="MP2Client.config" />
       <ComponentRef Id="MP2Client.Splashscreen" />
-      <ComponentRef Id="MP2Client.Desktop.Shortcut" />
-      <ComponentRef Id="MP2Client.StartMenu.Shortcut" />
+      <ComponentRef Id="Client.Desktop.Shortcut" />
+      <ComponentRef Id="Client.StartMenu.Shortcut" />
+      <ComponentRef Id="Client.Registry.InstallDir" />
 
       <ComponentRef Id="HttpServer" />
       <ComponentRef Id="log4net" />

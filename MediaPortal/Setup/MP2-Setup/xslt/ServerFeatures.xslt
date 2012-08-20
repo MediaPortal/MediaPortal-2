@@ -32,8 +32,6 @@
       <ComponentRef Id="SERVER.LOG.FOLDER" />
       <ComponentRef Id="SERVER.DATABASE.FOLDER" />
 
-      <ComponentRef Id="InstallDirServerRegistry" />
-
       <ComponentRef Id="S__Defaults" />
 
       <ComponentRef Id="ClientManager_create_1_0" />
@@ -42,10 +40,11 @@
       <ComponentRef Id="UserProfileDataManagement_create_1_0" />
       <ComponentRef Id="MediaLibrary_1_0_1_1" />
 
-      <ComponentRef Id="MP2Server" />
+      <ComponentRef Id="Server.exe" />
       <ComponentRef Id="MP2Server.config" />
-      <ComponentRef Id="MP2Server.Desktop.Shortcut" />
-      <ComponentRef Id="MP2Server.StartMenu.Shortcut" />
+      <ComponentRef Id="Server.Desktop.Shortcut" />
+      <ComponentRef Id="Server.StartMenu.Shortcut" />
+      <ComponentRef Id="Server.Registry.InstallDir" />
 
       <ComponentRef Id="S__HttpServer" />
       <ComponentRef Id="S__log4net" />

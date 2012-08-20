@@ -38,8 +38,8 @@
 
     <!-- Directory content -->
     <DirectoryRef Id="INSTALLDIR_CLIENT" FileSource="$(var.MediaPortal.Client.TargetDir)">
-      
-      <Component Id="InstallDirClientRegistry" Guid="52711D1B-E2EE-4ACD-9993-F5B3FCF87701">
+
+      <Component Id="Client.Registry.InstallDir" Guid="52711D1B-E2EE-4ACD-9993-F5B3FCF87701">
         <RegistryKey Root="HKLM"
                      Key="Software\[Manufacturer]\[ProductName]"
                      Action="createAndRemoveOnUninstall">
@@ -76,8 +76,8 @@
         </Component>
       </Directory>
 
-      <Component Id="MP2Client" Guid="15EAC789-4F3A-4F65-B758-92562DB7C5AA">
-        <File Id="MP2Client.exe" Name="MP2-Client.exe" KeyPath="yes" Checksum="yes">
+      <Component Id="Client.exe" Guid="15EAC789-4F3A-4F65-B758-92562DB7C5AA">
+        <File Id="Client.exe" Name="MP2-Client.exe" KeyPath="yes" Checksum="yes">
           <fire:FirewallException Id="MP2ClientExTCPDom" Name="MP2-Client TCP Domain" Profile="domain" Protocol="tcp" Scope="any" IgnoreFailure="yes" />
           <fire:FirewallException Id="MP2ClientExTCPPriv" Name="MP2-Client TCP Private" Profile="private" Protocol="tcp" Scope="any" IgnoreFailure="yes" />
           <fire:FirewallException Id="MP2ClientExUDPDom" Name="MP2-Client UDP Domain" Profile="domain" Protocol="udp" Scope="any" IgnoreFailure="yes" />
@@ -120,11 +120,11 @@
 
     <!-- Shortcuts -->
     <DirectoryRef Id="MP2StartMenu">
-      <Component Id="MP2Client.StartMenu.Shortcut" Guid="1F79952A-464C-4E69-9C4F-F8F4488DE83F">
-        <Shortcut Id="MP2Client.StartMenu.Shortcut"
+      <Component Id="Client.StartMenu.Shortcut" Guid="1F79952A-464C-4E69-9C4F-F8F4488DE83F">
+        <Shortcut Id="Client.StartMenu.Shortcut"
                   Name="!(loc.SC_Client)"
                   Description="!(loc.SC_Client_Desc)"
-                  Target="[!MP2Client.exe]"
+                  Target="[!Client.exe]"
                   Icon="Client"
                   WorkingDirectory="INSTALLDIR_CLIENT" />
         <!--
@@ -133,18 +133,18 @@
         -->
         <RegistryValue Root="HKCU"
                        Key="$(var.RegKeyInstall)"
-                       Name="MP2Client.StartMenu.Shortcut"
+                       Name="Client.StartMenu.Shortcut"
                        Type="string"
                        Value="1"
                        KeyPath="yes" />
       </Component>
     </DirectoryRef>
     <DirectoryRef Id="DesktopFolder">
-      <Component Id="MP2Client.Desktop.Shortcut" Guid="F005C623-CE3D-4ABD-A6DB-598D3859D58D">
-        <Shortcut Id="MP2Client.Desktop.Shortcut"
+      <Component Id="Client.Desktop.Shortcut" Guid="F005C623-CE3D-4ABD-A6DB-598D3859D58D">
+        <Shortcut Id="Client.Desktop.Shortcut"
                   Name="!(loc.SC_Client)"
                   Description="!(loc.SC_Client_Desc)"
-                  Target="[!MP2Client.exe]"
+                  Target="[!Client.exe]"
                   Icon="Client"
                   WorkingDirectory="INSTALLDIR_CLIENT" />
         <!--
@@ -153,7 +153,7 @@
         -->
         <RegistryValue Root="HKCU"
                        Key="$(var.RegKeyInstall)"
-                       Name="MP2Client.Desktop.Shortcut"
+                       Name="Client.Desktop.Shortcut"
                        Type="string"
                        Value="1"
                        KeyPath="yes" />

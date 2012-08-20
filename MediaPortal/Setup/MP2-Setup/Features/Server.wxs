@@ -44,7 +44,7 @@
     <!-- Directory content -->
     <DirectoryRef Id="INSTALLDIR_SERVER" FileSource="$(var.MediaPortal.Server.TargetDir)">
       
-      <Component Id="InstallDirServerRegistry" Guid="AB85C3C6-423A-484D-93B6-60A24057E683">
+      <Component Id="Server.Registry.InstallDir" Guid="AB85C3C6-423A-484D-93B6-60A24057E683">
         <RegistryKey Root="HKLM"
                      Key="Software\[Manufacturer]\[ProductName]"
                      Action="createAndRemoveOnUninstall">
@@ -77,8 +77,8 @@
         </Component>
       </Directory>
 
-      <Component Id="MP2Server" Guid="3AF13E59-DC3A-4C6F-A0EB-89462019140C">
-        <File Id="MP2Server.exe" Name="MP2-Server.exe" KeyPath="yes" Checksum="yes">
+      <Component Id="Server.exe" Guid="3AF13E59-DC3A-4C6F-A0EB-89462019140C">
+        <File Id="Server.exe" Name="MP2-Server.exe" KeyPath="yes" Checksum="yes">
           <fire:FirewallException Id="MP2ServerExTCPDom" Name="MP2-Server TCP Domain" Profile="domain" Protocol="tcp" Scope="any" IgnoreFailure="yes" />
           <fire:FirewallException Id="MP2ServerExTCPPriv" Name="MP2-Server TCP Private" Profile="private" Protocol="tcp" Scope="any" IgnoreFailure="yes" />
           <fire:FirewallException Id="MP2ServerExUDPDom" Name="MP2-Server UDP Domain" Profile="domain" Protocol="udp" Scope="any" IgnoreFailure="yes" />
@@ -117,31 +117,11 @@
 
     <!-- Shortcuts -->
     <DirectoryRef Id="MP2StartMenu">
-      <Component Id="MP2Server.StartMenu.Shortcut" Guid="6A4D291B-5143-48F5-A277-65DAAE31623F">
-        <Shortcut Id="MP2Server.StartMenu.Shortcut"
+      <Component Id="Server.StartMenu.Shortcut" Guid="6A4D291B-5143-48F5-A277-65DAAE31623F">
+        <Shortcut Id="Server.StartMenu.Shortcut"
                   Name="!(loc.SC_Server)"
                   Description="!(loc.SC_Server_Desc)"
-                  Target="[!MP2Server.exe]"
-                  Icon="Server" 
-                  WorkingDirectory="INSTALLDIR_SERVER" />
-        <!--
-        Fix ICE 38 by adding a dummy registry key that is the key for this shortcut.
-        http://msdn.microsoft.com/library/en-us/msi/setup/ice38.asp
-        -->
-        <RegistryValue Root="HKCU"
-                       Key="$(var.RegKeyInstall)"
-                       Name="MP2Server.StartMenu.Shortcut"
-                       Type="string"
-                       Value="1"
-                       KeyPath="yes" />
-      </Component>
-    </DirectoryRef>
-    <DirectoryRef Id="DesktopFolder">
-      <Component Id="MP2Server.Desktop.Shortcut" Guid="751AD25F-D690-4C01-8915-CD5DA4029F8E">
-        <Shortcut Id="MP2Server.Desktop.Shortcut"
-                  Name="!(loc.SC_Server)"
-                  Description="!(loc.SC_Server_Desc)"
-                  Target="[!MP2Server.exe]"
+                  Target="[!Server.exe]"
                   Icon="Server"
                   WorkingDirectory="INSTALLDIR_SERVER" />
         <!--
@@ -150,7 +130,27 @@
         -->
         <RegistryValue Root="HKCU"
                        Key="$(var.RegKeyInstall)"
-                       Name="MP2Server.Desktop.Shortcut"
+                       Name="Server.StartMenu.Shortcut"
+                       Type="string"
+                       Value="1"
+                       KeyPath="yes" />
+      </Component>
+    </DirectoryRef>
+    <DirectoryRef Id="DesktopFolder">
+      <Component Id="Server.Desktop.Shortcut" Guid="751AD25F-D690-4C01-8915-CD5DA4029F8E">
+        <Shortcut Id="Server.Desktop.Shortcut"
+                  Name="!(loc.SC_Server)"
+                  Description="!(loc.SC_Server_Desc)"
+                  Target="[!Server.exe]"
+                  Icon="Server"
+                  WorkingDirectory="INSTALLDIR_SERVER" />
+        <!--
+        Fix ICE 38 by adding a dummy registry key that is the key for this shortcut.
+        http://msdn.microsoft.com/library/en-us/msi/setup/ice38.asp
+        -->
+        <RegistryValue Root="HKCU"
+                       Key="$(var.RegKeyInstall)"
+                       Name="Server.Desktop.Shortcut"
                        Type="string"
                        Value="1"
                        KeyPath="yes" />
