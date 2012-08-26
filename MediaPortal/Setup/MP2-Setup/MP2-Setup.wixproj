@@ -33,8 +33,8 @@
     <Content Include="..\VersionInfo.wxi">
       <Link>VersionInfo.wxi</Link>
     </Content>
-    <Compile Include="Client\ClientFeatures.wxs" />
-    <Compile Include="Dokan\Dokan.wxs" />    <Compile Include="Features\Client.wxs" />
+    <Compile Include="Dokan\Dokan.wxs" />
+    <Compile Include="Features\Client.wxs" />
     <Compile Include="Features\ClientFeatures.wxs" />
     <Compile Include="Features\Server.wxs" />
     <Compile Include="Features\ServerFeatures.wxs" />
