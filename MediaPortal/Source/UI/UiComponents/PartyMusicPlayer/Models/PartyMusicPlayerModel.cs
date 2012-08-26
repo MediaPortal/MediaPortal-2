@@ -42,6 +42,8 @@ using MediaPortal.UiComponents.PartyMusicPlayer.Settings;
 
 namespace MediaPortal.UiComponents.PartyMusicPlayer.Models
 {
+  // TODO:
+  // - Avoid that the user chooses RepeatMode "None" because then, the music could end and the party mode would be left
   public class PartyMusicPlayerModel : IWorkflowModel
   {
     #region Consts
