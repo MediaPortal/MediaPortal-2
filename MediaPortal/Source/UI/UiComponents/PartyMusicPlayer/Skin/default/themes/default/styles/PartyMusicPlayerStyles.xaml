@@ -93,8 +93,10 @@
                 Command="{Command Play}"/>
             <Button x:Name="PauseButton" Style="{ThemeResource PartyMusicPlayerPauseButtonStyle}" Margin="5,0,5,0" IsVisible="{Binding CanPause}"
                 Command="{Command Pause}"/>
+            <!-- This button must not be used in the party music player because it would stop the music - and thus leave the party mode at once - which is not intended
             <Button x:Name="StopButton" Style="{ThemeResource PartyMusicPlayerStopButtonStyle}" Margin="5,0,5,0" IsVisible="{Binding CanStop}"
                 Command="{Command Stop}"/>
+            -->
             <Button x:Name="ForwardButton" Style="{ThemeResource PartyMusicPlayerForwardButtonStyle}" Margin="5,0,5,0" IsVisible="{Binding CanSeekForward}"
                 Command="{Command SeekForward}"/>
             <Button x:Name="SkipForwardButton" Style="{ThemeResource PartyMusicPlayerSkipForwardButtonStyle}" Margin="5,0,5,0" IsVisible="{Binding CanSkipForward}"
