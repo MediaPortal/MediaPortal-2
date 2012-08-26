@@ -27,6 +27,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MediaPortal.Client", "..\So
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MediaPortal.Server", "..\Source\Main\MediaPortal.Server\MediaPortal.Server.csproj", "{DBB95772-9A29-443D-A1B1-7A32E27F598B}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MediaPortal.ServiceMonitor", "..\Source\Main\MediaPortal.ServiceMonitor\MediaPortal.ServiceMonitor.csproj", "{B554FE2F-B4FC-4D70-87DB-BC214EA104E4}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x86 = Debug|x86
@@ -88,6 +90,9 @@ Global
 		{DBB95772-9A29-443D-A1B1-7A32E27F598B}.Debug|x86.ActiveCfg = Debug|x86
 		{DBB95772-9A29-443D-A1B1-7A32E27F598B}.Release|x86.ActiveCfg = Release|x86
 		{DBB95772-9A29-443D-A1B1-7A32E27F598B}.Test|x86.ActiveCfg = Release|x86
+		{B554FE2F-B4FC-4D70-87DB-BC214EA104E4}.Debug|x86.ActiveCfg = Debug|x86
+		{B554FE2F-B4FC-4D70-87DB-BC214EA104E4}.Release|x86.ActiveCfg = Release|x86
+		{B554FE2F-B4FC-4D70-87DB-BC214EA104E4}.Test|x86.ActiveCfg = Release|x86
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -101,5 +106,6 @@ Global
 		{ECF060E7-CAA1-4466-851F-F80B857641EA} = {7E55CAE4-ADE5-4118-BC01-1256ED558E6A}
 		{53EFA17B-5F8B-4942-8211-2015FFC2223C} = {678D8AF4-65D2-4605-B622-74A4F59A5B6D}
 		{DBB95772-9A29-443D-A1B1-7A32E27F598B} = {678D8AF4-65D2-4605-B622-74A4F59A5B6D}
+		{B554FE2F-B4FC-4D70-87DB-BC214EA104E4} = {678D8AF4-65D2-4605-B622-74A4F59A5B6D}
 	EndGlobalSection
 EndGlobal

@@ -38,6 +38,7 @@
     <Compile Include="Features\ClientFeatures.wxs" />
     <Compile Include="Features\Server.wxs" />
     <Compile Include="Features\ServerFeatures.wxs" />
+    <Compile Include="Features\ServiceMonitor.Heat.wxs" />
     <Compile Include="Features\ServiceMonitor.wxs" />
     <Compile Include="Fragments\AddRemoveProperties.wxs" />
     <Compile Include="Fragments\Upgrades.wxs" />
@@ -53,6 +54,7 @@
     <Content Include="VCRedist\Microsoft_VC100_CRT_x86.msm" />
     <Content Include="VCRedist\Microsoft_VC100_MFC_x86.msm" />
     <Content Include="xslt\ClientFeatures.xslt" />
+    <Content Include="xslt\ServiceMonitor.Heat.xslt" />
     <Content Include="xslt\ServerFeatures.xslt" />
     <Content Include="xslt\PluginComponents2Features.xslt" />
   </ItemGroup>
@@ -104,6 +106,14 @@
       <RefProjectOutputGroups>Binaries;Content;Satellites</RefProjectOutputGroups>
       <RefTargetDir>INSTALLFOLDER</RefTargetDir>
     </ProjectReference>
+    <ProjectReference Include="..\..\Source\Main\MediaPortal.ServiceMonitor\MediaPortal.ServiceMonitor.csproj">
+      <Name>MediaPortal.ServiceMonitor</Name>
+      <Project>{b554fe2f-b4fc-4d70-87db-bc214ea104e4}</Project>
+      <Private>True</Private>
+      <DoNotHarvest>True</DoNotHarvest>
+      <RefProjectOutputGroups>Binaries;Content;Satellites</RefProjectOutputGroups>
+      <RefTargetDir>INSTALLFOLDER</RefTargetDir>
+    </ProjectReference>
     <ProjectReference Include="..\CustomActions\CustomActions.csproj">
       <Name>CustomActions</Name>
       <Project>{461696fb-ab81-4bf8-8907-e648f51ccdf0}</Project>
@@ -119,7 +129,8 @@
   </PropertyGroup>
   <PropertyGroup>
     <PreBuildEvent>"$(WIX)bin\heat.exe" dir "$(ProjectDir)..\..\Bin\MP2-Client\bin\x86\Release\Plugins" -cg ClientPlugins -gg -scom -sreg -sfrag -svb6 -srd -dr CLIENT.PLUGINS.FOLDER -var var.SourceClientPlugins -template fragment -t $(ProjectDir)xslt\ClientFeatures.xslt -out "$(ProjectDir)Features\ClientFeatures.wxs"
-"$(WIX)bin\heat.exe" dir "$(ProjectDir)..\..\Bin\MP2-Server\bin\x86\Release\Plugins" -cg ServerPlugins -gg -scom -sreg -sfrag -svb6 -srd -dr SERVER.PLUGINS.FOLDER -var var.SourceServerPlugins -template fragment -t $(ProjectDir)xslt\ServerFeatures.xslt -out "$(ProjectDir)Features\ServerFeatures.wxs"</PreBuildEvent>
+"$(WIX)bin\heat.exe" dir "$(ProjectDir)..\..\Bin\MP2-Server\bin\x86\Release\Plugins" -cg ServerPlugins -gg -scom -sreg -sfrag -svb6 -srd -dr SERVER.PLUGINS.FOLDER -var var.SourceServerPlugins -template fragment -t $(ProjectDir)xslt\ServerFeatures.xslt -out "$(ProjectDir)Features\ServerFeatures.wxs"
+"$(WIX)bin\heat.exe" dir "$(ProjectDir)..\..\Bin\MP2-ServiceMonitor\bin\x86\Release" -cg ServiceMonitor.Heat -gg -scom -sreg -sfrag -svb6 -srd -dr INSTALLDIR_SERVICE_MONITOR -var var.MediaPortal.ServiceMonitor.TargetDir -template fragment -t $(ProjectDir)xslt\ServiceMonitor.Heat.xslt -out "$(ProjectDir)Features\ServiceMonitor.Heat.wxs"</PreBuildEvent>
   </PropertyGroup>
   <!--
 	To modify your build process, add your task inside one of the targets below and uncomment it.
