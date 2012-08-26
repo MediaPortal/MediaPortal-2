@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="4.0">
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
@@ -60,12 +60,15 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="..\..\Source\Core\MediaPortal.Common\VersionInfo\VersionInfo.cs">
+      <Link>Properties\VersionInfo.cs</Link>
+    </Compile>
     <Compile Include="CodeTestModel.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="RATestModel.cs" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="plugin.xml"/>
+    <Content Include="plugin.xml" />
     <Content Include="Skin\default\screens\code-test-main.xaml" />
     <Content Include="Skin\default\screens\test-create-resource-accessor.xaml" />
     <Content Include="Skin\default\workflow\code-test-actions.xml" />

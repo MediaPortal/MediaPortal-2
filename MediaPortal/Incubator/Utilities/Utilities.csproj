@@ -104,6 +104,9 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="..\..\Source\Core\MediaPortal.Common\VersionInfo\VersionInfo.cs">
+      <Link>Properties\VersionInfo.cs</Link>
+    </Compile>
     <Compile Include="General\Consts.cs" />
     <Compile Include="General\ShareLocation.cs" />
     <Compile Include="Models\PlaylistImportModel.cs" />
