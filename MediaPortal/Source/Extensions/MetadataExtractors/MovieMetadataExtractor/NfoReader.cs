@@ -52,7 +52,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
       if (fsra.IsFile)
         foreach (string extension in NFO_EXTENSIONS)
         {
-          string metaFilePath = ProviderPathHelper.ChangeExtension(fsra.CanonicalLocalResourcePath.ToString(), extension);
+          string metaFilePath = ResourcePathHelper.ChangeExtension(fsra.CanonicalLocalResourcePath.ToString(), extension);
           if (TryRead(metaFilePath, out imdbId))
             return true;
         }
@@ -69,8 +69,8 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
       foreach (string path in pathsToCheck)
         foreach (string fileName in NFO_FILENAMES)
         {
-          string metaFilePath = ProviderPathHelper.GetDirectoryName(path);
-          metaFilePath = ProviderPathHelper.Combine(metaFilePath, fileName);
+          string metaFilePath = ResourcePathHelper.GetDirectoryName(path);
+          metaFilePath = ResourcePathHelper.Combine(metaFilePath, fileName);
           if (TryRead(metaFilePath, out imdbId))
             return true;
         }
@@ -102,7 +102,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
     private static IFileSystemResourceAccessor GetContainingDirectory(IFileSystemResourceAccessor fsra)
     {
       string filePath = fsra.CanonicalLocalResourcePath.ToString();
-      string directoryPath = ProviderPathHelper.GetDirectoryName(filePath);
+      string directoryPath = ResourcePathHelper.GetDirectoryName(filePath);
       IResourceAccessor metaFileAccessor;
       if (!ResourcePath.Deserialize(directoryPath).TryCreateLocalResourceAccessor(out metaFileAccessor))
         return null;
