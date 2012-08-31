@@ -27,6 +27,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Net;
 using System.Text;
+using System.Web;
 using MediaPortal.Extensions.OnlineLibraries.Libraries.MovieDbV3.Data;
 using Newtonsoft.Json;
 
@@ -89,7 +90,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.MovieDbV3
     /// <returns>List of possible matches</returns>
     public List<MovieSearchResult> SearchMovie(string query, string language)
     {
-      string url = GetUrl(URL_QUERY, language) + "&query=" + query;
+      string url = GetUrl(URL_QUERY, language) + "&query=" + HttpUtility.UrlEncode(query);
       PagedMovieSearchResult results = Download<PagedMovieSearchResult>(url);
       return results.Results;
     }
