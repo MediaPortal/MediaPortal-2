@@ -29,6 +29,7 @@ namespace MediaPortal.ServiceMonitor.ViewModel
 {
   public interface IAppController
   {
+    bool IsAutoStartEnabled { get; set; }
     TaskbarIcon TaskbarIcon { get; set; }
 
     /// <summary>

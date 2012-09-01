@@ -33,11 +33,13 @@ using MediaPortal.Common;
 using MediaPortal.Common.Logging;
 using MediaPortal.Common.Messaging;
 using MediaPortal.Common.Localization;
+using MediaPortal.Common.PathManager;
 using MediaPortal.ServiceMonitor.Collections;
 using MediaPortal.ServiceMonitor.Model;
 using MediaPortal.ServiceMonitor.UPNP;
 using MediaPortal.ServiceMonitor.View;
 using System.ServiceProcess;
+using MediaPortal.Utilities.SystemAPI;
 
 namespace MediaPortal.ServiceMonitor.ViewModel
 {
@@ -46,15 +48,45 @@ namespace MediaPortal.ServiceMonitor.ViewModel
   /// </summary>
   public class AppController : IDisposable, INotifyPropertyChanged, IAppController, IMessageReceiver
   {
+    #region Constants
+    private const string SERVER_SERVICE_NAME = "MP2 Server Service"; // the name of the installed MP2 Server Service
+    protected const string AUTOSTART_REGISTER_NAME = "MP2 ServiceMonitor";
+
+    #endregion
+
+
     #region private variables
 
-    private const string SERVER_SERVICE_NAME = "MP2 Server Service"; // the name of the installed MP2 Server Service
     private readonly SynchronizationContext _synchronizationContext; // to avoid cross thread calls
     private ServerConnectionMessaging.MessageType _serverConnectionStatus; // store last server connection status
 
     #endregion
 
     #region properties
+
+    public bool IsAutoStartEnabled
+    {
+      get { return !string.IsNullOrEmpty(WindowsAPI.GetAutostartApplicationPath(AUTOSTART_REGISTER_NAME, true)); }
+      set
+      {
+        try
+        {
+          var applicationPath = ServiceRegistration.Get<IPathManager>().GetPath("<APPLICATION_PATH>");
+#if DEBUG
+          applicationPath = applicationPath.Replace(".vshost", "");
+#endif
+          if (value)
+            WindowsAPI.AddAutostartApplication(applicationPath, AUTOSTART_REGISTER_NAME, true);
+          else
+            WindowsAPI.RemoveAutostartApplication(AUTOSTART_REGISTER_NAME, true);
+        }
+        catch (Exception ex)
+        {
+          ServiceRegistration.Get<ILogger>().Error("Can't write autostart-value to registry", ex);
+        }
+      }
+    }
+
 
     #region TaskbarIcon
 
@@ -431,6 +463,12 @@ namespace MediaPortal.ServiceMonitor.ViewModel
         ServiceRegistration.Get<ILogger>().Error("AppController.UpDateClients", ex);
       }
     }
+
+    #endregion
+
+    #region AutoStart of ServiceMonitor
+
+
 
     #endregion
 

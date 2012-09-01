@@ -68,6 +68,12 @@ namespace MediaPortal.ServiceMonitor.Commands
           // avoid any delay due to stopping of the MP2 Server Service
           ServiceRegistration.Get<IThreadPool>().Add(() => controller.StopServerService());
           break;
+        case "EnableAutoStart":
+          controller.IsAutoStartEnabled = true;
+          break;
+        case "DisableAutoStart":
+          controller.IsAutoStartEnabled = false;
+          break;
         default:
           var msg = String.Format("ApplicationCommand fired with missing or invalid parameter: {0}", parameter);
           throw new InvalidOperationException(msg);
@@ -116,6 +122,12 @@ namespace MediaPortal.ServiceMonitor.Commands
 
         case "StopService": // Stop the MP2-Server Service
           return (controller != null) && (controller.IsServerServiceInstalled()) && (controller.IsServerServiceRunning());
+
+        case "EnableAutoStart":
+          return (controller != null) && (!controller.IsAutoStartEnabled);
+
+        case "DisableAutoStart":
+          return (controller != null) && (controller.IsAutoStartEnabled);
 
         default:
           var msg = String.Format("ApplicationCommand fired with missing or invalid parameter: {0}", parameter);

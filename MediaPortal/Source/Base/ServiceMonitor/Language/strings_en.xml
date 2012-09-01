@@ -11,5 +11,7 @@
   <string name="ContextMenu.CloseWin">Close Win</string>
   <string name="ContextMenu.StartService">Start Service</string>
   <string name="ContextMenu.StopService">Stop Service</string>
+  <string name="ContextMenu.EnableAutostart">Enable Autostart</string>
+  <string name="ContextMenu.DisableAutostart">Disable Autostart</string>
   <string name="ContextMenu.Exit">Exit</string>
 </resources>

@@ -43,9 +43,25 @@
                 <Image Style="{StaticResource MenuIcon}" Source="../Resources/Images/StopSmall.png" Stretch="Fill" />
       </MenuItem.Icon>
     </MenuItem>
+    
+    <Separator />
+
+    <MenuItem Header="{e:Loc [ContextMenu.EnableAutostart]}" Command="{cmd:ApplicationCommand}" CommandParameter="EnableAutoStart" 
+              Visibility="{Binding Path=IsEnabled, RelativeSource={RelativeSource Self}, Mode=OneWay, Converter={StaticResource BoolToVisConverter}}">
+      <MenuItem.Icon>
+        <Image Style="{StaticResource MenuIcon}" Source="../Resources/Images/StartSmall.png" Stretch="Fill" />
+      </MenuItem.Icon>
+    </MenuItem>
+
+    <MenuItem Header="{e:Loc [ContextMenu.DisableAutostart]}" Command="{cmd:ApplicationCommand}" CommandParameter="DisableAutoStart" 
+              Visibility="{Binding Path=IsEnabled, RelativeSource={RelativeSource Self}, Mode=OneWay, Converter={StaticResource BoolToVisConverter}}">
+      <MenuItem.Icon>
+        <Image Style="{StaticResource MenuIcon}" Source="../Resources/Images/StopSmall.png" Stretch="Fill" />
+      </MenuItem.Icon>
+    </MenuItem>
 
     <Separator />
-  
+
     <MenuItem Header="{e:Loc [ContextMenu.Exit]}" Command="{cmd:ApplicationCommand}" CommandParameter="Quit" >
       <MenuItem.Icon>
         <Image Style="{StaticResource MenuIcon}" Source="../Resources/Images/QuitSmall.png" />
