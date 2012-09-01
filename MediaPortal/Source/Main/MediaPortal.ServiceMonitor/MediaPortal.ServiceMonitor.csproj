@@ -84,6 +84,7 @@
     <Compile Include="Commands\CommandExtension.cs" />
     <Compile Include="Converters\BooleanToCollapsedVisibilityConverter.cs" />
     <Compile Include="Converters\ConnectionStatusToImageConverter.cs" />
+    <Compile Include="Converters\ServerStatusToIconConverter.cs" />
     <Compile Include="Converters\ServerStatusToImageConverter.cs" />
     <Compile Include="Extensions\LocalizationData.cs" />
     <Compile Include="Extensions\LocExtension.cs" />
@@ -243,7 +244,9 @@
   <ItemGroup>
     <Resource Include="Resources\Images\QuitSmall.png" />
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <Resource Include="MP2-ServiceMonitor0.ico" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
     <PostBuildEvent>"$(ProjectDir)postbuild.bat" "$(SolutionDir)" "$(SolutionDir)..\Bin\$(SolutionName)\bin\$(PlatformName)\$(ConfigurationName)\"</PostBuildEvent>

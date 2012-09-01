@@ -8,6 +8,7 @@
   xmlns:e="clr-namespace:MediaPortal.ServiceMonitor.Extensions">
 
   <Converters:BooleanToCollapsedVisibilityConverter x:Key="BoolToVisConverter"/>
+  <Converters:ServerStatusToIconConverter x:Key="SrvStatToIconConverter"/>
 
 
   <Style x:Key="MenuIcon" TargetType="{x:Type Image}">
@@ -78,7 +79,7 @@
     DoubleClickCommandParameter="DoubleClick"
     ContextMenu="{StaticResource SystemTrayMenu}"
     MenuActivation="RightClick"
-    IconSource="/MP2-ServiceMonitor.ico"
+    IconSource="{Binding Path=ServerStatus, Converter={StaticResource SrvStatToIconConverter}}"
     >
     
     <TaskbarNotification:TaskbarIcon.TrayPopup>
