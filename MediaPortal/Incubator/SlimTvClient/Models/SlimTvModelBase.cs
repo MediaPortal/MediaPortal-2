@@ -25,13 +25,13 @@
 using System;
 using System.Collections.Generic;
 using MediaPortal.Common;
-using MediaPortal.Plugins.SlimTvClient.Interfaces;
-using MediaPortal.Plugins.SlimTvClient.Interfaces.Items;
+using MediaPortal.Plugins.SlimTv.Interfaces;
+using MediaPortal.Plugins.SlimTv.Interfaces.Items;
 using MediaPortal.UI.Presentation.DataObjects;
 using MediaPortal.UI.Presentation.Models;
 using MediaPortal.UI.Presentation.Workflow;
 
-namespace MediaPortal.Plugins.SlimTvClient
+namespace MediaPortal.Plugins.SlimTv.Client.Models
 {
   /// <summary>
   /// <see cref="SlimTvModelBase"/> provides basic features for all derived models, i.e. channel groupp and channel selection.

@@ -26,7 +26,7 @@ using System;
 using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.ResourceAccess;
 
-namespace MediaPortal.Plugins.SlimTvClient.Interfaces
+namespace MediaPortal.Plugins.SlimTv.Interfaces.ResourceProvider
 {
   /// <summary>
   /// Resource provider implementation for accessing TvServer via WebServiceInterface.

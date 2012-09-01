@@ -32,14 +32,15 @@ using MediaPortal.Common.Localization;
 using MediaPortal.Common.Logging;
 using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.Settings;
-using MediaPortal.Plugins.SlimTvClient.Interfaces;
-using MediaPortal.Plugins.SlimTvClient.Interfaces.Items;
-using MediaPortal.Plugins.SlimTvClient.Interfaces.ResourceProvider;
-using MediaPortal.Plugins.SlimTvClient.Providers.Items;
-using MediaPortal.Plugins.SlimTvClient.Providers.Settings;
+using MediaPortal.Plugins.SlimTv.Interfaces;
+using MediaPortal.Plugins.SlimTv.Interfaces.Items;
+using MediaPortal.Plugins.SlimTv.Interfaces.LiveTvMediaItem;
+using MediaPortal.Plugins.SlimTv.Interfaces.ResourceProvider;
+using MediaPortal.Plugins.SlimTv.Providers.Items;
+using MediaPortal.Plugins.SlimTv.Providers.Settings;
 using MediaPortal.UI.Presentation.UiNotifications;
 using MPExtended.Services.TVAccessService.Interfaces;
-using IChannel = MediaPortal.Plugins.SlimTvClient.Interfaces.Items.IChannel;
+using IChannel = MediaPortal.Plugins.SlimTv.Interfaces.Items.IChannel;
 
 namespace MediaPortal.Plugins.SlimTv.Providers
 {

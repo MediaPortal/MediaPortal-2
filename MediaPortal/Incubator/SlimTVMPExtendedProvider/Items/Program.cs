@@ -23,10 +23,11 @@
 #endregion
 
 using System;
-using MediaPortal.Plugins.SlimTvClient.Interfaces.Items;
+using MediaPortal.Plugins.SlimTv.Interfaces;
+using MediaPortal.Plugins.SlimTv.Interfaces.Items;
 using MPExtended.Services.TVAccessService.Interfaces;
 
-namespace MediaPortal.Plugins.SlimTvClient.Providers.Items
+namespace MediaPortal.Plugins.SlimTv.Providers.Items
 {
   public class Program : IProgramRecordingStatus
   {

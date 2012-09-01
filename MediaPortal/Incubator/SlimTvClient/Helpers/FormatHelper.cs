@@ -24,7 +24,7 @@
 
 using System;
 
-namespace MediaPortal.Plugins.SlimTvClient.Helpers
+namespace MediaPortal.Plugins.SlimTv.Client.Helpers
 {
   public class FormatHelper
   {

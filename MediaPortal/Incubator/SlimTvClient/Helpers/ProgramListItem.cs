@@ -3,7 +3,7 @@ using MediaPortal.Common.General;
 using MediaPortal.UI.Presentation.DataObjects;
 using MediaPortal.UiComponents.Media.General;
 
-namespace MediaPortal.Plugins.SlimTvClient.Helpers
+namespace MediaPortal.Plugins.SlimTv.Client.Helpers
 {
   /// <summary>
   /// Holds a GUI item which represents a Program item.

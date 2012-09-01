@@ -23,9 +23,9 @@
 #endregion
 
 using System;
-using MediaPortal.Plugins.SlimTvClient.Interfaces.Items;
+using MediaPortal.Plugins.SlimTv.Interfaces.Items;
 
-namespace MediaPortal.Plugins.SlimTvClient.Interfaces
+namespace MediaPortal.Plugins.SlimTv.Interfaces
 {
   /// <summary>
   /// ITvHandler defines all actions and properties for the TvHandler.

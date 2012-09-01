@@ -23,7 +23,6 @@
 #endregion
 
 using MediaPortal.Common.Configuration.ConfigurationClasses;
-using MediaPortal.Plugins.SlimTvClient.Providers.Settings;
 
 namespace MediaPortal.Plugins.SlimTv.Providers.Settings.Configuration
 {

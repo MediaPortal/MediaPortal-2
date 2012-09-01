@@ -23,9 +23,9 @@
 #endregion
 
 using System;
-using MediaPortal.Plugins.SlimTvClient.Interfaces.Items;
+using MediaPortal.Plugins.SlimTv.Interfaces.Items;
 
-namespace MediaPortal.Plugins.SlimTvClient
+namespace MediaPortal.Plugins.SlimTv.Client.TvHandler
 {
   public class TimeshiftContext : ITimeshiftContext
   {

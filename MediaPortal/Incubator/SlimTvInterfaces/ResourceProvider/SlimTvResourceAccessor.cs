@@ -27,7 +27,7 @@ using System.IO;
 using MediaPortal.Common;
 using MediaPortal.Common.ResourceAccess;
 
-namespace MediaPortal.Plugins.SlimTvClient.Interfaces
+namespace MediaPortal.Plugins.SlimTv.Interfaces.ResourceProvider
 {
   // TODO: support different ResourceAccessors for either local files (single seat) or network streams (multi seat). Current implementation always uses
   // network streams, even in single seat.

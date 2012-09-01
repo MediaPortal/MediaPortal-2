@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using MediaPortal.Common.MediaManagement;
-using MediaPortal.Plugins.SlimTvClient.Interfaces.Items;
+using MediaPortal.Plugins.SlimTv.Interfaces.Items;
 
-namespace MediaPortal.Plugins.SlimTvClient.Interfaces
+namespace MediaPortal.Plugins.SlimTv.Interfaces.LiveTvMediaItem
 {
   public class LiveTvMediaItem: MediaItem
   {

@@ -29,7 +29,7 @@ using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.ResourceAccess;
 using MediaPortal.UI.Presentation.Players;
 
-namespace MediaPortal.Plugins.SlimTvClient
+namespace MediaPortal.Plugins.SlimTv.Client.Player
 {
   /// <summary>
   /// Player builder for Slim Tv player.

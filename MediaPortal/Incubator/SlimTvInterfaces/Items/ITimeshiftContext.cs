@@ -24,7 +24,7 @@
 
 using System;
 
-namespace MediaPortal.Plugins.SlimTvClient.Interfaces.Items
+namespace MediaPortal.Plugins.SlimTv.Interfaces.Items
 {
   /// <summary>
   /// ITimeshiftContext represents a state of timeshifting in progress. The timeshift context changes 

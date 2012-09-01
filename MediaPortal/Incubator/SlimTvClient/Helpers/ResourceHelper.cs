@@ -26,13 +26,13 @@ using System.Globalization;
 using MediaPortal.UI.SkinEngine.MpfElements.Resources;
 using MediaPortal.UI.SkinEngine.SkinManagement;
 
-namespace MediaPortal.Plugins.SlimTvClient.Helpers
+namespace MediaPortal.Plugins.SlimTv.Client.Helpers
 {
   public class ResourceHelper
   {
     public static bool ReadResourceDouble(string resourceKey, ref double valueTarget)
     {
-       ResourceWrapper resMultiGuideVisibleHours = SkinContext.SkinResources.FindStyleResource(resourceKey) as ResourceWrapper;
+      ResourceWrapper resMultiGuideVisibleHours = SkinContext.SkinResources.FindStyleResource(resourceKey) as ResourceWrapper;
       if (resMultiGuideVisibleHours != null && resMultiGuideVisibleHours.Resource != null)
       {
         double visibleHours;

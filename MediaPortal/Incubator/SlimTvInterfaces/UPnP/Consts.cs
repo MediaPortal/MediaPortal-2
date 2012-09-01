@@ -22,29 +22,12 @@
 
 #endregion
 
-using MediaPortal.Plugins.SlimTv.Interfaces.Extensions;
-using MediaPortal.Plugins.SlimTv.Interfaces.Items;
-
-namespace MediaPortal.Plugins.SlimTv.Client.Extensions
+namespace MediaPortal.Plugins.SlimTv.Interfaces.UPnP
 {
-  /// <summary>
-  /// Example class for definition of <see cref="IProgramAction"/>s.
-  /// </summary>
-  class ProgramExample: IProgramAction
+  public class Consts
   {
-    public bool DoSomethingWithProgram(IProgram program)
-    {
-      return true;
-    }
-
-    public bool IsAvailable (IProgram program)
-    {
-      return true;
-    }
-
-    public ProgramActionDelegate ProgramAction
-    {
-      get { return DoSomethingWithProgram; }
-    }
+    public const string SLIMTV_SERVICE_TYPE = "schemas-team-mediaportal-com:service:SlimTv";
+    public const int SLIMTV_SERVICE_TYPE_VERSION = 1;
+    public const string SLIMTV_SERVICE_ID = "urn:team-mediaportal-com:serviceId:SlimTv";
   }
 }

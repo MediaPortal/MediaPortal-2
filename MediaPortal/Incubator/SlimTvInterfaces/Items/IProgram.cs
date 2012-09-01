@@ -24,7 +24,7 @@
 
 using System;
 
-namespace MediaPortal.Plugins.SlimTvClient.Interfaces.Items
+namespace MediaPortal.Plugins.SlimTv.Interfaces.Items
 {
   /// <summary>
   /// IProgram represents a single program on a channel.

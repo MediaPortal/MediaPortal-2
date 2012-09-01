@@ -1,0 +1,625 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProductVersion>9.0.30729</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{6EB21E54-9984-41A4-922C-7AF27CFE56BA}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>MediaPortal.Plugins.SlimTv.Client</RootNamespace>
+    <AssemblyName>SlimTv.Client</AssemblyName>
+    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <RunPostBuildEvent>OnBuildSuccess</RunPostBuildEvent>
+    <FileUpgradeFlags>
+    </FileUpgradeFlags>
+    <OldToolsVersion>3.5</OldToolsVersion>
+    <UpgradeBackupLocation />
+    <PublishUrl>publish\</PublishUrl>
+    <Install>true</Install>
+    <InstallFrom>Disk</InstallFrom>
+    <UpdateEnabled>false</UpdateEnabled>
+    <UpdateMode>Foreground</UpdateMode>
+    <UpdateInterval>7</UpdateInterval>
+    <UpdateIntervalUnits>Days</UpdateIntervalUnits>
+    <UpdatePeriodically>false</UpdatePeriodically>
+    <UpdateRequired>false</UpdateRequired>
+    <MapFileExtensions>true</MapFileExtensions>
+    <ApplicationRevision>0</ApplicationRevision>
+    <ApplicationVersion>1.0.0.%2a</ApplicationVersion>
+    <IsWebBootstrapper>false</IsWebBootstrapper>
+    <UseApplicationTrust>false</UseApplicationTrust>
+    <BootstrapperEnabled>true</BootstrapperEnabled>
+    <TargetFrameworkProfile />
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|x86' ">
+    <DebugSymbols>true</DebugSymbols>
+    <OutputPath>bin\x86\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <DebugType>full</DebugType>
+    <PlatformTarget>x86</PlatformTarget>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|x86' ">
+    <OutputPath>bin\x86\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <Optimize>true</Optimize>
+    <DebugType>pdbonly</DebugType>
+    <PlatformTarget>x86</PlatformTarget>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="DirectShowLib-2005, Version=2.1.0.0, Culture=neutral, PublicKeyToken=67e7b740cdfc2d3f, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\Source\UI\Players\VideoPlayer\References\DirectShowLib-2005.dll</HintPath>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.Core">
+      <RequiredTargetFramework>3.5</RequiredTargetFramework>
+    </Reference>
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.ServiceModel">
+      <RequiredTargetFramework>3.0</RequiredTargetFramework>
+    </Reference>
+    <Reference Include="System.Xml.Linq">
+      <RequiredTargetFramework>3.5</RequiredTargetFramework>
+    </Reference>
+    <Reference Include="System.Data.DataSetExtensions">
+      <RequiredTargetFramework>3.5</RequiredTargetFramework>
+    </Reference>
+    <Reference Include="System.Data" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="..\..\Source\Core\MediaPortal.Common\VersionInfo\VersionInfo.cs">
+      <Link>Properties\VersionInfo.cs</Link>
+    </Compile>
+    <Compile Include="Extensions\ProgramExample.cs" />
+    <Compile Include="Helpers\FormatHelper.cs" />
+    <Compile Include="Helpers\ChannelProgramListItem.cs" />
+    <Compile Include="Helpers\ProgramListItem.cs" />
+    <Compile Include="Helpers\ProgramProperties.cs" />
+    <Compile Include="Helpers\ResourceHelper.cs" />
+    <Compile Include="Models\SlimTvModelBase.cs" />
+    <Compile Include="Models\SlimTvMultiChannelGuideModel.cs" />
+    <Compile Include="Models\SlimTvGuideModelBase.cs" />
+    <Compile Include="Models\SlimTvSingleChannelGuideModel.cs" />
+    <Compile Include="Player\LiveTvPlayer.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Models\SlimTvClientModel.cs" />
+    <Compile Include="TvHandler\SlimTvHandler.cs" />
+    <Compile Include="Player\SlimTvUIContributor.cs" />
+    <Compile Include="Player\SlimTvPlayerBuilder.cs" />
+    <Compile Include="TvHandler\TimeshiftContext.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\Source\Core\MediaPortal.Common\MediaPortal.Common.csproj">
+      <Project>{ECF060E7-CAA1-4466-851F-F80B857641EA}</Project>
+      <Name>MediaPortal.Common</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\Source\Core\MediaPortal.UI\MediaPortal.UI.csproj">
+      <Project>{52E587D0-A274-44DA-8846-8EEAF5414923}</Project>
+      <Name>MediaPortal.UI</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\Source\Core\MediaPortal.Utilities\MediaPortal.Utilities.csproj">
+      <Project>{4FE7B8AE-1330-424A-91A1-C68D7ABF9CB8}</Project>
+      <Name>MediaPortal.Utilities</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\Source\UI\Players\VideoPlayer\VideoPlayers.csproj">
+      <Project>{ED9A8A29-91DD-4B21-8CB8-A8B0F3EFF61C}</Project>
+      <Name>VideoPlayers</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\Source\UI\SkinEngine\SkinEngine.csproj">
+      <Project>{7E943389-3589-40C9-B481-2E223554CC49}</Project>
+      <Name>SkinEngine</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\Source\UI\UiComponents\Media\Media.csproj">
+      <Project>{CD37E2FF-4CF7-4F96-8C73-C6764988D408}</Project>
+      <Name>Media</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\Source\UI\UiComponents\SkinBase\SkinBase.csproj">
+      <Project>{4EFED5BE-2F6A-4944-BB96-053D5945BA1F}</Project>
+      <Name>SkinBase</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\SlimTvInterfaces\SlimTv.Interfaces.csproj">
+      <Project>{F31C71FA-4A24-4D33-B0EE-52CF667DCEF4}</Project>
+      <Name>SlimTv.Interfaces</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="plugin.xml" />
+    <Content Include="Skin\default\images\channellogos\1-2-3.tv.png" />
+    <Content Include="Skin\default\images\channellogos\13 th Street %28KD%29.png" />
+    <Content Include="Skin\default\images\channellogos\13 th Street.png" />
+    <Content Include="Skin\default\images\channellogos\13th Street.png" />
+    <Content Include="Skin\default\images\channellogos\3+.png" />
+    <Content Include="Skin\default\images\channellogos\3sat.png" />
+    <Content Include="Skin\default\images\channellogos\9Live.png" />
+    <Content Include="Skin\default\images\channellogos\Al Jazeera International.png" />
+    <Content Include="Skin\default\images\channellogos\Al Jazeera.png" />
+    <Content Include="Skin\default\images\channellogos\Animal Planet.png" />
+    <Content Include="Skin\default\images\channellogos\Animax %28a_S%29.png" />
+    <Content Include="Skin\default\images\channellogos\Animax.png" />
+    <Content Include="Skin\default\images\channellogos\Anixe HD.png" />
+    <Content Include="Skin\default\images\channellogos\Anixe SD.png" />
+    <Content Include="Skin\default\images\channellogos\arena.png" />
+    <Content Include="Skin\default\images\channellogos\arte HD.png" />
+    <Content Include="Skin\default\images\channellogos\arte.png" />
+    <Content Include="Skin\default\images\channellogos\arte_extra.png" />
+    <Content Include="Skin\default\images\channellogos\arte_festival.png" />
+    <Content Include="Skin\default\images\channellogos\ASTRA HD.png" />
+    <Content Include="Skin\default\images\channellogos\ASTRA Vision.png" />
+    <Content Include="Skin\default\images\channellogos\ATV+.png" />
+    <Content Include="Skin\default\images\channellogos\ATV.png" />
+    <Content Include="Skin\default\images\channellogos\AUSTRIA 9 TV.png" />
+    <Content Include="Skin\default\images\channellogos\AXN %28a_S%29.png" />
+    <Content Include="Skin\default\images\channellogos\AXN Action.png" />
+    <Content Include="Skin\default\images\channellogos\AXN.png" />
+    <Content Include="Skin\default\images\channellogos\Bahn TV.png" />
+    <Content Include="Skin\default\images\channellogos\Bayerisches FS Nord.png" />
+    <Content Include="Skin\default\images\channellogos\Bayerisches FS Süd.png" />
+    <Content Include="Skin\default\images\channellogos\Bayerisches FS.png" />
+    <Content Include="Skin\default\images\channellogos\BBC Entertainment.png" />
+    <Content Include="Skin\default\images\channellogos\BBC World News.png" />
+    <Content Include="Skin\default\images\channellogos\BBC World.png" />
+    <Content Include="Skin\default\images\channellogos\BBC.png" />
+    <Content Include="Skin\default\images\channellogos\Beate-Uhse.TV.png" />
+    <Content Include="Skin\default\images\channellogos\Bibel TV.png" />
+    <Content Include="Skin\default\images\channellogos\BibelTV.png" />
+    <Content Include="Skin\default\images\channellogos\Biography Channel.png" />
+    <Content Include="Skin\default\images\channellogos\Bloomberg TV Germany.png" />
+    <Content Include="Skin\default\images\channellogos\Bloomberg.png" />
+    <Content Include="Skin\default\images\channellogos\Blue Movie.png" />
+    <Content Include="Skin\default\images\channellogos\Boomerang %28a_S%29.png" />
+    <Content Include="Skin\default\images\channellogos\Boomerang.png" />
+    <Content Include="Skin\default\images\channellogos\BR-alpha.png" />
+    <Content Include="Skin\default\images\channellogos\BR-alpha_.png" />
+    <Content Include="Skin\default\images\channellogos\Cartoon Network %28a_S%29.png" />
+    <Content Include="Skin\default\images\channellogos\Cartoon Network.png" />
+    <Content Include="Skin\default\images\channellogos\classica.png" />
+    <Content Include="Skin\default\images\channellogos\CNBC Europe.png" />
+    <Content Include="Skin\default\images\channellogos\CNBC.png" />
+    <Content Include="Skin\default\images\channellogos\CNN Int..png" />
+    <Content Include="Skin\default\images\channellogos\CNN International.png" />
+    <Content Include="Skin\default\images\channellogos\CNN.png" />
+    <Content Include="Skin\default\images\channellogos\COMEDY CENTRAL Germany.png" />
+    <Content Include="Skin\default\images\channellogos\Composite.PNG" />
+    <Content Include="Skin\default\images\channellogos\Das Erste HD.png" />
+    <Content Include="Skin\default\images\channellogos\Das Erste.png" />
+    <Content Include="Skin\default\images\channellogos\Das Vierte.png" />
+    <Content Include="Skin\default\images\channellogos\Deluxe Music.png" />
+    <Content Include="Skin\default\images\channellogos\Deutsche Welle TV.png" />
+    <Content Include="Skin\default\images\channellogos\Deutsches Gesundheitsfernsehen.png" />
+    <Content Include="Skin\default\images\channellogos\Discovery Channel.png" />
+    <Content Include="Skin\default\images\channellogos\Discovery Geschichte.png" />
+    <Content Include="Skin\default\images\channellogos\Discovery HD.png" />
+    <Content Include="Skin\default\images\channellogos\Disney Channel.png" />
+    <Content Include="Skin\default\images\channellogos\Disney Cinemagic HD.png" />
+    <Content Include="Skin\default\images\channellogos\Disney Cinemagic.png" />
+    <Content Include="Skin\default\images\channellogos\Disney Playhouse %28S%29.png" />
+    <Content Include="Skin\default\images\channellogos\Disney Playhouse.png" />
+    <Content Include="Skin\default\images\channellogos\Disney Toon %28S%29.png" />
+    <Content Include="Skin\default\images\channellogos\Disney Toon +1.png" />
+    <Content Include="Skin\default\images\channellogos\Disney Toon.png" />
+    <Content Include="Skin\default\images\channellogos\Disney XD.png" />
+    <Content Include="Skin\default\images\channellogos\DMAX.png" />
+    <Content Include="Skin\default\images\channellogos\Doku_KiKa.png" />
+    <Content Include="Skin\default\images\channellogos\DrDish Television.png" />
+    <Content Include="Skin\default\images\channellogos\DrDishTV.png" />
+    <Content Include="Skin\default\images\channellogos\DSF.png" />
+    <Content Include="Skin\default\images\channellogos\DW-TV.png" />
+    <Content Include="Skin\default\images\channellogos\E! Entertainment.png" />
+    <Content Include="Skin\default\images\channellogos\e.clips %28S%29.png" />
+    <Content Include="Skin\default\images\channellogos\e.clips.png" />
+    <Content Include="Skin\default\images\channellogos\EinsExtra.png" />
+    <Content Include="Skin\default\images\channellogos\EinsFestival HD.png" />
+    <Content Include="Skin\default\images\channellogos\EinsFestival.png" />
+    <Content Include="Skin\default\images\channellogos\EinsPlus.png" />
+    <Content Include="Skin\default\images\channellogos\Eishockey DEL.png" />
+    <Content Include="Skin\default\images\channellogos\ERF Eins.png" />
+    <Content Include="Skin\default\images\channellogos\ESPN America.png" />
+    <Content Include="Skin\default\images\channellogos\ESPN Classic.png" />
+    <Content Include="Skin\default\images\channellogos\EuroNews.png" />
+    <Content Include="Skin\default\images\channellogos\Eurosport 2 %28a_S%29.png" />
+    <Content Include="Skin\default\images\channellogos\Eurosport 2 HD.png" />
+    <Content Include="Skin\default\images\channellogos\Eurosport 2.png" />
+    <Content Include="Skin\default\images\channellogos\Eurosport HD.png" />
+    <Content Include="Skin\default\images\channellogos\Eurosport News.png" />
+    <Content Include="Skin\default\images\channellogos\Eurosport.png" />
+    <Content Include="Skin\default\images\channellogos\Extreme Sports.png" />
+    <Content Include="Skin\default\images\channellogos\FAB.png" />
+    <Content Include="Skin\default\images\channellogos\Fashion TV.png" />
+    <Content Include="Skin\default\images\channellogos\FOCUS Gesundheit.png" />
+    <Content Include="Skin\default\images\channellogos\FOX Serie.png" />
+    <Content Include="Skin\default\images\channellogos\FOX.png" />
+    <Content Include="Skin\default\images\channellogos\Franken SAT.png" />
+    <Content Include="Skin\default\images\channellogos\GIGA.png" />
+    <Content Include="Skin\default\images\channellogos\GOD Channel.png" />
+    <Content Include="Skin\default\images\channellogos\GOLDSTAR TV.png" />
+    <Content Include="Skin\default\images\channellogos\GoTV.png" />
+    <Content Include="Skin\default\images\channellogos\Hamburg 1.png" />
+    <Content Include="Skin\default\images\channellogos\HD Suisse.png" />
+    <Content Include="Skin\default\images\channellogos\Heimatkanal.png" />
+    <Content Include="Skin\default\images\channellogos\History Channel.png" />
+    <Content Include="Skin\default\images\channellogos\History HD.png" />
+    <Content Include="Skin\default\images\channellogos\History.png" />
+    <Content Include="Skin\default\images\channellogos\HIT24.png" />
+    <Content Include="Skin\default\images\channellogos\Hitradio OE3.png" />
+    <Content Include="Skin\default\images\channellogos\hr-fernsehen.png" />
+    <Content Include="Skin\default\images\channellogos\HSE24 Digital.png" />
+    <Content Include="Skin\default\images\channellogos\HSE24.png" />
+    <Content Include="Skin\default\images\channellogos\iMusic 1.png" />
+    <Content Include="Skin\default\images\channellogos\iMusic TV.png" />
+    <Content Include="Skin\default\images\channellogos\iMusic.png" />
+    <Content Include="Skin\default\images\channellogos\Info_3sat.png" />
+    <Content Include="Skin\default\images\channellogos\JETIX.png" />
+    <Content Include="Skin\default\images\channellogos\Junior.png" />
+    <Content Include="Skin\default\images\channellogos\K-TV.png" />
+    <Content Include="Skin\default\images\channellogos\Kabel 1 Austria.png" />
+    <Content Include="Skin\default\images\channellogos\Kabel 1 Schweiz.png" />
+    <Content Include="Skin\default\images\channellogos\kabel eins classics.png" />
+    <Content Include="Skin\default\images\channellogos\kabel eins HD.png" />
+    <Content Include="Skin\default\images\channellogos\kabel eins.png" />
+    <Content Include="Skin\default\images\channellogos\KiKa.png" />
+    <Content Include="Skin\default\images\channellogos\Kinowelt TV %28S%29.png" />
+    <Content Include="Skin\default\images\channellogos\Kinowelt TV.png" />
+    <Content Include="Skin\default\images\channellogos\Lokalsat.png" />
+    <Content Include="Skin\default\images\channellogos\LT1.png" />
+    <Content Include="Skin\default\images\channellogos\MDR Fernsehen.png" />
+    <Content Include="Skin\default\images\channellogos\MDR S-ANHALT.png" />
+    <Content Include="Skin\default\images\channellogos\MDR SACHSEN.png" />
+    <Content Include="Skin\default\images\channellogos\MDR THÜRINGEN.png" />
+    <Content Include="Skin\default\images\channellogos\mezzo.png" />
+    <Content Include="Skin\default\images\channellogos\MGM.png" />
+    <Content Include="Skin\default\images\channellogos\Motor TV.png" />
+    <Content Include="Skin\default\images\channellogos\motors tv.png" />
+    <Content Include="Skin\default\images\channellogos\motors.tv.png" />
+    <Content Include="Skin\default\images\channellogos\Motorvision TV.png" />
+    <Content Include="Skin\default\images\channellogos\MTV Austria.png" />
+    <Content Include="Skin\default\images\channellogos\MTV DANCE.png" />
+    <Content Include="Skin\default\images\channellogos\MTV Entertainment %28S%29.png" />
+    <Content Include="Skin\default\images\channellogos\MTV Entertainment.png" />
+    <Content Include="Skin\default\images\channellogos\MTV Germany.png" />
+    <Content Include="Skin\default\images\channellogos\MTV HD.png" />
+    <Content Include="Skin\default\images\channellogos\MTV HITS.png" />
+    <Content Include="Skin\default\images\channellogos\MTV Music.png" />
+    <Content Include="Skin\default\images\channellogos\MTV.png" />
+    <Content Include="Skin\default\images\channellogos\MTVN HD.png" />
+    <Content Include="Skin\default\images\channellogos\n-tv.png" />
+    <Content Include="Skin\default\images\channellogos\N24.png" />
+    <Content Include="Skin\default\images\channellogos\NASN %28S%29.png" />
+    <Content Include="Skin\default\images\channellogos\NASN.png" />
+    <Content Include="Skin\default\images\channellogos\NatGeo Wild HD.png" />
+    <Content Include="Skin\default\images\channellogos\NatGeo Wild.png" />
+    <Content Include="Skin\default\images\channellogos\National Geographic HD.png" />
+    <Content Include="Skin\default\images\channellogos\National Geographic.png" />
+    <Content Include="Skin\default\images\channellogos\NDR FERNSEHEN.png" />
+    <Content Include="Skin\default\images\channellogos\NDR FS HH+.png" />
+    <Content Include="Skin\default\images\channellogos\NDR FS HH.png" />
+    <Content Include="Skin\default\images\channellogos\NDR FS MV+.png" />
+    <Content Include="Skin\default\images\channellogos\NDR FS MV.png" />
+    <Content Include="Skin\default\images\channellogos\NDR FS NDS _.png" />
+    <Content Include="Skin\default\images\channellogos\NDR FS NDS.png" />
+    <Content Include="Skin\default\images\channellogos\NDR FS SH+.png" />
+    <Content Include="Skin\default\images\channellogos\NDR FS SH.png" />
+    <Content Include="Skin\default\images\channellogos\NDR.png" />
+    <Content Include="Skin\default\images\channellogos\NICK Austria.png" />
+    <Content Include="Skin\default\images\channellogos\NICK Germany.png" />
+    <Content Include="Skin\default\images\channellogos\NICK Jr..png" />
+    <Content Include="Skin\default\images\channellogos\NICK Junior.png" />
+    <Content Include="Skin\default\images\channellogos\Nick Premium %28S%29.png" />
+    <Content Include="Skin\default\images\channellogos\Nick Premium.png" />
+    <Content Include="Skin\default\images\channellogos\nicktoons %28S%29.png" />
+    <Content Include="Skin\default\images\channellogos\nicktoons.png" />
+    <Content Include="Skin\default\images\channellogos\NICK_COMEDY CENTRAL.png" />
+    <Content Include="Skin\default\images\channellogos\NICK_COMEDY.png" />
+    <Content Include="Skin\default\images\channellogos\no_channel_logo.png" />
+    <Content Include="Skin\default\images\channellogos\NRJ Hits.png" />
+    <Content Include="Skin\default\images\channellogos\NRW.TV.png" />
+    <Content Include="Skin\default\images\channellogos\OberfrankenTV.png" />
+    <Content Include="Skin\default\images\channellogos\okb.png" />
+    <Content Include="Skin\default\images\channellogos\ONTV Regional.png" />
+    <Content Include="Skin\default\images\channellogos\ORF SPORT PLUS.png" />
+    <Content Include="Skin\default\images\channellogos\ORF1 HD.png" />
+    <Content Include="Skin\default\images\channellogos\ORF1.png" />
+    <Content Include="Skin\default\images\channellogos\ORF2 B.png" />
+    <Content Include="Skin\default\images\channellogos\ORF2 HD.png" />
+    <Content Include="Skin\default\images\channellogos\ORF2 K.png" />
+    <Content Include="Skin\default\images\channellogos\ORF2 N.png" />
+    <Content Include="Skin\default\images\channellogos\ORF2 O.png" />
+    <Content Include="Skin\default\images\channellogos\ORF2 S.png" />
+    <Content Include="Skin\default\images\channellogos\ORF2 St.png" />
+    <Content Include="Skin\default\images\channellogos\ORF2 T.png" />
+    <Content Include="Skin\default\images\channellogos\ORF2 V.png" />
+    <Content Include="Skin\default\images\channellogos\ORF2 W.png" />
+    <Content Include="Skin\default\images\channellogos\ORF2.png" />
+    <Content Include="Skin\default\images\channellogos\ORF2E.png" />
+    <Content Include="Skin\default\images\channellogos\Passion.png" />
+    <Content Include="Skin\default\images\channellogos\Phoenix.png" />
+    <Content Include="Skin\default\images\channellogos\Planet.png" />
+    <Content Include="Skin\default\images\channellogos\Playboy TV.png" />
+    <Content Include="Skin\default\images\channellogos\Playhouse Disney.png" />
+    <Content Include="Skin\default\images\channellogos\ProSieben Austria.png" />
+    <Content Include="Skin\default\images\channellogos\ProSieben HD.png" />
+    <Content Include="Skin\default\images\channellogos\ProSieben Schweiz.png" />
+    <Content Include="Skin\default\images\channellogos\ProSieben.png" />
+    <Content Include="Skin\default\images\channellogos\puls 4 Austria.png" />
+    <Content Include="Skin\default\images\channellogos\puls 4.png" />
+    <Content Include="Skin\default\images\channellogos\QVC Deutschland.png" />
+    <Content Include="Skin\default\images\channellogos\QVC.png" />
+    <Content Include="Skin\default\images\channellogos\Radio Bremen TV.png" />
+    <Content Include="Skin\default\images\channellogos\Radio Bremen TV_.png" />
+    <Content Include="Skin\default\images\channellogos\rbb Berlin.png" />
+    <Content Include="Skin\default\images\channellogos\rbb Brandenburg.png" />
+    <Content Include="Skin\default\images\channellogos\rbb.png" />
+    <Content Include="Skin\default\images\channellogos\rhein main tv.png" />
+    <Content Include="Skin\default\images\channellogos\rhein-main tv.png" />
+    <Content Include="Skin\default\images\channellogos\RNF.png" />
+    <Content Include="Skin\default\images\channellogos\Romance TV.png" />
+    <Content Include="Skin\default\images\channellogos\RTL Austria.png" />
+    <Content Include="Skin\default\images\channellogos\RTL Crime.png" />
+    <Content Include="Skin\default\images\channellogos\RTL HB NDS.png" />
+    <Content Include="Skin\default\images\channellogos\RTL HD.png" />
+    <Content Include="Skin\default\images\channellogos\RTL HH SH.png" />
+    <Content Include="Skin\default\images\channellogos\RTL II.png" />
+    <Content Include="Skin\default\images\channellogos\RTL Living.png" />
+    <Content Include="Skin\default\images\channellogos\RTL Passion.png" />
+    <Content Include="Skin\default\images\channellogos\RTL Schweiz.png" />
+    <Content Include="Skin\default\images\channellogos\RTL Shop.png" />
+    <Content Include="Skin\default\images\channellogos\RTL Television.png" />
+    <Content Include="Skin\default\images\channellogos\RTL2 Austria.png" />
+    <Content Include="Skin\default\images\channellogos\RTL2 Schweiz.png" />
+    <Content Include="Skin\default\images\channellogos\RTL2.png" />
+    <Content Include="Skin\default\images\channellogos\SAT. 1.png" />
+    <Content Include="Skin\default\images\channellogos\SAT.1 A.png" />
+    <Content Include="Skin\default\images\channellogos\SAT.1 CH.png" />
+    <Content Include="Skin\default\images\channellogos\SAT.1 Comedy.png" />
+    <Content Include="Skin\default\images\channellogos\SAT.1 HD.png" />
+    <Content Include="Skin\default\images\channellogos\SAT.1.png" />
+    <Content Include="Skin\default\images\channellogos\Sci Fi.png" />
+    <Content Include="Skin\default\images\channellogos\SciFi %28KD%29.png" />
+    <Content Include="Skin\default\images\channellogos\SciFi.png" />
+    <Content Include="Skin\default\images\channellogos\Servus TV HD.png" />
+    <Content Include="Skin\default\images\channellogos\Servus TV.png" />
+    <Content Include="Skin\default\images\channellogos\ServusTV.png" />
+    <Content Include="Skin\default\images\channellogos\SF1.png" />
+    <Content Include="Skin\default\images\channellogos\SFinfo.png" />
+    <Content Include="Skin\default\images\channellogos\SFzwei.png" />
+    <Content Include="Skin\default\images\channellogos\Silverline Movie Channel.png" />
+    <Content Include="Skin\default\images\channellogos\sixx.png" />
+    <Content Include="Skin\default\images\channellogos\sky action HD.png" />
+    <Content Include="Skin\default\images\channellogos\sky action.png" />
+    <Content Include="Skin\default\images\channellogos\sky cinema +1.png" />
+    <Content Include="Skin\default\images\channellogos\sky cinema +24.png" />
+    <Content Include="Skin\default\images\channellogos\sky cinema HD.png" />
+    <Content Include="Skin\default\images\channellogos\sky cinema hits HD.png" />
+    <Content Include="Skin\default\images\channellogos\sky cinema hits.png" />
+    <Content Include="Skin\default\images\channellogos\sky cinema.png" />
+    <Content Include="Skin\default\images\channellogos\sky comedy.png" />
+    <Content Include="Skin\default\images\channellogos\sky emotion.png" />
+    <Content Include="Skin\default\images\channellogos\sky fußball bundesliga.png" />
+    <Content Include="Skin\default\images\channellogos\sky krimi.png" />
+    <Content Include="Skin\default\images\channellogos\Sky News Intl.png" />
+    <Content Include="Skin\default\images\channellogos\Sky News.png" />
+    <Content Include="Skin\default\images\channellogos\sky nostalgie.png" />
+    <Content Include="Skin\default\images\channellogos\sky select 1.png" />
+    <Content Include="Skin\default\images\channellogos\sky select 2.png" />
+    <Content Include="Skin\default\images\channellogos\sky select 3.png" />
+    <Content Include="Skin\default\images\channellogos\sky select 4.png" />
+    <Content Include="Skin\default\images\channellogos\sky select 5.png" />
+    <Content Include="Skin\default\images\channellogos\sky select 6.png" />
+    <Content Include="Skin\default\images\channellogos\sky select 7.png" />
+    <Content Include="Skin\default\images\channellogos\sky select 8.png" />
+    <Content Include="Skin\default\images\channellogos\sky select 9.png" />
+    <Content Include="Skin\default\images\channellogos\sky select.png" />
+    <Content Include="Skin\default\images\channellogos\sky sport 1.png" />
+    <Content Include="Skin\default\images\channellogos\sky sport 2.png" />
+    <Content Include="Skin\default\images\channellogos\sky sport austria.png" />
+    <Content Include="Skin\default\images\channellogos\sky sport HD.png" />
+    <Content Include="Skin\default\images\channellogos\sky sport HD2.png" />
+    <Content Include="Skin\default\images\channellogos\sky sport info.png" />
+    <Content Include="Skin\default\images\channellogos\Sonnenklar TV.png" />
+    <Content Include="Skin\default\images\channellogos\Souvenirs from Earth.png" />
+    <Content Include="Skin\default\images\channellogos\Spiegel Geschichte.png" />
+    <Content Include="Skin\default\images\channellogos\Spiegel TV Digital.png" />
+    <Content Include="Skin\default\images\channellogos\SpiritOn.TV.png" />
+    <Content Include="Skin\default\images\channellogos\Sport1.png" />
+    <Content Include="Skin\default\images\channellogos\sportdigital.tv.png" />
+    <Content Include="Skin\default\images\channellogos\SR Fernsehen.png" />
+    <Content Include="Skin\default\images\channellogos\Star TV.png" />
+    <Content Include="Skin\default\images\channellogos\Super RTL A.png" />
+    <Content Include="Skin\default\images\channellogos\Super RTL CH.png" />
+    <Content Include="Skin\default\images\channellogos\Super RTL.png" />
+    <Content Include="Skin\default\images\channellogos\SVHS.PNG" />
+    <Content Include="Skin\default\images\channellogos\SWR Fernsehen BW.png" />
+    <Content Include="Skin\default\images\channellogos\SWR Fernsehen RP.png" />
+    <Content Include="Skin\default\images\channellogos\SWR Fernsehen.png" />
+    <Content Include="Skin\default\images\channellogos\tcm %28a_S%29.png" />
+    <Content Include="Skin\default\images\channellogos\tcm.png" />
+    <Content Include="Skin\default\images\channellogos\TELE 5.png" />
+    <Content Include="Skin\default\images\channellogos\TeleM1.png" />
+    <Content Include="Skin\default\images\channellogos\TeleTell.png" />
+    <Content Include="Skin\default\images\channellogos\TeleZüri.png" />
+    <Content Include="Skin\default\images\channellogos\The Biography Channel.png" />
+    <Content Include="Skin\default\images\channellogos\TIER.TV.png" />
+    <Content Include="Skin\default\images\channellogos\tirol tv.png" />
+    <Content Include="Skin\default\images\channellogos\tividi.png" />
+    <Content Include="Skin\default\images\channellogos\TNT Film.png" />
+    <Content Include="Skin\default\images\channellogos\TNT Serie %28KD%29.png" />
+    <Content Include="Skin\default\images\channellogos\TNT Serie.png" />
+    <Content Include="Skin\default\images\channellogos\Toon Disney +1.png" />
+    <Content Include="Skin\default\images\channellogos\Toon Disney.png" />
+    <Content Include="Skin\default\images\channellogos\tru_  young tv.png" />
+    <Content Include="Skin\default\images\channellogos\TV Polonia.png" />
+    <Content Include="Skin\default\images\channellogos\tv.B.png" />
+    <Content Include="Skin\default\images\channellogos\Tv.gusto Premium.png" />
+    <Content Include="Skin\default\images\channellogos\Tv.gusto.png" />
+    <Content Include="Skin\default\images\channellogos\TV5 MONDE.png" />
+    <Content Include="Skin\default\images\channellogos\TV5MONDE EUROPE.png" />
+    <Content Include="Skin\default\images\channellogos\TV5MONDE.png" />
+    <Content Include="Skin\default\images\channellogos\TW1.png" />
+    <Content Include="Skin\default\images\channellogos\U1 TV.png" />
+    <Content Include="Skin\default\images\channellogos\UProm.TV.png" />
+    <Content Include="Skin\default\images\channellogos\VH1 Classic.png" />
+    <Content Include="Skin\default\images\channellogos\VH1.png" />
+    <Content Include="Skin\default\images\channellogos\VIVA Germany.png" />
+    <Content Include="Skin\default\images\channellogos\VIVA Schweiz.png" />
+    <Content Include="Skin\default\images\channellogos\VIVA.png" />
+    <Content Include="Skin\default\images\channellogos\VOX Austria.png" />
+    <Content Include="Skin\default\images\channellogos\VOX CH.png" />
+    <Content Include="Skin\default\images\channellogos\VOX HD.png" />
+    <Content Include="Skin\default\images\channellogos\VOX.png" />
+    <Content Include="Skin\default\images\channellogos\WDR Aachen _.png" />
+    <Content Include="Skin\default\images\channellogos\WDR Aachen.png" />
+    <Content Include="Skin\default\images\channellogos\WDR Bielefeld.png" />
+    <Content Include="Skin\default\images\channellogos\WDR Bonn.png" />
+    <Content Include="Skin\default\images\channellogos\WDR Dortmund.png" />
+    <Content Include="Skin\default\images\channellogos\WDR Duisburg.png" />
+    <Content Include="Skin\default\images\channellogos\WDR Düsseldorf.png" />
+    <Content Include="Skin\default\images\channellogos\WDR Essen _.png" />
+    <Content Include="Skin\default\images\channellogos\WDR Essen.png" />
+    <Content Include="Skin\default\images\channellogos\WDR Fernsehen.png" />
+    <Content Include="Skin\default\images\channellogos\WDR Köln.png" />
+    <Content Include="Skin\default\images\channellogos\WDR Münster.png" />
+    <Content Include="Skin\default\images\channellogos\WDR Siegen.png" />
+    <Content Include="Skin\default\images\channellogos\WDR Wuppertal.png" />
+    <Content Include="Skin\default\images\channellogos\XXHome.png" />
+    <Content Include="Skin\default\images\channellogos\Yavido Clips.png" />
+    <Content Include="Skin\default\images\channellogos\Yavido.png" />
+    <Content Include="Skin\default\images\channellogos\ZDF HD.png" />
+    <Content Include="Skin\default\images\channellogos\ZDF.png" />
+    <Content Include="Skin\default\images\channellogos\ZDFinfokanal.png" />
+    <Content Include="Skin\default\images\channellogos\zdfneo_KiKa.png" />
+    <Content Include="Skin\default\images\channellogos\ZDFtheaterkanal.png" />
+    <Content Include="Skin\default\images\channellogos\ZDF_neo.png" />
+    <Content Include="Skin\default\workflow\SlimTvClient-actions.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Skin\default\screens\SlimTvClient-main.xaml">
+      <SubType>Designer</SubType>
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Skin\default\screens\CurrentlyPlayingTv.xaml">
+      <SubType>Designer</SubType>
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Skin\default\screens\FullScreenContentTv.xaml">
+      <SubType>Designer</SubType>
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Language\strings_en.xml" />
+    <Content Include="Skin\default\themes\default\styles\SlimTvStyles.xaml">
+      <SubType>Designer</SubType>
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Skin\default\screens\SlimTvClient-guide.xaml">
+      <SubType>Designer</SubType>
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Skin\default\screens\ProgramInfo.inc">
+      <SubType>
+      </SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Skin\default\screens\DialogProgramActions.xaml">
+      <SubType>Designer</SubType>
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Skin\default\screens\ProgramInfoSlim.inc">
+      <SubType>Designer</SubType>
+    </Content>
+    <Content Include="Skin\default\screens\SlimTvClient-fullguide.xaml">
+      <SubType>Designer</SubType>
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Skin\default\screens\DialogProgramActionsFull.xaml">
+      <SubType>Designer</SubType>
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Skin\default\themes\default\styles\SlimTvConsts.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <BootstrapperPackage Include="Microsoft.Net.Client.3.5">
+      <Visible>False</Visible>
+      <ProductName>.NET Framework 3.5 SP1 Client Profile</ProductName>
+      <Install>false</Install>
+    </BootstrapperPackage>
+    <BootstrapperPackage Include="Microsoft.Net.Framework.3.5.SP1">
+      <Visible>False</Visible>
+      <ProductName>.NET Framework 3.5 SP1</ProductName>
+      <Install>true</Install>
+    </BootstrapperPackage>
+    <BootstrapperPackage Include="Microsoft.Windows.Installer.3.1">
+      <Visible>False</Visible>
+      <ProductName>Windows Installer 3.1</ProductName>
+      <Install>true</Install>
+    </BootstrapperPackage>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Skin\default\screens\SlimTvClient-miniguide.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Skin\Reflexion\themes\default\styles\ProgramInfoSlim.inc" />
+    <Content Include="Skin\RisingSkin\themes\Silver\styles\SlimTvStyles.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Skin\default\themes\default\styles\SlimTvColors.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Skin\Reflexion\themes\default\styles\SlimTvStyles.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Skin\Reflexion\themes\default\styles\SlimTvConsts.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+  <PropertyGroup>
+    <PostBuildEvent>xcopy /Y "$(ProjectDir)plugin.xml" "$(SolutionDir)..\Bin\$(SolutionName)\$(OutDir)Plugins\$(ProjectName)\"
+xcopy /Y "$(ProjectDir)$(OutDir)SlimTv.Interfaces.dll" "$(SolutionDir)..\Bin\$(SolutionName)\$(OutDir)Plugins\$(ProjectName)\"
+mkdir "$(SolutionDir)..\Bin\$(SolutionName)\$(OutDir)Plugins\$(ProjectName)\Language"
+robocopy "$(ProjectDir)Language" "$(SolutionDir)..\Bin\$(SolutionName)\$(OutDir)Plugins\$(ProjectName)\Language" /MIR /NP
+mkdir "$(SolutionDir)..\Bin\$(SolutionName)\$(OutDir)Plugins\$(ProjectName)\Skin"
+robocopy "$(ProjectDir)Skin" "$(SolutionDir)..\Bin\$(SolutionName)\$(OutDir)Plugins\$(ProjectName)\Skin" /MIR
+xcopy /Y "$(TargetDir)$(ProjectName).dll"  "$(SolutionDir)..\Bin\$(SolutionName)\$(OutDir)Plugins\$(ProjectName)\"
+</PostBuildEvent>
+  </PropertyGroup>
+</Project>

@@ -22,7 +22,7 @@
 
 #endregion
 
-namespace MediaPortal.Plugins.SlimTvClient.Interfaces.Items
+namespace MediaPortal.Plugins.SlimTv.Interfaces.Items
 {
   public enum PriorityType
   {

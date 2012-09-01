@@ -24,9 +24,11 @@
 
 using System;
 using MediaPortal.Common.General;
-using MediaPortal.Plugins.SlimTvClient.Interfaces.Items;
+using MediaPortal.Plugins.SlimTv.Client.Models;
+using MediaPortal.Plugins.SlimTv.Interfaces;
+using MediaPortal.Plugins.SlimTv.Interfaces.Items;
 
-namespace MediaPortal.Plugins.SlimTvClient.Helpers
+namespace MediaPortal.Plugins.SlimTv.Client.Helpers
 {
   /// <summary>
   /// ProgramProperties acts as GUI wrapper for an IProgram instance to allow binding of Properties.

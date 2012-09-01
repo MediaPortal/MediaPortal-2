@@ -28,9 +28,9 @@ using MediaPortal.Common;
 using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.Common.SystemResolver;
-using MediaPortal.Plugins.SlimTvClient.Interfaces.Items;
+using MediaPortal.Plugins.SlimTv.Interfaces.Items;
 
-namespace MediaPortal.Plugins.SlimTvClient.Interfaces.ResourceProvider
+namespace MediaPortal.Plugins.SlimTv.Interfaces.ResourceProvider
 {
   public class SlimTvMediaItemBuilder
   {
@@ -42,7 +42,7 @@ namespace MediaPortal.Plugins.SlimTvClient.Interfaces.ResourceProvider
     /// <param name="path">Path or URL of the stream</param>
     /// <param name="channel"></param>
     /// <returns></returns>
-    public static LiveTvMediaItem CreateMediaItem(int slotIndex, string path, IChannel channel)
+    public static LiveTvMediaItem.LiveTvMediaItem CreateMediaItem(int slotIndex, string path, IChannel channel)
     {
       if (!String.IsNullOrEmpty(path))
       {
@@ -64,11 +64,11 @@ namespace MediaPortal.Plugins.SlimTvClient.Interfaces.ResourceProvider
         mediaAspect.SetAttribute(MediaAspect.ATTR_TITLE, "Live TV");
         mediaAspect.SetAttribute(MediaAspect.ATTR_MIME_TYPE, "video/livetv"); // Custom mimetype for LiveTv
 
-        LiveTvMediaItem tvStream = new LiveTvMediaItem(new Guid(), aspects);
+        LiveTvMediaItem.LiveTvMediaItem tvStream = new LiveTvMediaItem.LiveTvMediaItem(new Guid(), aspects);
 
-        tvStream.AdditionalProperties[LiveTvMediaItem.SLOT_INDEX] = slotIndex;
-        tvStream.AdditionalProperties[LiveTvMediaItem.CHANNEL] = channel;
-        tvStream.AdditionalProperties[LiveTvMediaItem.TUNING_TIME] = DateTime.Now;
+        tvStream.AdditionalProperties[LiveTvMediaItem.LiveTvMediaItem.SLOT_INDEX] = slotIndex;
+        tvStream.AdditionalProperties[LiveTvMediaItem.LiveTvMediaItem.CHANNEL] = channel;
+        tvStream.AdditionalProperties[LiveTvMediaItem.LiveTvMediaItem.TUNING_TIME] = DateTime.Now;
         return tvStream;
       }
       return null;

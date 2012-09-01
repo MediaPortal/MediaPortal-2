@@ -23,9 +23,8 @@
 #endregion
 
 using System;
-using System.Collections.Generic;
 
-namespace MediaPortal.Plugins.SlimTvClient.Interfaces.Items
+namespace MediaPortal.Plugins.SlimTv.Interfaces.Items
 {
   public interface ISchedule
   {

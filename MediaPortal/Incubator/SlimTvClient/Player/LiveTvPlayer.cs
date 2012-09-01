@@ -26,13 +26,13 @@ using System;
 using System.Collections.Generic;
 using MediaPortal.Common;
 using MediaPortal.Common.Localization;
-using MediaPortal.Plugins.SlimTvClient.Interfaces;
-using MediaPortal.Plugins.SlimTvClient.Interfaces.Items;
+using MediaPortal.Plugins.SlimTv.Interfaces.Items;
+using MediaPortal.Plugins.SlimTv.Interfaces.LiveTvMediaItem;
 using MediaPortal.UI.Players.Video;
 using MediaPortal.UI.Players.Video.Tools;
 using MediaPortal.UI.Presentation.Players;
 
-namespace MediaPortal.Plugins.SlimTvClient
+namespace MediaPortal.Plugins.SlimTv.Client.Player
 {
   public class LiveTvPlayer : TsVideoPlayer, IUIContributorPlayer
   {

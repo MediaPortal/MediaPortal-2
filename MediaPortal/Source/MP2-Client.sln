@@ -62,9 +62,9 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MediaInfoLib", "Extensions\
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TagLib", "Extensions\MetadataExtractors\TagLib\TagLib.csproj", "{4CC18776-125E-4318-9D24-D60110AD9697}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SlimTvClient", "..\Incubator\SlimTvClient\SlimTvClient.csproj", "{6EB21E54-9984-41A4-922C-7AF27CFE56BA}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SlimTv.Client", "..\Incubator\SlimTvClient\SlimTv.Client.csproj", "{6EB21E54-9984-41A4-922C-7AF27CFE56BA}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SlimTvInterfaces", "..\Incubator\SlimTvInterfaces\SlimTvInterfaces.csproj", "{F31C71FA-4A24-4D33-B0EE-52CF667DCEF4}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SlimTv.Interfaces", "..\Incubator\SlimTvInterfaces\SlimTv.Interfaces.csproj", "{F31C71FA-4A24-4D33-B0EE-52CF667DCEF4}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Skin", "Skin", "{9579F1D5-315A-4528-AC60-FA7D61874E27}"
 EndProject
@@ -104,7 +104,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GUITestPlugin", "..\Resourc
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SkinHelper", "..\Resources\HelperPlugins\SkinHelper\SkinHelper.csproj", "{E35C2BE6-5EF1-492A-A8B4-2C7CB5153868}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SlimTVMPExtendedProvider", "..\Incubator\SlimTVMPExtendedProvider\SlimTVMPExtendedProvider.csproj", "{6D42C77D-370B-48B1-B454-25C0D71F7CB1}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SlimTv.MPExtendedProvider", "..\Incubator\SlimTVMPExtendedProvider\SlimTv.MPExtendedProvider.csproj", "{6D42C77D-370B-48B1-B454-25C0D71F7CB1}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OnlineLibraries", "Extensions\MetadataExtractors\OnlineLibraries\OnlineLibraries.csproj", "{DCA4D19E-75F4-4A8A-B70A-F3F4291DC62B}"
 EndProject

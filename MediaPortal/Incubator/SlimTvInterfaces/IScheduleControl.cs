@@ -23,9 +23,9 @@
 #endregion
 
 using System;
-using System.Collections.Generic;
+using MediaPortal.Plugins.SlimTv.Interfaces.Items;
 
-namespace MediaPortal.Plugins.SlimTvClient.Interfaces.Items
+namespace MediaPortal.Plugins.SlimTv.Interfaces
 {
   [Flags]
   public enum RecordingStatus

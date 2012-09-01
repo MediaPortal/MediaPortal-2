@@ -22,7 +22,7 @@
 
 #endregion
 
-namespace MediaPortal.Plugins.SlimTvClient.Interfaces
+namespace MediaPortal.Plugins.SlimTv.Interfaces
 {
   /// <summary>
   /// ITvProvider defines all actions and properties, that TV providers have to support.

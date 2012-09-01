@@ -23,10 +23,10 @@
 #endregion
 
 using System.Collections.Generic;
-using MediaPortal.Plugins.SlimTvClient.Interfaces.Items;
+using MediaPortal.Plugins.SlimTv.Interfaces.Items;
 using System;
 
-namespace MediaPortal.Plugins.SlimTvClient.Interfaces
+namespace MediaPortal.Plugins.SlimTv.Interfaces
 {
   /// <summary>
   /// IProgramInfo defines all actions and properties for TV programs handling.

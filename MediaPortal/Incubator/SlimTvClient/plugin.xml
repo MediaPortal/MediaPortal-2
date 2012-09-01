@@ -8,8 +8,8 @@
     PluginVersion="1.0">
 
   <Runtime>
-    <Assembly FileName="SlimTvInterfaces.dll"/>
-    <Assembly FileName="SlimTvClient.dll"/>
+    <Assembly FileName="SlimTv.Interfaces.dll"/>
+    <Assembly FileName="SlimTv.Client.dll"/>
   </Runtime>
 
   <DependsOn>
@@ -47,8 +47,8 @@
   </Register>
 
   <Register Location="/Services">
-    <Service Id="SlimTvHandlerService" RegistrationClassName="MediaPortal.Plugins.SlimTvClient.Interfaces.ITvHandler"        
-        ServiceClassName="MediaPortal.Plugins.SlimTvClient.SlimTvHandler"/>
+    <Service Id="SlimTvHandlerService" RegistrationClassName="MediaPortal.Plugins.SlimTv.Interfaces.ITvHandler"        
+        ServiceClassName="MediaPortal.Plugins.SlimTv.Client.TvHandler.SlimTvHandler"/>
   </Register>
 
   <!-- Registration of the SlimTv extension builder for SlimTvProgramExtension items -->
@@ -58,16 +58,16 @@
     This can  be done from any plugin!
   -->
   <!--
-  <Builder Name="SlimTvExtensionBuilder" ClassName="MediaPortal.Plugins.SlimTvClient.Interfaces.Extensions.SlimTvExtensionBuilder"/>
+  <Builder Name="SlimTvExtensionBuilder" ClassName="MediaPortal.Plugins.SlimTv.Interfaces.Extensions.SlimTvExtensionBuilder"/>
   <Register Location="/SlimTv/Extensions">
-    <SlimTvExtensionBuilder Id="{197B0299-B411-4FC7-BA96-765371C77B3B}" Caption="Example" ClassName="MediaPortal.Plugins.SlimTvClient.Extensions.ProgramExample"/>
+    <SlimTvExtensionBuilder Id="{197B0299-B411-4FC7-BA96-765371C77B3B}" Caption="Example" ClassName="MediaPortal.Plugins.SlimTv.Extensions.ProgramExample"/>
   </Register>
   -->
 
   <Register Location="/Models">
-    <Model Id="8BEC1372-1C76-484c-8A69-C7F3103708EC" ClassName="MediaPortal.Plugins.SlimTvClient.SlimTvClientModel"/>
-    <Model Id="74F50A53-BEF7-415c-A240-2EC718DA8C0F" ClassName="MediaPortal.Plugins.SlimTvClient.SlimTvSingleChannelGuideModel"/>
-    <Model Id="5054408D-C2A9-451f-A702-E84AFCD29C10" ClassName="MediaPortal.Plugins.SlimTvClient.SlimTvMultiChannelGuideModel"/>
+    <Model Id="8BEC1372-1C76-484c-8A69-C7F3103708EC" ClassName="MediaPortal.Plugins.SlimTv.Client.Models.SlimTvClientModel"/>
+    <Model Id="74F50A53-BEF7-415c-A240-2EC718DA8C0F" ClassName="MediaPortal.Plugins.SlimTv.Client.Models.SlimTvSingleChannelGuideModel"/>
+    <Model Id="5054408D-C2A9-451f-A702-E84AFCD29C10" ClassName="MediaPortal.Plugins.SlimTv.Client.Models.SlimTvMultiChannelGuideModel"/>
   </Register>
 
   <Register Location="/Resources/Skin">

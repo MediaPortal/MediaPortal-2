@@ -1,8 +1,8 @@
-﻿using MediaPortal.Plugins.SlimTvClient.Interfaces.Items;
+﻿using MediaPortal.Plugins.SlimTv.Interfaces.Items;
 using MediaPortal.UI.Presentation.DataObjects;
 using MediaPortal.UiComponents.Media.General;
 
-namespace MediaPortal.Plugins.SlimTvClient.Helpers
+namespace MediaPortal.Plugins.SlimTv.Client.Helpers
 {
   /// <summary>
   /// Holds a GUI item for the MultiChannel program guide, that contains the channel name and an ItemList

@@ -24,7 +24,7 @@
 
 using MediaPortal.Common.Settings;
 
-namespace MediaPortal.Plugins.SlimTvClient.Providers.Settings
+namespace MediaPortal.Plugins.SlimTv.Providers.Settings
 {
   class MPExtendedProviderSettings
   {

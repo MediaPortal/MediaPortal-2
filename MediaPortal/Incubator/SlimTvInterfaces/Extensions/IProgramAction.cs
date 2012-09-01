@@ -22,9 +22,9 @@
 
 #endregion
 
-using MediaPortal.Plugins.SlimTvClient.Interfaces.Items;
+using MediaPortal.Plugins.SlimTv.Interfaces.Items;
 
-namespace MediaPortal.Plugins.SlimTvClient.Interfaces.Extensions
+namespace MediaPortal.Plugins.SlimTv.Interfaces.Extensions
 {
   public delegate bool ProgramActionDelegate(IProgram program);
 

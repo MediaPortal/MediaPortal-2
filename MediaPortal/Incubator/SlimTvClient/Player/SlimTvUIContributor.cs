@@ -25,7 +25,7 @@
 using MediaPortal.UI.Presentation.Players;
 using MediaPortal.UiComponents.Media.Models;
 
-namespace MediaPortal.Plugins.SlimTvClient
+namespace MediaPortal.Plugins.SlimTv.Client.Player
 {
   public class SlimTvUIContributor : BaseVideoPlayerUIContributor
   {
