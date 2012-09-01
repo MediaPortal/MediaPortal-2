@@ -26,6 +26,8 @@ using System;
 using System.Globalization;
 using System.Windows.Data;
 using System.Windows.Markup;
+using MediaPortal.Common;
+using MediaPortal.Common.Localization;
 using MediaPortal.ServiceMonitor.Model;
 
 namespace MediaPortal.ServiceMonitor.Converters
@@ -48,16 +50,12 @@ namespace MediaPortal.ServiceMonitor.Converters
     {
       var serverStatus = (string) value;
       if (!string.IsNullOrEmpty(serverStatus))
-        switch (serverStatus)
-        {
-      	  case "Attached to Server":
-      	  case "Connected to Server":
+        if (serverStatus.Equals(ServiceRegistration.Get<ILocalization>().ToString("[ServerStatus.Attached]")) || 
+            serverStatus.Equals(ServiceRegistration.Get<ILocalization>().ToString("[ServerStatus.Connected]")))
         		return "../../Resources/Images/connected.png";
-         case "Detached from Server":
-      	  case "Disconnected from Server":
+        if (serverStatus.Equals(ServiceRegistration.Get<ILocalization>().ToString("[ServerStatus.Connected]")) ||
+      	    serverStatus.Equals(ServiceRegistration.Get<ILocalization>().ToString("[ServerStatus.Disconnected]")))
       		  return "../../Resources/Images/disconnected.png";
-      	}
-       
       return "../../Resources/Images/Info.png";
     }
 
