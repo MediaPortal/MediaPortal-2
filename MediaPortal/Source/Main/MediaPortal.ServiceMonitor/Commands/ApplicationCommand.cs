@@ -23,8 +23,12 @@
 #endregion
 
 using System;
+using System.Diagnostics;
+using System.Runtime.InteropServices;
 using System.Windows;
+using System.Windows.Interop;
 using MediaPortal.Common;
+using MediaPortal.Common.Logging;
 using MediaPortal.Common.Threading;
 using MediaPortal.ServiceMonitor.ViewModel;
 
@@ -35,6 +39,13 @@ namespace MediaPortal.ServiceMonitor.Commands
   /// </summary>
   public class ApplicationCommand : CommandExtension<ApplicationCommand>
   {
+    [DllImport("user32.dll")]
+    static extern IntPtr GetForegroundWindow();
+
+    [DllImport("user32.dll")]
+    static extern IntPtr GetTopWindow(IntPtr hWnd);
+
+
 
     /// <summary>
     /// Opens, closes, or minimizes the application depending on the
@@ -48,6 +59,18 @@ namespace MediaPortal.ServiceMonitor.Commands
       var controller = ServiceRegistration.Get<IAppController>();
       switch ((string) parameter)
       {
+        case "DoubleClick": // DoubleClick of TrayIcon 
+          if ((Application.Current.MainWindow != null) && (Application.Current.MainWindow.Visibility == Visibility.Visible))
+          {
+            //the window is opened => it should be closed
+            controller.CloseMainApplication(false);
+          }
+          else
+          {
+            //the window is closed => it should be opened
+            controller.ShowMainWindow();
+          }
+          break;
         case "Open":
           controller.ShowMainWindow();
           break;
@@ -105,6 +128,8 @@ namespace MediaPortal.ServiceMonitor.Commands
      
       switch ((string)parameter)
       {
+        case "DoubleClick": // DoubleClick of TrayIcon 
+          return true;
         case "Open": // Open Main Window
           return visibility != Visibility.Visible;
 

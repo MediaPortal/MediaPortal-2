@@ -75,7 +75,7 @@
   <TaskbarNotification:TaskbarIcon
     x:Key="TrayIcon"
     DoubleClickCommand="{cmd:ApplicationCommand}"
-    DoubleClickCommandParameter="Open"
+    DoubleClickCommandParameter="DoubleClick"
     ContextMenu="{StaticResource SystemTrayMenu}"
     MenuActivation="RightClick"
     IconSource="/MP2-ServiceMonitor.ico"
