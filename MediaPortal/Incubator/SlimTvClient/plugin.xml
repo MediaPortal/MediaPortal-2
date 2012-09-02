@@ -18,7 +18,7 @@
   </DependsOn>
 
   <Register Location="/Players/Builders">
-    <PlayerBuilder Id="87B0BEAD-9345-47d6-83F8-A42A752CB6E1" ClassName="MediaPortal.Plugins.SlimTvClient.SlimTvPlayerBuilder"/>
+    <PlayerBuilder Id="87B0BEAD-9345-47d6-83F8-A42A752CB6E1" ClassName="MediaPortal.Plugins.SlimTv.Client.Player.SlimTvPlayerBuilder"/>
   </Register>
 
   <Register Location="/Workflow/States">

@@ -92,7 +92,6 @@
     <Compile Include="ResourceProvider\SlimTvMediaItemBuilder.cs" />
     <Compile Include="ResourceProvider\SlimTvResourceAccessor.cs" />
     <Compile Include="ResourceProvider\SlimTvResourceProvider.cs" />
-    <Compile Include="UPnP\Consts.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\Source\Core\MediaPortal.Common\MediaPortal.Common.csproj">

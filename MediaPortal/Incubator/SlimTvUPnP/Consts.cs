@@ -1,4 +1,4 @@
-#region Copyright (C) 2007-2012 Team MediaPortal
+﻿#region Copyright (C) 2007-2012 Team MediaPortal
 
 /*
     Copyright (C) 2007-2012 Team MediaPortal
@@ -22,20 +22,19 @@
 
 #endregion
 
-using MediaPortal.Plugins.SlimTv.Interfaces.Items;
-
-namespace MediaPortal.Plugins.SlimTv.Providers.Items
+namespace MediaPortal.Plugins.SlimTv.UPnP
 {
-  public class Channel : IChannel
+  public class Consts
   {
-    #region IChannel Member
+    public const string SLIMTV_SERVICE_TYPE = "schemas-team-mediaportal-com:service:SlimTv";
+    public const int SLIMTV_SERVICE_TYPE_VERSION = 1;
+    public const string SLIMTV_SERVICE_ID = "urn:team-mediaportal-com:serviceId:SlimTv";
 
-    public int ServerIndex { get; set; }
-
-    public int ChannelId { get; set; }
-
-    public string Name { get; set; }
-
-    #endregion
+    public const string ACTION_START_TIMESHIFT = "StartTimeshift";
+    public const string ACTION_STOP_TIMESHIFT = "StopTimeshift";
+    public const string ACTION_DEINIT = "DeInit";
+    public const string ACTION_GET_CHANNELGROUPS = "GetChannelGroups";
+    public const string ACTION_GET_CHANNELS = "GetChannels";
+    public const string ACTION_GET_PROGRAMS = "GetPrograms";
   }
 }

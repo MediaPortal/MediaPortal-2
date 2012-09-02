@@ -23,13 +23,18 @@
 #endregion
 
 using System;
+using System.IO;
+using System.Xml;
+using System.Xml.Serialization;
 using MediaPortal.Plugins.SlimTv.Interfaces;
 using MediaPortal.Plugins.SlimTv.Interfaces.Items;
 
-namespace MediaPortal.Plugins.SlimTv.Providers.Items
+namespace MediaPortal.Plugins.SlimTv.UPnP.Items
 {
   public class Program : IProgramRecordingStatus
   {
+    private static XmlSerializer _xmlSerializer;
+
     public Program()
     {}
 
@@ -79,5 +84,43 @@ namespace MediaPortal.Plugins.SlimTv.Providers.Items
     public RecordingStatus RecordingStatus { get; set; }
 
     #endregion
+
+    /// <summary>
+    /// Serializes this Program instance to the given <paramref name="writer"/>.
+    /// </summary>
+    /// <param name="writer">Writer to write the XML serialization to.</param>
+    public void Serialize(XmlWriter writer)
+    {
+      XmlSerializer xs = GetOrCreateXMLSerializer();
+      xs.Serialize(writer, this);
+    }
+
+    /// <summary>
+    /// Deserializes a Program instance from a given XML fragment.
+    /// </summary>
+    /// <param name="str">XML fragment containing a serialized user profile instance.</param>
+    /// <returns>Deserialized instance.</returns>
+    public static Program Deserialize(string str)
+    {
+      XmlSerializer xs = GetOrCreateXMLSerializer();
+      using (StringReader reader = new StringReader(str))
+        return xs.Deserialize(reader) as Program;
+    }
+
+    /// <summary>
+    /// Deserializes a Program instance from a given <paramref name="reader"/>.
+    /// </summary>
+    /// <param name="reader">XML reader containing a serialized user profile instance.</param>
+    /// <returns>Deserialized instance.</returns>
+    public static Program Deserialize(XmlReader reader)
+    {
+      XmlSerializer xs = GetOrCreateXMLSerializer();
+      return xs.Deserialize(reader) as Program;
+    }
+
+    protected static XmlSerializer GetOrCreateXMLSerializer()
+    {
+      return _xmlSerializer ?? (_xmlSerializer = new XmlSerializer(typeof(Program)));
+    }
   }
 }

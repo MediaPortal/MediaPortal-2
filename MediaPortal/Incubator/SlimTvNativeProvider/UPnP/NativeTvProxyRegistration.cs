@@ -24,7 +24,9 @@
 
 using System;
 using MediaPortal.Common;
-using MediaPortal.Plugins.SlimTv.Interfaces.UPnP;
+using MediaPortal.Common.UPnP;
+using MediaPortal.Plugins.SlimTv.UPnP;
+using MediaPortal.Plugins.SlimTv.UPnP.DataTypes;
 using MediaPortal.UI.ServerCommunication;
 using MediaPortal.UI.Services.ServerCommunication;
 using UPnP.Infrastructure.CP;
@@ -38,6 +40,13 @@ namespace MediaPortal.Plugins.SlimTv.Providers.UPnP
     public static NativeTvProxyRegistration Instance
     {
       get { return _instance ?? (_instance = new NativeTvProxyRegistration()); }
+    }
+
+    static NativeTvProxyRegistration()
+    {
+      UPnPExtendedDataTypes.AddDataType(UPnPDtChannelGroupList.Instance);
+      UPnPExtendedDataTypes.AddDataType(UPnPDtChannelList.Instance);
+      UPnPExtendedDataTypes.AddDataType(UPnPDtProgramList.Instance);
     }
 
     public NativeTvProxyRegistration ()

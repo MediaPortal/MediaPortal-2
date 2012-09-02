@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using MediaPortal.Common;
 using MediaPortal.Common.Localization;
 using MediaPortal.Common.Logging;
@@ -10,8 +11,9 @@ using MediaPortal.Plugins.SlimTv.Interfaces;
 using MediaPortal.Plugins.SlimTv.Interfaces.Items;
 using MediaPortal.Plugins.SlimTv.Interfaces.LiveTvMediaItem;
 using MediaPortal.Plugins.SlimTv.Interfaces.ResourceProvider;
-using MediaPortal.Plugins.SlimTv.Interfaces.UPnP;
 using MediaPortal.Plugins.SlimTv.Providers.Settings;
+using MediaPortal.Plugins.SlimTv.UPnP;
+using MediaPortal.Plugins.SlimTv.UPnP.Items;
 using MediaPortal.UI.Presentation.UiNotifications;
 using UPnP.Infrastructure.CP;
 using UPnP.Infrastructure.CP.DeviceTree;
@@ -40,7 +42,6 @@ namespace MediaPortal.Plugins.SlimTv.Providers.UPnP
       ServiceRegistration.Remove<ITvProvider>();
     }
 
-
     public string Name
     {
       get { return "NativeTvProxy"; }
@@ -63,12 +64,13 @@ namespace MediaPortal.Plugins.SlimTv.Providers.UPnP
       catch (Exception ex)
       {
         NotifyException(ex);
-        return false;
       }
+      return false;
     }
 
     public bool StartTimeshift(int slotIndex, IChannel channel, out MediaItem timeshiftMediaItem)
     {
+      timeshiftMediaItem = null;
       try
       {
         CpAction action = GetAction(Consts.ACTION_START_TIMESHIFT);
@@ -79,19 +81,21 @@ namespace MediaPortal.Plugins.SlimTv.Providers.UPnP
             };
 
         IList<object> outParameters = action.InvokeAction(inParameters);
-        
-        _channels[slotIndex] = channel;
+        bool success = (bool) outParameters[0];
+        if (success)
+        {
+          _channels[slotIndex] = channel;
 
-        // Assign a MediaItem, can be null if streamUrl is the same.
-        timeshiftMediaItem = CreateMediaItem(slotIndex, (string) outParameters[0], channel);
-        return true;
+          // Assign a MediaItem, can be null if streamUrl is the same.
+          timeshiftMediaItem = CreateMediaItem(slotIndex, (string) outParameters[1], channel);
+          return true;
+        }
       }
       catch (Exception ex)
       {
-        timeshiftMediaItem = null;
         NotifyException(ex);
-        return false;
       }
+      return false;
     }
 
     public MediaItem CreateMediaItem(int slotIndex, string streamUrl, IChannel channel)
@@ -100,13 +104,13 @@ namespace MediaPortal.Plugins.SlimTv.Providers.UPnP
       if (tvStream != null)
       {
         // Add program infos to the LiveTvMediaItem
-        //IProgram currentProgram;
-        //if (GetCurrentProgram(channel, out currentProgram))
-        //  tvStream.AdditionalProperties[LiveTvMediaItem.CURRENT_PROGRAM] = currentProgram;
+        IProgram currentProgram;
+        if (GetCurrentProgram(channel, out currentProgram))
+          tvStream.AdditionalProperties[LiveTvMediaItem.CURRENT_PROGRAM] = currentProgram;
 
-        //IProgram nextProgram;
-        //if (GetNextProgram(channel, out nextProgram))
-        //  tvStream.AdditionalProperties[LiveTvMediaItem.NEXT_PROGRAM] = nextProgram;
+        IProgram nextProgram;
+        if (GetNextProgram(channel, out nextProgram))
+          tvStream.AdditionalProperties[LiveTvMediaItem.NEXT_PROGRAM] = nextProgram;
 
         return tvStream;
       }
@@ -117,7 +121,7 @@ namespace MediaPortal.Plugins.SlimTv.Providers.UPnP
     {
       try
       {
-        CpAction action = GetAction(Consts.ACTION_START_TIMESHIFT);
+        CpAction action = GetAction(Consts.ACTION_STOP_TIMESHIFT);
         IList<object> inParameters = new List<object>
             {
               slotIndex
@@ -130,13 +134,12 @@ namespace MediaPortal.Plugins.SlimTv.Providers.UPnP
           _channels[slotIndex] = null;
           return true;
         }
-        return false;
       }
       catch (Exception ex)
       {
         NotifyException(ex);
-        return false;
       }
+      return false;
     }
 
     public IChannel GetChannel(int slotIndex)
@@ -146,17 +149,45 @@ namespace MediaPortal.Plugins.SlimTv.Providers.UPnP
 
     public bool GetCurrentProgram (IChannel channel, out IProgram program)
     {
-      throw new NotImplementedException();
+      // TODO:
+      program = null;
+      return false;
     }
 
     public bool GetNextProgram (IChannel channel, out IProgram program)
     {
-      throw new NotImplementedException();
+      // TODO:
+      program = null;
+      return false;
     }
 
-    public bool GetPrograms (IChannel channel, DateTime @from, DateTime to, out IList<IProgram> programs)
+    public bool GetPrograms (IChannel channel, DateTime from, DateTime to, out IList<IProgram> programs)
     {
-      throw new NotImplementedException();
+      programs = null;
+      try
+      {
+        CpAction action = GetAction(Consts.ACTION_GET_PROGRAMS);
+        IList<object> inParameters = new List<object>
+            {
+              channel.ChannelId,
+              from,
+              to
+            };
+
+        IList<object> outParameters = action.InvokeAction(inParameters);
+        bool success = (bool) outParameters[0];
+        if (success)
+        {
+          IList<Program> programList = (IList<Program>) outParameters[1];
+          programs = programList.Cast<IProgram>().ToList();
+          return true;
+        }
+      }
+      catch (Exception ex)
+      {
+        NotifyException(ex);
+      }
+      return false;
     }
 
     public bool GetProgramsForSchedule (ISchedule schedule, out IList<IProgram> programs)
@@ -176,12 +207,50 @@ namespace MediaPortal.Plugins.SlimTv.Providers.UPnP
 
     public bool GetChannelGroups (out IList<IChannelGroup> groups)
     {
-      throw new NotImplementedException();
+      groups = null;
+      try
+      {
+        CpAction action = GetAction(Consts.ACTION_GET_CHANNELGROUPS);
+        IList<object> inParameters = new List<object>();
+        IList<object> outParameters = action.InvokeAction(inParameters);
+        bool success = (bool) outParameters[0];
+        IList<ChannelGroup> channelGroups = (IList<ChannelGroup>) outParameters[1];
+        if (success)
+        {
+          groups = channelGroups.Cast<IChannelGroup>().ToList();
+          return true;
+        }
+        return false;
+      }
+      catch (Exception ex)
+      {
+        NotifyException(ex);
+        return false;
+      }
     }
 
     public bool GetChannels (IChannelGroup group, out IList<IChannel> channels)
     {
-      throw new NotImplementedException();
+      channels = null;
+      try
+      {
+        CpAction action = GetAction(Consts.ACTION_GET_CHANNELS);
+        IList<object> inParameters = new List<object> { group.ChannelGroupId };
+        IList<object> outParameters = action.InvokeAction(inParameters);
+        bool success = (bool) outParameters[0];
+        IList<Channel> channelList = (IList<Channel>) outParameters[1];
+        if (success)
+        {
+          channels = channelList.Cast<IChannel>().ToList();
+          return true;
+        }
+        return false;
+      }
+      catch (Exception ex)
+      {
+        NotifyException(ex);
+        return false;
+      }
     }
 
     public int SelectedChannelId { get; set; }
