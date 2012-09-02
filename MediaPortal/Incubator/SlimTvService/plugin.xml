@@ -1,0 +1,16 @@
+﻿<Plugin
+    DescriptorVersion="1.0"
+    Name="SlimTv Service Plugin"
+    PluginId="{6AC9A48C-57DC-4CE2-97EB-81073582EA0A}"
+    Author="Morpheus_xx"
+    Copyright="GPL"
+    Description="Provides TV service"
+    AutoActivate="true"
+    PluginVersion="1.0">
+
+  <Runtime>
+    <Assembly FileName="SlimTv.Service.dll"/>
+    <PluginStateTracker ClassName="MediaPortal.Plugins.SlimTv.Service.SlimTvServicePlugin"/>
+  </Runtime>
+</Plugin>
+

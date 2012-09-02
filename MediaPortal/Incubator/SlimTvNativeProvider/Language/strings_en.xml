@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+  <string name="Settings.Plugins.TV">TV</string>
+  <string name="Settings.Plugins.TV.MPExtendedServerAddress">MPExtended server addresses</string>
+  <string name="Settings.Plugins.TV.MPExtendedServerAddress.Help">Enter server names or IP addresses, separated by ';' (defaults to localhost).</string>
+  <string name="Settings.Plugins.TV.MPExtendedUsername">MPExtended service username</string>
+  <string name="Settings.Plugins.TV.MPExtendedUsername.Help">Enter the username to connect. Empty name will use anonymous connection.</string>
+  <string name="Settings.Plugins.TV.MPExtendedPassword">MPExtended service password</string>
+  <string name="Settings.Plugins.TV.MPExtendedPassword.Help">Enter the password to connect. Empty password will use anonymous connection.</string>
+  <string name="Settings.Plugins.TV.ConnectionErrorTitle">Connection error</string>
+  <string name="Settings.Plugins.TV.ConnectionErrorText">Could not connect MPExtendedServerAddress-Server: {0}</string>
+</resources>

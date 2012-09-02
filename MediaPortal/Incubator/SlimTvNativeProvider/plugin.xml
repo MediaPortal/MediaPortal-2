@@ -1,0 +1,34 @@
+<Plugin
+    DescriptorVersion="1.0" 
+    Name="SlimTvNativeProvider"
+    PluginId="{2ED35264-D9EB-4C6A-A035-2BEA4C0A5024}"
+    Author="Morpheus_xx"
+    Copyright="GPL"
+    Description="The SlimTvNativeProvider uses MP2's native TV plugin to provide basic TV capabilities."
+    PluginVersion="1.0">
+
+  <DependsOn>
+    <PluginReference PluginId="{D87D92F0-5E71-470a-A2A4-430F90A28BF3}"/>    <!-- SkinEngine -->
+    <PluginReference PluginId="{1AFF4467-64B0-4ca1-AF28-9AEDF3525BCE}"/>    <!-- ConfigurationManager -->
+    <PluginReference PluginId="{B765A4B6-F455-4941-BDAE-2CE45208BFEB}"/>    <!-- Configuration plugin -->
+  </DependsOn>
+
+  <Runtime>
+    <Assembly FileName="SlimTv.Interfaces.dll"/>
+    <Assembly FileName="SlimTv.NativeProvider.dll"/>
+  </Runtime>
+
+  <Register Location="/Resources/Language">
+    <Resource Id="SlimTvNativeProviderLanguage" Directory="Language" Type="Language"/>
+  </Register>
+
+  <Register Location="/Services">
+    <Service Id="SlimTvNativeProviderService" RegistrationClassName="MediaPortal.Plugins.SlimTv.Providers.UPnP.NativeTvProxyRegistration"
+        ServiceClassName="MediaPortal.Plugins.SlimTv.Providers.UPnP.NativeTvProxyRegistration"/>
+  </Register>
+  
+  <!-- The ResourceProvider to access Tve3. -->
+  <Register Location="/ResourceProviders">
+    <Instance Id="SlimTvProvider" ClassName="MediaPortal.Plugins.SlimTv.Interfaces.ResourceProvider.SlimTvResourceProvider"/>
+  </Register>
+</Plugin>
