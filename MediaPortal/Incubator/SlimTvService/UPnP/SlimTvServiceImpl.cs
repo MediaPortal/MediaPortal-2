@@ -25,7 +25,10 @@
 using System;
 using System.Collections.Generic;
 using MediaPortal.Common;
+using MediaPortal.Common.MediaManagement;
+using MediaPortal.Common.UPnP;
 using MediaPortal.Plugins.SlimTv.Interfaces;
+using MediaPortal.Plugins.SlimTv.Interfaces.Items;
 using MediaPortal.Plugins.SlimTv.UPnP;
 using MediaPortal.Plugins.SlimTv.UPnP.DataTypes;
 using MediaPortal.Plugins.SlimTv.UPnP.Items;
@@ -57,8 +60,8 @@ namespace MediaPortal.Plugins.SlimTv.Service.UPnP
       DvStateVariable A_ARG_TYPE_DateTime = new DvStateVariable("A_ARG_TYPE_DateTime", new DvStandardDataType(UPnPStandardDataType.DateTime)) { SendEvents = false };
       AddStateVariable(A_ARG_TYPE_DateTime);
 
-      DvStateVariable A_ARG_TYPE_TimeshiftSource = new DvStateVariable("A_ARG_TYPE_TimeshiftSource", new DvStandardDataType(UPnPStandardDataType.String)) { SendEvents = false };
-      AddStateVariable(A_ARG_TYPE_TimeshiftSource);
+      DvStateVariable A_ARG_TYPE_MediaItem = new DvStateVariable("A_ARG_TYPE_MediaItem", new DvExtendedDataType(UPnPDtLiveTvMediaItem.Instance)) { SendEvents = false };
+      AddStateVariable(A_ARG_TYPE_MediaItem);
 
       DvStateVariable A_ARG_TYPE_ChannelGroups = new DvStateVariable("A_ARG_TYPE_ChannelGroups", new DvExtendedDataType(UPnPDtChannelGroupList.Instance)) { SendEvents = false };
       AddStateVariable(A_ARG_TYPE_ChannelGroups);
@@ -82,7 +85,7 @@ namespace MediaPortal.Plugins.SlimTv.Service.UPnP
                                    new[]
                                      {
                                        new DvArgument("Result", A_ARG_TYPE_Bool, ArgumentDirection.Out, true),
-                                       new DvArgument("TimeshiftSource", A_ARG_TYPE_TimeshiftSource, ArgumentDirection.Out, false)
+                                       new DvArgument("TimeshiftMediaItem", A_ARG_TYPE_MediaItem, ArgumentDirection.Out, false)
                                      });
       AddAction(startTimeshift);
 
@@ -142,62 +145,75 @@ namespace MediaPortal.Plugins.SlimTv.Service.UPnP
     private UPnPError OnStartTimeshift(DvAction action, IList<object> inParams, out IList<object> outParams, CallContext context)
     {
       outParams = new List<object>();
-      //ITimeshiftControl timeshiftControl = ServiceRegistration.Get<ITvProvider>() as ITimeshiftControl;
-      //if (timeshiftControl == null)
-      //  return new UPnPError(500, "ITimeshiftControl service not available");
+      ITimeshiftControl timeshiftControl = ServiceRegistration.Get<ITvProvider>() as ITimeshiftControl;
+      if (timeshiftControl == null)
+        return new UPnPError(500, "ITimeshiftControl service not available");
 
       int slotIndex = (int) inParams[0];
       int channelId = (int) inParams[1];
 
-      // TODO:
-      string timeshiftSource = "C:\\temp\\timeshift.ts";
-      outParams = new List<object> { true, timeshiftSource };
+      MediaItem timeshiftMediaItem;
+      bool result = timeshiftControl.StartTimeshift(slotIndex, new Channel { ChannelId = channelId }, out timeshiftMediaItem);
+      outParams = new List<object> { result, timeshiftMediaItem };
       return null;
     }
 
     private UPnPError OnStopTimeshift(DvAction action, IList<object> inParams, out IList<object> outParams, CallContext context)
     {
       outParams = new List<object>();
-      //ITimeshiftControl timeshiftControl = ServiceRegistration.Get<ITvProvider>() as ITimeshiftControl;
-      //if (timeshiftControl == null)
-      //  return new UPnPError(500, "ITimeshiftControl service not available");
+      ITimeshiftControl timeshiftControl = ServiceRegistration.Get<ITvProvider>() as ITimeshiftControl;
+      if (timeshiftControl == null)
+        return new UPnPError(500, "ITimeshiftControl service not available");
 
       int slotIndex = (int) inParams[0];
 
-      // TODO:
-      outParams = new List<object> { true };
+      bool result = timeshiftControl.StopTimeshift(slotIndex);
+      outParams = new List<object> { result };
       return null;
     }
 
     private UPnPError OnGetChannelGroups(DvAction action, IList<object> inParams, out IList<object> outParams, CallContext context)
     {
-      // TODO:
-      List<ChannelGroup> groups = new List<ChannelGroup> { new ChannelGroup { ChannelGroupId = 1, Name = "Native group 1" } };
-      outParams = new List<object> { true, groups };
+      outParams = new List<object>();
+      IChannelAndGroupInfo channelAndGroupInfo = ServiceRegistration.Get<ITvProvider>() as IChannelAndGroupInfo;
+      if (channelAndGroupInfo == null)
+        return new UPnPError(500, "IChannelAndGroupInfo service not available");
+
+      IList<IChannelGroup> groups;
+      bool result = channelAndGroupInfo.GetChannelGroups(out groups);
+      outParams = new List<object> { result, groups };
       return null;
     }
 
     private UPnPError OnGetChannels(DvAction action, IList<object> inParams, out IList<object> outParams, CallContext context)
     {
-      // TODO:
-      List<Channel> channels = new List<Channel> { new Channel { ChannelId = 1, Name = "Native channel 1" } };
-      outParams = new List<object> { true, channels };
+      outParams = new List<object>();
+      IChannelAndGroupInfo channelAndGroupInfo = ServiceRegistration.Get<ITvProvider>() as IChannelAndGroupInfo;
+      if (channelAndGroupInfo == null)
+        return new UPnPError(500, "IChannelAndGroupInfo service not available");
+
+      int channelGroupId = (int) inParams[0];
+
+      IList<IChannel> channels;
+      bool result = channelAndGroupInfo.GetChannels(new ChannelGroup { ChannelGroupId = channelGroupId }, out channels);
+      outParams = new List<object> { result, channels };
       return null;
     }
 
     private UPnPError OnGetPrograms(DvAction action, IList<object> inParams, out IList<object> outParams, CallContext context)
     {
-      // TODO:
+      outParams = new List<object>();
+      IProgramInfo programInfo = ServiceRegistration.Get<ITvProvider>() as IProgramInfo;
+      if (programInfo == null)
+        return new UPnPError(500, "IProgramInfo service not available");
+
       int channelId = (int) inParams[0];
       DateTime timeFrom = (DateTime) inParams[1];
       DateTime timeTo = (DateTime) inParams[2];
 
-      List<Program> programs = new List<Program>
-        {
-          new Program { ChannelId = 1, Title = "Program 1", StartTime = DateTime.Now, EndTime = DateTime.Now.AddHours(1)},
-          new Program { ChannelId = 1, Title = "Program 2", StartTime = DateTime.Now.AddHours(1), EndTime = DateTime.Now.AddHours(2)}
-        };
-      outParams = new List<object> { true, programs };
+      IList<IProgram> programs;
+      bool result = programInfo.GetPrograms(new Channel { ChannelId = channelId }, timeFrom, timeTo, out programs);
+      outParams = new List<object> { result, programs };
       return null;
     }
   }

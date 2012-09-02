@@ -87,7 +87,7 @@ namespace MediaPortal.Plugins.SlimTv.Providers.UPnP
           _channels[slotIndex] = channel;
 
           // Assign a MediaItem, can be null if streamUrl is the same.
-          timeshiftMediaItem = CreateMediaItem(slotIndex, (string) outParameters[1], channel);
+          timeshiftMediaItem = (MediaItem) outParameters[1];
           return true;
         }
       }
@@ -96,25 +96,6 @@ namespace MediaPortal.Plugins.SlimTv.Providers.UPnP
         NotifyException(ex);
       }
       return false;
-    }
-
-    public MediaItem CreateMediaItem(int slotIndex, string streamUrl, IChannel channel)
-    {
-      LiveTvMediaItem tvStream = SlimTvMediaItemBuilder.CreateMediaItem(slotIndex, streamUrl, channel);
-      if (tvStream != null)
-      {
-        // Add program infos to the LiveTvMediaItem
-        IProgram currentProgram;
-        if (GetCurrentProgram(channel, out currentProgram))
-          tvStream.AdditionalProperties[LiveTvMediaItem.CURRENT_PROGRAM] = currentProgram;
-
-        IProgram nextProgram;
-        if (GetNextProgram(channel, out nextProgram))
-          tvStream.AdditionalProperties[LiveTvMediaItem.NEXT_PROGRAM] = nextProgram;
-
-        return tvStream;
-      }
-      return null;
     }
 
     public bool StopTimeshift(int slotIndex)

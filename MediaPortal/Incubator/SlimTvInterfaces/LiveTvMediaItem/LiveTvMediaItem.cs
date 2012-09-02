@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Xml;
+using System.Xml.Serialization;
 using MediaPortal.Common.MediaManagement;
 using MediaPortal.Plugins.SlimTv.Interfaces.Items;
 
@@ -39,5 +41,11 @@ namespace MediaPortal.Plugins.SlimTv.Interfaces.LiveTvMediaItem
     private readonly IList<ITimeshiftContext> _timeshiftContexes = new List<ITimeshiftContext>();
     private readonly Dictionary<string, object> _additionalProperties = new Dictionary<string, object>();
 
+    public static LiveTvMediaItem Deserialize(XmlReader reader)
+    {
+      LiveTvMediaItem result = new LiveTvMediaItem(Guid.Empty);
+      ((IXmlSerializable) result).ReadXml(reader);
+      return result;
+    }
   }
 }

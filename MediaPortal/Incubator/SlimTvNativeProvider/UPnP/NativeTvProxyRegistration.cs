@@ -47,6 +47,7 @@ namespace MediaPortal.Plugins.SlimTv.Providers.UPnP
       UPnPExtendedDataTypes.AddDataType(UPnPDtChannelGroupList.Instance);
       UPnPExtendedDataTypes.AddDataType(UPnPDtChannelList.Instance);
       UPnPExtendedDataTypes.AddDataType(UPnPDtProgramList.Instance);
+      UPnPExtendedDataTypes.AddDataType(UPnPDtLiveTvMediaItem.Instance);
     }
 
     public NativeTvProxyRegistration ()
