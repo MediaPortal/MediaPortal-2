@@ -104,7 +104,7 @@ namespace UPnP.Infrastructure
     public static XmlWriterSettings DEFAULT_XML_WRITER_SETTINGS = new XmlWriterSettings
       {
           CheckCharacters = false,
-          Encoding = Encoding.UTF8,
+          Encoding = UPnPConsts.UTF8_NO_BOM,
           Indent = false
       };
 

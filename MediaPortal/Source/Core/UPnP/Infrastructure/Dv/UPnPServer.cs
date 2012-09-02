@@ -335,7 +335,7 @@ namespace UPnP.Infrastructure.Dv
                 response.ContentType = "text/xml; charset=utf-8";
                 if (!string.IsNullOrEmpty(acceptLanguage))
                   response.AddHeader("CONTENT-LANGUAGE", culture.ToString());
-                response.Body = new MemoryStream(Encoding.UTF8.GetBytes(description));
+                response.Body = new MemoryStream(UPnPConsts.UTF8_NO_BOM.GetBytes(description));
                 SafeSendResponse(response);
                 return;
               }

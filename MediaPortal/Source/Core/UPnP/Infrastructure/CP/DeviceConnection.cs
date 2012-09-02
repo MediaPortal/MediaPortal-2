@@ -97,7 +97,7 @@ namespace UPnP.Infrastructure.CP
       {
         try
         {
-          StreamWriter sw = new StreamWriter(_httpWebRequest.GetRequestStream(), Encoding.UTF8);
+          StreamWriter sw = new StreamWriter(_httpWebRequest.GetRequestStream(), UPnPConsts.UTF8_NO_BOM);
           sw.Write(message);
           sw.Close();
         }

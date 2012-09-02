@@ -578,7 +578,7 @@ namespace UPnP.Infrastructure.Dv.GENA
           foreach (DvStateVariable variable in cluster)
             eventingState.UpdateModerationData(variable);
           eventingState.IncEventKey();
-          byte[] bodyData = Encoding.UTF8.GetBytes(GENAMessageBuilder.BuildEventNotificationMessage(
+          byte[] bodyData = UPnPConsts.UTF8_NO_BOM.GetBytes(GENAMessageBuilder.BuildEventNotificationMessage(
             cluster, false)); // Albert TODO: Is it correct not to force the simple string equivalent for extended data types here?
           SimpleHTTPRequest request = new SimpleHTTPRequest("NOTIFY", "*");
           request.SetHeader("CONTENT-LENGTH", bodyData.Length.ToString());

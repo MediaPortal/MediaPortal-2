@@ -191,7 +191,7 @@ namespace UPnP.Infrastructure.Dv.SOAP
     protected static string CreateResultDocument(DvAction action, IList<OutParameter> outParameters, bool forceSimpleValues)
     {
       StringBuilder result = new StringBuilder(2000);
-      using (StringWriterWithEncoding stringWriter = new StringWriterWithEncoding(result, Encoding.UTF8))
+      using (StringWriterWithEncoding stringWriter = new StringWriterWithEncoding(result, UPnPConsts.UTF8_NO_BOM))
       using (XmlWriter writer = XmlWriter.Create(stringWriter, UPnPConfiguration.DEFAULT_XML_WRITER_SETTINGS))
       {
         SoapHelper.WriteSoapEnvelopeStart(writer, true);
@@ -211,7 +211,7 @@ namespace UPnP.Infrastructure.Dv.SOAP
     public static string CreateFaultDocument(uint errorCode, string errorDescription)
     {
       StringBuilder result = new StringBuilder(2000);
-      using (StringWriterWithEncoding stringWriter = new StringWriterWithEncoding(result, Encoding.UTF8))
+      using (StringWriterWithEncoding stringWriter = new StringWriterWithEncoding(result, UPnPConsts.UTF8_NO_BOM))
       using (XmlWriter writer = XmlWriter.Create(stringWriter, UPnPConfiguration.DEFAULT_XML_WRITER_SETTINGS))
       {
         SoapHelper.WriteSoapEnvelopeStart(writer, false);

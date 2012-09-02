@@ -24,6 +24,7 @@
 
 using System;
 using System.Net;
+using System.Text;
 
 namespace UPnP.Infrastructure
 {
@@ -233,5 +234,7 @@ namespace UPnP.Infrastructure
     public const string NS_XSI = "http://www.w3.org/2001/XMLSchema-instance";
 
     #endregion
+
+    public static Encoding UTF8_NO_BOM = new UTF8Encoding(false);
   }
 }

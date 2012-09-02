@@ -26,7 +26,6 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Net;
-using System.Text;
 using System.Threading;
 using MediaPortal.Utilities.Network;
 using UPnP.Infrastructure.Dv.DeviceTree;
@@ -350,7 +349,7 @@ namespace UPnP.Infrastructure.Dv.GENA
         String body;
         lock (_serverData.SyncObj)
           body = GENAMessageBuilder.BuildEventNotificationMessage(variables, !_subscriberSupportsUPnP11);
-        byte[] bodyData = Encoding.UTF8.GetBytes(body);
+        byte[] bodyData = UPnPConsts.UTF8_NO_BOM.GetBytes(body);
 
         state = new AsyncRequestState(_config, _sid, _callbackURLs, _eventingState.EventKey, bodyData);
         _pendingRequests.Add(state);

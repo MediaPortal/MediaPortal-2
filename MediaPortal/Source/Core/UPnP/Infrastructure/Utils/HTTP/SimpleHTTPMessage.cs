@@ -118,7 +118,7 @@ namespace UPnP.Infrastructure.Utils.HTTP
     /// <returns>Byte array containing the full HTTP message data to be sent.</returns>
     protected static byte[] EncodeHeaderAndBody(string header, byte[] messageBody)
     {
-      byte[] headerData = Encoding.UTF8.GetBytes(header);
+      byte[] headerData = UPnPConsts.UTF8_NO_BOM.GetBytes(header);
       if (messageBody == null || messageBody.Length == 0)
         return headerData;
       else
