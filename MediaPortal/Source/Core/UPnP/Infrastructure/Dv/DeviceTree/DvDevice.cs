@@ -283,8 +283,12 @@ namespace UPnP.Infrastructure.Dv.DeviceTree
       using (StringWriterWithEncoding stringWriter = new StringWriterWithEncoding(result, UPnPConsts.UTF8_NO_BOM))
       using (XmlWriter writer = XmlWriter.Create(stringWriter, UPnPConfiguration.DEFAULT_XML_WRITER_SETTINGS))
       {
+        GenerateDescriptionDlgt dgh = DescriptionGenerateHook;
+  
         writer.WriteStartDocument();
         writer.WriteStartElement(string.Empty, "root", UPnPConsts.NS_DEVICE_DESCRIPTION);
+        if (dgh != null)
+          dgh(writer, this, GenerationPosition.RootDeviceStart, config, culture);
 
         writer.WriteAttributeString("configId", config.ConfigId.ToString());
         writer.WriteStartElement("specVersion");
@@ -293,6 +297,10 @@ namespace UPnP.Infrastructure.Dv.DeviceTree
         writer.WriteEndElement(); // specVersion
 
         AddDeviceDescriptionsRecursive(writer, config, culture);
+      
+        if (dgh != null)
+          dgh(writer, this, GenerationPosition.RootDeviceEnd, config, culture);
+
         writer.WriteEndElement(); // root
         writer.Close();
       }
@@ -312,7 +320,7 @@ namespace UPnP.Infrastructure.Dv.DeviceTree
 
       writer.WriteStartElement("device");
       if (dgh != null)
-        dgh(writer, GenerationPosition.DeviceStart, config, culture);
+        dgh(writer, this, GenerationPosition.DeviceStart, config, culture);
       writer.WriteElementString("deviceType", DeviceTypeVersion_URN);
       writer.WriteElementString("friendlyName", deviceInformation.GetFriendlyName(culture));
       writer.WriteElementString("manufacturer", deviceInformation.GetManufacturer(culture));
@@ -369,7 +377,7 @@ namespace UPnP.Infrastructure.Dv.DeviceTree
         writer.WriteEndElement(); // deviceList
       }
       if (dgh != null)
-        dgh(writer, GenerationPosition.AfterDeviceList, config, culture);
+        dgh(writer, this, GenerationPosition.AfterDeviceList, config, culture);
       GetURLForEndpointDlgt presentationURLGetter = GetPresentationURLDelegate;
       string presentationURL = null;
       if (presentationURLGetter != null)
@@ -377,7 +385,7 @@ namespace UPnP.Infrastructure.Dv.DeviceTree
       if (!string.IsNullOrEmpty(presentationURL))
         writer.WriteElementString("presentationURL", presentationURL);
       if (dgh != null)
-        dgh(writer, GenerationPosition.DeviceEnd, config, culture);
+        dgh(writer, this, GenerationPosition.DeviceEnd, config, culture);
       writer.WriteEndElement(); // device
     }
 

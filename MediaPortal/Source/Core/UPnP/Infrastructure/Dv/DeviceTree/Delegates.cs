@@ -41,6 +41,11 @@ namespace UPnP.Infrastructure.Dv.DeviceTree
   public enum GenerationPosition
   {
     /// <summary>
+    /// Denotes the position just after the start tag of the root device element.
+    /// </summary>
+    RootDeviceStart,
+
+    /// <summary>
     /// Denotes the position just after the start tag of the device element.
     /// </summary>
     DeviceStart,
@@ -59,17 +64,23 @@ namespace UPnP.Infrastructure.Dv.DeviceTree
     /// <summary>
     /// Denotes the position just before the closing of the device element.
     /// </summary>
-    DeviceEnd
+    DeviceEnd,
+
+    /// <summary>
+    /// Denotes the position just before the closing of the root device element.
+    /// </summary>
+    RootDeviceEnd,
   }
 
   /// <summary>
   /// Delegate which is called during the device description generation. Implementors can add additional XML elements.
   /// </summary>
   /// <param name="writer">The writer used to create the XML document.</param>
+  /// <param name="device">The device which is being written.</param>
   /// <param name="pos">The current description XML position.</param>
   /// <param name="config">The endpoint configuration which requested the description.</param>
   /// <param name="culture">The culture of the client which requested the description.</param>
-  public delegate void GenerateDescriptionDlgt(XmlWriter writer, GenerationPosition pos, EndpointConfiguration config, CultureInfo culture);
+  public delegate void GenerateDescriptionDlgt(XmlWriter writer, DvDevice device, GenerationPosition pos, EndpointConfiguration config, CultureInfo culture);
 
   /// <summary>
   /// Delegate which can return a URL which is available over the specified <paramref name="endPointIPAddress"/>.
