@@ -131,34 +131,12 @@ namespace MediaPortal.UI.Services.Players
           case WorkflowManagerMessaging.MessageType.StatesPopped:
             ICollection<Guid> statesRemoved = new List<Guid>(
                 ((IDictionary<Guid, NavigationContext>) message.MessageData[WorkflowManagerMessaging.CONTEXTS]).Keys);
-            lock (SyncObj)
-            {
-              // If one of our remembered player workflow states was removed from workflow navigation stack,
-              // take it from our player workflow state cache. Our player workflow state cache is in the same order
-              // as the workflow navigation stack, so if we tracked everything correctly, each removal of states should
-              // remove states from the end of our cache.
-              for (int i = 0; i < _playerWfStateInstances.Count; i++)
-              {
-                PlayerWFStateInstance wfStateInstance = _playerWfStateInstances[i];
-                if (statesRemoved.Contains(wfStateInstance.WFStateId))
-                {
-                  _playerWfStateInstances.RemoveRange(i, _playerWfStateInstances.Count - i);
-                  break;
-                }
-              }
-            }
+            HandleStatesRemovedFromWorkflowStack(statesRemoved);
             break;
           case WorkflowManagerMessaging.MessageType.StatePushed:
             NavigationContext context = (NavigationContext) message.MessageData[WorkflowManagerMessaging.CONTEXT];
             Guid stateId = context.WorkflowState.StateId;
-            Guid? potentialState = GetPotentialCPStateId();
-            if (potentialState == stateId)
-              lock(SyncObj)
-                _playerWfStateInstances.Add(new PlayerWFStateInstance(PlayerWFStateType.CurrentlyPlaying, stateId));
-            potentialState = GetPotentialFSCStateId();
-            if (potentialState == stateId)
-              lock (SyncObj)
-                _playerWfStateInstances.Add(new PlayerWFStateInstance(PlayerWFStateType.FullscreenContent, stateId));
+            HandleWorkflowStatePushed(stateId);
             break;
         }
       }
@@ -167,7 +145,6 @@ namespace MediaPortal.UI.Services.Players
         // React to player changes
         PlayerManagerMessaging.MessageType messageType =
             (PlayerManagerMessaging.MessageType) message.MessageType;
-        PlayerContext pc;
         IPlayerSlotController psc;
         uint activationSequence;
         switch (messageType)
@@ -176,52 +153,104 @@ namespace MediaPortal.UI.Services.Players
           case PlayerManagerMessaging.MessageType.PlayerEnded:
             psc = (IPlayerSlotController) message.MessageData[PlayerManagerMessaging.PLAYER_SLOT_CONTROLLER];
             activationSequence = (uint) message.MessageData[PlayerManagerMessaging.ACTIVATION_SEQUENCE];
-            pc = PlayerContext.GetPlayerContext(psc);
-            if (pc == null || !pc.IsValid || psc.ActivationSequence != activationSequence)
-              return;
-            if (!pc.NextItem())
-            {
-              if (pc.CloseWhenFinished)
-                pc.Close();
-              else
-                psc.Stop();
-              if (psc.SlotIndex == PlayerManagerConsts.PRIMARY_SLOT)
-                StepOutOfPlayerWFState(PlayerWFStateType.FullscreenContent);
-              if (psc.SlotIndex == CurrentPlayerIndex)
-                StepOutOfPlayerWFState(PlayerWFStateType.CurrentlyPlaying);
-            }
+            HandlePlayerEnded(psc, activationSequence);
             break;
           case PlayerManagerMessaging.MessageType.PlayerStopped:
             psc = (IPlayerSlotController) message.MessageData[PlayerManagerMessaging.PLAYER_SLOT_CONTROLLER];
             activationSequence = (uint) message.MessageData[PlayerManagerMessaging.ACTIVATION_SEQUENCE];
-            pc = PlayerContext.GetPlayerContext(psc);
-            if (pc == null || !pc.IsValid || psc.ActivationSequence != activationSequence)
-              return;
-            // We get the player message asynchronously, so we have to check the state of the slot again to ensure
-            // we close the correct one
-            if (pc.CloseWhenFinished && pc.CurrentPlayer == null)
-              pc.Close();
-            if (psc.SlotIndex == PlayerManagerConsts.PRIMARY_SLOT)
-              StepOutOfPlayerWFState(PlayerWFStateType.FullscreenContent);
-            if (psc.SlotIndex == CurrentPlayerIndex)
-              StepOutOfPlayerWFState(PlayerWFStateType.CurrentlyPlaying);
+            HandlePlayerStopped(psc, activationSequence);
             break;
           case PlayerManagerMessaging.MessageType.RequestNextItem:
             psc = (IPlayerSlotController) message.MessageData[PlayerManagerMessaging.PLAYER_SLOT_CONTROLLER];
             activationSequence = (uint) message.MessageData[PlayerManagerMessaging.ACTIVATION_SEQUENCE];
-            pc = PlayerContext.GetPlayerContext(psc);
-            if (pc == null || !pc.IsValid || psc.ActivationSequence != activationSequence)
-              return;
-            pc.RequestNextItem_NoLock();
+            HandleRequestNextItem(psc, activationSequence);
             break;
           case PlayerManagerMessaging.MessageType.PlayerSlotsChanged:
-            lock (SyncObj)
-              CurrentPlayerIndex = 1 - _currentPlayerIndex;
+            HandlePlayerSlotsChanged();
             break;
         }
         CheckCurrentPlayerSlot(); // Current player could have been closed
         CheckMediaWorkflowStates_NoLock(); // Primary player could have been changed or closed or CP player could have been closed
       }
+    }
+
+    protected void HandleStatesRemovedFromWorkflowStack(ICollection<Guid> statesRemoved)
+    {
+      lock (SyncObj)
+      {
+        // If one of our remembered player workflow states was removed from workflow navigation stack,
+        // take it from our player workflow state cache. Our player workflow state cache is in the same order
+        // as the workflow navigation stack, so if we tracked everything correctly, each removal of states should
+        // remove states from the end of our cache.
+        for (int i = 0; i < _playerWfStateInstances.Count; i++)
+        {
+          PlayerWFStateInstance wfStateInstance = _playerWfStateInstances[i];
+          if (statesRemoved.Contains(wfStateInstance.WFStateId))
+          {
+            _playerWfStateInstances.RemoveRange(i, _playerWfStateInstances.Count - i);
+            break;
+          }
+        }
+      }
+    }
+
+    protected void HandleWorkflowStatePushed(Guid stateId)
+    {
+      Guid? potentialState = GetPotentialCPStateId();
+      if (potentialState == stateId)
+        lock(SyncObj)
+          _playerWfStateInstances.Add(new PlayerWFStateInstance(PlayerWFStateType.CurrentlyPlaying, stateId));
+      potentialState = GetPotentialFSCStateId();
+      if (potentialState == stateId)
+        lock (SyncObj)
+          _playerWfStateInstances.Add(new PlayerWFStateInstance(PlayerWFStateType.FullscreenContent, stateId));
+    }
+
+    protected void HandlePlayerEnded(IPlayerSlotController psc, uint activationSequence)
+    {
+      IPlayerContext pc = PlayerContext.GetPlayerContext(psc);
+      if (pc == null || !pc.IsValid || psc.ActivationSequence != activationSequence)
+        return;
+      if (!pc.NextItem())
+      {
+        if (pc.CloseWhenFinished)
+          pc.Close();
+        else
+          psc.Stop();
+        if (psc.SlotIndex == PlayerManagerConsts.PRIMARY_SLOT)
+          StepOutOfPlayerWFState(PlayerWFStateType.FullscreenContent);
+        if (psc.SlotIndex == CurrentPlayerIndex)
+          StepOutOfPlayerWFState(PlayerWFStateType.CurrentlyPlaying);
+      }
+    }
+
+    protected void HandlePlayerStopped(IPlayerSlotController psc, uint activationSequence)
+    {
+      IPlayerContext pc = PlayerContext.GetPlayerContext(psc);
+      if (pc == null || !pc.IsValid || psc.ActivationSequence != activationSequence)
+        return;
+      // We get the player message asynchronously, so we have to check the state of the slot again to ensure
+      // we close the correct one
+      if (pc.CloseWhenFinished && pc.CurrentPlayer == null)
+        pc.Close();
+      if (psc.SlotIndex == PlayerManagerConsts.PRIMARY_SLOT)
+        StepOutOfPlayerWFState(PlayerWFStateType.FullscreenContent);
+      if (psc.SlotIndex == CurrentPlayerIndex)
+        StepOutOfPlayerWFState(PlayerWFStateType.CurrentlyPlaying);
+    }
+
+    protected void HandleRequestNextItem(IPlayerSlotController psc, uint activationSequence)
+    {
+      PlayerContext pc = PlayerContext.GetPlayerContext(psc);
+      if (pc == null || !pc.IsValid || psc.ActivationSequence != activationSequence)
+        return;
+      pc.RequestNextItem_NoLock();
+    }
+
+    protected void HandlePlayerSlotsChanged()
+    {
+      lock (SyncObj)
+        CurrentPlayerIndex = 1 - _currentPlayerIndex;
     }
 
     /// <summary>
