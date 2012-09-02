@@ -24,15 +24,19 @@
 
 using System;
 using System.Collections.Generic;
+using System.Reflection;
 using MediaPortal.Common;
 using MediaPortal.Common.Logging;
 using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.Common.Messaging;
 using MediaPortal.Common.Runtime;
+using MediaPortal.Common.Settings;
 using MediaPortal.Common.Threading;
 using MediaPortal.UI.Presentation.Players;
 using MediaPortal.UI.Presentation.Workflow;
+using MediaPortal.UI.Services.Players.PCMOpenPlayerStrategy;
+using MediaPortal.UI.Services.Players.Settings;
 using MediaPortal.Utilities;
 
 namespace MediaPortal.UI.Services.Players
@@ -446,6 +450,43 @@ namespace MediaPortal.UI.Services.Players
       return PlayerContext.GetPlayerContext(playerManager.GetPlayerSlotController(slotIndex));
     }
 
+    protected IList<IPlayerContext> GetPlayerContexts()
+    {
+      IList<IPlayerContext> result = new List<IPlayerContext>(2);
+      IPlayerContext pc = GetPlayerContext(PlayerManagerConsts.PRIMARY_SLOT);
+      if (pc != null)
+      {
+        result.Add(pc);
+        pc = GetPlayerContext(PlayerManagerConsts.SECONDARY_SLOT);
+        if (pc != null)
+          result.Add(pc);
+      }
+      return result;
+    }
+
+    protected IOpenPlayerStrategy GetOpenPlayerStrategy()
+    {
+      ISettingsManager settingsManager = ServiceRegistration.Get<ISettingsManager>();
+      PlayerContextManagerSettings settings = settingsManager.Load<PlayerContextManagerSettings>();
+      string openPlayerStrategyTypeName = settings.OpenPlayerStrategyTypeName;
+      try
+      {
+        if (!string.IsNullOrEmpty(openPlayerStrategyTypeName))
+        {
+          Type strategyType = Type.GetType(openPlayerStrategyTypeName);
+          if (strategyType == null)
+            return new Default();
+          ConstructorInfo ci = strategyType.GetConstructor(new Type[] {});
+          return (IOpenPlayerStrategy) ci.Invoke(new object[] {});
+        }
+      }
+      catch (Exception e)
+      {
+        ServiceRegistration.Get<ILogger>().Warn("PlayerContextManager: Unable to load open player strategy type '{0}'", e, openPlayerStrategyTypeName);
+      }
+      return new Default();
+    }
+
     #region IDisposable implementation
 
     public void Dispose()
@@ -577,27 +618,17 @@ namespace MediaPortal.UI.Services.Players
     public IPlayerContext OpenAudioPlayerContext(Guid mediaModuleId, string name, bool concurrentVideo, Guid currentlyPlayingWorkflowStateId,
         Guid fullscreenContentWorkflowStateId)
     {
+      IOpenPlayerStrategy strategy = GetOpenPlayerStrategy();
       IPlayerManager playerManager = ServiceRegistration.Get<IPlayerManager>();
       lock (playerManager.SyncObj)
       {
-        int numActive = playerManager.NumActiveSlots;
-        if (concurrentVideo)
-        {
-          // Solve conflicts - close conflicting slots
-          if (numActive > 1)
-            playerManager.CloseSlot(PlayerManagerConsts.SECONDARY_SLOT);
-          IPlayerContext pc;
-          if (numActive > 0 && (pc = GetPlayerContext(PlayerManagerConsts.PRIMARY_SLOT)) != null && pc.AVType == AVType.Audio)
-            playerManager.CloseSlot(PlayerManagerConsts.PRIMARY_SLOT);
-        }
-        else // !concurrentVideo
-          // Don't enable concurrent controllers: Close all except the primary slot controller
-          playerManager.CloseAllSlots();
-        // Open new slot
-        int slotIndex;
+        IList<IPlayerContext> playerContexts = GetPlayerContexts();
         IPlayerSlotController slotController;
-        playerManager.OpenSlot(out slotIndex, out slotController);
-        playerManager.AudioSlotIndex = slotController.SlotIndex;
+        int audioSlotIndex = playerManager.AudioSlotIndex;
+        int currentPlayerIndex = CurrentPlayerIndex;
+        strategy.OpenAudioPlayer(playerManager, playerContexts, concurrentVideo, mediaModuleId, out slotController, ref audioSlotIndex, ref currentPlayerIndex);
+        playerManager.AudioSlotIndex = audioSlotIndex;
+        CurrentPlayerIndex = currentPlayerIndex;
         return new PlayerContext(this, slotController, mediaModuleId, name, AVType.Audio,
             currentlyPlayingWorkflowStateId, fullscreenContentWorkflowStateId);
       }
@@ -606,67 +637,17 @@ namespace MediaPortal.UI.Services.Players
     public IPlayerContext OpenVideoPlayerContext(Guid mediaModuleId, string name, PlayerContextConcurrencyMode concurrencyMode,
         Guid currentlyPlayingWorkflowStateId, Guid fullscreenContentWorkflowStateId)
     {
+      IOpenPlayerStrategy strategy = GetOpenPlayerStrategy();
       IPlayerManager playerManager = ServiceRegistration.Get<IPlayerManager>();
       lock (playerManager.SyncObj)
       {
-        IList<IPlayerContext> playerContexts = new List<IPlayerContext>(2);
-        IPlayerContext pc = GetPlayerContext(PlayerManagerConsts.PRIMARY_SLOT);
-        if (pc != null)
-        {
-          playerContexts.Add(pc);
-          pc = GetPlayerContext(PlayerManagerConsts.SECONDARY_SLOT);
-          if (pc != null)
-            playerContexts.Add(pc);
-        }
-        int numActive = playerContexts.Count;
+        IList<IPlayerContext> playerContexts = GetPlayerContexts();
         IPlayerSlotController slotController;
-        int slotIndex;
-        switch (concurrencyMode)
-        {
-          case PlayerContextConcurrencyMode.ConcurrentAudio:
-            if (numActive > 1 && playerContexts[1].AVType == AVType.Audio)
-            { // The secondary slot is an audio player slot
-              playerManager.CloseSlot(PlayerManagerConsts.PRIMARY_SLOT);
-              playerManager.OpenSlot(out slotIndex, out slotController);
-              playerManager.SwitchSlots();
-              playerManager.AudioSlotIndex = PlayerManagerConsts.SECONDARY_SLOT;
-            }
-            else if (numActive == 1 && playerContexts[0].AVType == AVType.Audio)
-            { // The primary slot is an audio player slot
-              playerManager.OpenSlot(out slotIndex, out slotController);
-              // Make new video slot the primary slot
-              playerManager.SwitchSlots();
-              playerManager.AudioSlotIndex = PlayerManagerConsts.SECONDARY_SLOT;
-            }
-            else
-            { // No audio slot available
-              playerManager.CloseAllSlots();
-              playerManager.OpenSlot(out slotIndex, out slotController);
-              playerManager.AudioSlotIndex = PlayerManagerConsts.PRIMARY_SLOT;
-            }
-            break;
-          case PlayerContextConcurrencyMode.ConcurrentVideo:
-            if (numActive >= 1 && playerContexts[0].AVType == AVType.Video)
-            { // The primary slot is a video player slot
-              if (numActive > 1)
-                playerManager.CloseSlot(PlayerManagerConsts.SECONDARY_SLOT);
-              playerManager.OpenSlot(out slotIndex, out slotController);
-              playerManager.AudioSlotIndex = PlayerManagerConsts.PRIMARY_SLOT;
-            }
-            else
-            {
-              playerManager.CloseAllSlots();
-              playerManager.OpenSlot(out slotIndex, out slotController);
-              playerManager.AudioSlotIndex = PlayerManagerConsts.PRIMARY_SLOT;
-            }
-            break;
-          default:
-            // Don't enable concurrent controllers: Close all except the primary slot controller
-            playerManager.CloseAllSlots();
-            playerManager.OpenSlot(out slotIndex, out slotController);
-            playerManager.AudioSlotIndex = PlayerManagerConsts.PRIMARY_SLOT;
-            break;
-        }
+        int audioSlotIndex = playerManager.AudioSlotIndex;
+        int currentPlayerIndex = CurrentPlayerIndex;
+        strategy.OpenVideoPlayer(playerManager, playerContexts, concurrencyMode, mediaModuleId, out slotController, ref audioSlotIndex, ref currentPlayerIndex);
+        playerManager.AudioSlotIndex = audioSlotIndex;
+        CurrentPlayerIndex = currentPlayerIndex;
         return new PlayerContext(this, slotController, mediaModuleId, name, AVType.Video,
             currentlyPlayingWorkflowStateId, fullscreenContentWorkflowStateId);
       }

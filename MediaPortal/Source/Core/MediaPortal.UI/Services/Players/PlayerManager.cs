@@ -33,6 +33,7 @@ using MediaPortal.Common.PluginManager;
 using MediaPortal.Common.PluginManager.Exceptions;
 using MediaPortal.Common.Settings;
 using MediaPortal.UI.Presentation.Players;
+using MediaPortal.UI.Services.Players.Settings;
 
 namespace MediaPortal.UI.Services.Players
 {

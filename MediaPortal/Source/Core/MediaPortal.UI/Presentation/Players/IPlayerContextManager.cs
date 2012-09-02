@@ -307,7 +307,7 @@ namespace MediaPortal.UI.Presentation.Players
     /// active audio player will continue to play and the new video player context will be muted.
     /// If set to <see cref="PlayerContextConcurrencyMode.ConcurrentVideo"/>, an already active audio player context will be
     /// deactivated while an already active video player context will continue to play. If a video player context was
-    /// available, the new player context will be used as secondary (PiP) player and be muted.</param>
+    /// available, the video players will be arranged according to the configured open player strategy.</param>
     /// <param name="currentlyPlayingWorkflowStateId">The id of the workflow state to be used as currently playing
     /// workflow state for the new player context.</param>
     /// <param name="fullscreenContentWorkflowStateId">The id of the workflow state to be used as fullscreen content

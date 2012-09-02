@@ -157,12 +157,16 @@
     <Compile Include="Services\FrontendServer\FrontendServer.cs" />
     <Compile Include="Services\Logging\UiCrashLogger.cs" />
     <Compile Include="Services\Players\Builders\PlayerBuilder.cs" />
+    <Compile Include="Services\Players\PCMOpenPlayerStrategy\PreservePiP.cs" />
+    <Compile Include="Services\Players\PCMOpenPlayerStrategy\Default.cs" />
+    <Compile Include="Services\Players\IOpenPlayerStrategy.cs" />
     <Compile Include="Services\Players\PlayerContext.cs" />
     <Compile Include="Services\Players\PlayerContextManager.cs" />
     <Compile Include="Services\Players\PlayerManager.cs" />
     <Compile Include="Services\Players\PlayerSlotController.cs" />
     <Compile Include="Services\Players\Playlist.cs" />
-    <Compile Include="Services\Players\PlayerManagerSettings.cs" />
+    <Compile Include="Services\Players\Settings\PlayerContextManagerSettings.cs" />
+    <Compile Include="Services\Players\Settings\PlayerManagerSettings.cs" />
     <Compile Include="Services\RemovableMedia\DeviceVolumeMonitor.cs" />
     <Compile Include="Services\RemovableMedia\RemovableMediaTracker.cs" />
     <Compile Include="Services\RemovableMedia\Settings\RemovableMediaTrackerSettings.cs" />
