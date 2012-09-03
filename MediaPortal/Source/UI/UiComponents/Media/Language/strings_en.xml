@@ -171,6 +171,9 @@
   <string name="Media.PlaylistNumItemsLabel">Number of items</string>
   <string name="Media.PlaylistIdInfoLabel">Internal playlist id</string>
 
+  <string name="Media.OpenPlayerStrategy.MediaPortal.UI.Services.Players.PCMOpenPlayerStrategy.Default">Default</string>
+  <string name="Media.OpenPlayerStrategy.MediaPortal.UI.Services.Players.PCMOpenPlayerStrategy.PreservePiP">Preserve PiP video</string>
+
   <!-- Play items dialog -->
   <string name="Media.PlayItemDialogHeader">Play item</string>
 
@@ -317,4 +320,7 @@
 
   <string name="Settings.Players.SkipStepList">Player skip steps</string>
   <string name="Settings.Players.SkipStepList.Help">Enter skip steps in seconds separated by ,</string>
+
+  <string name="Settings.Players.OpenPlayerStrategy">Open player strategy</string>
+  <string name="Settings.Players.OpenPlayerStrategy.Help">Strategy, how newly opened players will be positioned among already open players</string>
 </resources>

@@ -228,5 +228,11 @@
       HelpText="[Settings.Players.SkipStepList.Help]"
       ClassName="MediaPortal.UiComponents.Media.Settings.Configuration.SkipStepList"/>
 
+    <ConfigSetting
+      Id="OpenPlayerStrategy"
+      Text="[Settings.Players.OpenPlayerStrategy]"
+      HelpText="[Settings.Players.OpenPlayerStrategy.Help]"
+      ClassName="MediaPortal.UiComponents.Media.Settings.Configuration.OpenPlayerStrategy"/>
+
   </Register>
 </Plugin>
