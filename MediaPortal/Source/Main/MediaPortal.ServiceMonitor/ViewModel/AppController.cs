@@ -64,6 +64,7 @@ namespace MediaPortal.ServiceMonitor.ViewModel
 
     #region properties
 
+    #region IsAutoStartEnabled
     public bool IsAutoStartEnabled
     {
       get { return !string.IsNullOrEmpty(WindowsAPI.GetAutostartApplicationPath(AUTOSTART_REGISTER_NAME, true)); }
@@ -87,6 +88,7 @@ namespace MediaPortal.ServiceMonitor.ViewModel
       }
     }
 
+    #endregion
 
     #region TaskbarIcon
 
@@ -438,7 +440,7 @@ namespace MediaPortal.ServiceMonitor.ViewModel
       
       try
       {
-        Clients.Clear();
+        Clients.ClearNotifyForEach();
         var serverConnectionManager = ServiceRegistration.Get<IServerConnectionManager>();
         if (!serverConnectionManager.IsHomeServerConnected) return;
 

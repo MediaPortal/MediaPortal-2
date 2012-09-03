@@ -43,6 +43,8 @@ namespace MediaPortal.ServiceMonitor.View
 
       var viewModel = ServiceRegistration.Get<IAppController>();
       DataContext = viewModel;
+
+      LoadSettings();
     }
 
     #endregion

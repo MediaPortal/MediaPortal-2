@@ -28,7 +28,6 @@ using System.Windows.Data;
 using System.Windows.Markup;
 using MediaPortal.Common;
 using MediaPortal.Common.Localization;
-using MediaPortal.ServiceMonitor.Model;
 
 namespace MediaPortal.ServiceMonitor.Converters
 {
