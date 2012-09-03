@@ -40,7 +40,7 @@ namespace MediaPortal.Extensions.UserServices.FanArtService
       if (baseFolder == null || !Directory.Exists(baseFolder))
         return null;
 
-      string pattern = GetPattern(mediaType, fanArtType);
+      string pattern = GetPattern(mediaType, fanArtType, name);
       if (string.IsNullOrEmpty(pattern))
         return null;
 
@@ -70,7 +70,7 @@ namespace MediaPortal.Extensions.UserServices.FanArtService
       return new List<FanArtImage> { fullList[rndIndex] };
     }
 
-    protected string GetPattern(FanArtConstants.FanArtMediaType mediaType, FanArtConstants.FanArtType fanArtType)
+    protected string GetPattern(FanArtConstants.FanArtMediaType mediaType, FanArtConstants.FanArtType fanArtType, string name)
     {
       switch (mediaType)
       {
@@ -98,6 +98,9 @@ namespace MediaPortal.Extensions.UserServices.FanArtService
             default:
               return null;
           }
+
+        case FanArtConstants.FanArtMediaType.Channel:
+          return string.Format("{0}.png", name);
       }
       return null;
     }
@@ -117,6 +120,9 @@ namespace MediaPortal.Extensions.UserServices.FanArtService
         case FanArtConstants.FanArtMediaType.MovieCollection:
           int collectionId;
           return !MovieTheMovieDbMatcher.Instance.TryGetCollectionId(name, out collectionId) ? null : Path.Combine(MovieTheMovieDbMatcher.CACHE_PATH, "COLL_" + collectionId);
+
+        case FanArtConstants.FanArtMediaType.Channel:
+          return @"Plugins\SlimTv.Service\Content\ChannelLogos";
 
         default:
           return null;

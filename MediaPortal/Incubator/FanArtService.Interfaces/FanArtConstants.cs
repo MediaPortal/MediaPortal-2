@@ -36,6 +36,7 @@ namespace MediaPortal.Extensions.UserServices.FanArtService.Interfaces
       Episode,
       Actor,
       Artist,
+      Channel,
     }
 
     public enum FanArtType

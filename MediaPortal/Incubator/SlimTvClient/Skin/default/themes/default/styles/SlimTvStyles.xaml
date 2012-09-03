@@ -4,6 +4,7 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:collections="clr-namespace:MediaPortal.UI.Presentation.DataObjects;assembly=MediaPortal.UI"
     xmlns:mp_special_controls="clr-namespace:MediaPortal.UI.SkinEngine.SpecialElements.Controls"
+    xmlns:fanart="clr-namespace:MediaPortal.Extensions.UserServices.FanArtService.Client;assembly=FanArtService.Client"
     DependsOnStyleResources="SlimTvColors,SlimTvConsts,FullScreenContentConsts,MediaButtons,MediaColors,Consts,Colors,Buttons,OtherControls"
     >
   <!-- SlimTvClient model -->
@@ -56,13 +57,10 @@
                   </Grid.RowDefinitions>
 
                   <Image x:Name="ChannelLogo" Grid.Column="0" Grid.Row="0" Width="64" Height="64" Grid.RowSpan="2"
-                   Stretch="Uniform" FallbackSource="channellogos\no_channel_logo.png">
+                         Stretch="Uniform">
                     <Image.Source>
-                      <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0}+{1}+{2}">
-                        <Binding Source="channellogos\"/>
-                        <Binding Source="{StaticResource SlimTvClient}" Path="ChannelName"/>
-                        <Binding Source=".png"/>
-                      </MultiBinding>
+                      <fanart:FanArtImageSource fanart:FanArtMediaType="Channel" fanart:FanArtType="Banner" fanart:FanArtName="{Binding Source={StaticResource SlimTvClient}, Path=ChannelName}"
+                                    fanart:MaxWidth="0" fanart:MaxHeight="0"/>
                     </Image.Source>
                   </Image>
 
@@ -453,9 +451,12 @@
             <Control Style="{ThemeResource ButtonControlStyle}" Grid.Column="0" Grid.Row="0" Grid.ColumnSpan="2"
                      VerticalAlignment="Stretch" HorizontalAlignment="Stretch"/>
             <Image x:Name="ChannelLogo" Grid.Column="0" Grid.Row="0" Width="{ThemeResource ChannelLogoSmall}" Height="{ThemeResource ChannelLogoSmall}" 
-                   Stretch="Uniform"
-                   Source="{Binding ChannelLogoPath}"
-                   FallbackSource="channellogos\no_channel_logo.png"/>
+                   Stretch="Uniform">
+              <Image.Source>
+                <fanart:FanArtImageSource fanart:FanArtMediaType="Channel" fanart:FanArtType="Banner" fanart:FanArtName="{Binding ChannelLogoPath}"
+                                    fanart:MaxWidth="0" fanart:MaxHeight="0"/>
+              </Image.Source>
+            </Image>
             <ContentPresenter Grid.Column="1" Grid.Row="0" x:Name="ButtonContentPresenter" Margin="5,5,0,5" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"/>
           </Grid>
           <ControlTemplate.Triggers>
@@ -520,9 +521,12 @@
             <Control Style="{ThemeResource ButtonControlStyle}" Grid.Column="0" Grid.Row="0" Grid.ColumnSpan="4" Grid.RowSpan="2"
                      VerticalAlignment="Stretch" HorizontalAlignment="Stretch"/>
             <Image x:Name="ChannelLogo" Grid.Column="0" Grid.Row="0" Grid.RowSpan="2" Width="{ThemeResource ChannelLogoMedium}" Height="{ThemeResource ChannelLogoMedium}" 
-                   Stretch="Uniform" Margin="5,2,2,2"
-                   Source="{Binding ChannelLogoPath}"
-                   FallbackSource="channellogos\no_channel_logo.png"/>
+                   Stretch="Uniform" Margin="5,2,2,2">
+              <Image.Source>
+                <fanart:FanArtImageSource fanart:FanArtMediaType="Channel" fanart:FanArtType="Banner" fanart:FanArtName="{Binding ChannelLogoPath}"
+                                    fanart:MaxWidth="0" fanart:MaxHeight="0"/>
+              </Image.Source>
+            </Image>
             <Label Grid.Column="1" Grid.Row="0" x:Name="NameLabel" Margin="3,5,0,5" Content="{Binding [Name]}" Color="{ThemeResource TextColor}"/>
 
             <Label Grid.Column="2" Grid.Row="0" x:Name="CurrentProgramTimeLabel" Margin="5,5,0,5"

@@ -114,7 +114,7 @@ namespace MediaPortal.Plugins.SlimTv.Service
     public bool GetChannels(IChannelGroup group, out IList<IChannel> channels)
     {
       // TODO:
-      channels = new List<IChannel> { new Channel { ChannelId = 1, Name = "Native channel 1" } };
+      channels = new List<IChannel> { new Channel { ChannelId = 1, Name = "Das Erste HD" } };
       return true;
     }
 
