@@ -6,8 +6,9 @@
         MinWidth="300" MinHeight="200"
         Width="400" Height="300"
         Title="MP2-ServiceMonitor" 
+        Closing="OnClosing"
         Background="{DynamicResource WindowBackgroundBrush}" 
-        Icon="{Binding Path=ServerStatus, Converter={StaticResource SrvStatToIconConverter}}">
+        Icon="{Binding Path=ServerStatus, Converter={StaticResource SrvStatToIconConverter}}" Loaded="OnLoaded">
 
   <Window.Resources>
     <Converters:ConnectionStatusToImageConverter x:Key="ConStatusToImageConverter"/>

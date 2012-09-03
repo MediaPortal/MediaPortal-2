@@ -24,6 +24,9 @@
 
 using System.Windows;
 using MediaPortal.Common;
+using MediaPortal.Common.Logging;
+using MediaPortal.Common.Settings;
+using MediaPortal.ServiceMonitor.Settings;
 using MediaPortal.ServiceMonitor.ViewModel;
 
 namespace MediaPortal.ServiceMonitor.View
@@ -33,6 +36,7 @@ namespace MediaPortal.ServiceMonitor.View
   /// </summary>
   public partial class MainWindow : Window
   {
+    #region ctor
     public MainWindow()
     {
       InitializeComponent();
@@ -40,5 +44,68 @@ namespace MediaPortal.ServiceMonitor.View
       var viewModel = ServiceRegistration.Get<IAppController>();
       DataContext = viewModel;
     }
+
+    #endregion
+
+    #region Event Handler: Loaded, Closing
+    private void OnLoaded(object sender, RoutedEventArgs e)
+    {
+      LoadSettings();
+    }
+
+    private void OnClosing(object sender, System.ComponentModel.CancelEventArgs e)
+    {
+      SaveSettings();
+    }
+
+    #endregion
+
+    #region Settings
+    private void LoadSettings()
+    {
+      ServiceRegistration.Get<ILogger>().Debug("MainWindow:LoadSettings");
+      var settingsManager = ServiceRegistration.Get<ISettingsManager>();
+      var settings = settingsManager.Load<ServiceMonitorSettings>();
+
+      this.Top = settings.Top;
+      this.Left = settings.Left;
+      this.Height = settings.Height;
+      this.Width = settings.Width;
+      // Very quick and dirty - but it does the job
+      if (settings.Maximised)
+      {
+        WindowState = WindowState.Maximized;
+      }
+    }
+
+    private void SaveSettings()
+    {
+      ServiceRegistration.Get<ILogger>().Debug("MainWindow:SaveSettings");
+      var settingsManager = ServiceRegistration.Get<ISettingsManager>();
+      var settings = settingsManager.Load<ServiceMonitorSettings>();
+
+      if (WindowState == WindowState.Maximized)
+      {
+        // Use the RestoreBounds as the current values will be 0, 0 and the size of the screen
+        settings.Top = RestoreBounds.Top;
+        settings.Left = RestoreBounds.Left;
+        settings.Height = RestoreBounds.Height;
+        settings.Width = RestoreBounds.Width;
+        settings.Maximised = true;
+      }
+      else
+      {
+        settings.Top = this.Top;
+        settings.Left = this.Left;
+        settings.Height = this.Height;
+        settings.Width = this.Width;
+        settings.Maximised = false;
+      }
+
+      settingsManager.Save(settings);
+    }
+
+    #endregion
+
   }
 }
