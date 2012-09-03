@@ -48,12 +48,12 @@ namespace MediaPortal.ServiceMonitor.ViewModel
   /// </summary>
   public class AppController : IDisposable, INotifyPropertyChanged, IAppController, IMessageReceiver
   {
+
     #region Constants
     private const string SERVER_SERVICE_NAME = "MP2 Server Service"; // the name of the installed MP2 Server Service
     protected const string AUTOSTART_REGISTER_NAME = "MP2 ServiceMonitor";
 
     #endregion
-
 
     #region private variables
 
@@ -72,11 +72,12 @@ namespace MediaPortal.ServiceMonitor.ViewModel
       {
         try
         {
-          var applicationPath = ServiceRegistration.Get<IPathManager>().GetPath("<APPLICATION_PATH>");
+          var applicationPath = string.Format("\"{0}\" -m" , ServiceRegistration.Get<IPathManager>().GetPath("<APPLICATION_PATH>"));
 #if DEBUG
           applicationPath = applicationPath.Replace(".vshost", "");
 #endif
-          if (value)
+          if (value) 
+            // start ServiceMonitor minimized
             WindowsAPI.AddAutostartApplication(applicationPath, AUTOSTART_REGISTER_NAME, true);
           else
             WindowsAPI.RemoveAutostartApplication(AUTOSTART_REGISTER_NAME, true);
@@ -468,12 +469,6 @@ namespace MediaPortal.ServiceMonitor.ViewModel
 
     #endregion
 
-    #region AutoStart of ServiceMonitor
-
-
-
-    #endregion
-
     #region Implementation of INotifyPropertyChanged
 
     public event PropertyChangedEventHandler PropertyChanged;
@@ -507,7 +502,6 @@ namespace MediaPortal.ServiceMonitor.ViewModel
     }
 
     #endregion
-
 
   }
 }
