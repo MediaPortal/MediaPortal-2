@@ -71,8 +71,8 @@ source_file=Cache_MP2\ServerBase\strings_en.xml
 source_lang=en
 type=ANDROID
 [MP2.ServiceMonitor]
-file_filter=Cache\ServiceMonitor\strings_<lang>.xml
-source_file=Cache\ServiceMonitor\strings_en.xml
+file_filter=Cache_MP2\ServiceMonitor\strings_<lang>.xml
+source_file=Cache_MP2\ServiceMonitor\strings_en.xml
 source_lang=en
 type=ANDROID
 [MP2.SkinBase]

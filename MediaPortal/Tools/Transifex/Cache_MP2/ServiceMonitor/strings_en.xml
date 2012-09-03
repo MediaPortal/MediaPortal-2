@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<resources>
+<resources name="ServiceMonitor" project="MP2">
   <string name="ServerStatus.NotStarted">Server not started</string>
   <string name="ServerStatus.Attached">Attached to Server</string>
   <string name="ServerStatus.Connected">Connected to Server</string>
@@ -11,5 +11,8 @@
   <string name="ContextMenu.CloseWin">Close Win</string>
   <string name="ContextMenu.StartService">Start Service</string>
   <string name="ContextMenu.StopService">Stop Service</string>
+  <string name="ContextMenu.EnableAutostart">Enable Autostart</string>
+  <string name="ContextMenu.DisableAutostart">Disable Autostart</string>
   <string name="ContextMenu.Exit">Exit</string>
+  <string name="SysTrayToolTip.Info">Right / Left / Double Click for further options</string>
 </resources>
