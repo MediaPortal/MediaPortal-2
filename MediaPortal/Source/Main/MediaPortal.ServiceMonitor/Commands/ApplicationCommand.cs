@@ -121,7 +121,7 @@ namespace MediaPortal.ServiceMonitor.Commands
         {
           visibility = controller.TaskbarIcon.Visibility == Visibility.Visible ? Visibility.Collapsed : Visibility.Visible;
         }
-        else return true;
+        else visibility = Visibility.Collapsed;
       }
       else return true;
       

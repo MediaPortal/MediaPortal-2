@@ -447,18 +447,16 @@ namespace MediaPortal.ServiceMonitor.ViewModel
 
         var serverControler = serverConnectionManager.ServerController;
         if (serverControler == null) return;
-        ICollection<string> connectedClientSystemIDs = serverControler.GetConnectedClients();
+        var connectedClientSystemIDs = serverControler.GetConnectedClients();
 
-        foreach (var attachedClient in serverControler.GetAttachedClients())
+        foreach (var attachedClient in serverControler.GetAttachedClients().Where(attachedClient => !string.IsNullOrEmpty(attachedClient.LastClientName)))
         {
-          if (string.IsNullOrEmpty(attachedClient.LastClientName)) 
-            continue;
           Clients.Add(new ClientData
-                        {
-                          IsConnected = connectedClientSystemIDs != null && connectedClientSystemIDs.Contains(attachedClient.SystemId),
-                          Name = attachedClient.LastClientName,
-                          System = attachedClient.LastSystem == null ? string.Empty : attachedClient.LastSystem.HostName
-                        });
+            {
+              IsConnected = connectedClientSystemIDs != null && connectedClientSystemIDs.Contains(attachedClient.SystemId),
+              Name = attachedClient.LastClientName,
+              System = attachedClient.LastSystem == null ? string.Empty : attachedClient.LastSystem.HostName
+            });
         }
       }
       catch (Exception ex)
