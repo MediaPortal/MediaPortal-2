@@ -30,6 +30,7 @@ namespace MediaPortal.UiComponents.Media.Settings.Configuration
   {
     public override void Load()
     {
+      base.Load();
       _lowerLimit = 0;
       _upperLimit = 50;
       _type = NumberType.Integer;

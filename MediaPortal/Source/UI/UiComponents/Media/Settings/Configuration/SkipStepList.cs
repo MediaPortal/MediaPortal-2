@@ -30,6 +30,7 @@ namespace MediaPortal.UiComponents.Media.Settings.Configuration
   {
     public override void Load()
     {
+      base.Load();
       _value = SettingsManager.Load<MediaModelSettings>().SkipStepList;
     }
 
