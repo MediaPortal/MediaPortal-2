@@ -37,6 +37,15 @@
           -->
         </File>
       </Component>
+      <!-- Auto-start via Registry -->
+      <Component Id="ServiceMonitor.Registry.AutoStart" Guid="6F122131-ACC6-493B-8EC2-31D5715E07BF">
+        <RegistryValue Root="HKCU"
+                       Key="Software\Microsoft\Windows\Currentversion\Run"
+                       Name="MP2 ServiceMonitor"
+                       Value='"[#ServiceMonitor.exe]" -m'
+                       KeyPath="yes"
+                       Type="expandable"/>
+      </Component>
 
     </DirectoryRef>
 
@@ -93,6 +102,7 @@
       <ComponentRef Id="ServiceMonitor.exe" />
       <ComponentRef Id="ServiceMonitor.Desktop.Shortcut" />
       <ComponentRef Id="ServiceMonitor.StartMenu.Shortcut" />
+      <ComponentRef Id="ServiceMonitor.Registry.AutoStart" />
       <ComponentRef Id="ServiceMonitor.Registry.InstallDir" />
 
       <ComponentGroupRef Id="ServiceMonitor.Heat"/>
