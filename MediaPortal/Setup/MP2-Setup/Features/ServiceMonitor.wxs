@@ -105,8 +105,17 @@
       <ComponentRef Id="ServiceMonitor.Registry.AutoStart" />
       <ComponentRef Id="ServiceMonitor.Registry.InstallDir" />
 
-      <ComponentGroupRef Id="ServiceMonitor.Heat"/>
+      <ComponentGroupRef Id="ServiceMonitor.Heat" />
     </Feature>
+
+    <InstallExecuteSequence>
+      <Custom Action="LaunchServiceMonitor" After="InstallFinalize" />
+    </InstallExecuteSequence>
+
+    <CustomAction Id="LaunchServiceMonitor"
+                  FileKey="ServiceMonitor.exe"
+                  ExeCommand=" -m"
+                  Return="asyncNoWait" />
 
   </Fragment>
 </Wix>
