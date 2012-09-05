@@ -27,6 +27,10 @@ using System;
 using System.IO;
 using MediaPortal.Common.PathManager;
 #endif
+using System.Diagnostics;
+using System.Runtime.InteropServices;
+using System.Security.AccessControl;
+using System.Security.Principal;
 using System.Threading;
 using System.Windows;
 using System.Windows.Threading;
@@ -40,7 +44,6 @@ using MediaPortal.Common.Exceptions;
 using MediaPortal.Common.Services.Runtime;
 using MediaPortal.Common.SystemResolver;
 using MediaPortal.ServiceMonitor.UPNP;
-using MediaPortal.ServiceMonitor.Utilities;
 using MediaPortal.ServiceMonitor.ViewModel;
 using Localization = MediaPortal.ServiceMonitor.Utilities.Localization;
 
@@ -52,6 +55,118 @@ namespace MediaPortal.ServiceMonitor
   public partial class App
   {
 
+    #region imports
+    [DllImport("user32.dll")]
+    private static extern int ShowWindow(IntPtr hWnd, int nCmdShow);
+
+    [DllImport("user32.dll")]
+    private static extern int SetForegroundWindow(IntPtr hWnd);
+
+    [DllImport("user32.dll")]
+    private static extern int IsIconic(IntPtr hWnd);
+
+    #endregion
+
+    #region const
+    // unique id for global mutex - Global prefix means it is global to the machine
+    private const string MUTEX_ID = @"Global\{721780D6-6905-4CFA-A69B-5A1594C928D0}";
+    const int SW_RESTORE = 9;
+
+    #endregion
+
+    #region static
+    private static Mutex _mutex = null;
+    private static bool _hasHandle = false;
+    #endregion
+
+    #region ctor
+    public App()
+    {
+      if (IsAlreadyRunning())
+      {
+        //set focus on previously running app
+        SwitchToCurrentInstance();
+        throw new System.ApplicationException("Application already running");
+      }
+    }
+
+    #endregion
+
+    #region Single Application
+    /// <summary>
+    /// check if our application is running or not
+    /// </summary>
+    /// <returns>returns true if already running</returns>
+    private static bool IsAlreadyRunning()
+    {
+      // allow only one instance
+      _mutex = new Mutex(false, MUTEX_ID);
+
+      var allowEveryoneRule = new MutexAccessRule(new SecurityIdentifier(WellKnownSidType.WorldSid, null),
+                                                  MutexRights.FullControl, AccessControlType.Allow);
+      var securitySettings = new MutexSecurity();
+      securitySettings.AddAccessRule(allowEveryoneRule);
+      _mutex.SetAccessControl(securitySettings);
+
+      _hasHandle = false;
+      try
+      {
+        // check if we can start the application
+        _hasHandle = _mutex.WaitOne(500, false);
+      }
+      catch (AbandonedMutexException)
+      {
+        // Log the fact the mutex was abandoned in another process, it will still get aquired
+        _hasHandle = true;
+      }
+      return !_hasHandle;
+    }
+
+    /// <summary>
+    /// Switch To Current Instance of the Application
+    /// </summary>
+    private static void SwitchToCurrentInstance()
+    {
+      var hWnd = GetCurrentInstanceWindowHandle();
+      if (hWnd == IntPtr.Zero) return;
+      // Restore window if minimised. Do not restore if already in
+      // normal or maximised window state, since we don't want to
+      // change the current state of the window.
+      if (IsIconic(hWnd) != 0)
+      {
+        ShowWindow(hWnd, SW_RESTORE);
+      }
+
+      // Set foreground window.
+      SetForegroundWindow(hWnd);
+    }
+    
+    /// <summary>
+    /// Returns the WindowHandle of the current Instance of the Application
+    /// </summary>
+    /// <returns></returns>
+    private static IntPtr GetCurrentInstanceWindowHandle()
+    {
+      var hWnd = IntPtr.Zero;
+      var currentProcess = Process.GetCurrentProcess();
+      var processes = Process.GetProcessesByName(currentProcess.ProcessName);
+      foreach (var process in processes)
+      {
+        // Get the first instance that is not this instance, has the
+        // same process name and was started from the same file name
+        // and location. Also check that the process has a valid
+        // window handle in this session to filter out other user's
+        // processes.
+        if (process.Id == currentProcess.Id || process.MainModule.FileName != currentProcess.MainModule.FileName ||
+            process.MainWindowHandle == IntPtr.Zero) continue;
+        hWnd = process.MainWindowHandle;
+        break;
+      }
+      return hWnd;
+    }
+
+    #endregion
+
     #region OnStartUp
     /// <summary>
     /// Either shows the application's main window or
@@ -62,7 +177,7 @@ namespace MediaPortal.ServiceMonitor
       Thread.CurrentThread.Name = "Main";
       Thread.CurrentThread.SetApartmentState(ApartmentState.STA);
 
-      // Parse Command Line options
+     // Parse Command Line options
       var mpArgs = new CommandLineOptions();
       ICommandLineParser parser = new CommandLineParser(new CommandLineParserSettings(Console.Error));
       if (!parser.ParseArguments(args.Args, mpArgs, Console.Out))
@@ -100,8 +215,7 @@ namespace MediaPortal.ServiceMonitor
           logger.Debug("UiExtension: Registering IServerConnectionManager service");
           ServiceRegistration.Set<IServerConnectionManager>(new ServerConnectionManager());
           
-
-
+          
 #if !DEBUG
           logPath = ServiceRegistration.Get<IPathManager>().GetPath("<LOG>");
 #endif
@@ -121,21 +235,16 @@ namespace MediaPortal.ServiceMonitor
 
         var appController = new AppController();
         ServiceRegistration.Set<IAppController>(appController);
-
-        // Start the core
+        
+        // Start the application
         logger.Debug("Starting application");
         try
         {
           ServiceRegistration.Get<IServerConnectionManager>().Startup();
           if (mpArgs.IsMinimized)
-          {
             appController.MinimizeToTray();
-          }
           else
-          {
             appController.ShowMainWindow();
-          }
-          
         }
         catch (Exception e)
         {
@@ -172,10 +281,12 @@ namespace MediaPortal.ServiceMonitor
       ApplicationCore.DisposeCoreServices();
       systemStateService.SwitchSystemState(SystemState.Ending, false);
 
+      if (_hasHandle)
+        _mutex.ReleaseMutex();
     }
 
     #endregion
-
+    
     #region Unhandled Exceptions
     /// <summary>
     /// Gets any unhandled exceptions.
@@ -199,5 +310,6 @@ namespace MediaPortal.ServiceMonitor
     }
 
     #endregion
+
   }
 }
