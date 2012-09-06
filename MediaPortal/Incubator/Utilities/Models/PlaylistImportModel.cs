@@ -34,6 +34,7 @@ using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.Messaging;
 using MediaPortal.Common.ResourceAccess;
 using MediaPortal.Common.Settings;
+using MediaPortal.Common.SystemCommunication;
 using MediaPortal.Common.SystemResolver;
 using MediaPortal.Common.Threading;
 using MediaPortal.UI.Presentation.DataObjects;
