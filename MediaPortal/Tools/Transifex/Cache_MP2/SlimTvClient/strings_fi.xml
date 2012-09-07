@@ -6,11 +6,11 @@
   <string name="SlimTvClient.ProgramLabel">Ohjelma</string>
   <string name="SlimTvClient.DescriptionLabel">Kuvaus</string>
   <string name="SlimTvClient.GenreLabel">Tyylilaji</string>
-  <string name="SlimTvClient.ProgramStartLabel">Aloitus aika</string>
-  <string name="SlimTvClient.ProgramEndLabel">Lopetus aika</string>
+  <string name="SlimTvClient.ProgramStartLabel">Aloitusaika</string>
+  <string name="SlimTvClient.ProgramEndLabel">Lopetusaika</string>
   <string name="SlimTvClient.EpisodeLabel">Jakso</string>
   <string name="SlimTvClient.Guide">TV opas</string>
-  <string name="SlimTvClient.NoProgram">Ei ohjelma tietoja.</string>
+  <string name="SlimTvClient.NoProgram">Ei ohjelmatietoja.</string>
   <string name="SlimTvClient.ChooseProgramAction">Valitse ohjelman toiminto...</string>
   <string name="SlimTvClient.ProgramOver">Ohjelma jo loppunut</string>
   <string name="SlimTvClient.WatchNow">Katso ohjelmaa nyt</string>

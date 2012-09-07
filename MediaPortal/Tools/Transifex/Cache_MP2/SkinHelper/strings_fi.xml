@@ -3,7 +3,7 @@
   <string name="SkinHelper.ThemeColorsWorkflowNavigationContextDisplayLabel">Teeman värit</string>
   <string name="SkinHelper.MenuShowThemeColors">Näytä teeman värit</string>
   <string name="SkinHelper.ShowThemeColorsTitle">Teeman värit</string>
-  <string name="SkinHelper.ShowThemeColorsText">Tämä ruutu näyttää kaikki väri resurssit, jotka on määritelty käytettävässä teemassa (ja periytyvät resurssit)</string>
+  <string name="SkinHelper.ShowThemeColorsText">Tämä ruutu näyttää kaikki väriresurssit, jotka on määritelty käytettävässä teemassa (ja periytyvät resurssit)</string>
   <string name="SkinHelper.LoadSkinTitle">Lataa ulkoasu</string>
   <string name="SkinHelper.LoadThemeTitle">Lataa teema</string>
 </resources>

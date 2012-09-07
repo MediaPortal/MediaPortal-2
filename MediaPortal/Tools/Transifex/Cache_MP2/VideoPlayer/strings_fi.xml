@@ -29,7 +29,7 @@
   <string name="Playback.NotSpecified">Ei määritelty</string>
   <string name="Playback.CaptionNormal">Normaali kuvateksti</string>
   <string name="Playback.CaptionBig">Iso kuvateksti</string>
-  <string name="Playback.CaptionChildren">Lasten kuvateksi</string>
+  <string name="Playback.CaptionChildren">Lasten kuvateksti</string>
   <string name="Playback.CCNormal">Normaali kuvateksti</string>
   <string name="Playback.CCBig">Iso kuvateksti</string>
   <string name="Playback.CCChildren">Lasten kuvateksi</string>
@@ -39,7 +39,7 @@
   <string name="Playback.DirectorCommentsChildren">Lasten ohjaajan kommentit </string>
   <string name="Playback.VisuallyImpaired">Heikkonäköiset</string>
   <string name="Playback.DirectorComments1">Ohjaajan kommentit</string>
-  <string name="Playback.DirectorComments2">Ohjaajan kommentit(2)</string>
+  <string name="Playback.DirectorComments2">Ohjaajan kommentit (2)</string>
   <string name="Playback.Chapter">Luku {0}</string>
   <!--For example: "Chapter 1"-->
   <string name="Playback.Title">Otsikko {0}</string>

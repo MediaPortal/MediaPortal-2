@@ -6,10 +6,12 @@
   <!--{0} = media item title-->
   <string name="PlayerControl.HeaderPiP">{0} (PiP)</string>
   <!--{0} = media item title-->
+  <string name="PlayerControl.Paused">Pauzirano</string>
   <!--For example: "Seeking forward (2x)"-->
   <!--For example: "Seeking forward (2x)"-->
   <!--For example: "Slowmotion forward (0.5x)"-->
   <!--For example: "Slowmotion backward (0.5x)"-->
   <string name="PlayerControl.PlaybackRateHint">{0}x</string>
   <!--For example: 2x or 0.5x-->
+  <string name="PlayerControl.Stopped">Zaustavljeno</string>
 </resources>

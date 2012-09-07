@@ -35,6 +35,7 @@
   <!--for example "Close video player"-->
   <string name="Players.ChoosePlayerEffect">Efekt</string>
   <string name="Settings.Appearance.Skin.Formats.DateFormat">Format datuma</string>
+  <string name="Settings.Appearance.Skin.Formats.TimeFormat">Format vremena</string>
   <string name="Settings.Regional.Language">Jezik</string>
   <string name="Settings.Regional.Language.Main">Jezik</string>
   <string name="Settings.Regional.Language.Main.Help"> Postavi glavni jezik korišten u aplikaciji</string>
@@ -46,6 +47,7 @@
   <!--Setting-->
   <!--For example: INVALID PATH: 'C:\XXX\YYY'-->
   <!--Shares configuration workflow-->
+  <string name="SharesConfig.ShareNameInfo">Ime:</string>
   <string name="SharesConfig.SharePathInfo">Staza:</string>
   <string name="SharesConfig.MenuEditShares">Uredi</string>
   <!--Must fit for both multiseat and singleseat, that's why we don't write "server share"-->

@@ -5,10 +5,10 @@
   <string name="Configuration.MainSettings">Κύριες ρυθμίσεις</string>
   <!--2nd Header for root configuration section-->
   <string name="Configuration.NoSettingsInThisSection">Δεν υπάρχουν ρυθμίσεις εδώ</string>
-  <string name="Configuration.ErrorFloatingPointValue">Το \'{0}\' δεν είναι έγκυρος αριθμός</string>
-  <string name="Configuration.ErrorIntegerValue">Το \'{0}\' δεν είναι έγκυρος ακέραιος αριθμός</string>
-  <string name="Configuration.ErrorNumericLowerLimit">Πρεπει η τιμή να είναι μεταξύ \'{1}\' και \'{2}\'</string>
+  <string name="Configuration.ErrorFloatingPointValue">Το '{0}' δεν είναι έγκυρος αριθμός</string>
+  <string name="Configuration.ErrorIntegerValue">Το '{0}' δεν είναι έγκυρος ακέραιος αριθμός</string>
+  <string name="Configuration.ErrorNumericLowerLimit">Πρεπει η τιμή να είναι μεταξύ '{1}' και '{2}'</string>
   <!--0 = current value, 1 = lower limit, 2 = upper limit-->
-  <string name="Configuration.ErrorNumericUpperLimit">Πρεπει η τιμή να είναι μεταξύ \'{1}\' και \'{2}\'</string>
+  <string name="Configuration.ErrorNumericUpperLimit">Πρεπει η τιμή να είναι μεταξύ '{1}' και '{2}'</string>
   <!--0 = current value, 1 = lower limit, 2 = upper limit-->
 </resources>

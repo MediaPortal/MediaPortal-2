@@ -2,6 +2,7 @@
 <resources>
   <string name="MainForm.ConnectionState">Stanje veze</string>
   <string name="MainForm.Connected">Spojen</string>
+  <string name="MainForm.Disconnected">Odspojen</string>
   <string name="UPnPBackendServer.Manufacturer">Team Mediaportal</string>
   <string name="UPnPBackendServer.ManufacturerUrl">www.team-mediaportal.com</string>
   <string name="UPnPBackendServer.ModelNumber">1</string>

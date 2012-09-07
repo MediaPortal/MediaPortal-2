@@ -220,11 +220,11 @@
   <string name="Media.ShowAudioPlaylistAction">Prikaži audio seznam predvajanja</string>
   <string name="Media.ShowVideoImagePlaylistAction">Prikaži video / slikovni seznam predvajanja</string>
   <string name="Media.ShowPiPPlaylistAction">Prikaži PiP seznam predvajanja</string>
+  <string name="Media.EditPlaylistAction">Uredi seznam predvajanja</string>
   <string name="Media.ClearPlaylistAction">Izprazni seznam</string>
   <string name="Media.SavePlaylistAction">Shrani seznam</string>
   <string name="Media.SaveCurrentPlaylistAction">Shrani trenutni seznam</string>
   <string name="Media.RemovePlaylistsAction">Odstrani sezname</string>
-  <string name="Media.EditPlaylistButton">Uredi seznam predvajanja</string>
   <string name="Media.LoadPlaylistButton">Naloži seznam</string>
   <string name="Media.PlaylistEmpty">&lt;Seznam predvajanja je prazen&gt;</string>
   <string name="Media.CannotPlayItemDialogText">Ne morem predvajati vsebine</string>

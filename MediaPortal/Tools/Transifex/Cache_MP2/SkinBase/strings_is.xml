@@ -58,15 +58,15 @@
   <string name="Notifications.NMoreNotifications">({0} í viðbót)</string>
   <string name="Notifications.WatchNotificationsWorkflowStateLabel">Tilkynningar</string>
   <string name="ImporterMessages.ImportStartedTitle">Innflutningur hafinn</string>
-  <string name="ImporterMessages.ImportStartedText">Innflutningur á \'{0}\' er hafinn.</string>
+  <string name="ImporterMessages.ImportStartedText">Innflutningur á '{0}' er hafinn.</string>
   <string name="ImporterMessages.ImportCompletedTitle">Innflutningi lokið</string>
-  <string name="ImporterMessages.ImportCompletedText">Innflutningur á \'{0}\' r lokið.</string>
+  <string name="ImporterMessages.ImportCompletedText">Innflutningur á '{0}' r lokið.</string>
   <string name="ScreenSaver.MediaPortal2">MediaPortal 2</string>
   <!--For MP UI player subsystem-->
   <string name="Players.NoPlayerAvailableNotificationTitle">Enginn spilari</string>
-  <string name="Players.NoPlayerAvailableNotificationText">Það er er enginn spilari skilgreindur til að spila \'{0}\'</string>
+  <string name="Players.NoPlayerAvailableNotificationText">Það er er enginn spilari skilgreindur til að spila '{0}'</string>
   <string name="Players.ErrorPlayingMediaItemTitle">Villa við að spila skrá</string>
-  <string name="Players.UnableToPlayMediaItemText">Get ekki spilað miðilsskrá \'{0}\'</string>
+  <string name="Players.UnableToPlayMediaItemText">Get ekki spilað miðilsskrá '{0}'</string>
   <string name="Players.PlayerConfiguration">Uppsetning spilara</string>
   <string name="Players.CurrentMediaInfo">Upplýsingar um miðilsskrá</string>
   <!--for example "Fullscreen TV"-->
@@ -121,7 +121,7 @@
   <string name="SharesOverview.Title">Yfirlit deilinga</string>
   <string name="SharesOverview.ReImportAllShares">Endurinnflutningur á öllum deilingum</string>
   <string name="Shares.NoSharesInThisView">- Engin deiling í þessu útliti -</string>
-  <string name="Shares.InvalidPath">Ógild slóð: \'{0}\'</string>
+  <string name="Shares.InvalidPath">Ógild slóð: '{0}'</string>
   <!--For example: INVALID PATH: 'C:\XXX\YYY'-->
   <string name="Shares.Online">Tengdur</string>
   <string name="Shares.Offline">Ótengdur</string>

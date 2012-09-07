@@ -1,4 +1,23 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
+  <string name="PartyMusicPlayer.MenuItem">Party-Musikbox</string>
+  <string name="PartyMusicPlayer.ConfigWorkflowNavigationContextDisplayLabel">Party-Musikbox</string>
+  <string name="PartyMusicPlayer.PlayerWorkflowNavigationContextDisplayLabel">Party-Musikbox</string>
+  <string name="PartyMusicPlayer.ConfigScreenTitle">Einrichtung der Party-Musikbox</string>
   <string name="PartyMusicPlayer.Playlist">Wiedergabeliste</string>
+  <string name="PartyMusicPlayer.ChoosePlaylist">Playlist auswählen</string>
+  <string name="PartyMusicPlayer.UseEscapePassword">Exit-Passwort verwenden</string>
+  <string name="PartyMusicPlayer.DisableScreenSaver">Bildschirmschoner ausschalten</string>
+  <string name="PartyMusicPlayer.StartPartyMode">Party Modus starten</string>
+  <string name="PartyMusicPlayer.ChoosePlaylistDialogHeader">Playlist auswählen</string>
+  <string name="PartyMusicPlayer.EnterEscapePasswordDialogHeader">Passwort zum Verlassen</string>
+  <string name="PartyMusicPlayer.EnterEscapePasswordDialogText">Bitte das Exit-Passwort zum Verlassen des Party-Modus eingeben</string>
+  <string name="PartyMusicPlayer.WrongEscapePasswordDialogHeader">Falsches ExitPasswort</string>
+  <string name="PartyMusicPlayer.WrongEscapePasswordDialogText">Entschuldigung, aber das ist das falsche Exit-Passwort!</string>
+  <string name="PartyMusicPlayer.ServerNotConnectedDialogHeader">Server nicht verbunden</string>
+  <string name="PartyMusicPlayer.ServerNotConnectedDialogText">Für diese Aktion muss der Heimserver verbunden sein</string>
+  <string name="PartyMusicPlayer.PlayerContextName">Party-Musikbox</string>
+  <string name="PartyMusicPlayer.AudioArtistLabel">Künstler</string>
+  <string name="PartyMusicPlayer.AudioTitleLabel">Titel</string>
+  <string name="PartyMusicPlayer.ShowPlaylist">Playlist anzeigen</string>
 </resources>

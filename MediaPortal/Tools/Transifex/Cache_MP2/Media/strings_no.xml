@@ -158,9 +158,9 @@
   <string name="Media.NoPlaylistsAvailable">-Ingen spilleliste tilgjengelig-</string>
   <string name="Media.NoConfigPlaylistsHomeServerNotConnectedText">Hjemmeserveren er ikke tilkoblet, så spilleliste kan ikke behandles i øyeblikket</string>
   <string name="Media.EditNameOfPlaylist">Redigere spillelistens navn</string>
-  <string name="Media.SavePlaylistSuccessfulText">Spilleliste \'{0}\' ble lagret på serveren.</string>
-  <string name="Media.SavePlaylistFailedText">Spillelisten kunne ikke lagres. Feil melding: \'{0}\'</string>
-  <string name="Media.SavePlaylistFailedAlreadyExists">Spillelisten kunne ikke lagres: Spilleliste \'{0}\' eksisterer allerede</string>
+  <string name="Media.SavePlaylistSuccessfulText">Spilleliste '{0}' ble lagret på serveren.</string>
+  <string name="Media.SavePlaylistFailedText">Spillelisten kunne ikke lagres. Feil melding: '{0}'</string>
+  <string name="Media.SavePlaylistFailedAlreadyExists">Spillelisten kunne ikke lagres: Spilleliste '{0}' eksisterer allerede</string>
   <string name="Media.ChoosePlaylistsToBeRemovedText">Velg spillelisten som skal fjernes</string>
   <string name="Media.PlaylistNameInfoLabel">Spillelistens navn</string>
   <string name="Media.PlaylistTypeInfoLabel">Type spilleliste</string>
@@ -220,11 +220,11 @@
   <string name="Media.ShowAudioPlaylistAction">Vis spilleliste for lyd</string>
   <string name="Media.ShowVideoImagePlaylistAction">Vis video/bilde-spilleliste</string>
   <string name="Media.ShowPiPPlaylistAction">Vis PiP-spilleliste</string>
+  <string name="Media.EditPlaylistAction">Rediger spilleliste</string>
   <string name="Media.ClearPlaylistAction">Nullstill spilleliste</string>
   <string name="Media.SavePlaylistAction">Lagre spilleliste</string>
   <string name="Media.SaveCurrentPlaylistAction">Lagre gjeldende spilleliste</string>
   <string name="Media.RemovePlaylistsAction">Fjern spilleliste</string>
-  <string name="Media.EditPlaylistButton">Rediger spilleliste</string>
   <string name="Media.LoadPlaylistButton">Hent spilleliste</string>
   <string name="Media.PlaylistEmpty">&lt;Ingen elementer i spillelisten&gt;</string>
   <string name="Media.CannotPlayItemDialogText">Kan ikke spille av mediaelementet</string>

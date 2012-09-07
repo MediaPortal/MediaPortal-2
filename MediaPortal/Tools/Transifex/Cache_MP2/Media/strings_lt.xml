@@ -159,8 +159,8 @@
   <string name="Media.NoConfigPlaylistsHomeServerNotConnectedText">Pagrindinis serveris neprijungtas, todėl grojaraščių negalima valdyti</string>
   <string name="Media.EditNameOfPlaylist">Koreguoti grojaraščio vardą</string>
   <string name="Media.SavePlaylistSuccessfulText">Grojaraštis {0} sėkmingai išsaugotas serveryje.</string>
-  <string name="Media.SavePlaylistFailedText">Grojaraščio neįmanoma išsaugoti. Klaida: \'{0}\'</string>
-  <string name="Media.SavePlaylistFailedAlreadyExists">Grojaraščio neįmanoma išsaugoti. Grojaraštis \'{0}\' jau egzistuoja</string>
+  <string name="Media.SavePlaylistFailedText">Grojaraščio neįmanoma išsaugoti. Klaida: '{0}'</string>
+  <string name="Media.SavePlaylistFailedAlreadyExists">Grojaraščio neįmanoma išsaugoti. Grojaraštis '{0}' jau egzistuoja</string>
   <string name="Media.ChoosePlaylistsToBeRemovedText">Pasirinkti išmetamą grojaraštį</string>
   <string name="Media.PlaylistNameInfoLabel">Grojaraščio vardas</string>
   <string name="Media.PlaylistTypeInfoLabel">Grojaraščio tipas</string>
@@ -220,11 +220,11 @@
   <string name="Media.ShowAudioPlaylistAction">Rodyti audio grojaraštį</string>
   <string name="Media.ShowVideoImagePlaylistAction">Rodyti video/vaizdo grojaraštį</string>
   <string name="Media.ShowPiPPlaylistAction">Rodyti PiP grojaraštį</string>
+  <string name="Media.EditPlaylistAction">Koreguoti grojaraštį</string>
   <string name="Media.ClearPlaylistAction">Valyti grojaraštį</string>
   <string name="Media.SavePlaylistAction">Saugoti grojaraštį</string>
   <string name="Media.SaveCurrentPlaylistAction">Saugoti šį grojaraštį</string>
   <string name="Media.RemovePlaylistsAction">Išimti grojaraščius</string>
-  <string name="Media.EditPlaylistButton">Koreguoti grojaraštį</string>
   <string name="Media.LoadPlaylistButton">Krauti grojaraštį</string>
   <string name="Media.PlaylistEmpty">&lt;Grojaraštyje nėra įrašųt&gt;</string>
   <string name="Media.CannotPlayItemDialogText">Negalima atkurti media įrašo</string>

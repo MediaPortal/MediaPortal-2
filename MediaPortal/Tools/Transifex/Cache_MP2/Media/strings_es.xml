@@ -159,8 +159,8 @@
   <string name="Media.NoConfigPlaylistsHomeServerNotConnectedText">El servidor no está disponible, las listas de reproducción no pueden gestionarse por el momento</string>
   <string name="Media.EditNameOfPlaylist">Editar el nombre de la lista de reproducción</string>
   <string name="Media.SavePlaylistSuccessfulText">La lista de reproducción {0} fue guardada correctamente en el servidor</string>
-  <string name="Media.SavePlaylistFailedText">La lista de reproducción no pudo guardarse. Mensaje de error: \'{0}\'</string>
-  <string name="Media.SavePlaylistFailedAlreadyExists">La lista de reproducción no pido guardarse: La lista de reproducción \'{0}\' ya existe</string>
+  <string name="Media.SavePlaylistFailedText">La lista de reproducción no pudo guardarse. Mensaje de error: '{0}'</string>
+  <string name="Media.SavePlaylistFailedAlreadyExists">La lista de reproducción no pido guardarse: La lista de reproducción '{0}' ya existe</string>
   <string name="Media.ChoosePlaylistsToBeRemovedText">Elegir listas de reproducción para eliminar</string>
   <string name="Media.PlaylistNameInfoLabel">Nombre de Lista de reproducción</string>
   <string name="Media.PlaylistTypeInfoLabel">Tipo de Lista de reprodución</string>
@@ -220,11 +220,11 @@
   <string name="Media.ShowAudioPlaylistAction">Mostrar lista de reproducción de audio</string>
   <string name="Media.ShowVideoImagePlaylistAction">Mostrar lista de reproducción de vídeo/imagen</string>
   <string name="Media.ShowPiPPlaylistAction">Mostrar lista de reproducción PiP</string>
+  <string name="Media.EditPlaylistAction">Editar lista de reproducción</string>
   <string name="Media.ClearPlaylistAction">Limpiar lista de reproducción</string>
   <string name="Media.SavePlaylistAction">Guardar lista de reproducción</string>
   <string name="Media.SaveCurrentPlaylistAction">Guardar lista de reproducción actual</string>
   <string name="Media.RemovePlaylistsAction">Quitar listas de reproducción</string>
-  <string name="Media.EditPlaylistButton">Editar lista de reproducción</string>
   <string name="Media.LoadPlaylistButton">Cargar lista de eproducción</string>
   <string name="Media.PlaylistEmpty"></string>
   <string name="Media.CannotPlayItemDialogText">Imposible reproducir elemento multimedia</string>

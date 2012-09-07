@@ -7,6 +7,6 @@
      language.-->
   <string name="MyPlugin.String1">Cadena en anglès 1</string>
   <string name="MyPlugin.String2">Cadena en anglès 2</string>
-  <string name="MyPlugin.StateDisplayLabel">Nom de l\'estat de Navbar</string>
+  <string name="MyPlugin.StateDisplayLabel">Nom de l'estat de Navbar</string>
   <string name="MyPlugin.MenuEntry">ElMeuConnector</string>
 </resources>

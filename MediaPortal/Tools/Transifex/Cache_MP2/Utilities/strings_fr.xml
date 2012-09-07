@@ -1,0 +1,29 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<resources>
+  <string name="Utilities.MenuItem">Utilitaires</string>
+  <string name="Utilities.MainWorkflowNavigationContextDisplayLabel">Utilitaires</string>
+  <string name="Utilities.PlaylistImportWorkflowNavigationContextDisplayLabel">Importation de la playlist</string>
+  <string name="Utilities.MainScreenTitle">Utilitaires</string>
+  <string name="Utilities.PlaylistImport">Importation de la playlist</string>
+  <string name="Utilities.PlaylistImportScreenTitle">Importation de la playlist</string>
+  <string name="Utilities.ImportPlaylistFile">Importation du fichier de la playlist</string>
+  <string name="Utilities.ChoosePlaylistFile">Choisir un fichier</string>
+  <string name="Utilities.ChooseImportFileDialogHeader">Choisir un fichier à importer</string>
+  <string name="Utilities.EditPlaylistName">Entrer le nom de la nouvelle playlist</string>
+  <string name="Utilities.LocationOfShareContainingItems">Emplacement du réseau sur lequel se trouvent les items</string>
+  <string name="Utilities.LocalShareLocation">Partage réseau local</string>
+  <string name="Utilities.ServerShareLocation">Partages serveur</string>
+  <string name="Utilities.StartPlaylistImport">Début de l'importation de la playlist</string>
+  <string name="Utilities.PlaylistSavedSuccessfullyTitle">Opération réussie</string>
+  <string name="Utilities.NoItemsWereImportedSkippingSaveText">Aucun item n'a pu être importer. Abandon de la sauvegarde</string>
+  <string name="Utilities.PlaylistSavedSuccessfullyText">La playlist '{0}' a été sauvegardée avec succēs</string>
+  <string name="Utilities.PlaylistSaveFailedTitle">La sauvegarde de la playlist a échoué</string>
+  <string name="Utilities.ImportPlaylistProgressTitle">En cours</string>
+  <string name="Utilities.ImportPlaylistProgressHeaderText">Importation de la playlist</string>
+  <string name="Utilities.ImportPlaylistProgressText">{0}/{1}, {2}  passé</string>
+  <string name="Utilities.StopImportPlaylistButton">Annuler</string>
+  <string name="Utilities.PlaylistNameExists">Le nom de la playlist existe déjà</string>
+  <string name="Utilities.ImportFileInvalid">Fichier à importer invalide</string>
+  <string name="Utilities.PlaylistNameIsEmpty">Le nom de la playlist est vide</string>
+  <string name="Utilities.ServerNotConnected">Le serveur n'est pas connecté</string>
+</resources>

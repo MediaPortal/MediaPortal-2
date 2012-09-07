@@ -76,7 +76,7 @@
   <string name="Weather.Clearing">Amélioration</string>
   <string name="Settings.Plugins.Weather">Météo</string>
   <string name="Settings.Plugins.Weather.LocationSetup">Définir la localisation</string>
-  <string name="Settings.Plugins.Weather.LocationSetup.Help">Ville à afficher sur l\'accueil météo</string>
+  <string name="Settings.Plugins.Weather.LocationSetup.Help">Ville à afficher sur l'accueil météo</string>
   <string name="WeatherSetup.Title">Entrer les villes</string>
   <string name="WeatherSetup.ConfiguredCities">Entrer les villes</string>
   <string name="WeatherSetup.EnterCity">SVP, entrer le nom de la ville à ajouter :</string>

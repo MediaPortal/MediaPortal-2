@@ -4,7 +4,7 @@
   <string name="SlimTvClient.ChannelLabel">ערוץ</string>
   <string name="SlimTvClient.ProgramLabel">תוכנית</string>
   <string name="SlimTvClient.DescriptionLabel">תיאור</string>
-  <string name="SlimTvClient.GenreLabel">ז\'אנר</string>
+  <string name="SlimTvClient.GenreLabel">ז'אנר</string>
   <string name="SlimTvClient.ProgramStartLabel">זמן התחלה</string>
   <string name="SlimTvClient.ProgramEndLabel">זמן סיום</string>
   <string name="SlimTvClient.EpisodeLabel">פרק</string>

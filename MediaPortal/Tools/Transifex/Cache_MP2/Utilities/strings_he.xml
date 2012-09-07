@@ -1,0 +1,24 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<resources>
+  <string name="Utilities.PlaylistImportWorkflowNavigationContextDisplayLabel">ייבוא רשימת השמעה</string>
+  <string name="Utilities.PlaylistImport">ייבוא רשימת השמעה</string>
+  <string name="Utilities.PlaylistImportScreenTitle">ייבוא רשימת השמעה</string>
+  <string name="Utilities.ImportPlaylistFile">ייבא קובץ רשימת השמעה</string>
+  <string name="Utilities.ChoosePlaylistFile">בחר קובץ</string>
+  <string name="Utilities.ChooseImportFileDialogHeader">בחר קובץ לייבוא</string>
+  <string name="Utilities.EditPlaylistName">ערוך את שם רשימת ההשמעה החדשה</string>
+  <string name="Utilities.LocationOfShareContainingItems">מיקום השיתוף המכיל את קבצי המדיה</string>
+  <string name="Utilities.LocalShareLocation">שיתוף מקומי</string>
+  <string name="Utilities.ServerShareLocation">שיתוף בשרת</string>
+  <string name="Utilities.StartPlaylistImport">התחל ייבוא רשימת השמעה</string>
+  <string name="Utilities.PlaylistSavedSuccessfullyTitle">הצלחה</string>
+  <string name="Utilities.NoItemsWereImportedSkippingSaveText">אין פריטים שיובאו, מדלג על פעולת השמירה</string>
+  <string name="Utilities.PlaylistSaveFailedTitle">שמירת רשימת השמעה נכשלה</string>
+  <string name="Utilities.ImportPlaylistProgressTitle">התקדמות</string>
+  <string name="Utilities.ImportPlaylistProgressHeaderText">מייבא רשימת השמעה</string>
+  <string name="Utilities.StopImportPlaylistButton">עצור</string>
+  <string name="Utilities.PlaylistNameExists">שם רשימת השמעה קיים כבר</string>
+  <string name="Utilities.ImportFileInvalid">קובץ ייבוא לא תקין</string>
+  <string name="Utilities.PlaylistNameIsEmpty">שם רשימת השמעה ריק</string>
+  <string name="Utilities.ServerNotConnected">השרת לא מחובר</string>
+</resources>

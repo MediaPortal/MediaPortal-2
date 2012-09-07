@@ -144,9 +144,9 @@
   <string name="Media.NoPlaylistsAvailable">- Engir spilunarlistar -</string>
   <string name="Media.NoConfigPlaylistsHomeServerNotConnectedText">Miðlarinn er ekki tengdur, þ.a. ekki er hægt að vinna við spilunarlista</string>
   <string name="Media.EditNameOfPlaylist">Breytið heiti spilunarlista</string>
-  <string name="Media.SavePlaylistSuccessfulText">Tókst að vista \'{0}\' á miðlaranum</string>
-  <string name="Media.SavePlaylistFailedText">Ekki tókst að vista spilunarlistann.  Villuboð: \'{0}\'</string>
-  <string name="Media.SavePlaylistFailedAlreadyExists">Ekki  tókst að vista spilunarlistann.  \'{0} er til</string>
+  <string name="Media.SavePlaylistSuccessfulText">Tókst að vista '{0}' á miðlaranum</string>
+  <string name="Media.SavePlaylistFailedText">Ekki tókst að vista spilunarlistann.  Villuboð: '{0}'</string>
+  <string name="Media.SavePlaylistFailedAlreadyExists">Ekki  tókst að vista spilunarlistann.  '{0} er til</string>
   <string name="Media.ChoosePlaylistsToBeRemovedText">Veljið spilunarlista sem á að eyða</string>
   <string name="Media.PlaylistNameInfoLabel">Heiti spilunarlistanns</string>
   <string name="Media.PlaylistTypeInfoLabel">Tegund spilunarlista</string>
@@ -194,11 +194,11 @@
   <string name="Media.ShowAudioPlaylistAction">Sýna lagalista</string>
   <string name="Media.ShowVideoImagePlaylistAction">Sýna myndskeið/ljósmynd spilunarlista</string>
   <string name="Media.ShowPiPPlaylistAction">Sýna MíM spilunarlista</string>
+  <string name="Media.EditPlaylistAction">Breyta spilunarlista</string>
   <string name="Media.ClearPlaylistAction">Hreinsa spilunarlista</string>
   <string name="Media.SavePlaylistAction">Vista spilunarlista</string>
   <string name="Media.SaveCurrentPlaylistAction">Vista núverandi spilunarlista</string>
   <string name="Media.RemovePlaylistsAction">Fjarlægja spilunarlista</string>
-  <string name="Media.EditPlaylistButton">Breyta spilunarlista</string>
   <string name="Media.LoadPlaylistButton">Sækja spilunarlista</string>
   <string name="Media.PlaylistEmpty">&lt;Ekkert í spilunarlista&gt;</string>
   <string name="Media.CannotPlayItemDialogText">Get ekki spilað þessa miðilsskrá</string>

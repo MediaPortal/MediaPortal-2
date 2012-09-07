@@ -4,7 +4,7 @@
   <string name="Settings.Players.Rendering">Rendu vidéo</string>
   <string name="Settings.Players.Rendering.CrossFading">Fondu enchainé</string>
   <string name="Settings.Players.Rendering.CrossFading.CrossFadingEnabled">Fondu enchainé activé</string>
-  <string name="Settings.Players.Rendering.CrossFading.CrossFadingEnabled.Help">Activer le Fondu enchainé si MediaPortal l\'autorise</string>
+  <string name="Settings.Players.Rendering.CrossFading.CrossFadingEnabled.Help">Activer le Fondu enchainé si MediaPortal l'autorise</string>
   <string name="Settings.Players.Rendering.CrossFading.CrossFadeDuration">Durée du fondu enchainé</string>
   <string name="Settings.Players.Rendering.CrossFading.CrossFadeDuration.Help">Durée de la transition en seconde</string>
 </resources>

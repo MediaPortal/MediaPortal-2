@@ -48,9 +48,13 @@
   <!--Player context names-->
   <string name="Media.AudioContextName">Audio</string>
   <!--Video currently playing-->
+  <string name="Media.VideoYearLabel">Godina: </string>
   <!--Image currently playing-->
+  <string name="Media.ImageDimensions">Dimenzije: </string>
   <!--DVD currently playing-->
   <!--Audio currently playing-->
+  <string name="Media.AudioYearLabel">Godina: </string>
+  <string name="Media.AudioDurationLabel">Trajanje: </string>
   <string name="Media.SavePLLocally">Spremi lokalno</string>
   <!--VideoPlayerUIContributor-->
   <!--Video Player time units-->

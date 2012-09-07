@@ -28,8 +28,8 @@
   <string name="Media.MyPictures">Immagini</string>
   <string name="Media.InvalidShareName">Share non valida</string>
   <string name="ServerConnection.NotificationServerAvailableTitle">Server MP2 disponibile</string>
-  <string name="ServerConnection.NotificationServerAvailableText">C\'è almeno un server MediaPortal 2 nella rete. Collegati ad esso per avere tutte le opzioni di MediaPortal 2.</string>
-  <string name="ServerConnection.ServerFormatText">{0}\' al host \'{1}</string>
+  <string name="ServerConnection.NotificationServerAvailableText">C'è almeno un server MediaPortal 2 nella rete. Collegati ad esso per avere tutte le opzioni di MediaPortal 2.</string>
+  <string name="ServerConnection.ServerFormatText">{0}' al host '{1}</string>
   <!--{0} = server name, {1} = host name-->
   <string name="ServerConnection.UnknownServerName">&lt;Sconosciuto&gt;</string>
   <string name="ServerConnection.UnknownServerSystem">&lt;Sconosciuto&gt;</string>
@@ -44,7 +44,7 @@
   <string name="ServerConnection.HomeServerIsNotConnected">Il Sever home è attualmente scollegato.</string>
   <string name="ServerConnection.DetachMenu">Scollega</string>
   <string name="ServerConnection.DetachConfirmDialogHeader">Scollega dal erver Home</string>
-  <string name="ServerConnection.DetachConfirmDialogText">Se ti scolleghi dal server home,tutti i dati delle shares locali e le loro voci saranno rimosse dalla libreria del server home. Vuoi veramente scollegarti dal server home \'{0}\' at host \'{1}\'?</string>
+  <string name="ServerConnection.DetachConfirmDialogText">Se ti scolleghi dal server home,tutti i dati delle shares locali e le loro voci saranno rimosse dalla libreria del server home. Vuoi veramente scollegarti dal server home '{0}' at host '{1}'?</string>
   <string name="ServerConnection.SearchForServers">Ricerca server</string>
   <string name="ServerConnection.DetachFromServer">Scollegati dal server home</string>
   <string name="ServerConnection.AttachToServerHeader">Collegati al server MediaPortal 2</string>
@@ -54,7 +54,7 @@
   <string name="ServerConnection.AttachToServerNoServerText">Al momento non ci sono server MediaPortal 2 disponibili nella rete.</string>
   <string name="ServerConnection.AttachButton">Collega</string>
   <string name="ServerConnection.AttachInfoDialogHeader">Server collegati</string>
-  <string name="ServerConnection.AttachInfoDialogText">Questo client MediaPortal 2 era collegato al suo nuovo server home  \'{0}\' sul host \'{1}\'</string>
+  <string name="ServerConnection.AttachInfoDialogText">Questo client MediaPortal 2 era collegato al suo nuovo server home  '{0}' sul host '{1}'</string>
   <!--{0} = server name, {1} = host name-->
   <string name="Notifications.Title">Notifiche</string>
   <string name="Notifications.OneMoreNotification">(1 più)</string>
@@ -62,9 +62,9 @@
   <string name="Notifications.WatchNotificationsWorkflowStateLabel">Notifiche</string>
   <string name="Notifications.Handle">Handle</string>
   <string name="ImporterMessages.ImportStartedTitle">Importazione iniziata</string>
-  <string name="ImporterMessages.ImportStartedText">L\'importazione di  \'{0}\' è iniziata.</string>
+  <string name="ImporterMessages.ImportStartedText">L'importazione di  '{0}' è iniziata.</string>
   <string name="ImporterMessages.ImportCompletedTitle">Importazione completata</string>
-  <string name="ImporterMessages.ImportCompletedText">L\'importazione di \'{0}\' è finita.</string>
+  <string name="ImporterMessages.ImportCompletedText">L'importazione di '{0}' è finita.</string>
   <string name="LocalFsResourceProvider.Name">Provider della risorsa del filesystem locale</string>
   <string name="LocalFsResourceProvider.Description">Accesso al filesystem locale</string>
   <string name="RemoteResourceProvider.Name">Provider risorsa remota</string>
@@ -72,10 +72,10 @@
   <string name="ScreenSaver.MediaPortal2">MediaPortal 2</string>
   <!--For MP UI player subsystem-->
   <string name="Players.NoPlayerAvailableNotificationTitle">No player</string>
-  <string name="Players.NoPlayerAvailableNotificationText">Non ci sono player registrati per riprodurre il media \'{0}\'</string>
+  <string name="Players.NoPlayerAvailableNotificationText">Non ci sono player registrati per riprodurre il media '{0}'</string>
   <string name="Players.ErrorPlayingMediaItemTitle">Errore nella riproduzione del media</string>
-  <string name="Players.UnableToPlayMediaItemText">Impossibile riprodurre il media \'{0}\'</string>
-  <string name="Players.ResourceNotFoundText">Risorsa \'{0}\' non trovata</string>
+  <string name="Players.UnableToPlayMediaItemText">Impossibile riprodurre il media '{0}'</string>
+  <string name="Players.ResourceNotFoundText">Risorsa '{0}' non trovata</string>
   <string name="Players.PlayerConfiguration">Configurazione Player</string>
   <string name="Players.CurrentMediaInfo">Info Media Corrente</string>
   <string name="Players.FullscreenVideo">Schermopieno {0}</string>
@@ -106,7 +106,7 @@
   <string name="Settings.General">Generale</string>
   <string name="Settings.General.System">Sistema</string>
   <string name="Settings.General.System.Autostart">Autostart</string>
-  <string name="Settings.General.System.Autostart.Help">Avvia MediaPortal automaticamente all\'avvio di Windows</string>
+  <string name="Settings.General.System.Autostart.Help">Avvia MediaPortal automaticamente all'avvio di Windows</string>
   <string name="Settings.General.Connectivity">Connettività</string>
   <string name="Settings.General.Connectivity.HomeServer">Server Home</string>
   <string name="Settings.General.Connectivity.HomeServer.Help">Informazione server home,collegati e scollegati dal server home.</string>
@@ -117,7 +117,7 @@
   <string name="Settings.Regional">Regionale</string>
   <string name="Settings.Regional.Language">Lingua</string>
   <string name="Settings.Regional.Language.Main">Lingua</string>
-  <string name="Settings.Regional.Language.Main.Help">Configura la lingua principale usata nell\'applicazione</string>
+  <string name="Settings.Regional.Language.Main.Help">Configura la lingua principale usata nell'applicazione</string>
   <string name="Settings.Shares">Shares</string>
   <!--Section name-->
   <string name="Settings.Shares.Configure">Configura shares</string>
@@ -137,7 +137,7 @@
   <string name="SharesOverview.ReImportAllShares">Reimporta tutte le share</string>
   <string name="SharesOverview.NotConnectedToHomeServer">Il server Home non è connesso, le informazioni di sistema delle share non possono essere recuperate</string>
   <string name="Shares.NoSharesInThisView">- Non ci sono shares in questa vista -</string>
-  <string name="Shares.InvalidPath">PERCORSO NON VALIDO: \'{0}\'</string>
+  <string name="Shares.InvalidPath">PERCORSO NON VALIDO: '{0}'</string>
   <!--For example: INVALID PATH: 'C:\XXX\YYY'-->
   <string name="Shares.Online">Online</string>
   <string name="Shares.Offline">Offline</string>
@@ -199,14 +199,14 @@
   <string name="SharesConfig.EditLocalShare">Modifica share locale</string>
   <string name="SharesConfig.UpdateShareRelocateItemsQueryDialogHeader">Aggiorna share</string>
   <string name="SharesConfig.UpdateShareRelocateItemsQueryText.Info">Il provider della risorsa share e/o il percorso è stato aggiornato.</string>
-  <string name="SharesConfig.UpdateShareRelocateItemsQueryText.Description">L\'informazione della libreria media sulle voci nella sharepuò essere aggiornata(riallocata) o azzerata e reimportata.</string>
+  <string name="SharesConfig.UpdateShareRelocateItemsQueryText.Description">L'informazione della libreria media sulle voci nella sharepuò essere aggiornata(riallocata) o azzerata e reimportata.</string>
   <string name="SharesConfig.UpdateShareRelocateItemsQueryText.Query">Vuoi riallocare o azzerare e reimportare?</string>
   <string name="SharesConfig.Relocate">Riallocare</string>
   <string name="SharesConfig.ReImport">Reimportare</string>
   <string name="UPnPFrontendServer.DefaultFriendlyName">Client MediaPortal 2</string>
   <string name="UPnPFrontendServer.Manufacturer">Team Mediaportal</string>
   <string name="UPnPFrontendServer.ManufacturerUrl">www.team-mediaportal.com</string>
-  <string name="UPnPFrontendServer.ModelDescription">Client MediaPortal 2 t - IL GUI MediaPortal. Riproduce contenuti multimediali, contiene le shares locali e fornisce l\'interfaccia utente.</string>
+  <string name="UPnPFrontendServer.ModelDescription">Client MediaPortal 2 t - IL GUI MediaPortal. Riproduce contenuti multimediali, contiene le shares locali e fornisce l'interfaccia utente.</string>
   <string name="UPnPFrontendServer.ModelName">Client MediaPortal 2</string>
   <string name="UPnPFrontendServer.ModelNumber">1</string>
   <!--<string name="UPnPFrontendServer.ModelUrl">...</string>-->

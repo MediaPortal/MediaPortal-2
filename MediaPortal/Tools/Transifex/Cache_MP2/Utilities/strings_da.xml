@@ -1,0 +1,6 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<resources>
+  <string name="Utilities.LocalShareLocation">Lokal deling</string>
+  <string name="Utilities.ImportPlaylistProgressTitle">Fremdrift</string>
+  <string name="Utilities.StopImportPlaylistButton">Stop</string>
+</resources>

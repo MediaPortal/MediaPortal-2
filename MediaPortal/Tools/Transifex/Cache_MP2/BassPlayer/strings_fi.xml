@@ -5,6 +5,6 @@
   <string name="Settings.Players.Rendering.CrossFading">Ristiinhäivytys</string>
   <string name="Settings.Players.Rendering.CrossFading.CrossFadingEnabled">Ristiinhäivytys päällä</string>
   <string name="Settings.Players.Rendering.CrossFading.CrossFadingEnabled.Help">Päättää ristiinhäivyttääkö MediaPortal 2 kappaleet, jos mahdollista</string>
-  <string name="Settings.Players.Rendering.CrossFading.CrossFadeDuration">Ristiinhäivityksen kesto</string>
-  <string name="Settings.Players.Rendering.CrossFading.CrossFadeDuration.Help">Ristiinhäivityksen kesto sekunneissa</string>
+  <string name="Settings.Players.Rendering.CrossFading.CrossFadeDuration">Ristiinhäivytyksen kesto</string>
+  <string name="Settings.Players.Rendering.CrossFading.CrossFadeDuration.Help">Ristiinhäivytyksen kesto sekunneissa</string>
 </resources>

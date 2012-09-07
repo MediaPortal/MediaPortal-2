@@ -158,9 +158,9 @@
   <string name="Media.NoPlaylistsAvailable">- Ingen afspilningsliste til rådighed -</string>
   <string name="Media.NoConfigPlaylistsHomeServerNotConnectedText">Der er ikke forbindelse til hjemmeserveren i øjeblikket. Derfor kan afspilningslister ikke vedligeholdes.</string>
   <string name="Media.EditNameOfPlaylist">Rediger afspilningslistens navn</string>
-  <string name="Media.SavePlaylistSuccessfulText">Afspilningsliste \'{0}\' blev gemt på serveren.</string>
-  <string name="Media.SavePlaylistFailedText">Afspilningslisten kunne ikke gemmes. Fejlmeddelse: \'{0}\'</string>
-  <string name="Media.SavePlaylistFailedAlreadyExists">Afspilningslisten kunne ikke gemmes: \'{0}\' findes allerede.</string>
+  <string name="Media.SavePlaylistSuccessfulText">Afspilningsliste '{0}' blev gemt på serveren.</string>
+  <string name="Media.SavePlaylistFailedText">Afspilningslisten kunne ikke gemmes. Fejlmeddelse: '{0}'</string>
+  <string name="Media.SavePlaylistFailedAlreadyExists">Afspilningslisten kunne ikke gemmes: '{0}' findes allerede.</string>
   <string name="Media.ChoosePlaylistsToBeRemovedText">Vælg afspilningsliste der skal fjernes.</string>
   <string name="Media.PlaylistNameInfoLabel">Afspilningslistenavn</string>
   <string name="Media.PlaylistTypeInfoLabel">Afspilningslistetype</string>
@@ -220,11 +220,11 @@
   <string name="Media.ShowAudioPlaylistAction">Vis lyd afspillingsliste</string>
   <string name="Media.ShowVideoImagePlaylistAction">Vis video/billede afspillingsliste</string>
   <string name="Media.ShowPiPPlaylistAction">Vis PiP afspillingsliste</string>
+  <string name="Media.EditPlaylistAction">Rediger afspillingsliste</string>
   <string name="Media.ClearPlaylistAction">Tøm afspillingsliste</string>
   <string name="Media.SavePlaylistAction">Gem afspillingsliste</string>
   <string name="Media.SaveCurrentPlaylistAction">Gem nuværende afspillingsliste</string>
   <string name="Media.RemovePlaylistsAction">Fjern afspilningslister</string>
-  <string name="Media.EditPlaylistButton">Rediger afspillingsliste</string>
   <string name="Media.LoadPlaylistButton">Hent afspillingsliste</string>
   <string name="Media.PlaylistEmpty">&lt;Ingen emner i afspillingsliste&gt;</string>
   <string name="Media.CannotPlayItemDialogText">Kan ikke afspille emne</string>

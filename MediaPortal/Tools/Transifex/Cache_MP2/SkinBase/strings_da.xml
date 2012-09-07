@@ -28,8 +28,8 @@
   <string name="Media.MyPictures">Billeder</string>
   <string name="Media.InvalidShareName">Invalid share</string>
   <string name="ServerConnection.NotificationServerAvailableTitle">MP2 server tilgængelig</string>
-  <string name="ServerConnection.NotificationServerAvailableText">Der er mindst en MediaPortal 2 server på dette netværk. Knyt forbindelse til den for at opnå alle MediaPortal 2\'s fordele.</string>
-  <string name="ServerConnection.ServerFormatText">{0}\' på vært \'{1}</string>
+  <string name="ServerConnection.NotificationServerAvailableText">Der er mindst en MediaPortal 2 server på dette netværk. Knyt forbindelse til den for at opnå alle MediaPortal 2's fordele.</string>
+  <string name="ServerConnection.ServerFormatText">{0}' på vært '{1}</string>
   <!--{0} = server name, {1} = host name-->
   <string name="ServerConnection.UnknownServerName">&lt;Ukendt&gt;</string>
   <string name="ServerConnection.UnknownServerSystem">&lt;Ukendt&gt;</string>
@@ -44,7 +44,7 @@
   <string name="ServerConnection.HomeServerIsNotConnected">Hjemmeserver er pt ikke tilknyttet.</string>
   <string name="ServerConnection.DetachMenu">Afbryd </string>
   <string name="ServerConnection.DetachConfirmDialogHeader">Afbryd fra hjemmeserver</string>
-  <string name="ServerConnection.DetachConfirmDialogText">Hvis du afbryder forbindelse til hjemmeserveren, så slettes alle data om lokal deling og deres medie emner vil blive fjernet fra hjemmeserverens medie bibliotek. Du kan genetablere forbindelsen senere. Vil du virkelig afbryder forbindelse til hjemmeserveren \'{0}\' på vært \'{1}\'?</string>
+  <string name="ServerConnection.DetachConfirmDialogText">Hvis du afbryder forbindelse til hjemmeserveren, så slettes alle data om lokal deling og deres medie emner vil blive fjernet fra hjemmeserverens medie bibliotek. Du kan genetablere forbindelsen senere. Vil du virkelig afbryder forbindelse til hjemmeserveren '{0}' på vært '{1}'?</string>
   <string name="ServerConnection.SearchForServers">Søger efter servere</string>
   <string name="ServerConnection.DetachFromServer">Afbryd fra hjemmeserver</string>
   <string name="ServerConnection.AttachToServerHeader">Tilknyt MediaPortal 2 server</string>
@@ -54,7 +54,7 @@
   <string name="ServerConnection.AttachToServerNoServerText">Der er pt ikke nogen MediaPortal 2 server tilgængelig på netværket.</string>
   <string name="ServerConnection.AttachButton">Tilknyt</string>
   <string name="ServerConnection.AttachInfoDialogHeader">Server tilknyttet</string>
-  <string name="ServerConnection.AttachInfoDialogText">Denne MediaPortal 2 klient blev tilknyttet dets nye hjemmeserver \'{0}\' på vært \'{1}\'</string>
+  <string name="ServerConnection.AttachInfoDialogText">Denne MediaPortal 2 klient blev tilknyttet dets nye hjemmeserver '{0}' på vært '{1}'</string>
   <!--{0} = server name, {1} = host name-->
   <string name="Notifications.Title">Meddelelser</string>
   <string name="Notifications.OneMoreNotification">(1 mere)</string>
@@ -62,9 +62,9 @@
   <string name="Notifications.WatchNotificationsWorkflowStateLabel">Meddelelser</string>
   <string name="Notifications.Handle">Håndter</string>
   <string name="ImporterMessages.ImportStartedTitle">Import er startet</string>
-  <string name="ImporterMessages.ImportStartedText">Import af \'{0}\' er startet.</string>
+  <string name="ImporterMessages.ImportStartedText">Import af '{0}' er startet.</string>
   <string name="ImporterMessages.ImportCompletedTitle">Import er afsluttet</string>
-  <string name="ImporterMessages.ImportCompletedText">Import af \'{0}\' er afsluttet.</string>
+  <string name="ImporterMessages.ImportCompletedText">Import af '{0}' er afsluttet.</string>
   <string name="LocalFsResourceProvider.Name">Lokale filesystem ressourceudbyder</string>
   <string name="LocalFsResourceProvider.Description">Adgang til lokale filsystem</string>
   <string name="RemoteResourceProvider.Name">Ekstern ressourceudbyder</string>
@@ -72,10 +72,10 @@
   <string name="ScreenSaver.MediaPortal2">MediaPortal 2</string>
   <!--For MP UI player subsystem-->
   <string name="Players.NoPlayerAvailableNotificationTitle">Ingen afspiller</string>
-  <string name="Players.NoPlayerAvailableNotificationText">Der er ingen afspillere registreret til at afspille medieemne \'{0}\'</string>
+  <string name="Players.NoPlayerAvailableNotificationText">Der er ingen afspillere registreret til at afspille medieemne '{0}'</string>
   <string name="Players.ErrorPlayingMediaItemTitle">Fejl under afspilling af medieemne</string>
-  <string name="Players.UnableToPlayMediaItemText">Kan ikke afspilling medieemne \'{0}\'</string>
-  <string name="Players.ResourceNotFoundText">Ressource \'{0}\' ikke fundet</string>
+  <string name="Players.UnableToPlayMediaItemText">Kan ikke afspilling medieemne '{0}'</string>
+  <string name="Players.ResourceNotFoundText">Ressource '{0}' ikke fundet</string>
   <string name="Players.PlayerConfiguration">Afspiller konfiguration</string>
   <string name="Players.CurrentMediaInfo">Nuværende medieoplysninger</string>
   <string name="Players.FullscreenVideo">Fuldskærm {0}</string>
@@ -137,7 +137,7 @@
   <string name="SharesOverview.ReImportAllShares">Genimporter alle delinger</string>
   <string name="SharesOverview.NotConnectedToHomeServer">Hjemmeserveren er ikke forbundet, system delingsinformation kan ikke hentes.</string>
   <string name="Shares.NoSharesInThisView">- Ingen delinger i denne oversigt -</string>
-  <string name="Shares.InvalidPath">Ulovlig sti: \'{0}\'</string>
+  <string name="Shares.InvalidPath">Ulovlig sti: '{0}'</string>
   <!--For example: INVALID PATH: 'C:\XXX\YYY'-->
   <string name="Shares.Online">Online</string>
   <string name="Shares.Offline">Offline</string>

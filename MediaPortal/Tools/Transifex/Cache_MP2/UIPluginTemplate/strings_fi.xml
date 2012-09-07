@@ -8,5 +8,5 @@
   <string name="MyPlugin.String1">Suomalainen merkkijono 1</string>
   <string name="MyPlugin.String2">Suomalainen merkkijono 2</string>
   <string name="MyPlugin.StateDisplayLabel">Navigointipalkin tilan nimi</string>
-  <string name="MyPlugin.MenuEntry">Minun plugini</string>
+  <string name="MyPlugin.MenuEntry">Minun lisäosani</string>
 </resources>

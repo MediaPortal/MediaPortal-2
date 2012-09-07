@@ -1,0 +1,13 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<resources>
+  <string name="Utilities.PlaylistImportWorkflowNavigationContextDisplayLabel">Importovať playlist</string>
+  <string name="Utilities.PlaylistImport">Import playlistu</string>
+  <string name="Utilities.PlaylistImportScreenTitle">Import playlistu</string>
+  <string name="Utilities.ImportPlaylistFile">Importovať súbor s playlistom</string>
+  <string name="Utilities.ChoosePlaylistFile">Vyberte súbor</string>
+  <string name="Utilities.LocalShareLocation">Lokálne zdieľané zložky</string>
+  <string name="Utilities.ImportPlaylistProgressTitle">Priebeh</string>
+  <string name="Utilities.ImportPlaylistProgressText">{0}/{1}, {2} vynechaných</string>
+  <string name="Utilities.StopImportPlaylistButton">Stop</string>
+  <string name="Utilities.PlaylistNameIsEmpty">Názov playlistu je </string>
+</resources>

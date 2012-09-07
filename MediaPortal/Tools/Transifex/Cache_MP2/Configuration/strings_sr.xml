@@ -5,10 +5,10 @@
   <string name="Configuration.MainSettings">Главна подешавања</string>
   <!--2nd Header for root configuration section-->
   <string name="Configuration.NoSettingsInThisSection">Нема подешавања у овој секцији</string>
-  <string name="Configuration.ErrorFloatingPointValue">\'{0}\' није важећа вредност за број са покретним зарезом</string>
-  <string name="Configuration.ErrorIntegerValue">\'{0}\' није важећа вредност за цели број</string>
-  <string name="Configuration.ErrorNumericLowerLimit">Одабери вредност између \'{1}\' и \'{2}\' </string>
+  <string name="Configuration.ErrorFloatingPointValue">'{0}' није важећа вредност за број са покретним зарезом</string>
+  <string name="Configuration.ErrorIntegerValue">'{0}' није важећа вредност за цели број</string>
+  <string name="Configuration.ErrorNumericLowerLimit">Одабери вредност између '{1}' и '{2}' </string>
   <!--0 = current value, 1 = lower limit, 2 = upper limit-->
-  <string name="Configuration.ErrorNumericUpperLimit">Одабери вредност између \'{1}\' и \'{2}\' </string>
+  <string name="Configuration.ErrorNumericUpperLimit">Одабери вредност између '{1}' и '{2}' </string>
   <!--0 = current value, 1 = lower limit, 2 = upper limit-->
 </resources>

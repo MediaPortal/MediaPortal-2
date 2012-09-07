@@ -29,7 +29,7 @@
   <string name="Media.InvalidShareName">Немогуће је делити</string>
   <string name="ServerConnection.NotificationServerAvailableTitle">МП2 сервер је доступан</string>
   <string name="ServerConnection.NotificationServerAvailableText">Најмање један МедиајПортал 2 је доступан на мрежи. Прикачи се на њега како би добио све могућности Медија Портала 2</string>
-  <string name="ServerConnection.ServerFormatText">{0}\' на домаћину \'{1}</string>
+  <string name="ServerConnection.ServerFormatText">{0}' на домаћину '{1}</string>
   <!--{0} = server name, {1} = host name-->
   <string name="ServerConnection.UnknownServerName">&lt;Unknown&gt;</string>
   <string name="ServerConnection.UnknownServerSystem">&lt;Unknown&gt;</string>
@@ -54,7 +54,7 @@
   <string name="ServerConnection.AttachToServerNoServerText">Тренутно, не постоји МедијаПортал 2 сервер на мрежи.</string>
   <string name="ServerConnection.AttachButton">Прикључи</string>
   <string name="ServerConnection.AttachInfoDialogHeader">Сервер прикључен</string>
-  <string name="ServerConnection.AttachInfoDialogText">Овај МедијаПортал 2 клијент је прикључен на нови кућни сервер\'{0}\' на домаћина \'{1}\'</string>
+  <string name="ServerConnection.AttachInfoDialogText">Овај МедијаПортал 2 клијент је прикључен на нови кућни сервер'{0}' на домаћина '{1}'</string>
   <!--{0} = server name, {1} = host name-->
   <string name="Notifications.Title">Обавештавања</string>
   <string name="Notifications.OneMoreNotification">(1 више)</string>
@@ -62,9 +62,9 @@
   <string name="Notifications.WatchNotificationsWorkflowStateLabel">Обавештавања</string>
   <string name="Notifications.Handle">Обавештење</string>
   <string name="ImporterMessages.ImportStartedTitle">Унос започет</string>
-  <string name="ImporterMessages.ImportStartedText">Унос \'{0}\' је започет.</string>
+  <string name="ImporterMessages.ImportStartedText">Унос '{0}' је започет.</string>
   <string name="ImporterMessages.ImportCompletedTitle">Унос је завршен</string>
-  <string name="ImporterMessages.ImportCompletedText">Унос \'{0}\' је завршен.</string>
+  <string name="ImporterMessages.ImportCompletedText">Унос '{0}' је завршен.</string>
   <string name="LocalFsResourceProvider.Name">Локални фајл систем извор.</string>
   <string name="LocalFsResourceProvider.Description">Приступи локалном фајл систему</string>
   <string name="RemoteResourceProvider.Name">Даљински извор</string>
@@ -72,13 +72,13 @@
   <string name="ScreenSaver.MediaPortal2">МедијаПортал 2</string>
   <!--For MP UI player subsystem-->
   <string name="Players.NoPlayerAvailableNotificationTitle">Нема Плејера</string>
-  <string name="Players.NoPlayerAvailableNotificationText">Не постоји регистровани плејер за пуштање медије \'{0}\'</string>
+  <string name="Players.NoPlayerAvailableNotificationText">Не постоји регистровани плејер за пуштање медије '{0}'</string>
   <string name="Players.ErrorPlayingMediaItemTitle">Појавила се грешка приликом пуштања медије</string>
-  <string name="Players.UnableToPlayMediaItemText">Није могуће пустити медија ставку \'{0}\'</string>
-  <string name="Players.ResourceNotFoundText">Извор \'{0}\' није пронађен</string>
+  <string name="Players.UnableToPlayMediaItemText">Није могуће пустити медија ставку '{0}'</string>
+  <string name="Players.ResourceNotFoundText">Извор '{0}' није пронађен</string>
   <string name="Players.PlayerConfiguration">Подешавања за плејер</string>
   <string name="Players.CurrentMediaInfo">Медија информације</string>
-  <string name="Players.FullscreenVideo">Цео екран \'{0}\'</string>
+  <string name="Players.FullscreenVideo">Цео екран '{0}'</string>
   <!--for example "Fullscreen TV"-->
   <string name="Players.FullscreenImage">Цео екран слика</string>
   <string name="Players.AudioVisualization">Аудио приказ</string>
@@ -137,7 +137,7 @@
   <string name="SharesOverview.ReImportAllShares">Поново увези све размене</string>
   <string name="SharesOverview.NotConnectedToHomeServer">Кућни сервер није прикључен, информације о разменама се не могу добити</string>
   <string name="Shares.NoSharesInThisView">Нема размена у овом приказу</string>
-  <string name="Shares.InvalidPath">Неважећа путања: \'{0}\'</string>
+  <string name="Shares.InvalidPath">Неважећа путања: '{0}'</string>
   <!--For example: INVALID PATH: 'C:\XXX\YYY'-->
   <string name="Shares.Online">Онлајн</string>
   <string name="Shares.Offline">Офлајн</string>

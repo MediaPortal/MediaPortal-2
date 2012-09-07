@@ -6,6 +6,7 @@
   <string name="Weather.Title">Vrijeme</string>
   <string name="Weather.Refresh">Osvježi</string>
   <string name="Weather.Weather">Vrijeme</string>
+  <string name="Weather.NoData">nema podataka</string>
   <string name="Weather.Temp">Temp</string>
   <string name="Weather.UVIndex">UV indeks</string>
   <string name="Weather.Wind">Vjetar</string>
@@ -13,6 +14,7 @@
   <string name="Weather.Pressure">Tlak</string>
   <string name="Weather.NotUpdatedYet">-</string>
   <!--Forecast names are mostly assigned 1:1-->
+  <string name="Weather.Partly">Djelomično</string>
   <string name="Weather.Sunny">Sunčano</string>
   <string name="Weather.Cloudy">Oblačno</string>
   <string name="Weather.Snow">Snijeg</string>

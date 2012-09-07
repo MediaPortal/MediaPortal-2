@@ -1,6 +1,29 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
+  <string name="Utilities.MenuItem">Werkzeuge</string>
+  <string name="Utilities.MainWorkflowNavigationContextDisplayLabel">Werkzeuge</string>
+  <string name="Utilities.PlaylistImportWorkflowNavigationContextDisplayLabel">Playlist Import</string>
+  <string name="Utilities.MainScreenTitle">Werkzeuge</string>
+  <string name="Utilities.PlaylistImport">Playlist Import</string>
+  <string name="Utilities.PlaylistImportScreenTitle">Playlist Import</string>
+  <string name="Utilities.ImportPlaylistFile">Importiere Playliste</string>
+  <string name="Utilities.ChoosePlaylistFile">Datei auswählen</string>
+  <string name="Utilities.ChooseImportFileDialogHeader">Hinzuzufügende Datei wählen</string>
+  <string name="Utilities.EditPlaylistName">Name der Playlist bearbeiten</string>
+  <string name="Utilities.LocationOfShareContainingItems">Datenverzeichnis, dass die Mediadateien enthält</string>
   <string name="Utilities.LocalShareLocation">Lokale Freigabe</string>
+  <string name="Utilities.ServerShareLocation">Serververzeichnis</string>
+  <string name="Utilities.StartPlaylistImport">Starte Import der Playlist</string>
+  <string name="Utilities.PlaylistSavedSuccessfullyTitle">Erfolgreich!</string>
+  <string name="Utilities.NoItemsWereImportedSkippingSaveText">Es wurden keine Elemente importiert. Abspeichern wird übersprungen.</string>
+  <string name="Utilities.PlaylistSavedSuccessfullyText">Playlist '{0}' erfolgreich gespeichert.</string>
+  <string name="Utilities.PlaylistSaveFailedTitle">Speichern der Playlist fehlgeschlagen</string>
   <string name="Utilities.ImportPlaylistProgressTitle">Fortschritt</string>
+  <string name="Utilities.ImportPlaylistProgressHeaderText">Playlist wird importiert</string>
+  <string name="Utilities.ImportPlaylistProgressText">{0}/{1}, {2} übersprungen</string>
   <string name="Utilities.StopImportPlaylistButton">Stopp</string>
+  <string name="Utilities.PlaylistNameExists">Playlist Name ist bereits vorhanden</string>
+  <string name="Utilities.ImportFileInvalid">Ungültige Import-Datei</string>
+  <string name="Utilities.PlaylistNameIsEmpty">Playlist Name ist leer</string>
+  <string name="Utilities.ServerNotConnected">Der Server ist nicht verbunden</string>
 </resources>

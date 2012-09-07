@@ -5,10 +5,10 @@
   <string name="Configuration.MainSettings">Huvudinställningar</string>
   <!--2nd Header for root configuration section-->
   <string name="Configuration.NoSettingsInThisSection">Det finns inga inställningar i den här delen.</string>
-  <string name="Configuration.ErrorFloatingPointValue">\'{0}\' är inte ett giltigt decimaltal</string>
-  <string name="Configuration.ErrorIntegerValue">\'{0}\' är inte ett giltigt heltal</string>
-  <string name="Configuration.ErrorNumericLowerLimit">Använd ett värde mellan  \'{1}\' och \'{2}\'</string>
+  <string name="Configuration.ErrorFloatingPointValue">'{0}' är inte ett giltigt decimaltal</string>
+  <string name="Configuration.ErrorIntegerValue">'{0}' är inte ett giltigt heltal</string>
+  <string name="Configuration.ErrorNumericLowerLimit">Använd ett värde mellan  '{1}' och '{2}'</string>
   <!--0 = current value, 1 = lower limit, 2 = upper limit-->
-  <string name="Configuration.ErrorNumericUpperLimit">Använd ett värde mellan  \'{1}\' och \'{2}\'</string>
+  <string name="Configuration.ErrorNumericUpperLimit">Använd ett värde mellan  '{1}' och '{2}'</string>
   <!--0 = current value, 1 = lower limit, 2 = upper limit-->
 </resources>

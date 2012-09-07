@@ -6,6 +6,7 @@
   <string name="Media.AudioMenuItem">אודיו</string>
   <string name="Media.VideosMenuItem">וידאו</string>
   <string name="Media.SeriesMenuItem">סדרה</string>
+  <string name="Media.MoviesMenuItem">סרטים</string>
   <string name="Media.ImagesMenuItem">תמונות</string>
   <!--Filter titles-->
   <string name="Media.FilterByArtistMenuItem">סנן לפי אמן</string>
@@ -15,6 +16,7 @@
   <string name="Media.FilterByActorMenuItem">סנן לפי שחקן</string>
   <string name="Media.FilterByVideoGenreMenuItem">סנן לפי סגנון</string>
   <string name="Media.FilterByVideoYearMenuItem">סנן לפי שנה</string>
+  <string name="Media.FilterByAudioLanguageMenuItem">סנן לפי שפה</string>
   <string name="Media.FilterByImageSizeMenuItem">סנן לפי גודל</string>
   <string name="Media.FilterByImageYearMenuItem">סנן לפי שנה</string>
   <string name="Media.FilterBySystemMenuItem">סנן לפי מערכת</string>
@@ -30,6 +32,8 @@
   <string name="Media.ImageFilterSmall">קטן</string>
   <string name="Media.ImageFilterMedium">בינוני</string>
   <string name="Media.ImageFilterBig">גדול</string>
+  <string name="Media.SwitchToBrowseMLView">עבור לתצוגת שרת</string>
+  <string name="Media.SwitchToLocalMediaView">עבור לתצוגה מקומית</string>
   <!--Navbar display labels for sub view navigation-->
   <string name="Media.BrowseMediaNavigationNavbarDisplayLabel">{0}</string>
   <!--For example: "R.E.M."-->
@@ -57,6 +61,7 @@
   <string name="Media.AudioNavigationRootWorkflowNavigationContextDisplayLabel">ספרית אודיו</string>
   <string name="Media.VideoNavigationRootWorkflowNavigationContextDisplayLabel">ספרית וידאו</string>
   <string name="Media.SeriesNavigationRootWorkflowNavigationContextDisplayLabel">ספרית סדרות</string>
+  <string name="Media.MoviesNavigationRootWorkflowNavigationContextDisplayLabel">ספריית סרטים</string>
   <string name="Media.ImageNavigationRootWorkflowNavigationContextDisplayLabel">ספרית תמונות</string>
   <string name="Media.VideoCurrentlyPlayingWorkflowStateNavigationContextDisplayLabel">וידאו נוכחי</string>
   <string name="Media.VideoFullscreenContentWorkflowStateNavigationContextDisplayLabel">וידאו במסך מלא</string>
@@ -75,6 +80,7 @@
   <string name="Media.MediaItemsHeader">פריטי מדיה</string>
   <string name="Media.VideoItemsHeader">וידאו</string>
   <string name="Media.SeriesItemsHeader">פרקים</string>
+  <string name="Media.MoviesItemsHeader">סרטים</string>
   <string name="Media.ImageItemsHeader">תמונות</string>
   <string name="Media.SimpleSearchHeader">חיפוש פשוט</string>
   <string name="Media.ChooseActorHeader">בחר שחקן</string>
@@ -89,6 +95,7 @@
   <string name="Media.ChooseImageYearHeader">בחר שנה</string>
   <string name="Media.ChooseImageSizeHeader">בחר גודל</string>
   <string name="Media.ChooseSystemHeader">מחר מערכת</string>
+  <string name="Media.ChooseVideoLanguageHeader">בחר שפה</string>
   <string name="Media.PlaylistsOverviewHeader">רשימות השמעה</string>
   <string name="Media.SavePlaylistEditNameHeader">שמור רשימת ניגון</string>
   <string name="Media.SavePlaylistFailedHeader">שמור רשימת ניגון</string>
@@ -100,6 +107,8 @@
   <!--View names (names for the view instances)-->
   <string name="Media.BrowseMediaRootViewName">דפדף במדיה</string>
   <string name="Media.LocalMediaRootViewName">מדיה מקומית</string>
+  <string name="Media.ClientSharesViewName">שיתופים בלקוח</string>
+  <string name="Media.ServerSharesViewName">שיתופים בשרת</string>
   <string name="Media.AudioRootViewName">אודיו</string>
   <string name="Media.VideosRootViewName">וידאו</string>
   <string name="Media.SeriesRootViewName">סדרה</string>
@@ -135,17 +144,39 @@
   <string name="Media.AddToPlaylistProgressDialogHeader">התקדמות</string>
   <string name="Media.AddToPlaylistProgressText">מוסיף פריטים לרשימת הניגון...</string>
   <string name="Media.NItemsAdded">{0} פריטים נוספו</string>
+  <string name="Media.StopAddToPlaylistButton">עצור</string>
+  <string name="Media.NoPlaylistsAvailable">לא קיימת רשימת השמעה</string>
+  <string name="Media.EditNameOfPlaylist">ערוך שם רשימת השמעה</string>
+  <string name="Media.ChoosePlaylistsToBeRemovedText">בחר רשימת השמעה למחיקה</string>
+  <string name="Media.PlaylistNameInfoLabel">שם רשימת השמעה</string>
+  <string name="Media.PlaylistTypeInfoLabel">סוג רשימת השמעה</string>
+  <string name="Media.PlaylistNumItemsLabel">מס' פריטים</string>
   <!--Play items dialog-->
+  <string name="Media.PlayItemDialogHeader">נגן פריט</string>
+  <string name="Media.PlayAudioItems">נגן פריטי אודיו</string>
+  <string name="Media.PlayVideoImageItems">נגן פריטי וידאו/תמונה</string>
+  <string name="Media.PlayAudioItem">נגן פריט אודיו</string>
+  <string name="Media.PlayVideoImageItem">נגן פריט וידאו/תמונה</string>
   <!--Player context names-->
+  <string name="Media.VideoImageContextName">וידאו/תמונה</string>
   <string name="Media.AudioContextName">אודיו</string>
   <!--Video currently playing-->
+  <string name="Media.VideoCurrentlyPlayingHeader">מידע וידאו עדכני</string>
   <string name="Media.VideoTitleLabel">כותרת:</string>
+  <string name="Media.VideoGenreLabel">סגנון</string>
   <string name="Media.VideoYearLabel">שנה:</string>
   <string name="Media.VideoDurationLabel">משך:</string>
+  <string name="Media.VideoStoryPlotLabel">עלילה:</string>
   <!--Image currently playing-->
+  <string name="Media.ImageCurrentlyPlayingHeader">מידע על תמונה</string>
+  <string name="Media.ImageTitleLabel">שם:</string>
+  <string name="Media.ImageDimensions">מימדים:</string>
+  <string name="Media.CameraMake">יצרן:</string>
+  <string name="Media.CameraModel">דגם המצלמה:</string>
   <string name="Media.ImageISOSpeedLabel">מהירות ISO:</string>
   <string name="Media.ImageFNumberLabel">מספר F:</string>
   <string name="Media.ImageShutterSpeedLabel">מהירות תריס:</string>
+  <string name="Media.ImageMeteringModeLabel">שיטת מדידה:</string>
   <string name="Media.ImageExposureTimeLabel">זמן חשיפה:</string>
   <!--DVD currently playing-->
   <string name="Media.DVDCurrentlyPlayingHeader">מידע DVD נוכחי</string>
@@ -163,11 +194,11 @@
   <string name="Media.ShowAudioPlaylistAction">הצג רשימת ניגון אודיו</string>
   <string name="Media.ShowVideoImagePlaylistAction">הצג רשימת ניגון וידאו/תמונות</string>
   <string name="Media.ShowPiPPlaylistAction">הצג רשימת ניגון PiP</string>
+  <string name="Media.EditPlaylistAction">ערוך רשימת ניגון</string>
   <string name="Media.ClearPlaylistAction">נקה רשימת ניגון</string>
   <string name="Media.SavePlaylistAction">שמור רשימת ניגון</string>
   <string name="Media.SaveCurrentPlaylistAction">שמור רשימת ניגון נוכחית</string>
   <string name="Media.RemovePlaylistsAction">מחק רשימות ניגון</string>
-  <string name="Media.EditPlaylistButton">ערוך רשימת ניגון</string>
   <string name="Media.LoadPlaylistButton">טען רשימת ניגון</string>
   <string name="Media.PlaylistEmpty">אין פריטים ברשימת הניגון</string>
   <string name="Media.CannotPlayItemDialogText">שגיאה בניגון פריט המדיה</string>
@@ -190,10 +221,30 @@
   <string name="Media.SmallList">רשימה קטנה</string>
   <string name="Media.MediumList">רשימה בינונית</string>
   <string name="Media.LargeList">רשימה גדולה</string>
+  <string name="Media.LargeGrid">רשת:</string>
   <string name="Media.SwitchSortingMenuItem">מיון</string>
   <string name="Media.SwitchSortingDialogTitle">מיון</string>
   <string name="Media.SortByTitle">מיין לפי כותרת</string>
   <string name="Media.SortByAlbumTrack">מיין לפי אלבום ורצועות</string>
-  <string name="Media.SortByGenre">מיין לפי ז\'אנר</string>
+  <string name="Media.SortByGenre">מיין לפי ז'אנר</string>
+  <string name="Media.SortByAlbum">סדר לפי אלבום וכותרת</string>
+  <string name="Media.SortByTrack">סדר לפי רצועה</string>
+  <string name="Media.SortByArtist">סדר לפי אמן</string>
+  <string name="Media.SortByYear">סדר לפי שנה</string>
+  <string name="Media.SortBySize">סדר לפי גודל</string>
+  <string name="Media.SortBySystem">סדר לפי המערכת</string>
+  <string name="Media.SortByActor">סדר לפי שחקן</string>
+  <string name="Media.SortByDirector">סדר לפי במאי</string>
+  <string name="Media.SortByDuration">סדר לפי זמן ריצה</string>
+  <string name="Media.SortByAspectRatio">סדר לפי יחס תמונה</string>
+  <string name="Media.SortByDate">סדר לפי תאריך הקלטה</string>
+  <string name="Media.SortByEpisode">סדר לפי פרק</string>
+  <string name="Media.SortingBrowseDefault">סידור ברירת מחדל</string>
   <string name="Settings.Players">נגנים</string>
+  <string name="Settings.Players.ClosePlayersWhenFinished">סגור נגן בעת סיום</string>
+  <string name="Settings.Players.ClosePlayersWhenFinished.Help">סמן אפשרות זו כדי לגרום למדיה פורטל לסגור נגנים שהסתיימו בצורה אוטומטית</string>
+  <string name="Settings.Players.InstantSkipPercent">אחוז דילוג מיידי</string>
+  <string name="Settings.Players.InstantSkipPercent.Help">בחר בכמה אחוז מהסרט תרצה לדלג כעת</string>
+  <string name="Settings.Players.SkipStepList">צעדי קפיצה של הנגן</string>
+  <string name="Settings.Players.SkipStepList.Help">הכנס צעדי דילוג מופרדים בפסיק</string>
 </resources>

@@ -158,9 +158,9 @@
   <string name="Media.NoPlaylistsAvailable">- Keine Wiedergabelisten verfügbar -</string>
   <string name="Media.NoConfigPlaylistsHomeServerNotConnectedText">Es können keine Wiedergabelisten verwaltet werden, da der Home-Server nicht verbunden ist</string>
   <string name="Media.EditNameOfPlaylist">Namen der Wiedergabelisten bearbeiten</string>
-  <string name="Media.SavePlaylistSuccessfulText">Wiedergabeliste \'{0}\' erfolgreich auf dem Server gespeichert.</string>
-  <string name="Media.SavePlaylistFailedText">Die Wiedergabeliste konnte nicht gespeichert werden. Fehlermeldung: \'{0}\'</string>
-  <string name="Media.SavePlaylistFailedAlreadyExists">Die Wiedergabeliste \'{0}\' konnte nicht gespeichert werden, da sie bereits existiert</string>
+  <string name="Media.SavePlaylistSuccessfulText">Wiedergabeliste '{0}' erfolgreich auf dem Server gespeichert.</string>
+  <string name="Media.SavePlaylistFailedText">Die Wiedergabeliste konnte nicht gespeichert werden. Fehlermeldung: '{0}'</string>
+  <string name="Media.SavePlaylistFailedAlreadyExists">Die Wiedergabeliste '{0}' konnte nicht gespeichert werden, da sie bereits existiert</string>
   <string name="Media.ChoosePlaylistsToBeRemovedText">Wähle eine Wiedergabeliste zum Entfernen</string>
   <string name="Media.PlaylistNameInfoLabel">Name der Wiedergabeliste</string>
   <string name="Media.PlaylistTypeInfoLabel">Art der Wiedergabeliste</string>
@@ -220,11 +220,11 @@
   <string name="Media.ShowAudioPlaylistAction">Audio-Wiedergabeliste anzeigen</string>
   <string name="Media.ShowVideoImagePlaylistAction">Video/Bild-Wiedergabeliste anzeigen</string>
   <string name="Media.ShowPiPPlaylistAction">PiP-Wiedergabeliste anzeigen</string>
+  <string name="Media.EditPlaylistAction">Wiedergabeliste bearbeiten</string>
   <string name="Media.ClearPlaylistAction">Wiedergabeliste leeren</string>
   <string name="Media.SavePlaylistAction">Wiedergabeliste speichern</string>
   <string name="Media.SaveCurrentPlaylistAction">Aktuelle Wiedergabeliste speichern</string>
   <string name="Media.RemovePlaylistsAction">Wiedergabelisten entfernen</string>
-  <string name="Media.EditPlaylistButton">Wiedergabeliste bearbeiten</string>
   <string name="Media.LoadPlaylistButton">Wiedergabeliste laden</string>
   <string name="Media.PlaylistEmpty">&lt;Keine Elemente in Wiedergabeliste&gt;</string>
   <string name="Media.CannotPlayItemDialogText">Kann Medienelement nicht wiedergeben</string>
@@ -274,5 +274,5 @@
   <string name="Settings.Players.SkipStepTimeout">Zeitlimit für Sofortsprünge</string>
   <string name="Settings.Players.SkipStepTimeout.Help">Setzt das Zeitlimit für Nutzereingaben, bevor der Sofortsprung ausgeführt wird</string>
   <string name="Settings.Players.SkipStepList">Player Sprungintervalle</string>
-  <string name="Settings.Players.SkipStepList.Help">Gib eine Liste von Sprungintervallen in Sekunden an, getrennt mit \',\'</string>
+  <string name="Settings.Players.SkipStepList.Help">Gib eine Liste von Sprungintervallen in Sekunden an, getrennt mit ','</string>
 </resources>

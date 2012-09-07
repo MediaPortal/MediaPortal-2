@@ -1,2 +1,5 @@
 <?xml version='1.0' encoding='UTF-8'?>
-<resources/>
+<resources>
+  <string name="PartyMusicPlayer.AudioArtistLabel">Izvođač</string>
+  <string name="PartyMusicPlayer.AudioTitleLabel">Naslov</string>
+</resources>

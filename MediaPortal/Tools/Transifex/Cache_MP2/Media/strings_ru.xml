@@ -144,9 +144,9 @@
   <string name="Media.NoPlaylistsAvailable">- Нет плейлистов -</string>
   <string name="Media.NoConfigPlaylistsHomeServerNotConnectedText">Домашний сервер не подключён, поэтому работа с плейлистами не возможна</string>
   <string name="Media.EditNameOfPlaylist">Переименовать плейлист</string>
-  <string name="Media.SavePlaylistSuccessfulText">Плейлист \'{0}\' сохранён на сервере</string>
-  <string name="Media.SavePlaylistFailedText">Плейлист не может быть сохранён. Ошибка: \'{0}\'</string>
-  <string name="Media.SavePlaylistFailedAlreadyExists">Плейлист не сохранён: Плейлист \'{0}\' уже существует</string>
+  <string name="Media.SavePlaylistSuccessfulText">Плейлист '{0}' сохранён на сервере</string>
+  <string name="Media.SavePlaylistFailedText">Плейлист не может быть сохранён. Ошибка: '{0}'</string>
+  <string name="Media.SavePlaylistFailedAlreadyExists">Плейлист не сохранён: Плейлист '{0}' уже существует</string>
   <string name="Media.ChoosePlaylistsToBeRemovedText">Выберите удаляемые плейлисты</string>
   <string name="Media.PlaylistNameInfoLabel">Имя плейлиста</string>
   <string name="Media.PlaylistTypeInfoLabel">Тип плейлиста</string>
@@ -206,11 +206,11 @@
   <string name="Media.ShowAudioPlaylistAction">Показать аудио плейлист</string>
   <string name="Media.ShowVideoImagePlaylistAction">Показать плейлист видео/изображений</string>
   <string name="Media.ShowPiPPlaylistAction">Показать PiP плейлист</string>
+  <string name="Media.EditPlaylistAction">Править плейлист</string>
   <string name="Media.ClearPlaylistAction">Очистить плейлист</string>
   <string name="Media.SavePlaylistAction">Сохранить плейлист</string>
   <string name="Media.SaveCurrentPlaylistAction">Сохранить текущий плейлист</string>
   <string name="Media.RemovePlaylistsAction">Удалить плейлист</string>
-  <string name="Media.EditPlaylistButton">Править плейлист</string>
   <string name="Media.LoadPlaylistButton">Загрузить плейлист</string>
   <string name="Media.PlaylistEmpty">&lt;Пустой плейлист&gt;</string>
   <string name="Media.CannotPlayItemDialogText">Нельзя проиграть</string>

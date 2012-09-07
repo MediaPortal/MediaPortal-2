@@ -50,7 +50,7 @@
   <string name="Shares.Importing">Імпортую...</string>
   <!--Shares configuration workflow-->
   <string name="SharesConfig.SharesEditEditPathWorkflowNavigationContextDisplayLabel">Редагувати шлях</string>
-  <string name="SharesConfig.SharesEditEditNameWorkflowNavigationContextDisplayLabel">Редагувати ім\'я</string>
+  <string name="SharesConfig.SharesEditEditNameWorkflowNavigationContextDisplayLabel">Редагувати ім'я</string>
   <string name="SharesConfig.ShareSystem">Система:</string>
   <string name="SharesConfig.SharePathInfo">Шлях:</string>
   <string name="SharesConfig.MenuEditShares">Редагувати</string>
@@ -68,14 +68,14 @@
   <string name="DaysOfWeek.2">Вівторок</string>
   <string name="DaysOfWeek.3">Середа</string>
   <string name="DaysOfWeek.4">Четвер</string>
-  <string name="DaysOfWeek.5">П\'ятниця</string>
+  <string name="DaysOfWeek.5">П'ятниця</string>
   <string name="DaysOfWeek.6">Субота</string>
   <string name="DaysOfWeek.7">Неділя</string>
   <string name="DaysOfWeek.Monday">Понеділок</string>
   <string name="DaysOfWeek.Tuesday">Вівторок</string>
   <string name="DaysOfWeek.Wednesday">Середа</string>
   <string name="DaysOfWeek.Thursday">Четвер</string>
-  <string name="DaysOfWeek.Friday">П\'ятниця</string>
+  <string name="DaysOfWeek.Friday">П'ятниця</string>
   <string name="DaysOfWeek.Saturday">Субота</string>
   <string name="DaysOfWeek.Sunday">Неділя</string>
   <string name="Months.1">Січень</string>

@@ -1,0 +1,29 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<resources>
+  <string name="Utilities.MenuItem">Hulpprogramma's</string>
+  <string name="Utilities.MainWorkflowNavigationContextDisplayLabel">Hulpprogramma's</string>
+  <string name="Utilities.PlaylistImportWorkflowNavigationContextDisplayLabel">Importeer afspeellijst</string>
+  <string name="Utilities.MainScreenTitle">Hulpprogramma's</string>
+  <string name="Utilities.PlaylistImport">Importeer afspeellijst</string>
+  <string name="Utilities.PlaylistImportScreenTitle">Importeer afspeellijst</string>
+  <string name="Utilities.ImportPlaylistFile">Importeer afspeellijst</string>
+  <string name="Utilities.ChoosePlaylistFile">Kies bestand</string>
+  <string name="Utilities.ChooseImportFileDialogHeader">Kies het te importeren bestand</string>
+  <string name="Utilities.EditPlaylistName">Bewerkt de naam van de nieuwe afspeellijst</string>
+  <string name="Utilities.LocationOfShareContainingItems">Locatie van de gedeelde map welke de media items bevat</string>
+  <string name="Utilities.LocalShareLocation">Lokaal gedeelde map</string>
+  <string name="Utilities.ServerShareLocation">Gedeelde map op server</string>
+  <string name="Utilities.StartPlaylistImport">Start afspeellijst importeren</string>
+  <string name="Utilities.PlaylistSavedSuccessfullyTitle">Succesvol</string>
+  <string name="Utilities.NoItemsWereImportedSkippingSaveText">Geen items geïmporteerd. Opslaan wordt overgeslagen.</string>
+  <string name="Utilities.PlaylistSavedSuccessfullyText">Afspeellijst '{0}' is succesvol opgeslagen.</string>
+  <string name="Utilities.PlaylistSaveFailedTitle">Afspeellijst opslaan is mislukt</string>
+  <string name="Utilities.ImportPlaylistProgressTitle">Voortgang</string>
+  <string name="Utilities.ImportPlaylistProgressHeaderText">Importeren afspeellijst</string>
+  <string name="Utilities.ImportPlaylistProgressText">{0}/{1}, {2} overgeslagen</string>
+  <string name="Utilities.StopImportPlaylistButton">Stop</string>
+  <string name="Utilities.PlaylistNameExists">Afspeellijstnaam bestaat al</string>
+  <string name="Utilities.ImportFileInvalid">Ongeldig import bestand</string>
+  <string name="Utilities.PlaylistNameIsEmpty">Afspeellijstnaam is leeg</string>
+  <string name="Utilities.ServerNotConnected">De server is niet verbonden</string>
+</resources>

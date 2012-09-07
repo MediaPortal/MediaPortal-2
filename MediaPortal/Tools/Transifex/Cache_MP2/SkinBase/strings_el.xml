@@ -29,7 +29,7 @@
   <string name="Media.InvalidShareName">Άκυρη τοποθεσία</string>
   <string name="ServerConnection.NotificationServerAvailableTitle">Διακομιστής MP2 διαθέσιμος</string>
   <string name="ServerConnection.NotificationServerAvailableText">Υπάρχει τουλάχιστο ένας διακομιστής MediaPortal 2 στο δίκτυο. </string>
-  <string name="ServerConnection.ServerFormatText">{0}\' στο σύστημα\'{1}</string>
+  <string name="ServerConnection.ServerFormatText">{0}' στο σύστημα'{1}</string>
   <!--{0} = server name, {1} = host name-->
   <string name="ServerConnection.UnknownServerName">&lt;Άγνωστο&gt;</string>
   <string name="ServerConnection.UnknownServerSystem">&lt;Άγνωστο&gt;</string>
@@ -42,7 +42,7 @@
   <string name="ServerConnection.HomeServerIsNotConnected">Ο αρχικός διακομιστής δεν είναι ενωμένος</string>
   <string name="ServerConnection.DetachMenu">Αποσύνδεση</string>
   <string name="ServerConnection.DetachConfirmDialogHeader">Αποσύνδεση απο αρχικό διακομιστή</string>
-  <string name="ServerConnection.DetachConfirmDialogText">Εαν αποσυνδεθείτε απο τον αρχικό διακομιστή, όλες η πληροφορίες για τις τοπικές τοποθεσίες και αρχεία θα αφαιρεθούν απο τη βάση δεδομένων του διακομιστή. Μπορείτε να συνδεθείτε ξανά αργότερα. Σίγουρα θέλετε να αποσυνδεθείτε απο τον διακομιστή \'{0}\' που βρίσκετε στο σύστημα \'{1}\'?</string>
+  <string name="ServerConnection.DetachConfirmDialogText">Εαν αποσυνδεθείτε απο τον αρχικό διακομιστή, όλες η πληροφορίες για τις τοπικές τοποθεσίες και αρχεία θα αφαιρεθούν απο τη βάση δεδομένων του διακομιστή. Μπορείτε να συνδεθείτε ξανά αργότερα. Σίγουρα θέλετε να αποσυνδεθείτε απο τον διακομιστή '{0}' που βρίσκετε στο σύστημα '{1}'?</string>
   <string name="ServerConnection.SearchForServers">Αναζήτηση διακομιστών</string>
   <string name="ServerConnection.DetachFromServer">Αποσύνδεση απο αρχικό διακομιστή</string>
   <string name="ServerConnection.AttachToServerHeader">Σύνδεση σε διακομιστή MP2</string>
@@ -101,7 +101,7 @@
   <string name="SharesOverview.Title">Επισκόπηση τοποθεσιών</string>
   <string name="SharesOverview.ReImportAllShares">Επαναεισαγωγή όλων των τοποθεσιών</string>
   <string name="SharesOverview.NotConnectedToHomeServer">Ο αρχικός διακομιστής δεν είναι συνδεδεμένος, </string>
-  <string name="Shares.InvalidPath">Άκυρο μονοπάτι: \'{0}\'</string>
+  <string name="Shares.InvalidPath">Άκυρο μονοπάτι: '{0}'</string>
   <!--For example: INVALID PATH: 'C:\XXX\YYY'-->
   <string name="Shares.Online">Συνδεδεμένος</string>
   <string name="Shares.Offline">Αποσυνδεδεμένος</string>

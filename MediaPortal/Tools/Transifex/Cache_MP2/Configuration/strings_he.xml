@@ -5,10 +5,10 @@
   <string name="Configuration.MainSettings">הגדרות ראשיות</string>
   <!--2nd Header for root configuration section-->
   <string name="Configuration.NoSettingsInThisSection">אין הגדרות בחלק זה</string>
-  <string name="Configuration.ErrorFloatingPointValue">\'{0}\' אינו ערך חוקי למספר מסוג נקודה צפה (floating point)</string>
-  <string name="Configuration.ErrorIntegerValue">\'{0}\' אינו ערך חוקי למספר שלם (integer)</string>
-  <string name="Configuration.ErrorNumericLowerLimit">השתמש בערך בין \'{1}\' ל-\'{2}\'</string>
+  <string name="Configuration.ErrorFloatingPointValue">'{0}' אינו ערך חוקי למספר מסוג נקודה צפה (floating point)</string>
+  <string name="Configuration.ErrorIntegerValue">'{0}' אינו ערך חוקי למספר שלם (integer)</string>
+  <string name="Configuration.ErrorNumericLowerLimit">השתמש בערך בין '{1}' ל-'{2}'</string>
   <!--0 = current value, 1 = lower limit, 2 = upper limit-->
-  <string name="Configuration.ErrorNumericUpperLimit">השתמש בערך בין \'{1}\' ל-\'{2}\'</string>
+  <string name="Configuration.ErrorNumericUpperLimit">השתמש בערך בין '{1}' ל-'{2}'</string>
   <!--0 = current value, 1 = lower limit, 2 = upper limit-->
 </resources>

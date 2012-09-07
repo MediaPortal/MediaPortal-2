@@ -19,7 +19,7 @@
   <string name="Keys.CapsLock">Verr. Maj.</string>
   <string name="Keys.AltGr">Alt Gr</string>
   <string name="Home.Title">MediaPortal 2</string>
-  <string name="Home.HomeStateDisplayLabel">Page d\'accueil</string>
+  <string name="Home.HomeStateDisplayLabel">Page d'accueil</string>
   <string name="Dialogs.InfoHeaderText">Info</string>
   <string name="Dialogs.WarningHeaderText">Attention</string>
   <string name="Dialogs.ErrorHeaderText">Erreur</string>
@@ -29,7 +29,7 @@
   <string name="Media.InvalidShareName">Partage invalide</string>
   <string name="ServerConnection.NotificationServerAvailableTitle">Serveur MediaPortal 2 disponible</string>
   <string name="ServerConnection.NotificationServerAvailableText">Il y a au moins un serveur MediaPortal 2 disponible sur le réseau. Connectez vous au serveur pour disposer de toutes les fonctionnalités de MediaPortal 2.</string>
-  <string name="ServerConnection.ServerFormatText">{0}\' sur l\'hôte \'{1}</string>
+  <string name="ServerConnection.ServerFormatText">{0}' sur l'hôte '{1}</string>
   <!--{0} = server name, {1} = host name-->
   <string name="ServerConnection.UnknownServerName">&lt;Inconnu&gt;</string>
   <string name="ServerConnection.UnknownServerSystem">&lt;Inconnu&gt;</string>
@@ -44,27 +44,27 @@
   <string name="ServerConnection.HomeServerIsNotConnected">Le serveur local est actuellement déconnecté</string>
   <string name="ServerConnection.DetachMenu">Déconnexion</string>
   <string name="ServerConnection.DetachConfirmDialogHeader">Se déconnecter du serveur local</string>
-  <string name="ServerConnection.DetachConfirmDialogText">Si vous quitter le serveur local, toutes les données concernant les partages locaux et les fichiers multimédias seront supprimés de la bibliothèque du serveur. Vous pourrez, malgré tout, vous y connecter à nouveau, plus tard. Voulez-vous vraiment quitter le serveur local \"{0} \'sur l\'hôte\' {1} \'?</string>
+  <string name="ServerConnection.DetachConfirmDialogText">Si vous quitter le serveur local, toutes les données concernant les partages locaux et les fichiers multimédias seront supprimés de la bibliothèque du serveur. Vous pourrez, malgré tout, vous y connecter à nouveau, plus tard. Voulez-vous vraiment quitter le serveur local \"{0} 'sur l'hôte' {1} '?</string>
   <string name="ServerConnection.SearchForServers">Recherche de serveurs</string>
   <string name="ServerConnection.DetachFromServer">Se déconnecter du serveur local</string>
   <string name="ServerConnection.AttachToServerHeader">Se connecter au serveur MediaPortal 2</string>
-  <string name="ServerConnection.AttachToMultipleText">Il ya plusieurs serveurs MediaPortal 2 disponibles sur le réseau. Voulez-vous choisir l\'un d\'entre eux en tant que serveur local ?</string>
+  <string name="ServerConnection.AttachToMultipleText">Il ya plusieurs serveurs MediaPortal 2 disponibles sur le réseau. Voulez-vous choisir l'un d'entre eux en tant que serveur local ?</string>
   <string name="ServerConnection.AttachToSingleText.Before">Le serveur MediaPortal 2</string>
   <string name="ServerConnection.AttachToSingleText.After">est disponible sur le réseau:</string>
-  <string name="ServerConnection.AttachToServerNoServerText">Actuellement, il n\'y a aucun serveur MediaPortal 2 disponible sur le réseau.</string>
+  <string name="ServerConnection.AttachToServerNoServerText">Actuellement, il n'y a aucun serveur MediaPortal 2 disponible sur le réseau.</string>
   <string name="ServerConnection.AttachButton">Se connecter</string>
   <string name="ServerConnection.AttachInfoDialogHeader">Serveur connecté</string>
-  <string name="ServerConnection.AttachInfoDialogText">Ce client MediaPortal 2 sest connecté à son nouveau serveur local \'{0}\' sur l\'hôte \'{1}\'</string>
+  <string name="ServerConnection.AttachInfoDialogText">Ce client MediaPortal 2 sest connecté à son nouveau serveur local '{0}' sur l'hôte '{1}'</string>
   <!--{0} = server name, {1} = host name-->
   <string name="Notifications.Title">Notifications</string>
   <string name="Notifications.OneMoreNotification">(1 de plus)</string>
   <string name="Notifications.NMoreNotifications">({0} de plus)</string>
   <string name="Notifications.WatchNotificationsWorkflowStateLabel">Notifications</string>
   <string name="Notifications.Handle">Manipuler</string>
-  <string name="ImporterMessages.ImportStartedTitle">L\'import a débuté</string>
-  <string name="ImporterMessages.ImportStartedText">L\'import de \'{0}\' a débuté</string>
+  <string name="ImporterMessages.ImportStartedTitle">L'import a débuté</string>
+  <string name="ImporterMessages.ImportStartedText">L'import de '{0}' a débuté</string>
   <string name="ImporterMessages.ImportCompletedTitle">Import terminé</string>
-  <string name="ImporterMessages.ImportCompletedText">L\'import de \'{0}\' est terminé</string>
+  <string name="ImporterMessages.ImportCompletedText">L'import de '{0}' est terminé</string>
   <string name="LocalFsResourceProvider.Name">Fournisseur du système de fichier local</string>
   <string name="LocalFsResourceProvider.Description">Accès au système de fichier local</string>
   <string name="RemoteResourceProvider.Name">Fournisseur de ressources distantes</string>
@@ -72,10 +72,10 @@
   <string name="ScreenSaver.MediaPortal2">MediaPortal 2</string>
   <!--For MP UI player subsystem-->
   <string name="Players.NoPlayerAvailableNotificationTitle">Aucun lecteur</string>
-  <string name="Players.NoPlayerAvailableNotificationText">Aucun lecteur défini pour lire les fichiers multimédia \'{0}\'</string>
+  <string name="Players.NoPlayerAvailableNotificationText">Aucun lecteur défini pour lire les fichiers multimédia '{0}'</string>
   <string name="Players.ErrorPlayingMediaItemTitle">Erreur de lecture du fichier multimédia</string>
-  <string name="Players.UnableToPlayMediaItemText">Impossible de lire le fichier multimédia \'{0}\'</string>
-  <string name="Players.ResourceNotFoundText">Impossible de trouver la ressource \'{0}\'</string>
+  <string name="Players.UnableToPlayMediaItemText">Impossible de lire le fichier multimédia '{0}'</string>
+  <string name="Players.ResourceNotFoundText">Impossible de trouver la ressource '{0}'</string>
   <string name="Players.PlayerConfiguration">Configuration du lecteur</string>
   <string name="Players.CurrentMediaInfo">Information concernant le fichier en cours de lecture</string>
   <string name="Players.FullscreenVideo">Plein écran  {0}</string>
@@ -84,7 +84,7 @@
   <string name="Players.AudioVisualization">Visualisation audio</string>
   <string name="Players.PlayerOfType">{0} lecteur</string>
   <!--for example "Video player"-->
-  <string name="Players.SlotNo">Emplacement #\'{0}</string>
+  <string name="Players.SlotNo">Emplacement #'{0}</string>
   <string name="Players.FocusPlayer">Centrer {0}</string>
   <!--for example "Focus video player"-->
   <string name="Players.SwitchPipPlayers">Alterner les lecteurs \"Picture in Picture\"</string>
@@ -101,8 +101,8 @@
   <string name="Settings.Appearance.Skin">Skin</string>
   <string name="Settings.Appearance.Skin.Formats.DateFormat">Format de la date</string>
   <string name="Settings.Appearance.Skin.Formats.DateFormat.Help">Format  de la date utilisé par le skin. Utiliser la norme \".net DateTime Class\". </string>
-  <string name="Settings.Appearance.Skin.Formats.TimeFormat">Format de l\'heure</string>
-  <string name="Settings.Appearance.Skin.Formats.TimeFormat.Help">Format de l\'heure utilisé par le skin. Utiliser la norme \".net DateTime Class\".</string>
+  <string name="Settings.Appearance.Skin.Formats.TimeFormat">Format de l'heure</string>
+  <string name="Settings.Appearance.Skin.Formats.TimeFormat.Help">Format de l'heure utilisé par le skin. Utiliser la norme \".net DateTime Class\".</string>
   <string name="Settings.General">Général</string>
   <string name="Settings.General.System">Système</string>
   <string name="Settings.General.System.Autostart">Démarrage automatique</string>
@@ -111,13 +111,13 @@
   <string name="Settings.General.Connectivity.HomeServer">Serveur local</string>
   <string name="Settings.General.Connectivity.HomeServer.Help">Information concernant le serveur local, se connecter puis quitter le serveur local</string>
   <string name="Settings.General.Connectivity.ServerListener">Surveillance du serveur</string>
-  <string name="Settings.General.Connectivity.ServerListener.Help">Affiche une note, si le système est déconnectée, et lorsqu\'un serveur MediaPortal 2 devient disponible sur le réseau</string>
+  <string name="Settings.General.Connectivity.ServerListener.Help">Affiche une note, si le système est déconnectée, et lorsqu'un serveur MediaPortal 2 devient disponible sur le réseau</string>
   <string name="Settings.General.Connectivity.ClientName">Nom du poste client</string>
   <string name="Settings.General.Connectivity.ClientName.Help">Définir le nom de ce poste client MediaPortal 2</string>
   <string name="Settings.Regional">Pays</string>
   <string name="Settings.Regional.Language">Langue</string>
   <string name="Settings.Regional.Language.Main">Langue</string>
-  <string name="Settings.Regional.Language.Main.Help">Définir la langue  utilisée par l\'application</string>
+  <string name="Settings.Regional.Language.Main.Help">Définir la langue  utilisée par l'application</string>
   <string name="Settings.Shares">Partages réseau</string>
   <!--Section name-->
   <string name="Settings.Shares.Configure">Configurer les partages réseau</string>
@@ -137,7 +137,7 @@
   <string name="SharesOverview.ReImportAllShares">Ré-importer tout les partages réseau</string>
   <string name="SharesOverview.NotConnectedToHomeServer">Le serveur local est déconnecté, les informations relatives aux systèmes de partage réseau ne peuvent être récupérées</string>
   <string name="Shares.NoSharesInThisView">- Aucun partage réseau dans cette vue -</string>
-  <string name="Shares.InvalidPath">CHEMIN D\'ACCES INVALIDE : \'{0}\'</string>
+  <string name="Shares.InvalidPath">CHEMIN D'ACCES INVALIDE : '{0}'</string>
   <!--For example: INVALID PATH: 'C:\XXX\YYY'-->
   <string name="Shares.Online">Connecté</string>
   <string name="Shares.Offline">Déconnecté</string>
@@ -149,20 +149,20 @@
   <string name="SharesConfig.ShareInfoWorkflowNavigationContextDisplayLabel">Information sur le partage réseau</string>
   <string name="SharesConfig.SharesAddChooseSystemWorkflowNavigationContextDisplayLabel">Choisir le système</string>
   <string name="SharesConfig.SharesEditChooseResourceProviderWorkflowNavigationContextDisplayLabel">Choisir le fournisseur de ressources</string>
-  <string name="SharesConfig.SharesEditEditPathWorkflowNavigationContextDisplayLabel">Éditer le chemin d\'accès</string>
-  <string name="SharesConfig.SharesEditChoosePathWorkflowNavigationContextDisplayLabel">Choisir le chemin d\'accès</string>
+  <string name="SharesConfig.SharesEditEditPathWorkflowNavigationContextDisplayLabel">Éditer le chemin d'accès</string>
+  <string name="SharesConfig.SharesEditChoosePathWorkflowNavigationContextDisplayLabel">Choisir le chemin d'accès</string>
   <string name="SharesConfig.SharesEditEditNameWorkflowNavigationContextDisplayLabel">Éditer le nom</string>
   <string name="SharesConfig.SharesEditChooseCategoriesWorkflowNavigationContextDisplayLabel">Choisir des catégories</string>
-  <string name="SharesConfig.CannotAddSharesTitle">Impossible d\'ajouter les partages réseau</string>
-  <string name="SharesConfig.CannotAddShareLocalHomeServerNotConnected">Le serveur local est situé sur le même ordinateur, donc toutes les actions doivent être enregistrées au niveau du serveur. Mais le serveur n\'est pas connecté en ce moment. SVP, lancez le serveur local et essayez à nouveau.</string>
+  <string name="SharesConfig.CannotAddSharesTitle">Impossible d'ajouter les partages réseau</string>
+  <string name="SharesConfig.CannotAddShareLocalHomeServerNotConnected">Le serveur local est situé sur le même ordinateur, donc toutes les actions doivent être enregistrées au niveau du serveur. Mais le serveur n'est pas connecté en ce moment. SVP, lancez le serveur local et essayez à nouveau.</string>
   <string name="SharesConfig.SharesConfiguration.Title">Configuration des partages réseau</string>
   <string name="SharesConfig.NoSharesAvailable">Aucun réseau disponible</string>
   <string name="SharesConfig.ShareInformationHeader">Information sur le partage réseau</string>
   <string name="SharesConfig.ShareNameInfo">Nom : </string>
   <string name="SharesConfig.ShareResourceProviderInfo">Fournisseur de ressource de base : </string>
   <string name="SharesConfig.ShareSystem">Système : </string>
-  <string name="SharesConfig.SharePathInfo">Chemin d\'accès : </string>
-  <string name="SharesConfig.ShareResourcePathInfo">Chemin d\'accès :</string>
+  <string name="SharesConfig.SharePathInfo">Chemin d'accès : </string>
+  <string name="SharesConfig.ShareResourcePathInfo">Chemin d'accès :</string>
   <string name="SharesConfig.ShareMediaCategoriesInfo">Catégories de fichiers multimédia :</string>
   <string name="SharesConfig.ReImportShare">Partage réseau ré-importé</string>
   <string name="SharesConfig.SetupDefaultShares">Définir le partage réseau par défaut</string>
@@ -178,9 +178,9 @@
   <string name="SharesConfig.NoConfigGlobalSharesHomeServerNotConnected">Le serveur local est actuellement déconnecté, de fait les partages réseau globaux ne peuvent pas être géré pour le moment.</string>
   <string name="SharesConfig.NoConfigLocalSharesHomeServerLocal">Le serveur local est située sur la même machine, seuls les partages réseau globaux peuvent être configurés.</string>
   <string name="SharesConfig.ChooseResourceProviderForShare">SVP choisissez un fournisseur de ressource pour ce partage réseau</string>
-  <string name="SharesConfig.EditResourceProviderPathForShare">Éditer le chemin d\'accés au partage réseau</string>
-  <string name="SharesConfig.ResourceProviderPathIsNotValid">Définir un chemin d\'accès valide au sein du fournisseur de ressource.  Vous pouvez définir un chemin d\'accès simple compréhensible par le fournisseur de ressource. Vous pouvez également modifier un chemin complexe selon le format {[Base-ResourceProvider-ID]}://[Base-ResourceProvider-Path]&gt;{[Chained-ResourceProvider-ID]}://[Chained-ResourceProvider-Path]&gt;...</string>
-  <string name="SharesConfig.ChooseResourceProviderPathForShare">Choisir le chemin d\'accès du partage réseau</string>
+  <string name="SharesConfig.EditResourceProviderPathForShare">Éditer le chemin d'accés au partage réseau</string>
+  <string name="SharesConfig.ResourceProviderPathIsNotValid">Définir un chemin d'accès valide au sein du fournisseur de ressource.  Vous pouvez définir un chemin d'accès simple compréhensible par le fournisseur de ressource. Vous pouvez également modifier un chemin complexe selon le format {[Base-ResourceProvider-ID]}://[Base-ResourceProvider-Path]&gt;{[Chained-ResourceProvider-ID]}://[Chained-ResourceProvider-Path]&gt;...</string>
+  <string name="SharesConfig.ChooseResourceProviderPathForShare">Choisir le chemin d'accès du partage réseau</string>
   <string name="SharesConfig.EditShareName">Définir le nom du partage réseau</string>
   <string name="SharesConfig.ChooseShareCategories">Choisir la catégorie de fichiers multimédia présent dans le partage réseau</string>
   <string name="SharesConfig.SharePathExists">Un dossier de partage avec ce chemin existe déjà</string>
@@ -198,15 +198,15 @@
   <string name="SharesConfig.AddLocalShare">Ajouter un partage réseau local</string>
   <string name="SharesConfig.EditLocalShare">Éditer le partage réseau local</string>
   <string name="SharesConfig.UpdateShareRelocateItemsQueryDialogHeader">Mettre à jour le partage réseau</string>
-  <string name="SharesConfig.UpdateShareRelocateItemsQueryText.Info">Le fournisseur de ressource et/ou le chemin d\'accès ont été mis à jour.</string>
-  <string name="SharesConfig.UpdateShareRelocateItemsQueryText.Description">La bibliothèque d\'informations sur les fichiers multimédias présent dans ce partage réseau peut être mise à jour (déplacée) ou effacée et ré-mportée.</string>
+  <string name="SharesConfig.UpdateShareRelocateItemsQueryText.Info">Le fournisseur de ressource et/ou le chemin d'accès ont été mis à jour.</string>
+  <string name="SharesConfig.UpdateShareRelocateItemsQueryText.Description">La bibliothèque d'informations sur les fichiers multimédias présent dans ce partage réseau peut être mise à jour (déplacée) ou effacée et ré-mportée.</string>
   <string name="SharesConfig.UpdateShareRelocateItemsQueryText.Query">Voulez vous déplacer ou effacer et ré-importer ?</string>
   <string name="SharesConfig.Relocate">Déplacer</string>
   <string name="SharesConfig.ReImport">Ré-importer</string>
   <string name="UPnPFrontendServer.DefaultFriendlyName">Client MediaPortal 2</string>
   <string name="UPnPFrontendServer.Manufacturer">Team Mediaportal</string>
   <string name="UPnPFrontendServer.ManufacturerUrl">www.team-mediaportal.com</string>
-  <string name="UPnPFrontendServer.ModelDescription">Client MediaPortal 2 - l\'interface graphique MediaPortal. Lit les fichiers multimédias, abrite les partages réseau locaux et donne accès à l\'interface utilisateur.</string>
+  <string name="UPnPFrontendServer.ModelDescription">Client MediaPortal 2 - l'interface graphique MediaPortal. Lit les fichiers multimédias, abrite les partages réseau locaux et donne accès à l'interface utilisateur.</string>
   <string name="UPnPFrontendServer.ModelName">Client MediaPortal 2</string>
   <string name="UPnPFrontendServer.ModelNumber">1</string>
   <!--<string name="UPnPFrontendServer.ModelUrl">...</string>-->
