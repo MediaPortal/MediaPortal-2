@@ -316,7 +316,7 @@ namespace TransifexHelper
       Console.WriteLine("Copying non-English language files from Transifex cache...");
       foreach (var res in TransifexResources)
       {
-        string inputDir = TransifexCacheFolder + "\\" + pair.Key;
+        string inputDir = res.GetCacheFullDirectory();
         DirectoryInfo sourceDir = new DirectoryInfo(inputDir);
         if (!sourceDir.Exists)
           continue;
