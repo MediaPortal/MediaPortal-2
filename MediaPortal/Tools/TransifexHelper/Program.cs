@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
+using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading;
 using System.Xml;
@@ -353,6 +354,7 @@ namespace TransifexHelper
             string orig = content;
             content = REPLACE_EMPTY.Replace(content, "");
             content = content.Replace("\\'", "'");
+            content = NormalizeLineBreaks(content);
             changed = (orig != content);
             streamReader.Close();
             stream.Close();
@@ -370,6 +372,48 @@ namespace TransifexHelper
           }
         }
       }
+    }
+
+    /// <summary>
+    /// Workaround to replace LF-linebreaks from Transifex by CR+LF-linebreaks.
+    /// Replaced would be done by each git commit, so doing it before prevents having modified files, only because of the line breaks.
+    /// </summary>
+    /// <param name="input">String with inconsistent or no CR+LF-linebreaks.</param>
+    /// <returns>String with normalized CR+LF-linebreaks.</returns>
+    private static string NormalizeLineBreaks(string input)
+    {
+        // Allow 10% as a rough guess of how much the string may grow.
+        // If we're wrong we'll either waste space or have extra copies -
+        // it will still work
+        StringBuilder builder = new StringBuilder((int) (input.Length * 1.1));
+
+        bool lastWasCR = false;
+
+        foreach (char c in input)
+        {
+            if (lastWasCR)
+            {
+                lastWasCR = false;
+                if (c == '\n')
+                {
+                    continue; // Already written \r\n
+                }
+            }
+            switch (c)
+            {
+                case '\r':
+                    builder.Append("\r\n");
+                    lastWasCR = true;
+                    break;
+                case '\n':
+                    builder.Append("\r\n");
+                    break;
+                default:
+                    builder.Append(c);
+                    break;
+            }
+        }
+        return builder.ToString();
     }
 
     #endregion
