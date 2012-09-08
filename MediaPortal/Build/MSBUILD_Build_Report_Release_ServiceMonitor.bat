@@ -1,5 +1,3 @@
-rem @ECHO OFF
-
 
 "%WINDIR%\Microsoft.NET\Framework\v4.0.30319\MSBUILD.exe" ..\Tools\BuildReport\BuildReport.sln /target:Rebuild  /property:Configuration=Release
 
