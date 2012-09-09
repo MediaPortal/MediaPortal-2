@@ -104,6 +104,17 @@ namespace MediaPortal.UI.Presentation.Players
     bool OpenSlot(out int slotIndex, out IPlayerSlotController slotController);
 
     /// <summary>
+    /// Resets the slot with the given <paramref name="slotIndex"/>. The underlaying slot controller will be put in a
+    /// state as if it would have been freshly opened.
+    /// </summary>
+    /// <param name="slotIndex">Index of the slot to reset. </param>
+    /// <param name="slotController">The slot controller which was reset.</param>
+    /// <returns><c>false</c>, if the slot with the given <paramref name="slotIndex"/> cannot be activated (e.g. because
+    /// the given <paramref name="slotIndex"/> is <see cref="PlayerManagerConsts.SECONDARY_SLOT"/> and the primary slot is not active),
+    /// else <c>true</c>.</returns>
+    bool ResetSlot(int slotIndex, out IPlayerSlotController slotController);
+
+    /// <summary>
     /// Releases the player of the specified <paramref name="slotIndex"/> and closes the slot.
     /// </summary>
     /// <remarks>

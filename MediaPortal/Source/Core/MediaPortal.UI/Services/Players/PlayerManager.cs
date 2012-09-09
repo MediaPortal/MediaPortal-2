@@ -420,10 +420,10 @@ namespace MediaPortal.UI.Services.Players
 
     public bool OpenSlot(out int slotIndex, out IPlayerSlotController slotController)
     {
+      slotIndex = -1;
+      slotController = null;
       lock (_syncObj)
       {
-        slotIndex = -1;
-        slotController = null;
         // Find a free slot
         if (!_slots[PlayerManagerConsts.PRIMARY_SLOT].IsActive)
           slotIndex = PlayerManagerConsts.PRIMARY_SLOT;
@@ -431,16 +431,30 @@ namespace MediaPortal.UI.Services.Players
           slotIndex = PlayerManagerConsts.SECONDARY_SLOT;
         else
           return false;
-        PlayerSlotController psc = _slots[slotIndex];
-        psc.IsActive = true;
-        psc.IsMuted = _isMuted;
-        psc.Volume = _volume;
-        psc.IsAudioSlot = false;
-        if (AudioSlotIndex == -1)
-          AudioSlotIndex = slotIndex;
-        slotController = psc;
-        return true;
+        return ResetSlot(slotIndex, out slotController);
       }
+    }
+
+    public bool ResetSlot(int slotIndex, out IPlayerSlotController slotController)
+    {
+      slotController = null;
+      if (slotIndex == PlayerManagerConsts.SECONDARY_SLOT && !_slots[PlayerManagerConsts.PRIMARY_SLOT].IsActive)
+        // This is the only invalid constellation because it is not allowed to have the secondary slot active while the primary slot is inactive
+        return false;
+      // We don't set a lock because the IsActive property must be set outside the lock. It is no very good solution
+      // to avoid the lock completely but I'll risk it here. Concurrent accesses to the player manager should be avoided
+      // by organizational means.
+      PlayerSlotController psc = _slots[slotIndex];
+      if (psc.IsActive)
+        psc.IsActive = false; // Must be done outside the lock
+      psc.IsActive = true;
+      psc.IsMuted = _isMuted;
+      psc.Volume = _volume;
+      psc.IsAudioSlot = false;
+      if (AudioSlotIndex == -1)
+        AudioSlotIndex = slotIndex;
+      slotController = psc;
+      return true;
     }
 
     public void CloseSlot(int slotIndex)
@@ -453,28 +467,22 @@ namespace MediaPortal.UI.Services.Players
       PlayerSlotController psc = playerSlotController as PlayerSlotController;
       if (psc == null)
         return;
-      lock (_syncObj)
-      {
-        bool isAudio = psc.IsActive && psc.IsAudioSlot;
-        psc.IsActive = false;
-        CleanupSlotOrder();
-        if (isAudio)
-          AudioSlotIndex = PlayerManagerConsts.PRIMARY_SLOT;
-      }
+      bool isAudio = psc.IsActive && psc.IsAudioSlot;
+      psc.IsActive = false; // Must be done outside the lock
+      CleanupSlotOrder();
+      if (isAudio)
+        AudioSlotIndex = PlayerManagerConsts.PRIMARY_SLOT;
     }
 
     public void CloseAllSlots()
     {
-      lock (_syncObj)
-      {
-        bool muted = Muted;
-        // Avoid switching the sound to the other slot for a short time, in case we close the audio slot first
-        Muted = true;
-        foreach (PlayerSlotController psc in _slots)
-          psc.IsActive = false;
-        // The audio slot property is stored in the slot instances itself and thus doesn't need to be updated here
-        Muted = muted;
-      }
+      bool muted = Muted;
+      // Avoid switching the sound to the other slot for a short time, in case we close the audio slot first
+      Muted = true;
+      foreach (PlayerSlotController psc in _slots)
+        psc.IsActive = false; // Must be done outside the lock
+      // The audio slot property is stored in the slot instances itself and thus doesn't need to be updated here
+      Muted = muted;
     }
 
     public void SwitchSlots()
