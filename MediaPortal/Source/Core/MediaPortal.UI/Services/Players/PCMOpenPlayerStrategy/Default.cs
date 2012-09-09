@@ -28,9 +28,12 @@ using MediaPortal.UI.Presentation.Players;
 
 namespace MediaPortal.UI.Services.Players.PCMOpenPlayerStrategy
 {
+  /// <summary>
+  /// Default strategy for preparing new players. For an understanding of the function, see the code.
+  /// </summary>
   public class Default : IOpenPlayerStrategy
   {
-    public virtual void OpenAudioPlayer(IPlayerManager playerManager, IList<IPlayerContext> playerContexts, bool concurrentVideo, Guid mediaModuleId,
+    public virtual void PrepareAudioPlayer(IPlayerManager playerManager, IList<IPlayerContext> playerContexts, bool concurrentVideo, Guid mediaModuleId,
         out IPlayerSlotController slotController, ref int audioSlotIndex, ref int currentPlayerIndex)
     {
       if (concurrentVideo)
@@ -53,7 +56,7 @@ namespace MediaPortal.UI.Services.Players.PCMOpenPlayerStrategy
       currentPlayerIndex = slotIndex;
     }
 
-    public virtual void OpenVideoPlayer(IPlayerManager playerManager, IList<IPlayerContext> playerContexts, PlayerContextConcurrencyMode concurrencyMode, Guid mediaModuleId,
+    public virtual void PrepareVideoPlayer(IPlayerManager playerManager, IList<IPlayerContext> playerContexts, PlayerContextConcurrencyMode concurrencyMode, Guid mediaModuleId,
         out IPlayerSlotController slotController, ref int audioSlotIndex, ref int currentPlayerIndex)
     {
         int numActive = playerContexts.Count;
@@ -63,9 +66,10 @@ namespace MediaPortal.UI.Services.Players.PCMOpenPlayerStrategy
           case PlayerContextConcurrencyMode.ConcurrentAudio:
             if (numActive > 1 && playerContexts[1].AVType == AVType.Audio)
             { // The secondary slot is an audio player slot
-              playerManager.CloseSlot(PlayerManagerConsts.PRIMARY_SLOT);
-              playerManager.OpenSlot(out slotIndex, out slotController);
-              playerManager.SwitchSlots();
+              slotIndex = PlayerManagerConsts.PRIMARY_SLOT;
+              IPlayerContext pc = playerContexts[0];
+              pc.Reset(); // Necessary to reset the player context to disable the auto close function (pc.CloseWhenFinished)
+              playerManager.ResetSlot(slotIndex, out slotController);
               audioSlotIndex = PlayerManagerConsts.SECONDARY_SLOT;
             }
             else if (numActive == 1 && playerContexts[0].AVType == AVType.Audio)

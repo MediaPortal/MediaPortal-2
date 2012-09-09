@@ -28,38 +28,44 @@ using MediaPortal.UI.Presentation.Players;
 
 namespace MediaPortal.UI.Services.Players.PCMOpenPlayerStrategy
 {
+  /// <summary>
+  /// Player open strategy which works the same as the <see cref="Default"/> strategy except for the case when at least one video player is active and
+  /// another video player is requested in concurrency mode <see cref="PlayerContextConcurrencyMode.ConcurrentVideo"/>. In this case,
+  /// if we have two concurrent playing videos, the new video will replace the primary slot, PiP remains untouched playing in background.
+  /// If we have only one video playing, the old video is be moved to PiP while the new video gets the primary (fullscreen) video.
+  /// </summary>
   public class PreservePiP : Default
   {
-    public override void OpenVideoPlayer(IPlayerManager playerManager, IList<IPlayerContext> playerContexts, PlayerContextConcurrencyMode concurrencyMode, Guid mediaModuleId,
+    public override void PrepareVideoPlayer(IPlayerManager playerManager, IList<IPlayerContext> playerContexts, PlayerContextConcurrencyMode concurrencyMode, Guid mediaModuleId,
         out IPlayerSlotController slotController, ref int audioSlotIndex, ref int currentPlayerIndex)
     {
         int numActive = playerContexts.Count;
         switch (concurrencyMode)
         {
           case PlayerContextConcurrencyMode.ConcurrentVideo:
-            // If we have 2 concurrent playing videos, a new video will replace the primary slot, PiP remains untouched playing in background.
-            // If we have only one video playing, the new video will be added to secondary slot and the PiP players will be switched: The old
-            // playing video will be moved to PiP, the new will get fullscreen video.
             if (numActive >= 1 && playerContexts[0].AVType == AVType.Video)
             { // The primary slot is a video player slot
-              int newCurrentPlayerIndex = PlayerManagerConsts.SECONDARY_SLOT;
-              if (numActive > 1)
+              if (numActive == 1)
               {
+                int slotIndex;
+                playerManager.OpenSlot(out slotIndex, out slotController);
                 playerManager.SwitchSlots();
-                playerManager.CloseSlot(PlayerManagerConsts.SECONDARY_SLOT);
-                newCurrentPlayerIndex = PlayerManagerConsts.PRIMARY_SLOT;
+              }
+              else // numActive > 1
+              {
+                IPlayerContext pc = playerContexts[0];
+                pc.Reset(); // Necessary to reset the player context to disable the auto close function (pc.CloseWhenFinished)
+                playerManager.ResetSlot(PlayerManagerConsts.PRIMARY_SLOT, out slotController);
               }
 
-              int slotIndex;
-              playerManager.OpenSlot(out slotIndex, out slotController);
-              audioSlotIndex = PlayerManagerConsts.SECONDARY_SLOT;
-              currentPlayerIndex = newCurrentPlayerIndex;
-              playerManager.SwitchSlots();
+              audioSlotIndex = PlayerManagerConsts.PRIMARY_SLOT;
+              currentPlayerIndex = PlayerManagerConsts.PRIMARY_SLOT;
               return;
             }
             break;
         }
-      base.OpenVideoPlayer(playerManager, playerContexts, concurrencyMode, mediaModuleId, out slotController, ref audioSlotIndex, ref currentPlayerIndex);
+      // All other cases are the same as in the default player open strategy
+      base.PrepareVideoPlayer(playerManager, playerContexts, concurrencyMode, mediaModuleId, out slotController, ref audioSlotIndex, ref currentPlayerIndex);
     }
   }
 }

@@ -626,7 +626,7 @@ namespace MediaPortal.UI.Services.Players
         IPlayerSlotController slotController;
         int audioSlotIndex = playerManager.AudioSlotIndex;
         int currentPlayerIndex = CurrentPlayerIndex;
-        strategy.OpenAudioPlayer(playerManager, playerContexts, concurrentVideo, mediaModuleId, out slotController, ref audioSlotIndex, ref currentPlayerIndex);
+        strategy.PrepareAudioPlayer(playerManager, playerContexts, concurrentVideo, mediaModuleId, out slotController, ref audioSlotIndex, ref currentPlayerIndex);
         playerManager.AudioSlotIndex = audioSlotIndex;
         CurrentPlayerIndex = currentPlayerIndex;
         return new PlayerContext(this, slotController, mediaModuleId, name, AVType.Audio,
@@ -645,7 +645,7 @@ namespace MediaPortal.UI.Services.Players
         IPlayerSlotController slotController;
         int audioSlotIndex = playerManager.AudioSlotIndex;
         int currentPlayerIndex = CurrentPlayerIndex;
-        strategy.OpenVideoPlayer(playerManager, playerContexts, concurrencyMode, mediaModuleId, out slotController, ref audioSlotIndex, ref currentPlayerIndex);
+        strategy.PrepareVideoPlayer(playerManager, playerContexts, concurrencyMode, mediaModuleId, out slotController, ref audioSlotIndex, ref currentPlayerIndex);
         playerManager.AudioSlotIndex = audioSlotIndex;
         CurrentPlayerIndex = currentPlayerIndex;
         return new PlayerContext(this, slotController, mediaModuleId, name, AVType.Video,
