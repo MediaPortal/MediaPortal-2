@@ -124,7 +124,6 @@
     <Content Include="Skin\default\themes\default\styles\WeatherStyles.xaml" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="Language\strings_de.xml" />
     <Content Include="Skin\default\images\Weather\128x128\0.png" />
     <Content Include="Skin\default\images\Weather\128x128\1.png" />
     <Content Include="Skin\default\images\Weather\128x128\10.png" />
