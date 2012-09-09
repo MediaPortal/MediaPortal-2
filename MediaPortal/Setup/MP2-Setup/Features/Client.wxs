@@ -41,8 +41,7 @@
 
       <Component Id="Client.Registry.InstallDir" Guid="52711D1B-E2EE-4ACD-9993-F5B3FCF87701">
         <RegistryKey Root="HKLM"
-                     Key="Software\[Manufacturer]\[ProductName]"
-                     Action="createAndRemoveOnUninstall">
+                     Key="Software\[Manufacturer]\[ProductName]">
           <RegistryValue Type="string" Name="INSTALLDIR_CLIENT" Value="[INSTALLDIR_CLIENT]"/>
         </RegistryKey>
         <CreateFolder />

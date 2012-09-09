@@ -20,8 +20,7 @@
 
       <Component Id="ServiceMonitor.Registry.InstallDir" Guid="6B87D8D0-1C8E-4A5A-AF9E-AD2E89698660">
         <RegistryKey Root="HKLM"
-                     Key="Software\[Manufacturer]\[ProductName]"
-                     Action="createAndRemoveOnUninstall">
+                     Key="Software\[Manufacturer]\[ProductName]">
           <RegistryValue Type="string" Name="INSTALLDIR_SERVICE_MONITOR" Value="[INSTALLDIR_SERVICE_MONITOR]"/>
         </RegistryKey>
         <CreateFolder />

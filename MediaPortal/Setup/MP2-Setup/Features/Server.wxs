@@ -7,9 +7,6 @@
 
     <?include ..\Includes.wxi ?>
 
-    <!-- Icon -->
-    <Icon Id="Server" SourceFile="$(var.MediaPortal.Server.TargetPath)" />
-
     <!-- Directory definition -->
     <DirectoryRef Id="TeamMediaPortalFolder">
       <Directory Id="INSTALLDIR_SERVER" Name="MP2-Server">
@@ -46,8 +43,7 @@
       
       <Component Id="Server.Registry.InstallDir" Guid="AB85C3C6-423A-484D-93B6-60A24057E683">
         <RegistryKey Root="HKLM"
-                     Key="Software\[Manufacturer]\[ProductName]"
-                     Action="createAndRemoveOnUninstall">
+                     Key="Software\[Manufacturer]\[ProductName]">
           <RegistryValue Type="string" Name="INSTALLDIR_SERVER" Value="[INSTALLDIR_SERVER]"/>
         </RegistryKey>
         <CreateFolder />
