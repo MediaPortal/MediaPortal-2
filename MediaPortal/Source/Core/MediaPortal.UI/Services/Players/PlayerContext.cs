@@ -79,16 +79,7 @@ namespace MediaPortal.UI.Services.Players
 
     public void Dispose()
     {
-      lock (SyncObj)
-      {
-        IPlayerSlotController slotController = _slotController;
-        if (slotController == null)
-          return;
-        slotController.SlotStateChanged -= OnSlotStateChanged;
-        if (slotController.IsActive)
-          ResetContextVariable(KEY_PLAYER_CONTEXT);
-        _slotController = null;
-      }
+      Reset();
     }
 
     #endregion
@@ -158,28 +149,6 @@ namespace MediaPortal.UI.Services.Players
       }
       if (!player.SetPlaybackRate(newRate) && !player.SetPlaybackRate(2*newRate))
         player.SetPlaybackRate(4*newRate);
-    }
-
-    public void InstantSkip(int skipPercent)
-    {
-      IMediaPlaybackControl player = GetCurrentPlayer() as IMediaPlaybackControl;
-      if (player == null)
-        return;
-
-      TimeSpan currentPosition = player.CurrentTime;
-      TimeSpan duration = player.Duration;
-      double skipSeconds = skipPercent * player.Duration.TotalSeconds / 100;
-      if (skipSeconds > 0)
-      {
-        if (currentPosition.TotalSeconds + skipSeconds < duration.TotalSeconds)
-          player.CurrentTime = currentPosition.Add(TimeSpan.FromSeconds(skipSeconds));
-      }
-      else
-      {
-        // skipSeconds is negative
-        player.CurrentTime = currentPosition.TotalSeconds + skipSeconds > 0 ?
-            currentPosition.Add(TimeSpan.FromSeconds(skipSeconds)) : TimeSpan.FromSeconds(0);
-      }
     }
 
     public static PlayerContext GetPlayerContext(IPlayerSlotController psc)
@@ -534,6 +503,42 @@ namespace MediaPortal.UI.Services.Players
         playOk = DoPlay_NoLock(_playlist.MoveAndGetNext(), StartTime.AtOnce);
       } while (!playOk);
       return true;
+    }
+
+    public void InstantSkip(int skipPercent)
+    {
+      IMediaPlaybackControl player = GetCurrentPlayer() as IMediaPlaybackControl;
+      if (player == null)
+        return;
+
+      TimeSpan currentPosition = player.CurrentTime;
+      TimeSpan duration = player.Duration;
+      double skipSeconds = skipPercent * player.Duration.TotalSeconds / 100;
+      if (skipSeconds > 0)
+      {
+        if (currentPosition.TotalSeconds + skipSeconds < duration.TotalSeconds)
+          player.CurrentTime = currentPosition.Add(TimeSpan.FromSeconds(skipSeconds));
+      }
+      else
+      {
+        // skipSeconds is negative
+        player.CurrentTime = currentPosition.TotalSeconds + skipSeconds > 0 ?
+            currentPosition.Add(TimeSpan.FromSeconds(skipSeconds)) : TimeSpan.FromSeconds(0);
+      }
+    }
+
+    public void Reset()
+    {
+      lock (SyncObj)
+      {
+        IPlayerSlotController slotController = _slotController;
+        if (slotController == null)
+          return;
+        slotController.SlotStateChanged -= OnSlotStateChanged;
+        if (slotController.IsActive)
+          ResetContextVariable(KEY_PLAYER_CONTEXT);
+        _slotController = null;
+      }
     }
 
     #endregion

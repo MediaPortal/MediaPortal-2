@@ -292,5 +292,12 @@ namespace MediaPortal.UI.Presentation.Players
     /// Skips to the end.
     /// </summary>
     void SkipToEnd();
+
+    /// <summary>
+    /// Decouples this player context from the underlaying player slot controller.
+    /// This can be necessary to be triggered manually when the underlaying player slot controller should be reused for another usage
+    /// and the automatic player context close functions like <see cref="CloseWhenFinished"/> should be disabled.
+    /// </summary>
+    void Reset();
   }
 }
