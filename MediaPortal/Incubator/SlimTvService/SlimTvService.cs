@@ -1,16 +1,21 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Configuration;
 using MediaPortal.Common.MediaManagement;
 using MediaPortal.Plugins.SlimTv.Interfaces;
 using MediaPortal.Plugins.SlimTv.Interfaces.Items;
 using MediaPortal.Plugins.SlimTv.Interfaces.LiveTvMediaItem;
 using MediaPortal.Plugins.SlimTv.Interfaces.ResourceProvider;
 using MediaPortal.Plugins.SlimTv.UPnP.Items;
+using Mediaportal.TV.Server.TVLibrary;
 
 namespace MediaPortal.Plugins.SlimTv.Service
 {
   public class SlimTvService : ITvProvider, ITimeshiftControl, IProgramInfo, IChannelAndGroupInfo, IScheduleControl
   {
+    const int MAX_WAIT_MS = 2000;
+    private TvServiceThread _tvServiceThread;
+
     public string Name
     {
       get { return "NativeTv Service"; }
@@ -18,13 +23,18 @@ namespace MediaPortal.Plugins.SlimTv.Service
 
     public bool Init()
     {
-      // TODO:
+      _tvServiceThread = new TvServiceThread(Environment.GetCommandLineArgs()[0]);
+      _tvServiceThread.Start();
       return true;
     }
 
     public bool DeInit()
     {
-      // TODO:
+      if (_tvServiceThread != null)
+      {
+        _tvServiceThread.Stop(MAX_WAIT_MS);
+        _tvServiceThread = null;
+      }
       return true;
     }
 

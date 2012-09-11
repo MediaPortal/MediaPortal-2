@@ -44,7 +44,9 @@ namespace MediaPortal.Plugins.SlimTv.Service
       DvDevice device = ServiceRegistration.Get<IBackendServer>().UPnPBackendServer.FindDevicesByDeviceTypeAndVersion(UPnPTypesAndIds.BACKEND_SERVER_DEVICE_TYPE, UPnPTypesAndIds.BACKEND_SERVER_DEVICE_TYPE_VERSION, true).FirstOrDefault();
       if (device != null)
       {
-        ServiceRegistration.Set<ITvProvider>(new SlimTvService());
+        var slimTvService = new SlimTvService();
+        slimTvService.Init();
+        ServiceRegistration.Set<ITvProvider>(slimTvService);
         Logger.Debug("SlimTvService: Registered SlimTvService.");
         device.AddService(new SlimTvServiceImpl());
         Logger.Debug("SlimTvService: Adding SlimTvService to MP2 backend root device");
@@ -70,6 +72,9 @@ namespace MediaPortal.Plugins.SlimTv.Service
 
     public void Shutdown()
     {
+      ITvProvider tvProvider = ServiceRegistration.Get<ITvProvider>(false);
+      if (tvProvider != null)
+        tvProvider.DeInit();
     }
 
     internal static ILogger Logger

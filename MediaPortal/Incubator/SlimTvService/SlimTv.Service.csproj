@@ -46,7 +46,16 @@
     <CodeAnalysisIgnoreBuiltInRules>false</CodeAnalysisIgnoreBuiltInRules>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Mediaportal.TV.Server.Plugins.Base, Version=1.2.100.0, Culture=neutral, processorArchitecture=x86">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>References\Mediaportal.TV.Server.Plugins.Base.dll</HintPath>
+    </Reference>
+    <Reference Include="Mediaportal.TV.Server.TVLibrary.Services, Version=1.0.0.0, Culture=neutral, processorArchitecture=x86">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>References\Mediaportal.TV.Server.TVLibrary.Services.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
+    <Reference Include="System.Configuration" />
     <Reference Include="System.Core" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
@@ -428,6 +437,22 @@
     <Content Include="plugin.xml">
       <SubType>Designer</SubType>
     </Content>
+    <Content Include="References\Common.Utils.dll" />
+    <Content Include="References\DirectShowLib.dll" />
+    <Content Include="References\EntityFramework.dll" />
+    <Content Include="References\Interop.SHDocVw.dll" />
+    <Content Include="References\log4net.dll" />
+    <Content Include="References\Mediaportal.TV.Server.Plugins.Base.dll" />
+    <Content Include="References\Mediaportal.TV.Server.TVControl.dll" />
+    <Content Include="References\Mediaportal.TV.Server.TVDatabase.Entities.dll" />
+    <Content Include="References\Mediaportal.TV.Server.TVDatabase.EntityModel.dll" />
+    <Content Include="References\Mediaportal.TV.Server.TVDatabase.Presentation.dll" />
+    <Content Include="References\Mediaportal.TV.Server.TVDatabase.TVBusinessLayer.dll" />
+    <Content Include="References\Mediaportal.TV.Server.TVLibrary.dll" />
+    <Content Include="References\Mediaportal.TV.Server.TVLibrary.Interfaces.dll" />
+    <Content Include="References\Mediaportal.TV.Server.TVLibrary.Services.dll" />
+    <Content Include="References\Mediaportal.TV.Server.TvLibrary.Utils.dll" />
+    <Content Include="References\Mediaportal.TV.Server.TVService.Interfaces.dll" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\Source\Core\MediaPortal.Backend\MediaPortal.Backend.csproj">
@@ -451,6 +476,9 @@
       <Name>SlimTv.UPnP</Name>
     </ProjectReference>
   </ItemGroup>
+  <ItemGroup>
+    <None Include="References\Mediaportal.TV.Server.TVLibrary.Services.dll.config" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
     <PostBuildEvent>mkdir "$(SolutionDir)..\Bin\$(SolutionName)\$(OutDir)Plugins\$(ProjectName)"
@@ -459,6 +487,8 @@ xcopy /Y "$(TargetDir)$(ProjectName).dll"  "$(SolutionDir)..\Bin\$(SolutionName)
 xcopy /Y "$(TargetDir)SlimTv.Interfaces.dll"  "$(SolutionDir)..\Bin\$(SolutionName)\$(OutDir)Plugins\$(ProjectName)\"
 xcopy /Y "$(TargetDir)SlimTv.UPnP.dll"  "$(SolutionDir)..\Bin\$(SolutionName)\$(OutDir)Plugins\$(ProjectName)\"
 mkdir "$(SolutionDir)..\Bin\$(SolutionName)\$(OutDir)Plugins\$(ProjectName)\Content"
+xcopy "$(ProjectDir)References\*.*"  "$(SolutionDir)..\Bin\$(SolutionName)\$(OutDir)Plugins\$(ProjectName)\"
+xcopy "$(ProjectDir)References\MySql.*.dll"  "$(SolutionDir)..\Bin\$(SolutionName)\$(OutDir)"
 robocopy "$(ProjectDir)Content" "$(SolutionDir)..\Bin\$(SolutionName)\$(OutDir)Plugins\$(ProjectName)\Content" /MIR
 @REM Reset RoboCopy's exit code which is different from 0
 IF %25ERRORLEVEL%25 LSS 8 SET ERRORLEVEL=0
