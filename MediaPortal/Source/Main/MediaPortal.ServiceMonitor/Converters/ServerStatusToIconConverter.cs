@@ -49,9 +49,13 @@ namespace MediaPortal.ServiceMonitor.Converters
     {
       var serverStatus = (string) value;
       if (!string.IsNullOrEmpty(serverStatus))
-        if (serverStatus.Equals(ServiceRegistration.Get<ILocalization>().ToString("[ServerStatus.Attached]")) || 
+      {
+        if (serverStatus.Equals(ServiceRegistration.Get<ILocalization>().ToString("[ServerStatus.Attached]")) ||
             serverStatus.Equals(ServiceRegistration.Get<ILocalization>().ToString("[ServerStatus.Connected]")))
+          return "/MP2-ServiceMonitor1.ico";
+        if (serverStatus.Equals(ServiceRegistration.Get<ILocalization>().ToString("[ServerStatus.ClientConnected]")))
           return "/MP2-ServiceMonitor.ico";
+      }
       return "/MP2-ServiceMonitor0.ico";
     }
 

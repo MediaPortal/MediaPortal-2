@@ -49,12 +49,15 @@ namespace MediaPortal.ServiceMonitor.Converters
     {
       var serverStatus = (string) value;
       if (!string.IsNullOrEmpty(serverStatus))
-        if (serverStatus.Equals(ServiceRegistration.Get<ILocalization>().ToString("[ServerStatus.Attached]")) || 
-            serverStatus.Equals(ServiceRegistration.Get<ILocalization>().ToString("[ServerStatus.Connected]")))
-        		return "../../Resources/Images/connected.png";
+      {
+        if (serverStatus.Equals(ServiceRegistration.Get<ILocalization>().ToString("[ServerStatus.Attached]")) ||
+            serverStatus.Equals(ServiceRegistration.Get<ILocalization>().ToString("[ServerStatus.Connected]")) ||
+            serverStatus.Equals(ServiceRegistration.Get<ILocalization>().ToString("[ServerStatus.ClientConnected]")))
+          return "../../Resources/Images/connected.png";
         if (serverStatus.Equals(ServiceRegistration.Get<ILocalization>().ToString("[ServerStatus.Connected]")) ||
-      	    serverStatus.Equals(ServiceRegistration.Get<ILocalization>().ToString("[ServerStatus.Disconnected]")))
-      		  return "../../Resources/Images/disconnected.png";
+            serverStatus.Equals(ServiceRegistration.Get<ILocalization>().ToString("[ServerStatus.Disconnected]")))
+          return "../../Resources/Images/disconnected.png";
+      }
       return "../../Resources/Images/Info.png";
     }
 

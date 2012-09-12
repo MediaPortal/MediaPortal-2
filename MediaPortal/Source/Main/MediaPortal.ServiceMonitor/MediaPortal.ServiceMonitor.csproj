@@ -251,6 +251,9 @@
   <ItemGroup>
     <Resource Include="MP2-ServiceMonitor0.ico" />
   </ItemGroup>
+  <ItemGroup>
+    <Resource Include="MP2-ServiceMonitor1.ico" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
     <PostBuildEvent>"$(ProjectDir)postbuild.bat" "$(SolutionDir)" "$(SolutionDir)..\Bin\$(SolutionName)\bin\$(PlatformName)\$(ConfigurationName)\"</PostBuildEvent>

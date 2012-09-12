@@ -463,6 +463,10 @@ namespace MediaPortal.ServiceMonitor.ViewModel
       {
         ServiceRegistration.Get<ILogger>().Error("AppController.UpDateClients", ex);
       }
+
+      if (!Clients.Any(client => client.IsConnected)) return;
+      ServerStatus = ServiceRegistration.Get<ILocalization>().ToString("[ServerStatus.ClientConnected]");
+      ServiceRegistration.Get<ILogger>().Debug("ServerStatus: {0}", ServerStatus);
     }
 
     #endregion

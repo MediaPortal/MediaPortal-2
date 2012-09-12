@@ -5,6 +5,7 @@
   <string name="ServerStatus.Connected">Connected to Server</string>
   <string name="ServerStatus.Detached">Detached from Server</string>
   <string name="ServerStatus.Disconnected">Disconnected from Server</string>
+  <string name="ServerStatus.ClientConnected">Client(s) connected to Server</string>
   <string name="MainWindow.ServerStatus">Server Status</string>
   <string name="MainWindow.AttachedClients">Attached Clients:</string>
   <string name="ContextMenu.OpenWin">Open Win</string>
