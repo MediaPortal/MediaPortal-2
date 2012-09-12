@@ -50,7 +50,7 @@ namespace MediaPortal.ServiceMonitor.ViewModel
   {
 
     #region Constants
-    private const string SERVER_SERVICE_NAME = "MP2 Server Service"; // the name of the installed MP2 Server Service
+    private const string SERVER_SERVICE_NAME = "MP2-Server"; // the name of the installed MP2 Server Service
     protected const string AUTOSTART_REGISTER_NAME = "MP2 ServiceMonitor";
 
     #endregion
