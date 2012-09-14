@@ -90,7 +90,8 @@ namespace MediaPortal.Plugins.SlimTv.Client.TvHandler
     public IProgram GetCurrentProgram(IChannel channel)
     {
       IProgram currentProgram;
-      if (ProgramInfo != null && ProgramInfo.GetCurrentProgram(channel, out currentProgram))
+      IProgram nextProgram;
+      if (ProgramInfo != null && ProgramInfo.GetNowNextProgram(channel, out currentProgram, out nextProgram))
         return currentProgram;
 
       return null;
@@ -98,8 +99,9 @@ namespace MediaPortal.Plugins.SlimTv.Client.TvHandler
 
     public IProgram GetNextProgram(IChannel channel)
     {
+      IProgram currentProgram;
       IProgram nextProgram;
-      if (ProgramInfo != null && ProgramInfo.GetNextProgram(channel, out nextProgram))
+      if (ProgramInfo != null && ProgramInfo.GetNowNextProgram(channel, out currentProgram, out nextProgram))
         return nextProgram;
 
       return null;

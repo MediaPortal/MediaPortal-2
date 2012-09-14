@@ -69,6 +69,9 @@ namespace MediaPortal.Plugins.SlimTv.Service.UPnP
       DvStateVariable A_ARG_TYPE_Channels = new DvStateVariable("A_ARG_TYPE_Channels", new DvExtendedDataType(UPnPDtChannelList.Instance)) { SendEvents = false };
       AddStateVariable(A_ARG_TYPE_Channels);
 
+      DvStateVariable A_ARG_TYPE_Program = new DvStateVariable("A_ARG_TYPE_Program", new DvExtendedDataType(UPnPDtProgram.Instance)) { SendEvents = false };
+      AddStateVariable(A_ARG_TYPE_Program);
+
       DvStateVariable A_ARG_TYPE_Programs = new DvStateVariable("A_ARG_TYPE_Programs", new DvExtendedDataType(UPnPDtProgramList.Instance)) { SendEvents = false };
       AddStateVariable(A_ARG_TYPE_Programs);
 
@@ -125,6 +128,10 @@ namespace MediaPortal.Plugins.SlimTv.Service.UPnP
                                      });
       AddAction(getChannels);
 
+      #endregion
+
+      #region IProgramInfo members
+
       DvAction getPrograms = new DvAction(Consts.ACTION_GET_PROGRAMS, OnGetPrograms,
                              new[]
                                      {
@@ -138,6 +145,19 @@ namespace MediaPortal.Plugins.SlimTv.Service.UPnP
                                        new DvArgument("Programs", A_ARG_TYPE_Programs, ArgumentDirection.Out, false)
                                      });
       AddAction(getPrograms);
+
+      DvAction getNowNextProgram = new DvAction(Consts.ACTION_GET_NOW_NEXT_PROGRAM, OnGetNowNextProgram,
+                             new[]
+                                     {
+                                       new DvArgument("ChannelId", A_ARG_TYPE_ChannelId, ArgumentDirection.In)
+                                     },
+                             new[]
+                                     {
+                                       new DvArgument("Result", A_ARG_TYPE_Bool, ArgumentDirection.Out, true),
+                                       new DvArgument("ProgramNow", A_ARG_TYPE_Program, ArgumentDirection.Out, false),
+                                       new DvArgument("ProgramNext", A_ARG_TYPE_Program, ArgumentDirection.Out, false)
+                                     });
+      AddAction(getNowNextProgram);
 
       #endregion
     }
@@ -214,6 +234,21 @@ namespace MediaPortal.Plugins.SlimTv.Service.UPnP
       IList<IProgram> programs;
       bool result = programInfo.GetPrograms(new Channel { ChannelId = channelId }, timeFrom, timeTo, out programs);
       outParams = new List<object> { result, programs };
+      return null;
+    }
+
+    private UPnPError OnGetNowNextProgram(DvAction action, IList<object> inParams, out IList<object> outParams, CallContext context)
+    {
+      outParams = new List<object>();
+      IProgramInfo programInfo = ServiceRegistration.Get<ITvProvider>() as IProgramInfo;
+      if (programInfo == null)
+        return new UPnPError(500, "IProgramInfo service not available");
+
+      int channelId = (int) inParams[0];
+      IProgram programNow;
+      IProgram programNext;
+      bool result = programInfo.GetNowNextProgram(new Channel { ChannelId = channelId }, out programNow, out programNext);
+      outParams = new List<object> { result, programNow, programNext };
       return null;
     }
   }

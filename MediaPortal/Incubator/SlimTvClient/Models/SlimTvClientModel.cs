@@ -491,22 +491,22 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
     {
       ChannelName = channel.Name;
       IProgram currentProgram;
-      if (_tvHandler.ProgramInfo.GetCurrentProgram(channel, out currentProgram))
+      IProgram nextProgram;
+      if (_tvHandler.ProgramInfo.GetNowNextProgram(channel, out currentProgram, out nextProgram))
       {
         CurrentProgram.SetProgram(currentProgram);
         double progress = (DateTime.Now - currentProgram.StartTime).TotalSeconds /
                           (currentProgram.EndTime - currentProgram.StartTime).TotalSeconds * 100;
         _programProgressProperty.SetValue(progress);
+
+        NextProgram.SetProgram(nextProgram);
       }
       else
       {
         CurrentProgram.SetProgram(null);
+        NextProgram.SetProgram(null);
         _programProgressProperty.SetValue(100d);
       }
-
-      IProgram nextProgram;
-      if (_tvHandler.ProgramInfo.GetNextProgram(channel, out nextProgram))
-        NextProgram.SetProgram(nextProgram);
     }
 
     #endregion
@@ -633,25 +633,31 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
 
     private void UpdateProgramForChannel(IChannel channel)
     {
-      IProgram program;
-      if (_tvHandler.ProgramInfo.GetCurrentProgram(channel, out program))
-        _selectedCurrentProgramProperty.SetValue(FormatProgram(program));
-
-      if (_tvHandler.ProgramInfo.GetNextProgram(channel, out program))
-        _selectedNextProgramProperty.SetValue(FormatProgram(program));
+      IProgram currentProgram;
+      IProgram nextProgram;
+      if (_tvHandler.ProgramInfo.GetNowNextProgram(channel, out currentProgram, out nextProgram))
+      {
+        _selectedCurrentProgramProperty.SetValue(FormatProgram(currentProgram));
+        _selectedNextProgramProperty.SetValue(FormatProgram(nextProgram));
+      }
     }
 
     protected ItemsList GetNowAndNextProgramsList(IChannel channel)
     {
       ItemsList channelPrograms = new ItemsList();
-      IProgram program;
       // We do not check return code here, because CreateProgramListItem creates placeholder when no program is available
-      _tvHandler.ProgramInfo.GetCurrentProgram(channel, out program);
-      CreateProgramListItem(program, channelPrograms);
-
-      _tvHandler.ProgramInfo.GetNextProgram(channel, out program);
-      CreateProgramListItem(program, channelPrograms);
-
+      IProgram currentProgram;
+      IProgram nextProgram;
+      if (_tvHandler.ProgramInfo.GetNowNextProgram(channel, out currentProgram, out nextProgram))
+      {
+        CreateProgramListItem(currentProgram, channelPrograms);
+        CreateProgramListItem(nextProgram, channelPrograms);
+      }
+      else
+      {
+        CreateProgramListItem(null, channelPrograms);
+        CreateProgramListItem(null, channelPrograms);
+      }
       return channelPrograms;
     }
 

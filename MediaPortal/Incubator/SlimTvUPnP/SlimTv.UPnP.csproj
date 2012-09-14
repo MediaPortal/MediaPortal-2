@@ -56,6 +56,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Consts.cs" />
+    <Compile Include="DataTypes\UPnPDtProgram.cs" />
     <Compile Include="DataTypes\UPnPDtLiveTvMediaItem.cs" />
     <Compile Include="DataTypes\UPnPDtProgramList.cs" />
     <Compile Include="DataTypes\UPnPDtChannelList.cs" />

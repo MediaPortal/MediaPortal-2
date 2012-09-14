@@ -9,8 +9,6 @@ using MediaPortal.Common.Settings;
 using MediaPortal.Common.UPnP;
 using MediaPortal.Plugins.SlimTv.Interfaces;
 using MediaPortal.Plugins.SlimTv.Interfaces.Items;
-using MediaPortal.Plugins.SlimTv.Interfaces.LiveTvMediaItem;
-using MediaPortal.Plugins.SlimTv.Interfaces.ResourceProvider;
 using MediaPortal.Plugins.SlimTv.Providers.Settings;
 using MediaPortal.Plugins.SlimTv.UPnP;
 using MediaPortal.Plugins.SlimTv.UPnP.Items;
@@ -130,15 +128,41 @@ namespace MediaPortal.Plugins.SlimTv.Providers.UPnP
 
     public bool GetCurrentProgram (IChannel channel, out IProgram program)
     {
-      // TODO:
-      program = null;
-      return false;
+      IProgram programNext;
+      return GetNowNextProgram(channel, out program, out programNext);
     }
 
     public bool GetNextProgram (IChannel channel, out IProgram program)
     {
-      // TODO:
-      program = null;
+      IProgram programNow;
+      return GetNowNextProgram(channel, out programNow, out program);
+    }
+
+    public bool GetNowNextProgram(IChannel channel, out IProgram programNow, out IProgram programNext)
+    {
+      try
+      {
+        CpAction action = GetAction(Consts.ACTION_GET_NOW_NEXT_PROGRAM);
+        IList<object> inParameters = new List<object>
+            {
+              channel.ChannelId
+            };
+
+        IList<object> outParameters = action.InvokeAction(inParameters);
+        bool success = (bool) outParameters[0];
+        if (success)
+        {
+          programNow = (Program) outParameters[1];
+          programNext = (Program) outParameters[2];
+          return true;
+        }
+      }
+      catch (Exception ex)
+      {
+        NotifyException(ex);
+      }
+      programNow = null;
+      programNext = null;
       return false;
     }
 

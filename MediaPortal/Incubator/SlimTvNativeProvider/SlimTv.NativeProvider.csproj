@@ -58,7 +58,6 @@
     </Compile>
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Settings\NativeProviderSettings.cs" />
-    <Compile Include="SlimTvNativeProvider.cs" />
     <Compile Include="UPnP\NativeTvProxyRegistration.cs" />
     <Compile Include="UPnP\NativeTvProxy.cs" />
   </ItemGroup>

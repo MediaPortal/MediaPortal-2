@@ -34,20 +34,13 @@ namespace MediaPortal.Plugins.SlimTv.Interfaces
   public interface IProgramInfo
   {
     /// <summary>
-    /// Tries to get the current program for the given <paramref name="channel"/>.
+    /// Tries to get the current and next program for the given <paramref name="channel"/>.
     /// </summary>
     /// <param name="channel">Channel</param>
-    /// <param name="program">Returns program</param>
+    /// <param name="programNow">Returns current program</param>
+    /// <param name="programNext">Returns next program</param>
     /// <returns><c>true</c> if a program could be found</returns>
-    bool GetCurrentProgram(IChannel channel, out IProgram program);
-
-    /// <summary>
-    /// Tries to get the next program for the given <paramref name="channel"/>.
-    /// </summary>
-    /// <param name="channel">Channel</param>
-    /// <param name="program">Returns program</param>
-    /// <returns><c>true</c> if a program could be found</returns>
-    bool GetNextProgram(IChannel channel, out IProgram program);
+    bool GetNowNextProgram(IChannel channel, out IProgram programNow, out IProgram programNext);
 
     /// <summary>
     /// Tries to get a list of programs for the given <paramref name="channel"/> and time range.

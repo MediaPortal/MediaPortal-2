@@ -36,5 +36,6 @@ namespace MediaPortal.Plugins.SlimTv.UPnP
     public const string ACTION_GET_CHANNELGROUPS = "GetChannelGroups";
     public const string ACTION_GET_CHANNELS = "GetChannels";
     public const string ACTION_GET_PROGRAMS = "GetPrograms";
+    public const string ACTION_GET_NOW_NEXT_PROGRAM = "GetNowNextProgram";
   }
 }

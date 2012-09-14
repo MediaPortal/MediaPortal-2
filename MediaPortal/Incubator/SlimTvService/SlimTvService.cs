@@ -72,13 +72,12 @@ namespace MediaPortal.Plugins.SlimTv.Service
       {
         // Add program infos to the LiveTvMediaItem
         IProgram currentProgram;
-        if (GetCurrentProgram(channel, out currentProgram))
-          tvStream.AdditionalProperties[LiveTvMediaItem.CURRENT_PROGRAM] = currentProgram;
-
         IProgram nextProgram;
-        if (GetNextProgram(channel, out nextProgram))
+        if (GetNowNextProgram(channel, out currentProgram, out nextProgram))
+        {
+          tvStream.AdditionalProperties[LiveTvMediaItem.CURRENT_PROGRAM] = currentProgram;
           tvStream.AdditionalProperties[LiveTvMediaItem.NEXT_PROGRAM] = nextProgram;
-
+        }
         return tvStream;
       }
       return null;
@@ -90,30 +89,19 @@ namespace MediaPortal.Plugins.SlimTv.Service
       return null;
     }
 
-    public bool GetCurrentProgram(IChannel channel, out IProgram program)
+    public bool GetNowNextProgram(IChannel channel, out IProgram programNow, out IProgram programNext)
     {
+      programNow = null;
+      programNext = null;
       IProgramService programService = GlobalServiceProvider.Get<IProgramService>();
       var programs = programService.GetNowAndNextProgramsForChannel(channel.ChannelId);
-      if (programs.Any())
-      {
-        program = programs.First().ToProgram();
-        return true;
-      }
-      program = null;
-      return false;
-    }
-
-    public bool GetNextProgram(IChannel channel, out IProgram program)
-    {
-      IProgramService programService = GlobalServiceProvider.Get<IProgramService>();
-      var programs = programService.GetNowAndNextProgramsForChannel(channel.ChannelId);
-      if (programs.Count() >= 2)
-      {
-        program = programs[2].ToProgram();
-        return true;
-      }
-      program = null;
-      return false;
+      var count = programs.Count;
+      if (count >= 1)
+        programNow = programs[0].ToProgram();
+      if (count >= 2)
+        programNext = programs[1].ToProgram();
+      
+      return programNow != null || programNext != null;
     }
 
     public bool GetPrograms(IChannel channel, DateTime from, DateTime to, out IList<IProgram> programs)

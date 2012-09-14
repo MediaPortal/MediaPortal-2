@@ -15,13 +15,15 @@ namespace MediaPortal.Plugins.SlimTv.Service
           Description = tvProgram.description,
           StartTime = tvProgram.startTime,
           EndTime = tvProgram.endTime,
-          Genre = tvProgram.ProgramCategory.category
+          // TODO: Genre!
         };
     }
+
     public static IChannel ToChannel(this Mediaportal.TV.Server.TVDatabase.Entities.Channel tvChannel)
     {
       return new Channel { ChannelId = tvChannel.idChannel, Name = tvChannel.displayName };
     }
+
     public static IChannelGroup ToChannelGroup(this Mediaportal.TV.Server.TVDatabase.Entities.ChannelGroup tvGroup)
     {
       return new ChannelGroup { ChannelGroupId = tvGroup.idGroup, Name = tvGroup.groupName };
