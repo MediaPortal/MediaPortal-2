@@ -50,14 +50,16 @@ namespace MediaPortal.Plugins.SlimTv.Service
     public bool StartTimeshift(int slotIndex, IChannel channel, out MediaItem timeshiftMediaItem)
     {
       // TODO: how to get the calling client name or Guid?
-      string timeshiftFile = SwitchTVServerToChannel("NativeTvClient-" + slotIndex, channel.ChannelId);
+      string timeshiftFile = SwitchTVServerToChannel(GetUserName(slotIndex), channel.ChannelId);
       timeshiftMediaItem = CreateMediaItem(slotIndex, timeshiftFile, channel);
       return true;
     }
 
     public bool StopTimeshift(int slotIndex)
     {
-      return true;
+      IUser user;
+      IInternalControllerService control = GlobalServiceProvider.Get<IInternalControllerService>();
+      return control.StopTimeShifting(GetUserName(slotIndex), out user);
     }
 
     public MediaItem CreateMediaItem(int slotIndex, string streamUrl, IChannel channel)
@@ -218,6 +220,11 @@ namespace MediaPortal.Plugins.SlimTv.Service
       }
 
       return _tvUsers[userName];
+    }
+
+    private static string GetUserName(int slotIndex)
+    {
+      return "NativeTvClient-" + slotIndex;
     }
   }
 }
