@@ -11,6 +11,9 @@ using MediaPortal.Plugins.SlimTv.Interfaces.LiveTvMediaItem;
 using MediaPortal.Plugins.SlimTv.Interfaces.ResourceProvider;
 using Mediaportal.TV.Server.TVControl;
 using Mediaportal.TV.Server.TVControl.Interfaces.Services;
+using Mediaportal.TV.Server.TVDatabase.Entities;
+using Mediaportal.TV.Server.TVDatabase.Entities.Enums;
+using Mediaportal.TV.Server.TVDatabase.Entities.Factories;
 using Mediaportal.TV.Server.TVLibrary;
 using Mediaportal.TV.Server.TVService.Interfaces;
 using Mediaportal.TV.Server.TVService.Interfaces.Enums;
@@ -157,18 +160,43 @@ namespace MediaPortal.Plugins.SlimTv.Service
       return true;
     }
 
+    // This property applies only to client side management and is not used in server!
     public int SelectedChannelId { get; set; }
 
+    // This property applies only to client side management and is not used in server!
     public int SelectedChannelGroupId { get; set; }
 
     public bool CreateSchedule(IProgram program)
     {
-      throw new NotImplementedException();
+      IScheduleService scheduleService = GlobalServiceProvider.Get<IScheduleService>();
+      Schedule schedule = ScheduleFactory.CreateSchedule(program.ChannelId, program.Title, program.StartTime, program.EndTime);
+      scheduleService.SaveSchedule(schedule);
+      return true;
     }
 
     public bool RemoveSchedule(IProgram program)
     {
-      throw new NotImplementedException();
+      IScheduleService scheduleService = GlobalServiceProvider.Get<IScheduleService>();
+      ICanceledScheduleService canceledScheduleService = GlobalServiceProvider.Get<ICanceledScheduleService>();
+      var allSchedules = scheduleService.ListAllSchedules()
+        .Where(schedule =>
+          schedule.idChannel == program.ChannelId &&
+          schedule.startTime == program.StartTime &&
+          schedule.endTime == program.EndTime);
+      foreach (Schedule schedule in allSchedules)
+      {
+        switch (schedule.scheduleType)
+        {
+          case (int) ScheduleRecordingType.Once:
+            scheduleService.DeleteSchedule(schedule.id_Schedule);
+            break;
+          default:
+            CanceledSchedule canceledSchedule = CanceledScheduleFactory.CreateCanceledSchedule(schedule.id_Schedule, schedule.idChannel, schedule.startTime);
+            canceledScheduleService.SaveCanceledSchedule(canceledSchedule);
+            break;
+        }
+      }
+      return true;
     }
 
     public bool GetRecordingStatus(IProgram program, out RecordingStatus recordingStatus)
@@ -210,14 +238,12 @@ namespace MediaPortal.Plugins.SlimTv.Service
         ServiceRegistration.Get<ILogger>().Warn("Used user with null name");
         return null;
       }
+
       if (!_tvUsers.ContainsKey(userName) && !create)
-      {
         return null;
-      }
+
       if (!_tvUsers.ContainsKey(userName) && create)
-      {
         _tvUsers.Add(userName, new User(userName, UserType.Normal));
-      }
 
       return _tvUsers[userName];
     }
