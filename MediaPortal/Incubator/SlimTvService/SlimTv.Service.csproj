@@ -46,14 +46,26 @@
     <CodeAnalysisIgnoreBuiltInRules>false</CodeAnalysisIgnoreBuiltInRules>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Common.Utils, Version=1.2.100.0, Culture=neutral, processorArchitecture=x86" />
     <Reference Include="Mediaportal.TV.Server.Plugins.Base, Version=1.2.100.0, Culture=neutral, processorArchitecture=x86">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>References\Mediaportal.TV.Server.Plugins.Base.dll</HintPath>
     </Reference>
+    <Reference Include="Mediaportal.TV.Server.TVControl, Version=1.2.100.0, Culture=neutral, processorArchitecture=x86" />
+    <Reference Include="Mediaportal.TV.Server.TVDatabase.Entities, Version=1.0.0.0, Culture=neutral, processorArchitecture=x86">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>References\Mediaportal.TV.Server.TVDatabase.Entities.dll</HintPath>
+    </Reference>
+    <Reference Include="Mediaportal.TV.Server.TVDatabase.TVBusinessLayer, Version=1.2.100.0, Culture=neutral, processorArchitecture=x86">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>References\Mediaportal.TV.Server.TVDatabase.TVBusinessLayer.dll</HintPath>
+    </Reference>
+    <Reference Include="Mediaportal.TV.Server.TVLibrary.Interfaces, Version=1.2.100.0, Culture=neutral, processorArchitecture=x86" />
     <Reference Include="Mediaportal.TV.Server.TVLibrary.Services, Version=1.0.0.0, Culture=neutral, processorArchitecture=x86">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>References\Mediaportal.TV.Server.TVLibrary.Services.dll</HintPath>
     </Reference>
+    <Reference Include="Mediaportal.TV.Server.TVService.Interfaces, Version=1.0.0.0, Culture=neutral, processorArchitecture=x86" />
     <Reference Include="System" />
     <Reference Include="System.Configuration" />
     <Reference Include="System.Core" />
@@ -67,6 +79,7 @@
     <Compile Include="SlimTvService.cs" />
     <Compile Include="SlimTvServicePlugin.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="TvEntityExtensions.cs" />
     <Compile Include="UPnP\SlimTvServiceImpl.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -440,8 +453,14 @@
     <Content Include="References\Common.Utils.dll" />
     <Content Include="References\DirectShowLib.dll" />
     <Content Include="References\EntityFramework.dll" />
+    <Content Include="References\hauppauge.dll" />
+    <Content Include="References\hcwWinTVCI.dll" />
     <Content Include="References\Interop.SHDocVw.dll" />
+    <Content Include="References\Ionic.Zip.dll" />
+    <Content Include="References\KNCBDACTRL.dll" />
     <Content Include="References\log4net.dll" />
+    <Content Include="References\MediaPortal.Backend.dll" />
+    <Content Include="References\MediaPortal.Common.dll" />
     <Content Include="References\Mediaportal.TV.Server.Plugins.Base.dll" />
     <Content Include="References\Mediaportal.TV.Server.TVControl.dll" />
     <Content Include="References\Mediaportal.TV.Server.TVDatabase.Entities.dll" />
@@ -453,6 +472,13 @@
     <Content Include="References\Mediaportal.TV.Server.TVLibrary.Services.dll" />
     <Content Include="References\Mediaportal.TV.Server.TvLibrary.Utils.dll" />
     <Content Include="References\Mediaportal.TV.Server.TVService.Interfaces.dll" />
+    <Content Include="References\MediaPortal.Utilities.dll" />
+    <Content Include="References\MySql.Data.dll" />
+    <Content Include="References\MySql.Data.Entity.dll" />
+    <Content Include="References\StreamingServer.dll" />
+    <Content Include="References\TeVii.dll" />
+    <Content Include="References\ttBdaDrvApi_Dll.dll" />
+    <Content Include="References\ttdvbacc.dll" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\Source\Core\MediaPortal.Backend\MediaPortal.Backend.csproj">

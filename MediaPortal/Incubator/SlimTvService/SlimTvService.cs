@@ -1,13 +1,20 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Configuration;
+using System.Linq;
+using MediaPortal.Common;
+using MediaPortal.Common.Logging;
 using MediaPortal.Common.MediaManagement;
+using MediaPortal.Common.Utils;
 using MediaPortal.Plugins.SlimTv.Interfaces;
 using MediaPortal.Plugins.SlimTv.Interfaces.Items;
 using MediaPortal.Plugins.SlimTv.Interfaces.LiveTvMediaItem;
 using MediaPortal.Plugins.SlimTv.Interfaces.ResourceProvider;
-using MediaPortal.Plugins.SlimTv.UPnP.Items;
+using Mediaportal.TV.Server.TVControl;
+using Mediaportal.TV.Server.TVControl.Interfaces.Services;
 using Mediaportal.TV.Server.TVLibrary;
+using Mediaportal.TV.Server.TVService.Interfaces;
+using Mediaportal.TV.Server.TVService.Interfaces.Enums;
+using Mediaportal.TV.Server.TVService.Interfaces.Services;
 
 namespace MediaPortal.Plugins.SlimTv.Service
 {
@@ -15,6 +22,8 @@ namespace MediaPortal.Plugins.SlimTv.Service
   {
     const int MAX_WAIT_MS = 2000;
     private TvServiceThread _tvServiceThread;
+    protected readonly Dictionary<string, IUser> _tvUsers = new Dictionary<string, IUser>();
+
 
     public string Name
     {
@@ -40,8 +49,9 @@ namespace MediaPortal.Plugins.SlimTv.Service
 
     public bool StartTimeshift(int slotIndex, IChannel channel, out MediaItem timeshiftMediaItem)
     {
-      // TODO:
-      timeshiftMediaItem = CreateMediaItem(slotIndex, @"C:\temp\timeshift.ts", channel);
+      // TODO: how to get the calling client name or Guid?
+      string timeshiftFile = SwitchTVServerToChannel("NativeTvClient-" + slotIndex, channel.ChannelId);
+      timeshiftMediaItem = CreateMediaItem(slotIndex, timeshiftFile, channel);
       return true;
     }
 
@@ -71,31 +81,42 @@ namespace MediaPortal.Plugins.SlimTv.Service
 
     public IChannel GetChannel(int slotIndex)
     {
-      throw new NotImplementedException();
+      // We do not manage all client channels here in server, this feature applies only to client side management!
+      return null;
     }
 
     public bool GetCurrentProgram(IChannel channel, out IProgram program)
     {
-      // TODO:
-      program = new Program { ChannelId = channel.ChannelId, Title = "Program 1", StartTime = DateTime.Now, EndTime = DateTime.Now.AddHours(1) };
-      return true;
+      IProgramService programService = GlobalServiceProvider.Get<IProgramService>();
+      var programs = programService.GetNowAndNextProgramsForChannel(channel.ChannelId);
+      if (programs.Any())
+      {
+        program = programs.First().ToProgram();
+        return true;
+      }
+      program = null;
+      return false;
     }
 
     public bool GetNextProgram(IChannel channel, out IProgram program)
     {
-      // TODO:
-      program = new Program { ChannelId = channel.ChannelId, Title = "Program 2", StartTime = DateTime.Now.AddHours(1), EndTime = DateTime.Now.AddHours(2) };
-      return true;
+      IProgramService programService = GlobalServiceProvider.Get<IProgramService>();
+      var programs = programService.GetNowAndNextProgramsForChannel(channel.ChannelId);
+      if (programs.Count() >= 2)
+      {
+        program = programs[2].ToProgram();
+        return true;
+      }
+      program = null;
+      return false;
     }
 
     public bool GetPrograms(IChannel channel, DateTime from, DateTime to, out IList<IProgram> programs)
     {
-      // TODO:
-      programs = new List<IProgram>
-        {
-          new Program { ChannelId = 1, Title = "Program 1", StartTime = DateTime.Now, EndTime = DateTime.Now.AddHours(1)},
-          new Program { ChannelId = 1, Title = "Program 2", StartTime = DateTime.Now, EndTime = DateTime.Now.AddHours(2)}
-        };
+      IProgramService programService = GlobalServiceProvider.Get<IProgramService>();
+      programs = programService.GetProgramsByChannelAndStartEndTimes(channel.ChannelId, from, to)
+        .Select(tvProgram => tvProgram.ToProgram())
+        .ToList();
       return true;
     }
 
@@ -111,20 +132,26 @@ namespace MediaPortal.Plugins.SlimTv.Service
 
     public bool GetChannel(IProgram program, out IChannel channel)
     {
-      throw new NotImplementedException();
+      IChannelService channelService = GlobalServiceProvider.Get<IChannelService>();
+      channel = channelService.GetChannel(program.ChannelId).ToChannel();
+      return true;
     }
 
     public bool GetChannelGroups(out IList<IChannelGroup> groups)
     {
-      // TODO:
-      groups = new List<IChannelGroup> { new ChannelGroup { ChannelGroupId = 1, Name = "Native group 1" } };
+      IChannelGroupService channelGroupService = GlobalServiceProvider.Get<IChannelGroupService>();
+      groups = channelGroupService.ListAllChannelGroups()
+        .Select(tvGroup => tvGroup.ToChannelGroup())
+        .ToList();
       return true;
     }
 
     public bool GetChannels(IChannelGroup group, out IList<IChannel> channels)
     {
-      // TODO:
-      channels = new List<IChannel> { new Channel { ChannelId = 1, Name = "Das Erste HD" } };
+      IChannelGroupService channelGroupService = GlobalServiceProvider.Get<IChannelGroupService>();
+      channels = channelGroupService.GetChannelGroup(group.ChannelGroupId).GroupMaps
+        .Select(groupMap => groupMap.Channel.ToChannel())
+        .ToList();
       return true;
     }
 
@@ -145,6 +172,52 @@ namespace MediaPortal.Plugins.SlimTv.Service
     public bool GetRecordingStatus(IProgram program, out RecordingStatus recordingStatus)
     {
       throw new NotImplementedException();
+    }
+
+    private string SwitchTVServerToChannel(string userName, int channelId)
+    {
+      if (String.IsNullOrEmpty(userName))
+      {
+        ServiceRegistration.Get<ILogger>().Error("Called SwitchTVServerToChannel with empty userName");
+        throw new ArgumentNullException("userName");
+      }
+
+      IUser currentUser = UserFactory.CreateBasicUser(userName, -1);
+      ServiceRegistration.Get<ILogger>().Debug("Starting timeshifiting with username {0} on channel id {1}", userName, channelId);
+
+      IInternalControllerService control = GlobalServiceProvider.Get<IInternalControllerService>();
+
+      IVirtualCard card;
+      IUser user;
+      TvResult result = control.StartTimeShifting(currentUser.Name, channelId, out card, out user);
+      ServiceRegistration.Get<ILogger>().Debug("Tried to start timeshifting, result {0}", result);
+
+      if (result != TvResult.Succeeded)
+      {
+        // TODO: should we retry?
+        ServiceRegistration.Get<ILogger>().Error("Starting timeshifting failed with result {0}", result);
+        throw new Exception("Failed to start tv stream: " + result);
+      }
+      return card.RTSPUrl;
+    }
+
+    protected IUser GetUserByUserName(string userName, bool create = false)
+    {
+      if (userName == null)
+      {
+        ServiceRegistration.Get<ILogger>().Warn("Used user with null name");
+        return null;
+      }
+      if (!_tvUsers.ContainsKey(userName) && !create)
+      {
+        return null;
+      }
+      if (!_tvUsers.ContainsKey(userName) && create)
+      {
+        _tvUsers.Add(userName, new User(userName, UserType.Normal));
+      }
+
+      return _tvUsers[userName];
     }
   }
 }
