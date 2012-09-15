@@ -110,7 +110,7 @@ namespace MediaPortal.Plugins.SlimTv.Service
       programs = programService.GetProgramsByChannelAndStartEndTimes(channel.ChannelId, from, to)
         .Select(tvProgram => tvProgram.ToProgram())
         .ToList();
-      return true;
+      return programs.Count > 0;
     }
 
     public bool GetProgramsForSchedule(ISchedule schedule, out IList<IProgram> programs)
