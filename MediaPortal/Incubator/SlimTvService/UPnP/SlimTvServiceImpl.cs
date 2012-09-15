@@ -26,7 +26,6 @@ using System;
 using System.Collections.Generic;
 using MediaPortal.Common;
 using MediaPortal.Common.MediaManagement;
-using MediaPortal.Common.UPnP;
 using MediaPortal.Plugins.SlimTv.Interfaces;
 using MediaPortal.Plugins.SlimTv.Interfaces.Items;
 using MediaPortal.Plugins.SlimTv.UPnP;
@@ -165,7 +164,7 @@ namespace MediaPortal.Plugins.SlimTv.Service.UPnP
     private UPnPError OnStartTimeshift(DvAction action, IList<object> inParams, out IList<object> outParams, CallContext context)
     {
       outParams = new List<object>();
-      ITimeshiftControl timeshiftControl = ServiceRegistration.Get<ITvProvider>() as ITimeshiftControl;
+      ITimeshiftControlEx timeshiftControl = ServiceRegistration.Get<ITvProvider>() as ITimeshiftControlEx;
       if (timeshiftControl == null)
         return new UPnPError(500, "ITimeshiftControl service not available");
 
@@ -173,7 +172,8 @@ namespace MediaPortal.Plugins.SlimTv.Service.UPnP
       int channelId = (int) inParams[1];
 
       MediaItem timeshiftMediaItem;
-      bool result = timeshiftControl.StartTimeshift(slotIndex, new Channel { ChannelId = channelId }, out timeshiftMediaItem);
+      // We use the client's RemoteAdress as unique "user name", so we do not need to pass this argument from clients via UPnP.
+      bool result = timeshiftControl.StartTimeshift(context.RemoteAddress, slotIndex, new Channel { ChannelId = channelId }, out timeshiftMediaItem);
       outParams = new List<object> { result, timeshiftMediaItem };
       return null;
     }
@@ -181,13 +181,14 @@ namespace MediaPortal.Plugins.SlimTv.Service.UPnP
     private UPnPError OnStopTimeshift(DvAction action, IList<object> inParams, out IList<object> outParams, CallContext context)
     {
       outParams = new List<object>();
-      ITimeshiftControl timeshiftControl = ServiceRegistration.Get<ITvProvider>() as ITimeshiftControl;
+      ITimeshiftControlEx timeshiftControl = ServiceRegistration.Get<ITvProvider>() as ITimeshiftControlEx;
       if (timeshiftControl == null)
         return new UPnPError(500, "ITimeshiftControl service not available");
 
       int slotIndex = (int) inParams[0];
 
-      bool result = timeshiftControl.StopTimeshift(slotIndex);
+      // We use the client's RemoteAdress as unique "user name", so we do not need to pass this argument from clients via UPnP.
+      bool result = timeshiftControl.StopTimeshift(context.RemoteAddress, slotIndex);
       outParams = new List<object> { result };
       return null;
     }

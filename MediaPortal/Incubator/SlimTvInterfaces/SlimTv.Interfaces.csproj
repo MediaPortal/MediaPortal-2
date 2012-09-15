@@ -87,6 +87,7 @@
     <Compile Include="ITvProvider.cs" />
     <Compile Include="IChannelAndGroupInfo.cs" />
     <Compile Include="IProgramInfo.cs" />
+    <Compile Include="ITimeshiftControlEx.cs" />
     <Compile Include="LiveTvMediaItem\LiveTvMediaItem.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ResourceProvider\SlimTvMediaItemBuilder.cs" />

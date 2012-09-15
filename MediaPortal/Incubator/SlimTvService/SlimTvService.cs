@@ -21,7 +21,7 @@ using Mediaportal.TV.Server.TVService.Interfaces.Services;
 
 namespace MediaPortal.Plugins.SlimTv.Service
 {
-  public class SlimTvService : ITvProvider, ITimeshiftControl, IProgramInfo, IChannelAndGroupInfo, IScheduleControl
+  public class SlimTvService : ITvProvider, ITimeshiftControlEx, IProgramInfo, IChannelAndGroupInfo, IScheduleControl
   {
     const int MAX_WAIT_MS = 2000;
     private TvServiceThread _tvServiceThread;
@@ -52,17 +52,26 @@ namespace MediaPortal.Plugins.SlimTv.Service
 
     public bool StartTimeshift(int slotIndex, IChannel channel, out MediaItem timeshiftMediaItem)
     {
-      // TODO: how to get the calling client name or Guid?
-      string timeshiftFile = SwitchTVServerToChannel(GetUserName(slotIndex), channel.ChannelId);
-      timeshiftMediaItem = CreateMediaItem(slotIndex, timeshiftFile, channel);
-      return true;
+      throw new NotImplementedException("Not available in server side implementation");
     }
 
     public bool StopTimeshift(int slotIndex)
     {
+      throw new NotImplementedException("Not available in server side implementation");
+    }
+
+    public bool StartTimeshift(string userName, int slotIndex, IChannel channel, out MediaItem timeshiftMediaItem)
+    {
+      string timeshiftFile = SwitchTVServerToChannel(GetUserName(userName,  slotIndex), channel.ChannelId);
+      timeshiftMediaItem = CreateMediaItem(slotIndex, timeshiftFile, channel);
+      return true;
+    }
+
+    public bool StopTimeshift(string userName, int slotIndex)
+    {
       IUser user;
       IInternalControllerService control = GlobalServiceProvider.Get<IInternalControllerService>();
-      return control.StopTimeShifting(GetUserName(slotIndex), out user);
+      return control.StopTimeShifting(GetUserName(userName, slotIndex), out user);
     }
 
     public MediaItem CreateMediaItem(int slotIndex, string streamUrl, IChannel channel)
@@ -236,9 +245,9 @@ namespace MediaPortal.Plugins.SlimTv.Service
       return _tvUsers[userName];
     }
 
-    private static string GetUserName(int slotIndex)
+    private static string GetUserName(string clientName, int slotIndex)
     {
-      return "NativeTvClient-" + slotIndex;
+      return string.Format("{0}-{1}", clientName, slotIndex);
     }
   }
 }
