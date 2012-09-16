@@ -645,27 +645,20 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
     protected ItemsList GetNowAndNextProgramsList(IChannel channel)
     {
       ItemsList channelPrograms = new ItemsList();
-      // We do not check return code here, because CreateProgramListItem creates placeholder when no program is available
       IProgram currentProgram;
       IProgram nextProgram;
-      if (_tvHandler.ProgramInfo.GetNowNextProgram(channel, out currentProgram, out nextProgram))
-      {
-        CreateProgramListItem(currentProgram, channelPrograms);
-        CreateProgramListItem(nextProgram, channelPrograms);
-      }
-      else
-      {
-        CreateProgramListItem(null, channelPrograms);
-        CreateProgramListItem(null, channelPrograms);
-      }
+      // We do not check return code here. Results for currentProgram or nextProgram can be null, this is ok here, as Program will be filled with placeholder.
+      _tvHandler.ProgramInfo.GetNowNextProgram(channel, out currentProgram, out nextProgram);
+      CreateProgramListItem(currentProgram, channelPrograms);
+      CreateProgramListItem(nextProgram, channelPrograms, currentProgram);
       return channelPrograms;
     }
 
-    private static void CreateProgramListItem(IProgram program, ItemsList channelPrograms)
+    private static void CreateProgramListItem(IProgram program, ItemsList channelPrograms, IProgram previousProgram = null)
     {
       ProgramListItem item;
       if (program == null)
-        item = GetNoProgramPlaceholder();
+        item = GetNoProgramPlaceholder(previousProgram);
       else
       {
         ProgramProperties programProperties = new ProgramProperties();
@@ -676,16 +669,27 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
       channelPrograms.Add(item);
     }
 
-    private static ProgramListItem GetNoProgramPlaceholder()
+    private static ProgramListItem GetNoProgramPlaceholder(IProgram previousProgram = null)
     {
       ILocalization loc = ServiceRegistration.Get<ILocalization>();
-      DateTime today = FormatHelper.GetDay(DateTime.Now);
+      DateTime from;
+      DateTime to;
+      if (previousProgram != null)
+      {
+        from = previousProgram.EndTime;
+        to = FormatHelper.GetDay(DateTime.Now).AddDays(1);
+      }
+      else
+      {
+        from = FormatHelper.GetDay(DateTime.Now);
+        to = from.AddDays(1);
+      }
 
-      ProgramProperties programProperties = new ProgramProperties(today, today.AddDays(1))
+      ProgramProperties programProperties = new ProgramProperties(from, to)
       {
         Title = loc.ToString("[SlimTvClient.NoProgram]"),
-        StartTime = today,
-        EndTime = today.AddDays(1)
+        StartTime = from,
+        EndTime = to
       };
       return new ProgramListItem(programProperties);
     }
