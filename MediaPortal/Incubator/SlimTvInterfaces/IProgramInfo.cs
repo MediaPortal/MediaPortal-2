@@ -75,5 +75,13 @@ namespace MediaPortal.Plugins.SlimTv.Interfaces
     /// <param name="channel">Channel.</param>
     /// <returns>True if succeeded.</returns>
     bool GetChannel(IProgram program, out IChannel channel);
+
+    /// <summary>
+    /// Gets a program by its <see cref="IProgram.ProgramId"/>.
+    /// </summary>
+    /// <param name="programId">Program ID.</param>
+    /// <param name="program">Program.</param>
+    /// <returns>True if succeeded.</returns>
+    bool GetProgram(int programId, out IProgram program);
   }
 }

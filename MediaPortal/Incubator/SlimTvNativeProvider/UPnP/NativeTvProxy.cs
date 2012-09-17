@@ -210,6 +210,11 @@ namespace MediaPortal.Plugins.SlimTv.Providers.UPnP
       throw new NotImplementedException();
     }
 
+    public bool GetProgram (int programId, out IProgram program)
+    {
+      throw new NotImplementedException();
+    }
+
     public bool GetChannelGroups (out IList<IChannelGroup> groups)
     {
       groups = null;
@@ -277,17 +282,53 @@ namespace MediaPortal.Plugins.SlimTv.Providers.UPnP
 
     public bool CreateSchedule (IProgram program)
     {
-      throw new NotImplementedException();
+      try
+      {
+        CpAction action = GetAction(Consts.ACTION_CREATE_SCHEDULE);
+        IList<object> inParameters = new List<object> { program.ProgramId };
+        IList<object> outParameters = action.InvokeAction(inParameters);
+        return (bool) outParameters[0];
+      }
+      catch (Exception ex)
+      {
+        NotifyException(ex);
+        return false;
+      }
     }
 
     public bool RemoveSchedule (IProgram program)
     {
-      throw new NotImplementedException();
+      try
+      {
+        CpAction action = GetAction(Consts.ACTION_REMOVE_SCHEDULE);
+        IList<object> inParameters = new List<object> { program.ProgramId };
+        IList<object> outParameters = action.InvokeAction(inParameters);
+        return (bool) outParameters[0];
+      }
+      catch (Exception ex)
+      {
+        NotifyException(ex);
+        return false;
+      }
     }
 
     public bool GetRecordingStatus (IProgram program, out RecordingStatus recordingStatus)
     {
-      throw new NotImplementedException();
+      try
+      {
+        CpAction action = GetAction(Consts.ACTION_GET_REC_STATUS);
+        IList<object> inParameters = new List<object> { program.ProgramId };
+        IList<object> outParameters = action.InvokeAction(inParameters);
+        bool result = (bool) outParameters[0];
+        recordingStatus = (RecordingStatus) Enum.Parse(typeof (RecordingStatus), outParameters[1].ToString());
+        return result;
+      }
+      catch (Exception ex)
+      {
+        NotifyException(ex);
+        recordingStatus = RecordingStatus.None;
+        return false;
+      }
     }
 
     #region Exeption handling

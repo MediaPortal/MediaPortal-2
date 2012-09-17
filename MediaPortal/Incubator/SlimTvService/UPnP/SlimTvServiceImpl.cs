@@ -50,6 +50,9 @@ namespace MediaPortal.Plugins.SlimTv.Service.UPnP
       DvStateVariable A_ARG_TYPE_ChannelId = new DvStateVariable("A_ARG_TYPE_ChannelId", new DvStandardDataType(UPnPStandardDataType.Int)) { SendEvents = false };
       AddStateVariable(A_ARG_TYPE_ChannelId);
 
+      DvStateVariable A_ARG_TYPE_ProgramId = new DvStateVariable("A_ARG_TYPE_ProgramId", new DvStandardDataType(UPnPStandardDataType.Int)) { SendEvents = false };
+      AddStateVariable(A_ARG_TYPE_ProgramId);
+
       DvStateVariable A_ARG_TYPE_ChannelGroupId = new DvStateVariable("A_ARG_TYPE_ChannelGroupId", new DvStandardDataType(UPnPStandardDataType.Int)) { SendEvents = false };
       AddStateVariable(A_ARG_TYPE_ChannelGroupId);
 
@@ -73,6 +76,9 @@ namespace MediaPortal.Plugins.SlimTv.Service.UPnP
 
       DvStateVariable A_ARG_TYPE_Programs = new DvStateVariable("A_ARG_TYPE_Programs", new DvExtendedDataType(UPnPDtProgramList.Instance)) { SendEvents = false };
       AddStateVariable(A_ARG_TYPE_Programs);
+
+      DvStateVariable A_ARG_TYPE_RecordingStatus = new DvStateVariable("A_ARG_TYPE_RecordingStatus", new DvStandardDataType(UPnPStandardDataType.String)) { SendEvents = false };
+      AddStateVariable(A_ARG_TYPE_RecordingStatus);
 
       #endregion
 
@@ -157,6 +163,57 @@ namespace MediaPortal.Plugins.SlimTv.Service.UPnP
                                        new DvArgument("ProgramNext", A_ARG_TYPE_Program, ArgumentDirection.Out, false)
                                      });
       AddAction(getNowNextProgram);
+
+      #endregion
+
+      #region IScheduleControl members
+
+      DvAction createSchedule = new DvAction(Consts.ACTION_CREATE_SCHEDULE, OnCreateSchedule,
+                            new[]
+                                     {
+                                       new DvArgument("ProgramId", A_ARG_TYPE_ProgramId, ArgumentDirection.In),
+                                     },
+                            new[]
+                                     {
+                                       new DvArgument("Result", A_ARG_TYPE_Bool, ArgumentDirection.Out, true)
+                                     });
+      AddAction(createSchedule);
+
+      DvAction createScheduleByTime = new DvAction(Consts.ACTION_CREATE_SCHEDULE_BY_TIME, OnCreateScheduleByTime,
+                            new[]
+                                     {
+                                       new DvArgument("ChannelId", A_ARG_TYPE_ChannelId, ArgumentDirection.In),
+                                       new DvArgument("TimeFrom", A_ARG_TYPE_DateTime, ArgumentDirection.In),
+                                       new DvArgument("TimeTo", A_ARG_TYPE_DateTime, ArgumentDirection.In)
+                                     },
+                            new[]
+                                     {
+                                       new DvArgument("Result", A_ARG_TYPE_Bool, ArgumentDirection.Out, true)
+                                     });
+      AddAction(createScheduleByTime);
+
+      DvAction removeSchedule = new DvAction(Consts.ACTION_REMOVE_SCHEDULE, OnRemoveSchedule,
+                            new[]
+                                     {
+                                       new DvArgument("ProgramId", A_ARG_TYPE_ProgramId, ArgumentDirection.In),
+                                     },
+                            new[]
+                                     {
+                                       new DvArgument("Result", A_ARG_TYPE_Bool, ArgumentDirection.Out, true)
+                                     });
+      AddAction(removeSchedule);
+
+      DvAction getRecordingStatus = new DvAction(Consts.ACTION_GET_REC_STATUS, OnGetRecordingStatus,
+                            new[]
+                                     {
+                                       new DvArgument("ProgramId", A_ARG_TYPE_ProgramId, ArgumentDirection.In),
+                                     },
+                            new[]
+                                     {
+                                       new DvArgument("Result", A_ARG_TYPE_Bool, ArgumentDirection.Out, true),
+                                       new DvArgument("RecordingStatus", A_ARG_TYPE_RecordingStatus, ArgumentDirection.Out, true)
+                                     });
+      AddAction(getRecordingStatus);
 
       #endregion
     }
@@ -250,6 +307,72 @@ namespace MediaPortal.Plugins.SlimTv.Service.UPnP
       IProgram programNext;
       bool result = programInfo.GetNowNextProgram(new Channel { ChannelId = channelId }, out programNow, out programNext);
       outParams = new List<object> { result, programNow, programNext };
+      return null;
+    }
+
+    private UPnPError OnCreateSchedule(DvAction action, IList<object> inParams, out IList<object> outParams, CallContext context)
+    {
+      outParams = new List<object>();
+      IProgramInfo programInfo = ServiceRegistration.Get<ITvProvider>() as IProgramInfo;
+      IScheduleControl scheduleControl = ServiceRegistration.Get<ITvProvider>() as IScheduleControl;
+      if (programInfo == null || scheduleControl == null)
+        return new UPnPError(500, "IProgramInfo or IScheduleControl service not available");
+
+      int programId = (int) inParams[0];
+      IProgram program;
+      bool result = programInfo.GetProgram(programId, out program) && scheduleControl.CreateSchedule(program);
+
+      outParams = new List<object> { result };
+      return null;
+    }
+
+    private UPnPError OnCreateScheduleByTime(DvAction action, IList<object> inParams, out IList<object> outParams, CallContext context)
+    {
+      outParams = new List<object>();
+      IScheduleControl scheduleControl = ServiceRegistration.Get<ITvProvider>() as IScheduleControl;
+      if (scheduleControl == null)
+        return new UPnPError(500, "IProgramInfo or IScheduleControl service not available");
+
+      int channelId = (int) inParams[0];
+      DateTime startTime = (DateTime) inParams[1];
+      DateTime endTime = (DateTime) inParams[2];
+      IProgram program = new Program { ChannelId = channelId, StartTime = startTime, EndTime = endTime, Title = "Manual" }; // TODO: localize
+      bool result = scheduleControl.CreateSchedule(program);
+
+      outParams = new List<object> { result };
+      return null;
+    }
+
+    private UPnPError OnRemoveSchedule(DvAction action, IList<object> inParams, out IList<object> outParams, CallContext context)
+    {
+      outParams = new List<object>();
+      IProgramInfo programInfo = ServiceRegistration.Get<ITvProvider>() as IProgramInfo;
+      IScheduleControl scheduleControl = ServiceRegistration.Get<ITvProvider>() as IScheduleControl;
+      if (programInfo == null || scheduleControl == null)
+        return new UPnPError(500, "IProgramInfo or IScheduleControl service not available");
+
+      int programId = (int) inParams[0];
+      IProgram program;
+      bool result = programInfo.GetProgram(programId, out program) && scheduleControl.RemoveSchedule(program);
+
+      outParams = new List<object> { result };
+      return null;
+    }
+
+    private UPnPError OnGetRecordingStatus(DvAction action, IList<object> inParams, out IList<object> outParams, CallContext context)
+    {
+      outParams = new List<object>();
+      IProgramInfo programInfo = ServiceRegistration.Get<ITvProvider>() as IProgramInfo;
+      IScheduleControl scheduleControl = ServiceRegistration.Get<ITvProvider>() as IScheduleControl;
+      if (programInfo == null || scheduleControl == null)
+        return new UPnPError(500, "IProgramInfo or IScheduleControl service not available");
+
+      int programId = (int) inParams[0];
+      IProgram program;
+      RecordingStatus recordingStatus = RecordingStatus.None;
+      bool result = programInfo.GetProgram(programId, out program) && scheduleControl.GetRecordingStatus(program, out recordingStatus);
+
+      outParams = new List<object> { result, recordingStatus.ToString() };
       return null;
     }
   }

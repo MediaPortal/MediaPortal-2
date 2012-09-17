@@ -35,42 +35,6 @@ namespace MediaPortal.Plugins.SlimTv.UPnP.Items
   {
     private static XmlSerializer _xmlSerializer;
 
-    public Program()
-    {}
-
-    //public Program(WebProgramDetailed webProgram, int serverIndex)
-    //{
-    //  ServerIndex = serverIndex;
-    //  Description = webProgram.Description;
-    //  StartTime = webProgram.StartTime;
-    //  EndTime = webProgram.EndTime;
-    //  Genre = webProgram.Genre;
-    //  Title = webProgram.Title;
-    //  ChannelId = webProgram.IdChannel;
-    //  ProgramId = webProgram.Id;
-    //  RecordingStatus = GetRecordingStatus(webProgram);
-    //}
-
-    //public static RecordingStatus GetRecordingStatus(WebProgramBasic programDetailed)
-    //{
-    //  RecordingStatus recordingStatus = RecordingStatus.None;
-    //  if (programDetailed.IsScheduled)
-    //    recordingStatus |= RecordingStatus.Scheduled;
-    //  return recordingStatus;
-    //}
-
-    //public static RecordingStatus GetRecordingStatus(WebProgramDetailed programDetailed)
-    //{
-    //  RecordingStatus recordingStatus = RecordingStatus.None;
-    //  if (programDetailed.IsRecording || programDetailed.IsRecordingOnce || programDetailed.IsRecordingSeries)
-    //    recordingStatus |= RecordingStatus.Recording;
-    //  if (programDetailed.IsScheduled || programDetailed.IsRecordingOncePending)
-    //    recordingStatus |= RecordingStatus.Scheduled;
-    //  if (programDetailed.IsRecordingSeriesPending)
-    //    recordingStatus |= RecordingStatus.SeriesScheduled;
-    //  return recordingStatus;
-    //}
-
     #region IProgram Member
 
     public int ServerIndex { get; set; }

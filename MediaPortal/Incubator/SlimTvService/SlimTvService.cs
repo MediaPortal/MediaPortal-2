@@ -14,6 +14,7 @@ using Mediaportal.TV.Server.TVControl.Interfaces.Services;
 using Mediaportal.TV.Server.TVDatabase.Entities;
 using Mediaportal.TV.Server.TVDatabase.Entities.Enums;
 using Mediaportal.TV.Server.TVDatabase.Entities.Factories;
+using Mediaportal.TV.Server.TVDatabase.TVBusinessLayer.Entities;
 using Mediaportal.TV.Server.TVLibrary;
 using Mediaportal.TV.Server.TVService.Interfaces;
 using Mediaportal.TV.Server.TVService.Interfaces.Enums;
@@ -62,7 +63,7 @@ namespace MediaPortal.Plugins.SlimTv.Service
 
     public bool StartTimeshift(string userName, int slotIndex, IChannel channel, out MediaItem timeshiftMediaItem)
     {
-      string timeshiftFile = SwitchTVServerToChannel(GetUserName(userName,  slotIndex), channel.ChannelId);
+      string timeshiftFile = SwitchTVServerToChannel(GetUserName(userName, slotIndex), channel.ChannelId);
       timeshiftMediaItem = CreateMediaItem(slotIndex, timeshiftFile, channel);
       return true;
     }
@@ -109,7 +110,7 @@ namespace MediaPortal.Plugins.SlimTv.Service
         programNow = programs[0].ToProgram();
       if (count >= 2)
         programNext = programs[1].ToProgram();
-      
+
       return programNow != null || programNext != null;
     }
 
@@ -117,7 +118,7 @@ namespace MediaPortal.Plugins.SlimTv.Service
     {
       IProgramService programService = GlobalServiceProvider.Get<IProgramService>();
       programs = programService.GetProgramsByChannelAndStartEndTimes(channel.ChannelId, from, to)
-        .Select(tvProgram => tvProgram.ToProgram())
+        .Select(tvProgram => tvProgram.ToProgram(true))
         .ToList();
       return programs.Count > 0;
     }
@@ -137,6 +138,13 @@ namespace MediaPortal.Plugins.SlimTv.Service
       IChannelService channelService = GlobalServiceProvider.Get<IChannelService>();
       channel = channelService.GetChannel(program.ChannelId).ToChannel();
       return true;
+    }
+
+    public bool GetProgram(int programId, out IProgram program)
+    {
+      IProgramService programService = GlobalServiceProvider.Get<IProgramService>();
+      program = programService.GetProgram(programId).ToProgram();
+      return program != null;
     }
 
     public bool GetChannelGroups(out IList<IChannelGroup> groups)
@@ -198,7 +206,10 @@ namespace MediaPortal.Plugins.SlimTv.Service
 
     public bool GetRecordingStatus(IProgram program, out RecordingStatus recordingStatus)
     {
-      throw new NotImplementedException();
+      IProgramService programService = GlobalServiceProvider.Get<IProgramService>();
+      IProgramRecordingStatus recProgram = (IProgramRecordingStatus) programService.GetProgram(program.ProgramId).ToProgram(true);
+      recordingStatus = recProgram.RecordingStatus;
+      return true;
     }
 
     private string SwitchTVServerToChannel(string userName, int channelId)

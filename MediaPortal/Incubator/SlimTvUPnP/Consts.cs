@@ -37,5 +37,9 @@ namespace MediaPortal.Plugins.SlimTv.UPnP
     public const string ACTION_GET_CHANNELS = "GetChannels";
     public const string ACTION_GET_PROGRAMS = "GetPrograms";
     public const string ACTION_GET_NOW_NEXT_PROGRAM = "GetNowNextProgram";
+    public const string ACTION_CREATE_SCHEDULE = "CreateSchedule";
+    public const string ACTION_CREATE_SCHEDULE_BY_TIME = "CreateScheduleByTime";
+    public const string ACTION_REMOVE_SCHEDULE = "RemoveSchedule";
+    public const string ACTION_GET_REC_STATUS = "GetRecordingStatus";
   }
 }
