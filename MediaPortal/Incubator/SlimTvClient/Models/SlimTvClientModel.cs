@@ -29,14 +29,17 @@ using MediaPortal.Common;
 using MediaPortal.Common.Commands;
 using MediaPortal.Common.General;
 using MediaPortal.Common.Localization;
+using MediaPortal.Common.Threading;
 using MediaPortal.Plugins.SlimTv.Client.Helpers;
 using MediaPortal.Plugins.SlimTv.Client.Player;
 using MediaPortal.Plugins.SlimTv.Interfaces.Items;
 using MediaPortal.Plugins.SlimTv.Interfaces.LiveTvMediaItem;
+using MediaPortal.Plugins.SlimTv.UPnP.Items;
 using MediaPortal.UI.Presentation.DataObjects;
 using MediaPortal.UI.Presentation.Players;
 using MediaPortal.UI.Presentation.Workflow;
 using MediaPortal.UiComponents.SkinBase.Models;
+using Timer = System.Timers.Timer;
 
 namespace MediaPortal.Plugins.SlimTv.Client.Models
 {
@@ -621,11 +624,14 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
         // Use local variable, otherwise delegate argument is not fixed
         IChannel currentChannel = channel;
 
-        ChannelProgramListItem item = new ChannelProgramListItem(currentChannel, GetNowAndNextProgramsList(currentChannel))
+        ChannelProgramListItem item = new ChannelProgramListItem(currentChannel, null)
         {
+          Programs = new ItemsList { GetNoProgramPlaceholder(), GetNoProgramPlaceholder() },
           Command = new MethodDelegateCommand(() => Tune(currentChannel))
         };
         item.AdditionalProperties["CHANNEL"] = channel;
+        // Load programs asynchronously, this increases performance of list building
+        GetNowAndNextProgramsList(item, currentChannel);
         _channelList.Add(item);
       }
       CurrentGroupChannels.FireChange();
@@ -642,34 +648,46 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
       }
     }
 
-    protected ItemsList GetNowAndNextProgramsList(IChannel channel)
+    protected void GetNowAndNextProgramsList(ChannelProgramListItem channelItem, IChannel channel)
     {
-      ItemsList channelPrograms = new ItemsList();
-      IProgram currentProgram;
-      IProgram nextProgram;
-      // We do not check return code here. Results for currentProgram or nextProgram can be null, this is ok here, as Program will be filled with placeholder.
-      _tvHandler.ProgramInfo.GetNowNextProgram(channel, out currentProgram, out nextProgram);
-      CreateProgramListItem(currentProgram, channelPrograms);
-      CreateProgramListItem(nextProgram, channelPrograms, currentProgram);
-      return channelPrograms;
+      IThreadPool threadPool = ServiceRegistration.Get<IThreadPool>();
+      threadPool.Add(() =>
+                       {
+                         IProgram currentProgram;
+                         IProgram nextProgram;
+                         // We do not check return code here. Results for currentProgram or nextProgram can be null, this is ok here, as Program will be filled with placeholder.
+                         if (_tvHandler.ProgramInfo == null)
+                           return;
+                         _tvHandler.ProgramInfo.GetNowNextProgram(channel, out currentProgram, out nextProgram);
+                         CreateProgramListItem(currentProgram, channelItem.Programs[0]);
+                         CreateProgramListItem(nextProgram, channelItem.Programs[1], currentProgram);
+                       },
+                       QueuePriority.Low
+                     );
     }
 
-    private static void CreateProgramListItem(IProgram program, ItemsList channelPrograms, IProgram previousProgram = null)
+    private static void CreateProgramListItem(IProgram program, ListItem itemToUpdate, IProgram previousProgram = null)
     {
-      ProgramListItem item;
-      if (program == null)
-        item = GetNoProgramPlaceholder(previousProgram);
-      else
-      {
-        ProgramProperties programProperties = new ProgramProperties();
-        programProperties.SetProgram(program);
-        item = new ProgramListItem(programProperties);
-      }
+      ProgramListItem item = itemToUpdate as ProgramListItem;
+      if (item == null)
+        return;
+      item.Program.SetProgram(program ?? GetNoProgram(previousProgram));
       item.AdditionalProperties["PROGRAM"] = program;
-      channelPrograms.Add(item);
     }
 
     private static ProgramListItem GetNoProgramPlaceholder(IProgram previousProgram = null)
+    {
+      IProgram placeHolder = GetNoProgram(previousProgram);
+      ProgramProperties programProperties = new ProgramProperties(placeHolder.StartTime, placeHolder.EndTime)
+      {
+        Title = placeHolder.Title,
+        StartTime = placeHolder.StartTime,
+        EndTime = placeHolder.EndTime
+      };
+      return new ProgramListItem(programProperties);
+    }
+
+    private static IProgram GetNoProgram(IProgram previousProgram = null)
     {
       ILocalization loc = ServiceRegistration.Get<ILocalization>();
       DateTime from;
@@ -685,13 +703,12 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
         to = from.AddDays(1);
       }
 
-      ProgramProperties programProperties = new ProgramProperties(from, to)
+      return new Program
       {
         Title = loc.ToString("[SlimTvClient.NoProgram]"),
         StartTime = from,
         EndTime = to
       };
-      return new ProgramListItem(programProperties);
     }
 
     private static string FormatProgram(IProgram program)
