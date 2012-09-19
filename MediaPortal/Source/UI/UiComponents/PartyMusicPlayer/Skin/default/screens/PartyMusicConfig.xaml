@@ -34,7 +34,7 @@
           <CheckBox x:Name="UseEscapePasswordCheckBox" Content="[PartyMusicPlayer.UseEscapePassword]"
               Margin="10,10,10,0" IsChecked="{Binding Path=UseEscapePassword,Mode=TwoWay}"/>
           <TextBox Text="{Binding Path=EscapePassword,Mode=TwoWay}" Margin="10"
-              IsEnabled="{Binding UseEscapePassword}"/>
+              IsEnabled="{Binding UseEscapePassword}" Style="{ThemeResource PasswordTextBoxStyle}"/>
   
           <CheckBox x:Name="DisableScreenSaverCheckBox" Content="[PartyMusicPlayer.DisableScreenSaver]"
               Margin="10,10,10,0" IsChecked="{Binding Path=DisableScreenSaver,Mode=TwoWay}"/>
