@@ -62,6 +62,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     /// </summary>
     public int CURSOR_THICKNESS = 2;
 
+    public const char PASSWORD_CHAR = '*';
+
     #endregion
 
     #region Protected fields
@@ -72,6 +74,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     protected AbstractProperty _colorProperty;
     protected AbstractProperty _preferredTextLengthProperty;
     protected AbstractProperty _textAlignProperty;
+    protected AbstractProperty _isPasswordProperty;
     protected TextBuffer _asset;
     protected AbstractTextInputHandler _textInputHandler = null;
 
@@ -103,6 +106,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     {
       _cursorBlinkTimer = new Timer(CursorBlinkHandler);
       _textProperty = new SProperty(typeof(string), string.Empty);
+      _isPasswordProperty = new SProperty(typeof(bool), false);
       _caretIndexProperty = new SProperty(typeof(int), 0);
       _internalTextProperty = new SProperty(typeof(string), string.Empty);
       _colorProperty = new SProperty(typeof(Color), Color.Black);
@@ -119,6 +123,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     void Attach()
     {
       _textProperty.Attach(OnTextChanged);
+      _isPasswordProperty.Attach(OnTextChanged);
       _internalTextProperty.Attach(OnInternalTextChanged);
       _caretIndexProperty.Attach(OnCaretIndexChanged);
       _colorProperty.Attach(OnColorChanged);
@@ -132,6 +137,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     void Detach()
     {
       _textProperty.Detach(OnTextChanged);
+      _isPasswordProperty.Detach(OnTextChanged);
       _internalTextProperty.Detach(OnInternalTextChanged);
       _caretIndexProperty.Detach(OnCaretIndexChanged);
       _colorProperty.Detach(OnColorChanged);
@@ -152,6 +158,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       CaretIndex = tc.CaretIndex;
       Color = tc.Color;
       PreferredTextLength = tc.PreferredTextLength;
+      IsPassword = tc.IsPassword;
       Attach();
       CheckTextCursor();
     }
@@ -209,10 +216,26 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       if (_asset == null)
         AllocFont();
       else
-        _asset.Text = text;
+        _asset.Text = GetVisibleText(text);
       if (CursorState == TextCursorState.Visible)
         // A text change makes the text cursor visible at once
         SetupCursor();
+    }
+
+    protected string GetVisibleText(string clearText)
+    {
+      return IsPassword ? ToPassword(clearText) : clearText;
+    }
+
+    protected string ToPassword(string clearText)
+    {
+      const string replacedString = "";
+      return replacedString.PadRight(clearText.Length, PASSWORD_CHAR);
+    }
+
+    protected string VisibleText
+    {
+      get { return GetVisibleText(Text); }
     }
 
     protected void ToggleTextCursorState()
@@ -323,6 +346,17 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       set { _textProperty.SetValue(value); }
     }
 
+    public AbstractProperty IsPasswordProperty
+    {
+      get { return _isPasswordProperty; }
+    }
+
+    public bool IsPassword
+    {
+      get { return (bool) _isPasswordProperty.GetValue(); }
+      set { _isPasswordProperty.SetValue(value); }
+    }
+
     public AbstractProperty InternalTextProperty
     {
       get { return _internalTextProperty; }
@@ -363,7 +397,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
         // We want to select the font based on the maximum zoom height (fullscreen)
         // This means that the font will be scaled down in windowed mode, but look
         // good in full screen. 
-        _asset = new TextBuffer(GetFontFamilyOrInherited(), GetFontSizeOrInherited()) {Text = Text};
+        _asset = new TextBuffer(GetFontFamilyOrInherited(), GetFontSizeOrInherited()) { Text = VisibleText };
       }
     }
 
@@ -410,7 +444,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
           screen.ShowVirtualKeyboard(_textProperty, new VirtualKeyboardSettings
             {
                 ElementArrangeBounds = ActualBounds,
-                TextStyle = VirtualKeyboardTextStyle.None
+                TextStyle = IsPassword ? VirtualKeyboardTextStyle.PasswordText : VirtualKeyboardTextStyle.None
             });
       }
     }
@@ -419,7 +453,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     {
       AllocFont();
 
-      SizeF childSize = _asset == null ? SizeF.Empty : new SizeF(_asset.TextWidth(Text ?? string.Empty), _asset.TextHeight(1));
+      SizeF childSize = _asset == null ? SizeF.Empty : new SizeF(_asset.TextWidth(VisibleText ?? string.Empty), _asset.TextHeight(1));
 
       if (PreferredTextLength.HasValue && _asset != null)
         // We use the "W" character as the character which needs the most space in X-direction
@@ -459,7 +493,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       // Update text cursor
       if ((_cursorShapeInvalid || _cursorBrushInvalid) && CursorState == TextCursorState.Visible)
       {
-        string textBeforeCaret = Text;
+        string textBeforeCaret = VisibleText;
         textBeforeCaret = string.IsNullOrEmpty(textBeforeCaret) ? string.Empty : textBeforeCaret.Substring(0, CaretIndex);
         float caretX = _asset.TextWidth(textBeforeCaret);
         float textHeight = _asset.TextHeight(1);
