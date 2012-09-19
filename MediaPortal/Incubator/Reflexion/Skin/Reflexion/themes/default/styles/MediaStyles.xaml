@@ -146,7 +146,7 @@
 
                   <Button x:Name="AudioActiveButton" IsVisible="{Binding IsAudio}" Style="{ThemeResource AudioActiveButtonStyle}"
                         Command="{Command AudioButtonPressed}"/>
-                  
+
                 </StackPanel>
                 <!-- PlayControlsPanel -->
               </ControlTemplate>
@@ -192,7 +192,7 @@
                     <RowDefinition Height="*"/>
                   </Grid.RowDefinitions>
                   <DockPanel Grid.Column="0" Grid.Row="0" LastChildFill="true" Margin="3">
-                  
+
                     <Grid DockPanel.Dock="Center">
                       <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="*"/>
@@ -290,14 +290,16 @@
                       IsVisible="{Binding SubtitlesAvailable}"
                       Command="{Command OpenChooseSubtitleDialog}"/>
 
-                  </StackPanel> <!-- DvdButtons -->
-                  
+                  </StackPanel>
+                  <!-- DvdButtons -->
+
                   <Button x:Name="AudioActiveButton" IsVisible="{Binding IsAudio}" Style="{ThemeResource AudioActiveButtonStyle}"
                         Command="{Command AudioButtonPressed}"/>
-                 
-                </StackPanel> <!-- PlayControlsPanel -->
+
+                </StackPanel>
+                <!-- PlayControlsPanel -->
               </ControlTemplate>
-              
+
             </Control.Resources>
           </Control>
           <ControlTemplate.Triggers>
@@ -334,7 +336,7 @@
 
               <ControlTemplate x:Key="OSD_Progress_Template">
               </ControlTemplate>
-              
+
               <ControlTemplate x:Key="OSD_Controls_Template">
                 <StackPanel x:Name="PlayControlsPanel" Orientation="Horizontal" 
                   VerticalAlignment="Center" HorizontalAlignment="Center">
@@ -355,7 +357,7 @@
                 </StackPanel>
                 <!-- PlayControlsPanel -->
               </ControlTemplate>
-            </Control.Resources>            
+            </Control.Resources>
           </Control>
           <ControlTemplate.Triggers>
             <Trigger Property="IsCurrentPlayer" Value="True">
@@ -984,5 +986,119 @@
         </BindingWrapper>
       </BindingSetter.BindingWrapper>
     </BindingSetter>
+  </Style>
+
+  <!-- ************************************** Playlist ************************************************ -->
+
+  <Style x:Key="RemoveButtonStyle" TargetType="{x:Type Button}">
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate TargetType="{x:Type Button}">
+          <Grid x:Name="GrowControl" RenderTransformOrigin="0.5,0.5">
+            <Grid.ColumnDefinitions>
+              <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+              <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+            <Grid.RenderTransform>
+              <TransformGroup>
+                <ScaleTransform ScaleX="1" ScaleY="1"/>
+              </TransformGroup>
+            </Grid.RenderTransform>
+            <Control Style="{ThemeResource ButtonControlStyle}"
+                VerticalAlignment="Stretch" HorizontalAlignment="Stretch"/>
+            <Path x:Name="Cross1"
+                VerticalAlignment="Stretch" HorizontalAlignment="Stretch"
+                Margin="10" Stretch="Fill"
+                Stroke="{ThemeResource DeleteCrossColor}" StrokeThickness="2" Data="M2,2 L23,23 z"/>
+            <Path x:Name="Cross2"
+                VerticalAlignment="Stretch" HorizontalAlignment="Stretch"
+                Margin="10" Stretch="Fill"
+                Stroke="{ThemeResource DeleteCrossColor}" StrokeThickness="2" Data="M2,23 L23,2 z"/>
+          </Grid>
+          <ControlTemplate.Triggers>
+            <Trigger Property="HasFocus" Value="True">
+              <Trigger.EnterActions>
+                <BeginStoryboard x:Name="Focused_BeginStoryboard" Storyboard="{ThemeResource FocusedButtonStoryboard}"/>
+              </Trigger.EnterActions>
+              <Trigger.ExitActions>
+                <StopStoryboard BeginStoryboardName="Focused_BeginStoryboard"/>
+              </Trigger.ExitActions>
+            </Trigger>
+            <Trigger Property="IsPressed" Value="True">
+              <Trigger.EnterActions>
+                <BeginStoryboard x:Name="Pressed_BeginStoryboard" Storyboard="{ThemeResource PressedButtonStoryboard}"
+                    HandoffBehavior="TemporaryReplace"/>
+              </Trigger.EnterActions>
+              <Trigger.ExitActions>
+                <StopStoryboard BeginStoryboardName="Pressed_BeginStoryboard"/>
+              </Trigger.ExitActions>
+            </Trigger>
+          </ControlTemplate.Triggers>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
+
+  <Style x:Key="PlaylistItemContainerStyle" BasedOn="{ThemeResource DefaultItemContainerStyle}">
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate TargetType="{x:Type ListViewItem}">
+          <Button x:Name="ItemButton"
+              Style="{ThemeResource ButtonWideStyle}" Context="{Binding}"
+              VerticalAlignment="Stretch" HorizontalAlignment="Stretch"
+              Command="{DynamicResource ResourceKey=Select_Command}">
+            <Button.Triggers>
+              <Trigger Property="HasFocus" Value="True">
+                <Setter TargetName="ItemNameLabel" Property="Scroll" Value="Auto"/>
+              </Trigger>
+            </Button.Triggers>
+          </Button>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
+
+  <Style x:Key="PlaylistMoveUpButtonStyle" TargetType="{x:Type Button}" BasedOn="{ThemeResource ArrowButtonUpStyle}"/>
+
+  <Style x:Key="PlaylistMoveDownButtonStyle" TargetType="{x:Type Button}" BasedOn="{ThemeResource ArrowButtonDownStyle}"/>
+
+  <Style x:Key="EditPlaylistItemContainerStyle" BasedOn="{ThemeResource DefaultItemContainerStyle}">
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate TargetType="{x:Type ListViewItem}">
+          <Border Background="{StaticResource ButtonBackgroundFill}" CornerRadius="{ThemeResource TextBoxCornerRadius}">
+            <Grid x:Name="ParentPanel" Margin="5,2,2,2">
+              <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+              </Grid.RowDefinitions>
+              <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="Auto"/>
+              </Grid.ColumnDefinitions>
+              <ContentPresenter x:Name="PlaylistItemData" Grid.Column="0" Grid.Row="0" Margin="0,0,10,0"
+                  VerticalAlignment="Center" HorizontalAlignment="Stretch"/>
+              <Button x:Name="MoveUpButton" Grid.Column="1" Grid.Row="0" Margin="3" Width="30" Height="30"
+                  VerticalAlignment="Center" HorizontalAlignment="Center"
+                  Style="{ThemeResource PlaylistMoveUpButtonStyle}" Context="{Binding}"
+                  Command="{DynamicResource ResourceKey=MoveUp_Command}"
+                  SetFocus="{Binding Path=AdditionalProperties[IsUpButtonFocused],Mode=OneTime}"/>
+              <Button x:Name="MoveDownButton" Grid.Column="2" Grid.Row="0" Margin="3" Width="30" Height="30"
+                  VerticalAlignment="Center" HorizontalAlignment="Center"
+                  Style="{ThemeResource PlaylistMoveDownButtonStyle}" Context="{Binding}"
+                  Command="{DynamicResource ResourceKey=MoveDown_Command}"
+                  SetFocus="{Binding Path=AdditionalProperties[IsDownButtonFocused],Mode=OneTime}"/>
+              <Button x:Name="RemoveButton" Grid.Column="3" Grid.Row="0" Margin="3" Width="30" Height="30"
+                  VerticalAlignment="Center" HorizontalAlignment="Center"
+                  Style="{ThemeResource RemoveButtonStyle}" Context="{Binding}"
+                  Command="{DynamicResource ResourceKey=Remove_Command}"/>
+            </Grid>
+          </Border>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
   </Style>
 </ResourceDictionary>
