@@ -37,6 +37,18 @@
           </Grid.ColumnDefinitions>
 
           <!-- Screen and plot view -->
+          <Border Grid.Column="2" Grid.Row="0" x:Name="FanartBorderShadow" CornerRadius="20" BorderThickness="2" Width="820" Height="570" Background="#FF404040">
+            <Border.RenderTransform>
+              <TransformGroup>
+                <TranslateTransform X="-15" />
+                <ScaleTransform ScaleX="1.07" ScaleY="1.035"/>
+              </TransformGroup>
+            </Border.RenderTransform>
+            <Border.Effect>
+              <ZoomBlurEffect/>
+            </Border.Effect>
+          </Border>
+
           <Border Grid.Column="2" Grid.Row="0" x:Name="FanartBorder" BorderBrush="#000000" CornerRadius="20" BorderThickness="2" Width="820" Height="570" Background="#E4000000">
             <Border.RenderTransform>
               <TranslateTransform X="-20"/>
@@ -69,6 +81,18 @@
           </Border>
 
           <!-- Poster view -->
+          <Border Grid.Column="1" Grid.Row="0" x:Name="CoverBorderShadow" CornerRadius="20" BorderThickness="2" Width="460" Height="665" Background="#FF404040">
+            <Border.RenderTransform>
+              <TransformGroup>
+                <TranslateTransform Y="5"/>
+                <ScaleTransform ScaleX="1.032" ScaleY="1.025"/>
+              </TransformGroup>
+            </Border.RenderTransform>
+            <Border.Effect>
+              <ZoomBlurEffect/>
+            </Border.Effect>
+          </Border>
+
           <Border Grid.Column="1" Grid.Row="0" x:Name="CoverBorder" BorderBrush="#000000" CornerRadius="20" BorderThickness="2" Width="460" Height="665" Background="#E4000000">
             <Image VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Stretch="UniformToFill" Margin="15">
               <Image.Source>
@@ -79,10 +103,22 @@
                 fanart:MaxWidth="500" fanart:MaxHeight="660"/>
               </Image.Source>
             </Image>
-            
+
           </Border>
 
           <!-- Itemslist -->
+          <Border Grid.Column="0" Grid.Row="0" x:Name="ListBorderShadow" CornerRadius="20" BorderThickness="2" Width="560" Height="750" Background="#FF404040">
+            <Border.RenderTransform>
+              <TransformGroup>
+                <TranslateTransform X="10"/>
+                <ScaleTransform ScaleX="1.024" ScaleY="1.02"/>
+              </TransformGroup>
+            </Border.RenderTransform>
+            <Border.Effect>
+              <ZoomBlurEffect BlurAmount="0.1"/>
+            </Border.Effect>
+          </Border>
+
           <Border Grid.Column="0" Grid.Row="0" x:Name="ListBorder" BorderBrush="#000000" CornerRadius="20" BorderThickness="2" Width="560" Height="750" Background="#E4000000">
             <Border.RenderTransform>
               <TranslateTransform X="20"/>
@@ -106,7 +142,7 @@
               HorizontalAlignment="Center" VerticalAlignment="Center" Wrap="true"
               Content="{Binding ListHint}" Color="{ThemeResource HintTextColor}"/>
             </Grid>
-            
+
           </Border>
 
           <Label IsVisible="{Binding !IsItemsValid}"
