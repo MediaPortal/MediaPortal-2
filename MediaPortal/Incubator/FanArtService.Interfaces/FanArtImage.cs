@@ -30,6 +30,7 @@ using System.Xml;
 using System.Xml.Serialization;
 using MediaPortal.Common;
 using MediaPortal.Common.PathManager;
+using MediaPortal.Utilities.Graphics;
 
 namespace MediaPortal.Extensions.UserServices.FanArtService.Interfaces
 {

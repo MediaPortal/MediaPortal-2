@@ -28,9 +28,9 @@
 using System;
 using System.ComponentModel;
 using System.Drawing;
-using System.Drawing.Drawing2D;
 using System.Threading;
 using System.Windows.Forms;
+using MediaPortal.Utilities.Graphics;
 using Timer = System.Windows.Forms.Timer;
 
 namespace MediaPortal.Utilities.Screens
@@ -251,15 +251,8 @@ namespace MediaPortal.Utilities.Screens
         return;
       Size screen = Screen.PrimaryScreen.Bounds.Size;
       if (ScaleToFullscreen && (screen.Width != backgroundImage.Width || screen.Height != backgroundImage.Height))
-      {
-        Bitmap scaledImage = new Bitmap(screen.Width, screen.Height);
-        using (Graphics g = Graphics.FromImage(scaledImage))
-        {
-          g.InterpolationMode = InterpolationMode.HighQualityBicubic;
-          g.DrawImage(backgroundImage, 0, 0, screen.Width, screen.Height);
-        }
-        backgroundImage = scaledImage;
-      }
+        backgroundImage = ImageUtilities.ResizeImageExact(backgroundImage, screen.Width, screen.Height);
+
       BackgroundImage = backgroundImage;
       ClientSize = backgroundImage.Size;
     }

@@ -24,6 +24,7 @@
 
 using System;
 using System.Drawing;
+using System.Drawing.Imaging;
 using System.IO;
 using System.Threading;
 using MediaPortal.Common;
@@ -37,6 +38,7 @@ using MediaPortal.UI.Presentation.Players;
 using MediaPortal.UI.SkinEngine.Players;
 using MediaPortal.UI.SkinEngine.SkinManagement;
 using MediaPortal.Utilities;
+using MediaPortal.Utilities.Graphics;
 using SlimDX.Direct3D9;
 using RightAngledRotation = MediaPortal.UI.Presentation.Players.RightAngledRotation;
 
@@ -48,6 +50,11 @@ namespace MediaPortal.UI.Players.Image
 
     public const string STR_PLAYER_ID = "9B1B6861-1757-40b2-9227-98A36D6CC9D7";
     public static readonly Guid PLAYER_ID = new Guid(STR_PLAYER_ID);
+
+    /// <summary>
+    /// Defines the maximum size that is used for rendering image textures.
+    /// </summary>
+    public const int MAX_TEXTURE_DIMENSION = 2048;
 
     protected static readonly TimeSpan TS_INFINITE = TimeSpan.FromMilliseconds(-1);
 
@@ -238,8 +245,9 @@ namespace MediaPortal.UI.Players.Image
         if (fsra == null)
           return;
         using (Stream stream = fsra.OpenRead())
-          texture = Texture.FromStream(SkinContext.Device, stream, (int) stream.Length, 0, 0, 1, Usage.None,
-              Format.A8R8G8B8, Pool.Default, Filter.None, Filter.None, 0, out imageInformation);
+        using (Stream tmpImageStream = ImageUtilities.ResizeImage(stream, ImageFormat.MemoryBmp, MAX_TEXTURE_DIMENSION, MAX_TEXTURE_DIMENSION))
+          texture = Texture.FromStream(SkinContext.Device, tmpImageStream, (int) tmpImageStream.Length, 0, 0, 1, Usage.None,
+            Format.A8R8G8B8, Pool.Default, Filter.None, Filter.None, 0, out imageInformation);
       }
       lock (_syncObj)
       {
