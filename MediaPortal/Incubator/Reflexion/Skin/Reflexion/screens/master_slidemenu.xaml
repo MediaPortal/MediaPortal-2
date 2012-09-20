@@ -123,7 +123,8 @@ Parameters which have to be accessible by a DynamicResource lookup:
 
         </Grid>
 
-        <KeyBinding Key="F12" Command="{Command Source={StaticResource MenuModel}, Path=ToggleMenu}"/>
+        <KeyBinding Key="Info" Command="{Command Source={StaticResource MenuModel}, Path=ToggleMenu}"/>
+        <KeyBinding Key="Escape" Command="{Command Source={StaticResource MenuModel}, Path=ToggleMenu}" IsEnabled="{Binding Source={StaticResource MenuModel},Path=IsMenuOpen}"/>
       
       </Grid>
     </ControlTemplate>
