@@ -99,6 +99,7 @@ Parameters which have to be accessible by a DynamicResource lookup:
               </DataTrigger.ExitActions>
 
               <!-- Test: Set focus to opened menu (not working!) -->
+              <Setter TargetName="MainMenu" Property="SetFocusPrio" Value="Highest" />
               <Setter TargetName="MainMenu" Property="SetFocus" Value="True" />
               <!-- Enable ListView to allow focusing buttons-->
               <Setter TargetName="MainMenu" Property="IsEnabled" Value="True" />

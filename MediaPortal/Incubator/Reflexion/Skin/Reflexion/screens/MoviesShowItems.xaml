@@ -125,6 +125,14 @@
             </Border.RenderTransform>
 
             <Grid HorizontalAlignment="Stretch" VerticalAlignment="Stretch" IsVisible="{Binding IsItemsValid}">
+              <Grid.Resources>
+                <Model x:Key="MenuModel" Id="9E9D0CD9-4FDB-4c0f-A0C4-F356E151BDE0"/>
+              </Grid.Resources>
+              <Grid.Triggers>
+                <DataTrigger Binding="{Binding Source={StaticResource MenuModel},Path=IsMenuOpen}" Value="False">
+                  <Setter TargetName="MediaItemsList" Property="SetFocusPrio" Value="RestoreState" />
+                </DataTrigger>
+              </Grid.Triggers>
               <Grid.RowDefinitions>
                 <RowDefinition Height="*"/>
               </Grid.RowDefinitions>
@@ -132,15 +140,15 @@
                 <ColumnDefinition Width="*"/>
               </Grid.ColumnDefinitions>
               <ListView x:Name="MediaItemsList" Style="{ThemeResource MoviesListViewStyle}" ItemsSource="{Binding Items}"
-              HorizontalAlignment="Stretch" VerticalAlignment="Stretch" IsVisible="{Binding ShowList}" Margin="10">
+                HorizontalAlignment="Stretch" VerticalAlignment="Stretch" IsVisible="{Binding ShowList}" Margin="10">
                 <ListView.Resources>
                   <Command x:Key="Menu_Command" Source="{StaticResource MediaModel}" Path="Select"
                   Parameters="{LateBoundValue BindingValue={Binding}}"/>
                 </ListView.Resources>
               </ListView>
               <Label IsVisible="{Binding ShowListHint}"
-              HorizontalAlignment="Center" VerticalAlignment="Center" Wrap="true"
-              Content="{Binding ListHint}" Color="{ThemeResource HintTextColor}"/>
+                HorizontalAlignment="Center" VerticalAlignment="Center" Wrap="true"
+                Content="{Binding ListHint}" Color="{ThemeResource HintTextColor}"/>
             </Grid>
 
           </Border>
