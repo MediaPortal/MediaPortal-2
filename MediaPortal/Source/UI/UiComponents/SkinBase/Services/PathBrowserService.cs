@@ -49,6 +49,7 @@ namespace MediaPortal.UiComponents.SkinBase.Services
     protected AbstractProperty _isChoosenPathValidProperty = new WProperty(typeof(bool), false);
     protected AbstractProperty _choosenResourcePathDisplayNameProperty = new WProperty(typeof(string), null);
     protected AbstractProperty _headerTextProperty = new WProperty(typeof(string), null);
+    protected AbstractProperty _showSystemResourcesProperty = new WProperty(typeof(bool), false);
 
     protected Guid _dialogHandle = Guid.Empty;
     protected Guid _dialogInstanceId = Guid.Empty;
@@ -73,6 +74,17 @@ namespace MediaPortal.UiComponents.SkinBase.Services
     {
       UpdateChoosenResourcePath();
       UpdateIsChoosenPathValid();
+    }
+
+    public AbstractProperty ShowSystemResourcesProperty
+    {
+      get { return _showSystemResourcesProperty; }
+    }
+
+    public bool ShowSystemResources
+    {
+      get { return (bool) _showSystemResourcesProperty.GetValue(); }
+      set { _showSystemResourcesProperty.SetValue(value); }
     }
 
     public Guid DialogHandle
@@ -291,7 +303,7 @@ namespace MediaPortal.UiComponents.SkinBase.Services
       {
         using (ra)
         {
-          ICollection<IFileSystemResourceAccessor> res = FileSystemResourceNavigator.GetChildDirectories(ra);
+          ICollection<IFileSystemResourceAccessor> res = FileSystemResourceNavigator.GetChildDirectories(ra, ShowSystemResources);
           if (res != null)
             foreach (IFileSystemResourceAccessor childAccessor in res)
               using(childAccessor)
@@ -319,7 +331,7 @@ namespace MediaPortal.UiComponents.SkinBase.Services
       {
         using (ra)
         {
-          ICollection<IFileSystemResourceAccessor> res = FileSystemResourceNavigator.GetFiles(ra);
+          ICollection<IFileSystemResourceAccessor> res = FileSystemResourceNavigator.GetFiles(ra, ShowSystemResources);
           if (res != null)
             foreach (IFileSystemResourceAccessor fileAccessor in res)
               using(fileAccessor)
@@ -351,12 +363,12 @@ namespace MediaPortal.UiComponents.SkinBase.Services
 
     #region IPathBrowser implementation
 
-    public Guid ShowPathBrowser(string headerText, bool enumerateFiles, ValidatePathDlgt validatePathDlgt)
+    public Guid ShowPathBrowser(string headerText, bool enumerateFiles, bool showSystemResources, ValidatePathDlgt validatePathDlgt)
     {
-      return ShowPathBrowser(headerText, enumerateFiles, null, validatePathDlgt);
+      return ShowPathBrowser(headerText, enumerateFiles, showSystemResources, null, validatePathDlgt);
     }
 
-    public Guid ShowPathBrowser(string headerText, bool enumerateFiles, ResourcePath initialPath, ValidatePathDlgt validatePathDlgt)
+    public Guid ShowPathBrowser(string headerText, bool enumerateFiles, bool showSystemResources, ResourcePath initialPath, ValidatePathDlgt validatePathDlgt)
     {
       ChoosenResourcePath = null;
       UpdateResourceProviderPathTree();
@@ -365,6 +377,7 @@ namespace MediaPortal.UiComponents.SkinBase.Services
       _dialogAccepted = false;
       _enumerateFiles = enumerateFiles;
       _validatePathDlgt = validatePathDlgt;
+      ShowSystemResources = showSystemResources;
 
       IScreenManager screenManager = ServiceRegistration.Get<IScreenManager>();
       Guid? dialogInstanceId = screenManager.ShowDialog(Consts.DIALOG_PATH_BROWSER, OnDialogClosed);

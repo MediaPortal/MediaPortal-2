@@ -80,12 +80,12 @@ namespace MediaPortal.Common.Services.ResourceAccess
 
     #region IResourceMountingService implementation
 
-    public char? DriveLetter
+    public ResourcePath RootPath
     {
       get
       {
         lock (_syncObj)
-          return _dokanExecutor == null ? new char?() : _dokanExecutor.DriveLetter;
+          return _dokanExecutor == null ? null : LocalFsResourceProviderBase.ToResourcePath(_dokanExecutor.DriveLetter + ":\\");
       }
     }
 
@@ -125,15 +125,23 @@ namespace MediaPortal.Common.Services.ResourceAccess
       _dokanExecutor = null;
     }
 
+    public bool IsVirtualResource(ResourcePath rp)
+    {
+      if (rp == null)
+        return false;
+      ResourcePath rootPath = RootPath;
+      return rootPath != null && rp.Serialize().StartsWith(rootPath.Serialize());
+    }
+
     public string CreateRootDirectory(string rootDirectoryName)
     {
       lock (_syncObj)
       {
-        if (_dokanExecutor == null)
+        ResourcePath rootPath = RootPath;
+        if (rootPath == null)
           return null;
-        char driveLetter = _dokanExecutor.DriveLetter;
         _dokanExecutor.RootDirectory.AddResource(rootDirectoryName, new VirtualRootDirectory(rootDirectoryName));
-        return Path.Combine(driveLetter + ":\\", rootDirectoryName);
+        return ResourcePathHelper.Combine(rootPath.Serialize(), rootDirectoryName);
       }
     }
 

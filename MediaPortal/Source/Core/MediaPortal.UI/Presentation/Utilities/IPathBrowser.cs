@@ -43,7 +43,7 @@ namespace MediaPortal.UI.Presentation.Utilities
   /// </remarks>
   public interface IPathBrowser
   {
-    Guid ShowPathBrowser(string headerText, bool enumerateFiles, ValidatePathDlgt validatePathDlgt);
-    Guid ShowPathBrowser(string headerText, bool enumerateFiles, ResourcePath initialPath, ValidatePathDlgt validatePathDlgt);
+    Guid ShowPathBrowser(string headerText, bool enumerateFiles, bool showSystemResources, ValidatePathDlgt validatePathDlgt);
+    Guid ShowPathBrowser(string headerText, bool enumerateFiles, bool showSystemResources, ResourcePath initialPath, ValidatePathDlgt validatePathDlgt);
   }
 }

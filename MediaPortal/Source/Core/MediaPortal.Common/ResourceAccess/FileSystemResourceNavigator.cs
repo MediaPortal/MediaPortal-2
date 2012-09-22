@@ -44,22 +44,41 @@ namespace MediaPortal.Common.ResourceAccess
     /// of that archive, this method will return the resource accessors for directories "A" and "C".
     /// </remarks>
     /// <param name="directoryAccessor">Directory resource accessor to get all child directories for.</param>
+    /// <param name="showSystemResources">If set to <c>true</c>, system resources like the virtual drives and directories of the
+    /// <see cref="IResourceMountingService"/> will also be returned, else removed from the result value.</param>
     /// <returns>Collection of directory accessors for all native and virtual child directories or <c>null</c>,
     /// if the given <paramref name="directoryAccessor"/> is not a <see cref="IFileSystemResourceAccessor"/> and
     /// if there is no chained resource provider to unfold the given directory.</returns>
-    public static ICollection<IFileSystemResourceAccessor> GetChildDirectories(IResourceAccessor directoryAccessor)
+    public static ICollection<IFileSystemResourceAccessor> GetChildDirectories(IResourceAccessor directoryAccessor, bool showSystemResources)
     {
+      IResourceMountingService resourceMountingService = ServiceRegistration.Get<IResourceMountingService>();
       IResourceAccessor chainedResourceAccesor; // Needed in multiple source locations, that's why we declare it here
       if (directoryAccessor is IFileSystemResourceAccessor)
       {
         IFileSystemResourceAccessor dirFsra = (IFileSystemResourceAccessor) directoryAccessor;
         ICollection<IFileSystemResourceAccessor> childDirectories = dirFsra.GetChildDirectories();
-        ICollection<IFileSystemResourceAccessor> result = childDirectories == null ?
-            new List<IFileSystemResourceAccessor>() : new List<IFileSystemResourceAccessor>(childDirectories);
+        ICollection<IFileSystemResourceAccessor> result = new List<IFileSystemResourceAccessor>();
+        if (childDirectories != null)
+          // Directories are maybe filtered and then just added
+          foreach (IFileSystemResourceAccessor childDirectoryAccessor in childDirectories)
+          {
+            if (!showSystemResources && resourceMountingService.IsVirtualResource(childDirectoryAccessor.CanonicalLocalResourcePath))
+            {
+              childDirectoryAccessor.Dispose();
+              continue;
+            }
+            result.Add(childDirectoryAccessor);
+          }
         ICollection<IFileSystemResourceAccessor> files = dirFsra.GetFiles();
         if (files != null)
+          // For files, we try to chain up chained resource providers
           foreach (IFileSystemResourceAccessor fileAccessor in files)
           {
+            if (!showSystemResources && resourceMountingService.IsVirtualResource(fileAccessor.CanonicalLocalResourcePath))
+            {
+              fileAccessor.Dispose();
+              continue;
+            }
             if (TryUnfold(fileAccessor, out chainedResourceAccesor))
             {
               IFileSystemResourceAccessor chainedFsra = chainedResourceAccesor as IFileSystemResourceAccessor;
@@ -99,15 +118,32 @@ namespace MediaPortal.Common.ResourceAccess
     /// Returns all files in the given directory.
     /// </summary>
     /// <remarks>
-    /// This method simply returns 
+    /// This method simply returns the files files of the given <paramref name="directoryAccessor"/>, filtered
+    /// if <paramref name="showSystemResources"/> is set to <c>true</c>.
     /// </remarks>
     /// <param name="directoryAccessor">Directory resource accessor to get all files for.</param>
+    /// <param name="showSystemResources">If set to <c>true</c>, system resources like the virtual drives and directories of the
+    /// <see cref="IResourceMountingService"/> will also be returned, else removed from the result value.</param>
     /// <returns>Collection of accessors for all files or <c>null</c>,
     /// if the given <paramref name="directoryAccessor"/> is not a <see cref="IFileSystemResourceAccessor"/>.</returns>
-    public static ICollection<IFileSystemResourceAccessor> GetFiles(IResourceAccessor directoryAccessor)
+    public static ICollection<IFileSystemResourceAccessor> GetFiles(IResourceAccessor directoryAccessor, bool showSystemResources)
     {
-      if (directoryAccessor is IFileSystemResourceAccessor)
-        return ((IFileSystemResourceAccessor) directoryAccessor).GetFiles();
+      IResourceMountingService resourceMountingService = ServiceRegistration.Get<IResourceMountingService>();
+      IFileSystemResourceAccessor directoryFsAccessor = directoryAccessor as IFileSystemResourceAccessor;
+      if (directoryFsAccessor != null)
+      {
+        ICollection<IFileSystemResourceAccessor> result = new List<IFileSystemResourceAccessor>();
+        foreach (IFileSystemResourceAccessor fileAccessor in directoryFsAccessor.GetFiles())
+        {
+          if (!showSystemResources && resourceMountingService.IsVirtualResource(fileAccessor.CanonicalLocalResourcePath))
+          {
+            fileAccessor.Dispose();
+            continue;
+          }
+          result.Add(fileAccessor);
+        }
+        return result;
+      }
       return null;
     }
 

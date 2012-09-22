@@ -340,7 +340,7 @@ namespace MediaPortal.Common.Services.ResourceAccess
         return new UPnPError(600, "The given path is not accessible");
       using (ra)
       {
-        ICollection<IFileSystemResourceAccessor> res = FileSystemResourceNavigator.GetChildDirectories(ra);
+        ICollection<IFileSystemResourceAccessor> res = FileSystemResourceNavigator.GetChildDirectories(ra, false);
         IList<ResourcePathMetadata> result = null;
         if (res != null)
         {
@@ -373,7 +373,7 @@ namespace MediaPortal.Common.Services.ResourceAccess
         return new UPnPError(600, "The given path is not accessible");
       using (ra)
       {
-        ICollection<IFileSystemResourceAccessor> res = FileSystemResourceNavigator.GetFiles(ra);
+        ICollection<IFileSystemResourceAccessor> res = FileSystemResourceNavigator.GetFiles(ra, false);
         IList<ResourcePathMetadata> result = null;
         if (res != null)
         {

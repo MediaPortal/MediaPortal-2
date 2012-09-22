@@ -420,7 +420,7 @@ namespace MediaPortal.Common.Services.MediaManagement
           }
         }
         CheckImportStillRunning(importJob.State);
-        ICollection<IFileSystemResourceAccessor> files = FileSystemResourceNavigator.GetFiles(directoryAccessor);
+        ICollection<IFileSystemResourceAccessor> files = FileSystemResourceNavigator.GetFiles(directoryAccessor, false);
         if (files != null)
           foreach (IFileSystemResourceAccessor fileAccessor in files)
             using (fileAccessor)
@@ -593,7 +593,7 @@ namespace MediaPortal.Common.Services.MediaManagement
                   // Add subdirectories in front of work queue
                   lock (importJob.SyncObj)
                   {
-                    ICollection<IFileSystemResourceAccessor> directories = FileSystemResourceNavigator.GetChildDirectories(fsra);
+                    ICollection<IFileSystemResourceAccessor> directories = FileSystemResourceNavigator.GetChildDirectories(fsra, false);
                     if (directories != null)
                       foreach (IFileSystemResourceAccessor childDirectory in directories)
                         importJob.PendingResources.Insert(0, new PendingImportResource(currentDirectoryId.Value, childDirectory));

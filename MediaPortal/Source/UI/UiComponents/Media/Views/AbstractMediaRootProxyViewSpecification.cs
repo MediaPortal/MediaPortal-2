@@ -93,7 +93,7 @@ namespace MediaPortal.UiComponents.Media.Views
       }
       while (true)
       {
-        ICollection<IFileSystemResourceAccessor> children = FileSystemResourceNavigator.GetChildDirectories(current);
+        ICollection<IFileSystemResourceAccessor> children = FileSystemResourceNavigator.GetChildDirectories(current, false);
         current.Dispose();
         current = null;
         if (children != null)

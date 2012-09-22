@@ -337,7 +337,7 @@ namespace MediaPortal.UiComponents.Utilities.Models
     {
       string importFile = ImportFile;
       string initialPath = string.IsNullOrEmpty(importFile) ? null : DosPathHelper.GetDirectory(importFile);
-      Guid dialogHandle = ServiceRegistration.Get<IPathBrowser>().ShowPathBrowser(Consts.RES_CHOOSE_IMPORT_FILE_DIALOG_HEADER, true,
+      Guid dialogHandle = ServiceRegistration.Get<IPathBrowser>().ShowPathBrowser(Consts.RES_CHOOSE_IMPORT_FILE_DIALOG_HEADER, true, false,
           string.IsNullOrEmpty(initialPath) ? null : LocalFsResourceProviderBase.ToResourcePath(initialPath),
           path =>
             {

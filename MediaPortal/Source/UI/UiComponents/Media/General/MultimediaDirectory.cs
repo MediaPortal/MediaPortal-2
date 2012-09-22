@@ -148,12 +148,12 @@ namespace MediaPortal.UiComponents.Media.General
     public static void AddLocalMediaItemsRecursive(IFileSystemResourceAccessor directoryRA, ICollection<MediaItem> mediaItems,
         IEnumerable<Guid> metadataExtractorIds, IMediaAccessor mediaAccessor)
     {
-      ICollection<IFileSystemResourceAccessor> directoryRAs = FileSystemResourceNavigator.GetChildDirectories(directoryRA);
+      ICollection<IFileSystemResourceAccessor> directoryRAs = FileSystemResourceNavigator.GetChildDirectories(directoryRA, false);
       if (directoryRAs != null)
         foreach (IFileSystemResourceAccessor subDirectoryRA in directoryRAs)
           using (subDirectoryRA)
             AddLocalMediaItemsRecursive(subDirectoryRA, mediaItems, metadataExtractorIds, mediaAccessor);
-      ICollection<IFileSystemResourceAccessor> fileRAs = FileSystemResourceNavigator.GetFiles(directoryRA);
+      ICollection<IFileSystemResourceAccessor> fileRAs = FileSystemResourceNavigator.GetFiles(directoryRA, false);
       if (fileRAs != null)
         foreach (IFileSystemResourceAccessor fileRA in fileRAs)
           using (fileRA)

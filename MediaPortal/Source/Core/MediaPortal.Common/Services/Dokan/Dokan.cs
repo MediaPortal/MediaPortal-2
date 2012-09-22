@@ -44,6 +44,11 @@ namespace MediaPortal.Common.Services.Dokan
     public static string VOLUME_LABEL = "MediaPortal 2 resource access";
 
     /// <summary>
+    /// Drive format that is returned by <see cref="DriveInfo.DriveFormat"/> for Dokan drives.
+    /// </summary>
+    public static string DOKAN_FORMAT = "DOKAN";
+
+    /// <summary>
     /// Timeout for the drive check before we assume the drive is an orphaned DOKAN drive.
     /// </summary>
     protected const int DRIVE_TIMEOUT_MS = 5000;
@@ -114,7 +119,7 @@ namespace MediaPortal.Common.Services.Dokan
           {
             DriveInfo driveInfo = new DriveInfo(driveLetter+":");
             // Check the IsReady property to avoid DriveNotFoundException
-            result = driveInfo.IsReady && driveInfo.DriveFormat == "DOKAN";
+            result = driveInfo.IsReady && driveInfo.DriveFormat == DOKAN_FORMAT;
           }, DRIVE_TIMEOUT_MS);
       }
       catch (TimeoutException)

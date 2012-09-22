@@ -141,7 +141,7 @@ namespace MediaPortal.UiComponents.Media.Views
       using (baseResourceAccessor)
       {
         // Add all items at the specified path
-        ICollection<IFileSystemResourceAccessor> files = FileSystemResourceNavigator.GetFiles(baseResourceAccessor);
+        ICollection<IFileSystemResourceAccessor> files = FileSystemResourceNavigator.GetFiles(baseResourceAccessor, false);
         if (files != null)
           foreach (IFileSystemResourceAccessor childAccessor in files)
             using (childAccessor)
@@ -155,7 +155,7 @@ namespace MediaPortal.UiComponents.Media.Views
               {
                 ServiceRegistration.Get<ILogger>().Warn("LocalDirectoryViewSpecification: Error creating local media item for '{0}'", e, childAccessor);
               }
-        ICollection<IFileSystemResourceAccessor> directories = FileSystemResourceNavigator.GetChildDirectories(baseResourceAccessor);
+        ICollection<IFileSystemResourceAccessor> directories = FileSystemResourceNavigator.GetChildDirectories(baseResourceAccessor, false);
         if (directories != null)
           foreach (IFileSystemResourceAccessor childAccessor in directories)
             using (childAccessor)

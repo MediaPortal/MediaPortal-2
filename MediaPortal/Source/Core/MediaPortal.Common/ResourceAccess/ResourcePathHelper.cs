@@ -48,6 +48,11 @@ namespace MediaPortal.Common.ResourceAccess
   /// </remarks>
   public static class ResourcePathHelper
   {
+    public static ResourcePath Combine(ResourcePath rootPath, string path)
+    {
+      return ResourcePath.Deserialize(Combine(rootPath.Serialize(), path));
+    }
+
     public static string Combine(string rootPath, string path)
     {
       while (path.StartsWith("."))
