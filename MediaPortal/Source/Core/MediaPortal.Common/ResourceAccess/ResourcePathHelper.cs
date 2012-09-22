@@ -24,14 +24,16 @@
 
 using System;
 using System.IO;
-using MediaPortal.Common.ResourceAccess;
 using MediaPortal.Utilities;
 
-namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
+namespace MediaPortal.Common.ResourceAccess
 {
   /// <summary>
   /// Helper class for <see cref="ResourcePath"/>s that supports important features for path and filename handling
-  /// like <see cref="System.IO.Path"/> does for regular filesystem paths. It supports the common format:
+  /// like <see cref="System.IO.Path"/> does for regular filesystem paths.
+  /// </summary>
+  /// <remarks>
+  /// This class supports the common format:
   /// <list type="bullet">
   /// <item><c>"/"</c> is the root element.</item>
   /// <item>Path elements are separated by <c>'/'</c> characters.</item>
@@ -43,7 +45,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
   /// ResourcePathHelper.Combine(path, "../movie.nfo"):    {e88e64a8-0233-4fdf-ba27-0b44c6a39ae9}:///C:/Videos/ISOs/VideoDisc.iso>{112728b1-f71d-4284-9e5c-3462e8d3c74d}:///movie.nfo"
   /// ResourcePathHelper.Combine(path, "../../movie.nfo"): {e88e64a8-0233-4fdf-ba27-0b44c6a39ae9}:///C:/Videos/ISOs/movie.nfo"
   /// </example>
-  /// </summary>
+  /// </remarks>
   public static class ResourcePathHelper
   {
     public static string Combine(string rootPath, string path)
@@ -60,11 +62,11 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
             throw new ArgumentException(string.Format("Paths '{0}' and '{1}' cannot be concatenated", rootPath, path));
         }
         else
-          // First path segment starts with a '.', we don't need to adjust
+            // First path segment starts with a '.', we don't need to adjust
           break;
         // We only come here if at least one './' or '../' was removed
         while (path.StartsWith("/"))
-          // Remove double / characters in the middle of the path
+            // Remove double / characters in the middle of the path
           path = path.Substring(1);
       }
       return path.StartsWith("/") ? path : (StringUtils.CheckSuffix(rootPath, "/") + path);

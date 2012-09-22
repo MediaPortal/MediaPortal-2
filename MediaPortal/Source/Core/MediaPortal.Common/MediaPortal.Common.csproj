@@ -195,6 +195,7 @@
     <Compile Include="MediaManagement\MLQueries\NotFilter.cs" />
     <Compile Include="MediaManagement\MLQueries\RelationalFilter.cs" />
     <Compile Include="ResourceAccess\ResourcePath.cs" />
+    <Compile Include="ResourceAccess\ResourcePathHelper.cs" />
     <Compile Include="ResourceAccess\ResourcePathMetadata.cs" />
     <Compile Include="MediaManagement\MLQueries\MLQueryResultGroup.cs" />
     <Compile Include="Messaging\MessageWatcher.cs" />
