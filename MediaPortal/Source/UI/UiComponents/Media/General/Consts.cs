@@ -369,9 +369,9 @@ namespace MediaPortal.UiComponents.Media.General
     public const string KEY_DURATION = "Duration";
     public const string KEY_AUDIO_ENCODING = "AudioEncoding";
     public const string KEY_VIDEO_ENCODING = "VideoEncoding";
-    
+
     public const string KEY_STORY_PLOT = "StoryPlot";
-    
+
     public const string KEY_SERIES_NAME = "SeriesName";
     public const string KEY_SERIES_SEASON = "SeriesSeason";
     public const string KEY_SERIES_EPISODE_NUM = "SeriesEpisodeNum";

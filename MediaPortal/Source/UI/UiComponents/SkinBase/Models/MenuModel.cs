@@ -50,7 +50,7 @@ namespace MediaPortal.UiComponents.SkinBase.Models
     #region Protected fields
 
     protected ICollection<WorkflowAction> _registeredActions = new List<WorkflowAction>();
-    protected AbstractProperty _isMenuOpenProperty;
+    protected AbstractProperty _isMenuOpenProperty = new SProperty(typeof(bool), true);
     protected object _syncObj = new object();
     protected bool _dirty = true;
 
@@ -59,7 +59,6 @@ namespace MediaPortal.UiComponents.SkinBase.Models
     public MenuModel()
     {
       SubscribeToMessages();
-      _isMenuOpenProperty = new SProperty(typeof(bool), true);
     }
 
     #region Private & protected methods
