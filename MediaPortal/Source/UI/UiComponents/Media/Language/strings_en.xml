@@ -21,6 +21,7 @@
   <string name="Media.FilterByImageSizeMenuItem">Filter by size</string>
   <string name="Media.FilterByImageYearMenuItem">Filter by year</string>
   <string name="Media.FilterBySystemMenuItem">Filter by system</string>
+  <string name="Media.FilterByMoviesCollectionMenuItem">Filter by collection</string>
   <string name="Media.FilterBySeriesNameMenuItem">Filter by series</string>
   <string name="Media.FilterBySeriesSeasonMenuItem">Filter by season</string>
   <string name="Media.FilterBySeriesEpisodeMenuItem">Filter by episode</string>
@@ -53,6 +54,7 @@
   <string name="Media.FilterImageYearNavbarDisplayLabel">Year: {0}</string>
   <string name="Media.FilterAudioItemsNavbarDisplayLabel">Name: {0}</string>
   <string name="Media.FilterVideoItemsNavbarDisplayLabel">Name: {0}</string>
+  <string name="Media.FilterMoviesCollectionNavbarDisplayLabel">{0}</string>
   <string name="Media.FilterSeriesItemsNavbarDisplayLabel">{0}</string>
   <string name="Media.FilterSeriesSeasonNavbarDisplayLabel">Season {0}</string>
   <string name="Media.FilterImageItemsNavbarDisplayLabel">Name: {0}</string>
@@ -94,6 +96,7 @@
   <string name="Media.MoviesItemsHeader">Movies</string>
   <string name="Media.ImageItemsHeader">Images</string>
   <string name="Media.SimpleSearchHeader">Simple search</string>
+  <string name="Media.ChooseCollectionHeader">Choose a collection</string>
   <string name="Media.ChooseActorHeader">Choose an actor</string>
   <string name="Media.ChooseVideoGenreHeader">Choose a genre</string>
   <string name="Media.ChooseVideoYearHeader">Choose a year</string>

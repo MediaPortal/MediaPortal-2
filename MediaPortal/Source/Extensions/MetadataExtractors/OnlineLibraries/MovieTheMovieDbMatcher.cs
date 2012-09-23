@@ -127,6 +127,13 @@ namespace MediaPortal.Extensions.OnlineLibraries
             if (year > 0)
               movieInfo.Year = year;
           }
+
+          if (movieDetails.Collection != null &&
+            movieDetails.Collection.Id > 0)
+          {
+            movieInfo.CollectionMovieDbId = movieDetails.Collection.Id;
+            movieInfo.CollectionName = movieDetails.Collection.Name;
+          }
         }
 
         if (movieDbId > 0)

@@ -145,6 +145,7 @@ namespace MediaPortal.UiComponents.Media.General
     public const string RES_FILTER_BY_AUDIO_LANG_MENU_ITEM = "[Media.FilterByAudioLanguageMenuItem]";
     public const string RES_FILTER_BY_SYSTEM_MENU_ITEM = "[Media.FilterBySystemMenuItem]";
     public const string RES_FILTER_BY_IMAGE_SIZE_MENU_ITEM = "[Media.FilterByImageSizeMenuItem]";
+    public const string RES_FILTER_BY_MOVIES_COLLECTION_MENU_ITEM = "[Media.FilterByMoviesCollectionMenuItem]";
     public const string RES_FILTER_BY_SERIES_NAME_MENU_ITEM = "[Media.FilterBySeriesNameMenuItem]";
     public const string RES_FILTER_BY_SERIES_SEASON_MENU_ITEM = "[Media.FilterBySeriesSeasonMenuItem]";
     public const string RES_FILTER_BY_SERIES_EPISODE_MENU_ITEM = "[Media.FilterBySeriesEpisodeMenuItem]";
@@ -174,6 +175,7 @@ namespace MediaPortal.UiComponents.Media.General
     public const string RES_FILTER_SERIES_ITEMS_NAVBAR_DISPLAY_LABEL = "[Media.FilterSeriesItemsNavbarDisplayLabel]";
     public const string RES_FILTER_SERIES_SEASON_NAVBAR_DISPLAY_LABEL = "[Media.FilterSeriesSeasonNavbarDisplayLabel]";
     public const string RES_FILTER_MOVIES_NAVBAR_DISPLAY_LABEL = "[Media.FilterMoviesNavbarDisplayLabel]";
+    public const string RES_FILTER_MOVIES_COLLECTION_NAVBAR_DISPLAY_LABEL = "[Media.FilterMoviesCollectionNavbarDisplayLabel]";
 
     public const string RES_VALUE_EMPTY_TITLE = "[Media.ValueEmptyTitle]";
 
@@ -306,6 +308,7 @@ namespace MediaPortal.UiComponents.Media.General
     public const string SCREEN_VIDEOS_FILTER_BY_SYSTEM = "VideoFilterBySystem";
     public const string SCREEN_VIDEOS_FILTER_BY_AUDIO_LANG = "VideoFilterByLanguage";
     public const string SCREEN_MOVIES_SHOW_ITEMS = "MoviesShowItems";
+    public const string SCREEN_MOVIES_FILTER_BY_COLLECTION = "MoviesFilterByCollection";
     public const string SCREEN_SERIES_SHOW_ITEMS = "SeriesShowItems";
     public const string SCREEN_SERIES_FILTER_BY_NAME = "SeriesFilterByName";
     public const string SCREEN_SERIES_FILTER_BY_SEASON = "SeriesFilterBySeason";
@@ -379,6 +382,7 @@ namespace MediaPortal.UiComponents.Media.General
     public const string KEY_SERIES_EPISODE_NUM = "SeriesEpisodeNum";
     public const string KEY_SERIES_EPISODE_NAME = "SeriesEpisodeName";
 
+    public const string KEY_MOVIE_COLLECTION = "MovieCollection";
     public const string KEY_MOVIE_YEAR = "MovieYear";
 
     public const string KEY_IS_CURRENT_ITEM = "IsCurrentItem";

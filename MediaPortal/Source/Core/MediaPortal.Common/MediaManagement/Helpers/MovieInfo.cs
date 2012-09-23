@@ -50,6 +50,9 @@ namespace MediaPortal.Common.MediaManagement.Helpers
     public string Tagline { get; set; }
     public string Summary { get; set; }
 
+    public string CollectionName { get; set; }
+    public int CollectionMovieDbId { get; set; }
+
     public float Popularity { get; set; }
     public long Budget { get; set; }
     public long Revenue { get; set; }
@@ -96,6 +99,9 @@ namespace MediaPortal.Common.MediaManagement.Helpers
       if (Budget > 0) MediaItemAspect.SetAttribute(aspectData, MovieAspect.ATTR_BUDGET, Budget);
       if (Revenue > 0) MediaItemAspect.SetAttribute(aspectData, MovieAspect.ATTR_REVENUE, Revenue);
       if (Score > 0d) MediaItemAspect.SetAttribute(aspectData, MovieAspect.ATTR_SCORE, Score);
+
+      if (!string.IsNullOrEmpty(CollectionName)) MediaItemAspect.SetAttribute(aspectData, MovieAspect.ATTR_COLLECTION_NAME, CollectionName);
+      if (CollectionMovieDbId > 0) MediaItemAspect.SetAttribute(aspectData, MovieAspect.ATTR_COLLECTION_ID, CollectionMovieDbId);
 
       if (Year > 0)
         MediaItemAspect.SetAttribute(aspectData, MediaAspect.ATTR_RECORDINGTIME, new DateTime(Year, 1, 1));

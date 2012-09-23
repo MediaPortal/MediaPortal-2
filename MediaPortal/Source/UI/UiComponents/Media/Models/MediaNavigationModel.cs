@@ -422,6 +422,7 @@ namespace MediaPortal.UiComponents.Media.Models
         ICollection<AbstractScreenData> availableScreens = new List<AbstractScreenData>
             {
               new MoviesShowItemsScreenData(picd),
+              new MovieFilterByCollectionScreenData(),
               new VideosFilterByActorScreenData(),
               filterByGenre, // C# doesn't like it to have an assignment inside a collection initializer
               new VideosFilterByYearScreenData(),

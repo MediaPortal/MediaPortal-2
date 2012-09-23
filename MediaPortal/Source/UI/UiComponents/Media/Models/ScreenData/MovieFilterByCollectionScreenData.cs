@@ -22,36 +22,24 @@
 
 #endregion
 
-using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
-using MediaPortal.Common.MediaManagement.Helpers;
+using MediaPortal.UiComponents.Media.FilterCriteria;
 using MediaPortal.UiComponents.Media.General;
+using MediaPortal.UiComponents.Media.Models.Navigation;
 
-namespace MediaPortal.UiComponents.Media.Models.Navigation
+namespace MediaPortal.UiComponents.Media.Models.ScreenData
 {
-  public class MovieItem : VideoItem
+  public class MovieFilterByCollectionScreenData : AbstractMovieFilterScreenData
   {
-    public MovieItem(MediaItem mediaItem) : base(mediaItem)
+    public MovieFilterByCollectionScreenData() :
+      base(Consts.SCREEN_MOVIES_FILTER_BY_COLLECTION, Consts.RES_FILTER_BY_MOVIES_COLLECTION_MENU_ITEM,
+        Consts.RES_FILTER_MOVIES_COLLECTION_NAVBAR_DISPLAY_LABEL, new SimpleMLFilterCriterion(MovieAspect.ATTR_COLLECTION_NAME))
     {
-      MovieInfo movieInfo = new MovieInfo();
-      MediaItemAspect movieAspect;
-      if (!mediaItem.Aspects.TryGetValue(MovieAspect.ASPECT_ID, out movieAspect)) 
-        return;
-
-      MovieName = (string)movieAspect[MovieAspect.ATTR_MOVIE_NAME] ?? string.Empty;
-      CollectionName = movieInfo.CollectionName = (string)movieAspect[MovieAspect.ATTR_COLLECTION_NAME] ?? string.Empty;
     }
 
-    public string MovieName
+    public override AbstractFiltersScreenData<MovieFilterItem> Derive()
     {
-      get { return this[Consts.KEY_SERIES_EPISODE_NAME]; }
-      set { SetLabel(Consts.KEY_SERIES_EPISODE_NAME, value); }
-    }
-
-    public string CollectionName
-    {
-      get { return this[Consts.KEY_MOVIE_COLLECTION]; }
-      set { SetLabel(Consts.KEY_MOVIE_COLLECTION, value); }
+      return new MovieFilterByCollectionScreenData();
     }
   }
 }

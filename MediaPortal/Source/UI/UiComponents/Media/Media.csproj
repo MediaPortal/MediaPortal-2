@@ -132,10 +132,13 @@
     <Compile Include="Models\ExtendedVideoSkip.cs" />
     <Compile Include="Models\IPlayerUIContributor.cs" />
     <Compile Include="Models\DVDPlayerUIContributor.cs" />
+    <Compile Include="Models\Navigation\MovieFilterItem.cs" />
     <Compile Include="Models\Navigation\MovieItem.cs" />
     <Compile Include="Models\Navigation\SeriesFilterItem.cs" />
     <Compile Include="Models\Navigation\SeriesItem.cs" />
     <Compile Include="Models\ScreenData\AbstractBrowseMediaNavigationScreenData.cs" />
+    <Compile Include="Models\ScreenData\AbstractMovieFilterScreenData.cs" />
+    <Compile Include="Models\ScreenData\MovieFilterByCollectionScreenData.cs" />
     <Compile Include="Models\ScreenData\MovieShowItemsScreenData.cs" />
     <Compile Include="Models\ScreenData\VideosFilterByLanguageScreenData.cs" />
     <Compile Include="Models\ScreenData\AbstractSeriesFilterScreenData.cs" />
@@ -336,6 +339,11 @@
     <Content Include="Skin\default\screens\SeriesFilterBySeason.xaml" />
     <Content Include="Skin\default\screens\SeriesShowItems.xaml" />
     <Content Include="Skin\default\screens\VideoFilterByLanguage.xaml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Skin\default\screens\MoviesFilterByCollection.xaml">
+      <SubType>Designer</SubType>
+    </Content>
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

@@ -87,17 +87,48 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.MovieDbV3.Data
   [DataContract]
   public class Movie : MovieSearchResult
   {
+    #region Collection class
+
+    //{
+    //      "backdrop_path": "/mOTtuakUTb1qY6jG6lzMfjdhLwc.jpg",
+    //      "id": 10,
+    //      "name": "Star Wars Collection",
+    //      "poster_path": "/6rddZZpxMQkGlpQYVVxb2LdQRI3.jpg"
+    //  },
+    [DataContract]
+    public class MovieCollection
+    {
+      [DataMember(Name = "id")]
+      public int Id { get; set; }
+
+      [DataMember(Name = "name")]
+      public string Name { get; set; }
+
+      [DataMember(Name = "backdrop_path")]
+      public string BackdropPath { get; set; }
+
+      [DataMember(Name = "poster_path")]
+      public string PosterPath { get; set; }
+
+      public override string ToString()
+      {
+        return Name;
+      }
+    }
+
+    #endregion
+
     [DataMember(Name = "adult")]
     public bool Adult { get; set; }
     
     [DataMember(Name = "imdb_id")]
-    public string ImdbId { get; set; }    
+    public string ImdbId { get; set; }
     
     [DataMember(Name = "overview")]
-    public string Overview { get; set; }    
+    public string Overview { get; set; }
     
     [DataMember(Name = "tagline")]
-    public string Tagline { get; set; }    
+    public string Tagline { get; set; }
 
     [DataMember(Name = "revenue")]
     public long? Revenue { get; set; }
@@ -113,6 +144,9 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.MovieDbV3.Data
     
     [DataMember(Name = "homepage")]
     public string Homepage { get; set; }
+
+    [DataMember(Name = "belongs_to_collection")]
+    public MovieCollection Collection { get; set; }
 
     [DataMember(Name = "genres")]
     public List<Genre> Genres { get; set; }

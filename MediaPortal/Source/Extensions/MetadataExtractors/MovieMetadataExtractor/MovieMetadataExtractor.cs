@@ -38,7 +38,7 @@ using MediaPortal.Extensions.OnlineLibraries.TheMovieDB;
 namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
 {
   /// <summary>
-  /// MediaPortal 2 metadata extractor implementation for Series.
+  /// MediaPortal 2 metadata extractor implementation for Movies.
   /// </summary>
   public class MovieMetadataExtractor : IMetadataExtractor
   {
