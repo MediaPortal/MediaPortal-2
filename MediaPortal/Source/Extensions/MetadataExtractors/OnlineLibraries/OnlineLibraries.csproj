@@ -60,6 +60,9 @@
     <Compile Include="..\..\..\Core\MediaPortal.Common\VersionInfo\VersionInfo.cs">
       <Link>Properties\VersionInfo.cs</Link>
     </Compile>
+    <Compile Include="Libraries\MovieDbV3\Data\Genre.cs" />
+    <Compile Include="Libraries\MovieDbV3\Data\MovieTrailers.cs" />
+    <Compile Include="Libraries\MovieDbV3\Data\MovieCasts.cs" />
     <Compile Include="TheMovieDB\NamePreprocessor.cs" />
     <Compile Include="Matches\BaseMatcher.cs" />
     <Compile Include="Libraries\MovieDbV3\Data\ImageCollection.cs" />
@@ -105,7 +108,6 @@
     <Compile Include="MovieTheMovieDbMatcher.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="SeriesTvDbMatcher.cs" />
-    <Compile Include="Libraries\MovieDbV3\Data\Genre.cs" />
     <Compile Include="Libraries\MovieDbV3\Data\Movie.cs" />
     <Compile Include="Libraries\MovieDbV3\MovieDbApiV3.cs" />
     <Compile Include="Matches\MovieMatch.cs" />

@@ -42,6 +42,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.MovieDbV3
     private const string URL_API_BASE =   "http://api.themoviedb.org/3/";
     private const string URL_QUERY =      URL_API_BASE + "search/movie";
     private const string URL_GETMOVIE =   URL_API_BASE + "movie/{0}";
+    private const string URL_GETCASTCREW = URL_API_BASE + "movie/{0}/casts";
     private const string URL_GETIMAGES =  URL_API_BASE + "movie/{0}/images";
     private const string URL_GETCONFIG =  URL_API_BASE + "configuration";
 
@@ -141,6 +142,19 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.MovieDbV3
     {
       string url = GetUrl(URL_GETCONFIG, null);
       return Download<Configuration>(url);
+    }
+
+    /// <summary>
+    /// Returns a <see cref="MovieCasts"/> for the given <paramref name="id"/>.
+    /// </summary>
+    /// <param name="id">TMDB id of movie</param>
+    /// <returns>Cast and Crew</returns>
+    public MovieCasts GetCastCrew(int id)
+    {
+      string url = GetUrl(URL_GETCASTCREW, null, id);
+      MovieCasts result = Download<MovieCasts>(url);
+      result.SetMovieIds();
+      return result;
     }
 
     /// <summary>

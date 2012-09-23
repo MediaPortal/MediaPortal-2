@@ -110,13 +110,17 @@ namespace MediaPortal.Extensions.OnlineLibraries
             movieInfo.Genres.Clear();
             movieInfo.Genres.AddRange(movieDetails.Genres.Select(p => p.Name));
           }
-          //if (movieDetails.Cast != null)
-          //{
-          //  movieInfo.Actors.Clear();
-          //  movieInfo.Actors.AddRange(movieDetails.Cast.Where(p => p.Job == "Actor").Select(p => p.Name));
-          //  movieInfo.Directors.Clear();
-          //  movieInfo.Directors.AddRange(movieDetails.Cast.Where(p => p.Job == "Director").Select(p => p.Name));
-          //}
+
+          MovieCasts movieCasts;
+          if (_movieDb.GetMovieCast(movieDbId, out movieCasts))
+          {
+            movieInfo.Actors.Clear();
+            movieInfo.Actors.AddRange(movieCasts.Cast.Select(p => p.Name));
+            movieInfo.Directors.Clear();
+            movieInfo.Directors.AddRange(movieCasts.Crew.Where(p => p.Job == "Director").Select(p => p.Name));
+            movieInfo.Writers.Clear();
+            movieInfo.Writers.AddRange(movieCasts.Crew.Where(p => p.Job == "Author").Select(p => p.Name));
+          }
           if (movieDetails.ReleaseDate.HasValue)
           {
             int year = movieDetails.ReleaseDate.Value.Year;

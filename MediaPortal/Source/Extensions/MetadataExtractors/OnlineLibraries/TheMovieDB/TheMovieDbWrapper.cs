@@ -178,6 +178,12 @@ namespace MediaPortal.Extensions.OnlineLibraries.TheMovieDB
       return movieDetail != null;
     }
 
+    public bool GetMovieCast(int id, out MovieCasts movieCast)
+    {
+      movieCast = _movieDbHandler.GetCastCrew(id);
+      return movieCast != null;
+    }
+
     /// <summary>
     /// Removes special characters and compares the remaining strings. Strings are processed by <see cref="RemoveCharacters"/> before comparing.
     /// The result is <c>true</c>, if the cleaned strings are equal or have a Levenshtein distance less or equal to <see cref="MAX_LEVENSHTEIN_DIST"/>.
