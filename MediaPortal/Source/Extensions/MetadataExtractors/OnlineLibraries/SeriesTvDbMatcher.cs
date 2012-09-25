@@ -230,13 +230,13 @@ namespace MediaPortal.Extensions.OnlineLibraries
                 };
 
             // Save cache
-            SaveNewMatch(seriesName, onlineMatch);
+            _storage.SaveNewMatch(seriesName, onlineMatch);
             return true;
           }
         }
         ServiceRegistration.Get<ILogger>().Debug("SeriesTvDbMatcher: No unique match found for \"{0}\"", seriesName);
         // Also save "non matches" to avoid retrying
-        SaveNewMatch(seriesName, new SeriesMatch { ItemName = seriesName });
+        _storage.SaveNewMatch(seriesName, new SeriesMatch { ItemName = seriesName });
         return false;
       }
       catch (Exception ex)
@@ -253,6 +253,9 @@ namespace MediaPortal.Extensions.OnlineLibraries
 
     protected override bool Init()
     {
+      if (!base.Init())
+        return false;
+
       if (_tv != null)
         return true;
       try
@@ -269,11 +272,6 @@ namespace MediaPortal.Extensions.OnlineLibraries
       {
         return false;
       }
-    }
-
-    protected override List<SeriesMatch> FindNameMatch(List<SeriesMatch> matches, string name)
-    {
-      return matches.FindAll(m => m.ItemName == name);
     }
 
     protected override void DownloadFanArt(int tvDbId)

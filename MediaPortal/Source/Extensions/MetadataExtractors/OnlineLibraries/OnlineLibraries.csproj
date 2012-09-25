@@ -60,6 +60,7 @@
     <Compile Include="..\..\..\Core\MediaPortal.Common\VersionInfo\VersionInfo.cs">
       <Link>Properties\VersionInfo.cs</Link>
     </Compile>
+    <Compile Include="Matches\MatchStorage.cs" />
     <Compile Include="Libraries\MovieDbV3\Data\CastItem.cs" />
     <Compile Include="Libraries\MovieDbV3\Data\CrewItem.cs" />
     <Compile Include="Libraries\MovieDbV3\Data\Genre.cs" />
@@ -69,6 +70,7 @@
     <Compile Include="Libraries\MovieDbV3\Data\ProductionCompany.cs" />
     <Compile Include="Libraries\MovieDbV3\Data\ProductionCountry.cs" />
     <Compile Include="Libraries\MovieDbV3\Data\Trailer.cs" />
+    <Compile Include="Matches\MovieCollectionMatch.cs" />
     <Compile Include="TheMovieDB\NamePreprocessor.cs" />
     <Compile Include="Matches\BaseMatcher.cs" />
     <Compile Include="Libraries\MovieDbV3\Data\ImageCollection.cs" />
