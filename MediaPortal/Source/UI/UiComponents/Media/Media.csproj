@@ -339,11 +339,7 @@
     <Content Include="Skin\default\screens\SeriesFilterBySeason.xaml" />
     <Content Include="Skin\default\screens\SeriesShowItems.xaml" />
     <Content Include="Skin\default\screens\VideoFilterByLanguage.xaml" />
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="Skin\default\screens\MoviesFilterByCollection.xaml">
-      <SubType>Designer</SubType>
-    </Content>
+    <Content Include="Skin\default\screens\MoviesFilterByCollection.xaml" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
