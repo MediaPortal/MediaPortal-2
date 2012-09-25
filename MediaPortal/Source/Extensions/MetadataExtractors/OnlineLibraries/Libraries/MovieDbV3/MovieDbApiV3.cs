@@ -187,6 +187,24 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.MovieDbV3
       return true;
     }
 
+    public bool DownloadImages(MovieCollection movieCollection)
+    {
+      DownloadImages(movieCollection, true);
+      DownloadImages(movieCollection, false);
+      return true;
+    }
+
+    private bool DownloadImages(MovieCollection movieCollection, bool usePoster)
+    {
+      string cacheFileName = CreateAndGetCacheName(movieCollection, usePoster);
+      if (string.IsNullOrEmpty(cacheFileName))
+        return false;
+
+      string sourceUri = Configuration.Images.BaseUrl + "original" + (usePoster ? movieCollection.PosterPath : movieCollection.BackdropPath);
+      DownloadFile(sourceUri, cacheFileName);
+      return true;
+    }
+
     #endregion
 
     #region Protected members
@@ -269,6 +287,31 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.MovieDbV3
         if (!Directory.Exists(folder))
           Directory.CreateDirectory(folder);
         return Path.Combine(folder, image.FilePath.TrimStart(new[] { '/' }));
+      }
+      catch
+      {
+        // TODO: logging
+        return null;
+      }
+    }
+
+    /// <summary>
+    /// Creates a local file name for loading and saving images of a <see cref="MovieCollection"/>.
+    /// </summary>
+    /// <param name="collection">MovieCollection</param>
+    /// <param name="usePoster"><c>true</c> for Poster, <c>false</c> for Backdrop</param>
+    /// <returns>Cache file name or <c>null</c> if directory could not be created</returns>
+    protected string CreateAndGetCacheName(MovieCollection collection, bool usePoster)
+    {
+      try
+      {
+        string folder = Path.Combine(_cachePath, string.Format(@"COLL_{0}\{1}", collection.Id, usePoster ? "Posters" : "Backdrops"));
+        if (!Directory.Exists(folder))
+          Directory.CreateDirectory(folder);
+        string fileName = usePoster ? collection.PosterPath : collection.BackdropPath;
+        if (string.IsNullOrEmpty(fileName))
+          return null;
+        return Path.Combine(folder, fileName.TrimStart(new[] { '/' }));
       }
       catch
       {

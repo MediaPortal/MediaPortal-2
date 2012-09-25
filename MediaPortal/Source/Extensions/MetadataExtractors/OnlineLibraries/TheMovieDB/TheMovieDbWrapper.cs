@@ -240,5 +240,10 @@ namespace MediaPortal.Extensions.OnlineLibraries.TheMovieDB
     {
       return _movieDbHandler.DownloadImage(image, category);
     }
+
+    public bool DownloadImages(MovieCollection movieCollection)
+    {
+      return _movieDbHandler.DownloadImages(movieCollection);
+    }
   }
 }

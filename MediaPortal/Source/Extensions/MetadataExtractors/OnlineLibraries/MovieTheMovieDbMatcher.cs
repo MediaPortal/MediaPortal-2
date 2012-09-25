@@ -283,6 +283,11 @@ namespace MediaPortal.Extensions.OnlineLibraries
         if (!Init())
           return;
 
+        // If movie belongs to a collection, also download collection poster and fanart
+        Movie movie;
+        if (_movieDb.GetMovie(movieDbId, out movie) && movie.Collection != null)
+          SaveBanners(movie.Collection);
+
         ImageCollection imageCollection;
         if (!_movieDb.GetMovieFanArt(movieDbId, out imageCollection))
           return;
@@ -301,6 +306,12 @@ namespace MediaPortal.Extensions.OnlineLibraries
       {
         ServiceRegistration.Get<ILogger>().Debug("MovieTheMovieDbMatcher: Exception downloading FanArt for ID {0}", ex, movieDbId);
       }
+    }
+
+    private void SaveBanners(MovieCollection movieCollection)
+    {
+      bool result = _movieDb.DownloadImages(movieCollection);
+      ServiceRegistration.Get<ILogger>().Debug("MovieTheMovieDbMatcher Download Collection: Saved {0} {1}", movieCollection.Name, result);
     }
 
     private int SaveBanners(IEnumerable<MovieImage> banners, string category)
