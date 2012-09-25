@@ -1,4 +1,4 @@
-﻿#region Copyright (C) 2007-2012 Team MediaPortal
+#region Copyright (C) 2007-2012 Team MediaPortal
 
 /*
     Copyright (C) 2007-2012 Team MediaPortal
@@ -22,37 +22,33 @@
 
 #endregion
 
-using System.Collections.Generic;
 using System.Runtime.Serialization;
 
 namespace MediaPortal.Extensions.OnlineLibraries.Libraries.MovieDbV3.Data
 {
-  /// <summary>
-  /// Contains the trailers for a specific movie id.
-  /// </summary>
-  /// <remarks>
-  ///{
-  ///    "id": 550,
-  ///    "quicktime": [],
-  ///    "youtube": [
   ///        {
   ///             "name": "Trailer 1",
   ///             "size": "HD",
   ///             "source": "SUXWAEX2jlg"
   ///        }
-  ///    ]
-  ///}
-  ///</remarks>
   [DataContract]
-  public class MovieTrailers
+  public class Trailer
   {
-    [DataMember(Name = "id")]
-    public int Id { get; set; }
+    // Not filled by API!
+    public int MovieId { get; set; }
 
-    [DataMember(Name = "quicktime")]
-    public List<Trailer> QuickTimeTrailers { get; set; }
+    [DataMember(Name = "name")]
+    public string Name { get; set; }
 
-    [DataMember(Name = "youtube")]
-    public List<Trailer> YoutubeTrailers { get; set; }
+    [DataMember(Name = "size")]
+    public string Size { get; set; }
+
+    [DataMember(Name = "source")]
+    public string Source { get; set; }
+
+    public override string ToString()
+    {
+      return Name;
+    }
   }
 }

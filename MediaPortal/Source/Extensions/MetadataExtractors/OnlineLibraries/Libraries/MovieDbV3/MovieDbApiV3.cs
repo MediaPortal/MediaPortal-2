@@ -116,7 +116,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.MovieDbV3
     }
 
     /// <summary>
-    /// Returns detailed information for a single <see cref="Movie"/> with given <paramref name="id"/>. This method caches request
+    /// Returns detailed information for a single <see cref="Movie"/> with given <paramref name="imdbId"/>. This method caches request
     /// to same movies using the cache path given in <see cref="MovieDbApiV3"/> constructor.
     /// </summary>
     /// <param name="imdbId">IMDB id of movie</param>
@@ -153,7 +153,6 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.MovieDbV3
     {
       string url = GetUrl(URL_GETCASTCREW, null, id);
       MovieCasts result = Download<MovieCasts>(url);
-      result.SetMovieIds();
       return result;
     }
 

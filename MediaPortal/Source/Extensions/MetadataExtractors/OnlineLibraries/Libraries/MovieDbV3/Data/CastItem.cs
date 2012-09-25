@@ -1,4 +1,4 @@
-﻿#region Copyright (C) 2007-2012 Team MediaPortal
+#region Copyright (C) 2007-2012 Team MediaPortal
 
 /*
     Copyright (C) 2007-2012 Team MediaPortal
@@ -22,37 +22,38 @@
 
 #endregion
 
-using System.Collections.Generic;
 using System.Runtime.Serialization;
 
 namespace MediaPortal.Extensions.OnlineLibraries.Libraries.MovieDbV3.Data
 {
-  /// <summary>
-  /// Contains the trailers for a specific movie id.
-  /// </summary>
-  /// <remarks>
-  ///{
-  ///    "id": 550,
-  ///    "quicktime": [],
-  ///    "youtube": [
-  ///        {
-  ///             "name": "Trailer 1",
-  ///             "size": "HD",
-  ///             "source": "SUXWAEX2jlg"
-  ///        }
-  ///    ]
-  ///}
-  ///</remarks>
+  //{
+  //  "id": 819,
+  //  "name": "Edward Norton",
+  //  "character": "The Narrator",
+  //  "order": 0,
+  //  "profile_path": "/7cf2mCVI0qv2PnZVNbbEktS8Xae.jpg"
+  //}  
   [DataContract]
-  public class MovieTrailers
+  public class CastItem
   {
     [DataMember(Name = "id")]
-    public int Id { get; set; }
+    public int PersonId { get; set; }
 
-    [DataMember(Name = "quicktime")]
-    public List<Trailer> QuickTimeTrailers { get; set; }
+    [DataMember(Name = "name")]
+    public string Name { get; set; }
 
-    [DataMember(Name = "youtube")]
-    public List<Trailer> YoutubeTrailers { get; set; }
+    [DataMember(Name = "character")]
+    public string Character { get; set; }
+
+    [DataMember(Name = "order")]
+    public string Order { get; set; }
+
+    [DataMember(Name = "profile_path")]
+    public string ProfilePath { get; set; }
+
+    public override string ToString()
+    {
+      return Name;
+    }
   }
 }

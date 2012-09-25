@@ -56,82 +56,6 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.MovieDbV3.Data
   [DataContract]
   public class MovieCasts
   {
-    #region CastItem class
-
-    //{
-    //  "id": 819,
-    //  "name": "Edward Norton",
-    //  "character": "The Narrator",
-    //  "order": 0,
-    //  "profile_path": "/7cf2mCVI0qv2PnZVNbbEktS8Xae.jpg"
-    //}
-    [DataContract]
-    public class CastItem
-    {
-      // Not filled by API!
-      public int MovieId { get; set; }
-
-      [DataMember(Name = "id")]
-      public int PersonId { get; set; }
-
-      [DataMember(Name = "name")]
-      public string Name { get; set; }
-
-      [DataMember(Name = "character")]
-      public string Character { get; set; }
-
-      [DataMember(Name = "order")]
-      public string Order { get; set; }
-
-      [DataMember(Name = "profile_path")]
-      public string ProfilePath { get; set; }
-
-      public override string ToString()
-      {
-        return Name;
-      }
-    }
-
-    #endregion
-
-    #region CrewItem class
-
-    //{
-    //  "id": 7469,
-    //  "name": "Jim Uhls",
-    //  "department": "Writing",
-    //  "job": "Author",
-    //  "profile_path": null
-    //}
-    [DataContract]
-    public class CrewItem
-    {
-      // Not filled by API!
-      public int MovieId { get; set; }
-
-      [DataMember(Name = "id")]
-      public int PersonId { get; set; }
-
-      [DataMember(Name = "name")]
-      public string Name { get; set; }
-
-      [DataMember(Name = "department")]
-      public string Department { get; set; }
-
-      [DataMember(Name = "job")]
-      public string Job { get; set; }
-
-      [DataMember(Name = "profile_path")]
-      public string ProfilePath { get; set; }
-
-      public override string ToString()
-      {
-        return Name;
-      }
-    }
-
-    #endregion
-
     [DataMember(Name = "id")]
     public int Id { get; set; }
 
@@ -140,11 +64,5 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.MovieDbV3.Data
 
     [DataMember(Name = "crew")]
     public List<CrewItem> Crew { get; set; }
-
-    public void SetMovieIds()
-    {
-      if (Cast != null) Cast.ForEach(c => c.MovieId = Id);
-      if (Crew != null) Crew.ForEach(c => c.MovieId = Id);
-    }
   }
 }
