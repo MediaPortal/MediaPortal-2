@@ -904,6 +904,53 @@
     </Grid>
   </ControlTemplate>
 
+  <!-- Movie Collection Filter -->
+  <ControlTemplate x:Key="ListViewMovieFilterItemTemplate">
+    <Grid x:Name="ItemControl">
+      <Grid.ColumnDefinitions>
+        <ColumnDefinition Width="Auto"/>
+        <ColumnDefinition Width="*"/>
+        <ColumnDefinition Width="50"/>
+      </Grid.ColumnDefinitions>
+      <Grid.RowDefinitions>
+        <RowDefinition Height="Auto"/>
+        <RowDefinition Height="Auto"/>
+      </Grid.RowDefinitions>
+
+      <Label x:Name="ItemLabel" Grid.Row="0" Grid.Column="1" Content="{Binding SimpleTitle}"
+          Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}"/>
+      <Image Width="{StaticResource MEDIA_THUMB_WIDTH_L}" Height="{StaticResource MEDIA_THUMB_HEIGHT_L}" Stretch="Uniform" Grid.Row="0" Grid.Column="0">
+        <Image.Source>
+          <fanart:FanArtImageSource fanart:FanArtMediaType="MovieCollection" fanart:FanArtType="Poster" fanart:FanArtName="{Binding SimpleTitle}"
+                                    fanart:MaxWidth="{StaticResource MEDIA_THUMB_WIDTH_L}" fanart:MaxHeight="{StaticResource MEDIA_THUMB_HEIGHT_L}"/>
+        </Image.Source>
+      </Image>
+
+      <Label x:Name="NumItems" Grid.Row="0" Grid.Column="2" Content="{Binding NumItems}"
+          Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}"/>
+    </Grid>
+  </ControlTemplate>
+
+  <ControlTemplate x:Key="GridViewMovieFilterItemTemplate">
+    <Grid x:Name="ItemControl">
+      <Grid.ColumnDefinitions>
+        <ColumnDefinition Width="{StaticResource MEDIA_POSTER_CONTAINER_WIDTH}"/>
+      </Grid.ColumnDefinitions>
+      <Grid.RowDefinitions>
+        <RowDefinition Height="Auto"/>
+        <RowDefinition Height="Auto"/>
+      </Grid.RowDefinitions>
+      <Label x:Name="ItemLabel" Grid.Row="1" Grid.Column="0" Content="{Binding SimpleTitle}" HorizontalAlignment="Center"
+          Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}"/>
+      <Image Width="{StaticResource MEDIA_POSTER_WIDTH}" Height="{StaticResource MEDIA_POSTER_HEIGHT}" Stretch="Uniform" Grid.Row="0" Grid.Column="1">
+        <Image.Source>
+          <fanart:FanArtImageSource fanart:FanArtMediaType="MovieCollection" fanart:FanArtType="Poster" fanart:FanArtName="{Binding SimpleTitle}"
+                                    fanart:MaxWidth="{StaticResource FANART_POSTER_WIDTH}" fanart:MaxHeight="{StaticResource FANART_POSTER_HEIGHT}"/>
+        </Image.Source>
+      </Image>
+    </Grid>
+  </ControlTemplate>
+
   <!-- Movies Item -->
   <ControlTemplate x:Key="ListViewMovieItemTemplate">
     <Grid x:Name="ItemControl">
@@ -1253,6 +1300,18 @@
           <Binding Source="{StaticResource ViewModeModel}" Path="LayoutType"/>
           <Binding Source="{StaticResource ListViewSeriesFilterItemTemplate}"/>
           <Binding Source="{StaticResource GridViewSeriesFilterItemTemplate}"/>
+        </MultiBinding>
+      </Control.Template>
+    </Control>
+  </DataTemplate>
+
+  <DataTemplate DataType="{x:Type navitems:MovieFilterItem}">
+    <Control>
+      <Control.Template>
+        <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} == {LayoutType}.{ListLayout} ? {1} : {2}">
+          <Binding Source="{StaticResource ViewModeModel}" Path="LayoutType"/>
+          <Binding Source="{StaticResource ListViewMovieFilterItemTemplate}"/>
+          <Binding Source="{StaticResource GridViewMovieFilterItemTemplate}"/>
         </MultiBinding>
       </Control.Template>
     </Control>

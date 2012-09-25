@@ -74,6 +74,7 @@ namespace MediaPortal.Extensions.UserServices.FanArtService
     {
       switch (mediaType)
       {
+        case FanArtConstants.FanArtMediaType.MovieCollection:
         case FanArtConstants.FanArtMediaType.Movie:
           switch (fanArtType)
           {
@@ -112,6 +113,10 @@ namespace MediaPortal.Extensions.UserServices.FanArtService
         case FanArtConstants.FanArtMediaType.Movie:
           int movieDbId;
           return !MovieTheMovieDbMatcher.Instance.TryGetMovieDbId(name, out movieDbId) ? null : Path.Combine(MovieTheMovieDbMatcher.CACHE_PATH, movieDbId.ToString());
+
+        case FanArtConstants.FanArtMediaType.MovieCollection:
+          int collectionId;
+          return !MovieTheMovieDbMatcher.Instance.TryGetCollectionId(name, out collectionId) ? null : Path.Combine(MovieTheMovieDbMatcher.CACHE_PATH, "COLL_" + collectionId);
 
         default:
           return null;

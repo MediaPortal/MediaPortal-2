@@ -31,6 +31,7 @@ namespace MediaPortal.Extensions.UserServices.FanArtService.Interfaces
       Undefined,
       Music,
       Movie,
+      MovieCollection,
       Series,
       Episode,
       Actor,

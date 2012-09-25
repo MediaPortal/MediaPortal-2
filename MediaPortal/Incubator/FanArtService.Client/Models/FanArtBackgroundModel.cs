@@ -124,6 +124,7 @@ namespace MediaPortal.Extensions.UserServices.FanArtService.Client.Models
       {
         FanArtMediaType = FanArtConstants.FanArtMediaType.Series;
         FanArtName = series.SimpleTitle;
+        ItemDescription = null;
         return;
       }
       SeriesItem episode = SelectedItem as SeriesItem;
@@ -132,6 +133,14 @@ namespace MediaPortal.Extensions.UserServices.FanArtService.Client.Models
         FanArtMediaType = FanArtConstants.FanArtMediaType.Series;
         FanArtName = episode.Series;
         ItemDescription = episode.StoryPlot;
+        return;
+      }
+      MovieFilterItem movieCollection = SelectedItem as MovieFilterItem;
+      if (movieCollection != null)
+      {
+        FanArtMediaType = FanArtConstants.FanArtMediaType.MovieCollection;
+        FanArtName = movieCollection.SimpleTitle;
+        ItemDescription = null;
         return;
       }
       MovieItem movie = SelectedItem as MovieItem;
