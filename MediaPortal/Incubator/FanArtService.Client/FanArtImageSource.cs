@@ -250,12 +250,19 @@ namespace MediaPortal.Extensions.UserServices.FanArtService.Client
         if (fanArtService == null)
           return;
 
+        FanArtConstants.FanArtMediaType mediaType = FanArtMediaType;
+        FanArtConstants.FanArtType type = FanArtType;
+        string name = FanArtName;
         IThreadPool threadPool = ServiceRegistration.Get<IThreadPool>();
         threadPool.Add(() =>
                          {
-                           IList<FanArtImage> possibleSources = fanArtService.GetFanArt(FanArtMediaType, FanArtType, FanArtName, MaxWidth, MaxHeight, true);
+                           IList<FanArtImage> possibleSources = fanArtService.GetFanArt(mediaType, type, name, MaxWidth, MaxHeight, true);
                            lock (_syncObj)
-                             _possibleSources = possibleSources;
+                           {
+                             // Selection can be changed meanwhile, so set source only if same as on starting
+                             if (FanArtMediaType == mediaType && FanArtType == type && FanArtName == name)
+                               _possibleSources = possibleSources;
+                           }
                          });
         _asyncStarted = true;
       }
