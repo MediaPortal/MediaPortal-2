@@ -907,6 +907,10 @@
     <Control Template="{StaticResource ListViewMovieItemTemplate}"/>
   </DataTemplate>
 
+  <DataTemplate DataType="{x:Type navitems:MovieFilterItem}">
+    <Control Template="{StaticResource ListViewMovieItemTemplate}"/>
+  </DataTemplate>
+
   <DataTemplate DataType="{x:Type navitems:VideoItem}">
     <Control>
       <Control.Template>
