@@ -31,7 +31,7 @@ namespace MediaPortal.UI.Services.Players.PCMOpenPlayerStrategy
   /// <summary>
   /// Player open strategy which works the same as the <see cref="Default"/> strategy except for the case when at least one video player is active and
   /// another video player is requested in concurrency mode <see cref="PlayerContextConcurrencyMode.ConcurrentVideo"/>. In this case,
-  /// if we have two concurrent playing videos, the new video will replace the primary slot, PiP remains untouched playing in background.
+  /// the new video will replace the primary slot, PiP remains untouched playing in background.
   /// If we have only one video playing, the old video is be moved to PiP while the new video gets the primary (fullscreen) video.
   /// </summary>
   public class PreservePiP : Default
