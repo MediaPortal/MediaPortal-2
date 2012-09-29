@@ -26,6 +26,7 @@ using System;
 using System.Collections.Generic;
 using MediaPortal.Common.Configuration.ConfigurationClasses;
 using MediaPortal.Common.Localization;
+using MediaPortal.UI.Services.Players;
 using MediaPortal.UI.Services.Players.PCMOpenPlayerStrategy;
 using MediaPortal.UI.Services.Players.Settings;
 using MediaPortal.UiComponents.Media.General;
@@ -34,6 +35,20 @@ namespace MediaPortal.UiComponents.Media.Settings.Configuration
 {
   public class OpenPlayerStrategy : SingleSelectionList
   {
+    /// <summary>
+    /// Collection of known strategy types for open player strategies. All contained types have to implement the interface
+    /// <see cref="IOpenPlayerStrategy"/>.
+    /// </summary>
+    /// <remarks>
+    /// This collection is used to initialize the internal data for the configuration choices offered to the user.
+    /// Plugins, which want to add more available strategy types, can add those types to this list.
+    /// </remarks>
+    public static ICollection<Type> OPEN_PLAYER_STRATEGY_TYPES = new List<Type>
+      {
+          typeof(Default),
+          typeof(PreservePiP),
+      };
+
     protected IDictionary<IResourceString, Type> _piPOpenStrategyTypes = new Dictionary<IResourceString, Type>();
 
     protected void Clear()
@@ -56,9 +71,15 @@ namespace MediaPortal.UiComponents.Media.Settings.Configuration
     {
       base.Load();
       Clear();
-      IList<String> strategyTypeNames = new List<string> {Add(typeof(Default)), Add(typeof(PreservePiP))};
       PlayerContextManagerSettings settings = SettingsManager.Load<PlayerContextManagerSettings>();
-      Selected = strategyTypeNames.IndexOf(settings.OpenPlayerStrategyTypeName);
+      string settingTypeName = settings.OpenPlayerStrategyTypeName;
+      int currentIndex = 0;
+      foreach (Type openPlayerStrategyType in OPEN_PLAYER_STRATEGY_TYPES)
+      {
+        if (Add(openPlayerStrategyType) == settingTypeName)
+          Selected = currentIndex;
+        currentIndex++;
+      }
     }
 
     public override void Save()
