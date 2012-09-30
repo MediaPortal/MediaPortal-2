@@ -30,6 +30,7 @@ namespace UPnPLightServer
   public partial class FormUPnPLightServer : Form
   {
     protected UPnPLightServer _server = null;
+    protected static readonly Guid SERVER_ID = new Guid("{8A382006-1ADA-4659-B565-E5833226EAED}");
 
     public FormUPnPLightServer()
     {
@@ -42,7 +43,7 @@ namespace UPnPLightServer
       {
         if (_server != null)
           return;
-        _server = new UPnPLightServer(Guid.NewGuid().ToString("B"));
+        _server = new UPnPLightServer(SERVER_ID.ToString("B"));
         _server.Start();
       }
       else
