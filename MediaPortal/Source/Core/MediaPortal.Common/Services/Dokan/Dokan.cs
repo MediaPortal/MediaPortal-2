@@ -105,30 +105,6 @@ namespace MediaPortal.Common.Services.Dokan
       return Directory.Exists(driveLetter + ":\\");
     }
 
-    /// <summary>
-    /// Checks if a mounted drive exists and the filesystem type is DOKAN.
-    /// </summary>
-    /// <param name="driveLetter">Letter of drive to check.</param>
-    /// <returns><c>true</c>, if the drive with the given <paramref name="driveLetter"/> is a mounted Dokan drive, else <c>false</c>.</returns>
-    protected static bool IsDokanDrive(char driveLetter)
-    {
-      bool result = false;
-      try
-      {
-        ThreadingUtils.CallWithTimeout(() =>
-          {
-            DriveInfo driveInfo = new DriveInfo(driveLetter+":");
-            // Check the IsReady property to avoid DriveNotFoundException
-            result = driveInfo.IsReady && driveInfo.DriveFormat == DOKAN_FORMAT;
-          }, DRIVE_TIMEOUT_MS);
-      }
-      catch (TimeoutException)
-      {
-        result = true;
-      }
-      return result;
-    }
-
     protected static bool Prepare(char driveLetter)
     {
       ILogger logger = ServiceRegistration.Get<ILogger>();
@@ -214,6 +190,35 @@ namespace MediaPortal.Common.Services.Dokan
     public static Dokan Install(char driveLetter)
     {
       return Prepare(driveLetter) ? new Dokan(driveLetter) : null;
+    }
+
+    /// <summary>
+    /// Checks if a mounted drive exists and the filesystem type is <see cref="DOKAN_FORMAT"/>.
+    /// </summary>
+    /// <param name="driveLetter">Letter of drive to check.</param>
+    /// <returns><c>true</c>, if the drive with the given <paramref name="driveLetter"/> is a mounted Dokan drive, else <c>false</c>.</returns>
+    public static bool IsDokanDrive(char driveLetter)
+    {
+      bool result = false;
+      try
+      {
+        ThreadingUtils.CallWithTimeout(() =>
+          {
+            // By checking the given drive's format, we'll find ALL Dokan drives, also those which are added by other MP2 instances (Client/Server), which is good, but we even
+            // find those which are not added to the system by MediaPortal at all, which is not so good.
+            // A better way would be to modify the drive format the DOKAN library uses for its drives. That way, we could use an own drive format type for MP2.
+            // But unfortunately, the drive format cannot be configured in the DOKAN library.
+            // It would be also possible to check the drive's volume label, but I think the check for the drive format is more elegant.
+            DriveInfo driveInfo = new DriveInfo(driveLetter+":");
+            // Check the IsReady property to avoid DriveNotFoundException
+            result = driveInfo.IsReady && driveInfo.DriveFormat == DOKAN_FORMAT;
+          }, DRIVE_TIMEOUT_MS);
+      }
+      catch (TimeoutException)
+      {
+        result = true;
+      }
+      return result;
     }
 
     public VirtualRootDirectory GetRootDirectory(string rootDirectoryName)

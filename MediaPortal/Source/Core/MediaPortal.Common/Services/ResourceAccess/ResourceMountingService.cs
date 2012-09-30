@@ -129,8 +129,14 @@ namespace MediaPortal.Common.Services.ResourceAccess
     {
       if (rp == null)
         return false;
-      ResourcePath rootPath = RootPath;
-      return rootPath != null && rp.Serialize().StartsWith(rootPath.Serialize());
+      int numPathSegments = rp.Count();
+      if (numPathSegments == 0)
+        return false;
+      ResourcePath firtsRPSegment = new ResourcePath(new ProviderPathSegment[] {rp[0]});
+      String pathRoot = Path.GetPathRoot(LocalFsResourceProviderBase.ToDosPath(firtsRPSegment));
+      if (string.IsNullOrEmpty(pathRoot))
+        return false;
+      return Dokan.Dokan.IsDokanDrive(pathRoot[0]);
     }
 
     public string CreateRootDirectory(string rootDirectoryName)
