@@ -381,6 +381,7 @@ namespace UPnP.Infrastructure.CP
           _pendingRequests.Remove(state);
           rootDescriptor.State = RootDescriptorState.Ready;
         }
+        // This event is needed for two cases: 1) "Normal" first device advertisement, 2) configuration change event (see comment in method HandleDeviceConfigurationChanged)
         InvokeRootDeviceAdded(rootDescriptor);
       }
       else
@@ -496,7 +497,7 @@ namespace UPnP.Infrastructure.CP
     {
       // Configuration changes cannot be given to our clients because they need a re-initialization of the
       // device and all service description documents. So configuration changes will be handled by invocing a
-      // root device remove/add event combination.
+      // root device remove/add event combination. The add event will be fired when the initialization of the root descriptor has finished.
       InvokeRootDeviceRemoved(rootDescriptor);
       InitializeRootDescriptor(rootDescriptor.SSDPRootEntry);
     }

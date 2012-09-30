@@ -280,6 +280,15 @@ namespace UPnP.Infrastructure.CP.SSDP
     }
 
     /// <summary>
+    /// Clears all link configurations. That is necessary when a device has rebooted.
+    /// </summary>
+    internal void ClearLinks()
+    {
+      _preferredLink = null;
+      _linkConfigurations.Clear();
+    }
+
+    /// <summary>
     /// Adds a physical link to the device of this root entry.
     /// </summary>
     /// <param name="endpoint">Local endpoint to be used for this link.</param>

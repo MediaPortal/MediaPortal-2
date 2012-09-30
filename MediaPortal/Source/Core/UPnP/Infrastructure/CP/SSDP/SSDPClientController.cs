@@ -482,7 +482,7 @@ namespace UPnP.Infrastructure.CP.SSDP
     }
 
     protected RootEntry GetOrCreateRootEntry(string deviceUUID, string descriptionLocation, UPnPVersion upnpVersion, string osVersion,
-        string productVersion, DateTime expirationTime, EndpointConfiguration endpoint, HTTPVersion httpVersion, int searchPort, out LinkData link, out bool wasAdded)
+        string productVersion, DateTime expirationTime, EndpointConfiguration endpoint, HTTPVersion httpVersion, int searchPort, out bool wasAdded)
     {
       // Because the order of the UDP advertisement packets isn't guaranteed (and even not really specified by the UPnP specification),
       // in the general case it is not possible to find the correct root entry for each advertisement message.
@@ -510,7 +510,6 @@ namespace UPnP.Infrastructure.CP.SSDP
           _pendingDeviceEntries.Add(result);
           wasAdded = true;
         }
-        link = result.AddOrUpdateLink(endpoint, descriptionLocation, httpVersion, searchPort);
         return result;
       }
     }
@@ -747,12 +746,11 @@ namespace UPnP.Infrastructure.CP.SSDP
         lock (_cpData.SyncObj)
         {
           bool rootEntryAdded;
-          LinkData link;
           // Use fail-safe code, see comment above about the different SERVER headers
           string osVersion = versionInfos.Length < 1 ? string.Empty : versionInfos[0];
           string productVersion = versionInfos.Length < 3 ? string.Empty : versionInfos[2];
           rootEntry = GetOrCreateRootEntry(deviceUUID, location, upnpVersion, osVersion,
-              productVersion, expirationTime, config, httpVersion, searchPort, out link, out rootEntryAdded);
+              productVersion, expirationTime, config, httpVersion, searchPort, out rootEntryAdded);
           if (bi != null && rootEntry.BootID > bootID)
             // Invalid message
             return;
@@ -761,8 +759,13 @@ namespace UPnP.Infrastructure.CP.SSDP
             fireConfigurationChanged = true;
           rootEntry.SetConfigID(remoteEndPoint, configID);
           if (!rootEntryAdded && bi != null && rootEntry.BootID < bootID)
-            // Device reboot
+          { // Device reboot
+            // A device, which has rebooted, has lost all its links, so we must forget about the old link registrations and wait for new registrations in alive messages
+            rootEntry.ClearLinks();
             fireDeviceRebooted = true;
+          }
+          // Don't add the link before a reboot was detected and thus, rootEntry.ClearLinks() was called
+          rootEntry.AddOrUpdateLink(config, location, httpVersion, searchPort);
           rootEntry.BootID = bootID;
           if (messageType == "upnp:rootdevice")
           {
