@@ -28,6 +28,7 @@ using System.ComponentModel;
 using System.Linq;
 using System.Threading;
 using System.Windows;
+using System.Windows.Interop;
 using Hardcodet.Wpf.TaskbarNotification;
 using MediaPortal.Common;
 using MediaPortal.Common.Logging;
@@ -53,6 +54,14 @@ namespace MediaPortal.ServiceMonitor.ViewModel
     private const string SERVER_SERVICE_NAME = "MP2-Server"; // the name of the installed MP2 Server Service
     protected const string AUTOSTART_REGISTER_NAME = "MP2 ServiceMonitor";
 
+    private const int WM_POWERBROADCAST = 0x0218;
+    private const int PBT_APMQUERYSUSPENDFAILED = 0x0002;
+    private const int PBT_APMSUSPEND = 0x0004;
+    private const int PBT_APMRESUMECRITICAL = 0x0006;
+    private const int PBT_APMRESUMESUSPEND = 0x0007;
+    private const int PBT_APMPOWERSTATUSCHANGE = 0x000A;
+    private const int PBT_POWERSETTINGCHANGE = 0x8013;
+    private const int PBT_APMRESUMEAUTOMATIC = 0x0012;
     #endregion
 
     #region private variables
@@ -148,13 +157,40 @@ namespace MediaPortal.ServiceMonitor.ViewModel
       ServiceRegistration.Get<IMessageBroker>().RegisterMessageReceiver(ServerConnectionMessaging.CHANNEL, this);
       // Init Localization Messaging
       ServiceRegistration.Get<IMessageBroker>().RegisterMessageReceiver(LocalizationMessaging.CHANNEL, this);
-      // Set Init ServerStatus
-      UpdateServerStatus();
     }
 
     #endregion
 
     #region Main Window handling
+
+    public void StartUp(bool hideMainWindow)
+    {
+      ServiceRegistration.Get<ILogger>().Debug("StartUp ({0})", hideMainWindow);
+      if (Application.Current.MainWindow == null)
+        InitMainWindow();
+      
+      if (TaskbarIcon == null)
+        TaskbarIcon = InitSystemTray();
+      
+      if (hideMainWindow)
+        HideMainWindow();
+      else
+       ShowMainWindow();
+
+      // Set Init ServerStatus
+      UpdateServerStatus();
+    }
+
+    protected void InitMainWindow()
+    {
+      ServiceRegistration.Get<ILogger>().Debug("InitMainWindow");
+      Application.Current.MainWindow = new MainWindow
+        {ShowActivated = false, ShowInTaskbar = false, Visibility = Visibility.Collapsed };
+      Application.Current.MainWindow.Closing += OnMainWindowClosing;
+      Application.Current.MainWindow.SourceInitialized += OnMainWindowSourceInitialized;
+      Application.Current.MainWindow.Show();
+    }
+
 
     /// <summary>
     /// Displays the main application window and assigns
@@ -162,74 +198,82 @@ namespace MediaPortal.ServiceMonitor.ViewModel
     /// </summary>
     public void ShowMainWindow()
     {
-      var app = Application.Current;
-
-      if (app.MainWindow == null)
-      {
-        //create and show new main window
-        app.MainWindow = new MainWindow();
-        app.MainWindow.Show();
-        app.MainWindow.Activate();
-        app.MainWindow.Closing += OnMainWindowClosing;
-        if (TaskbarIcon == null)
-        {
-          TaskbarIcon = InitSystemTray();
-        }
-      }
-      else
-      {
-        //just show the window on top of others
-        app.MainWindow.Focus();
-        app.MainWindow.Activate();
-      }
-
-      //hide tray icon
-      //if (TaskbarIcon != null) TaskbarIcon.Visibility = Visibility.Collapsed;
+      ServiceRegistration.Get<ILogger>().Debug("ShowMainWindow");
+      //just show the window on top of others
+      Application.Current.MainWindow.ShowInTaskbar = true;
+      Application.Current.MainWindow.Visibility = Visibility.Visible; ;
+      Application.Current.MainWindow.Focus();
+      Application.Current.MainWindow.Activate();
     }
 
+    /// <summary>
+    /// Minimizes the application to the system tray.
+    /// </summary>
+    public void HideMainWindow()
+    {
+      ServiceRegistration.Get<ILogger>().Debug("HideMainWindow");
+      //close main window
+      if (Application.Current.MainWindow != null)
+      {
+        Application.Current.MainWindow.ShowInTaskbar = false;
+        Application.Current.MainWindow.Visibility = Visibility.Collapsed;
+      }
+    }
 
+    /// <summary>
+    /// Hook into Windows message
+    /// </summary>
+    /// <param name="sender"></param>
+    /// <param name="e"></param>
+    private void OnMainWindowSourceInitialized(object sender, EventArgs e)
+    {
+      ServiceRegistration.Get<ILogger>().Debug("OnMainWindowSourceInitialized");
+      //deregister event listener
+      ((Window) sender).SourceInitialized -= OnMainWindowSourceInitialized;
+
+      var app = Application.Current;
+      var windowHandle = (new WindowInteropHelper(app.MainWindow)).Handle;
+      var src = HwndSource.FromHwnd(windowHandle);
+      if (src != null) src.AddHook(new HwndSourceHook(WndProc));
+    }
+
+    private IntPtr WndProc(IntPtr hWnd, int msg, IntPtr wParam, IntPtr lParam, ref bool handled)
+    {
+      if (msg == WM_POWERBROADCAST)
+      {
+        ServiceRegistration.Get<ILogger>().Debug("WndProc: [{0}]", wParam);
+        var serverConnectionManager = (ServerConnectionManager)ServiceRegistration.Get<IServerConnectionManager>();
+        switch (wParam.ToInt32())
+        {
+          case PBT_APMSUSPEND:
+            ServiceRegistration.Get<ILogger>().Debug("WndProc: Suspend");
+            if ((serverConnectionManager != null) && (serverConnectionManager.IsStarted))
+              serverConnectionManager.Shutdown();
+            break;
+          case PBT_APMRESUMECRITICAL:
+          case PBT_APMRESUMEAUTOMATIC:
+          case PBT_APMRESUMESUSPEND:
+            ServiceRegistration.Get<ILogger>().Debug("WndProc: Resume");
+            if ((serverConnectionManager != null) && (!serverConnectionManager.IsStarted))
+              serverConnectionManager.Startup();
+            UpdateServerStatus();  
+            break;
+        }
+      }
+      return IntPtr.Zero;
+    }
+    
     /// <summary>
     /// Closes the main window 
     /// </summary>
     protected void OnMainWindowClosing(object sender, CancelEventArgs e)
     {
-      //deregister event listener, if required
-      ((Window) sender).Closing -= OnMainWindowClosing;
-
-      //reset main window in order to prevent further code
-      //to close it again while it is being closed
-      Application.Current.MainWindow = null;
-
+      ServiceRegistration.Get<ILogger>().Debug("OnMainWindowClosing");
+      
       //close application if necessary
       CloseMainApplication(false);
+      e.Cancel = true;
     }
-
-
-    /// <summary>
-    /// Minimizes the application to the system tray.
-    /// </summary>
-    public void MinimizeToTray()
-    {
-      //close main window
-      var mainWindow = Application.Current.MainWindow;
-      if (mainWindow != null)
-      {
-        //deregister closing event listener - if this method is not invoked
-        //due to the window being closes already, the closing window
-        //will not trigger any further action
-        mainWindow.Closing -= OnMainWindowClosing;
-        mainWindow.Close();
-      }
-
-      if (TaskbarIcon == null)
-      {
-        TaskbarIcon = InitSystemTray();
-      }
-
-      //show tray icon
-      TaskbarIcon.Visibility = Visibility.Visible;
-    }
-
 
     /// <summary>
     /// Closes the main window and either exits the application or displays
@@ -241,10 +285,23 @@ namespace MediaPortal.ServiceMonitor.ViewModel
     {
       if (!forceShutdown)
       {
-        MinimizeToTray();
+        HideMainWindow();
       }
       else
       {
+        ServiceRegistration.Get<ILogger>().Debug("ClosingMainApplication");
+        //deregister event listener, if required
+        Application.Current.MainWindow.Closing -= OnMainWindowClosing;
+        
+        // remove the hook when MainWindow is closing
+        var windowHandle = (new WindowInteropHelper(Application.Current.MainWindow)).Handle;
+        var src = HwndSource.FromHwnd(windowHandle);
+        if (src != null) src.RemoveHook(new HwndSourceHook(this.WndProc));
+
+        //reset main window in order to prevent further code
+        //to close it again while it is being closed
+        Application.Current.MainWindow = null;
+        
         //dispose
         Dispose();
 
@@ -259,9 +316,13 @@ namespace MediaPortal.ServiceMonitor.ViewModel
     /// </summary>
     public TaskbarIcon InitSystemTray()
     {
+      ServiceRegistration.Get<ILogger>().Debug("InitSystemTray");
       var taskbarIcon = (TaskbarIcon) Application.Current.FindResource("TrayIcon");
       if (taskbarIcon != null)
+      {
         taskbarIcon.DataContext = this;
+        taskbarIcon.Visibility = Visibility.Visible;
+      }
       return taskbarIcon;
 
     }

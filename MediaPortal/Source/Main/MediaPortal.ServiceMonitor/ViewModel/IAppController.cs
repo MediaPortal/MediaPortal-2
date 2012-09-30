@@ -41,7 +41,7 @@ namespace MediaPortal.ServiceMonitor.ViewModel
    /// <summary>
     /// Minimizes the application to the system tray.
     /// </summary>
-    void MinimizeToTray();
+    void HideMainWindow();
 
     /// <summary>
     /// Closes the main window and either exits the application or displays

@@ -241,10 +241,7 @@ namespace MediaPortal.ServiceMonitor
         try
         {
           ServiceRegistration.Get<IServerConnectionManager>().Startup();
-          if (mpArgs.IsMinimized)
-            appController.MinimizeToTray();
-          else
-            appController.ShowMainWindow();
+          appController.StartUp(mpArgs.IsMinimized);
         }
         catch (Exception e)
         {

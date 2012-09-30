@@ -49,6 +49,7 @@ namespace MediaPortal.ServiceMonitor.UPNP
 
     public ServerConnectionManager()
     {
+      IsStarted = false;
       string homeServerSystemId = HomeServerSystemId;
       if (string.IsNullOrEmpty(homeServerSystemId))
         // Watch for all MP 2 media servers, if we don't have a homeserver yet
@@ -264,12 +265,15 @@ namespace MediaPortal.ServiceMonitor.UPNP
       get { return _controlPoint; }
     }
 
+    public bool IsStarted { get; set; }
+
     public void Startup()
     {
       UPnPServerWatcher watcher;
       UPnPClientControlPoint cp;
       lock (_syncObj)
       {
+        IsStarted = true;
         watcher = _serverWatcher;
         cp = _controlPoint;
       }
@@ -285,6 +289,7 @@ namespace MediaPortal.ServiceMonitor.UPNP
       UPnPClientControlPoint cp;
       lock (_syncObj)
       {
+        IsStarted = false;
         watcher = _serverWatcher;
         cp = _controlPoint;
       }

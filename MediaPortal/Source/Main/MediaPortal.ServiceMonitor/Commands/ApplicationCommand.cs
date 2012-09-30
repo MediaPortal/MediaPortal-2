@@ -81,7 +81,7 @@ namespace MediaPortal.ServiceMonitor.Commands
           controller.CloseMainApplication(false);
           break;
         case "Minimize":
-          controller.MinimizeToTray();
+          controller.HideMainWindow();
           break;
         case "StartService":
           // avoid any delay due to starting of the MP2 Server Service
