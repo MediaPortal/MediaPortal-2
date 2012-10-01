@@ -82,6 +82,16 @@ namespace MediaPortal.Plugins.SlimTv.Service.UPnP
 
       #endregion
 
+      #region Init / Deinit
+
+      DvAction deInit = new DvAction(Consts.ACTION_DEINIT, OnDeInit,
+                             new DvArgument[] { },
+                             new DvArgument[] { });
+
+      AddAction(deInit);
+
+      #endregion
+
       #region ITimeshiftControl actions
 
       DvAction startTimeshift = new DvAction(Consts.ACTION_START_TIMESHIFT, OnStartTimeshift,
@@ -247,6 +257,20 @@ namespace MediaPortal.Plugins.SlimTv.Service.UPnP
       // We use the client's RemoteAdress as unique "user name", so we do not need to pass this argument from clients via UPnP.
       bool result = timeshiftControl.StopTimeshift(context.RemoteAddress, slotIndex);
       outParams = new List<object> { result };
+      return null;
+    }
+
+    private UPnPError OnDeInit(DvAction action, IList<object> inParams, out IList<object> outParams, CallContext context)
+    {
+      outParams = new List<object>();
+      ITimeshiftControlEx timeshiftControl = ServiceRegistration.Get<ITvProvider>() as ITimeshiftControlEx;
+      if (timeshiftControl == null)
+        return new UPnPError(500, "ITimeshiftControl service not available");
+
+      // We use the client's RemoteAdress as unique "user name", so we do not need to pass this argument from clients via UPnP.
+      timeshiftControl.StopTimeshift(context.RemoteAddress, 0);
+      timeshiftControl.StopTimeshift(context.RemoteAddress, 1);
+      outParams = new List<object>();
       return null;
     }
 

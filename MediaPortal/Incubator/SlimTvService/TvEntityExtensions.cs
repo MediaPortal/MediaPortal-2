@@ -16,14 +16,19 @@ namespace MediaPortal.Plugins.SlimTv.Service
         return null;
       Program program = new Program
         {
-          ChannelId = tvProgram.idChannel,
-          ProgramId = tvProgram.idProgram,
-          Title = tvProgram.title,
-          Description = tvProgram.description,
-          StartTime = tvProgram.startTime,
-          EndTime = tvProgram.endTime,
+          ChannelId = tvProgram.IdChannel,
+          ProgramId = tvProgram.IdProgram,
+          Title = tvProgram.Title,
+          Description = tvProgram.Description,
+          StartTime = tvProgram.StartTime,
+          EndTime = tvProgram.EndTime,
           // TODO: Genre!
         };
+
+      // TODO: this is not yet working, no schedulings are visible
+      // ProgramBLL programLogic = new ProgramBLL(tvProgram);
+      // program.RecordingStatus = programLogic.IsRecording ? RecordingStatus.Recording : RecordingStatus.None;
+      
       // Do time consuming calls only if needed
       if (includeRecordingStatus)
       {
@@ -36,12 +41,12 @@ namespace MediaPortal.Plugins.SlimTv.Service
 
     public static IChannel ToChannel(this Mediaportal.TV.Server.TVDatabase.Entities.Channel tvChannel)
     {
-      return new Channel { ChannelId = tvChannel.idChannel, Name = tvChannel.displayName };
+      return new Channel { ChannelId = tvChannel.IdChannel, Name = tvChannel.DisplayName };
     }
 
     public static IChannelGroup ToChannelGroup(this Mediaportal.TV.Server.TVDatabase.Entities.ChannelGroup tvGroup)
     {
-      return new ChannelGroup { ChannelGroupId = tvGroup.idGroup, Name = tvGroup.groupName };
+      return new ChannelGroup { ChannelGroupId = tvGroup.IdGroup, Name = tvGroup.GroupName };
     }
 
     //TODO: this method slows down the whole program item loading a lot. Maybe we should load the recording status only on demand?

@@ -1,0 +1,1819 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>Mediaportal.TV.Server.TVControl</name>
+    </assembly>
+    <members>
+        <member name="T:Mediaportal.TV.Server.TVControl.WaitFor`1">
+            <summary>
+            Helper class for invoking tasks with timeout. Overhead is 0,005 ms.
+            </summary>
+            <typeparam name="TResult">The type of the result.</typeparam>
+        </member>
+        <member name="M:Mediaportal.TV.Server.TVControl.WaitFor`1.#ctor(System.Int32)">
+            <summary>
+            Initializes a new instance of the <see cref="T:Mediaportal.TV.Server.TVControl.WaitFor`1"/> class,
+            using the specified timeout for all operations.        
+            </summary>        
+            <param name="timeout">The timeout.</param>
+        </member>
+        <member name="M:Mediaportal.TV.Server.TVControl.WaitFor`1.Run(Mediaportal.TV.Server.TVControl.Func{`0})">
+            <summary>
+            Executes the specified function within the current thread, aborting it        
+            if it does not complete within the specified timeout interval.         
+            </summary>        
+            <param name="function">The function.</param>        
+            <returns>result of the function</returns>        
+            <remarks>        
+            The performance trick is that we do not interrupt the current        
+            running thread. Instead, we just create a watcher that will sleep        
+            until the originating thread terminates or until the timeout is        
+            elapsed.        
+            </remarks>        
+            <exception cref="T:System.ArgumentNullException">if function is null</exception>        
+            <exception cref="T:System.TimeoutException">if the function does not finish in time </exception>        
+        </member>
+        <member name="M:Mediaportal.TV.Server.TVControl.WaitFor`1.Run(System.Int32,Mediaportal.TV.Server.TVControl.Func{`0})">
+            <summary>
+            
+            Executes the specified function within the current thread, aborting it        
+            if it does not complete within the specified timeout interval.
+            </summary>        
+            <param name="timeout">The timeout.</param>        
+            <param name="function">The function.</param>        
+            <returns>result of the function</returns>        
+            <remarks>        
+            The performance trick is that we do not interrupt the current        
+            running thread. Instead, we just create a watcher that will sleep        
+            until the originating thread terminates or until the timeout is        
+            elapsed.        
+            </remarks>        
+            <exception cref="T:System.ArgumentNullException">if function is null</exception>        
+            <exception cref="T:System.TimeoutException">if the function does not finish in time </exception>        
+        </member>
+        <member name="T:Mediaportal.TV.Server.TVControl.Events.TvServerEventArgs">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="M:Mediaportal.TV.Server.TVControl.Events.TvServerEventArgs.#ctor(Mediaportal.TV.Server.TVControl.Events.TvServerEventType)">
+            <summary>
+            Initializes a new instance of the <see cref="T:Mediaportal.TV.Server.TVControl.Events.TvServerEventArgs"/> class.
+            </summary>
+            <param name="eventType">Type of the _event.</param>
+        </member>
+        <member name="M:Mediaportal.TV.Server.TVControl.Events.TvServerEventArgs.#ctor(Mediaportal.TV.Server.TVControl.Events.TvServerEventType,Mediaportal.TV.Server.TVControl.VirtualCard,Mediaportal.TV.Server.TVControl.User)">
+            <summary>
+            Initializes a new instance of the <see cref="T:Mediaportal.TV.Server.TVControl.Events.TvServerEventArgs"/> class.
+            </summary>
+            <param name="eventType">Type of the _event.</param>
+            <param name="card">The card.</param>
+            <param name="user">The user.</param>
+        </member>
+        <member name="M:Mediaportal.TV.Server.TVControl.Events.TvServerEventArgs.#ctor(Mediaportal.TV.Server.TVControl.Events.TvServerEventType,Mediaportal.TV.Server.TVControl.VirtualCard,Mediaportal.TV.Server.TVControl.User,Mediaportal.TV.Server.TVLibrary.Interfaces.Interfaces.IChannel)">
+            <summary>
+            Initializes a new instance of the <see cref="T:Mediaportal.TV.Server.TVControl.Events.TvServerEventArgs"/> class.
+            </summary>
+            <param name="eventType">Type of the _event.</param>
+            <param name="card">The card.</param>
+            <param name="user">The user.</param>
+            <param name="channel">The channel.</param>
+        </member>
+        <member name="M:Mediaportal.TV.Server.TVControl.Events.TvServerEventArgs.#ctor(Mediaportal.TV.Server.TVControl.Events.TvServerEventType,Mediaportal.TV.Server.TVControl.VirtualCard,Mediaportal.TV.Server.TVControl.User,System.Int32,System.Int32)">
+            <summary>
+            Initializes a new instance of the <see cref="T:Mediaportal.TV.Server.TVControl.Events.TvServerEventArgs"/> class.
+            </summary>
+            <param name="eventType">Type of the event.</param>
+            <param name="card">The card.</param>
+            <param name="user">The user.</param>
+            <param name="schedule">The schedule.</param>
+            <param name="recording">The recording.</param>
+        </member>
+        <member name="M:Mediaportal.TV.Server.TVControl.Events.TvServerEventArgs.#ctor(Mediaportal.TV.Server.TVControl.Events.TvServerEventType,Mediaportal.TV.Server.TVControl.VirtualCard,Mediaportal.TV.Server.TVControl.User,System.Int32)">
+            <summary>
+            Initializes a new instance of the <see cref="T:Mediaportal.TV.Server.TVControl.Events.TvServerEventArgs"/> class.
+            </summary>
+            <param name="eventType">Type of the event.</param>
+            <param name="card">The card.</param>
+            <param name="user">The user.</param>
+            <param name="conflict">The conflict.</param>
+        </member>
+        <member name="M:Mediaportal.TV.Server.TVControl.Events.TvServerEventArgs.#ctor(Mediaportal.TV.Server.TVControl.Events.TvServerEventType,System.Collections.Generic.IList{System.Int32},System.Collections.Generic.IList{System.Int32},System.Object)">
+            <summary>
+            Initializes a new instance of the <see cref="T:Mediaportal.TV.Server.TVControl.Events.TvServerEventArgs"/> class.
+            </summary>
+            <param name="eventType">Type of the event.</param>
+            <param name="schedulesList">a IList of schedules</param>
+            <param name="conflictsList">a IList of conflicts</param>
+            <param name="argsUpdated">bool flag</param>
+        </member>
+        <member name="M:Mediaportal.TV.Server.TVControl.Events.TvServerEventArgs.#ctor(Mediaportal.TV.Server.TVControl.Events.TvServerEventType,Mediaportal.TV.Server.TVLibrary.Interfaces.Epg.EpgChannel)">
+            <summary>
+            Initializes a new instance of the <see cref="T:Mediaportal.TV.Server.TVControl.Events.TvServerEventArgs"/> class.
+            </summary>
+            <param name="eventType">Type of the event.</param>
+            <param name="epgChannel">The epg channel</param>
+        </member>
+        <member name="P:Mediaportal.TV.Server.TVControl.Events.TvServerEventArgs.User">
+            <summary>
+            Gets the user.
+            </summary>
+            <value>The user.</value>
+        </member>
+        <member name="P:Mediaportal.TV.Server.TVControl.Events.TvServerEventArgs.Card">
+            <summary>
+            Gets the card.
+            </summary>
+            <value>The card.</value>    
+        </member>
+        <member name="P:Mediaportal.TV.Server.TVControl.Events.TvServerEventArgs.channel">
+            <summary>
+            Gets the channel.
+            </summary>
+            <value>The channel.</value>    
+        </member>
+        <member name="P:Mediaportal.TV.Server.TVControl.Events.TvServerEventArgs.Recording">
+            <summary>
+            Gets the recording.
+            </summary>
+            <value>The recording.</value>
+        </member>
+        <member name="P:Mediaportal.TV.Server.TVControl.Events.TvServerEventArgs.Conflict">
+            <summary>
+            Gets the conflict.
+            </summary>
+            <value>The conflict.</value>
+        </member>
+        <member name="P:Mediaportal.TV.Server.TVControl.Events.TvServerEventArgs.Schedule">
+            <summary>
+            Gets the schedule.
+            </summary>
+            <value>The schedule.</value>
+        </member>
+        <member name="P:Mediaportal.TV.Server.TVControl.Events.TvServerEventArgs.EpgChannel">
+            <summary>
+            The received epgChannel
+            </summary>
+        </member>
+        <member name="P:Mediaportal.TV.Server.TVControl.Events.TvServerEventArgs.EventType">
+            <summary>
+            Gets the type of the event.
+            </summary>
+            <value>The type of the event.</value>
+        </member>
+        <member name="T:Mediaportal.TV.Server.TVControl.Interfaces.Services.IControllerService">
+            <summary>
+            interface class describing all methods available
+            to remote-control the TVService
+            </summary>
+        </member>
+        <member name="M:Mediaportal.TV.Server.TVControl.Interfaces.Services.IControllerService.InitConditionalAccess(System.Int32)">
+            <summary>
+            Initialized Conditional Access handler
+            </summary>
+            <param name="cardId">id of the card.</param>
+            <returns>true if successful</returns>
+        </member>
+        <member name="M:Mediaportal.TV.Server.TVControl.Interfaces.Services.IControllerService.Type(System.Int32)">
+            <summary>
+            Gets the type of card (analog,dvbc,dvbs,dvbt,atsc)
+            </summary>
+            <param name="cardId">id of the card.</param>
+            <value>cardtype</value>
+        </member>
+        <member name="M:Mediaportal.TV.Server.TVControl.Interfaces.Services.IControllerService.CardName(System.Int32)">
+            <summary>
+            Gets the name for a card.
+            </summary>
+            <param name="cardId">id of the card.</param>
+            <returns>name of card</returns>
+        </member>
+        <member name="M:Mediaportal.TV.Server.TVControl.Interfaces.Services.IControllerService.CanTune(System.Int32,Mediaportal.TV.Server.TVLibrary.Interfaces.Interfaces.IChannel)">
+            <summary>
+            Method to check if card can tune to the channel specified
+            </summary>
+            <returns>true if card can tune to the channel otherwise false</returns>
+        </member>
+        <member name="M:Mediaportal.TV.Server.TVControl.Interfaces.Services.IControllerService.IsCardPresent(System.Int32)">
+            <summary>
+            Method to check if card is currently present and detected
+            </summary>
+            <returns>true if card is present otherwise false</returns>
+        </member>
+        <member name="M:Mediaportal.TV.Server.TVControl.Interfaces.Services.IControllerService.CardRemove(System.Int32)">
+            <summary>
+            Method to remove a non-present card from the local card collection
+            </summary>
+            <returns>true if card is present otherwise false</returns>		
+        </member>
+        <member name="M:Mediaportal.TV.Server.TVControl.Interfaces.Services.IControllerService.CardDevice(System.Int32)">
+            <summary>
+            Gets the device path for a card.
+            </summary>
+            <param name="cardId">id of the card.</param>
+            <returns>devicePath of card</returns>
+        </member>
+        <member name="M:Mediaportal.TV.Server.TVControl.Interfaces.Services.IControllerService.TunerLocked(System.Int32)">
+            <summary>
+            Returns if the tuner is locked onto a signal or not
+            </summary>
+            <param name="cardId">id of the card.</param>
+            <returns>true when tuner is locked to a signal otherwise false</returns>
+        </member>
+        <member name="M:Mediaportal.TV.Server.TVControl.Interfaces.Services.IControllerService.SignalQuality(System.Int32)">
+            <summary>
+            Returns the signal quality for a card
+            </summary>
+            <param name="cardId">id of the card.</param>
+            <returns>signal quality (0-100)</returns>
+        </member>
+        <member name="M:Mediaportal.TV.Server.TVControl.Interfaces.Services.IControllerService.SignalLevel(System.Int32)">
+            <summary>
+            Returns the signal level for a card.
+            </summary>
+            <param name="cardId">id of the card.</param>
+            <returns>signal level (0-100)</returns>
+        </member>
+        <member name="M:Mediaportal.TV.Server.TVControl.Interfaces.Services.IControllerService.UpdateSignalSate(System.Int32)">
+            <summary>
+            Updates the signal state for a card.
+            </summary>
+            <param name="cardId">id of the card.</param>
+        </member>
+        <member name="M:Mediaportal.TV.Server.TVControl.Interfaces.Services.IControllerService.IsScanning(System.Int32)">
+            <summary>
+            Returns if the card is currently scanning for channels or not
+            </summary>
+            <param name="cardId">id of the card.</param>
+            <returns>true when card is scanning otherwise false</returns>
+        </member>
+        <member name="M:Mediaportal.TV.Server.TVControl.Interfaces.Services.IControllerService.IsGrabbingEpg(System.Int32)">
+            <summary>
+            Returns if the card is currently grabbing the epg or not
+            </summary>
+            <param name="cardId">id of the card.</param>
+            <returns>true when card is grabbing the epg  otherwise false</returns>
+        </member>
+        <member name="M:Mediaportal.TV.Server.TVControl.Interfaces.Services.IControllerService.Scan(System.Int32,Mediaportal.TV.Server.TVLibrary.Interfaces.Interfaces.IChannel)">
+            <summary>
+            scans current transponder for channels.
+            </summary>
+            <param name="cardId">id of the card.</param>
+            <param name="channel">contains tuningdetails for the transponder.</param>
+            <returns>list of all channels found</returns>    
+        </member>
+        <member name="M:Mediaportal.TV.Server.TVControl.Interfaces.Services.IControllerService.ScanNIT(System.Int32,Mediaportal.TV.Server.TVLibrary.Interfaces.Interfaces.IChannel)">
+            <summary>
+            scans nit the current transponder for channels
+            </summary>
+            <param name="cardId">id of the card.</param>
+            <param name="channel">contains tuningdetails for the transponder.</param>
+            <returns>list of all channels found</returns>
+        </member>
+        <member name="M:Mediaportal.TV.Server.TVControl.Interfaces.Services.IControllerService.MinChannel(System.Int32)">
+            <summary>
+            returns the minium channel numbers for analog cards
+            </summary>
+            <param name="cardId">id of the card.</param>
+            <returns>minium channel number</returns>
+        </member>
+        <member name="M:Mediaportal.TV.Server.TVControl.Interfaces.Services.IControllerService.MaxChannel(System.Int32)">
+            <summary>
+            returns the maximum channel numbers for analog cards
+            </summary>
+            <param name="cardId">id of the card.</param>
+            <returns>maximum channel number</returns>
+        </member>
+        <member name="M:Mediaportal.TV.Server.TVControl.Interfaces.Services.IControllerService.GetRecordingSchedule(System.Int32,System.String)">
+            <summary>
+            returns which schedule the card specified is currently recording
+            </summary>
+            <param name="cardId">card id</param>
+            <param name="userName"> </param>
+            <returns>id of Schedule or -1 if  card not recording</returns>
+        </member>
+        <member name="M:Mediaportal.TV.Server.TVControl.Interfaces.Services.IControllerService.GetRecordingUrl(System.Int32)">
+            <summary>
+            Returns the URL for the RTSP stream on which the client can find the
+            stream for recording 
+            </summary>
+            <param name="idRecording">id of recording</param>
+            <returns>URL containing the RTSP adress on which the recording can be found</returns>
+        </member>
+        <member name="M:Mediaportal.TV.Server.TVControl.Interfaces.Services.IControllerService.GetRecordingChapters(System.Int32)">
+            <summary>
+            Returns the contents of the chapters file (if any) for a recording 
+            </summary>
+            <param name="idRecording">id of recording</param>
+            <returns>The contents of the chapters file of the recording</returns>
+        </member>
+        <member name="M:Mediaportal.TV.Server.TVControl.Interfaces.Services.IControllerService.DeleteRecording(System.Int32)">
+            <summary>
+            Deletes the recording from database and disk
+            </summary>
+            <param name="idRecording">The id recording.</param>
+        </member>
+        <member name="M:Mediaportal.TV.Server.TVControl.Interfaces.Services.IControllerService.DeleteInvalidRecordings">
+            <summary>
+            Deletes invalid recordings from database. A recording is invalid if the corresponding file no longer exists.
+            </summary>
+        </member>
+        <member name="M:Mediaportal.TV.Server.TVControl.Interfaces.Services.IControllerService.DeleteWatchedRecordings(System.String)">
+            <summary>
+            Deletes watched recordings from database.
+            </summary>
+        </member>
+        <member name="M:Mediaportal.TV.Server.TVControl.Interfaces.Services.IControllerService.IsRecordingSchedule(System.Int32,Mediaportal.TV.Server.TVService.Interfaces.IVirtualCard@)">
+            <summary>
+            Checks if the schedule specified is currently being recorded and ifso
+            returns on which card
+            </summary>
+            <param name="idSchedule">id of the Schedule</param>
+            <param name="card">returns card is recording the channel</param>
+            <returns>true if a card is recording the schedule, otherwise false</returns>
+        </member>
+        <member name="M:Mediaportal.TV.Server.TVControl.Interfaces.Services.IControllerService.IsRecording(System.Int32,Mediaportal.TV.Server.TVService.Interfaces.IVirtualCard@)">
+            <summary>
+            Determines whether the specified channel name is recording.
+            </summary>
+            <param name="idChannel"></param>
+            <param name="card">The vcard.</param>
+            <returns>
+            	<c>true</c> if the specified channel name is recording; otherwise, <c>false</c>.
+            </returns>
+        </member>
+        <member name="M:Mediaportal.TV.Server.TVControl.Interfaces.Services.IControllerService.IsRecording(System.Int32,System.Int32)">
+            <summary>
+            
+            </summary>
+            <param name="idChannel"></param>
+            <param name="idCard"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Mediaportal.TV.Server.TVControl.Interfaces.Services.IControllerService.IsAnyCardRecording">
+            <summary>
+            Determines if any card is currently busy recording
+            </summary>
+            <returns>
+            	<c>true</c> if a card is recording; otherwise, <c>false</c>.
+            </returns>
+        </member>
+        <member name="M:Mediaportal.TV.Server.TVControl.Interfaces.Services.IControllerService.IsAnyCardRecordingOrTimeshifting(System.String,System.Boolean@,System.Boolean@,System.Boolean@)">
+            <summary>
+            Determines if any card is currently busy recording or timeshifting
+            </summary>
+            <param name="userName"> </param>
+            <param name="isUserTS">true if the specified user is timeshifting</param>
+            <param name="isAnyUserTS">true if any user (except for the userTS) is timeshifting</param>
+            <param name="isRec">true if recording</param>
+            <returns>
+            	<c>true</c> if a card is recording or timeshifting; otherwise, <c>false</c>.
+            </returns>
+        </member>
+        <member name="M:Mediaportal.TV.Server.TVControl.Interfaces.Services.IControllerService.StopRecordingSchedule(System.Int32)">
+            <summary>
+            Stops recording the Schedule specified
+            </summary>
+            <param name="idSchedule">id of the Schedule</param>
+            <returns></returns>
+        </member>
+        <member name="M:Mediaportal.TV.Server.TVControl.Interfaces.Services.IControllerService.OnNewSchedule">
+            <summary>
+            This method should be called by a client to indicate that
+            there is a new or modified Schedule in the database
+            </summary>
+        </member>
+        <member name="M:Mediaportal.TV.Server.TVControl.Interfaces.Services.IControllerService.Restart">
+            <summary>
+            Restarts the service.
+            </summary>
+        </member>
+        <member name="M:Mediaportal.TV.Server.TVControl.Interfaces.Services.IControllerService.IsCardInUse(System.Int32,Mediaportal.TV.Server.TVService.Interfaces.Services.IUser@)">
+            <summary>
+            Determines whether the card is in use
+            </summary>
+            <param name="cardId">The card id.</param>
+            <param name="user">The user who uses the card.</param>
+            <returns>
+            	<c>true</c> if card is in use; otherwise, <c>false</c>.
+            </returns>
+        </member>
+        <member name="M:Mediaportal.TV.Server.TVControl.Interfaces.Services.IControllerService.GetAllChannelStatesCached(System.String)">
+            <summary>
+            Fetches all channel states for a specific user (cached - faster)
+            </summary>
+            <param name="userName"> </param>
+        </member>
+        <member name="M:Mediaportal.TV.Server.TVControl.Interfaces.Services.IControllerService.GetChannelState(System.Int32,System.String)">
+            <summary>
+            Finds out whether a channel is currently tuneable or not
+            </summary>
+            <param name="idChannel">The channel id</param>
+            <param name="userName"> </param>
+            <returns>an enum indicating tunable/timeshifting/recording</returns>
+        </member>
+        <member name="M:Mediaportal.TV.Server.TVControl.Interfaces.Services.IControllerService.DiSEqCReset(System.Int32)">
+            <summary>
+            Reset DiSEqC for the given card
+            </summary>
+            <param name="cardId">card id</param>
+        </member>
+        <member name="M:Mediaportal.TV.Server.TVControl.Interfaces.Services.IControllerService.DiSEqCStopMotor(System.Int32)">
+            <summary>
+            Stops the DiSEqC motor for the given card
+            </summary>
+            <param name="cardId">card id</param>
+        </member>
+        <member name="M:Mediaportal.TV.Server.TVControl.Interfaces.Services.IControllerService.DiSEqCSetEastLimit(System.Int32)">
+            <summary>
+            Sets the DiSEqC east limit for the given card
+            </summary>
+            <param name="cardId">card id</param>
+        </member>
+        <member name="M:Mediaportal.TV.Server.TVControl.Interfaces.Services.IControllerService.DiSEqCSetWestLimit(System.Int32)">
+            <summary>
+            Sets the DiSEqC west limit for the given card
+            </summary>
+            <param name="cardId">card id</param>
+        </member>
+        <member name="M:Mediaportal.TV.Server.TVControl.Interfaces.Services.IControllerService.DiSEqCForceLimit(System.Int32,System.Boolean)">
+            <summary>
+            DiSEqC force limit  for the given card
+            </summary>
+            <param name="cardId">card id</param>
+            <param name="onoff">on/off</param>
+        </member>
+        <member name="M:Mediaportal.TV.Server.TVControl.Interfaces.Services.IControllerService.DiSEqCDriveMotor(System.Int32,Mediaportal.TV.Server.TVLibrary.Interfaces.Interfaces.DiSEqCDirection,System.Byte)">
+            <summary>
+            Moves the DiSEqC motor for the given card
+            </summary>
+            <param name="cardId">card id</param>
+            <param name="direction">direction</param>
+            <param name="numberOfSteps">Number of steps</param>
+        </member>
+        <member name="M:Mediaportal.TV.Server.TVControl.Interfaces.Services.IControllerService.DiSEqCStorePosition(System.Int32,System.Byte)">
+            <summary>
+            Stores the current DiSEqC position for the given card
+            </summary>
+            <param name="cardId">card id</param>
+            <param name="position">position</param>
+        </member>
+        <member name="M:Mediaportal.TV.Server.TVControl.Interfaces.Services.IControllerService.DiSEqCGotoReferencePosition(System.Int32)">
+            <summary>
+            DiSEqC move to the reference position for the given card
+            </summary>
+            <param name="cardId">card id</param>
+        </member>
+        <member name="M:Mediaportal.TV.Server.TVControl.Interfaces.Services.IControllerService.DiSEqCGotoPosition(System.Int32,System.Byte)">
+            <summary>
+            Go to the DiSEqC position for the given card
+            </summary>
+            <param name="cardId">card id</param>
+            <param name="position">position</param>
+        </member>
+        <member name="M:Mediaportal.TV.Server.TVControl.Interfaces.Services.IControllerService.DiSEqCGetPosition(System.Int32,System.Int32@,System.Int32@,System.Int32@)">
+            <summary>
+            Gets the DiSEqC position for the given card
+            </summary>
+            <param name="cardId">card id</param>
+            <param name="satellitePosition">satellite position</param>
+            <param name="stepsAzimuth">azimuth</param>
+            <param name="stepsElevation">elvation</param>
+        </member>
+        <member name="M:Mediaportal.TV.Server.TVControl.Interfaces.Services.IControllerService.GetSubChannels(System.Int32)">
+            <summary>
+            Returns the subchannels count for the selected card
+            stream for the selected card
+            </summary>
+            <param name="idCard">card id.</param>
+            <returns>
+            subchannels count
+            </returns>
+        </member>
+        <member name="M:Mediaportal.TV.Server.TVControl.Interfaces.Services.IControllerService.GetStreamingUrl(System.String)">
+            <summary>
+            Returns the URL for the RTSP stream on which the client can find the
+            stream for the selected card
+            </summary>
+            <param name="userName"> </param>
+            <returns>
+            URL containing the RTSP adress on which the card transmits its stream
+            </returns>
+        </member>
+        <member name="M:Mediaportal.TV.Server.TVControl.Interfaces.Services.IControllerService.RecordingFileName(System.String)">
+            <summary>
+            Returns the current filename used for recording
+            </summary>
+            <param name="user">The user.</param>
+            <returns>
+            filename of the recording or null when not recording
+            </returns>
+        </member>
+        <member name="M:Mediaportal.TV.Server.TVControl.Interfaces.Services.IControllerService.CurrentChannel(System.String,System.Int32)">
+            <summary>
+            Gets the tv/radio channel on which the card is currently tuned
+            </summary>
+            <param name="userName"> </param>
+            <param name="idChannel"> </param>
+            <returns>IChannel</returns>
+        </member>
+        <member name="M:Mediaportal.TV.Server.TVControl.Interfaces.Services.IControllerService.CurrentDbChannel(System.String)">
+            <summary>
+            returns the id of the current channel.
+            </summary>
+            <param name="userName"> </param>
+            <returns></returns>
+        </member>
+        <member name="M:Mediaportal.TV.Server.TVControl.Interfaces.Services.IControllerService.CurrentChannelName(System.String)">
+            <summary>
+            Gets the name of the tv/radio channel on which the card is currently tuned
+            </summary>
+            <param name="userName"> </param>
+            <returns>channel name</returns>
+        </member>
+        <member name="M:Mediaportal.TV.Server.TVControl.Interfaces.Services.IControllerService.IsScrambled(System.String)">
+            <summary>
+            Returns whether the channel to which the card is tuned is
+            scrambled or not.
+            </summary>
+            <param name="userName"> </param>
+            <returns>
+            yes if channel is scrambled and CI/CAM cannot decode it, otherwise false
+            </returns>
+        </member>
+        <member name="M:Mediaportal.TV.Server.TVControl.Interfaces.Services.IControllerService.TimeShiftFileName(System.String,System.Int32)">
+            <summary>
+            Returns the current filename used for timeshifting
+            </summary>
+            <param name="userName"> </param>
+            <param name="cardId"> </param>
+            <returns>
+            timeshifting filename null when not timeshifting
+            </returns>
+        </member>
+        <member name="M:Mediaportal.TV.Server.TVControl.Interfaces.Services.IControllerService.TimeShiftGetCurrentFilePosition(System.String,System.Int64@,System.Int64@)">
+            <summary>
+            Returns the position in the current timeshift file and the id of the current timeshift file
+            </summary>
+            <param name="userName"> </param>
+            <param name="position">The position in the current timeshift buffer file</param>
+            <param name="bufferId">The id of the current timeshift buffer file</param>
+        </member>
+        <member name="M:Mediaportal.TV.Server.TVControl.Interfaces.Services.IControllerService.IsTimeShifting(System.String)">
+            <summary>
+            Returns if the card is currently timeshifting or not
+            </summary>
+            <param name="userName"> </param>
+            <returns>true when card is timeshifting otherwise false</returns>
+        </member>
+        <member name="M:Mediaportal.TV.Server.TVControl.Interfaces.Services.IControllerService.TeletextRotation(System.String,System.Int32)">
+            <summary>
+            Returns the rotation time for a specific teletext page
+            </summary>
+            <param name="userName"> </param>
+            <param name="pageNumber">The pagenumber (0x100-0x899)</param>
+            <returns>timespan containing the rotation time</returns>
+        </member>
+        <member name="M:Mediaportal.TV.Server.TVControl.Interfaces.Services.IControllerService.HasTeletext(System.String)">
+            <summary>
+            Returns if the channel to which the card is currently tuned
+            has teletext or not
+            </summary>
+            <param name="userName"> </param>
+            <returns>
+            yes if channel has teletext otherwise false
+            </returns>
+        </member>
+        <member name="M:Mediaportal.TV.Server.TVControl.Interfaces.Services.IControllerService.GrabTeletext(System.String,System.Boolean)">
+            <summary>
+            turn on/off teletext grabbing for a card
+            </summary>
+            <param name="userName"> </param>
+            <param name="onOff">boolean indicating if teletext grabbing should be enabled or not</param>
+        </member>
+        <member name="M:Mediaportal.TV.Server.TVControl.Interfaces.Services.IControllerService.GetTeletextPage(System.String,System.Int32,System.Int32)">
+            <summary>
+            Gets a raw teletext page.
+            </summary>
+            <param name="userName"> </param>
+            <param name="pageNumber">The page number. (0x100-0x899)</param>
+            <param name="subPageNumber">The sub page number.(0x0-0x79)</param>
+            <returns>
+            byte[] array containing the raw teletext page or null if page is not found
+            </returns>
+        </member>
+        <member name="M:Mediaportal.TV.Server.TVControl.Interfaces.Services.IControllerService.SubPageCount(System.String,System.Int32)">
+            <summary>
+            Gets the number of subpages for a teletext page.
+            </summary>
+            <param name="userName"> </param>
+            <param name="pageNumber">The page number (0x100-0x899)</param>
+            <returns>
+            number of teletext subpages for the pagenumber
+            </returns>
+        </member>
+        <member name="M:Mediaportal.TV.Server.TVControl.Interfaces.Services.IControllerService.GetTeletextRedPageNumber(System.String)">
+            <summary>
+            Gets the teletext pagenumber for the red button
+            </summary>
+            <param name="userName"> </param>
+            <returns>Teletext pagenumber for the red button</returns>
+        </member>
+        <member name="M:Mediaportal.TV.Server.TVControl.Interfaces.Services.IControllerService.GetTeletextGreenPageNumber(System.String)">
+            <summary>
+            Gets the teletext pagenumber for the green button
+            </summary>
+            <param name="userName"> </param>
+            <returns>Teletext pagenumber for the green button</returns>
+        </member>
+        <member name="M:Mediaportal.TV.Server.TVControl.Interfaces.Services.IControllerService.GetTeletextYellowPageNumber(System.String)">
+            <summary>
+            Gets the teletext pagenumber for the yellow button
+            </summary>
+            <param name="userName"> </param>
+            <returns>Teletext pagenumber for the yellow button</returns>
+        </member>
+        <member name="M:Mediaportal.TV.Server.TVControl.Interfaces.Services.IControllerService.GetTeletextBluePageNumber(System.String)">
+            <summary>
+            Gets the teletext pagenumber for the blue button
+            </summary>
+            <param name="userName"> </param>
+            <returns>Teletext pagenumber for the blue button</returns>
+        </member>
+        <member name="M:Mediaportal.TV.Server.TVControl.Interfaces.Services.IControllerService.CopyTimeShiftFile(System.Int64,System.String,System.Int64,System.String,System.String)">
+            <summary>
+            
+            </summary>
+            <param name="position1"></param>
+            <param name="bufferFile1"></param>
+            <param name="position2"></param>
+            <param name="bufferFile2"></param>
+            <param name="recordingFile"></param>
+        </member>
+        <member name="M:Mediaportal.TV.Server.TVControl.Interfaces.Services.IControllerService.AvailableAudioStreams(System.String)">
+            <summary>
+            returns the list of available audio streams for the card specified
+            </summary>
+            <param name="userName"> </param>
+            <returns>List containing all audio streams</returns>
+        </member>
+        <member name="M:Mediaportal.TV.Server.TVControl.Interfaces.Services.IControllerService.GetCurrentVideoStream(System.String)">
+            <summary>
+            returns the current video stream on the virtual card. 
+            </summary>
+            <param name="userName"> </param>
+            <returns>List containing all audio streams</returns>
+        </member>
+        <member name="M:Mediaportal.TV.Server.TVControl.Interfaces.Services.IControllerService.StopCard(System.Int32)">
+            <summary>
+            Stops the card.
+            </summary>
+            <param name="idCard"> </param>
+        </member>
+        <member name="M:Mediaportal.TV.Server.TVControl.Interfaces.Services.IControllerService.ParkTimeShifting(System.String,System.Double,System.Int32,Mediaportal.TV.Server.TVService.Interfaces.Services.IUser@)">
+            <summary>
+            Park timeshifting for the user supplied
+            </summary>
+            <param name="userName"> </param>
+            <param name="duration"> </param>
+            <param name="idChannel"></param>
+            <param name="user"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Mediaportal.TV.Server.TVControl.Interfaces.Services.IControllerService.UnParkTimeShifting(System.String,System.Double,System.Int32,Mediaportal.TV.Server.TVService.Interfaces.Services.IUser@,Mediaportal.TV.Server.TVService.Interfaces.IVirtualCard@)">
+            <summary>
+            UnPark timeshifting for the user supplied
+            </summary>
+            <param name="userName"> </param>
+            <param name="duration"> </param>
+            <param name="idChannel"></param>
+            <param name="user"></param>
+            <param name="card"> </param>
+            <returns></returns>
+        </member>
+        <member name="M:Mediaportal.TV.Server.TVControl.Interfaces.Services.IControllerService.TimeShiftingWouldUseCard(System.String,System.Int32)">
+            <summary>
+            Query what card would be used for timeshifting on any given channel
+            </summary>
+            <param name="userName"> </param>
+            <param name="idChannel">The id channel.</param>
+            <returns>
+            returns card id which would be used when doing the actual timeshifting.
+            </returns>
+        </member>
+        <member name="M:Mediaportal.TV.Server.TVControl.Interfaces.Services.IControllerService.StartTimeShifting(System.String,System.Int32,System.Nullable{System.Int32},Mediaportal.TV.Server.TVService.Interfaces.IVirtualCard@,System.Collections.Generic.Dictionary{System.Int32,System.Collections.Generic.List{Mediaportal.TV.Server.TVService.Interfaces.Services.IUser}}@,System.Boolean,Mediaportal.TV.Server.TVService.Interfaces.Services.IUser@)">
+            <summary>
+            Start timeshifting on a specific channel
+            </summary>
+            <param name="userName"> </param>
+            <param name="idChannel">The id channel.</param>
+            <param name="kickCardId"> </param>
+            <param name="card">returns on which card timeshifting is started</param>
+            <param name="kickableCards"> </param>
+            <param name="forceCardId">Indicated, if the card should be forced</param>
+            <param name="user">user credentials.</param>
+            <returns>
+            TvResult indicating whether method succeeded
+            </returns>    
+        </member>
+        <member name="M:Mediaportal.TV.Server.TVControl.Interfaces.Services.IControllerService.StartTimeShifting(System.String,System.Int32,System.Nullable{System.Int32},Mediaportal.TV.Server.TVService.Interfaces.IVirtualCard@,System.Collections.Generic.Dictionary{System.Int32,System.Collections.Generic.List{Mediaportal.TV.Server.TVService.Interfaces.Services.IUser}}@,System.Boolean@,System.Nullable{System.Double}@,Mediaportal.TV.Server.TVService.Interfaces.Services.IUser@)">
+            <summary>
+            Start timeshifting on a specific channel
+            </summary>
+            <param name="userName"> </param>
+            <param name="idChannel">The id channel.</param>
+            <param name="kickCardId"> </param>
+            <param name="card">returns on which card timeshifting is started</param>
+            <param name="kickableCards"> </param>
+            <param name="cardChanged">indicates if card was changed</param>
+            <param name="parkedDuration"> </param>
+            <param name="user">user credentials.</param>
+            <returns>
+            TvResult indicating whether method succeeded
+            </returns>
+        </member>
+        <member name="M:Mediaportal.TV.Server.TVControl.Interfaces.Services.IControllerService.StartTimeShifting(System.String,System.Int32,Mediaportal.TV.Server.TVService.Interfaces.IVirtualCard@,Mediaportal.TV.Server.TVService.Interfaces.Services.IUser@)">
+            <summary>
+            Start timeshifting on a specific channel
+            </summary>
+            <param name="userName"> </param>
+            <param name="idChannel">The id channel.</param>
+            <param name="card">returns on which card timeshifting is started</param>
+            <param name="user">user credentials.</param>
+            <returns>
+            TvResult indicating whether method succeeded
+            </returns>
+        </member>
+        <member name="M:Mediaportal.TV.Server.TVControl.Interfaces.Services.IControllerService.StopTimeShifting(System.String,Mediaportal.TV.Server.TVService.Interfaces.Services.IUser@,Mediaportal.TV.Server.TVService.Interfaces.Enums.TvStoppedReason)">
+            <summary>
+            Stops the time shifting.
+            </summary>
+            <param name="userName"> </param>
+            <param name="user">user credentials.</param>
+            <param name="reason">reason why timeshifting is stopped.</param>
+            <returns>true if success otherwise false</returns>
+        </member>
+        <member name="M:Mediaportal.TV.Server.TVControl.Interfaces.Services.IControllerService.StopTimeShifting(System.String,Mediaportal.TV.Server.TVService.Interfaces.Services.IUser@)">
+            <summary>
+            Stops the time shifting.
+            </summary>
+            <param name="userName"> </param>
+            <param name="user">user credentials.</param>
+            <param name="channelId"> </param>
+            <returns>true if success otherwise false</returns>
+        </member>
+        <member name="M:Mediaportal.TV.Server.TVControl.Interfaces.Services.IControllerService.StartRecording(System.String,System.Int32,Mediaportal.TV.Server.TVService.Interfaces.Services.IUser@,System.String@)">
+            <summary>
+            Starts recording.
+            </summary>
+            <param name="userName"> </param>
+            <param name="cardId"> </param>
+            <param name="user">The user.</param>
+            <param name="fileName">Name of the recording file.</param>
+            <returns>true if success otherwise false</returns>
+        </member>
+        <member name="M:Mediaportal.TV.Server.TVControl.Interfaces.Services.IControllerService.StopRecording(System.String,System.Int32,Mediaportal.TV.Server.TVService.Interfaces.Services.IUser@)">
+            <summary>
+            Stops recording.
+            </summary>
+            <param name="userName"> </param>
+            <param name="idCard"> </param>
+            <param name="user">The user.</param>
+            <returns>true if success otherwise false</returns>
+        </member>
+        <member name="M:Mediaportal.TV.Server.TVControl.Interfaces.Services.IControllerService.Scan(System.String,System.Int32,Mediaportal.TV.Server.TVService.Interfaces.Services.IUser@,Mediaportal.TV.Server.TVLibrary.Interfaces.Interfaces.IChannel,System.Int32)">
+            <summary>
+            Scan the specified card to the channel.
+            </summary>
+            <param name="userName"> </param>
+            <param name="idCard"> </param>
+            <param name="user">The user.</param>
+            <param name="channel">The channel.</param>
+            <param name="idChannel">The id channel.</param>
+            <returns>true if succeeded</returns>
+        </member>
+        <member name="M:Mediaportal.TV.Server.TVControl.Interfaces.Services.IControllerService.Tune(System.String,System.Int32,Mediaportal.TV.Server.TVService.Interfaces.Services.IUser@,Mediaportal.TV.Server.TVLibrary.Interfaces.Interfaces.IChannel,System.Int32)">
+            <summary>
+            Tunes the the specified card to the channel.
+            </summary>
+            <param name="userName"> </param>
+            <param name="idCard"> </param>
+            <param name="user">The user.</param>
+            <param name="channel">The channel.</param>
+            <param name="idChannel">The id channel.</param>
+            <returns>true if succeeded</returns>
+        </member>
+        <member name="M:Mediaportal.TV.Server.TVControl.Interfaces.Services.IControllerService.GetUsersForCard(System.Int32)">
+            <summary>
+            Gets the users for card.
+            </summary>
+            <param name="cardId">The card id.</param>
+            <returns></returns>
+        </member>
+        <member name="M:Mediaportal.TV.Server.TVControl.Interfaces.Services.IControllerService.IsOwner(System.Int32,System.String)">
+            <summary>
+            Determines whether the the user is the owner of the card
+            </summary>
+            <param name="cardId">The card id.</param>
+            <param name="userName"> </param>
+            <returns>
+            	<c>true</c> if the specified user is the card owner; otherwise, <c>false</c>.
+            </returns>
+        </member>
+        <member name="M:Mediaportal.TV.Server.TVControl.Interfaces.Services.IControllerService.SupportsQualityControl(System.Int32)">
+            <summary>
+            Indicates if bit rate modes are supported
+            </summary>
+            <param name="cardId">Unique id of the card</param>
+            <returns>true/false</returns>
+        </member>
+        <member name="M:Mediaportal.TV.Server.TVControl.Interfaces.Services.IControllerService.SupportsBitRateModes(System.Int32)">
+            <summary>
+            Indicates if bit rate modes are supported
+            </summary>
+            <param name="cardId">Unique id of the card</param>
+            <returns>true/false</returns>
+        </member>
+        <member name="M:Mediaportal.TV.Server.TVControl.Interfaces.Services.IControllerService.SupportsPeakBitRateMode(System.Int32)">
+            <summary>
+            Indicates if peak bit rate mode is supported
+            </summary>
+            <param name="cardId">Unique id of the card</param>
+            <returns>true/false</returns>
+        </member>
+        <member name="M:Mediaportal.TV.Server.TVControl.Interfaces.Services.IControllerService.SupportsBitRate(System.Int32)">
+            <summary>
+            Indicates if bit rate control is supported
+            </summary>
+            <param name="cardId">Unique id of the card</param>
+            <returns>true/false</returns>
+        </member>
+        <member name="M:Mediaportal.TV.Server.TVControl.Interfaces.Services.IControllerService.ReloadCardConfiguration(System.Int32)">
+            <summary>
+            Reloads the configuration for the given card
+            </summary>
+            <param name="cardId">Unique id of the card</param>
+        </member>
+        <member name="M:Mediaportal.TV.Server.TVControl.Interfaces.Services.IControllerService.GetQualityType(System.Int32)">
+            <summary>
+            Gets the current quality type
+            </summary>
+            <param name="cardId">Unique id of the card</param>
+            <returns>QualityType</returns>
+        </member>
+        <member name="M:Mediaportal.TV.Server.TVControl.Interfaces.Services.IControllerService.SetQualityType(System.Int32,Mediaportal.TV.Server.TVLibrary.Interfaces.Interfaces.QualityType)">
+            <summary>
+            Sets the quality type
+            </summary>
+            <param name="cardId">Unique id of the card</param>
+            <param name="qualityType">The new quality type</param>
+        </member>
+        <member name="M:Mediaportal.TV.Server.TVControl.Interfaces.Services.IControllerService.GetBitRateMode(System.Int32)">
+            <summary>
+            Gets the current bitrate mdoe
+            </summary>
+            <param name="cardId">Unique id of the card</param>
+            <returns>QualityType</returns>
+        </member>
+        <member name="M:Mediaportal.TV.Server.TVControl.Interfaces.Services.IControllerService.SetBitRateMode(System.Int32,Mediaportal.TV.Server.TVLibrary.Interfaces.Interfaces.VIDEOENCODER_BITRATE_MODE)">
+            <summary>
+            Sets the bitrate mode
+            </summary>
+            <param name="cardId">Unique id of the card</param>
+            <param name="bitRateMode">The new bitrate mdoe</param>
+        </member>
+        <member name="M:Mediaportal.TV.Server.TVControl.Interfaces.Services.IControllerService.CiMenuSupported(System.Int32)">
+            <summary>
+            Indicates if CI Menu is supported
+            </summary>
+            <param name="cardId">Unique id of the card</param>
+            <returns>true/false</returns>
+        </member>
+        <member name="M:Mediaportal.TV.Server.TVControl.Interfaces.Services.IControllerService.EnterCiMenu(System.Int32)">
+            <summary>
+            Enters the ci menu of card
+            </summary>
+            <param name="cardId">card</param>
+            <returns>true if successful</returns>
+        </member>
+        <member name="M:Mediaportal.TV.Server.TVControl.Interfaces.Services.IControllerService.SelectMenu(System.Int32,System.Byte)">
+            <summary>
+            Selects a ci menu option
+            </summary>
+            <param name="cardId">card</param>
+            <param name="choice">choice</param>
+            <returns>true if successful</returns>
+        </member>
+        <member name="M:Mediaportal.TV.Server.TVControl.Interfaces.Services.IControllerService.CloseMenu(System.Int32)">
+            <summary>
+            CloseMenu closes the menu
+            </summary>
+            <param name="cardId">card</param>
+            <returns>true if successful</returns>
+        </member>
+        <member name="M:Mediaportal.TV.Server.TVControl.Interfaces.Services.IControllerService.SendMenuAnswer(System.Int32,System.Boolean,System.String)">
+            <summary>
+            Sends a answer to cam after a request
+            </summary>
+            <param name="cardId">card</param>
+            <param name="cancel">cancel request</param>
+            <param name="answer">answer string</param>
+            <returns></returns>
+        </member>
+        <member name="M:Mediaportal.TV.Server.TVControl.Interfaces.Services.IControllerService.SetCiMenuHandler(System.Int32,Mediaportal.TV.Server.TVLibrary.Interfaces.Interfaces.ICiMenuCallbacks)">
+            <summary>
+            Registers a ci menu callback handler for user interaction
+            </summary>
+            <param name="cardId"></param>
+            <param name="callbackHandler"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Mediaportal.TV.Server.TVControl.Interfaces.Services.IControllerService.GetStreamQualityCounters(System.String,System.Int32@,System.Int32@)">
+            <summary>
+            Fetches the stream quality information
+            </summary>
+            <param name="userName"> </param>
+            <param name="totalTSpackets">Amount of packets processed</param>
+            <param name="discontinuityCounter">Number of stream discontinuities</param>
+            <returns></returns>
+        </member>
+        <member name="P:Mediaportal.TV.Server.TVControl.Interfaces.Services.IControllerService.GetAssemblyVersion">
+            <summary>
+            Gets the assembly of tvservice.exe
+            </summary>
+            <value>Returns the AssemblyVersion of tvservice.exe</value>    
+        </member>
+        <member name="P:Mediaportal.TV.Server.TVControl.Interfaces.Services.IControllerService.Cards">
+            <summary>
+            Gets the total number of tv-cards installed.
+            </summary>
+            <value>Number which indicates the cards installed</value>
+        </member>
+        <member name="P:Mediaportal.TV.Server.TVControl.Interfaces.Services.IControllerService.EpgGrabberEnabled">
+            <summary>
+            Enable or disable the epg-grabber
+            </summary>
+        </member>
+        <member name="P:Mediaportal.TV.Server.TVControl.Interfaces.Services.IControllerService.ServerIpAdresses">
+            <summary>
+            Returns a list of all ip adresses on the server.
+            </summary>
+            <value>The server ip adresses.</value>
+        </member>
+        <member name="P:Mediaportal.TV.Server.TVControl.Interfaces.Services.IControllerService.StreamingPort">
+            <summary>
+            Returns the port used for RTSP streaming.
+            If streaming is not initialized, returns 0.
+            </summary>
+            <value>The streaming port</value>
+        </member>
+        <member name="P:Mediaportal.TV.Server.TVControl.Interfaces.Services.IControllerService.StreamingClients">
+            <summary>
+            Gets a list of all streaming clients.
+            </summary>
+            <value>The streaming clients.</value>
+        </member>
+        <member name="T:OSPrerequisites.OSPrerequisites">
+            <summary>
+             OS related checks
+            </summary>
+        </member>
+        <member name="M:OSPrerequisites.OSPrerequisites.OsCheck(System.Boolean)">
+            <summary>
+             Log and warn user if OS is not supported or is blacklisted
+            </summary>
+        </member>
+        <member name="T:Mediaportal.TV.Server.TVControl.VirtualCard">
+            <summary>
+            Virtual Card class
+            This class provides methods and properties which a client can use
+            The class will handle the communication and control with the
+            tv service backend
+            </summary>
+        </member>
+        <member name="M:Mediaportal.TV.Server.TVControl.VirtualCard.#ctor(Mediaportal.TV.Server.TVControl.User,System.String,System.Int32)">
+            <summary>
+            Initializes a new instance of the <see cref="T:Mediaportal.TV.Server.TVControl.VirtualCard"/> class.
+            </summary>
+            <param name="user">The user.</param>
+            <param name="server">The server.</param>
+            <param name="recordingFormat">The recording format.</param>
+        </member>
+        <member name="M:Mediaportal.TV.Server.TVControl.VirtualCard.#ctor(Mediaportal.TV.Server.TVService.Interfaces.Services.IUser,System.String)">
+            <summary>
+            Initializes a new instance of the <see cref="T:Mediaportal.TV.Server.TVControl.VirtualCard"/> class.
+            </summary>
+            <param name="user">The user.</param>
+            <param name="server">The server.</param>
+        </member>
+        <member name="M:Mediaportal.TV.Server.TVControl.VirtualCard.#ctor(Mediaportal.TV.Server.TVService.Interfaces.Services.IUser)">
+            <summary>
+            Initializes a new instance of the <see cref="T:Mediaportal.TV.Server.TVControl.VirtualCard"/> class.
+            </summary>
+            <param name="user">The user.</param>
+        </member>
+        <member name="M:Mediaportal.TV.Server.TVControl.VirtualCard.GetCurrentVideoStream(Mediaportal.TV.Server.TVService.Interfaces.Services.IUser)">
+            <summary>
+            Gets the current video stream format.
+            </summary>
+            <value>The available video streams.</value>
+        </member>
+        <member name="M:Mediaportal.TV.Server.TVControl.VirtualCard.GetStreamQualityCounters(System.Int32@,System.Int32@)">
+            <summary>
+            Fetches the stream quality information
+            </summary>
+            <param name="totalTSpackets">Amount of packets processed</param>    
+            <param name="discontinuityCounter">Number of stream discontinuities</param>
+            <returns></returns>    
+        </member>
+        <member name="M:Mediaportal.TV.Server.TVControl.VirtualCard.GetTeletextPage(System.Int32,System.Int32)">
+            <summary>
+            Gets a raw teletext page.
+            </summary>
+            <param name="pageNumber">The page number. (0x100-0x899)</param>
+            <param name="subPageNumber">The sub page number.(0x0-0x79)</param>
+            <returns>byte[] array containing the raw teletext page or null if page is not found</returns>
+        </member>
+        <member name="M:Mediaportal.TV.Server.TVControl.VirtualCard.StopTimeShifting">
+            <summary>
+            Stops the time shifting.
+            </summary>
+            <returns>true if success otherwise false</returns>
+        </member>
+        <member name="M:Mediaportal.TV.Server.TVControl.VirtualCard.StopRecording">
+            <summary>
+            Stops recording.
+            </summary>
+            <returns>true if success otherwise false</returns>
+        </member>
+        <member name="M:Mediaportal.TV.Server.TVControl.VirtualCard.StartRecording(System.String@)">
+            <summary>
+            Starts recording.
+            </summary>
+            <param name="fileName">Name of the recording file.</param>
+            <returns>true if success otherwise false</returns>
+        </member>
+        <member name="M:Mediaportal.TV.Server.TVControl.VirtualCard.SubPageCount(System.Int32)">
+            <summary>
+            Gets the number of subpages for a teletext page.
+            </summary>
+            <param name="pageNumber">The page number (0x100-0x899)</param>
+            <returns>number of teletext subpages for the pagenumber</returns>
+        </member>
+        <member name="M:Mediaportal.TV.Server.TVControl.VirtualCard.GetTeletextRedPageNumber">
+            <summary>
+            Gets the teletext pagenumber for the red button
+            </summary>
+            <returns>Teletext pagenumber for the red button</returns>
+        </member>
+        <member name="M:Mediaportal.TV.Server.TVControl.VirtualCard.GetTeletextGreenPageNumber">
+            <summary>
+            Gets the teletext pagenumber for the green button
+            </summary>
+            <returns>Teletext pagenumber for the green button</returns>
+        </member>
+        <member name="M:Mediaportal.TV.Server.TVControl.VirtualCard.GetTeletextYellowPageNumber">
+            <summary>
+            Gets the teletext pagenumber for the yellow button
+            </summary>
+            <returns>Teletext pagenumber for the yellow button</returns>
+        </member>
+        <member name="M:Mediaportal.TV.Server.TVControl.VirtualCard.GetTeletextBluePageNumber">
+            <summary>
+            Gets the teletext pagenumber for the blue button
+            </summary>
+            <returns>Teletext pagenumber for the blue button</returns>
+        </member>
+        <member name="M:Mediaportal.TV.Server.TVControl.VirtualCard.TeletextRotation(System.Int32)">
+            <summary>f
+            Returns the rotation time for a specific teletext page
+            </summary>
+            <param name="pageNumber">The pagenumber (0x100-0x899)</param>
+            <returns>timespan containing the rotation time</returns>
+        </member>
+        <member name="M:Mediaportal.TV.Server.TVControl.VirtualCard.IsOwner">
+            <summary>
+            Indicates, if the user is the owner of the card
+            </summary>
+            <returns>true/false</returns>
+        </member>
+        <member name="M:Mediaportal.TV.Server.TVControl.VirtualCard.SupportsQualityControl">
+            <summary>
+            Indicates, if the card supports quality control
+            </summary>
+            <returns>true/false</returns>
+        </member>
+        <member name="M:Mediaportal.TV.Server.TVControl.VirtualCard.SupportsBitRate">
+            <summary>
+            Indicates, if the card supports bit rates
+            </summary>
+            <returns>true/false</returns>
+        </member>
+        <member name="M:Mediaportal.TV.Server.TVControl.VirtualCard.SupportsBitRateModes">
+            <summary>
+            Indicates, if the card supports bit rate modes 
+            </summary>
+            <returns>true/false</returns>
+        </member>
+        <member name="M:Mediaportal.TV.Server.TVControl.VirtualCard.SupportsPeakBitRateMode">
+            <summary>
+            Indicates, if the card supports bit rate peak mode
+            </summary>
+            <returns>true/false</returns>
+        </member>
+        <member name="M:Mediaportal.TV.Server.TVControl.VirtualCard.CiMenuSupported">
+            <summary>
+            Indicates, if the card supports CI Menu
+            </summary>
+            <returns>true/false</returns>
+        </member>
+        <member name="M:Mediaportal.TV.Server.TVControl.VirtualCard.EnterCiMenu">
+            <summary>
+            Enters the CI Menu for current card
+            </summary>
+            <returns>true if successful</returns>
+        </member>
+        <member name="M:Mediaportal.TV.Server.TVControl.VirtualCard.SelectCiMenu(System.Byte)">
+            <summary>
+            Selects a ci menu entry
+            </summary>
+            <param name="Choice">Choice (1 based), 0 for "back"</param>
+            <returns>true if successful</returns>
+        </member>
+        <member name="M:Mediaportal.TV.Server.TVControl.VirtualCard.CloseMenu">
+            <summary>
+            Closes the CI Menu for current card
+            </summary>
+            <returns>true if successful</returns>
+        </member>
+        <member name="M:Mediaportal.TV.Server.TVControl.VirtualCard.SendMenuAnswer(System.Boolean,System.String)">
+            <summary>
+            Sends an answer to CAM after a request
+            </summary>
+            <param name="Cancel">cancel request</param>
+            <param name="Answer">answer string</param>
+            <returns>true if successful</returns>
+        </member>
+        <member name="M:Mediaportal.TV.Server.TVControl.VirtualCard.SetCiMenuHandler(Mediaportal.TV.Server.TVLibrary.Interfaces.Interfaces.ICiMenuCallbacks)">
+            <summary>
+            Sets a callback handler
+            </summary>
+            <param name="CallbackHandler"></param>
+            <returns></returns>
+        </member>
+        <member name="P:Mediaportal.TV.Server.TVControl.VirtualCard.User">
+            <summary>
+            Gets the user.
+            </summary>
+            <value>The user.</value>
+        </member>
+        <member name="P:Mediaportal.TV.Server.TVControl.VirtualCard.Id">
+            <summary>
+            returns the card id of this virtual card
+            </summary>
+        </member>
+        <member name="P:Mediaportal.TV.Server.TVControl.VirtualCard.RemoteServer">
+            <summary>
+            gets the ip adress of the tvservice
+            </summary>
+        </member>
+        <member name="P:Mediaportal.TV.Server.TVControl.VirtualCard.RecordingFormat">
+            <summary>
+             Gets/Set the recording format
+            </summary>
+        </member>
+        <member name="P:Mediaportal.TV.Server.TVControl.VirtualCard.RecordingFolder">
+            <summary>
+            gets/sets the recording folder for the card
+            </summary>    
+        </member>
+        <member name="P:Mediaportal.TV.Server.TVControl.VirtualCard.TimeshiftFolder">
+            <summary>
+            gets/sets the timeshifting folder for the card
+            </summary>    
+        </member>
+        <member name="P:Mediaportal.TV.Server.TVControl.VirtualCard.Type">
+            <summary>
+            Gets the type of card (analog,dvbc,dvbs,dvbt,atsc)
+            </summary>
+            <value>cardtype</value>    
+        </member>
+        <member name="P:Mediaportal.TV.Server.TVControl.VirtualCard.Name">
+            <summary>
+            Gets the name 
+            </summary>
+            <returns>name of card</returns>    
+        </member>
+        <member name="P:Mediaportal.TV.Server.TVControl.VirtualCard.RecordingFileName">
+            <summary>
+            Returns the current filename used for recording
+            </summary>
+            <returns>filename of the recording or null when not recording</returns>    
+        </member>
+        <member name="P:Mediaportal.TV.Server.TVControl.VirtualCard.RTSPUrl">
+            <summary>
+            Returns the URL for the RTSP stream on which the client can find the
+            stream 
+            </summary>
+            <returns>URL containing the RTSP adress on which the card transmits its stream</returns>
+        </member>
+        <member name="P:Mediaportal.TV.Server.TVControl.VirtualCard.HasTeletext">
+            <summary>
+            Returns if the current channel has teletext or not
+            </summary>
+            <returns>yes if channel has teletext otherwise false</returns>    
+        </member>
+        <member name="P:Mediaportal.TV.Server.TVControl.VirtualCard.IsGrabbingEpg">
+            <summary>
+            Returns if we arecurrently grabbing the epg or not
+            </summary>
+            <returns>true when card is grabbing the epg otherwise false</returns>    
+        </member>
+        <member name="P:Mediaportal.TV.Server.TVControl.VirtualCard.IsRecording">
+            <summary>
+            Returns if card is currently recording or not
+            </summary>
+            <returns>true when card is recording otherwise false</returns>    
+        </member>
+        <member name="P:Mediaportal.TV.Server.TVControl.VirtualCard.IsScanning">
+            <summary>
+            Returns if card is currently scanning or not
+            </summary>
+            <returns>true when card is scanning otherwise false</returns>    
+        </member>
+        <member name="P:Mediaportal.TV.Server.TVControl.VirtualCard.IsScrambled">
+            <summary>
+            Returns whether the current channel is scrambled or not.
+            </summary>
+            <returns>yes if channel is scrambled and CI/CAM cannot decode it, otherwise false</returns>    
+        </member>
+        <member name="P:Mediaportal.TV.Server.TVControl.VirtualCard.IsTimeShifting">
+            <summary>
+            Returns if card is currently timeshifting or not
+            </summary>
+            <returns>true when card is timeshifting otherwise false</returns>    
+        </member>
+        <member name="P:Mediaportal.TV.Server.TVControl.VirtualCard.TimeShiftFileName">
+            <summary>
+            Returns the current filename used for timeshifting
+            </summary>
+            <returns>timeshifting filename null when not timeshifting</returns>    
+        </member>
+        <member name="P:Mediaportal.TV.Server.TVControl.VirtualCard.NrOfOtherUsersTimeshiftingOnCard">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="P:Mediaportal.TV.Server.TVControl.VirtualCard.AvailableAudioStreams">
+            <summary>
+            Gets the available audio streams.
+            </summary>
+            <value>The available audio streams.</value>    
+        </member>
+        <member name="P:Mediaportal.TV.Server.TVControl.VirtualCard.RecordingScheduleId">
+            <summary>
+            returns which schedule is currently being recorded
+            </summary>
+            <returns>id of Schedule or -1 if  card not recording</returns>
+        </member>
+        <member name="P:Mediaportal.TV.Server.TVControl.VirtualCard.GrabTeletext">
+            <summary>
+            turn on/off teletext grabbing
+            </summary>
+        </member>
+        <member name="P:Mediaportal.TV.Server.TVControl.VirtualCard.IsTunerLocked">
+            <summary>
+            Returns if the tuner is locked onto a signal or not
+            </summary>
+            <returns>true if tuner is locked otherwise false</returns>
+        </member>
+        <member name="P:Mediaportal.TV.Server.TVControl.VirtualCard.SignalLevel">
+            <summary>
+            Returns the signal level 
+            </summary>
+            <returns>signal level (0-100)</returns>
+        </member>
+        <member name="P:Mediaportal.TV.Server.TVControl.VirtualCard.SignalQuality">
+            <summary>
+            Returns the signal quality 
+            </summary>
+            <returns>signal quality (0-100)</returns>
+        </member>
+        <member name="P:Mediaportal.TV.Server.TVControl.VirtualCard.ChannelName">
+            <summary>
+            Gets the name of the tv/radio channel to which we are tuned
+            </summary>
+            <returns>channel name</returns>    
+        </member>
+        <member name="P:Mediaportal.TV.Server.TVControl.VirtualCard.IdChannel">
+            <summary>
+            returns the database channel
+            </summary>
+            <returns>int</returns>    
+        </member>
+        <member name="P:Mediaportal.TV.Server.TVControl.VirtualCard.QualityType">
+            <summary>
+            Gets/Sts the quality type
+            </summary>
+        </member>
+        <member name="P:Mediaportal.TV.Server.TVControl.VirtualCard.BitRateMode">
+            <summary>
+            Gets/Sts the bitrate mode
+            </summary>
+        </member>
+        <member name="T:Mediaportal.TV.Server.TVControl.User">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="M:Mediaportal.TV.Server.TVControl.User.#ctor">
+            <summary>
+            Initializes a new instance of the <see cref="T:Mediaportal.TV.Server.TVControl.User"/> class.
+            </summary>
+        </member>
+        <member name="M:Mediaportal.TV.Server.TVControl.User.#ctor(System.String,Mediaportal.TV.Server.TVService.Interfaces.Enums.UserType)">
+            <summary>
+            Initializes a new instance of the <see cref="T:Mediaportal.TV.Server.TVControl.User"/> class.
+            </summary>
+            <param name="name">The name.</param>
+            <param name="userType"> </param>    
+        </member>
+        <member name="M:Mediaportal.TV.Server.TVControl.User.#ctor(System.String,Mediaportal.TV.Server.TVService.Interfaces.Enums.UserType,System.Int32)">
+            <summary>
+            Initializes a new instance of the <see cref="T:Mediaportal.TV.Server.TVControl.User"/> class.
+            </summary>
+            <param name="name">The name.</param>    
+            <param name="userType"> </param>
+            <param name="cardId">The card id.</param>
+        </member>
+        <member name="M:Mediaportal.TV.Server.TVControl.User.#ctor(System.String,Mediaportal.TV.Server.TVService.Interfaces.Enums.UserType,System.Int32,System.Int32)">
+            <summary>
+            Initializes a new instance of the <see cref="T:Mediaportal.TV.Server.TVControl.User"/> class.
+            </summary>
+            <param name="name">The name.</param>
+            <param name="userType"> </param>
+            <param name="cardId">The card id.</param>
+            <param name="priority">card lock priority</param>
+        </member>
+        <member name="M:Mediaportal.TV.Server.TVControl.User.Clone">
+            <summary>
+            Creates a new object that is a copy of the current instance.
+            </summary>
+            <returns>
+            A new object that is a copy of this instance.
+            </returns>
+        </member>
+        <member name="P:Mediaportal.TV.Server.TVControl.User.Priority">
+            <summary>
+            Gets an integer defining the user's card lock priority (higher number=higher priority)
+            </summary>    
+            <returns>user priority</returns>
+        </member>
+        <member name="P:Mediaportal.TV.Server.TVControl.User.ChannelStates">
+            <summary>
+            Gets a list of all channel states    
+            </summary>    
+            <returns>dictionary containing all channel states of the channels supplied</returns>
+        </member>
+        <member name="P:Mediaportal.TV.Server.TVControl.User.FailedCardId">
+            <summary>
+            Gets or sets the failed card id.
+            </summary>
+            <value>The card id.</value>
+        </member>
+        <member name="P:Mediaportal.TV.Server.TVControl.User.CardId">
+            <summary>
+            Gets or sets the card id.
+            </summary>
+            <value>The card id.</value>
+        </member>
+        <member name="P:Mediaportal.TV.Server.TVControl.User.Name">
+            <summary>
+            Gets or sets the name.
+            </summary>
+            <value>The name.</value>
+        </member>
+        <member name="P:Mediaportal.TV.Server.TVControl.User.History">
+            <summary>
+            Gets or sets the history.
+            </summary>
+            <value>The history.</value>
+        </member>
+        <member name="P:Mediaportal.TV.Server.TVControl.User.TvStoppedReason">
+            <summary>
+            Gets/Sets the stop reason
+            </summary>
+        </member>
+        <member name="M:Mediaportal.TV.Server.TVControl.Interfaces.Services.IInternalControllerService.CardId(System.Int32)">
+            <summary>
+            Gets the card Id for a card
+            </summary>
+            <param name="cardIndex">Index of the card.</param>
+            <value>id of card</value>    
+        </member>
+        <member name="M:Mediaportal.TV.Server.TVControl.Interfaces.Services.IInternalControllerService.IsRecording(Mediaportal.TV.Server.TVService.Interfaces.Services.IUser@)">
+            <summary>
+            Returns if the card is currently recording or not
+            </summary>
+            <param name="user">The user.</param>
+            <returns>
+            true when card is recording otherwise false
+            </returns>    
+        </member>
+        <member name="M:Mediaportal.TV.Server.TVControl.Interfaces.Services.IInternalControllerService.GetAllTimeshiftingAndRecordingChannels">
+            <summary>
+            Returns a dictionary of channels that are timeshfiting and recording.
+            </summary>
+        </member>
+        <member name="M:Mediaportal.TV.Server.TVControl.Interfaces.Services.IInternalControllerService.DeInit">
+            <summary>
+            Cleans up the controller
+            </summary>
+        </member>
+        <member name="M:Mediaportal.TV.Server.TVControl.Interfaces.Services.IInternalControllerService.IsCardEnabled(System.Int32)">
+            <summary>
+            returns if the card is enabled or disabled
+            </summary>
+            <param name="cardId">id of the card.</param>
+            <value>true if enabled, otherwise false</value>
+        </member>
+        <member name="M:Mediaportal.TV.Server.TVControl.Interfaces.Services.IInternalControllerService.Tune(Mediaportal.TV.Server.TVService.Interfaces.Services.IUser@,Mediaportal.TV.Server.TVLibrary.Interfaces.Interfaces.IChannel,System.Int32,System.Object)">
+            <summary>
+            Tunes the the specified card to the channel.
+            </summary>
+            <param name="user">The user.</param>
+            <param name="channel">The channel.</param>
+            <param name="idChannel">The id channel.</param>
+            <param name="ticket">card reservation ticket</param>
+            <returns>true if succeeded</returns>
+        </member>
+        <member name="M:Mediaportal.TV.Server.TVControl.Interfaces.Services.IInternalControllerService.Tune(Mediaportal.TV.Server.TVService.Interfaces.Services.IUser@,Mediaportal.TV.Server.TVLibrary.Interfaces.Interfaces.IChannel,System.Int32,System.Object,System.Object)">
+            <summary>
+            Tunes the the specified card to the channel.
+            </summary>
+            <param name="user">The user.</param>
+            <param name="channel">The channel.</param>
+            <param name="idChannel">The id channel.</param>
+            <param name="ticket">card reservation ticket</param>
+            <param name="cardResImpl"></param>
+            <returns>true if succeeded</returns>
+        </member>
+        <member name="M:Mediaportal.TV.Server.TVControl.Interfaces.Services.IInternalControllerService.GrabEpg(Mediaportal.TV.Server.TVLibrary.Interfaces.Interfaces.BaseEpgGrabber,Mediaportal.TV.Server.TVService.Interfaces.Services.IUser)">
+            <summary>
+            grabs the epg.
+            </summary>
+            <param name="grabber">EPG grabber</param>    
+            <param name="user"> </param>
+            <returns></returns>
+        </member>
+        <member name="M:Mediaportal.TV.Server.TVControl.Interfaces.Services.IInternalControllerService.AbortEPGGrabbing(System.Int32)">
+            <summary>
+            Aborts grabbing the epg. This also triggers the OnEpgReceived callback.
+            </summary>
+        </member>
+        <member name="M:Mediaportal.TV.Server.TVControl.Interfaces.Services.IInternalControllerService.Epg(System.Int32)">
+            <summary>
+            Epgs the specified card id.
+            </summary>
+            <param name="cardId">The card id.</param>
+            <returns></returns>
+        </member>
+        <member name="M:Mediaportal.TV.Server.TVControl.Interfaces.Services.IInternalControllerService.StopGrabbingEpg(Mediaportal.TV.Server.TVService.Interfaces.Services.IUser)">
+            <summary>
+            Stops the grabbing epg.
+            </summary>
+            <param name="user">User</param>
+        </member>
+        <member name="M:Mediaportal.TV.Server.TVControl.Interfaces.Services.IInternalControllerService.Fire(System.Object,System.EventArgs)">
+            <summary>
+            Fires an ITvServerEvent to plugins.
+            </summary>
+            <param name="sender">The sender.</param>
+            <param name="args">The <see cref="T:System.EventArgs"/> instance containing the event data.</param>
+        </member>
+        <member name="P:Mediaportal.TV.Server.TVControl.Interfaces.Services.IInternalControllerService.ActiveStreams">
+            <summary>
+            Determines the number of active streams on the server
+            </summary>
+        </member>
+        <member name="M:Mediaportal.TV.Server.TVControl.ServiceHelper.GetTcpBinding">
+            <summary>
+            
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="T:Mediaportal.TV.Server.TVControl.RemoteControl">
+            <summary>
+            Class which holds the connection with the master tv-server
+            </summary>
+        </member>
+        <member name="P:Mediaportal.TV.Server.TVControl.RemoteControl.HostName">
+            <summary>
+            Gets or sets the name the hostname of the master tv-server.
+            </summary>
+            <value>The name of the host.</value>
+        </member>
+        <member name="T:Mediaportal.TV.Server.TVControl.Constants.TCPconsts">
+            <summary>
+            Grouping of app constants
+            </summary>
+        </member>
+        <member name="T:Mediaportal.TV.Server.TVControl.Events.TvServerEventType">
+            <summary>
+            Enum for the different event types
+            </summary>
+        </member>
+        <member name="F:Mediaportal.TV.Server.TVControl.Events.TvServerEventType.StartZapChannel">
+            <summary>
+            Event indicating that the tvserver is going to zap to a different channel
+            </summary>
+        </member>
+        <member name="F:Mediaportal.TV.Server.TVControl.Events.TvServerEventType.EndZapChannel">
+            <summary>
+            Event indicating that the tvserver is has zapped to a different channel
+            </summary>
+        </member>
+        <member name="F:Mediaportal.TV.Server.TVControl.Events.TvServerEventType.StartTimeShifting">
+            <summary>
+            Event indicating that the tvserver is going to start timeshifting
+            </summary>
+        </member>
+        <member name="F:Mediaportal.TV.Server.TVControl.Events.TvServerEventType.EndTimeShifting">
+            <summary>
+            Event indicating that the tvserver is going to start timeshifting
+            </summary>
+        </member>
+        <member name="F:Mediaportal.TV.Server.TVControl.Events.TvServerEventType.ForcefullyStoppedTimeShifting">
+            <summary>
+            Event indicating that the tvserver has forcefully stopped timeshifting
+            </summary>
+        </member>
+        <member name="F:Mediaportal.TV.Server.TVControl.Events.TvServerEventType.StartRecording">
+            <summary>
+            Event indicating that the tvserver is going to stop timeshifting
+            </summary>
+        </member>
+        <member name="F:Mediaportal.TV.Server.TVControl.Events.TvServerEventType.RecordingStarted">
+            <summary>
+            Event indicating that the tvserver is recording has begun
+            </summary>
+        </member>
+        <member name="F:Mediaportal.TV.Server.TVControl.Events.TvServerEventType.RecordingFailed">
+            <summary>
+            Event indicating that the tvserver is recording has stopped
+            </summary>
+        </member>
+        <member name="F:Mediaportal.TV.Server.TVControl.Events.TvServerEventType.RecordingEnded">
+            <summary>
+            Event indicating that the tvserver recording failed
+            </summary>
+        </member>
+        <member name="F:Mediaportal.TV.Server.TVControl.Events.TvServerEventType.ScheduledAdded">
+            <summary>
+            Event indicating that a new schedule has been added
+            </summary>
+        </member>
+        <member name="F:Mediaportal.TV.Server.TVControl.Events.TvServerEventType.ScheduleDeleted">
+            <summary>
+            Event indicating that a  schedule has been deleted
+            </summary>
+        </member>
+        <member name="F:Mediaportal.TV.Server.TVControl.Events.TvServerEventType.ConflictAdded">
+            <summary>
+            Event indicating that a new conflict has been added
+            </summary>
+        </member>
+        <member name="F:Mediaportal.TV.Server.TVControl.Events.TvServerEventType.ConflictDeleted">
+            <summary>
+            Event indicating that a  conflict has been deleted
+            </summary>
+        </member>
+        <member name="F:Mediaportal.TV.Server.TVControl.Events.TvServerEventType.ProgramUpdated">
+            <summary>
+            Event indicating that the program db was updated
+            </summary>
+        </member>
+        <member name="F:Mediaportal.TV.Server.TVControl.Events.TvServerEventType.ImportEpgPrograms">
+            <summary>
+            Event indicating that new EPG data is about to be imported
+            </summary>
+        </member>
+        <member name="F:Mediaportal.TV.Server.TVControl.Events.TvServerEventType.ChannelStatesChanged">
+            <summary>
+            Event indicating that new channelstate data is available
+            </summary>
+        </member>
+        <member name="F:Mediaportal.TV.Server.TVControl.Events.TvServerEventType.TimeShiftingParked">
+            <summary>
+            Event indicating that timeshifting was parked by user
+            </summary>
+        </member>
+        <member name="F:Mediaportal.TV.Server.TVControl.Events.TvServerEventType.TimeShiftingUnParked">
+            <summary>
+            Event indicating that timeshifting was unparked by user
+            </summary>
+        </member>
+        <member name="F:Mediaportal.TV.Server.TVControl.Events.TvServerEventType.EpgGrabbingStarted">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="F:Mediaportal.TV.Server.TVControl.Events.TvServerEventType.EpgGrabbingStopped">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="F:Mediaportal.TV.Server.TVControl.Events.TvServerEventType.ScanningStarted">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="F:Mediaportal.TV.Server.TVControl.Events.TvServerEventType.ScanningStopped">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="T:OSInfo.OSInfo">
+            <summary>
+            OSInfo Class
+            </summary>
+        </member>
+        <member name="M:OSInfo.OSInfo.GetOSProductType">
+            <summary>
+            Returns the product type of the operating system running on this computer.
+            </summary>
+            <returns>A string containing the the operating system product type.</returns>
+        </member>
+        <member name="M:OSInfo.OSInfo.GetOSServicePack">
+            <summary>
+            Returns the service pack information of the operating system running on this computer.
+            </summary>
+            <returns>A string containing the the operating system service pack information.</returns>
+        </member>
+        <member name="M:OSInfo.OSInfo.GetOSNameString">
+            <summary>
+            Returns the name of the operating system running on this computer.
+            </summary>
+            <returns>A string containing the the operating system name.</returns>
+        </member>
+        <member name="M:OSInfo.OSInfo.GetOSName">
+            <summary>
+            Returns the name of the operating system running on this computer.
+            </summary>
+            <returns>A string containing the the operating system name.</returns>
+        </member>
+        <member name="M:OSInfo.OSInfo.GetOSDisplayVersion">
+            <summary>
+            Return a full version string, es.: "Windows XP ( Servicepack 2 ) [5.1.0000]"
+            </summary>
+            <returns>A string rappresenting a fully displayable version</returns>
+        </member>
+        <member name="M:OSInfo.OSInfo.GetOSSupported">
+            <summary>
+            Return a value that indicate if the OS is blocked, supported, or officially unsupported
+            </summary>
+        </member>
+        <member name="M:OSInfo.OSInfo.OsVersionInt">
+            <summary>
+            Return a numeric value rappresenting OS version
+            </summary>
+            <returns>(OSMajorVersion * 10 + OSMinorVersion)</returns>
+        </member>
+        <member name="M:OSInfo.OSInfo.XpOrLater">
+            <summary>
+            Return if running on XP or later
+            </summary>
+            <returns>true means XP or later</returns>
+            <returns>false means 2000 or previous</returns>
+        </member>
+        <member name="M:OSInfo.OSInfo.VistaOrLater">
+            <summary>
+            Return if running on Vista or later
+            </summary>
+            <returns>true means Vista or later</returns>
+            <returns>false means Xp or previous</returns>
+        </member>
+        <member name="M:OSInfo.OSInfo.Win7OrLater">
+            <summary>
+            Return if running on Windows7 or later
+            </summary>
+            <returns>true means Windows7 or later</returns>
+            <returns>false means Vista or previous</returns>
+        </member>
+        <member name="P:OSInfo.OSInfo.OSVersion">
+            <summary>
+            Gets the full version of the operating system running on this computer.
+            </summary>
+        </member>
+        <member name="P:OSInfo.OSInfo.OSMajorVersion">
+            <summary>
+            Gets the major version of the operating system running on this computer.
+            </summary>
+        </member>
+        <member name="P:OSInfo.OSInfo.OSMinorVersion">
+            <summary>
+            Gets the minor version of the operating system running on this computer.
+            </summary>
+        </member>
+        <member name="P:OSInfo.OSInfo.OSBuildVersion">
+            <summary>
+            Gets the build version of the operating system running on this computer.
+            </summary>
+        </member>
+        <member name="P:OSInfo.OSInfo.OSRevisionVersion">
+            <summary>
+            Gets the revision version of the operating system running on this computer.
+            </summary>
+        </member>
+        <member name="P:OSInfo.OSInfo.OSServicePackMajor">
+            <summary>
+            Gets the main version of the service pack running on this computer.
+            </summary>
+        </member>
+        <member name="P:OSInfo.OSInfo.OSServicePackMinor">
+            <summary>
+            Gets the main version of the service pack running on this computer.
+            </summary>
+        </member>
+        <member name="P:OSInfo.OSInfo.OSServicePackDesc">
+            <summary>
+            Gets the string description of the service pack running on this computer.
+            </summary>
+        </member>
+        <member name="P:OSInfo.OSInfo.OSProductType">
+            <summary>
+            Gets the product type of the operating system running on this computer.
+            </summary>
+        </member>
+        <member name="T:OSInfo.OSInfo.OSList">
+            <summary>
+            List of all operating systems
+            </summary>
+        </member>
+        <member name="F:OSInfo.OSInfo.OSList.Windows2000andPrevious">
+            <summary>
+             Windows 95/98, NT4.0, 2000
+            </summary>
+        </member>
+        <member name="F:OSInfo.OSInfo.OSList.WindowsXp">
+            <summary>
+             Windows XP x86
+            </summary>
+        </member>
+        <member name="F:OSInfo.OSInfo.OSList.WindowsXp64">
+            <summary>
+             Windows XP x64
+            </summary>
+        </member>
+        <member name="F:OSInfo.OSInfo.OSList.WindowsVista">
+            <summary>
+             Windows Vista
+            </summary>
+        </member>
+        <member name="F:OSInfo.OSInfo.OSList.Windows7">
+            <summary>
+             Windows 7
+            </summary>
+        </member>
+        <member name="F:OSInfo.OSInfo.OSList.Windows2003">
+            <summary>
+             Windows 2003 Server
+            </summary>
+        </member>
+        <member name="F:OSInfo.OSInfo.OSList.Windows2003R2">
+            <summary>
+             Windows 2003 R2 Server
+            </summary>
+        </member>
+        <member name="F:OSInfo.OSInfo.OSList.Windows2008">
+            <summary>
+             Windows 2008 Server
+            </summary>
+        </member>
+        <member name="F:OSInfo.OSInfo.OSList.Windows2008R2">
+            <summary>
+             Windows 2008 R2 Server
+            </summary>
+        </member>
+        <member name="T:OSInfo.OSInfo.OsSupport">
+            <summary>
+            List of available status of current OS
+            </summary>
+        </member>
+        <member name="F:OSInfo.OSInfo.OsSupport.Blocked">
+            <summary>
+            Blocked: will cause an immediate exit of the program
+            </summary>
+        </member>
+        <member name="F:OSInfo.OSInfo.OsSupport.FullySupported">
+            <summary>
+            FullySupported: self explanatory
+            </summary>
+        </member>
+        <member name="F:OSInfo.OSInfo.OsSupport.NotSupported">
+            <summary>
+            NotSupported: officially not supported, will log/display a warning
+            </summary>
+        </member>
+    </members>
+</doc>

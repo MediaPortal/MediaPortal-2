@@ -14,7 +14,6 @@ using Mediaportal.TV.Server.TVControl.Interfaces.Services;
 using Mediaportal.TV.Server.TVDatabase.Entities;
 using Mediaportal.TV.Server.TVDatabase.Entities.Enums;
 using Mediaportal.TV.Server.TVDatabase.Entities.Factories;
-using Mediaportal.TV.Server.TVDatabase.TVBusinessLayer.Entities;
 using Mediaportal.TV.Server.TVLibrary;
 using Mediaportal.TV.Server.TVService.Interfaces;
 using Mediaportal.TV.Server.TVService.Interfaces.Enums;
@@ -185,18 +184,18 @@ namespace MediaPortal.Plugins.SlimTv.Service
       ICanceledScheduleService canceledScheduleService = GlobalServiceProvider.Get<ICanceledScheduleService>();
       var allSchedules = scheduleService.ListAllSchedules()
         .Where(schedule =>
-          schedule.idChannel == program.ChannelId &&
-          schedule.startTime == program.StartTime &&
-          schedule.endTime == program.EndTime);
+          schedule.IdChannel == program.ChannelId &&
+          schedule.StartTime == program.StartTime &&
+          schedule.EndTime == program.EndTime);
       foreach (Schedule schedule in allSchedules)
       {
-        switch (schedule.scheduleType)
+        switch (schedule.ScheduleType)
         {
           case (int) ScheduleRecordingType.Once:
-            scheduleService.DeleteSchedule(schedule.id_Schedule);
+            scheduleService.DeleteSchedule(schedule.IdSchedule);
             break;
           default:
-            CanceledSchedule canceledSchedule = CanceledScheduleFactory.CreateCanceledSchedule(schedule.id_Schedule, schedule.idChannel, schedule.startTime);
+            CanceledSchedule canceledSchedule = CanceledScheduleFactory.CreateCanceledSchedule(schedule.IdSchedule, schedule.IdChannel, schedule.StartTime);
             canceledScheduleService.SaveCanceledSchedule(canceledSchedule);
             break;
         }
