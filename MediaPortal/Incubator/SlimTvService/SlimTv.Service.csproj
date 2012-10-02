@@ -450,6 +450,8 @@
     <Content Include="plugin.xml">
       <SubType>Designer</SubType>
     </Content>
+    <Content Include="References\Castle.Core.dll" />
+    <Content Include="References\Castle.Windsor.dll" />
     <Content Include="References\Common.Utils.dll" />
     <Content Include="References\DirectShowLib.dll" />
     <Content Include="References\EntityFramework.dll" />
@@ -459,8 +461,6 @@
     <Content Include="References\Ionic.Zip.dll" />
     <Content Include="References\KNCBDACTRL.dll" />
     <Content Include="References\log4net.dll" />
-    <Content Include="References\MediaPortal.Backend.dll" />
-    <Content Include="References\MediaPortal.Common.dll" />
     <Content Include="References\Mediaportal.TV.Server.Plugins.Base.dll" />
     <Content Include="References\Mediaportal.TV.Server.TVControl.dll" />
     <Content Include="References\Mediaportal.TV.Server.TVDatabase.Entities.dll" />
@@ -472,7 +472,6 @@
     <Content Include="References\Mediaportal.TV.Server.TVLibrary.Services.dll" />
     <Content Include="References\Mediaportal.TV.Server.TvLibrary.Utils.dll" />
     <Content Include="References\Mediaportal.TV.Server.TVService.Interfaces.dll" />
-    <Content Include="References\MediaPortal.Utilities.dll" />
     <Content Include="References\MySql.Data.dll" />
     <Content Include="References\MySql.Data.Entity.dll" />
     <Content Include="References\StreamingServer.dll" />
