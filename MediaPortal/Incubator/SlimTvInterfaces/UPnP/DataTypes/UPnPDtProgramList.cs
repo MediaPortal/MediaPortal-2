@@ -27,19 +27,19 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Xml;
 using MediaPortal.Common.UPnP;
-using MediaPortal.Plugins.SlimTv.UPnP.Items;
+using MediaPortal.Plugins.SlimTv.Interfaces.UPnP.Items;
 using UPnP.Infrastructure.Common;
 using UPnP.Infrastructure.Utils;
 
-namespace MediaPortal.Plugins.SlimTv.UPnP.DataTypes
+namespace MediaPortal.Plugins.SlimTv.Interfaces.UPnP.DataTypes
 {
-  public class UPnPDtChannelGroupList : UPnPExtendedDataType
+  public class UPnPDtProgramList : UPnPExtendedDataType
   {
-    public static UPnPDtChannelGroupList Instance = new UPnPDtChannelGroupList();
+    public static UPnPDtProgramList Instance = new UPnPDtProgramList();
 
-    public const string DATATYPE_NAME = "UPnPDtChannelGroupList";
+    public const string DATATYPE_NAME = "UPnPDtProgramList";
 
-    public UPnPDtChannelGroupList()
+    public UPnPDtProgramList()
       : base(DataTypesConfiguration.DATATYPES_SCHEMA_URI, DATATYPE_NAME)
     {
     }
@@ -61,18 +61,18 @@ namespace MediaPortal.Plugins.SlimTv.UPnP.DataTypes
 
     protected override void DoSerializeValue(object value, bool forceSimpleValue, XmlWriter writer)
     {
-      IEnumerable groups = (IEnumerable) value;
-      foreach (ChannelGroup group in groups)
-        group.Serialize(writer);
+      IEnumerable programs = (IEnumerable) value;
+      foreach (Program program in programs)
+        program.Serialize(writer);
     }
 
     protected override object DoDeserializeValue(XmlReader reader, bool isSimpleValue)
     {
-      ICollection<ChannelGroup> result = new List<ChannelGroup>();
+      ICollection<Program> result = new List<Program>();
       if (SoapHelper.ReadEmptyStartElement(reader)) // Read start of enclosing element
         return result;
       while (reader.NodeType != XmlNodeType.EndElement)
-        result.Add(ChannelGroup.Deserialize(reader));
+        result.Add(Program.Deserialize(reader));
       reader.ReadEndElement(); // End of enclosing element
       return result;
     }    

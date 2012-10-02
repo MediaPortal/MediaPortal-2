@@ -22,35 +22,29 @@
 
 #endregion
 
-using System;
 using System.IO;
 using System.Xml;
 using System.Xml.Serialization;
-using MediaPortal.Plugins.SlimTv.Interfaces;
 using MediaPortal.Plugins.SlimTv.Interfaces.Items;
 
-namespace MediaPortal.Plugins.SlimTv.UPnP.Items
+namespace MediaPortal.Plugins.SlimTv.Interfaces.UPnP.Items
 {
-  public class Program : IProgramRecordingStatus
+  public class Channel : IChannel
   {
     private static XmlSerializer _xmlSerializer;
 
-    #region IProgram Member
+    #region IChannel Member
 
     public int ServerIndex { get; set; }
-    public int ProgramId { get; set; }
+
     public int ChannelId { get; set; }
-    public string Title { get; set; }
-    public string Description { get; set; }
-    public string Genre { get; set; }
-    public DateTime StartTime { get; set; }
-    public DateTime EndTime { get; set; }
-    public RecordingStatus RecordingStatus { get; set; }
+
+    public string Name { get; set; }
 
     #endregion
 
     /// <summary>
-    /// Serializes this Program instance to the given <paramref name="writer"/>.
+    /// Serializes this Channel instance to the given <paramref name="writer"/>.
     /// </summary>
     /// <param name="writer">Writer to write the XML serialization to.</param>
     public void Serialize(XmlWriter writer)
@@ -60,31 +54,31 @@ namespace MediaPortal.Plugins.SlimTv.UPnP.Items
     }
 
     /// <summary>
-    /// Deserializes a Program instance from a given XML fragment.
+    /// Deserializes a Channel instance from a given XML fragment.
     /// </summary>
     /// <param name="str">XML fragment containing a serialized user profile instance.</param>
     /// <returns>Deserialized instance.</returns>
-    public static Program Deserialize(string str)
+    public static Channel Deserialize(string str)
     {
       XmlSerializer xs = GetOrCreateXMLSerializer();
       using (StringReader reader = new StringReader(str))
-        return xs.Deserialize(reader) as Program;
+        return xs.Deserialize(reader) as Channel;
     }
 
     /// <summary>
-    /// Deserializes a Program instance from a given <paramref name="reader"/>.
+    /// Deserializes a Channel instance from a given <paramref name="reader"/>.
     /// </summary>
     /// <param name="reader">XML reader containing a serialized user profile instance.</param>
     /// <returns>Deserialized instance.</returns>
-    public static Program Deserialize(XmlReader reader)
+    public static Channel Deserialize(XmlReader reader)
     {
       XmlSerializer xs = GetOrCreateXMLSerializer();
-      return xs.Deserialize(reader) as Program;
+      return xs.Deserialize(reader) as Channel;
     }
 
     protected static XmlSerializer GetOrCreateXMLSerializer()
     {
-      return _xmlSerializer ?? (_xmlSerializer = new XmlSerializer(typeof(Program)));
+      return _xmlSerializer ?? (_xmlSerializer = new XmlSerializer(typeof(Channel)));
     }
   }
 }

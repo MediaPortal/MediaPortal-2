@@ -27,7 +27,7 @@ using System.Xml;
 using System.Xml.Serialization;
 using MediaPortal.Plugins.SlimTv.Interfaces.Items;
 
-namespace MediaPortal.Plugins.SlimTv.UPnP.Items
+namespace MediaPortal.Plugins.SlimTv.Interfaces.UPnP.Items
 {
   public class ChannelGroup : IChannelGroup
   {

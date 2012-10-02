@@ -27,11 +27,11 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Xml;
 using MediaPortal.Common.UPnP;
-using MediaPortal.Plugins.SlimTv.UPnP.Items;
+using MediaPortal.Plugins.SlimTv.Interfaces.UPnP.Items;
 using UPnP.Infrastructure.Common;
 using UPnP.Infrastructure.Utils;
 
-namespace MediaPortal.Plugins.SlimTv.UPnP.DataTypes
+namespace MediaPortal.Plugins.SlimTv.Interfaces.UPnP.DataTypes
 {
   public class UPnPDtChannelList : UPnPExtendedDataType
   {

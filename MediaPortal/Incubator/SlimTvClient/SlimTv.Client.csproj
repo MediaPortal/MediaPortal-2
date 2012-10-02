@@ -129,10 +129,6 @@
       <Project>{F31C71FA-4A24-4D33-B0EE-52CF667DCEF4}</Project>
       <Name>SlimTv.Interfaces</Name>
     </ProjectReference>
-    <ProjectReference Include="..\SlimTvUPnP\SlimTv.UPnP.csproj">
-      <Project>{22D885AD-AD09-4A51-919A-1AD3F7722C7D}</Project>
-      <Name>SlimTv.UPnP</Name>
-    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <Content Include="plugin.xml" />

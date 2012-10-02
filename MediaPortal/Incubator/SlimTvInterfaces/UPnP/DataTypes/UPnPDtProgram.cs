@@ -25,18 +25,19 @@
 using System;
 using System.Xml;
 using MediaPortal.Common.UPnP;
-using MediaPortal.Plugins.SlimTv.Interfaces.LiveTvMediaItem;
+using MediaPortal.Plugins.SlimTv.Interfaces.UPnP.Items;
 using UPnP.Infrastructure.Common;
+using UPnP.Infrastructure.Utils;
 
-namespace MediaPortal.Plugins.SlimTv.UPnP.DataTypes
+namespace MediaPortal.Plugins.SlimTv.Interfaces.UPnP.DataTypes
 {
-  public class UPnPDtLiveTvMediaItem : UPnPExtendedDataType
+  public class UPnPDtProgram : UPnPExtendedDataType
   {
-    public static UPnPDtLiveTvMediaItem Instance = new UPnPDtLiveTvMediaItem();
+    public static UPnPDtProgram Instance = new UPnPDtProgram();
 
-    public const string DATATYPE_NAME = "UPnPDtLiveTvMediaItem";
+    public const string DATATYPE_NAME = "UPnPDtProgram";
 
-    public UPnPDtLiveTvMediaItem()
+    public UPnPDtProgram()
       : base(DataTypesConfiguration.DATATYPES_SCHEMA_URI, DATATYPE_NAME)
     {
     }
@@ -53,21 +54,25 @@ namespace MediaPortal.Plugins.SlimTv.UPnP.DataTypes
 
     public override bool IsAssignableFrom(Type type)
     {
-      return typeof (LiveTvMediaItem).IsAssignableFrom(type);
+      return typeof(Program).IsAssignableFrom(type);
     }
 
     protected override void DoSerializeValue(object value, bool forceSimpleValue, XmlWriter writer)
     {
-      LiveTvMediaItem mediaItem = (LiveTvMediaItem) value;
-      mediaItem.Serialize(writer);
+      Program program = (Program) value;
+      program.Serialize(writer);
     }
 
     protected override object DoDeserializeValue(XmlReader reader, bool isSimpleValue)
     {
-      reader.ReadStartElement(); // Read start of enclosing element
-      LiveTvMediaItem result = LiveTvMediaItem.Deserialize(reader);
+      if (SoapHelper.ReadEmptyStartElement(reader)) // Read start of enclosing element
+        return null;
+
+      Program result = null;
+      while (reader.NodeType != XmlNodeType.EndElement)
+        result = Program.Deserialize(reader);
       reader.ReadEndElement(); // End of enclosing element
       return result;
-    }
+    }    
   }
 }

@@ -23,23 +23,19 @@
 #endregion
 
 using System;
-using System.Collections;
-using System.Collections.Generic;
 using System.Xml;
 using MediaPortal.Common.UPnP;
-using MediaPortal.Plugins.SlimTv.UPnP.Items;
 using UPnP.Infrastructure.Common;
-using UPnP.Infrastructure.Utils;
 
-namespace MediaPortal.Plugins.SlimTv.UPnP.DataTypes
+namespace MediaPortal.Plugins.SlimTv.Interfaces.UPnP.DataTypes
 {
-  public class UPnPDtProgramList : UPnPExtendedDataType
+  public class UPnPDtLiveTvMediaItem : UPnPExtendedDataType
   {
-    public static UPnPDtProgramList Instance = new UPnPDtProgramList();
+    public static UPnPDtLiveTvMediaItem Instance = new UPnPDtLiveTvMediaItem();
 
-    public const string DATATYPE_NAME = "UPnPDtProgramList";
+    public const string DATATYPE_NAME = "UPnPDtLiveTvMediaItem";
 
-    public UPnPDtProgramList()
+    public UPnPDtLiveTvMediaItem()
       : base(DataTypesConfiguration.DATATYPES_SCHEMA_URI, DATATYPE_NAME)
     {
     }
@@ -51,30 +47,26 @@ namespace MediaPortal.Plugins.SlimTv.UPnP.DataTypes
 
     public override bool IsNullable
     {
-      get { return false; }
+      get { return true; }
     }
 
     public override bool IsAssignableFrom(Type type)
     {
-      return typeof (IEnumerable).IsAssignableFrom(type);
+      return typeof (LiveTvMediaItem.LiveTvMediaItem).IsAssignableFrom(type);
     }
 
     protected override void DoSerializeValue(object value, bool forceSimpleValue, XmlWriter writer)
     {
-      IEnumerable programs = (IEnumerable) value;
-      foreach (Program program in programs)
-        program.Serialize(writer);
+      LiveTvMediaItem.LiveTvMediaItem mediaItem = (LiveTvMediaItem.LiveTvMediaItem) value;
+      mediaItem.Serialize(writer);
     }
 
     protected override object DoDeserializeValue(XmlReader reader, bool isSimpleValue)
     {
-      ICollection<Program> result = new List<Program>();
-      if (SoapHelper.ReadEmptyStartElement(reader)) // Read start of enclosing element
-        return result;
-      while (reader.NodeType != XmlNodeType.EndElement)
-        result.Add(Program.Deserialize(reader));
+      reader.ReadStartElement(); // Read start of enclosing element
+      LiveTvMediaItem.LiveTvMediaItem result = LiveTvMediaItem.LiveTvMediaItem.Deserialize(reader);
       reader.ReadEndElement(); // End of enclosing element
       return result;
-    }    
+    }
   }
 }

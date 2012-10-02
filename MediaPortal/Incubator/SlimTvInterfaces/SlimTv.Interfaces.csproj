@@ -56,6 +56,7 @@
     <Reference Include="System.Core">
       <RequiredTargetFramework>3.5</RequiredTargetFramework>
     </Reference>
+    <Reference Include="System.Runtime.Serialization" />
     <Reference Include="System.Xml.Linq">
       <RequiredTargetFramework>3.5</RequiredTargetFramework>
     </Reference>
@@ -89,15 +90,30 @@
     <Compile Include="IProgramInfo.cs" />
     <Compile Include="ITimeshiftControlEx.cs" />
     <Compile Include="LiveTvMediaItem\LiveTvMediaItem.cs" />
+    <Compile Include="LiveTvMediaItem\SerializeHelper.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ResourceProvider\SlimTvMediaItemBuilder.cs" />
     <Compile Include="ResourceProvider\SlimTvResourceAccessor.cs" />
     <Compile Include="ResourceProvider\SlimTvResourceProvider.cs" />
+    <Compile Include="UPnP\Consts.cs" />
+    <Compile Include="UPnP\DataTypes\UPnPDtChannelGroupList.cs" />
+    <Compile Include="UPnP\DataTypes\UPnPDtChannelList.cs" />
+    <Compile Include="UPnP\DataTypes\UPnPDtLiveTvMediaItem.cs" />
+    <Compile Include="UPnP\DataTypes\UPnPDtProgram.cs" />
+    <Compile Include="UPnP\DataTypes\UPnPDtProgramList.cs" />
+    <Compile Include="UPnP\Items\Channel.cs" />
+    <Compile Include="UPnP\Items\ChannelGroup.cs" />
+    <Compile Include="UPnP\Items\Dictionary.cs" />
+    <Compile Include="UPnP\Items\Program.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\Source\Core\MediaPortal.Common\MediaPortal.Common.csproj">
       <Project>{ECF060E7-CAA1-4466-851F-F80B857641EA}</Project>
       <Name>MediaPortal.Common</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\Source\Core\UPnP\UPnP.csproj">
+      <Project>{455E7D70-1C85-4D7F-9F01-DC801B8B8C34}</Project>
+      <Name>UPnP</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>

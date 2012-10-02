@@ -2,7 +2,7 @@ using System.Linq;
 using MediaPortal.Common.Utils;
 using MediaPortal.Plugins.SlimTv.Interfaces;
 using MediaPortal.Plugins.SlimTv.Interfaces.Items;
-using MediaPortal.Plugins.SlimTv.UPnP.Items;
+using MediaPortal.Plugins.SlimTv.Interfaces.UPnP.Items;
 using Mediaportal.TV.Server.TVControl.Interfaces.Services;
 using Mediaportal.TV.Server.TVDatabase.TVBusinessLayer.Entities;
 

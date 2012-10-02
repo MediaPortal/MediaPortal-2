@@ -24,21 +24,22 @@
 
 using System;
 using System.Collections;
+using System.Collections.Generic;
 using System.Xml;
 using MediaPortal.Common.UPnP;
-using MediaPortal.Plugins.SlimTv.UPnP.Items;
+using MediaPortal.Plugins.SlimTv.Interfaces.UPnP.Items;
 using UPnP.Infrastructure.Common;
 using UPnP.Infrastructure.Utils;
 
-namespace MediaPortal.Plugins.SlimTv.UPnP.DataTypes
+namespace MediaPortal.Plugins.SlimTv.Interfaces.UPnP.DataTypes
 {
-  public class UPnPDtProgram : UPnPExtendedDataType
+  public class UPnPDtChannelGroupList : UPnPExtendedDataType
   {
-    public static UPnPDtProgram Instance = new UPnPDtProgram();
+    public static UPnPDtChannelGroupList Instance = new UPnPDtChannelGroupList();
 
-    public const string DATATYPE_NAME = "UPnPDtProgram";
+    public const string DATATYPE_NAME = "UPnPDtChannelGroupList";
 
-    public UPnPDtProgram()
+    public UPnPDtChannelGroupList()
       : base(DataTypesConfiguration.DATATYPES_SCHEMA_URI, DATATYPE_NAME)
     {
     }
@@ -50,28 +51,28 @@ namespace MediaPortal.Plugins.SlimTv.UPnP.DataTypes
 
     public override bool IsNullable
     {
-      get { return true; }
+      get { return false; }
     }
 
     public override bool IsAssignableFrom(Type type)
     {
-      return typeof(Program).IsAssignableFrom(type);
+      return typeof (IEnumerable).IsAssignableFrom(type);
     }
 
     protected override void DoSerializeValue(object value, bool forceSimpleValue, XmlWriter writer)
     {
-      Program program = (Program) value;
-      program.Serialize(writer);
+      IEnumerable groups = (IEnumerable) value;
+      foreach (ChannelGroup group in groups)
+        group.Serialize(writer);
     }
 
     protected override object DoDeserializeValue(XmlReader reader, bool isSimpleValue)
     {
+      ICollection<ChannelGroup> result = new List<ChannelGroup>();
       if (SoapHelper.ReadEmptyStartElement(reader)) // Read start of enclosing element
-        return null;
-
-      Program result = null;
+        return result;
       while (reader.NodeType != XmlNodeType.EndElement)
-        result = Program.Deserialize(reader);
+        result.Add(ChannelGroup.Deserialize(reader));
       reader.ReadEndElement(); // End of enclosing element
       return result;
     }    

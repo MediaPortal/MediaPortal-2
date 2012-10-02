@@ -25,8 +25,8 @@
 using System;
 using MediaPortal.Common;
 using MediaPortal.Common.UPnP;
+using MediaPortal.Plugins.SlimTv.Interfaces.UPnP.DataTypes;
 using MediaPortal.Plugins.SlimTv.UPnP;
-using MediaPortal.Plugins.SlimTv.UPnP.DataTypes;
 using MediaPortal.UI.ServerCommunication;
 using MediaPortal.UI.Services.ServerCommunication;
 using UPnP.Infrastructure.CP;

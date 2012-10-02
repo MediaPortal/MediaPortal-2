@@ -497,10 +497,6 @@
       <Project>{F31C71FA-4A24-4D33-B0EE-52CF667DCEF4}</Project>
       <Name>SlimTv.Interfaces</Name>
     </ProjectReference>
-    <ProjectReference Include="..\SlimTvUPnP\SlimTv.UPnP.csproj">
-      <Project>{22D885AD-AD09-4A51-919A-1AD3F7722C7D}</Project>
-      <Name>SlimTv.UPnP</Name>
-    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <None Include="References\Mediaportal.TV.Server.TVLibrary.Services.dll.config" />
@@ -511,7 +507,6 @@
 xcopy /Y "$(ProjectDir)plugin.xml" "$(SolutionDir)..\Bin\$(SolutionName)\$(OutDir)Plugins\$(ProjectName)\"
 xcopy /Y "$(TargetDir)$(ProjectName).dll"  "$(SolutionDir)..\Bin\$(SolutionName)\$(OutDir)Plugins\$(ProjectName)\"
 xcopy /Y "$(TargetDir)SlimTv.Interfaces.dll"  "$(SolutionDir)..\Bin\$(SolutionName)\$(OutDir)Plugins\$(ProjectName)\"
-xcopy /Y "$(TargetDir)SlimTv.UPnP.dll"  "$(SolutionDir)..\Bin\$(SolutionName)\$(OutDir)Plugins\$(ProjectName)\"
 mkdir "$(SolutionDir)..\Bin\$(SolutionName)\$(OutDir)Plugins\$(ProjectName)\Content"
 xcopy "$(ProjectDir)References\*.*"  "$(SolutionDir)..\Bin\$(SolutionName)\$(OutDir)Plugins\$(ProjectName)\"
 xcopy "$(ProjectDir)References\MySql.*.dll"  "$(SolutionDir)..\Bin\$(SolutionName)\$(OutDir)"
