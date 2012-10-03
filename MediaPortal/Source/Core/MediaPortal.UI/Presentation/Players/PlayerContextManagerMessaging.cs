@@ -47,16 +47,38 @@ namespace MediaPortal.UI.Presentation.Players
       /// player slot index is important, the message <see cref="PlayerManagerMessaging.MessageType.PlayerSlotsChanged"/>
       /// might also be interesting.
       /// </summary>
+      /// <remarks>
+      /// With this message, the <see cref="PLAYER_SLOT"/> property will be set.
+      /// </remarks>
       CurrentPlayerChanged,
+
+      /// <summary>
+      /// Internal message used by the player context manager. This message is used to update the current player and the audio
+      /// player index. It is used to enqueue that job after all other messages to avoid multithreading issues.
+      /// </summary>
+      /// <remarks>
+      /// With this message, the <see cref="CURRENT_PLAYER_INDEX"/> <see cref="AUDIO_PLAYER_INDEX"/> properties will be set.
+      /// </remarks>
+      UpdatePlayerRolesInternal,
     }
 
     // Message data
     public const string PLAYER_SLOT = "PlayerSlot"; // Player slot index of type int
+    public const string CURRENT_PLAYER_INDEX = "CurrentPlayer"; // Player slot index of type int
+    public const string AUDIO_PLAYER_INDEX = "AudioPlayer"; // Player slot index of type int
 
     public static void SendPlayerContextManagerMessage(MessageType type, int playerSlot)
     {
       SystemMessage msg = new SystemMessage(type);
       msg.MessageData[PLAYER_SLOT] = playerSlot;
+      ServiceRegistration.Get<IMessageBroker>().Send(CHANNEL, msg);
+    }
+
+    public static void SendUpdatePlayerRolesMessage(int currentPlayerIndex, int audioPlayerIndex)
+    {
+      SystemMessage msg = new SystemMessage(MessageType.UpdatePlayerRolesInternal);
+      msg.MessageData[CURRENT_PLAYER_INDEX] = currentPlayerIndex;
+      msg.MessageData[AUDIO_PLAYER_INDEX] = audioPlayerIndex;
       ServiceRegistration.Get<IMessageBroker>().Send(CHANNEL, msg);
     }
   }

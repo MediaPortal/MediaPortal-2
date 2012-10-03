@@ -110,6 +110,7 @@ namespace MediaPortal.UI.Services.Players
         {
            WorkflowManagerMessaging.CHANNEL,
            PlayerManagerMessaging.CHANNEL,
+           PlayerContextManagerMessaging.CHANNEL,
         });
       _messageQueue.MessageReceived += OnMessageReceived;
       _messageQueue.Start();
@@ -175,6 +176,21 @@ namespace MediaPortal.UI.Services.Players
         }
         CheckCurrentPlayerSlot(); // Current player could have been closed
         CheckMediaWorkflowStates_NoLock(); // Primary player could have been changed or closed or CP player could have been closed
+      }
+      else if (message.ChannelName == PlayerContextManagerMessaging.CHANNEL)
+      {
+        // React to internal player context manager changes
+        PlayerContextManagerMessaging.MessageType messageType =
+            (PlayerContextManagerMessaging.MessageType) message.MessageType;
+        switch (messageType)
+        {
+          case PlayerContextManagerMessaging.MessageType.UpdatePlayerRolesInternal:
+            int newCurrentPlayerIndex = (int) message.MessageData[PlayerContextManagerMessaging.CURRENT_PLAYER_INDEX];
+            int newAudioPlayerIndex = (int) message.MessageData[PlayerContextManagerMessaging.AUDIO_PLAYER_INDEX];
+            HandlePlayerRolesChanged(newCurrentPlayerIndex, newAudioPlayerIndex);
+            break;
+          // PlayerContextManagerMessaging.MessageType.CurrentPlayerChanged not handled here
+        }
       }
     }
 
@@ -255,6 +271,13 @@ namespace MediaPortal.UI.Services.Players
     {
       lock (SyncObj)
         CurrentPlayerIndex = 1 - _currentPlayerIndex;
+    }
+
+    protected void HandlePlayerRolesChanged(int newCurrentPlayerIndex, int newAudioPlayerIndex)
+    {
+      IPlayerManager playerManager = ServiceRegistration.Get<IPlayerManager>();
+      CurrentPlayerIndex = newCurrentPlayerIndex;
+      playerManager.AudioSlotIndex = newAudioPlayerIndex;
     }
 
     /// <summary>
@@ -646,8 +669,7 @@ namespace MediaPortal.UI.Services.Players
         int audioSlotIndex = playerManager.AudioSlotIndex;
         int currentPlayerIndex = CurrentPlayerIndex;
         strategy.PrepareVideoPlayer(playerManager, playerContexts, concurrencyMode, mediaModuleId, out slotController, ref audioSlotIndex, ref currentPlayerIndex);
-        playerManager.AudioSlotIndex = audioSlotIndex;
-        CurrentPlayerIndex = currentPlayerIndex;
+        PlayerContextManagerMessaging.SendUpdatePlayerRolesMessage(currentPlayerIndex, audioSlotIndex);
         return new PlayerContext(this, slotController, mediaModuleId, name, AVType.Video,
             currentlyPlayingWorkflowStateId, fullscreenContentWorkflowStateId);
       }
