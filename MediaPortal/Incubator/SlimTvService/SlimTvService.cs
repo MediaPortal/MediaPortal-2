@@ -76,7 +76,12 @@ namespace MediaPortal.Plugins.SlimTv.Service
 
     public MediaItem CreateMediaItem(int slotIndex, string streamUrl, IChannel channel)
     {
-      LiveTvMediaItem tvStream = SlimTvMediaItemBuilder.CreateMediaItem(slotIndex, streamUrl, channel);
+      IChannelService channelService = GlobalServiceProvider.Get<IChannelService>();
+      bool isTv = channelService.GetChannel(channel.ChannelId).MediaType == 0;
+      LiveTvMediaItem tvStream = isTv
+        ? SlimTvMediaItemBuilder.CreateMediaItem(slotIndex, streamUrl, channel)
+        : SlimTvMediaItemBuilder.CreateRadioMediaItem(slotIndex, streamUrl, channel);
+
       if (tvStream != null)
       {
         // Add program infos to the LiveTvMediaItem

@@ -27,6 +27,7 @@ using MediaPortal.Common;
 using MediaPortal.Common.Logging;
 using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.ResourceAccess;
+using MediaPortal.Plugins.SlimTv.Interfaces.LiveTvMediaItem;
 using MediaPortal.UI.Presentation.Players;
 
 namespace MediaPortal.Plugins.SlimTv.Client.Player
@@ -44,7 +45,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.Player
       string title;
       if (!mediaItem.GetPlayData(out mimeType, out title))
         return null;
-      if (mimeType != "video/livetv")
+      if (mimeType != LiveTvMediaItem.MIME_TYPE_TV && mimeType != LiveTvMediaItem.MIME_TYPE_RADIO)
         return null;
       IResourceLocator locator = mediaItem.GetResourceLocator();
       LiveTvPlayer player = new LiveTvPlayer();

@@ -17,6 +17,9 @@ namespace MediaPortal.Plugins.SlimTv.Interfaces.LiveTvMediaItem
     public const string NEXT_PROGRAM = "NextProgram";
     public const string TUNING_TIME = "TuningTime";
 
+    public const string MIME_TYPE_TV = "video/livetv";
+    public const string MIME_TYPE_RADIO = "audio/radio";
+
     public LiveTvMediaItem(Guid mediaItemId)
       : base(mediaItemId)
     {}
