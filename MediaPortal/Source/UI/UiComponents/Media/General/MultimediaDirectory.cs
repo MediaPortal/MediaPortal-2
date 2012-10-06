@@ -93,8 +93,12 @@ namespace MediaPortal.UiComponents.Media.General
         mediaItems = new List<MediaItem>();
         IMediaAccessor mediaAccessor = ServiceRegistration.Get<IMediaAccessor>();
         IEnumerable<Guid> meIds = mediaAccessor.GetMetadataExtractorsForMIATypes(videoMIATypeIds.Union(imageMIATypeIds).Union(audioMIATypeIds));
-        using (IFileSystemResourceAccessor directoryRA = new ResourceLocator(resourcePath).CreateLocalFsAccessor())
-          AddLocalMediaItemsRecursive(directoryRA, mediaItems, meIds, mediaAccessor);
+        using (IResourceAccessor ra = new ResourceLocator(resourcePath).CreateAccessor())
+        {
+          IFileSystemResourceAccessor directoryRA = ra as IFileSystemResourceAccessor;
+          if (ra != null)
+            AddLocalMediaItemsRecursive(directoryRA, mediaItems, meIds, mediaAccessor);
+        }
         MultiMediaType result = MultiMediaType.None;
         foreach (MediaItem item in mediaItems)
         { // Check the type of our extracted media items
