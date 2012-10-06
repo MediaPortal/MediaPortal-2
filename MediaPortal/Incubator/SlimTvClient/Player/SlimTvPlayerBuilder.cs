@@ -28,6 +28,7 @@ using MediaPortal.Common.Logging;
 using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.ResourceAccess;
 using MediaPortal.Plugins.SlimTv.Interfaces.LiveTvMediaItem;
+using MediaPortal.UI.Players.Video;
 using MediaPortal.UI.Presentation.Players;
 
 namespace MediaPortal.Plugins.SlimTv.Client.Player
@@ -48,14 +49,14 @@ namespace MediaPortal.Plugins.SlimTv.Client.Player
       if (mimeType != LiveTvMediaItem.MIME_TYPE_TV && mimeType != LiveTvMediaItem.MIME_TYPE_RADIO)
         return null;
       IResourceLocator locator = mediaItem.GetResourceLocator();
-      LiveTvPlayer player = new LiveTvPlayer();
+      BaseDXPlayer player = mimeType == LiveTvMediaItem.MIME_TYPE_TV ? (BaseDXPlayer) new LiveTvPlayer() : new LiveRadioPlayer(false);
       try
       {
         player.SetMediaItem(locator, title);
       }
       catch (Exception e)
       {
-        ServiceRegistration.Get<ILogger>().Warn("LiveTvPlayer: Error playing media item '{0}'", e, locator);
+        ServiceRegistration.Get<ILogger>().Warn("SlimTvPlayerBuilder: Error playing media item '{0}'", e, locator);
         player.Dispose();
         return null;
       }

@@ -88,6 +88,7 @@
     <Compile Include="Models\SlimTvMultiChannelGuideModel.cs" />
     <Compile Include="Models\SlimTvGuideModelBase.cs" />
     <Compile Include="Models\SlimTvSingleChannelGuideModel.cs" />
+    <Compile Include="Player\LiveRadioPlayer.cs" />
     <Compile Include="Player\LiveTvPlayer.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Models\SlimTvClientModel.cs" />
