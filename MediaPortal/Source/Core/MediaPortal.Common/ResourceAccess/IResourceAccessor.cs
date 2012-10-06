@@ -64,6 +64,7 @@ namespace MediaPortal.Common.ResourceAccess
     /// <summary>
     /// Returns the resource provider path of this resource accessor.
     /// </summary>
+    /// <value>A technical path which is interpreted by this resource accessor and by the <see cref="ParentProvider"/>.</value>
     string Path { get; }
 
     /// <summary>
