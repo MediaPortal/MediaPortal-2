@@ -232,6 +232,12 @@ namespace MediaPortal.Extensions.UserServices.FanArtService.Client
       FireChanged();
     }
 
+    public override void Deallocate()
+    {
+      base.Deallocate();
+      _texture = null;
+    }
+
     #endregion
 
     #region Protected methods

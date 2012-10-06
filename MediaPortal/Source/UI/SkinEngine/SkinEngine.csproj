@@ -121,7 +121,7 @@
     <Compile Include="Controls\ImageSources\MultiImageSourceBase.cs" />
     <Compile Include="Controls\ImageSources\BitmapImageSource.cs" />
     <Compile Include="Controls\ImageSources\ImageSource.cs" />
-    <Compile Include="Controls\ImageSources\MediaItemSource.cs" />
+    <Compile Include="Controls\ImageSources\BinaryTextureImageSource.cs" />
     <Compile Include="Controls\ImageSources\MultiImageSource.cs" />
     <Compile Include="Controls\Visuals\BackgroundEffect.cs" />
     <Compile Include="Controls\Panels\DefinitionsCollectionBase.cs" />
@@ -262,6 +262,7 @@
     <Compile Include="Controls\Visuals\VirtualKeyboardControl.cs" />
     <Compile Include="ScreenManagement\SuperLayerManager.cs" />
     <Compile Include="Settings\Configuration\General\ApplicationSuspendLevel.cs" />
+    <Compile Include="Utils\MediaItemsHelper.cs" />
     <Compile Include="Utils\UIResourcesHelper.cs" />
     <Compile Include="Settings\Configuration\Appearance\ScreenSaverTimeout.cs" />
     <Compile Include="Settings\Configuration\Appearance\ScreenSaverEnabled.cs" />

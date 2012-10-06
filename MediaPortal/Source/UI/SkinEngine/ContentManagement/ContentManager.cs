@@ -171,7 +171,7 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement
     {
       return GetCreateAsset(AssetType.Thumbnail, key,
           assetCore => new TextureAsset(assetCore as TextureAssetCore),
-          () => new ThumbnailBinaryTextureAssetCore(binaryData, key)) as TextureAsset;
+          () => new BinaryTextureAssetCore(binaryData, key)) as TextureAsset;
     }
 
     /// <summary>

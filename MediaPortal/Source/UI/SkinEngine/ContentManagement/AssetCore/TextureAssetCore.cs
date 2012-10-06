@@ -558,7 +558,7 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement.AssetCore
           }
           else
           {
-            // Write data our SlimDX stream
+            // Write data to our SlimDX stream
             state.imageDataStream.Write(state.imageBuffer, 0, read);
             // Read next chunk
             state.fileStream.BeginRead(state.imageBuffer, 0, state.imageBuffer.Length, AllocateAsyncCallback_NoLock, state);
@@ -635,11 +635,11 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement.AssetCore
   /// <summary>
   /// A version of <see cref="TextureAssetCore"/> that gets its texture data from a byte buffer.
   /// </summary>
-  public class ThumbnailBinaryTextureAssetCore : TextureAssetCore
+  public class BinaryTextureAssetCore : TextureAssetCore
   {
     private readonly byte[] _binaryThumbdata = null;
 
-    public ThumbnailBinaryTextureAssetCore(byte[] binaryThumbdata, string textureName) : base(textureName, 0, 0)
+    public BinaryTextureAssetCore(byte[] binaryThumbdata, string textureName) : base(textureName, 0, 0)
     {
       _binaryThumbdata = binaryThumbdata;
     }

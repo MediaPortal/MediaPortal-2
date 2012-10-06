@@ -31,6 +31,7 @@ using MediaPortal.Common.MediaManagement;
 using MediaPortal.UI.SkinEngine.MpfElements;
 using MediaPortal.UI.SkinEngine.Rendering;
 using MediaPortal.UI.SkinEngine.Controls.ImageSources;
+using MediaPortal.UI.SkinEngine.Utils;
 using MediaPortal.Utilities.DeepCopy;
 
 namespace MediaPortal.UI.SkinEngine.Controls.Visuals
@@ -97,6 +98,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     protected bool _fallbackSourceInUse = false;
     protected SizeF _lastImageSourceSize = SizeF.Empty;
     protected string _warnURI = null;
+    protected bool _invalidateImageSourceOnResize = false;
 
     #endregion
 
@@ -388,8 +390,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     // FIXME: Remove this ugly hack and find a general solution to make image sources react to size changes
     protected void OnImageSizeChanged(AbstractProperty prop, object oldValue)
     {
-      // Invalidate the loaded sources for MediaItems to allow use of different thumb resolutions.
-      if (_sourceState.ImageSource is MediaItemSource)
+      if (_invalidateImageSourceOnResize)
+        // Invalidate the loaded sources for MediaItems to allow use of different thumb resolutions.
         InvalidateImageSources();
     }
 
@@ -405,11 +407,14 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     protected ImageSource LoadImageSource(object source, bool allowThumbs)
     {
       ImageSource result;
-      MediaItem mi = source as MediaItem;
       bool thumbnail = allowThumbs && Thumbnail;
 
-      if (mi != null)
-        result = new MediaItemSource(mi, (int) Math.Max(Width, Height));
+      _invalidateImageSourceOnResize = false;
+      if (source is MediaItem)
+      {
+        result = MediaItemsHelper.CreateThumbnailImageSource((MediaItem) source, (int) Math.Max(Width, Height));
+        _invalidateImageSourceOnResize = true;
+      }
       else
         result = source as ImageSource;
       if (result == null)
