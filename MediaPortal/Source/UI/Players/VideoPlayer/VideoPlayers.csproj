@@ -79,6 +79,7 @@
     <Compile Include="..\..\..\Core\MediaPortal.Common\VersionInfo\VersionInfo.cs">
       <Link>Properties\VersionInfo.cs</Link>
     </Compile>
+    <Compile Include="BaseDXPlayer.cs" />
     <Compile Include="PlayerRegistration.cs" />
     <Compile Include="Settings\Configuration\AudioCodecAAC.cs" />
     <Compile Include="Settings\Configuration\GenericCodecSelection.cs" />
