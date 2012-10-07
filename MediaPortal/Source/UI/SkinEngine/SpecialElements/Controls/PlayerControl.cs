@@ -137,7 +137,7 @@ namespace MediaPortal.UI.SkinEngine.SpecialElements.Controls
     protected AbstractProperty _videoStoryPlotProperty;
     protected AbstractProperty _audioArtistsProperty;
     protected AbstractProperty _audioYearProperty;
-    protected AbstractProperty _imageSourcePathProperty;
+    protected AbstractProperty _imageSourceLocatorProperty;
     protected AbstractProperty _imageRotateDegreesProperty;
     protected AbstractProperty _imageFlipXProperty;
     protected AbstractProperty _imageFlipYProperty;
@@ -148,9 +148,6 @@ namespace MediaPortal.UI.SkinEngine.SpecialElements.Controls
     protected IResourceString _headerNormalResource;
     protected IResourceString _headerPiPResource;
     protected IResourceString _playbackRateHintResource;
-
-    protected IResourceLocator _currentImageSourceLocator = null;
-    protected ILocalFsResourceAccessor _currentImageResourceAccessor = null;
 
     #endregion
 
@@ -206,7 +203,7 @@ namespace MediaPortal.UI.SkinEngine.SpecialElements.Controls
       _videoYearProperty = new SProperty(typeof(int?), null);
       _videoActorsProperty = new SProperty(typeof(IEnumerable<string>), EMPTY_NAMES_COLLECTION);
       _videoStoryPlotProperty = new SProperty(typeof(string), string.Empty);
-      _imageSourcePathProperty = new SProperty(typeof(string), string.Empty);
+      _imageSourceLocatorProperty = new SProperty(typeof(IResourceLocator), null);
       _imageRotateDegreesProperty = new SProperty(typeof(int), 0);
       _imageFlipXProperty = new SProperty(typeof(bool), false);
       _imageFlipYProperty = new SProperty(typeof(bool), false);
@@ -260,7 +257,6 @@ namespace MediaPortal.UI.SkinEngine.SpecialElements.Controls
       StopTimer();
       _updateFinished.Close();
       UnsubscribeFromMessages();
-      DisposeCurrentImageResourceAccessor();
       base.Dispose();
     }
 
@@ -411,37 +407,6 @@ namespace MediaPortal.UI.SkinEngine.SpecialElements.Controls
       ShowMouseControls = inputManager.IsMouseUsed && screen != null && screen.HasInputFocus;
     }
 
-    protected void UpdateImageSourcePath(IResourceLocator locator)
-    {
-      if (_currentImageSourceLocator != locator)
-      {
-        ILocalFsResourceAccessor oldAccessor = _currentImageResourceAccessor;
-        _currentImageSourceLocator = locator;
-        if (_currentImageSourceLocator != null)
-          try
-          {
-            _currentImageResourceAccessor = _currentImageSourceLocator.CreateLocalFsAccessor();
-          }
-          catch (Exception e)
-          {
-            ServiceRegistration.Get<ILogger>().Warn("PlayerControl: Problem creating local filesystem accessor for image '{0}'",
-                e, _currentImageSourceLocator);
-            ImageSourcePath = null;
-            return;
-          }
-        ImageSourcePath = _currentImageResourceAccessor == null ? null : _currentImageResourceAccessor.LocalFileSystemPath;
-        if (oldAccessor != null)
-          oldAccessor.Dispose();
-      }
-    }
-
-    protected void DisposeCurrentImageResourceAccessor()
-    {
-      if (_currentImageResourceAccessor != null)
-        _currentImageResourceAccessor.Dispose();
-      _currentImageResourceAccessor = null;
-    }
-
     // Hack! The following code was copied from PlayerConfigurationDialogModel.OpenAudioMenuDialog.
     // Actually, we are now allowed to access the SkinBase plugin, because we have not declared an explicit dependency...
     protected static void OpenAudioMenuDialog(int slotIndex, bool showMute)
@@ -516,8 +481,7 @@ namespace MediaPortal.UI.SkinEngine.SpecialElements.Controls
         if (pp == null)
         {
           IsImagePlayerPresent = false;
-          DisposeCurrentImageResourceAccessor();
-          ImageSourcePath = null;
+          ImageSourceLocator = null;
           ImageRotateDegrees = 0;
         }
         else
@@ -538,7 +502,7 @@ namespace MediaPortal.UI.SkinEngine.SpecialElements.Controls
             ImageHeight = FixedImageHeight;
             ImageWidth = FixedImageHeight*pp.ImageSize.Width/pp.ImageSize.Height;
           }
-          UpdateImageSourcePath(pp.CurrentImageResourceLocator);
+          ImageSourceLocator = pp.CurrentImageResourceLocator;
           ImageRotation rotation;
           bool flipX;
           bool flipY;
@@ -1402,18 +1366,18 @@ namespace MediaPortal.UI.SkinEngine.SpecialElements.Controls
       internal set { _videoStoryPlotProperty.SetValue(value); }
     }
 
-    public AbstractProperty ImageSourcePathProperty
+    public AbstractProperty ImageSourceLocatorProperty
     {
-      get { return _imageSourcePathProperty; }
+      get { return _imageSourceLocatorProperty; }
     }
 
     /// <summary>
-    /// Gets the local file path to the current image, if <see cref="IsImagePlayerPresent"/> is <c>true</c>.
+    /// Gets a resource locator to the current image, if <see cref="IsImagePlayerPresent"/> is <c>true</c>.
     /// </summary>
-    public string ImageSourcePath
+    public IResourceLocator ImageSourceLocator
     {
-      get { return (string) _imageSourcePathProperty.GetValue(); }
-      set { _imageSourcePathProperty.SetValue(value); }
+      get { return (IResourceLocator) _imageSourceLocatorProperty.GetValue(); }
+      set { _imageSourceLocatorProperty.SetValue(value); }
     }
 
     public AbstractProperty ImageRotateDegreesProperty
