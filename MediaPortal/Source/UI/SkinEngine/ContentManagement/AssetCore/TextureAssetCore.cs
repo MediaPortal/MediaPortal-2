@@ -108,14 +108,16 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement.AssetCore
     /// <summary>
     /// Initializes a new instance of the <see cref="TextureAsset"/> class.
     /// </summary>
-    /// <param name="textureName">Name of the texture.</param>
+    /// <param name="textureName">Name of the texture. Can either be a file name relative
+    /// to the <see cref="SkinResources.IMAGES_DIRECTORY"/>, a web URL or a file URL.</param>
     public TextureAssetCore(string textureName) : this(textureName, 0, 0)
     { }
 
     /// <summary>
     /// Initializes a new instance of the <see cref="TextureAsset"/> class.
     /// </summary>
-    /// <param name="textureName">Name of the texture.</param>
+    /// <param name="textureName">Name of the texture. Can either be a file name relative
+    /// to the <see cref="SkinResources.IMAGES_DIRECTORY"/>, a web URL or a file URL.</param>
     /// <param name="decodeWidth">Width to re-scale the texture to.</param>
     /// <param name="decodeHeight">Height to rescale the texture to.</param>
     public TextureAssetCore(string textureName, int decodeWidth, int decodeHeight)
@@ -154,6 +156,10 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement.AssetCore
       set { _thumbnailDimension = value; }
     }
 
+    /// <summary>
+    /// Name of the texture, can either be a file name relative to the <see cref="SkinResources.IMAGES_DIRECTORY"/>,
+    /// a web URL or a file URL.
+    /// </summary>
     public string Name
     {
       get { return _textureName; }
@@ -189,7 +195,7 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement.AssetCore
     #region Public methods
 
     /// <summary>
-    /// Loads the specified texture from the file.
+    /// Loads the specified texture from the source file or URI.
     /// </summary>
     public virtual void Allocate()
     {
@@ -219,7 +225,7 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement.AssetCore
     #region Protected allocation helpers
 
         /// <summary>
-    /// Loads the specified texture from the file.
+    /// Loads the specified texture from the file or from the URI.
     /// </summary>
     protected void Allocate_NoLock(bool async)
     {
@@ -280,7 +286,7 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement.AssetCore
         if (_fileReadContext != null)
         {
           // Calling FileStream.Close should trigger read operation completion and throw a (caught) exception in the 
-          //  completion callback
+          // completion callback
           if ((DateTime.Now - _fileReadContext.timeStarted).TotalMilliseconds > ASYNCHRONOUS_TIMEOUT_MS)
             _fileReadContext.isCancelled = true;
         }
@@ -357,7 +363,7 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement.AssetCore
 
           // Read first chunk
           _fileReadContext.fileStream.BeginRead(_fileReadContext.imageBuffer, 0, _fileReadContext.imageBuffer.Length,
-              AllocateAsyncCallback_NoLock, _fileReadContext);
+              AllocateFromFileAsyncCallback_NoLock, _fileReadContext);
         }
         catch (Exception e)
         {
@@ -531,7 +537,7 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement.AssetCore
         _state = State.Loaded;
     }
 
-    protected void AllocateAsyncCallback_NoLock(IAsyncResult result)
+    protected void AllocateFromFileAsyncCallback_NoLock(IAsyncResult result)
     {
       bool completeOperation = false;
       lock (_syncObj)
@@ -561,7 +567,7 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement.AssetCore
             // Write data to our SlimDX stream
             state.imageDataStream.Write(state.imageBuffer, 0, read);
             // Read next chunk
-            state.fileStream.BeginRead(state.imageBuffer, 0, state.imageBuffer.Length, AllocateAsyncCallback_NoLock, state);
+            state.fileStream.BeginRead(state.imageBuffer, 0, state.imageBuffer.Length, AllocateFromFileAsyncCallback_NoLock, state);
           }
         }
         catch (Exception e)

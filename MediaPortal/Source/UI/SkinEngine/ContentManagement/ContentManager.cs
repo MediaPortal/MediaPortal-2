@@ -155,7 +155,7 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement
     /// Retrieves a <see cref="TextureAsset"/> (creating it if necessary) from the specified file.
     /// </summary>
     /// <param name="fileName">Name of the file (.jpg, .png).</param>
-    /// <param name="thumb"><c>true</c> to load the image as a thumbnail, false otherwise.</param>
+    /// <param name="thumb"><c>true</c> to load the image as a thumbnail, <c>false</c> otherwise.</param>
     /// <returns>A <see cref="TextureAsset"/> object.</returns>
     public TextureAsset GetTexture(string fileName, bool thumb)
     {
@@ -167,6 +167,12 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement
       return GetTexture(fileName, false);
     }
 
+    /// <summary>
+    /// Retrieves a <see cref="TextureAsset"/> (creating it if necessary) filled with the given binary image data.
+    /// </summary>
+    /// <param name="binaryData">The binary image data to create the texture from.</param>
+    /// <param name="key">Key which is unique for the given image <paramref name="binaryData"/>.</param>
+    /// <returns>A texture asset containing the image given by the <paramref name="binaryData"/>.</returns>
     public TextureAsset GetTexture(byte[] binaryData, string key)
     {
       return GetCreateAsset(AssetType.Thumbnail, key,

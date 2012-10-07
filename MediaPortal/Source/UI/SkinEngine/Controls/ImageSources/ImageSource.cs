@@ -32,7 +32,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.ImageSources
 {
   /// <summary>
   /// This class defines a most basic requirements for an ImageSource derived class.
-  /// ImageSources are used by controls (like Image) to provide format independent 
+  /// ImageSources are used by controls (like <see cref="Visuals.Image"/>) to provide format independent 
   /// visual content in a flexible, expandable and consistent manner.
   /// </summary>
   public abstract class ImageSource : DependencyObject, IObservable
