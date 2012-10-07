@@ -675,7 +675,7 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement.AssetCore
   /// </summary>
   public class BinaryTextureAssetCore : TextureAssetCore
   {
-    private readonly byte[] _binaryThumbdata = null;
+    private readonly byte[] _binaryThumbdata;
 
     public BinaryTextureAssetCore(byte[] binaryThumbdata, string textureName) : base(textureName, 0, 0)
     {
@@ -685,6 +685,31 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement.AssetCore
     public override void Allocate()
     {
       AllocateFromBuffer_NoLock(_binaryThumbdata);
+    }
+
+    public override void AllocateAsync()
+    {
+      Allocate();
+    }
+  }
+
+  /// <summary>
+  /// A version of <see cref="TextureAssetCore"/> that gets its texture data from a stream.
+  /// </summary>
+  public class StreamTextureAssetCore : TextureAssetCore
+  {
+    private readonly Stream _stream;
+
+    public StreamTextureAssetCore(Stream stream, string textureName) : base(textureName, 0, 0)
+    {
+      _stream = stream;
+    }
+
+    public override void Allocate()
+    {
+      lock (_syncObj)
+        _state = State.LoadingAsync;
+      _asyncLoadOperation = new AsyncStreamLoadOperation(_stream, _textureName, AsyncOperationComplete);
     }
 
     public override void AllocateAsync()

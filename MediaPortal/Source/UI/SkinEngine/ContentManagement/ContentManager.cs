@@ -25,6 +25,7 @@
 using System;
 using System.Collections.Generic;
 using System.Drawing;
+using System.IO;
 using System.Threading;
 using MediaPortal.Common;
 using MediaPortal.Common.Logging;
@@ -165,6 +166,19 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement
     public TextureAsset GetTexture(string fileName)
     {
       return GetTexture(fileName, false);
+    }
+
+    /// <summary>
+    /// Retrieves a <see cref="TextureAsset"/> (creating it if necessary) filled with image data from the given stream.
+    /// </summary>
+    /// <param name="stream">Stream to read the image data to create the texture from.</param>
+    /// <param name="key">Key which is unique for the given image <paramref name="stream"/>.</param>
+    /// <returns>A texture asset containing the image given by the <paramref name="stream"/>.</returns>
+    public TextureAsset GetTexture(Stream stream, string key)
+    {
+      return GetCreateAsset(AssetType.Thumbnail, key,
+          assetCore => new TextureAsset(assetCore as TextureAssetCore),
+          () => new StreamTextureAssetCore(stream, key)) as TextureAsset;
     }
 
     /// <summary>

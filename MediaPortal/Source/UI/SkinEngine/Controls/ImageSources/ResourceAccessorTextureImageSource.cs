@@ -22,9 +22,9 @@
 
 #endregion
 
-using System;
 using System.Drawing;
-using System.Security.Cryptography;
+using System.IO;
+using MediaPortal.Common.ResourceAccess;
 using MediaPortal.UI.SkinEngine.ContentManagement;
 using MediaPortal.UI.SkinEngine.Rendering;
 using SlimDX.Direct3D9;
@@ -32,19 +32,18 @@ using SlimDX.Direct3D9;
 namespace MediaPortal.UI.SkinEngine.Controls.ImageSources
 {
   /// <summary>
-  /// Image source which supports binary data of an image.
+  /// Image source which loads the data of an image from a stream.
   /// </summary>
-  public class BinaryTextureImageSource : TextureImageSource
+  public class ResourceAccessorTextureImageSource : TextureImageSource
   {
     #region Protected fields
-
-    protected static SHA1 sha1 = SHA1.Create();
 
     protected TextureAsset _texture = null;
     protected bool _flipX = false;
     protected bool _flipY = false;
 
-    protected byte[] _textureData;
+    protected IResourceAccessor _resourceAccessor;
+    protected Stream _stream;
     protected string _key;
     protected RightAngledRotation _rotation;
 
@@ -53,24 +52,17 @@ namespace MediaPortal.UI.SkinEngine.Controls.ImageSources
     #region Constructor
 
     /// <summary>
-    /// Constructs a <see cref="BinaryTextureImageSource"/> for the given data.
+    /// Constructs a <see cref="ResourceAccessorTextureImageSource"/> for the given data.
     /// </summary>
-    /// <param name="textureData">Binary data to create the texture for.</param>
+    /// <param name="resourceAccessor">The resource accessor to load the texture data from.</param>
     /// <param name="rotation">Desired rotation for the given image.</param>
-    /// <param name="key">Unique key for storing the generated texture in the <see cref="ContentManager"/>.</param>
-    public BinaryTextureImageSource(byte[] textureData, RightAngledRotation rotation, string key)
+    public ResourceAccessorTextureImageSource(IResourceAccessor resourceAccessor, RightAngledRotation rotation)
     {
-      _key = key;
-      _textureData = textureData;
+      _key = resourceAccessor.CanonicalLocalResourcePath.Serialize();
+      _resourceAccessor = resourceAccessor;
+      _stream = _resourceAccessor.OpenRead();
       _rotation = rotation;
     }
-
-    /// <summary>
-    /// Constructs a <see cref="BinaryTextureImageSource"/> for the given data.
-    /// </summary>
-    /// <param name="textureData">Binary data to create the texture for.</param>
-    /// <param name="rotation">Desired rotation for the given image.</param>
-    public BinaryTextureImageSource(byte[] textureData, RightAngledRotation rotation) : this(textureData, rotation, BitConverter.ToString(sha1.ComputeHash(textureData))) {}
 
     #endregion
 
@@ -99,8 +91,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.ImageSources
     public override void Allocate()
     {
       _imageContext.Rotation = _rotation;
-      if (_texture == null && _textureData != null)
-        _texture = ContentManager.Instance.GetTexture(_textureData, _key);
+      if (_texture == null && _stream != null)
+        _texture = ContentManager.Instance.GetTexture(_stream, _key);
       if (_texture != null && !_texture.IsAllocated)
         _texture.Allocate();
     }
@@ -118,6 +110,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.ImageSources
     protected override void FreeData()
     {
       _texture = null;
+      _stream.Close();
+      _resourceAccessor.Dispose();
       base.FreeData();
     }
 

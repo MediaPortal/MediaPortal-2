@@ -28,6 +28,7 @@ using MediaPortal.Common;
 using MediaPortal.Common.General;
 using MediaPortal.Common.Logging;
 using MediaPortal.Common.MediaManagement;
+using MediaPortal.Common.ResourceAccess;
 using MediaPortal.UI.SkinEngine.MpfElements;
 using MediaPortal.UI.SkinEngine.Rendering;
 using MediaPortal.UI.SkinEngine.Controls.ImageSources;
@@ -58,6 +59,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     UniformToFill
   }
 
+  // TODO: Thumbnail property & handling is not implemented for all image sources. Makes it sense to have this property in the Image class? Should it be reworked?
   public class Image : Control
   {
     #region Classes
@@ -97,7 +99,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     protected bool _loadImageSource = false;
     protected bool _fallbackSourceInUse = false;
     protected SizeF _lastImageSourceSize = SizeF.Empty;
-    protected string _warnURI = null;
+    protected string _formerWarnURI = null;
     protected bool _invalidateImageSourceOnResize = false;
 
     #endregion
@@ -415,6 +417,11 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
         result = MediaItemsHelper.CreateThumbnailImageSource((MediaItem) source, (int) Math.Max(Width, Height));
         _invalidateImageSourceOnResize = true;
       }
+      else if (source is IResourceLocator)
+      {
+        IResourceLocator resourceLocator = (IResourceLocator) source;
+        result = new ResourceAccessorTextureImageSource(resourceLocator.CreateAccessor(), RightAngledRotation.Zero);
+      }
       else
         result = source as ImageSource;
       if (result == null)
@@ -434,11 +441,11 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
           // TODO: More image types
           else
           {
-            if (_warnURI != uriSource)
+            if (_formerWarnURI != uriSource)
             {
               ServiceRegistration.Get<ILogger>().Warn("Image: Image source '{0}' is not supported", uriSource);
               // Remember if we already wrote a warning to the log to avoid log flooding
-              _warnURI = uriSource;
+              _formerWarnURI = uriSource;
             }
           }
         }
