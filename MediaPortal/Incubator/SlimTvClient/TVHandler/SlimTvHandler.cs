@@ -187,9 +187,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.TvHandler
       bool result = TimeshiftControl.StartTimeshift(newSlotIndex, channel, out timeshiftMediaItem);
       if (result && timeshiftMediaItem != null)
       {
-        string newAccessorPath =
-          (string) timeshiftMediaItem.Aspects[ProviderResourceAspect.ASPECT_ID].GetAttributeValue(
-            ProviderResourceAspect.ATTR_RESOURCE_ACCESSOR_PATH);
+        string newAccessorPath =(string) timeshiftMediaItem.Aspects[ProviderResourceAspect.ASPECT_ID].GetAttributeValue(ProviderResourceAspect.ATTR_RESOURCE_ACCESSOR_PATH);
 
         // if slot was empty, start a new player
         if (_slotContexes[newSlotIndex].AccessorPath == null)
@@ -249,10 +247,9 @@ namespace MediaPortal.Plugins.SlimTv.Client.TvHandler
           if (liveTvMediaItem != null && newLiveTvMediaItem != null)
           {
             // check if this is "our" media item to update.
-            if ((int) liveTvMediaItem.AdditionalProperties[LiveTvMediaItem.SLOT_INDEX] == (int) newLiveTvMediaItem.AdditionalProperties[LiveTvMediaItem.SLOT_INDEX])
+            if (IsSameSlot(liveTvMediaItem, newLiveTvMediaItem))
             {
-              if (liveTvMediaItem.Aspects[ProviderResourceAspect.ASPECT_ID].GetAttributeValue(ProviderResourceAspect.ATTR_RESOURCE_ACCESSOR_PATH).ToString() !=
-                newLiveTvMediaItem.Aspects[ProviderResourceAspect.ASPECT_ID].GetAttributeValue(ProviderResourceAspect.ATTR_RESOURCE_ACCESSOR_PATH).ToString())
+              if (!IsSameLiveTvItem(liveTvMediaItem,newLiveTvMediaItem))
               {
                 //switch MediaItem in current slot
                 playerContext.DoPlay(newLiveTvMediaItem);
@@ -265,6 +262,37 @@ namespace MediaPortal.Plugins.SlimTv.Client.TvHandler
           }
         }
       }
+    }
+
+    /// <summary>
+    /// Checks if both <see cref="LiveTvMediaItem"/> are representing the same player slot.
+    /// </summary>
+    /// <param name="oldItem"></param>
+    /// <param name="newItem"></param>
+    /// <returns><c>true</c> if same</returns>
+    protected bool IsSameSlot(LiveTvMediaItem oldItem, LiveTvMediaItem newItem)
+    {
+      return ((int) oldItem.AdditionalProperties[LiveTvMediaItem.SLOT_INDEX] == (int) newItem.AdditionalProperties[LiveTvMediaItem.SLOT_INDEX]);
+    }
+
+    /// <summary>
+    /// Checks if both <see cref="LiveTvMediaItem"/> are of same type, which includes mimeType and streaming url. This check is used to detected
+    /// card changes on server and switching between radio and tv channels.
+    /// </summary>
+    /// <param name="oldItem"></param>
+    /// <param name="newItem"></param>
+    /// <returns></returns>
+    protected bool IsSameLiveTvItem(LiveTvMediaItem oldItem, LiveTvMediaItem newItem)
+    {
+       if (oldItem.Aspects[ProviderResourceAspect.ASPECT_ID].GetAttributeValue(ProviderResourceAspect.ATTR_RESOURCE_ACCESSOR_PATH).ToString() !=
+                newItem.Aspects[ProviderResourceAspect.ASPECT_ID].GetAttributeValue(ProviderResourceAspect.ATTR_RESOURCE_ACCESSOR_PATH).ToString()) 
+         return false;
+
+      string oldMimeType;
+      string oldTitle;
+      string newMimeType;
+      string newTitle;
+      return oldItem.GetPlayData(out oldMimeType, out oldTitle) && newItem.GetPlayData(out newMimeType, out newTitle) && oldMimeType == newMimeType;
     }
 
     public bool StopTimeshift(int slotIndex)
