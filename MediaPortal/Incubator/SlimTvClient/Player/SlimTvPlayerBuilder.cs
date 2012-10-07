@@ -49,7 +49,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.Player
       if (mimeType != LiveTvMediaItem.MIME_TYPE_TV && mimeType != LiveTvMediaItem.MIME_TYPE_RADIO)
         return null;
       IResourceLocator locator = mediaItem.GetResourceLocator();
-      BaseDXPlayer player = mimeType == LiveTvMediaItem.MIME_TYPE_TV ? (BaseDXPlayer) new LiveTvPlayer() : new LiveRadioPlayer(false);
+      BaseDXPlayer player = mimeType == LiveTvMediaItem.MIME_TYPE_TV ? (BaseDXPlayer) new LiveTvPlayer() : new LiveRadioPlayer(true);
       try
       {
         player.SetMediaItem(locator, title);
