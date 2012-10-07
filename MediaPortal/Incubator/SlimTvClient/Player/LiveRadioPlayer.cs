@@ -32,7 +32,7 @@ using MediaPortal.UI.Presentation.Players;
 
 namespace MediaPortal.Plugins.SlimTv.Client.Player
 {
-  class LiveRadioPlayer : BaseDXPlayer, IAudioPlayer, ITsReaderCallback, ITsReaderCallbackAudioChange //, IUIContributorPlayer
+  class LiveRadioPlayer : BaseDXPlayer, IAudioPlayer, ITsReaderCallback, ITsReaderCallbackAudioChange
   {
     #region Imports
 
@@ -74,7 +74,10 @@ namespace MediaPortal.Plugins.SlimTv.Client.Player
     protected override void AddFileSource()
     {
       if (!_useTsReader)
+      {
+        base.AddFileSource();
         return;
+      }
 
       // Render the file
       _fileSource = (IBaseFilter) new TsReader();
@@ -93,7 +96,10 @@ namespace MediaPortal.Plugins.SlimTv.Client.Player
     protected override void OnBeforeGraphRunning()
     {
       if (!_useTsReader)
+      {
+        base.OnBeforeGraphRunning();
         return;
+      }
       
       FilterGraphTools.RenderOutputPins(_graphBuilder, _fileSource);
     }
@@ -111,11 +117,6 @@ namespace MediaPortal.Plugins.SlimTv.Client.Player
       FilterGraphTools.TryRelease(ref _fileSource); 
     }
 
-    //public Type UIContributorType
-    //{
-    //  get { return typeof(SlimTvUIContributor); }
-    //}
-
     public int OnMediaTypeChanged(ChangedMediaType mediaType)
     {
       return 0;
@@ -128,6 +129,9 @@ namespace MediaPortal.Plugins.SlimTv.Client.Player
 
     public int OnRequestAudioChange ()
     {
+      IAMStreamSelect streamSelect = _fileSource as IAMStreamSelect;
+      if (streamSelect != null)
+        streamSelect.Enable(0, 0);
       return 0;
     }
   }
