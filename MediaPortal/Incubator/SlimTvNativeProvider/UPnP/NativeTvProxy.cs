@@ -214,7 +214,7 @@ namespace MediaPortal.Plugins.SlimTv.Providers.UPnP
       {
         _programCache.ClearCache(channel);
         ProgramNowNextValue programsCache;
-        if (_programCache.TryGetPrograms(channel, out programsCache))
+        if (_programCache.TryGetProgramsByTime(channel, from, out programsCache))
         {
           programs = new List<IProgram> {programsCache.ProgramNow};
           return true;
