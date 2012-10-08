@@ -187,7 +187,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.TvHandler
       bool result = TimeshiftControl.StartTimeshift(newSlotIndex, channel, out timeshiftMediaItem);
       if (result && timeshiftMediaItem != null)
       {
-        string newAccessorPath =(string) timeshiftMediaItem.Aspects[ProviderResourceAspect.ASPECT_ID].GetAttributeValue(ProviderResourceAspect.ATTR_RESOURCE_ACCESSOR_PATH);
+        string newAccessorPath = (string) timeshiftMediaItem.Aspects[ProviderResourceAspect.ASPECT_ID].GetAttributeValue(ProviderResourceAspect.ATTR_RESOURCE_ACCESSOR_PATH);
 
         // if slot was empty, start a new player
         if (_slotContexes[newSlotIndex].AccessorPath == null)
@@ -240,27 +240,23 @@ namespace MediaPortal.Plugins.SlimTv.Client.TvHandler
       for (int index = 0; index < playerContextManager.NumActivePlayerContexts; index++)
       {
         IPlayerContext playerContext = playerContextManager.GetPlayerContext(index);
-        if (playerContext != null)
+        if (playerContext == null)
+          continue;
+        LiveTvMediaItem liveTvMediaItem = playerContext.CurrentMediaItem as LiveTvMediaItem;
+        LiveTvMediaItem newLiveTvMediaItem = timeshiftMediaItem as LiveTvMediaItem;
+        // Check if this is "our" media item to update.
+        if (liveTvMediaItem == null || newLiveTvMediaItem == null || !IsSameSlot(liveTvMediaItem, newLiveTvMediaItem))
+          continue;
+
+        if (!IsSameLiveTvItem(liveTvMediaItem, newLiveTvMediaItem))
         {
-          LiveTvMediaItem liveTvMediaItem = playerContext.CurrentMediaItem as LiveTvMediaItem;
-          LiveTvMediaItem newLiveTvMediaItem = timeshiftMediaItem as LiveTvMediaItem;
-          if (liveTvMediaItem != null && newLiveTvMediaItem != null)
-          {
-            // check if this is "our" media item to update.
-            if (IsSameSlot(liveTvMediaItem, newLiveTvMediaItem))
-            {
-              if (!IsSameLiveTvItem(liveTvMediaItem,newLiveTvMediaItem))
-              {
-                //switch MediaItem in current slot
-                playerContext.DoPlay(newLiveTvMediaItem);
-                //clear former timeshift contexes (card change cause loss of buffer in rtsp mode).
-                liveTvMediaItem.TimeshiftContexes.Clear();
-              }
-              // add new timeshift context
-              AddTimeshiftContext(liveTvMediaItem, newLiveTvMediaItem.AdditionalProperties[LiveTvMediaItem.CHANNEL] as IChannel);
-            }
-          }
+          // Switch MediaItem in current slot
+          playerContext.DoPlay(newLiveTvMediaItem);
+          // Clear former timeshift contexes (card change cause loss of buffer in rtsp mode).
+          liveTvMediaItem.TimeshiftContexes.Clear();
         }
+        // Add new timeshift context
+        AddTimeshiftContext(liveTvMediaItem, newLiveTvMediaItem.AdditionalProperties[LiveTvMediaItem.CHANNEL] as IChannel);
       }
     }
 
@@ -284,9 +280,14 @@ namespace MediaPortal.Plugins.SlimTv.Client.TvHandler
     /// <returns></returns>
     protected bool IsSameLiveTvItem(LiveTvMediaItem oldItem, LiveTvMediaItem newItem)
     {
-       if (oldItem.Aspects[ProviderResourceAspect.ASPECT_ID].GetAttributeValue(ProviderResourceAspect.ATTR_RESOURCE_ACCESSOR_PATH).ToString() !=
-                newItem.Aspects[ProviderResourceAspect.ASPECT_ID].GetAttributeValue(ProviderResourceAspect.ATTR_RESOURCE_ACCESSOR_PATH).ToString()) 
-         return false;
+      if (oldItem.Aspects[ProviderResourceAspect.ASPECT_ID].GetAttributeValue(ProviderResourceAspect.ATTR_RESOURCE_ACCESSOR_PATH).ToString() !=
+               newItem.Aspects[ProviderResourceAspect.ASPECT_ID].GetAttributeValue(ProviderResourceAspect.ATTR_RESOURCE_ACCESSOR_PATH).ToString())
+        return false;
+
+      IChannel oldChannel = oldItem.AdditionalProperties[LiveTvMediaItem.CHANNEL] as IChannel;
+      IChannel newChannel=newItem.AdditionalProperties[LiveTvMediaItem.CHANNEL] as IChannel;
+      if (oldChannel != null && newChannel != null && oldChannel.MediaType != newChannel.MediaType)
+        return false;
 
       string oldMimeType;
       string oldTitle;
