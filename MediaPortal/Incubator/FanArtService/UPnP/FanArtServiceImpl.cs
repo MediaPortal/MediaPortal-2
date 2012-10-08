@@ -85,7 +85,7 @@ namespace MediaPortal.Extensions.UserServices.FanArtService.UPnP
 
       FanArtConstants.FanArtMediaType fanArtMediaType = (FanArtConstants.FanArtMediaType) Enum.Parse(typeof(FanArtConstants.FanArtMediaType), inParams[0].ToString());
       FanArtConstants.FanArtType fanArtType = (FanArtConstants.FanArtType) Enum.Parse(typeof(FanArtConstants.FanArtType), inParams[1].ToString());
-      string name = inParams[2].ToString();
+      string name = (inParams[2] ?? string.Empty).ToString();
       int maxWidth = (int) inParams[3];
       int maxHeight = (int) inParams[4];
       bool singleRandom = (bool) inParams[5];
