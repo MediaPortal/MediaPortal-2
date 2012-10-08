@@ -576,13 +576,15 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
         if (liveTvMediaItem != null && player != null)
         {
           ITimeshiftContext context = player.CurrentTimeshiftContext;
+          IProgram currentProgram = null;
+          IProgram nextProgram = null;
           if (context != null)
           {
             ChannelName = context.Channel.Name;
-            CurrentProgram.SetProgram(context.Program);
-            if (context.Program != null)
+            currentProgram = context.Program;
+            if (currentProgram != null)
             {
-              IProgram currentProgram = context.Program;
+              currentProgram = context.Program;
               double progress = (DateTime.Now - currentProgram.StartTime).TotalSeconds /
                                 (currentProgram.EndTime - currentProgram.StartTime).TotalSeconds * 100;
               _programProgressProperty.SetValue(progress);
@@ -590,9 +592,11 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
               IList<IProgram> nextPrograms;
               DateTime nextTime = currentProgram.EndTime.Add(TimeSpan.FromSeconds(10));
               if (_tvHandler.ProgramInfo.GetPrograms(context.Channel, nextTime, nextTime, out nextPrograms))
-                NextProgram.SetProgram(nextPrograms[0]);
+                nextProgram = nextPrograms[0];
             }
           }
+          CurrentProgram.SetProgram(currentProgram);
+          NextProgram.SetProgram(nextProgram);
         }
       }
     }

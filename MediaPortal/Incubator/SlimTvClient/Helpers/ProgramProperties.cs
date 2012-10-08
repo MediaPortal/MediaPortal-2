@@ -168,6 +168,15 @@ namespace MediaPortal.Plugins.SlimTv.Client.Helpers
         Genre = program.Genre;
         UpdateDuration();
       }
+      else
+      {
+        ProgramId = 0;
+        Title = string.Empty;
+        Description = string.Empty;
+        StartTime = FormatHelper.GetDay(DateTime.Now);
+        EndTime = StartTime.AddDays(1);
+        Genre = string.Empty;
+      }
     }
 
     public void UpdateDuration(DateTime viewPortMinTime, DateTime viewPortMaxTime)
