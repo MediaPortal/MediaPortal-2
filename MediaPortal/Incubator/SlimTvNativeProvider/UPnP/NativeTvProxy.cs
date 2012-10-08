@@ -1,4 +1,28 @@
-﻿using System;
+﻿#region Copyright (C) 2007-2012 Team MediaPortal
+
+/*
+    Copyright (C) 2007-2012 Team MediaPortal
+    http://www.team-mediaportal.com
+
+    This file is part of MediaPortal 2
+
+    MediaPortal 2 is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    MediaPortal 2 is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with MediaPortal 2. If not, see <http://www.gnu.org/licenses/>.
+*/
+
+#endregion
+
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using MediaPortal.Common;
@@ -10,6 +34,7 @@ using MediaPortal.Common.UPnP;
 using MediaPortal.Plugins.SlimTv.Interfaces;
 using MediaPortal.Plugins.SlimTv.Interfaces.Items;
 using MediaPortal.Plugins.SlimTv.Interfaces.UPnP.Items;
+using MediaPortal.Plugins.SlimTv.Providers.Helpers;
 using MediaPortal.Plugins.SlimTv.Providers.Settings;
 using MediaPortal.Plugins.SlimTv.UPnP;
 using MediaPortal.UI.Presentation.UiNotifications;
@@ -26,6 +51,7 @@ namespace MediaPortal.Plugins.SlimTv.Providers.UPnP
     protected UPnPControlPoint _controlPoint;
     protected readonly IChannel[] _channels = new IChannel[2];
     protected readonly object _syncObj = new object();
+    protected readonly ProgramCache _programCache = new ProgramCache();
 
     #endregion
 
@@ -131,13 +157,13 @@ namespace MediaPortal.Plugins.SlimTv.Providers.UPnP
       return _channels[slotIndex];
     }
 
-    public bool GetCurrentProgram (IChannel channel, out IProgram program)
+    public bool GetCurrentProgram(IChannel channel, out IProgram program)
     {
       IProgram programNext;
       return GetNowNextProgram(channel, out program, out programNext);
     }
 
-    public bool GetNextProgram (IChannel channel, out IProgram program)
+    public bool GetNextProgram(IChannel channel, out IProgram program)
     {
       IProgram programNow;
       return GetNowNextProgram(channel, out programNow, out program);
@@ -145,6 +171,14 @@ namespace MediaPortal.Plugins.SlimTv.Providers.UPnP
 
     public bool GetNowNextProgram(IChannel channel, out IProgram programNow, out IProgram programNext)
     {
+      ProgramNowNextValue programs;
+      _programCache.ClearCache(channel);
+      if (_programCache.TryGetPrograms(channel, out programs))
+      {
+        programNow = programs.ProgramNow;
+        programNext = programs.ProgramNext;
+        return true;
+      }
       try
       {
         CpAction action = GetAction(Consts.ACTION_GET_NOW_NEXT_PROGRAM);
@@ -159,6 +193,7 @@ namespace MediaPortal.Plugins.SlimTv.Providers.UPnP
         {
           programNow = (Program) outParameters[1];
           programNext = (Program) outParameters[2];
+          _programCache.TryAdd(channel, programNow, programNext);
           return true;
         }
       }
@@ -171,9 +206,20 @@ namespace MediaPortal.Plugins.SlimTv.Providers.UPnP
       return false;
     }
 
-    public bool GetPrograms (IChannel channel, DateTime from, DateTime to, out IList<IProgram> programs)
+    public bool GetPrograms(IChannel channel, DateTime from, DateTime to, out IList<IProgram> programs)
     {
       programs = null;
+      // We only want to cache single time queries
+      if (from == to)
+      {
+        _programCache.ClearCache(channel);
+        ProgramNowNextValue programsCache;
+        if (_programCache.TryGetPrograms(channel, out programsCache))
+        {
+          programs = new List<IProgram> {programsCache.ProgramNow};
+          return true;
+        }
+      }
       try
       {
         CpAction action = GetAction(Consts.ACTION_GET_PROGRAMS);
@@ -190,6 +236,10 @@ namespace MediaPortal.Plugins.SlimTv.Providers.UPnP
         {
           IList<Program> programList = (IList<Program>) outParameters[1];
           programs = programList.Cast<IProgram>().ToList();
+          if (from == to)
+          {
+            _programCache.TryAdd(channel, programs[0], null);
+          }
           return true;
         }
       }
@@ -200,27 +250,27 @@ namespace MediaPortal.Plugins.SlimTv.Providers.UPnP
       return false;
     }
 
-    public bool GetProgramsForSchedule (ISchedule schedule, out IList<IProgram> programs)
+    public bool GetProgramsForSchedule(ISchedule schedule, out IList<IProgram> programs)
     {
       throw new NotImplementedException();
     }
 
-    public bool GetScheduledPrograms (IChannel channel, out IList<IProgram> programs)
+    public bool GetScheduledPrograms(IChannel channel, out IList<IProgram> programs)
     {
       throw new NotImplementedException();
     }
 
-    public bool GetChannel (IProgram program, out IChannel channel)
+    public bool GetChannel(IProgram program, out IChannel channel)
     {
       throw new NotImplementedException();
     }
 
-    public bool GetProgram (int programId, out IProgram program)
+    public bool GetProgram(int programId, out IProgram program)
     {
       throw new NotImplementedException();
     }
 
-    public bool GetChannelGroups (out IList<IChannelGroup> groups)
+    public bool GetChannelGroups(out IList<IChannelGroup> groups)
     {
       groups = null;
       try
@@ -244,7 +294,7 @@ namespace MediaPortal.Plugins.SlimTv.Providers.UPnP
       }
     }
 
-    public bool GetChannels (IChannelGroup group, out IList<IChannel> channels)
+    public bool GetChannels(IChannelGroup group, out IList<IChannel> channels)
     {
       channels = null;
       try
@@ -285,7 +335,7 @@ namespace MediaPortal.Plugins.SlimTv.Providers.UPnP
       }
     }
 
-    public bool CreateSchedule (IProgram program)
+    public bool CreateSchedule(IProgram program)
     {
       try
       {
@@ -301,7 +351,7 @@ namespace MediaPortal.Plugins.SlimTv.Providers.UPnP
       }
     }
 
-    public bool RemoveSchedule (IProgram program)
+    public bool RemoveSchedule(IProgram program)
     {
       try
       {
@@ -317,7 +367,7 @@ namespace MediaPortal.Plugins.SlimTv.Providers.UPnP
       }
     }
 
-    public bool GetRecordingStatus (IProgram program, out RecordingStatus recordingStatus)
+    public bool GetRecordingStatus(IProgram program, out RecordingStatus recordingStatus)
     {
       try
       {
@@ -325,7 +375,7 @@ namespace MediaPortal.Plugins.SlimTv.Providers.UPnP
         IList<object> inParameters = new List<object> { program.ProgramId };
         IList<object> outParameters = action.InvokeAction(inParameters);
         bool result = (bool) outParameters[0];
-        recordingStatus = (RecordingStatus) Enum.Parse(typeof (RecordingStatus), outParameters[1].ToString());
+        recordingStatus = (RecordingStatus) Enum.Parse(typeof(RecordingStatus), outParameters[1].ToString());
         return result;
       }
       catch (Exception ex)
