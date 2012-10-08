@@ -41,7 +41,7 @@ namespace MediaPortal.Plugins.SlimTv.Service
 
     public static IChannel ToChannel(this Mediaportal.TV.Server.TVDatabase.Entities.Channel tvChannel)
     {
-      return new Channel { ChannelId = tvChannel.IdChannel, Name = tvChannel.DisplayName };
+      return new Channel { ChannelId = tvChannel.IdChannel, Name = tvChannel.DisplayName, MediaType = (MediaType)tvChannel.MediaType};
     }
 
     public static IChannelGroup ToChannelGroup(this Mediaportal.TV.Server.TVDatabase.Entities.ChannelGroup tvGroup)

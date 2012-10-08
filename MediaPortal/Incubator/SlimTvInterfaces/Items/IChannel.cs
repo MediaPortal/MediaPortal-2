@@ -27,6 +27,15 @@ using System;
 namespace MediaPortal.Plugins.SlimTv.Interfaces.Items
 {
   /// <summary>
+  /// MediaType of a channel.
+  /// </summary>
+  public enum MediaType
+  {
+    TV,
+    Radio
+  }
+
+  /// <summary>
   /// IChannel represents a channel.
   /// </summary>
   public interface IChannel
@@ -40,5 +49,10 @@ namespace MediaPortal.Plugins.SlimTv.Interfaces.Items
     /// Gets or Sets the Name.
     /// </summary>      
     String Name { get; set; }
+
+    /// <summary>
+    /// Gets or Sets the MediaType.
+    /// </summary>
+    MediaType MediaType { get; set; }
   }
 }

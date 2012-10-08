@@ -69,6 +69,11 @@ namespace MediaPortal.Plugins.SlimTv.Providers.UPnP
     public bool StartTimeshift(int slotIndex, IChannel channel, out MediaItem timeshiftMediaItem)
     {
       timeshiftMediaItem = null;
+      // If we change between radio and tv channels, stop current timeshift before. This is required, so that the new
+      // player starts with a new stream from beginning. Otherwise a VideoPlayer could be ran with an older Radio stream part.
+      bool mediaTypeChanged = _channels[slotIndex] != null && _channels[slotIndex].MediaType != channel.MediaType;
+      if (mediaTypeChanged && !StopTimeshift(slotIndex))
+        return false;
       try
       {
         CpAction action = GetAction(Consts.ACTION_START_TIMESHIFT);

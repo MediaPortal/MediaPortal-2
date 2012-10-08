@@ -36,6 +36,8 @@ namespace MediaPortal.Plugins.SlimTv.Providers.Items
 
     public string Name { get; set; }
 
+    public MediaType MediaType { get; set; }
+
     #endregion
   }
 }
