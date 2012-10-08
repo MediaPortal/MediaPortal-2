@@ -26,6 +26,7 @@ using System;
 using System.Collections.Generic;
 using MediaPortal.Common;
 using MediaPortal.Common.Localization;
+using MediaPortal.Common.Logging;
 using MediaPortal.Plugins.SlimTv.Interfaces.Items;
 using MediaPortal.Plugins.SlimTv.Interfaces.LiveTvMediaItem;
 using MediaPortal.UI.Players.Video;
@@ -40,7 +41,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.Player
 
     protected IList<ITimeshiftContext> _timeshiftContexes;
     protected StreamInfoHandler _chapterInfo = null;
-    protected static TimeSpan TIMESPAN_LIVE = TimeSpan.FromSeconds(1.5);
+    protected static TimeSpan TIMESPAN_LIVE = TimeSpan.FromSeconds(1.0);
 
     #endregion
 
@@ -186,15 +187,29 @@ namespace MediaPortal.Plugins.SlimTv.Client.Player
 
     public void ChannelZap()
     {
-      // Call a seek only if the stream is not "live"
-      if (Duration - CurrentTime > TIMESPAN_LIVE)
-        CurrentTime = Duration; // Seek to end
-      
+      SeekToEnd();
+
       // Clear any subtitle that might be currently displayed
       _subtitleRenderer.Reset();
       EnumerateStreams(true);
       EnumerateChapters(true);
       SetPreferredSubtitle();
+    }
+
+    /// <summary>
+    /// Checks the current stream position and seeks to end, if it is less than <see cref="TIMESPAN_LIVE"/> behind the live point.
+    /// </summary>
+    /// <returns><c>true</c> if seeked to end.</returns>
+    protected bool SeekToEnd ()
+    {
+      // Call a seek only if the stream is not "live"
+      if (Duration - CurrentTime > TIMESPAN_LIVE)
+      {
+        ServiceRegistration.Get<ILogger>().Debug("{0}: SeekToEnd: Duration: {1}, CurrentTime: {2}", PlayerTitle, Duration, CurrentTime);
+        CurrentTime = Duration; // Seek to end
+        return true;
+      }
+      return false;
     }
 
     #region IChapterPlayer overrides
