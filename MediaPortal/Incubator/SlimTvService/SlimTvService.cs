@@ -76,11 +76,14 @@ namespace MediaPortal.Plugins.SlimTv.Service
 
     public MediaItem CreateMediaItem(int slotIndex, string streamUrl, IChannel channel)
     {
+      // Channel is usually only passed as placeholder with ID only, so query the details here
       IChannelService channelService = GlobalServiceProvider.Get<IChannelService>();
-      bool isTv = channelService.GetChannel(channel.ChannelId).MediaType == 0;
+      Channel fullChannel = channelService.GetChannel(channel.ChannelId);
+
+      bool isTv = fullChannel.MediaType == 0;
       LiveTvMediaItem tvStream = isTv
-        ? SlimTvMediaItemBuilder.CreateMediaItem(slotIndex, streamUrl, channel)
-        : SlimTvMediaItemBuilder.CreateRadioMediaItem(slotIndex, streamUrl, channel);
+        ? SlimTvMediaItemBuilder.CreateMediaItem(slotIndex, streamUrl, fullChannel.ToChannel())
+        : SlimTvMediaItemBuilder.CreateRadioMediaItem(slotIndex, streamUrl, fullChannel.ToChannel());
 
       if (tvStream != null)
       {
