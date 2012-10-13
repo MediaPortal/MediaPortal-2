@@ -26,6 +26,9 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
+using MediaPortal.Common;
+using MediaPortal.Common.Logging;
+using MediaPortal.Common.Threading;
 using MediaPortal.Extensions.OnlineLibraries.Libraries.Common;
 
 namespace MediaPortal.Extensions.OnlineLibraries.Matches
@@ -61,12 +64,13 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matches
     protected List<Thread> _downloadThreads = new List<Thread>(MAX_FANART_DOWNLOADERS);
     protected bool _downloadAllowed = true;
     protected Predicate<TMatch> _matchPredicate;
-
+   
     #endregion
 
     protected BaseMatcher ()
     {
-      ResumeDownloads();
+      // use own thread to avoid delay during startup
+      ServiceRegistration.Get<IThreadPool>().Add(new DoWorkHandler(this.ResumeDownloads), "SetAndUpdatePreferredLocation", QueuePriority.Normal, ThreadPriority.BelowNormal);
     }
 
     protected abstract bool Init();

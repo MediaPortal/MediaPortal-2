@@ -29,6 +29,7 @@ using System.Net;
 using System.Text;
 using System.Web;
 using MediaPortal.Extensions.OnlineLibraries.Libraries.MovieDbV3.Data;
+using MediaPortal.Utilities.Network;
 using Newtonsoft.Json;
 
 namespace MediaPortal.Extensions.OnlineLibraries.Libraries.MovieDbV3
@@ -227,6 +228,9 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.MovieDbV3
     /// <returns>JSON result</returns>
     protected string DownloadJSON(string url)
     {
+      if (!NetworkUtils.IsNetworkConnected())
+        return string.Empty;
+
       WebClient webClient = new WebClient { Encoding = Encoding.UTF8 };
       webClient.Headers["Accept"] = "application/json";
       return webClient.DownloadString(url);
@@ -242,6 +246,8 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.MovieDbV3
     {
       if (File.Exists(downloadFile))
         return true;
+      if (!NetworkUtils.IsNetworkConnected())
+        return false;
       try
       {
         WebClient webClient = new WebClient();
