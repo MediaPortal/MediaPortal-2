@@ -311,12 +311,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
 
     protected override bool BeginRenderBrushOverride(PrimitiveBuffer primitiveContext, RenderContext renderContext)
     {
-      IPlayerManager playerManager = ServiceRegistration.Get<IPlayerManager>(false);
-      if (playerManager == null)
-        return false;
-
-      ISlimDXVideoPlayer player = playerManager[Stream] as ISlimDXVideoPlayer;
-      if (player == null) 
+      ISlimDXVideoPlayer player;
+      if (!GetPlayer(out player)) 
         return false;
 
       if (!RefreshEffectParameters(player))
@@ -339,6 +335,17 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
           device.StretchRectangle(playerSurface, target, TextureFilter.None);
       }
       return _imageContext.StartRender(renderContext, _scaledVideoSize, _texture, _videoTextureClip, BorderColor.ToArgb(), _lastFrameData);
+    }
+
+    protected virtual bool GetPlayer(out ISlimDXVideoPlayer player)
+    {
+      player = null;
+      IPlayerManager playerManager = ServiceRegistration.Get<IPlayerManager>(false);
+      if (playerManager == null)
+        return false;
+
+      player = playerManager[Stream] as ISlimDXVideoPlayer;
+      return player != null;
     }
 
     protected override bool BeginRenderOpacityBrushOverride(Texture tex, RenderContext renderContext)
