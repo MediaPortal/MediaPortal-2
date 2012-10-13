@@ -341,6 +341,17 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
       return _imageContext.StartRender(renderContext, _scaledVideoSize, _texture, _videoTextureClip, BorderColor.ToArgb(), _lastFrameData);
     }
 
+    protected virtual bool GetPlayer(out ISlimDXVideoPlayer player)
+    {
+      player = null;
+      IPlayerManager playerManager = ServiceRegistration.Get<IPlayerManager>(false);
+      if (playerManager == null)
+        return false;
+
+      player = playerManager[Stream] as ISlimDXVideoPlayer;
+      return player != null;
+    }
+
     protected override bool BeginRenderOpacityBrushOverride(Texture tex, RenderContext renderContext)
     {
       throw new NotImplementedException("VideoBrush doesn't support being rendered as an opacity brush");

@@ -18,5 +18,6 @@
 
   <Register Location="/Models">
     <Model Id="1F4CAEDE-7108-483d-B5C8-18BEC7EC58E5" Name="BackgroundManagerModel" ClassName="MediaPortal.UiComponents.BackgroundManager.Models.BackgroundManagerModel"/>
+    <Model Id="441288AC-F88D-4186-8993-6E259F7C75D8" ClassName="MediaPortal.UiComponents.BackgroundManager.Models.VideoBackgroundModel"/>
   </Register>
 </Plugin>
