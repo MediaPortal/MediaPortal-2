@@ -189,8 +189,10 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
         if (forceQuickMode)
           return false;
 
-        using (IResourceAccessor ra = mediaItemAccessor.Clone())
-        using (ILocalFsResourceAccessor lfsra = StreamedResourceToLocalFsAccessBridge.GetLocalFsResourceAccessor(ra))
+        if (!(mediaItemAccessor is IFileSystemResourceAccessor))
+          return false;
+        using (IFileSystemResourceAccessor fsra = (IFileSystemResourceAccessor) mediaItemAccessor.Clone())
+        using (ILocalFsResourceAccessor lfsra = StreamedResourceToLocalFsAccessBridge.GetLocalFsResourceAccessor(fsra))
         {
           string localFsPath = lfsra.LocalFileSystemPath;
           return ExtractSeriesData(localFsPath, extractedAspectData);

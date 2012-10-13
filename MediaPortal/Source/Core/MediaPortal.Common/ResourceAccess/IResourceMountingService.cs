@@ -81,7 +81,7 @@ namespace MediaPortal.Common.ResourceAccess
     /// <param name="rootDirectoryName">Name of the root directory whose resources should be returned.</param>
     /// <returns>Collection of resource accessors inside the given <paramref name="rootDirectoryName"/> or
     /// <c>null</c>, if there is no root directory with the given <paramref name="rootDirectoryName"/>.</returns>
-    ICollection<IResourceAccessor> GetResources(string rootDirectoryName);
+    ICollection<IFileSystemResourceAccessor> GetResources(string rootDirectoryName);
 
     /// <summary>
     /// Adds a resource to the given <paramref name="rootDirectoryName"/>.
@@ -93,7 +93,7 @@ namespace MediaPortal.Common.ResourceAccess
     /// <see cref="RemoveResource"/> is called for the given <paramref name="rootDirectoryName"/>.</param>
     /// <returns>Local filesystem path for the new resource, if the root directory with the given
     /// <paramref name="rootDirectoryName"/> exists and the resource could successfully be added, else <c>null</c>.</returns>
-    string AddResource(string rootDirectoryName, IResourceAccessor resourceAccessor);
+    string AddResource(string rootDirectoryName, IFileSystemResourceAccessor resourceAccessor);
 
     /// <summary>
     /// Removes the given <paramref name="resourceAccessor"/> from the root directory of the given
@@ -104,6 +104,6 @@ namespace MediaPortal.Common.ResourceAccess
     /// </remarks>
     /// <param name="rootDirectoryName">Root directory name which contains the given resource.</param>
     /// <param name="resourceAccessor">Resource to remove.</param>
-    void RemoveResource(string rootDirectoryName, IResourceAccessor resourceAccessor);
+    void RemoveResource(string rootDirectoryName, IFileSystemResourceAccessor resourceAccessor);
   }
 }

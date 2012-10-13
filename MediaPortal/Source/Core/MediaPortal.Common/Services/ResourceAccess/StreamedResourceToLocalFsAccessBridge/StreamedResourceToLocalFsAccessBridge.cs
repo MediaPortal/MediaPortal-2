@@ -98,7 +98,7 @@ namespace MediaPortal.Common.Services.ResourceAccess.StreamedResourceToLocalFsAc
       }
     }
 
-    static internal MountingDataProxy CreateMountingDataProxy(string key, IResourceAccessor baseResourceAccessor)
+    static internal MountingDataProxy CreateMountingDataProxy(string key, IFileSystemResourceAccessor baseResourceAccessor)
     {
       MountingDataProxy result = new MountingDataProxy(key, baseResourceAccessor);
       result.MountingDataOrphaned += OnMountingDataOrphaned;
@@ -121,7 +121,7 @@ namespace MediaPortal.Common.Services.ResourceAccess.StreamedResourceToLocalFsAc
     /// <param name="baseResourceAccessor">Resource accessor which is used to provide the resource contents.</param>
     /// <param name="path">Relative path based on the given baseResourceAccessor.</param>
     /// <returns>Resource accessor which implements <see cref="ILocalFsResourceAccessor"/>.</returns>
-    public static ILocalFsResourceAccessor GetLocalFsResourceAccessor(IResourceAccessor baseResourceAccessor, string path)
+    public static ILocalFsResourceAccessor GetLocalFsResourceAccessor(IFileSystemResourceAccessor baseResourceAccessor, string path)
     {
       // Try to get an ILocalFsResourceAccessor
       ILocalFsResourceAccessor result = baseResourceAccessor as ILocalFsResourceAccessor;
@@ -148,11 +148,11 @@ namespace MediaPortal.Common.Services.ResourceAccess.StreamedResourceToLocalFsAc
     }
 
     /// <summary>
-    /// Convenience method for <see cref="GetLocalFsResourceAccessor(IResourceAccessor,string)"/> for the root path (<c>"/"</c>).
+    /// Convenience method for <see cref="GetLocalFsResourceAccessor(IFileSystemResourceAccessor,string)"/> for the root path (<c>"/"</c>).
     /// </summary>
     /// <param name="baseResourceAccessor">Resource accessor which is used to provide the resource contents.</param>
     /// <returns>Resource accessor which implements <see cref="ILocalFsResourceAccessor"/>.</returns>
-    public static ILocalFsResourceAccessor GetLocalFsResourceAccessor(IResourceAccessor baseResourceAccessor)
+    public static ILocalFsResourceAccessor GetLocalFsResourceAccessor(IFileSystemResourceAccessor baseResourceAccessor)
     {
       return GetLocalFsResourceAccessor(baseResourceAccessor, "/");
     }
@@ -205,7 +205,7 @@ namespace MediaPortal.Common.Services.ResourceAccess.StreamedResourceToLocalFsAc
 
     public IFileSystemResourceAccessor GetResource(string path)
     {
-      IResourceAccessor ra = _mountingDataProxy.ResourceAccessor.Clone();
+      IFileSystemResourceAccessor ra = (IFileSystemResourceAccessor) _mountingDataProxy.ResourceAccessor.Clone();
       try
       {
         return GetLocalFsResourceAccessor(ra, ProviderPathHelper.Combine(_path, path));

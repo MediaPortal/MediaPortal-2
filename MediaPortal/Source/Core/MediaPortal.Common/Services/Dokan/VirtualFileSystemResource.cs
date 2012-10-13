@@ -1,4 +1,28 @@
-﻿using System;
+﻿#region Copyright (C) 2007-2012 Team MediaPortal
+
+/*
+    Copyright (C) 2007-2012 Team MediaPortal
+    http://www.team-mediaportal.com
+
+    This file is part of MediaPortal 2
+
+    MediaPortal 2 is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    MediaPortal 2 is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with MediaPortal 2. If not, see <http://www.gnu.org/licenses/>.
+*/
+
+#endregion
+
+using System;
 using System.Collections.Generic;
 using MediaPortal.Common.Logging;
 using MediaPortal.Common.ResourceAccess;
@@ -15,11 +39,11 @@ namespace MediaPortal.Common.Services.Dokan
   {
     protected string _name;
 
-    protected IResourceAccessor _resourceAccessor;
+    protected IFileSystemResourceAccessor _resourceAccessor;
     protected ICollection<FileHandle> _fileHandles = new HashSet<FileHandle>();
     protected DateTime _creationTime;
 
-    protected VirtualFileSystemResource(string name, IResourceAccessor resourceAccessor)
+    protected VirtualFileSystemResource(string name, IFileSystemResourceAccessor resourceAccessor)
     {
       _name = name;
       _resourceAccessor = resourceAccessor;
@@ -42,7 +66,7 @@ namespace MediaPortal.Common.Services.Dokan
       _resourceAccessor = null;
     }
 
-    public IResourceAccessor ResourceAccessor
+    public IFileSystemResourceAccessor ResourceAccessor
     {
       get { return _resourceAccessor; }
     }

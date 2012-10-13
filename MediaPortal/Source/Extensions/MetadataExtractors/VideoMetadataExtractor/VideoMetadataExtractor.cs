@@ -346,7 +346,9 @@ namespace MediaPortal.Extensions.MetadataExtractors.VideoMetadataExtractor
       {
         VideoResult result = null;
         IFileSystemResourceAccessor fsra = mediaItemAccessor as IFileSystemResourceAccessor;
-        if (fsra != null && fsra.IsDirectory && fsra.ResourceExists("VIDEO_TS"))
+        if (fsra == null)
+          return false;
+        if (fsra.IsDirectory && fsra.ResourceExists("VIDEO_TS"))
         {
           IFileSystemResourceAccessor fsraVideoTs = fsra.GetResource("VIDEO_TS");
           if (fsraVideoTs != null && fsraVideoTs.ResourceExists("VIDEO_TS.IFO"))
@@ -376,21 +378,21 @@ namespace MediaPortal.Extensions.MetadataExtractors.VideoMetadataExtractor
               }
           }
         }
-        else if (mediaItemAccessor.IsFile)
+        else if (fsra.IsFile)
         {
-          string filePath = mediaItemAccessor.ResourcePathName;
+          string filePath = fsra.ResourcePathName;
           if (!HasVideoExtension(filePath))
             return false;
-          using (MediaInfoWrapper fileInfo = ReadMediaInfo(mediaItemAccessor))
+          using (MediaInfoWrapper fileInfo = ReadMediaInfo(fsra))
           {
             // Before we start evaluating the file, check if it is a video at all
             if (!fileInfo.IsValid || (fileInfo.GetVideoCount() == 0 && !IsWorkaroundRequired(filePath)))
               return false;
 
-            string mediaTitle = DosPathHelper.GetFileNameWithoutExtension(mediaItemAccessor.ResourceName);
+            string mediaTitle = DosPathHelper.GetFileNameWithoutExtension(fsra.ResourceName);
             result = VideoResult.CreateFileInfo(mediaTitle, fileInfo);
           }
-          using (Stream stream = mediaItemAccessor.OpenRead())
+          using (Stream stream = fsra.OpenRead())
             result.MimeType = MimeTypeDetector.GetMimeType(stream);
         }
         if (result != null)
@@ -400,13 +402,13 @@ namespace MediaPortal.Extensions.MetadataExtractors.VideoMetadataExtractor
           ILocalFsResourceAccessor disposeLfsra = null;
           try
           {
-            ILocalFsResourceAccessor lfsra = mediaItemAccessor as ILocalFsResourceAccessor;
+            ILocalFsResourceAccessor lfsra = fsra as ILocalFsResourceAccessor;
             if (lfsra == null && !forceQuickMode)
             { // In case forceQuickMode, we only want local browsing
-              IResourceAccessor ra = mediaItemAccessor.Clone();
+              IResourceAccessor ra = fsra.Clone();
               try
               {
-                lfsra = StreamedResourceToLocalFsAccessBridge.GetLocalFsResourceAccessor(ra);
+                lfsra = StreamedResourceToLocalFsAccessBridge.GetLocalFsResourceAccessor(fsra);
                 disposeLfsra = lfsra; // Remember to dispose the extra resource accessor instance
               }
               catch (Exception)

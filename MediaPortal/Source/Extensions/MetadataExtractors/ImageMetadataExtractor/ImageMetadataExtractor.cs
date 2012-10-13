@@ -160,18 +160,10 @@ namespace MediaPortal.Extensions.MetadataExtractors.ImageMetadataExtractor
           imageAspect.SetAttribute(ImageAspect.ATTR_ORIENTATION, (Int32) exif.Orientation);
           imageAspect.SetAttribute(ImageAspect.ATTR_METERING_MODE, exif.MeteringMode.ToString());
 
-          IResourceAccessor ra = mediaItemAccessor.Clone();
-          ILocalFsResourceAccessor lfsra;
-          try
-          {
-            lfsra = StreamedResourceToLocalFsAccessBridge.GetLocalFsResourceAccessor(ra);
-          }
-          catch
-          {
-            ra.Dispose();
-            throw;
-          }
-          using (lfsra)
+          if (!(mediaItemAccessor is IFileSystemResourceAccessor))
+            return false;
+          using (IFileSystemResourceAccessor fsra = (IFileSystemResourceAccessor) mediaItemAccessor.Clone())
+          using (ILocalFsResourceAccessor lfsra = StreamedResourceToLocalFsAccessBridge.GetLocalFsResourceAccessor(fsra))
           {
             string localFsResourcePath = lfsra.LocalFileSystemPath;
             if (localFsResourcePath != null)

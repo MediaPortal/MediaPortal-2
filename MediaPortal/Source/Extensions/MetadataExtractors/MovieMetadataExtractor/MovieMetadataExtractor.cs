@@ -103,8 +103,10 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
         if (forceQuickMode)
           return false;
 
-        using (IResourceAccessor ra = mediaItemAccessor.Clone())
-        using (ILocalFsResourceAccessor lfsra = StreamedResourceToLocalFsAccessBridge.GetLocalFsResourceAccessor(ra))
+        if (!(mediaItemAccessor is IFileSystemResourceAccessor))
+          return false;
+        using (IFileSystemResourceAccessor fsra = (IFileSystemResourceAccessor) mediaItemAccessor.Clone())
+        using (ILocalFsResourceAccessor lfsra = StreamedResourceToLocalFsAccessBridge.GetLocalFsResourceAccessor(fsra))
           return ExtractMovieData(lfsra, extractedAspectData);
       }
       catch (Exception e)

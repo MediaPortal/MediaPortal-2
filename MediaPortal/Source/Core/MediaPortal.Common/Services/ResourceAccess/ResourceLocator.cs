@@ -94,9 +94,12 @@ namespace MediaPortal.Common.Services.ResourceAccess
     public ILocalFsResourceAccessor CreateLocalFsAccessor()
     {
       IResourceAccessor accessor = CreateAccessor();
+      IFileSystemResourceAccessor fsra = accessor as IFileSystemResourceAccessor;
+      if (fsra == null)
+        throw new IllegalCallException("The given resource path doesn't denote a filesystem resource");
       try
       {
-        return StreamedResourceToLocalFsAccessBridge.StreamedResourceToLocalFsAccessBridge.GetLocalFsResourceAccessor(accessor);
+        return StreamedResourceToLocalFsAccessBridge.StreamedResourceToLocalFsAccessBridge.GetLocalFsResourceAccessor(fsra);
       }
       catch
       {

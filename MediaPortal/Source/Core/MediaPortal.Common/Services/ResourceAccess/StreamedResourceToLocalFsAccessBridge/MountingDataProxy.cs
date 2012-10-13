@@ -32,7 +32,7 @@ namespace MediaPortal.Common.Services.ResourceAccess.StreamedResourceToLocalFsAc
   {
     protected string _key;
     protected int _usageCount = 0;
-    protected IResourceAccessor _baseAccessor;
+    protected IFileSystemResourceAccessor _baseAccessor;
     protected string _rootDirectoryName;
     protected string _mountPath;
     protected object _syncObj = new object();
@@ -41,8 +41,8 @@ namespace MediaPortal.Common.Services.ResourceAccess.StreamedResourceToLocalFsAc
     /// Creates a new instance of this class which is based on the given <paramref name="baseAccessor"/>.
     /// </summary>
     /// <param name="key">Key which is used for this instance.</param>
-    /// <param name="baseAccessor">Resource accessor denoting a filesystem resource.</param>
-    public MountingDataProxy(string key, IResourceAccessor baseAccessor)
+    /// <param name="baseAccessor">Filesystem resource to mound.</param>
+    public MountingDataProxy(string key, IFileSystemResourceAccessor baseAccessor)
     {
       _key = key;
       _baseAccessor = baseAccessor;
@@ -122,7 +122,7 @@ namespace MediaPortal.Common.Services.ResourceAccess.StreamedResourceToLocalFsAc
       get { return _mountPath; }
     }
 
-    public IResourceAccessor ResourceAccessor
+    public IFileSystemResourceAccessor ResourceAccessor
     {
       get { return _baseAccessor; }
     }

@@ -165,7 +165,7 @@ namespace MediaPortal.Common.Services.ResourceAccess
       }
     }
 
-    public ICollection<IResourceAccessor> GetResources(string rootDirectoryName)
+    public ICollection<IFileSystemResourceAccessor> GetResources(string rootDirectoryName)
     {
       lock (_syncObj)
       {
@@ -178,7 +178,7 @@ namespace MediaPortal.Common.Services.ResourceAccess
       }
     }
 
-    public string AddResource(string rootDirectoryName, IResourceAccessor resourceAccessor)
+    public string AddResource(string rootDirectoryName, IFileSystemResourceAccessor resourceAccessor)
     {
       lock (_syncObj)
       {
@@ -197,7 +197,7 @@ namespace MediaPortal.Common.Services.ResourceAccess
       }
     }
 
-    public void RemoveResource(string rootDirectoryName, IResourceAccessor resourceAccessor)
+    public void RemoveResource(string rootDirectoryName, IFileSystemResourceAccessor resourceAccessor)
     {
       lock (_syncObj)
       {
