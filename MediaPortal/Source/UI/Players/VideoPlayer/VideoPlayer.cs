@@ -139,6 +139,7 @@ namespace MediaPortal.UI.Players.Video
     protected CropSettings _cropSettings;
 
     protected PlayerState _state;
+    protected bool _autoRepeat = false;
     protected bool _isPaused = false;
     protected int _volume = 100;
     protected bool _isMuted = false;
@@ -243,10 +244,18 @@ namespace MediaPortal.UI.Players.Video
               eventEx.FreeEventParams(evCode, param1, param2);
               if (evCode == EventCode.Complete)
               {
-                _state = PlayerState.Ended;
-                ServiceRegistration.Get<ILogger>().Debug("{0}: Playback ended", PlayerTitle);
-                // TODO: RemoveResumeData();
-                FireEnded();
+                if (_autoRepeat)
+                {
+                  CurrentTime = TimeSpan.Zero;
+                }
+                else
+                {
+                  _state = PlayerState.Ended;
+                  ServiceRegistration.Get<ILogger>().Debug("{0}: Playback ended", PlayerTitle);
+                  // TODO: RemoveResumeData();
+                  FireEnded();  
+                }
+                
                 return;
               }
             }
@@ -712,6 +721,12 @@ namespace MediaPortal.UI.Players.Video
           return videoSurface;
         }
       }
+    }
+    
+    public bool AutoRepeat
+    {
+      get { return _autoRepeat; }
+      set { _autoRepeat = value; }
     }
 
     protected void OnTextureInvalidated()
