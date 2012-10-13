@@ -61,31 +61,37 @@ namespace Ui.Players.BassPlayer.PlayerComponents
     {
       if (!CanPlay(resourceLocator, mimeType))
         return null;
-      IResourceAccessor accessor = resourceLocator.CreateAccessor();
       IInputSource result;
-      AudioCDResourceAccessor acdra = accessor as AudioCDResourceAccessor;
-      if (acdra != null)
-        result = BassCDTrackInputSource.Create(acdra.Drive, acdra.TrackNo);
-      else
+      using (IResourceAccessor accessor = resourceLocator.CreateAccessor())
       {
-        string filePath = accessor.ResourcePathName;
-        if (URLUtils.IsCDDA(filePath))
-        {
-          ILocalFsResourceAccessor lfra = accessor as ILocalFsResourceAccessor;
-          if (lfra == null)
-            return null;
-          result = BassFsCDTrackInputSource.Create(lfra.LocalFileSystemPath);
-        }
-        else if (URLUtils.IsMODFile(filePath))
-          result = BassMODFileInputSource.Create(accessor);
+        AudioCDResourceAccessor acdra = accessor as AudioCDResourceAccessor;
+        if (acdra != null)
+          result = BassCDTrackInputSource.Create(acdra.Drive, acdra.TrackNo);
         else
-          result = BassAudioFileInputSource.Create(accessor);
-        // TODO: Handle web streams when we have resource accessors for web URLs: BassWebStreamInputSource.Create(...);
+        {
+          string filePath = accessor.ResourcePathName;
+          if (URLUtils.IsCDDA(filePath))
+          {
+            ILocalFsResourceAccessor lfra = accessor as ILocalFsResourceAccessor;
+            if (lfra == null)
+              return null;
+            result = BassFsCDTrackInputSource.Create(lfra.LocalFileSystemPath);
+          }
+          else
+          {
+            IFileSystemResourceAccessor fsra = accessor as ILocalFsResourceAccessor;
+            if (fsra == null)
+              return null;
+            if (URLUtils.IsMODFile(filePath))
+              result = BassMODFileInputSource.Create(fsra);
+            else
+              result = BassAudioFileInputSource.Create(fsra);
+          }
+          // TODO: Handle web streams when we have resource accessors for web URLs: BassWebStreamInputSource.Create(...);
+        }
+        Log.Debug("InputSourceFactory: Creating input source for media resource '{0}' of type '{1}'", accessor, result.GetType());
       }
 
-      accessor.PrepareStreamAccess();
-
-      Log.Debug("InputSourceFactory: Creating input source for media resource '{0}' of type '{1}'", accessor, result.GetType());
       return result;
     }
 

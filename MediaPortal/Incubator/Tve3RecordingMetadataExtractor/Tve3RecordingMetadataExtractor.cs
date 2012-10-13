@@ -147,7 +147,7 @@ namespace MediaPortal.Extensions.MetadataExtractors
       try
       {
         IFileSystemResourceAccessor fsra = mediaItemAccessor as IFileSystemResourceAccessor;
-        if (fsra == null || !mediaItemAccessor.IsFile)
+        if (fsra == null || !fsra.IsFile)
           return false;
 
         string filePath = mediaItemAccessor.CanonicalLocalResourcePath.ToString();
@@ -162,7 +162,7 @@ namespace MediaPortal.Extensions.MetadataExtractors
         Tags tags;
         using (metaFileAccessor)
         {
-          using (Stream metaStream = metaFileAccessor.OpenRead())
+          using (Stream metaStream = fsra.OpenRead())
             tags = (Tags) GetTagsXmlSerializer().Deserialize(metaStream);
         }
 

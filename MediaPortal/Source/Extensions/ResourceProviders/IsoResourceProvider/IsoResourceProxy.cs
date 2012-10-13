@@ -38,7 +38,7 @@ namespace MediaPortal.Extensions.ResourceProviders.IsoResourceProvider
     protected IFileSystem _diskFileSystem;
     protected string _key;
     protected int _usageCount = 0;
-    protected IResourceAccessor _isoFileResourceAccessor;
+    protected IFileSystemResourceAccessor _isoFileResourceAccessor;
     protected Stream _underlayingStream;
     protected object _syncObj = new object();
 
@@ -46,7 +46,7 @@ namespace MediaPortal.Extensions.ResourceProviders.IsoResourceProvider
 
     #region Ctor
 
-    public IsoResourceProxy(string key, IResourceAccessor isoFileResourceAccessor)
+    public IsoResourceProxy(string key, IFileSystemResourceAccessor isoFileResourceAccessor)
     {
       _key = key;
       _isoFileResourceAccessor = isoFileResourceAccessor;
@@ -107,7 +107,7 @@ namespace MediaPortal.Extensions.ResourceProviders.IsoResourceProvider
       get { return _key; }
     }
 
-    public IResourceAccessor IsoFileResourceAccessor
+    public IFileSystemResourceAccessor IsoFileResourceAccessor
     {
       get { return _isoFileResourceAccessor; }
     }

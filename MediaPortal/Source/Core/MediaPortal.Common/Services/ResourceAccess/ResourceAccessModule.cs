@@ -47,9 +47,9 @@ namespace MediaPortal.Common.Services.ResourceAccess
     protected class CachedResource : IDisposable
     {
       protected DateTime _lastTimeUsed;
-      protected IResourceAccessor _resourceAccessor;
+      protected IFileSystemResourceAccessor _resourceAccessor;
 
-      public CachedResource(IResourceAccessor resourceAccessor)
+      public CachedResource(IFileSystemResourceAccessor resourceAccessor)
       {
         _lastTimeUsed = DateTime.Now;
         _resourceAccessor = resourceAccessor;
@@ -66,7 +66,7 @@ namespace MediaPortal.Common.Services.ResourceAccess
         get { return _lastTimeUsed; }
       }
 
-      public IResourceAccessor ResourceAccessor
+      public IFileSystemResourceAccessor ResourceAccessor
       {
         get
         {
@@ -148,7 +148,7 @@ namespace MediaPortal.Common.Services.ResourceAccess
       _defaultMimeTypes.Add(".aif", "audio/x-aiff");
     }
 
-    protected IResourceAccessor GetResourceAccessor(ResourcePath resourcePath)
+    protected IFileSystemResourceAccessor GetResourceAccessor(ResourcePath resourcePath)
     {
       lock (_syncObj)
       {
@@ -158,11 +158,17 @@ namespace MediaPortal.Common.Services.ResourceAccess
           return resource.ResourceAccessor;
         // TODO: Security check. Only deliver resources which are located inside local shares.
         ServiceRegistration.Get<ILogger>().Debug("ResourceAccessModule: Access of resource '{0}'", resourcePathStr);
-        IResourceAccessor result;
-        if (!resourcePath.TryCreateLocalResourceAccessor(out result))
+        IResourceAccessor ra;
+        if (!resourcePath.TryCreateLocalResourceAccessor(out ra))
           throw new ArgumentException("Unable to access resource path '{0}'", resourcePathStr);
-        _resourceAccessorCache[resourcePathStr] = new CachedResource(result);
-        return result;
+        IFileSystemResourceAccessor fsra = ra as IFileSystemResourceAccessor;
+        if (fsra == null)
+        {
+          ra.Dispose();
+          throw new ArgumentException("The given resource path '{0}' doesn't denote a file system resource", resourcePathStr);
+        }
+        _resourceAccessorCache[resourcePathStr] = new CachedResource(fsra);
+        return fsra;
       }
     }
 
@@ -359,19 +365,19 @@ namespace MediaPortal.Common.Services.ResourceAccess
 
       try
       {
-        IResourceAccessor ra = GetResourceAccessor(resourcePath);
-        using (Stream resourceStream = ra.OpenRead())
+        IFileSystemResourceAccessor fsra = GetResourceAccessor(resourcePath);
+        using (Stream resourceStream = fsra.OpenRead())
         {
           response.ContentType = GuessMimeType(resourceStream, resourcePath.FileName);
 
           if (!string.IsNullOrEmpty(request.Headers["If-Modified-Since"]))
           {
             DateTime lastRequest = DateTime.Parse(request.Headers["If-Modified-Since"]);
-            if (lastRequest.CompareTo(ra.LastChanged) <= 0)
+            if (lastRequest.CompareTo(fsra.LastChanged) <= 0)
               response.Status = HttpStatusCode.NotModified;
           }
 
-          response.AddHeader("Last-Modified", ra.LastChanged.ToUniversalTime().ToString("r"));
+          response.AddHeader("Last-Modified", fsra.LastChanged.ToUniversalTime().ToString("r"));
 
           string byteRangesSpecifier = request.Headers["Range"];
           IList<Range> ranges = ParseRanges(byteRangesSpecifier, resourceStream.Length);

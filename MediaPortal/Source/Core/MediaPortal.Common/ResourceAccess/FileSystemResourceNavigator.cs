@@ -49,67 +49,46 @@ namespace MediaPortal.Common.ResourceAccess
     /// <returns>Collection of directory accessors for all native and virtual child directories or <c>null</c>,
     /// if the given <paramref name="directoryAccessor"/> is not a <see cref="IFileSystemResourceAccessor"/> and
     /// if there is no chained resource provider to unfold the given directory.</returns>
-    public static ICollection<IFileSystemResourceAccessor> GetChildDirectories(IResourceAccessor directoryAccessor, bool showSystemResources)
+    public static ICollection<IFileSystemResourceAccessor> GetChildDirectories(IFileSystemResourceAccessor directoryAccessor, bool showSystemResources)
     {
       IResourceMountingService resourceMountingService = ServiceRegistration.Get<IResourceMountingService>();
-      IResourceAccessor chainedResourceAccesor; // Needed in multiple source locations, that's why we declare it here
-      if (directoryAccessor is IFileSystemResourceAccessor)
-      {
-        IFileSystemResourceAccessor dirFsra = (IFileSystemResourceAccessor) directoryAccessor;
-        ICollection<IFileSystemResourceAccessor> childDirectories = dirFsra.GetChildDirectories();
-        ICollection<IFileSystemResourceAccessor> result = new List<IFileSystemResourceAccessor>();
-        if (childDirectories != null)
-          // Directories are maybe filtered and then just added
-          foreach (IFileSystemResourceAccessor childDirectoryAccessor in childDirectories)
+      IFileSystemResourceAccessor chainedResourceAccesor; // Needed in multiple source locations, that's why we declare it here
+      ICollection<IFileSystemResourceAccessor> childDirectories = directoryAccessor.GetChildDirectories();
+      ICollection<IFileSystemResourceAccessor> result = new List<IFileSystemResourceAccessor>();
+      if (childDirectories != null)
+        // Directories are maybe filtered and then just added
+        foreach (IFileSystemResourceAccessor childDirectoryAccessor in childDirectories)
+        {
+          if (!showSystemResources && resourceMountingService.IsVirtualResource(childDirectoryAccessor.CanonicalLocalResourcePath))
           {
-            if (!showSystemResources && resourceMountingService.IsVirtualResource(childDirectoryAccessor.CanonicalLocalResourcePath))
-            {
-              childDirectoryAccessor.Dispose();
-              continue;
-            }
-            result.Add(childDirectoryAccessor);
+            childDirectoryAccessor.Dispose();
+            continue;
           }
-        ICollection<IFileSystemResourceAccessor> files = dirFsra.GetFiles();
-        if (files != null)
-          // For files, we try to chain up chained resource providers
-          foreach (IFileSystemResourceAccessor fileAccessor in files)
+          result.Add(childDirectoryAccessor);
+        }
+      ICollection<IFileSystemResourceAccessor> files = directoryAccessor.GetFiles();
+      if (files != null)
+        // For files, we try to chain up chained resource providers
+        foreach (IFileSystemResourceAccessor fileAccessor in files)
+          using (fileAccessor)
           {
             if (!showSystemResources && resourceMountingService.IsVirtualResource(fileAccessor.CanonicalLocalResourcePath))
-            {
-              fileAccessor.Dispose();
               continue;
-            }
             if (TryUnfold(fileAccessor, out chainedResourceAccesor))
-            {
-              IFileSystemResourceAccessor chainedFsra = chainedResourceAccesor as IFileSystemResourceAccessor;
-              if (chainedFsra != null)
-                result.Add(chainedFsra);
+              if(!chainedResourceAccesor.IsFile)
+                result.Add(chainedResourceAccesor);
               else
                 chainedResourceAccesor.Dispose();
-            }
-            else
-              fileAccessor.Dispose();
+            // Simply ignore files because we only want to return directories
           }
+      if (result.Count > 0)
         return result;
-      }
       // Try to unfold simple resource
-      IResourceAccessor dra = directoryAccessor.Clone();
-      try
+      if (TryUnfold(directoryAccessor, out chainedResourceAccesor))
       {
-        if (TryUnfold(dra, out chainedResourceAccesor))
-        {
-          IFileSystemResourceAccessor chainedFsra = chainedResourceAccesor as IFileSystemResourceAccessor;
-          if (chainedFsra != null)
-            return new List<IFileSystemResourceAccessor>(new IFileSystemResourceAccessor[] {chainedFsra});
-          chainedResourceAccesor.Dispose();
-        }
-        else
-          dra.Dispose();
-      }
-      catch
-      {
-        dra.Dispose();
-        throw;
+        if (!chainedResourceAccesor.IsFile)
+          return new List<IFileSystemResourceAccessor>(new IFileSystemResourceAccessor[] {chainedResourceAccesor});
+        chainedResourceAccesor.Dispose();
       }
       return null;
     }
@@ -126,33 +105,29 @@ namespace MediaPortal.Common.ResourceAccess
     /// <see cref="IResourceMountingService"/> will also be returned, else removed from the result value.</param>
     /// <returns>Collection of accessors for all files or <c>null</c>,
     /// if the given <paramref name="directoryAccessor"/> is not a <see cref="IFileSystemResourceAccessor"/>.</returns>
-    public static ICollection<IFileSystemResourceAccessor> GetFiles(IResourceAccessor directoryAccessor, bool showSystemResources)
+    public static ICollection<IFileSystemResourceAccessor> GetFiles(IFileSystemResourceAccessor directoryAccessor, bool showSystemResources)
     {
       IResourceMountingService resourceMountingService = ServiceRegistration.Get<IResourceMountingService>();
-      IFileSystemResourceAccessor directoryFsAccessor = directoryAccessor as IFileSystemResourceAccessor;
-      if (directoryFsAccessor != null)
+      ICollection<IFileSystemResourceAccessor> result = new List<IFileSystemResourceAccessor>();
+      foreach (IFileSystemResourceAccessor fileAccessor in directoryAccessor.GetFiles())
       {
-        ICollection<IFileSystemResourceAccessor> result = new List<IFileSystemResourceAccessor>();
-        foreach (IFileSystemResourceAccessor fileAccessor in directoryFsAccessor.GetFiles())
+        if (!showSystemResources && resourceMountingService.IsVirtualResource(fileAccessor.CanonicalLocalResourcePath))
         {
-          if (!showSystemResources && resourceMountingService.IsVirtualResource(fileAccessor.CanonicalLocalResourcePath))
-          {
-            fileAccessor.Dispose();
-            continue;
-          }
-          result.Add(fileAccessor);
+          fileAccessor.Dispose();
+          continue;
         }
-        return result;
+        result.Add(fileAccessor);
       }
-      return null;
+      return result;
     }
 
     /// <summary>
     /// Tries to unfold the given <paramref name="fileAccessor"/> to a virtual directory.
     /// </summary>
-    /// <param name="fileAccessor">File resource accessor to be used as input for a potential chained provider.</param>
+    /// <param name="fileAccessor">File resource accessor to be used as input for a potential chained provider.
+    /// The ownership of this resource accessor remains at the caller.</param>
     /// <param name="resultResourceAccessor">Chained resource accessor which was chained upon the given file resource.</param>
-    public static bool TryUnfold(IResourceAccessor fileAccessor, out IResourceAccessor resultResourceAccessor)
+    public static bool TryUnfold(IFileSystemResourceAccessor fileAccessor, out IFileSystemResourceAccessor resultResourceAccessor)
     {
       IMediaAccessor mediaAccessor = ServiceRegistration.Get<IMediaAccessor>();
       foreach (IChainedResourceProvider cmp in mediaAccessor.LocalChainedResourceProviders)

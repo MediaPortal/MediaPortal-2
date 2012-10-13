@@ -43,8 +43,9 @@ namespace Ui.Players.BassPlayer.InputSources
     /// </summary>
     /// <param name="resourceAccessor">The resource accessor to the media item to be handled by the instance.</param>
     /// <returns>The new instance.</returns>
-    public static BassMODFileInputSource Create(IResourceAccessor resourceAccessor)
+    public static BassMODFileInputSource Create(IFileSystemResourceAccessor resourceAccessor)
     {
+      resourceAccessor.PrepareStreamAccess();
       BassMODFileInputSource inputSource = new BassMODFileInputSource(resourceAccessor);
       inputSource.Initialize();
       return inputSource;
@@ -95,7 +96,7 @@ namespace Ui.Players.BassPlayer.InputSources
 
     #region Private members
 
-    private BassMODFileInputSource(IResourceAccessor resourceAccessor) : base(resourceAccessor) { }
+    private BassMODFileInputSource(IFileSystemResourceAccessor resourceAccessor) : base(resourceAccessor) { }
 
     /// <summary>
     /// Initializes a new instance.

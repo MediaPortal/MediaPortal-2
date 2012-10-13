@@ -310,7 +310,8 @@ namespace MediaPortal.UI.Services.Players
           try
           {
             ra = locator.CreateAccessor();
-            exists = ra != null && ra.Exists;
+            IFileSystemResourceAccessor fsra = ra as IFileSystemResourceAccessor;
+            exists = fsra != null && fsra.Exists;
           }
           catch (Exception)
           {

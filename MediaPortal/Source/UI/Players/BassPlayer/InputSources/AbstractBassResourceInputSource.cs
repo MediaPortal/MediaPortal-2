@@ -31,11 +31,11 @@ namespace Ui.Players.BassPlayer.InputSources
   {
     #region Protected fields
 
-    protected IResourceAccessor _accessor = null;
+    protected IFileSystemResourceAccessor _accessor = null;
 
     #endregion
 
-    protected AbstractBassResourceInputSource(IResourceAccessor resourceAccessor)
+    protected AbstractBassResourceInputSource(IFileSystemResourceAccessor resourceAccessor)
     {
       _accessor = resourceAccessor;
     }

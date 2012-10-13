@@ -150,7 +150,7 @@ namespace MediaPortal.Extensions.ResourceProviders.IsoResourceProvider
 
     #endregion
 
-    #region IResourceAccessor implementation
+    #region IFileSystemResourceAccessor implementation
 
     public IResourceProvider ParentProvider
     {
@@ -160,6 +160,11 @@ namespace MediaPortal.Extensions.ResourceProviders.IsoResourceProvider
     public bool IsFile
     {
       get { return !_isDirectory; }
+    }
+
+    public bool IsDirectory
+    {
+      get { return _isDirectory; }
     }
 
     public bool Exists
@@ -228,20 +233,6 @@ namespace MediaPortal.Extensions.ResourceProviders.IsoResourceProvider
       return null;
     }
 
-    public IResourceAccessor Clone()
-    {
-      return new IsoResourceAccessor(_isoProvider, _isoProxy, _pathToDirOrFile);
-    }
-
-    #endregion
-
-    #region IFileSystemResourceAccessor implementation
-
-    public bool IsDirectory
-    {
-      get { return _isDirectory; }
-    }
-
     public bool ResourceExists(string path)
     {
       return path.Equals(_pathToDirOrFile, StringComparison.OrdinalIgnoreCase) || IsResource(_isoProxy.DiskFileSystem, ExpandPath(path));
@@ -281,6 +272,11 @@ namespace MediaPortal.Extensions.ResourceProviders.IsoResourceProvider
         ServiceRegistration.Get<ILogger>().Warn("IsoResourceAccessor: Error reading child directories of '{0}'", e, CanonicalLocalResourcePath);
         return null;
       }
+    }
+
+    public IResourceAccessor Clone()
+    {
+      return new IsoResourceAccessor(_isoProvider, _isoProxy, _pathToDirOrFile);
     }
 
     #endregion

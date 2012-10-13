@@ -303,10 +303,13 @@ namespace MediaPortal.UiComponents.SkinBase.Services
       {
         using (ra)
         {
-          ICollection<IFileSystemResourceAccessor> res = FileSystemResourceNavigator.GetChildDirectories(ra, ShowSystemResources);
+          IFileSystemResourceAccessor fsra = ra as IFileSystemResourceAccessor;
+          if (fsra == null)
+            yield break;
+          ICollection<IFileSystemResourceAccessor> res = FileSystemResourceNavigator.GetChildDirectories(fsra, ShowSystemResources);
           if (res != null)
             foreach (IFileSystemResourceAccessor childAccessor in res)
-              using(childAccessor)
+              using (childAccessor)
               {
                 yield return new ResourcePathMetadata
                   {
@@ -331,7 +334,10 @@ namespace MediaPortal.UiComponents.SkinBase.Services
       {
         using (ra)
         {
-          ICollection<IFileSystemResourceAccessor> res = FileSystemResourceNavigator.GetFiles(ra, ShowSystemResources);
+          IFileSystemResourceAccessor fsra = ra as IFileSystemResourceAccessor;
+          if (fsra == null)
+            yield break;
+          ICollection<IFileSystemResourceAccessor> res = FileSystemResourceNavigator.GetFiles(fsra, ShowSystemResources);
           if (res != null)
             foreach (IFileSystemResourceAccessor fileAccessor in res)
               using(fileAccessor)

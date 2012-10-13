@@ -117,7 +117,7 @@ namespace MediaPortal.Common.Services.ResourceAccess
       resourcePathName = (string) outParameters[2];
       resourceName = (string) outParameters[3];
       lastChanged = (DateTime) outParameters[4];
-      size = (long) (UInt64) outParameters[5];
+      size = (Int64) outParameters[5];
       return (bool) outParameters[6];
     }
 

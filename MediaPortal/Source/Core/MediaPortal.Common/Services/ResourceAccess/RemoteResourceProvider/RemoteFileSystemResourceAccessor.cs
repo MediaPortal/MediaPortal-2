@@ -26,14 +26,53 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Net;
 using MediaPortal.Common.ResourceAccess;
+using MediaPortal.Utilities.Exceptions;
 
 namespace MediaPortal.Common.Services.ResourceAccess.RemoteResourceProvider
 {
-  public class RemoteFileSystemResourceAccessor : RemoteResourceAccessorBase, IFileSystemResourceAccessor
+  public class RemoteFileSystemResourceAccessor : IFileSystemResourceAccessor
   {
+    protected object _syncObj = new object();
+    protected string _nativeSystemId;
+    protected ResourcePath _nativeResourcePath;
+    protected bool _isFile;
+    protected string _resourcePathName;
+    protected string _resourceName;
+    protected Stream _underlayingStream = null; // Lazy initialized
     protected long? _sizeCache = null;
     protected DateTime? _lastChangedCache = null;
+
+    protected RemoteFileSystemResourceAccessor(string nativeSystemId, ResourcePath nativeResourcePath, bool isFile,
+        string resourcePathName, string resourceName)
+    {
+      _nativeSystemId = nativeSystemId;
+      _nativeResourcePath = nativeResourcePath;
+      _isFile = isFile;
+      _resourcePathName = resourcePathName;
+      _resourceName = resourceName;
+    }
+
+    public void Dispose()
+    {
+      lock (_syncObj)
+        if (_underlayingStream != null)
+        {
+          _underlayingStream.Dispose();
+          _underlayingStream = null;
+        }
+    }
+
+    public string NativeSystemId
+    {
+      get { return _nativeSystemId; }
+    }
+
+    public ResourcePath NativeResourcePath
+    {
+      get { return _nativeResourcePath; }
+    }
 
     protected RemoteFileSystemResourceAccessor(string nativeSystemId, ResourcePath nativeResourcePath, bool isFile,
         string resourcePathName, string resourceName, long size, DateTime lastChanged) :
@@ -42,10 +81,6 @@ namespace MediaPortal.Common.Services.ResourceAccess.RemoteResourceProvider
       _lastChangedCache = lastChanged;
       _sizeCache = size;
     }
-
-    protected RemoteFileSystemResourceAccessor(string nativeSystemId, ResourcePath nativeResourcePath, bool isFile,
-        string resourcePathName, string resourceName) :
-            base(nativeSystemId, nativeResourcePath, isFile, resourcePathName, resourceName) { }
 
     public static bool ConnectFileSystem(string nativeSystemId, ResourcePath nativeResourcePath, out IFileSystemResourceAccessor result)
     {
@@ -69,7 +104,7 @@ namespace MediaPortal.Common.Services.ResourceAccess.RemoteResourceProvider
     {
       return new List<IFileSystemResourceAccessor>(resourcesData.Select(fileData => new RemoteFileSystemResourceAccessor(
           _nativeSystemId, fileData.ResourcePath, true, fileData.HumanReadablePath,
-          fileData.ResourceName)).Cast<IFileSystemResourceAccessor>());
+          fileData.ResourceName)));
     }
 
     protected void FillCaches()
@@ -88,7 +123,9 @@ namespace MediaPortal.Common.Services.ResourceAccess.RemoteResourceProvider
       _sizeCache = isFile ? size : -1;
     }
 
-    public override bool Exists
+    #region IFileSystemResourceAccessor implementation
+
+    public bool Exists
     {
       get
       {
@@ -97,7 +134,7 @@ namespace MediaPortal.Common.Services.ResourceAccess.RemoteResourceProvider
       }
     }
 
-    public override long Size
+    public long Size
     {
       get
       {
@@ -108,11 +145,43 @@ namespace MediaPortal.Common.Services.ResourceAccess.RemoteResourceProvider
       }
     }
 
-    #region IFileSystemResourceAccessor implementation
+    public bool IsFile
+    {
+      get { return _isFile; }
+    }
 
     public bool IsDirectory
     {
       get { return !_isFile; }
+    }
+
+    public IResourceProvider ParentProvider
+    {
+      get { return null; }
+    }
+
+    public string Path
+    {
+      get { return RemoteResourceProvider.BuildProviderPath(_nativeSystemId, _nativeResourcePath); }
+    }
+
+    public string ResourceName
+    {
+      get { return _resourceName; }
+    }
+
+    public string ResourcePathName
+    {
+      get { return _resourcePathName; }
+    }
+
+    public ResourcePath CanonicalLocalResourcePath
+    {
+      get
+      {
+        return ResourcePath.BuildBaseProviderPath(LocalFsResourceProviderBase.LOCAL_FS_RESOURCE_PROVIDER_ID,
+            RemoteResourceProvider.BuildProviderPath(_nativeSystemId, _nativeResourcePath));
+      }
     }
 
     public bool ResourceExists(string path)
@@ -130,7 +199,7 @@ namespace MediaPortal.Common.Services.ResourceAccess.RemoteResourceProvider
       return ConnectFileSystem(_nativeSystemId, resourcePath, out result) ? result : null;
     }
 
-    public override DateTime LastChanged
+    public DateTime LastChanged
     {
       get
       {
@@ -155,7 +224,35 @@ namespace MediaPortal.Common.Services.ResourceAccess.RemoteResourceProvider
       return WrapResourcePathsData(directoriesData);
     }
 
-    public override IResourceAccessor Clone()
+    public void PrepareStreamAccess()
+    {
+      if (!_isFile || _underlayingStream != null)
+        return;
+      IRemoteResourceInformationService rris = ServiceRegistration.Get<IRemoteResourceInformationService>();
+      string resourceURL;
+      IPAddress localIpAddress;
+      if (!rris.GetFileHttpUrl(_nativeSystemId, _nativeResourcePath, out resourceURL, out localIpAddress))
+        return;
+      lock (_syncObj)
+        _underlayingStream = new CachedMultiSegmentHttpStream(resourceURL, localIpAddress, Size);
+    }
+
+    public Stream OpenRead()
+    {
+      if (!_isFile)
+        throw new IllegalCallException("Only files can provide stream access");
+      PrepareStreamAccess();
+      return new SynchronizedMasterStreamClient(_underlayingStream, _syncObj);
+    }
+
+    public Stream OpenWrite()
+    {
+      if (!_isFile)
+        throw new IllegalCallException("Only files can provide stream access");
+      return null;
+    }
+
+    public IResourceAccessor Clone()
     {
       RemoteFileSystemResourceAccessor result = new RemoteFileSystemResourceAccessor(_nativeSystemId, _nativeResourcePath,
           _isFile, _resourcePathName, _resourceName)

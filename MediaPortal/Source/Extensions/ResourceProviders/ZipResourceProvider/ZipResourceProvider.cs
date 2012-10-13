@@ -89,7 +89,7 @@ namespace MediaPortal.Extensions.ResourceProviders.ZipResourceProvider
       }
     }
 
-    internal ZipResourceProxy CreateZipResourceProxy(string key, IResourceAccessor zipFileResourceAccessor)
+    internal ZipResourceProxy CreateZipResourceProxy(string key, IFileSystemResourceAccessor zipFileResourceAccessor)
     {
       ZipResourceProxy result = new ZipResourceProxy(key, zipFileResourceAccessor);
       result.Orphaned += OnZipResourceProxyOrphaned;
@@ -110,7 +110,7 @@ namespace MediaPortal.Extensions.ResourceProviders.ZipResourceProvider
 
     #region IChainedResourceProvider implementation
 
-    public bool TryChainUp(IResourceAccessor potentialBaseResourceAccessor, string path, out IResourceAccessor resultResourceAccessor)
+    public bool TryChainUp(IFileSystemResourceAccessor potentialBaseResourceAccessor, string path, out IFileSystemResourceAccessor resultResourceAccessor)
     {
       resultResourceAccessor = null;
       string resourcePathName = potentialBaseResourceAccessor.ResourcePathName;
@@ -137,7 +137,7 @@ namespace MediaPortal.Extensions.ResourceProviders.ZipResourceProvider
       }
     }
 
-    public bool IsResource(IResourceAccessor baseResourceAccessor, string path)
+    public bool IsResource(IFileSystemResourceAccessor baseResourceAccessor, string path)
     {
       string entryPath = ZipResourceAccessor.ToEntryPath(path);
 

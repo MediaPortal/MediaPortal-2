@@ -233,9 +233,14 @@ namespace MediaPortal.UI.Players.Image
       Texture texture;
       ImageInformation imageInformation;
       using (IResourceAccessor ra = locator.CreateAccessor())
-      using (Stream stream = ra.OpenRead())
-        texture = Texture.FromStream(SkinContext.Device, stream, (int) stream.Length, 0, 0, 1, Usage.None,
-            Format.A8R8G8B8, Pool.Default, Filter.None, Filter.None, 0, out imageInformation);
+      {
+        IFileSystemResourceAccessor fsra = ra as IFileSystemResourceAccessor;
+        if (fsra == null)
+          return;
+        using (Stream stream = fsra.OpenRead())
+          texture = Texture.FromStream(SkinContext.Device, stream, (int) stream.Length, 0, 0, 1, Usage.None,
+              Format.A8R8G8B8, Pool.Default, Filter.None, Filter.None, 0, out imageInformation);
+      }
       lock (_syncObj)
       {
         ReloadSettings();
@@ -270,11 +275,15 @@ namespace MediaPortal.UI.Players.Image
       if (!string.IsNullOrEmpty(mimeType) && !mimeType.StartsWith("image"))
         return false;
 
-      IResourceAccessor accessor = locator.CreateAccessor();
-      string ext = StringUtils.TrimToEmpty(DosPathHelper.GetExtension(accessor.ResourcePathName)).ToLowerInvariant();
+      using (IResourceAccessor accessor = locator.CreateAccessor())
+      {
+        if (!(accessor is IFileSystemResourceAccessor))
+          return false;
+        string ext = StringUtils.TrimToEmpty(DosPathHelper.GetExtension(accessor.ResourcePathName)).ToLowerInvariant();
 
-      ImagePlayerSettings settings = ServiceRegistration.Get<ISettingsManager>().Load<ImagePlayerSettings>();
-      return settings.SupportedExtensions.IndexOf(ext) > -1;
+        ImagePlayerSettings settings = ServiceRegistration.Get<ISettingsManager>().Load<ImagePlayerSettings>();
+        return settings.SupportedExtensions.IndexOf(ext) > -1;
+      }
     }
 
     #endregion

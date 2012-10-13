@@ -54,7 +54,7 @@ namespace MediaPortal.Common.Services.Dokan
         if (_threadStreams.TryGetValue(currentThread, out stream))
           return stream;
 
-      IResourceAccessor resourceAccessor = _resource.ResourceAccessor;
+      IFileSystemResourceAccessor resourceAccessor = _resource.ResourceAccessor;
       try
       {
         if (resourceAccessor != null)

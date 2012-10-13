@@ -122,12 +122,6 @@ namespace MediaPortal.Common.Services.ResourceAccess.RemoteResourceProvider
         result = fsra;
         return true;
       }
-      IResourceAccessor ra;
-      if (RemoteFileResourceAccessor.ConnectFile(nativeSystemId, nativeResourcePath, out ra))
-      {
-        result = ra;
-        return true;
-      }
       result = null;
       return false;
     }

@@ -22,29 +22,46 @@
 
 #endregion
 
+using System;
 using System.Collections.Generic;
+using System.IO;
+using MediaPortal.Utilities.Exceptions;
 
 namespace MediaPortal.Common.ResourceAccess
 {
   /// <summary>
   /// Resource accessor interface to access a resource in a hierarchical file system structure.
-  /// This interface provides additional methods to navigate through the structure, i.e.
-  /// query available sub items and sub directories.
+  /// This interface provides methods to navigate through the structure, i.e. query available sub items and sub directories
+  /// and open file streams.
   /// This resource accessor interface will be used for all hierarchical file systems - it is NOT ONLY intended to be used
   /// for the local HDD filesystem.
   /// </summary>
   /// <remarks>
-  /// Implementors of this interface can provide a (maybe virtual) filesystem, starting with
-  /// a root directory.
+  /// Implementors of this interface can provide a (maybe virtual) filesystem, starting with a root directory.
   /// The root directory is represented by "/". Directory path names are organized like unix paths.
   /// </remarks>
   public interface IFileSystemResourceAccessor : IResourceAccessor
   {
     /// <summary>
-    /// Returns the information if this resource is a directory which might contain files and sub directories.
+    /// Explicitly checks if the resource described by this resource accessor currently exists.
     /// </summary>
-    /// <value><c>true</c>, if this resource denotes a directory.</value>
-    bool IsDirectory { get; }
+    bool Exists { get; }
+
+    /// <summary>
+    /// Returns the information if this resource is a file which can be opened to an input stream.
+    /// </summary>
+    /// <value><c>true</c>, if this resource denotes a file which can be opened, else <c>false</c>.</value>
+    bool IsFile { get; }
+
+    /// <summary>
+    /// Gets the date and time when this resource was changed for the last time.
+    /// </summary>
+    DateTime LastChanged { get; }
+
+    /// <summary>
+    /// Gets the file size in bytes, if this resource represents a file. Else returns <c>-1</c>.
+    /// </summary>
+    long Size { get; }
 
     /// <summary>
     /// Returns the information if the resource at the given path exists in the resource provider of this resource.
@@ -81,5 +98,30 @@ namespace MediaPortal.Common.ResourceAccess
     /// <returns>Collection of child resource accessors of sub directories or <c>null</c>, if
     /// this resource is no directory resource or if it is invalid in this provider.</returns>
     ICollection<IFileSystemResourceAccessor> GetChildDirectories();
+
+    /// <summary>
+    /// Prepares this resource accessor to get a stream for the resource's contents.
+    /// This might take some time, so this method might block some seconds.
+    /// </summary>
+    /// <remarks>
+    /// Resource accessors wrap resource access to different kinds of resources. Some of
+    /// them might require a local file cache, for example. This method can be implemented to prepare such a cache.
+    /// That avoids long latencies in the methods <see cref="OpenRead"/> and <see cref="OpenWrite"/>.
+    /// </remarks>
+    void PrepareStreamAccess();
+
+    /// <summary>
+    /// Opens a stream to read this resource.
+    /// </summary>
+    /// <returns>Stream opened for read operations, if supported. Else, <c>null</c> is returned.</returns>
+    /// <exception cref="IllegalCallException">If this resource is not a file (see <see cref="IsFile"/>).</exception>
+    Stream OpenRead();
+
+    /// <summary>
+    /// Opens a stream to write this resource.
+    /// </summary>
+    /// <returns>Stream opened for write operations, if supported. Else, <c>null</c> is returned.</returns>
+    /// <exception cref="IllegalCallException">If this resource is not a file (see <see cref="IsFile"/>).</exception>
+    Stream OpenWrite();
   }
 }

@@ -167,7 +167,10 @@ namespace MediaPortal.UiComponents.SkinBase.Models
       {
         using (ra)
         {
-          ICollection<IFileSystemResourceAccessor> res = FileSystemResourceNavigator.GetChildDirectories(ra, false);
+          IFileSystemResourceAccessor fsra = ra as IFileSystemResourceAccessor;
+          if (fsra == null)
+            yield break;
+          ICollection<IFileSystemResourceAccessor> res = FileSystemResourceNavigator.GetChildDirectories(fsra, false);
           if (res != null)
             foreach (IFileSystemResourceAccessor childAccessor in res)
               using (childAccessor)

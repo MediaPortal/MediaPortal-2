@@ -85,9 +85,6 @@ namespace MediaPortal.Common.Services.ResourceAccess
       IFileSystemResourceAccessor fsra;
       if (RemoteFileSystemResourceAccessor.ConnectFileSystem(_nativeSystemId, _nativeResourcePath, out fsra))
         return fsra;
-      IResourceAccessor ra;
-      if (RemoteFileResourceAccessor.ConnectFile(_nativeSystemId, _nativeResourcePath, out ra))
-        return ra;
       throw new IllegalCallException("Cannot create resource accessor for resource location '{0}' at system '{1}'", _nativeResourcePath, _nativeSystemId);
     }
 

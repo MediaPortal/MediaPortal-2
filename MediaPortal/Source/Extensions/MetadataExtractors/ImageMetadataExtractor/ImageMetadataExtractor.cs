@@ -134,18 +134,21 @@ namespace MediaPortal.Extensions.MetadataExtractors.ImageMetadataExtractor
 
       try
       {
+        if (!(mediaItemAccessor is IFileSystemResourceAccessor))
+          return false;
+        IFileSystemResourceAccessor fsra = mediaItemAccessor as IFileSystemResourceAccessor;
         // Open a stream for media item to detect mimeType.
-        using (Stream mediaStream = mediaItemAccessor.OpenRead())
+        using (Stream mediaStream = fsra.OpenRead())
         {
           string mimeType = MimeTypeDetector.GetMimeType(mediaStream);
           if (mimeType != null)
             mediaAspect.SetAttribute(MediaAspect.ATTR_MIME_TYPE, mimeType);
         }
         // Extract EXIF information from media item.
-        using (ExifMetaInfo.ExifMetaInfo exif = new ExifMetaInfo.ExifMetaInfo(mediaItemAccessor))
+        using (ExifMetaInfo.ExifMetaInfo exif = new ExifMetaInfo.ExifMetaInfo(fsra))
         {
           mediaAspect.SetAttribute(MediaAspect.ATTR_TITLE, ProviderPathHelper.GetFileNameWithoutExtension(fileName));
-          mediaAspect.SetAttribute(MediaAspect.ATTR_RECORDINGTIME, exif.OriginalDate != DateTime.MinValue ? exif.OriginalDate : mediaItemAccessor.LastChanged);
+          mediaAspect.SetAttribute(MediaAspect.ATTR_RECORDINGTIME, exif.OriginalDate != DateTime.MinValue ? exif.OriginalDate : fsra.LastChanged);
           mediaAspect.SetAttribute(MediaAspect.ATTR_COMMENT, StringUtils.TrimToNull(exif.ImageDescription));
 
           imageAspect.SetAttribute(ImageAspect.ATTR_WIDTH, (int) exif.PixXDim);
@@ -160,10 +163,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.ImageMetadataExtractor
           imageAspect.SetAttribute(ImageAspect.ATTR_ORIENTATION, (Int32) exif.Orientation);
           imageAspect.SetAttribute(ImageAspect.ATTR_METERING_MODE, exif.MeteringMode.ToString());
 
-          if (!(mediaItemAccessor is IFileSystemResourceAccessor))
-            return false;
-          using (IFileSystemResourceAccessor fsra = (IFileSystemResourceAccessor) mediaItemAccessor.Clone())
-          using (ILocalFsResourceAccessor lfsra = StreamedResourceToLocalFsAccessBridge.GetLocalFsResourceAccessor(fsra))
+          using (ILocalFsResourceAccessor lfsra = StreamedResourceToLocalFsAccessBridge.GetLocalFsResourceAccessor((IFileSystemResourceAccessor) fsra.Clone()))
           {
             string localFsResourcePath = lfsra.LocalFileSystemPath;
             if (localFsResourcePath != null)

@@ -393,8 +393,11 @@ namespace MediaPortal.Common.ResourceAccess
             IChainedResourceProvider chainedProvider = resourceProvider as IChainedResourceProvider;
             if (chainedProvider == null)
               throw new IllegalCallException("The resource provider with id '{0}' does not implement the {1} interface", pathSegment.ProviderId, typeof(IChainedResourceProvider).Name);
-            IResourceAccessor chainedRa;
-            if (!chainedProvider.TryChainUp(resourceAccessor, pathSegment.Path, out chainedRa))
+            IFileSystemResourceAccessor fsra = resourceAccessor as IFileSystemResourceAccessor;
+            if (fsra == null)
+              throw new IllegalCallException("Cannot chain up a resource provider to resource of type {0} (Path: '{1}')", resourceAccessor.GetType(), ToString());
+            IFileSystemResourceAccessor chainedRa;
+            if (!chainedProvider.TryChainUp(fsra, pathSegment.Path, out chainedRa))
             {
               resourceAccessor.Dispose();
               result = null;

@@ -77,7 +77,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
 
       // Now check siblings of movie for any IMDB id containing filename.
       IFileSystemResourceAccessor directoryFsra = null;
-      if (fsra.IsDirectory)
+      if (!fsra.IsFile)
         directoryFsra = fsra.Clone() as IFileSystemResourceAccessor;
       if (fsra.IsFile)
         directoryFsra = GetContainingDirectory(fsra);

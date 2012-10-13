@@ -408,49 +408,51 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     /// <returns>ImageSource or null</returns>
     protected ImageSource LoadImageSource(object source, bool allowThumbs)
     {
-      ImageSource result;
+      if (source == null)
+        return null;
       bool thumbnail = allowThumbs && Thumbnail;
 
       _invalidateImageSourceOnResize = false;
       if (source is MediaItem)
       {
-        result = MediaItemsHelper.CreateThumbnailImageSource((MediaItem) source, (int) Math.Max(Width, Height));
         _invalidateImageSourceOnResize = true;
+        return MediaItemsHelper.CreateThumbnailImageSource((MediaItem) source, (int) Math.Max(Width, Height));
       }
-      else if (source is IResourceLocator)
+      if (source is IResourceLocator)
       {
         IResourceLocator resourceLocator = (IResourceLocator) source;
-        result = new ResourceAccessorTextureImageSource(resourceLocator.CreateAccessor(), RightAngledRotation.Zero);
+        IResourceAccessor ra = resourceLocator.CreateAccessor();
+        IFileSystemResourceAccessor fsra = ra as IFileSystemResourceAccessor;
+        if (fsra == null)
+          ra.Dispose();
+        else
+          return new ResourceAccessorTextureImageSource(fsra, RightAngledRotation.Zero);
       }
-      else
-        result = source as ImageSource;
-      if (result == null)
+      ImageSource result = source as ImageSource;
+      if (result != null)
+        return result;
+      string uriSource = source as string;
+      if (!string.IsNullOrEmpty(uriSource))
       {
-        string uriSource = source as string;
-        if (!string.IsNullOrEmpty(uriSource))
+        // Remember to adapt list of supported extensions for image player plugin...
+        if (IsValidSource(uriSource))
         {
-          // Remember to adapt list of supported extensions for image player plugin...
-          if (IsValidSource(uriSource))
-          {
-            BitmapImageSource bmi = new BitmapImageSource { UriSource = uriSource, Thumbnail = thumbnail };
-            if (thumbnail)
-              // Set the requested thumbnail dimension, to use the best matching format.
-              bmi.ThumbnailDimension = (int) Math.Max(Width, Height);
-            result = bmi;
-          }
-          // TODO: More image types
-          else
-          {
-            if (_formerWarnURI != uriSource)
-            {
-              ServiceRegistration.Get<ILogger>().Warn("Image: Image source '{0}' is not supported", uriSource);
-              // Remember if we already wrote a warning to the log to avoid log flooding
-              _formerWarnURI = uriSource;
-            }
-          }
+          BitmapImageSource bmi = new BitmapImageSource { UriSource = uriSource, Thumbnail = thumbnail };
+          if (thumbnail)
+            // Set the requested thumbnail dimension, to use the best matching format.
+            bmi.ThumbnailDimension = (int) Math.Max(Width, Height);
+          return bmi;
         }
+        // TODO: More image types
       }
-      return result;
+      string warnSource = source.ToString();
+      if (_formerWarnURI != warnSource)
+      {
+        ServiceRegistration.Get<ILogger>().Warn("Image: Image source '{0}' is not supported", warnSource);
+        // Remember if we already wrote a warning to the log to avoid log flooding
+        _formerWarnURI = uriSource;
+      }
+      return null;
     }
 
     public override void DoRender(RenderContext localRenderContext)

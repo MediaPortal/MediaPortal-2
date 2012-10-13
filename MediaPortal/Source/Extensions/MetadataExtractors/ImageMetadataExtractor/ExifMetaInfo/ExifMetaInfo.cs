@@ -171,7 +171,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.ImageMetadataExtractor.ExifM
     /// Creates an ExifMetaInfo class by reading a Stream from IResourceAccessor.OpenRead().
     /// </summary>
     /// <param name="mediaItemAccessor"></param>
-    public ExifMetaInfo(IResourceAccessor mediaItemAccessor)
+    public ExifMetaInfo(IFileSystemResourceAccessor mediaItemAccessor)
     {
       ReadMetaInfo(mediaItemAccessor);
     }
@@ -211,7 +211,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.ImageMetadataExtractor.ExifM
       }
     }
 
-    private void ReadMetaInfo(IResourceAccessor mediaItemAccessor)
+    private void ReadMetaInfo(IFileSystemResourceAccessor mediaItemAccessor)
     {
       using (Stream mediaStream = mediaItemAccessor.OpenRead())
         ReadMetaInfo(mediaStream);

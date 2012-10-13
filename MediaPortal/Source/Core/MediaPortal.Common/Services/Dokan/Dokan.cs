@@ -342,7 +342,7 @@ namespace MediaPortal.Common.Services.Dokan
           return -DokanNet.ERROR_FILE_NOT_FOUND;
         VirtualFileSystemResource resource = handle.Resource;
         VirtualFile file = resource as VirtualFile;
-        IResourceAccessor resourceAccessor = resource.ResourceAccessor;
+        IFileSystemResourceAccessor resourceAccessor = resource.ResourceAccessor;
         VirtualBaseDirectory directory = resource as VirtualBaseDirectory;
         fileinfo.FileName = filename;
         fileinfo.CreationTime = resource.CreationTime;
@@ -375,7 +375,7 @@ namespace MediaPortal.Common.Services.Dokan
         foreach (KeyValuePair<string, VirtualFileSystemResource> entry in directory.ChildResources)
         {
           VirtualFileSystemResource resource = entry.Value;
-          IResourceAccessor resourceAccessor = resource.ResourceAccessor;
+          IFileSystemResourceAccessor resourceAccessor = resource.ResourceAccessor;
           bool isFile = resource is VirtualFile;
           FileInformation fi = new FileInformation
             {

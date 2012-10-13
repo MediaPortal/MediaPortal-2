@@ -75,9 +75,9 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
     /// </summary>
     protected class ResourceProviderFileAbstraction : File.IFileAbstraction
     {
-      protected IResourceAccessor _resourceAccessor;
+      protected IFileSystemResourceAccessor _resourceAccessor;
 
-      public ResourceProviderFileAbstraction(IResourceAccessor resourceAccessor)
+      public ResourceProviderFileAbstraction(IFileSystemResourceAccessor resourceAccessor)
       {
         _resourceAccessor = resourceAccessor;
       }
@@ -316,9 +316,12 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
 
     public bool TryExtractMetadata(IResourceAccessor mediaItemAccessor, IDictionary<Guid, MediaItemAspect> extractedAspectData, bool forceQuickMode)
     {
-      if (!mediaItemAccessor.IsFile)
+      IFileSystemResourceAccessor fsra = mediaItemAccessor as IFileSystemResourceAccessor;
+      if (fsra == null)
         return false;
-      string fileName = mediaItemAccessor.ResourceName;
+      if (!fsra.IsFile)
+        return false;
+      string fileName = fsra.ResourceName;
       if (!HasAudioExtension(fileName))
         return false;
 
@@ -333,14 +336,14 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
         try
         {
           ByteVector.UseBrokenLatin1Behavior = true;  // Otherwise we have problems retrieving non-latin1 chars
-          tag = File.Create(new ResourceProviderFileAbstraction(mediaItemAccessor));
+          tag = File.Create(new ResourceProviderFileAbstraction(fsra));
 
         }
         catch (CorruptFileException)
         {
           // Only log at the info level here - And simply return false. This makes the importer know that we
           // couldn't perform our task here.
-          ServiceRegistration.Get<ILogger>().Info("AudioMetadataExtractor: Audio file '{0}' seems to be broken", mediaItemAccessor.CanonicalLocalResourcePath);
+          ServiceRegistration.Get<ILogger>().Info("AudioMetadataExtractor: Audio file '{0}' seems to be broken", fsra.CanonicalLocalResourcePath);
           return false;
         }
 
@@ -427,14 +430,14 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
       }
       catch (UnsupportedFormatException)
       {
-        ServiceRegistration.Get<ILogger>().Info("AudioMetadataExtractor: Unsupported audio file '{0}'", mediaItemAccessor.CanonicalLocalResourcePath);
+        ServiceRegistration.Get<ILogger>().Info("AudioMetadataExtractor: Unsupported audio file '{0}'", fsra.CanonicalLocalResourcePath);
         return false;
       }
       catch (Exception e)
       {
         // Only log at the info level here - And simply return false. This makes the importer know that we
         // couldn't perform our task here
-        ServiceRegistration.Get<ILogger>().Info("AudioMetadataExtractor: Exception reading resource '{0}' (Text: '{1}')", mediaItemAccessor.CanonicalLocalResourcePath, e.Message);
+        ServiceRegistration.Get<ILogger>().Info("AudioMetadataExtractor: Exception reading resource '{0}' (Text: '{1}')", fsra.CanonicalLocalResourcePath, e.Message);
       }
       return false;
     }

@@ -169,11 +169,6 @@ namespace MediaPortal.Extensions.ResourceProviders.NetworkNeighborhoodResourcePr
       return new NetworkNeighborhoodResourceAccessor(_parent, _path);
     }
 
-    public bool IsDirectory
-    {
-      get { return _underlayingResource == null ? true : _underlayingResource.IsDirectory; }
-    }
-
     public bool ResourceExists(string path)
     {
       return IsServerPath(path) || (_underlayingResource != null && _underlayingResource.ResourceExists(path));

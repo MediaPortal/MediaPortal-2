@@ -42,7 +42,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.ImageSources
     protected bool _flipX = false;
     protected bool _flipY = false;
 
-    protected IResourceAccessor _resourceAccessor;
+    protected IFileSystemResourceAccessor _resourceAccessor;
     protected Stream _stream;
     protected string _key;
     protected RightAngledRotation _rotation;
@@ -56,7 +56,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.ImageSources
     /// </summary>
     /// <param name="resourceAccessor">The resource accessor to load the texture data from.</param>
     /// <param name="rotation">Desired rotation for the given image.</param>
-    public ResourceAccessorTextureImageSource(IResourceAccessor resourceAccessor, RightAngledRotation rotation)
+    public ResourceAccessorTextureImageSource(IFileSystemResourceAccessor resourceAccessor, RightAngledRotation rotation)
     {
       _key = resourceAccessor.CanonicalLocalResourcePath.Serialize();
       _resourceAccessor = resourceAccessor;

@@ -30,9 +30,6 @@ namespace MediaPortal.Common.ResourceAccess
   /// <remarks>
   /// MP 2 supports chains of resource providers. A chained resource provider reads its input data from another resource provider,
   /// which itself can be a base resource provider or another chained resource provider.
-  /// This interface provides a method similar to <see cref="IBaseResourceProvider.CreateResourceAccessor"/> to create a
-  /// <see cref="IResourceAccessor"/>, here, the method is <see cref="TryChainUp"/>. That method needs an additional parameter
-  /// for the base resource which provides the input stream for this provider.
   /// </remarks>
   public interface IChainedResourceProvider : IResourceProvider
   {
@@ -46,7 +43,7 @@ namespace MediaPortal.Common.ResourceAccess
     /// <param name="resultResourceAccessor">Resource accessor in the chained file system at the given <paramref name="path"/>.
     /// This parameter is only set to a sensible value if this method returns <c>true</c>.</param>
     /// <returns><c>true</c> if this provider could successfully chain up onto the given resource accessor, else <c>false</c></returns>
-    bool TryChainUp(IResourceAccessor potentialBaseResourceAccessor, string path, out IResourceAccessor resultResourceAccessor);
+    bool TryChainUp(IFileSystemResourceAccessor potentialBaseResourceAccessor, string path, out IFileSystemResourceAccessor resultResourceAccessor);
 
     /// <summary>
     /// Returns the information if the given <paramref name="path"/> is a valid resource path in this provider, interpreted
@@ -57,6 +54,6 @@ namespace MediaPortal.Common.ResourceAccess
     /// <param name="path">Local provider path to evaluate.</param>
     /// <returns><c>true</c>, if the given <paramref name="path"/> exists (i.e. can be accessed by this provider),
     /// else <c>false</c>.</returns>
-    bool IsResource(IResourceAccessor baseResourceAccessor, string path);
+    bool IsResource(IFileSystemResourceAccessor baseResourceAccessor, string path);
   }
 }

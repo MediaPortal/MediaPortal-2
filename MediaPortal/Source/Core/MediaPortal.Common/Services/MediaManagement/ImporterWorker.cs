@@ -312,31 +312,22 @@ namespace MediaPortal.Common.Services.MediaManagement
     }
 
     /// <summary>
-    /// Imports or refreshes a single file without a parent directory with the specified <paramref name="fileAccessor"/>.
+    /// Imports or refreshes a single file without a parent directory with the specified <paramref name="resourceAccessor"/>.
     /// </summary>
     /// <param name="importJob">The import job being processed.</param>
-    /// <param name="fileAccessor">Resource accessor for the file to import.</param>
+    /// <param name="resourceAccessor">Resource accessor for the file to import.</param>
     /// <param name="metadataExtractors">Metadata extractors to apply on the resource.</param>
     /// <param name="mediaBrowsing">Callback interface to the media library for the refresh import type.</param>
     /// <param name="resultHandler">Callback to notify the import result.</param>
     /// <param name="mediaAccessor">Convenience reference to the media accessor.</param>
-    protected void ImportSingleFile(ImportJob importJob, IResourceAccessor fileAccessor,
+    protected void ImportSingleFile(ImportJob importJob, IResourceAccessor resourceAccessor,
         ICollection<IMetadataExtractor> metadataExtractors, IMediaBrowsing mediaBrowsing,
         IImportResultHandler resultHandler, IMediaAccessor mediaAccessor)
     {
-      ResourcePath currentFilePath = fileAccessor.CanonicalLocalResourcePath;
+      ResourcePath currentFilePath = resourceAccessor.CanonicalLocalResourcePath;
       try
       {
-        if (importJob.JobType == ImportJobType.Refresh)
-        {
-          MediaItem mediaItem = mediaBrowsing.LoadLocalItem(currentFilePath,
-              IMPORTER_MIA_ID_ENUMERATION, EMPTY_MIA_ID_ENUMERATION);
-          MediaItemAspect importerAspect;
-          if (mediaItem != null && mediaItem.Aspects.TryGetValue(ImporterAspect.ASPECT_ID, out importerAspect) &&
-              (DateTime) importerAspect[ImporterAspect.ATTR_LAST_IMPORT_DATE] > fileAccessor.LastChanged)
-            return;
-        }
-        ImportResource(fileAccessor, Guid.Empty, metadataExtractors, resultHandler, mediaAccessor);
+        ImportResource(resourceAccessor, Guid.Empty, metadataExtractors, resultHandler, mediaAccessor);
       }
       catch (Exception e)
       {
@@ -461,9 +452,12 @@ namespace MediaPortal.Common.Services.MediaManagement
               if (!path.TryCreateLocalResourceAccessor(out ra))
                 throw new IllegalCallException("Unable to access resource path '{0}'", importJob.BasePath);
               using (ra)
-                if (!ra.IsFile)
+              {
+                IFileSystemResourceAccessor fsra = ra as IFileSystemResourceAccessor;
+                if (fsra == null || !fsra.IsFile)
                   // Don't touch directories because they will be imported in a different call of ImportDirectory
                   continue;
+              }
             }
             catch (IllegalCallException)
             {
@@ -555,7 +549,7 @@ namespace MediaPortal.Common.Services.MediaManagement
                 importJob.State = ImportJobState.Active;
               }
               else
-              { // Simple single-item-import
+              { // Simple resource import
                 ImportSingleFile(importJob, ra, metadataExtractors, mediaBrowsing, resultHandler, mediaAccessor);
                 lock (importJob.SyncObj)
                   if (importJob.State == ImportJobState.Active)
@@ -583,7 +577,7 @@ namespace MediaPortal.Common.Services.MediaManagement
               ServiceRegistration.Get<ILogger>().Info("ImporterWorker: Importing '{0}'{1}", fsra.ResourcePathName, moreResources);
               if (fsra.IsFile && fsra.Exists)
                 ImportResource(fsra, pendingImportResource.ParentDirectory, metadataExtractors, resultHandler, mediaAccessor);
-              else if (fsra.IsDirectory)
+              else if (!fsra.IsFile)
               {
                 CheckImportStillRunning(importJob.State);
                 Guid? currentDirectoryId = ImportDirectory(importJob, pendingImportResource.ParentDirectory, fsra, metadataExtractors,

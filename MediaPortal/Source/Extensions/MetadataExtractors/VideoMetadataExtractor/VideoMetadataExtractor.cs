@@ -115,7 +115,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.VideoMetadataExtractor
       return VIDEO_FILE_EXTENSIONS.Contains(ext);
     }
 
-    protected MediaInfoWrapper ReadMediaInfo(IResourceAccessor mediaItemAccessor)
+    protected MediaInfoWrapper ReadMediaInfo(IFileSystemResourceAccessor mediaItemAccessor)
     {
       MediaInfoWrapper result = new MediaInfoWrapper();
       Stream stream = null;
@@ -348,7 +348,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.VideoMetadataExtractor
         IFileSystemResourceAccessor fsra = mediaItemAccessor as IFileSystemResourceAccessor;
         if (fsra == null)
           return false;
-        if (fsra.IsDirectory && fsra.ResourceExists("VIDEO_TS"))
+        if (!fsra.IsFile && fsra.ResourceExists("VIDEO_TS"))
         {
           IFileSystemResourceAccessor fsraVideoTs = fsra.GetResource("VIDEO_TS");
           if (fsraVideoTs != null && fsraVideoTs.ResourceExists("VIDEO_TS.IFO"))

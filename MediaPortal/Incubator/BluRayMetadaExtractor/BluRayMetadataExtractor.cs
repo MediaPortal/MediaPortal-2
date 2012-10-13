@@ -104,7 +104,7 @@ namespace MediaPortal.Media.MetadataExtractors
           return false;
         using (IFileSystemResourceAccessor fsra = (IFileSystemResourceAccessor) mediaItemAccessor.Clone())
         using (ILocalFsResourceAccessor lfsra = StreamedResourceToLocalFsAccessBridge.GetLocalFsResourceAccessor(fsra))
-          if (lfsra.IsDirectory && lfsra.ResourceExists("BDMV"))
+          if (!lfsra.IsFile && lfsra.ResourceExists("BDMV"))
           {
             IFileSystemResourceAccessor fsraBDMV = lfsra.GetResource("BDMV");
             if (fsraBDMV != null && fsraBDMV.ResourceExists("index.bdmv"))

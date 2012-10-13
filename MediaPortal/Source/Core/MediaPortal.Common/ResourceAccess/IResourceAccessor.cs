@@ -23,8 +23,6 @@
 #endregion
 
 using System;
-using System.IO;
-using MediaPortal.Utilities.Exceptions;
 
 namespace MediaPortal.Common.ResourceAccess
 {
@@ -34,12 +32,12 @@ namespace MediaPortal.Common.ResourceAccess
   }
 
   /// <summary>
-  /// Temporary local accessor instance for a resource which might located anywhere in an MP 2 system.
+  /// Temporary local accessor instance for a resource which might located anywhere in an MP 2 system or in the outside world.
   /// </summary>
   /// <remarks>
-  /// Via this instance, the resource, which potentially is located in a remote system, can be accessed using a local resource provider chain.
+  /// Via this instance, the specified resource and/or its metadata can be read.
   /// To obtain a resource accessor, get an <see cref="IResourceLocator"/> and use its <see cref="IResourceLocator.CreateAccessor"/> method.
-  /// The temporary resource accessor must be disposed using its <see cref="IDisposable.Dispose"/> method when it is not needed any more.
+  /// The resource accessor must be disposed using its <see cref="IDisposable.Dispose"/> method when it is not needed any more.
   /// This will clean up resources which were allocated to access the resource.
   /// </remarks>
   public interface IResourceAccessor : IDisposable
@@ -49,17 +47,6 @@ namespace MediaPortal.Common.ResourceAccess
     /// by a resource provider, this property returns <c>null</c>.
     /// </summary>
     IResourceProvider ParentProvider { get; }
-
-    /// <summary>
-    /// Explicitly checks if the resource described by this resource accessor currently exists.
-    /// </summary>
-    bool Exists { get; }
-
-    /// <summary>
-    /// Returns the information if this resource is a file which can be opened to an input stream.
-    /// </summary>
-    /// <value><c>true</c>, if this resource denotes a file which can be opened, else <c>false</c>.</value>
-    bool IsFile { get; }
 
     /// <summary>
     /// Returns the resource provider path of this resource accessor.
@@ -93,41 +80,6 @@ namespace MediaPortal.Common.ResourceAccess
     /// This property always returns the path to the original resource, i.e. without any translation to local filesystem resource accessors etc.
     /// </remarks>
     ResourcePath CanonicalLocalResourcePath { get; }
-
-    /// <summary>
-    /// Gets the date and time when this resource was changed for the last time.
-    /// </summary>
-    DateTime LastChanged { get; }
-
-    /// <summary>
-    /// Gets the file size in bytes, if this resource represents a file. Else returns <c>-1</c>.
-    /// </summary>
-    long Size { get; }
-
-    /// <summary>
-    /// Prepares this resource accessor to get a stream for the resource's contents.
-    /// This might take some time, so this method might block some seconds.
-    /// </summary>
-    /// <remarks>
-    /// Resource accessors wrap resource access to different kinds of resources. Some of
-    /// them might require a local file cache, for example. This method can be implemented to prepare such a cache.
-    /// That avoids long latencies in the methods <see cref="OpenRead"/> and <see cref="OpenWrite"/>.
-    /// </remarks>
-    void PrepareStreamAccess();
-
-    /// <summary>
-    /// Opens a stream to read this resource.
-    /// </summary>
-    /// <returns>Stream opened for read operations, if supported. Else, <c>null</c> is returned.</returns>
-    /// <exception cref="IllegalCallException">If this resource is not a file (see <see cref="IsFile"/>).</exception>
-    Stream OpenRead();
-
-    /// <summary>
-    /// Opens a stream to write this resource.
-    /// </summary>
-    /// <returns>Stream opened for write operations, if supported. Else, <c>null</c> is returned.</returns>
-    /// <exception cref="IllegalCallException">If this resource is not a file (see <see cref="IsFile"/>).</exception>
-    Stream OpenWrite();
 
     /// <summary>
     /// Doubles this instance.
