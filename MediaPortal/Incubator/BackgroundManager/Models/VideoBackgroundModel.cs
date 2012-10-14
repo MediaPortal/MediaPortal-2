@@ -23,11 +23,14 @@
 #endregion
 
 using System;
+using MediaPortal.Common;
 using MediaPortal.Common.General;
 using MediaPortal.Common.ResourceAccess;
 using MediaPortal.Common.Services.ResourceAccess;
+using MediaPortal.Common.Settings;
 using MediaPortal.UI.Players.Video;
 using MediaPortal.UI.SkinEngine.Players;
+using MediaPortal.UiComponents.BackgroundManager.Settings;
 
 namespace MediaPortal.UiComponents.BackgroundManager.Models
 {
@@ -35,9 +38,10 @@ namespace MediaPortal.UiComponents.BackgroundManager.Models
   {
     public const string MODEL_ID_STR = "441288AC-F88D-4186-8993-6E259F7C75D8";
 
-    protected string _videoFilename = @"{E88E64A8-0233-4fdf-BA27-0B44C6A39AE9}://S:/Redwave.wmv";
+    protected string _videoFilename;
     protected VideoPlayer _videoPlayer;
     protected AbstractProperty _videoPlayerProperty;
+    protected AbstractProperty _isEnabledProperty;
 
     #region Protected fields
 
@@ -54,9 +58,24 @@ namespace MediaPortal.UiComponents.BackgroundManager.Models
       set { _videoPlayerProperty.SetValue(value); }
     }
 
+    public AbstractProperty IsEnabledProperty
+    {
+      get { return _isEnabledProperty; }
+    }
+
+    public bool IsEnabled
+    {
+      get { return (bool) _isEnabledProperty.GetValue(); }
+      set { _isEnabledProperty.SetValue(value); }
+    }
+
     public VideoBackgroundModel()
     {
+      BackgroundManagerSettings settings = ServiceRegistration.Get<ISettingsManager>().Load<BackgroundManagerSettings>();
+      _videoFilename = settings.VideoBackgroundFileName;
+
       _videoPlayerProperty = new SProperty(typeof(ISlimDXVideoPlayer), null);
+      _isEnabledProperty = new SProperty(typeof(bool), settings.EnableVideoBackground);
     }
 
     public void Dispose()
@@ -79,9 +98,11 @@ namespace MediaPortal.UiComponents.BackgroundManager.Models
 
     public void StartBackgroundPlayback()
     {
+      if (!IsEnabled)
+        return;
       try
       {
-        ResourceLocator resourceLocator = new ResourceLocator(ResourcePath.Deserialize(_videoFilename));
+        ResourceLocator resourceLocator = new ResourceLocator(LocalFsResourceProviderBase.ToResourcePath(_videoFilename));
         _videoPlayer = new VideoPlayer { AutoRepeat = true };
         _videoPlayer.SetMediaItem(resourceLocator, "VideoBackground");
         VideoPlayer = _videoPlayer;
