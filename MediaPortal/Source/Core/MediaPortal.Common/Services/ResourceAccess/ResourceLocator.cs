@@ -75,11 +75,16 @@ namespace MediaPortal.Common.Services.ResourceAccess
     public IResourceAccessor CreateAccessor()
     {
       ISystemResolver systemResolver = ServiceRegistration.Get<ISystemResolver>();
+      IResourceAccessor result;
+      if (_nativeResourcePath.IsNetworkResource)
+      {
+        if (_nativeResourcePath.TryCreateLocalResourceAccessor(out result) && result is INetworkResourceAccessor)
+          return result;
+      }
       SystemName nativeSystem = systemResolver.GetSystemNameForSystemId(_nativeSystemId);
       if (nativeSystem == null)
         throw new IllegalCallException("Cannot create resource accessor for resource location '{0}' at system '{1}': System is not available", _nativeResourcePath, _nativeSystemId);
       // Try to access resource locally. This might work if we have the correct resource providers installed.
-      IResourceAccessor result;
       if (nativeSystem.IsLocalSystem() && _nativeResourcePath.IsValidLocalPath && _nativeResourcePath.TryCreateLocalResourceAccessor(out result))
         return result;
       IFileSystemResourceAccessor fsra;
@@ -88,15 +93,20 @@ namespace MediaPortal.Common.Services.ResourceAccess
       throw new IllegalCallException("Cannot create resource accessor for resource location '{0}' at system '{1}'", _nativeResourcePath, _nativeSystemId);
     }
 
-    public ILocalFsResourceAccessor CreateLocalFsAccessor()
+    public bool TryCreateLocalFsAccessor(out ILocalFsResourceAccessor localFsResourceAccessor)
     {
       IResourceAccessor accessor = CreateAccessor();
       IFileSystemResourceAccessor fsra = accessor as IFileSystemResourceAccessor;
       if (fsra == null)
-        throw new IllegalCallException("The given resource path doesn't denote a filesystem resource");
+      {
+        accessor.Dispose();
+        localFsResourceAccessor = null;
+        return false;
+      }
       try
       {
-        return StreamedResourceToLocalFsAccessBridge.StreamedResourceToLocalFsAccessBridge.GetLocalFsResourceAccessor(fsra);
+        localFsResourceAccessor = StreamedResourceToLocalFsAccessBridge.StreamedResourceToLocalFsAccessBridge.GetLocalFsResourceAccessor(fsra);
+        return true;
       }
       catch
       {

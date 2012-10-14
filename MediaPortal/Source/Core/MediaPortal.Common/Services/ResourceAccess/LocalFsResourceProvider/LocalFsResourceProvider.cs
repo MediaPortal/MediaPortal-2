@@ -101,7 +101,7 @@ namespace MediaPortal.Common.Services.ResourceAccess.LocalFsResourceProvider
 
     public LocalFsResourceProvider()
     {
-      _metadata = new ResourceProviderMetadata(LOCAL_FS_RESOURCE_PROVIDER_ID, RES_RESOURCE_PROVIDER_NAME, RES_RESOURCE_PROVIDER_DESCRIPTION, false);
+      _metadata = new ResourceProviderMetadata(LOCAL_FS_RESOURCE_PROVIDER_ID, RES_RESOURCE_PROVIDER_NAME, RES_RESOURCE_PROVIDER_DESCRIPTION, false, false);
       _instance = this;
     }
 

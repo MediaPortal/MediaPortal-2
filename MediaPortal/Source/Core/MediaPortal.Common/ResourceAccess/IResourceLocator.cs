@@ -66,8 +66,9 @@ namespace MediaPortal.Common.ResourceAccess
     IResourceAccessor CreateAccessor();
 
     /// <summary>
-    /// Creates a resource accessor which is able to provide a path in the local filesystem.
-    /// This is necessary for some players to be able to play the media item content.
+    /// Tries to create a resource accessor which is able to provide a path in the local filesystem.
+    /// This only works if the underlaying <see cref="NativeResourcePath"/> is a network path
+    /// (See also <see cref="ResourcePath.IsNetworkPath"/>).
     /// </summary>
     /// <remarks>
     /// The returned instance implements <see cref="IDisposable"/> and
@@ -75,15 +76,18 @@ namespace MediaPortal.Common.ResourceAccess
     /// The usage of a construct like this is strongly recommended:
     /// <code>
     ///   IResourceLocator locator = ...;
-    ///   using (ILocalFsResourceAccessor accessor = locator.CreateLocalFsAccessor())
-    ///   {
-    ///     ...
-    ///   }
+    ///   ILocalFsResourceAccessor accessor;
+    ///   if (locator.TryCreateLocalFsAccessor(out accessor))
+    ///     using (accessor)
+    ///     {
+    ///       ...
+    ///     }
     /// </code>
     /// </remarks>
-    /// <exception cref="IllegalCallException">If this resource locator doesn't denote a file resource.</exception>
-    /// <returns>Resource accessor to a local filesystem resource containing the contents of the media item
-    /// specified by this instance.</returns>
-    ILocalFsResourceAccessor CreateLocalFsAccessor();
+    /// <param name="localFsResourceAccessor">Resource accessor to a local filesystem resource containing
+    /// the contents of the resource specified by this instance.</param>
+    /// <returns><c>true</c>, if this resource locator points to a file system resource which either is
+    /// located in the local file system or which can be bridged to the local file system.</returns>
+    bool TryCreateLocalFsAccessor(out ILocalFsResourceAccessor localFsResourceAccessor);
   }
 }

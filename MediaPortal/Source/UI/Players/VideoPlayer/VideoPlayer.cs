@@ -282,7 +282,8 @@ namespace MediaPortal.UI.Players.Video
       {
         _resourceLocator = locator;
         _mediaItemTitle = mediaItemTitle;
-        _resourceAccessor = _resourceLocator.CreateLocalFsAccessor();
+        if (!_resourceLocator.TryCreateLocalFsAccessor(out _resourceAccessor))
+          throw new IllegalCallException("The VideoPlayer can only play local file system resources");
         ServiceRegistration.Get<ILogger>().Debug("{0}: Initializing for media item '{1}'", PlayerTitle, _resourceAccessor.LocalFileSystemPath);
 
         // Create a DirectShow FilterGraph

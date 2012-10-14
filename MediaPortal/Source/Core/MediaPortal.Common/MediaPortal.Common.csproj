@@ -160,6 +160,7 @@
     <Compile Include="PluginItemBuilders\MIATypeRegistrationBuilder.cs" />
     <Compile Include="PluginManager\DefaultItemRegistrationChangeListener.cs" />
     <Compile Include="PluginManager\DefaultItemStateTracker.cs" />
+    <Compile Include="ResourceAccess\INetworkResourceAccessor.cs" />
     <Compile Include="ResourceAccess\ProviderPathHelper.cs" />
     <Compile Include="ResourceAccess\FileSystemResourceNavigator.cs" />
     <Compile Include="MediaManagement\IImporterWorker.cs" />

@@ -46,18 +46,20 @@ namespace MediaPortal.Common.MediaManagement
     protected string _name;
     protected string _description;
     protected bool _transientMedia;
+    protected bool _networkResource;
 
     // We could use some cache for this instance, if we would have one...
     protected static XmlSerializer _xmlSerializer = null; // Lazy initialized
 
     #endregion
 
-    public ResourceProviderMetadata(Guid resourceProviderId, string name, string description, bool transientMedia)
+    public ResourceProviderMetadata(Guid resourceProviderId, string name, string description, bool transientMedia, bool networkResource)
     {
       _resourceProviderId = resourceProviderId;
       _name = name;
       _description = description;
       _transientMedia = transientMedia;
+      _networkResource = networkResource;
     }
 
     /// <summary>
@@ -95,6 +97,16 @@ namespace MediaPortal.Common.MediaManagement
     public bool TransientMedia
     {
       get { return _transientMedia; }
+    }
+
+    /// <summary>
+    /// Returns the information if this resource provider provides access to network resources which can be accessed from the whole
+    /// system via an URL.
+    /// </summary>
+    [XmlIgnore]
+    public bool NetworkResource
+    {
+      get { return _networkResource; }
     }
 
     public void Serialize(XmlWriter writer)
@@ -156,6 +168,16 @@ namespace MediaPortal.Common.MediaManagement
     {
       get { return _transientMedia; }
       set { _transientMedia = value; }
+    }
+
+    /// <summary>
+    /// For internal use of the XML serialization system only.
+    /// </summary>
+    [XmlAttribute("NetworkResource")]
+    public bool XML_NetworkResource
+    {
+      get { return _networkResource; }
+      set { _networkResource = value; }
     }
 
    #endregion

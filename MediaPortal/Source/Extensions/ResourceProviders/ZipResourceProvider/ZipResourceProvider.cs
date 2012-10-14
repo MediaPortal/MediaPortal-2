@@ -72,7 +72,7 @@ namespace MediaPortal.Extensions.ResourceProviders.ZipResourceProvider
 
     public ZipResourceProvider()
     {
-      _metadata = new ResourceProviderMetadata(ZIP_RESOURCE_PROVIDER_ID, RES_RESOURCE_PROVIDER_NAME, RES_RESOURCE_PROVIDER_DESCRIPTION, false);
+      _metadata = new ResourceProviderMetadata(ZIP_RESOURCE_PROVIDER_ID, RES_RESOURCE_PROVIDER_NAME, RES_RESOURCE_PROVIDER_DESCRIPTION, false, false);
     }
 
     #endregion

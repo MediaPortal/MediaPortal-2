@@ -181,6 +181,23 @@ namespace MediaPortal.Common.ResourceAccess
     }
 
     /// <summary>
+    /// Returns the information if this resource path points to an URL accessible network resource for which an <see cref="INetworkResourceAccessor"/>
+    /// can be created locally.
+    /// </summary>
+    public bool IsNetworkResource
+    {
+      get
+      {
+        if (_pathSegments.Count == 0)
+          return false;
+        ProviderPathSegment pathSegment = _pathSegments[0];
+        IMediaAccessor mediaAccessor = ServiceRegistration.Get<IMediaAccessor>();
+        IResourceProvider resourceProvider;
+        return mediaAccessor.LocalResourceProviders.TryGetValue(pathSegment.ProviderId, out resourceProvider) ? resourceProvider.Metadata.NetworkResource : false;
+      }
+    }
+
+    /// <summary>
     /// Returns the information if this resource path can be used to set up a local resource provider chain.
     /// </summary>
     /// <remarks>
