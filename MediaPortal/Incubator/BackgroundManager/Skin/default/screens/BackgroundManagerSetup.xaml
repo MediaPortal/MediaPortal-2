@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Include
+    xmlns="www.team-mediaportal.com/2008/mpf/directx"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    Source="screens\master_dialog_bare.xaml"
+    >
+  <Include.Resources>
+    <Model x:Key="BackgroundManagerSetupModel" Id="5054832A-C20D-448E-AA08-A8B2826D1C31"/>
+
+    <ResourceWrapper x:Key="Dialog_Header_Text" Resource="[Settings.Appearance.Skin.Background.Setup]"/>
+
+    <!-- Contents -->
+    <ControlTemplate x:Key="Contents_Template">
+      <Grid DataContext="{Binding Source={StaticResource BackgroundManagerSetupModel}}" Width="700" Height="300">
+        <Grid.ColumnDefinitions>
+          <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+          <RowDefinition Height="Auto"/>
+          <RowDefinition Height="Auto"/>
+          <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <StackPanel Orientation="Horizontal">
+          <CheckBox x:Name="EnableVideoCheckbox" Margin="5" Style="{ThemeResource DefaultCheckBoxStyle}"
+              IsChecked="{Binding Path=IsEnabled,Mode=TwoWay}"
+              Content="{Binding}" />
+          <Label Content="[Settings.Appearance.Skin.Background.EnableVideoBackground]" Color="{ThemeResource TextColor}" Margin="5"/>
+        </StackPanel>
+        
+        <GroupBox x:Name="VideoFileGroup" Header="[Settings.Appearance.Skin.Background.Setup.VideoFilename]" Grid.Row="1" Grid.Column="0" Margin="10"
+             Style="{ThemeResource ContentGroupBoxStyle}"
+             Width="700" IsVisible="{Binding Path=IsEnabled}">
+
+        <DockPanel LastChildFill="True">
+          <Button Content="[Settings.Appearance.Skin.Background.Setup.Select]" Margin="0,10,10,10" DockPanel.Dock="Right"
+              Command="{Command ChooseBackgroundVideo}" SetFocusPrio="Default"/>
+          <Label Content="{Binding BackgroundVideoFilename}" Color="{ThemeResource TextColor}" Margin="10"
+              DockPanel.Dock="Center"/>
+        </DockPanel>
+
+        </GroupBox>
+        <Button x:Name="Ok" Content="[System.Ok]" Grid.Row="2" Grid.Column="0"
+            HorizontalAlignment="Center" VerticalAlignment="Bottom">
+          <Button.Command>
+            <CommandList x:Key="Menu_Command">
+              <Command Source="{StaticResource BackgroundManagerSetupModel}" Path="SaveSettings"/>
+              <Command Source="{Service ScreenManager}" Path="CloseTopmostDialog"/>
+            </CommandList>
+          </Button.Command>
+        </Button>
+      </Grid>
+    </ControlTemplate>
+  </Include.Resources>
+</Include>
