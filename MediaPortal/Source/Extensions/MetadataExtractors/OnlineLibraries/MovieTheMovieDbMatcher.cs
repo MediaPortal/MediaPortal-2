@@ -35,6 +35,7 @@ using MediaPortal.Common.PathManager;
 using MediaPortal.Extensions.OnlineLibraries.Libraries.MovieDbV3.Data;
 using MediaPortal.Extensions.OnlineLibraries.Matches;
 using MediaPortal.Extensions.OnlineLibraries.TheMovieDB;
+using MediaPortal.Utilities.Network;
 
 namespace MediaPortal.Extensions.OnlineLibraries
 {
@@ -252,6 +253,9 @@ namespace MediaPortal.Extensions.OnlineLibraries
 
     protected override bool Init()
     {
+      if (NetworkUtils.IsNetworkConnected())
+        return false;
+
       if (_movieDb != null)
         return true;
 

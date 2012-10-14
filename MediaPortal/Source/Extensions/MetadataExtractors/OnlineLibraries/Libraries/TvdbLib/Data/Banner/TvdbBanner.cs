@@ -24,7 +24,6 @@ using System.Net;
 using System.IO;
 using MediaPortal.Extensions.OnlineLibraries.Libraries.Common;
 using MediaPortal.Extensions.OnlineLibraries.Libraries.TvdbLib.Cache;
-using MediaPortal.Utilities.Network;
 
 namespace MediaPortal.Extensions.OnlineLibraries.Libraries.TvdbLib.Data.Banner
 {
@@ -268,8 +267,6 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.TvdbLib.Data.Banner
     /// <returns>True if successful, false otherwise</returns>
     protected Image LoadImage(String path)
     {
-      if (!NetworkUtils.IsNetworkConnected())
-        return null;
       try
       {
         WebClient client = new WebClient();

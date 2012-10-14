@@ -28,6 +28,7 @@ using MediaPortal.Extensions.OnlineLibraries.Libraries.TvdbLib.Data;
 using MediaPortal.Extensions.OnlineLibraries.Libraries.TvdbLib.Data.Banner;
 using MediaPortal.Extensions.OnlineLibraries.Libraries.TvdbLib.Data.Comparer;
 using MediaPortal.Extensions.OnlineLibraries.Libraries.TvdbLib.Exceptions;
+using MediaPortal.Utilities.Network;
 
 namespace MediaPortal.Extensions.OnlineLibraries.Libraries.TvdbLib
 {
@@ -1381,6 +1382,10 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.TvdbLib
       {
         if (IsLanguagesCached)
           return _loadedData.LanguageList;
+
+        if (!NetworkUtils.IsNetworkConnected())
+          return null;
+
         List<TvdbLanguage> list = _downloader.DownloadLanguages();
         if (list == null || list.Count == 0)
           return null;
@@ -1396,6 +1401,9 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.TvdbLib
     /// <returns>true if successful, false otherwise</returns>
     public bool ReloadLanguages()
     {
+      if (!NetworkUtils.IsNetworkConnected())
+        return false;
+
       List<TvdbLanguage> list = _downloader.DownloadLanguages();
       if (list == null || list.Count == 0)
         return false;

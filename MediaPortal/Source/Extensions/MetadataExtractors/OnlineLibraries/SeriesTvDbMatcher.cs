@@ -38,6 +38,7 @@ using MediaPortal.Extensions.OnlineLibraries.Libraries.TvdbLib.Data.Banner;
 using MediaPortal.Extensions.OnlineLibraries.Matches;
 using MediaPortal.Extensions.OnlineLibraries.TheTvDB;
 using MediaPortal.Utilities;
+using MediaPortal.Utilities.Network;
 
 namespace MediaPortal.Extensions.OnlineLibraries
 {
@@ -253,6 +254,9 @@ namespace MediaPortal.Extensions.OnlineLibraries
 
     protected override bool Init()
     {
+      if (NetworkUtils.IsNetworkConnected())
+        return false;
+
       if (_tv != null)
         return true;
       try

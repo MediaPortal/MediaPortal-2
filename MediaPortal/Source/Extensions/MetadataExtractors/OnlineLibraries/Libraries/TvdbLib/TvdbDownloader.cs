@@ -31,7 +31,6 @@ using MediaPortal.Extensions.OnlineLibraries.Libraries.TvdbLib.Data;
 using MediaPortal.Extensions.OnlineLibraries.Libraries.TvdbLib.Data.Banner;
 using MediaPortal.Extensions.OnlineLibraries.Libraries.TvdbLib.Exceptions;
 using MediaPortal.Extensions.OnlineLibraries.Libraries.TvdbLib.Xml;
-using MediaPortal.Utilities.Network;
 
 namespace MediaPortal.Extensions.OnlineLibraries.Libraries.TvdbLib
 {
@@ -59,16 +58,12 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.TvdbLib
 
     protected string DownloadString(string url)
     {
-      if (!NetworkUtils.IsNetworkConnected())
-        return string.Empty;
       using (WebClient webClient = new WebClient { Encoding = Encoding.UTF8 })
         return webClient.DownloadString(url);
     }
 
     protected byte[] DownloadData(string url)
     {
-      if (!NetworkUtils.IsNetworkConnected())
-        return null;
       using (WebClient webClient = new WebClient { Encoding = Encoding.UTF8 })
         return webClient.DownloadData(url);
     }
@@ -92,8 +87,6 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.TvdbLib
       {
         link = TvdbLinkCreator.CreateSeriesEpisodesLink(_apiKey, seriesId, language);
         xml = DownloadString(link);
-        if (string.IsNullOrEmpty(xml))
-          return new List<TvdbEpisode>();
         List<TvdbEpisode> epList = _xmlHandler.ExtractEpisodes(xml);
         return epList;
       }
@@ -154,8 +147,6 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.TvdbLib
       {
         link = TvdbLinkCreator.CreateSeriesBannersLink(_apiKey, seriesId);
         xml = DownloadString(link);
-        if (string.IsNullOrEmpty(xml))
-          return new List<TvdbBanner>();
         List<TvdbBanner> banners = _xmlHandler.ExtractBanners(xml);
         return banners;
       }
@@ -193,8 +184,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.TvdbLib
       {
         link = TvdbLinkCreator.CreateSeriesLink(_apiKey, seriesId, language, loadEpisodes, false);
         xml = DownloadString(link);
-        if (string.IsNullOrEmpty(xml))
-          return null;
+
         //extract all series the xml file contains
         List<TvdbSeries> seriesList = _xmlHandler.ExtractSeries(xml);
 
@@ -371,8 +361,6 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.TvdbLib
       {
         link = TvdbLinkCreator.CreateGetSeriesByIdLink(_apiKey, site, id);
         xml = DownloadString(link);
-        if (string.IsNullOrEmpty(xml))
-          return null;
 
         //extract all series the xml file contains
         List<TvdbSearchResult> seriesList = _xmlHandler.ExtractSeriesSearchResults(xml);
@@ -408,8 +396,6 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.TvdbLib
       {
         link = TvdbLinkCreator.CreateSeriesLink(_apiKey, seriesId, language, false, false);
         xml = DownloadString(link);
-        if (string.IsNullOrEmpty(xml))
-          return null;
 
         //extract all series the xml file contains
         List<TvdbSeriesFields> seriesList = _xmlHandler.ExtractSeriesFields(xml);
@@ -446,8 +432,6 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.TvdbLib
       {
         link = TvdbLinkCreator.CreateEpisodeLink(_apiKey, episodeId, language, false);
         xml = DownloadString(link);
-        if (string.IsNullOrEmpty(xml))
-          return null;
         List<TvdbEpisode> epList = _xmlHandler.ExtractEpisodes(xml);
         return epList != null && epList.Count == 1 ? epList[0] : null;
       }
@@ -589,8 +573,6 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.TvdbLib
       {
         throw HandleUserWebException("retrieve preferred language for user " + userId, ex);
       }
-      if (string.IsNullOrEmpty(xml))
-        return null;
       List<TvdbLanguage> langList = _xmlHandler.ExtractLanguages(xml);
       return langList != null && langList.Count == 1 ? langList[0] : null;
     }
@@ -640,8 +622,6 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.TvdbLib
       {
         throw HandleUserWebException("retrieve favorite list for user "+ userId, ex);
       }
-      if (string.IsNullOrEmpty(xml))
-        return new List<int>();
       List<int> favList = _xmlHandler.ExtractSeriesFavorites(xml);
       return favList;
     }
@@ -743,8 +723,6 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.TvdbLib
       {
         link = TvdbLinkCreator.CreateLanguageLink(_apiKey);
         xml = DownloadString(link);
-        if (string.IsNullOrEmpty(xml))
-          return new List<TvdbLanguage>();
         return _xmlHandler.ExtractLanguages(xml);
       }
       catch (XmlException ex)
@@ -792,8 +770,6 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.TvdbLib
       {
         link = TvdbLinkCreator.CreateSearchLink(name, language);
         xml = DownloadString(link);
-        if (string.IsNullOrEmpty(xml))
-          return new List<TvdbSearchResult>();
         return _xmlHandler.ExtractSeriesSearchResults(xml);
       }
       catch (XmlException ex)
@@ -827,8 +803,6 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.TvdbLib
       {
         link = TvdbLinkCreator.CreateUserSeriesRating(userId, seriesId, rating);
         xml = DownloadString(link);
-        if (string.IsNullOrEmpty(xml))
-          return 0;
       }
       catch (XmlException ex)
       {
@@ -862,8 +836,6 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.TvdbLib
       {
         link = TvdbLinkCreator.CreateUserEpisodeRating(userId, episodeId, rating);
         xml = DownloadString(link);
-        if (string.IsNullOrEmpty(xml))
-          return 0;
         return _xmlHandler.ExtractRating(xml);
       }
       catch (XmlException ex)
@@ -896,8 +868,6 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.TvdbLib
       {
         link = TvdbLinkCreator.CreateUserSeriesRating(userId, seriesId);
         xml = DownloadString(link);
-        if (string.IsNullOrEmpty(xml))
-          return 0;
         return _xmlHandler.ExtractRating(xml);
       }
       catch (XmlException ex)
@@ -930,8 +900,6 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.TvdbLib
       {
         link = TvdbLinkCreator.CreateUserEpisodeRating(userId, episodeId);
         xml = DownloadString(link);
-        if (string.IsNullOrEmpty(xml))
-          return 0;
         return _xmlHandler.ExtractRating(xml);
       }
       catch (XmlException ex)
@@ -958,8 +926,6 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.TvdbLib
       {
         link = TvdbLinkCreator.CreateActorLink(seriesId, _apiKey);
         xml = DownloadString(link);
-        if (string.IsNullOrEmpty(xml))
-          return new List<TvdbActor>();
         //add series id to actors
         List<TvdbActor> actors = _xmlHandler.ExtractActors(xml);
 
@@ -993,8 +959,6 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.TvdbLib
       {
         link = TvdbLinkCreator.CreateAllSeriesRatingsLink(_apiKey, userId);
         xml = DownloadString(link);
-        if (string.IsNullOrEmpty(xml))
-          return new Dictionary<int, TvdbRating>();
         return _xmlHandler.ExtractRatings(xml, TvdbRating.ItemType.Series);
       }
       catch (XmlException ex)
@@ -1027,8 +991,6 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.TvdbLib
       {
         link = TvdbLinkCreator.CreateSeriesRatingsLink(_apiKey, userId, seriesId);
         xml = DownloadString(link);
-        if (string.IsNullOrEmpty(xml))
-          return new Dictionary<int, TvdbRating>();
         Dictionary<int, TvdbRating> retList = _xmlHandler.ExtractRatings(xml, TvdbRating.ItemType.Series);
         Dictionary<int, TvdbRating> episodeList = _xmlHandler.ExtractRatings(xml, TvdbRating.ItemType.Episode);
         if (retList != null && episodeList != null && retList.Count > 0)
