@@ -254,7 +254,7 @@ namespace MediaPortal.Extensions.OnlineLibraries
 
     protected override bool Init()
     {
-      if (NetworkUtils.IsNetworkConnected())
+      if (!NetworkUtils.IsNetworkConnected())
         return false;
 
       if (_tv != null)
