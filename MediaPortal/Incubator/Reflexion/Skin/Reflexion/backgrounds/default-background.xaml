@@ -7,7 +7,7 @@ Default background image - no media present
 <Screen
     xmlns="www.team-mediaportal.com/2008/mpf/directx"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-    xmlns:test="clr-namespace:MediaPortal.UiComponents.BackgroundManager.Models;assembly=BackgroundManager"
+    xmlns:bm="clr-namespace:MediaPortal.UiComponents.BackgroundManager.Models;assembly=BackgroundManager"
     x:Name="DefaultBackgroundScreen"
     >
   <!-- Morpheus_xx: temporary disabled for testing new video background and finding problem after background screen restore
@@ -26,7 +26,7 @@ Default background image - no media present
       </EventTrigger>
     </Grid.Triggers>
     <Grid.Background>
-      <test:BackgroundVideoBrush VideoPlayer="{Binding Source={StaticResource VideoBackgroundModel},Path=VideoPlayer}"/>
+      <bm:BackgroundVideoBrush VideoPlayer="{Binding Source={StaticResource VideoBackgroundModel},Path=VideoPlayer}"/>
     </Grid.Background>
     <Grid.ColumnDefinitions>
       <ColumnDefinition Width="*"/>
