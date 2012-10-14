@@ -139,6 +139,7 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
         if (background == null)
           return false;
         background.Prepare();
+        background.TriggerScreenShowingEvent();
         lock (_parent.SyncObj)
           _backgroundScreen = background;
         return true;
@@ -151,6 +152,8 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
         {
           if (_backgroundScreen == null)
             return;
+          _backgroundScreen.ScreenState = Screen.State.Closing;
+          _backgroundScreen.TriggerScreenClosingEvent();
           _backgroundScreen.ScreenState = Screen.State.Closed;
           Screen oldBackground = _backgroundScreen;
           _backgroundScreen = null;
