@@ -26,6 +26,7 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Threading;
 using System.Windows;
 using System.Windows.Interop;
@@ -38,6 +39,7 @@ using MediaPortal.Common.PathManager;
 using MediaPortal.ServiceMonitor.Collections;
 using MediaPortal.ServiceMonitor.Model;
 using MediaPortal.ServiceMonitor.UPNP;
+using MediaPortal.ServiceMonitor.Utilities;
 using MediaPortal.ServiceMonitor.View;
 using System.ServiceProcess;
 using MediaPortal.Utilities.SystemAPI;
@@ -49,7 +51,7 @@ namespace MediaPortal.ServiceMonitor.ViewModel
   /// </summary>
   public class AppController : IDisposable, INotifyPropertyChanged, IAppController, IMessageReceiver
   {
-
+    
     #region Constants
     private const string SERVER_SERVICE_NAME = "MP2-Server"; // the name of the installed MP2 Server Service
     protected const string AUTOSTART_REGISTER_NAME = "MP2 ServiceMonitor";
@@ -68,6 +70,7 @@ namespace MediaPortal.ServiceMonitor.ViewModel
 
     private readonly SynchronizationContext _synchronizationContext; // to avoid cross thread calls
     private ServerConnectionMessaging.MessageType _serverConnectionStatus; // store last server connection status
+    private WindowMessageSink _messageSink;
 
     #endregion
 
@@ -199,11 +202,16 @@ namespace MediaPortal.ServiceMonitor.ViewModel
     public void ShowMainWindow()
     {
       ServiceRegistration.Get<ILogger>().Debug("ShowMainWindow");
+      
+      if (Application.Current.MainWindow.WindowState == WindowState.Minimized)
+        Application.Current.MainWindow.WindowState = WindowState.Normal;
+
       //just show the window on top of others
+      Application.Current.MainWindow.Visibility = Visibility.Visible;
       Application.Current.MainWindow.ShowInTaskbar = true;
-      Application.Current.MainWindow.Visibility = Visibility.Visible; ;
       Application.Current.MainWindow.Focus();
       Application.Current.MainWindow.Activate();
+      OnPropertyChanged("ServerStatus");
     }
 
     /// <summary>
@@ -231,19 +239,21 @@ namespace MediaPortal.ServiceMonitor.ViewModel
       //deregister event listener
       ((Window) sender).SourceInitialized -= OnMainWindowSourceInitialized;
 
-      var app = Application.Current;
-      var windowHandle = (new WindowInteropHelper(app.MainWindow)).Handle;
-      var src = HwndSource.FromHwnd(windowHandle);
-      if (src != null) src.AddHook(new HwndSourceHook(WndProc));
+      _messageSink = new WindowMessageSink();
+      _messageSink.OnWinProc += WndProc;
     }
 
-    private IntPtr WndProc(IntPtr hWnd, int msg, IntPtr wParam, IntPtr lParam, ref bool handled)
+    
+    private void WndProc(object sender, uint msg, uint wParam, uint lParam)
     {
+      if (msg == WinApi.MP2_SHOWME)
+        ShowMainWindow();
+      
       if (msg == WM_POWERBROADCAST)
       {
         ServiceRegistration.Get<ILogger>().Debug("WndProc: [{0}]", wParam);
         var serverConnectionManager = (ServerConnectionManager)ServiceRegistration.Get<IServerConnectionManager>();
-        switch (wParam.ToInt32())
+        switch (wParam)
         {
           case PBT_APMSUSPEND:
             ServiceRegistration.Get<ILogger>().Debug("WndProc: Suspend");
@@ -260,7 +270,6 @@ namespace MediaPortal.ServiceMonitor.ViewModel
             break;
         }
       }
-      return IntPtr.Zero;
     }
     
     /// <summary>
@@ -292,12 +301,11 @@ namespace MediaPortal.ServiceMonitor.ViewModel
         ServiceRegistration.Get<ILogger>().Debug("ClosingMainApplication");
         //deregister event listener, if required
         Application.Current.MainWindow.Closing -= OnMainWindowClosing;
-        
-        // remove the hook when MainWindow is closing
-        var windowHandle = (new WindowInteropHelper(Application.Current.MainWindow)).Handle;
-        var src = HwndSource.FromHwnd(windowHandle);
-        if (src != null) src.RemoveHook(new HwndSourceHook(this.WndProc));
 
+        _messageSink.OnWinProc -= WndProc;
+        _messageSink.Dispose();
+        _messageSink = null;
+        
         //reset main window in order to prevent further code
         //to close it again while it is being closed
         Application.Current.MainWindow = null;

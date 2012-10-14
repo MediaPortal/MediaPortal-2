@@ -100,6 +100,8 @@
     <Compile Include="UPNP\SystemResolver.cs" />
     <Compile Include="Utilities\Localization.cs" />
     <Compile Include="Utilities\UacServiceHelper.cs" />
+    <Compile Include="Utilities\WinApi.cs" />
+    <Compile Include="Utilities\WindowMessageSink.cs" />
     <Compile Include="ViewModel\IAppController.cs" />
     <Compile Include="View\AboutDialog.xaml.cs">
       <DependentUpon>AboutDialog.xaml</DependentUpon>

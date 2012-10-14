@@ -44,6 +44,7 @@ using MediaPortal.Common.Exceptions;
 using MediaPortal.Common.Services.Runtime;
 using MediaPortal.Common.SystemResolver;
 using MediaPortal.ServiceMonitor.UPNP;
+using MediaPortal.ServiceMonitor.Utilities;
 using MediaPortal.ServiceMonitor.ViewModel;
 using Localization = MediaPortal.ServiceMonitor.Utilities.Localization;
 
@@ -127,18 +128,13 @@ namespace MediaPortal.ServiceMonitor
     /// </summary>
     private static void SwitchToCurrentInstance()
     {
-      var hWnd = GetCurrentInstanceWindowHandle();
-      if (hWnd == IntPtr.Zero) return;
-      // Restore window if minimised. Do not restore if already in
-      // normal or maximised window state, since we don't want to
-      // change the current state of the window.
-      if (IsIconic(hWnd) != 0)
-      {
-        ShowWindow(hWnd, SW_RESTORE);
-      }
-
-      // Set foreground window.
-      SetForegroundWindow(hWnd);
+      // send our Win32 message to make the currently running instance
+      // jump on top of all the other windows
+      WinApi.PostMessage(
+          (IntPtr)WinApi.HWND_BROADCAST,
+          WinApi.MP2_SHOWME,
+          IntPtr.Zero,
+          IntPtr.Zero);
     }
     
     /// <summary>
