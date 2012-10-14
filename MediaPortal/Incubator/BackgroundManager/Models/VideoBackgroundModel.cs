@@ -23,18 +23,22 @@
 #endregion
 
 using System;
+using System.IO;
 using MediaPortal.Common;
 using MediaPortal.Common.General;
+using MediaPortal.Common.Messaging;
 using MediaPortal.Common.ResourceAccess;
+using MediaPortal.Common.Runtime;
 using MediaPortal.Common.Services.ResourceAccess;
 using MediaPortal.Common.Settings;
 using MediaPortal.UI.Players.Video;
 using MediaPortal.UI.SkinEngine.Players;
+using MediaPortal.UiComponents.BackgroundManager.Helper;
 using MediaPortal.UiComponents.BackgroundManager.Settings;
 
 namespace MediaPortal.UiComponents.BackgroundManager.Models
 {
-  public class VideoBackgroundModel: IDisposable
+  public class VideoBackgroundModel : IDisposable
   {
     public const string MODEL_ID_STR = "441288AC-F88D-4186-8993-6E259F7C75D8";
 
@@ -42,6 +46,7 @@ namespace MediaPortal.UiComponents.BackgroundManager.Models
     protected VideoPlayer _videoPlayer;
     protected AbstractProperty _videoPlayerProperty;
     protected AbstractProperty _isEnabledProperty;
+    protected AsynchronousMessageQueue _messageQueue;
 
     #region Protected fields
 
@@ -71,16 +76,41 @@ namespace MediaPortal.UiComponents.BackgroundManager.Models
 
     public VideoBackgroundModel()
     {
+      _videoPlayerProperty = new SProperty(typeof(ISlimDXVideoPlayer), null);
+      _isEnabledProperty = new SProperty(typeof(bool), false);
+      _messageQueue = new AsynchronousMessageQueue(this, new[] { BackgroundManagerMessaging.CHANNEL });
+      _messageQueue.MessageReceived += OnMessageReceived;
+      _messageQueue.Start();
+      RefreshSettings();
+    }
+
+    protected void OnMessageReceived(AsynchronousMessageQueue queue, SystemMessage message)
+    {
+      if (message.ChannelName == BackgroundManagerMessaging.CHANNEL)
+      {
+        BackgroundManagerMessaging.MessageType messageType = (BackgroundManagerMessaging.MessageType) message.MessageType;
+        if (messageType == BackgroundManagerMessaging.MessageType.SettingsChanged)
+          RefreshSettings(true);
+      }
+    }
+
+    /// <summary>
+    /// Loads settings on startup or when changed inside configuration.
+    /// </summary>
+    protected void RefreshSettings(bool refresh = false)
+    {
+      EndBackgroundPlayback();
       BackgroundManagerSettings settings = ServiceRegistration.Get<ISettingsManager>().Load<BackgroundManagerSettings>();
       _videoFilename = settings.VideoBackgroundFileName;
-
-      _videoPlayerProperty = new SProperty(typeof(ISlimDXVideoPlayer), null);
-      _isEnabledProperty = new SProperty(typeof(bool), settings.EnableVideoBackground);
+      IsEnabled = settings.EnableVideoBackground && !string.IsNullOrEmpty(_videoFilename) && File.Exists(_videoFilename);
+      if (IsEnabled && refresh)
+        StartBackgroundPlayback();
     }
 
     public void Dispose()
     {
       EndBackgroundPlayback();
+      _messageQueue.Shutdown();
     }
 
     public void EndBackgroundPlayback()
