@@ -17,6 +17,14 @@ Default background image - no media present
     <Grid.Resources>
       <Model x:Key="VideoBackgroundModel" Id="441288AC-F88D-4186-8993-6E259F7C75D8"/>
     </Grid.Resources>
+    <Grid.Triggers>
+      <EventTrigger RoutedEvent="Screen.Show">
+        <TriggerCommand Command="{Command Source={StaticResource VideoBackgroundModel}, Path=StartBackgroundPlayback}"/>
+      </EventTrigger>
+      <EventTrigger RoutedEvent="Screen.Hide">
+        <TriggerCommand Command="{Command Source={StaticResource VideoBackgroundModel}, Path=EndBackgroundPlayback}"/>
+      </EventTrigger>
+    </Grid.Triggers>
     <Grid.Background>
       <test:BackgroundVideoBrush VideoPlayer="{Binding Source={StaticResource VideoBackgroundModel},Path=VideoPlayer}"/>
     </Grid.Background>
