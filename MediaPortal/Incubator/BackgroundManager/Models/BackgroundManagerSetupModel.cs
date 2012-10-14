@@ -32,6 +32,7 @@ using MediaPortal.Common.Settings;
 using MediaPortal.UI.Presentation.Models;
 using MediaPortal.UI.Presentation.Utilities;
 using MediaPortal.UI.Presentation.Workflow;
+using MediaPortal.UiComponents.BackgroundManager.Helper;
 using MediaPortal.UiComponents.BackgroundManager.Settings;
 using MediaPortal.Utilities;
 
@@ -90,6 +91,7 @@ namespace MediaPortal.UiComponents.BackgroundManager.Models
       settings.VideoBackgroundFileName = BackgroundVideoFilename;
       settings.EnableVideoBackground = IsEnabled;
       settingsManager.Save(settings);
+      BackgroundManagerMessaging.SendMessage(BackgroundManagerMessaging.MessageType.SettingsChanged);
     }
 
 
