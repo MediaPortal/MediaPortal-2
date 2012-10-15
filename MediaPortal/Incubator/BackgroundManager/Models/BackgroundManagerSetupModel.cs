@@ -45,7 +45,7 @@ namespace MediaPortal.UiComponents.BackgroundManager.Models
   public class BackgroundManagerSetupModel : IWorkflowModel
   {
     public const string BACKGROUND_SETUP_MODEL_ID_STR = "5054832A-C20D-448E-AA08-A8B2826D1C31";
-    public const string RES_HEADER_CHOOSE_VIDEO = "[Settings.Appearance.Skin.Background.ChooseVideo]";
+    public const string RES_HEADER_CHOOSE_VIDEO = "[Settings.Appearance.Skin.Background.Setup.SelectVideo]";
     
     protected AbstractProperty _backgroundVideoFilenameProperty;
     protected AbstractProperty _isEnabledProperty;
