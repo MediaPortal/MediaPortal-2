@@ -7,6 +7,7 @@
     DependsOnStyleResources="Colors,Buttons"
     >
 
+  <ResourceWrapper x:Key="NewsItemLogoWidth" Resource="56"/>
   <ResourceWrapper x:Key="NewsItemDetailsImageMaxHeight" Resource="150"/>
   <ResourceWrapper x:Key="NewsItemHeight" Resource="56"/>
   <ResourceWrapper x:Key="NewsItemDateWidth" Resource="56"/>
@@ -29,7 +30,7 @@
       <Grid Grid.Column="1" Grid.RowSpan="2" HorizontalAlignment="Right" VerticalAlignment="Top">
         <Grid.ColumnDefinitions>
           <ColumnDefinition Width="*"/>
-          <ColumnDefinition Width="48"/>
+          <ColumnDefinition Width="{ThemeResource NewsItemLogoWidth}"/>
         </Grid.ColumnDefinitions>
         <Grid.RowDefinitions>
           <RowDefinition Height="*"/>
@@ -66,7 +67,7 @@
       </Grid>
       <Rectangle Grid.Row="1" Height="1" Stretch="Fill" Fill="{ThemeResource NewsItemSeparatorBrush}"/>
       <Label Grid.Row="2" FontSize="{ThemeResource TinyFontSize}" Color="{ThemeResource TextColor}" Content="{Binding Summary}" Wrap="true"/>
-      <Image Grid.Column="1" Grid.RowSpan="3" MaxWidth="{ThemeResource NewsItemHeight}" Stretch="Uniform" Source="{Binding Thumb}" Margin="8,0,0,0"/>
+      <Image Grid.Column="1" Grid.RowSpan="3" MaxWidth="{ThemeResource NewsItemLogoWidth}" Stretch="UniformToFill" Source="{Binding Thumb}" Margin="8,0,0,0"/>
     </Grid>
   </DataTemplate>
 
