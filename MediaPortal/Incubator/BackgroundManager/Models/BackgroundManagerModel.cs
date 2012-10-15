@@ -38,7 +38,7 @@ namespace MediaPortal.UiComponents.BackgroundManager.Models
     public static Guid BGM_MODEL_ID = new Guid(BGM_MODEL_ID_STR);
     protected const string ITEM_ACTION_KEY = "MenuModel: Item-Action";
 
-    private readonly string[] _allowedImageExtensions = new string[] { ".jpg", ".png" };
+    private readonly string[] _allowedImageExtensions = new[] { ".jpg", ".png" };
     private const string DEFAULT_BACKGROUND = "defaultBackground.jpg";
 
     #endregion
@@ -119,7 +119,6 @@ namespace MediaPortal.UiComponents.BackgroundManager.Models
 
       string defaultFilePath = SkinContext.SkinResources.GetResourceFilePath(string.Format("{0}\\{1}", SkinResources.IMAGES_DIRECTORY, DEFAULT_BACKGROUND));
       BackgroundImage = String.IsNullOrEmpty(defaultFilePath) ? null : DEFAULT_BACKGROUND;
-      return;
     }
   }
 }
