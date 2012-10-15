@@ -205,9 +205,13 @@ namespace MediaPortal.UiComponents.News
 
     string GetItemSummary(SyndicationItem item)
     {
-      if (item.Summary != null)
-        return PlainTextFromHtml(item.Summary.Text);
-      else if (item.Content != null)
+      // first try extended content
+      string result = GetItemContentFromExtension(item);
+      if (!string.IsNullOrWhiteSpace(result))
+        return PlainTextFromHtml(result);
+
+      // then check if a content is set
+      if (item.Content != null)
       {
         var textContent = item.Content as TextSyndicationContent;
         if (textContent != null)
@@ -215,43 +219,79 @@ namespace MediaPortal.UiComponents.News
           return PlainTextFromHtml(textContent.Text);
         }
       }
+
+      // use the summary
+      if (item.Summary != null)
+        return PlainTextFromHtml(item.Summary.Text);
+
       return string.Empty;
     }
 
     string GetItemThumb(SyndicationItem item)
     {
+      // check all links
       var link = item.Links.FirstOrDefault(l => l.Uri != null && l.MediaType != null && l.MediaType.StartsWith("image"));
       if (link != null)
       {
         return GetCachedOrDownloadImage(link.Uri);
       }
-      else if (item.Content != null)
+      // check the Content
+      if (item.Content != null)
       {
         var textContent = item.Content as TextSyndicationContent;
         if (textContent != null)
         {
-          string text = textContent.Text;
-          if (!string.IsNullOrWhiteSpace(text))
+          string image = GetImageFromText(textContent.Text);
+          if (!string.IsNullOrWhiteSpace(image)) return image;
+        }
+      }
+      // check extended content
+      string result = GetImageFromText(GetItemContentFromExtension(item));
+      if (!string.IsNullOrWhiteSpace(result)) return result;
+
+      return string.Empty;
+    }
+
+    string GetImageFromText(string text)
+    {
+      if (!string.IsNullOrWhiteSpace(text))
+      {
+        var match = Regex.Match(text, @"<img.*?src=""(?<src>[^""]+)""", RegexOptions.IgnoreCase | RegexOptions.Multiline | RegexOptions.Singleline | RegexOptions.ExplicitCapture);
+        if (match.Success)
+        {
+          string src = match.Groups["src"].Value;
+          if (!string.IsNullOrWhiteSpace(src))
           {
-            var match = Regex.Match(text, @"<img.*?src=""(?<src>[^""]+)""", RegexOptions.IgnoreCase | RegexOptions.Multiline | RegexOptions.Singleline | RegexOptions.ExplicitCapture);
-            if (match.Success)
+            Uri imgUrl;
+            if (Uri.TryCreate(src, UriKind.Absolute, out imgUrl))
             {
-              string src = match.Groups["src"].Value;
-              if (!string.IsNullOrWhiteSpace(src))
+              string result = GetCachedOrDownloadImage(imgUrl);
+              if (!string.IsNullOrWhiteSpace(result))
               {
-                Uri imgUrl;
-                if (Uri.TryCreate(src, UriKind.Absolute, out imgUrl))
-                {
-                  string result = GetCachedOrDownloadImage(imgUrl);
-                  if (!string.IsNullOrWhiteSpace(result))
-                  {
-                    return result;
-                  }
-                }
+                return result;
               }
-              match = match.NextMatch();
             }
           }
+          match = match.NextMatch();
+        }
+      }
+      return string.Empty;
+    }
+
+    /// <summary>
+    /// Rss allows extensions. We are interested in one particular, the Content module.
+    /// It allows to define the full content of an item with the encoded element.
+    /// Namespace: http://purl.org/rss/1.0/modules/content/
+    /// </summary>
+    /// <returns></returns>
+    string GetItemContentFromExtension(SyndicationItem item)
+    {
+      if (item.ElementExtensions != null)
+      {
+        var encoded = item.ElementExtensions.FirstOrDefault(e => e.OuterNamespace == "http://purl.org/rss/1.0/modules/content/" && e.OuterName == "encoded");
+        if (encoded != null)
+        {
+          return encoded.GetReader().ReadElementContentAsString();
         }
       }
       return string.Empty;

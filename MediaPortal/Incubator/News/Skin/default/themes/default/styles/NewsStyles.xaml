@@ -52,17 +52,17 @@
       </Grid.RowDefinitions>
       <Grid>
         <Grid.ColumnDefinitions>
-          <ColumnDefinition Width="60"/>
+          <ColumnDefinition Width="Auto"/>
           <ColumnDefinition Width="1"/>
           <ColumnDefinition Width="*"/>
         </Grid.ColumnDefinitions>
         <Label FontSize="{ThemeResource TinyFontSize}" Color="{ThemeResource TextColor}" Content="{Binding Path=PublishDate, Converter={StaticResource DateFormatConverter}, ConverterParameter=g}" Wrap="true" HorizontalAlignment="Right"/>
         <Rectangle Grid.Column="1" Width="1" Stretch="Fill" Fill="{ThemeResource NewsItemSeparatorBrush}"/>
-        <Label Grid.Column="2" FontSize="16" Color="{ThemeResource TextColor}" Content="{Binding Title}" VerticalAlignment="Top" Margin="5,0,0,5"/>
+        <Label Grid.Column="2" FontSize="{ThemeResource SmallerFontSize}" Color="{ThemeResource TextColor}" Content="{Binding Title}" VerticalAlignment="Top" Margin="5,0,0,5"/>
       </Grid>
       <Rectangle Grid.Row="1" Height="1" Stretch="Fill" Fill="{ThemeResource NewsItemSeparatorBrush}"/>
       <Label Grid.Row="2" FontSize="{ThemeResource TinyFontSize}" Color="{ThemeResource TextColor}" Content="{Binding Summary}" Wrap="true"/>
-      <Image Grid.Column="1" Grid.RowSpan="3" Stretch="Uniform" Source="{Binding Thumb}" Margin="5,0,0,0"/>
+      <Image Grid.Column="1" Grid.RowSpan="3" MaxWidth="56" Stretch="Uniform" Source="{Binding Thumb}" Margin="5,0,0,0"/>
     </Grid>
   </DataTemplate>
 
