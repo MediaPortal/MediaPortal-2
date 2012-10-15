@@ -7,9 +7,10 @@
     DependsOnStyleResources="Colors,Buttons"
     >
 
+  <ResourceWrapper x:Key="NewsItemLogoWidth" Resource="120"/>
   <ResourceWrapper x:Key="NewsItemDetailsImageMaxHeight" Resource="200"/>
-  <ResourceWrapper x:Key="NewsItemHeight" Resource="91"/>
+  <ResourceWrapper x:Key="NewsItemHeight" Resource="105"/>
   <ResourceWrapper x:Key="NewsItemDateWidth" Resource="118"/>
   <ResourceWrapper x:Key="NewsItemTitleMargin" Resource="5,7,5,7"/>
-  
-  </ResourceDictionary>
+
+</ResourceDictionary>
