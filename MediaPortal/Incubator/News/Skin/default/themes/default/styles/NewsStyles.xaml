@@ -7,11 +7,15 @@
     DependsOnStyleResources="Colors,Buttons"
     >
 
-  <SolidColorBrush x:Key="NewsItemSeparatorBrush" Color="{ThemeResource TextColor}"/>
+  <ResourceWrapper x:Key="NewsItemDetailsImageMaxHeight" Resource="150"/>
+  <ResourceWrapper x:Key="NewsItemHeight" Resource="56"/>
+  <ResourceWrapper x:Key="NewsItemDateWidth" Resource="56"/>
+  <ResourceWrapper x:Key="NewsItemTitleMargin" Resource="5,0,5,1"/>
+  <SolidColorBrush x:Key="NewsItemSeparatorBrush" Color="{ThemeResource HintTextColor}"/>
   
   <!-- Style for a single feed item -->
   <DataTemplate x:Key="NewsFeedDataTemplate" DataType="{x:Type collections:ListItem}">
-    <Grid Height="56" Margin="5,0,5,0">
+    <Grid Height="{ThemeResource NewsItemHeight}" Margin="5,0,5,0">
 		  <Grid.ColumnDefinitions>
 			  <ColumnDefinition Width="*"/>
 			  <ColumnDefinition Width="Auto"/>
@@ -40,7 +44,7 @@
 
   <!-- Style for a single news item -->
   <DataTemplate x:Key="NewsItemDataTemplate" DataType="{x:Type collections:ListItem}">
-    <Grid Height="56" Margin="5,5,5,0">
+    <Grid Height="{ThemeResource NewsItemHeight}" Margin="5,5,5,0">
       <Grid.ColumnDefinitions>
         <ColumnDefinition Width="*"/>
         <ColumnDefinition Width="Auto"/>
@@ -56,13 +60,13 @@
           <ColumnDefinition Width="1"/>
           <ColumnDefinition Width="*"/>
         </Grid.ColumnDefinitions>
-        <Label FontSize="{ThemeResource TinyFontSize}" Color="{ThemeResource TextColor}" Content="{Binding Path=PublishDate, Converter={StaticResource DateFormatConverter}, ConverterParameter=g}" Wrap="true" HorizontalAlignment="Right"/>
+        <Label MaxWidth="{ThemeResource NewsItemDateWidth}" FontSize="{ThemeResource TinyFontSize}" Color="{ThemeResource TextColor}" Content="{Binding Path=PublishDate, Converter={StaticResource DateFormatConverter}, ConverterParameter=g}" Wrap="true" HorizontalAlignment="Right" Margin="0,0,5,0"/>
         <Rectangle Grid.Column="1" Width="1" Stretch="Fill" Fill="{ThemeResource NewsItemSeparatorBrush}"/>
-        <Label Grid.Column="2" FontSize="{ThemeResource SmallerFontSize}" Color="{ThemeResource TextColor}" Content="{Binding Title}" VerticalAlignment="Top" Margin="5,0,0,5"/>
+        <Label Grid.Column="2" FontSize="{ThemeResource SmallerFontSize}" Color="{ThemeResource TextColor}" Content="{Binding Title}" VerticalAlignment="Top" Margin="{ThemeResource NewsItemTitleMargin}"/>
       </Grid>
       <Rectangle Grid.Row="1" Height="1" Stretch="Fill" Fill="{ThemeResource NewsItemSeparatorBrush}"/>
       <Label Grid.Row="2" FontSize="{ThemeResource TinyFontSize}" Color="{ThemeResource TextColor}" Content="{Binding Summary}" Wrap="true"/>
-      <Image Grid.Column="1" Grid.RowSpan="3" MaxWidth="56" Stretch="Uniform" Source="{Binding Thumb}" Margin="5,0,0,0"/>
+      <Image Grid.Column="1" Grid.RowSpan="3" MaxWidth="{ThemeResource NewsItemHeight}" Stretch="Uniform" Source="{Binding Thumb}" Margin="8,0,0,0"/>
     </Grid>
   </DataTemplate>
 

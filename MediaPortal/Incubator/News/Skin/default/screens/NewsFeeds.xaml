@@ -15,15 +15,26 @@
     <!-- Contents -->
     <ControlTemplate x:Key="Contents_Template">
       <DockPanel DataContext="{Binding Source={StaticResource Model}}">
-        <!-- Feeds -->
-        <ListView Margin="10" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+        <Grid HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+          <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*"/>
+          </Grid.ColumnDefinitions>
+          <Grid.RowDefinitions>
+            <RowDefinition Height="*"/>
+          </Grid.RowDefinitions>
+          <!-- Feeds -->
+          <ListView Margin="10" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
               Style="{ThemeResource NewsFeedsContainerStyle}"
               ItemsSource="{Binding Path=Feeds}" >
-          <ListView.Resources>
-            <Command x:Key="Menu_Command" Source="{StaticResource Model}" Path="Select"
+            <ListView.Resources>
+              <Command x:Key="Menu_Command" Source="{StaticResource Model}" Path="Select"
                   Parameters="{LateBoundValue BindingValue={Binding}}"/>
-          </ListView.Resources>
-        </ListView>
+            </ListView.Resources>
+          </ListView>
+          <!-- Updating Overlay -->
+          <Label Content="Refreshing Data ..." IsVisible="{Binding IsUpdating}" 
+                 Color="{ThemeResource HintTextColor}" FontSize="{ThemeResource HugeFontSize}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+        </Grid>
       </DockPanel>
     </ControlTemplate>
 

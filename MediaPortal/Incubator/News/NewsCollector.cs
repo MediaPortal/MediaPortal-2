@@ -4,11 +4,11 @@ using System.Linq;
 using System.ServiceModel.Syndication;
 using System.Text;
 using System.Text.RegularExpressions;
-using System.Threading;
 using System.Xml;
 using MediaPortal.Common;
 using MediaPortal.Common.Logging;
 using MediaPortal.Common.PathManager;
+using MediaPortal.Common.Threading;
 using MediaPortal.UiComponents.News.Models;
 
 namespace MediaPortal.UiComponents.News
@@ -30,15 +30,21 @@ namespace MediaPortal.UiComponents.News
 
     protected Random random = new Random();
     protected object syncObj = new object();
-    protected Timer timer = null;
     protected DateTime lastWebRefresh = DateTime.MinValue;
     protected NewsItem lastRandomNewsItem = null;
     protected List<NewsFeed> feeds = new List<NewsFeed>();
     protected bool refeshInProgress = false;
+    IntervalWork work = null;
 
     public NewsCollector()
     {
-        timer = new Timer(RefreshFeeds, null, 0, NEWSFEEDS_UPDATE_INTERVAL);
+      work = new IntervalWork(RefreshFeeds, TimeSpan.FromMilliseconds(NEWSFEEDS_UPDATE_INTERVAL));
+      ServiceRegistration.Get<IThreadPool>().AddIntervalWork(work, true);
+    }
+
+    public void Dispose()
+    {
+      ServiceRegistration.Get<IThreadPool>().RemoveIntervalWork(work);
     }
 
     public NewsItem GetRandomNewsItem()
@@ -55,30 +61,17 @@ namespace MediaPortal.UiComponents.News
     }
 
     public bool IsRefeshing { get { return refeshInProgress; } }
+    public event Action RefeshStarted;
+    public event Action<INewsCollector> RefeshFinished;
 
-    public event Action<INewsCollector> Refeshed;
-
-    public void Dispose()
-    {
-      WaitHandle notifyObject;
-      lock (syncObj)
-      {
-        if (timer == null)
-          return;
-        notifyObject = new ManualResetEvent(false);
-        timer.Dispose(notifyObject);
-        timer = null;
-      }
-      notifyObject.WaitOne();
-      notifyObject.Close();
-    }
-
-    void RefreshFeeds(object state)
+    void RefreshFeeds()
     {
       if (refeshInProgress) return;
       lock (syncObj)
       {
         refeshInProgress = true;
+        var refreshStartedEvent = RefeshStarted;
+        if (refreshStartedEvent != null) refreshStartedEvent();
         try
         {
           List<NewsFeed> freshFeeds = new List<NewsFeed>();
@@ -103,8 +96,8 @@ namespace MediaPortal.UiComponents.News
         finally
         {
           refeshInProgress = false;
-          var refeshedEvent = Refeshed;
-          if (refeshedEvent != null) Refeshed(this);
+          var refeshFinishedEvent = RefeshFinished;
+          if (refeshFinishedEvent != null) refeshFinishedEvent(this);
         }
       }
     }
