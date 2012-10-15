@@ -45,7 +45,7 @@ namespace MediaPortal.UI.SkinEngine.MpfElements.Converters
       if (parameter != null)
         format = parameter.ToString();
 
-      result = ((DateTime) val).ToString(format);
+      result = ((DateTime) val).ToString(format, culture);
       return true;
     }
 

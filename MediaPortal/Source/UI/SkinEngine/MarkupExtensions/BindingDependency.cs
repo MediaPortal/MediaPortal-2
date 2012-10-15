@@ -24,6 +24,8 @@
 
 using System;
 using System.Globalization;
+using MediaPortal.Common;
+using MediaPortal.Common.Localization;
 using MediaPortal.UI.SkinEngine.Controls.Visuals;
 using MediaPortal.UI.SkinEngine.MpfElements;
 using MediaPortal.UI.SkinEngine.Xaml;
@@ -125,14 +127,14 @@ namespace MediaPortal.UI.SkinEngine.MarkupExtensions
     protected bool Convert(object val, Type targetType, out object result)
     {
       if (_valueConverter != null)
-        return _valueConverter.Convert(val, targetType, _converterParameter, CultureInfo.InvariantCulture, out result);
+        return _valueConverter.Convert(val, targetType, _converterParameter, ServiceRegistration.Get<ILocalization>().CurrentCulture, out result);
       return TypeConverter.Convert(val, targetType, out result);
     }
 
     protected bool ConvertBack(object val, Type targetType, out object result)
     {
       if (_valueConverter != null)
-        return _valueConverter.ConvertBack(val, targetType, _converterParameter, CultureInfo.InvariantCulture, out result);
+        return _valueConverter.ConvertBack(val, targetType, _converterParameter, ServiceRegistration.Get<ILocalization>().CurrentCulture, out result);
       return TypeConverter.Convert(val, targetType, out result);
     }
 
