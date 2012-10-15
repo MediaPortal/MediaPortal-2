@@ -301,6 +301,23 @@
       <GradientStop Offset="1" Color="#A0000000"/>
     </LinearGradientBrush>
   </ResourceWrapper>
+  
+  <!-- Content border style (master_menu.xaml) -->
+  <ResourceWrapper x:Key="ContentBorderOpacityMask">
+    <LinearGradientBrush EndPoint="0.5,1" StartPoint="0,0">
+      <GradientStop Color="#2E000000" Offset="0"/>
+      <GradientStop Color="#C8444444" Offset="0.148"/>
+      <GradientStop Color="#AD656565" Offset="0.291"/>
+      <GradientStop Color="#5B8A8A8A" Offset="0.457"/>
+      <GradientStop Color="#87A4A4A4" Offset="0.691"/>
+      <GradientStop Color="#70CACACA" Offset="0.796"/>
+      <GradientStop Color="#83F4F4F4" Offset="0.9"/>
+      <GradientStop Color="#56FFFFFF" Offset="1"/>
+    </LinearGradientBrush>
+  </ResourceWrapper>
+  <ResourceWrapper x:Key="ContentBorderBrush" Resource="{ThemeResource ReflexionBorderStroke}" />
+  <ResourceWrapper x:Key="ContentBorderCornerRadius" Resource="6" />  <!-- should be same as ButtonRadius -->
+  <ResourceWrapper x:Key="ContentBorderThickness" Resource="1" />
 
   <!-- Colors and gradients used for buttons shine and OSD progress / control area -->
   <ResourceWrapper x:Key="ShineGradientStartColor" Resource="#FFA0C0FF" />
