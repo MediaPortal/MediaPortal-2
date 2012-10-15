@@ -9,6 +9,7 @@ namespace MediaPortal.UiComponents.News
     NewsItem GetRandomNewsItem();
     List<NewsFeed> GetAllFeeds();
     bool IsRefeshing { get; }
-    event Action<INewsCollector> Refeshed;
+    event Action RefeshStarted;
+    event Action<INewsCollector> RefeshFinished;
   }
 }

@@ -2,5 +2,6 @@
 <resources>
 	<string name="News.Title">News</string>
 	<string name="News.FeedsStateDisplayLabel">News</string>
+	<string name="News.Published">Published</string>
 	<string name="Settings.Plugins.News">News</string>
 </resources>

@@ -16,11 +16,9 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x86'">
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
-
     <OutputPath>bin\x86\Debug\</OutputPath>
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
-
     <PlatformTarget>x86</PlatformTarget>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x86'">
@@ -29,7 +27,6 @@
     <OutputPath>bin\x86\Release\</OutputPath>
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
-
     <PlatformTarget>x86</PlatformTarget>
   </PropertyGroup>
   <ItemGroup>
@@ -64,6 +61,7 @@
     <Content Include="plugin.xml">
       <SubType>Designer</SubType>
     </Content>
+    <Content Include="Skin\default\themes\default\images\BB49A591-7705-408F-8177-45D633FDFAD0.png" />
     <Content Include="Skin\default\themes\default\images\RssIcon.png" />
     <Content Include="Skin\default\workflow\news-actions.xml" />
   </ItemGroup>
@@ -96,6 +94,11 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="Skin\default\screens\NewsItemDetail.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Skin\Reflexion\themes\default\styles\NewsStyles.xaml">
       <SubType>Designer</SubType>
     </Content>
   </ItemGroup>
