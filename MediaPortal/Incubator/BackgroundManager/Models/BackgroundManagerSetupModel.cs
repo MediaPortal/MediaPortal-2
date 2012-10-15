@@ -29,6 +29,7 @@ using MediaPortal.Common;
 using MediaPortal.Common.General;
 using MediaPortal.Common.ResourceAccess;
 using MediaPortal.Common.Settings;
+using MediaPortal.Extensions.MetadataExtractors.VideoMetadataExtractor.Settings;
 using MediaPortal.UI.Presentation.Models;
 using MediaPortal.UI.Presentation.Utilities;
 using MediaPortal.UI.Presentation.Workflow;
@@ -97,6 +98,9 @@ namespace MediaPortal.UiComponents.BackgroundManager.Models
 
     public void ChooseBackgroundVideo()
     {
+      ISettingsManager settingsManager = ServiceRegistration.Get<ISettingsManager>();
+      VideoMetadataExtractorSettings mdeSettings = settingsManager.Load<VideoMetadataExtractorSettings>();
+
       string videoFilename = BackgroundVideoFilename;
       string initialPath = string.IsNullOrEmpty(videoFilename) ? null : DosPathHelper.GetDirectory(videoFilename);
       Guid dialogHandle = ServiceRegistration.Get<IPathBrowser>().ShowPathBrowser(RES_HEADER_CHOOSE_VIDEO, true, false,
@@ -107,7 +111,7 @@ namespace MediaPortal.UiComponents.BackgroundManager.Models
             if (string.IsNullOrEmpty(choosenPath))
               return false;
             string extension = StringUtils.TrimToEmpty(DosPathHelper.GetExtension(choosenPath)).ToLowerInvariant();
-            return (extension == ".avi" || extension == ".wmv") && File.Exists(choosenPath);
+            return mdeSettings.VideoFileExtensions.Contains(extension) && File.Exists(choosenPath);
           });
       if (_pathBrowserCloseWatcher != null)
         _pathBrowserCloseWatcher.Dispose();
