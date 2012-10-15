@@ -1,11 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using MediaPortal.Common;
+using MediaPortal.Common.General;
 using MediaPortal.UI.Presentation.DataObjects;
 using MediaPortal.UI.Presentation.Models;
 using MediaPortal.UI.Presentation.Workflow;
+using MediaPortal.Common.Localization;
 
 namespace MediaPortal.UiComponents.News.Models
 {
@@ -29,6 +29,7 @@ namespace MediaPortal.UiComponents.News.Models
 
     #region Protected fields
 
+    protected readonly AbstractProperty _isUpdating = new WProperty(typeof(bool), false);
     protected readonly ItemsList _feeds = new ItemsList();
     protected NewsFeed _selectedFeed;
     protected NewsItem _selectedItem;
@@ -61,6 +62,16 @@ namespace MediaPortal.UiComponents.News.Models
       get { return _selectedItem; }
     }
 
+    /// <summary>
+    /// Exposes info about a currently running background data refresh to the skin.
+    /// </summary>
+    public bool IsUpdating
+    {
+      get { return (bool)_isUpdating.GetValue(); }
+      set { _isUpdating.SetValue(value); }
+    }
+    public AbstractProperty IsUpdatingProperty { get { return _isUpdating; } }
+
     #endregion
 
     #region Public methods - Commands
@@ -90,7 +101,7 @@ namespace MediaPortal.UiComponents.News.Models
           _selectedItem = feedItem;
           ServiceRegistration.Get<IWorkflowManager>().NavigatePush(WORKFLOWSTATEID_NEWSITEMDETAIL, new NavigationContextConfig
           {
-            NavigationContextDisplayLabel = feedItem.PublishDate.ToString("g")
+            NavigationContextDisplayLabel = feedItem.PublishDate.ToString("g", ServiceRegistration.Get<ILocalization>().CurrentCulture)
           });
         }
       }
@@ -180,7 +191,9 @@ namespace MediaPortal.UiComponents.News.Models
 
     void StartListenToDataRefresh(INewsCollector newsCollector)
     {
-      newsCollector.Refeshed += NewsDataRefeshed;
+      newsCollector.RefeshStarted += NewsDataRefeshStarted;
+      newsCollector.RefeshFinished += NewsDataRefeshFinished;
+      IsUpdating = newsCollector.IsRefeshing;
     }
 
     void StopListenToDataRefresh()
@@ -188,12 +201,19 @@ namespace MediaPortal.UiComponents.News.Models
       INewsCollector newsCollector = ServiceRegistration.Get<INewsCollector>(false);
       if (newsCollector != null)
       {
-        newsCollector.Refeshed -= NewsDataRefeshed;
+        newsCollector.RefeshStarted -= NewsDataRefeshStarted;
+        newsCollector.RefeshFinished -= NewsDataRefeshFinished;
       }
     }
 
-    void NewsDataRefeshed(INewsCollector newsCollector)
+    void NewsDataRefeshStarted()
     {
+      IsUpdating = true;
+    }
+
+    void NewsDataRefeshFinished(INewsCollector newsCollector)
+    {
+      IsUpdating = false;
       SetNewFeeds(newsCollector, true);
     }
 

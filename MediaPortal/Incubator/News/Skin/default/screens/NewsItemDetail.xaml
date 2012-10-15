@@ -15,7 +15,21 @@
     <!-- Contents -->
     <ControlTemplate x:Key="Contents_Template">
       <DockPanel DataContext="{Binding Source={StaticResource Model}}" LastChildFill="true">
-        <Label DockPanel.Dock="Top" FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource TextColor}" Content="{Binding SelectedItem.Title}" Wrap="true" Margin="5"/>
+        <StackPanel DockPanel.Dock="Top">
+          <Label FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource TextColor}" Content="{Binding SelectedItem.Title}" Wrap="true" Margin="5"/>
+          <Rectangle Height="1" Stretch="Fill" Fill="{ThemeResource NewsItemSeparatorBrush}" />
+          <Grid Margin="5">
+            <Grid.ColumnDefinitions>
+              <ColumnDefinition Width="*"/>
+              <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+            <WrapPanel>
+              <Label FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource TextColor}" Content="[News.Published]" Margin="0,0,10,0"/>
+              <Label FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource TextColor}" Content="{Binding Path=SelectedItem.PublishDate, Converter={StaticResource DateFormatConverter}, ConverterParameter=g}" />
+            </WrapPanel>
+            <Image Grid.Column="1" MaxHeight="{ThemeResource NewsItemDetailsImageMaxHeight}" Width="{ThemeResource NewsItemDetailsImageMaxHeight}" Stretch="Uniform" Source="{Binding SelectedItem.Thumb}" Margin="5"/>
+          </Grid>
+        </StackPanel>
         <ScrollViewer CanContentScroll="False" Margin="5" HorizontalScrollBarVisibility="Disabled">
           <Label FontSize="{ThemeResource SmallerFontSize}" Color="{ThemeResource TextColor}" Content="{Binding SelectedItem.Summary}" Wrap="true"/>
         </ScrollViewer>
