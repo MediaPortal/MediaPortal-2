@@ -27,7 +27,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using MediaPortal.Common;
-using MediaPortal.Common.Logging;
 using MediaPortal.Common.Threading;
 using MediaPortal.Extensions.OnlineLibraries.Libraries.Common;
 
@@ -69,8 +68,8 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matches
 
     protected BaseMatcher ()
     {
-      // use own thread to avoid delay during startup
-      ServiceRegistration.Get<IThreadPool>().Add(new DoWorkHandler(this.ResumeDownloads), "SetAndUpdatePreferredLocation", QueuePriority.Normal, ThreadPriority.BelowNormal);
+      // Use own thread to avoid delay during startup
+      ServiceRegistration.Get<IThreadPool>().Add(ResumeDownloads, "BaseMatcher: ResumeDownloads", QueuePriority.Normal, ThreadPriority.BelowNormal);
     }
 
     protected abstract bool Init();

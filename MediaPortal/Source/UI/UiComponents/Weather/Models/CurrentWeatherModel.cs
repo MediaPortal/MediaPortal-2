@@ -70,8 +70,7 @@ namespace MediaPortal.UiComponents.Weather.Models
     public CurrentWeatherModel()
       : base(WEATHER_UPDATE_INTERVAL)
     {
-      // do initial update in its own thread to avoid delay during startup of MP2
-      ServiceRegistration.Get<IThreadPool>().Add(new DoWorkHandler(this.SetAndUpdatePreferredLocation), "SetAndUpdatePreferredLocation", QueuePriority.Normal, ThreadPriority.BelowNormal);
+      SetAndUpdatePreferredLocation_Async();
       SubscribeToMessages();
     }
 
@@ -91,10 +90,14 @@ namespace MediaPortal.UiComponents.Weather.Models
 
     protected override void Update()
     {
-      // do update in its own thread to avoid delay
-      ServiceRegistration.Get<IThreadPool>().Add(new DoWorkHandler(this.SetAndUpdatePreferredLocation), "SetAndUpdatePreferredLocation", QueuePriority.Normal, ThreadPriority.BelowNormal);
+      SetAndUpdatePreferredLocation_Async();
     }
     
+    protected void SetAndUpdatePreferredLocation_Async()
+    {
+      ServiceRegistration.Get<IThreadPool>().Add(SetAndUpdatePreferredLocation, "SetAndUpdatePreferredLocation", QueuePriority.Normal, ThreadPriority.BelowNormal);
+    }
+
     protected void SetAndUpdatePreferredLocation()
     {
       WeatherSettings settings = ServiceRegistration.Get<ISettingsManager>().Load<WeatherSettings>();
