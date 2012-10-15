@@ -15,7 +15,7 @@
     <!-- Contents -->
     <ControlTemplate x:Key="Contents_Template">
       <DockPanel DataContext="{Binding Source={StaticResource Model}}" LastChildFill="true">
-        <Label DockPanel.Dock="Top" FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource TextColor}" Content="{Binding SelectedItem.Title}"/>
+        <Label DockPanel.Dock="Top" FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource TextColor}" Content="{Binding SelectedItem.Title}" Wrap="true" Margin="5"/>
         <ScrollViewer CanContentScroll="False" Margin="5" HorizontalScrollBarVisibility="Disabled">
           <Label FontSize="{ThemeResource SmallerFontSize}" Color="{ThemeResource TextColor}" Content="{Binding SelectedItem.Summary}" Wrap="true"/>
         </ScrollViewer>
