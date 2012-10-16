@@ -220,7 +220,6 @@
   <string name="Media.ShowAudioPlaylistAction">Vis lyd afspillingsliste</string>
   <string name="Media.ShowVideoImagePlaylistAction">Vis video/billede afspillingsliste</string>
   <string name="Media.ShowPiPPlaylistAction">Vis PiP afspillingsliste</string>
-  <string name="Media.EditPlaylistAction">Rediger afspillingsliste</string>
   <string name="Media.ClearPlaylistAction">Tøm afspillingsliste</string>
   <string name="Media.SavePlaylistAction">Gem afspillingsliste</string>
   <string name="Media.SaveCurrentPlaylistAction">Gem nuværende afspillingsliste</string>

@@ -1,2 +1,5 @@
 <?xml version='1.0' encoding='UTF-8'?>
-<resources/>
+<resources>
+  <string name="Settings.Players.Codecs.VideoCodecs.BDSourceFilter">Bluray Kaynak Filtresi</string>
+  <string name="Settings.Players.Codecs.VideoCodecs.BDSourceFilter.Help">Bluray çalma için Filtreyi seç. Şu an sadece Gabest ve LAV bölücü desteklenmektedir.</string>
+</resources>

@@ -1,31 +1,277 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
   <!--Menu items for the five Media navigation parts-->
+  <string name="Media.BrowseMediaMenuItem">Medyaları göster</string>
+  <string name="Media.LocalMediaMenuItem">Yerel medya</string>
+  <string name="Media.AudioMenuItem">Ses</string>
   <string name="Media.VideosMenuItem">Videolar</string>
+  <string name="Media.SeriesMenuItem">Diziler</string>
+  <string name="Media.MoviesMenuItem">Filmler</string>
+  <string name="Media.ImagesMenuItem">Resimler</string>
   <!--Filter titles-->
+  <string name="Media.FilterByArtistMenuItem">Artiste göre filtrele</string>
+  <string name="Media.FilterByAlbumMenuItem">Albüme göre filtrele</string>
+  <string name="Media.FilterByAudioGenreMenuItem">Türe göre filtrele</string>
+  <string name="Media.FilterByDecadeMenuItem">Döneme göre filtrele</string>
+  <string name="Media.FilterByActorMenuItem">Aktöre göre filtrele</string>
+  <string name="Media.FilterByVideoGenreMenuItem">Türe göre filtrele</string>
+  <string name="Media.FilterByVideoYearMenuItem">Yıla göre filtrele</string>
+  <string name="Media.FilterByAudioLanguageMenuItem">Dile göre filtrele</string>
+  <string name="Media.FilterByImageSizeMenuItem">Boyuta göre filtrele</string>
+  <string name="Media.FilterByImageYearMenuItem">Yıla göre filtrele</string>
+  <string name="Media.FilterBySystemMenuItem">Sisteme göre filtrele</string>
+  <string name="Media.FilterBySeriesNameMenuItem">Diziye göre filtrele</string>
+  <string name="Media.FilterBySeriesSeasonMenuItem">Sezona göre filtrele</string>
+  <string name="Media.FilterBySeriesEpisodeMenuItem">Bölüme göre filtrele</string>
+  <string name="Media.SimpleSearchFilterMenuItem">Ara</string>
+  <string name="Media.ShowAllAudioItemsMenuItem">Hepsini göster</string>
+  <string name="Media.ShowAllVideoItemsMenuItem">Hepsini göster</string>
+  <string name="Media.ShowAllImageItemsMenuItem">Hepsini göster</string>
+  <string name="Media.ShowAllMoviesMenuItem">Hepsini göster</string>
   <!--Special filters names-->
+  <string name="Media.ImageFilterSmall">Küçük</string>
+  <string name="Media.ImageFilterMedium">Orta</string>
+  <string name="Media.ImageFilterBig">Büyük</string>
+  <string name="Media.SwitchToBrowseMLView">Sunucu görünümüne git</string>
+  <string name="Media.SwitchToLocalMediaView">Yerel görünüme git</string>
   <!--Navbar display labels for sub view navigation-->
+  <string name="Media.BrowseMediaNavigationNavbarDisplayLabel">{0}</string>
   <!--For example: "R.E.M."-->
+  <string name="Media.LocalMediaNavigationNavbarDisplayLabel">{0}</string>
   <!--For example: "R.E.M."-->
+  <string name="Media.FilterArtistNavbarDisplayLabel">Artist: {0}</string>
   <!--For example: "Artist: R.E.M."-->
+  <string name="Media.FilterAlbumNavbarDisplayLabel">Album: {0}</string>
+  <string name="Media.FilterAudioGenreNavbarDisplayLabel">Tür: {0}</string>
+  <string name="Media.FilterDecadeNavbarDisplayLabel">Dönem: {0}</string>
+  <string name="Media.FilterActorNavbarDisplayLabel">Aktör: {0}</string>
+  <string name="Media.FilterVideoGenreNavbarDisplayLabel">Tür: {0}</string>
+  <string name="Media.FilterVideoYearNavbarDisplayLabel">Yıl: {0}</string>
+  <string name="Media.FilterAudioLanguagesNavbarDisplayLabel">Dil: {0}</string>
+  <string name="Media.FilterImageSizeNavbarDisplayLabel">Büyüklük: {0}</string>
+  <string name="Media.FilterImageYearNavbarDisplayLabel">Yıl: {0}</string>
+  <string name="Media.FilterAudioItemsNavbarDisplayLabel">Ad: {0}</string>
+  <string name="Media.FilterVideoItemsNavbarDisplayLabel">Ad: {0}</string>
+  <string name="Media.FilterSeriesItemsNavbarDisplayLabel">{0}</string>
+  <string name="Media.FilterSeriesSeasonNavbarDisplayLabel">Sezon {0}</string>
+  <string name="Media.FilterImageItemsNavbarDisplayLabel">Ad: {0}</string>
+  <string name="Media.FilterSystemNavbarDisplayLabel">Sistem: {0}</string>
+  <string name="Media.FilterMoviesNavbarDisplayLabel">Filmler: {0}</string>
   <!--Display labels for workflow navigation contexts-->
+  <string name="Media.BrowseMediaNavigationRootWorkflowNavigationContextDisplayLabel">Medya göster</string>
+  <string name="Media.LocalMediaNavigationRootWorkflowNavigationContextDisplayLabel">Yerel medya</string>
+  <string name="Media.AudioNavigationRootWorkflowNavigationContextDisplayLabel">Ses kütüphanesi</string>
+  <string name="Media.VideoNavigationRootWorkflowNavigationContextDisplayLabel">Video kütüphanesi</string>
+  <string name="Media.SeriesNavigationRootWorkflowNavigationContextDisplayLabel">Dizi kütüphanesi</string>
+  <string name="Media.MoviesNavigationRootWorkflowNavigationContextDisplayLabel">Film kütüphanesi</string>
+  <string name="Media.ImageNavigationRootWorkflowNavigationContextDisplayLabel">Resim kütüphanesi</string>
+  <string name="Media.VideoCurrentlyPlayingWorkflowStateNavigationContextDisplayLabel">Gösterilen video</string>
+  <string name="Media.VideoFullscreenContentWorkflowStateNavigationContextDisplayLabel">Tam ekran gösterim</string>
+  <string name="Media.AudioCurrentlyPlayingWorkflowStateNavigationContextDisplayLabel">Şu an çalan</string>
+  <string name="Media.AudioFullscreenContentWorkflowStateNavigationContextDisplayLabel">Ses görselleştirme</string>
+  <string name="Media.ShowPlaylistWorkflowStateNavigationContextDisplayLabel">Çalma listesi</string>
+  <string name="Media.EditPlaylistWorkflowStateNavigationContextDisplayLabel">Çalma listesini düzenle</string>
+  <string name="Media.PlaylistsOverviewWorkflowStateNavigationContextDisplayLabel">Çalma listeleri</string>
+  <string name="Media.PlaylistInfoWorkflowStateNavigationContextDisplayLabel">Çalma listesi bilgisi</string>
+  <string name="Media.RemovePlaylistsWorkflowStateNavigationContextDisplayLabel">Çalma listelerini çıkart</string>
+  <string name="Media.SavePlaylistEditNameWorkflowStateNavigationContextDisplayLabel">Çalma listesi adını değiştir</string>
+  <string name="Media.SavePlaylistSuccessfulWorkflowStateNavigationContextDisplayLabel">Başarılı</string>
+  <string name="Media.SavePlaylistFailedWorkflowStateNavigationContextDisplayLabel">Başarısız</string>
+  <string name="Media.PlayOrEnqueueItemsWorkflowStateNavigationContextDisplayLabel">öğeleri çal/sıraya al</string>
+  <string name="Media.CheckQueryPlayActionSingleItemWorkflowStateNavigationContextDisplayLabel">Çalma eylemi</string>
+  <string name="Media.CheckQueryPlayActionMultipleItemsWorkflowStateNavigationContextDisplayLabel">Çalma eylemi</string>
+  <string name="Media.CheckQueryPlayActionMultipleItemsChooseMediaTypeWorkflowStateNavigationContextDisplayLabel">Medya tipini seçin</string>
   <!--Screen headers-->
+  <string name="Media.BrowseMediaNavigationHeader">Medyaları göster</string>
+  <string name="Media.LocalMediaNavigationHeader">Yerel medyaları göster</string>
+  <string name="Media.MediaItemsHeader">Medya öğeleri</string>
   <string name="Media.VideoItemsHeader">Videolar</string>
+  <string name="Media.AudioItemsHeader">Ses öğeleri</string>
+  <string name="Media.SeriesItemsHeader">Bölümler</string>
+  <string name="Media.MoviesItemsHeader">Filmler</string>
+  <string name="Media.ImageItemsHeader">Resimler</string>
+  <string name="Media.SimpleSearchHeader">Basit arama</string>
+  <string name="Media.ChooseActorHeader">Aktör seç</string>
+  <string name="Media.ChooseVideoGenreHeader">Tür seç</string>
+  <string name="Media.ChooseVideoYearHeader">Yıl seç</string>
+  <string name="Media.ChooseSeriesHeader">Dizi seç</string>
+  <string name="Media.ChooseSeasonHeader">Sezon seç</string>
+  <string name="Media.ChooseAudioDecadeHeader">Dönem seç</string>
+  <string name="Media.ChooseAlbumHeader">Albüm seç</string>
+  <string name="Media.ChooseArtistHeader">Artist seç</string>
+  <string name="Media.ChooseAudioGenreHeader">Tür seç</string>
+  <string name="Media.ChooseImageYearHeader">Yıl seç</string>
+  <string name="Media.ChooseImageSizeHeader">Büyüklük seç</string>
+  <string name="Media.ChooseSystemHeader">Sistem seç</string>
+  <string name="Media.ChooseVideoLanguageHeader">Dil seç</string>
+  <string name="Media.PlaylistsOverviewHeader">Çalma listeleri</string>
+  <string name="Media.SavePlaylistEditNameHeader">Çalma listesini kaydet</string>
+  <string name="Media.SavePlaylistFailedHeader">Çalma listesini kaydet</string>
+  <string name="Media.SavePlaylistSuccessfulHeader">Çalma listesini kaydet</string>
+  <string name="Media.RemovePlaylistsHeader">Çalma listesini çıkart</string>
+  <string name="Media.PlaylistDetailsHeader">Çalma listesi detayları</string>
+  <string name="Media.PlaylistLoadNoPlaylistText">Yüklenecek çalma listesi yok</string>
+  <string name="Media.PlaylistLoadErrorLoadingPlaylist">Çalma listesi yüklenirken hata oluştu</string>
+  <string name="Media.CannotSavePlaylistWithLocalMediaItems">Çalma listesi ancak sıraya alınan tüm medya öğelerinin yerel sunucudan seçilmiş olması durumunda mümkündür ( örneğin bağlantı sağlanmamış yerel medya seçimi durumunda çalışmaz )</string>
   <!--View names (names for the view instances)-->
+  <string name="Media.BrowseMediaRootViewName">Medya öğelerine gözat</string>
+  <string name="Media.LocalMediaRootViewName">Yerel medya</string>
+  <string name="Media.ClientSharesViewName">İstemci paylaşımları</string>
+  <string name="Media.ServerSharesViewName">Sunucu paylaşımları</string>
+  <string name="Media.AudioRootViewName">Ses</string>
   <string name="Media.VideosRootViewName">Videolar</string>
+  <string name="Media.SeriesRootViewName">Dizi</string>
+  <string name="Media.ImagesRootViewName">Resimler</string>
+  <string name="Media.SimpleSearchViewName">Basit arama</string>
   <!--General strings used in views-->
+  <string name="Media.ViewInvalid">Bu görünüm oluşturulamadı</string>
+  <string name="Media.ViewEmpty">&lt;Gösterilecek öğe yok&gt;</string>
+  <string name="Media.NoItems">Gösterilecek içerik yok</string>
   <!--Shown in the header of an items list-->
+  <string name="Media.OneItem">Bir içerik</string>
   <!--Shown in the header of an items list-->
+  <string name="Media.OneOfOneItem">1/1 içerik</string>
   <!--Shown in the header of an items list-->
+  <string name="Media.NOfMItems">{0}/{1} içerik</string>
   <!--Shown in the header of an items list, e.g. "15/350 items"-->
+  <string name="Media.NItems">{0} içerik</string>
   <!--Shown in the header of an items list, e.g. "45 items"-->
+  <string name="Media.MoreThanMaxItemsHint">Bu görünümde {0}'dan çok içerik var. Lütfen daha çok filtre tanımlayarak içerik sayısını limitleyin.</string>
+  <string name="Media.MoreThanMaxItemsBrowseHint">Bu görünümde {0}'dan çok içerik var.</string>
+  <string name="Media.MoreThanMaxItemsSearchResultHint">Arama sonucunda {0}'dan çok içerik var. Lütfen daha spesifik arama yapın.</string>
+  <string name="Media.ListIsBeingBuiltHint">İçerik listesi hazırlanıyor...</string>
+  <string name="Media.SearchResultIsBeingBuiltHint">Aranıyor...</string>
   <!--Playlists-->
+  <string name="Media.ManagePlaylists">Çalma listeleri</string>
+  <string name="Media.AddAllToPlaylist">Hepsini çalma listesine ekle</string>
+  <string name="Media.NoItemsToAddHeader">Eklenecek içerik yok</string>
+  <string name="Media.NoItemsToAddText">Bu görünümde görüntülenecek içerik yok</string>
+  <string name="Media.ChooseAVTypeDialogHeader">İçerik tipini seçin</string>
+  <string name="Media.AddAllAudio">Ses içeriği ekle</string>
+  <string name="Media.AddAllVideo">Video içeriği ekle</string>
+  <string name="Media.AddAllImages">Resim içeriği ekle</string>
+  <string name="Media.AddAllVideosAndImages">Video ve resim içeriği ekle</string>
+  <string name="Media.AddToPlaylistProgressDialogHeader">İlerleme durumu</string>
+  <string name="Media.AddToPlaylistProgressText">Çalma listesine ekleniyor...</string>
+  <string name="Media.NItemsAdded">{0} içerik eklendi</string>
+  <string name="Media.StopAddToPlaylistButton">Durdur</string>
+  <string name="Media.NoPlaylistsAvailable">- Çalma listesi yok -</string>
+  <string name="Media.NoConfigPlaylistsHomeServerNotConnectedText">Ana sunucuya bağlanılmamış. Şu anda çalma listelerinde değişiklik yapılamaz.</string>
+  <string name="Media.EditNameOfPlaylist">Çalma listesi ismini tanımla</string>
+  <string name="Media.SavePlaylistSuccessfulText">Çalma listesi '{0}' sunucuya kaydedildi.</string>
+  <string name="Media.SavePlaylistFailedText">Çalma listesi kaydedilemedi. Hata kodu: '{0}'</string>
+  <string name="Media.SavePlaylistFailedAlreadyExists">Çalma listesi kaydedilemedi. Calma listesi '{0}' zaten tanımanmış</string>
+  <string name="Media.ChoosePlaylistsToBeRemovedText">Silinecek çalma listelerini seçin</string>
+  <string name="Media.PlaylistNameInfoLabel">Çalma listesi adı</string>
+  <string name="Media.PlaylistTypeInfoLabel">Çalma listesi tipi</string>
+  <string name="Media.PlaylistNumItemsLabel">İçerik sayısı</string>
+  <string name="Media.PlaylistIdInfoLabel">Dahili çalma listesi tanımlayıcısı</string>
   <!--Play items dialog-->
+  <string name="Media.PlayItemDialogHeader">İçeriği çal</string>
+  <string name="Media.PlayAudioItems">Ses içeriklerini çal</string>
+  <string name="Media.EnqueueAudioItems">Ses içeriklerini sıraya al</string>
+  <string name="Media.MuteVideoAndPlayAudioItems">Ses içeriklerini eşzamanlı çal</string>
+  <string name="Media.PlayVideoImageItems">Video/görüntü içeriklerini çal/göster</string>
+  <string name="Media.EnqueueVideoImageItems">Video/görüntü içeriklerini sıraya al</string>
+  <string name="Media.PlayVideoImageItemsMutedConcurrentAudio">Video/görüntü içeriklerini arka planda çal &amp; eşzamanlı ses içeriğine devam et</string>
+  <string name="Media.PlayVideoImageItemsPiP">Video/görüntü içeriklerini Resim içinde Resim modunda çal/göster</string>
+  <string name="Media.PlayAudioItem">Ses içeriğini çal</string>
+  <string name="Media.EnqueueAudioItem">Ses içeriğini sıraya al</string>
+  <string name="Media.MuteVideoAndPlayAudioItem">Ses içeriğini eşzamanlı çal</string>
+  <string name="Media.PlayVideoImageItem">Ses/görüntü içeriğini oynat/göster</string>
+  <string name="Media.EnqueueVideoImageItem">Video/Resim öğelerini sıraya al</string>
+  <string name="Media.PlayVideoImageItemMutedConcurrentAudio">Video/Resim öğelerini arka planda çal &amp; eşzamanlı ses öğesine devam et</string>
+  <string name="Media.PlayVideoImageItemPiP">Video/Resim öğesini Resim içinde Resim olarak göster</string>
   <!--Player context names-->
+  <string name="Media.VideoImageContextName">Video/Resim</string>
+  <string name="Media.AudioContextName">Ses</string>
   <!--Video currently playing-->
+  <string name="Media.VideoCurrentlyPlayingHeader">Şu anki video bilgisi</string>
+  <string name="Media.VideoTitleLabel">Başlık:</string>
+  <string name="Media.VideoGenreLabel">Tür:</string>
+  <string name="Media.VideoYearLabel">Yıl:</string>
+  <string name="Media.VideoDurationLabel">Süre:</string>
+  <string name="Media.VideoActorsLabel">Aktör(ler)</string>
+  <string name="Media.VideoStoryPlotLabel">Konu:</string>
   <!--Image currently playing-->
+  <string name="Media.ImageCurrentlyPlayingHeader">Şu anki resim bilgisi</string>
+  <string name="Media.ImageTitleLabel">İsim:</string>
+  <string name="Media.ImageDimensions">Ebat:</string>
+  <string name="Media.CameraMake">Kamera üreticisi:</string>
+  <string name="Media.CameraModel">Kamera modeli:</string>
+  <string name="Media.ImageISOSpeedLabel">ISO hızı:</string>
+  <string name="Media.ImageFNumberLabel">F değeri:</string>
+  <string name="Media.ImageShutterSpeedLabel">Objektif hızı:</string>
+  <string name="Media.ImageMeteringModeLabel">Ölçüm modu:</string>
+  <string name="Media.ImageExposureTimeLabel">Işıklandırma süresi:</string>
   <!--DVD currently playing-->
+  <string name="Media.DVDCurrentlyPlayingHeader">Şu anki DVD bilgisi:</string>
   <!--Audio currently playing-->
+  <string name="Media.AudioCurrentlyPlayingHeader">Aktif ses bilgisi</string>
+  <string name="Media.AudioArtistsLabel">Artistler:</string>
+  <string name="Media.AudioTitleLabel">Başlık:</string>
+  <string name="Media.AudioYearLabel">Yıl:</string>
+  <string name="Media.AudioDurationLabel">Süre:</string>
+  <string name="Media.AudioPlaylistHeader">Ses çalma listesi</string>
+  <string name="Media.VideoImagePlaylistHeader">Video/Resim çalma listesi</string>
+  <string name="Media.PiPPlaylistHeader">Resim içinde Resim çalma listesi</string>
+  <string name="Media.SavePLAtServer">Sunucuya kaydet</string>
+  <string name="Media.SavePLLocally">Yerel kaydet</string>
+  <string name="Media.ShowAudioPlaylistAction">Ses çalma listesini göster</string>
+  <string name="Media.ShowVideoImagePlaylistAction">Video/Resim çalma listesini göster</string>
+  <string name="Media.ShowPiPPlaylistAction">Resim içinde Resim çalma listesini göster</string>
+  <string name="Media.ClearPlaylistAction">Çalma Listesini temizle</string>
+  <string name="Media.SavePlaylistAction">Çalma listesini kaydet</string>
+  <string name="Media.SaveCurrentPlaylistAction">Aktif çalma listesini kaydet</string>
+  <string name="Media.RemovePlaylistsAction">Çalma listelerini çıkart</string>
+  <string name="Media.LoadPlaylistButton">Çalma listesini yükle</string>
+  <string name="Media.PlaylistEmpty">&lt;Çalma listesinde öğe yok&gt;</string>
+  <string name="Media.CannotPlayItemDialogText">Medya öğesini oynat</string>
+  <string name="Media.CannotPlayItemsDialogText">Medya öğeleri çalınamadı</string>
+  <string name="Media.ValueEmptyTitle">&lt;Boş&gt;</string>
   <!--VideoPlayerUIContributor-->
+  <string name="Media.SubtitleOff">Altyazıları devre dışı bırak</string>
+  <string name="Media.ChooseChapterDialogHeader">Bölüm seç</string>
+  <string name="Media.ChooseSubtitleDialogHeader">Altyazı seç</string>
+  <string name="Media.ChooseTitleDialogHeader">Başlık seç</string>
   <!--Video Player time units-->
+  <string name="Media.Seconds">saniye</string>
+  <string name="Media.Minutes">en az</string>
+  <string name="Media.Hours">saat</string>
+  <string name="Media.Start">Başlangıç</string>
+  <string name="Media.End">Son</string>
+  <string name="Media.DontSkip">Atlama</string>
+  <string name="Media.SwitchViewModeMenuItem">Gösterim şekli</string>
+  <string name="Media.SwitchViewModeDialogTitle">Gösterim şeklini seç</string>
+  <string name="Media.SmallList">Küçük liste</string>
+  <string name="Media.MediumList">Orta liste</string>
+  <string name="Media.LargeList">Büyük liste</string>
+  <string name="Media.LargeGrid">Izgara</string>
+  <string name="Media.SwitchSortingMenuItem">Sıralama</string>
+  <string name="Media.SwitchSortingDialogTitle">Sıralama</string>
+  <string name="Media.SortByTitle">Başlığa göre sırala</string>
+  <string name="Media.SortByAlbumTrack">Albüm ve şarkı ismine göre sırala</string>
+  <string name="Media.SortByGenre">Türe göre sırala</string>
+  <string name="Media.SortByAlbum">Albüm ve başlığa göre sırala</string>
+  <string name="Media.SortByTrack">Şarkı ismine göre sırala</string>
+  <string name="Media.SortByArtist">Artiste göre sırala</string>
+  <string name="Media.SortByYear">Yıla göre sırala</string>
+  <string name="Media.SortBySize">Boyuta göre sırala</string>
+  <string name="Media.SortBySystem">Sisteme göre sırala</string>
+  <string name="Media.SortByActor">Aktöre göre sırala</string>
+  <string name="Media.SortByDirector">Direktöre göre sırala</string>
+  <string name="Media.SortByDuration">Süreye göre sırala</string>
+  <string name="Media.SortByAspectRatio">Görüntü oranına göre sırala</string>
+  <string name="Media.SortByDate">Kayıt tarihine göre sırala</string>
+  <string name="Media.SortByEpisode">Bölüme göre sırala</string>
+  <string name="Media.SortingBrowseDefault">Varsayılan sıralama</string>
+  <string name="Settings.Players">Oynatıcılar</string>
+  <string name="Settings.Players.ClosePlayersWhenFinished">Bitince oynatıcıyı kapat</string>
+  <string name="Settings.Players.ClosePlayersWhenFinished.Help">MediaPortal'ın işi biten oynatıcıyı otomatik kapatması için bu seçeneği seçin</string>
+  <string name="Settings.Players.InstantSkipPercent">Anında yüzdeyle atlama</string>
+  <string name="Settings.Players.InstantSkipPercent.Help">Anında atlama yapılacak yüzde miktarını seçin</string>
+  <string name="Settings.Players.SkipStepTimeout">Atlama sürelerinde zamanaşımı süresini saniye olarak seçin</string>
+  <string name="Settings.Players.SkipStepTimeout.Help">Atlama süresi tamamlanmadan kullanıcı girişi zamanaşımı süresini ayarlayın</string>
+  <string name="Settings.Players.SkipStepList">Oynatıcı atlama adımları</string>
+  <string name="Settings.Players.SkipStepList.Help">Atlama adım değerlerini , ile ayırarak girin</string>
 </resources>

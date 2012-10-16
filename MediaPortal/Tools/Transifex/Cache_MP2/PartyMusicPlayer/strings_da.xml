@@ -1,4 +1,23 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
+  <string name="PartyMusicPlayer.MenuItem">Festafspiller</string>
+  <string name="PartyMusicPlayer.ConfigWorkflowNavigationContextDisplayLabel">Festafspiller</string>
+  <string name="PartyMusicPlayer.PlayerWorkflowNavigationContextDisplayLabel">Festafspiller</string>
+  <string name="PartyMusicPlayer.ConfigScreenTitle">Festafspiller opsætning</string>
   <string name="PartyMusicPlayer.Playlist">Afspilningsliste</string>
+  <string name="PartyMusicPlayer.ChoosePlaylist">Vælg Playlist</string>
+  <string name="PartyMusicPlayer.UseEscapePassword">Brug \"Fortryd\" adgangskode</string>
+  <string name="PartyMusicPlayer.DisableScreenSaver">Deaktivér pauseskærm</string>
+  <string name="PartyMusicPlayer.StartPartyMode">Start Festtilstand</string>
+  <string name="PartyMusicPlayer.ChoosePlaylistDialogHeader">Vælg Playlist</string>
+  <string name="PartyMusicPlayer.EnterEscapePasswordDialogHeader">\"Fortryd\" adgangskode</string>
+  <string name="PartyMusicPlayer.EnterEscapePasswordDialogText">Indtast venligst \"Fortryd\" adgangskoden til Festtilstand</string>
+  <string name="PartyMusicPlayer.WrongEscapePasswordDialogHeader">Forkert \"Fortryd\" adgangskode</string>
+  <string name="PartyMusicPlayer.WrongEscapePasswordDialogText">Beklager! Det er den forkerte \"Fortryd\" adgangskode</string>
+  <string name="PartyMusicPlayer.ServerNotConnectedDialogHeader">Serveren er ikke forbundet</string>
+  <string name="PartyMusicPlayer.ServerNotConnectedDialogText">Til denne handling skal hjemmeserveren være forbundet</string>
+  <string name="PartyMusicPlayer.PlayerContextName">Festafspiller</string>
+  <string name="PartyMusicPlayer.AudioArtistLabel">Artist</string>
+  <string name="PartyMusicPlayer.AudioTitleLabel">Titel</string>
+  <string name="PartyMusicPlayer.ShowPlaylist">Vis Playlist</string>
 </resources>

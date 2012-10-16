@@ -220,7 +220,6 @@
   <string name="Media.ShowAudioPlaylistAction">Visa ljudspellista</string>
   <string name="Media.ShowVideoImagePlaylistAction">Visa video-/bildspellista</string>
   <string name="Media.ShowPiPPlaylistAction">Visa bild-i-bild-spellista</string>
-  <string name="Media.EditPlaylistAction">Redigera spellista</string>
   <string name="Media.ClearPlaylistAction">Töm spellista</string>
   <string name="Media.SavePlaylistAction">Spara spellista</string>
   <string name="Media.SaveCurrentPlaylistAction">Spara aktuell spellista</string>

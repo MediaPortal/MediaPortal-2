@@ -220,7 +220,6 @@
   <string name="Media.ShowAudioPlaylistAction">Прикажи аудио плејлисту</string>
   <string name="Media.ShowVideoImagePlaylistAction">Прикажи видео/слике плејлисту</string>
   <string name="Media.ShowPiPPlaylistAction">Прикажи Слика у Слици плејлисту</string>
-  <string name="Media.EditPlaylistAction">Измени плејлисту</string>
   <string name="Media.ClearPlaylistAction">Испразни плејлисту</string>
   <string name="Media.SavePlaylistAction">Сачувај плејлисту</string>
   <string name="Media.SaveCurrentPlaylistAction">Сачувај тренутну плејлисту</string>

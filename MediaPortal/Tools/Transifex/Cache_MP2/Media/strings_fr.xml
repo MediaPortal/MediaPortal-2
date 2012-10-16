@@ -220,7 +220,6 @@
   <string name="Media.ShowAudioPlaylistAction">Afficher les playlists audio</string>
   <string name="Media.ShowVideoImagePlaylistAction">Afficher les playlists vidéos et images</string>
   <string name="Media.ShowPiPPlaylistAction">Afficher les playlists \"Picture in Picture\"</string>
-  <string name="Media.EditPlaylistAction">Éditer la playlist</string>
   <string name="Media.ClearPlaylistAction">Vider la playlist</string>
   <string name="Media.SavePlaylistAction">Sauvegarder la playlist</string>
   <string name="Media.SaveCurrentPlaylistAction">Sauvegarder la playlist actuelle</string>

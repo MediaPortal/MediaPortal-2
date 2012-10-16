@@ -220,7 +220,6 @@
   <string name="Media.ShowAudioPlaylistAction">Ukázať audio playlist</string>
   <string name="Media.ShowVideoImagePlaylistAction">Ukázať  playlist videa/fotiek</string>
   <string name="Media.ShowPiPPlaylistAction">Ukázať PiP playlist</string>
-  <string name="Media.EditPlaylistAction">Upraviť playlist</string>
   <string name="Media.ClearPlaylistAction">Vyčistiť playlist</string>
   <string name="Media.SavePlaylistAction">Uložiť playlist</string>
   <string name="Media.SaveCurrentPlaylistAction">Uložiť aktuálny playlist</string>

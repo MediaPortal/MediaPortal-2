@@ -1,5 +1,9 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
+  <string name="PartyMusicPlayer.MenuItem">Party music player</string>
+  <string name="PartyMusicPlayer.ConfigWorkflowNavigationContextDisplayLabel">Party music player</string>
+  <string name="PartyMusicPlayer.PlayerWorkflowNavigationContextDisplayLabel">Party music player</string>
+  <string name="PartyMusicPlayer.ConfigScreenTitle">Konfigurácia Party music playera</string>
   <string name="PartyMusicPlayer.Playlist">Playlist</string>
   <string name="PartyMusicPlayer.ChoosePlaylist">Vyberte playlist</string>
   <string name="PartyMusicPlayer.UseEscapePassword">Použiť ukončovacie heslo</string>
@@ -10,6 +14,8 @@
   <string name="PartyMusicPlayer.EnterEscapePasswordDialogText">Zadajte heslo na ukončenie párty módu</string>
   <string name="PartyMusicPlayer.WrongEscapePasswordDialogHeader">Nesprávne ukončovacie heslo</string>
   <string name="PartyMusicPlayer.WrongEscapePasswordDialogText">Ľutujem, nesprávne ukončovacie heslo.</string>
+  <string name="PartyMusicPlayer.ServerNotConnectedDialogHeader">Nie je spojenie k serveru</string>
+  <string name="PartyMusicPlayer.ServerNotConnectedDialogText">Na vykonanie tejto akcie musí existovať spojenie s domácim serverom</string>
   <string name="PartyMusicPlayer.PlayerContextName">Party music player</string>
   <string name="PartyMusicPlayer.AudioArtistLabel">Umelec</string>
   <string name="PartyMusicPlayer.AudioTitleLabel">Názov</string>

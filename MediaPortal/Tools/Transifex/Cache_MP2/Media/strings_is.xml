@@ -194,7 +194,6 @@
   <string name="Media.ShowAudioPlaylistAction">Sýna lagalista</string>
   <string name="Media.ShowVideoImagePlaylistAction">Sýna myndskeið/ljósmynd spilunarlista</string>
   <string name="Media.ShowPiPPlaylistAction">Sýna MíM spilunarlista</string>
-  <string name="Media.EditPlaylistAction">Breyta spilunarlista</string>
   <string name="Media.ClearPlaylistAction">Hreinsa spilunarlista</string>
   <string name="Media.SavePlaylistAction">Vista spilunarlista</string>
   <string name="Media.SaveCurrentPlaylistAction">Vista núverandi spilunarlista</string>

@@ -220,7 +220,6 @@
   <string name="Media.ShowAudioPlaylistAction">Rodyti audio grojaraštį</string>
   <string name="Media.ShowVideoImagePlaylistAction">Rodyti video/vaizdo grojaraštį</string>
   <string name="Media.ShowPiPPlaylistAction">Rodyti PiP grojaraštį</string>
-  <string name="Media.EditPlaylistAction">Koreguoti grojaraštį</string>
   <string name="Media.ClearPlaylistAction">Valyti grojaraštį</string>
   <string name="Media.SavePlaylistAction">Saugoti grojaraštį</string>
   <string name="Media.SaveCurrentPlaylistAction">Saugoti šį grojaraštį</string>

@@ -220,7 +220,6 @@
   <string name="Media.ShowAudioPlaylistAction">Mostra playlist audio</string>
   <string name="Media.ShowVideoImagePlaylistAction">Mostra playlist Video/Immagini</string>
   <string name="Media.ShowPiPPlaylistAction">Mostra playlist PiP</string>
-  <string name="Media.EditPlaylistAction">Modifica playlist</string>
   <string name="Media.ClearPlaylistAction">Azzera playlist</string>
   <string name="Media.SavePlaylistAction">Salva playlist</string>
   <string name="Media.SaveCurrentPlaylistAction">Salva playlist corrente</string>

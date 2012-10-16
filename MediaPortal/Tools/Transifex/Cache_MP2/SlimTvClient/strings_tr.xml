@@ -11,7 +11,10 @@
   <string name="SlimTvClient.EpisodeLabel">Bölüm</string>
   <string name="SlimTvClient.Guide">TV Rehberi</string>
   <string name="SlimTvClient.NoProgram">Program bilgisi yok</string>
+  <string name="SlimTvClient.ChooseProgramAction">Program eylemini seçin...</string>
   <string name="SlimTvClient.ProgramOver">Program zaten bitmiş</string>
   <string name="SlimTvClient.WatchNow">Programı şimdi izle</string>
   <string name="SlimTvClient.RecordNow">Şimdi kaydet</string>
+  <string name="SlimTvClient.DeleteSchedule">Kayıt zamanlamasını sil</string>
+  <string name="SlimTvClient.CreateSchedule">Zamanı gelince kaydet</string>
 </resources>

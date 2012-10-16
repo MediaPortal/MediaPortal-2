@@ -5,4 +5,8 @@
      The localization system of MediaPortal 2 will always fallback to the next general language and at the end to the
      default (english) language when a string isn't present in the localization resources for the user's configured
      language.-->
+  <string name="MyPlugin.String1">strings_[tr].xml</string>
+  <string name="MyPlugin.String2">Turkish string 2</string>
+  <string name="MyPlugin.StateDisplayLabel">Navigasyon çubuğu ismi</string>
+  <string name="MyPlugin.MenuEntry">BenimEklentim</string>
 </resources>

@@ -220,7 +220,6 @@
   <string name="Media.ShowAudioPlaylistAction">Vis spilleliste for lyd</string>
   <string name="Media.ShowVideoImagePlaylistAction">Vis video/bilde-spilleliste</string>
   <string name="Media.ShowPiPPlaylistAction">Vis PiP-spilleliste</string>
-  <string name="Media.EditPlaylistAction">Rediger spilleliste</string>
   <string name="Media.ClearPlaylistAction">Nullstill spilleliste</string>
   <string name="Media.SavePlaylistAction">Lagre spilleliste</string>
   <string name="Media.SaveCurrentPlaylistAction">Lagre gjeldende spilleliste</string>

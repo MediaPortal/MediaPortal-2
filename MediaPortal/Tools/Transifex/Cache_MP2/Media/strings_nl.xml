@@ -220,7 +220,6 @@
   <string name="Media.ShowAudioPlaylistAction">Audio afspeellijst weergeven</string>
   <string name="Media.ShowVideoImagePlaylistAction">Video/afbeelding afspeellijst weergeven</string>
   <string name="Media.ShowPiPPlaylistAction">PiP afspeellijst weergeven</string>
-  <string name="Media.EditPlaylistAction">Afspeellijst bewerken</string>
   <string name="Media.ClearPlaylistAction">Afspeellijst leegmaken</string>
   <string name="Media.SavePlaylistAction">Afspeellijst opslaan</string>
   <string name="Media.SaveCurrentPlaylistAction">Huidige afspeellijst opslaan</string>

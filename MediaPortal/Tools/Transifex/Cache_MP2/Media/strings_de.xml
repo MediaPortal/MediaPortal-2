@@ -220,7 +220,6 @@
   <string name="Media.ShowAudioPlaylistAction">Audio-Wiedergabeliste anzeigen</string>
   <string name="Media.ShowVideoImagePlaylistAction">Video/Bild-Wiedergabeliste anzeigen</string>
   <string name="Media.ShowPiPPlaylistAction">PiP-Wiedergabeliste anzeigen</string>
-  <string name="Media.EditPlaylistAction">Wiedergabeliste bearbeiten</string>
   <string name="Media.ClearPlaylistAction">Wiedergabeliste leeren</string>
   <string name="Media.SavePlaylistAction">Wiedergabeliste speichern</string>
   <string name="Media.SaveCurrentPlaylistAction">Aktuelle Wiedergabeliste speichern</string>

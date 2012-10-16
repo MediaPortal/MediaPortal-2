@@ -1,2 +1,9 @@
 <?xml version='1.0' encoding='UTF-8'?>
-<resources/>
+<resources>
+  <string name="SkinHelper.ThemeColorsWorkflowNavigationContextDisplayLabel">Tema renkleri</string>
+  <string name="SkinHelper.MenuShowThemeColors">Tema renklerini göster</string>
+  <string name="SkinHelper.ShowThemeColorsTitle">Tema renkleri</string>
+  <string name="SkinHelper.ShowThemeColorsText">Bu ekran aktif temada tanımlanmış tüm renk kaynaklarını gösterir ( miras alınan kaynaklar dahil )</string>
+  <string name="SkinHelper.LoadSkinTitle">Skin yükle</string>
+  <string name="SkinHelper.LoadThemeTitle">Tema yükle</string>
+</resources>

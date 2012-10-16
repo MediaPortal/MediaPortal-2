@@ -194,7 +194,6 @@
   <string name="Media.ShowAudioPlaylistAction">Audió lejátszási lista megjelenítése</string>
   <string name="Media.ShowVideoImagePlaylistAction">Videó/Kép lejátszási lista megjelenítése</string>
   <string name="Media.ShowPiPPlaylistAction">Kép a képben lejátszási lista megjelenítése</string>
-  <string name="Media.EditPlaylistAction">Lejátszási lista szerkesztése</string>
   <string name="Media.ClearPlaylistAction">Lejátszási lista kiürítése</string>
   <string name="Media.SavePlaylistAction">Lejátszási lista mentése</string>
   <string name="Media.SaveCurrentPlaylistAction">Jelenlegi lejátszási lista mentése</string>

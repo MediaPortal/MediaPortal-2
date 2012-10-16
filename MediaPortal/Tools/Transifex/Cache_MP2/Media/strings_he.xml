@@ -194,7 +194,6 @@
   <string name="Media.ShowAudioPlaylistAction">הצג רשימת ניגון אודיו</string>
   <string name="Media.ShowVideoImagePlaylistAction">הצג רשימת ניגון וידאו/תמונות</string>
   <string name="Media.ShowPiPPlaylistAction">הצג רשימת ניגון PiP</string>
-  <string name="Media.EditPlaylistAction">ערוך רשימת ניגון</string>
   <string name="Media.ClearPlaylistAction">נקה רשימת ניגון</string>
   <string name="Media.SavePlaylistAction">שמור רשימת ניגון</string>
   <string name="Media.SaveCurrentPlaylistAction">שמור רשימת ניגון נוכחית</string>

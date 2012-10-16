@@ -220,7 +220,6 @@
   <string name="Media.ShowAudioPlaylistAction">Mostrar lista de reproducción de audio</string>
   <string name="Media.ShowVideoImagePlaylistAction">Mostrar lista de reproducción de vídeo/imagen</string>
   <string name="Media.ShowPiPPlaylistAction">Mostrar lista de reproducción PiP</string>
-  <string name="Media.EditPlaylistAction">Editar lista de reproducción</string>
   <string name="Media.ClearPlaylistAction">Limpiar lista de reproducción</string>
   <string name="Media.SavePlaylistAction">Guardar lista de reproducción</string>
   <string name="Media.SaveCurrentPlaylistAction">Guardar lista de reproducción actual</string>

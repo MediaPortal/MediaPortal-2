@@ -171,6 +171,9 @@
   <string name="Media.PlaylistNumItemsLabel">Number of items</string>
   <string name="Media.PlaylistIdInfoLabel">Internal playlist id</string>
 
+  <string name="Media.OpenPlayerStrategy.MediaPortal.UI.Services.Players.PCMOpenPlayerStrategy.Default">Default</string>
+  <string name="Media.OpenPlayerStrategy.MediaPortal.UI.Services.Players.PCMOpenPlayerStrategy.PreservePiP">Preserve PiP video</string>
+
   <!-- Play items dialog -->
   <string name="Media.PlayItemDialogHeader">Play item</string>
 
@@ -252,6 +255,17 @@
 
   <string name="Media.ValueEmptyTitle">&lt;Empty&gt;</string>
 
+  <string name="Media.ChoosePlayModeDialogHeader">Choose play mode</string>
+  <string name="Media.PlayMode">Play mode</string>
+  <string name="Media.PlayMode.Continuous">Continuous</string>
+  <string name="Media.PlayMode.Shuffle">Shuffle</string>
+
+  <string name="Media.ChooseRepeatModeDialogHeader">Choose repeat mode</string>
+  <string name="Media.RepeatMode">Repeat mode</string>
+  <string name="Media.RepeatMode.None">None</string>
+  <string name="Media.RepeatMode.All">All</string>
+  <string name="Media.RepeatMode.One">One</string>
+
   <!-- VideoPlayerUIContributor -->
   <string name="Media.SubtitleOff">Disable Subtitles</string>
   <string name="Media.ChooseChapterDialogHeader">Choose chapter</string>
@@ -306,4 +320,7 @@
 
   <string name="Settings.Players.SkipStepList">Player skip steps</string>
   <string name="Settings.Players.SkipStepList.Help">Enter skip steps in seconds separated by ,</string>
+
+  <string name="Settings.Players.OpenPlayerStrategy">Open player strategy</string>
+  <string name="Settings.Players.OpenPlayerStrategy.Help">Strategy, how newly opened players will be positioned among already open players</string>
 </resources>

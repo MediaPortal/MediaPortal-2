@@ -40,7 +40,7 @@
   <string name="Playback.VisuallyImpaired">Slabozraký</string>
   <string name="Playback.DirectorComments1">Komentár režiséra</string>
   <string name="Playback.DirectorComments2">Komentár režiséra (2)</string>
-  <string name="Playback.Chapter"> Kapitola {0}</string>
+  <string name="Playback.Chapter">Kapitola {0}</string>
   <!--For example: "Chapter 1"-->
   <string name="Playback.Title">Titul {0}</string>
   <!--For example: "Title 1"-->

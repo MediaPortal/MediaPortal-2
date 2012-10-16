@@ -1,2 +1,10 @@
 <?xml version='1.0' encoding='UTF-8'?>
-<resources/>
+<resources>
+  <string name="HelloWorld.MenuEntry">नमस्ते दुनिया</string>
+  <string name="HelloWorld.StateDisplayLabel">नमस्ते दुनिया दशा</string>
+  <string name="HelloWorld.ScreenTitle">नमस्ते दुनिया स्क्रीन</string>
+  <string name="HelloWorld.HelloWorldText">बटन दबाने से इस पाठ बदल जाएगा</string>
+  <string name="HelloWorld.SampleText">यह नमस्ते विश्व प्लगइन का नमूना स्क्रीन है</string>
+  <string name="HelloWorld.ButtonText">मुझे दबाएं</string>
+  <string name="HelloWorld.ButtonTextCommandExecuted">बधाई, आपने अभी अभी एक आदेश! चालू किया</string>
+</resources>

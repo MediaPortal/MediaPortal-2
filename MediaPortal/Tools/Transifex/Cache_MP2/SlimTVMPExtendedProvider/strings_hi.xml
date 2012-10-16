@@ -1,2 +1,12 @@
 <?xml version='1.0' encoding='UTF-8'?>
-<resources/>
+<resources>
+  <string name="Settings.Plugins.TV">टेलीविज़न</string>
+  <string name="Settings.Plugins.TV.MPExtendedServerAddress">MP विस्तारित सर्वर पतों</string>
+  <string name="Settings.Plugins.TV.MPExtendedServerAddress.Help">सर्वर नाम या आईपी पते दर्ज करें, अलग द्वारा ';' (लोकलहोस्ट करने के लिए चूक).</string>
+  <string name="Settings.Plugins.TV.MPExtendedUsername">MP विस्तारित सेवा उपयोगकर्ता नाम</string>
+  <string name="Settings.Plugins.TV.MPExtendedUsername.Help">कनेक्ट करने के लिए नाम दर्ज करें. खाली नाम गुमनाम कनेक्शन का उपयोग करेगा.</string>
+  <string name="Settings.Plugins.TV.MPExtendedPassword">MP विस्तारित सेवा पासवर्ड</string>
+  <string name="Settings.Plugins.TV.MPExtendedPassword.Help">कनेक्ट करने के लिए पासवर्ड दर्ज करें. खाली पासवर्ड गुमनाम कनेक्शन का उपयोग करेगा.</string>
+  <string name="Settings.Plugins.TV.ConnectionErrorTitle">कनेक्शन त्रुटि</string>
+  <string name="Settings.Plugins.TV.ConnectionErrorText">MP विस्तारित सर्वर पता कनेक्ट नहीं हो सका-सर्वर: {0}</string>
+</resources>

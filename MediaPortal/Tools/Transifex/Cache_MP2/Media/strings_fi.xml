@@ -220,7 +220,6 @@
   <string name="Media.ShowAudioPlaylistAction">Näytä audio soittolista</string>
   <string name="Media.ShowVideoImagePlaylistAction">Näytä video/kuva soittolista</string>
   <string name="Media.ShowPiPPlaylistAction">Näytä kuva-kuvassa soittolista</string>
-  <string name="Media.EditPlaylistAction">Muokkaa soittolistaa</string>
   <string name="Media.ClearPlaylistAction">Tyhjennä soittolista</string>
   <string name="Media.SavePlaylistAction">Tallenna soittolista</string>
   <string name="Media.SaveCurrentPlaylistAction">Tallenna nykyinen soittolista</string>
