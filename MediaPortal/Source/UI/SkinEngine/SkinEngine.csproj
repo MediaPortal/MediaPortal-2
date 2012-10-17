@@ -181,6 +181,11 @@
     <Compile Include="DirectX\DxCapabilities.cs" />
     <Compile Include="DirectX\MPDirect3D.cs" />
     <Compile Include="DirectX\PositionColoredTextured.cs" />
+    <Compile Include="DirectX\RenderStrategy\AbstractStrategy.cs" />
+    <Compile Include="DirectX\RenderStrategy\Default.cs" />
+    <Compile Include="DirectX\RenderStrategy\IRenderStrategy.cs" />
+    <Compile Include="DirectX\RenderStrategy\MaxPerformance.cs" />
+    <Compile Include="DirectX\RenderStrategy\VSync.cs" />
     <Compile Include="DirectX\Triangulate\GraphicsPathHelper.cs" />
     <Compile Include="DirectX\Triangulate\TriangulateHelper.cs" />
     <Compile Include="Fonts\FontFamily.cs" />

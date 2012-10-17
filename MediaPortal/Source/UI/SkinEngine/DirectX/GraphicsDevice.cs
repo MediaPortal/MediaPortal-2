@@ -22,21 +22,18 @@
 
 #endregion
 
-// Define MAX_FRAMERATE to avoid MP from targeting a fixed framerate. With MAX_FRAMERATE defined,
-// the system will output as many frames as possible. But video playback might produce wrong frames with this
-// setting, so don't use it in release builds.
-//#define MAX_FRAMERATE
-
 // Define PROFILE_FRAMERATE to make MP log its current framerate every second. Don't use this setting in release builds.
 //#define PROFILE_FRAMERATE
 
 using System;
+using System.Collections.Generic;
 using System.Drawing;
 using System.Threading;
 using System.Windows.Forms;
 using MediaPortal.Common;
 using MediaPortal.Common.Logging;
 using MediaPortal.UI.SkinEngine.ContentManagement;
+using MediaPortal.UI.SkinEngine.DirectX.RenderStrategy;
 using MediaPortal.UI.SkinEngine.ScreenManagement;
 using MediaPortal.UI.SkinEngine.SkinManagement;
 using MediaPortal.UI.SkinEngine.Utils;
@@ -58,8 +55,6 @@ namespace MediaPortal.UI.SkinEngine.DirectX
     private static bool _deviceOk = true;
     private static DxCapabilities _dxCapabilities = null;
     private static ScreenManager _screenManager = null;
-    private static float _targetFrameRate = 25;
-    private static int _msPerFrame = (int) (1.0 / _targetFrameRate);
     private static DateTime _frameRenderingStartTime;
     private static int _fpsCounter = 0;
     private static DateTime _fpsTimer;
@@ -77,9 +72,8 @@ namespace MediaPortal.UI.SkinEngine.DirectX
     public static event EventHandler DeviceScenePresented;
 
     // RenderModeType related fields
-    private static SkinContext.RenderModeType _currentRenderMode;
-    private static Present _presentMode;
-    private static bool _manualWaitFrame;
+    private static int _currentRenderStrategyIndex = 0;
+    private static List<IRenderStrategy> _renderStrategies;
 
     /// <summary>
     /// Returns the information if the graphics device is healthy, which means it was neither lost nor hung nor removed.
@@ -96,17 +90,17 @@ namespace MediaPortal.UI.SkinEngine.DirectX
     /// Returns the target rendering target framerate. This value can be changed according to screen refresh rate or video fps using
     /// one of the methods <see cref="AdaptTargetFrameRateToDisplayMode"/> or <see cref="SetFrameRate"/>.
     /// </summary>
-    public static float TargetFrameRate
+    public static double TargetFrameRate
     {
-      get { return _targetFrameRate; }
+      get { return RenderStrategy.TargetFrameRate; }
     }
 
     /// <summary>
     /// Returns the desired time per frame in ms.
     /// </summary>
-    public static int MsPerFrame
+    public static double MsPerFrame
     {
-      get { return _msPerFrame; }
+      get { return RenderStrategy.MsPerFrame; }
     }
 
     public static ScreenManager ScreenManager
@@ -216,6 +210,8 @@ namespace MediaPortal.UI.SkinEngine.DirectX
         _device = _setup.SetupDirectX();
         // End cleanup part
 
+        SetupRenderStrategies();
+
         Capabilities deviceCapabilities = _device.Capabilities;
         _backBuffer = _device.GetRenderTarget(0);
         int ordinal = deviceCapabilities.AdapterOrdinal;
@@ -223,7 +219,7 @@ namespace MediaPortal.UI.SkinEngine.DirectX
         DisplayMode currentMode = adapterInfo.CurrentDisplayMode;
         AdaptTargetFrameRateToDisplayMode(currentMode);
         ServiceRegistration.Get<ILogger>().Info("GraphicsDevice: DirectX initialized {0}x{1} (format: {2} {3} Hz)", Width,
-            Height, currentMode.Format, _targetFrameRate);
+            Height, currentMode.Format, TargetFrameRate);
         bool firstTimeInitialization = _dxCapabilities == null;
         _dxCapabilities = DxCapabilities.RequestCapabilities(deviceCapabilities, currentMode);
         if (firstTimeInitialization)
@@ -234,7 +230,6 @@ namespace MediaPortal.UI.SkinEngine.DirectX
             MessageBox.Show(text, "GraphicAdapter", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
           }
         }
-        RenderMode = SkinContext.RenderModeType.Default;
         SetRenderState();
         ResetPerformanceData();
         UIResourcesHelper.ReallocUIResources();
@@ -244,6 +239,38 @@ namespace MediaPortal.UI.SkinEngine.DirectX
         ServiceRegistration.Get<ILogger>().Critical("GraphicsDevice: Failed to setup DirectX", ex);
         Environment.Exit(0);
       }
+    }
+
+    /// <summary>
+    /// Setups all <see cref="IRenderStrategy"/>s.
+    /// </summary>
+    private static void SetupRenderStrategies()
+    {
+      _renderStrategies = new List<IRenderStrategy>
+        {
+          new Default(_setup), 
+          new VSync(_setup), 
+          new MaxPerformance(_setup)
+        };
+      if (_setup.IsMultiSample)
+        _renderStrategies.RemoveAll(s => !s.IsMultiSampleCompatible);
+      _currentRenderStrategyIndex = 0;
+    }
+
+    /// <summary>
+    /// Gets the current <see cref="IRenderStrategy"/>.
+    /// </summary>
+    public static IRenderStrategy RenderStrategy
+    {
+      get { return _renderStrategies[_currentRenderStrategyIndex]; }
+    }
+
+    /// <summary>
+    /// Switches through all possible RenderStrategies.
+    /// </summary>
+    public static void NextRenderStrategy()
+    {
+      _currentRenderStrategyIndex = (_currentRenderStrategyIndex + 1) % _renderStrategies.Count;
     }
 
     internal static void Dispose()
@@ -261,10 +288,7 @@ namespace MediaPortal.UI.SkinEngine.DirectX
 
     public static void SetFrameRate(float frameRate)
     {
-      if (frameRate == 0)
-        frameRate = 1;
-      _targetFrameRate = frameRate;
-      _msPerFrame = (int) (1000 / _targetFrameRate);
+      RenderStrategy.SetTargetFrameRate(frameRate);
     }
 
     private static void ResetPerformanceData()
@@ -303,7 +327,7 @@ namespace MediaPortal.UI.SkinEngine.DirectX
             _setup.BuildPresentParamsFromSettings();
             _device.ResetEx(_setup.PresentParameters);
 
-            RenderMode = SkinContext.RenderModeType.Default;
+            SetupRenderStrategies();
 
             ResetPerformanceData();
 
@@ -313,7 +337,7 @@ namespace MediaPortal.UI.SkinEngine.DirectX
             DisplayMode currentMode = adapterInfo.CurrentDisplayMode;
             AdaptTargetFrameRateToDisplayMode(currentMode);
             ServiceRegistration.Get<ILogger>().Debug("GraphicsDevice: DirectX reset {0}x{1} format: {2} {3} Hz", Width, Height,
-                currentMode.Format, _targetFrameRate);
+                currentMode.Format, TargetFrameRate);
             _backBuffer = _device.GetRenderTarget(0);
             _dxCapabilities = DxCapabilities.RequestCapabilities(deviceCapabilities, currentMode);
 
@@ -439,38 +463,7 @@ namespace MediaPortal.UI.SkinEngine.DirectX
       TransformProjection = Matrix.OrthoOffCenterLH(-w, w, -h, h, 0.0f, 2.0f);
       FinalTransform = TransformView * TransformProjection;
     }
-
-    /// <summary>
-    /// Gets or Sets the current RenderModeType.
-    /// </summary>
-    public static SkinContext.RenderModeType RenderMode
-    {
-      get
-      {
-        return _currentRenderMode;
-      }
-      set
-      {
-        // MultiSample Antialiasing requires Default render mode.
-        _currentRenderMode = Setup.IsMultiSample ? SkinContext.RenderModeType.Default : value;
-        switch (_currentRenderMode)
-        {
-          case SkinContext.RenderModeType.Default:
-            _manualWaitFrame = !Setup.IsMultiSample;
-            _presentMode = _setup.Present;
-            break;          
-          case SkinContext.RenderModeType.MaxPerformance:
-            _manualWaitFrame = false;
-            _presentMode = Present.ForceImmediate;
-            break;
-          case SkinContext.RenderModeType.VSync:
-            _manualWaitFrame = false;
-            _presentMode = Present.None;
-            break;
-        }
-      }
-    }
-
+    
     /// <summary>
     /// Fires an event if listeners are available.
     /// </summary>
@@ -498,10 +491,9 @@ namespace MediaPortal.UI.SkinEngine.DirectX
     {
       if (_device == null || !_deviceOk)
         return true;
-#if (MAX_FRAMERATE == false)
-      if (_manualWaitFrame && doWaitForNextFame)
-        WaitForNextFrame();
-#endif
+
+      RenderStrategy.BeginRender(doWaitForNextFame);
+
       _frameRenderingStartTime = DateTime.Now;
       _renderAndResourceAccessLock.EnterReadLock();
       try
@@ -517,7 +509,7 @@ namespace MediaPortal.UI.SkinEngine.DirectX
 
         _device.EndScene();
 
-        _device.PresentEx(_presentMode);
+        _device.PresentEx(RenderStrategy.PresentMode);
 
         Fire(DeviceScenePresented);
 
@@ -548,17 +540,5 @@ namespace MediaPortal.UI.SkinEngine.DirectX
       }
       return false;
     }
-
-#if (MAX_FRAMERATE == false)
-    /// <summary>
-    /// Waits for the next frame to be drawn. It calculates the required difference to fit the <see cref="TargetFrameRate"/>.
-    /// </summary>
-    private static void WaitForNextFrame()
-    {
-      int msToNextFrame = _msPerFrame - (DateTime.Now - _frameRenderingStartTime).Milliseconds;
-      if (msToNextFrame > 0)
-        Thread.Sleep(msToNextFrame);
-    }
-#endif
   }
 }

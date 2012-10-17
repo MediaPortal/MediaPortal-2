@@ -83,6 +83,7 @@ namespace MediaPortal.Plugins.StatisticsRenderer
     private bool _statsEnabled;
 
     private float _fps;
+    private readonly object _syncObj = new object();
 
     #endregion
 
@@ -162,20 +163,23 @@ namespace MediaPortal.Plugins.StatisticsRenderer
       // Detach events
       SkinContext.DeviceSceneBegin -= BeginScene;
       SkinContext.DeviceSceneEnd -= EndScene;
-      TryDispose(ref _line);
-      TryDispose(ref _font);
-      TryDispose(ref _fontSprite);
-      TryDispose(ref _swapChain);
-      _statsEnabled = false;
+      lock (_syncObj)
+      {
+        TryDispose(ref _line);
+        TryDispose(ref _font);
+        TryDispose(ref _fontSprite);
+        TryDispose(ref _swapChain);
+        _statsEnabled = false;
+      }
     }
 
     /// <summary>
-    /// ToggleRenderMode calls the <see cref="SkinContext.NextRenderMode"/> method to switch between the available RenderModes.
+    /// ToggleRenderMode calls the <see cref="SkinContext.NextRenderStrategy"/> method to switch between the available RenderModes.
     /// </summary>
     private static void ToggleRenderMode()
     {
       Log("ToggleRenderMode");
-      SkinContext.NextRenderMode();
+      SkinContext.NextRenderStrategy();
     }
 
     /// <summary>
@@ -205,53 +209,57 @@ namespace MediaPortal.Plugins.StatisticsRenderer
 
     public void EndScene(object sender, EventArgs args)
     {
-      if (!_statsEnabled)
-        return;
-
-      TimeSpan guiDur = DateTime.Now - _frameRenderingStartTime;
-      _totalGuiRenderDuration += guiDur;
-      _guiRenderDuration += guiDur;
-      _totalFrameCount++;
-      _frameCount++;
-      int scanLine = _device.GetRasterStatus(0).Scanline;
-      _sumMsToVBlank += ScanlineToVblankOffset(scanLine);
-
-      _fpsCounter++;
-      TimeSpan ts = DateTime.Now - _fpsTimer;
-      float secs = (float) ts.TotalSeconds;
-      _fps = _fpsCounter / secs;
-
-      Stats currentFrameStats = new Stats
-                                  {
-                                    Fps = _fps,
-                                    MsFrameRenderTime = (float) guiDur.TotalMilliseconds,
-                                    MsToNextVBlank = ScanlineToVblankOffset(scanLine)
-                                  };
-      if (ts.TotalSeconds >= 1.0f)
+      lock (_syncObj)
       {
-        float totalAvgGuiTime = (float) _totalGuiRenderDuration.TotalMilliseconds / _totalFrameCount;
-        float avgGuiTime = (float) _guiRenderDuration.TotalMilliseconds / _frameCount;
-        float avgMsToVBlank = _sumMsToVBlank / _frameCount;
+        if (!_statsEnabled)
+          return;
 
-        int glitches;
-        _perfLogString = string.Format("Render: {0:0.00} fps [red], {1} frames last meas., avg GUI time {2:0.00}, last sec: {3:0.00} [blue], avg ms to vblank: {6:0.00}[grn]\r\nRender mode enabled: {4}\r\n{5}",
-          _fps, _fpsCounter, totalAvgGuiTime, avgGuiTime, SkinContext.RenderMode,
-          GetPresentStats(out glitches), avgMsToVBlank);
+        TimeSpan guiDur = DateTime.Now - _frameRenderingStartTime;
+        _totalGuiRenderDuration += guiDur;
+        _guiRenderDuration += guiDur;
+        _totalFrameCount++;
+        _frameCount++;
+        int scanLine = _device.GetRasterStatus(0).Scanline;
+        _sumMsToVBlank += ScanlineToVblankOffset(scanLine);
 
-        currentFrameStats.Glitch = glitches;
-        _perfLogString += GetScreenInfo();
-        _perfLogString += GetPlayerInfos();
-        _fpsCounter = 0;
-        _frameCount = 0;
-        _guiRenderDuration = TimeSpan.Zero;
-        _fpsTimer = DateTime.Now;
-        _sumMsToVBlank = 0;
+        _fpsCounter++;
+        TimeSpan ts = DateTime.Now - _fpsTimer;
+        float secs = (float) ts.TotalSeconds;
+        _fps = _fpsCounter/secs;
+
+        Stats currentFrameStats = new Stats
+          {
+            Fps = _fps,
+            MsFrameRenderTime = (float) guiDur.TotalMilliseconds,
+            MsToNextVBlank = ScanlineToVblankOffset(scanLine)
+          };
+
+        if (ts.TotalSeconds >= 1.0f)
+        {
+          float totalAvgGuiTime = (float) _totalGuiRenderDuration.TotalMilliseconds/_totalFrameCount;
+          float avgGuiTime = (float) _guiRenderDuration.TotalMilliseconds/_frameCount;
+          float avgMsToVBlank = _sumMsToVBlank/_frameCount;
+
+          int glitches;
+          _perfLogString = string.Format("Render: {0:0.00} fps [red], {1} frames last meas., avg GUI time {2:0.00}, last sec: {3:0.00} [blue], avg ms to vblank: {6:0.00}[grn]\r\nRender mode enabled: {4}\r\n{5}",
+              _fps, _fpsCounter, totalAvgGuiTime, avgGuiTime, SkinContext.RenderStrategy.GetType().Name,
+              GetPresentStats(out glitches), avgMsToVBlank);
+
+          currentFrameStats.Glitch = glitches;
+          _perfLogString += GetScreenInfo();
+          _perfLogString += GetPlayerInfos();
+          _fpsCounter = 0;
+          _frameCount = 0;
+          _guiRenderDuration = TimeSpan.Zero;
+          _fpsTimer = DateTime.Now;
+          _sumMsToVBlank = 0;
+        }
+
+        _stats.Push(currentFrameStats);
+        DrawLines();
+        DrawTearingTest();
+        DrawText(_perfLogString);
       }
-
-      _stats.Push(currentFrameStats);
-      DrawLines();
-      DrawTearingTest();
-      DrawText(_perfLogString);
     }
 
     #endregion

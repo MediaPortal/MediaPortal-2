@@ -28,6 +28,7 @@ using System.Threading;
 using System.Windows.Forms;
 using MediaPortal.Common.General;
 using MediaPortal.UI.SkinEngine.DirectX;
+using MediaPortal.UI.SkinEngine.DirectX.RenderStrategy;
 using SlimDX.Direct3D9;
 
 namespace MediaPortal.UI.SkinEngine.SkinManagement
@@ -51,25 +52,6 @@ namespace MediaPortal.UI.SkinEngine.SkinManagement
     public static uint SystemTickCount;
 
     #endregion
-
-    /// <summary>
-    /// Defines different available rendering modes.
-    /// </summary>
-    public enum RenderModeType
-    {
-      /// <summary>
-      /// If MultiSampling is used, this mode uses <see cref="Present.None"/>, otherwise <see cref="Present.ForceImmediate"/>.
-      /// </summary>
-      Default,
-      /// <summary>
-      /// For maximum performance, rendering will be done without manual waiting and presenting using <see cref="Present.ForceImmediate"/>.
-      /// </summary>
-      MaxPerformance,
-      /// <summary>
-      /// The presenting is using <see cref="Present.None"/>, so each frame will be syncronized with v-blank. If MultiSampling is used, this mode is equal to <see cref="Default"/>.
-      /// </summary>
-      VSync,
-    }
 
     public static event SkinResourcesChangedHandler SkinResourcesChanged
     {
@@ -128,26 +110,22 @@ namespace MediaPortal.UI.SkinEngine.SkinManagement
     }
 
     /// <summary>
-    /// Get or Sets different RenderModes (affects frame sync and present mode).
+    /// Gets the current RenderStrategy (affects frame sync and present mode).
     /// </summary>
-    public static RenderModeType RenderMode
+    public static IRenderStrategy RenderStrategy
     {
       get
       {
-        return GraphicsDevice.RenderMode;
-      }
-      set
-      {
-        GraphicsDevice.RenderMode = value;
+        return GraphicsDevice.RenderStrategy;
       }
     }
 
     /// <summary>
-    /// Toggles between different RenderModes (affects frame sync and present mode).
+    /// Toggles between different RenderStrategies (affects frame sync and present mode).
     /// </summary>
-    public static void NextRenderMode()
+    public static void NextRenderStrategy()
     {
-      RenderMode = (RenderModeType)((((int)RenderMode) + 1) % 3);
+      GraphicsDevice.NextRenderStrategy();
     }
 
     /// <summary>
