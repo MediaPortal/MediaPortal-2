@@ -22,9 +22,6 @@
 
 #endregion
 
-// Define PROFILE_FRAMERATE to make MP log its current framerate every second. Don't use this setting in release builds.
-//#define PROFILE_FRAMERATE
-
 using System;
 using System.Collections.Generic;
 using System.Drawing;
@@ -55,9 +52,6 @@ namespace MediaPortal.UI.SkinEngine.DirectX
     private static bool _deviceOk = true;
     private static DxCapabilities _dxCapabilities = null;
     private static ScreenManager _screenManager = null;
-    private static DateTime _frameRenderingStartTime;
-    private static int _fpsCounter = 0;
-    private static DateTime _fpsTimer;
 
     #endregion
 
@@ -136,11 +130,6 @@ namespace MediaPortal.UI.SkinEngine.DirectX
     public static DxCapabilities DxCapabilities
     {
       get { return _dxCapabilities; }
-    }
-
-    public static DateTime LastRenderTime
-    {
-      get { return _frameRenderingStartTime; }
     }
 
     public static D3DSetup Setup
@@ -231,7 +220,6 @@ namespace MediaPortal.UI.SkinEngine.DirectX
           }
         }
         SetRenderState();
-        ResetPerformanceData();
         UIResourcesHelper.ReallocUIResources();
       }
       catch (Exception ex)
@@ -291,12 +279,6 @@ namespace MediaPortal.UI.SkinEngine.DirectX
       RenderStrategy.SetTargetFrameRate(frameRate);
     }
 
-    private static void ResetPerformanceData()
-    {
-      _fpsTimer = DateTime.Now;
-      _fpsCounter = 0;
-    }
-
     private static void AdaptTargetFrameRateToDisplayMode(DisplayMode displayMode)
     {
       SetFrameRate(displayMode.RefreshRate);
@@ -328,8 +310,6 @@ namespace MediaPortal.UI.SkinEngine.DirectX
             _device.ResetEx(_setup.PresentParameters);
 
             SetupRenderStrategies();
-
-            ResetPerformanceData();
 
             Capabilities deviceCapabilities = _device.Capabilities;
             int ordinal = deviceCapabilities.AdapterOrdinal;
@@ -494,7 +474,6 @@ namespace MediaPortal.UI.SkinEngine.DirectX
 
       RenderStrategy.BeginRender(doWaitForNextFame);
 
-      _frameRenderingStartTime = DateTime.Now;
       _renderAndResourceAccessLock.EnterReadLock();
       try
       {
@@ -513,18 +492,6 @@ namespace MediaPortal.UI.SkinEngine.DirectX
 
         Fire(DeviceScenePresented);
 
-        _fpsCounter += 1;
-        TimeSpan ts = DateTime.Now - _fpsTimer;
-        if (ts.TotalSeconds >= 1.0f)
-        {
-          float secs = (float) ts.TotalSeconds;
-          SkinContext.FPS = _fpsCounter / secs;
-#if PROFILE_FRAMERATE
-          ServiceRegistration.Get<ILogger>().Debug("RenderLoop: {0} frames per second, {1} total frames until last measurement", SkinContext.FPS, _fpsCounter);
-#endif
-          _fpsCounter = 0;
-          _fpsTimer = DateTime.Now;
-        }
         ContentManager.Instance.Clean();
       }
       catch (Direct3D9Exception e)
