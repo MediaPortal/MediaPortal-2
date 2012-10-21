@@ -76,7 +76,8 @@ namespace MediaPortal.UI.Presentation.Players
     ConcurrentAudio,
 
     /// <summary>
-    /// An already playing video player will be left open (as primary player) and played concurrently.
+    /// An already playing video player will be left open (as primary or secondary player - depending on the open player strategy)
+    /// and played concurrently.
     /// </summary>
     ConcurrentVideo,
   }
@@ -149,7 +150,7 @@ namespace MediaPortal.UI.Presentation.Players
   /// PiP player. In that situation, it can be necessary to explicitly exchange the player slots.
   /// </para>
   /// <para>
-  /// <b>Playlists</b><br/>
+  /// <b>Playlists:</b><br/>
   /// The player context manager also provides playlist management, i.e. it manages automatic playlist advance and
   /// provides methods to control the current player like <see cref="Stop"/>, <see cref="Pause"/> etc.
   /// </para>
