@@ -539,12 +539,9 @@
 xcopy /Y "$(ProjectDir)plugin.xml" "$(SolutionDir)..\Bin\$(SolutionName)\$(OutDir)Plugins\$(ProjectName)\"
 xcopy /Y "$(TargetDir)$(ProjectName).dll"  "$(SolutionDir)..\Bin\$(SolutionName)\$(OutDir)Plugins\$(ProjectName)\"
 xcopy /Y "$(TargetDir)SlimTv.Interfaces.dll"  "$(SolutionDir)..\Bin\$(SolutionName)\$(OutDir)Plugins\$(ProjectName)\"
-xcopy /Y "$(TargetDir)SlimTv.Integration.MP2.dll"  "$(SolutionDir)..\Bin\$(SolutionName)\$(OutDir)"
-xcopy /Y "$(TargetDir)TsWriter.ax"  "$(SolutionDir)..\Bin\$(SolutionName)\$(OutDir)"
+xcopy /Y "$(TargetDir)SlimTv.Integration.MP2.dll"  "$(SolutionDir)..\Bin\$(SolutionName)\$(OutDir)Plugins\$(ProjectName)\"
 mkdir "$(SolutionDir)..\Bin\$(SolutionName)\$(OutDir)Plugins\$(ProjectName)\Content"
 xcopy "$(ProjectDir)References\*.*"  "$(SolutionDir)..\Bin\$(SolutionName)\$(OutDir)Plugins\$(ProjectName)\"
-xcopy "$(ProjectDir)References\MySql.*.dll"  "$(SolutionDir)..\Bin\$(SolutionName)\$(OutDir)"
-xcopy "$(ProjectDir)References\Castle.*.dll"  "$(SolutionDir)..\Bin\$(SolutionName)\$(OutDir)"
 robocopy "$(ProjectDir)Content" "$(SolutionDir)..\Bin\$(SolutionName)\$(OutDir)Plugins\$(ProjectName)\Content" /MIR
 @REM Reset RoboCopy's exit code which is different from 0
 IF %25ERRORLEVEL%25 LSS 8 SET ERRORLEVEL=0

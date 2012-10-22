@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using MediaPortal.Common;
-using MediaPortal.Common.Logging;
 using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.Utils;
 using MediaPortal.Plugins.SlimTv.Interfaces;
@@ -15,9 +14,11 @@ using Mediaportal.TV.Server.TVDatabase.Entities;
 using Mediaportal.TV.Server.TVDatabase.Entities.Enums;
 using Mediaportal.TV.Server.TVDatabase.Entities.Factories;
 using Mediaportal.TV.Server.TVLibrary;
+using Mediaportal.TV.Server.TVLibrary.Interfaces.Integration;
 using Mediaportal.TV.Server.TVService.Interfaces;
 using Mediaportal.TV.Server.TVService.Interfaces.Enums;
 using Mediaportal.TV.Server.TVService.Interfaces.Services;
+using ILogger = MediaPortal.Common.Logging.ILogger;
 
 namespace MediaPortal.Plugins.SlimTv.Service
 {
@@ -35,6 +36,7 @@ namespace MediaPortal.Plugins.SlimTv.Service
 
     public bool Init()
     {
+      IntegrationProviderHelper.Register(@"Plugins\SlimTv.Service");
       _tvServiceThread = new TvServiceThread(Environment.GetCommandLineArgs()[0]);
       _tvServiceThread.Start();
       return true;
