@@ -76,6 +76,9 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="..\..\Source\Core\MediaPortal.Common\VersionInfo\VersionInfo.cs">
+      <Link>Properties\VersionInfo.cs</Link>
+    </Compile>
     <Compile Include="SlimTvService.cs" />
     <Compile Include="SlimTvServicePlugin.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -452,6 +455,7 @@
     </Content>
     <Content Include="References\Castle.Core.dll" />
     <Content Include="References\Castle.Windsor.dll" />
+    <Content Include="References\CIAPI.dll" />
     <Content Include="References\Common.Utils.dll" />
     <Content Include="References\DirectShowLib.dll" />
     <Content Include="References\EntityFramework.dll" />
@@ -474,7 +478,31 @@
     <Content Include="References\Mediaportal.TV.Server.TVService.Interfaces.dll" />
     <Content Include="References\MySql.Data.dll" />
     <Content Include="References\MySql.Data.Entity.dll" />
+    <Content Include="References\Plugins\CustomDevices\Mediaportal.TV.Server.Plugins.CustomDevices.Anysee.dll" />
+    <Content Include="References\Plugins\CustomDevices\Mediaportal.TV.Server.Plugins.CustomDevices.Conexant.dll" />
+    <Content Include="References\Plugins\CustomDevices\Mediaportal.TV.Server.Plugins.CustomDevices.DigitalDevices.dll" />
+    <Content Include="References\Plugins\CustomDevices\Mediaportal.TV.Server.Plugins.CustomDevices.DigitalEverywhere.dll" />
+    <Content Include="References\Plugins\CustomDevices\Mediaportal.TV.Server.Plugins.CustomDevices.DvbSky.dll" />
+    <Content Include="References\Plugins\CustomDevices\Mediaportal.TV.Server.Plugins.CustomDevices.Geniatech.dll" />
+    <Content Include="References\Plugins\CustomDevices\Mediaportal.TV.Server.Plugins.CustomDevices.Genpix.dll" />
+    <Content Include="References\Plugins\CustomDevices\Mediaportal.TV.Server.Plugins.CustomDevices.GenpixOpenSource.dll" />
+    <Content Include="References\Plugins\CustomDevices\Mediaportal.TV.Server.Plugins.CustomDevices.Hauppauge.dll" />
+    <Content Include="References\Plugins\CustomDevices\Mediaportal.TV.Server.Plugins.CustomDevices.Knc.dll" />
+    <Content Include="References\Plugins\CustomDevices\Mediaportal.TV.Server.Plugins.CustomDevices.MdPlugin.dll" />
+    <Content Include="References\Plugins\CustomDevices\Mediaportal.TV.Server.Plugins.CustomDevices.Microsoft.dll" />
+    <Content Include="References\Plugins\CustomDevices\Mediaportal.TV.Server.Plugins.CustomDevices.NetUp.dll" />
+    <Content Include="References\Plugins\CustomDevices\Mediaportal.TV.Server.Plugins.CustomDevices.Omicom.dll" />
+    <Content Include="References\Plugins\CustomDevices\Mediaportal.TV.Server.Plugins.CustomDevices.Prof.dll" />
+    <Content Include="References\Plugins\CustomDevices\Mediaportal.TV.Server.Plugins.CustomDevices.ProfUsb.dll" />
+    <Content Include="References\Plugins\CustomDevices\Mediaportal.TV.Server.Plugins.CustomDevices.SmarDtvUsbCi.dll" />
+    <Content Include="References\Plugins\CustomDevices\Mediaportal.TV.Server.Plugins.CustomDevices.TechnoTrend.dll" />
+    <Content Include="References\Plugins\CustomDevices\Mediaportal.TV.Server.Plugins.CustomDevices.TeVii.dll" />
+    <Content Include="References\Plugins\CustomDevices\Mediaportal.TV.Server.Plugins.CustomDevices.Turbosight.dll" />
+    <Content Include="References\Plugins\CustomDevices\Mediaportal.TV.Server.Plugins.CustomDevices.Twinhan.dll" />
+    <Content Include="References\Plugins\CustomDevices\Mediaportal.TV.Server.Plugins.CustomDevices.ViXS.dll" />
+    <Content Include="References\Plugins\Mediaportal.TV.Server.Plugins.Base.dll" />
     <Content Include="References\StreamingServer.dll" />
+    <Content Include="References\TbsCIapi.dll" />
     <Content Include="References\TeVii.dll" />
     <Content Include="References\ttBdaDrvApi_Dll.dll" />
     <Content Include="References\ttdvbacc.dll" />
@@ -492,6 +520,10 @@
       <Project>{455E7D70-1C85-4D7F-9F01-DC801B8B8C34}</Project>
       <Name>UPnP</Name>
     </ProjectReference>
+    <ProjectReference Include="..\SlimTvIntegration\SlimTv.Integration.csproj">
+      <Project>{0B970B89-C3D8-4DEA-80DD-C18590FDC3B5}</Project>
+      <Name>SlimTv.Integration</Name>
+    </ProjectReference>
     <ProjectReference Include="..\SlimTvInterfaces\SlimTv.Interfaces.csproj">
       <Project>{F31C71FA-4A24-4D33-B0EE-52CF667DCEF4}</Project>
       <Name>SlimTv.Interfaces</Name>
@@ -499,6 +531,7 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="References\Mediaportal.TV.Server.TVLibrary.Services.dll.config" />
+    <None Include="References\TsWriter.ax" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
@@ -506,9 +539,11 @@
 xcopy /Y "$(ProjectDir)plugin.xml" "$(SolutionDir)..\Bin\$(SolutionName)\$(OutDir)Plugins\$(ProjectName)\"
 xcopy /Y "$(TargetDir)$(ProjectName).dll"  "$(SolutionDir)..\Bin\$(SolutionName)\$(OutDir)Plugins\$(ProjectName)\"
 xcopy /Y "$(TargetDir)SlimTv.Interfaces.dll"  "$(SolutionDir)..\Bin\$(SolutionName)\$(OutDir)Plugins\$(ProjectName)\"
+xcopy /Y "$(TargetDir)SlimTv.Integration.MP2.dll"  "$(SolutionDir)..\Bin\$(SolutionName)\$(OutDir)"
 mkdir "$(SolutionDir)..\Bin\$(SolutionName)\$(OutDir)Plugins\$(ProjectName)\Content"
 xcopy "$(ProjectDir)References\*.*"  "$(SolutionDir)..\Bin\$(SolutionName)\$(OutDir)Plugins\$(ProjectName)\"
 xcopy "$(ProjectDir)References\MySql.*.dll"  "$(SolutionDir)..\Bin\$(SolutionName)\$(OutDir)"
+xcopy "$(ProjectDir)References\Castle.*.dll"  "$(SolutionDir)..\Bin\$(SolutionName)\$(OutDir)"
 robocopy "$(ProjectDir)Content" "$(SolutionDir)..\Bin\$(SolutionName)\$(OutDir)Plugins\$(ProjectName)\Content" /MIR
 @REM Reset RoboCopy's exit code which is different from 0
 IF %25ERRORLEVEL%25 LSS 8 SET ERRORLEVEL=0

@@ -4,7 +4,7 @@ using System.Runtime.InteropServices;
 // Allgemeine Informationen über eine Assembly werden über die folgenden 
 // Attribute gesteuert. Ändern Sie diese Attributwerte, um die Informationen zu ändern,
 // die mit einer Assembly verknüpft sind.
-[assembly: AssemblyTitle("SlimTvService")]
+[assembly: AssemblyTitle("SlimTvIntegration")]
 [assembly: AssemblyDescription("")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyTrademark("")]
@@ -16,6 +16,6 @@ using System.Runtime.InteropServices;
 [assembly: ComVisible(false)]
 
 // Die folgende GUID bestimmt die ID der Typbibliothek, wenn dieses Projekt für COM verfügbar gemacht wird
-[assembly: Guid("551ce080-363b-4512-b5b0-eafa500f902d")]
+[assembly: Guid("43fc52a9-28ef-40a0-a573-c02fd4800b95")]
 
 // Other attributes are included from VersionInfo.cs!

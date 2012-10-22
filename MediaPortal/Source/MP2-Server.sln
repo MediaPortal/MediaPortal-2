@@ -90,6 +90,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "NativeTv", "NativeTv", "{1D
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SlimTv.Service", "..\Incubator\SlimTvService\SlimTv.Service.csproj", "{28C12A71-3242-4969-ADB7-372828BDD665}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SlimTv.Integration", "..\Incubator\SlimTvIntegration\SlimTv.Integration.csproj", "{0B970B89-C3D8-4DEA-80DD-C18590FDC3B5}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x86 = Debug|x86
@@ -227,6 +229,10 @@ Global
 		{28C12A71-3242-4969-ADB7-372828BDD665}.Debug|x86.Build.0 = Debug|x86
 		{28C12A71-3242-4969-ADB7-372828BDD665}.Release|x86.ActiveCfg = Release|x86
 		{28C12A71-3242-4969-ADB7-372828BDD665}.Release|x86.Build.0 = Release|x86
+		{0B970B89-C3D8-4DEA-80DD-C18590FDC3B5}.Debug|x86.ActiveCfg = Debug|x86
+		{0B970B89-C3D8-4DEA-80DD-C18590FDC3B5}.Debug|x86.Build.0 = Debug|x86
+		{0B970B89-C3D8-4DEA-80DD-C18590FDC3B5}.Release|x86.ActiveCfg = Release|x86
+		{0B970B89-C3D8-4DEA-80DD-C18590FDC3B5}.Release|x86.Build.0 = Release|x86
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -272,5 +278,6 @@ Global
 		{587B806E-9AFC-47D7-A024-1CEC38C4D1D3} = {1FEC2432-78BD-4084-B08D-4FC99D808484}
 		{F31C71FA-4A24-4D33-B0EE-52CF667DCEF4} = {1D7CBAB2-F708-4A74-8DF9-610497AED552}
 		{28C12A71-3242-4969-ADB7-372828BDD665} = {1D7CBAB2-F708-4A74-8DF9-610497AED552}
+		{0B970B89-C3D8-4DEA-80DD-C18590FDC3B5} = {1D7CBAB2-F708-4A74-8DF9-610497AED552}
 	EndGlobalSection
 EndGlobal
