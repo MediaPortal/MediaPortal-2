@@ -270,7 +270,7 @@ namespace MediaPortal.Plugins.SlimTv.Service.UPnP
       // We use the client's RemoteAdress as unique "user name", so we do not need to pass this argument from clients via UPnP.
       timeshiftControl.StopTimeshift(context.RemoteAddress, 0);
       timeshiftControl.StopTimeshift(context.RemoteAddress, 1);
-      outParams = new List<object>();
+      outParams = new List<object> { true };
       return null;
     }
 
