@@ -33,7 +33,6 @@ namespace MediaPortal.UI.SkinEngine.Settings
     #region Consts
 
     protected const bool DEFAULT_FULL_SCREEN = true;
-    protected const int DEFAULT_FS_SCREEN_NUM = -1;
     protected const bool DEFAULT_CELL_PHONE_INPUT_STYLE = false;
     protected const bool DEFAULT_SCREEN_SAVER_ENABLED = true;
     protected const double DEFAULT_SCREEN_SAVER_TIMEOUT_MIN = 5;
@@ -42,7 +41,6 @@ namespace MediaPortal.UI.SkinEngine.Settings
 
     #endregion
 
-    protected int _fsScreenNum = DEFAULT_FS_SCREEN_NUM;
     protected bool _fullScreen = DEFAULT_FULL_SCREEN;
     protected bool _cellPhoneInputStyle = DEFAULT_CELL_PHONE_INPUT_STYLE;
     protected bool _screenSaverEnabled = DEFAULT_SCREEN_SAVER_ENABLED;
@@ -62,17 +60,6 @@ namespace MediaPortal.UI.SkinEngine.Settings
     {
       get { return _fullScreen; }
       set { _fullScreen = value; }
-    }
-
-    /// <summary>
-    /// Gets or sets the number of the screen where the application is displayed in fullscreen.
-    /// The value is an index in the array <see cref="System.Windows.Forms.Screen.AllScreens"/>.
-    /// </summary>
-    [Setting(SettingScope.User, DEFAULT_FS_SCREEN_NUM)]
-    public int FSScreenNum
-    {
-      get { return _fsScreenNum; }
-      set { _fsScreenNum = value; }
     }
 
     [Setting(SettingScope.User, DEFAULT_CELL_PHONE_INPUT_STYLE)]

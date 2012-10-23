@@ -32,6 +32,7 @@ using MediaPortal.UI.Control.InputManager;
 using MediaPortal.Common.Logging;
 using MediaPortal.UI.General;
 using MediaPortal.Common.Settings;
+using MediaPortal.UI.Settings;
 using MediaPortal.UI.Presentation.Players;
 using MediaPortal.UI.Presentation.Screens;
 using MediaPortal.UI.Services.Players.VideoPlayerSynchronizationStrategies;
@@ -40,7 +41,6 @@ using MediaPortal.UI.SkinEngine.InputManagement;
 using MediaPortal.UI.SkinEngine.Players;
 using MediaPortal.UI.SkinEngine.ScreenManagement;
 using MediaPortal.UI.SkinEngine.SkinManagement;
-
 using MediaPortal.UI.SkinEngine.Settings;
 using MediaPortal.UI.SkinEngine.Utils;
 using SlimDX.Direct3D9;
@@ -105,18 +105,34 @@ namespace MediaPortal.UI.SkinEngine.GUI
       InitializeComponent();
       CheckForIllegalCrossThreadCalls = false;
 
-      AppSettings settings = ServiceRegistration.Get<ISettingsManager>().Load<AppSettings>();
+      StartupSettings startupSettings = ServiceRegistration.Get<ISettingsManager>().Load<StartupSettings>();
+      AppSettings appSettings = ServiceRegistration.Get<ISettingsManager>().Load<AppSettings>();
 
       _previousMousePosition = new Point(-1, -1);
 
       Size desiredWindowedSize = new Size(SkinContext.SkinResources.SkinWidth, SkinContext.SkinResources.SkinHeight);
 
+      // Default screen for splashscreen is the one from where MP2 was started.
+      System.Windows.Forms.Screen preferredScreen = System.Windows.Forms.Screen.FromControl(this);
+      int numberOfScreens = System.Windows.Forms.Screen.AllScreens.Length;
+      int validScreenNum = GetScreenNum();
+
+      // Force the splashscreen to be displayed on a specific screen.
+      if (startupSettings.StartupScreenNum >= 0 && startupSettings.StartupScreenNum < numberOfScreens)
+      {
+        validScreenNum = startupSettings.StartupScreenNum;
+        preferredScreen = System.Windows.Forms.Screen.AllScreens[validScreenNum];
+        StartPosition = FormStartPosition.Manual;
+      }
+
+      Location = new Point(preferredScreen.WorkingArea.X, preferredScreen.WorkingArea.Y);
+
       _previousWindowLocation = Location;
       _previousWindowClientSize = desiredWindowedSize;
       _previousWindowState = FormWindowState.Normal;
 
-      if (settings.FullScreen)
-        SwitchToFullscreen(settings.FSScreenNum);
+      if (appSettings.FullScreen)
+        SwitchToFullscreen(validScreenNum);
       else
         SwitchToWindowedSize(Location, desiredWindowedSize, false);
 
@@ -127,10 +143,10 @@ namespace MediaPortal.UI.SkinEngine.GUI
       GraphicsDevice.Initialize_MainThread(this);
 
       // Read and apply ScreenSaver settings
-      _screenSaverTimeOut = TimeSpan.FromMinutes(settings.ScreenSaverTimeoutMin);
-      _isScreenSaverEnabled = settings.ScreenSaverEnabled;
+      _screenSaverTimeOut = TimeSpan.FromMinutes(appSettings.ScreenSaverTimeoutMin);
+      _isScreenSaverEnabled = appSettings.ScreenSaverEnabled;
 
-      _applicationSuspendLevel = settings.SuspendLevel;
+      _applicationSuspendLevel = appSettings.SuspendLevel;
       UpdateSystemSuspendLevel_MainThread(); // Don't use UpdateSystemSuspendLevel() here because the window handle was not created yet
 
       Application.Idle += OnApplicationIdle;
@@ -209,10 +225,6 @@ namespace MediaPortal.UI.SkinEngine.GUI
       ClientSize = rect.Size;
       FormBorderStyle = FormBorderStyle.None;
       _mode = ScreenMode.FullScreen;
-      // Remember the selected screen for next startup.
-      AppSettings settings = ServiceRegistration.Get<ISettingsManager>().Load<AppSettings>();
-      settings.FSScreenNum = screenNum;
-      ServiceRegistration.Get<ISettingsManager>().Save(settings);
     }
 
     protected void SwitchToWindowedSize(Point location, Size clientSize, bool maximize)
@@ -250,7 +262,7 @@ namespace MediaPortal.UI.SkinEngine.GUI
 
     public void StopUI()
     {
-      ServiceRegistration.Get<ILogger>().Debug("SkinEngine MainForm: Stoping UI");
+      ServiceRegistration.Get<ILogger>().Debug("SkinEngine MainForm: Stopping UI");
       StopRenderThread();
     }
 
@@ -437,12 +449,10 @@ namespace MediaPortal.UI.SkinEngine.GUI
       bool newFullscreen = mode == ScreenMode.FullScreen;
       AppSettings settings = ServiceRegistration.Get<ISettingsManager>().Load<AppSettings>();
 
-      // Already done, no need to do it twice
+      // Already done, no need to do it twice.
       if (mode == _mode)
         return;
 
-      int screenNum = GetScreenNum();
-      settings.FSScreenNum = screenNum;
       settings.FullScreen = newFullscreen;
       ServiceRegistration.Get<ISettingsManager>().Save(settings);
 
@@ -455,7 +465,7 @@ namespace MediaPortal.UI.SkinEngine.GUI
         if (newFullscreen)
         {
           StoreClientBounds();
-          SwitchToFullscreen(screenNum);
+          SwitchToFullscreen(GetScreenNum());
         }
         else
           SwitchToWindowedSize(_previousWindowLocation, _previousWindowClientSize, _previousWindowState == FormWindowState.Maximized);
@@ -564,7 +574,7 @@ namespace MediaPortal.UI.SkinEngine.GUI
           {
             bool? activeOverride = _screenSaverController.IsScreenSaverActiveOverride;
             if (activeOverride.HasValue)
-            _isScreenSaverActive = activeOverride.Value;
+              _isScreenSaverActive = activeOverride.Value;
           }
         }
         else

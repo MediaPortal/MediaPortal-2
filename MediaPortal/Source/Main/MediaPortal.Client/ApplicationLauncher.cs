@@ -39,6 +39,7 @@ using System.Drawing;
 using System.IO;
 using MediaPortal.Utilities.Screens;
 using MediaPortal.Common.PathManager;
+using MediaPortal.Common.Settings;
 #endif
 using MediaPortal.UI.Shares;
 using CommandLine;
@@ -56,15 +57,15 @@ namespace MediaPortal.Client
   internal static class ApplicationLauncher
   {
 #if !DEBUG
-    private static SplashScreen CreateSplashScreen()
+    private static SplashScreen CreateSplashScreen(int startupScreen)
     {
       SplashScreen result = new SplashScreen
           {
+            StartupScreen = startupScreen,
             ScaleToFullscreen = true,
             FadeInDuration = TimeSpan.FromMilliseconds(300),
             FadeOutDuration = TimeSpan.FromMilliseconds(200),
-            SplashBackgroundImage = Image.FromFile(Path.Combine(
-                Path.GetDirectoryName(Application.ExecutablePath), "MP2 Client Splashscreen.jpg"))
+            SplashBackgroundImage = Image.FromFile(Path.Combine(Path.GetDirectoryName(Application.ExecutablePath), "MP2 Client Splashscreen.jpg"))
           };
       return result;
     }
@@ -76,11 +77,6 @@ namespace MediaPortal.Client
     private static void Main(params string[] args)
     {
       Thread.CurrentThread.Name = "Main";
-
-#if !DEBUG
-      SplashScreen splashScreen = CreateSplashScreen();
-      splashScreen.ShowSplashScreen();
-#endif
 
       // Parse Command Line options
       CommandLineOptions mpArgs = new CommandLineOptions();
@@ -98,11 +94,21 @@ namespace MediaPortal.Client
 
       try
       {
+#if !DEBUG
+        SplashScreen splashScreen = null;
+#endif
         ILogger logger = null;
         try
         {
           // Check if user wants to override the default Application Data location.
-          ApplicationCore.RegisterCoreServices(mpArgs.DataDirectory);
+          ApplicationCore.RegisterVitalCoreServices(mpArgs.DataDirectory);
+
+#if !DEBUG
+          splashScreen = CreateSplashScreen(ServiceRegistration.Get<ISettingsManager>().Load<UI.Settings.StartupSettings>().StartupScreenNum);
+          splashScreen.ShowSplashScreen();
+#endif
+
+          ApplicationCore.RegisterCoreServices();
 
           logger = ServiceRegistration.Get<ILogger>();
 
