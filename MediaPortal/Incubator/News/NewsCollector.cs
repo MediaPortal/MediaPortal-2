@@ -8,8 +8,10 @@ using System.Xml;
 using MediaPortal.Common;
 using MediaPortal.Common.Logging;
 using MediaPortal.Common.PathManager;
+using MediaPortal.Common.Settings;
 using MediaPortal.Common.Threading;
 using MediaPortal.UiComponents.News.Models;
+using MediaPortal.UiComponents.News.Settings;
 
 namespace MediaPortal.UiComponents.News
 {
@@ -19,14 +21,6 @@ namespace MediaPortal.UiComponents.News
     /// Update interval for refreshing news feeds from the internet.
     /// </summary>
     const long NEWSFEEDS_UPDATE_INTERVAL = 10 * 60 * 1000;
-
-    protected readonly string[] SampleFeeds = new string[] 
-    { 
-      "http://www.team-mediaportal.com/rss-feeds",
-      "http://www.spiegel.de/schlagzeilen/tops/index.rss", 
-      "http://www.heise.de/newsticker/heise-atom.xml", 
-      "http://feeds.betanews.com/bn" 
-    };
 
     protected Random random = new Random();
     protected object syncObj = new object();
@@ -64,6 +58,15 @@ namespace MediaPortal.UiComponents.News
     public event Action RefeshStarted;
     public event Action<INewsCollector> RefeshFinished;
 
+    List<string> GetFeedUrls()
+    {
+      NewsSettings settings = ServiceRegistration.Get<ISettingsManager>().Load<NewsSettings>();
+      if (settings.FeedsList.Count > 0)
+        return settings.FeedsList.Select(f => f.Url).ToList();
+      else
+        return settings.SampleFeeds.ToList();
+    }
+
     void RefreshFeeds()
     {
       if (refeshInProgress) return;
@@ -75,7 +78,7 @@ namespace MediaPortal.UiComponents.News
         try
         {
           List<NewsFeed> freshFeeds = new List<NewsFeed>();
-          foreach (var url in SampleFeeds)
+          foreach (var url in GetFeedUrls())
           {
             try
             {
