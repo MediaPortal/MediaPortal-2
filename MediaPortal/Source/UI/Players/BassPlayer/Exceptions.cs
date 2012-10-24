@@ -25,7 +25,7 @@
 using System;
 using Un4seen.Bass;
 
-namespace Ui.Players.BassPlayer
+namespace MediaPortal.UI.Players.BassPlayer
 {
   /// <summary>
   /// Bass Player exception.

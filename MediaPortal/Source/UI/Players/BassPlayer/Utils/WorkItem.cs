@@ -25,7 +25,7 @@
 using System;
 using System.Threading;
 
-namespace Ui.Players.BassPlayer.Utils
+namespace MediaPortal.UI.Players.BassPlayer.Utils
 {
   /// <summary>
   /// Represents a single workitem to be executed on a different thread.

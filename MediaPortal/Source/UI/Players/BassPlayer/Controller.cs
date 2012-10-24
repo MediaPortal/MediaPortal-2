@@ -28,14 +28,14 @@ using System.Threading;
 using MediaPortal.Common;
 using MediaPortal.Common.Logging;
 using MediaPortal.Common.Settings;
+using MediaPortal.UI.Players.BassPlayer.Interfaces;
+using MediaPortal.UI.Players.BassPlayer.PlayerComponents;
+using MediaPortal.UI.Players.BassPlayer.Settings;
+using MediaPortal.UI.Players.BassPlayer.Utils;
 using MediaPortal.UI.Presentation.Players;
-using Ui.Players.BassPlayer.Interfaces;
-using Ui.Players.BassPlayer.PlayerComponents;
-using Ui.Players.BassPlayer.Settings;
-using Ui.Players.BassPlayer.Utils;
 using Un4seen.Bass;
 
-namespace Ui.Players.BassPlayer
+namespace MediaPortal.UI.Players.BassPlayer
 {
   /// <summary>
   /// Central controller for the BASS player system.

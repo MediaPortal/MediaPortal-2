@@ -8,7 +8,7 @@
     <ProjectGuid>{1A980621-B711-4235-B98C-C4276D6FA9FD}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Ui.Players.BassPlayer</RootNamespace>
+    <RootNamespace>MediaPortal.UI.Players.BassPlayer</RootNamespace>
     <AssemblyName>BassPlayer</AssemblyName>
     <FileUpgradeFlags>
     </FileUpgradeFlags>

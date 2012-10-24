@@ -24,7 +24,7 @@
 
 using System.Collections.Generic;
 
-namespace Ui.Players.BassPlayer.Utils
+namespace MediaPortal.UI.Players.BassPlayer.Utils
 {
   /// <summary>
   /// Workitem queue.

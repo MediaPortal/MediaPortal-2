@@ -25,7 +25,7 @@
 using System;
 using System.Runtime.InteropServices;
 
-namespace Ui.Players.BassPlayer.Utils
+namespace MediaPortal.UI.Players.BassPlayer.Utils
 {
   /// <summary>
   /// Fifo ringbuffer for audio data.

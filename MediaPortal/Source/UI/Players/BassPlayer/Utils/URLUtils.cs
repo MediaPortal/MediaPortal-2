@@ -24,7 +24,7 @@
 
 using MediaPortal.Common.ResourceAccess;
 
-namespace Ui.Players.BassPlayer.Utils
+namespace MediaPortal.UI.Players.BassPlayer.Utils
 {
   public class URLUtils
   {

@@ -26,13 +26,13 @@ using System;
 using System.Threading;
 using MediaPortal.Common;
 using MediaPortal.Common.Logging;
+using MediaPortal.UI.Players.BassPlayer.Settings;
+using MediaPortal.UI.Players.BassPlayer.Utils;
 using MediaPortal.UI.Presentation.Players;
-using Ui.Players.BassPlayer.Settings;
-using Ui.Players.BassPlayer.Utils;
 using Un4seen.Bass;
 using Un4seen.Bass.AddOn.Mix;
 
-namespace Ui.Players.BassPlayer.PlayerComponents
+namespace MediaPortal.UI.Players.BassPlayer.PlayerComponents
 {
   /// <summary>
   /// Buffers the output stream to ensure stable playback. Also provides a synchronized stream for visualization purposes.

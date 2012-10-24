@@ -28,10 +28,10 @@ using MediaPortal.Common.Logging;
 using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.ResourceAccess;
 using MediaPortal.Common.PluginManager;
+using MediaPortal.UI.Players.BassPlayer.PlayerComponents;
 using MediaPortal.UI.Presentation.Players;
-using Ui.Players.BassPlayer.PlayerComponents;
 
-namespace Ui.Players.BassPlayer
+namespace MediaPortal.UI.Players.BassPlayer
 {
   public class BassPlayerPlugin : IPluginStateTracker, IPlayerBuilder
   {

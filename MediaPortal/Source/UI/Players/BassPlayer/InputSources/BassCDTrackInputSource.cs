@@ -24,12 +24,12 @@
 
 using System;
 using MediaPortal.Extensions.BassLibraries;
-using Ui.Players.BassPlayer.Interfaces;
-using Ui.Players.BassPlayer.Utils;
+using MediaPortal.UI.Players.BassPlayer.Interfaces;
+using MediaPortal.UI.Players.BassPlayer.Utils;
 using Un4seen.Bass;
 using Un4seen.Bass.AddOn.Cd;
 
-namespace Ui.Players.BassPlayer.InputSources
+namespace MediaPortal.UI.Players.BassPlayer.InputSources
 {
   /// <summary>
   /// Represents a CD track inputsource specified by drive letter and track number.

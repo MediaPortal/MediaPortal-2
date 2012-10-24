@@ -26,7 +26,7 @@ using System;
 using System.Collections.Generic;
 using MediaPortal.Common.Settings;
 
-namespace Ui.Players.BassPlayer.Settings
+namespace MediaPortal.UI.Players.BassPlayer.Settings
 {
   /// <summary>
   /// Contains the bass player user configuration.

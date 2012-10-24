@@ -25,7 +25,7 @@
 using System;
 using MediaPortal.Common.ResourceAccess;
 
-namespace Ui.Players.BassPlayer.InputSources
+namespace MediaPortal.UI.Players.BassPlayer.InputSources
 {
   public abstract class AbstractBassResourceInputSource : IDisposable
   {

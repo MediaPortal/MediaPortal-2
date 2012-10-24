@@ -24,7 +24,7 @@
 
 using System;
 
-namespace Ui.Players.BassPlayer.InputSources
+namespace MediaPortal.UI.Players.BassPlayer.InputSources
 {
   /// <summary>
   /// Static wrapper class to create a CD track inputsource by parsing a virtual filesystem CD track file path.

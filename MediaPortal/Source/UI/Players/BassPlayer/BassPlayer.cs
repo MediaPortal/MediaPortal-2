@@ -27,13 +27,13 @@ using MediaPortal.Common;
 using MediaPortal.Common.Logging;
 using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.ResourceAccess;
+using MediaPortal.UI.Players.BassPlayer.Interfaces;
+using MediaPortal.UI.Players.BassPlayer.PlayerComponents;
+using MediaPortal.UI.Players.BassPlayer.Utils;
 using MediaPortal.UI.Presentation.Players;
-using Ui.Players.BassPlayer.Interfaces;
-using Ui.Players.BassPlayer.PlayerComponents;
-using Ui.Players.BassPlayer.Utils;
 using Un4seen.Bass;
 
-namespace Ui.Players.BassPlayer
+namespace MediaPortal.UI.Players.BassPlayer
 {
   /// <summary>
   /// MediaPortal 2 audio player based on the Un4seen Bass library. Supports several player interfaces of the MP2 player API.

@@ -25,11 +25,11 @@
 using System;
 using System.IO;
 using System.Collections.Generic;
+using MediaPortal.UI.Players.BassPlayer.Utils;
 using MediaPortal.Utilities;
-using Ui.Players.BassPlayer.Utils;
 using Un4seen.Bass;
 
-namespace Ui.Players.BassPlayer.PlayerComponents
+namespace MediaPortal.UI.Players.BassPlayer.PlayerComponents
 {
   /// <summary>
   /// Manages the Bass audio library and its plugins.

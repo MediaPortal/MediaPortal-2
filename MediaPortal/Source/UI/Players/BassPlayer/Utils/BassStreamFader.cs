@@ -26,7 +26,7 @@ using System;
 using System.Threading;
 using Un4seen.Bass;
 
-namespace Ui.Players.BassPlayer.Utils
+namespace MediaPortal.UI.Players.BassPlayer.Utils
 {
   /// <summary>
   /// Performs fade-in and fade-out on a Bass stream.

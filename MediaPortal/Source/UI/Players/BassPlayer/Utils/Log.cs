@@ -25,7 +25,7 @@
 using MediaPortal.Common;
 using MediaPortal.Common.Logging;
 
-namespace Ui.Players.BassPlayer.Utils
+namespace MediaPortal.UI.Players.BassPlayer.Utils
 {
   /// <summary>
   /// Logger service wrapper.

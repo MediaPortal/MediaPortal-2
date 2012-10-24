@@ -24,7 +24,7 @@
 
 using System;
 
-namespace Ui.Players.BassPlayer.Interfaces
+namespace MediaPortal.UI.Players.BassPlayer.Interfaces
 {
   /// <summary>
   /// Provides members to control and read an inputsource.

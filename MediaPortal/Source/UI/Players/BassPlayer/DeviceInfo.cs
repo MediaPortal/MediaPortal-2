@@ -24,7 +24,7 @@
 
 using System;
 
-namespace Ui.Players.BassPlayer
+namespace MediaPortal.UI.Players.BassPlayer
 {
   /// <summary>
   /// Contains information about an outputdevice.

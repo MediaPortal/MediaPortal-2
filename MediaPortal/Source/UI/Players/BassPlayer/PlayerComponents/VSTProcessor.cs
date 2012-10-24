@@ -26,7 +26,7 @@
 
 using System;
 
-namespace Ui.Players.BassPlayer.PlayerComponents
+namespace MediaPortal.UI.Players.BassPlayer.PlayerComponents
 {
   /// <summary>
   /// Performs signal processing using VST plugins.
