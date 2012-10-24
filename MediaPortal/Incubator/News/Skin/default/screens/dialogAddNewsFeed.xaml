@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Include
+    xmlns="www.team-mediaportal.com/2008/mpf/directx"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    Source="screens\master_dialog_bare.xaml"
+    >
+
+  <Include.Resources>
+
+    <!-- Header -->
+    <ResourceWrapper x:Key="Dialog_Header_Text" Resource="[News.AddFeed]"/>
+
+    <!-- NewsSetup model -->
+    <Model x:Key="Model" Id="138253FF-FF43-4732-AA29-F69C8B288342"/>
+
+    <!-- Contents -->
+    <ControlTemplate x:Key="Contents_Template">
+      <StackPanel Width="650" DataContext="{Binding Source={StaticResource Model}}">
+        <StackPanel Margin="10" HorizontalAlignment="Stretch">
+          <Label Margin="10,5,10,5" HorizontalAlignment="Left" Content="[News.EnterFeedName]" Color="{ThemeResource TextColor}"/>
+          <TextBox Margin="10,5,10,5" HorizontalAlignment="Stretch" BorderThickness="1"
+            Text="{Binding Path=NewFeedBookmark.Name,Mode=OneWayToSource}"/>
+          <Label Margin="10,5,10,5" HorizontalAlignment="Left" Content="[News.EnterFeedUrl]" Color="{ThemeResource TextColor}"/>
+          <TextBox Margin="10,5,10,5" HorizontalAlignment="Stretch" BorderThickness="1"
+            Text="{Binding Path=NewFeedBookmark.Url,Mode=OneWayToSource}"/>
+        </StackPanel>
+        <Grid HorizontalAlignment="Stretch">
+          <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="*"/>
+          </Grid.ColumnDefinitions>
+          <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+          </Grid.RowDefinitions>
+          <Button Grid.Column="0" Grid.Row="0" Style="{ThemeResource DialogButtonStyle}" Content="[System.Done]"
+              HorizontalAlignment="Center">
+            <Button.Command>
+              <CommandList>
+                <Command Path="AddNewFeed"/>
+                <Command Source="{Service ScreenManager}" Path="CloseTopmostDialog"/>
+              </CommandList>
+            </Button.Command>
+          </Button>
+          <Button Grid.Column="1" Grid.Row="0" Style="{ThemeResource DialogButtonStyle}" Content="[System.Cancel]"
+              HorizontalAlignment="Center" Command="{Command Source={Service ScreenManager},Path=CloseTopmostDialog}"/>
+        </Grid>
+      </StackPanel>
+    </ControlTemplate>
+
+  </Include.Resources>
+</Include>

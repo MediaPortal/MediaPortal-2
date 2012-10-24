@@ -21,6 +21,7 @@
 	<Register Location="/Models">
 		<Model Id="EE1BBF83-AE5C-491C-9978-14737A2B0883" Name="CurrentNewsModel" ClassName="MediaPortal.UiComponents.News.Models.CurrentNewsModel"/>
 		<Model Id="D5B308C1-4585-4051-AB78-E10D17C3CC2D" Name="NewsModel" ClassName="MediaPortal.UiComponents.News.Models.NewsModel"/>
+    <Model Id="138253FF-FF43-4732-AA29-F69C8B288342" Name="NewsSetupModel" ClassName="MediaPortal.UiComponents.News.Models.NewsSetupModel"/>
 	</Register>
 
 	<Register Location="/Workflow/States">
@@ -30,7 +31,9 @@
         DisplayLabel="*" WorkflowModel="D5B308C1-4585-4051-AB78-E10D17C3CC2D"/>
 		<WorkflowState Id="1116DED3-49F2-41FF-B234-D004AB1AB1B2" Name="NewsItemDetail" MainScreen="NewsItemDetail"
         DisplayLabel="*" WorkflowModel="D5B308C1-4585-4051-AB78-E10D17C3CC2D"/>
-	</Register>
+    <DialogState Id="66398F9B-A4DE-49F4-840C-4228C9C94F35" Name="NewsFeedsSetup" DialogScreen="dialogNewsFeedsSetup"
+        DisplayLabel="[Settings.Plugins.News.FeedsSetup]" WorkflowModel="138253FF-FF43-4732-AA29-F69C8B288342"/>
+  </Register>
 
 	<Register Location="/Resources/Language">
 		<Resource Id="NewsLanguage" Directory="Language" Type="Language"/>
@@ -56,4 +59,14 @@
         Text="[Settings.Plugins.News]"/>
 	</Register>
 
-	</Plugin>
+  <!-- Contents of '/Plugins/News' section -->
+  <Register Location="/Configuration/Settings/Plugins/News">
+    <CustomConfigSetting
+        Id="NewsConfiguration"
+        Text="[Settings.Plugins.News.FeedsSetup]"
+        HelpText="[Settings.Plugins.News.FeedsSetup.Help]"
+        ClassName="MediaPortal.UiComponents.News.Settings.Configuration.NewsConfigSetting"
+        AdditionalData="WorkflowState=66398F9B-A4DE-49F4-840C-4228C9C94F35,ConfAppPanel=..."/>
+  </Register>
+  
+</Plugin>
