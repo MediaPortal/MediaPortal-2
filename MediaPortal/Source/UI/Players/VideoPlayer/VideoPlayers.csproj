@@ -92,6 +92,8 @@
     <Compile Include="Settings\Configuration\VideoAVCCodec.cs" />
     <Compile Include="Settings\Configuration\VideoMPEG4Codec.cs" />
     <Compile Include="Settings\Configuration\VideoMPEG2Codec.cs" />
+    <Compile Include="Tools\COMHelper.cs" />
+    <Compile Include="Tools\FilterLoader.cs" />
     <Compile Include="Tools\GraphRebuilder.cs" />
     <Compile Include="Tools\StreamInfo.cs" />
     <Compile Include="Tools\StreamInfoHandler.cs" />

@@ -363,6 +363,7 @@
     <Compile Include="UPnP\UPnPDtUserProfileEnumeration.cs" />
     <Compile Include="UserProfileDataManagement\IUserProfileDataManagement.cs" />
     <Compile Include="UserProfileDataManagement\UserProfile.cs" />
+    <Compile Include="Utils\NativeMethods.cs" />
     <Compile Include="VersionInfo\VersionInfo.cs" />
   </ItemGroup>
   <ItemGroup>
