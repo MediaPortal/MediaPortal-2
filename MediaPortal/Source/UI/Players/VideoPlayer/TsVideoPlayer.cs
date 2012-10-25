@@ -98,7 +98,7 @@ namespace MediaPortal.UI.Players.Video
     protected override void AddFileSource()
     {
       // Render the file
-      _fileSource = (IBaseFilter) new TsReader();
+      _fileSource = FilterLoader.LoadFilterFromDll("TsReader.ax", typeof(TsReader).GUID, true);
 
       ITsReader tsReader = (ITsReader) _fileSource;
       tsReader.SetRelaxedMode(1);

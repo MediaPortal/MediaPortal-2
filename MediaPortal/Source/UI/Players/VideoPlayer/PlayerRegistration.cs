@@ -25,7 +25,6 @@
 using System;
 using System.Collections.Generic;
 using MediaPortal.Common.ResourceAccess;
-using MediaPortal.UI.Players.Video.Tools;
 using MediaPortal.Utilities;
 
 namespace MediaPortal.UI.Players.Video
@@ -45,11 +44,8 @@ namespace MediaPortal.UI.Players.Video
       EXTENSIONS2PLAYER.Add(".mpg", typeof(VideoPlayer));
       EXTENSIONS2PLAYER.Add(".mpeg", typeof(VideoPlayer));
 
-      // TsVideoPlayer depends on the MP1 TsReader.ax component, that may not be present. In this case we'll use the default VideoPlayer.
-      EXTENSIONS2PLAYER.Add(".ts",
-                            FilterGraphTools.IsThisComObjectInstalled(new Guid(TsVideoPlayer.TSREADER_CLSID))
-                              ? typeof (TsVideoPlayer)
-                              : typeof (VideoPlayer));
+      // TsVideoPlayer depends on the MP1 TsReader.ax component, we distribute our own copy of this file and load it without registration.
+      EXTENSIONS2PLAYER.Add(".ts", typeof (TsVideoPlayer));
 
       EXTENSIONS2PLAYER.Add(".mts", typeof(VideoPlayer));
       EXTENSIONS2PLAYER.Add(".m2ts", typeof(VideoPlayer));
