@@ -30,7 +30,7 @@ using DirectShowLib;
 namespace MediaPortal.UI.Players.Video.Tools
 {
   /// <summary>
-  /// <see cref="FilterLoader"/> is a helper class to load <see cref="IBaseFilter"/>s from any .dll, for which is no registration of the filter needed.
+  /// <see cref="FilterLoader"/> is a helper class to load <see cref="IBaseFilter"/>s from any .dll. It's not needed that the filter is registered.
   /// </summary>
   public static class FilterLoader
   {
@@ -66,6 +66,5 @@ namespace MediaPortal.UI.Players.Video.Tools
       string executingPath = Assembly.GetCallingAssembly().Location;
       return Path.Combine(Path.GetDirectoryName(executingPath), fileName);
     }
-
   }
 }
