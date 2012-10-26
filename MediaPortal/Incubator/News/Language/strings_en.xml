@@ -9,5 +9,7 @@
   <string name="News.EnterFeedUrl">Enter Url of the feed</string>
 	<string name="Settings.Plugins.News">News</string>
   <string name="Settings.Plugins.News.FeedsSetup">Manage Feeds</string>
-  <string name="Settings.Plugins.News.FeedsSetup.Help">Configures feeds that are used to pull data for news</string>
+  <string name="Settings.Plugins.News.FeedsSetup.Help">Configure feeds that are used to gather data for news</string>
+	<string name="Settings.Plugins.News.RefreshInterval">Refresh Interval</string>
+	<string name="Settings.Plugins.News.RefreshInterval.Help">Download feed data periodically after ... minutes</string>
 </resources>

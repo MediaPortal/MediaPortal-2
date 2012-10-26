@@ -59,6 +59,7 @@
     <Compile Include="Settings\Configuration\NewsConfigSetting.cs" />
     <Compile Include="Settings\FeedBookmark.cs" />
     <Compile Include="Settings\NewsSettings.cs" />
+    <Compile Include="SyndicationFeedReader.cs" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="Language\strings_en.xml">

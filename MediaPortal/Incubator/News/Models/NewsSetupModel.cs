@@ -104,8 +104,11 @@ namespace MediaPortal.UiComponents.News.Models
         ISettingsManager settingsManager = ServiceRegistration.Get<ISettingsManager>();
         NewsSettings settings = ServiceRegistration.Get<ISettingsManager>().Load<NewsSettings>();
         // Apply new feeds list
-        settings.FeedsList.Clear();
-        foreach (FeedBookmarkItem item in Feeds) settings.FeedsList.Add(new FeedBookmark() { Name = item.Name, Url = item.Url });
+        lock (settings.FeedsList)
+        {
+          settings.FeedsList.Clear();
+          foreach (FeedBookmarkItem item in Feeds) settings.FeedsList.Add(new FeedBookmark() { Name = item.Name, Url = item.Url });
+        }
         // save
         settingsManager.Save(settings);
       }
@@ -132,13 +135,33 @@ namespace MediaPortal.UiComponents.News.Models
       HasChanges = false;
       NewFeedBookmark = new FeedBookmarkItem();
       Feeds.Clear();
-      foreach (var feed in settings.FeedsList)
-        Feeds.Add(new FeedBookmarkItem() { Name = feed.Name, Url = feed.Url });
+      lock (settings.FeedsList)
+      {
+        if (settings.FeedsList.Count == 0)
+        {
+          foreach (var feed in NewsSettings.GetDefaultRegionalFeeds())
+            Feeds.Add(new FeedBookmarkItem() { Name = feed.Name, Url = feed.Url });
+        }
+        else
+        {
+          foreach (var feed in settings.FeedsList)
+            Feeds.Add(new FeedBookmarkItem() { Name = feed.Name, Url = feed.Url });
+        }
+      }
     }
 
     public void ExitModelContext(UI.Presentation.Workflow.NavigationContext oldContext, UI.Presentation.Workflow.NavigationContext newContext)
     {
-      // TODO : if changes were made, call refresh of the feeds
+      // if changes were made, call refresh of the feeds
+      if (HasChanges)
+      {
+        INewsCollector newsCollector = ServiceRegistration.Get<INewsCollector>(false);
+        if (newsCollector != null)
+        {
+          newsCollector.RefreshNow();
+        }
+        HasChanges = false;
+      }
     }
 
     public void ChangeModelContext(UI.Presentation.Workflow.NavigationContext oldContext, UI.Presentation.Workflow.NavigationContext newContext, bool push)
