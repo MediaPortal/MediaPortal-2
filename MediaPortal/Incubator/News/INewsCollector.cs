@@ -11,5 +11,7 @@ namespace MediaPortal.UiComponents.News
     bool IsRefeshing { get; }
     event Action RefeshStarted;
     event Action<INewsCollector> RefeshFinished;
+    void RefreshNow();
+    void ChangeRefreshInterval(int minutes);
   }
 }

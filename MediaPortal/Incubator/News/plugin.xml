@@ -62,11 +62,17 @@
   <!-- Contents of '/Plugins/News' section -->
   <Register Location="/Configuration/Settings/Plugins/News">
     <CustomConfigSetting
-        Id="NewsConfiguration"
+        Id="NewsFeedsManaging"
         Text="[Settings.Plugins.News.FeedsSetup]"
         HelpText="[Settings.Plugins.News.FeedsSetup.Help]"
         ClassName="MediaPortal.UiComponents.News.Settings.Configuration.NewsConfigSetting"
         AdditionalData="WorkflowState=66398F9B-A4DE-49F4-840C-4228C9C94F35,ConfAppPanel=..."/>
+
+		<ConfigSetting
+        Id="NewsRefreshInterval"
+        Text="[Settings.Plugins.News.RefreshInterval]"
+        HelpText="[Settings.Plugins.News.RefreshInterval.Help]"
+        ClassName="MediaPortal.UiComponents.News.Settings.Configuration.RefreshInterval"/>
   </Register>
   
 </Plugin>
