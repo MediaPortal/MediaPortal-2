@@ -75,7 +75,7 @@
   <DataTemplate x:Key="NewsFeedBookmarkItemDataTemplate" DataType="{x:Type collections:ListItem}">
     <Grid x:Name="ItemControl" VerticalAlignment="Center" HorizontalAlignment="Stretch">
       <Grid.ColumnDefinitions>
-        <ColumnDefinition Width="100"/>
+        <ColumnDefinition Width="150"/>
         <ColumnDefinition Width="*"/>
         <ColumnDefinition Width="20"/>
       </Grid.ColumnDefinitions>
