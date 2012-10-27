@@ -136,6 +136,17 @@ namespace MediaPortal.UI.SkinEngine.DirectX
       get { return _setup; }
     }
 
+    public static DisplayMode CurrentDisplayMode
+    {
+      get
+      {
+        Capabilities deviceCapabilities = _device.Capabilities;
+        int ordinal = deviceCapabilities.AdapterOrdinal;
+        AdapterInformation adapterInfo = MPDirect3D.Direct3D.Adapters[ordinal];
+        return adapterInfo.CurrentDisplayMode;
+      }
+    }
+
     /// <summary>
     /// Lock to be used during DirectX (and maybe also other) resource access and during rendering.
     /// </summary>
@@ -206,8 +217,7 @@ namespace MediaPortal.UI.SkinEngine.DirectX
         AdapterInformation adapterInfo = MPDirect3D.Direct3D.Adapters[ordinal];
         DisplayMode currentMode = adapterInfo.CurrentDisplayMode;
         AdaptTargetFrameRateToDisplayMode(currentMode);
-        ServiceRegistration.Get<ILogger>().Info("GraphicsDevice: DirectX initialized {0}x{1} (format: {2} {3} Hz)", Width,
-            Height, currentMode.Format, TargetFrameRate);
+        LogScreenMode(currentMode);
         bool firstTimeInitialization = _dxCapabilities == null;
         _dxCapabilities = DxCapabilities.RequestCapabilities(deviceCapabilities, currentMode);
         if (firstTimeInitialization)
@@ -244,6 +254,12 @@ namespace MediaPortal.UI.SkinEngine.DirectX
       _currentRenderStrategyIndex = 0;
     }
 
+    private static void LogScreenMode(DisplayMode mode)
+    {
+      ServiceRegistration.Get<ILogger>().Info("GraphicsDevice: DirectX initialized {0}x{1} (format: {2} {3} Hz)", Width,
+          Height, mode.Format, TargetFrameRate);
+    }
+
     /// <summary>
     /// Gets the current <see cref="IRenderStrategy"/>.
     /// </summary>
@@ -258,6 +274,7 @@ namespace MediaPortal.UI.SkinEngine.DirectX
     public static void NextRenderStrategy()
     {
       _currentRenderStrategyIndex = (_currentRenderStrategyIndex + 1) % _renderStrategies.Count;
+      LogScreenMode(CurrentDisplayMode);
     }
 
     internal static void Dispose()
@@ -273,7 +290,7 @@ namespace MediaPortal.UI.SkinEngine.DirectX
       _renderAndResourceAccessLock.Dispose();
     }
 
-    public static void SetFrameRate(float frameRate)
+    public static void SetFrameRate(double frameRate)
     {
       RenderStrategy.SetTargetFrameRate(frameRate);
     }
