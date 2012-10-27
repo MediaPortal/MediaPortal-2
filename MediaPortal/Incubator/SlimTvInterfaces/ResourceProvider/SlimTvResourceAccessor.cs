@@ -29,7 +29,9 @@ using MediaPortal.Common.ResourceAccess;
 
 namespace MediaPortal.Plugins.SlimTvClient.Interfaces
 {
-  public class SlimTvResourceAccessor : ILocalFsResourceAccessor
+  // TODO: support different ResourceAccessors for either local files (single seat) or network streams (multi seat). Current implementation always uses
+  // network streams, even in single seat.
+  public class SlimTvResourceAccessor : INetworkResourceAccessor
   {
     private readonly string _path;
     private readonly int _slotIndex;
@@ -42,7 +44,7 @@ namespace MediaPortal.Plugins.SlimTvClient.Interfaces
 
     #region Static methods
 
-    public static IFileSystemResourceAccessor GetResourceAccessor(string path)
+    public static INetworkResourceAccessor GetResourceAccessor(string path)
     {
       // Parse slotindex from path and cut the prefix off.
       int slotIndex;
@@ -74,6 +76,11 @@ namespace MediaPortal.Plugins.SlimTvClient.Interfaces
     }
 
     public string Path
+    {
+      get { return _path; }
+    }
+
+    public string URL
     {
       get { return _path; }
     }
@@ -172,7 +179,7 @@ namespace MediaPortal.Plugins.SlimTvClient.Interfaces
       return true;
     }
 
-    public IFileSystemResourceAccessor GetResource(string path)
+    public INetworkResourceAccessor GetResource(string path)
     {
       return GetResourceAccessor(path);
     }

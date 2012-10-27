@@ -58,7 +58,7 @@ namespace MediaPortal.Plugins.SlimTvClient.Interfaces
 
     public SlimTvResourceProvider()
     {
-      _metadata = new ResourceProviderMetadata(SLIMTV_RESOURCE_PROVIDER_ID, RES_RESOURCE_PROVIDER_NAME, RES_RESOURCE_PROVIDER_DESCRIPTION, true, false);
+      _metadata = new ResourceProviderMetadata(SLIMTV_RESOURCE_PROVIDER_ID, RES_RESOURCE_PROVIDER_NAME, RES_RESOURCE_PROVIDER_DESCRIPTION, true, true);
     }
 
     #endregion
@@ -82,6 +82,8 @@ namespace MediaPortal.Plugins.SlimTvClient.Interfaces
 
     public bool TryCreateResourceAccessor(string path, out IResourceAccessor result)
     {
+      // TODO: support different ResourceAccessors for either local files (single seat) or network streams (multi seat). Current implementation always uses
+      // network streams, even in single seat.
       result = SlimTvResourceAccessor.GetResourceAccessor(path);
       return result != null;
     }
