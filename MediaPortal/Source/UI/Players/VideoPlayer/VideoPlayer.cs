@@ -145,7 +145,7 @@ namespace MediaPortal.UI.Players.Video
     protected bool _initialized = false;
     protected readonly List<IPin> _evrConnectionPins = new List<IPin>();
     protected IResourceLocator _resourceLocator;
-    protected ILocalFsResourceAccessor _resourceAccessor;
+    protected IResourceAccessor _resourceAccessor;
     protected string _mediaItemTitle = null;
     protected AsynchronousMessageQueue _messageQueue = null;
     protected SkinEngine.Players.RenderDlgt _renderDlgt = null;
@@ -282,9 +282,24 @@ namespace MediaPortal.UI.Players.Video
       {
         _resourceLocator = locator;
         _mediaItemTitle = mediaItemTitle;
-        if (!_resourceLocator.TryCreateLocalFsAccessor(out _resourceAccessor))
-          throw new IllegalCallException("The VideoPlayer can only play local file system resources");
-        ServiceRegistration.Get<ILogger>().Debug("{0}: Initializing for media item '{1}'", PlayerTitle, _resourceAccessor.LocalFileSystemPath);
+
+        if (_resourceLocator.NativeResourcePath.IsNetworkResource)
+        {
+          _resourceAccessor = _resourceLocator.CreateAccessor() as INetworkResourceAccessor;
+          if (_resourceAccessor == null)
+            throw new IllegalCallException("The VideoPlayer can only play network resources of type INetworkResourceAccessor");
+
+          ServiceRegistration.Get<ILogger>().Debug("{0}: Initializing for network media item '{1}'", PlayerTitle, SourcePathOrUrl);
+        }
+        else
+        {
+          ILocalFsResourceAccessor lfsr;
+          if (!_resourceLocator.TryCreateLocalFsAccessor(out lfsr))
+            throw new IllegalCallException("The VideoPlayer can only play local file system resources");
+
+          _resourceAccessor = lfsr;
+          ServiceRegistration.Get<ILogger>().Debug("{0}: Initializing for media item '{1}'", PlayerTitle, SourcePathOrUrl);
+        }
 
         // Create a DirectShow FilterGraph
         CreateGraphBuilder();
@@ -332,6 +347,31 @@ namespace MediaPortal.UI.Players.Video
         Shutdown();
         throw;
       }
+    }
+
+    /// <summary>
+    /// Indicates if the current resource is a network resource, accessed by a <seealso cref="INetworkResourceAccessor"/>.
+    /// </summary>
+    public bool IsNetworkResource
+    {
+      get { return _resourceAccessor is INetworkResourceAccessor; }
+    }
+
+    /// <summary>
+    /// Indicates if the current resource is a local filesystem resource, accessed by a <seealso cref="ILocalFsResourceAccessor"/>.
+    /// </summary>
+    public bool IsLocalFilesystemResource
+    {
+      get { return _resourceAccessor is ILocalFsResourceAccessor; }
+    }
+
+    /// <summary>
+    /// Gets the current resource path or URL depending on the type (<see cref="IsNetworkResource"/> and <see cref="IsLocalFilesystemResource"/>).
+    /// </summary>
+    public string SourcePathOrUrl
+    {
+      get { return IsNetworkResource ? ((INetworkResourceAccessor)_resourceAccessor).URL : 
+        IsLocalFilesystemResource ? ((ILocalFsResourceAccessor)_resourceAccessor).LocalFileSystemPath : null; }
     }
 
     #endregion
@@ -483,7 +523,7 @@ namespace MediaPortal.UI.Players.Video
     protected virtual void AddFileSource()
     {
       // Render the file
-      int hr = _graphBuilder.RenderFile(_resourceAccessor.LocalFileSystemPath, null);
+      int hr = _graphBuilder.RenderFile(SourcePathOrUrl, null);
       DsError.ThrowExceptionForHR(hr);
     }
 

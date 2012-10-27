@@ -116,7 +116,7 @@ namespace MediaPortal.UI.Players.Video
       }
 
       IFileSourceFilter f = (IFileSourceFilter) _fileSource;
-      f.Load(_resourceAccessor.LocalFileSystemPath, null);
+      f.Load(SourcePathOrUrl, null);
 
       // Init GraphRebuilder
       _graphRebuilder = new GraphRebuilder(_graphBuilder, _fileSource, OnAfterGraphRebuild) { PlayerName = PlayerTitle };

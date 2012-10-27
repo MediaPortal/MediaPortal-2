@@ -140,7 +140,7 @@ namespace MediaPortal.UI.Players.Video
       if (_dvdCtrl == null)
         throw new Exception("Failed to access DVD Control!");
 
-      string path = _resourceAccessor.LocalFileSystemPath;
+      string path = SourcePathOrUrl;
 
       // check if path is a drive root (like D:), otherwise append VIDEO_TS 
       // MediaItem always contains the parent folder. Add the required VIDEO_TS subfolder.

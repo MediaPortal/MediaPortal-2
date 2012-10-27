@@ -90,7 +90,7 @@ namespace MediaPortal.UI.Players.Video
     /// </summary>
     protected override void AddFileSource()
     {
-      string strFile = _resourceAccessor.LocalFileSystemPath;
+      string strFile = SourcePathOrUrl;
 
       // Render the file
       strFile = Path.Combine(strFile.ToLower(), @"BDMV\index.bdmv");
