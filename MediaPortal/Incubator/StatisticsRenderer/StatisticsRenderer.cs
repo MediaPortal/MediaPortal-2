@@ -23,6 +23,7 @@
 #endregion
 
 using System;
+using System.Threading;
 using MediaPortal.Common;
 using MediaPortal.Common.Logging;
 using MediaPortal.UI.Control.InputManager;
@@ -35,6 +36,7 @@ using SlimDX.Direct3D9;
 using System.Drawing;
 using System.Timers;
 using Font = SlimDX.Direct3D9.Font;
+using Timer = System.Timers.Timer;
 
 namespace MediaPortal.Plugins.StatisticsRenderer
 {
@@ -80,10 +82,10 @@ namespace MediaPortal.Plugins.StatisticsRenderer
     private int _fpsCounter;
     private DateTime _fpsTimer;
     private string _perfLogString;
-    private bool _statsEnabled;
+    private volatile bool _statsEnabled;
 
     private float _fps;
-    private readonly object _syncObj = new object();
+    protected ManualResetEvent _renderFinished = new ManualResetEvent(true);
 
     #endregion
 
@@ -160,17 +162,14 @@ namespace MediaPortal.Plugins.StatisticsRenderer
     /// </summary>
     private void DisableStats()
     {
-      // Detach events
+      _statsEnabled = false; // Avoids new stats render cycles after our waiting for the render event
       SkinContext.DeviceSceneBegin -= BeginScene;
       SkinContext.DeviceSceneEnd -= EndScene;
-      lock (_syncObj)
-      {
-        TryDispose(ref _line);
-        TryDispose(ref _font);
-        TryDispose(ref _fontSprite);
-        TryDispose(ref _swapChain);
-        _statsEnabled = false;
-      }
+      _renderFinished.WaitOne(TimeSpan.FromSeconds(2)); // Wait for the last render cycle to finish
+      TryDispose(ref _line);
+      TryDispose(ref _font);
+      TryDispose(ref _fontSprite);
+      TryDispose(ref _swapChain);
     }
 
     /// <summary>
@@ -178,8 +177,9 @@ namespace MediaPortal.Plugins.StatisticsRenderer
     /// </summary>
     private static void ToggleRenderMode()
     {
+      Log("Toggling render mode...");
       SkinContext.NextRenderStrategy();
-      Log("ToggleRenderMode: Setting render mode to " + SkinContext.RenderStrategy.Name);
+      Log("Render mode is now '" + SkinContext.RenderStrategy.Name + "'");
     }
 
     /// <summary>
@@ -213,7 +213,8 @@ namespace MediaPortal.Plugins.StatisticsRenderer
 
     public void EndScene(object sender, EventArgs args)
     {
-      lock (_syncObj)
+      _renderFinished.Reset();
+      try
       {
         if (!_statsEnabled)
           return;
@@ -247,7 +248,7 @@ namespace MediaPortal.Plugins.StatisticsRenderer
           int glitches;
           _perfLogString = string.Format(
               "Render: {0:0.00} fps [red], {1} frames last meas., avg GUI time {2:0.00}, last sec: {3:0.00} [blue], " +
-              "avg ms to vblank: {6:0.00}[grn]\r\nRender mode enabled: {4}\r\n{5}",
+              "avg ms to vblank: {6:0.00} [grn]\r\nRender mode enabled: {4}\r\n{5}",
               _fps, _fpsCounter, totalAvgGuiTime, avgGuiTime, SkinContext.RenderStrategy.Name,
               GetPresentStats(out glitches), avgMsToVBlank);
 
@@ -265,6 +266,10 @@ namespace MediaPortal.Plugins.StatisticsRenderer
         DrawLines();
         DrawTearingTest();
         DrawText(_perfLogString);
+      }
+      finally
+      {
+        _renderFinished.Set();
       }
     }
 
@@ -407,7 +412,7 @@ namespace MediaPortal.Plugins.StatisticsRenderer
 
     #endregion
 
-    #region IDisposable Members
+    #region IDisposable implementation
 
     /// <summary>
     /// Free resources.
