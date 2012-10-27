@@ -78,6 +78,7 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement.AssetCore
           Height = MAX_HEIGHT
         };
       _charSet.Base = _charSet.RenderedSize * face.ascender / face.height;
+      _charSet.MaxHeight = (int) Math.Ceiling(_charSet.RenderedSize * (face.bbox.yMax + Math.Abs(face.bbox.yMin)) / (double)face.height);
     }
 
     #endregion
@@ -191,6 +192,8 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement.AssetCore
     /// <returns>The height of the text.</returns>
     public float TextHeight(float fontSize, int lineCount)
     {
+      if (lineCount == 1) 
+        return _charSet.MaxHeight;
       return LineHeight(fontSize) * (lineCount + 1) - Base(fontSize) - 1.0f;
     }
 
@@ -542,6 +545,7 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement.AssetCore
     public int RenderedSize;
     public int Width;
     public int Height;
+    public int MaxHeight;
     private BitmapCharacter[] _characters;
 
     public BitmapCharacterSet(int numberOfGlyphs)
