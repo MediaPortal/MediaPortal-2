@@ -1,11 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
+using System.IO;
 using System.Linq;
-using System.Text;
-using MediaPortal.Common.Settings;
-using MediaPortal.Common.Configuration.ConfigurationClasses;
+using System.Xml.Serialization;
 using MediaPortal.Common;
 using MediaPortal.Common.Localization;
+using MediaPortal.Common.Settings;
 
 namespace MediaPortal.UiComponents.News.Settings
 {
@@ -22,34 +21,38 @@ namespace MediaPortal.UiComponents.News.Settings
     [Setting(SettingScope.User, 15)]
     public int RefreshInterval { get; set; }
 
-    static readonly Dictionary<string, FeedBookmark[]> SampleFeeds = new Dictionary<string, FeedBookmark[]>()
-    { 
-      { "en", new FeedBookmark[] 
-        { 
-          new FeedBookmark() { Name = "MediaPortal", Url = "http://www.team-mediaportal.com/rss-feeds"},
-          new FeedBookmark() { Name = "Cnet", Url = "http://feeds.feedburner.com/cnet/tcoc"},
-          new FeedBookmark() { Name = "BetaNews", Url = "http://feeds.betanews.com/bn"}
-        }
-      },
-      { "de", new FeedBookmark[] 
-        { 
-          new FeedBookmark() { Name = "MediaPortal", Url = "http://www.team-mediaportal.com/rss-feeds"},
-          new FeedBookmark() { Name = "Spiegel", Url = "http://www.spiegel.de/schlagzeilen/tops/index.rss"}, 
-          new FeedBookmark() { Name = "Heise", Url = "http://www.heise.de/newsticker/heise-atom.xml"}
+    static Dictionary<string, List<FeedBookmark>> DefaultFeeds;
+
+    /// <summary>
+    /// Gets a default list of feeds for the current user's region, with a fall back to English.
+    /// </summary>
+    /// <returns></returns>
+    public static List<FeedBookmark> GetDefaultRegionalFeeds()
+    {
+      if (DefaultFeeds == null)
+      {
+        // if the default feeds haven't been loaded yet, deserialize them from xml file
+        var path = Path.Combine(Path.GetDirectoryName(typeof(NewsSettings).Assembly.Location), "DefaultFeeds.xml");
+        var serializer = new XmlSerializer(typeof(RegionalFeedBookmarksCollection));
+        using (var fs = new FileStream(path, FileMode.Open))
+        {
+          var loadedFeeds = serializer.Deserialize(fs) as RegionalFeedBookmarksCollection;
+          DefaultFeeds = new Dictionary<string, List<FeedBookmark>>();
+          foreach (var region in loadedFeeds)
+            DefaultFeeds[region.RegionCode] = region.FeedBookmarks;
         }
       }
-    };
-
-    public static FeedBookmark[] GetDefaultRegionalFeeds()
-    {
-      FeedBookmark[] result = null;
+      // find the best matching list of feeds for the user's culture
+      List<FeedBookmark> result = null;
       var culture = ServiceRegistration.Get<ILocalization>().CurrentCulture;
-      string langCode = culture.Name;
-      int regionPartIndex = langCode.IndexOf("-");
-      if (regionPartIndex > 0) langCode = langCode.Substring(0, regionPartIndex);
-      if (!SampleFeeds.TryGetValue(langCode, out result))
-        result = SampleFeeds["en"];
-      return result;
+      // first try to get feeds for this language and region
+      if (DefaultFeeds.TryGetValue(culture.Name, out result))
+        return result.ToList();
+      // then try to get feeds for this language
+      if (DefaultFeeds.TryGetValue(culture.TwoLetterISOLanguageName, out result))
+        return result.ToList();
+      // fallback is always the generic english feeds
+      return DefaultFeeds["en"].ToList();
     }
   }
 }
