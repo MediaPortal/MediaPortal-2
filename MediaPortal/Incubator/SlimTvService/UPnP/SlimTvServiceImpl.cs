@@ -240,7 +240,7 @@ namespace MediaPortal.Plugins.SlimTv.Service.UPnP
 
       MediaItem timeshiftMediaItem;
       // We use the client's RemoteAdress as unique "user name", so we do not need to pass this argument from clients via UPnP.
-      bool result = timeshiftControl.StartTimeshift(context.RemoteAddress, slotIndex, new Channel { ChannelId = channelId }, out timeshiftMediaItem);
+      bool result = timeshiftControl.StartTimeshift(BuildUserName(context), slotIndex, new Channel { ChannelId = channelId }, out timeshiftMediaItem);
       outParams = new List<object> { result, timeshiftMediaItem };
       return null;
     }
@@ -255,9 +255,14 @@ namespace MediaPortal.Plugins.SlimTv.Service.UPnP
       int slotIndex = (int) inParams[0];
 
       // We use the client's RemoteAdress as unique "user name", so we do not need to pass this argument from clients via UPnP.
-      bool result = timeshiftControl.StopTimeshift(context.RemoteAddress, slotIndex);
+      bool result = timeshiftControl.StopTimeshift(BuildUserName(context), slotIndex);
       outParams = new List<object> { result };
       return null;
+    }
+
+    private string BuildUserName(CallContext context)
+    {
+      return context.RemoteAddress == context.Endpoint.EndPointIPAddress.ToString() ? SlimTvService.LOCAL_USERNAME : context.RemoteAddress;
     }
 
     private UPnPError OnDeInit(DvAction action, IList<object> inParams, out IList<object> outParams, CallContext context)

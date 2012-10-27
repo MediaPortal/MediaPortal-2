@@ -25,6 +25,7 @@ namespace MediaPortal.Plugins.SlimTv.Service
   public class SlimTvService : ITvProvider, ITimeshiftControlEx, IProgramInfo, IChannelAndGroupInfo, IScheduleControl
   {
     const int MAX_WAIT_MS = 2000;
+    public const string LOCAL_USERNAME = "Local";
     private TvServiceThread _tvServiceThread;
     protected readonly Dictionary<string, IUser> _tvUsers = new Dictionary<string, IUser>();
 
@@ -245,7 +246,7 @@ namespace MediaPortal.Plugins.SlimTv.Service
         ServiceRegistration.Get<ILogger>().Error("Starting timeshifting failed with result {0}", result);
         throw new Exception("Failed to start tv stream: " + result);
       }
-      return card.RTSPUrl;
+      return userName.StartsWith(LOCAL_USERNAME + "-") ? card.TimeShiftFileName : card.RTSPUrl;
     }
 
     protected IUser GetUserByUserName(string userName, bool create = false)
