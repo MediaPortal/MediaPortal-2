@@ -319,11 +319,15 @@ namespace MediaPortal.Plugins.SlimTv.Client.TvHandler
 
     public void Dispose()
     {
-      if (_tvProvider != null)
-      {
-        _tvProvider.DeInit();
-        _tvProvider = null;
-      }
+      DeInit();
+    }
+
+    private void DeInit ()
+    {
+      ITvProvider provider = _tvProvider;
+      _tvProvider = null;
+      if (provider != null)
+        provider.DeInit();
     }
 
     #endregion

@@ -257,17 +257,5 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
     }
 
     #endregion
-
-    #region IDisposable Member
-
-    public override void Dispose()
-    {
-      base.Dispose();
-
-      if (_tvHandler != null)
-        _tvHandler.Dispose();
-    }
-
-    #endregion
   }
 }

@@ -10,6 +10,7 @@
   <Runtime>
     <Assembly FileName="SlimTv.Interfaces.dll"/>
     <Assembly FileName="SlimTv.Client.dll"/>
+    <PluginStateTracker ClassName="MediaPortal.Plugins.SlimTv.Client.SlimTvClientPlugin"/>
   </Runtime>
 
   <DependsOn>
@@ -44,11 +45,6 @@
   <!-- Language resources -->
   <Register Location="/Resources/Language">
     <Resource Id="SlimTvClientLanguage" Directory="Language" Type="Language"/>
-  </Register>
-
-  <Register Location="/Services">
-    <Service Id="SlimTvHandlerService" RegistrationClassName="MediaPortal.Plugins.SlimTv.Interfaces.ITvHandler"        
-        ServiceClassName="MediaPortal.Plugins.SlimTv.Client.TvHandler.SlimTvHandler"/>
   </Register>
 
   <!-- Registration of the SlimTv extension builder for SlimTvProgramExtension items -->

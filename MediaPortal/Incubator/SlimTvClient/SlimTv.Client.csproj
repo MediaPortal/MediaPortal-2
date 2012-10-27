@@ -92,6 +92,7 @@
     <Compile Include="Player\LiveTvPlayer.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Models\SlimTvClientModel.cs" />
+    <Compile Include="SlimTvClientPlugin.cs" />
     <Compile Include="TvHandler\SlimTvHandler.cs" />
     <Compile Include="Player\SlimTvUIContributor.cs" />
     <Compile Include="Player\SlimTvPlayerBuilder.cs" />
