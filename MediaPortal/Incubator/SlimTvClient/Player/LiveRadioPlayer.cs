@@ -90,7 +90,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.Player
       _graphBuilder.AddFilter(_fileSource, TSREADER_FILTER_NAME);
 
       IFileSourceFilter f = (IFileSourceFilter) _fileSource;
-      f.Load(_resourceAccessor.LocalFileSystemPath, null);
+      f.Load(SourcePathOrUrl, null);
     }
 
     protected override void OnBeforeGraphRunning()
