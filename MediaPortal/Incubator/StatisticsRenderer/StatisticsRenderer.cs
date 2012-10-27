@@ -213,12 +213,11 @@ namespace MediaPortal.Plugins.StatisticsRenderer
 
     public void EndScene(object sender, EventArgs args)
     {
+      if (!_statsEnabled)
+        return;
       _renderFinished.Reset();
       try
       {
-        if (!_statsEnabled)
-          return;
-
         TimeSpan guiDur = DateTime.Now - _frameRenderingStartTime;
         _totalGuiRenderDuration += guiDur;
         _guiRenderDuration += guiDur;
