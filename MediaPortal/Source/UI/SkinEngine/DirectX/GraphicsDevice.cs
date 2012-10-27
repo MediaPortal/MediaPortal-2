@@ -32,7 +32,6 @@ using MediaPortal.Common.Logging;
 using MediaPortal.UI.SkinEngine.ContentManagement;
 using MediaPortal.UI.SkinEngine.DirectX.RenderStrategy;
 using MediaPortal.UI.SkinEngine.ScreenManagement;
-using MediaPortal.UI.SkinEngine.SkinManagement;
 using MediaPortal.UI.SkinEngine.Utils;
 using SlimDX;
 using SlimDX.Direct3D9;

@@ -35,8 +35,7 @@ namespace MediaPortal.UI.SkinEngine.DirectX.RenderStrategy
     protected DateTime _frameRenderingStartTime = DateTime.MinValue;
     private readonly bool _manualWaitFrame;
 
-    public Default(D3DSetup setup)
-      : base(setup)
+    public Default(D3DSetup setup) : base(setup)
     {
       _manualWaitFrame = !setup.IsMultiSample;
       PresentMode = setup.Present;

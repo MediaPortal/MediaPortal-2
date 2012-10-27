@@ -36,8 +36,7 @@ namespace MediaPortal.Plugins.StatisticsRenderer
     private readonly T[] _items;
     private int _writeIndex;
 
-    public RingBuffer(int numberOfElements)
-      : this(numberOfElements, false)
+    public RingBuffer(int numberOfElements) : this(numberOfElements, false)
     { }
 
     public RingBuffer(int numberOfElements, bool fillFromEnd)

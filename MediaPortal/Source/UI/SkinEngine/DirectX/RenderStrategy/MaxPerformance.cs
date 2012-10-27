@@ -30,8 +30,7 @@ namespace MediaPortal.UI.SkinEngine.DirectX.RenderStrategy
   /// </summary>
   class MaxPerformance : AbstractStrategy
   {
-    public MaxPerformance(D3DSetup setup)
-      : base(setup)
+    public MaxPerformance(D3DSetup setup) : base(setup)
     {
       PresentMode = Present.ForceImmediate;
     }

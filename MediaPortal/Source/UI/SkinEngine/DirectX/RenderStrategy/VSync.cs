@@ -26,12 +26,12 @@ using SlimDX.Direct3D9;
 namespace MediaPortal.UI.SkinEngine.DirectX.RenderStrategy
 {
   /// <summary>
-  /// The presenting is using <see cref="Present.None"/>, so each frame will be syncronized with v-blank. If MultiSampling is used, this mode is equal to <see cref="Default"/>.
+  /// The presenting is using <see cref="Present.None"/>, so each frame will be syncronized with v-blank.
+  /// If MultiSampling is used, this mode is equal to <see cref="Default"/>.
   /// </summary>
   class VSync : AbstractStrategy
   {
-    public VSync(D3DSetup setup)
-      : base(setup)
+    public VSync(D3DSetup setup) : base(setup)
     {
       PresentMode = Present.None;
     }

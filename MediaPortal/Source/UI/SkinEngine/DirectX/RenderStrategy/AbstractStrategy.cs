@@ -35,7 +35,22 @@ namespace MediaPortal.UI.SkinEngine.DirectX.RenderStrategy
 
     #endregion
 
-    #region Properties
+    #region Constructor
+
+    protected AbstractStrategy(D3DSetup setup)
+    {
+      _setup = setup;
+      IsMultiSampleCompatible = false;
+    }
+
+    #endregion
+
+    #region IRenderStrategy implementation
+
+    public virtual string Name
+    {
+      get { return GetType().Name; }
+    }
 
     public double TargetFrameRate
     {
@@ -48,20 +63,6 @@ namespace MediaPortal.UI.SkinEngine.DirectX.RenderStrategy
     }
 
     public bool IsMultiSampleCompatible { get; protected set; }
-
-    #endregion
-
-    #region Constructor
-
-    protected AbstractStrategy(D3DSetup setup)
-    {
-      _setup = setup;
-      IsMultiSampleCompatible = false;
-    }
-
-    #endregion
-
-    #region IRenderStrategy members
 
     public void SetTargetFrameRate(double frameRate)
     {

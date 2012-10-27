@@ -28,15 +28,22 @@ namespace MediaPortal.UI.SkinEngine.DirectX.RenderStrategy
 {
   /// <summary>
   /// <see cref="IRenderStrategy"/> is used by the <seealso cref="GraphicsDevice"/>"/> to control the rendering of a scene. Each different
-  /// strategy can control the <see cref="PresentMode"/>, do manual waiting on <see cref="BeginRender"/>.
+  /// strategy can control the <see cref="PresentMode"/>, do manual waiting on <see cref="BeginRender"/> and affect other parameters of the rendering
+  /// system.
   /// <para>
-  /// Not all <see cref="IRenderStrategy"/> modes can be used for MultiSampling screen modes (i.e. they require a specific PresentMode == Present.None).
-  /// So classes that implement <see cref="IRenderStrategy"/> have to declare if they are compabtible with MultiSampling by returning <c>true</c> in
+  /// Not all <see cref="IRenderStrategy"/> modes can be used for MultiSampling screen modes (i.e. they require a specific
+  /// <see cref="PresentMode"/> of <see cref="Present.None"/>).
+  /// So classes that implement <see cref="IRenderStrategy"/> have to declare if they are compabtible with MultiSampling by implementing
   /// <see cref="IsMultiSampleCompatible"/>.
   /// </para>
   /// </summary>
   public interface IRenderStrategy
   {
+    /// <summary>
+    /// Gets the name of this render strategy.
+    /// </summary>
+    string Name { get; }
+
     /// <summary>
     /// Returns <c>true</c> if strategy is MultiSampling compatible.
     /// </summary>

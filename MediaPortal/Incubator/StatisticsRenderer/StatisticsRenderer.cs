@@ -178,8 +178,8 @@ namespace MediaPortal.Plugins.StatisticsRenderer
     /// </summary>
     private static void ToggleRenderMode()
     {
-      Log("ToggleRenderMode");
       SkinContext.NextRenderStrategy();
+      Log("ToggleRenderMode: Setting render mode to " + SkinContext.RenderStrategy.Name);
     }
 
     /// <summary>
@@ -187,12 +187,16 @@ namespace MediaPortal.Plugins.StatisticsRenderer
     /// </summary>
     private void ToggleStatsRendering()
     {
-      Log("ToggleStatsRendering");
-
       if (_statsEnabled)
+      {
+        Log("Disabling render statistics rendering");
         DisableStats();
+      }
       else
+      {
+        Log("Enabling render statistics rendering");
         EnableStats();
+      }
     }
 
     #endregion
@@ -241,13 +245,15 @@ namespace MediaPortal.Plugins.StatisticsRenderer
           float avgMsToVBlank = _sumMsToVBlank/_frameCount;
 
           int glitches;
-          _perfLogString = string.Format("Render: {0:0.00} fps [red], {1} frames last meas., avg GUI time {2:0.00}, last sec: {3:0.00} [blue], avg ms to vblank: {6:0.00}[grn]\r\nRender mode enabled: {4}\r\n{5}",
-              _fps, _fpsCounter, totalAvgGuiTime, avgGuiTime, SkinContext.RenderStrategy.GetType().Name,
+          _perfLogString = string.Format(
+              "Render: {0:0.00} fps [red], {1} frames last meas., avg GUI time {2:0.00}, last sec: {3:0.00} [blue], " +
+              "avg ms to vblank: {6:0.00}[grn]\r\nRender mode enabled: {4}\r\n{5}",
+              _fps, _fpsCounter, totalAvgGuiTime, avgGuiTime, SkinContext.RenderStrategy.Name,
               GetPresentStats(out glitches), avgMsToVBlank);
 
           currentFrameStats.Glitch = glitches;
-          _perfLogString += GetScreenInfo();
-          _perfLogString += GetPlayerInfos();
+          _perfLogString += "\r\n" + GetScreenInfo();
+          _perfLogString += "\r\n" + GetPlayerInfos();
           _fpsCounter = 0;
           _frameCount = 0;
           _guiRenderDuration = TimeSpan.Zero;
@@ -376,7 +382,7 @@ namespace MediaPortal.Plugins.StatisticsRenderer
 
     private string GetScreenInfo()
     {
-      return string.Format("\r\nScreen Res: {0}x{1} @ {2}Hz", SkinContext.BackBufferWidth, SkinContext.BackBufferHeight, _adapterDisplayModeEx.RefreshRate);
+      return string.Format("Screen Res: {0}x{1} @ {2}Hz", SkinContext.BackBufferWidth, SkinContext.BackBufferHeight, _adapterDisplayModeEx.RefreshRate);
     }
 
     private static string GetPlayerInfos()
@@ -386,11 +392,10 @@ namespace MediaPortal.Plugins.StatisticsRenderer
       for (int index = 0; index <= 1; index++)
       {
         ISlimDXVideoPlayer player = pm[index] as ISlimDXVideoPlayer;
-        if (player != null && player.Surface != null)
-        {
-          SurfaceDescription desc = player.Surface.Description;
-          playerInfos += String.Format("\r\nPlayer {0}: Resolution {1}x{2}", index, desc.Width, desc.Height);
-        }
+        if (player == null || player.Surface == null)
+          continue;
+        SurfaceDescription desc = player.Surface.Description;
+        playerInfos += String.Format("{0}Player {1}: Resolution {2}x{3}", string.IsNullOrEmpty(playerInfos) ? "" : "\r\n", index, desc.Width, desc.Height);
       }
       return playerInfos;
     }

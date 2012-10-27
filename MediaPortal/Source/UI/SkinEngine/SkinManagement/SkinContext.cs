@@ -114,10 +114,7 @@ namespace MediaPortal.UI.SkinEngine.SkinManagement
     /// </summary>
     public static IRenderStrategy RenderStrategy
     {
-      get
-      {
-        return GraphicsDevice.RenderStrategy;
-      }
+      get { return GraphicsDevice.RenderStrategy; }
     }
 
     /// <summary>
