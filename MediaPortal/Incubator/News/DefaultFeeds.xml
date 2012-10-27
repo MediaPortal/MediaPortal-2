@@ -1,0 +1,16 @@
+﻿<RegionalFeeds>
+  <Region Code="en">
+    <Feeds>
+      <Feed Name="MediaPortal">http://www.team-mediaportal.com/rss-feeds</Feed>
+      <Feed Name="Cnet">http://feeds.feedburner.com/cnet/tcoc</Feed>
+      <Feed Name="BetaNews">http://feeds.betanews.com/bn</Feed>
+    </Feeds>
+  </Region>
+  <Region Code="de">
+    <Feeds>
+      <Feed Name="MediaPortal">http://www.team-mediaportal.com/rss-feeds</Feed>
+      <Feed Name="Spiegel">http://www.spiegel.de/schlagzeilen/tops/index.rss</Feed>
+      <Feed Name="Heise">http://www.heise.de/newsticker/heise-atom.xml</Feed>
+    </Feeds>
+  </Region>
+</RegionalFeeds>
