@@ -244,7 +244,7 @@ namespace MediaPortal.Plugins.SlimTv.Providers.UPnP
         ProgramNowNextValue programsCache;
         if (_programCache.TryGetProgramsByTime(channel, from, out programsCache))
         {
-          programs = new List<IProgram> {programsCache.ProgramNow};
+          programs = new List<IProgram> { programsCache.ProgramNow };
           return true;
         }
       }
@@ -290,7 +290,8 @@ namespace MediaPortal.Plugins.SlimTv.Providers.UPnP
 
     public bool GetChannel(IProgram program, out IChannel channel)
     {
-      throw new NotImplementedException();
+      channel = new Channel { ChannelId = program.ChannelId };
+      return true;
     }
 
     public bool GetProgram(int programId, out IProgram program)
