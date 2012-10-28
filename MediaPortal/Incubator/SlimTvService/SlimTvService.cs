@@ -134,6 +134,18 @@ namespace MediaPortal.Plugins.SlimTv.Service
       return programs.Count > 0;
     }
 
+    public bool GetProgramsGroup(IChannelGroup channelGroup, DateTime from, DateTime to, out IList<IProgram> programs)
+    {
+      IProgramService programService = GlobalServiceProvider.Get<IProgramService>();
+      IChannelGroupService channelGroupService = GlobalServiceProvider.Get<IChannelGroupService>();
+      
+      var channels = channelGroupService.GetChannelGroup(channelGroup.ChannelGroupId).GroupMaps.Select(groupMap => groupMap.Channel);
+      IDictionary<int, IList<Program>> programEntities = programService.GetProgramsForAllChannels(from, to, channels);
+
+      programs = programEntities.Values.SelectMany(x => x).Select(p => p.ToProgram()).ToList();
+      return programs.Count > 0;
+    }
+
     public bool GetProgramsForSchedule(ISchedule schedule, out IList<IProgram> programs)
     {
       throw new NotImplementedException();
