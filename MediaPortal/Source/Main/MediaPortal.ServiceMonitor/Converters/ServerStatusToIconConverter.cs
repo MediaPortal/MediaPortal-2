@@ -26,12 +26,11 @@ using System;
 using System.Globalization;
 using System.Windows.Data;
 using System.Windows.Markup;
-using MediaPortal.Common;
-using MediaPortal.Common.Localization;
+using MediaPortal.ServiceMonitor.ViewModel;
 
 namespace MediaPortal.ServiceMonitor.Converters
 {
-  [ValueConversion(typeof(string), typeof(string))]
+  [ValueConversion(typeof(ServerStatus), typeof(string))]
   public class ServerStatusToIconConverter : MarkupExtension, IValueConverter
   {
     #region Overrides of MarkupExtension
@@ -47,16 +46,17 @@ namespace MediaPortal.ServiceMonitor.Converters
 
     public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
     {
-      var serverStatus = (string) value;
-      if (!string.IsNullOrEmpty(serverStatus))
+      ServerStatus serverStatus = (ServerStatus) value;
+      switch (serverStatus)
       {
-        if (serverStatus.Equals(ServiceRegistration.Get<ILocalization>().ToString("[ServerStatus.Attached]")) ||
-            serverStatus.Equals(ServiceRegistration.Get<ILocalization>().ToString("[ServerStatus.Connected]")))
+        case ServerStatus.Attached:
+        case ServerStatus.Connected:
           return "/MP2-ServiceMonitor1.ico";
-        if (serverStatus.Equals(ServiceRegistration.Get<ILocalization>().ToString("[ServerStatus.ClientConnected]")))
+        case ServerStatus.ClientConnected:
           return "/MP2-ServiceMonitor.ico";
+        default:
+          return "/MP2-ServiceMonitor0.ico";
       }
-      return "/MP2-ServiceMonitor0.ico";
     }
 
     public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)

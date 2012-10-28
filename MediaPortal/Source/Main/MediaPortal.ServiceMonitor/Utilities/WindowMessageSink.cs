@@ -48,15 +48,16 @@ namespace MediaPortal.ServiceMonitor.Utilities
 
     #endregion
     
-    #region events
+    #region Events
+
     /// <summary>
-    /// Public event for the process messages
+    /// Public event for the processing window messages.
     /// </summary>
     public event WinProcHandler OnWinProc;
    
     #endregion
     
-    #region ctor
+    #region Ctor
 
     /// <summary>
     /// Creates a new message sink that receives messages
@@ -107,14 +108,11 @@ namespace MediaPortal.ServiceMonitor.Utilities
       // Register the window class
       WinApi.RegisterClass(ref wc);
 
-      
       // Create the message window
       MessageWindowHandle = WindowsAPI.CreateWindowEx(0, WindowClassId, "", 0, 0, 0, 1, 1, 0, 0, 0, 0);
 
       if (MessageWindowHandle == IntPtr.Zero)
-      {
         throw new Win32Exception();
-      }
     }
 
     #endregion
@@ -148,7 +146,12 @@ namespace MediaPortal.ServiceMonitor.Utilities
     /// </summary>
     public void Dispose()
     {
-      Dispose(true);
+      if (IsDisposed) return;
+
+      WindowsAPI.DestroyWindow(MessageWindowHandle);
+      _messageHandler = null;
+
+      IsDisposed = true;
 
       // This object will be cleaned up by the Dispose method.
       // Therefore, we call GC.SupressFinalize to take this object off the finalization queue 
@@ -162,20 +165,7 @@ namespace MediaPortal.ServiceMonitor.Utilities
     /// </summary>
     ~WindowMessageSink()
     {
-      Dispose(false);
-    }
-
-
-    /// <summary>
-    /// Removes the windows hook that receives window messages and closes the underlying helper window.
-    /// </summary>
-    private void Dispose(bool disposing)
-    {
-      if (IsDisposed || !disposing) return;
-      IsDisposed = true;
-
-      WindowsAPI.DestroyWindow(MessageWindowHandle);
-      _messageHandler = null;
+      Dispose();
     }
 
     #endregion

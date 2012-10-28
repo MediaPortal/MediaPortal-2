@@ -23,14 +23,12 @@
 #endregion
 
 using System.Windows;
-using Hardcodet.Wpf.TaskbarNotification;
 
 namespace MediaPortal.ServiceMonitor.ViewModel
 {
   public interface IAppController
   {
     bool IsAutoStartEnabled { get; set; }
-    TaskbarIcon TaskbarIcon { get; set; }
 
     /// <summary>
     /// Displays the main application window and assigns
@@ -44,13 +42,9 @@ namespace MediaPortal.ServiceMonitor.ViewModel
     void HideMainWindow();
 
     /// <summary>
-    /// Closes the main window and either exits the application or displays
-    /// the taskbar icon and remains active.
+    /// Closes the main window and exits the application.
     /// </summary>
-    /// <param name="forceShutdown">Whether the application
-    /// should perform a shutdown anyway.</param>
-    void CloseMainApplication(bool forceShutdown);
-
+    void CloseMainApplication();
 
     /// <summary>
     /// Check if the MP2 Server Service is installed

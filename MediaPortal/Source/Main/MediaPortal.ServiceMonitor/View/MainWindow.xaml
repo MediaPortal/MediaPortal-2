@@ -6,13 +6,12 @@
         MinWidth="300" MinHeight="200"
         Width="400" Height="300"
         Title="MP2-ServiceMonitor" 
-        Closing="OnClosing"
+        Closed="OnClosed"
         Background="{DynamicResource WindowBackgroundBrush}" 
         Icon="{Binding Path=ServerStatus, Converter={StaticResource SrvStatToIconConverter}}" Loaded="OnLoaded">
 
   <Window.Resources>
     <Converters:ConnectionStatusToImageConverter x:Key="ConStatusToImageConverter"/>
-    <Converters:ServerStatusToIconConverter x:Key="SrvStatToIconConverter"/>
   </Window.Resources>
       
   <Grid x:Name="layoutRoot">
@@ -27,7 +26,7 @@
                  Style="{DynamicResource TitleLabel}" Text="{e:Loc [MainWindow.ServerStatus]}" />
 
       <TextBlock Grid.Row="1" Margin="20,5,20,0" TextWrapping="Wrap" VerticalAlignment="Top"  
-                 Style="{DynamicResource DefaultLabel}" Text="{Binding Path=ServerStatus}" />
+                 Style="{DynamicResource DefaultLabel}" Text="{Binding Path=ServerStatus, Converter={StaticResource SrvStatToStringConverter}}" />
        
       <TextBlock Grid.Row="2" Margin="10,20,10,0" TextWrapping="Wrap" VerticalAlignment="Top" 
                  Style="{DynamicResource TitleLabel}" Text="{e:Loc [MainWindow.AttachedClients]}" />

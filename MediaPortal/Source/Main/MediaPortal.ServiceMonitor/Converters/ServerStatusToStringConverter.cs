@@ -26,22 +26,22 @@ using System;
 using System.Globalization;
 using System.Windows.Data;
 using System.Windows.Markup;
+using MediaPortal.Common;
+using MediaPortal.Common.Localization;
 using MediaPortal.ServiceMonitor.ViewModel;
 
 namespace MediaPortal.ServiceMonitor.Converters
 {
   [ValueConversion(typeof(ServerStatus), typeof(string))]
-  public class ServerStatusToImageConverter : MarkupExtension, IValueConverter
+  public class ServerStatusToStringConverter : MarkupExtension, IValueConverter
   {
-    public const string IMAGE_PATH = "../../";
-
     #region Overrides of MarkupExtension
 
-    private static ServerStatusToImageConverter _converter;
+    private static ServerStatusToStringConverter _converter;
 
     public override object ProvideValue(IServiceProvider serviceProvider)
     {
-      return _converter ?? (_converter = new ServerStatusToImageConverter());
+      return _converter ?? (_converter = new ServerStatusToStringConverter());
     }
 
     #endregion
@@ -51,17 +51,25 @@ namespace MediaPortal.ServiceMonitor.Converters
     public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
     {
       ServerStatus serverStatus = (ServerStatus) value;
+      ILocalization localization = ServiceRegistration.Get<ILocalization>(false);
+      if (localization == null)
+        return "- No localization present -";
       switch (serverStatus)
       {
+        case ServerStatus.NotStarted:
+          return localization.ToString("[ServerStatus.NotStarted]");
         case ServerStatus.Attached:
+          return localization.ToString("[ServerStatus.Attached]");
+        case ServerStatus.Detached:
+          return localization.ToString("[ServerStatus.Detached]");
         case ServerStatus.Connected:
-        case ServerStatus.ClientConnected:
-          return IMAGE_PATH + "Resources/Images/connected.png";
+          return localization.ToString("[ServerStatus.Connected]");
         case ServerStatus.Disconnected:
-          return IMAGE_PATH + "Resources/Images/disconnected.png";
-        default:
-          return IMAGE_PATH + "Resources/Images/Info.png";
+          return localization.ToString("[ServerStatus.Disconnected]");
+        case ServerStatus.ClientConnected:
+          return localization.ToString("[ServerStatus.ClientConnected]");
       }
+      return "- Unsupported server status -";
     }
 
     public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)

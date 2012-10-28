@@ -10,8 +10,6 @@
   <UserControl.Resources>
     <Converters:ServerStatusToImageConverter x:Key="SrvStatToImgConverter"/>
   </UserControl.Resources>
-
-
     <Grid>
     <Border HorizontalAlignment="Stretch" Background="{DynamicResource DialogBackgroundBrush}" 
             BorderThickness="1,1,1,1" BorderBrush="{DynamicResource PopupBorderBrush}" Margin="0,0,5,5">
@@ -21,24 +19,21 @@
     </Border>
 
     <Image HorizontalAlignment="Left" Margin="13,10,0,14" Width="32"
-      Source="{Binding Path=ServerStatus, Converter={StaticResource SrvStatToImgConverter}}" Stretch="Fill" />
-    
-
+        Source="{Binding Path=ServerStatus, Converter={StaticResource SrvStatToImgConverter}}" Stretch="Fill" />
       <TextBlock
-      HorizontalAlignment="Right"
-      Margin="0,10,10,0"
-      Style="{DynamicResource TitleLabel}"
-      VerticalAlignment="Top"
-      TextWrapping="Wrap"
-      Text="{Binding  Path=ServerStatus}" />
-
+            HorizontalAlignment="Right"
+            Margin="0,10,10,0"
+            Style="{DynamicResource TitleLabel}"
+            VerticalAlignment="Top"
+            TextWrapping="Wrap"
+            Text="{Binding  Path=ServerStatus}" />
     <TextBlock
-      HorizontalAlignment="Right"
-      Margin="0,0,10,10"
-      VerticalAlignment="Bottom"
-      Height="Auto"
-      FontSize="10"
-      TextWrapping="Wrap" 
-      Text="{e:Loc [SysTrayToolTip.Info]}" />
+        HorizontalAlignment="Right"
+        Margin="0,0,10,10"
+        VerticalAlignment="Bottom"
+        Height="Auto"
+        FontSize="10"
+        TextWrapping="Wrap" 
+        Text="{e:Loc [SysTrayToolTip.Info]}" />
   </Grid>
 </UserControl>

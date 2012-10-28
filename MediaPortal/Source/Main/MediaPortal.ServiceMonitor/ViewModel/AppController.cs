@@ -82,7 +82,7 @@ namespace MediaPortal.ServiceMonitor.ViewModel
     /// </summary>
     private TaskbarIcon _taskbarIcon;
 
-    private string _serverStatus;
+    private ServerStatus _serverStatus;
 
     #endregion
 
@@ -112,22 +112,9 @@ namespace MediaPortal.ServiceMonitor.ViewModel
       }
     }
 
-    public TaskbarIcon TaskbarIcon
-    {
-      get { return _taskbarIcon; }
-      set
-      {
-        if (_taskbarIcon != null)
-          _taskbarIcon.Dispose();
-
-        _taskbarIcon = value;
-        OnPropertyChanged("TaskbarIcon");
-      }
-    }
-
     public ObservableCollectionMt<ClientData> Clients { get; set; }
 
-    public string ServerStatus
+    public ServerStatus ServerStatus
     {
       get { return _serverStatus; }
       set { SetProperty(ref _serverStatus, value, "ServerStatus"); }
@@ -152,14 +139,18 @@ namespace MediaPortal.ServiceMonitor.ViewModel
 
     #region Main Window handling
 
+    public Window MainWindow
+    {
+      get { return Application.Current.MainWindow; }
+      internal set { Application.Current.MainWindow = value; }
+    }
+
     public void StartUp(bool hideMainWindow)
     {
       ServiceRegistration.Get<ILogger>().Debug("StartUp ({0})", hideMainWindow);
-      if (Application.Current.MainWindow == null)
-        InitMainWindow();
+      InitMainWindow();
       
-      if (TaskbarIcon == null)
-        TaskbarIcon = InitSystemTray();
+      InitSystemTray();
       
       if (hideMainWindow)
         HideMainWindow();
@@ -173,43 +164,49 @@ namespace MediaPortal.ServiceMonitor.ViewModel
     protected void InitMainWindow()
     {
       ServiceRegistration.Get<ILogger>().Debug("InitMainWindow");
-      Application.Current.MainWindow = new MainWindow
-        {ShowActivated = false, ShowInTaskbar = false, Visibility = Visibility.Collapsed };
-      Application.Current.MainWindow.Closing += OnMainWindowClosing;
-      Application.Current.MainWindow.SourceInitialized += OnMainWindowSourceInitialized;
-      Application.Current.MainWindow.Show();
+      Window mainWindow = new MainWindow { ShowActivated = false, ShowInTaskbar = false, Visibility = Visibility.Collapsed };
+      mainWindow.Closed += OnMainWindowClosed;
+      mainWindow.SourceInitialized += OnMainWindowSourceInitialized;
+      mainWindow.StateChanged += OnMainWindowStateChanged;
+      mainWindow.Show();
+      MainWindow = mainWindow;
     }
 
-    /// <summary>
-    /// Displays the main application window and assigns it as the application's <see cref="Application.MainWindow"/>.
-    /// </summary>
+    private void OnMainWindowStateChanged(object sender, EventArgs e)
+    {
+      Window mainWindow = MainWindow;
+      if (mainWindow == null)
+        return;
+      if (mainWindow.WindowState == WindowState.Minimized)
+        HideMainWindow();
+    }
+
     public void ShowMainWindow()
     {
       ServiceRegistration.Get<ILogger>().Debug("ShowMainWindow");
-      
-      if (Application.Current.MainWindow.WindowState == WindowState.Minimized)
-        Application.Current.MainWindow.WindowState = WindowState.Normal;
+      Window mainWindow = MainWindow;
+      if (mainWindow == null)
+        return;
+      mainWindow.ShowInTaskbar = true;
+      mainWindow.Visibility = Visibility.Visible;
+
+      if (mainWindow.WindowState == WindowState.Minimized)
+        mainWindow.WindowState = WindowState.Normal;
 
       // Show the window on top of others
-      Application.Current.MainWindow.Visibility = Visibility.Visible;
-      Application.Current.MainWindow.ShowInTaskbar = true;
-      Application.Current.MainWindow.Focus();
-      Application.Current.MainWindow.Activate();
+      mainWindow.Focus();
+      mainWindow.Activate();
       OnPropertyChanged("ServerStatus");
     }
 
-    /// <summary>
-    /// Minimizes the application to the system tray.
-    /// </summary>
     public void HideMainWindow()
     {
       ServiceRegistration.Get<ILogger>().Debug("HideMainWindow");
-      if (Application.Current.MainWindow != null)
-      {
-        gkjb
-        Application.Current.MainWindow.ShowInTaskbar = false;
-        Application.Current.MainWindow.Visibility = Visibility.Collapsed;
-      }
+      Window mainWindow = MainWindow;
+      if (mainWindow == null)
+        return;
+      mainWindow.Visibility = Visibility.Collapsed;
+      mainWindow.ShowInTaskbar = false;
     }
 
     /// <summary>
@@ -225,7 +222,6 @@ namespace MediaPortal.ServiceMonitor.ViewModel
       _messageSink = new WindowMessageSink();
       _messageSink.OnWinProc += WndProc;
     }
-
     
     private void WndProc(object sender, uint msg, uint wParam, uint lParam)
     {
@@ -258,54 +254,35 @@ namespace MediaPortal.ServiceMonitor.ViewModel
     /// <summary>
     /// Closes the main window 
     /// </summary>
-    protected void OnMainWindowClosing(object sender, CancelEventArgs e)
+    protected void OnMainWindowClosed(object sender, EventArgs e)
     {
-      ServiceRegistration.Get<ILogger>().Debug("OnMainWindowClosing");
-      
-      CloseMainApplication(false);
-      e.Cancel = true;
+      ServiceRegistration.Get<ILogger>().Debug("OnMainWindowClosed");
+
+      CloseMainApplication();
     }
 
     /// <summary>
-    /// Closes the main window and either exits the application or displays
-    /// the taskbar icon and remains active.
+    /// Closes the main window and exits the application.
     /// </summary>
-    /// <param name="forceShutdown">Whether the application
-    /// should perform a shutdown anyway.</param>
-    public void CloseMainApplication(bool forceShutdown)
+    public void CloseMainApplication()
     {
-      if (!forceShutdown)
-        HideMainWindow();
-      else
-      {
-        ServiceRegistration.Get<ILogger>().Debug("ClosingMainApplication");
-        Application.Current.MainWindow.Closing -= OnMainWindowClosing;
-
-        _messageSink.OnWinProc -= WndProc;
-        _messageSink.Dispose();
-        _messageSink = null;
-        
-        // Reset main window in order to prevent further code to close it again while it is being closed
-        Application.Current.MainWindow = null;
-        Dispose();
-        Application.Current.Shutdown();
-      }
+      ServiceRegistration.Get<ILogger>().Debug("ClosingMainApplication");
+      Dispose();
+      Application.Current.Shutdown();
     }
 
     /// <summary>
     /// Inits the component that displays status information in the system tray.
     /// </summary>
-    public TaskbarIcon InitSystemTray()
+    public void InitSystemTray()
     {
       ServiceRegistration.Get<ILogger>().Debug("InitSystemTray");
-      var taskbarIcon = (TaskbarIcon) Application.Current.FindResource("TrayIcon");
-      if (taskbarIcon != null)
+      _taskbarIcon = (TaskbarIcon) Application.Current.FindResource("TrayIcon");
+      if (_taskbarIcon != null)
       {
-        taskbarIcon.DataContext = this;
-        taskbarIcon.Visibility = Visibility.Visible;
+        _taskbarIcon.DataContext = this;
+        _taskbarIcon.Visibility = Visibility.Visible;
       }
-      return taskbarIcon;
-
     }
 
     #endregion
@@ -318,10 +295,7 @@ namespace MediaPortal.ServiceMonitor.ViewModel
     public bool IsServerServiceInstalled()
     {
       var services = ServiceController.GetServices();
-      return
-        services.Any(
-          service =>
-          String.Compare(service.ServiceName, SERVER_SERVICE_NAME, StringComparison.OrdinalIgnoreCase) == 0);
+      return services.Any(service => String.Compare(service.ServiceName, SERVER_SERVICE_NAME, StringComparison.OrdinalIgnoreCase) == 0);
     }
 
     /// <summary>
@@ -332,9 +306,7 @@ namespace MediaPortal.ServiceMonitor.ViewModel
       try
       {
         using (var serviceController = new ServiceController(SERVER_SERVICE_NAME))
-        {
           return serviceController.Status == ServiceControllerStatus.Running;
-        }
       }
       catch (Exception ex)
       {
@@ -461,21 +433,21 @@ namespace MediaPortal.ServiceMonitor.ViewModel
     {
       if (IsServerServiceInstalled() && !IsServerServiceRunning())
       {
-      	ServerStatus = ServiceRegistration.Get<ILocalization>().ToString("[ServerStatus.NotStarted]");
+      	ServerStatus = ServerStatus.NotStarted;
       }
       switch (_serverConnectionStatus)
       {
         case ServerConnectionMessaging.MessageType.HomeServerAttached:
-      		ServerStatus = ServiceRegistration.Get<ILocalization>().ToString("[ServerStatus.Attached]");
+      		ServerStatus = ServerStatus.Attached;
           break;
         case ServerConnectionMessaging.MessageType.HomeServerConnected:
-          ServerStatus = ServiceRegistration.Get<ILocalization>().ToString("[ServerStatus.Connected]");
+          ServerStatus = ServerStatus.Connected;
           break;
         case ServerConnectionMessaging.MessageType.HomeServerDetached:
-          ServerStatus = ServiceRegistration.Get<ILocalization>().ToString("[ServerStatus.Detached]");
+          ServerStatus = ServerStatus.Detached;
           break;
         default:
-          ServerStatus = ServiceRegistration.Get<ILocalization>().ToString("[ServerStatus.Disconnected]");
+          ServerStatus = ServerStatus.Disconnected;
           break;
       }
 
@@ -507,7 +479,7 @@ namespace MediaPortal.ServiceMonitor.ViewModel
       }
 
       if (!Clients.Any(client => client.IsConnected)) return;
-      ServerStatus = ServiceRegistration.Get<ILocalization>().ToString("[ServerStatus.ClientConnected]");
+      ServerStatus = ServerStatus.ClientConnected;
       ServiceRegistration.Get<ILogger>().Debug("ServerStatus: {0}", ServerStatus);
     }
 
@@ -538,7 +510,16 @@ namespace MediaPortal.ServiceMonitor.ViewModel
 
     public void Dispose()
     {
-      TaskbarIcon = null;
+      if (_messageSink == null)
+        return;
+
+      _messageSink.OnWinProc -= WndProc;
+      _messageSink.Dispose();
+      _messageSink = null;
+
+      _taskbarIcon.Visibility = Visibility.Collapsed;
+      _taskbarIcon.Dispose();
+      _taskbarIcon = null;
     }
 
     #endregion

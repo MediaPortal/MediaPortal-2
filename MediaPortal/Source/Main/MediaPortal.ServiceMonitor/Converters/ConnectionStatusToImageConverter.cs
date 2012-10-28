@@ -51,7 +51,6 @@ namespace MediaPortal.ServiceMonitor.Converters
       return _converter ?? (_converter = new ConnectionStatusToImageConverter());
     }
 
-
     /// <summary>
     /// Converts a value. 
     /// </summary>
@@ -75,7 +74,6 @@ namespace MediaPortal.ServiceMonitor.Converters
       var isConnected = value == null ? false : (bool) value;
       return isConnected ? "/Resources/Images/Connected.png" : "/Resources/Images/Disconnected.png";
     }
-
 
     public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
     {

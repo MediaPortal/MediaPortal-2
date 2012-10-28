@@ -44,18 +44,22 @@ namespace MediaPortal.ServiceMonitor.Commands
       if (!ServiceRegistration.IsRegistered<IAppController>())
         return;
 
-      var controller = ServiceRegistration.Get<IAppController>();
+      Window mainWindow = Application.Current.MainWindow;
+      if (mainWindow == null)
+        return;
+
+      IAppController controller = ServiceRegistration.Get<IAppController>();
       switch ((string) parameter)
       {
         case "DoubleClick": // DoubleClick of TrayIcon 
-          if ((Application.Current.MainWindow != null) && (Application.Current.MainWindow.Visibility == Visibility.Visible))
+          if (mainWindow.Visibility == Visibility.Visible)
           {
-            //the window is opened => it should be closed
-            controller.CloseMainApplication(false);
+            // The window is opened => it should be hidden
+            controller.HideMainWindow();
           }
           else
           {
-            //the window is closed => it should be opened
+            // The window is hidden => it should be shown
             controller.ShowMainWindow();
           }
           break;
@@ -63,10 +67,10 @@ namespace MediaPortal.ServiceMonitor.Commands
           controller.ShowMainWindow();
           break;
         case "Quit":
-          controller.CloseMainApplication(true);
+          controller.CloseMainApplication();
           break;
-        case "Close":
-          controller.CloseMainApplication(false);
+        case "Hide":
+          controller.HideMainWindow();
           break;
         case "Minimize":
           controller.HideMainWindow();
@@ -93,35 +97,21 @@ namespace MediaPortal.ServiceMonitor.Commands
 
     public override bool CanExecute(object parameter)
     {
-      Visibility visibility;
-      IAppController controller = null;
-      if (ServiceRegistration.IsRegistered<IAppController>())
-        controller = ServiceRegistration.Get<IAppController>();
+      IAppController controller = ServiceRegistration.Get<IAppController>(false);
+      Window mainWindow = Application.Current.MainWindow;
+      if (mainWindow == null)
+        return false;
       
-      if (Application.Current.MainWindow != null)
-      {
-        visibility = Application.Current.MainWindow.Visibility;
-      }
-      else if (controller != null)
-      {
-        controller = ServiceRegistration.Get<IAppController>();
-        if (controller.TaskbarIcon != null)
-        {
-          visibility = controller.TaskbarIcon.Visibility == Visibility.Visible ? Visibility.Collapsed : Visibility.Visible;
-        }
-        else visibility = Visibility.Collapsed;
-      }
-      else return true;
-      
+      Visibility visibility = mainWindow.Visibility;
      
-      switch ((string)parameter)
+      switch ((string) parameter)
       {
         case "DoubleClick": // DoubleClick of TrayIcon 
           return true;
         case "Open": // Open Main Window
           return visibility != Visibility.Visible;
 
-        case "Close": // Close Main Window
+        case "Hide": // Close Main Window
           return visibility == Visibility.Visible;
 
         case "Quit": // Quit Main Application

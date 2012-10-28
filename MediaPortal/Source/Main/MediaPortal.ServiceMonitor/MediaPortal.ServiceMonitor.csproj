@@ -65,6 +65,7 @@
     <Reference Include="System" />
     <Reference Include="System.Data" />
     <Reference Include="System.ServiceProcess" />
+    <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Xaml" />
     <Reference Include="System.Xml" />
     <Reference Include="System.Core" />
@@ -87,6 +88,7 @@
     <Compile Include="Commands\CommandExtension.cs" />
     <Compile Include="Converters\BooleanToCollapsedVisibilityConverter.cs" />
     <Compile Include="Converters\ConnectionStatusToImageConverter.cs" />
+    <Compile Include="Converters\ServerStatusToStringConverter.cs" />
     <Compile Include="Converters\ServerStatusToIconConverter.cs" />
     <Compile Include="Converters\ServerStatusToImageConverter.cs" />
     <Compile Include="Extensions\LocalizationData.cs" />
@@ -101,6 +103,7 @@
     <Compile Include="Utilities\UacServiceHelper.cs" />
     <Compile Include="Utilities\WinApi.cs" />
     <Compile Include="Utilities\WindowMessageSink.cs" />
+    <Compile Include="ViewModel\ServerStatus.cs" />
     <Compile Include="ViewModel\IAppController.cs" />
     <Compile Include="View\AboutDialog.xaml.cs">
       <DependentUpon>AboutDialog.xaml</DependentUpon>

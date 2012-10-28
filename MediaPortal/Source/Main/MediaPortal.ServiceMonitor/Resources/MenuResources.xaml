@@ -9,7 +9,7 @@
 
   <Converters:BooleanToCollapsedVisibilityConverter x:Key="BoolToVisConverter"/>
   <Converters:ServerStatusToIconConverter x:Key="SrvStatToIconConverter"/>
-
+  <Converters:ServerStatusToStringConverter x:Key="SrvStatToStringConverter"/>
 
   <Style x:Key="MenuIcon" TargetType="{x:Type Image}">
     <Setter Property="Width" Value="16" />
@@ -24,7 +24,7 @@
       </MenuItem.Icon>
     </MenuItem>
 
-    <MenuItem Header="{e:Loc [ContextMenu.CloseWin]}" Command="{cmd:ApplicationCommand}" CommandParameter="Close"
+    <MenuItem Header="{e:Loc [ContextMenu.CloseWin]}" Command="{cmd:ApplicationCommand}" CommandParameter="Hide"
               Visibility="{Binding Path=IsEnabled, RelativeSource={RelativeSource Self}, Mode=OneWay, Converter={StaticResource BoolToVisConverter}}">
       <MenuItem.Icon>
         <Image Style="{StaticResource MenuIcon}" Source="../Resources/Images/WindowCloseSmall.png" />
@@ -68,8 +68,6 @@
         <Image Style="{StaticResource MenuIcon}" Source="../Resources/Images/QuitSmall.png" />
       </MenuItem.Icon>
     </MenuItem>
-
-
   </ContextMenu>
    
   <!-- the taskbar icon  -->

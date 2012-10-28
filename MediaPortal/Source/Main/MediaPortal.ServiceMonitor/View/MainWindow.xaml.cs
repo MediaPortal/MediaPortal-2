@@ -22,6 +22,7 @@
 
 #endregion
 
+using System;
 using System.Windows;
 using MediaPortal.Common;
 using MediaPortal.Common.Logging;
@@ -32,17 +33,17 @@ using MediaPortal.ServiceMonitor.ViewModel;
 namespace MediaPortal.ServiceMonitor.View
 {
   /// <summary>
-  /// Interaction logic for MainWindow.xaml
+  /// Interaction logic for main window.
   /// </summary>
-  public partial class MainWindow : Window
+  public partial class MainWindow
   {
-    #region ctor
+    #region Ctor
+
     public MainWindow()
     {
       InitializeComponent();
 
-      var viewModel = ServiceRegistration.Get<IAppController>();
-      DataContext = viewModel;
+      ViewModel = ServiceRegistration.Get<IAppController>();
 
       LoadSettings();
     }
@@ -50,34 +51,45 @@ namespace MediaPortal.ServiceMonitor.View
     #endregion
 
     #region Event Handler: Loaded, Closing
+
     private void OnLoaded(object sender, RoutedEventArgs e)
     {
       LoadSettings();
     }
 
-    private void OnClosing(object sender, System.ComponentModel.CancelEventArgs e)
+    private void OnClosed(object sender, EventArgs e)
     {
       SaveSettings();
     }
 
     #endregion
 
+    #region Properties
+
+    public IAppController ViewModel
+    {
+      get { return (IAppController) DataContext; }
+      internal set { DataContext = value; }
+    }
+
+    #endregion
+
     #region Settings
+
     private void LoadSettings()
     {
       ServiceRegistration.Get<ILogger>().Debug("MainWindow:LoadSettings");
       var settingsManager = ServiceRegistration.Get<ISettingsManager>();
       var settings = settingsManager.Load<ServiceMonitorSettings>();
 
-      this.Top = settings.Top;
-      this.Left = settings.Left;
-      this.Height = settings.Height;
-      this.Width = settings.Width;
+      Top = settings.Top;
+      Left = settings.Left;
+      Height = settings.Height;
+      Width = settings.Width;
+
       // Very quick and dirty - but it does the job
       if (settings.Maximised)
-      {
         WindowState = WindowState.Maximized;
-      }
     }
 
     private void SaveSettings()
@@ -97,10 +109,10 @@ namespace MediaPortal.ServiceMonitor.View
       }
       else
       {
-        settings.Top = this.Top;
-        settings.Left = this.Left;
-        settings.Height = this.Height;
-        settings.Width = this.Width;
+        settings.Top = Top;
+        settings.Left = Left;
+        settings.Height = Height;
+        settings.Width = Width;
         settings.Maximised = false;
       }
 
@@ -108,6 +120,5 @@ namespace MediaPortal.ServiceMonitor.View
     }
 
     #endregion
-
   }
 }
