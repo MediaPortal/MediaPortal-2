@@ -1,9 +1,6 @@
-using System.Linq;
-using MediaPortal.Common.Utils;
 using MediaPortal.Plugins.SlimTv.Interfaces;
 using MediaPortal.Plugins.SlimTv.Interfaces.Items;
 using MediaPortal.Plugins.SlimTv.Interfaces.UPnP.Items;
-using Mediaportal.TV.Server.TVControl.Interfaces.Services;
 using Mediaportal.TV.Server.TVDatabase.TVBusinessLayer.Entities;
 
 namespace MediaPortal.Plugins.SlimTv.Service
@@ -25,16 +22,14 @@ namespace MediaPortal.Plugins.SlimTv.Service
           // TODO: Genre!
         };
 
-      // TODO: this is not yet working, no schedulings are visible
-      // ProgramBLL programLogic = new ProgramBLL(tvProgram);
-      // program.RecordingStatus = programLogic.IsRecording ? RecordingStatus.Recording : RecordingStatus.None;
-      
-      // Do time consuming calls only if needed
       if (includeRecordingStatus)
       {
-        RecordingStatus recordingStatus;
-        if (GetRecordingStatus(tvProgram, out recordingStatus))
-          program.RecordingStatus = recordingStatus;
+        ProgramBLL programLogic = new ProgramBLL(tvProgram);
+        program.RecordingStatus = programLogic.IsRecording ? RecordingStatus.Recording : RecordingStatus.None;
+        if (programLogic.IsRecordingOncePending)
+          program.RecordingStatus |= RecordingStatus.Scheduled;
+        if (programLogic.IsRecordingSeriesPending)
+          program.RecordingStatus |= RecordingStatus.SeriesScheduled;
       }
       return program;
     }
@@ -47,18 +42,6 @@ namespace MediaPortal.Plugins.SlimTv.Service
     public static IChannelGroup ToChannelGroup(this Mediaportal.TV.Server.TVDatabase.Entities.ChannelGroup tvGroup)
     {
       return new ChannelGroup { ChannelGroupId = tvGroup.IdGroup, Name = tvGroup.GroupName };
-    }
-
-    //TODO: this method slows down the whole program item loading a lot. Maybe we should load the recording status only on demand?
-    public static bool GetRecordingStatus(Mediaportal.TV.Server.TVDatabase.Entities.Program tvProgram, out RecordingStatus recordingStatus)
-    {
-      recordingStatus = RecordingStatus.None;
-      if (tvProgram == null)
-        return false;
-      IScheduleService scheduleService = GlobalServiceProvider.Get<IScheduleService>();
-      if (scheduleService.ListAllSchedules().Any(s => new ScheduleBLL(s).IsRecordingProgram(tvProgram, true)))
-        recordingStatus = RecordingStatus.Scheduled;
-      return true;
     }
   }
 }
