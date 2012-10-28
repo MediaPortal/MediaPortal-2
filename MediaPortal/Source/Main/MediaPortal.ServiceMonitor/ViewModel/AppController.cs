@@ -26,10 +26,8 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
-using System.Runtime.InteropServices;
 using System.Threading;
 using System.Windows;
-using System.Windows.Interop;
 using Hardcodet.Wpf.TaskbarNotification;
 using MediaPortal.Common;
 using MediaPortal.Common.Logging;
@@ -37,7 +35,6 @@ using MediaPortal.Common.Messaging;
 using MediaPortal.Common.Localization;
 using MediaPortal.Common.PathManager;
 using MediaPortal.ServiceMonitor.Collections;
-using MediaPortal.ServiceMonitor.Model;
 using MediaPortal.ServiceMonitor.UPNP;
 using MediaPortal.ServiceMonitor.Utilities;
 using MediaPortal.ServiceMonitor.View;
@@ -46,14 +43,21 @@ using MediaPortal.Utilities.SystemAPI;
 
 namespace MediaPortal.ServiceMonitor.ViewModel
 {
+  public class ClientData
+  {
+    public string Name { get; set; }
+    public string System { get; set; }
+    public bool IsConnected { get; set; }
+  }
+
   /// <summary>
   /// Main controller of the application.
   /// </summary>
   public class AppController : IDisposable, INotifyPropertyChanged, IAppController, IMessageReceiver
   {
-    
     #region Constants
-    private const string SERVER_SERVICE_NAME = "MP2-Server"; // the name of the installed MP2 Server Service
+
+    private const string SERVER_SERVICE_NAME = "MP2-Server"; // Name of the installed MP2 Server Service
     protected const string AUTOSTART_REGISTER_NAME = "MP2 ServiceMonitor";
 
     private const int WM_POWERBROADCAST = 0x0218;
@@ -64,19 +68,26 @@ namespace MediaPortal.ServiceMonitor.ViewModel
     private const int PBT_APMPOWERSTATUSCHANGE = 0x000A;
     private const int PBT_POWERSETTINGCHANGE = 0x8013;
     private const int PBT_APMRESUMEAUTOMATIC = 0x0012;
+
     #endregion
 
-    #region private variables
+    #region Private variables
 
-    private readonly SynchronizationContext _synchronizationContext; // to avoid cross thread calls
-    private ServerConnectionMessaging.MessageType _serverConnectionStatus; // store last server connection status
+    private readonly SynchronizationContext _synchronizationContext; // To avoid cross thread calls
+    private ServerConnectionMessaging.MessageType _serverConnectionStatus; // Store last server connection status
     private WindowMessageSink _messageSink;
 
+    /// <summary>
+    /// Provides access to the system tray area.
+    /// </summary>
+    private TaskbarIcon _taskbarIcon;
+
+    private string _serverStatus;
+
     #endregion
 
-    #region properties
+    #region Properties
 
-    #region IsAutoStartEnabled
     public bool IsAutoStartEnabled
     {
       get { return !string.IsNullOrEmpty(WindowsAPI.GetAutostartApplicationPath(AUTOSTART_REGISTER_NAME, true)); }
@@ -84,31 +95,22 @@ namespace MediaPortal.ServiceMonitor.ViewModel
       {
         try
         {
-          var applicationPath = string.Format("\"{0}\" -m" , ServiceRegistration.Get<IPathManager>().GetPath("<APPLICATION_PATH>"));
+          // Use -m to start ServiceMonitor minimized
+          string applicationPath = string.Format("\"{0}\" -m" , ServiceRegistration.Get<IPathManager>().GetPath("<APPLICATION_PATH>"));
 #if DEBUG
           applicationPath = applicationPath.Replace(".vshost", "");
 #endif
           if (value) 
-            // start ServiceMonitor minimized
             WindowsAPI.AddAutostartApplication(applicationPath, AUTOSTART_REGISTER_NAME, true);
           else
             WindowsAPI.RemoveAutostartApplication(AUTOSTART_REGISTER_NAME, true);
         }
         catch (Exception ex)
         {
-          ServiceRegistration.Get<ILogger>().Error("Can't write autostart-value to registry", ex);
+          ServiceRegistration.Get<ILogger>().Error("Can't write autostart value to registry", ex);
         }
       }
     }
-
-    #endregion
-
-    #region TaskbarIcon
-
-    /// <summary>
-    /// Provides access to the system tray area.
-    /// </summary>
-    private TaskbarIcon _taskbarIcon;
 
     public TaskbarIcon TaskbarIcon
     {
@@ -116,27 +118,14 @@ namespace MediaPortal.ServiceMonitor.ViewModel
       set
       {
         if (_taskbarIcon != null)
-        {
-          //dispose current tray handler
           _taskbarIcon.Dispose();
-        }
 
         _taskbarIcon = value;
         OnPropertyChanged("TaskbarIcon");
       }
     }
 
-    #endregion
-
-    #region Attached Clients
-
     public ObservableCollectionMt<ClientData> Clients { get; set; }
-
-    #endregion
-
-    #region ServerStatus
-
-    private string _serverStatus;
 
     public string ServerStatus
     {
@@ -146,9 +135,7 @@ namespace MediaPortal.ServiceMonitor.ViewModel
 
     #endregion
 
-    #endregion
-
-    #region ctor
+    #region Ctor
 
     public AppController()
     {
@@ -156,9 +143,8 @@ namespace MediaPortal.ServiceMonitor.ViewModel
       Clients = new ObservableCollectionMt<ClientData>();
       _serverConnectionStatus = ServerConnectionMessaging.MessageType.HomeServerDisconnected;
 
-      // Init ServerConnection Messaging
+      // Register at message channels
       ServiceRegistration.Get<IMessageBroker>().RegisterMessageReceiver(ServerConnectionMessaging.CHANNEL, this);
-      // Init Localization Messaging
       ServiceRegistration.Get<IMessageBroker>().RegisterMessageReceiver(LocalizationMessaging.CHANNEL, this);
     }
 
@@ -178,9 +164,9 @@ namespace MediaPortal.ServiceMonitor.ViewModel
       if (hideMainWindow)
         HideMainWindow();
       else
-       ShowMainWindow();
+        ShowMainWindow();
 
-      // Set Init ServerStatus
+      // Set initial ServerStatus
       UpdateServerStatus();
     }
 
@@ -194,10 +180,8 @@ namespace MediaPortal.ServiceMonitor.ViewModel
       Application.Current.MainWindow.Show();
     }
 
-
     /// <summary>
-    /// Displays the main application window and assigns
-    /// it as the application's <see cref="Application.MainWindow"/>.
+    /// Displays the main application window and assigns it as the application's <see cref="Application.MainWindow"/>.
     /// </summary>
     public void ShowMainWindow()
     {
@@ -206,7 +190,7 @@ namespace MediaPortal.ServiceMonitor.ViewModel
       if (Application.Current.MainWindow.WindowState == WindowState.Minimized)
         Application.Current.MainWindow.WindowState = WindowState.Normal;
 
-      //just show the window on top of others
+      // Show the window on top of others
       Application.Current.MainWindow.Visibility = Visibility.Visible;
       Application.Current.MainWindow.ShowInTaskbar = true;
       Application.Current.MainWindow.Focus();
@@ -220,9 +204,9 @@ namespace MediaPortal.ServiceMonitor.ViewModel
     public void HideMainWindow()
     {
       ServiceRegistration.Get<ILogger>().Debug("HideMainWindow");
-      //close main window
       if (Application.Current.MainWindow != null)
       {
+        gkjb
         Application.Current.MainWindow.ShowInTaskbar = false;
         Application.Current.MainWindow.Visibility = Visibility.Collapsed;
       }
@@ -236,7 +220,6 @@ namespace MediaPortal.ServiceMonitor.ViewModel
     private void OnMainWindowSourceInitialized(object sender, EventArgs e)
     {
       ServiceRegistration.Get<ILogger>().Debug("OnMainWindowSourceInitialized");
-      //deregister event listener
       ((Window) sender).SourceInitialized -= OnMainWindowSourceInitialized;
 
       _messageSink = new WindowMessageSink();
@@ -279,7 +262,6 @@ namespace MediaPortal.ServiceMonitor.ViewModel
     {
       ServiceRegistration.Get<ILogger>().Debug("OnMainWindowClosing");
       
-      //close application if necessary
       CloseMainApplication(false);
       e.Cancel = true;
     }
@@ -293,34 +275,25 @@ namespace MediaPortal.ServiceMonitor.ViewModel
     public void CloseMainApplication(bool forceShutdown)
     {
       if (!forceShutdown)
-      {
         HideMainWindow();
-      }
       else
       {
         ServiceRegistration.Get<ILogger>().Debug("ClosingMainApplication");
-        //deregister event listener, if required
         Application.Current.MainWindow.Closing -= OnMainWindowClosing;
 
         _messageSink.OnWinProc -= WndProc;
         _messageSink.Dispose();
         _messageSink = null;
         
-        //reset main window in order to prevent further code
-        //to close it again while it is being closed
+        // Reset main window in order to prevent further code to close it again while it is being closed
         Application.Current.MainWindow = null;
-        
-        //dispose
         Dispose();
-
-        //shutdown the application
         Application.Current.Shutdown();
       }
     }
 
     /// <summary>
-    /// Inits the component that displays status information in the
-    /// system tray.
+    /// Inits the component that displays status information in the system tray.
     /// </summary>
     public TaskbarIcon InitSystemTray()
     {
@@ -340,7 +313,7 @@ namespace MediaPortal.ServiceMonitor.ViewModel
     #region Windows Service Functions
 
     /// <summary>
-    /// Verify if the MP2 Server Service is installed
+    /// Checks if the MP2 Server Service is installed.
     /// </summary>
     public bool IsServerServiceInstalled()
     {
@@ -352,7 +325,7 @@ namespace MediaPortal.ServiceMonitor.ViewModel
     }
 
     /// <summary>
-    /// Checks if the installed MP2 Server Service is running
+    /// Checks if the installed MP2 Server Service is running.
     /// </summary>
     public bool IsServerServiceRunning()
     {
@@ -366,13 +339,13 @@ namespace MediaPortal.ServiceMonitor.ViewModel
       catch (Exception ex)
       {
         ServiceRegistration.Get<ILogger>().Error(
-          "Check whether the MP2 Server Service is running failed. Please check your installation.", ex);
+            "Check whether the MP2 Server Service is running failed. Please check your installation.", ex);
         return false;
       }
     }
 
     /// <summary>
-    /// Starts the installed MP2 Server Service in case it is not running
+    /// Starts the installed MP2 Server Service in case it is not running.
     /// </summary>
     public bool StartServerService()
     {
@@ -406,7 +379,7 @@ namespace MediaPortal.ServiceMonitor.ViewModel
     }
 
     /// <summary>
-    /// Stops the installed MP2 Server Service
+    /// Stops the installed MP2 Server Service.
     /// </summary>
     public bool StopServerService()
     {
@@ -441,10 +414,10 @@ namespace MediaPortal.ServiceMonitor.ViewModel
 
     #endregion
 
-    #region Implementation of IMessageReceiver (ServerConnectionManager)
+    #region Implementation of IMessageReceiver
 
     /// <summary>
-    /// Receive Server change messages from the ServerConnectionManager which is connected with the MP2 Server Service
+    /// Receive Server change messages from the <see cref="IServerConnectionManager"/> or from the <see cref="ILocalization"/> service.
     /// </summary>
     public void Receive(SystemMessage message)
     {
@@ -474,7 +447,7 @@ namespace MediaPortal.ServiceMonitor.ViewModel
     #region Update Server (& Clients) Status
 
     /// <summary>
-    /// Common routine to set the ServerStatus information
+    /// Common routine to set the ServerStatus information.
     /// </summary>
     public void UpdateServerStatus()
     {
@@ -546,20 +519,17 @@ namespace MediaPortal.ServiceMonitor.ViewModel
 
     protected void SetProperty<T>(ref T field, T value, string propertyName)
     {
-      if (!EqualityComparer<T>.Default.Equals(field, value))
-      {
-        field = value;
-        OnPropertyChanged(propertyName);
-      }
+      if (EqualityComparer<T>.Default.Equals(field, value))
+        return;
+      field = value;
+      OnPropertyChanged(propertyName);
     }
 
     protected void OnPropertyChanged(string propertyName)
     {
       var handler = PropertyChanged;
       if (handler != null)
-      {
         handler(this, new PropertyChangedEventArgs(propertyName));
-      }
     }
 
     #endregion
@@ -568,11 +538,9 @@ namespace MediaPortal.ServiceMonitor.ViewModel
 
     public void Dispose()
     {
-      //reset system tray handler
       TaskbarIcon = null;
     }
 
     #endregion
-
   }
 }

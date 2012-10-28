@@ -23,12 +23,8 @@
 #endregion
 
 using System;
-using System.Diagnostics;
-using System.Runtime.InteropServices;
 using System.Windows;
-using System.Windows.Interop;
 using MediaPortal.Common;
-using MediaPortal.Common.Logging;
 using MediaPortal.Common.Threading;
 using MediaPortal.ServiceMonitor.ViewModel;
 
@@ -39,14 +35,6 @@ namespace MediaPortal.ServiceMonitor.Commands
   /// </summary>
   public class ApplicationCommand : CommandExtension<ApplicationCommand>
   {
-    [DllImport("user32.dll")]
-    static extern IntPtr GetForegroundWindow();
-
-    [DllImport("user32.dll")]
-    static extern IntPtr GetTopWindow(IntPtr hWnd);
-
-
-
     /// <summary>
     /// Opens, closes, or minimizes the application depending on the
     /// submitted command parameter.
@@ -159,6 +147,5 @@ namespace MediaPortal.ServiceMonitor.Commands
           throw new InvalidOperationException(msg);
       }
     }
-
   }
 }

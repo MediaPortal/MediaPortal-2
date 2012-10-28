@@ -19,7 +19,5 @@ namespace MediaPortal.ServiceMonitor.Settings
 
     [Setting(SettingScope.Global, false)]
     public bool Maximised { get; set; }
-
-
   }
 }

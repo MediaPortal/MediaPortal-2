@@ -28,7 +28,7 @@ namespace MediaPortal.ServiceMonitor
 {
   public class CommandLineOptions
   {
-    [Option("m", "minimized", Required = false, HelpText = "Starts application minimized.")]
+    [Option("m", "minimized", Required = false, HelpText = "Starts the application minimized.")]
     public bool IsMinimized = false;
   }
 }

@@ -15,14 +15,7 @@
 // along with MPExtended. If not, see <http://www.gnu.org/licenses/>.
 #endregion
 
-using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.IO;
-using System.Linq;
-using System.Text;
 using System.Security.Principal;
-using System.Windows;
 
 namespace MediaPortal.ServiceMonitor.Utilities
 {
@@ -30,24 +23,24 @@ namespace MediaPortal.ServiceMonitor.Utilities
     {
         public static bool IsAdmin()
         {
-            WindowsIdentity id = WindowsIdentity.GetCurrent();
-            WindowsPrincipal p = new WindowsPrincipal(id);
-            return p.IsInRole(WindowsBuiltInRole.Administrator);
+          WindowsIdentity id = WindowsIdentity.GetCurrent();
+          WindowsPrincipal p = new WindowsPrincipal(id);
+          return p.IsInRole(WindowsBuiltInRole.Administrator);
         }
 
         public static bool StartService()
         {
-            return RunUacServiceHandler("/command:service /action:start");
+          return RunUacServiceHandler("/command:service /action:start");
         }
 
         public static bool StopService()
         {
-            return RunUacServiceHandler("/command:service /action:stop");
+          return RunUacServiceHandler("/command:service /action:stop");
         }
 
         public static bool RestartService()
         {
-            return RunUacServiceHandler("/command:service /action:restart");
+          return RunUacServiceHandler("/command:service /action:restart");
         }
 
         public static bool RunUacServiceHandler(string parameters)

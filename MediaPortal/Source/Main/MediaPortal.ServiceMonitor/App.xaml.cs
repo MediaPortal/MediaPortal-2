@@ -27,8 +27,6 @@ using System;
 using System.IO;
 using MediaPortal.Common.PathManager;
 #endif
-using System.Diagnostics;
-using System.Runtime.InteropServices;
 using System.Security.AccessControl;
 using System.Security.Principal;
 using System.Threading;
@@ -46,6 +44,7 @@ using MediaPortal.Common.SystemResolver;
 using MediaPortal.ServiceMonitor.UPNP;
 using MediaPortal.ServiceMonitor.Utilities;
 using MediaPortal.ServiceMonitor.ViewModel;
+using MediaPortal.Utilities.SystemAPI;
 using Localization = MediaPortal.ServiceMonitor.Utilities.Localization;
 
 namespace MediaPortal.ServiceMonitor
@@ -55,56 +54,47 @@ namespace MediaPortal.ServiceMonitor
   /// </summary>
   public partial class App
   {
+    #region Consts
 
-    #region imports
-    [DllImport("user32.dll")]
-    private static extern int ShowWindow(IntPtr hWnd, int nCmdShow);
-
-    [DllImport("user32.dll")]
-    private static extern int SetForegroundWindow(IntPtr hWnd);
-
-    [DllImport("user32.dll")]
-    private static extern int IsIconic(IntPtr hWnd);
-
-    #endregion
-
-    #region const
-    // unique id for global mutex - Global prefix means it is global to the machine
+    // Unique id for global mutex - Global prefix means it is global to the entire machine
     private const string MUTEX_ID = @"Global\{721780D6-6905-4CFA-A69B-5A1594C928D0}";
-    const int SW_RESTORE = 9;
 
     #endregion
 
-    #region static
+    #region Static fields
+
     private static Mutex _mutex = null;
     private static bool _hasHandle = false;
+
     #endregion
 
-    #region ctor
+    #region Ctor
+
     public App()
     {
       if (IsAlreadyRunning())
       {
         //set focus on previously running app
         SwitchToCurrentInstance();
-        throw new System.ApplicationException("Application already running");
+        throw new ApplicationException("Application already running");
       }
     }
 
     #endregion
 
     #region Single Application
+
     /// <summary>
     /// check if our application is running or not
     /// </summary>
     /// <returns>returns true if already running</returns>
     private static bool IsAlreadyRunning()
     {
-      // allow only one instance
+      // Allow only one instance
       _mutex = new Mutex(false, MUTEX_ID);
 
       var allowEveryoneRule = new MutexAccessRule(new SecurityIdentifier(WellKnownSidType.WorldSid, null),
-                                                  MutexRights.FullControl, AccessControlType.Allow);
+          MutexRights.FullControl, AccessControlType.Allow);
       var securitySettings = new MutexSecurity();
       securitySettings.AddAccessRule(allowEveryoneRule);
       _mutex.SetAccessControl(securitySettings);
@@ -112,12 +102,12 @@ namespace MediaPortal.ServiceMonitor
       _hasHandle = false;
       try
       {
-        // check if we can start the application
+        // Check if we can start the application
         _hasHandle = _mutex.WaitOne(500, false);
       }
       catch (AbandonedMutexException)
       {
-        // Log the fact the mutex was abandoned in another process, it will still get aquired
+        // The mutex was abandoned in another process, it will still get aquired
         _hasHandle = true;
       }
       return !_hasHandle;
@@ -130,43 +120,19 @@ namespace MediaPortal.ServiceMonitor
     {
       // send our Win32 message to make the currently running instance
       // jump on top of all the other windows
-      WinApi.PostMessage(
-          (IntPtr)WinApi.HWND_BROADCAST,
+      WindowsAPI.PostMessage(
+          (IntPtr) WinApi.HWND_BROADCAST,
           WinApi.MP2_SHOWME,
           IntPtr.Zero,
           IntPtr.Zero);
     }
     
-    /// <summary>
-    /// Returns the WindowHandle of the current Instance of the Application
-    /// </summary>
-    /// <returns></returns>
-    private static IntPtr GetCurrentInstanceWindowHandle()
-    {
-      var hWnd = IntPtr.Zero;
-      var currentProcess = Process.GetCurrentProcess();
-      var processes = Process.GetProcessesByName(currentProcess.ProcessName);
-      foreach (var process in processes)
-      {
-        // Get the first instance that is not this instance, has the
-        // same process name and was started from the same file name
-        // and location. Also check that the process has a valid
-        // window handle in this session to filter out other user's
-        // processes.
-        if (process.Id == currentProcess.Id || process.MainModule.FileName != currentProcess.MainModule.FileName ||
-            process.MainWindowHandle == IntPtr.Zero) continue;
-        hWnd = process.MainWindowHandle;
-        break;
-      }
-      return hWnd;
-    }
-
     #endregion
 
     #region OnStartUp
+
     /// <summary>
-    /// Either shows the application's main window or
-    /// inits the application in the system tray.
+    /// Either shows the application's main window or inits the application in the system tray.
     /// </summary>
     private void OnStartup(object sender, StartupEventArgs args)
     {
@@ -179,7 +145,7 @@ namespace MediaPortal.ServiceMonitor
       if (!parser.ParseArguments(args.Args, mpArgs, Console.Out))
         Environment.Exit(1);
 
-      //make sure we're properly handling exceptions
+      // Make sure we're properly handling exceptions
       DispatcherUnhandledException += OnUnhandledException;
       AppDomain.CurrentDomain.UnhandledException += LauncherExceptionHandling.CurrentDomain_UnhandledException;
 
@@ -200,8 +166,9 @@ namespace MediaPortal.ServiceMonitor
           logger = ServiceRegistration.Get<ILogger>();
 
           logger.Debug("Starting Localization");
-          ServiceRegistration.Set<ILocalization>(new Localization());
-          ServiceRegistration.Get<ILocalization>().Startup();
+          Localization localization = new Localization();
+          ServiceRegistration.Set<ILocalization>(localization);
+          localization.Startup();
 
           //ApplicationCore.StartCoreServices();
 
@@ -210,7 +177,6 @@ namespace MediaPortal.ServiceMonitor
 
           logger.Debug("UiExtension: Registering IServerConnectionManager service");
           ServiceRegistration.Set<IServerConnectionManager>(new ServerConnectionManager());
-          
           
 #if !DEBUG
           logPath = ServiceRegistration.Get<IPathManager>().GetPath("<LOG>");
@@ -256,13 +222,14 @@ namespace MediaPortal.ServiceMonitor
         crash.CreateLog(ex);
 #endif
         systemStateService.SwitchSystemState(SystemState.Ending, false);
-        Application.Current.Shutdown();
+        Current.Shutdown();
       }
     }
 
     #endregion
     
     #region OnExit
+
     private void OnExit(object sender, ExitEventArgs e)
     {
       var systemStateService = (SystemStateService) ServiceRegistration.Get<ISystemStateService>();
@@ -281,28 +248,29 @@ namespace MediaPortal.ServiceMonitor
     #endregion
     
     #region Unhandled Exceptions
+
     /// <summary>
     /// Gets any unhandled exceptions.
     /// </summary>
     private static void OnUnhandledException(object sender, DispatcherUnhandledExceptionEventArgs e)
     {
       if (!e.Dispatcher.CheckAccess())
-      {
-        //we are infact running on a dispatcher thread, but better safe than sorry
-        e.Dispatcher.Invoke(new Action(() => OnUnhandledException(sender, e)), DispatcherPriority.Normal, null);
+      { // We are not running in the dispatcher thread, schedule execution in dispatcher thread
+        e.Dispatcher.Invoke(new Action(() => HandleUnhandledException(e)), DispatcherPriority.Normal, null);
         return;
       }
+      HandleUnhandledException(e);
+    }
+
+    private static void HandleUnhandledException(DispatcherUnhandledExceptionEventArgs e)
+    {
+      ILogger logger = ServiceRegistration.Get<ILogger>(false);
+      if (logger != null)
+        logger.Critical("An Unhandled Exception occured", e.Exception);
 
       MessageBox.Show(e.Exception.ToString(), "Unhandled Exception");
-      // here you can log the exception ...
-
-      if (ServiceRegistration.IsRegistered<ILogger>())
-      {
-        ServiceRegistration.Get<ILogger>().Critical("An Unhandled Exception occured", e.Exception);
-      }
     }
 
     #endregion
-
   }
 }

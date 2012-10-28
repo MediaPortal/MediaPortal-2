@@ -31,9 +31,6 @@ using MediaPortal.Common.Localization;
 
 namespace MediaPortal.ServiceMonitor.Extensions
 {
-  /// <summary>
-  /// Description of LocalizationData.
-  /// </summary>
   public class LocalizationData : IMessageReceiver, INotifyPropertyChanged, IDisposable
   {
     private readonly string _key;
@@ -90,8 +87,6 @@ namespace MediaPortal.ServiceMonitor.Extensions
     }
 
     #endregion
-
   }
-
 }
 

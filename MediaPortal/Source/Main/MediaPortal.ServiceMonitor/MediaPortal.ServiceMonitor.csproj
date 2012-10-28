@@ -91,7 +91,6 @@
     <Compile Include="Converters\ServerStatusToImageConverter.cs" />
     <Compile Include="Extensions\LocalizationData.cs" />
     <Compile Include="Extensions\LocExtension.cs" />
-    <Compile Include="Model\ClientData.cs" />
     <Compile Include="Settings\ServiceMonitorSettings.cs" />
     <Compile Include="UPNP\IServerConnectionManager.cs" />
     <Compile Include="UPNP\ServerConnectionManager.cs" />

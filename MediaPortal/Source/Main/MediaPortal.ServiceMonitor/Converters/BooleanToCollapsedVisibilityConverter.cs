@@ -46,5 +46,4 @@ namespace MediaPortal.ServiceMonitor.Converters
 
     #endregion
   }
-
 }

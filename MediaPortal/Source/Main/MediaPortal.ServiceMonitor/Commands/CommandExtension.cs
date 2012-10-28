@@ -33,13 +33,12 @@ namespace MediaPortal.ServiceMonitor.Commands
   /// interface along with a few helper methods and
   /// properties.
   /// </summary>
-  public abstract class CommandExtension<T> : MarkupExtension, ICommand where T:class, ICommand, new()
+  public abstract class CommandExtension<T> : MarkupExtension, ICommand where T : class, ICommand, new()
   {
     /// <summary>
     /// A singleton instance.
     /// </summary>
     private static T _command;
-
 
     /// <summary>
     /// Gets a shared command instance.
@@ -48,7 +47,6 @@ namespace MediaPortal.ServiceMonitor.Commands
     {
       return _command ?? (_command = new T());
     }
-
 
     /// <summary>
     /// Occurs when changes occur that affect whether
@@ -59,7 +57,6 @@ namespace MediaPortal.ServiceMonitor.Commands
       add { CommandManager.RequerySuggested += value; }
       remove { CommandManager.RequerySuggested -= value; }
     }
-    
 
     /// <summary>
     /// Defines the method to be called when the command is invoked.
@@ -69,7 +66,6 @@ namespace MediaPortal.ServiceMonitor.Commands
     /// this object can be set to null.
     /// </param>
     public abstract void Execute(object parameter);
-
 
     /// <summary>
     /// Defines the method that determines whether the command
@@ -86,6 +82,5 @@ namespace MediaPortal.ServiceMonitor.Commands
     {
       return true;
     }
-
   }
 }

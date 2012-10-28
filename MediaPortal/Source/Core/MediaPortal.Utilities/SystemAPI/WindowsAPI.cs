@@ -267,6 +267,36 @@ namespace MediaPortal.Utilities.SystemAPI
     
     #endregion
 
+    /// <summary>
+    /// Places (posts) a message in the message queue associated with the thread that created the specified window and returns
+    /// without waiting for the thread to process the message.
+    /// </summary>
+    /// <param name="hwnd">A handle to the window whose window procedure is to receive the message.</param>
+    /// <param name="msg">The message to be posted.</param>
+    /// <param name="wparam">Additional message-specific information.</param>
+    /// <param name="lparam">Additional message-specific information.</param>
+    /// <returns><c>true</c>, if the function succeeds, else <c>false</c>.</returns>
+    [DllImport("user32.dll")]
+    public static extern bool PostMessage(IntPtr hwnd, uint msg, IntPtr wparam, IntPtr lparam);
+
+    [DllImport("user32.dll", SetLastError = true)]
+    public static extern bool DestroyWindow(IntPtr hWnd);
+
+    /// <summary>
+    /// Registers a window message.
+    /// </summary>
+    /// <param name="lpString">Name of the message to be registered.</param>
+    /// <returns>If the message is successfully registered, the return value is a message identifier in the range 0xC000 through 0xFFFF.
+    /// If the function fails, the return value is zero. To get extended error information, call <see cref="Marshal.GetLastWin32Error"/>.</returns>
+    [DllImport("user32.dll", EntryPoint = "RegisterWindowMessageW")]
+    public static extern uint RegisterWindowMessage([MarshalAs(UnmanagedType.LPWStr)] string lpString);
+
+    [DllImport("user32.dll", EntryPoint = "CreateWindowExW", SetLastError = true)]
+    public static extern IntPtr CreateWindowEx(int dwExStyle, [MarshalAs(UnmanagedType.LPWStr)] string lpClassName,
+                           [MarshalAs(UnmanagedType.LPWStr)] string lpWindowName, int dwStyle, int x, int y,
+                           int nWidth, int nHeight, uint hWndParent, int hMenu, int hInstance,
+                           int lpParam);
+
     #endregion
 
     public const string AUTOSTART_REGISTRY_KEY = @"Software\Microsoft\Windows\Currentversion\Run";

@@ -24,10 +24,10 @@
 
 using System;
 using System.ComponentModel;
+using MediaPortal.Utilities.SystemAPI;
 
 namespace MediaPortal.ServiceMonitor.Utilities
 {
-
   public delegate void WinProcHandler(object snder, uint messageId, uint wparam, uint lparam);
 
   /// <summary>
@@ -35,7 +35,6 @@ namespace MediaPortal.ServiceMonitor.Utilities
   /// </summary>
   public class WindowMessageSink : IDisposable
   {
-
     #region Private/protected fields
 
     /// <summary>
@@ -43,14 +42,8 @@ namespace MediaPortal.ServiceMonitor.Utilities
     /// </summary>
     private WindowProcedureHandler _messageHandler;
 
-    /// <summary>
-    /// Window class ID.
-    /// </summary>
-    internal string WindowId { get; private set; }
+    internal string WindowClassId { get; private set; }
 
-    /// <summary>
-    /// Handle for the message window.
-    /// </summary>
     internal IntPtr MessageWindowHandle { get; private set; }
 
     #endregion
@@ -87,19 +80,17 @@ namespace MediaPortal.ServiceMonitor.Utilities
     #region CreateMessageWindow
 
     /// <summary>
-    /// Creates the helper message window that is used
-    /// to receive messages from the taskbar icon.
+    /// Creates the helper message window that is used to receive messages from the taskbar icon.
     /// </summary>
     private void CreateMessageWindow()
     {
-      //generate a unique ID for the window
-      WindowId = "MP2-ServiceeMonitor_" + DateTime.Now.Ticks;
+      // Generate a unique ID for the window
+      WindowClassId = "MP2-ServiceeMonitor_" + DateTime.Now.Ticks;
 
-      //register window message handler
+      // Register window message handler
       _messageHandler = OnWindowMessageReceived;
 
-      // Create a simple window class which is reference through
-      //the messageHandler delegate
+      // Create a simple window class which is reference through the messageHandler delegate
       WindowClass wc;
 
       wc.style = 0;
@@ -111,14 +102,14 @@ namespace MediaPortal.ServiceMonitor.Utilities
       wc.hCursor = IntPtr.Zero;
       wc.hbrBackground = IntPtr.Zero;
       wc.lpszMenuName = "";
-      wc.lpszClassName = WindowId;
+      wc.lpszClassName = WindowClassId;
 
       // Register the window class
       WinApi.RegisterClass(ref wc);
 
       
       // Create the message window
-      MessageWindowHandle = WinApi.CreateWindowEx(0, WindowId, "", 0, 0, 0, 1, 1, 0, 0, 0, 0);
+      MessageWindowHandle = WindowsAPI.CreateWindowEx(0, WindowClassId, "", 0, 0, 0, 1, 1, 0, 0, 0, 0);
 
       if (MessageWindowHandle == IntPtr.Zero)
       {
@@ -148,38 +139,26 @@ namespace MediaPortal.ServiceMonitor.Utilities
     #region Dispose
 
     /// <summary>
-    /// Set to true as soon as <see cref="Dispose"/>
-    /// has been invoked.
+    /// Set to true as soon as <see cref="Dispose"/> has been invoked.
     /// </summary>
     public bool IsDisposed { get; private set; }
-
 
     /// <summary>
     /// Disposes the object.
     /// </summary>
-    /// <remarks>This method is not virtual by design. Derived classes
-    /// should override <see cref="Dispose(bool)"/>.
-    /// </remarks>
     public void Dispose()
     {
       Dispose(true);
 
       // This object will be cleaned up by the Dispose method.
-      // Therefore, you should call GC.SupressFinalize to
-      // take this object off the finalization queue 
-      // and prevent finalization code for this object
-      // from executing a second time.
+      // Therefore, we call GC.SupressFinalize to take this object off the finalization queue 
+      // and prevent finalization code for this object from executing a second time.
       GC.SuppressFinalize(this);
     }
 
     /// <summary>
-    /// This destructor will run only if the <see cref="Dispose()"/>
-    /// method does not get called. This gives this base class the
+    /// This destructor will run only if the <see cref="Dispose()"/> method does not get called. This gives this class the
     /// opportunity to finalize.
-    /// <para>
-    /// Important: Do not provide destructors in types derived from
-    /// this class.
-    /// </para>
     /// </summary>
     ~WindowMessageSink()
     {
@@ -192,11 +171,10 @@ namespace MediaPortal.ServiceMonitor.Utilities
     /// </summary>
     private void Dispose(bool disposing)
     {
-      //don't do anything if the component is already disposed
       if (IsDisposed || !disposing) return;
       IsDisposed = true;
 
-      WinApi.DestroyWindow(MessageWindowHandle);
+      WindowsAPI.DestroyWindow(MessageWindowHandle);
       _messageHandler = null;
     }
 

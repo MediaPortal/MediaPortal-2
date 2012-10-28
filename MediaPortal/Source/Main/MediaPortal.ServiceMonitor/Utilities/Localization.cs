@@ -15,7 +15,6 @@ namespace MediaPortal.ServiceMonitor.Utilities
 	/// </summary>
 	public class Localization: ILocalization
 	{
-
     public const string LANGUAGE_RESOURCES_REGISTRATION_PATH = "Language";
 
     #region Protected fields
@@ -94,7 +93,7 @@ namespace MediaPortal.ServiceMonitor.Utilities
     #endregion
 			
 		#region ILocalization implementation
-  
+
     public CultureInfo CurrentCulture
     {
       get { return _currentCulture; }
@@ -164,7 +163,5 @@ namespace MediaPortal.ServiceMonitor.Utilities
     }
     
     #endregion
-		
-		
 	}
 }

@@ -75,7 +75,5 @@ namespace MediaPortal.ServiceMonitor.ViewModel
     /// </summary>
     /// <returns></returns>
     bool StopServerService();
-
-
   }
 }

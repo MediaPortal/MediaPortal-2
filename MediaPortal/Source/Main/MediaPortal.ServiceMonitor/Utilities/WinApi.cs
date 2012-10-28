@@ -25,6 +25,7 @@
 using System;
 using System.Runtime.InteropServices;
 using Hardcodet.Wpf.TaskbarNotification.Interop;
+using MediaPortal.Utilities.SystemAPI;
 
 namespace MediaPortal.ServiceMonitor.Utilities
 {
@@ -53,34 +54,19 @@ namespace MediaPortal.ServiceMonitor.Utilities
     public string lpszClassName;
   }
 
-  
-  
   /// <summary>
-  /// Win32 API imports.
+  /// Methods and constants to communicate with the Windows API.
   /// </summary>
   internal static class WinApi
   {
-
     public const int HWND_BROADCAST = 0xffff;
-    public static readonly uint MP2_SHOWME = RegisterWindowMessage("MP2_SHOWME");
-    
+    public static readonly uint MP2_SHOWME = WindowsAPI.RegisterWindowMessage("MP2_SHOWME");
     
     /// <summary>
     /// Creates, updates or deletes the taskbar icon.
     /// </summary>
     [DllImport("shell32.Dll")]
     public static extern bool Shell_NotifyIcon(NotifyCommand cmd, [In]ref NotifyIconData data);
-
-
-    /// <summary>
-    /// Creates the helper window that receives messages from the taskar icon.
-    /// </summary>
-    [DllImport("user32.dll", EntryPoint = "CreateWindowExW", SetLastError = true)]
-    public static extern IntPtr CreateWindowEx(int dwExStyle, [MarshalAs(UnmanagedType.LPWStr)] string lpClassName,
-                           [MarshalAs(UnmanagedType.LPWStr)] string lpWindowName, int dwStyle, int x, int y,
-                           int nWidth, int nHeight, uint hWndParent, int hMenu, int hInstance,
-                           int lpParam);
-
 
     /// <summary>
     /// Processes a default windows procedure.
@@ -93,65 +79,5 @@ namespace MediaPortal.ServiceMonitor.Utilities
     /// </summary>
     [DllImport("user32.dll", EntryPoint = "RegisterClassW", SetLastError = true)]
     public static extern short RegisterClass(ref WindowClass lpWndClass);
-
-    /// <summary>
-    /// Registers a listener for a window message.
-    /// </summary>
-    /// <param name="lpString"></param>
-    /// <returns></returns>
-    [DllImport("user32.dll", EntryPoint = "RegisterWindowMessageW")]
-    public static extern uint RegisterWindowMessage([MarshalAs(UnmanagedType.LPWStr)] string lpString);
-
-    /// <summary>
-    /// Used to destroy the hidden helper window that receives messages from the
-    /// taskbar icon.
-    /// </summary>
-    /// <param name="hWnd"></param>
-    /// <returns></returns>
-    [DllImport("user32.dll", SetLastError = true)]
-    public static extern bool DestroyWindow(IntPtr hWnd);
-
-
-    /// <summary>
-    /// Gives focus to a given window.
-    /// </summary>
-    /// <param name="hWnd"></param>
-    /// <returns></returns>
-    [DllImport("user32.dll")]
-    public static extern bool SetForegroundWindow(IntPtr hWnd);
-
-
-    /// <summary>
-    /// Gets the maximum number of milliseconds that can elapse between a
-    /// first click and a second click for the OS to consider the
-    /// mouse action a double-click.
-    /// </summary>
-    /// <returns>The maximum amount of time, in milliseconds, that can
-    /// elapse between a first click and a second click for the OS to
-    /// consider the mouse action a double-click.</returns>
-    [DllImport("user32.dll", CharSet = CharSet.Auto, ExactSpelling = true)]
-    public static extern int GetDoubleClickTime();
-
-
-    /// <summary>
-    /// Gets the screen coordinates of the current mouse position.
-    /// </summary>
-    /// <param name="lpPoint"></param>
-    /// <returns></returns>
-    [DllImport("user32.dll", SetLastError = true)]
-    public static extern bool GetCursorPos(ref Point lpPoint);
-    
-
-    /// <summary>
-    /// Places (posts) a message in the message queue associated with the thread that created the specified window and returns without waiting for the thread to process the message.
-    /// </summary>
-    /// <param name="hwnd">A handle to the window whose window procedure is to receive the message. </param>
-    /// <param name="msg">The message to be posted.</param>
-    /// <param name="wparam">Additional message-specific information.</param>
-    /// <param name="lparam">Additional message-specific information.</param>
-    /// <returns></returns>
-    [DllImport("user32.dll")]
-    public static extern bool PostMessage(IntPtr hwnd, uint msg, IntPtr wparam, IntPtr lparam);
-
   }
 }
