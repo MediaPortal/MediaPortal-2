@@ -31,6 +31,7 @@ using MediaPortal.Common.Localization;
 using MediaPortal.Plugins.SlimTv.Client.Helpers;
 using MediaPortal.Plugins.SlimTv.Interfaces;
 using MediaPortal.Plugins.SlimTv.Interfaces.Items;
+using MediaPortal.Plugins.SlimTv.Interfaces.UPnP.Items;
 using MediaPortal.UI.Presentation.DataObjects;
 
 namespace MediaPortal.Plugins.SlimTv.Client.Models
@@ -204,10 +205,9 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
     protected ItemsList GetProgramsList(IChannel channel)
     {
       return GetProgramsList(channel, GuideStartTime, GuideEndTime);
-
     }
 
-    protected ItemsList GetProgramsList(IChannel channel, DateTime referenceStart, DateTime referenceEnd)
+    protected ItemsList GetProgramsList(IChannel channel, DateTime referenceStart, DateTime referenceEnd, bool fillNoProgramsStart = false)
     {
       ItemsList channelPrograms = new ItemsList();
       if (_tvHandler.ProgramInfo.GetPrograms(channel, referenceStart, referenceEnd, out _programs))
@@ -228,23 +228,27 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
           channelPrograms.Add(item);
         }
       }
-      else
-        channelPrograms.Add(NoProgramPlaceholder());
       return channelPrograms;
     }
 
-    private ProgramListItem NoProgramPlaceholder()
+    private PlaceholderListItem NoProgramPlaceholder(IChannel channel, DateTime? startTime, DateTime? endTime)
     {
       ILocalization loc = ServiceRegistration.Get<ILocalization>();
       DateTime today = FormatHelper.GetDay(DateTime.Now);
+      ProgramProperties programProperties = new ProgramProperties(GuideStartTime, GuideEndTime);
+      Program placeholderProgram = new Program
+                              {
+                                ChannelId = channel.ChannelId,
+                                Title = loc.ToString("[SlimTvClient.NoProgram]"),
+                                StartTime = startTime.HasValue ? startTime.Value : today,
+                                EndTime = endTime.HasValue? endTime.Value : today.AddDays(1)
+                              };
+      programProperties.SetProgram(placeholderProgram);
+      
+      var item = new PlaceholderListItem(programProperties);
+      item.AdditionalProperties["PROGRAM"] = placeholderProgram;
 
-      ProgramProperties programProperties = new ProgramProperties(GuideStartTime, GuideEndTime)
-                                              {
-                                                Title = loc.ToString("[SlimTvClient.NoProgram]"),
-                                                StartTime = today,
-                                                EndTime = today.AddDays(1)
-                                              };
-      return new ProgramListItem(programProperties);
+      return item;
     }
 
 
@@ -312,6 +316,9 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
 
     private void UpdateChannelPrograms(ChannelProgramListItem channel)
     {
+      TrimStart(channel.Programs, false, true);
+      TrimEnd(channel.Programs, false, true);
+
       int programCount = channel.Programs.Count;
       if (programCount > 0)
       {
@@ -322,18 +329,23 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
         if (timeFrom > GuideStartTime)
           ReloadStart(channel, timeFrom);
         else
-          TrimStart(channel.Programs);
+          TrimStart(channel.Programs, true, false);
 
         if (timeTo < GuideEndTime)
           ReloadEnd(channel, timeTo);
         else
-          TrimEnd(channel.Programs);
+          TrimEnd(channel.Programs, true, false);
 
         foreach (ProgramListItem program in channel.Programs)
           program.Program.UpdateDuration(GuideStartTime, GuideEndTime);
 
         RemoveZeroDurations(channel.Programs);
       }
+      else
+      {
+        ReloadComplete(channel);
+      }
+      FillNoPrograms(channel, GuideStartTime, GuideEndTime);
       channel.Programs.FireChange();
     }
 
@@ -347,24 +359,41 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
       }
     }
 
-    private void TrimStart(ItemsList programs)
+    private void FillNoPrograms(ChannelProgramListItem channel, DateTime viewPortStart, DateTime viewPortEnd)
+    {
+      var programs = channel.Programs;
+      if (programs.Count == 0)
+      {
+        programs.Add(NoProgramPlaceholder(channel.Channel, null, null));
+        return;
+      }
+      ProgramListItem firstItem = programs.Cast<ProgramListItem>().First();
+      ProgramListItem lastItem = programs.Cast<ProgramListItem>().Last();
+      if (firstItem.Program.StartTime > viewPortStart)
+        programs.Insert(0, NoProgramPlaceholder(channel.Channel, null, firstItem.Program.StartTime));
+
+      if (firstItem.Program.EndTime < viewPortEnd)
+        programs.Add(NoProgramPlaceholder(channel.Channel, lastItem.Program.EndTime, null));
+    }
+
+    private void TrimStart(ItemsList programs, bool byTime, bool byPlaceholder)
     {
       for (int i = 0; i < programs.Count; i++)
       {
         ProgramListItem firstItem = (ProgramListItem) programs[0];
-        if (firstItem.Program.EndTime <= GuideStartTime)
+        if (byTime && (firstItem.Program.EndTime <= GuideStartTime) || byPlaceholder && firstItem is PlaceholderListItem)
           programs.RemoveAt(0);
         else
           break;
       }
     }
 
-    private void TrimEnd(ItemsList programs)
+    private void TrimEnd(ItemsList programs, bool byTime, bool byPlaceholder)
     {
       for (int i = programs.Count - 1; i >= 0; i--)
       {
         ProgramListItem firstItem = (ProgramListItem) programs[i];
-        if (firstItem.Program.StartTime > GuideEndTime)
+        if (byTime && (firstItem.Program.StartTime > GuideEndTime) || byPlaceholder && firstItem is PlaceholderListItem)
           programs.RemoveAt(i);
         else
           break;
@@ -381,7 +410,14 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
 
     private void ReloadEnd(ChannelProgramListItem channel, DateTime lastEndTime)
     {
-      ItemsList newItems = GetProgramsList(channel.Channel, lastEndTime.AddSeconds(1), GuideEndTime);
+      ItemsList newItems = GetProgramsList(channel.Channel, lastEndTime.AddSeconds(1), GuideEndTime, true);
+      foreach (ListItem listItem in newItems)
+        channel.Programs.Add(listItem);
+    }
+
+    private void ReloadComplete(ChannelProgramListItem channel)
+    {
+      ItemsList newItems = GetProgramsList(channel.Channel, GuideStartTime, GuideEndTime, true);
       foreach (ListItem listItem in newItems)
         channel.Programs.Add(listItem);
     }

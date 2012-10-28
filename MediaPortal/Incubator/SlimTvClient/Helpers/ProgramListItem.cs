@@ -34,7 +34,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.Helpers
     /// </summary>
     public bool IsRunning
     {
-      get { return (bool)_isRunningProperty.GetValue(); }
+      get { return (bool) _isRunningProperty.GetValue(); }
       set { _isRunningProperty.SetValue(value); }
     }
 
@@ -48,7 +48,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.Helpers
 
     public ProgramListItem(ProgramProperties program)
     {
-      _programProperty = new WProperty(typeof (ProgramProperties), program);
+      _programProperty = new WProperty(typeof(ProgramProperties), program);
       _isRunningProperty = new WProperty(typeof(bool), false);
       SetLabel(Consts.KEY_NAME, program.Title);
       SetLabel("Title", program.Title);
@@ -65,5 +65,12 @@ namespace MediaPortal.Plugins.SlimTv.Client.Helpers
       DateTime now = DateTime.Now;
       IsRunning = Program.StartTime <= now && Program.EndTime > now;
     }
+  }
+
+  public class PlaceholderListItem : ProgramListItem
+  {
+    public PlaceholderListItem(ProgramProperties program)
+      : base(program)
+    { }
   }
 }
