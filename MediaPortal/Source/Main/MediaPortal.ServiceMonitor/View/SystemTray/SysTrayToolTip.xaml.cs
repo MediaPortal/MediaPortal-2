@@ -22,7 +22,6 @@
 
 #endregion
 
-using System.Windows.Controls;
 using MediaPortal.Common;
 using MediaPortal.ServiceMonitor.ViewModel;
 
@@ -31,13 +30,13 @@ namespace MediaPortal.ServiceMonitor.View.SystemTray
   /// <summary>
   /// Interaction logic for SysTrayToolTip.xaml
   /// </summary>
-  public partial class SysTrayToolTip : UserControl
+  public partial class SysTrayToolTip
   {
     public SysTrayToolTip()
     {
       InitializeComponent();
 
-      var viewModel = ServiceRegistration.Get<IAppController>();
+      var viewModel = ServiceRegistration.Get<IAppController>(false);
       DataContext = viewModel;
     }
   }

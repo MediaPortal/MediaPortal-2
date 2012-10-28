@@ -17,14 +17,14 @@
   </Style>
 
   <ContextMenu x:Key="SystemTrayMenu">
-    <MenuItem Header="{e:Loc [ContextMenu.OpenWin]}" Command="{cmd:ApplicationCommand}" CommandParameter="Open" 
+    <MenuItem Header="{e:Loc [ContextMenu.ShowWin]}" Command="{cmd:ApplicationCommand}" CommandParameter="Open" 
               Visibility="{Binding Path=IsEnabled, RelativeSource={RelativeSource Self}, Mode=OneWay, Converter={StaticResource BoolToVisConverter}}">
       <MenuItem.Icon>
         <Image Style="{StaticResource MenuIcon}" Source="../Resources/Images/WindowOpenSmall.png" />
       </MenuItem.Icon>
     </MenuItem>
 
-    <MenuItem Header="{e:Loc [ContextMenu.CloseWin]}" Command="{cmd:ApplicationCommand}" CommandParameter="Hide"
+    <MenuItem Header="{e:Loc [ContextMenu.HideWin]}" Command="{cmd:ApplicationCommand}" CommandParameter="Hide"
               Visibility="{Binding Path=IsEnabled, RelativeSource={RelativeSource Self}, Mode=OneWay, Converter={StaticResource BoolToVisConverter}}">
       <MenuItem.Icon>
         <Image Style="{StaticResource MenuIcon}" Source="../Resources/Images/WindowCloseSmall.png" />
@@ -87,7 +87,5 @@
     <TaskbarNotification:TaskbarIcon.TrayToolTip>
       <SystemTray:SysTrayToolTip />
     </TaskbarNotification:TaskbarIcon.TrayToolTip>
-    
   </TaskbarNotification:TaskbarIcon>
-
 </ResourceDictionary>

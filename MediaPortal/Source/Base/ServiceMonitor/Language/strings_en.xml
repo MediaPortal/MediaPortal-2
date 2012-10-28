@@ -1,19 +1,19 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources name="ServiceMonitor" project="MP2">
   <string name="ServerStatus.NotStarted">Server not started</string>
-  <string name="ServerStatus.Attached">Attached to Server</string>
-  <string name="ServerStatus.Connected">Connected to Server</string>
-  <string name="ServerStatus.Detached">Detached from Server</string>
-  <string name="ServerStatus.Disconnected">Disconnected from Server</string>
-  <string name="ServerStatus.ClientConnected">Client(s) connected to Server</string>
-  <string name="MainWindow.ServerStatus">Server Status</string>
-  <string name="MainWindow.AttachedClients">Attached Clients:</string>
-  <string name="ContextMenu.OpenWin">Open Win</string>
-  <string name="ContextMenu.CloseWin">Close Win</string>
-  <string name="ContextMenu.StartService">Start Service</string>
-  <string name="ContextMenu.StopService">Stop Service</string>
-  <string name="ContextMenu.EnableAutostart">Enable Autostart</string>
-  <string name="ContextMenu.DisableAutostart">Disable Autostart</string>
+  <string name="ServerStatus.Attached">Attached to server</string>
+  <string name="ServerStatus.Connected">Connected to server</string>
+  <string name="ServerStatus.Detached">Detached from server</string>
+  <string name="ServerStatus.Disconnected">Disconnected from server</string>
+  <string name="ServerStatus.ClientConnected">Client(s) connected to server</string>
+  <string name="MainWindow.ServerStatus">Server status</string>
+  <string name="MainWindow.AttachedClients">Attached clients:</string>
+  <string name="ContextMenu.ShowWin">Show window</string>
+  <string name="ContextMenu.HideWin">Hide window</string>
+  <string name="ContextMenu.StartService">Start service</string>
+  <string name="ContextMenu.StopService">Stop service</string>
+  <string name="ContextMenu.EnableAutostart">Enable autostart</string>
+  <string name="ContextMenu.DisableAutostart">Disable autostart</string>
   <string name="ContextMenu.Exit">Exit</string>
-  <string name="SysTrayToolTip.Info">Right / Left / Double Click for further options</string>
+  <string name="SysTrayToolTip.Info">Right click for further options</string>
 </resources>
