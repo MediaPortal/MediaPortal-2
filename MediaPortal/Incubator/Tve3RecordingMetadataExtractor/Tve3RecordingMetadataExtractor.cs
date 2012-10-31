@@ -113,7 +113,7 @@ namespace MediaPortal.Extensions.MetadataExtractors
       MediaCategory seriesCategory;
       IMediaAccessor mediaAccessor = ServiceRegistration.Get<IMediaAccessor>();
       if (!mediaAccessor.MediaCategories.TryGetValue(MEDIA_CATEGORY_NAME_SERIES, out seriesCategory))
-        seriesCategory = mediaAccessor.RegisterMediaCategory(MEDIA_CATEGORY_NAME_SERIES, new List<MediaCategory> {DefaultMediaCategories.Video});
+        seriesCategory = mediaAccessor.RegisterMediaCategory(MEDIA_CATEGORY_NAME_SERIES, new List<MediaCategory> { DefaultMediaCategories.Video });
       MEDIA_CATEGORIES.Add(seriesCategory);
 
       // All non-default media item aspects must be registered
@@ -150,6 +150,10 @@ namespace MediaPortal.Extensions.MetadataExtractors
         if (fsra == null || !fsra.IsFile)
           return false;
 
+        string title;
+        if (!MediaItemAspect.TryGetAttribute(extractedAspectData, MediaAspect.ATTR_TITLE, out title) || string.IsNullOrEmpty(title))
+          return false;
+
         string filePath = mediaItemAccessor.CanonicalLocalResourcePath.ToString();
         string lowerExtension = StringUtils.TrimToEmpty(ProviderPathHelper.GetExtension(filePath)).ToLowerInvariant();
         if (lowerExtension != ".ts")
@@ -162,13 +166,9 @@ namespace MediaPortal.Extensions.MetadataExtractors
         Tags tags;
         using (metaFileAccessor)
         {
-          using (Stream metaStream = ((IFileSystemResourceAccessor)metaFileAccessor).OpenRead())
+          using (Stream metaStream = ((IFileSystemResourceAccessor) metaFileAccessor).OpenRead())
             tags = (Tags) GetTagsXmlSerializer().Deserialize(metaStream);
         }
-
-        MediaItemAspect mediaAspect = MediaItemAspect.GetOrCreateAspect(extractedAspectData, MediaAspect.Metadata);
-        MediaItemAspect videoAspect = MediaItemAspect.GetOrCreateAspect(extractedAspectData, VideoAspect.Metadata);
-        MediaItemAspect recordingAspect = MediaItemAspect.GetOrCreateAspect(extractedAspectData, RecordingAspect.Metadata);
 
         // Handle series information
         SeriesInfo seriesInfo = GetSeriesFromTags(tags);
@@ -182,14 +182,14 @@ namespace MediaPortal.Extensions.MetadataExtractors
 
         string value;
         if (TryGet(tags, TAG_TITLE, out value) && !string.IsNullOrEmpty(value))
-          mediaAspect.SetAttribute(MediaAspect.ATTR_TITLE, value);
+          MediaItemAspect.SetAttribute(extractedAspectData, MediaAspect.ATTR_TITLE, value);
 
         if (TryGet(tags, TAG_GENRE, out value))
-          videoAspect.SetCollectionAttribute(VideoAspect.ATTR_GENRES, new List<String> { value });
+          MediaItemAspect.SetCollectionAttribute(extractedAspectData, VideoAspect.ATTR_GENRES, new List<String> { value });
 
         if (TryGet(tags, TAG_PLOT, out value))
         {
-          videoAspect.SetAttribute(VideoAspect.ATTR_STORYPLOT, value);
+          MediaItemAspect.SetAttribute(extractedAspectData, VideoAspect.ATTR_STORYPLOT, value);
           Match yearMatch = _yearMatcher.Match(value);
           int guessedYear;
           if (int.TryParse(yearMatch.Value, out guessedYear))
@@ -197,16 +197,16 @@ namespace MediaPortal.Extensions.MetadataExtractors
         }
 
         if (TryGet(tags, TAG_CHANNEL, out value))
-          recordingAspect.SetAttribute(RecordingAspect.ATTR_CHANNEL, value);
+          MediaItemAspect.SetAttribute(extractedAspectData, RecordingAspect.ATTR_CHANNEL, value);
 
         // Recording date formatted: 2011-11-04 20:55
         DateTime recordingStart;
         DateTime recordingEnd;
         if (TryGet(tags, TAG_STARTTIME, out value) && DateTime.TryParse(value, out recordingStart))
-          recordingAspect.SetAttribute(RecordingAspect.ATTR_STARTTIME, recordingStart);
+          MediaItemAspect.SetAttribute(extractedAspectData, RecordingAspect.ATTR_STARTTIME, recordingStart);
 
         if (TryGet(tags, TAG_ENDTIME, out value) && DateTime.TryParse(value, out recordingEnd))
-          recordingAspect.SetAttribute(RecordingAspect.ATTR_ENDTIME, recordingEnd);
+          MediaItemAspect.SetAttribute(extractedAspectData, RecordingAspect.ATTR_ENDTIME, recordingEnd);
 
         return true;
       }
