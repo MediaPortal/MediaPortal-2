@@ -162,7 +162,7 @@ namespace MediaPortal.Extensions.MetadataExtractors
         Tags tags;
         using (metaFileAccessor)
         {
-          using (Stream metaStream = fsra.OpenRead())
+          using (Stream metaStream = ((IFileSystemResourceAccessor)metaFileAccessor).OpenRead())
             tags = (Tags) GetTagsXmlSerializer().Deserialize(metaStream);
         }
 
