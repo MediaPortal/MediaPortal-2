@@ -213,5 +213,14 @@ namespace MediaPortal.Extensions.ResourceProviders.NetworkNeighborhoodResourcePr
     }
 
     #endregion
+
+    #region Base overrides
+
+    public override string ToString()
+    {
+      return LocalFileSystemPath;
+    }
+
+    #endregion
   }
 }
