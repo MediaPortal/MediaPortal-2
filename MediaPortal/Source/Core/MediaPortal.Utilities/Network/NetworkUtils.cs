@@ -90,11 +90,8 @@ namespace MediaPortal.Utilities.Network
     /// <returns>
     ///     <c>true</c> if a network connection is available; otherwise, <c>false</c>.
     /// </returns>
-    public static bool IsNetworkConnected()
-    {
-      return IsNetworkAvailable(0);
-    }
-
+    public static bool IsNetworkConnected { get; private set; }
+    
     /// <summary>
     /// Indicates whether any network connection is available.
     /// Filter connections below a specified speed, as well as virtual network cards.
@@ -135,9 +132,24 @@ namespace MediaPortal.Utilities.Network
       return false;
     }
 
+    private static void DoNetworkAddressChanged(object sender, EventArgs e)
+    {
+      IsNetworkConnected = IsNetworkAvailable(0);
+    }
+
+    private static void DoNetworkAvailabilityChanged(object sender, NetworkAvailabilityEventArgs e)
+    {
+      IsNetworkConnected = IsNetworkAvailable(0);
+    }
 
 
+    static NetworkUtils()
+    {
+      IsNetworkConnected = IsNetworkAvailable(0);
+      NetworkChange.NetworkAvailabilityChanged += new NetworkAvailabilityChangedEventHandler(DoNetworkAvailabilityChanged);
+      NetworkChange.NetworkAddressChanged += new NetworkAddressChangedEventHandler(DoNetworkAddressChanged);
+    }
 
-
+    
   }
 }

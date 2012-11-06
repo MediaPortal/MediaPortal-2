@@ -287,7 +287,7 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement.AssetCore
             CachePolicy = new RequestCachePolicy(RequestCacheLevel.CacheIfAvailable)
           };
         _webClient.DownloadDataCompleted += DownloadComplete;
-        if (NetworkUtils.IsNetworkConnected())
+        if (NetworkUtils.IsNetworkConnected)
           _webClient.DownloadDataAsync(uri, null);
         else
         {
