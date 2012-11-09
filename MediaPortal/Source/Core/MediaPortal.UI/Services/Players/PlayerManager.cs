@@ -120,7 +120,8 @@ namespace MediaPortal.UI.Services.Players
     {
       _slots = new PlayerSlotController[] {
           new PlayerSlotController(this, PlayerManagerConsts.PRIMARY_SLOT),
-          new PlayerSlotController(this, PlayerManagerConsts.SECONDARY_SLOT)
+          new PlayerSlotController(this, PlayerManagerConsts.SECONDARY_SLOT),
+          new PlayerSlotController(this, PlayerManagerConsts.BACKGROUND_SLOT) { IsHidden = true } /* Background slots won't be counted as IsActive */
       };
 
       // Albert, 2010-12-06: It's too difficult to revoke a player builder. We cannot guarantee that no player of that
@@ -287,10 +288,15 @@ namespace MediaPortal.UI.Services.Players
 
     internal PlayerSlotController GetPlayerSlotControllerInternal(int slotIndex)
     {
-      if (slotIndex < 0 || slotIndex > 1)
+      if (slotIndex < 0 || slotIndex >= NumberOfSlots)
         return null;
       lock (_syncObj)
         return _slots[slotIndex];
+    }
+
+    internal int NumberOfSlots
+    {
+      get { return _slots.Length; }
     }
 
     #endregion
@@ -307,7 +313,7 @@ namespace MediaPortal.UI.Services.Players
       get
       {
         lock (_syncObj)
-          return _slots.Count(psc => psc.IsActive);
+          return _slots.Count(psc => psc.IsActive && !psc.IsHidden);
       }
     }
 
@@ -325,15 +331,28 @@ namespace MediaPortal.UI.Services.Players
       }
     }
 
+    public T GetFirstPlayer<T> (bool ignoreHidden = false)
+    {
+      lock(_syncObj)
+      {
+        foreach (PlayerSlotController psc in _slots)
+        {
+          if (psc.IsActive && (!psc.IsHidden || ignoreHidden) && psc.CurrentPlayer is T)
+            return (T)psc.CurrentPlayer;
+        }
+      }
+      return default(T);
+    }
+
     public int AudioSlotIndex
     {
       get
       {
         lock (_syncObj)
-          for (int i = 0; i < 2; i++)
+          for (int i = 0; i < NumberOfSlots; i++)
           {
             PlayerSlotController psc = _slots[i];
-            if (psc.IsActive && psc.IsAudioSlot)
+            if (psc.IsActive && psc.IsAudioSlot && !psc.IsHidden)
               return i;
           }
         return -1;
@@ -474,13 +493,14 @@ namespace MediaPortal.UI.Services.Players
         AudioSlotIndex = PlayerManagerConsts.PRIMARY_SLOT;
     }
 
-    public void CloseAllSlots()
+    public void CloseAllSlots(bool ignoreHidden = false)
     {
       bool muted = Muted;
       // Avoid switching the sound to the other slot for a short time, in case we close the audio slot first
       Muted = true;
       foreach (PlayerSlotController psc in _slots)
-        psc.IsActive = false; // Must be done outside the lock
+        if (!(psc.IsHidden || ignoreHidden))
+          psc.IsActive = false; // Must be done outside the lock
       // The audio slot property is stored in the slot instances itself and thus doesn't need to be updated here
       Muted = muted;
     }
@@ -495,7 +515,7 @@ namespace MediaPortal.UI.Services.Players
         PlayerSlotController tmp = _slots[PlayerManagerConsts.PRIMARY_SLOT];
         _slots[PlayerManagerConsts.PRIMARY_SLOT] = _slots[PlayerManagerConsts.SECONDARY_SLOT];
         _slots[PlayerManagerConsts.SECONDARY_SLOT] = tmp;
-        for (int i = 0; i < 2; i++)
+        for (int i = 0; i < NumberOfSlots; i++)
           _slots[i].SlotIndex = i;
         // Audio slot index changes automatically as it is stored in the slot instance itself
         PlayerManagerMessaging.SendPlayerManagerPlayerMessage(PlayerManagerMessaging.MessageType.PlayerSlotsChanged);

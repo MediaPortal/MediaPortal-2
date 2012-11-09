@@ -28,5 +28,6 @@ namespace MediaPortal.UI.Presentation.Players
   {
     public const int PRIMARY_SLOT = 0;
     public const int SECONDARY_SLOT = 1;
+    public const int BACKGROUND_SLOT = 2;
   }
 }

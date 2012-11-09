@@ -48,7 +48,7 @@ namespace MediaPortal.UI.Services.Players.PCMOpenPlayerStrategy
       }
       else // !concurrentVideo
         // Don't enable concurrent controllers: Close all except the primary slot controller
-        playerManager.CloseAllSlots();
+        playerManager.CloseAllSlots(true);
       // Open new slot
       int slotIndex;
       playerManager.OpenSlot(out slotIndex, out slotController);
@@ -81,7 +81,7 @@ namespace MediaPortal.UI.Services.Players.PCMOpenPlayerStrategy
             }
             else
             { // No audio slot available
-              playerManager.CloseAllSlots();
+              playerManager.CloseAllSlots(true);
               playerManager.OpenSlot(out slotIndex, out slotController);
               audioSlotIndex = PlayerManagerConsts.PRIMARY_SLOT;
             }
@@ -96,14 +96,14 @@ namespace MediaPortal.UI.Services.Players.PCMOpenPlayerStrategy
             }
             else
             {
-              playerManager.CloseAllSlots();
+              playerManager.CloseAllSlots(true);
               playerManager.OpenSlot(out slotIndex, out slotController);
               audioSlotIndex = PlayerManagerConsts.PRIMARY_SLOT;
             }
             break;
           default:
             // Don't enable concurrent controllers: Close all except the primary slot controller
-            playerManager.CloseAllSlots();
+            playerManager.CloseAllSlots(true);
             playerManager.OpenSlot(out slotIndex, out slotController);
             audioSlotIndex = PlayerManagerConsts.PRIMARY_SLOT;
             break;
