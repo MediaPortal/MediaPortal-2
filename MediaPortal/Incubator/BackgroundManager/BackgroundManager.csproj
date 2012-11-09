@@ -66,7 +66,6 @@
     </Compile>
     <Compile Include="Helper\BackgroundManagerMessaging.cs" />
     <Compile Include="Models\BackgroundManagerModel.cs" />
-    <Compile Include="Models\BackgroundVideoBrush.cs" />
     <Compile Include="Models\VideoBackgroundModel.cs" />
     <Compile Include="Models\BackgroundManagerSetupModel.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

@@ -31,7 +31,7 @@ using MediaPortal.Common.ResourceAccess;
 using MediaPortal.Common.Services.ResourceAccess;
 using MediaPortal.Common.Settings;
 using MediaPortal.UI.Players.Video;
-using MediaPortal.UI.SkinEngine.Players;
+using MediaPortal.UI.Presentation.Players;
 using MediaPortal.UiComponents.BackgroundManager.Helper;
 using MediaPortal.UiComponents.BackgroundManager.Settings;
 
@@ -42,25 +42,8 @@ namespace MediaPortal.UiComponents.BackgroundManager.Models
     public const string MODEL_ID_STR = "441288AC-F88D-4186-8993-6E259F7C75D8";
 
     protected string _videoFilename;
-    protected VideoPlayer _videoPlayer;
-    protected AbstractProperty _videoPlayerProperty;
     protected AbstractProperty _isEnabledProperty;
     protected AsynchronousMessageQueue _messageQueue;
-
-    #region Protected fields
-
-    #endregion
-
-    public AbstractProperty VideoPlayerProperty
-    {
-      get { return _videoPlayerProperty; }
-    }
-
-    public ISlimDXVideoPlayer VideoPlayer
-    {
-      get { return (ISlimDXVideoPlayer) _videoPlayerProperty.GetValue(); }
-      set { _videoPlayerProperty.SetValue(value); }
-    }
 
     public AbstractProperty IsEnabledProperty
     {
@@ -75,7 +58,6 @@ namespace MediaPortal.UiComponents.BackgroundManager.Models
 
     public VideoBackgroundModel()
     {
-      _videoPlayerProperty = new SProperty(typeof(ISlimDXVideoPlayer), null);
       _isEnabledProperty = new SProperty(typeof(bool), false);
       _messageQueue = new AsynchronousMessageQueue(this, new[] { BackgroundManagerMessaging.CHANNEL });
       _messageQueue.MessageReceived += OnMessageReceived;
@@ -114,32 +96,30 @@ namespace MediaPortal.UiComponents.BackgroundManager.Models
 
     public void EndBackgroundPlayback()
     {
-      ISlimDXVideoPlayer player = VideoPlayer;
-      IDisposable disp = player as IDisposable;
-      if (player != null)
-      {
-        player.Stop();
-        if (disp != null)
-          disp.Dispose();
-      }
-      VideoPlayer = null;
+      IPlayerManager playerManager = ServiceRegistration.Get<IPlayerManager>();
+      playerManager.CloseSlot(PlayerManagerConsts.BACKGROUND_SLOT);
     }
 
     public void StartBackgroundPlayback()
     {
       if (!IsEnabled)
         return;
+
+      IPlayerManager playerManager = ServiceRegistration.Get<IPlayerManager>();
+      IPlayerSlotController playerSlotController;
+      playerManager.ResetSlot(PlayerManagerConsts.BACKGROUND_SLOT, out playerSlotController);
+      VideoPlayer videoPlayer = null;
       try
       {
         ResourceLocator resourceLocator = new ResourceLocator(LocalFsResourceProviderBase.ToResourcePath(_videoFilename));
-        _videoPlayer = new VideoPlayer { AutoRepeat = true };
-        _videoPlayer.SetMediaItem(resourceLocator, "VideoBackground");
-        VideoPlayer = _videoPlayer;
+        videoPlayer = new VideoPlayer { AutoRepeat = true };
+        videoPlayer.SetMediaItem(resourceLocator, "VideoBackground");
+        playerSlotController.Play(videoPlayer);
       }
       catch (Exception)
       {
-        if (_videoPlayer != null)
-          _videoPlayer.Dispose();
+        if (videoPlayer != null)
+          videoPlayer.Dispose();
       }
     }
   }
