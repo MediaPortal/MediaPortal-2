@@ -337,7 +337,7 @@ namespace MediaPortal.UI.Services.Players
       {
         foreach (PlayerSlotController psc in _slots)
         {
-          if (psc.IsActive && (!psc.IsHidden || ignoreHidden) && psc.CurrentPlayer is T)
+          if (psc.IsActive && !(psc.IsHidden && ignoreHidden) && psc.CurrentPlayer is T)
             return (T)psc.CurrentPlayer;
         }
       }
