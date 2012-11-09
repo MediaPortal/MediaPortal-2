@@ -40,13 +40,13 @@ using MediaPortal.Utilities;
 namespace MediaPortal.UiComponents.BackgroundManager.Models
 {
   /// <summary>
-  /// Workflow model for the weather setup.
+  /// Workflow model for the video background manager setup.
   /// </summary>
   public class BackgroundManagerSetupModel : IWorkflowModel
   {
     public const string BACKGROUND_SETUP_MODEL_ID_STR = "5054832A-C20D-448E-AA08-A8B2826D1C31";
     public const string RES_HEADER_CHOOSE_VIDEO = "[Settings.Appearance.Skin.Background.Setup.SelectVideo]";
-    
+
     protected AbstractProperty _backgroundVideoFilenameProperty;
     protected AbstractProperty _isEnabledProperty;
 
@@ -74,7 +74,7 @@ namespace MediaPortal.UiComponents.BackgroundManager.Models
       set { _isEnabledProperty.SetValue(value); }
     }
 
-    public BackgroundManagerSetupModel ()
+    public BackgroundManagerSetupModel()
     {
       ISettingsManager settingsManager = ServiceRegistration.Get<ISettingsManager>();
       BackgroundManagerSettings settings = settingsManager.Load<BackgroundManagerSettings>();
@@ -95,7 +95,6 @@ namespace MediaPortal.UiComponents.BackgroundManager.Models
       BackgroundManagerMessaging.SendMessage(BackgroundManagerMessaging.MessageType.SettingsChanged);
     }
 
-
     public void ChooseBackgroundVideo()
     {
       ISettingsManager settingsManager = ServiceRegistration.Get<ISettingsManager>();
@@ -113,15 +112,16 @@ namespace MediaPortal.UiComponents.BackgroundManager.Models
             string extension = StringUtils.TrimToEmpty(DosPathHelper.GetExtension(choosenPath)).ToLowerInvariant();
             return mdeSettings.VideoFileExtensions.Contains(extension) && File.Exists(choosenPath);
           });
+
       if (_pathBrowserCloseWatcher != null)
         _pathBrowserCloseWatcher.Dispose();
+
       _pathBrowserCloseWatcher = new PathBrowserCloseWatcher(this, dialogHandle, choosenPath =>
-      {
-        BackgroundVideoFilename = LocalFsResourceProviderBase.ToDosPath(choosenPath);
-      },
+          {
+            BackgroundVideoFilename = LocalFsResourceProviderBase.ToDosPath(choosenPath);
+          }, 
           null);
     }
-
 
     #region IWorkflowModel implementation
 
