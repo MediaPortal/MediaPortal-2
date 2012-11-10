@@ -26,6 +26,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Text.RegularExpressions;
 using System.Xml.Serialization;
 using MediaPortal.Common.Logging;
@@ -62,7 +63,7 @@ namespace MediaPortal.Common.Services.PathManager
 
     public void InitializeDefaults()
     {
-      string applicationPath = Environment.GetCommandLineArgs()[0];
+      string applicationPath = Assembly.GetExecutingAssembly().Location;
       InitializeDefaults(applicationPath);
     }
 
