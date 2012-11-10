@@ -28,10 +28,10 @@
 
       <Component Id="ServiceMonitor.exe" Guid="440393DC-C511-4C73-8A92-184CB119CA49">
         <File Id="ServiceMonitor.exe" Name="MP2-ServiceMonitor.exe" KeyPath="yes" Checksum="yes">
-          <fire:FirewallException Id="MP2ServiceMonitorExTCPDom" Name="MP2-Client TCP Domain" Profile="domain" Protocol="tcp" Scope="any" IgnoreFailure="yes" />
-          <fire:FirewallException Id="MP2ServiceMonitorExTCPPriv" Name="MP2-Client TCP Private" Profile="private" Protocol="tcp" Scope="any" IgnoreFailure="yes" />
-          <fire:FirewallException Id="MP2ServiceMonitorExUDPDom" Name="MP2-Client UDP Domain" Profile="domain" Protocol="udp" Scope="any" IgnoreFailure="yes" />
-          <fire:FirewallException Id="MP2ServiceMonitorExUDPPriv" Name="MP2-Client UDP Private" Profile="private" Protocol="udp" Scope="any" IgnoreFailure="yes" />
+          <fire:FirewallException Id="MP2ServiceMonitorExTCPDom" Name="MP2-ServiceMonitor TCP Domain" Profile="domain" Protocol="tcp" Scope="any" IgnoreFailure="yes" />
+          <fire:FirewallException Id="MP2ServiceMonitorExTCPPriv" Name="MP2-ServiceMonitor TCP Private" Profile="private" Protocol="tcp" Scope="any" IgnoreFailure="yes" />
+          <fire:FirewallException Id="MP2ServiceMonitorExUDPDom" Name="MP2-ServiceMonitor UDP Domain" Profile="domain" Protocol="udp" Scope="any" IgnoreFailure="yes" />
+          <fire:FirewallException Id="MP2ServiceMonitorExUDPPriv" Name="MP2-ServiceMonitor UDP Private" Profile="private" Protocol="udp" Scope="any" IgnoreFailure="yes" />
         </File>
       </Component>
       <!-- Auto-start via Registry -->
