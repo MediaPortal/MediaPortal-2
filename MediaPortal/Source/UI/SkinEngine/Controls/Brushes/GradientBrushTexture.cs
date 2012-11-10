@@ -126,11 +126,15 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
     {
       byte[] data = new byte[4 * GRADIENT_TEXTURE_WIDTH * GRADIENT_TEXTURE_HEIGHT];
 
-      for (int i = 0; i < _stops.Count - 1; i++)
+      int stopCounts = _stops.Count - 1;
+      if (stopCounts <= 0)
+        return; // FIXME: Why does this happen here sometimes?
+
+      for (int i = 0; i < stopCounts; i++)
         CreatePartialGradient(data, _stops[i], _stops[i + 1]);
       // If stops don't go up to 1.0 we have to fake the final stop
-      if (_stops[_stops.Count - 1].Offset < 1.0)
-        CreatePartialGradient(data, _stops[_stops.Count - 1], new GradientStopData(_stops[_stops.Count - 1].Color, 1.0));
+      if (_stops[stopCounts].Offset < 1.0)
+        CreatePartialGradient(data, _stops[stopCounts], new GradientStopData(_stops[stopCounts].Color, 1.0));
 
       DataRectangle rect = _texture.Surface0.LockRectangle(LockFlags.None);
       rect.Data.Write(data, 0, 4 * GRADIENT_TEXTURE_WIDTH * GRADIENT_TEXTURE_HEIGHT);
