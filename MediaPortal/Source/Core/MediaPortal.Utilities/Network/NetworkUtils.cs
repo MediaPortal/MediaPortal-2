@@ -82,7 +82,6 @@ namespace MediaPortal.Utilities.Network
       request.ServicePoint.BindIPEndPointDelegate = (servicePoint, remoteEndPoint, retryCount) => BindIPEndPointCallback(servicePoint, remoteEndPoint, preferredLocalIpAddress, retryCount);
     }
 
-
     /// <summary>
     /// Indicates whether any network connection is available
     /// Filter connections with virtual network cards.
@@ -91,15 +90,13 @@ namespace MediaPortal.Utilities.Network
     ///     <c>true</c> if a network connection is available; otherwise, <c>false</c>.
     /// </returns>
     public static bool IsNetworkConnected { get; private set; }
-    
+
     /// <summary>
     /// Indicates whether any network connection is available.
     /// Filter connections below a specified speed, as well as virtual network cards.
     /// </summary>
     /// <param name="minimumSpeed">The minimum speed required. Passing 0 will not filter connection using speed.</param>
-    /// <returns>
-    ///     <c>true</c> if a network connection is available; otherwise, <c>false</c>.
-    /// </returns>
+    /// <returns><c>true</c> if a network connection is available; otherwise, <c>false</c>.</returns>
     public static bool IsNetworkAvailable(long minimumSpeed)
     {
       if (!NetworkInterface.GetIsNetworkAvailable())
@@ -107,23 +104,23 @@ namespace MediaPortal.Utilities.Network
 
       foreach (NetworkInterface ni in NetworkInterface.GetAllNetworkInterfaces())
       {
-        // discard because of standard reasons
+        // Discard because of standard reasons
         if ((ni.OperationalStatus != OperationalStatus.Up) ||
             (ni.NetworkInterfaceType == NetworkInterfaceType.Loopback) ||
             (ni.NetworkInterfaceType == NetworkInterfaceType.Tunnel))
           continue;
 
-        // this allow to filter modems, serial, etc.
+        // This allows to filter modems, serial, etc.
         // I use 10000000 as a minimum speed for most cases
         if (ni.Speed < minimumSpeed)
           continue;
 
-        // discard virtual cards (virtual box, virtual pc, etc.)
+        // Discard virtual cards (virtual box, virtual pc, etc.)
         if ((ni.Description.IndexOf("virtual", StringComparison.OrdinalIgnoreCase) >= 0) ||
             (ni.Name.IndexOf("virtual", StringComparison.OrdinalIgnoreCase) >= 0))
           continue;
 
-        // discard "Microsoft Loopback Adapter", it will not show as NetworkInterfaceType.Loopback but as Ethernet Card.
+        // Discard "Microsoft Loopback Adapter", it will not show as NetworkInterfaceType.Loopback but as Ethernet Card.
         if (ni.Description.Equals("Microsoft Loopback Adapter", StringComparison.OrdinalIgnoreCase))
           continue;
 
@@ -142,14 +139,11 @@ namespace MediaPortal.Utilities.Network
       IsNetworkConnected = IsNetworkAvailable(0);
     }
 
-
     static NetworkUtils()
     {
       IsNetworkConnected = IsNetworkAvailable(0);
-      NetworkChange.NetworkAvailabilityChanged += new NetworkAvailabilityChangedEventHandler(DoNetworkAvailabilityChanged);
-      NetworkChange.NetworkAddressChanged += new NetworkAddressChangedEventHandler(DoNetworkAddressChanged);
+      NetworkChange.NetworkAvailabilityChanged += DoNetworkAvailabilityChanged;
+      NetworkChange.NetworkAddressChanged += DoNetworkAddressChanged;
     }
-
-    
   }
 }
