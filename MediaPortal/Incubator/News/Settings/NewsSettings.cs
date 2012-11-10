@@ -34,7 +34,7 @@ namespace MediaPortal.UiComponents.News.Settings
         // if the default feeds haven't been loaded yet, deserialize them from xml file
         var path = Path.Combine(Path.GetDirectoryName(typeof(NewsSettings).Assembly.Location), "DefaultFeeds.xml");
         var serializer = new XmlSerializer(typeof(RegionalFeedBookmarksCollection));
-        using (var fs = new FileStream(path, FileMode.Open))
+        using (var fs = new FileStream(path, FileMode.Open, FileAccess.Read))
         {
           var loadedFeeds = serializer.Deserialize(fs) as RegionalFeedBookmarksCollection;
           DefaultFeeds = new Dictionary<string, List<FeedBookmark>>();
