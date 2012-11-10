@@ -34,6 +34,7 @@ using MediaPortal.Common.Localization;
 using MediaPortal.Common.PathManager;
 using MediaPortal.Common.Settings;
 using MediaPortal.UiComponents.Weather.Settings;
+using MediaPortal.Utilities.Network;
 
 namespace MediaPortal.UiComponents.Weather.Grabbers
 {
@@ -132,6 +133,9 @@ namespace MediaPortal.UiComponents.Weather.Grabbers
       }
       else
       {
+        if (!NetworkUtils.IsNetworkConnected)
+          return false;
+
         Dictionary<string, string> args = new Dictionary<string, string>();
         args["q"] = city.Id;
         args["num_of_days"] = "5";
@@ -157,7 +161,7 @@ namespace MediaPortal.UiComponents.Weather.Grabbers
     private bool ShouldUseCache(string cachefile)
     {
       FileInfo fileInfo = new FileInfo(cachefile);
-      return fileInfo.Exists && DateTime.Now - fileInfo.LastWriteTime <= _maxCacheDuration;
+      return fileInfo.Exists && (DateTime.Now - fileInfo.LastWriteTime <= _maxCacheDuration || !NetworkUtils.IsNetworkConnected);
     }
 
     /// <summary>
