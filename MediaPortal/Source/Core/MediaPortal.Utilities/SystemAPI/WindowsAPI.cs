@@ -24,7 +24,6 @@
 
 using System;
 using System.Runtime.InteropServices;
-using System.Text;
 using MediaPortal.Utilities.Exceptions;
 using Microsoft.Win32;
 
@@ -38,21 +37,6 @@ namespace MediaPortal.Utilities.SystemAPI
   public static class WindowsAPI
   {
     #region Windows API
-
-    private const int CSIDL_MYMUSIC = 0x000d;     // "My Music" folder
-    private const int CSIDL_MYVIDEO = 0x000e;     // "My Videos" folder
-    private const int CSIDL_MYPICTURES = 0x0027;  // "My Pictures" folder
-
-    private const int SHGFP_TYPE_CURRENT = 0;
-
-    [DllImport("shell32.dll")]
-    [Obsolete("Deprecated in Vista and later. Replaced by SHGetKnownFolderPath")]
-    private static extern Int32 SHGetFolderPath(
-        IntPtr hwndOwner,        // Handle to an owner window.
-        Int32 nFolder,           // A CSIDL value that identifies the folder whose path is to be retrieved.
-        IntPtr hToken,           // An access token that can be used to represent a particular user.
-        UInt32 dwFlags,          // Flags to specify which path is to be returned. It is used for cases where the folder associated with a CSIDL may be moved or renamed by the user. 
-        StringBuilder pszPath);  // Pointer to a null-terminated string which will receive the path.
 
     [FlagsAttribute]
     public enum EXECUTION_STATE : uint
@@ -89,16 +73,6 @@ namespace MediaPortal.Utilities.SystemAPI
     public const uint SPI_GETSCREENSAVEACTIVE = 0x0010;
     public const uint SPI_SETSCREENSAVEACTIVE = 0x0011;
 
-    /// <summary>
-    /// Use this enum to denote special system folders.
-    /// </summary>
-    public enum SpecialFolder
-    {
-      MyMusic,
-      MyVideos,
-      MyPictures,
-    }
-
     public static bool ScreenSaverEnabled
     {
       get
@@ -122,35 +96,26 @@ namespace MediaPortal.Utilities.SystemAPI
 
     /// <summary>
     /// Returns the path of the given system's special folder.
+    /// <remarks>
+    /// If the requested special folder is an user folder, and the caller operates as local service, this method won't resolve the folder.
+    /// </remarks>
     /// </summary>
     /// <param name="folder">Folder to retrieve.</param>
     /// <param name="folderPath">Will be set to the folder path if the result value is <c>true</c>.</param>
     /// <returns><c>true</c>, if the specified special folder could be retrieved. Else <c>false</c>
     /// will be returned.</returns>
-    public static bool GetSpecialFolder(SpecialFolder folder, out string folderPath)
+    public static bool GetSpecialFolder(Environment.SpecialFolder folder, out string folderPath)
     {
       folderPath = null;
       switch (folder)
       {
-        case SpecialFolder.MyMusic:
-          folderPath = Environment.GetFolderPath(Environment.SpecialFolder.MyMusic);
-          return true;
-        case SpecialFolder.MyPictures:
-          folderPath = Environment.GetFolderPath(Environment.SpecialFolder.MyPictures);
-          return true;
-        case SpecialFolder.MyVideos:
-          StringBuilder sb = new StringBuilder(MAX_PATH);
-          // TODO: .net 4.5 introduces Environment.SpecialFolder.MyVideos. Until we switch to .net 4.5, we need to use this
-          // deprecated function
-          if (SHGetFolderPath(IntPtr.Zero, CSIDL_MYVIDEO, IntPtr.Zero, SHGFP_TYPE_CURRENT, sb) == S_OK)
-          {
-            folderPath = sb.ToString();
-            return true;
-          }
-          return false;
+        case Environment.SpecialFolder.MyMusic:
+        case Environment.SpecialFolder.MyPictures:
+        case Environment.SpecialFolder.MyVideos:
+          folderPath = Environment.GetFolderPath(folder);
+          return !string.IsNullOrWhiteSpace(folderPath);
         default:
-          throw new NotImplementedException(string.Format(
-              "The handling for special folder '{0}' isn't implemented yet", folder));
+          throw new NotImplementedException(string.Format("The handling for special folder '{0}' isn't implemented yet", folder));
       }
     }
 

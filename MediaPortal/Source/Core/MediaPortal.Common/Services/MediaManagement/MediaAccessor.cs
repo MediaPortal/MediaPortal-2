@@ -317,7 +317,7 @@ namespace MediaPortal.Common.Services.MediaManagement
       if (LocalResourceProviders.ContainsKey(localFsResourceProviderId))
       {
         string folderPath;
-        if (WindowsAPI.GetSpecialFolder(WindowsAPI.SpecialFolder.MyMusic, out folderPath))
+        if (WindowsAPI.GetSpecialFolder(Environment.SpecialFolder.MyMusic, out folderPath))
         {
           folderPath = LocalFsResourceProviderBase.ToProviderPath(folderPath);
           string[] mediaCategories = new[] {DefaultMediaCategories.Audio.ToString()};
@@ -326,7 +326,7 @@ namespace MediaPortal.Common.Services.MediaManagement
           result.Add(sd);
         }
 
-        if (WindowsAPI.GetSpecialFolder(WindowsAPI.SpecialFolder.MyVideos, out folderPath))
+        if (WindowsAPI.GetSpecialFolder(Environment.SpecialFolder.MyVideos, out folderPath))
         {
           folderPath = LocalFsResourceProviderBase.ToProviderPath(folderPath);
           string[] mediaCategories = new[] { DefaultMediaCategories.Video.ToString() };
@@ -335,7 +335,7 @@ namespace MediaPortal.Common.Services.MediaManagement
           result.Add(sd);
         }
 
-        if (WindowsAPI.GetSpecialFolder(WindowsAPI.SpecialFolder.MyPictures, out folderPath))
+        if (WindowsAPI.GetSpecialFolder(Environment.SpecialFolder.MyPictures, out folderPath))
         {
           folderPath = LocalFsResourceProviderBase.ToProviderPath(folderPath);
           string[] mediaCategories = new[] { DefaultMediaCategories.Image.ToString() };
