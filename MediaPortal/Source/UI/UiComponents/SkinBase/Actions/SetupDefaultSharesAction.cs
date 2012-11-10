@@ -169,6 +169,7 @@ namespace MediaPortal.UiComponents.SkinBase.Actions
         SharesConfigModel model = workflowManager.GetModel(SharesConfigModel.MODEL_ID_SHARESCONFIG) as SharesConfigModel;
         if (model != null)
           model.UpdateSharesLists_NoLock(false);
+        FireStateChanged();
       }
       else
       {
