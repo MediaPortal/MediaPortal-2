@@ -240,7 +240,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
               _actualFirstVisibleChildIndex--;
             }
             if (spaceLeft > 0)
-            { // We need to correct the last scroll index
+            { // Correct the last scroll index to fill the available space
               while (_actualLastVisibleChildIndex < numVisibleChildren - 1)
               {
                 FrameworkElement child = visibleChildren[_actualLastVisibleChildIndex + 1];
@@ -264,7 +264,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
               _actualLastVisibleChildIndex++;
             }
             if (spaceLeft > 0)
-            { // We need to correct the first scroll index
+            { // Correct the first scroll index to fill the available space
               while (_actualFirstVisibleChildIndex > 0)
               {
                 FrameworkElement child = visibleChildren[_actualFirstVisibleChildIndex - 1];
