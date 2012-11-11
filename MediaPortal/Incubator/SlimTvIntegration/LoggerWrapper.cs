@@ -24,7 +24,7 @@
 
 using System;
 using MediaPortal.Common;
-using Mediaportal.TV.Server.TVLibrary.Interfaces.Integration;
+using Mediaportal.TV.Server.TVLibrary.IntegrationProvider.Interfaces;
 
 namespace MediaPortal.Plugins.SlimTv.Integration
 {
@@ -47,6 +47,18 @@ namespace MediaPortal.Plugins.SlimTv.Integration
       _logger.Debug(format, ex, args);
     }
 
+    public void Debug (Type caller, string format, params object[] args)
+    {
+      // TODO: handle caller type (format, use own logger,...)
+      _logger.Debug(format, args);
+    }
+
+    public void Debug (Type caller, string format, Exception ex, params object[] args)
+    {
+      // TODO: handle caller type (format, use own logger,...)
+      _logger.Debug(format, ex, args);
+    }
+
     public void Info (string format, params object[] args)
     {
       _logger.Info(format, args);
@@ -57,6 +69,18 @@ namespace MediaPortal.Plugins.SlimTv.Integration
       _logger.Info(format, ex, args);
     }
 
+    public void Info(Type caller, string format, params object[] args)
+    {
+      // TODO: handle caller type (format, use own logger,...)
+      _logger.Info(format, args);
+    }
+
+    public void Info(Type caller, string format, Exception ex, params object[] args)
+    {
+      // TODO: handle caller type (format, use own logger,...)
+      _logger.Info(format, ex, args);
+    }
+
     public void Warn (string format, params object[] args)
     {
       _logger.Warn(format, args);
@@ -64,6 +88,18 @@ namespace MediaPortal.Plugins.SlimTv.Integration
 
     public void Warn (string format, Exception ex, params object[] args)
     {
+      _logger.Warn(format, ex, args);
+    }
+
+    public void Warn(Type caller, string format, params object[] args)
+    {
+      // TODO: handle caller type (format, use own logger,...)
+      _logger.Warn(format, args);
+    }
+
+    public void Warn(Type caller, string format, Exception ex, params object[] args)
+    {
+      // TODO: handle caller type (format, use own logger,...)
       _logger.Warn(format, ex, args);
     }
 
@@ -81,6 +117,24 @@ namespace MediaPortal.Plugins.SlimTv.Integration
     {
       _logger.Error(ex);
     }
+    
+    public void Error(Type caller, Exception ex)
+    {
+      // TODO: handle caller type (format, use own logger,...)
+      _logger.Error(ex);
+    }
+
+    public void Error(Type caller, string format, params object[] args)
+    {
+      // TODO: handle caller type (format, use own logger,...)
+      _logger.Error(format, args);
+    }
+
+    public void Error(Type caller, string format, Exception ex, params object[] args)
+    {
+      // TODO: handle caller type (format, use own logger,...)
+      _logger.Error(format, ex, args);
+    }
 
     public void Critical (string format, params object[] args)
     {
@@ -95,6 +149,24 @@ namespace MediaPortal.Plugins.SlimTv.Integration
     public void Critical (Exception ex)
     {
       _logger.Critical(ex);
+    }
+
+    public void Critical(Type caller, Exception ex)
+    {
+      // TODO: handle caller type (format, use own logger,...)
+      _logger.Critical(ex);
+    }
+
+    public void Critical(Type caller, string format, params object[] args)
+    {
+      // TODO: handle caller type (format, use own logger,...)
+      _logger.Critical(format, args);
+    }
+
+    public void Critical(Type caller, string format, Exception ex, params object[] args)
+    {
+      // TODO: handle caller type (format, use own logger,...)
+      _logger.Critical(format, ex, args);
     }
   }
 }

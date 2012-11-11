@@ -46,6 +46,9 @@
     <CodeAnalysisIgnoreBuiltInRules>true</CodeAnalysisIgnoreBuiltInRules>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Mediaportal.TV.Server.TVLibrary.IntegrationProvider.Interfaces">
+      <HintPath>..\SlimTvService\References\Mediaportal.TV.Server.TVLibrary.IntegrationProvider.Interfaces.dll</HintPath>
+    </Reference>
     <Reference Include="Mediaportal.TV.Server.TVLibrary.Interfaces">
       <HintPath>..\SlimTvService\References\Mediaportal.TV.Server.TVLibrary.Interfaces.dll</HintPath>
     </Reference>

@@ -24,7 +24,7 @@
 
 using System.IO;
 using MediaPortal.Common;
-using Mediaportal.TV.Server.TVLibrary.Interfaces.Integration;
+using Mediaportal.TV.Server.TVLibrary.IntegrationProvider.Interfaces;
 
 namespace MediaPortal.Plugins.SlimTv.Integration
 {

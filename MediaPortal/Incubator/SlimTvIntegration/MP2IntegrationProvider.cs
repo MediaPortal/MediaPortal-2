@@ -26,8 +26,8 @@ using System;
 using MediaPortal.Common;
 using MediaPortal.Common.Logging;
 using MediaPortal.Common.Services.Logging;
-using Mediaportal.TV.Server.TVLibrary.Interfaces.Integration;
-using ILogger = Mediaportal.TV.Server.TVLibrary.Interfaces.Integration.ILogger;
+using Mediaportal.TV.Server.TVLibrary.IntegrationProvider.Interfaces;
+using ILogger = Mediaportal.TV.Server.TVLibrary.IntegrationProvider.Interfaces.ILogger;
 
 namespace MediaPortal.Plugins.SlimTv.Integration
 {
