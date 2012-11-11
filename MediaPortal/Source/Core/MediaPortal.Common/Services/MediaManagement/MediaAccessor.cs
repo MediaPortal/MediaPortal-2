@@ -344,11 +344,6 @@ namespace MediaPortal.Common.Services.MediaManagement
           result.Add(sd);
         }
       }
-      if (result.Count > 0)
-        return result;
-      // Fallback: If no share was added for the defaults above, use the provider's root folders
-      result.AddRange(LocalBaseResourceProviders.Select(resourceProvider => resourceProvider.Metadata).Select(
-          metadata => Share.CreateNewLocalShare(ResourcePath.BuildBaseProviderPath(metadata.ResourceProviderId, "/"), metadata.Name, null)));
       return result;
     }
 
