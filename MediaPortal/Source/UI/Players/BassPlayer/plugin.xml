@@ -16,11 +16,11 @@
 
   <Runtime>
     <Assembly FileName="BassPlayer.dll"/>
-    <PluginStateTracker ClassName="Ui.Players.BassPlayer.BassPlayerPlugin"/>
+    <PluginStateTracker ClassName="MediaPortal.UI.Players.BassPlayer.BassPlayerPlugin"/>
   </Runtime>
 
   <Register Location="/Players/Builders">
-    <PlayerBuilder Id="1CBD4219-4ABD-4543-A3FE-37F6D7DDD78D" ClassName="Ui.Players.BassPlayer.BassPlayerPlugin"/>
+    <PlayerBuilder Id="1CBD4219-4ABD-4543-A3FE-37F6D7DDD78D" ClassName="MediaPortal.UI.Players.BassPlayer.BassPlayerPlugin"/>
   </Register>
 
   <Register Location="/Resources/Language">
@@ -56,11 +56,11 @@
         Id="CrossFadingEnabled"
         Text="[Settings.Players.Rendering.CrossFading.CrossFadingEnabled]"
         HelpText="[Settings.Players.Rendering.CrossFading.CrossFadingEnabled.Help]"
-        ClassName="Ui.Players.BassPlayer.Settings.Configuration.CrossFadingEnabled"/>
+        ClassName="MediaPortal.UI.Players.BassPlayer.Settings.Configuration.CrossFadingEnabled"/>
     <ConfigSetting
         Id="CrossFadeDuration"
         Text="[Settings.Players.Rendering.CrossFading.CrossFadeDuration]"
         HelpText="[Settings.Players.Rendering.CrossFading.CrossFadeDuration.Help]"
-        ClassName="Ui.Players.BassPlayer.Settings.Configuration.CrossFadeDuration"/>
+        ClassName="MediaPortal.UI.Players.BassPlayer.Settings.Configuration.CrossFadeDuration"/>
   </Register>
 </Plugin>
