@@ -38,7 +38,7 @@ namespace MediaPortal.Common.General
     #region Protected fields and events
 
     protected object _syncObj = new object();
-    protected object _value;
+    protected volatile object _value;
     protected Type _type;
 
     #endregion

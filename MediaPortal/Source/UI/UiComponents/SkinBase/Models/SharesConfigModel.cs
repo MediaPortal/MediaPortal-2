@@ -581,18 +581,16 @@ namespace MediaPortal.UiComponents.SkinBase.Models
             new List<Share>(ServerShares.GetShares()) : new List<Share>(0);
         int numShares = localShareDescriptors.Count + serverShareDescriptors.Count;
         UpdateSharesList_NoLock(_localSharesList, localShareDescriptors, ShareOrigin.Local, numShares == 1);
-        if (IsHomeServerConnected)
-          // If our home server is not connected, don't try to update its list of shares
-          try
-          {
-            UpdateSharesList_NoLock(_serverSharesList, serverShareDescriptors, ShareOrigin.Server, numShares == 1);
-          }
-          catch (NotConnectedException)
-          {
-            _serverSharesList.Clear();
-            _serverSharesList.FireChange();
-            numShares = localShareDescriptors.Count;
-          }
+        try
+        {
+          UpdateSharesList_NoLock(_serverSharesList, serverShareDescriptors, ShareOrigin.Server, numShares == 1);
+        }
+        catch (NotConnectedException)
+        {
+          _serverSharesList.Clear();
+          _serverSharesList.FireChange();
+          numShares = localShareDescriptors.Count;
+        }
         ShowLocalShares = !IsLocalHomeServer || _localSharesList.Count > 0;
         IsSharesSelected = numShares == 1;
         bool anySharesAvailable;

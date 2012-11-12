@@ -33,6 +33,7 @@ using MediaPortal.UI.SkinEngine.Controls.Panels;
 using MediaPortal.UI.SkinEngine.Controls.Visuals.Templates;
 using MediaPortal.UI.SkinEngine.MpfElements;
 using MediaPortal.UI.SkinEngine.ScreenManagement;
+using MediaPortal.UI.SkinEngine.Xaml;
 using MediaPortal.UI.SkinEngine.Xaml.Interfaces;
 using MediaPortal.Utilities;
 using MediaPortal.Utilities.DeepCopy;
@@ -577,7 +578,9 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
           // In this case, the VSP will generate its items by itself
           ListViewItemGenerator lvig = new ListViewItemGenerator();
           lvig.Initialize(this, l, ItemContainerStyle, ItemTemplate);
-          IsEmpty = l.Count == 0;
+          SimplePropertyDataDescriptor dd;
+          if (SimplePropertyDataDescriptor.CreateSimplePropertyDataDescriptor(this, "IsEmpty", out dd))
+            SetValueInRenderThread(dd, l.Count == 0);
           vsp.SetItemProvider(lvig);
 
           SetPreparedItems(true, null, false, null);
@@ -683,8 +686,9 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
         }
       }
       VirtualizingStackPanel vsp = itemsHostPanel as VirtualizingStackPanel;
-      IItemProvider itemProvider = vsp == null ? null : vsp.ItemProvider;
-      IsEmpty = (itemProvider == null ? itemsHostPanel.Children.Count : itemProvider.NumItems) == 0;
+      if (vsp == null)
+        IsEmpty = itemsHostPanel.Children.Count == 0;
+      // else IsEmpty has been updated by PrepareItemsOverride
     }
 
     /// <summary>

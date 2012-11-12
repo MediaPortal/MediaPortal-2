@@ -142,8 +142,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
 
     void OnChildrenChanged(FrameworkElementCollection coll)
     {
-      InvalidateLayout(true, true);
       _updateRenderOrder = true;
+      InvalidateLayout(true, true);
     }
 
     protected void OnBackgroundPropertyChanged(AbstractProperty property, object oldValue)

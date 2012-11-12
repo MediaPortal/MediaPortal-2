@@ -23,7 +23,6 @@
 #endregion
 
 using System;
-using System.Globalization;
 using MediaPortal.Common;
 using MediaPortal.Common.Localization;
 using MediaPortal.UI.SkinEngine.Controls.Visuals;

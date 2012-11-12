@@ -83,10 +83,16 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
         else
           element.SetElementState(ElementState.Available);
         _elements.Add(element);
+        element.VisibilityProperty.Attach(OnElementVisibilityChanged);
         element.InvalidateLayout(true, true);
       }
       if (notifyParent)
         FireCollectionChanged();
+    }
+
+    void OnElementVisibilityChanged(AbstractProperty property, object oldValue)
+    {
+      FireCollectionChanged();
     }
 
     internal void AddAll(IEnumerable<FrameworkElement> elements, bool notifyParent)
@@ -103,7 +109,10 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       lock (_syncObj)
       {
         if (_elements.Remove(element))
+        {
+          element.VisibilityProperty.Detach(OnElementVisibilityChanged);
           element.CleanupAndDispose();
+        }
       }
       if (notifyParent)
         FireCollectionChanged();
@@ -116,7 +125,10 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
         IList<FrameworkElement> oldElements = _elements;
         _elements = new List<FrameworkElement>();
         foreach (FrameworkElement element in oldElements)
+        {
+          element.VisibilityProperty.Detach(OnElementVisibilityChanged);
           element.CleanupAndDispose();
+        }
       }
       if (notifyParent)
         FireCollectionChanged();
@@ -224,6 +236,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
             oldElement.CleanupAndDispose();
           }
         }
+        value.VisibilityProperty.Attach(OnElementVisibilityChanged);
         value.InvalidateLayout(true, true);
       }
     }
