@@ -23,12 +23,14 @@
 #endregion
 
 using System;
+using System.Threading;
 using MediaPortal.Common;
 using MediaPortal.Common.General;
 using MediaPortal.Common.Localization;
 using MediaPortal.Common.Logging;
 using MediaPortal.Common.Messaging;
 using MediaPortal.Common.Settings;
+using MediaPortal.Common.Threading;
 using MediaPortal.UI.Presentation.Models;
 using MediaPortal.UiComponents.Weather.Settings;
 
@@ -68,7 +70,7 @@ namespace MediaPortal.UiComponents.Weather.Models
     public CurrentWeatherModel()
       : base(WEATHER_UPDATE_INTERVAL)
     {
-      SetAndUpdatePreferredLocation();
+      SetAndUpdatePreferredLocation_Async();
       SubscribeToMessages();
     }
 
@@ -88,7 +90,12 @@ namespace MediaPortal.UiComponents.Weather.Models
 
     protected override void Update()
     {
-      SetAndUpdatePreferredLocation();
+      SetAndUpdatePreferredLocation_Async();
+    }
+    
+    protected void SetAndUpdatePreferredLocation_Async()
+    {
+      ServiceRegistration.Get<IThreadPool>().Add(SetAndUpdatePreferredLocation, "SetAndUpdatePreferredLocation", QueuePriority.Normal, ThreadPriority.BelowNormal);
     }
 
     protected void SetAndUpdatePreferredLocation()
@@ -114,7 +121,7 @@ namespace MediaPortal.UiComponents.Weather.Models
       { }
 
       ServiceRegistration.Get<ILogger>().Info(result ?
-          "WeatherModel: Loaded weather data for {0}, {1}" : "WeatherModel: Failed to load weather data for {0}, {1}",
+          "CurrentWeatherModel: Loaded weather data for {0}, {1}" : "WeatherModel: Failed to load weather data for {0}, {1}",
           CurrentLocation.Name, CurrentLocation.Id);
     }
   }

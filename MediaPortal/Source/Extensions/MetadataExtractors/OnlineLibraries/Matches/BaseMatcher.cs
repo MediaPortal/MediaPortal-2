@@ -25,7 +25,10 @@
 using System;
 using System.Collections.Generic;
 using System.Threading;
+using MediaPortal.Common;
+using MediaPortal.Common.Threading;
 using MediaPortal.Extensions.OnlineLibraries.Libraries.Common;
+using MediaPortal.Utilities.Network;
 
 namespace MediaPortal.Extensions.OnlineLibraries.Matches
 {
@@ -66,11 +69,15 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matches
 
     protected BaseMatcher ()
     {
-      ResumeDownloads();
+      // Use own thread to avoid delay during startup
+      ServiceRegistration.Get<IThreadPool>().Add(ResumeDownloads, "BaseMatcher: ResumeDownloads", QueuePriority.Normal, ThreadPriority.BelowNormal);
     }
 
     protected virtual bool Init()
     {
+      if (!NetworkUtils.IsNetworkConnected)
+        return false;
+
       if (_storage == null)
         _storage = new MatchStorage<TMatch, TId>(MatchesSettingsFile);
       return true;
