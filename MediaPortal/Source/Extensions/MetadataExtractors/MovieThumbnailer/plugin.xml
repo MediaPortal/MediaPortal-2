@@ -1,0 +1,19 @@
+<Plugin
+    DescriptorVersion="1.0"
+    Name="MovieThumbnailer"
+    PluginId="{FB0AA0ED-97B2-4721-BE74-AC67E77A17B2}"
+    Author = "Morpheus_xx"
+    Copyright="GPL"
+    Description="Thumbnail creator for video files. It is used only if no other thumbnail could be extracted before."
+    PluginVersion="1.0">
+
+  <Runtime>
+    <Assembly FileName="MovieThumbnailer.dll"/>
+  </Runtime>
+
+  <Register Location="/Media/MetadataExtractors">
+    <Instance
+        Id="MovieThumbnailer"
+        ClassName="MediaPortal.Extensions.MetadataExtractors.MovieThumbnailer.MovieThumbnailer"/>
+  </Register>
+</Plugin>
