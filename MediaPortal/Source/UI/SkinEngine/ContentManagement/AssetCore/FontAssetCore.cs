@@ -192,9 +192,7 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement.AssetCore
     /// <returns>The height of the text.</returns>
     public float TextHeight(float fontSize, int lineCount)
     {
-      if (lineCount == 1) 
-        return _charSet.MaxHeight;
-      return LineHeight(fontSize) * (lineCount + 1) - Base(fontSize) - 1.0f;
+      return Math.Max(_charSet.MaxHeight, LineHeight(fontSize) * (lineCount + 1) - Base(fontSize) - 1.0f);
     }
 
     /// <summary>
