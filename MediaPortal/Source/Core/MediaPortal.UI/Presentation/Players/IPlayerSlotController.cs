@@ -109,6 +109,12 @@ namespace MediaPortal.UI.Presentation.Players
     bool IsActive { get; }
 
     /// <summary>
+    /// Returns the information if this player slot is hidden. Hidden player slot controllers won't expose 
+    /// information about the internal player or the state (like <see cref="IsActive"/>).
+    /// </summary>
+    bool IsHidden { get; set; }
+
+    /// <summary>
     /// Returns a sequence number which gets incremented when the player slot gets activated. This is necessary to
     /// be able to detect obsolete player messages.
     /// </summary>

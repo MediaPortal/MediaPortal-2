@@ -157,7 +157,7 @@ namespace MediaPortal.UI.SkinEngine.GUI
           case PlayerManagerMessaging.MessageType.PlayerSlotsChanged:
             {
               IPlayerManager playerManager = ServiceRegistration.Get<IPlayerManager>();
-              ISlimDXVideoPlayer player = playerManager[PlayerManagerConsts.PRIMARY_SLOT] as ISlimDXVideoPlayer;
+              ISlimDXVideoPlayer player = playerManager.GetFirstPlayer<ISlimDXVideoPlayer>(); // Players of hidden PlayerSlotControllers are allowed here
               UpdateVideoPlayerState(player);
               SynchronizeToVideoPlayerFramerate(player);
               break;
@@ -165,7 +165,7 @@ namespace MediaPortal.UI.SkinEngine.GUI
           case PlayerManagerMessaging.MessageType.PlaybackStateChanged:
             {
               IPlayerManager playerManager = ServiceRegistration.Get<IPlayerManager>();
-              ISlimDXVideoPlayer player = playerManager[PlayerManagerConsts.PRIMARY_SLOT] as ISlimDXVideoPlayer;
+              ISlimDXVideoPlayer player = playerManager.GetFirstPlayer<ISlimDXVideoPlayer>(); // Players of hidden PlayerSlotControllers are allowed here
               UpdateVideoPlayerState(player);
               break;
             }

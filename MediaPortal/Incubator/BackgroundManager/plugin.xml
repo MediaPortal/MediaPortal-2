@@ -10,6 +10,8 @@
   <DependsOn>
     <PluginReference PluginId="{5D239050-02B8-4f58-8301-7630A1C4CF85}"/> <!-- SkinBase -->
     <PluginReference PluginId="{D87D92F0-5E71-470a-A2A4-430F90A28BF3}"/> <!-- SkinEngine -->
+    <PluginReference PluginId="{1AFF4467-64B0-4ca1-AF28-9AEDF3525BCE}"/> <!-- ConfigurationManager -->
+    <PluginReference PluginId="{21FC7331-8E52-4ced-AD3B-8B27B050D6C5}"/> <!-- VideoMetadataExtractor -->
   </DependsOn>
 
   <Runtime>
@@ -18,5 +20,58 @@
 
   <Register Location="/Models">
     <Model Id="1F4CAEDE-7108-483d-B5C8-18BEC7EC58E5" Name="BackgroundManagerModel" ClassName="MediaPortal.UiComponents.BackgroundManager.Models.BackgroundManagerModel"/>
+    <Model Id="5054832A-C20D-448E-AA08-A8B2826D1C31" Name="BackgroundManagerSetupModel" ClassName="MediaPortal.UiComponents.BackgroundManager.Models.BackgroundManagerSetupModel"/>
+    <Model Id="441288AC-F88D-4186-8993-6E259F7C75D8" Name="VideoBackgroundModel" ClassName="MediaPortal.UiComponents.BackgroundManager.Models.VideoBackgroundModel"/>
+  </Register>
+
+  <Register Location="/Resources/Language">
+    <Resource Id="BackgroundManagerLanguage" Directory="Language" Type="Language"/>
+  </Register>
+  
+  <Register Location="/Resources/Skin">
+    <Resource Id="BackgroundManagerSkin" Directory="Skin" Type="Skin"/>
+  </Register>  
+
+  <Register Location="/Workflow/States">
+    <DialogState Id="5A9AF408-137B-4616-8BF4-EF636A8961BE" 
+        Name="BackgroundManagerSetup" 
+        DialogScreen="BackgroundManagerSetup"
+        DisplayLabel="[Settings.Appearance.Skin.Background.VideoBackgroundFilename]" 
+        WorkflowModel="5054832A-C20D-448E-AA08-A8B2826D1C31"/>   <!-- BackgroundManager Setup Model -->
+  </Register>
+  
+    <!-- Root configuration sections -->
+  <Register Location="/Configuration/Settings">
+    <ConfigSection
+        Id="Appearance"
+        Redundant="true"
+        Text="[Settings.Appearance]"/>
+  </Register>
+
+  <!-- Contents of '/Appearance' section -->
+  <Register Location="/Configuration/Settings/Appearance">
+    <ConfigSection
+        Id="Skin"
+        Redundant="true"
+        Text="[Settings.Appearance.Skin]"/>
+  </Register>
+
+  <!-- Contents of '/Appearance/Skin' section -->
+  <Register Location="/Configuration/Settings/Appearance/Skin">
+    <ConfigGroup
+        Id="Background"
+        Redundant="true"
+        Text="[Settings.Appearance.Skin.Background]"/>
+  </Register>
+
+
+  <!-- Contents of '/Appearance/Skin/Background' group -->
+  <Register Location="/Configuration/Settings/Appearance/Skin/Background">
+    <CustomConfigSetting
+        Id="VideoBackgroundFilename"
+        Text="[Settings.Appearance.Skin.Background.VideoBackground]"
+        HelpText="[Settings.Appearance.Skin.Background.VideoBackground.Help]"
+        ClassName="MediaPortal.UiComponents.BackgroundManager.Settings.Configuration.VideoBackgroundFilename"
+        AdditionalData="WorkflowState=5A9AF408-137B-4616-8BF4-EF636A8961BE,ConfAppPanel=..."/>
   </Register>
 </Plugin>

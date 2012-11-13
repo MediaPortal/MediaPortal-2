@@ -436,6 +436,8 @@ namespace MediaPortal.UI.Services.Players
       }
     }
 
+    public bool IsHidden { get ; set; }
+
     public uint ActivationSequence
     {
       get

@@ -78,6 +78,14 @@ namespace MediaPortal.UI.Presentation.Players
     IPlayer this[int slotIndex] { get; }
 
     /// <summary>
+    /// Gets the first player of all slots, that is of Type <typeparamref name="T"/>.
+    /// </summary>
+    /// <typeparam name="T">Player type</typeparam>
+    /// <param name="ignoreHidden">Optional: if argument is <c>true</c>, players that are marked as <see cref="IPlayerSlotController.IsHidden"/> are ignored.</param>
+    /// <returns>First instance or <c>null</c> if not matching player was found.</returns>
+    T GetFirstPlayer<T>(bool ignoreHidden = false);
+
+    /// <summary>
     /// Gets or sets the index of the slot which provides the audio signal. If there is no active slot
     /// at the moment, or if the system is muted, then <see cref="AudioSlotIndex"/> will be <c>-1</c>.
     /// </summary>
@@ -137,7 +145,8 @@ namespace MediaPortal.UI.Presentation.Players
     /// <summary>
     /// Stops and releases all active players and closes their slots.
     /// </summary>
-    void CloseAllSlots();
+    /// <param name="ignoreHidden">Optional: if argument is <c>true</c>, players that are marked as <see cref="IPlayerSlotController.IsHidden"/> are ignored.</param>
+    void CloseAllSlots(bool ignoreHidden = false);
 
     /// <summary>
     /// Gets the player slot instance for the slot of the specified <paramref name="slotIndex"/> index.

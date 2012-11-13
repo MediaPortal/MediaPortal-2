@@ -316,7 +316,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
         return false;
 
       ISlimDXVideoPlayer player = playerManager[Stream] as ISlimDXVideoPlayer;
-      if (player == null) 
+      if (player == null)
         return false;
 
       if (!RefreshEffectParameters(player))

@@ -7,7 +7,38 @@ Default background image - no media present
 <Screen
     xmlns="www.team-mediaportal.com/2008/mpf/directx"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-    x:Name="DefaultBackgroundScreen"
-    >
-  <StackPanel Background="{ThemeResource BackgroundBrush}"/>
+    x:Name="DefaultBackgroundScreen">
+
+  <DockPanel>
+    <DockPanel.Resources>
+      <Model x:Key="VideoBackgroundModel" Id="441288AC-F88D-4186-8993-6E259F7C75D8"/>
+    </DockPanel.Resources>
+    
+    <!-- Video background -->
+    <Grid IsVisible="{Binding Source={StaticResource VideoBackgroundModel},Path=IsEnabled}" DockPanel.Dock="Center">
+      <Grid.Background>
+        <!-- Background player slot -->
+        <VideoBrush Stream="2"/>
+      </Grid.Background>
+      <Grid.ColumnDefinitions>
+        <ColumnDefinition Width="*"/>
+      </Grid.ColumnDefinitions>
+      <Grid.RowDefinitions>
+        <RowDefinition Height="*"/>
+      </Grid.RowDefinitions>
+      <Grid.Triggers>
+        <EventTrigger RoutedEvent="Screen.Show">
+          <TriggerCommand Command="{Command Source={StaticResource VideoBackgroundModel}, Path=StartBackgroundPlayback}"/>
+        </EventTrigger>
+        <EventTrigger RoutedEvent="Screen.Hide">
+          <TriggerCommand Command="{Command Source={StaticResource VideoBackgroundModel}, Path=EndBackgroundPlayback}"/>
+        </EventTrigger>
+      </Grid.Triggers>
+    </Grid>
+    
+    <!-- Theme based background -->
+    <StackPanel IsVisible="{Binding Source={StaticResource VideoBackgroundModel},Path=!IsEnabled}" 
+         Background="{ThemeResource BackgroundBrush}"
+         DockPanel.Dock="Center"/>
+  </DockPanel>
 </Screen>
