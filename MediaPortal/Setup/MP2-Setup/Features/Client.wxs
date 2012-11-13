@@ -13,7 +13,7 @@
     <!-- Directory definition -->
     <DirectoryRef Id="TeamMediaPortalFolder">
       <Directory Id="INSTALLDIR_CLIENT" Name="MP2-Client">
-        <Directory Id="CLIENT.PLUGINS.FOLDER" Name="Plugins"/>
+        <!--<Directory Id="CLIENT.PLUGINS.FOLDER" Name="Plugins"/>-->
       </Directory>
     </DirectoryRef>
 
@@ -48,14 +48,14 @@
         <CreateFolder />
       </Component>
 
+      <!-- Albert, 2012-03-04: If we would let the user change the custom paths, we could write them here to the Paths.xml file.
+                                 We would need to call our custom action PrepareXmlPathVariables(). -->
+      <!--
       <Directory Id="Defaults" Name="Defaults">
         <Component Id="Defaults" Guid="8B5A0635-DF72-4668-96BC-3F9CDDDFA5FF">
           <File Id="Paths.xml" Name="Paths.xml" KeyPath="yes" Checksum="yes" />
         </Component>
 
-        <!-- Albert, 2012-03-04: If we would let the user change the custom paths, we could write them here to the Paths.xml file.
-                                 We would need to call our custom action PrepareXmlPathVariables(). -->
-        <!--
         <Component Id="WriteCustomClientPaths" Guid="52711D1B-E2EE-4ACD-9993-F5B3FCF87701">
           <?foreach LABEL in $(var.ClientPathLabels)?>
           <util:XmlFile Id="WriteCustomClientPaths_$(var.LABEL)"
@@ -64,17 +64,8 @@
                         Value="[XML.CLIENT.$(var.LABEL).FOLDER]" Name="value" SelectionLanguage="XPath" />
           <?endforeach?>
         </Component>
+      </Directory>
         -->
-      </Directory>
-
-      <Directory Id="Docs" Name="Docs">
-        <Component Id="BASSLicense" Guid="AA26C33C-4939-480F-A01E-5F8FA46A2782">
-          <File Id="BASSLicense.txt" Name="BASS License.txt" KeyPath="yes" Checksum="yes" />
-        </Component>
-        <Component Id="MediaPortalLicense" Guid="A7926457-4926-40CA-8632-CED29D0810F5">
-          <File Id="MediaPortalLicense.rtf" Name="MediaPortal License.rtf" KeyPath="yes" Checksum="yes" />
-        </Component>
-      </Directory>
 
       <Component Id="Client.exe" Guid="15EAC789-4F3A-4F65-B758-92562DB7C5AA">
         <File Id="Client.exe" Name="MP2-Client.exe" KeyPath="yes" Checksum="yes">
@@ -83,37 +74,6 @@
           <fire:FirewallException Id="MP2ClientExUDPDom" Name="MP2-Client UDP Domain" Profile="domain" Protocol="udp" Scope="any" IgnoreFailure="yes" />
           <fire:FirewallException Id="MP2ClientExUDPPriv" Name="MP2-Client UDP Private" Profile="private" Protocol="udp" Scope="any" IgnoreFailure="yes" />
         </File>
-      </Component>
-      <Component Id="MP2Client.config" Guid="D3FFB65D-0A46-4F34-8472-85466CD1067C">
-        <File Id="MP2Client.exe.config" Name="MP2-Client.exe.config" KeyPath="yes" Checksum="yes" />
-      </Component>
-      <Component Id="MP2Client.Splashscreen" Guid="B038F5DE-3940-46A9-AD12-C4142F826044">
-        <File Id="MP2Client.Splashscreen.jpg" Name="MP2 Client Splashscreen.jpg" KeyPath="yes" Checksum="yes" />
-      </Component>
-
-      <Component Id="HttpServer" Guid="D26BF800-F936-4FD8-94A9-9A71CCB7AB3B">
-        <File Id="HttpServer.dll" Name="HttpServer.dll" KeyPath="yes" Checksum="yes" />
-      </Component>
-      <Component Id="MediaPortal.Common" Guid="60570A25-6C30-4CBB-8484-261C99C74B71">
-        <File Id="MediaPortal.Common.dll" Name="MediaPortal.Common.dll" KeyPath="yes" Checksum="yes" />
-      </Component>
-      <Component Id="MediaPortal.UI" Guid="07414112-5955-4639-B425-25DE0D55684D">
-        <File Id="MediaPortal.UI.dll" Name="MediaPortal.UI.dll" KeyPath="yes" Checksum="yes" />
-      </Component>
-      <Component Id="MediaPortal.Utilities" Guid="8BD9E84A-22B2-4C5D-9737-25526216F97B">
-        <File Id="MediaPortal.Utilities.dll" Name="MediaPortal.Utilities.dll" KeyPath="yes" Checksum="yes" />
-      </Component>
-      <Component Id="Microsoft.WindowsAPICodePack" Guid="942E24F8-58C8-4341-9AD8-DA92632D388E">
-        <File Id="Microsoft.WindowsAPICodePack.dll" Name="Microsoft.WindowsAPICodePack.dll" KeyPath="yes" Checksum="yes" />
-      </Component>
-      <Component Id="Microsoft.WindowsAPICodePack.Shell" Guid="46F0DB0B-0B87-4C1D-8B36-1F16E7FF7E87">
-        <File Id="Microsoft.WindowsAPICodePack.Shell.dll" Name="Microsoft.WindowsAPICodePack.Shell.dll" KeyPath="yes" Checksum="yes" />
-      </Component>
-      <Component Id="log4net" Guid="6AB68CEB-DABE-497E-887D-E4AACABE7016">
-        <File Id="log4net.dll" Name="log4net.dll" KeyPath="yes" Checksum="yes" />
-      </Component>
-      <Component Id="UPnP" Guid="DF7F4726-1AC0-4C8D-9222-850568F9E15C">
-        <File Id="UPnP.dll" Name="UPnP.dll" KeyPath="yes" Checksum="yes" />
       </Component>
 
     </DirectoryRef>
@@ -159,6 +119,26 @@
                        KeyPath="yes" />
       </Component>
     </DirectoryRef>
+
+    <!-- Feature -->
+    <Feature Id="Client"
+              Level="1"
+              AllowAdvertise="no"
+              ConfigurableDirectory="INSTALLDIR_CLIENT"
+              Title="!(loc.F_Client)"
+              Description="!(loc.F_Client_Desc)">
+
+      <ComponentRef Id="CLIENT.DATA.FOLDER" />
+      <ComponentRef Id="CLIENT.CONFIG.FOLDER" />
+      <ComponentRef Id="CLIENT.LOG.FOLDER" />
+
+      <ComponentRef Id="Client.exe" />
+      <ComponentRef Id="Client.Desktop.Shortcut" />
+      <ComponentRef Id="Client.StartMenu.Shortcut" />
+      <ComponentRef Id="Client.Registry.InstallDir" />
+
+      <ComponentGroupRef Id="Client.Heat"/>
+    </Feature>
 
   </Fragment>
 </Wix>

@@ -34,10 +34,10 @@
       <Link>VersionInfo.wxi</Link>
     </Content>
     <Compile Include="Dokan\Dokan.wxs" />
+    <Compile Include="Features\Client.Heat.wxs" />
     <Compile Include="Features\Client.wxs" />
-    <Compile Include="Features\ClientFeatures.wxs" />
+    <Compile Include="Features\Server.Heat.wxs" />
     <Compile Include="Features\Server.wxs" />
-    <Compile Include="Features\ServerFeatures.wxs" />
     <Compile Include="Fragments\AddRemoveProperties.wxs" />
     <Compile Include="Fragments\Upgrades.wxs" />
     <Compile Include="Fragments\LaunchConditions.wxs" />
@@ -51,9 +51,8 @@
     <Content Include="VCRedist\Microsoft_VC100_ATL_x86.msm" />
     <Content Include="VCRedist\Microsoft_VC100_CRT_x86.msm" />
     <Content Include="VCRedist\Microsoft_VC100_MFC_x86.msm" />
-    <Content Include="xslt\ClientFeatures.xslt" />
-    <Content Include="xslt\ServerFeatures.xslt" />
-    <Content Include="xslt\PluginComponents2Features.xslt" />
+    <Content Include="xslt\Server.Heat.xslt" />
+    <Content Include="xslt\Client.Heat.xslt" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Dokan" />
@@ -117,8 +116,8 @@
     <PostBuildEvent />
   </PropertyGroup>
   <PropertyGroup>
-    <PreBuildEvent>"$(WIX)bin\heat.exe" dir "$(ProjectDir)..\..\Bin\MP2-Client\bin\x86\Release\Plugins" -cg ClientPlugins -gg -scom -sreg -sfrag -svb6 -srd -dr CLIENT.PLUGINS.FOLDER -var var.SourceClientPlugins -template fragment -t $(ProjectDir)xslt\ClientFeatures.xslt -out "$(ProjectDir)Features\ClientFeatures.wxs"
-"$(WIX)bin\heat.exe" dir "$(ProjectDir)..\..\Bin\MP2-Server\bin\x86\Release\Plugins" -cg ServerPlugins -gg -scom -sreg -sfrag -svb6 -srd -dr SERVER.PLUGINS.FOLDER -var var.SourceServerPlugins -template fragment -t $(ProjectDir)xslt\ServerFeatures.xslt -out "$(ProjectDir)Features\ServerFeatures.wxs"</PreBuildEvent>
+    <PreBuildEvent>"$(WIX)bin\heat.exe" dir "$(ProjectDir)..\..\Bin\MP2-Client\bin\x86\Release" -cg Client.Heat -gg -scom -sreg -sfrag -svb6 -srd -dr INSTALLDIR_CLIENT -var var.MediaPortal.Client.TargetDir -template fragment -t $(ProjectDir)xslt\Client.Heat.xslt -out "$(ProjectDir)Features\Client.Heat.wxs"
+"$(WIX)bin\heat.exe" dir "$(ProjectDir)..\..\Bin\MP2-Server\bin\x86\Release" -cg Server.Heat -gg -scom -sreg -sfrag -svb6 -srd -dr INSTALLDIR_SERVER -var var.MediaPortal.Server.TargetDir -template fragment -t $(ProjectDir)xslt\Server.Heat.xslt -out "$(ProjectDir)Features\Server.Heat.wxs"</PreBuildEvent>
   </PropertyGroup>
   <!--
 	To modify your build process, add your task inside one of the targets below and uncomment it.
