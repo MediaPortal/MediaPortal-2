@@ -85,7 +85,15 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement.AssetCore
     #region Public properties
 
     /// <summary>
-    /// Get the size of this <see cref="FontAssetCore"/> in pixels.
+    /// Returns the font family used by this <see cref="FontAssetCore"/>.
+    /// </summary>
+    public FontFamily FontFamily
+    {
+      get { return _family; }
+    }
+
+    /// <summary>
+    /// Get the size of the font used by this <see cref="FontAssetCore"/> in pixels.
     /// </summary>
     public float Size
     {
@@ -195,7 +203,7 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement.AssetCore
     }
 
     /// <summary>
-    /// Gets the font texture.
+    /// Gets the texture containing all characters of this <see cref="FontAssetCore"/>.
     /// </summary>
     public Texture Texture
     {
@@ -374,7 +382,10 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement.AssetCore
 
     #region Text creation
 
-    /// <summary>Adds a new string to the list to render.</summary>
+    /// <summary>
+    /// Creates an array of <see cref="PositionColoredTextured"/> objects representing the character positions of the
+    /// given <paramref name="text"/> for the given parameters in the underlaying <see cref="Texture"/>.
+    /// </summary>
     /// <param name="text">Text to render.</param>
     /// <param name="size">Font size.</param>
     /// <param name="kerning">True to use kerning, false otherwise.</param>
@@ -438,7 +449,7 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement.AssetCore
             CreateQuad(c, sizeScale, x, y, ref verts);
           x += c.XAdvance;
         }
-        // Make sure there is a t least one character
+        // Make sure there is at least one character
         if (verts.Count == 0)
         {
           BitmapCharacter c = Character(' ');
@@ -534,7 +545,7 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement.AssetCore
   }
 
   /// <summary>
-  /// Represents a single bitmap character set.
+  /// Represents the coordinates of all bitmap characters of a character set based on a texture containing all character glyphs.
   /// </summary>
   internal class BitmapCharacterSet
   {
@@ -574,7 +585,7 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement.AssetCore
   }
 
   /// <summary>
-  /// Represents a single bitmap character.
+  /// Represents the coordinates of a single bitmap character based on a texture containing all character glyphs.
   /// </summary>
   public class BitmapCharacter : ICloneable
   {

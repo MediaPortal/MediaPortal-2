@@ -310,7 +310,7 @@ namespace MediaPortal.UI.SkinEngine.Rendering
         DisposeBuffer();
         return;
       }
-      if (Font == null)
+      if (_font == null)
         return;
 
       // Get text quads
