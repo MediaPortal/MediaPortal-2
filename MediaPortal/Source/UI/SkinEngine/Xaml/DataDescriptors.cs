@@ -422,7 +422,7 @@ namespace MediaPortal.UI.SkinEngine.Xaml
 
     public override string ToString()
     {
-      return string.Format("Target: {0}, indices: {1}", _target, StringUtils.Join(", ", _indices));
+      return string.Format("Target: <{0}>, indices: {1}", _target, StringUtils.Join(", ", _indices));
     }
   }
 
@@ -601,7 +601,7 @@ namespace MediaPortal.UI.SkinEngine.Xaml
 
     public override string ToString()
     {
-      return string.Format("Obj: {0}, indices: {1}", _obj, StringUtils.Join(", ", _indices));
+      return string.Format("Obj: {0}, prop: {1}, indices: {2}", _obj, _prop.Name, StringUtils.Join(", ", _indices));
     }
   }
 
