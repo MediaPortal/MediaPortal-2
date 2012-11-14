@@ -13,7 +13,7 @@
 
   <!-- default brush used to paint the background of a page/window -->
   <ResourceWrapper x:Key="BackgroundBrush">
-    <ImageBrush x:Name="BackdropImageBackground" ImageSource="{Binding Source={StaticResource BackgroundManagerModel}, Path=BackgroundImage}" />
+    <ImageBrush x:Name="BackdropImageBackground" ImageSource="darkBackground.jpg" />
   </ResourceWrapper>
 
   <!-- ListView style to be used for main menu -->
