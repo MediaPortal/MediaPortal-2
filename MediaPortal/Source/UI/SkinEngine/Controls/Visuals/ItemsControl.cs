@@ -551,7 +551,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
         {
           object itemCopy = MpfCopyManager.DeepCopyWithFixedObject(item, this); // Keep this object as LogicalParent
           FrameworkElement element = itemCopy as FrameworkElement ?? PrepareItemContainer(itemCopy);
-          if (element.Style == null)
+          if (element.Style == null && element is ContentControl)
             element.Style = ItemContainerStyle;
           element.LogicalParent = this;
           preparedChildren.Add(element);
