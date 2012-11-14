@@ -22,7 +22,6 @@
 
 #endregion
 
-using System.Drawing;
 using MediaPortal.Common.General;
 using MediaPortal.UI.Control.InputManager;
 using MediaPortal.UI.Presentation.Actions;
@@ -104,11 +103,6 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     #endregion
 
     #region Private & protected members
-
-    protected override SizeF CalculateInnerDesiredSize(SizeF totalSize)
-    {
-      return SizeF.Empty;
-    }
 
     void OnBindingRelatedPropertyChanged(AbstractProperty prop, object oldValue)
     {

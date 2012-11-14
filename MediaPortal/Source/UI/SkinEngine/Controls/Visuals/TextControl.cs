@@ -451,6 +451,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 
     protected override SizeF CalculateInnerDesiredSize(SizeF totalSize)
     {
+      base.CalculateInnerDesiredSize(totalSize); // Needs to be called in each sub class of Control, see comment in Control.CalculateInnerDesiredSize()
       AllocFont();
 
       SizeF childSize = _asset == null ? SizeF.Empty : new SizeF(_asset.TextWidth(VisibleText ?? string.Empty), _asset.TextHeight(1));
