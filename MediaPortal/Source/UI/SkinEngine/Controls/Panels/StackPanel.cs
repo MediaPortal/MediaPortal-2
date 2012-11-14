@@ -239,6 +239,9 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
                 break; // Found item which is not visible any more
               _actualFirstVisibleChildIndex--;
             }
+            if (_actualFirstVisibleChildIndex > _actualLastVisibleChildIndex)
+              // Happens if the item at _actualFirstVisibleChildIndex is bigger than the available space
+              _actualFirstVisibleChildIndex = _actualLastVisibleChildIndex;
             if (spaceLeft > 0)
             { // Correct the last scroll index to fill the available space
               while (_actualLastVisibleChildIndex < numVisibleChildren - 1)
@@ -263,6 +266,9 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
                 break; // Found item which is not visible any more
               _actualLastVisibleChildIndex++;
             }
+            if (_actualLastVisibleChildIndex < _actualFirstVisibleChildIndex)
+              // Happens if the item at _actualFirstVisibleChildIndex is bigger than the available space
+              _actualLastVisibleChildIndex = _actualFirstVisibleChildIndex;
             if (spaceLeft > 0)
             { // Correct the first scroll index to fill the available space
               while (_actualFirstVisibleChildIndex > 0)
@@ -329,7 +335,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
         if (_doScroll)
         {
           float spaceLeft = actualExtendsInOrientationDirection;
-          for (int i = numVisibleChildren - 1; i > 0; i--)
+          for (int i = _actualFirstVisibleChildIndex; i <= _actualFirstVisibleChildIndex; i++)
           {
             FrameworkElement child = visibleChildren[i];
             float childSize = GetExtendsInOrientationDirection(Orientation, child.DesiredSize);
@@ -725,6 +731,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
         if (IsViewPortAtBottom)
           return false;
         CalcHelper.Bound(ref numLines, 0, _actualLastVisibleChildIndex - _actualFirstVisibleChildIndex);
+        if (numLines < 1)
+          numLines = 1;
         SetScrollIndex(_actualFirstVisibleChildIndex + numLines, true);
         return true;
       }
@@ -738,6 +746,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
         if (IsViewPortAtTop)
           return false;
         CalcHelper.Bound(ref numLines, 0, _actualLastVisibleChildIndex - _actualFirstVisibleChildIndex);
+        if (numLines < 1)
+          numLines = 1;
         SetScrollIndex(_actualFirstVisibleChildIndex - numLines, true);
         return true;
       }

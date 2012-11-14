@@ -357,6 +357,9 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
                   break; // Found item which is not visible any more
                 _actualFirstVisibleChildIndex--;
               }
+              if (_actualFirstVisibleChildIndex > _actualLastVisibleChildIndex)
+                // Happens if the item at _actualFirstVisibleChildIndex is bigger than the available space
+                _actualFirstVisibleChildIndex = _actualLastVisibleChildIndex;
               if (spaceLeft > 0)
               { // Correct the last scroll index to fill the available space
                 while (_actualLastVisibleChildIndex < numItems - 1)
@@ -390,6 +393,9 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
                   break; // Found item which is not visible any more
                 _actualLastVisibleChildIndex++;
               }
+              if (_actualLastVisibleChildIndex < _actualFirstVisibleChildIndex)
+                // Happens if the item at _actualFirstVisibleChildIndex is bigger than the available space
+                _actualLastVisibleChildIndex = _actualFirstVisibleChildIndex;
               if (spaceLeft > 0)
               { // Correct the first scroll index to fill the available space
                 while (_actualFirstVisibleChildIndex > 0)
@@ -495,7 +501,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
             }
             _arrangedItems.Add(item);
           }
-          int numInvisible = numItems - _arrangedItems.Count;
+          int numInvisible = numItems - _arrangedItems.Count; // Items which have not been arranged above, i.e. item extends have not been added to _totalHeight / _totalWidth
           float invisibleRequiredSize = numInvisible * _averageItemSize;
           if (_doScroll)
             invisibleRequiredSize += actualExtendsInOrientationDirection % _averageItemSize; // Size gap from the last item to the end of the actual extends
