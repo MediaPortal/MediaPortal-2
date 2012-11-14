@@ -814,7 +814,7 @@
         <RowDefinition Height="Auto"/>
         <RowDefinition Height="Auto"/>
       </Grid.RowDefinitions>
-      <DockPanel LastChildFill="True" Grid.Row="0" Grid.Column="0" Grid.RowSpan="2" Margin="0,0,4,0">
+      <DockPanel Grid.Row="0" Grid.Column="0" Grid.RowSpan="2" Margin="0,0,4,0">
         <Image x:Name="ItemTypeSmall" Stretch="Uniform"
             Source="FilterSmall.png" Width="{StaticResource MEDIA_THUMB_WIDTH_S}" Height="{StaticResource MEDIA_THUMB_HEIGHT_S}">
           <Image.IsVisible>
@@ -963,7 +963,7 @@
         <RowDefinition Height="Auto"/>
         <RowDefinition Height="Auto"/>
       </Grid.RowDefinitions>
-      <DockPanel LastChildFill="True" Grid.Row="0" Grid.Column="0" Grid.RowSpan="2" Margin="0,0,4,0">
+      <DockPanel Grid.Row="0" Grid.Column="0" Grid.RowSpan="2" Margin="0,0,4,0">
         <Image x:Name="ItemTypeSmall" Stretch="Uniform"
             Source="{Binding MediaItem}" FallbackSource="VideoSmall.png" Width="{StaticResource MEDIA_THUMB_WIDTH_S}" Height="{StaticResource MEDIA_THUMB_HEIGHT_S}">
           <Image.IsVisible>
@@ -1038,7 +1038,7 @@
         <RowDefinition Height="Auto"/>
         <RowDefinition Height="Auto"/>
       </Grid.RowDefinitions>
-      <DockPanel LastChildFill="True" Grid.Row="0" Grid.Column="0" Grid.RowSpan="2" Margin="0,0,4,0">
+      <DockPanel Grid.Row="0" Grid.Column="0" Grid.RowSpan="2" Margin="0,0,4,0">
         <Image x:Name="ItemTypeSmall" Stretch="Uniform"
             Source="NavigationSmall.png" Width="{StaticResource MEDIA_THUMB_WIDTH_S}" Height="{StaticResource MEDIA_THUMB_HEIGHT_S}">
           <Image.IsVisible>
@@ -1093,7 +1093,7 @@
         <RowDefinition Height="Auto"/>
         <RowDefinition Height="Auto"/>
       </Grid.RowDefinitions>
-      <DockPanel LastChildFill="True" Grid.Row="0" Grid.Column="0" Grid.RowSpan="2" Margin="0,0,4,0">
+      <DockPanel Grid.Row="0" Grid.Column="0" Grid.RowSpan="2" Margin="0,0,4,0">
         <Image x:Name="ItemTypeSmall" Stretch="Uniform"
             Source="{Binding MediaItem}" FallbackSource="VideoSmall.png" Width="{StaticResource MEDIA_THUMB_WIDTH_S}" Height="{StaticResource MEDIA_THUMB_HEIGHT_S}">
           <Image.IsVisible>
@@ -1163,7 +1163,7 @@
       <Grid.RowDefinitions>
         <RowDefinition Height="Auto"/>
       </Grid.RowDefinitions>
-      <DockPanel LastChildFill="True" Grid.Row="0" Grid.Column="0" Margin="0,0,4,0">
+      <DockPanel Grid.Row="0" Grid.Column="0" Margin="0,0,4,0">
         <Image x:Name="ItemTypeSmall" Stretch="Uniform"
             Source="{Binding MediaItem}" FallbackSource="AudioSmall.png" Width="{StaticResource MEDIA_THUMB_WIDTH_S}" Height="{StaticResource MEDIA_THUMB_HEIGHT_S}">
           <Image.IsVisible>
@@ -1219,7 +1219,7 @@
         <RowDefinition Height="Auto"/>
         <RowDefinition Height="Auto"/>
       </Grid.RowDefinitions>
-      <DockPanel LastChildFill="True" Grid.Row="0" Grid.Column="0" Grid.RowSpan="2" Margin="0,0,4,0">
+      <DockPanel Grid.Row="0" Grid.Column="0" Grid.RowSpan="2" Margin="0,0,4,0">
         <Image x:Name="ItemTypeSmall" Stretch="Uniform"
             Source="{Binding MediaItem}" FallbackSource="ImageSmall.png" Width="{StaticResource MEDIA_THUMB_WIDTH_S}" Height="{StaticResource MEDIA_THUMB_HEIGHT_S}">
           <Image.IsVisible>

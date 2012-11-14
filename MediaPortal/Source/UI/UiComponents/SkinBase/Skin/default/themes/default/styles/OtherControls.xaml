@@ -496,28 +496,33 @@
 
   <!-- A simple data template to show the Name of the ListItem in a Label -->
   <DataTemplate x:Key="DefaultItemDataTemplate" DataType="{x:Type collections:ListItem}">
-    <DockPanel x:Name="ItemControl" LastChildFill="True">
-      <Label x:Name="ItemLabel" DockPanel.Dock="Center" Content="{Binding [Name]}" FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource TextColor}"/>
+    <DockPanel x:Name="ItemControl" LastChildFill="False">
+      <Label x:Name="ItemLabel" DockPanel.Dock="Center" Content="{Binding [Name]}"
+          HorizontalAlignment="Left" VerticalAlignment="Center"
+          FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource TextColor}"/>
     </DockPanel>
   </DataTemplate>
 
   <DataStringProvider x:Key="DefaultItemDataStringProvider" Path="[Name]"/>
 
   <DataTemplate x:Key="MainMenuItemDataTemplate">
-    <DockPanel x:Name="ItemControl" LastChildFill="True">
-      <Label x:Name="ItemLabel" DockPanel.Dock="Center" Content="{Binding [Name]}" Color="{ThemeResource TextColor}"/>
+    <DockPanel x:Name="ItemControl" LastChildFill="False">
+      <Label x:Name="ItemLabel" DockPanel.Dock="Center" Content="{Binding [Name]}"
+          HorizontalAlignment="Left" VerticalAlignment="Center"
+          Color="{ThemeResource TextColor}"/>
     </DockPanel>
   </DataTemplate>
 
   <DataStringProvider x:Key="MainMenuItemDataStringProvider" Path="[Name]"/>
 
-  <!-- A data template which shows the CoverArt/defaulticon, the Name and the Size of the ListItem -->
+  <!-- A data template which shows an image and the Name of the ListItem -->
   <DataTemplate x:Key="ContentsMenuItemDataTemplate" DataType="{x:Type collections:ListItem}">
-    <DockPanel x:Name="ItemControl" LastChildFill="True">
+    <DockPanel x:Name="ItemControl" LastChildFill="False">
       <Image Thumbnail="True" Stretch="Uniform" DockPanel.Dock="Left" Height="32" Width="32"
           Source="{Binding [ImageSrc]}" FallbackSource="{Binding [DefaultIconSrc]}"/>
       <Label x:Name="ItemLabel" DockPanel.Dock="Center" Content="{Binding [Name]}"
-          HorizontalAlignment="Left" VerticalAlignment="Center" FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource TextColor}"/>
+          HorizontalAlignment="Left" VerticalAlignment="Center" FontSize="{ThemeResource SmallFontSize}"
+          Color="{ThemeResource TextColor}"/>
     </DockPanel>
   </DataTemplate>
 
@@ -525,11 +530,12 @@
 
    <!-- A data template for a dialog menu item in list mode (each row has an image and a label) -->
   <DataTemplate x:Key="ImageDialogItemDataTemplate" DataType="{x:Type collections:ListItem}">
-    <DockPanel x:Name="ItemControl" LastChildFill="True">
+    <DockPanel x:Name="ItemControl" LastChildFill="False">
       <Image x:Name="Image" Thumbnail="True" Width="100" DockPanel.Dock="Left" Stretch="Uniform"
           Source="{Binding [ImageSrc]}" FallbackSource="{Binding [DefaultIconSrc]}"/>
-      <Label x:Name="ItemLabel" DockPanel.Dock="Center" Margin="10,0,0,0" Content="{Binding [Name]}"
-          FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource TextColor}"/>
+      <Label x:Name="ItemLabel" DockPanel.Dock="Center" Margin="10,5,0,0" Content="{Binding [Name]}"
+          HorizontalAlignment="Left" VerticalAlignment="Center" FontSize="{ThemeResource SmallFontSize}"
+          Color="{ThemeResource TextColor}"/>
     </DockPanel>
   </DataTemplate>
 
@@ -545,8 +551,12 @@
         <ColumnDefinition Width="200"/>
         <ColumnDefinition Width="*"/>
       </Grid.ColumnDefinitions>
-      <Label x:Name="ShareName" Grid.Column="0" Content="{Binding [Name]}" FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource TextColor}"/>
-      <Label x:Name="SharePath" Grid.Column="1" Content="{Binding [Path]}" FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource HintTextColor}"/>
+      <Label x:Name="ShareName" Grid.Column="0" Content="{Binding [Name]}" FontSize="{ThemeResource SmallFontSize}"
+          HorizontalAlignment="Left" VerticalAlignment="Center"
+          Color="{ThemeResource TextColor}"/>
+      <Label x:Name="SharePath" Grid.Column="1" Content="{Binding [Path]}" FontSize="{ThemeResource SmallFontSize}"
+          HorizontalAlignment="Left" VerticalAlignment="Center"
+          Color="{ThemeResource HintTextColor}"/>
 <!-- Additionally available properties to show here:
       <Label x:Name="ShareProvider" Grid.Column="2" Content="{Binding AdditionalProperties[ResourceProviderMetadata].Name}"
           Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}"/>
@@ -569,9 +579,15 @@
         <ColumnDefinition Width="*"/>
         <ColumnDefinition Width="Auto"/>
       </Grid.ColumnDefinitions>
-      <Label x:Name="ShareName" Grid.Column="0" Content="{Binding [Name]}" FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource TextColor}"/>
-      <Label x:Name="Categories" Grid.Column="1" Content="{Binding [Categories]}" FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource TextColor}"/>
-      <Label x:Name="OnlineState" Grid.Column="2" FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource TextColor}">
+      <Label x:Name="ShareName" Grid.Column="0" Content="{Binding [Name]}" FontSize="{ThemeResource SmallFontSize}"
+          HorizontalAlignment="Left" VerticalAlignment="Center"
+          Color="{ThemeResource TextColor}"/>
+      <Label x:Name="Categories" Grid.Column="1" Content="{Binding [Categories]}" FontSize="{ThemeResource SmallFontSize}"
+          HorizontalAlignment="Left" VerticalAlignment="Center"
+          Color="{ThemeResource TextColor}"/>
+      <Label x:Name="OnlineState" Grid.Column="2" FontSize="{ThemeResource SmallFontSize}"
+          HorizontalAlignment="Left" VerticalAlignment="Center"
+          Color="{ThemeResource TextColor}">
         <Label.Content>
           <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
             <Binding Path="AdditionalProperties[IsImporting]"/>
@@ -600,8 +616,11 @@
         <ColumnDefinition Width="400"/>
         <ColumnDefinition Width="*"/>
       </Grid.ColumnDefinitions>
-      <Label x:Name="ResourceProviderName" Grid.Column="0" Content="{Binding [Name]}" FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource TextColor}"/>
+      <Label x:Name="ResourceProviderName" Grid.Column="0" Content="{Binding [Name]}" FontSize="{ThemeResource SmallFontSize}"
+          HorizontalAlignment="Left" VerticalAlignment="Center"
+          Color="{ThemeResource TextColor}"/>
       <Label x:Name="ResourceProviderDescription" Grid.Column="1" Content="{Binding AdditionalProperties[ResourceProviderMetadata].Description}"
+          HorizontalAlignment="Left" VerticalAlignment="Center"
           FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource HintTextColor}"/>
     </Grid>
   </DataTemplate>
