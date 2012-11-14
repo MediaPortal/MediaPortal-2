@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Screen
+    xmlns="www.team-mediaportal.com/2008/mpf/directx"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+  <DockPanel LastChildFill="False">
+    <Label DockPanel.Dock="Top" HorizontalAlignment="Center"
+        Content="Text wrapping test"
+        Color="{ThemeResource TextColor}" Wrap="True"/>
+    <Label DockPanel.Dock="Top" HorizontalAlignment="Center"
+        Content="This screen shows some text labels which are being wrapped."
+        Wrap="True" FontSize="{ThemeResource SmallFontSize}"
+        Color="{ThemeResource TextColor}"/>
+    <ListView x:Name="Test" DockPanel.Dock="Center" Style="{ThemeResource DefaultListViewStyle}"
+      VerticalAlignment="Center" HorizontalAlignment="Center" Width="900" Height="500">
+      <Label Color="{ThemeResource TextColor}" Background="Black" FontSize="20" Content="Simple text y g" Margin="10"/>
+      <Label Color="{ThemeResource TextColor}" Background="Black" FontSize="20" Content="Text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text wrap 1 y g" Margin="10" Wrap="True"/>
+      <Label Color="{ThemeResource TextColor}" Background="Black" FontSize="20" Content="Text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text wrap 2 y g" Margin="10" Wrap="True"/>
+
+      <Label Color="{ThemeResource TextColor}" Background="Black" FontSize="30" Content="Simple text y g" Margin="10"/>
+      <Label Color="{ThemeResource TextColor}" Background="Black" FontSize="30" Content="Text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text wrap 1 y g" Margin="10" Wrap="True"/>
+      <Label Color="{ThemeResource TextColor}" Background="Black" FontSize="30" Content="Text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text wrap 2 y g" Margin="10" Wrap="True"/>
+
+      <Label Color="{ThemeResource TextColor}" Background="Black" FontSize="50" Content="Simple text y g" Margin="10"/>
+      <Label Color="{ThemeResource TextColor}" Background="Black" FontSize="50" Content="Text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text wrap 1 y g" Margin="10" Wrap="True"/>
+      <Label Color="{ThemeResource TextColor}" Background="Black" FontSize="50" Content="Text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text wrap 2 y g" Margin="10" Wrap="True"/>
+    </ListView>
+  </DockPanel>
+</Screen>
