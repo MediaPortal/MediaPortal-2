@@ -48,7 +48,7 @@
       <SplineDoubleKeyFrame KeyTime="00:00:02" Value="0.119"/>
       <SplineDoubleKeyFrame KeyTime="00:00:04" Value="-0.006"/>
     </DoubleAnimationUsingKeyFrames>
-    <ColorAnimationUsingKeyFrames BeginTime="00:00:00" Storyboard.TargetName="ButtonBase" Storyboard.TargetProperty="Fill">
+    <ColorAnimationUsingKeyFrames BeginTime="00:00:00" Storyboard.TargetName="ButtonBase" Storyboard.TargetProperty="Fill.GradientStops[1].Color">
       <SplineColorKeyFrame KeyTime="00:00:00.1000000" Value="#FF000000"/>
     </ColorAnimationUsingKeyFrames>
     <ColorAnimationUsingKeyFrames BeginTime="00:00:00" Storyboard.TargetName="ButtonUpperShine" Storyboard.TargetProperty="Fill.GradientStops[0].Color">
@@ -161,13 +161,35 @@
   </Storyboard>
 
   <!-- ************************* Control styles for buttons ************************* -->
- 
+  <LinearGradientBrush x:Key="ButtonBaseBrush"  EndPoint="0.5,1" StartPoint="0.5,0">
+    <GradientStop Color="#B2404041" Offset="0.004"/>
+    <GradientStop Color="#B27A797C" Offset="0.217"/>
+    <GradientStop Color="#B2272727" Offset="1"/>
+  </LinearGradientBrush>
+  
   <Style x:Key="ButtonControlStyle" TargetType="{x:Type Control}">
     <Setter Property="Template">
       <Setter.Value>
         <ControlTemplate>
-          <DockPanel Name="ButtonControlRectangle">
-            <Rectangle DockPanel.Dock="Center" RadiusX="5" RadiusY="5" Name="ButtonBase" Fill="#E0203040" />
+          <DockPanel Name="ButtonControlRectangle" Margin="1.5">
+            <Rectangle DockPanel.Dock="Center" RadiusX="5" RadiusY="5" Name="ButtonBase" Fill="{StaticResource ButtonBaseBrush}">
+              <Rectangle.Stroke>
+                <!--
+                  Morpheus_xx,14.11.2012: slightly modified border stroke, keeping it as alternative
+                <LinearGradientBrush EndPoint="0.5,1" StartPoint="0,0">
+                  <GradientStop Color="Black" Offset="0"/>
+                  <GradientStop Color="#FF837D7D" Offset="0.204"/>
+                  <GradientStop Color="#FFD2D2D2" Offset="0.465"/>
+                  <GradientStop Color="#FF373737" Offset="0.783"/>
+                  <GradientStop Color="#FFBCACAC" Offset="1"/>-->
+
+                <LinearGradientBrush EndPoint="1,1" StartPoint="0,0">
+                  <GradientStop Color="#D7D2D2D2" Offset="0"/>
+                  <GradientStop Color="#DC7A7A7A" Offset="0.13"/>
+                  <GradientStop Color="#BE000000" Offset="1"/>
+                </LinearGradientBrush>
+              </Rectangle.Stroke>
+            </Rectangle>
             <Rectangle DockPanel.Dock="Center" RadiusX="5" RadiusY="5" Name="ButtonLowerShine" Fill="{StaticResource LowerShineGradientAnimated}" />
             <Rectangle DockPanel.Dock="Center" RadiusX="5" RadiusY="5" Name="ButtonUpperShine" Fill="{StaticResource UpperShineGradientAnimated}" />
           </DockPanel>
@@ -181,7 +203,7 @@
       <Setter.Value>
         <ControlTemplate>
           <DockPanel Name="ButtonControlRectangle">
-            <Rectangle DockPanel.Dock="Center" RadiusX="0" RadiusY="0" Name="ButtonBase" Fill="#E0203040" />
+            <Rectangle DockPanel.Dock="Center" RadiusX="0" RadiusY="0" Name="ButtonBase" Fill="{StaticResource ButtonBaseBrush}" />
             <Rectangle DockPanel.Dock="Center" RadiusX="0" RadiusY="0" Name="ButtonLowerShine" Fill="{StaticResource LowerShineGradientAnimated}" />
             <Rectangle DockPanel.Dock="Center" RadiusX="0" RadiusY="0" Name="ButtonUpperShine" Fill="{StaticResource UpperShineGradientAnimated}" />
           </DockPanel>
@@ -195,7 +217,7 @@
       <Setter.Value>
         <ControlTemplate>
           <DockPanel Name="ButtonControlRectangle">
-            <Rectangle DockPanel.Dock="Center" RadiusX="2" RadiusY="2" Name="ButtonBase" Fill="#E0203040" />
+            <Rectangle DockPanel.Dock="Center" RadiusX="2" RadiusY="2" Name="ButtonBase" Fill="{StaticResource ButtonBaseBrush}" />
             <Rectangle DockPanel.Dock="Center" RadiusX="2" RadiusY="2" Name="ButtonLowerShine" Fill="{StaticResource LowerShineGradientAnimated}" />
             <Rectangle DockPanel.Dock="Center" RadiusX="2" RadiusY="2" Name="ButtonUpperShine" Fill="{StaticResource UpperShineGradientAnimated}" />
           </DockPanel>

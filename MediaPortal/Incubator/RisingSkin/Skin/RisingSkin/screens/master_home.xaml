@@ -33,6 +33,26 @@ Parameters which have to be accessible by a DynamicResource lookup:
     mp_special_workflow:WorkflowContext.StateSlot="Root"
     x:Name="Screen"
     >
+  <Screen.Resources>
+    <Storyboard x:Key="SlideInStoryboard" FillBehavior="HoldEnd">
+      <DoubleAnimationUsingKeyFrames BeginTime="00:00:00" FillBehavior="HoldEnd" Storyboard.TargetName="HoverGrid" Storyboard.TargetProperty="RenderTransform.X">
+        <SplineDoubleKeyFrame KeyTime="00:00:00" Value="470"/>
+        <SplineDoubleKeyFrame KeyTime="00:00:00.30" Value="0"/>
+      </DoubleAnimationUsingKeyFrames>
+      <DoubleAnimationUsingKeyFrames BeginTime="00:00:00" FillBehavior="HoldEnd" Storyboard.TargetName="MainMenu" Storyboard.TargetProperty="Opacity">
+        <SplineDoubleKeyFrame KeyTime="00:00:00" Value="0.0"/>
+        <SplineDoubleKeyFrame KeyTime="00:00:00.30" Value="1.0"/>
+      </DoubleAnimationUsingKeyFrames>
+    </Storyboard>
+  </Screen.Resources>
+  <Screen.Triggers>
+    <EventTrigger RoutedEvent="Screen.Show">
+      <EventTrigger.Actions>
+        <BeginStoryboard Storyboard="{StaticResource SlideInStoryboard}"/>
+      </EventTrigger.Actions>
+    </EventTrigger>
+  </Screen.Triggers>
+
   <Grid x:Name="RootElement">
     <Grid.RowDefinitions>
       <RowDefinition Height="*"/>
@@ -117,21 +137,13 @@ Parameters which have to be accessible by a DynamicResource lookup:
           <ColumnDefinition Width="*"/>
           <ColumnDefinition Width="Auto"/>
         </Grid.ColumnDefinitions>
-        <!--<mp_special_controls:WorkflowNavigationBar Grid.Column="0" Grid.Row="0" Style="{ThemeResource WorkflowNavigationBarStyle}"
-          VerticalAlignment="Center"/>-->
         <Control Grid.Column="1" Grid.Row="0" Style="{ThemeResource NotificationControlStyle}"
           HorizontalAlignment="Right" VerticalAlignment="Center"/>
       </Grid>
       <!-- FooterPanel -->
 
-      <!-- Not sure if and how we should show shortcuts...
-      <ListView x:Name="KeyBindingControls" DockPanel.Dock="Bottom" Style="{ThemeResource KeyBindingsListViewStyle}"
-          Height="100" ItemsSource="{DynamicResource KeyBindingControls}"/>
--->
-
       <!-- Order matters here: The client area control has to be the last control (LastChildFill) -->
-      <Control x:Name="ClientArea" DockPanel.Dock="Right"
-          Template="{DynamicResource Client_Template}"/>
+      <Control x:Name="ClientArea" DockPanel.Dock="Right" Template="{DynamicResource Client_Template}"/>
     </DockPanel>
   </Grid>
 </Screen>

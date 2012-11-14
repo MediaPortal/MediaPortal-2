@@ -270,9 +270,6 @@
     <None Include="Skin\RisingSkin\screens\master_homemenu.xaml">
       <SubType>Designer</SubType>
     </None>
-    <None Include="Skin\RisingSkin\screens\master_menu.xaml">
-      <SubType>Designer</SubType>
-    </None>
   </ItemGroup>
   <ItemGroup>
     <None Include="Skin\RisingSkin\themes\Silver\styles\AnalogClock.xaml">
@@ -300,11 +297,6 @@
     </Content>
   </ItemGroup>
   <ItemGroup>
-    <Content Include="Skin\RisingSkin\backgrounds\default-background.xaml">
-      <SubType>Designer</SubType>
-    </Content>
-  </ItemGroup>
-  <ItemGroup>
     <None Include="Skin\RisingSkin\superlayers\ScreenSaver.xaml">
       <SubType>Designer</SubType>
     </None>
@@ -313,6 +305,9 @@
     <Content Include="Skin\RisingSkin\themes\Silver\styles\MediaConsts.xaml">
       <SubType>Designer</SubType>
     </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Skin\RisingSkin\backgrounds\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

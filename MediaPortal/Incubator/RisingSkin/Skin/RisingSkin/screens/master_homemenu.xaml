@@ -35,34 +35,64 @@ Parameters which have to be accessible by a DynamicResource lookup:
     >
   <Include.Resources>
 
+    <!-- Background Manager for menu hovers -->
+    <Model x:Key="BackgroundManagerModel" Id="1F4CAEDE-7108-483d-B5C8-18BEC7EC58E5"/>
+
     <!-- Header has to be defined by the includer: "Header_Text" -->
 
     <!-- Client_Template -->
     <ControlTemplate x:Key="Client_Template">
-      <!--<DockPanel LastChildFill="True" Margin="10">-->
-        <Grid x:Name="MainLayoutPanel" Margin="10,0,0,10" VerticalAlignment="Stretch" HorizontalAlignment="Stretch">
-          <Grid.ColumnDefinitions>
+      <Grid x:Name="MainLayoutPanel" Margin="10,0,0,10" VerticalAlignment="Stretch" HorizontalAlignment="Stretch">
+
+        <Grid.ColumnDefinitions>
           <ColumnDefinition Width="*"/>
           <ColumnDefinition Width="350"/>
           <ColumnDefinition Width="*"/>
         </Grid.ColumnDefinitions>
-          <Grid.RowDefinitions>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="*"/>
-            <RowDefinition Height="Auto"/>
-          </Grid.RowDefinitions>
-          <Grid.Resources>
-            <Model x:Key="MenuModel" Id="9E9D0CD9-4FDB-4c0f-A0C4-F356E151BDE0"/>
-          </Grid.Resources>
+        <Grid.RowDefinitions>
+          <RowDefinition Height="Auto"/>
+          <RowDefinition Height="*"/>
+          <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+        <Grid.Resources>
+          <Model x:Key="MenuModel" Id="9E9D0CD9-4FDB-4c0f-A0C4-F356E151BDE0"/>
+        </Grid.Resources>
 
-          <ListView x:Name="MainMenu" Grid.Column="1" Grid.Row="1" Style="{ThemeResource MainMenuListViewStyle}"
+        <ListView x:Name="MainMenu" Grid.Column="1" Grid.Row="1" Style="{ThemeResource MainMenuListViewStyle}"
               HorizontalAlignment="Stretch" VerticalAlignment="Stretch" SetFocusPrio="DefaultHigh"
-              ItemsSource="{Binding Source={StaticResource MenuModel},Path=MenuItems,Mode=OneTime}">
-            <ListView.Resources>
-              <CommandBridge x:Key="Menu_Command" Command="{Binding Path=Command,Mode=OneTime}"/>
-            </ListView.Resources>
-          </ListView>
+              ItemsSource="{Binding Source={StaticResource MenuModel},Path=MenuItems,Mode=OneTime}"
+              Opacity="0.0">
+          <ListView.Resources>
+            <CommandBridge x:Key="Menu_Command" Command="{Binding Path=Command,Mode=OneTime}"/>
+          </ListView.Resources>
+        </ListView>
 
+        <Rectangle x:Name="HoverGrid" Margin="0,200,8,120" RadiusX="25" RadiusY="25" HorizontalAlignment="Right" Width="440" Height="250" StrokeThickness="2"
+            Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="3" Grid.RowSpan="3">
+          <Rectangle.Stroke>
+            <LinearGradientBrush EndPoint="0.5,1" StartPoint="0,0">
+              <GradientStop Color="Black" Offset="0"/>
+              <GradientStop Color="#FF837D7D" Offset="0.204"/>
+              <GradientStop Color="#FFD2D2D2" Offset="0.465"/>
+              <GradientStop Color="#FF373737" Offset="0.783"/>
+              <GradientStop Color="#FFBCACAC" Offset="1"/>
+            </LinearGradientBrush>
+          </Rectangle.Stroke>
+          <Rectangle.Fill>
+            <VisualBrush>
+              <VisualBrush.Visual>
+                <Grid Background="#A0000000">
+                  <Image Source="{Binding Source={StaticResource BackgroundManagerModel}, Path=BackgroundImage}"
+                      HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Stretch="Fill"/>
+                </Grid>
+              </VisualBrush.Visual>
+            </VisualBrush>
+          </Rectangle.Fill>
+          <Rectangle.RenderTransform>
+            <TranslateTransform X="470"/>
+          </Rectangle.RenderTransform>
+        </Rectangle>
+        
         <!-- Order matters here: The content grid has to be the last control to fill the rest of the space -->
         <Grid x:Name="ContentPanel" Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="3" SetFocusPrio="Default">
           <Grid.ColumnDefinitions>
@@ -75,7 +105,7 @@ Parameters which have to be accessible by a DynamicResource lookup:
               Template="{DynamicResource ResourceKey=Contents_Template}" SetFocus="true"/>
         </Grid>
       </Grid>
-      <!--</DockPanel>-->
+
     </ControlTemplate>
 
   </Include.Resources>
