@@ -77,7 +77,7 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement.AssetCore
           Width = MAX_WIDTH,
           Height = MAX_HEIGHT
         };
-      _charSet.Base = _charSet.RenderedSize * face.ascender / face.height;
+      _charSet.Ascender = _charSet.RenderedSize * face.ascender / face.height;
     }
 
     #endregion
@@ -101,11 +101,11 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement.AssetCore
     }
 
     /// <summary>
-    /// Gets the <see cref="FontAssetCore"/>'s base for the given font size.
+    /// Gets the <see cref="FontAssetCore"/>'s ascender for the given font size.
     /// </summary>
-    public float Base(float fontSize)
+    public float Ascender(float fontSize)
     {
-      return _charSet.Base * fontSize / _charSet.RenderedSize;
+      return _charSet.Ascender * fontSize / _charSet.RenderedSize;
     }
 
     /// <summary>
@@ -192,14 +192,17 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement.AssetCore
 
     /// <summary>
     /// Get the height of a text block containing the specified number of lines. In order to get correct vertical 
-    /// centering we add an additonal value to compensate for the space required under the font's base line.
+    /// centering we add an additonal value of the font face descender above the text to compensate for the space required
+    /// under the font's base line for the last text line.
     /// </summary>
     /// <param name="fontSize">The actual font size.</param>
     /// <param name="lineCount">The number of lines.</param>
-    /// <returns>The height of the text.</returns>
+    /// <returns>The height which is needed to draw the text.</returns>
     public float TextHeight(float fontSize, int lineCount)
     {
-      return LineHeight(fontSize) * (lineCount + 1) - Base(fontSize) - 1.0f;
+      // To center text which is one or more lines in height, we add the value of the font face descender to the expression <lineHeight * lineCount>.
+      // The value of descender is <lineHeight - ascender>. Together, it is <lineHeight * (lineCount + 1) - ascender>.
+      return LineHeight(fontSize) * (lineCount + 1) - Ascender(fontSize) + 1f;
     }
 
     /// <summary>
@@ -338,7 +341,7 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement.AssetCore
             X = _currentX,
             Y = _currentY,
             XOffset = glyph.left,
-            YOffset = _charSet.Base - glyph.top,
+            YOffset = _charSet.Ascender - glyph.top,
             // Convert fixed point 16.16 to float by divison with 2^16
             XAdvance = (int) (glyph.root.advance.x / 65536.0f)
           };
@@ -399,7 +402,9 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement.AssetCore
 
       List<PositionColoredTextured> verts = new List<PositionColoredTextured>();
       float[] lineWidth = new float[text.Length];
-      int liney = _charSet.RenderedSize - _charSet.Base;
+
+      // We add the value of the descender to the top of the text to center the text around its ascender
+      int liney = _charSet.RenderedSize - _charSet.Ascender;
       float sizeScale = size / _charSet.RenderedSize;
 
       lineIndex = new int[text.Length];
@@ -464,7 +469,9 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement.AssetCore
       x += c.XOffset;
       y += c.YOffset;
       PositionColoredTextured tl = new PositionColoredTextured(
-          x * sizeScale, y * sizeScale, 1.0f,
+          x * sizeScale,
+          y * sizeScale,
+          1.0f,
           (c.X + 0.5f) / _charSet.Width,
           c.Y / (float) _charSet.Height,
           0
@@ -549,7 +556,7 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement.AssetCore
   /// </summary>
   internal class BitmapCharacterSet
   {
-    public int Base;
+    public int Ascender;
     public int RenderedSize;
     public int Width;
     public int Height;
