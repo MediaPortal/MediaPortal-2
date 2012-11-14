@@ -462,11 +462,11 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       _fallbackSourceState.Setup = false;
     }
 
-    public override void DoRender(RenderContext localRenderContext)
+    public override void RenderOverride(RenderContext localRenderContext)
     {
       ImageSourceState allocatedSource = GetLoadedSource(true);
       if (allocatedSource == null)
-        base.DoRender(localRenderContext);
+        base.RenderOverride(localRenderContext);
       else
       {
         // Update source geometry if necessary (source has changed, layout has changed).
@@ -475,7 +475,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
           allocatedSource.ImageSource.Setup(_innerRect, localRenderContext.ZOrder, SkinNeutralAR);
           allocatedSource.Setup = true;
         }
-        base.DoRender(localRenderContext);
+        base.RenderOverride(localRenderContext);
         allocatedSource.ImageSource.Render(localRenderContext, Stretch, StretchDirection);
       }
     }

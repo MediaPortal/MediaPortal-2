@@ -1661,7 +1661,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
         SetFocusPrio = SetFocusPriority.RestoreState;
     }
 
-    public virtual void DoRender(RenderContext localRenderContext)
+    public virtual void RenderOverride(RenderContext localRenderContext)
     {
     }
 
@@ -1692,7 +1692,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
         GraphicsDevice.Device.Clear(ClearFlags.Target, Color.FromArgb(0, Color.Black), 1.0f, 0);
 
         // Render the control into the given texture
-        DoRender(renderContext);
+        RenderOverride(renderContext);
 
         // Restore the backbuffer
         GraphicsDevice.Device.SetRenderTarget(0, backBuffer);
@@ -1721,7 +1721,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       Brushes.Brush opacityMask = OpacityMask;
       if (opacityMask == null && Effect == null)
         // Simply render without opacity mask
-        DoRender(localRenderContext);
+        RenderOverride(localRenderContext);
       else
       { 
         // Control has an opacity mask or Effect

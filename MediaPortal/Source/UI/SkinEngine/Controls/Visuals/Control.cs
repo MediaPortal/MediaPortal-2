@@ -253,11 +253,11 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 
     #region Rendering
 
-    public override void DoRender(RenderContext localRenderContext)
+    public override void RenderOverride(RenderContext localRenderContext)
     {
       PerformLayout(localRenderContext);
 
-      base.DoRender(localRenderContext);
+      base.RenderOverride(localRenderContext);
       if (_backgroundContext != null)
       {
         if (Background.BeginRenderBrush(_backgroundContext, localRenderContext))

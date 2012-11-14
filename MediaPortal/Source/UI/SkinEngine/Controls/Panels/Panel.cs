@@ -272,7 +272,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
         element.Render(localRenderContext);
     }
 
-    public override void DoRender(RenderContext localRenderContext)
+    public override void RenderOverride(RenderContext localRenderContext)
     {
       UpdateRenderOrder();
 

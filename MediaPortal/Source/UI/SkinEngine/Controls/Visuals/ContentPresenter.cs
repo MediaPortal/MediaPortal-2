@@ -272,9 +272,9 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       templateControl.Arrange(childRect);
     }
 
-    public override void DoRender(RenderContext localRenderContext)
+    public override void RenderOverride(RenderContext localRenderContext)
     {
-      base.DoRender(localRenderContext);
+      base.RenderOverride(localRenderContext);
       FrameworkElement templateControl = _templateControl;
       if (templateControl != null)
         templateControl.Render(localRenderContext);

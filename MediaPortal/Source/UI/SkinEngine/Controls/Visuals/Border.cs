@@ -412,7 +412,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 
     #region Rendering
 
-    public override void DoRender(RenderContext localRenderContext)
+    public override void RenderOverride(RenderContext localRenderContext)
     {
       PerformLayout(localRenderContext);
 

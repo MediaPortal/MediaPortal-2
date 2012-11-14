@@ -345,11 +345,11 @@ namespace MediaPortal.UiComponents.Media.Controls
       _animationTimer.Stop();
     }
 
-    public override void DoRender(RenderContext localRenderContext)
+    public override void RenderOverride(RenderContext localRenderContext)
     {
       InitializeBars();
       UpdateSpectrum();
-      base.DoRender(localRenderContext);
+      base.RenderOverride(localRenderContext);
     }
 
     protected ISpectrumPlayer ActiveSpectrumPlayer

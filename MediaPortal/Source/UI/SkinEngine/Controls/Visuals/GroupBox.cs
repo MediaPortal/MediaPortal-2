@@ -193,9 +193,9 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
           headerLabelSize.Width + HEADER_INSET_SPACE * 2);
     }
 
-    public override void DoRender(RenderContext localRenderContext)
+    public override void RenderOverride(RenderContext localRenderContext)
     {
-      base.DoRender(localRenderContext);
+      base.RenderOverride(localRenderContext);
       _headerLabel.Render(localRenderContext);
     }
   }

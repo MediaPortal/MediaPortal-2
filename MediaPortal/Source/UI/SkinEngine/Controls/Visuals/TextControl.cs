@@ -471,9 +471,9 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
         value = max;
     }
 
-    public override void DoRender(RenderContext localRenderContext)
+    public override void RenderOverride(RenderContext localRenderContext)
     {
-      base.DoRender(localRenderContext);
+      base.RenderOverride(localRenderContext);
       AllocFont();
 
       HorizontalTextAlignEnum horzAlign = HorizontalTextAlignEnum.Left;

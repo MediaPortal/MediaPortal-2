@@ -63,9 +63,9 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       InvalidateLayout(true, true);
     }
 
-    public override void DoRender(RenderContext localRenderContext)
+    public override void RenderOverride(RenderContext localRenderContext)
     {
-      base.DoRender(localRenderContext);
+      base.RenderOverride(localRenderContext);
       FrameworkElement keyboardControl = _keyboardLayoutControl;
       if (keyboardControl == null)
         return;
