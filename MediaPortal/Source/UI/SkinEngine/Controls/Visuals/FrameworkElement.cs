@@ -1050,7 +1050,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     }
 
     /// <summary>
-    /// Arranges the UI element and positions it in the finalrect.
+    /// Arranges the UI element and positions it in the given rectangle.
     /// </summary>
     /// <param name="outerRect">The final position and size the parent computed for this child element.</param>
     public void Arrange(RectangleF outerRect)

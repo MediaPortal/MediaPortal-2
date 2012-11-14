@@ -27,7 +27,6 @@ using System.Collections.Generic;
 using System.Drawing;
 using MediaPortal.Common.General;
 using MediaPortal.UI.SkinEngine.Controls.Visuals.Templates;
-using MediaPortal.UI.SkinEngine.Controls.Visuals.Triggers;
 using MediaPortal.UI.SkinEngine.MpfElements;
 using MediaPortal.UI.SkinEngine.Rendering;
 using MediaPortal.UI.SkinEngine.Xaml;
@@ -246,10 +245,11 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 
     protected override SizeF CalculateInnerDesiredSize(SizeF totalSize)
     {
-      if (_templateControl == null)
+      FrameworkElement templateControl = _templateControl;
+      if (templateControl == null)
         return SizeF.Empty;
       // Measure the child
-      _templateControl.Measure(ref totalSize);
+      templateControl.Measure(ref totalSize);
       return totalSize;
     }
 
@@ -261,28 +261,31 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 
     protected virtual void ArrangeTemplateControl()
     {
-      if (_templateControl == null)
+      FrameworkElement templateControl = _templateControl;
+      if (templateControl == null)
         return;
       PointF position = new PointF(_innerRect.X, _innerRect.Y);
       SizeF availableSize = new SizeF(_innerRect.Width, _innerRect.Height);
-      ArrangeChild(_templateControl, HorizontalContentAlignment, VerticalContentAlignment,
+      ArrangeChild(templateControl, HorizontalContentAlignment, VerticalContentAlignment,
           ref position, ref availableSize);
       RectangleF childRect = new RectangleF(position, availableSize);
-      _templateControl.Arrange(childRect);
+      templateControl.Arrange(childRect);
     }
 
     public override void DoRender(RenderContext localRenderContext)
     {
       base.DoRender(localRenderContext);
-      if (_templateControl != null)
-        _templateControl.Render(localRenderContext);
+      FrameworkElement templateControl = _templateControl;
+      if (templateControl != null)
+        templateControl.Render(localRenderContext);
     }
 
     public override void AddChildren(ICollection<UIElement> childrenOut)
     {
       base.AddChildren(childrenOut);
-      if (_templateControl != null)
-        childrenOut.Add(_templateControl);
+      FrameworkElement templateControl = _templateControl;
+      if (templateControl != null)
+        childrenOut.Add(templateControl);
     }
 
     // Allocation/Deallocation of _templateControl not necessary because UIElement handles all direct children
