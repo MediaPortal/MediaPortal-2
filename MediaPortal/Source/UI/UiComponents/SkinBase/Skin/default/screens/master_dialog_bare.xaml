@@ -45,27 +45,31 @@ Parameters which have to be accessible by a DynamicResource lookup:
       </EventTrigger.Actions>
     </EventTrigger>
   </Screen.Triggers>
-
-
   
-  <DockPanel x:Name="ScreenAnimationElement" RenderTransformOrigin="0.5,0.5" Background="{ThemeResource DialogScreenBackgroundColor}"
-      LastChildFill="False">
-    <BackgroundEffect DockPanel.Dock="Center">
-      <BackgroundEffect.Effect>
-          <SimpleShaderEffect ShaderEffectName="dialogbg"/>
-          <!-- We can also use partial effects here: -->
-          <!--<SimpleImageEffect PartitialEffectName="sepia"/>-->
-      </BackgroundEffect.Effect>
-    </BackgroundEffect>
-    <DockPanel.RenderTransform>
+  <Grid x:Name="ScreenAnimationElement" RenderTransformOrigin="0.5,0.5" Background="{ThemeResource DialogScreenBackgroundColor}">
+    <Grid.ColumnDefinitions>
+      <ColumnDefinition Width="*"/>
+    </Grid.ColumnDefinitions>
+    <Grid.RowDefinitions>
+      <RowDefinition Height="*"/>
+    </Grid.RowDefinitions>
+    <Grid.RenderTransform>
       <TransformGroup>
         <ScaleTransform CenterX="0.5" CenterY="0.5" ScaleX="1" ScaleY="1"/>
         <SkewTransform CenterX="0.5" CenterY="0.5" AngleX="0" AngleY="0"/>
         <RotateTransform CenterX="0.5" CenterY="0.5" Angle="0"/>
         <TranslateTransform X="0" Y="0"/>
       </TransformGroup>
-    </DockPanel.RenderTransform>
-    <Border x:Name="DialogBorder" Margin="50" DockPanel.Dock="Center"
+    </Grid.RenderTransform>
+
+    <BackgroundEffect>
+      <BackgroundEffect.Effect>
+          <SimpleShaderEffect ShaderEffectName="dialogbg"/>
+          <!-- We can also use partial effects here: -->
+          <!--<SimpleImageEffect PartitialEffectName="sepia"/>-->
+      </BackgroundEffect.Effect>
+    </BackgroundEffect>
+    <Border x:Name="DialogBorder" Margin="50"
         Background="{ThemeResource DialogBorderBrush}" CornerRadius="{ThemeResource DialogBorderCornerRadius}"
         VerticalAlignment="Center" HorizontalAlignment="Center">
       <DockPanel x:Name="DialogBackgroundPanel" Background="{ThemeResource DialogBackgroundBrush}"
@@ -91,5 +95,5 @@ Parameters which have to be accessible by a DynamicResource lookup:
             Template="{DynamicResource ResourceKey=Contents_Template}"/>
       </DockPanel>
     </Border>
-  </DockPanel>
+  </Grid>
 </Screen>

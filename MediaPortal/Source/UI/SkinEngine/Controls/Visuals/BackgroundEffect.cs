@@ -42,7 +42,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 
     public override void Render(RenderContext parentRenderContext)
     {
-      if (!IsVisible || Effect == null)
+      Effect effect = Effect;
+      if (!IsVisible || effect == null)
         return;
 
       RectangleF bounds = ActualBounds;
@@ -66,9 +67,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       }
       device.StretchRectangle(backBuffer, _texture.GetSurfaceLevel(0), TextureFilter.None);
 
-      Effect effect = Effect;
-
-      UpdateEffectMask(localRenderContext.OccupiedTransformedBounds, desc.Width, desc.Height, localRenderContext.ZOrder);
+      UpdateEffectMask(effect, localRenderContext.OccupiedTransformedBounds, desc.Width, desc.Height, localRenderContext.ZOrder);
       if (effect.BeginRender(_texture, new RenderContext(Matrix.Identity, 1.0d, bounds, localRenderContext.ZOrder)))
       {
         _effectContext.Render(0);

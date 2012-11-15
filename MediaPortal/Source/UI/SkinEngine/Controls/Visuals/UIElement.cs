@@ -217,16 +217,32 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     }
   }
 
+  public struct FocusCandidate
+  {
+    public FrameworkElement Candidate;
+    public float ZIndex;
+
+    public FocusCandidate(FrameworkElement candidate, float zIndex)
+    {
+      Candidate = candidate;
+      ZIndex = zIndex;
+    }
+  }
+
   public delegate void UIEventDelegate(string eventName);
 
   #endregion
 
   public abstract class UIElement : Visual, IContentEnabled, IBindingContainer
   {
+    #region Constants
+
     protected const string LOADED_EVENT = "UIElement.Loaded";
     protected const string VISIBILITY_CHANGED_EVENT = "UIElement.VisibilityChanged";
 
     public const double DELTA_DOUBLE = 0.01;
+
+    #endregion
 
     #region Protected fields
 
@@ -344,6 +360,24 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       MPF.TryCleanupAndDispose(_resources);
     }
 
+    public void CleanupAndDispose()
+    {
+      SetElementState(ElementState.Disposing);
+      Deallocate();
+      ResetScreen();
+      StopAndDispose();
+    }
+
+    protected internal void StopAndDispose()
+    {
+      Screen screen = Screen;
+      if (screen != null)
+        screen.Animator.StopAll(this);
+
+      Dispose(); // First dispose bindings before we can reset our VisualParent
+      VisualParent = null;
+    }
+
     #endregion
 
     #region Event handlers
@@ -355,12 +389,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 
     #endregion
 
-    public void SetResources(ResourceDictionary resources)
-    {
-      _resources = resources;
-    }
-
-    #region Public properties
+    #region Public properties & events
 
     /// <summary>
     /// Event handler called for all events defined by their event string like <see cref="LOADED_EVENT"/> or <see cref="VISIBILITY_CHANGED_EVENT"/>.
@@ -735,8 +764,6 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       return parent == null ? true : parent.IsChildRenderedAt(this, x, y);
     }
 
-    #endregion
-
     /// <summary>
     /// Checks if this element and all visual parents are visible and thus this element might be rendered.
     /// </summary>
@@ -752,22 +779,39 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       return visualParent.CheckVisibility();
     }
 
-    public void CleanupAndDispose()
+    public static bool InVisualPath(UIElement possibleParent, UIElement child)
     {
-      SetElementState(ElementState.Disposing);
-      Deallocate();
-      ResetScreen();
-      StopAndDispose();
+      Visual current = child;
+      while (current != null)
+        if (ReferenceEquals(possibleParent, current))
+          return true;
+        else
+          current = current.VisualParent;
+      return false;
     }
 
-    protected internal void StopAndDispose()
+    public static bool IsNear(double x, double y)
     {
-      Screen screen = Screen;
-      if (screen != null)
-        screen.Animator.StopAll(this);
+      return Math.Abs(x - y) < DELTA_DOUBLE;
+    }
 
-      Dispose(); // First dispose bindings before we can reset our VisualParent
-      VisualParent = null;
+    public static bool GreaterThanOrClose(double x, double y)
+    {
+      return x > y || IsNear(x, y);
+    }
+
+    public static bool LessThanOrClose(double x, double y)
+    {
+      return x < y || IsNear(x, y);
+    }
+
+    #endregion
+
+    #region Resources handling
+
+    public void SetResources(ResourceDictionary resources)
+    {
+      _resources = resources;
     }
 
     /// <summary>
@@ -784,6 +828,52 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       return SkinContext.SkinResources.FindStyleResource(resourceKey);
     }
 
+    #endregion
+
+    #region UI element state handling
+
+    public void SetScreen(Screen screen)
+    {
+      if (screen != null)
+        ForEachElementInTree_BreadthFirst(new SetScreenAction(screen));
+    }
+
+    public void ResetScreen()
+    {
+      ForEachElementInTree_BreadthFirst(new SetScreenAction(null));
+    }
+
+    /// <summary>
+    /// Sets the element state. The <see cref="Screen"/> must have been assigned before the element state is set to
+    /// <see cref="Visuals.ElementState.Running"/>.
+    /// </summary>
+    /// <param name="state"></param>
+    public void SetElementState(ElementState state)
+    {
+      ForEachElementInTree_BreadthFirst(new SetElementStateAction(state));
+    }
+
+    #endregion
+
+    #region Bindings handling
+
+    void IBindingContainer.AddBindings(IEnumerable<IBinding> bindings)
+    {
+      foreach (IBinding binding in bindings)
+        AddDeferredBinding(binding);
+      if (PreparingOrRunning)
+        ActivateBindings();
+    }
+
+    public override void SetBindingValue(IDataDescriptor dd, object value)
+    {
+      SetValueInRenderThread(dd, value);
+    }
+
+    #endregion
+
+    #region Storyboards
+
     public void StartStoryboard(Storyboard board, HandoffBehavior handoffBehavior)
     {
       Screen screen = Screen;
@@ -799,6 +889,10 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
         return;
       screen.Animator.StopStoryboard(board, this);
     }
+
+    #endregion
+
+    #region Thread synchronization
 
     public void SetValueInRenderThread(IDataDescriptor dataDescriptor, object value)
     {
@@ -854,6 +948,10 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       return value;
     }
 
+    #endregion
+
+    #region Events & triggers
+
     public virtual void FireEvent(string eventName, RoutingStrategyEnum routingStrategy)
     {
       if (routingStrategy == RoutingStrategyEnum.Tunnel)
@@ -882,17 +980,35 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       }
     }
 
-    public struct FocusCandidate
+    public void CheckFireLoaded()
     {
-      public FrameworkElement Candidate;
-      public float ZIndex;
-
-      public FocusCandidate(FrameworkElement candidate, float zIndex)
-      {
-        Candidate = candidate;
-        ZIndex = zIndex;
-      }
+      if (!_fireLoaded)
+        return;
+      FireEvent(LOADED_EVENT, RoutingStrategyEnum.VisualTree);
+      _fireLoaded = false;
     }
+
+    public void UninitializeTriggers()
+    {
+      if (!_triggersInitialized)
+        return;
+      foreach (TriggerBase trigger in Triggers)
+        trigger.Reset();
+      _triggersInitialized = false;
+    }
+
+    public void InitializeTriggers()
+    {
+      if (_triggersInitialized)
+        return;
+      foreach (TriggerBase trigger in Triggers)
+        trigger.Setup(this);
+      _triggersInitialized = true;
+    }
+
+    #endregion
+
+    #region Input handling
 
     public virtual void OnMouseMove(float x, float y, ICollection<FocusCandidate> focusCandidates)
     {
@@ -950,6 +1066,10 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
         if (key == Key.None) return;
       }
     }
+
+    #endregion
+
+    #region Children management
 
     public override INameScope FindNameScope()
     {
@@ -1073,45 +1193,9 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       }
     }
 
-    public void CheckFireLoaded()
-    {
-      if (!_fireLoaded)
-        return;
-      FireEvent(LOADED_EVENT, RoutingStrategyEnum.VisualTree);
-      _fireLoaded = false;
-    }
+    #endregion
 
-    public void UninitializeTriggers()
-    {
-      if (!_triggersInitialized)
-        return;
-      foreach (TriggerBase trigger in Triggers)
-        trigger.Reset();
-      _triggersInitialized = false;
-    }
-
-    public void InitializeTriggers()
-    {
-      if (_triggersInitialized)
-        return;
-      foreach (TriggerBase trigger in Triggers)
-        trigger.Setup(this);
-      _triggersInitialized = true;
-    }
-
-    public virtual void Allocate()
-    {
-      _allocated = true;
-      foreach (FrameworkElement child in GetChildren())
-        child.Allocate();
-    }
-
-    public virtual void Deallocate()
-    {
-      _allocated = false;
-      foreach (FrameworkElement child in GetChildren())
-        child.Deallocate();
-    }
+    #region UI state handling
 
     /// <summary>
     /// Saves the state of this <see cref="UIElement"/> and all its child elements in the given <paramref name="state"/> memento.
@@ -1185,65 +1269,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
         child.RestoreUIState(state, prefix + "/Child_" + (i++));
     }
 
-    void IBindingContainer.AddBindings(IEnumerable<IBinding> bindings)
-    {
-      foreach (IBinding binding in bindings)
-        AddDeferredBinding(binding);
-      if (PreparingOrRunning)
-        ActivateBindings();
-    }
-
-    public override void SetBindingValue(IDataDescriptor dd, object value)
-    {
-      SetValueInRenderThread(dd, value);
-    }
-
-    public void SetScreen(Screen screen)
-    {
-      if (screen != null)
-        ForEachElementInTree_BreadthFirst(new SetScreenAction(screen));
-    }
-
-    public void ResetScreen()
-    {
-      ForEachElementInTree_BreadthFirst(new SetScreenAction(null));
-    }
-
-    /// <summary>
-    /// Sets the element state. The <see cref="Screen"/> must have been assigned before the element state is set to
-    /// <see cref="Visuals.ElementState.Running"/>.
-    /// </summary>
-    /// <param name="state"></param>
-    public void SetElementState(ElementState state)
-    {
-      ForEachElementInTree_BreadthFirst(new SetElementStateAction(state));
-    }
-
-    public static bool InVisualPath(UIElement possibleParent, UIElement child)
-    {
-      Visual current = child;
-      while (current != null)
-        if (ReferenceEquals(possibleParent, current))
-          return true;
-        else
-          current = current.VisualParent;
-      return false;
-    }
-
-    public static bool IsNear(double x, double y)
-    {
-      return Math.Abs(x - y) < DELTA_DOUBLE;
-    }
-
-    public static bool GreaterThanOrClose(double x, double y)
-    {
-      return x > y || IsNear(x, y);
-    }
-
-    public static bool LessThanOrClose(double x, double y)
-    {
-      return x < y || IsNear(x, y);
-    }
+    #endregion
 
     #region IContentEnabled members
 
@@ -1255,6 +1281,20 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     #endregion
 
     #region Base overrides
+
+    public virtual void Allocate()
+    {
+      _allocated = true;
+      foreach (FrameworkElement child in GetChildren())
+        child.Allocate();
+    }
+
+    public virtual void Deallocate()
+    {
+      _allocated = false;
+      foreach (FrameworkElement child in GetChildren())
+        child.Deallocate();
+    }
 
     public override string ToString()
     {

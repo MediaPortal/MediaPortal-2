@@ -496,7 +496,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 
     protected void PrepareItems(bool force)
     {
-      if (_elementState != ElementState.Running && _elementState != ElementState.Preparing)
+      if (!PreparingOrRunning)
         return;
       if (_preventItemsPreparation)
         return;
@@ -533,6 +533,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       if (_itemsHostPanel == null)
         _itemsHostPanel = presenter.ItemsHostPanel;
       if (_itemsHostPanel == null)
+        return;
+      if (ItemContainerStyle == null || ItemTemplate == null)
         return;
 
       IEnumerable itemsSource = ItemsSource;
