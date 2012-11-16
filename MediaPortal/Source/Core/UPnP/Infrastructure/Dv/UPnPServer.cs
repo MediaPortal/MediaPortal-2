@@ -391,7 +391,7 @@ namespace UPnP.Infrastructure.Dv
                 status = HttpStatusCode.InternalServerError;
               }
               response.Status = status;
-              using (var responseStream = new MemoryStream(UPnPConsts.UTF8_NO_BOM.GetBytes(result)))
+              using (var responseStream = new MemoryStream(encoding.GetBytes(result)))
                 CompressionHelper.WriteCompressedStream(response, responseStream, canCompress);
               SafeSendResponse(response);
               return;
