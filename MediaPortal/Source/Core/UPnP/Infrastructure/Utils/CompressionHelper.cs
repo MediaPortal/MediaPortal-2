@@ -34,7 +34,9 @@ namespace UPnP.Infrastructure.Utils
   /// </summary>
   static class CompressionHelper
   {
-    public const string PREFERRED_COMPRESSION = "gzip";
+    public const string COMPRESSION_GZIP = "gzip";
+    public const string COMPRESSION_DEFLATE = "deflate";
+    public const string PREFERRED_COMPRESSION = COMPRESSION_DEFLATE;
     
     private const int BUFFER_SIZE = 1024;
 
@@ -49,7 +51,14 @@ namespace UPnP.Infrastructure.Utils
     private static Stream Compress(Stream inputStream)
     {
       MemoryStream compressed = new MemoryStream();
-      using (var zip = new GZipStream(compressed, CompressionMode.Compress, true))
+      Stream zip;
+      
+      if (PREFERRED_COMPRESSION == COMPRESSION_DEFLATE)
+        zip = new DeflateStream(compressed, CompressionMode.Compress, true);
+      else
+        zip = new GZipStream(compressed, CompressionMode.Compress, true);
+
+      using (zip)
       {
         byte[] buffer = new byte[BUFFER_SIZE];
         int nRead;
@@ -68,7 +77,14 @@ namespace UPnP.Infrastructure.Utils
     public static Stream Decompress(Stream inputStream)
     {
       MemoryStream decompressed = new MemoryStream();
-      using (Stream csStream = new GZipStream(inputStream, CompressionMode.Decompress))
+      Stream csStream;
+
+      if (PREFERRED_COMPRESSION == COMPRESSION_DEFLATE)
+        csStream = new DeflateStream(inputStream, CompressionMode.Decompress);
+      else
+        csStream = new GZipStream(inputStream, CompressionMode.Decompress);
+
+      using (csStream)
       {
         byte[] buffer = new byte[BUFFER_SIZE];
         int nRead;
