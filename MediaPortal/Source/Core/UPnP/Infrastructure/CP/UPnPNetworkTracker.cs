@@ -331,7 +331,7 @@ namespace UPnP.Infrastructure.CP
           return;
         try
         {
-          using (Stream body = response.GetResponseStream())
+          using (Stream body = CompressionHelper.Decompress(response))
           {
             XPathDocument xmlDeviceDescription = new XPathDocument(body);
             lock (_cpData.SyncObj)
@@ -425,7 +425,7 @@ namespace UPnP.Infrastructure.CP
               return;
             try
             {
-              using (Stream body = response.GetResponseStream())
+              using (Stream body = CompressionHelper.Decompress(response))
               {
                 XPathDocument xmlServiceDescription = new XPathDocument(body);
                 state.CurrentServiceDescriptor.ServiceDescription = xmlServiceDescription;
@@ -544,6 +544,7 @@ namespace UPnP.Infrastructure.CP
       request.KeepAlive = true;
       request.AllowAutoRedirect = true;
       request.UserAgent = UPnPConfiguration.UPnPMachineInfoHeader;
+      request.Headers.Add("Accept-Encoding", CompressionHelper.PREFERRED_COMPRESSION);
       return request;
     }
 

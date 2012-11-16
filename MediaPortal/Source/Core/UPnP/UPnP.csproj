@@ -98,6 +98,7 @@
     <Compile Include="Infrastructure\CP\Exceptions.cs" />
     <Compile Include="Infrastructure\CP\GENA\EventSubscription.cs" />
     <Compile Include="Infrastructure\Dv\CallContext.cs" />
+    <Compile Include="Infrastructure\Utils\CompressionHelper.cs" />
     <Compile Include="Infrastructure\Utils\UDPAsyncReceiveState.cs" />
     <Compile Include="Infrastructure\ILogger.cs" />
     <Compile Include="Infrastructure\Utils\HttpServerHelper.cs" />

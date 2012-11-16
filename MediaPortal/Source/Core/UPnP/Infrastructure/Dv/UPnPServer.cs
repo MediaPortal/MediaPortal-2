@@ -26,6 +26,7 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
+using System.IO.Compression;
 using System.Linq;
 using System.Net;
 using System.Net.NetworkInformation;
@@ -313,6 +314,11 @@ namespace UPnP.Infrastructure.Dv
         {
           if (!NetworkHelper.HostNamesEqual(hostName, NetworkHelper.IPAddrToHostName(config.EndPointIPAddress)))
             continue;
+
+          // Common check for supported encodings
+          string acceptEncoding = request.Headers.Get("ACCEPT-ENCODING") ?? string.Empty;
+          bool canCompress = acceptEncoding.Contains(CompressionHelper.PREFERRED_COMPRESSION);
+
           // Handle different HTTP methods here
           if (request.Method == "GET")
           { // GET of descriptions
@@ -335,7 +341,8 @@ namespace UPnP.Infrastructure.Dv
                 response.ContentType = "text/xml; charset=utf-8";
                 if (!string.IsNullOrEmpty(acceptLanguage))
                   response.AddHeader("CONTENT-LANGUAGE", culture.ToString());
-                response.Body = new MemoryStream(UPnPConsts.UTF8_NO_BOM.GetBytes(description));
+                using (var responseStream = new MemoryStream(UPnPConsts.UTF8_NO_BOM.GetBytes(description)))
+                  CompressionHelper.WriteCompressedStream(response, responseStream, canCompress);
                 SafeSendResponse(response);
                 return;
               }
@@ -384,11 +391,9 @@ namespace UPnP.Infrastructure.Dv
                 status = HttpStatusCode.InternalServerError;
               }
               response.Status = status;
-              StreamWriter s = new StreamWriter(response.Body, encoding);
-              s.Write(result);
-              s.Flush();
+              using (var responseStream = new MemoryStream(UPnPConsts.UTF8_NO_BOM.GetBytes(result)))
+                CompressionHelper.WriteCompressedStream(response, responseStream, canCompress);
               SafeSendResponse(response);
-              s.Close();
               return;
             }
           }
