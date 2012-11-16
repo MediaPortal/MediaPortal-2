@@ -710,16 +710,23 @@ namespace UPnP.Infrastructure.CP.SSDP
         // The specification says the SERVER header should contain three entries, separated by space, like
         // "SERVER: OS/version UPnP/1.1 product/version".
         // Unfortunately, some clients send entries separated by ", ", like "Linux/2.x.x, UPnP/1.0, pvConnect UPnP SDK/1.0".
-        // Other users saw strings like "3Com-ADSL-11g/1.0 UPnP/1.0" here, i.e. with only two tokens.
         // We try to handle all situations correctly here, that's the reason for this ugly code.
+
+        // What we've seen until now:
+        // SERVER: Linux/2.x.x, UPnP/1.0, pvConnect UPnP SDK/1.0  => tokens separated by ','
+        // SERVER: Windows 2003, UPnP/1.0 DLNADOC/1.50, Serviio/0.5.2  => tokens separated by ',' and additional info in UPnP version token
+        // SERVER: 3Com-ADSL-11g/1.0 UPnP/1.0  => only two tokens
         string[] versionInfos = server.Contains(", ") ? server.Split(new string[] { ", " }, StringSplitOptions.RemoveEmptyEntries) :
             server.Split(new char[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
         string upnpVersionInfo = versionInfos.FirstOrDefault(v => v.StartsWith(UPnPVersion.VERSION_PREFIX));
         if (upnpVersionInfo == null)
           // Invalid message
           return;
+        // upnpVersionInfo = 'UPnP/1.0', 'UPnP/1.1', 'UPnP/1.0 DLNADOC/1.50', ..., the UPnP version is always the first token
+        string[] upnpVersionInfoTokens = upnpVersionInfo.Split(' ');
+        string upnpVersionInfoToken = upnpVersionInfoTokens[0];
         UPnPVersion upnpVersion;
-        if (!UPnPVersion.TryParse(upnpVersionInfo, out upnpVersion))
+        if (!UPnPVersion.TryParse(upnpVersionInfoToken, out upnpVersion))
           // Invalid message
           return;
         if (upnpVersion.VerMax != 1)
