@@ -110,14 +110,17 @@ namespace MediaPortal.Plugins.StatisticsRenderer
     /// <param name="e"></param>
     private void InitDelayed(object sender, ElapsedEventArgs e)
     {
+      Timer initTimer = _initTimer;
+      _initTimer = null;
+      if (initTimer == null)
+        return;
+      initTimer.Dispose();
       Log("Get IInputManager");
       IInputManager manager = ServiceRegistration.Get<IInputManager>(false);
       if (manager != null)
       {
         manager.AddKeyBinding(Key.F10, new VoidKeyActionDlgt(ToggleStatsRendering));
         manager.AddKeyBinding(Key.F11, new VoidKeyActionDlgt(ToggleRenderMode));
-        _initTimer.Dispose();
-        _initTimer = null;
       }
     }
 
