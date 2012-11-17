@@ -19,6 +19,7 @@
  */
 
 using System;
+using System.Web;
 using MediaPortal.Extensions.OnlineLibraries.Libraries.Common;
 using MediaPortal.Extensions.OnlineLibraries.Libraries.TvdbLib.Data;
 
@@ -141,7 +142,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.TvdbLib
 
     internal static String CreateSearchLink(String searchString, TvdbLanguage language)
     {
-      String link = String.Format("{0}/api/GetSeries.php?seriesname={1}&language={2}", BASE_SERVER.Trim('/'), searchString, language.Abbriviation);
+      String link = String.Format("{0}/api/GetSeries.php?seriesname={1}&language={2}", BASE_SERVER.Trim('/'), HttpUtility.UrlEncode(searchString), language.Abbriviation);
       return link;
     }
 
