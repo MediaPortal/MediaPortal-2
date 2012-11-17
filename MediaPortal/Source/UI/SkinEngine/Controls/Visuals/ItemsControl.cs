@@ -534,8 +534,11 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
         _itemsHostPanel = presenter.ItemsHostPanel;
       if (_itemsHostPanel == null)
         return;
-      if (ItemContainerStyle == null || ItemTemplate == null)
-        return;
+
+      // Albert: We cannot exit the method if one of the styles is not set because the styles
+      // might be found by the SkinEngine's automatic Style assignment (FrameworkElement.CopyDefaultStyle)
+      //if (ItemContainerStyle == null || ItemTemplate == null)
+      //  return;
 
       IEnumerable itemsSource = ItemsSource;
       if (itemsSource == null)
