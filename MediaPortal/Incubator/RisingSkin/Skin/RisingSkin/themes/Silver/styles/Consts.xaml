@@ -19,7 +19,7 @@
   <ResourceWrapper x:Key="VirtualKeyboardBorderThickness" Resource="10"/>
   <ResourceWrapper x:Key="VirtualKeyboardCornerRadius" Resource="10"/>
 
-  <ResourceWrapper x:Key="ContentGroupBoxCornerRadius" Resource="15"/>
+  <ResourceWrapper x:Key="ContentGroupBoxCornerRadius" Resource="5"/>
 
   <ResourceWrapper x:Key="DefaultPlayerControlBorderThickness" Resource="1"/>
   <ResourceWrapper x:Key="DefaultPlayerControlCornerRadius" Resource="4"/>
