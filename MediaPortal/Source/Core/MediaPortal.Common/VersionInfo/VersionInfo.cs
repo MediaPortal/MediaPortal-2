@@ -6,5 +6,5 @@ using System.Reflection;
 [assembly: AssemblyCompany("Team MediaPortal")]
 [assembly: AssemblyProduct("MediaPortal 2")]
 [assembly: AssemblyCopyright("Copyright © Team MediaPortal 2007 - 2012")]
-[assembly: AssemblyVersion("2.0.0.0")]
-[assembly: AssemblyFileVersion("2.0.0.0")]
+[assembly: AssemblyVersion("2.0.0.1211")] // Autumn Release November 2012
+[assembly: AssemblyFileVersion("2.0.0.1211")] // Autumn Release November 2012
