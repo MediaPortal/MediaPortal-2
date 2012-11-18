@@ -405,15 +405,15 @@ namespace MediaPortal.Extensions.MetadataExtractors.VideoMetadataExtractor
             ILocalFsResourceAccessor lfsra = fsra as ILocalFsResourceAccessor;
             if (lfsra == null && !forceQuickMode)
             { // In case forceQuickMode, we only want local browsing
-              IResourceAccessor ra = fsra.Clone();
+              IFileSystemResourceAccessor localFsra = (IFileSystemResourceAccessor) fsra.Clone();
               try
               {
-                lfsra = StreamedResourceToLocalFsAccessBridge.GetLocalFsResourceAccessor(fsra);
+                lfsra = StreamedResourceToLocalFsAccessBridge.GetLocalFsResourceAccessor(localFsra);
                 disposeLfsra = lfsra; // Remember to dispose the extra resource accessor instance
               }
               catch (Exception)
               {
-                ra.Dispose();
+                localFsra.Dispose();
               }
             }
             if (lfsra != null)
