@@ -34,7 +34,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.MovieDbV3.Data
   public class Genre
   {
     [DataMember(Name = "id")]
-    public int Id { get; set; }
+    public int? Id { get; set; }
     
     [DataMember(Name = "name")]
     public string Name { get; set; }
