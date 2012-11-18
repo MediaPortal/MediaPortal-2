@@ -1,0 +1,47 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<resources>
+  <string name="Settings.Players.Codecs">Codecs</string>
+  <string name="Settings.Players.Codecs.VideoCodecs">Video Codecs</string>
+  <string name="Settings.Players.Codecs.VideoCodecs.MPEG2">MPEG2 Video Codec</string>
+  <string name="Settings.Players.Codecs.VideoCodecs.MPEG2.Help">Sea codec MPEG2 video (DVD, DVB-SD)</string>
+  <string name="Settings.Players.Codecs.VideoCodecs.MPEG4">MPEG4 Video Codec</string>
+  <string name="Settings.Players.Codecs.VideoCodecs.MPEG4.Help">Sea codec MPEG4 video (H.264, x264)</string>
+  <string name="Settings.Players.Codecs.VideoCodecs.AVC">AVC Video Codec</string>
+  <string name="Settings.Players.Codecs.VideoCodecs.AVC.Help">Sea codec AVC video (HDTV, BluRay)</string>
+  <string name="Settings.Players.Codecs.AudioCodecs">Audio Codecs</string>
+  <string name="Settings.Players.Codecs.AudioRenderer">Audio Renderer</string>
+  <string name="Settings.Players.Codecs.AudioCodecs.AudioCodec">MPEG1/2 Audio Codec</string>
+  <string name="Settings.Players.Codecs.AudioCodecs.AudioCodec.Help">Set the MPEG1/2 audio codec</string>
+  <string name="Settings.Players.Codecs.AudioCodecs.AudioCodecLATMAAC">LATM-AAC Audio Codec</string>
+  <string name="Settings.Players.Codecs.AudioCodecs.AudioCodecLATMAAC.Help">Set the LATM-AAC audio codec</string>
+  <string name="Settings.Players.Codecs.AudioCodecs.AudioCodecAAC">AAC Audio Codec</string>
+  <string name="Settings.Players.Codecs.AudioCodecs.AudioCodecAAC.Help">Set the AAC audio codec</string>
+  <string name="Settings.Players.Codecs.AudioCodecs.AudioRenderer">Audio Renderer</string>
+  <string name="Settings.Players.Codecs.AudioCodecs.AudioRenderer.Help">Set the audio renderer</string>
+  <string name="Settings.Players.VideoPlayer">Video Player</string>
+  <string name="Settings.Players.VideoPlayer.PreferMultiChannelAudio">Eelista multichannel audio streams</string>
+  <string name="Settings.Players.VideoPlayer.PreferMultiChannelAudio.Help">Eelista, 6ch streame (i.e. AC3, AAC)</string>
+  <string name="Settings.Players.DVDPlayer">DVD Player</string>
+  <string name="Settings.Players.DVDPlayer.EnableClosedCaption">Subtiitrid</string>
+  <string name="Settings.Players.DVDPlayer.EnableClosedCaption.Help">Subtiitrid vaikimisi</string>
+  <string name="Settings.Players.DVDPlayer.EnableSubtitles">Subtiitrid</string>
+  <string name="Settings.Players.DVDPlayer.EnableSubtitles.Help">Subtiitrid vaikimisi</string>
+  <string name="Playback.NotSpecified">Pole täpsustatud</string>
+  <string name="Playback.CaptionNormal">Tavalised subtiitrid</string>
+  <string name="Playback.CaptionBig">Suured subtiitrid</string>
+  <string name="Playback.CaptionChildren">Laste subtiitrid</string>
+  <string name="Playback.CCNormal">Tavalised subtiitrid</string>
+  <string name="Playback.CCBig">Suured subtiitrid</string>
+  <string name="Playback.CCChildren">Laste subtiitrid</string>
+  <string name="Playback.Forced">Sunnitud</string>
+  <string name="Playback.DirectorCommentsNormal">Režisööri kommentaarid Tavaline</string>
+  <string name="Playback.DirectorCommentsBig">Režisööri kommentaarid suured</string>
+  <string name="Playback.DirectorCommentsChildren">Režisööri kommentaarid Lapsed</string>
+  <string name="Playback.VisuallyImpaired">Nägemispuudega</string>
+  <string name="Playback.DirectorComments1">Režisööri kommentaarid</string>
+  <string name="Playback.DirectorComments2">Režisööri kommentaarid (2)</string>
+  <string name="Playback.Chapter">Peatükk {0}</string>
+  <!--For example: "Chapter 1"-->
+  <string name="Playback.Title">Pealkiri {0}</string>
+  <!--For example: "Title 1"-->
+</resources>

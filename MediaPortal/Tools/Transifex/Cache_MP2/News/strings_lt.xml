@@ -1,0 +1,15 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<resources>
+  <string name="News.Title">Naujienos</string>
+  <string name="News.FeedsStateDisplayLabel">Naujienos</string>
+  <string name="News.Published">Publikuota</string>
+  <string name="News.ConfiguredFeeds">Nustatyti šaltinius</string>
+  <string name="News.AddFeed">Pridėti Naujienų šaltinį</string>
+  <string name="News.EnterFeedName">Įvesti šaltinio pavadinimą</string>
+  <string name="News.EnterFeedUrl">Įvesti šaltinio URL</string>
+  <string name="Settings.Plugins.News">Naujienos</string>
+  <string name="Settings.Plugins.News.FeedsSetup">Tvarkyti šaltinius</string>
+  <string name="Settings.Plugins.News.FeedsSetup.Help">Nustato šaltinius, kurie naudojami naujienų duomenims atsiųsti</string>
+  <string name="Settings.Plugins.News.RefreshInterval">Naujinimo intervalas</string>
+  <string name="Settings.Plugins.News.RefreshInterval.Help">Periodiškai atsiųsti šaltinių duomenis kas ... minučių</string>
+</resources>

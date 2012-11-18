@@ -52,11 +52,13 @@
   <string name="ServerConnection.AttachToServerNoServerText">Engir MediaPortal 2 miðlarar á netinu</string>
   <string name="ServerConnection.AttachButton">Tengjast</string>
   <string name="ServerConnection.AttachInfoDialogHeader">Miðlari tengdur</string>
+  <string name="ServerConnection.AttachInfoDialogText">Þessi MediaPortal 2 biðlari var tengdur við nýja miðlarann '{0}', vél {1}</string>
   <!--{0} = server name, {1} = host name-->
   <string name="Notifications.Title">Tilkynningar</string>
   <string name="Notifications.OneMoreNotification">(1 í viðbót)</string>
   <string name="Notifications.NMoreNotifications">({0} í viðbót)</string>
   <string name="Notifications.WatchNotificationsWorkflowStateLabel">Tilkynningar</string>
+  <string name="Notifications.Handle">Höndla</string>
   <string name="ImporterMessages.ImportStartedTitle">Innflutningur hafinn</string>
   <string name="ImporterMessages.ImportStartedText">Innflutningur á '{0}' er hafinn.</string>
   <string name="ImporterMessages.ImportCompletedTitle">Innflutningi lokið</string>
@@ -84,6 +86,7 @@
   <string name="Players.ClosePlayerContext">Loka {0}</string>
   <!--for example "Close video player"-->
   <string name="Players.ChoosePlayerGeometry">Stækkun</string>
+  <string name="Players.ChoosePlayerEffect">Áhrif</string>
   <string name="Settings.Appearance">Ásýnd</string>
   <string name="Settings.Appearance.Skin">Útlit</string>
   <string name="Settings.Appearance.Skin.Formats.DateFormat">Dagsetningarsnið</string>
@@ -137,6 +140,7 @@
   <string name="SharesConfig.SharesEditEditNameWorkflowNavigationContextDisplayLabel">Breyta nafni</string>
   <string name="SharesConfig.SharesEditChooseCategoriesWorkflowNavigationContextDisplayLabel">Veljið flokka</string>
   <string name="SharesConfig.CannotAddSharesTitle">Get ekki bætt við deilingu</string>
+  <string name="SharesConfig.CannotAddShareLocalHomeServerNotConnected">Miðlarinn er staðsettur á sömu tölvu, þannig að allar hlutir verða að vera skráðir á miðlaranum.  En miðlarinn er ekki tengdur í augnablikinu.  Vinsamlegast ræsir miðlarann og reynið aftur.</string>
   <string name="SharesConfig.SharesConfiguration.Title">Uppsetning deilingar</string>
   <string name="SharesConfig.NoSharesAvailable">Það eru engar deilingar tiltækar</string>
   <string name="SharesConfig.ShareInformationHeader">Upplýsingar um deilingu</string>

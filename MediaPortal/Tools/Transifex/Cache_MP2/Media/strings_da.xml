@@ -52,6 +52,7 @@
   <string name="Media.FilterImageYearNavbarDisplayLabel">År: {0}</string>
   <string name="Media.FilterAudioItemsNavbarDisplayLabel">Navn: {0}</string>
   <string name="Media.FilterVideoItemsNavbarDisplayLabel">Navn: {0}</string>
+  <string name="Media.FilterMoviesCollectionNavbarDisplayLabel">{0}</string>
   <string name="Media.FilterSeriesItemsNavbarDisplayLabel">{0}</string>
   <string name="Media.FilterSeriesSeasonNavbarDisplayLabel">Sæson {0}</string>
   <string name="Media.FilterImageItemsNavbarDisplayLabel">Navn: {0}</string>
@@ -166,6 +167,7 @@
   <string name="Media.PlaylistTypeInfoLabel">Afspilningslistetype</string>
   <string name="Media.PlaylistNumItemsLabel">Antal emner</string>
   <string name="Media.PlaylistIdInfoLabel">Intern afspilningsliste id</string>
+  <string name="Media.OpenPlayerStrategy.MediaPortal.UI.Services.Players.PCMOpenPlayerStrategy.Default">normal</string>
   <!--Play items dialog-->
   <string name="Media.PlayItemDialogHeader">Afspil emne</string>
   <string name="Media.PlayAudioItems">Afspil lyd emne</string>
@@ -224,11 +226,14 @@
   <string name="Media.SavePlaylistAction">Gem afspillingsliste</string>
   <string name="Media.SaveCurrentPlaylistAction">Gem nuværende afspillingsliste</string>
   <string name="Media.RemovePlaylistsAction">Fjern afspilningslister</string>
+  <string name="Media.EditPlaylistButton">Rediger afspillingsliste</string>
   <string name="Media.LoadPlaylistButton">Hent afspillingsliste</string>
   <string name="Media.PlaylistEmpty">&lt;Ingen emner i afspillingsliste&gt;</string>
   <string name="Media.CannotPlayItemDialogText">Kan ikke afspille emne</string>
   <string name="Media.CannotPlayItemsDialogText">Kan ikke afspille emner</string>
   <string name="Media.ValueEmptyTitle">&lt;Tom&gt;</string>
+  <string name="Media.RepeatMode.None">Intet</string>
+  <string name="Media.RepeatMode.All">Alle</string>
   <!--VideoPlayerUIContributor-->
   <string name="Media.SubtitleOff">Fjern undertekst</string>
   <string name="Media.ChooseChapterDialogHeader">Vælg kapitel</string>

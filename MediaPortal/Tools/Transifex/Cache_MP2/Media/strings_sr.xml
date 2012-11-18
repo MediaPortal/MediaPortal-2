@@ -52,6 +52,7 @@
   <string name="Media.FilterImageYearNavbarDisplayLabel">Година: {0}</string>
   <string name="Media.FilterAudioItemsNavbarDisplayLabel">Име: {0}</string>
   <string name="Media.FilterVideoItemsNavbarDisplayLabel">Име: {0}</string>
+  <string name="Media.FilterMoviesCollectionNavbarDisplayLabel">{0}</string>
   <string name="Media.FilterSeriesItemsNavbarDisplayLabel">{0}</string>
   <string name="Media.FilterSeriesSeasonNavbarDisplayLabel">Сезона: {0}</string>
   <string name="Media.FilterImageItemsNavbarDisplayLabel">Име: {0}</string>
@@ -224,11 +225,13 @@
   <string name="Media.SavePlaylistAction">Сачувај плејлисту</string>
   <string name="Media.SaveCurrentPlaylistAction">Сачувај тренутну плејлисту</string>
   <string name="Media.RemovePlaylistsAction">Уклони плејлисту</string>
+  <string name="Media.EditPlaylistButton">Измени плејлисту</string>
   <string name="Media.LoadPlaylistButton">Учитај плејлисту</string>
   <string name="Media.PlaylistEmpty">&lt;Нема ставки у плејлисти&gt;</string>
   <string name="Media.CannotPlayItemDialogText">Немогуће је пустити медија ставку</string>
   <string name="Media.CannotPlayItemsDialogText">Немогуће је пустити медија ставке</string>
   <string name="Media.ValueEmptyTitle">&lt;Празно&gt;</string>
+  <string name="Media.RepeatMode.None">Без видео филтера</string>
   <!--VideoPlayerUIContributor-->
   <string name="Media.SubtitleOff">Онемогући приказивање превода</string>
   <string name="Media.ChooseChapterDialogHeader">Одабери поглавље</string>

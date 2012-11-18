@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<resources>
+  <string name="News.Title">Fréttir</string>
+  <string name="News.FeedsStateDisplayLabel">Fréttir</string>
+  <string name="News.Published">Birt</string>
+  <string name="Settings.Plugins.News">Fréttir</string>
+</resources>

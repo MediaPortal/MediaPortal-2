@@ -20,6 +20,7 @@
   <string name="Media.FilterByImageSizeMenuItem">Filtrera på storlek</string>
   <string name="Media.FilterByImageYearMenuItem">Filtrera på år</string>
   <string name="Media.FilterBySystemMenuItem">Filtrera på system</string>
+  <string name="Media.FilterByMoviesCollectionMenuItem">Filtrera på samlingar</string>
   <string name="Media.FilterBySeriesNameMenuItem">Filtrera på TV-serier</string>
   <string name="Media.FilterBySeriesSeasonMenuItem">Filtrera på säsong</string>
   <string name="Media.FilterBySeriesEpisodeMenuItem">Filtrera på avsnitt</string>
@@ -52,6 +53,7 @@
   <string name="Media.FilterImageYearNavbarDisplayLabel">År: {0}</string>
   <string name="Media.FilterAudioItemsNavbarDisplayLabel">Namn: {0}</string>
   <string name="Media.FilterVideoItemsNavbarDisplayLabel">Namn: {0}</string>
+  <string name="Media.FilterMoviesCollectionNavbarDisplayLabel">{0}</string>
   <string name="Media.FilterSeriesItemsNavbarDisplayLabel">{0}</string>
   <string name="Media.FilterSeriesSeasonNavbarDisplayLabel">Säsong {0}</string>
   <string name="Media.FilterImageItemsNavbarDisplayLabel">Namn: {0}</string>
@@ -91,6 +93,7 @@
   <string name="Media.MoviesItemsHeader">Filmer</string>
   <string name="Media.ImageItemsHeader">Bilder</string>
   <string name="Media.SimpleSearchHeader">Enkel sökning</string>
+  <string name="Media.ChooseCollectionHeader">Välj en samling</string>
   <string name="Media.ChooseActorHeader">Välj en skådespelare</string>
   <string name="Media.ChooseVideoGenreHeader">Välj en genre</string>
   <string name="Media.ChooseVideoYearHeader">Välj ett år</string>
@@ -166,6 +169,8 @@
   <string name="Media.PlaylistTypeInfoLabel">Typ av spellista</string>
   <string name="Media.PlaylistNumItemsLabel">Antal objekt</string>
   <string name="Media.PlaylistIdInfoLabel">Internt id på spellistan</string>
+  <string name="Media.OpenPlayerStrategy.MediaPortal.UI.Services.Players.PCMOpenPlayerStrategy.Default">Standard</string>
+  <string name="Media.OpenPlayerStrategy.MediaPortal.UI.Services.Players.PCMOpenPlayerStrategy.PreservePiP">Bevara bild-i-bild video</string>
   <!--Play items dialog-->
   <string name="Media.PlayItemDialogHeader">Spela objekt</string>
   <string name="Media.PlayAudioItems">Spela ljudobjekt</string>
@@ -224,11 +229,21 @@
   <string name="Media.SavePlaylistAction">Spara spellista</string>
   <string name="Media.SaveCurrentPlaylistAction">Spara aktuell spellista</string>
   <string name="Media.RemovePlaylistsAction">Ta bort spellistor</string>
+  <string name="Media.EditPlaylistButton">Redigera spellista</string>
   <string name="Media.LoadPlaylistButton">Hämta spellista</string>
   <string name="Media.PlaylistEmpty">&lt;Inga objekt i spellistan&gt;</string>
   <string name="Media.CannotPlayItemDialogText">Kan inte spela mediaobjekt</string>
   <string name="Media.CannotPlayItemsDialogText">Kan inte spela mediaobjekt</string>
   <string name="Media.ValueEmptyTitle">&lt;Tomt&gt;</string>
+  <string name="Media.ChoosePlayModeDialogHeader">Välj spelsätt</string>
+  <string name="Media.PlayMode">Spelsätt</string>
+  <string name="Media.PlayMode.Continuous">Kontinuerligt</string>
+  <string name="Media.PlayMode.Shuffle">Blanda</string>
+  <string name="Media.ChooseRepeatModeDialogHeader">Välj repetera</string>
+  <string name="Media.RepeatMode">Repeterar</string>
+  <string name="Media.RepeatMode.None">Inga</string>
+  <string name="Media.RepeatMode.All">Alla</string>
+  <string name="Media.RepeatMode.One">En</string>
   <!--VideoPlayerUIContributor-->
   <string name="Media.SubtitleOff">Avaktivera undertexter</string>
   <string name="Media.ChooseChapterDialogHeader">Välj kapitel</string>
@@ -274,4 +289,6 @@
   <string name="Settings.Players.SkipStepTimeout.Help">Justera timeout, för inmatning från användaren, innan hopp utförs</string>
   <string name="Settings.Players.SkipStepList">Spelarens hoppsteg</string>
   <string name="Settings.Players.SkipStepList.Help">Skriv in hoppsteg i sekunder separerade med ,</string>
+  <string name="Settings.Players.OpenPlayerStrategy">Öppna strategi</string>
+  <string name="Settings.Players.OpenPlayerStrategy.Help">Strategi, hur nya spelare ska positioneras bland redan öppna spelare</string>
 </resources>

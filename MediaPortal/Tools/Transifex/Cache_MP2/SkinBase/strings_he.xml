@@ -64,6 +64,7 @@
   <!--For MP UI player subsystem-->
   <string name="Players.NoPlayerAvailableNotificationTitle">אין נגן</string>
   <string name="Players.ErrorPlayingMediaItemTitle">שגיאה בניגון פריט מדיה</string>
+  <string name="Players.UnableToPlayMediaItemText">לא ניתן לנגן פריט '{0}'</string>
   <string name="Players.PlayerConfiguration">הגדרות נגן</string>
   <string name="Players.CurrentMediaInfo">מידע מדיה עדכני</string>
   <string name="Players.FullscreenVideo">מסך מלא {0}</string>

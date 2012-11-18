@@ -1,0 +1,9 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<resources>
+  <string name="News.Title">חדשות</string>
+  <string name="News.FeedsStateDisplayLabel">חדשות</string>
+  <string name="News.Published">שוחרר</string>
+  <string name="News.ConfiguredFeeds">הזנות מוגדרות</string>
+  <string name="Settings.Plugins.News">חדשות</string>
+  <string name="Settings.Plugins.News.FeedsSetup">נהל הזנות</string>
+</resources>

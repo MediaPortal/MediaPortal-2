@@ -52,6 +52,7 @@
   <string name="Media.FilterImageYearNavbarDisplayLabel">Année : {0}</string>
   <string name="Media.FilterAudioItemsNavbarDisplayLabel">Nom : {0}</string>
   <string name="Media.FilterVideoItemsNavbarDisplayLabel">Nom : {0}</string>
+  <string name="Media.FilterMoviesCollectionNavbarDisplayLabel">{0}</string>
   <string name="Media.FilterSeriesItemsNavbarDisplayLabel">{0}</string>
   <string name="Media.FilterSeriesSeasonNavbarDisplayLabel">Saison : {0}</string>
   <string name="Media.FilterImageItemsNavbarDisplayLabel">Nom : {0}</string>
@@ -166,6 +167,8 @@
   <string name="Media.PlaylistTypeInfoLabel">Type de playlist</string>
   <string name="Media.PlaylistNumItemsLabel">Nombre d'éléments</string>
   <string name="Media.PlaylistIdInfoLabel">Identifiant interne de la playlist</string>
+  <string name="Media.OpenPlayerStrategy.MediaPortal.UI.Services.Players.PCMOpenPlayerStrategy.Default">Par défaut</string>
+  <string name="Media.OpenPlayerStrategy.MediaPortal.UI.Services.Players.PCMOpenPlayerStrategy.PreservePiP">Maintenir la fonction Picture in Picture</string>
   <!--Play items dialog-->
   <string name="Media.PlayItemDialogHeader">Lire l'élément</string>
   <string name="Media.PlayAudioItems">Lire les fichiers audio</string>
@@ -224,11 +227,21 @@
   <string name="Media.SavePlaylistAction">Sauvegarder la playlist</string>
   <string name="Media.SaveCurrentPlaylistAction">Sauvegarder la playlist actuelle</string>
   <string name="Media.RemovePlaylistsAction">Supprimer les playlists</string>
+  <string name="Media.EditPlaylistButton">Éditer la playlist</string>
   <string name="Media.LoadPlaylistButton">Charger une playlist</string>
   <string name="Media.PlaylistEmpty">&lt;Aucun élément dans la playlist&gt;</string>
   <string name="Media.CannotPlayItemDialogText">Imposible de lire les fichiers multimédias</string>
   <string name="Media.CannotPlayItemsDialogText">Imposible de lire les fichiers multimédias</string>
   <string name="Media.ValueEmptyTitle">&lt;Vide&gt;</string>
+  <string name="Media.ChoosePlayModeDialogHeader">Choisir le mode de lecture</string>
+  <string name="Media.PlayMode">Mode de lecture</string>
+  <string name="Media.PlayMode.Continuous">A la suite</string>
+  <string name="Media.PlayMode.Shuffle">Aléatoire</string>
+  <string name="Media.ChooseRepeatModeDialogHeader">Choisir le mode de répétition</string>
+  <string name="Media.RepeatMode">Répétition</string>
+  <string name="Media.RepeatMode.None">Aucun</string>
+  <string name="Media.RepeatMode.All">Tous</string>
+  <string name="Media.RepeatMode.One">Un seul</string>
   <!--VideoPlayerUIContributor-->
   <string name="Media.SubtitleOff">Désactiver les sous-titres</string>
   <string name="Media.ChooseChapterDialogHeader">Choisir le chapitre</string>

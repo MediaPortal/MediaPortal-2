@@ -19,6 +19,7 @@
   <string name="Media.FilterByAudioLanguageMenuItem">Síun á tungumál</string>
   <string name="Media.FilterByImageSizeMenuItem">Síun á stærð</string>
   <string name="Media.FilterByImageYearMenuItem">Síun á ár</string>
+  <string name="Media.FilterBySystemMenuItem">Síun af kerfinu</string>
   <string name="Media.FilterBySeriesNameMenuItem">Síun á þætti</string>
   <string name="Media.FilterBySeriesSeasonMenuItem">Síun á þáttaröð</string>
   <string name="Media.FilterBySeriesEpisodeMenuItem">Síun eftir þáttum</string>
@@ -49,9 +50,11 @@
   <string name="Media.FilterImageYearNavbarDisplayLabel">Ár: {0}</string>
   <string name="Media.FilterAudioItemsNavbarDisplayLabel">Nafn: {0}</string>
   <string name="Media.FilterVideoItemsNavbarDisplayLabel">Nafn: {0}</string>
+  <string name="Media.FilterMoviesCollectionNavbarDisplayLabel">{0}</string>
   <string name="Media.FilterSeriesItemsNavbarDisplayLabel">{0}</string>
   <string name="Media.FilterSeriesSeasonNavbarDisplayLabel">Þáttaröð {0}</string>
   <string name="Media.FilterImageItemsNavbarDisplayLabel">Nafn: {0}</string>
+  <string name="Media.FilterSystemNavbarDisplayLabel">Kerfi: {0}</string>
   <string name="Media.FilterMoviesNavbarDisplayLabel">Kvikmyndir: {0}</string>
   <!--Display labels for workflow navigation contexts-->
   <string name="Media.BrowseMediaNavigationRootWorkflowNavigationContextDisplayLabel">Vafra um miðilsskrár</string>
@@ -62,6 +65,7 @@
   <string name="Media.MoviesNavigationRootWorkflowNavigationContextDisplayLabel">Kvikmyndasafn</string>
   <string name="Media.ImageNavigationRootWorkflowNavigationContextDisplayLabel">Ljósmyndir</string>
   <string name="Media.VideoCurrentlyPlayingWorkflowStateNavigationContextDisplayLabel">Núverandi myndskeið</string>
+  <string name="Media.VideoFullscreenContentWorkflowStateNavigationContextDisplayLabel">Mynd á allan skjáinn</string>
   <string name="Media.AudioCurrentlyPlayingWorkflowStateNavigationContextDisplayLabel">Núverandi hljóðskrá</string>
   <string name="Media.AudioFullscreenContentWorkflowStateNavigationContextDisplayLabel">Ásýnd hljóðskráar</string>
   <string name="Media.ShowPlaylistWorkflowStateNavigationContextDisplayLabel">Spilunarlisti</string>
@@ -73,8 +77,13 @@
   <string name="Media.SavePlaylistSuccessfulWorkflowStateNavigationContextDisplayLabel">Tókst</string>
   <string name="Media.SavePlaylistFailedWorkflowStateNavigationContextDisplayLabel">Mistókst</string>
   <string name="Media.PlayOrEnqueueItemsWorkflowStateNavigationContextDisplayLabel">Spila/bæta við í spilunarlista</string>
+  <string name="Media.CheckQueryPlayActionSingleItemWorkflowStateNavigationContextDisplayLabel">Spilunaraðgerðir</string>
+  <string name="Media.CheckQueryPlayActionMultipleItemsWorkflowStateNavigationContextDisplayLabel">Spilunaraðgerðir</string>
   <string name="Media.CheckQueryPlayActionMultipleItemsChooseMediaTypeWorkflowStateNavigationContextDisplayLabel">Veljið tegund miðilsskrá</string>
   <!--Screen headers-->
+  <string name="Media.BrowseMediaNavigationHeader">Skoða val á miðlum</string>
+  <string name="Media.LocalMediaNavigationHeader">Staðbundið val á miðlum</string>
+  <string name="Media.MediaItemsHeader">Miðlun</string>
   <string name="Media.VideoItemsHeader">Myndbönd</string>
   <string name="Media.AudioItemsHeader">Hljóðaskrár</string>
   <string name="Media.SeriesItemsHeader">Þættir</string>
@@ -105,12 +114,15 @@
   <!--View names (names for the view instances)-->
   <string name="Media.BrowseMediaRootViewName">Vafra um miðilsskrár</string>
   <string name="Media.LocalMediaRootViewName">Staðtengd miðilsskrá</string>
+  <string name="Media.ClientSharesViewName">Deilingar á miðlara</string>
+  <string name="Media.ServerSharesViewName">Deilingar á þjóni</string>
   <string name="Media.AudioRootViewName">Hljóð</string>
   <string name="Media.VideosRootViewName">Myndbönd</string>
   <string name="Media.SeriesRootViewName">Þættir</string>
   <string name="Media.ImagesRootViewName">Ljósmyndir</string>
   <string name="Media.SimpleSearchViewName">Einföld leit</string>
   <!--General strings used in views-->
+  <string name="Media.ViewInvalid">Ekki hægt að búa til útlit</string>
   <string name="Media.ViewEmpty">&lt;Engar miðilsskrár til birtingar &gt;</string>
   <string name="Media.NoItems">Ekkert atriði</string>
   <!--Shown in the header of an items list-->
@@ -151,13 +163,22 @@
   <string name="Media.PlaylistNameInfoLabel">Heiti spilunarlistanns</string>
   <string name="Media.PlaylistTypeInfoLabel">Tegund spilunarlista</string>
   <string name="Media.PlaylistNumItemsLabel">Fjöldi atriða</string>
+  <string name="Media.PlaylistIdInfoLabel">Innra kenni spilunarlista</string>
+  <string name="Media.OpenPlayerStrategy.MediaPortal.UI.Services.Players.PCMOpenPlayerStrategy.Default">Sjálfgefið</string>
+  <string name="Media.OpenPlayerStrategy.MediaPortal.UI.Services.Players.PCMOpenPlayerStrategy.PreservePiP">Varðveita MíM myndband</string>
   <!--Play items dialog-->
   <string name="Media.PlayItemDialogHeader">Spila atriði</string>
   <string name="Media.PlayAudioItems">Spila hljóðskrá</string>
   <string name="Media.EnqueueAudioItems">Setja hljóðskrá í biðröð</string>
+  <string name="Media.MuteVideoAndPlayAudioItems">Spila hljóðskrár samtímis</string>
   <string name="Media.PlayVideoImageItems">Spila myndband/ljósmyndir</string>
+  <string name="Media.EnqueueVideoImageItems">Setja myndbönd/myndir í röð</string>
+  <string name="Media.PlayVideoImageItemsPiP">Spila mynd/ljósmyndir í MíM ham</string>
   <string name="Media.PlayAudioItem">Spila hljóðskrá</string>
+  <string name="Media.EnqueueAudioItem">Setja hljóðskrá í röð</string>
+  <string name="Media.MuteVideoAndPlayAudioItem">Spila hljóðskrár samtímis</string>
   <string name="Media.PlayVideoImageItem">Spila myndbanda/ljósmynda miðilsskrár</string>
+  <string name="Media.EnqueueVideoImageItem">Setja myndbönd/myndir í röð</string>
   <string name="Media.PlayVideoImageItemPiP">Spila myndskeið/ljósmynd í MíM </string>
   <!--Player context names-->
   <string name="Media.VideoImageContextName">Myndband/ljósmynd</string>
@@ -179,6 +200,7 @@
   <string name="Media.ImageISOSpeedLabel">ISO hraði:</string>
   <string name="Media.ImageFNumberLabel">Ljósop:</string>
   <string name="Media.ImageShutterSpeedLabel">Hraði:</string>
+  <string name="Media.ImageExposureTimeLabel">Ljóstími:</string>
   <!--DVD currently playing-->
   <string name="Media.DVDCurrentlyPlayingHeader">DVD upplýsingar</string>
   <!--Audio currently playing-->
@@ -188,6 +210,7 @@
   <string name="Media.AudioYearLabel">Ár:</string>
   <string name="Media.AudioDurationLabel">Lengd:</string>
   <string name="Media.AudioPlaylistHeader">Lagalisti</string>
+  <string name="Media.VideoImagePlaylistHeader">Myndbanda/ljósmynda spilunarlisti</string>
   <string name="Media.PiPPlaylistHeader">MíM spilunarlisti</string>
   <string name="Media.SavePLAtServer">Vista á miðlara</string>
   <string name="Media.SavePLLocally">Vista staðbundið</string>
@@ -198,11 +221,21 @@
   <string name="Media.SavePlaylistAction">Vista spilunarlista</string>
   <string name="Media.SaveCurrentPlaylistAction">Vista núverandi spilunarlista</string>
   <string name="Media.RemovePlaylistsAction">Fjarlægja spilunarlista</string>
+  <string name="Media.EditPlaylistButton">Breyta spilunarlista</string>
   <string name="Media.LoadPlaylistButton">Sækja spilunarlista</string>
   <string name="Media.PlaylistEmpty">&lt;Ekkert í spilunarlista&gt;</string>
   <string name="Media.CannotPlayItemDialogText">Get ekki spilað þessa miðilsskrá</string>
   <string name="Media.CannotPlayItemsDialogText">Get ekki spilað þessa miðilsskrá</string>
   <string name="Media.ValueEmptyTitle">&lt;autt&gt;</string>
+  <string name="Media.ChoosePlayModeDialogHeader">Veljið spilunarham</string>
+  <string name="Media.PlayMode">Spilunarhamur</string>
+  <string name="Media.PlayMode.Continuous">Samfelld</string>
+  <string name="Media.PlayMode.Shuffle">Stokka</string>
+  <string name="Media.ChooseRepeatModeDialogHeader">Veljið endurtekningarham</string>
+  <string name="Media.RepeatMode">Endurtekningarhamur</string>
+  <string name="Media.RepeatMode.None">Ekkert</string>
+  <string name="Media.RepeatMode.All">Allt</string>
+  <string name="Media.RepeatMode.One">Eitt</string>
   <!--VideoPlayerUIContributor-->
   <string name="Media.SubtitleOff">Textar óvirkir</string>
   <string name="Media.ChooseChapterDialogHeader">Velja kafla</string>
@@ -237,4 +270,5 @@
   <string name="Media.SortByEpisode">Röðun á þátt</string>
   <string name="Media.SortingBrowseDefault">Sjálfgefin röðun</string>
   <string name="Settings.Players">Spilarar</string>
+  <string name="Settings.Players.ClosePlayersWhenFinished">Loka spilara þegar spilun er lokið</string>
 </resources>

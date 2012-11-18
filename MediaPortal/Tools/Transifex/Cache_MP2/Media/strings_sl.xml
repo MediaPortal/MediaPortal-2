@@ -52,6 +52,7 @@
   <string name="Media.FilterImageYearNavbarDisplayLabel">Leto: {0}</string>
   <string name="Media.FilterAudioItemsNavbarDisplayLabel">Ime: {0}</string>
   <string name="Media.FilterVideoItemsNavbarDisplayLabel">Ime: {0}</string>
+  <string name="Media.FilterMoviesCollectionNavbarDisplayLabel">{0}</string>
   <string name="Media.FilterSeriesItemsNavbarDisplayLabel">{0}</string>
   <string name="Media.FilterSeriesSeasonNavbarDisplayLabel">Sezona {0}</string>
   <string name="Media.FilterImageItemsNavbarDisplayLabel">Ime: {0}</string>
@@ -224,11 +225,13 @@
   <string name="Media.SavePlaylistAction">Shrani seznam</string>
   <string name="Media.SaveCurrentPlaylistAction">Shrani trenutni seznam</string>
   <string name="Media.RemovePlaylistsAction">Odstrani sezname</string>
+  <string name="Media.EditPlaylistButton">Uredi seznam predvajanja</string>
   <string name="Media.LoadPlaylistButton">Naloži seznam</string>
   <string name="Media.PlaylistEmpty">&lt;Seznam predvajanja je prazen&gt;</string>
   <string name="Media.CannotPlayItemDialogText">Ne morem predvajati vsebine</string>
   <string name="Media.CannotPlayItemsDialogText">Ne morem predvajati vsebin</string>
   <string name="Media.ValueEmptyTitle">&lt;Prazno&gt;</string>
+  <string name="Media.RepeatMode.None">Nič</string>
   <!--VideoPlayerUIContributor-->
   <string name="Media.SubtitleOff">Izključi podnapise</string>
   <string name="Media.ChooseChapterDialogHeader">Izberi poglavje</string>

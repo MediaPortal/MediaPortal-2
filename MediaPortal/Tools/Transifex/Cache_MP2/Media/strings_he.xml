@@ -51,6 +51,7 @@
   <string name="Media.FilterImageYearNavbarDisplayLabel">שנה: {0}</string>
   <string name="Media.FilterAudioItemsNavbarDisplayLabel">שם: {0}</string>
   <string name="Media.FilterVideoItemsNavbarDisplayLabel">שם: {0}</string>
+  <string name="Media.FilterMoviesCollectionNavbarDisplayLabel">{0}</string>
   <string name="Media.FilterSeriesItemsNavbarDisplayLabel">{0}</string>
   <string name="Media.FilterSeriesSeasonNavbarDisplayLabel">עונה {0}</string>
   <string name="Media.FilterImageItemsNavbarDisplayLabel">שם: {0}</string>
@@ -66,6 +67,7 @@
   <string name="Media.VideoCurrentlyPlayingWorkflowStateNavigationContextDisplayLabel">וידאו נוכחי</string>
   <string name="Media.VideoFullscreenContentWorkflowStateNavigationContextDisplayLabel">וידאו במסך מלא</string>
   <string name="Media.AudioCurrentlyPlayingWorkflowStateNavigationContextDisplayLabel">אודיו נוכחי</string>
+  <string name="Media.AudioFullscreenContentWorkflowStateNavigationContextDisplayLabel">הנפשת אודיו</string>
   <string name="Media.ShowPlaylistWorkflowStateNavigationContextDisplayLabel">רשימת ניגון</string>
   <string name="Media.EditPlaylistWorkflowStateNavigationContextDisplayLabel">ערוך רשימת ניגון</string>
   <string name="Media.PlaylistsOverviewWorkflowStateNavigationContextDisplayLabel">רשימות השמעה</string>
@@ -151,6 +153,7 @@
   <string name="Media.PlaylistNameInfoLabel">שם רשימת השמעה</string>
   <string name="Media.PlaylistTypeInfoLabel">סוג רשימת השמעה</string>
   <string name="Media.PlaylistNumItemsLabel">מס' פריטים</string>
+  <string name="Media.OpenPlayerStrategy.MediaPortal.UI.Services.Players.PCMOpenPlayerStrategy.Default">ברירת מחדל</string>
   <!--Play items dialog-->
   <string name="Media.PlayItemDialogHeader">נגן פריט</string>
   <string name="Media.PlayAudioItems">נגן פריטי אודיו</string>
@@ -198,11 +201,14 @@
   <string name="Media.SavePlaylistAction">שמור רשימת ניגון</string>
   <string name="Media.SaveCurrentPlaylistAction">שמור רשימת ניגון נוכחית</string>
   <string name="Media.RemovePlaylistsAction">מחק רשימות ניגון</string>
+  <string name="Media.EditPlaylistButton">ערוך רשימת ניגון</string>
   <string name="Media.LoadPlaylistButton">טען רשימת ניגון</string>
   <string name="Media.PlaylistEmpty">אין פריטים ברשימת הניגון</string>
   <string name="Media.CannotPlayItemDialogText">שגיאה בניגון פריט המדיה</string>
   <string name="Media.CannotPlayItemsDialogText">שגיאה בניגון פריטי המדיה</string>
   <string name="Media.ValueEmptyTitle">ריק</string>
+  <string name="Media.RepeatMode.None">ללא</string>
+  <string name="Media.RepeatMode.All">הכל</string>
   <!--VideoPlayerUIContributor-->
   <string name="Media.SubtitleOff">בטל כתוביות</string>
   <string name="Media.ChooseChapterDialogHeader">בחר פרק</string>

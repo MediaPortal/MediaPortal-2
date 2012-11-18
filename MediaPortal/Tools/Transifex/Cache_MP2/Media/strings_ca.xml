@@ -1,7 +1,9 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
   <!--Menu items for the five Media navigation parts-->
+  <string name="Media.VideosMenuItem">Vídeos</string>
   <!--Filter titles-->
+  <string name="Media.SimpleSearchFilterMenuItem">Cerca</string>
   <!--Special filters names-->
   <!--Navbar display labels for sub view navigation-->
   <!--For example: "R.E.M."-->
@@ -9,7 +11,9 @@
   <!--For example: "Artist: R.E.M."-->
   <!--Display labels for workflow navigation contexts-->
   <!--Screen headers-->
+  <string name="Media.VideoItemsHeader">Vídeos</string>
   <!--View names (names for the view instances)-->
+  <string name="Media.VideosRootViewName">Vídeos</string>
   <!--General strings used in views-->
   <!--Shown in the header of an items list-->
   <!--Shown in the header of an items list-->
@@ -17,12 +21,15 @@
   <!--Shown in the header of an items list, e.g. "15/350 items"-->
   <!--Shown in the header of an items list, e.g. "45 items"-->
   <!--Playlists-->
+  <string name="Media.OpenPlayerStrategy.MediaPortal.UI.Services.Players.PCMOpenPlayerStrategy.Default">Defecte</string>
   <!--Play items dialog-->
   <!--Player context names-->
   <!--Video currently playing-->
   <!--Image currently playing-->
   <!--DVD currently playing-->
   <!--Audio currently playing-->
+  <string name="Media.RepeatMode.None">Cap</string>
+  <string name="Media.RepeatMode.All">Tot</string>
   <!--VideoPlayerUIContributor-->
   <!--Video Player time units-->
   <string name="Settings.Players">Reproductors</string>

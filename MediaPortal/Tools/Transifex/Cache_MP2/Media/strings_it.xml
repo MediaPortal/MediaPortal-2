@@ -52,6 +52,7 @@
   <string name="Media.FilterImageYearNavbarDisplayLabel">Anno: {0}</string>
   <string name="Media.FilterAudioItemsNavbarDisplayLabel">Nome: {0}</string>
   <string name="Media.FilterVideoItemsNavbarDisplayLabel">Nome: {0}</string>
+  <string name="Media.FilterMoviesCollectionNavbarDisplayLabel">{0}</string>
   <string name="Media.FilterSeriesItemsNavbarDisplayLabel">{0}</string>
   <string name="Media.FilterSeriesSeasonNavbarDisplayLabel">Stagione {0}</string>
   <string name="Media.FilterImageItemsNavbarDisplayLabel">Nome: {0}</string>
@@ -166,6 +167,7 @@
   <string name="Media.PlaylistTypeInfoLabel">Tipo Playlist</string>
   <string name="Media.PlaylistNumItemsLabel">Numero di voci</string>
   <string name="Media.PlaylistIdInfoLabel">Playlist id interno</string>
+  <string name="Media.OpenPlayerStrategy.MediaPortal.UI.Services.Players.PCMOpenPlayerStrategy.Default">Default</string>
   <!--Play items dialog-->
   <string name="Media.PlayItemDialogHeader">Play voce</string>
   <string name="Media.PlayAudioItems">Play audio</string>
@@ -224,11 +226,14 @@
   <string name="Media.SavePlaylistAction">Salva playlist</string>
   <string name="Media.SaveCurrentPlaylistAction">Salva playlist corrente</string>
   <string name="Media.RemovePlaylistsAction">Rimuovi playlist</string>
+  <string name="Media.EditPlaylistButton">Modifica playlist</string>
   <string name="Media.LoadPlaylistButton">Carica playlist</string>
   <string name="Media.PlaylistEmpty">&lt;Non ci sono voci nella playlist&gt;</string>
   <string name="Media.CannotPlayItemDialogText">Impossibile riprodurre media</string>
   <string name="Media.CannotPlayItemsDialogText">Impossibile riprodurre media</string>
   <string name="Media.ValueEmptyTitle">&lt;Vuoto&gt;</string>
+  <string name="Media.RepeatMode.None">Niente</string>
+  <string name="Media.RepeatMode.All">Tutti</string>
   <!--VideoPlayerUIContributor-->
   <string name="Media.SubtitleOff">Disabilita sottotitoli</string>
   <string name="Media.ChooseChapterDialogHeader">Scegli capitolo</string>

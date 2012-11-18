@@ -5,6 +5,11 @@ file_filter=Cache_MP2\AudioCDResourceProvider\strings_<lang>.xml
 source_file=Cache_MP2\AudioCDResourceProvider\strings_en.xml
 source_lang=en
 type=ANDROID
+[MP2.BackgroundManager]
+file_filter=Cache_MP2\BackgroundManager\strings_<lang>.xml
+source_file=Cache_MP2\BackgroundManager\strings_en.xml
+source_lang=en
+type=ANDROID
 [MP2.BassPlayer]
 file_filter=Cache_MP2\BassPlayer\strings_<lang>.xml
 source_file=Cache_MP2\BassPlayer\strings_en.xml

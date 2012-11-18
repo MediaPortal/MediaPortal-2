@@ -183,6 +183,11 @@
   <string name="SharesConfig.ChooseResourceProviderPathForShare">Escolha o caminho do compartilhamento</string>
   <string name="SharesConfig.EditShareName">Editar o nome de exibição do compartilhamento</string>
   <string name="SharesConfig.ChooseShareCategories">Escolha as categorias de mídia localizadas no compartilhamento</string>
+  <string name="SharesConfig.SharePathExists">A partilha com esta localização já existe</string>
+  <string name="SharesConfig.ShareNameExists">A partilha com este nome já existe</string>
+  <string name="SharesConfig.ShareNameEmpty">Editar o nome da partilha</string>
+  <string name="SharesConfig.EditShareProblemHeader">Problema ao configurar a partilha</string>
+  <string name="SharesConfig.EditShareProblemText">Ocorreu um erro interno ao tentar configurar a partilha</string>
   <string name="SharesConfig.MenuAddShare">Adicionar</string>
   <string name="SharesConfig.MenuEditShares">Editar</string>
   <string name="SharesConfig.MenuRemoveShares">Remover</string>
