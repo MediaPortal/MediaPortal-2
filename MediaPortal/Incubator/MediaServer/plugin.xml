@@ -1,0 +1,19 @@
+﻿<Plugin
+    DescriptorVersion="1.0"
+    Name="MediaServer"
+    PluginId="{45F2C54D-8C0A-4736-AA04-E6F91CD45457}"
+    Author="Jason Leonard (McGoober)"
+    Copyright="GPL"
+    Description="DLNA MediaServer support plugin"
+    AutoActivate="true"
+    PluginVersion="1.03">
+
+  <Runtime>
+    <!--<Assembly FileName="PegBase.dll"/>-->
+    <Assembly FileName="MediaServer.dll"/>    
+    <PluginStateTracker ClassName="MediaPortal.Extensions.MediaServer.MediaServerPlugin"/>
+  </Runtime>
+  
+  
+</Plugin>
+
