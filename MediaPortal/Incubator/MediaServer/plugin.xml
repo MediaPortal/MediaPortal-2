@@ -6,14 +6,19 @@
     Copyright="GPL"
     Description="DLNA MediaServer support plugin"
     AutoActivate="true"
-    PluginVersion="1.03">
+    PluginVersion="1.04">
 
   <Runtime>
     <!--<Assembly FileName="PegBase.dll"/>-->
     <Assembly FileName="MediaServer.dll"/>    
     <PluginStateTracker ClassName="MediaPortal.Extensions.MediaServer.MediaServerPlugin"/>
   </Runtime>
-  
+
+  <Register Location="/Media/MetadataExtractors">
+    <Instance
+        Id="DlnaMetadataExtractor"
+        ClassName="MediaPortal.Extensions.MediaServer.MetadataExtractors.DlnaMetadataExtractor"/>
+  </Register>
   
 </Plugin>
 
