@@ -72,5 +72,11 @@ namespace MediaPortal.Extensions.MediaServer.Objects
     /// </summary>
     [DirectoryProperty("dc:rights", Required = false)]
     IList<string> Rights { get; set; }
+
+    /// <summary>
+    /// Reference to album art. Values must be properly escaped URIs as described in [RFC 2396].
+    /// </summary>
+    [DirectoryProperty("upnp:albumArtURI", Required = false)]
+    IList<IDirectoryAlbumArt> AlbumArtUrls { get; set; }
   }
 }

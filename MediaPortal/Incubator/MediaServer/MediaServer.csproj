@@ -70,6 +70,7 @@
     <Reference Include="System.XML" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Aspects\DlnaItemAspect.cs" />
     <Compile Include="Database\MediaServer_SubSchema.cs" />
     <Compile Include="DIDL\PropertyFilter.cs" />
     <Compile Include="DLNA\DlnaProtocolInfo.cs" />
@@ -79,6 +80,7 @@
     <Compile Include="Objects\Basic\BasicItem.cs" />
     <Compile Include="Objects\Basic\BasicObject.cs" />
     <Compile Include="Objects\IDirectoryAlbum.cs" />
+    <Compile Include="Objects\IDirectoryAlbumArt.cs" />
     <Compile Include="Objects\IDirectoryAudioBook.cs" />
     <Compile Include="Objects\IDirectoryAudioBroadcast.cs" />
     <Compile Include="Objects\IDirectoryAudioItem.cs" />
@@ -107,6 +109,7 @@
     <Compile Include="Objects\IDirectoryVideoItem.cs" />
     <Compile Include="DIDL\GenericDidlMessageBuilder.cs" />
     <Compile Include="MediaServerPlugin.cs" />
+    <Compile Include="Objects\MediaLibrary\MediaLibraryAlbumArt.cs" />
     <Compile Include="Objects\MediaLibrary\MediaLibraryAudioItem.cs" />
     <Compile Include="Objects\MediaLibrary\MediaLibraryContainer.cs" />
     <Compile Include="DIDL\ObjectRenderer.cs" />

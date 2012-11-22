@@ -38,6 +38,7 @@ namespace MediaPortal.Extensions.MediaServer.Objects.MediaLibrary
       Genre = new List<string>();
       Publisher = new List<string>();
       Rights = new List<string>();
+      AlbumArtUrls = new List<IDirectoryAlbumArt>();
 
       var audioAspect = item.Aspects[AudioAspect.ASPECT_ID];
       var genreObj = audioAspect.GetCollectionAttribute(AudioAspect.ATTR_GENRES);
@@ -46,6 +47,13 @@ namespace MediaPortal.Extensions.MediaServer.Objects.MediaLibrary
       var resource = new MediaLibraryResource(item);
       resource.Initialise();
       Resources.Add(resource);
+
+      if (item.Aspects.ContainsKey(ThumbnailSmallAspect.ASPECT_ID))
+      {
+        var albumArt = new MediaLibraryAlbumArt(item);
+        albumArt.Initialise();
+        AlbumArtUrls.Add(albumArt);        
+      }      
     }
 
     public override string Class
@@ -66,5 +74,7 @@ namespace MediaPortal.Extensions.MediaServer.Objects.MediaLibrary
     public string Relation { get; set; }
 
     public IList<string> Rights { get; set; }
+
+    public IList<IDirectoryAlbumArt> AlbumArtUrls { get; set; }
   }
 }

@@ -31,6 +31,7 @@ using MediaPortal.Common;
 using MediaPortal.Common.Logging;
 using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
+using MediaPortal.Extensions.MediaServer.Aspects;
 using MediaPortal.Extensions.MediaServer.Objects.Basic;
 using MediaPortal.Extensions.MediaServer.Tree;
 
@@ -57,12 +58,15 @@ namespace MediaPortal.Extensions.MediaServer.Objects.MediaLibrary
       var necessaryMIATypeIDs = new Guid[]
                                   {
                                     ProviderResourceAspect.ASPECT_ID,
-                                    MediaAspect.ASPECT_ID,
+                                    MediaAspect.ASPECT_ID                                    
                                   };
       var optionalMIATypeIDs = new Guid[]
                                  {
                                    DirectoryAspect.ASPECT_ID,
-                                   VideoAspect.ASPECT_ID
+                                   VideoAspect.ASPECT_ID,
+                                   DlnaItemAspect.ASPECT_ID,
+                                   ThumbnailSmallAspect.ASPECT_ID,
+                                   ThumbnailLargeAspect.ASPECT_ID
                                  };
 
       return library.GetMediaItem(id, necessaryMIATypeIDs, optionalMIATypeIDs);

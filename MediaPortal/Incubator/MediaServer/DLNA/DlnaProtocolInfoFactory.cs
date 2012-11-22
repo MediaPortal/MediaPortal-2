@@ -28,6 +28,7 @@ using System.Linq;
 using System.Text;
 using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
+using MediaPortal.Extensions.MediaServer.Aspects;
 
 namespace MediaPortal.Extensions.MediaServer.DLNA
 {
@@ -35,13 +36,13 @@ namespace MediaPortal.Extensions.MediaServer.DLNA
   {
     public DlnaProtocolInfo GetProtocolInfo(MediaItem item)
     {
+      var dlnaAspect = item.Aspects[DlnaItemAspect.ASPECT_ID];
+      var dlnaMediaType = dlnaAspect.GetAttributeValue(DlnaItemAspect.ATTR_MIME_TYPE).ToString();
       var info = new DlnaProtocolInfo
                    {
                      Protocol = "http-get",
                      Network = "*",
-                     MediaType = item.Aspects[MediaAspect.ASPECT_ID]
-                       .GetAttributeValue(MediaAspect.ATTR_MIME_TYPE)
-                       .ToString(),
+                     MediaType = dlnaMediaType,
                      AdditionalInfo = new DlnaForthField()
                    };
 

@@ -27,8 +27,10 @@ using System.Collections.Generic;
 using System.Linq;
 using MediaPortal.Backend.MediaLibrary;
 using MediaPortal.Common;
+using MediaPortal.Common.Logging;
 using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
+using MediaPortal.Extensions.MediaServer.Aspects;
 using MediaPortal.Extensions.MediaServer.Objects.Basic;
 
 namespace MediaPortal.Extensions.MediaServer.Objects.MediaLibrary
@@ -63,7 +65,10 @@ namespace MediaPortal.Extensions.MediaServer.Objects.MediaLibrary
                                    DirectoryAspect.ASPECT_ID,
                                    VideoAspect.ASPECT_ID,
                                    AudioAspect.ASPECT_ID,
-                                   ImageAspect.ASPECT_ID
+                                   ImageAspect.ASPECT_ID,
+                                   DlnaItemAspect.ASPECT_ID,
+                                   ThumbnailSmallAspect.ASPECT_ID,
+                                   ThumbnailLargeAspect.ASPECT_ID
                                  };
 
       var library = ServiceRegistration.Get<IMediaLibrary>();
@@ -72,11 +77,18 @@ namespace MediaPortal.Extensions.MediaServer.Objects.MediaLibrary
 
     public override List<IDirectoryObject> Search(string filter, string sortCriteria)
     {
-      var result = (from item in MediaLibraryBrowse()
-                    select
-                      MediaLibraryHelper.InstansiateMediaLibraryObject(item, MediaLibraryHelper.GetBaseKey(Key), this)).
-        ToList();
-
+      var result = new List<IDirectoryObject>();
+      foreach (var item in MediaLibraryBrowse())
+      {
+        try
+        {
+          result.Add(MediaLibraryHelper.InstansiateMediaLibraryObject(item, MediaLibraryHelper.GetBaseKey(Key), this));
+        }
+        catch (Exception e)
+        {
+          ServiceRegistration.Get<ILogger>().Error(e);
+        }
+      }      
       return result;
     }
   }
