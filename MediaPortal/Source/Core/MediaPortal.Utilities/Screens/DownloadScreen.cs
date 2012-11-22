@@ -62,7 +62,7 @@ namespace MediaPortal.Utilities.Screens
       this.Refresh();
       this.Update();
 
-      if (!String.IsNullOrEmpty(source) && !String.IsNullOrEmpty(dest) && NetworkUtils.IsNetworkConnected())
+      if (!String.IsNullOrEmpty(source) && !String.IsNullOrEmpty(dest) && NetworkUtils.IsNetworkConnected)
       {
         if (direction == 0)
         {

@@ -266,7 +266,7 @@ namespace MediaPortal.UiComponents.Weather.Models
     /// <param name="threadArgument">City which should be refreshed.</param>
     private void BackgroundRefresh(object threadArgument)
     {
-      if (!NetworkUtils.IsNetworkConnected())
+      if (!NetworkUtils.IsNetworkConnected)
       {
         ServiceRegistration.Get<ILogger>().Debug("WeatherModel: Background refresh - No Network connected");
         return;

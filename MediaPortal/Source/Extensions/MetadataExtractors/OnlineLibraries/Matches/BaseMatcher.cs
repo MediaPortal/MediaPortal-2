@@ -26,9 +26,9 @@ using System;
 using System.Collections.Generic;
 using System.Threading;
 using MediaPortal.Common;
-using MediaPortal.Common.Logging;
 using MediaPortal.Common.Threading;
 using MediaPortal.Extensions.OnlineLibraries.Libraries.Common;
+using MediaPortal.Utilities.Network;
 
 namespace MediaPortal.Extensions.OnlineLibraries.Matches
 {
@@ -69,12 +69,14 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matches
 
     protected BaseMatcher ()
     {
-      // use own thread to avoid delay during startup
-      ServiceRegistration.Get<IThreadPool>().Add(new DoWorkHandler(this.ResumeDownloads), "SetAndUpdatePreferredLocation", QueuePriority.Normal, ThreadPriority.BelowNormal);
+      // Use own thread to avoid delay during startup
+      ServiceRegistration.Get<IThreadPool>().Add(ResumeDownloads, "ResumeDownloads", QueuePriority.Normal, ThreadPriority.BelowNormal);
     }
 
     protected virtual bool Init()
     {
+      if (NetworkUtils.IsNetworkConnected)
+        return false;
       if (_storage == null)
         _storage = new MatchStorage<TMatch, TId>(MatchesSettingsFile);
       return true;
