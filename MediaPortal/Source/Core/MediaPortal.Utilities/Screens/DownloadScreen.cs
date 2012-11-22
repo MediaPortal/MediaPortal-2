@@ -31,6 +31,7 @@ using System.Text;
 using System.IO;
 using System.Windows.Forms;
 using System.Net;
+using MediaPortal.Utilities.Network;
 
 namespace MediaPortal.Utilities.Screens
 {
@@ -60,7 +61,8 @@ namespace MediaPortal.Utilities.Screens
     {
       this.Refresh();
       this.Update();
-      if (!String.IsNullOrEmpty(source) && !String.IsNullOrEmpty(dest))
+
+      if (!String.IsNullOrEmpty(source) && !String.IsNullOrEmpty(dest) && NetworkUtils.IsNetworkConnected())
       {
         if (direction == 0)
         {

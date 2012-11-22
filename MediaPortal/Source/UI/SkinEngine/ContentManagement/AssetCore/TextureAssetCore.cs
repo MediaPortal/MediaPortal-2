@@ -31,6 +31,7 @@ using MediaPortal.Common;
 using MediaPortal.Common.Logging;
 using MediaPortal.UI.SkinEngine.DirectX;
 using MediaPortal.UI.SkinEngine.SkinManagement;
+using MediaPortal.Utilities.Network;
 using SlimDX;
 using SlimDX.Direct3D9;
 using MediaPortal.Common.Services.ThumbnailGenerator;
@@ -286,7 +287,13 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement.AssetCore
             CachePolicy = new RequestCachePolicy(RequestCacheLevel.CacheIfAvailable)
           };
         _webClient.DownloadDataCompleted += DownloadComplete;
-        _webClient.DownloadDataAsync(uri, null);
+        if (NetworkUtils.IsNetworkConnected())
+          _webClient.DownloadDataAsync(uri, null);
+        else
+        {
+          ServiceRegistration.Get<ILogger>().Error("AsyncStreamLoadOperation: No Network connected");
+          OperationFailed();
+        }
       }
 
       public override void Dispose()
