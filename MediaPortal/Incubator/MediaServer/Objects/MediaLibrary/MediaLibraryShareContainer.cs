@@ -27,8 +27,10 @@ using System.Collections.Generic;
 using System.Linq;
 using MediaPortal.Backend.MediaLibrary;
 using MediaPortal.Common;
+using MediaPortal.Common.Logging;
 using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
+using MediaPortal.Extensions.MediaServer.Aspects;
 using MediaPortal.Extensions.MediaServer.Objects.Basic;
 using MediaPortal.Extensions.MediaServer.Tree;
 
@@ -97,18 +99,34 @@ namespace MediaPortal.Extensions.MediaServer.Objects.MediaLibrary
                                   };
       var optionalMiaTypeIDs = new Guid[]
                                  {
+                                   DlnaItemAspect.ASPECT_ID,
                                    DirectoryAspect.ASPECT_ID,
                                  };
 
       var library = ServiceRegistration.Get<IMediaLibrary>();
 
       var parent = new BasicContainer(Id);
-      var result = (from share in shares
-                    let item =
-                      library.LoadItem(share.Value.SystemId, share.Value.BaseResourcePath, necessaryMiaTypeIDs,
-                                       optionalMiaTypeIDs)
-                    select MediaLibraryHelper.InstansiateMediaLibraryObject(item, Key, parent, share.Value.Name)).ToList
-        ();
+      var items = (from share in shares
+                   select new
+                            {
+                              Item = library.LoadItem(share.Value.SystemId,
+                                                      share.Value.BaseResourcePath,
+                                                      necessaryMiaTypeIDs,
+                                                      optionalMiaTypeIDs),
+                              ShareName = share.Value.Name
+                            }).ToList();
+      var result = new List<IDirectoryObject>();
+      foreach (var item in items)
+      {
+        try
+        {
+          result.Add(MediaLibraryHelper.InstansiateMediaLibraryObject(item.Item, Key, parent, item.ShareName));
+        }
+        catch (Exception e)
+        {
+          ServiceRegistration.Get<ILogger>().Error(e);
+        }
+      }
       return result;
     }
   }

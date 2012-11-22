@@ -89,7 +89,7 @@ namespace MediaPortal.Extensions.MediaServer.DIDL
           propAttributeNamespace = string.Empty;
         }
 
-        Console.WriteLine(propNamespace + ":" + propElement + "@" + propAttributeNamespace + ":" + propAttribute);
+        Console.WriteLine(propNamespace + @":" + propElement + @"@" + propAttributeNamespace + @":" + propAttribute);
 
         var valueObj = p.Property.GetGetMethod().Invoke(DirObject, null);
 

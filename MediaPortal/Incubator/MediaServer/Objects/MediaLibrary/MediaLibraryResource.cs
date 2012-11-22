@@ -48,7 +48,7 @@ namespace MediaPortal.Extensions.MediaServer.Objects.MediaLibrary
       Item = item;
     }
 
-    public string GetLocalIp()
+    public static string GetLocalIp()
     {
       var localIp = Dns.GetHostName();
       var host = Dns.GetHostEntry(localIp);
@@ -62,14 +62,16 @@ namespace MediaPortal.Extensions.MediaServer.Objects.MediaLibrary
       return localIp;
     }
 
-    public void Initialise()
+    public static string GetBaseResourceURL()
     {
       var rs = ServiceRegistration.Get<IResourceServer>();
+      return "http://" + GetLocalIp() + ":" + rs.PortIPv4;
+    }
 
-      var ipaddress = Dns.GetHostEntry(Dns.GetHostName()).AddressList[0];
+    public void Initialise()
+    {
 
-      var baseUrl = "http://" + GetLocalIp() + ":" + rs.PortIPv4;
-      var url = baseUrl + DlnaResourceAccessUtils.GetResourceUrl(Item.MediaItemId);
+      var url = GetBaseResourceURL() + DlnaResourceAccessUtils.GetResourceUrl(Item.MediaItemId);
 
       ProtocolInfo = DlnaProtocolInfoFactory.GetProfileInfo(Item).ToString();
 

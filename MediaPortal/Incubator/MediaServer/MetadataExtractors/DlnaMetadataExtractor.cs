@@ -24,10 +24,12 @@
 
 using System;
 using System.Collections.Generic;
-
+using MediaPortal.Common;
+using MediaPortal.Common.Logging;
 using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.Common.ResourceAccess;
+using MediaPortal.Extensions.MediaServer.Aspects;
 
 namespace MediaPortal.Extensions.MediaServer.MetadataExtractors
 {
@@ -45,6 +47,8 @@ namespace MediaPortal.Extensions.MediaServer.MetadataExtractors
     {
       //ImageMetadataExtractorSettings settings = ServiceRegistration.Get<ISettingsManager>().Load<ImageMetadataExtractorSettings>();
       //InitializeExtensions(settings);
+
+      
     }
 
     public DlnaMetadataExtractor()
@@ -55,7 +59,11 @@ namespace MediaPortal.Extensions.MediaServer.MetadataExtractors
         MetadataExtractorPriority.Core,
         true,
         MediaCategories,
-        new[] { MediaAspect.Metadata });
+        new[]
+          {
+            MediaAspect.Metadata,
+            DlnaItemAspect.Metadata
+          });
     }
 
     #region IMetadataExtractor implementation
@@ -65,6 +73,27 @@ namespace MediaPortal.Extensions.MediaServer.MetadataExtractors
     public bool TryExtractMetadata(
       IResourceAccessor mediaItemAccessor, IDictionary<Guid, MediaItemAspect> extractedAspectData, bool forceQuickMode)
     {
+      try
+      {
+        var fsra = mediaItemAccessor as IFileSystemResourceAccessor;
+        if (fsra == null || !fsra.IsFile)
+        {
+          return false;
+        }
+
+        MediaItemAspect.SetAttribute(extractedAspectData, DlnaItemAspect.ATTR_MIME_TYPE, "audio/mpeg");
+
+        MediaItemAspect.SetAttribute(extractedAspectData, DlnaItemAspect.ATTR_PROFILE, "MP3");
+        
+        return true;
+      }
+      catch (Exception e)
+      {
+        // Only log at the info level here - And simply return false. This lets the caller know that we
+        // couldn't perform our task here.
+        ServiceRegistration.Get<ILogger>().Info("DlnaMetadataExtractor: Exception reading resource '{0}' (Text: '{1}')", mediaItemAccessor.CanonicalLocalResourcePath, e.Message);
+      }
+
       return false;
     }
 

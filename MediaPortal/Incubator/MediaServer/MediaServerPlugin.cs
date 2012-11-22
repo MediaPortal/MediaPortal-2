@@ -29,15 +29,19 @@ using System.Text;
 using MediaPortal.Backend.BackendServer;
 using MediaPortal.Common;
 using MediaPortal.Common.Logging;
+using MediaPortal.Common.MediaManagement;
+using MediaPortal.Common.Messaging;
 using MediaPortal.Common.PluginManager;
 using MediaPortal.Common.ResourceAccess;
+using MediaPortal.Common.Runtime;
+using MediaPortal.Extensions.MediaServer.Aspects;
 using MediaPortal.Extensions.MediaServer.Objects.MediaLibrary;
 using MediaPortal.Extensions.MediaServer.Objects.Basic;
 using MediaPortal.Extensions.MediaServer.ResourceAccess;
 
 namespace MediaPortal.Extensions.MediaServer
 {
-  public class MediaServerPlugin : IPluginStateTracker
+  public class MediaServerPlugin : IPluginStateTracker, IMessageReceiver
   {
     private UPnPMediaServerDevice _device;
 
@@ -48,7 +52,6 @@ namespace MediaPortal.Extensions.MediaServer
     public MediaServerPlugin()
     {
       _device = new UPnPMediaServerDevice(DEVICE_UUID.ToLower());
-
       InitialiseContainerTree();
     }
 
@@ -70,9 +73,10 @@ namespace MediaPortal.Extensions.MediaServer
       var meta = pluginRuntime.Metadata;
       Logger.Info(string.Format("{0} v{1} [{2}] by {3}", meta.Name, meta.PluginVersion, meta.Description, meta.Author));
 
+      ServiceRegistration.Get<IMessageBroker>().RegisterMessageReceiver(SystemMessaging.CHANNEL, this);
+      
       Logger.Debug("MediaServerPlugin: Adding UPNP device as a root device");
       ServiceRegistration.Get<IBackendServer>().UPnPBackendServer.AddRootDevice(_device);
-      ServiceRegistration.Get<IResourceServer>().AddHttpModule(new DlnaResourceAccessModule());
     }
 
     public bool RequestEnd()
@@ -98,6 +102,34 @@ namespace MediaPortal.Extensions.MediaServer
     internal static ILogger Logger
     {
       get { return ServiceRegistration.Get<ILogger>(); }
+    }
+
+    public void Receive(SystemMessage message)
+    {
+      if (message.MessageType is SystemMessaging.MessageType)
+      {
+        if (((SystemMessaging.MessageType)message.MessageType) == SystemMessaging.MessageType.SystemStateChanged)
+        {
+          var newState = message.MessageData["NewState"];
+          if (newState != null && newState.ToString() == "Running")
+          {
+            RegisterWithServices();
+          }
+        }
+      }
+    }
+
+    protected void RegisterWithServices()
+    {
+      // All non-default media item aspects must be registered
+      ServiceRegistration.Get<ILogger>().Info("MediaServerPlugin: Registering Media Aspects");
+      ServiceRegistration.Get<IMediaItemAspectTypeRegistration>()
+        .RegisterLocallyKnownMediaItemAspectType(DlnaItemAspect.Metadata);
+
+      Logger.Debug("MediaServerPlugin: Registering DLNA HTTP resource access module");       
+      ServiceRegistration.Get<IResourceServer>().AddHttpModule(new DlnaResourceAccessModule());
+      
+      
     }
   }
 }

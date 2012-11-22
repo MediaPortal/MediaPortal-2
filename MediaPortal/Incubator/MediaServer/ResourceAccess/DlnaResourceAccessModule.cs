@@ -37,6 +37,7 @@ using MediaPortal.Common.Logging;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.Common.ResourceAccess;
 using MediaPortal.Common.Threading;
+using MediaPortal.Extensions.MediaServer.Aspects;
 using MediaPortal.Extensions.MediaServer.DLNA;
 using MediaPortal.Extensions.MediaServer.Objects.MediaLibrary;
 
@@ -232,76 +233,86 @@ namespace MediaPortal.Extensions.MediaServer.ResourceAccess
         if (item == null)
           throw new BadRequestException(string.Format("Media item '{0}' not found.", mediaItemGuid));
 
-        // Grab the mimetype from the media item and set the Content Type header.
-        var mimeType = item.Aspects[MediaAspect.ASPECT_ID].GetAttributeValue(MediaAspect.ATTR_MIME_TYPE);
-        if (mimeType == null)
-          throw new InternalServerException("Media item has bad mime type, re-import media item");
-        response.ContentType = mimeType.ToString();
-
-        // Grab the resource path for the media item.
-        var resourcePathStr =
-          item.Aspects[ProviderResourceAspect.ASPECT_ID].GetAttributeValue(
-            ProviderResourceAspect.ATTR_RESOURCE_ACCESSOR_PATH);
-        var resourcePath = ResourcePath.Deserialize(resourcePathStr.ToString());
-
-        var ra = GetResourceAccessor(resourcePath);
-        IFileSystemResourceAccessor fsra = ra as IFileSystemResourceAccessor;
-        using (var resourceStream = fsra.OpenRead())
+        if (request.QueryString.Contains("aspect") && request.QueryString["aspect"].Value == "THUMBNAILSMALL")
         {
-          // HTTP/1.1 RFC2616 section 14.25 'If-Modified-Since'
-          if (!string.IsNullOrEmpty(request.Headers["If-Modified-Since"]))
+          var thumb = item.Aspects[ThumbnailSmallAspect.ASPECT_ID].GetAttributeValue(ThumbnailSmallAspect.ATTR_THUMBNAIL);
+          response.ContentType = "image/jpeg";
+          MemoryStream ms = new MemoryStream((byte[])thumb);
+          SendWholeFile(response, ms, false);
+        }
+        else
+        {
+          // Grab the mimetype from the media item and set the Content Type header.
+          var mimeType = item.Aspects[DlnaItemAspect.ASPECT_ID].GetAttributeValue(DlnaItemAspect.ATTR_MIME_TYPE);
+          if (mimeType == null)
+            throw new InternalServerException("Media item has bad mime type, re-import media item");
+          response.ContentType = mimeType.ToString();
+
+          // Grab the resource path for the media item.
+          var resourcePathStr =
+            item.Aspects[ProviderResourceAspect.ASPECT_ID].GetAttributeValue(
+              ProviderResourceAspect.ATTR_RESOURCE_ACCESSOR_PATH);
+          var resourcePath = ResourcePath.Deserialize(resourcePathStr.ToString());
+
+          var ra = GetResourceAccessor(resourcePath);
+          IFileSystemResourceAccessor fsra = ra as IFileSystemResourceAccessor;
+          using (var resourceStream = fsra.OpenRead())
           {
-            DateTime lastRequest = DateTime.Parse(request.Headers["If-Modified-Since"]);
-            if (lastRequest.CompareTo(fsra.LastChanged) <= 0)
-              response.Status = HttpStatusCode.NotModified;
+            // HTTP/1.1 RFC2616 section 14.25 'If-Modified-Since'
+            if (!string.IsNullOrEmpty(request.Headers["If-Modified-Since"]))
+            {
+              DateTime lastRequest = DateTime.Parse(request.Headers["If-Modified-Since"]);
+              if (lastRequest.CompareTo(fsra.LastChanged) <= 0)
+                response.Status = HttpStatusCode.NotModified;
+            }
+
+            // HTTP/1.1 RFC2616 section 14.29 'Last-Modified'
+            response.AddHeader("Last-Modified", fsra.LastChanged.ToUniversalTime().ToString("r"));
+
+            // DLNA Requirement: [7.4.26.1-6]
+            // Since the DLNA spec allows contentFeatures.dlna.org with any request, we'll put it in.
+            if (!string.IsNullOrEmpty(request.Headers["getcontentFeatures.dlna.org"]))
+            {
+              if (request.Headers["getcontentFeatures.dlna.org"] != "1")
+              {
+                // DLNA Requirement [7.4.26.5]
+                throw new BadRequestException("Illegal value for getcontentFeatures.dlna.org");
+              }
+            }
+            var dlnaString = DlnaProtocolInfoFactory.GetProfileInfo(item).ToString();
+            response.AddHeader("contentFeatures.dlna.org", dlnaString);
+
+            Logger.Debug("DlnaResourceAccessModule: returning contentFeatures {0}", dlnaString);
+
+            // DLNA Requirement: [7.4.55-57]
+            // TODO: Bad implementation of requirement
+            if (!string.IsNullOrEmpty(request.Headers["transferMode.dlna.org"]))
+            {
+              string transferMode = request.Headers["transferMode.dlna.org"];
+              Logger.Debug("Requested transfer of type " + transferMode);
+              if (transferMode == "Streaming")
+              {
+                response.AddHeader("transferMode.dlna.org", "Streaming");
+              }
+              if (transferMode == "Interactive")
+              {
+                response.AddHeader("transferMode.dlna.org", "Interactive");
+              }
+              if (transferMode == "Background")
+              {
+                response.AddHeader("transferMode.dlna.org", "Background");
+              }
+            }
+
+            string byteRangesSpecifier = request.Headers["Range"];
+            IList<Range> ranges = ParseRanges(byteRangesSpecifier, resourceStream.Length);
+            bool onlyHeaders = request.Method == Method.Header || response.Status == HttpStatusCode.NotModified;
+            if (ranges != null && ranges.Count == 1)
+              // We only support one range
+              SendRange(response, resourceStream, ranges[0], onlyHeaders);
+            else
+              SendWholeFile(response, resourceStream, onlyHeaders);
           }
-
-          // HTTP/1.1 RFC2616 section 14.29 'Last-Modified'
-          response.AddHeader("Last-Modified", fsra.LastChanged.ToUniversalTime().ToString("r"));
-
-          // DLNA Requirement: [7.4.26.1-6]
-          // Since the DLNA spec allows contentFeatures.dlna.org with any request, we'll put it in.
-          if (!string.IsNullOrEmpty(request.Headers["getcontentFeatures.dlna.org"]))
-          {
-            if (request.Headers["getcontentFeatures.dlna.org"] != "1")
-            {
-              // DLNA Requirement [7.4.26.5]
-              throw new BadRequestException("Illegal value for getcontentFeatures.dlna.org");
-            }
-          }
-          var dlnaString = DlnaProtocolInfoFactory.GetProfileInfo(item).ToString();
-          response.AddHeader("contentFeatures.dlna.org", dlnaString);
-
-          Logger.Debug("DlnaResourceAccessModule: returning contentFeatures {0}", dlnaString);
-
-          // DLNA Requirement: [7.4.55-57]
-          // TODO: Bad implementation of requirement
-          if (!string.IsNullOrEmpty(request.Headers["transferMode.dlna.org"]))
-          {
-            string transferMode = request.Headers["transferMode.dlna.org"];
-            Logger.Debug("Requested transfer of type " + transferMode);
-            if (transferMode == "Streaming")
-            {
-              response.AddHeader("transferMode.dlna.org", "Streaming");
-            }
-            if (transferMode == "Interactive")
-            {
-              response.AddHeader("transferMode.dlna.org", "Interactive");
-            }
-            if (transferMode == "Background")
-            {
-              response.AddHeader("transferMode.dlna.org", "Background");
-            }
-          }
-
-          string byteRangesSpecifier = request.Headers["Range"];
-          IList<Range> ranges = ParseRanges(byteRangesSpecifier, resourceStream.Length);
-          bool onlyHeaders = request.Method == Method.Header || response.Status == HttpStatusCode.NotModified;
-          if (ranges != null && ranges.Count == 1)
-            // We only support one range
-            SendRange(response, resourceStream, ranges[0], onlyHeaders);
-          else
-            SendWholeFile(response, resourceStream, onlyHeaders);
         }
       }
       catch (FileNotFoundException ex)
