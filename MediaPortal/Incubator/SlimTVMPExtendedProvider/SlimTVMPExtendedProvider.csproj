@@ -52,6 +52,9 @@
     <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="MPExtended.Services.Common.Interfaces">
+      <HintPath>References\MPExtended.Services.Common.Interfaces.dll</HintPath>
+    </Reference>
     <Reference Include="MPExtended.Services.TVAccessService.Interfaces, Version=0.4.0.0, Culture=neutral, PublicKeyToken=8ccaf7b9f3e31d46, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>References\MPExtended.Services.TVAccessService.Interfaces.dll</HintPath>

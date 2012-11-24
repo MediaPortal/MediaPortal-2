@@ -41,7 +41,7 @@ namespace MediaPortal.Plugins.SlimTvClient.Providers.Items
       EndTime = webProgram.EndTime;
       Genre = webProgram.Genre;
       Title = webProgram.Title;
-      ChannelId = webProgram.IdChannel;
+      ChannelId = webProgram.ChannelId;
       ProgramId = webProgram.Id;
       RecordingStatus = GetRecordingStatus(webProgram);
     }
