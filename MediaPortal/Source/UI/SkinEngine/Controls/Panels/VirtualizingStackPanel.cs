@@ -931,7 +931,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
       {
         if (itemProvider.NumItems == 0)
           return false;
-        FrameworkElement item = GetItem(0, itemProvider, true);
+        FrameworkElement item = GetItem(0, itemProvider, false);
         if (item != null)
           item.SetFocusPrio = SetFocusPriority.Default;
       }
@@ -951,7 +951,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
         numItems = itemProvider.NumItems;
         if (numItems == 0)
           return false;
-        FrameworkElement item = GetItem(numItems - 1, itemProvider, true);
+        FrameworkElement item = GetItem(numItems - 1, itemProvider, false);
         if (item != null)
           item.SetFocusPrio = SetFocusPriority.Default;
       }

@@ -65,6 +65,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 
     void Attach()
     {
+      _contentProperty.Attach(OnContentChanged);
       _contentTemplateProperty.Attach(OnContentTemplateChanged);
       _horizontalContentAlignmentProperty.Attach(OnArrangeGetsInvalid);
       _verticalContentAlignmentProperty.Attach(OnArrangeGetsInvalid);
@@ -72,6 +73,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 
     void Detach()
     {
+      _contentProperty.Detach(OnContentChanged);
       _contentTemplateProperty.Detach(OnContentTemplateChanged);
       _horizontalContentAlignmentProperty.Detach(OnArrangeGetsInvalid);
       _verticalContentAlignmentProperty.Detach(OnArrangeGetsInvalid);
@@ -102,10 +104,9 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 
     #endregion
 
-    internal void SetContent(object content)
+    internal void OnContentChanged(AbstractProperty prop, object oldValue)
     {
-      object oldValue = Content;
-      Content = content;
+      object content = Content;
       MPF.TryCleanupAndDispose(oldValue);
       if (!ReferenceEquals(oldValue, _convertedContent))
         MPF.TryCleanupAndDispose(_convertedContent);

@@ -173,7 +173,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       presenter.HorizontalContentAlignment = HorizontalContentAlignment;
       presenter.VerticalContentAlignment = VerticalContentAlignment;
       presenter.ContentTemplate = MpfCopyManager.DeepCopyCutLVPs(ContentTemplate); // Setting LogicalParent is not necessary because DataTemplate doesn't bind bindings
-      presenter.SetContent(MpfCopyManager.DeepCopyCutLVPs(content));
+      presenter.Content = MpfCopyManager.DeepCopyCutLVPs(content);
     }
 
     protected virtual ContentPresenter FindContentPresenter()
