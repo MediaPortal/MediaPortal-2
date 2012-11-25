@@ -87,7 +87,7 @@ namespace MediaPortal.Common.MediaManagement
 
     public static void SendMIATypesChangedMessage()
     {
-      SystemMessage msg = new SystemMessage(MessageType.PlaylistsChanged);
+      SystemMessage msg = new SystemMessage(MessageType.MIATypesChanged);
       ServiceRegistration.Get<IMessageBroker>().Send(CHANNEL, msg);
     }
 
