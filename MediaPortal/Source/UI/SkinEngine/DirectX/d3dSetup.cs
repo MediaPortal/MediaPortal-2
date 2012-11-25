@@ -495,10 +495,11 @@ namespace MediaPortal.UI.SkinEngine.DirectX
       result.DeviceWindowHandle = _renderTarget.Handle;
       result.Windowed = configuration.DeviceCombo.IsWindowed;
       result.BackBufferFormat = configuration.DeviceCombo.BackBufferFormat;
-      result.BackBufferCount = 4; // 2 to 4 are recommended for FlipEx swap mode
 #if PROFILE_PERFORMANCE
-      _presentParams.PresentationInterval = PresentInterval.Immediate;
+      result.BackBufferCount = 20; // Such high backbuffer count is only useful for benchmarking so that rendering is not limited by backbuffer count
+      result.PresentationInterval = PresentInterval.One;
 #else
+      result.BackBufferCount = 4; // 2 to 4 are recommended for FlipEx swap mode
       result.PresentationInterval = PresentInterval.One;
 #endif
       result.FullScreenRefreshRateInHertz = result.Windowed ? 0 : configuration.DisplayMode.RefreshRate;

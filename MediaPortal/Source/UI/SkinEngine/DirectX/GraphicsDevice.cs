@@ -213,6 +213,7 @@ namespace MediaPortal.UI.SkinEngine.DirectX
 
         Capabilities deviceCapabilities = _device.Capabilities;
         _backBuffer = _device.GetRenderTarget(0);
+        _device.MaximumFrameLatency = _setup.PresentParameters.BackBufferCount; // Enables the device to queue as many frames as we have backbuffers defined
         int ordinal = deviceCapabilities.AdapterOrdinal;
         AdapterInformation adapterInfo = MPDirect3D.Direct3D.Adapters[ordinal];
         DisplayMode currentMode = adapterInfo.CurrentDisplayMode;
@@ -335,6 +336,7 @@ namespace MediaPortal.UI.SkinEngine.DirectX
             ServiceRegistration.Get<ILogger>().Debug("GraphicsDevice: DirectX reset {0}x{1} format: {2} {3} Hz", Width, Height,
                 currentMode.Format, TargetFrameRate);
             _backBuffer = _device.GetRenderTarget(0);
+            _device.MaximumFrameLatency = _setup.PresentParameters.BackBufferCount; // Enables the device to queue as many frames as we have backbuffers defined
             _dxCapabilities = DxCapabilities.RequestCapabilities(deviceCapabilities, currentMode);
 
             ScreenRefreshWorkaround();
