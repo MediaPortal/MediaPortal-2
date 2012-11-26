@@ -24,6 +24,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.ServiceModel;
 using System.ServiceModel.Channels;
 using MediaPortal.Common;
@@ -415,6 +416,17 @@ namespace MediaPortal.Plugins.SlimTv.Providers
       return false;
     }
 
+    /// <summary>
+    /// Gets a program by its <see cref="IProgram.ProgramId"/>.
+    /// </summary>
+    /// <param name="programId">Program ID.</param>
+    /// <param name="program">Program.</param>
+    /// <returns>True if succeeded.</returns>
+    public bool GetProgram (int programId, out IProgram program)
+    {
+      throw new NotImplementedException();
+    }
+
     #endregion
 
     public MediaItem CreateMediaItem(int slotIndex, string streamUrl, IChannel channel)
@@ -498,6 +510,41 @@ namespace MediaPortal.Plugins.SlimTv.Providers
       return false;
     }
 
+    /// <summary>
+    /// Tries to get the current and next program for the given <paramref name="channel"/>.
+    /// </summary>
+    /// <param name="channel">Channel</param>
+    /// <param name="programNow">Returns current program</param>
+    /// <param name="programNext">Returns next program</param>
+    /// <returns><c>true</c> if a program could be found</returns>
+    public bool GetNowNextProgram (IChannel channel, out IProgram programNow, out IProgram programNext)
+    {
+      // TODO: caching from NativeProvider?
+      programNow = null;
+      programNext = null;
+      Channel indexChannel = channel as Channel;
+      if (indexChannel == null)
+        return false;
+
+      if (!CheckConnection(indexChannel.ServerIndex))
+        return false;
+
+      try
+      {
+        IList<WebProgramDetailed> tvPrograms = TvServer(indexChannel.ServerIndex).GetNowNextWebProgramDetailedForChannel(channel.ChannelId);
+        if (tvPrograms.Count > 0 && tvPrograms[0] != null)
+          programNow = new Program(tvPrograms[0], indexChannel.ServerIndex);
+        if (tvPrograms.Count > 1 && tvPrograms[1] != null)
+          programNext = new Program(tvPrograms[1], indexChannel.ServerIndex);
+      }
+      catch (Exception ex)
+      {
+        ServiceRegistration.Get<ILogger>().Error(ex.Message);
+        return false;
+      }
+      return programNow != null;
+    }
+
     public bool GetPrograms(IChannel channel, DateTime from, DateTime to, out IList<IProgram> programs)
     {
       programs = null;
@@ -514,6 +561,39 @@ namespace MediaPortal.Plugins.SlimTv.Providers
         IList<WebProgramDetailed> tvPrograms = TvServer(indexChannel.ServerIndex).GetProgramsDetailedForChannel(channel.ChannelId, from, to);
         foreach (WebProgramDetailed webProgram in tvPrograms)
           programs.Add(new Program(webProgram, indexChannel.ServerIndex));
+      }
+      catch (Exception ex)
+      {
+        ServiceRegistration.Get<ILogger>().Error(ex.Message);
+        return false;
+      }
+      return programs.Count > 0;
+    }
+
+    /// <summary>
+    /// Tries to get a list of programs for all channels of the given <paramref name="channelGroup"/> and time range.
+    /// </summary>
+    /// <param name="channelGroup">Channel group</param>
+    /// <param name="from">Time from</param>
+    /// <param name="to">Time to</param>
+    /// <param name="programs">Returns programs</param>
+    /// <returns><c>true</c> if at least one program could be found</returns>
+    public bool GetProgramsGroup (IChannelGroup channelGroup, DateTime @from, DateTime to, out IList<IProgram> programs)
+    {
+      programs = null;
+      ChannelGroup indexGroup = channelGroup as ChannelGroup;
+      if (indexGroup == null)
+        return false;
+
+      if (!CheckConnection(indexGroup.ServerIndex))
+        return false;
+
+      programs = new List<IProgram>();
+      try
+      {
+        IList<WebChannelPrograms<WebProgramDetailed>> tvPrograms = TvServer(indexGroup.ServerIndex).GetProgramsDetailedForGroup(channelGroup.ChannelGroupId, from, to);
+        foreach (WebProgramDetailed webProgramDetailed in tvPrograms.SelectMany(webPrograms => webPrograms.Programs))
+          programs.Add(new Program(webProgramDetailed, indexGroup.ServerIndex));
       }
       catch (Exception ex)
       {
