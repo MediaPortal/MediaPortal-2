@@ -65,6 +65,8 @@ namespace MediaPortal.Common.Services.Dokan
     protected Thread _mountThread;
     protected VirtualRootDirectory _root = new VirtualRootDirectory("/");
 
+    public static HashSet<char> _dokanDriveLetters = new HashSet<char>();
+
     protected Dokan(char driveLetter)
     {
       _driveLetter = driveLetter;
@@ -200,6 +202,10 @@ namespace MediaPortal.Common.Services.Dokan
     public static bool IsDokanDrive(char driveLetter)
     {
       bool result = false;
+      // Check if this drive was queried before
+      if (_dokanDriveLetters.Contains(driveLetter))
+        return true;
+
       try
       {
         ThreadingUtils.CallWithTimeout(() =>
@@ -218,6 +224,9 @@ namespace MediaPortal.Common.Services.Dokan
       {
         result = true;
       }
+      // Cache information only for DOKAN drives, all other (also non-existing) needs to be checked again (i.e. for removable media)
+      if (result)
+        _dokanDriveLetters.Add(driveLetter);
       return result;
     }
 
