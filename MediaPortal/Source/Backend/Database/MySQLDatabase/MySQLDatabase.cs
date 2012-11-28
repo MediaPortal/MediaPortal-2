@@ -32,24 +32,41 @@ namespace MediaPortal.Database.MySQL
 {
   public class MySQLDatabase : ISQLDatabase
   {
+    #region Constants
+
     public const string MYSQL_DATABASE_TYPE = "MySQL";
     public const string DATABASE_VERSION = "5.x";
     public const int MAX_NUM_CHARS_CHAR_VARCHAR = 4000;
-    public const int LOCK_TIMEOUT = 30000; // Time in ms the database will wait for a lock
-    public const int MAX_BUFFER_SIZE = 2048;
 
-    protected string _connectionString;
-    protected string _dbSchema;
+    #endregion
+
+    #region Fields
+
+    protected readonly string _connectionString;
+    protected readonly string _dbSchema;
+    protected readonly string _server;
+    protected readonly string _username;
+    protected readonly string _password;
+    protected readonly int _maxPacketSize;
+
+    #endregion
+
+    #region Constructor
 
     public MySQLDatabase()
     {
-      _dbSchema = "MP2Server";
-      _connectionString = "server=localhost;User Id=root;password=MediaPortal;";
+      if (!MySQLSettings.Read(ref _server, ref _username, ref _password, ref _dbSchema, ref _maxPacketSize))
+        throw new ApplicationException("Cannot read database connection settings from MySQLSettings.xml!");
 
+      _connectionString = string.Format("server={0};User Id={1};password={2};", _server, _username, _password);
+      
+      // First connect without database parameter, so we can create the schema first.
       CheckOrCreateDatabase(_dbSchema);
 
       _connectionString += "database=" + _dbSchema;
     }
+
+    #endregion
 
     #region ISQLDatabase implementation
 
@@ -163,7 +180,7 @@ namespace MediaPortal.Database.MySQL
     public void CheckOrCreateDatabase(string databaseName)
     {
       ExecuteScalar("CREATE DATABASE IF NOT EXISTS " + databaseName);
-      ExecuteScalar("set global max_allowed_packet=" + 10 * 1024 * 1024);
+      ExecuteScalar("set global max_allowed_packet=" + _maxPacketSize);
     }
 
     private object ExecuteScalar(string command)

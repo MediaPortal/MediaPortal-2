@@ -1,0 +1,1 @@
+﻿<MySQLSettings Server="localhost" UserName="root" Password="MediaPortal" Database="MP2Server" MaxPacketSize="10485760" />

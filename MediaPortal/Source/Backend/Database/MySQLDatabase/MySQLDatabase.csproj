@@ -65,11 +65,13 @@
     <Compile Include="..\..\..\Core\MediaPortal.Common\VersionInfo\VersionInfo.cs">
       <Link>Properties\VersionInfo.cs</Link>
     </Compile>
+    <Compile Include="MySQLSettings.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="MySQLDatabase.cs" />
     <Compile Include="MySQLTransaction.cs" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="MySQLSettings.xml" />
     <Content Include="plugin.xml" />
     <Content Include="References\MySql.Data.dll" />
     <Content Include="References\MySql.Data.Entity.dll" />
@@ -87,6 +89,7 @@
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
     <PostBuildEvent>xcopy /Y "$(ProjectDir)plugin.xml" "$(SolutionDir)..\Bin\$(SolutionName)\$(OutDir)Plugins\$(ProjectName)\"
+xcopy /Y "$(ProjectDir)MySQLSettings.xml" "$(SolutionDir)..\Bin\$(SolutionName)\$(OutDir)Plugins\$(ProjectName)\"
 xcopy /Y "$(TargetDir)$(ProjectName).dll"  "$(SolutionDir)..\Bin\$(SolutionName)\$(OutDir)Plugins\$(ProjectName)\"
 robocopy "$(ProjectDir)References"  "$(SolutionDir)..\Bin\$(SolutionName)\$(OutDir)Plugins\$(ProjectName)" /NP
 @REM Reset RoboCopy's exit code which is different from 0
