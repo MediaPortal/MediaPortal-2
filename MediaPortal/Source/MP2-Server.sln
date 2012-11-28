@@ -76,6 +76,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MatroskaLib", "Extensions\M
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MovieMetadataExtractor", "Extensions\MetadataExtractors\MovieMetadataExtractor\MovieMetadataExtractor.csproj", "{E73C038E-FD47-40AD-9256-4457316F8A97}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MySQLDatabase", "Backend\Database\MySQLDatabase\MySQLDatabase.csproj", "{DAE7E1E5-4168-40E8-9F59-510B5CCEF1E0}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x86 = Debug|x86
@@ -198,6 +200,9 @@ Global
 		{E73C038E-FD47-40AD-9256-4457316F8A97}.Debug|x86.Build.0 = Debug|x86
 		{E73C038E-FD47-40AD-9256-4457316F8A97}.Release|x86.ActiveCfg = Release|x86
 		{E73C038E-FD47-40AD-9256-4457316F8A97}.Release|x86.Build.0 = Release|x86
+		{DAE7E1E5-4168-40E8-9F59-510B5CCEF1E0}.Debug|x86.ActiveCfg = Debug|x86
+		{DAE7E1E5-4168-40E8-9F59-510B5CCEF1E0}.Release|x86.ActiveCfg = Release|x86
+		{DAE7E1E5-4168-40E8-9F59-510B5CCEF1E0}.Release|x86.Build.0 = Release|x86
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -237,5 +242,6 @@ Global
 		{6759DACE-15CD-4EB1-8337-8096F35EAEA3} = {EFC339EB-9F75-4E5A-937A-A8BECA514715}
 		{91188F73-7361-40C1-93CE-BA24AE50A694} = {EFC339EB-9F75-4E5A-937A-A8BECA514715}
 		{99071112-C30D-4EBB-87AD-990DD85118D5} = {EFC339EB-9F75-4E5A-937A-A8BECA514715}
+		{DAE7E1E5-4168-40E8-9F59-510B5CCEF1E0} = {EFC339EB-9F75-4E5A-937A-A8BECA514715}
 	EndGlobalSection
 EndGlobal

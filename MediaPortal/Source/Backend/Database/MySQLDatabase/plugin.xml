@@ -1,0 +1,19 @@
+<Plugin
+    DescriptorVersion="1.0"
+    Name="MySQLDatabase"
+    PluginId="{B8CDDE0C-0C05-477C-BD94-1F8E35EACD68}"
+    Author="Morpheus_xx"
+    Copyright="GPL"
+    AutoActivate="true"
+    Description="Provides database access to a MySQL database"
+    PluginVersion="1.0">
+
+  <Runtime>
+    <Assembly FileName="MySQLDatabase.dll"/>
+  </Runtime>
+
+  <Register Location="/Services">
+    <Service Id="MySQLDatabase" RegistrationClassName="MediaPortal.Backend.Database.ISQLDatabase"
+        RegistrationClassAssembly="MediaPortal.Backend" ServiceClassName="MediaPortal.Database.MySQL.MySQLDatabase"/>
+  </Register>
+</Plugin>
