@@ -27,8 +27,9 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using System.Reflection;
 using System.Xml.Linq;
+using MediaPortal.Utilities.FileSystem;
+using MediaPortal.Utilities.Process;
 
 namespace MediaPortal.Extensions.MetadataExtractors.MatroskaLib
 {
@@ -39,10 +40,11 @@ namespace MediaPortal.Extensions.MetadataExtractors.MatroskaLib
   {
     #region Fields
 
-    private Process _process;
     private readonly string _fileName;
-    private readonly string _workingDirectory;
     private List<MatroskaAttachment> _attachments;
+    private readonly string _mkvInfoPath;
+    private readonly string _mkvExtractPath;
+    private ProcessPriorityClass _priorityClass = ProcessPriorityClass.BelowNormal;
 
     #endregion
 
@@ -82,7 +84,8 @@ namespace MediaPortal.Extensions.MetadataExtractors.MatroskaLib
     public MatroskaInfoReader(string fileName)
     {
       _fileName = fileName;
-      _workingDirectory = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
+      _mkvInfoPath = FileUtils.BuildExecutingAssemblyRelativePath("mkvinfo.exe");
+      _mkvExtractPath = FileUtils.BuildExecutingAssemblyRelativePath("mkvextract.exe");
     }
 
     #endregion
@@ -96,7 +99,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.MatroskaLib
     public void ReadTags(IDictionary<string, IList<string>> tagsToExtract)
     {
       String output;
-      if (TryExecuteReadString(@"mkvextract.exe", string.Format("tags \"{0}\"", _fileName), out output) && !string.IsNullOrEmpty(output))
+      if (ProcessUtils.TryExecuteReadString(_mkvExtractPath, string.Format("tags \"{0}\"", _fileName), out output, _priorityClass) && !string.IsNullOrEmpty(output))
       {
         XDocument doc = XDocument.Parse(output);
 
@@ -141,7 +144,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.MatroskaLib
       // |  + Mime type: image/jpeg
       // |  + File data, size: 132908
       // |  + File UID: 1495003044
-      if (TryExecuteReadString(@"mkvinfo.exe", string.Format("--ui-language en --output-charset UTF-8 \"{0}\"", _fileName), out output))
+      if (ProcessUtils.TryExecuteReadString(_mkvInfoPath, string.Format("--ui-language en --output-charset UTF-8 \"{0}\"", _fileName), out output, _priorityClass))
       {
         StringReader reader = new StringReader(output);
         string line;
@@ -222,24 +225,14 @@ namespace MediaPortal.Extensions.MetadataExtractors.MatroskaLib
     {
       binaryData = null;
       string tempFileName = Path.GetTempFileName();
-      if (TryExecute(@"mkvextract.exe", string.Format("attachments \"{0}\" {1}:\"{2}\"", _fileName, attachmentIndex + 1, tempFileName)))
+      if (ProcessUtils.TryExecute(_mkvExtractPath, string.Format("attachments \"{0}\" {1}:\"{2}\"", _fileName, attachmentIndex + 1, tempFileName), _priorityClass))
       {
         int fileSize = _attachments[attachmentIndex].FileSize;
         FileInfo fileInfo = new FileInfo(tempFileName);
         if (!fileInfo.Exists || fileInfo.Length != fileSize)
           return false;
 
-        binaryData = new byte[fileSize];
-        using (FileStream fileStream = new FileStream(tempFileName, FileMode.Open, FileAccess.Read))
-        {
-          int offset = 0;
-          int read;
-          do
-          {
-            read = fileStream.Read(binaryData, offset, Math.Min(fileSize - offset, 8192));
-            offset += read;
-          } while (read > 0);
-        }
+        binaryData = FileUtils.ReadFile(tempFileName);
         fileInfo.Delete();
       }
       return false;
@@ -248,34 +241,6 @@ namespace MediaPortal.Extensions.MetadataExtractors.MatroskaLib
     #endregion
 
     #region Private methods
-
-    private bool TryExecuteReadString(string executable, string arguments, out string result)
-    {
-      using (_process = new Process { StartInfo = new ProcessStartInfo(Path.Combine(_workingDirectory, executable), arguments) { UseShellExecute = false, CreateNoWindow = true, RedirectStandardOutput = true } })
-      {
-        _process.Start();
-        using (_process.StandardOutput)
-        {
-          result = _process.StandardOutput.ReadToEnd();
-          if (_process.WaitForExit(1000))
-            return _process.ExitCode == 0;
-        }
-        if (!_process.HasExited)
-          _process.Close();
-      }
-      return false;
-    }
-
-    private bool TryExecute(string executable, string arguments)
-    {
-      using (_process = new Process { StartInfo = new ProcessStartInfo(executable, arguments) { UseShellExecute = false, CreateNoWindow = true } })
-      {
-        _process.Start();
-        if (_process.WaitForExit(1000))
-          return _process.ExitCode == 0;
-      }
-      return false;
-    }
     
     static IEnumerable<XElement> GetTagsForTargetType(XDocument doc, int? targetTypeValue)
     {

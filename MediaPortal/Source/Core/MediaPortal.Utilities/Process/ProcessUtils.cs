@@ -25,6 +25,7 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.IO;
 using System.Linq;
 using System.Text;
 
@@ -52,5 +53,34 @@ namespace MediaPortal.Utilities.Process
       }
       return false;
     }
+
+    /// <summary>
+    /// Executes the <paramref name="executable"/> and waits a maximum time of <paramref name="maxWaitMs"/> for completion and returns the contents of
+    /// <see cref="Process.StandardOutput"/>. If the process doesn't end in this time, it gets aborted.
+    /// </summary>
+    /// <param name="executable">Program to execute</param>
+    /// <param name="arguments">Program arguments</param>
+    /// <param name="result">Returns the contents of standard output</param>
+    /// <param name="priorityClass">Process priority</param>
+    /// <param name="maxWaitMs">Maximum time to wait for completion</param>
+    /// <returns></returns>
+    public static bool TryExecuteReadString(string executable, string arguments, out string result, ProcessPriorityClass priorityClass = ProcessPriorityClass.Normal, int maxWaitMs = 1000)
+    {
+      using (System.Diagnostics.Process process = new System.Diagnostics.Process { StartInfo = new ProcessStartInfo(executable, arguments) { UseShellExecute = false, CreateNoWindow = true, RedirectStandardOutput = true } })
+      {
+        process.PriorityClass = priorityClass;
+        process.Start();
+        using (process.StandardOutput)
+        {
+          result = process.StandardOutput.ReadToEnd();
+          if (process.WaitForExit(maxWaitMs))
+            return process.ExitCode == 0;
+        }
+        if (!process.HasExited)
+          process.Close();
+      }
+      return false;
+    }
+
   }
 }

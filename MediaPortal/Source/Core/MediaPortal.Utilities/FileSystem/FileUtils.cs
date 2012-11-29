@@ -202,5 +202,16 @@ namespace MediaPortal.Utilities.FileSystem
       string executingPath = Assembly.GetCallingAssembly().Location;
       return Path.Combine(Path.GetDirectoryName(executingPath), fileName);
     }
+
+    /// <summary>
+    /// Builds a full path for a given <paramref name="fileName"/> that is located in the same folder as the <see cref="Assembly.GetExecutingAssembly"/>.
+    /// </summary>
+    /// <param name="fileName">File name</param>
+    /// <returns>Combined path</returns>
+    public static string BuildExecutingAssemblyRelativePath(string fileName)
+    {
+      string executingPath = Assembly.GetExecutingAssembly().Location;
+      return Path.Combine(Path.GetDirectoryName(executingPath), fileName);
+    }
   }
 }
