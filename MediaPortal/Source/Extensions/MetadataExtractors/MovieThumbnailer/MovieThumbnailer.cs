@@ -26,18 +26,19 @@ using System;
 using System.Diagnostics;
 using System.Collections.Generic;
 using System.IO;
-using System.Reflection;
 using MediaPortal.Common;
 using MediaPortal.Common.Logging;
 using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.Common.ResourceAccess;
 using MediaPortal.Common.Services.ResourceAccess.StreamedResourceToLocalFsAccessBridge;
+using MediaPortal.Utilities.FileSystem;
+using MediaPortal.Utilities.Process;
 
 namespace MediaPortal.Extensions.MetadataExtractors.MovieThumbnailer
 {
   /// <summary>
-  /// MediaPortal 2 metadata extractor implementation for Movies.
+  /// MediaPortal 2 metadata extractor to exctract thumbnails from videos.
   /// </summary>
   public class MovieThumbnailer : IMetadataExtractor
   {
@@ -137,7 +138,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieThumbnailer
       }
 
       string tempFileName = Path.ChangeExtension(Path.GetTempFileName(), ".jpg");
-      string executable = BuildAssemblyRelativePath("ffmpeg.exe");
+      string executable = FileUtils.BuildAssemblyRelativePath("ffmpeg.exe");
       string arguments = string.Format("-ss {0} -itsoffset -5 -i \"{1}\" -vframes 1 -vf \"yadif=0:-1:0,scale=iw*sar:ih,setsar=1:1,scale=iw/2:-1\" -y \"{2}\"",
         defaultVideoOffset,
         lfsra.LocalFileSystemPath,
@@ -145,15 +146,9 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieThumbnailer
 
       try
       {
-        if (TryExecute(executable, arguments, PROCESS_TIMEOUT_MS) && File.Exists(tempFileName))
+        if (ProcessUtils.TryExecute(executable, arguments, ProcessPriorityClass.BelowNormal, PROCESS_TIMEOUT_MS) && File.Exists(tempFileName))
         {
-          // TODO: move to common helper class
-          FileInfo thumbnail = new FileInfo(tempFileName);
-          byte[] binary = new byte[thumbnail.Length];
-          using (FileStream fileStream = new FileStream(thumbnail.FullName, FileMode.Open, FileAccess.Read))
-          using (BinaryReader binaryReader = new BinaryReader(fileStream))
-            binaryReader.Read(binary, 0, binary.Length);
-
+          var binary = FileUtils.ReadFile(tempFileName);
           MediaItemAspect.SetAttribute(extractedAspectData, ThumbnailLargeAspect.ATTR_THUMBNAIL, binary);
           ServiceRegistration.Get<ILogger>().Info("MovieThumbnailer: Successfully created thumbnail for resource '{0}'", lfsra.LocalFileSystemPath);
         }
@@ -166,30 +161,6 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieThumbnailer
           File.Delete(tempFileName);
       }
       return true;
-    }
-
-    // TODO: move to common helper class
-    private static bool TryExecute(string executable, string arguments, int maxWaitMs = 1000)
-    {
-      using (Process process = new Process { StartInfo = new ProcessStartInfo(executable, arguments) { UseShellExecute = false, CreateNoWindow = true } })
-      {
-        process.Start();
-        if (process.WaitForExit(maxWaitMs))
-          return process.ExitCode == 0;
-      }
-      return false;
-    }
-
-    /// <summary>
-    /// Builds a full path for a given <paramref name="fileName"/> that is located in the same folder as the <see cref="Assembly.GetCallingAssembly"/>.
-    /// </summary>
-    /// <param name="fileName">File name</param>
-    /// <returns>Combined path</returns>
-    // TODO: move to common helper class
-    public static string BuildAssemblyRelativePath(string fileName)
-    {
-      string executingPath = Assembly.GetCallingAssembly().Location;
-      return Path.Combine(Path.GetDirectoryName(executingPath), fileName);
     }
 
     #endregion
