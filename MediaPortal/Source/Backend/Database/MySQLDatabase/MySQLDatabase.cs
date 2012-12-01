@@ -158,6 +158,8 @@ namespace MediaPortal.Database.MySQL
     {
       if (reader.IsDBNull(colIndex))
         return null;
+      if (type == typeof(byte[]))
+        return reader.GetValue(colIndex);
       return DBUtils.ReadSimpleDBValue(type, reader, colIndex);
     }
 
