@@ -48,9 +48,9 @@ namespace MediaPortal.UiComponents.BackgroundManager.Models
 
     public BackgroundManagerModel()
     {
-      _selectedItemProperty = new SProperty(typeof (ListItem), null);
+      _selectedItemProperty = new WProperty(typeof (ListItem), null);
       _selectedItemProperty.Attach(SetBackgroundImage);
-      _backgroundImageProperty = new SProperty(typeof (string), string.Empty);
+      _backgroundImageProperty = new WProperty(typeof (string), string.Empty);
       SetBackgroundImage();
     }
 

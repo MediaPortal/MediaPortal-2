@@ -46,11 +46,11 @@ namespace MediaPortal.Extensions.UserServices.FanArtService.Client.Models
 
     public FanArtBackgroundModel()
     {
-      _selectedItemProperty = new SProperty(typeof (ListItem), null);
+      _selectedItemProperty = new WProperty(typeof (ListItem), null);
       _selectedItemProperty.Attach(SetFanArtType);
-      _fanArtMediaTypeProperty = new SProperty(typeof(FanArtConstants.FanArtMediaType), FanArtConstants.FanArtMediaType.Undefined);
-      _fanArtNameProperty = new SProperty(typeof(string), string.Empty);
-      _itemDescriptionProperty = new SProperty(typeof(string), string.Empty);
+      _fanArtMediaTypeProperty = new WProperty(typeof(FanArtConstants.FanArtMediaType), FanArtConstants.FanArtMediaType.Undefined);
+      _fanArtNameProperty = new WProperty(typeof(string), string.Empty);
+      _itemDescriptionProperty = new WProperty(typeof(string), string.Empty);
       SetFanArtType();
     }
 
