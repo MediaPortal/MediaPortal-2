@@ -386,6 +386,10 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
       {
         WaitHandle.WaitAny(new WaitHandle[] {_terminatedEvent, _garbageScreensAvailable}); // Only run if garbage screens are available
         WaitHandle.WaitAny(new WaitHandle[] {_terminatedEvent, _renderFinished}); // If currently rendering, wait once before we can be sure that no screen is rendered any more
+        
+        // The render thread doesn't need to wait for the garbage collector thread, so it's enough to reset the garbage collector finished event after waiting
+        // for the render thread (if the render thread would need to be blocked by the garbage collector, we would have to reset the garbage collector finished
+        // event before waiting for the render thread finished event above).
         _garbageCollectionFinished.Reset();
         Screen screen;
         bool active = true;
@@ -814,11 +818,11 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
       Screen screen;
       lock (_syncObj)
       {
-        if (_currentScreen == null)
-          return;
         screen = _currentScreen;
-        ServiceRegistration.Get<ILogger>().Debug("ScreenManager: Closing screen '{0}'", screen.ResourceName);
         _currentScreen = null;
+        if (screen == null)
+          return;
+        ServiceRegistration.Get<ILogger>().Debug("ScreenManager: Closing screen '{0}'", screen.ResourceName);
         _screenPersistenceTime = DateTime.MinValue;
 
         screen.ScreenState = Screen.State.Closed;
