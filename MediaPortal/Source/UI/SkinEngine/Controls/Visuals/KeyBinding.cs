@@ -142,9 +142,9 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       _registeredKey = null;
     }
 
-    public override void FireEvent(string eventName, RoutingStrategyEnum routingStrategy)
+    protected override void DoFireEvent(string eventName)
     {
-      base.FireEvent(eventName, routingStrategy);
+      base.DoFireEvent(eventName);
       if (eventName == LOADED_EVENT)
         RegisterKeyBinding();
     }

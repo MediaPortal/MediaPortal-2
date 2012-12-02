@@ -395,9 +395,9 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 
     #region Item management
 
-    public override void FireEvent(string eventName, RoutingStrategyEnum routingStrategy)
+    protected override void DoFireEvent(string eventName)
     {
-      base.FireEvent(eventName, routingStrategy);
+      base.DoFireEvent(eventName);
       if (eventName == LOSTFOCUS_EVENT || eventName == GOTFOCUS_EVENT)
         UpdateCurrentItem();
     }

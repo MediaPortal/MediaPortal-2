@@ -501,9 +501,9 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       }
     }
 
-    public override void FireEvent(string eventName, RoutingStrategyEnum routingStrategy)
+    protected override void DoFireEvent(string eventName)
     {
-      base.FireEvent(eventName, routingStrategy);
+      base.DoFireEvent(eventName);
       if (eventName == VISIBILITY_CHANGED_EVENT)
       {
         if (!CheckVisibility())

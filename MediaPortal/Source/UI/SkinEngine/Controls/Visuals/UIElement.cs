@@ -814,6 +814,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       _resources = resources;
     }
 
+    bool _searchingResource = false;
+
     /// <summary>
     /// Finds the resource with the given resource key.
     /// </summary>
@@ -821,11 +823,22 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     /// <returns>Resource with the specified key, or <c>null</c> if not found.</returns>
     public object FindResource(object resourceKey)
     {
-      if (Resources.ContainsKey(resourceKey))
-        return Resources[resourceKey];
-      if (LogicalParent is UIElement)
-        return ((UIElement) LogicalParent).FindResource(resourceKey);
-      return SkinContext.SkinResources.FindStyleResource(resourceKey);
+      if (_searchingResource)
+        // Avoid recursive calls
+        return null;
+      _searchingResource = true;
+      try
+      {
+        object result;
+        if (Resources.TryGetValue(resourceKey, out result))
+          return result;
+        UIElement logicalParent = LogicalParent as UIElement;
+        return logicalParent != null ? logicalParent.FindResource(resourceKey) : SkinContext.SkinResources.FindStyleResource(resourceKey);
+      }
+      finally
+      {
+        _searchingResource = false;
+      }
     }
 
     #endregion
@@ -952,7 +965,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 
     #region Events & triggers
 
-    public virtual void FireEvent(string eventName, RoutingStrategyEnum routingStrategy)
+    public void FireEvent(string eventName, RoutingStrategyEnum routingStrategy)
     {
       if (routingStrategy == RoutingStrategyEnum.Tunnel)
       {
@@ -961,9 +974,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
         if (parent != null)
           parent.FireEvent(eventName, routingStrategy);
       }
-      UIEventDelegate dlgt = EventOccured;
-      if (dlgt != null)
-        dlgt(eventName);
+      DoFireEvent(eventName);
       switch (routingStrategy)
       {
         case RoutingStrategyEnum.Bubble:
@@ -978,6 +989,13 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
             child.FireEvent(eventName, routingStrategy);
           break;
       }
+    }
+
+    protected virtual void DoFireEvent(string eventName)
+    {
+      UIEventDelegate dlgt = EventOccured;
+      if (dlgt != null)
+        dlgt(eventName);
     }
 
     public void CheckFireLoaded()
