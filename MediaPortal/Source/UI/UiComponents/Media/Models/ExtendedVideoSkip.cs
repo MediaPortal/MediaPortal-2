@@ -57,7 +57,7 @@ namespace MediaPortal.UiComponents.Media.Models
 
     public ExtendedVideoSkip()
     {
-      _skipStepProperty = new SProperty(typeof(string), string.Empty);
+      _skipStepProperty = new WProperty(typeof(string), string.Empty);
       InitSkipSteps();
     }
 
