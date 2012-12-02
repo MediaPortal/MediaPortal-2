@@ -29,6 +29,16 @@ namespace MediaPortal.Common.General
   /// <summary>
   /// Represents a property which binds its change event handlers with strong references.
   /// </summary>
+  /// <remarks>
+  /// <para>
+  /// Hint: <see cref="SProperty"/> binds its change handlers with strong references. This type of property should NEVER be used for properties in UI models which
+  /// are bound by screens or by the theme.
+  /// <see cref="SProperty"/> can be used in control classes in the SkinEngine.
+  /// </para>
+  /// <para>
+  /// <see cref="SProperty"/> instances are much more performant than <see cref="WProperty"/> instances.
+  /// </para>
+  /// </remarks>
   public class SProperty : AbstractProperty
   {
     #region Protected fields and events

@@ -29,6 +29,16 @@ namespace MediaPortal.Common.General
   /// <summary>
   /// Represents a property which binds its change event handlers with weak references.
   /// </summary>
+  /// <remarks>
+  /// <para>
+  /// Hint: <see cref="WProperty"/> instances should be used in UI models, rather than <see cref="SProperty"/> instances.
+  /// <see cref="WProperty"/> instances bind their change event handlers with weak references which allows a proper garbage collection
+  /// of screens and the theme if they bind to <see cref="WProperty"/> instances in UI models.
+  /// </para>
+  /// <para>
+  /// <see cref="WProperty"/> instances are much less performant than <see cref="SProperty"/> instances.
+  /// </para>
+  /// </remarks>
   public class WProperty : AbstractProperty
   {
     #region Protected fields and events
