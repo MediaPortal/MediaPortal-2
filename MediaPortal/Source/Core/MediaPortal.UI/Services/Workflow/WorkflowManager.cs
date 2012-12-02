@@ -37,6 +37,7 @@ using MediaPortal.Common.Logging;
 using MediaPortal.Common.Messaging;
 using MediaPortal.Common.PluginManager;
 using MediaPortal.Common.Threading;
+using MediaPortal.UI.Control.InputManager;
 using MediaPortal.UI.Presentation.Models;
 using MediaPortal.UI.Presentation.Screens;
 using MediaPortal.UI.Presentation.SkinResources;
@@ -112,6 +113,8 @@ namespace MediaPortal.UI.Services.Workflow
     protected IItemRegistrationChangeListener _workflowPluginItemsChangeListener;
     protected IDictionary<Guid, WorkflowState> _states = new Dictionary<Guid, WorkflowState>();
     protected IDictionary<Guid, WorkflowAction> _menuActions =  new Dictionary<Guid, WorkflowAction>();
+    protected IDictionary<Key, WorkflowState> _workflowStateShortcuts = new Dictionary<Key, WorkflowState>();
+    protected IDictionary<Key, WorkflowAction> _workflowActionShortcuts = new Dictionary<Key, WorkflowAction>();
     protected AsynchronousMessageQueue _messageQueue = null;
 
     #endregion
@@ -240,17 +243,51 @@ namespace MediaPortal.UI.Services.Workflow
     }
 
     /// <summary>
-    /// (Re)loads all workflow resources from the skin resource manager.
+    /// (Re)loads all workflow resources from the skin resource manager. This also includes shortcut definitions.
     /// </summary>
     protected void ReloadWorkflowActions()
     {
-      ServiceRegistration.Get<ILogger>().Debug(_states.Count == 0 ? "WorkflowManager: Loading workflow actions" :
-          "WorkflowManager: Reloading workflow actions");
+      ServiceRegistration.Get<ILogger>().Debug(_states.Count == 0 ? "WorkflowManager: Loading workflow actions and shortcuts" :
+          "WorkflowManager: Reloading workflow actions and shortcuts");
+
       WorkflowResourcesLoader loader = new WorkflowResourcesLoader();
       loader.Load();
       EnterWriteLock("ReloadWorkflowActions");
+
+      // First remove any previously created shortcuts
+      UnRegisterActionShortcuts();
+      
       _menuActions = loader.MenuActions;
+
+      ShortcutResourcesLoader shortcutLoader = new ShortcutResourcesLoader();
+      shortcutLoader.Load();
+      _workflowActionShortcuts = shortcutLoader.WorkflowActionShortcuts;
+
+      // Register shortcuts after (re-)loading
+      RegisterActionShortcuts();
+
       ExitWriteLock();
+    }
+
+    protected void UnRegisterActionShortcuts()
+    {
+      IInputManager inputManager = ServiceRegistration.Get<IInputManager>();
+      foreach (KeyValuePair<Key, WorkflowAction> workflowAction in _workflowActionShortcuts)
+        inputManager.RemoveKeyBinding(workflowAction.Key);
+    }
+
+    protected void RegisterActionShortcuts()
+    {
+      IInputManager inputManager = ServiceRegistration.Get<IInputManager>();
+      foreach (KeyValuePair<Key, WorkflowAction> workflowAction in _workflowActionShortcuts)
+      {
+        var action = workflowAction.Value;
+        inputManager.AddKeyBinding(workflowAction.Key, () =>
+        {
+          if (action.IsEnabled(null) && action.IsVisible(null))
+            action.Execute();
+        });
+      }
     }
 
     /// <summary>
@@ -263,6 +300,9 @@ namespace MediaPortal.UI.Services.Workflow
       EnterWriteLock("ReloadWorkflowStates");
       try
       {
+        // First remove any previously created shortcuts
+        UnRegisterStateShortcuts();
+
         IPluginManager pluginManager = ServiceRegistration.Get<IPluginManager>();
         _states.Clear();
         foreach (WorkflowState state in pluginManager.RequestAllPluginItems<WorkflowState>(WORKFLOW_STATES_REGISTRATION_LOCATION, _wfStateItemStateTracker))
@@ -277,10 +317,41 @@ namespace MediaPortal.UI.Services.Workflow
         }
         if (numPop > 0)
           NavigatePop(numPop);
+
+        ShortcutResourcesLoader shortcutLoader = new ShortcutResourcesLoader();
+        shortcutLoader.Load();
+        _workflowStateShortcuts = shortcutLoader.WorkflowStateShortcuts;
+
+        // Register shortcuts after (re-)loading
+        RegisterStateShortcuts();
       }
       finally
       {
         ExitWriteLock();
+      }
+    }
+
+    protected void UnRegisterStateShortcuts()
+    {
+      IInputManager inputManager = ServiceRegistration.Get<IInputManager>();
+      foreach (KeyValuePair<Key, WorkflowAction> workflowAction in _workflowActionShortcuts)
+        inputManager.RemoveKeyBinding(workflowAction.Key);
+    }
+
+    protected void RegisterStateShortcuts()
+    {
+      IInputManager inputManager = ServiceRegistration.Get<IInputManager>();
+      foreach (KeyValuePair<Key, WorkflowState> workflowAction in _workflowStateShortcuts)
+      {
+        var stateId = workflowAction.Value.StateId;
+        inputManager.AddKeyBinding(workflowAction.Key, () =>
+        {
+          bool isInStack = NavigationContextStack.ToList().FirstOrDefault(n => n.WorkflowState.StateId == stateId) != null;
+          if (isInStack)
+            NavigatePopToState(stateId, false);
+          else
+            NavigatePush(stateId);
+        });
       }
     }
 
