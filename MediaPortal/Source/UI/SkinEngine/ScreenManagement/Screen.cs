@@ -37,6 +37,8 @@ using MediaPortal.UI.Presentation.SkinResources;
 using MediaPortal.UI.SkinEngine.Controls.Visuals;
 using MediaPortal.UI.SkinEngine.Controls.Visuals.Triggers;
 using MediaPortal.UI.SkinEngine.InputManagement;
+using MediaPortal.UI.SkinEngine.MpfElements;
+using MediaPortal.UI.SkinEngine.MpfElements.Resources;
 using MediaPortal.UI.SkinEngine.Rendering;
 using MediaPortal.UI.SkinEngine.SkinManagement;
 using MediaPortal.UI.SkinEngine.Xaml.Interfaces;
@@ -85,7 +87,7 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
   /// <summary>
   /// Screen class respresenting a logical screen represented by a particular skin.
   /// </summary>
-  public class Screen : UIElement, INameScope, IAddChild<FrameworkElement>
+  public class Screen : UIElement, INameScope, IAddChild<FrameworkElement>, IUnmodifiableResource
   {
     #region Consts
 
@@ -890,6 +892,22 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
       SetScreen(this);
       ScreenState = _state; // Set the visual's element state via our ScreenState setter
       InitializeTriggers();
+    }
+
+    #endregion
+
+    #region IUnmodifiableResource implementation
+
+    /// <summary>
+    /// The screen is an exception case concerning the ownership and the disposal. <see cref="Screen"/> instances don't take part
+    /// in the automatic resource disposal for UI elements, they are owned by the screen manager service. That's why we "fake" its
+    /// owner by returning the screen instance itself. Together with the owner check in class <see cref="MPF"/>, this avoids
+    /// an unwanted disposal of <see cref="Screen"/> instances when they are handled by bindings or the animator or something.
+    /// </summary>
+    public object Owner
+    {
+      get { return this; }
+      set { }
     }
 
     #endregion
