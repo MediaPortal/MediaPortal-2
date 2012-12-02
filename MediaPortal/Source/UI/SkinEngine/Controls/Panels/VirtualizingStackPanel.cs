@@ -281,8 +281,12 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
         if (item == null)
           return null;
         if (newlyCreated)
+        {
           // VisualParent and item.Screen were set by the item provider
-          item.SetElementState(_elementState == ElementState.Running ? ElementState.Running : ElementState.Preparing);
+          item.SetElementState(ElementState.Preparing);
+          if (_elementState == ElementState.Running)
+            item.SetElementState(ElementState.Running);
+        }
         if (newlyCreated || forceMeasure)
         {
           SizeF childSize = Orientation == Orientation.Vertical ? new SizeF((float) ActualWidth, float.NaN) :
