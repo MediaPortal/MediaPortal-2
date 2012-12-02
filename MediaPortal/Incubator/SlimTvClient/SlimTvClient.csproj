@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
@@ -496,73 +496,26 @@
     <Content Include="Skin\default\images\channellogos\zdfneo_KiKa.png" />
     <Content Include="Skin\default\images\channellogos\ZDFtheaterkanal.png" />
     <Content Include="Skin\default\images\channellogos\ZDF_neo.png" />
-    <Content Include="Skin\default\shortcuts\SlimTvClient-shortcuts.xml">
-      <SubType>Designer</SubType>
-    </Content>
+    <Content Include="Skin\default\shortcuts\SlimTvClient-shortcuts.xml" />
     <Content Include="Skin\default\workflow\SlimTvClient-actions.xml" />
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="Skin\default\screens\SlimTvClient-main.xaml">
-      <SubType>Designer</SubType>
-      <SubType>Designer</SubType>
-    </Content>
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="Skin\default\screens\CurrentlyPlayingTv.xaml">
-      <SubType>Designer</SubType>
-      <SubType>Designer</SubType>
-    </Content>
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="Skin\default\screens\FullScreenContentTv.xaml">
-      <SubType>Designer</SubType>
-      <SubType>Designer</SubType>
-    </Content>
-  </ItemGroup>
-  <ItemGroup>
+    <Content Include="Skin\default\screens\SlimTvClient-main.xaml" />
+    <Content Include="Skin\default\screens\CurrentlyPlayingTv.xaml" />
+    <Content Include="Skin\default\screens\FullScreenContentTv.xaml" />
+    <Content Include="Skin\default\themes\default\styles\SlimTvStyles.xaml" />
+    <Content Include="Skin\default\screens\SlimTvClient-guide.xaml" />
+    <Content Include="Skin\default\screens\ProgramInfo.inc" />
+    <Content Include="Skin\default\screens\DialogProgramActions.xaml" />
+    <Content Include="Skin\default\screens\ProgramInfoSlim.inc" />
+    <Content Include="Skin\default\screens\SlimTvClient-fullguide.xaml" />
+    <Content Include="Skin\default\screens\DialogProgramActionsFull.xaml" />
+    <Content Include="Skin\default\themes\default\styles\SlimTvConsts.xaml" />
+    <Content Include="Skin\default\screens\SlimTvClient-miniguide.xaml" />
+    <Content Include="Skin\Reflexion\themes\default\styles\ProgramInfoSlim.inc" />
+    <Content Include="Skin\RisingSkin\themes\Silver\styles\SlimTvStyles.xaml" />
+    <Content Include="Skin\default\themes\default\styles\SlimTvColors.xaml" />
+    <Content Include="Skin\Reflexion\themes\default\styles\SlimTvStyles.xaml" />
+    <Content Include="Skin\Reflexion\themes\default\styles\SlimTvConsts.xaml" />
     <Content Include="Language\strings_en.xml" />
-    <Content Include="Skin\default\themes\default\styles\SlimTvStyles.xaml">
-      <SubType>Designer</SubType>
-      <SubType>Designer</SubType>
-    </Content>
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="Skin\default\screens\SlimTvClient-guide.xaml">
-      <SubType>Designer</SubType>
-      <SubType>Designer</SubType>
-    </Content>
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="Skin\default\screens\ProgramInfo.inc">
-      <SubType>
-      </SubType>
-    </Content>
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="Skin\default\screens\DialogProgramActions.xaml">
-      <SubType>Designer</SubType>
-      <SubType>Designer</SubType>
-    </Content>
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="Skin\default\screens\ProgramInfoSlim.inc">
-      <SubType>Designer</SubType>
-    </Content>
-    <Content Include="Skin\default\screens\SlimTvClient-fullguide.xaml">
-      <SubType>Designer</SubType>
-      <SubType>Designer</SubType>
-    </Content>
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="Skin\default\screens\DialogProgramActionsFull.xaml">
-      <SubType>Designer</SubType>
-      <SubType>Designer</SubType>
-    </Content>
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="Skin\default\themes\default\styles\SlimTvConsts.xaml">
-      <SubType>Designer</SubType>
-    </Content>
   </ItemGroup>
   <ItemGroup>
     <BootstrapperPackage Include="Microsoft.Net.Client.3.5">
@@ -580,32 +533,6 @@
       <ProductName>Windows Installer 3.1</ProductName>
       <Install>true</Install>
     </BootstrapperPackage>
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="Skin\default\screens\SlimTvClient-miniguide.xaml">
-      <SubType>Designer</SubType>
-    </Content>
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="Skin\Reflexion\themes\default\styles\ProgramInfoSlim.inc" />
-    <Content Include="Skin\RisingSkin\themes\Silver\styles\SlimTvStyles.xaml">
-      <SubType>Designer</SubType>
-    </Content>
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="Skin\default\themes\default\styles\SlimTvColors.xaml">
-      <SubType>Designer</SubType>
-    </Content>
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="Skin\Reflexion\themes\default\styles\SlimTvStyles.xaml">
-      <SubType>Designer</SubType>
-    </Content>
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="Skin\Reflexion\themes\default\styles\SlimTvConsts.xaml">
-      <SubType>Designer</SubType>
-    </Content>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
