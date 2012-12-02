@@ -75,38 +75,6 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="..\..\Source\Core\MediaPortal.Common\VersionInfo\VersionInfo.cs">
-      <Link>Properties\VersionInfo.cs</Link>
-    </Compile>
-    <Compile Include="Extensions\ProgramExample.cs" />
-    <Compile Include="Helpers\FormatHelper.cs" />
-    <Compile Include="Helpers\ChannelProgramListItem.cs" />
-    <Compile Include="Helpers\ProgramListItem.cs" />
-    <Compile Include="Helpers\ProgramProperties.cs" />
-    <Compile Include="Helpers\ResourceHelper.cs" />
-    <Compile Include="Models\Navigation\ChannelFilterItem.cs" />
-    <Compile Include="Models\RecordingsAction.cs" />
-    <Compile Include="Models\ScreenData\AbstractChannelFilterScreenData.cs" />
-    <Compile Include="Models\ScreenData\RecordingFilterByNameScreenData.cs" />
-    <Compile Include="Models\SlimTvModelBase.cs" />
-    <Compile Include="Models\SlimTvMultiChannelGuideModel.cs" />
-    <Compile Include="Models\SlimTvGuideModelBase.cs" />
-    <Compile Include="Models\SlimTvSingleChannelGuideModel.cs" />
-    <Compile Include="Models\Sorting\SortByRecordingDateDesc.cs" />
-    <Compile Include="Player\LiveRadioPlayer.cs" />
-    <Compile Include="Player\LiveTvPlayer.cs" />
-    <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Models\SlimTvClientModel.cs" />
-    <Compile Include="SlimTvClientPlugin.cs" />
-    <Compile Include="TvHandler\RecordingsLibrary.cs" />
-    <Compile Include="TvHandler\SlimTvConsts.cs" />
-    <Compile Include="TvHandler\SlimTvHandler.cs" />
-    <Compile Include="Player\SlimTvUIContributor.cs" />
-    <Compile Include="Player\SlimTvPlayerBuilder.cs" />
-    <Compile Include="TvHandler\TimeshiftContext.cs" />
-    <Compile Include="TvHandler\RecordingsFilterByChannelScreenData.cs" />
-  </ItemGroup>
-  <ItemGroup>
     <ProjectReference Include="..\..\Source\Core\MediaPortal.Common\MediaPortal.Common.csproj">
       <Project>{ECF060E7-CAA1-4466-851F-F80B857641EA}</Project>
       <Name>MediaPortal.Common</Name>
@@ -146,73 +114,58 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="plugin.xml" />
+    <Compile Include="..\..\Source\Core\MediaPortal.Common\VersionInfo\VersionInfo.cs">
+      <Link>Properties\VersionInfo.cs</Link>
+    </Compile>
+    <Compile Include="Extensions\ProgramExample.cs" />
+    <Compile Include="Helpers\FormatHelper.cs" />
+    <Compile Include="Helpers\ChannelProgramListItem.cs" />
+    <Compile Include="Helpers\ProgramListItem.cs" />
+    <Compile Include="Helpers\ProgramProperties.cs" />
+    <Compile Include="Helpers\ResourceHelper.cs" />
+    <Compile Include="Models\Navigation\ChannelFilterItem.cs" />
+    <Compile Include="Models\RecordingsAction.cs" />
+    <Compile Include="Models\ScreenData\AbstractChannelFilterScreenData.cs" />
+    <Compile Include="Models\ScreenData\RecordingFilterByNameScreenData.cs" />
+    <Compile Include="Models\SlimTvModelBase.cs" />
+    <Compile Include="Models\SlimTvMultiChannelGuideModel.cs" />
+    <Compile Include="Models\SlimTvGuideModelBase.cs" />
+    <Compile Include="Models\SlimTvSingleChannelGuideModel.cs" />
+    <Compile Include="Models\Sorting\SortByRecordingDateDesc.cs" />
+    <Compile Include="Player\LiveRadioPlayer.cs" />
+    <Compile Include="Player\LiveTvPlayer.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Models\SlimTvClientModel.cs" />
+    <Compile Include="SlimTvClientPlugin.cs" />
+    <Compile Include="TvHandler\RecordingsLibrary.cs" />
+    <Compile Include="TvHandler\SlimTvConsts.cs" />
+    <Compile Include="TvHandler\SlimTvHandler.cs" />
+    <Compile Include="Player\SlimTvUIContributor.cs" />
+    <Compile Include="Player\SlimTvPlayerBuilder.cs" />
+    <Compile Include="TvHandler\TimeshiftContext.cs" />
+    <Compile Include="TvHandler\RecordingsFilterByChannelScreenData.cs" />
     <Content Include="Skin\default\shortcuts\SlimTvClient-shortcuts.xml" />
-    <Content Include="Skin\default\workflow\SlimTvClient-actions.xml">
-      <SubType>Designer</SubType>
-    </Content>
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="Skin\default\screens\SlimTvClient-main.xaml">
-      <SubType>Designer</SubType>
-      <SubType>Designer</SubType>
-    </Content>
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="Skin\default\screens\CurrentlyPlayingTv.xaml">
-      <SubType>Designer</SubType>
-      <SubType>Designer</SubType>
-    </Content>
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="Skin\default\screens\FullScreenContentTv.xaml">
-      <SubType>Designer</SubType>
-      <SubType>Designer</SubType>
-    </Content>
-  </ItemGroup>
-  <ItemGroup>
+    <Content Include="Skin\default\workflow\SlimTvClient-actions.xml" />
+    <Content Include="Skin\default\screens\SlimTvClient-main.xaml" />
+    <Content Include="Skin\default\screens\CurrentlyPlayingTv.xaml" />
+    <Content Include="Skin\default\screens\FullScreenContentTv.xaml" />
     <Content Include="Language\strings_en.xml" />
-    <Content Include="Skin\default\themes\default\styles\SlimTvStyles.xaml">
-      <SubType>Designer</SubType>
-      <SubType>Designer</SubType>
-    </Content>
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="Skin\default\screens\SlimTvClient-guide.xaml">
-      <SubType>Designer</SubType>
-      <SubType>Designer</SubType>
-    </Content>
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="Skin\default\screens\ProgramInfo.inc">
-      <SubType>
-      </SubType>
-    </Content>
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="Skin\default\screens\DialogProgramActions.xaml">
-      <SubType>Designer</SubType>
-      <SubType>Designer</SubType>
-    </Content>
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="Skin\default\screens\ProgramInfoSlim.inc">
-      <SubType>Designer</SubType>
-    </Content>
-    <Content Include="Skin\default\screens\SlimTvClient-fullguide.xaml">
-      <SubType>Designer</SubType>
-      <SubType>Designer</SubType>
-    </Content>
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="Skin\default\screens\DialogProgramActionsFull.xaml">
-      <SubType>Designer</SubType>
-      <SubType>Designer</SubType>
-    </Content>
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="Skin\default\themes\default\styles\SlimTvConsts.xaml">
-      <SubType>Designer</SubType>
-    </Content>
+    <Content Include="Skin\default\themes\default\styles\SlimTvStyles.xaml" />
+    <Content Include="Skin\default\screens\SlimTvClient-guide.xaml" />
+    <Content Include="Skin\default\screens\ProgramInfo.inc" />
+    <Content Include="Skin\default\screens\DialogProgramActions.xaml" />
+    <Content Include="Skin\default\screens\ProgramInfoSlim.inc" />
+    <Content Include="Skin\default\screens\SlimTvClient-fullguide.xaml" />
+    <Content Include="Skin\default\screens\DialogProgramActionsFull.xaml" />
+    <Content Include="Skin\default\themes\default\styles\SlimTvConsts.xaml" />
+    <Content Include="Skin\default\screens\SlimTvClient-miniguide.xaml" />
+    <Content Include="Skin\Reflexion\themes\default\styles\ProgramInfoSlim.inc" />
+    <Content Include="Skin\RisingSkin\themes\Silver\styles\SlimTvStyles.xaml" />
+    <Content Include="Skin\default\themes\default\styles\SlimTvColors.xaml" />
+    <Content Include="Skin\Reflexion\themes\default\styles\SlimTvStyles.xaml" />
+    <Content Include="Skin\Reflexion\themes\default\styles\SlimTvConsts.xaml" />
+    <Content Include="Skin\default\screens\RecordingsByChannel.xaml" />
+    <Content Include="Skin\default\screens\RecordingsByName.xaml" />
   </ItemGroup>
   <ItemGroup>
     <BootstrapperPackage Include="Microsoft.Net.Client.3.5">
@@ -230,42 +183,6 @@
       <ProductName>Windows Installer 3.1</ProductName>
       <Install>true</Install>
     </BootstrapperPackage>
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="Skin\default\screens\SlimTvClient-miniguide.xaml">
-      <SubType>Designer</SubType>
-    </Content>
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="Skin\Reflexion\themes\default\styles\ProgramInfoSlim.inc" />
-    <Content Include="Skin\RisingSkin\themes\Silver\styles\SlimTvStyles.xaml">
-      <SubType>Designer</SubType>
-    </Content>
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="Skin\default\themes\default\styles\SlimTvColors.xaml">
-      <SubType>Designer</SubType>
-    </Content>
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="Skin\Reflexion\themes\default\styles\SlimTvStyles.xaml">
-      <SubType>Designer</SubType>
-    </Content>
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="Skin\Reflexion\themes\default\styles\SlimTvConsts.xaml">
-      <SubType>Designer</SubType>
-    </Content>
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="Skin\default\screens\RecordingsByChannel.xaml">
-      <SubType>Designer</SubType>
-    </Content>
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="Skin\default\screens\RecordingsByName.xaml">
-      <SubType>Designer</SubType>
-    </Content>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
