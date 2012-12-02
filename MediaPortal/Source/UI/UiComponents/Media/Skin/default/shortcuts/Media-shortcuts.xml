@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Shortcut DescriptorVersion="1.0">
+  <WorkflowActions>
+    <!-- Name="Home->Videos" -->
+    <Shortcut Key="P:V" WorkflowAction="A4DF2DF6-8D66-479a-9930-D7106525EB07" />
+
+    <!-- Name="Home->Movies" -->
+    <Shortcut Key="P:M" WorkflowAction="80D2E2CC-BAAA-4750-807B-F37714153751" />
+
+    <!-- Name="Home->Series" -->
+    <Shortcut Key="P:S" WorkflowAction="30F57CBA-459C-4202-A587-09FFF5098251" />
+
+    <!-- Name="Home->Images" -->
+    <Shortcut Key="P:I" WorkflowAction="55556593-9FE9-436c-A3B6-A971E10C9D44" />
+
+    <!-- Name="Home->Audio" -->
+    <Shortcut Key="P:A" WorkflowAction="30715D73-4205-417f-80AA-E82F0834171F" />
+    
+    <!-- Name="*->FullscreenContent" -->
+    <Shortcut Key="P:F" WorkflowAction="9C3E6701-6856-49ec-A4CD-0CEB15F385F6" />
+
+    <!-- Name="*->CurrentMedia" -->
+    <Shortcut Key="P:C" WorkflowAction="D83604C0-0936-4416-9DE8-7B6D7C50023C" />
+  </WorkflowActions>
+</Shortcut>
