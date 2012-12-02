@@ -123,7 +123,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     {
       ContentPresenter presenter = FindContentPresenter();
       if (presenter != null)
-        presenter.ContentTemplate = ContentTemplate;
+        presenter.ContentTemplate = MpfCopyManager.DeepCopyCutLVPs(ContentTemplate);
     }
 
     #endregion
