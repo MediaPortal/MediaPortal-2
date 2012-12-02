@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Shortcut DescriptorVersion="1.0">
+  <WorkflowStates>
+    <!-- Name="HomeScreen" -->
+    <Shortcut Key="P:H" WorkflowState="7F702D9C-F2DD-42da-9ED8-0BA92F07787F" />
+  </WorkflowStates>
+</Shortcut>

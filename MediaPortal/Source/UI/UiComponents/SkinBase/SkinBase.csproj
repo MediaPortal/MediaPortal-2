@@ -158,6 +158,9 @@
     <Content Include="Skin\default\images\sound.png" />
     <Content Include="Skin\default\images\sound_off.png" />
     <Content Include="Skin\default\images\video.png" />
+    <Content Include="Skin\default\shortcuts\SkinBase-shortcuts.xml">
+      <SubType>Designer</SubType>
+    </Content>
     <Content Include="Skin\default\skin.xml" />
     <Content Include="Skin\default\sounds\button12.wav" />
     <Content Include="Skin\default\sounds\button6.wav" />
