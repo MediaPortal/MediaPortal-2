@@ -301,6 +301,9 @@
     <Content Include="Skin\default\screens\PlaylistInfo.xaml" />
     <Content Include="Skin\default\screens\RemovePlaylists.xaml" />
     <Content Include="Skin\default\screens\SavePlaylistEditName.xaml" />
+    <Content Include="Skin\default\shortcuts\Media-shortcuts.xml">
+      <SubType>Designer</SubType>
+    </Content>
     <Content Include="Skin\default\themes\default\images\FilterLarge.png" />
     <Content Include="Skin\default\themes\default\images\FilterSmall.png" />
     <Content Include="Skin\default\themes\default\images\NoBanner.png" />
