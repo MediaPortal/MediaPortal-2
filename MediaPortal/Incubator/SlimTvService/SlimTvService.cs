@@ -1,6 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data.Common;
 using System.Linq;
+using System.Timers;
+using MediaPortal.Backend.Database;
 using MediaPortal.Common;
 using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.Utils;
@@ -8,12 +11,14 @@ using MediaPortal.Plugins.SlimTv.Interfaces;
 using MediaPortal.Plugins.SlimTv.Interfaces.Items;
 using MediaPortal.Plugins.SlimTv.Interfaces.LiveTvMediaItem;
 using MediaPortal.Plugins.SlimTv.Interfaces.ResourceProvider;
+using MediaPortal.Plugins.SlimTv.Service.Helpers;
 using Mediaportal.TV.Server.TVControl;
 using Mediaportal.TV.Server.TVControl.Interfaces.Services;
 using Mediaportal.TV.Server.TVControl.ServiceAgents;
 using Mediaportal.TV.Server.TVDatabase.Entities;
 using Mediaportal.TV.Server.TVDatabase.Entities.Enums;
 using Mediaportal.TV.Server.TVDatabase.Entities.Factories;
+using Mediaportal.TV.Server.TVDatabase.EntityModel.ObjContext;
 using Mediaportal.TV.Server.TVLibrary;
 using Mediaportal.TV.Server.TVLibrary.Interfaces.Integration;
 using Mediaportal.TV.Server.TVService.Interfaces;
@@ -27,8 +32,12 @@ namespace MediaPortal.Plugins.SlimTv.Service
   {
     const int MAX_WAIT_MS = 2000;
     public const string LOCAL_USERNAME = "Local";
+    public const string TVDB_NAME = "MP2TVE";
     private TvServiceThread _tvServiceThread;
     protected readonly Dictionary<string, IUser> _tvUsers = new Dictionary<string, IUser>();
+    protected Timer _timer;
+    protected DbProviderFactory _dbProviderFactory;
+    protected string _cloneConnection;
 
 
     public string Name
@@ -38,10 +47,48 @@ namespace MediaPortal.Plugins.SlimTv.Service
 
     public bool Init()
     {
-      IntegrationProviderHelper.Register(@"Plugins\SlimTv.Service");
+      _timer = new Timer(500) { AutoReset = true };
+      _timer.Elapsed += InitAsync;
+      _timer.Start();
+      return true;
+    }
+
+    private void InitAsync(object sender, ElapsedEventArgs args)
+    {
+      ISQLDatabase database;
+      lock (_timer)
+      {
+        database = ServiceRegistration.Get<ISQLDatabase>(false);
+        if (database == null)
+          return;
+        _timer.Close();
+        _timer.Dispose();
+      }
+
+      using (var transaction = database.BeginTransaction())
+        if (transaction.Connection.GetCloneFactory(TVDB_NAME, out _dbProviderFactory, out _cloneConnection))
+        {
+          EntityFrameworkHelper.AssureKnownFactory(_dbProviderFactory);
+          // Register our factory to create new cloned connections
+          ObjectContextManager.SetDbConnectionCreator(ClonedConnectionFactory);
+        }
+
+      IntegrationProviderHelper.Register(@"Plugins\SlimTv.Service", @"Plugins\SlimTv.Service\castle.config");
       _tvServiceThread = new TvServiceThread(Environment.GetCommandLineArgs()[0]);
       _tvServiceThread.Start();
-      return true;
+    }
+
+    /// <summary>
+    /// Creates a new <see cref="DbConnection"/> on each request. This is used by the Tve35 EF model handling.
+    /// </summary>
+    /// <returns>Connection, still closed</returns>
+    private DbConnection ClonedConnectionFactory ()
+    {
+      DbConnection connection = _dbProviderFactory.CreateConnection();
+      if (connection == null)
+        return null;
+      connection.ConnectionString = _cloneConnection;
+      return connection;
     }
 
     public bool DeInit()
@@ -138,7 +185,7 @@ namespace MediaPortal.Plugins.SlimTv.Service
     {
       IProgramService programService = GlobalServiceProvider.Get<IProgramService>();
       IChannelGroupService channelGroupService = GlobalServiceProvider.Get<IChannelGroupService>();
-      
+
       var channels = channelGroupService.GetChannelGroup(channelGroup.ChannelGroupId).GroupMaps.Select(groupMap => groupMap.Channel);
       IDictionary<int, IList<Program>> programEntities = programService.GetProgramsForAllChannels(from, to, channels);
 

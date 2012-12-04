@@ -56,6 +56,7 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>References\Mediaportal.TV.Server.TVDatabase.Entities.dll</HintPath>
     </Reference>
+    <Reference Include="Mediaportal.TV.Server.TVDatabase.EntityModel, Version=1.0.0.0, Culture=neutral, processorArchitecture=x86" />
     <Reference Include="Mediaportal.TV.Server.TVDatabase.TVBusinessLayer, Version=1.2.100.0, Culture=neutral, processorArchitecture=x86">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>References\Mediaportal.TV.Server.TVDatabase.TVBusinessLayer.dll</HintPath>
@@ -79,6 +80,8 @@
     <Compile Include="..\..\Source\Core\MediaPortal.Common\VersionInfo\VersionInfo.cs">
       <Link>Properties\VersionInfo.cs</Link>
     </Compile>
+    <Compile Include="Helpers\ConnectionHelper.cs" />
+    <Compile Include="Helpers\EntityFrameworkHelper.cs" />
     <Compile Include="SlimTvService.cs" />
     <Compile Include="SlimTvServicePlugin.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -530,6 +533,7 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <None Include="References\castle.config" />
     <None Include="References\Mediaportal.TV.Server.TVLibrary.Services.dll.config" />
     <None Include="References\TsWriter.ax" />
   </ItemGroup>
