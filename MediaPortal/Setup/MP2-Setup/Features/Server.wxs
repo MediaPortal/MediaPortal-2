@@ -8,28 +8,28 @@
     <?include ..\Includes.wxi ?>
 
     <!-- Directory definition -->
-    <DirectoryRef Id="TeamMediaPortalFolder">
+    <DirectoryRef Id="TeamMediaPortal.Folder">
       <Directory Id="INSTALLDIR_SERVER" Name="MP2-Server" />
     </DirectoryRef>
 
-    <DirectoryRef Id="TeamMediaPortal.DATA.FOLDER">
-      <Directory Id="SERVER.DATA.FOLDER" Name="MP2-Server">
-        <Component Id="SERVER.DATA.FOLDER" Guid="4C918D8D-9925-49D9-8CC9-0369A32F6221">
+    <DirectoryRef Id="TeamMediaPortal.Data.Folder">
+      <Directory Id="SERVER_DATA_FOLDER" Name="MP2-Server">
+        <Component Id="SERVER_DATA_FOLDER" Guid="4C918D8D-9925-49D9-8CC9-0369A32F6221">
           <CreateFolder/>
         </Component>
 
-        <Directory Id="SERVER.CONFIG.FOLDER" Name="Config">
-          <Component Id="SERVER.CONFIG.FOLDER" Guid="97054EC5-47F1-4072-ADC3-BB4BF26CF35A">
+        <Directory Id="SERVER_CONFIG_FOLDER" Name="Config">
+          <Component Id="SERVER_CONFIG_FOLDER" Guid="97054EC5-47F1-4072-ADC3-BB4BF26CF35A">
             <CreateFolder/>
           </Component>
         </Directory>
-        <Directory Id="SERVER.LOG.FOLDER" Name="Log">
-          <Component Id="SERVER.LOG.FOLDER" Guid="4FF03809-8904-43E9-929B-A1397853A77F">
+        <Directory Id="SERVER_LOG_FOLDER" Name="Log">
+          <Component Id="SERVER_LOG_FOLDER" Guid="4FF03809-8904-43E9-929B-A1397853A77F">
             <CreateFolder/>
           </Component>
         </Directory>
-        <Directory Id="SERVER.DATABASE.FOLDER" Name="Database">
-          <Component Id="SERVER.DATABASE.FOLDER" Guid="A7ABDEB5-0D3F-48B7-A4EA-92B1B5DE6C2A">
+        <Directory Id="SERVER_DATABASE_FOLDER" Name="Database">
+          <Component Id="SERVER_DATABASE_FOLDER" Guid="A7ABDEB5-0D3F-48B7-A4EA-92B1B5DE6C2A">
             <CreateFolder/>
           </Component>
         </Directory>
@@ -81,10 +81,10 @@
              Title="!(loc.F_Server)"
              Description="!(loc.F_Server_Desc)">
 
-      <ComponentRef Id="SERVER.DATA.FOLDER" />
-      <ComponentRef Id="SERVER.CONFIG.FOLDER" />
-      <ComponentRef Id="SERVER.LOG.FOLDER" />
-      <ComponentRef Id="SERVER.DATABASE.FOLDER" />
+      <ComponentRef Id="SERVER_DATA_FOLDER" />
+      <ComponentRef Id="SERVER_CONFIG_FOLDER" />
+      <ComponentRef Id="SERVER_LOG_FOLDER" />
+      <ComponentRef Id="SERVER_DATABASE_FOLDER" />
 
       <ComponentRef Id="Server.exe" />
       <ComponentRef Id="Server.Registry.InstallDir" />

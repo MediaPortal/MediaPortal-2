@@ -11,7 +11,7 @@
     <Icon Id="ServiceMonitor" SourceFile="$(var.MediaPortal.ServiceMonitor.TargetPath)" />
 
     <!-- Directory definition -->
-    <DirectoryRef Id="TeamMediaPortalFolder">
+    <DirectoryRef Id="TeamMediaPortal.Folder">
       <Directory Id="INSTALLDIR_SERVICE_MONITOR" Name="MP2-ServiceMonitor" />
     </DirectoryRef>
 
@@ -47,7 +47,7 @@
     </DirectoryRef>
 
     <!-- Shortcuts -->
-    <DirectoryRef Id="MP2StartMenu">
+    <DirectoryRef Id="MP2.StartMenu">
       <Component Id="ServiceMonitor.StartMenu.Shortcut" Guid="859CAD90-107F-4526-9607-CB340B4D59E8">
         <Shortcut Id="ServiceMonitor.StartMenu.Shortcut"
                   Name="!(loc.SC_ServiceMonitor)"

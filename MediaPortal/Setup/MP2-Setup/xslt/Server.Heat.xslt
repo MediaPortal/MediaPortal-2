@@ -27,7 +27,7 @@
 
   <!-- fixed id for plugins dir -->
   <xsl:template match="wix:DirectoryRef[@Id = 'INSTALLDIR_SERVER']/wix:Directory[@Name = 'Plugins']">
-    <Directory Id="SERVER.PLUGINS.FOLDER" Name="Plugins">
+    <Directory Id="SERVER_PLUGINS_FOLDER" Name="Plugins">
       <xsl:apply-templates/>
     </Directory>
   </xsl:template>

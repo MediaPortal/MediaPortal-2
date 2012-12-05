@@ -192,7 +192,7 @@ namespace CustomActions
     /// <remarks>
     /// <para>
     /// This action reads all the paths from an existing MP2 installation's Paths.xml file via the <see cref="PathManager"/> and fills
-    /// the <paramref name="session"/>'s variables of the form <c>"CLIENT.CONFIG.FOLDER</c> for all labels given in the
+    /// the <paramref name="session"/>'s variables of the form <c>"CLIENT_CONFIG_FOLDER"</c> for all labels given in the
     /// <see cref="ClientPathLabels"/> and <see cref="ServerPathLabels"/>, with the appropriate prefix <c>"CLIENT"</c> or <c>"SERVER"</c>.
     /// </para>
     /// <para>
@@ -256,7 +256,7 @@ namespace CustomActions
     /// </summary>
     /// <remarks>
     /// This method reads all the paths from an existing MP2 installation's Paths.xml file via the <see cref="PathManager"/> and fills
-    /// the session's variables of the form <c>"CLIENT.CONFIG.FOLDER</c> for all labels given in the <paramref name="pathLabels"/> for
+    /// the session's variables of the form <c>"CLIENT_CONFIG_FOLDER"</c> for all labels given in the <paramref name="pathLabels"/> for
     /// either client or server, depending on the <paramref name="cs"/> parameter.
     /// </remarks>
     /// <param name="session">Current installation session object.</param>
@@ -286,7 +286,7 @@ namespace CustomActions
 
       foreach (string label in pathLabels)
       {
-        string key = cs + "." + label + ".FOLDER";
+        string key = cs + "_" + label + "_FOLDER";
         string path = pathManager.GetPath("<" + label + ">");
         session[key] = path;
         session.Log("Reading custom path '{0}': '{1}", key, path);
@@ -297,9 +297,9 @@ namespace CustomActions
     /// Prepares the path variables which might have been edited by the user and writes them to the given <paramref name="session"/>.
     /// </summary>
     /// <remarks>
-    /// This action reads the session's variables of the form <c>"CLIENT.CONFIG.FOLDER</c> for client and server and for all labels
+    /// This action reads the session's variables of the form <c>"CLIENT_CONFIG_FOLDER"</c> for client and server and for all labels
     /// in <see cref="ClientPathLabels"/> resp. <see cref="ServerPathLabels"/>, cleans them up (means replaces all common path fragments by
-    /// path labels like <c>"CONFIG"</c>) and writes them to session variables of the form <c>"XML.CLIENT.CONFIG.FOLDER</c>.
+    /// path labels like <c>"CONFIG"</c>) and writes them to session variables of the form <c>"XML_CLIENT_CONFIG_FOLDER"</c>.
     /// </remarks>
     /// <param name="session">Current installation session object.</param>
     [CustomAction]
@@ -345,10 +345,10 @@ namespace CustomActions
     /// Prepares the path variables which might have been edited by the user and writes them to the given <paramref name="session"/>.
     /// </summary>
     /// <remarks>
-    /// This method reads the session's variables of the form <c>"CLIENT.CONFIG.FOLDER</c> for client or server (depending on
+    /// This method reads the session's variables of the form <c>"CLIENT_CONFIG_FOLDER"</c> for client or server (depending on
     /// parameter <paramref name="cs"/>) and for all given <paramref name="pathLabels"/>, cleans them up (means replaces all
     /// common path fragments by path labels like <c>"CONFIG"</c>) and writes them to session variables of the form
-    /// <c>"XML.CLIENT.CONFIG.FOLDER</c>. Those session variables will be written into the configuration files of MP2 by one
+    /// <c>"XML_CLIENT_CONFIG_FOLDER"</c>. Those session variables will be written into the configuration files of MP2 by one
     /// of the next installer steps.
     /// </remarks>
     /// <param name="session">Current installation session object.</param>
@@ -370,7 +370,7 @@ namespace CustomActions
         paths2Labels[label2Path.Value] = label2Path.Key;
       foreach (string pathLabel in pathLabels)
       {
-        string path = session[cs + "." + pathLabel + ".FOLDER"];
+        string path = session[cs + "_" + pathLabel + "_FOLDER"];
         paths2Labels[path] = pathLabel;
       }
 
@@ -379,7 +379,7 @@ namespace CustomActions
       // Go through each path which was edited by the user and try to replace all known paths by their labels
       foreach (string label in pathLabels)
       {
-        string currentPath = session[cs + "." + label + ".FOLDER"]; // Path which was edited in the installer GUI
+        string currentPath = session[cs + "_" + label + "_FOLDER"]; // Path which was edited in the installer GUI
         if (string.IsNullOrEmpty(currentPath))
           continue;
 
@@ -392,7 +392,7 @@ namespace CustomActions
 
         currentPath = StringUtils.RemoveSuffixIfPresent(currentPath, "\\");
 
-        string sessionKey = "XML." + cs + "." + label + ".FOLDER";
+        string sessionKey = "XML_" + cs + "_" + label + "_FOLDER";
         session[sessionKey] = currentPath;
         session.Log("{0} = {1}", sessionKey, currentPath);
       }
