@@ -50,6 +50,9 @@
     <Compile Include="VCRedist\VCRedist.wxs" />
     <Content Include="Includes.wxi" />
     <None Include="MP2-Setup-Logging.bat" />
+    <None Include="Resources\MP2_Icon_General.ico" />
+    <None Include="Resources\MPBanner.jpg" />
+    <None Include="Resources\MPDialog.jpg" />
     <Content Include="VCRedist\Microsoft_VC100_ATL_x86.msm" />
     <Content Include="VCRedist\Microsoft_VC100_CRT_x86.msm" />
     <Content Include="VCRedist\Microsoft_VC100_MFC_x86.msm" />
@@ -62,6 +65,7 @@
     <Folder Include="Fragments" />
     <Folder Include="Language" />
     <Folder Include="Features" />
+    <Folder Include="Resources" />
     <Folder Include="xslt" />
     <Folder Include="VCRedist" />
     <Folder Include="UI" />

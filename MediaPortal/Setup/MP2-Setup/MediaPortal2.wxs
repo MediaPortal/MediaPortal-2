@@ -41,7 +41,7 @@
     <!-- setting the context to per-machine -->
     <Property Id="ALLUSERS">1</Property>
 
-    <Icon Id="MediaPortal2Icon" SourceFile="Ressources\MP2_Icon_General.ico" />
+    <Icon Id="MediaPortal2Icon" SourceFile="Resources\MP2_Icon_General.ico" />
 
     <!-- Directories -->
     <Directory Id="TARGETDIR" Name="SourceDir">
@@ -133,9 +133,9 @@
     <WixVariable Id="WixUILicenseRtf"
                  Value="$(var.SolutionDir)..\Bin\MP2-Client\bin\x86\Release\Docs\MediaPortal License.rtf" />
     <WixVariable Id="WixUIBannerBmp"
-                 Value="Ressources\MPBanner.jpg" />
+                 Value="Resources\MPBanner.jpg" />
     <WixVariable Id="WixUIDialogBmp"
-                 Value="Ressources\MPDialog.jpg" />
+                 Value="Resources\MPDialog.jpg" />
 
     <UIRef Id="MP2_Setup_UI_FeatureTree" />
     <UIRef Id="WixUI_ErrorProgressText" />
