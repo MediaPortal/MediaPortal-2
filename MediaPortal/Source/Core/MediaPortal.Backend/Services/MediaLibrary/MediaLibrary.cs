@@ -196,7 +196,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
             if (messageType == ImporterWorkerMessaging.MessageType.ImportStarted)
               ContentDirectoryMessaging.SendShareImportMessage(ContentDirectoryMessaging.MessageType.ShareImportStarted, share.ShareId);
             else
-              ContentDirectoryMessaging.SendShareImportMessage(ContentDirectoryMessaging.MessageType.ShareImportStarted, share.ShareId);
+              ContentDirectoryMessaging.SendShareImportMessage(ContentDirectoryMessaging.MessageType.ShareImportCompleted, share.ShareId);
             break;
         }
       }
