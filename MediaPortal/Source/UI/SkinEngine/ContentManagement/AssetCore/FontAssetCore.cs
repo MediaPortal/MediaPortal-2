@@ -421,7 +421,7 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement.AssetCore
       textSize = new SizeF(0.0f, verts[verts.Count - 1].Y);
 
       // Stores the line widths as the Z coordinate of the verices. This means alignment
-      // can be performed by a vertex shader durng rendering
+      // can be performed by a vertex shader during rendering
       PositionColoredTextured[] vertArray = verts.ToArray();
       for (int i = 0; i < lineIndex.Length; ++i)
       {
@@ -458,7 +458,7 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement.AssetCore
         if (verts.Count == 0)
         {
           BitmapCharacter c = Character(' ');
-          CreateQuad(c, sizeScale, c.XOffset, c.YOffset, ref verts);
+          CreateQuad(c, sizeScale, c.XOffset, y, ref verts);
         }
         return x*sizeScale;
       }
