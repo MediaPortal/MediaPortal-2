@@ -16,6 +16,7 @@
   <DependsOn>
     <PluginReference PluginId="{5D239050-02B8-4f58-8301-7630A1C4CF85}"/>    <!-- SkinBase -->
     <PluginReference PluginId="{15FB35F7-8C85-4404-BC67-BFF28446158A}"/>    <!-- Media -->
+    <PluginReference PluginId="{89F8DD04-1CD5-4F78-8105-6979157E8936}"/>    <!-- Tve3RecordingMetadataExtractor -->
   </DependsOn>
 
   <Register Location="/Players/Builders">
@@ -40,6 +41,12 @@
       MainScreen="SlimTvClient-fullguide"
       DisplayLabel="TV Guide"
       WorkflowModel="5054408D-C2A9-451f-A702-E84AFCD29C10"/>   <!-- Workflow model = SlimTvMultiChannelGuide Model -->
+
+    <WorkflowState Id="9D5B01A7-035F-46CF-8246-3C158C6CA960"
+      Name="RecordingsNavigation-Root"
+      DisplayLabel="[SlimTvClient.RecordingsMenuItem]"
+      WorkflowModel="4CDD601F-E280-43b9-AD0A-6D7B2403C856"/>   <!-- Workflow model = Media model -->
+
   </Register>
 
   <!-- Language resources -->
@@ -64,6 +71,7 @@
     <Model Id="8BEC1372-1C76-484c-8A69-C7F3103708EC" ClassName="MediaPortal.Plugins.SlimTv.Client.Models.SlimTvClientModel"/>
     <Model Id="74F50A53-BEF7-415c-A240-2EC718DA8C0F" ClassName="MediaPortal.Plugins.SlimTv.Client.Models.SlimTvSingleChannelGuideModel"/>
     <Model Id="5054408D-C2A9-451f-A702-E84AFCD29C10" ClassName="MediaPortal.Plugins.SlimTv.Client.Models.SlimTvMultiChannelGuideModel"/>
+    <Model Id="117A9807-8B10-47F1-8780-C748DBCF45BA" Name="RecordingsContributorModel" ClassName="MediaPortal.Plugins.SlimTv.Client.Models.RecordingsAction"/>
   </Register>
 
   <Register Location="/Resources/Skin">

@@ -84,6 +84,7 @@
     <Compile Include="Helpers\ProgramListItem.cs" />
     <Compile Include="Helpers\ProgramProperties.cs" />
     <Compile Include="Helpers\ResourceHelper.cs" />
+    <Compile Include="Models\RecordingsAction.cs" />
     <Compile Include="Models\SlimTvModelBase.cs" />
     <Compile Include="Models\SlimTvMultiChannelGuideModel.cs" />
     <Compile Include="Models\SlimTvGuideModelBase.cs" />
@@ -93,10 +94,13 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Models\SlimTvClientModel.cs" />
     <Compile Include="SlimTvClientPlugin.cs" />
+    <Compile Include="TvHandler\RecordingsLibrary.cs" />
+    <Compile Include="TvHandler\SlimTvConsts.cs" />
     <Compile Include="TvHandler\SlimTvHandler.cs" />
     <Compile Include="Player\SlimTvUIContributor.cs" />
     <Compile Include="Player\SlimTvPlayerBuilder.cs" />
     <Compile Include="TvHandler\TimeshiftContext.cs" />
+    <Compile Include="TvHandler\RecordingsFilterByChannelScreenData.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\Source\Core\MediaPortal.Common\MediaPortal.Common.csproj">
@@ -130,6 +134,10 @@
     <ProjectReference Include="..\SlimTvInterfaces\SlimTv.Interfaces.csproj">
       <Project>{F31C71FA-4A24-4D33-B0EE-52CF667DCEF4}</Project>
       <Name>SlimTv.Interfaces</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Tve3RecordingMetadataExtractor\Tve3RecordingMetadataExtractor.csproj">
+      <Project>{BD0AD1E7-48A9-404E-9C82-291CE3B41657}</Project>
+      <Name>Tve3RecordingMetadataExtractor</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
@@ -239,6 +247,11 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="Skin\Reflexion\themes\default\styles\SlimTvConsts.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Skin\default\screens\RecordingsByChannel.xaml">
       <SubType>Designer</SubType>
     </Content>
   </ItemGroup>

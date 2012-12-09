@@ -1,4 +1,4 @@
-﻿#region Copyright (C) 2007-2012 Team MediaPortal
+#region Copyright (C) 2007-2012 Team MediaPortal
 
 /*
     Copyright (C) 2007-2012 Team MediaPortal
@@ -22,39 +22,25 @@
 
 #endregion
 
-using MediaPortal.Common;
-using MediaPortal.Common.PluginManager;
+using System;
 using MediaPortal.Plugins.SlimTv.Client.TvHandler;
-using MediaPortal.Plugins.SlimTv.Interfaces;
+using MediaPortal.UiComponents.Media.Actions;
 
-namespace MediaPortal.Plugins.SlimTv.Client
+namespace MediaPortal.Plugins.SlimTv.Client.Models
 {
-  public class SlimTvClientPlugin : IPluginStateTracker
+  public class RecordingsAction : VisibilityDependsOnServerConnectStateAction
   {
-    #region IPluginStateTracker implementation
+    #region Consts
 
-    public void Activated(PluginRuntime pluginRuntime)
-    {
-      ServiceRegistration.Set<ITvHandler>(new SlimTvHandler());
-      
-      // Register recording section in MediaLibrary
-      RecordingsLibrary.RegisterOnMediaLibrary();
-    }
+    public const string RECORDINGS_CONTRIBUTOR_MODEL_ID_STR = "117A9807-8B10-47F1-8780-C748DBCF45BA";
 
-    public bool RequestEnd()
-    {
-      return true;
-    }
+    public static readonly Guid RECORDINGS_CONTRIBUTOR_MODEL_ID = new Guid(RECORDINGS_CONTRIBUTOR_MODEL_ID_STR);
 
-    public void Stop()
-    {
-      ServiceRegistration.RemoveAndDispose<ITvHandler>();
-    }
-
-    public void Continue() { }
-
-    public void Shutdown() { }
+    public const string RES_MOVIES_MENU_ITEM = "[SlimTvClient.RecordingsMenuItem]";
 
     #endregion
+
+    public RecordingsAction() :
+      base(true, SlimTvConsts.WF_MEDIA_NAVIGATION_ROOT_STATE, RES_MOVIES_MENU_ITEM) { }
   }
 }

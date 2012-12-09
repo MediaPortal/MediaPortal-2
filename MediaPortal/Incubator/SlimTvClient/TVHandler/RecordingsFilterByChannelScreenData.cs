@@ -1,4 +1,4 @@
-﻿#region Copyright (C) 2007-2012 Team MediaPortal
+#region Copyright (C) 2007-2012 Team MediaPortal
 
 /*
     Copyright (C) 2007-2012 Team MediaPortal
@@ -22,39 +22,24 @@
 
 #endregion
 
-using MediaPortal.Common;
-using MediaPortal.Common.PluginManager;
-using MediaPortal.Plugins.SlimTv.Client.TvHandler;
-using MediaPortal.Plugins.SlimTv.Interfaces;
+using MediaPortal.Extensions.MetadataExtractors.Aspects;
+using MediaPortal.UiComponents.Media.FilterCriteria;
+using MediaPortal.UiComponents.Media.Models.Navigation;
+using MediaPortal.UiComponents.Media.Models.ScreenData;
 
-namespace MediaPortal.Plugins.SlimTv.Client
+namespace MediaPortal.Plugins.SlimTv.Client.TvHandler
 {
-  public class SlimTvClientPlugin : IPluginStateTracker
+  public class RecordingsFilterByChannelScreenData : AbstractVideosFilterScreenData
   {
-    #region IPluginStateTracker implementation
-
-    public void Activated(PluginRuntime pluginRuntime)
+    public RecordingsFilterByChannelScreenData() :
+        base(SlimTvConsts.SCREEN_RECORDINGS_FILTER_BY_CHANNEL,SlimTvConsts.RES_FILTER_BY_CHANNEL_MENU_ITEM,
+        SlimTvConsts.RES_FILTER_CHANNEL_NAVBAR_DISPLAY_LABEL, new SimpleMLFilterCriterion(RecordingAspect.ATTR_CHANNEL))
     {
-      ServiceRegistration.Set<ITvHandler>(new SlimTvHandler());
-      
-      // Register recording section in MediaLibrary
-      RecordingsLibrary.RegisterOnMediaLibrary();
     }
 
-    public bool RequestEnd()
+    public override AbstractFiltersScreenData<FilterItem> Derive()
     {
-      return true;
+      return new VideosFilterByGenreScreenData();
     }
-
-    public void Stop()
-    {
-      ServiceRegistration.RemoveAndDispose<ITvHandler>();
-    }
-
-    public void Continue() { }
-
-    public void Shutdown() { }
-
-    #endregion
   }
 }
