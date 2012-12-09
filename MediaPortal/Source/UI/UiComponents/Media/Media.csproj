@@ -132,6 +132,12 @@
     <Compile Include="Models\ExtendedVideoSkip.cs" />
     <Compile Include="Models\IPlayerUIContributor.cs" />
     <Compile Include="Models\DVDPlayerUIContributor.cs" />
+    <Compile Include="Models\NavigationModel\AudioNavigation.cs" />
+    <Compile Include="Models\NavigationModel\IMediaNavigationInitializer.cs" />
+    <Compile Include="Models\NavigationModel\ImagesNavigation.cs" />
+    <Compile Include="Models\NavigationModel\MoviesNavigation.cs" />
+    <Compile Include="Models\NavigationModel\SeriesNavigation.cs" />
+    <Compile Include="Models\NavigationModel\VideosNavigation.cs" />
     <Compile Include="Models\Navigation\MovieFilterItem.cs" />
     <Compile Include="Models\Navigation\MovieItem.cs" />
     <Compile Include="Models\Navigation\SeriesFilterItem.cs" />

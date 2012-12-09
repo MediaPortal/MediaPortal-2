@@ -34,6 +34,7 @@ using MediaPortal.Common.PluginItemBuilders;
 using MediaPortal.Common.PluginManager;
 using MediaPortal.UI.Presentation.Screens;
 using MediaPortal.UI.Presentation.SkinResources;
+using MediaPortal.UiComponents.Media.Models.NavigationModel;
 using MediaPortal.UiComponents.Media.Models.Sorting;
 using MediaPortal.UiComponents.Media.Views;
 using MediaPortal.UI.Presentation.DataObjects;
@@ -76,6 +77,29 @@ namespace MediaPortal.UiComponents.Media.Models
     protected NavigationContext _currentNavigationContext = null;
     protected static readonly IPluginItemStateTracker _mediaSkinMIATypeRegistrationStateTracker = new DefaultItemStateTracker("MediaModelNavigation");
 
+    /// <summary>
+    /// Contains the <see cref="IMediaNavigationInitializer"/>s for all media navigation root states. This list can be
+    /// extended by plugins.
+    /// </summary>
+    protected static readonly Dictionary<Guid, IMediaNavigationInitializer> _initializers = new Dictionary<Guid, IMediaNavigationInitializer>();
+
+    #endregion
+
+    #region Constructor
+
+    static MediaNavigationModel ()
+    {
+      // Initializes the list of inbuilt IMediaNavigationInitializers.
+      new List<IMediaNavigationInitializer>
+      {
+        new VideosNavigation(),
+        new AudioNavigation(),
+        new ImagesNavigation(),
+        new SeriesNavigation(),
+        new MoviesNavigation(),
+      }.ForEach(i => _initializers[i.MediaNavigationRootState] = i);
+    }
+
     #endregion
 
     #region Public members
@@ -88,7 +112,7 @@ namespace MediaPortal.UiComponents.Media.Models
     /// navigation modes are BrowseLocalMedia, which is completely decoupled from the media library, and and BrowseMediaLibrary,
     /// which lets the user browse through the media library contents.
     /// </remarks>
-    public MediaNavigationMode Mode
+    public string Mode
     {
       get { return GetMode(_currentNavigationContext); }
     }
@@ -165,18 +189,27 @@ namespace MediaPortal.UiComponents.Media.Models
       model.AddCurrentViewToPlaylistInternal();
     }
 
+    /// <summary>
+    /// Registers a new IMediaNavigationInitializer to add a new media navigation root state.
+    /// </summary>
+    /// <param name="initializer"></param>
+    public static void RegisterMediaNavigationInitializer(IMediaNavigationInitializer initializer)
+    {
+      _initializers[initializer.MediaNavigationRootState] = initializer;
+    }
+
     #endregion
 
     #region Protected members
 
-    protected internal static MediaNavigationMode GetMode(NavigationContext context)
+    protected internal static string GetMode(NavigationContext context)
     {
       if (context == null)
         return MediaNavigationMode.BrowseLocalMedia;
-      return (context.GetContextVariable(Consts.KEY_NAVIGATION_MODE, true) as MediaNavigationMode?) ?? MediaNavigationMode.BrowseLocalMedia;
+      return (context.GetContextVariable(Consts.KEY_NAVIGATION_MODE, true) as string) ?? MediaNavigationMode.BrowseLocalMedia;
     }
 
-    protected internal static void SetMode(MediaNavigationMode mode, NavigationContext context)
+    protected internal static void SetMode(string mode, NavigationContext context)
     {
       if (context == null)
         return;
@@ -204,7 +237,7 @@ namespace MediaPortal.UiComponents.Media.Models
       {
         ServiceRegistration.Get<ILogger>().Error("MediaNavigationModel: Cannot add current view to playlist - There is no enabled navigation data available");
       }
-      MediaNavigationMode mode = Mode;
+      string mode = Mode;
       switch (mode)
       {
         case MediaNavigationMode.Audio:
@@ -247,13 +280,13 @@ namespace MediaPortal.UiComponents.Media.Models
     // Currently, we don't track skin changes while we're in the media navigation. Normally, that should not be necessary because to switch the skin,
     // the user has to navigate out of media navigation. If we wanted to track skin changes and then update all our navigation data,
     // we would need to register a plugin item registration change listener, which would need to trigger an update of all active media state data.
-    protected static IEnumerable<Guid> GetMediaSkinOptionalMIATypes(MediaNavigationMode navigationMode)
+    public static IEnumerable<Guid> GetMediaSkinOptionalMIATypes(string navigationMode)
     {
       IScreenManager screenManager = ServiceRegistration.Get<IScreenManager>();
       return GetMediaSkinOptionalMIATypes(navigationMode, screenManager.CurrentSkinResourceBundle);
     }
 
-    protected static IEnumerable<Guid> GetMediaSkinOptionalMIATypes(MediaNavigationMode navigationMode, ISkinResourceBundle bundle)
+    public static IEnumerable<Guid> GetMediaSkinOptionalMIATypes(string navigationMode, ISkinResourceBundle bundle)
     {
       if (bundle == null)
         return EMPTY_GUID_LIST;
@@ -282,208 +315,12 @@ namespace MediaPortal.UiComponents.Media.Models
       // The initial state ID determines the media model "part" to initialize: Browse local media, browse media library, audio, videos or images.
       // The media model part determines the media navigation mode and the view contents to be set.
       NavigationData navigationData;
-      MediaNavigationMode mode;
-      if (workflowStateId == Consts.WF_STATE_ID_AUDIO_NAVIGATION_ROOT)
+      string mode;
+      if (_initializers.ContainsKey(workflowStateId))
       {
-        mode = MediaNavigationMode.Audio;
-        IEnumerable<Guid> skinDependentOptionalMIATypeIDs = GetMediaSkinOptionalMIATypes(mode);
-        AbstractItemsScreenData.PlayableItemCreatorDelegate picd = mi => new AudioItem(mi)
-          {
-              Command = new MethodDelegateCommand(() => PlayItemsModel.CheckQueryPlayAction(mi))
-          };
-        ViewSpecification rootViewSpecification = new MediaLibraryQueryViewSpecification(Consts.RES_AUDIO_VIEW_NAME,
-            null, Consts.NECESSARY_AUDIO_MIAS, skinDependentOptionalMIATypeIDs, true)
-          {
-              MaxNumItems = Consts.MAX_NUM_ITEMS_VISIBLE
-          };
-        AbstractScreenData filterByAlbum = new AudioFilterByAlbumScreenData();
-        ICollection<AbstractScreenData> availableScreens = new List<AbstractScreenData>
-            {
-              new AudioShowItemsScreenData(picd),
-              new AudioFilterByArtistScreenData(),
-              filterByAlbum, // C# doesn't like it to have an assignment inside a collection initializer
-              new AudioFilterByGenreScreenData(),
-              new AudioFilterByDecadeScreenData(),
-              new AudioFilterBySystemScreenData(),
-              new AudioSimpleSearchScreenData(picd),
-            };
-        Sorting.Sorting sortByAlbumTrack = new AudioSortByAlbumTrack();
-        ICollection<Sorting.Sorting> availableSortings = new List<Sorting.Sorting>
-          {
-              sortByAlbumTrack,
-              new SortByTitle(),
-              new AudioSortByFirstGenre(),
-              new AudioSortByFirstArtist(),
-              new AudioSortByAlbum(),
-              new AudioSortByTrack(),
-              new SortByYear(),
-              new SortBySystem(),
-          };
-        navigationData = new NavigationData(null, Consts.RES_AUDIO_VIEW_NAME, workflowStateId,
-            workflowStateId, rootViewSpecification, filterByAlbum, availableScreens, sortByAlbumTrack)
-          {
-              AvailableSortings = availableSortings
-          };
-      }
-      else if (workflowStateId == Consts.WF_STATE_ID_VIDEOS_NAVIGATION_ROOT)
-      {
-        mode = MediaNavigationMode.Videos;
-        IEnumerable<Guid> skinDependentOptionalMIATypeIDs = GetMediaSkinOptionalMIATypes(mode);
-        AbstractItemsScreenData.PlayableItemCreatorDelegate picd = mi => new VideoItem(mi)
-          {
-              Command = new MethodDelegateCommand(() => PlayItemsModel.CheckQueryPlayAction(mi))
-          };
-        ViewSpecification rootViewSpecification = new MediaLibraryQueryViewSpecification(Consts.RES_VIDEOS_VIEW_NAME,
-            null, Consts.NECESSARY_VIDEO_MIAS, skinDependentOptionalMIATypeIDs, true)
-          {
-              MaxNumItems = Consts.MAX_NUM_ITEMS_VISIBLE
-          };
-        AbstractScreenData filterByGenre = new VideosFilterByGenreScreenData();
-        ICollection<AbstractScreenData> availableScreens = new List<AbstractScreenData>
-            {
-              new VideosShowItemsScreenData(picd),
-              new VideosFilterByLanguageScreenData(),
-              new VideosFilterByActorScreenData(),
-              filterByGenre, // C# doesn't like it to have an assignment inside a collection initializer
-              new VideosFilterByYearScreenData(),
-              new VideosFilterBySystemScreenData(),
-              new VideosSimpleSearchScreenData(picd),
-          };
-        Sorting.Sorting sortByTitle = new SortByTitle();
-        ICollection<Sorting.Sorting> availableSortings = new List<Sorting.Sorting>
-          {
-              sortByTitle,
-              new SortByYear(),
-              new VideoSortByFirstGenre(),
-              new VideoSortByDuration(),
-              new VideoSortByDirector(),
-              new VideoSortByFirstActor(),
-              new VideoSortBySize(),
-              new VideoSortByAspectRatio(),
-              new SortBySystem(),
-          };
-        navigationData = new NavigationData(null, Consts.RES_VIDEOS_VIEW_NAME, workflowStateId,
-            workflowStateId, rootViewSpecification, filterByGenre, availableScreens, sortByTitle)
-          {
-              AvailableSortings = availableSortings
-          };
-      } 
-      else if (workflowStateId == Consts.WF_STATE_ID_SERIES_NAVIGATION_ROOT)
-      {
-        mode = MediaNavigationMode.Videos;
-        IEnumerable<Guid> skinDependentOptionalMIATypeIDs = GetMediaSkinOptionalMIATypes(mode);
-        AbstractItemsScreenData.PlayableItemCreatorDelegate picd = mi => new SeriesItem(mi)
-          {
-              Command = new MethodDelegateCommand(() => PlayItemsModel.CheckQueryPlayAction(mi))
-          };
-        ViewSpecification rootViewSpecification = new MediaLibraryQueryViewSpecification(Consts.RES_SERIES_VIEW_NAME,
-            null, Consts.NECESSARY_SERIES_MIAS, skinDependentOptionalMIATypeIDs, true)
-          {
-              MaxNumItems = Consts.MAX_NUM_ITEMS_VISIBLE
-          };
-        AbstractScreenData filterBySeries = new SeriesFilterByNameScreenData();
-        ICollection<AbstractScreenData> availableScreens = new List<AbstractScreenData>
-            {
-              new SeriesShowItemsScreenData(picd),
-              filterBySeries, // C# doesn't like it to have an assignment inside a collection initializer
-              new VideosFilterByLanguageScreenData(),
-              new SeriesFilterBySeasonScreenData(),
-              new VideosFilterByGenreScreenData(),
-              new VideosSimpleSearchScreenData(picd),
-          };
-        Sorting.Sorting sortByEpisode = new SeriesSortByEpisode();
-        ICollection<Sorting.Sorting> availableSortings = new List<Sorting.Sorting>
-          {
-              sortByEpisode,
-              new SortByTitle(),
-              new SortByDate(),
-              new SortBySystem(),
-          };
-        navigationData = new NavigationData(null, Consts.RES_SERIES_VIEW_NAME, workflowStateId,
-            workflowStateId, rootViewSpecification, filterBySeries, availableScreens, sortByEpisode)
-          {
-              AvailableSortings = availableSortings
-          };
-      }
-      else if (workflowStateId == Consts.WF_STATE_ID_MOVIES_NAVIGATION_ROOT)
-      {
-        mode = MediaNavigationMode.Movies;
-        IEnumerable<Guid> skinDependentOptionalMIATypeIDs = GetMediaSkinOptionalMIATypes(mode);
-        AbstractItemsScreenData.PlayableItemCreatorDelegate picd = mi => new MovieItem(mi)
-          {
-              Command = new MethodDelegateCommand(() => PlayItemsModel.CheckQueryPlayAction(mi))
-          };
-        ViewSpecification rootViewSpecification = new MediaLibraryQueryViewSpecification(Consts.RES_MOVIES_VIEW_NAME,
-            null, Consts.NECESSARY_MOVIES_MIAS, skinDependentOptionalMIATypeIDs, true)
-          {
-              MaxNumItems = Consts.MAX_NUM_ITEMS_VISIBLE
-          };
-        AbstractScreenData filterByGenre = new VideosFilterByGenreScreenData();
-        ICollection<AbstractScreenData> availableScreens = new List<AbstractScreenData>
-            {
-              new MoviesShowItemsScreenData(picd),
-              new MovieFilterByCollectionScreenData(),
-              new VideosFilterByActorScreenData(),
-              filterByGenre, // C# doesn't like it to have an assignment inside a collection initializer
-              new VideosFilterByYearScreenData(),
-              new VideosFilterBySystemScreenData(),
-              new VideosSimpleSearchScreenData(picd),
-          };
-        Sorting.Sorting sortByTitle = new SortByTitle();
-        ICollection<Sorting.Sorting> availableSortings = new List<Sorting.Sorting>
-          {
-              sortByTitle,
-              new SortByYear(),
-              new VideoSortByFirstGenre(),
-              new VideoSortByDuration(),
-              new VideoSortByDirector(),
-              new VideoSortByFirstActor(),
-              new VideoSortBySize(),
-              new VideoSortByAspectRatio(),
-              new SortBySystem(),
-          };
-
-        navigationData = new NavigationData(null, Consts.RES_MOVIES_VIEW_NAME, workflowStateId,
-            workflowStateId, rootViewSpecification, filterByGenre, availableScreens, sortByTitle)
-          {
-              AvailableSortings = availableSortings
-          };
-      }
-      else if (workflowStateId == Consts.WF_STATE_ID_IMAGES_NAVIGATION_ROOT)
-      {
-        mode = MediaNavigationMode.Images;
-        IEnumerable<Guid> skinDependentOptionalMIATypeIDs = GetMediaSkinOptionalMIATypes(mode);
-        AbstractItemsScreenData.PlayableItemCreatorDelegate picd = mi => new ImageItem(mi)
-          {
-              Command = new MethodDelegateCommand(() => PlayItemsModel.CheckQueryPlayAction(mi))
-          };
-        ViewSpecification rootViewSpecification = new MediaLibraryQueryViewSpecification(Consts.RES_IMAGES_VIEW_NAME,
-            null, Consts.NECESSARY_IMAGE_MIAS, skinDependentOptionalMIATypeIDs, true)
-          {
-              MaxNumItems = Consts.MAX_NUM_ITEMS_VISIBLE
-          };
-        AbstractScreenData filterByYear = new ImagesFilterByYearScreenData();
-        ICollection<AbstractScreenData> availableScreens = new List<AbstractScreenData>
-            {
-              new ImagesShowItemsScreenData(picd),
-              filterByYear, // C# doesn't like it to have an assignment inside a collection initializer
-              new ImagesFilterBySizeScreenData(),
-              new ImagesFilterBySystemScreenData(),
-              new ImagesSimpleSearchScreenData(picd),
-          };
-        Sorting.Sorting sortByYear = new SortByYear();
-        ICollection<Sorting.Sorting> availableSortings = new List<Sorting.Sorting>
-          {
-              new SortByYear(),
-              new SortByTitle(),
-              new ImageSortBySize(),
-              new SortBySystem(),
-          };
-        navigationData = new NavigationData(null, Consts.RES_IMAGES_VIEW_NAME, workflowStateId,
-            workflowStateId, rootViewSpecification, filterByYear, availableScreens, sortByYear)
-          {
-              AvailableSortings = availableSortings
-          };
+        // Use the IMediaNavigationInitializer that is associated with our root workflow state.
+        IMediaNavigationInitializer initializer = _initializers[workflowStateId];
+        initializer.InitMediaNavigation(out mode, out navigationData);
       }
       else
       {

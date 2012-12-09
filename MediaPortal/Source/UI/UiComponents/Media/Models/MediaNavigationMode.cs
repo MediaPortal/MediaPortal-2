@@ -27,14 +27,14 @@ namespace MediaPortal.UiComponents.Media.Models
   /// <summary>
   /// Represents different parts of the media library/system which can be navigated by the media model.
   /// </summary>
-  public enum MediaNavigationMode
+  public static class MediaNavigationMode
   {
-    BrowseLocalMedia,
-    BrowseMediaLibrary,
-    Audio,
-    Videos,
-    Images,
-    Series,
-    Movies
+    public const string BrowseLocalMedia = "BrowseLocalMedia";
+    public const string BrowseMediaLibrary = "BrowseMediaLibrary";
+    public const string Audio = "Audio";
+    public const string Videos = "Videos";
+    public const string Images = "Images";
+    public const string Series = "Series";
+    public const string Movies = "Movies";
   }
 }
