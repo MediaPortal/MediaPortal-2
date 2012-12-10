@@ -189,7 +189,7 @@
   <ResourceWrapper x:Key="CurrentMediaItemTimeColor" Resource="#A0FFFFFF"/>
 
   <!-- Dark yellow -->
-  <ResourceWrapper x:Key="ItemsControlShadowBackgroundColor" Resource="#FF1E1E00"/>
+  <ResourceWrapper x:Key="ItemsControlShadowBackgroundColor" Resource="#A01E1E00"/>
 
   <!-- Dark gray, almost transparent -->
   <ResourceWrapper x:Key="ItemsControlDialogShadowBackgroundColor" Resource="#20111111"/>
