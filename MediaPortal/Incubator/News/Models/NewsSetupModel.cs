@@ -1,8 +1,32 @@
-﻿using System;
+﻿#region Copyright (C) 2007-2012 Team MediaPortal
+
+/*
+    Copyright (C) 2007-2012 Team MediaPortal
+    http://www.team-mediaportal.com
+
+    This file is part of MediaPortal 2
+
+    MediaPortal 2 is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    MediaPortal 2 is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with MediaPortal 2. If not, see <http://www.gnu.org/licenses/>.
+*/
+
+#endregion
+
+using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using MediaPortal.UI.Presentation.Models;
+using MediaPortal.UI.Presentation.Workflow;
 using MediaPortal.UiComponents.News.Settings;
 using MediaPortal.Common;
 using MediaPortal.Common.Settings;
@@ -48,7 +72,7 @@ namespace MediaPortal.UiComponents.News.Models
     /// </summary>
     public FeedBookmarkItem NewFeedBookmark
     {
-      get { return (FeedBookmarkItem)_newFeedBookmark.GetValue(); }
+      get { return (FeedBookmarkItem) _newFeedBookmark.GetValue(); }
       set { _newFeedBookmark.SetValue(value); }
     }
 
@@ -62,7 +86,7 @@ namespace MediaPortal.UiComponents.News.Models
     /// </summary>
     public bool HasChanges
     {
-      get { return (bool)_hasChanges.GetValue(); }
+      get { return (bool) _hasChanges.GetValue(); }
       set { _hasChanges.SetValue(value); }
     }
 
@@ -107,9 +131,9 @@ namespace MediaPortal.UiComponents.News.Models
         lock (settings.FeedsList)
         {
           settings.FeedsList.Clear();
-          foreach (FeedBookmarkItem item in Feeds) settings.FeedsList.Add(new FeedBookmark() { Name = item.Name, Url = item.Url });
+          foreach (FeedBookmarkItem item in Feeds) settings.FeedsList.Add(new FeedBookmark { Name = item.Name, Url = item.Url });
         }
-        // save
+        // Save
         settingsManager.Save(settings);
       }
     }
@@ -123,12 +147,12 @@ namespace MediaPortal.UiComponents.News.Models
       get { return NEWS_SETUP_MODEL_ID; }
     }
 
-    public bool CanEnterState(UI.Presentation.Workflow.NavigationContext oldContext, UI.Presentation.Workflow.NavigationContext newContext)
+    public bool CanEnterState(NavigationContext oldContext, NavigationContext newContext)
     {
       return true;
     }
 
-    public void EnterModelContext(UI.Presentation.Workflow.NavigationContext oldContext, UI.Presentation.Workflow.NavigationContext newContext)
+    public void EnterModelContext(NavigationContext oldContext, NavigationContext newContext)
     {
       // Load settings
       NewsSettings settings = ServiceRegistration.Get<ISettingsManager>().Load<NewsSettings>();
@@ -140,19 +164,19 @@ namespace MediaPortal.UiComponents.News.Models
         if (settings.FeedsList.Count == 0)
         {
           foreach (var feed in NewsSettings.GetDefaultRegionalFeeds())
-            Feeds.Add(new FeedBookmarkItem() { Name = feed.Name, Url = feed.Url });
+            Feeds.Add(new FeedBookmarkItem { Name = feed.Name, Url = feed.Url });
         }
         else
         {
           foreach (var feed in settings.FeedsList)
-            Feeds.Add(new FeedBookmarkItem() { Name = feed.Name, Url = feed.Url });
+            Feeds.Add(new FeedBookmarkItem { Name = feed.Name, Url = feed.Url });
         }
       }
     }
 
-    public void ExitModelContext(UI.Presentation.Workflow.NavigationContext oldContext, UI.Presentation.Workflow.NavigationContext newContext)
+    public void ExitModelContext(NavigationContext oldContext, NavigationContext newContext)
     {
-      // if changes were made, call refresh of the feeds
+      // If changes were made, call refresh of the feeds
       if (HasChanges)
       {
         INewsCollector newsCollector = ServiceRegistration.Get<INewsCollector>(false);
@@ -164,27 +188,27 @@ namespace MediaPortal.UiComponents.News.Models
       }
     }
 
-    public void ChangeModelContext(UI.Presentation.Workflow.NavigationContext oldContext, UI.Presentation.Workflow.NavigationContext newContext, bool push)
+    public void ChangeModelContext(NavigationContext oldContext, NavigationContext newContext, bool push)
     {
       // Nothing to do here
     }
 
-    public void Deactivate(UI.Presentation.Workflow.NavigationContext oldContext, UI.Presentation.Workflow.NavigationContext newContext)
+    public void Deactivate(NavigationContext oldContext, NavigationContext newContext)
     {
       // Nothing to do here
     }
 
-    public void Reactivate(UI.Presentation.Workflow.NavigationContext oldContext, UI.Presentation.Workflow.NavigationContext newContext)
+    public void Reactivate(NavigationContext oldContext, NavigationContext newContext)
     {
       // Nothing to do here
     }
 
-    public void UpdateMenuActions(UI.Presentation.Workflow.NavigationContext context, IDictionary<Guid, UI.Presentation.Workflow.WorkflowAction> actions)
+    public void UpdateMenuActions(NavigationContext context, IDictionary<Guid, WorkflowAction> actions)
     {
       // Nothing to do here
     }
 
-    public ScreenUpdateMode UpdateScreen(UI.Presentation.Workflow.NavigationContext context, ref string screen)
+    public ScreenUpdateMode UpdateScreen(NavigationContext context, ref string screen)
     {
       return ScreenUpdateMode.AutoWorkflowManager;
     }

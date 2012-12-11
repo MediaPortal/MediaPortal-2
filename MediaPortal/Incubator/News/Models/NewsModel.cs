@@ -1,4 +1,28 @@
-﻿using System;
+﻿#region Copyright (C) 2007-2012 Team MediaPortal
+
+/*
+    Copyright (C) 2007-2012 Team MediaPortal
+    http://www.team-mediaportal.com
+
+    This file is part of MediaPortal 2
+
+    MediaPortal 2 is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    MediaPortal 2 is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with MediaPortal 2. If not, see <http://www.gnu.org/licenses/>.
+*/
+
+#endregion
+
+using System;
 using System.Collections.Generic;
 using MediaPortal.Common;
 using MediaPortal.Common.General;
@@ -116,22 +140,22 @@ namespace MediaPortal.UiComponents.News.Models
       get { return NEWS_MODEL_ID; }
     }
 
-    public bool CanEnterState(UI.Presentation.Workflow.NavigationContext oldContext, UI.Presentation.Workflow.NavigationContext newContext)
+    public bool CanEnterState(NavigationContext oldContext, NavigationContext newContext)
     {
       return true;
     }
 
-    public void EnterModelContext(UI.Presentation.Workflow.NavigationContext oldContext, UI.Presentation.Workflow.NavigationContext newContext)
+    public void EnterModelContext(NavigationContext oldContext, NavigationContext newContext)
     {
       GetFeeds();
     }
 
-    public void ExitModelContext(UI.Presentation.Workflow.NavigationContext oldContext, UI.Presentation.Workflow.NavigationContext newContext)
+    public void ExitModelContext(NavigationContext oldContext, NavigationContext newContext)
     {
       StopListenToDataRefresh();
     }
 
-    public void ChangeModelContext(UI.Presentation.Workflow.NavigationContext oldContext, UI.Presentation.Workflow.NavigationContext newContext, bool push)
+    public void ChangeModelContext(NavigationContext oldContext, NavigationContext newContext, bool push)
     {
       if (!push)
       {
@@ -146,22 +170,22 @@ namespace MediaPortal.UiComponents.News.Models
       }
     }
 
-    public void Deactivate(UI.Presentation.Workflow.NavigationContext oldContext, UI.Presentation.Workflow.NavigationContext newContext)
+    public void Deactivate(NavigationContext oldContext, NavigationContext newContext)
     {
       // Nothing to do here
     }
 
-    public void Reactivate(UI.Presentation.Workflow.NavigationContext oldContext, UI.Presentation.Workflow.NavigationContext newContext)
+    public void Reactivate(NavigationContext oldContext, NavigationContext newContext)
     {
       // Nothing to do here
     }
 
-    public void UpdateMenuActions(UI.Presentation.Workflow.NavigationContext context, IDictionary<Guid, UI.Presentation.Workflow.WorkflowAction> actions)
+    public void UpdateMenuActions(NavigationContext context, IDictionary<Guid, WorkflowAction> actions)
     {
       // Nothing to do here
     }
 
-    public ScreenUpdateMode UpdateScreen(UI.Presentation.Workflow.NavigationContext context, ref string screen)
+    public ScreenUpdateMode UpdateScreen(NavigationContext context, ref string screen)
     {
       return ScreenUpdateMode.AutoWorkflowManager;
     }

@@ -69,7 +69,6 @@
     <Content Include="plugin.xml">
       <SubType>Designer</SubType>
     </Content>
-    <Content Include="Skin\default\themes\default\images\BB49A591-7705-408F-8177-45D633FDFAD0.png" />
     <Content Include="Skin\default\themes\default\images\RssIcon.png" />
     <Content Include="Skin\default\workflow\news-actions.xml" />
   </ItemGroup>
@@ -106,6 +105,7 @@
     </Content>
   </ItemGroup>
   <ItemGroup>
+    <Content Include="Skin\Reflexion\themes\default\images\BB49A591-7705-408F-8177-45D633FDFAD0.png" />
     <Content Include="Skin\Reflexion\themes\default\styles\NewsStyles.xaml">
       <SubType>Designer</SubType>
     </Content>

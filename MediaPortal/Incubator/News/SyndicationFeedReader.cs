@@ -1,4 +1,28 @@
-﻿using System;
+﻿#region Copyright (C) 2007-2012 Team MediaPortal
+
+/*
+    Copyright (C) 2007-2012 Team MediaPortal
+    http://www.team-mediaportal.com
+
+    This file is part of MediaPortal 2
+
+    MediaPortal 2 is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    MediaPortal 2 is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with MediaPortal 2. If not, see <http://www.gnu.org/licenses/>.
+*/
+
+#endregion
+
+using System;
 using System.Linq;
 using System.ServiceModel.Syndication;
 using System.Text;
@@ -16,13 +40,13 @@ namespace MediaPortal.UiComponents.News
     public static NewsFeed ReadFeed(string feedUrl)
     {
       SyndicationFeed feed = SyndicationFeed.Load(XmlReader.Create(feedUrl));
-      var newFeed = new NewsFeed()
-      {
-        Title = feed.Title != null ? feed.Title.Text : string.Empty,
-        Description = feed.Description != null ? feed.Description.Text : string.Empty,
-        LastUpdated = feed.LastUpdatedTime.LocalDateTime,
-        Icon = GetCachedOrDownloadImage(feed.ImageUrl)
-      };
+      var newFeed = new NewsFeed
+        {
+          Title = feed.Title != null ? feed.Title.Text : string.Empty,
+          Description = feed.Description != null ? feed.Description.Text : string.Empty,
+          LastUpdated = feed.LastUpdatedTime.LocalDateTime,
+          Icon = GetCachedOrDownloadImage(feed.ImageUrl)
+        };
 
       foreach (var item in feed.Items)
       {
@@ -76,51 +100,43 @@ namespace MediaPortal.UiComponents.News
 
     static NewsItem TransformItem(SyndicationItem item, NewsFeed targetFeed)
     {
-      var newItem = new NewsItem()
-      {
-        Id = GetItemId(item),
-        Feed = targetFeed,
-        Title = item.Title != null ? item.Title.Text : string.Empty,
-        PublishDate = item.PublishDate.LocalDateTime,
-        Summary = GetItemSummary(item),
-        Thumb = GetItemThumb(item)
-      };
+      var newItem = new NewsItem
+        {
+          Id = GetItemId(item),
+          Feed = targetFeed,
+          Title = item.Title != null ? item.Title.Text : string.Empty,
+          PublishDate = item.PublishDate.LocalDateTime,
+          Summary = GetItemSummary(item),
+          Thumb = GetItemThumb(item)
+        };
       return newItem;
     }
 
     static string GetItemId(SyndicationItem item)
     {
       if (!string.IsNullOrWhiteSpace(item.Id))
-      {
         return item.Id;
-      }
-      else
-      {
-        var link = item.Links.FirstOrDefault(l => l.Uri != null && l.MediaType == null);
-        if (link != null)
-          return link.Uri.ToString();
-      }
-      return string.Empty;
+
+      var link = item.Links.FirstOrDefault(l => l.Uri != null && l.MediaType == null);
+      return link != null ? link.Uri.ToString() : string.Empty;
     }
 
     static string GetItemSummary(SyndicationItem item)
     {
-      // first try extended content
+      // First try extended content
       string result = GetItemContentFromExtension(item);
       if (!string.IsNullOrWhiteSpace(result))
         return PlainTextFromHtml(result);
 
-      // then check if a content is set
+      // Then check if a content is set
       if (item.Content != null)
       {
         var textContent = item.Content as TextSyndicationContent;
         if (textContent != null)
-        {
           return PlainTextFromHtml(textContent.Text);
-        }
       }
 
-      // use the summary
+      // Use the summary
       if (item.Summary != null)
         return PlainTextFromHtml(item.Summary.Text);
 
@@ -129,23 +145,23 @@ namespace MediaPortal.UiComponents.News
 
     static string GetItemThumb(SyndicationItem item)
     {
-      // check all links
+      // Check all links
       var link = item.Links.FirstOrDefault(l => l.Uri != null && l.MediaType != null && l.MediaType.StartsWith("image"));
       if (link != null)
-      {
         return GetCachedOrDownloadImage(link.Uri);
-      }
-      // check the Content
+
+      // Check the Content
       if (item.Content != null)
       {
         var textContent = item.Content as TextSyndicationContent;
         if (textContent != null)
         {
           string image = GetImageFromText(textContent.Text);
-          if (!string.IsNullOrWhiteSpace(image)) return image;
+          if (!string.IsNullOrWhiteSpace(image)) 
+            return image;
         }
       }
-      // check extended content
+      // Check extended content
       string result = GetImageFromText(GetItemContentFromExtension(item));
       if (!string.IsNullOrWhiteSpace(result)) return result;
 
@@ -202,7 +218,7 @@ namespace MediaPortal.UiComponents.News
       string result = input;
       if (!string.IsNullOrEmpty(result))
       {
-        // decode HTML escape characters
+        // Decode HTML escape characters
         result = System.Web.HttpUtility.HtmlDecode(result);
 
         // Replace &nbsp; with space
