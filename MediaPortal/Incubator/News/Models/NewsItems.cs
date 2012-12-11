@@ -63,5 +63,15 @@ namespace MediaPortal.UiComponents.News.Models
 
     public string Id { get; set; }
     public NewsFeed Feed { get; set; }
+
+    public void CopyTo(NewsItem otherItem)
+    {
+      otherItem.Thumb = Thumb;
+      otherItem.Title = Title;
+      otherItem.Summary = Summary;
+      otherItem.PublishDate = PublishDate;
+      otherItem.Id = Id;
+      otherItem.Feed = Feed;
+    }
   }
 }
