@@ -77,6 +77,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       _contentProperty.Attach(OnContentChanged);
       _wrapProperty.Attach(OnLayoutPropertyChanged);
       _scrollProperty.Attach(OnLayoutPropertyChanged);
+      _scrollSpeedProperty.Attach(OnLayoutPropertyChanged);
+      _scrollDelayProperty.Attach(OnLayoutPropertyChanged);
 
       HorizontalAlignmentProperty.Attach(OnLayoutPropertyChanged);
       VerticalAlignmentProperty.Attach(OnLayoutPropertyChanged);
@@ -92,6 +94,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       _contentProperty.Detach(OnContentChanged);
       _wrapProperty.Detach(OnLayoutPropertyChanged);
       _scrollProperty.Detach(OnLayoutPropertyChanged);
+      _scrollSpeedProperty.Detach(OnLayoutPropertyChanged);
+      _scrollDelayProperty.Detach(OnLayoutPropertyChanged);
 
       HorizontalAlignmentProperty.Detach(OnLayoutPropertyChanged);
       VerticalAlignmentProperty.Detach(OnLayoutPropertyChanged); 
@@ -113,6 +117,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       Color = l.Color;
       Scroll = l.Scroll;
       ScrollDelay = l.ScrollDelay;
+      ScrollSpeed = l.ScrollSpeed;
       Wrap = l.Wrap;
 
       InitializeResourceString();
