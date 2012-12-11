@@ -14,48 +14,48 @@ namespace MediaPortal.UiComponents.News
 {
   class NewsCollector : INewsCollector
   {
-    protected Random random = new Random();
-    protected object refreshingSyncObj = new object();
-    protected bool forceRefresh = false;
-    protected NewsItem lastRandomNewsItem = null;
-    protected List<NewsFeed> feeds = new List<NewsFeed>();
-    protected bool refeshInProgress = false;
-    IntervalWork work = null;
+    protected Random _random = new Random();
+    protected object _refreshingSyncObj = new object();
+    protected bool _forceRefresh = false;
+    protected NewsItem _lastRandomNewsItem = null;
+    protected List<NewsFeed> _feeds = new List<NewsFeed>();
+    protected bool _refeshInProgress = false;
+    IntervalWork _work = null;
 
     public NewsCollector()
     {
       NewsSettings settings = ServiceRegistration.Get<ISettingsManager>().Load<NewsSettings>();
-      work = new IntervalWork(RefreshFeeds, TimeSpan.FromMinutes(settings.RefreshInterval));
-      ServiceRegistration.Get<IThreadPool>().AddIntervalWork(work, true);
+      _work = new IntervalWork(RefreshFeeds, TimeSpan.FromMinutes(settings.RefreshInterval));
+      ServiceRegistration.Get<IThreadPool>().AddIntervalWork(_work, true);
     }
 
     public void Dispose()
     {
-      ServiceRegistration.Get<IThreadPool>().RemoveIntervalWork(work);
+      ServiceRegistration.Get<IThreadPool>().RemoveIntervalWork(_work);
     }
 
     public NewsItem GetRandomNewsItem()
     {
-      List<ListItem> items = null;
-      lock (feeds)
+      List<ListItem> items;
+      lock (_feeds)
       {
-        items = feeds.SelectMany(f => f.Items).Where(i => i != lastRandomNewsItem).ToList();
+        items = _feeds.SelectMany(f => f.Items).Where(i => i != _lastRandomNewsItem).ToList();
       }
-      if (items == null || items.Count == 0) return null;
-      if (items.Count == 1) return (NewsItem)items.First();
-      return (NewsItem)items[random.Next(items.Count)];
+      if (items.Count == 0) return null;
+      if (items.Count == 1) return (NewsItem) items.First();
+      return (NewsItem) items[_random.Next(items.Count)];
     }
 
     public List<NewsFeed> GetAllFeeds()
     {
       // lock the feed list and return a copy of the list, as the background refesh thread can modify our list
-      lock (feeds)
+      lock (_feeds)
       {
-        return feeds.ToList(); 
+        return _feeds.ToList();
       }
     }
 
-    public bool IsRefeshing { get { return refeshInProgress; } }
+    public bool IsRefeshing { get { return _refeshInProgress; } }
     public event Action RefeshStarted;
     public event Action<INewsCollector> RefeshFinished;
 
@@ -66,9 +66,9 @@ namespace MediaPortal.UiComponents.News
 
     public void ChangeRefreshInterval(int minutes)
     {
-      ServiceRegistration.Get<IThreadPool>().RemoveIntervalWork(work);
-      work = new IntervalWork(RefreshFeeds, TimeSpan.FromMinutes(minutes));
-      ServiceRegistration.Get<IThreadPool>().AddIntervalWork(work, true);
+      ServiceRegistration.Get<IThreadPool>().RemoveIntervalWork(_work);
+      _work = new IntervalWork(RefreshFeeds, TimeSpan.FromMinutes(minutes));
+      ServiceRegistration.Get<IThreadPool>().AddIntervalWork(_work, true);
     }
 
     List<string> GetConfiguredFeedUrls()
@@ -78,26 +78,25 @@ namespace MediaPortal.UiComponents.News
       {
         if (settings.FeedsList.Count == 0)
           return NewsSettings.GetDefaultRegionalFeeds().Select(f => f.Url).ToList();
-        else
-          return settings.FeedsList.Select(f => f.Url).ToList();
+        return settings.FeedsList.Select(f => f.Url).ToList();
       }
     }
 
     void RefreshFeeds()
     {
       // if the flag for force refresh is set, some thread already came here while a refresh was in progress
-      if (forceRefresh) return;
+      if (_forceRefresh) return;
 
       // try to get an exclusive lock on the refreshingSyncObj
-      if (Monitor.TryEnter(refreshingSyncObj))
+      if (Monitor.TryEnter(_refreshingSyncObj))
       {
         try
         {
-          refeshInProgress = true;
+          _refeshInProgress = true;
           ServiceRegistration.Get<ILogger>().Info("Started refeshing News Feeds ...");
           var refreshStartedEvent = RefeshStarted;
           if (refreshStartedEvent != null) refreshStartedEvent();
-          forceRefresh = false; // reset the flag for a forced refresh as we are currently refreshing and next step is getting the configured feeds
+          _forceRefresh = false; // reset the flag for a forced refresh as we are currently refreshing and next step is getting the configured feeds
           List<NewsFeed> freshFeeds = new List<NewsFeed>();
           foreach (var url in GetConfiguredFeedUrls())
           {
@@ -110,10 +109,10 @@ namespace MediaPortal.UiComponents.News
               ServiceRegistration.Get<ILogger>().Warn("Error reading News Feed Data from '{0}': {1}", url, error);
             }
           }
-          lock (feeds)
+          lock (_feeds)
           {
-            feeds.Clear();
-            feeds.AddRange(freshFeeds);
+            _feeds.Clear();
+            _feeds.AddRange(freshFeeds);
           }
         }
         catch (Exception ex)
@@ -122,20 +121,21 @@ namespace MediaPortal.UiComponents.News
         }
         finally
         {
-          refeshInProgress = false;
+          _refeshInProgress = false;
           ServiceRegistration.Get<ILogger>().Info("Finished refeshing News Feeds ...");
           var refeshFinishedEvent = RefeshFinished;
           if (refeshFinishedEvent != null) refeshFinishedEvent(this);
         }
-        Monitor.Exit(refreshingSyncObj); // release the exclusive lock
+        Monitor.Exit(_refreshingSyncObj); // release the exclusive lock
       }
       else
       {
         // we couldn't get the lock on the refreshingSyncObj, so set the flag for a forced refresh
-        forceRefresh = true;
+        _forceRefresh = true;
       }
       // if the flag for a forced refresh is set, call this method again (we came here either because the refreshing finished or a lock couldn't be aquired)
-      if (forceRefresh) RefreshFeeds();
+      if (_forceRefresh)
+        RefreshFeeds();
     }
   }
 }
