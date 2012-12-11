@@ -99,7 +99,22 @@ namespace MediaPortal.UI.Presentation.Models
         if (_timer != null)
           return;
         _timer = new Timer(OnTimerElapsed);
-        _timer.Change(_updateInterval, _updateInterval);
+        ChangeInterval(_updateInterval);
+      }
+    }
+
+    /// <summary>
+    /// Changes the timer interval.
+    /// </summary>
+    /// <param name="updateInterval">Interval in ms</param>
+    protected void ChangeInterval(long updateInterval)
+    {
+      lock (_syncObj)
+      {
+        if (_timer == null)
+          return;
+        _updateInterval = updateInterval;
+        _timer.Change(updateInterval, updateInterval);
       }
     }
 
