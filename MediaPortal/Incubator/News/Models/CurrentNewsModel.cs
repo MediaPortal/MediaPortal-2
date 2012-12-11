@@ -13,7 +13,7 @@ namespace MediaPortal.UiComponents.News.Models
     /// <summary>
     /// Update interval for the current news item.
     /// </summary>
-    const long NEWSITEM_UPDATE_INTERVAL = 5 * 1000;
+    const long NEWSITEM_UPDATE_INTERVAL = 10 * 1000;
 
     protected readonly AbstractProperty _currentNewsItemProperty = new WProperty(typeof(NewsItem), new NewsItem());
 
@@ -45,7 +45,8 @@ namespace MediaPortal.UiComponents.News.Models
       if (newsCollector != null)
       {
         NewsItem newNewsItem = newsCollector.GetRandomNewsItem();
-        CurrentNewsItem = newNewsItem;
+        if (newNewsItem != null)
+          newNewsItem.CopyTo(CurrentNewsItem);
       } 
     }
   }
