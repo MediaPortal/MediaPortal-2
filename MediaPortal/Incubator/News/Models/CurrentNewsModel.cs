@@ -35,7 +35,7 @@ namespace MediaPortal.UiComponents.News.Models
     }
 
     public CurrentNewsModel()
-      : base(NEWSITEM_UPDATE_INTERVAL)
+      : base(100)
     {
     }
 
@@ -46,7 +46,12 @@ namespace MediaPortal.UiComponents.News.Models
       {
         NewsItem newNewsItem = newsCollector.GetRandomNewsItem();
         if (newNewsItem != null)
+        {
           newNewsItem.CopyTo(CurrentNewsItem);
+
+          // Decrease interval once we have the first item
+          ChangeInterval(NEWSITEM_UPDATE_INTERVAL);
+        }
       } 
     }
   }
