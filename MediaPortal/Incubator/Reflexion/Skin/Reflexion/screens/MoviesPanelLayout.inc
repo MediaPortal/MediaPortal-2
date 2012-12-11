@@ -62,12 +62,12 @@
               <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*"/>
               </Grid.ColumnDefinitions>
-              <ScrollViewer Grid.Row="0" Margin="10" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" HorizontalScrollBarVisibility="Disabled" Focusable="True">
-                <Label x:Name="StoryPlot" Wrap="True" Scroll="Auto"
-                    HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
-                    Content="{Binding Source={StaticResource FanArtBackgroundModel}, Path=ItemDescription}"
-                    Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}"/>
-              </ScrollViewer>
+
+              <Label Grid.Row="0" Margin="10" x:Name="StoryPlot" Wrap="True" Scroll="Auto" ScrollSpeed="5"
+                  HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+                  Content="{Binding Source={StaticResource FanArtBackgroundModel}, Path=ItemDescription}"
+                  Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}"/>
+
               <Image Grid.Row="1" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Stretch="UniformToFill" Margin="15" FallbackSource="{Binding MediaItem}">
                 <Image.Source>
                   <fanart:FanArtImageSource 
