@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Include
+    xmlns="www.team-mediaportal.com/2008/mpf/directx"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    Source="screens\master_dialog_bare.xaml"
+    >
+
+  <Include.Resources>
+
+    <!-- Header -->
+    <ResourceWrapper x:Key="Dialog_Header_Text" Resource="[SystemState.Configuration.Dialog.Title]"/>
+
+    <!-- SystemStateConfigurationModel -->
+    <Model x:Key="SystemStateConfigurationModel"
+           Id="869C15FC-AF55-4003-BF0D-F5AF7B6D0B3B" />
+
+    <!-- Contents -->
+    <ControlTemplate x:Key="Contents_Template">
+      <StackPanel DataContext="{Binding Source={StaticResource SystemStateConfigurationModel}}">
+        
+        <ListView Grid.Column="0"
+                  Grid.Row="0"
+                  Style="{ThemeResource SystemStateConfigurationListViewStyle}"
+                  ItemsSource="{Binding ShutdownItems}">
+          <ListView.Resources>
+            <Command x:Key="CheckedChange_Command"
+                     Source="{StaticResource SystemStateConfigurationModel}"
+                     Path="CheckedChange"
+                     Parameters="{LateBoundValue BindingValue={Binding}}" />
+            <Command x:Key="MoveUp_Command"
+                     Source="{StaticResource SystemStateConfigurationModel}"
+                     Path="MoveUp"
+                     Parameters="{LateBoundValue BindingValue={Binding}}" />
+            <Command x:Key="MoveDown_Command"
+                     Source="{StaticResource SystemStateConfigurationModel}"
+                     Path="MoveDown"
+                     Parameters="{LateBoundValue BindingValue={Binding}}" />
+          </ListView.Resources>
+        </ListView>
+
+        <!-- OK & Abort button -->
+        <Grid HorizontalAlignment="Stretch">
+          <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*" />
+            <ColumnDefinition Width="*" />
+          </Grid.ColumnDefinitions>
+          <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+          </Grid.RowDefinitions>
+
+          <Button Name="ButtonOk"
+                  Grid.Column="0"
+                  Grid.Row="0"
+                  Style="{ThemeResource DialogButtonStyle}"
+                  Content="[System.Ok]"
+                  HorizontalAlignment="Center">
+            <Button.Command>
+              <CommandList>
+                <Command Path="SaveSettings" />
+                <Command Source="{Service ScreenManager}"
+                         Path="CloseTopmostDialog" />
+              </CommandList>
+            </Button.Command>
+          </Button>
+
+          <Button Name="ButtonCancel"
+                  Grid.Column="1"
+                  Grid.Row="0"
+                  SetFocusPrio="Default"
+                  Style="{ThemeResource DialogButtonStyle}"
+                  Content="[System.Cancel]"
+                  HorizontalAlignment="Center"
+                  Command="{Command Source={Service ScreenManager},Path=CloseTopmostDialog}" />
+        </Grid>
+      </StackPanel>
+    </ControlTemplate>
+
+  </Include.Resources>
+</Include>
