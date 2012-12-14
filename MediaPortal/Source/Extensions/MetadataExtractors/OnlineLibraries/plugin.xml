@@ -16,6 +16,8 @@
         ServiceClassName="MediaPortal.Extensions.OnlineLibraries.SeriesTvDbMatcher"/>
     <Service Id="MovieTheMovieDbMatcher" RegistrationClassName="MediaPortal.Extensions.OnlineLibraries.MovieTheMovieDbMatcher"
         ServiceClassName="MediaPortal.Extensions.OnlineLibraries.MovieTheMovieDbMatcher"/>
+    <Service Id="GeoLocationMatcher" RegistrationClassName="MediaPortal.Extensions.OnlineLibraries.GeoLocationMatcher"
+        ServiceClassName="MediaPortal.Extensions.OnlineLibraries.GeoLocationMatcher"/>
   </Register>
 
 </Plugin>
