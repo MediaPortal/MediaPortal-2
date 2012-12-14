@@ -42,7 +42,7 @@ namespace MediaPortal.Common.MediaManagement.DefaultItemAspects
     /// <summary>
     /// Media item aspect id of the image aspect.
     /// </summary>
-    public static readonly Guid ASPECT_ID = new Guid("7868A212-F866-47F6-9F5D-4DFB3868F763");
+    public static readonly Guid ASPECT_ID = new Guid("2E6C3C20-0B0B-4EE3-8A0C-550C6791EAD0");
 
     public static readonly MediaItemAspectMetadata.AttributeSpecification ATTR_WIDTH =
         MediaItemAspectMetadata.CreateAttributeSpecification("Width", typeof(int), Cardinality.Inline, false);
@@ -72,6 +72,36 @@ namespace MediaPortal.Common.MediaManagement.DefaultItemAspects
     public static readonly MediaItemAspectMetadata.AttributeSpecification ATTR_METERING_MODE =
         MediaItemAspectMetadata.CreateStringAttributeSpecification("MeteringMode", 50, Cardinality.Inline, false);
 
+    /// <summary>
+    /// Contains the latitude of the location (GPS, WGS84).
+    /// </summary>
+    public static readonly MediaItemAspectMetadata.AttributeSpecification ATTR_LATITUDE =
+        MediaItemAspectMetadata.CreateAttributeSpecification("Latitude", typeof(double), Cardinality.Inline, false);
+    
+    /// <summary>
+    /// Contains the longitude of the location (GPS, WGS84).
+    /// </summary>
+    public static readonly MediaItemAspectMetadata.AttributeSpecification ATTR_LONGITUDE =
+        MediaItemAspectMetadata.CreateAttributeSpecification("Longitude", typeof(double), Cardinality.Inline, false);
+    
+    /// <summary>
+    /// Contains the city.
+    /// </summary>
+    public static readonly MediaItemAspectMetadata.AttributeSpecification ATTR_CITY =
+        MediaItemAspectMetadata.CreateStringAttributeSpecification("City", 100, Cardinality.Inline, false);
+
+    /// <summary>
+    /// Contains the state.
+    /// </summary>
+    public static readonly MediaItemAspectMetadata.AttributeSpecification ATTR_STATE =
+        MediaItemAspectMetadata.CreateStringAttributeSpecification("State", 100, Cardinality.Inline, false);
+
+    /// <summary>
+    /// Contains the country.
+    /// </summary>
+    public static readonly MediaItemAspectMetadata.AttributeSpecification ATTR_COUNTRY =
+        MediaItemAspectMetadata.CreateStringAttributeSpecification("Country", 100, Cardinality.Inline, false);
+
     public static readonly MediaItemAspectMetadata Metadata = new MediaItemAspectMetadata(
         // TODO: Localize name
         ASPECT_ID, "ImageItem", new[] {
@@ -86,6 +116,11 @@ namespace MediaPortal.Common.MediaManagement.DefaultItemAspects
             ATTR_ISO_SPEED,
             ATTR_ORIENTATION,
             ATTR_METERING_MODE,
+            ATTR_LATITUDE,
+            ATTR_LONGITUDE,
+            ATTR_CITY,
+            ATTR_STATE,
+            ATTR_COUNTRY,
         });
 
     /// <summary>
