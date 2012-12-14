@@ -160,8 +160,11 @@ namespace MediaPortal.Extensions.MetadataExtractors.ImageMetadataExtractor
           imageAspect.SetAttribute(ImageAspect.ATTR_FLASH_MODE, StringUtils.TrimToNull(exif.FlashMode));
           imageAspect.SetAttribute(ImageAspect.ATTR_FNUMBER, string.Format("F {0}", (double) exif.FNumber));
           imageAspect.SetAttribute(ImageAspect.ATTR_ISO_SPEED, StringUtils.TrimToNull(exif.ISOSpeed));
-          imageAspect.SetAttribute(ImageAspect.ATTR_ORIENTATION, (Int32) exif.Orientation);
+          imageAspect.SetAttribute(ImageAspect.ATTR_ORIENTATION, (Int32) (exif.OrientationType ?? 0));
           imageAspect.SetAttribute(ImageAspect.ATTR_METERING_MODE, exif.MeteringMode.ToString());
+          
+          imageAspect.SetAttribute(ImageAspect.ATTR_LATITUDE, exif.Latitude);
+          imageAspect.SetAttribute(ImageAspect.ATTR_LONGITUDE, exif.Longitude);
 
           using (ILocalFsResourceAccessor lfsra = StreamedResourceToLocalFsAccessBridge.GetLocalFsResourceAccessor((IFileSystemResourceAccessor) fsra.Clone()))
           {
