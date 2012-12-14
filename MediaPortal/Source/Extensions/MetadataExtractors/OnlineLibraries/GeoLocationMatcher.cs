@@ -58,5 +58,40 @@ namespace MediaPortal.Extensions.OnlineLibraries
         return false;
       }
     }
+
+    private static double DegreesToRadians(double degrees)
+    {
+      return degrees * Math.PI / 180.0;
+    }
+
+    public static double CalculateDistance(LocationInfo location1, LocationInfo location2)
+    {
+      const double EARTH_RADIUS_KM = 6376.5;
+      double lat1InRad = DegreesToRadians(location1.Latitude);
+      double long1InRad = DegreesToRadians(location1.Longitude);
+      double lat2InRad = DegreesToRadians(location2.Latitude);
+      double long2InRad = DegreesToRadians(location2.Longitude);
+
+      double dLongitude = long2InRad - long1InRad;
+      double dLatitude = lat2InRad - lat1InRad;
+      double a = Math.Pow(Math.Sin(dLatitude / 2), 2) + Math.Cos(lat1InRad) * Math.Cos(lat2InRad) * Math.Pow(Math.Sin(dLongitude / 2), 2);
+      double c = 2 * Math.Atan2(Math.Sqrt(a), Math.Sqrt(1 - a));
+      return EARTH_RADIUS_KM * c;
+    }
+
+    public static double CalculateDistance(params LocationInfo[] locations)
+    {
+      double totalDistance = 0.0;
+
+      for (int i = 0; i < locations.Length - 1; i++)
+      {
+        LocationInfo current = locations[i];
+        LocationInfo next = locations[i + 1];
+
+        totalDistance += CalculateDistance(current, next);
+      }
+
+      return totalDistance;
+    }
   }
 }

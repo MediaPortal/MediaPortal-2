@@ -35,6 +35,8 @@ using MediaPortal.Common.Services.ResourceAccess.StreamedResourceToLocalFsAccess
 using MediaPortal.Common.Services.ThumbnailGenerator;
 using MediaPortal.Common.Settings;
 using MediaPortal.Extensions.MetadataExtractors.ImageMetadataExtractor.Settings;
+using MediaPortal.Extensions.OnlineLibraries;
+using MediaPortal.Extensions.OnlineLibraries.Libraries.GeoLocation.Data;
 using MediaPortal.Utilities;
 using MediaPortal.Utilities.SystemAPI;
 
@@ -162,9 +164,20 @@ namespace MediaPortal.Extensions.MetadataExtractors.ImageMetadataExtractor
           imageAspect.SetAttribute(ImageAspect.ATTR_ISO_SPEED, StringUtils.TrimToNull(exif.ISOSpeed));
           imageAspect.SetAttribute(ImageAspect.ATTR_ORIENTATION, (Int32) (exif.OrientationType ?? 0));
           imageAspect.SetAttribute(ImageAspect.ATTR_METERING_MODE, exif.MeteringMode.ToString());
-          
-          imageAspect.SetAttribute(ImageAspect.ATTR_LATITUDE, exif.Latitude);
-          imageAspect.SetAttribute(ImageAspect.ATTR_LONGITUDE, exif.Longitude);
+
+          if (exif.Latitude.HasValue && exif.Longitude.HasValue)
+          {
+            imageAspect.SetAttribute(ImageAspect.ATTR_LATITUDE, exif.Latitude);
+            imageAspect.SetAttribute(ImageAspect.ATTR_LONGITUDE, exif.Longitude);
+
+            LocationInfo locationInfo;
+            if (!forceQuickMode && GeoLocationMatcher.Instance.TryLookup(exif.Latitude.Value, exif.Longitude.Value, out locationInfo))
+            {
+              imageAspect.SetAttribute(ImageAspect.ATTR_CITY, locationInfo.City);
+              imageAspect.SetAttribute(ImageAspect.ATTR_STATE, locationInfo.State);
+              imageAspect.SetAttribute(ImageAspect.ATTR_COUNTRY, locationInfo.Country);
+            }
+          }
 
           using (ILocalFsResourceAccessor lfsra = StreamedResourceToLocalFsAccessBridge.GetLocalFsResourceAccessor((IFileSystemResourceAccessor) fsra.Clone()))
           {

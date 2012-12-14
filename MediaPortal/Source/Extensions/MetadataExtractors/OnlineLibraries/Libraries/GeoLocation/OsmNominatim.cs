@@ -52,7 +52,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.GeoLocation
 
     protected string BuildUrl(double latitude, double longitude)
     {
-      var mpLocal = "de"; // ServiceRegistration.Get<ILocalization>().CurrentCulture.TwoLetterISOLanguageName;
+      var mpLocal = ServiceRegistration.Get<ILocalization>().CurrentCulture.TwoLetterISOLanguageName;
       return
         string.Format(
           "http://nominatim.openstreetmap.org/reverse?format=json&lat={0}&lon={1}&zoom=10&accept-language={2}",
