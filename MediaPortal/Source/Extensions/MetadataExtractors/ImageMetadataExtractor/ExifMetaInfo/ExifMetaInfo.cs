@@ -50,7 +50,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.ImageMetadataExtractor.ExifM
     private MetadataModel.ExifImageOrientation? _orientation;
     private double? _focalLength = null;
     private double? _fNumber = null;
-    private double? _exposureTime = null;
+    private string _exposureTime = null;
     private double? _exposureBias = null;
     private string _isoSpeed = string.Empty;
     private bool _flashFired;
@@ -122,7 +122,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.ImageMetadataExtractor.ExifM
     ///<summary>
     ///Exposure Time.
     ///</summary>						
-    public double? ExposureTime { get { return _exposureTime; } }
+    public string ExposureTime { get { return _exposureTime; } }
 
     /// <summary>
     /// Exposure Bias.
@@ -250,7 +250,9 @@ namespace MediaPortal.Extensions.MetadataExtractors.ImageMetadataExtractor.ExifM
       _dtDigitized = exif.DateTimeDigitized;
       _focalLength = exif.FocalLength;
       _fNumber = exif.FNumber;
-      _exposureTime = exif.ExposureTime;
+      if (exif.ExposureTime.HasValue)
+        _exposureTime = string.Format("{0}/{1}", exif.ExposureTime.Value.Numerator, exif.ExposureTime.Value.Denominator);
+
       _exposureBias = exif.ExposureBiasValue;
       _isoSpeed = exif.ISOSpeedRatings != null ? exif.ISOSpeedRatings[0].ToString() : null;
       _orientation = main.Orientation;
