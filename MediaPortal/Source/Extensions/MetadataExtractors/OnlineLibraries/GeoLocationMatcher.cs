@@ -24,6 +24,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using MediaPortal.Common;
 using MediaPortal.Common.Logging;
 using MediaPortal.Extensions.OnlineLibraries.Libraries.GeoLocation;
@@ -45,23 +46,51 @@ namespace MediaPortal.Extensions.OnlineLibraries
 
     #endregion
 
+    /// <summary>
+    /// The maximum distance in km where two locations are considered as equal (to avoid unneeded online lookups).
+    /// </summary>
+    protected const double CACHE_MAX_DISTANCE_KM = 1.0;
+
+    protected List<LocationInfo> _locationCache = new List<LocationInfo>();
+
     public IList<IGeolocationLookup> GetOnlineServices()
     {
       return new List<IGeolocationLookup> { new OsmNominatim(), new Google() };
     }
+
     public bool TryLookup(double latitude, double longitude, out LocationInfo locationInfo)
     {
       try
       {
+        if (GetFromCache(latitude, longitude, out locationInfo))
+          return true;
+
         foreach (IGeolocationLookup lookup in GetOnlineServices())
         {
           if (lookup.TryLookup(latitude, longitude, out locationInfo))
+          {
+            _locationCache.Add(locationInfo);
             return true;
+          }
         }
       }
       catch (Exception ex)
       {
         ServiceRegistration.Get<ILogger>().Error("Error while executing reverse geocoding.", ex);
+      }
+      locationInfo = null;
+      return false;
+    }
+
+    private bool GetFromCache(double latitude, double longitude, out LocationInfo locationInfo)
+    {
+      LocationInfo newLoc = new LocationInfo { Latitude = latitude, Longitude = longitude };
+      // We cannot compare for exact lat/long values, but we consider points within the CACHE_MAX_DISTANCE_KM 
+      // to belong to same location.
+      foreach (LocationInfo info in _locationCache.Where(info => CalculateDistance(info, newLoc) <= CACHE_MAX_DISTANCE_KM))
+      {
+        locationInfo = info;
+        return true;
       }
       locationInfo = null;
       return false;
