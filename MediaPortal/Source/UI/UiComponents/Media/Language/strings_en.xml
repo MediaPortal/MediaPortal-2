@@ -231,6 +231,9 @@
   <string name="Media.ImageShutterSpeedLabel">Shutter speed: </string>
   <string name="Media.ImageMeteringModeLabel">Metering mode: </string>
   <string name="Media.ImageExposureTimeLabel">Exposure time: </string>
+  <string name="Media.ImageCountryLabel">Country: </string>
+  <string name="Media.ImageStateLabel">State: </string>
+  <string name="Media.ImageCityLabel">City: </string>
 
   <!-- DVD currently playing -->
   <string name="Media.DVDCurrentlyPlayingHeader">Current DVD information</string>

@@ -25,6 +25,9 @@
               <RowDefinition Height="Auto"/>
               <RowDefinition Height="Auto"/>
               <RowDefinition Height="Auto"/>
+              <RowDefinition Height="Auto"/>
+              <RowDefinition Height="Auto"/>
+              <RowDefinition Height="Auto"/>
             </Grid.RowDefinitions>
             <Grid.ColumnDefinitions>
               <ColumnDefinition Width="Auto"/>
@@ -75,6 +78,24 @@
                 Content="[Media.ImageMeteringModeLabel]" Color="{ThemeResource TextColor}"/>
             <Label x:Name="ImageMeteringMode" Grid.Row="7" Grid.Column="1"
                 Content="{Binding Source={StaticResource Model},Path=PlayerUIContributor.ImageMeteringMode}"
+                Color="{ThemeResource TextColor}"/>
+    
+            <Label x:Name="CountryLabel" Grid.Row="8" Grid.Column="0"
+                Content="[Media.ImageCountryLabel]" Color="{ThemeResource TextColor}"/>
+            <Label x:Name="Country" Grid.Row="8" Grid.Column="1"
+                Content="{Binding Source={StaticResource Model},Path=PlayerUIContributor.Country}"
+                Color="{ThemeResource TextColor}"/>
+    
+            <Label x:Name="StateLabel" Grid.Row="9" Grid.Column="0"
+                Content="[Media.ImageStateLabel]" Color="{ThemeResource TextColor}"/>
+            <Label x:Name="State" Grid.Row="9" Grid.Column="1"
+                Content="{Binding Source={StaticResource Model},Path=PlayerUIContributor.State}"
+                Color="{ThemeResource TextColor}"/>
+    
+            <Label x:Name="CityLabel" Grid.Row="10" Grid.Column="0"
+                Content="[Media.ImageCityLabel]" Color="{ThemeResource TextColor}"/>
+            <Label x:Name="City" Grid.Row="10" Grid.Column="1"
+                Content="{Binding Source={StaticResource Model},Path=PlayerUIContributor.City}"
                 Color="{ThemeResource TextColor}"/>
           </Grid>
         </mp_special_controls:PlayerControl.TemplateControl>
