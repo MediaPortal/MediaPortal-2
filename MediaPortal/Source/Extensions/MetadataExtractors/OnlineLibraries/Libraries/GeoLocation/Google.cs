@@ -53,7 +53,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.GeoLocation
     protected string BuildUrl(double latitude, double longitude)
     {
       var mpLocal = ServiceRegistration.Get<ILocalization>().CurrentCulture.TwoLetterISOLanguageName;
-      return string.Format("http://maps.googleapis.com/maps/api/geocode/json?latlng={1},{0}&sensor=false&language={2}",
+      return string.Format("http://maps.googleapis.com/maps/api/geocode/json?latlng={0},{1}&sensor=false&language={2}",
           latitude.ToString(CultureInfo.InvariantCulture),
           longitude.ToString(CultureInfo.InvariantCulture),
           mpLocal);

@@ -270,12 +270,12 @@ namespace MediaPortal.Extensions.MetadataExtractors.ImageMetadataExtractor.ExifM
     {
       MDM_EXIF_GPS gps = (MDM_EXIF_GPS) iMetadata[FREE_IMAGE_MDMODEL.FIMD_EXIF_GPS];
 
-      double? lonValue = ToDecimalDegree(gps.Latitude);
-      if (lonValue.HasValue && gps.LongitudeDirection != null && gps.LongitudeDirection.Value.ToString() == "S")
+      double? lonValue = ToDecimalDegree(gps.Longitude);
+      if (lonValue.HasValue && gps.LongitudeDirection != null && gps.LongitudeDirection == MetadataModel.LongitudeType.West)
         lonValue *= -1;
 
-      double? latValue = ToDecimalDegree(gps.Longitude);
-      if (latValue.HasValue && gps.LongitudeDirection != null && gps.LongitudeDirection.Value.ToString() == "W")
+      double? latValue = ToDecimalDegree(gps.Latitude);
+      if (latValue.HasValue && gps.Latitude != null && gps.LatitudeDirection == MetadataModel.LatitudeType.South)
         latValue *= -1;
 
       latitude = latValue;
