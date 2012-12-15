@@ -25,6 +25,7 @@
 using System;
 using System.Drawing;
 using System.IO;
+using System.Linq;
 using FreeImageAPI;
 using FreeImageAPI.Metadata;
 using MediaPortal.Common.ResourceAccess;
@@ -241,22 +242,23 @@ namespace MediaPortal.Extensions.MetadataExtractors.ImageMetadataExtractor.ExifM
 
       var main = ((MDM_EXIF_MAIN) iMetadata[FREE_IMAGE_MDMODEL.FIMD_EXIF_MAIN]);
       var exif = ((MDM_EXIF_EXIF) iMetadata[FREE_IMAGE_MDMODEL.FIMD_EXIF_EXIF]);
-      _equipMake = main.Make;
-      _equipModel = main.Model.ToString();
-      _imageDescription = main.ImageDescription;
-      _copyright = main.Copyright.ToString();
+      _equipMake = SafeTrim(main.Make);
+      _equipModel = SafeTrim(main.EquipmentModel);
+      _imageDescription = SafeTrim(main.ImageDescription);
+      _copyright = SafeJoin(main.Copyright);
       _dtOrig = exif.DateTimeOriginal;
       _dtDigitized = exif.DateTimeDigitized;
       _focalLength = exif.FocalLength;
       _fNumber = exif.FNumber;
       _exposureTime = exif.ExposureTime;
       _exposureBias = exif.ExposureBiasValue;
-      _isoSpeed = exif.ISOSpeedRatings.ToString();
+      _isoSpeed = exif.ISOSpeedRatings != null ? exif.ISOSpeedRatings[0].ToString() : null;
       _orientation = main.Orientation;
       _pixXDim = exif.PixelXDimension;
       _pixYDim = exif.PixelYDimension;
       _flashFired = exif.Flash.HasValue && (exif.Flash.Value & 1) == 1;
-      FillFlashModeResult(exif.Flash.Value);
+      if (exif.Flash.HasValue)
+        FillFlashModeResult(exif.Flash.Value);
       _meteringMode = (MeteringMode) (exif.MeteringMode.HasValue ? exif.MeteringMode.Value : 0);
 
       TryParseGPS(iMetadata, out _latitude, out _longitude);
@@ -277,6 +279,21 @@ namespace MediaPortal.Extensions.MetadataExtractors.ImageMetadataExtractor.ExifM
       latitude = latValue;
       longitude = lonValue;
       return latitude.HasValue && longitude.HasValue;
+    }
+
+    private string SafeTrim(string exifString)
+    {
+      if (string.IsNullOrWhiteSpace(exifString))
+        return null;
+      return exifString.Trim();
+    }
+
+    private string SafeJoin(string[] list)
+    {
+      if (list == null)
+        return null;
+
+      return list.Select(SafeTrim).Aggregate((a, b) => string.Format("{0}; {1}", a, b));
     }
 
     private double? ToDecimalDegree(FIURational[] vals)
