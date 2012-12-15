@@ -153,14 +153,14 @@ namespace MediaPortal.Extensions.MetadataExtractors.ImageMetadataExtractor
           mediaAspect.SetAttribute(MediaAspect.ATTR_RECORDINGTIME, exif.OriginalDate != DateTime.MinValue ? exif.OriginalDate : fsra.LastChanged);
           mediaAspect.SetAttribute(MediaAspect.ATTR_COMMENT, StringUtils.TrimToNull(exif.ImageDescription));
 
-          imageAspect.SetAttribute(ImageAspect.ATTR_WIDTH, (int) exif.PixXDim);
-          imageAspect.SetAttribute(ImageAspect.ATTR_HEIGHT, (int) exif.PixYDim);
+          if (exif.PixXDim.HasValue) imageAspect.SetAttribute(ImageAspect.ATTR_WIDTH, (int) exif.PixXDim);
+          if (exif.PixYDim.HasValue) imageAspect.SetAttribute(ImageAspect.ATTR_HEIGHT, (int) exif.PixYDim);
           imageAspect.SetAttribute(ImageAspect.ATTR_MAKE, StringUtils.TrimToNull(exif.EquipMake));
           imageAspect.SetAttribute(ImageAspect.ATTR_MODEL, StringUtils.TrimToNull(exif.EquipModel));
-          imageAspect.SetAttribute(ImageAspect.ATTR_EXPOSURE_BIAS, ((double) exif.ExposureBias).ToString());
+          if (exif.ExposureBias.HasValue) imageAspect.SetAttribute(ImageAspect.ATTR_EXPOSURE_BIAS, ((double) exif.ExposureBias).ToString());
           imageAspect.SetAttribute(ImageAspect.ATTR_EXPOSURE_TIME, exif.ExposureTime.ToString());
           imageAspect.SetAttribute(ImageAspect.ATTR_FLASH_MODE, StringUtils.TrimToNull(exif.FlashMode));
-          imageAspect.SetAttribute(ImageAspect.ATTR_FNUMBER, string.Format("F {0}", (double) exif.FNumber));
+          if (exif.FNumber.HasValue) imageAspect.SetAttribute(ImageAspect.ATTR_FNUMBER, string.Format("F {0}", (double) exif.FNumber));
           imageAspect.SetAttribute(ImageAspect.ATTR_ISO_SPEED, StringUtils.TrimToNull(exif.ISOSpeed));
           imageAspect.SetAttribute(ImageAspect.ATTR_ORIENTATION, (Int32) (exif.OrientationType ?? 0));
           imageAspect.SetAttribute(ImageAspect.ATTR_METERING_MODE, exif.MeteringMode.ToString());
