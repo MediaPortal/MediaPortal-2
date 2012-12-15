@@ -20,6 +20,9 @@
   <string name="Media.FilterByAudioLanguageMenuItem">Filter by language</string>
   <string name="Media.FilterByImageSizeMenuItem">Filter by size</string>
   <string name="Media.FilterByImageYearMenuItem">Filter by year</string>
+  <string name="Media.FilterByImageCountryMenuItem">Filter by country</string>
+  <string name="Media.FilterByImageStateMenuItem">Filter by state</string>
+  <string name="Media.FilterByImageCityMenuItem">Filter by city</string>
   <string name="Media.FilterBySystemMenuItem">Filter by system</string>
   <string name="Media.FilterByMoviesCollectionMenuItem">Filter by collection</string>
   <string name="Media.FilterBySeriesNameMenuItem">Filter by series</string>
@@ -52,6 +55,9 @@
   <string name="Media.FilterAudioLanguagesNavbarDisplayLabel">Language: {0}</string>
   <string name="Media.FilterImageSizeNavbarDisplayLabel">Size: {0}</string>
   <string name="Media.FilterImageYearNavbarDisplayLabel">Year: {0}</string>
+  <string name="Media.FilterImageCountryNavbarDisplayLabel">Country: {0}</string>
+  <string name="Media.FilterImageStateNavbarDisplayLabel">State: {0}</string>
+  <string name="Media.FilterImageCityNavbarDisplayLabel">City: {0}</string>
   <string name="Media.FilterAudioItemsNavbarDisplayLabel">Name: {0}</string>
   <string name="Media.FilterVideoItemsNavbarDisplayLabel">Name: {0}</string>
   <string name="Media.FilterMoviesCollectionNavbarDisplayLabel">{0}</string>
@@ -108,6 +114,9 @@
   <string name="Media.ChooseAudioGenreHeader">Choose a genre</string>
   <string name="Media.ChooseImageYearHeader">Choose a year</string>
   <string name="Media.ChooseImageSizeHeader">Choose a size</string>
+  <string name="Media.ChooseImageCountryHeader">Choose a country</string>
+  <string name="Media.ChooseImageStateHeader">Choose a state</string>
+  <string name="Media.ChooseImageCityHeader">Choose a city</string>
   <string name="Media.ChooseSystemHeader">Choose a system</string>
   <string name="Media.ChooseVideoLanguageHeader">Choose a language</string>
 

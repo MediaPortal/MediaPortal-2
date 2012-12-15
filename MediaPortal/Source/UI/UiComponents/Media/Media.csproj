@@ -144,6 +144,9 @@
     <Compile Include="Models\Navigation\SeriesItem.cs" />
     <Compile Include="Models\ScreenData\AbstractBrowseMediaNavigationScreenData.cs" />
     <Compile Include="Models\ScreenData\AbstractMovieFilterScreenData.cs" />
+    <Compile Include="Models\ScreenData\ImagesFilterByCityScreenData.cs" />
+    <Compile Include="Models\ScreenData\ImagesFilterByStateScreenData.cs" />
+    <Compile Include="Models\ScreenData\ImagesFilterByCountryScreenData.cs" />
     <Compile Include="Models\ScreenData\MovieFilterByCollectionScreenData.cs" />
     <Compile Include="Models\ScreenData\MovieShowItemsScreenData.cs" />
     <Compile Include="Models\ScreenData\VideosFilterByLanguageScreenData.cs" />
@@ -346,6 +349,21 @@
     <Content Include="Skin\default\screens\SeriesShowItems.xaml" />
     <Content Include="Skin\default\screens\VideoFilterByLanguage.xaml" />
     <Content Include="Skin\default\screens\MoviesFilterByCollection.xaml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Skin\default\screens\ImageFilterByCountry.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Skin\default\screens\ImageFilterByState.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Skin\default\screens\ImageFilterByCity.xaml">
+      <SubType>Designer</SubType>
+    </Content>
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

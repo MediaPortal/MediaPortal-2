@@ -145,6 +145,10 @@ namespace MediaPortal.UiComponents.Media.General
     public const string RES_FILTER_BY_AUDIO_LANG_MENU_ITEM = "[Media.FilterByAudioLanguageMenuItem]";
     public const string RES_FILTER_BY_SYSTEM_MENU_ITEM = "[Media.FilterBySystemMenuItem]";
     public const string RES_FILTER_BY_IMAGE_SIZE_MENU_ITEM = "[Media.FilterByImageSizeMenuItem]";
+    public const string RES_FILTER_BY_IMAGE_COUNTRY_MENU_ITEM = "[Media.FilterByImageCountryMenuItem]";
+    public const string RES_FILTER_BY_IMAGE_STATE_MENU_ITEM = "[Media.FilterByImageStateMenuItem]";
+    public const string RES_FILTER_BY_IMAGE_CITY_MENU_ITEM = "[Media.FilterByImageCityMenuItem]";
+
     public const string RES_FILTER_BY_MOVIES_COLLECTION_MENU_ITEM = "[Media.FilterByMoviesCollectionMenuItem]";
     public const string RES_FILTER_BY_SERIES_NAME_MENU_ITEM = "[Media.FilterBySeriesNameMenuItem]";
     public const string RES_FILTER_BY_SERIES_SEASON_MENU_ITEM = "[Media.FilterBySeriesSeasonMenuItem]";
@@ -170,6 +174,10 @@ namespace MediaPortal.UiComponents.Media.General
     public const string RES_FILTER_AUDIO_ITEMS_NAVBAR_DISPLAY_LABEL = "[Media.FilterAudioItemsNavbarDisplayLabel]";
     public const string RES_FILTER_VIDEO_ITEMS_NAVBAR_DISPLAY_LABEL = "[Media.FilterVideoItemsNavbarDisplayLabel]";
     public const string RES_FILTER_IMAGE_ITEMS_NAVBAR_DISPLAY_LABEL = "[Media.FilterImageItemsNavbarDisplayLabel]";
+    public const string RES_FILTER_IMAGE_COUNTRY_NAVBAR_DISPLAY_LABEL = "[Media.FilterImageCountryNavbarDisplayLabel]";
+    public const string RES_FILTER_IMAGE_STATE_NAVBAR_DISPLAY_LABEL = "[Media.FilterImageStateNavbarDisplayLabel]";
+    public const string RES_FILTER_IMAGE_CITY_NAVBAR_DISPLAY_LABEL = "[Media.FilterImageCityNavbarDisplayLabel]";
+
     public const string RES_FILTER_AUDIO_LANG_NAVBAR_DISPLAY_LABEL = "[Media.FilterAudioLanguagesNavbarDisplayLabel]";
     public const string RES_FILTER_SYSTEM_NAVBAR_DISPLAY_LABEL = "[Media.FilterSystemNavbarDisplayLabel]";
     public const string RES_FILTER_SERIES_ITEMS_NAVBAR_DISPLAY_LABEL = "[Media.FilterSeriesItemsNavbarDisplayLabel]";
@@ -317,6 +325,10 @@ namespace MediaPortal.UiComponents.Media.General
     public const string SCREEN_IMAGE_FILTER_BY_YEAR = "ImageFilterByYear";
     public const string SCREEN_IMAGE_FILTER_BY_SIZE = "ImageFilterBySize";
     public const string SCREEN_IMAGE_FILTER_BY_SYSTEM = "ImageFilterBySystem";
+    public const string SCREEN_IMAGE_FILTER_BY_COUNTRY = "ImageFilterByCountry";
+    public const string SCREEN_IMAGE_FILTER_BY_STATE = "ImageFilterByState";
+    public const string SCREEN_IMAGE_FILTER_BY_CITY = "ImageFilterByCity";
+
     public const string SCREEN_IMAGE_SIMPLE_SEARCH = "ImageSimpleSearch";
 
     public const string SCREEN_FULLSCREEN_AUDIO = "FullscreenContentAudio";

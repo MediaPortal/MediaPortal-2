@@ -63,6 +63,9 @@ namespace MediaPortal.UiComponents.Media.Models.NavigationModel
           new ImagesShowItemsScreenData(picd),
           filterByYear,
           // C# doesn't like it to have an assignment inside a collection initializer
+          new ImagesFilterByCountryScreenData(),
+          new ImagesFilterByStateScreenData(),
+          new ImagesFilterByCityScreenData(),
           new ImagesFilterBySizeScreenData(),
           new ImagesFilterBySystemScreenData(),
           new ImagesSimpleSearchScreenData(picd),
