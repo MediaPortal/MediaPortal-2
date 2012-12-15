@@ -17161,6 +17161,11 @@
             Loads the image as RGB 24-bit.
             </summary>
         </member>
+        <member name="F:FreeImageAPI.FREE_IMAGE_LOAD_FLAGS.LOAD_NOPIXELS">
+            <summary>
+            Loading: load the image header only (not supported by all plugins, default to full loading).
+            </summary>
+        </member>
         <member name="T:FreeImageAPI.FREE_IMAGE_FORMAT">
             <summary>
             I/O image format identifiers.

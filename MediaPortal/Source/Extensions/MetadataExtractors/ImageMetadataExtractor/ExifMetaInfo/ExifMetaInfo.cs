@@ -219,8 +219,8 @@ namespace MediaPortal.Extensions.MetadataExtractors.ImageMetadataExtractor.ExifM
         if (!FreeImage.IsAvailable())
           throw new Exception("FreeImage is not available!");
 
-        // Load the image from stream
-        dib = FreeImage.LoadFromStream(mediaStream);
+        // Load the image from stream, try to read headers only, without decoding
+        dib = FreeImage.LoadFromStream(mediaStream, FREE_IMAGE_LOAD_FLAGS.LOAD_NOPIXELS);
         if (dib.IsNull)
           throw new Exception("FreeImage could not load image");
 
