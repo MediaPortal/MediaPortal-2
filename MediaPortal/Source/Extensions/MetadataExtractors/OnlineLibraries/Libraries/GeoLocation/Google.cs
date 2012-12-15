@@ -30,25 +30,30 @@ using MediaPortal.Extensions.OnlineLibraries.Libraries.GeoLocation.Data;
 
 namespace MediaPortal.Extensions.OnlineLibraries.Libraries.GeoLocation
 {
-  public class OsmNominatim : IGeolocationLookup
+  public class Google : IGeolocationLookup
   {
     public bool TryLookup(double latitude, double longitude, out LocationInfo locationInfo)
     {
       var downloader = new Downloader { EnableCompression = true };
-      ReverseGeoCodeResult result = downloader.Download<ReverseGeoCodeResult>(BuildUrl(latitude, longitude));
-      if (result == null)
+      downloader.Headers["Accept"] = "application/json";
+      // Google enables compressed output only, if a valid User-Agent is sent!
+      downloader.Headers["User-Agent"] = "Mozilla/5.0 (Windows NT 6.1; WOW64; rv:17.0) Gecko/20100101 Firefox/17.0";
+      GoogleResults results = downloader.Download<GoogleResults>(BuildUrl(latitude, longitude));
+      if (results == null || results.Results == null || results.Results.Count == 0)
       {
         locationInfo = null;
         return false;
       }
-      locationInfo = result.ToLocation();
-      return !string.IsNullOrWhiteSpace(locationInfo.Country) || !string.IsNullOrWhiteSpace(locationInfo.State) || !string.IsNullOrWhiteSpace(locationInfo.City);
+      locationInfo = results.Results[0].ToLocation();
+      locationInfo.Latitude = latitude;
+      locationInfo.Longitude = longitude;
+      return true;
     }
 
     protected string BuildUrl(double latitude, double longitude)
     {
       var mpLocal = ServiceRegistration.Get<ILocalization>().CurrentCulture.TwoLetterISOLanguageName;
-      return string.Format("http://nominatim.openstreetmap.org/reverse?format=json&lat={0}&lon={1}&zoom=10&accept-language={2}",
+      return string.Format("http://maps.googleapis.com/maps/api/geocode/json?latlng={1},{0}&sensor=false&language={2}",
           latitude.ToString(CultureInfo.InvariantCulture),
           longitude.ToString(CultureInfo.InvariantCulture),
           mpLocal);

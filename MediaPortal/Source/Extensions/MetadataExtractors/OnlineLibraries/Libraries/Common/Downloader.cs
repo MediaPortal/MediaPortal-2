@@ -23,6 +23,7 @@
 #endregion
 
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Net;
 using System.Text;
@@ -33,17 +34,31 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.Common
   public class Downloader
   {
     /// <summary>
+    /// Dictionary of additional http headers to be added for each request.
+    /// </summary>
+    public Dictionary<string, string> Headers { get; internal set; }
+
+    /// <summary>
+    /// Enables gzip/deflate compression for web requests.
+    /// </summary>
+    public bool EnableCompression { get; set; }
+
+    public Downloader()
+    {
+      Headers = new Dictionary<string, string>();
+    }
+
+    /// <summary>
     /// Downloads the requested information from the JSON api and deserializes the response to the requested <typeparam name="TE">Type</typeparam>.
     /// This method can save the response to local cache, if a valid path is passed in <paramref name="saveCacheFile"/>.
     /// </summary>
     /// <typeparam name="TE">Target type</typeparam>
     /// <param name="url">Url to download</param>
     /// <param name="saveCacheFile">Optional name for saving response to cache</param>
-    /// <param name="addAcceptJSON"><c>true</c> to add "Accept:application/json"</param>
     /// <returns>Downloaded object</returns>
-    public TE Download<TE>(string url, string saveCacheFile = null, bool addAcceptJSON = true)
+    public TE Download<TE>(string url, string saveCacheFile = null)
     {
-      string json = DownloadJSON(url, addAcceptJSON);
+      string json = DownloadJSON(url);
       if (!string.IsNullOrEmpty(saveCacheFile))
         WriteCache(saveCacheFile, json);
       return JsonConvert.DeserializeObject<TE>(json);
@@ -53,13 +68,13 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.Common
     /// Downloads the JSON string from API.
     /// </summary>
     /// <param name="url">Url to download</param>
-    /// <param name="addAcceptJSON"><c>true</c> to add "Accept:application/json"</param>
     /// <returns>JSON result</returns>
-    protected string DownloadJSON(string url, bool addAcceptJSON = true)
+    protected string DownloadJSON(string url)
     {
-      WebClient webClient = new WebClient { Encoding = Encoding.UTF8 };
-      if (addAcceptJSON)
-        webClient.Headers["Accept"] = "application/json";
+      CompressionWebClient webClient = new CompressionWebClient(EnableCompression) { Encoding = Encoding.UTF8 };
+      foreach (KeyValuePair<string, string> headerEntry in Headers)
+        webClient.Headers[headerEntry.Key] = headerEntry.Value;
+
       return webClient.DownloadString(url);
     }
 

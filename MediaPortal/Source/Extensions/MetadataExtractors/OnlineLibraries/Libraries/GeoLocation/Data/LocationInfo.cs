@@ -22,9 +22,6 @@
 
 #endregion
 
-using System.Collections.Generic;
-using System.Runtime.Serialization;
-
 namespace MediaPortal.Extensions.OnlineLibraries.Libraries.GeoLocation.Data
 {
   public class LocationInfo
@@ -34,42 +31,5 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.GeoLocation.Data
     public string City { get; set; }
     public string State { get; set; }
     public string Country { get; set; }
-  }
-
-  [DataContract]
-  public class ReverseGeoCodeResult
-  {
-    const string KEY_CITY = "city";
-    const string KEY_STATE = "state";
-    const string KEY_COUNTRY = "country";
-
-    [DataMember(Name = "place_id")]
-    public int PlaceId { get; set; }
-
-    [DataMember(Name = "lat")]
-    public double Latitude { get; set; }
-
-    [DataMember(Name = "lon")]
-    public double Longitude { get; set; }
-
-    [DataMember(Name = "address")]
-    public Dictionary<string, string> AddressInfo { get; internal set; }
-
-    public ReverseGeoCodeResult()
-    {
-      AddressInfo = new Dictionary<string, string>();
-    }
-
-    public LocationInfo ToLocation()
-    {
-      var loc = new LocationInfo { Latitude = Latitude, Longitude = Longitude };
-      if (AddressInfo.ContainsKey(KEY_CITY))
-        loc.City = AddressInfo[KEY_CITY];
-      if (AddressInfo.ContainsKey(KEY_STATE))
-        loc.State = AddressInfo[KEY_STATE];
-      if (AddressInfo.ContainsKey(KEY_COUNTRY))
-        loc.Country = AddressInfo[KEY_COUNTRY];
-      return loc;
-    }
   }
 }

@@ -23,6 +23,7 @@
 #endregion
 
 using System;
+using System.Collections.Generic;
 using MediaPortal.Common;
 using MediaPortal.Common.Logging;
 using MediaPortal.Extensions.OnlineLibraries.Libraries.GeoLocation;
@@ -44,19 +45,26 @@ namespace MediaPortal.Extensions.OnlineLibraries
 
     #endregion
 
+    public IList<IGeolocationLookup> GetOnlineServices()
+    {
+      return new List<IGeolocationLookup> { new OsmNominatim(), new Google() };
+    }
     public bool TryLookup(double latitude, double longitude, out LocationInfo locationInfo)
     {
       try
       {
-        IGeolocationLookup lookup = new OsmNominatim();
-        return lookup.TryLookup(latitude, longitude, out locationInfo);
+        foreach (IGeolocationLookup lookup in GetOnlineServices())
+        {
+          if (lookup.TryLookup(latitude, longitude, out locationInfo))
+            return true;
+        }
       }
       catch (Exception ex)
       {
         ServiceRegistration.Get<ILogger>().Error("Error while executing reverse geocoding.", ex);
-        locationInfo = null;
-        return false;
       }
+      locationInfo = null;
+      return false;
     }
 
     private static double DegreesToRadians(double degrees)

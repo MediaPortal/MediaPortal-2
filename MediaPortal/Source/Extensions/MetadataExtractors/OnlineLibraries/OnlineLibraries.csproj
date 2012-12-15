@@ -61,9 +61,15 @@
       <Link>Properties\VersionInfo.cs</Link>
     </Compile>
     <Compile Include="GeoLocationMatcher.cs" />
+    <Compile Include="Libraries\Common\CompressionWebClient.cs">
+      <SubType>Component</SubType>
+    </Compile>
     <Compile Include="Libraries\Common\Downloader.cs" />
+    <Compile Include="Libraries\GeoLocation\Data\GoogleResult.cs" />
+    <Compile Include="Libraries\GeoLocation\Data\ReverseGeoCodeResult.cs" />
     <Compile Include="Libraries\GeoLocation\IGeolocationLookup.cs" />
     <Compile Include="Libraries\GeoLocation\Data\LocationInfo.cs" />
+    <Compile Include="Libraries\GeoLocation\Google.cs" />
     <Compile Include="Libraries\GeoLocation\OsmNominatim.cs" />
     <Compile Include="Matches\MatchStorage.cs" />
     <Compile Include="Libraries\MovieDbV3\Data\CastItem.cs" />
