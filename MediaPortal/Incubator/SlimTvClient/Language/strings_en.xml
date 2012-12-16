@@ -26,6 +26,6 @@
   <string name="SlimTvClient.RecordingsMenuItem">Recordings</string>
   <string name="SlimTvClient.RecordingsRootViewName">TV recordings</string>
   <string name="SlimTvClient.ChannelMenuItemLabel">Filter by channel</string>
-  <string name="SlimTvClient.ChannelNavBarItemLabel">By channel</string>
+  <string name="SlimTvClient.ChannelNavBarItemLabel">Channel: {0}</string>
   <string name="SlimTvClient.RecordingsByChannelHeader">Recordings by channel</string>
 </resources>
