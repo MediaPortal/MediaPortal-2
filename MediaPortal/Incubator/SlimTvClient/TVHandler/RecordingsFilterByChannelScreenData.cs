@@ -39,7 +39,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.TvHandler
 
     public override AbstractFiltersScreenData<FilterItem> Derive()
     {
-      return new VideosFilterByGenreScreenData();
+      return new RecordingsFilterByChannelScreenData();
     }
   }
 }
