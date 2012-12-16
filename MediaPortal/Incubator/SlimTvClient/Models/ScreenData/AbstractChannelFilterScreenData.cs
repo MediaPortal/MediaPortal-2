@@ -22,25 +22,15 @@
 
 #endregion
 
-using MediaPortal.Extensions.MetadataExtractors.Aspects;
 using MediaPortal.Plugins.SlimTv.Client.Models.Navigation;
-using MediaPortal.Plugins.SlimTv.Client.Models.ScreenData;
 using MediaPortal.UiComponents.Media.FilterCriteria;
 using MediaPortal.UiComponents.Media.Models.ScreenData;
 
-namespace MediaPortal.Plugins.SlimTv.Client.TvHandler
+namespace MediaPortal.Plugins.SlimTv.Client.Models.ScreenData
 {
-  public class RecordingsFilterByChannelScreenData : AbstractChannelFilterScreenData
+  public abstract class AbstractChannelFilterScreenData : AbstractFiltersScreenData<ChannelFilterItem>
   {
-    public RecordingsFilterByChannelScreenData() :
-        base(SlimTvConsts.SCREEN_RECORDINGS_FILTER_BY_CHANNEL,SlimTvConsts.RES_FILTER_BY_CHANNEL_MENU_ITEM,
-        SlimTvConsts.RES_FILTER_CHANNEL_NAVBAR_DISPLAY_LABEL, new SimpleMLFilterCriterion(RecordingAspect.ATTR_CHANNEL))
-    {
-    }
-
-    public override AbstractFiltersScreenData<ChannelFilterItem> Derive()
-    {
-      return new RecordingsFilterByChannelScreenData();
-    }
+    protected AbstractChannelFilterScreenData(string screen, string menuItemLabel, string navbarSubViewNavigationDisplayLabel,
+        MLFilterCriterion filterCriterion) : base(screen, menuItemLabel, navbarSubViewNavigationDisplayLabel, filterCriterion) { }
   }
 }

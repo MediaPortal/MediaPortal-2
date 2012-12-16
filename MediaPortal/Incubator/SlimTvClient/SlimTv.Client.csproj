@@ -84,7 +84,9 @@
     <Compile Include="Helpers\ProgramListItem.cs" />
     <Compile Include="Helpers\ProgramProperties.cs" />
     <Compile Include="Helpers\ResourceHelper.cs" />
+    <Compile Include="Models\Navigation\ChannelFilterItem.cs" />
     <Compile Include="Models\RecordingsAction.cs" />
+    <Compile Include="Models\ScreenData\AbstractChannelFilterScreenData.cs" />
     <Compile Include="Models\SlimTvModelBase.cs" />
     <Compile Include="Models\SlimTvMultiChannelGuideModel.cs" />
     <Compile Include="Models\SlimTvGuideModelBase.cs" />
@@ -142,7 +144,9 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="plugin.xml" />
-    <Content Include="Skin\default\workflow\SlimTvClient-actions.xml" />
+    <Content Include="Skin\default\workflow\SlimTvClient-actions.xml">
+      <SubType>Designer</SubType>
+    </Content>
   </ItemGroup>
   <ItemGroup>
     <Content Include="Skin\default\screens\SlimTvClient-main.xaml">
