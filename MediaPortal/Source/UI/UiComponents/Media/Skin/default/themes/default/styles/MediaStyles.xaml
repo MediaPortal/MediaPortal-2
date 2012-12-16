@@ -844,10 +844,10 @@
   <ControlTemplate x:Key="GridViewFilterItemTemplate">
     <Grid x:Name="ItemControl">
       <Grid.ColumnDefinitions>
-        <ColumnDefinition Width="180"/>
+        <ColumnDefinition Width="{StaticResource GRIDVIEW_FILTER_WIDTH}"/>
       </Grid.ColumnDefinitions>
       <Grid.RowDefinitions>
-        <RowDefinition Height="120"/>
+        <RowDefinition Height="{StaticResource GRIDVIEW_FILTER_HEIGHT}"/>
         <RowDefinition Height="Auto"/>
       </Grid.RowDefinitions>
       <Image x:Name="ItemTypeImage" Grid.Row="0" Grid.Column="0" Stretch="Uniform" Margin="0,0,0,0" Source="FilterLarge.png"
@@ -1068,10 +1068,10 @@
   <ControlTemplate x:Key="GridViewContainerItemTemplate">
     <Grid x:Name="ItemControl">
       <Grid.ColumnDefinitions>
-        <ColumnDefinition Width="180"/>
+        <ColumnDefinition Width="{StaticResource GRIDVIEW_FILTER_WIDTH}"/>
       </Grid.ColumnDefinitions>
       <Grid.RowDefinitions>
-        <RowDefinition Height="120"/>
+        <RowDefinition Height="{StaticResource GRIDVIEW_FILTER_HEIGHT}"/>
         <RowDefinition Height="Auto"/>
       </Grid.RowDefinitions>
       <Image x:Name="ItemTypeImage" Grid.Row="0" Stretch="Uniform" Source="NavigationLarge.png"
@@ -1138,10 +1138,10 @@
   <ControlTemplate x:Key="GridViewVideoItemTemplate">
     <Grid x:Name="ItemControl">
       <Grid.ColumnDefinitions>
-        <ColumnDefinition Width="180"/>
+        <ColumnDefinition Width="{StaticResource GRIDVIEW_FILTER_WIDTH}"/>
       </Grid.ColumnDefinitions>
       <Grid.RowDefinitions>
-        <RowDefinition Height="120"/>
+        <RowDefinition Height="{StaticResource GRIDVIEW_FILTER_HEIGHT}"/>
         <RowDefinition Height="Auto"/>
       </Grid.RowDefinitions>
       <Image x:Name="ItemTypeImage" Grid.Row="0" Stretch="Uniform" Source="{Binding MediaItem}"
@@ -1193,10 +1193,10 @@
   <ControlTemplate x:Key="GridViewAudioItemTemplate">
     <Grid x:Name="ItemControl">
       <Grid.ColumnDefinitions>
-        <ColumnDefinition Width="180"/>
+        <ColumnDefinition Width="{StaticResource GRIDVIEW_FILTER_WIDTH}"/>
       </Grid.ColumnDefinitions>
       <Grid.RowDefinitions>
-        <RowDefinition Height="120"/>
+        <RowDefinition Height="{StaticResource GRIDVIEW_FILTER_HEIGHT}"/>
         <RowDefinition Height="Auto"/>
       </Grid.RowDefinitions>
       <Image x:Name="ItemTypeImage" Grid.Row="0" Stretch="Uniform" Source="{Binding MediaItem}" FallbackSource="AudioLarge.png"
@@ -1264,10 +1264,10 @@
   <ControlTemplate x:Key="GridViewImageItemTemplate">
     <Grid x:Name="ItemControl">
       <Grid.ColumnDefinitions>
-        <ColumnDefinition Width="180"/>
+        <ColumnDefinition Width="{StaticResource GRIDVIEW_FILTER_WIDTH}"/>
       </Grid.ColumnDefinitions>
       <Grid.RowDefinitions>
-        <RowDefinition Height="120"/>
+        <RowDefinition Height="{StaticResource GRIDVIEW_FILTER_HEIGHT}"/>
         <RowDefinition Height="Auto"/>
       </Grid.RowDefinitions>
       <!-- For grid layout, we only support large layout size -->

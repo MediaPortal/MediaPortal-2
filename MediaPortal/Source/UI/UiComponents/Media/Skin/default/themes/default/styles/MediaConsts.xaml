@@ -17,7 +17,10 @@
   <ResourceWrapper x:Key="MEDIA_THUMB_HEIGHT_CP" Resource="200"/>
   <ResourceWrapper x:Key="MEDIA_BANNER_HEIGHT" Resource="60"/>
   <ResourceWrapper x:Key="MEDIA_POSTER_HEIGHT" Resource="140"/>
-  
+
+  <ResourceWrapper x:Key="GRIDVIEW_FILTER_WIDTH" Resource="180"/>
+  <ResourceWrapper x:Key="GRIDVIEW_FILTER_HEIGHT" Resource="120"/>
+
   <!-- FanArt thumbnail sizes -->
   <ResourceWrapper x:Key="FANART_BANNER_WIDTH"  Resource="500"/>
   <ResourceWrapper x:Key="FANART_BANNER_HEIGHT" Resource="100"/>

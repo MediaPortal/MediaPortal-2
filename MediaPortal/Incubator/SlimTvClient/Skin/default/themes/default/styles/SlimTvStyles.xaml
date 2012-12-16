@@ -713,10 +713,10 @@
   <ControlTemplate x:Key="GridViewChannelFilterItemTemplate">
     <Grid x:Name="ItemControl">
       <Grid.ColumnDefinitions>
-        <ColumnDefinition Width="180"/>
+        <ColumnDefinition Width="{StaticResource GRIDVIEW_FILTER_WIDTH}"/>
       </Grid.ColumnDefinitions>
       <Grid.RowDefinitions>
-        <RowDefinition Height="Auto"/>
+        <RowDefinition Height="{StaticResource GRIDVIEW_FILTER_HEIGHT}"/>
         <RowDefinition Height="Auto"/>
       </Grid.RowDefinitions>
       <Label x:Name="ItemLabel" Grid.Row="1" Grid.Column="0" Content="{Binding SimpleTitle}" HorizontalAlignment="Center"
