@@ -137,12 +137,10 @@ namespace MediaPortal.UiComponents.Media.Models.ScreenData
         {
           Display_ListBeingBuilt();
           bool grouping = true;
-          int numItems = 0;
           ICollection<FilterValue> fv = _clusterFilter == null ?
               _filterCriterion.GroupValues(currentVS.NecessaryMIATypeIds, _clusterFilter, currentVS.Filter) : null;
-          if (fv != null)
-            numItems = fv.Select(filterValue => filterValue.NumItems).Select(num => num.HasValue ? num.Value : 0).Sum();
-          if (fv == null || numItems <= Consts.MAX_NUM_ITEMS_VISIBLE)
+          
+          if (fv == null || fv.Count <= Consts.MAX_NUM_ITEMS_VISIBLE)
           {
             fv = _filterCriterion.GetAvailableValues(currentVS.NecessaryMIATypeIds, _clusterFilter, currentVS.Filter);
             grouping = false;
