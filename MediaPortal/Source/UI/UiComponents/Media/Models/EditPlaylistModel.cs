@@ -175,7 +175,6 @@ namespace MediaPortal.UiComponents.Media.Models
 
             item.AdditionalProperties[Consts.KEY_IS_DOWN_BUTTON_FOCUSED] = i == _focusedDownButton;
             item.AdditionalProperties[Consts.KEY_IS_UP_BUTTON_FOCUSED] = i == _focusedUpButton;
-            item.AdditionalProperties[Consts.KEY_INDEX] = i;
             _items.Add(item);
           }
         }
