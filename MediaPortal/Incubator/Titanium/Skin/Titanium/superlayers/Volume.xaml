@@ -1,0 +1,209 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Screen
+    xmlns="www.team-mediaportal.com/2008/mpf/directx"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+  <DockPanel LastChildFill="False">
+    <Border DockPanel.Dock="Center" Height="80" Width="600" HorizontalAlignment="Center" 
+            Margin="0,0,0,84" BorderBrush="{ThemeResource PlayControlsFillBrush}" BorderThickness="5"
+        CornerRadius="10" Background="#80A0A0A0">
+      <Grid Context="{Model A2F24149-B44C-498b-AE93-288213B87A1A}">
+        <!-- Model = GeneralPlayerModel -->
+        <Grid.RowDefinitions>
+          <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+        <Grid.Resources>
+         <ResourceWrapper x:Key="VolumeFillBrush">
+           <LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0">
+             <GradientStop Color="#8F9BBCDF" Offset="0" />
+             <GradientStop Color="#A08CB7DA" Offset="0.18" />
+             <GradientStop Color="#6560AACD" Offset="1" />
+            </LinearGradientBrush>
+         </ResourceWrapper>
+        </Grid.Resources>
+        <Grid.ColumnDefinitions>
+          <ColumnDefinition Width="3*"/>
+          <ColumnDefinition Width="*"/>
+          <ColumnDefinition Width="3*"/>
+          <ColumnDefinition Width="*"/>
+          <ColumnDefinition Width="3*"/>
+          <ColumnDefinition Width="*"/>
+          <ColumnDefinition Width="3*"/>
+          <ColumnDefinition Width="*"/>
+          <ColumnDefinition Width="3*"/>
+          <ColumnDefinition Width="*"/>
+          <ColumnDefinition Width="3*"/>
+          <ColumnDefinition Width="*"/>
+          <ColumnDefinition Width="3*"/>
+          <ColumnDefinition Width="*"/>
+          <ColumnDefinition Width="3*"/>
+          <ColumnDefinition Width="*"/>
+          <ColumnDefinition Width="3*"/>
+          <ColumnDefinition Width="*"/>
+          <ColumnDefinition Width="3*"/>
+          <ColumnDefinition Width="*"/>
+          <ColumnDefinition Width="3*"/>
+          <ColumnDefinition Width="*"/>
+          <ColumnDefinition Width="3*"/>
+          <ColumnDefinition Width="*"/>
+          <ColumnDefinition Width="3*"/>
+          <ColumnDefinition Width="*"/>
+          <ColumnDefinition Width="3*"/>
+          <ColumnDefinition Width="*"/>
+          <ColumnDefinition Width="3*"/>
+          <ColumnDefinition Width="*"/>
+          <ColumnDefinition Width="3*"/>
+          <ColumnDefinition Width="*"/>
+          <ColumnDefinition Width="3*"/>
+          <ColumnDefinition Width="*"/>
+          <ColumnDefinition Width="3*"/>
+          <ColumnDefinition Width="*"/>
+          <ColumnDefinition Width="3*"/>
+          <ColumnDefinition Width="*"/>
+          <ColumnDefinition Width="3*"/>
+          <ColumnDefinition Width="*"/>
+          <ColumnDefinition Width="3*"/>
+        </Grid.ColumnDefinitions>
+        <Rectangle Grid.Column="1" Fill="{StaticResource VolumeFillBrush}">
+          <Rectangle.IsVisible>
+            <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} > 0">
+              <Binding Path="Volume"/>
+            </MultiBinding>
+          </Rectangle.IsVisible>
+        </Rectangle>
+        <Rectangle Grid.Column="3" Fill="{StaticResource VolumeFillBrush}">
+          <Rectangle.IsVisible>
+            <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} > 5">
+              <Binding Path="Volume"/>
+            </MultiBinding>
+          </Rectangle.IsVisible>
+        </Rectangle>
+        <Rectangle Grid.Column="5" Fill="{StaticResource VolumeFillBrush}">
+          <Rectangle.IsVisible>
+            <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} > 10">
+              <Binding Path="Volume"/>
+            </MultiBinding>
+          </Rectangle.IsVisible>
+        </Rectangle>
+        <Rectangle Grid.Column="7" Fill="{StaticResource VolumeFillBrush}">
+          <Rectangle.IsVisible>
+            <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} > 15">
+              <Binding Path="Volume"/>
+            </MultiBinding>
+          </Rectangle.IsVisible>
+        </Rectangle>
+        <Rectangle Grid.Column="9" Fill="{StaticResource VolumeFillBrush}">
+          <Rectangle.IsVisible>
+            <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} > 20">
+              <Binding Path="Volume"/>
+            </MultiBinding>
+          </Rectangle.IsVisible>
+        </Rectangle>
+        <Rectangle Grid.Column="11" Fill="{StaticResource VolumeFillBrush}">
+          <Rectangle.IsVisible>
+            <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} > 25">
+              <Binding Path="Volume"/>
+            </MultiBinding>
+          </Rectangle.IsVisible>
+        </Rectangle>
+        <Rectangle Grid.Column="13" Fill="{StaticResource VolumeFillBrush}">
+          <Rectangle.IsVisible>
+            <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} > 30">
+              <Binding Path="Volume"/>
+            </MultiBinding>
+          </Rectangle.IsVisible>
+        </Rectangle>
+        <Rectangle Grid.Column="15" Fill="{StaticResource VolumeFillBrush}">
+          <Rectangle.IsVisible>
+            <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} > 35">
+              <Binding Path="Volume"/>
+            </MultiBinding>
+          </Rectangle.IsVisible>
+        </Rectangle>
+        <Rectangle Grid.Column="17" Fill="{StaticResource VolumeFillBrush}">
+          <Rectangle.IsVisible>
+            <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} > 40">
+              <Binding Path="Volume"/>
+            </MultiBinding>
+          </Rectangle.IsVisible>
+        </Rectangle>
+        <Rectangle Grid.Column="19" Fill="{StaticResource VolumeFillBrush}">
+          <Rectangle.IsVisible>
+            <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} > 45">
+              <Binding Path="Volume"/>
+            </MultiBinding>
+          </Rectangle.IsVisible>
+        </Rectangle>
+        <Rectangle Grid.Column="21" Fill="{StaticResource VolumeFillBrush}">
+          <Rectangle.IsVisible>
+            <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} > 50">
+              <Binding Path="Volume"/>
+            </MultiBinding>
+          </Rectangle.IsVisible>
+        </Rectangle>
+        <Rectangle Grid.Column="23" Fill="{StaticResource VolumeFillBrush}">
+          <Rectangle.IsVisible>
+            <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} > 55">
+              <Binding Path="Volume"/>
+            </MultiBinding>
+          </Rectangle.IsVisible>
+        </Rectangle>
+        <Rectangle Grid.Column="25" Fill="{StaticResource VolumeFillBrush}">
+          <Rectangle.IsVisible>
+            <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} > 60">
+              <Binding Path="Volume"/>
+            </MultiBinding>
+          </Rectangle.IsVisible>
+        </Rectangle>
+        <Rectangle Grid.Column="27" Fill="{StaticResource VolumeFillBrush}">
+          <Rectangle.IsVisible>
+            <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} > 65">
+              <Binding Path="Volume"/>
+            </MultiBinding>
+          </Rectangle.IsVisible>
+        </Rectangle>
+        <Rectangle Grid.Column="29" Fill="{StaticResource VolumeFillBrush}">
+          <Rectangle.IsVisible>
+            <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} > 70">
+              <Binding Path="Volume"/>
+            </MultiBinding>
+          </Rectangle.IsVisible>
+        </Rectangle>
+        <Rectangle Grid.Column="31" Fill="{StaticResource VolumeFillBrush}">
+          <Rectangle.IsVisible>
+            <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} > 75">
+              <Binding Path="Volume"/>
+            </MultiBinding>
+          </Rectangle.IsVisible>
+        </Rectangle>
+        <Rectangle Grid.Column="33" Fill="{StaticResource VolumeFillBrush}">
+          <Rectangle.IsVisible>
+            <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} > 80">
+              <Binding Path="Volume"/>
+            </MultiBinding>
+          </Rectangle.IsVisible>
+        </Rectangle>
+        <Rectangle Grid.Column="35" Fill="{StaticResource VolumeFillBrush}">
+          <Rectangle.IsVisible>
+            <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} > 85">
+              <Binding Path="Volume"/>
+            </MultiBinding>
+          </Rectangle.IsVisible>
+        </Rectangle>
+        <Rectangle Grid.Column="37" Fill="{StaticResource VolumeFillBrush}">
+          <Rectangle.IsVisible>
+            <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} > 90">
+              <Binding Path="Volume"/>
+            </MultiBinding>
+          </Rectangle.IsVisible>
+        </Rectangle>
+        <Rectangle Grid.Column="39" Fill="{StaticResource VolumeFillBrush}">
+          <Rectangle.IsVisible>
+            <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} > 95">
+              <Binding Path="Volume"/>
+            </MultiBinding>
+          </Rectangle.IsVisible>
+        </Rectangle>
+      </Grid>
+    </Border>
+  </DockPanel>
+</Screen>

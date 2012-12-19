@@ -1,0 +1,322 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProductVersion>9.0.30729</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{5B09CF07-6386-44C1-B786-CAAC78835CAA}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>MediaPortal.UiComponents.Titanium</RootNamespace>
+    <AssemblyName>Titanium</AssemblyName>
+    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <FileUpgradeFlags>
+    </FileUpgradeFlags>
+    <OldToolsVersion>3.5</OldToolsVersion>
+    <UpgradeBackupLocation />
+    <PublishUrl>publish\</PublishUrl>
+    <Install>true</Install>
+    <InstallFrom>Disk</InstallFrom>
+    <UpdateEnabled>false</UpdateEnabled>
+    <UpdateMode>Foreground</UpdateMode>
+    <UpdateInterval>7</UpdateInterval>
+    <UpdateIntervalUnits>Days</UpdateIntervalUnits>
+    <UpdatePeriodically>false</UpdatePeriodically>
+    <UpdateRequired>false</UpdateRequired>
+    <MapFileExtensions>true</MapFileExtensions>
+    <ApplicationRevision>0</ApplicationRevision>
+    <ApplicationVersion>1.0.0.%2a</ApplicationVersion>
+    <IsWebBootstrapper>false</IsWebBootstrapper>
+    <UseApplicationTrust>false</UseApplicationTrust>
+    <BootstrapperEnabled>true</BootstrapperEnabled>
+    <TargetFrameworkProfile />
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|x86' ">
+    <DebugSymbols>true</DebugSymbols>
+    <OutputPath>bin\x86\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <DebugType>full</DebugType>
+    <PlatformTarget>x86</PlatformTarget>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|x86' ">
+    <OutputPath>bin\x86\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <Optimize>true</Optimize>
+    <DebugType>pdbonly</DebugType>
+    <PlatformTarget>x86</PlatformTarget>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="System" />
+    <Reference Include="System.Core">
+      <RequiredTargetFramework>3.5</RequiredTargetFramework>
+    </Reference>
+    <Reference Include="System.Xml.Linq">
+      <RequiredTargetFramework>3.5</RequiredTargetFramework>
+    </Reference>
+    <Reference Include="System.Data.DataSetExtensions">
+      <RequiredTargetFramework>3.5</RequiredTargetFramework>
+    </Reference>
+    <Reference Include="System.Data" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="..\..\Source\Core\MediaPortal.Common\VersionInfo\VersionInfo.cs">
+      <Link>Properties\VersionInfo.cs</Link>
+    </Compile>
+    <Compile Include="Properties\AssemblyInfo.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Skin\Titanium\fonts\default-font.xml" />
+    <Content Include="Skin\Titanium\images\17D2390E-5B05-4fbd-89F6-24D60CEB427F.jpg" />
+    <Content Include="Skin\Titanium\images\30715D73-4205-417f-80AA-E82F0834171F.jpg" />
+    <Content Include="Skin\Titanium\images\30F57CBA-459C-4202-A587-09FFF5098251.jpg" />
+    <Content Include="Skin\Titanium\images\36FA3773-8428-4e0c-BE5B-4ECFF5A5E11F.jpg" />
+    <Content Include="Skin\Titanium\images\55556593-9FE9-436c-A3B6-A971E10C9D44.jpg" />
+    <Content Include="Skin\Titanium\images\09eae702-d9ec-4325-82d9-4843502c966b.jpg" />
+    <Content Include="Skin\Titanium\images\9C3E6701-6856-49ec-A4CD-0CEB15F385F6.jpg" />
+    <Content Include="Skin\Titanium\images\A4DF2DF6-8D66-479a-9930-D7106525EB07.jpg" />
+    <Content Include="Skin\Titanium\images\B4A9199F-6DD4-4bda-A077-DE9C081F7703.jpg" />
+    <Content Include="Skin\Titanium\images\C33E39CC-910E-41C8-BFFD-9ECCD340B569.jpg" />
+    <Content Include="Skin\Titanium\images\D83604C0-0936-4416-9DE8-7B6D7C50023C.jpg" />
+    <Content Include="Skin\Titanium\images\E34FDB62-1F3E-4aa9-8A61-D143E0AF77B5.jpg" />
+    <Content Include="Skin\Titanium\images\F6255762-C52A-4231-9E67-14C28735216E.jpg" />
+    <Content Include="Skin\Titanium\images\93442DF7-186D-42e5-A0F5-CF1493E68F49.jpg" />
+    <Content Include="Skin\Titanium\screens\FSCWindowButtons.inc" />
+    <Content Include="Skin\Titanium\screens\ProgramInfoSlim.inc" />
+    <Content Include="Skin\Titanium\skin.xml" />
+    <Content Include="Skin\Titanium\themes\default\images\Controls\Bar.png" />
+    <Content Include="Skin\Titanium\themes\default\images\Controls\GaussianNoise.jpg" />
+    <Content Include="Skin\Titanium\themes\default\images\Controls\Glass.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="plugin.xml" />
+    <Content Include="Skin\Titanium\themes\default\images\Controls\HomeTextbar.png" />
+    <Content Include="Skin\Titanium\themes\default\images\FilterLarge.png" />
+    <Content Include="Skin\Titanium\themes\default\images\FilterSmall.png" />
+    <Content Include="Skin\Titanium\themes\default\images\MovieLarge.png" />
+    <Content Include="Skin\Titanium\themes\default\images\MovieSmall.png" />
+    <Content Include="Skin\Titanium\themes\default\images\MusicLarge.png" />
+    <Content Include="Skin\Titanium\themes\default\images\MusicSmall.png" />
+    <Content Include="Skin\Titanium\themes\default\images\NavigationLarge.png" />
+    <Content Include="Skin\Titanium\themes\default\images\NavigationSmall.png" />
+    <Content Include="Skin\Titanium\themes\default\images\PictureLarge.png" />
+    <Content Include="Skin\Titanium\themes\default\images\PictureSmall.png" />
+    <Content Include="Skin\Titanium\themes\default\images\preview.png" />
+    <None Include="Skin\Titanium\themes\default\styles\OtherControlsOverrides.xaml">
+      <SubType>Designer</SubType>
+      <SubType>Designer</SubType>
+    </None>
+    <Content Include="Skin\Titanium\themes\default\images\Reflex.jpg" />
+    <Content Include="Skin\Titanium\themes\default\theme.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <BootstrapperPackage Include="Microsoft.Net.Client.3.5">
+      <Visible>False</Visible>
+      <ProductName>.NET Framework 3.5 SP1 Client Profile</ProductName>
+      <Install>false</Install>
+    </BootstrapperPackage>
+    <BootstrapperPackage Include="Microsoft.Net.Framework.3.5.SP1">
+      <Visible>False</Visible>
+      <ProductName>.NET Framework 3.5 SP1</ProductName>
+      <Install>true</Install>
+    </BootstrapperPackage>
+    <BootstrapperPackage Include="Microsoft.Windows.Installer.3.1">
+      <Visible>False</Visible>
+      <ProductName>Windows Installer 3.1</ProductName>
+      <Install>true</Install>
+    </BootstrapperPackage>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Skin\Titanium\screens\home.xaml">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Skin\Titanium\screens\master_home.xaml">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Skin\Titanium\screens\master_homemenu.xaml">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Skin\Titanium\screens\master_menu.xaml">
+      <SubType>Designer</SubType>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Skin\Titanium\screens\master_bare.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Skin\Titanium\superlayers\ScreenSaver.xaml">
+      <SubType>Designer</SubType>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Skin\Titanium\themes\default\styles\Backgrounds.xaml">
+      <SubType>Designer</SubType>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Skin\Titanium\themes\default\styles\AnalogClock.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+    <Content Include="Skin\Titanium\themes\default\styles\Buttons.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+    <Content Include="Skin\Titanium\themes\default\styles\Colors.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+    <Content Include="Skin\Titanium\themes\default\styles\Consts.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+    <Content Include="Skin\Titanium\themes\default\styles\Graphics.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+    <Content Include="Skin\Titanium\themes\default\styles\MediaStyles.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+    <Content Include="Skin\Titanium\themes\default\styles\OSD.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+    <Content Include="Skin\Titanium\themes\default\styles\Widgets.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Skin\Titanium\themes\default\styles\WeatherStyles.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Skin\Titanium\screens\master_dialog_bare.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Skin\Titanium\screens\FullScreenContentVideo.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Skin\Titanium\screens\FullScreenContentAudio.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Skin\Titanium\screens\FullscreenContentDVD.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Skin\Titanium\screens\FullscreenContentImage.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Skin\Titanium\screens\FullScreenContentTv.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Skin\Titanium\themes\default\styles\FullScreenContentConsts.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Skin\Titanium\backgrounds\default-background.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Skin\Titanium\backgrounds\video-background.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Skin\Titanium\backgrounds\image-background.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Skin\Titanium\screens\weather.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Skin\Titanium\superlayers\SkipStepOSD.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Skin\Titanium\superlayers\Volume.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Skin\Titanium\themes\default\styles\MediaGraphics.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Skin\Titanium\themes\default\styles\MediaConsts.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Skin\Titanium\screens\SlimTvClient-fullguide.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Skin\Titanium\screens\DialogVirtualKeyboard.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Skin\Titanium\themes\default\styles\VirtualKeyboardStyle.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Skin\Titanium\screens\MoviesShowItems.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Skin\Titanium\screens\master_slidemenu.xaml">
+      <SubType>Designer</SubType>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Skin\Titanium\screens\MoviesFilterByCollection.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Skin\Titanium\screens\MoviesPanelLayout.inc">
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+  <PropertyGroup>
+    <PostBuildEvent>xcopy /Y "$(ProjectDir)plugin.xml" "$(SolutionDir)..\Bin\$(SolutionName)\$(OutDir)Plugins\$(ProjectName)\"
+mkdir "$(SolutionDir)..\Bin\$(SolutionName)\$(OutDir)Plugins\$(ProjectName)\Skin"
+robocopy "$(ProjectDir)Skin" "$(SolutionDir)..\Bin\$(SolutionName)\$(OutDir)Plugins\$(ProjectName)\Skin" /MIR /NP
+@REM Reset RoboCopy's exit code which is different from 0
+IF %25ERRORLEVEL%25 LSS 8 SET ERRORLEVEL=0
+</PostBuildEvent>
+  </PropertyGroup>
+</Project>
