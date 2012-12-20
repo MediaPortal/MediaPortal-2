@@ -196,8 +196,7 @@
       <Setter.Value>
         <ControlTemplate>
           <Grid>
-            <Rectangle x:Name="HomeGlow" StrokeThickness="4" Stroke="#FF00B7FF" Opacity="0.0" Height="252" Width="588" RadiusX="30" RadiusY="30"/>
-            <Rectangle x:Name="HomeFill" Fill="#FF00B7FF" Opacity="0.302" Height="244" Width="580" Margin="2" RadiusX="30" RadiusY="30"/>
+            <Rectangle x:Name="HomeFill" Fill="#FF00B7FF" Opacity="0.302" Height="244" Width="580" Margin="2"/>
           </Grid>
         </ControlTemplate>
       </Setter.Value>
@@ -404,7 +403,7 @@
               </TransformGroup>
             </Grid.RenderTransform>
             <Control Style="{ThemeResource HomeButtonControlStyle}" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"/>
-            <ContentPresenter x:Name="ButtonContentPresenter" Margin="10,5,10,5" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"/>
+            <ContentPresenter x:Name="ButtonContentPresenter" Margin="0" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"/>
           </Grid>
           <ControlTemplate.Triggers>
             <Trigger Property="HasFocus" Value="True">
