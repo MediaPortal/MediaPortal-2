@@ -65,6 +65,7 @@
     <Compile Include="..\..\Source\Core\MediaPortal.Common\VersionInfo\VersionInfo.cs">
       <Link>Properties\VersionInfo.cs</Link>
     </Compile>
+    <Compile Include="Converter\ListItemActionIdConverter.cs" />
     <Compile Include="Helper\BackgroundManagerMessaging.cs" />
     <Compile Include="Helper\MediaItemHelper.cs" />
     <Compile Include="Models\BackgroundManagerModel.cs" />
