@@ -1,2 +1,2 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Font FontFamily="Titan" FontSize="30"/>
+<FontFamily Name="Titan" Ttf="Titan.ttf"/>
