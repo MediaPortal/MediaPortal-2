@@ -6,12 +6,14 @@
     xmlns:collections="clr-namespace:MediaPortal.UI.Presentation.DataObjects;assembly=MediaPortal.UI"
     xmlns:mp_special_controls="clr-namespace:MediaPortal.UI.SkinEngine.SpecialElements.Controls"
     xmlns:fanart="clr-namespace:MediaPortal.Extensions.UserServices.FanArtService.Client;assembly=FanArtService.Client"
+    xmlns:bgm="clr-namespace:MediaPortal.UiComponents.BackgroundManager.Converter;assembly=BackgroundManager"
     DependsOnStyleResources="Colors,Buttons,Consts,OtherControls,Widgets"
     >
 
   <!-- BackgroundManager model -->
   <Model x:Key="BackgroundManagerModel" Id="1F4CAEDE-7108-483d-B5C8-18BEC7EC58E5"/>
-
+  <bgm:ListItemActionIdConverter x:Key="ListItemActionIdConverter"/>
+  
   <!-- default brush used to paint the background of a page/window -->
   <ResourceWrapper x:Key="BackgroundBrush">
     <VisualBrush>
@@ -49,7 +51,7 @@
     <Setter Property="Template">
       <Setter.Value>
         <ControlTemplate TargetType="{x:Type ListViewItem}">
-          <Button Style="{ThemeResource HomeButtonStyle}" Margin="2"
+          <Button Style="{ThemeResource HomeButtonStyle}"
               Command="{DynamicResource ResourceKey=Menu_Command}"
               IsEnabled="{Binding Enabled}" SetFocus="{Binding Path=Selected,Mode=OneTime}">
             <Button.Triggers>
@@ -62,25 +64,15 @@
                   <StopStoryboard BeginStoryboardName="HomeHover_BeginStoryboard"/>
                 </Trigger.ExitActions>
 
-                <!--<Setter TargetName="ItemControl" Property="Margin" Value="110,0,120,0"/>-->
-                
                 <Setter TargetName="ItemLabel" Property="Scroll" Value="Auto"/>
-                <Setter TargetName="ItemLabel" Property="HorizontalAlignment" Value="Left"/>
                 <Setter TargetName="ItemLabel" Property="Color" Value="{ThemeResource TextColor}"/>
-                <!--<Setter TargetName="ItemLabel" Property="Margin" Value="-112,113,10,0"/>
-                <Setter TargetName="ItemLabel" Property="Background">
-                  <Setter.Value>
-                    <LinearGradientBrush StartPoint="0,0.5" EndPoint="1,0.5">
-                      <GradientStop Color="#A0000000" Offset="0"/>
-                      <GradientStop Color="#70000000" Offset="0.8"/>
-                      <GradientStop Color="#00000000" Offset="1"/>
-                    </LinearGradientBrush>
-                  </Setter.Value>
-                </Setter>
-                <Setter TargetName="HoverControl" Property="IsVisible" Value="True"/>-->
               </Trigger>
 
             </Button.Triggers>
+            <Button.OpacityMask>
+              <!-- TODO: not working yet -->
+              <ImageBrush ImageSource="homebutton_mask.png" Stretch="Fill"/>
+            </Button.OpacityMask>
           </Button>
         </ControlTemplate>
       </Setter.Value>
@@ -97,7 +89,16 @@
         <RowDefinition Height="200"/>
         <RowDefinition Height="Auto"/>
       </Grid.RowDefinitions>
-                  
+
+      <!-- Image -->
+      <Image Grid.Row="0" Grid.Column="0" Grid.RowSpan="2" Width="580" Height="244" Stretch="UniformToFill"
+             Source="{Binding Converter={StaticResource ListItemActionIdConverter}, ConverterParameter=.jpg}"/>
+
+      <!-- Darkened band -->
+      <Rectangle Grid.Row="1" Grid.Column="0" Grid.RowSpan="2" Fill="#FF000000" Opacity="0.749" 
+                 HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="0,0,0,-1" />
+      
+      <!-- Item label -->
       <Label Grid.Row="1" Grid.Column="0" x:Name="ItemLabel" HorizontalAlignment="Center" VerticalAlignment="Bottom"  Content="{Binding [Name]}" 
              FontSize="{ThemeResource BigFontSize}" Color="{ThemeResource HomeNonFocusedColor}"/>
     </Grid>
@@ -171,7 +172,6 @@
       </Setter.Value>
     </Setter>
     <Setter Property="ItemContainerStyle" Value="{ThemeResource MainMenuMenuItemContainerStyle}"/>
-    <!--<Setter Property="DataStringProvider" Value="{ThemeResource MainMenuItemDataStringProvider}"/>-->
   </Style>
 
 
