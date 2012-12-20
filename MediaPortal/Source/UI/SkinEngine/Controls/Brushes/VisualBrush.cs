@@ -209,8 +209,9 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
     protected override bool BeginRenderOpacityBrushOverride(Texture tex, RenderContext renderContext)
     {
       FrameworkElement fe = _preparedVisual;
-      if (fe == null)
-        return false;
+      if (fe == null) return false;
+      _visualTexture.AllocateRenderTarget((int) _vertsBounds.Width, (int) _vertsBounds.Height);
+      _visualSurface.AllocateRenderTarget((int) _vertsBounds.Width, (int) _vertsBounds.Height);
 
       UpdateRenderTarget(fe);
       return base.BeginRenderOpacityBrushOverride(tex, renderContext);
