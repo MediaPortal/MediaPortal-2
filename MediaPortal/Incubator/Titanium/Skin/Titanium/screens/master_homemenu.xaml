@@ -38,6 +38,7 @@ Parameters which have to be accessible by a DynamicResource lookup:
     <!-- Header has to be defined by the includer: "Header_Text" -->
 
     <!-- Client_Template -->
+    <ResourceWrapper x:Key="EnableBackgroundPanel" Resource="false" />
     <ControlTemplate x:Key="Client_Template">
       <Grid x:Name="MainLayoutPanel" VerticalAlignment="Stretch" HorizontalAlignment="Stretch">
         <Grid.ColumnDefinitions>

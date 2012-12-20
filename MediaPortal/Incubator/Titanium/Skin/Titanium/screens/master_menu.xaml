@@ -38,8 +38,10 @@ Parameters which have to be accessible by a DynamicResource lookup:
     <!-- Header has to be defined by the includer: "Header_Text" -->
 
     <!-- Client_Template -->
+    <ResourceWrapper x:Key="EnableBackgroundPanel" Resource="true" />
+    
     <ControlTemplate x:Key="Client_Template">
-      <DockPanel LastChildFill="True" Margin="10">
+      <DockPanel LastChildFill="True" Margin="50">
         <Grid x:Name="LeftPanel" DockPanel.Dock="Left" Margin="10,0,0,10" VerticalAlignment="Stretch">
           <Grid.ColumnDefinitions>
             <ColumnDefinition Width="400"/>
@@ -70,16 +72,6 @@ Parameters which have to be accessible by a DynamicResource lookup:
           <Grid.RowDefinitions>
             <RowDefinition Height="*"/>
           </Grid.RowDefinitions>
-
-          <!-- Border is placed as single element here without children, because OpacityMask would apply to them too -->
-          <Border x:Name="ContentBorder" Grid.Row="0" Grid.Column="0" Margin="10,0,10,10"
-              VerticalAlignment="Stretch" HorizontalAlignment="Stretch"
-              IsVisible="{Binding ElementName=ContentControl,Path=Template,Converter={StaticResource ReferenceToBoolConverter}}"
-              BorderBrush="{ThemeResource ContentBorderBrush}" 
-              BorderThickness="{ThemeResource ContentBorderThickness}" 
-              CornerRadius="{ThemeResource ContentBorderCornerRadius}"
-              OpacityMask="{ThemeResource ContentBorderOpacityMask}"
-              Background="Black"/>
 
           <Control x:Name="ContentControl" Template="{DynamicResource ResourceKey=Contents_Template}"
               IsVisible="{Binding ElementName=ContentControl,Path=Template,Converter={StaticResource ReferenceToBoolConverter}}"
