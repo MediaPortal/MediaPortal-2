@@ -78,7 +78,7 @@ void RenderPixelShader(in VS_Output IN, out PS_Output OUT)
   dist = clamp(dist, 0, 0.9999);
 
   // The opacity mask will already be pre-multiplied
-  OUT.Color = tex2D(TextureSampler, float2(IN.Texcoord.x, IN.Texcoord.y)) * tex1D(AlphaSampler, dist).a * g_opacity
+  OUT.Color = tex2D(TextureSampler, float2(IN.Texcoord.x, IN.Texcoord.y)) * tex1D(AlphaSampler, dist).a * g_opacity;
 }
 
 technique simple {

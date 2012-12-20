@@ -1,6 +1,6 @@
 /*
 ** Used by Controls.Brushes.LinearGradientBrush
-** Uses a linear radient defined by a texture and start/end points as an opacity mask for a texture.
+** Uses a linear gradient defined by a texture and start/end points as an opacity mask for a texture.
 */
 
 float4x4  worldViewProj : WORLDVIEWPROJ; // Our world view projection matrix
