@@ -33,13 +33,13 @@ Parameters which have to be accessible by a DynamicResource lookup:
     mp_special_workflow:WorkflowContext.StateSlot="Root"
     x:Name="Screen"
     >
-  <DockPanel VerticalAlignment="Stretch" HorizontalAlignment="Stretch" LastChildFill="True">
-    <DockPanel.Resources>
+  <Canvas Width="1920" Height="1080">
+    <Canvas.Resources>
       <Model x:Key="MouseModel" Id="CA6428A7-A6E2-4dd3-9661-F89CEBAF8E62"/>
       <Model x:Key="TimeModel" Id="E821B1C8-0666-4339-8027-AA45A4F6F107"/>
       <Model x:Key="CurrentWeatherModel" Id="FC57FF5C-F72F-47E9-B973-338E31FF7FF1"/>
-    </DockPanel.Resources>
-    <Grid x:Name="HeaderPanel" DockPanel.Dock="Top" Background="{ThemeResource HeaderPanelBackgroundBrush}">
+    </Canvas.Resources>
+    <Grid x:Name="HeaderPanel" Canvas.Top="0" Canvas.Left="0"  Width="1920" Height="60" Background="{ThemeResource HeaderPanelBackgroundBrush}">
       <Grid.RowDefinitions>
         <RowDefinition Height="60"/>
       </Grid.RowDefinitions>
@@ -84,28 +84,35 @@ Parameters which have to be accessible by a DynamicResource lookup:
       
     </Grid>    <!-- HeaderPanel -->
 
-    <!--  Background="{ThemeResource FooterPanelBackgroundBrush}" -->
-    <Grid DockPanel.Dock="Bottom" Margin="50,0,0,40">
-      <Path x:Name="Shape_57_copy_7"
-          Data="F1M2,663.984C2,680.552 15.431,693.984 32,693.984 32,693.984 1792.01,693.984 1792.01,693.984 1808.578,693.984 1822.01,680.552 1822.01,663.984L1822.01,670.315C1822.01,700.647 1822.01,718.961 1822.01,718.961 1822.01,735.529 1808.578,748.961 1792.01,748.961 1792.01,748.961 32,748.961 32,748.961 15.431,748.961 2,735.529 2,718.961 2,718.961 2,700.647 2,670.315z" 
-          Height="91" Width="1824" Stretch="Fill">
-        <Path.Fill>
-          <SolidColorBrush Color="#FF00B7FF" Opacity="0.749"/>
-        </Path.Fill>
-      </Path>
-      <Label x:Name="HeaderLabel" VerticalAlignment="Center" HorizontalAlignment="Center" Margin="0,30,0,0"
-              FontSize="{ThemeResource BigFontSize}" Color="{ThemeResource WindowHeaderColor}"
-              Content="{Binding Source={DynamicResource Header_Text},Path=Resource}" />
 
+
+    <Rectangle DockPanel.Dock="Bottom" Fill="#FF000000" Opacity="0.749" Canvas.Left="50" Canvas.Top="340" Width="1824" Height="695" RadiusX="30" RadiusY="30"
+        IsVisible="{Binding Source={DynamicResource EnableBackgroundPanel}}"/>
+
+    <Path x:Name="Shape_57_copy_7" Canvas.Left="50" Canvas.Top="950" Width="1824" Height="91" 
+        Data="F1M2,663.984C2,680.552 15.431,693.984 32,693.984 32,693.984 1792.01,693.984 1792.01,693.984 1808.578,693.984 1822.01,680.552 1822.01,663.984L1822.01,670.315C1822.01,700.647 1822.01,718.961 1822.01,718.961 1822.01,735.529 1808.578,748.961 1792.01,748.961 1792.01,748.961 32,748.961 32,748.961 15.431,748.961 2,735.529 2,718.961 2,718.961 2,700.647 2,670.315z" 
+        Stretch="Fill">
+      <Path.Fill>
+        <SolidColorBrush Color="#FF00B7FF" Opacity="0.749"/>
+      </Path.Fill>
+    </Path>
+
+    <Grid Canvas.Left="50" Canvas.Top="980" Width="1824">
+      <Grid.RowDefinitions>
+        <RowDefinition Height="60"/>
+      </Grid.RowDefinitions>
+      <Grid.ColumnDefinitions>
+        <ColumnDefinition Width="*"/>
+      </Grid.ColumnDefinitions>
+      
+      <Label x:Name="HeaderLabel" VerticalAlignment="Center" HorizontalAlignment="Center"
+            FontSize="{ThemeResource BigFontSize}" Color="{ThemeResource WindowHeaderColor}"
+            Content="{Binding Source={DynamicResource Header_Text},Path=Resource}" />
     </Grid>
 
-    <!-- FooterPanel -->
 
-    <!-- Not sure if and how we should show shortcuts...
-      <ListView x:Name="KeyBindingControls" DockPanel.Dock="Bottom" Style="{ThemeResource KeyBindingsListViewStyle}"
-          Height="100" ItemsSource="{DynamicResource KeyBindingControls}"/> -->
+    <Control x:Name="ClientArea" Height="695" Width="1920" Canvas.Left="0" Canvas.Top="340"
+             DockPanel.Dock="Center" Template="{DynamicResource ResourceKey=Client_Template}"/>
 
-    <!-- Order matters here: The client area control has to be the last control (LastChildFill) -->
-    <Control x:Name="ClientArea" Margin="0,280,0,0" DockPanel.Dock="Center" Template="{DynamicResource ResourceKey=Client_Template}"/>
-  </DockPanel>
+  </Canvas>
 </Screen>
