@@ -98,7 +98,7 @@
     </DoubleAnimationUsingKeyFrames>
   </Storyboard>
 
-  <Storyboard x:Key="FocusedHiddenButtonWideStoryboard" FillBehavior="HoldEnd">
+  <Storyboard x:Key="FocusedMenuButtonWideStoryboard" FillBehavior="HoldEnd">
     <StaticResource ResourceKey="FocusedButtonWideStoryboard_GrowOnly"/>
     <DoubleAnimationUsingKeyFrames BeginTime="00:00:00" FillBehavior="HoldEnd" Storyboard.TargetName="ButtonControlRectangle" Storyboard.TargetProperty="Opacity">
       <SplineDoubleKeyFrame KeyTime="00:00:00" Value="0"/>
@@ -168,7 +168,7 @@
     <StaticResource ResourceKey="PressedButtonWideStoryboard_GrowOnly"/>
   </Storyboard>
 
-  <Storyboard x:Key="PressedHiddenButtonWideStoryboard" FillBehavior="HoldEnd">
+  <Storyboard x:Key="PressedMenuButtonWideStoryboard" FillBehavior="HoldEnd">
     <StaticResource ResourceKey="PressedButtonWideStoryboard_GrowOnly"/>
   </Storyboard>
 
@@ -262,7 +262,7 @@
   </Style>
 
   <!-- "Hidden Menu" button style -->
-  <Style x:Key="HiddenMenuButtonControlStyle" TargetType="{x:Type Control}">
+  <Style x:Key="MenuButtonControlStyle" TargetType="{x:Type Control}">
     <Setter Property="Template">
       <Setter.Value>
         <ControlTemplate>
@@ -477,7 +477,7 @@
     </Setter>
   </Style>
 
-  <Style x:Key="HiddenMenuButtonWideStyle" TargetType="{x:Type Button}">
+  <Style x:Key="MenuButtonWideStyle" TargetType="{x:Type Button}">
     <Setter Property="Template">
       <Setter.Value>
         <ControlTemplate>
@@ -493,13 +493,13 @@
                 <ScaleTransform ScaleX="1" ScaleY="1"/>
               </TransformGroup>
             </Grid.RenderTransform>
-            <Control Style="{ThemeResource HiddenMenuButtonControlStyle}" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"/>
+            <Control Style="{ThemeResource MenuButtonControlStyle}" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"/>
             <ContentPresenter x:Name="ButtonContentPresenter" Margin="10,5,10,5" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"/>
           </Grid>
           <ControlTemplate.Triggers>
             <Trigger Property="HasFocus" Value="True">
               <Trigger.EnterActions>
-                <BeginStoryboard x:Name="Focused_BeginStoryboard" Storyboard="{ThemeResource FocusedHiddenButtonWideStoryboard}"/>
+                <BeginStoryboard x:Name="Focused_BeginStoryboard" Storyboard="{ThemeResource FocusedMenuButtonWideStoryboard}"/>
                 <SoundPlayerAction Source="button12.wav" DisableOnAudioOutput="True"/>
               </Trigger.EnterActions>
               <Trigger.ExitActions>
@@ -508,7 +508,7 @@
             </Trigger>
             <Trigger Property="IsPressed" Value="True">
               <Trigger.EnterActions>
-                <BeginStoryboard x:Name="Pressed_BeginStoryboard" Storyboard="{ThemeResource PressedHiddenButtonWideStoryboard}"
+                <BeginStoryboard x:Name="Pressed_BeginStoryboard" Storyboard="{ThemeResource PressedMenuButtonWideStoryboard}"
                     HandoffBehavior="TemporaryReplace"/>
                 <SoundPlayerAction Source="button7.wav" DisableOnAudioOutput="True"/>
               </Trigger.EnterActions>

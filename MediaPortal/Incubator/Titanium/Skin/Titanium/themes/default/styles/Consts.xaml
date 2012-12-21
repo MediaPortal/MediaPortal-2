@@ -6,7 +6,7 @@
 
   <!-- General font sizes -->
   <ResourceWrapper x:Key="HeaderFontSize" Resource="56"/>
-  <ResourceWrapper x:Key="DialogTitleFontSize" Resource="30"/>
+  <ResourceWrapper x:Key="DialogTitleFontSize" Resource="40"/>
 
   <ResourceWrapper x:Key="DateTimeFontSize" Resource="26"/>
 
@@ -41,7 +41,7 @@
 
   <ResourceWrapper x:Key="PiPVideoWidth" Resource="320"/>
   
-  <ResourceWrapper x:Key="DialogBorderCornerRadius" Resource="2"/>
+  <ResourceWrapper x:Key="DialogBorderCornerRadius" Resource="30"/>
   
   <!-- width and margin for small OSD buttons -->
   <ResourceWrapper x:Key="OSDControlWidth" Resource="20" />
