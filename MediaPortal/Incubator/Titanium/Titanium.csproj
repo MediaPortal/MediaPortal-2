@@ -298,11 +298,6 @@
     </Content>
   </ItemGroup>
   <ItemGroup>
-    <None Include="Skin\Titanium\screens\master_slidemenu.xaml">
-      <SubType>Designer</SubType>
-    </None>
-  </ItemGroup>
-  <ItemGroup>
     <Content Include="Skin\Titanium\screens\MoviesFilterByCollection.xaml">
       <SubType>Designer</SubType>
     </Content>

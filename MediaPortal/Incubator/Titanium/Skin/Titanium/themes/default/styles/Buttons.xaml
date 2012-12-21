@@ -91,6 +91,19 @@
   <Storyboard x:Key="FocusedButtonWideStoryboard" FillBehavior="HoldEnd">
     <StaticResource ResourceKey="FocusedButtonStoryboard_Base"/>
     <StaticResource ResourceKey="FocusedButtonWideStoryboard_GrowOnly"/>
+
+    <DoubleAnimationUsingKeyFrames BeginTime="00:00:00" FillBehavior="HoldEnd" Storyboard.TargetName="ButtonControlRectangle" Storyboard.TargetProperty="Opacity">
+      <SplineDoubleKeyFrame KeyTime="00:00:00" Value="0"/>
+      <SplineDoubleKeyFrame KeyTime="00:00:00.1" Value="1"/>
+    </DoubleAnimationUsingKeyFrames>
+  </Storyboard>
+
+  <Storyboard x:Key="FocusedHiddenButtonWideStoryboard" FillBehavior="HoldEnd">
+    <StaticResource ResourceKey="FocusedButtonWideStoryboard_GrowOnly"/>
+    <DoubleAnimationUsingKeyFrames BeginTime="00:00:00" FillBehavior="HoldEnd" Storyboard.TargetName="ButtonControlRectangle" Storyboard.TargetProperty="Opacity">
+      <SplineDoubleKeyFrame KeyTime="00:00:00" Value="0"/>
+      <SplineDoubleKeyFrame KeyTime="00:00:00.1" Value="1"/>
+    </DoubleAnimationUsingKeyFrames>
   </Storyboard>
 
   <!-- Base storyboard which shows an animation when a button is pressed -->
@@ -152,6 +165,10 @@
 
   <Storyboard x:Key="PressedButtonWideStoryboard" FillBehavior="HoldEnd">
     <StaticResource ResourceKey="PressedButtonStoryboard_Base"/>
+    <StaticResource ResourceKey="PressedButtonWideStoryboard_GrowOnly"/>
+  </Storyboard>
+
+  <Storyboard x:Key="PressedHiddenButtonWideStoryboard" FillBehavior="HoldEnd">
     <StaticResource ResourceKey="PressedButtonWideStoryboard_GrowOnly"/>
   </Storyboard>
 
@@ -244,6 +261,25 @@
     </Setter>
   </Style>
 
+  <!-- "Hidden Menu" button style -->
+  <Style x:Key="HiddenMenuButtonControlStyle" TargetType="{x:Type Control}">
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate>
+          <Rectangle Name="ButtonControlRectangle" RadiusY="20" RadiusX="20" Opacity="0">
+            <Rectangle.Fill>
+              <LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0">
+                <GradientStop Color="#FF23C1FF" Offset="0"/>
+                <GradientStop Color="#FF009AD5" Offset="0.5"/>
+                <GradientStop Color="#FF008DC4" Offset="0.5"/>
+                <GradientStop Color="#FF00719D" Offset="1"/>
+              </LinearGradientBrush>
+            </Rectangle.Fill>
+          </Rectangle>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
   <Style x:Key="EmptyButtonControlStyle" TargetType="{x:Type Control}">
   </Style>
 
@@ -441,6 +477,59 @@
     </Setter>
   </Style>
 
+  <Style x:Key="HiddenMenuButtonWideStyle" TargetType="{x:Type Button}">
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate>
+          <Grid x:Name="GrowControl" RenderTransformOrigin="0.5,0.5" Margin="0,1,0,1">
+            <Grid.ColumnDefinitions>
+              <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+              <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+            <Grid.RenderTransform>
+              <TransformGroup>
+                <ScaleTransform ScaleX="1" ScaleY="1"/>
+              </TransformGroup>
+            </Grid.RenderTransform>
+            <Control Style="{ThemeResource HiddenMenuButtonControlStyle}" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"/>
+            <ContentPresenter x:Name="ButtonContentPresenter" Margin="10,5,10,5" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"/>
+          </Grid>
+          <ControlTemplate.Triggers>
+            <Trigger Property="HasFocus" Value="True">
+              <Trigger.EnterActions>
+                <BeginStoryboard x:Name="Focused_BeginStoryboard" Storyboard="{ThemeResource FocusedHiddenButtonWideStoryboard}"/>
+                <SoundPlayerAction Source="button12.wav" DisableOnAudioOutput="True"/>
+              </Trigger.EnterActions>
+              <Trigger.ExitActions>
+                <StopStoryboard BeginStoryboardName="Focused_BeginStoryboard"/>
+              </Trigger.ExitActions>
+            </Trigger>
+            <Trigger Property="IsPressed" Value="True">
+              <Trigger.EnterActions>
+                <BeginStoryboard x:Name="Pressed_BeginStoryboard" Storyboard="{ThemeResource PressedHiddenButtonWideStoryboard}"
+                    HandoffBehavior="TemporaryReplace"/>
+                <SoundPlayerAction Source="button7.wav" DisableOnAudioOutput="True"/>
+              </Trigger.EnterActions>
+              <Trigger.ExitActions>
+                <StopStoryboard BeginStoryboardName="Pressed_BeginStoryboard"/>
+              </Trigger.ExitActions>
+            </Trigger>
+            <Trigger Property="IsEnabled" Value="False">
+              <Trigger.EnterActions>
+                <BeginStoryboard x:Name="Disabled_BeginStoryBoard" Storyboard="{ThemeResource DisabledButtonStoryboard}"/>
+              </Trigger.EnterActions>
+              <Trigger.ExitActions>
+                <StopStoryboard BeginStoryboardName="Disabled_BeginStoryBoard"/>
+              </Trigger.ExitActions>
+            </Trigger>
+          </ControlTemplate.Triggers>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
+  
   <Style x:Key="ButtonWideStyle" TargetType="{x:Type Button}">
     <Setter Property="Template">
       <Setter.Value>
@@ -525,67 +614,6 @@
             <Trigger Property="IsPressed" Value="True">
               <Trigger.EnterActions>
                 <BeginStoryboard x:Name="Pressed_BeginStoryboard" Storyboard="{ThemeResource PressedButtonWideStoryboard_GrowOnly}"
-                    HandoffBehavior="TemporaryReplace"/>
-                <SoundPlayerAction Source="button7.wav" DisableOnAudioOutput="True"/>
-              </Trigger.EnterActions>
-              <Trigger.ExitActions>
-                <StopStoryboard BeginStoryboardName="Pressed_BeginStoryboard"/>
-              </Trigger.ExitActions>
-            </Trigger>
-            <Trigger Property="IsEnabled" Value="False">
-              <Trigger.EnterActions>
-                <BeginStoryboard x:Name="Disabled_BeginStoryBoard" Storyboard="{ThemeResource DisabledButtonStoryboard}"/>
-              </Trigger.EnterActions>
-              <Trigger.ExitActions>
-                <StopStoryboard BeginStoryboardName="Disabled_BeginStoryBoard"/>
-              </Trigger.ExitActions>
-            </Trigger>
-          </ControlTemplate.Triggers>
-        </ControlTemplate>
-      </Setter.Value>
-    </Setter>
-  </Style>
-
-  <Style x:Key="ButtonWideGlassStyle" TargetType="{x:Type Button}">
-    <Setter Property="Template">
-      <Setter.Value>
-        <ControlTemplate>
-          <Control x:Name="GrowControl" RenderTransformOrigin="0.5,0.5" Margin="0,5,5,0" Style="{ThemeResource SmallGlassOverlayControl}" VerticalAlignment="Stretch" HorizontalAlignment="Stretch">
-            <Control.Resources>
-              <ResourceWrapper x:Key="ControlWidth" Resource="274"/>
-              <!--<ResourceWrapper x:Key="ControlHeight" Resource="160"/>-->
-              <ControlTemplate x:Key="MakeGlass">
-                <Grid Margin="0,1,0,1">
-                  <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="*"/>
-                  </Grid.ColumnDefinitions>
-                  <Grid.RowDefinitions>
-                    <RowDefinition Height="*"/>
-                  </Grid.RowDefinitions>
-                  <Control Style="{ThemeResource FlatButtonControlStyle}" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"/>
-                  <ContentPresenter x:Name="ButtonContentPresenter" Margin="10,5,10,5" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"/>
-                </Grid>
-              </ControlTemplate>
-            </Control.Resources>
-            <Control.RenderTransform>
-              <TransformGroup>
-                <ScaleTransform ScaleX="1" ScaleY="1"/>
-              </TransformGroup>
-            </Control.RenderTransform>
-          </Control>
-          <ControlTemplate.Triggers>
-            <Trigger Property="HasFocus" Value="True">
-              <Trigger.EnterActions>
-                <BeginStoryboard x:Name="Focused_BeginStoryboard" Storyboard="{ThemeResource FocusedButtonWideStoryboard}"/>
-                <SoundPlayerAction Source="button12.wav" DisableOnAudioOutput="True"/>
-              </Trigger.EnterActions>
-              <Trigger.ExitActions>
-                <StopStoryboard BeginStoryboardName="Focused_BeginStoryboard"/>
-              </Trigger.ExitActions>
-            </Trigger>
-            <Trigger Property="IsPressed" Value="True">
-              <Trigger.EnterActions>
-                <BeginStoryboard x:Name="Pressed_BeginStoryboard" Storyboard="{ThemeResource PressedButtonWideStoryboard}"
                     HandoffBehavior="TemporaryReplace"/>
                 <SoundPlayerAction Source="button7.wav" DisableOnAudioOutput="True"/>
               </Trigger.EnterActions>

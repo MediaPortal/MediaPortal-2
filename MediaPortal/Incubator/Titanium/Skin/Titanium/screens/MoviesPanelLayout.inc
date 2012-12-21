@@ -4,7 +4,7 @@
     xmlns="www.team-mediaportal.com/2008/mpf/directx"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:fanart="clr-namespace:MediaPortal.Extensions.UserServices.FanArtService.Client;assembly=FanArtService.Client"
-    Source="screens\master_slidemenu.xaml"
+    Source="screens\master_menu.xaml"
     >
   <Include.Resources>
     <ResourceWrapper x:Key="Header_Text" Resource="[Media.MoviesItemsHeader]"/>

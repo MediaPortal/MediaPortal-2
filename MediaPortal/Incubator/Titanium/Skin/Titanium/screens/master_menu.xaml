@@ -34,55 +34,111 @@ Parameters which have to be accessible by a DynamicResource lookup:
     xmlns:mp_special_controls="clr-namespace:MediaPortal.UI.SkinEngine.SpecialElements.Controls"
     >
   <Include.Resources>
+    <Model x:Key="MenuModel" Id="9E9D0CD9-4FDB-4c0f-A0C4-F356E151BDE0"/>
 
     <!-- Header has to be defined by the includer: "Header_Text" -->
 
     <!-- Client_Template -->
-    <ResourceWrapper x:Key="EnableBackgroundPanel" Resource="true" />
-    
     <ControlTemplate x:Key="Client_Template">
-      <DockPanel LastChildFill="True" Margin="50">
-        <Grid x:Name="LeftPanel" DockPanel.Dock="Left" Margin="10,0,0,10" VerticalAlignment="Stretch">
-          <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="400"/>
-          </Grid.ColumnDefinitions>
-          <Grid.RowDefinitions>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="*"/>
-            <RowDefinition Height="Auto"/>
-          </Grid.RowDefinitions>
-          <Grid.Resources>
-            <Model x:Key="MenuModel" Id="9E9D0CD9-4FDB-4c0f-A0C4-F356E151BDE0"/>
-          </Grid.Resources>
-
-          <ListView x:Name="MainMenu" Grid.Column="0" Grid.Row="1" Style="{ThemeResource MainMenuListViewStyle}"
-              HorizontalAlignment="Stretch" VerticalAlignment="Stretch" SetFocusPrio="Default"
-              ItemsSource="{Binding Source={StaticResource MenuModel},Path=MenuItems,Mode=OneTime}">
-            <ListView.Resources>
-              <CommandBridge x:Key="Menu_Command" Command="{Binding Path=Command,Mode=OneTime}"/>
-            </ListView.Resources>
-          </ListView>
-        </Grid>
+      <Grid x:Name="MainPanel" Margin="10" VerticalAlignment="Stretch">
+        <Grid.ColumnDefinitions>
+          <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+          <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
 
         <!-- Order matters here: The content grid has to be the last control to fill the rest of the space -->
-        <Grid x:Name="ContentPanel" SetFocusPrio="DefaultHigh">
+        <Grid x:Name="ContentPanel" Margin="50,270,50,50"  SetFocusPrio="DefaultHigh">
           <Grid.ColumnDefinitions>
             <ColumnDefinition Width="*"/>
           </Grid.ColumnDefinitions>
           <Grid.RowDefinitions>
             <RowDefinition Height="*"/>
           </Grid.RowDefinitions>
-
-          <Control x:Name="ContentControl" Template="{DynamicResource ResourceKey=Contents_Template}"
-              IsVisible="{Binding ElementName=ContentControl,Path=Template,Converter={StaticResource ReferenceToBoolConverter}}"
-              Grid.Row="0" Grid.Column="0" Margin="15,5,15,15"/>
-
-          <Control x:Name="AlternativeContentControl" Grid.Row="0" Grid.Column="0"
-             VerticalAlignment="Stretch" HorizontalAlignment="Stretch"
-             Template="{DynamicResource ResourceKey=Alternative_Contents_Template}"
-             IsVisible="{Binding RelativeSource={RelativeSource Self},Path=Template,Converter={StaticResource ReferenceToBoolConverter}}"/>
+          <Control Margin="10,0,10,10" x:Name="ContentViewer" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"
+              Template="{DynamicResource ResourceKey=Contents_Template}" SetFocus="true"/>
         </Grid>
-      </DockPanel>
+
+        <Grid x:Name="LeftPanel" Margin="40,-50,10,0" VerticalAlignment="Stretch"
+              Width="550" HorizontalAlignment="Left">
+
+          <Grid.Resources>
+            <Storyboard x:Key="SlideInStoryboard" FillBehavior="HoldEnd">
+              <DoubleAnimationUsingKeyFrames BeginTime="00:00:00" FillBehavior="HoldEnd" Storyboard.TargetName="LeftPanel" Storyboard.TargetProperty="RenderTransform.X">
+                <SplineDoubleKeyFrame KeyTime="00:00:00" Value="-550"/>
+                <SplineDoubleKeyFrame KeyTime="00:00:00.20" Value="0"/>
+              </DoubleAnimationUsingKeyFrames>
+            </Storyboard>
+          </Grid.Resources>
+
+          <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="550"/>
+          </Grid.ColumnDefinitions>
+          <Grid.RowDefinitions>
+            <RowDefinition Height="*"/>
+          </Grid.RowDefinitions>
+
+          <Grid.RenderTransform>
+            <TranslateTransform X="-550"/>
+          </Grid.RenderTransform>
+
+          <Grid.Triggers>
+            <!-- Setting default state of menu to hidden -->
+            <EventTrigger RoutedEvent="Screen.Show">
+              <TriggerCommand Command="{Command Source={StaticResource MenuModel}, Path=CloseMenu}"/>
+            </EventTrigger>
+
+            <!-- Slide-In animation when the MenuModel.ShowMenu gets true -->
+            <DataTrigger Binding="{Binding Source={StaticResource MenuModel},Path=IsMenuOpen}" Value="True">
+              <DataTrigger.EnterActions>
+                <BeginStoryboard x:Name="SlideIn_BeginStoryboard" Storyboard="{ThemeResource SlideInStoryboard}"/>
+              </DataTrigger.EnterActions>
+              <DataTrigger.ExitActions>
+                <StopStoryboard BeginStoryboardName="SlideIn_BeginStoryboard"/>
+              </DataTrigger.ExitActions>
+
+              <!-- Test: Set focus to opened menu (not working!) -->
+              <Setter TargetName="MainMenu" Property="SetFocusPrio" Value="Highest" />
+              <Setter TargetName="MainMenu" Property="SetFocus" Value="True" />
+              <!-- Enable ListView to allow focusing buttons-->
+              <Setter TargetName="MainMenu" Property="IsEnabled" Value="True" />
+            </DataTrigger>
+          </Grid.Triggers>
+
+          <Rectangle Fill="{ThemeResource DialogBackgroundBaseColor}" 
+                     RadiusX="30" RadiusY="30" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="0,0,52,0"/>
+          <Rectangle RadiusX="30" RadiusY="30" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="0,0,52,0">
+            <Rectangle.Fill>
+              <LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0">
+                <GradientStop Color="{ThemeResource DialogBackgroundGradient1Color}"/>
+                <GradientStop Color="{ThemeResource DialogBackgroundGradient2Color}" Offset="0.874"/>
+              </LinearGradientBrush>
+            </Rectangle.Fill>
+          </Rectangle>
+
+          <ListView x:Name="MainMenu" Style="{ThemeResource HiddenMenuListViewStyle}" Margin="20,10,70,10"
+              HorizontalAlignment="Stretch" VerticalAlignment="Stretch" SetFocusPrio="Default"
+              ItemsSource="{Binding Source={StaticResource MenuModel},Path=MenuItems,Mode=OneTime}"
+              IsEnabled="False">
+            <ListView.Resources>
+              <CommandBridge x:Key="Menu_Command" Command="{Binding Path=Command,Mode=OneTime}"/>
+            </ListView.Resources>
+          </ListView>
+
+          <Button x:Name="MenuShowButton" Content="Menu" Style="{ThemeResource ButtonWideStyle}" Grid.Row="0" Grid.Column="0" HorizontalAlignment="Right"
+                   Command="{Command Source={StaticResource MenuModel}, Path=ToggleMenu}">
+            <Button.LayoutTransform>
+              <RotateTransform Angle="270"/>
+            </Button.LayoutTransform>
+          </Button>
+
+        </Grid>
+
+        <KeyBinding Key="Info" Command="{Command Source={StaticResource MenuModel}, Path=ToggleMenu}"/>
+        <KeyBinding Key="Escape" Command="{Command Source={StaticResource MenuModel}, Path=ToggleMenu}" IsEnabled="{Binding Source={StaticResource MenuModel},Path=IsMenuOpen}"/>
+
+      </Grid>
     </ControlTemplate>
 
   </Include.Resources>
