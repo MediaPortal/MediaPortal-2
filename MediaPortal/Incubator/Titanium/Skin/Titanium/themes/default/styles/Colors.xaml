@@ -260,13 +260,13 @@
   <ResourceWrapper x:Key="PlayerControlTitleColor" Resource="#FFBDBDBD"/>
   <ResourceWrapper x:Key="PlayerControlMediaItemColor" Resource="White"/>
   <ResourceWrapper x:Key="PlayerControlInactiveMediaItemColor" Resource="DarkGray"/>
-  <ResourceWrapper x:Key="PlayerControlBackgroundColor" Resource="#60000000"/>
+  <ResourceWrapper x:Key="PlayerControlBackgroundColor" Resource="#FF3F4149"/>
   <ResourceWrapper x:Key="PlayerControlInactiveOpacityMaskColor" Resource="#80000000"/>
   <ResourceWrapper x:Key="CurrentPlayerControlBorderColor" Resource="#FFC0C0C0"/>
   <ResourceWrapper x:Key="CurrentPlayerControlTitleColor" Resource="#FFD0D0D0"/>
-  <ResourceWrapper x:Key="CurrentPlayerControlBackgroundColor1" Resource="#A71C2764"/>
-  <ResourceWrapper x:Key="CurrentPlayerControlBackgroundColor2" Resource="#C7677095"/>
-  <ResourceWrapper x:Key="CurrentPlayerControlBackgroundColor3" Resource="#9748507C"/>
+  <ResourceWrapper x:Key="CurrentPlayerControlBackgroundColor1" Resource="#FFD2D2D2"/> <!-- Used as background fill for current player -->
+  <ResourceWrapper x:Key="CurrentPlayerControlBackgroundColor2" Resource="#46FFFFFF"/> <!-- Used as gradient color overlay for all cases -->
+  <ResourceWrapper x:Key="CurrentPlayerControlBackgroundColor3" Resource="#945E546A"/> <!-- Used as gradient color overlay for all cases -->
   <ResourceWrapper x:Key="CurrentPlayerControlBackgroundColor4" Resource="#F8010E12"/>
 
   <ResourceWrapper x:Key="WindowButtonColor" Resource="White"/>
