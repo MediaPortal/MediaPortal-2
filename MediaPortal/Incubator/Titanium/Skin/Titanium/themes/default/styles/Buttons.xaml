@@ -194,11 +194,7 @@
   <Style x:Key="HomeButtonControlStyle" TargetType="{x:Type Control}">
     <Setter Property="Template">
       <Setter.Value>
-        <ControlTemplate>
-          <Grid>
-            <Rectangle x:Name="HomeFill" Fill="#FF00B7FF" Opacity="0.302" Height="244" Width="580" Margin="2"/>
-          </Grid>
-        </ControlTemplate>
+        <ControlTemplate/>
       </Setter.Value>
     </Setter>
   </Style>
