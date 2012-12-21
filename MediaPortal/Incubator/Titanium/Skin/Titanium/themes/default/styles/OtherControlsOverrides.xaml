@@ -223,7 +223,29 @@
       <Setter.Value>
         <ControlTemplate TargetType="{x:Type mp_special_controls:PlayerControl}">
           <Grid x:Name="PCGroupBox" DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}">
-            <StackPanel Orientation="Vertical">
+            <Grid.RowDefinitions>
+              <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+            <Grid.ColumnDefinitions>
+              <ColumnDefinition Width="Auto"/> <!-- Media thumbnail -->
+              <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+
+            <!-- Background of player control panel-->
+            <Rectangle x:Name="PCBackground" Grid.ColumnSpan="2" Fill="{ThemeResource PlayerControlBackgroundColor}" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" RadiusX="30" RadiusY="30" />
+            <Rectangle Grid.ColumnSpan="2" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" RadiusX="30" RadiusY="30" >
+              <Rectangle.Fill>
+                <LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0">
+                  <GradientStop Color="{ThemeResource CurrentPlayerControlBackgroundColor2}" Offset="0"/>
+                  <GradientStop Color="{ThemeResource CurrentPlayerControlBackgroundColor3}" Offset="0.874"/>
+                </LinearGradientBrush>
+              </Rectangle.Fill>
+            </Rectangle>
+            
+            <Image x:Name="ItemTypeImage" Grid.Row="0" Grid.Column="0" Stretch="Uniform" 
+                    Source="{Binding MediaItem}" Height="120" Margin="40,0,20,0"/>
+
+            <StackPanel Grid.Row="0" Grid.Column="1" Orientation="Vertical" Margin="10">
               <Grid x:Name="MediaInfoPanel" Margin="5" HorizontalAlignment="Stretch">
                 <Grid.RowDefinitions>
                   <RowDefinition Height="Auto"/>
@@ -276,21 +298,16 @@
                 </StackPanel>
                 <StackPanel.LayoutTransform>
                   <TransformGroup>
-                    <ScaleTransform ScaleX="0.75" ScaleY="0.75"/>
+                    <ScaleTransform ScaleX="0.5" ScaleY="0.5"/>
                   </TransformGroup>
                 </StackPanel.LayoutTransform>
               </StackPanel>
             </StackPanel>
           </Grid>
-          <!--</GroupBox>-->
+
           <ControlTemplate.Triggers>
             <Trigger Property="IsCurrentPlayer" Value="True">
-              <Trigger.EnterActions>
-                <BeginStoryboard x:Name="CurrentPlayer_BeginStoryboard" Storyboard="{ThemeResource NavigationScreenCurrentPlayerControlStoryboard}"/>
-              </Trigger.EnterActions>
-              <Trigger.ExitActions>
-                <StopStoryboard BeginStoryboardName="CurrentPlayer_BeginStoryboard"/>
-              </Trigger.ExitActions>
+              <Setter TargetName="PCBackground" Property="Fill" Value="{ThemeResource CurrentPlayerControlBackgroundColor1}"/>
             </Trigger>
           </ControlTemplate.Triggers>
         </ControlTemplate>

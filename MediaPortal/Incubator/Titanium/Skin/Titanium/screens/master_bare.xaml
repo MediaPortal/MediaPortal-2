@@ -84,7 +84,18 @@ Parameters which have to be accessible by a DynamicResource lookup:
       
     </Grid>    <!-- HeaderPanel -->
 
+    <!-- Player controls, located on top-->
 
+    <StackPanel x:Name="PlayerControls"  Canvas.Left="300" Canvas.Top="80" Orientation="Horizontal" HorizontalAlignment="Left" VerticalAlignment="Top">
+
+      <mp_special_controls:PlayerControl x:Name="PrimaryPC" Margin="20,0,0,0" Style="{ThemeResource NewNavigationScreenPlayerControlStyle}" Width="600"
+              HorizontalAlignment="Left" VerticalAlignment="Top"
+              AutoVisibility="True" PlayerContext="PrimaryPlayer"/>
+
+      <mp_special_controls:PlayerControl x:Name="SecondaryPC" Margin="20,0,0,0" Style="{ThemeResource NewNavigationScreenPlayerControlStyle}" Width="600"
+              HorizontalAlignment="Left" VerticalAlignment="Top" 
+              AutoVisibility="True" PlayerContext="SecondaryPlayer"/>
+    </StackPanel>
 
     <Rectangle DockPanel.Dock="Bottom" Fill="#FF000000" Opacity="0.749" Canvas.Left="50" Canvas.Top="340" Width="1824" Height="695" RadiusX="30" RadiusY="30"
         IsVisible="{Binding Source={DynamicResource EnableBackgroundPanel}}"/>
