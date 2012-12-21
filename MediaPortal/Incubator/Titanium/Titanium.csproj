@@ -73,17 +73,20 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="Skin\Titanium\fonts\default-font.xml" />
+    <Content Include="Skin\Titanium\images\02992BEC-1E6D-4C29-8D79-F95F59E3F625.jpg" />
     <Content Include="Skin\Titanium\images\17D2390E-5B05-4fbd-89F6-24D60CEB427F.jpg" />
     <Content Include="Skin\Titanium\images\30715D73-4205-417f-80AA-E82F0834171F.jpg" />
     <Content Include="Skin\Titanium\images\30F57CBA-459C-4202-A587-09FFF5098251.jpg" />
     <Content Include="Skin\Titanium\images\36FA3773-8428-4e0c-BE5B-4ECFF5A5E11F.jpg" />
     <Content Include="Skin\Titanium\images\55556593-9FE9-436c-A3B6-A971E10C9D44.jpg" />
     <Content Include="Skin\Titanium\images\09eae702-d9ec-4325-82d9-4843502c966b.jpg" />
+    <Content Include="Skin\Titanium\images\80D2E2CC-BAAA-4750-807B-F37714153751.jpg" />
     <Content Include="Skin\Titanium\images\9C3E6701-6856-49ec-A4CD-0CEB15F385F6.jpg" />
     <Content Include="Skin\Titanium\images\A4DF2DF6-8D66-479a-9930-D7106525EB07.jpg" />
     <Content Include="Skin\Titanium\images\B4A9199F-6DD4-4bda-A077-DE9C081F7703.jpg" />
     <Content Include="Skin\Titanium\images\C33E39CC-910E-41C8-BFFD-9ECCD340B569.jpg" />
     <Content Include="Skin\Titanium\images\D83604C0-0936-4416-9DE8-7B6D7C50023C.jpg" />
+    <Content Include="Skin\Titanium\images\E00B8442-8230-4D7B-B871-6AC77755A0D5.jpg" />
     <Content Include="Skin\Titanium\images\E34FDB62-1F3E-4aa9-8A61-D143E0AF77B5.jpg" />
     <Content Include="Skin\Titanium\images\F6255762-C52A-4231-9E67-14C28735216E.jpg" />
     <Content Include="Skin\Titanium\images\93442DF7-186D-42e5-A0F5-CF1493E68F49.jpg" />
@@ -108,6 +111,12 @@
     <Content Include="Skin\Titanium\themes\default\images\PictureLarge.png" />
     <Content Include="Skin\Titanium\themes\default\images\PictureSmall.png" />
     <Content Include="Skin\Titanium\themes\default\images\preview.png" />
+    <None Include="Skin\Titanium\fonts\TitanBold.desc" />
+    <None Include="Skin\Titanium\fonts\Titan.desc" />
+    <None Include="Skin\Titanium\fonts\TITAN.TTF" />
+    <None Include="Skin\Titanium\fonts\TITANLIGHT.TTF" />
+    <None Include="Skin\Titanium\fonts\TITANMEDIUM.TTF" />
+    <None Include="Skin\Titanium\fonts\TITANSMALL.TTF" />
     <None Include="Skin\Titanium\themes\default\styles\OtherControlsOverrides.xaml">
       <SubType>Designer</SubType>
       <SubType>Designer</SubType>

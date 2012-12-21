@@ -39,64 +39,47 @@ Parameters which have to be accessible by a DynamicResource lookup:
       <Model x:Key="TimeModel" Id="E821B1C8-0666-4339-8027-AA45A4F6F107"/>
       <Model x:Key="CurrentWeatherModel" Id="FC57FF5C-F72F-47E9-B973-338E31FF7FF1"/>
     </Canvas.Resources>
-    <Grid x:Name="HeaderPanel" Canvas.Top="0" Canvas.Left="0"  Width="1920" Height="60" Background="{ThemeResource HeaderPanelBackgroundBrush}">
+    <Grid x:Name="HeaderPanel" Canvas.Top="0" Canvas.Left="0" Width="1920" Background="{ThemeResource HeaderPanelBackgroundBrush}">
       <Grid.RowDefinitions>
-        <RowDefinition Height="60"/>
+        <RowDefinition Height="Auto"/>
+        <RowDefinition Height="Auto"/>
       </Grid.RowDefinitions>
       <Grid.ColumnDefinitions>
-        <ColumnDefinition Width="150"/> <!-- Time -->
         <ColumnDefinition Width="*"/> <!-- NavBar -->
-        <ColumnDefinition Width="Auto"/> <!-- ScreenName -->
-        <ColumnDefinition Width="170"/> <!-- WindowButtons -->
+        <ColumnDefinition Width="Auto"/> <!-- NavBar -->
       </Grid.ColumnDefinitions>
 
-      <mp_special_controls:WorkflowNavigationBar Grid.Column="1" Grid.Row="0" Style="{ThemeResource NewWorkflowNavigationBarStyle}"
-            VerticalAlignment="Center"/>
+      <mp_special_controls:WorkflowNavigationBar Grid.Column="0" Grid.Row="0" Style="{ThemeResource NewWorkflowNavigationBarStyle}"
+            VerticalAlignment="Center" Margin="40,0,0,0"/>
 
-      <Label x:Name="TimeLabel" Content="{Binding Source={StaticResource TimeModel}, Path=CurrentTime}" Grid.Column="0" Grid.Row="0" Margin="10,0,0,0"
-              FontSize="{ThemeResource BigFontSize}" Color="{ThemeResource PlaylistItemColor}" VerticalAlignment="Center" HorizontalAlignment="Center"/>
+      <Label x:Name="TimeLabel" Content="{Binding Source={StaticResource TimeModel}, Path=CurrentTime}" Grid.Column="1" Grid.Row="0" Margin="0,20,40,0"
+             FontSize="{ThemeResource HeaderFontSize}" FontFamily="TitanBold"
+             Color="{ThemeResource PlaylistItemColor}" VerticalAlignment="Center" HorizontalAlignment="Right"/>
 
-      <StackPanel Margin="5" x:Name="WindowButtonsPanel" Orientation="Horizontal" Grid.Column="3" Grid.Row="0" VerticalAlignment="Center"
-            DataContext="{Binding RelativeSource={RelativeSource Self},Path=Screen}">
-        <StackPanel.IsVisible>
-          <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} &amp;&amp; {1}">
-            <Binding Path="HasInputFocus"/>
-            <Binding Source="{StaticResource MouseModel}" Path="IsMouseUsed"/>
-          </MultiBinding>
-        </StackPanel.IsVisible>
-        <StackPanel.Triggers>
-          <Trigger Property="IsMouseOver" Value="False">
-            <Trigger.Setters>
-              <Setter Property="OpacityMask" Value="#B0000000"/>
-            </Trigger.Setters>
-          </Trigger>
-        </StackPanel.Triggers>
-        <Button x:Name="MinimizeButton" Style="{ThemeResource WindowMinimizeButtonStyle}" Margin="3"
-              HorizontalAlignment="Left" VerticalAlignment="Center"
-              Command="{Command Source={Service Window},Path=Minimize}"/>
-        <Button x:Name="SuspendButton" Style="{ThemeResource SuspendButtonStyle}" Margin="3"
-              HorizontalAlignment="Left" VerticalAlignment="Center"
-              Command="{Command Source={Service Window},Path=Suspend}"/>
-        <Button x:Name="CloseButton" Style="{ThemeResource WindowCloseButtonStyle}" Margin="3"
-              HorizontalAlignment="Left" VerticalAlignment="Center"
-              Command="{Command Source={Service Window},Path=Shutdown}"/>
-      </StackPanel>      <!-- WindowButtonsPanel -->
-      
+      <Label x:Name="DateLabel" Content="{Binding Source={StaticResource TimeModel}, Path=CurrentDate}" Grid.Column="1" Grid.Row="1" Margin="0,0,40,0"
+             FontSize="{ThemeResource DialogTitleFontSize}" FontFamily="TitanBold"
+             Color="{ThemeResource PlaylistItemColor}" VerticalAlignment="Center" HorizontalAlignment="Right"/>
+
     </Grid>    <!-- HeaderPanel -->
 
     <!-- Player controls, located on top-->
 
-    <StackPanel x:Name="PlayerControls"  Canvas.Left="300" Canvas.Top="80" Orientation="Horizontal" HorizontalAlignment="Left" VerticalAlignment="Top">
+    <Grid Canvas.Left="0" Canvas.Top="140" Width="1920" HorizontalAlignment="Stretch">
+      <Grid.ColumnDefinitions>
+        <ColumnDefinition Width="*"/>
+      </Grid.ColumnDefinitions>
+      
+      <StackPanel x:Name="PlayerControls" Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Top">
 
-      <mp_special_controls:PlayerControl x:Name="PrimaryPC" Margin="20,0,0,0" Style="{ThemeResource NewNavigationScreenPlayerControlStyle}" Width="600"
-              HorizontalAlignment="Left" VerticalAlignment="Top"
-              AutoVisibility="True" PlayerContext="PrimaryPlayer"/>
+        <mp_special_controls:PlayerControl x:Name="PrimaryPC" Margin="0,0,20,0" Style="{ThemeResource NewNavigationScreenPlayerControlStyle}" Width="600"
+                HorizontalAlignment="Center" VerticalAlignment="Top"
+                AutoVisibility="True" PlayerContext="PrimaryPlayer"/>
 
-      <mp_special_controls:PlayerControl x:Name="SecondaryPC" Margin="20,0,0,0" Style="{ThemeResource NewNavigationScreenPlayerControlStyle}" Width="600"
-              HorizontalAlignment="Left" VerticalAlignment="Top" 
-              AutoVisibility="True" PlayerContext="SecondaryPlayer"/>
-    </StackPanel>
-
+        <mp_special_controls:PlayerControl x:Name="SecondaryPC" Margin="20,0,0,0" Style="{ThemeResource NewNavigationScreenPlayerControlStyle}" Width="600"
+                HorizontalAlignment="Center" VerticalAlignment="Top" 
+                AutoVisibility="True" PlayerContext="SecondaryPlayer"/>
+      </StackPanel>
+    </Grid>
     <Rectangle DockPanel.Dock="Bottom" Fill="#FF000000" Opacity="0.749" Canvas.Left="50" Canvas.Top="340" Width="1824" Height="695" RadiusX="30" RadiusY="30"
         IsVisible="{Binding Source={DynamicResource EnableBackgroundPanel}}"/>
 
