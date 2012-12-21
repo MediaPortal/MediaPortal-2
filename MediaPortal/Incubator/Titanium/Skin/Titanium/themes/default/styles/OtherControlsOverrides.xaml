@@ -46,14 +46,30 @@
     </DoubleAnimationUsingKeyFrames>
   </Storyboard>
 
+  <ResourceWrapper x:Key="ButtonMask" Resource="#FF000000"/>
+  
+  <!-- TODO: Not working !!!-->
+  <ResourceWrapper x:Key="ButtonMask_Image">
+    <ImageBrush ImageSource="homebutton_mask.png" Stretch="Fill"/>
+  </ResourceWrapper>
+  <!-- TODO: Not working !!!-->
+  <ResourceWrapper x:Key="ButtonMask_Visual">
+    <VisualBrush>
+      <VisualBrush.Visual>
+        <Rectangle x:Name="Mask" Fill="Black" Opacity="0.5" Height="244" Width="580" Margin="2" RadiusX="30" RadiusY="30"/>
+      </VisualBrush.Visual>
+    </VisualBrush>
+  </ResourceWrapper>
+  
   <!-- An item list container represented by a standard "Button", scrolling its "ItemLabel" label when focused -->
   <Style x:Key="MainMenuMenuItemContainerStyle" BasedOn="{ThemeResource DefaultItemContainerStyle}">
     <Setter Property="Template">
       <Setter.Value>
         <ControlTemplate TargetType="{x:Type ListViewItem}">
-          <Button Style="{ThemeResource HomeButtonStyle}"
+          <Button Style="{ThemeResource HomeButtonStyle}" Margin="5"
               Command="{DynamicResource ResourceKey=Menu_Command}"
-              IsEnabled="{Binding Enabled}" SetFocus="{Binding Path=Selected,Mode=OneTime}">
+              IsEnabled="{Binding Enabled}" SetFocus="{Binding Path=Selected,Mode=OneTime}"
+              OpacityMask="{StaticResource ButtonMask}">
             <Button.Triggers>
               <Trigger Property="HasFocus" Value="True">
                 
@@ -69,10 +85,6 @@
               </Trigger>
 
             </Button.Triggers>
-            <Button.OpacityMask>
-              <!-- TODO: not working yet -->
-              <ImageBrush ImageSource="homebutton_mask.png" Stretch="Fill"/>
-            </Button.OpacityMask>
           </Button>
         </ControlTemplate>
       </Setter.Value>
@@ -81,7 +93,7 @@
 
   <!-- Menu template -->
   <DataTemplate x:Key="MainMenuItemDataTemplateHover">
-    <Grid x:Name="ItemControl" Margin="0,0,0,0">
+    <Grid x:Name="ItemControl" Margin="0,0,0,0" Width="580" Height="244">
       <Grid.ColumnDefinitions>
         <ColumnDefinition Width="*"/>
       </Grid.ColumnDefinitions>
@@ -90,13 +102,17 @@
         <RowDefinition Height="Auto"/>
       </Grid.RowDefinitions>
 
+      <!-- Light blue background fill -->
+      <Rectangle Grid.Row="0" Grid.Column="0" Grid.RowSpan="2" 
+          x:Name="HomeFill" Fill="#FF00B7FF" Opacity="0.302" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"/>
+      
       <!-- Image -->
-      <Image Grid.Row="0" Grid.Column="0" Grid.RowSpan="2" Width="580" Height="244" Stretch="UniformToFill"
+      <Image Grid.Row="0" Grid.Column="0" Grid.RowSpan="2" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Stretch="UniformToFill"
              Source="{Binding Converter={StaticResource ListItemActionIdConverter}, ConverterParameter=.jpg}"/>
 
       <!-- Darkened band -->
-      <Rectangle Grid.Row="1" Grid.Column="0" Grid.RowSpan="2" Fill="#FF000000" Opacity="0.749" 
-                 HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="0,0,0,-1" />
+      <Rectangle Grid.Row="1" Grid.Column="0" Fill="#FF000000" Opacity="0.749" 
+                 HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="0,0,0,0" />
       
       <!-- Item label -->
       <Label Grid.Row="1" Grid.Column="0" x:Name="ItemLabel" HorizontalAlignment="Center" VerticalAlignment="Bottom"  Content="{Binding [Name]}" 
