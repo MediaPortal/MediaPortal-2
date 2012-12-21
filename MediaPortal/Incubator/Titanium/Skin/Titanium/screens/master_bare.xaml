@@ -52,7 +52,7 @@ Parameters which have to be accessible by a DynamicResource lookup:
       <mp_special_controls:WorkflowNavigationBar Grid.Column="0" Grid.Row="0" Style="{ThemeResource NewWorkflowNavigationBarStyle}"
             VerticalAlignment="Center" Margin="40,0,0,0"/>
 
-      <Label x:Name="TimeLabel" Content="{Binding Source={StaticResource TimeModel}, Path=CurrentTime}" Grid.Column="1" Grid.Row="0" Margin="0,20,40,0"
+      <Label x:Name="TimeLabel" Content="{Binding Source={StaticResource TimeModel}, Path=CurrentTime}" Grid.Column="1" Grid.Row="0" Margin="0,10,40,0"
              FontSize="{ThemeResource HeaderFontSize}" FontFamily="TitanBold"
              Color="{ThemeResource PlaylistItemColor}" VerticalAlignment="Center" HorizontalAlignment="Right"/>
 
@@ -64,18 +64,18 @@ Parameters which have to be accessible by a DynamicResource lookup:
 
     <!-- Player controls, located on top-->
 
-    <Grid Canvas.Left="0" Canvas.Top="140" Width="1920" HorizontalAlignment="Stretch">
+    <Grid Canvas.Left="0" Canvas.Top="120" Width="1920" HorizontalAlignment="Stretch">
       <Grid.ColumnDefinitions>
         <ColumnDefinition Width="*"/>
       </Grid.ColumnDefinitions>
       
       <StackPanel x:Name="PlayerControls" Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Top">
 
-        <mp_special_controls:PlayerControl x:Name="PrimaryPC" Margin="0,0,20,0" Style="{ThemeResource NewNavigationScreenPlayerControlStyle}" Width="600"
+        <mp_special_controls:PlayerControl x:Name="PrimaryPC" Margin="0,0,10,0" Style="{ThemeResource NewNavigationScreenPlayerControlStyle}" Width="570"
                 HorizontalAlignment="Center" VerticalAlignment="Top"
                 AutoVisibility="True" PlayerContext="PrimaryPlayer"/>
 
-        <mp_special_controls:PlayerControl x:Name="SecondaryPC" Margin="20,0,0,0" Style="{ThemeResource NewNavigationScreenPlayerControlStyle}" Width="600"
+        <mp_special_controls:PlayerControl x:Name="SecondaryPC" Margin="10,0,0,0" Style="{ThemeResource NewNavigationScreenPlayerControlStyle}" Width="570"
                 HorizontalAlignment="Center" VerticalAlignment="Top" 
                 AutoVisibility="True" PlayerContext="SecondaryPlayer"/>
       </StackPanel>
