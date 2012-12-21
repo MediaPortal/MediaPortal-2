@@ -46,8 +46,9 @@
   </ResourceWrapper>
 
 
-  <ResourceWrapper x:Key="DialogBackgroundGradient1Color" Resource="#F0A0A0A0"/>
-  <ResourceWrapper x:Key="DialogBackgroundGradient2Color" Resource="#F0333644"/>
+  <ResourceWrapper x:Key="DialogBackgroundBaseColor" Resource="#C0D2D2D2"/>
+  <ResourceWrapper x:Key="DialogBackgroundGradient1Color" Resource="#FFFFFFFF"/>
+  <ResourceWrapper x:Key="DialogBackgroundGradient2Color" Resource="#94939393"/>
 
   <ResourceWrapper x:Key="DialogBorderGradient1Color" Resource="#40505050"/>
   <ResourceWrapper x:Key="DialogBorderGradient2Color" Resource="#A0808080"/>
@@ -57,6 +58,8 @@
 
   <ResourceWrapper x:Key="TextColor" Resource="White"/>
 
+  <ResourceWrapper x:Key="HiddenMenuTextColor" Resource="#393939"/>
+  
   <ResourceWrapper x:Key="HomeNonFocusedColor" Resource="#6B6A6A"/>
 
   <ResourceWrapper x:Key="HintTextColor" Resource="DarkGray"/>

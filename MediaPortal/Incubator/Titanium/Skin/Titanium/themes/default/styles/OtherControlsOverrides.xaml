@@ -191,6 +191,38 @@
     <Setter Property="ItemContainerStyle" Value="{ThemeResource MainMenuMenuItemContainerStyle}"/>
   </Style>
 
+  <!-- Special style for "hidden menu", mainly to use another color -->
+  <Style x:Key="HiddenMenuItemContainerStyle" BasedOn="{ThemeResource DefaultItemContainerStyle}">
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate TargetType="{x:Type ListViewItem}">
+          <Button Style="{ThemeResource HiddenMenuButtonWideStyle}" Margin="5"
+              Command="{DynamicResource ResourceKey=Menu_Command}"
+              IsEnabled="{Binding Enabled}" SetFocus="{Binding Path=Selected,Mode=OneTime}">
+            <Button.Triggers>
+              <Trigger Property="HasFocus" Value="True">
+                <Setter TargetName="ItemLabel" Property="Scroll" Value="Auto"/>
+                <Setter TargetName="ItemLabel" Property="Color" Value="{ThemeResource TextColor}"/>
+              </Trigger>
+            </Button.Triggers>
+          </Button>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
+  
+  <DataTemplate x:Key="HiddenMenuItemDataTemplate">
+    <DockPanel x:Name="ItemControl" LastChildFill="False">
+      <Label x:Name="ItemLabel" DockPanel.Dock="Center" Content="{Binding [Name]}"
+          HorizontalAlignment="Left" VerticalAlignment="Center"
+          Color="{ThemeResource HiddenMenuTextColor}"/>
+    </DockPanel>
+  </DataTemplate>
+
+  <Style x:Key="HiddenMenuListViewStyle" BasedOn="{ThemeResource MainMenuListViewStyle}">
+    <Setter Property="ItemTemplate" Value="{ThemeResource HiddenMenuItemDataTemplate}"/>
+    <Setter Property="ItemContainerStyle" Value="{ThemeResource HiddenMenuItemContainerStyle}"/>
+  </Style>
 
   <Style x:Key="NewPlayerControlGroupBoxStyle">
     <Setter Property="BorderBrush" Value="{ThemeResource ReflexionBorderStroke}"/>

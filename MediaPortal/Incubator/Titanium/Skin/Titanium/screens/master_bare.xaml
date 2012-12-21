@@ -62,24 +62,6 @@ Parameters which have to be accessible by a DynamicResource lookup:
 
     </Grid>    <!-- HeaderPanel -->
 
-    <!-- Player controls, located on top-->
-
-    <Grid Canvas.Left="0" Canvas.Top="120" Width="1920" HorizontalAlignment="Stretch">
-      <Grid.ColumnDefinitions>
-        <ColumnDefinition Width="*"/>
-      </Grid.ColumnDefinitions>
-      
-      <StackPanel x:Name="PlayerControls" Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Top">
-
-        <mp_special_controls:PlayerControl x:Name="PrimaryPC" Margin="0,0,10,0" Style="{ThemeResource NewNavigationScreenPlayerControlStyle}" Width="570"
-                HorizontalAlignment="Center" VerticalAlignment="Top"
-                AutoVisibility="True" PlayerContext="PrimaryPlayer"/>
-
-        <mp_special_controls:PlayerControl x:Name="SecondaryPC" Margin="10,0,0,0" Style="{ThemeResource NewNavigationScreenPlayerControlStyle}" Width="570"
-                HorizontalAlignment="Center" VerticalAlignment="Top" 
-                AutoVisibility="True" PlayerContext="SecondaryPlayer"/>
-      </StackPanel>
-    </Grid>
     <Rectangle DockPanel.Dock="Bottom" Fill="#FF000000" Opacity="0.749" Canvas.Left="50" Canvas.Top="340" Width="1824" Height="695" RadiusX="30" RadiusY="30"
         IsVisible="{Binding Source={DynamicResource EnableBackgroundPanel}}"/>
 
@@ -105,8 +87,26 @@ Parameters which have to be accessible by a DynamicResource lookup:
     </Grid>
 
 
-    <Control x:Name="ClientArea" Height="695" Width="1920" Canvas.Left="0" Canvas.Top="340"
+    <Control x:Name="ClientArea" Height="915" Width="1920" Canvas.Left="0" Canvas.Top="120"
              DockPanel.Dock="Center" Template="{DynamicResource ResourceKey=Client_Template}"/>
 
+    <!-- Player controls, located on top but drawn as last item so it overlays other content, if present-->
+
+    <Grid Canvas.Left="0" Canvas.Top="120" Width="1920" HorizontalAlignment="Stretch">
+      <Grid.ColumnDefinitions>
+        <ColumnDefinition Width="*"/>
+      </Grid.ColumnDefinitions>
+
+      <StackPanel x:Name="PlayerControls" Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Top">
+
+        <mp_special_controls:PlayerControl x:Name="PrimaryPC" Margin="0,0,10,0" Style="{ThemeResource NewNavigationScreenPlayerControlStyle}" Width="570"
+                HorizontalAlignment="Center" VerticalAlignment="Top"
+                AutoVisibility="True" PlayerContext="PrimaryPlayer"/>
+
+        <mp_special_controls:PlayerControl x:Name="SecondaryPC" Margin="10,0,0,0" Style="{ThemeResource NewNavigationScreenPlayerControlStyle}" Width="570"
+                HorizontalAlignment="Center" VerticalAlignment="Top" 
+                AutoVisibility="True" PlayerContext="SecondaryPlayer"/>
+      </StackPanel>
+    </Grid>
   </Canvas>
 </Screen>
