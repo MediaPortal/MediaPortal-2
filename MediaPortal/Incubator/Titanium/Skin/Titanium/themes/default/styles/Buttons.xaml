@@ -194,7 +194,13 @@
   <Style x:Key="HomeButtonControlStyle" TargetType="{x:Type Control}">
     <Setter Property="Template">
       <Setter.Value>
-        <ControlTemplate/>
+        <ControlTemplate>
+          <Border x:Name="HoverGlow" BorderBrush="#4000B7FF" CornerRadius="5" BorderThickness="4" Margin="-8" IsVisible="false"
+              HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+            <Border BorderBrush="#00B7FF" CornerRadius="5" BorderThickness="2" Margin="-6"
+              HorizontalAlignment="Stretch" VerticalAlignment="Stretch"/>
+            </Border>
+        </ControlTemplate>
       </Setter.Value>
     </Setter>
   </Style>
