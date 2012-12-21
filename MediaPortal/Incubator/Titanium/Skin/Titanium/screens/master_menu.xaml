@@ -107,8 +107,8 @@ Parameters which have to be accessible by a DynamicResource lookup:
           </Grid.Triggers>
 
           <Rectangle Fill="{ThemeResource DialogBackgroundBaseColor}" 
-                     RadiusX="30" RadiusY="30" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="0,0,52,0"/>
-          <Rectangle RadiusX="30" RadiusY="30" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="0,0,52,0">
+                     RadiusX="{ThemeResource DialogBorderCornerRadius}" RadiusY="{ThemeResource DialogBorderCornerRadius}" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="0,0,52,0"/>
+          <Rectangle RadiusX="{ThemeResource DialogBorderCornerRadius}" RadiusY="{ThemeResource DialogBorderCornerRadius}" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="0,0,52,0">
             <Rectangle.Fill>
               <LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0">
                 <GradientStop Color="{ThemeResource DialogBackgroundGradient1Color}"/>
@@ -117,7 +117,7 @@ Parameters which have to be accessible by a DynamicResource lookup:
             </Rectangle.Fill>
           </Rectangle>
 
-          <ListView x:Name="MainMenu" Style="{ThemeResource HiddenMenuListViewStyle}" Margin="20,10,70,10"
+          <ListView x:Name="MainMenu" Style="{ThemeResource MenuListViewStyle}" Margin="20,10,70,10"
               HorizontalAlignment="Stretch" VerticalAlignment="Stretch" SetFocusPrio="Default"
               ItemsSource="{Binding Source={StaticResource MenuModel},Path=MenuItems,Mode=OneTime}"
               IsEnabled="False">

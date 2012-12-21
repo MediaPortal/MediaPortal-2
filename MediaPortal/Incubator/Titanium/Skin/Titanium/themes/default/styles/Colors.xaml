@@ -27,14 +27,7 @@
     </RadialGradientBrush>
   </ResourceWrapper>
 
-  <ResourceWrapper x:Key="DialogHeaderBackgroundBrush">
-    <LinearGradientBrush StartPoint="0.5,0" EndPoint="0.5,1">
-      <GradientStop Offset="0"    Color="#40000000"/>
-      <GradientStop Offset="0.85" Color="#E0000000"/>
-      <GradientStop Offset="0.9"  Color="#A0E0E0E0"/>
-      <GradientStop Offset="0.95" Color="#A0000000"/>
-    </LinearGradientBrush >
-  </ResourceWrapper>
+  <ResourceWrapper x:Key="DialogHeaderBackgroundBrush"/>
 
   <ResourceWrapper x:Key="ReflexionBorderStroke">
     <LinearGradientBrush StartPoint="0,0.5" EndPoint="1,0.5">
@@ -46,19 +39,19 @@
   </ResourceWrapper>
 
 
-  <ResourceWrapper x:Key="DialogBackgroundBaseColor" Resource="#C0D2D2D2"/>
-  <ResourceWrapper x:Key="DialogBackgroundGradient1Color" Resource="#FFFFFFFF"/>
-  <ResourceWrapper x:Key="DialogBackgroundGradient2Color" Resource="#94939393"/>
+  <ResourceWrapper x:Key="DialogBackgroundBaseColor" Resource="#B0D2D2D2"/>
+  <ResourceWrapper x:Key="DialogBackgroundGradient1Color" Resource="#E0FFFFFF"/>
+  <ResourceWrapper x:Key="DialogBackgroundGradient2Color" Resource="#E0939393"/>
 
   <ResourceWrapper x:Key="DialogBorderGradient1Color" Resource="#40505050"/>
   <ResourceWrapper x:Key="DialogBorderGradient2Color" Resource="#A0808080"/>
   <ResourceWrapper x:Key="DialogBorderGradient3Color" Resource="#40505050"/>
 
-  <ResourceWrapper x:Key="DialogHeaderColor" Resource="#FFF0F0F0"/>
+  <ResourceWrapper x:Key="DialogHeaderColor" Resource="#393939"/>
 
   <ResourceWrapper x:Key="TextColor" Resource="White"/>
 
-  <ResourceWrapper x:Key="HiddenMenuTextColor" Resource="#393939"/>
+  <ResourceWrapper x:Key="MenuTextColor" Resource="#393939"/>
   
   <ResourceWrapper x:Key="HomeNonFocusedColor" Resource="#6B6A6A"/>
 
