@@ -75,10 +75,12 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="..\..\Source\Core\MediaPortal.Common\VersionInfo\VersionInfo.cs">      <Link>Properties\VersionInfo.cs</Link>
+    <Compile Include="..\..\Source\Core\MediaPortal.Common\VersionInfo\VersionInfo.cs">
+      <Link>Properties\VersionInfo.cs</Link>
     </Compile>
     <Compile Include="Extensions\ProgramExample.cs" />
-    <Compile Include="Helpers\FormatHelper.cs" />    <Compile Include="Helpers\ChannelProgramListItem.cs" />
+    <Compile Include="Helpers\FormatHelper.cs" />
+    <Compile Include="Helpers\ChannelProgramListItem.cs" />
     <Compile Include="Helpers\ProgramListItem.cs" />
     <Compile Include="Helpers\ProgramProperties.cs" />
     <Compile Include="Helpers\ResourceHelper.cs" />
@@ -582,6 +584,7 @@
     </Content>
   </ItemGroup>
   <ItemGroup>
+    <Content Include="Skin\Titanium\themes\default\styles\ProgramInfoSlim.inc" />
     <Content Include="Skin\Reflexion\themes\default\styles\ProgramInfoSlim.inc" />
     <Content Include="Skin\RisingSkin\themes\Silver\styles\SlimTvStyles.xaml">
       <SubType>Designer</SubType>
@@ -599,6 +602,16 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="Skin\Reflexion\themes\default\styles\SlimTvConsts.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Skin\Titanium\themes\default\styles\SlimTvConsts.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Skin\Titanium\themes\default\styles\SlimTvStyles.xaml">
       <SubType>Designer</SubType>
     </Content>
   </ItemGroup>
