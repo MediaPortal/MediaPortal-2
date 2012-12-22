@@ -117,7 +117,7 @@
       
       <!-- Item label -->
       <Label Grid.Row="1" Grid.Column="0" x:Name="ItemLabel" HorizontalAlignment="Center" VerticalAlignment="Bottom"  Content="{Binding [Name]}" 
-             FontSize="{ThemeResource BigFontSize}" FontFamily="TitanBold" Color="{ThemeResource HomeNonFocusedColor}"/>
+             FontSize="{ThemeResource BigFontSize}" FontFamily="Titan" Color="{ThemeResource HomeNonFocusedColor}"/>
     </Grid>
   </DataTemplate>
 

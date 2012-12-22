@@ -46,19 +46,29 @@ Parameters which have to be accessible by a DynamicResource lookup:
       </Grid.RowDefinitions>
       <Grid.ColumnDefinitions>
         <ColumnDefinition Width="*"/> <!-- NavBar -->
-        <ColumnDefinition Width="Auto"/> <!-- NavBar -->
+        <ColumnDefinition Width="Auto"/> <!-- Weather -->
+        <ColumnDefinition Width="Auto"/> <!-- Time -->
       </Grid.ColumnDefinitions>
 
       <mp_special_controls:WorkflowNavigationBar Grid.Column="0" Grid.Row="0" Style="{ThemeResource NewWorkflowNavigationBarStyle}"
             VerticalAlignment="Center" Margin="40,0,0,0"/>
 
-      <Label x:Name="TimeLabel" Content="{Binding Source={StaticResource TimeModel}, Path=CurrentTime}" Grid.Column="1" Grid.Row="0" Margin="0,10,40,0"
+      <Image Grid.Row="0" Grid.Column="1" x:Name="SmallIcon" Source="{Binding Source={StaticResource CurrentWeatherModel}, Path=CurrentLocation.Condition.SmallIconProperty}" 
+                 IsVisible="{Binding UseInHome}" HorizontalAlignment="Right" Margin="0,0,-40,0"/>
+      
+      <Label x:Name="TimeLabel" Content="{Binding Source={StaticResource TimeModel}, Path=CurrentTime}" Grid.Column="2" Grid.Row="0" Margin="0,10,40,0"
              FontSize="{ThemeResource HeaderFontSize}" FontFamily="TitanBold"
              Color="{ThemeResource PlaylistItemColor}" VerticalAlignment="Center" HorizontalAlignment="Right"/>
 
-      <Label x:Name="DateLabel" Content="{Binding Source={StaticResource TimeModel}, Path=CurrentDate}" Grid.Column="1" Grid.Row="1" Margin="0,0,40,0"
-             FontSize="{ThemeResource DialogTitleFontSize}" FontFamily="TitanBold"
-             Color="{ThemeResource PlaylistItemColor}" VerticalAlignment="Center" HorizontalAlignment="Right"/>
+      <StackPanel Orientation="Horizontal" Grid.Column="1" Grid.Row="1" Grid.ColumnSpan="2" Margin="0,0,40,0">
+        <Label x:Name="DateLabel" Content="{Binding Source={StaticResource TimeModel}, Path=CurrentDate}" FontFamily="TitanBold"
+               Color="{ThemeResource PlaylistItemColor}" VerticalAlignment="Center" HorizontalAlignment="Right"/>
+        <Label x:Name="PlaceHolder" Content=" / " FontFamily="TitanBold" Color="{ThemeResource PlaylistItemColor}" 
+               VerticalAlignment="Center" HorizontalAlignment="Right"/>
+        <Label x:Name="Temp" Content="{Binding Source={StaticResource CurrentWeatherModel}, Path=CurrentLocation.Condition.Temperature}"
+               FontFamily="TitanBold" Color="{ThemeResource PlaylistItemColor}" IsVisible="{Binding UseInHome}"
+               VerticalAlignment="Center" HorizontalAlignment="Right"/>
+      </StackPanel>
 
     </Grid>    <!-- HeaderPanel -->
 
