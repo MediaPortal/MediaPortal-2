@@ -29,10 +29,24 @@ using System.Xml;
 
 namespace MediaPortal.Database.MySQL
 {
-  public class MySQLSettings
+  /// <summary>
+  /// Settings reader class for the MySQL settings.
+  /// </summary>
+  /// <remarks>
+  /// We're using an own settings reader instead of using the MP2 settings API here by design. Reason is that those database
+  /// settings are very elemental for the server start. The XML file makes sense because of two reasons:
+  /// <list type="bullet">
+  /// <item>With this approach, we can provide a settings file which is already present before the first server start.
+  /// That setting file can be filled with the actual DB settings before the server is started the first time.</item>
+  /// <item>The MySQL settings don't need to be changed often. In fact, they will be edited once, at the first install.
+  /// At this time, we have admin rights anyway, so it isn't a problem that the settings are located in our plugin directory.</item>
+  /// </list>
+  /// </remarks>
+  public static class MySQLSettingsReader
   {
     private const int DEFAULT_MAX_PACKETSIZE = 10 * 1024 * 1024;
-    public static bool Read(ref string server, ref string username, ref string password, ref string database, ref int maxPacketSize)
+
+    public static void Read(out string server, out string username, out string password, out string database, out int maxPacketSize)
     {
       try
       {
@@ -46,12 +60,11 @@ namespace MediaPortal.Database.MySQL
           database = reader.GetAttribute("Database");
           maxPacketSize = int.Parse(reader.GetAttribute("maxPacketSize") ?? DEFAULT_MAX_PACKETSIZE.ToString());
           reader.Close();
-          return true;
         }
       }
-      catch (Exception)
+      catch (Exception e)
       {
-        return false;
+        throw new ApplicationException("Cannot read database connection settings from MySQLSettings.xml!", e);
       }
     }
   }

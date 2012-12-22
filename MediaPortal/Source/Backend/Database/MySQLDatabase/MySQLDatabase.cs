@@ -55,8 +55,7 @@ namespace MediaPortal.Database.MySQL
 
     public MySQLDatabase()
     {
-      if (!MySQLSettings.Read(ref _server, ref _username, ref _password, ref _dbSchema, ref _maxPacketSize))
-        throw new ApplicationException("Cannot read database connection settings from MySQLSettings.xml!");
+      MySQLSettingsReader.Read(out _server, out _username, out _password, out _dbSchema, out _maxPacketSize);
 
       _connectionString = string.Format("server={0};User Id={1};password={2};", _server, _username, _password);
       
