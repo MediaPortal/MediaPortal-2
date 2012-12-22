@@ -33,6 +33,9 @@ Parameters which have to be accessible by a DynamicResource lookup:
     mp_special_workflow:WorkflowContext.StateSlot="Root"
     x:Name="DialogScreen"
     >
+  <Screen.Resources>
+    <Model x:Key="MouseModel" Id="CA6428A7-A6E2-4dd3-9661-F89CEBAF8E62"/>
+  </Screen.Resources>
   <Screen.Triggers>
     <EventTrigger RoutedEvent="Screen.Show">
       <EventTrigger.Actions>
@@ -78,7 +81,7 @@ Parameters which have to be accessible by a DynamicResource lookup:
             <Grid x:Name="DialogHeaderGrid" Grid.Column="0" Grid.Row="0" Margin="5" HorizontalAlignment="Stretch">
               <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*"/>
-                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="60"/>
               </Grid.ColumnDefinitions>
               <Grid.RowDefinitions>
                 <RowDefinition Height="Auto"/>
@@ -87,7 +90,8 @@ Parameters which have to be accessible by a DynamicResource lookup:
                 Content="{Binding Source={DynamicResource Dialog_Header_Text},Path=Resource}" Color="{ThemeResource DialogHeaderColor}"
                 VerticalAlignment="Center" HorizontalAlignment="Left"/>
               <Button x:Name="CloseButton" Grid.Column="1" Grid.Row="0" Style="{ThemeResource DialogCloseButtonStyle}" Margin="0,0,10,0"
-                Command="{Command Source={Service ScreenManager},Path=CloseTopmostDialog}"/>
+                  Command="{Command Source={Service ScreenManager},Path=CloseTopmostDialog}" 
+                  IsVisible="{Binding Source={StaticResource MouseModel},Path=IsMouseUsed}" />
             </Grid>
           </Grid>
               
