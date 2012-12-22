@@ -9,5 +9,7 @@ Default background image - no media present
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     x:Name="DefaultBackgroundScreen"
     >
-  <StackPanel Background="{ThemeResource BackgroundBrush}"/>
+  <StackPanel Background="{ThemeResource BackgroundBrush}">
+    <Image Source="fanart_overlay.png" />
+  </StackPanel>
 </Screen>
