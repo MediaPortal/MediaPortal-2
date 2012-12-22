@@ -1,0 +1,33 @@
+<Screen
+    xmlns="www.team-mediaportal.com/2008/mpf/directx"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    >
+  <DockPanel LastChildFill="True">
+    <Label DockPanel.Dock="Top" HorizontalAlignment="Center"
+        Content="OpacityMask tests"
+        Color="{ThemeResource TextColor}" Wrap="True"/>
+    <Label DockPanel.Dock="Top" HorizontalAlignment="Center"
+        Content="This screen shows a rectangle, an image and the rectangle that uses the image as Opacity mask. Expected result is a red rounded rectangle in 2nd row."
+        Wrap="True" FontSize="{ThemeResource SmallFontSize}"
+        Color="{ThemeResource TextColor}"/>
+    <Grid DockPanel.Dock="Center">
+      <Grid.ColumnDefinitions>
+        <ColumnDefinition Width="600"/>
+        <ColumnDefinition Width="600"/>
+      </Grid.ColumnDefinitions>
+      <Grid.RowDefinitions>
+        <RowDefinition Height="Auto"/>
+        <RowDefinition Height="Auto"/>
+      </Grid.RowDefinitions>
+      
+      <Rectangle Grid.Column="0" Grid.Row="0" Fill="Blue" Width="595" Height="240" Margin="10" />
+      <Image Grid.Column="1" Grid.Row="0" Source="homebutton_mask.png" Margin="10"/>
+
+      <Rectangle Grid.Column="0" Grid.Row="1" Fill="Red" Width="595" Height="240" Margin="10">
+        <Rectangle.OpacityMask>
+          <ImageBrush ImageSource="homebutton_mask.png" />
+        </Rectangle.OpacityMask>
+      </Rectangle>
+    </Grid>
+  </DockPanel>
+</Screen>

@@ -52,6 +52,9 @@
             <Button Style="{StaticResource ButtonWideStyle}" Content="Text wrapping test"
                 HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
                 Command="{Command Source={StaticResource Model},Path=ShowScreenInTransientState,Parameters=test-textwrapping}"/>
+            <Button Style="{StaticResource ButtonWideStyle}" Content="Opacity mask test (ImageBrush)"
+                HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+                Command="{Command Source={StaticResource Model},Path=ShowScreenInTransientState,Parameters=test-opacitymask-image}"/>
           </StackPanel>
         </UniformGrid>
       </DockPanel>
