@@ -97,7 +97,7 @@
   <string name="Players.FocusPlayer">Focus {0}</string> <!-- for example "Focus video player" -->
   <string name="Players.SwitchPipPlayers">Switch PiP players</string>
   <string name="Players.ChooseAudioStream">Choose audio stream</string>
-  <string name="Players.PlayerSlotAudioMenu">Audio menu for {0}</string> <!-- for example "Audio menu for Lammbock" -->
+  <string name="Players.PlayerAudioMenu">Audio menu for {0}</string> <!-- for example "Audio menu for Lammbock" -->
   <string name="Players.Mute">Mute</string>
   <string name="Players.MuteOff">Mute off</string>
   <string name="Players.ClosePlayerContext">Close {0}</string> <!-- for example "Close video player" -->

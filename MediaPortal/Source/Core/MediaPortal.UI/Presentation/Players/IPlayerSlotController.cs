@@ -27,42 +27,15 @@ using MediaPortal.Common.MediaManagement;
 
 namespace MediaPortal.UI.Presentation.Players
 {
-  /// <summary>
-  /// State indicator for the playback state of a player slot.
-  /// This state is a complement to the current player's state.
-  /// </summary>
-  public enum PlayerSlotState
-  {
-    /// <summary>
-    /// The player context is inactive and doesn't contain any relevant information. The current player is <c>null</c>.
-    /// </summary>
-    Inactive,
-
-    /// <summary>
-    /// The player context is active. The playback state can be read from current player's <see cref="IPlayer.State"/>.
-    /// </summary>
-    Playing,
-
-    /// <summary>
-    /// The player context is active but stopped. There is no current player.
-    /// </summary>
-    Stopped
-  }
-
-  public delegate void SlotStateChangedDlgt(IPlayerSlotController slotController, PlayerSlotState slotState);
+  public delegate void ClosedDlgt(IPlayerSlotController slotController);
 
   /// <summary>
-  /// Player slot controller for a player in a player slot of the <see cref="IPlayerManager"/>.
+  /// Player slot controller for a player of the <see cref="IPlayerManager"/>.
   /// The player slot controller maintains the state of each player slot and exposes context variables, which can contain
   /// user defined data like a playlist, the player's aspect ratio or additional information about a currently
   /// viewed TV channel, for example.
   /// </summary>
   /// <remarks>
-  /// <para>
-  /// This player slot can adopt similar play states as the player (see <see cref="PlayerSlotState"/>). Mostly, the
-  /// states of player and its player slot controller correspond to each other, but the states can differ in case
-  /// when the player is exchanged (for example because of a playlist advance).<br/>
-  /// </para>
   /// <para>
   /// This component is multithreading safe. To synchronize multithread access, this instance uses the
   /// <see cref="IPlayerManager.SyncObj"/> instance.
@@ -71,15 +44,10 @@ namespace MediaPortal.UI.Presentation.Players
   public interface IPlayerSlotController
   {
     /// <summary>
-    /// Synchronous event which gets fired when the slot state (<see cref="PlayerSlotState"/>) changes. In the event handler,
-    /// no other locks than the player manager's <see cref="IPlayerManager.SyncObj"/> must be raised!
+    /// Synchronous event which gets fired when this player slot controller is closed. In the event handler,
+    /// no other locks than the player manager's <see cref="IPlayerManager.SyncObj"/> must be acquired!
     /// </summary>
-    event SlotStateChangedDlgt SlotStateChanged;
-
-    /// <summary>
-    /// Returns the index of the slot which is controlled by this slot controller.
-    /// </summary>
-    int SlotIndex { get; }
+    event ClosedDlgt Closed;
 
     /// <summary>
     /// Returns the information if this player slot is the audio slot. In this case, will play the audio signal,
@@ -97,27 +65,17 @@ namespace MediaPortal.UI.Presentation.Players
     bool IsMuted { get; }
 
     /// <summary>
-    /// Gets or sets the volume for the current player slot. This will set the volume for the current player
-    /// (if available) and all future players of this slot until it is changed again.
+    /// Gets or sets the volume coefficient which will be applied to the main <see cref="IPlayerManager.Volume"/> for
+    /// this current player slot. This offset will be applied to the current player (if available) and all future
+    /// players of this slot until this slot controller is closed or until the offset is changed again.
     /// </summary>
-    int Volume { get; set; }
+    float VolumeCoefficient { get; set; }
 
     /// <summary>
-    /// Returns the information if this player slot is activated.
-    /// Only active slots can play media content.
+    /// Returns the information if this player slot is closed.
+    /// A closed slot cannot play content nor can it be reactivated.
     /// </summary>
-    bool IsActive { get; }
-
-    /// <summary>
-    /// Returns a sequence number which gets incremented when the player slot gets activated. This is necessary to
-    /// be able to detect obsolete player messages.
-    /// </summary>
-    uint ActivationSequence { get; }
-
-    /// <summary>
-    /// Gets the playback state of this player slot.
-    /// </summary>
-    PlayerSlotState PlayerSlotState { get; }
+    bool IsClosed { get; }
 
     /// <summary>
     /// Gets the player playing the current item of this player slot.
@@ -129,6 +87,9 @@ namespace MediaPortal.UI.Presentation.Players
     /// Returns a (key; value) mapping of all context variables in this player slot. Changing the returned dictionary will
     /// change the context variables.
     /// </summary>
+    /// <remarks>
+    /// The access to the returned dictionary should be synchronized using the <see cref="IPlayerManager.SyncObj"/>.
+    /// </remarks>
     IDictionary<string, object> ContextVariables { get; }
 
     /// <summary>
@@ -142,15 +103,7 @@ namespace MediaPortal.UI.Presentation.Players
     bool Play(MediaItem mediaItem, StartTime startTime);
 
     /// <summary>
-    /// Sets the given <paramref name="player"/> as current player and starts it.
-    /// </summary>
-    /// <param name="player">The player to be set as current player.</param>
-    void Play(IPlayer player);
-
-    /// <summary>
-    /// Stops the player of this player slot. This won't deactivate this slot, but the current player
-    /// will be released, if it is active.
-    /// Calling this method will set the <see cref="PlayerSlotState"/> to <see cref="Players.PlayerSlotState.Stopped"/>.
+    /// Stops the player of this player slot, i.e. releases it.
     /// </summary>
     void Stop();
 

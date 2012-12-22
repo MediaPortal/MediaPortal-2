@@ -311,11 +311,11 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
 
     protected override bool BeginRenderBrushOverride(PrimitiveBuffer primitiveContext, RenderContext renderContext)
     {
-      IPlayerManager playerManager = ServiceRegistration.Get<IPlayerManager>(false);
-      if (playerManager == null)
+      IPlayerContextManager playerContextManager = ServiceRegistration.Get<IPlayerContextManager>(false);
+      if (playerContextManager == null)
         return false;
 
-      ISlimDXVideoPlayer player = playerManager[Stream] as ISlimDXVideoPlayer;
+      ISlimDXVideoPlayer player = playerContextManager[Stream] as ISlimDXVideoPlayer;
       if (player == null) 
         return false;
 

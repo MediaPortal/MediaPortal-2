@@ -81,8 +81,8 @@ namespace MediaPortal.UiComponents.Media.Actions
         PlayerManagerMessaging.MessageType messageType = (PlayerManagerMessaging.MessageType) message.MessageType;
         switch (messageType)
         {
-          case PlayerManagerMessaging.MessageType.PlayerSlotActivated:
-          case PlayerManagerMessaging.MessageType.PlayerSlotDeactivated:
+          case PlayerManagerMessaging.MessageType.PlayerSlotStarted:
+          case PlayerManagerMessaging.MessageType.PlayerSlotClosed:
             Update();
             break;
         }
@@ -113,8 +113,7 @@ namespace MediaPortal.UiComponents.Media.Actions
             displayTitleRes = Consts.RES_SHOW_AUDIO_PLAYLIST;
             break;
           case AVType.Video:
-            displayTitleRes = pc.PlayerSlotController.SlotIndex == PlayerManagerConsts.PRIMARY_SLOT ?
-                Consts.RES_SHOW_VIDEO_IMAGE_PLAYLIST : Consts.RES_SHOW_PIP_PLAYLIST;
+            displayTitleRes = pc.IsPrimaryPlayerContext ? Consts.RES_SHOW_VIDEO_IMAGE_PLAYLIST : Consts.RES_SHOW_PIP_PLAYLIST;
             break;
           default:
             // Unknown player context type

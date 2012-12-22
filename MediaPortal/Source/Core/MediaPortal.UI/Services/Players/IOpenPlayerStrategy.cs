@@ -23,7 +23,6 @@
 #endregion
 
 using System;
-using System.Collections.Generic;
 using MediaPortal.UI.Presentation.Players;
 
 namespace MediaPortal.UI.Services.Players
@@ -34,35 +33,29 @@ namespace MediaPortal.UI.Services.Players
     /// Prepares a new audio player. The arrangement of slots and the configuration of the audio slot and current player will be done according to this
     /// strategy.
     /// </summary>
-    /// <param name="playerManager">The player manager.</param>
-    /// <param name="playerContexts">List of active player contexts. The order of the player contexts will be from <see cref="PlayerManagerConsts.PRIMARY_SLOT"/>
-    /// to <see cref="PlayerManagerConsts.SECONDARY_SLOT"/>.</param>
+    /// <param name="playerManager">Player manager instance.</param>
+    /// <param name="playerContextManager">Player context manager instance.</param>
     /// <param name="concurrentVideo">If set to <c>true</c>, an already active video player will continue to play muted.
-    /// If set to <c>false</c>, an active video player context will be deactivated.</param>
-    /// <param name="mediaModuleId">Id of the requesting media module. The caller will stick the new player context to the specified module.</param>
-    /// <param name="slotController">Returns the slot controller which was prepared.</param>
-    /// <param name="audioSlotIndex">Returns the index of the audio slot to be set according to this strategy.</param>
-    /// <param name="currentPlayerIndex">Returns the index of the current player to be set according to this strategy.</param>
-    void PrepareAudioPlayer(IPlayerManager playerManager, IList<IPlayerContext> playerContexts, bool concurrentVideo, Guid mediaModuleId,
-        out IPlayerSlotController slotController, ref int audioSlotIndex, ref int currentPlayerIndex);
+    ///   If set to <c>false</c>, an active video player context will be deactivated.</param>
+    /// <param name="currentPlayerSlotIndex"></param>
+    IPlayerSlotController PrepareAudioPlayerSlotController(IPlayerManager playerManager, PlayerContextManager playerContextManager,
+        bool concurrentVideo, out int currentPlayerSlotIndex);
 
     /// <summary>
     /// Prepares a new video player. The arrangement of slots and the configuration of the audio slot and current player will be done according to this
     /// strategy.
     /// </summary>
-    /// <param name="playerManager">The player manager.</param>
-    /// <param name="playerContexts">List of active player contexts. The order of the player contexts will be from <see cref="PlayerManagerConsts.PRIMARY_SLOT"/>
-    /// to <see cref="PlayerManagerConsts.SECONDARY_SLOT"/>.</param>
+    /// <param name="playerManager">Player manager instance.</param>
+    /// <param name="playerContextManager">Player context manager instance.</param>
     /// <param name="concurrencyMode">If set to <see cref="PlayerContextConcurrencyMode.ConcurrentAudio"/>, an already
-    /// active audio player will continue to play and the new video player context will be muted.
-    /// If set to <see cref="PlayerContextConcurrencyMode.ConcurrentVideo"/>, an already active audio player context will be
-    /// deactivated while an already active video player context will continue to play. If a video player context was
-    /// available, the video players will be arranged according to the configured open player strategy.</param>
-    /// <param name="mediaModuleId">Id of the requesting media module. The caller will stick the new player context to the specified module.</param>
-    /// <param name="slotController">Returns the slot controller which was prepared.</param>
-    /// <param name="audioSlotIndex">Returns the index of the audio slot to be set according to this strategy.</param>
-    /// <param name="currentPlayerIndex">Returns the index of the current player to be set according to this strategy.</param>
-    void PrepareVideoPlayer(IPlayerManager playerManager, IList<IPlayerContext> playerContexts, PlayerContextConcurrencyMode concurrencyMode, Guid mediaModuleId,
-        out IPlayerSlotController slotController, ref int audioSlotIndex, ref int currentPlayerIndex);
+    ///   active audio player will continue to play and the new video player context will be muted.
+    ///   If set to <see cref="PlayerContextConcurrencyMode.ConcurrentVideo"/>, an already active audio player context will be
+    ///   deactivated while an already active video player context will continue to play. If a video player context was
+    ///   available, the video players will be arranged according to the configured open player strategy.</param>
+    /// <param name="makePrimaryPlayer"></param>
+    /// <param name="audioPlayerSlotIndex"></param>
+    /// <param name="currentPlayerSlotIndex"></param>
+    IPlayerSlotController PrepareVideoPlayerSlotController(IPlayerManager playerManager, PlayerContextManager playerContextManager,
+        PlayerContextConcurrencyMode concurrencyMode, out bool makePrimaryPlayer, out int audioPlayerSlotIndex, out int currentPlayerSlotIndex);
   }
 }

@@ -37,10 +37,8 @@ using MediaPortal.UI.Services.Players.Settings;
 
 namespace MediaPortal.UI.Services.Players
 {
-  internal delegate void PlayerSlotWorkerInternalDelegate(PlayerSlotController slotController);
-
   /// <summary>
-  /// Management class for player builder registrations and active players.
+  /// Management class for player builder registrations and active players. Implements the <see cref="IPlayerManager"/> service.
   /// </summary>
   public class PlayerManager : IPlayerManager
   {
@@ -100,7 +98,8 @@ namespace MediaPortal.UI.Services.Players
 
     protected IPluginItemStateTracker _playerBuilderPluginItemStateTracker;
     protected PlayerBuilderRegistrationChangeListener _playerBuilderRegistrationChangeListener;
-    internal PlayerSlotController[] _slots;
+    internal IList<PlayerSlotController> _slots;
+    internal PlayerSlotController _audioPlayerSlotController = null;
 
     /// <summary>
     /// Maps player builder plugin item ids to player builders.
@@ -118,10 +117,7 @@ namespace MediaPortal.UI.Services.Players
 
     public PlayerManager()
     {
-      _slots = new PlayerSlotController[] {
-          new PlayerSlotController(this, PlayerManagerConsts.PRIMARY_SLOT),
-          new PlayerSlotController(this, PlayerManagerConsts.SECONDARY_SLOT)
-      };
+      _slots = new List<PlayerSlotController>();
 
       // Albert, 2010-12-06: It's too difficult to revoke a player builder. We cannot guarantee that no player of that
       // player builder is currently in use by other threads, so we simply don't allow to revoke them by using a FixedItemStateTracker.
@@ -194,20 +190,25 @@ namespace MediaPortal.UI.Services.Players
     }
 
     /// <summary>
-    /// Iterates synchronously over all player slot controllers (active and inactive). No lock is being requested so if
-    /// a lock is needed, this should be done outside or inside the <paramref name="execute"/> worker.
+    /// Iterates synchronously over all active player slot controllers. No lock is requested during the given <paramref name="action"/>
+    /// so if a lock is needed for the action, this should be done outside or inside the <paramref name="action"/> worker.
     /// </summary>
-    /// <param name="execute"></param>
-    internal void ForEachInternal(PlayerSlotWorkerInternalDelegate execute)
+    /// <param name="action">Action to be executed.</param>
+    internal void ForEachInternal(Action<PlayerSlotController> action)
     {
-      foreach (PlayerSlotController psc in _slots)
+      ICollection<PlayerSlotController> slots;
+      lock (_syncObj)
+        slots = new List<PlayerSlotController>(_slots);
+      foreach (PlayerSlotController psc in slots)
         try
         {
-          execute(psc);
+          if (psc.IsClosed)
+            continue;
+          action(psc);
         }
         catch (Exception e)
         {
-          ServiceRegistration.Get<ILogger>().Error("Problem executing batch action for player slot controller {0}", e, psc.SlotIndex);
+          ServiceRegistration.Get<ILogger>().Error("Problem executing batch action for player slot controller", e);
         }
     }
 
@@ -249,13 +250,6 @@ namespace MediaPortal.UI.Services.Players
 
     #endregion
 
-    protected void CleanupSlotOrder()
-    {
-      lock (_syncObj)
-        if (!_slots[PlayerManagerConsts.PRIMARY_SLOT].IsActive && _slots[PlayerManagerConsts.SECONDARY_SLOT].IsActive)
-          SwitchSlots();
-    }
-
     /// <summary>
     /// Tries to build a player for the given <paramref name="mediaItem"/>.
     /// </summary>
@@ -285,14 +279,6 @@ namespace MediaPortal.UI.Services.Players
       return null;
     }
 
-    internal PlayerSlotController GetPlayerSlotControllerInternal(int slotIndex)
-    {
-      if (slotIndex < 0 || slotIndex > 1)
-        return null;
-      lock (_syncObj)
-        return _slots[slotIndex];
-    }
-
     #endregion
 
     #region IPlayerManager implementation
@@ -307,56 +293,7 @@ namespace MediaPortal.UI.Services.Players
       get
       {
         lock (_syncObj)
-          return _slots.Count(psc => psc.IsActive);
-      }
-    }
-
-    public IPlayer this[int slotIndex]
-    {
-      get
-      {
-        lock (_syncObj)
-        {
-          PlayerSlotController psc = GetPlayerSlotControllerInternal(slotIndex);
-          if (psc == null)
-            return null;
-          return psc.IsActive ? psc.CurrentPlayer : null;
-        }
-      }
-    }
-
-    public int AudioSlotIndex
-    {
-      get
-      {
-        lock (_syncObj)
-          for (int i = 0; i < 2; i++)
-          {
-            PlayerSlotController psc = _slots[i];
-            if (psc.IsActive && psc.IsAudioSlot)
-              return i;
-          }
-        return -1;
-      }
-      set
-      {
-        lock (_syncObj)
-        {
-          int oldAudioSlotIndex = AudioSlotIndex;
-          if (oldAudioSlotIndex == value)
-            return;
-          PlayerSlotController currentAudioSlot = oldAudioSlotIndex == -1 ? null : _slots[oldAudioSlotIndex];
-          PlayerSlotController newAudioSlot = GetPlayerSlotControllerInternal(value);
-          if (newAudioSlot == null)
-            return;
-          if (!newAudioSlot.IsActive)
-            // Don't move the audio slot to an inactive player slot
-            return;
-          if (currentAudioSlot != null)
-            currentAudioSlot.IsAudioSlot = false;
-          // Message will be sent by the next command
-          newAudioSlot.IsAudioSlot = true;
-        }
+          return _slots.Count;
       }
     }
 
@@ -373,8 +310,7 @@ namespace MediaPortal.UI.Services.Players
           ForEachInternal(psc =>
             {
               // Locking is done outside
-              if (psc.IsActive)
-                psc.IsMuted = _isMuted;
+              psc.IsMuted = _isMuted;
             });
           PlayerManagerMessaging.SendPlayerManagerPlayerMessage(_isMuted ?
               PlayerManagerMessaging.MessageType.PlayersMuted :
@@ -403,63 +339,47 @@ namespace MediaPortal.UI.Services.Players
           settings.Volume = _volume;
           settingsManager.Save(settings);
         }
-        ForEachInternal(psc =>
-          {
-            // Lock is acquired outside
-            if (psc.IsActive)
-              psc.Volume = vol;
-          });
+        ForEachInternal(psc => psc.CheckAudio_NoLock());
         PlayerManagerMessaging.SendPlayerManagerPlayerMessage(PlayerManagerMessaging.MessageType.VolumeChanged);
       }
     }
 
-    public IPlayerSlotController GetPlayerSlotController(int slotIndex)
+    public IPlayerSlotController AudioSlotController
     {
-      return GetPlayerSlotControllerInternal(slotIndex);
-    }
-
-    public bool OpenSlot(out int slotIndex, out IPlayerSlotController slotController)
-    {
-      slotIndex = -1;
-      slotController = null;
-      lock (_syncObj)
+      get { return _slots.FirstOrDefault(psc => psc.IsAudioSlot); }
+      set
       {
-        // Find a free slot
-        if (!_slots[PlayerManagerConsts.PRIMARY_SLOT].IsActive)
-          slotIndex = PlayerManagerConsts.PRIMARY_SLOT;
-        else if (!_slots[PlayerManagerConsts.SECONDARY_SLOT].IsActive)
-          slotIndex = PlayerManagerConsts.SECONDARY_SLOT;
-        else
-          return false;
-        return ResetSlot(slotIndex, out slotController);
+        PlayerSlotController audioSlotController = (PlayerSlotController) AudioSlotController;
+        if (audioSlotController == value)
+          return;
+        if (audioSlotController != null)
+          audioSlotController.IsAudioSlot = false;
+        audioSlotController = value as PlayerSlotController;
+        if (audioSlotController != null)
+          audioSlotController.IsAudioSlot = true;
       }
     }
 
-    public bool ResetSlot(int slotIndex, out IPlayerSlotController slotController)
+    public ICollection<IPlayerSlotController> PlayerSlotControllers
     {
-      slotController = null;
-      if (slotIndex == PlayerManagerConsts.SECONDARY_SLOT && !_slots[PlayerManagerConsts.PRIMARY_SLOT].IsActive)
-        // This is the only invalid constellation because it is not allowed to have the secondary slot active while the primary slot is inactive
-        return false;
+      get { return _slots.Cast<IPlayerSlotController>().ToList(); }
+    }
+
+    public IPlayerSlotController OpenSlot()
+    {
       // We don't set a lock because the IsActive property must be set outside the lock. It is no very good solution
       // to avoid the lock completely but I'll risk it here. Concurrent accesses to the player manager should be avoided
       // by organizational means.
-      PlayerSlotController psc = _slots[slotIndex];
-      if (psc.IsActive)
-        psc.IsActive = false; // Must be done outside the lock
-      psc.IsActive = true;
-      psc.IsMuted = _isMuted;
-      psc.Volume = _volume;
-      psc.IsAudioSlot = false;
-      if (AudioSlotIndex == -1)
-        AudioSlotIndex = slotIndex;
-      slotController = psc;
-      return true;
-    }
-
-    public void CloseSlot(int slotIndex)
-    {
-      CloseSlot(GetPlayerSlotControllerInternal(slotIndex));
+      PlayerSlotController result = new PlayerSlotController(this)
+        {
+            IsMuted = _isMuted,
+            IsAudioSlot = false
+        };
+      if (AudioSlotController == null)
+        result.IsAudioSlot = true;
+      lock (SyncObj)
+        _slots.Add(result);
+      return result;
     }
 
     public void CloseSlot(IPlayerSlotController playerSlotController)
@@ -467,44 +387,34 @@ namespace MediaPortal.UI.Services.Players
       PlayerSlotController psc = playerSlotController as PlayerSlotController;
       if (psc == null)
         return;
-      bool isAudio = psc.IsActive && psc.IsAudioSlot;
-      psc.IsActive = false; // Must be done outside the lock
-      CleanupSlotOrder();
-      if (isAudio)
-        AudioSlotIndex = PlayerManagerConsts.PRIMARY_SLOT;
+      bool isAudio = psc.IsAudioSlot && !psc.IsClosed;
+      PlayerSlotController nextPsc;
+      lock (_syncObj)
+      {
+        int nextIndex = _slots.IndexOf(psc);
+        _slots.Remove(psc);
+        int numSlots = _slots.Count;
+        nextIndex = numSlots == 0 ? 0 : (nextIndex + 1) % numSlots;
+        nextPsc = numSlots > nextIndex ? _slots[nextIndex] : null;
+      }
+      psc.Close_NoLock(); // Must be done outside the lock
+      if (isAudio && nextPsc != null)
+        nextPsc.IsAudioSlot = true;
     }
 
     public void CloseAllSlots()
     {
       bool muted = Muted;
-      // Avoid switching the sound to the other slot for a short time, in case we close the audio slot first
+      // Avoid switching the sound to the other slot for a short time, in case we close the audio slot when another slot is still available
       Muted = true;
-      foreach (PlayerSlotController psc in _slots)
-        psc.IsActive = false; // Must be done outside the lock
-      // The audio slot property is stored in the slot instances itself and thus doesn't need to be updated here
+      ForEachInternal(CloseSlot);
+      // The IsAudioSlot property is stored in the slot instances itself and thus doesn't need to be updated here
       Muted = muted;
     }
 
-    public void SwitchSlots()
+    public void ForEach(Action<IPlayerSlotController> action)
     {
-      lock (_syncObj)
-      {
-        if (!_slots[PlayerManagerConsts.SECONDARY_SLOT].IsActive)
-          // Don't move an inactive player slot to the primary slot index
-          return;
-        PlayerSlotController tmp = _slots[PlayerManagerConsts.PRIMARY_SLOT];
-        _slots[PlayerManagerConsts.PRIMARY_SLOT] = _slots[PlayerManagerConsts.SECONDARY_SLOT];
-        _slots[PlayerManagerConsts.SECONDARY_SLOT] = tmp;
-        for (int i = 0; i < 2; i++)
-          _slots[i].SlotIndex = i;
-        // Audio slot index changes automatically as it is stored in the slot instance itself
-        PlayerManagerMessaging.SendPlayerManagerPlayerMessage(PlayerManagerMessaging.MessageType.PlayerSlotsChanged);
-      }
-    }
-
-    public void ForEach(PlayerSlotWorkerDelegate execute)
-    {
-      ForEachInternal(psc => execute(psc));
+      ForEachInternal(action);
     }
 
     public void VolumeUp()

@@ -29,6 +29,7 @@ using MediaPortal.Common.Localization;
 using MediaPortal.UI.Presentation.Players;
 using MediaPortal.UI.Presentation.Workflow;
 using MediaPortal.UiComponents.SkinBase.General;
+using MediaPortal.UiComponents.SkinBase.Models;
 
 namespace MediaPortal.UiComponents.SkinBase.Actions
 {
@@ -86,8 +87,8 @@ namespace MediaPortal.UiComponents.SkinBase.Actions
             (PlayerManagerMessaging.MessageType) message.MessageType;
         switch (messageType)
         {
-          case PlayerManagerMessaging.MessageType.PlayerSlotActivated:
-          case PlayerManagerMessaging.MessageType.PlayerSlotDeactivated:
+          case PlayerManagerMessaging.MessageType.PlayerSlotStarted:
+          case PlayerManagerMessaging.MessageType.PlayerSlotClosed:
             Update();
             break;
         }
@@ -98,8 +99,8 @@ namespace MediaPortal.UiComponents.SkinBase.Actions
     {
       bool oldVisible = _isVisible;
 
-      IPlayerManager playerManager = ServiceRegistration.Get<IPlayerManager>();
-      _isVisible = playerManager.NumActiveSlots > 0;
+      IPlayerContextManager playerContextManager = ServiceRegistration.Get<IPlayerContextManager>();
+      _isVisible = playerContextManager.NumActivePlayerContexts > 0;
       if (oldVisible != _isVisible)
         FireStateChanged();
     }
@@ -142,8 +143,7 @@ namespace MediaPortal.UiComponents.SkinBase.Actions
 
     public void Execute()
     {
-      IWorkflowManager workflowManager = ServiceRegistration.Get<IWorkflowManager>();
-      workflowManager.NavigatePush(Consts.WF_STATE_ID_PLAYER_CONFIGURATION_DIALOG);
+      PlayerConfigurationDialogModel.OpenPlayerConfigurationDialog();
     }
 
     #endregion

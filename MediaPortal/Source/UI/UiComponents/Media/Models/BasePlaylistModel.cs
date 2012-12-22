@@ -115,7 +115,7 @@ namespace MediaPortal.UiComponents.Media.Models
       return false;
     }
 
-    protected void UpdatePlaylistHeader(AVType? avType, int slotIndex)
+    protected void UpdatePlaylistHeader(AVType? avType, bool isPrimary)
     {
       if (!avType.HasValue)
       {
@@ -128,8 +128,7 @@ namespace MediaPortal.UiComponents.Media.Models
           PlaylistHeader = Consts.RES_AUDIO_PLAYLIST;
           break;
         case AVType.Video:
-          PlaylistHeader = slotIndex == PlayerManagerConsts.PRIMARY_SLOT ?
-              Consts.RES_VIDEO_IMAGE_PLAYLIST : Consts.RES_PIP_PLAYLIST;
+          PlaylistHeader = isPrimary ? Consts.RES_VIDEO_IMAGE_PLAYLIST : Consts.RES_PIP_PLAYLIST;
           break;
         default:
           // Unknown player context type

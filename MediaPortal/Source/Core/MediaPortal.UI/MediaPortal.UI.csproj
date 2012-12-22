@@ -114,7 +114,7 @@
     <Compile Include="Presentation\Players\IUIContributorPlayer.cs" />
     <Compile Include="Presentation\Players\IChapterPlayer.cs" />
     <Compile Include="Presentation\Players\PlayerContextManagerMessaging.cs" />
-    <Compile Include="Presentation\Players\PlayerManagerConsts.cs" />
+    <Compile Include="Presentation\Players\PlayerContextIndex.cs" />
     <Compile Include="Presentation\Players\PlayerManagerMessaging.cs" />
     <Compile Include="Presentation\Players\PlaylistMessaging.cs" />
     <Compile Include="Presentation\Screens\DialogCloseWatcher.cs" />

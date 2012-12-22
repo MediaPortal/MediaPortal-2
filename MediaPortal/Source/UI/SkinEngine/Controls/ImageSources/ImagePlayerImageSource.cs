@@ -109,14 +109,14 @@ namespace MediaPortal.UI.SkinEngine.Controls.ImageSources
 
     public override void Allocate()
     {
-      IPlayerManager playerManager = ServiceRegistration.Get<IPlayerManager>(false);
-      if (playerManager == null)
+      IPlayerContextManager playerContextManager = ServiceRegistration.Get<IPlayerContextManager>(false);
+      if (playerContextManager == null)
       {
         FreeData();
         return;
       }
 
-      ISlimDXImagePlayer player = playerManager[Stream] as ISlimDXImagePlayer;
+      ISlimDXImagePlayer player = playerContextManager[Stream] as ISlimDXImagePlayer;
       if (player == null) 
       {
         FreeData();

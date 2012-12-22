@@ -152,15 +152,14 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
         if (isRunning)
         {
           _programActions.Add(new ListItem(Consts.KEY_NAME, loc.ToString("[SlimTvClient.WatchNow]"))
-                                {
-                                  Command =
-                                    new MethodDelegateCommand(() =>
-                                                                {
-                                                                  IChannel channel;
-                                                                  if (_tvHandler.ProgramInfo.GetChannel(program, out channel))
-                                                                    _tvHandler.StartTimeshift(PlayerManagerConsts.PRIMARY_SLOT, channel);
-                                                                })
-                                });
+              {
+                Command = new MethodDelegateCommand(() =>
+                    {
+                      IChannel channel;
+                      if (_tvHandler.ProgramInfo.GetChannel(program, out channel))
+                        _tvHandler.StartTimeshift(PlayerContextIndex.PRIMARY, channel);
+                    })
+              });
         }
 
         if (_tvHandler.ScheduleControl != null)

@@ -139,6 +139,7 @@ namespace MediaPortal.UI.SkinEngine.GUI
       _messageQueue = new AsynchronousMessageQueue(this, new string[]
         {
             PlayerManagerMessaging.CHANNEL,
+            PlayerContextManagerMessaging.CHANNEL,
         });
       _messageQueue.MessageReceived += OnMessageReceived;
       _messageQueue.Start();
@@ -154,23 +155,38 @@ namespace MediaPortal.UI.SkinEngine.GUI
           case PlayerManagerMessaging.MessageType.PlayerStarted:
           case PlayerManagerMessaging.MessageType.PlayerStopped:
           case PlayerManagerMessaging.MessageType.PlayerEnded:
-          case PlayerManagerMessaging.MessageType.PlayerSlotsChanged:
-            {
-              IPlayerManager playerManager = ServiceRegistration.Get<IPlayerManager>();
-              ISlimDXVideoPlayer player = playerManager[PlayerManagerConsts.PRIMARY_SLOT] as ISlimDXVideoPlayer;
-              UpdateVideoPlayerState(player);
-              SynchronizeToVideoPlayerFramerate(player);
-              break;
-            }
+            HandlePlayerChange();
+            break;
           case PlayerManagerMessaging.MessageType.PlaybackStateChanged:
-            {
-              IPlayerManager playerManager = ServiceRegistration.Get<IPlayerManager>();
-              ISlimDXVideoPlayer player = playerManager[PlayerManagerConsts.PRIMARY_SLOT] as ISlimDXVideoPlayer;
-              UpdateVideoPlayerState(player);
-              break;
-            }
+            HandlePlaybackStateChanged();
+            break;
         }
       }
+      else if (message.ChannelName == PlayerContextManagerMessaging.CHANNEL)
+      {
+        PlayerContextManagerMessaging.MessageType messageType = (PlayerContextManagerMessaging.MessageType) message.MessageType;
+        switch (messageType)
+        {
+          case PlayerContextManagerMessaging.MessageType.PlayerSlotsChanged:
+            HandlePlayerChange();
+            break;
+        }
+      }
+    }
+
+    private void HandlePlayerChange()
+    {
+      IPlayerContextManager playerContextManager = ServiceRegistration.Get<IPlayerContextManager>();
+      ISlimDXVideoPlayer player = playerContextManager[PlayerContextIndex.PRIMARY] as ISlimDXVideoPlayer;
+      UpdateVideoPlayerState(player);
+      SynchronizeToVideoPlayerFramerate(player);
+    }
+
+    private void HandlePlaybackStateChanged()
+    {
+      IPlayerContextManager playerContextManager = ServiceRegistration.Get<IPlayerContextManager>();
+      ISlimDXVideoPlayer player = playerContextManager[PlayerContextIndex.PRIMARY] as ISlimDXVideoPlayer;
+      UpdateVideoPlayerState(player);
     }
 
     /// <summary>
@@ -558,9 +574,8 @@ namespace MediaPortal.UI.SkinEngine.GUI
         bool wasScreenSaverActive = _isScreenSaverActive;
         if (_isScreenSaverEnabled)
         {
-          IPlayerManager playerManager = ServiceRegistration.Get<IPlayerManager>();
           IPlayerContextManager playerContextManager = ServiceRegistration.Get<IPlayerContextManager>();
-          IPlayer primaryPlayer = playerManager[PlayerManagerConsts.PRIMARY_SLOT];
+          IPlayer primaryPlayer = playerContextManager[PlayerContextIndex.PRIMARY];
           IMediaPlaybackControl mbc = primaryPlayer as IMediaPlaybackControl;
           bool preventScreenSaver = ((primaryPlayer is IVideoPlayer || primaryPlayer is IImagePlayer) && (mbc == null || !mbc.IsPaused)) ||
               playerContextManager.IsFullscreenContentWorkflowStateActive;

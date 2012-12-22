@@ -47,9 +47,10 @@ namespace MediaPortal.UI.Services.Players
 
     protected volatile bool _closeWhenFinished = false;
     protected volatile MediaItem _currentMediaItem = null;
+    protected volatile bool _isCurrentPlayerContext = false;
+    protected volatile bool _isPrimaryPlayerContext = false;
 
     protected IPlayerSlotController _slotController;
-    protected readonly PlayerContextManager _contextManager;
     protected readonly IPlaylist _playlist;
     protected readonly Guid _mediaModuleId;
     protected readonly string _name;
@@ -61,13 +62,11 @@ namespace MediaPortal.UI.Services.Players
 
     #region Ctor
 
-    internal PlayerContext(PlayerContextManager contextManager, IPlayerSlotController slotController,
-        Guid mediaModuleId, string name, AVType type,
+    internal PlayerContext(IPlayerSlotController slotController, Guid mediaModuleId, string name, AVType type,
         Guid currentlyPlayingWorkflowStateId, Guid fullscreenContentWorkflowStateId)
     {
-      _contextManager = contextManager;
       _slotController = slotController;
-      _slotController.SlotStateChanged += OnSlotStateChanged;
+      _slotController.Closed += OnClosed;
       SetContextVariable(KEY_PLAYER_CONTEXT, this);
       _playlist = new Playlist(this);
       _mediaModuleId = mediaModuleId;
@@ -77,17 +76,16 @@ namespace MediaPortal.UI.Services.Players
       _fullscreenContentWorkflowStateId = fullscreenContentWorkflowStateId;
     }
 
-    public void Dispose()
-    {
-      Reset();
-    }
-
     #endregion
 
-    private void OnSlotStateChanged(IPlayerSlotController slotController, PlayerSlotState slotState)
+    public void Dispose()
     {
-      if (slotState == PlayerSlotState.Inactive)
-        Dispose();
+      Revoke();
+    }
+
+    private void OnClosed(IPlayerSlotController slotController)
+    {
+      Revoke();
     }
 
     protected static object SyncObj
@@ -105,7 +103,7 @@ namespace MediaPortal.UI.Services.Players
       if (psc == null)
         return null;
       lock (SyncObj)
-        return psc.IsActive ? psc.CurrentPlayer : null;
+        return psc.IsClosed ? null : psc.CurrentPlayer;
     }
 
     protected bool DoPlay_NoLock(MediaItem mediaItem, StartTime startTime)
@@ -120,7 +118,7 @@ namespace MediaPortal.UI.Services.Players
       IPlayerSlotController psc = _slotController;
       if (psc == null)
         return false;
-      return psc.IsActive && psc.Play(mediaItem, startTime);
+      return !psc.IsClosed && psc.Play(mediaItem, startTime);
     }
 
     internal bool RequestNextItem_NoLock()
@@ -158,7 +156,7 @@ namespace MediaPortal.UI.Services.Players
       IPlayerManager playerManager = ServiceRegistration.Get<IPlayerManager>();
       lock (playerManager.SyncObj)
       {
-        if (!psc.IsActive)
+        if (psc.IsClosed)
           return null;
         object result;
         if (psc.ContextVariables.TryGetValue(KEY_PLAYER_CONTEXT, out result))
@@ -169,7 +167,7 @@ namespace MediaPortal.UI.Services.Players
 
     #region IPlayerContext implementation
 
-    public bool IsValid
+    public bool IsActive
     {
       get { return _slotController != null; }
     }
@@ -182,6 +180,18 @@ namespace MediaPortal.UI.Services.Players
     public AVType AVType
     {
       get { return _type; }
+    }
+
+    public bool IsCurrentPlayerContext
+    {
+      get { return _isCurrentPlayerContext; }
+      internal set { _isCurrentPlayerContext = value; }
+    }
+
+    public bool IsPrimaryPlayerContext
+    {
+      get { return _isPrimaryPlayerContext; }
+      internal set { _isPrimaryPlayerContext = value; }
     }
 
     public IPlaylist Playlist
@@ -341,7 +351,7 @@ namespace MediaPortal.UI.Services.Players
       lock (SyncObj)
       {
         object result;
-        if (IsValid && _slotController.ContextVariables.TryGetValue(key, out result))
+        if (IsActive && _slotController.ContextVariables.TryGetValue(key, out result))
           return result;
       }
       return null;
@@ -527,17 +537,17 @@ namespace MediaPortal.UI.Services.Players
       }
     }
 
-    public void Reset()
+    public IPlayerSlotController Revoke()
     {
       lock (SyncObj)
       {
         IPlayerSlotController slotController = _slotController;
-        if (slotController == null)
-          return;
-        slotController.SlotStateChanged -= OnSlotStateChanged;
-        if (slotController.IsActive)
-          ResetContextVariable(KEY_PLAYER_CONTEXT);
         _slotController = null;
+        if (slotController == null)
+          return null;
+        slotController.Closed -= OnClosed;
+        ResetContextVariable(KEY_PLAYER_CONTEXT);
+        return slotController;
       }
     }
 

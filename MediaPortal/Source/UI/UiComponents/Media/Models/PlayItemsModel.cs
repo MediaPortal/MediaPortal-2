@@ -216,8 +216,7 @@ namespace MediaPortal.UiComponents.Media.Models
     /// <param name="item">Media item to be played.</param>
     public static void PlayItem(MediaItem item)
     {
-      IPlayerManager playerManager = ServiceRegistration.Get<IPlayerManager>();
-      playerManager.CloseSlot(PlayerManagerConsts.SECONDARY_SLOT);
+      CloseSecondaryPlayerContext();
       PlayOrEnqueueItem(item, true, PlayerContextConcurrencyMode.None);
     }
 
@@ -249,8 +248,7 @@ namespace MediaPortal.UiComponents.Media.Models
     /// <param name="avType">AV type of media items returned.</param>
     public static void PlayItems(GetMediaItemsDlgt getMediaItemsFunction, AVType avType)
     {
-      IPlayerManager playerManager = ServiceRegistration.Get<IPlayerManager>();
-      playerManager.CloseSlot(PlayerManagerConsts.SECONDARY_SLOT);
+      CloseSecondaryPlayerContext();
       PlayOrEnqueueItems(getMediaItemsFunction, avType, true, PlayerContextConcurrencyMode.None);
     }
 
@@ -282,6 +280,14 @@ namespace MediaPortal.UiComponents.Media.Models
     #endregion
 
     #region Protected members
+
+    protected static void CloseSecondaryPlayerContext()
+    {
+      IPlayerContextManager playerContextManager = ServiceRegistration.Get<IPlayerContextManager>();
+      IPlayerContext pcSecondary = playerContextManager.SecondaryPlayerContext;
+      if (pcSecondary != null)
+        pcSecondary.Close();
+    }
 
     protected static void CompletePlayOrEnqueue(IPlayerContext pc, bool play)
     {
@@ -361,8 +367,8 @@ namespace MediaPortal.UiComponents.Media.Models
         return;
       }
       _playMenuItems = new ItemsList();
-      int numAudio = pcm.NumPlayerContextsOfType(AVType.Audio);
-      int numVideo = pcm.NumPlayerContextsOfType(AVType.Video);
+      int numAudio = pcm.GetPlayerContextsByAVType(AVType.Audio).Count();
+      int numVideo = pcm.GetPlayerContextsByAVType(AVType.Video).Count();
       switch (avType)
       {
         case AVType.Audio:
@@ -482,8 +488,8 @@ namespace MediaPortal.UiComponents.Media.Models
       }
       _playMenuItems = new ItemsList();
       AVType avType = pcm.GetTypeOfMediaItem(item);
-      int numAudio = pcm.NumPlayerContextsOfType(AVType.Audio);
-      int numVideo = pcm.NumPlayerContextsOfType(AVType.Video);
+      int numAudio = pcm.GetPlayerContextsByAVType(AVType.Audio).Count();
+      int numVideo = pcm.GetPlayerContextsByAVType(AVType.Video).Count();
       switch (avType)
       {
         case AVType.Audio:

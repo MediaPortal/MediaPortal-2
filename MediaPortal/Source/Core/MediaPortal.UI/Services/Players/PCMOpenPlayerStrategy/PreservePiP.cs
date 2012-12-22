@@ -22,7 +22,6 @@
 
 #endregion
 
-using System;
 using System.Collections.Generic;
 using MediaPortal.UI.Presentation.Players;
 
@@ -36,36 +35,38 @@ namespace MediaPortal.UI.Services.Players.PCMOpenPlayerStrategy
   /// </summary>
   public class PreservePiP : Default
   {
-    public override void PrepareVideoPlayer(IPlayerManager playerManager, IList<IPlayerContext> playerContexts, PlayerContextConcurrencyMode concurrencyMode, Guid mediaModuleId,
-        out IPlayerSlotController slotController, ref int audioSlotIndex, ref int currentPlayerIndex)
+    public override IPlayerSlotController PrepareVideoPlayerSlotController(IPlayerManager playerManager, PlayerContextManager playerContextManager,
+        PlayerContextConcurrencyMode concurrencyMode, out bool makePrimaryPlayer, out int audioPlayerSlotIndex, out int currentPlayerSlotIndex)
     {
-        int numActive = playerContexts.Count;
+        int numActive = playerContextManager.NumActivePlayerContexts;
         switch (concurrencyMode)
         {
           case PlayerContextConcurrencyMode.ConcurrentVideo:
-            if (numActive >= 1 && playerContexts[0].AVType == AVType.Video)
+            IList<IPlayerContext> playerContexts = playerContextManager.PlayerContexts;
+            if (numActive >= 1 && playerContexts[PlayerContextIndex.PRIMARY].AVType == AVType.Video)
             { // The primary slot is a video player slot
+              IPlayerSlotController result;
               if (numActive == 1)
               {
-                int slotIndex;
-                playerManager.OpenSlot(out slotIndex, out slotController);
-                playerManager.SwitchSlots();
+                result = playerManager.OpenSlot();
+                makePrimaryPlayer = true;
               }
               else // numActive > 1
               {
-                IPlayerContext pc = playerContexts[0];
-                pc.Reset(); // Necessary to reset the player context to disable the auto close function (pc.CloseWhenFinished)
-                playerManager.ResetSlot(PlayerManagerConsts.PRIMARY_SLOT, out slotController);
+                IPlayerContext pc = playerContexts[PlayerContextIndex.PRIMARY];
+                result = pc.Revoke(); // Necessary to revoke the player context to disable the auto close function (pc.CloseWhenFinished)
+                makePrimaryPlayer = true;
               }
 
-              audioSlotIndex = PlayerManagerConsts.PRIMARY_SLOT;
-              currentPlayerIndex = PlayerManagerConsts.PRIMARY_SLOT;
-              return;
+              audioPlayerSlotIndex = PlayerContextIndex.PRIMARY;
+              currentPlayerSlotIndex = PlayerContextIndex.PRIMARY;
+              return result;
             }
             break;
         }
-      // All other cases are the same as in the default player open strategy
-      base.PrepareVideoPlayer(playerManager, playerContexts, concurrencyMode, mediaModuleId, out slotController, ref audioSlotIndex, ref currentPlayerIndex);
+      // All other cases are handled the same as in the default player open strategy
+      return base.PrepareVideoPlayerSlotController(playerManager, playerContextManager, concurrencyMode, out makePrimaryPlayer,
+          out audioPlayerSlotIndex, out currentPlayerSlotIndex);
     }
   }
 }

@@ -109,41 +109,45 @@ namespace MediaPortal.UI.Presentation.Players
   }
 
   /// <summary>
-  /// Management service for active players and their integration into the UI.
+  /// Management service for active players and their integration into the UI. This service handles player contexts.
   /// </summary>
   /// <remarks>
   /// <para>
   /// Media modules (like Audio, Video, Image, TV, Radio) can initiate and access player contexts,
-  /// which are specially created for them. The player context manager service manages all those player contexts,
+  /// which are specially connected to them. The player context manager service manages all those player contexts,
   /// tracks their player state and manages UI workflow states relating to active players.
-  /// The separation of player context initiator (= media plugin) and player context manager
-  /// (= <see cref="IPlayerContextManager"/>) is necessary, because players also need to run while the
+  /// The transfer of the responsibility for the UI workflow state tracking from the actual media module to the
+  /// player context manager is necessary, because players also need to run while the
   /// media modules possibly don't have the active control over them.<br/>
   /// The typical separation of roles is like this:<br/>
-  /// The media module initiates one or more player contexts. It doesn't need to track its player contexts, because
-  /// it is always possible to find the player contexts of the media module by its media module id again (by calling
+  /// The media module initiates one or more player contexts. It doesn't need to track its player contexts;
+  /// it is always possible to find the player contexts of the media module by its media module id (by calling
   /// <see cref="GetPlayerContextsByMediaModuleId"/>).
   /// The player context manager will track two current media workflow states for each player context: The workflow
   /// state for a "fullscreen content" state and the workflow state for a "currently playing" workflow state.
+  /// The meaning of those two states should be complied to but the media module is responsible to provide appropriate
+  /// workflow states.
   /// The player context manager will automatically switch between states, if necessary
   /// (for example when the primary and secondary players are switched, the fullscreen content workflow state needs
-  /// to be exchanged). It will also automatically pop those workflow states from the workflow navigation stack, if
-  /// the corresponding player context is closed.
-  /// The player context manager tracks player context activity states (like <see cref="IsAudioPlayerActive"/> and
+  /// to be exchanged if different fullscreen content workflow states are used for primary and secondary players).
+  /// It will also automatically pop those workflow states from the workflow navigation stack, if the corresponding
+  /// player context gets closed.
+  /// The player context manager tracks player context activity states (like <see cref="IsAudioContextActive"/> and
   /// <see cref="IsPipActive"/>), takes care of automatic playlist advance and closes player contexts automatically,
   /// if necessary.
-  /// Media modules should use this service interface to manage their player contexts instead of using the
-  /// basic <see cref="IPlayerManager"/> API itself.
+  /// Media modules should use this service interface to manage players which are integrated into the main UI instead
+  /// of using the basic <see cref="IPlayerManager"/> API itself. If there are special needs, for example a video wall
+  /// with more than two players with different meanings, the player manager's API can be used directly.
   /// </para>
   /// <para>
   /// <b>Functionality:</b><br/>
-  /// While the <see cref="IPlayerManager"/> deals with primary and secondary player slots, this service
-  /// provides a more abstract view for the client, it deals with typed player contexts and playlists.
+  /// Built on the functionality of the <see cref="IPlayerManager"/>, the player context manager presents a more
+  /// abstract view for the client, it deals with two (primary and secondary) typed player contexts and their playlists.
   /// The functionality of this component is comprehensive, it deals with the collectivity of all players, in contrast
-  /// to the <see cref="IPlayerManager"/>'s functionality which is mostly focused to single technical player slots.
+  /// to the <see cref="IPlayerManager"/>'s functionality which is mostly focused to single technical player slot controllers.
   /// This service manages and solves player conflicts (like two audio players at the same time) automatically by
-  /// simply closing an old player when a new conflicting player is opened. Non-conflicting players can be played
-  /// concurrently.
+  /// simply closing an old player when a new conflicting player is opened. Non-conflicting players (e.g. video
+  /// players) can be played concurrently.
   /// The technical target player slot (primary/secondary) of a given <see cref="IPlayerContext"/>
   /// is managed almost transparently for the client. There is a rare number of cases where the client needs to cope
   /// with the set-up of primary and secondary players, for example when two video players are running, one of them as
@@ -156,32 +160,43 @@ namespace MediaPortal.UI.Presentation.Players
   /// </para>
   /// <para>
   /// <b>Thread-Safety:</b><br/>
-  /// This class can be called from multiple threads. It synchronizes thread access to its fields via the
-  /// <see cref="IPlayerManager.SyncObj"/> instance, which is also exposed by the <see cref="SyncObj"/> property for
-  /// convenience. Player context manager messages are sent asynchronously to clients via the
-  /// message channel of name <see cref="PlayerContextManagerMessaging.CHANNEL"/>.
+  /// Methods of this class can be called from multiple threads. It synchronizes thread access to its fields via the
+  /// <see cref="IPlayerManager.SyncObj"/> instance, which is also exposed by the <see cref="SyncObj"/> property of the
+  /// player context manager service for convenience. Player context manager messages are sent asynchronously to
+  /// clients via the message channel of name <see cref="PlayerContextManagerMessaging.CHANNEL"/>.
   /// </para>
   /// </remarks>
   public interface IPlayerContextManager
   {
     /// <summary>
     /// Returns the player manager's synchronization object to synchronize thread access on this instance.
-    /// This is a convenience property for getting the player manager's synchronization object.
+    /// This is a convenience property for getting the player manager's <see cref="IPlayerManager.SyncObj"/>.
     /// </summary>
     object SyncObj { get; }
 
     /// <summary>
-    /// Returns the information if there is already an audio player active.
+    /// Gets a list of all available player contexts in ascending slot index order (<see cref="PlayerContextIndex.PRIMARY"/>,
+    /// <see cref="PlayerContextIndex.SECONDARY"/>).
     /// </summary>
-    bool IsAudioPlayerActive { get; }
+    /// <remarks>
+    /// The number of active player slot controllers managed by the <see cref="IPlayerManager"/> might be bigger than
+    /// the size of the returned list because the player context manager only returns those players which are used for
+    /// primery and secondary UI players.
+    /// </remarks>
+    IList<IPlayerContext> PlayerContexts { get; }
 
     /// <summary>
-    /// Returns the information if there is already a video (V or AV) player active.
+    /// Returns the information if there is already an active player context of type <see cref="AVType.Audio"/>.
     /// </summary>
-    bool IsVideoPlayerActive { get; }
+    bool IsAudioContextActive { get; }
 
     /// <summary>
-    /// Returns the information if a secondary player is running in PiP mode.
+    /// Returns the information if there is already an active player context of type <see cref="AVType.Video"/>.
+    /// </summary>
+    bool IsVideoContextActive { get; }
+
+    /// <summary>
+    /// Returns the information if there's a secondary video player is running in PiP mode.
     /// </summary>
     bool IsPipActive { get; }
 
@@ -202,24 +217,43 @@ namespace MediaPortal.UI.Presentation.Players
     /// </summary>
     /// <remarks>
     /// If there is one player active, that player is the current player and this property will return the index
-    /// of that player slot (<see cref="PlayerManagerConsts.PRIMARY_SLOT"/>). If no player is active at the moment,
+    /// of that player slot (<see cref="PlayerContextIndex.PRIMARY"/>). If no player is active at the moment,
     /// this property returns <c>-1</c>.
     /// </remarks>
     int CurrentPlayerIndex { get; set; }
 
     /// <summary>
-    /// Convenience property for calling <see cref="GetPlayerContext(PlayerChoice)"/> with the parameter
-    /// <see cref="PlayerChoice.CurrentPlayer"/>.
+    /// Gets or sets the player context of the current player, if present. The current player is the player which is controlled
+    /// by the remote control.
     /// </summary>
-    IPlayerContext CurrentPlayerContext { get; }
+    IPlayerContext CurrentPlayerContext { get; set; }
 
     /// <summary>
-    /// Returns the number of active player contexts.
+    /// Gets the primary player context, if present.
+    /// </summary>
+    IPlayerContext PrimaryPlayerContext { get; }
+
+    /// <summary>
+    /// Gets the secondary player context, if present.
+    /// </summary>
+    IPlayerContext SecondaryPlayerContext { get; }
+
+    /// <summary>
+    /// Returns the number of active player contexts (0, 1 or 2).
     /// </summary>
     int NumActivePlayerContexts { get; }
 
     /// <summary>
-    /// Shuts the function of this service down. This is necessary before the player manager gets closed.
+    /// Gets the player at the specified player context index, or <c>null</c>, if there is no player in the slot of the given <paramref name="index"/>.
+    /// </summary>
+    /// <remarks>
+    /// The index to use must be one of <see cref="PlayerContextIndex.PRIMARY"/> or
+    /// <see cref="PlayerContextIndex.SECONDARY"/>.
+    /// </remarks>
+    IPlayer this[int index] { get; }
+
+    /// <summary>
+    /// Shuts this service down. This must be done before the player manager gets closed.
     /// </summary>
     void Shutdown();
 
@@ -240,13 +274,6 @@ namespace MediaPortal.UI.Presentation.Players
     /// <returns>Player context instance or <c>null</c>, if the specified slot isn't active at the moment or
     /// has no player context assigned.</returns>
     IPlayerContext GetPlayerContext(int slotIndex);
-
-    /// <summary>
-    /// Returns the number of player contexts playing the specified <paramref name="avType"/>.
-    /// </summary>
-    /// <param name="avType">Type of the player contexts to search.</param>
-    /// <returns>Number of player contexts, will be in the range 0-2.</returns>
-    int NumPlayerContextsOfType(AVType avType);
 
     /// <summary>
     /// Opens an audio player context. This will replace a running audio player context, if present. If a video player is
@@ -296,8 +323,8 @@ namespace MediaPortal.UI.Presentation.Players
     /// After the playlist was filled, the player context can be started.
     /// </para>
     /// <para>
-    /// If the audio signal should be taken from the new video player context, the audio slot index should to be changed
-    /// subsequently to this method (see <see cref="IPlayerManager.AudioSlotIndex"/>).
+    /// If the audio signal should be taken from the new video player context, that should be switched by the means
+    /// of the returned <see cref="IPlayerContext"/> subsequently to the call of this method.
     /// </para>
     /// </remarks>
     /// <param name="mediaModuleId">Id of the requesting media module. The new player context will be sticked to the specified
@@ -330,6 +357,11 @@ namespace MediaPortal.UI.Presentation.Players
     /// <param name="avType">The type of media which is playing in the to-be-returned player contexts.</param>
     /// <returns>Enumeration of player contexts playing the specified <paramref name="avType"/>.</returns>
     IEnumerable<IPlayerContext> GetPlayerContextsByAVType(AVType avType);
+
+    /// <summary>
+    /// Closes all active player contexts.
+    /// </summary>
+    void CloseAllPlayerContexts();
 
     /// <summary>
     /// Switches to the "currently playing" workflow state for the current player.
@@ -372,7 +404,7 @@ namespace MediaPortal.UI.Presentation.Players
 
     /// <summary>
     /// Activates one of the available audio streams. This method might fail if the specified audio stream isn't available
-    /// (any more).
+    /// (any more) or if the underlaying player refuses to play the audio signal.
     /// </summary>
     /// <param name="stream">One of the available audio streams, which were returned by <see cref="GetAvailableAudioStreams"/>.
     /// </param>

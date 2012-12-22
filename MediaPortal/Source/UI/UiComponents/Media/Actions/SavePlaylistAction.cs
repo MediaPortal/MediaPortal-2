@@ -87,8 +87,8 @@ namespace MediaPortal.UiComponents.Media.Actions
         PlayerManagerMessaging.MessageType messageType = (PlayerManagerMessaging.MessageType) message.MessageType;
         switch (messageType)
         {
-          case PlayerManagerMessaging.MessageType.PlayerSlotActivated:
-          case PlayerManagerMessaging.MessageType.PlayerSlotDeactivated:
+          case PlayerManagerMessaging.MessageType.PlayerSlotStarted:
+          case PlayerManagerMessaging.MessageType.PlayerSlotClosed:
             Update();
             break;
         }

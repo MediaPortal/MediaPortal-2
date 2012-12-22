@@ -22,93 +22,99 @@
 
 #endregion
 
-using System;
 using System.Collections.Generic;
 using MediaPortal.UI.Presentation.Players;
 
 namespace MediaPortal.UI.Services.Players.PCMOpenPlayerStrategy
 {
   /// <summary>
-  /// Default strategy for preparing new players. For an understanding of the function, see the code.
+  /// Default strategy for preparing new players. To understand the function, look at the code.
   /// </summary>
   public class Default : IOpenPlayerStrategy
   {
-    public virtual void PrepareAudioPlayer(IPlayerManager playerManager, IList<IPlayerContext> playerContexts, bool concurrentVideo, Guid mediaModuleId,
-        out IPlayerSlotController slotController, ref int audioSlotIndex, ref int currentPlayerIndex)
+    public virtual IPlayerSlotController PrepareAudioPlayerSlotController(IPlayerManager playerManager, PlayerContextManager playerContextManager,
+        bool concurrentVideo, out int currentPlayerSlotIndex)
     {
+      int numActive;
       if (concurrentVideo)
       {
-        int numActive = playerManager.NumActiveSlots;
+        numActive = playerContextManager.NumActivePlayerContexts;
         // Solve conflicts - close conflicting slots
-        if (numActive > 1)
-          playerManager.CloseSlot(PlayerManagerConsts.SECONDARY_SLOT);
-        IPlayerContext pc;
-        if (numActive > 0 && (pc = playerContexts[PlayerManagerConsts.PRIMARY_SLOT]) != null && pc.AVType == AVType.Audio)
-          playerManager.CloseSlot(PlayerManagerConsts.PRIMARY_SLOT);
+        IPlayerContext secondaryPC = playerContextManager.GetPlayerContext(PlayerContextIndex.SECONDARY);
+        if (secondaryPC != null)
+          secondaryPC.Close();
+        IPlayerContext pcPrimary;
+        if (numActive > 0 && (pcPrimary = playerContextManager.GetPlayerContext(PlayerContextIndex.PRIMARY)) != null && pcPrimary.AVType == AVType.Audio)
+          pcPrimary.Close();
       }
       else // !concurrentVideo
         // Don't enable concurrent controllers: Close all except the primary slot controller
-        playerManager.CloseAllSlots();
-      // Open new slot
-      int slotIndex;
-      playerManager.OpenSlot(out slotIndex, out slotController);
-      audioSlotIndex = slotController.SlotIndex;
-      currentPlayerIndex = slotIndex;
+        playerContextManager.CloseAllPlayerContexts();
+      numActive = playerContextManager.NumActivePlayerContexts;
+      currentPlayerSlotIndex = numActive;
+      return playerManager.OpenSlot();
     }
 
-    public virtual void PrepareVideoPlayer(IPlayerManager playerManager, IList<IPlayerContext> playerContexts, PlayerContextConcurrencyMode concurrencyMode, Guid mediaModuleId,
-        out IPlayerSlotController slotController, ref int audioSlotIndex, ref int currentPlayerIndex)
+    public virtual IPlayerSlotController PrepareVideoPlayerSlotController(IPlayerManager playerManager, PlayerContextManager playerContextManager,
+        PlayerContextConcurrencyMode concurrencyMode, out bool makePrimaryPlayer, out int audioPlayerSlotIndex, out int currentPlayerSlotIndex)
     {
-        int numActive = playerContexts.Count;
-        int slotIndex;
-        switch (concurrencyMode)
-        {
-          case PlayerContextConcurrencyMode.ConcurrentAudio:
-            if (numActive > 1 && playerContexts[1].AVType == AVType.Audio)
-            { // The secondary slot is an audio player slot
-              slotIndex = PlayerManagerConsts.PRIMARY_SLOT;
-              IPlayerContext pc = playerContexts[0];
-              pc.Reset(); // Necessary to reset the player context to disable the auto close function (pc.CloseWhenFinished)
-              playerManager.ResetSlot(slotIndex, out slotController);
-              audioSlotIndex = PlayerManagerConsts.SECONDARY_SLOT;
-            }
-            else if (numActive == 1 && playerContexts[0].AVType == AVType.Audio)
-            { // The primary slot is an audio player slot
-              playerManager.OpenSlot(out slotIndex, out slotController);
-              // Make new video slot the primary slot
-              playerManager.SwitchSlots();
-              audioSlotIndex = PlayerManagerConsts.SECONDARY_SLOT;
-            }
-            else
-            { // No audio slot available
-              playerManager.CloseAllSlots();
-              playerManager.OpenSlot(out slotIndex, out slotController);
-              audioSlotIndex = PlayerManagerConsts.PRIMARY_SLOT;
-            }
-            break;
-          case PlayerContextConcurrencyMode.ConcurrentVideo:
-            if (numActive >= 1 && playerContexts[0].AVType == AVType.Video)
-            { // The primary slot is a video player slot
-              if (numActive > 1)
-                playerManager.CloseSlot(PlayerManagerConsts.SECONDARY_SLOT);
-              playerManager.OpenSlot(out slotIndex, out slotController);
-              audioSlotIndex = PlayerManagerConsts.PRIMARY_SLOT;
-            }
-            else
+      IList<IPlayerContext> playerContexts = playerContextManager.PlayerContexts;
+      int numActive = playerContexts.Count;
+      IPlayerSlotController result;
+      switch (concurrencyMode)
+      {
+        case PlayerContextConcurrencyMode.ConcurrentAudio:
+          if (numActive > 1 && playerContexts[PlayerContextIndex.SECONDARY].AVType == AVType.Audio)
+          { // The secondary slot is an audio player slot
+            IPlayerContext playerContext = playerContexts[PlayerContextIndex.PRIMARY];
+            result = playerContext.Revoke();
+            makePrimaryPlayer = true;
+            audioPlayerSlotIndex = PlayerContextIndex.SECONDARY;
+          }
+          else if (numActive == 1 && playerContexts[PlayerContextIndex.PRIMARY].AVType == AVType.Audio)
+          { // The primary slot is an audio player slot
+            result = playerManager.OpenSlot();
+            makePrimaryPlayer = true;
+            audioPlayerSlotIndex = PlayerContextIndex.SECONDARY;
+          }
+          else
+          { // No audio slot available
+            playerContextManager.CloseAllPlayerContexts();
+            result = playerManager.OpenSlot();
+            makePrimaryPlayer = true;
+            audioPlayerSlotIndex = PlayerContextIndex.PRIMARY;
+          }
+          break;
+        case PlayerContextConcurrencyMode.ConcurrentVideo:
+          if (numActive >= 1 && playerContexts[PlayerContextIndex.PRIMARY].AVType == AVType.Video)
+          { // The primary slot is a video player slot
+            if (numActive > 1)
             {
-              playerManager.CloseAllSlots();
-              playerManager.OpenSlot(out slotIndex, out slotController);
-              audioSlotIndex = PlayerManagerConsts.PRIMARY_SLOT;
+              IPlayerContext pcSecondary = playerContextManager.GetPlayerContext(PlayerContextIndex.SECONDARY);
+              pcSecondary.Close();
             }
-            break;
-          default:
-            // Don't enable concurrent controllers: Close all except the primary slot controller
-            playerManager.CloseAllSlots();
-            playerManager.OpenSlot(out slotIndex, out slotController);
-            audioSlotIndex = PlayerManagerConsts.PRIMARY_SLOT;
-            break;
-        }
-      currentPlayerIndex = slotIndex;
+            result = playerManager.OpenSlot();
+            makePrimaryPlayer = false;
+            audioPlayerSlotIndex = PlayerContextIndex.PRIMARY;
+          }
+          else
+          {
+            playerContextManager.CloseAllPlayerContexts();
+            result = playerManager.OpenSlot();
+            makePrimaryPlayer = true;
+            audioPlayerSlotIndex = PlayerContextIndex.PRIMARY;
+          }
+          break;
+        default:
+          // Don't enable concurrent controllers: Close all except the primary slot controller
+          playerContextManager.CloseAllPlayerContexts();
+          result = playerManager.OpenSlot();
+          makePrimaryPlayer = true;
+          audioPlayerSlotIndex = PlayerContextIndex.PRIMARY;
+          break;
+      }
+      currentPlayerSlotIndex = makePrimaryPlayer ? PlayerContextIndex.PRIMARY : PlayerContextIndex.SECONDARY;
+      return result;
     }
   }
 }

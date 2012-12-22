@@ -24,6 +24,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using MediaPortal.Common;
 using MediaPortal.Common.Commands;
 using MediaPortal.Common.Messaging;
@@ -76,7 +77,8 @@ namespace MediaPortal.UiComponents.SkinBase.Models
 
     // Mode 3: Audio menu for a special player slot
     protected bool _inPlayerSlotAudioMenuDialog = false;
-    protected int _playerSlotAudioMenuSlotIndex = 0;
+
+    protected IPlayerContext _playerAudioMenuPlayerContext = null;
     protected bool _showToggleMute = true;
     protected ItemsList _playerSlotAudioMenu = new ItemsList();
     protected string _playerSlotAudioMenuHeader = null;
@@ -129,10 +131,11 @@ namespace MediaPortal.UiComponents.SkinBase.Models
             (PlayerManagerMessaging.MessageType) message.MessageType;
         switch (messageType)
         {
-          case PlayerManagerMessaging.MessageType.PlayerSlotActivated:
-          case PlayerManagerMessaging.MessageType.PlayerSlotDeactivated:
+          case PlayerManagerMessaging.MessageType.PlayerSlotStarted:
+          case PlayerManagerMessaging.MessageType.PlayerSlotClosed:
           case PlayerManagerMessaging.MessageType.PlayerStarted:
           case PlayerManagerMessaging.MessageType.PlayerStopped:
+          case PlayerManagerMessaging.MessageType.PlayerEnded:
           case PlayerManagerMessaging.MessageType.PlayersMuted:
           case PlayerManagerMessaging.MessageType.PlayersResetMute:
             CheckUpdatePlayerConfigurationData();
@@ -146,6 +149,7 @@ namespace MediaPortal.UiComponents.SkinBase.Models
         switch (messageType)
         {
           case PlayerContextManagerMessaging.MessageType.CurrentPlayerChanged:
+          case PlayerContextManagerMessaging.MessageType.PlayerSlotsChanged:
             CheckUpdatePlayerConfigurationData();
             break;
         }
@@ -155,20 +159,17 @@ namespace MediaPortal.UiComponents.SkinBase.Models
     /// <summary>
     /// Gets a name for a player context.
     /// </summary>
-    /// <param name="playerContextManager">Player context manager.</param>
-    /// <param name="playerSlot">Number of the player slot, <c>0</c> to <c>1</c>.</param>
-    /// <returns></returns>
-    protected static string GetNameForPlayerContext(IPlayerContextManager playerContextManager, int playerSlot)
+    /// <param name="playerContext">Player context to return the name for.</param>
+    /// <param name="slotNo">Number of the player slot of the given <paramref name="playerContext"/>.</param>
+    /// <returns>Human readable name for the given <paramref name="playerContext"/>.</returns>
+    protected static string GetNameForPlayerContext(IPlayerContext playerContext, int slotNo)
     {
-      IPlayerContext pc = playerContextManager.GetPlayerContext(playerSlot);
-      if (pc == null)
-        return null;
-      IPlayer player = pc.CurrentPlayer;
+      IPlayer player = playerContext.CurrentPlayer;
       if (player == null)
       {
         IResourceString playerOfType = LocalizationHelper.CreateResourceString(Consts.RES_PLAYER_OF_TYPE); // "{0} player"
-        IResourceString slotNo = LocalizationHelper.CreateResourceString(Consts.RES_SLOT_NO); // "Slot #{0}"
-        return playerOfType.Evaluate(pc.AVType.ToString()) + " (" + slotNo.Evaluate((playerSlot + 1).ToString()) + ")"; // "Video player (Slot #1)"
+        IResourceString slotNoRes = LocalizationHelper.CreateResourceString(Consts.RES_SLOT_NO); // "Slot #{0}"
+        return playerOfType.Evaluate(playerContext.AVType.ToString()) + " (" + slotNoRes.Evaluate((slotNo + 1).ToString()) + ")"; // "Video player (Slot #1)"
       }
       return player.Name + ": " + player.MediaItemTitle;
     }
@@ -180,14 +181,14 @@ namespace MediaPortal.UiComponents.SkinBase.Models
       {
         IPlayerContextManager playerContextManager = ServiceRegistration.Get<IPlayerContextManager>();
         IPlayerManager playerManager = ServiceRegistration.Get<IPlayerManager>();
-        int numActiveSlots = playerManager.NumActiveSlots;
-        IList<string> playerNames = new List<string>(2);
-        for (int i = 0; i < numActiveSlots; i++)
-          playerNames.Add(GetNameForPlayerContext(playerContextManager, i));
+        int numActivePlayers = playerContextManager.NumActivePlayerContexts;
+        int slotNo = 0;
+        IList<IPlayerContext> playerContexts = playerContextManager.PlayerContexts;
+        IList<string> playerNames = new List<string>(playerContexts.Select(pc => GetNameForPlayerContext(pc, slotNo++)));
 
         _playerConfigurationMenu.Clear();
         // Change player focus
-        if (numActiveSlots > 1)
+        if (numActivePlayers > 1)
         {
           // Set player focus
           int newCurrentPlayer = 1 - playerContextManager.CurrentPlayerIndex;
@@ -203,7 +204,7 @@ namespace MediaPortal.UiComponents.SkinBase.Models
           }
         }
         // Switch players
-        if (numActiveSlots > 1 && playerContextManager.IsPipActive)
+        if (numActivePlayers > 1 && playerContextManager.IsPipActive)
         {
           ListItem item = new ListItem(Consts.KEY_NAME, Consts.RES_SWITCH_PIP_PLAYERS)
             {
@@ -214,7 +215,7 @@ namespace MediaPortal.UiComponents.SkinBase.Models
         }
         // Change geometry
         IList<IPlayerContext> videoPCs = new List<IPlayerContext>();
-        for (int i = 0; i < numActiveSlots; i++)
+        for (int i = 0; i < numActivePlayers; i++)
         {
           IPlayerContext pc = playerContextManager.GetPlayerContext(i);
           if (pc != null && pc.CurrentPlayer is IVideoPlayer)
@@ -223,30 +224,28 @@ namespace MediaPortal.UiComponents.SkinBase.Models
         for (int i = 0; i < videoPCs.Count; i++)
         {
           IPlayerContext pc = videoPCs[i];
-          string zoomMode = LocalizationHelper.CreateResourceString(Consts.RES_CHOOSE_PLAYER_GEOMETRY).Evaluate();
+          string geometry = LocalizationHelper.CreateResourceString(Consts.RES_CHOOSE_PLAYER_GEOMETRY).Evaluate();
           string entryName = videoPCs.Count > 1 ?
-              string.Format("{0} ({1})", zoomMode, GetNameForPlayerContext(playerContextManager, i)) : zoomMode;
+              string.Format("{0} ({1})", geometry, GetNameForPlayerContext(pc, i)) : geometry;
           ListItem item = new ListItem(Consts.KEY_NAME, entryName)
             {
               Command = new MethodDelegateCommand(() => OpenChooseGeometryDialog(pc))
             };
           item.AdditionalProperties[Consts.KEY_NAVIGATION_MODE] = NavigationMode.SuccessorDialog;
-          _playerChooseGeometryHeader = entryName;
           _playerConfigurationMenu.Add(item);
         }
         // Change rendering effect
         for (int i = 0; i < videoPCs.Count; i++)
         {
           IPlayerContext pc = videoPCs[i];
-          string zoomMode = LocalizationHelper.CreateResourceString(Consts.RES_CHOOSE_PLAYER_EFFECT).Evaluate();
+          string effect = LocalizationHelper.CreateResourceString(Consts.RES_CHOOSE_PLAYER_EFFECT).Evaluate();
           string entryName = videoPCs.Count > 1 ?
-              string.Format("{0} ({1})", zoomMode, GetNameForPlayerContext(playerContextManager, i)) : zoomMode;
+              string.Format("{0} ({1})", effect, GetNameForPlayerContext(pc, i)) : effect;
           ListItem item = new ListItem(Consts.KEY_NAME, entryName)
           {
             Command = new MethodDelegateCommand(() => OpenChooseEffectDialog(pc))
           };
           item.AdditionalProperties[Consts.KEY_NAVIGATION_MODE] = NavigationMode.SuccessorDialog;
-          _playerChooseEffectHeader = entryName;
           _playerConfigurationMenu.Add(item);
         }
         // Audio streams
@@ -262,7 +261,7 @@ namespace MediaPortal.UiComponents.SkinBase.Models
           _playerConfigurationMenu.Add(item);
         }
         // Mute
-        if (numActiveSlots > 0)
+        if (numActivePlayers > 0)
         {
           ListItem item;
           if (playerManager.Muted)
@@ -279,15 +278,15 @@ namespace MediaPortal.UiComponents.SkinBase.Models
           _playerConfigurationMenu.Add(item);
         }
         // Close player
-        for (int i = 0; i < numActiveSlots; i++)
+        for (int i = 0; i < numActivePlayers; i++)
         {
           string name = playerNames[i];
+          IPlayerContext pc = playerContexts[i];
           if (name != null)
           {
-            int indexClosureCopy = i;
             ListItem item = new ListItem(Consts.KEY_NAME, LocalizationHelper.CreateResourceString(Consts.RES_CLOSE_PLAYER_CONTEXT).Evaluate(name))
               {
-                  Command = new MethodDelegateCommand(() => ClosePlayerContext(indexClosureCopy))
+                  Command = new MethodDelegateCommand(pc.Close)
               };
             _playerConfigurationMenu.Add(item);
           }
@@ -301,13 +300,14 @@ namespace MediaPortal.UiComponents.SkinBase.Models
       // Some updates could be avoided if we tracked a "dirty" flag and break execution if !dirty
       lock (_syncObj)
       {
-        IPlayerManager playerManager = ServiceRegistration.Get<IPlayerManager>();
         IPlayerContextManager playerContextManager = ServiceRegistration.Get<IPlayerContextManager>();
 
         _audioStreamsMenu.Clear();
-        for (int i = 0; i < playerManager.NumActiveSlots; i++)
+        for (int i = 0; i < playerContextManager.NumActivePlayerContexts; i++)
         {
           IPlayerContext pc = playerContextManager.GetPlayerContext(i);
+          if (pc == null || !pc.IsActive)
+            continue;
           IPlayer player = pc.CurrentPlayer;
           AudioStreamDescriptor currentAudioStream;
           IList<AudioStreamDescriptor> asds = new List<AudioStreamDescriptor>(pc.GetAudioStreamDescriptors(out currentAudioStream));
@@ -316,7 +316,7 @@ namespace MediaPortal.UiComponents.SkinBase.Models
             string playedItem = player == null ? null : player.MediaItemTitle ?? pc.Name;
             string choiceItemName;
             if (asds.Count > 1)
-                // Only display the audio stream name if the player has more than one audio stream
+              // Only display the audio stream name if the player has more than one audio stream
               choiceItemName = playedItem + ": " + asd.AudioStreamName;
             else
               choiceItemName = playedItem;
@@ -343,7 +343,12 @@ namespace MediaPortal.UiComponents.SkinBase.Models
         IPlayerContextManager playerContextManager = ServiceRegistration.Get<IPlayerContextManager>();
 
         _playerSlotAudioMenu.Clear();
-        IPlayerContext pc = playerContextManager.GetPlayerContext(_playerSlotAudioMenuSlotIndex);
+        IPlayerContext pc = _playerAudioMenuPlayerContext;
+        if (pc == null || !pc.IsActive)
+        {
+          LeaveAudioMenuWorkflow();
+          return;
+        }
         IPlayer player = pc.CurrentPlayer;
         AudioStreamDescriptor currentAudioStream;
         IList<AudioStreamDescriptor> asds = new List<AudioStreamDescriptor>(pc.GetAudioStreamDescriptors(out currentAudioStream));
@@ -383,9 +388,10 @@ namespace MediaPortal.UiComponents.SkinBase.Models
           _playerSlotAudioMenu.Add(item);
         }
 
+        IList<IPlayerContext> playerContexts = playerContextManager.PlayerContexts.ToList();
         _playerSlotAudioMenu.FireChange();
         _playerSlotAudioMenuHeader = LocalizationHelper.CreateResourceString(Consts.RES_PLAYER_SLOT_AUDIO_MENU).Evaluate(
-            GetNameForPlayerContext(playerContextManager, _playerSlotAudioMenuSlotIndex));
+            GetNameForPlayerContext(_playerAudioMenuPlayerContext, playerContexts.IndexOf(_playerAudioMenuPlayerContext)));
       }
     }
 
@@ -396,7 +402,14 @@ namespace MediaPortal.UiComponents.SkinBase.Models
         IGeometryManager geometryManager = ServiceRegistration.Get<IGeometryManager>();
         IGeometry defaultGeometry = geometryManager.DefaultVideoGeometry;
         IPlayerContext pc = _playerGeometryMenuPlayerContext;
-        IVideoPlayer videoPlayer = pc == null ? null : pc.CurrentPlayer as IVideoPlayer;
+        if (pc == null || !pc.IsActive)
+        {
+          LeaveChooseGeometryWorkflow();
+          return;
+        }
+        string geometryStr = LocalizationHelper.CreateResourceString(Consts.RES_CHOOSE_PLAYER_GEOMETRY).Evaluate();
+        _playerChooseGeometryHeader = string.Format("{0} ({1})", geometryStr, GetNameForPlayerContext(pc, pc.IsPrimaryPlayerContext ? 0 : 1));
+        IVideoPlayer videoPlayer = pc.CurrentPlayer as IVideoPlayer;
         foreach (KeyValuePair<string, IGeometry> nameToGeometry in geometryManager.AvailableGeometries)
         {
           IGeometry geometry = nameToGeometry.Value;
@@ -419,7 +432,14 @@ namespace MediaPortal.UiComponents.SkinBase.Models
         IGeometryManager geometryManager = ServiceRegistration.Get<IGeometryManager>();
         string standardEffectFile = geometryManager.StandardEffectFile;
         IPlayerContext pc = _playerEffectMenuPlayerContext;
-        IVideoPlayer videoPlayer = pc == null ? null : pc.CurrentPlayer as IVideoPlayer;
+        if (pc == null || !pc.IsActive)
+        {
+          LeaveChooseEffectWorkflow();
+          return;
+        }
+        string effectStr = LocalizationHelper.CreateResourceString(Consts.RES_CHOOSE_PLAYER_EFFECT).Evaluate();
+        _playerChooseEffectHeader = string.Format("{0} ({1})", effectStr, GetNameForPlayerContext(pc, pc.IsPrimaryPlayerContext ? 0 : 1));
+        IVideoPlayer videoPlayer = pc.CurrentPlayer as IVideoPlayer;
         foreach (KeyValuePair<string, string> nameToEffect in geometryManager.AvailableEffects)
         {
           string file = nameToEffect.Key;
@@ -464,12 +484,12 @@ namespace MediaPortal.UiComponents.SkinBase.Models
           UpdatePlayerSlotAudioMenu();
           if (_playerSlotAudioMenu.Count <= 1)
             // Automatically close audio stream choice dialog if less than two audio streams are available
-            workflowManager.NavigatePopToStateAsync(Consts.WF_STATE_ID_PLAYER_SLOT_AUDIO_MENU_DIALOG, true);
+            workflowManager.NavigatePopToStateAsync(Consts.WF_STATE_ID_PLAYER_AUDIO_MENU_DIALOG, true);
         }
         if (_inPlayerChooseGeometryMenuDialog)
         {
           // Automatically close geometry choice dialog if current player is no video player
-          if (_playerGeometryMenuPlayerContext == null || !_playerGeometryMenuPlayerContext.IsValid ||
+          if (_playerGeometryMenuPlayerContext == null || !_playerGeometryMenuPlayerContext.IsActive ||
               !(_playerGeometryMenuPlayerContext.CurrentPlayer is IVideoPlayer))
             // Automatically close geometry stream choice dialog
             workflowManager.NavigatePopToStateAsync(Consts.WF_STATE_ID_PLAYER_CHOOSE_GEOMETRY_MENU_DIALOG, true);
@@ -479,7 +499,7 @@ namespace MediaPortal.UiComponents.SkinBase.Models
         if (_inPlayerChooseEffectMenuDialog)
         {
           // Automatically close Effect choice dialog if current player is no video player
-          if (_playerEffectMenuPlayerContext == null || !_playerEffectMenuPlayerContext.IsValid ||
+          if (_playerEffectMenuPlayerContext == null || !_playerEffectMenuPlayerContext.IsActive ||
               !(_playerEffectMenuPlayerContext.CurrentPlayer is IVideoPlayer))
             // Automatically close effect stream choice dialog
             while (_inPlayerChooseEffectMenuDialog)
@@ -488,6 +508,24 @@ namespace MediaPortal.UiComponents.SkinBase.Models
             UpdatePlayerChooseEffectMenu();
         }
       }
+    }
+
+    protected static void LeaveAudioMenuWorkflow()
+    {
+      IWorkflowManager workflowManager = ServiceRegistration.Get<IWorkflowManager>();
+      workflowManager.NavigatePopToStateAsync(Consts.WF_STATE_ID_PLAYER_AUDIO_MENU_DIALOG, true);
+    }
+
+    protected static void LeaveChooseGeometryWorkflow()
+    {
+      IWorkflowManager workflowManager = ServiceRegistration.Get<IWorkflowManager>();
+      workflowManager.NavigatePopToStateAsync(Consts.WF_STATE_ID_PLAYER_CHOOSE_GEOMETRY_MENU_DIALOG, true);
+    }
+
+    protected static void LeaveChooseEffectWorkflow()
+    {
+      IWorkflowManager workflowManager = ServiceRegistration.Get<IWorkflowManager>();
+      workflowManager.NavigatePopToStateAsync(Consts.WF_STATE_ID_PLAYER_CHOOSE_EFFECT_MENU_DIALOG, true);
     }
 
     /// <summary>
@@ -514,10 +552,9 @@ namespace MediaPortal.UiComponents.SkinBase.Models
         UpdateAudioStreamsMenu();
         _inChooseAudioStreamDialog = true;
       }
-      else if (newContext.WorkflowState.StateId == Consts.WF_STATE_ID_PLAYER_SLOT_AUDIO_MENU_DIALOG)
+      else if (newContext.WorkflowState.StateId == Consts.WF_STATE_ID_PLAYER_AUDIO_MENU_DIALOG)
       {
-        int? slotIndex = newContext.GetContextVariable(Consts.KEY_PLAYER_SLOT, false) as int?;
-        _playerSlotAudioMenuSlotIndex = slotIndex ?? 0;
+        _playerAudioMenuPlayerContext = newContext.GetContextVariable(Consts.KEY_PLAYER_CONTEXT, false) as IPlayerContext;
         bool? showToggleMute = newContext.GetContextVariable(Consts.KEY_SHOW_MUTE, false) as bool?;
         _showToggleMute = showToggleMute ?? true;
         UpdatePlayerSlotAudioMenu();
@@ -550,7 +587,7 @@ namespace MediaPortal.UiComponents.SkinBase.Models
         _inChooseAudioStreamDialog = false;
         _audioStreamsMenu.Clear();
       }
-      else if (oldContext.WorkflowState.StateId == Consts.WF_STATE_ID_PLAYER_SLOT_AUDIO_MENU_DIALOG)
+      else if (oldContext.WorkflowState.StateId == Consts.WF_STATE_ID_PLAYER_AUDIO_MENU_DIALOG)
       {
         _inPlayerSlotAudioMenuDialog = false;
         _playerSlotAudioMenu.Clear();
@@ -578,7 +615,7 @@ namespace MediaPortal.UiComponents.SkinBase.Models
         {
           AdditionalContextVariables = new Dictionary<string, object>
           {
-              {Consts.KEY_PLAYER_CONTEXT, playerContext}
+              {Consts.KEY_PLAYER_CONTEXT, playerContext},
           }
         });
     }
@@ -590,7 +627,7 @@ namespace MediaPortal.UiComponents.SkinBase.Models
       {
         AdditionalContextVariables = new Dictionary<string, object>
           {
-              {Consts.KEY_PLAYER_CONTEXT, playerContext}
+              {Consts.KEY_PLAYER_CONTEXT, playerContext},
           }
       });
     }
@@ -601,14 +638,14 @@ namespace MediaPortal.UiComponents.SkinBase.Models
       workflowManager.NavigatePush(Consts.WF_STATE_ID_PLAYER_CONFIGURATION_DIALOG);
     }
 
-    public static void OpenAudioMenuDialog(int slotIndex, bool showMute)
+    public static void OpenAudioMenuDialog(IPlayerContext playerContext, bool showMute)
     {
       IWorkflowManager workflowManager = ServiceRegistration.Get<IWorkflowManager>();
-      workflowManager.NavigatePush(Consts.WF_STATE_ID_PLAYER_SLOT_AUDIO_MENU_DIALOG, new NavigationContextConfig
+      workflowManager.NavigatePush(Consts.WF_STATE_ID_PLAYER_AUDIO_MENU_DIALOG, new NavigationContextConfig
         {
           AdditionalContextVariables = new Dictionary<string, object>
             {
-                {Consts.KEY_PLAYER_SLOT, slotIndex},
+                {Consts.KEY_PLAYER_CONTEXT, playerContext},
                 {Consts.KEY_SHOW_MUTE, showMute}
             }
         });
@@ -682,12 +719,6 @@ namespace MediaPortal.UiComponents.SkinBase.Models
       playerContextManager.CurrentPlayerIndex = playerIndex;
     }
 
-    public void ClosePlayerContext(int playerIndex)
-    {
-      IPlayerManager playerManager = ServiceRegistration.Get<IPlayerManager>();
-      playerManager.CloseSlot(playerIndex);
-    }
-
     public void PlayersMute()
     {
       IPlayerManager playerManager = ServiceRegistration.Get<IPlayerManager>();
@@ -702,8 +733,8 @@ namespace MediaPortal.UiComponents.SkinBase.Models
 
     public void SwitchPrimarySecondaryPlayer()
     {
-      IPlayerManager playerManager = ServiceRegistration.Get<IPlayerManager>();
-      playerManager.SwitchSlots();
+      IPlayerContextManager playerContextManager = ServiceRegistration.Get<IPlayerContextManager>();
+      playerContextManager.SwitchPipPlayers();
     }
 
     public void OpenChooseAudioStreamDialog()
@@ -753,10 +784,10 @@ namespace MediaPortal.UiComponents.SkinBase.Models
         UpdateAudioStreamsMenu();
         return _audioStreamsMenu.Count > 0;
       }
-      else if (newContext.WorkflowState.StateId == Consts.WF_STATE_ID_PLAYER_SLOT_AUDIO_MENU_DIALOG)
+      else if (newContext.WorkflowState.StateId == Consts.WF_STATE_ID_PLAYER_AUDIO_MENU_DIALOG)
       {
         // Check if we got our necessary player slot parameter
-        if (newContext.GetContextVariable(Consts.KEY_PLAYER_SLOT, false) != null)
+        if (newContext.GetContextVariable(Consts.KEY_PLAYER_CONTEXT, false) != null)
           return true;
       }
       else if (newContext.WorkflowState.StateId == Consts.WF_STATE_ID_PLAYER_CHOOSE_GEOMETRY_MENU_DIALOG)

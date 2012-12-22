@@ -46,11 +46,7 @@ namespace MediaPortal.UiComponents.Media.Settings.Configuration
 
     protected void UpdatePlayerContexts()
     {
-      IPlayerContext pc = ServiceRegistration.Get<IPlayerContextManager>().GetPlayerContext(PlayerManagerConsts.PRIMARY_SLOT);
-      if (pc != null)
-        pc.CloseWhenFinished = _yes;
-      pc = ServiceRegistration.Get<IPlayerContextManager>().GetPlayerContext(PlayerManagerConsts.SECONDARY_SLOT);
-      if (pc != null)
+      foreach (IPlayerContext pc in ServiceRegistration.Get<IPlayerContextManager>().PlayerContexts)
         pc.CloseWhenFinished = _yes;
     }
   }

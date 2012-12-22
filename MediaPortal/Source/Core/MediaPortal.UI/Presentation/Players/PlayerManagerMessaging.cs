@@ -84,33 +84,23 @@ namespace MediaPortal.UI.Presentation.Players
       #region PlayerManager messages concerning a special player slot. Parameters: PLAYER_SLOT_CONTROLLER
 
       /// <summary>
-      /// The slot playing audio changed to a new slot index.
+      /// The audio signal is now provided by the player slot controller given in the message parameter.
       /// </summary>
       AudioSlotChanged,
 
       /// <summary>
-      /// The slot was activated.
-      /// </summary>
-      PlayerSlotActivated,
-
-      /// <summary>
-      /// The slot was deactivated.
-      /// </summary>
-      PlayerSlotDeactivated,
-
-      /// <summary>
-      /// The slot was started.
+      /// The slot given by the message parameter was started.
       /// </summary>
       PlayerSlotStarted,
+
+      /// <summary>
+      /// The slot given by the message parameter was closed.
+      /// </summary>
+      PlayerSlotClosed,
 
       #endregion
 
       #region General messages which don't concern a special player. No parameters.
-
-      /// <summary>
-      /// The primary and secondary players were exchanged.
-      /// </summary>
-      PlayerSlotsChanged,
 
       /// <summary>
       /// The players were muted.
@@ -132,7 +122,6 @@ namespace MediaPortal.UI.Presentation.Players
 
     // Message data
     public const string PLAYER_SLOT_CONTROLLER = "PlayerSlotController"; // Holds the player slot controller (IPlayerSlotController)
-    public const string ACTIVATION_SEQUENCE = "ActivationSequence"; // Holds the activation sequence number of the player slot controller at the time when the message was sent (uint)
 
     /// <summary>
     /// Sends a message which announces a change in a specific player. This method handles all
@@ -144,7 +133,6 @@ namespace MediaPortal.UI.Presentation.Players
     {
       SystemMessage msg = new SystemMessage(type);
       msg.MessageData[PLAYER_SLOT_CONTROLLER] = psc;
-      msg.MessageData[ACTIVATION_SEQUENCE] = psc.ActivationSequence;
       ServiceRegistration.Get<IMessageBroker>().Send(CHANNEL, msg);
     }
 

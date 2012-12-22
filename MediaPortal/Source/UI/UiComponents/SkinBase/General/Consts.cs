@@ -179,8 +179,8 @@ namespace MediaPortal.UiComponents.SkinBase.General
     public const string STR_WF_STATE_ID_CHOOSE_AUDIO_STREAM_DIALOG = "A3F53310-4D93-4f93-8B09-D53EE8ACD829";
     public static Guid WF_STATE_ID_CHOOSE_AUDIO_STREAM_DIALOG = new Guid(STR_WF_STATE_ID_CHOOSE_AUDIO_STREAM_DIALOG);
 
-    public const string STR_WF_STATE_ID_PLAYER_SLOT_AUDIO_MENU_DIALOG = "428326CE-9DE1-41ff-A33B-BBB80C8AFAC5";
-    public static Guid WF_STATE_ID_PLAYER_SLOT_AUDIO_MENU_DIALOG = new Guid(STR_WF_STATE_ID_PLAYER_SLOT_AUDIO_MENU_DIALOG);
+    public const string STR_WF_STATE_ID_PLAYER_AUDIO_MENU_DIALOG = "428326CE-9DE1-41ff-A33B-BBB80C8AFAC5";
+    public static Guid WF_STATE_ID_PLAYER_AUDIO_MENU_DIALOG = new Guid(STR_WF_STATE_ID_PLAYER_AUDIO_MENU_DIALOG);
 
     public const string STR_WF_STATE_ID_PLAYER_CHOOSE_GEOMETRY_MENU_DIALOG = "D46F66DD-9E91-4788-ADFE-EBD96F1A489E";
     public static Guid WF_STATE_ID_PLAYER_CHOOSE_GEOMETRY_MENU_DIALOG = new Guid(STR_WF_STATE_ID_PLAYER_CHOOSE_GEOMETRY_MENU_DIALOG);
@@ -209,7 +209,6 @@ namespace MediaPortal.UiComponents.SkinBase.General
     public const string KEY_REGISTERED_ACTIONS = "MenuModel: RegisteredActions";
     public const string KEY_MENU_ITEMS = "MenuModel: MenuItems";
 
-    public const string KEY_PLAYER_SLOT = "PlayerSlot";
     public const string KEY_PLAYER_CONTEXT = "PlayerContext";
     public const string KEY_SHOW_MUTE = "ShowMute";
 

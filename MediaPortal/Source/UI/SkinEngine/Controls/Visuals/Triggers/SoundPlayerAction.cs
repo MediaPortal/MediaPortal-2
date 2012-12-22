@@ -90,9 +90,9 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Triggers
         return;
       if (_disableOnAudioOutput)
       {
-        IPlayerManager playerManager = ServiceRegistration.Get<IPlayerManager>();
-        IPlayer player1 = playerManager[PlayerManagerConsts.PRIMARY_SLOT];
-        IPlayer player2 = playerManager[PlayerManagerConsts.SECONDARY_SLOT];
+        IPlayerContextManager playerContextManager = ServiceRegistration.Get<IPlayerContextManager>();
+        IPlayer player1 = playerContextManager[PlayerContextIndex.PRIMARY];
+        IPlayer player2 = playerContextManager[PlayerContextIndex.SECONDARY];
         if (player1 is IAudioPlayer || player1 is IVideoPlayer || player2 is IAudioPlayer || player2 is IVideoPlayer)
           return;
       }

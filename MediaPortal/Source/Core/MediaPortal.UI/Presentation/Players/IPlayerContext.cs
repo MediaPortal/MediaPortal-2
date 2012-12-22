@@ -67,9 +67,9 @@ namespace MediaPortal.UI.Presentation.Players
   public interface IPlayerContext
   {
     /// <summary>
-    /// Returns the information if this player context is still connected to a player slot. If <see cref="IsValid"/> is
+    /// Returns the information if this player context is still connected to a player slot. If <see cref="IsActive"/> is
     /// <c>false</c>, the player context was closed and cannot be used any more. Especially the underlaying data
-    /// structure is not accessible any more in invalid player contexts, so the playlist and all context variables
+    /// structure is not accessible any more in inactive player contexts, so the playlist and all context variables
     /// are gone then.
     /// </summary>
     /// <remarks>
@@ -80,12 +80,12 @@ namespace MediaPortal.UI.Presentation.Players
     /// lock (pm.SyncObj)
     /// {
     ///   ...
-    ///   [Evaluation of IsValid property]
+    ///   [Evaluation of IsActive property]
     ///   ...
     /// }
     /// </code>
     /// </remarks>
-    bool IsValid { get; }
+    bool IsActive { get; }
 
     /// <summary>
     /// Returns the id of the module which belongs to this player context.
@@ -99,6 +99,18 @@ namespace MediaPortal.UI.Presentation.Players
     /// The type is also used to find conflicts (A-A, V-V).
     /// </summary>
     AVType AVType { get; }
+
+    /// <summary>
+    /// Returns the information if the player in this player context is the current player. The current player is the
+    /// player which is controlled by the play controls on the remote.
+    /// </summary>
+    bool IsCurrentPlayerContext { get; }
+
+    /// <summary>
+    /// Returns the information if this player context is the primary player context. The primary player context contains the
+    /// fullscreen player, the secondary player context contains the PiP player.
+    /// </summary>
+    bool IsPrimaryPlayerContext { get; }
 
     /// <summary>
     /// Returns the playlist of this player context. The playlist is always not-null.
@@ -298,6 +310,8 @@ namespace MediaPortal.UI.Presentation.Players
     /// This can be necessary to be triggered manually when the underlaying player slot controller should be reused for another usage
     /// and the automatic player context close functions like <see cref="CloseWhenFinished"/> should be disabled.
     /// </summary>
-    void Reset();
+    /// <returns>Underlaying player slot controller. That slot controller can be reused after this player context has rewoked the usage
+    /// of that player slot controller.</returns>
+    IPlayerSlotController Revoke();
   }
 }

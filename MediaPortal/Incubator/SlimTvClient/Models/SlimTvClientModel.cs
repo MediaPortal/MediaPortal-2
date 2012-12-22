@@ -386,10 +386,10 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
     {
       get
       {
-        IPlayerManager pm = ServiceRegistration.Get<IPlayerManager>();
-        if (pm == null)
+        IPlayerContextManager pcm = ServiceRegistration.Get<IPlayerContextManager>();
+        if (pcm == null)
           return null;
-        LiveTvPlayer player = pm[SlotIndex] as LiveTvPlayer;
+        LiveTvPlayer player = pcm[SlotIndex] as LiveTvPlayer;
         return player;
       }
     }
@@ -545,10 +545,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
 
     protected int SlotIndex
     {
-      get
-      {
-        return PiPEnabled ? PlayerManagerConsts.SECONDARY_SLOT : PlayerManagerConsts.PRIMARY_SLOT;
-      }
+      get { return PiPEnabled ? PlayerContextIndex.SECONDARY : PlayerContextIndex.PRIMARY; }
     }
 
     protected override void Update()

@@ -60,7 +60,7 @@ namespace MediaPortal.UiComponents.Media.Models
     {
       // base.Update is abstract
       IPlayerContextManager playerContextManager = ServiceRegistration.Get<IPlayerContextManager>();
-      IPlayerContext secondaryPlayerContext = playerContextManager.GetPlayerContext(PlayerManagerConsts.SECONDARY_SLOT);
+      IPlayerContext secondaryPlayerContext = playerContextManager.SecondaryPlayerContext;
       IVideoPlayer pipPlayer = secondaryPlayerContext == null ? null : secondaryPlayerContext.CurrentPlayer as IVideoPlayer;
       IInputManager inputManager = ServiceRegistration.Get<IInputManager>();
 

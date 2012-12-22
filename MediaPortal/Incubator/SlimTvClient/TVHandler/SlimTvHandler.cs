@@ -90,12 +90,12 @@ namespace MediaPortal.Plugins.SlimTv.Client.TvHandler
 
     public IProgram CurrentProgram
     {
-      get { return GetCurrentProgram(GetChannel(PlayerManagerConsts.PRIMARY_SLOT)); }
+      get { return GetCurrentProgram(GetChannel(PlayerContextIndex.PRIMARY)); }
     }
 
     public IProgram NextProgram
     {
-      get { return GetNextProgram(GetChannel(PlayerManagerConsts.PRIMARY_SLOT)); }
+      get { return GetNextProgram(GetChannel(PlayerContextIndex.PRIMARY)); }
     }
 
     public IProgram GetCurrentProgram(IChannel channel)
@@ -180,6 +180,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.TvHandler
       return PlayerContextConcurrencyMode.ConcurrentVideo;
     }
 
+    // Albert, 2012-12-28: TODO: Use a parameter of type PlayerChoice instead of directly referring to the slot index
     public IChannel GetChannel(int slotIndex)
     {
       if (TimeshiftControl == null)

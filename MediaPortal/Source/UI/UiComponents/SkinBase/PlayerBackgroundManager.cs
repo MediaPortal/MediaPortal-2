@@ -147,15 +147,17 @@ namespace MediaPortal.UiComponents.SkinBase
 
     protected static string GetTargetBackgroundScreen()
     {
-      IPlayerManager playerManager = ServiceRegistration.Get<IPlayerManager>();
-      if (playerManager.NumActiveSlots == 0)
+      IPlayerContextManager playerContextManager = ServiceRegistration.Get<IPlayerContextManager>();
+      if (playerContextManager.NumActivePlayerContexts == 0)
         return Consts.SCREEN_DEFAULT_BACKGROUND;
-      IPlayerSlotController pscPrimary = playerManager.GetPlayerSlotController(PlayerManagerConsts.PRIMARY_SLOT);
-      if (pscPrimary.IsActive && pscPrimary.PlayerSlotState != PlayerSlotState.Stopped)
+      IPlayerContext pcPrimary = playerContextManager.PrimaryPlayerContext;
+      IPlayerSlotController pscPrimary = pcPrimary != null && pcPrimary.IsActive ? pcPrimary.PlayerSlotController : null;
+      IPlayer pPrimary = pscPrimary == null ? null : pscPrimary.CurrentPlayer;
+      if (pPrimary != null)
       {
-        if (pscPrimary.CurrentPlayer is IVideoPlayer)
+        if (pPrimary is IVideoPlayer)
           return Consts.SCREEN_VIDEO_BACKGROUND;
-        if (pscPrimary.CurrentPlayer is IImagePlayer)
+        if (pPrimary is IImagePlayer)
           return Consts.SCREEN_IMAGE_BACKGROUND;
       }
       return Consts.SCREEN_DEFAULT_BACKGROUND;

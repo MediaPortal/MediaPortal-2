@@ -23,35 +23,38 @@
 #endregion
 
 using System;
+using System.Collections.Generic;
 
 namespace MediaPortal.UI.Presentation.Players
 {
-  public delegate void PlayerSlotWorkerDelegate(IPlayerSlotController slotController);
-
   /// <summary>
-  /// The player manager provides basic, technical player information for a maximum set of two players
-  /// (primary and secondary player). It deals with primary and secondary player slots, player volume and muting.
+  /// The player manager provides basic, technical player information for all currently opened player slots.
+  /// It manages the audio signal, volume setting, muting and generic context variables.
   /// </summary>
   /// <remarks>
   /// <para>
-  /// The player manager provides the very technical interface to players. It deals with primary/secondary player
-  /// (players 0 and 1), player slots and slot activity states. The compontent to manage players at a more user-related
-  /// level is <see cref="IPlayerContextManager"/>, which is based on this <see cref="IPlayerManager"/> component.
+  /// A player slot is a logical unit which contains a player, several metadata and other properties. Clients
+  /// like the <see cref="IPlayerContextManager"/> use a player slot controller to build their player contexts
+  /// on it, storing data like a playlist in it.
   /// </para>
   /// <para>
-  /// From the player manager's point of view, both the primary and the secondary player slot behave the same, except
-  /// that the secondary slot can only be active if the primary slot is active.
-  /// But the application (i.e. the presentation module) will typically use the primary player slot for the fullscreen
-  /// video display, while a video in the secondary player slot will be displayed as a PiP video.
+  /// The player manager provides the very technical interface to players. It deals at the level of technical player
+  /// management. The compontent to manage players at a more user-related level is
+  /// <see cref="IPlayerContextManager"/>, which is based on this <see cref="IPlayerManager"/> service.
   /// </para>
   /// <para>
-  /// Audio comes from the player in the slot denoted by <see cref="AudioSlotIndex"/>, except when the
-  /// <see cref="Muted"/> property is set to <c>true</c>.
-  /// Slots are switched active and inactive EXPLICITLY (no implicit CloseSlot(N)!).
+  /// Relation to the <see cref="IPlayerContextManager"/>:
+  /// There might be more players managed by this service than player contexts known by the <see cref="IPlayerContextManager"/>.
+  /// From the player manager's point of view, all players are handled the same, independently if they are coupled with
+  /// player contexts or which slot number they are attached with in the player context manager.
+  /// </para>
+  /// <para>
+  /// Audio is played by the player in the slot where <see cref="IPlayerSlotController.IsAudioSlot"/> is <c>true</c>,
+  /// except when the <see cref="Muted"/> property is set to <c>true</c>.
   /// </para>
   /// <para>
   /// <b>Thread-Safety:</b><br/>
-  /// This class can be called from multiple threads. It synchronizes thread access to its fields via its
+  /// Methods of this class can be called from multiple threads. It synchronizes thread access to its fields via its
   /// <see cref="SyncObj"/> instance. Accesses to its contained <see cref="IPlayerSlotController"/>s are
   /// also synchronized via the same <see cref="SyncObj"/> instance.
   /// </para>
@@ -68,68 +71,54 @@ namespace MediaPortal.UI.Presentation.Players
     object SyncObj { get; }
 
     /// <summary>
-    /// Returns the number of active player slots (0, 1 or 2).
+    /// Returns the number of currently active player slots.
     /// </summary>
     int NumActiveSlots { get; }
 
     /// <summary>
-    /// Gets the player at the specified player slot, or <c>null</c>, if there is no player in the slot.
+    /// Gets or sets the muted state of the system.
     /// </summary>
-    IPlayer this[int slotIndex] { get; }
-
-    /// <summary>
-    /// Gets or sets the index of the slot which provides the audio signal. If there is no active slot
-    /// at the moment, or if the system is muted, then <see cref="AudioSlotIndex"/> will be <c>-1</c>.
-    /// </summary>
-    int AudioSlotIndex { get; set; }
-
-    /// <summary>
-    /// Gets or sets the muted state of the system. The muted state is independent from the audio slot index,
-    /// both states complete each other, i.e. a player only plays the audio signal if it is the audio slot and not muted.
-    /// </summary>
+    /// <remarks>
+    /// The muted state is independent from the setting of the audio player
+    /// slot controller, both states complete each other, i.e. even if <see cref="Muted"/> is set to <c>true</c>, one of the
+    /// player slot controllers has the <see cref="IPlayerSlotController.IsAudioSlot"/> property set and the player of that slot
+    /// controller only plays the audio signal if <see cref="Muted"/> is set to <c>false</c>.
+    /// </remarks>
     bool Muted { get; set; }
 
     /// <summary>
-    /// Gets or sets the volume which will be used in all players. The value range is from 0 (muted) to 100 (loudest).
+    /// Gets or sets the main volume for all players. The value range is from 0 (muted) to 100 (loudest).
     /// </summary>
     int Volume { get; set; }
 
     /// <summary>
-    /// Opens a player slot.
-    /// This method succeeds if <see cref="NumActiveSlots"/> is less than <c>2</c>.
-    /// </summary>
-    /// <param name="slotIndex">Returns the index of the new slot, if the preparation was successful.</param>
-    /// <param name="slotController">Returns the player slot controller of the new slot.</param>
-    /// <returns><c>true</c>, if a new slot could be opened, else <c>false</c>.</returns>
-    bool OpenSlot(out int slotIndex, out IPlayerSlotController slotController);
-
-    /// <summary>
-    /// Resets the slot with the given <paramref name="slotIndex"/>. The underlaying slot controller will be put in a
-    /// state as if it would have been freshly opened.
-    /// </summary>
-    /// <param name="slotIndex">Index of the slot to reset. </param>
-    /// <param name="slotController">The slot controller which was reset.</param>
-    /// <returns><c>false</c>, if the slot with the given <paramref name="slotIndex"/> cannot be activated (e.g. because
-    /// the given <paramref name="slotIndex"/> is <see cref="PlayerManagerConsts.SECONDARY_SLOT"/> and the primary slot is not active),
-    /// else <c>true</c>.</returns>
-    bool ResetSlot(int slotIndex, out IPlayerSlotController slotController);
-
-    /// <summary>
-    /// Releases the player of the specified <paramref name="slotIndex"/> and closes the slot.
+    /// Gets or sets the player slot controller which currently plays the audio signal. If there is no active slot
+    /// at the moment, this property returns <c>null</c>. If the system is muted (see <see cref="Muted"/>),
+    /// this property yet returns the value of the slot controller which will play the audio signal when
+    /// <see cref="Muted"/> is set to <c>false</c>.
     /// </summary>
     /// <remarks>
-    /// See <see cref="CloseSlot(IPlayerSlotController)"/>.
+    /// This property returns the slot controller which has the <see cref="IPlayerSlotController.IsAudioSlot"/> property set.
     /// </remarks>
-    /// <param name="slotIndex">Index of the slot to close.</param>
-    void CloseSlot(int slotIndex);
+    IPlayerSlotController AudioSlotController { get; set; }
 
     /// <summary>
-    /// Releases the player of the specified <paramref name="playerSlotController"/> and closes the slot.
+    /// Gets all active player slot controller instances.
+    /// </summary>
+    ICollection<IPlayerSlotController> PlayerSlotControllers { get; }
+
+    /// <summary>
+    /// Opens a player slot.
+    /// </summary>
+    /// <returns>New player slot controller or <c>null</c>, if no slot controller could be opened.</returns>
+    IPlayerSlotController OpenSlot();
+
+    /// <summary>
+    /// Releases the player of the specified <paramref name="playerSlotController"/> and closes its slot.
     /// </summary>
     /// <remarks>
-    /// If the specified <paramref name="playerSlotController"/> provides the audio signal, the audio flag will go to
-    /// the remaining slot, if present. If the specified slot is the first/primary player slot, then after closing it
-    /// the secondary slot will become the primary slot.
+    /// If the specified <paramref name="playerSlotController"/> provides the audio signal, the audio flag will be moved to
+    /// the next available slot, if present.
     /// </remarks>
     /// <param name="playerSlotController">The controller of the slot to close.</param>
     void CloseSlot(IPlayerSlotController playerSlotController);
@@ -140,31 +129,18 @@ namespace MediaPortal.UI.Presentation.Players
     void CloseAllSlots();
 
     /// <summary>
-    /// Gets the player slot instance for the slot of the specified <paramref name="slotIndex"/> index.
+    /// Executes the given <paramref name="action"/> for each player slot controller.
     /// </summary>
-    /// <param name="slotIndex">Index of the slot to return the controller instance for.</param>
-    /// <returns>The controller instance for the specified slot.</returns>
-    IPlayerSlotController GetPlayerSlotController(int slotIndex);
+    /// <param name="action">Method to execute.</param>
+    void ForEach(Action<IPlayerSlotController> action);
 
     /// <summary>
-    /// Switches the primary and secondary player slots. The slot controller, which was located in slot <c>0</c>,
-    /// will be moved to slot <c>1</c> and vice-versa. This method only succeeds if there are exactly two open slots.
-    /// </summary>
-    void SwitchSlots();
-
-    /// <summary>
-    /// Executes the given <paramref name="execute"/> method on each player slot (active and inactive).
-    /// </summary>
-    /// <param name="execute">Method to execute.</param>
-    void ForEach(PlayerSlotWorkerDelegate execute);
-
-    /// <summary>
-    /// Increments the volume.
+    /// Increments the volume (see <see cref="Volume"/>).
     /// </summary>
     void VolumeUp();
 
     /// <summary>
-    /// Decrements the volume.
+    /// Decrements the volume (see <see cref="Volume"/>).
     /// </summary>
     void VolumeDown();
   }

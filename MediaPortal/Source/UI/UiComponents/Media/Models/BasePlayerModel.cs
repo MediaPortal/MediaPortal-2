@@ -172,7 +172,7 @@ namespace MediaPortal.UiComponents.Media.Models
         return playerContextManager.CurrentPlayerContext;
       if (stateType == MediaWorkflowStateType.FullscreenContent)
         // The "fullscreen content" screen is always bound to the "primary player"
-        return playerContextManager.GetPlayerContext(PlayerManagerConsts.PRIMARY_SLOT);
+        return playerContextManager.PrimaryPlayerContext;
       return null;
     }
 

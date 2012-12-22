@@ -396,14 +396,15 @@ namespace MediaPortal.Plugins.StatisticsRenderer
     {
       string playerInfos = string.Empty;
       IPlayerManager pm = ServiceRegistration.Get<IPlayerManager>();
-      for (int index = 0; index <= 1; index++)
-      {
-        ISlimDXVideoPlayer player = pm[index] as ISlimDXVideoPlayer;
-        if (player == null || player.Surface == null)
-          continue;
-        SurfaceDescription desc = player.Surface.Description;
-        playerInfos += String.Format("{0}Player {1}: Resolution {2}x{3}", string.IsNullOrEmpty(playerInfos) ? "" : "\r\n", index, desc.Width, desc.Height);
-      }
+      int index = 0;
+      pm.ForEach(psc =>
+        {
+          ISlimDXVideoPlayer player = psc.CurrentPlayer as ISlimDXVideoPlayer;
+          if (player == null || player.Surface == null)
+            return;
+          SurfaceDescription desc = player.Surface.Description;
+          playerInfos += String.Format("{0}Player {1}: Resolution {2}x{3}", string.IsNullOrEmpty(playerInfos) ? "" : "\r\n", index++, desc.Width, desc.Height);
+        });
       return playerInfos;
     }
 

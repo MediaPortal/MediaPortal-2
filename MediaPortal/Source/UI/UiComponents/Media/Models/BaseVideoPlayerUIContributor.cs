@@ -309,7 +309,7 @@ namespace MediaPortal.UiComponents.Media.Models
     public virtual void ShowZoomModeDialog()
     {
       IPlayerContextManager pcm = ServiceRegistration.Get<IPlayerContextManager>();
-      IPlayerContext pc = pcm.GetPlayerContext(PlayerManagerConsts.PRIMARY_SLOT);
+      IPlayerContext pc = pcm.PrimaryPlayerContext;
       PlayerConfigurationDialogModel.OpenChooseGeometryDialog(pc);
     }
 
