@@ -65,7 +65,7 @@ namespace MediaPortal.Common.Services.Dokan
     protected Thread _mountThread;
     protected VirtualRootDirectory _root = new VirtualRootDirectory("/");
 
-    public static HashSet<char> _dokanDriveLetters = new HashSet<char>();
+    public static ICollection<char> _dokanDriveLetters = new HashSet<char>();
 
     protected Dokan(char driveLetter)
     {
