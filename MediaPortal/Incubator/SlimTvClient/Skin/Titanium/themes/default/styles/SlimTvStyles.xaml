@@ -162,8 +162,7 @@
 
                     <Label x:Name="PlayerStateLabel" Grid.Column="0" Grid.Row="1" HorizontalAlignment="Left"
                         Content="{Binding PlayerStateText}" Scroll="Auto"
-                       Color="{ThemeResource TextColor}"
-                        IsVisible="{Binding ShowMouseControls}"/>
+                        Color="{ThemeResource TextColor}" />
                     
                     <Label x:Name="CurrentProgramStartLabel" Grid.Column="1" Grid.Row="1" 
                       Content="{Binding Source={StaticResource SlimTvClient}, Path=CurrentProgram.StartTime, Converter={StaticResource DateFormatConverter}}"
