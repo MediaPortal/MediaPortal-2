@@ -88,9 +88,9 @@ namespace MediaPortal.Utilities.Network
   /// <summary>
   /// Enumerator for several types of network resources, see parameters of <see cref="EnumerateResources"/>.
   /// </summary>
-  public class NetworkResourcesEnumerator
+  public static class NetworkResourcesEnumerator
   {
-    protected enum ErrorCodes
+    private enum ErrorCodes
     {
       NoError = 0,
       ErrorNoMoreItems = 259
@@ -99,17 +99,15 @@ namespace MediaPortal.Utilities.Network
     #region Windows API functions
 
     [DllImport("Mpr.dll", EntryPoint = "WNetOpenEnumA", CallingConvention = CallingConvention.Winapi)]
-    protected static extern ErrorCodes WNetOpenEnum(ResourceScope dwScope, ResourceType dwType, ResourceUsage dwUsage, NetResource p, out IntPtr lphEnum);
+    private static extern ErrorCodes WNetOpenEnum(ResourceScope dwScope, ResourceType dwType, ResourceUsage dwUsage, NetResource p, out IntPtr lphEnum);
 
     [DllImport("Mpr.dll", EntryPoint = "WNetCloseEnum", CallingConvention = CallingConvention.Winapi)]
-    protected static extern ErrorCodes WNetCloseEnum(IntPtr hEnum);
+    private static extern ErrorCodes WNetCloseEnum(IntPtr hEnum);
 
     [DllImport("Mpr.dll", EntryPoint = "WNetEnumResourceA", CallingConvention = CallingConvention.Winapi)]
-    protected static extern ErrorCodes WNetEnumResource(IntPtr hEnum, ref uint lpcCount, IntPtr buffer, ref uint lpBufferSize);
+    private static extern ErrorCodes WNetEnumResource(IntPtr hEnum, ref uint lpcCount, IntPtr buffer, ref uint lpBufferSize);
 
     #endregion
-
-    protected readonly ICollection<string> _resourceList = new List<String>();
 
     public static ICollection<string> EnumerateResources(ResourceScope scope, ResourceType type, ResourceUsage usage, ResourceDisplayType displayType)
     {
@@ -117,7 +115,7 @@ namespace MediaPortal.Utilities.Network
       return EnumerateResources(pRsrc, scope, type, usage, displayType);
     }
 
-    protected static ICollection<string> EnumerateResources(NetResource pRsrc, ResourceScope scope, ResourceType type,
+    private static ICollection<string> EnumerateResources(NetResource pRsrc, ResourceScope scope, ResourceType type,
         ResourceUsage usage, ResourceDisplayType displayType)
     {
       List<string> result = new List<string>();
