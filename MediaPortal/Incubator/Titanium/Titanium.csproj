@@ -195,6 +195,9 @@
     <Content Include="Skin\Titanium\screens\FSCWindowButtons.inc" />
     <Content Include="Skin\Titanium\screens\ProgramInfoSlim.inc" />
     <Content Include="Skin\Titanium\skin.xml" />
+    <Content Include="Skin\Titanium\themes\blue\images\background.png" />
+    <Content Include="Skin\Titanium\themes\blue\images\preview.jpg" />
+    <Content Include="Skin\Titanium\themes\blue\theme.xml" />
     <Content Include="Skin\Titanium\themes\default\images\Controls\Bar.png" />
     <Content Include="Skin\Titanium\themes\default\images\Controls\GaussianNoise.jpg" />
     <Content Include="Skin\Titanium\themes\default\images\Controls\Glass.png" />
@@ -212,7 +215,6 @@
     <Content Include="Skin\Titanium\themes\default\images\NavigationSmall.png" />
     <Content Include="Skin\Titanium\themes\default\images\PictureLarge.png" />
     <Content Include="Skin\Titanium\themes\default\images\PictureSmall.png" />
-    <Content Include="Skin\Titanium\themes\default\images\preview.png" />
     <None Include="Skin\Titanium\fonts\TitanBold.desc" />
     <None Include="Skin\Titanium\fonts\Titan.desc" />
     <None Include="Skin\Titanium\fonts\TITAN.TTF" />
@@ -220,7 +222,8 @@
     <None Include="Skin\Titanium\fonts\TITANMEDIUM.TTF" />
     <None Include="Skin\Titanium\fonts\TITANSMALL.TTF" />
     <None Include="Skin\Titanium\themes\default\styles\OtherControlsOverrides.xaml" />
-    <Content Include="Skin\Titanium\themes\default\images\Reflex.jpg" />
+    <Content Include="Skin\Titanium\themes\default\images\background.png" />
+    <Content Include="Skin\Titanium\themes\default\images\preview.jpg" />
     <Content Include="Skin\Titanium\themes\default\theme.xml" />
   </ItemGroup>
   <ItemGroup>
@@ -402,6 +405,11 @@
     </Content>
   </ItemGroup>
   <ItemGroup />
+  <ItemGroup>
+    <Content Include="Skin\Titanium\themes\blue\styles\Colors.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
