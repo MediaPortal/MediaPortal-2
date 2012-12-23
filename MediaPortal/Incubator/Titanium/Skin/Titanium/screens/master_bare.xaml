@@ -102,7 +102,7 @@ Parameters which have to be accessible by a DynamicResource lookup:
 
     <!-- Player controls, located on top but drawn as last item so it overlays other content, if present-->
 
-    <Grid Canvas.Left="0" Canvas.Top="120" Width="1920" HorizontalAlignment="Stretch">
+    <Grid Canvas.Left="350" Canvas.Top="120" Width="1220">
       <Grid.ColumnDefinitions>
         <ColumnDefinition Width="*"/>
       </Grid.ColumnDefinitions>
@@ -118,5 +118,10 @@ Parameters which have to be accessible by a DynamicResource lookup:
                 AutoVisibility="True" PlayerContext="SecondaryPlayer"/>
       </StackPanel>
     </Grid>
+
+    <!-- Notification icon needs also be placed after the main content area, so it will be on top and can be clicked -->
+    <Control Canvas.Left="1800" Canvas.Top="130" Style="{ThemeResource NotificationControlStyle}"
+            HorizontalAlignment="Right" VerticalAlignment="Center"/>
+
   </Canvas>
 </Screen>
