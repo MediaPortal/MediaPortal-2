@@ -28,7 +28,7 @@
           <Grid.RowDefinitions>
             <RowDefinition Height="*"/>
           </Grid.RowDefinitions>
-          <Image VerticalAlignment="Stretch" Stretch="Uniform" Grid.Row="0" Grid.Column="0" Source="Reflex.jpg"/>
+          <Image VerticalAlignment="Stretch" Stretch="Uniform" Grid.Row="0" Grid.Column="0" Source="background.png"/>
         </Grid>
       </VisualBrush.Visual>
     </VisualBrush>
