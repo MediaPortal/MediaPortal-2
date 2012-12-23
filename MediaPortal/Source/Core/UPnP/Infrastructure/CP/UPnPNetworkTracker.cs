@@ -544,7 +544,7 @@ namespace UPnP.Infrastructure.CP
       request.KeepAlive = true;
       request.AllowAutoRedirect = true;
       request.UserAgent = UPnPConfiguration.UPnPMachineInfoHeader;
-      request.Headers.Add("Accept-Encoding", CompressionHelper.PREFERRED_COMPRESSION);
+      request.Headers.Add("Accept-Encoding", CompressionHelper.GetAcceptedEncodings());
       return request;
     }
 

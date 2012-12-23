@@ -296,7 +296,7 @@ namespace UPnP.Infrastructure.CP
       request.UserAgent = UPnPConfiguration.UPnPMachineInfoHeader;
       request.ContentType = "text/xml; charset=\"utf-8\"";
       request.Headers.Add("SOAPACTION", action.Action_URN);
-      request.Headers.Add("Accept-Encoding", CompressionHelper.PREFERRED_COMPRESSION);
+      request.Headers.Add("Accept-Encoding", CompressionHelper.GetAcceptedEncodings());
       return request;
     }
 

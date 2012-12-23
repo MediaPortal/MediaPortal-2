@@ -317,7 +317,6 @@ namespace UPnP.Infrastructure.Dv
 
           // Common check for supported encodings
           string acceptEncoding = request.Headers.Get("ACCEPT-ENCODING") ?? string.Empty;
-          bool canCompress = acceptEncoding.Contains(CompressionHelper.PREFERRED_COMPRESSION);
 
           // Handle different HTTP methods here
           if (request.Method == "GET")
@@ -342,7 +341,7 @@ namespace UPnP.Infrastructure.Dv
                 if (!string.IsNullOrEmpty(acceptLanguage))
                   response.AddHeader("CONTENT-LANGUAGE", culture.ToString());
                 using (var responseStream = new MemoryStream(UPnPConsts.UTF8_NO_BOM.GetBytes(description)))
-                  CompressionHelper.WriteCompressedStream(response, responseStream, canCompress);
+                  CompressionHelper.WriteCompressedStream(acceptEncoding, response, responseStream);
                 SafeSendResponse(response);
                 return;
               }
@@ -392,7 +391,7 @@ namespace UPnP.Infrastructure.Dv
               }
               response.Status = status;
               using (var responseStream = new MemoryStream(encoding.GetBytes(result)))
-                CompressionHelper.WriteCompressedStream(response, responseStream, canCompress);
+                CompressionHelper.WriteCompressedStream(acceptEncoding, response, responseStream);
               SafeSendResponse(response);
               return;
             }
