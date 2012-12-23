@@ -340,7 +340,7 @@ namespace UPnP.Infrastructure.Dv
                 response.ContentType = "text/xml; charset=utf-8";
                 if (!string.IsNullOrEmpty(acceptLanguage))
                   response.AddHeader("CONTENT-LANGUAGE", culture.ToString());
-                using (var responseStream = new MemoryStream(UPnPConsts.UTF8_NO_BOM.GetBytes(description)))
+                using (MemoryStream responseStream = new MemoryStream(UPnPConsts.UTF8_NO_BOM.GetBytes(description)))
                   CompressionHelper.WriteCompressedStream(acceptEncoding, response, responseStream);
                 SafeSendResponse(response);
                 return;
@@ -390,7 +390,7 @@ namespace UPnP.Infrastructure.Dv
                 status = HttpStatusCode.InternalServerError;
               }
               response.Status = status;
-              using (var responseStream = new MemoryStream(encoding.GetBytes(result)))
+              using (MemoryStream responseStream = new MemoryStream(encoding.GetBytes(result)))
                 CompressionHelper.WriteCompressedStream(acceptEncoding, response, responseStream);
               SafeSendResponse(response);
               return;
