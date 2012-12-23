@@ -198,13 +198,9 @@
     <Content Include="Skin\Titanium\themes\blue\images\background.png" />
     <Content Include="Skin\Titanium\themes\blue\images\preview.jpg" />
     <Content Include="Skin\Titanium\themes\blue\theme.xml" />
-    <Content Include="Skin\Titanium\themes\default\images\Controls\Bar.png" />
-    <Content Include="Skin\Titanium\themes\default\images\Controls\GaussianNoise.jpg" />
-    <Content Include="Skin\Titanium\themes\default\images\Controls\Glass.png" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="plugin.xml" />
-    <Content Include="Skin\Titanium\themes\default\images\Controls\HomeTextbar.png" />
     <Content Include="Skin\Titanium\themes\default\images\FilterLarge.png" />
     <Content Include="Skin\Titanium\themes\default\images\FilterSmall.png" />
     <Content Include="Skin\Titanium\themes\default\images\MovieLarge.png" />
