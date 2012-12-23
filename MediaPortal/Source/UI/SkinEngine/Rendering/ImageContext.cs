@@ -260,11 +260,10 @@ namespace MediaPortal.UI.SkinEngine.Rendering
       return _rotation == RightAngledRotation.HalfPi || _rotation == RightAngledRotation.ThreeHalfPi ? new SizeF(size.Height, size.Width) : size;
     }
 
-    public void Clear()
+    public override void Clear()
     {
-      _effect = null;
+      base.Clear();
       _effectTransition = null;
-      _lastTexture = null;
     }
 
     #endregion

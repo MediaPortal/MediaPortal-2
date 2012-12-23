@@ -63,7 +63,6 @@ namespace MediaPortal.UiComponents.Configuration.ConfigurationControllers
 
     protected void OnSelectionChanged(AbstractProperty property, object oldValue)
     {
-      MultipleSelectionList msl = (MultipleSelectionList) _setting;
       _selectedIndices = FindSelectedIndices();
     }
 

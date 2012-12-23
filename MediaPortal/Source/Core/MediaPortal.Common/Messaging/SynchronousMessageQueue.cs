@@ -38,7 +38,7 @@ namespace MediaPortal.Common.Messaging
     /// <summary>
     /// Creates a new synchronous message queue.
     /// </summary>
-    /// <param name="owner">Owner of this queue. Used for setting the queue's default name.<param>
+    /// <param name="owner">Owner of this queue. Used for setting the queue's default name.</param>
     /// <param name="messageChannels">Message channels this message queue will be registered at the message broker.</param>
     public SynchronousMessageQueue(object owner, string[] messageChannels) : base(messageChannels)
     {

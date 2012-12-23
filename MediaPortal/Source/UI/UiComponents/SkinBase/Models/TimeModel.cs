@@ -101,8 +101,8 @@ namespace MediaPortal.UiComponents.SkinBase.Models
 
       DateTime now = DateTime.Now;
 
-      double Angle = now.Hour * 30;
-      HourAngle = Angle + 12 * now.Minute / 60.0;
+      double angle = now.Hour * 30;
+      HourAngle = angle + 12 * now.Minute / 60.0;
 
       MinuteAngle = now.Minute * 6;
 

@@ -33,29 +33,15 @@ namespace MediaPortal.UI.Players.BassPlayer.PlayerComponents
   /// </summary>
   public class VSTProcessor : IDisposable
   {
-    #region Static members
-
-    /// <summary>
-    /// Creates and initializes an new instance.
-    /// </summary>
-    /// <param name="controller">Containing controller instance.</param>
-    public VSTProcessor(Controller controller)
-    {
-      _controller = controller;
-    }
-
-    #endregion
-
     #region Fields
 
-    private Controller _controller;
-    private BassStream _InputStream;
-    private BassStream _OutputStream;
-    private bool _Initialized;
+    private BassStream _inputStream;
+    private BassStream _outputStream;
+    private bool _initialized;
 
     #endregion
 
-    #region IDisposable Members
+    #region IDisposable implementation
 
     public void Dispose()
     {
@@ -70,7 +56,7 @@ namespace MediaPortal.UI.Players.BassPlayer.PlayerComponents
     /// </summary>
     public BassStream InputStream
     {
-      get { return _InputStream; }
+      get { return _inputStream; }
     }
 
     /// <summary>
@@ -78,7 +64,7 @@ namespace MediaPortal.UI.Players.BassPlayer.PlayerComponents
     /// </summary>
     public BassStream OutputStream
     {
-      get { return _OutputStream; }
+      get { return _outputStream; }
     }
 
     /// <summary>
@@ -88,9 +74,9 @@ namespace MediaPortal.UI.Players.BassPlayer.PlayerComponents
     public void SetInputStream(BassStream stream)
     {
       ResetInputStream();
-      _InputStream = stream;
-      _OutputStream = stream;
-      _Initialized = true;
+      _inputStream = stream;
+      _outputStream = stream;
+      _initialized = true;
     }
 
     /// <summary>
@@ -98,14 +84,14 @@ namespace MediaPortal.UI.Players.BassPlayer.PlayerComponents
     /// </summary>
     public void ResetInputStream()
     {
-      if (_Initialized)
+      if (_initialized)
       {
-        _Initialized = false;
+        _initialized = false;
 
         //_OutputStream.Dispose();
-        _OutputStream = null;
+        _outputStream = null;
 
-        _InputStream = null;
+        _inputStream = null;
       }
     }
 

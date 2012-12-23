@@ -58,7 +58,7 @@ namespace MediaPortal.UI.Players.BassPlayer.InputSources
     private readonly char _drive;
     private uint _trackNo;
     private TimeSpan _length;
-    private BassStream _BassStream = null;
+    private BassStream _bassStream = null;
 
     #endregion
 
@@ -88,7 +88,7 @@ namespace MediaPortal.UI.Players.BassPlayer.InputSources
 
     public bool IsInitialized
     {
-      get { return _BassStream != null; }
+      get { return _bassStream != null; }
     }
 
     public bool SwitchTo(BassCDTrackInputSource other)
@@ -96,7 +96,7 @@ namespace MediaPortal.UI.Players.BassPlayer.InputSources
       if (other.Drive != _drive)
         return false;
 
-      BassStream stream = _BassStream;
+      BassStream stream = _bassStream;
       if (stream != null && BassCd.BASS_CD_StreamSetTrack(stream.Handle, other.BassTrackNo))
       {
         Log.Debug("BassCDTrackInputSource: Simply switched the current track to drive '{0}', track {1}", other.Drive, other.TrackNo);
@@ -123,7 +123,7 @@ namespace MediaPortal.UI.Players.BassPlayer.InputSources
       {
         if (!IsInitialized)
           Initialize();
-        return _BassStream;
+        return _bassStream;
       }
     }
 
@@ -138,10 +138,10 @@ namespace MediaPortal.UI.Players.BassPlayer.InputSources
 
     public void Dispose()
     {
-      if (_BassStream == null)
+      if (_bassStream == null)
         return;
-      _BassStream.Dispose();
-      _BassStream = null;
+      _bassStream.Dispose();
+      _bassStream = null;
     }
 
     #endregion
@@ -176,7 +176,7 @@ namespace MediaPortal.UI.Players.BassPlayer.InputSources
           return;
         throw new BassLibraryException("BASS_CD_StreamCreate");
       }
-      _BassStream = BassStream.Create(handle);
+      _bassStream = BassStream.Create(handle);
     }
 
     #endregion

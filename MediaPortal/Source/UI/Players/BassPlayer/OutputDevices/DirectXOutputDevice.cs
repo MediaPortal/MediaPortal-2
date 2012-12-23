@@ -40,43 +40,43 @@ namespace MediaPortal.UI.Players.BassPlayer.OutputDevices
   {
     #region Static members
 
-    protected static readonly Dictionary<int, DeviceInfo> _DeviceInfos = new Dictionary<int, DeviceInfo>();
+    protected static readonly Dictionary<int, DeviceInfo> _deviceInfos = new Dictionary<int, DeviceInfo>();
 
     #endregion
 
     #region Fields
 
     private readonly Controller _controller;
-    private readonly STREAMPROC _StreamWriteProcDelegate;
-    private readonly int _DeviceNo;
-    private readonly Silence _Silence;
-    private volatile DeviceState _DeviceState;
+    private readonly STREAMPROC _streamWriteProcDelegate;
+    private readonly int _deviceNo;
+    private readonly Silence _silence;
+    private volatile DeviceState _deviceState;
 
-    private BassStream _InputStream = null;
-    private BassStream _OutputStream = null;
-    private BassStreamFader _Fader = null;
-    private bool _OutputStreamEnded = false;
+    private BassStream _inputStream = null;
+    private BassStream _outputStream = null;
+    private BassStreamFader _fader = null;
+    private bool _outputStreamEnded = false;
 
     #endregion
 
     public DirectXOutputDevice(Controller controller)
     {
       _controller = controller;
-      _DeviceState = DeviceState.Stopped;
-      _StreamWriteProcDelegate = new STREAMPROC(OutputStreamWriteProc);
-      _Silence = new Silence();
+      _deviceState = DeviceState.Stopped;
+      _streamWriteProcDelegate = OutputStreamWriteProc;
+      _silence = new Silence();
 
-      _DeviceNo = GetDeviceNo();
+      _deviceNo = GetDeviceNo();
 
       BASSInit flags = BASSInit.BASS_DEVICE_DEFAULT;
 
       // Because all deviceinfo is saved in a static dictionary,
       // we need to determine the latency only once.
-      if (!_DeviceInfos.ContainsKey(_DeviceNo))
+      if (!_deviceInfos.ContainsKey(_deviceNo))
         flags |= BASSInit.BASS_DEVICE_LATENCY;
 
       bool result = Bass.BASS_Init(
-          _DeviceNo,
+          _deviceNo,
           44100, //Only relevant for -> pre-XP (VxD drivers)
           flags,
           IntPtr.Zero);
@@ -85,13 +85,13 @@ namespace MediaPortal.UI.Players.BassPlayer.OutputDevices
 
       // If the GetDeviceNo() method returned BassConstants.BassDefaultDevice, we must request the actual device number
       // of the choosen default device
-      _DeviceNo = Bass.BASS_GetDevice();
+      _deviceNo = Bass.BASS_GetDevice();
 
       if (bassInitErrorCode.HasValue)
       {
         if (bassInitErrorCode.Value == BASSError.BASS_ERROR_ALREADY)
         {
-          if (!Bass.BASS_SetDevice(_DeviceNo))
+          if (!Bass.BASS_SetDevice(_deviceNo))
             throw new BassLibraryException("BASS_SetDevice");
           bassInitErrorCode = null;
         }
@@ -100,7 +100,7 @@ namespace MediaPortal.UI.Players.BassPlayer.OutputDevices
       if (bassInitErrorCode.HasValue)
         throw new BassLibraryException("BASS_Init", bassInitErrorCode.Value);
 
-      CollectDeviceInfo(_DeviceNo);
+      CollectDeviceInfo(_deviceNo);
 
       int ms = Convert.ToInt32(Controller.GetSettings().DirectSoundBufferSize.TotalMilliseconds);
 
@@ -120,15 +120,15 @@ namespace MediaPortal.UI.Players.BassPlayer.OutputDevices
 
       Log.Debug("Disposing output stream");
 
-      _OutputStream.Dispose();
-      _OutputStream = null;
+      _outputStream.Dispose();
+      _outputStream = null;
 
       Log.Debug("Resetting global Bass environment");
 
       if (!Bass.BASS_SetConfig(BASSConfig.BASS_CONFIG_UPDATEPERIOD, 0))
         throw new BassLibraryException("BASS_SetConfig");
 
-      if (!Bass.BASS_SetDevice(_DeviceNo))
+      if (!Bass.BASS_SetDevice(_deviceNo))
         throw new BassLibraryException("BASS_SetDevice");
 
       if (!Bass.BASS_Free())
@@ -144,120 +144,120 @@ namespace MediaPortal.UI.Players.BassPlayer.OutputDevices
 
     public BassStream InputStream
     {
-      get { return _InputStream; }
+      get { return _inputStream; }
     }
 
     public DeviceState DeviceState
     {
-      get { return _DeviceState; }
+      get { return _deviceState; }
     }
 
     public string Name
     {
-      get { return _DeviceInfos[_DeviceNo]._Name; }
+      get { return _deviceInfos[_deviceNo].Name; }
     }
 
     public string Driver
     {
-      get { return _DeviceInfos[_DeviceNo]._Driver; }
+      get { return _deviceInfos[_deviceNo].Driver; }
     }
 
     public int Channels
     {
-      get { return _DeviceInfos[_DeviceNo]._Channels; }
+      get { return _deviceInfos[_deviceNo].Channels; }
     }
 
     public int MinRate
     {
-      get { return _DeviceInfos[_DeviceNo]._MinRate; }
+      get { return _deviceInfos[_deviceNo].MinRate; }
     }
 
     public int MaxRate
     {
-      get { return _DeviceInfos[_DeviceNo]._MaxRate; }
+      get { return _deviceInfos[_deviceNo].MaxRate; }
     }
 
     public TimeSpan Latency
     {
-      get { return _DeviceInfos[_DeviceNo]._Latency + Controller.GetSettings().DirectSoundBufferSize; }
+      get { return _deviceInfos[_deviceNo].Latency + Controller.GetSettings().DirectSoundBufferSize; }
     }
 
     public void SetInputStream(BassStream stream, bool passThrough)
     {
-      if (_DeviceState != DeviceState.Stopped)
+      if (_deviceState != DeviceState.Stopped)
         throw new BassPlayerException("Device state is not 'DeviceState.Stopped'");
 
-      _InputStream = stream;
+      _inputStream = stream;
 
       Log.Debug("Creating output stream");
 
       const BASSFlag flags = BASSFlag.BASS_SAMPLE_FLOAT;
       int handle = Bass.BASS_StreamCreate(
-          _InputStream.SampleRate,
-          _InputStream.Channels,
+          _inputStream.SampleRate,
+          _inputStream.Channels,
           flags,
-          _StreamWriteProcDelegate,
+          _streamWriteProcDelegate,
           IntPtr.Zero);
 
       if (handle == BassConstants.BassInvalidHandle)
         throw new BassLibraryException("BASS_StreamCreate");
 
-      _OutputStream = BassStream.Create(handle);
+      _outputStream = BassStream.Create(handle);
 
       if (passThrough)
-        _Fader = new BassStreamFader(_InputStream, Controller.GetSettings().FadeDuration);
+        _fader = new BassStreamFader(_inputStream, Controller.GetSettings().FadeDuration);
 
       ResetState();
     }
 
     public void PrepareFadeIn()
     {
-      if (_Fader != null)
-        _Fader.PrepareFadeIn();
+      if (_fader != null)
+        _fader.PrepareFadeIn();
     }
 
     public void FadeIn(bool async)
     {
-      if (_Fader != null)
-        _Fader.FadeIn(async);
+      if (_fader != null)
+        _fader.FadeIn(async);
     }
 
     public void FadeOut(bool async)
     {
-      if (_Fader != null && !_OutputStreamEnded)
+      if (_fader != null && !_outputStreamEnded)
       {
         Log.Debug("Fading out");
-        _Fader.FadeOut(async);
+        _fader.FadeOut(async);
       }
     }
 
     public void Start()
     {
-      if (_DeviceState == DeviceState.Started)
+      if (_deviceState == DeviceState.Started)
         return;
       
       Log.Debug("Starting output");
-      _DeviceState = DeviceState.Started;
+      _deviceState = DeviceState.Started;
 
-      if (!Bass.BASS_ChannelPlay(_OutputStream.Handle, false))
+      if (!Bass.BASS_ChannelPlay(_outputStream.Handle, false))
         throw new BassLibraryException("BASS_ChannelPlay");
     }
 
     public void Stop()
     {
-      if (_DeviceState == DeviceState.Stopped)
+      if (_deviceState == DeviceState.Stopped)
         return;
 
       Log.Debug("Stopping output");
-      _DeviceState = DeviceState.Stopped;
+      _deviceState = DeviceState.Stopped;
 
-      if (!Bass.BASS_ChannelStop(_OutputStream.Handle))
+      if (!Bass.BASS_ChannelStop(_outputStream.Handle))
         throw new BassLibraryException("BASS_ChannelStop");
     }
 
     public void ClearBuffers()
     {
-      Bass.BASS_ChannelSetPosition(_OutputStream.Handle, 0L);
+      Bass.BASS_ChannelSetPosition(_outputStream.Handle, 0L);
     }
 
     #endregion
@@ -268,8 +268,8 @@ namespace MediaPortal.UI.Players.BassPlayer.OutputDevices
     {
       get
       {
-        lock (_DeviceInfos)
-          return _DeviceInfos[_DeviceNo];
+        lock (_deviceInfos)
+          return _deviceInfos[_deviceNo];
       }
     }
 
@@ -284,7 +284,7 @@ namespace MediaPortal.UI.Players.BassPlayer.OutputDevices
     private void CollectDeviceInfo(int deviceNo)
     {
       // Device info is saved in a dictionary so it can be reused lateron.
-      if (!_DeviceInfos.ContainsKey(deviceNo))
+      if (!_deviceInfos.ContainsKey(deviceNo))
       {
         Log.Debug("Collecting device info");
 
@@ -298,18 +298,18 @@ namespace MediaPortal.UI.Players.BassPlayer.OutputDevices
 
         DeviceInfo deviceInfo = new DeviceInfo
           {
-              _Name = bassDeviceInfo.name,
-              _Driver = bassDeviceInfo.driver,
-              _Channels = bassInfo.speakers,
-              _MinRate = bassInfo.minrate,
-              _MaxRate = bassInfo.maxrate,
-              _Latency = TimeSpan.FromMilliseconds(bassInfo.latency)
+              Name = bassDeviceInfo.name,
+              Driver = bassDeviceInfo.driver,
+              Channels = bassInfo.speakers,
+              MinRate = bassInfo.minrate,
+              MaxRate = bassInfo.maxrate,
+              Latency = TimeSpan.FromMilliseconds(bassInfo.latency)
           };
 
-        lock (_DeviceInfos)
-          _DeviceInfos.Add(deviceNo, deviceInfo);
+        lock (_deviceInfos)
+          _deviceInfos.Add(deviceNo, deviceInfo);
       }
-      Log.Debug("DirectSound device info: {0}", _DeviceInfos[_DeviceNo].ToString());
+      Log.Debug("DirectSound device info: {0}", _deviceInfos[_deviceNo].ToString());
     }
 
     /// <summary>
@@ -359,12 +359,12 @@ namespace MediaPortal.UI.Players.BassPlayer.OutputDevices
     /// </summary>
     internal void WaitAndHandleOutputEnd_Sync()
     {
-      DateTime timeout = DateTime.Now + CurrentDeviceInfo._Latency + TimeSpan.FromSeconds(1);
-      BassStream stream = _OutputStream;
+      DateTime timeout = DateTime.Now + CurrentDeviceInfo.Latency + TimeSpan.FromSeconds(1);
+      BassStream stream = _outputStream;
       if (stream != null)
         while (Bass.BASS_ChannelIsActive(stream.Handle) != BASSActive.BASS_ACTIVE_STOPPED && DateTime.Now < timeout)
           Thread.Sleep(10);
-      if (_DeviceState == DeviceState.Started)
+      if (_deviceState == DeviceState.Started)
         _controller.PlaybackProcessor.HandleOutputStreamEnded();
     }
 
@@ -378,20 +378,20 @@ namespace MediaPortal.UI.Players.BassPlayer.OutputDevices
     /// <returns>Number of bytes read.</returns>
     private int OutputStreamWriteProc(int streamHandle, IntPtr buffer, int requestedBytes, IntPtr userData)
     {
-      if (_DeviceState == DeviceState.Stopped)
+      if (_deviceState == DeviceState.Stopped)
         return (int) BASSStreamProc.BASS_STREAMPROC_END;
-      if (_OutputStreamEnded)
+      if (_outputStreamEnded)
         return (int) BASSStreamProc.BASS_STREAMPROC_END;
-      int read = _InputStream.Read(buffer, requestedBytes);
+      int read = _inputStream.Read(buffer, requestedBytes);
       if (read == -1)
       {
         // We're done!
 
         // Play silence until playback has stopped to avoid any buffer underruns.
-        read = _Silence.Write(buffer, requestedBytes);
+        read = _silence.Write(buffer, requestedBytes);
 
         // Set a flag so we call HandleOutputStreamEnded() only once.
-        _OutputStreamEnded = true;
+        _outputStreamEnded = true;
 
         // Our input stream is finished, wait for device to end playback
         HandleOutputStreamAboutToEnd();
@@ -404,7 +404,7 @@ namespace MediaPortal.UI.Players.BassPlayer.OutputDevices
     /// </summary>
     private void ResetState()
     {
-      _OutputStreamEnded = false;
+      _outputStreamEnded = false;
     }
 
     #endregion

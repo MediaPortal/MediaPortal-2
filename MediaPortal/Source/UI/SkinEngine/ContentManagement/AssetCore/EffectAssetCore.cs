@@ -229,11 +229,11 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement.AssetCore
         else if (type == typeof(Color4))
           _effect.SetValue(kvp.Key, (Color4) kvp.Value);
         else if (type == typeof(Color4[]))
-          _effect.SetValue<Color4>(kvp.Key, (Color4[]) kvp.Value);
+          _effect.SetValue(kvp.Key, (Color4[]) kvp.Value);
         else if (type == typeof(float))
           _effect.SetValue(kvp.Key, (float) kvp.Value);
         else if (type == typeof(float[]))
-          _effect.SetValue<float>(kvp.Key, (float[]) kvp.Value);
+          _effect.SetValue(kvp.Key, (float[]) kvp.Value);
         else if (type == typeof(Matrix))
           _effect.SetValue(kvp.Key, (Matrix) kvp.Value);
         else if (type == typeof(Vector3))

@@ -193,7 +193,7 @@ namespace MediaPortal.Common.ResourceAccess
         ProviderPathSegment pathSegment = _pathSegments[0];
         IMediaAccessor mediaAccessor = ServiceRegistration.Get<IMediaAccessor>();
         IResourceProvider resourceProvider;
-        return mediaAccessor.LocalResourceProviders.TryGetValue(pathSegment.ProviderId, out resourceProvider) ? resourceProvider.Metadata.NetworkResource : false;
+        return mediaAccessor.LocalResourceProviders.TryGetValue(pathSegment.ProviderId, out resourceProvider) && resourceProvider.Metadata.NetworkResource;
       }
     }
 

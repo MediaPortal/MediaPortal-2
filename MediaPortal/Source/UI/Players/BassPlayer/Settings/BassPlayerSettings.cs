@@ -60,17 +60,17 @@ namespace MediaPortal.UI.Players.BassPlayer.Settings
 
     #region Fields
 
-    private OutputMode _OutputMode = Defaults.AudioOutputMode;
-    private string _DirectSoundDevice = Defaults.DirectSoundDevice;
-    private TimeSpan _DirectSoundBufferSize = TimeSpan.FromMilliseconds(Defaults.DirectSoundBufferSizeMilliSecs);
-    private TimeSpan _PlaybackBufferSize = TimeSpan.FromMilliseconds(Defaults.PlaybackBufferSizeMilliSecs);
-    private TimeSpan _SeekIncrement = TimeSpan.FromSeconds(Defaults.SeekIncrementSeconds);
+    private OutputMode _outputMode = Defaults.AudioOutputMode;
+    private string _directSoundDevice = Defaults.DirectSoundDevice;
+    private TimeSpan _directSoundBufferSize = TimeSpan.FromMilliseconds(Defaults.DirectSoundBufferSizeMilliSecs);
+    private TimeSpan _playbackBufferSize = TimeSpan.FromMilliseconds(Defaults.PlaybackBufferSizeMilliSecs);
+    private TimeSpan _seekIncrement = TimeSpan.FromSeconds(Defaults.SeekIncrementSeconds);
     private PlaybackMode _songTransitionMode = Defaults.SongTransitionMode;
-    private TimeSpan _FadeDuration = TimeSpan.FromMilliseconds(Defaults.FadeDurationMilliSecs);
-    private TimeSpan _CrossFadeDuration = TimeSpan.FromSeconds(Defaults.CrossFadeDurationSecs);
-    private bool _CrossFadeEnabled = Defaults.CrossFadeEnabled;
-    private TimeSpan _VizStreamLatencyCorrection = TimeSpan.FromMilliseconds(Defaults.VizStreamLatencyCorrectionMilliSecs);
-    private List<string> _SupportedExtensions = new List<string>(Defaults.SupportedExtensions);
+    private TimeSpan _fadeDuration = TimeSpan.FromMilliseconds(Defaults.FadeDurationMilliSecs);
+    private TimeSpan _crossFadeDuration = TimeSpan.FromSeconds(Defaults.CrossFadeDurationSecs);
+    private bool _crossFadeEnabled = Defaults.CrossFadeEnabled;
+    private TimeSpan _vizStreamLatencyCorrection = TimeSpan.FromMilliseconds(Defaults.VizStreamLatencyCorrectionMilliSecs);
+    private List<string> _supportedExtensions = new List<string>(Defaults.SupportedExtensions);
 
     #endregion
 
@@ -79,54 +79,54 @@ namespace MediaPortal.UI.Players.BassPlayer.Settings
     [Setting(SettingScope.Global, Defaults.AudioOutputMode)]
     public OutputMode OutputMode
     {
-      get { return _OutputMode; }
-      set { _OutputMode = value; }
+      get { return _outputMode; }
+      set { _outputMode = value; }
     }
 
     [Setting(SettingScope.Global, Defaults.DirectSoundDevice)]
     public string DirectSoundDevice
     {
-      get { return _DirectSoundDevice; }
-      set { _DirectSoundDevice = value; }
+      get { return _directSoundDevice; }
+      set { _directSoundDevice = value; }
     }
 
     [Setting(SettingScope.Global, Defaults.DirectSoundBufferSizeMilliSecs)]
     public int DirectSoundBufferSizeMilliSecs
     {
-      get { return (int)_DirectSoundBufferSize.TotalMilliseconds; }
-      set { _DirectSoundBufferSize = TimeSpan.FromMilliseconds(value); }
+      get { return (int)_directSoundBufferSize.TotalMilliseconds; }
+      set { _directSoundBufferSize = TimeSpan.FromMilliseconds(value); }
     }
 
     public TimeSpan DirectSoundBufferSize
     {
-      get { return _DirectSoundBufferSize; }
-      set { _DirectSoundBufferSize = value; }
+      get { return _directSoundBufferSize; }
+      set { _directSoundBufferSize = value; }
     }
 
     [Setting(SettingScope.Global, Defaults.PlaybackBufferSizeMilliSecs)]
     public int PlaybackBufferSizeMilliSecs
     {
-      get { return (int)_PlaybackBufferSize.TotalMilliseconds; }
-      set { _PlaybackBufferSize = TimeSpan.FromMilliseconds(value); }
+      get { return (int)_playbackBufferSize.TotalMilliseconds; }
+      set { _playbackBufferSize = TimeSpan.FromMilliseconds(value); }
     }
 
     public TimeSpan PlaybackBufferSize
     {
-      get { return _PlaybackBufferSize; }
-      set { _PlaybackBufferSize = value; }
+      get { return _playbackBufferSize; }
+      set { _playbackBufferSize = value; }
     }
 
     [Setting(SettingScope.User, Defaults.SeekIncrementSeconds)]
     public int SeekIncrementSeconds
     {
-      get { return (int)_SeekIncrement.TotalSeconds; }
-      set { _SeekIncrement = TimeSpan.FromSeconds(value); }
+      get { return (int)_seekIncrement.TotalSeconds; }
+      set { _seekIncrement = TimeSpan.FromSeconds(value); }
     }
 
     public TimeSpan SeekIncrement
     {
-      get { return _SeekIncrement; }
-      set { _SeekIncrement = value; }
+      get { return _seekIncrement; }
+      set { _seekIncrement = value; }
     }
 
     [Setting(SettingScope.User, Defaults.SongTransitionMode)]
@@ -139,34 +139,34 @@ namespace MediaPortal.UI.Players.BassPlayer.Settings
     [Setting(SettingScope.User, Defaults.FadeDurationMilliSecs)]
     public int FadeDurationMilliSecs
     {
-      get { return (int)_FadeDuration.TotalMilliseconds; }
-      set { _FadeDuration = TimeSpan.FromMilliseconds(value); }
+      get { return (int)_fadeDuration.TotalMilliseconds; }
+      set { _fadeDuration = TimeSpan.FromMilliseconds(value); }
     }
 
     public TimeSpan FadeDuration
     {
-      get { return _FadeDuration; }
-      set { _FadeDuration = value; }
+      get { return _fadeDuration; }
+      set { _fadeDuration = value; }
     }
 
     [Setting(SettingScope.User, Defaults.CrossFadeDurationSecs)]
     public double CrossFadeDurationSecs
     {
-      get { return _CrossFadeDuration.TotalSeconds; }
-      set { _CrossFadeDuration = TimeSpan.FromSeconds(value); }
+      get { return _crossFadeDuration.TotalSeconds; }
+      set { _crossFadeDuration = TimeSpan.FromSeconds(value); }
     }
 
     public TimeSpan CrossFadeDuration
     {
-      get { return _CrossFadeDuration; }
-      set { _CrossFadeDuration = value; }
+      get { return _crossFadeDuration; }
+      set { _crossFadeDuration = value; }
     }
 
     [Setting(SettingScope.User)]
     public bool CrossFadingEnabled
     {
-      get { return _CrossFadeEnabled; }
-      set { _CrossFadeEnabled = value; }
+      get { return _crossFadeEnabled; }
+      set { _crossFadeEnabled = value; }
     }
 
     /// <summary>
@@ -175,21 +175,21 @@ namespace MediaPortal.UI.Players.BassPlayer.Settings
     [Setting(SettingScope.Global)]
     public List<string> SupportedExtensions
     {
-      get { return _SupportedExtensions; }
-      set { _SupportedExtensions = value; }
+      get { return _supportedExtensions; }
+      set { _supportedExtensions = value; }
     }
 
     [Setting(SettingScope.Global, Defaults.VizStreamLatencyCorrectionMilliSecs)]
     public int VizStreamLatencyCorrectionMilliSecs
     {
-      get { return (int)_VizStreamLatencyCorrection.TotalMilliseconds; }
-      set { _VizStreamLatencyCorrection = TimeSpan.FromMilliseconds(value); }
+      get { return (int)_vizStreamLatencyCorrection.TotalMilliseconds; }
+      set { _vizStreamLatencyCorrection = TimeSpan.FromMilliseconds(value); }
     }
 
     public TimeSpan VizStreamLatencyCorrection
     {
-      get { return _VizStreamLatencyCorrection; }
-      set { _VizStreamLatencyCorrection = value; }
+      get { return _vizStreamLatencyCorrection; }
+      set { _vizStreamLatencyCorrection = value; }
     }
 
     #endregion

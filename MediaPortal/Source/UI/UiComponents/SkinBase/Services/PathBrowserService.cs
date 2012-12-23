@@ -321,10 +321,7 @@ namespace MediaPortal.UiComponents.SkinBase.Services
         }
       }
       else
-      {
         ServiceRegistration.Get<ILogger>().Warn("FileBrowserModel: Cannot access resource path '{0}' for getting child directories", path);
-        yield break;
-      }
     }
 
     protected IEnumerable<ResourcePathMetadata> GetFilesData(ResourcePath path)
@@ -352,10 +349,7 @@ namespace MediaPortal.UiComponents.SkinBase.Services
         }
       }
       else
-      {
         ServiceRegistration.Get<ILogger>().Warn("FileBrowserModel: Cannot access resource path '{0}' for getting files", path);
-        yield break;
-      }
     }
 
     /// <summary>

@@ -81,7 +81,7 @@ namespace MediaPortal.UiComponents.Media.Views
 
     public event ViewChangedDlgt Changed;
 
-    public void install()
+    public void Install()
     {
       SubscribeToMessages();
     }

@@ -52,10 +52,10 @@ namespace MediaPortal.UI.Players.BassPlayer.InputSources
       public StreamInput(Stream inputStream)
       {
         _inputStream = inputStream;
-        _fileProcs = new BASS_FILEPROCS(closeCallback, lengthCalback, readCallback, seekCallback);
+        _fileProcs = new BASS_FILEPROCS(CloseCallback, LengthCalback, ReadCallback, SeekCallback);
       }
 
-      private bool seekCallback(long offset, IntPtr user)
+      private bool SeekCallback(long offset, IntPtr user)
       {
         try
         {
@@ -68,7 +68,7 @@ namespace MediaPortal.UI.Players.BassPlayer.InputSources
         }
       }
 
-      private int readCallback(IntPtr buffer, int length, IntPtr user)
+      private int ReadCallback(IntPtr buffer, int length, IntPtr user)
       {
         // Code taken from BASS help for BASS_FILEPROCS class
         try
@@ -84,12 +84,12 @@ namespace MediaPortal.UI.Players.BassPlayer.InputSources
         catch { return 0; }
       }
 
-      private long lengthCalback(IntPtr user)
+      private long LengthCalback(IntPtr user)
       {
         return _inputStream.Length;
       }
 
-      private void closeCallback(IntPtr user)
+      private void CloseCallback(IntPtr user)
       {
         _inputStream.Close();
       }
@@ -98,7 +98,6 @@ namespace MediaPortal.UI.Players.BassPlayer.InputSources
       {
         get { return _fileProcs; }
       }
-
     }
 
     #region Static members

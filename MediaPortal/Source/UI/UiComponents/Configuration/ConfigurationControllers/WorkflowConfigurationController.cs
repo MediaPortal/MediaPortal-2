@@ -47,7 +47,6 @@ namespace MediaPortal.UiComponents.Configuration.ConfigurationControllers
         // - Configure data (providing workflow states and screens for doing that, change the data, ...)
         // - Calling Save and Apply, or discard the setting by not saving it
         // The the sub workflow should step out again to give the control back to this model again.
-        return;
       }
     }
 

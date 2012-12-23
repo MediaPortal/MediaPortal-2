@@ -39,9 +39,9 @@ namespace MediaPortal.UI.Players.BassPlayer.Utils
   {
     #region Fields
 
-    protected readonly BassStream _Stream;
-    protected readonly TimeSpan _Duration;
-    protected readonly int _DurationMS;
+    protected readonly BassStream _stream;
+    protected readonly TimeSpan _duration;
+    protected readonly int _durationMS;
 
     #endregion
 
@@ -49,19 +49,19 @@ namespace MediaPortal.UI.Players.BassPlayer.Utils
 
     public BassStreamFader(BassStream stream, TimeSpan duration)
     {
-      _Stream = stream;
-      _Duration = duration;
-      _DurationMS = Convert.ToInt32(duration.TotalMilliseconds);
+      _stream = stream;
+      _duration = duration;
+      _durationMS = Convert.ToInt32(duration.TotalMilliseconds);
     }
 
     public TimeSpan Duration
     {
-      get { return _Duration; }
+      get { return _duration; }
     }
 
     public int DurationMS
     {
-      get { return _DurationMS; }
+      get { return _durationMS; }
     }
 
     /// <summary>
@@ -83,7 +83,7 @@ namespace MediaPortal.UI.Players.BassPlayer.Utils
     /// The fade duration is <see cref="DurationMS"/> milli seconds.</param>
     public void FadeIn(bool async)
     {
-      if (_DurationMS != 0)
+      if (_durationMS != 0)
       {
         SlideVolume(1f);
         if (!async)
@@ -104,7 +104,7 @@ namespace MediaPortal.UI.Players.BassPlayer.Utils
     /// The fade duration is <see cref="DurationMS"/> milli seconds.</param>
     public void FadeOut(bool async)
     {
-      if (_DurationMS != 0)
+      if (_durationMS != 0)
       {
         SlideVolume(0f);
         if (!async)
@@ -123,7 +123,7 @@ namespace MediaPortal.UI.Players.BassPlayer.Utils
     /// </summary>
     protected void WaitForVolumeSlide()
     {
-      while (Bass.BASS_ChannelIsSliding(_Stream.Handle, BASSAttribute.BASS_ATTRIB_VOL))
+      while (Bass.BASS_ChannelIsSliding(_stream.Handle, BASSAttribute.BASS_ATTRIB_VOL))
         Thread.Sleep(10);
     }
 
@@ -133,7 +133,7 @@ namespace MediaPortal.UI.Players.BassPlayer.Utils
     /// <param name="volume">0.0f-1.0f -> 0-100%</param>
     protected void SetVolume(float volume)
     {
-      if (!Bass.BASS_ChannelSetAttribute(_Stream.Handle, BASSAttribute.BASS_ATTRIB_VOL, volume))
+      if (!Bass.BASS_ChannelSetAttribute(_stream.Handle, BASSAttribute.BASS_ATTRIB_VOL, volume))
         throw new BassLibraryException("BASS_ChannelSetAttribute");
     }
 
@@ -143,7 +143,7 @@ namespace MediaPortal.UI.Players.BassPlayer.Utils
     /// <param name="volume">0.0f-1.0f -> 0-100%</param>
     protected void SlideVolume(float volume)
     {
-      if (!Bass.BASS_ChannelSlideAttribute(_Stream.Handle, BASSAttribute.BASS_ATTRIB_VOL, volume, _DurationMS))
+      if (!Bass.BASS_ChannelSlideAttribute(_stream.Handle, BASSAttribute.BASS_ATTRIB_VOL, volume, _durationMS))
         throw new BassLibraryException("BASS_ChannelSlideAttribute");
     }
 

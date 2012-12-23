@@ -121,7 +121,7 @@ namespace Media.Importers.MusicImporter.Freedb
           }
           break;
         case 401: // No Site Information Available.
-          break;;
+          break;
         default:
           break;
       }

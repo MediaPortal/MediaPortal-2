@@ -73,8 +73,7 @@ namespace UPnP.Infrastructure.Dv.DeviceTree
         double n = (doubleVal - _minValue) / _step.Value;
         return (n - (int) n) < 0.001;
       }
-      else
-        return true;
+      return true;
     }
 
     #region Description generation

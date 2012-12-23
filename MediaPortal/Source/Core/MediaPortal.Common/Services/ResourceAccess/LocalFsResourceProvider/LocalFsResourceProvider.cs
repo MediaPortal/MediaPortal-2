@@ -227,7 +227,7 @@ namespace MediaPortal.Common.Services.ResourceAccess.LocalFsResourceProvider
       if (path == "/")
         return true;
       string dosPath = ToDosPath(path);
-      return string.IsNullOrEmpty(dosPath) ? false : File.Exists(dosPath) || Directory.Exists(dosPath);
+      return !string.IsNullOrEmpty(dosPath) && (File.Exists(dosPath) || Directory.Exists(dosPath));
     }
 
     public bool TryCreateResourceAccessor(string path, out IResourceAccessor result)

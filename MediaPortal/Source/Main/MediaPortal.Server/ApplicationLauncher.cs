@@ -31,13 +31,13 @@ using MediaPortal.Common.PluginManager;
 #if DEBUG
 using MediaPortal.Common.Services.Logging;
 #else
+using MediaPortal.Common.PathManager;
 using MediaPortal.Backend.Services.Logging;
 using System.IO;
 #endif
 using MediaPortal.Common.Services.Runtime;
 using CommandLine;
 using MediaPortal.Common;
-using MediaPortal.Common.PathManager;
 using MediaPortal.Common.Runtime;
 using MediaPortal.Common.Logging;
 
@@ -64,8 +64,8 @@ namespace MediaPortal.Server
       string logPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData), @"Team MediaPortal\MP2-Server\Log");
 #endif
 
-      Application.ThreadException += new ThreadExceptionEventHandler(Application_ThreadException);
-      AppDomain.CurrentDomain.UnhandledException += new UnhandledExceptionEventHandler(CurrentDomain_UnhandledException);
+      Application.ThreadException += Application_ThreadException;
+      AppDomain.CurrentDomain.UnhandledException += CurrentDomain_UnhandledException;
 
 
       SystemStateService systemStateService = new SystemStateService();

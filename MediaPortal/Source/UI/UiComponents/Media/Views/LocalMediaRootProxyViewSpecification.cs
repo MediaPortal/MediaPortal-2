@@ -111,7 +111,7 @@ namespace MediaPortal.UiComponents.Media.Views
     {
       IServerConnectionManager serverConnectionManager = ServiceRegistration.Get<IServerConnectionManager>();
       SystemName homeServerSystem = serverConnectionManager.LastHomeServerSystem;
-      bool isLocalHomeServer = homeServerSystem == null ? false : homeServerSystem.IsLocalSystem();
+      bool isLocalHomeServer = homeServerSystem != null && homeServerSystem.IsLocalSystem();
       IContentDirectory cd = serverConnectionManager.ContentDirectory;
       ILocalSharesManagement localSharesManagement = ServiceRegistration.Get<ILocalSharesManagement>();
       localServerShares = (isLocalHomeServer && cd != null) ? cd.GetShares(serverConnectionManager.HomeServerSystemId, SharesFilter.All) : new List<Share>();

@@ -94,7 +94,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.TvdbLib.Data
     /// <returns>short description of the episode</returns>
     public override string ToString()
     {
-      return _seriesName + "[" + _language.Abbriviation + "]";;
+      return _seriesName + "[" + _language.Abbriviation + "]";
     }
 
     /// <summary>

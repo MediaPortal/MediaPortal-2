@@ -40,7 +40,7 @@ namespace MediaPortal.UI.Players.BassPlayer.PlayerComponents
 
     private static readonly object _syncObj = new object();
     private static volatile BassLibraryManager _bassLibraryManager = null;
-    private readonly ICollection<int> _DecoderPluginHandles = new List<int>();
+    private readonly ICollection<int> _decoderPluginHandles = new List<int>();
 
     /// <summary>
     /// Loads and initializes the Bass library.
@@ -100,7 +100,7 @@ namespace MediaPortal.UI.Players.BassPlayer.PlayerComponents
       IDictionary<int, string> plugins = Bass.BASS_PluginLoadDirectory(playerPluginsDirectory);
       foreach (string pluginFile in plugins.Values)
         Log.Debug("Loaded plugin '{0}'", pluginFile);
-      CollectionUtils.AddAll(_DecoderPluginHandles, plugins.Keys);
+      CollectionUtils.AddAll(_decoderPluginHandles, plugins.Keys);
 
       if (plugins.Count == 0)
         Log.Info("No audio decoders loaded; probably already loaded.");
@@ -119,9 +119,9 @@ namespace MediaPortal.UI.Players.BassPlayer.PlayerComponents
         Log.Debug("BassLibraryManager.Dispose()");
 
         Log.Debug("Unloading all BASS player plugins");
-        foreach (int pluginHandle in _DecoderPluginHandles)
+        foreach (int pluginHandle in _decoderPluginHandles)
           Bass.BASS_PluginFree(pluginHandle);
-        _DecoderPluginHandles.Clear();
+        _decoderPluginHandles.Clear();
 
         // Free the NoSound device
         if (!Bass.BASS_SetDevice(BassConstants.BassNoSoundDevice))

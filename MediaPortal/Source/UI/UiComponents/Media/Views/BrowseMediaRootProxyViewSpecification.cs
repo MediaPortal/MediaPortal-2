@@ -97,7 +97,7 @@ namespace MediaPortal.UiComponents.Media.Views
     protected static bool IsSingleSeat(IServerConnectionManager serverConnectionManager)
     {
       SystemName homeServerSystem = serverConnectionManager.LastHomeServerSystem;
-      bool isLocalHomeServer = homeServerSystem == null ? false : homeServerSystem.IsLocalSystem();
+      bool isLocalHomeServer = homeServerSystem != null && homeServerSystem.IsLocalSystem();
       IServerController serverController = serverConnectionManager.ServerController;
       ILocalSharesManagement localSharesManagement = ServiceRegistration.Get<ILocalSharesManagement>();
       ICollection<Share> localClientShares = localSharesManagement.Shares.Values;

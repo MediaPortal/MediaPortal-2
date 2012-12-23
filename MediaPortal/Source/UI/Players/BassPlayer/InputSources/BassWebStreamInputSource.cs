@@ -53,7 +53,7 @@ namespace MediaPortal.UI.Players.BassPlayer.InputSources
     #region Fields
 
     private readonly string _url;
-    private BassStream _BassStream;
+    private BassStream _bassStream;
 
     #endregion
 
@@ -71,12 +71,12 @@ namespace MediaPortal.UI.Players.BassPlayer.InputSources
 
     public BassStream OutputStream
     {
-      get { return _BassStream; }
+      get { return _bassStream; }
     }
 
     public TimeSpan Length
     {
-      get { return _BassStream.Length; }
+      get { return _bassStream.Length; }
     }
 
     #endregion
@@ -85,8 +85,8 @@ namespace MediaPortal.UI.Players.BassPlayer.InputSources
 
     public void Dispose()
     {
-      if (_BassStream != null)
-        _BassStream.Dispose();
+      if (_bassStream != null)
+        _bassStream.Dispose();
     }
 
     #endregion
@@ -116,7 +116,7 @@ namespace MediaPortal.UI.Players.BassPlayer.InputSources
       if (handle == BassConstants.BassInvalidHandle)
         throw new BassLibraryException("BASS_MusicLoad");
 
-      _BassStream = BassStream.Create(handle);
+      _bassStream = BassStream.Create(handle);
     }
 
     #endregion

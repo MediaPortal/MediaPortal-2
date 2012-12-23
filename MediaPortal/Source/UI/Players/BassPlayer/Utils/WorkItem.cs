@@ -34,10 +34,10 @@ namespace MediaPortal.UI.Players.BassPlayer.Utils
   {
     #region Fields
 
-    private readonly Delegate _Method;
-    private readonly object[] _Args = null;
-    private object _Result = null;
-    private readonly ManualResetEvent _Event = new ManualResetEvent(false);
+    private readonly Delegate _method;
+    private readonly object[] _args = null;
+    private object _result = null;
+    private readonly ManualResetEvent _event = new ManualResetEvent(false);
 
     #endregion
 
@@ -48,12 +48,12 @@ namespace MediaPortal.UI.Players.BassPlayer.Utils
     /// </summary>
     public WaitHandle WaitHandle
     {
-      get { return _Event; }
+      get { return _event; }
     }
 
     public void Dispose()
     {
-      _Event.Close();
+      _event.Close();
     }
 
     /// <summary>
@@ -61,7 +61,7 @@ namespace MediaPortal.UI.Players.BassPlayer.Utils
     /// </summary>
     public object Result
     {
-      get { return _Result; }
+      get { return _result; }
     }
 
     /// <summary>
@@ -69,7 +69,7 @@ namespace MediaPortal.UI.Players.BassPlayer.Utils
     /// </summary>
     public bool ResultAsBool
     {
-      get { return _Result == null ? false : (bool)_Result; }
+      get { return _result != null && (bool)_result; }
     }
 
     /// <summary>
@@ -77,7 +77,7 @@ namespace MediaPortal.UI.Players.BassPlayer.Utils
     /// </summary>
     public int ResultAsInt
     {
-      get { return _Result == null ? 0 : (int)_Result; }
+      get { return _result == null ? 0 : (int)_result; }
     }
 
     /// <summary>
@@ -87,8 +87,8 @@ namespace MediaPortal.UI.Players.BassPlayer.Utils
     /// <param name="args">Optional parameters for the method.</param>
     public WorkItem(Delegate method, params object[] args)
     {
-      _Method = method;
-      _Args = args;
+      _method = method;
+      _args = args;
     }
 
     /// <summary>
@@ -96,8 +96,8 @@ namespace MediaPortal.UI.Players.BassPlayer.Utils
     /// </summary>
     public void Invoke()
     {
-      _Result = _Method.DynamicInvoke(_Args);
-      _Event.Set();
+      _result = _method.DynamicInvoke(_args);
+      _event.Set();
     }
 
     #endregion

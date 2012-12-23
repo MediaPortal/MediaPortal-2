@@ -105,7 +105,7 @@ namespace MediaPortal.UiComponents.SkinBase.Actions
         IServerConnectionManager serverConnectionManager = ServiceRegistration.Get<IServerConnectionManager>();
         IContentDirectory contentDirectory = serverConnectionManager.ContentDirectory;
         SystemName homeServerSystem = serverConnectionManager.LastHomeServerSystem;
-        bool localHomeServer = homeServerSystem == null ? false : homeServerSystem.IsLocalSystem();
+        bool localHomeServer = homeServerSystem != null && homeServerSystem.IsLocalSystem();
         bool homeServerConncted = contentDirectory != null;
         ILocalSharesManagement localSharesManagement = ServiceRegistration.Get<ILocalSharesManagement>();
         return localHomeServer ? (homeServerConncted && contentDirectory.GetShares(null, SharesFilter.All).Count == 0) :
@@ -153,7 +153,7 @@ namespace MediaPortal.UiComponents.SkinBase.Actions
       IServerConnectionManager serverConnectionManager = ServiceRegistration.Get<IServerConnectionManager>();
       IContentDirectory contentDirectory = serverConnectionManager.ContentDirectory;
       SystemName homeServerSystem = serverConnectionManager.LastHomeServerSystem;
-      bool localHomeServer = homeServerSystem == null ? false : homeServerSystem.IsLocalSystem();
+      bool localHomeServer = homeServerSystem != null && homeServerSystem.IsLocalSystem();
       bool homeServerConncted = contentDirectory != null;
 
       ILocalSharesManagement localSharesManagement = ServiceRegistration.Get<ILocalSharesManagement>();

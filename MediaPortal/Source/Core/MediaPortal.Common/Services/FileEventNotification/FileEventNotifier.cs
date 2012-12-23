@@ -24,6 +24,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using MediaPortal.Common.FileEventNotification;
 
@@ -151,25 +152,25 @@ namespace MediaPortal.Common.Services.FileEventNotification
     {
       lock (_watchers)
       {
-        bool foundValidWatcher = false;  /// Indicates whether we found a useful FileWatcher during the foreach.
+        bool foundValidWatcher = false;  // Indicates whether we found a useful FileWatcher during the foreach.
         foreach (var item in _watchers)
         {
-          /// Does the current FileWatcher watch the specified path?
+          // Does the current FileWatcher watch the specified path?
           if (item.Key == fileWatcherInfo.Path)
           {
             foundValidWatcher = !item.Value.IsDisposed;
             if (foundValidWatcher)
-              /// The watcher is not disposed, add a subscription.
+              // The watcher is not disposed, add a subscription.
               _watchers[fileWatcherInfo.Path].AddSubscription(fileWatcherInfo);
             else
-              /// No need to keep this disposed watcher referenced.
+              // No need to keep this disposed watcher referenced.
               _watchers.Remove(item);
             break;
           }
         }
         if (!foundValidWatcher)
         {
-          /// Existing non-disposed watcher is not found, create a new one.
+          // Existing non-disposed watcher is not found, create a new one.
           var watcher = new FileWatcher(fileWatcherInfo.Path);
           _watchers.Add(fileWatcherInfo.Path, watcher);
           watcher.Disposed += FileWatcher_Disposed;
@@ -216,7 +217,7 @@ namespace MediaPortal.Common.Services.FileEventNotification
         throw new InvalidFileWatchInfoException(String.Format(
           "The specified FileWatcherInfo for path \"{0}\" can't be unsubscribed because it's not a subscribed item of the service.",
           fileWatchInfo.Path));
-      /// Free the assigned ID.
+      // Free the assigned ID.
       lock (_freeId)
       {
         _freeId.Enqueue(fileWatcherInfo.Id);
@@ -224,18 +225,12 @@ namespace MediaPortal.Common.Services.FileEventNotification
       }
       lock (_watchers)
       {
-        if (_watchers.ContainsKey(fileWatcherInfo.Path)) /// Must contain key to be able to remove
+        if (_watchers.ContainsKey(fileWatcherInfo.Path)) // Must contain key to be able to remove
         {
           var watcher = _watchers[fileWatcherInfo.Path];
           if (watcher.RemoveSubscription(fileWatcherInfo))
           {
-            bool isLastItem = true;
-            foreach (var subscription in watcher.Subscriptions)
-            {
-              /// There are more subscriptions if this loop is entered.
-              isLastItem = false;
-              break;
-            }
+            bool isLastItem = !watcher.Subscriptions.Any();
             if (isLastItem) watcher.Dispose();
             return true;
           }

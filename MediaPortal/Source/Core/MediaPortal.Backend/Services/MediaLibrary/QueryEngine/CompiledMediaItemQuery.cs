@@ -286,7 +286,6 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
             if (mainReader.Read())
             {
               Guid mediaItemId = database.ReadDBValue<Guid>(mainReader, mainReader.GetOrdinal(mediaItemIdAlias2));
-              IDictionary<MediaItemAspectMetadata.AttributeSpecification, ICollection<object>> attributeValues;
               result = new MediaItem(mediaItemId);
 
               // Request complex attributes using media item ID

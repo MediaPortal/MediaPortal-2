@@ -130,10 +130,7 @@ namespace UPnP.Infrastructure.Dv.GENA
       if (kvp == null)
         return null;
       TimeSpan result = kvp.Value.Key - DateTime.Now;
-      if (result < TimeSpan.Zero)
-        return TimeSpan.Zero;
-      else
-        return result;
+      return result < TimeSpan.Zero ? TimeSpan.Zero : result;
     }
 
     protected KeyValuePair<DateTime, IEnumerable<DvStateVariable>>? GetFirstScheduledEventNotification()
@@ -141,8 +138,7 @@ namespace UPnP.Infrastructure.Dv.GENA
       IEnumerator<KeyValuePair<DateTime, IEnumerable<DvStateVariable>>> enumer = _scheduledEventNotifications.GetEnumerator();
       if (enumer.MoveNext())
         return enumer.Current;
-      else
-        return null;
+      return null;
     }
 
     public ICollection<DvStateVariable> GetDueEvents()

@@ -763,7 +763,6 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
       _focusedElement = focusedElement;
       _lastFocusRect = focusedElement.ActualBounds;
       focusedElement.FireEvent(FrameworkElement.GOTFOCUS_EVENT, RoutingStrategyEnum.Bubble);
-      return;
     }
 
     /// <summary>

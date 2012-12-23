@@ -80,8 +80,8 @@ namespace MediaPortal.UI.Players.BassPlayer.PlayerComponents
 
       _bufferSize = settings.PlaybackBufferSize;
 
-      _streamWriteProcDelegate = new STREAMPROC(OutputStreamWriteProc);
-      _vizRawStreamWriteProcDelegate = new STREAMPROC(VizRawStreamWriteProc);
+      _streamWriteProcDelegate = OutputStreamWriteProc;
+      _vizRawStreamWriteProcDelegate = VizRawStreamWriteProc;
 
       _notifyBufferUpdateThread = new AutoResetEvent(false);
       _updateThreadFinished = new AutoResetEvent(false);

@@ -390,7 +390,6 @@ namespace MediaPortal.UiComponents.PartyMusicPlayer.Models
     protected void PrepareState(NavigationContext oldContext, NavigationContext newContext, bool push)
     {
       Guid oldStateId = oldContext.WorkflowState.StateId;
-      Guid newStateId = newContext.WorkflowState.StateId;
       if (oldStateId == Consts.WF_STATE_ID_PARTY_MUSIC_PLAYER && !push)
         SavePlayRepeatMode();
     }

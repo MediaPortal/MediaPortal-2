@@ -299,7 +299,7 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
     protected AnimationContext GetContext(Timeline line, UIElement element)
     {
       lock (_syncObject)
-        return _scheduledAnimations.Where(context => context.Timeline == line && context.TimelineContext.VisualParent == element).FirstOrDefault();
+        return _scheduledAnimations.FirstOrDefault(context => context.Timeline == line && context.TimelineContext.VisualParent == element);
     }
 
     // For performance reasons, store those local variables as fields

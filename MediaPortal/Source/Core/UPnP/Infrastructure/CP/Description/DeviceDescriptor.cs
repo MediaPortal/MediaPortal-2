@@ -201,7 +201,6 @@ namespace UPnP.Infrastructure.CP.Description
             (string.IsNullOrEmpty(deviceType) || minDeviceVersion <= 0 || (type == deviceType && version >= minDeviceVersion)))
           yield return new DeviceDescriptor(_rootDescriptor, it.Current.Clone());
       }
-      yield break;
     }
 
     /// <summary>

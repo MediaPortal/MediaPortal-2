@@ -48,11 +48,12 @@ namespace UPnP.Infrastructure.CP.DeviceTree
     /// if <paramref name="forceSimpleValue"/> is set to <c>true</c>), or as an XML element containing the structure
     /// as specified by the schema type of this data type for extended UPnP 1.1 data types.
     /// The writer's position is the start of the parent element, the result should go. After this method returns, the writer
-    /// must have read the end element.</param>
+    /// must have read the end element.
     /// </remarks>
     /// <param name="value">Value to be serialized.</param>
     /// <param name="forceSimpleValue">If set to <c>true</c>, also extended datatypes will be serialized using their
     /// "string equivalent".</param>
+    /// <param name="writer">XmlWriter to be written.</param>
     /// <returns>SOAP serialization for the given <paramref name="value"/>. May be <c>null</c> for serializations of
     /// <c>null</c> values. In this case, an attriute <i>xsi:null="true"</i> must be added in the enclosing SOAP element.</returns>
     public abstract void SoapSerializeValue(object value, bool forceSimpleValue, XmlWriter writer);
@@ -105,19 +106,18 @@ namespace UPnP.Infrastructure.CP.DeviceTree
           throw new ArgumentException(string.Format("Invalid UPnP standard data type name '{0}'", standardDataType));
         return new CpStandardDataType(type);
       }
-      else
-      { // Extended data type
-        if (standardDataType != "string")
-          throw new ArgumentException("UPnP extended data types need to yield a standard data type of 'string'");
-        string schemaURI;
-        string dataTypeName;
-        if (!ParserHelper.TryParseDataTypeReference(extendedDataType, dataTypeElementNav, out schemaURI, out dataTypeName))
-          throw new ArgumentException(string.Format("Unable to parse namespace URI of extended data type '{0}'", extendedDataType));
-        UPnPExtendedDataType result;
-        if (dataTypeResolver != null && dataTypeResolver(schemaURI + ":" + dataTypeName, out result))
-          return new CpExtendedDataType(result);
-        return new CpExtendedDataType(new ExtendedDataTypeDummy(schemaURI, dataTypeName));
-      }
+
+      // Extended data type
+      if (standardDataType != "string")
+        throw new ArgumentException("UPnP extended data types need to yield a standard data type of 'string'");
+      string schemaURI;
+      string dataTypeName;
+      if (!ParserHelper.TryParseDataTypeReference(extendedDataType, dataTypeElementNav, out schemaURI, out dataTypeName))
+        throw new ArgumentException(string.Format("Unable to parse namespace URI of extended data type '{0}'", extendedDataType));
+      UPnPExtendedDataType result;
+      if (dataTypeResolver != null && dataTypeResolver(schemaURI + ":" + dataTypeName, out result))
+        return new CpExtendedDataType(result);
+      return new CpExtendedDataType(new ExtendedDataTypeDummy(schemaURI, dataTypeName));
     }
 
     #endregion

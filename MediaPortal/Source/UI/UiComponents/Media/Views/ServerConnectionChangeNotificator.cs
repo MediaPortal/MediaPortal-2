@@ -70,7 +70,7 @@ namespace MediaPortal.UiComponents.Media.Views
       }
     }
 
-    public void install()
+    public void Install()
     {
       _messageQueue = new AsynchronousMessageQueue(this, new string[]
         {

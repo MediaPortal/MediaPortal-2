@@ -55,7 +55,7 @@ namespace MediaPortal.UI.Players.BassPlayer.InputSources
 
     #region Fields
 
-    private BassStream _BassStream;
+    private BassStream _bassStream;
 
     #endregion
 
@@ -68,12 +68,12 @@ namespace MediaPortal.UI.Players.BassPlayer.InputSources
 
     public BassStream OutputStream
     {
-      get { return _BassStream; }
+      get { return _bassStream; }
     }
 
     public TimeSpan Length
     {
-      get { return _BassStream.Length; }
+      get { return _bassStream.Length; }
     }
 
     #endregion
@@ -83,8 +83,8 @@ namespace MediaPortal.UI.Players.BassPlayer.InputSources
     public override void Dispose()
     {
       base.Dispose();
-      if (_BassStream != null)
-        _BassStream.Dispose();
+      if (_bassStream != null)
+        _bassStream.Dispose();
       // Bass.BASS_MusicFree is not necessary to be called here because of flag BASS_MUSIC_AUTOFREE
     }
 
@@ -125,7 +125,7 @@ namespace MediaPortal.UI.Players.BassPlayer.InputSources
       if (handle == BassConstants.BassInvalidHandle)
         throw new BassLibraryException("BASS_MusicLoad");
 
-      _BassStream = BassStream.Create(handle);
+      _bassStream = BassStream.Create(handle);
     }
 
     #endregion

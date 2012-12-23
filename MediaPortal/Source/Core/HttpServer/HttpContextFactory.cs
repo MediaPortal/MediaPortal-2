@@ -43,6 +43,7 @@ namespace HttpServer
     /// <param name="isSecured">true if socket is running HTTPS.</param>
     /// <param name="endPoint">Client that connected</param>
     /// <param name="stream">Network/SSL stream.</param>
+    /// <param name="sock">Socket to use.</param>
     /// <returns>A context.</returns>
     protected HttpClientContext CreateContext(bool isSecured, IPEndPoint endPoint, Stream stream, Socket sock)
     {
@@ -82,6 +83,7 @@ namespace HttpServer
     /// <param name="isSecured">true if HTTPS is used.</param>
     /// <param name="endPoint">Remote client</param>
     /// <param name="stream">Network stream, <see cref="HttpClientContext"/> uses <see cref="ReusableSocketNetworkStream"/>.</param>
+    /// <param name="sock">Socket to use.</param>
     /// <returns>A new context (always).</returns>
     protected virtual HttpClientContext CreateNewContext(bool isSecured, IPEndPoint endPoint, Stream stream, Socket sock)
     {

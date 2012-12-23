@@ -122,8 +122,7 @@ namespace MediaPortal.UiComponents.SkinBase.Actions
       IPlayerContextManager playerContextManager = ServiceRegistration.Get<IPlayerContextManager>();
       IWorkflowManager workflowManager = ServiceRegistration.Get<IWorkflowManager>();
       IPlayerContext pc = playerContextManager.CurrentPlayerContext;
-      bool visible = pc == null ? false :
-          !workflowManager.IsStateContainedInNavigationStack(pc.CurrentlyPlayingWorkflowStateId);
+      bool visible = pc != null && !workflowManager.IsStateContainedInNavigationStack(pc.CurrentlyPlayingWorkflowStateId);
       if (visible == _isVisible)
         return;
       _isVisible = visible;

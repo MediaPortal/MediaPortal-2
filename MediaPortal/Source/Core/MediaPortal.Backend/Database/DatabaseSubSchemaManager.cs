@@ -211,10 +211,9 @@ namespace MediaPortal.Backend.Database
       UpdateOperation result;
       if (_versionToUpdateOperation.TryGetValue(WildcardVersionToString(fromVersionMajor, null), out result))
         return result;
-      else if (_versionToUpdateOperation.TryGetValue(WildcardVersionToString(fromVersionMajor, fromVersionMinor), out result))
+      if (_versionToUpdateOperation.TryGetValue(WildcardVersionToString(fromVersionMajor, fromVersionMinor), out result))
         return result;
-      else
-        return null;
+      return null;
     }
 
     protected DeleteOperation GetDeleteOperation(int fromVersionMajor, int fromVersionMinor)
@@ -222,18 +221,16 @@ namespace MediaPortal.Backend.Database
       DeleteOperation result;
       if (_versionToDeleteOperation.TryGetValue(WildcardVersionToString(fromVersionMajor, null), out result))
         return result;
-      else if (_versionToDeleteOperation.TryGetValue(WildcardVersionToString(fromVersionMajor, fromVersionMinor), out result))
+      if (_versionToDeleteOperation.TryGetValue(WildcardVersionToString(fromVersionMajor, fromVersionMinor), out result))
         return result;
-      else
-        return null;
+      return null;
     }
 
     protected string WildcardVersionToString(int versionMajor, int? versionMinor)
     {
       if (!versionMinor.HasValue)
         return versionMajor + ".*";
-      else
-        return versionMajor + "." + versionMinor.Value;
+      return versionMajor + "." + versionMinor.Value;
     }
 
     /// <summary>

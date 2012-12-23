@@ -29,8 +29,8 @@ namespace MediaPortal.Common.Threading
   public class WorkEventArgs
   {
     public readonly IWork Work;
-    private Type resultType;
-    private object result;
+    private Type _resultType;
+    private object _result;
 
     public WorkEventArgs(IWork work)
     {
@@ -49,17 +49,15 @@ namespace MediaPortal.Common.Threading
 
     public void SetResult<T>(T result)
     {
-      resultType = typeof(T);
-      this.result = result;
+      _resultType = typeof(T);
+      _result = result;
     }
 
     public T GetResult<T>()
     {
       Type t = typeof(T);
-      if (t == resultType)
-      {
-        return (T)result;
-      }
+      if (t == _resultType)
+        return (T) _result;
       return default(T);
     }
   }

@@ -135,7 +135,7 @@ namespace MediaPortal.Common.Services.Logging
       messageBuilder.Append(": ");
       messageBuilder.Append(message);
 
-      Write(messageBuilder.ToString(), _alwaysFlush ? true : messageLevel == LogLevel.Critical);
+      Write(messageBuilder.ToString(), _alwaysFlush || messageLevel == LogLevel.Critical);
     }
 
     protected void Write(string message)

@@ -318,7 +318,6 @@ namespace UPnP.Infrastructure.CP.GENA
         service.InvokeEventSubscriptionFailed(new UPnPError(response == null ? 503 : (uint) response.StatusCode, "Cannot complete event subscription"));
         if (response != null)
           response.Close();
-        return;
       }
     }
 

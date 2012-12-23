@@ -34,7 +34,7 @@ namespace MediaPortal.UI.Players.BassPlayer.Utils
   {
     #region Fields
 
-    private byte[] _Silence = new byte[1];
+    private byte[] _silence = new byte[1];
 
     #endregion
 
@@ -48,10 +48,10 @@ namespace MediaPortal.UI.Players.BassPlayer.Utils
     /// <returns>Number of bytes written. Always equals requestedBytes.</returns>
     public int Write(IntPtr buffer, int requestedBytes)
     {
-      if (_Silence.Length < requestedBytes)
-        Array.Resize(ref _Silence, requestedBytes);
+      if (_silence.Length < requestedBytes)
+        Array.Resize(ref _silence, requestedBytes);
 
-      Marshal.Copy(_Silence, 0, buffer, requestedBytes);
+      Marshal.Copy(_silence, 0, buffer, requestedBytes);
       return requestedBytes;
     }
 

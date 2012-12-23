@@ -542,11 +542,11 @@ namespace MediaPortal.Common.TaskScheduler
           {
             nextDate = new DateTime(_lastRun.Year, _lastRun.Month, _lastRun.Day, 0, 0, 0);
             if (nowDay == day)
-              nextDate.AddDays(7);
+              nextDate = nextDate.AddDays(7);
             else if (nowDay < day)
-              nextDate.AddDays(day - nowDay);
+              nextDate = nextDate.AddDays(day - nowDay);
             else
-              nextDate.AddDays(7 - (nowDay - day));
+              nextDate = nextDate.AddDays(7 - (nowDay - day));
           }
         }
         return nextDate;

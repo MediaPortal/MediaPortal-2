@@ -37,7 +37,7 @@ namespace MediaPortal.UI.Players.Image.Settings
         new List<string>(".bmp,.png,.jpg,.jpeg".Split(','));
 
     protected double _slideShowImageDuration = DEFAULT_SLIDE_SHOW_IMAGE_DURATION;
-    protected List<string> _SupportedExtensions = new List<string>(DEFAULT_SUPPORTED_EXTENSIONS);
+    protected List<string> _supportedExtensions = new List<string>(DEFAULT_SUPPORTED_EXTENSIONS);
 
     /// <summary>
     /// Duration in seconds until the next image is shown in slideshow mode.
@@ -55,8 +55,8 @@ namespace MediaPortal.UI.Players.Image.Settings
     [Setting(SettingScope.Global)]
     public List<string> SupportedExtensions
     {
-      get { return _SupportedExtensions; }
-      set { _SupportedExtensions = value; }
+      get { return _supportedExtensions; }
+      set { _supportedExtensions = value; }
     }
 
     /// <summary>

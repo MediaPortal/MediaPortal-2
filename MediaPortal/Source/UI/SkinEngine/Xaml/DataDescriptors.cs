@@ -262,7 +262,7 @@ namespace MediaPortal.UI.SkinEngine.Xaml
       get
       {
         PropertyInfo itemPi = GetIndexerPropertyInfo(_target.GetType());
-        return itemPi == null ? false : itemPi.CanRead;
+        return itemPi != null && itemPi.CanRead;
       }
     }
 
@@ -271,7 +271,7 @@ namespace MediaPortal.UI.SkinEngine.Xaml
       get
       {
         PropertyInfo itemPi = GetIndexerPropertyInfo(_target.GetType());
-        return itemPi == null ? false : itemPi.CanWrite;
+        return itemPi != null && itemPi.CanWrite;
       }
     }
 

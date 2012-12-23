@@ -388,7 +388,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       get
       {
         IScrollInfo si = _itemsHostPanel as IScrollInfo;
-        return si == null ? true : si.IsViewPortAtBottom;
+        return si == null || si.IsViewPortAtBottom;
       }
     }
 
@@ -397,7 +397,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       get
       {
         IScrollInfo si = _itemsHostPanel as IScrollInfo;
-        return si == null ? true : si.IsViewPortAtLeft;
+        return si == null || si.IsViewPortAtLeft;
       }
     }
 
@@ -406,7 +406,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       get
       {
         IScrollInfo si = _itemsHostPanel as IScrollInfo;
-        return si == null ? true : si.IsViewPortAtRight;
+        return si == null || si.IsViewPortAtRight;
       }
     }
 

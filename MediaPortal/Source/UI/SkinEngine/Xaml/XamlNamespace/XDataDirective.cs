@@ -35,14 +35,11 @@ namespace MediaPortal.UI.SkinEngine.Xaml.XamlNamespace
   /// </summary>
   public class XDataDirective: INativeXamlObject
   {
-
     #region Protected fields
 
     protected string _xmlString = null;
 
     #endregion
-
-    public XDataDirective() { }
 
     #region Properties
 

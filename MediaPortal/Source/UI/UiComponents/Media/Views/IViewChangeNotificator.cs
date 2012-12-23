@@ -39,7 +39,7 @@ namespace MediaPortal.UiComponents.Media.Views
     /// Installs this change notificator. After this method was called, this change notificator can notify
     /// listeners of the <see cref="Changed"/> event.
     /// </summary>
-    void install();
+    void Install();
     
     // Derived from IDisposable:
     //void Dispose();

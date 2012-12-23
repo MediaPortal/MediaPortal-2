@@ -23,7 +23,6 @@
 #endregion
 
 using System;
-using MediaPortal.Utilities.Exceptions;
 
 namespace MediaPortal.Common.ResourceAccess
 {

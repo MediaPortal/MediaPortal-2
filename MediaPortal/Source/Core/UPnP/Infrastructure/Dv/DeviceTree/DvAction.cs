@@ -74,7 +74,7 @@ namespace UPnP.Infrastructure.Dv.DeviceTree
     /// character ("_"), followed by the vendor-assigned action name. The vendor-assigned
     /// action name must comply with the syntax rules defined above.</item>
     /// </list>
-    /// Case sensitive. SHOULD be < 32 characters.
+    /// Case sensitive. SHOULD be &lt; 32 characters.
     /// </param>
     /// <param name="onInvoke">Delegate which gets called when this action is invoked.</param>
     /// <param name="inArguments">Enumeration of formal input arguments for this action.</param>

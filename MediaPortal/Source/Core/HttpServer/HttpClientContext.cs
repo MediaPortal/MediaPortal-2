@@ -45,6 +45,7 @@ namespace HttpServer
     /// <param name="stream">Stream used for communication</param>
     /// <param name="parserFactory">Used to create a <see cref="IHttpRequestParser"/>.</param>
     /// <param name="bufferSize">Size of buffer to use when reading data. Must be at least 1024 bytes.</param>
+    /// <param name="sock">Socket to use.</param>
     /// <exception cref="SocketException">If <see cref="Socket.BeginReceive(byte[],int,int,SocketFlags,AsyncCallback,object)"/> fails</exception>
     /// <exception cref="ArgumentException">Stream must be writable and readable.</exception>
     public HttpClientContext(

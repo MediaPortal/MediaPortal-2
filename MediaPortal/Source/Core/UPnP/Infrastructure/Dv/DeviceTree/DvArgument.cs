@@ -63,7 +63,7 @@ namespace UPnP.Infrastructure.Dv.DeviceTree
     /// ("A"-"Z", "a"-"z"), USASCII digit ("0"-"9"), an underscore ("_"), a period ("."), a Unicode
     /// combiningchar, an extender, or a non-experimental Unicode letter or digit greater than
     /// U+007F. The first three letters MUST NOT be "XML" in any combination of case.
-    /// Case sensitive. SHOULD be < 32 characters.
+    /// Case sensitive. SHOULD be &lt; 32 characters.
     /// </param>
     /// <param name="relatedStateVariable">Defines the type of the argument; see further explanation in (DevArch).</param>
     /// <param name="direction">Defines whether argument is an input or output parameter.</param>

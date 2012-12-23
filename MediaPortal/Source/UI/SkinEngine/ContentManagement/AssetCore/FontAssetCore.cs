@@ -516,7 +516,7 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement.AssetCore
 
     protected int GetKerningAmount(BitmapCharacter first, char second)
     {
-      Kerning result = first.KerningList.Where(node => node.Second == second).FirstOrDefault();
+      Kerning result = first.KerningList.FirstOrDefault(node => node.Second == second);
       return result == null ? 0 : result.Amount;
     }
     #endregion

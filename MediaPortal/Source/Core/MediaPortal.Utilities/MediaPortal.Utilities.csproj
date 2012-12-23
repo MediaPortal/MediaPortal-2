@@ -113,9 +113,6 @@
     <Compile Include="Localization\StringsFile\StringFile.cs" />
     <Compile Include="Localization\StringsFile\StringLocalized.cs" />
     <Compile Include="Network\NetworkUtils.cs" />
-    <Compile Include="Screens\SplashScreen.cs">
-      <SubType>Form</SubType>
-    </Compile>
     <Compile Include="SystemAPI\MimeTypeDetector.cs" />
     <Compile Include="ObjectUtils.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -123,36 +120,6 @@
       <DependentUpon>Resources.resx</DependentUpon>
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
-    </Compile>
-    <Compile Include="Screens\BaseScreen.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="Screens\BaseScreen.Designer.cs">
-      <DependentUpon>BaseScreen.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Screens\DownloadScreen.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="Screens\DownloadScreen.Designer.cs">
-      <DependentUpon>DownloadScreen.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Screens\InfoScreen.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="Screens\InfoScreen.Designer.cs">
-      <DependentUpon>InfoScreen.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Screens\MPIScreen.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="Screens\MPIScreen.Designer.cs">
-      <DependentUpon>MPIScreen.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Screens\YesNoDialogScreen.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="Screens\YesNoDialogScreen.Designer.cs">
-      <DependentUpon>YesNoDialogScreen.cs</DependentUpon>
     </Compile>
     <Compile Include="StringUtils.cs" />
     <Compile Include="SystemAPI\WindowsAPI.cs" />
@@ -165,22 +132,6 @@
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
       <SubType>Designer</SubType>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Screens\BaseScreen.resx">
-      <DependentUpon>BaseScreen.cs</DependentUpon>
-      <SubType>Designer</SubType>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Screens\DownloadScreen.resx">
-      <DependentUpon>DownloadScreen.cs</DependentUpon>
-      <SubType>Designer</SubType>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Screens\MPIScreen.resx">
-      <SubType>Designer</SubType>
-      <DependentUpon>MPIScreen.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Screens\YesNoDialogScreen.resx">
-      <SubType>Designer</SubType>
-      <DependentUpon>YesNoDialogScreen.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>

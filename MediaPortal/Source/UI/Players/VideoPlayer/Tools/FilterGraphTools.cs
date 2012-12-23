@@ -1142,7 +1142,7 @@ namespace MediaPortal.UI.Players.Video.Tools
     /// <param name="filterToRelease">any COM object to release</param>
     public static bool TryRelease<TE>(ref TE filterToRelease) where TE : class
     {
-      return TryRelease<TE>(ref filterToRelease, false);
+      return TryRelease(ref filterToRelease, false);
     }
 
     /// <summary>

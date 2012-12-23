@@ -35,15 +35,15 @@ namespace MediaPortal.UI.Players.BassPlayer.PlayerComponents
   {
     #region Fields
 
-    private readonly OutputDeviceFactory _OutputDeviceFactory;
-    private IOutputDevice _OutputDevice;
-    private bool _Initialized;
+    private readonly OutputDeviceFactory _outputDeviceFactory;
+    private IOutputDevice _outputDevice;
+    private bool _initialized;
 
     #endregion
 
     public OutputDeviceManager(Controller controller)
     {
-      _OutputDeviceFactory = new OutputDeviceFactory(controller);
+      _outputDeviceFactory = new OutputDeviceFactory(controller);
     }
 
     #region IDisposable Members
@@ -52,15 +52,15 @@ namespace MediaPortal.UI.Players.BassPlayer.PlayerComponents
     {
       Log.Debug("OutputDeviceManager.Dispose()");
 
-      if (_OutputDevice != null)
+      if (_outputDevice != null)
       {
         Log.Debug("Disposing output device");
 
-        _OutputDevice.Dispose();
-        _OutputDevice = null;
+        _outputDevice.Dispose();
+        _outputDevice = null;
 
         Log.Debug("Disposing output device factory");
-        _OutputDeviceFactory.Dispose();
+        _outputDeviceFactory.Dispose();
       }
     }
 
@@ -81,7 +81,7 @@ namespace MediaPortal.UI.Players.BassPlayer.PlayerComponents
     /// </summary>
     public IOutputDevice OutputDevice
     {
-      get { return _OutputDevice; }
+      get { return _outputDevice; }
     }
 
     /// <summary>
@@ -96,11 +96,11 @@ namespace MediaPortal.UI.Players.BassPlayer.PlayerComponents
       ResetInputStream();
 
       Log.Debug("Instantiating output device");
-      _OutputDevice = _OutputDeviceFactory.CreateOutputDevice();
+      _outputDevice = _outputDeviceFactory.CreateOutputDevice();
 
       Log.Debug("Calling SetInputStream()");
-      _OutputDevice.SetInputStream(stream, passThrough);
-      _Initialized = true;
+      _outputDevice.SetInputStream(stream, passThrough);
+      _initialized = true;
     }
 
     /// <summary>
@@ -110,19 +110,19 @@ namespace MediaPortal.UI.Players.BassPlayer.PlayerComponents
     {
       Log.Debug("OutputDeviceManager.StartDevice()");
 
-      if (!_Initialized)
+      if (!_initialized)
         throw new BassPlayerException("OutputDeviceManager not initialized");
 
-      if (_OutputDevice.DeviceState == DeviceState.Stopped)
+      if (_outputDevice.DeviceState == DeviceState.Stopped)
       {
         Log.Debug("OutputDevice: PrepareFadeIn()");
-        _OutputDevice.PrepareFadeIn();
+        _outputDevice.PrepareFadeIn();
 
         Log.Debug("OutputDevice: Start()");
-        _OutputDevice.Start();
+        _outputDevice.Start();
 
         Log.Debug("OutputDevice: FadeIn()");
-        _OutputDevice.FadeIn(true);
+        _outputDevice.FadeIn(true);
       }
     }
 
@@ -133,16 +133,16 @@ namespace MediaPortal.UI.Players.BassPlayer.PlayerComponents
     {
       Log.Debug("OutputDeviceManager.StopDevice()");
 
-      if (!_Initialized)
+      if (!_initialized)
         throw new BassPlayerException("OutputDeviceManager not initialized");
 
-      if (_OutputDevice.DeviceState == DeviceState.Started)
+      if (_outputDevice.DeviceState == DeviceState.Started)
       {
         Log.Debug("Calling FadeOut()");
-        _OutputDevice.FadeOut(!waitForFadeOut);
+        _outputDevice.FadeOut(!waitForFadeOut);
 
         Log.Debug("Calling Stop()");
-        _OutputDevice.Stop();
+        _outputDevice.Stop();
       }
     }
 
@@ -153,10 +153,10 @@ namespace MediaPortal.UI.Players.BassPlayer.PlayerComponents
     {
       Log.Debug("OutputDeviceManager.ClearDeviceBuffers()");
 
-      if (!_Initialized)
+      if (!_initialized)
         throw new BassPlayerException("OutputDeviceManager not initialized");
 
-      _OutputDevice.ClearBuffers();
+      _outputDevice.ClearBuffers();
     }
 
     /// <summary>
@@ -166,19 +166,19 @@ namespace MediaPortal.UI.Players.BassPlayer.PlayerComponents
     {
       Log.Debug("OutputDeviceManager.ResetInputStream()");
 
-      if (_Initialized)
+      if (_initialized)
       {
-        _Initialized = false;
+        _initialized = false;
 
         Log.Debug("Stopping output device");
 
-        if (_OutputDevice.DeviceState == DeviceState.Started)
-          _OutputDevice.Stop();
+        if (_outputDevice.DeviceState == DeviceState.Started)
+          _outputDevice.Stop();
 
         Log.Debug("Disposing output device");
 
-        _OutputDevice.Dispose();
-        _OutputDevice = null;
+        _outputDevice.Dispose();
+        _outputDevice = null;
       }
     }
 

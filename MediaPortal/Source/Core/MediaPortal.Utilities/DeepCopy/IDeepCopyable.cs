@@ -38,7 +38,7 @@ namespace MediaPortal.Utilities.DeepCopy
   /// object <c>o</c> to be copied:
   /// <list type="bullet">
   /// <item>The standard constructor of the type of o will be called.</item>
-  /// <item>Later, (<see cref="IDeepCopyable.DeepCopy(IDeepCopyable,ICopyManager"/>)
+  /// <item>Later, (<see cref="IDeepCopyable.DeepCopy(IDeepCopyable,ICopyManager)"/>)
   /// will be called on the new object (=target) with the source object.</item>
   /// <item>Optionally, the class can register an event handler to be called when
   /// the copying process for this object has completed by calling

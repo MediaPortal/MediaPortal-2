@@ -199,10 +199,10 @@ namespace MediaPortal.Common.Services.FileEventNotification
       lock (_subscriptions)
       {
         if (_subscriptions.Contains(fileWatcherInfo))
-          return; /// The given subscription already exists
+          return; // The given subscription already exists
         _subscriptions.Add(fileWatcherInfo);
         if (fileWatcherInfo.EventHandler == null)
-          return; /// No event to call
+          return; // No event to call
         var eventArgs = new FileWatchEventArgs(_watching
                                                  ? FileWatchChangeType.Enabled
                                                  : FileWatchChangeType.Disabled,
@@ -356,9 +356,9 @@ namespace MediaPortal.Common.Services.FileEventNotification
     /// <param name="path"></param>
     private void RaiseSingleEvent(string path, FileWatchChangeType changeType)
     {
-      var _report = new Queue<FileWatchEvent>(1);
-      _report.Enqueue(new FileWatchEvent(changeType, path));
-      RaiseEvents(_report);
+      var report = new Queue<FileWatchEvent>(1);
+      report.Enqueue(new FileWatchEvent(changeType, path));
+      RaiseEvents(report);
     }
 
     /// <summary>
@@ -485,7 +485,7 @@ namespace MediaPortal.Common.Services.FileEventNotification
     /// <param name="e"></param>
     private void ErrorEventHandler(object sender, ErrorEventArgs e)
     {
-      /// An error occured, disable the watch.
+      // An error occured, disable the watch.
       if (sender == _watcher)
         DisableWatch();
     }

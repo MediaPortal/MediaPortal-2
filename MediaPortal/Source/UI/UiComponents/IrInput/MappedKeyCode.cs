@@ -82,20 +82,18 @@ namespace MediaPortal.UiComponents.IrInput
     {
       if (key.IsPrintableKey)
         return "P:" + key.RawCode;
-      else if (key.IsSpecialKey)
+      if (key.IsSpecialKey)
         return "S:" + key.Name;
-      else
-        throw new NotImplementedException(string.Format("Cannot serialize key '{0}', it is neither a printable nor a special key", key));
+      throw new NotImplementedException(string.Format("Cannot serialize key '{0}', it is neither a printable nor a special key", key));
     }
 
     protected static Key DeserializeKey(string serializedKey)
     {
       if (serializedKey.StartsWith("P:"))
         return new Key(serializedKey.Substring(2));
-      else if (serializedKey.StartsWith("S:"))
+      if (serializedKey.StartsWith("S:"))
         return Key.GetSpecialKeyByName(serializedKey.Substring(2));
-      else
-        throw new ArgumentException(string.Format("Key cannot be deserialized from '{0}', invalid format", serializedKey));
+      throw new ArgumentException(string.Format("Key cannot be deserialized from '{0}', invalid format", serializedKey));
     }
 
     [XmlAttribute]

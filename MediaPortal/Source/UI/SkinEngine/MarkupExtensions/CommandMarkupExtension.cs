@@ -41,7 +41,7 @@ namespace MediaPortal.UI.SkinEngine.MarkupExtensions
 
     #region Ctor
 
-    public CommandMarkupExtension(): base()
+    public CommandMarkupExtension()
     { }
 
     public CommandMarkupExtension(string path): base(path)

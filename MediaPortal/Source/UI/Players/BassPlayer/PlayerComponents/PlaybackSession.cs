@@ -66,8 +66,8 @@ namespace MediaPortal.UI.Players.BassPlayer.PlayerComponents
     protected volatile BassStream _outputStream;
     protected PlaybackBuffer _playbackBuffer;
     protected UpDownMixer _upDownMixer;
-    protected VSTProcessor _VSTProcessor;
-    protected WinAmpDSPProcessor _WinAmpDSPProcessor;
+    protected VSTProcessor _vstProcessor;
+    protected WinAmpDSPProcessor _winAmpDSPProcessor;
     protected readonly STREAMPROC _streamWriteProcDelegate;
 
     #endregion
@@ -94,9 +94,9 @@ namespace MediaPortal.UI.Players.BassPlayer.PlayerComponents
       _controller = controller;
       _playbackProcessor = _controller.PlaybackProcessor;
       _playbackBuffer = new PlaybackBuffer(controller);
-      _upDownMixer = new UpDownMixer(controller);
-      _VSTProcessor = new VSTProcessor(controller);
-      _WinAmpDSPProcessor = new WinAmpDSPProcessor(controller);
+      _upDownMixer = new UpDownMixer();
+      _vstProcessor = new VSTProcessor();
+      _winAmpDSPProcessor = new WinAmpDSPProcessor(controller);
       _channels = channels;
       _sampleRate = sampleRate;
       _isPassThrough = isPassThrough;
@@ -113,8 +113,8 @@ namespace MediaPortal.UI.Players.BassPlayer.PlayerComponents
       Log.Debug("PlaybackSession.Dispose()");
       End(true);
       _playbackBuffer.Dispose();
-      _WinAmpDSPProcessor.Dispose();
-      _VSTProcessor.Dispose();
+      _winAmpDSPProcessor.Dispose();
+      _vstProcessor.Dispose();
       _upDownMixer.Dispose();
     }
 
@@ -171,12 +171,12 @@ namespace MediaPortal.UI.Players.BassPlayer.PlayerComponents
 
     public VSTProcessor VSTProcessor
     {
-      get { return _VSTProcessor; }
+      get { return _vstProcessor; }
     }
 
     public WinAmpDSPProcessor WinAmpDSPProcessor
     {
-      get { return _WinAmpDSPProcessor; }
+      get { return _winAmpDSPProcessor; }
     }
 
     public SessionState State
@@ -242,8 +242,8 @@ namespace MediaPortal.UI.Players.BassPlayer.PlayerComponents
 
       _controller.OutputDeviceManager.ResetInputStream();
       _playbackBuffer.ResetInputStream();
-      _WinAmpDSPProcessor.ResetInputStream();
-      _VSTProcessor.ResetInputStream();
+      _winAmpDSPProcessor.ResetInputStream();
+      _vstProcessor.ResetInputStream();
       _upDownMixer.ResetInputStream();
 
       lock (_syncObj)
@@ -300,9 +300,9 @@ namespace MediaPortal.UI.Players.BassPlayer.PlayerComponents
       _state = SessionState.Initialized;
 
       _upDownMixer.SetInputStream(_outputStream);
-      _VSTProcessor.SetInputStream(_upDownMixer.OutputStream);
-      _WinAmpDSPProcessor.SetInputStream(_VSTProcessor.OutputStream);
-      _playbackBuffer.SetInputStream(_WinAmpDSPProcessor.OutputStream);
+      _vstProcessor.SetInputStream(_upDownMixer.OutputStream);
+      _winAmpDSPProcessor.SetInputStream(_vstProcessor.OutputStream);
+      _playbackBuffer.SetInputStream(_winAmpDSPProcessor.OutputStream);
       _controller.OutputDeviceManager.SetInputStream(_playbackBuffer.OutputStream, _outputStream.IsPassThrough);
       return true;
     }

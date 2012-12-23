@@ -148,7 +148,7 @@ namespace MediaPortal.UiComponents.Media.Models.ScreenData
       if (_viewChangeNotificator == null)
         return;
       _viewChangeNotificator.Changed += ViewChanged;
-      _viewChangeNotificator.install();
+      _viewChangeNotificator.Install();
     }
 
     protected void UninstallViewChangeNotificator()

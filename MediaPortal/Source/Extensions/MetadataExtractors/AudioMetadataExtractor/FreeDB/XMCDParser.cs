@@ -161,7 +161,7 @@ namespace Media.Importers.MusicImporter.Freedb
               if (thisOne > lastOne) // just to avoid adding unexpected commented numbers as offsets
                 offsets.Add(Convert.ToInt32(curcomment[0]));
             }
-            catch { ;}
+            catch { }
           }
         }
         else

@@ -33,12 +33,12 @@ namespace MediaPortal.UI.Players.BassPlayer
   {
     #region Fields
 
-    public string _Name;
-    public string _Driver;
-    public int _Channels;
-    public int _MinRate;
-    public int _MaxRate;
-    public TimeSpan _Latency;
+    public string Name;
+    public string Driver;
+    public int Channels;
+    public int MinRate;
+    public int MaxRate;
+    public TimeSpan Latency;
 
     #endregion
 
@@ -49,12 +49,12 @@ namespace MediaPortal.UI.Players.BassPlayer
       return
           String.Format(
               "Name=\"{0}\", Driver=\"{1}\", Channels={2}, MinRate={3}, MaxRate={4}, Latency={5}ms",
-              _Name,
-              _Driver,
-              _Channels,
-              _MinRate,
-              _MaxRate,
-              _Latency.TotalMilliseconds);
+              Name,
+              Driver,
+              Channels,
+              MinRate,
+              MaxRate,
+              Latency.TotalMilliseconds);
     }
 
     #endregion

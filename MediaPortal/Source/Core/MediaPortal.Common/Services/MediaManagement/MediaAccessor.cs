@@ -370,7 +370,7 @@ namespace MediaPortal.Common.Services.MediaManagement
         return ids;
       ICollection<MediaCategory> categoriesToConsider = GetAllMediaCategoriesInHierarchy(category);
       foreach (KeyValuePair<Guid, IMetadataExtractor> localMetadataExtractor in LocalMetadataExtractors)
-        if (mediaCategory == null || localMetadataExtractor.Value.Metadata.MediaCategories.Intersect(categoriesToConsider).Count() > 0)
+        if (mediaCategory == null || localMetadataExtractor.Value.Metadata.MediaCategories.Intersect(categoriesToConsider).Any())
           ids.Add(localMetadataExtractor.Value.Metadata.MetadataExtractorId);
       return ids;
     }
@@ -378,7 +378,7 @@ namespace MediaPortal.Common.Services.MediaManagement
     public ICollection<Guid> GetMetadataExtractorsForMIATypes(IEnumerable<Guid> miaTypeIDs)
     {
       return LocalMetadataExtractors.Where(
-          extractor => extractor.Value.Metadata.ExtractedAspectTypes.Keys.Intersect(miaTypeIDs).Count() > 0).Select(
+          extractor => extractor.Value.Metadata.ExtractedAspectTypes.Keys.Intersect(miaTypeIDs).Any()).Select(
           kvp => kvp.Key).ToList();
     }
 

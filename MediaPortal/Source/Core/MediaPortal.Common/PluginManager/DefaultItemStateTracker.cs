@@ -75,7 +75,7 @@ namespace MediaPortal.Common.PluginManager
     bool IPluginItemStateTracker.RequestEnd(PluginItemRegistration itemRegistration)
     {
       ItemStateTrackerRequestEndDlgt dlgt = EndRequested;
-      return dlgt == null ? true : dlgt(itemRegistration);
+      return dlgt == null || dlgt(itemRegistration);
     }
 
     void IPluginItemStateTracker.Stop(PluginItemRegistration itemRegistration)

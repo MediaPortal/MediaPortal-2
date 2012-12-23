@@ -35,7 +35,6 @@ using MediaPortal.Common.PathManager;
 using MediaPortal.Extensions.OnlineLibraries.Libraries.MovieDbV3.Data;
 using MediaPortal.Extensions.OnlineLibraries.Matches;
 using MediaPortal.Extensions.OnlineLibraries.TheMovieDB;
-using MediaPortal.Utilities.Network;
 
 namespace MediaPortal.Extensions.OnlineLibraries
 {
@@ -55,8 +54,8 @@ namespace MediaPortal.Extensions.OnlineLibraries
     public static string CACHE_PATH = ServiceRegistration.Get<IPathManager>().GetPath(@"<DATA>\TheMovieDB\");
     protected static string _matchesSettingsFile = Path.Combine(CACHE_PATH, "Matches.xml");
     protected static string _collectionMatchesFile = Path.Combine(CACHE_PATH, "CollectionMatches.xml");
-    
-    MatchStorage<MovieCollectionMatch, int> _collectionStorage = new MatchStorage<MovieCollectionMatch, int>(_collectionMatchesFile);
+
+    readonly MatchStorage<MovieCollectionMatch, int> _collectionStorage = new MatchStorage<MovieCollectionMatch, int>(_collectionMatchesFile);
 
     protected override string MatchesSettingsFile
     {
@@ -147,7 +146,7 @@ namespace MediaPortal.Extensions.OnlineLibraries
       return false;
     }
 
-    private string FindBestMatchingLanguage(MovieInfo movieInfo)
+    private static string FindBestMatchingLanguage(MovieInfo movieInfo)
     {
       CultureInfo mpLocal = ServiceRegistration.Get<ILocalization>().CurrentCulture;
       // If we don't have movie languages available, or the MP2 setting language is available, prefer it.

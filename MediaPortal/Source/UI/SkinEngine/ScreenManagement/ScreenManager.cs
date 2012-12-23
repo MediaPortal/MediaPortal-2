@@ -895,7 +895,7 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
         _currentScreen = screen;
         _nextScreen = null;
 
-        BackgroundDisabled = (_currentScreen == null) ? false : !_currentScreen.HasBackground;
+        BackgroundDisabled = _currentScreen != null && !_currentScreen.HasBackground;
       }
       SetInputFocus_NoLock(screen);
     }
@@ -1399,7 +1399,7 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
         List<IDialogData> result = new List<IDialogData>();
         lock (_syncObj)
           // Albert: The copying procedure can be removed when we switch to .net 4.0
-          result.AddRange(_dialogStack.Cast<IDialogData>());
+          result.AddRange(_dialogStack);
         return result;
       }
     }

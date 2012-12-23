@@ -327,11 +327,8 @@ namespace MediaPortal.UI.SkinEngine.Xaml
             _elementContextStack.RegisterNamespaceHandler(importNamespaceURI, handler);
           }
           else
-          {
             // Store other attributes so we don't need to sort out the namespace declarations in step 3
             remainingAttributes.Add(attr);
-            continue;
-          }
         }
 
         // Step 2: Instantiate the element

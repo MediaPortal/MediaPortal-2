@@ -496,7 +496,7 @@ namespace MediaPortal.UiComponents.SkinBase.Models
     {
       ResourcePath choosenResourcePath = ChoosenResourcePath;
       ResourcePath path = choosenResourcePath;
-      bool result = path == null ? false : GetIsPathValid(choosenResourcePath);
+      bool result = path != null && GetIsPathValid(choosenResourcePath);
       if (SharePathExists(path))
       {
         InvalidShareHint = Consts.RES_SHARE_PATH_EXISTS;

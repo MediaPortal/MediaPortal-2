@@ -700,7 +700,7 @@ namespace MediaPortal.UiComponents.SkinBase.Models
         IServerConnectionManager serverConnectionManager = ServiceRegistration.Get<IServerConnectionManager>();
         IsHomeServerConnected = serverConnectionManager.IsHomeServerConnected;
         SystemName homeServerSystem = serverConnectionManager.LastHomeServerSystem;
-        IsLocalHomeServer = homeServerSystem == null ? false : homeServerSystem.IsLocalSystem();
+        IsLocalHomeServer = homeServerSystem != null && homeServerSystem.IsLocalSystem();
         lock (_syncObj)
         {
           _enableLocalShares = !IsLocalHomeServer;

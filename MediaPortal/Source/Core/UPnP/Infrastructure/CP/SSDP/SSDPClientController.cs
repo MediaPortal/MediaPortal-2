@@ -541,17 +541,17 @@ namespace UPnP.Infrastructure.CP.SSDP
     {
       lock (_cpData.SyncObj)
       {
-        RootEntry result = _cpData.DeviceEntries.Values.Where(rootEntry => rootEntry.Devices.ContainsKey(deviceUUID)).FirstOrDefault();
+        RootEntry result = _cpData.DeviceEntries.Values.FirstOrDefault(rootEntry => rootEntry.Devices.ContainsKey(deviceUUID));
         if (result != null)
           return result;
-        return _pendingDeviceEntries.Where(rootEntry => rootEntry.Devices.ContainsKey(deviceUUID)).FirstOrDefault();
+        return _pendingDeviceEntries.FirstOrDefault(rootEntry => rootEntry.Devices.ContainsKey(deviceUUID));
       }
     }
 
     protected RootEntry GetRootEntryByDescriptionLocation(string descriptionLocation)
     {
-      RootEntry rootEntry = _cpData.DeviceEntries.Values.Where(entry => entry.AllLinks.ContainsKey(descriptionLocation)).FirstOrDefault() ??
-          _pendingDeviceEntries.Where(entry => entry.AllLinks.ContainsKey(descriptionLocation)).FirstOrDefault();
+      RootEntry rootEntry = _cpData.DeviceEntries.Values.FirstOrDefault(entry => entry.AllLinks.ContainsKey(descriptionLocation)) ??
+          _pendingDeviceEntries.FirstOrDefault(entry => entry.AllLinks.ContainsKey(descriptionLocation));
       return rootEntry;
     }
 

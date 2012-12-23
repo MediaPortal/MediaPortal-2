@@ -185,10 +185,7 @@ namespace MediaPortal.UiComponents.SkinBase.Models
         }
       }
       else
-      {
         ServiceRegistration.Get<ILogger>().Warn("LocalShares: Cannot access resource path '{0}' for getting child directories", path);
-        yield break;
-      }
     }
 
     protected override IDictionary<string, MediaCategory> GetAllAvailableCategories()
