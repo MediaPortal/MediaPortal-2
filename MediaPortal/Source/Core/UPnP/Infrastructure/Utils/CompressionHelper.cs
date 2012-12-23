@@ -26,22 +26,23 @@ using System.Collections.Generic;
 using System.IO;
 using System.IO.Compression;
 using System.Net;
+using System.Linq;
 using HttpServer;
 
 namespace UPnP.Infrastructure.Utils
 {
   /// <summary>
-  /// <see cref="CompressionHelper"/> provides methods to compress and decrompress Streams using gzip compression.
+  /// <see cref="CompressionHelper"/> provides methods to compress and decrompress Streams using different compression methods (<see cref="Compressors"/>).
   /// </summary>
   static class CompressionHelper
   {
     /// <summary>
-    /// Gets a dictionary of supported compression methods.
+    /// Gets a list of supported compression methods. The order of the compressors is important, the first matching compressor will be preferably used.
     /// </summary>
-    public readonly static IDictionary<string, IDeCompressor> Compressors = new Dictionary<string, IDeCompressor>
+    public readonly static IList<IDeCompressor> Compressors = new List<IDeCompressor>
       {
-        {"deflate", new DeflateCompression()},
-        {"gzip", new GzipCompression()}
+        new DeflateCompression(),
+        new GzipCompression()
       };
 
     private const int BUFFER_SIZE = 1024;
@@ -52,20 +53,21 @@ namespace UPnP.Infrastructure.Utils
     /// <summary>
     /// Checks if the current request header for "accept-encoding" contains a supported compression method.
     /// </summary>
-    /// <param name="acceptEncoding">Request header</param>
-    /// <param name="preferredEncoding">Gets the preferred encoding</param>
+    /// <param name="acceptEncoding">Request header of "Accept-Encoding".</param>
+    /// <param name="preferredCompressor">Gets the preferred compressor.</param>
     /// <returns><c>true</c> if compression is supported.</returns>
-    public static bool IsSupportedCompression(string acceptEncoding, out string preferredEncoding)
+    public static bool IsSupportedCompression(string acceptEncoding, out IDeCompressor preferredCompressor)
     {
-      preferredEncoding = null;
+      preferredCompressor = null;
       if (string.IsNullOrEmpty(acceptEncoding))
         return false;
-      string lowerEncoding = acceptEncoding.ToLowerInvariant();
-      foreach (string encoding in Compressors.Keys)
+      string[] lowerEncodings = acceptEncoding.ToLowerInvariant().Split(new[] {','});
+      foreach (IDeCompressor compressor in Compressors)
       {
-        if (lowerEncoding.Contains(encoding))
+        string encoding = compressor.EncodingName;
+        if (lowerEncodings.Any(e => e.Trim() == encoding))
         {
-          preferredEncoding = encoding;
+          preferredCompressor = compressor;
           return true;
         }
       }
@@ -78,20 +80,19 @@ namespace UPnP.Infrastructure.Utils
     /// <returns>Comma separated list of encodings</returns>
     public static string GetAcceptedEncodings()
     {
-      return string.Join(", ", Compressors.Keys);
+      return Compressors.Select(c => c.EncodingName).Aggregate((c1, c2) => c1 + ", " + c2);
     }
 
     /// <summary>
     /// Compresses the content of the given <paramref name="inputStream"/> and returns a compressed Stream.
     /// </summary>
-    /// <param name="encoding">The key of the <see cref="Compressors"/> collection.</param>
+    /// <param name="compressor">The <see cref="IDeCompressor"/> to be used.</param>
     /// <param name="inputStream">Input Stream to read from. Reading will start from current <see cref="Stream.Position"/>.</param>
     /// <returns>Compressed stream</returns>
-    private static Stream Compress(string encoding, Stream inputStream)
+    private static Stream Compress(IDeCompressor compressor, Stream inputStream)
     {
       MemoryStream compressed = new MemoryStream();
       Stream compressedStream;
-      IDeCompressor compressor = Compressors[encoding];
 
       using (compressedStream = compressor.CreateCompressionStream(compressed))
       {
@@ -107,16 +108,15 @@ namespace UPnP.Infrastructure.Utils
     /// <summary>
     /// Decompresses the content of the given <paramref name="inputStream"/> and returns an uncompressed Stream.
     /// </summary>
-    /// <param name="encoding">The key of the <see cref="Compressors"/> collection.</param>
+    /// <param name="compressor">The <see cref="IDeCompressor"/> to be used.</param>
     /// <param name="inputStream">Input Stream to read from. Reading will start from current <see cref="Stream.Position"/>.</param>
     /// <returns>Unompressed stream</returns>
-    public static Stream Decompress(string encoding, Stream inputStream)
+    public static Stream Decompress(IDeCompressor compressor, Stream inputStream)
     {
       MemoryStream decompressed = new MemoryStream();
       Stream compressedStream;
-      IDeCompressor compressor = Compressors[encoding];
 
-      using (compressedStream = compressor.CreateDeCompressionStream(inputStream))
+      using (compressedStream = compressor.CreateDecompressionStream(inputStream))
       {
         byte[] buffer = new byte[BUFFER_SIZE];
         int nRead;
@@ -135,9 +135,9 @@ namespace UPnP.Infrastructure.Utils
     /// <returns>Decompressed stream.</returns>
     public static Stream Decompress(WebResponse response)
     {
-      string preferredEncoding;
-      bool decompress = IsSupportedCompression(response.Headers.Get("CONTENT-ENCODING"), out preferredEncoding);
-      return decompress ? Decompress(preferredEncoding, response.GetResponseStream()) : response.GetResponseStream();
+      IDeCompressor usedCompressor;
+      bool decompress = IsSupportedCompression(response.Headers.Get("CONTENT-ENCODING"), out usedCompressor);
+      return decompress ? Decompress(usedCompressor, response.GetResponseStream()) : response.GetResponseStream();
     }
 
     /// <summary>
@@ -149,8 +149,8 @@ namespace UPnP.Infrastructure.Utils
     /// <param name="inputStream">Input stream</param>
     public static void WriteCompressedStream(string acceptEncoding, IHttpResponse response, MemoryStream inputStream)
     {
-      string preferredEncoding;
-      bool compress = IsSupportedCompression(acceptEncoding, out preferredEncoding);
+      IDeCompressor compressor;
+      bool compress = IsSupportedCompression(acceptEncoding, out compressor);
       
       byte[] buffer;
       if (!compress || DISABLE_COMPRESSION)
@@ -161,12 +161,12 @@ namespace UPnP.Infrastructure.Utils
         return;
       }
 
-      using (MemoryStream compressedStream = (MemoryStream) Compress(preferredEncoding, inputStream))
+      using (MemoryStream compressedStream = (MemoryStream) Compress(compressor, inputStream))
         buffer = compressedStream.ToArray();
 
-      response.AddHeader("Content-Encoding", preferredEncoding);
+      response.AddHeader("Content-Encoding", compressor.EncodingName);
       // If there were multiple methods supported, we need to indicate the varying header
-      if (acceptEncoding != preferredEncoding)
+      if (acceptEncoding != compressor.EncodingName)
         response.AddHeader("Vary", "Accept-Encoding");
 
       response.ContentLength = buffer.Length;
@@ -174,20 +174,41 @@ namespace UPnP.Infrastructure.Utils
     }
   }
 
+  /// <summary>
+  /// Internal interface to use different stream compression methods.
+  /// </summary>
   interface IDeCompressor
   {
+    /// <summary>
+    /// Gets the encoding name that is used inside http headers (i.e. "gzip", "deflate").
+    /// </summary>
+    string EncodingName { get; }
+
+    /// <summary>
+    /// Creates a compression stream for the <paramref name="targetStream"/>.
+    /// </summary>
+    /// <param name="targetStream">Stream that will be compressed.</param>
+    /// <returns>Compression stream.</returns>
     Stream CreateCompressionStream(Stream targetStream);
-    Stream CreateDeCompressionStream(Stream targetStream);
+
+    /// <summary>
+    /// Creates a decompression stream for the <paramref name="targetStream"/>.
+    /// </summary>
+    /// <param name="targetStream">Stream that will be decompressed.</param>
+    /// <returns>Decompression stream.</returns>
+    Stream CreateDecompressionStream(Stream targetStream);
   }
 
   public class GzipCompression : IDeCompressor
   {
+    public string EncodingName { get { return "gzip"; } }
+
     public Stream CreateCompressionStream(Stream targetStream)
     {
       return new GZipStream(targetStream, CompressionMode.Compress, true);
     }
 
-    public Stream CreateDeCompressionStream(Stream targetStream)
+    public Stream CreateDecompressionStream(Stream targetStream)
     {
       return new GZipStream(targetStream, CompressionMode.Decompress, true);
     }
@@ -195,12 +216,14 @@ namespace UPnP.Infrastructure.Utils
 
   public class DeflateCompression : IDeCompressor
   {
+    public string EncodingName { get { return "deflate"; } }
+
     public Stream CreateCompressionStream(Stream targetStream)
     {
       return new DeflateStream(targetStream, CompressionMode.Compress, true);
     }
 
-    public Stream CreateDeCompressionStream(Stream targetStream)
+    public Stream CreateDecompressionStream(Stream targetStream)
     {
       return new DeflateStream(targetStream, CompressionMode.Decompress, true);
     }
