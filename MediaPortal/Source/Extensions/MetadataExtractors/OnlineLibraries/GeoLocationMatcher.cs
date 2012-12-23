@@ -29,6 +29,7 @@ using MediaPortal.Common;
 using MediaPortal.Common.Logging;
 using MediaPortal.Extensions.OnlineLibraries.Libraries.GeoLocation;
 using MediaPortal.Extensions.OnlineLibraries.Libraries.GeoLocation.Data;
+using MediaPortal.Utilities.Network;
 
 namespace MediaPortal.Extensions.OnlineLibraries
 {
@@ -65,14 +66,15 @@ namespace MediaPortal.Extensions.OnlineLibraries
         if (GetFromCache(latitude, longitude, out locationInfo))
           return true;
 
-        foreach (IGeolocationLookup lookup in GetOnlineServices())
-        {
-          if (lookup.TryLookup(latitude, longitude, out locationInfo))
+        if (NetworkConnectionTracker.IsNetworkConnected)
+          foreach (IGeolocationLookup lookup in GetOnlineServices())
           {
-            _locationCache.Add(locationInfo);
-            return true;
+            if (lookup.TryLookup(latitude, longitude, out locationInfo))
+            {
+              _locationCache.Add(locationInfo);
+              return true;
+            }
           }
-        }
       }
       catch (Exception ex)
       {
