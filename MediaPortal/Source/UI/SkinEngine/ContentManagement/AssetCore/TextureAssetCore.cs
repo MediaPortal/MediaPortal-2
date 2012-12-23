@@ -287,11 +287,11 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement.AssetCore
             CachePolicy = new RequestCachePolicy(RequestCacheLevel.CacheIfAvailable)
           };
         _webClient.DownloadDataCompleted += DownloadComplete;
-        if (NetworkUtils.IsNetworkConnected)
+        if (NetworkConnectionTracker.IsNetworkConnected)
           _webClient.DownloadDataAsync(uri, null);
         else
         {
-          ServiceRegistration.Get<ILogger>().Error("AsyncStreamLoadOperation: No Network connected");
+          ServiceRegistration.Get<ILogger>().Warn("AsyncStreamLoadOperation: No Network connected");
           OperationFailed();
         }
       }

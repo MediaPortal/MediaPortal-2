@@ -133,7 +133,7 @@ namespace MediaPortal.UiComponents.Weather.Grabbers
       }
       else
       {
-        if (!NetworkUtils.IsNetworkConnected)
+        if (!NetworkConnectionTracker.IsNetworkConnected)
           return false;
 
         Dictionary<string, string> args = new Dictionary<string, string>();
@@ -161,7 +161,7 @@ namespace MediaPortal.UiComponents.Weather.Grabbers
     private bool ShouldUseCache(string cachefile)
     {
       FileInfo fileInfo = new FileInfo(cachefile);
-      return fileInfo.Exists && (DateTime.Now - fileInfo.LastWriteTime <= _maxCacheDuration || !NetworkUtils.IsNetworkConnected);
+      return fileInfo.Exists && (DateTime.Now - fileInfo.LastWriteTime <= _maxCacheDuration || !NetworkConnectionTracker.IsNetworkConnected);
     }
 
     /// <summary>

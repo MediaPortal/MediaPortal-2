@@ -96,6 +96,7 @@
     <Compile Include="CommandLine\ValueListAttribute.cs" />
     <Compile Include="Conversion\Conversion.cs" />
     <Compile Include="Graphics\ImageUtilities.cs" />
+    <Compile Include="Network\NetworkConnectionTracker.cs" />
     <Compile Include="Network\NetworkResourcesEnumerator.cs" />
     <Compile Include="Network\Share.cs" />
     <Compile Include="Network\SharesEnumerator.cs" />

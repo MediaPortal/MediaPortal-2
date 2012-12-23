@@ -75,7 +75,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matches
 
     protected virtual bool Init()
     {
-      if (NetworkUtils.IsNetworkConnected)
+      if (NetworkConnectionTracker.IsNetworkConnected)
         return false;
       if (_storage == null)
         _storage = new MatchStorage<TMatch, TId>(MatchesSettingsFile);

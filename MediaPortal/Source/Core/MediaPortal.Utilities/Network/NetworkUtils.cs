@@ -29,6 +29,9 @@ using System.Net.Sockets;
 
 namespace MediaPortal.Utilities.Network
 {
+  /// <summary>
+  /// Provides utility methods concerning networking stuff.
+  /// </summary>
   public static class NetworkUtils
   {
     /// <summary>
@@ -83,21 +86,13 @@ namespace MediaPortal.Utilities.Network
     }
 
     /// <summary>
-    /// Indicates whether any network connection is available
-    /// Filter connections with virtual network cards.
+    /// Determines whether any network connection is available.
+    /// Can filter connections below a specified speed, virtual network cards and the <c>"Microsoft Loopback Adapter"</c>.
     /// </summary>
-    /// <returns>
-    ///     <c>true</c> if a network connection is available; otherwise, <c>false</c>.
-    /// </returns>
-    public static bool IsNetworkConnected { get; private set; }
-
-    /// <summary>
-    /// Indicates whether any network connection is available.
-    /// Filter connections below a specified speed, as well as virtual network cards.
-    /// </summary>
-    /// <param name="minimumSpeed">The minimum speed required. Passing 0 will not filter connection using speed.</param>
-    /// <returns><c>true</c> if a network connection is available; otherwise, <c>false</c>.</returns>
-    public static bool IsNetworkAvailable(long minimumSpeed)
+    /// <param name="minimumSpeed">The minimum speed required. Passing <c>null</c> will not filter a minimum speed.</param>
+    /// <param name="filterVirtualCards">Controls if virtual network cards are filtered.</param>
+    /// <returns><c>true</c> if a network connection is available according to the filter criteria; otherwise, <c>false</c>.</returns>
+    public static bool IsNetworkAvailable(long? minimumSpeed, bool filterVirtualCards)
     {
       if (!NetworkInterface.GetIsNetworkAvailable())
         return false;
@@ -112,12 +107,13 @@ namespace MediaPortal.Utilities.Network
 
         // This allows to filter modems, serial, etc.
         // I use 10000000 as a minimum speed for most cases
-        if (ni.Speed < minimumSpeed)
+        if (minimumSpeed.HasValue && ni.Speed < minimumSpeed)
           continue;
 
         // Discard virtual cards (virtual box, virtual pc, etc.)
-        if ((ni.Description.IndexOf("virtual", StringComparison.OrdinalIgnoreCase) >= 0) ||
-            (ni.Name.IndexOf("virtual", StringComparison.OrdinalIgnoreCase) >= 0))
+        if (filterVirtualCards &&
+            ((ni.Description.IndexOf("virtual", StringComparison.OrdinalIgnoreCase) >= 0) ||
+             (ni.Name.IndexOf("virtual", StringComparison.OrdinalIgnoreCase) >= 0)))
           continue;
 
         // Discard "Microsoft Loopback Adapter", it will not show as NetworkInterfaceType.Loopback but as Ethernet Card.
@@ -127,23 +123,6 @@ namespace MediaPortal.Utilities.Network
         return true;
       }
       return false;
-    }
-
-    private static void DoNetworkAddressChanged(object sender, EventArgs e)
-    {
-      IsNetworkConnected = IsNetworkAvailable(0);
-    }
-
-    private static void DoNetworkAvailabilityChanged(object sender, NetworkAvailabilityEventArgs e)
-    {
-      IsNetworkConnected = IsNetworkAvailable(0);
-    }
-
-    static NetworkUtils()
-    {
-      IsNetworkConnected = IsNetworkAvailable(0);
-      NetworkChange.NetworkAvailabilityChanged += DoNetworkAvailabilityChanged;
-      NetworkChange.NetworkAddressChanged += DoNetworkAddressChanged;
     }
   }
 }
