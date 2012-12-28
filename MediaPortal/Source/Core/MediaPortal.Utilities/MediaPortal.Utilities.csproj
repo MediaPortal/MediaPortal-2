@@ -101,6 +101,7 @@
     <Compile Include="Network\Share.cs" />
     <Compile Include="Network\SharesEnumerator.cs" />
     <Compile Include="Process\ProcessUtils.cs" />
+    <Compile Include="Screens\SplashScreen.cs" />
     <Compile Include="ThreadingUtils.cs" />
     <Compile Include="DB\InstructionList.cs" />
     <Compile Include="DB\SQLUtils.cs" />
