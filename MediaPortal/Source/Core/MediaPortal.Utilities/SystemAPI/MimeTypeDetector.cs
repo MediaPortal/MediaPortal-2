@@ -57,14 +57,16 @@ namespace MediaPortal.Utilities.SystemAPI
     /// It uses both binary detection as well as registry extension lookup.
     /// </summary>
     /// <param name="mediaItemStream">Opened Stream which is positioned at the beginning.</param>
+    /// <param name="defaultMimeType">Optional default mimetype, if detection fails.</param>
     /// <returns>Mime type or <c>null</c>, if the mime type could not be examined.</returns>
-    public static string GetMimeType(Stream mediaItemStream)
+    public static string GetMimeType(Stream mediaItemStream, string defaultMimeType = null)
     {
       String mimeType = GetMimeFromStream(mediaItemStream);
       // If no specific type was found by binary data, try lookup via registry
       if ((mimeType == null || mimeType == "application/octet-stream") && (mediaItemStream is FileStream))
         mimeType = GetMimeTypeFromRegistry((mediaItemStream as FileStream).Name);
-      return mimeType;
+
+      return string.IsNullOrEmpty(mimeType) ? defaultMimeType : mimeType;
     }
 
     /// <summary>
@@ -72,14 +74,16 @@ namespace MediaPortal.Utilities.SystemAPI
     /// It uses both binary detection as well as registry extension lookup.
     /// </summary>
     /// <param name="filename">Absolute file name of the file to examine.</param>
+    /// <param name="defaultMimeType">Optional default mimetype, if detection fails.</param>
     /// <returns>Mime type or <c>null</c>, if the mime type could not be examined.</returns>
-    public static string GetMimeType(string filename)
+    public static string GetMimeType(string filename, string defaultMimeType = null)
     {
       String mimeType = GetMimeFromFile(filename);
       // If no specific type was found by binary data, try lookup via registry
       if (mimeType == null || mimeType == "application/octet-stream")
         mimeType = GetMimeTypeFromRegistry(filename);
-      return mimeType;
+
+      return string.IsNullOrEmpty(mimeType) ? defaultMimeType : mimeType;
     }
 
     /// <summary>

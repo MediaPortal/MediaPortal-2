@@ -59,6 +59,11 @@ namespace MediaPortal.Extensions.MetadataExtractors.VideoMetadataExtractor
     /// </summary>
     public static Guid METADATAEXTRACTOR_ID = new Guid(METADATAEXTRACTOR_ID_STR);
 
+    /// <summary>
+    /// Default mimetype is being used if actual mimetype detection fails.
+    /// </summary>
+    private const string DEFAULT_MIMETYPE = "video/unknown";
+
     #endregion
 
     #region Protected fields and classes
@@ -393,7 +398,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.VideoMetadataExtractor
             result = VideoResult.CreateFileInfo(mediaTitle, fileInfo);
           }
           using (Stream stream = fsra.OpenRead())
-            result.MimeType = MimeTypeDetector.GetMimeType(stream);
+            result.MimeType = MimeTypeDetector.GetMimeType(stream, DEFAULT_MIMETYPE);
         }
         if (result != null)
         {
