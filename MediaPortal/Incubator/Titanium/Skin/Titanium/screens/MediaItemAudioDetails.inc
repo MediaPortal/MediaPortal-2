@@ -31,7 +31,7 @@
             <Label x:Name="YearLabel" Grid.Row="0" Grid.Column="0"
                 Content="[Media.AudioYearLabel]" Color="{ThemeResource TextColor}"/>
             <Label x:Name="Year" Grid.Row="0" Grid.Column="1"
-                Content="{Binding RecordingTime}" Color="{ThemeResource TextColor}"/>
+                Content="{Binding Path=RecordingTime, Converter={StaticResource DateFormatConverter}, ConverterParameter=yyyy}" Color="{ThemeResource TextColor}"/>
 
             <Label x:Name="TitleLabel" Grid.Row="1" Grid.Column="0"
                 Content="[Media.AudioTitleLabel]" Color="{ThemeResource TextColor}"/>
@@ -76,7 +76,7 @@
             <Label x:Name="DurationLabel" Grid.Row="3" Grid.Column="0"
                 Content="[Media.AudioDurationLabel]" Color="{ThemeResource TextColor}"/>
             <Label x:Name="Duration" Grid.Row="3" Grid.Column="1"
-                Content="{Binding Duration}" Color="{ThemeResource TextColor}"/>
+                Content="{Binding Path=Duration, Converter={StaticResource DurationConverter}}" Color="{ThemeResource TextColor}"/>
 
           </Grid>
         </ControlTemplate>
