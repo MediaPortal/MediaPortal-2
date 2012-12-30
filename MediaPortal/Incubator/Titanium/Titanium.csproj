@@ -194,6 +194,12 @@
     <Content Include="Skin\Titanium\images\Weather\64x64\permission.txt" />
     <Content Include="Skin\Titanium\images\Weather\64x64\WEATHERALERT.png" />
     <Content Include="Skin\Titanium\screens\FSCWindowButtons.inc" />
+    <Content Include="Skin\Titanium\screens\MediaItemSeriesDetails.inc" />
+    <Content Include="Skin\Titanium\screens\MediaItemAudioDetails.inc" />
+    <Content Include="Skin\Titanium\screens\MediaItemVideoDetails.inc" />
+    <Content Include="Skin\Titanium\screens\MediaItemMovieDetails.inc" />
+    <Content Include="Skin\Titanium\screens\MediaItemsDetails.inc" />
+    <Content Include="Skin\Titanium\screens\MediaItemsList.inc" />
     <Content Include="Skin\Titanium\screens\ProgramInfoSlim.inc" />
     <Content Include="Skin\Titanium\skin.xml" />
     <Content Include="Skin\Titanium\themes\blue\images\background.png" />
@@ -387,23 +393,37 @@
     </Content>
   </ItemGroup>
   <ItemGroup>
+    <Content Include="Skin\Titanium\screens\SimpleShowItems.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Skin\Titanium\themes\blue\styles\Colors.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Skin\Titanium\screens\VideoShowItems.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
     <Content Include="Skin\Titanium\screens\MoviesShowItems.xaml">
       <SubType>Designer</SubType>
     </Content>
   </ItemGroup>
   <ItemGroup>
-    <Content Include="Skin\Titanium\screens\MoviesFilterByCollection.xaml">
+    <Content Include="Skin\Titanium\screens\AudioShowItems.xaml">
       <SubType>Designer</SubType>
     </Content>
   </ItemGroup>
   <ItemGroup>
-    <Content Include="Skin\Titanium\screens\MoviesPanelLayout.inc">
+    <Content Include="Skin\Titanium\screens\ImageShowItems.xaml">
       <SubType>Designer</SubType>
     </Content>
   </ItemGroup>
-  <ItemGroup />
   <ItemGroup>
-    <Content Include="Skin\Titanium\themes\blue\styles\Colors.xaml">
+    <Content Include="Skin\Titanium\screens\SeriesShowItems.xaml">
       <SubType>Designer</SubType>
     </Content>
   </ItemGroup>
