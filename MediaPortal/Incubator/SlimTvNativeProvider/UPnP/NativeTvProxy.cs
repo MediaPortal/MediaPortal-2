@@ -43,7 +43,7 @@ using UPnP.Infrastructure.CP.DeviceTree;
 
 namespace MediaPortal.Plugins.SlimTv.Providers.UPnP
 {
-  public class NativeTvProxy : UPnPServiceProxyBase, ITvProvider, ITimeshiftControl, IProgramInfo, IChannelAndGroupInfo, IScheduleControl
+  public class NativeTvProxy : UPnPServiceProxyBase, IDisposable, ITvProvider, ITimeshiftControl, IProgramInfo, IChannelAndGroupInfo, IScheduleControl
   {
     #region Protected fields
 
@@ -63,7 +63,7 @@ namespace MediaPortal.Plugins.SlimTv.Providers.UPnP
 
     public void Dispose()
     {
-      ServiceRegistration.Remove<ITvProvider>();
+      DeInit();
     }
 
     public string Name

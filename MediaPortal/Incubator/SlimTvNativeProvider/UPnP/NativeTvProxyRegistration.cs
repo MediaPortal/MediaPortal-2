@@ -24,7 +24,10 @@
 
 using System;
 using MediaPortal.Common;
+using MediaPortal.Common.Messaging;
+using MediaPortal.Common.Runtime;
 using MediaPortal.Common.UPnP;
+using MediaPortal.Plugins.SlimTv.Interfaces;
 using MediaPortal.Plugins.SlimTv.Interfaces.UPnP.DataTypes;
 using MediaPortal.Plugins.SlimTv.UPnP;
 using MediaPortal.UI.ServerCommunication;
@@ -36,11 +39,7 @@ namespace MediaPortal.Plugins.SlimTv.Providers.UPnP
 {
   public class NativeTvProxyRegistration
   {
-    private static NativeTvProxyRegistration _instance;
-    public static NativeTvProxyRegistration Instance
-    {
-      get { return _instance ?? (_instance = new NativeTvProxyRegistration()); }
-    }
+    protected AsynchronousMessageQueue _messageQueue;
 
     static NativeTvProxyRegistration()
     {
@@ -63,7 +62,41 @@ namespace MediaPortal.Plugins.SlimTv.Providers.UPnP
         return;
 
       controlPoint.RegisterAdditionalService(RegisterNativeTvProxy);
+      
+      SubscribeToMessages();
     }
+
+    public void UnregisterService()
+    {
+      _messageQueue.Shutdown();
+      ServiceRegistration.RemoveAndDispose<ITvProvider>();
+    }
+
+    void SubscribeToMessages()
+    {
+      _messageQueue = new AsynchronousMessageQueue(this, new string[] { SystemMessaging.CHANNEL });
+      _messageQueue.PreviewMessage += OnMessageReceived;
+      _messageQueue.Start();
+    }
+
+    void OnMessageReceived(AsynchronousMessageQueue queue, SystemMessage message)
+    {
+      if (message.ChannelName == SystemMessaging.CHANNEL)
+      {
+        SystemMessaging.MessageType messageType = (SystemMessaging.MessageType) message.MessageType;
+        if (messageType == SystemMessaging.MessageType.SystemStateChanged)
+        {
+          SystemState state = (SystemState) message.MessageData[SystemMessaging.NEW_STATE];
+          switch (state)
+          {
+            case SystemState.ShuttingDown:
+              UnregisterService();
+              break;
+          }
+        }
+      }
+    }
+
 
     public NativeTvProxy RegisterNativeTvProxy(DeviceConnection connection)
     {
