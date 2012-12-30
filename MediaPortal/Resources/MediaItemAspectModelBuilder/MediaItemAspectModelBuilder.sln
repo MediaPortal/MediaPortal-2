@@ -1,0 +1,63 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 11.00
+# Visual Studio 2010
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MediaItemAspectModelBuilder", "MediaItemAspectModelBuilder\MediaItemAspectModelBuilder.csproj", "{634C0633-0C9D-4408-B2CB-AA026AAF4A28}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MediaPortal.Common", "..\..\..\..\MediaPortal-2-Setup\MediaPortal\Source\Core\MediaPortal.Common\MediaPortal.Common.csproj", "{ECF060E7-CAA1-4466-851F-F80B857641EA}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UPnP", "..\..\..\..\MediaPortal-2-Setup\MediaPortal\Source\Core\UPnP\UPnP.csproj", "{455E7D70-1C85-4D7F-9F01-DC801B8B8C34}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MediaPortal.Utilities", "..\..\..\..\MediaPortal-2-Setup\MediaPortal\Source\Core\MediaPortal.Utilities\MediaPortal.Utilities.csproj", "{4FE7B8AE-1330-424A-91A1-C68D7ABF9CB8}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HttpServer", "..\..\..\..\MediaPortal-2-Setup\MediaPortal\Source\Core\HttpServer\HttpServer.csproj", "{B1C97BB7-8E27-4C1B-B086-A1204EF8FB79}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "MP2-References", "MP2-References", "{F8D87D2D-4FCE-4179-81D9-077D0A0406A5}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|x86 = Debug|x86
+		Release|x86 = Release|x86
+		Test|x86 = Test|x86
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{634C0633-0C9D-4408-B2CB-AA026AAF4A28}.Debug|x86.ActiveCfg = Debug|x86
+		{634C0633-0C9D-4408-B2CB-AA026AAF4A28}.Debug|x86.Build.0 = Debug|x86
+		{634C0633-0C9D-4408-B2CB-AA026AAF4A28}.Release|x86.ActiveCfg = Release|x86
+		{634C0633-0C9D-4408-B2CB-AA026AAF4A28}.Release|x86.Build.0 = Release|x86
+		{634C0633-0C9D-4408-B2CB-AA026AAF4A28}.Test|x86.ActiveCfg = Release|x86
+		{634C0633-0C9D-4408-B2CB-AA026AAF4A28}.Test|x86.Build.0 = Release|x86
+		{ECF060E7-CAA1-4466-851F-F80B857641EA}.Debug|x86.ActiveCfg = Debug|x86
+		{ECF060E7-CAA1-4466-851F-F80B857641EA}.Debug|x86.Build.0 = Debug|x86
+		{ECF060E7-CAA1-4466-851F-F80B857641EA}.Release|x86.ActiveCfg = Release|x86
+		{ECF060E7-CAA1-4466-851F-F80B857641EA}.Release|x86.Build.0 = Release|x86
+		{ECF060E7-CAA1-4466-851F-F80B857641EA}.Test|x86.ActiveCfg = Release|x86
+		{ECF060E7-CAA1-4466-851F-F80B857641EA}.Test|x86.Build.0 = Release|x86
+		{455E7D70-1C85-4D7F-9F01-DC801B8B8C34}.Debug|x86.ActiveCfg = Debug|x86
+		{455E7D70-1C85-4D7F-9F01-DC801B8B8C34}.Debug|x86.Build.0 = Debug|x86
+		{455E7D70-1C85-4D7F-9F01-DC801B8B8C34}.Release|x86.ActiveCfg = Release|x86
+		{455E7D70-1C85-4D7F-9F01-DC801B8B8C34}.Release|x86.Build.0 = Release|x86
+		{455E7D70-1C85-4D7F-9F01-DC801B8B8C34}.Test|x86.ActiveCfg = Test|x86
+		{455E7D70-1C85-4D7F-9F01-DC801B8B8C34}.Test|x86.Build.0 = Test|x86
+		{4FE7B8AE-1330-424A-91A1-C68D7ABF9CB8}.Debug|x86.ActiveCfg = Debug|x86
+		{4FE7B8AE-1330-424A-91A1-C68D7ABF9CB8}.Debug|x86.Build.0 = Debug|x86
+		{4FE7B8AE-1330-424A-91A1-C68D7ABF9CB8}.Release|x86.ActiveCfg = Release|x86
+		{4FE7B8AE-1330-424A-91A1-C68D7ABF9CB8}.Release|x86.Build.0 = Release|x86
+		{4FE7B8AE-1330-424A-91A1-C68D7ABF9CB8}.Test|x86.ActiveCfg = Release|x86
+		{4FE7B8AE-1330-424A-91A1-C68D7ABF9CB8}.Test|x86.Build.0 = Release|x86
+		{B1C97BB7-8E27-4C1B-B086-A1204EF8FB79}.Debug|x86.ActiveCfg = Debug|x86
+		{B1C97BB7-8E27-4C1B-B086-A1204EF8FB79}.Debug|x86.Build.0 = Debug|x86
+		{B1C97BB7-8E27-4C1B-B086-A1204EF8FB79}.Release|x86.ActiveCfg = Release|x86
+		{B1C97BB7-8E27-4C1B-B086-A1204EF8FB79}.Release|x86.Build.0 = Release|x86
+		{B1C97BB7-8E27-4C1B-B086-A1204EF8FB79}.Test|x86.ActiveCfg = Test|x86
+		{B1C97BB7-8E27-4C1B-B086-A1204EF8FB79}.Test|x86.Build.0 = Test|x86
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{B1C97BB7-8E27-4C1B-B086-A1204EF8FB79} = {F8D87D2D-4FCE-4179-81D9-077D0A0406A5}
+		{455E7D70-1C85-4D7F-9F01-DC801B8B8C34} = {F8D87D2D-4FCE-4179-81D9-077D0A0406A5}
+		{ECF060E7-CAA1-4466-851F-F80B857641EA} = {F8D87D2D-4FCE-4179-81D9-077D0A0406A5}
+		{4FE7B8AE-1330-424A-91A1-C68D7ABF9CB8} = {F8D87D2D-4FCE-4179-81D9-077D0A0406A5}
+	EndGlobalSection
+EndGlobal
