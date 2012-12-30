@@ -21,6 +21,7 @@
   <ReferenceNotNull_BoolConverter x:Key="ReferenceToBoolConverter"/>
   <EmptyString2FalseConverter x:Key="EmptyStringToFalseConverter"/>
   <DateFormatConverter x:Key="DateFormatConverter"/>
+  <DurationConverter x:Key="DurationConverter"/>
 
   <!-- ******************* Screen/dialog animation storyboards ****************** -->
 
