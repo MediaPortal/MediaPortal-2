@@ -124,6 +124,12 @@
     <Compile Include="FilterCriteria\FilterBySystemCriterion.cs" />
     <Compile Include="FilterCriteria\LanguageFilterCriterion.cs" />
     <Compile Include="General\Consts.cs" />
+    <Compile Include="Models\AspectWrappers\AudioAspectWrapper.cs" />
+    <Compile Include="Models\AspectWrappers\ImageAspectWrapper.cs" />
+    <Compile Include="Models\AspectWrappers\MediaAspectWrapper.cs" />
+    <Compile Include="Models\AspectWrappers\MovieAspectWrapper.cs" />
+    <Compile Include="Models\AspectWrappers\SeriesAspectWrapper.cs" />
+    <Compile Include="Models\AspectWrappers\VideoAspectWrapper.cs" />
     <Compile Include="Models\BasePlayerModel.cs" />
     <Compile Include="Models\BaseVideoPlayerUIContributor.cs" />
     <Compile Include="Models\MediaSortingModel.cs" />

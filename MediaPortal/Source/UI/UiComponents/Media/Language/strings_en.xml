@@ -240,10 +240,12 @@
 
   <!-- Audio currently playing -->
   <string name="Media.AudioCurrentlyPlayingHeader">Current audio information</string>
+  <string name="Media.AudioAlbumLabel">Album: </string>
   <string name="Media.AudioArtistsLabel">Artists: </string>
   <string name="Media.AudioTitleLabel">Title: </string>
   <string name="Media.AudioYearLabel">Year: </string>
   <string name="Media.AudioDurationLabel">Duration: </string>
+  <string name="Media.AudioGenresLabel">Genre(s): </string>
 
   <string name="Media.AudioPlaylistHeader">Audio playlist</string>
   <string name="Media.VideoImagePlaylistHeader">Video/image playlist</string>
