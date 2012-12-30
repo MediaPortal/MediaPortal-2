@@ -24,6 +24,7 @@
 
 using System;
 using MediaPortal.Common.General;
+using MediaPortal.Common.MediaManagement;
 using MediaPortal.Extensions.UserServices.FanArtService.Interfaces;
 using MediaPortal.UI.Presentation.DataObjects;
 using MediaPortal.UiComponents.Media.Models.Navigation;
@@ -43,6 +44,7 @@ namespace MediaPortal.Extensions.UserServices.FanArtService.Client.Models
     protected AbstractProperty _fanArtMediaTypeProperty;
     protected AbstractProperty _fanArtNameProperty;
     protected AbstractProperty _itemDescriptionProperty;
+    protected AbstractProperty _mediaItemProperty;
 
     public FanArtBackgroundModel()
     {
@@ -51,6 +53,7 @@ namespace MediaPortal.Extensions.UserServices.FanArtService.Client.Models
       _fanArtMediaTypeProperty = new WProperty(typeof(FanArtConstants.FanArtMediaType), FanArtConstants.FanArtMediaType.Undefined);
       _fanArtNameProperty = new WProperty(typeof(string), string.Empty);
       _itemDescriptionProperty = new WProperty(typeof(string), string.Empty);
+      _mediaItemProperty = new WProperty(typeof(MediaItem), null);
       SetFanArtType();
     }
 
@@ -70,6 +73,17 @@ namespace MediaPortal.Extensions.UserServices.FanArtService.Client.Models
     {
       get { return (ListItem)_selectedItemProperty.GetValue(); }
       set { _selectedItemProperty.SetValue(value); }
+    }
+
+    public AbstractProperty MediaItemProperty
+    {
+      get { return _mediaItemProperty; }
+    }
+
+    public MediaItem MediaItem
+    {
+      get { return (MediaItem) _mediaItemProperty.GetValue(); }
+      set { _mediaItemProperty.SetValue(value); }
     }
 
     public AbstractProperty FanArtMediaTypeProperty
@@ -119,6 +133,10 @@ namespace MediaPortal.Extensions.UserServices.FanArtService.Client.Models
 
     private void SetFanArtType()
     {
+      PlayableMediaItem playableMediaItem = SelectedItem as PlayableMediaItem;
+      if (playableMediaItem != null)
+        MediaItem = playableMediaItem.MediaItem;
+
       SeriesFilterItem series = SelectedItem as SeriesFilterItem;
       if (series != null)
       {
@@ -149,6 +167,14 @@ namespace MediaPortal.Extensions.UserServices.FanArtService.Client.Models
         FanArtMediaType = FanArtConstants.FanArtMediaType.Movie;
         FanArtName = movie.MovieName;
         ItemDescription = movie.StoryPlot;
+        return;
+      }
+      VideoItem video = SelectedItem as VideoItem;
+      if (video != null)
+      {
+        FanArtMediaType = FanArtConstants.FanArtMediaType.Undefined;
+        FanArtName = string.Empty;
+        ItemDescription = video.StoryPlot;
         return;
       }
       FanArtMediaType = FanArtConstants.FanArtMediaType.Undefined;
