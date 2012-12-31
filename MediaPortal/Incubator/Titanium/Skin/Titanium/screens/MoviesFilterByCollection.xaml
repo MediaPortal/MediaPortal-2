@@ -11,7 +11,7 @@
 
     <!-- Control template for the MediaItem details (cover, thumbs, duration, genres...)-->
     <ControlTemplate x:Key="Media_Details_Template">
-      <Include Source="screens\MediaItemMovieDetails.inc"/>
+      <Include Source="screens\MediaItemMovieCollectionDetails.inc"/>
     </ControlTemplate>
 
   </Include.Resources>

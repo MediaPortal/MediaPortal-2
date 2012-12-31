@@ -215,6 +215,7 @@
   <string name="Media.VideoCurrentlyPlayingHeader">Current video information</string>
   <string name="Media.VideoTitleLabel">Title: </string>
   <string name="Media.VideoGenreLabel">Genre: </string>
+  <string name="Media.VideoCollectionLabel">Collection: </string>
   <string name="Media.VideoYearLabel">Year: </string>
   <string name="Media.VideoDurationLabel">Duration: </string>
   <string name="Media.VideoActorsLabel">Actor(s): </string>
