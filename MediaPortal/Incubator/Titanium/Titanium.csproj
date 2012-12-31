@@ -199,7 +199,7 @@
     <Content Include="Skin\Titanium\screens\MediaItemAudioDetails.inc" />
     <Content Include="Skin\Titanium\screens\MediaItemVideoDetails.inc" />
     <Content Include="Skin\Titanium\screens\MediaItemMovieDetails.inc" />
-    <Content Include="Skin\Titanium\screens\MediaItemsDetails.inc" />
+    <Content Include="Skin\Titanium\screens\MediaItemImageDetails.inc" />
     <Content Include="Skin\Titanium\screens\MediaItemsList.inc" />
     <Content Include="Skin\Titanium\screens\ProgramInfoSlim.inc" />
     <Content Include="Skin\Titanium\skin.xml" />
