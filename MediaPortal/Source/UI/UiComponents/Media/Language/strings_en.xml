@@ -221,6 +221,12 @@
   <string name="Media.VideoActorsLabel">Actor(s): </string>
   <string name="Media.VideoStoryPlotLabel">Story plot: </string>
 
+  <!-- Series currently playing -->
+  <string name="Media.SeriesTitleLabel">Series: </string>
+  <string name="Media.SeriesSeasonLabel">Season: </string>
+  <string name="Media.SeriesEpisodeLabel">Episode(s): </string>
+  <string name="Media.SeriesEpisodeNameLabel">Episode title: </string>
+
   <!-- Image currently playing -->
   <string name="Media.ImageCurrentlyPlayingHeader">Current image information</string>
   <string name="Media.ImageTitleLabel">Name: </string>
