@@ -311,6 +311,7 @@
   <string name="Media.MediumList">Medium list</string>
   <string name="Media.LargeList">Large list</string>
   <string name="Media.LargeGrid">Grid</string>
+  <string name="Media.CoverLayout">Covers</string>
 
   <string name="Media.SwitchSortingMenuItem">Sorting</string>
   <string name="Media.SwitchSortingDialogTitle">Sorting</string>

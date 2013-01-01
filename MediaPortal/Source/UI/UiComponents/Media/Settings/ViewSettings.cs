@@ -30,6 +30,8 @@ namespace MediaPortal.UiComponents.Media.Settings
   {
     ListLayout,
     GridLayout,
+    CoverLayout,
+    // TODO: CoverFlowLayout,
   }
 
   public enum LayoutSize
