@@ -77,13 +77,21 @@ namespace MediaPortal.UiComponents.Media.Models
       largeList.AdditionalProperties[Consts.KEY_LAYOUT_SIZE] = LayoutSize.Large;
       _viewModeItemsList.Add(largeList);
 
-      ListItem largeGrid = new ListItem(Consts.KEY_NAME, Consts.RES_LARGE_Grid)
+      ListItem largeGrid = new ListItem(Consts.KEY_NAME, Consts.RES_LARGE_GRID)
         {
             Command = new MethodDelegateCommand(() => SetViewMode(LayoutType.GridLayout, LayoutSize.Large))
         };
       largeGrid.AdditionalProperties[Consts.KEY_LAYOUT_TYPE] = LayoutType.GridLayout;
       largeGrid.AdditionalProperties[Consts.KEY_LAYOUT_SIZE] = LayoutSize.Large;
       _viewModeItemsList.Add(largeGrid);
+
+      ListItem coverLarge = new ListItem(Consts.KEY_NAME, Consts.RES_LARGE_COVER)
+        {
+            Command = new MethodDelegateCommand(() => SetViewMode(LayoutType.CoverLayout, LayoutSize.Large))
+        };
+      coverLarge.AdditionalProperties[Consts.KEY_LAYOUT_TYPE] = LayoutType.CoverLayout;
+      coverLarge.AdditionalProperties[Consts.KEY_LAYOUT_SIZE] = LayoutSize.Large;
+      _viewModeItemsList.Add(coverLarge);
     }
 
     protected void SetViewMode(LayoutType layoutType, LayoutSize layoutSize)

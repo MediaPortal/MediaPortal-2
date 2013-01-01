@@ -258,7 +258,8 @@ namespace MediaPortal.UiComponents.Media.General
     public const string RES_SMALL_LIST = "[Media.SmallList]";
     public const string RES_MEDIUM_LIST = "[Media.MediumList]";
     public const string RES_LARGE_LIST = "[Media.LargeList]";
-    public const string RES_LARGE_Grid = "[Media.LargeGrid]";
+    public const string RES_LARGE_GRID = "[Media.LargeGrid]";
+    public const string RES_LARGE_COVER = "[Media.CoverLayout]";
 
     // Sorting
     public const string RES_SWITCH_SORTING = "[Media.SwitchSortingMenuItem]";
