@@ -25,9 +25,10 @@
 using System;
 using System.Collections.Generic;
 using System.Reflection;
-using MediaPortal.UI.Control.InputManager;
 using MediaPortal.Common;
 using MediaPortal.Common.Logging;
+using MediaPortal.Common.Runtime;
+using MediaPortal.UI.Control.InputManager;
 using MediaPortal.UI.Presentation.Players;
 using MediaPortal.UI.Presentation.Screens;
 using MediaPortal.UI.Presentation.Utilities;
@@ -52,6 +53,7 @@ namespace MediaPortal.UI.SkinEngine.MarkupExtensions
       TYPE_MAPPING.Add("DialogManager", typeof(IDialogManager));
       TYPE_MAPPING.Add("Window", typeof(IScreenControl));
       TYPE_MAPPING.Add("PathBrowser", typeof(IPathBrowser));
+      TYPE_MAPPING.Add("System", typeof(ISystemStateService));
     }
 
     protected string _interfaceName = null;

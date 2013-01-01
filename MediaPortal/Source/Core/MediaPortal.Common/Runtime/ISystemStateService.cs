@@ -61,6 +61,31 @@ namespace MediaPortal.Common.Runtime
   public interface ISystemStateService
   {
     SystemState CurrentState { get; }
+
+    /// <summary>
+    /// Shuts the current Windows session down.
+    /// </summary>
+    void Shutdown(bool force = false);
+
+    /// <summary>
+    /// Restarts the PC.
+    /// </summary>
+    void Restart(bool force = false);
+
+    /// <summary>
+    /// Suspends the current Windows session to memory or to disc.
+    /// </summary>
     void Suspend();
+
+    /// <summary>
+    /// Suspends the current Windows session to memory or to disc.
+    /// Note: Currently the system does not distinguish between
+    /// </summary>
+    //void Hibernate();
+
+    /// <summary>
+    /// Logs the current user off.
+    /// </summary>
+    void Logoff(bool force = false);
   }
 }
