@@ -18,17 +18,21 @@
           <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
         <Grid.ColumnDefinitions>
-          <ColumnDefinition Width="950"/>
+          <ColumnDefinition Width="Auto"/>
           <ColumnDefinition Width="*"/>
         </Grid.ColumnDefinitions>
-        <Control Grid.Column="0" Grid.Row="0" Grid.ColumnSpan="2"  HorizontalAlignment="Stretch">
+        <Control Grid.Column="0" Grid.Row="0" Grid.ColumnSpan="2" HorizontalAlignment="Stretch">
           <Control.TemplateControl>
             <Include Source="screens\MediaItemsListHeader.inc"/>
           </Control.TemplateControl>
         </Control>
-        
-        <Control Grid.Column="0" Grid.Row="1" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"
-          Template="{Binding Source={DynamicResource Media_Details_Template}}" />
+
+        <Control Grid.Column="0" Grid.Row="1" VerticalAlignment="Stretch" Width="950"
+          Template="{Binding Source={DynamicResource Media_Details_Template}}">
+          <Control.IsVisible>
+            <Binding Source="{StaticResource ViewModeModel}" Path="LayoutType" Converter="{StaticResource ExpressionValueConverter}" ConverterParameter="{}{0} != {LayoutType}.{CoverLayout}"/>
+          </Control.IsVisible>
+        </Control>
 
         <Control Grid.Column="1" Grid.Row="1" VerticalAlignment="Stretch" HorizontalAlignment="Stretch">
           <Control.TemplateControl>
