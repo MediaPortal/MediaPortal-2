@@ -57,6 +57,11 @@ namespace MediaPortal.Extensions.MediaServer.DLNA
       {
         case "audio/mpeg":
           dlnaField.ProfileParameter.ProfileName = DlnaProfiles.Mp3;
+          dlnaField.OperationsParameter.Show = true;
+          dlnaField.OperationsParameter.TimeSeekRangeSupport = true;
+          dlnaField.OperationsParameter.ByteSeekRangeSupport = true;
+          dlnaField.FlagsParameter.SenderPaced = true;
+          dlnaField.FlagsParameter.ByteBasedSeek = true;
           dlnaField.FlagsParameter.StreamingMode = true;
           dlnaField.FlagsParameter.InteractiveMode = false;
           dlnaField.FlagsParameter.BackgroundMode = true;

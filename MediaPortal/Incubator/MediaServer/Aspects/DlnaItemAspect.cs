@@ -46,10 +46,18 @@ namespace MediaPortal.Extensions.MediaServer.Aspects
     public static readonly MediaItemAspectMetadata.AttributeSpecification ATTR_PROFILE =
         MediaItemAspectMetadata.CreateStringAttributeSpecification("Profile", 50, Cardinality.Inline, false);
 
+    /// <summary>
+    /// Contains the recording start date and time.
+    /// </summary>
+    public static readonly MediaItemAspectMetadata.AttributeSpecification ATTR_SIZE =
+        MediaItemAspectMetadata.CreateAttributeSpecification("Size", typeof(Int64), Cardinality.Inline, false);
+
+
  public static readonly MediaItemAspectMetadata Metadata = new MediaItemAspectMetadata(
         ASPECT_ID, "DlnaItem", new[] {
             ATTR_MIME_TYPE,
-            ATTR_PROFILE
+            ATTR_PROFILE,
+            ATTR_SIZE
         });
   }
 }

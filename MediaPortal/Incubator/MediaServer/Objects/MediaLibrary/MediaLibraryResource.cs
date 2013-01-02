@@ -87,6 +87,7 @@ namespace MediaPortal.Extensions.MediaServer.Objects.MediaLibrary
         var vidBitRate = Convert.ToInt32(videoAspect.GetAttributeValue(VideoAspect.ATTR_VIDEOBITRATE));
         var audBitRate = Convert.ToInt32(videoAspect.GetAttributeValue(VideoAspect.ATTR_AUDIOBITRATE));
         BitRate = (uint) (vidBitRate + audBitRate);
+
       }
 
       Uri = url;
