@@ -23,7 +23,9 @@
 
 using System;
 using System.Collections.Generic;
+using MediaPortal.Common;
 using MediaPortal.Common.General;
+using MediaPortal.Common.Logging;
 using MediaPortal.UI.SkinEngine.Controls.Visuals;
 using MediaPortal.UI.SkinEngine.MpfElements;
 using MediaPortal.UI.SkinEngine.MpfElements.Resources;
@@ -342,85 +344,92 @@ namespace MediaPortal.UI.SkinEngine.Controls.Animations
     /// </summary>
     public void Animate(TimelineContext context, uint timePassed)
     {
-      uint passed = (timePassed - context.TimeStarted);
-
-      switch (context.State)
+      try
       {
-        case State.WaitBegin:
-          if (passed >= BeginTime.TotalMilliseconds)
-          {
-            passed = 0;
-            context.TimeStarted = timePassed;
-            context.State = State.Running;
-            goto case State.Running;
-          }
-          break;
+        uint passed = (timePassed - context.TimeStarted);
 
-        case State.Running:
-          if (!DurationSet)
-          {
-            DoAnimation(context, passed);
-            if (HasEnded(context)) // Check the state of the children and propagate it to this timeline
-              if (FillBehavior == FillBehavior.Stop)
-                Stop(context);
-              else
-                Ended(context);
-          }
-          else if (passed < Duration.TotalMilliseconds)
-          {
-            DoAnimation(context, passed);
-          }
-          else
-          {
-            if (AutoReverse)
+        switch (context.State)
+        {
+          case State.WaitBegin:
+            if (passed >= BeginTime.TotalMilliseconds)
             {
-              context.State = State.Reverse;
-              context.TimeStarted = timePassed;
               passed = 0;
-              goto case State.Reverse;
-            }
-            if (RepeatBehavior == RepeatBehavior.Forever)
-            {
               context.TimeStarted = timePassed;
-              DoAnimation(context, timePassed - context.TimeStarted);
-            }
-            else
-            {
-              DoAnimation(context, (uint) Duration.TotalMilliseconds);
-              if (FillBehavior == FillBehavior.Stop)
-                Stop(context);
-              else
-                Ended(context);
-            }
-          }
-          break;
-
-        case State.Reverse:
-          if (!DurationSet)
-            Ended(context); // This is an error case - we cannot reverse if we don't know at which point in time
-          if (passed < Duration.TotalMilliseconds)
-            DoAnimation(context, (uint) (Duration.TotalMilliseconds - passed));
-          else
-          {
-            if (RepeatBehavior == RepeatBehavior.Forever)
-            {
               context.State = State.Running;
-              context.TimeStarted = timePassed;
-              DoAnimation(context, timePassed - context.TimeStarted);
+              goto case State.Running;
+            }
+            break;
+
+          case State.Running:
+            if (!DurationSet)
+            {
+              DoAnimation(context, passed);
+              if (HasEnded(context)) // Check the state of the children and propagate it to this timeline
+                if (FillBehavior == FillBehavior.Stop)
+                  Stop(context);
+                else
+                  Ended(context);
+            }
+            else if (passed < Duration.TotalMilliseconds)
+            {
+              DoAnimation(context, passed);
             }
             else
             {
-              DoAnimation(context, 0);
-              if (FillBehavior == FillBehavior.Stop)
-                Stop(context);
+              if (AutoReverse)
+              {
+                context.State = State.Reverse;
+                context.TimeStarted = timePassed;
+                passed = 0;
+                goto case State.Reverse;
+              }
+              if (RepeatBehavior == RepeatBehavior.Forever)
+              {
+                context.TimeStarted = timePassed;
+                DoAnimation(context, timePassed - context.TimeStarted);
+              }
               else
-                Ended(context);
+              {
+                DoAnimation(context, (uint) Duration.TotalMilliseconds);
+                if (FillBehavior == FillBehavior.Stop)
+                  Stop(context);
+                else
+                  Ended(context);
+              }
             }
-          }
-          break;
-        case State.Ended:
-          DoAnimation(context, passed);
-          break;
+            break;
+
+          case State.Reverse:
+            if (!DurationSet)
+              Ended(context); // This is an error case - we cannot reverse if we don't know at which point in time
+            if (passed < Duration.TotalMilliseconds)
+              DoAnimation(context, (uint) (Duration.TotalMilliseconds - passed));
+            else
+            {
+              if (RepeatBehavior == RepeatBehavior.Forever)
+              {
+                context.State = State.Running;
+                context.TimeStarted = timePassed;
+                DoAnimation(context, timePassed - context.TimeStarted);
+              }
+              else
+              {
+                DoAnimation(context, 0);
+                if (FillBehavior == FillBehavior.Stop)
+                  Stop(context);
+                else
+                  Ended(context);
+              }
+            }
+            break;
+          case State.Ended:
+            DoAnimation(context, passed);
+            break;
+        }
+      }
+      catch (Exception ex)
+      {
+        ServiceRegistration.Get<ILogger>().Error("Error executing animation", ex);
       }
     }
 

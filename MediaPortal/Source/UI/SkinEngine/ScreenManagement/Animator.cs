@@ -25,6 +25,8 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using MediaPortal.Common;
+using MediaPortal.Common.Logging;
 using MediaPortal.UI.SkinEngine.Controls.Visuals;
 using MediaPortal.UI.SkinEngine.Controls.Animations;
 using MediaPortal.UI.SkinEngine.MpfElements;
@@ -149,10 +151,17 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
         FindConflicts(context, out conflictingAnimations, out conflictingProperties);
         ExecuteHandoff(context, conflictingAnimations, handoffBehavior);
 
-        board.Setup(context.TimelineContext, conflictingProperties);
+        try
+        {
+          board.Setup(context.TimelineContext, conflictingProperties);
 
-        _scheduledAnimations.Add(context);
-        board.Start(context.TimelineContext, SkinContext.SystemTickCount);
+          _scheduledAnimations.Add(context);
+          board.Start(context.TimelineContext, SkinContext.SystemTickCount);
+        }
+        catch (Exception ex)
+        {
+          ServiceRegistration.Get<ILogger>().Error("Animator: Error initializing StoryBoard", ex);
+        }
 
         // No animation here - has to be done in the Animate method
       }
