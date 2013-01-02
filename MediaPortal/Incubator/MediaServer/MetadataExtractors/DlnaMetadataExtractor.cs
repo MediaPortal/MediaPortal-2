@@ -81,9 +81,23 @@ namespace MediaPortal.Extensions.MediaServer.MetadataExtractors
           return false;
         }
 
-        MediaItemAspect.SetAttribute(extractedAspectData, DlnaItemAspect.ATTR_MIME_TYPE, "audio/mpeg");
+        MediaItemAspect.SetAttribute(extractedAspectData, DlnaItemAspect.ATTR_SIZE, fsra.Size);
 
-        MediaItemAspect.SetAttribute(extractedAspectData, DlnaItemAspect.ATTR_PROFILE, "MP3");
+        var fileName = mediaItemAccessor.ResourceName;
+        var ext = DosPathHelper.GetExtension(fileName).ToLowerInvariant();
+        switch (ext)
+        {
+          case "mp3":
+            MediaItemAspect.SetAttribute(extractedAspectData, DlnaItemAspect.ATTR_MIME_TYPE, "audio/mpeg");
+            MediaItemAspect.SetAttribute(extractedAspectData, DlnaItemAspect.ATTR_PROFILE, "MP3");
+            break;
+          case "jpg":
+            MediaItemAspect.SetAttribute(extractedAspectData, DlnaItemAspect.ATTR_MIME_TYPE, "image/jpeg");
+            MediaItemAspect.SetAttribute(extractedAspectData, DlnaItemAspect.ATTR_PROFILE, "JPEG_LRG");
+            break;
+          default:
+            return false;
+        }  
         
         return true;
       }
