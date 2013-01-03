@@ -58,15 +58,15 @@ Parameters which have to be accessible by a DynamicResource lookup:
 
       <Label x:Name="TimeLabel" Content="{Binding Source={StaticResource TimeModel}, Path=CurrentTime}" Grid.Column="2" Grid.Row="0" Margin="0,10,40,0"
              FontSize="{ThemeResource HeaderFontSize}" FontFamily="TitanBold"
-             Color="{ThemeResource PlaylistItemColor}" VerticalAlignment="Center" HorizontalAlignment="Right"/>
+             Color="{ThemeResource TextColor}" VerticalAlignment="Center" HorizontalAlignment="Right"/>
 
       <StackPanel Orientation="Horizontal" Grid.Column="1" Grid.Row="1" Grid.ColumnSpan="2" Margin="0,0,40,0">
         <Label x:Name="DateLabel" Content="{Binding Source={StaticResource TimeModel}, Path=CurrentDate}" FontFamily="TitanBold"
-               Color="{ThemeResource PlaylistItemColor}" VerticalAlignment="Center" HorizontalAlignment="Right"/>
-        <Label x:Name="PlaceHolder" Content=" / " FontFamily="TitanBold" Color="{ThemeResource PlaylistItemColor}" 
+               Color="{ThemeResource TextColor}" VerticalAlignment="Center" HorizontalAlignment="Right"/>
+        <Label x:Name="PlaceHolder" Content=" / " FontFamily="TitanBold" Color="{ThemeResource TextColor}" 
                VerticalAlignment="Center" HorizontalAlignment="Right"/>
         <Label x:Name="Temp" Content="{Binding Source={StaticResource CurrentWeatherModel}, Path=CurrentLocation.Condition.Temperature}"
-               FontFamily="TitanBold" Color="{ThemeResource PlaylistItemColor}" IsVisible="{Binding UseInHome}"
+               FontFamily="TitanBold" Color="{ThemeResource TextColor}" IsVisible="{Binding UseInHome}"
                VerticalAlignment="Center" HorizontalAlignment="Right"/>
       </StackPanel>
 
@@ -94,7 +94,7 @@ Parameters which have to be accessible by a DynamicResource lookup:
     </Grid>
 
 
-    <Control x:Name="ClientArea" Height="915" Width="1920" Canvas.Left="0" Canvas.Top="120"
+    <Control x:Name="ClientArea" Height="840" Width="1840" Canvas.Left="40" Canvas.Top="120"
              DockPanel.Dock="Center" Template="{DynamicResource ResourceKey=Client_Template}"/>
 
     <!-- Player controls, located on top but drawn as last item so it overlays other content, if present-->
