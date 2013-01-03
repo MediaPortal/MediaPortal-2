@@ -20,16 +20,16 @@
   <!-- Hours to be shown in EPG screen -->
   <ResourceWrapper x:Key="MultiGuideVisibleHours" Resource="2.5"/>
   <!-- The left offset for positioning the current time indicator -->
-  <ResourceWrapper x:Key="MultiGuideProgramLeftOffset" Resource="370"/>
+  <ResourceWrapper x:Key="MultiGuideProgramLeftOffset" Resource="350"/>
   <!-- This factor is used to calculate the progam's width in guide, Width = [number of minutes] * MultiGuideProgramTimeFactor -->
-  <ResourceWrapper x:Key="MultiGuideProgramTimeFactor" Resource="10.2"/>
+  <ResourceWrapper x:Key="MultiGuideProgramTimeFactor" Resource="9.0"/>
 
-  <ResourceWrapper x:Key="MultiGuideHeaderWidth" Resource="400"/>
-  <ResourceWrapper x:Key="MultiGuideProgramHeight" Resource="70"/>
-  <ResourceWrapper x:Key="MultiGuideProgramPreviewHeight" Resource="330"/>
+  <ResourceWrapper x:Key="MultiGuideHeaderWidth" Resource="350"/>
+  <ResourceWrapper x:Key="MultiGuideProgramHeight" Resource="68"/>
+  <ResourceWrapper x:Key="MultiGuideProgramPreviewHeight" Resource="250"/>
 
   <ResourceWrapper x:Key="SingleGuideProgramWidth" Resource="350"/>
 
-  <ResourceWrapper x:Key="ProgramInfoHeaderWidth" Resource="200"/>
+  <ResourceWrapper x:Key="ProgramInfoHeaderWidth" Resource="140"/>
   
 </ResourceDictionary>
