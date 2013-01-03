@@ -35,7 +35,10 @@ Parameters which have to be accessible by a DynamicResource lookup:
     >
   <Include.Resources>
     <Model x:Key="MenuModel" Id="9E9D0CD9-4FDB-4c0f-A0C4-F356E151BDE0"/>
-    <ResourceWrapper x:Key="DefaultContentMargin" Resource="40,210,36,40" />
+    
+    <!-- Defines the default margins for the content area -->
+    <ResourceWrapper x:Key="DefaultContentMargin" Resource="0,210,-4,-35" />
+    
     <!-- Header has to be defined by the includer: "Header_Text" -->
 
     <!-- Client_Template -->
@@ -68,7 +71,7 @@ Parameters which have to be accessible by a DynamicResource lookup:
           </Border.Margin>
         </Border>
 
-        <Grid x:Name="LeftPanel" Margin="40,-50,10,0" VerticalAlignment="Stretch"
+        <Grid x:Name="LeftPanel" Margin="0,-50,10,-75" VerticalAlignment="Stretch"
               Width="550" HorizontalAlignment="Left">
 
           <Grid.Resources>
