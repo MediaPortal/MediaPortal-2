@@ -2,10 +2,13 @@
 <Include
     xmlns="www.team-mediaportal.com/2008/mpf/directx"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-    Source="screens\master_bare.xaml"
+    Source="screens\master_menu.xaml"
     xmlns:mp_special_controls="clr-namespace:MediaPortal.UI.SkinEngine.SpecialElements.Controls"
     >
   <Include.Resources>
+
+    <!-- Custom margin that will be applied to the content area -->
+    <ResourceWrapper x:Key="CustomContentMargin" Resource="40,120,36,40" />
 
     <!-- Header -->
     <ResourceWrapper x:Key="Header_Text" Resource="[SlimTvClient.Guide]"/>
@@ -14,10 +17,9 @@
     <Model x:Key="SlimTvMultiChannelGuide" Id="5054408D-C2A9-451f-A702-E84AFCD29C10"/>
 
     <!-- Contents -->
-    <ControlTemplate x:Key="Client_Template">
+    <ControlTemplate x:Key="Contents_Template">
       <Grid x:Name="MainGrid" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" 
-              DataContext="{Binding Source={StaticResource SlimTvMultiChannelGuide}}"
-              Margin="0,10,0,0">
+              DataContext="{Binding Source={StaticResource SlimTvMultiChannelGuide}}">
 
         <Grid.ColumnDefinitions>
           <ColumnDefinition Width="{ThemeResource MultiGuideHeaderWidth}"/>
@@ -25,12 +27,12 @@
         </Grid.ColumnDefinitions>
 
         <Grid.RowDefinitions>
+          <RowDefinition Height="{ThemeResource MultiGuideProgramPreviewHeight}"/>
           <RowDefinition Height="Auto"/>
           <RowDefinition Height="*"/>
-          <RowDefinition Height="{ThemeResource MultiGuideProgramPreviewHeight}"/>
         </Grid.RowDefinitions>
 
-        <StackPanel x:Name="Groups" Margin="20,0,20,0" Grid.Column="0" Grid.Row="0"
+        <StackPanel x:Name="Groups" Margin="0,20,0,0" Grid.Column="0" Grid.Row="1"
               HorizontalAlignment="Left" VerticalAlignment="Top" Orientation="Horizontal">
           <Button x:Name="PrevGroupButton" Style="{StaticResource SmallButtonStyle}" Content=" &lt; "
               Command="{Command PrevGroup}"/>
@@ -38,7 +40,7 @@
               Command="{Command NextGroup}"/>
           <Label x:Name="GroupNameLabel" Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}" Content="{Binding GroupName}"/>
         </StackPanel>
-        <StackPanel x:Name="TimeControls" Margin="20,0,20,0" Grid.Column="1" Grid.Row="0"
+        <StackPanel x:Name="TimeControls" Margin="0,20,0,0" Grid.Column="1" Grid.Row="1"
                      HorizontalAlignment="Left" VerticalAlignment="Top" Orientation="Horizontal">
           <Button x:Name="ScrollBackwardButton" Style="{StaticResource SmallButtonStyle}" Content=" - "
               Command="{Command ScrollBackward}"/>
@@ -48,7 +50,7 @@
               Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}"/>
         </StackPanel>
 
-        <ListView  Grid.Column="0" Grid.Row="1" Grid.ColumnSpan="2"
+        <ListView  Grid.Column="0" Grid.Row="2" Grid.ColumnSpan="2"
               Margin="10" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
               Style="{ThemeResource MultiProgramGuideContainerStyle}"
               ItemsSource="{Binding Path=ChannelList}"
@@ -58,7 +60,7 @@
           </ListView.Resources>
         </ListView>
         
-        <Rectangle x:Name="TimeIndicator" Grid.Row="1" Grid.ColumnSpan="2" Width="8" HorizontalAlignment="Left" VerticalAlignment="Stretch"
+        <Rectangle x:Name="TimeIndicator" Grid.Row="2" Grid.ColumnSpan="2" Width="8" HorizontalAlignment="Left" VerticalAlignment="Stretch"
                    IsVisible="{Binding CurrentTimeVisible}">
           <Rectangle.Fill>
             <LinearGradientBrush StartPoint="0,0.5" EndPoint="1,0.5">
@@ -76,14 +78,11 @@
           </Rectangle.Margin>
         </Rectangle>
 
-        <GroupBox  Grid.Column="0" Grid.Row="2"  Grid.ColumnSpan="2" Header="[SlimTvClient.CurrentlyPlayingInformationHeader]" 
-                   Style="{ThemeResource ContentGroupBoxStyle}" FontSize="{ThemeResource SmallFontSize}" Margin="10,0,10,15">
-          <Control VerticalAlignment="Stretch" HorizontalAlignment="Stretch">
-            <Control.TemplateControl>
-              <Include Source="screens\ProgramInfoSlim.inc"/>
-            </Control.TemplateControl>
-          </Control>
-        </GroupBox>
+        <Control Grid.Column="0" Grid.Row="0"  Grid.ColumnSpan="2" VerticalAlignment="Stretch" HorizontalAlignment="Stretch">
+          <Control.TemplateControl>
+            <Include Source="screens\ProgramInfoSlim.inc"/>
+          </Control.TemplateControl>
+        </Control>
       </Grid>
     </ControlTemplate>
   </Include.Resources>
