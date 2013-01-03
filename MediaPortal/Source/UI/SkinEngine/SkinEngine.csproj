@@ -247,6 +247,7 @@
     <Compile Include="MpfElements\Converters\expr\UnaryOp.cs" />
     <Compile Include="MpfElements\Converters\expr\Variable.cs" />
     <Compile Include="MpfElements\Converters\DurationConverter.cs" />
+    <Compile Include="MpfElements\Converters\PriorityBindingConverter.cs" />
     <Compile Include="MpfElements\Converters\ReferenceNotNull_BoolConverter.cs" />
     <Compile Include="MpfElements\Converters\expr\Error.cs" />
     <Compile Include="MpfElements\IBindingContainer.cs" />

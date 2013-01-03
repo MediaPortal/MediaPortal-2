@@ -22,6 +22,7 @@
   <EmptyString2FalseConverter x:Key="EmptyStringToFalseConverter"/>
   <DateFormatConverter x:Key="DateFormatConverter"/>
   <DurationConverter x:Key="DurationConverter"/>
+  <PriorityBindingConverter x:Key="PriorityBindingConverter"/>
 
   <!-- ******************* Screen/dialog animation storyboards ****************** -->
 
