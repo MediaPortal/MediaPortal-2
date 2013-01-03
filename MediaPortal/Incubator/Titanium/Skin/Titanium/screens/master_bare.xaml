@@ -55,7 +55,7 @@ Parameters which have to be accessible by a DynamicResource lookup:
 
       <Image Grid.Row="0" Grid.Column="1" x:Name="SmallIcon" Source="{Binding Source={StaticResource CurrentWeatherModel}, Path=CurrentLocation.Condition.SmallIconProperty}" 
                  IsVisible="{Binding UseInHome}" HorizontalAlignment="Right" Margin="0,0,-40,0"/>
-      
+
       <Label x:Name="TimeLabel" Content="{Binding Source={StaticResource TimeModel}, Path=CurrentTime}" Grid.Column="2" Grid.Row="0" Margin="0,10,40,0"
              FontSize="{ThemeResource HeaderFontSize}" FontFamily="TitanBold"
              Color="{ThemeResource PlaylistItemColor}" VerticalAlignment="Center" HorizontalAlignment="Right"/>
@@ -71,9 +71,6 @@ Parameters which have to be accessible by a DynamicResource lookup:
       </StackPanel>
 
     </Grid>    <!-- HeaderPanel -->
-
-    <Rectangle DockPanel.Dock="Bottom" Fill="#FF000000" Opacity="0.749" Canvas.Left="50" Canvas.Top="340" Width="1824" Height="695" RadiusX="30" RadiusY="30"
-        IsVisible="{Binding Source={DynamicResource EnableBackgroundPanel}}"/>
 
     <Path x:Name="Shape_57_copy_7" Canvas.Left="50" Canvas.Top="950" Width="1824" Height="91" 
         Data="F1M2,663.984C2,680.552 15.431,693.984 32,693.984 32,693.984 1792.01,693.984 1792.01,693.984 1808.578,693.984 1822.01,680.552 1822.01,663.984L1822.01,670.315C1822.01,700.647 1822.01,718.961 1822.01,718.961 1822.01,735.529 1808.578,748.961 1792.01,748.961 1792.01,748.961 32,748.961 32,748.961 15.431,748.961 2,735.529 2,718.961 2,718.961 2,700.647 2,670.315z" 
