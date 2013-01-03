@@ -52,6 +52,7 @@ namespace MediaPortal.UI.SkinEngine.MarkupExtensions
     protected IMultiValueConverter _converter = null;
     protected object _converterParameter = null;
     protected AbstractProperty _modeProperty = new SProperty(typeof(BindingMode), BindingMode.Default);
+    protected AbstractProperty _allowEmptyBindingProperty = new SProperty(typeof(bool), false);
 
     // State variables
     protected object _syncObj = new object();
@@ -100,12 +101,14 @@ namespace MediaPortal.UI.SkinEngine.MarkupExtensions
     {
       _evaluatedSourceValue.Attach(OnSourceValueChanged);
       _modeProperty.Attach(OnBindingPropertyChanged);
+      _allowEmptyBindingProperty.Attach(OnBindingPropertyChanged);
     }
 
     protected void Detach()
     {
       _evaluatedSourceValue.Detach(OnSourceValueChanged);
       _modeProperty.Detach(OnBindingPropertyChanged);
+      _allowEmptyBindingProperty.Detach(OnBindingPropertyChanged);
     }
 
     public override void DeepCopy(IDeepCopyable source, ICopyManager copyManager)
@@ -116,6 +119,7 @@ namespace MediaPortal.UI.SkinEngine.MarkupExtensions
       Converter = copyManager.GetCopy(mbme.Converter);
       ConverterParameter = copyManager.GetCopy(mbme.ConverterParameter);
       Mode = mbme.Mode;
+      AllowEmptyBinding = mbme.AllowEmptyBinding;
       foreach (BindingMarkupExtension childBinding in mbme._childBindings)
         _childBindings.Add(copyManager.GetCopy(childBinding));
       Attach();
@@ -193,6 +197,17 @@ namespace MediaPortal.UI.SkinEngine.MarkupExtensions
     {
       get { return (BindingMode) _modeProperty.GetValue(); }
       set { _modeProperty.SetValue(value); }
+    }
+
+    public AbstractProperty AllowEmptyBindingProperty
+    {
+      get { return _allowEmptyBindingProperty; }
+    }
+
+    public bool AllowEmptyBinding
+    {
+      get { return (bool) _allowEmptyBindingProperty.GetValue(); }
+      set { _allowEmptyBindingProperty.SetValue(value); }
     }
 
     /// <summary>
@@ -295,13 +310,14 @@ namespace MediaPortal.UI.SkinEngine.MarkupExtensions
     {
       ResetBindingAttachments();
       result = null;
+      bool allowEmptyBinding = AllowEmptyBinding;
       IDataDescriptor[] values = new IDataDescriptor[_childBindings.Count];
       for (int i = 0; i < _childBindings.Count; i++)
       {
         BindingMarkupExtension bme = _childBindings[i];
         IDataDescriptor evaluatedValue;
         AttachToSourceBinding(bme);
-        if (!bme.Evaluate(out evaluatedValue))
+        if (!bme.Evaluate(out evaluatedValue) && !allowEmptyBinding)
           return false;
         values[i] = evaluatedValue;
       }
@@ -338,7 +354,7 @@ namespace MediaPortal.UI.SkinEngine.MarkupExtensions
           Type targetType = _targetDataDescriptor == null ? typeof(object) : _targetDataDescriptor.DataType;
           if (!_converter.Convert(values, targetType, ConverterParameter, out result))
             return false;
-          copy = values.Any(dd => ReferenceEquals(dd.Value, result));
+          copy = values.Any(dd => dd != null && ReferenceEquals(dd.Value, result));
           IsSourceValueValid = sourceValueValid = true;
         }
         object oldValue = _evaluatedSourceValue.SourceValue;
