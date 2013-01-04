@@ -55,6 +55,11 @@ namespace MediaPortal.UiComponents.Media.Models.AspectWrappers
     protected AbstractProperty _iSOSpeedRatingProperty;
     protected AbstractProperty _orientationProperty;
     protected AbstractProperty _meteringModeProperty;
+    protected AbstractProperty _latitudeProperty;
+    protected AbstractProperty _longitudeProperty;
+    protected AbstractProperty _cityProperty;
+    protected AbstractProperty _stateProperty;
+    protected AbstractProperty _countryProperty;
     protected AbstractProperty _mediaItemProperty;
 
     #endregion Fields
@@ -182,6 +187,61 @@ namespace MediaPortal.UiComponents.Media.Models.AspectWrappers
       set { _meteringModeProperty.SetValue(value); }
     }
 
+    public AbstractProperty LatitudeProperty
+    {
+      get { return _latitudeProperty; }
+    }
+
+    public double? Latitude
+    {
+      get { return (double?) _latitudeProperty.GetValue(); }
+      set { _latitudeProperty.SetValue(value); }
+    }
+
+    public AbstractProperty LongitudeProperty
+    {
+      get { return _longitudeProperty; }
+    }
+
+    public double? Longitude
+    {
+      get { return (double?) _longitudeProperty.GetValue(); }
+      set { _longitudeProperty.SetValue(value); }
+    }
+
+    public AbstractProperty CityProperty
+    {
+      get { return _cityProperty; }
+    }
+
+    public string City
+    {
+      get { return (string) _cityProperty.GetValue(); }
+      set { _cityProperty.SetValue(value); }
+    }
+
+    public AbstractProperty StateProperty
+    {
+      get { return _stateProperty; }
+    }
+
+    public string State
+    {
+      get { return (string) _stateProperty.GetValue(); }
+      set { _stateProperty.SetValue(value); }
+    }
+
+    public AbstractProperty CountryProperty
+    {
+      get { return _countryProperty; }
+    }
+
+    public string Country
+    {
+      get { return (string) _countryProperty.GetValue(); }
+      set { _countryProperty.SetValue(value); }
+    }
+
     public AbstractProperty MediaItemProperty
     {
       get { return _mediaItemProperty; }
@@ -210,6 +270,11 @@ namespace MediaPortal.UiComponents.Media.Models.AspectWrappers
       _iSOSpeedRatingProperty = new SProperty(typeof(string));
       _orientationProperty = new SProperty(typeof(int?));
       _meteringModeProperty = new SProperty(typeof(string));
+      _latitudeProperty = new SProperty(typeof(double?));
+      _longitudeProperty = new SProperty(typeof(double?));
+      _cityProperty = new SProperty(typeof(string));
+      _stateProperty = new SProperty(typeof(string));
+      _countryProperty = new SProperty(typeof(string));
       _mediaItemProperty = new SProperty(typeof(MediaItem));
       _mediaItemProperty.Attach(MediaItemChanged);
     }
@@ -243,6 +308,11 @@ namespace MediaPortal.UiComponents.Media.Models.AspectWrappers
       ISOSpeedRating = (string) aspect[ImageAspect.ATTR_ISO_SPEED];
       Orientation = (int?) aspect[ImageAspect.ATTR_ORIENTATION];
       MeteringMode = (string) aspect[ImageAspect.ATTR_METERING_MODE];
+      Latitude = (double?) aspect[ImageAspect.ATTR_LATITUDE];
+      Longitude = (double?) aspect[ImageAspect.ATTR_LONGITUDE];
+      City = (string) aspect[ImageAspect.ATTR_CITY];
+      State = (string) aspect[ImageAspect.ATTR_STATE];
+      Country = (string) aspect[ImageAspect.ATTR_COUNTRY];
     }
 
     public void SetEmpty()
@@ -258,11 +328,14 @@ namespace MediaPortal.UiComponents.Media.Models.AspectWrappers
       ISOSpeedRating = null;
       Orientation = null;
       MeteringMode = null;
+      Latitude = null;
+      Longitude = null;
+      City = null;
+      State = null;
+      Country = null;
     }
 
 
     #endregion Members
-
   }
-
 }

@@ -54,6 +54,9 @@
               <RowDefinition Height="Auto"/>
               <RowDefinition Height="Auto"/>
               <RowDefinition Height="Auto"/>
+              <RowDefinition Height="Auto"/>
+              <RowDefinition Height="Auto"/>
+              <RowDefinition Height="Auto"/>
             </Grid.RowDefinitions>
             <Grid.ColumnDefinitions>
               <ColumnDefinition Width="250"/>
@@ -97,7 +100,23 @@
                 Content="{Binding MeteringMode}"
                 Color="{ThemeResource TextColor}"/>
 
-            <!-- TODO: Add geolocation information after merge -->
+            <Label x:Name="ImageCountryLabel" Grid.Row="6" Grid.Column="0"
+                Content="[Media.ImageCountryLabel]" Color="{ThemeResource TextColor}"/>
+            <Label x:Name="ImageCountry" Grid.Row="6" Grid.Column="1"
+                Content="{Binding Country}"
+                Color="{ThemeResource TextColor}"/>
+
+            <Label x:Name="ImageStateLabel" Grid.Row="7" Grid.Column="0"
+                Content="[Media.ImageStateLabel]" Color="{ThemeResource TextColor}"/>
+            <Label x:Name="ImageState" Grid.Row="7" Grid.Column="1"
+                Content="{Binding State}"
+                Color="{ThemeResource TextColor}"/>
+
+            <Label x:Name="ImageCityLabel" Grid.Row="8" Grid.Column="0"
+                Content="[Media.ImageCityLabel]" Color="{ThemeResource TextColor}"/>
+            <Label x:Name="ImageCity" Grid.Row="8" Grid.Column="1"
+                Content="{Binding City}"
+                Color="{ThemeResource TextColor}"/>
           </Grid>
         </ControlTemplate>
       </media:ImageAspectWrapper.Template>
