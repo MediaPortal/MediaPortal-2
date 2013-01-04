@@ -52,9 +52,8 @@ namespace MediaPortal.UiComponents.Media.Models.ScreenData
     /// Creates a new instance of <see cref="AbstractFiltersScreenData&lt;T&gt;"/>.
     /// </summary>
     /// <param name="screen">The screen associated with this screen data.</param>
-    /// <param name="menuItemLabel">Laben which will be shown in the menu to switch to this screen data.</param>
-    /// <param name="navbarSubViewNavigationDisplayLabel">Display label to be shown in the navbar when we
-    /// navigate to a sub view.</param>
+    /// <param name="menuItemLabel">Label which will be shown in the menu to switch to this screen data.</param>
+    /// <param name="navbarSubViewNavigationDisplayLabel">Display label to be shown in the navbar when we navigate to a sub view.</param>
     /// <param name="filterCriterion">Specifies the filter criterion which provides the filter entries for this screen.</param>
     protected AbstractFiltersScreenData(string screen, string menuItemLabel, string navbarSubViewNavigationDisplayLabel,
         MLFilterCriterion filterCriterion)
