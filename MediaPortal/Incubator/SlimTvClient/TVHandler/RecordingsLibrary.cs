@@ -4,6 +4,7 @@ using MediaPortal.Common;
 using MediaPortal.Common.Commands;
 using MediaPortal.Common.MediaManagement;
 using MediaPortal.Extensions.MetadataExtractors.Aspects;
+using MediaPortal.Plugins.SlimTv.Client.Models.ScreenData;
 using MediaPortal.UiComponents.Media.General;
 using MediaPortal.UiComponents.Media.Models;
 using MediaPortal.UiComponents.Media.Models.Navigation;
@@ -46,11 +47,12 @@ namespace MediaPortal.Plugins.SlimTv.Client.TvHandler
         {
           MaxNumItems = Consts.MAX_NUM_ITEMS_VISIBLE
         };
-      AbstractScreenData showRecordingsList = new VideosShowItemsScreenData(picd);
+      AbstractScreenData defaultScreen = new RecordingFilterByNameScreenData();
       ICollection<AbstractScreenData> availableScreens = new List<AbstractScreenData>
         {
           // C# doesn't like it to have an assignment inside a collection initializer
-          showRecordingsList,
+          defaultScreen,
+          new VideosShowItemsScreenData(picd),
           new RecordingsFilterByChannelScreenData(),
           new VideosFilterByActorScreenData(),
           new VideosFilterByGenreScreenData(),
@@ -58,11 +60,11 @@ namespace MediaPortal.Plugins.SlimTv.Client.TvHandler
           new VideosFilterBySystemScreenData(),
           new VideosSimpleSearchScreenData(picd),
         };
-      Sorting sortByTitle = new SortByTitle();
+      Sorting defaultSorting = new SortByRecordingDateDesc();
       ICollection<Sorting> availableSortings = new List<Sorting>
         {
-          sortByTitle,
-          new SortByYear(),
+          defaultSorting,
+          new SortByTitle(),
           new VideoSortByFirstGenre(),
           new VideoSortByDuration(),
           new VideoSortByDirector(),
@@ -73,7 +75,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.TvHandler
         };
 
       navigationData = new NavigationData(null, Consts.RES_MOVIES_VIEW_NAME, MediaNavigationRootState,
-        MediaNavigationRootState, rootViewSpecification, showRecordingsList, availableScreens, sortByTitle)
+        MediaNavigationRootState, rootViewSpecification, defaultScreen, availableScreens, defaultSorting)
         {
           AvailableSortings = availableSortings
         };

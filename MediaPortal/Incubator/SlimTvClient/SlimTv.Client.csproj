@@ -87,10 +87,12 @@
     <Compile Include="Models\Navigation\ChannelFilterItem.cs" />
     <Compile Include="Models\RecordingsAction.cs" />
     <Compile Include="Models\ScreenData\AbstractChannelFilterScreenData.cs" />
+    <Compile Include="Models\ScreenData\RecordingFilterByNameScreenData.cs" />
     <Compile Include="Models\SlimTvModelBase.cs" />
     <Compile Include="Models\SlimTvMultiChannelGuideModel.cs" />
     <Compile Include="Models\SlimTvGuideModelBase.cs" />
     <Compile Include="Models\SlimTvSingleChannelGuideModel.cs" />
+    <Compile Include="Models\Sorting\SortByRecordingDateDesc.cs" />
     <Compile Include="Player\LiveRadioPlayer.cs" />
     <Compile Include="Player\LiveTvPlayer.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -256,6 +258,11 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="Skin\default\screens\RecordingsByChannel.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Skin\default\screens\RecordingsByName.xaml">
       <SubType>Designer</SubType>
     </Content>
   </ItemGroup>
