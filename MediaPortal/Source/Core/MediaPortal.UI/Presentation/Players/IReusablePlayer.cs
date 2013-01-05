@@ -45,7 +45,7 @@ namespace MediaPortal.UI.Presentation.Players
   public delegate void RequestNextItemDlgt(IPlayer player);
 
   /// <summary>
-  /// Players with this interface implemented are able to reconfigure their input source. This can be sensible
+  /// Players which implement this interface are able to reconfigure their input source. This can be sensible
   /// if the player needs a long time to build its media graph or other structures, or when it is able to cross-fade.
   /// </summary>
   public interface IReusablePlayer : IPlayer
@@ -63,18 +63,18 @@ namespace MediaPortal.UI.Presentation.Players
     /// <remarks>
     /// The caller only should call this method in two situations:
     /// <list type="bullet">
-    /// <item>When the currently playing item should be replaced by the new item at once</item>
-    /// <item>When this player raised its event <see cref="NextItemRequest"/></item>
+    /// <item>When the currently playing item should be replaced by the new item at once (mode <see cref="StartTime.AtOnce"/>)</item>
+    /// <item>When this player raised its event <see cref="NextItemRequest"/> (mode <see cref="StartTime.Enqueue"/>)</item>
     /// </list>
     /// That means, this method is not intended to model a play list in the player; especially is it not provided for
-    /// a management of the next media item once it is added by this method; the new item should be regarded as the new
-    /// "current" item.
+    /// a management of the next media item once it is added by this method. When this method was called with the new
+    /// media item, the new item should be regarded as the new "current" item.
     /// </remarks>
     /// <param name="mediaItem">Media item to be played.</param>
     /// <param name="startTime">Time when to start the new media item. If cross-fading is enabled, the player will
     /// try to cross-fade the item into the current item.</param>
     /// <returns><c>true</c>, if this player is able to play the specified next item, else <c>false</c>. In case
-    /// <c>false</c> is returned, the player will continue to play as before.</returns>
+    /// <c>false</c> is returned, this player will continue to play as if this method wasn't called at all.</returns>
     bool NextItem(MediaItem mediaItem, StartTime startTime);
   }
 }

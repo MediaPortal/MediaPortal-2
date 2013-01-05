@@ -214,7 +214,17 @@ namespace MediaPortal.UI.Players.Image
 
     #endregion
 
-    #region Public methods
+    #region Public members
+
+    public bool SlideShowEnabled
+    {
+      get { return _slideShowEnabled; }
+      set
+      {
+        _slideShowEnabled = value;
+        CheckTimer();
+      }
+    }
 
     /// <summary>
     /// Sets the data of the new image to be played.
@@ -393,16 +403,6 @@ namespace MediaPortal.UI.Players.Image
     #endregion
 
     #region IImagePlayer implementation
-
-    public bool SlideShowEnabled
-    {
-      get { return _slideShowEnabled; }
-      set
-      {
-        _slideShowEnabled = value;
-        CheckTimer();
-      }
-    }
 
     public IResourceLocator CurrentImageResourceLocator
     {

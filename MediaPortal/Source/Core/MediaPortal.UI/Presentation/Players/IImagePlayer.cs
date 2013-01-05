@@ -38,8 +38,18 @@ namespace MediaPortal.UI.Presentation.Players
   /// <summary>
   /// Interface for image players. Holds all methods which are common to all image players.
   /// </summary>
+  /// <remarks>
+  /// An image player isn't a real player in the common sense. It doesn't do any decoding of images. Instead, it just
+  /// provides a <see cref="IResourceLocator"/> to the current image in its <see cref="CurrentImageResourceLocator"/>
+  /// property. It also provides some other properties to control the presentation of the current image.
+  /// The actual decoding and presentation of the image is done by the graphics system.
+  /// </remarks>
   public interface IImagePlayer : IPlayer
   {
+    /// <summary>
+    /// Gets the resource locator which represents the image which is currently played. The client of this player can use this
+    /// property to present the current image.
+    /// </summary>
     IResourceLocator CurrentImageResourceLocator { get; }
     
     /// <summary>
@@ -61,7 +71,5 @@ namespace MediaPortal.UI.Presentation.Players
     /// Returns the information whether the image must be flipped in vertical direction after the <see cref="Rotation"/> was applied.
     /// </summary>
     bool FlipY { get; }
-
-    bool SlideShowEnabled { get; set; }
   }
 }
