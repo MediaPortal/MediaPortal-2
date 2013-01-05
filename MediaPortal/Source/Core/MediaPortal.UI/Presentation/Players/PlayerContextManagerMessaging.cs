@@ -28,8 +28,8 @@ using MediaPortal.Common.Messaging;
 namespace MediaPortal.UI.Presentation.Players
 {
   /// <summary>
-  /// This class provides an interface for the messages sent by the player manager.
-  /// This class is part of the player manager API.
+  /// This class provides an interface for the messages sent by the player context manager.
+  /// This class is part of the player context manager API.
   /// </summary>
   public class PlayerContextManagerMessaging
   {

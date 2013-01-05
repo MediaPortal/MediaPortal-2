@@ -24,6 +24,9 @@
 
 namespace MediaPortal.UI.Presentation.Players
 {
+  /// <summary>
+  /// Index constants for several methods providing access to the primary and secondary players in an ordered list.
+  /// </summary>
   public class PlayerContextIndex
   {
     public const int PRIMARY = 0;
