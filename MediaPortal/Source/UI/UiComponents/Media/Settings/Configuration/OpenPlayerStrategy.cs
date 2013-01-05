@@ -26,7 +26,7 @@ using System;
 using System.Collections.Generic;
 using MediaPortal.Common.Configuration.ConfigurationClasses;
 using MediaPortal.Common.Localization;
-using MediaPortal.UI.Services.Players;
+using MediaPortal.UI.Presentation.Players;
 using MediaPortal.UI.Services.Players.PCMOpenPlayerStrategy;
 using MediaPortal.UI.Services.Players.Settings;
 using MediaPortal.UiComponents.Media.General;

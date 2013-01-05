@@ -22,10 +22,9 @@
 
 #endregion
 
-using System;
-using MediaPortal.UI.Presentation.Players;
+using MediaPortal.UI.Services.Players;
 
-namespace MediaPortal.UI.Services.Players
+namespace MediaPortal.UI.Presentation.Players
 {
   public interface IOpenPlayerStrategy
   {

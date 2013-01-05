@@ -159,7 +159,7 @@
     <Compile Include="Services\Players\Builders\PlayerBuilder.cs" />
     <Compile Include="Services\Players\PCMOpenPlayerStrategy\PreservePiP.cs" />
     <Compile Include="Services\Players\PCMOpenPlayerStrategy\Default.cs" />
-    <Compile Include="Services\Players\IOpenPlayerStrategy.cs" />
+    <Compile Include="Presentation\Players\IOpenPlayerStrategy.cs" />
     <Compile Include="Services\Players\PlayerContext.cs" />
     <Compile Include="Services\Players\PlayerContextManager.cs" />
     <Compile Include="Services\Players\PlayerManager.cs" />
