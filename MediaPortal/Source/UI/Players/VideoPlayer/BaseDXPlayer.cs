@@ -128,7 +128,6 @@ namespace MediaPortal.UI.Players.Video
       get { return _syncObj; }
     }
 
-    public abstract Guid PlayerId { get; }
     public abstract String Name { get; }
 
     #endregion

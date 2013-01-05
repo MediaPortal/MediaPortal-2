@@ -55,14 +55,6 @@ namespace MediaPortal.UI.Players.BassPlayer
   /// </remarks>
   public class BassPlayer : IDisposable, ISpectrumPlayer, IMediaPlaybackControl, IPlayerEvents, IReusablePlayer
   {
-    #region Consts
-
-    public const string BASS_PLAYER_ID_STR = "2A6ADBE3-20B3-4fa5-84D4-B0CBCF032722";
-
-    public static readonly Guid BASS_PLAYER_ID = new Guid(BASS_PLAYER_ID_STR);
-
-    #endregion
-
     #region Protected fields
 
     protected readonly object _syncObj = new object();
@@ -229,11 +221,6 @@ namespace MediaPortal.UI.Players.BassPlayer
     #endregion
 
     #region IPlayer implementation
-
-    public Guid PlayerId
-    {
-      get { return BASS_PLAYER_ID; }
-    }
 
     public string Name
     {

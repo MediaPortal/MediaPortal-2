@@ -78,8 +78,6 @@ namespace MediaPortal.UI.Players.Video
     protected const string EVR_FILTER_NAME = "Enhanced Video Renderer";
     protected IntPtr _presenterInstance;
 
-    public const string PLAYER_ID_STR = "9EF8D975-575A-4c64-AA54-500C97745969";
-
     // The default name for "No subtitles available" or "Subtitles disabled".
     protected const string NO_SUBTITLES = "No subtitles";
 
@@ -237,11 +235,6 @@ namespace MediaPortal.UI.Players.Video
     #endregion
 
     #region ISlimDXVideoPlayer implementation
-
-    public override Guid PlayerId
-    {
-      get { return new Guid(PLAYER_ID_STR); }
-    }
 
     public override string Name
     {

@@ -48,9 +48,6 @@ namespace MediaPortal.UI.Players.Image
   {
     #region Consts
 
-    public const string STR_PLAYER_ID = "9B1B6861-1757-40b2-9227-98A36D6CC9D7";
-    public static readonly Guid PLAYER_ID = new Guid(STR_PLAYER_ID);
-
     /// <summary>
     /// Defines the maximum size that is used for rendering image textures.
     /// </summary>
@@ -297,11 +294,6 @@ namespace MediaPortal.UI.Players.Image
     #endregion
 
     #region IPlayer implementation
-
-    public Guid PlayerId
-    {
-      get { return PLAYER_ID; }
-    }
 
     public string Name
     {

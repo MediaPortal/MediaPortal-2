@@ -47,30 +47,42 @@ namespace MediaPortal.UI.Presentation.Players
   }
 
   /// <summary>
-  /// Generic interface for all kinds of players.
-  /// Instances, which are passed via this interface, are already prepared to play a media resource.
-  /// To get a player for another resource, the player manager has to be called.
-  /// Typically, players support sub interfaces of this interface like <see cref="IVideoPlayer"/>.
-  /// Players typically will also implement additional additive interfaces as well, like <see cref="ISubtitlePlayer"/>,
-  /// <see cref="IMediaPlaybackControl"/>, etc.
+  /// Generic interface for all kinds of players. A player is a class which is responsible to play a media resource, i.e. it
+  /// is responsible to decode the media resource and provide it in a form which is understood by the graphic/skin system
+  /// and thus can be presented by the skin.
   /// </summary>
   /// <remarks>
+  /// <para>
   /// Different kinds of players have very different kinds of methods and properties.
   /// The player interfaces hierarchy reflects this fact.
   /// Methods and properties, which are common to all players, are introduced by this interface.
+  /// </para>
+  /// <para>
+  /// A player must be able to co-exist with other players, even of the same type.
+  /// </para>
+  /// <para>
+  /// Instances, which are passed via this interface, are already prepared to play a media resource.
+  /// </para>
+  /// <para>
+  /// Typically, players support sub interfaces of this interface like <see cref="IVideoPlayer"/>.
+  /// Players typically will also implement additional additive interfaces as well, like <see cref="ISubtitlePlayer"/>,
+  /// <see cref="IMediaPlaybackControl"/>, etc.
+  /// </para>
+  /// <para>
+  /// Media/player management functions like playlist handling or player conflict management are done by the player manager
+  /// or the player context manager and should not be implemented by players.
+  /// </para>
+  /// <para>
+  /// To get a player for another resource, the player manager has to be called.
+  /// </para>
   /// </remarks>
   public interface IPlayer
   {
     /// <summary>
-    /// Gets the name of the player. This should be something like "Video" for a video player,
+    /// Gets the name of this player. This should be something like "Video" for a video player,
     /// "DVD" for a dvd player, "Audio" for an audio player and so on.
     /// </summary>
     string Name { get; }
-
-    /// <summary>
-    /// Returns the unique id of this player.
-    /// </summary>
-    Guid PlayerId { get; }
 
     /// <summary>
     /// Gets the (external) playback state of this player. If the player also supports playback control, finer-grained

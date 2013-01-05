@@ -22,7 +22,6 @@
 
 #endregion
 
-using System;
 using System.Runtime.InteropServices;
 using DirectShowLib;
 using MediaPortal.UI.Players.Video;
@@ -48,7 +47,6 @@ namespace MediaPortal.Plugins.SlimTv.Client.Player
 
     #endregion
 
-    protected string _playerIdString = "{C77220B0-5489-4F59-8594-DD46E88F7C62}";
     protected IBaseFilter _fileSource = null;
     protected bool _useTsReader;
 
@@ -56,11 +54,6 @@ namespace MediaPortal.Plugins.SlimTv.Client.Player
     {
       PlayerTitle = "LiveRadioPlayer"; // for logging
       _useTsReader = useTsReader;
-    }
-
-    public override Guid PlayerId
-    {
-      get { return new Guid(_playerIdString); }
     }
 
     public override string Name
