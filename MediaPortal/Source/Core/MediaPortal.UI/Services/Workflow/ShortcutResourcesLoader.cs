@@ -36,7 +36,8 @@ using MediaPortal.Utilities;
 namespace MediaPortal.UI.Services.Workflow
 {
   /// <summary>
-  /// Class for loading MediaPortal 2 shortcut definitions from the current skin context.
+  /// Class for loading MediaPortal 2 shortcut definitions from the current skin context. The shortcuts for WorkflowActions and WorkflowStates
+  /// are loaded separately because the information is required to be loaded under different conditions.
   /// </summary>
   public class ShortcutResourcesLoader
   {
@@ -74,15 +75,29 @@ namespace MediaPortal.UI.Services.Workflow
     }
 
     /// <summary>
-    /// Loads workflow resources from files contained in the current skin context.
+    /// Loads the shortcut definitions for workflow states from files contained in the current skin context.
     /// </summary>
-    public void Load()
+    public void LoadWorkflowStateShortcuts()
+    {
+      _workflowStateShortcuts.Clear();
+      Load(true);
+    }
+
+    /// <summary>
+    /// Loads the shortcut definitions for workflow actions from files contained in the current skin context.
+    /// </summary>
+    public void LoadWorkflowActionShortcuts()
     {
       _workflowActionShortcuts.Clear();
+      Load(false);
+    }
+
+    protected void Load(bool isWorkflowSate)
+    {
       IDictionary<string, string> shortcutResources = ServiceRegistration.Get<ISkinResourceManager>().
-          SkinResourceContext.GetResourceFilePaths("^" + SHORTCUTS_DIRECTORY + "\\\\.*\\.xml$");
+        SkinResourceContext.GetResourceFilePaths("^" + SHORTCUTS_DIRECTORY + "\\\\.*\\.xml$");
       foreach (string resourceFilePath in shortcutResources.Values)
-        LoadShortcutResourceFile(resourceFilePath);
+        LoadShortcutResourceFile(resourceFilePath, isWorkflowSate);
     }
 
     protected static ICollection<Key> ParseKeys(string keyStr)
@@ -95,7 +110,7 @@ namespace MediaPortal.UI.Services.Workflow
       return keyStrs.Select(str => Key.DeserializeKey(str, true)).ToList();
     }
 
-    protected void LoadShortcutResourceFile(string filePath)
+    protected void LoadShortcutResourceFile(string filePath, bool isWorkflowSate)
     {
       try
       {
@@ -132,24 +147,26 @@ namespace MediaPortal.UI.Services.Workflow
             switch (childNav.LocalName)
             {
               case "WorkflowActions":
-                foreach (KeyActionMapping actionMapping in LoadActionShortcuts(childNav))
-                {
-                  foreach (Key key in actionMapping.Keys)
+                if (!isWorkflowSate)
+                  foreach (KeyActionMapping actionMapping in LoadActionShortcuts(childNav))
                   {
-                    AvoidDuplicateKeys(key);
-                    _workflowActionShortcuts.Add(key, actionMapping.Action);
+                    foreach (Key key in actionMapping.Keys)
+                    {
+                      AvoidDuplicateKeys(key);
+                      _workflowActionShortcuts.Add(key, actionMapping.Action);
+                    }
                   }
-                }
                 break;
               case "WorkflowStates":
-                foreach (KeyStateMapping actionMapping in LoadStateShortcuts(childNav))
-                {
-                  foreach (Key key in actionMapping.Keys)
+                if (isWorkflowSate)
+                  foreach (KeyStateMapping actionMapping in LoadStateShortcuts(childNav))
                   {
-                    AvoidDuplicateKeys(key);
-                    _workflowStateShortcuts.Add(key, actionMapping.State);
+                    foreach (Key key in actionMapping.Keys)
+                    {
+                      AvoidDuplicateKeys(key);
+                      _workflowStateShortcuts.Add(key, actionMapping.State);
+                    }
                   }
-                }
                 break;
               default:
                 throw new ArgumentException("'Shortcut' element doesn't support a child element '" + childNav.Name + "'");

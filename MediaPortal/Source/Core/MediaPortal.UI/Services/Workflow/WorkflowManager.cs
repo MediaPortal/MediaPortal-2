@@ -259,8 +259,9 @@ namespace MediaPortal.UI.Services.Workflow
       
       _menuActions = loader.MenuActions;
 
+      ServiceRegistration.Get<ILogger>().Debug("WorkflowManager: Loading workflow action shortcuts");
       ShortcutResourcesLoader shortcutLoader = new ShortcutResourcesLoader();
-      shortcutLoader.Load();
+      shortcutLoader.LoadWorkflowActionShortcuts();
       _workflowActionShortcuts = shortcutLoader.WorkflowActionShortcuts;
 
       // Register shortcuts after (re-)loading
@@ -295,8 +296,8 @@ namespace MediaPortal.UI.Services.Workflow
     /// </summary>
     protected void ReloadWorkflowStates()
     {
-      ServiceRegistration.Get<ILogger>().Debug(_states.Count == 0 ? "WorkflowManager: Loading workflow states" :
-          "WorkflowManager: Reloading workflow states");
+      ServiceRegistration.Get<ILogger>().Debug(_states.Count == 0 ? "WorkflowManager: Loading workflow states and shortcuts" :
+          "WorkflowManager: Reloading workflow states and shortcuts");
       EnterWriteLock("ReloadWorkflowStates");
       try
       {
@@ -318,8 +319,9 @@ namespace MediaPortal.UI.Services.Workflow
         if (numPop > 0)
           NavigatePop(numPop);
 
+        ServiceRegistration.Get<ILogger>().Debug("WorkflowManager: Loading workflow state shortcuts");
         ShortcutResourcesLoader shortcutLoader = new ShortcutResourcesLoader();
-        shortcutLoader.Load();
+        shortcutLoader.LoadWorkflowStateShortcuts();
         _workflowStateShortcuts = shortcutLoader.WorkflowStateShortcuts;
 
         // Register shortcuts after (re-)loading
