@@ -85,6 +85,7 @@ namespace MediaPortal.Plugins.SlimTv.Providers
             basicBinding.Security.Mode = BasicHttpSecurityMode.TransportCredentialOnly;
             basicBinding.Security.Transport.ClientCredentialType = HttpClientCredentialType.Basic;
           }
+          basicBinding.ReaderQuotas.MaxStringContentLength = 5*1024*1024; // 5 MB
           binding = basicBinding;
         }
         binding.OpenTimeout = TimeSpan.FromSeconds(5);
@@ -126,7 +127,7 @@ namespace MediaPortal.Plugins.SlimTv.Providers
 
     public string Name
     {
-      get { return "TV4Home Provider"; }
+      get { return "MPExtended Provider"; }
     }
 
     #endregion
