@@ -29,7 +29,7 @@ using MediaPortal.Common.MediaManagement;
 namespace MediaPortal.UI.Presentation.Players
 {
   /// <summary>
-  /// For each player, there need to be present two special states to present its player contents:
+  /// For each player, there need to be two special states to present its player contents:
   /// The currently playing state and the fullscreen content state.
   /// </summary>
   public enum MediaWorkflowStateType
@@ -45,17 +45,18 @@ namespace MediaPortal.UI.Presentation.Players
     /// for the current played media.
     /// </summary>
     /// <remarks>
-    /// The currently playing screen can be shown for both the primary and the secondary player.
+    /// The currently playing screen can be shown for both the primary and the secondary player of the
+    /// <see cref="IPlayerContextManager"/>.
     /// </remarks>
     CurrentlyPlaying,
 
     /// <summary>
-    /// Indicates the fullscreen content state. For video players, the screen to this state shows the video fullscreen
-    /// with additional onscreen display, info and/or actions to be taken by the user. For audio players, this could be a
-    /// visualization screen.
+    /// Indicates the fullscreen content state. For video and image players, the screen to this state shows the
+    /// video or image in fullscreen mode with additional onscreen display, info and/or controls for actions to
+    /// be taken by the user. For audio players, this could be a visualization screen.
     /// </summary>
     /// <remarks>
-    /// The fullscreen content screen can only be shown for the "primary" player.
+    /// The fullscreen content screen can only be shown for the primary player of the <see cref="IPlayerContextManager"/>.
     /// </remarks>
     FullscreenContent,
   }
@@ -118,7 +119,8 @@ namespace MediaPortal.UI.Presentation.Players
   /// tracks their player state and manages UI workflow states relating to active players.
   /// The transfer of the responsibility for the UI workflow state tracking from the actual media module to the
   /// player context manager is necessary, because players also need to run while the
-  /// media modules possibly don't have the active control over them.<br/>
+  /// media modules possibly don't have the active control over them, maybe when players are running while the
+  /// user navigates in the main menu.<br/>
   /// The typical separation of roles is like this:<br/>
   /// The media module initiates one or more player contexts. It doesn't need to track its player contexts;
   /// it is always possible to find the player contexts of the media module by its media module id (by calling
@@ -127,7 +129,7 @@ namespace MediaPortal.UI.Presentation.Players
   /// state for a "fullscreen content" state and the workflow state for a "currently playing" workflow state.
   /// The meaning of those two states should be complied to but the media module is responsible to provide appropriate
   /// workflow states.
-  /// The player context manager will automatically switch between states, if necessary
+  /// The player context manager will automatically switch workflow states, if necessary
   /// (for example when the primary and secondary players are switched, the fullscreen content workflow state needs
   /// to be exchanged if different fullscreen content workflow states are used for primary and secondary players).
   /// It will also automatically pop those workflow states from the workflow navigation stack, if the corresponding
@@ -137,12 +139,14 @@ namespace MediaPortal.UI.Presentation.Players
   /// if necessary.
   /// Media modules should use this service interface to manage players which are integrated into the main UI instead
   /// of using the basic <see cref="IPlayerManager"/> API itself. If there are special needs, for example a video wall
-  /// with more than two players with different meanings, the player manager's API can be used directly.
+  /// with more than two players or if players are needed with a different concurrentcy concept, the player manager's
+  /// API can be used directly; in that case, all management beyond the basic player manager's functionality must be
+  /// done by the module which directly uses the player manager's API.
   /// </para>
   /// <para>
   /// <b>Functionality:</b><br/>
   /// Built on the functionality of the <see cref="IPlayerManager"/>, the player context manager presents a more
-  /// abstract view for the client, it deals with two (primary and secondary) typed player contexts and their playlists.
+  /// high view for the client, it deals with two (primary and secondary) typed player contexts and their playlists.
   /// The functionality of this component is comprehensive, it deals with the collectivity of all players, in contrast
   /// to the <see cref="IPlayerManager"/>'s functionality which is mostly focused to single technical player slot controllers.
   /// This service manages and solves player conflicts (like two audio players at the same time) automatically by
@@ -150,8 +154,8 @@ namespace MediaPortal.UI.Presentation.Players
   /// players) can be played concurrently.
   /// The technical target player slot (primary/secondary) of a given <see cref="IPlayerContext"/>
   /// is managed almost transparently for the client. There is a rare number of cases where the client needs to cope
-  /// with the set-up of primary and secondary players, for example when two video players are running, one of them as
-  /// PiP player. In that situation, it can be necessary to explicitly exchange the player slots.
+  /// with the set-up of primary and secondary players directly, for example when two video players are running,
+  /// one of them as PiP player. In that situation, it can be necessary to explicitly exchange the player slots.
   /// </para>
   /// <para>
   /// <b>Playlists:</b><br/>

@@ -30,10 +30,10 @@ namespace MediaPortal.UI.Presentation.Players
   public delegate void ClosedDlgt(IPlayerSlotController slotController);
 
   /// <summary>
-  /// Player slot controller for a player of the <see cref="IPlayerManager"/>.
+  /// Manages a single player slot of the <see cref="IPlayerManager"/>.
   /// The player slot controller maintains the state of each player slot and exposes context variables, which can contain
   /// user defined data like a playlist, the player's aspect ratio or additional information about a currently
-  /// viewed TV channel, for example.
+  /// viewed TV channel, for example. During its lifetime, a player slot controller can host multiple players.
   /// </summary>
   /// <remarks>
   /// <para>
@@ -45,7 +45,7 @@ namespace MediaPortal.UI.Presentation.Players
   {
     /// <summary>
     /// Synchronous event which gets fired when this player slot controller is closed. In the event handler,
-    /// no other locks than the player manager's <see cref="IPlayerManager.SyncObj"/> must be acquired!
+    /// no other locks than the player manager's <see cref="IPlayerManager.SyncObj"/> may be acquired!
     /// </summary>
     event ClosedDlgt Closed;
 

@@ -29,6 +29,9 @@ namespace MediaPortal.UI.Presentation.Players
   /// <summary>
   /// Interface for communicating the current player state to the player manager.
   /// </summary>
+  /// <remarks>
+  /// Each player which should be run by the <see cref="IPlayerManager"/> must implement this interface.
+  /// </remarks>
   public interface IPlayerEvents
   {
     /// <summary>
