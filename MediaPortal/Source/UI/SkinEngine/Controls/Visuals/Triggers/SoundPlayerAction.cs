@@ -22,6 +22,7 @@
 
 #endregion
 
+using System.Linq;
 using System.Media;
 using MediaPortal.Common;
 using MediaPortal.Common.General;
@@ -90,10 +91,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Triggers
         return;
       if (_disableOnAudioOutput)
       {
-        IPlayerContextManager playerContextManager = ServiceRegistration.Get<IPlayerContextManager>();
-        IPlayer player1 = playerContextManager[PlayerContextIndex.PRIMARY];
-        IPlayer player2 = playerContextManager[PlayerContextIndex.SECONDARY];
-        if (player1 is IAudioPlayer || player1 is IVideoPlayer || player2 is IAudioPlayer || player2 is IVideoPlayer)
+        if (ServiceRegistration.Get<IPlayerManager>().PlayerSlotControllers.Select(slotController => slotController.CurrentPlayer).Any(
+            player => player is IAudioPlayer || player is IVideoPlayer))
           return;
       }
       using (SoundPlayer simpleSound = new SoundPlayer(SkinContext.SkinResources.GetResourceFilePath(
