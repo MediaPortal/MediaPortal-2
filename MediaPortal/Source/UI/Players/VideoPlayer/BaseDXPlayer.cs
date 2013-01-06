@@ -307,9 +307,11 @@ namespace MediaPortal.UI.Players.Video
     public void ResetPlayerEvents()
     {
       _started = null;
+      _stateReady = null;
       _stopped = null;
       _ended = null;
       _playbackStateChanged = null;
+      _playbackError = null;
     }
 
     #endregion
