@@ -11,14 +11,14 @@
       <GradientStop Offset="0" Color="{ThemeResource HeaderPanelBackgroundGradient1Color}"/>
       <GradientStop Offset="0.7" Color="{ThemeResource HeaderPanelBackgroundGradient2Color}"/>
       <GradientStop Offset="1" Color="{ThemeResource HeaderPanelBackgroundGradient3Color}"/>
-    </LinearGradientBrush >
+    </LinearGradientBrush>
   </ResourceWrapper>
   <ResourceWrapper x:Key="FooterPanelBackgroundBrush">
     <LinearGradientBrush StartPoint="0,0.5" EndPoint="1,0.5">
       <GradientStop Offset="0" Color="{ThemeResource HeaderPanelBackgroundGradient1Color}"/>
       <GradientStop Offset="0.7" Color="{ThemeResource HeaderPanelBackgroundGradient2Color}"/>
       <GradientStop Offset="1" Color="{ThemeResource HeaderPanelBackgroundGradient3Color}"/>
-    </LinearGradientBrush >
+    </LinearGradientBrush>
   </ResourceWrapper>
 
   <!-- Default brush used to paint the background of a page/window -->
@@ -48,7 +48,7 @@
       <GradientStop Offset="0" Color="{ThemeResource DialogBorderGradient1Color}"/>
       <GradientStop Offset="0.5" Color="{ThemeResource DialogBorderGradient2Color}"/>
       <GradientStop Offset="1" Color="{ThemeResource DialogBorderGradient3Color}"/>
-    </LinearGradientBrush >
+    </LinearGradientBrush>
   </ResourceWrapper> 
 
   <ResourceWrapper x:Key="ContentGroupBoxBackgroundBrush">
@@ -56,7 +56,7 @@
       <GradientStop Offset="0" Color="{ThemeResource HeaderPanelBackgroundGradient1Color}"/>
       <GradientStop Offset="0.7" Color="{ThemeResource HeaderPanelBackgroundGradient2Color}"/>
       <GradientStop Offset="1" Color="{ThemeResource HeaderPanelBackgroundGradient3Color}"/>
-    </LinearGradientBrush >
+    </LinearGradientBrush>
   </ResourceWrapper>
 
   <ResourceWrapper x:Key="KeyBindingsPanelBackgroundBrush">
