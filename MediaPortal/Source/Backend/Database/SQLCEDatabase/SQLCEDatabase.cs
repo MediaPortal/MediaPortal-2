@@ -190,6 +190,16 @@ namespace MediaPortal.Database.SQLCE
         command.Parameters.Add(result);
         return result;
       }
+      // We need to use NText as parameter type, if the value is of "IsCLOB" type.
+      if (type == typeof(string) && value != null && IsCLOB((uint) value.ToString().Length))
+      {
+        SqlCeParameter result = (SqlCeParameter) command.CreateParameter();
+        result.ParameterName = name;
+        result.Value = value;
+        result.SqlDbType = SqlDbType.NText;
+        command.Parameters.Add(result);
+        return result;
+      }
       return DBUtils.AddSimpleParameter(command, name, value, type);
     }
 
