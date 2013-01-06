@@ -111,7 +111,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
           if (!length.IsAbsolute)
             min = Math.Max(min, length.DesiredLength * relativeSum / length.Value);
         }
-        return Math.Max(result, min);
+        return (double.IsInfinity(min) || double.IsNaN(min)) ? result : Math.Max(result, min);
       }
     }
 
