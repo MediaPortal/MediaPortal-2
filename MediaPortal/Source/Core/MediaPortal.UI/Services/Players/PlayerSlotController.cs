@@ -460,9 +460,18 @@ namespace MediaPortal.UI.Services.Players
 
     public void Stop()
     {
-      CheckActive();
+      bool sendStopEvent;
+      lock (SyncObj)
+      {
+        CheckActive();
+        IPlayer player = CurrentPlayer;
+        sendStopEvent = player != null && player.State == PlayerState.Active;
+      }
       // Simply discard the player - we'll send the PlayerStopped event later in this method
       ReleasePlayer_NoLock();
+      if (sendStopEvent)
+        // We need to simulate the PlayerStopped event, as the ReleasePlayer_NoLock() method discards all further player events
+        PlayerManagerMessaging.SendPlayerMessage(PlayerManagerMessaging.MessageType.PlayerStopped, this);
     }
 
     public void Reset()
