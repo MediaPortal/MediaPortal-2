@@ -46,8 +46,8 @@ namespace MediaPortal.Utilities.Process
     {
       using (System.Diagnostics.Process process = new System.Diagnostics.Process { StartInfo = new ProcessStartInfo(executable, arguments) { UseShellExecute = false, CreateNoWindow = true } })
       {
-        process.PriorityClass = priorityClass;
         process.Start();
+        process.PriorityClass = priorityClass;
         if (process.WaitForExit(maxWaitMs))
           return process.ExitCode == 0;
       }
@@ -68,8 +68,8 @@ namespace MediaPortal.Utilities.Process
     {
       using (System.Diagnostics.Process process = new System.Diagnostics.Process { StartInfo = new ProcessStartInfo(executable, arguments) { UseShellExecute = false, CreateNoWindow = true, RedirectStandardOutput = true } })
       {
-        process.PriorityClass = priorityClass;
         process.Start();
+        process.PriorityClass = priorityClass;
         using (process.StandardOutput)
         {
           result = process.StandardOutput.ReadToEnd();
