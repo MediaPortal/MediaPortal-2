@@ -315,7 +315,8 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
     private void UpdateChannelPrograms(ChannelProgramListItem channel)
     {
       channel.Programs.Clear();
-      _groupPrograms.Where(p => p.ChannelId == channel.Channel.ChannelId).ToList().ForEach(p => channel.Programs.Add(BuildProgramListItem(p)));
+      if (_groupPrograms != null)
+        _groupPrograms.Where(p => p.ChannelId == channel.Channel.ChannelId).ToList().ForEach(p => channel.Programs.Add(BuildProgramListItem(p)));
       FillNoPrograms(channel, GuideStartTime, GuideEndTime);
       channel.Programs.FireChange();
     }
