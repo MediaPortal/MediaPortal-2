@@ -46,26 +46,19 @@
     <CodeAnalysisIgnoreBuiltInRules>false</CodeAnalysisIgnoreBuiltInRules>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Common.Utils, Version=1.2.100.0, Culture=neutral, processorArchitecture=x86" />
-    <Reference Include="Mediaportal.TV.Server.Plugins.Base, Version=1.2.100.0, Culture=neutral, processorArchitecture=x86">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>References\Mediaportal.TV.Server.Plugins.Base.dll</HintPath>
-    </Reference>
-    <Reference Include="Mediaportal.TV.Server.TVControl, Version=1.2.100.0, Culture=neutral, processorArchitecture=x86" />
-    <Reference Include="Mediaportal.TV.Server.TVDatabase.Entities, Version=1.0.0.0, Culture=neutral, processorArchitecture=x86">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>References\Mediaportal.TV.Server.TVDatabase.Entities.dll</HintPath>
-    </Reference>
+    <Reference Include="Common.Utils, Version=1.2.200.0, Culture=neutral, processorArchitecture=x86" />
+    <Reference Include="Mediaportal.TV.Server.Plugins.Base, Version=1.2.200.0, Culture=neutral, processorArchitecture=x86" />
+    <Reference Include="Mediaportal.TV.Server.SetupControls, Version=1.2.200.0, Culture=neutral, processorArchitecture=x86" />
+    <Reference Include="Mediaportal.TV.Server.TVControl, Version=1.2.200.0, Culture=neutral, processorArchitecture=x86" />
+    <Reference Include="Mediaportal.TV.Server.TVDatabase.Entities, Version=1.0.0.0, Culture=neutral, processorArchitecture=x86" />
     <Reference Include="Mediaportal.TV.Server.TVDatabase.EntityModel, Version=1.0.0.0, Culture=neutral, processorArchitecture=x86" />
-    <Reference Include="Mediaportal.TV.Server.TVDatabase.TVBusinessLayer, Version=1.2.100.0, Culture=neutral, processorArchitecture=x86">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>References\Mediaportal.TV.Server.TVDatabase.TVBusinessLayer.dll</HintPath>
-    </Reference>
-    <Reference Include="Mediaportal.TV.Server.TVLibrary.Interfaces, Version=1.2.100.0, Culture=neutral, processorArchitecture=x86" />
-    <Reference Include="Mediaportal.TV.Server.TVLibrary.Services, Version=1.0.0.0, Culture=neutral, processorArchitecture=x86">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>References\Mediaportal.TV.Server.TVLibrary.Services.dll</HintPath>
-    </Reference>
+    <Reference Include="Mediaportal.TV.Server.TVDatabase.Presentation, Version=1.0.0.0, Culture=neutral, processorArchitecture=x86" />
+    <Reference Include="Mediaportal.TV.Server.TVDatabase.TVBusinessLayer, Version=1.2.200.0, Culture=neutral, processorArchitecture=x86" />
+    <Reference Include="Mediaportal.TV.Server.TVLibrary, Version=1.2.200.0, Culture=neutral, processorArchitecture=x86" />
+    <Reference Include="Mediaportal.TV.Server.TVLibrary.IntegrationProvider.Interfaces, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL" />
+    <Reference Include="Mediaportal.TV.Server.TVLibrary.Interfaces, Version=1.2.200.0, Culture=neutral, processorArchitecture=MSIL" />
+    <Reference Include="Mediaportal.TV.Server.TVLibrary.Services, Version=1.0.0.0, Culture=neutral, processorArchitecture=x86" />
+    <Reference Include="Mediaportal.TV.Server.TvLibrary.Utils, Version=1.2.200.0, Culture=neutral, processorArchitecture=x86" />
     <Reference Include="Mediaportal.TV.Server.TVService.Interfaces, Version=1.0.0.0, Culture=neutral, processorArchitecture=x86" />
     <Reference Include="System" />
     <Reference Include="System.Configuration" />
@@ -458,30 +451,30 @@
     </Content>
     <Content Include="References\Castle.Core.dll" />
     <Content Include="References\Castle.Windsor.dll" />
-    <Content Include="References\CIAPI.dll" />
     <Content Include="References\Common.Utils.dll" />
     <Content Include="References\DirectShowLib.dll" />
+    <Content Include="References\dxerr9.dll" />
     <Content Include="References\EntityFramework.dll" />
-    <Content Include="References\hauppauge.dll" />
-    <Content Include="References\hcwWinTVCI.dll" />
     <Content Include="References\Interop.SHDocVw.dll" />
     <Content Include="References\Ionic.Zip.dll" />
-    <Content Include="References\KNCBDACTRL.dll" />
     <Content Include="References\log4net.dll" />
     <Content Include="References\Mediaportal.TV.Server.Plugins.Base.dll" />
+    <Content Include="References\Mediaportal.TV.Server.RuleBasedScheduler.dll" />
+    <Content Include="References\Mediaportal.TV.Server.SetupControls.dll" />
     <Content Include="References\Mediaportal.TV.Server.TVControl.dll" />
     <Content Include="References\Mediaportal.TV.Server.TVDatabase.Entities.dll" />
     <Content Include="References\Mediaportal.TV.Server.TVDatabase.EntityModel.dll" />
     <Content Include="References\Mediaportal.TV.Server.TVDatabase.Presentation.dll" />
     <Content Include="References\Mediaportal.TV.Server.TVDatabase.TVBusinessLayer.dll" />
     <Content Include="References\Mediaportal.TV.Server.TVLibrary.dll" />
+    <Content Include="References\Mediaportal.TV.Server.TVLibrary.IntegrationProvider.Interfaces.dll" />
     <Content Include="References\Mediaportal.TV.Server.TVLibrary.Interfaces.dll" />
     <Content Include="References\Mediaportal.TV.Server.TVLibrary.Services.dll" />
     <Content Include="References\Mediaportal.TV.Server.TvLibrary.Utils.dll" />
     <Content Include="References\Mediaportal.TV.Server.TVService.Interfaces.dll" />
-    <Content Include="References\MySql.Data.dll" />
-    <Content Include="References\MySql.Data.Entity.dll" />
+    <Content Include="References\Plugins\CustomDevices\Mediaportal.TV.Server.Plugins.Base.dll" />
     <Content Include="References\Plugins\CustomDevices\Mediaportal.TV.Server.Plugins.CustomDevices.Anysee.dll" />
+    <Content Include="References\Plugins\CustomDevices\Mediaportal.TV.Server.Plugins.CustomDevices.Compro.dll" />
     <Content Include="References\Plugins\CustomDevices\Mediaportal.TV.Server.Plugins.CustomDevices.Conexant.dll" />
     <Content Include="References\Plugins\CustomDevices\Mediaportal.TV.Server.Plugins.CustomDevices.DigitalDevices.dll" />
     <Content Include="References\Plugins\CustomDevices\Mediaportal.TV.Server.Plugins.CustomDevices.DigitalEverywhere.dll" />
@@ -503,12 +496,17 @@
     <Content Include="References\Plugins\CustomDevices\Mediaportal.TV.Server.Plugins.CustomDevices.Turbosight.dll" />
     <Content Include="References\Plugins\CustomDevices\Mediaportal.TV.Server.Plugins.CustomDevices.Twinhan.dll" />
     <Content Include="References\Plugins\CustomDevices\Mediaportal.TV.Server.Plugins.CustomDevices.ViXS.dll" />
-    <Content Include="References\Plugins\Mediaportal.TV.Server.Plugins.Base.dll" />
+    <Content Include="References\Plugins\CustomDevices\Mediaportal.TV.Server.SetupControls.dll" />
+    <Content Include="References\Plugins\CustomDevices\Resources\CIAPI.dll" />
+    <Content Include="References\Plugins\CustomDevices\Resources\hauppauge.dll" />
+    <Content Include="References\Plugins\CustomDevices\Resources\hcwWinTVCI.dll" />
+    <Content Include="References\Plugins\CustomDevices\Resources\Ionic.Zip.dll" />
+    <Content Include="References\Plugins\CustomDevices\Resources\KNCBDACTRL.dll" />
+    <Content Include="References\Plugins\CustomDevices\Resources\TbsCIapi.dll" />
+    <Content Include="References\Plugins\CustomDevices\Resources\TeVii.dll" />
+    <Content Include="References\Plugins\CustomDevices\Resources\ttBdaDrvApi_Dll.dll" />
+    <Content Include="References\Plugins\CustomDevices\Resources\ttdvbacc.dll" />
     <Content Include="References\StreamingServer.dll" />
-    <Content Include="References\TbsCIapi.dll" />
-    <Content Include="References\TeVii.dll" />
-    <Content Include="References\ttBdaDrvApi_Dll.dll" />
-    <Content Include="References\ttdvbacc.dll" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\Source\Core\MediaPortal.Backend\MediaPortal.Backend.csproj">
@@ -546,6 +544,7 @@ xcopy /Y "$(TargetDir)SlimTv.Interfaces.dll"  "$(SolutionDir)..\Bin\$(SolutionNa
 xcopy /Y "$(TargetDir)SlimTv.Integration.MP2.dll"  "$(SolutionDir)..\Bin\$(SolutionName)\$(OutDir)Plugins\$(ProjectName)\"
 mkdir "$(SolutionDir)..\Bin\$(SolutionName)\$(OutDir)Plugins\$(ProjectName)\Content"
 robocopy "$(ProjectDir)References"  "$(SolutionDir)..\Bin\$(SolutionName)\$(OutDir)Plugins\$(ProjectName)" /E
+robocopy "$(ProjectDir)References\Plugins"  "$(SolutionDir)..\Bin\$(SolutionName)\$(OutDir)Plugins\$(ProjectName)\SetupTv\Plugins" /E
 robocopy "$(ProjectDir)Content" "$(SolutionDir)..\Bin\$(SolutionName)\$(OutDir)Plugins\$(ProjectName)\Content" /MIR
 @REM Reset RoboCopy's exit code which is different from 0
 IF %25ERRORLEVEL%25 LSS 8 SET ERRORLEVEL=0
