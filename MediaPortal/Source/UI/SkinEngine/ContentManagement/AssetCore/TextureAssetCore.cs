@@ -387,7 +387,7 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement.AssetCore
           }
           catch (Exception e)
           {
-            ServiceRegistration.Get<ILogger>().Error("AsyncStreamLoadOperation: Stream '{0}' could not be read: {1}", e, _streamName);
+            ServiceRegistration.Get<ILogger>().Error("AsyncStreamLoadOperation: Stream '{0}' could not be read", e, _streamName);
             OperationFailed();
           }
         }
