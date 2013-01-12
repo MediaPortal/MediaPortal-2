@@ -36,6 +36,8 @@ using MediaPortal.Common.Services.ResourceAccess;
 using MediaPortal.Common.Settings;
 using MediaPortal.UI.Players.Video;
 using MediaPortal.UI.Presentation.Players;
+using MediaPortal.UI.Presentation.Screens;
+using MediaPortal.UI.Presentation.Workflow;
 using MediaPortal.UI.SkinEngine.Players;
 using MediaPortal.UiComponents.BackgroundManager.Helper;
 using MediaPortal.UiComponents.BackgroundManager.Settings;
@@ -44,13 +46,17 @@ namespace MediaPortal.UiComponents.BackgroundManager.Models
 {
   public class VideoBackgroundModel : IDisposable
   {
+    #region Consts and static fields
+
     public const string MODEL_ID_STR = "441288AC-F88D-4186-8993-6E259F7C75D8";
-    public static readonly Guid[] NECESSARY_VIDEO_MIAS = new Guid[]
-      {
-          ProviderResourceAspect.ASPECT_ID,
-          MediaAspect.ASPECT_ID,
-          VideoAspect.ASPECT_ID,
-      };
+    public static Guid MODEL_ID = new Guid(MODEL_ID_STR);
+    public static readonly Guid[] NECESSARY_VIDEO_MIAS = new[] { ProviderResourceAspect.ASPECT_ID, MediaAspect.ASPECT_ID, VideoAspect.ASPECT_ID };
+
+    protected static IVideoPlayerSynchronizationStrategy _backgroundPlayerStrategy = new BackgroundVideoPlayerSynchronizationStrategy();
+
+    #endregion
+
+    #region Protected fields
 
     protected string _videoFilename;
     protected VideoPlayer _videoPlayer;
@@ -59,7 +65,15 @@ namespace MediaPortal.UiComponents.BackgroundManager.Models
     protected AsynchronousMessageQueue _messageQueue;
     protected IPlayerSlotController _backgroundPsc = null;
 
-    #region Protected fields
+    #endregion
+
+    #region Static members which also can be used from other models
+
+    public static VideoBackgroundModel GetCurrentInstance()
+    {
+      IWorkflowManager workflowManager = ServiceRegistration.Get<IWorkflowManager>();
+      return (VideoBackgroundModel) workflowManager.GetModel(MODEL_ID);
+    }
 
     #endregion
 
@@ -137,6 +151,12 @@ namespace MediaPortal.UiComponents.BackgroundManager.Models
     {
       if (!IsEnabled)
         return;
+
+      IScreenControl screenControl = ServiceRegistration.Get<IScreenControl>();
+      IVideoPlayerSynchronizationStrategy current = screenControl.VideoPlayerSynchronizationStrategy;
+      if (current != _backgroundPlayerStrategy)
+        // We replace the default strategy with our own to prefer the video background player.
+        screenControl.VideoPlayerSynchronizationStrategy = _backgroundPlayerStrategy;
 
       IPlayerManager playerManager = ServiceRegistration.Get<IPlayerManager>();
       if (_backgroundPsc == null)
