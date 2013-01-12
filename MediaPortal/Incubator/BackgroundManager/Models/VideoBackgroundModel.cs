@@ -23,9 +23,13 @@
 #endregion
 
 using System;
+using System.Collections.Generic;
 using System.IO;
 using MediaPortal.Common;
 using MediaPortal.Common.General;
+using MediaPortal.Common.Logging;
+using MediaPortal.Common.MediaManagement;
+using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.Common.Messaging;
 using MediaPortal.Common.ResourceAccess;
 using MediaPortal.Common.Services.ResourceAccess;
@@ -41,12 +45,19 @@ namespace MediaPortal.UiComponents.BackgroundManager.Models
   public class VideoBackgroundModel : IDisposable
   {
     public const string MODEL_ID_STR = "441288AC-F88D-4186-8993-6E259F7C75D8";
+    public static readonly Guid[] NECESSARY_VIDEO_MIAS = new Guid[]
+      {
+          ProviderResourceAspect.ASPECT_ID,
+          MediaAspect.ASPECT_ID,
+          VideoAspect.ASPECT_ID,
+      };
 
     protected string _videoFilename;
     protected VideoPlayer _videoPlayer;
     protected AbstractProperty _videoPlayerProperty;
     protected AbstractProperty _isEnabledProperty;
     protected AsynchronousMessageQueue _messageQueue;
+    protected IPlayerSlotController _backgroundPsc = null;
 
     #region Protected fields
 
@@ -115,8 +126,11 @@ namespace MediaPortal.UiComponents.BackgroundManager.Models
 
     public void EndBackgroundPlayback()
     {
-      IPlayerManager playerManager = ServiceRegistration.Get<IPlayerManager>();
-      playerManager.CloseSlot(PlayerManagerConsts.BACKGROUND_SLOT);
+      if (_backgroundPsc != null)
+      {
+        IPlayerManager playerManager = ServiceRegistration.Get<IPlayerManager>();
+        playerManager.CloseSlot(_backgroundPsc);
+      }
     }
 
     public void StartBackgroundPlayback()
@@ -125,11 +139,16 @@ namespace MediaPortal.UiComponents.BackgroundManager.Models
         return;
 
       IPlayerManager playerManager = ServiceRegistration.Get<IPlayerManager>();
-      IPlayerSlotController playerSlotController;
-      playerManager.ResetSlot(PlayerManagerConsts.BACKGROUND_SLOT, out playerSlotController);
-      VideoPlayer videoPlayer = null;
+      if (_backgroundPsc == null)
+        _backgroundPsc = playerManager.OpenSlot();
+
+      if (_backgroundPsc == null)
+        return;
+
       try
       {
+        IMediaAccessor mediaAccessor = ServiceRegistration.Get<IMediaAccessor>();
+        IEnumerable<Guid> meIds = mediaAccessor.GetMetadataExtractorsForMIATypes(NECESSARY_VIDEO_MIAS);
         ResourceLocator resourceLocator = new ResourceLocator(LocalFsResourceProviderBase.ToResourcePath(_videoFilename));
         IResourceAccessor ra = resourceLocator.CreateAccessor();
         if (ra != null)
@@ -144,10 +163,9 @@ namespace MediaPortal.UiComponents.BackgroundManager.Models
             VideoPlayer = player as ISlimDXVideoPlayer;
           }
       }
-      catch (Exception)
+      catch (Exception ex)
       {
-        if (videoPlayer != null)
-          videoPlayer.Dispose();
+        ServiceRegistration.Get<ILogger>().Error("VideoBackgroundModel: Error opening MediaItem {0} for background playback!", ex, _videoFilename);
       }
     }
   }
