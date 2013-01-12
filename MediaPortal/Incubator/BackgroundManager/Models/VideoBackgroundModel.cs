@@ -31,6 +31,7 @@ using MediaPortal.Common.ResourceAccess;
 using MediaPortal.Common.Services.ResourceAccess;
 using MediaPortal.Common.Settings;
 using MediaPortal.UI.Players.Video;
+using MediaPortal.UI.Presentation.Players;
 using MediaPortal.UI.SkinEngine.Players;
 using MediaPortal.UiComponents.BackgroundManager.Helper;
 using MediaPortal.UiComponents.BackgroundManager.Settings;
@@ -75,8 +76,8 @@ namespace MediaPortal.UiComponents.BackgroundManager.Models
 
     public VideoBackgroundModel()
     {
-      _videoPlayerProperty = new SProperty(typeof(ISlimDXVideoPlayer), null);
-      _isEnabledProperty = new SProperty(typeof(bool), false);
+      _videoPlayerProperty = new WProperty(typeof(ISlimDXVideoPlayer), null);
+      _isEnabledProperty = new WProperty(typeof(bool), false);
       _messageQueue = new AsynchronousMessageQueue(this, new[] { BackgroundManagerMessaging.CHANNEL });
       _messageQueue.MessageReceived += OnMessageReceived;
       _messageQueue.Start();
@@ -114,32 +115,39 @@ namespace MediaPortal.UiComponents.BackgroundManager.Models
 
     public void EndBackgroundPlayback()
     {
-      ISlimDXVideoPlayer player = VideoPlayer;
-      IDisposable disp = player as IDisposable;
-      if (player != null)
-      {
-        player.Stop();
-        if (disp != null)
-          disp.Dispose();
-      }
-      VideoPlayer = null;
+      IPlayerManager playerManager = ServiceRegistration.Get<IPlayerManager>();
+      playerManager.CloseSlot(PlayerManagerConsts.BACKGROUND_SLOT);
     }
 
     public void StartBackgroundPlayback()
     {
       if (!IsEnabled)
         return;
+
+      IPlayerManager playerManager = ServiceRegistration.Get<IPlayerManager>();
+      IPlayerSlotController playerSlotController;
+      playerManager.ResetSlot(PlayerManagerConsts.BACKGROUND_SLOT, out playerSlotController);
+      VideoPlayer videoPlayer = null;
       try
       {
         ResourceLocator resourceLocator = new ResourceLocator(LocalFsResourceProviderBase.ToResourcePath(_videoFilename));
-        _videoPlayer = new VideoPlayer { AutoRepeat = true };
-        _videoPlayer.SetMediaItem(resourceLocator, "VideoBackground");
-        VideoPlayer = _videoPlayer;
+        IResourceAccessor ra = resourceLocator.CreateAccessor();
+        if (ra != null)
+          using (ra)
+          {
+            MediaItem video = mediaAccessor.CreateLocalMediaItem(ra, meIds);
+            _backgroundPsc.Play(video, StartTime.AtOnce);
+            BaseDXPlayer player = _backgroundPsc.CurrentPlayer as BaseDXPlayer;
+            if (player != null)
+              player.AutoRepeat = true;
+
+            VideoPlayer = player as ISlimDXVideoPlayer;
+          }
       }
       catch (Exception)
       {
-        if (_videoPlayer != null)
-          _videoPlayer.Dispose();
+        if (videoPlayer != null)
+          videoPlayer.Dispose();
       }
     }
   }

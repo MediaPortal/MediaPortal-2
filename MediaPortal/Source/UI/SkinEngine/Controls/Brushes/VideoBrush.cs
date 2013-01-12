@@ -311,12 +311,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
 
     protected override bool BeginRenderBrushOverride(PrimitiveBuffer primitiveContext, RenderContext renderContext)
     {
-      IPlayerContextManager playerContextManager = ServiceRegistration.Get<IPlayerContextManager>(false);
-      if (playerContextManager == null)
-        return false;
-
-      ISlimDXVideoPlayer player = playerContextManager[Stream] as ISlimDXVideoPlayer;
-      if (player == null) 
+      ISlimDXVideoPlayer player;
+      if (!GetPlayer(out player))
         return false;
 
       if (!RefreshEffectParameters(player))
@@ -344,11 +340,11 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
     protected virtual bool GetPlayer(out ISlimDXVideoPlayer player)
     {
       player = null;
-      IPlayerManager playerManager = ServiceRegistration.Get<IPlayerManager>(false);
-      if (playerManager == null)
+      IPlayerContextManager playerContextManager = ServiceRegistration.Get<IPlayerContextManager>(false);
+      if (playerContextManager == null)
         return false;
 
-      player = playerManager[Stream] as ISlimDXVideoPlayer;
+      player = playerContextManager[Stream] as ISlimDXVideoPlayer;
       return player != null;
     }
 
