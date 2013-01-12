@@ -1,4 +1,4 @@
-﻿#region Copyright (C) 2007-2012 Team MediaPortal
+#region Copyright (C) 2007-2012 Team MediaPortal
 
 /*
     Copyright (C) 2007-2012 Team MediaPortal
@@ -24,20 +24,16 @@
 
 using MediaPortal.Common;
 using MediaPortal.UI.Presentation.Players;
-using MediaPortal.UI.Services.Players.VideoPlayerSynchronizationStrategies;
 
-namespace MediaPortal.UiComponents.BackgroundManager.Models
+namespace MediaPortal.UI.Services.Players.VideoPlayerSynchronizationStrategies
 {
   /// <summary>
-  /// Custom synchronization strategy to prefer the video background player. If none is present, the default <see cref="SynchronizeToPrimaryPlayer"/> strategy will be used.
+  /// Strategy implementation which synchronizes the screen control to the primary video player of the <see cref="IPlayerContextManager"/>.
   /// </summary>
-  class BackgroundVideoPlayerSynchronizationStrategy : BaseVideoPlayerSynchronizationStrategy
+  public class SynchronizeToPrimaryPlayer : BaseVideoPlayerSynchronizationStrategy
   {
     protected override IVideoPlayer GetPlayerToSynchronize()
     {
-      IVideoPlayer player = VideoBackgroundModel.GetCurrentInstance().VideoPlayer;
-      if (player != null)
-        return player;
       IPlayerContextManager playerContextManager = ServiceRegistration.Get<IPlayerContextManager>();
       return playerContextManager[PlayerContextIndex.PRIMARY] as IVideoPlayer;
     }

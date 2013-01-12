@@ -72,8 +72,8 @@ namespace MediaPortal.UI.Presentation.Screens
     /// Gets or sets the strategy implementation which controls how the screen control component synchronizes the framerate to a
     /// running video. 
     /// <remarks>
-    /// When setting a new IVideoPlayerSynchronizationStrategy it will be started by calling <see cref="IVideoPlayerSynchronizationStrategy.Start"/>.
-    /// Replaced IVideoPlayerSynchronizationStrategy are stopped by calling <see cref="IVideoPlayerSynchronizationStrategy.Stop"/>.
+    /// When setting a new <see cref="IVideoPlayerSynchronizationStrategy"/>, it will be started automatically (<see cref="IVideoPlayerSynchronizationStrategy.Start"/>).
+    /// The replaced <see cref="IVideoPlayerSynchronizationStrategy"/> is stopped automatically (<see cref="IVideoPlayerSynchronizationStrategy.Stop"/>).
     /// </remarks>
     /// </summary>
     IVideoPlayerSynchronizationStrategy VideoPlayerSynchronizationStrategy { get; set; }

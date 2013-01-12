@@ -255,7 +255,6 @@
     <Compile Include="Players\ISlimDXVideoPlayer.cs" />
     <Compile Include="Players\PlayersHelper.cs" />
     <Compile Include="Players\PlayerRotationTranslator.cs" />
-    <Compile Include="Players\SynchronizeToPrimaryPlayer.cs" />
     <Compile Include="Rendering\EffectContext.cs" />
     <Compile Include="Rendering\ImageContext.cs" />
     <Compile Include="Rendering\PrimitiveBuffer.cs" />

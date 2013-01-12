@@ -22,21 +22,20 @@
 
 #endregion
 
-using MediaPortal.Common;
 using MediaPortal.Common.Messaging;
 using MediaPortal.UI.Presentation.Screens;
 using MediaPortal.UI.Presentation.Players;
 
-namespace MediaPortal.UI.SkinEngine.Players
+namespace MediaPortal.UI.Services.Players.VideoPlayerSynchronizationStrategies
 {
   /// <summary>
-  /// Strategy implementation which synchronizes the screen control to the primary video player of the <see cref="IPlayerContextManager"/>.
+  /// Abstract video player synchronization strategy implementation to inherit from.
   /// </summary>
-  public class SynchronizeToPrimaryPlayer : IVideoPlayerSynchronizationStrategy
+  public abstract class BaseVideoPlayerSynchronizationStrategy : IVideoPlayerSynchronizationStrategy
   {
     protected readonly AsynchronousMessageQueue _messageQueue;
 
-    public SynchronizeToPrimaryPlayer()
+    protected BaseVideoPlayerSynchronizationStrategy()
     {
       _messageQueue = new AsynchronousMessageQueue(this, new string[]
         {
@@ -75,18 +74,18 @@ namespace MediaPortal.UI.SkinEngine.Players
       }
     }
 
-    protected virtual void HandlePlayerChange()
+    protected abstract IVideoPlayer GetPlayerToSynchronize();
+
+    private void HandlePlayerChange()
     {
-      IPlayerContextManager playerContextManager = ServiceRegistration.Get<IPlayerContextManager>();
-      IVideoPlayer player = playerContextManager[PlayerContextIndex.PRIMARY] as IVideoPlayer;
+      IVideoPlayer player = GetPlayerToSynchronize();
       FireUpdateVideoPlayerState(player);
       FireSynchronizeToVideoPlayerFramerate(player);
     }
 
-    protected virtual void HandlePlaybackStateChanged()
+    private void HandlePlaybackStateChanged()
     {
-      IPlayerContextManager playerContextManager = ServiceRegistration.Get<IPlayerContextManager>();
-      IVideoPlayer player = playerContextManager[PlayerContextIndex.PRIMARY] as IVideoPlayer;
+      IVideoPlayer player = GetPlayerToSynchronize();
       FireUpdateVideoPlayerState(player);
     }
 

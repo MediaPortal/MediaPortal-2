@@ -168,6 +168,8 @@
     <Compile Include="Services\Players\Playlist.cs" />
     <Compile Include="Services\Players\Settings\PlayerContextManagerSettings.cs" />
     <Compile Include="Services\Players\Settings\PlayerManagerSettings.cs" />
+    <Compile Include="Services\Players\VideoPlayerSynchronizationStrategies\BaseVideoPlayerSynchronizationStrategy.cs" />
+    <Compile Include="Services\Players\VideoPlayerSynchronizationStrategies\SynchronizeToPrimaryPlayer.cs" />
     <Compile Include="Services\RemovableMedia\DeviceVolumeMonitor.cs" />
     <Compile Include="Services\RemovableMedia\RemovableMediaTracker.cs" />
     <Compile Include="Services\RemovableMedia\Settings\RemovableMediaTrackerSettings.cs" />
