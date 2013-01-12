@@ -38,7 +38,7 @@ namespace MediaPortal.UiComponents.BackgroundManager.Models
     public static Guid BGM_MODEL_ID = new Guid(BGM_MODEL_ID_STR);
     protected const string ITEM_ACTION_KEY = "MenuModel: Item-Action";
 
-    private readonly string[] _allowedImageExtensions = new string[] { ".jpg", ".png" };
+    private readonly string[] _allowedImageExtensions = new[] { ".jpg", ".png" };
     private const string DEFAULT_BACKGROUND = "defaultBackground.jpg";
 
     #endregion
