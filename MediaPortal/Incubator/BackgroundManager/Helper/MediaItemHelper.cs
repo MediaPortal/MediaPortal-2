@@ -34,7 +34,7 @@ namespace MediaPortal.UiComponents.BackgroundManager.Helper
 {
   static class MediaItemHelper
   {
-    public static readonly Guid[] NECESSARY_VIDEO_MIAS = new[] { ProviderResourceAspect.ASPECT_ID, MediaAspect.ASPECT_ID, VideoAspect.ASPECT_ID };
+    public static readonly Guid[] NECESSARY_VIDEO_MIAS = new Guid[] { VideoAspect.ASPECT_ID };
     public static MediaItem CreateMediaItem(string filename)
     {
       IMediaAccessor mediaAccessor = ServiceRegistration.Get<IMediaAccessor>();
