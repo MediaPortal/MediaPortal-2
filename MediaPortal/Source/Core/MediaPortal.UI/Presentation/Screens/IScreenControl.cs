@@ -69,6 +69,12 @@ namespace MediaPortal.UI.Presentation.Screens
     SuspendLevel ApplicationSuspendLevel { get; set; }
 
     /// <summary>
+    /// Gets or sets the strategy implementation which controls how the screen control component synchronizes the framerate to a
+    /// running video.
+    /// </summary>
+    IVideoPlayerSynchronizationStrategy VideoPlayerSynchronizationStrategy { get; set; }
+
+    /// <summary>
     /// Enables or disables the MediaPortal 2 internal screen saver or sets its timeout.
     /// This method changes the global MP2 screen saver setting. To temporary gather control to the screen saver, use the
     /// <see cref="ScreenSaverController"/> returned by method <see cref="GetScreenSaverController"/>.

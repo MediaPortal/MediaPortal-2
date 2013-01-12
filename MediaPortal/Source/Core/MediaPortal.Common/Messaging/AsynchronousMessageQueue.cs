@@ -268,6 +268,7 @@ namespace MediaPortal.Common.Messaging
     /// <remarks>
     /// This method requests its internal lock, so it must not be called while holding other locks, according to the
     /// MP2 multithreading guidelines.
+    /// A message queue which was terminated by this method may be restarted by calling <see cref="Start"/> again.
     /// </remarks>
     public void Terminate()
     {

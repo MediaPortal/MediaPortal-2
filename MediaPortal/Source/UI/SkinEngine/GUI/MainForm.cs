@@ -27,7 +27,6 @@ using System.Drawing;
 using System.Threading;
 using System.Windows.Forms;
 using MediaPortal.Common;
-using MediaPortal.Common.Messaging;
 using MediaPortal.Common.Runtime;
 using MediaPortal.UI.Control.InputManager;
 using MediaPortal.Common.Logging;
@@ -71,6 +70,7 @@ namespace MediaPortal.UI.SkinEngine.GUI
     private readonly AutoResetEvent _videoRenderFrameEvent = new AutoResetEvent(false);
     private readonly AutoResetEvent _renderFinishedEvent = new AutoResetEvent(false);
     private bool _videoPlayerSuspended = false;
+    private IVideoPlayerSynchronizationStrategy _videoPlayerSynchronizationStrategy = null;
     private Size _previousWindowClientSize;
     private Point _previousWindowLocation;
     private FormWindowState _previousWindowState;
@@ -90,7 +90,6 @@ namespace MediaPortal.UI.SkinEngine.GUI
     protected TimeSpan _screenSaverTimeOut;
     protected bool _mouseHidden = false;
     private readonly object _reclaimDeviceSyncObj = new object();
-    private readonly AsynchronousMessageQueue _messageQueue;
 
     private bool _adaptToSizeEnabled;
 
@@ -136,70 +135,21 @@ namespace MediaPortal.UI.SkinEngine.GUI
       Application.Idle += OnApplicationIdle;
       _adaptToSizeEnabled = true;
 
-      _messageQueue = new AsynchronousMessageQueue(this, new string[]
-        {
-            PlayerManagerMessaging.CHANNEL,
-            PlayerContextManagerMessaging.CHANNEL,
-        });
-      _messageQueue.MessageReceived += OnMessageReceived;
-      _messageQueue.Start();
-    }
-
-    private void OnMessageReceived(AsynchronousMessageQueue queue, SystemMessage message)
-    {
-      if (message.ChannelName == PlayerManagerMessaging.CHANNEL)
-      {
-        PlayerManagerMessaging.MessageType messageType = (PlayerManagerMessaging.MessageType) message.MessageType;
-        switch (messageType)
-        {
-          case PlayerManagerMessaging.MessageType.PlayerStarted:
-          case PlayerManagerMessaging.MessageType.PlayerStopped:
-          case PlayerManagerMessaging.MessageType.PlayerEnded:
-            HandlePlayerChange();
-            break;
-          case PlayerManagerMessaging.MessageType.PlaybackStateChanged:
-            HandlePlaybackStateChanged();
-            break;
-        }
-      }
-      else if (message.ChannelName == PlayerContextManagerMessaging.CHANNEL)
-      {
-        PlayerContextManagerMessaging.MessageType messageType = (PlayerContextManagerMessaging.MessageType) message.MessageType;
-        switch (messageType)
-        {
-          case PlayerContextManagerMessaging.MessageType.PlayerSlotsChanged:
-            HandlePlayerChange();
-            break;
-        }
-      }
-    }
-
-    private void HandlePlayerChange()
-    {
-      IPlayerContextManager playerContextManager = ServiceRegistration.Get<IPlayerContextManager>();
-      ISlimDXVideoPlayer player = playerContextManager[PlayerContextIndex.PRIMARY] as ISlimDXVideoPlayer;
-      UpdateVideoPlayerState(player);
-      SynchronizeToVideoPlayerFramerate(player);
-    }
-
-    private void HandlePlaybackStateChanged()
-    {
-      IPlayerContextManager playerContextManager = ServiceRegistration.Get<IPlayerContextManager>();
-      ISlimDXVideoPlayer player = playerContextManager[PlayerContextIndex.PRIMARY] as ISlimDXVideoPlayer;
-      UpdateVideoPlayerState(player);
+      VideoPlayerSynchronizationStrategy = new SynchronizeToPrimaryPlayer();
+      _videoPlayerSynchronizationStrategy.Start();
     }
 
     /// <summary>
-    /// Updates the local state corresponding to the current video player, given in parameter <paramref name="slimDxPlayer"/>.
+    /// Updates the local state corresponding to the current video player, given in parameter <paramref name="videoPlayer"/>.
     /// This method will check if the given player is suspended (i.e. it is paused). It will also update the thread state so that the system
     /// won't shut down while playing a video.
     /// </summary>
-    /// <param name="slimDxPlayer">Player to check.</param>
-    private void UpdateVideoPlayerState(ISlimDXVideoPlayer slimDxPlayer)
+    /// <param name="videoPlayer">Player to check.</param>
+    private void UpdateVideoPlayerState(IVideoPlayer videoPlayer)
     {
-      IMediaPlaybackControl player = slimDxPlayer as IMediaPlaybackControl;
+      IMediaPlaybackControl player = videoPlayer as IMediaPlaybackControl;
       _videoPlayerSuspended = player == null || player.IsPaused;
-      PlayerSuspendLevel = slimDxPlayer == null ? SuspendLevel.None : SuspendLevel.DisplayRequired;
+      PlayerSuspendLevel = videoPlayer == null ? SuspendLevel.None : SuspendLevel.DisplayRequired;
     }
 
     public SuspendLevel PlayerSuspendLevel
@@ -358,7 +308,7 @@ namespace MediaPortal.UI.SkinEngine.GUI
       SkinContext.RenderThread = null;
     }
 
-    private void SynchronizeToVideoPlayerFramerate(ISlimDXVideoPlayer videoPlayer)
+    private void SynchronizeToVideoPlayerFramerate(IVideoPlayer videoPlayer)
     {
       lock (_screenManager.SyncObj)
       {
@@ -368,15 +318,16 @@ namespace MediaPortal.UI.SkinEngine.GUI
         _synchronizedVideoPlayer = null;
         if (oldPlayer != null)
           oldPlayer.SetRenderDelegate(null);
-        if (videoPlayer != null)
-          if (videoPlayer.SetRenderDelegate(VideoPlayerRender))
+        ISlimDXVideoPlayer slimDxVideoPlayer = videoPlayer as ISlimDXVideoPlayer;
+        if (slimDxVideoPlayer != null)
+          if (slimDxVideoPlayer.SetRenderDelegate(VideoPlayerRender))
           {
-            _synchronizedVideoPlayer = videoPlayer;
-            ServiceRegistration.Get<ILogger>().Info("SkinEngine MainForm: Synchronized render framerate to video player '{0}'", videoPlayer);
+            _synchronizedVideoPlayer = slimDxVideoPlayer;
+            ServiceRegistration.Get<ILogger>().Info("SkinEngine MainForm: Synchronized render framerate to video player '{0}'", slimDxVideoPlayer);
           }
           else
             ServiceRegistration.Get<ILogger>().Info(
-                "SkinEngine MainForm: Video player '{0}' doesn't provide render thread synchronization, using default framerate", videoPlayer);
+                "SkinEngine MainForm: Video player '{0}' doesn't provide render thread synchronization, using default framerate", slimDxVideoPlayer);
       }
     }
 
@@ -428,7 +379,7 @@ namespace MediaPortal.UI.SkinEngine.GUI
 
     public void Shutdown()
     {
-      _messageQueue.Shutdown();
+      VideoPlayerSynchronizationStrategy = null; // Stops the strategy component
       Close();
       _videoRenderFrameEvent.Close();
     }
@@ -556,6 +507,22 @@ namespace MediaPortal.UI.SkinEngine.GUI
         settings.SuspendLevel = _applicationSuspendLevel;
         settingsManager.Save(settings);
         UpdateSystemSuspendLevel();
+      }
+    }
+
+    public IVideoPlayerSynchronizationStrategy VideoPlayerSynchronizationStrategy
+    {
+      get { return _videoPlayerSynchronizationStrategy; }
+      set
+      {
+        if (_videoPlayerSynchronizationStrategy != null)
+        {
+          _videoPlayerSynchronizationStrategy.UpdateVideoPlayerState -= UpdateVideoPlayerState;
+          _videoPlayerSynchronizationStrategy.SynchronizeToVideoPlayerFramerate -= SynchronizeToVideoPlayerFramerate;
+        }
+        _videoPlayerSynchronizationStrategy = value;
+        _videoPlayerSynchronizationStrategy.UpdateVideoPlayerState += UpdateVideoPlayerState;
+        _videoPlayerSynchronizationStrategy.SynchronizeToVideoPlayerFramerate += SynchronizeToVideoPlayerFramerate;
       }
     }
 
