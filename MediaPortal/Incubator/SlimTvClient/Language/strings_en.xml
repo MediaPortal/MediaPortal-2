@@ -21,8 +21,9 @@
   <string name="SlimTvClient.RecordNow">Record now</string>
   <string name="SlimTvClient.DeleteSchedule">Delete schedule</string>
   <string name="SlimTvClient.CreateSchedule">Schedule recording</string>
-  
-  
+
+  <string name="SlimTvClient.ErrorNoTvProvider">No TV provider available (yet)</string>
+
   <string name="SlimTvClient.RecordingsMenuItem">Recordings</string>
   <string name="SlimTvClient.RecordingsRootViewName">TV recordings</string>
   <string name="SlimTvClient.ChannelMenuItemLabel">Filter by channel</string>

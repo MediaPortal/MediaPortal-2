@@ -34,7 +34,7 @@ using MediaPortal.UI.Presentation.Workflow;
 namespace MediaPortal.Plugins.SlimTv.Client.Models
 {
   /// <summary>
-  /// <see cref="SlimTvModelBase"/> provides basic features for all derived models, i.e. channel groupp and channel selection.
+  /// <see cref="SlimTvModelBase"/> provides basic features for all derived models, i.e. channel group and channel selection.
   /// </summary>
   public abstract class SlimTvModelBase : BaseTimerControlledModel, IWorkflowModel
   {
@@ -145,8 +145,11 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
     {
       if (_tvHandler == null)
       {
-        _tvHandler = ServiceRegistration.Get<ITvHandler>();
-        _tvHandler.Initialize();
+        ITvHandler tvHandler = ServiceRegistration.Get<ITvHandler>();
+        tvHandler.Initialize();
+        if (tvHandler.ChannelAndGroupInfo == null)
+          return;
+        _tvHandler = tvHandler;
       }
       _tvHandler.ChannelAndGroupInfo.GetChannelGroups(out _channelGroups);
 
@@ -223,12 +226,12 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
 
     public virtual bool CanEnterState(NavigationContext oldContext, NavigationContext newContext)
     {
-      return true;
+      InitModel();
+      return _tvHandler != null;
     }
 
     public virtual void EnterModelContext(NavigationContext oldContext, NavigationContext newContext)
     {
-      InitModel();
     }
 
     public virtual void ExitModelContext(NavigationContext oldContext, NavigationContext newContext)

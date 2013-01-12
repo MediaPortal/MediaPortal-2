@@ -24,12 +24,15 @@
 
 using System;
 using MediaPortal.Common;
+using MediaPortal.Common.Localization;
+using MediaPortal.Common.Logging;
 using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.Plugins.SlimTv.Interfaces;
 using MediaPortal.Plugins.SlimTv.Interfaces.Items;
 using MediaPortal.Plugins.SlimTv.Interfaces.LiveTvMediaItem;
 using MediaPortal.UI.Presentation.Players;
+using MediaPortal.UI.Presentation.UiNotifications;
 using MediaPortal.UiComponents.Media.Models;
 
 namespace MediaPortal.Plugins.SlimTv.Client.TvHandler
@@ -46,15 +49,23 @@ namespace MediaPortal.Plugins.SlimTv.Client.TvHandler
 
     private ITvProvider _tvProvider;
     private readonly TVSlotContext[] _slotContexes = new TVSlotContext[2];
+    
+    public const string RES_ERROR_NO_TVPROVIDER = "[SlimTvClient.ErrorNoTvProvider]";
 
     public void Initialize()
     {
       if (_tvProvider != null)
         return;
 
-      _tvProvider = ServiceRegistration.Get<ITvProvider>();
+      _tvProvider = ServiceRegistration.Get<ITvProvider>(false);
       if (_tvProvider != null)
         _tvProvider.Init();
+      else
+      {
+        string message = ServiceRegistration.Get<ILocalization>().ToString(RES_ERROR_NO_TVPROVIDER);
+        ServiceRegistration.Get<ILogger>().Warn("SlimTvHandler: {0}", message);
+        ServiceRegistration.Get<INotificationService>().EnqueueNotification(NotificationType.Error, "Error", message, true);
+      }
     }
 
     public ITimeshiftControl TimeshiftControl
