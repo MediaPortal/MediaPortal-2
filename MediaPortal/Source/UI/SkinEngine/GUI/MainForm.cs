@@ -136,7 +136,6 @@ namespace MediaPortal.UI.SkinEngine.GUI
       _adaptToSizeEnabled = true;
 
       VideoPlayerSynchronizationStrategy = new SynchronizeToPrimaryPlayer();
-      _videoPlayerSynchronizationStrategy.Start();
     }
 
     /// <summary>
@@ -517,6 +516,7 @@ namespace MediaPortal.UI.SkinEngine.GUI
       {
         if (_videoPlayerSynchronizationStrategy != null)
         {
+          _videoPlayerSynchronizationStrategy.Stop();
           _videoPlayerSynchronizationStrategy.UpdateVideoPlayerState -= UpdateVideoPlayerState;
           _videoPlayerSynchronizationStrategy.SynchronizeToVideoPlayerFramerate -= SynchronizeToVideoPlayerFramerate;
         }
@@ -525,6 +525,7 @@ namespace MediaPortal.UI.SkinEngine.GUI
         {
           _videoPlayerSynchronizationStrategy.UpdateVideoPlayerState += UpdateVideoPlayerState;
           _videoPlayerSynchronizationStrategy.SynchronizeToVideoPlayerFramerate += SynchronizeToVideoPlayerFramerate;
+          _videoPlayerSynchronizationStrategy.Start();
         }
       }
     }
