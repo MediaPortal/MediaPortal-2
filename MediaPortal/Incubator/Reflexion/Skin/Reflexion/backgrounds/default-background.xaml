@@ -7,7 +7,33 @@ Default background image - no media present
 <Screen
     xmlns="www.team-mediaportal.com/2008/mpf/directx"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:bm="clr-namespace:MediaPortal.UiComponents.BackgroundManager.Models;assembly=BackgroundManager"
     x:Name="DefaultBackgroundScreen"
     >
-  <StackPanel Background="{ThemeResource BackgroundBrush}"/>
+  <!-- Morpheus_xx: temporary disabled for testing new video background and finding problem after background screen restore
+    <StackPanel Background="{ThemeResource BackgroundBrush}"/>
+   -->
+  <Grid>
+    <Grid.Resources>
+      <Model x:Key="VideoBackgroundModel" Id="441288AC-F88D-4186-8993-6E259F7C75D8"/>
+    </Grid.Resources>
+    <Grid.Triggers>
+      <EventTrigger RoutedEvent="Screen.Show">
+        <TriggerCommand Command="{Command Source={StaticResource VideoBackgroundModel}, Path=StartBackgroundPlayback}"/>
+      </EventTrigger>
+      <EventTrigger RoutedEvent="Screen.Hide">
+        <TriggerCommand Command="{Command Source={StaticResource VideoBackgroundModel}, Path=EndBackgroundPlayback}"/>
+      </EventTrigger>
+    </Grid.Triggers>
+    <Grid.Background>
+      <bm:BackgroundVideoBrush VideoPlayer="{Binding Source={StaticResource VideoBackgroundModel},Path=VideoPlayer}"/>
+    </Grid.Background>
+    <Grid.ColumnDefinitions>
+      <ColumnDefinition Width="*"/>
+    </Grid.ColumnDefinitions>
+    <Grid.RowDefinitions>
+      <RowDefinition Height="*"/>
+    </Grid.RowDefinitions>
+  </Grid>
+
 </Screen>
