@@ -521,8 +521,11 @@ namespace MediaPortal.UI.SkinEngine.GUI
           _videoPlayerSynchronizationStrategy.SynchronizeToVideoPlayerFramerate -= SynchronizeToVideoPlayerFramerate;
         }
         _videoPlayerSynchronizationStrategy = value;
-        _videoPlayerSynchronizationStrategy.UpdateVideoPlayerState += UpdateVideoPlayerState;
-        _videoPlayerSynchronizationStrategy.SynchronizeToVideoPlayerFramerate += SynchronizeToVideoPlayerFramerate;
+        if (_videoPlayerSynchronizationStrategy != null)
+        {
+          _videoPlayerSynchronizationStrategy.UpdateVideoPlayerState += UpdateVideoPlayerState;
+          _videoPlayerSynchronizationStrategy.SynchronizeToVideoPlayerFramerate += SynchronizeToVideoPlayerFramerate;
+        }
       }
     }
 

@@ -75,7 +75,7 @@ namespace MediaPortal.UI.SkinEngine.Players
       }
     }
 
-    private void HandlePlayerChange()
+    protected virtual void HandlePlayerChange()
     {
       IPlayerContextManager playerContextManager = ServiceRegistration.Get<IPlayerContextManager>();
       IVideoPlayer player = playerContextManager[PlayerContextIndex.PRIMARY] as IVideoPlayer;
@@ -83,7 +83,7 @@ namespace MediaPortal.UI.SkinEngine.Players
       FireSynchronizeToVideoPlayerFramerate(player);
     }
 
-    private void HandlePlaybackStateChanged()
+    protected virtual void HandlePlaybackStateChanged()
     {
       IPlayerContextManager playerContextManager = ServiceRegistration.Get<IPlayerContextManager>();
       IVideoPlayer player = playerContextManager[PlayerContextIndex.PRIMARY] as IVideoPlayer;
