@@ -50,7 +50,6 @@ namespace MediaPortal.UiComponents.BackgroundManager.Models
 
     public const string MODEL_ID_STR = "441288AC-F88D-4186-8993-6E259F7C75D8";
     public static Guid MODEL_ID = new Guid(MODEL_ID_STR);
-    public static readonly Guid[] NECESSARY_VIDEO_MIAS = new[] { ProviderResourceAspect.ASPECT_ID, MediaAspect.ASPECT_ID, VideoAspect.ASPECT_ID };
 
     protected static IVideoPlayerSynchronizationStrategy _backgroundPlayerStrategy = new BackgroundVideoPlayerSynchronizationStrategy();
 
@@ -167,21 +166,13 @@ namespace MediaPortal.UiComponents.BackgroundManager.Models
 
       try
       {
-        IMediaAccessor mediaAccessor = ServiceRegistration.Get<IMediaAccessor>();
-        IEnumerable<Guid> meIds = mediaAccessor.GetMetadataExtractorsForMIATypes(NECESSARY_VIDEO_MIAS);
-        ResourceLocator resourceLocator = new ResourceLocator(LocalFsResourceProviderBase.ToResourcePath(_videoFilename));
-        IResourceAccessor ra = resourceLocator.CreateAccessor();
-        if (ra != null)
-          using (ra)
-          {
-            MediaItem video = mediaAccessor.CreateLocalMediaItem(ra, meIds);
-            _backgroundPsc.Play(video, StartTime.AtOnce);
-            BaseDXPlayer player = _backgroundPsc.CurrentPlayer as BaseDXPlayer;
-            if (player != null)
-              player.AutoRepeat = true;
+        MediaItem video = MediaItemHelper.CreateMediaItem(_videoFilename);
+        _backgroundPsc.Play(video, StartTime.AtOnce);
+        BaseDXPlayer player = _backgroundPsc.CurrentPlayer as BaseDXPlayer;
+        if (player != null)
+          player.AutoRepeat = true;
 
-            VideoPlayer = player as ISlimDXVideoPlayer;
-          }
+        VideoPlayer = player as ISlimDXVideoPlayer;
       }
       catch (Exception ex)
       {
