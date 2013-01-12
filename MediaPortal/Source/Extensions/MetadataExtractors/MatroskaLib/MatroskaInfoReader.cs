@@ -84,8 +84,8 @@ namespace MediaPortal.Extensions.MetadataExtractors.MatroskaLib
     public MatroskaInfoReader(string fileName)
     {
       _fileName = fileName;
-      _mkvInfoPath = FileUtils.BuildExecutingAssemblyRelativePath("mkvinfo.exe");
-      _mkvExtractPath = FileUtils.BuildExecutingAssemblyRelativePath("mkvextract.exe");
+      _mkvInfoPath = FileUtils.BuildAssemblyRelativePath("mkvinfo.exe");
+      _mkvExtractPath = FileUtils.BuildAssemblyRelativePath("mkvextract.exe");
     }
 
     #endregion
