@@ -67,7 +67,7 @@ namespace MediaPortal.Common.ResourceAccess
     /// <summary>
     /// Tries to create a resource accessor which is able to provide a path in the local filesystem.
     /// This only works if the underlaying <see cref="NativeResourcePath"/> is a network path
-    /// (See also <see cref="ResourcePath.IsNetworkPath"/>).
+    /// (See also <see cref="ResourcePath.IsNetworkResource"/>).
     /// </summary>
     /// <remarks>
     /// The returned instance implements <see cref="IDisposable"/> and
