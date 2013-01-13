@@ -9,6 +9,7 @@
   <ResourceWrapper x:Key="BigFontSize" Resource="30"/>
   <ResourceWrapper x:Key="SmallFontSize" Resource="20"/>
   <ResourceWrapper x:Key="SmallerFontSize" Resource="18"/>
+  <ResourceWrapper x:Key="LittleFontSize" Resource="12"/>
   <ResourceWrapper x:Key="TinyFontSize" Resource="9"/>
 
   <!-- Screen transitions -->  

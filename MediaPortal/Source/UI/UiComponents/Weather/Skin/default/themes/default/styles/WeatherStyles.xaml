@@ -40,16 +40,16 @@
 
   <!-- Styles for a single day forecast -->
   <DataTemplate x:Key="ForecastItemDataTemplate" DataType="{x:Type collections:ListItem}">
-    <StackPanel HorizontalAlignment="Left" VerticalAlignment="Top" Margin="10">
-      <Label FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource TextColor}" Content="{Binding Day}"/>
+    <StackPanel VerticalAlignment="Top" Margin="10">
+      <Label FontSize="{ThemeResource SmallerFontSize}" Color="{ThemeResource TextColor}" Content="{Binding Day}"/>
       <Image Width="64" Height="64" Source="{Binding SmallIconProperty}"/>
-      <Label FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource TextColor}" Content="{Binding High}" HorizontalAlignment="Center"/>
-      <Label FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource TextColor}" Content="{Binding Low}" HorizontalAlignment="Center"/>
+      <Label FontSize="{ThemeResource SmallerFontSize}" Color="{ThemeResource TextColor}" Content="{Binding High}" HorizontalAlignment="Center"/>
+      <Label FontSize="{ThemeResource SmallerFontSize}" Color="{ThemeResource TextColor}" Content="{Binding Low}" HorizontalAlignment="Center"/>
     </StackPanel>
   </DataTemplate>
 
   <!-- ListView style for all forecasts of the current location -->
-  <Style x:Key="ForecastContainerStyle" BasedOn="{ThemeResource DefaultListViewStyle}">
+  <Style x:Key="ForecastListViewStyle" BasedOn="{ThemeResource DefaultListViewStyle}">
     <Setter Property="ItemTemplate" Value="{ThemeResource ForecastItemDataTemplate}"/>
     <Setter Property="ItemsPanel">
       <Setter.Value>
