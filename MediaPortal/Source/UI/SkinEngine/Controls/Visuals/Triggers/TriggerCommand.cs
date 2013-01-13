@@ -82,8 +82,12 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Triggers
     public override void Execute(UIElement element)
     {
       IExecutableCommand cmd = Command;
-      if (cmd != null)
+      if (cmd == null)
+        return;
+      if (element.ElementState == ElementState.Running)
         InputManager.Instance.ExecuteCommand(cmd.Execute);
+      else
+        cmd.Execute();
     }
 
     #endregion
