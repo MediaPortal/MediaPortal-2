@@ -23,16 +23,12 @@
 #endregion
 
 using System;
-using System.Collections.Generic;
 using System.IO;
 using MediaPortal.Common;
 using MediaPortal.Common.General;
 using MediaPortal.Common.Logging;
 using MediaPortal.Common.MediaManagement;
-using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.Common.Messaging;
-using MediaPortal.Common.ResourceAccess;
-using MediaPortal.Common.Services.ResourceAccess;
 using MediaPortal.Common.Settings;
 using MediaPortal.UI.Players.Video;
 using MediaPortal.UI.Presentation.Players;
@@ -143,6 +139,7 @@ namespace MediaPortal.UiComponents.BackgroundManager.Models
       {
         IPlayerManager playerManager = ServiceRegistration.Get<IPlayerManager>();
         playerManager.CloseSlot(_backgroundPsc);
+        _backgroundPsc = null;
       }
     }
 
@@ -161,7 +158,8 @@ namespace MediaPortal.UiComponents.BackgroundManager.Models
       if (_backgroundPsc == null)
         _backgroundPsc = playerManager.OpenSlot();
 
-      if (_backgroundPsc == null)
+      // If we already have a player active, don't start a new one.
+      if (_backgroundPsc == null || VideoPlayer != null && VideoPlayer.State == PlayerState.Active)
         return;
 
       try
