@@ -400,11 +400,7 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
         if (_root.IsMeasureInvalid || _root.IsArrangeInvalid)
           _root.UpdateLayoutRoot(new SizeF(SkinWidth, SkinHeight));
         HandleScheduledFocus();
-        if (_pendingScreenEvent != null)
-        {
-          DoFireScreenEvent(_pendingScreenEvent);
-          _pendingScreenEvent = null;
-        }
+        CheckPendingScreenEvent();
         _root.Render(_renderContext);
       }
     }
@@ -468,6 +464,7 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
 
     public void Close()
     {
+      CheckPendingScreenEvent();
       ScreenState = State.Closed;
       SkinContext.WindowSizeProperty.Detach(OnWindowSizeChanged);
       lock (_syncObj)
@@ -503,6 +500,14 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
       ClosedEventDlgt dlgt = Closed;
       if (dlgt != null)
         dlgt(this);
+    }
+
+    public void CheckPendingScreenEvent()
+    {
+      if (_pendingScreenEvent == null)
+        return;
+      DoFireScreenEvent(_pendingScreenEvent);
+      _pendingScreenEvent = null;
     }
 
     protected bool PretendMouseMove()

@@ -152,11 +152,12 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
         {
           if (_backgroundScreen == null)
             return;
-          _backgroundScreen.ScreenState = Screen.State.Closing;
-          _backgroundScreen.TriggerScreenClosingEvent();
-          _backgroundScreen.ScreenState = Screen.State.Closed;
           Screen oldBackground = _backgroundScreen;
           _backgroundScreen = null;
+          oldBackground.ScreenState = Screen.State.Closing;
+          oldBackground.TriggerScreenClosingEvent();
+          // For backgrounds, we don't wait for DoneClosing. Backgrounds should close at once. Else, we would need to
+          // make the background handling asynchronous.
           _parent.ScheduleDisposeScreen(oldBackground);
           oldModels = new List<Guid>(_models.Keys);
           _models.Clear();
@@ -766,7 +767,6 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
       }
       else
       {
-        oldDialog.ScreenState = Screen.State.Closed;
         ScheduleDisposeScreen(oldDialog);
       }
         
@@ -797,7 +797,6 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
           if (screen.ScreenState == Screen.State.Closing && screen.DoneClosing)
           {
             LinkedListNode<DialogData> prevNode = node.Previous;
-            node.Value.DialogScreen.ScreenState = Screen.State.Closed;
             ScheduleDisposeScreen(screen);
             _dialogStack.Remove(node);
             node = prevNode;
@@ -824,8 +823,6 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
           return;
         ServiceRegistration.Get<ILogger>().Debug("ScreenManager: Closing screen '{0}'", screen.ResourceName);
         _screenPersistenceTime = DateTime.MinValue;
-
-        screen.ScreenState = Screen.State.Closed;
       }
       UnfocusCurrentScreen_NoLock();
 
@@ -853,6 +850,7 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
         currentScreen = _currentScreen;
       }
       DoCloseDialogs_NoLock(true, true);
+      currentScreen.ScreenState = Screen.State.Closing;
       currentScreen.TriggerScreenClosingEvent();
       UnfocusCurrentScreen_NoLock();
     }
@@ -863,7 +861,6 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
       {
         if (_nextScreen != null)
         { // If next screen is already set, dispose it. This might happen if during a screen change, another screen change is scheduled.
-          _nextScreen.ScreenState = Screen.State.Closed;
           ScheduleDisposeScreen(_nextScreen);
         }
         if (_currentScreen != null)
@@ -912,7 +909,12 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
       lock (_syncObj)
       {
         if (_currentSuperLayer != null)
+        {
+          _currentSuperLayer.ScreenState = Screen.State.Closing;
+          // Super layers must close at once, we don't wait for DoneClosing. Else, we would need to make
+          // the superlayer handling asynchronous.
           ScheduleDisposeScreen(_currentSuperLayer);
+        }
         _currentSuperLayer = screen;
       }
       if (screen == null)
