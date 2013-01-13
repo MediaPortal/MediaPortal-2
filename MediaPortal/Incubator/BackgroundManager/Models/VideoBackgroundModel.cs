@@ -59,6 +59,7 @@ namespace MediaPortal.UiComponents.BackgroundManager.Models
     protected AbstractProperty _isEnabledProperty;
     protected AsynchronousMessageQueue _messageQueue;
     protected IPlayerSlotController _backgroundPsc = null;
+    protected MediaItem _video;
 
     #endregion
 
@@ -122,7 +123,8 @@ namespace MediaPortal.UiComponents.BackgroundManager.Models
       EndBackgroundPlayback();
       BackgroundManagerSettings settings = ServiceRegistration.Get<ISettingsManager>().Load<BackgroundManagerSettings>();
       _videoFilename = settings.VideoBackgroundFileName;
-      IsEnabled = settings.EnableVideoBackground && !string.IsNullOrEmpty(_videoFilename) && File.Exists(_videoFilename);
+      _video = MediaItemHelper.CreateMediaItem(_videoFilename);
+      IsEnabled = settings.EnableVideoBackground && MediaItemHelper.IsValidVideo(_video);
       if (IsEnabled && refresh)
         StartBackgroundPlayback();
     }
@@ -140,6 +142,7 @@ namespace MediaPortal.UiComponents.BackgroundManager.Models
         IPlayerManager playerManager = ServiceRegistration.Get<IPlayerManager>();
         playerManager.CloseSlot(_backgroundPsc);
         _backgroundPsc = null;
+        VideoPlayer = null;
       }
     }
 
@@ -164,8 +167,7 @@ namespace MediaPortal.UiComponents.BackgroundManager.Models
 
       try
       {
-        MediaItem video = MediaItemHelper.CreateMediaItem(_videoFilename);
-        _backgroundPsc.Play(video, StartTime.AtOnce);
+        _backgroundPsc.Play(_video, StartTime.AtOnce);
         BaseDXPlayer player = _backgroundPsc.CurrentPlayer as BaseDXPlayer;
         if (player != null)
           player.AutoRepeat = true;
