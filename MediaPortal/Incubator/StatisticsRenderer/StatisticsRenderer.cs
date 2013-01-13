@@ -26,6 +26,9 @@ using System;
 using System.Threading;
 using MediaPortal.Common;
 using MediaPortal.Common.Logging;
+using MediaPortal.Common.Messaging;
+using MediaPortal.Common.PluginManager;
+using MediaPortal.Common.Runtime;
 using MediaPortal.UI.Control.InputManager;
 using MediaPortal.UI.Presentation.Actions;
 using MediaPortal.UI.Presentation.Players;
@@ -34,13 +37,11 @@ using MediaPortal.UI.SkinEngine.SkinManagement;
 using SlimDX;
 using SlimDX.Direct3D9;
 using System.Drawing;
-using System.Timers;
 using Font = SlimDX.Direct3D9.Font;
-using Timer = System.Timers.Timer;
 
 namespace MediaPortal.Plugins.StatisticsRenderer
 {
-  public class StatisticsRenderer : IDisposable
+  public class StatisticsRenderer : IPluginStateTracker, IDisposable
   {
     #region Constants and structs
 
@@ -67,7 +68,6 @@ namespace MediaPortal.Plugins.StatisticsRenderer
 
     private readonly RingBuffer<Stats> _stats = new RingBuffer<Stats>(MAX_STAT_VALUES, true);
 
-    private Timer _initTimer;
     private int _tearingPos;
     private Sprite _fontSprite;
     private Font _font;
@@ -87,42 +87,12 @@ namespace MediaPortal.Plugins.StatisticsRenderer
     private float _fps;
     protected ManualResetEvent _renderFinished = new ManualResetEvent(true);
 
-    #endregion
-
-    #region Constructor
-
-    public StatisticsRenderer()
-    {
-      // Automatically retry until IInputManager is available
-      _initTimer = new Timer { AutoReset = true, Interval = 1000 };
-      _initTimer.Elapsed += InitDelayed;
-      _initTimer.Enabled = true;
-    }
+    protected AsynchronousMessageQueue _messageQueue;
+    protected object _syncObj = new object();
 
     #endregion
 
     #region Members
-
-    /// <summary>
-    /// InitDelayed tries to attach input events. Due to service starting order it's not sure that the IInputManager is already available.
-    /// </summary>
-    /// <param name="sender"></param>
-    /// <param name="e"></param>
-    private void InitDelayed(object sender, ElapsedEventArgs e)
-    {
-      Timer initTimer = _initTimer;
-      _initTimer = null;
-      if (initTimer == null)
-        return;
-      initTimer.Dispose();
-      Log("Get IInputManager");
-      IInputManager manager = ServiceRegistration.Get<IInputManager>(false);
-      if (manager != null)
-      {
-        manager.AddKeyBinding(Key.F10, new VoidKeyActionDlgt(ToggleStatsRendering));
-        manager.AddKeyBinding(Key.F11, new VoidKeyActionDlgt(ToggleRenderMode));
-      }
-    }
 
     /// <summary>
     /// Allocates DirectX resources and attaches to render events.
@@ -426,5 +396,94 @@ namespace MediaPortal.Plugins.StatisticsRenderer
     }
 
     #endregion
+
+    private void RegisterKeyBindings()
+    {
+      IInputManager manager = ServiceRegistration.Get<IInputManager>(false);
+      if (manager != null)
+      {
+        Log("Registering KeyBindings on IInputManager");
+        manager.AddKeyBinding(Key.F10, new VoidKeyActionDlgt(ToggleStatsRendering));
+        manager.AddKeyBinding(Key.F11, new VoidKeyActionDlgt(ToggleRenderMode));
+      }
+    }
+
+    private static void UnregisterKeyBindings()
+    {
+      Log("Registering KeyBindings on IInputManager");
+      IInputManager manager = ServiceRegistration.Get<IInputManager>(false);
+      if (manager != null)
+      {
+        manager.RemoveKeyBinding(Key.F10);
+        manager.RemoveKeyBinding(Key.F11);
+      }
+    }
+
+    protected void DropMessageQueue()
+    {
+      lock (_syncObj)
+      {
+        if (_messageQueue != null)
+          _messageQueue.Terminate();
+        _messageQueue = null;
+      }
+    }
+
+    public void Activated (PluginRuntime pluginRuntime)
+    {
+      ISystemStateService sss = ServiceRegistration.Get<ISystemStateService>();
+      if (sss.CurrentState == SystemState.Running)
+      {
+        RegisterKeyBindings();
+      }
+      else
+      {
+        _messageQueue = new AsynchronousMessageQueue(typeof(StatisticsRenderer), new string[]
+          {
+              SystemMessaging.CHANNEL
+          });
+        _messageQueue.MessageReceived += OnMessageReceived;
+        _messageQueue.Start();
+      }
+    }
+
+    void OnMessageReceived(AsynchronousMessageQueue queue, SystemMessage message)
+    {
+      if (message.ChannelName == SystemMessaging.CHANNEL)
+      {
+        SystemMessaging.MessageType messageType = (SystemMessaging.MessageType) message.MessageType;
+        if (messageType == SystemMessaging.MessageType.SystemStateChanged)
+        {
+          SystemState newState = (SystemState) message.MessageData[SystemMessaging.NEW_STATE];
+          if (newState == SystemState.Running)
+          {
+            RegisterKeyBindings();
+          }
+          if (newState == SystemState.ShuttingDown)
+          {
+            DisableStats();
+            UnregisterKeyBindings();
+            DropMessageQueue();
+          }
+        }
+      }
+    }
+
+    public bool RequestEnd ()
+    {
+      return true;
+    }
+
+    public void Stop ()
+    {
+    }
+
+    public void Continue ()
+    {
+    }
+
+    public void Shutdown ()
+    {
+    }
   }
 }
