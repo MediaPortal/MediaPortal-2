@@ -172,7 +172,6 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
     protected int _skinWidth;
     protected int _skinHeight;
     protected bool _hasBackground = true;
-    // TODO: Replace by OrderedDictionary when we move to .net 4
     protected IDictionary<SetFocusPriority, ScheduledFocus> _scheduledFocus = new Dictionary<SetFocusPriority, ScheduledFocus>();
 
     /// <summary>
