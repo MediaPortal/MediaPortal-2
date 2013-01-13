@@ -869,7 +869,6 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
         _nextScreen = screen;
       }
       screen.Prepare();
-      CompleteScreenClosure_NoLock();
     }
 
     protected internal void CompleteScreenClosure_NoLock()
