@@ -885,10 +885,10 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
           return;
 
         screen = _nextScreen;
-        if (screen != null)
-          // Outside the lock - we're firing events
-          screen.TriggerScreenShowingEvent();
       }
+      if (screen != null)
+        // Outside the lock - we're firing events
+        screen.TriggerScreenShowingEvent();
       DoCloseScreen_NoLock();
       lock (_syncObj)
       {
