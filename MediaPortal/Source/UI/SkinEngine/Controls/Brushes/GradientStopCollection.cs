@@ -128,36 +128,13 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
         _parent.OnGradientsChanged();
     }
 
-    public int Count
-    {
-      get { return _elements.Count; }
-    }
-
-    public GradientStop this[int index]
-    {
-      get { return _elements[index]; }
-      set
-      {
-        if (value != _elements[index])
-        {
-          _orderedGradientStopList = null;
-          _elements[index].ObjectChanged -= OnStopChanged;
-          _elements[index].Dispose();
-          _elements[index] = value;
-          _elements[index].ObjectChanged += OnStopChanged;
-          if (_parent != null)
-            _parent.OnGradientsChanged();
-        }
-      }
-    }
-
     public IList<GradientStop> OrderedGradientStopList
     {
       get
       {
         if (_orderedGradientStopList == null)
         {
-          List<GradientStop> result = new List<GradientStop>(this);
+          List<GradientStop> result = new List<GradientStop>(_elements);
           result.Sort(CompareByOffset);
           // Put implicit start/end gradient stop into list if start is not 0 or end is not 1
           if (result.Count == 0)
@@ -183,7 +160,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
 
     public IEnumerator<GradientStop> GetEnumerator()
     {
-      return _elements.GetEnumerator();
+      return OrderedGradientStopList.GetEnumerator();
     }
 
     #endregion
@@ -192,7 +169,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
 
     IEnumerator IEnumerable.GetEnumerator()
     {
-      return _elements.GetEnumerator();
+      return OrderedGradientStopList.GetEnumerator();
     }
 
     #endregion
@@ -202,6 +179,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
     public void AddChild(GradientStop o)
     {
       _elements.Add(o);
+      _orderedGradientStopList = null;
     }
 
     #endregion

@@ -25,6 +25,7 @@
 using System;
 using System.Collections.Generic;
 using System.Drawing;
+using System.Linq;
 using MediaPortal.UI.SkinEngine.ContentManagement;
 using SlimDX;
 using SlimDX.Direct3D9;
@@ -42,7 +43,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
       private readonly Color _color;
       private readonly double _offset;
 
-      public GradientStopData(Color color, double offset)
+      private GradientStopData(Color color, double offset)
       {
         _color = color;
         _offset = offset;
@@ -75,9 +76,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
     public GradientBrushTexture(GradientStopCollection stops)
     {
       _assetId++;
-      _stops = new List<GradientStopData>(stops.Count);
-      foreach (GradientStop stop in stops)
-        _stops.Add(GradientStopData.FromGradientStop(stop));
+      _stops = stops.OrderedGradientStopList.Select(GradientStopData.FromGradientStop).ToList();
       _name = String.Format("GradientBrushTexture#{0}", _assetId);
       Allocate();
     }
@@ -99,9 +98,9 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
 
     public bool IsSame(GradientStopCollection stops)
     {
-      if (stops.Count != _stops.Count)
-        return false;
       IList<GradientStop> compareStops = stops.OrderedGradientStopList;
+      if (compareStops.Count != _stops.Count)
+        return false;
       for (int i = 0; i < _stops.Count; i++)
       {
         if (_stops[i].Offset != compareStops[i].Offset)
@@ -128,9 +127,6 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
 
       for (int i = 0; i < _stops.Count - 1; i++)
         CreatePartialGradient(data, _stops[i], _stops[i + 1]);
-      // If stops don't go up to 1.0 we have to fake the final stop
-      if (_stops[_stops.Count - 1].Offset < 1.0)
-        CreatePartialGradient(data, _stops[_stops.Count - 1], new GradientStopData(_stops[_stops.Count - 1].Color, 1.0));
 
       DataRectangle rect = _texture.Surface0.LockRectangle(LockFlags.None);
       rect.Data.Write(data, 0, 4 * GRADIENT_TEXTURE_WIDTH * GRADIENT_TEXTURE_HEIGHT);
