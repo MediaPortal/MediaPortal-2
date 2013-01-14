@@ -5,7 +5,7 @@
     Author = "Morpheus_xx"
     Copyright="GPL"
     Description="Thumbnail creator for video files. It is used only if no other thumbnail could be extracted before."
-    PluginVersion="1.0">
+    PluginVersion="1.1">
 
   <Runtime>
     <Assembly FileName="MovieThumbnailer.dll"/>

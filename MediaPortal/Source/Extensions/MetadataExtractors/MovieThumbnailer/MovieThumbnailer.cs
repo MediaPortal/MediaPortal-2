@@ -139,7 +139,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieThumbnailer
 
       string tempFileName = Path.ChangeExtension(Path.GetTempFileName(), ".jpg");
       string executable = FileUtils.BuildAssemblyRelativePath("ffmpeg.exe");
-      string arguments = string.Format("-ss {0} -itsoffset -5 -i \"{1}\" -vframes 1 -vf \"yadif=0:-1:0,scale=iw*sar:ih,setsar=1:1,scale=iw/2:-1\" -y \"{2}\"",
+      string arguments = string.Format("-ss {0} -itsoffset -5 -i \"{1}\" -vframes 1 -vf \"yadif='mode=send_frame:parity=auto:deint=all',scale=iw*sar:ih,setsar=1:1,scale=iw/2:-1\" -y \"{2}\"",
         defaultVideoOffset,
         lfsra.LocalFileSystemPath,
         tempFileName);
