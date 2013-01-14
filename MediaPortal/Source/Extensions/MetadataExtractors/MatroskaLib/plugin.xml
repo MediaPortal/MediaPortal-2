@@ -5,7 +5,7 @@
     Author="Morpheus_xx"
     Copyright="GPL"
     Description="Library plugin providing the Matroska metadata extractor functionality needed for some default metadata extractors"
-    PluginVersion="1.0">
+    PluginVersion="5.9.0">
 
   <Runtime>
     <Assembly FileName="MatroskaLib.dll"/>
