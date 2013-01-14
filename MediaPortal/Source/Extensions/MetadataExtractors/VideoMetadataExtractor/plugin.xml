@@ -10,6 +10,7 @@
   <DependsOn>
     <PluginReference PluginId="{D418C9C9-6D2A-44ed-ADC2-16345294B019}"/> <!-- MediaInfoPlugin -->
     <PluginReference PluginId="{3F5077F0-16E8-47E7-AD4B-E295812C174A}"/> <!-- MatroskaLib -->
+    <PluginReference PluginId="{9EBD5979-7BDF-4eb5-9010-ED77CC748BE7}"/> <!-- TagLibPlugin -->
   </DependsOn>
 
   <Runtime>

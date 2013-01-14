@@ -277,11 +277,10 @@ namespace MediaPortal.Extensions.MetadataExtractors.VideoMetadataExtractor
         IList<string> tags = tagsToExtract[MatroskaConsts.TAG_SIMPLE_TITLE];
         if (tags != null)
           title = tags.FirstOrDefault();
-
-        int year;
         if (!string.IsNullOrEmpty(title))
           MediaItemAspect.SetAttribute(extractedAspectData, MediaAspect.ATTR_TITLE, title);
 
+        int year;
         string yearCandidate = null;
         tags = tagsToExtract[MatroskaConsts.TAG_EPISODE_YEAR] ?? tagsToExtract[MatroskaConsts.TAG_SEASON_YEAR];
         if (tags != null)
@@ -319,6 +318,34 @@ namespace MediaPortal.Extensions.MetadataExtractors.VideoMetadataExtractor
       //  if (MovieTheMovieDbMatcher.Instance.FindAndUpdateMovie(movieInfo))
       //    movieInfo.SetMetadata(extractedAspectData);
       //}
+    }
+
+    protected void ExtractMp4Tags(string localFsResourcePath, IDictionary<Guid, MediaItemAspect> extractedAspectData, bool forceQuickMode)
+    {
+      string extensionUpper = StringUtils.TrimToEmpty(Path.GetExtension(localFsResourcePath)).ToUpper();
+
+      // Try to get extended information out of MP4 files)
+      if (extensionUpper != ".MP4") return;
+
+      TagLib.File mp4File = TagLib.File.Create(localFsResourcePath);
+      if (ReferenceEquals(mp4File, null) || ReferenceEquals(mp4File.Tag, null))
+        return;
+
+      TagLib.Tag tag = mp4File.Tag;
+
+      string title = tag.Title;
+      if (!string.IsNullOrEmpty(title))
+        MediaItemAspect.SetAttribute(extractedAspectData, MediaAspect.ATTR_TITLE, title);
+
+      int year = (int) tag.Year;
+      if (year != 0)
+        MediaItemAspect.SetAttribute(extractedAspectData, MediaAspect.ATTR_RECORDINGTIME, new DateTime(year, 1, 1));
+
+      if (!ReferenceEquals(tag.Genres, null) && tag.Genres.Length > 0)
+        MediaItemAspect.SetCollectionAttribute(extractedAspectData, VideoAspect.ATTR_GENRES, tag.Genres);
+
+      if (!ReferenceEquals(tag.Performers, null) && tag.Performers.Length > 0)
+        MediaItemAspect.SetCollectionAttribute(extractedAspectData, VideoAspect.ATTR_ACTORS, tag.Performers);
     }
 
     protected void ExtractThumbnailData(string localFsResourcePath, IDictionary<Guid, MediaItemAspect> extractedAspectData, bool forceQuickMode)
@@ -425,6 +452,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.VideoMetadataExtractor
             {
               string localFsPath = lfsra.LocalFileSystemPath;
               ExtractMatroskaTags(localFsPath, extractedAspectData, forceQuickMode);
+              ExtractMp4Tags(localFsPath, extractedAspectData, forceQuickMode);
               ExtractThumbnailData(localFsPath, extractedAspectData, forceQuickMode);
             }
           }

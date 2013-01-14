@@ -87,6 +87,10 @@
       <Project>{7280C551-DCE2-46B7-943E-8C0D90CDC22C}</Project>
       <Name>MediaInfoLib</Name>
     </ProjectReference>
+    <ProjectReference Include="..\TagLib\TagLib.csproj">
+      <Project>{4cc18776-125e-4318-9d24-d60110ad9697}</Project>
+      <Name>TagLib</Name>
+    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <Content Include="plugin.xml" />
