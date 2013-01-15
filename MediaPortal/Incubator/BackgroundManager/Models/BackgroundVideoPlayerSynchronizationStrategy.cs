@@ -36,7 +36,9 @@ namespace MediaPortal.UiComponents.BackgroundManager.Models
     protected override IVideoPlayer GetPlayerToSynchronize()
     {
       IPlayerContextManager playerContextManager = ServiceRegistration.Get<IPlayerContextManager>();
-      return playerContextManager[PlayerContextIndex.PRIMARY] as IVideoPlayer ?? VideoBackgroundModel.GetCurrentInstance().VideoPlayer;
+      IPlayerSlotController backgroundPsc = VideoBackgroundModel.GetCurrentInstance().PlayerSlotController;
+      IVideoPlayer player = backgroundPsc != null ? backgroundPsc.CurrentPlayer as IVideoPlayer : null;
+      return playerContextManager[PlayerContextIndex.PRIMARY] as IVideoPlayer ?? player;
     }
   }
 }

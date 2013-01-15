@@ -23,7 +23,6 @@
 #endregion
 
 using System;
-using System.IO;
 using MediaPortal.Common;
 using MediaPortal.Common.General;
 using MediaPortal.Common.Logging;
@@ -82,6 +81,11 @@ namespace MediaPortal.UiComponents.BackgroundManager.Models
     {
       get { return (ISlimDXVideoPlayer) _videoPlayerProperty.GetValue(); }
       set { _videoPlayerProperty.SetValue(value); }
+    }
+
+    public IPlayerSlotController PlayerSlotController
+    {
+      get { return _backgroundPsc; }
     }
 
     public AbstractProperty IsEnabledProperty
@@ -161,8 +165,12 @@ namespace MediaPortal.UiComponents.BackgroundManager.Models
       if (_backgroundPsc == null)
         _backgroundPsc = playerManager.OpenSlot();
 
+      if (_backgroundPsc == null)
+        return;
+
       // If we already have a player active, don't start a new one.
-      if (_backgroundPsc == null || VideoPlayer != null && VideoPlayer.State == PlayerState.Active)
+      IPlayer currentPlayer = _backgroundPsc.CurrentPlayer;
+      if (currentPlayer != null && currentPlayer.State == PlayerState.Active)
         return;
 
       try
