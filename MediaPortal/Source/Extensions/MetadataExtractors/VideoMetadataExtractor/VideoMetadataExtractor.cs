@@ -245,7 +245,6 @@ namespace MediaPortal.Extensions.MetadataExtractors.VideoMetadataExtractor
         MediaItemAspect.SetAttribute(extractedAspectData, VideoAspect.ATTR_AUDIOENCODING, StringUtils.Join(", ", _audCodecs));
 
         MediaItemAspect.SetCollectionAttribute(extractedAspectData, VideoAspect.ATTR_AUDIOLANGUAGES, _audioLanguages);
-        // TODO: extract cover art (see Mantis #1977)
       }
 
       public bool IsDVD
@@ -305,19 +304,6 @@ namespace MediaPortal.Extensions.MetadataExtractors.VideoMetadataExtractor
         if (actors != null)
           MediaItemAspect.SetCollectionAttribute(extractedAspectData, VideoAspect.ATTR_ACTORS, actors);
       }
-
-      // Movie handling
-      //if (!string.IsNullOrEmpty(title) && !forceQuickMode)
-      //{
-      //  // TODO: online information can overwrite information read out of mkv tags, how to handle this?
-      //  MovieInfo movieInfo = new MovieInfo
-      //  {
-      //    MovieName = title,
-      //    Year = year
-      //  };
-      //  if (MovieTheMovieDbMatcher.Instance.FindAndUpdateMovie(movieInfo))
-      //    movieInfo.SetMetadata(extractedAspectData);
-      //}
     }
 
     protected void ExtractMp4Tags(string localFsResourcePath, IDictionary<Guid, MediaItemAspect> extractedAspectData, bool forceQuickMode)
@@ -482,58 +468,6 @@ namespace MediaPortal.Extensions.MetadataExtractors.VideoMetadataExtractor
     {
       return filePath.ToLowerInvariant().EndsWith(".wtv");
     }
-
-    // The following code should be used in the slow batch mode (see Mantis #1977)
-    //#region code testing the xbmc scraper
-    //if (scraper.IsLoaded)
-    //{
-    //  scraper.CreateSearchUrl((string)movie["title"]);
-    //  ServiceRegistration.Get<ILogger>().Info("MovieImporter: Getting online info from: {0} ", scraper.SearchUrl);
-    //  scraper.GetSearchResults();
-    //  ServiceRegistration.Get<ILogger>().Info("MovieImporter: Result found {0} ", scraper.SearchResults.Count);
-    //  if (scraper.SearchResults.Count > 0)
-    //  {
-
-    //    SystemMessage msgc = new SystemMessage();
-    //    msgc.MessageData["action"] = "imdbchoiceneeded";
-    //    msgc.MessageData["file"] = filePath;
-    //    msgc.MessageData["title"] = (string)movie["title"];
-    //    List<string> urlList = new List<string>();
-    //    List<string> idList = new List<string>();
-    //    List<string> titleList = new List<string>();
-    //    foreach (ScraperSearchResult res in scraper.SearchResults)
-    //    {
-    //      urlList.Add(res.Url);
-    //      idList.Add(res.Id);
-    //      titleList.Add(res.Title);
-    //    }
-    //    msgc.MessageData["urls"] = urlList;
-    //    msgc.MessageData["ids"] = idList;
-    //    msgc.MessageData["titles"] = titleList;
-    //    SendMessage(msgc);
-
-    //    ServiceRegistration.Get<ILogger>().Info("MovieImporter: Getting online info for: {0}", scraper.SearchResults[0].Title);
-    //    scraper.GetDetails(scraper.SearchResults[0].Url, scraper.SearchResults[0].Id);
-    //    if (scraper.Metadata.ContainsKey("genre"))
-    //    {
-    //      movie["title"] = scraper.Metadata["title"];
-    //      movie["genre"] = scraper.Metadata["genre"];
-    //      if (scraper.Metadata.ContainsKey("thumb"))
-    //        movie["CoverArt"] = scraper.Metadata["thumb"];
-    //      if (scraper.Metadata.ContainsKey("actors"))
-    //        movie["actors"] = scraper.Metadata["actors"];
-    //      if (scraper.Metadata.ContainsKey("year"))
-    //        movie["year"] = scraper.Metadata["year"];
-
-    //    }
-    //  }
-    //}
-    //else
-    //{
-    //  ServiceRegistration.Get<ILogger>().Info("MovieImporter: No online scrapers are loaded ");
-    //}
-
-    //#endregion
 
     #endregion
   }
