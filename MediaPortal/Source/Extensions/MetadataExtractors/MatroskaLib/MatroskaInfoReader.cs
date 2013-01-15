@@ -44,7 +44,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.MatroskaLib
     private List<MatroskaAttachment> _attachments;
     private readonly string _mkvInfoPath;
     private readonly string _mkvExtractPath;
-    private ProcessPriorityClass _priorityClass = ProcessPriorityClass.BelowNormal;
+    private readonly ProcessPriorityClass _priorityClass = ProcessPriorityClass.BelowNormal;
 
     #endregion
 
@@ -242,7 +242,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.MatroskaLib
 
     #region Private methods
     
-    static IEnumerable<XElement> GetTagsForTargetType(XDocument doc, int? targetTypeValue)
+    private static IEnumerable<XElement> GetTagsForTargetType(XDocument doc, int? targetTypeValue)
     {
       if (targetTypeValue.HasValue)
         return from simpleTag in doc.Descendants("Tags").Descendants("Tag")
