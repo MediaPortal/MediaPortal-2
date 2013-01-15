@@ -22,12 +22,7 @@
 
 #endregion
 
-using System;
-using System.Collections.Generic;
 using System.Diagnostics;
-using System.IO;
-using System.Linq;
-using System.Text;
 
 namespace MediaPortal.Utilities.Process
 {
@@ -50,6 +45,8 @@ namespace MediaPortal.Utilities.Process
         process.PriorityClass = priorityClass;
         if (process.WaitForExit(maxWaitMs))
           return process.ExitCode == 0;
+        if (!process.HasExited)
+          process.Kill();
       }
       return false;
     }
@@ -77,7 +74,7 @@ namespace MediaPortal.Utilities.Process
             return process.ExitCode == 0;
         }
         if (!process.HasExited)
-          process.Close();
+          process.Kill();
       }
       return false;
     }
