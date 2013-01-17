@@ -60,14 +60,14 @@ Parameters which have to be accessible by a DynamicResource lookup:
               Template="{DynamicResource ResourceKey=Contents_Template}" SetFocus="true"/>
         </Grid>
 
-        <Grid x:Name="LeftPanel" Margin="-10,-10,0,-10" VerticalAlignment="Stretch"
+        <Grid x:Name="LeftPanel" Margin="-410,-10,0,-10" VerticalAlignment="Stretch"
               Background="#E0000000" Width="450" HorizontalAlignment="Left">
 
           <Grid.Resources>
             <Storyboard x:Key="SlideInStoryboard" FillBehavior="HoldEnd">
               <DoubleAnimationUsingKeyFrames BeginTime="00:00:00" FillBehavior="HoldEnd" Storyboard.TargetName="LeftPanel" Storyboard.TargetProperty="RenderTransform.X">
-                <SplineDoubleKeyFrame KeyTime="00:00:00" Value="-400"/>
-                <SplineDoubleKeyFrame KeyTime="00:00:00.30" Value="0"/>
+                <SplineDoubleKeyFrame KeyTime="00:00:00" Value="0"/>
+                <SplineDoubleKeyFrame KeyTime="00:00:00.30" Value="400"/>
               </DoubleAnimationUsingKeyFrames>
             </Storyboard>
           </Grid.Resources>
@@ -80,7 +80,7 @@ Parameters which have to be accessible by a DynamicResource lookup:
           </Grid.RowDefinitions>
 
           <Grid.RenderTransform>
-            <TranslateTransform X="-400"/>
+            <TranslateTransform X="0"/>
           </Grid.RenderTransform>
 
           <Grid.Triggers>
