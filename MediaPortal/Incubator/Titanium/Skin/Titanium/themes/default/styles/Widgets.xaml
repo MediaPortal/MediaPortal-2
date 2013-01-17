@@ -41,7 +41,7 @@
                 Template="{DynamicResource ResourceKey=MakeReflexion}">
               <Control.LayoutTransform>
                 <TransformGroup>
-                  <ScaleTransform ScaleX="1" ScaleY="-0.75"/>
+                  <ScaleTransform ScaleX="1" ScaleY="-0.45"/>
                 </TransformGroup>
               </Control.LayoutTransform>
               <Control.OpacityMask>

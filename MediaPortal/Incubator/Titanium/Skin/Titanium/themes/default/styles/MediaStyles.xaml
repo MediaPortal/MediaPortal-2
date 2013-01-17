@@ -605,8 +605,8 @@
       </Grid.RowDefinitions>
       <Image x:Name="ItemTypeImage" Grid.Row="0" Grid.Column="0" Stretch="Uniform" Margin="0,0,0,0" Source="FilterLarge.png"
            Width="{StaticResource MEDIA_THUMB_WIDTH_L}" Height="{StaticResource MEDIA_THUMB_HEIGHT_L}"/>
-      <Label x:Name="ItemLabel" Grid.Row="1" Grid.Column="0" Content="{Binding SimpleTitle}"
-          Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}"/>
+      <Label x:Name="ItemLabel" Grid.Row="1" Grid.Column="0" Content="{Binding SimpleTitle}" Color="{ThemeResource TextColor}"
+           FontSize="{ThemeResource SmallFontSize}" HorizontalAlignment="Center" />
     </Grid>
   </ControlTemplate>
 
@@ -622,8 +622,8 @@
 
       <Control x:Name="CoverReflexion" Style="{ThemeResource ReflexionControl}" Grid.Row="0" Grid.Column="0" VerticalAlignment="Center">
         <Control.Resources>
-          <ResourceWrapper x:Key="ControlWidth" Resource="{StaticResource MEDIA_THUMB_WIDTH_L}"/>
-          <ResourceWrapper x:Key="ControlHeight" Resource="{StaticResource MEDIA_THUMB_HEIGHT_L}"/>
+          <ResourceWrapper x:Key="ControlWidth" Resource="{StaticResource REFLEXION_WIDTH}"/>
+          <ResourceWrapper x:Key="ControlHeight" Resource="{StaticResource REFLEXION_HEIGHT}"/>
           <ControlTemplate x:Key="MakeReflexion">
             <Image x:Name="ItemTypeImage" Stretch="Uniform" Margin="0,0,0,0" Source="FilterLarge.png"
               Width="{StaticResource MEDIA_THUMB_WIDTH_L}" Height="{StaticResource MEDIA_THUMB_HEIGHT_L}"/>
@@ -703,11 +703,11 @@
 
       <Control x:Name="CoverReflexion" Style="{ThemeResource ReflexionControl}" Grid.Row="0" Grid.Column="0" VerticalAlignment="Center">
         <Control.Resources>
-          <ResourceWrapper x:Key="ControlWidth" Resource="{StaticResource MEDIA_THUMB_WIDTH_L}"/>
-          <ResourceWrapper x:Key="ControlHeight" Resource="{StaticResource MEDIA_THUMB_HEIGHT_L}"/>
+          <ResourceWrapper x:Key="ControlWidth" Resource="{StaticResource REFLEXION_WIDTH}"/>
+          <ResourceWrapper x:Key="ControlHeight" Resource="{StaticResource REFLEXION_HEIGHT}"/>
           <ControlTemplate x:Key="MakeReflexion">
             <Image x:Name="ItemTypeImage" Grid.Row="0" Stretch="Uniform" Source="NavigationLarge.png"
-              Width="{StaticResource MEDIA_THUMB_WIDTH_L}" Height="{StaticResource MEDIA_THUMB_HEIGHT_L}"/>
+              Width="{StaticResource MEDIA_POSTER_WIDTH}" Height="{StaticResource MEDIA_POSTER_HEIGHT}"/>
           </ControlTemplate>
         </Control.Resources>
       </Control>
@@ -777,8 +777,8 @@
 
       <Control x:Name="CoverReflexion" Style="{ThemeResource ReflexionControl}" Grid.Row="0" Grid.Column="0" VerticalAlignment="Center">
         <Control.Resources>
-          <ResourceWrapper x:Key="ControlWidth" Resource="{StaticResource MEDIA_THUMB_WIDTH_L}"/>
-          <ResourceWrapper x:Key="ControlHeight" Resource="{StaticResource MEDIA_THUMB_HEIGHT_L}"/>
+          <ResourceWrapper x:Key="ControlWidth" Resource="{StaticResource REFLEXION_WIDTH}"/>
+          <ResourceWrapper x:Key="ControlHeight" Resource="{StaticResource REFLEXION_HEIGHT}"/>
           <ControlTemplate x:Key="MakeReflexion">
             <Image Width="{StaticResource MEDIA_POSTER_WIDTH}" Height="{StaticResource MEDIA_POSTER_HEIGHT}" Stretch="Uniform" FallbackSource="VideoLarge.png"
                    Grid.Row="0" Grid.Column="1">
@@ -857,8 +857,8 @@
 
       <Control x:Name="CoverReflexion" Style="{ThemeResource ReflexionControl}" Grid.Row="0" Grid.Column="0" VerticalAlignment="Center">
         <Control.Resources>
-          <ResourceWrapper x:Key="ControlWidth" Resource="{StaticResource MEDIA_POSTER_WIDTH}"/>
-          <ResourceWrapper x:Key="ControlHeight" Resource="{StaticResource MEDIA_POSTER_HEIGHT}"/>
+          <ResourceWrapper x:Key="ControlWidth" Resource="{StaticResource REFLEXION_WIDTH}"/>
+          <ResourceWrapper x:Key="ControlHeight" Resource="{StaticResource REFLEXION_HEIGHT}"/>
           <ControlTemplate x:Key="MakeReflexion">
             <Image Width="{StaticResource MEDIA_POSTER_WIDTH}" Height="{StaticResource MEDIA_POSTER_HEIGHT}" Stretch="Uniform" FallbackSource="VideoLarge.png">
               <Image.Source>
@@ -938,8 +938,8 @@
 
       <Control x:Name="CoverReflexion" Style="{ThemeResource ReflexionControl}" Grid.Row="0" Grid.Column="0" VerticalAlignment="Center">
         <Control.Resources>
-          <ResourceWrapper x:Key="ControlWidth" Resource="{StaticResource MEDIA_POSTER_WIDTH}"/>
-          <ResourceWrapper x:Key="ControlHeight" Resource="{StaticResource MEDIA_POSTER_HEIGHT}"/>
+          <ResourceWrapper x:Key="ControlWidth" Resource="{StaticResource REFLEXION_WIDTH}"/>
+          <ResourceWrapper x:Key="ControlHeight" Resource="{StaticResource REFLEXION_HEIGHT}"/>
           <ControlTemplate x:Key="MakeReflexion">
             <Image Width="{StaticResource MEDIA_POSTER_WIDTH}" Height="{StaticResource MEDIA_POSTER_HEIGHT}" Stretch="Uniform" FallbackSource="VideoLarge.png">
               <Image.Source>
@@ -1039,11 +1039,11 @@
 
       <Control x:Name="CoverReflexion" Style="{ThemeResource ReflexionControl}" Grid.Row="0" Grid.Column="0" VerticalAlignment="Center">
         <Control.Resources>
-          <ResourceWrapper x:Key="ControlWidth" Resource="{StaticResource MEDIA_THUMB_WIDTH_L}"/>
-          <ResourceWrapper x:Key="ControlHeight" Resource="{StaticResource MEDIA_THUMB_HEIGHT_L}"/>
+          <ResourceWrapper x:Key="ControlWidth" Resource="{StaticResource REFLEXION_WIDTH}"/>
+          <ResourceWrapper x:Key="ControlHeight" Resource="{StaticResource REFLEXION_HEIGHT}"/>
           <ControlTemplate x:Key="MakeReflexion">
             <Image x:Name="ItemTypeImage" Stretch="Uniform" Source="{Binding MediaItem}"
-               Thumbnail="True" Width="{StaticResource MEDIA_THUMB_WIDTH_L}" Height="{StaticResource MEDIA_THUMB_HEIGHT_L}"
+               Thumbnail="True" Width="{StaticResource MEDIA_POSTER_WIDTH}" Height="{StaticResource MEDIA_POSTER_HEIGHT}"
                FallbackSource="VideoLarge.png"/>
           </ControlTemplate>
         </Control.Resources>
@@ -1121,11 +1121,11 @@
 
       <Control x:Name="CoverReflexion" Style="{ThemeResource ReflexionControl}" Grid.Row="0" Grid.Column="0" VerticalAlignment="Center">
         <Control.Resources>
-          <ResourceWrapper x:Key="ControlWidth" Resource="{StaticResource MEDIA_THUMB_WIDTH_L}"/>
-          <ResourceWrapper x:Key="ControlHeight" Resource="{StaticResource MEDIA_THUMB_HEIGHT_L}"/>
+          <ResourceWrapper x:Key="ControlWidth" Resource="{StaticResource REFLEXION_WIDTH}"/>
+          <ResourceWrapper x:Key="ControlHeight" Resource="{StaticResource REFLEXION_HEIGHT}"/>
           <ControlTemplate x:Key="MakeReflexion">
             <Image x:Name="ItemTypeAudio" Stretch="Uniform" Source="{Binding MediaItem}" FallbackSource="AudioLarge.png"
-               Width="{StaticResource MEDIA_THUMB_WIDTH_L}" Height="{StaticResource MEDIA_THUMB_HEIGHT_L}"/>
+               Width="{StaticResource MEDIA_POSTER_WIDTH}" Height="{StaticResource MEDIA_POSTER_HEIGHT}"/>
           </ControlTemplate>
         </Control.Resources>
       </Control>
@@ -1221,11 +1221,11 @@
 
       <Control x:Name="CoverReflexion" Style="{ThemeResource ReflexionControl}" Grid.Row="0" Grid.Column="0" VerticalAlignment="Center">
         <Control.Resources>
-          <ResourceWrapper x:Key="ControlWidth" Resource="{StaticResource MEDIA_THUMB_WIDTH_L}"/>
-          <ResourceWrapper x:Key="ControlHeight" Resource="{StaticResource MEDIA_THUMB_HEIGHT_L}"/>
+          <ResourceWrapper x:Key="ControlWidth" Resource="{StaticResource REFLEXION_WIDTH}"/>
+          <ResourceWrapper x:Key="ControlHeight" Resource="{StaticResource REFLEXION_HEIGHT}"/>
           <ControlTemplate x:Key="MakeReflexion">
             <Image x:Name="ItemTypeImage" Stretch="Uniform" Source="{Binding MediaItem}"
-               Thumbnail="True" Width="{StaticResource MEDIA_THUMB_WIDTH_L}" Height="{StaticResource MEDIA_THUMB_HEIGHT_L}"
+               Thumbnail="True" Width="{StaticResource MEDIA_POSTER_WIDTH}" Height="{StaticResource MEDIA_POSTER_HEIGHT}"
                FallbackSource="ImageLarge.png"/>
           </ControlTemplate>
         </Control.Resources>
@@ -1350,7 +1350,7 @@
     <Setter Property="Template">
       <Setter.Value>
         <ControlTemplate TargetType="{x:Type ListViewItem}">
-          <Button Style="{ThemeResource ButtonWideStyle}"
+          <Button Style="{ThemeResource ButtonWideStyle}" Margin="5,0,0,5"
               Command="{DynamicResource ResourceKey=Menu_Command}"
               IsEnabled="{Binding Enabled}" SetFocus="{Binding Path=Selected,Mode=OneTime}">
             <Button.Triggers>
