@@ -163,8 +163,10 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 
     protected volatile SetFocusPriority _setFocusPrio = SetFocusPriority.None;
 
-    protected SizeF? _availableSize;
-    protected RectangleF? _outerRect;
+    protected SizeF? _availableSize = null;
+    protected RectangleF? _outerRect = null;
+    protected RectangleF? _renderedBoundingBox = null;
+
     protected SizeF _innerDesiredSize; // Desiredd size in local coords
     protected SizeF _desiredSize; // Desired size in parent coordinate system
     protected RectangleF _innerRect;
@@ -172,6 +174,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     protected volatile bool _isArrangeInvalid = true;
 
     protected Matrix? _inverseFinalTransform = null;
+    protected Matrix? _finalTransform = null;
+
     protected float _lastZIndex = 0;
 
     #endregion
@@ -514,12 +518,37 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     }
 
     /// <summary>
-    /// Gets the actual bounds plus <see cref="UIElement.Margin"/> plus the space which is needed for our
-    /// <see cref="UIElement.LayoutTransform"/>.
+    /// Gets the actual bounds in layout plus <see cref="UIElement.Margin"/> plus the space which is needed for our
+    /// <see cref="UIElement.LayoutTransform"/> in the coordinate system of the parent.
+    /// Render transformations aren't taken into account here.
     /// </summary>
     public RectangleF ActualTotalBounds
     {
       get { return _outerRect ?? RectangleF.Empty; }
+    }
+
+    /// <summary>
+    /// Gets the box which encloses the position where this control is rendered in the world coordinate system.
+    /// </summary>
+    /// <remarks>
+    /// This property is only set if this element was rendered at its current position. If it was not yet rendered or rearranged
+    /// after the last rendering, this property is <c>null</c>.
+    /// </remarks>
+    public RectangleF? RenderedBoundingBox
+    {
+      get { return _renderedBoundingBox; }
+    }
+
+    /// <summary>
+    /// Gets the best known bounding box of the render area of this element.
+    /// </summary>
+    /// <remarks>
+    /// This property returns the <see cref="RenderedBoundingBox"/>, if present. Else, it will calculate the final transform which would
+    /// be used by this element if it would have been rendered before.
+    /// </remarks>
+    public RectangleF BoundingBox
+    {
+      get { return _renderedBoundingBox ?? CalculateBoundingBox(_innerRect, ExtortFinalTransform()); }
     }
 
     public AbstractProperty HorizontalAlignmentProperty
@@ -1011,17 +1040,17 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 
     protected bool LocatedInside(RectangleF otherRect)
     {
-      return AInsideB(ActualBounds, otherRect);
+      return AInsideB(BoundingBox, otherRect);
     }
 
     protected bool EnclosesRect(RectangleF otherRect)
     {
-      return AInsideB(otherRect, ActualBounds);
+      return AInsideB(otherRect, BoundingBox);
     }
 
     protected bool LocatedBelow(RectangleF otherRect)
     {
-      RectangleF actualBounds = ActualBounds;
+      RectangleF actualBounds = BoundingBox;
       if (IsNear(actualBounds.Top, otherRect.Bottom))
         return true;
       PointF start = new PointF((actualBounds.Right + actualBounds.Left) / 2, actualBounds.Top);
@@ -1032,7 +1061,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 
     protected bool LocatedAbove(RectangleF otherRect)
     {
-      RectangleF actualBounds = ActualBounds;
+      RectangleF actualBounds = BoundingBox;
       if (IsNear(actualBounds.Bottom, otherRect.Top))
         return true;
       PointF start = new PointF((actualBounds.Right + actualBounds.Left) / 2, actualBounds.Bottom);
@@ -1043,7 +1072,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 
     protected bool LocatedLeftOf(RectangleF otherRect)
     {
-      RectangleF actualBounds = ActualBounds;
+      RectangleF actualBounds = BoundingBox;
       if (IsNear(actualBounds.Right, otherRect.Left))
         return true;
       PointF start = new PointF(actualBounds.Right, (actualBounds.Top + actualBounds.Bottom) / 2);
@@ -1054,7 +1083,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 
     protected bool LocatedRightOf(RectangleF otherRect)
     {
-      RectangleF actualBounds = ActualBounds;
+      RectangleF actualBounds = BoundingBox;
       if (IsNear(actualBounds.Left, otherRect.Right))
         return true;
       PointF start = new PointF(actualBounds.Left, (actualBounds.Top + actualBounds.Bottom) / 2);
@@ -1178,7 +1207,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     }
 
     /// <summary>
-    /// Given the transform currently applied to child, this method finds (in axis-aligned local space)
+    /// Given the transform to be applied to a unknown rectangle, this method finds (in axis-aligned local space)
     /// the largest rectangle that, after transform, fits within <paramref name="localBounds"/>.
     /// Largest rectangle means rectangle of the greatest area in local space (although maximal area in local space
     /// implies maximal area in transform space).
@@ -1439,6 +1468,14 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 #endif
 #endif
       _isArrangeInvalid = false;
+
+      // Those two properties have to be set by the render loop again the next time we render. We need to reset the values to null
+      // because the BoundingBox property then uses a fallback value. It would be wrong to use the old _boundingBox value if we
+      // re-arrange our contents.
+      _renderedBoundingBox = null;
+      _finalTransform = null;
+      _inverseFinalTransform = null;
+
       _outerRect = new RectangleF(outerRect.Location, outerRect.Size);
       RectangleF rect = new RectangleF(outerRect.Location, outerRect.Size);
       RemoveMargin(ref rect, Margin);
@@ -1728,6 +1765,51 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
         GraphicsDevice.FinalTransform = oldTransform.Value;
     }
 
+    private static RectangleF CalculateBoundingBox(RectangleF rectangle, Matrix transformation)
+    {
+      PointF tl = rectangle.Location;
+      PointF tr = new PointF(rectangle.Right, rectangle.Top);
+      PointF bl = new PointF(rectangle.Left, rectangle.Bottom);
+      PointF br = new PointF(rectangle.Right, rectangle.Bottom);
+      transformation.Transform(ref tl);
+      transformation.Transform(ref tr);
+      transformation.Transform(ref bl);
+      transformation.Transform(ref br);
+      PointF rtl = new PointF(
+          Math.Min(tl.X, Math.Min(tr.X, Math.Min(bl.X, br.X))),
+          Math.Min(tl.Y, Math.Min(tr.Y, Math.Min(bl.Y, br.Y))));
+      PointF rbr = new PointF(
+          Math.Max(tl.X, Math.Max(tr.X, Math.Max(bl.X, br.X))),
+          Math.Max(tl.Y, Math.Max(tr.Y, Math.Max(bl.Y, br.Y))));
+      return new RectangleF(rtl, new SizeF(rbr.X - rtl.X, rbr.Y - rtl.Y));
+    }
+
+    private RenderContext ExtortRenderContext()
+    {
+      FrameworkElement parent = VisualParent as FrameworkElement;
+      if (parent == null)
+        return new RenderContext(Matrix.Identity, RectangleF.Empty);
+      Transform layoutTransform = LayoutTransform;
+      Transform renderTransform = RenderTransform;
+      Matrix? layoutTransformMatrix = layoutTransform == null ? new Matrix?() : layoutTransform.GetTransform();
+      Matrix? renderTransformMatrix = renderTransform == null ? new Matrix?() : renderTransform.GetTransform();
+      // To calculate our final transformation, we fake a render context starting
+      return parent.ExtortRenderContext().Derive(ActualBounds, layoutTransformMatrix, renderTransformMatrix, RenderTransformOrigin, 1);
+    }
+
+    /// <summary>
+    /// Our render system skips rendering of elements which are currently not visible. But in some situations, we need to calculate the bounds
+    /// where this element would have been drawn if it had been rendered. This method forces the calculation of the final transformation
+    /// for this element which can be applied on the <see cref="ActualBounds"/>/<see cref="_innerRect"/> to get the element's render bounds.
+    /// </summary>
+    /// <returns></returns>
+    private Matrix ExtortFinalTransform()
+    {
+      if (_finalTransform.HasValue)
+        return _finalTransform.Value;
+      return ExtortRenderContext().Transform;
+    }
+
     public override void Render(RenderContext parentRenderContext)
     {
       if (!IsVisible)
@@ -1742,7 +1824,13 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 
       RenderContext localRenderContext = parentRenderContext.Derive(bounds, layoutTransformMatrix,
           renderTransformMatrix, RenderTransformOrigin, Opacity);
-      _inverseFinalTransform = Matrix.Invert(localRenderContext.Transform);
+       Matrix finalTransform = localRenderContext.Transform;
+      if (finalTransform != _finalTransform)
+      {
+        _finalTransform = finalTransform;
+        _inverseFinalTransform = Matrix.Invert(_finalTransform.Value);
+        _renderedBoundingBox = CalculateBoundingBox(_innerRect, finalTransform);
+      }
 
       Brushes.Brush opacityMask = OpacityMask;
       if (opacityMask == null && Effect == null)
