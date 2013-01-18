@@ -1691,7 +1691,29 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     {
     }
 
+    /// <summary>
+    /// Renders the <see cref="FrameworkElement"/> to the given <paramref name="renderTarget"/>. This method works with
+    /// surfaces that are created as render target, which do support multisampling.
+    /// </summary>
+    /// <param name="renderTarget">Render target.</param>
+    /// <param name="renderContext">Render context.</param>
     public void RenderToSurface(RenderTargetAsset renderTarget, RenderContext renderContext)
+    {
+      RenderToSurfaceInternal(renderTarget.Surface, renderContext);
+    }
+
+    /// <summary>
+    /// Renders the <see cref="FrameworkElement"/> to the given <paramref name="renderTarget"/>. This method works with
+    /// textures internally which do not support multisampling.
+    /// </summary>
+    /// <param name="renderTarget">Render target.</param>
+    /// <param name="renderContext">Render context.</param>
+    public void RenderToTexture(RenderTextureAsset renderTarget, RenderContext renderContext)
+    {
+      RenderToSurfaceInternal(renderTarget.Surface0, renderContext);
+    }
+
+    protected void RenderToSurfaceInternal(Surface renderSurface, RenderContext renderContext)
     {
       // We do the following here:
       // 1. Set the transformation matrix to match the render surface's size
@@ -1703,16 +1725,18 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 
       // Set transformation matrix
       Matrix? oldTransform = null;
-      if (renderTarget.Width != GraphicsDevice.Width || renderTarget.Height != GraphicsDevice.Height)
+      SurfaceDescription description = renderSurface.Description;
+
+      if (description.Width != GraphicsDevice.Width || description.Height != GraphicsDevice.Height)
       {
         oldTransform = GraphicsDevice.FinalTransform;
-        GraphicsDevice.SetCameraProjection(renderTarget.Width, renderTarget.Height);
+        GraphicsDevice.SetCameraProjection(description.Width, description.Height);
       }
       // Get the current backbuffer
       using (Surface backBuffer = GraphicsDevice.Device.GetRenderTarget(0))
       {
         // Change the rendertarget to the render texture
-        GraphicsDevice.Device.SetRenderTarget(0, renderTarget.Surface);
+        GraphicsDevice.Device.SetRenderTarget(0, renderSurface);
 
         // Fill the background of the texture with an alpha value of 0
         GraphicsDevice.Device.Clear(ClearFlags.Target, Color.FromArgb(0, Color.Black), 1.0f, 0);
@@ -1751,25 +1775,49 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       else
       { 
         // Control has an opacity mask or Effect
+        // Get global render surface and render texture or create them if they doesn't exist
         RenderTextureAsset renderTexture = ContentManager.Instance.GetRenderTexture(GLOBAL_RENDER_TEXTURE_ASSET_KEY);
-        // Get global render surface and render texture or create them if they dosn't exist
-        RenderTargetAsset renderSurface = ContentManager.Instance.GetRenderTarget(GLOBAL_RENDER_SURFACE_ASSET_KEY);
 
         // Ensure they are allocated
         renderTexture.AllocateRenderTarget(GraphicsDevice.Width, GraphicsDevice.Height);
-        renderSurface.AllocateRenderTarget(GraphicsDevice.Width, GraphicsDevice.Height);
-        if (!renderTexture.IsAllocated || !renderSurface.IsAllocated)
+        if (!renderTexture.IsAllocated)
           return;
+
+        // Morpheus_xx: these are typical performance results comparing direct rendering to texture and rendering 
+        // to surfaces (for multisampling support).
+
+        // Results inside GUI-Test OpacityMask screen for default skin (720p windowed / fullscreen 1080p)
+        // Surface + full StretchRect -> Texture    : 350 fps / 174 fps 
+        // Texture                                  : 485 fps / 265 fps
+
+        // Results inside GUI-Test OpacityMask screen for Reflexion skin (fullscreen 1080p)
+        // Surface + full StretchRect -> Texture    : 142 fps
+        // Texture                                  : 235 fps
 
         // Create a temporary render context and render the control to the render texture
         RenderContext tempRenderContext = new RenderContext(localRenderContext.Transform, localRenderContext.Opacity, bounds, localRenderContext.ZOrder);
-        RenderToSurface(renderSurface, tempRenderContext);
 
-        // Unfortunately, brushes/brush effects are based on textures and cannot work with surfaces, so we need this additional copy step
-        GraphicsDevice.Device.StretchRectangle(
-            renderSurface.Surface, new Rectangle(Point.Empty, renderSurface.Size),
-            renderTexture.Surface0, new Rectangle(Point.Empty, renderTexture.Size),
-            TextureFilter.None);
+        // An additional copy step is only required for multisampling surfaces
+        bool isMultiSample = GraphicsDevice.Setup.IsMultiSample;
+        if (isMultiSample)
+        {
+          RenderTargetAsset renderSurface = ContentManager.Instance.GetRenderTarget(GLOBAL_RENDER_SURFACE_ASSET_KEY);
+          renderSurface.AllocateRenderTarget(GraphicsDevice.Width, GraphicsDevice.Height);
+          if (!renderSurface.IsAllocated)
+            return;
+
+          // First render to the multisampled surface
+          RenderToSurface(renderSurface, tempRenderContext);
+
+          // Unfortunately, brushes/brush effects are based on textures and cannot work with surfaces, so we need this additional copy step
+          GraphicsDevice.Device.StretchRectangle(
+              renderSurface.Surface,  new Rectangle(Point.Empty, renderSurface.Size),
+              renderTexture.Surface0, new Rectangle(Point.Empty, renderTexture.Size),
+              TextureFilter.None);
+        }
+        else
+          // Directly render to texture
+          RenderToTexture(renderTexture, tempRenderContext);
 
         // Add bounds to our calculated, occupied area.
         // If we don't do that, lines at the border of this element might be dimmed because of the filter (see OpacityMask test in GUITestPlugin).
@@ -1787,12 +1835,12 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
           // texture coordinates match up
           if (_updateOpacityMask || _opacityMaskContext == null ||
               occupiedTransformedBounds != _lastOccupiedTransformedBounds ||
-            renderSurface.Size != _lastOpacityRenderSize)
+            renderTexture.Size != _lastOpacityRenderSize)
           {
-            UpdateOpacityMask(occupiedTransformedBounds, renderSurface.Width, renderSurface.Height, localRenderContext.ZOrder);
+            UpdateOpacityMask(occupiedTransformedBounds, renderTexture.Width, renderTexture.Height, localRenderContext.ZOrder);
             _lastOccupiedTransformedBounds = occupiedTransformedBounds;
             _updateOpacityMask = false;
-            _lastOpacityRenderSize = renderSurface.Size;
+            _lastOpacityRenderSize = renderTexture.Size;
           }
 
           // Now render the opacity texture with the OpacityMask brush)
