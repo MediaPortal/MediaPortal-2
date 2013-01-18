@@ -29,12 +29,12 @@
             </Grid.ColumnDefinitions>
 
             <Label x:Name="YearLabel" Grid.Row="0" Grid.Column="0"
-                Content="[Media.VideoYearLabel]" Color="{ThemeResource TextColor}"/>
+                Content="[Media.VideoYearLabel]" Color="{ThemeResource EmphasisTextColor}"/>
             <Label x:Name="Year" Grid.Row="0" Grid.Column="1"
                 Content="{Binding Path=RecordingTime, Converter={StaticResource DateFormatConverter}, ConverterParameter=yyyy}" Color="{ThemeResource TextColor}"/>
 
             <Label x:Name="TitleLabel" Grid.Row="1" Grid.Column="0"
-                Content="[Media.ImageTitleLabel]" Color="{ThemeResource TextColor}"/>
+                Content="[Media.ImageTitleLabel]" Color="{ThemeResource EmphasisTextColor}"/>
             <Label x:Name="Title" Grid.Row="1" Grid.Column="1" Scroll="Auto"
                 Content="{Binding Title}" Color="{ThemeResource TextColor}"/>
 
@@ -62,37 +62,37 @@
 
 
             <Label x:Name="CameraMakeLabel" Grid.Row="0" Grid.Column="0"
-                Content="[Media.CameraMake]" Color="{ThemeResource TextColor}"/>
+                Content="[Media.CameraMake]" Color="{ThemeResource EmphasisTextColor}"/>
             <Label x:Name="CameraMake" Grid.Row="0" Grid.Column="1" Scroll="Auto"
                 Content="{Binding EquipmentMake}"
                 Color="{ThemeResource TextColor}"/>
 
             <Label x:Name="CameraModelLabel" Grid.Row="1" Grid.Column="0"
-                Content="[Media.CameraModel]" Color="{ThemeResource TextColor}"/>
+                Content="[Media.CameraModel]" Color="{ThemeResource EmphasisTextColor}"/>
             <Label x:Name="CameraModel" Grid.Row="1" Grid.Column="1"
                 Content="{Binding EquipmentModel}"
                 Color="{ThemeResource TextColor}"/>
 
             <Label x:Name="ImageISOSpeedLabel" Grid.Row="2" Grid.Column="0"
-                Content="[Media.ImageISOSpeedLabel]" Color="{ThemeResource TextColor}"/>
+                Content="[Media.ImageISOSpeedLabel]" Color="{ThemeResource EmphasisTextColor}"/>
             <Label x:Name="ImageISOSpeed" Grid.Row="2" Grid.Column="1"
                 Content="{Binding ISOSpeedRating}"
                 Color="{ThemeResource TextColor}"/>
 
             <Label x:Name="ImageExposureTimeLabel" Grid.Row="3" Grid.Column="0"
-                Content="[Media.ImageExposureTimeLabel]" Color="{ThemeResource TextColor}"/>
+                Content="[Media.ImageExposureTimeLabel]" Color="{ThemeResource EmphasisTextColor}"/>
             <Label x:Name="ImageExposureTime" Grid.Row="3" Grid.Column="1"
                 Content="{Binding ExposureTime}"
                 Color="{ThemeResource TextColor}"/>
 
             <Label x:Name="ImageFNumberLabel" Grid.Row="4" Grid.Column="0"
-                Content="[Media.ImageFNumberLabel]" Color="{ThemeResource TextColor}"/>
+                Content="[Media.ImageFNumberLabel]" Color="{ThemeResource EmphasisTextColor}"/>
             <Label x:Name="ImageFNumber" Grid.Row="4" Grid.Column="1"
                 Content="{Binding FNumber}"
                 Color="{ThemeResource TextColor}"/>
 
             <Label x:Name="ImageMeteringModeLabel" Grid.Row="5" Grid.Column="0"
-                Content="[Media.ImageMeteringModeLabel]" Color="{ThemeResource TextColor}"/>
+                Content="[Media.ImageMeteringModeLabel]" Color="{ThemeResource EmphasisTextColor}"/>
             <Label x:Name="ImageMeteringMode" Grid.Row="5" Grid.Column="1"
                 Content="{Binding MeteringMode}"
                 Color="{ThemeResource TextColor}"/>
