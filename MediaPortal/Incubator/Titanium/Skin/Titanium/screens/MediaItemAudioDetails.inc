@@ -29,12 +29,12 @@
             </Grid.ColumnDefinitions>
 
             <Label x:Name="YearLabel" Grid.Row="0" Grid.Column="0"
-                Content="[Media.AudioYearLabel]" Color="{ThemeResource TextColor}"/>
+                Content="[Media.AudioYearLabel]" Color="{ThemeResource EmphasisTextColor}"/>
             <Label x:Name="Year" Grid.Row="0" Grid.Column="1"
                 Content="{Binding Path=RecordingTime, Converter={StaticResource DateFormatConverter}, ConverterParameter=yyyy}" Color="{ThemeResource TextColor}"/>
 
             <Label x:Name="TitleLabel" Grid.Row="1" Grid.Column="0"
-                Content="[Media.AudioTitleLabel]" Color="{ThemeResource TextColor}"/>
+                Content="[Media.AudioTitleLabel]" Color="{ThemeResource EmphasisTextColor}"/>
             <Label x:Name="Title" Grid.Row="1" Grid.Column="1" Scroll="Auto"
                 Content="{Binding Title}" Color="{ThemeResource TextColor}"/>
 
@@ -59,22 +59,22 @@
             </Grid.ColumnDefinitions>
 
             <Label x:Name="ArtistsLabel" Grid.Row="0" Grid.Column="0"
-                Content="[Media.AudioArtistsLabel]" Color="{ThemeResource TextColor}"/>
+                Content="[Media.AudioArtistsLabel]" Color="{ThemeResource EmphasisTextColor}"/>
             <Label x:Name="Artists" Grid.Row="0" Grid.Column="1"
                 Content="{Binding Artists}" Color="{ThemeResource TextColor}"/>
 
             <Label x:Name="AlbumLabel" Grid.Row="1" Grid.Column="0"
-                Content="[Media.AudioAlbumLabel]" Color="{ThemeResource TextColor}"/>
+                Content="[Media.AudioAlbumLabel]" Color="{ThemeResource EmphasisTextColor}"/>
             <Label x:Name="Album" Grid.Row="1" Grid.Column="1"
                 Content="{Binding Album}" Color="{ThemeResource TextColor}"/>
 
             <Label x:Name="GenresLabel" Grid.Row="2" Grid.Column="0"
-                Content="[Media.AudioGenresLabel]" Color="{ThemeResource TextColor}"/>
+                Content="[Media.AudioGenresLabel]" Color="{ThemeResource EmphasisTextColor}"/>
             <Label x:Name="Genres" Grid.Row="2" Grid.Column="1"
                 Content="{Binding Genres}" Color="{ThemeResource TextColor}"/>
 
             <Label x:Name="DurationLabel" Grid.Row="3" Grid.Column="0"
-                Content="[Media.AudioDurationLabel]" Color="{ThemeResource TextColor}"/>
+                Content="[Media.AudioDurationLabel]" Color="{ThemeResource EmphasisTextColor}"/>
             <Label x:Name="Duration" Grid.Row="3" Grid.Column="1"
                 Content="{Binding Path=Duration, Converter={StaticResource DurationConverter}}" Color="{ThemeResource TextColor}"/>
 

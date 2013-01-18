@@ -33,22 +33,22 @@
             </Grid.ColumnDefinitions>
 
             <Label x:Name="SeriesLabel" Grid.Row="0" Grid.Column="0" Scroll="Auto"
-                Content="[Media.SeriesTitleLabel]" Color="{ThemeResource TextColor}"/>
+                Content="[Media.SeriesTitleLabel]" Color="{ThemeResource EmphasisTextColor}"/>
             <Label x:Name="SeriesName" Grid.Row="0" Grid.Column="1"
                 Content="{Binding SeriesName}" Color="{ThemeResource TextColor}"/>
 
             <Label x:Name="SeasonLabel" Grid.Row="1" Grid.Column="0"
-                Content="[Media.SeriesSeasonLabel]" Color="{ThemeResource TextColor}"/>
+                Content="[Media.SeriesSeasonLabel]" Color="{ThemeResource EmphasisTextColor}"/>
             <Label x:Name="Season" Grid.Row="1" Grid.Column="1"
                 Content="{Binding Season}" Color="{ThemeResource TextColor}"/>
 
             <Label x:Name="EpisodeLabel" Grid.Row="2" Grid.Column="0"
-                Content="[Media.SeriesEpisodeLabel]" Color="{ThemeResource TextColor}"/>
+                Content="[Media.SeriesEpisodeLabel]" Color="{ThemeResource EmphasisTextColor}"/>
             <Label x:Name="Episode" Grid.Row="2" Grid.Column="1"
                 Content="{Binding Episode}" Color="{ThemeResource TextColor}"/>
 
             <Label x:Name="EpisodeNameLabel" Grid.Row="3" Grid.Column="0" Scroll="Auto"
-                Content="[Media.SeriesEpisodeNameLabel]" Color="{ThemeResource TextColor}"/>
+                Content="[Media.SeriesEpisodeNameLabel]" Color="{ThemeResource EmphasisTextColor}"/>
             <Label x:Name="EpisodeName" Grid.Row="3" Grid.Column="1"
                 Content="{Binding EpisodeName}" Color="{ThemeResource TextColor}"/>
 

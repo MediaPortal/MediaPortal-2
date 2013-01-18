@@ -57,7 +57,7 @@
 
   <ResourceWrapper x:Key="HintTextColor" Resource="DarkGray"/>
 
-  <ResourceWrapper x:Key="EmphasisTextColor" Resource="Yellow"/>
+  <ResourceWrapper x:Key="EmphasisTextColor" Resource="#00B7FF"/>
 
   <ResourceWrapper x:Key="ErrorTextColor" Resource="Orange"/>
 

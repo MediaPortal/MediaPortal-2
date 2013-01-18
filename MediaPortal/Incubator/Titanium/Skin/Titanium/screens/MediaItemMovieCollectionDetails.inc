@@ -27,7 +27,7 @@
     </Grid.ColumnDefinitions>
 
     <Label x:Name="CollectionLabel" Grid.Row="1" Grid.Column="0"
-        Content="[Media.VideoCollectionLabel]" Color="{ThemeResource TextColor}"/>
+        Content="[Media.VideoCollectionLabel]" Color="{ThemeResource EmphasisTextColor}"/>
     <Label x:Name="Collection" Grid.Row="1" Grid.Column="1"
         Content="{Binding Source={StaticResource FanArtBackgroundModel}, Path=FanArtName}" Color="{ThemeResource TextColor}"/>
 

@@ -29,7 +29,7 @@
             </Grid.ColumnDefinitions>
 
             <Label x:Name="YearLabel" Grid.Row="0" Grid.Column="0"
-                Content="[Media.VideoYearLabel]" Color="{ThemeResource TextColor}"/>
+                Content="[Media.VideoYearLabel]" Color="{ThemeResource EmphasisTextColor}"/>
             <Label x:Name="Year" Grid.Row="0" Grid.Column="1"
                 Content="{Binding Path=RecordingTime, Converter={StaticResource DateFormatConverter}, ConverterParameter=yyyy}" Color="{ThemeResource TextColor}"/>
 
@@ -51,7 +51,7 @@
             </Grid.ColumnDefinitions>
 
             <Label x:Name="GenreLabel" Grid.Row="0" Grid.Column="0"
-                Content="[Media.VideoGenreLabel]" Color="{ThemeResource TextColor}"/>
+                Content="[Media.VideoGenreLabel]" Color="{ThemeResource EmphasisTextColor}"/>
             <Label x:Name="Genre" Grid.Row="0" Grid.Column="1"
                 Content="{Binding Genres}" Color="{ThemeResource TextColor}"/>
 
@@ -75,17 +75,17 @@
             </Grid.ColumnDefinitions>
 
             <Label x:Name="MovieLabel" Grid.Row="0" Grid.Column="0"
-                Content="[Media.VideoTitleLabel]" Color="{ThemeResource TextColor}"/>
+                Content="[Media.VideoTitleLabel]" Color="{ThemeResource EmphasisTextColor}"/>
             <Label x:Name="MovieName" Grid.Row="0" Grid.Column="1"
                 Content="{Binding MovieName}" Color="{ThemeResource TextColor}"/>
 
             <Label x:Name="CollectionLabel" Grid.Row="1" Grid.Column="0"
-                Content="[Media.VideoCollectionLabel]" Color="{ThemeResource TextColor}"/>
+                Content="[Media.VideoCollectionLabel]" Color="{ThemeResource EmphasisTextColor}"/>
             <Label x:Name="Collection" Grid.Row="1" Grid.Column="1"
                 Content="{Binding CollectionName}" Color="{ThemeResource TextColor}"/>
 
             <Label x:Name="DurationLabel" Grid.Row="2" Grid.Column="0"
-                Content="[Media.VideoDurationLabel]" Color="{ThemeResource TextColor}"/>
+                Content="[Media.VideoDurationLabel]" Color="{ThemeResource EmphasisTextColor}"/>
             <Label x:Name="Duration" Grid.Row="2" Grid.Column="1"
                 Content="{Binding Path=Runtime, Converter={StaticResource DurationConverter}, ConverterParameter=hh\:mm}" Color="{ThemeResource TextColor}"/>
 
