@@ -41,39 +41,6 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="CompressionWebClient.cs">
-      <SubType>Component</SubType>
-    </Compile>
-    <Compile Include="INewsCollector.cs" />
-    <Compile Include="Models\CurrentNewsModel.cs" />
-    <Compile Include="Models\NewsFeed.cs" />
-    <Compile Include="Models\NewsItems.cs" />
-    <Compile Include="Models\NewsModel.cs" />
-    <Compile Include="Models\NewsSetupModel.cs" />
-    <Compile Include="NewsCollector.cs" />
-    <Compile Include="NewsProvider.cs" />
-    <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="..\..\Source\Core\MediaPortal.Common\VersionInfo\VersionInfo.cs">
-      <Link>Properties\VersionInfo.cs</Link>
-    </Compile>
-    <Compile Include="Settings\Configuration\NewsConfigSetting.cs" />
-    <Compile Include="Settings\FeedBookmark.cs" />
-    <Compile Include="Settings\NewsSettings.cs" />
-    <Compile Include="SyndicationFeedReader.cs" />
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="DefaultFeeds.xml" />
-    <Content Include="Language\strings_en.xml">
-      <SubType>Designer</SubType>
-    </Content>
-    <Content Include="plugin.xml">
-      <SubType>Designer</SubType>
-    </Content>
-    <Content Include="Skin\default\themes\default\images\RssIcon.png" />
-    <Content Include="Skin\default\workflow\news-actions.xml" />
-    <Content Include="Skin\Titanium\themes\default\images\BB49A591-7705-408F-8177-45D633FDFAD0.png" />
-  </ItemGroup>
-  <ItemGroup>
     <ProjectReference Include="..\..\Source\Core\MediaPortal.Common\MediaPortal.Common.csproj">
       <Project>{ECF060E7-CAA1-4466-851F-F80B857641EA}</Project>
       <Name>MediaPortal.Common</Name>
@@ -86,45 +53,40 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <Content Include="Skin\default\screens\NewsItems.xaml">
-      <SubType>Designer</SubType>
-    </Content>
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="Skin\default\screens\NewsFeeds.xaml">
-      <SubType>Designer</SubType>
-    </Content>
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="Skin\default\themes\default\styles\NewsStyles.xaml">
-      <SubType>Designer</SubType>
-    </Content>
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="Skin\default\screens\NewsItemDetail.xaml">
-      <SubType>Designer</SubType>
-    </Content>
-  </ItemGroup>
-  <ItemGroup>
+    <Compile Include="CompressionWebClient.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="..\..\Source\Core\MediaPortal.Common\VersionInfo\VersionInfo.cs">
+      <Link>Properties\VersionInfo.cs</Link>
+    </Compile>
+    <Content Include="plugin.xml" />
+    <Compile Include="INewsCollector.cs" />
+    <Compile Include="NewsCollector.cs" />
+    <Compile Include="NewsProvider.cs" />
+    <Compile Include="SyndicationFeedReader.cs" />
+    <Content Include="DefaultFeeds.xml" />
+    <Compile Include="Models\CurrentNewsModel.cs" />
+    <Compile Include="Models\NewsFeed.cs" />
+    <Compile Include="Models\NewsItems.cs" />
+    <Compile Include="Models\NewsModel.cs" />
+    <Compile Include="Models\NewsSetupModel.cs" />
+    <Compile Include="Settings\Configuration\NewsConfigSetting.cs" />
+    <Compile Include="Settings\FeedBookmark.cs" />
+    <Compile Include="Settings\NewsSettings.cs" />
+    <Content Include="Language\strings_en.xml" />
+    <Content Include="Skin\default\themes\default\images\RssIcon.png" />
+    <Content Include="Skin\default\themes\default\styles\NewsStyles.xaml" />
+    <Content Include="Skin\default\workflow\news-actions.xml" />
+    <Content Include="Skin\default\screens\NewsItems.xaml" />
+    <Content Include="Skin\default\screens\NewsFeeds.xaml" />
+    <Content Include="Skin\default\screens\dialogNewsFeedsSetup.xaml" />
+    <Content Include="Skin\default\screens\dialogAddNewsFeed.xaml" />
+    <Content Include="Skin\default\screens\NewsItemDetail.xaml" />
     <Content Include="Skin\Reflexion\themes\default\images\BB49A591-7705-408F-8177-45D633FDFAD0.png" />
-    <Content Include="Skin\Reflexion\themes\default\styles\NewsStyles.xaml">
-      <SubType>Designer</SubType>
-    </Content>
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="Skin\default\screens\dialogNewsFeedsSetup.xaml">
-      <SubType>Designer</SubType>
-    </Content>
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="Skin\default\screens\dialogAddNewsFeed.xaml">
-      <SubType>Designer</SubType>
-    </Content>
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="Skin\Titanium\themes\default\styles\NewsStyles.xaml">
-      <SubType>Designer</SubType>
-    </Content>
+    <Content Include="Skin\Reflexion\themes\default\styles\NewsStyles.xaml" />
+    <Content Include="Skin\Titanium\themes\default\images\BB49A591-7705-408F-8177-45D633FDFAD0.png" />
+    <Content Include="Skin\Titanium\themes\default\styles\NewsStyles.xaml" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
