@@ -4,8 +4,8 @@ using System.Runtime.InteropServices;
 // Allgemeine Informationen über eine Assembly werden über die folgenden 
 // Attribute gesteuert. Ändern Sie diese Attributwerte, um die Informationen zu ändern,
 // die mit einer Assembly verknüpft sind.
-[assembly: AssemblyTitle("Reflexion Skin")]
-[assembly: AssemblyDescription("MP2 skin by morpheus_xx, furnibird")]
+[assembly: AssemblyTitle("Titanium Skin")]
+[assembly: AssemblyDescription("MP2 skin based on Titan for MP1")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
@@ -16,6 +16,6 @@ using System.Runtime.InteropServices;
 [assembly: ComVisible(false)]
 
 // Die folgende GUID bestimmt die ID der Typbibliothek, wenn dieses Projekt für COM verfügbar gemacht wird
-[assembly: Guid("87f86a26-ff1a-4fdd-9d9f-0ad27d2e88d5")]
+[assembly: Guid("F697486E-4473-449D-B4A7-FEF95CCA5232")]
 
 // Other attributes are included from VersionInfo.cs!
