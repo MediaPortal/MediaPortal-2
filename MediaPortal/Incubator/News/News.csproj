@@ -71,6 +71,7 @@
     </Content>
     <Content Include="Skin\default\themes\default\images\RssIcon.png" />
     <Content Include="Skin\default\workflow\news-actions.xml" />
+    <Content Include="Skin\Titanium\themes\default\images\BB49A591-7705-408F-8177-45D633FDFAD0.png" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\Source\Core\MediaPortal.Common\MediaPortal.Common.csproj">
@@ -117,6 +118,11 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="Skin\default\screens\dialogAddNewsFeed.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Skin\Titanium\themes\default\styles\NewsStyles.xaml">
       <SubType>Designer</SubType>
     </Content>
   </ItemGroup>
