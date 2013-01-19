@@ -52,7 +52,7 @@ Parameters which have to be accessible by a DynamicResource lookup:
         </Grid.RowDefinitions>
 
         <!-- Order matters here: The content grid has to be the last control to fill the rest of the space -->
-        <Border x:Name="ContentBackground" Background="#FF000000" Opacity="0.749" CornerRadius="30">
+        <Border x:Name="ContentBackground" Background="#C0000000" CornerRadius="30">
           <Grid x:Name="ContentPanel" SetFocusPrio="DefaultHigh">
             <Grid.ColumnDefinitions>
               <ColumnDefinition Width="*"/>
