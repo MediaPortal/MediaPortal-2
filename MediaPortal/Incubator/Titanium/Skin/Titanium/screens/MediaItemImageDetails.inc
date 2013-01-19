@@ -101,19 +101,19 @@
                 Color="{ThemeResource TextColor}"/>
 
             <Label x:Name="ImageCountryLabel" Grid.Row="6" Grid.Column="0"
-                Content="[Media.ImageCountryLabel]" Color="{ThemeResource TextColor}"/>
+                Content="[Media.ImageCountryLabel]" Color="{ThemeResource EmphasisTextColor}"/>
             <Label x:Name="ImageCountry" Grid.Row="6" Grid.Column="1"
                 Content="{Binding Country}"
                 Color="{ThemeResource TextColor}"/>
 
             <Label x:Name="ImageStateLabel" Grid.Row="7" Grid.Column="0"
-                Content="[Media.ImageStateLabel]" Color="{ThemeResource TextColor}"/>
+                Content="[Media.ImageStateLabel]" Color="{ThemeResource EmphasisTextColor}"/>
             <Label x:Name="ImageState" Grid.Row="7" Grid.Column="1"
                 Content="{Binding State}"
                 Color="{ThemeResource TextColor}"/>
 
             <Label x:Name="ImageCityLabel" Grid.Row="8" Grid.Column="0"
-                Content="[Media.ImageCityLabel]" Color="{ThemeResource TextColor}"/>
+                Content="[Media.ImageCityLabel]" Color="{ThemeResource EmphasisTextColor}"/>
             <Label x:Name="ImageCity" Grid.Row="8" Grid.Column="1"
                 Content="{Binding City}"
                 Color="{ThemeResource TextColor}"/>
