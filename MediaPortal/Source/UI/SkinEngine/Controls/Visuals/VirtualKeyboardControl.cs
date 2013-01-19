@@ -25,6 +25,8 @@
 using System.Collections.Generic;
 using System.Drawing;
 using System.Globalization;
+using System.Threading;
+using System.Windows.Forms;
 using MediaPortal.Common;
 using MediaPortal.Common.General;
 using MediaPortal.Common.Localization;
@@ -227,7 +229,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 
     void OnAltGrStateChanged(AbstractProperty prop, object oldVal)
     {
-        // Diacritics and Alt Gr cannot be set at the same time
+      // Diacritics and Alt Gr cannot be set at the same time
       if (AltGrState)
         ResetDiacritics(null);
     }
@@ -653,6 +655,34 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       Text = oldText.Substring(0, oldText.Length - 1);
     }
 
+    public void Copy()
+    {
+      ThreadingUtils.RunSTAThreaded(Copy_STA);
+    }
+
+    public void Paste()
+    {
+      ThreadingUtils.RunSTAThreaded(Paste_STA);
+    }
+
+    /// <summary>
+    /// Copies the contents of <see cref="Text"/> into the clipboard. This methods must be executed inside a STA thread!
+    /// </summary>
+    protected void Copy_STA()
+    {
+      if (!string.IsNullOrWhiteSpace(Text))
+        Clipboard.SetText(Text);
+    }
+
+    /// <summary>
+    /// Appends the contents of clipboard into <see cref="Text"/>. This methods must be executed inside a STA thread!
+    /// </summary>
+    protected void Paste_STA()
+    {
+      if (Clipboard.ContainsData(DataFormats.Text))
+        Text += Clipboard.GetText(TextDataFormat.Text);
+    }
+
     public void Show(AbstractProperty textProperty, VirtualKeyboardSettings settings)
     {
       InitializeStates();
@@ -779,7 +809,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       RectangleF keyboardRect;
       if (elementArrangeBounds.HasValue)
         // Arrange above or below elementArrangeBounds, horizontally centered in elementArrangeBounds
-        keyboardRect = new RectangleF(new PointF( 
+        keyboardRect = new RectangleF(new PointF(
             elementArrangeBounds.Value.Left + elementArrangeBounds.Value.Width / 2 - keyboardSize.Width / 2,
             elementArrangeBounds.Value.Bottom + keyboardSize.Height > actualBounds.Bottom ?
             elementArrangeBounds.Value.Top - keyboardSize.Height : elementArrangeBounds.Value.Bottom),
