@@ -236,6 +236,7 @@
     </Content>
   </ItemGroup>
   <ItemGroup>
+    <Content Include="Skin\Titanium\themes\default\styles\ProgramInfoSlim.inc" />
     <Content Include="Skin\Reflexion\themes\default\styles\ProgramInfoSlim.inc" />
     <Content Include="Skin\RisingSkin\themes\Silver\styles\SlimTvStyles.xaml">
       <SubType>Designer</SubType>
@@ -253,6 +254,16 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="Skin\Reflexion\themes\default\styles\SlimTvConsts.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Skin\Titanium\themes\default\styles\SlimTvConsts.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Skin\Titanium\themes\default\styles\SlimTvStyles.xaml">
       <SubType>Designer</SubType>
     </Content>
   </ItemGroup>

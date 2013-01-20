@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ResourceDictionary
+    xmlns="www.team-mediaportal.com/2008/mpf/directx"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    >
+  <ResourceWrapper x:Key="ChannelLogoSmall" Resource="48"/>
+  <ResourceWrapper x:Key="ChannelLogoContainerSmall" Resource="50"/>
+
+  <ResourceWrapper x:Key="ChannelLogoMedium" Resource="64"/>
+  <ResourceWrapper x:Key="ChannelLogoContainerMedium" Resource="80"/>
+  
+  <ResourceWrapper x:Key="MainListChannelNameLength" Resource="250"/>
+  <ResourceWrapper x:Key="MainListTimeLength" Resource="90"/>
+  <ResourceWrapper x:Key="TvGuideRowHeaderWidth" Resource="350"/>
+
+  <ResourceWrapper x:Key="OSDDetailLabelHeight" Resource="220"/>
+
+  <ResourceWrapper x:Key="MiniGuideWidth" Resource="600"/>
+
+  <!-- Hours to be shown in EPG screen -->
+  <ResourceWrapper x:Key="MultiGuideVisibleHours" Resource="2.5"/>
+  <!-- The left offset for positioning the current time indicator -->
+  <ResourceWrapper x:Key="MultiGuideProgramLeftOffset" Resource="350"/>
+  <!-- This factor is used to calculate the progam's width in guide, Width = [number of minutes] * MultiGuideProgramTimeFactor -->
+  <ResourceWrapper x:Key="MultiGuideProgramTimeFactor" Resource="9.0"/>
+
+  <ResourceWrapper x:Key="MultiGuideHeaderWidth" Resource="350"/>
+  <ResourceWrapper x:Key="MultiGuideProgramHeight" Resource="68"/>
+  <ResourceWrapper x:Key="MultiGuideProgramPreviewHeight" Resource="250"/>
+
+  <ResourceWrapper x:Key="SingleGuideProgramWidth" Resource="350"/>
+
+  <ResourceWrapper x:Key="ProgramInfoHeaderWidth" Resource="140"/>
+  
+</ResourceDictionary>
