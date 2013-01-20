@@ -227,7 +227,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 
     void OnAltGrStateChanged(AbstractProperty prop, object oldVal)
     {
-        // Diacritics and Alt Gr cannot be set at the same time
+      // Diacritics and Alt Gr cannot be set at the same time
       if (AltGrState)
         ResetDiacritics(null);
     }
@@ -653,6 +653,24 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       Text = oldText.Substring(0, oldText.Length - 1);
     }
 
+    public void Cut()
+    {
+      ServiceRegistration.Get<IClipboardManager>().SetClipboardText(Text);
+      Text = string.Empty;
+    }
+
+    public void Copy()
+    {
+      ServiceRegistration.Get<IClipboardManager>().SetClipboardText(Text);
+    }
+
+    public void Paste()
+    {
+      string text;
+      if (ServiceRegistration.Get<IClipboardManager>().GetClipboardText(out text))
+        Text = text;
+    }
+
     public void Show(AbstractProperty textProperty, VirtualKeyboardSettings settings)
     {
       InitializeStates();
@@ -779,7 +797,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       RectangleF keyboardRect;
       if (elementArrangeBounds.HasValue)
         // Arrange above or below elementArrangeBounds, horizontally centered in elementArrangeBounds
-        keyboardRect = new RectangleF(new PointF( 
+        keyboardRect = new RectangleF(new PointF(
             elementArrangeBounds.Value.Left + elementArrangeBounds.Value.Width / 2 - keyboardSize.Width / 2,
             elementArrangeBounds.Value.Bottom + keyboardSize.Height > actualBounds.Bottom ?
             elementArrangeBounds.Value.Top - keyboardSize.Height : elementArrangeBounds.Value.Bottom),

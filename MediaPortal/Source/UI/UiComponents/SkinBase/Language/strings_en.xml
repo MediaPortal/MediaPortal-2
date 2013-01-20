@@ -20,6 +20,8 @@
   <string name="Keys.Shift">Shift</string>
   <string name="Keys.CapsLock">Caps Lock</string>
   <string name="Keys.AltGr">Alt Gr</string>
+  <string name="Keys.Copy">Copy</string>
+  <string name="Keys.Paste">Paste</string>
 
   <string name="Home.Title">MediaPortal 2</string>
   <string name="Home.HomeStateDisplayLabel">Home</string>

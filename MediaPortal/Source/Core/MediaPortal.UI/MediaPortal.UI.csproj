@@ -68,6 +68,7 @@
     <Compile Include="..\MediaPortal.Common\VersionInfo\VersionInfo.cs">
       <Link>Properties\VersionInfo.cs</Link>
     </Compile>
+    <Compile Include="Control\InputManager\IClipboardManager.cs" />
     <Compile Include="PluginItemBuilders\AdditionalPluginItemBuilders.cs" />
     <Compile Include="PluginItemBuilders\BackgroundBuilder.cs" />
     <Compile Include="PluginItemBuilders\StaticBackgroundManager.cs" />

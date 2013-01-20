@@ -125,6 +125,11 @@ namespace MediaPortal.UI.Control.InputManager
     public static readonly Key F23 = new Key("F23");
     public static readonly Key F24 = new Key("F24");
 
+    // Keyboard actions for clipboard handlings
+    public static readonly Key Cut = new Key("Cut");
+    public static readonly Key Copy = new Key("Copy");
+    public static readonly Key Paste = new Key("Paste");
+
     public static readonly Key ContextMenu = Info;
 
     #endregion

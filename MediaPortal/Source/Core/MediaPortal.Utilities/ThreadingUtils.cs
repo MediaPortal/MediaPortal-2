@@ -46,5 +46,17 @@ namespace MediaPortal.Utilities
       thread.Abort();
       throw new TimeoutException("Action timed out");
     }
+
+    /// <summary>
+    /// Starts a new thread using STA apartment state (<see cref="ApartmentState.STA"/>). This is required for accessing some windows features like the clipboard.
+    /// </summary>
+    /// <param name="threadStart">Thread to start.</param>
+    public static Thread RunSTAThreaded(ThreadStart threadStart)
+    {
+      Thread newThread = new Thread(threadStart);
+      newThread.SetApartmentState(ApartmentState.STA);
+      newThread.Start();
+      return newThread;
+    }
   }
 }
