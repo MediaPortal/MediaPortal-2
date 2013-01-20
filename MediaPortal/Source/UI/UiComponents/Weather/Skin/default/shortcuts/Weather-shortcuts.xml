@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Shortcut DescriptorVersion="1.0">
+  <WorkflowActions>
+    <!-- Name="Home->Weather" -->
+    <Shortcut Key="P:W" WorkflowAction="E34FDB62-1F3E-4aa9-8A61-D143E0AF77B5" />
+  </WorkflowActions>
+</Shortcut>

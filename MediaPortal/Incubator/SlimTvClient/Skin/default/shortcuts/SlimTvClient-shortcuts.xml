@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Shortcut DescriptorVersion="1.0">
+  <WorkflowActions>
+    <!-- Name="Home->SlimTvClient" -->
+    <Shortcut Key="S:LiveTV,P:T" WorkflowAction="B4A9199F-6DD4-4bda-A077-DE9C081F7703" />
+
+    <!-- Name="SlimTvClient->Guide" -->
+    <Shortcut Key="S:Guide,P:G"  WorkflowAction="FA056DED-1122-42bd-A3DE-CB6CF2A59C66" />
+  </WorkflowActions>
+</Shortcut>

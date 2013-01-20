@@ -212,6 +212,7 @@
     <Content Include="Skin\default\themes\default\styles\SlimTvConsts.xaml">
       <SubType>Designer</SubType>
     </Content>
+    <Content Include="Skin\default\shortcuts\SlimTvClient-shortcuts.xml" />
   </ItemGroup>
   <ItemGroup>
     <BootstrapperPackage Include="Microsoft.Net.Client.3.5">

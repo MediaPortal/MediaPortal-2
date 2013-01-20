@@ -505,7 +505,8 @@ namespace MediaPortal.UI.SkinEngine.InputManagement
     public void RemoveKeyBinding(Key key)
     {
       lock (_syncObj)
-        _keyBindings.Remove(key);
+        if (_keyBindings.ContainsKey(key))
+          _keyBindings.Remove(key);
     }
 
     #endregion
