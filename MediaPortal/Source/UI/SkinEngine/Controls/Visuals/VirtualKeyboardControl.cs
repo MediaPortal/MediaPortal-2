@@ -25,8 +25,6 @@
 using System.Collections.Generic;
 using System.Drawing;
 using System.Globalization;
-using System.Threading;
-using System.Windows.Forms;
 using MediaPortal.Common;
 using MediaPortal.Common.General;
 using MediaPortal.Common.Localization;
@@ -655,32 +653,22 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       Text = oldText.Substring(0, oldText.Length - 1);
     }
 
+    public void Cut()
+    {
+      ServiceRegistration.Get<IClipboardManager>().SetClipboardText(Text);
+      Text = string.Empty;
+    }
+
     public void Copy()
     {
-      ThreadingUtils.RunSTAThreaded(Copy_STA);
+      ServiceRegistration.Get<IClipboardManager>().SetClipboardText(Text);
     }
 
     public void Paste()
     {
-      ThreadingUtils.RunSTAThreaded(Paste_STA);
-    }
-
-    /// <summary>
-    /// Copies the contents of <see cref="Text"/> into the clipboard. This methods must be executed inside a STA thread!
-    /// </summary>
-    protected void Copy_STA()
-    {
-      if (!string.IsNullOrWhiteSpace(Text))
-        Clipboard.SetText(Text);
-    }
-
-    /// <summary>
-    /// Appends the contents of clipboard into <see cref="Text"/>. This methods must be executed inside a STA thread!
-    /// </summary>
-    protected void Paste_STA()
-    {
-      if (Clipboard.ContainsData(DataFormats.Text))
-        Text += Clipboard.GetText(TextDataFormat.Text);
+      string text;
+      if (ServiceRegistration.Get<IClipboardManager>().GetClipboardText(out text))
+        Text = text;
     }
 
     public void Show(AbstractProperty textProperty, VirtualKeyboardSettings settings)
