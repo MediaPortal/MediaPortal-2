@@ -51,11 +51,12 @@ namespace MediaPortal.Utilities
     /// Starts a new thread using STA apartment state (<see cref="ApartmentState.STA"/>). This is required for accessing some windows features like the clipboard.
     /// </summary>
     /// <param name="threadStart">Thread to start.</param>
-    public static void RunSTAThreaded(ThreadStart threadStart)
+    public static Thread RunSTAThreaded(ThreadStart threadStart)
     {
       Thread newThread = new Thread(threadStart);
       newThread.SetApartmentState(ApartmentState.STA);
       newThread.Start();
+      return newThread;
     }
   }
 }

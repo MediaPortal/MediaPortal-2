@@ -79,7 +79,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     protected AbstractTextInputHandler _textInputHandler = null;
 
     // Use to avoid change handlers during text updates
-    protected bool _internalUpdate = false; 
+    protected bool _internalUpdate = false;
 
     // Virtual position
     protected float _virtualPosition = 0; // Negative values mean the text starts before the text control
@@ -295,10 +295,49 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 
     public override void OnKeyPreview(ref Key key)
     {
+      // Clipboard handling is independent from actual input handler
+      HandleClipboardKeys(ref key);
       AbstractTextInputHandler textInputHandler = _textInputHandler;
       if (textInputHandler != null && IsEnabled)
         textInputHandler.HandleInput(ref key);
       base.OnKeyPreview(ref key);
+    }
+
+    protected void HandleClipboardKeys(ref Key key)
+    {
+      if (!HasFocus)
+        return;
+      if (key == Key.Cut)
+      {
+        if (ServiceRegistration.Get<IClipboardManager>().SetClipboardText(Text))
+        {
+          Text = string.Empty;
+          key = Key.None;
+        }
+      }
+      else if (key == Key.Copy)
+      {
+        if (ServiceRegistration.Get<IClipboardManager>().SetClipboardText(Text))
+          key = Key.None;
+      }
+      else if (key == Key.Paste)
+      {
+        string text;
+        if (ServiceRegistration.Get<IClipboardManager>().GetClipboardText(out text))
+        {
+          // If caret is placed on end, simply append the text
+          if (CaretIndex == Text.Length)
+            Text += text;
+          else
+          {
+            string beforeCaret = Text.Substring(0, CaretIndex);
+            string afterCaret = Text.Substring(CaretIndex);
+            Text = string.Format("{0}{1}{2}", beforeCaret, text, afterCaret);
+            CaretIndex = beforeCaret.Length + text.Length;
+          }
+          key = Key.None;
+        }
+      }
     }
 
     /// <summary>
@@ -424,7 +463,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
         _cursorBrush = null;
       }
       if (_cursorBrush == null)
-        _cursorBrush = new SolidColorBrush {Color = Color};
+        _cursorBrush = new SolidColorBrush { Color = Color };
       _cursorBrushInvalid = false;
 
       _cursorBrush.SetupBrush(this, ref verts, zPos, false);
@@ -443,8 +482,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
         if (screen != null)
           screen.ShowVirtualKeyboard(_textProperty, new VirtualKeyboardSettings
             {
-                ElementArrangeBounds = ActualBounds,
-                TextStyle = IsPassword ? VirtualKeyboardTextStyle.PasswordText : VirtualKeyboardTextStyle.None
+              ElementArrangeBounds = ActualBounds,
+              TextStyle = IsPassword ? VirtualKeyboardTextStyle.PasswordText : VirtualKeyboardTextStyle.None
             });
       }
     }
@@ -514,7 +553,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
         if (_virtualPosition + caretX < 10)
           _virtualPosition = _innerRect.Width / 3 - caretX;
         if (_virtualPosition + caretX > _innerRect.Width - 10)
-          _virtualPosition = _innerRect.Width * 2/3 - caretX;
+          _virtualPosition = _innerRect.Width * 2 / 3 - caretX;
         Bound(ref _virtualPosition, -caretX, 0);
         RectangleF cursorBounds = new RectangleF(_innerRect.X + _virtualPosition + caretX, _innerRect.Y + textInsetY, CURSOR_THICKNESS, textHeight);
         UpdateCursorShape(cursorBounds, localRenderContext.ZOrder);
