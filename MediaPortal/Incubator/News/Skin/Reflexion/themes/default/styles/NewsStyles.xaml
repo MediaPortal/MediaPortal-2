@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ResourceDictionary
+    xmlns="www.team-mediaportal.com/2008/mpf/directx"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:system="clr-namespace:System"
+    xmlns:collections="clr-namespace:MediaPortal.UI.Presentation.DataObjects;assembly=MediaPortal.UI"
+    DependsOnStyleResources="Colors,Buttons"
+    >
+
+  <ResourceWrapper x:Key="NewsItemLogoWidth" Resource="120"/>
+  <ResourceWrapper x:Key="NewsItemDetailsImageMaxHeight" Resource="200"/>
+  <ResourceWrapper x:Key="NewsItemHeight" Resource="105"/>
+  <ResourceWrapper x:Key="NewsItemDateWidth" Resource="118"/>
+  <ResourceWrapper x:Key="NewsItemTitleMargin" Resource="5,7,5,7"/>
+
+</ResourceDictionary>

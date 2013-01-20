@@ -1,0 +1,78 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<Plugin
+    DescriptorVersion="1.0"
+    Name="News"
+    PluginId="{26DAEAFE-5DA5-4548-AB69-A67DEB9EA77B}"
+    Author="Team MediaPortal"
+    Copyright="GPL"
+    Description="News Reader Plugin for Atom and Rss feeds."
+    PluginVersion="1.0">
+
+	<Runtime>
+		<Assembly FileName="News.dll"/>
+		<PluginStateTracker ClassName="MediaPortal.UiComponents.News.NewsProvider"/>
+	</Runtime>
+	
+	<DependsOn>
+    <PluginReference PluginId="{1AFF4467-64B0-4ca1-AF28-9AEDF3525BCE}"/> <!-- ConfigurationManager -->
+    <PluginReference PluginId="{B765A4B6-F455-4941-BDAE-2CE45208BFEB}"/> <!-- Configuration plugin -->
+  </DependsOn>
+
+	<Register Location="/Models">
+		<Model Id="EE1BBF83-AE5C-491C-9978-14737A2B0883" Name="CurrentNewsModel" ClassName="MediaPortal.UiComponents.News.Models.CurrentNewsModel"/>
+		<Model Id="D5B308C1-4585-4051-AB78-E10D17C3CC2D" Name="NewsModel" ClassName="MediaPortal.UiComponents.News.Models.NewsModel"/>
+    <Model Id="138253FF-FF43-4732-AA29-F69C8B288342" Name="NewsSetupModel" ClassName="MediaPortal.UiComponents.News.Models.NewsSetupModel"/>
+	</Register>
+
+	<Register Location="/Workflow/States">
+		<WorkflowState Id="7A8AB062-07E9-4727-B9C5-05A65CDD6F12" Name="NewsFeeds" MainScreen="NewsFeeds"
+        DisplayLabel="[News.FeedsStateDisplayLabel]" WorkflowModel="D5B308C1-4585-4051-AB78-E10D17C3CC2D"/>
+		<WorkflowState Id="380B17A6-010E-4BB2-B79C-965CC3F8EFDD" Name="NewsItems" MainScreen="NewsItems"
+        DisplayLabel="*" WorkflowModel="D5B308C1-4585-4051-AB78-E10D17C3CC2D"/>
+		<WorkflowState Id="1116DED3-49F2-41FF-B234-D004AB1AB1B2" Name="NewsItemDetail" MainScreen="NewsItemDetail"
+        DisplayLabel="*" WorkflowModel="D5B308C1-4585-4051-AB78-E10D17C3CC2D"/>
+    <DialogState Id="66398F9B-A4DE-49F4-840C-4228C9C94F35" Name="NewsFeedsSetup" DialogScreen="dialogNewsFeedsSetup"
+        DisplayLabel="[Settings.Plugins.News.FeedsSetup]" WorkflowModel="138253FF-FF43-4732-AA29-F69C8B288342"/>
+  </Register>
+
+	<Register Location="/Resources/Language">
+		<Resource Id="NewsLanguage" Directory="Language" Type="Language"/>
+	</Register>
+
+	<Register Location = "/Resources/Skin">
+		<Resource Id="NewsSkin" Directory="Skin" Type="Skin"/>
+	</Register>
+
+	<!-- Root configuration sections -->
+	<Register Location="/Configuration/Settings">
+		<ConfigSection
+        Id="Plugins"
+        Redundant="true"
+        Text="[Settings.Plugins]"/>
+	</Register>
+
+	<!-- Contents of '/Plugins' section -->
+	<Register Location="/Configuration/Settings/Plugins">
+		<ConfigSection
+        Id="News"
+        Redundant="true"
+        Text="[Settings.Plugins.News]"/>
+	</Register>
+
+  <!-- Contents of '/Plugins/News' section -->
+  <Register Location="/Configuration/Settings/Plugins/News">
+    <CustomConfigSetting
+        Id="NewsFeedsManaging"
+        Text="[Settings.Plugins.News.FeedsSetup]"
+        HelpText="[Settings.Plugins.News.FeedsSetup.Help]"
+        ClassName="MediaPortal.UiComponents.News.Settings.Configuration.NewsConfigSetting"
+        AdditionalData="WorkflowState=66398F9B-A4DE-49F4-840C-4228C9C94F35,ConfAppPanel=..."/>
+
+		<ConfigSetting
+        Id="NewsRefreshInterval"
+        Text="[Settings.Plugins.News.RefreshInterval]"
+        HelpText="[Settings.Plugins.News.RefreshInterval.Help]"
+        ClassName="MediaPortal.UiComponents.News.Settings.Configuration.RefreshInterval"/>
+  </Register>
+  
+</Plugin>
