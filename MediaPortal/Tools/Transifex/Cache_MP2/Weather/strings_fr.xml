@@ -3,10 +3,10 @@
   <string name="Weather.WeatherStateDisplayLabel">Météo</string>
   <string name="Weather.WeatherSetupStateDisplayLabel">Configuration de la météo</string>
   <!--Dialog state, doesn't appear at the UI-->
-  <string name="Weather.WeatherLocationStateDisplayLabel">Choisir la localisation</string>
+  <string name="Weather.WeatherLocationStateDisplayLabel">Choisir la ville</string>
   <!--Dialog state, doesn't appear at the UI-->
   <string name="Weather.Title">Météo</string>
-  <string name="Weather.ChooseLocation">Choisir la localisation</string>
+  <string name="Weather.ChooseLocation">Choisir la ville</string>
   <string name="Weather.Refresh">Rafraîchir</string>
   <string name="Weather.Updating">Mise à jour...</string>
   <string name="Weather.Weather">Météo</string>
@@ -75,12 +75,12 @@
   <string name="Weather.InTheVicinity">au voisinage</string>
   <string name="Weather.Clearing">Amélioration</string>
   <string name="Settings.Plugins.Weather">Météo</string>
-  <string name="Settings.Plugins.Weather.LocationSetup">Définir la localisation</string>
-  <string name="Settings.Plugins.Weather.LocationSetup.Help">Ville à afficher sur l'accueil météo</string>
-  <string name="WeatherSetup.Title">Entrer les villes</string>
-  <string name="WeatherSetup.ConfiguredCities">Entrer les villes</string>
+  <string name="Settings.Plugins.Weather.LocationSetup">Choix des villes</string>
+  <string name="Settings.Plugins.Weather.LocationSetup.Help">Ville affichée sur la page météo</string>
+  <string name="WeatherSetup.Title">Gestion des villes</string>
+  <string name="WeatherSetup.ConfiguredCities">Villes configurées</string>
   <string name="WeatherSetup.EnterCity">SVP, entrer le nom de la ville à ajouter :</string>
-  <string name="WeatherSetup.SearchCity">Chercher la ville</string>
+  <string name="WeatherSetup.SearchCity">Recherche de la localité</string>
   <string name="WeatherSetup.AddCity">Ajouter une ville</string>
   <string name="WeatherSetup.RemoveCity">Supprimer une ville</string>
 </resources>

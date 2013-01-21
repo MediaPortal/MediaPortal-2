@@ -22,6 +22,7 @@
   <string name="Media.FilterAudioLanguagesNavbarDisplayLabel">Jezik: {0}</string>
   <string name="Media.FilterImageSizeNavbarDisplayLabel">Veličina: {0}</string>
   <string name="Media.FilterImageYearNavbarDisplayLabel">Year: {0}</string>
+  <string name="Media.FilterMoviesCollectionNavbarDisplayLabel">{0}</string>
   <string name="Media.FilterSeriesItemsNavbarDisplayLabel">{0}</string>
   <string name="Media.FilterSeriesSeasonNavbarDisplayLabel">Sezona {0}</string>
   <string name="Media.FilterMoviesNavbarDisplayLabel">Filmovi: {0}</string>
@@ -44,11 +45,13 @@
   <!--Shown in the header of an items list, e.g. "15/350 items"-->
   <!--Shown in the header of an items list, e.g. "45 items"-->
   <!--Playlists-->
+  <string name="Media.AddToPlaylistProgressDialogHeader">Napredak</string>
   <!--Play items dialog-->
   <!--Player context names-->
   <string name="Media.AudioContextName">Audio</string>
   <!--Video currently playing-->
   <string name="Media.VideoYearLabel">Godina: </string>
+  <string name="Media.VideoDurationLabel">Trajanje: </string>
   <!--Image currently playing-->
   <string name="Media.ImageDimensions">Dimenzije: </string>
   <!--DVD currently playing-->
@@ -56,8 +59,10 @@
   <string name="Media.AudioYearLabel">Godina: </string>
   <string name="Media.AudioDurationLabel">Trajanje: </string>
   <string name="Media.SavePLLocally">Spremi lokalno</string>
+  <string name="Media.PlayMode">Način izvođenja</string>
   <!--VideoPlayerUIContributor-->
   <!--Video Player time units-->
+  <string name="Media.SwitchViewModeMenuItem">Način pogleda</string>
   <string name="Media.SwitchSortingMenuItem">Sortiranje</string>
   <string name="Media.SwitchSortingDialogTitle">Sortiranje</string>
 </resources>

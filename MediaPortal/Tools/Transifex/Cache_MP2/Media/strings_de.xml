@@ -52,6 +52,7 @@
   <string name="Media.FilterImageYearNavbarDisplayLabel">Jahr: {0}</string>
   <string name="Media.FilterAudioItemsNavbarDisplayLabel">Name: {0}</string>
   <string name="Media.FilterVideoItemsNavbarDisplayLabel">Name: {0}</string>
+  <string name="Media.FilterMoviesCollectionNavbarDisplayLabel">{0}</string>
   <string name="Media.FilterSeriesItemsNavbarDisplayLabel">{0}</string>
   <string name="Media.FilterSeriesSeasonNavbarDisplayLabel">Staffel {0}</string>
   <string name="Media.FilterImageItemsNavbarDisplayLabel">Name: {0}</string>
@@ -166,6 +167,8 @@
   <string name="Media.PlaylistTypeInfoLabel">Art der Wiedergabeliste</string>
   <string name="Media.PlaylistNumItemsLabel">Anzahl der Elemente</string>
   <string name="Media.PlaylistIdInfoLabel">Interne Wiedergabelisten-ID</string>
+  <string name="Media.OpenPlayerStrategy.MediaPortal.UI.Services.Players.PCMOpenPlayerStrategy.Default">Standard</string>
+  <string name="Media.OpenPlayerStrategy.MediaPortal.UI.Services.Players.PCMOpenPlayerStrategy.PreservePiP">PiP-Video behalten</string>
   <!--Play items dialog-->
   <string name="Media.PlayItemDialogHeader">Element abspielen</string>
   <string name="Media.PlayAudioItems">Audiotitel abspielen</string>
@@ -224,11 +227,21 @@
   <string name="Media.SavePlaylistAction">Wiedergabeliste speichern</string>
   <string name="Media.SaveCurrentPlaylistAction">Aktuelle Wiedergabeliste speichern</string>
   <string name="Media.RemovePlaylistsAction">Wiedergabelisten entfernen</string>
+  <string name="Media.EditPlaylistButton">Wiedergabeliste bearbeiten</string>
   <string name="Media.LoadPlaylistButton">Wiedergabeliste laden</string>
   <string name="Media.PlaylistEmpty">&lt;Keine Elemente in Wiedergabeliste&gt;</string>
   <string name="Media.CannotPlayItemDialogText">Kann Medienelement nicht wiedergeben</string>
   <string name="Media.CannotPlayItemsDialogText">Kann Medienelemente nicht wiedergeben</string>
   <string name="Media.ValueEmptyTitle">&lt;Leer&gt;</string>
+  <string name="Media.ChoosePlayModeDialogHeader">Wiedergabemodus wählen</string>
+  <string name="Media.PlayMode">Wiedergabemodus</string>
+  <string name="Media.PlayMode.Continuous">Endlos</string>
+  <string name="Media.PlayMode.Shuffle">Zufall</string>
+  <string name="Media.ChooseRepeatModeDialogHeader">Wiederholungsmodus wählen</string>
+  <string name="Media.RepeatMode">Wiederholungsmodus</string>
+  <string name="Media.RepeatMode.None">Kein Effekt</string>
+  <string name="Media.RepeatMode.All">Alle</string>
+  <string name="Media.RepeatMode.One">Eins</string>
   <!--VideoPlayerUIContributor-->
   <string name="Media.SubtitleOff">Untertitel deaktivieren</string>
   <string name="Media.ChooseChapterDialogHeader">Kapitel wählen</string>

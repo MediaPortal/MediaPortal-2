@@ -1,0 +1,10 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<resources>
+  <string name="HelloWorld.MenuEntry">Halo dunia</string>
+  <string name="HelloWorld.StateDisplayLabel">Halo dunia state</string>
+  <string name="HelloWorld.ScreenTitle">Layar Halo dunia</string>
+  <string name="HelloWorld.HelloWorldText">Menekan tombol akan mengubah teks ini</string>
+  <string name="HelloWorld.SampleText">Ini adalah contoh layar dari plugin HelloWorld</string>
+  <string name="HelloWorld.ButtonText">Tekan saya</string>
+  <string name="HelloWorld.ButtonTextCommandExecuted">Selamat, anda baru saja memicu sebuah Perintah!</string>
+</resources>

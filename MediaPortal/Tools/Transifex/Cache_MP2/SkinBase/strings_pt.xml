@@ -38,7 +38,7 @@
   <string name="ServerConnection.DetachFromServerWorkflowStateLabel">Desconectar do servidor</string>
   <string name="ServerConnection.HomeServerWorkflowStateLabel">Servidor Local</string>
   <string name="ServerConnection.AttachedText.Before">Este cliente MediaPortal 2 está conectado ao servidor local</string>
-  <string name="ServerConnection.AttachedText.After"/>
+  <string name="ServerConnection.AttachedText.After"></string>
   <string name="ServerConnection.NoHomeServerAttached">Este cliente MediaPortal 2 não está conectado ao servidor local.</string>
   <string name="ServerConnection.HomeServerIsConnected">O servidor local está conectado.</string>
   <string name="ServerConnection.HomeServerIsNotConnected">O servidor local está desconectado.</string>
@@ -183,6 +183,11 @@
   <string name="SharesConfig.ChooseResourceProviderPathForShare">Escolha o caminho do compartilhamento</string>
   <string name="SharesConfig.EditShareName">Editar o nome de exibição do compartilhamento</string>
   <string name="SharesConfig.ChooseShareCategories">Escolha as categorias de mídia localizadas no compartilhamento</string>
+  <string name="SharesConfig.SharePathExists">A partilha com esta localização já existe</string>
+  <string name="SharesConfig.ShareNameExists">A partilha com este nome já existe</string>
+  <string name="SharesConfig.ShareNameEmpty">Editar o nome da partilha</string>
+  <string name="SharesConfig.EditShareProblemHeader">Problema ao configurar a partilha</string>
+  <string name="SharesConfig.EditShareProblemText">Ocorreu um erro interno ao tentar configurar a partilha</string>
   <string name="SharesConfig.MenuAddShare">Adicionar</string>
   <string name="SharesConfig.MenuEditShares">Editar</string>
   <string name="SharesConfig.MenuRemoveShares">Remover</string>

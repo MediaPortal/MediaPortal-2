@@ -15,6 +15,7 @@
   <string name="System.Information">Información</string>
   <string name="System.Warning">Atención</string>
   <string name="System.Error">Error</string>
+  <string name="Keys.Shift">Mayúsculas</string>
   <string name="Keys.CapsLock">Bloque de mayúsculas</string>
   <string name="Keys.AltGr">Alt Graphics</string>
   <string name="Home.Title">MediaPortal 2</string>
@@ -37,7 +38,7 @@
   <string name="ServerConnection.DetachFromServerWorkflowStateLabel">Desconectarse del servivor</string>
   <string name="ServerConnection.HomeServerWorkflowStateLabel">Servidor inicial</string>
   <string name="ServerConnection.AttachedText.Before">Este cliente de MediaPortal 2 está actualmetne conectado al servidor inicial</string>
-  <string name="ServerConnection.AttachedText.After"/>
+  <string name="ServerConnection.AttachedText.After"></string>
   <string name="ServerConnection.NoHomeServerAttached">Actualmente, Este cliente de MediaPortal 2 no está conectado al servidor inicial</string>
   <string name="ServerConnection.DetachMenu">Desconectar</string>
   <string name="ServerConnection.DetachConfirmDialogHeader">Desconectar del servidor casero</string>

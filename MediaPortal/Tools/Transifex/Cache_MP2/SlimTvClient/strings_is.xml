@@ -11,9 +11,9 @@
   <string name="SlimTvClient.EpisodeLabel">Þáttur</string>
   <string name="SlimTvClient.Guide">Dagskrá</string>
   <string name="SlimTvClient.NoProgram">Engar dagskrárupplýsingar</string>
-  <string name="SlimTvClient.ChooseProgramAction">Veljið aðgerðir</string>
-  <string name="SlimTvClient.ProgramOver">Dagskrárliður er búinn</string>
-  <string name="SlimTvClient.WatchNow">Horfa á dagskrárlið</string>
+  <string name="SlimTvClient.ChooseProgramAction">Veljið aðgerðir...</string>
+  <string name="SlimTvClient.ProgramOver">Dagskrárlið er þegar lokið</string>
+  <string name="SlimTvClient.WatchNow">Horfa á dagskrárlið núna</string>
   <string name="SlimTvClient.RecordNow">Taka upp núna</string>
   <string name="SlimTvClient.DeleteSchedule">Eyða áætlun</string>
   <string name="SlimTvClient.CreateSchedule">Upptökuáætlun</string>

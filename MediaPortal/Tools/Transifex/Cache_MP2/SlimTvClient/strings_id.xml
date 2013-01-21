@@ -1,0 +1,20 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<resources>
+  <string name="SlimTvClient.Title">Klien Slim TV</string>
+  <string name="SlimTvClient.CurrentlyPlayingInformationHeader">Informasi program</string>
+  <string name="SlimTvClient.ChannelLabel">Saluran</string>
+  <string name="SlimTvClient.ProgramLabel">Program</string>
+  <string name="SlimTvClient.DescriptionLabel">Deskripsi</string>
+  <string name="SlimTvClient.GenreLabel">Genre</string>
+  <string name="SlimTvClient.ProgramStartLabel">Waktu mulai</string>
+  <string name="SlimTvClient.ProgramEndLabel">Waktu selesai</string>
+  <string name="SlimTvClient.EpisodeLabel">Episode</string>
+  <string name="SlimTvClient.Guide">Panduan TV</string>
+  <string name="SlimTvClient.NoProgram">Tidak ada data program.</string>
+  <string name="SlimTvClient.ChooseProgramAction">Pilih aksi program...</string>
+  <string name="SlimTvClient.ProgramOver">Program sudah berakhir</string>
+  <string name="SlimTvClient.WatchNow">Tonton program sekarang</string>
+  <string name="SlimTvClient.RecordNow">Rekam sekarang</string>
+  <string name="SlimTvClient.DeleteSchedule">Hapus jadwal</string>
+  <string name="SlimTvClient.CreateSchedule">Jadwal perekaman</string>
+</resources>

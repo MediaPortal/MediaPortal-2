@@ -1,0 +1,10 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<resources>
+  <string name="Utilities.MenuItem">Utilidades</string>
+  <string name="Utilities.MainWorkflowNavigationContextDisplayLabel">Utilidades</string>
+  <string name="Utilities.PlaylistImportWorkflowNavigationContextDisplayLabel">Importar playlists</string>
+  <string name="Utilities.MainScreenTitle">Utilidades</string>
+  <string name="Utilities.LocalShareLocation">Compartilhamento local</string>
+  <string name="Utilities.ImportPlaylistProgressTitle">Progresso</string>
+  <string name="Utilities.StopImportPlaylistButton">Parar</string>
+</resources>

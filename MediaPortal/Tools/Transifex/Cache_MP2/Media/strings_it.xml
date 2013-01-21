@@ -20,6 +20,7 @@
   <string name="Media.FilterByImageSizeMenuItem">Filtrato per dimesione</string>
   <string name="Media.FilterByImageYearMenuItem">Filtrato per anno</string>
   <string name="Media.FilterBySystemMenuItem">Filtrato per sistema</string>
+  <string name="Media.FilterByMoviesCollectionMenuItem">Filtra per collezione</string>
   <string name="Media.FilterBySeriesNameMenuItem">Filtrato per serie</string>
   <string name="Media.FilterBySeriesSeasonMenuItem">Filtrato per stagione</string>
   <string name="Media.FilterBySeriesEpisodeMenuItem">Filtrat per episodio</string>
@@ -52,6 +53,7 @@
   <string name="Media.FilterImageYearNavbarDisplayLabel">Anno: {0}</string>
   <string name="Media.FilterAudioItemsNavbarDisplayLabel">Nome: {0}</string>
   <string name="Media.FilterVideoItemsNavbarDisplayLabel">Nome: {0}</string>
+  <string name="Media.FilterMoviesCollectionNavbarDisplayLabel">{0}</string>
   <string name="Media.FilterSeriesItemsNavbarDisplayLabel">{0}</string>
   <string name="Media.FilterSeriesSeasonNavbarDisplayLabel">Stagione {0}</string>
   <string name="Media.FilterImageItemsNavbarDisplayLabel">Nome: {0}</string>
@@ -91,6 +93,7 @@
   <string name="Media.MoviesItemsHeader">Film</string>
   <string name="Media.ImageItemsHeader">Immagini</string>
   <string name="Media.SimpleSearchHeader">Ricerca semplice</string>
+  <string name="Media.ChooseCollectionHeader">Scegli una collezione</string>
   <string name="Media.ChooseActorHeader">Scegli un attore</string>
   <string name="Media.ChooseVideoGenreHeader">Scegli un genere</string>
   <string name="Media.ChooseVideoYearHeader">Scegli un anno</string>
@@ -166,6 +169,8 @@
   <string name="Media.PlaylistTypeInfoLabel">Tipo Playlist</string>
   <string name="Media.PlaylistNumItemsLabel">Numero di voci</string>
   <string name="Media.PlaylistIdInfoLabel">Playlist id interno</string>
+  <string name="Media.OpenPlayerStrategy.MediaPortal.UI.Services.Players.PCMOpenPlayerStrategy.Default">Default</string>
+  <string name="Media.OpenPlayerStrategy.MediaPortal.UI.Services.Players.PCMOpenPlayerStrategy.PreservePiP">Mantieni video PiP</string>
   <!--Play items dialog-->
   <string name="Media.PlayItemDialogHeader">Play voce</string>
   <string name="Media.PlayAudioItems">Play audio</string>
@@ -224,11 +229,21 @@
   <string name="Media.SavePlaylistAction">Salva playlist</string>
   <string name="Media.SaveCurrentPlaylistAction">Salva playlist corrente</string>
   <string name="Media.RemovePlaylistsAction">Rimuovi playlist</string>
+  <string name="Media.EditPlaylistButton">Modifica playlist</string>
   <string name="Media.LoadPlaylistButton">Carica playlist</string>
   <string name="Media.PlaylistEmpty">&lt;Non ci sono voci nella playlist&gt;</string>
   <string name="Media.CannotPlayItemDialogText">Impossibile riprodurre media</string>
   <string name="Media.CannotPlayItemsDialogText">Impossibile riprodurre media</string>
   <string name="Media.ValueEmptyTitle">&lt;Vuoto&gt;</string>
+  <string name="Media.ChoosePlayModeDialogHeader">Scegli modalità di Play</string>
+  <string name="Media.PlayMode">Modalità Play</string>
+  <string name="Media.PlayMode.Continuous">Continuo</string>
+  <string name="Media.PlayMode.Shuffle">Casuale</string>
+  <string name="Media.ChooseRepeatModeDialogHeader">Scegli modalità di ripetizione</string>
+  <string name="Media.RepeatMode">Modalità di ripetizione</string>
+  <string name="Media.RepeatMode.None">Niente</string>
+  <string name="Media.RepeatMode.All">Tutti</string>
+  <string name="Media.RepeatMode.One">Uno</string>
   <!--VideoPlayerUIContributor-->
   <string name="Media.SubtitleOff">Disabilita sottotitoli</string>
   <string name="Media.ChooseChapterDialogHeader">Scegli capitolo</string>
@@ -274,4 +289,6 @@
   <string name="Settings.Players.SkipStepTimeout.Help">Regola il timeout dallo user imput prima che sia attivato lo skip  step</string>
   <string name="Settings.Players.SkipStepList">Player skip steps</string>
   <string name="Settings.Players.SkipStepList.Help">Inserisci skip steps in secondi separati da ,</string>
+  <string name="Settings.Players.OpenPlayerStrategy">Strategia apertura player</string>
+  <string name="Settings.Players.OpenPlayerStrategy.Help">Strategia, come nuovi player saranno posizionati sopra quelli già aperti</string>
 </resources>

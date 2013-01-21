@@ -1,0 +1,15 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<resources>
+  <string name="News.Title">Novinky</string>
+  <string name="News.FeedsStateDisplayLabel">Novinky</string>
+  <string name="News.Published">Publikované</string>
+  <string name="News.ConfiguredFeeds">Konfigurované zdroje</string>
+  <string name="News.AddFeed">Všetky zdroje noviniek</string>
+  <string name="News.EnterFeedName">Zadajte meno zdroja</string>
+  <string name="News.EnterFeedUrl">Zadajte URL zdroja</string>
+  <string name="Settings.Plugins.News">Novinky</string>
+  <string name="Settings.Plugins.News.FeedsSetup">Spravovať zdroje</string>
+  <string name="Settings.Plugins.News.FeedsSetup.Help">Konfiguruje zdroje používané na prísun dát noviniek</string>
+  <string name="Settings.Plugins.News.RefreshInterval">Obnovovací interval</string>
+  <string name="Settings.Plugins.News.RefreshInterval.Help">Stiahuj dáta opakovane po ... minútach.</string>
+</resources>

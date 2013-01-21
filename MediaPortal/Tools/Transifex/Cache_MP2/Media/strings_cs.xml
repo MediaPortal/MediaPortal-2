@@ -25,6 +25,7 @@
   <string name="Media.ShowAllAudioItemsMenuItem">Zobrazit vše</string>
   <string name="Media.ShowAllVideoItemsMenuItem">Zobrazit vše</string>
   <string name="Media.ShowAllImageItemsMenuItem">Zobrazit vše</string>
+  <string name="Media.ShowAllMoviesMenuItem">Zobrazit vše</string>
   <!--Special filters names-->
   <string name="Media.ImageFilterSmall">Malé</string>
   <string name="Media.ImageFilterMedium">Střední</string>
@@ -46,6 +47,7 @@
   <string name="Media.FilterImageYearNavbarDisplayLabel">Rok: {0}</string>
   <string name="Media.FilterAudioItemsNavbarDisplayLabel">Název: {0}</string>
   <string name="Media.FilterVideoItemsNavbarDisplayLabel">Název: {0}</string>
+  <string name="Media.FilterMoviesCollectionNavbarDisplayLabel">{0}</string>
   <string name="Media.FilterSeriesItemsNavbarDisplayLabel">{0}</string>
   <string name="Media.FilterSeriesSeasonNavbarDisplayLabel">Série: {0}</string>
   <string name="Media.FilterImageItemsNavbarDisplayLabel">Název: {0}</string>
@@ -59,7 +61,15 @@
   <string name="Media.ImageNavigationRootWorkflowNavigationContextDisplayLabel">Knihovna obrázků</string>
   <string name="Media.VideoCurrentlyPlayingWorkflowStateNavigationContextDisplayLabel">Aktuální video</string>
   <!--Screen headers-->
+  <string name="Media.VideoItemsHeader">videí</string>
+  <string name="Media.ImageItemsHeader">Obrázky</string>
   <!--View names (names for the view instances)-->
+  <string name="Media.BrowseMediaRootViewName">Procházet média</string>
+  <string name="Media.LocalMediaRootViewName">Místní média</string>
+  <string name="Media.AudioRootViewName">Hudba</string>
+  <string name="Media.VideosRootViewName">Video</string>
+  <string name="Media.SeriesRootViewName">Seriály</string>
+  <string name="Media.ImagesRootViewName">Obrázky</string>
   <!--General strings used in views-->
   <!--Shown in the header of an items list-->
   <!--Shown in the header of an items list-->
@@ -67,12 +77,16 @@
   <!--Shown in the header of an items list, e.g. "15/350 items"-->
   <!--Shown in the header of an items list, e.g. "45 items"-->
   <!--Playlists-->
+  <string name="Media.OpenPlayerStrategy.MediaPortal.UI.Services.Players.PCMOpenPlayerStrategy.Default">(výchozí)</string>
   <!--Play items dialog-->
   <!--Player context names-->
+  <string name="Media.AudioContextName">Hudba</string>
   <!--Video currently playing-->
   <!--Image currently playing-->
   <!--DVD currently playing-->
   <!--Audio currently playing-->
+  <string name="Media.RepeatMode.None">žádné</string>
+  <string name="Media.RepeatMode.All">Vše</string>
   <!--VideoPlayerUIContributor-->
   <!--Video Player time units-->
   <string name="Settings.Players">Přehrávače</string>

@@ -5,6 +5,11 @@ file_filter=Cache_MP2\AudioCDResourceProvider\strings_<lang>.xml
 source_file=Cache_MP2\AudioCDResourceProvider\strings_en.xml
 source_lang=en
 type=ANDROID
+[MP2.BackgroundManager]
+file_filter=Cache_MP2\BackgroundManager\strings_<lang>.xml
+source_file=Cache_MP2\BackgroundManager\strings_en.xml
+source_lang=en
+type=ANDROID
 [MP2.BassPlayer]
 file_filter=Cache_MP2\BassPlayer\strings_<lang>.xml
 source_file=Cache_MP2\BassPlayer\strings_en.xml
@@ -88,6 +93,11 @@ type=ANDROID
 [MP2.SlimTVMPExtendedProvider]
 file_filter=Cache_MP2\SlimTVMPExtendedProvider\strings_<lang>.xml
 source_file=Cache_MP2\SlimTVMPExtendedProvider\strings_en.xml
+source_lang=en
+type=ANDROID
+[MP2.SlimTvNativeProvider]
+file_filter=Cache_MP2\SlimTvNativeProvider\strings_<lang>.xml
+source_file=Cache_MP2\SlimTvNativeProvider\strings_en.xml
 source_lang=en
 type=ANDROID
 [MP2.UIPluginTemplate]

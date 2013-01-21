@@ -16,10 +16,11 @@
   <string name="Media.FilterByActorMenuItem">Trier par acteur</string>
   <string name="Media.FilterByVideoGenreMenuItem">Trier par genre</string>
   <string name="Media.FilterByVideoYearMenuItem">Trier par année</string>
-  <string name="Media.FilterByAudioLanguageMenuItem">Filtrer par langue</string>
+  <string name="Media.FilterByAudioLanguageMenuItem">Trier par langue</string>
   <string name="Media.FilterByImageSizeMenuItem">Trier par taille de fichier</string>
   <string name="Media.FilterByImageYearMenuItem">Trier par année</string>
   <string name="Media.FilterBySystemMenuItem">Trier par système</string>
+  <string name="Media.FilterByMoviesCollectionMenuItem">Trier par collection</string>
   <string name="Media.FilterBySeriesNameMenuItem">Trier par nom de série</string>
   <string name="Media.FilterBySeriesSeasonMenuItem">Trier par saison</string>
   <string name="Media.FilterBySeriesEpisodeMenuItem">Trier par épisode</string>
@@ -52,6 +53,7 @@
   <string name="Media.FilterImageYearNavbarDisplayLabel">Année : {0}</string>
   <string name="Media.FilterAudioItemsNavbarDisplayLabel">Nom : {0}</string>
   <string name="Media.FilterVideoItemsNavbarDisplayLabel">Nom : {0}</string>
+  <string name="Media.FilterMoviesCollectionNavbarDisplayLabel">{0}</string>
   <string name="Media.FilterSeriesItemsNavbarDisplayLabel">{0}</string>
   <string name="Media.FilterSeriesSeasonNavbarDisplayLabel">Saison : {0}</string>
   <string name="Media.FilterImageItemsNavbarDisplayLabel">Nom : {0}</string>
@@ -59,7 +61,7 @@
   <string name="Media.FilterMoviesNavbarDisplayLabel">Films: {0}</string>
   <!--Display labels for workflow navigation contexts-->
   <string name="Media.BrowseMediaNavigationRootWorkflowNavigationContextDisplayLabel">Parcourir les fichiers multimédias</string>
-  <string name="Media.LocalMediaNavigationRootWorkflowNavigationContextDisplayLabel">Fichiers multimédias locaux</string>
+  <string name="Media.LocalMediaNavigationRootWorkflowNavigationContextDisplayLabel">Fichiers multimédias en local</string>
   <string name="Media.AudioNavigationRootWorkflowNavigationContextDisplayLabel">Bibliothèque Audio</string>
   <string name="Media.VideoNavigationRootWorkflowNavigationContextDisplayLabel">Bibliothèque Vidéo</string>
   <string name="Media.SeriesNavigationRootWorkflowNavigationContextDisplayLabel">Bibliothèque Série</string>
@@ -70,11 +72,11 @@
   <string name="Media.AudioCurrentlyPlayingWorkflowStateNavigationContextDisplayLabel">Musique en cours de lecture</string>
   <string name="Media.AudioFullscreenContentWorkflowStateNavigationContextDisplayLabel">Visualisation audio</string>
   <string name="Media.ShowPlaylistWorkflowStateNavigationContextDisplayLabel">Playlist</string>
-  <string name="Media.EditPlaylistWorkflowStateNavigationContextDisplayLabel">Éditer la  playlist</string>
+  <string name="Media.EditPlaylistWorkflowStateNavigationContextDisplayLabel">Gestion de la playlist</string>
   <string name="Media.PlaylistsOverviewWorkflowStateNavigationContextDisplayLabel">Playlists</string>
-  <string name="Media.PlaylistInfoWorkflowStateNavigationContextDisplayLabel">Informations concernant la playlist</string>
+  <string name="Media.PlaylistInfoWorkflowStateNavigationContextDisplayLabel">Informations sur la playlist</string>
   <string name="Media.RemovePlaylistsWorkflowStateNavigationContextDisplayLabel">Supprimer les playlists</string>
-  <string name="Media.SavePlaylistEditNameWorkflowStateNavigationContextDisplayLabel">Éditer le nom de la playlist</string>
+  <string name="Media.SavePlaylistEditNameWorkflowStateNavigationContextDisplayLabel">Nom de la playlist</string>
   <string name="Media.SavePlaylistSuccessfulWorkflowStateNavigationContextDisplayLabel">Opération réussie</string>
   <string name="Media.SavePlaylistFailedWorkflowStateNavigationContextDisplayLabel">Échec de l'opération</string>
   <string name="Media.PlayOrEnqueueItemsWorkflowStateNavigationContextDisplayLabel">Lire / mettre en file</string>
@@ -91,6 +93,7 @@
   <string name="Media.MoviesItemsHeader">Films</string>
   <string name="Media.ImageItemsHeader">Images</string>
   <string name="Media.SimpleSearchHeader">Recherche simple</string>
+  <string name="Media.ChooseCollectionHeader">Choisir une collection</string>
   <string name="Media.ChooseActorHeader">Choisir un acteur </string>
   <string name="Media.ChooseVideoGenreHeader">Choisir un genre</string>
   <string name="Media.ChooseVideoYearHeader">Choisir une année</string>
@@ -105,14 +108,14 @@
   <string name="Media.ChooseSystemHeader">Choisir un système</string>
   <string name="Media.ChooseVideoLanguageHeader">Choisir une langue</string>
   <string name="Media.PlaylistsOverviewHeader">Playlists</string>
-  <string name="Media.SavePlaylistEditNameHeader">Sauvegarder la playlist</string>
-  <string name="Media.SavePlaylistFailedHeader">Sauvegarder la playlist</string>
-  <string name="Media.SavePlaylistSuccessfulHeader">Sauvegarder la playlist</string>
+  <string name="Media.SavePlaylistEditNameHeader">Sauvegarde la playlist</string>
+  <string name="Media.SavePlaylistFailedHeader">Sauvegarde la playlist</string>
+  <string name="Media.SavePlaylistSuccessfulHeader">Sauvegarde la playlist</string>
   <string name="Media.RemovePlaylistsHeader">Supprimer les playlists</string>
-  <string name="Media.PlaylistDetailsHeader">Informations concernant la playlist</string>
+  <string name="Media.PlaylistDetailsHeader">Détails de la playlist</string>
   <string name="Media.PlaylistLoadNoPlaylistText">Aucune playlist disponible</string>
   <string name="Media.PlaylistLoadErrorLoadingPlaylist">Erreur lors du chargement de la playlist</string>
-  <string name="Media.CannotSavePlaylistWithLocalMediaItems">Une playlist peut être sauvegardée uniquement si les fichiers qu'elle contient sont localisé sur le serveur local (Ex : impossible pour les fichiers localisés sur des supports amovibles)</string>
+  <string name="Media.CannotSavePlaylistWithLocalMediaItems">Une playlist peut être sauvegardée uniquement si les fichiers qu'elle contient, sont localisé sur le serveur local (ex : impossible pour les fichiers localisés sur des supports amovibles)</string>
   <!--View names (names for the view instances)-->
   <string name="Media.BrowseMediaRootViewName">Parcourir les fichiers multimédias</string>
   <string name="Media.LocalMediaRootViewName">Fichiers multimédias locaux</string>
@@ -125,7 +128,7 @@
   <string name="Media.SimpleSearchViewName">Recherche simple</string>
   <!--General strings used in views-->
   <string name="Media.ViewInvalid">Cette vue ne peut pas être affiché</string>
-  <string name="Media.ViewEmpty">Aucun élément disponible</string>
+  <string name="Media.ViewEmpty">&lt;Aucun élément disponible&gt;</string>
   <string name="Media.NoItems">Aucun élément</string>
   <!--Shown in the header of an items list-->
   <string name="Media.OneItem">1 élément</string>
@@ -143,7 +146,7 @@
   <string name="Media.SearchResultIsBeingBuiltHint">Recherche en cours...</string>
   <!--Playlists-->
   <string name="Media.ManagePlaylists">Playlists</string>
-  <string name="Media.AddAllToPlaylist">Tout ajouter à la playlist</string>
+  <string name="Media.AddAllToPlaylist">Ajouter la totalité à la playlist</string>
   <string name="Media.NoItemsToAddHeader">Aucun élément à ajouter</string>
   <string name="Media.NoItemsToAddText">Il n'y a aucun élément dans la vue actuelle</string>
   <string name="Media.ChooseAVTypeDialogHeader">Choisir le type d'élément</string>
@@ -157,7 +160,7 @@
   <string name="Media.StopAddToPlaylistButton">Annuler</string>
   <string name="Media.NoPlaylistsAvailable">- Aucune playlist enregistrée -</string>
   <string name="Media.NoConfigPlaylistsHomeServerNotConnectedText">Le serveur local est  déconnecté. La gestion des playlists est donc impossible.</string>
-  <string name="Media.EditNameOfPlaylist">Éditer le nom de la playlist</string>
+  <string name="Media.EditNameOfPlaylist"> Donner un nom à la playlist</string>
   <string name="Media.SavePlaylistSuccessfulText">La playlist '{0}' est sauvegardée sur le serveur.</string>
   <string name="Media.SavePlaylistFailedText">Sauvegarde impossible. Message d'erreur: '{0}'</string>
   <string name="Media.SavePlaylistFailedAlreadyExists">Sauvegarde impossible, la playlist: '{0}' existe déjà.</string>
@@ -166,27 +169,29 @@
   <string name="Media.PlaylistTypeInfoLabel">Type de playlist</string>
   <string name="Media.PlaylistNumItemsLabel">Nombre d'éléments</string>
   <string name="Media.PlaylistIdInfoLabel">Identifiant interne de la playlist</string>
+  <string name="Media.OpenPlayerStrategy.MediaPortal.UI.Services.Players.PCMOpenPlayerStrategy.Default">Par défaut</string>
+  <string name="Media.OpenPlayerStrategy.MediaPortal.UI.Services.Players.PCMOpenPlayerStrategy.PreservePiP">Maintenir la fonction Picture in Picture</string>
   <!--Play items dialog-->
   <string name="Media.PlayItemDialogHeader">Lire l'élément</string>
-  <string name="Media.PlayAudioItems">Lire les fichiers audio</string>
-  <string name="Media.EnqueueAudioItems">Mettre en liste de lecture les fichiers audio</string>
+  <string name="Media.PlayAudioItems">Lire le fichies audio</string>
+  <string name="Media.EnqueueAudioItems">Ajouter le fichier audio à la playlist</string>
   <string name="Media.MuteVideoAndPlayAudioItems">Lire le groupe de fichiers audio</string>
-  <string name="Media.PlayVideoImageItems">Lire les vidéos et images</string>
-  <string name="Media.EnqueueVideoImageItems">Mettre en liste de lecture les vidéos et images</string>
-  <string name="Media.PlayVideoImageItemsMutedConcurrentAudio">Lire les vidéos et images en arrière plan tout en poursuivant la lecture des fichiers audio</string>
-  <string name="Media.PlayVideoImageItemsPiP">Lire les vidéos et images en mode \"Picture in picture\"</string>
-  <string name="Media.PlayAudioItem">Lire les fichiers audio</string>
-  <string name="Media.EnqueueAudioItem">Mettre en liste de lecture les fichiers audio</string>
+  <string name="Media.PlayVideoImageItems">Lire les vidéos/images</string>
+  <string name="Media.EnqueueVideoImageItems">Ajouter les vidéos/images à la playlist</string>
+  <string name="Media.PlayVideoImageItemsMutedConcurrentAudio">Lire les vidéos/images en arrière plan tout en poursuivant la lecture des fichiers audio</string>
+  <string name="Media.PlayVideoImageItemsPiP">Lire les vidéos/images en mode \"Picture in picture\"</string>
+  <string name="Media.PlayAudioItem">Lire le fichier audio</string>
+  <string name="Media.EnqueueAudioItem">Ajouter le fichier audio à la playlist</string>
   <string name="Media.MuteVideoAndPlayAudioItem">Lire les fichiers audio en même temps</string>
-  <string name="Media.PlayVideoImageItem">Lire les vidéos et images</string>
-  <string name="Media.EnqueueVideoImageItem">Mettre en liste de lecture les vidéos et images</string>
-  <string name="Media.PlayVideoImageItemMutedConcurrentAudio">Lire les vidéos et images en arrière plan tout en poursuivant la lecture des fichiers audio</string>
-  <string name="Media.PlayVideoImageItemPiP">Lire les vidéos et images en mode \"Picture in picture\"</string>
+  <string name="Media.PlayVideoImageItem">Lire les vidéos/images</string>
+  <string name="Media.EnqueueVideoImageItem">Ajouter les vidéos/images à la playlist</string>
+  <string name="Media.PlayVideoImageItemMutedConcurrentAudio">Lire les vidéos/images en arrière-plan tout en poursuivant la lecture des fichiers audio</string>
+  <string name="Media.PlayVideoImageItemPiP">Lire les vidéos/images en mode \"Picture in picture\"</string>
   <!--Player context names-->
-  <string name="Media.VideoImageContextName">Vidéos et images</string>
+  <string name="Media.VideoImageContextName">Vidéos/images</string>
   <string name="Media.AudioContextName">Audio</string>
   <!--Video currently playing-->
-  <string name="Media.VideoCurrentlyPlayingHeader">Informations concernant  la vidéo</string>
+  <string name="Media.VideoCurrentlyPlayingHeader">Informations sur la vidéo</string>
   <string name="Media.VideoTitleLabel">Titre : </string>
   <string name="Media.VideoGenreLabel">Genre : </string>
   <string name="Media.VideoYearLabel">Année : </string>
@@ -194,7 +199,7 @@
   <string name="Media.VideoActorsLabel">Acteur(s) : </string>
   <string name="Media.VideoStoryPlotLabel">Résumé : </string>
   <!--Image currently playing-->
-  <string name="Media.ImageCurrentlyPlayingHeader">Informations concernant l'image</string>
+  <string name="Media.ImageCurrentlyPlayingHeader">Informations sur l'image</string>
   <string name="Media.ImageTitleLabel">Nom : </string>
   <string name="Media.ImageDimensions">Dimensions : </string>
   <string name="Media.CameraMake">Appareil photo : </string>
@@ -205,30 +210,40 @@
   <string name="Media.ImageMeteringModeLabel">Mode de mesure de l'exposition : </string>
   <string name="Media.ImageExposureTimeLabel">Temps d'exposition : </string>
   <!--DVD currently playing-->
-  <string name="Media.DVDCurrentlyPlayingHeader">Informations concernant le DVD</string>
+  <string name="Media.DVDCurrentlyPlayingHeader">Informations sur le DVD</string>
   <!--Audio currently playing-->
-  <string name="Media.AudioCurrentlyPlayingHeader">Informations concernant le fichier audio</string>
+  <string name="Media.AudioCurrentlyPlayingHeader">Informations sur le fichier audio</string>
   <string name="Media.AudioArtistsLabel">Artistes : </string>
   <string name="Media.AudioTitleLabel">Titre : </string>
   <string name="Media.AudioYearLabel">Année : </string>
   <string name="Media.AudioDurationLabel">Durée : </string>
   <string name="Media.AudioPlaylistHeader">Playlist audio</string>
-  <string name="Media.VideoImagePlaylistHeader">Playlist vidéos et images</string>
+  <string name="Media.VideoImagePlaylistHeader">Playlist vidéos/images</string>
   <string name="Media.PiPPlaylistHeader">Playlist \"Picture in Picture\"</string>
   <string name="Media.SavePLAtServer">Sauvegarder sur le serveur</string>
   <string name="Media.SavePLLocally">Sauvegarder localement</string>
-  <string name="Media.ShowAudioPlaylistAction">Afficher les playlists audio</string>
-  <string name="Media.ShowVideoImagePlaylistAction">Afficher les playlists vidéos et images</string>
-  <string name="Media.ShowPiPPlaylistAction">Afficher les playlists \"Picture in Picture\"</string>
+  <string name="Media.ShowAudioPlaylistAction">Afficher la playlist audio</string>
+  <string name="Media.ShowVideoImagePlaylistAction">Afficher la playlist vidéos/images</string>
+  <string name="Media.ShowPiPPlaylistAction">Afficher la playlist \"Picture in Picture\"</string>
   <string name="Media.ClearPlaylistAction">Vider la playlist</string>
   <string name="Media.SavePlaylistAction">Sauvegarder la playlist</string>
   <string name="Media.SaveCurrentPlaylistAction">Sauvegarder la playlist actuelle</string>
   <string name="Media.RemovePlaylistsAction">Supprimer les playlists</string>
-  <string name="Media.LoadPlaylistButton">Charger une playlist</string>
+  <string name="Media.EditPlaylistButton">Gestion de la playlist</string>
+  <string name="Media.LoadPlaylistButton">Lire cette playlist</string>
   <string name="Media.PlaylistEmpty">&lt;Aucun élément dans la playlist&gt;</string>
   <string name="Media.CannotPlayItemDialogText">Imposible de lire les fichiers multimédias</string>
   <string name="Media.CannotPlayItemsDialogText">Imposible de lire les fichiers multimédias</string>
   <string name="Media.ValueEmptyTitle">&lt;Vide&gt;</string>
+  <string name="Media.ChoosePlayModeDialogHeader">Choisir le mode de lecture</string>
+  <string name="Media.PlayMode">Mode de lecture</string>
+  <string name="Media.PlayMode.Continuous">Ordre de création</string>
+  <string name="Media.PlayMode.Shuffle">Aléatoire</string>
+  <string name="Media.ChooseRepeatModeDialogHeader">Choisir le mode de répétition</string>
+  <string name="Media.RepeatMode">Répétition</string>
+  <string name="Media.RepeatMode.None">Aucun</string>
+  <string name="Media.RepeatMode.All">Tous</string>
+  <string name="Media.RepeatMode.One">Un seul</string>
   <!--VideoPlayerUIContributor-->
   <string name="Media.SubtitleOff">Désactiver les sous-titres</string>
   <string name="Media.ChooseChapterDialogHeader">Choisir le chapitre</string>
@@ -267,11 +282,11 @@
   <string name="Media.SortingBrowseDefault">Tri par défaut</string>
   <string name="Settings.Players">Lecteurs</string>
   <string name="Settings.Players.ClosePlayersWhenFinished">Fermer les lecteurs après lecture</string>
-  <string name="Settings.Players.ClosePlayersWhenFinished.Help">Activer cette option pour vous assurer que MediaPortal ferme bien les lecteurs automatiquement</string>
+  <string name="Settings.Players.ClosePlayersWhenFinished.Help">Activer cette option pour vous assurer que MediaPortal ferme automatiquement les lecteurs</string>
   <string name="Settings.Players.InstantSkipPercent">Pourcentage d'avancement lors des sauts de lecture</string>
-  <string name="Settings.Players.InstantSkipPercent.Help">Sélectionnez le pourcentage de la durée de la vidéo que vous voulez passer instantanément</string>
-  <string name="Settings.Players.SkipStepTimeout">Délais en seconde pour les étapes de sauts de lecture</string>
-  <string name="Settings.Players.SkipStepTimeout.Help">Ajuster le délai d'attente avant activation du saut de lecture</string>
+  <string name="Settings.Players.InstantSkipPercent.Help">Définir un pourcentage ( % du temps total de la vidéo ) correspondant  au  saut de lecture qui sera effectué</string>
+  <string name="Settings.Players.SkipStepTimeout">Temps de latence avant d'effectuer un saut de lecture</string>
+  <string name="Settings.Players.SkipStepTimeout.Help">Ajuster le délai d'attente avant l'activation du saut de lecture</string>
   <string name="Settings.Players.SkipStepList">Saut de lecture du lecteur</string>
-  <string name="Settings.Players.SkipStepList.Help">Entrez les étapes de saut de lecture en secondes en les séparant par \",\"</string>
+  <string name="Settings.Players.SkipStepList.Help">Définir le délai d'attente en seconde avant d'effectuer un saut de lecture</string>
 </resources>

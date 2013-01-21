@@ -1,0 +1,6 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<resources>
+  <string name="News.Title">Vijesti</string>
+  <string name="News.FeedsStateDisplayLabel">Vijesti</string>
+  <string name="Settings.Plugins.News">Vijesti</string>
+</resources>

@@ -46,6 +46,7 @@
   <string name="Media.FilterImageYearNavbarDisplayLabel">Год: {0}</string>
   <string name="Media.FilterAudioItemsNavbarDisplayLabel">Название: {0}</string>
   <string name="Media.FilterVideoItemsNavbarDisplayLabel">Название: {0}</string>
+  <string name="Media.FilterMoviesCollectionNavbarDisplayLabel">{0}</string>
   <string name="Media.FilterSeriesItemsNavbarDisplayLabel">{0}</string>
   <string name="Media.FilterSeriesSeasonNavbarDisplayLabel">Сезон {0}</string>
   <string name="Media.FilterImageItemsNavbarDisplayLabel">Название: {0}</string>
@@ -152,6 +153,7 @@
   <string name="Media.PlaylistTypeInfoLabel">Тип плейлиста</string>
   <string name="Media.PlaylistNumItemsLabel">Число элементов</string>
   <string name="Media.PlaylistIdInfoLabel">Плейлист id</string>
+  <string name="Media.OpenPlayerStrategy.MediaPortal.UI.Services.Players.PCMOpenPlayerStrategy.Default">Стандарт</string>
   <!--Play items dialog-->
   <string name="Media.PlayItemDialogHeader">Играть</string>
   <string name="Media.PlayAudioItems">Играть всё</string>
@@ -210,11 +212,14 @@
   <string name="Media.SavePlaylistAction">Сохранить плейлист</string>
   <string name="Media.SaveCurrentPlaylistAction">Сохранить текущий плейлист</string>
   <string name="Media.RemovePlaylistsAction">Удалить плейлист</string>
+  <string name="Media.EditPlaylistButton">Править плейлист</string>
   <string name="Media.LoadPlaylistButton">Загрузить плейлист</string>
   <string name="Media.PlaylistEmpty">&lt;Пустой плейлист&gt;</string>
   <string name="Media.CannotPlayItemDialogText">Нельзя проиграть</string>
   <string name="Media.CannotPlayItemsDialogText">Нельзя проиграть</string>
   <string name="Media.ValueEmptyTitle">&lt;Пусто&gt;</string>
+  <string name="Media.RepeatMode.None">Никто</string>
+  <string name="Media.RepeatMode.All">Все</string>
   <!--VideoPlayerUIContributor-->
   <string name="Media.SubtitleOff">Отключить субтитры</string>
   <string name="Media.ChooseChapterDialogHeader">Выбрать часть</string>

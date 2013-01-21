@@ -52,6 +52,7 @@
   <string name="Media.FilterImageYearNavbarDisplayLabel">Yıl: {0}</string>
   <string name="Media.FilterAudioItemsNavbarDisplayLabel">Ad: {0}</string>
   <string name="Media.FilterVideoItemsNavbarDisplayLabel">Ad: {0}</string>
+  <string name="Media.FilterMoviesCollectionNavbarDisplayLabel">{0}</string>
   <string name="Media.FilterSeriesItemsNavbarDisplayLabel">{0}</string>
   <string name="Media.FilterSeriesSeasonNavbarDisplayLabel">Sezon {0}</string>
   <string name="Media.FilterImageItemsNavbarDisplayLabel">Ad: {0}</string>
@@ -166,6 +167,7 @@
   <string name="Media.PlaylistTypeInfoLabel">Çalma listesi tipi</string>
   <string name="Media.PlaylistNumItemsLabel">İçerik sayısı</string>
   <string name="Media.PlaylistIdInfoLabel">Dahili çalma listesi tanımlayıcısı</string>
+  <string name="Media.OpenPlayerStrategy.MediaPortal.UI.Services.Players.PCMOpenPlayerStrategy.Default">Öntanımlı</string>
   <!--Play items dialog-->
   <string name="Media.PlayItemDialogHeader">İçeriği çal</string>
   <string name="Media.PlayAudioItems">Ses içeriklerini çal</string>
@@ -224,11 +226,14 @@
   <string name="Media.SavePlaylistAction">Çalma listesini kaydet</string>
   <string name="Media.SaveCurrentPlaylistAction">Aktif çalma listesini kaydet</string>
   <string name="Media.RemovePlaylistsAction">Çalma listelerini çıkart</string>
+  <string name="Media.EditPlaylistButton">Çalma listesini düzenle</string>
   <string name="Media.LoadPlaylistButton">Çalma listesini yükle</string>
   <string name="Media.PlaylistEmpty">&lt;Çalma listesinde öğe yok&gt;</string>
   <string name="Media.CannotPlayItemDialogText">Medya öğesini oynat</string>
   <string name="Media.CannotPlayItemsDialogText">Medya öğeleri çalınamadı</string>
   <string name="Media.ValueEmptyTitle">&lt;Boş&gt;</string>
+  <string name="Media.RepeatMode.None">Hiçbiri</string>
+  <string name="Media.RepeatMode.All">Hepsi</string>
   <!--VideoPlayerUIContributor-->
   <string name="Media.SubtitleOff">Altyazıları devre dışı bırak</string>
   <string name="Media.ChooseChapterDialogHeader">Bölüm seç</string>

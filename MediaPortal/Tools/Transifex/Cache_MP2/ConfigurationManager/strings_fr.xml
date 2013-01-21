@@ -5,5 +5,5 @@
   <string name="configuration.unsaved_warning">Attention ! Modifications non sauvegardées</string>
   <string name="configuration.browse">Parcourir</string>
   <string name="configuration.areas.settings">Réglages</string>
-  <string name="configuration.areas.logs">Fichiers de logs</string>
+  <string name="configuration.areas.logs">Fichiers  logs</string>
 </resources>

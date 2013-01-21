@@ -1,0 +1,82 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<resources>
+  <string name="Settings.Appearance.System">Süsteem</string>
+  <string name="Settings.Appearance.System.Fullscreen">Täiskuva</string>
+  <string name="Settings.Appearance.System.Fullscreen.Help">Näita MediaPortaali täiskuvana</string>
+  <string name="Settings.Appearance.System.CellPhoneInputStyle">Mobiiltelefoni tüüpi sisestus</string>
+  <string name="Settings.Appearance.System.CellPhoneInputStyle.Help">Kasuta Mobiiltelefoni tüüpi sisestust</string>
+  <string name="Settings.Appearance.System.ScreenSaverEnabled">Kasuta ekraanisäästjat</string>
+  <string name="Settings.Appearance.System.ScreenSaverEnabled.Help">Sea, ekraanisäästja kasutamisel</string>
+  <string name="Settings.Appearance.System.ScreenSaverTimeout">Ekraanisäästja ooteaeg</string>
+  <string name="Settings.Appearance.System.ScreenSaverTimeout.Help">Sea aeg, mille möödumisel viimasest sisestusest ekraanisäästja sisse lülitub.</string>
+  <string name="Settings.Appearance.System.Antialiasing">GUI antialiasing</string>
+  <string name="Settings.Appearance.System.Antialiasing.Help">Antialiasing parandab kasutusliidese kvaliteeti videovõimekuse arvel</string>
+  <string name="Settings.Appearance.Skin">Skin</string>
+  <string name="Settings.Appearance.Skin.SkinAndTheme">Skin and teema</string>
+  <string name="Settings.Appearance.Skin.SkinAndTheme.ChangeSkin">Vaheta skin</string>
+  <string name="Settings.Appearance.Skin.SkinAndTheme.ChangeSkin.Help">Muuda MediaPortal 2 look&amp;feel</string>
+  <string name="Settings.Appearance.Skin.SkinAndTheme.ChangeTheme">Vaheta teemat</string>
+  <string name="Settings.Appearance.Skin.SkinAndTheme.ChangeTheme.Help">Muuda skini väljanägemist</string>
+  <string name="Settings.Players">Pleierid</string>
+  <string name="Settings.Players.Rendering">Rendering</string>
+  <string name="Settings.Players.Rendering.DefaultGeometry">Vaikezoom</string>
+  <string name="Settings.Players.Rendering.DefaultGeometry.Help">Seab pleieri vaikezoomi</string>
+  <string name="Settings.General.System.ApplicationSuspendLevel">Sea Windowsi energiasäästu</string>
+  <string name="Settings.General.System.ApplicationSuspendLevel.Help">Keela Windowsi automaatne sulgumine ja ekraani kustutamine MP 2 töötamisel</string>
+  <string name="Settings.General.System.ApplicationSuspendLevel.None">Luba kõik energiasäästu tasemed</string>
+  <string name="Settings.General.System.ApplicationSuspendLevel.AvoidSuspend">Keela süsteemi peatumine kuid luba ekraan kustutada</string>
+  <string name="Settings.General.System.ApplicationSuspendLevel.DisplayRequired">Keela süsteemi peatumine ja ekraan kustutamine</string>
+  <string name="ScreenManager.NotificationErrorLoadingSkinTitle">Skini laadimise viga</string>
+  <string name="ScreenManager.NotificationErrorLoadingSkinFallingBackToCurrentText">Tagasi praeguse skini juurde</string>
+  <string name="ScreenManager.NotificationErrorLoadingSkinFallingBackToDefaultText">Tagasi vaikeskini juurde</string>
+  <string name="ScreenManager.ErrorLoadingSkinResource">Skini ressursi laadimise viga</string>
+  <string name="ScreenManager.ScreenMissing">Ei leia skini ressurssi '{0}' ekraanile</string>
+  <string name="ScreenManager.ScreenBroken">skini ressurss ekraanile '{0}' tundub katkine</string>
+  <string name="ScreenManager.BackgroundScreenMissing">Ei leia skini ressurssi ekraanile '{0}'</string>
+  <string name="ScreenManager.BackgroundScreenBroken">Skini ressurss taustaekraanile '{0}' tundub katkine</string>
+  <string name="ScreenManager.SuperLayerScreenMissing">Ei leia skini ressurssi super leieri ekraanile '{0}'</string>
+  <string name="ScreenManager.SuperLayerScreenBroken">Skini ressurss super leieri ekraanile '{0}' tundub katkine</string>
+  <string name="Geometries.IntelligentZoom">Intelligent Zoom</string>
+  <string name="Geometries.LetterBox">Letterbox 4:3</string>
+  <string name="Geometries.Normal">Normal</string>
+  <string name="Geometries.Original">Original</string>
+  <string name="Geometries.PanAndScan">Pan&amp;Scan</string>
+  <string name="Geometries.Stretch">Stretch</string>
+  <string name="Geometries.Zoom">Zoom</string>
+  <string name="Geometries.Zoom149">Zoom 14:9</string>
+  <!--File names (files in shaders/effects, without extension) to effect names to be shown in the GUI-->
+  <string name="Effects.denoise">Mõraeemaldus</string>
+  <string name="Effects.directional_blur">Suundudustamine</string>
+  <string name="Effects.glass_tiles">Klaastellised</string>
+  <string name="Effects.greyscale">Hallskaala</string>
+  <string name="Effects.invert">Negatiiv</string>
+  <string name="Effects.none">Ei midagi</string>
+  <string name="Effects.pixelate">Pixelate</string>
+  <string name="Effects.sepia">Sepia</string>
+  <string name="Effects.sharpen">Teravda</string>
+  <string name="Effects.sharpen_complex">Teravda (keerukas)</string>
+  <string name="Effects.zoom_blur">Zoom blur</string>
+  <string name="PlayerControl.NoPlayer">Pleier puudub</string>
+  <string name="PlayerControl.NoMediaItem">Pole meediat</string>
+  <string name="PlayerControl.UnknownMediaItem">Tundmatu meedia</string>
+  <string name="PlayerControl.UnknownPlayerContextName">Pleier</string>
+  <string name="PlayerControl.HeaderNormal">{0}</string>
+  <!--{0} = media item title-->
+  <string name="PlayerControl.HeaderPiP">{0} (PiP)</string>
+  <!--{0} = media item title-->
+  <string name="PlayerControl.Playing">Esitab</string>
+  <string name="PlayerControl.Paused">Paus</string>
+  <string name="PlayerControl.SeekingForward">Otsimine edasi ({0})</string>
+  <!--For example: "Seeking forward (2x)"-->
+  <string name="PlayerControl.SeekingBackward">Seeking tagasi ({0})</string>
+  <!--For example: "Seeking forward (2x)"-->
+  <string name="PlayerControl.SlowMotionForward">Aeglustus edasi ({0})</string>
+  <!--For example: "Slowmotion forward (0.5x)"-->
+  <string name="PlayerControl.SlowMotionBackward">Aeglustus tagasi ({0})</string>
+  <!--For example: "Slowmotion backward (0.5x)"-->
+  <string name="PlayerControl.PlaybackRateHint">{0}x</string>
+  <!--For example: 2x or 0.5x-->
+  <string name="PlayerControl.Stopped">Peatatud</string>
+  <string name="PlayerControl.Ended">Lõpetatud</string>
+  <string name="PlayerControl.Active">Aktiivne</string>
+</resources>

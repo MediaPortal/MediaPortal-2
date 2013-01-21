@@ -1,0 +1,15 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<resources>
+  <string name="News.Title">Uudised</string>
+  <string name="News.FeedsStateDisplayLabel">Uudised</string>
+  <string name="News.Published">Avaldatud</string>
+  <string name="News.ConfiguredFeeds">Seatud vood</string>
+  <string name="News.AddFeed">Lisa uudistevoog</string>
+  <string name="News.EnterFeedName">Sisesta voo nimi</string>
+  <string name="News.EnterFeedUrl">sisesta voo Url</string>
+  <string name="Settings.Plugins.News">Uudised</string>
+  <string name="Settings.Plugins.News.FeedsSetup">Korralda vooge</string>
+  <string name="Settings.Plugins.News.FeedsSetup.Help">Seadista uudiste kogumise vooge</string>
+  <string name="Settings.Plugins.News.RefreshInterval">Värskenduse tihedus</string>
+  <string name="Settings.Plugins.News.RefreshInterval.Help">Lae voo andmeid alla perioodiliselt ... minuti vahega.</string>
+</resources>
