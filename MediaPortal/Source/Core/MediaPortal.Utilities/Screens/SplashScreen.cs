@@ -62,6 +62,7 @@ namespace MediaPortal.Utilities.Screens
     private Label _statusLabel;
     private Timer _splashTimer;
     private IContainer _components;
+    private Image _backgroundImage;
 
     #region Public Properties & Methods
 
@@ -115,7 +116,7 @@ namespace MediaPortal.Utilities.Screens
     public Image SplashBackgroundImage
     {
       get { return BackgroundImage; }
-      set { ResizeImageFullscreen(value); }
+      set { _backgroundImage = value; }
     }
 
     /// <summary>
@@ -249,11 +250,15 @@ namespace MediaPortal.Utilities.Screens
     {
       if (backgroundImage == null)
         return;
-      Size screen = Screen.PrimaryScreen.Bounds.Size;
+
+      Rectangle screenBounds = Screen.FromControl(this).Bounds;
+      Size screen = screenBounds.Size;
+
       if (ScaleToFullscreen && (screen.Width != backgroundImage.Width || screen.Height != backgroundImage.Height))
         backgroundImage = ImageUtilities.ResizeImageExact(backgroundImage, screen.Width, screen.Height);
 
       BackgroundImage = backgroundImage;
+      Location = screenBounds.Location;
       ClientSize = backgroundImage.Size;
     }
 
@@ -335,6 +340,8 @@ namespace MediaPortal.Utilities.Screens
 
     private void SplashScreen_Load(object sender, EventArgs e)
     {
+      ResizeImageFullscreen(_backgroundImage);
+
       if (_fadeInDuration != TimeSpan.Zero)
       {
         _fadeMode = true;

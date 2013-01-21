@@ -209,6 +209,10 @@ namespace MediaPortal.UI.SkinEngine.GUI
       ClientSize = rect.Size;
       FormBorderStyle = FormBorderStyle.None;
       _mode = ScreenMode.FullScreen;
+      // Remember the selected screen for next startup.
+      AppSettings settings = ServiceRegistration.Get<ISettingsManager>().Load<AppSettings>();
+      settings.FSScreenNum = screenNum;
+      ServiceRegistration.Get<ISettingsManager>().Save(settings);
     }
 
     protected void SwitchToWindowedSize(Point location, Size clientSize, bool maximize)
