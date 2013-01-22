@@ -95,8 +95,11 @@ namespace MediaPortal.UI.Players.Video.Tools
 
     private static IClassFactory GetClassFactoryFromDll(string dllName, Guid filterPersistClass)
     {
-      // Load the dll.
-      IntPtr dllHandle = Common.Utils.NativeMethods.LoadLibrary(dllName);
+      // Load the dll 
+      // specify to search for dependencies in the same folder as the file to be loaded 
+      // as well as default dirs like System32 and the Application folder
+      IntPtr dllHandle = Common.Utils.NativeMethods.LoadLibraryEx(dllName, IntPtr.Zero,
+        Common.Utils.NativeMethods.LOAD_LIBRARY_SEARCH_DLL_LOAD_DIR | Common.Utils.NativeMethods.LOAD_LIBRARY_SEARCH_DEFAULT_DIRS);
       if (dllHandle == IntPtr.Zero)
         return null;
 
