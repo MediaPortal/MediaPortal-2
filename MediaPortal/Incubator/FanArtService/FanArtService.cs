@@ -123,7 +123,6 @@ namespace MediaPortal.Extensions.UserServices.FanArtService
     {
       switch (mediaType)
       {
-    
         case FanArtConstants.FanArtMediaType.Channel:
           return @"Plugins\SlimTv.Service\Content\ChannelLogos";
 
