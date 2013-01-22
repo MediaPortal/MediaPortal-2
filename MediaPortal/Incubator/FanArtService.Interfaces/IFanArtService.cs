@@ -45,6 +45,11 @@ namespace MediaPortal.Extensions.UserServices.FanArtService.Interfaces
   public interface IFanArtService
   {
     /// <summary>
+    /// Gets the list of all registered <see cref="IFanArtProvider"/>.
+    /// </summary>
+    IList<IFanArtProvider> Providers { get; }
+
+      /// <summary>
     /// Gets a list of <see cref="FanArtImage"/>s for a requested <paramref name="mediaType"/>, <paramref name="fanArtType"/> and <paramref name="name"/>.
     /// The name can be: Series name, Actor name, Artist name depending on the <paramref name="mediaType"/>.
     /// </summary>
@@ -56,5 +61,24 @@ namespace MediaPortal.Extensions.UserServices.FanArtService.Interfaces
     /// <param name="singleRandom">If <c>true</c> only one random image URI will be returned</param>
     /// <returns>List of fanart image URIs</returns>
     IList<FanArtImage> GetFanArt(FanArtConstants.FanArtMediaType mediaType, FanArtConstants.FanArtType fanArtType, string name, int maxWidth, int maxHeight, bool singleRandom);
+  }
+
+  /// <summary>
+  /// <see cref="IFanArtProvider"/> provides fanart images for specific media types.
+  /// </summary>
+  public interface IFanArtProvider
+  {
+    /// <summary>
+    /// Gets a list of <see cref="FanArtImage"/>s for a requested <paramref name="mediaType"/>, <paramref name="fanArtType"/> and <paramref name="name"/>.
+    /// The name can be: Series name, Actor name, Artist name depending on the <paramref name="mediaType"/>.
+    /// </summary>
+    /// <param name="mediaType">Requested FanArtMediaType</param>
+    /// <param name="fanArtType">Requested FanArtType</param>
+    /// <param name="name">Requested name of Series, Actor, Artist...</param>
+    /// <param name="maxWidth">Maximum width for image. <c>0</c> returns image in original size.</param>
+    /// <param name="maxHeight">Maximum height for image. <c>0</c> returns image in original size.</param>
+    /// <param name="singleRandom">If <c>true</c> only one random image URI will be returned</param>
+    /// <returns>List of fanart image URIs</returns>
+    IList<string> GetFanArt(FanArtConstants.FanArtMediaType mediaType, FanArtConstants.FanArtType fanArtType, string name, int maxWidth, int maxHeight, bool singleRandom);
   }
 }
