@@ -74,6 +74,7 @@ namespace MediaPortal.Extensions.UserServices.FanArtService
           ServiceRegistration.Get<ILogger>().Warn("Cannot add IFanArtProvider extension with id '{0}'", e, itemMetadata.Id);
         }
       }
+      return null;
     }
 
     /// <summary>
