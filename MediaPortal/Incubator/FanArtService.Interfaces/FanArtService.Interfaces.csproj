@@ -54,6 +54,7 @@
     <Compile Include="FanArtImage.cs" />
     <Compile Include="IFanArtService.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Providers\FanartProviderBuilder.cs" />
     <Compile Include="UPnP\Consts.cs" />
     <Compile Include="UPnP\UPnPDtImageCollection.cs" />
   </ItemGroup>

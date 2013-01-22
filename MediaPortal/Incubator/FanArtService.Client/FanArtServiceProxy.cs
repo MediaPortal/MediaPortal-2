@@ -40,12 +40,22 @@ namespace MediaPortal.Extensions.UserServices.FanArtService.Client
     protected UPnPControlPoint _controlPoint;
     protected readonly object _syncObj = new object();
     protected static List<FanArtImage> EMPTY_LIST = new List<FanArtImage>();
+    protected static IList<IFanArtProvider> EMPTY_PROVIDER_LIST = new List<IFanArtProvider>();
 
     #endregion
 
-    public FanArtServiceProxy(CpService serviceStub) : base(serviceStub, "FanArt")
+    public FanArtServiceProxy(CpService serviceStub)
+      : base(serviceStub, "FanArt")
     {
       ServiceRegistration.Set<IFanArtService>(this);
+    }
+
+    /// <summary>
+    /// Gets the list of all registered <see cref="IFanArtProvider"/>.
+    /// </summary>
+    public IList<IFanArtProvider> Providers
+    {
+      get { return EMPTY_PROVIDER_LIST; }
     }
 
     public IList<FanArtImage> GetFanArt(FanArtConstants.FanArtMediaType mediaType, FanArtConstants.FanArtType fanArtType, string name, int maxWidth, int maxHeight, bool singleRandom)
@@ -63,7 +73,7 @@ namespace MediaPortal.Extensions.UserServices.FanArtService.Client
               singleRandom
             };
         IList<object> outParameters = action.InvokeAction(inParameters);
-        return (IList<FanArtImage>)outParameters[0];
+        return (IList<FanArtImage>) outParameters[0];
       }
       catch (Exception)
       {

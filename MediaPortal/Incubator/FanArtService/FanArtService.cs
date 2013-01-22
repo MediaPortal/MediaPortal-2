@@ -24,82 +24,96 @@
 
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
-using MediaPortal.Extensions.OnlineLibraries;
+using MediaPortal.Common;
+using MediaPortal.Common.Logging;
+using MediaPortal.Common.PluginManager;
+using MediaPortal.Common.PluginManager.Exceptions;
 using MediaPortal.Extensions.UserServices.FanArtService.Interfaces;
+using MediaPortal.Extensions.UserServices.FanArtService.Interfaces.Providers;
 
 namespace MediaPortal.Extensions.UserServices.FanArtService
 {
   public class FanArtService : IFanArtService
   {
-    public IList<FanArtImage> GetFanArt(FanArtConstants.FanArtMediaType mediaType, FanArtConstants.FanArtType fanArtType, string name, int maxWidth, int maxHeight, bool singleRandom)
+    protected readonly object _syncObj = new object();
+    protected IList<IFanArtProvider> _providerList = null;
+    protected IPluginItemStateTracker _fanartProviderPluginItemStateTracker;
+
+    private void BuildProviders()
     {
-      string baseFolder = GetBaseFolder(mediaType, name);
-      // No known series
-      if (baseFolder == null || !Directory.Exists(baseFolder))
-        return null;
-
-      string pattern = GetPattern(mediaType, fanArtType, name);
-      if (string.IsNullOrEmpty(pattern))
-        return null;
-
-      DirectoryInfo directoryInfo = new DirectoryInfo(baseFolder);
-      try
+      lock (_syncObj)
       {
-        List<string> files = directoryInfo.GetFiles(pattern).Select(file => file.FullName).ToList();
-        List<FanArtImage> fanArtImages = files.Select(f => FanArtImage.FromFile(f, maxWidth, maxHeight)).Where(fanArtImage => fanArtImage != null).ToList();
-
-        if (fanArtImages.Count == 0)
-          return null;
-        return singleRandom ? GetSingleRandom(fanArtImages) : fanArtImages;
+        if (_providerList != null)
+          return;
+        _providerList = new List<IFanArtProvider>();
       }
-      catch (DirectoryNotFoundException)
+
+      _fanartProviderPluginItemStateTracker = new FixedItemStateTracker("Fanart Service - Provider registration");
+
+      IPluginManager pluginManager = ServiceRegistration.Get<IPluginManager>();
+      foreach (PluginItemMetadata itemMetadata in pluginManager.GetAllPluginItemMetadata(FanartProviderBuilder.FANART_PROVIDER_PATH))
       {
-        return null;
+        try
+        {
+          FanartProviderRegistration fanartProviderRegistration =
+            pluginManager.RequestPluginItem<FanartProviderRegistration>(FanartProviderBuilder.FANART_PROVIDER_PATH, itemMetadata.Id, _fanartProviderPluginItemStateTracker);
+
+          if (fanartProviderRegistration == null)
+            ServiceRegistration.Get<ILogger>().Warn("Could not instantiate Fanart provider with id '{0}'", itemMetadata.Id);
+          else
+          {
+            IFanArtProvider provider = Activator.CreateInstance(fanartProviderRegistration.ProviderClass) as IFanArtProvider;
+            if (provider == null)
+              throw new PluginInvalidStateException("Could not create IFanArtProvider instance of class {0}", fanartProviderRegistration.ProviderClass);
+            _providerList.Add(provider);
+          }
+        }
+        catch (PluginInvalidStateException e)
+        {
+          ServiceRegistration.Get<ILogger>().Warn("Cannot add IFanArtProvider extension with id '{0}'", e, itemMetadata.Id);
+        }
       }
     }
 
-    protected IList<FanArtImage> GetSingleRandom(IList<FanArtImage> fullList)
+    /// <summary>
+    /// Gets the list of all registered <see cref="IFanArtProvider"/>.
+    /// </summary>
+    public IList<IFanArtProvider> Providers
+    {
+      get { return _providerList; }
+    }
+
+    public IList<FanArtImage> GetFanArt(FanArtConstants.FanArtMediaType mediaType, FanArtConstants.FanArtType fanArtType, string name, int maxWidth, int maxHeight, bool singleRandom)
+    {
+      BuildProviders();
+      foreach (IFanArtProvider fanArtProvider in _providerList)
+      {
+        IList<string> fanArtImages = fanArtProvider.GetFanArt(mediaType, fanArtType, name, maxWidth, maxHeight, singleRandom);
+        if (fanArtImages != null)
+        {
+          IList<string> result = singleRandom ? GetSingleRandom(fanArtImages) : fanArtImages;
+          return result.Select(f => FanArtImage.FromFile(f, maxWidth, maxHeight)).Where(fanArtImage => fanArtImage != null).ToList();
+        }
+      }
+      return null;
+    }
+
+    protected IList<string> GetSingleRandom(IList<string> fullList)
     {
       if (fullList.Count <= 1)
         return fullList;
 
       Random rnd = new Random(DateTime.Now.Millisecond);
       int rndIndex = rnd.Next(fullList.Count - 1);
-      return new List<FanArtImage> { fullList[rndIndex] };
+      return new List<string> { fullList[rndIndex] };
     }
 
     protected string GetPattern(FanArtConstants.FanArtMediaType mediaType, FanArtConstants.FanArtType fanArtType, string name)
     {
       switch (mediaType)
       {
-        case FanArtConstants.FanArtMediaType.MovieCollection:
-        case FanArtConstants.FanArtMediaType.Movie:
-          switch (fanArtType)
-          {
-            case FanArtConstants.FanArtType.Poster:
-              return "Posters\\*.jpg";
-            case FanArtConstants.FanArtType.FanArt:
-              return "Backdrops\\*.jpg";
-            default:
-              return null;
-          }
-
-        case FanArtConstants.FanArtMediaType.Series:
-          switch (fanArtType)
-          {
-            case FanArtConstants.FanArtType.Banner:
-              return "img_graphical_*.jpg";
-            case FanArtConstants.FanArtType.Poster:
-              return "img_posters_*.jpg";
-            case FanArtConstants.FanArtType.FanArt:
-              return "img_fan-*.jpg";
-            default:
-              return null;
-          }
-
-        case FanArtConstants.FanArtMediaType.Channel:
+       case FanArtConstants.FanArtMediaType.Channel:
           return string.Format("{0}.png", name);
       }
       return null;
@@ -109,18 +123,7 @@ namespace MediaPortal.Extensions.UserServices.FanArtService
     {
       switch (mediaType)
       {
-        case FanArtConstants.FanArtMediaType.Series:
-          int tvDbId;
-          return !SeriesTvDbMatcher.Instance.TryGetTvDbId(name, out tvDbId) ? null : Path.Combine(SeriesTvDbMatcher.CACHE_PATH, tvDbId.ToString());
-
-        case FanArtConstants.FanArtMediaType.Movie:
-          int movieDbId;
-          return !MovieTheMovieDbMatcher.Instance.TryGetMovieDbId(name, out movieDbId) ? null : Path.Combine(MovieTheMovieDbMatcher.CACHE_PATH, movieDbId.ToString());
-
-        case FanArtConstants.FanArtMediaType.MovieCollection:
-          int collectionId;
-          return !MovieTheMovieDbMatcher.Instance.TryGetCollectionId(name, out collectionId) ? null : Path.Combine(MovieTheMovieDbMatcher.CACHE_PATH, "COLL_" + collectionId);
-
+    
         case FanArtConstants.FanArtMediaType.Channel:
           return @"Plugins\SlimTv.Service\Content\ChannelLogos";
 
