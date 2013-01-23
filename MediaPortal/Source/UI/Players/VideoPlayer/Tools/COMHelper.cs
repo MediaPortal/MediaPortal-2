@@ -42,8 +42,7 @@ namespace MediaPortal.UI.Players.Video.Tools
   }
 
   /// <summary>
-  /// Utility class to get a Class Factory for a certain Class ID 
-  /// by loading the dll that implements that class
+  /// Utility class to get a Class Factory for a certain Class ID by loading the dll that implements that class.
   /// </summary>
   internal static class ComHelper
   {
@@ -51,8 +50,7 @@ namespace MediaPortal.UI.Players.Video.Tools
     private delegate int DllGetClassObject(ref Guid classId, ref Guid interfaceId, [Out, MarshalAs(UnmanagedType.Interface)] out object ppunk);
 
     /// <summary>
-    /// Holds a list of dll handles and unloads the dlls 
-    /// in the destructor
+    /// Holds a list of dll handles and unloads the dlls in the destructor.
     /// </summary>
     private class DllList
     {
@@ -83,21 +81,14 @@ namespace MediaPortal.UI.Players.Video.Tools
     /// <summary>
     /// Gets a class factory for a specific COM Class ID. 
     /// </summary>
-    /// <param name="dllName">The dll where the COM class is implemented</param>
-    /// <param name="filterPersistClass">The requested Class ID</param>
-    /// <returns>IClassFactory instance used to create instances of that class</returns>
+    /// <param name="dllName">The dll where the COM class is implemented.</param>
+    /// <param name="filterPersistClass">The requested Class ID.</param>
+    /// <returns>IClassFactory instance used to create instances of that class.</returns>
     internal static IClassFactory GetClassFactory(string dllName, Guid filterPersistClass)
     {
       // Load the class factory from the dll.
-      IClassFactory classFactory = GetClassFactoryFromDll(dllName, filterPersistClass);
-      return classFactory;
-    }
-
-    private static IClassFactory GetClassFactoryFromDll(string dllName, Guid filterPersistClass)
-    {
-      // Load the dll 
-      // specify to search for dependencies in the same folder as the file to be loaded 
-      // as well as default dirs like System32 and the Application folder
+      // By specifying the flags we allow to search for dependencies in the same folder as the file to be loaded 
+      // as well as default dirs like System32 and the Application folder.
       IntPtr dllHandle = Common.Utils.NativeMethods.LoadLibraryEx(dllName, IntPtr.Zero,
         Common.Utils.NativeMethods.LOAD_LIBRARY_SEARCH_DLL_LOAD_DIR | Common.Utils.NativeMethods.LOAD_LIBRARY_SEARCH_DEFAULT_DIRS);
       if (dllHandle == IntPtr.Zero)
