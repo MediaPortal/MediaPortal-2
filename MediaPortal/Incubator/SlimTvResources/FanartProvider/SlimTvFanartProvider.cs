@@ -27,6 +27,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using MediaPortal.Extensions.UserServices.FanArtService.Interfaces;
+using MediaPortal.Utilities.FileSystem;
 
 namespace MediaPortal.Plugins.SlimTv.SlimTvResources.FanartProvider
 {
@@ -74,7 +75,7 @@ namespace MediaPortal.Plugins.SlimTv.SlimTvResources.FanartProvider
       if (mediaType != FanArtConstants.FanArtMediaType.Channel)
         return null;
 
-      return string.Format("{0}.png", name);
+      return FileUtils.GetSafeFilename(string.Format("{0}.png", name));
     }
 
     protected string GetBaseFolder(FanArtConstants.FanArtMediaType mediaType, string name)
