@@ -7,7 +7,7 @@
         Content="Focus movement test"
         Color="{ThemeResource TextColor}" Wrap="True"/>
     <Label DockPanel.Dock="Top" HorizontalAlignment="Center"
-        Content="This screen shows various elements which are focusable and not focusable. The focus movement system should move the focus to the next focusable element and skip not focusable elements. Special cases are the rotated buttons on left and right side, using LayoutTransformation or RenderTransformation."
+        Content="This screen shows various elements which are focusable and not focusable. The focus movement system should move the focus to the next focusable element in the cursor position and skip not focusable elements. Special cases are the rotated buttons on the left side, using LayoutTransformation (red background) or RenderTransformation (yellow background)."
         Wrap="True" FontSize="{ThemeResource SmallFontSize}"
         Color="{ThemeResource TextColor}"/>
     <Grid x:Name="ContentPanel" DockPanel.Dock="Center" SetFocusPrio="DefaultHigh"
@@ -41,7 +41,10 @@
       <Grid x:Name="RightPanel" Grid.Row="0" Grid.Column="2" Background="Yellow" HorizontalAlignment="Center" VerticalAlignment="Center">
         <Button Content="By Render" RenderTransformOrigin="0.5,0.5" Style="{ThemeResource ButtonWideStyle}">
           <Button.RenderTransform>
-            <RotateTransform Angle="90"/>
+            <TransformGroup>
+              <RotateTransform Angle="90"/>
+              <TranslateTransform X="-550"/>
+            </TransformGroup>
           </Button.RenderTransform>
         </Button>
       </Grid>
