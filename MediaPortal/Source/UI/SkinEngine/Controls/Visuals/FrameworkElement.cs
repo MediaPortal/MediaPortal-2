@@ -969,12 +969,12 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
             (dir == MoveFocusDirection.Left && child.LocatedLeftOf(currentFocusRect.Value)) ||
             (dir == MoveFocusDirection.Right && child.LocatedRightOf(currentFocusRect.Value)))
         { // Calculate and compare distances of all matches
-          float centerDistance = CenterDistance(child.ActualBounds, currentFocusRect.Value);
+          float centerDistance = CenterDistance(child.BoundingBox, currentFocusRect.Value);
           if (centerDistance == 0)
             // If the child's center is exactly the center of the currently focused element,
             // it won't be used as next focus element
             continue;
-          float distance = BorderDistance(child.ActualBounds, currentFocusRect.Value);
+          float distance = BorderDistance(child.BoundingBox, currentFocusRect.Value);
           if (bestMatch == null || distance < bestDistance ||
               distance == bestDistance && centerDistance < bestCenterDistance)
           {
