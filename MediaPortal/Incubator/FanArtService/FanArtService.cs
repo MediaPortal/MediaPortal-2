@@ -89,8 +89,8 @@ namespace MediaPortal.Extensions.UserServices.FanArtService
       BuildProviders();
       foreach (IFanArtProvider fanArtProvider in _providerList)
       {
-        IList<string> fanArtImages = fanArtProvider.GetFanArt(mediaType, fanArtType, name, maxWidth, maxHeight, singleRandom);
-        if (fanArtImages != null)
+        IList<string> fanArtImages;
+        if (fanArtProvider.TryGetFanArt(mediaType, fanArtType, name, maxWidth, maxHeight, singleRandom, out fanArtImages))
         {
           IList<string> result = singleRandom ? GetSingleRandom(fanArtImages) : fanArtImages;
           return result.Select(f => FanArtImage.FromFile(f, maxWidth, maxHeight)).Where(fanArtImage => fanArtImage != null).ToList();
@@ -107,28 +107,6 @@ namespace MediaPortal.Extensions.UserServices.FanArtService
       Random rnd = new Random(DateTime.Now.Millisecond);
       int rndIndex = rnd.Next(fullList.Count - 1);
       return new List<string> { fullList[rndIndex] };
-    }
-
-    protected string GetPattern(FanArtConstants.FanArtMediaType mediaType, FanArtConstants.FanArtType fanArtType, string name)
-    {
-      switch (mediaType)
-      {
-       case FanArtConstants.FanArtMediaType.Channel:
-          return string.Format("{0}.png", name);
-      }
-      return null;
-    }
-
-    protected string GetBaseFolder(FanArtConstants.FanArtMediaType mediaType, string name)
-    {
-      switch (mediaType)
-      {
-        case FanArtConstants.FanArtMediaType.Channel:
-          return @"Plugins\SlimTv.Service\Content\ChannelLogos";
-
-        default:
-          return null;
-      }
     }
   }
 }

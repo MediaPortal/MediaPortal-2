@@ -27,20 +27,7 @@ using System.Collections.Generic;
 namespace MediaPortal.Extensions.UserServices.FanArtService.Interfaces
 {
   /// <summary>
-  /// Delegate definition for <see cref="IFanArtService.GetFanArt"/>.
-  /// </summary>
-  /// <param name="mediaType">Requested FanArtMediaType</param>
-  /// <param name="fanArtType">Requested FanArtType</param>
-  /// <param name="name">Requested name of Series, Actor, Artist...</param>
-  /// <param name="maxWidth">Maximum width for image. <c>0</c> returns image in original size.</param>
-  /// <param name="maxHeight">Maximum height for image. <c>0</c> returns image in original size.</param>
-  /// <param name="singleRandom">If <c>true</c> only one random image URI will be returned</param>
-  /// <returns>List of fanart image URIs</returns>
-  public delegate IList<FanArtImage> GetFanArtDelegate(FanArtConstants.FanArtMediaType mediaType, FanArtConstants.FanArtType fanArtType, string name, int maxWidth, int maxHeight, bool singleRandom);
-
-  /// <summary>
-  /// <see cref="IFanArtService"/> provides fanart images for different media types and allows scraping of information from internet sources
-  /// like <c>http://thetvdb.com</c>.
+  /// <see cref="IFanArtService"/> provides fanart images for different media types. It will try to find content provided by any of the registered <see cref="Providers"/>.
   /// </summary>
   public interface IFanArtService
   {
@@ -49,7 +36,7 @@ namespace MediaPortal.Extensions.UserServices.FanArtService.Interfaces
     /// </summary>
     IList<IFanArtProvider> Providers { get; }
 
-      /// <summary>
+    /// <summary>
     /// Gets a list of <see cref="FanArtImage"/>s for a requested <paramref name="mediaType"/>, <paramref name="fanArtType"/> and <paramref name="name"/>.
     /// The name can be: Series name, Actor name, Artist name depending on the <paramref name="mediaType"/>.
     /// </summary>
@@ -78,7 +65,8 @@ namespace MediaPortal.Extensions.UserServices.FanArtService.Interfaces
     /// <param name="maxWidth">Maximum width for image. <c>0</c> returns image in original size.</param>
     /// <param name="maxHeight">Maximum height for image. <c>0</c> returns image in original size.</param>
     /// <param name="singleRandom">If <c>true</c> only one random image URI will be returned</param>
-    /// <returns>List of fanart image URIs</returns>
-    IList<string> GetFanArt(FanArtConstants.FanArtMediaType mediaType, FanArtConstants.FanArtType fanArtType, string name, int maxWidth, int maxHeight, bool singleRandom);
+    /// <param name="result">Result if return code is <c>true</c>.</param>
+    /// <returns><c>true</c> if at least one match was found.</returns>
+    bool TryGetFanArt(FanArtConstants.FanArtMediaType mediaType, FanArtConstants.FanArtType fanArtType, string name, int maxWidth, int maxHeight, bool singleRandom, out IList<string> result);
   }
 }
