@@ -41,7 +41,10 @@
       <Grid x:Name="RightPanel" Grid.Row="0" Grid.Column="2" Background="Yellow" HorizontalAlignment="Center" VerticalAlignment="Center">
         <Button Content="By Render" RenderTransformOrigin="0.5,0.5" Style="{ThemeResource ButtonWideStyle}">
           <Button.RenderTransform>
-            <RotateTransform Angle="90"/>
+            <TransformGroup>
+              <RotateTransform Angle="90"/>
+              <TranslateTransform X="-550"/>
+            </TransformGroup>
           </Button.RenderTransform>
         </Button>
       </Grid>
