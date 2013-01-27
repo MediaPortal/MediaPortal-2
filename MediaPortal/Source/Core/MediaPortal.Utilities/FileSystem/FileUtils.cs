@@ -213,5 +213,31 @@ namespace MediaPortal.Utilities.FileSystem
       string executingPath = Assembly.GetExecutingAssembly().Location;
       return Path.Combine(Path.GetDirectoryName(executingPath), fileName);
     }
+
+    /// <summary>
+    /// Returns a filesystem safe name of the given <paramref name="filename"/> by replacing all invalid characters with the <paramref name="replaceChar"/>.
+    /// </summary>
+    /// <param name="filename">Filename to replace.</param>
+    /// <param name="replaceChar">Replacement character.</param>
+    /// <returns>Safe name or <c>null</c> if <paramref name="filename"/> is <seealso cref="string.IsNullOrWhiteSpace"/>.</returns>
+    public static string GetSafeFilename(string filename, char replaceChar = '_')
+    {
+      return string.IsNullOrWhiteSpace(filename) ? 
+        null :
+        Path.GetInvalidFileNameChars().Aggregate(filename, (current, c) => current.Replace(c, replaceChar));
+    }
+
+    /// <summary>
+    /// Returns a filesystem safe path of the given <paramref name="path"/> by replacing all invalid characters with the <paramref name="replaceChar"/>.
+    /// </summary>
+    /// <param name="path">Path to replace.</param>
+    /// <param name="replaceChar">Replacement character.</param>
+    /// <returns>Safe name or <c>null</c> if <paramref name="path"/> is <seealso cref="string.IsNullOrWhiteSpace"/>.</returns>
+    public static string GetSafePath(string path, char replaceChar = '_')
+    {
+      return string.IsNullOrWhiteSpace(path) ? 
+        null :
+        Path.GetInvalidPathChars().Aggregate(path, (current, c) => current.Replace(c, replaceChar));
+    }
   }
 }
