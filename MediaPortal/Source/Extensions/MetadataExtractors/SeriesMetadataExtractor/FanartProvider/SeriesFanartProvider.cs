@@ -43,26 +43,31 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor.Fana
     /// <param name="maxWidth">Maximum width for image. <c>0</c> returns image in original size.</param>
     /// <param name="maxHeight">Maximum height for image. <c>0</c> returns image in original size.</param>
     /// <param name="singleRandom">If <c>true</c> only one random image URI will be returned</param>
-    /// <returns>List of fanart image URIs</returns>
-    public IList<string> GetFanArt(FanArtConstants.FanArtMediaType mediaType, FanArtConstants.FanArtType fanArtType, string name, int maxWidth, int maxHeight, bool singleRandom)
+    /// <param name="result">Result if return code is <c>true</c>.</param>
+    /// <returns><c>true</c> if at least one match was found.</returns>
+    public bool TryGetFanArt(FanArtConstants.FanArtMediaType mediaType, FanArtConstants.FanArtType fanArtType, string name, int maxWidth, int maxHeight, bool singleRandom, out IList<string> result)
     {
+      result = null;
       string baseFolder = GetBaseFolder(mediaType, name);
       // No known series
       if (baseFolder == null || !Directory.Exists(baseFolder))
-        return null;
+        return false;
 
       string pattern = GetPattern(mediaType, fanArtType, name);
       if (string.IsNullOrEmpty(pattern))
-        return null;
+        return false;
 
       try
       {
         DirectoryInfo directoryInfo = new DirectoryInfo(baseFolder);
         if (directoryInfo.Exists)
-          return directoryInfo.GetFiles(pattern).Select(file => file.FullName).ToList();
+        {
+          result = directoryInfo.GetFiles(pattern).Select(file => file.FullName).ToList();
+          return result.Count > 0;
+        }
       }
       catch (Exception) { }
-      return null;
+      return false;
     }
 
     protected string GetPattern(FanArtConstants.FanArtMediaType mediaType, FanArtConstants.FanArtType fanArtType, string name)
