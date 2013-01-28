@@ -209,16 +209,14 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="plugin.xml" />
+    <Content Include="Skin\Titanium\themes\default\images\AudioLarge.png" />
+    <Content Include="Skin\Titanium\themes\default\images\AudioSmall.png" />
     <Content Include="Skin\Titanium\themes\default\images\FilterLarge.png" />
     <Content Include="Skin\Titanium\themes\default\images\FilterSmall.png" />
-    <Content Include="Skin\Titanium\themes\default\images\MovieLarge.png" />
-    <Content Include="Skin\Titanium\themes\default\images\MovieSmall.png" />
-    <Content Include="Skin\Titanium\themes\default\images\MusicLarge.png" />
-    <Content Include="Skin\Titanium\themes\default\images\MusicSmall.png" />
+    <Content Include="Skin\Titanium\themes\default\images\ImageLarge.png" />
+    <Content Include="Skin\Titanium\themes\default\images\ImageSmall.png" />
     <Content Include="Skin\Titanium\themes\default\images\NavigationLarge.png" />
     <Content Include="Skin\Titanium\themes\default\images\NavigationSmall.png" />
-    <Content Include="Skin\Titanium\themes\default\images\PictureLarge.png" />
-    <Content Include="Skin\Titanium\themes\default\images\PictureSmall.png" />
     <None Include="Skin\Titanium\fonts\TitanBold.desc" />
     <None Include="Skin\Titanium\fonts\Titan.desc" />
     <None Include="Skin\Titanium\fonts\TITAN.TTF" />
@@ -228,6 +226,9 @@
     <None Include="Skin\Titanium\themes\default\styles\OtherControlsOverrides.xaml" />
     <Content Include="Skin\Titanium\themes\default\images\background.png" />
     <Content Include="Skin\Titanium\themes\default\images\preview.jpg" />
+    <Content Include="Skin\Titanium\themes\default\images\unwatched_flag.png" />
+    <Content Include="Skin\Titanium\themes\default\images\VideoLarge.png" />
+    <Content Include="Skin\Titanium\themes\default\images\VideoSmall.png" />
     <Content Include="Skin\Titanium\themes\default\theme.xml" />
   </ItemGroup>
   <ItemGroup>
