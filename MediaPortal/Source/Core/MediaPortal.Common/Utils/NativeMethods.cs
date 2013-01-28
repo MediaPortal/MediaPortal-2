@@ -31,6 +31,13 @@ namespace MediaPortal.Common.Utils
   /// </summary>
   public static class NativeMethods
   {
+    #region LoadLibraryEx Flags
+
+    public const uint LOAD_LIBRARY_SEARCH_DLL_LOAD_DIR = 0x00000100;
+    public const uint LOAD_LIBRARY_SEARCH_DEFAULT_DIRS = 0x00001000;
+    
+    #endregion
+
     /// <summary>
     /// Retrieves a module handle for the specified module. The module must have been loaded by the calling process.
     /// </summary>
@@ -64,6 +71,16 @@ namespace MediaPortal.Common.Utils
     /// <returns>If the function succeeds, the return value is a handle to the module.<br></br><br>If the function fails, the return value is NULL. To get extended error information, call Marshal.GetLastWin32Error.</br></returns>
     [DllImport("kernel32.dll", EntryPoint = "LoadLibraryA", CharSet = CharSet.Ansi)]
     public static extern IntPtr LoadLibrary(string lpLibFileName);
+
+    /// <summary>
+    /// Loads the specified module into the address space of the calling process. The specified module may cause other modules to be loaded.
+    /// </summary>
+    /// <param name="lpFileName">Pointer to a null-terminated string that names the executable module (either a .dll or .exe file). The name specified is the file name of the module and is not related to the name stored in the library module itself, as specified by the LIBRARY keyword in the module-definition (.def) file.</param>
+    /// <param name="hFile">This parameter is reserved for future use. It must be IntPtr.Zero.</param>
+    /// <param name="dwFlags">The action to be taken when loading the module. If no flags are specified, the behavior of this function is identical to that of the <see cref="LoadLibrary"/> function.</param>
+    /// <returns>If the function succeeds, the return value is a handle to the module.<br/>If the function fails, the return value is NULL. To get extended error information, call Marshal.GetLastWin32Error.</returns>
+    [DllImport("kernel32.dll")]
+    public static extern IntPtr LoadLibraryEx(string lpFileName, IntPtr hFile, uint dwFlags);
 
     /// <summary>
     /// The FreeLibrary function decrements the reference count of the loaded dynamic-link library (DLL). When the reference count reaches zero, the module is unmapped from the address space of the calling process and the handle is no longer valid.
