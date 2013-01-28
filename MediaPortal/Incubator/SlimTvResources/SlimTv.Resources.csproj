@@ -1,0 +1,466 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProductVersion>8.0.30703</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{9158967E-4FEB-4504-8C1E-02BE96045D34}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>MediaPortal.Plugins.SlimTv.SlimTvResources</RootNamespace>
+    <AssemblyName>SlimTv.Resources</AssemblyName>
+    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x86'">
+    <DebugSymbols>true</DebugSymbols>
+    <OutputPath>bin\x86\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <DebugType>full</DebugType>
+    <PlatformTarget>x86</PlatformTarget>
+    <CodeAnalysisLogFile>bin\Debug\SlimTvResources.dll.CodeAnalysisLog.xml</CodeAnalysisLogFile>
+    <CodeAnalysisUseTypeNameInSuppression>true</CodeAnalysisUseTypeNameInSuppression>
+    <CodeAnalysisModuleSuppressionsFile>GlobalSuppressions.cs</CodeAnalysisModuleSuppressionsFile>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+    <CodeAnalysisRuleSetDirectories>;C:\Program Files (x86)\Microsoft Visual Studio 10.0\Team Tools\Static Analysis Tools\\Rule Sets</CodeAnalysisRuleSetDirectories>
+    <CodeAnalysisIgnoreBuiltInRuleSets>false</CodeAnalysisIgnoreBuiltInRuleSets>
+    <CodeAnalysisRuleDirectories>;C:\Program Files (x86)\Microsoft Visual Studio 10.0\Team Tools\Static Analysis Tools\FxCop\\Rules</CodeAnalysisRuleDirectories>
+    <CodeAnalysisIgnoreBuiltInRules>false</CodeAnalysisIgnoreBuiltInRules>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x86'">
+    <OutputPath>bin\x86\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <Optimize>true</Optimize>
+    <DebugType>pdbonly</DebugType>
+    <PlatformTarget>x86</PlatformTarget>
+    <CodeAnalysisLogFile>bin\Release\SlimTvResources.dll.CodeAnalysisLog.xml</CodeAnalysisLogFile>
+    <CodeAnalysisUseTypeNameInSuppression>true</CodeAnalysisUseTypeNameInSuppression>
+    <CodeAnalysisModuleSuppressionsFile>GlobalSuppressions.cs</CodeAnalysisModuleSuppressionsFile>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+    <CodeAnalysisRuleSetDirectories>;C:\Program Files (x86)\Microsoft Visual Studio 10.0\Team Tools\Static Analysis Tools\\Rule Sets</CodeAnalysisRuleSetDirectories>
+    <CodeAnalysisIgnoreBuiltInRuleSets>false</CodeAnalysisIgnoreBuiltInRuleSets>
+    <CodeAnalysisRuleDirectories>;C:\Program Files (x86)\Microsoft Visual Studio 10.0\Team Tools\Static Analysis Tools\FxCop\\Rules</CodeAnalysisRuleDirectories>
+    <CodeAnalysisIgnoreBuiltInRules>false</CodeAnalysisIgnoreBuiltInRules>
+    <CodeAnalysisFailOnMissingRules>false</CodeAnalysisFailOnMissingRules>
+  </PropertyGroup>
+  <PropertyGroup>
+    <RunPostBuildEvent>OnBuildSuccess</RunPostBuildEvent>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="..\..\Source\Core\MediaPortal.Common\VersionInfo\VersionInfo.cs">
+      <Link>Properties\VersionInfo.cs</Link>
+    </Compile>
+    <Compile Include="FanartProvider\SlimTvFanartProvider.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Resources\ChannelLogos\1-2-3.tv.png" />
+    <Content Include="Resources\ChannelLogos\13 th Street %28KD%29.png" />
+    <Content Include="Resources\ChannelLogos\13 th Street.png" />
+    <Content Include="Resources\ChannelLogos\13th Street.png" />
+    <Content Include="Resources\ChannelLogos\3+.png" />
+    <Content Include="Resources\ChannelLogos\3sat.png" />
+    <Content Include="Resources\ChannelLogos\9Live.png" />
+    <Content Include="Resources\ChannelLogos\Al Jazeera International.png" />
+    <Content Include="Resources\ChannelLogos\Al Jazeera.png" />
+    <Content Include="Resources\ChannelLogos\Animal Planet.png" />
+    <Content Include="Resources\ChannelLogos\Animax %28a_S%29.png" />
+    <Content Include="Resources\ChannelLogos\Animax.png" />
+    <Content Include="Resources\ChannelLogos\Anixe HD.png" />
+    <Content Include="Resources\ChannelLogos\Anixe SD.png" />
+    <Content Include="Resources\ChannelLogos\arena.png" />
+    <Content Include="Resources\ChannelLogos\arte HD.png" />
+    <Content Include="Resources\ChannelLogos\arte.png" />
+    <Content Include="Resources\ChannelLogos\arte_extra.png" />
+    <Content Include="Resources\ChannelLogos\arte_festival.png" />
+    <Content Include="Resources\ChannelLogos\ASTRA HD.png" />
+    <Content Include="Resources\ChannelLogos\ASTRA Vision.png" />
+    <Content Include="Resources\ChannelLogos\ATV+.png" />
+    <Content Include="Resources\ChannelLogos\ATV.png" />
+    <Content Include="Resources\ChannelLogos\AUSTRIA 9 TV.png" />
+    <Content Include="Resources\ChannelLogos\AXN %28a_S%29.png" />
+    <Content Include="Resources\ChannelLogos\AXN Action.png" />
+    <Content Include="Resources\ChannelLogos\AXN.png" />
+    <Content Include="Resources\ChannelLogos\Bahn TV.png" />
+    <Content Include="Resources\ChannelLogos\Bayerisches FS Nord.png" />
+    <Content Include="Resources\ChannelLogos\Bayerisches FS Süd.png" />
+    <Content Include="Resources\ChannelLogos\Bayerisches FS.png" />
+    <Content Include="Resources\ChannelLogos\BBC Entertainment.png" />
+    <Content Include="Resources\ChannelLogos\BBC World News.png" />
+    <Content Include="Resources\ChannelLogos\BBC World.png" />
+    <Content Include="Resources\ChannelLogos\BBC.png" />
+    <Content Include="Resources\ChannelLogos\Beate-Uhse.TV.png" />
+    <Content Include="Resources\ChannelLogos\Bibel TV.png" />
+    <Content Include="Resources\ChannelLogos\BibelTV.png" />
+    <Content Include="Resources\ChannelLogos\Biography Channel.png" />
+    <Content Include="Resources\ChannelLogos\Bloomberg TV Germany.png" />
+    <Content Include="Resources\ChannelLogos\Bloomberg.png" />
+    <Content Include="Resources\ChannelLogos\Blue Movie.png" />
+    <Content Include="Resources\ChannelLogos\Boomerang %28a_S%29.png" />
+    <Content Include="Resources\ChannelLogos\Boomerang.png" />
+    <Content Include="Resources\ChannelLogos\BR-alpha.png" />
+    <Content Include="Resources\ChannelLogos\BR-alpha_.png" />
+    <Content Include="Resources\ChannelLogos\Cartoon Network %28a_S%29.png" />
+    <Content Include="Resources\ChannelLogos\Cartoon Network.png" />
+    <Content Include="Resources\ChannelLogos\classica.png" />
+    <Content Include="Resources\ChannelLogos\CNBC Europe.png" />
+    <Content Include="Resources\ChannelLogos\CNBC.png" />
+    <Content Include="Resources\ChannelLogos\CNN Int..png" />
+    <Content Include="Resources\ChannelLogos\CNN International.png" />
+    <Content Include="Resources\ChannelLogos\CNN.png" />
+    <Content Include="Resources\ChannelLogos\COMEDY CENTRAL Germany.png" />
+    <Content Include="Resources\ChannelLogos\Composite.PNG" />
+    <Content Include="Resources\ChannelLogos\Das Erste HD.png" />
+    <Content Include="Resources\ChannelLogos\Das Erste.png" />
+    <Content Include="Resources\ChannelLogos\Das Vierte.png" />
+    <Content Include="Resources\ChannelLogos\Deluxe Music.png" />
+    <Content Include="Resources\ChannelLogos\Deutsche Welle TV.png" />
+    <Content Include="Resources\ChannelLogos\Deutsches Gesundheitsfernsehen.png" />
+    <Content Include="Resources\ChannelLogos\Discovery Channel.png" />
+    <Content Include="Resources\ChannelLogos\Discovery Geschichte.png" />
+    <Content Include="Resources\ChannelLogos\Discovery HD.png" />
+    <Content Include="Resources\ChannelLogos\Disney Channel.png" />
+    <Content Include="Resources\ChannelLogos\Disney Cinemagic HD.png" />
+    <Content Include="Resources\ChannelLogos\Disney Cinemagic.png" />
+    <Content Include="Resources\ChannelLogos\Disney Playhouse %28S%29.png" />
+    <Content Include="Resources\ChannelLogos\Disney Playhouse.png" />
+    <Content Include="Resources\ChannelLogos\Disney Toon %28S%29.png" />
+    <Content Include="Resources\ChannelLogos\Disney Toon +1.png" />
+    <Content Include="Resources\ChannelLogos\Disney Toon.png" />
+    <Content Include="Resources\ChannelLogos\Disney XD.png" />
+    <Content Include="Resources\ChannelLogos\DMAX.png" />
+    <Content Include="Resources\ChannelLogos\Doku_KiKa.png" />
+    <Content Include="Resources\ChannelLogos\DrDish Television.png" />
+    <Content Include="Resources\ChannelLogos\DrDishTV.png" />
+    <Content Include="Resources\ChannelLogos\DSF.png" />
+    <Content Include="Resources\ChannelLogos\DW-TV.png" />
+    <Content Include="Resources\ChannelLogos\E! Entertainment.png" />
+    <Content Include="Resources\ChannelLogos\e.clips %28S%29.png" />
+    <Content Include="Resources\ChannelLogos\e.clips.png" />
+    <Content Include="Resources\ChannelLogos\EinsExtra.png" />
+    <Content Include="Resources\ChannelLogos\EinsFestival HD.png" />
+    <Content Include="Resources\ChannelLogos\EinsFestival.png" />
+    <Content Include="Resources\ChannelLogos\EinsPlus.png" />
+    <Content Include="Resources\ChannelLogos\Eishockey DEL.png" />
+    <Content Include="Resources\ChannelLogos\ERF Eins.png" />
+    <Content Include="Resources\ChannelLogos\ESPN America.png" />
+    <Content Include="Resources\ChannelLogos\ESPN Classic.png" />
+    <Content Include="Resources\ChannelLogos\EuroNews.png" />
+    <Content Include="Resources\ChannelLogos\Eurosport 2 %28a_S%29.png" />
+    <Content Include="Resources\ChannelLogos\Eurosport 2 HD.png" />
+    <Content Include="Resources\ChannelLogos\Eurosport 2.png" />
+    <Content Include="Resources\ChannelLogos\Eurosport HD.png" />
+    <Content Include="Resources\ChannelLogos\Eurosport News.png" />
+    <Content Include="Resources\ChannelLogos\Eurosport.png" />
+    <Content Include="Resources\ChannelLogos\Extreme Sports.png" />
+    <Content Include="Resources\ChannelLogos\FAB.png" />
+    <Content Include="Resources\ChannelLogos\Fashion TV.png" />
+    <Content Include="Resources\ChannelLogos\FOCUS Gesundheit.png" />
+    <Content Include="Resources\ChannelLogos\FOX Serie.png" />
+    <Content Include="Resources\ChannelLogos\FOX.png" />
+    <Content Include="Resources\ChannelLogos\Franken SAT.png" />
+    <Content Include="Resources\ChannelLogos\GIGA.png" />
+    <Content Include="Resources\ChannelLogos\GOD Channel.png" />
+    <Content Include="Resources\ChannelLogos\GOLDSTAR TV.png" />
+    <Content Include="Resources\ChannelLogos\GoTV.png" />
+    <Content Include="Resources\ChannelLogos\Hamburg 1.png" />
+    <Content Include="Resources\ChannelLogos\HD Suisse.png" />
+    <Content Include="Resources\ChannelLogos\Heimatkanal.png" />
+    <Content Include="Resources\ChannelLogos\History Channel.png" />
+    <Content Include="Resources\ChannelLogos\History HD.png" />
+    <Content Include="Resources\ChannelLogos\History.png" />
+    <Content Include="Resources\ChannelLogos\HIT24.png" />
+    <Content Include="Resources\ChannelLogos\Hitradio OE3.png" />
+    <Content Include="Resources\ChannelLogos\hr-fernsehen.png" />
+    <Content Include="Resources\ChannelLogos\HSE24 Digital.png" />
+    <Content Include="Resources\ChannelLogos\HSE24.png" />
+    <Content Include="Resources\ChannelLogos\iMusic 1.png" />
+    <Content Include="Resources\ChannelLogos\iMusic TV.png" />
+    <Content Include="Resources\ChannelLogos\iMusic.png" />
+    <Content Include="Resources\ChannelLogos\Info_3sat.png" />
+    <Content Include="Resources\ChannelLogos\JETIX.png" />
+    <Content Include="Resources\ChannelLogos\Junior.png" />
+    <Content Include="Resources\ChannelLogos\K-TV.png" />
+    <Content Include="Resources\ChannelLogos\Kabel 1 Austria.png" />
+    <Content Include="Resources\ChannelLogos\Kabel 1 Schweiz.png" />
+    <Content Include="Resources\ChannelLogos\kabel eins classics.png" />
+    <Content Include="Resources\ChannelLogos\kabel eins HD.png" />
+    <Content Include="Resources\ChannelLogos\kabel eins.png" />
+    <Content Include="Resources\ChannelLogos\KiKa.png" />
+    <Content Include="Resources\ChannelLogos\Kinowelt TV %28S%29.png" />
+    <Content Include="Resources\ChannelLogos\Kinowelt TV.png" />
+    <Content Include="Resources\ChannelLogos\Lokalsat.png" />
+    <Content Include="Resources\ChannelLogos\LT1.png" />
+    <Content Include="Resources\ChannelLogos\MDR Fernsehen.png" />
+    <Content Include="Resources\ChannelLogos\MDR S-ANHALT.png" />
+    <Content Include="Resources\ChannelLogos\MDR SACHSEN.png" />
+    <Content Include="Resources\ChannelLogos\MDR THÜRINGEN.png" />
+    <Content Include="Resources\ChannelLogos\mezzo.png" />
+    <Content Include="Resources\ChannelLogos\MGM.png" />
+    <Content Include="Resources\ChannelLogos\Motor TV.png" />
+    <Content Include="Resources\ChannelLogos\motors tv.png" />
+    <Content Include="Resources\ChannelLogos\motors.tv.png" />
+    <Content Include="Resources\ChannelLogos\Motorvision TV.png" />
+    <Content Include="Resources\ChannelLogos\MTV Austria.png" />
+    <Content Include="Resources\ChannelLogos\MTV DANCE.png" />
+    <Content Include="Resources\ChannelLogos\MTV Entertainment %28S%29.png" />
+    <Content Include="Resources\ChannelLogos\MTV Entertainment.png" />
+    <Content Include="Resources\ChannelLogos\MTV Germany.png" />
+    <Content Include="Resources\ChannelLogos\MTV HD.png" />
+    <Content Include="Resources\ChannelLogos\MTV HITS.png" />
+    <Content Include="Resources\ChannelLogos\MTV Music.png" />
+    <Content Include="Resources\ChannelLogos\MTV.png" />
+    <Content Include="Resources\ChannelLogos\MTVN HD.png" />
+    <Content Include="Resources\ChannelLogos\n-tv.png" />
+    <Content Include="Resources\ChannelLogos\N24.png" />
+    <Content Include="Resources\ChannelLogos\NASN %28S%29.png" />
+    <Content Include="Resources\ChannelLogos\NASN.png" />
+    <Content Include="Resources\ChannelLogos\NatGeo Wild HD.png" />
+    <Content Include="Resources\ChannelLogos\NatGeo Wild.png" />
+    <Content Include="Resources\ChannelLogos\National Geographic HD.png" />
+    <Content Include="Resources\ChannelLogos\National Geographic.png" />
+    <Content Include="Resources\ChannelLogos\NDR FERNSEHEN.png" />
+    <Content Include="Resources\ChannelLogos\NDR FS HH+.png" />
+    <Content Include="Resources\ChannelLogos\NDR FS HH.png" />
+    <Content Include="Resources\ChannelLogos\NDR FS MV+.png" />
+    <Content Include="Resources\ChannelLogos\NDR FS MV.png" />
+    <Content Include="Resources\ChannelLogos\NDR FS NDS _.png" />
+    <Content Include="Resources\ChannelLogos\NDR FS NDS.png" />
+    <Content Include="Resources\ChannelLogos\NDR FS SH+.png" />
+    <Content Include="Resources\ChannelLogos\NDR FS SH.png" />
+    <Content Include="Resources\ChannelLogos\NDR.png" />
+    <Content Include="Resources\ChannelLogos\NICK Austria.png" />
+    <Content Include="Resources\ChannelLogos\NICK Germany.png" />
+    <Content Include="Resources\ChannelLogos\NICK Jr..png" />
+    <Content Include="Resources\ChannelLogos\NICK Junior.png" />
+    <Content Include="Resources\ChannelLogos\Nick Premium %28S%29.png" />
+    <Content Include="Resources\ChannelLogos\Nick Premium.png" />
+    <Content Include="Resources\ChannelLogos\nicktoons %28S%29.png" />
+    <Content Include="Resources\ChannelLogos\nicktoons.png" />
+    <Content Include="Resources\ChannelLogos\NICK_COMEDY CENTRAL.png" />
+    <Content Include="Resources\ChannelLogos\NICK_COMEDY.png" />
+    <Content Include="Resources\ChannelLogos\no_channel_logo.png" />
+    <Content Include="Resources\ChannelLogos\NRJ Hits.png" />
+    <Content Include="Resources\ChannelLogos\NRW.TV.png" />
+    <Content Include="Resources\ChannelLogos\OberfrankenTV.png" />
+    <Content Include="Resources\ChannelLogos\okb.png" />
+    <Content Include="Resources\ChannelLogos\ONTV Regional.png" />
+    <Content Include="Resources\ChannelLogos\ORF SPORT PLUS.png" />
+    <Content Include="Resources\ChannelLogos\ORF1 HD.png" />
+    <Content Include="Resources\ChannelLogos\ORF1.png" />
+    <Content Include="Resources\ChannelLogos\ORF2 B.png" />
+    <Content Include="Resources\ChannelLogos\ORF2 HD.png" />
+    <Content Include="Resources\ChannelLogos\ORF2 K.png" />
+    <Content Include="Resources\ChannelLogos\ORF2 N.png" />
+    <Content Include="Resources\ChannelLogos\ORF2 O.png" />
+    <Content Include="Resources\ChannelLogos\ORF2 S.png" />
+    <Content Include="Resources\ChannelLogos\ORF2 St.png" />
+    <Content Include="Resources\ChannelLogos\ORF2 T.png" />
+    <Content Include="Resources\ChannelLogos\ORF2 V.png" />
+    <Content Include="Resources\ChannelLogos\ORF2 W.png" />
+    <Content Include="Resources\ChannelLogos\ORF2.png" />
+    <Content Include="Resources\ChannelLogos\ORF2E.png" />
+    <Content Include="Resources\ChannelLogos\Passion.png" />
+    <Content Include="Resources\ChannelLogos\Phoenix.png" />
+    <Content Include="Resources\ChannelLogos\Planet.png" />
+    <Content Include="Resources\ChannelLogos\Playboy TV.png" />
+    <Content Include="Resources\ChannelLogos\Playhouse Disney.png" />
+    <Content Include="Resources\ChannelLogos\ProSieben Austria.png" />
+    <Content Include="Resources\ChannelLogos\ProSieben HD.png" />
+    <Content Include="Resources\ChannelLogos\ProSieben Schweiz.png" />
+    <Content Include="Resources\ChannelLogos\ProSieben.png" />
+    <Content Include="Resources\ChannelLogos\puls 4 Austria.png" />
+    <Content Include="Resources\ChannelLogos\puls 4.png" />
+    <Content Include="Resources\ChannelLogos\QVC Deutschland.png" />
+    <Content Include="Resources\ChannelLogos\QVC.png" />
+    <Content Include="Resources\ChannelLogos\Radio Bremen TV.png" />
+    <Content Include="Resources\ChannelLogos\Radio Bremen TV_.png" />
+    <Content Include="Resources\ChannelLogos\rbb Berlin.png" />
+    <Content Include="Resources\ChannelLogos\rbb Brandenburg.png" />
+    <Content Include="Resources\ChannelLogos\rbb.png" />
+    <Content Include="Resources\ChannelLogos\rhein main tv.png" />
+    <Content Include="Resources\ChannelLogos\rhein-main tv.png" />
+    <Content Include="Resources\ChannelLogos\RNF.png" />
+    <Content Include="Resources\ChannelLogos\Romance TV.png" />
+    <Content Include="Resources\ChannelLogos\RTL Austria.png" />
+    <Content Include="Resources\ChannelLogos\RTL Crime.png" />
+    <Content Include="Resources\ChannelLogos\RTL HB NDS.png" />
+    <Content Include="Resources\ChannelLogos\RTL HD.png" />
+    <Content Include="Resources\ChannelLogos\RTL HH SH.png" />
+    <Content Include="Resources\ChannelLogos\RTL II.png" />
+    <Content Include="Resources\ChannelLogos\RTL Living.png" />
+    <Content Include="Resources\ChannelLogos\RTL Passion.png" />
+    <Content Include="Resources\ChannelLogos\RTL Schweiz.png" />
+    <Content Include="Resources\ChannelLogos\RTL Shop.png" />
+    <Content Include="Resources\ChannelLogos\RTL Television.png" />
+    <Content Include="Resources\ChannelLogos\RTL2 Austria.png" />
+    <Content Include="Resources\ChannelLogos\RTL2 Schweiz.png" />
+    <Content Include="Resources\ChannelLogos\RTL2.png" />
+    <Content Include="Resources\ChannelLogos\SAT. 1.png" />
+    <Content Include="Resources\ChannelLogos\SAT.1 A.png" />
+    <Content Include="Resources\ChannelLogos\SAT.1 CH.png" />
+    <Content Include="Resources\ChannelLogos\SAT.1 Comedy.png" />
+    <Content Include="Resources\ChannelLogos\SAT.1 HD.png" />
+    <Content Include="Resources\ChannelLogos\SAT.1.png" />
+    <Content Include="Resources\ChannelLogos\Sci Fi.png" />
+    <Content Include="Resources\ChannelLogos\SciFi %28KD%29.png" />
+    <Content Include="Resources\ChannelLogos\SciFi.png" />
+    <Content Include="Resources\ChannelLogos\Servus TV HD.png" />
+    <Content Include="Resources\ChannelLogos\Servus TV.png" />
+    <Content Include="Resources\ChannelLogos\ServusTV.png" />
+    <Content Include="Resources\ChannelLogos\SF1.png" />
+    <Content Include="Resources\ChannelLogos\SFinfo.png" />
+    <Content Include="Resources\ChannelLogos\SFzwei.png" />
+    <Content Include="Resources\ChannelLogos\Silverline Movie Channel.png" />
+    <Content Include="Resources\ChannelLogos\sixx.png" />
+    <Content Include="Resources\ChannelLogos\sky action HD.png" />
+    <Content Include="Resources\ChannelLogos\sky action.png" />
+    <Content Include="Resources\ChannelLogos\sky cinema +1.png" />
+    <Content Include="Resources\ChannelLogos\sky cinema +24.png" />
+    <Content Include="Resources\ChannelLogos\sky cinema HD.png" />
+    <Content Include="Resources\ChannelLogos\sky cinema hits HD.png" />
+    <Content Include="Resources\ChannelLogos\sky cinema hits.png" />
+    <Content Include="Resources\ChannelLogos\sky cinema.png" />
+    <Content Include="Resources\ChannelLogos\sky comedy.png" />
+    <Content Include="Resources\ChannelLogos\sky emotion.png" />
+    <Content Include="Resources\ChannelLogos\sky fußball bundesliga.png" />
+    <Content Include="Resources\ChannelLogos\sky krimi.png" />
+    <Content Include="Resources\ChannelLogos\Sky News Intl.png" />
+    <Content Include="Resources\ChannelLogos\Sky News.png" />
+    <Content Include="Resources\ChannelLogos\sky nostalgie.png" />
+    <Content Include="Resources\ChannelLogos\sky select 1.png" />
+    <Content Include="Resources\ChannelLogos\sky select 2.png" />
+    <Content Include="Resources\ChannelLogos\sky select 3.png" />
+    <Content Include="Resources\ChannelLogos\sky select 4.png" />
+    <Content Include="Resources\ChannelLogos\sky select 5.png" />
+    <Content Include="Resources\ChannelLogos\sky select 6.png" />
+    <Content Include="Resources\ChannelLogos\sky select 7.png" />
+    <Content Include="Resources\ChannelLogos\sky select 8.png" />
+    <Content Include="Resources\ChannelLogos\sky select 9.png" />
+    <Content Include="Resources\ChannelLogos\sky select.png" />
+    <Content Include="Resources\ChannelLogos\sky sport 1.png" />
+    <Content Include="Resources\ChannelLogos\sky sport 2.png" />
+    <Content Include="Resources\ChannelLogos\sky sport austria.png" />
+    <Content Include="Resources\ChannelLogos\sky sport HD.png" />
+    <Content Include="Resources\ChannelLogos\sky sport HD2.png" />
+    <Content Include="Resources\ChannelLogos\sky sport info.png" />
+    <Content Include="Resources\ChannelLogos\Sonnenklar TV.png" />
+    <Content Include="Resources\ChannelLogos\Souvenirs from Earth.png" />
+    <Content Include="Resources\ChannelLogos\Spiegel Geschichte.png" />
+    <Content Include="Resources\ChannelLogos\Spiegel TV Digital.png" />
+    <Content Include="Resources\ChannelLogos\SpiritOn.TV.png" />
+    <Content Include="Resources\ChannelLogos\Sport1.png" />
+    <Content Include="Resources\ChannelLogos\sportdigital.tv.png" />
+    <Content Include="Resources\ChannelLogos\SR Fernsehen.png" />
+    <Content Include="Resources\ChannelLogos\Star TV.png" />
+    <Content Include="Resources\ChannelLogos\Super RTL A.png" />
+    <Content Include="Resources\ChannelLogos\Super RTL CH.png" />
+    <Content Include="Resources\ChannelLogos\Super RTL.png" />
+    <Content Include="Resources\ChannelLogos\SVHS.PNG" />
+    <Content Include="Resources\ChannelLogos\SWR Fernsehen BW.png" />
+    <Content Include="Resources\ChannelLogos\SWR Fernsehen RP.png" />
+    <Content Include="Resources\ChannelLogos\SWR Fernsehen.png" />
+    <Content Include="Resources\ChannelLogos\tcm %28a_S%29.png" />
+    <Content Include="Resources\ChannelLogos\tcm.png" />
+    <Content Include="Resources\ChannelLogos\TELE 5.png" />
+    <Content Include="Resources\ChannelLogos\TeleM1.png" />
+    <Content Include="Resources\ChannelLogos\TeleTell.png" />
+    <Content Include="Resources\ChannelLogos\TeleZüri.png" />
+    <Content Include="Resources\ChannelLogos\The Biography Channel.png" />
+    <Content Include="Resources\ChannelLogos\TIER.TV.png" />
+    <Content Include="Resources\ChannelLogos\tirol tv.png" />
+    <Content Include="Resources\ChannelLogos\tividi.png" />
+    <Content Include="Resources\ChannelLogos\TNT Film.png" />
+    <Content Include="Resources\ChannelLogos\TNT Serie %28KD%29.png" />
+    <Content Include="Resources\ChannelLogos\TNT Serie.png" />
+    <Content Include="Resources\ChannelLogos\Toon Disney +1.png" />
+    <Content Include="Resources\ChannelLogos\Toon Disney.png" />
+    <Content Include="Resources\ChannelLogos\tru_  young tv.png" />
+    <Content Include="Resources\ChannelLogos\TV Polonia.png" />
+    <Content Include="Resources\ChannelLogos\tv.B.png" />
+    <Content Include="Resources\ChannelLogos\Tv.gusto Premium.png" />
+    <Content Include="Resources\ChannelLogos\Tv.gusto.png" />
+    <Content Include="Resources\ChannelLogos\TV5 MONDE.png" />
+    <Content Include="Resources\ChannelLogos\TV5MONDE EUROPE.png" />
+    <Content Include="Resources\ChannelLogos\TV5MONDE.png" />
+    <Content Include="Resources\ChannelLogos\TW1.png" />
+    <Content Include="Resources\ChannelLogos\U1 TV.png" />
+    <Content Include="Resources\ChannelLogos\UProm.TV.png" />
+    <Content Include="Resources\ChannelLogos\VH1 Classic.png" />
+    <Content Include="Resources\ChannelLogos\VH1.png" />
+    <Content Include="Resources\ChannelLogos\VIVA Germany.png" />
+    <Content Include="Resources\ChannelLogos\VIVA Schweiz.png" />
+    <Content Include="Resources\ChannelLogos\VIVA.png" />
+    <Content Include="Resources\ChannelLogos\VOX Austria.png" />
+    <Content Include="Resources\ChannelLogos\VOX CH.png" />
+    <Content Include="Resources\ChannelLogos\VOX HD.png" />
+    <Content Include="Resources\ChannelLogos\VOX.png" />
+    <Content Include="Resources\ChannelLogos\WDR Aachen _.png" />
+    <Content Include="Resources\ChannelLogos\WDR Aachen.png" />
+    <Content Include="Resources\ChannelLogos\WDR Bielefeld.png" />
+    <Content Include="Resources\ChannelLogos\WDR Bonn.png" />
+    <Content Include="Resources\ChannelLogos\WDR Dortmund.png" />
+    <Content Include="Resources\ChannelLogos\WDR Duisburg.png" />
+    <Content Include="Resources\ChannelLogos\WDR Düsseldorf.png" />
+    <Content Include="Resources\ChannelLogos\WDR Essen _.png" />
+    <Content Include="Resources\ChannelLogos\WDR Essen.png" />
+    <Content Include="Resources\ChannelLogos\WDR Fernsehen.png" />
+    <Content Include="Resources\ChannelLogos\WDR Köln.png" />
+    <Content Include="Resources\ChannelLogos\WDR Münster.png" />
+    <Content Include="Resources\ChannelLogos\WDR Siegen.png" />
+    <Content Include="Resources\ChannelLogos\WDR Wuppertal.png" />
+    <Content Include="Resources\ChannelLogos\XXHome.png" />
+    <Content Include="Resources\ChannelLogos\Yavido Clips.png" />
+    <Content Include="Resources\ChannelLogos\Yavido.png" />
+    <Content Include="Resources\ChannelLogos\ZDF HD.png" />
+    <Content Include="Resources\ChannelLogos\ZDF.png" />
+    <Content Include="Resources\ChannelLogos\ZDFinfokanal.png" />
+    <Content Include="Resources\ChannelLogos\zdfneo_KiKa.png" />
+    <Content Include="Resources\ChannelLogos\ZDFtheaterkanal.png" />
+    <Content Include="Resources\ChannelLogos\ZDF_neo.png" />
+    <Content Include="plugin.xml">
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\Source\Core\MediaPortal.Utilities\MediaPortal.Utilities.csproj">
+      <Project>{4FE7B8AE-1330-424A-91A1-C68D7ABF9CB8}</Project>
+      <Name>MediaPortal.Utilities</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\FanArtService.Interfaces\FanArtService.Interfaces.csproj">
+      <Project>{587B806E-9AFC-47D7-A024-1CEC38C4D1D3}</Project>
+      <Name>FanArtService.Interfaces</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <PropertyGroup>
+    <PostBuildEvent>mkdir "$(SolutionDir)..\Bin\$(SolutionName)\$(OutDir)Plugins\$(ProjectName)"
+xcopy /Y "$(ProjectDir)plugin.xml" "$(SolutionDir)..\Bin\$(SolutionName)\$(OutDir)Plugins\$(ProjectName)\"
+xcopy /Y "$(TargetDir)$(ProjectName).dll"  "$(SolutionDir)..\Bin\$(SolutionName)\$(OutDir)Plugins\$(ProjectName)\"
+xcopy /Y "$(TargetDir)FanArtService.Interfaces.dll"  "$(SolutionDir)..\Bin\$(SolutionName)\$(OutDir)Plugins\$(ProjectName)\"
+mkdir "$(SolutionDir)..\Bin\$(SolutionName)\$(OutDir)Plugins\$(ProjectName)\Resources"
+robocopy "$(ProjectDir)Resources" "$(SolutionDir)..\Bin\$(SolutionName)\$(OutDir)Plugins\$(ProjectName)\Resources" /MIR
+@REM Reset RoboCopy's exit code which is different from 0
+IF %25ERRORLEVEL%25 LSS 8 SET ERRORLEVEL=0
+</PostBuildEvent>
+  </PropertyGroup>
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>
