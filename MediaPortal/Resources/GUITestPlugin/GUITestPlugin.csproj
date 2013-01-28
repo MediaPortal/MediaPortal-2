@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="4.0">
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
@@ -81,6 +81,7 @@
     <Content Include="Skin\default\screens\test-virtualkeyboardcontrol.xaml" />
     <Content Include="Skin\default\screens\test-focus-movement.xaml" />
     <Content Include="Skin\default\screens\test-textwrapping.xaml" />
+    <Content Include="Skin\default\screens\test-opacitymask-image.xaml" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="Skin\default\images\Cherries.jpg" />
@@ -119,11 +120,6 @@
       <ProductName>Windows Installer 3.1</ProductName>
       <Install>true</Install>
     </BootstrapperPackage>
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="Skin\default\screens\test-opacitymask-image.xaml">
-      <SubType>Designer</SubType>
-    </Content>
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
