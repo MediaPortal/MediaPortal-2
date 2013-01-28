@@ -1802,7 +1802,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     /// where this element would have been drawn if it had been rendered. This method forces the calculation of the final transformation
     /// for this element which can be applied on the <see cref="ActualBounds"/>/<see cref="_innerRect"/> to get the element's render bounds.
     /// </summary>
-    /// <returns></returns>
+    /// <returns>Matrix which represents the final transformation for this element.</returns>
     private Matrix ExtortFinalTransform()
     {
       if (_finalTransform.HasValue)
