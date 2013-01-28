@@ -369,6 +369,7 @@ namespace MediaPortal.UiComponents.Media.General
     public const string KEY_EXTENSION = "Extension";
     public const string KEY_MIMETYPE = "MimeType";
     public const string KEY_RATING = "Rating";
+    public const string KEY_PLAYCOUNT = "PlayCount";
 
     public const string KEY_MEDIA_ITEM = "MediaItem";
     public const string KEY_NUM_ITEMS = "NumItems";
