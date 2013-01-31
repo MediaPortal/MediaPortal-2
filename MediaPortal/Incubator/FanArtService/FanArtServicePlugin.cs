@@ -22,36 +22,29 @@
 
 #endregion
 
-using System.Linq;
-using MediaPortal.Backend.BackendServer;
+using HttpServer.HttpModules;
 using MediaPortal.Common;
 using MediaPortal.Common.Logging;
 using MediaPortal.Common.PluginManager;
-using MediaPortal.Common.UPnP;
+using MediaPortal.Common.ResourceAccess;
 using MediaPortal.Extensions.UserServices.FanArtService.Interfaces;
-using MediaPortal.Extensions.UserServices.FanArtService.UPnP;
-using UPnP.Infrastructure.Dv.DeviceTree;
 
 namespace MediaPortal.Extensions.UserServices.FanArtService
 {
   public class FanArtServicePlugin: IPluginStateTracker
   {
+    private HttpModule _fanartModule;
     public void Activated(PluginRuntime pluginRuntime)
     {
       var meta = pluginRuntime.Metadata;
       Logger.Info(string.Format("{0} v{1} [{2}] by {3}", meta.Name, meta.PluginVersion, meta.Description, meta.Author));
 
-      DvDevice device = ServiceRegistration.Get<IBackendServer>().UPnPBackendServer.FindDevicesByDeviceTypeAndVersion(UPnPTypesAndIds.BACKEND_SERVER_DEVICE_TYPE, UPnPTypesAndIds.BACKEND_SERVER_DEVICE_TYPE_VERSION, true).FirstOrDefault();
-      if (device != null)
+      IResourceServer server = ServiceRegistration.Get<IResourceServer>();
+      if (server != null)
       {
         ServiceRegistration.Set<IFanArtService>(new FanArtService());
-        Logger.Debug("FanArtService: Registered IFanArtService.");
-        device.AddService(new FanArtServiceImpl());
-        Logger.Debug("FanArtService: Adding FanArt service to MP2 backend root device");
-      }
-      else
-      {
-        Logger.Error("FanArtService: MP2 backend root device not found!");
+        _fanartModule = new FanartAccessModule();
+        server.AddHttpModule(_fanartModule);
       }
     }
 
