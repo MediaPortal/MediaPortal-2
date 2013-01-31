@@ -22,34 +22,30 @@
 
 #endregion
 
-using System.Collections.Generic;
-using System.Drawing;
+using System;
+using System.Net;
+using System.Web;
 using MediaPortal.Common;
 using MediaPortal.Common.General;
-using MediaPortal.Common.Threading;
+using MediaPortal.Common.ResourceAccess;
 using MediaPortal.Extensions.UserServices.FanArtService.Interfaces;
-using MediaPortal.UI.SkinEngine.ContentManagement;
+using MediaPortal.UI.ServerCommunication;
 using MediaPortal.UI.SkinEngine.Controls.ImageSources;
 using MediaPortal.Utilities.DeepCopy;
-using SlimDX.Direct3D9;
 
 namespace MediaPortal.Extensions.UserServices.FanArtService.Client
 {
-  public class FanArtImageSource : TextureImageSource
+  public class FanArtImageSource : MultiImageSource
   {
     #region Protected fields
 
-    protected TextureAsset _texture;
+    protected static string _baseUrl;
+
     protected AbstractProperty _fanArtMediaTypeProperty;
     protected AbstractProperty _fanArtTypeProperty;
     protected AbstractProperty _fanArtNameProperty;
     protected AbstractProperty _maxWidthProperty;
     protected AbstractProperty _maxHeightProperty;
-
-    protected IList<FanArtImage> _possibleSources;
-    protected bool _asyncStarted = false;
-
-    protected readonly object _syncObj = new object();
 
     #endregion
 
@@ -142,17 +138,9 @@ namespace MediaPortal.Extensions.UserServices.FanArtService.Client
       Attach();
     }
 
-    public override void Dispose()
-    {
-      base.Dispose();
-      Detach();
-      Deallocate();
-    }
-
     protected void Init()
     {
-      _fanArtMediaTypeProperty = new SProperty(typeof(FanArtConstants.FanArtMediaType),
-        FanArtConstants.FanArtMediaType.Undefined);
+      _fanArtMediaTypeProperty = new SProperty(typeof(FanArtConstants.FanArtMediaType), FanArtConstants.FanArtMediaType.Undefined);
       _fanArtTypeProperty = new SProperty(typeof(FanArtConstants.FanArtType), FanArtConstants.FanArtType.Undefined);
       _fanArtNameProperty = new SProperty(typeof(string), string.Empty);
       _maxWidthProperty = new SProperty(typeof(int), 0);
@@ -161,122 +149,52 @@ namespace MediaPortal.Extensions.UserServices.FanArtService.Client
 
     protected void Attach()
     {
-      FanArtMediaTypeProperty.Attach(UpdateSource);
-      FanArtNameProperty.Attach(UpdateSource);
+      _fanArtMediaTypeProperty.Attach(UpdateSource);
+      _fanArtTypeProperty.Attach(UpdateSource);
+      _fanArtNameProperty.Attach(UpdateSource);
     }
 
     protected void Detach()
     {
-      FanArtMediaTypeProperty.Detach(UpdateSource);
-      FanArtNameProperty.Detach(UpdateSource);
+      _fanArtMediaTypeProperty.Detach(UpdateSource);
+      _fanArtTypeProperty.Detach(UpdateSource);
+      _fanArtNameProperty.Detach(UpdateSource);
     }
 
+    protected bool BuildBaseUrl()
+    {
+      IServerConnectionManager scm = ServiceRegistration.Get<IServerConnectionManager>();
+      // In case we lost the connection clear the url so it can be looked up later again
+      if (!scm.IsHomeServerConnected)
+      {
+        _baseUrl = null;
+        return false;
+      }
+      if (!string.IsNullOrWhiteSpace(_baseUrl))
+        return true;
+
+      // We need to know the base url of the server's remote access service, so we can use the IP and port number.
+      IRemoteResourceInformationService rris = ServiceRegistration.Get<IRemoteResourceInformationService>();
+      string resourceUrl;
+      IPAddress localIpAddress;
+      if (!rris.GetFileHttpUrl(scm.HomeServerSystemId, ResourcePath.BuildBaseProviderPath(Guid.Empty, string.Empty), out resourceUrl, out localIpAddress))
+        return false;
+
+      Uri uri = new Uri(resourceUrl);
+      _baseUrl = uri.Authority;
+      return true;
+    }
     private void UpdateSource(AbstractProperty property, object oldvalue)
     {
-      FreeData();
-      FireChanged();
-    }
-
-    #region ImageSource implementation
-
-    public override bool IsAllocated
-    {
-      get { return _texture != null && _texture.IsAllocated; }
-    }
-
-    protected override Texture Texture
-    {
-      get { return _texture == null ? null : _texture.Texture; }
-    }
-
-    protected override SizeF RawSourceSize
-    {
-      get { return (_texture != null && _texture.IsAllocated) ? new SizeF(_texture.Width, _texture.Height) : SizeF.Empty; }
-    }
-
-    protected override RectangleF TextureClip
-    {
-      get { return _texture == null ? RectangleF.Empty : new RectangleF(0, 0, _texture.MaxU, _texture.MaxV); }
-    }
-
-    public override void Allocate()
-    {
-      if (FanArtMediaType == FanArtConstants.FanArtMediaType.Undefined ||
-        FanArtType == FanArtConstants.FanArtType.Undefined)
+      if (!BuildBaseUrl() || !CheckValidArgs())
         return;
 
-      Download_Async();
-
-      IList<FanArtImage> possibleSources;
-      lock (_syncObj)
-        possibleSources = _possibleSources;
-
-      if (possibleSources == null || possibleSources.Count == 0)
-        return;
-
-      if (_texture == null)
-      {
-        FanArtImage image = possibleSources[0];
-        _texture = ContentManager.Instance.GetTexture(image.BinaryData, image.Name);
-      }
-
-      if (_texture == null || _texture.IsAllocated)
-        return;
-
-      _texture.Allocate();
-
-      if (!_texture.IsAllocated)
-        return;
-
-      _imageContext.Refresh();
-      FireChanged();
+      UriSource = string.Format("http://{0}/FanartService/{1}/{2}/{3}/{4}/{5}", _baseUrl, FanArtMediaType, FanArtType, HttpUtility.UrlEncode(FanArtName), MaxWidth, MaxHeight);
     }
 
-    public override void Deallocate()
+    private bool CheckValidArgs()
     {
-      base.Deallocate();
-      _texture = null;
+      return FanArtMediaType != FanArtConstants.FanArtMediaType.Undefined && FanArtType != FanArtConstants.FanArtType.Undefined && !string.IsNullOrWhiteSpace(FanArtName);
     }
-
-    #endregion
-
-    #region Protected methods
-
-    protected void Download_Async()
-    {
-      if (!_asyncStarted)
-      {
-        IFanArtService fanArtService = ServiceRegistration.Get<IFanArtService>(false);
-        if (fanArtService == null)
-          return;
-
-        FanArtConstants.FanArtMediaType mediaType = FanArtMediaType;
-        FanArtConstants.FanArtType type = FanArtType;
-        string name = FanArtName;
-        IThreadPool threadPool = ServiceRegistration.Get<IThreadPool>();
-        threadPool.Add(() =>
-                         {
-                           IList<FanArtImage> possibleSources = fanArtService.GetFanArt(mediaType, type, name, MaxWidth, MaxHeight, true);
-                           lock (_syncObj)
-                           {
-                             // Selection can be changed meanwhile, so set source only if same as on starting
-                             if (FanArtMediaType == mediaType && FanArtType == type && FanArtName == name)
-                               _possibleSources = possibleSources;
-                           }
-                         });
-        _asyncStarted = true;
-      }
-    }
-
-    protected override void FreeData()
-    {
-      _possibleSources = null;
-      _texture = null;
-      _asyncStarted = false;
-      base.FreeData();
-    }
-
-    #endregion
-
   }
 }
