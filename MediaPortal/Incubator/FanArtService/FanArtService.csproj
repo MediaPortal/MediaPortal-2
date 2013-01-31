@@ -40,6 +40,7 @@
   <ItemGroup>
     <Reference Include="System" />
     <Reference Include="System.Core" />
+    <Reference Include="System.Web" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="System.Data" />
@@ -51,10 +52,14 @@
     </Compile>
     <Compile Include="FanArtService.cs" />
     <Compile Include="FanArtServicePlugin.cs" />
-    <Compile Include="UPnP\FanArtServiceImpl.cs" />
+    <Compile Include="FanartAccessModule.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\..\Source\Core\HttpServer\HttpServer.csproj">
+      <Project>{B1C97BB7-8E27-4C1B-B086-A1204EF8FB79}</Project>
+      <Name>HttpServer</Name>
+    </ProjectReference>
     <ProjectReference Include="..\..\Source\Core\MediaPortal.Backend\MediaPortal.Backend.csproj">
       <Project>{5B27EB95-B829-40F4-B445-0225CA206F85}</Project>
       <Name>MediaPortal.Backend</Name>

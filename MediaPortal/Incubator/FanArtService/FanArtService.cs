@@ -40,38 +40,38 @@ namespace MediaPortal.Extensions.UserServices.FanArtService
     protected IList<IFanArtProvider> _providerList = null;
     protected IPluginItemStateTracker _fanartProviderPluginItemStateTracker;
 
-    private void BuildProviders()
+    public void InitProviders()
     {
       lock (_syncObj)
       {
         if (_providerList != null)
           return;
         _providerList = new List<IFanArtProvider>();
-      }
 
-      _fanartProviderPluginItemStateTracker = new FixedItemStateTracker("Fanart Service - Provider registration");
+        _fanartProviderPluginItemStateTracker = new FixedItemStateTracker("Fanart Service - Provider registration");
 
-      IPluginManager pluginManager = ServiceRegistration.Get<IPluginManager>();
-      foreach (PluginItemMetadata itemMetadata in pluginManager.GetAllPluginItemMetadata(FanartProviderBuilder.FANART_PROVIDER_PATH))
-      {
-        try
+        IPluginManager pluginManager = ServiceRegistration.Get<IPluginManager>();
+        foreach (PluginItemMetadata itemMetadata in pluginManager.GetAllPluginItemMetadata(FanartProviderBuilder.FANART_PROVIDER_PATH))
         {
-          FanartProviderRegistration fanartProviderRegistration =
-            pluginManager.RequestPluginItem<FanartProviderRegistration>(FanartProviderBuilder.FANART_PROVIDER_PATH, itemMetadata.Id, _fanartProviderPluginItemStateTracker);
-
-          if (fanartProviderRegistration == null)
-            ServiceRegistration.Get<ILogger>().Warn("Could not instantiate Fanart provider with id '{0}'", itemMetadata.Id);
-          else
+          try
           {
-            IFanArtProvider provider = Activator.CreateInstance(fanartProviderRegistration.ProviderClass) as IFanArtProvider;
-            if (provider == null)
-              throw new PluginInvalidStateException("Could not create IFanArtProvider instance of class {0}", fanartProviderRegistration.ProviderClass);
-            _providerList.Add(provider);
+            FanartProviderRegistration fanartProviderRegistration = pluginManager.RequestPluginItem<FanartProviderRegistration>(FanartProviderBuilder.FANART_PROVIDER_PATH, itemMetadata.Id, _fanartProviderPluginItemStateTracker);
+            if (fanartProviderRegistration == null)
+              ServiceRegistration.Get<ILogger>().Warn("Could not instantiate Fanart provider with id '{0}'",
+                itemMetadata.Id);
+            else
+            {
+              IFanArtProvider provider = Activator.CreateInstance(fanartProviderRegistration.ProviderClass) as IFanArtProvider;
+              if (provider == null)
+                throw new PluginInvalidStateException("Could not create IFanArtProvider instance of class {0}", fanartProviderRegistration.ProviderClass);
+              _providerList.Add(provider);
+            }
           }
-        }
-        catch (PluginInvalidStateException e)
-        {
-          ServiceRegistration.Get<ILogger>().Warn("Cannot add IFanArtProvider extension with id '{0}'", e, itemMetadata.Id);
+          catch (PluginInvalidStateException e)
+          {
+            ServiceRegistration.Get<ILogger>().Warn("Cannot add IFanArtProvider extension with id '{0}'", e,
+              itemMetadata.Id);
+          }
         }
       }
     }
@@ -86,7 +86,7 @@ namespace MediaPortal.Extensions.UserServices.FanArtService
 
     public IList<FanArtImage> GetFanArt(FanArtConstants.FanArtMediaType mediaType, FanArtConstants.FanArtType fanArtType, string name, int maxWidth, int maxHeight, bool singleRandom)
     {
-      BuildProviders();
+      InitProviders();
       foreach (IFanArtProvider fanArtProvider in _providerList)
       {
         IList<string> fanArtImages;
