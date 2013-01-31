@@ -57,8 +57,7 @@ namespace MediaPortal.Extensions.UserServices.FanArtService
           {
             FanartProviderRegistration fanartProviderRegistration = pluginManager.RequestPluginItem<FanartProviderRegistration>(FanartProviderBuilder.FANART_PROVIDER_PATH, itemMetadata.Id, _fanartProviderPluginItemStateTracker);
             if (fanartProviderRegistration == null)
-              ServiceRegistration.Get<ILogger>().Warn("Could not instantiate Fanart provider with id '{0}'",
-                itemMetadata.Id);
+              ServiceRegistration.Get<ILogger>().Warn("Could not instantiate Fanart provider with id '{0}'", itemMetadata.Id);
             else
             {
               IFanArtProvider provider = Activator.CreateInstance(fanartProviderRegistration.ProviderClass) as IFanArtProvider;
@@ -69,12 +68,10 @@ namespace MediaPortal.Extensions.UserServices.FanArtService
           }
           catch (PluginInvalidStateException e)
           {
-            ServiceRegistration.Get<ILogger>().Warn("Cannot add IFanArtProvider extension with id '{0}'", e,
-              itemMetadata.Id);
+            ServiceRegistration.Get<ILogger>().Warn("Cannot add IFanArtProvider extension with id '{0}'", e, itemMetadata.Id);
           }
         }
       }
-      return null;
     }
 
     /// <summary>

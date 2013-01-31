@@ -110,10 +110,6 @@ namespace MediaPortal.Extensions.UserServices.FanArtService.Client
 
     #region Constructor
 
-    static FanArtImageSource()
-    {
-      FanArtServiceProxyRegistration.RegisterService();
-    }
     /// <summary>
     /// Constructs a <see cref="FanArtImageSource"/>.
     /// </summary>
