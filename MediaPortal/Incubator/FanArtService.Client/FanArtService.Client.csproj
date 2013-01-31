@@ -64,9 +64,7 @@
       <Link>Properties\VersionInfo.cs</Link>
     </Compile>
     <Compile Include="FanArtImageSource.cs" />
-    <Compile Include="FanArtServiceProxy.cs" />
     <Compile Include="Models\FanArtBackgroundModel.cs" />
-    <Compile Include="FanArtServiceProxyRegistration.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
