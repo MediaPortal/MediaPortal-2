@@ -26,6 +26,7 @@ using System;
 using System.Drawing;
 using MediaPortal.Common.General;
 using MediaPortal.UI.SkinEngine.ContentManagement;
+using MediaPortal.UI.SkinEngine.ContentManagement.AssetCore;
 using MediaPortal.UI.SkinEngine.Rendering;
 using MediaPortal.Utilities.DeepCopy;
 using SlimDX.Direct3D9;
@@ -50,6 +51,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.ImageSources
     protected TextureAsset _lastTexture = null;
     protected TextureAsset _currentTexture = null;
     protected bool _source = true;
+    protected TextureAsset _nextTexture;
 
     #region Ctor
 
@@ -217,11 +219,30 @@ namespace MediaPortal.UI.SkinEngine.Controls.ImageSources
       // Check our next texture is allocated. Asynchronous.
       if (nextTexture != null)
       {
+        if (_nextTexture != null)
+          _nextTexture.AllocationChanged -= FinishAsync;
+
+        _nextTexture = nextTexture;
+        // Load texture asynchronously and use eventhandler to cycle textures when finished.
         if (!nextTexture.LoadFailed)
+        {
+          nextTexture.AllocationChanged += FinishAsync;
           nextTexture.AllocateAsync();
-        if (!_transitionActive && nextTexture.IsAllocated)
-          CycleTextures(nextTexture, Rotation);
+        }
+        else
+          // Failed textures needs to be reset.
+          _nextTexture = null;
+
+        if (nextTexture.IsAllocated || nextTexture.LoadFailed)
+          FinishAsync(nextTexture.AllocationSize);
       }
+    }
+
+    private void FinishAsync(int size)
+    {
+      if (!_transitionActive && (_nextTexture == null || _nextTexture.IsAllocated))
+        CycleTextures(_nextTexture, Rotation);
+      _nextTexture = null;
     }
 
     #endregion
