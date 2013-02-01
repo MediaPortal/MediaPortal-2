@@ -36,6 +36,12 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement
   {
     protected T _assetCore;
 
+    public event AssetAllocationHandler AllocationChanged
+    {
+      add { _assetCore.AllocationChanged += value; }
+      remove { _assetCore.AllocationChanged -= value; }
+    }
+
     public AssetWrapper(T assetCore)
     {
       _assetCore = assetCore;
