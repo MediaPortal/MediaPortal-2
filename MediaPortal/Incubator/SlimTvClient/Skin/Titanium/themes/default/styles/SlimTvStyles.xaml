@@ -9,6 +9,7 @@
     >
   <!-- SlimTvClient model -->
   <Model x:Key="SlimTvClient" Id="8BEC1372-1C76-484c-8A69-C7F3103708EC"/>
+  <Model x:Key="TimeModel" Id="E821B1C8-0666-4339-8027-AA45A4F6F107"/>
 
   <Style x:Key="PrimarySlimTvOSDStyle" TargetType="{x:Type mp_special_controls:PlayerControl}">
     <Setter Property="Template">
@@ -47,22 +48,25 @@
                     <Label x:Name="CurrentProgramTitleLabel" Grid.Column="1" Grid.Row="0" Content="{Binding Source={StaticResource SlimTvClient},Path=CurrentProgram.Title}" Scroll="Auto"
                         HorizontalAlignment="Left" VerticalAlignment="Center"
                         IsVisible="{Binding Source={StaticResource SlimTvClient},Path=!IsOSDLevel2}"
-                        Color="{ThemeResource TextColor}"/>
+                        Color="{ThemeResource TextColor}"
+                        FontSize="{ThemeResource OsdTitleFontSize}" FontFamily="TitanBold" />
 
                     <Label x:Name="NextProgramTitleLabel"  Grid.Column="1" Grid.Row="1" Content="{Binding Source={StaticResource SlimTvClient},Path=NextProgram.Title}" Scroll="Auto"
                         HorizontalAlignment="Left" VerticalAlignment="Center"
                         IsVisible="{Binding Source={StaticResource SlimTvClient},Path=IsOSDLevel0}"
-                        Color="{ThemeResource NextProgramLabelColor}"/>
+                        Color="{ThemeResource NextProgramLabelColor}"
+                        FontSize="{ThemeResource BigFontSize}" />
 
                     <!-- Title lable for OSD Level 2 (next program) -->
                     <Label x:Name="NextProgramTitleLabelLevel2" Grid.Column="1" Grid.Row="0" Content="{Binding Source={StaticResource SlimTvClient},Path=NextProgram.Title}" Scroll="Auto"
                         HorizontalAlignment="Left" VerticalAlignment="Center"
                         IsVisible="{Binding Source={StaticResource SlimTvClient},Path=IsOSDLevel2}"
-                        Color="{ThemeResource NextProgramLabelColor}"/>
+                        Color="{ThemeResource NextProgramLabelColor}"
+                        FontSize="{ThemeResource OsdTitleFontSize}" FontFamily="TitanBold" />
 
 
                     <!-- Current Program detailed information -->
-                    <Grid Grid.Column="1" Grid.ColumnSpan="2" Grid.Row="1" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+                    <Grid Grid.Column="1" Grid.Row="1" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
                         IsVisible="{Binding Source={StaticResource SlimTvClient},Path=IsOSDLevel1}">
                       <Grid.RowDefinitions>
                         <RowDefinition Height="Auto"/>
@@ -101,7 +105,7 @@
                     </Grid>
 
                     <!-- Next Program detailed information -->
-                    <Grid Grid.Column="1" Grid.ColumnSpan="2" Grid.Row="1" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+                    <Grid Grid.Column="1" Grid.Row="1" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
                         IsVisible="{Binding Source={StaticResource SlimTvClient},Path=IsOSDLevel2}">
                       <Grid.RowDefinitions>
                         <RowDefinition Height="Auto"/>
@@ -138,6 +142,13 @@
                           Content="{Binding Source={StaticResource SlimTvClient},Path=NextProgram.Description}"
                           Color="{ThemeResource TextColor}"/>
                     </Grid>
+
+                    <Rectangle Grid.Column="2" Grid.Row="0" Grid.RowSpan="2" RadiusX="20" RadiusY="20" Fill="#80000000" />
+
+                    <Label x:Name="TimeLabel" Color="{ThemeResource EmphasisTextColor}" FontSize="{ThemeResource BigFontSize}"
+                        HorizontalAlignment="Center" VerticalAlignment="Center" Grid.Column="2" Grid.Row="0" Grid.RowSpan="2" 
+                        Content="{Binding Source={StaticResource TimeModel}, Path=CurrentTime}" />
+
                   </Grid>
                 </DockPanel>
               </ControlTemplate>
@@ -167,19 +178,8 @@
                       HorizontalAlignment="Right" VerticalAlignment="Center" Margin="0,0,20,0"                      
                       Color="{ThemeResource TextColor}"/>
 
-                    <Border x:Name="BgProgressbar" Grid.Column="2" Grid.Row="1" HorizontalAlignment="Stretch" VerticalAlignment="Center"
-                        BorderBrush="Black" CornerRadius="2" BorderThickness="1">
-                      <Border.Background>
-                        <RadialGradientBrush Center="0.5,-0" GradientOrigin="0.5,0" RadiusX="0.9" RadiusY="0.5">
-                          <GradientStop Offset="0" Color="{ThemeResource OSDProgressBarBackgroundGradient1Color}"/>
-                          <GradientStop Offset="1" Color="{ThemeResource OSDProgressBarBackgroundGradient2Color}"/>
-                        </RadialGradientBrush>
-                      </Border.Background>
-                      <!-- Shows the progress of current time in relation to the current playing program -->
-                      <ProgressBar x:Name="CurrentProgramProgress" Height="10" HorizontalAlignment="Stretch" VerticalAlignment="Center"
-                          Value="{Binding Source={StaticResource SlimTvClient},Path=ProgramProgress}"/>
-                    </Border>
-
+                    <ProgressBar x:Name="CurrentProgramProgress" Grid.Row="1" Grid.Column="2" Height="22" HorizontalAlignment="Stretch" VerticalAlignment="Center" Margin="0,5,0,0"
+                        Value="{Binding Source={StaticResource SlimTvClient},Path=ProgramProgress}" />
 
                     <Label x:Name="CurrentProgramEndLabel" Grid.Column="3" Grid.Row="1" 
                       Content="{Binding Source={StaticResource SlimTvClient},Path=CurrentProgram.EndTime, Converter={StaticResource DateFormatConverter}}"

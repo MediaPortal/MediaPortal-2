@@ -11,7 +11,7 @@
     <Setter Property="Template">
       <Setter.Value>
         <ControlTemplate>
-          <Grid x:Name="MainOSDGrid" Margin="180,0,180,50">
+          <Grid x:Name="MainOSDGrid" Margin="225,0,225,64" MinHeight="270">
             <Grid.ColumnDefinitions>
               <ColumnDefinition Width="*"/>
             </Grid.ColumnDefinitions>
@@ -19,11 +19,10 @@
             <Grid.RowDefinitions>
               <RowDefinition Height="Auto"/>
               <RowDefinition Height="Auto"/>
-              <RowDefinition Height="Auto"/>
               <RowDefinition Height="80"/>
             </Grid.RowDefinitions>
 
-            <Rectangle Grid.Column="0" Grid.Row="1" Grid.RowSpan="3" VerticalAlignment="Stretch" RadiusX="30" RadiusY="30">
+            <Rectangle Grid.Column="0" Grid.Row="0" Grid.RowSpan="2" VerticalAlignment="Stretch" RadiusX="30" RadiusY="30" Margin="0,0,0,-30">
               <Rectangle.Fill>
                 <LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0">
                   <GradientStop Color="{ThemeResource OSDPlayerControlBackgroundColor1}" Offset="0"/>
@@ -31,20 +30,20 @@
                 </LinearGradientBrush>
               </Rectangle.Fill>
             </Rectangle>
-            <Path Grid.Column="0" Grid.Row="3" x:Name="Shape_57_copy_7" Data="F1M2,663.984C2,680.552 15.431,693.984 32,693.984 32,693.984 1792.01,693.984 1792.01,693.984 1808.578,693.984 1822.01,680.552 1822.01,663.984L1822.01,670.315C1822.01,700.647 1822.01,718.961 1822.01,718.961 1822.01,735.529 1808.578,748.961 1792.01,748.961 1792.01,748.961 32,748.961 32,748.961 15.431,748.961 2,735.529 2,718.961 2,718.961 2,700.647 2,670.315z" 
+            <Path Grid.Column="0" Grid.Row="2" x:Name="Shape_57_copy_7" Data="F1M2,663.984C2,680.552 15.431,693.984 32,693.984 32,693.984 1792.01,693.984 1792.01,693.984 1808.578,693.984 1822.01,680.552 1822.01,663.984L1822.01,670.315C1822.01,700.647 1822.01,718.961 1822.01,718.961 1822.01,735.529 1808.578,748.961 1792.01,748.961 1792.01,748.961 32,748.961 32,748.961 15.431,748.961 2,735.529 2,718.961 2,718.961 2,700.647 2,670.315z" 
                   Height="82" Stretch="Fill" VerticalAlignment="Top">
               <Path.Fill>
                 <SolidColorBrush Color="{ThemeResource OSDPlayerControlBackgroundColor3}"/>
               </Path.Fill>
             </Path>
 
-            <Control Grid.Column="0" Grid.Row="1" x:Name="OSDInfoAreaPresenter" Margin="15" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+            <Control Grid.Column="0" Grid.Row="0" x:Name="OSDInfoAreaPresenter" Margin="15" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
                 Template="{DynamicResource ResourceKey=OSD_InfoArea_Template}" />
 
-            <Control Grid.Column="0" Grid.Row="3" x:Name="ProgressPresenter" Margin="10" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+            <Control Grid.Column="0" Grid.Row="2" x:Name="ProgressPresenter" Margin="10" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
                      Template="{DynamicResource ResourceKey=OSD_Progress_Template}"/>
 
-            <Grid  Grid.Column="0" Grid.Row="2" HorizontalAlignment="Center" Opacity="0.94" IsVisible="{Binding ShowMouseControls}">
+            <Grid  Grid.Column="0" Grid.Row="1" HorizontalAlignment="Center" Opacity="0.94" IsVisible="{Binding ShowMouseControls}">
               <Canvas Height="80" Opacity="0.38" Width="1062" Margin="10">
                 <Path Data="M1490.5,891.5C1490.5,919.666,1467.666,942.5,1439.5,942.5L479.5,942.5C451.333,942.5,428.5,919.666,428.5,891.5C428.5,863.334,451.333,840.5,479.5,840.5L1439.5,840.5C1467.666,840.5,1490.5,863.334,1490.5,891.5z" 
                       Fill="#FFE6EFEF" Height="80" Canvas.Left="-2.5" Stretch="Fill" Stroke="Black" StrokeThickness="5" StrokeLineJoin="Miter" Canvas.Top="-2.5" Width="1067" Opacity="0.905"/>
