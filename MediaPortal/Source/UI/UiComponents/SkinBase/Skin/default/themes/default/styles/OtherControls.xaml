@@ -71,8 +71,13 @@
             <Grid.RowDefinitions>
               <RowDefinition Height="*"/>
             </Grid.RowDefinitions>
-            <Rectangle x:Name="ProgressBarTrack" HorizontalAlignment="Left" Fill="{ThemeResource ProgressBarBorderColor}"/>
-            <Rectangle x:Name="ProgressBarIndicator" Width="{TemplateBinding PartIndicatorWidth}" HorizontalAlignment="Left" Fill="{ThemeResource ProgressBarFillColor}"/>
+            <Rectangle x:Name="ProgressBarTrack" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" 
+                       RadiusX="{ThemeResource ProgressBarRadius}" RadiusY="{ThemeResource ProgressBarRadius}"
+                       Fill="{ThemeResource ProgressBarBorderColor}"/>
+            <Rectangle x:Name="ProgressBarIndicator" Width="{TemplateBinding PartIndicatorWidth}" HorizontalAlignment="Left" 
+                       RadiusX="{ThemeResource ProgressBarRadius}" RadiusY="{ThemeResource ProgressBarRadius}"
+                       Margin="{ThemeResource ProgressBarIndicatorMargin}"
+                       Fill="{ThemeResource ProgressBarFillColor}"/>
           </Grid>
         </ControlTemplate>
       </Setter.Value>
