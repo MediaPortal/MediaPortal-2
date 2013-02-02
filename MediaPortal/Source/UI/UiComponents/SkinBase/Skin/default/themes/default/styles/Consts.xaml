@@ -17,6 +17,10 @@
 
   <!-- Scroll bar -->  
   <ResourceWrapper x:Key="ScrollBarWidth" Resource="12"/>
+  
+  <!-- Progress bar -->
+  <ResourceWrapper x:Key="ProgressBarIndicatorMargin" Resource="0"/>
+  <ResourceWrapper x:Key="ProgressBarRadius" Resource="0"/>
 
   <!-- Dialogs -->
   <ResourceWrapper x:Key="DialogTitleFontSize" Resource="30"/>
