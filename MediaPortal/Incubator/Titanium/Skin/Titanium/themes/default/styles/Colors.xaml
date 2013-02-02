@@ -63,9 +63,26 @@
 
   <ResourceWrapper x:Key="ErrorTextColor" Resource="Orange"/>
 
-  <ResourceWrapper x:Key="ProgressBarBorderColor" Resource="#FFD3D3D3"/>
+  <ResourceWrapper x:Key="ProgressBarTextColor" Resource="Black"/>
 
-  <ResourceWrapper x:Key="ProgressBarFillColor" Resource="#FF6BB2BA"/>
+  <ResourceWrapper x:Key="ProgressBarBorderColor">
+    <LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0">
+      <GradientStop Offset="0" Color="#111111"/>
+      <GradientStop Offset="0.49" Color="#2C2C2C"/>
+      <GradientStop Offset="0.5"  Color="#2F2F2F"/>
+      <GradientStop Offset="0.95"  Color="#2F2F2F"/>
+      <GradientStop Offset="1" Color="#404040"/>
+    </LinearGradientBrush>
+  </ResourceWrapper>
+
+  <ResourceWrapper x:Key="ProgressBarFillColor">
+    <LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0">
+      <GradientStop Color="#FF23C1FF" Offset="0"/>
+      <GradientStop Color="#FF009AD5" Offset="0.5"/>
+      <GradientStop Color="#FF008DC4" Offset="0.5"/>
+      <GradientStop Color="#FF00719D" Offset="1"/>
+    </LinearGradientBrush>
+  </ResourceWrapper>
 
   <ResourceWrapper x:Key="ButtonStrokeColor" Resource="#B0E0E0E0"/>
 
@@ -271,7 +288,7 @@
 
   <ResourceWrapper x:Key="OSDPlayerControlBackgroundColor1" Resource="#D72B2B2B"/>
   <ResourceWrapper x:Key="OSDPlayerControlBackgroundColor2" Resource="Black"/>
-  <ResourceWrapper x:Key="OSDPlayerControlBackgroundColor3" Resource="#60FFFFFF"/>
+  <ResourceWrapper x:Key="OSDPlayerControlBackgroundColor3" Resource="#80FFFFFF"/>
   <ResourceWrapper x:Key="OSDPlayerControlBackgroundColor4" Resource="#F87A7673"/>
   <ResourceWrapper x:Key="OSDCurrentPlayerControlBackgroundColor1" Resource="#FF152854"/>
   <ResourceWrapper x:Key="OSDCurrentPlayerControlBackgroundColor2" Resource="#80000000"/>
@@ -279,8 +296,6 @@
   <ResourceWrapper x:Key="OSDPlayControlBorderColor" Resource="Black"/>
   <ResourceWrapper x:Key="OSDPipStrokeColor" Resource="Black"/>
   <ResourceWrapper x:Key="OSDPipBorderFocusColor" Resource="White"/>
-  <ResourceWrapper x:Key="OSDProgressBarBackgroundGradient1Color" Resource="#48F2F2F2"/>
-  <ResourceWrapper x:Key="OSDProgressBarBackgroundGradient2Color" Resource="#F8CCCCCC"/>
 
   <!-- Master screen colors -->
   <ResourceWrapper x:Key="HeaderPanelBackgroundBrush" />
