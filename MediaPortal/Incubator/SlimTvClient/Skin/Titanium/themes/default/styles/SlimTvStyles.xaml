@@ -171,12 +171,12 @@
 
                     <Label x:Name="PlayerStateLabel" Grid.Column="0" Grid.Row="1" HorizontalAlignment="Left"
                         Content="{Binding PlayerStateText}" Scroll="Auto"
-                        Color="{ThemeResource TextColor}" />
+                        Color="{ThemeResource ProgressBarTextColor}" />
                     
                     <Label x:Name="CurrentProgramStartLabel" Grid.Column="1" Grid.Row="1" 
                       Content="{Binding Source={StaticResource SlimTvClient}, Path=CurrentProgram.StartTime, Converter={StaticResource DateFormatConverter}}"
                       HorizontalAlignment="Right" VerticalAlignment="Center" Margin="0,0,20,0"                      
-                      Color="{ThemeResource TextColor}"/>
+                      Color="{ThemeResource ProgressBarTextColor}"/>
 
                     <ProgressBar x:Name="CurrentProgramProgress" Grid.Row="1" Grid.Column="2" Height="22" HorizontalAlignment="Stretch" VerticalAlignment="Center" Margin="0,5,0,0"
                         Value="{Binding Source={StaticResource SlimTvClient},Path=ProgramProgress}" />
@@ -184,7 +184,7 @@
                     <Label x:Name="CurrentProgramEndLabel" Grid.Column="3" Grid.Row="1" 
                       Content="{Binding Source={StaticResource SlimTvClient},Path=CurrentProgram.EndTime, Converter={StaticResource DateFormatConverter}}"
                       HorizontalAlignment="Left" VerticalAlignment="Center" Margin="20,0,0,0"
-                      Color="{ThemeResource TextColor}"/>
+                      Color="{ThemeResource ProgressBarTextColor}"/>
 
                   </Grid>
                 </DockPanel>

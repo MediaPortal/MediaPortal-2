@@ -63,6 +63,8 @@
 
   <ResourceWrapper x:Key="ErrorTextColor" Resource="Orange"/>
 
+  <ResourceWrapper x:Key="ProgressBarTextColor" Resource="Black"/>
+
   <ResourceWrapper x:Key="ProgressBarBorderColor">
     <LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0">
       <GradientStop Offset="0" Color="#111111"/>
