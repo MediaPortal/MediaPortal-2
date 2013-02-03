@@ -126,9 +126,15 @@ namespace MediaPortal.UiComponents.BackgroundManager.Models
     {
       EndBackgroundPlayback();
       BackgroundManagerSettings settings = ServiceRegistration.Get<ISettingsManager>().Load<BackgroundManagerSettings>();
-      _videoFilename = settings.VideoBackgroundFileName;
-      _video = MediaItemHelper.CreateMediaItem(_videoFilename);
-      IsEnabled = settings.EnableVideoBackground && MediaItemHelper.IsValidVideo(_video);
+      if (settings.EnableVideoBackground)
+      {
+        _videoFilename = settings.VideoBackgroundFileName;
+        _video = string.IsNullOrWhiteSpace(_videoFilename) ? null : MediaItemHelper.CreateMediaItem(_videoFilename);
+        IsEnabled = MediaItemHelper.IsValidVideo(_video);
+      }
+      else 
+        IsEnabled = false;
+
       if (IsEnabled && refresh)
         StartBackgroundPlayback();
     }
