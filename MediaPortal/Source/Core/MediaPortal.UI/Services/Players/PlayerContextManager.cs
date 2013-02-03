@@ -233,10 +233,7 @@ namespace MediaPortal.UI.Services.Players
           pc.Close();
         else
           psc.Stop();
-        if (pc.IsPrimaryPlayerContext)
-          StepOutOfPlayerWFState(PlayerWFStateType.FullscreenContent);
-        if (pc.IsCurrentPlayerContext)
-          StepOutOfPlayerWFState(PlayerWFStateType.CurrentlyPlaying);
+        CheckMediaWorkflowStates_Async();
       }
     }
 
@@ -249,10 +246,7 @@ namespace MediaPortal.UI.Services.Players
       // we close the correct one
       if (pc.CloseWhenFinished && pc.CurrentPlayer == null)
         pc.Close();
-      if (pc.IsPrimaryPlayerContext)
-        StepOutOfPlayerWFState(PlayerWFStateType.FullscreenContent);
-      if (pc.IsCurrentPlayerContext)
-        StepOutOfPlayerWFState(PlayerWFStateType.CurrentlyPlaying);
+      CheckMediaWorkflowStates_Async();
     }
 
     protected void HandleRequestNextItem(IPlayerSlotController psc)
@@ -294,28 +288,8 @@ namespace MediaPortal.UI.Services.Players
     /// <returns></returns>
     protected Guid? GetPotentialFSCStateId()
     {
-      IPlayerContext currentPC = GetPlayerContext(PlayerContextIndex.PRIMARY);
-      return currentPC == null ? new Guid?() : currentPC.FullscreenContentWorkflowStateId;
-    }
-
-    /// <summary>
-    /// Check if one of our tracked workflow states has the given <paramref name="type"/>. If yes, go out of that state.
-    /// </summary>
-    protected void StepOutOfPlayerWFState(PlayerWFStateType type)
-    {
-      for (int i = 0; i < _playerWfStateInstances.Count; i++)
-      {
-        PlayerWFStateInstance wfStateInstance = _playerWfStateInstances[i];
-        if (wfStateInstance.WFStateType == type)
-        { // Found FSC state - step out of it
-          ServiceRegistration.Get<ILogger>().Debug("PlayerContextManager: Leaving {0} Workflow State '{1}'", type, wfStateInstance.WFStateId);
-          lock (SyncObj)
-            // Remove all workflow states until the removed player workflow state
-            _playerWfStateInstances.RemoveRange(i, _playerWfStateInstances.Count - i);
-          ServiceRegistration.Get<IWorkflowManager>().NavigatePopToStateAsync(wfStateInstance.WFStateId, true);
-          return;
-        }
-      }
+      IPlayerContext primaryPC = PrimaryPlayerContext;
+      return primaryPC == null ? new Guid?() : primaryPC.FullscreenContentWorkflowStateId;
     }
 
     /// <summary>
