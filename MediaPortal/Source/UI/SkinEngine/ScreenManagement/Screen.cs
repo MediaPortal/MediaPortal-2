@@ -728,7 +728,7 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
     {
       FrameworkElement focusedElement = FocusedElement;
       FrameworkElement cntl = PredictFocus(focusedElement == null || !focusedElement.IsVisible ? _lastFocusRect ?? CreateCenterRect() :
-          focusedElement.BoundingBox, key);
+          focusedElement.ActualBounds, key);
       if (cntl != null)
       {
         if (cntl.TrySetFocus(true))
