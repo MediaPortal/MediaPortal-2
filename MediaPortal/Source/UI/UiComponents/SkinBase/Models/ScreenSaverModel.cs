@@ -47,7 +47,7 @@ namespace MediaPortal.UiComponents.SkinBase.Models
     protected AbstractProperty _isMouseUsedProperty;
     protected AbstractProperty _screenSaverTextProperty;
 
-    public ScreenSaverModel() : base(100)
+    public ScreenSaverModel() : base(true, 100)
     {
       _isScreenSaverActiveProperty = new WProperty(typeof(bool), false);
       _isMouseUsedProperty = new WProperty(typeof(bool), false);

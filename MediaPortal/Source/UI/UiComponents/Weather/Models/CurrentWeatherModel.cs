@@ -67,8 +67,7 @@ namespace MediaPortal.UiComponents.Weather.Models
     /// <summary>
     /// Contructs a new instance of <see cref="CurrentWeatherModel"/>. 
     /// </summary>
-    public CurrentWeatherModel()
-      : base(WEATHER_UPDATE_INTERVAL)
+    public CurrentWeatherModel() : base(true, WEATHER_UPDATE_INTERVAL)
     {
       // do initial update in its own thread to avoid delay during startup of MP2
       ServiceRegistration.Get<IThreadPool>().Add(new DoWorkHandler(this.SetAndUpdatePreferredLocation), "SetAndUpdatePreferredLocation", QueuePriority.Normal, ThreadPriority.BelowNormal);
@@ -92,7 +91,7 @@ namespace MediaPortal.UiComponents.Weather.Models
     protected override void Update()
     {
       // do update in its own thread to avoid delay
-      ServiceRegistration.Get<IThreadPool>().Add(new DoWorkHandler(this.SetAndUpdatePreferredLocation), "SetAndUpdatePreferredLocation", QueuePriority.Normal, ThreadPriority.BelowNormal);
+      ServiceRegistration.Get<IThreadPool>().Add(new DoWorkHandler(SetAndUpdatePreferredLocation), "SetAndUpdatePreferredLocation", QueuePriority.Normal, ThreadPriority.BelowNormal);
     }
     
     protected void SetAndUpdatePreferredLocation()

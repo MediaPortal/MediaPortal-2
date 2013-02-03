@@ -58,7 +58,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
     { }
 
     protected SlimTvModelBase(long updateInterval)
-      : base (updateInterval)
+      : base (true, updateInterval)
     { }
 
     #endregion

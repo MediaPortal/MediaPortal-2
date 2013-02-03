@@ -44,7 +44,7 @@ namespace MediaPortal.UiComponents.SkinBase.Models
 
     #endregion
 
-    public MouseModel() : base(50)
+    public MouseModel() : base(true, 50)
     {
       Update();
     }
