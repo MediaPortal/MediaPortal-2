@@ -286,7 +286,7 @@
 
   <!-- MultiChannel Program Guide, Item Width gets calculated of program's Duration and visible ViewPort (time). -->
   <DataTemplate x:Key="MultiChannelProgramGuideDataTemplate" DataType="{x:Type collections:ListItem}">
-    <StackPanel x:Name="ItemControl" VerticalAlignment="Center" HorizontalAlignment="Stretch" Width="{Binding Program.ProgramWidth}">
+    <StackPanel x:Name="ItemControl" VerticalAlignment="Center" HorizontalAlignment="Stretch" Width="{Binding Program.ProgramWidth}" Height="{ThemeResource MultiGuideProgramHeight}">
       <Label x:Name="ItemLabel" Content="{Binding [Name]}" Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}" />
     </StackPanel>
   </DataTemplate>
@@ -403,7 +403,8 @@
         <ControlTemplate TargetType="{x:Type ListViewItem}">
           <Button Style="{ThemeResource ProgramGuideButtonStyle}"
               Command="{DynamicResource ResourceKey=Menu_Command}"
-              IsEnabled="{Binding Enabled}">
+              IsEnabled="{Binding Enabled}"
+              SetFocus="{Binding Path=Selected,Mode=OneTime}">
             <Button.Triggers>
               <Trigger Property="HasFocus" Value="True">
                 <Setter TargetName="ItemLabel" Property="Scroll" Value="Auto"/>
@@ -455,7 +456,7 @@
   DataTemplate used for main channel list and miniguide, using channel logo, name, program and time.
   -->
   <DataTemplate x:Key="ChannelWithLogoAndProgramDataTemplate" DataType="{x:Type collections:ListItem}">
-    <Grid x:Name="ItemControl" VerticalAlignment="Center" HorizontalAlignment="Stretch" RenderTransformOrigin="0.5,0.5" Margin="0,2,0,2">
+    <Grid x:Name="ItemControl" VerticalAlignment="Center" HorizontalAlignment="Stretch" RenderTransformOrigin="0.5,0.5" Margin="{ThemeResource ChannelWithLogoAndProgramMargin}">
       <Grid.ColumnDefinitions>
         <ColumnDefinition Width="{ThemeResource ChannelLogoContainerMedium}"/> <!-- Channel Logo -->
         <ColumnDefinition Width="{ThemeResource MainListChannelNameLength}"/> <!-- Channel Name -->
@@ -510,7 +511,7 @@
         <RowDefinition Height="{ThemeResource MultiGuideProgramHeight}"/>
       </Grid.RowDefinitions>
 
-      <Button Style="{ThemeResource DefaultButtonStyle}">
+      <Button Style="{ThemeResource ProgramGuideButtonStyle}">
         <Grid x:Name="ChannelHeader" RenderTransformOrigin="0.5,0.5" Margin="0,2,0,2">
           <Grid.ColumnDefinitions>
             <ColumnDefinition Width="30"/> <!-- Channel Logo -->
