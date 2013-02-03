@@ -48,9 +48,9 @@
 
         </StackPanel>
 
-        <ListView  Grid.Column="0" Grid.Row="1" Grid.ColumnSpan="2"
+        <ListView Grid.Column="0" Grid.Row="1" Grid.ColumnSpan="2" 
             HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
-            Style="{ThemeResource ChannelWithLogoAndProgramContainerStyle}"
+            Style="{ThemeResource ChannelWithLogoAndProgramListViewStyle}"
             ItemsSource="{Binding Path=CurrentGroupChannels}">
           <ListView.Resources>
             <CommandList x:Key="Menu_Command">
