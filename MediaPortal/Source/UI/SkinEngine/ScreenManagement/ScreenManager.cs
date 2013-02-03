@@ -1471,7 +1471,7 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
         if (screen != null && screen.ResourceName == screenName)
         {
           BackgroundDisabled = !backgroundEnabled;
-          return _currentScreen.ScreenInstanceId;
+          return screen.ScreenInstanceId;
         }
       }
       return ShowScreen(screenName, backgroundEnabled);
