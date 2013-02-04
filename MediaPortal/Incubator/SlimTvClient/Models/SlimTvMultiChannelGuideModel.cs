@@ -273,7 +273,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
       UpdateProgramsState();
     }
 
-    protected void UpdateProgramsForGroup ()
+    protected void UpdateProgramsForGroup()
     {
       IChannelGroup group = _channelGroups[_webChannelGroupIndex];
       _tvHandler.ProgramInfo.GetProgramsGroup(group, GuideStartTime, GuideEndTime, out _groupPrograms);
@@ -316,7 +316,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
     {
       channel.Programs.Clear();
       if (_groupPrograms != null)
-        _groupPrograms.Where(p => p.ChannelId == channel.Channel.ChannelId).ToList().ForEach(p => channel.Programs.Add(BuildProgramListItem(p)));
+        _groupPrograms.Where(p => p.ChannelId == channel.Channel.ChannelId && p.StartTime < GuideEndTime).ToList().ForEach(p => channel.Programs.Add(BuildProgramListItem(p)));
       FillNoPrograms(channel, GuideStartTime, GuideEndTime);
       channel.Programs.FireChange();
     }
@@ -334,7 +334,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
       if (firstItem.Program.StartTime > viewPortStart)
         programs.Insert(0, NoProgramPlaceholder(channel.Channel, null, firstItem.Program.StartTime));
 
-      if (firstItem.Program.EndTime < viewPortEnd)
+      if (lastItem.Program.EndTime < viewPortEnd)
         programs.Add(NoProgramPlaceholder(channel.Channel, lastItem.Program.EndTime, null));
     }
 
