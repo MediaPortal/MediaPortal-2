@@ -40,23 +40,29 @@ namespace MediaPortal.UI.Presentation.Models
     protected Timer _timer = null;
     protected long _updateInterval = 0;
     protected volatile bool _duringUpdate = false;
+    protected bool _autoStart;
 
     /// <summary>
     /// Creates a new <see cref="BaseTimerControlledModel"/> instance and initializes the internal timer
     /// and message queue registrations.
     /// </summary>
+    /// <param name="startAtOnce">If set to <c>true</c>, the underlaying timer is started at once. Else, <see cref="StartTimer"/>
+    /// must be called to start the timer.</param>
     /// <param name="updateInterval">Timer update interval in milliseconds.</param>
     /// <remarks>
     /// Subclasses might need to call method <see cref="Update"/> in their constructor to initialize the initial model state,
     /// if appropriate.
     /// </remarks>
-    protected BaseTimerControlledModel(long updateInterval)
+    protected BaseTimerControlledModel(bool startAtOnce, long updateInterval)
     {
+      _autoStart = startAtOnce;
       _updateInterval = updateInterval;
       ISystemStateService systemStateService = ServiceRegistration.Get<ISystemStateService>();
-      if (systemStateService.CurrentState == SystemState.Running)
-        StartTimer();
-      SubscribeToMessages();
+      if (startAtOnce)
+        if (systemStateService.CurrentState == SystemState.Running)
+          StartTimer();
+        else
+          SubscribeToMessages();
     }
 
     /// <summary>
@@ -71,7 +77,8 @@ namespace MediaPortal.UI.Presentation.Models
     void SubscribeToMessages()
     {
       _messageQueue.PreviewMessage += OnMessageReceived;
-      _messageQueue.SubscribeToMessageChannel(SystemMessaging.CHANNEL);
+      if (_autoStart)
+        _messageQueue.SubscribeToMessageChannel(SystemMessaging.CHANNEL);
     }
 
     protected void OnTimerElapsed(object sender)
@@ -143,6 +150,8 @@ namespace MediaPortal.UI.Presentation.Models
         SystemMessaging.MessageType messageType = (SystemMessaging.MessageType) message.MessageType;
         if (messageType == SystemMessaging.MessageType.SystemStateChanged)
         {
+          if (!_autoStart)
+            return;
           SystemState state = (SystemState) message.MessageData[SystemMessaging.NEW_STATE];
           switch (state)
           {

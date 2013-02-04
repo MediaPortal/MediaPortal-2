@@ -45,7 +45,7 @@ namespace MediaPortal.UiComponents.Media.Models
     protected bool _backgroundDisabled = false;
     protected IPlayer _oldPlayer;
 
-    protected BasePlayerModel(Guid currentlyPlayingWorkflowStateId, Guid fullscreenContentWorkflowStateId) : base(300)
+    protected BasePlayerModel(Guid currentlyPlayingWorkflowStateId, Guid fullscreenContentWorkflowStateId) : base(false, 300)
     {
       _playerUIContributorProperty = new WProperty(typeof(IPlayerUIContributor));
       _currentlyPlayingWorkflowStateId = currentlyPlayingWorkflowStateId;

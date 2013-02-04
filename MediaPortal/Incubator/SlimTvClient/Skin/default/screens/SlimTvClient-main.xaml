@@ -8,68 +8,55 @@
   <Include.Resources>
 
     <!-- Header -->
-    <ResourceWrapper x:Key="Header_Text" Resource="[SlimTvClient.Title]"/> 
+    <ResourceWrapper x:Key="Header_Text" Resource="[SlimTvClient.Title]"/>
 
     <!-- SlimTvClient model -->
     <Model x:Key="SlimTvClient" Id="8BEC1372-1C76-484c-8A69-C7F3103708EC"/>
 
     <!-- Contents -->
-    <!--<ControlTemplate x:Key="Client_Template">-->
     <ControlTemplate x:Key="Contents_Template">
-        <Grid x:Name="MainGrid" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" 
-              DataContext="{Binding Source={StaticResource SlimTvClient}}">
-          
-          <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="300"/>
-            <ColumnDefinition Width="*"/>
-          </Grid.ColumnDefinitions>
-          
-          <Grid.RowDefinitions>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="*"/>
-          </Grid.RowDefinitions>
-          
-          <StackPanel x:Name="Groups" Margin="20,0,20,0" Grid.Column="0" Grid.Row="0"
+      <Grid x:Name="MainGrid" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" DataContext="{Binding Source={StaticResource SlimTvClient}}">
+
+        <Grid.ColumnDefinitions>
+          <ColumnDefinition Width="300"/>
+          <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+
+        <Grid.RowDefinitions>
+          <RowDefinition Height="Auto"/>
+          <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <StackPanel x:Name="Groups" Margin="20,0,20,0" Grid.Column="0" Grid.Row="0"
               HorizontalAlignment="Left" VerticalAlignment="Center" Orientation="Horizontal">
-            <Button x:Name="PrevGroupButton" Style="{StaticResource SmallButtonStyle}" Content=" &lt; "
+          <Button x:Name="PrevGroupButton" Style="{StaticResource SmallButtonStyle}" Content=" &lt; "
               Command="{Command PrevGroup}"/>
-            <Button x:Name="NextGroupButton" Style="{StaticResource SmallButtonStyle}" Content=" &gt; "
+          <Button x:Name="NextGroupButton" Style="{StaticResource SmallButtonStyle}" Content=" &gt; "
               Command="{Command NextGroup}"/>
-            <Label x:Name="CurrentGroupNameLabel" Content="{Binding CurrentGroupName}"
+          <Label x:Name="CurrentGroupNameLabel" Content="{Binding CurrentGroupName}"
                 Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}"/>
-          </StackPanel>
-          
-          <StackPanel x:Name="PiPControl" Margin="20,0,20,0" Grid.Column="1" Grid.Row="0"
+        </StackPanel>
+
+        <StackPanel x:Name="PiPControl" Margin="20,0,20,0" Grid.Column="1" Grid.Row="0"
                      HorizontalAlignment="Left" VerticalAlignment="Center" Orientation="Horizontal"
                      IsVisible="{Binding PiPAvailable}">
-            <Button x:Name="EnablePiPButton" Style="{StaticResource SmallButtonStyle}" 
+          <Button x:Name="EnablePiPButton" Style="{StaticResource SmallButtonStyle}" 
                     Content="PiP enabled:" Command="{Command TogglePiP}" />
-            <Label x:Name="PiPStatusLabel" Margin="10,0,0,0" Content="{Binding PiPEnabled}"
+          <Label x:Name="PiPStatusLabel" Margin="10,0,0,0" Content="{Binding PiPEnabled}"
                 Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}"/>
-         
-          </StackPanel>          
-          
-          <ListView  Grid.Column="0" Grid.Row="1" Grid.ColumnSpan="2"
+
+        </StackPanel>
+
+        <ListView  Grid.Column="0" Grid.Row="1" Grid.ColumnSpan="2"
               HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
-              Style="{ThemeResource ChannelWithLogoAndProgramContainerStyle}"
-              ItemsSource="{Binding Path=CurrentGroupChannels}"
-              > <!-- SelectionChanged="{CommandStencil UpdateProgram}" -->
-              <ListView.Resources>
-                <CommandBridge x:Key="Menu_Command" Command="{Binding Path=Command,Mode=OneTime}"/>
-             </ListView.Resources>
-          </ListView>
+              Style="{ThemeResource ChannelWithLogoAndProgramListViewStyle}"
+              ItemsSource="{Binding Path=CurrentGroupChannels}">
+          <ListView.Resources>
+            <CommandBridge x:Key="Menu_Command" Command="{Binding Path=Command,Mode=OneTime}"/>
+          </ListView.Resources>
+        </ListView>
 
-          <!--<StackPanel x:Name="Programs" Margin="20,0,20,0" Grid.Column="1" Grid.Row="0"
-              HorizontalAlignment="Left" VerticalAlignment="Top">
-            
-            <Label x:Name="SelectedCurrentProgramLabel" Content="{Binding SelectedCurrentProgram}"
-                Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}"/>
-            <Label x:Name="SelectedNextProgramLabel" Content="{Binding SelectedNextProgram}"
-                Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}"/>
-            
-          </StackPanel>-->
-
-        </Grid>
+      </Grid>
     </ControlTemplate>
   </Include.Resources>
 </Include>

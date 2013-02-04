@@ -297,19 +297,20 @@ namespace MediaPortal.UI.Services.Players
           return;
         mute = !_isAudioSlot || _isMuted;
         vc = _player as IVolumeControl;
-        volume = (int) (_volumeCoefficient * _playerManager.Volume);
+        volume = (int) ((_volumeCoefficient * _playerManager.Volume) / 100.0);
       }
       try
       {
-        if (vc != null && mute && !vc.Mute)
-          // If we are switching the audio off, first disable the audio before setting the volume -
-          // perhaps both properties were changed and we want to avoid a short volume change before the audio gets disabled
-          vc.Mute = true;
         if (vc != null)
+        {
+          if (mute && !vc.Mute)
+              // If we are switching the audio off, first disable the audio before setting the volume -
+              // perhaps both properties were changed and we want to avoid a short volume change before the audio gets disabled
+            vc.Mute = true;
           vc.Volume = volume;
-        if (vc != null)
           vc.Mute = mute;
-      }
+        }
+    }
       catch (Exception e)
       {
         ServiceRegistration.Get<ILogger>().Warn("PlayerSlotController: Error checking the audio state in player '{0}'", e, _player);
@@ -375,7 +376,12 @@ namespace MediaPortal.UI.Services.Players
       set
       {
         lock (SyncObj)
-          _volumeCoefficient = value;
+          if (value < 0)
+            _volumeCoefficient = 0;
+          else if (value > 100)
+            _volumeCoefficient = 100;
+          else
+            _volumeCoefficient = value;
         CheckAudio_NoLock();
       }
     }

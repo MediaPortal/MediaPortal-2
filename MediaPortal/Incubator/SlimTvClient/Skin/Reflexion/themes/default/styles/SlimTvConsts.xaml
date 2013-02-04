@@ -10,7 +10,7 @@
   <ResourceWrapper x:Key="ChannelLogoContainerMedium" Resource="80"/>
   
   <ResourceWrapper x:Key="MainListChannelNameLength" Resource="250"/>
-  <ResourceWrapper x:Key="MainListTimeLength" Resource="90"/>
+  <ResourceWrapper x:Key="MainListTimeLength" Resource="100"/>
   <ResourceWrapper x:Key="TvGuideRowHeaderWidth" Resource="350"/>
 
   <ResourceWrapper x:Key="OSDDetailLabelHeight" Resource="220"/>
@@ -29,6 +29,8 @@
   <ResourceWrapper x:Key="MultiGuideProgramPreviewHeight" Resource="330"/>
 
   <ResourceWrapper x:Key="SingleGuideProgramWidth" Resource="350"/>
+
+  <ResourceWrapper x:Key="ChannelWithLogoAndProgramMargin" Resource="0,3,0,3"/>
 
   <ResourceWrapper x:Key="ProgramInfoHeaderWidth" Resource="200"/>
   

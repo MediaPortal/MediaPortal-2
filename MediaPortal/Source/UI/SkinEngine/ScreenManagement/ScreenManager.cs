@@ -281,24 +281,24 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
     protected ManualResetEvent _garbageCollectionFinished = new ManualResetEvent(true);
     protected ManualResetEvent _renderFinished = new ManualResetEvent(true);
 
+    // Initialized in constructor
     protected readonly SkinManager _skinManager;
-
     protected readonly BackgroundData _backgroundData;
+
     protected readonly DialogStackList _dialogStack = new DialogStackList();
     protected Screen _currentScreen = null; // "Normal" screen
     protected Screen _nextScreen = null; // Holds the next screen while the current screen finishes closing
     protected Screen _currentSuperLayer = null; // Layer on top of screen and all dialogs - busy indicator and additional popups
     protected volatile int _numPendingAsyncOperations = 0;
     protected Screen _focusedScreen = null;
-    protected DateTime _screenPersistenceTime = DateTime.MaxValue;
 
     protected bool _backgroundDisabled = false;
 
     protected Skin _skin = null;
     protected Theme _theme = null;
 
-    protected AsynchronousMessageQueue _messageQueue;
-    protected Thread _garbageCollectorThread;
+    protected AsynchronousMessageQueue _messageQueue = null;
+    protected Thread _garbageCollectorThread = null;
     protected Queue<Screen> _garbageScreens = new Queue<Screen>(10);
 
     #endregion
@@ -657,8 +657,9 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
       DoExchangeScreen_NoLock(screen);
     }
 
-    public void SetInputFocus_NoLock(Screen focusScreen)
+    public void SetInputFocus_NoLock()
     {
+      Screen focusScreen = GetScreens(false, true, true, false).LastOrDefault();
       Screen unfocusScreen;
       lock (_syncObj)
         if (focusScreen == _focusedScreen)
@@ -677,10 +678,15 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
 
     public void UnfocusCurrentScreen_NoLock()
     {
-      Screen screen;
+      UnfocusScreen_NoLock(_focusedScreen);
+    }
+
+    public void UnfocusScreen_NoLock(Screen screen)
+    {
       lock (_syncObj)
       {
-        screen = _focusedScreen;
+        if (screen != _focusedScreen)
+          return;
         _focusedScreen = null;
       }
       if (screen != null)
@@ -700,7 +706,7 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
         _dialogStack.Push(dd);
       }
       // Don't hold the lock while focusing the screen
-      SetInputFocus_NoLock(dialogData.DialogScreen);
+      SetInputFocus_NoLock();
     }
 
     protected internal void DoCloseDialogs_NoLock(bool fireCloseDelegates, bool dialogPersistence)
@@ -787,7 +793,6 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
 
     protected internal void CompleteDialogClosures_NoLock()
     {
-      Screen screenToFocus = null;
       lock (_syncObj)
       {
         LinkedListNode<DialogData> node = _dialogStack.Last;
@@ -802,30 +807,16 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
             node = prevNode;
             continue;
           }
-          if (screen.ScreenState != Screen.State.Closing)
-            screenToFocus = screen;
           node = node.Previous;
         }
-        if (screenToFocus == null)
-          screenToFocus = _currentScreen;
       }
-      SetInputFocus_NoLock(screenToFocus);
+      SetInputFocus_NoLock();
     }
 
-    protected internal void DoCloseScreen_NoLock()
+    protected internal void DoCloseScreen_NoLock(Screen screen)
     {
-      Screen screen;
-      lock (_syncObj)
-      {
-        screen = _currentScreen;
-        _currentScreen = null;
-        if (screen == null)
-          return;
-        ServiceRegistration.Get<ILogger>().Debug("ScreenManager: Closing screen '{0}'", screen.ResourceName);
-        _screenPersistenceTime = DateTime.MinValue;
-      }
-      UnfocusCurrentScreen_NoLock();
-
+      ServiceRegistration.Get<ILogger>().Debug("ScreenManager: Closing screen '{0}'", screen.ResourceName);
+      UnfocusScreen_NoLock(screen);
       ScheduleDisposeScreen(screen);
     }
 
@@ -836,7 +827,15 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
       if (closeSuperLayer)
         DoSetSuperLayer_NoLock(null);
       DoCloseDialogs_NoLock(fireCloseDelegates, false);
-      DoCloseScreen_NoLock();
+      Screen currentScreen;
+      lock (_syncObj)
+      {
+        currentScreen = _currentScreen;
+        _currentScreen = null;
+        if (currentScreen == null)
+          return;
+      }
+      DoCloseScreen_NoLock(currentScreen);
     }
 
     protected internal void DoStartClosingScreen_NoLock(Screen screen)
@@ -852,7 +851,7 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
       DoCloseDialogs_NoLock(true, true);
       currentScreen.ScreenState = Screen.State.Closing;
       currentScreen.TriggerScreenClosingEvent();
-      UnfocusCurrentScreen_NoLock();
+      UnfocusScreen_NoLock(screen);
     }
 
     protected internal void DoExchangeScreen_NoLock(Screen screen)
@@ -873,27 +872,26 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
 
     protected internal void CompleteScreenClosure_NoLock()
     {
-      Screen screen;
+      Screen nextScreen;
+      Screen currentScreen;
       lock (_syncObj)
       {
         // Has the current screen finished closing?
         if (_currentScreen != null && (_currentScreen.ScreenState != Screen.State.Closing || !_currentScreen.DoneClosing))
           return;
 
-        screen = _nextScreen;
-      }
-      if (screen != null)
-        // Outside the lock - we're firing events
-        screen.TriggerScreenShowingEvent();
-      DoCloseScreen_NoLock();
-      lock (_syncObj)
-      {
-        _currentScreen = screen;
+        nextScreen = _nextScreen;
+        currentScreen = _currentScreen;
+        _currentScreen = nextScreen;
         _nextScreen = null;
-
         BackgroundDisabled = _currentScreen != null && !_currentScreen.HasBackground;
       }
-      SetInputFocus_NoLock(screen);
+      if (nextScreen != null)
+        // Outside the lock - we're firing events
+        nextScreen.TriggerScreenShowingEvent();
+      if (currentScreen != null)
+        DoCloseScreen_NoLock(currentScreen);
+      SetInputFocus_NoLock();
     }
 
     protected internal void DoSetSuperLayer_NoLock(Screen screen)
@@ -917,7 +915,7 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
         _currentSuperLayer = screen;
       }
       if (screen == null)
-        SetInputFocus_NoLock(GetScreens(false, true, true, false).LastOrDefault());
+        SetInputFocus_NoLock();
       else
         UnfocusCurrentScreen_NoLock();
     }
@@ -1471,7 +1469,7 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
         if (screen != null && screen.ResourceName == screenName)
         {
           BackgroundDisabled = !backgroundEnabled;
-          return _currentScreen.ScreenInstanceId;
+          return screen.ScreenInstanceId;
         }
       }
       return ShowScreen(screenName, backgroundEnabled);

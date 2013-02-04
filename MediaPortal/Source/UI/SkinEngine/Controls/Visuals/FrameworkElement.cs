@@ -280,6 +280,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       MaxWidth = fe.MaxWidth;
       MaxHeight = fe.MaxHeight;
       _setFocusPrio = fe.SetFocusPrio;
+      _renderedBoundingBox = null;
 
       // Need to manually call this because we are in a detached state
       OnLayoutTransformPropertyChanged(_layoutTransformProperty, oldLayoutTransform);
@@ -969,12 +970,12 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
             (dir == MoveFocusDirection.Left && child.LocatedLeftOf(currentFocusRect.Value)) ||
             (dir == MoveFocusDirection.Right && child.LocatedRightOf(currentFocusRect.Value)))
         { // Calculate and compare distances of all matches
-          float centerDistance = CenterDistance(child.BoundingBox, currentFocusRect.Value);
+          float centerDistance = CenterDistance(child.ActualBounds, currentFocusRect.Value);
           if (centerDistance == 0)
             // If the child's center is exactly the center of the currently focused element,
             // it won't be used as next focus element
             continue;
-          float distance = BorderDistance(child.BoundingBox, currentFocusRect.Value);
+          float distance = BorderDistance(child.ActualBounds, currentFocusRect.Value);
           if (bestMatch == null || distance < bestDistance ||
               distance == bestDistance && centerDistance < bestCenterDistance)
           {
@@ -1040,17 +1041,17 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 
     protected bool LocatedInside(RectangleF otherRect)
     {
-      return AInsideB(BoundingBox, otherRect);
+      return AInsideB(ActualBounds, otherRect);
     }
 
     protected bool EnclosesRect(RectangleF otherRect)
     {
-      return AInsideB(otherRect, BoundingBox);
+      return AInsideB(otherRect, ActualBounds);
     }
 
     protected bool LocatedBelow(RectangleF otherRect)
     {
-      RectangleF actualBounds = BoundingBox;
+      RectangleF actualBounds = ActualBounds;
       if (IsNear(actualBounds.Top, otherRect.Bottom))
         return true;
       PointF start = new PointF((actualBounds.Right + actualBounds.Left) / 2, actualBounds.Top);
@@ -1061,7 +1062,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 
     protected bool LocatedAbove(RectangleF otherRect)
     {
-      RectangleF actualBounds = BoundingBox;
+      RectangleF actualBounds = ActualBounds;
       if (IsNear(actualBounds.Bottom, otherRect.Top))
         return true;
       PointF start = new PointF((actualBounds.Right + actualBounds.Left) / 2, actualBounds.Bottom);
@@ -1072,7 +1073,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 
     protected bool LocatedLeftOf(RectangleF otherRect)
     {
-      RectangleF actualBounds = BoundingBox;
+      RectangleF actualBounds = ActualBounds;
       if (IsNear(actualBounds.Right, otherRect.Left))
         return true;
       PointF start = new PointF(actualBounds.Right, (actualBounds.Top + actualBounds.Bottom) / 2);
@@ -1083,7 +1084,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 
     protected bool LocatedRightOf(RectangleF otherRect)
     {
-      RectangleF actualBounds = BoundingBox;
+      RectangleF actualBounds = ActualBounds;
       if (IsNear(actualBounds.Left, otherRect.Right))
         return true;
       PointF start = new PointF(actualBounds.Left, (actualBounds.Top + actualBounds.Bottom) / 2);
@@ -1207,7 +1208,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     }
 
     /// <summary>
-    /// Given the transform to be applied to a unknown rectangle, this method finds (in axis-aligned local space)
+    /// Given the transform to be applied to an unknown rectangle, this method finds (in axis-aligned local space)
     /// the largest rectangle that, after transform, fits within <paramref name="localBounds"/>.
     /// Largest rectangle means rectangle of the greatest area in local space (although maximal area in local space
     /// implies maximal area in transform space).
@@ -1826,7 +1827,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     /// where this element would have been drawn if it had been rendered. This method forces the calculation of the final transformation
     /// for this element which can be applied on the <see cref="ActualBounds"/>/<see cref="_innerRect"/> to get the element's render bounds.
     /// </summary>
-    /// <returns></returns>
+    /// <returns>Matrix which represents the final transformation for this element.</returns>
     private Matrix ExtortFinalTransform()
     {
       if (_finalTransform.HasValue)

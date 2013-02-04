@@ -63,7 +63,7 @@ namespace MediaPortal.UiComponents.Media.Models
 
     #region Constructor
 
-    public ImagePlayerUIContributor() : base(300)
+    public ImagePlayerUIContributor() : base(true, 300)
     {}
 
     #endregion

@@ -81,6 +81,9 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
     protected const double ZAP_TIMEOUT_SECONDS = 2.0d;
     protected Timer _zapTimer;
     protected int _zapChannelIndex;
+    
+    // Contains the channel that was tuned the last time. Used for selecting channels in group list.
+    protected IChannel _lastTunedChannel;
 
     #endregion
 
@@ -409,8 +412,10 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
 
       if (_tvHandler.StartTimeshift(SlotIndex, channel))
       {
+        _lastTunedChannel = channel;
         SeekToEndAndPlay();
         Update();
+        UpdateChannelGroupSelection(channel);
       }
     }
 
@@ -598,6 +603,14 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
       }
     }
 
+    private void UpdateChannelGroupSelection(IChannel channel)
+    {
+      foreach (ChannelProgramListItem currentGroupChannel in CurrentGroupChannels)
+        currentGroupChannel.Selected = IsSameChannel(currentGroupChannel.Channel, channel);
+
+      CurrentGroupChannels.FireChange();
+    }
+
     #endregion
 
     #region Channel, groups and programs
@@ -628,7 +641,8 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
         ChannelProgramListItem item = new ChannelProgramListItem(currentChannel, null)
         {
           Programs = new ItemsList { GetNoProgramPlaceholder(), GetNoProgramPlaceholder() },
-          Command = new MethodDelegateCommand(() => Tune(currentChannel))
+          Command = new MethodDelegateCommand(() => Tune(currentChannel)),
+          Selected = IsSameChannel(currentChannel, _lastTunedChannel)
         };
         item.AdditionalProperties["CHANNEL"] = channel;
         // Load programs asynchronously, this increases performance of list building
@@ -636,6 +650,16 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
         _channelList.Add(item);
       }
       CurrentGroupChannels.FireChange();
+    }
+
+    protected bool IsSameChannel(IChannel channel1, IChannel channel2)
+    {
+      if (channel1 == channel2)
+        return true;
+
+      if (channel1 != null && channel2 != null)
+        return channel1.ChannelId == channel2.ChannelId && channel1.MediaType == channel2.MediaType;
+      return false;
     }
 
     private void UpdateProgramForChannel(IChannel channel)

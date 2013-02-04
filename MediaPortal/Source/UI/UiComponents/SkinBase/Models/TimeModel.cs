@@ -55,7 +55,7 @@ namespace MediaPortal.UiComponents.SkinBase.Models
 
     #endregion
 
-    public TimeModel() : base(500)
+    public TimeModel() : base(true, 500)
     {
       ReadSettings();
 

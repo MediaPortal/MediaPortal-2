@@ -47,8 +47,7 @@ namespace MediaPortal.UiComponents.Media.Models
 
     #region Constructor & maintainance
 
-    protected BaseVideoPlayerUIContributor()
-      : base(UPDATE_INTERVAL_MS)
+    protected BaseVideoPlayerUIContributor() : base(false, UPDATE_INTERVAL_MS)
     {
       _subtitlesAvailableProperty = new WProperty(typeof(bool), false);
       _chaptersAvailableProperty = new WProperty(typeof(bool), false);
@@ -328,6 +327,5 @@ namespace MediaPortal.UiComponents.Media.Models
     {
       _chapterPlayer.NextChapter();
     }
-
   }
 }
