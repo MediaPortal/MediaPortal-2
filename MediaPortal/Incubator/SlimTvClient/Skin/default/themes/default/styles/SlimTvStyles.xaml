@@ -514,7 +514,7 @@
       <Button Style="{ThemeResource ProgramGuideButtonStyle}">
         <Grid x:Name="ChannelHeader" RenderTransformOrigin="0.5,0.5" Margin="0,2,0,2">
           <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="30"/> <!-- Channel Logo -->
+            <ColumnDefinition Width="{ThemeResource ChannelLogoContainerSmall}"/> <!-- Channel Logo -->
             <ColumnDefinition Width="*"/>  <!-- Channel Name -->
           </Grid.ColumnDefinitions>
           <Grid.RowDefinitions>
@@ -525,8 +525,8 @@
               <ScaleTransform ScaleX="1" ScaleY="1"/>
             </TransformGroup>
           </Grid.RenderTransform>
-               
-          <Image x:Name="ChannelLogo" Grid.Column="0" Grid.Row="0" Width="24" Height="24" Stretch="Uniform">
+
+          <Image x:Name="ChannelLogo" Grid.Column="0" Grid.Row="0" Width="{ThemeResource ChannelLogoSmall}" Height="{ThemeResource ChannelLogoSmall}" Stretch="Uniform">
             <Image.Source>
               <fanart:FanArtImageSource fanart:FanArtMediaType="Channel" fanart:FanArtType="Banner" fanart:FanArtName="{Binding ChannelLogoPath}" fanart:MaxWidth="0" fanart:MaxHeight="0"/>
             </Image.Source>
