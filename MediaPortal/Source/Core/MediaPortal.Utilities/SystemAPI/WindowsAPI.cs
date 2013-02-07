@@ -126,7 +126,7 @@ namespace MediaPortal.Utilities.SystemAPI
       }
     }
 
-    // http://msdn.microsoft.com/de-ch/library/windows/desktop/aa376868
+    // http://msdn.microsoft.com/library/windows/desktop/aa376868
 
     [FlagsAttribute]
     public enum EXIT_WINDOWS : uint
@@ -229,7 +229,7 @@ namespace MediaPortal.Utilities.SystemAPI
     private const UInt32 SE_PRIVILEGE_ENABLED = 0x00000002;
     private const string SE_SHUTDOWN_NAME = "SeShutdownPrivilege";
 
-    // note: http://msdn.microsoft.com/de-ch/library/windows/desktop/aa376873
+    // note: http://msdn.microsoft.com/library/windows/desktop/aa376873
     // The ExitWindowsEx function returns as soon as it has initiated the shutdown process.
     // The shutdown or logoff then proceeds asynchronously.
     // The function is designed to stop all processes in the caller's logon session.

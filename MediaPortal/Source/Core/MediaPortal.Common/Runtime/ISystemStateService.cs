@@ -52,6 +52,12 @@ namespace MediaPortal.Common.Runtime
     Ending,
 
     /// <summary>
+    /// The system is being suspended. This enum is never set as current state; it is just used to inform the system about the
+    /// suspending process.
+    /// </summary>
+    Suspending,
+
+    /// <summary>
     /// The system is being hibernated. This enum is never set as current state; it is just used to inform the system about the
     /// hibernation process.
     /// </summary>
@@ -73,15 +79,14 @@ namespace MediaPortal.Common.Runtime
     void Restart(bool force = false);
 
     /// <summary>
-    /// Suspends the current Windows session to memory or to disc.
+    /// Suspends the current Windows session to memory.
     /// </summary>
     void Suspend();
 
     /// <summary>
-    /// Suspends the current Windows session to memory or to disc.
-    /// Note: Currently the system does not distinguish between
+    /// Suspends the current Windows session to disk (Hibernate).
     /// </summary>
-    //void Hibernate();
+    void Hibernate();
 
     /// <summary>
     /// Logs the current user off.

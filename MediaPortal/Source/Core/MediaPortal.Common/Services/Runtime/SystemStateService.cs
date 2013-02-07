@@ -24,8 +24,6 @@
 
 using MediaPortal.Common.Logging;
 using MediaPortal.Common.Runtime;
-using MediaPortal.Common.Services.Runtime.Settings;
-using MediaPortal.Common.Settings;
 using MediaPortal.Utilities.SystemAPI;
 
 namespace MediaPortal.Common.Services.Runtime
@@ -57,6 +55,8 @@ namespace MediaPortal.Common.Services.Runtime
       if (force)
         flags = flags & WindowsAPI.EXIT_WINDOWS.EWX_FORCE;
 
+      // todo: chefkoch, 2013-01-31: add flag for HybridShutdown if OS is Windows 8
+
       WindowsAPI.ExitWindowsEx(flags);
     }
 
@@ -74,10 +74,18 @@ namespace MediaPortal.Common.Services.Runtime
 
     public void Suspend()
     {
+      ServiceRegistration.Get<ILogger>().Info("SystemStateService: Suspending");
+      SystemMessaging.SendSystemStateChangeMessage(SystemState.Suspending);
+
+      WindowsAPI.SetSuspendState(false, false, false);
+    }
+
+    public void Hibernate()
+    {
       ServiceRegistration.Get<ILogger>().Info("SystemStateService: Hibernating");
       SystemMessaging.SendSystemStateChangeMessage(SystemState.Hibernating);
-      SystemSettings settings = ServiceRegistration.Get<ISettingsManager>().Load<SystemSettings>();
-      WindowsAPI.SetSuspendState(settings.UseHibernation, false, false);
+
+      WindowsAPI.SetSuspendState(true, false, false);
     }
 
     public void Logoff(bool force = false)
