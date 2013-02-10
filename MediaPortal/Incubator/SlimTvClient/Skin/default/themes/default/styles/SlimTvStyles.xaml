@@ -91,9 +91,9 @@
                     </Grid.RowDefinitions>
                     <Grid.ColumnDefinitions>
                       <ColumnDefinition Width="100"/>
-                      <ColumnDefinition Width="60"/>
+                      <ColumnDefinition Width="{ThemeResource MainListTimeLength}"/>
                       <ColumnDefinition Width="15"/>
-                      <ColumnDefinition Width="60"/>
+                      <ColumnDefinition Width="{ThemeResource MainListTimeLength}"/>
                       <ColumnDefinition Width="*"/>
                     </Grid.ColumnDefinitions>
                     <Label x:Name="Channel" Grid.Row="0" Grid.Column="0" Scroll="Auto" FontSize="{ThemeResource SmallFontSize}"
@@ -130,9 +130,9 @@
                     </Grid.RowDefinitions>
                     <Grid.ColumnDefinitions>
                       <ColumnDefinition Width="100"/>
-                      <ColumnDefinition Width="60"/>
+                      <ColumnDefinition Width="{ThemeResource MainListTimeLength}"/>
                       <ColumnDefinition Width="15"/>
-                      <ColumnDefinition Width="60"/>
+                      <ColumnDefinition Width="{ThemeResource MainListTimeLength}"/>
                       <ColumnDefinition Width="*"/>
                     </Grid.ColumnDefinitions>
                     <Label x:Name="NextChannel" Grid.Row="0" Grid.Column="0" Scroll="Auto" FontSize="{ThemeResource SmallFontSize}" 
