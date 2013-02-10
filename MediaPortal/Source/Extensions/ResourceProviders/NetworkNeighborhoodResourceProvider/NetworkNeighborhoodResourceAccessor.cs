@@ -26,8 +26,10 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Security.Principal;
 using MediaPortal.Common.ResourceAccess;
 using MediaPortal.Common.Services.ResourceAccess.LocalFsResourceProvider;
+using MediaPortal.Extensions.ResourceProviders.NetworkNeighborhoodResourceProvider.Impersonate;
 using MediaPortal.Utilities;
 using MediaPortal.Utilities.Exceptions;
 using MediaPortal.Utilities.Network;
@@ -88,7 +90,17 @@ namespace MediaPortal.Extensions.ResourceProviders.NetworkNeighborhoodResourcePr
 
     protected internal static bool IsResource(string path)
     {
-      return IsServerPath(path) || LocalFsResourceProvider.Instance.IsResource("/" + path);
+      using (ImpersonateUser())
+        return IsServerPath(path) || LocalFsResourceProvider.Instance.IsResource("/" + path);
+    }
+
+    /// <summary>
+    /// Tries to impersonate the current process as the user which runs explorer.exe currently. The caller should always call <see cref="IDisposable.Dispose"/> on
+    /// the returned instance to revert identity to self.
+    /// </summary>
+    private static WindowsImpersonationContext ImpersonateUser()
+    {
+      return ImpersonationHelper.ImpersonateByProcess("explorer");
     }
 
     #region ILocalFsResourceAccessor implementation
@@ -184,27 +196,34 @@ namespace MediaPortal.Extensions.ResourceProviders.NetworkNeighborhoodResourcePr
 
     public ICollection<IFileSystemResourceAccessor> GetFiles()
     {
-      if (_path == "/" || IsServerPath(_path))
-        return new List<IFileSystemResourceAccessor>();
-      return _underlayingResource == null ? null : WrapLocalFsResourceAccessors(_underlayingResource.GetFiles());
+      using (ImpersonateUser())
+      {
+        if (_path == "/" || IsServerPath(_path))
+          return new List<IFileSystemResourceAccessor>();
+        return _underlayingResource == null ? null : WrapLocalFsResourceAccessors(_underlayingResource.GetFiles());
+      }
     }
 
     public ICollection<IFileSystemResourceAccessor> GetChildDirectories()
     {
-      if (_path == "/")
-        return NetworkResourcesEnumerator.EnumerateResources(ResourceScope.GlobalNet, ResourceType.Disk,
-            ResourceUsage.All, ResourceDisplayType.Server).Select(
-                serverName => new NetworkNeighborhoodResourceAccessor(
-                    _parent, StringUtils.CheckPrefix(serverName, @"\\").Replace('\\', '/'))).Cast<IFileSystemResourceAccessor>().ToList();
-      if (IsServerPath(_path))
-        return SharesEnumerator.EnumerateShares(StringUtils.RemovePrefixIfPresent(_path, "//")).Where(
-            share => share.ShareType == ShareType.Disk).Select(
-            share => {
-              try { return new NetworkNeighborhoodResourceAccessor(_parent, share.UNCPath.Replace('\\', '/')); }
-              catch(IllegalCallException) { return null; }
-            }
-          ).Where(share => share != null).Cast<IFileSystemResourceAccessor>().ToList();
-      return _underlayingResource == null ? null : WrapLocalFsResourceAccessors(_underlayingResource.GetChildDirectories());
+      using (ImpersonateUser())
+      {
+        if (_path == "/")
+          return NetworkResourcesEnumerator.EnumerateResources(ResourceScope.GlobalNet, ResourceType.Disk,
+              ResourceUsage.All, ResourceDisplayType.Server).Select(
+                  serverName => new NetworkNeighborhoodResourceAccessor(
+                      _parent, StringUtils.CheckPrefix(serverName, @"\\").Replace('\\', '/'))).Cast<IFileSystemResourceAccessor>().ToList();
+        if (IsServerPath(_path))
+          return SharesEnumerator.EnumerateShares(StringUtils.RemovePrefixIfPresent(_path, "//")).Where(
+              share => share.ShareType == ShareType.Disk).Select(
+              share =>
+              {
+                try { return new NetworkNeighborhoodResourceAccessor(_parent, share.UNCPath.Replace('\\', '/')); }
+                catch (IllegalCallException) { return null; }
+              }
+            ).Where(share => share != null).Cast<IFileSystemResourceAccessor>().ToList();
+        return _underlayingResource == null ? null : WrapLocalFsResourceAccessors(_underlayingResource.GetChildDirectories());
+      }
     }
 
     public string LocalFileSystemPath
