@@ -51,6 +51,12 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
   {
     public const string MODEL_ID_STR = "8BEC1372-1C76-484c-8A69-C7F3103708EC";
 
+    #region Constants
+
+    protected const int PROGRAM_UPDATE_SEC = 30; // Update frequency for current running programs
+
+    #endregion
+
     #region Protected fields
 
     protected AbstractProperty _currentGroupNameProperty = null;
@@ -90,6 +96,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
     #region Variables
 
     private readonly ItemsList _channelList = new ItemsList();
+    private DateTime _lastChannelListUpdate = DateTime.MinValue;
     private bool _active;
 
     #endregion
@@ -568,6 +575,9 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
 
       PiPAvailable = true;
 
+      // Update current programs for all channels of current group (visible inside MiniGuide).
+      UpdateAllCurrentPrograms();
+
       // get the current channel and program out of the LiveTvMediaItems' TimeshiftContexes
       IPlayerContextManager playerContextManager = ServiceRegistration.Get<IPlayerContextManager>();
       IPlayerContext playerContext = playerContextManager.GetPlayerContext(PlayerChoice.PrimaryPlayer);
@@ -670,6 +680,17 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
       {
         _selectedCurrentProgramProperty.SetValue(FormatProgram(currentProgram));
         _selectedNextProgramProperty.SetValue(FormatProgram(nextProgram));
+      }
+    }
+
+    protected void UpdateAllCurrentPrograms()
+    {
+      DateTime now = DateTime.Now;
+      if ((now - _lastChannelListUpdate).TotalSeconds > PROGRAM_UPDATE_SEC)
+      {
+        _lastChannelListUpdate = now;
+        foreach (ChannelProgramListItem channelItem in CurrentGroupChannels)
+          GetNowAndNextProgramsList(channelItem, channelItem.AdditionalProperties["CHANNEL"] as IChannel);
       }
     }
 
