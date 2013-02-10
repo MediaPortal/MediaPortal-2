@@ -58,6 +58,7 @@
     <Compile Include="..\..\..\Core\MediaPortal.Common\VersionInfo\VersionInfo.cs">
       <Link>Properties\VersionInfo.cs</Link>
     </Compile>
+    <Compile Include="Impersonate\ImpersonationHelper.cs" />
     <Compile Include="NetworkNeighborhoodResourceAccessor.cs" />
     <Compile Include="NetworkNeighborhoodResourceProvider.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
