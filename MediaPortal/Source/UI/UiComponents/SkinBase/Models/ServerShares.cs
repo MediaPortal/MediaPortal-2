@@ -34,6 +34,7 @@ using MediaPortal.Common.ResourceAccess;
 using MediaPortal.Common.SystemCommunication;
 using MediaPortal.Common.SystemResolver;
 using MediaPortal.UI.ServerCommunication;
+using MediaPortal.UI.Shares;
 using MediaPortal.UiComponents.SkinBase.General;
 using RelocationMode=MediaPortal.Common.MediaManagement.RelocationMode;
 
@@ -112,7 +113,10 @@ namespace MediaPortal.UiComponents.SkinBase.Models
         return;
       }
       foreach (Share share in shares)
+      {
         contentDirectory.RemoveShare(share.ShareId);
+        SharesMessaging.SendShareMessage(SharesMessaging.MessageType.ShareRemoved, share);
+      }
       _serverSharesCache = null;
     }
 
@@ -120,7 +124,9 @@ namespace MediaPortal.UiComponents.SkinBase.Models
     {
       IServerConnectionManager serverConnectionManager = ServiceRegistration.Get<IServerConnectionManager>();
       IContentDirectory contentDirectory = GetContentDirectoryService();
-      contentDirectory.RegisterShare(Share.CreateNewShare(serverConnectionManager.HomeServerSystemId, ChoosenResourcePath, ShareName, MediaCategories));
+      Share share = Share.CreateNewShare(serverConnectionManager.HomeServerSystemId, ChoosenResourcePath, ShareName, MediaCategories);
+      contentDirectory.RegisterShare(share);
+      SharesMessaging.SendShareMessage(SharesMessaging.MessageType.ShareAdded, share);
       _serverSharesCache = null;
     }
 
@@ -128,6 +134,7 @@ namespace MediaPortal.UiComponents.SkinBase.Models
     {
       IContentDirectory contentDirectory = GetContentDirectoryService();
       contentDirectory.UpdateShare(_origShare.ShareId, ChoosenResourcePath, ShareName, GetMediaCategoriesCleanedUp(), relocationMode);
+      SharesMessaging.SendShareMessage(SharesMessaging.MessageType.ShareChanged, _origShare);
       _serverSharesCache = null;
     }
 
