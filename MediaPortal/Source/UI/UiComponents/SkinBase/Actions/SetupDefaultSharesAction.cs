@@ -25,12 +25,15 @@
 using System;
 using MediaPortal.Common;
 using MediaPortal.Common.General;
+using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.Messaging;
 using MediaPortal.Common.Localization;
+using MediaPortal.Common.ResourceAccess;
 using MediaPortal.Common.SystemCommunication;
 using MediaPortal.UI.Presentation.Workflow;
 using MediaPortal.UI.ServerCommunication;
 using MediaPortal.UI.Shares;
+using MediaPortal.UiComponents.SkinBase.Models;
 
 namespace MediaPortal.UiComponents.SkinBase.Actions
 {
@@ -161,8 +164,14 @@ namespace MediaPortal.UiComponents.SkinBase.Actions
       if (localHomeServer)
       {
         if (homeServerConncted && contentDirectory.GetShares(null, SharesFilter.All).Count == 0)
-          contentDirectory.SetupDefaultServerShares();
-        FireStateChanged();
+        {
+          IMediaAccessor mediaAccessor = ServiceRegistration.Get<IMediaAccessor>();
+          foreach (Share share in mediaAccessor.CreateDefaultShares())
+          {
+            ServerShares serverShareProxy = new ServerShares(share);
+            serverShareProxy.AddShare();
+          }
+        }
       }
       else
       {
