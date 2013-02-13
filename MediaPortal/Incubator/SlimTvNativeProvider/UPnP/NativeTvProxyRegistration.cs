@@ -26,12 +26,12 @@ using System;
 using MediaPortal.Common;
 using MediaPortal.Common.Messaging;
 using MediaPortal.Common.Runtime;
+using MediaPortal.Common.Services.ServerCommunication;
 using MediaPortal.Common.UPnP;
 using MediaPortal.Plugins.SlimTv.Interfaces;
 using MediaPortal.Plugins.SlimTv.Interfaces.UPnP.DataTypes;
 using MediaPortal.Plugins.SlimTv.UPnP;
 using MediaPortal.UI.ServerCommunication;
-using MediaPortal.UI.Services.ServerCommunication;
 using UPnP.Infrastructure.CP;
 using UPnP.Infrastructure.CP.DeviceTree;
 
