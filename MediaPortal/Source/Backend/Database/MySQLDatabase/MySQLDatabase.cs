@@ -57,7 +57,8 @@ namespace MediaPortal.Database.MySQL
     {
       MySQLSettingsReader.Read(out _server, out _username, out _password, out _dbSchema, out _maxPacketSize);
 
-      _connectionString = string.Format("server={0};User Id={1};password={2};", _server, _username, _password);
+      // We use "Persist Security Info" here to allow cloning the connection using DbFactories (used for SlimTV's EntityFrameworkConnections)
+      _connectionString = string.Format("server={0};User Id={1};password={2};Persist Security Info=true;", _server, _username, _password);
       
       // First connect without database parameter, so we can create the schema first.
       CheckOrCreateDatabase(_dbSchema);
