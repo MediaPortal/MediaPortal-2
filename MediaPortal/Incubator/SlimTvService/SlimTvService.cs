@@ -25,11 +25,14 @@
 using System;
 using System.Collections.Generic;
 using System.Data.Common;
+using System.IO;
 using System.Linq;
 using System.Timers;
+using Ionic.Zip;
 using MediaPortal.Backend.Database;
 using MediaPortal.Common;
 using MediaPortal.Common.MediaManagement;
+using MediaPortal.Common.PathManager;
 using MediaPortal.Common.Utils;
 using MediaPortal.Plugins.SlimTv.Interfaces;
 using MediaPortal.Plugins.SlimTv.Interfaces.Items;
@@ -102,6 +105,31 @@ namespace MediaPortal.Plugins.SlimTv.Service
       IntegrationProviderHelper.Register(@"Plugins\SlimTv.Service", @"Plugins\SlimTv.Service\castle.config");
       _tvServiceThread = new TvServiceThread(Environment.GetCommandLineArgs()[0]);
       _tvServiceThread.Start();
+
+      // Needs to be done after the IntegrationProvider is registered, so the TVCORE folder is defined.
+      PrepareProgramData();
+    }
+
+    /// <summary>
+    /// Prepares the required data folders for first run. The required tuningdetails and other files are extracted to [TVCORE] path.
+    /// </summary>
+    private void PrepareProgramData ()
+    {
+      string dataPath = ServiceRegistration.Get<IPathManager>().GetPath("<TVCORE>");
+      string tuningDetails = Path.Combine(dataPath, "TuningParameters");
+      if (Directory.Exists(tuningDetails))
+        return;
+
+      ServiceRegistration.Get<ILogger>().Info("SlimTvService: Tuningdetails folder does not exist yet, extracting default items.");
+      try
+      {
+        ZipFile dataArchive = new ZipFile(Utilities.FileSystem.FileUtils.BuildAssemblyRelativePath("ProgramData\\ProgramData.zip"));
+        dataArchive.ExtractAll(dataPath);
+      }
+      catch(Exception ex)
+      {
+        ServiceRegistration.Get<ILogger>().Error("SlimTvService: Failed to extract Tuningdetails!", ex);
+      }
     }
 
     /// <summary>

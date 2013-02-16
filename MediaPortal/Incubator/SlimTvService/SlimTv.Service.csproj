@@ -47,6 +47,10 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="Common.Utils, Version=1.2.200.0, Culture=neutral, processorArchitecture=x86" />
+    <Reference Include="Ionic.Zip, Version=1.7.2.18, Culture=neutral, PublicKeyToken=edbe51ad942a3f5c, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>References\Ionic.Zip.dll</HintPath>
+    </Reference>
     <Reference Include="Mediaportal.TV.Server.Plugins.Base, Version=1.2.200.0, Culture=neutral, processorArchitecture=x86" />
     <Reference Include="Mediaportal.TV.Server.SetupControls, Version=1.2.200.0, Culture=neutral, processorArchitecture=x86" />
     <Reference Include="Mediaportal.TV.Server.TVControl, Version=1.2.200.0, Culture=neutral, processorArchitecture=x86" />
@@ -86,6 +90,14 @@
       <SubType>Designer</SubType>
     </Content>
     <Content Include="References\Castle.Core.dll" />
+    <Content Include="References\Castle.Facilities.EventWiring.dll" />
+    <Content Include="References\Castle.Facilities.FactorySupport.dll" />
+    <Content Include="References\Castle.Facilities.Logging.dll" />
+    <Content Include="References\Castle.Facilities.Remoting.dll" />
+    <Content Include="References\Castle.Facilities.Synchronize.dll" />
+    <Content Include="References\Castle.Facilities.WcfIntegration.dll" />
+    <Content Include="References\Castle.Services.Logging.Log4netIntegration.dll" />
+    <Content Include="References\Castle.Services.Logging.NLogIntegration.dll" />
     <Content Include="References\Castle.Windsor.dll" />
     <Content Include="References\Common.Utils.dll" />
     <Content Include="References\DirectShowLib.dll" />
@@ -142,6 +154,40 @@
     <Content Include="References\Plugins\CustomDevices\Resources\TeVii.dll" />
     <Content Include="References\Plugins\CustomDevices\Resources\ttBdaDrvApi_Dll.dll" />
     <Content Include="References\Plugins\CustomDevices\Resources\ttdvbacc.dll" />
+    <Content Include="References\SetupTv\Castle.Core.dll" />
+    <Content Include="References\SetupTv\Castle.Facilities.EventWiring.dll" />
+    <Content Include="References\SetupTv\Castle.Facilities.FactorySupport.dll" />
+    <Content Include="References\SetupTv\Castle.Facilities.Logging.dll" />
+    <Content Include="References\SetupTv\Castle.Facilities.Remoting.dll" />
+    <Content Include="References\SetupTv\Castle.Facilities.Synchronize.dll" />
+    <Content Include="References\SetupTv\Castle.Facilities.WcfIntegration.dll" />
+    <Content Include="References\SetupTv\Castle.Services.Logging.Log4netIntegration.dll" />
+    <Content Include="References\SetupTv\Castle.Services.Logging.NLogIntegration.dll" />
+    <Content Include="References\SetupTv\Castle.Windsor.dll" />
+    <Content Include="References\SetupTv\Common.Utils.dll" />
+    <Content Include="References\SetupTv\DirectShowLib.dll" />
+    <Content Include="References\SetupTv\EntityFramework.dll" />
+    <Content Include="References\SetupTv\Integration\Defaults\Paths.xml" />
+    <Content Include="References\SetupTv\Integration\log4net.dll" />
+    <Content Include="References\SetupTv\Integration\MediaPortal.Common.dll" />
+    <Content Include="References\SetupTv\Integration\MediaPortal.Utilities.dll" />
+    <Content Include="References\SetupTv\Integration\SlimTv.Integration.MP2.dll" />
+    <Content Include="References\SetupTv\Interop.SHDocVw.dll" />
+    <Content Include="References\SetupTv\log4net.dll" />
+    <Content Include="References\SetupTv\Mediaportal.TV.Server.Plugins.Base.dll" />
+    <Content Include="References\SetupTv\Mediaportal.TV.Server.RuleBasedScheduler.dll" />
+    <Content Include="References\SetupTv\Mediaportal.TV.Server.SetupControls.dll" />
+    <Content Include="References\SetupTv\Mediaportal.TV.Server.TVControl.dll" />
+    <Content Include="References\SetupTv\Mediaportal.TV.Server.TVDatabase.Entities.dll" />
+    <Content Include="References\SetupTv\Mediaportal.TV.Server.TVDatabase.EntityModel.dll" />
+    <Content Include="References\SetupTv\Mediaportal.TV.Server.TVDatabase.Presentation.dll" />
+    <Content Include="References\SetupTv\Mediaportal.TV.Server.TVDatabase.TVBusinessLayer.dll" />
+    <Content Include="References\SetupTv\Mediaportal.TV.Server.TVLibrary.dll" />
+    <Content Include="References\SetupTv\Mediaportal.TV.Server.TVLibrary.IntegrationProvider.Interfaces.dll" />
+    <Content Include="References\SetupTv\Mediaportal.TV.Server.TVLibrary.Interfaces.dll" />
+    <Content Include="References\SetupTv\Mediaportal.TV.Server.TvLibrary.Utils.dll" />
+    <Content Include="References\SetupTv\Mediaportal.TV.Server.TVService.Interfaces.dll" />
+    <Content Include="References\SetupTv\SetupTV.exe" />
     <Content Include="References\StreamingServer.dll" />
   </ItemGroup>
   <ItemGroup>
@@ -152,6 +198,10 @@
     <ProjectReference Include="..\..\Source\Core\MediaPortal.Common\MediaPortal.Common.csproj">
       <Project>{ECF060E7-CAA1-4466-851F-F80B857641EA}</Project>
       <Name>MediaPortal.Common</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\Source\Core\MediaPortal.Utilities\MediaPortal.Utilities.csproj">
+      <Project>{4FE7B8AE-1330-424A-91A1-C68D7ABF9CB8}</Project>
+      <Name>MediaPortal.Utilities</Name>
     </ProjectReference>
     <ProjectReference Include="..\..\Source\Core\UPnP\UPnP.csproj">
       <Project>{455E7D70-1C85-4D7F-9F01-DC801B8B8C34}</Project>
@@ -169,7 +219,13 @@
   <ItemGroup>
     <None Include="References\castle.config" />
     <None Include="References\Mediaportal.TV.Server.TVLibrary.Services.dll.config" />
+    <None Include="References\ProgramData\ProgramData.zip" />
+    <None Include="References\SetupTv\log4net.config" />
+    <None Include="References\SetupTv\SetupTV.exe.Config" />
     <None Include="References\TsWriter.ax" />
+  </ItemGroup>
+  <ItemGroup>
+    <WCFMetadata Include="Service References\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
