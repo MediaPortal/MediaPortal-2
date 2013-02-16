@@ -135,6 +135,41 @@ namespace MediaPortal.Utilities.FileSystem
     }
 
     /// <summary>
+    /// Copies all content of the <paramref name="sourceDirName"/> into the <paramref name="destDirName"/>. If the destination does not exists,
+    /// it will be created first. By setting <paramref name="copySubDirs"/>=<c>true</c>, all subfolders will be copied as well.
+    /// </summary>
+    /// <param name="sourceDirName">Source directory.</param>
+    /// <param name="destDirName">Target directory.</param>
+    /// <param name="copySubDirs"><c>true</c> to include all sub directories.</param>
+    public static void CopyDirectory(string sourceDirName, string destDirName, bool copySubDirs)
+    {
+      DirectoryInfo dir = new DirectoryInfo(sourceDirName);
+      DirectoryInfo[] dirs = dir.GetDirectories();
+
+      if (!dir.Exists)
+        throw new DirectoryNotFoundException("Source directory does not exist or could not be found: " + sourceDirName);
+
+      if (!Directory.Exists(destDirName))
+        Directory.CreateDirectory(destDirName);
+
+      FileInfo[] files = dir.GetFiles();
+      foreach (FileInfo file in files)
+      {
+        string temppath = Path.Combine(destDirName, file.Name);
+        file.CopyTo(temppath, false);
+      }
+
+      if (!copySubDirs) 
+        return;
+
+      foreach (DirectoryInfo subdir in dirs)
+      {
+        string temppath = Path.Combine(destDirName, subdir.Name);
+        CopyDirectory(subdir.FullName, temppath, true);
+      }
+    }
+
+    /// <summary>
     /// Returns <c>true</c>, if the given complete paths <paramref name="path1"/> and <paramref name="path2"/>
     /// describe the same position in the file system, else <c>false</c>.
     /// </summary>
