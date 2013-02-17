@@ -218,6 +218,21 @@ namespace MediaPortal.UI.Control.InputManager
     }
 
     /// <summary>
+    /// Serializes a <see cref="Key"/> into a string. This method supports both printable and special keys.
+    /// </summary>
+    /// <param name="key">Key</param>
+    /// <returns>Key string.</returns>
+    /// <exception cref="ArgumentException">If key is neither printable nor special key.</exception>
+    public static string SerializeKey(Key key)
+    {
+      if (key.IsPrintableKey)
+        return "P:" + key.RawCode;
+      if (key.IsSpecialKey)
+        return "S:" + key.Name;
+      throw new ArgumentException(string.Format("Cannot serialize key '{0}', it is neither a printable nor a special key", key));
+    }
+
+    /// <summary>
     /// Deserializes a key definition and returns a valid <see cref="Key"/>. The <paramref name="serializedKey"/> needs to be in one of those formats:
     /// <para>
     /// <c>S:KeyName</c> for special keys, where "KeyName" is any known special key (like "Play", "LiveTV"...)
@@ -227,6 +242,7 @@ namespace MediaPortal.UI.Control.InputManager
     /// <param name="serializedKey">Key string</param>
     /// <param name="allowNewSpecialKeys">If deserializing a special key, <c>true</c> allows creating of special keys that do not exists yet.</param>
     /// <returns>Key</returns>
+    /// <exception cref="ArgumentException">If <paramref name="serializedKey"/> cannot be deserialized due to invalid format.</exception>
     public static Key DeserializeKey(string serializedKey, bool allowNewSpecialKeys = false)
     {
       string keyValue = serializedKey.Substring(2);
