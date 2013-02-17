@@ -55,7 +55,7 @@ namespace MediaPortal.UiComponents.News.Models
     }
 
     public CurrentNewsModel()
-      : base(100)
+      : base(true, 100)
     {
     }
 
