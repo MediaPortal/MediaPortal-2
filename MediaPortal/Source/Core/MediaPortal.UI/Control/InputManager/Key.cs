@@ -22,6 +22,7 @@
 
 #endregion
 
+using System;
 using System.Collections.Generic;
 using MediaPortal.Common;
 using MediaPortal.Common.Logging;
@@ -214,6 +215,26 @@ namespace MediaPortal.UI.Control.InputManager
     public static Key Printable(char rawCode)
     {
       return new Key(rawCode);
+    }
+
+    /// <summary>
+    /// Deserializes a key definition and returns a valid <see cref="Key"/>. The <paramref name="serializedKey"/> needs to be in one of those formats:
+    /// <para>
+    /// <c>S:KeyName</c> for special keys, where "KeyName" is any known special key (like "Play", "LiveTV"...)
+    /// <c>P:C</c> for printable keys, where "C" is a single printable character (A, B, 1, 2, !, ", § ...)
+    /// </para>
+    /// </summary>
+    /// <param name="serializedKey">Key string</param>
+    /// <param name="allowNewSpecialKeys">If deserializing a special key, <c>true</c> allows creating of special keys that do not exists yet.</param>
+    /// <returns>Key</returns>
+    public static Key DeserializeKey(string serializedKey, bool allowNewSpecialKeys = false)
+    {
+      string keyValue = serializedKey.Substring(2);
+      if (serializedKey.StartsWith("P:"))
+        return Printable(keyValue.ToCharArray()[0]);
+      if (serializedKey.StartsWith("S:"))
+        return GetSpecialKeyByName(keyValue) ?? (allowNewSpecialKeys ? new Key(keyValue) : null);
+      throw new ArgumentException(string.Format("Key cannot be deserialized from '{0}', invalid format", serializedKey));
     }
 
     #region Base overrides
