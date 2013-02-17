@@ -316,7 +316,7 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement.AssetCore
       {
         if (e.Cancelled || e.Error != null)
         {
-          ServiceRegistration.Get<ILogger>().Error("AsyncWebLoadOperation: Failed to download {0} - {1}", _uri, e.Cancelled ? "Request timed out" : e.Error.Message);
+          ServiceRegistration.Get<ILogger>().Warn("AsyncWebLoadOperation: Failed to download {0} - {1}", _uri, e.Cancelled ? "Request timed out" : e.Error.Message);
           OperationFailed();
           return;
         }
@@ -368,7 +368,7 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement.AssetCore
         {
           if (_isCancelled)
           {
-            ServiceRegistration.Get<ILogger>().Error("AsyncStreamLoadOperation: Loading of stream '{0}': Stream access timed out", _streamName);
+            ServiceRegistration.Get<ILogger>().Warn("AsyncStreamLoadOperation: Loading of stream '{0}': Stream access timed out", _streamName);
             OperationFailed();
             return;
           }
@@ -387,7 +387,7 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement.AssetCore
           }
           catch (Exception e)
           {
-            ServiceRegistration.Get<ILogger>().Error("AsyncStreamLoadOperation: Stream '{0}' could not be read", e, _streamName);
+            ServiceRegistration.Get<ILogger>().Warn("AsyncStreamLoadOperation: Stream '{0}' could not be read", e, _streamName);
             OperationFailed();
           }
         }
@@ -529,7 +529,7 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement.AssetCore
           Uri uri;
           if (!Uri.TryCreate(_textureName, UriKind.Absolute, out uri))
           {
-            ServiceRegistration.Get<ILogger>().Error("Cannot open texture: {0}", _textureName);
+            ServiceRegistration.Get<ILogger>().Warn("Cannot open texture: {0}", _textureName);
             _state = State.Failed;
             return;
           }
@@ -614,7 +614,7 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement.AssetCore
         }
         catch (Exception e)
         {
-          ServiceRegistration.Get<ILogger>().Error("TextureAssetCore: Image '{0}' could not be opened: {1}", _textureName, e);
+          ServiceRegistration.Get<ILogger>().Warn("TextureAssetCore: Image '{0}' could not be opened: {1}", _textureName, e);
           _state = State.Failed;
           return;
         }
