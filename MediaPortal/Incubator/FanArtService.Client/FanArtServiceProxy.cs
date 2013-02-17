@@ -1,4 +1,4 @@
-﻿#region Copyright (C) 2007-2013 Team MediaPortal
+#region Copyright (C) 2007-2013 Team MediaPortal
 
 /*
     Copyright (C) 2007-2013 Team MediaPortal

@@ -20,7 +20,7 @@
     along with MediaPortal 2. If not, see <http://www.gnu.org/licenses/>.
 */
 
-    #endregion
+#endregion
 
 using System;
 using System.Collections.Generic;
