@@ -32,7 +32,7 @@ namespace MediaPortal.Common.ResourceAccess
   }
 
   /// <summary>
-  /// Temporary local accessor instance for a resource which might located anywhere in an MP 2 system or in the outside world.
+  /// Temporary local accessor instance for a resource which might located anywhere in an MP2 system or in the outside world.
   /// </summary>
   /// <remarks>
   /// Via this instance, the specified resource and/or its metadata can be read.

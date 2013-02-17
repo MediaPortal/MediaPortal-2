@@ -171,7 +171,7 @@ namespace MediaPortal.Backend.Services.ClientCommunication
         clientDescriptor = ClientDescriptor.GetMPFrontendServerDescriptor(rootDescriptor);
         if (clientDescriptor == null || _availableClients.Contains(clientDescriptor))
           return;
-        ServiceRegistration.Get<ILogger>().Debug("UPnPServerControlPoint: Found MP 2 client '{0}' (system ID '{1}') at host '{2}' ({3})",
+        ServiceRegistration.Get<ILogger>().Debug("UPnPServerControlPoint: Found MP2 client '{0}' (system ID '{1}') at host '{2}' ({3})",
             clientDescriptor.ClientName, clientDescriptor.MPFrontendServerUUID, clientDescriptor.System.HostName,
             _attachedClientSystemIds.Contains(clientDescriptor.MPFrontendServerUUID) ? "attached" : "not attached");
         _availableClients.Add(clientDescriptor);
@@ -188,7 +188,7 @@ namespace MediaPortal.Backend.Services.ClientCommunication
         clientDescriptor = ClientDescriptor.GetMPFrontendServerDescriptor(rootDescriptor);
         if (clientDescriptor == null || !_availableClients.Contains(clientDescriptor))
           return;
-        ServiceRegistration.Get<ILogger>().Debug("UPnPServerControlPoint: MP 2 client '{0}' (system ID '{1}') at host '{2}' was removed from the network",
+        ServiceRegistration.Get<ILogger>().Debug("UPnPServerControlPoint: MP2 client '{0}' (system ID '{1}') at host '{2}' was removed from the network",
             clientDescriptor.ClientName, clientDescriptor.MPFrontendServerUUID, clientDescriptor.System.HostName);
         _availableClients.Remove(clientDescriptor);
       }
@@ -230,7 +230,7 @@ namespace MediaPortal.Backend.Services.ClientCommunication
       catch (Exception e)
       {
         ServiceRegistration.Get<ILogger>().Warn(
-            "UPnPServerControlPoint: Error connecting to UPnP MP 2 frontend server '{0}'", e, clientSystemId);
+            "UPnPServerControlPoint: Error connecting to UPnP MP2 frontend server '{0}'", e, clientSystemId);
         return;
       }
       try
@@ -243,7 +243,7 @@ namespace MediaPortal.Backend.Services.ClientCommunication
       catch (Exception e)
       {
         ServiceRegistration.Get<ILogger>().Warn(
-            "UPnPServerControlPoint: Error connecting to services of UPnP MP 2 frontend server '{0}'", e, clientSystemId);
+            "UPnPServerControlPoint: Error connecting to services of UPnP MP2 frontend server '{0}'", e, clientSystemId);
         _controlPoint.Disconnect(connection);
         return;
       }

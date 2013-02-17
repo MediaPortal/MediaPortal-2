@@ -71,7 +71,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
 
     /// <summary>
     /// Audio file accessor class needed for our tag library implementation. This class maps
-    /// the TagLib#'s <see cref="File.IFileAbstraction"/> view to an MP 2 file from a resource provider.
+    /// the TagLib#'s <see cref="File.IFileAbstraction"/> view to an MP2 file from a resource provider.
     /// </summary>
     protected class ResourceProviderFileAbstraction : File.IFileAbstraction
     {
