@@ -71,7 +71,7 @@ namespace MediaPortal.Client
 #endif
 
     /// <summary>
-    /// The main entry point for the MP 2 client application.
+    /// The main entry point for the MP2 client application.
     /// </summary>
     private static void Main(params string[] args)
     {

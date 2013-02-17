@@ -55,8 +55,8 @@
   <string name="ServerConnection.SearchForServers">Search for servers</string>
   <string name="ServerConnection.DetachFromServer">Detach from home server</string>
   <string name="ServerConnection.AttachToServerHeader">Attach to MediaPortal 2 server</string>
-  <string name="ServerConnection.AttachToMultipleText">There are multiple MP 2 servers available in the network. Do you want to choose one of them as home server?</string>
-  <string name="ServerConnection.AttachToSingleText.Before">The MP 2 server</string>
+  <string name="ServerConnection.AttachToMultipleText">There are multiple MP2 servers available in the network. Do you want to choose one of them as home server?</string>
+  <string name="ServerConnection.AttachToSingleText.Before">The MP2 server</string>
   <string name="ServerConnection.AttachToSingleText.After">is available in the network. Do you want to attach to it?</string>
   <string name="ServerConnection.AttachToServerNoServerText">Currently, there is no MediaPortal 2 server available in the network.</string>
   <string name="ServerConnection.AttachButton">Attach</string>

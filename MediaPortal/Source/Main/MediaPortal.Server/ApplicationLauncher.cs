@@ -48,7 +48,7 @@ namespace MediaPortal.Server
   internal static class ApplicationLauncher
   {
     /// <summary>
-    /// The main entry point for the MP 2 server application.
+    /// The main entry point for the MP2 server application.
     /// </summary>
     private static void Main(params string[] args)
     {

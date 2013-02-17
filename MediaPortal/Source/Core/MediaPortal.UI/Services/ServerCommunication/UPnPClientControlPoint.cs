@@ -173,11 +173,11 @@ namespace MediaPortal.UI.Services.ServerCommunication
         string friendlyName = backendServerDescriptor.FriendlyName;
         SystemName system = new SystemName(new Uri(rootDescriptor.SSDPRootEntry.PreferredLink.DescriptionLocation).Host);
         if (deviceUuid == _homeServerSystemId)
-          ServiceRegistration.Get<ILogger>().Debug("UPnPClientControlPoint: Found MP 2 home server '{0}' (system ID '{1}') at host '{2}' (IP address: '{3}')",
+          ServiceRegistration.Get<ILogger>().Debug("UPnPClientControlPoint: Found MP2 home server '{0}' (system ID '{1}') at host '{2}' (IP address: '{3}')",
               friendlyName, deviceUuid, system.HostName, system.Address);
         else
         {
-          ServiceRegistration.Get<ILogger>().Debug("UPnPClientControlPoint: Found foreign MP 2 server '{0}' (system ID '{1}') at host '{2}' (IP address: '{3}')",
+          ServiceRegistration.Get<ILogger>().Debug("UPnPClientControlPoint: Found foreign MP2 server '{0}' (system ID '{1}') at host '{2}' (IP address: '{3}')",
               friendlyName, deviceUuid, system.HostName, system.Address);
           return;
         }
@@ -187,7 +187,7 @@ namespace MediaPortal.UI.Services.ServerCommunication
         }
         catch (Exception e)
         {
-          ServiceRegistration.Get<ILogger>().Warn("UPnPClientControlPoint: Error connecting to UPnP MP 2 backend server '{0}'", e, deviceUuid);
+          ServiceRegistration.Get<ILogger>().Warn("UPnPClientControlPoint: Error connecting to UPnP MP2 backend server '{0}'", e, deviceUuid);
           return;
         }
       }
@@ -227,7 +227,7 @@ namespace MediaPortal.UI.Services.ServerCommunication
           }
           catch (Exception e)
           {
-            ServiceRegistration.Get<ILogger>().Warn("UPnPClientControlPoint: Error registering user service for UPnP MP 2 backend server '{0}'", e, deviceUuid);
+            ServiceRegistration.Get<ILogger>().Warn("UPnPClientControlPoint: Error registering user service for UPnP MP2 backend server '{0}'", e, deviceUuid);
           }
         }
         lock (_networkTracker.SharedControlPointData.SyncObj)
@@ -235,7 +235,7 @@ namespace MediaPortal.UI.Services.ServerCommunication
       }
       catch (Exception e)
       {
-        ServiceRegistration.Get<ILogger>().Warn("UPnPClientControlPoint: Error connecting to services of UPnP MP 2 backend server '{0}'", e, deviceUuid);
+        ServiceRegistration.Get<ILogger>().Warn("UPnPClientControlPoint: Error connecting to services of UPnP MP2 backend server '{0}'", e, deviceUuid);
         connection.DeviceDisconnected -= OnUPnPDeviceDisconnected;
         _controlPoint.Disconnect(deviceUuid);
         return;

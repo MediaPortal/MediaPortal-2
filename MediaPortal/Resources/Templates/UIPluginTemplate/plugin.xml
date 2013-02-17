@@ -30,7 +30,7 @@
   <Register Location="/Resources/Skin">
     <!-- This registration is necessary to declare the skin directory. You can use an arbitrary directory name or
          relative path; the path must be the relative to directory of the plugin.
-         The id of the resource can be arbitrary but must be unique in the MP 2 system. It is not referenced directly
+         The id of the resource can be arbitrary but must be unique in the MP2 system. It is not referenced directly
          in any place. -->
     <Resource Id="MySkin" Directory="Skin" Type="Skin"/>
   </Register>
@@ -39,7 +39,7 @@
   <Register Location="/Resources/Language">
     <!-- This registration is necessary to declare the language directory. Just like for the skin directory,
          you can use an arbitrary directory name or relative path; the path must be the relative to the directory of the plugin.
-         The id of the resource can be arbitrary but must be unique in the MP 2 system. It is not referenced directly
+         The id of the resource can be arbitrary but must be unique in the MP2 system. It is not referenced directly
          in any place. -->
     <Resource Id="MyLanguageResource" Directory="Language" Type="Language"/>
   </Register>
