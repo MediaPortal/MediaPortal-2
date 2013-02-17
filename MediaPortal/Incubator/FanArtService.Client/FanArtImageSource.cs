@@ -46,6 +46,7 @@ namespace MediaPortal.Extensions.UserServices.FanArtService.Client
     protected AbstractProperty _fanArtNameProperty;
     protected AbstractProperty _maxWidthProperty;
     protected AbstractProperty _maxHeightProperty;
+    protected AbstractProperty _cacheProperty;
 
     #endregion
 
@@ -106,6 +107,22 @@ namespace MediaPortal.Extensions.UserServices.FanArtService.Client
       get { return _maxHeightProperty; }
     }
 
+    /// <summary>
+    /// Indicates if an image can be cached by the ContentManger. By default this property is set to <c>true</c>. It should be only modified
+    /// in skins, if it is intended to get new results for same request (<see cref="IFanArtService.GetFanArt"/> usually returns a single random file
+    /// that matches the query).
+    /// </summary>
+    public bool Cache
+    {
+      get { return (bool) _cacheProperty.GetValue(); }
+      set { _cacheProperty.SetValue(value); }
+    }
+
+    public AbstractProperty CacheProperty
+    {
+      get { return _cacheProperty; }
+    }
+
     #endregion
 
     #region Constructor
@@ -131,6 +148,7 @@ namespace MediaPortal.Extensions.UserServices.FanArtService.Client
       FanArtName = fanArtImageSource.FanArtName;
       MaxWidth = fanArtImageSource.MaxWidth;
       MaxHeight = fanArtImageSource.MaxHeight;
+      Cache = fanArtImageSource.Cache;
       Attach();
     }
 
@@ -141,6 +159,7 @@ namespace MediaPortal.Extensions.UserServices.FanArtService.Client
       _fanArtNameProperty = new SProperty(typeof(string), string.Empty);
       _maxWidthProperty = new SProperty(typeof(int), 0);
       _maxHeightProperty = new SProperty(typeof(int), 0);
+      _cacheProperty = new SProperty(typeof(bool), true);
     }
 
     protected void Attach()
@@ -148,6 +167,7 @@ namespace MediaPortal.Extensions.UserServices.FanArtService.Client
       _fanArtMediaTypeProperty.Attach(UpdateSource);
       _fanArtTypeProperty.Attach(UpdateSource);
       _fanArtNameProperty.Attach(UpdateSource);
+      _cacheProperty.Attach(UpdateSource);
     }
 
     protected void Detach()
@@ -155,6 +175,7 @@ namespace MediaPortal.Extensions.UserServices.FanArtService.Client
       _fanArtMediaTypeProperty.Detach(UpdateSource);
       _fanArtTypeProperty.Detach(UpdateSource);
       _fanArtNameProperty.Detach(UpdateSource);
+      _cacheProperty.Detach(UpdateSource);
     }
 
     protected bool BuildBaseUrl()
@@ -180,15 +201,17 @@ namespace MediaPortal.Extensions.UserServices.FanArtService.Client
       _baseUrl = uri.Authority;
       return true;
     }
-    private void UpdateSource(AbstractProperty property, object oldvalue)
+
+    protected void UpdateSource(AbstractProperty property, object oldvalue)
     {
       if (!BuildBaseUrl() || !CheckValidArgs())
         return;
 
-      UriSource = string.Format("http://{0}/FanartService/{1}/{2}/{3}/{4}/{5}", _baseUrl, FanArtMediaType, FanArtType, HttpUtility.UrlEncode(FanArtName), MaxWidth, MaxHeight);
+      string cacheHint = Cache ? "" : "?NoCache=" + DateTime.Now.Ticks;
+      UriSource = string.Format("http://{0}/FanartService/{1}/{2}/{3}/{4}/{5}{6}", _baseUrl, FanArtMediaType, FanArtType, HttpUtility.UrlEncode(FanArtName), MaxWidth, MaxHeight, cacheHint);
     }
 
-    private bool CheckValidArgs()
+    protected bool CheckValidArgs()
     {
       return FanArtMediaType != FanArtConstants.FanArtMediaType.Undefined && FanArtType != FanArtConstants.FanArtType.Undefined && !string.IsNullOrWhiteSpace(FanArtName);
     }
