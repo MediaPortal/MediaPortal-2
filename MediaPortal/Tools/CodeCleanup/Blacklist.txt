@@ -1,0 +1,6 @@
+﻿MediaPortal\Source\Core\MediaPortal.Utilities\CommandLine
+MediaPortal\Source\Extensions\DiscUtils
+MediaPortal\Source\Extensions\MetadataExtractors\OnlineLibraries\Libraries\TvdbLib
+MediaPortal\Source\Extensions\MetadataExtractors\TagLib
+MediaPortal\Source\External\Dokan
+MediaPortal\Source\UI\SkinEngine\MpfElements\Converters\expr

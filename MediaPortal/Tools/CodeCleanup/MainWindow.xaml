@@ -1,0 +1,77 @@
+﻿<Window x:Class="CodeCleanup.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="MainWindow" Height="488" Width="649">
+  <Grid>
+    <Grid.RowDefinitions>
+      <RowDefinition Height="Auto" />
+      <RowDefinition Height="Auto" />
+      <RowDefinition Height="Auto" />
+      <RowDefinition Height="Auto" />
+      <RowDefinition Height="*" />
+    </Grid.RowDefinitions>
+    <GroupBox Header="Root source directory:" Grid.Row="0">
+      <Grid>
+        <Grid.ColumnDefinitions>
+          <ColumnDefinition Width="*" />
+          <ColumnDefinition Width="Auto" />
+        </Grid.ColumnDefinitions>
+        <TextBox Grid.Column="0" Name="rootTextBox" />
+        <Button Grid.Column="1" Width="35" Content="..." />
+      </Grid>
+    </GroupBox>
+    <Expander Grid.Row="1" Header="Blacklist">
+      <ListBox Name="blackListBox" MinHeight="200"/>
+    </Expander>
+    <Expander Grid.Row="2" IsExpanded="False"
+      HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+      <Expander.Header>
+        <StackPanel Orientation="Horizontal" HorizontalAlignment="Stretch">
+          <Label HorizontalAlignment="Left">Update copyright header</Label>
+          <Button HorizontalAlignment="Right" Click="UpdateHeader">Start</Button>
+        </StackPanel>
+      </Expander.Header>
+      <Grid MinHeight="200">
+        <Grid.ColumnDefinitions>
+          <ColumnDefinition Width="*" />
+          <ColumnDefinition Width="*" />
+        </Grid.ColumnDefinitions>
+        <GroupBox Header="Old header" Grid.Column="0">
+          <TextBox Name="oldHeaderTextBox" />
+        </GroupBox>
+        <GroupBox Header="New header" Grid.Column="1">
+          <TextBox Name="newHeaderTextBox" />
+        </GroupBox>
+      </Grid>
+    </Expander>
+    <Expander Grid.Row="3" IsExpanded="False"
+      HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+      <Expander.Header>
+        <StackPanel Orientation="Horizontal" HorizontalAlignment="Stretch">
+          <Label HorizontalAlignment="Left">Check AssemblyInfo.cs</Label>
+          <Button HorizontalAlignment="Right" Click="CheckAssemblyInfo">Start</Button>
+        </StackPanel>
+      </Expander.Header>
+      <Grid MinHeight="200">
+        <Grid.ColumnDefinitions>
+          <ColumnDefinition Width="*" />
+          <ColumnDefinition Width="*" />
+        </Grid.ColumnDefinitions>
+        <GroupBox Header="Allowed header" Grid.Column="0">
+          <StackPanel Name="stackHeader">
+            
+          </StackPanel>
+        </GroupBox>
+        <GroupBox Header="Allowed footer" Grid.Column="1">
+          <StackPanel Name="stackFooter">
+
+          </StackPanel>
+        </GroupBox>
+      </Grid>
+    </Expander>
+    <GroupBox Header="Log" Grid.Row="4"
+      HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+      <ListBox Name="logListBox" MouseDoubleClick="logListBox_MouseDoubleClick" />
+    </GroupBox>
+  </Grid>
+</Window>
