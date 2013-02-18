@@ -20,7 +20,7 @@
     along with MediaPortal 2. If not, see <http://www.gnu.org/licenses/>.
 */
 
-    #endregion
+#endregion
 
 /****************************************************************************
 While the underlying libraries are covered by LGPL, this sample is released 
@@ -165,8 +165,8 @@ namespace MediaPortal.UI.Players.Video.Tools
     {
       IBaseFilter filter = null;
 #if USING_NET11
-			UCOMIBindCtx bindCtx = null;
-			UCOMIMoniker moniker = null;
+      UCOMIBindCtx bindCtx = null;
+      UCOMIMoniker moniker = null;
 #else
       IBindCtx bindCtx = null;
       IMoniker moniker = null;
@@ -864,7 +864,7 @@ namespace MediaPortal.UI.Players.Video.Tools
     {
       IStorage storage = null;
 #if USING_NET11
-			UCOMIStream stream = null;
+      UCOMIStream stream = null;
 #else
       IStream stream = null;
 #endif
@@ -1292,7 +1292,7 @@ namespace MediaPortal.UI.Players.Video.Tools
         [In] int reserved1,
         [In] int reserved2,
 #if USING_NET11
-			[Out] out UCOMIStream ppstm
+      [Out] out UCOMIStream ppstm
 #else
  [Out] out IStream ppstm
 #endif
@@ -1305,7 +1305,7 @@ namespace MediaPortal.UI.Players.Video.Tools
         [In] STGM grfMode,
         [In] int reserved2,
 #if USING_NET11
-			[Out] out UCOMIStream ppstm
+      [Out] out UCOMIStream ppstm
 #else
  [Out] out IStream ppstm
 #endif
@@ -1373,9 +1373,9 @@ namespace MediaPortal.UI.Players.Video.Tools
     int SetElementTimes(
         [In, MarshalAs(UnmanagedType.LPWStr)] string pwcsName,
 #if USING_NET11
-			[In] FILETIME pctime,
-			[In] FILETIME patime,
-			[In] FILETIME pmtime
+      [In] FILETIME pctime,
+      [In] FILETIME patime,
+      [In] FILETIME pmtime
 #else
  [In] FILETIME pctime,
  [In] FILETIME patime,
@@ -1395,7 +1395,7 @@ namespace MediaPortal.UI.Players.Video.Tools
     [PreserveSig]
     int Stat(
 #if USING_NET11
-			[Out] out STATSTG pStatStg,
+      [Out] out STATSTG pStatStg,
 #else
 [Out] out STATSTG pStatStg,
 #endif
