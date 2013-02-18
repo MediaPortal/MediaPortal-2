@@ -1,4 +1,28 @@
-﻿using System;
+﻿#region Copyright (C) 2007-2013 Team MediaPortal
+
+/*
+    Copyright (C) 2007-2013 Team MediaPortal
+    http://www.team-mediaportal.com
+
+    This file is part of MediaPortal 2
+
+    MediaPortal 2 is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    MediaPortal 2 is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with MediaPortal 2. If not, see <http://www.gnu.org/licenses/>.
+*/
+
+#endregion
+
+using System;
 using System.Globalization;
 using System.Collections.Generic;
 using System.IO;
@@ -10,11 +34,11 @@ using MediaPortal.Common.Settings;
 
 namespace MediaPortal.ServiceMonitor.Utilities
 {
-	/// <summary>
-	/// Description of Localization.
-	/// </summary>
-	public class Localization: ILocalization
-	{
+  /// <summary>
+  /// Description of Localization.
+  /// </summary>
+  public class Localization: ILocalization
+  {
     public const string LANGUAGE_RESOURCES_REGISTRATION_PATH = "Language";
 
     #region Protected fields
@@ -26,13 +50,13 @@ namespace MediaPortal.ServiceMonitor.Utilities
     protected object _syncObj = new object();
 
     #endregion
-		
-		#region ctor/dtor
-		public Localization()
-		{
-			_languageDirectories = new List<string>();
-			
-			ServiceRegistration.Get<ILogger>().Debug("Localization: Loading settings");
+    
+    #region ctor/dtor
+    public Localization()
+    {
+      _languageDirectories = new List<string>();
+      
+      ServiceRegistration.Get<ILogger>().Debug("Localization: Loading settings");
       var settings = ServiceRegistration.Get<ISettingsManager>().Load<RegionSettings>();
       if (string.IsNullOrEmpty(settings.Culture))
       {
@@ -44,31 +68,31 @@ namespace MediaPortal.ServiceMonitor.Utilities
         _currentCulture = CultureInfo.GetCultureInfo(settings.Culture);
         ServiceRegistration.Get<ILogger>().Info("Localization: Using culture: " + _currentCulture.Name);
       }
-		}
-		
-		#endregion
-		
-		#region Protected methods
+    }
     
-		
-		protected void InitializeLanguageResources()
-		{
+    #endregion
+    
+    #region Protected methods
+    
+    
+    protected void InitializeLanguageResources()
+    {
       var applicationPath = Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location);
       var path = Path.Combine(applicationPath, LANGUAGE_RESOURCES_REGISTRATION_PATH);
       _languageDirectories.Add(path);
 
       ReLoad();
 
-		}
+    }
     
-		
+    
     protected virtual void ReLoad()
     {
-    	lock (_syncObj) 
-    	{
+      lock (_syncObj) 
+      {
         _availableLanguages = LocalizationStrings.FindAvailableLanguages(_languageDirectories);
-    		_strings = new LocalizationStrings(_languageDirectories, _currentCulture);
-    	}
+        _strings = new LocalizationStrings(_languageDirectories, _currentCulture);
+      }
     }
         
     protected static CultureInfo GetBestLanguage(ICollection<CultureInfo> availableLanguages)
@@ -91,8 +115,8 @@ namespace MediaPortal.ServiceMonitor.Utilities
     }
 
     #endregion
-			
-		#region ILocalization implementation
+      
+    #region ILocalization implementation
 
     public CultureInfo CurrentCulture
     {
@@ -101,7 +125,7 @@ namespace MediaPortal.ServiceMonitor.Utilities
 
     public void Startup()
     {
-    	InitializeLanguageResources();
+      InitializeLanguageResources();
     }
 
     public void ChangeLanguage(CultureInfo culture)
@@ -163,5 +187,5 @@ namespace MediaPortal.ServiceMonitor.Utilities
     }
     
     #endregion
-	}
+  }
 }
