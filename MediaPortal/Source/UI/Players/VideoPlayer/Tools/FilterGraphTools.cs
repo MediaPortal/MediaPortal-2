@@ -20,7 +20,7 @@
     along with MediaPortal 2. If not, see <http://www.gnu.org/licenses/>.
 */
 
-    #endregion
+#endregion
 
 /****************************************************************************
 While the underlying libraries are covered by LGPL, this sample is released 
