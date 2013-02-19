@@ -1,8 +1,10 @@
 
-rem "%WINDIR%\Microsoft.NET\Framework\v4.0.30319\MSBUILD.exe" ..\Tools\MergeMSI\MergeMSI.sln /target:Rebuild  /property:Configuration=Release > Build_Setup.log
+xcopy /I /Y .\BuildReport\_BuildReport_Files .\_BuildReport_Files
 
+set xml=Build_Report_Release_Setup.xml
+set html=Build_Report_Release_Setup.html
 
-"%WINDIR%\Microsoft.NET\Framework\v4.0.30319\MSBUILD.exe" ..\Setup\MP2-Setup.sln /target:Rebuild  /property:Configuration=Release;Platform=x86 > Build_Setup.log
+set logger=/l:XmlFileLogger,"BuildReport\MSBuild.ExtensionPack.Loggers.dll";logfile=%xml%
+"%WINDIR%\Microsoft.NET\Framework\v4.0.30319\MSBUILD.exe" ..\Setup\MP2-Setup.sln %logger% /target:Rebuild  /property:Configuration=Release;Platform=x86
 
-
-rem ..\Tools\MergeMSI\bin\Release\MergeMSI.exe --TargetDir=..\Setup\MP2-Setup\bin\Release\ --TargetFileName=MP2-Setup.msi >> Build_Setup.log
+BuildReport\msxsl %xml% _BuildReport_Files\BuildReport.xslt -o %html%

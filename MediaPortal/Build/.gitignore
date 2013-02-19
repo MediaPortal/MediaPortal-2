@@ -1,4 +1,3 @@
-css
-images
-*.html
-*.txt
+/_BuildReport_Files
+/*.html
+/*.xml
