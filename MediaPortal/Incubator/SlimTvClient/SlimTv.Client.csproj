@@ -166,6 +166,9 @@
     <Content Include="Skin\Reflexion\themes\default\styles\SlimTvConsts.xaml" />
     <Content Include="Skin\default\screens\RecordingsByChannel.xaml" />
     <Content Include="Skin\default\screens\RecordingsByName.xaml" />
+    <Content Include="Skin\Titanium\themes\default\styles\ProgramInfoSlim.inc" />
+    <Content Include="Skin\Titanium\themes\default\styles\SlimTvConsts.xaml" />
+    <Content Include="Skin\Titanium\themes\default\styles\SlimTvStyles.xaml" />
   </ItemGroup>
   <ItemGroup>
     <BootstrapperPackage Include="Microsoft.Net.Client.3.5">
