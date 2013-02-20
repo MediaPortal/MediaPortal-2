@@ -69,7 +69,7 @@
         </GroupBox>
       </Grid>
     </Expander>
-    <GroupBox Header="Log" Grid.Row="4"
+    <GroupBox Header="Log (DoubleClick to open file in Explorer)" Grid.Row="4"
       HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
       <ListBox Name="logListBox" MouseDoubleClick="logListBox_MouseDoubleClick" />
     </GroupBox>
