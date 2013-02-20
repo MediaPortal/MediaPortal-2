@@ -53,7 +53,7 @@ namespace MediaPortal.Common.Services.Runtime
 
       WindowsAPI.EXIT_WINDOWS flags = WindowsAPI.EXIT_WINDOWS.EWX_POWEROFF;
       if (force)
-        flags = flags & WindowsAPI.EXIT_WINDOWS.EWX_FORCE;
+        flags = flags | WindowsAPI.EXIT_WINDOWS.EWX_FORCE;
 
       // todo: chefkoch, 2013-01-31: add flag for HybridShutdown if OS is Windows 8
 
@@ -67,7 +67,7 @@ namespace MediaPortal.Common.Services.Runtime
 
       WindowsAPI.EXIT_WINDOWS flags = WindowsAPI.EXIT_WINDOWS.EWX_REBOOT;
       if (force)
-        flags = flags & WindowsAPI.EXIT_WINDOWS.EWX_FORCE;
+        flags = flags | WindowsAPI.EXIT_WINDOWS.EWX_FORCE;
 
       WindowsAPI.ExitWindowsEx(flags);
     }
@@ -95,7 +95,7 @@ namespace MediaPortal.Common.Services.Runtime
 
       WindowsAPI.EXIT_WINDOWS flags = WindowsAPI.EXIT_WINDOWS.EWX_LOGOFF;
       if (force)
-        flags = flags & WindowsAPI.EXIT_WINDOWS.EWX_FORCE;
+        flags = flags | WindowsAPI.EXIT_WINDOWS.EWX_FORCE;
 
       WindowsAPI.ExitWindowsEx(flags);
     }
