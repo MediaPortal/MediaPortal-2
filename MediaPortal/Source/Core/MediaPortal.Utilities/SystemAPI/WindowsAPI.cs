@@ -65,13 +65,14 @@ namespace MediaPortal.Utilities.SystemAPI
 
     #region ExitWindowsEx
 
+    // Source: http://ithoughthecamewithyou.com/post/Reboot-computer-in-C-NET.aspx
     public static void ExitWindowsEx(EXIT_WINDOWS exitMode)
     {
       IntPtr tokenHandle = IntPtr.Zero;
 
       try
       {
-        // get process token
+        // Get process token
         if (!OpenProcessToken(System.Diagnostics.Process.GetCurrentProcess().Handle,
             TOKEN_QUERY | TOKEN_ADJUST_PRIVILEGES,
             out tokenHandle))
@@ -80,7 +81,7 @@ namespace MediaPortal.Utilities.SystemAPI
               "Failed to open process token handle");
         }
 
-        // lookup the shutdown privilege
+        // Lookup the shutdown privilege
         TOKEN_PRIVILEGES tokenPrivs = new TOKEN_PRIVILEGES();
         tokenPrivs.PrivilegeCount = 1;
         tokenPrivs.Privileges = new LUID_AND_ATTRIBUTES[1];
@@ -94,7 +95,7 @@ namespace MediaPortal.Utilities.SystemAPI
               "Failed to open lookup shutdown privilege");
         }
 
-        // add the shutdown privilege to the process token
+        // Add the shutdown privilege to the process token
         if (!AdjustTokenPrivileges(tokenHandle,
             false,
             ref tokenPrivs,
@@ -106,19 +107,19 @@ namespace MediaPortal.Utilities.SystemAPI
               "Failed to adjust process token privileges");
         }
 
-        // reboot
+        // Perform the exit operation
         if (!ExitWindowsEx(exitMode,
                 ShutdownReason.MajorApplication |
         ShutdownReason.MinorInstallation |
         ShutdownReason.FlagPlanned))
         {
           throw new Win32Exception(Marshal.GetLastWin32Error(),
-              "Failed to reboot system");
+              String.Format("Failed to exit the system ({0})", exitMode));
         }
       }
       finally
       {
-        // close the process token
+        // Close the process token
         if (tokenHandle != IntPtr.Zero)
         {
           CloseHandle(tokenHandle);
@@ -202,7 +203,7 @@ namespace MediaPortal.Utilities.SystemAPI
       FlagPlanned = 0x80000000
     }
 
-    // everything from here on is from pinvoke.net & 
+    // Everything from here on is from pinvoke.net & 
 
     [StructLayout(LayoutKind.Sequential)]
     private struct LUID
@@ -229,7 +230,7 @@ namespace MediaPortal.Utilities.SystemAPI
     private const UInt32 SE_PRIVILEGE_ENABLED = 0x00000002;
     private const string SE_SHUTDOWN_NAME = "SeShutdownPrivilege";
 
-    // note: http://msdn.microsoft.com/library/windows/desktop/aa376873
+    // Note: http://msdn.microsoft.com/library/windows/desktop/aa376873
     // The ExitWindowsEx function returns as soon as it has initiated the shutdown process.
     // The shutdown or logoff then proceeds asynchronously.
     // The function is designed to stop all processes in the caller's logon session.
