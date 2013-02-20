@@ -84,7 +84,7 @@ namespace MediaPortal.Common.Runtime
     void Suspend();
 
     /// <summary>
-    /// Suspends the current Windows session to disc (Hibernate).
+    /// Suspends the current Windows session to disk (Hibernate).
     /// </summary>
     void Hibernate();
 
