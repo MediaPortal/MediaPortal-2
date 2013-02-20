@@ -71,11 +71,19 @@ namespace MediaPortal.Common.Runtime
     /// <summary>
     /// Shuts the current Windows session down.
     /// </summary>
+    /// <param name="force">
+    /// If force is set to <c>true</c>, applications which requested to block the shutdown are ignored.
+    /// This can cause applications to lose data. Therefore, force should be set to <c>true</c> only in an emergency.
+    /// </param>
     void Shutdown(bool force = false);
 
     /// <summary>
     /// Restarts the PC.
     /// </summary>
+    /// <param name="force">
+    /// If force is set to <c>true</c>, applications which requested to block the restart are ignored.
+    /// This can cause applications to lose data. Therefore, force should be set to <c>true</c> only in an emergency.
+    /// </param>
     void Restart(bool force = false);
 
     /// <summary>
@@ -91,6 +99,10 @@ namespace MediaPortal.Common.Runtime
     /// <summary>
     /// Logs the current user off.
     /// </summary>
+    /// <param name="force">
+    /// If force is set to <c>true</c>, applications which requested to block the logoff are ignored.
+    /// This can cause applications to lose data. Therefore, force should be set to <c>true</c> only in an emergency.
+    /// </param>
     void Logoff(bool force = false);
   }
 }
