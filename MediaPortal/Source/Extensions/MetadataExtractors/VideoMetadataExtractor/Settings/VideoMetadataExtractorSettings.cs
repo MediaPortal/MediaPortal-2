@@ -39,6 +39,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.VideoMetadataExtractor.Setti
           ".wmv",
           ".mpg",
           ".mp4",
+          ".m4v",
           ".ts",
           ".flv",
           ".m2ts",

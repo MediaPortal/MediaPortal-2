@@ -69,7 +69,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.VideoMetadataExtractor
     #region Protected fields and classes
 
     protected static ICollection<MediaCategory> MEDIA_CATEGORIES = new List<MediaCategory>();
-    protected static ICollection<string> VIDEO_FILE_EXTENSIONS = new List<string>();
+    protected static ICollection<string> VIDEO_FILE_EXTENSIONS = new HashSet<string>();
 
     protected MetadataExtractorMetadata _metadata;
 
@@ -90,7 +90,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.VideoMetadataExtractor
     /// <param name="settings">Settings object to read the data from.</param>
     internal static void InitializeExtensions(VideoMetadataExtractorSettings settings)
     {
-      VIDEO_FILE_EXTENSIONS = new List<string>(settings.VideoFileExtensions.Select(e => e.ToLowerInvariant()));
+      VIDEO_FILE_EXTENSIONS = new HashSet<string>(settings.VideoFileExtensions.Select(e => e.ToLowerInvariant()));
     }
 
     public VideoMetadataExtractor()
