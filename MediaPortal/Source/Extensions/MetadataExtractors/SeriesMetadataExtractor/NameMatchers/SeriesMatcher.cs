@@ -42,16 +42,16 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor.Name
     protected static List<Regex> _matchers = new List<Regex>
         {
           // Filename only pattern
-          // MP1 EpisodeScanner recommendations for recordings: Series - (Episode) S1E1
-          new Regex(@"(?<series>[^\\]+) - \((?<episode>.*)\) S(?<seasonnum>[0-9]+?)E(?<episodenum>[0-9]+?)", RegexOptions.IgnoreCase),
+          // MP1 EpisodeScanner recommendations for recordings: Series - (Episode) S1E1, also "S1 E1", "S1-E1", "S1.E1", "S1_E1"
+          new Regex(@"(?<series>[^\\]+) - \((?<episode>.*)\) S(?<seasonnum>[0-9]+?)[\s|\.|\-|_]{0,1}E(?<episodenum>[0-9]+?)", RegexOptions.IgnoreCase),
           // "Series 1x1 - Episode" and multi-episodes "Series 1x1_2 - Episodes"
           new Regex(@"(?<series>[^\\]+)\W(?<seasonnum>\d+)x((?<episodenum>\d+)_?)+ - (?<episode>.*)\.", RegexOptions.IgnoreCase),
-          // "Series S1E01 - Episode" and multi-episodes "Series S1E01_02 - Episodes"
-          new Regex(@"(?<series>[^\\]+)\WS(?<seasonnum>\d+)E((?<episodenum>\d+)_?)+ - (?<episode>.*)\.", RegexOptions.IgnoreCase),
+          // "Series S1E01 - Episode" and multi-episodes "Series S1E01_02 - Episodes", also "S1 E1", "S1-E1", "S1.E1", "S1_E1"
+          new Regex(@"(?<series>[^\\]+)\WS(?<seasonnum>\d+)[\s|\.|\-|_]{0,1}E((?<episodenum>\d+)_?)+ - (?<episode>.*)\.", RegexOptions.IgnoreCase),
           // "Series.Name.1x01.Episode.Or.Release.Info"
           new Regex(@"(?<series>[^\\]+).(?<seasonnum>\d+)x((?<episodenum>\d+)_?)+(?<episode>.*)\.", RegexOptions.IgnoreCase),
-          // "Series.Name.S01E01.Episode.Or.Release.Info"
-          new Regex(@"(?<series>[^\\]+).S(?<seasonnum>\d+)E((?<episodenum>\d+)_?)+(?<episode>.*)\.", RegexOptions.IgnoreCase),
+          // "Series.Name.S01E01.Episode.Or.Release.Info", also "S1 E1", "S1-E1", "S1.E1", "S1_E1"
+          new Regex(@"(?<series>[^\\]+).S(?<seasonnum>\d+)[\s|\.|\-|_]{0,1}E((?<episodenum>\d+)_?)+(?<episode>.*)\.", RegexOptions.IgnoreCase),
           // "Series.Name.101.Episode.Or.Release.Info", can lead to false matches for every filename with nnn included
           //new Regex(@"(?<series>[^\\]+).(?<seasonnum>\d{1})(?<episodenum>\d{2})(?<episode>.*)\.", RegexOptions.IgnoreCase),
 
