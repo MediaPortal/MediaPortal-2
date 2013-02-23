@@ -24,8 +24,6 @@
 
 using MediaPortal.Common.Logging;
 using MediaPortal.Common.Runtime;
-using MediaPortal.Common.Services.Runtime.Settings;
-using MediaPortal.Common.Settings;
 using MediaPortal.Utilities.SystemAPI;
 
 namespace MediaPortal.Common.Services.Runtime
@@ -48,12 +46,58 @@ namespace MediaPortal.Common.Services.Runtime
       get { return _state; }
     }
 
+    public void Shutdown(bool force = false)
+    {
+      ServiceRegistration.Get<ILogger>().Info("SystemStateService: Shutting down");
+      SystemMessaging.SendSystemStateChangeMessage(SystemState.ShuttingDown);
+
+      WindowsAPI.EXIT_WINDOWS flags = WindowsAPI.EXIT_WINDOWS.EWX_POWEROFF;
+      if (force)
+        flags = flags | WindowsAPI.EXIT_WINDOWS.EWX_FORCE;
+
+      // todo: chefkoch, 2013-01-31: add flag for HybridShutdown if OS is Windows 8
+
+      WindowsAPI.ExitWindowsEx(flags);
+    }
+
+    public void Restart(bool force = false)
+    {
+      ServiceRegistration.Get<ILogger>().Info("SystemStateService: Restarting");
+      SystemMessaging.SendSystemStateChangeMessage(SystemState.ShuttingDown);
+
+      WindowsAPI.EXIT_WINDOWS flags = WindowsAPI.EXIT_WINDOWS.EWX_REBOOT;
+      if (force)
+        flags = flags | WindowsAPI.EXIT_WINDOWS.EWX_FORCE;
+
+      WindowsAPI.ExitWindowsEx(flags);
+    }
+
     public void Suspend()
+    {
+      ServiceRegistration.Get<ILogger>().Info("SystemStateService: Suspending");
+      SystemMessaging.SendSystemStateChangeMessage(SystemState.Suspending);
+
+      WindowsAPI.SetSuspendState(false, false, false);
+    }
+
+    public void Hibernate()
     {
       ServiceRegistration.Get<ILogger>().Info("SystemStateService: Hibernating");
       SystemMessaging.SendSystemStateChangeMessage(SystemState.Hibernating);
-      SystemSettings settings = ServiceRegistration.Get<ISettingsManager>().Load<SystemSettings>();
-      WindowsAPI.SetSuspendState(settings.UseHibernation, false, false);
+
+      WindowsAPI.SetSuspendState(true, false, false);
+    }
+
+    public void Logoff(bool force = false)
+    {
+      ServiceRegistration.Get<ILogger>().Info("SystemStateService: Logging off");
+      SystemMessaging.SendSystemStateChangeMessage(SystemState.ShuttingDown);
+
+      WindowsAPI.EXIT_WINDOWS flags = WindowsAPI.EXIT_WINDOWS.EWX_LOGOFF;
+      if (force)
+        flags = flags | WindowsAPI.EXIT_WINDOWS.EWX_FORCE;
+
+      WindowsAPI.ExitWindowsEx(flags);
     }
 
     #endregion
