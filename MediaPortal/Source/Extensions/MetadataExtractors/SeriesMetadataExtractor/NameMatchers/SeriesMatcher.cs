@@ -92,8 +92,9 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor.Name
         info.Episode = group.Value;
 
       group = ma.Groups[GROUP_SEASONNUM];
-      if (group.Length > 0)
-        int.TryParse(group.Value, out info.SeasonNumber);
+      int tmpInt;
+      if (group.Length > 0 && int.TryParse(group.Value, out tmpInt))
+        info.SeasonNumber = tmpInt;
 
       // There can be multipe episode numbers in one file
       group = ma.Groups[GROUP_EPISODENUM];

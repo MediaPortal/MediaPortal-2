@@ -104,8 +104,9 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
       if (extractedTags[MatroskaConsts.TAG_SERIES_TITLE] != null)
         seriesInfo.Series = extractedTags[MatroskaConsts.TAG_SERIES_TITLE].FirstOrDefault();
 
-      if (extractedTags[MatroskaConsts.TAG_SEASON_NUMBER] != null)
-        int.TryParse(extractedTags[MatroskaConsts.TAG_SEASON_NUMBER].FirstOrDefault(), out seriesInfo.SeasonNumber);
+      int tmpInt;
+      if (extractedTags[MatroskaConsts.TAG_SEASON_NUMBER] != null && int.TryParse(extractedTags[MatroskaConsts.TAG_SEASON_NUMBER].FirstOrDefault(), out tmpInt))
+        seriesInfo.SeasonNumber = tmpInt;
 
       if (extractedTags[MatroskaConsts.TAG_EPISODE_NUMBER] != null)
       {

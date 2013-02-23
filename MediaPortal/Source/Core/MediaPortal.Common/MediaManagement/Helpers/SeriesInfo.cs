@@ -86,9 +86,10 @@ namespace MediaPortal.Common.MediaManagement.Helpers
     {
       get
       {
-        return !(string.IsNullOrEmpty(Series) || SeasonNumber == 0 || EpisodeNumbers.Count == 0);
+        return !(string.IsNullOrEmpty(Series) || !SeasonNumber.HasValue || EpisodeNumbers.Count == 0);
       }
     }
+
     /// <summary>
     /// Gets or sets the series title. When setting a value, whitespaces will be cleaned up (<see cref="CleanupWhiteSpaces"/>).
     /// </summary>
@@ -108,9 +109,9 @@ namespace MediaPortal.Common.MediaManagement.Helpers
     }
 
     /// <summary>
-    /// Gets or sets the season number.
+    /// Gets or sets the season number. A "0" value will be treated as valid season number.
     /// </summary>
-    public int SeasonNumber;
+    public int? SeasonNumber { get; set; }
 
     /// <summary>
     /// Gets a list of episode numbers.
@@ -170,7 +171,7 @@ namespace MediaPortal.Common.MediaManagement.Helpers
 
       MediaItemAspect.SetAttribute(aspectData, SeriesAspect.ATTR_SERIESNAME, Series);
       MediaItemAspect.SetAttribute(aspectData, SeriesAspect.ATTR_EPISODENAME, Episode);
-      MediaItemAspect.SetAttribute(aspectData, SeriesAspect.ATTR_SEASON, SeasonNumber);
+      if (SeasonNumber.HasValue) MediaItemAspect.SetAttribute(aspectData, SeriesAspect.ATTR_SEASON, SeasonNumber.Value);
       MediaItemAspect.SetCollectionAttribute(aspectData, SeriesAspect.ATTR_EPISODE, EpisodeNumbers);
 
       if (!string.IsNullOrEmpty(Summary)) MediaItemAspect.SetAttribute(aspectData, VideoAspect.ATTR_STORYPLOT, Summary);
