@@ -202,7 +202,7 @@ namespace MediaPortal.Plugins.StatisticsRenderer
         _fpsCounter++;
         TimeSpan ts = DateTime.Now - _fpsTimer;
         float secs = (float) ts.TotalSeconds;
-        _fps = _fpsCounter/secs;
+        _fps = _fpsCounter / secs;
 
         Stats currentFrameStats = new Stats
           {
@@ -213,9 +213,9 @@ namespace MediaPortal.Plugins.StatisticsRenderer
 
         if (ts.TotalSeconds >= 1.0f)
         {
-          float totalAvgGuiTime = (float) _totalGuiRenderDuration.TotalMilliseconds/_totalFrameCount;
-          float avgGuiTime = (float) _guiRenderDuration.TotalMilliseconds/_frameCount;
-          float avgMsToVBlank = _sumMsToVBlank/_frameCount;
+          float totalAvgGuiTime = (float) _totalGuiRenderDuration.TotalMilliseconds / _totalFrameCount;
+          float avgGuiTime = (float) _guiRenderDuration.TotalMilliseconds / _frameCount;
+          float avgMsToVBlank = _sumMsToVBlank / _frameCount;
 
           int glitches;
           _perfLogString = string.Format(
@@ -251,29 +251,27 @@ namespace MediaPortal.Plugins.StatisticsRenderer
 
     private void DrawTearingTest()
     {
-      using (Surface surface = _device.GetRenderTarget(0))
-      {
-        int left = _tearingPos;
-        int width = surface.Description.Width;
-        int height = surface.Description.Height;
-        Size size = new Size(4, height);
-        Point topLeft = new Point(left, 0);
-        if (topLeft.X + size.Width >= width)
-          topLeft.X = 0;
+      Surface surface = _device.GetRenderTarget(0);
+      int left = _tearingPos;
+      int width = surface.Description.Width;
+      int height = surface.Description.Height;
+      Size size = new Size(4, height);
+      Point topLeft = new Point(left, 0);
+      if (topLeft.X + size.Width >= width)
+        topLeft.X = 0;
 
-        Rectangle rcTearing = new Rectangle(topLeft, size);
+      Rectangle rcTearing = new Rectangle(topLeft, size);
 
-        _device.ColorFill(surface, rcTearing, new Color4(255, 255, 255, 255));
+      _device.ColorFill(surface, rcTearing, new Color4(255, 255, 255, 255));
 
-        topLeft = new Point((rcTearing.Right + 15) % width, 0);
-        if (topLeft.X + size.Width >= width)
-          topLeft.X = 0;
+      topLeft = new Point((rcTearing.Right + 15) % width, 0);
+      if (topLeft.X + size.Width >= width)
+        topLeft.X = 0;
 
-        rcTearing = new Rectangle(topLeft, size);
-        _device.ColorFill(surface, rcTearing, new Color4(255, 100, 100, 100));
+      rcTearing = new Rectangle(topLeft, size);
+      _device.ColorFill(surface, rcTearing, new Color4(255, 100, 100, 100));
 
-        _tearingPos = (_tearingPos + 7) % width;
-      }
+      _tearingPos = (_tearingPos + 7) % width;
     }
 
     private void DrawText(string text)
@@ -429,7 +427,7 @@ namespace MediaPortal.Plugins.StatisticsRenderer
       }
     }
 
-    public void Activated (PluginRuntime pluginRuntime)
+    public void Activated(PluginRuntime pluginRuntime)
     {
       ISystemStateService sss = ServiceRegistration.Get<ISystemStateService>();
       if (sss.CurrentState == SystemState.Running)
@@ -469,20 +467,20 @@ namespace MediaPortal.Plugins.StatisticsRenderer
       }
     }
 
-    public bool RequestEnd ()
+    public bool RequestEnd()
     {
       return true;
     }
 
-    public void Stop ()
+    public void Stop()
     {
     }
 
-    public void Continue ()
+    public void Continue()
     {
     }
 
-    public void Shutdown ()
+    public void Shutdown()
     {
     }
   }
