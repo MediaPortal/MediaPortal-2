@@ -109,8 +109,7 @@ namespace MediaPortal.Plugins.StatisticsRenderer
       _line = new Line(_device) { Width = 2.5f, Antialias = true };
 
       _fontSprite = new Sprite(_device);
-      _font = new Font(_device, TEXT_SIZE, 0, FontWeight.Normal, 0, false, CharacterSet.Default,
-        Precision.Default, FontQuality.ClearTypeNatural, PitchAndFamily.DontCare, "tahoma");
+      _font = new Font(_device, TEXT_SIZE, 0, FontWeight.Normal, 0, false, CharacterSet.Default, Precision.Default, FontQuality.ClearTypeNatural, PitchAndFamily.DontCare, "tahoma");
 
       // Get device info
       _adapterDisplayModeEx = SkinContext.Direct3D.GetAdapterDisplayModeEx(0);
@@ -153,6 +152,16 @@ namespace MediaPortal.Plugins.StatisticsRenderer
       Log("Toggling render mode...");
       SkinContext.NextRenderStrategy();
       Log("Render mode is now '" + SkinContext.RenderStrategy.Name + "'");
+    }
+
+    /// <summary>
+    /// ToggleRenderPipeline calls the <see cref="SkinContext.NextRenderPipeline"/> method to switch between the available RenderPipelines.
+    /// </summary>
+    private static void ToggleRenderPipeline()
+    {
+      Log("Toggling render pipeline...");
+      SkinContext.NextRenderPipeline();
+      Log("Render pipeline is now '" + SkinContext.RenderPipeline.GetType().Name + "'");
     }
 
     /// <summary>
@@ -226,6 +235,7 @@ namespace MediaPortal.Plugins.StatisticsRenderer
 
           currentFrameStats.Glitch = glitches;
           _perfLogString += "\r\n" + GetScreenInfo();
+          _perfLogString += "\r\n" + GetRenderPipelineInfo();
           _perfLogString += "\r\n" + GetPlayerInfos();
           _fpsCounter = 0;
           _frameCount = 0;
@@ -360,6 +370,11 @@ namespace MediaPortal.Plugins.StatisticsRenderer
       return string.Format("Screen Res: {0}x{1} @ {2}Hz", SkinContext.BackBufferWidth, SkinContext.BackBufferHeight, _adapterDisplayModeEx.RefreshRate);
     }
 
+    private string GetRenderPipelineInfo()
+    {
+      return string.Format("Render Pipeline: {0}", SkinContext.RenderPipeline.GetType().Name);
+    }
+
     private static string GetPlayerInfos()
     {
       string playerInfos = string.Empty;
@@ -403,6 +418,7 @@ namespace MediaPortal.Plugins.StatisticsRenderer
         Log("Registering KeyBindings on IInputManager");
         manager.AddKeyBinding(Key.F10, new VoidKeyActionDlgt(ToggleStatsRendering));
         manager.AddKeyBinding(Key.F11, new VoidKeyActionDlgt(ToggleRenderMode));
+        manager.AddKeyBinding(Key.F12, new VoidKeyActionDlgt(ToggleRenderPipeline));
       }
     }
 
@@ -414,6 +430,7 @@ namespace MediaPortal.Plugins.StatisticsRenderer
       {
         manager.RemoveKeyBinding(Key.F10);
         manager.RemoveKeyBinding(Key.F11);
+        manager.RemoveKeyBinding(Key.F12);
       }
     }
 
