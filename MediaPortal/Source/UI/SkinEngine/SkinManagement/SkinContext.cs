@@ -28,6 +28,7 @@ using System.Threading;
 using System.Windows.Forms;
 using MediaPortal.Common.General;
 using MediaPortal.UI.SkinEngine.DirectX;
+using MediaPortal.UI.SkinEngine.DirectX.RenderPipelines;
 using MediaPortal.UI.SkinEngine.DirectX.RenderStrategy;
 using SlimDX.Direct3D9;
 
@@ -123,6 +124,22 @@ namespace MediaPortal.UI.SkinEngine.SkinManagement
     public static void NextRenderStrategy()
     {
       GraphicsDevice.NextRenderStrategy();
+    }
+
+    /// <summary>
+    /// Gets the current RenderPipeline (single pass, 3D multi pass, ...).
+    /// </summary>
+    public static IRenderPipeline RenderPipeline
+    {
+      get { return GraphicsDevice.RenderPipeline; }
+    }
+
+    /// <summary>
+    /// Toggles between different RenderPipelines (single pass, 3D multi pass, ...).
+    /// </summary>
+    public static void NextRenderPipeline()
+    {
+      GraphicsDevice.NextRenderPipeline();
     }
 
     /// <summary>
