@@ -97,9 +97,6 @@ namespace MediaPortal.UI.SkinEngine.Rendering
     {
       // Restore all previous rembered values
       _device.SetRenderTarget(_renderTargetIndex, _backBuffer);
-
-      if (_backBuffer != null)
-        _backBuffer.Dispose();
     }
   }
 }
