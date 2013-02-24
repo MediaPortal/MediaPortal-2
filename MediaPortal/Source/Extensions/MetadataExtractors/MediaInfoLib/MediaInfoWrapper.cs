@@ -150,7 +150,7 @@ namespace MediaInfoLib
 
       // Increased buffer size for some .mp4 that contain first audio, then video stream. If buffer is smaller (i.e. 64 kb),
       // MediaInfo only detects the audio stream. It works correctly in file mode.
-      const int bufferSize = 128 * 1024;
+      const int bufferSize = 512 * 1024;
       byte[] buffer = new byte[bufferSize]; // init the buffer to communicate with MediaInfo
       GCHandle gcHandle = GCHandle.Alloc(buffer, GCHandleType.Pinned);
       IntPtr bufferPtr = gcHandle.AddrOfPinnedObject();
