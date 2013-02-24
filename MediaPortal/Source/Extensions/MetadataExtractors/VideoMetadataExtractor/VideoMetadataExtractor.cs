@@ -123,18 +123,28 @@ namespace MediaPortal.Extensions.MetadataExtractors.VideoMetadataExtractor
     protected MediaInfoWrapper ReadMediaInfo(IFileSystemResourceAccessor mediaItemAccessor)
     {
       MediaInfoWrapper result = new MediaInfoWrapper();
-      Stream stream = null;
-      try
+
+      ILocalFsResourceAccessor localFsResourceAccessor = mediaItemAccessor as ILocalFsResourceAccessor;
+      if (ReferenceEquals(localFsResourceAccessor, null))
       {
-        stream = mediaItemAccessor.OpenRead();
-        if (stream != null)
-          result.Open(stream);
+        Stream stream = null;
+        try
+        {
+          stream = mediaItemAccessor.OpenRead();
+          if (stream != null)
+            result.Open(stream);
+        }
+        finally
+        {
+          if (stream != null)
+            stream.Close();
+        }
       }
-      finally
+      else
       {
-        if (stream != null)
-          stream.Close();
+        result.Open(localFsResourceAccessor.LocalFileSystemPath);
       }
+
       return result;
     }
 
