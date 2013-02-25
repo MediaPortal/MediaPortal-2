@@ -110,8 +110,10 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
       if (extractedTags[MatroskaConsts.TAG_EPISODE_NUMBER] != null)
       {
         int episodeNum;
-        if (int.TryParse(extractedTags[MatroskaConsts.TAG_EPISODE_NUMBER].FirstOrDefault(), out episodeNum))
-          seriesInfo.EpisodeNumbers.Add(episodeNum);
+
+        foreach (string s in extractedTags[MatroskaConsts.TAG_EPISODE_NUMBER])
+          if (int.TryParse(s, out episodeNum))
+            seriesInfo.EpisodeNumbers.Add(episodeNum);
       }
       return seriesInfo;
     }
