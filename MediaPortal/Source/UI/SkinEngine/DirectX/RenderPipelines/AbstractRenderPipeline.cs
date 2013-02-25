@@ -34,6 +34,7 @@ namespace MediaPortal.UI.SkinEngine.DirectX.RenderPipelines
   {
     public virtual void BeginRenderPass()
     {
+      GraphicsDevice.RenderPass = RenderPassType.SingleOrFirstPass;
       GraphicsDevice.Device.Clear(ClearFlags.Target, Color.Black, 1.0f, 0);
       GraphicsDevice.Device.BeginScene();
     }
@@ -46,6 +47,11 @@ namespace MediaPortal.UI.SkinEngine.DirectX.RenderPipelines
     public virtual void EndRenderPass()
     {
       GraphicsDevice.Device.EndScene();
+    }
+
+    public virtual void GetTextureClip (RectangleF fullVideoClip, out RectangleF tranformedRect)
+    {
+      tranformedRect = fullVideoClip;
     }
   }
 }

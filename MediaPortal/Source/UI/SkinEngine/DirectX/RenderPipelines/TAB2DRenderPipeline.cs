@@ -27,22 +27,13 @@ using System.Drawing;
 namespace MediaPortal.UI.SkinEngine.DirectX.RenderPipelines
 {
   /// <summary>
-  /// <see cref="SBSRenderPipeline"/> implements a Side-By-Side rendering pipeline, where the first pass represents the left eye frame.
+  /// <see cref="TAB2DRenderPipeline"/> renders a Side-By-Side video into a 2D scene by cropping the source video to left side only.
   /// </summary>
-  internal class SBSRenderPipeline : AbstractMultiPassRenderPipeline
+  internal class TAB2DRenderPipeline : AbstractRenderPipeline
   {
-    public override void BeginRenderPass()
-    {
-      base.BeginRenderPass();
-      _firstFrameTargetRect = new Rectangle(0, 0, _renderTarget.Width / 2, _renderTarget.Height);
-      _seconfFrameTargetRect = new Rectangle(_renderTarget.Width / 2, 0, _renderTarget.Width / 2, _renderTarget.Height);
-    }
-
     public override void GetTextureClip(RectangleF fullVideoClip, out RectangleF tranformedRect)
     {
-      tranformedRect = GraphicsDevice.RenderPass == RenderPassType.SingleOrFirstPass ?
-        new RectangleF(0.0f, 0.0f, fullVideoClip.Width * 0.5f, fullVideoClip.Height) : // SBS first pass, left side
-        new RectangleF(fullVideoClip.Width * 0.5f, 0.0f, fullVideoClip.Width * 0.5f, fullVideoClip.Height); // SBS second pass, right side
+      tranformedRect = new RectangleF(0.0f, 0.0f, fullVideoClip.Width, fullVideoClip.Height * 0.5f); // TAB first pass, upper side
     }
   }
 }

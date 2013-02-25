@@ -41,6 +41,12 @@ namespace MediaPortal.UI.SkinEngine.DirectX
 {
   public delegate void WorkDlgt();
 
+  public enum RenderPassType
+  {
+    SingleOrFirstPass = 0,
+    SecondPass
+  }
+
   internal static class GraphicsDevice
   {
     #region Variables
@@ -151,6 +157,8 @@ namespace MediaPortal.UI.SkinEngine.DirectX
         return adapterInfo.CurrentDisplayMode;
       }
     }
+
+    public static RenderPassType RenderPass { get; set; }
 
     /// <summary>
     /// Lock to be used during DirectX (and maybe also other) resource access and during rendering.
@@ -268,9 +276,11 @@ namespace MediaPortal.UI.SkinEngine.DirectX
     {
       _renderPipelines = new List<IRenderPipeline>
         {
-          new SinglePass2DRenderPipeline(), 
-          new SBSRenderPipeline(), 
-          new TABRenderPipeline(), 
+          new SinglePass2DRenderPipeline(),
+          new SBSRenderPipeline(),
+          new TABRenderPipeline(),
+          new SBS2DRenderPipeline(),
+          new TAB2DRenderPipeline(),
         };
       _currentRenderPipeplineIndex = 0;
     }
