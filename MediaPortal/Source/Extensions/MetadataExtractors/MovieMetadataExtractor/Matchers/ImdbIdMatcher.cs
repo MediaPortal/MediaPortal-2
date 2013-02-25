@@ -1,4 +1,4 @@
-﻿#region Copyright (C) 2007-2013 Team MediaPortal
+#region Copyright (C) 2007-2013 Team MediaPortal
 
 /*
     Copyright (C) 2007-2013 Team MediaPortal
@@ -24,7 +24,7 @@
 
 using System.Text.RegularExpressions;
 
-namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
+namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor.Matchers
 {
   /// <summary>
   /// <see cref="ImdbIdMatcher"/> tries to match IMDB ids from folder or filenames using regular expressions.

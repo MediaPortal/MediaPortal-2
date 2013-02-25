@@ -28,6 +28,8 @@ namespace MediaPortal.Extensions.MetadataExtractors.MatroskaLib
 {
   public class MatroskaConsts
   {
+    public static string[] MATROSKA_VIDEO_EXTENSIONS = new[] { ".mkv", ".mk3d" };
+
     // Tags are constructed by using TargetTypeValue (i.e. 70) and the name of the <Simple> tag (i.e. TITLE).
     public const string TAG_SERIES_TITLE = "70.TITLE";
     public const string TAG_SERIES_GENRE = "70.GENRE";
@@ -41,6 +43,8 @@ namespace MediaPortal.Extensions.MetadataExtractors.MatroskaLib
     public const string TAG_EPISODE_YEAR = "50.DATE_RELEASED";
     public const string TAG_EPISODE_NUMBER = "50.PART_NUMBER";
     public const string TAG_SIMPLE_TITLE = "TITLE";
+
+    public const string TAG_MOVIE_IMDB_ID = "50.IMDB";
 
     public static Dictionary<string, IList<string>> DefaultTags
     {
@@ -58,6 +62,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.MatroskaLib
             {TAG_EPISODE_SUMMARY, null}, // Episode summary
             {TAG_EPISODE_YEAR, null}, // Episode year
             {TAG_EPISODE_NUMBER, null}, // Episode number
+            {TAG_MOVIE_IMDB_ID, null}, // movie imdb id
             {TAG_ACTORS, null}, // Actor(s)
             {TAG_SIMPLE_TITLE, null} // File title
           };
