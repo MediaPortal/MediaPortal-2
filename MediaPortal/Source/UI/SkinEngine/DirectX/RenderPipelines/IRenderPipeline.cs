@@ -22,6 +22,8 @@
 
 #endregion
 
+using System.Drawing;
+
 namespace MediaPortal.UI.SkinEngine.DirectX.RenderPipelines
 {
   /// <summary>
@@ -44,5 +46,13 @@ namespace MediaPortal.UI.SkinEngine.DirectX.RenderPipelines
     /// Ends the rendering pass. All de-initialization of resources must be done in this step (i.e. restoring render targets).
     /// </summary>
     void EndRenderPass();
+
+    /// <summary>
+    /// Converts the given <paramref name="fullVideoClip"/> to the correct cropping rectangle required to render the current pass correctly.
+    /// Single pass rendering pipelines will return the same rectangle, while multi pass renderings modify it for the matching part of video frame.
+    /// </summary>
+    /// <param name="fullVideoClip">Full size rectangle.</param>
+    /// <param name="tranformedRect">Modified rectangle</param>
+    void GetTextureClip(RectangleF fullVideoClip, out RectangleF tranformedRect);
   }
 }

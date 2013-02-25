@@ -184,6 +184,8 @@
     <Compile Include="DirectX\RenderPipelines\AbstractRenderPipeline.cs" />
     <Compile Include="DirectX\RenderPipelines\AbstractMultiPassRenderPipeline.cs" />
     <Compile Include="DirectX\RenderPipelines\IRenderPipeline.cs" />
+    <Compile Include="DirectX\RenderPipelines\TAB2DRenderPipeline.cs" />
+    <Compile Include="DirectX\RenderPipelines\SBS2DRenderPipeline.cs" />
     <Compile Include="DirectX\RenderPipelines\TABRenderPipeline.cs" />
     <Compile Include="DirectX\RenderPipelines\SBSRenderPipeline.cs" />
     <Compile Include="DirectX\RenderPipelines\SinglePass2DRenderPipeline.cs" />

@@ -37,5 +37,12 @@ namespace MediaPortal.UI.SkinEngine.DirectX.RenderPipelines
       _firstFrameTargetRect = new Rectangle(0, 0, _renderTarget.Width, _renderTarget.Height / 2);
       _seconfFrameTargetRect = new Rectangle(0, _renderTarget.Height / 2, _renderTarget.Width, _renderTarget.Height / 2);
     }
+
+    public override void GetTextureClip(RectangleF fullVideoClip, out RectangleF tranformedRect)
+    {
+      tranformedRect = GraphicsDevice.RenderPass == RenderPassType.SingleOrFirstPass ?
+        new RectangleF(0.0f, 0.0f, fullVideoClip.Width, fullVideoClip.Height * 0.5f) : // TAB first pass, upper side
+        new RectangleF(0.0f, fullVideoClip.Height * 0.5f, fullVideoClip.Width, fullVideoClip.Height * 0.5f); // TAB second pass, lower side
+    }
   }
 }

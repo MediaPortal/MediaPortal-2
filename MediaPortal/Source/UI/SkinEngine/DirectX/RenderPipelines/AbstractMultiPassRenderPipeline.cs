@@ -60,6 +60,7 @@ namespace MediaPortal.UI.SkinEngine.DirectX.RenderPipelines
 
       // Second frame.
       base.BeginRenderPass();
+      GraphicsDevice.RenderPass = RenderPassType.SecondPass;
       base.Render();
       CopySecondFrameToBackbuffer();
     }
