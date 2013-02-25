@@ -262,48 +262,47 @@ namespace MediaPortal.Extensions.MetadataExtractors.VideoMetadataExtractor
 
     protected void ExtractMatroskaTags(string localFsResourcePath, IDictionary<Guid, MediaItemAspect> extractedAspectData, bool forceQuickMode)
     {
-      string extensionUpper = StringUtils.TrimToEmpty(Path.GetExtension(localFsResourcePath)).ToUpper();
+      string extensionLower = StringUtils.TrimToEmpty(Path.GetExtension(localFsResourcePath)).ToLower();
+      if (!MatroskaConsts.MATROSKA_VIDEO_EXTENSIONS.Contains(extensionLower))
+        return;
 
       // Try to get extended information out of matroska files)
-      if (extensionUpper == ".MKV" || extensionUpper == ".MK3D")
-      {
-        MatroskaInfoReader mkvReader = new MatroskaInfoReader(localFsResourcePath);
-        // Add keys to be extracted to tags dictionary, matching results will returned as value
-        Dictionary<string, IList<string>> tagsToExtract = MatroskaConsts.DefaultTags;
-        mkvReader.ReadTags(tagsToExtract);
+      MatroskaInfoReader mkvReader = new MatroskaInfoReader(localFsResourcePath);
+      // Add keys to be extracted to tags dictionary, matching results will returned as value
+      Dictionary<string, IList<string>> tagsToExtract = MatroskaConsts.DefaultTags;
+      mkvReader.ReadTags(tagsToExtract);
 
-        string title = string.Empty;
-        IList<string> tags = tagsToExtract[MatroskaConsts.TAG_SIMPLE_TITLE];
-        if (tags != null)
-          title = tags.FirstOrDefault();
-        if (!string.IsNullOrEmpty(title))
-          MediaItemAspect.SetAttribute(extractedAspectData, MediaAspect.ATTR_TITLE, title);
+      string title = string.Empty;
+      IList<string> tags = tagsToExtract[MatroskaConsts.TAG_SIMPLE_TITLE];
+      if (tags != null)
+        title = tags.FirstOrDefault();
+      if (!string.IsNullOrEmpty(title))
+        MediaItemAspect.SetAttribute(extractedAspectData, MediaAspect.ATTR_TITLE, title);
 
-        int year;
-        string yearCandidate = null;
-        tags = tagsToExtract[MatroskaConsts.TAG_EPISODE_YEAR] ?? tagsToExtract[MatroskaConsts.TAG_SEASON_YEAR];
-        if (tags != null)
-          yearCandidate = (tags.FirstOrDefault() ?? string.Empty).Substring(0, 4);
+      int year;
+      string yearCandidate = null;
+      tags = tagsToExtract[MatroskaConsts.TAG_EPISODE_YEAR] ?? tagsToExtract[MatroskaConsts.TAG_SEASON_YEAR];
+      if (tags != null)
+        yearCandidate = (tags.FirstOrDefault() ?? string.Empty).Substring(0, 4);
 
-        if (int.TryParse(yearCandidate, out year))
-          MediaItemAspect.SetAttribute(extractedAspectData, MediaAspect.ATTR_RECORDINGTIME, new DateTime(year, 1, 1));
+      if (int.TryParse(yearCandidate, out year))
+        MediaItemAspect.SetAttribute(extractedAspectData, MediaAspect.ATTR_RECORDINGTIME, new DateTime(year, 1, 1));
 
-        tags = tagsToExtract[MatroskaConsts.TAG_SERIES_GENRE];
-        if (tags != null)
-          MediaItemAspect.SetCollectionAttribute(extractedAspectData, VideoAspect.ATTR_GENRES, tags);
+      tags = tagsToExtract[MatroskaConsts.TAG_SERIES_GENRE];
+      if (tags != null)
+        MediaItemAspect.SetCollectionAttribute(extractedAspectData, VideoAspect.ATTR_GENRES, tags);
 
-        IEnumerable<string> actors;
-        // Combine series actors and episode actors if both are available
-        var tagSeriesActors = tagsToExtract[MatroskaConsts.TAG_SERIES_ACTORS];
-        var tagActors = tagsToExtract[MatroskaConsts.TAG_ACTORS];
-        if (tagSeriesActors != null && tagActors != null)
-          actors = tagSeriesActors.Union(tagActors);
-        else
-          actors = tagSeriesActors ?? tagActors;
+      IEnumerable<string> actors;
+      // Combine series actors and episode actors if both are available
+      var tagSeriesActors = tagsToExtract[MatroskaConsts.TAG_SERIES_ACTORS];
+      var tagActors = tagsToExtract[MatroskaConsts.TAG_ACTORS];
+      if (tagSeriesActors != null && tagActors != null)
+        actors = tagSeriesActors.Union(tagActors);
+      else
+        actors = tagSeriesActors ?? tagActors;
 
-        if (actors != null)
-          MediaItemAspect.SetCollectionAttribute(extractedAspectData, VideoAspect.ATTR_ACTORS, actors);
-      }
+      if (actors != null)
+        MediaItemAspect.SetCollectionAttribute(extractedAspectData, VideoAspect.ATTR_ACTORS, actors);
     }
 
     protected void ExtractMp4Tags(string localFsResourcePath, IDictionary<Guid, MediaItemAspect> extractedAspectData, bool forceQuickMode)
