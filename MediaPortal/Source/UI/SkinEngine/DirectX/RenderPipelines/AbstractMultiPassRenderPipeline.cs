@@ -38,9 +38,9 @@ namespace MediaPortal.UI.SkinEngine.DirectX.RenderPipelines
     protected Surface _backbuffer = null;
     protected Rectangle _renderRect;
     protected Rectangle _firstFrameTargetRect;
-    protected Rectangle _seconfFrameTargetRect;
+    protected Rectangle _secondFrameTargetRect;
 
-    public override void BeginRenderPass()
+    public override void BeginRender()
     {
       // Remember current backbuffer and set internal surface as new render target.
       _backbuffer = GraphicsDevice.Device.GetRenderTarget(0);
@@ -48,7 +48,9 @@ namespace MediaPortal.UI.SkinEngine.DirectX.RenderPipelines
       _renderTarget.AllocateRenderTarget(GraphicsDevice.Width, GraphicsDevice.Height);
       _renderRect = new Rectangle(0, 0, GraphicsDevice.Width, GraphicsDevice.Height);
       GraphicsDevice.Device.SetRenderTarget(0, _renderTarget.Surface);
-      base.BeginRenderPass();
+      GraphicsDevice.RenderPass = RenderPassType.SingleOrFirstPass;
+      GraphicsDevice.Device.Clear(ClearFlags.Target, Color.Black, 1.0f, 0);
+      GraphicsDevice.Device.BeginScene();
     }
 
     public override void Render()
@@ -59,26 +61,27 @@ namespace MediaPortal.UI.SkinEngine.DirectX.RenderPipelines
       GraphicsDevice.Device.EndScene();
 
       // Second frame.
-      base.BeginRenderPass();
       GraphicsDevice.RenderPass = RenderPassType.SecondPass;
+      GraphicsDevice.Device.BeginScene();
       base.Render();
       CopySecondFrameToBackbuffer();
     }
 
-    public override void EndRenderPass()
+    public override void EndRender()
     {
       // Restore backbuffer as render target.
       GraphicsDevice.Device.SetRenderTarget(0, _backbuffer);
-      base.EndRenderPass();
+      base.EndRender();
     }
 
     protected virtual void CopyFirstFrameToBackbuffer()
     {
-      GraphicsDevice.Device.StretchRectangle(_renderTarget.Surface, _renderRect, _backbuffer, _firstFrameTargetRect, TextureFilter.None);
+      GraphicsDevice.Device.StretchRectangle(_renderTarget.Surface, _firstFrameTargetRect, _backbuffer, _firstFrameTargetRect, TextureFilter.None);
     }
+
     protected virtual void CopySecondFrameToBackbuffer()
     {
-      GraphicsDevice.Device.StretchRectangle(_renderTarget.Surface, _renderRect, _backbuffer, _seconfFrameTargetRect, TextureFilter.None);
+      GraphicsDevice.Device.StretchRectangle(_renderTarget.Surface, _secondFrameTargetRect, _backbuffer, _secondFrameTargetRect, TextureFilter.None);
     }
   }
 }

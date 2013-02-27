@@ -23,6 +23,8 @@
 #endregion
 
 using System.Drawing;
+using MediaPortal.UI.SkinEngine.SkinManagement;
+using SlimDX;
 
 namespace MediaPortal.UI.SkinEngine.DirectX.RenderPipelines
 {
@@ -31,18 +33,27 @@ namespace MediaPortal.UI.SkinEngine.DirectX.RenderPipelines
   /// </summary>
   internal class TABRenderPipeline : AbstractMultiPassRenderPipeline
   {
-    public override void BeginRenderPass()
+    public override void BeginRender()
     {
-      base.BeginRenderPass();
+      base.BeginRender();
       _firstFrameTargetRect = new Rectangle(0, 0, _renderTarget.Width, _renderTarget.Height / 2);
-      _seconfFrameTargetRect = new Rectangle(0, _renderTarget.Height / 2, _renderTarget.Width, _renderTarget.Height / 2);
+      _secondFrameTargetRect = new Rectangle(0, _renderTarget.Height / 2, _renderTarget.Width, _renderTarget.Height / 2);
     }
 
-    public override void GetTextureClip(RectangleF fullVideoClip, out RectangleF tranformedRect)
+    public override void GetVideoClip(RectangleF fullVideoClip, out RectangleF tranformedRect)
     {
       tranformedRect = GraphicsDevice.RenderPass == RenderPassType.SingleOrFirstPass ?
         new RectangleF(0.0f, 0.0f, fullVideoClip.Width, fullVideoClip.Height * 0.5f) : // TAB first pass, upper side
         new RectangleF(0.0f, fullVideoClip.Height * 0.5f, fullVideoClip.Width, fullVideoClip.Height * 0.5f); // TAB second pass, lower side
+    }
+
+    public override Matrix GetRenderPassTransform(Matrix initialScreenTransform)
+    {
+      Matrix initialMatrix = initialScreenTransform;
+      initialMatrix *= Matrix.Scaling(1, 0.5f, 1); // Scale to upper half
+      if (GraphicsDevice.RenderPass == RenderPassType.SecondPass)
+        initialMatrix *= Matrix.Translation(0, SkinContext.WindowSize.Height * 0.5f, 0); // Move to bottom half
+      return initialMatrix;
     }
   }
 }

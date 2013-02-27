@@ -547,11 +547,11 @@ namespace MediaPortal.UI.SkinEngine.DirectX
       {
         Fire(DeviceSceneBegin);
 
-        pipeline.BeginRenderPass();
+        pipeline.BeginRender();
 
         pipeline.Render();
 
-        pipeline.EndRenderPass();
+        pipeline.EndRender();
 
         Fire(DeviceSceneEnd);
 
