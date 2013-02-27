@@ -36,6 +36,7 @@ using MediaPortal.UI.Presentation.Screens;
 using MediaPortal.UI.Presentation.SkinResources;
 using MediaPortal.UI.SkinEngine.Controls.Visuals;
 using MediaPortal.UI.SkinEngine.Controls.Visuals.Triggers;
+using MediaPortal.UI.SkinEngine.DirectX;
 using MediaPortal.UI.SkinEngine.InputManagement;
 using MediaPortal.UI.SkinEngine.MpfElements;
 using MediaPortal.UI.SkinEngine.MpfElements.Resources;
@@ -387,20 +388,25 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
       uint time = (uint) Environment.TickCount;
       SkinContext.SystemTickCount = time;
 
+      var pass = GraphicsDevice.RenderPass;
       lock (_syncObj)
       {
-        if (_mouseMovePending.HasValue)
+        if (pass == RenderPassType.SingleOrFirstPass)
         {
-          float x = _mouseMovePending.Value.X;
-          float y = _mouseMovePending.Value.Y;
-          _mouseMovePending = null;
-          DoHandleMouseMove(x, y);
+          if (_mouseMovePending.HasValue)
+          {
+            float x = _mouseMovePending.Value.X;
+            float y = _mouseMovePending.Value.Y;
+            _mouseMovePending = null;
+            DoHandleMouseMove(x, y);
+          }
+          if (_root.IsMeasureInvalid || _root.IsArrangeInvalid)
+            _root.UpdateLayoutRoot(new SizeF(SkinWidth, SkinHeight));
+          HandleScheduledFocus();
+          CheckPendingScreenEvent();
         }
-        if (_root.IsMeasureInvalid || _root.IsArrangeInvalid)
-          _root.UpdateLayoutRoot(new SizeF(SkinWidth, SkinHeight));
-        HandleScheduledFocus();
-        CheckPendingScreenEvent();
-        _root.Render(_renderContext);
+
+        _root.Render(GetRenderPassContext());
       }
     }
 
@@ -525,7 +531,7 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
       try
       {
         lock (_syncObj)
-          if (_root.CanHandleMouseMove())
+          if (_root.CanHandleMouseMove() && GraphicsDevice.RenderPass == RenderPassType.SingleOrFirstPass)
           {
             List<FocusCandidate> focusCandidates = new List<FocusCandidate>(10);
             _root.OnMouseMove(x, y, focusCandidates);
@@ -660,6 +666,11 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
     {
       Matrix transform = Matrix.Scaling((float) SkinContext.WindowSize.Width / _skinWidth, (float) SkinContext.WindowSize.Height / _skinHeight, 1);
       return new RenderContext(transform, new RectangleF(0, 0, _skinWidth, _skinHeight));
+    }
+
+    public RenderContext GetRenderPassContext()
+    {
+      return new RenderContext(GraphicsDevice.RenderPipeline.GetRenderPassTransform(_renderContext.Transform), new RectangleF(0, 0, _skinWidth, _skinHeight));
     }
 
     protected RectangleF CreateCenterRect()

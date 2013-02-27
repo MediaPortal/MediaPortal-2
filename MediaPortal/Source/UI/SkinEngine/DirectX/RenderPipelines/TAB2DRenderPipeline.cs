@@ -31,7 +31,7 @@ namespace MediaPortal.UI.SkinEngine.DirectX.RenderPipelines
   /// </summary>
   internal class TAB2DRenderPipeline : AbstractRenderPipeline
   {
-    public override void GetTextureClip(RectangleF fullVideoClip, out RectangleF tranformedRect)
+    public override void GetVideoClip(RectangleF fullVideoClip, out RectangleF tranformedRect)
     {
       tranformedRect = new RectangleF(0.0f, 0.0f, fullVideoClip.Width, fullVideoClip.Height * 0.5f); // TAB first pass, upper side
     }

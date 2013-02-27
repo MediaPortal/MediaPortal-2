@@ -23,6 +23,8 @@
 #endregion
 
 using System.Drawing;
+using MediaPortal.UI.SkinEngine.SkinManagement;
+using SlimDX;
 
 namespace MediaPortal.UI.SkinEngine.DirectX.RenderPipelines
 {
@@ -31,18 +33,27 @@ namespace MediaPortal.UI.SkinEngine.DirectX.RenderPipelines
   /// </summary>
   internal class SBSRenderPipeline : AbstractMultiPassRenderPipeline
   {
-    public override void BeginRenderPass()
+    public override void BeginRender()
     {
-      base.BeginRenderPass();
+      base.BeginRender();
       _firstFrameTargetRect = new Rectangle(0, 0, _renderTarget.Width / 2, _renderTarget.Height);
-      _seconfFrameTargetRect = new Rectangle(_renderTarget.Width / 2, 0, _renderTarget.Width / 2, _renderTarget.Height);
+      _secondFrameTargetRect = new Rectangle(_renderTarget.Width / 2, 0, _renderTarget.Width / 2, _renderTarget.Height);
     }
 
-    public override void GetTextureClip(RectangleF fullVideoClip, out RectangleF tranformedRect)
+    public override void GetVideoClip(RectangleF fullVideoClip, out RectangleF tranformedRect)
     {
       tranformedRect = GraphicsDevice.RenderPass == RenderPassType.SingleOrFirstPass ?
         new RectangleF(0.0f, 0.0f, fullVideoClip.Width * 0.5f, fullVideoClip.Height) : // SBS first pass, left side
         new RectangleF(fullVideoClip.Width * 0.5f, 0.0f, fullVideoClip.Width * 0.5f, fullVideoClip.Height); // SBS second pass, right side
+    }
+
+    public override Matrix GetRenderPassTransform(Matrix initialScreenTransform)
+    {
+      Matrix initialMatrix = initialScreenTransform;
+      initialMatrix *= Matrix.Scaling(0.5f, 1, 1); // Scale to left side
+      if (GraphicsDevice.RenderPass == RenderPassType.SecondPass)
+        initialMatrix *= Matrix.Translation(SkinContext.WindowSize.Width * 0.5f, 0, 0); // Move to right side
+      return initialMatrix;
     }
   }
 }

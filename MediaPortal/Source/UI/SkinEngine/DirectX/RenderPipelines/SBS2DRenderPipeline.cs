@@ -31,7 +31,7 @@ namespace MediaPortal.UI.SkinEngine.DirectX.RenderPipelines
   /// </summary>
   internal class SBS2DRenderPipeline : AbstractRenderPipeline
   {
-    public override void GetTextureClip(RectangleF fullVideoClip, out RectangleF tranformedRect)
+    public override void GetVideoClip(RectangleF fullVideoClip, out RectangleF tranformedRect)
     {
       tranformedRect = new RectangleF(0.0f, 0.0f, fullVideoClip.Width * 0.5f, fullVideoClip.Height); // SBS first pass, left side
     }

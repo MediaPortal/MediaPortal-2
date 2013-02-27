@@ -23,6 +23,7 @@
 #endregion
 
 using System.Drawing;
+using SlimDX;
 using SlimDX.Direct3D9;
 
 namespace MediaPortal.UI.SkinEngine.DirectX.RenderPipelines
@@ -32,7 +33,7 @@ namespace MediaPortal.UI.SkinEngine.DirectX.RenderPipelines
   /// </summary>
   internal abstract class AbstractRenderPipeline : IRenderPipeline
   {
-    public virtual void BeginRenderPass()
+    public virtual void BeginRender()
     {
       GraphicsDevice.RenderPass = RenderPassType.SingleOrFirstPass;
       GraphicsDevice.Device.Clear(ClearFlags.Target, Color.Black, 1.0f, 0);
@@ -44,14 +45,19 @@ namespace MediaPortal.UI.SkinEngine.DirectX.RenderPipelines
       GraphicsDevice.ScreenManager.Render();
     }
 
-    public virtual void EndRenderPass()
+    public virtual void EndRender()
     {
       GraphicsDevice.Device.EndScene();
     }
 
-    public virtual void GetTextureClip (RectangleF fullVideoClip, out RectangleF tranformedRect)
+    public virtual void GetVideoClip (RectangleF fullVideoClip, out RectangleF tranformedRect)
     {
       tranformedRect = fullVideoClip;
+    }
+
+    public virtual Matrix GetRenderPassTransform (Matrix initialScreenTransform)
+    {
+      return initialScreenTransform;
     }
   }
 }

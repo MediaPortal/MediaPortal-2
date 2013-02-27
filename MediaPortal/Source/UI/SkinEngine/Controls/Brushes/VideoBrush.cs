@@ -338,7 +338,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
       
       // Handling of multipass (3D) rendering, transformed rect contains the clipped area of the source image (i.e. left side in Side-By-Side mode).
       RectangleF tranformedRect;
-      GraphicsDevice.RenderPipeline.GetTextureClip(_videoTextureClip, out tranformedRect);
+      GraphicsDevice.RenderPipeline.GetVideoClip(_videoTextureClip, out tranformedRect);
       return _imageContext.StartRender(renderContext, _scaledVideoSize, _texture, tranformedRect, BorderColor.ToArgb(), _lastFrameData);
     }
 

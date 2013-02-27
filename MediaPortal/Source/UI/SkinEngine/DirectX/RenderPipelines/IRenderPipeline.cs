@@ -23,6 +23,7 @@
 #endregion
 
 using System.Drawing;
+using SlimDX;
 
 namespace MediaPortal.UI.SkinEngine.DirectX.RenderPipelines
 {
@@ -35,7 +36,7 @@ namespace MediaPortal.UI.SkinEngine.DirectX.RenderPipelines
     /// <summary>
     /// Begins the rendering pass. All intialization of resources must be done in this step (i.e. allocation of custom render targets, clearing the device...)
     /// </summary>
-    void BeginRenderPass();
+    void BeginRender();
 
     /// <summary>
     /// Performs the rendering. Depending on the desired output (2D or 3D) this method can run one or two render passes of the same scene.
@@ -45,7 +46,7 @@ namespace MediaPortal.UI.SkinEngine.DirectX.RenderPipelines
     /// <summary>
     /// Ends the rendering pass. All de-initialization of resources must be done in this step (i.e. restoring render targets).
     /// </summary>
-    void EndRenderPass();
+    void EndRender();
 
     /// <summary>
     /// Converts the given <paramref name="fullVideoClip"/> to the correct cropping rectangle required to render the current pass correctly.
@@ -53,6 +54,13 @@ namespace MediaPortal.UI.SkinEngine.DirectX.RenderPipelines
     /// </summary>
     /// <param name="fullVideoClip">Full size rectangle.</param>
     /// <param name="tranformedRect">Modified rectangle</param>
-    void GetTextureClip(RectangleF fullVideoClip, out RectangleF tranformedRect);
+    void GetVideoClip(RectangleF fullVideoClip, out RectangleF tranformedRect);
+
+    /// <summary>
+    /// Returns the initial transform required to render the current pass.
+    /// </summary>
+    /// <param name="initialScreenTransform">Initial transformation matrix of screen</param>
+    /// <returns>Transformation</returns>
+    Matrix GetRenderPassTransform(Matrix initialScreenTransform);
   }
 }
