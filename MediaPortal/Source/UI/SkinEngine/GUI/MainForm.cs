@@ -197,7 +197,7 @@ namespace MediaPortal.UI.SkinEngine.GUI
       _applicationSuspendLevel = value;
       if (_playerSuspendLevel > value)
         value = _playerSuspendLevel;
-      EnergySavingConfig.SetCurrentSuspendLevel(value);
+      EnergySavingConfig.SetCurrentSuspendLevel(value, true);
     }
 
     /// <summary>
