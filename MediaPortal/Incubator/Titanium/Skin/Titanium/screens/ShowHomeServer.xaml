@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Include
+    xmlns="www.team-mediaportal.com/2008/mpf/directx"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    Source="screens\master_configuration_menu.xaml"
+    >
+  <Include.Resources>
+
+    <!-- Header -->
+    <ResourceWrapper x:Key="Header_Text" Resource="[ServerConnection.HomeServer]"/>
+
+    <!-- HomeServerModel -->
+    <Model x:Key="Model" Id="854ABA9A-71A1-420b-A657-9641815F9C01"/>
+
+    <!-- Contents -->
+    <ControlTemplate x:Key="Contents_Template">
+      <Grid DataContext="{Binding Source={StaticResource Model}}">
+        <Grid.ColumnDefinitions>
+          <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+          <RowDefinition Height="Auto"/>
+          <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+        <StackPanel Grid.Row="0" Grid.Column="0" Orientation="Vertical" IsVisible="{Binding !IsHomeServerAttached}">
+          <Label Content="[ServerConnection.NoHomeServerAttached]" Color="{ThemeResource TextColor}" Wrap="True"/>
+        </StackPanel>
+        <StackPanel Grid.Row="0" Grid.Column="0" Orientation="Vertical" IsVisible="{Binding IsHomeServerAttached}">
+          <Label Content="[ServerConnection.AttachedText.Before]" Color="{ThemeResource TextColor}" Wrap="True"/>
+          <Label Color="{ThemeResource EmphasisTextColor}" Content="{Binding Path=HomeServer}"/>
+          <Label Content="[ServerConnection.AttachedText.After]" Color="{ThemeResource TextColor}"/>
+          <Label Grid.Row="1" Grid.Column="0" Margin="0,10,0,0" Content="[ServerConnection.HomeServerIsConnected]"
+              Color="{ThemeResource TextColor}" IsVisible="{Binding IsHomeServerConnected}"/>
+          <Label Grid.Row="1" Grid.Column="0" Margin="0,10,0,0" Content="[ServerConnection.HomeServerIsNotConnected]"
+              Color="{ThemeResource TextColor}" IsVisible="{Binding !IsHomeServerConnected}"/>
+        </StackPanel>
+      </Grid>
+    </ControlTemplate>
+
+  </Include.Resources>
+</Include>
