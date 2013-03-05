@@ -68,7 +68,19 @@ namespace MediaPortal.Common.Runtime
   /// </remarks>
   public class EnergySavingConfig
   {
-    public static void SetCurrentSuspendLevel(SuspendLevel level)
+    /// <summary>
+    /// Sets the <see cref="SuspendLevel"/> for the current thread.
+    /// </summary>
+    /// <param name="level">
+    /// The <see cref="SuspendLevel"/>, which should be set.
+    /// </param>
+    /// <param name="continuous">
+    /// If continuous is set to <c>true</c>, the given <paramref name="level">SuspendLevel</paramref> is valid for the current thread,
+    /// until it has been changed again.
+    /// ATTENTION: This should be used only by the application's main thread.
+    /// To reset the system's idle time only, continuous has to be set to <c>false</c>.
+    /// </param>
+    public static void SetCurrentSuspendLevel(SuspendLevel level, bool continuous = false)
     {
       WindowsAPI.EXECUTION_STATE requestedState = 0;
       switch (level)
@@ -80,7 +92,11 @@ namespace MediaPortal.Common.Runtime
           requestedState = WindowsAPI.EXECUTION_STATE.ES_DISPLAY_REQUIRED;
           break;
       }
-      WindowsAPI.SetThreadExecutionState(WindowsAPI.EXECUTION_STATE.ES_CONTINUOUS | requestedState);
+
+      if (continuous)
+        requestedState |= WindowsAPI.EXECUTION_STATE.ES_CONTINUOUS;
+
+      WindowsAPI.SetThreadExecutionState(requestedState);
     }
   }
 }
