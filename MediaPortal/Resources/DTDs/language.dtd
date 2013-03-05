@@ -1,12 +1,5 @@
-<!ELEMENT Language (Section)*>
-<!ATTLIST Language
-          Name CDATA #REQUIRED>
+<!ELEMENT resources (string)*>
 
-<!ELEMENT Section (String)*>
-<!ATTLIST Section
-          Name CDATA #REQUIRED>
-
-<!ELEMENT String EMPTY>
-<!ATTLIST String
-          Name CDATA #REQUIRED
-          Text CDATA #REQUIRED>
+<!ELEMENT string (#PCDATA)>
+<!ATTLIST string
+          name CDATA #REQUIRED>
