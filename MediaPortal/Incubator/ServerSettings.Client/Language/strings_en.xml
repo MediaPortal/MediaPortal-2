@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+  <string name="Settings.ServerSettings">Server settings</string>
+  <string name="Settings.ServerSettings.ServerDOKANDrive">Resource mounting drive letter</string>
+  <string name="Settings.ServerSettings.ServerDOKANDrive.Help">Configures the drive letter for mounting remote resources on server.</string>
+</resources>

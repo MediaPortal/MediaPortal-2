@@ -1,0 +1,18 @@
+﻿<Plugin
+    DescriptorVersion="1.0"
+    Name="Server Settings Plugin"
+    PluginId="{4A5273F8-5C5C-42AD-AA3C-CB326246BDC1}"
+    Author="Morpheus_xx"
+    Copyright="GPL"
+    Description="Provides services for remote configuration of server settings"
+    AutoActivate="true"
+    PluginVersion="1.0">
+
+  <Runtime>
+    <Assembly FileName="ServerSettings.Interfaces.dll"/>
+    <Assembly FileName="ServerSettings.Service.dll"/>
+    <PluginStateTracker ClassName="MediaPortal.Plugins.ServerSettings.ServerSettingsPlugin"/>
+  </Runtime>
+
+</Plugin>
+

@@ -1,0 +1,47 @@
+<Plugin
+    DescriptorVersion="1.0" 
+    Name="ServerSettings Client Plugin"
+    PluginId="{952BF8BC-04A3-4B6D-A25E-1ED6080278F6}"
+    Author="Morpheus_xx"
+    Copyright="GPL"
+    Description="Provides services for remote configuration of server settings"
+    PluginVersion="1.0">
+
+  <DependsOn>
+    <PluginReference PluginId="{D87D92F0-5E71-470a-A2A4-430F90A28BF3}"/>    <!-- SkinEngine -->
+    <PluginReference PluginId="{1AFF4467-64B0-4ca1-AF28-9AEDF3525BCE}"/>    <!-- ConfigurationManager -->
+    <PluginReference PluginId="{B765A4B6-F455-4941-BDAE-2CE45208BFEB}"/>    <!-- Configuration plugin -->
+  </DependsOn>
+
+  <Runtime>
+    <Assembly FileName="ServerSettings.Interfaces.dll"/>
+    <Assembly FileName="ServerSettings.Client.dll"/>
+  </Runtime>
+  
+  <Register Location="/Services">
+    <Service Id="ServerSettingsService" RegistrationClassName="MediaPortal.Plugins.ServerSettings.UPnP.ServerSettingsProxyRegistration"
+        ServiceClassName="MediaPortal.Plugins.ServerSettings.UPnP.ServerSettingsProxyRegistration"/>
+  </Register>
+
+  <!-- Language resources -->
+  <Register Location="/Resources/Language">
+    <Resource Id="ServerSettingsClientLanguage" Directory="Language" Type="Language"/>
+  </Register>
+
+  <!-- Root Sections -->
+  <Register Location="/Configuration/Settings">
+    <ConfigSection
+        Id="ServerSettings"
+        Redundant="true"
+        Text="[Settings.ServerSettings]"/>
+  </Register>
+
+  <Register Location="/Configuration/Settings/ServerSettings">
+    <ConfigSetting
+        Id="ServerDOKANDrive"
+        Text="[Settings.ServerSettings.ServerDOKANDrive]"
+        HelpText="[Settings.ServerSettings.ServerDOKANDrive.Help]"
+        ClassName="MediaPortal.Plugins.ServerSettings.Settings.Configuration.ServerDOKANDrive"/>
+  </Register>
+
+</Plugin>
