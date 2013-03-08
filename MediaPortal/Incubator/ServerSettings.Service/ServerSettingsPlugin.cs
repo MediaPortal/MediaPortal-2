@@ -24,19 +24,25 @@
 
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using MediaPortal.Backend.BackendServer;
 using MediaPortal.Common;
 using MediaPortal.Common.Logging;
+using MediaPortal.Common.PathManager;
 using MediaPortal.Common.PluginManager;
 using MediaPortal.Common.UPnP;
+using MediaPortal.Utilities;
 using UPnP.Infrastructure.Dv.DeviceTree;
 
 namespace MediaPortal.Plugins.ServerSettings
 {
-  public class ServerSettingsPlugin: IPluginStateTracker
+  public class ServerSettingsPlugin : IPluginStateTracker
   {
+    private HashSet<string> _knownAssemblies = new HashSet<string>();
+
     public void Activated(PluginRuntime pluginRuntime)
     {
       var meta = pluginRuntime.Metadata;
@@ -49,11 +55,42 @@ namespace MediaPortal.Plugins.ServerSettings
         Logger.Debug("ServerSettings: Registering ServerSettings service.");
         device.AddService(serverSettings);
         Logger.Debug("ServerSettings: Adding ServerSettings service to MP2 backend root device");
+
+        // List all assemblies
+        InitPluginAssemblyList();
+
+        // Set our own resolver to lookup types from any of assemblies from Plugins subfolder.
+        SettingsSerializer.CustomAssemblyResolver = PluginsAssemblyResolver;
+        // AppDomain.CurrentDomain.AssemblyResolve += PluginsAssemblyResolver;
+
+        Logger.Debug("ServerSettings: Adding Plugins folder to private path");
       }
       else
       {
         Logger.Error("ServerSettings: MP2 backend root device not found!");
       }
+    }
+
+    private void InitPluginAssemblyList()
+    {
+      IPluginManager pluginManager = ServiceRegistration.Get<IPluginManager>();
+      foreach (PluginRuntime plugin in pluginManager.AvailablePlugins.Values)
+        CollectionUtils.AddAll(_knownAssemblies, plugin.Metadata.AssemblyFilePaths);
+    }
+
+    Assembly PluginsAssemblyResolver(object sender, ResolveEventArgs args)
+    {
+      try
+      {
+        string[] assemblyDetail = args.Name.Split(',');
+        string path = _knownAssemblies.FirstOrDefault(a => a.EndsWith(@"\" + assemblyDetail[0] + ".dll"));
+        if (path == null)
+          return null;
+        Assembly assembly = Assembly.LoadFrom(path);
+        return assembly;
+      }
+      catch { }
+      return null;
     }
 
     public bool RequestEnd()
@@ -76,6 +113,7 @@ namespace MediaPortal.Plugins.ServerSettings
     internal static ILogger Logger
     {
       get { return ServiceRegistration.Get<ILogger>(); }
+
     }
   }
 }

@@ -79,7 +79,7 @@ namespace MediaPortal.Plugins.ServerSettings
 
     public object Load(string settingsTypeName)
     {
-      Type settingsType = Type.GetType(settingsTypeName);
+      Type settingsType = SettingsSerializer.GetSettingsType(settingsTypeName);
       ISettingsManager settingsManager = ServiceRegistration.Get<ISettingsManager>();
       return settingsManager.Load(settingsType);
     }

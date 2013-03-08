@@ -30,11 +30,48 @@ using System.Xml.Serialization;
 
 namespace MediaPortal.Plugins.ServerSettings
 {
+  /// <summary>
+  /// SettingsSerializer provides helper methods for XML (de-)serialization and Type lookups. Using an own <see cref="CustomAssemblyResolver"/> callers
+  /// can provide custom methods to lookup types (i.e. if containing assembly was not yet loaded).
+  /// </summary>
   public class SettingsSerializer
   {
+    /// <summary>
+    /// Custom assembly resolver, if set it will be used for settings type lookups only.
+    /// </summary>
+    public static ResolveEventHandler CustomAssemblyResolver;
+
+    /// <summary>
+    /// Tries to get the <see cref="Type"/> from the given <paramref name="settingsTypeName"/>.
+    /// </summary>
+    /// <param name="settingsTypeName">Assembly qualified type name.</param>
+    /// <returns></returns>
+    public static Type GetSettingsType(string settingsTypeName)
+    {
+      ResolveEventHandler customAssemblyResolver = CustomAssemblyResolver;
+      try
+      {
+        if (customAssemblyResolver != null)
+          AppDomain.CurrentDomain.AssemblyResolve += customAssemblyResolver;
+
+        return Type.GetType(settingsTypeName);
+      }
+      finally 
+      {
+        if (customAssemblyResolver != null)
+          AppDomain.CurrentDomain.AssemblyResolve -= customAssemblyResolver;
+      }
+    }
+
+    /// <summary>
+    /// Deserializes an <paramref name="settings"/> into the given <paramref name="settingsTypeName"/>.
+    /// </summary>
+    /// <param name="settingsTypeName">Assembly qualified type name.</param>
+    /// <param name="settings">XML serialized settings object.</param>
+    /// <returns></returns>
     public static object Deserialize(string settingsTypeName, string settings)
     {
-      Type settingsType = Type.GetType(settingsTypeName);
+      Type settingsType = GetSettingsType(settingsTypeName);
       if (settingsType == null)
         return null;
 
@@ -42,6 +79,11 @@ namespace MediaPortal.Plugins.ServerSettings
       return xmlSerializer.Deserialize(new StringReader(settings));
     }
 
+    /// <summary>
+    /// Serializes a given <paramref name="settingsObject"/> into XML.
+    /// </summary>
+    /// <param name="settingsObject">Object to serialize.</param>
+    /// <returns>XML representation.</returns>
     public static string Serialize(object settingsObject)
     {
       StringBuilder serialized = new StringBuilder();
