@@ -87,7 +87,7 @@ namespace MediaPortal.Extensions.OnlineLibraries
       string preferredLookupLanguage = FindBestMatchingLanguage(movieInfo);
       Movie movieDetails;
       if (
-        /* Best way is to get a unique IMDB id */
+        /* Best way is to get details by an unique IMDB id */
         MatchByImdbId(movieInfo, out movieDetails) ||
         TryMatch(movieInfo.MovieName, movieInfo.Year, preferredLookupLanguage, false, out movieDetails) ||
         /* Prefer passed year, if no year given, try to process movie title and split between title and year */

@@ -99,7 +99,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
       MatroskaMatcher matroskaMatcher = new MatroskaMatcher();
       matroskaMatcher.MatchSeries(localFsResourcePath, out seriesInfo, ref extractedAspectData);
 
-      // If now information from mkv were found, try name matching
+      // If no information from mkv were found, try name matching
       if (seriesInfo == null || !seriesInfo.IsCompleteMatch)
       {
         // Try to match series from folder and file namings
