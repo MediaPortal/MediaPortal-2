@@ -229,6 +229,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 
     protected string ToPassword(string clearText)
     {
+      if (string.IsNullOrEmpty(clearText))
+        return string.Empty;
       const string replacedString = "";
       return replacedString.PadRight(clearText.Length, PASSWORD_CHAR);
     }
