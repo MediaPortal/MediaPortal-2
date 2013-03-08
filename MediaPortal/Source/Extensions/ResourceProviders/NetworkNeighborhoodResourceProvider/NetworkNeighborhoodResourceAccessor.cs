@@ -27,10 +27,9 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Security.Principal;
-using MediaPortal.Common;
 using MediaPortal.Common.ResourceAccess;
 using MediaPortal.Common.Services.ResourceAccess.LocalFsResourceProvider;
-using MediaPortal.Common.Settings;
+using MediaPortal.Common.Services.Settings;
 using MediaPortal.Extensions.ResourceProviders.NetworkNeighborhoodResourceProvider.Impersonate;
 using MediaPortal.Extensions.ResourceProviders.NetworkNeighborhoodResourceProvider.Settings;
 using MediaPortal.Utilities;
@@ -47,7 +46,7 @@ namespace MediaPortal.Extensions.ResourceProviders.NetworkNeighborhoodResourcePr
     protected string _path;
     protected ILocalFsResourceAccessor _underlayingResource = null; // Only set if the path points to a file system resource - not a server
     
-    protected static NetworkNeighborhoodResourceProviderSettings _settings;
+    protected static SettingsChangeWatcher<NetworkNeighborhoodResourceProviderSettings> _settings = new SettingsChangeWatcher<NetworkNeighborhoodResourceProviderSettings>();
 
     #endregion
 
@@ -105,27 +104,20 @@ namespace MediaPortal.Extensions.ResourceProviders.NetworkNeighborhoodResourcePr
     /// </summary>
     private static WindowsImpersonationContext ImpersonateUser()
     {
+      NetworkNeighborhoodResourceProviderSettings settings = _settings.Settings;
       WindowsImpersonationContext ctx = null;
 
       // Prefer to impersonate current interactive user.
-      if (Settings.ImpersonateInteractive)
+      if (settings.ImpersonateInteractive)
         ctx = ImpersonationHelper.ImpersonateByProcess("explorer");
       if (ctx != null)
         return ctx;
 
       // Second way based on network credentials.
-      if (Settings.UseCredentials)
-        ctx = ImpersonationHelper.ImpersonateUser(Settings.NetworkUserName, Settings.NetworkPassword);
+      if (settings.UseCredentials)
+        ctx = ImpersonationHelper.ImpersonateUser(settings.NetworkUserName, settings.NetworkPassword);
 
       return ctx;
-    }
-
-    private static NetworkNeighborhoodResourceProviderSettings Settings
-    {
-      get 
-      {
-        return _settings ?? (_settings = ServiceRegistration.Get<ISettingsManager>().Load<NetworkNeighborhoodResourceProviderSettings>());
-      }
     }
 
     #region ILocalFsResourceAccessor implementation
@@ -234,13 +226,13 @@ namespace MediaPortal.Extensions.ResourceProviders.NetworkNeighborhoodResourcePr
       using (ImpersonateUser())
       {
         if (_path == "/")
-          return NetworkResourcesEnumerator.EnumerateResources(ResourceScope.GlobalNet, ResourceType.Disk,
-              ResourceUsage.All, ResourceDisplayType.Server).Select(
-                  serverName => new NetworkNeighborhoodResourceAccessor(
-                      _parent, StringUtils.CheckPrefix(serverName, @"\\").Replace('\\', '/'))).Cast<IFileSystemResourceAccessor>().ToList();
+          return NetworkResourcesEnumerator.EnumerateResources(ResourceScope.GlobalNet, ResourceType.Disk, ResourceUsage.All, ResourceDisplayType.Server)
+            .Select(serverName => new NetworkNeighborhoodResourceAccessor(_parent, StringUtils.CheckPrefix(serverName, @"\\").Replace('\\', '/')))
+            .Cast<IFileSystemResourceAccessor>().ToList();
         if (IsServerPath(_path))
-          return SharesEnumerator.EnumerateShares(StringUtils.RemovePrefixIfPresent(_path, "//")).Where(
-              share => share.ShareType == ShareType.Disk).Select(
+          return SharesEnumerator.EnumerateShares(StringUtils.RemovePrefixIfPresent(_path, "//"))
+            .Where(share => share.ShareType == ShareType.Disk)
+            .Select(
               share =>
               {
                 try { return new NetworkNeighborhoodResourceAccessor(_parent, share.UNCPath.Replace('\\', '/')); }
