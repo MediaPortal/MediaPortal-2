@@ -27,9 +27,12 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Security.Principal;
+using MediaPortal.Common;
 using MediaPortal.Common.ResourceAccess;
 using MediaPortal.Common.Services.ResourceAccess.LocalFsResourceProvider;
+using MediaPortal.Common.Settings;
 using MediaPortal.Extensions.ResourceProviders.NetworkNeighborhoodResourceProvider.Impersonate;
+using MediaPortal.Extensions.ResourceProviders.NetworkNeighborhoodResourceProvider.Settings;
 using MediaPortal.Utilities;
 using MediaPortal.Utilities.Exceptions;
 using MediaPortal.Utilities.Network;
@@ -43,6 +46,8 @@ namespace MediaPortal.Extensions.ResourceProviders.NetworkNeighborhoodResourcePr
     protected NetworkNeighborhoodResourceProvider _parent;
     protected string _path;
     protected ILocalFsResourceAccessor _underlayingResource = null; // Only set if the path points to a file system resource - not a server
+    
+    protected static NetworkNeighborhoodResourceProviderSettings _settings;
 
     #endregion
 
@@ -100,7 +105,27 @@ namespace MediaPortal.Extensions.ResourceProviders.NetworkNeighborhoodResourcePr
     /// </summary>
     private static WindowsImpersonationContext ImpersonateUser()
     {
-      return ImpersonationHelper.ImpersonateByProcess("explorer");
+      WindowsImpersonationContext ctx = null;
+
+      // Prefer to impersonate current interactive user.
+      if (Settings.ImpersonateInteractive)
+        ctx = ImpersonationHelper.ImpersonateByProcess("explorer");
+      if (ctx != null)
+        return ctx;
+
+      // Second way based on network credentials.
+      if (Settings.UseCredentials)
+        ctx = ImpersonationHelper.ImpersonateUser(Settings.NetworkUserName, Settings.NetworkPassword);
+
+      return ctx;
+    }
+
+    private static NetworkNeighborhoodResourceProviderSettings Settings
+    {
+      get 
+      {
+        return _settings ?? (_settings = ServiceRegistration.Get<ISettingsManager>().Load<NetworkNeighborhoodResourceProviderSettings>());
+      }
     }
 
     #region ILocalFsResourceAccessor implementation
