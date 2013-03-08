@@ -16,7 +16,12 @@
   <Runtime>
     <Assembly FileName="ServerSettings.Interfaces.dll"/>
     <Assembly FileName="ServerSettings.Client.dll"/>
+    <Assembly FileName="..\NetworkNeighborhoodResourceProvider\NetworkNeighborhoodResourceProvider.dll"/>
   </Runtime>
+  
+  <Register Location="/Models">
+    <Model Id="62BFBA02-88F8-41A9-BD5A-FFD98799089B" Name="ServerNetworkCredentialSetupModel" ClassName="MediaPortal.Plugins.ServerSettings.Models.ServerNetworkCredentialSetupModel"/>
+  </Register>
   
   <Register Location="/Services">
     <Service Id="ServerSettingsService" RegistrationClassName="MediaPortal.Plugins.ServerSettings.UPnP.ServerSettingsProxyRegistration"
@@ -26,6 +31,18 @@
   <!-- Language resources -->
   <Register Location="/Resources/Language">
     <Resource Id="ServerSettingsClientLanguage" Directory="Language" Type="Language"/>
+  </Register>
+
+  <Register Location="/Resources/Skin">
+    <Resource Id="ServerSettingsClientSkin" Directory="Skin" Type="Skin"/>
+  </Register>
+
+  <Register Location="/Workflow/States">
+    <DialogState Id="20954924-19B3-45C0-9F79-640EDD9EAE58"
+        Name="ServerNetworkCredentialSetup"
+        DialogScreen="ServerNetworkCredentialSetup"
+        DisplayLabel="[Settings.ServerSettings.NetworkCredentials]"
+        WorkflowModel="62BFBA02-88F8-41A9-BD5A-FFD98799089B"/> <!-- Server Network Credential Setup Model -->
   </Register>
 
   <!-- Root Sections -->
@@ -42,6 +59,13 @@
         Text="[Settings.ServerSettings.ServerDOKANDrive]"
         HelpText="[Settings.ServerSettings.ServerDOKANDrive.Help]"
         ClassName="MediaPortal.Plugins.ServerSettings.Settings.Configuration.ServerDOKANDrive"/>
+
+    <CustomConfigSetting
+        Id="NetworkCredentials"
+        Text="[Settings.ServerSettings.NetworkCredentials]"
+        HelpText="[Settings.ServerSettings.NetworkCredentials.Help]"
+        ClassName="MediaPortal.Plugins.ServerSettings.Settings.Configuration.ServerNetworkCredentials"
+        AdditionalData="WorkflowState=20954924-19B3-45C0-9F79-640EDD9EAE58,ConfAppPanel=..."/>
   </Register>
 
 </Plugin>
