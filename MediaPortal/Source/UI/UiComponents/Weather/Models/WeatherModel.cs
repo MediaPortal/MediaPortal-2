@@ -178,7 +178,6 @@ namespace MediaPortal.UiComponents.Weather.Models
       WeatherSettings settings = ServiceRegistration.Get<ISettingsManager>().Load<WeatherSettings>();
       settings.LocationCode = city.Id;
       ServiceRegistration.Get<ISettingsManager>().Save(settings);
-      WeatherMessaging.SendWeatherMessage(WeatherMessaging.MessageType.LocationChanged);
     }
 
     #endregion

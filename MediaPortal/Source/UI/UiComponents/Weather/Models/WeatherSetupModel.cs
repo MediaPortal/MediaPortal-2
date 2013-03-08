@@ -99,7 +99,6 @@ namespace MediaPortal.UiComponents.Weather.Models
       if (settings.LocationsList.Find(loc => loc.Id == settings.LocationCode) == null && settings.LocationsList.Count > 0)
         settings.LocationCode = settings.LocationsList[0].Id;
       settingsManager.Save(settings);
-      WeatherMessaging.SendWeatherMessage(WeatherMessaging.MessageType.LocationChanged);
     }
 
     /// <summary>
