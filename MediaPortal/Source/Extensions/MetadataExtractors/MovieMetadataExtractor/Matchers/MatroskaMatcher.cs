@@ -25,6 +25,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using MediaPortal.Common.MediaManagement.Helpers;
 using MediaPortal.Extensions.MetadataExtractors.MatroskaLib;
 using MediaPortal.Utilities;
 

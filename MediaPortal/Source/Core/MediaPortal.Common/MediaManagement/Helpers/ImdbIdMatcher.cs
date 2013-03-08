@@ -24,23 +24,29 @@
 
 using System.Text.RegularExpressions;
 
-namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor.Matchers
+namespace MediaPortal.Common.MediaManagement.Helpers
 {
   /// <summary>
-  /// <see cref="ImdbIdMatcher"/> tries to match IMDB ids from folder or filenames using regular expressions.
+  /// <see cref="ImdbIdMatcher"/> tries to match IMDB ids from a given string using regular expressions.
   /// </summary>
   public class ImdbIdMatcher
   {
     public static string GROUP_IMDBID = "imdbid";
     public static Regex REGEXP_IMDBID = new Regex(@"(?<imdbid>tt\d{7})", RegexOptions.IgnoreCase);
 
-    public static bool TryMatchImdbId(string folderOrFileName, out string imdbId)
+    /// <summary>
+    /// Tries to match IMDB ids from a given <param name="textOrfolderOrFileName">string</param> using regular expressions.
+    /// </summary>
+    /// <param name="textOrfolderOrFileName">This can be a text, a file or folder name.</param>
+    /// <param name="imdbId">Returns the IMDB id.</param>
+    /// <returns><c>true</c> if successful.</returns>
+    public static bool TryMatchImdbId(string textOrfolderOrFileName, out string imdbId)
     {
       imdbId = null;
-      if (string.IsNullOrEmpty(folderOrFileName))
+      if (string.IsNullOrEmpty(textOrfolderOrFileName))
         return false;
 
-      Match match = REGEXP_IMDBID.Match(folderOrFileName);
+      Match match = REGEXP_IMDBID.Match(textOrfolderOrFileName);
       Group group = match.Groups[GROUP_IMDBID];
       if (group.Length == 0)
         return false;
