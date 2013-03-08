@@ -174,6 +174,9 @@ namespace MediaPortal.Common.Services.Settings
         }
         globalSerializer.Close();
         userSerializer.Close();
+        
+        // Send a message that the setting has been changed.
+        SettingsManagerMessaging.SendSettingsChangeMessage(t);
       }
       catch (Exception e)
       {
