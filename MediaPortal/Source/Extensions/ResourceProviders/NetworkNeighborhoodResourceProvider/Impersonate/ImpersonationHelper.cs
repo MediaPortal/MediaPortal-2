@@ -209,7 +209,7 @@ namespace MediaPortal.Extensions.ResourceProviders.NetworkNeighborhoodResourcePr
       try
       {
         // Get handle to token
-        bool bImpersonated = LogonUser(sUsername, sDomain, sPassword, LogonType.LOGON32_LOGON_NETWORK, LogonProvider.LOGON32_PROVIDER_DEFAULT, ref pExistingTokenHandle);
+        bool bImpersonated = LogonUser(sUsername, sDomain, sPassword, LogonType.LOGON32_LOGON_INTERACTIVE, LogonProvider.LOGON32_PROVIDER_DEFAULT, ref pExistingTokenHandle);
 
         // Did impersonation fail?
         if (!bImpersonated)
