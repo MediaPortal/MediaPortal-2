@@ -141,6 +141,7 @@
     <Compile Include="Logging\LogLevel.cs" />
     <Compile Include="Logging\NoLogger.cs" />
     <Compile Include="MediaManagement\ContentDirectoryMessaging.cs" />
+    <Compile Include="MediaManagement\Helpers\ImdbIdMatcher.cs" />
     <Compile Include="MediaManagement\MediaCategory_DTO.cs" />
     <Compile Include="MediaManagement\MediaCategory.cs" />
     <Compile Include="MediaManagement\DefaultItemAspects\ImporterAspect.cs" />
