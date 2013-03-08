@@ -87,7 +87,6 @@ namespace MediaPortal.UiComponents.BackgroundManager.Models
       settings.VideoBackgroundFileName = BackgroundVideoFilename;
       settings.EnableVideoBackground = IsEnabled;
       settingsManager.Save(settings);
-      BackgroundManagerMessaging.SendMessage(BackgroundManagerMessaging.MessageType.SettingsChanged);
     }
 
     public void ChooseBackgroundVideo()

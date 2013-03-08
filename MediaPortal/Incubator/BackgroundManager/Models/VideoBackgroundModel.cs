@@ -27,8 +27,7 @@ using MediaPortal.Common;
 using MediaPortal.Common.General;
 using MediaPortal.Common.Logging;
 using MediaPortal.Common.MediaManagement;
-using MediaPortal.Common.Messaging;
-using MediaPortal.Common.Settings;
+using MediaPortal.Common.Services.Settings;
 using MediaPortal.UI.Players.Video;
 using MediaPortal.UI.Presentation.Players;
 using MediaPortal.UI.Presentation.Screens;
@@ -56,9 +55,9 @@ namespace MediaPortal.UiComponents.BackgroundManager.Models
     protected VideoPlayer _videoPlayer;
     protected AbstractProperty _videoPlayerProperty;
     protected AbstractProperty _isEnabledProperty;
-    protected AsynchronousMessageQueue _messageQueue;
     protected IPlayerSlotController _backgroundPsc = null;
     protected MediaItem _video;
+    private readonly SettingsChangeWatcher<BackgroundManagerSettings> _settings = new SettingsChangeWatcher<BackgroundManagerSettings>();
 
     #endregion
 
@@ -103,20 +102,13 @@ namespace MediaPortal.UiComponents.BackgroundManager.Models
     {
       _videoPlayerProperty = new WProperty(typeof(ISlimDXVideoPlayer), null);
       _isEnabledProperty = new WProperty(typeof(bool), false);
-      _messageQueue = new AsynchronousMessageQueue(this, new[] { BackgroundManagerMessaging.CHANNEL });
-      _messageQueue.MessageReceived += OnMessageReceived;
-      _messageQueue.Start();
+      _settings.SettingsChanged += RefreshSettings;
       RefreshSettings();
     }
 
-    protected void OnMessageReceived(AsynchronousMessageQueue queue, SystemMessage message)
+    private void RefreshSettings(object sender, EventArgs e)
     {
-      if (message.ChannelName == BackgroundManagerMessaging.CHANNEL)
-      {
-        BackgroundManagerMessaging.MessageType messageType = (BackgroundManagerMessaging.MessageType) message.MessageType;
-        if (messageType == BackgroundManagerMessaging.MessageType.SettingsChanged)
-          RefreshSettings(true);
-      }
+      RefreshSettings(true);
     }
 
     /// <summary>
@@ -125,10 +117,9 @@ namespace MediaPortal.UiComponents.BackgroundManager.Models
     protected void RefreshSettings(bool refresh = false)
     {
       EndBackgroundPlayback();
-      BackgroundManagerSettings settings = ServiceRegistration.Get<ISettingsManager>().Load<BackgroundManagerSettings>();
-      if (settings.EnableVideoBackground)
+      if (_settings.Settings.EnableVideoBackground)
       {
-        _videoFilename = settings.VideoBackgroundFileName;
+        _videoFilename = _settings.Settings.VideoBackgroundFileName;
         _video = string.IsNullOrWhiteSpace(_videoFilename) ? null : MediaItemHelper.CreateMediaItem(_videoFilename);
         IsEnabled = MediaItemHelper.IsValidVideo(_video);
       }
@@ -141,8 +132,8 @@ namespace MediaPortal.UiComponents.BackgroundManager.Models
 
     public void Dispose()
     {
+      _settings.Dispose();
       EndBackgroundPlayback();
-      _messageQueue.Shutdown();
     }
 
     public void EndBackgroundPlayback()

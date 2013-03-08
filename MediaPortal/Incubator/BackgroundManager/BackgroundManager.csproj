@@ -66,7 +66,6 @@
       <Link>Properties\VersionInfo.cs</Link>
     </Compile>
     <Compile Include="Converter\ListItemActionIdConverter.cs" />
-    <Compile Include="Helper\BackgroundManagerMessaging.cs" />
     <Compile Include="Helper\MediaItemHelper.cs" />
     <Compile Include="Models\BackgroundManagerModel.cs" />
     <Compile Include="Models\BackgroundVideoBrush.cs" />
