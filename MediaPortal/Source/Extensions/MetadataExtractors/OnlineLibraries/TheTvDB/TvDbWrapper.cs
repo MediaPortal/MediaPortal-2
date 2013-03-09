@@ -26,6 +26,7 @@ using System.Collections.Generic;
 using System.Linq;
 using MediaPortal.Common;
 using MediaPortal.Common.Logging;
+using MediaPortal.Extensions.OnlineLibraries.Libraries.Common;
 using MediaPortal.Extensions.OnlineLibraries.Libraries.TvdbLib;
 using MediaPortal.Extensions.OnlineLibraries.Libraries.TvdbLib.Cache;
 using MediaPortal.Extensions.OnlineLibraries.Libraries.TvdbLib.Data;
@@ -169,6 +170,18 @@ namespace MediaPortal.Extensions.OnlineLibraries.TheTvDB
     {
       series = _tvdbHandler.GetSeries(seriesId, PreferredLanguage, loadEpisodes, false, false);
       return series != null;
+    }
+
+    /// <summary>
+    /// Gets Series information from TvDB.
+    /// </summary>
+    /// <param name="imdbId">The IMDB id for the Series.</param>
+    /// <param name="series">Returns the Series information</param>
+    /// <returns><c>true</c> if successful</returns>
+    public bool GetSeries(string imdbId, out TvdbSearchResult series)
+    {
+      series = _tvdbHandler.GetSeriesByRemoteId(ExternalId.ImdbId, imdbId);
+      return (series != null);
     }
 
     /// <summary>

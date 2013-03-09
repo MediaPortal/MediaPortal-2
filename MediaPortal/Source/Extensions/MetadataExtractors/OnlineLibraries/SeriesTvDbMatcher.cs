@@ -98,7 +98,12 @@ namespace MediaPortal.Extensions.OnlineLibraries
     public bool FindAndUpdateSeries(SeriesInfo seriesInfo)
     {
       TvdbSeries seriesDetail;
-      if (TryMatch(seriesInfo.Series, false, out seriesDetail))
+
+      if (
+        /* Best way is to get details by an unique IMDB id */
+        MatchByImdbId(seriesInfo, out seriesDetail) ||
+        TryMatch(seriesInfo.Series, false, out seriesDetail)
+        )
       {
         int tvDbId = 0;
         if (seriesDetail != null)
@@ -118,6 +123,33 @@ namespace MediaPortal.Extensions.OnlineLibraries
           ScheduleDownload(tvDbId);
         return true;
       }
+      return false;
+    }
+
+    private bool MatchByImdbId(SeriesInfo seriesInfo, out TvdbSeries seriesDetail)
+    {
+      TvdbSearchResult matchedSeries;
+      if (!string.IsNullOrEmpty(seriesInfo.ImdbId) && _tv.GetSeries(seriesInfo.ImdbId, out matchedSeries))
+      {
+        ServiceRegistration.Get<ILogger>().Debug("SeriesTvDbMatcher: Found unique online match for \"{0}\": \"{1}\" [Lang: {2}]", seriesInfo.ImdbId, matchedSeries.SeriesName, matchedSeries.Language);
+
+        if (_tv.GetSeries(matchedSeries.Id, true, out seriesDetail))
+        {
+          ServiceRegistration.Get<ILogger>().Debug("SeriesTvDbMatcher: Loaded details for \"{0}\"", matchedSeries.SeriesName);
+          // Add this match to cache
+          SeriesMatch onlineMatch = new SeriesMatch
+          {
+            ItemName = seriesDetail.SeriesName,
+            Id = seriesDetail.Id,
+            TvDBName = seriesDetail.SeriesName
+          };
+
+          // Save cache
+          _storage.SaveNewMatch(seriesInfo.Series, onlineMatch);
+          return true;
+        }
+      }
+      seriesDetail = null;
       return false;
     }
 
