@@ -276,7 +276,8 @@ namespace MediaPortal.Common.Messaging
         _shutdownWatcher.Remove();
       _shutdownWatcher = null;
       UnregisterFromAllMessageChannels();
-      _terminatedEvent.Set();
+      if (!_terminatedEvent.SafeWaitHandle.IsClosed)
+        _terminatedEvent.Set();
     }
 
     #endregion
