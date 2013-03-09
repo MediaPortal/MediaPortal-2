@@ -90,14 +90,6 @@
       <SubType>Designer</SubType>
     </Content>
     <Content Include="References\Castle.Core.dll" />
-    <Content Include="References\Castle.Facilities.EventWiring.dll" />
-    <Content Include="References\Castle.Facilities.FactorySupport.dll" />
-    <Content Include="References\Castle.Facilities.Logging.dll" />
-    <Content Include="References\Castle.Facilities.Remoting.dll" />
-    <Content Include="References\Castle.Facilities.Synchronize.dll" />
-    <Content Include="References\Castle.Facilities.WcfIntegration.dll" />
-    <Content Include="References\Castle.Services.Logging.Log4netIntegration.dll" />
-    <Content Include="References\Castle.Services.Logging.NLogIntegration.dll" />
     <Content Include="References\Castle.Windsor.dll" />
     <Content Include="References\Common.Utils.dll" />
     <Content Include="References\DirectShowLib.dll" />
