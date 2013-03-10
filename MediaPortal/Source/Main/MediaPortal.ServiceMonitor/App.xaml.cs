@@ -162,6 +162,7 @@ namespace MediaPortal.ServiceMonitor
         ILogger logger = null;
         try
         {
+          ApplicationCore.RegisterVitalCoreServices();
           ApplicationCore.RegisterCoreServices();
           logger = ServiceRegistration.Get<ILogger>();
 
