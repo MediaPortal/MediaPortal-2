@@ -110,11 +110,9 @@ namespace MediaPortal.UiComponents.News.Models
       {
         _selectedFeed = feed;
 
-        int firstWordEnd = feed.Title.IndexOf(' ');
-        string newStateLabel = firstWordEnd > 0 ? feed.Title.Substring(0, firstWordEnd) : feed.Title;
         ServiceRegistration.Get<IWorkflowManager>().NavigatePush(WORKFLOWSTATEID_NEWSITEMS, new NavigationContextConfig
         {
-          NavigationContextDisplayLabel = newStateLabel
+          NavigationContextDisplayLabel = feed.Title
         });
       }
       else
