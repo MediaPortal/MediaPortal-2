@@ -69,6 +69,9 @@
   <ItemGroup>
     <Content Include="External Assemblies\EDAS60.Client.dll" />
     <Content Include="External Assemblies\MediasiteAPIConnector.dll" />
+    <Content Include="Language\strings_en.xml">
+      <SubType>Designer</SubType>
+    </Content>
     <Content Include="plugin.xml" />
     <Content Include="Skin\default\workflow\hello-world-actions.xml" />
   </ItemGroup>
@@ -81,9 +84,7 @@
       <SubType>Designer</SubType>
     </Content>
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Language\" />
-  </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
     <PostBuildEvent>xcopy /Y "$(ProjectDir)plugin.xml" "$(SolutionDir)..\Bin\$(SolutionName)\$(OutDir)Plugins\$(ProjectName)\"

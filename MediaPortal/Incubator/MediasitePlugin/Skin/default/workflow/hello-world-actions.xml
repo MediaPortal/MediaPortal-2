@@ -31,11 +31,11 @@
 
          The DisplayTitle will be shown in the main menu for this action. -->
     <PushNavigationTransition Id="EA48BD6E-60D3-45b2-9C35-1AB437CC72FB"
-Name="Home->MediaSite"
-DisplayCategory="m-MediaSite"
-SortOrder="a"
-SourceStates="7F702D9C-F2DD-42da-9ED8-0BA92F07787F"
-TargetState="23DB4E53-EB0D-4315-9F4C-F5E1C13577C7"
-DisplayTitle="[MediaSite.MenuEntry]"/>
-  </MenuActions>
+      Name="Home->MediaSite"
+      DisplayCategory="m-MediaSite"
+      SortOrder="a"
+      SourceStates="7F702D9C-F2DD-42da-9ED8-0BA92F07787F"
+      TargetState="23DB4E53-EB0D-4315-9F4C-F5E1C13577C7"
+      DisplayTitle="[MediaSite.MenuEntry]"/>
+    </MenuActions>
 </Workflow>
