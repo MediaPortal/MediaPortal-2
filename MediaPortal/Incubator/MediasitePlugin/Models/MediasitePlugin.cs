@@ -75,7 +75,7 @@ namespace MediasitePlugin
     /// In the english language file of this hello world plugin, you'll find the translation of this string.
     /// The language file is located at: /Language/strings_en.xml
     /// 
-      /// E8585B55-22B4-4E79-9D3B-AA41FAF88355
+    /// E8585B55-22B4-4E79-9D3B-AA41FAF88355
     /// </summary>
     protected const string HELLOWORLD_RESOURCE = "[Mediasite.HelloWorldText]";
     private const string _APIEndpoint = "EdasServiceEndpoint";
@@ -83,7 +83,7 @@ namespace MediasitePlugin
     private const string _PublicKey = "goRipJU5GN9vA+ptwyui3Q==";
     private const string _Application = "MediaPortal2";
     public const string MODEL_ID_STR = "89A89847-7523-47CB-9276-4EC544B8F19A";
-    
+
     /// <summary>
     /// Another localized string resource.
     /// </summary>
@@ -97,8 +97,8 @@ namespace MediasitePlugin
     /// This property holds a string that we will modify in this tutorial.
     /// </summary>
     protected readonly AbstractProperty _helloStringProperty;
-    protected string _RequestTicket = new APIAuthenticator(_APIEndpoint, _PublicKey, _PrivateKey).RequestTicket;
-    private EdasClient _Client = new EdasClient(_APIEndpoint);
+    protected string _RequestTicket;
+    private EdasClient _Client;
 
     #endregion
 
@@ -124,34 +124,40 @@ namespace MediasitePlugin
     /// 
     public ItemsList Presentations
     {
-        get { return loadPresentations(); }
+      get
+      {
+        // TODO: don't rebuild lists in getter, init them in EnterModelContext
+        return loadPresentations();
+      }
     }
-    
+
     public string CreateAuthTicket(string MediasiteResourceID)
     {
-        var _aRequest = new CreateAuthTicketRequest(){ ApplicationName = _Application, Ticket = _RequestTicket, TicketSettings = new CreateAuthTicketSettings(){ Username = "MediaPortalUser", ResourceId = MediasiteResourceID, MinutesToLive = 10}};
-        return _Client.CreateAuthTicket(_aRequest).AuthTicketId;
+      var _aRequest = new CreateAuthTicketRequest() { ApplicationName = _Application, Ticket = _RequestTicket, TicketSettings = new CreateAuthTicketSettings() { Username = "MediaPortalUser", ResourceId = MediasiteResourceID, MinutesToLive = 10 } };
+      return _Client.CreateAuthTicket(_aRequest).AuthTicketId;
     }
 
     public ItemsList loadPresentations()
     {
-        
-        var _pRequest = new QueryPresentationsByCriteriaRequest(){ Ticket = _RequestTicket, ApplicationName = "MediaPortal2", QueryCriteria = new PresentationQueryCriteria(){ StartDate = Convert.ToDateTime("01/01/00"), EndDate = System.DateTime.Now, PermissionMask = ResourcePermissionMask.Read}, Options= new QueryOptions(){ BatchSize = 100, StartIndex = 0}};
-        var _tpresentations = _Client.QueryPresentationsByCriteria(_pRequest);
-        var list = new ItemsList();
-        foreach(PresentationDetails _presentation in _tpresentations.Presentations)
-        {
-            ListItem _item = new ListItem("Name", _presentation.Name);
-            _item.SetLabel("ID", _presentation.Id);
-            _item.SetLabel("URL", _presentation.VideoUrl + "?AuthTicket=" + CreateAuthTicket(_presentation.Id));
-            _item.SetLabel("FileURL", _presentation.FileServerUrl);
-            var _slides = _Client.QuerySlides(new QuerySlidesRequest() { PresentationId = _presentation.Id, Ticket = _RequestTicket, ApplicationName = _Application });
-            list.Add(_item);
-        }
-        return list;
+      // Moved from CTOR
+      _RequestTicket = new APIAuthenticator(_APIEndpoint, _PublicKey, _PrivateKey).RequestTicket;
+      _Client = new EdasClient(_APIEndpoint); 
+      var _pRequest = new QueryPresentationsByCriteriaRequest() { Ticket = _RequestTicket, ApplicationName = "MediaPortal2", QueryCriteria = new PresentationQueryCriteria() { StartDate = Convert.ToDateTime("01/01/00"), EndDate = System.DateTime.Now, PermissionMask = ResourcePermissionMask.Read }, Options = new QueryOptions() { BatchSize = 100, StartIndex = 0 } };
+      var _tpresentations = _Client.QueryPresentationsByCriteria(_pRequest);
+      var list = new ItemsList();
+      foreach (PresentationDetails _presentation in _tpresentations.Presentations)
+      {
+        ListItem _item = new ListItem("Name", _presentation.Name);
+        _item.SetLabel("ID", _presentation.Id);
+        _item.SetLabel("URL", _presentation.VideoUrl + "?AuthTicket=" + CreateAuthTicket(_presentation.Id));
+        _item.SetLabel("FileURL", _presentation.FileServerUrl);
+        var _slides = _Client.QuerySlides(new QuerySlidesRequest() { PresentationId = _presentation.Id, Ticket = _RequestTicket, ApplicationName = _Application });
+        list.Add(_item);
+      }
+      return list;
     }
 
-   
+
     public string HelloString
     {
       get { return (string) _helloStringProperty.GetValue(); }
@@ -194,29 +200,29 @@ namespace MediasitePlugin
 
     public Guid ModelId
     {
-        get { return new Guid(MODEL_ID_STR); }
+      get { return new Guid(MODEL_ID_STR); }
     }
 
     public bool CanEnterState(NavigationContext oldContext, NavigationContext newContext)
     {
-        return true;
+      return true;
     }
 
     public void EnterModelContext(NavigationContext oldContext, NavigationContext newContext)
     {
 
-      
+
     }
 
     public void ExitModelContext(NavigationContext oldContext, NavigationContext newContext)
     {
-        //DisposeTree();
+      //DisposeTree();
 
     }
 
     public void ChangeModelContext(NavigationContext oldContext, NavigationContext newContext, bool push)
     {
-        // We could initialize some data here when changing the media navigation state
+      // We could initialize some data here when changing the media navigation state
     }
 
     public void Deactivate(NavigationContext oldContext, NavigationContext newContext)
@@ -233,7 +239,7 @@ namespace MediasitePlugin
 
     public ScreenUpdateMode UpdateScreen(NavigationContext context, ref string screen)
     {
-        return ScreenUpdateMode.AutoWorkflowManager;
+      return ScreenUpdateMode.AutoWorkflowManager;
     }
 
     #endregion
