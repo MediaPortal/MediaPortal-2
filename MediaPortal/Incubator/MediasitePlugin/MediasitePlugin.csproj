@@ -73,13 +73,13 @@
       <SubType>Designer</SubType>
     </Content>
     <Content Include="plugin.xml" />
-    <Content Include="Skin\default\workflow\hello-world-actions.xml" />
+    <Content Include="Skin\default\workflow\Mediasite-actions.xml" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="Skin\default\screens\hello_world.xaml">
+    <Content Include="Skin\default\screens\MediasiteMainscreen.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Content>

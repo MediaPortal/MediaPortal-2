@@ -77,17 +77,17 @@ namespace MediasitePlugin
     /// 
       /// E8585B55-22B4-4E79-9D3B-AA41FAF88355
     /// </summary>
-    protected const string HELLOWORLD_RESOURCE = "[HelloWorld.HelloWorldText]";
+    protected const string HELLOWORLD_RESOURCE = "[Mediasite.HelloWorldText]";
     private const string _APIEndpoint = "EdasServiceEndpoint";
     private const string _PrivateKey = "uTBisLe83ZgZExYUYcKkVA==";
     private const string _PublicKey = "goRipJU5GN9vA+ptwyui3Q==";
     private const string _Application = "MediaPortal2";
-    public const string MODEL_ID_STR = "E8585B55-22B4-4E79-9D3B-AA41FAF88355";
+    public const string MODEL_ID_STR = "89A89847-7523-47CB-9276-4EC544B8F19A";
     
     /// <summary>
     /// Another localized string resource.
     /// </summary>
-    protected const string COMMAND_TRIGGERED_RESOURCE = "[HelloWorld.ButtonTextCommandExecuted]";
+    protected const string COMMAND_TRIGGERED_RESOURCE = "[Mediasite.ButtonTextCommandExecuted]";
 
     #endregion
 
