@@ -32,7 +32,7 @@ using MediasiteAPIConnector;
 using System.ComponentModel;
 using System.Collections.Generic;
 
-namespace MediasitePlugin.MediasitePlugin
+namespace MediasitePlugin
 {
   /// <summary>
   /// Example for a simple model.
@@ -190,7 +190,7 @@ namespace MediasitePlugin.MediasitePlugin
 
     #endregion
 
-      #region IWorkflowModel implementation
+    #region IWorkflowModel implementation
 
     public Guid ModelId
     {

@@ -16,7 +16,7 @@
   <Register Location="/Models">
     <Model Id="E8585B55-22B4-4E79-9D3B-AA41FAF88355" ClassName="MediasitePlugin.MediasitePlugin"/>
   </Register>
-  
+
   <Register Location="/Workflow/States">
     <!-- This is the workflow state which corresponds to the hello world screen. Each workflow state corresponds to
          a certain UI state. The id is needed to be able to reference the state, for example in the action which
@@ -32,9 +32,12 @@
          It is also possible to set the screen programmatically when using a workflow model.
 
          The DisplayLabel is the string which is shown in the Navigation bar for this state. -->
-    <WorkflowState Id="23DB4E53-EB0D-4315-9F4C-F5E1C13577C7"
-        Name="HelloWorldMain" MainScreen="hello_world"
-        DisplayLabel="[HelloWorld.StateDisplayLabel]"/> <!-- No workflow model -->
+  </Register>
+    <Register Location="/Workflow/States">
+      <WorkflowState Id="23DB4E53-EB0D-4315-9F4C-F5E1C13577C7"
+      Name="MediasiteMain" MainScreen="MediasiteMainscreen"
+      DisplayLabel="[Mediasite.StateDisplayLabel]"/>
+      <!-- No workflow model -->
   </Register>
   <Register Location="/Resources/Skin">
     <Resource Id="Mediasite" Directory="Skin" Type="Skin"/>
