@@ -1,0 +1,45 @@
+<Plugin
+    DescriptorVersion="1.0"
+    Name="MediasitePlugin"
+    PluginId="1360D7C7-6936-4C9A-9352-D46830C09C0A"
+    Author="VicDemented"
+    Copyright="GPL"
+    Description="Mediasite Plugin"
+    PluginVersion="0.1">
+
+  <Runtime>
+    <Assembly FileName="MediasitePlugin.dll"/>
+  </Runtime>
+
+  <Register Location="/Models">
+    <Model Id="E8585B55-22B4-4E79-9D3B-AA41FAF88355" ClassName="MediasitePlugin.MediasitePlugin"/>
+  </Register>
+
+  <Register Location="/Workflow/States">
+    <!-- This is the workflow state which corresponds to the hello world screen. Each workflow state corresponds to
+         a certain UI state. The id is needed to be able to reference the state, for example in the action which
+         navigates to this state, see in file hello-world-actions.xml.
+
+         The Id uniquely identifies the state among all workflow states. Use a GUID generator to create
+         a new state id. The id is referenced from workflow actions which lead to this state as well as from
+         code which tells the WorkflowManager to push a workflow state onto the workflow navigation stack.
+
+         The name of the state is only needed for debug reasons and will not be shown to the user.
+
+         The MainScreen will automatically be shown by the workflow manager when switching to the state.
+         It is also possible to set the screen programmatically when using a workflow model.
+
+         The DisplayLabel is the string which is shown in the Navigation bar for this state. -->
+    <WorkflowState Id="23DB4E53-EB0D-4315-9F4C-F5E1C13577C7"
+        Name="HelloWorldMain" MainScreen="hello_world"
+        DisplayLabel="[HelloWorld.StateDisplayLabel]"/> <!-- No workflow model -->
+  </Register>
+
+  <Register Location="/Resources/Skin">
+    <Resource Id="HelloWorldSkin" Directory="Skin" Type="Skin"/>
+  </Register>
+
+  <Register Location="/Resources/Language">
+    <Resource Id="HelloWorldLanguage" Directory="Language" Type="Language"/>
+  </Register>
+</Plugin>
