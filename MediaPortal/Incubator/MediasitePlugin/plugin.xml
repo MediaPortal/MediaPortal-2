@@ -14,7 +14,7 @@
   </Runtime>
 
   <Register Location="/Models">
-    <Model Id="E8585B55-22B4-4E79-9D3B-AA41FAF88355" ClassName="MediasitePlugin.MediasitePlugin"/>
+    <Model Id="89A89847-7523-47CB-9276-4EC544B8F19A" ClassName="MediasitePlugin.MediasitePlugin"/>
   </Register>
 
     <Register Location="/Workflow/States">

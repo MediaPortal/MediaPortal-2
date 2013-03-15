@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-  <string name="Mediasite.MenuEntry">Mediasite Hello</string>
+  <string name="Mediasite.MenuEntry">Mediasite</string>
   <string name="Mediasite.StateDisplayLabel">Mediasite State</string>
   <string name="Mediasite.ScreenTitle">Mediasite Screen</string>
   <string name="Mediasite.HelloWorldText">...</string>
