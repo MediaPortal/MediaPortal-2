@@ -102,7 +102,7 @@ namespace MediaPortal.Common.Services.Settings
     public void Dispose()
     {
       _messageQueue.MessageReceived -= OnMessageReceived;
-      _messageQueue.Dispose();
+      _messageQueue.Shutdown();
     }
 
     #endregion
