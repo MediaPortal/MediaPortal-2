@@ -43,7 +43,7 @@ namespace MediaPortal.Common.MediaManagement.DefaultItemAspects
         MediaItemAspectMetadata.CreateStringAttributeSpecification("SeriesName", 200, Cardinality.Inline, false);
 
     /// <summary>
-    /// Contains the number of the season, starting at 1.
+    /// Contains the number of the season, usually starting at 1. A value of 0 is also valid for specials.
     /// </summary>
     public static readonly MediaItemAspectMetadata.AttributeSpecification ATTR_SEASON =
         MediaItemAspectMetadata.CreateAttributeSpecification("Season", typeof(int), Cardinality.Inline, false);

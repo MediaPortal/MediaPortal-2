@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+  <string name="Mediasite.MenuEntry">Mediasite</string>
+  <string name="Mediasite.StateDisplayLabel">Mediasite State</string>
+  <string name="Mediasite.ScreenTitle">Mediasite Screen</string>
+  <string name="Mediasite.HelloWorldText">...</string>
+  <string name="Mediasite.SampleText">This is the sample screen of the Mediasite plugin</string>
+  <string name="Mediasite.ButtonText">>>></string>
+  <string name="Mediasite.ButtonTextCommandExecuted">Congrats, you just triggered a Command!</string>
+</resources>

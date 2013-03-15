@@ -55,8 +55,8 @@
   <string name="ServerConnection.SearchForServers">Search for servers</string>
   <string name="ServerConnection.DetachFromServer">Detach from home server</string>
   <string name="ServerConnection.AttachToServerHeader">Attach to MediaPortal 2 server</string>
-  <string name="ServerConnection.AttachToMultipleText">There are multiple MP 2 servers available in the network. Do you want to choose one of them as home server?</string>
-  <string name="ServerConnection.AttachToSingleText.Before">The MP 2 server</string>
+  <string name="ServerConnection.AttachToMultipleText">There are multiple MP2 servers available in the network. Do you want to choose one of them as home server?</string>
+  <string name="ServerConnection.AttachToSingleText.Before">The MP2 server</string>
   <string name="ServerConnection.AttachToSingleText.After">is available in the network. Do you want to attach to it?</string>
   <string name="ServerConnection.AttachToServerNoServerText">Currently, there is no MediaPortal 2 server available in the network.</string>
   <string name="ServerConnection.AttachButton">Attach</string>
@@ -99,7 +99,7 @@
   <string name="Players.FocusPlayer">Focus {0}</string> <!-- for example "Focus video player" -->
   <string name="Players.SwitchPipPlayers">Switch PiP players</string>
   <string name="Players.ChooseAudioStream">Choose audio stream</string>
-  <string name="Players.PlayerAudioMenu">Audio menu for {0}</string> <!-- for example "Audio menu for Lammbock" -->
+  <string name="Players.PlayerSlotAudioMenu">Audio menu for {0}</string> <!-- for example "Audio menu for Lammbock" -->
   <string name="Players.Mute">Mute</string>
   <string name="Players.MuteOff">Mute off</string>
   <string name="Players.ClosePlayerContext">Close {0}</string> <!-- for example "Close video player" -->

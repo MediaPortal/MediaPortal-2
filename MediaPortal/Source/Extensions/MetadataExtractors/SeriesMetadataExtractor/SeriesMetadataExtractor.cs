@@ -24,8 +24,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.IO;
-using System.Linq;
 using MediaPortal.Common;
 using MediaPortal.Common.Logging;
 using MediaPortal.Common.MediaManagement;
@@ -33,10 +31,8 @@ using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.Common.MediaManagement.Helpers;
 using MediaPortal.Common.ResourceAccess;
 using MediaPortal.Common.Services.ResourceAccess.StreamedResourceToLocalFsAccessBridge;
-using MediaPortal.Extensions.MetadataExtractors.MatroskaLib;
 using MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor.NameMatchers;
 using MediaPortal.Extensions.OnlineLibraries;
-using MediaPortal.Utilities;
 
 namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
 {
@@ -95,68 +91,15 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
 
     #region Protected methods
 
-    protected SeriesInfo GetSeriesFromTags(IDictionary<string, IList<string>> extractedTags)
-    {
-      SeriesInfo seriesInfo = new SeriesInfo();
-      if (extractedTags[MatroskaConsts.TAG_EPISODE_TITLE] != null)
-        seriesInfo.Episode = extractedTags[MatroskaConsts.TAG_EPISODE_TITLE].FirstOrDefault();
-
-      if (extractedTags[MatroskaConsts.TAG_SERIES_TITLE] != null)
-        seriesInfo.Series = extractedTags[MatroskaConsts.TAG_SERIES_TITLE].FirstOrDefault();
-
-      if (extractedTags[MatroskaConsts.TAG_SEASON_NUMBER] != null)
-        int.TryParse(extractedTags[MatroskaConsts.TAG_SEASON_NUMBER].FirstOrDefault(), out seriesInfo.SeasonNumber);
-
-      if (extractedTags[MatroskaConsts.TAG_EPISODE_NUMBER] != null)
-      {
-        int episodeNum;
-        if (int.TryParse(extractedTags[MatroskaConsts.TAG_EPISODE_NUMBER].FirstOrDefault(), out episodeNum))
-          seriesInfo.EpisodeNumbers.Add(episodeNum);
-      }
-      return seriesInfo;
-    }
-
     protected bool ExtractSeriesData(string localFsResourcePath, IDictionary<Guid, MediaItemAspect> extractedAspectData)
     {
       SeriesInfo seriesInfo = null;
 
-      string extensionUpper = StringUtils.TrimToEmpty(Path.GetExtension(localFsResourcePath)).ToUpper();
-
       // Try to get extended information out of matroska files)
-      if (extensionUpper == ".MKV" || extensionUpper == ".MK3D")
-      {
-        MatroskaInfoReader mkvReader = new MatroskaInfoReader(localFsResourcePath);
-        // Add keys to be extracted to tags dictionary, matching results will returned as value
-        Dictionary<string, IList<string>> tagsToExtract = MatroskaConsts.DefaultTags;
-        mkvReader.ReadTags(tagsToExtract);
+      MatroskaMatcher matroskaMatcher = new MatroskaMatcher();
+      matroskaMatcher.MatchSeries(localFsResourcePath, out seriesInfo, ref extractedAspectData);
 
-        string title = string.Empty;
-        IList<string> tags = tagsToExtract[MatroskaConsts.TAG_SIMPLE_TITLE];
-        if (tags != null)
-          title = tags.FirstOrDefault();
-
-        if (!string.IsNullOrEmpty(title))
-          MediaItemAspect.SetAttribute(extractedAspectData, MediaAspect.ATTR_TITLE, title);
-
-        string yearCandidate = null;
-        tags = tagsToExtract[MatroskaConsts.TAG_EPISODE_YEAR] ?? tagsToExtract[MatroskaConsts.TAG_SEASON_YEAR];
-        if (tags != null)
-          yearCandidate = (tags.FirstOrDefault() ?? string.Empty).Substring(0, 4);
-
-        int year;
-        if (int.TryParse(yearCandidate, out year))
-          MediaItemAspect.SetAttribute(extractedAspectData, MediaAspect.ATTR_RECORDINGTIME, new DateTime(year, 1, 1));
-
-        tags = tagsToExtract[MatroskaConsts.TAG_EPISODE_SUMMARY];
-        string plot = tags != null ? tags.FirstOrDefault() : string.Empty;
-        if (!string.IsNullOrEmpty(plot))
-          MediaItemAspect.SetAttribute(extractedAspectData, VideoAspect.ATTR_STORYPLOT, plot);
-
-        // Series and episode handling. Prefer information from tags.
-        seriesInfo = GetSeriesFromTags(tagsToExtract);
-      }
-
-      // If now information from mkv were found, try name matching
+      // If no information from mkv were found, try name matching
       if (seriesInfo == null || !seriesInfo.IsCompleteMatch)
       {
         // Try to match series from folder and file namings

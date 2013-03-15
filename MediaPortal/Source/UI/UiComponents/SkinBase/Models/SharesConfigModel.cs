@@ -46,7 +46,7 @@ namespace MediaPortal.UiComponents.SkinBase.Models
 {
   /// <summary>
   /// Provides a workflow model to attend the complex configuration process for server and client shares
-  /// in the MP 2 configuration.
+  /// in the MP2 configuration.
   /// </summary>
   public class SharesConfigModel : IWorkflowModel, IDisposable
   {

@@ -32,6 +32,7 @@ using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.Common.MediaManagement.Helpers;
 using MediaPortal.Common.ResourceAccess;
 using MediaPortal.Common.Services.ResourceAccess.StreamedResourceToLocalFsAccessBridge;
+using MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor.Matchers;
 using MediaPortal.Extensions.OnlineLibraries;
 using MediaPortal.Extensions.OnlineLibraries.TheMovieDB;
 
@@ -138,7 +139,8 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
         string imdbId;
         if (MediaItemAspect.TryGetAttribute(extractedAspectData, MovieAspect.ATTR_IMDB_ID, out imdbId) ||
           pathsToTest.Any(path => ImdbIdMatcher.TryMatchImdbId(path, out imdbId)) ||
-          NfoReader.TryMatchImdbId(lfsra, out imdbId))
+          NfoReader.TryMatchImdbId(lfsra, out imdbId) ||
+          MatroskaMatcher.TryMatchImdbId(lfsra.LocalFileSystemPath, out imdbId))
           movieInfo.ImdbId = imdbId;
 
         // Also test the full path year, using a dummy. This is useful if the path contains the real name and year.

@@ -22,31 +22,29 @@
 
 #endregion
 
-using System.Text.RegularExpressions;
-
-namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
+namespace CodeCleanup
 {
-  /// <summary>
-  /// <see cref="ImdbIdMatcher"/> tries to match IMDB ids from folder or filenames using regular expressions.
-  /// </summary>
-  public class ImdbIdMatcher
+  public class FileBasedLogEntry
   {
-    public static string GROUP_IMDBID = "imdbid";
-    public static Regex REGEXP_IMDBID = new Regex(@"(?<imdbid>tt\d{7})", RegexOptions.IgnoreCase);
+    public string Message { get; set; }
+    public string Filepath { get; set; }
 
-    public static bool TryMatchImdbId(string folderOrFileName, out string imdbId)
+    public FileBasedLogEntry(string filepath, string message)
     {
-      imdbId = null;
-      if (string.IsNullOrEmpty(folderOrFileName))
-        return false;
+      Filepath = filepath;
+      Message = message;
+    }
 
-      Match match = REGEXP_IMDBID.Match(folderOrFileName);
-      Group group = match.Groups[GROUP_IMDBID];
-      if (group.Length == 0)
-        return false;
+    public override string ToString()
+    {
+      return Message + Filepath;
+    }
 
-      imdbId = group.Value;
-      return true;
+    public void OpenExplorerFileSelected()
+    {
+      string argument = @"/select, " + Filepath;
+
+      System.Diagnostics.Process.Start("explorer.exe", argument);
     }
   }
 }

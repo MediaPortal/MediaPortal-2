@@ -79,7 +79,7 @@ namespace MediaPortal.Common.Services.ResourceAccess
       }
       catch (Exception e)
       {
-        ServiceRegistration.Get<ILogger>().Warn("Error connecting to UPnP MP 2 device '{0}'", e, deviceUuid);
+        ServiceRegistration.Get<ILogger>().Warn("Error connecting to UPnP MP2 device '{0}'", e, deviceUuid);
         return null;
       }
       try
@@ -94,7 +94,7 @@ namespace MediaPortal.Common.Services.ResourceAccess
       }
       catch (Exception e)
       {
-        ServiceRegistration.Get<ILogger>().Warn("Error connecting to services of UPnP MP 2 device '{0}'", e, deviceUuid);
+        ServiceRegistration.Get<ILogger>().Warn("Error connecting to services of UPnP MP2 device '{0}'", e, deviceUuid);
         _controlPoint.Disconnect(deviceUuid);
         return null;
       }

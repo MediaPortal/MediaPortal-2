@@ -62,6 +62,7 @@ namespace MediaPortal.Utilities.Screens
     private Label _statusLabel;
     private Timer _splashTimer;
     private IContainer _components;
+    private Image _backgroundImage;
 
     #region Public Properties & Methods
 
@@ -76,8 +77,8 @@ namespace MediaPortal.Utilities.Screens
         _infoText = value;
         if (_programInfoLabel.InvokeRequired)
         {
-          var InfoUpdate = new UpdateLabel(UpdateInfo);
-          Invoke(InfoUpdate);
+          var infoUpdate = new UpdateLabel(UpdateInfo);
+          Invoke(infoUpdate);
         }
         else
           UpdateInfo();
@@ -95,8 +96,8 @@ namespace MediaPortal.Utilities.Screens
         _statusText = value;
         if (_statusLabel.InvokeRequired)
         {
-          var StatusUpdate = new UpdateLabel(UpdateStatus);
-          Invoke(StatusUpdate);
+          var statusUpdate = new UpdateLabel(UpdateStatus);
+          Invoke(statusUpdate);
         }
         else
           UpdateStatus();
@@ -104,18 +105,23 @@ namespace MediaPortal.Utilities.Screens
     }
 
     /// <summary>
-    /// Gets or Sets a flag if the <see cref="SplashBackgroundImage"/> should be scaled to fullscreen.
-    /// To enable resizing, set this property to true before you set the image.
+    /// Sets the screen where the SplashScreen should be shown.
+    /// </summary>
+    public int? StartupScreen { get; set; }
+
+    /// <summary>
+    /// Gets or sets a flag if the <see cref="SplashBackgroundImage"/> should be scaled to fullscreen.
+    /// To enable resizing, set this property to <c>true</c>.
     /// </summary>
     public bool ScaleToFullscreen { get; set; }
 
     /// <summary>
-    /// Sets the background image and automatically sets the size to match the image size.
+    /// Sets the background image.
     /// </summary>
     public Image SplashBackgroundImage
     {
       get { return BackgroundImage; }
-      set { ResizeImageFullscreen(value); }
+      set { _backgroundImage = value; }
     }
 
     /// <summary>
@@ -133,8 +139,7 @@ namespace MediaPortal.Utilities.Screens
     }
 
     /// <summary>
-    /// Sets the duration how long the form will fade in. If set to <see cref="TimeSpan.Zero"/>, the form will be
-    /// shown at once.
+    /// Sets the duration how long the form will fade in. If set to <see cref="TimeSpan.Zero"/>, the form will be shown at once.
     /// </summary>
     public TimeSpan FadeInDuration
     {
@@ -156,8 +161,7 @@ namespace MediaPortal.Utilities.Screens
     }
 
     /// <summary>
-    /// Sets the duration how long the form will fade out. If set to <see cref="TimeSpan.Zero"/>, the form will be
-    /// hidden at once.
+    /// Sets the duration how long the form will fade out. If set to <see cref="TimeSpan.Zero"/>, the form will be hidden at once.
     /// </summary>
     public TimeSpan FadeOutDuration
     {
@@ -245,15 +249,26 @@ namespace MediaPortal.Utilities.Screens
       InitializeComponent();
     }
 
-    private void ResizeImageFullscreen(Image backgroundImage)
+    private void SetFormLocationAndBackground(Image backgroundImage)
     {
       if (backgroundImage == null)
         return;
-      Size screen = Screen.PrimaryScreen.Bounds.Size;
+
+      // Default screen for splashscreen is the one from where MP2 was started.
+      Screen preferredScreen = Screen.FromControl(this);
+
+      // Force the splashscreen to be displayed on a specific screen.
+      if (StartupScreen.HasValue && StartupScreen.Value >= 0 && StartupScreen.Value < Screen.AllScreens.Length)
+        preferredScreen = Screen.AllScreens[StartupScreen.Value];
+
+      Rectangle screenBounds = preferredScreen.Bounds;
+      Size screen = screenBounds.Size;
+
       if (ScaleToFullscreen && (screen.Width != backgroundImage.Width || screen.Height != backgroundImage.Height))
         backgroundImage = ImageUtilities.ResizeImageExact(backgroundImage, screen.Width, screen.Height);
 
       BackgroundImage = backgroundImage;
+      Location = screenBounds.Location;
       ClientSize = backgroundImage.Size;
     }
 
@@ -308,14 +323,14 @@ namespace MediaPortal.Utilities.Screens
       ShowInTaskbar = false;
       StartPosition = FormStartPosition.CenterScreen;
       ResumeLayout(false);
-      Load += SplashScreen_Load;
-      _splashTimer.Tick += SplashTimer_Tick;
+      Load += SplashScreenLoad;
+      _splashTimer.Tick += SplashTimerTick;
 
     }
 
     #endregion
 
-    private void SplashTimer_Tick(object sender, EventArgs e)
+    private void SplashTimerTick(object sender, EventArgs e)
     {
       if (_fadeMode) // Form is opening (Increment)
       {
@@ -333,8 +348,10 @@ namespace MediaPortal.Utilities.Screens
       }
     }
 
-    private void SplashScreen_Load(object sender, EventArgs e)
+    private void SplashScreenLoad(object sender, EventArgs e)
     {
+      SetFormLocationAndBackground(_backgroundImage);
+
       if (_fadeInDuration != TimeSpan.Zero)
       {
         _fadeMode = true;

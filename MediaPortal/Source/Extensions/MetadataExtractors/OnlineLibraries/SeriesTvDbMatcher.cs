@@ -126,9 +126,13 @@ namespace MediaPortal.Extensions.OnlineLibraries
       // We deal with two scenarios here:
       //  - Having a real episode title, but the Season/Episode numbers might be wrong (seldom case)
       //  - Having only Season/Episode numbers and we need to fill Episode title (more common)
-      TvdbEpisode episode = seriesDetail.Episodes.Find(e => e.EpisodeName == seriesInfo.Episode);
-      if (episode != null)
+      TvdbEpisode episode;
+      List<TvdbEpisode> episodes = seriesDetail.Episodes.FindAll(e => e.EpisodeName == seriesInfo.Episode);
+      // In few cases there can be multiple episodes with same name. In this case we cannot know which one is right
+      // and keep the current episode details.
+      if (episodes.Count == 1)
       {
+        episode = episodes[0];
         seriesInfo.SeasonNumber = episode.SeasonNumber;
         seriesInfo.EpisodeNumbers.Clear();
         seriesInfo.EpisodeNumbers.Add(episode.EpisodeNumber);

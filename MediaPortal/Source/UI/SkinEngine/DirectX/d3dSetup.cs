@@ -26,6 +26,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.Linq;
 using System.Text;
 using System.Windows.Forms;
@@ -492,7 +493,10 @@ namespace MediaPortal.UI.SkinEngine.DirectX
           !dc.DepthStencilMultiSampleConflicts.Contains(new DepthStencilMultiSampleConflict {DepthStencilFormat = dsf, MultisampleType = mst}));
       // Note that PresentFlags.Video makes NVidia graphics drivers switch off multisampling antialiasing
       result.PresentFlags = PresentFlags.None;
+      // Attention: assigning the Form's handle to DeviceWindowHandle resets its Location!
+      Point location = _renderTarget.Location;
       result.DeviceWindowHandle = _renderTarget.Handle;
+      _renderTarget.Location = location;
       result.Windowed = configuration.DeviceCombo.IsWindowed;
       result.BackBufferFormat = configuration.DeviceCombo.BackBufferFormat;
 #if PROFILE_PERFORMANCE

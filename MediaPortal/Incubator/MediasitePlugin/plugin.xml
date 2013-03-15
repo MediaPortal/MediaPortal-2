@@ -1,0 +1,33 @@
+<Plugin
+    DescriptorVersion="1.0"
+    Name="MediasitePlugin"
+    PluginId="1360D7C7-6936-4C9A-9352-D46830C09C0A"
+    Author="VicDemented"
+    Copyright="GPL"
+    Description="Mediasite Plugin"
+    PluginVersion="0.1">
+
+  <Runtime>
+    <Assembly FileName="MediasitePlugin.dll"/>
+    <Assembly FileName="MediasiteAPIConnector.dll"/>
+    <Assembly FileName="EDAS60.Client.dll"/>
+  </Runtime>
+
+  <Register Location="/Models">
+    <Model Id="89A89847-7523-47CB-9276-4EC544B8F19A" ClassName="MediasitePlugin.MediasitePlugin"/>
+  </Register>
+
+    <Register Location="/Workflow/States">
+      <WorkflowState Id="23DB4E53-EB0D-4315-9F4C-F5E1C13577C7"
+      Name="MediasiteMain" MainScreen="MediasiteMainscreen"
+      DisplayLabel="[Mediasite.StateDisplayLabel]"/>
+      <!-- No workflow model -->
+  </Register>
+  <Register Location="/Resources/Skin">
+    <Resource Id="Mediasite" Directory="Skin" Type="Skin"/>
+  </Register>
+
+  <Register Location="/Resources/Language">
+    <Resource Id="MediasiteLanguage" Directory="Language" Type="Language"/>
+  </Register>
+</Plugin>

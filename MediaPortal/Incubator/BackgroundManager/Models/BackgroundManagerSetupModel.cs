@@ -73,10 +73,8 @@ namespace MediaPortal.UiComponents.BackgroundManager.Models
 
     public BackgroundManagerSetupModel()
     {
-      ISettingsManager settingsManager = ServiceRegistration.Get<ISettingsManager>();
-      BackgroundManagerSettings settings = settingsManager.Load<BackgroundManagerSettings>();
-      _backgroundVideoFilenameProperty = new SProperty(typeof(string), settings.VideoBackgroundFileName);
-      _isEnabledProperty = new SProperty(typeof(bool), settings.EnableVideoBackground);
+      _backgroundVideoFilenameProperty = new SProperty(typeof(string), string.Empty);
+      _isEnabledProperty = new SProperty(typeof(bool), false);
     }
 
     /// <summary>
@@ -117,6 +115,14 @@ namespace MediaPortal.UiComponents.BackgroundManager.Models
           null);
     }
 
+    private void InitModel()
+    {
+      ISettingsManager settingsManager = ServiceRegistration.Get<ISettingsManager>();
+      BackgroundManagerSettings settings = settingsManager.Load<BackgroundManagerSettings>();
+      BackgroundVideoFilename = settings.VideoBackgroundFileName;
+      IsEnabled = settings.EnableVideoBackground;
+    }
+
     #region IWorkflowModel implementation
 
     public Guid ModelId
@@ -131,7 +137,7 @@ namespace MediaPortal.UiComponents.BackgroundManager.Models
 
     public void EnterModelContext(NavigationContext oldContext, NavigationContext newContext)
     {
-      // Nothing to do here
+      InitModel();
     }
 
     public void ExitModelContext(NavigationContext oldContext, NavigationContext newContext)

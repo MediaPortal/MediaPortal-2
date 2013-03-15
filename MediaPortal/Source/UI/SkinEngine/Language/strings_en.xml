@@ -3,6 +3,9 @@
   <string name="Settings.Appearance.System">System</string>
   <string name="Settings.Appearance.System.Fullscreen">Fullscreen</string>
   <string name="Settings.Appearance.System.Fullscreen.Help">Show MediaPortal in fullscreen mode</string>
+  <string name="Settings.Appearance.System.StartupScreen">Startup screen</string>
+  <string name="Settings.Appearance.System.StartupScreen.Help">Select startup screen</string>
+  <string name="Settings.Appearance.System.StartupScreen.DoNotUseSelection">Do not use screen selection</string>
   <string name="Settings.Appearance.System.CellPhoneInputStyle">Cell phone input style</string>
   <string name="Settings.Appearance.System.CellPhoneInputStyle.Help">Use cell phone/SMS input style</string>
   <string name="Settings.Appearance.System.ScreenSaverEnabled">Enable screen saver</string>    <string name="Settings.Appearance.System.ScreenSaverEnabled.Help">Configure if the screen saver should be displayed</string>

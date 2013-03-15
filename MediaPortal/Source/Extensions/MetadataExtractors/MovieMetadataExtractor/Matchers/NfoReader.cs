@@ -1,4 +1,4 @@
-﻿#region Copyright (C) 2007-2013 Team MediaPortal
+#region Copyright (C) 2007-2013 Team MediaPortal
 
 /*
     Copyright (C) 2007-2013 Team MediaPortal
@@ -26,7 +26,7 @@ using System.Collections.Generic;
 using System.IO;
 using MediaPortal.Common.ResourceAccess;
 
-namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
+namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor.Matchers
 {
   /// <summary>
   /// <see cref="NfoReader"/> tries to read a valid IMDB id from additional .nfo or .txt files.

@@ -28,7 +28,7 @@ namespace MediaPortal.Common.ResourceAccess
   /// Interface to provide access to media files which are read from a resource accessor provided by another resource provider.
   /// </summary>
   /// <remarks>
-  /// MP 2 supports chains of resource providers. A chained resource provider reads its input data from another resource provider,
+  /// MP2 supports chains of resource providers. A chained resource provider reads its input data from another resource provider,
   /// which itself can be a base resource provider or another chained resource provider.
   /// </remarks>
   public interface IChainedResourceProvider : IResourceProvider

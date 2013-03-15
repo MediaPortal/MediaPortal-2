@@ -52,6 +52,12 @@ namespace MediaPortal.Common.Runtime
     Ending,
 
     /// <summary>
+    /// The system is being suspended. This enum is never set as current state; it is just used to inform the system about the
+    /// suspending process.
+    /// </summary>
+    Suspending,
+
+    /// <summary>
     /// The system is being hibernated. This enum is never set as current state; it is just used to inform the system about the
     /// hibernation process.
     /// </summary>
@@ -61,6 +67,42 @@ namespace MediaPortal.Common.Runtime
   public interface ISystemStateService
   {
     SystemState CurrentState { get; }
+
+    /// <summary>
+    /// Shuts the current Windows session down.
+    /// </summary>
+    /// <param name="force">
+    /// If force is set to <c>true</c>, applications which requested to block the shutdown are ignored.
+    /// This can cause applications to lose data. Therefore, force should be set to <c>true</c> only in an emergency.
+    /// </param>
+    void Shutdown(bool force = false);
+
+    /// <summary>
+    /// Restarts the PC.
+    /// </summary>
+    /// <param name="force">
+    /// If force is set to <c>true</c>, applications which requested to block the restart are ignored.
+    /// This can cause applications to lose data. Therefore, force should be set to <c>true</c> only in an emergency.
+    /// </param>
+    void Restart(bool force = false);
+
+    /// <summary>
+    /// Suspends the current Windows session to memory.
+    /// </summary>
     void Suspend();
+
+    /// <summary>
+    /// Suspends the current Windows session to disk (Hibernate).
+    /// </summary>
+    void Hibernate();
+
+    /// <summary>
+    /// Logs the current user off.
+    /// </summary>
+    /// <param name="force">
+    /// If force is set to <c>true</c>, applications which requested to block the logoff are ignored.
+    /// This can cause applications to lose data. Therefore, force should be set to <c>true</c> only in an emergency.
+    /// </param>
+    void Logoff(bool force = false);
   }
 }

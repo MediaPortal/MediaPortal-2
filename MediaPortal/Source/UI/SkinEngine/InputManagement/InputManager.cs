@@ -30,6 +30,7 @@ using System.Windows.Forms;
 using MediaPortal.Common;
 using MediaPortal.Common.General;
 using MediaPortal.Common.Logging;
+using MediaPortal.Common.Runtime;
 using MediaPortal.UI.Control.InputManager;
 using MediaPortal.UI.Presentation.Actions;
 using MediaPortal.UI.Presentation.Screens;
@@ -351,6 +352,9 @@ namespace MediaPortal.UI.SkinEngine.InputManagement
         _inputEventQueue.Enqueue(evt);
         _inputAvailableEvent.Set();
       }
+
+      // Reset system's idle time. For remote input i.e. it is not reset by the system itself.
+      EnergySavingConfig.SetCurrentSuspendLevel(SuspendLevel.DisplayRequired);
     }
 
     protected void EnqueueCommand(ParameterlessMethod command)

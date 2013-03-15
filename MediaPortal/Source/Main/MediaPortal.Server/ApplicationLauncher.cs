@@ -48,7 +48,7 @@ namespace MediaPortal.Server
   internal static class ApplicationLauncher
   {
     /// <summary>
-    /// The main entry point for the MP 2 server application.
+    /// The main entry point for the MP2 server application.
     /// </summary>
     private static void Main(params string[] args)
     {
@@ -78,7 +78,8 @@ namespace MediaPortal.Server
         try
         {
           // Check if user wants to override the default Application Data location.
-          ApplicationCore.RegisterCoreServices(mpArgs.DataDirectory);
+          ApplicationCore.RegisterVitalCoreServices(mpArgs.DataDirectory);
+          ApplicationCore.RegisterCoreServices();
           logger = ServiceRegistration.Get<ILogger>();
 
 #if !DEBUG

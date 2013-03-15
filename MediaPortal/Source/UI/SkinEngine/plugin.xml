@@ -82,6 +82,11 @@
         HelpText="[Settings.Appearance.System.Fullscreen.Help]"
         ClassName="MediaPortal.UI.SkinEngine.Settings.Configuration.Appearance.Fullscreen"/>
     <ConfigSetting
+        Id="StartupScreen"
+        Text="[Settings.Appearance.System.StartupScreen]"
+        HelpText="[Settings.Appearance.System.StartupScreen.Help]"
+        ClassName="MediaPortal.UI.SkinEngine.Settings.Configuration.Appearance.StartupScreen"/>
+    <ConfigSetting
         Id="CellPhoneInputStyle"
         Text="[Settings.Appearance.System.CellPhoneInputStyle]"
         HelpText="[Settings.Appearance.System.CellPhoneInputStyle.Help]"

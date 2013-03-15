@@ -228,6 +228,7 @@ namespace MediaPortal.Extensions.MetadataExtractors
     {
       SeriesInfo seriesInfo = new SeriesInfo();
       string tmpString;
+      int tmpInt;
 
       if (TryGet(extractedTags, TAG_TITLE, out tmpString))
         seriesInfo.Series = tmpString;
@@ -235,8 +236,8 @@ namespace MediaPortal.Extensions.MetadataExtractors
       if (TryGet(extractedTags, TAG_EPISODENAME, out tmpString))
         seriesInfo.Episode = tmpString;
 
-      if (TryGet(extractedTags, TAG_SERIESNUM, out tmpString))
-        int.TryParse(tmpString, out seriesInfo.SeasonNumber);
+      if (TryGet(extractedTags, TAG_SERIESNUM, out tmpString) && int.TryParse(tmpString, out tmpInt))
+        seriesInfo.SeasonNumber = tmpInt;
 
       if (TryGet(extractedTags, TAG_EPISODENUM, out tmpString))
       {

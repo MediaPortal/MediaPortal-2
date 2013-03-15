@@ -81,7 +81,7 @@ namespace MediaPortal.Extensions.UserServices.FanArtService
 
     protected static string GetSegmentWithoutSlash(Uri uri, int index)
     {
-      if (uri.Segments.Length < index)
+      if (index >= uri.Segments.Length)
         return null;
       return HttpUtility.UrlDecode(uri.Segments[index].Replace("/", string.Empty));
     }
