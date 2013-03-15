@@ -48,7 +48,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.ImageSources
     protected AbstractProperty _effectProperty;
     protected AbstractProperty _effectTimerProperty;
 
-    protected PrimitiveBuffer _primitiveBuffer = new PrimitiveBuffer();
+    protected PrimitiveBuffer _primitiveBuffer;
     protected ImageContext _imageContext = new ImageContext();
     protected SizeF _frameSize;
 
@@ -196,7 +196,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.ImageSources
       verts[3].Tv1 = 0.0f;
       verts[3].Z = zOrder;
 
-      _primitiveBuffer.Set(ref verts, PrimitiveType.TriangleFan);
+      PrimitiveBuffer.SetPrimitiveBuffer(ref _primitiveBuffer, ref verts, PrimitiveType.TriangleFan);
 
       _frameSize = skinNeutralAR ? ImageContext.AdjustForSkinAR(ownerRect.Size) : ownerRect.Size;
       _imageContext.FrameSize = _frameSize;
@@ -209,7 +209,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.ImageSources
       SizeF rawSourceSize = RawSourceSize;
       SizeF modifiedSourceSize = StretchSource(_imageContext.RotatedFrameSize, rawSourceSize, stretchMode, stretchDirection);
       Vector4 frameData = new Vector4(rawSourceSize.Width, rawSourceSize.Height, (float) EffectTimer, 0);
-      if (_imageContext.StartRender(renderContext, modifiedSourceSize, Texture, TextureClip, BorderColor.ToArgb(), frameData))
+      if (_primitiveBuffer != null && _imageContext.StartRender(renderContext, modifiedSourceSize, Texture, TextureClip, BorderColor.ToArgb(), frameData))
       {
         _primitiveBuffer.Render(0);
         _imageContext.EndRender();
