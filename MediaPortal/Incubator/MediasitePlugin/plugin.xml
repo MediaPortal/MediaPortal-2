@@ -9,12 +9,14 @@
 
   <Runtime>
     <Assembly FileName="MediasitePlugin.dll"/>
+    <Assembly FileName="MediasiteAPIConnector.dll"/>
+    <Assembly FileName="EDAS60.Client.dll"/>
   </Runtime>
 
   <Register Location="/Models">
     <Model Id="E8585B55-22B4-4E79-9D3B-AA41FAF88355" ClassName="MediasitePlugin.MediasitePlugin"/>
   </Register>
-
+  
   <Register Location="/Workflow/States">
     <!-- This is the workflow state which corresponds to the hello world screen. Each workflow state corresponds to
          a certain UI state. The id is needed to be able to reference the state, for example in the action which
@@ -34,12 +36,11 @@
         Name="HelloWorldMain" MainScreen="hello_world"
         DisplayLabel="[HelloWorld.StateDisplayLabel]"/> <!-- No workflow model -->
   </Register>
-
   <Register Location="/Resources/Skin">
-    <Resource Id="HelloWorldSkin" Directory="Skin" Type="Skin"/>
+    <Resource Id="Mediasite" Directory="Skin" Type="Skin"/>
   </Register>
 
   <Register Location="/Resources/Language">
-    <Resource Id="HelloWorldLanguage" Directory="Language" Type="Language"/>
+    <Resource Id="MediasiteLanguage" Directory="Language" Type="Language"/>
   </Register>
 </Plugin>
