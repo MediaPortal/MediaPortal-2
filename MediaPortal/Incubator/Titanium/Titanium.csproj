@@ -85,6 +85,7 @@
     <Content Include="Skin\Titanium\images\A4DF2DF6-8D66-479a-9930-D7106525EB07.jpg" />
     <Content Include="Skin\Titanium\images\B4A9199F-6DD4-4bda-A077-DE9C081F7703.jpg" />
     <Content Include="Skin\Titanium\images\background_settings.png" />
+    <Content Include="Skin\Titanium\images\ShutdownIcon.png" />
     <Content Include="Skin\Titanium\images\BB49A591-7705-408F-8177-45D633FDFAD0.jpg" />
     <Content Include="Skin\Titanium\images\C33E39CC-910E-41C8-BFFD-9ECCD340B569.jpg" />
     <Content Include="Skin\Titanium\images\D83604C0-0936-4416-9DE8-7B6D7C50023C.jpg" />
@@ -92,6 +93,8 @@
     <Content Include="Skin\Titanium\images\E34FDB62-1F3E-4aa9-8A61-D143E0AF77B5.jpg" />
     <Content Include="Skin\Titanium\images\F6255762-C52A-4231-9E67-14C28735216E.jpg" />
     <Content Include="Skin\Titanium\images\93442DF7-186D-42e5-A0F5-CF1493E68F49.jpg" />
+    <Content Include="Skin\Titanium\images\fanart_overlay.png" />
+    <Content Include="Skin\Titanium\images\homebutton_mask.png" />
     <Content Include="Skin\Titanium\images\Weather\128x128\0.png" />
     <Content Include="Skin\Titanium\images\Weather\128x128\1.png" />
     <Content Include="Skin\Titanium\images\Weather\128x128\10.png" />
