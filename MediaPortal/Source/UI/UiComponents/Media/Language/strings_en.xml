@@ -328,6 +328,7 @@
   <string name="Media.SortByDirector">Sort by director</string>
   <string name="Media.SortByDuration">Sort by duration</string>
   <string name="Media.SortByAspectRatio">Sort by aspect ratio</string>
+  <string name="Media.SortByFirstAiredDate">Sort by aired date</string>
   <string name="Media.SortByDate">Sort by recording date</string>
   <string name="Media.SortByEpisode">Sort by episode</string>
   <string name="Media.SortingBrowseDefault">Default sorting</string>

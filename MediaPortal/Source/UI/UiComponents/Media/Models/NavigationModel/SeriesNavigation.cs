@@ -73,6 +73,7 @@ namespace MediaPortal.UiComponents.Media.Models.NavigationModel
         {
           sortByEpisode,
           new SortByTitle(),
+          new SortByFirstAiredDate(),
           new SortByDate(),
           new SortBySystem(),
         };
