@@ -6,39 +6,8 @@
     xmlns:collections="clr-namespace:MediaPortal.UI.Presentation.DataObjects;assembly=MediaPortal.UI"
     DependsOnStyleResources="Colors,Buttons"
     >
-
-  <!-- A simple data template to show the Name of the ListItem in a Label -->
-  <DataTemplate x:Key="WeatherLocationItemDataTemplate" DataType="{x:Type collections:ListItem}">
-    <Grid x:Name="ItemControl" VerticalAlignment="Center" HorizontalAlignment="Stretch">
-      <Grid.ColumnDefinitions>
-        <ColumnDefinition Width="300"/>
-        <ColumnDefinition Width="20"/>
-        <ColumnDefinition Width="*"/>
-      </Grid.ColumnDefinitions>
-      <Grid.RowDefinitions>
-        <RowDefinition Height="Auto"/>
-      </Grid.RowDefinitions>
-      <Label Grid.Row="0" Grid.Column="0" x:Name="ItemLabel" Content="{Binding [Name]}" FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource TextColor}"/>
-      <Label Grid.Row="0" Grid.Column="2" x:Name="DetailLabel" Content="{Binding [Detail]}" FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource TextColor}"/>
-    </Grid>
-  </DataTemplate>
-
-  <DataStringProvider x:Key="WeatherLocationItemDataStringProvider" Path="[Name]"/>
-
-  <!-- ListView style to be used for the weather setup location list -->
-  <Style x:Key="WeatherDisplayLocationsListViewStyle" BasedOn="{ThemeResource DefaultListViewStyle}">
-    <Setter Property="ItemTemplate" Value="{ThemeResource WeatherLocationItemDataTemplate}"/>
-    <Setter Property="DataStringProvider" Value="{ThemeResource WeatherLocationItemDataStringProvider}"/>
-    <Setter Property="ItemContainerStyle" Value="{ThemeResource DefaultHighlightableItemContainerStyle}"/>
-    <Setter Property="Background" Value="{ThemeResource ItemsControlDialogShadowBackgroundColor}"/>
-  </Style>
-
-  <Style x:Key="WeatherLocationSearchListViewStyle" BasedOn="{ThemeResource MenuListViewStyle}">
-    <Setter Property="ItemTemplate" Value="{ThemeResource WeatherLocationItemDataTemplate}"/>
-  </Style>
-
-
-  <!-- Styles for a single day forecast -->
+  
+  <!-- Only override DataTemplate style here, used for a single day forecast -->
   <DataTemplate x:Key="ForecastItemDataTemplate" DataType="{x:Type collections:ListItem}">
     <Border x:Name="ForecastItemBorder" Width="250" Height="250" Margin="20" CornerRadius="20" Background="#60000000">
       <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" Margin="10">
@@ -49,17 +18,5 @@
       </StackPanel>
     </Border>
   </DataTemplate>
-
-  <!-- ListView style for all forecasts of the current location -->
-  <Style x:Key="ForecastContainerStyle" BasedOn="{ThemeResource DefaultListViewStyle}">
-    <Setter Property="ItemTemplate" Value="{ThemeResource ForecastItemDataTemplate}"/>
-    <Setter Property="ItemsPanel">
-      <Setter.Value>
-        <ItemsPanelTemplate>
-          <StackPanel x:Name="ListItemsHost" IsItemsHost="True" Orientation="Horizontal" HorizontalAlignment="Stretch"/>
-        </ItemsPanelTemplate>
-      </Setter.Value>
-    </Setter>
-  </Style>
 
 </ResourceDictionary>
