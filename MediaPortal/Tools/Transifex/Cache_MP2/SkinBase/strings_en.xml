@@ -20,6 +20,8 @@
   <string name="Keys.Shift">Shift</string>
   <string name="Keys.CapsLock">Caps Lock</string>
   <string name="Keys.AltGr">Alt Gr</string>
+  <string name="Keys.Copy">Copy</string>
+  <string name="Keys.Paste">Paste</string>
 
   <string name="Home.Title">MediaPortal 2</string>
   <string name="Home.HomeStateDisplayLabel">Home</string>
@@ -43,6 +45,7 @@
   <string name="ServerConnection.DetachFromServerWorkflowStateLabel">Detach from server</string>
   <string name="ServerConnection.HomeServerWorkflowStateLabel">HomeServer</string>
   <string name="ServerConnection.AttachedText.Before">This MediaPortal 2 client is currently attached to home server</string>
+  <string name="ServerConnection.AttachedText.After"></string>
   <string name="ServerConnection.NoHomeServerAttached">Currently, this MediaPortal 2 client is not attached to a home server.</string>
   <string name="ServerConnection.HomeServerIsConnected">The home server is currently connected.</string>
   <string name="ServerConnection.HomeServerIsNotConnected">The home server is currently disconnected.</string>
@@ -52,8 +55,8 @@
   <string name="ServerConnection.SearchForServers">Search for servers</string>
   <string name="ServerConnection.DetachFromServer">Detach from home server</string>
   <string name="ServerConnection.AttachToServerHeader">Attach to MediaPortal 2 server</string>
-  <string name="ServerConnection.AttachToMultipleText">There are multiple MP 2 servers available in the network. Do you want to choose one of them as home server?</string>
-  <string name="ServerConnection.AttachToSingleText.Before">The MP 2 server</string>
+  <string name="ServerConnection.AttachToMultipleText">There are multiple MP2 servers available in the network. Do you want to choose one of them as home server?</string>
+  <string name="ServerConnection.AttachToSingleText.Before">The MP2 server</string>
   <string name="ServerConnection.AttachToSingleText.After">is available in the network. Do you want to attach to it?</string>
   <string name="ServerConnection.AttachToServerNoServerText">Currently, there is no MediaPortal 2 server available in the network.</string>
   <string name="ServerConnection.AttachButton">Attach</string>

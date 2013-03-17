@@ -20,7 +20,11 @@
   <string name="Media.FilterByAudioLanguageMenuItem">Filter by language</string>
   <string name="Media.FilterByImageSizeMenuItem">Filter by size</string>
   <string name="Media.FilterByImageYearMenuItem">Filter by year</string>
+  <string name="Media.FilterByImageCountryMenuItem">Filter by country</string>
+  <string name="Media.FilterByImageStateMenuItem">Filter by state</string>
+  <string name="Media.FilterByImageCityMenuItem">Filter by city</string>
   <string name="Media.FilterBySystemMenuItem">Filter by system</string>
+  <string name="Media.FilterByMoviesCollectionMenuItem">Filter by collection</string>
   <string name="Media.FilterBySeriesNameMenuItem">Filter by series</string>
   <string name="Media.FilterBySeriesSeasonMenuItem">Filter by season</string>
   <string name="Media.FilterBySeriesEpisodeMenuItem">Filter by episode</string>
@@ -51,8 +55,12 @@
   <string name="Media.FilterAudioLanguagesNavbarDisplayLabel">Language: {0}</string>
   <string name="Media.FilterImageSizeNavbarDisplayLabel">Size: {0}</string>
   <string name="Media.FilterImageYearNavbarDisplayLabel">Year: {0}</string>
+  <string name="Media.FilterImageCountryNavbarDisplayLabel">Country: {0}</string>
+  <string name="Media.FilterImageStateNavbarDisplayLabel">State: {0}</string>
+  <string name="Media.FilterImageCityNavbarDisplayLabel">City: {0}</string>
   <string name="Media.FilterAudioItemsNavbarDisplayLabel">Name: {0}</string>
   <string name="Media.FilterVideoItemsNavbarDisplayLabel">Name: {0}</string>
+  <string name="Media.FilterMoviesCollectionNavbarDisplayLabel">{0}</string>
   <string name="Media.FilterSeriesItemsNavbarDisplayLabel">{0}</string>
   <string name="Media.FilterSeriesSeasonNavbarDisplayLabel">Season {0}</string>
   <string name="Media.FilterImageItemsNavbarDisplayLabel">Name: {0}</string>
@@ -94,6 +102,7 @@
   <string name="Media.MoviesItemsHeader">Movies</string>
   <string name="Media.ImageItemsHeader">Images</string>
   <string name="Media.SimpleSearchHeader">Simple search</string>
+  <string name="Media.ChooseCollectionHeader">Choose a collection</string>
   <string name="Media.ChooseActorHeader">Choose an actor</string>
   <string name="Media.ChooseVideoGenreHeader">Choose a genre</string>
   <string name="Media.ChooseVideoYearHeader">Choose a year</string>
@@ -105,6 +114,9 @@
   <string name="Media.ChooseAudioGenreHeader">Choose a genre</string>
   <string name="Media.ChooseImageYearHeader">Choose a year</string>
   <string name="Media.ChooseImageSizeHeader">Choose a size</string>
+  <string name="Media.ChooseImageCountryHeader">Choose a country</string>
+  <string name="Media.ChooseImageStateHeader">Choose a state</string>
+  <string name="Media.ChooseImageCityHeader">Choose a city</string>
   <string name="Media.ChooseSystemHeader">Choose a system</string>
   <string name="Media.ChooseVideoLanguageHeader">Choose a language</string>
 
@@ -203,10 +215,17 @@
   <string name="Media.VideoCurrentlyPlayingHeader">Current video information</string>
   <string name="Media.VideoTitleLabel">Title: </string>
   <string name="Media.VideoGenreLabel">Genre: </string>
+  <string name="Media.VideoCollectionLabel">Collection: </string>
   <string name="Media.VideoYearLabel">Year: </string>
   <string name="Media.VideoDurationLabel">Duration: </string>
   <string name="Media.VideoActorsLabel">Actor(s): </string>
   <string name="Media.VideoStoryPlotLabel">Story plot: </string>
+
+  <!-- Series currently playing -->
+  <string name="Media.SeriesTitleLabel">Series: </string>
+  <string name="Media.SeriesSeasonLabel">Season: </string>
+  <string name="Media.SeriesEpisodeLabel">Episode(s): </string>
+  <string name="Media.SeriesEpisodeNameLabel">Episode title: </string>
 
   <!-- Image currently playing -->
   <string name="Media.ImageCurrentlyPlayingHeader">Current image information</string>
@@ -219,16 +238,21 @@
   <string name="Media.ImageShutterSpeedLabel">Shutter speed: </string>
   <string name="Media.ImageMeteringModeLabel">Metering mode: </string>
   <string name="Media.ImageExposureTimeLabel">Exposure time: </string>
+  <string name="Media.ImageCountryLabel">Country: </string>
+  <string name="Media.ImageStateLabel">State: </string>
+  <string name="Media.ImageCityLabel">City: </string>
 
   <!-- DVD currently playing -->
   <string name="Media.DVDCurrentlyPlayingHeader">Current DVD information</string>
 
   <!-- Audio currently playing -->
   <string name="Media.AudioCurrentlyPlayingHeader">Current audio information</string>
+  <string name="Media.AudioAlbumLabel">Album: </string>
   <string name="Media.AudioArtistsLabel">Artists: </string>
   <string name="Media.AudioTitleLabel">Title: </string>
   <string name="Media.AudioYearLabel">Year: </string>
   <string name="Media.AudioDurationLabel">Duration: </string>
+  <string name="Media.AudioGenresLabel">Genre(s): </string>
 
   <string name="Media.AudioPlaylistHeader">Audio playlist</string>
   <string name="Media.VideoImagePlaylistHeader">Video/image playlist</string>
@@ -287,6 +311,7 @@
   <string name="Media.MediumList">Medium list</string>
   <string name="Media.LargeList">Large list</string>
   <string name="Media.LargeGrid">Grid</string>
+  <string name="Media.CoverLayout">Covers</string>
 
   <string name="Media.SwitchSortingMenuItem">Sorting</string>
   <string name="Media.SwitchSortingDialogTitle">Sorting</string>
