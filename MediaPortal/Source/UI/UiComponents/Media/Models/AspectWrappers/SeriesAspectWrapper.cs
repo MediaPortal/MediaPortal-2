@@ -41,17 +41,20 @@ namespace MediaPortal.UiComponents.Media.Models.AspectWrappers
 
     public static readonly ICollection<string> EMPTY_STRING_COLLECTION = new List<string>().AsReadOnly();
 
-    #endregion Constants
+    #endregion
 
     #region Fields
 
     protected AbstractProperty _seriesNameProperty;
     protected AbstractProperty _seasonProperty;
+    protected AbstractProperty _seriesSeasonNameProperty;
     protected AbstractProperty _episodeProperty;
+    protected AbstractProperty _dvdEpisodeProperty;
     protected AbstractProperty _episodeNameProperty;
+    protected AbstractProperty _firstAiredProperty;
     protected AbstractProperty _mediaItemProperty;
 
-    #endregion Fields
+    #endregion
 
     #region Properties
 
@@ -77,6 +80,17 @@ namespace MediaPortal.UiComponents.Media.Models.AspectWrappers
       set { _seasonProperty.SetValue(value); }
     }
 
+    public AbstractProperty SeriesSeasonNameProperty
+    {
+      get { return _seriesSeasonNameProperty; }
+    }
+
+    public string SeriesSeasonName
+    {
+      get { return (string) _seriesSeasonNameProperty.GetValue(); }
+      set { _seriesSeasonNameProperty.SetValue(value); }
+    }
+
     public AbstractProperty EpisodeProperty
     {
       get { return _episodeProperty; }
@@ -86,6 +100,17 @@ namespace MediaPortal.UiComponents.Media.Models.AspectWrappers
     {
       get { return (IEnumerable<int>) _episodeProperty.GetValue(); }
       set { _episodeProperty.SetValue(value); }
+    }
+
+    public AbstractProperty DvdEpisodeProperty
+    {
+      get { return _dvdEpisodeProperty; }
+    }
+
+    public IEnumerable<double> DvdEpisode
+    {
+      get { return (IEnumerable<double>) _dvdEpisodeProperty.GetValue(); }
+      set { _dvdEpisodeProperty.SetValue(value); }
     }
 
     public AbstractProperty EpisodeNameProperty
@@ -99,6 +124,17 @@ namespace MediaPortal.UiComponents.Media.Models.AspectWrappers
       set { _episodeNameProperty.SetValue(value); }
     }
 
+    public AbstractProperty FirstAiredProperty
+    {
+      get { return _firstAiredProperty; }
+    }
+
+    public DateTime? FirstAired
+    {
+      get { return (DateTime?) _firstAiredProperty.GetValue(); }
+      set { _firstAiredProperty.SetValue(value); }
+    }
+
     public AbstractProperty MediaItemProperty
     {
       get { return _mediaItemProperty; }
@@ -110,7 +146,7 @@ namespace MediaPortal.UiComponents.Media.Models.AspectWrappers
       set { _mediaItemProperty.SetValue(value); }
     }
 
-    #endregion Properties
+    #endregion
 
     #region Constructor
 
@@ -118,13 +154,16 @@ namespace MediaPortal.UiComponents.Media.Models.AspectWrappers
     {
       _seriesNameProperty = new SProperty(typeof(string));
       _seasonProperty = new SProperty(typeof(int?));
+      _seriesSeasonNameProperty = new SProperty(typeof(string));
       _episodeProperty = new SProperty(typeof(IEnumerable<int>));
+      _dvdEpisodeProperty = new SProperty(typeof(IEnumerable<double>));
       _episodeNameProperty = new SProperty(typeof(string));
+      _firstAiredProperty = new SProperty(typeof(DateTime?));
       _mediaItemProperty = new SProperty(typeof(MediaItem));
       _mediaItemProperty.Attach(MediaItemChanged);
     }
 
-    #endregion Constructor
+    #endregion
 
     #region Members
 
@@ -144,19 +183,24 @@ namespace MediaPortal.UiComponents.Media.Models.AspectWrappers
 
       SeriesName = (string) aspect[SeriesAspect.ATTR_SERIESNAME];
       Season = (int?) aspect[SeriesAspect.ATTR_SEASON];
+      SeriesSeasonName = (string) aspect[SeriesAspect.ATTR_SERIES_SEASON];
       Episode = (IEnumerable<int>) aspect[SeriesAspect.ATTR_EPISODE];
+      DvdEpisode = (IEnumerable<double>) aspect[SeriesAspect.ATTR_DVDEPISODE];
       EpisodeName = (string) aspect[SeriesAspect.ATTR_EPISODENAME];
+      FirstAired = (DateTime?) aspect[SeriesAspect.ATTR_FIRSTAIRED];
     }
 
     public void SetEmpty()
     {
       SeriesName = null;
       Season = null;
+      SeriesSeasonName = null;
       Episode = new List<Int32>();
+      DvdEpisode = new List<Double>();
       EpisodeName = null;
+      FirstAired = null;
     }
 
-
-    #endregion Members
+    #endregion
   }
 }
