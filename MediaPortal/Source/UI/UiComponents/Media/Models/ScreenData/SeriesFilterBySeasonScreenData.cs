@@ -29,15 +29,15 @@ using MediaPortal.UiComponents.Media.Models.Navigation;
 
 namespace MediaPortal.UiComponents.Media.Models.ScreenData
 {
-  public class SeriesFilterBySeasonScreenData : AbstractSeriesFilterScreenData
+  public class SeriesFilterBySeasonScreenData : AbstractFiltersScreenData<SeasonFilterItem>
   {
     public SeriesFilterBySeasonScreenData() :
         base(Consts.SCREEN_SERIES_FILTER_BY_SEASON, Consts.RES_FILTER_BY_SERIES_SEASON_MENU_ITEM,
-        Consts.RES_FILTER_SERIES_SEASON_NAVBAR_DISPLAY_LABEL, new SimpleMLFilterCriterion(SeriesAspect.ATTR_SEASON))
+        Consts.RES_FILTER_SERIES_SEASON_NAVBAR_DISPLAY_LABEL, new SimpleMLFilterCriterion(SeriesAspect.ATTR_SERIES_SEASON))
     {
     }
 
-    public override AbstractFiltersScreenData<SeriesFilterItem> Derive()
+    public override AbstractFiltersScreenData<SeasonFilterItem> Derive()
     {
       return new SeriesFilterBySeasonScreenData();
     }

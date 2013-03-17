@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="4.0">
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
@@ -144,6 +144,7 @@
     <Compile Include="Models\NavigationModel\MoviesNavigation.cs" />
     <Compile Include="Models\NavigationModel\SeriesNavigation.cs" />
     <Compile Include="Models\NavigationModel\VideosNavigation.cs" />
+    <Compile Include="Models\Navigation\SeasonFilterItem.cs" />
     <Compile Include="Models\Navigation\MovieFilterItem.cs" />
     <Compile Include="Models\Navigation\MovieItem.cs" />
     <Compile Include="Models\Navigation\SeriesFilterItem.cs" />
@@ -156,7 +157,6 @@
     <Compile Include="Models\ScreenData\MovieFilterByCollectionScreenData.cs" />
     <Compile Include="Models\ScreenData\MovieShowItemsScreenData.cs" />
     <Compile Include="Models\ScreenData\VideosFilterByLanguageScreenData.cs" />
-    <Compile Include="Models\ScreenData\AbstractSeriesFilterScreenData.cs" />
     <Compile Include="Models\ScreenData\SeriesShowItemsScreenData.cs" />
     <Compile Include="Models\ScreenData\SeriesFilterBySeasonScreenData.cs" />
     <Compile Include="Models\ScreenData\SeriesFilterByNameScreenData.cs" />

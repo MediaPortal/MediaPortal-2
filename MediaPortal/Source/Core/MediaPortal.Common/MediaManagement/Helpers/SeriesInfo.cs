@@ -71,6 +71,10 @@ namespace MediaPortal.Common.MediaManagement.Helpers
     /// Short format string that holds season and episode numbers and episode name. Used for browsing episodes by series name.
     /// </summary>
     public static string SHORT_FORMAT_STR = "S{1}E{2} - {3}";
+    /// <summary>
+    /// Format string for constructing a "Series Season" name pattern.
+    /// </summary>
+    public static string SERIES_SEASON_FORMAT_STR = "{0} S{1}";
 
     /// <summary>
     /// Used to replace all "." and "_" that are not followed by a word character.
@@ -119,6 +123,16 @@ namespace MediaPortal.Common.MediaManagement.Helpers
     public IList<int> EpisodeNumbers { get; internal set; }
 
     /// <summary>
+    /// Gets a list of episode numbers as they are released on DVD.
+    /// </summary>
+    public IList<double> DvdEpisodeNumbers { get; internal set; }
+
+    /// <summary>
+    /// Gets or sets the first aired date of episode.
+    /// </summary>
+    public DateTime? FirstAired { get; set; }
+
+    /// <summary>
     /// Gets or sets the episode summary.
     /// </summary>
     public string Summary { get; set; }
@@ -143,6 +157,7 @@ namespace MediaPortal.Common.MediaManagement.Helpers
     public SeriesInfo()
     {
       EpisodeNumbers = new List<int>();
+      DvdEpisodeNumbers = new List<double>();
       Directors = new HashSet<string>();
       Actors = new HashSet<string>();
       Genres = new HashSet<string>();
@@ -173,7 +188,14 @@ namespace MediaPortal.Common.MediaManagement.Helpers
       MediaItemAspect.SetAttribute(aspectData, SeriesAspect.ATTR_SERIESNAME, Series);
       MediaItemAspect.SetAttribute(aspectData, SeriesAspect.ATTR_EPISODENAME, Episode);
       if (SeasonNumber.HasValue) MediaItemAspect.SetAttribute(aspectData, SeriesAspect.ATTR_SEASON, SeasonNumber.Value);
+      if (FirstAired.HasValue) MediaItemAspect.SetAttribute(aspectData, SeriesAspect.ATTR_FIRSTAIRED, FirstAired.Value);
       MediaItemAspect.SetCollectionAttribute(aspectData, SeriesAspect.ATTR_EPISODE, EpisodeNumbers);
+      MediaItemAspect.SetCollectionAttribute(aspectData, SeriesAspect.ATTR_DVDEPISODE, DvdEpisodeNumbers);
+
+      // Construct a "Series Season" string, which will be used for filtering and season banner retrieval.
+      int season = SeasonNumber ?? 0;
+      string seriesSeason = string.Format(SERIES_SEASON_FORMAT_STR, Series, season.ToString().PadLeft(2, '0'));
+      MediaItemAspect.SetAttribute(aspectData, SeriesAspect.ATTR_SERIES_SEASON, seriesSeason);
 
       if (!string.IsNullOrEmpty(Summary)) MediaItemAspect.SetAttribute(aspectData, VideoAspect.ATTR_STORYPLOT, Summary);
       if (Directors.Count > 0) MediaItemAspect.SetAttribute(aspectData, VideoAspect.ATTR_DIRECTOR, Directors.First());

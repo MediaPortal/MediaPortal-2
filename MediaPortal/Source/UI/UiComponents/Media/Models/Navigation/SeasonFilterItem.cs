@@ -22,14 +22,12 @@
 
 #endregion
 
-using MediaPortal.UiComponents.Media.FilterCriteria;
-using MediaPortal.UiComponents.Media.Models.Navigation;
-
-namespace MediaPortal.UiComponents.Media.Models.ScreenData
+namespace MediaPortal.UiComponents.Media.Models.Navigation
 {
-  public abstract class AbstractSeriesFilterScreenData : AbstractFiltersScreenData<SeriesFilterItem>
+  /// <summary>
+  /// Holds a GUI item which represents a series season filter choice.
+  /// </summary>
+  public class SeasonFilterItem : FilterItem
   {
-    protected AbstractSeriesFilterScreenData(string screen, string menuItemLabel, string navbarSubViewNavigationDisplayLabel,
-        MLFilterCriterion filterCriterion) : base(screen, menuItemLabel, navbarSubViewNavigationDisplayLabel, filterCriterion) { }
   }
 }
