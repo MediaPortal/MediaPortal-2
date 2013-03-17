@@ -319,7 +319,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.TvdbLib.Xml
         else if (b.GetType() == typeof(TvdbSeasonBanner))
         {
           TvdbSeasonBanner sb = (TvdbSeasonBanner)b;
-          banner.Add(new XElement("BannerType", "Season"));
+          banner.Add(new XElement("BannerType", "season"));
           banner.Add(new XElement("BannerType2", sb.BannerType));
           banner.Add(new XElement("Language", (sb.Language != null ? sb.Language.Abbriviation : "")));
           banner.Add(new XElement("Season", sb.Season));

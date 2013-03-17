@@ -77,8 +77,8 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.TvdbLib
     /// <returns></returns>
     internal static TvdbSeasonBanner.Type ParseSeasonBannerType(String type)
     {
-      if (type.Equals("Season")) return TvdbSeasonBanner.Type.Season;
-      if (type.Equals("SeasonWide")) return TvdbSeasonBanner.Type.SeasonWide;
+      if (type.Equals("season")) return TvdbSeasonBanner.Type.Season;
+      if (type.Equals("seasonwide")) return TvdbSeasonBanner.Type.SeasonWide;
       return TvdbSeasonBanner.Type.None;
     }
 
@@ -89,7 +89,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.TvdbLib
     /// <returns></returns>
     internal static TvdbSeriesBanner.Type ParseSeriesBannerType(String type)
     {
-      if (type.Equals("Season")) return TvdbSeriesBanner.Type.Blank;
+      if (type.Equals("season")) return TvdbSeriesBanner.Type.Blank;
       if (type.Equals("graphical")) return TvdbSeriesBanner.Type.Graphical;
       if (type.Equals("text")) return TvdbSeriesBanner.Type.Text;
       return TvdbSeriesBanner.Type.None;

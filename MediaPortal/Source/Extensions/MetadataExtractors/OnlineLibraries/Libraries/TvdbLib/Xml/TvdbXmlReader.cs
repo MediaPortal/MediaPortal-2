@@ -613,7 +613,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.TvdbLib.Xml
 
       //Extract the Season banners
       var allBanners = from banner in xml.Descendants("Banner")
-                       where banner.Element("type").Value.Equals("Season")
+                       where banner.Element("type").Value.Equals("season")
                        select new TvdbSeasonBanner
                        {
                          Id = banner.Element("path").Value.GetHashCode(),
@@ -746,7 +746,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.TvdbLib.Xml
 
       //Extract the Season banners
       var allSeasonBanners = from banner in xml.Descendants("Banner")
-                             where banner.Element("BannerType").Value.Equals("Season")
+                             where banner.Element("BannerType").Value.Equals("season")
                              select new TvdbSeasonBanner
                              {
                                Id = Util.Int32Parse(banner.Element("id").Value),
