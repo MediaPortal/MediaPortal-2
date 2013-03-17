@@ -100,6 +100,17 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor.Name
       if (extractedTags[MatroskaConsts.TAG_SERIES_TITLE] != null)
         seriesInfo.Series = extractedTags[MatroskaConsts.TAG_SERIES_TITLE].FirstOrDefault();
 
+      if (extractedTags[MatroskaConsts.TAG_SERIES_IMDB_ID] != null)
+      {
+        string imdbId;
+        foreach (string candidate in extractedTags[MatroskaConsts.TAG_SERIES_IMDB_ID])
+          if (ImdbIdMatcher.TryMatchImdbId(candidate, out imdbId))
+          {
+            seriesInfo.ImdbId = imdbId;
+            break;
+          }
+      }
+
       int tmpInt;
       if (extractedTags[MatroskaConsts.TAG_SEASON_NUMBER] != null && int.TryParse(extractedTags[MatroskaConsts.TAG_SEASON_NUMBER].FirstOrDefault(), out tmpInt))
         seriesInfo.SeasonNumber = tmpInt; 

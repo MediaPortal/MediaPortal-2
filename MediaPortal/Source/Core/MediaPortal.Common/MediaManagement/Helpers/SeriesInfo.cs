@@ -100,6 +100,11 @@ namespace MediaPortal.Common.MediaManagement.Helpers
     }
 
     /// <summary>
+    /// Gets or sets the series IMDB id.
+    /// </summary>
+    public string ImdbId { get; set; }
+
+    /// <summary>
     /// Gets or sets the episode title. When setting a value, whitespaces will be cleaned up (<see cref="CleanupWhiteSpaces"/>).
     /// </summary>
     public string Episode

@@ -45,6 +45,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.MatroskaLib
     public const string TAG_SIMPLE_TITLE = "TITLE";
 
     public const string TAG_MOVIE_IMDB_ID = "50.IMDB";
+    public const string TAG_SERIES_IMDB_ID = "70.IMDB";
 
     public static Dictionary<string, IList<string>> DefaultTags
     {
@@ -63,6 +64,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.MatroskaLib
             {TAG_EPISODE_YEAR, null}, // Episode year
             {TAG_EPISODE_NUMBER, null}, // Episode number
             {TAG_MOVIE_IMDB_ID, null}, // movie imdb id
+            {TAG_SERIES_IMDB_ID, null}, // series imdb id
             {TAG_ACTORS, null}, // Actor(s)
             {TAG_SIMPLE_TITLE, null} // File title
           };

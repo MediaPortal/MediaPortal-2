@@ -98,7 +98,12 @@ namespace MediaPortal.Extensions.OnlineLibraries
     public bool FindAndUpdateSeries(SeriesInfo seriesInfo)
     {
       TvdbSeries seriesDetail;
-      if (TryMatch(seriesInfo.Series, false, out seriesDetail))
+
+      if (
+        /* Best way is to get details by an unique IMDB id */
+        MatchByImdbId(seriesInfo, false, out seriesDetail) ||
+        TryMatch(seriesInfo.Series, false, out seriesDetail)
+        )
       {
         int tvDbId = 0;
         if (seriesDetail != null)
@@ -119,6 +124,86 @@ namespace MediaPortal.Extensions.OnlineLibraries
         return true;
       }
       return false;
+    }
+
+    private bool MatchByImdbId(SeriesInfo seriesInfo, bool cacheOnly, out TvdbSeries seriesDetail)
+    {
+      // Init empty
+      seriesDetail = null;
+
+      // Stop here if no IMDB id is available
+      if (string.IsNullOrEmpty(seriesInfo.ImdbId)) return false;
+
+      try
+      {
+        // Prefer memory cache
+        if (_memoryCache.TryGetValue(seriesInfo.ImdbId, out seriesDetail))
+          return true;
+
+        // Load cache or create new list
+        List<SeriesMatch> matches;
+        lock (_syncObj)
+          matches = Settings.Load<List<SeriesMatch>>(MatchesSettingsFile) ?? new List<SeriesMatch>();
+
+        // Use cached values before doing online query
+        SeriesMatch match = matches.Find(m => m.ItemName == seriesInfo.ImdbId);
+        ServiceRegistration.Get<ILogger>()
+                           .Debug("SeriesTvDbMatcher: Try to lookup series \"{0}\" from cache: {1}", seriesInfo.ImdbId,
+                                  match != null && match.Id != 0);
+
+        // Try online lookup
+        if (!Init())
+          return false;
+
+        // If this is a known series, only return the series details (including episodes).
+        if (match != null)
+          return match.Id != 0 && _tv.GetSeries(match.Id, true, out seriesDetail);
+
+        if (cacheOnly)
+          return false;
+
+        TvdbSearchResult matchedSeries;
+        if (_tv.GetSeries(seriesInfo.ImdbId, out matchedSeries))
+        {
+          ServiceRegistration.Get<ILogger>()
+                             .Debug("SeriesTvDbMatcher: Found unique online match for \"{0}\": \"{1}\" [Lang: {2}]",
+                                    seriesInfo.ImdbId, matchedSeries.SeriesName, matchedSeries.Language);
+
+          if (_tv.GetSeries(matchedSeries.Id, true, out seriesDetail))
+          {
+            ServiceRegistration.Get<ILogger>()
+                               .Debug("SeriesTvDbMatcher: Loaded details for \"{0}\"", matchedSeries.SeriesName);
+
+            // Add this match to cache
+            SeriesMatch onlineMatch = new SeriesMatch
+            {
+              ItemName = seriesInfo.ImdbId,
+              Id = seriesDetail.Id,
+              TvDBName = seriesDetail.SeriesName
+            };
+
+            // Save cache
+            _storage.SaveNewMatch(seriesInfo.Series, onlineMatch);
+            return true;
+          }
+        }
+
+        ServiceRegistration.Get<ILogger>().Debug("SeriesTvDbMatcher: No unique match found for \"{0}\"", seriesInfo.ImdbId);
+
+        // Also save "non matches" to avoid retrying
+        _storage.SaveNewMatch(seriesInfo.ImdbId, new SeriesMatch { ItemName = seriesInfo.ImdbId });
+        return false;
+      }
+      catch (Exception ex)
+      {
+        ServiceRegistration.Get<ILogger>().Debug("SeriesTvDbMatcher: Exception while processing series {0}", ex, seriesInfo.ImdbId);
+        return false;
+      }
+      finally
+      {
+        if (seriesDetail != null && !_memoryCache.ContainsKey(seriesInfo.ImdbId))
+          _memoryCache.Add(seriesInfo.ImdbId, seriesDetail);
+      }
     }
 
     protected bool TryMatchEpisode(SeriesInfo seriesInfo, TvdbSeries seriesDetail)
