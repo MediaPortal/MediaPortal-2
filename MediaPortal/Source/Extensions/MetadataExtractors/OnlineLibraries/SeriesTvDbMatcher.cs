@@ -301,8 +301,9 @@ namespace MediaPortal.Extensions.OnlineLibraries
 
         // Save Season Banners
         ServiceRegistration.Get<ILogger>().Debug("SeriesTvDbMatcher Download: Begin saving season banners for ID {0}", tvDbId);
-        var seasonLookup = seriesDetail.SeasonBanners.ToLookup(s => s.Season, v => v);
-        foreach (IGrouping<int, TvdbSeasonBanner> tvdbSeasonBanners in seasonLookup)
+        // Build a key from Season number and banner type (season or seasonwide), so each combination is handled separately.
+        var seasonLookup = seriesDetail.SeasonBanners.ToLookup(s => string.Format("{0}_{1}", s.Season, s.BannerType), v => v);
+        foreach (IGrouping<string, TvdbSeasonBanner> tvdbSeasonBanners in seasonLookup)
           SaveBanners(seasonLookup[tvdbSeasonBanners.Key], _tv.PreferredLanguage);
 
         // Save Posters
