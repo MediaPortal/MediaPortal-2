@@ -70,6 +70,7 @@ namespace MediaPortal.Extensions.OnlineLibraries
     #region Fields
 
     protected Dictionary<string, TvdbSeries> _memoryCache = new Dictionary<string, TvdbSeries>();
+    protected bool _useUniversalLanguage = false; // Universal language often leads to unwanted cover languages (i.e. russian)
 
     /// <summary>
     /// Contains the initialized TvDbWrapper.
@@ -298,6 +299,12 @@ namespace MediaPortal.Extensions.OnlineLibraries
         ServiceRegistration.Get<ILogger>().Debug("SeriesTvDbMatcher Download: Begin saving banners for ID {0}", tvDbId);
         SaveBanners(seriesDetail.SeriesBanners, _tv.PreferredLanguage);
 
+        // Save Season Banners
+        ServiceRegistration.Get<ILogger>().Debug("SeriesTvDbMatcher Download: Begin saving season banners for ID {0}", tvDbId);
+        var seasonLookup = seriesDetail.SeasonBanners.ToLookup(s => s.Season, v => v);
+        foreach (IGrouping<int, TvdbSeasonBanner> tvdbSeasonBanners in seasonLookup)
+          SaveBanners(seasonLookup[tvdbSeasonBanners.Key], _tv.PreferredLanguage);
+
         // Save Posters
         ServiceRegistration.Get<ILogger>().Debug("SeriesTvDbMatcher Download: Begin saving posters for ID {0}", tvDbId);
         SaveBanners(seriesDetail.PosterBanners, _tv.PreferredLanguage);
@@ -316,7 +323,7 @@ namespace MediaPortal.Extensions.OnlineLibraries
       }
     }
 
-    private static int SaveBanners<TE>(IEnumerable<TE> banners, TvdbLanguage language) where TE : TvdbBanner
+    private int SaveBanners<TE>(IEnumerable<TE> banners, TvdbLanguage language) where TE : TvdbBanner
     {
       int idx = 0;
       foreach (TE tvdbBanner in banners)
@@ -347,9 +354,12 @@ namespace MediaPortal.Extensions.OnlineLibraries
       // Try fallback languages if no images found for preferred
       if (language != TvdbLanguage.UniversalLanguage && language != TvdbLanguage.DefaultLanguage)
       {
-        idx = SaveBanners(banners, TvdbLanguage.UniversalLanguage);
-        if (idx > 0)
-          return idx;
+        if (_useUniversalLanguage)
+        {
+          idx = SaveBanners(banners, TvdbLanguage.UniversalLanguage);
+          if (idx > 0)
+            return idx;
+        }
 
         idx = SaveBanners(banners, TvdbLanguage.DefaultLanguage);
       }

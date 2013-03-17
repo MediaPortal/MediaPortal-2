@@ -33,6 +33,7 @@ namespace MediaPortal.Extensions.UserServices.FanArtService.Interfaces
       Movie,
       MovieCollection,
       Series,
+      SeriesSeason,
       Episode,
       Actor,
       Artist,
