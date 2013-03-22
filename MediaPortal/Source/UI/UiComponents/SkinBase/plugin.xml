@@ -267,11 +267,11 @@
 
   <!-- Contents of '/General' section -->
   <Register Location="/Configuration/Settings/General">
-    <ConfigGroup
+    <ConfigSection
         Id="System"
         Redundant="true"
         Text="[Settings.General.System]"/>
-    <ConfigGroup
+    <ConfigSection
         Id="Connectivity"
         Redundant="true"
         Text="[Settings.General.Connectivity]"/>
@@ -304,6 +304,11 @@
         Text="[Settings.General.System.Autostart]"
         HelpText="[Settings.General.System.Autostart.Help]"
         ClassName="MediaPortal.UiComponents.SkinBase.Settings.Configuration.General.Autostart"/>
+    <ConfigSetting
+        Id="ClientDOKANDrive"
+        Text="[Settings.General.System.ClientDOKANDrive]"
+        HelpText="[Settings.General.System.ClientDOKANDrive.Help]"
+        ClassName="MediaPortal.UiComponents.SkinBase.Settings.Configuration.General.ClientDOKANDrive"/>
   </Register>
 
   <!-- Contents of '/Regional' section -->
