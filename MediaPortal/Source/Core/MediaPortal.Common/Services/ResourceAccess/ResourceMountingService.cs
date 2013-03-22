@@ -55,7 +55,7 @@ namespace MediaPortal.Common.Services.ResourceAccess
     protected Dokan.Dokan _dokanExecutor = null;
     protected SettingsChangeWatcher<ResourceMountingSettings> _settings = new SettingsChangeWatcher<ResourceMountingSettings>();
 
-    public ResourceMountingService ()
+    public ResourceMountingService()
     {
       _settings.SettingsChanged += Restart;
     }
@@ -94,17 +94,41 @@ namespace MediaPortal.Common.Services.ResourceAccess
     {
       char? driveLetter = _settings.Settings.DriveLetter;
       if (!driveLetter.HasValue)
-      {
-        ISystemResolver systemResolver = ServiceRegistration.Get<ISystemResolver>();
-        driveLetter = systemResolver.SystemType == SystemType.Server ? ResourceMountingSettings.DEFAULT_DRIVE_LETTER_SERVER :
-            ResourceMountingSettings.DEFAULT_DRIVE_LETTER_CLIENT;
-      }
-      _dokanExecutor = Dokan.Dokan.Install(driveLetter.Value);
+        // First time initialization
+        driveLetter = GetDefaultDriveLetter();
+
+      if (driveLetter.HasValue)
+        _dokanExecutor = Dokan.Dokan.Install(driveLetter.Value);
+
       if (_dokanExecutor == null)
         ServiceRegistration.Get<ILogger>().Warn("ResourceMountingService: Due to problems in DOKAN, resources cannot be mounted into the local filesystem");
       else
         // We share the same synchronization object to avoid multithreading issues between the two classes
         _syncObj = _dokanExecutor.SyncObj;
+    }
+
+    /// <summary>
+    /// Gets the defaut drive letter for ResourceMounting service. Client and Server will use different defaults (<c>R</c>, <c>S</c>). If the preferred drive letter
+    /// is not available, the next higher one will be returned. If none is found, a lower one is tried as last option.
+    /// </summary>
+    /// <returns>Available drive letter or <c>null</c> if none is available anymore</returns>
+    private static char? GetDefaultDriveLetter()
+    {
+      ISystemResolver systemResolver = ServiceRegistration.Get<ISystemResolver>();
+      char? driveLetter = systemResolver.SystemType == SystemType.Server
+        ? ResourceMountingSettings.DEFAULT_DRIVE_LETTER_SERVER
+        : ResourceMountingSettings.DEFAULT_DRIVE_LETTER_CLIENT;
+
+      AvailableDriveLettersSettings adls = new AvailableDriveLettersSettings();
+      List<char?> availableLetters = adls.AvailableDriveLetters.Select(d => (char?) d).ToList();
+
+      // If the preferred drive letter is not available, first try to find a "higher", or if not possible a lower drive letter.
+      if (!availableLetters.Contains(driveLetter))
+        driveLetter =
+          availableLetters.FirstOrDefault(d => d > driveLetter) ??
+          availableLetters.FirstOrDefault(d => d < driveLetter);
+
+      return driveLetter;
     }
 
     public void Shutdown()
@@ -136,7 +160,7 @@ namespace MediaPortal.Common.Services.ResourceAccess
       int numPathSegments = rp.Count();
       if (numPathSegments == 0)
         return false;
-      ResourcePath firtsRPSegment = new ResourcePath(new ProviderPathSegment[] {rp[0]});
+      ResourcePath firtsRPSegment = new ResourcePath(new ProviderPathSegment[] { rp[0] });
       String pathRoot = Path.GetPathRoot(LocalFsResourceProviderBase.ToDosPath(firtsRPSegment));
       if (string.IsNullOrEmpty(pathRoot))
         return false;
@@ -192,7 +216,7 @@ namespace MediaPortal.Common.Services.ResourceAccess
         if (rootDirectory == null)
           return null;
         string resourceName = resourceAccessor.ResourceName;
-        rootDirectory.AddResource(resourceName, !resourceAccessor.IsFile?
+        rootDirectory.AddResource(resourceName, !resourceAccessor.IsFile ?
             (VirtualFileSystemResource) new VirtualDirectory(resourceName, resourceAccessor) :
             new VirtualFile(resourceName, resourceAccessor));
         char driveLetter = _dokanExecutor.DriveLetter;
