@@ -15,7 +15,12 @@
 // along with MPExtended. If not, see <http://www.gnu.org/licenses/>.
 #endregion
 
+using System;
+using System.Diagnostics;
 using System.Security.Principal;
+using System.Windows;
+using MediaPortal.Common;
+using MediaPortal.ServiceMonitor.ViewModel;
 
 namespace MediaPortal.ServiceMonitor.Utilities
 {
@@ -30,59 +35,42 @@ namespace MediaPortal.ServiceMonitor.Utilities
 
     public static bool StartService()
     {
-      return RunUacServiceHandler("/command:service /action:start");
+      return RunUacServiceHandler("--command=StartService");
     }
 
     public static bool StopService()
     {
-      return RunUacServiceHandler("/command:service /action:stop");
+      return RunUacServiceHandler("--command=StopService");
     }
 
     public static bool RestartService()
     {
-      return RunUacServiceHandler("/command:service /action:restart");
+      return RunUacServiceHandler("--command=RestartService");
     }
 
     public static bool RunUacServiceHandler(string parameters)
     {
-      //ToDo: implement 
-      return false;
-      /*
+      // Launch itself as administrator
+      ProcessStartInfo proc = new ProcessStartInfo();
+      proc.UseShellExecute = true;
+      proc.WorkingDirectory = Environment.CurrentDirectory;
+      proc.FileName = System.Reflection.Assembly.GetExecutingAssembly().Location;
+      proc.Verb = "runas";
+      proc.Arguments = parameters;
+
       try
       {
-        ProcessStartInfo info = new ProcessStartInfo();
-
-        if (Installation.GetFileLayoutType() == FileLayoutType.Source)
-        {
-          info.FileName = Path.Combine(Installation.GetSourceRootDirectory(),
-                                       "Applications", "MPExtended.Applications.UacServiceHandler", "bin",
-                                       Installation.GetSourceBuildDirectoryName(),
-                                       "MPExtended.Applications.UacServiceHandler.exe");
-        }
-        else
-        {
-          info.FileName = Path.Combine(Installation.GetInstallDirectory(MPExtendedProduct.Service),
-                                       "MPExtended.Applications.UacServiceHandler.exe");
-        }
-
-        info.UseShellExecute = true;
-        info.Verb = "runas"; // Provides Run as Administrator
-        info.Arguments = parameters;
-
-        if (Process.Start(info) == null)
-        {
-          // The user didn't accept the UAC prompt.
-          //MessageBox.Show(Strings.UI.ActionNeedsAdmin, "MP Service Monitor", MessageBoxButton.OK, MessageBoxImage.Exclamation);
-          return false;
-        }
+        Process.Start(proc);
       }
-      catch (Exception ex)
+      catch
       {
-        ServiceRegistration.Get<ILogger>().Error("Error starting UacServiceHandler", ex);
+        // The user refused to allow privileges elevation.
+        // Do nothing and return directly ...
         return false;
       }
+
+      ServiceRegistration.Get<IAppController>().CloseMainApplication(); // Quit itself
       return true;
-      */
     }
   }
 }

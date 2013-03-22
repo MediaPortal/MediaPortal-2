@@ -68,20 +68,6 @@ namespace MediaPortal.ServiceMonitor
 
     #endregion
 
-    #region Ctor
-
-    public App()
-    {
-      if (IsAlreadyRunning())
-      {
-        //set focus on previously running app
-        SwitchToCurrentInstance();
-        throw new ApplicationException("Application already running");
-      }
-    }
-
-    #endregion
-
     #region Single Application
 
     /// <summary>
@@ -145,6 +131,14 @@ namespace MediaPortal.ServiceMonitor
       if (!parser.ParseArguments(args.Args, mpArgs, Console.Out))
         Environment.Exit(1);
 
+      // Even if new instance was created by UacHelper, assume that previous one is already closed.
+      if (IsAlreadyRunning())
+      {
+        //set focus on previously running app
+        SwitchToCurrentInstance();
+        throw new ApplicationException("Application already running");
+      }
+
       // Make sure we're properly handling exceptions
       DispatcherUnhandledException += OnUnhandledException;
       AppDomain.CurrentDomain.UnhandledException += LauncherExceptionHandling.CurrentDomain_UnhandledException;
@@ -204,7 +198,7 @@ namespace MediaPortal.ServiceMonitor
         try
         {
           ServiceRegistration.Get<IServerConnectionManager>().Startup();
-          appController.StartUp(mpArgs.IsMinimized);
+          appController.StartUp(mpArgs);
         }
         catch (Exception e)
         {

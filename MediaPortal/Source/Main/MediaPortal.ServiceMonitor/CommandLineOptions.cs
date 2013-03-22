@@ -30,5 +30,8 @@ namespace MediaPortal.ServiceMonitor
   {
     [Option("m", "minimized", Required = false, HelpText = "Starts the application minimized.")]
     public bool IsMinimized = false;
+
+    [Option("c", "command", Required = false, HelpText = "Defines the command which should be executed on startup. Example: command=RestartService")]
+    public string Command = null;
   }
 }

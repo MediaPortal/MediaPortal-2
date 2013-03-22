@@ -145,20 +145,35 @@ namespace MediaPortal.ServiceMonitor.ViewModel
       internal set { Application.Current.MainWindow = value; }
     }
 
-    public void StartUp(bool hideMainWindow)
+    public void StartUp(CommandLineOptions mpArgs)
     {
-      ServiceRegistration.Get<ILogger>().Debug("StartUp ({0})", hideMainWindow);
+      ServiceRegistration.Get<ILogger>().Debug("StartUp ({0})", mpArgs.IsMinimized);
       InitMainWindow();
 
       InitSystemTray();
 
-      if (hideMainWindow)
+      if (mpArgs.IsMinimized)
         HideMainWindow();
       else
         ShowMainWindow();
 
       // Set initial ServerStatus
       UpdateServerStatus();
+
+      if (!string.IsNullOrEmpty(mpArgs.Command))
+      {
+        switch (mpArgs.Command.ToLower())
+        {
+          case "startservice":
+            StartServerService();
+            break;
+          case "stopservice":
+            StopServerService();
+            break;
+          case "restartservice":
+            break;
+        }
+      }
     }
 
     protected void InitMainWindow()
@@ -267,9 +282,17 @@ namespace MediaPortal.ServiceMonitor.ViewModel
     }
 
     /// <summary>
-    /// Closes the main window and exits the application.
+    /// Common routine to close the main window and exit the application.
     /// </summary>
     public void CloseMainApplication()
+    {
+      if (SynchronizationContext.Current == _synchronizationContext)
+        RaiseCloseMainApplication(); // Execute on the current thread
+      else
+        _synchronizationContext.Post(state => RaiseCloseMainApplication(), null);
+    }
+
+    private void RaiseCloseMainApplication()
     {
       ServiceRegistration.Get<ILogger>().Debug("ClosingMainApplication");
       Dispose();
@@ -328,6 +351,9 @@ namespace MediaPortal.ServiceMonitor.ViewModel
     {
       try
       {
+        if (!UacServiceHelper.IsAdmin())
+          return UacServiceHelper.StartService();
+
         using (var serviceController = new ServiceController(SERVER_SERVICE_NAME))
         {
           switch (serviceController.Status)
@@ -362,6 +388,9 @@ namespace MediaPortal.ServiceMonitor.ViewModel
     {
       try
       {
+        if (!UacServiceHelper.IsAdmin())
+          return UacServiceHelper.StopService();
+
         using (var serviceController = new ServiceController(SERVER_SERVICE_NAME))
         {
           switch (serviceController.Status)
