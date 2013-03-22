@@ -69,7 +69,7 @@ namespace MediaPortal.ServiceMonitor.UPNP
       scm.SetNewHomeServer(availableServersUUID[0]);
     }
 
-    void OnBackendServerConnected(DeviceConnection connection)
+    private void OnBackendServerConnected(DeviceConnection connection)
     {
       ServerDescriptor serverDescriptor = ServerDescriptor.GetMPBackendServerDescriptor(connection.RootDescriptor);
       if (serverDescriptor == null)
@@ -89,7 +89,7 @@ namespace MediaPortal.ServiceMonitor.UPNP
       ServiceRegistration.Get<IThreadPool>().Add(CompleteServerConnection);
     }
 
-    void OnBackendServerDisconnected(DeviceConnection connection)
+    private void OnBackendServerDisconnected(DeviceConnection connection)
     {
       lock (_syncObj)
         _isHomeServerConnected = false;
@@ -174,12 +174,12 @@ namespace MediaPortal.ServiceMonitor.UPNP
       }
     }
 
-    static void OnAttachedClientsChanged()
+    private static void OnAttachedClientsChanged()
     {
       // Not implemented because this event isn't really interesting for the MP2 client yet
     }
 
-    static void OnConnectedClientsChanged()
+    private static void OnConnectedClientsChanged()
     {
       ServerConnectionMessaging.SendClientConnectionStateChangedMessage();
     }

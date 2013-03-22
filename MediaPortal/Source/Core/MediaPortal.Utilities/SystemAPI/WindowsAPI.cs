@@ -222,7 +222,8 @@ namespace MediaPortal.Utilities.SystemAPI
     private struct TOKEN_PRIVILEGES
     {
       public UInt32 PrivilegeCount;
-      [MarshalAs(UnmanagedType.ByValArray, SizeConst = 1)] public LUID_AND_ATTRIBUTES[] Privileges;
+      [MarshalAs(UnmanagedType.ByValArray, SizeConst = 1)]
+      public LUID_AND_ATTRIBUTES[] Privileges;
     }
 
     private const UInt32 TOKEN_QUERY = 0x0008;
@@ -264,7 +265,7 @@ namespace MediaPortal.Utilities.SystemAPI
                                                      UInt32 Zero,
                                                      IntPtr Null1,
                                                      IntPtr Null2);
-    
+
     #endregion
 
     /// <summary>
@@ -412,6 +413,5 @@ namespace MediaPortal.Utilities.SystemAPI
       using (RegistryKey key = root.OpenSubKey(AUTOSTART_REGISTRY_KEY))
         return key == null ? null : key.GetValue(registerName) as string;
     }
-
   }
 }

@@ -48,10 +48,8 @@ namespace MediaPortal.ServiceMonitor.Utilities
     public IntPtr hIcon;
     public IntPtr hCursor;
     public IntPtr hbrBackground;
-    [MarshalAs(UnmanagedType.LPWStr)]
-    public string lpszMenuName;
-    [MarshalAs(UnmanagedType.LPWStr)]
-    public string lpszClassName;
+    [MarshalAs(UnmanagedType.LPWStr)] public string lpszMenuName;
+    [MarshalAs(UnmanagedType.LPWStr)] public string lpszClassName;
   }
 
   /// <summary>
@@ -61,19 +59,19 @@ namespace MediaPortal.ServiceMonitor.Utilities
   {
     public const int HWND_BROADCAST = 0xffff;
     public static readonly uint MP2_SHOWME = WindowsAPI.RegisterWindowMessage("MP2_SHOWME");
-    
+
     /// <summary>
     /// Creates, updates or deletes the taskbar icon.
     /// </summary>
     [DllImport("shell32.Dll")]
-    public static extern bool Shell_NotifyIcon(NotifyCommand cmd, [In]ref NotifyIconData data);
+    public static extern bool Shell_NotifyIcon(NotifyCommand cmd, [In] ref NotifyIconData data);
 
     /// <summary>
     /// Processes a default windows procedure.
     /// </summary>
     [DllImport("user32.dll")]
     public static extern long DefWindowProc(IntPtr hWnd, uint msg, uint wparam, uint lparam);
-    
+
     /// <summary>
     /// Registers the helper window class.
     /// </summary>

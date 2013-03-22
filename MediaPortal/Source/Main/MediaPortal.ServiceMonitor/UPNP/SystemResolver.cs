@@ -46,7 +46,8 @@ namespace MediaPortal.ServiceMonitor.UPNP
         return SystemName.GetLocalSystemName();
       var serverConnectionManager = ServiceRegistration.Get<IServerConnectionManager>();
       if (systemId == serverConnectionManager.HomeServerSystemId)
-      { // Shortcut for home server
+      {
+        // Shortcut for home server
         var result = serverConnectionManager.LastHomeServerSystem;
         if (result != null)
           return result;

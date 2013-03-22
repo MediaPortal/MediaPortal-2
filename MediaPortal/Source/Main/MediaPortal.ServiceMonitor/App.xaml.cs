@@ -94,7 +94,7 @@ namespace MediaPortal.ServiceMonitor
       _mutex = new Mutex(false, MUTEX_ID);
 
       var allowEveryoneRule = new MutexAccessRule(new SecurityIdentifier(WellKnownSidType.WorldSid, null),
-          MutexRights.FullControl, AccessControlType.Allow);
+                                                  MutexRights.FullControl, AccessControlType.Allow);
       var securitySettings = new MutexSecurity();
       securitySettings.AddAccessRule(allowEveryoneRule);
       _mutex.SetAccessControl(securitySettings);
@@ -121,12 +121,12 @@ namespace MediaPortal.ServiceMonitor
       // send our Win32 message to make the currently running instance
       // jump on top of all the other windows
       WindowsAPI.PostMessage(
-          (IntPtr) WinApi.HWND_BROADCAST,
-          WinApi.MP2_SHOWME,
-          IntPtr.Zero,
-          IntPtr.Zero);
+        (IntPtr) WinApi.HWND_BROADCAST,
+        WinApi.MP2_SHOWME,
+        IntPtr.Zero,
+        IntPtr.Zero);
     }
-    
+
     #endregion
 
     #region OnStartUp
@@ -139,7 +139,7 @@ namespace MediaPortal.ServiceMonitor
       Thread.CurrentThread.Name = "Main";
       Thread.CurrentThread.SetApartmentState(ApartmentState.STA);
 
-     // Parse Command Line options
+      // Parse Command Line options
       var mpArgs = new CommandLineOptions();
       ICommandLineParser parser = new CommandLineParser(new CommandLineParserSettings(Console.Error));
       if (!parser.ParseArguments(args.Args, mpArgs, Console.Out))
@@ -178,7 +178,7 @@ namespace MediaPortal.ServiceMonitor
 
           logger.Debug("UiExtension: Registering IServerConnectionManager service");
           ServiceRegistration.Set<IServerConnectionManager>(new ServerConnectionManager());
-          
+
 #if !DEBUG
           logPath = ServiceRegistration.Get<IPathManager>().GetPath("<LOG>");
 #endif
@@ -198,7 +198,7 @@ namespace MediaPortal.ServiceMonitor
 
         var appController = new AppController();
         ServiceRegistration.Set<IAppController>(appController);
-        
+
         // Start the application
         logger.Debug("Starting application");
         try
@@ -228,7 +228,7 @@ namespace MediaPortal.ServiceMonitor
     }
 
     #endregion
-    
+
     #region OnExit
 
     private void OnExit(object sender, ExitEventArgs e)
@@ -247,7 +247,7 @@ namespace MediaPortal.ServiceMonitor
     }
 
     #endregion
-    
+
     #region Unhandled Exceptions
 
     /// <summary>
@@ -256,7 +256,8 @@ namespace MediaPortal.ServiceMonitor
     private static void OnUnhandledException(object sender, DispatcherUnhandledExceptionEventArgs e)
     {
       if (!e.Dispatcher.CheckAccess())
-      { // We are not running in the dispatcher thread, schedule execution in dispatcher thread
+      {
+        // We are not running in the dispatcher thread, schedule execution in dispatcher thread
         e.Dispatcher.Invoke(new Action(() => HandleUnhandledException(e)), DispatcherPriority.Normal, null);
         return;
       }

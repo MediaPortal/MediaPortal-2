@@ -47,16 +47,16 @@ namespace MediaPortal.ServiceMonitor.Utilities
     internal IntPtr MessageWindowHandle { get; private set; }
 
     #endregion
-    
+
     #region Events
 
     /// <summary>
     /// Public event for the processing window messages.
     /// </summary>
     public event WinProcHandler OnWinProc;
-   
+
     #endregion
-    
+
     #region Ctor
 
     /// <summary>
@@ -73,11 +73,11 @@ namespace MediaPortal.ServiceMonitor.Utilities
     /// </summary>
     internal static WindowMessageSink CreateEmpty()
     {
-      return new WindowMessageSink { MessageWindowHandle = IntPtr.Zero };
+      return new WindowMessageSink {MessageWindowHandle = IntPtr.Zero};
     }
 
     #endregion
-    
+
     #region CreateMessageWindow
 
     /// <summary>
@@ -133,7 +133,7 @@ namespace MediaPortal.ServiceMonitor.Utilities
     }
 
     #endregion
-    
+
     #region Dispose
 
     /// <summary>

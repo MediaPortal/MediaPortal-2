@@ -37,7 +37,7 @@ namespace MediaPortal.ServiceMonitor.Utilities
   /// <summary>
   /// Description of Localization.
   /// </summary>
-  public class Localization: ILocalization
+  public class Localization : ILocalization
   {
     public const string LANGUAGE_RESOURCES_REGISTRATION_PATH = "Language";
 
@@ -50,12 +50,13 @@ namespace MediaPortal.ServiceMonitor.Utilities
     protected object _syncObj = new object();
 
     #endregion
-    
+
     #region ctor/dtor
+
     public Localization()
     {
       _languageDirectories = new List<string>();
-      
+
       ServiceRegistration.Get<ILogger>().Debug("Localization: Loading settings");
       var settings = ServiceRegistration.Get<ISettingsManager>().Load<RegionSettings>();
       if (string.IsNullOrEmpty(settings.Culture))
@@ -69,12 +70,12 @@ namespace MediaPortal.ServiceMonitor.Utilities
         ServiceRegistration.Get<ILogger>().Info("Localization: Using culture: " + _currentCulture.Name);
       }
     }
-    
+
     #endregion
-    
+
     #region Protected methods
-    
-    
+
+
     protected void InitializeLanguageResources()
     {
       var applicationPath = Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location);
@@ -84,17 +85,17 @@ namespace MediaPortal.ServiceMonitor.Utilities
       ReLoad();
 
     }
-    
-    
+
+
     protected virtual void ReLoad()
     {
-      lock (_syncObj) 
+      lock (_syncObj)
       {
         _availableLanguages = LocalizationStrings.FindAvailableLanguages(_languageDirectories);
         _strings = new LocalizationStrings(_languageDirectories, _currentCulture);
       }
     }
-        
+
     protected static CultureInfo GetBestLanguage(ICollection<CultureInfo> availableLanguages)
     {
       // Try current local language
@@ -103,7 +104,7 @@ namespace MediaPortal.ServiceMonitor.Utilities
 
       // Try Language Parent if it has one
       if (CultureInfo.CurrentUICulture.Parent != CultureInfo.InvariantCulture &&
-        availableLanguages.Contains(CultureInfo.CurrentUICulture.Parent))
+          availableLanguages.Contains(CultureInfo.CurrentUICulture.Parent))
         return CultureInfo.CurrentUICulture.Parent;
 
       // Default to English
@@ -115,7 +116,7 @@ namespace MediaPortal.ServiceMonitor.Utilities
     }
 
     #endregion
-      
+
     #region ILocalization implementation
 
     public CultureInfo CurrentCulture
@@ -180,12 +181,12 @@ namespace MediaPortal.ServiceMonitor.Utilities
         _languageDirectories.Add(directory);
       ReLoad();
     }
-    
+
     public ICollection<CultureInfo> AvailableLanguages
     {
       get { return _availableLanguages; }
     }
-    
+
     #endregion
   }
 }

@@ -19,67 +19,70 @@ using System.Security.Principal;
 
 namespace MediaPortal.ServiceMonitor.Utilities
 {
-    internal class UacServiceHelper
+  internal class UacServiceHelper
+  {
+    public static bool IsAdmin()
     {
-        public static bool IsAdmin()
-        {
-          WindowsIdentity id = WindowsIdentity.GetCurrent();
-          WindowsPrincipal p = new WindowsPrincipal(id);
-          return p.IsInRole(WindowsBuiltInRole.Administrator);
-        }
-
-        public static bool StartService()
-        {
-          return RunUacServiceHandler("/command:service /action:start");
-        }
-
-        public static bool StopService()
-        {
-          return RunUacServiceHandler("/command:service /action:stop");
-        }
-
-        public static bool RestartService()
-        {
-          return RunUacServiceHandler("/command:service /action:restart");
-        }
-
-        public static bool RunUacServiceHandler(string parameters)
-        {
-        	//ToDo: implement 
-        	return false;
-         /*  
-        	try
-            {
-                ProcessStartInfo info = new ProcessStartInfo();
-
-                if (Installation.GetFileLayoutType() == FileLayoutType.Source)
-                {
-                    info.FileName = Path.Combine(Installation.GetSourceRootDirectory(),
-                        "Applications", "MPExtended.Applications.UacServiceHandler", "bin", Installation.GetSourceBuildDirectoryName(), "MPExtended.Applications.UacServiceHandler.exe");
-                }
-                else
-                {
-                    info.FileName = Path.Combine(Installation.GetInstallDirectory(MPExtendedProduct.Service), "MPExtended.Applications.UacServiceHandler.exe");
-                }
-
-                info.UseShellExecute = true;
-                info.Verb = "runas"; // Provides Run as Administrator
-                info.Arguments = parameters;
-
-                if (Process.Start(info) == null)
-                {
-                    // The user didn't accept the UAC prompt.
-                    //MessageBox.Show(Strings.UI.ActionNeedsAdmin, "MP Service Monitor", MessageBoxButton.OK, MessageBoxImage.Exclamation);
-                    return false;
-                }
-            }
-            catch (Exception ex)
-            {
-                ServiceRegistration.Get<ILogger>().Error("Error starting UacServiceHandler", ex);
-                return false;
-            }
-            return true;
-            */
-        }
+      WindowsIdentity id = WindowsIdentity.GetCurrent();
+      WindowsPrincipal p = new WindowsPrincipal(id);
+      return p.IsInRole(WindowsBuiltInRole.Administrator);
     }
+
+    public static bool StartService()
+    {
+      return RunUacServiceHandler("/command:service /action:start");
+    }
+
+    public static bool StopService()
+    {
+      return RunUacServiceHandler("/command:service /action:stop");
+    }
+
+    public static bool RestartService()
+    {
+      return RunUacServiceHandler("/command:service /action:restart");
+    }
+
+    public static bool RunUacServiceHandler(string parameters)
+    {
+      //ToDo: implement 
+      return false;
+      /*
+      try
+      {
+        ProcessStartInfo info = new ProcessStartInfo();
+
+        if (Installation.GetFileLayoutType() == FileLayoutType.Source)
+        {
+          info.FileName = Path.Combine(Installation.GetSourceRootDirectory(),
+                                       "Applications", "MPExtended.Applications.UacServiceHandler", "bin",
+                                       Installation.GetSourceBuildDirectoryName(),
+                                       "MPExtended.Applications.UacServiceHandler.exe");
+        }
+        else
+        {
+          info.FileName = Path.Combine(Installation.GetInstallDirectory(MPExtendedProduct.Service),
+                                       "MPExtended.Applications.UacServiceHandler.exe");
+        }
+
+        info.UseShellExecute = true;
+        info.Verb = "runas"; // Provides Run as Administrator
+        info.Arguments = parameters;
+
+        if (Process.Start(info) == null)
+        {
+          // The user didn't accept the UAC prompt.
+          //MessageBox.Show(Strings.UI.ActionNeedsAdmin, "MP Service Monitor", MessageBoxButton.OK, MessageBoxImage.Exclamation);
+          return false;
+        }
+      }
+      catch (Exception ex)
+      {
+        ServiceRegistration.Get<ILogger>().Error("Error starting UacServiceHandler", ex);
+        return false;
+      }
+      return true;
+      */
+    }
+  }
 }

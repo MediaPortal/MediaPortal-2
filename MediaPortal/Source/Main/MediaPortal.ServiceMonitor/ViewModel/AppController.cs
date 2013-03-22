@@ -100,7 +100,7 @@ namespace MediaPortal.ServiceMonitor.ViewModel
 #if DEBUG
           applicationPath = applicationPath.Replace(".vshost", "");
 #endif
-          if (value) 
+          if (value)
             WindowsAPI.AddAutostartApplication(applicationPath, AUTOSTART_REGISTER_NAME, true);
           else
             WindowsAPI.RemoveAutostartApplication(AUTOSTART_REGISTER_NAME, true);
@@ -149,9 +149,9 @@ namespace MediaPortal.ServiceMonitor.ViewModel
     {
       ServiceRegistration.Get<ILogger>().Debug("StartUp ({0})", hideMainWindow);
       InitMainWindow();
-      
+
       InitSystemTray();
-      
+
       if (hideMainWindow)
         HideMainWindow();
       else
@@ -164,7 +164,12 @@ namespace MediaPortal.ServiceMonitor.ViewModel
     protected void InitMainWindow()
     {
       ServiceRegistration.Get<ILogger>().Debug("InitMainWindow");
-      Window mainWindow = new MainWindow { ShowActivated = false, ShowInTaskbar = false, Visibility = Visibility.Collapsed };
+      Window mainWindow = new MainWindow
+        {
+          ShowActivated = false,
+          ShowInTaskbar = false,
+          Visibility = Visibility.Collapsed
+        };
       mainWindow.Closed += OnMainWindowClosed;
       mainWindow.SourceInitialized += OnMainWindowSourceInitialized;
       mainWindow.StateChanged += OnMainWindowStateChanged;
@@ -222,16 +227,16 @@ namespace MediaPortal.ServiceMonitor.ViewModel
       _messageSink = new WindowMessageSink();
       _messageSink.OnWinProc += WndProc;
     }
-    
+
     private void WndProc(object sender, uint msg, uint wParam, uint lParam)
     {
       if (msg == WinApi.MP2_SHOWME)
         ShowMainWindow();
-      
+
       if (msg == WM_POWERBROADCAST)
       {
         ServiceRegistration.Get<ILogger>().Debug("WndProc: [{0}]", wParam);
-        var serverConnectionManager = (ServerConnectionManager)ServiceRegistration.Get<IServerConnectionManager>();
+        var serverConnectionManager = (ServerConnectionManager) ServiceRegistration.Get<IServerConnectionManager>();
         switch (wParam)
         {
           case PBT_APMSUSPEND:
@@ -245,12 +250,12 @@ namespace MediaPortal.ServiceMonitor.ViewModel
             ServiceRegistration.Get<ILogger>().Debug("WndProc: Resume");
             if ((serverConnectionManager != null) && (!serverConnectionManager.IsStarted))
               serverConnectionManager.Startup();
-            UpdateServerStatus();  
+            UpdateServerStatus();
             break;
         }
       }
     }
-    
+
     /// <summary>
     /// Closes the main window 
     /// </summary>
@@ -311,7 +316,7 @@ namespace MediaPortal.ServiceMonitor.ViewModel
       catch (Exception ex)
       {
         ServiceRegistration.Get<ILogger>().Error(
-            "Check whether the MP2 Server Service is running failed. Please check your installation.", ex);
+          "Check whether the MP2 Server Service is running failed. Please check your installation.", ex);
         return false;
       }
     }
@@ -393,11 +398,11 @@ namespace MediaPortal.ServiceMonitor.ViewModel
     /// </summary>
     public void Receive(SystemMessage message)
     {
-    	if (message.ChannelName == ServerConnectionMessaging.CHANNEL) 
-    	{
+      if (message.ChannelName == ServerConnectionMessaging.CHANNEL)
+      {
         var connectionType = (ServerConnectionMessaging.MessageType) message.MessageType;
         switch (connectionType)
-        { 
+        {
           case ServerConnectionMessaging.MessageType.HomeServerAttached:
           case ServerConnectionMessaging.MessageType.HomeServerConnected:
           case ServerConnectionMessaging.MessageType.HomeServerDetached:
@@ -406,12 +411,13 @@ namespace MediaPortal.ServiceMonitor.ViewModel
             break;
         }
         UpdateServerStatus();
-    	}
-    	else if (message.ChannelName == LocalizationMessaging.CHANNEL)
-        if (((LocalizationMessaging.MessageType) message.MessageType) == LocalizationMessaging.MessageType.LanguageChanged)
-    	  {
-    		   UpdateServerStatus();
-    	  }
+      }
+      else if (message.ChannelName == LocalizationMessaging.CHANNEL)
+        if (((LocalizationMessaging.MessageType) message.MessageType) ==
+            LocalizationMessaging.MessageType.LanguageChanged)
+        {
+          UpdateServerStatus();
+        }
     }
 
     #endregion
@@ -433,12 +439,12 @@ namespace MediaPortal.ServiceMonitor.ViewModel
     {
       if (IsServerServiceInstalled() && !IsServerServiceRunning())
       {
-      	ServerStatus = ServerStatus.NotStarted;
+        ServerStatus = ServerStatus.NotStarted;
       }
       switch (_serverConnectionStatus)
       {
         case ServerConnectionMessaging.MessageType.HomeServerAttached:
-      		ServerStatus = ServerStatus.Attached;
+          ServerStatus = ServerStatus.Attached;
           break;
         case ServerConnectionMessaging.MessageType.HomeServerConnected:
           ServerStatus = ServerStatus.Connected;
@@ -452,7 +458,7 @@ namespace MediaPortal.ServiceMonitor.ViewModel
       }
 
       ServiceRegistration.Get<ILogger>().Debug("ServerStatus: {0}", ServerStatus);
-      
+
       try
       {
         Clients.ClearNotifyForEach();
