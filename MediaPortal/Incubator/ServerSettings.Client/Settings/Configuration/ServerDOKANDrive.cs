@@ -22,18 +22,30 @@
 
 #endregion
 
+using System.Collections.Generic;
+using System.Linq;
 using MediaPortal.Common;
 using MediaPortal.Common.Configuration.ConfigurationClasses;
+using MediaPortal.Common.Localization;
 using MediaPortal.Common.Services.ResourceAccess.Settings;
 
 namespace MediaPortal.Plugins.ServerSettings.Settings.Configuration
 {
-  public class ServerDOKANDrive : Entry
+  public class ServerDOKANDrive : SingleSelectionList
   {
     public override void Load()
     {
       IServerSettingsClient serverSettings = ServiceRegistration.Get<IServerSettingsClient>();
-      _value = serverSettings.Load<ResourceMountingSettings>().DriveLetter.ToString();
+      char? currentDriveLetter = serverSettings.Load<ResourceMountingSettings>().DriveLetter;
+      List<char> availableDriveLetters = serverSettings.Load<AvailableDriveLettersSettings>().AvailableDriveLetters.ToList();
+      // The list of available drive letters won't contain the current DOKAN drive, so add it manually here.
+      if (currentDriveLetter.HasValue)
+      {
+        availableDriveLetters.Add(currentDriveLetter.Value);
+        availableDriveLetters.Sort();
+        Selected = availableDriveLetters.IndexOf(currentDriveLetter.Value);
+      }
+      _items = availableDriveLetters.Select(d => LocalizationHelper.CreateStaticString(d.ToString())).ToList();
     }
 
     public override void Save()
@@ -41,13 +53,8 @@ namespace MediaPortal.Plugins.ServerSettings.Settings.Configuration
       base.Save();
       IServerSettingsClient serverSettings = ServiceRegistration.Get<IServerSettingsClient>();
       ResourceMountingSettings settings = serverSettings.Load<ResourceMountingSettings>();
-      settings.DriveLetter = _value[0];
+      settings.DriveLetter = _items[Selected].ToString()[0];
       serverSettings.Save(settings);
-    }
-
-    public override int DisplayLength
-    {
-      get { return 1; }
     }
   }
 }
