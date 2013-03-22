@@ -77,6 +77,7 @@
     <Compile Include="Exceptions\LauncherExceptionHandling.cs" />
     <Compile Include="Services\Logging\ServerCrashLogger.cs" />
     <Compile Include="Services\Logging\UiCrashLogger.cs" />
+    <Compile Include="Services\ResourceAccess\Settings\AvailableDriveLettersSettings.cs" />
     <Compile Include="Services\ServerCommunication\UPnPServerWatcher.cs" />
     <Compile Include="Services\Settings\SettingsChangeWatcher.cs" />
     <Compile Include="Services\Settings\SettingsManagerMessaging.cs" />
