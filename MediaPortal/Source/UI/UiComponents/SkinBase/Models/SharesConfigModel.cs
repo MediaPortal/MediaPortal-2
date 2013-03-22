@@ -744,6 +744,13 @@ namespace MediaPortal.UiComponents.SkinBase.Models
         {
           UpdateSystemsList_NoLock();
         }
+        else if (workflowState == Consts.WF_STATE_ID_SHARE_ADD_CHOOSE_RESOURCE_PROVIDER)
+        {
+          // This action is a combination of WF_STATE_ID_SHARE_ADD_CHOOSE_SYSTEM and WF_STATE_ID_SHARE_EDIT_CHOOSE_RESOURCE_PROVIDER
+          UpdateSystemsList_NoLock();
+          // This could be optimized - we don't need to update the MPs list every time we are popping a WF state
+          _shareProxy.UpdateResourceProvidersList();
+        }
         else if (workflowState == Consts.WF_STATE_ID_SHARE_EDIT_CHOOSE_RESOURCE_PROVIDER)
         {
           // This could be optimized - we don't need to update the MPs list every time we are popping a WF state

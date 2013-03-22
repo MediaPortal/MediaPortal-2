@@ -92,8 +92,12 @@ namespace MediaPortal.UiComponents.SkinBase.Actions
             DialogButtonType.Ok);
         return;
       }
+      bool isSingleOption = localHomeServer || !homeServerConnected;
       IWorkflowManager workflowManager = ServiceRegistration.Get<IWorkflowManager>();
-      workflowManager.NavigatePush(Consts.WF_STATE_ID_SHARE_ADD_CHOOSE_SYSTEM);
+      workflowManager.NavigatePush(
+        isSingleOption ?
+        Consts.WF_STATE_ID_SHARE_ADD_CHOOSE_RESOURCE_PROVIDER :
+        Consts.WF_STATE_ID_SHARE_ADD_CHOOSE_SYSTEM);
     }
 
     #endregion
