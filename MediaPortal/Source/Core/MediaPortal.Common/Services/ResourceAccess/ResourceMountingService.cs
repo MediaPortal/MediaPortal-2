@@ -31,6 +31,7 @@ using MediaPortal.Common.ResourceAccess;
 using MediaPortal.Common.Services.Dokan;
 using MediaPortal.Common.Services.ResourceAccess.Settings;
 using MediaPortal.Common.Services.Settings;
+using MediaPortal.Common.Settings;
 using MediaPortal.Common.SystemResolver;
 
 namespace MediaPortal.Common.Services.ResourceAccess
@@ -53,12 +54,8 @@ namespace MediaPortal.Common.Services.ResourceAccess
 
     protected object _syncObj = new object();
     protected Dokan.Dokan _dokanExecutor = null;
+    protected bool _firstRun = false;
     protected SettingsChangeWatcher<ResourceMountingSettings> _settings = new SettingsChangeWatcher<ResourceMountingSettings>();
-
-    public ResourceMountingService()
-    {
-      _settings.SettingsChanged += Restart;
-    }
 
     #region IDisposable implementation
 
@@ -97,6 +94,8 @@ namespace MediaPortal.Common.Services.ResourceAccess
         // First time initialization
         driveLetter = GetDefaultDriveLetter();
 
+      _settings.SettingsChanged += Restart;
+
       if (driveLetter.HasValue)
         _dokanExecutor = Dokan.Dokan.Install(driveLetter.Value);
 
@@ -112,7 +111,7 @@ namespace MediaPortal.Common.Services.ResourceAccess
     /// is not available, the next higher one will be returned. If none is found, a lower one is tried as last option.
     /// </summary>
     /// <returns>Available drive letter or <c>null</c> if none is available anymore</returns>
-    private static char? GetDefaultDriveLetter()
+    private char? GetDefaultDriveLetter()
     {
       ISystemResolver systemResolver = ServiceRegistration.Get<ISystemResolver>();
       char? driveLetter = systemResolver.SystemType == SystemType.Server
@@ -127,12 +126,22 @@ namespace MediaPortal.Common.Services.ResourceAccess
         driveLetter =
           availableLetters.FirstOrDefault(d => d > driveLetter) ??
           availableLetters.FirstOrDefault(d => d < driveLetter);
-
+      
+      // Save the new drive letter
+      if (driveLetter.HasValue)
+      {
+        ServiceRegistration.Get<ILogger>().Info("ResourceMountingService: Setup new drive letter {0}", driveLetter);
+        ResourceMountingSettings setting = ServiceRegistration.Get<ISettingsManager>().Load<ResourceMountingSettings>();
+        setting.DriveLetter = driveLetter;
+        _firstRun = true; // Set a flag so we can ignore the "SettingChanged" event
+        ServiceRegistration.Get<ISettingsManager>().Save(setting);
+      }
       return driveLetter;
     }
 
     public void Shutdown()
     {
+      _settings.SettingsChanged -= Restart;
       if (_dokanExecutor == null)
         return;
       _dokanExecutor.Dispose();
@@ -141,6 +150,7 @@ namespace MediaPortal.Common.Services.ResourceAccess
 
     public void Restart()
     {
+      ServiceRegistration.Get<ILogger>().Info("ResourceMountingService: Restarting service");
       lock (_syncObj)
       {
         Shutdown();
@@ -150,7 +160,10 @@ namespace MediaPortal.Common.Services.ResourceAccess
 
     private void Restart(object sender, EventArgs e)
     {
-      Restart();
+      if (!_firstRun)
+        Restart();
+
+      _firstRun = false;
     }
 
     public bool IsVirtualResource(ResourcePath rp)
@@ -160,8 +173,8 @@ namespace MediaPortal.Common.Services.ResourceAccess
       int numPathSegments = rp.Count();
       if (numPathSegments == 0)
         return false;
-      ResourcePath firtsRPSegment = new ResourcePath(new ProviderPathSegment[] { rp[0] });
-      String pathRoot = Path.GetPathRoot(LocalFsResourceProviderBase.ToDosPath(firtsRPSegment));
+      ResourcePath firstRPSegment = new ResourcePath(new ProviderPathSegment[] { rp[0] });
+      String pathRoot = Path.GetPathRoot(LocalFsResourceProviderBase.ToDosPath(firstRPSegment));
       if (string.IsNullOrEmpty(pathRoot))
         return false;
       return Dokan.Dokan.IsDokanDrive(pathRoot[0]);
