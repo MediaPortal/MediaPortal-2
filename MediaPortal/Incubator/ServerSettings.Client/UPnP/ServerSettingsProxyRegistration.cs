@@ -33,7 +33,7 @@ namespace MediaPortal.Plugins.ServerSettings.UPnP
 {
   public class ServerSettingsProxyRegistration
   {
-    public ServerSettingsProxyRegistration ()
+    public ServerSettingsProxyRegistration()
     {
       RegisterService();
     }
@@ -49,12 +49,12 @@ namespace MediaPortal.Plugins.ServerSettings.UPnP
 
     public ServerSettingsProxy RegisterServerSettingsProxy(DeviceConnection connection)
     {
-      CpService tvStub = connection.Device.FindServiceByServiceId(Consts.SERVERSETTINGS_SERVICE_ID);
+      CpService serverSettingsStub = connection.Device.FindServiceByServiceId(Consts.SERVERSETTINGS_SERVICE_ID);
 
-      if (tvStub == null)
+      if (serverSettingsStub == null)
         throw new NotSupportedException("ServerSettingsProxy not supported by this UPnP device.");
 
-      ServerSettingsProxy settingsProxy = new ServerSettingsProxy(tvStub);
+      ServerSettingsProxy settingsProxy = new ServerSettingsProxy(serverSettingsStub);
       return settingsProxy;
     }
   }

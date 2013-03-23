@@ -38,12 +38,15 @@ namespace MediaPortal.UiComponents.SkinBase.Settings.Configuration.General
     {
       ISettingsManager settingsManager = ServiceRegistration.Get<ISettingsManager>();
       char? currentDriveLetter = settingsManager.Load<ResourceMountingSettings>().DriveLetter;
-      List<char> availableDriveLetters = settingsManager.Load<AvailableDriveLettersSettings>().AvailableDriveLetters.ToList();
+      List<char> availableDriveLetters = settingsManager.Load<AvailableDriveLettersSettings>().AvailableDriveLetters.Where(d => d > 'C').ToList();
       // The list of available drive letters won't contain the current DOKAN drive, so add it manually here.
       if (currentDriveLetter.HasValue)
       {
-        availableDriveLetters.Add(currentDriveLetter.Value);
-        availableDriveLetters.Sort();
+        if (!availableDriveLetters.Contains(currentDriveLetter.Value))
+        {
+          availableDriveLetters.Add(currentDriveLetter.Value);
+          availableDriveLetters.Sort();
+        }
         Selected = availableDriveLetters.IndexOf(currentDriveLetter.Value);
       }
       _items = availableDriveLetters.Select(d => LocalizationHelper.CreateStaticString(d.ToString())).ToList();

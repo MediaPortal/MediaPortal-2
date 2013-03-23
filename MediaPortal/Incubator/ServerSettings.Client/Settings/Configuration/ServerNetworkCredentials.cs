@@ -22,11 +22,37 @@
 
 #endregion
 
+using MediaPortal.Common;
 using MediaPortal.Common.Configuration.ConfigurationClasses;
 
 namespace MediaPortal.Plugins.ServerSettings.Settings.Configuration
 {
   class ServerNetworkCredentials : CustomConfigSetting
   {
+    protected IServerSettingsClient _serverSettings;
+
+    public ServerNetworkCredentials ()
+    {
+      CheckServer();
+    }
+    protected bool CheckServer()
+    {
+      _serverSettings = ServiceRegistration.Get<IServerSettingsClient>(false);
+      Enabled = _serverSettings != null;
+      return Enabled;
+    }
+
+    public override void Load()
+    {
+      if (!CheckServer())
+        return;
+      base.Load();
+    }
+    public override void Save()
+    {
+      if (!CheckServer())
+        return;
+      base.Save();
+    }
   }
 }

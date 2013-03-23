@@ -33,16 +33,35 @@ namespace MediaPortal.Plugins.ServerSettings.Settings.Configuration
 {
   public class ServerDOKANDrive : SingleSelectionList
   {
+    protected IServerSettingsClient _serverSettings;
+
+    public ServerDOKANDrive()
+    {
+      CheckServer();
+    }
+    
+    protected bool CheckServer()
+    {
+      _serverSettings = ServiceRegistration.Get<IServerSettingsClient>(false);
+      Enabled = _serverSettings != null;
+      return Enabled;
+    }
+
     public override void Load()
     {
-      IServerSettingsClient serverSettings = ServiceRegistration.Get<IServerSettingsClient>();
-      char? currentDriveLetter = serverSettings.Load<ResourceMountingSettings>().DriveLetter;
-      List<char> availableDriveLetters = serverSettings.Load<AvailableDriveLettersSettings>().AvailableDriveLetters.ToList();
+      if (!CheckServer())
+        return;
+
+      char? currentDriveLetter = _serverSettings.Load<ResourceMountingSettings>().DriveLetter;
+      List<char> availableDriveLetters = _serverSettings.Load<AvailableDriveLettersSettings>().AvailableDriveLetters.Where(d => d > 'C').ToList();
       // The list of available drive letters won't contain the current DOKAN drive, so add it manually here.
       if (currentDriveLetter.HasValue)
       {
-        availableDriveLetters.Add(currentDriveLetter.Value);
-        availableDriveLetters.Sort();
+        if (!availableDriveLetters.Contains(currentDriveLetter.Value))
+        {
+          availableDriveLetters.Add(currentDriveLetter.Value);
+          availableDriveLetters.Sort();
+        }
         Selected = availableDriveLetters.IndexOf(currentDriveLetter.Value);
       }
       _items = availableDriveLetters.Select(d => LocalizationHelper.CreateStaticString(d.ToString())).ToList();
@@ -50,11 +69,13 @@ namespace MediaPortal.Plugins.ServerSettings.Settings.Configuration
 
     public override void Save()
     {
+      if (!CheckServer())
+        return;
+
       base.Save();
-      IServerSettingsClient serverSettings = ServiceRegistration.Get<IServerSettingsClient>();
-      ResourceMountingSettings settings = serverSettings.Load<ResourceMountingSettings>();
+      ResourceMountingSettings settings = _serverSettings.Load<ResourceMountingSettings>();
       settings.DriveLetter = _items[Selected].ToString()[0];
-      serverSettings.Save(settings);
+      _serverSettings.Save(settings);
     }
   }
 }

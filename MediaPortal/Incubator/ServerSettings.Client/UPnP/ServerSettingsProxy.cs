@@ -51,7 +51,6 @@ namespace MediaPortal.Plugins.ServerSettings.UPnP
       catch (Exception ex)
       {
         throw;
-        //NotifyException(ex);
       }
     }
 
@@ -66,7 +65,6 @@ namespace MediaPortal.Plugins.ServerSettings.UPnP
       catch (Exception ex)
       {
         throw;
-        //NotifyException(ex);
       }
     }
 
