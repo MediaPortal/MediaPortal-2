@@ -60,6 +60,8 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Settings\Configuration\ServerDOKANDrive.cs" />
     <Compile Include="Settings\Configuration\ServerNetworkCredentials.cs" />
+    <Compile Include="Settings\ConnectionMonitor.cs" />
+    <Compile Include="ServerSettingsPlugin.cs" />
     <Compile Include="UPnP\ServerSettingsProxy.cs" />
     <Compile Include="UPnP\ServerSettingsProxyRegistration.cs" />
     <Content Include="plugin.xml" />

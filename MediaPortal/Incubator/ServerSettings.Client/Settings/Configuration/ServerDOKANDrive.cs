@@ -22,6 +22,7 @@
 
 #endregion
 
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using MediaPortal.Common;
@@ -31,29 +32,21 @@ using MediaPortal.Common.Services.ResourceAccess.Settings;
 
 namespace MediaPortal.Plugins.ServerSettings.Settings.Configuration
 {
-  public class ServerDOKANDrive : SingleSelectionList
+  public class ServerDOKANDrive : SingleSelectionList, IDisposable
   {
-    protected IServerSettingsClient _serverSettings;
-
     public ServerDOKANDrive()
     {
-      CheckServer();
-    }
-    
-    protected bool CheckServer()
-    {
-      _serverSettings = ServiceRegistration.Get<IServerSettingsClient>(false);
-      Enabled = _serverSettings != null;
-      return Enabled;
+      Enabled = false;
+      ConnectionMonitor.Instance.RegisterConfiguration(this);
     }
 
     public override void Load()
     {
-      if (!CheckServer())
+      if (!Enabled)
         return;
-
-      char? currentDriveLetter = _serverSettings.Load<ResourceMountingSettings>().DriveLetter;
-      List<char> availableDriveLetters = _serverSettings.Load<AvailableDriveLettersSettings>().AvailableDriveLetters.Where(d => d > 'C').ToList();
+      IServerSettingsClient serverSettings = ServiceRegistration.Get<IServerSettingsClient>();
+      char? currentDriveLetter = serverSettings.Load<ResourceMountingSettings>().DriveLetter;
+      List<char> availableDriveLetters = serverSettings.Load<AvailableDriveLettersSettings>().AvailableDriveLetters.Where(d => d > 'C').ToList();
       // The list of available drive letters won't contain the current DOKAN drive, so add it manually here.
       if (currentDriveLetter.HasValue)
       {
@@ -69,13 +62,19 @@ namespace MediaPortal.Plugins.ServerSettings.Settings.Configuration
 
     public override void Save()
     {
-      if (!CheckServer())
+      if (!Enabled)
         return;
 
       base.Save();
-      ResourceMountingSettings settings = _serverSettings.Load<ResourceMountingSettings>();
+      IServerSettingsClient serverSettings = ServiceRegistration.Get<IServerSettingsClient>();
+      ResourceMountingSettings settings = serverSettings.Load<ResourceMountingSettings>();
       settings.DriveLetter = _items[Selected].ToString()[0];
-      _serverSettings.Save(settings);
+      serverSettings.Save(settings);
+    }
+
+    public void Dispose()
+    {
+      ConnectionMonitor.Instance.UnregisterConfiguration(this);
     }
   }
 }

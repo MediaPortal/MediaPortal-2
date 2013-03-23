@@ -22,22 +22,34 @@
 
 #endregion
 
-using System;
-using MediaPortal.Common.Configuration.ConfigurationClasses;
+using MediaPortal.Common.PluginManager;
+using MediaPortal.Plugins.ServerSettings.Settings;
 
-namespace MediaPortal.Plugins.ServerSettings.Settings.Configuration
+namespace MediaPortal.Plugins.ServerSettings
 {
-  class ServerNetworkCredentials : CustomConfigSetting, IDisposable
+  public class ServerSettingsPlugin : IPluginStateTracker
   {
-    public ServerNetworkCredentials()
+    #region IPluginStateTracker implementation
+
+    public void Activated(PluginRuntime pluginRuntime)
     {
-      Enabled = false;
-      ConnectionMonitor.Instance.RegisterConfiguration(this);
+      ConnectionMonitor.Instance.Install();
     }
 
-    public void Dispose()
+    public bool RequestEnd()
     {
-      ConnectionMonitor.Instance.UnregisterConfiguration(this);
+      return true;
     }
+
+    public void Stop()
+    {
+      ConnectionMonitor.Instance.Dispose();
+    }
+
+    public void Continue() { }
+
+    public void Shutdown() { }
+
+    #endregion
   }
 }

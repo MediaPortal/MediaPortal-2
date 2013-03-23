@@ -17,6 +17,7 @@
     <Assembly FileName="ServerSettings.Interfaces.dll"/>
     <Assembly FileName="ServerSettings.Client.dll"/>
     <Assembly FileName="..\NetworkNeighborhoodResourceProvider\NetworkNeighborhoodResourceProvider.dll"/>
+    <PluginStateTracker ClassName="MediaPortal.Plugins.ServerSettings.ServerSettingsPlugin"/>
   </Runtime>
   
   <Register Location="/Models">
