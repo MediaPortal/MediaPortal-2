@@ -45,6 +45,7 @@ using CommandLine;
 using MediaPortal.Common;
 using MediaPortal.Common.Services.Runtime;
 using MediaPortal.Common.Logging;
+using MediaPortal.Utilities.SystemAPI;
 
 [assembly: CLSCompliant(true)]
 
@@ -55,6 +56,33 @@ namespace MediaPortal.Client
   /// </summary>
   internal static class ApplicationLauncher
   {
+    #region Consts
+
+    // Unique id for global mutex - Global prefix means it is global to the entire machine
+    private const string MUTEX_ID = @"Global\{6CE68D44-7173-47C6-A5F2-C01D73B2F903}";
+
+    #endregion
+
+    #region Static fields
+
+    private static Mutex _mutex = null;
+
+    #endregion
+
+    #region Single Application
+
+    /// <summary>
+    /// Switch To Current Instance of the Application
+    /// </summary>
+    private static void SwitchToCurrentInstance()
+    {
+      // Send our Win32 message to make the currently running instance
+      // Jump on top of all the other windows
+      WindowsAPI.PostMessage((IntPtr)WindowsAPI.HWND_BROADCAST, SingleInstanceHelper.SHOW_MP2_CLIENT_MESSAGE, IntPtr.Zero, IntPtr.Zero);
+    }
+
+    #endregion
+
 #if !DEBUG
     private static SplashScreen CreateSplashScreen(int startupScreen)
     {
@@ -82,6 +110,15 @@ namespace MediaPortal.Client
       ICommandLineParser parser = new CommandLineParser(new CommandLineParserSettings(Console.Error));
       if (!parser.ParseArguments(args, mpArgs, Console.Out))
         Environment.Exit(1);
+
+      // Check if another instance is already running
+      if (SingleInstanceHelper.IsAlreadyRunning(MUTEX_ID, out _mutex))
+      {
+        _mutex = null;
+        //set focus on previously running app
+        SwitchToCurrentInstance();
+        throw new ApplicationException("Application already running");
+      }
 
 #if !DEBUG
       string logPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData), @"Team MediaPortal\MP2-Client\Log");
@@ -213,6 +250,11 @@ namespace MediaPortal.Client
         crash.CreateLog(ex);
 #endif
         systemStateService.SwitchSystemState(SystemState.Ending, false);
+
+        // Release mutex for single instance
+        if (_mutex != null)
+          _mutex.ReleaseMutex();
+
         Application.Exit();
       }
     }

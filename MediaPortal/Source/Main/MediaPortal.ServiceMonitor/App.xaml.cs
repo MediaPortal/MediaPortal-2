@@ -64,53 +64,19 @@ namespace MediaPortal.ServiceMonitor
     #region Static fields
 
     private static Mutex _mutex = null;
-    private static bool _hasHandle = false;
 
     #endregion
 
     #region Single Application
 
     /// <summary>
-    /// check if our application is running or not
-    /// </summary>
-    /// <returns>returns true if already running</returns>
-    private static bool IsAlreadyRunning()
-    {
-      // Allow only one instance
-      _mutex = new Mutex(false, MUTEX_ID);
-
-      var allowEveryoneRule = new MutexAccessRule(new SecurityIdentifier(WellKnownSidType.WorldSid, null),
-                                                  MutexRights.FullControl, AccessControlType.Allow);
-      var securitySettings = new MutexSecurity();
-      securitySettings.AddAccessRule(allowEveryoneRule);
-      _mutex.SetAccessControl(securitySettings);
-
-      _hasHandle = false;
-      try
-      {
-        // Check if we can start the application
-        _hasHandle = _mutex.WaitOne(500, false);
-      }
-      catch (AbandonedMutexException)
-      {
-        // The mutex was abandoned in another process, it will still get aquired
-        _hasHandle = true;
-      }
-      return !_hasHandle;
-    }
-
-    /// <summary>
     /// Switch To Current Instance of the Application
     /// </summary>
     private static void SwitchToCurrentInstance()
     {
-      // send our Win32 message to make the currently running instance
-      // jump on top of all the other windows
-      WindowsAPI.PostMessage(
-        (IntPtr) WinApi.HWND_BROADCAST,
-        WinApi.MP2_SHOWME,
-        IntPtr.Zero,
-        IntPtr.Zero);
+      // Send our Win32 message to make the currently running instance
+      // Jump on top of all the other windows
+      WindowsAPI.PostMessage((IntPtr)WindowsAPI.HWND_BROADCAST, WinApi.SHOW_MP2_SERVICEMONITOR_MESSAGE, IntPtr.Zero, IntPtr.Zero);
     }
 
     #endregion
@@ -132,10 +98,12 @@ namespace MediaPortal.ServiceMonitor
         Environment.Exit(1);
 
       // Even if new instance was created by UacHelper, assume that previous one is already closed.
-      if (IsAlreadyRunning())
+      if (SingleInstanceHelper.IsAlreadyRunning(MUTEX_ID, out _mutex))
       {
-        //set focus on previously running app
+        _mutex = null;
+        // Set focus on previously running app
         SwitchToCurrentInstance();
+        // Stop current instance
         throw new ApplicationException("Application already running");
       }
 
@@ -236,7 +204,7 @@ namespace MediaPortal.ServiceMonitor
       ApplicationCore.DisposeCoreServices();
       systemStateService.SwitchSystemState(SystemState.Ending, false);
 
-      if (_hasHandle)
+      if (_mutex != null)
         _mutex.ReleaseMutex();
     }
 

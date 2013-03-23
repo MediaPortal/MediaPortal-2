@@ -57,8 +57,10 @@ namespace MediaPortal.ServiceMonitor.Utilities
   /// </summary>
   internal static class WinApi
   {
-    public const int HWND_BROADCAST = 0xffff;
-    public static readonly uint MP2_SHOWME = WindowsAPI.RegisterWindowMessage("MP2_SHOWME");
+    /// <summary>
+    /// Windows message to bring MP2-ServiceMonitor to front.
+    /// </summary>
+    public static readonly uint SHOW_MP2_SERVICEMONITOR_MESSAGE = WindowsAPI.RegisterWindowMessage("SHOW_MP2_SERVICEMONITOR_MESSAGE");
 
     /// <summary>
     /// Creates, updates or deletes the taskbar icon.

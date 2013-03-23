@@ -51,6 +51,12 @@ namespace MediaPortal.Utilities.SystemAPI
       // ES_USER_PRESENT = 0x00000004
     }
 
+    /// <summary>
+    /// Handle to send a message to all top-level windows in the system, including disabled or invisible unowned windows,
+    /// overlapped windows, and pop-up windows; but the message is not sent to child windows.
+    /// </summary>
+    public const int HWND_BROADCAST = 0xffff;
+
     [DllImport("kernel32.dll", SetLastError = true)]
     public static extern EXECUTION_STATE SetThreadExecutionState(EXECUTION_STATE esFlags);
 

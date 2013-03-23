@@ -43,6 +43,7 @@ using MediaPortal.UI.SkinEngine.ScreenManagement;
 using MediaPortal.UI.SkinEngine.SkinManagement;
 using MediaPortal.UI.SkinEngine.Settings;
 using MediaPortal.UI.SkinEngine.Utils;
+using MediaPortal.Utilities.SystemAPI;
 using SlimDX.Direct3D9;
 using Screen = MediaPortal.UI.SkinEngine.ScreenManagement.Screen;
 
@@ -745,6 +746,13 @@ namespace MediaPortal.UI.SkinEngine.GUI
       // Hande 'beep'
       if (m.Msg == WM_SYSCHAR)
         return;
+
+      // Message thrown by another MP2-Client instance -> Bring current instance to front
+      if (m.Msg == SingleInstanceHelper.SHOW_MP2_CLIENT_MESSAGE)
+      {
+        CheckTopMost();
+        return;
+      }
 
       // Albert, 2010-03-13: The following code can be used to make the window always maintain a fixed aspect ratio.
       // It was commented out because it doesn't really help. At least in the fullscreen mode, the aspect ratio is determined

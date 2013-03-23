@@ -104,6 +104,7 @@
     <Compile Include="Screens\SplashScreen.cs">
       <SubType>Form</SubType>
     </Compile>
+    <Compile Include="SystemAPI\SingleInstanceHelper.cs" />
     <Compile Include="ThreadingUtils.cs" />
     <Compile Include="DB\InstructionList.cs" />
     <Compile Include="DB\SQLUtils.cs" />
