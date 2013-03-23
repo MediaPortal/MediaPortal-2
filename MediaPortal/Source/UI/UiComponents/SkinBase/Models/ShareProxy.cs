@@ -66,6 +66,7 @@ namespace MediaPortal.UiComponents.SkinBase.Models
     protected AbstractProperty _shareNameProperty;
     protected AbstractProperty _isShareNameValidProperty;
     protected AbstractProperty _invalidShareHintProperty;
+    protected AbstractProperty _isMediaCategoriesSelectedProperty;
     protected ItemsList _allMediaCategoriesTree;
     protected ICollection<string> _mediaCategories = new HashSet<string>();
     protected Share _origShare = null;
@@ -92,6 +93,7 @@ namespace MediaPortal.UiComponents.SkinBase.Models
       _invalidShareHintProperty = new WProperty(typeof(string), null);
       _allMediaCategoriesTree = new ItemsList();
       _mediaCategories = new HashSet<string>();
+      _isMediaCategoriesSelectedProperty = new WProperty(typeof(bool), false);
     }
 
     #region Event handlers
@@ -146,7 +148,7 @@ namespace MediaPortal.UiComponents.SkinBase.Models
         SelectMediaCategoryHierarchy(changedItem);
       else
         DeselectMediaCategoryHierarchy(changedItem);
-      UpdateMediaCategories();
+      UpdateMediaCategories(GetSelectedMediaCategories(_allMediaCategoriesTree));
     }
 
     #endregion
@@ -311,6 +313,20 @@ namespace MediaPortal.UiComponents.SkinBase.Models
     }
 
     /// <summary>
+    /// <c>true</c> if at least one MediaCategory is selected.
+    /// </summary>
+    public bool IsMediaCategoriesSelected
+    {
+      get { return (bool) _isMediaCategoriesSelectedProperty.GetValue(); }
+      set { _isMediaCategoriesSelectedProperty.SetValue(value); }
+    }
+
+    public AbstractProperty IsMediaCategoriesSelectedProperty
+    {
+      get { return _isMediaCategoriesSelectedProperty; }
+    }
+
+    /// <summary>
     /// Paths tree of the selected resource provider, if the resource provider supports path
     /// navigation.
     /// </summary>
@@ -386,7 +402,7 @@ namespace MediaPortal.UiComponents.SkinBase.Models
       BaseResourceProvider = null;
       ChoosenResourcePath = null;
       ShareName = string.Empty;
-      MediaCategories.Clear();
+      UpdateMediaCategories(null);
       NativeSystem = null;
     }
 
@@ -397,8 +413,7 @@ namespace MediaPortal.UiComponents.SkinBase.Models
       NativeSystem = nativeSystem;
       ChoosenResourcePath = share.BaseResourcePath;
       ShareName = share.Name;
-      MediaCategories.Clear();
-      CollectionUtils.AddAll(MediaCategories, share.MediaCategories);
+      UpdateMediaCategories(share.MediaCategories);
       return true;
     }
 
@@ -550,10 +565,12 @@ namespace MediaPortal.UiComponents.SkinBase.Models
       return result;
     }
 
-    protected void UpdateMediaCategories()
+    protected void UpdateMediaCategories(ICollection<string> selectedCategories)
     {
       _mediaCategories.Clear();
-      CollectionUtils.AddAll(_mediaCategories, GetSelectedMediaCategories(_allMediaCategoriesTree));
+      if (selectedCategories != null)
+        CollectionUtils.AddAll(_mediaCategories, selectedCategories);
+      IsMediaCategoriesSelected = _mediaCategories.Count > 0;
     }
 
     /// <summary>
