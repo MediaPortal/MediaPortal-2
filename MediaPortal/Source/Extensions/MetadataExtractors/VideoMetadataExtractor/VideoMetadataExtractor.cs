@@ -313,6 +313,10 @@ namespace MediaPortal.Extensions.MetadataExtractors.VideoMetadataExtractor
 
       if (actors != null)
         MediaItemAspect.SetCollectionAttribute(extractedAspectData, VideoAspect.ATTR_ACTORS, actors);
+
+      tags = tagsToExtract[MatroskaConsts.TAG_DIRECTORS];
+      if (tags != null)
+        MediaItemAspect.SetCollectionAttribute(extractedAspectData, VideoAspect.ATTR_DIRECTORS, tags);
     }
 
     protected void ExtractMp4Tags(string localFsResourcePath, IDictionary<Guid, MediaItemAspect> extractedAspectData, bool forceQuickMode)

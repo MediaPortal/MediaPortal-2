@@ -157,10 +157,10 @@ namespace MediaPortal.Extensions.OnlineLibraries
     private static void SetEpisodeDetails(SeriesInfo seriesInfo, TvdbEpisode episode)
     {
       seriesInfo.Summary = episode.Overview;
-      if (episode.Directors.Count > 0)
-        CollectionUtils.AddAll(seriesInfo.Directors, episode.Directors);
       if (episode.GuestStars.Count > 0)
         CollectionUtils.AddAll(seriesInfo.Actors, episode.GuestStars);
+      if (episode.Directors.Count > 0)
+        CollectionUtils.AddAll(seriesInfo.Directors, episode.Directors);
     }
 
     protected bool TryGetId(string seriesName, out int tvDbId)

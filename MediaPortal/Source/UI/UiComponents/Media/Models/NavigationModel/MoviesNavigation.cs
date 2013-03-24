@@ -63,6 +63,7 @@ namespace MediaPortal.UiComponents.Media.Models.NavigationModel
           new MoviesShowItemsScreenData(picd),
           new MovieFilterByCollectionScreenData(),
           new VideosFilterByActorScreenData(),
+          new VideosFilterByDirectorScreenData(),
           filterByGenre,
           // C# doesn't like it to have an assignment inside a collection initializer
           new VideosFilterByYearScreenData(),
@@ -76,8 +77,8 @@ namespace MediaPortal.UiComponents.Media.Models.NavigationModel
           new SortByYear(),
           new VideoSortByFirstGenre(),
           new VideoSortByDuration(),
-          new VideoSortByDirector(),
           new VideoSortByFirstActor(),
+          new VideoSortByFirstDirector(),
           new VideoSortBySize(),
           new VideoSortByAspectRatio(),
           new SortBySystem(),

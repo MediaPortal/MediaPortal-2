@@ -141,6 +141,7 @@ namespace MediaPortal.UiComponents.Media.General
     public const string RES_FILTER_BY_IMAGE_YEAR_MENU_ITEM = "[Media.FilterByImageYearMenuItem]";
     public const string RES_FILTER_BY_VIDEO_YEAR_MENU_ITEM = "[Media.FilterByVideoYearMenuItem]";
     public const string RES_FILTER_BY_ACTOR_MENU_ITEM = "[Media.FilterByActorMenuItem]";
+    public const string RES_FILTER_BY_DIRECTOR_MENU_ITEM = "[Media.FilterByDirectorMenuItem]";
     public const string RES_FILTER_BY_VIDEO_GENRE_MENU_ITEM = "[Media.FilterByVideoGenreMenuItem]";
     public const string RES_FILTER_BY_AUDIO_LANG_MENU_ITEM = "[Media.FilterByAudioLanguageMenuItem]";
     public const string RES_FILTER_BY_SYSTEM_MENU_ITEM = "[Media.FilterBySystemMenuItem]";
@@ -169,6 +170,7 @@ namespace MediaPortal.UiComponents.Media.General
     public const string RES_FILTER_IMAGE_YEAR_NAVBAR_DISPLAY_LABEL = "[Media.FilterImageYearNavbarDisplayLabel]";
     public const string RES_FILTER_VIDEO_YEAR_NAVBAR_DISPLAY_LABEL = "[Media.FilterVideoYearNavbarDisplayLabel]";
     public const string RES_FILTER_ACTOR_NAVBAR_DISPLAY_LABEL = "[Media.FilterActorNavbarDisplayLabel]";
+    public const string RES_FILTER_DIRECTOR_NAVBAR_DISPLAY_LABEL = "[Media.FilterDirectorNavbarDisplayLabel]";
     public const string RES_FILTER_VIDEO_GENRE_NAVBAR_DISPLAY_LABEL = "[Media.FilterVideoGenreNavbarDisplayLabel]";
     public const string RES_FILTER_IMAGE_SIZE_NAVBAR_DISPLAY_LABEL = "[Media.FilterImageSizeNavbarDisplayLabel]";
     public const string RES_FILTER_AUDIO_ITEMS_NAVBAR_DISPLAY_LABEL = "[Media.FilterAudioItemsNavbarDisplayLabel]";
@@ -313,6 +315,7 @@ namespace MediaPortal.UiComponents.Media.General
     public const string SCREEN_AUDIO_SIMPLE_SEARCH = "AudioSimpleSearch";
     public const string SCREEN_VIDEOS_SHOW_ITEMS = "VideoShowItems";
     public const string SCREEN_VIDEOS_FILTER_BY_ACTOR = "VideoFilterByActor";
+    public const string SCREEN_VIDEOS_FILTER_BY_DIRECTOR = "VideoFilterByDirector";
     public const string SCREEN_VIDEOS_FILTER_BY_GENRE = "VideoFilterByGenre";
     public const string SCREEN_VIDEOS_FILTER_BY_YEAR = "VideoFilterByYear";
     public const string SCREEN_VIDEOS_FILTER_BY_SYSTEM = "VideoFilterBySystem";

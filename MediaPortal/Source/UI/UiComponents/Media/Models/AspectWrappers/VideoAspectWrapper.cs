@@ -46,7 +46,6 @@ namespace MediaPortal.UiComponents.Media.Models.AspectWrappers
 
     protected AbstractProperty _genresProperty;
     protected AbstractProperty _durationProperty;
-    protected AbstractProperty _directorProperty;
     protected AbstractProperty _audioStreamCountProperty;
     protected AbstractProperty _audioEncodingProperty;
     protected AbstractProperty _audioBitRateProperty;
@@ -58,6 +57,7 @@ namespace MediaPortal.UiComponents.Media.Models.AspectWrappers
     protected AbstractProperty _aspectRatioProperty;
     protected AbstractProperty _fPSProperty;
     protected AbstractProperty _actorsProperty;
+    protected AbstractProperty _directorsProperty;
     protected AbstractProperty _isDVDProperty;
     protected AbstractProperty _storyPlotProperty;
     protected AbstractProperty _mediaItemProperty;
@@ -86,17 +86,6 @@ namespace MediaPortal.UiComponents.Media.Models.AspectWrappers
     {
       get { return (long?) _durationProperty.GetValue(); }
       set { _durationProperty.SetValue(value); }
-    }
-
-    public AbstractProperty DirectorProperty
-    {
-      get { return _directorProperty; }
-    }
-
-    public string Director
-    {
-      get { return (string) _directorProperty.GetValue(); }
-      set { _directorProperty.SetValue(value); }
     }
 
     public AbstractProperty AudioStreamCountProperty
@@ -220,6 +209,17 @@ namespace MediaPortal.UiComponents.Media.Models.AspectWrappers
       set { _actorsProperty.SetValue(value); }
     }
 
+    public AbstractProperty DirectorsProperty
+    {
+      get { return _directorsProperty; }
+    }
+
+    public IEnumerable<string> Directors
+    {
+      get { return (IEnumerable<string>) _directorsProperty.GetValue(); }
+      set { _directorsProperty.SetValue(value); }
+    }
+
     public AbstractProperty IsDVDProperty
     {
       get { return _isDVDProperty; }
@@ -261,7 +261,6 @@ namespace MediaPortal.UiComponents.Media.Models.AspectWrappers
     {
       _genresProperty = new SProperty(typeof(IEnumerable<string>));
       _durationProperty = new SProperty(typeof(long?));
-      _directorProperty = new SProperty(typeof(string));
       _audioStreamCountProperty = new SProperty(typeof(int?));
       _audioEncodingProperty = new SProperty(typeof(string));
       _audioBitRateProperty = new SProperty(typeof(long?));
@@ -273,6 +272,7 @@ namespace MediaPortal.UiComponents.Media.Models.AspectWrappers
       _aspectRatioProperty = new SProperty(typeof(float?));
       _fPSProperty = new SProperty(typeof(int?));
       _actorsProperty = new SProperty(typeof(IEnumerable<string>));
+      _directorsProperty = new SProperty(typeof(IEnumerable<string>));
       _isDVDProperty = new SProperty(typeof(bool?));
       _storyPlotProperty = new SProperty(typeof(string));
       _mediaItemProperty = new SProperty(typeof(MediaItem));
@@ -299,7 +299,6 @@ namespace MediaPortal.UiComponents.Media.Models.AspectWrappers
 
       Genres = (IEnumerable<string>) aspect[VideoAspect.ATTR_GENRES] ?? EMPTY_STRING_COLLECTION;
       Duration = (long?) aspect[VideoAspect.ATTR_DURATION];
-      Director = (string) aspect[VideoAspect.ATTR_DIRECTOR];
       AudioStreamCount = (int?) aspect[VideoAspect.ATTR_AUDIOSTREAMCOUNT];
       AudioEncoding = (string) aspect[VideoAspect.ATTR_AUDIOENCODING];
       AudioBitRate = (long?) aspect[VideoAspect.ATTR_AUDIOBITRATE];
@@ -311,6 +310,7 @@ namespace MediaPortal.UiComponents.Media.Models.AspectWrappers
       AspectRatio = (float?) aspect[VideoAspect.ATTR_ASPECTRATIO];
       FPS = (int?) aspect[VideoAspect.ATTR_FPS];
       Actors = (IEnumerable<string>) aspect[VideoAspect.ATTR_ACTORS] ?? EMPTY_STRING_COLLECTION;
+      Directors = (IEnumerable<string>) aspect[VideoAspect.ATTR_DIRECTORS] ?? EMPTY_STRING_COLLECTION;
       IsDVD = (bool?) aspect[VideoAspect.ATTR_ISDVD];
       StoryPlot = (string) aspect[VideoAspect.ATTR_STORYPLOT];
     }
@@ -319,7 +319,6 @@ namespace MediaPortal.UiComponents.Media.Models.AspectWrappers
     {
       Genres = EMPTY_STRING_COLLECTION;
       Duration = null;
-      Director = null;
       AudioStreamCount = null;
       AudioEncoding = null;
       AudioBitRate = null;
@@ -331,6 +330,7 @@ namespace MediaPortal.UiComponents.Media.Models.AspectWrappers
       AspectRatio = null;
       FPS = null;
       Actors = EMPTY_STRING_COLLECTION;
+      Directors = EMPTY_STRING_COLLECTION;
       IsDVD = null;
       StoryPlot = null;
     }

@@ -39,6 +39,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.MatroskaLib
     public const string TAG_EPISODE_TITLE = "50.TITLE";
     public const string TAG_EPISODE_SUMMARY = "50.SUMMARY";
     public const string TAG_ACTORS = "50.ACTOR";
+    public const string TAG_DIRECTORS = "50.DIRECTOR";
     public const string TAG_SEASON_NUMBER = "60.PART_NUMBER";
     public const string TAG_EPISODE_YEAR = "50.DATE_RELEASED";
     public const string TAG_EPISODE_NUMBER = "50.PART_NUMBER";
@@ -66,6 +67,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.MatroskaLib
             {TAG_MOVIE_IMDB_ID, null}, // movie imdb id
             {TAG_SERIES_IMDB_ID, null}, // series imdb id
             {TAG_ACTORS, null}, // Actor(s)
+            {TAG_DIRECTORS, null}, // Director(s)
             {TAG_SIMPLE_TITLE, null} // File title
           };
       }
