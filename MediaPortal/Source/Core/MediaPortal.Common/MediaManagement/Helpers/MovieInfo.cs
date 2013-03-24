@@ -39,7 +39,6 @@ namespace MediaPortal.Common.MediaManagement.Helpers
     public bool Matched { get; set; }
 
     public int MovieDbId { get; set; }
-    public int OfdbId { get; set; }
     public string ImdbId { get; set; }
 
     public string MovieName { get; set; }
@@ -93,7 +92,6 @@ namespace MediaPortal.Common.MediaManagement.Helpers
       if (!string.IsNullOrEmpty(Certification)) MediaItemAspect.SetAttribute(aspectData, MovieAspect.ATTR_CERTIFICATION, Certification);
       if (!string.IsNullOrEmpty(ImdbId)) MediaItemAspect.SetAttribute(aspectData, MovieAspect.ATTR_IMDB_ID, ImdbId);
       if (MovieDbId > 0) MediaItemAspect.SetAttribute(aspectData, MovieAspect.ATTR_TMDB_ID, MovieDbId);
-      if (OfdbId > 0) MediaItemAspect.SetAttribute(aspectData, MovieAspect.ATTR_OFDB_ID, OfdbId);
       if (Runtime > 0) MediaItemAspect.SetAttribute(aspectData, MovieAspect.ATTR_RUNTIME_M, Runtime);
       if (Popularity > 0f) MediaItemAspect.SetAttribute(aspectData, MovieAspect.ATTR_POPULARITY, Popularity);
       if (Budget > 0) MediaItemAspect.SetAttribute(aspectData, MovieAspect.ATTR_BUDGET, Budget);

@@ -48,7 +48,6 @@ namespace MediaPortal.UiComponents.Media.Models.AspectWrappers
     protected AbstractProperty _origNameProperty;
     protected AbstractProperty _iMDBIDProperty;
     protected AbstractProperty _tMDBIDProperty;
-    protected AbstractProperty _oFDBIDProperty;
     protected AbstractProperty _collectionNameProperty;
     protected AbstractProperty _collectionIDProperty;
     protected AbstractProperty _runtimeProperty;
@@ -106,17 +105,6 @@ namespace MediaPortal.UiComponents.Media.Models.AspectWrappers
     {
       get { return (int?) _tMDBIDProperty.GetValue(); }
       set { _tMDBIDProperty.SetValue(value); }
-    }
-
-    public AbstractProperty OFDBIDProperty
-    {
-      get { return _oFDBIDProperty; }
-    }
-
-    public int? OFDBID
-    {
-      get { return (int?) _oFDBIDProperty.GetValue(); }
-      set { _oFDBIDProperty.SetValue(value); }
     }
 
     public AbstractProperty CollectionNameProperty
@@ -239,7 +227,6 @@ namespace MediaPortal.UiComponents.Media.Models.AspectWrappers
       _origNameProperty = new SProperty(typeof(string));
       _iMDBIDProperty = new SProperty(typeof(string));
       _tMDBIDProperty = new SProperty(typeof(int?));
-      _oFDBIDProperty = new SProperty(typeof(int?));
       _collectionNameProperty = new SProperty(typeof(string));
       _collectionIDProperty = new SProperty(typeof(int?));
       _runtimeProperty = new SProperty(typeof(int?));
@@ -274,7 +261,6 @@ namespace MediaPortal.UiComponents.Media.Models.AspectWrappers
       MovieName = (string) aspect[MovieAspect.ATTR_MOVIE_NAME];
       OrigName = (string) aspect[MovieAspect.ATTR_ORIG_MOVIE_NAME];
       TMDBID = (int?) aspect[MovieAspect.ATTR_TMDB_ID];
-      OFDBID = (int?) aspect[MovieAspect.ATTR_OFDB_ID];
       IMDBID = (string) aspect[MovieAspect.ATTR_IMDB_ID];
       CollectionName = (string) aspect[MovieAspect.ATTR_COLLECTION_NAME];
       CollectionID = (int?) aspect[MovieAspect.ATTR_COLLECTION_ID];
@@ -292,7 +278,6 @@ namespace MediaPortal.UiComponents.Media.Models.AspectWrappers
       MovieName = null;
       OrigName = null;
       TMDBID = null;
-      OFDBID = null;
       IMDBID = null;
       CollectionName = null;
       CollectionID = null;

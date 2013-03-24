@@ -36,7 +36,7 @@ namespace MediaPortal.Common.MediaManagement.DefaultItemAspects
     /// <summary>
     /// Media item aspect id of the series aspect.
     /// </summary>
-    public static readonly Guid ASPECT_ID = new Guid("AE6CCAA6-7D23-4087-AB2C-B8CFDAE4F03A");
+    public static readonly Guid ASPECT_ID = new Guid("07067796-3398-4D9C-9012-12070EAE350A");
 
     /// <summary>
     /// Contains the localized name of the movie.
@@ -55,12 +55,6 @@ namespace MediaPortal.Common.MediaManagement.DefaultItemAspects
     /// </summary>
     public static readonly MediaItemAspectMetadata.AttributeSpecification ATTR_TMDB_ID =
         MediaItemAspectMetadata.CreateAttributeSpecification("TMDBID", typeof(int), Cardinality.Inline, false);
-
-    /// <summary>
-    /// Contains the OFDB ID of the movie.
-    /// </summary>
-    public static readonly MediaItemAspectMetadata.AttributeSpecification ATTR_OFDB_ID =
-        MediaItemAspectMetadata.CreateAttributeSpecification("OFDBID", typeof(int), Cardinality.Inline, false);
 
     /// <summary>
     /// Contains the IMDB ID of the movie.
@@ -129,7 +123,6 @@ namespace MediaPortal.Common.MediaManagement.DefaultItemAspects
             ATTR_ORIG_MOVIE_NAME,
             ATTR_IMDB_ID,
             ATTR_TMDB_ID,
-            ATTR_OFDB_ID,
             ATTR_COLLECTION_NAME,
             ATTR_COLLECTION_ID,
             ATTR_RUNTIME_M,
