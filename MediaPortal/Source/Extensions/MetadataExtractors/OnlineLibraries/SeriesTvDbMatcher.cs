@@ -106,8 +106,10 @@ namespace MediaPortal.Extensions.OnlineLibraries
         {
           tvDbId = seriesDetail.Id;
           seriesInfo.Series = seriesDetail.SeriesName;
+          seriesInfo.Actors.Clear();
           if (seriesDetail.Actors.Count > 0)
             CollectionUtils.AddAll(seriesInfo.Actors, seriesDetail.Actors);
+          seriesInfo.Genres.Clear();
           if (seriesDetail.Genre.Count > 0)
             CollectionUtils.AddAll(seriesInfo.Genres, seriesDetail.Genre);
 
@@ -157,10 +159,13 @@ namespace MediaPortal.Extensions.OnlineLibraries
     private static void SetEpisodeDetails(SeriesInfo seriesInfo, TvdbEpisode episode)
     {
       seriesInfo.Summary = episode.Overview;
+      // Don't clear seriesInfo.Actors again. It's already been filled with actors from series details.
       if (episode.GuestStars.Count > 0)
         CollectionUtils.AddAll(seriesInfo.Actors, episode.GuestStars);
+      seriesInfo.Directors.Clear();
       if (episode.Directors.Count > 0)
         CollectionUtils.AddAll(seriesInfo.Directors, episode.Directors);
+      seriesInfo.Writers.Clear();
       if (episode.Writer.Count > 0)
         CollectionUtils.AddAll(seriesInfo.Writers, episode.Writer);
     }
