@@ -40,6 +40,16 @@ namespace MediaPortal.Extensions.MetadataExtractors.MatroskaLib
     public const string TAG_EPISODE_SUMMARY = "50.SUMMARY";
     public const string TAG_ACTORS = "50.ACTOR";
     public const string TAG_DIRECTORS = "50.DIRECTOR";
+
+    /// <summary>
+    /// The author of the story or script (used for movies and TV shows).
+    /// </summary>
+    public const string TAG_WRITTEN_BY = "50.WRITTEN_BY";
+
+    /// <summary>
+    /// The author of the screenplay or scenario (used for movies and TV shows).
+    /// </summary>
+    public const string TAG_SCREENPLAY_BY = "50.SCREENPLAY_BY";
     public const string TAG_SEASON_NUMBER = "60.PART_NUMBER";
     public const string TAG_EPISODE_YEAR = "50.DATE_RELEASED";
     public const string TAG_EPISODE_NUMBER = "50.PART_NUMBER";
@@ -68,6 +78,8 @@ namespace MediaPortal.Extensions.MetadataExtractors.MatroskaLib
             {TAG_SERIES_IMDB_ID, null}, // series imdb id
             {TAG_ACTORS, null}, // Actor(s)
             {TAG_DIRECTORS, null}, // Director(s)
+            {TAG_WRITTEN_BY, null}, // Author(s) of story/script
+            {TAG_SCREENPLAY_BY, null}, // Author(s) of screenplay/scenario
             {TAG_SIMPLE_TITLE, null} // File title
           };
       }

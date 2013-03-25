@@ -154,6 +154,7 @@
     <Compile Include="Models\ScreenData\ImagesFilterByCityScreenData.cs" />
     <Compile Include="Models\ScreenData\ImagesFilterByStateScreenData.cs" />
     <Compile Include="Models\ScreenData\ImagesFilterByCountryScreenData.cs" />
+    <Compile Include="Models\ScreenData\VideosFilterByWriterScreenData.cs" />
     <Compile Include="Models\ScreenData\VideosFilterByDirectorScreenData.cs" />
     <Compile Include="Models\ScreenData\MovieFilterByCollectionScreenData.cs" />
     <Compile Include="Models\ScreenData\MovieShowItemsScreenData.cs" />
@@ -170,6 +171,7 @@
     <Compile Include="Models\Sorting\AbstractSortByFirstComparableAttribute.cs" />
     <Compile Include="Models\Sorting\AbstractSortByComparableObjectAttribute.cs" />
     <Compile Include="Models\Sorting\AbstractSortByComparableValueAttribute.cs" />
+    <Compile Include="Models\Sorting\VideoSortByFirstWriter.cs" />
     <Compile Include="Models\Sorting\SortByFirstAiredDate.cs" />
     <Compile Include="Models\Sorting\SeriesSortByEpisode.cs" />
     <Compile Include="Models\Sorting\SortByDate.cs" />
@@ -362,6 +364,7 @@
     <Content Include="Skin\default\screens\ImageFilterByState.xaml" />
     <Content Include="Skin\default\screens\ImageFilterByCity.xaml" />
     <Content Include="Skin\default\screens\VideoFilterByDirector.xaml" />
+    <Content Include="Skin\default\screens\VideoFilterByWriter.xaml" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

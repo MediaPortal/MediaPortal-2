@@ -35,7 +35,7 @@ namespace MediaPortal.Common.MediaManagement.DefaultItemAspects
     /// <summary>
     /// Media item aspect id of the video aspect.
     /// </summary>
-    public static readonly Guid ASPECT_ID = new Guid("D5D1E221-16E1-46E2-96BC-95D65E038C00");
+    public static readonly Guid ASPECT_ID = new Guid("FEA2DA04-1FDC-4836-B669-F3CA73ADF120");
 
     /// <summary>
     /// Genre string.
@@ -123,6 +123,12 @@ namespace MediaPortal.Common.MediaManagement.DefaultItemAspects
         MediaItemAspectMetadata.CreateStringAttributeSpecification("Directors", 100, Cardinality.ManyToMany, true);
 
     /// <summary>
+    /// Enumeration of writer name strings.
+    /// </summary>
+    public static readonly MediaItemAspectMetadata.AttributeSpecification ATTR_WRITERS =
+        MediaItemAspectMetadata.CreateStringAttributeSpecification("Writers", 100, Cardinality.ManyToMany, true);
+
+    /// <summary>
     /// Set to <c>true</c> if this video item represents a DVD.
     /// </summary>
     public static readonly MediaItemAspectMetadata.AttributeSpecification ATTR_ISDVD =
@@ -151,6 +157,7 @@ namespace MediaPortal.Common.MediaManagement.DefaultItemAspects
             ATTR_FPS,
             ATTR_ACTORS,
             ATTR_DIRECTORS,
+            ATTR_WRITERS,
             ATTR_ISDVD,
             ATTR_STORYPLOT,
         });

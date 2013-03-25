@@ -16,6 +16,7 @@
   <string name="Media.FilterByDecadeMenuItem">Filter by decade</string>
   <string name="Media.FilterByActorMenuItem">Filter by actor</string>
   <string name="Media.FilterByDirectorMenuItem">Filter by director</string>
+  <string name="Media.FilterByWriterMenuItem">Filter by writer</string>
   <string name="Media.FilterByVideoGenreMenuItem">Filter by genre</string>
   <string name="Media.FilterByVideoYearMenuItem">Filter by year</string>
   <string name="Media.FilterByAudioLanguageMenuItem">Filter by language</string>
@@ -52,6 +53,7 @@
   <string name="Media.FilterDecadeNavbarDisplayLabel">Decade: {0}</string>
   <string name="Media.FilterActorNavbarDisplayLabel">Actor: {0}</string>
   <string name="Media.FilterDirectorNavbarDisplayLabel">Director: {0}</string>
+  <string name="Media.FilterWriterNavbarDisplayLabel">Writer: {0}</string>
   <string name="Media.FilterVideoGenreNavbarDisplayLabel">Genre: {0}</string>
   <string name="Media.FilterVideoYearNavbarDisplayLabel">Year: {0}</string>
   <string name="Media.FilterAudioLanguagesNavbarDisplayLabel">Language: {0}</string>
@@ -107,6 +109,7 @@
   <string name="Media.ChooseCollectionHeader">Choose a collection</string>
   <string name="Media.ChooseActorHeader">Choose an actor</string>
   <string name="Media.ChooseDirectorHeader">Choose a director</string>
+  <string name="Media.ChooseWriterHeader">Choose a writer</string>
   <string name="Media.ChooseVideoGenreHeader">Choose a genre</string>
   <string name="Media.ChooseVideoYearHeader">Choose a year</string>
   <string name="Media.ChooseSeriesHeader">Choose a series</string>
@@ -329,6 +332,7 @@
   <string name="Media.SortBySystem">Sort by system</string>
   <string name="Media.SortByActor">Sort by actor</string>
   <string name="Media.SortByDirector">Sort by director</string>
+  <string name="Media.SortByWriter">Sort by writer</string>
   <string name="Media.SortByDuration">Sort by duration</string>
   <string name="Media.SortByAspectRatio">Sort by aspect ratio</string>
   <string name="Media.SortByFirstAiredDate">Sort by aired date</string>

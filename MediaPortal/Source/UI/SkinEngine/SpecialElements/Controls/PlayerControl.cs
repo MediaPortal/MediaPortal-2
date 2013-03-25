@@ -135,6 +135,7 @@ namespace MediaPortal.UI.SkinEngine.SpecialElements.Controls
     protected AbstractProperty _videoYearProperty;
     protected AbstractProperty _videoActorsProperty;
     protected AbstractProperty _videoDirectorsProperty;
+    protected AbstractProperty _videoWritersProperty;
     protected AbstractProperty _videoStoryPlotProperty;
     protected AbstractProperty _audioArtistsProperty;
     protected AbstractProperty _audioYearProperty;
@@ -204,6 +205,7 @@ namespace MediaPortal.UI.SkinEngine.SpecialElements.Controls
       _videoYearProperty = new SProperty(typeof(int?), null);
       _videoActorsProperty = new SProperty(typeof(IEnumerable<string>), EMPTY_NAMES_COLLECTION);
       _videoDirectorsProperty = new SProperty(typeof(IEnumerable<string>), EMPTY_NAMES_COLLECTION);
+      _videoWritersProperty = new SProperty(typeof(IEnumerable<string>), EMPTY_NAMES_COLLECTION);
       _videoStoryPlotProperty = new SProperty(typeof(string), string.Empty);
       _imageSourceLocatorProperty = new SProperty(typeof(IResourceLocator), null);
       _imageRotateDegreesProperty = new SProperty(typeof(int), 0);
@@ -710,6 +712,7 @@ namespace MediaPortal.UI.SkinEngine.SpecialElements.Controls
           VideoGenres = EMPTY_NAMES_COLLECTION;
           VideoActors = EMPTY_NAMES_COLLECTION;
           VideoDirectors = EMPTY_NAMES_COLLECTION;
+          VideoWriters = EMPTY_NAMES_COLLECTION;
           VideoStoryPlot = string.Empty;
         }
         else
@@ -717,6 +720,7 @@ namespace MediaPortal.UI.SkinEngine.SpecialElements.Controls
           VideoGenres = (IEnumerable<string>) videoAspect[VideoAspect.ATTR_GENRES];
           VideoActors = (IEnumerable<string>) videoAspect[VideoAspect.ATTR_ACTORS];
           VideoDirectors = (IEnumerable<string>) videoAspect[VideoAspect.ATTR_DIRECTORS];
+          VideoWriters = (IEnumerable<string>) videoAspect[VideoAspect.ATTR_WRITERS];
           VideoStoryPlot = (string) videoAspect[VideoAspect.ATTR_STORYPLOT];
         }
         if (audioAspect == null)
@@ -1368,6 +1372,21 @@ namespace MediaPortal.UI.SkinEngine.SpecialElements.Controls
     {
       get { return (IEnumerable<string>) _videoDirectorsProperty.GetValue(); }
       internal set { _videoDirectorsProperty.SetValue(value); }
+    }
+
+    public AbstractProperty VideoWritersProperty
+    {
+      get { return _videoWritersProperty; }
+    }
+
+    /// <summary>
+    /// Gets an enumeration of writer names of the currently playing video, if the current media item is a video item
+    /// and if this information is available.
+    /// </summary>
+    public IEnumerable<string> VideoWriters
+    {
+      get { return (IEnumerable<string>) _videoWritersProperty.GetValue(); }
+      internal set { _videoWritersProperty.SetValue(value); }
     }
 
     public AbstractProperty VideoStoryPlotProperty

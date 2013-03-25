@@ -161,6 +161,8 @@ namespace MediaPortal.Extensions.OnlineLibraries
         CollectionUtils.AddAll(seriesInfo.Actors, episode.GuestStars);
       if (episode.Directors.Count > 0)
         CollectionUtils.AddAll(seriesInfo.Directors, episode.Directors);
+      if (episode.Writer.Count > 0)
+        CollectionUtils.AddAll(seriesInfo.Writers, episode.Writer);
     }
 
     protected bool TryGetId(string seriesName, out int tvDbId)

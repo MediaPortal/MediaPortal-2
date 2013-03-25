@@ -153,6 +153,11 @@ namespace MediaPortal.Common.MediaManagement.Helpers
     public ICollection<string> Directors { get; internal set; }
 
     /// <summary>
+    /// Gets a list of directors.
+    /// </summary>
+    public ICollection<string> Writers { get; internal set; }
+
+    /// <summary>
     /// Gets a list of genres.
     /// </summary>
     public ICollection<string> Genres { get; internal set; }
@@ -165,6 +170,7 @@ namespace MediaPortal.Common.MediaManagement.Helpers
       DvdEpisodeNumbers = new List<double>();
       Actors = new HashSet<string>();
       Directors = new HashSet<string>();
+      Writers = new HashSet<string>();
       Genres = new HashSet<string>();
     }
 
@@ -205,6 +211,7 @@ namespace MediaPortal.Common.MediaManagement.Helpers
       if (!string.IsNullOrEmpty(Summary)) MediaItemAspect.SetAttribute(aspectData, VideoAspect.ATTR_STORYPLOT, Summary);
       if (Actors.Count > 0) MediaItemAspect.SetCollectionAttribute(aspectData, VideoAspect.ATTR_ACTORS, Actors);
       if (Directors.Count > 0) MediaItemAspect.SetCollectionAttribute(aspectData, VideoAspect.ATTR_DIRECTORS, Directors);
+      if (Writers.Count > 0) MediaItemAspect.SetCollectionAttribute(aspectData, VideoAspect.ATTR_WRITERS, Writers);
       if (Genres.Count > 0) MediaItemAspect.SetCollectionAttribute(aspectData, VideoAspect.ATTR_GENRES, Genres);
       return true;
     }

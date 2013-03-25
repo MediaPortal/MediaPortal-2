@@ -63,9 +63,9 @@ namespace MediaPortal.Common.MediaManagement.Helpers
     /// to do an online lookup in the best matching language.
     /// </summary>
     public List<string> Languages { get; internal set; }
-    public List<string> Writers { get; internal set; }
     public List<string> Actors { get; internal set; }
     public List<string> Directors { get; internal set; }
+    public List<string> Writers { get; internal set; }
     public List<string> Genres { get; internal set; }
 
     public MovieInfo ()
@@ -108,6 +108,7 @@ namespace MediaPortal.Common.MediaManagement.Helpers
 
       if (Actors.Count > 0) MediaItemAspect.SetCollectionAttribute(aspectData, VideoAspect.ATTR_ACTORS, Actors);
       if (Directors.Count > 0) MediaItemAspect.SetCollectionAttribute(aspectData, VideoAspect.ATTR_DIRECTORS, Directors);
+      if (Writers.Count > 0) MediaItemAspect.SetCollectionAttribute(aspectData, VideoAspect.ATTR_WRITERS, Writers);
       if (Genres.Count > 0) MediaItemAspect.SetCollectionAttribute(aspectData, VideoAspect.ATTR_GENRES, Genres);
       return true;
     }

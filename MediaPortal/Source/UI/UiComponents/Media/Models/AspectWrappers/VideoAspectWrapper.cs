@@ -58,6 +58,7 @@ namespace MediaPortal.UiComponents.Media.Models.AspectWrappers
     protected AbstractProperty _fPSProperty;
     protected AbstractProperty _actorsProperty;
     protected AbstractProperty _directorsProperty;
+    protected AbstractProperty _writersProperty;
     protected AbstractProperty _isDVDProperty;
     protected AbstractProperty _storyPlotProperty;
     protected AbstractProperty _mediaItemProperty;
@@ -220,6 +221,17 @@ namespace MediaPortal.UiComponents.Media.Models.AspectWrappers
       set { _directorsProperty.SetValue(value); }
     }
 
+    public AbstractProperty WritersProperty
+    {
+      get { return _writersProperty; }
+    }
+
+    public IEnumerable<string> Writers
+    {
+      get { return (IEnumerable<string>) _writersProperty.GetValue(); }
+      set { _writersProperty.SetValue(value); }
+    }
+
     public AbstractProperty IsDVDProperty
     {
       get { return _isDVDProperty; }
@@ -273,6 +285,7 @@ namespace MediaPortal.UiComponents.Media.Models.AspectWrappers
       _fPSProperty = new SProperty(typeof(int?));
       _actorsProperty = new SProperty(typeof(IEnumerable<string>));
       _directorsProperty = new SProperty(typeof(IEnumerable<string>));
+      _writersProperty = new SProperty(typeof(IEnumerable<string>));
       _isDVDProperty = new SProperty(typeof(bool?));
       _storyPlotProperty = new SProperty(typeof(string));
       _mediaItemProperty = new SProperty(typeof(MediaItem));
@@ -311,6 +324,7 @@ namespace MediaPortal.UiComponents.Media.Models.AspectWrappers
       FPS = (int?) aspect[VideoAspect.ATTR_FPS];
       Actors = (IEnumerable<string>) aspect[VideoAspect.ATTR_ACTORS] ?? EMPTY_STRING_COLLECTION;
       Directors = (IEnumerable<string>) aspect[VideoAspect.ATTR_DIRECTORS] ?? EMPTY_STRING_COLLECTION;
+      Writers = (IEnumerable<string>) aspect[VideoAspect.ATTR_WRITERS] ?? EMPTY_STRING_COLLECTION;
       IsDVD = (bool?) aspect[VideoAspect.ATTR_ISDVD];
       StoryPlot = (string) aspect[VideoAspect.ATTR_STORYPLOT];
     }
@@ -331,6 +345,7 @@ namespace MediaPortal.UiComponents.Media.Models.AspectWrappers
       FPS = null;
       Actors = EMPTY_STRING_COLLECTION;
       Directors = EMPTY_STRING_COLLECTION;
+      Writers = EMPTY_STRING_COLLECTION;
       IsDVD = null;
       StoryPlot = null;
     }
