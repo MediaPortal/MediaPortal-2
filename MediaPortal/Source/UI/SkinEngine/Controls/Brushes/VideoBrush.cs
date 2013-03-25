@@ -353,11 +353,6 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
       return player != null;
     }
 
-    protected override bool BeginRenderOpacityBrushOverride(Texture tex, RenderContext renderContext)
-    {
-      throw new NotImplementedException("VideoBrush doesn't support being rendered as an opacity brush");
-    }
-
     public override void EndRender()
     {
       _imageContext.EndRender();

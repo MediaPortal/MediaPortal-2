@@ -468,15 +468,11 @@ namespace MediaPortal.UI.SkinEngine.DirectX
       _device.SetRenderState(RenderState.ZWriteEnable, false);
 
       _device.SetRenderState(RenderState.FillMode, FillMode.Solid);
-      _device.SetRenderState(RenderState.AlphaBlendEnable, true);
-      _device.SetRenderState(RenderState.SourceBlend, Blend.One);
-      _device.SetRenderState(RenderState.DestinationBlend, Blend.InverseSourceAlpha);
+      EnableDefaultAlphaBlending();
 
       if (_dxCapabilities.SupportsAlphaBlend)
       {
-        _device.SetRenderState(RenderState.AlphaTestEnable, true);
-        _device.SetRenderState(RenderState.AlphaRef, 0x05);
-        _device.SetRenderState(RenderState.AlphaFunc, Compare.GreaterEqual);
+        EnableAlphaTest();
       }
       for (int sampler = 0; sampler < 3; sampler++)
       {
@@ -487,6 +483,64 @@ namespace MediaPortal.UI.SkinEngine.DirectX
 
       // Projection onto screen space
       SetCameraProjection(Width, Height);
+    }
+
+    /// <summary>
+    /// Enables DirectX alpha testing to discard transparent pixels.
+    /// </summary>
+    public static void EnableAlphaTest()
+    {
+      _device.SetRenderState(RenderState.AlphaTestEnable, true);
+      _device.SetRenderState(RenderState.AlphaRef, 0x05);
+      _device.SetRenderState(RenderState.AlphaFunc, Compare.GreaterEqual);
+    }
+
+    /// <summary>
+    /// Disables DirectX alpha testing.
+    /// </summary>
+    public static void DisableAlphaTest()
+    {
+      _device.SetRenderState(RenderState.AlphaTestEnable, false);
+    }
+
+    /// <summary>
+    /// Sets the DirectX render states to enable the default alpha blend compositing.
+    /// </summary>
+    public static void EnableDefaultAlphaBlending()
+    {
+      _device.SetRenderState(RenderState.AlphaBlendEnable, true);
+      _device.SetRenderState(RenderState.SourceBlend, Blend.One);
+      _device.SetRenderState(RenderState.DestinationBlend, Blend.InverseSourceAlpha);
+    }
+
+    /// <summary>
+    /// Sets the DirectX render states to disbale alpha compositing.
+    /// </summary>
+    public static void DisableAlphaBlending()
+    {
+      _device.SetRenderState(RenderState.AlphaBlendEnable, false);
+    }
+
+    /// <summary>
+    /// Sets the DirectX render states to enable alpha blending for opacity masks, where only the alpha channel of incoming fragments is blended.
+    /// </summary>
+    public static void EnableAlphaChannelBlending()
+    {
+      _device.SetRenderState(RenderState.AlphaBlendEnable, true);
+      _device.SetRenderState(RenderState.SourceBlend, Blend.Zero);
+      _device.SetRenderState(RenderState.DestinationBlend, Blend.One);
+      _device.SetRenderState(RenderState.SeparateAlphaBlendEnable, true);
+      _device.SetRenderState(RenderState.SourceBlendAlpha, Blend.Zero);
+      _device.SetRenderState(RenderState.DestinationBlendAlpha, Blend.SourceAlpha);
+    }
+
+    /// <summary>
+    /// Sets the DirectX render states to disable separate blending for the alpha channel.
+    /// </summary>
+    public static void DisableAlphaChannelBlending()
+    {
+      EnableDefaultAlphaBlending();
+      _device.SetRenderState(RenderState.SeparateAlphaBlendEnable, false);
     }
 
     /// <summary>

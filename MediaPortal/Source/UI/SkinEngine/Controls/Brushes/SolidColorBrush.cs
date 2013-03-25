@@ -112,17 +112,6 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
       return true;
     }
 
-    protected override bool BeginRenderOpacityBrushOverride(Texture tex, RenderContext renderContext)
-    {
-      Color4 v = ColorConverter.FromColor(Color);
-      v.Alpha *= (float) (Opacity * renderContext.Opacity);
-      Matrix finalTransform = renderContext.Transform.Clone();
-      _effect = ContentManager.Instance.GetEffect(EFFECT_SOLIDOPACITY);
-      _effect.Parameters[PARAM_SOLIDCOLOR] = v;
-      _effect.StartRender(tex, finalTransform);
-      return true;
-    }
-
     public override void EndRender()
     {
       if (_effect != null)

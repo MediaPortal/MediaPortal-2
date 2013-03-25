@@ -185,14 +185,6 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
       return base.BeginRenderBrushOverride(primitiveContext, renderContext);
     }
 
-    protected override bool BeginRenderOpacityBrushOverride(Texture tex, RenderContext renderContext)
-    {
-      Allocate();
-      if (_tex != null)
-        _tex.Bind(0);
-      return base.BeginRenderOpacityBrushOverride(tex, renderContext);
-    }
-
     #endregion
   }
 }

@@ -108,7 +108,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
 
     void UpdateRenderTarget(FrameworkElement fe)
     {
-      fe.RenderToSurface(_visualSurface, new RenderContext(Matrix.Identity, Opacity, new RectangleF(new PointF(0.0f, 0.0f), _vertsBounds.Size), 1.0f));
+      RectangleF bounds = new RectangleF(new PointF(0.0f, 0.0f), _vertsBounds.Size);
+      fe.RenderToSurface(_visualSurface, new RenderContext(Matrix.Identity, Opacity, bounds, 1.0f));
 
       // Unfortunately, brushes/brush effects are based on textures and cannot work with surfaces, so we need this additional copy step
       GraphicsDevice.Device.StretchRectangle(
@@ -204,17 +205,6 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
 
       UpdateRenderTarget(fe);
       return base.BeginRenderBrushOverride(primitiveContext, renderContext);
-    }
-
-    protected override bool BeginRenderOpacityBrushOverride(Texture tex, RenderContext renderContext)
-    {
-      FrameworkElement fe = _preparedVisual;
-      if (fe == null) return false;
-      _visualTexture.AllocateRenderTarget((int) _vertsBounds.Width, (int) _vertsBounds.Height);
-      _visualSurface.AllocateRenderTarget((int) _vertsBounds.Width, (int) _vertsBounds.Height);
-
-      UpdateRenderTarget(fe);
-      return base.BeginRenderOpacityBrushOverride(tex, renderContext);
     }
 
     public override void Allocate()

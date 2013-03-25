@@ -307,15 +307,6 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
 
     protected abstract bool BeginRenderBrushOverride(PrimitiveBuffer primitiveContext, RenderContext renderContext);
 
-    public bool BeginRenderOpacityBrush(Texture tex, RenderContext renderContext)
-    {
-      if (_vertsBounds.IsEmpty || tex == null)
-        return false;
-      return BeginRenderOpacityBrushOverride(tex, renderContext);
-    }
-
-    protected abstract bool BeginRenderOpacityBrushOverride(Texture tex, RenderContext renderContext);
-
     public abstract void EndRender();
 
     public virtual void Allocate()

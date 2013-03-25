@@ -263,31 +263,6 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
       return true;
     }
 
-    protected override bool BeginRenderOpacityBrushOverride(Texture tex, RenderContext renderContext)
-    {
-      if (Texture == null)
-        return false;
-
-      Matrix finalTransform = renderContext.Transform.Clone();
-
-      if (_refresh)
-      {
-        RefreshEffectParameters();
-        _effect = ContentManager.Instance.GetEffect(_simplemode ? EFFECT_TILE_OPACITY_SIMPLE : EFFECT_TILE_OPACITY);
-        _refresh = false;
-      }
-
-      if (_simplemode)
-        SetSimpleEffectParameters(renderContext);
-      else
-        SetEffectParameters(renderContext);   
-
-      _effect.Parameters[PARAM_ALPHATEX] = Texture;
-      _effect.StartRender(tex, finalTransform);
-
-      return true;
-    }
-
     public override void EndRender()
     {
       if (Texture == null)
