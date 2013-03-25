@@ -145,12 +145,15 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.Common
     /// </summary>
     /// <param name="text"></param>
     /// <returns></returns>
-    internal static List<String> SplitTvdbString(String text)
+    internal static List<String> SplitTvdbString(String text, bool splitByComma = false)
     {
-      String[] values = text.Split('|');
-      return values.Where(v => !v.Equals("")).ToList();
+      String[] values = splitByComma ? text.Split('|', ',') : text.Split('|');
+      return values
+        .Select(v => v.Trim())
+        .Where(v => !v.Equals(string.Empty))
+        .ToList();
     }
-    
+
     /// <summary>
     /// Converts a unix timestamp (used on tvdb) into a .net datetime object
     /// </summary>
