@@ -1885,8 +1885,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       Matrix? layoutTransformMatrix = LayoutTransform == null ? new Matrix?() : LayoutTransform.GetTransform();
       Matrix? renderTransformMatrix = RenderTransform == null ? new Matrix?() : RenderTransform.GetTransform();
 
-      RenderContext localRenderContext = parentRenderContext.Derive(bounds, layoutTransformMatrix,
-          renderTransformMatrix, RenderTransformOrigin, Opacity);
+      RenderContext localRenderContext = parentRenderContext.Derive(bounds, layoutTransformMatrix, renderTransformMatrix, RenderTransformOrigin, Opacity);
       Matrix finalTransform = localRenderContext.Transform;
       if (finalTransform != _finalTransform)
       {
@@ -1917,6 +1916,11 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
         // Surface + full StretchRect -> Texture    : 350 fps / 174 fps 
         // Texture                                  : 485 fps / 265 fps
 
+        // After OpacityMask fix:
+        // Surface + full StretchRect -> Texture    : 250 fps / 155 fps 
+        // Surface + Occupied Rect -> Texture       : 325 fps / 204 fps 
+        // Texture                                  : 330 fps / 213 fps
+
         // Results inside GUI-Test OpacityMask screen for Reflexion skin (fullscreen 1080p)
         // Surface + full StretchRect -> Texture    : 142 fps
         // Texture                                  : 235 fps
@@ -1937,9 +1941,10 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
           RenderToSurface(renderSurface, tempRenderContext);
 
           // Unfortunately, brushes/brush effects are based on textures and cannot work with surfaces, so we need this additional copy step
+          // Morpheus_xx, 03/2013: changed to copy only the occupied area of Surface, instead of complete area. This improves performance a lot.
           GraphicsDevice.Device.StretchRectangle(
-              renderSurface.Surface, new Rectangle(Point.Empty, renderSurface.Size),
-              renderTexture.Surface0, new Rectangle(Point.Empty, renderTexture.Size),
+              renderSurface.Surface, ToRect(tempRenderContext.OccupiedTransformedBounds, renderSurface.Size), // new Rectangle(Point.Empty, renderSurface.Size),
+              renderTexture.Surface0, ToRect(tempRenderContext.OccupiedTransformedBounds, renderTexture.Size), // new Rectangle(Point.Empty, renderTexture.Size),
               TextureFilter.None);
         }
         else
@@ -1955,7 +1960,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
           // Use a default effect to draw the render target if none is set
           if (_defaultEffect == null)
           {
-            _defaultEffect = new SimpleShaderEffect() { ShaderEffectName = "normal" };
+            _defaultEffect = new SimpleShaderEffect { ShaderEffectName = "normal" };
           }
 
           effect = _defaultEffect;
@@ -1972,6 +1977,22 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       // Calculation of absolute render size (in world coordinate system)
       parentRenderContext.IncludeTransformedContentsBounds(localRenderContext.OccupiedTransformedBounds);
       _lastZIndex = localRenderContext.ZOrder;
+    }
+
+    /// <summary>
+    /// Converts a <see cref="RectangleF"/> into a <see cref="Rectangle"/> with checking for proper surface coordinates in range from
+    /// <see cref="Point.Empty"/> to <paramref name="clip"/>.
+    /// </summary>
+    /// <param name="rect">Source rect</param>
+    /// <param name="clip">Maximum size</param>
+    /// <returns>Converted rect</returns>
+    protected Rectangle ToRect(RectangleF rect, Size clip)
+    {
+      int x = Math.Min(Math.Max(0, (int) Math.Floor(rect.X)), clip.Width); // Limit to 0 .. Width
+      int y = Math.Min(Math.Max(0, (int) Math.Floor(rect.Y)), clip.Height); // Limit to 0 .. Height
+      int width = Math.Min(Math.Max(0, (int) Math.Ceiling(rect.Width)), clip.Width - x); // Limit to 0 .. Width - x
+      int height = Math.Min(Math.Max(0, (int) Math.Ceiling(rect.Height)), clip.Height - y); // Limit to 0 .. Height - y
+      return new Rectangle(x, y, width, height);
     }
 
     protected void UpdateEffectMask(Effects.Effect effect, RectangleF bounds, float width, float height, float zPos)
@@ -2001,30 +2022,29 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     private void RenderOpacityBrush(RenderContext renderContext)
     {
       Brushes.Brush opacityMask = OpacityMask;
-      if (opacityMask != null)
+      if (opacityMask == null) 
+        return;
+
+      // If the control bounds have changed we need to update our primitive context to make the 
+      // texture coordinates match up
+      if (_updateOpacityMask || _opacityMaskContext == null || _lastOccupiedTransformedBounds != renderContext.OccupiedTransformedBounds)
       {
-        // If the control bounds have changed we need to update our primitive context to make the 
-        // texture coordinates match up
-        if (_updateOpacityMask || _opacityMaskContext == null ||
-          _lastOccupiedTransformedBounds != renderContext.OccupiedTransformedBounds)
-        {
-          UpdateOpacityMask(renderContext.OccupiedTransformedBounds, renderContext.ZOrder);
-          _lastOccupiedTransformedBounds = renderContext.OccupiedTransformedBounds;
-          _updateOpacityMask = false;
-        }
-
-        GraphicsDevice.EnableAlphaChannelBlending();
-        GraphicsDevice.DisableAlphaTest();
-
-        // Now render the OpacityMask brush
-        if (opacityMask.BeginRenderBrush(_opacityMaskContext, new RenderContext(Matrix.Identity, _lastOccupiedTransformedBounds)))
-        {
-          _opacityMaskContext.Render(0);
-          opacityMask.EndRender();
-        }
-        GraphicsDevice.DisableAlphaChannelBlending();
-        GraphicsDevice.EnableAlphaTest();
+        UpdateOpacityMask(renderContext.OccupiedTransformedBounds, renderContext.ZOrder);
+        _lastOccupiedTransformedBounds = renderContext.OccupiedTransformedBounds;
+        _updateOpacityMask = false;
       }
+
+      GraphicsDevice.EnableAlphaChannelBlending();
+      GraphicsDevice.DisableAlphaTest();
+
+      // Now render the OpacityMask brush
+      if (opacityMask.BeginRenderBrush(_opacityMaskContext, new RenderContext(Matrix.Identity, _lastOccupiedTransformedBounds)))
+      {
+        _opacityMaskContext.Render(0);
+        opacityMask.EndRender();
+      }
+      GraphicsDevice.DisableAlphaChannelBlending();
+      GraphicsDevice.EnableAlphaTest();
     }
 
     void UpdateOpacityMask(RectangleF bounds, float zPos)
