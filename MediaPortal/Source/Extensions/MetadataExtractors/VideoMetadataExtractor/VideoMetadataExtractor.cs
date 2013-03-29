@@ -358,6 +358,16 @@ namespace MediaPortal.Extensions.MetadataExtractors.VideoMetadataExtractor
         MediaItemAspect.SetAttribute(extractedAspectData, ThumbnailLargeAspect.ATTR_THUMBNAIL, thumbData);
     }
 
+    /// <summary>
+    /// Helper method that contains overrides for video detection for certain formats, because video count information is not always correct.
+    /// </summary>
+    /// <param name="filePath">File path</param>
+    /// <returns><c>true</c> if this file should be treated as video.</returns>
+    protected bool IsWorkaroundRequired(string filePath)
+    {
+      return filePath.ToLowerInvariant().EndsWith(".wtv");
+    }
+
     #endregion
 
     #region IMetadataExtractor implementation
@@ -466,16 +476,6 @@ namespace MediaPortal.Extensions.MetadataExtractors.VideoMetadataExtractor
         ServiceRegistration.Get<ILogger>().Info("VideoMetadataExtractor: Exception reading resource '{0}' (Text: '{1}')", mediaItemAccessor.CanonicalLocalResourcePath, e.Message);
       }
       return false;
-    }
-
-    /// <summary>
-    /// Helper method that contains overrides for video detection for certain formats, because video count information is not always correct.
-    /// </summary>
-    /// <param name="filePath">File path</param>
-    /// <returns><c>true</c> if this file should be treated as video.</returns>
-    protected bool IsWorkaroundRequired(string filePath)
-    {
-      return filePath.ToLowerInvariant().EndsWith(".wtv");
     }
 
     #endregion

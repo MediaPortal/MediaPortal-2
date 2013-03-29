@@ -135,6 +135,46 @@ namespace MediaPortal.Extensions.MetadataExtractors
 
     #endregion
 
+    protected XmlSerializer GetTagsXmlSerializer()
+    {
+      return _xmlSerializer ?? (_xmlSerializer = new XmlSerializer(typeof(Tags)));
+    }
+
+    public SeriesInfo GetSeriesFromTags(Tags extractedTags)
+    {
+      SeriesInfo seriesInfo = new SeriesInfo();
+      string tmpString;
+      int tmpInt;
+
+      if (TryGet(extractedTags, TAG_TITLE, out tmpString))
+        seriesInfo.Series = tmpString;
+
+      if (TryGet(extractedTags, TAG_EPISODENAME, out tmpString))
+        seriesInfo.Episode = tmpString;
+
+      if (TryGet(extractedTags, TAG_SERIESNUM, out tmpString) && int.TryParse(tmpString, out tmpInt))
+        seriesInfo.SeasonNumber = tmpInt;
+
+      if (TryGet(extractedTags, TAG_EPISODENUM, out tmpString))
+      {
+        int episodeNum;
+        if (int.TryParse(tmpString, out episodeNum))
+          seriesInfo.EpisodeNumbers.Add(episodeNum);
+      }
+      return seriesInfo;
+    }
+
+    private static bool TryGet(Tags tags, string key, out string value)
+    {
+      value = null;
+      SimpleTag tag = tags.Tag.Find(t => t.Name == key);
+      if (tag == null || tag.Value == null)
+        return false;
+
+      value = tag.Value.Trim();
+      return !string.IsNullOrEmpty(value);
+    }
+
     #region IMetadataExtractor implementation
 
     public MetadataExtractorMetadata Metadata
@@ -217,46 +257,6 @@ namespace MediaPortal.Extensions.MetadataExtractors
         ServiceRegistration.Get<ILogger>().Info("Tve3RecordingMetadataExtractor: Exception reading resource '{0}' (Text: '{1}')", mediaItemAccessor.CanonicalLocalResourcePath, e.Message);
       }
       return false;
-    }
-
-    protected XmlSerializer GetTagsXmlSerializer()
-    {
-      return _xmlSerializer ?? (_xmlSerializer = new XmlSerializer(typeof(Tags)));
-    }
-
-    public SeriesInfo GetSeriesFromTags(Tags extractedTags)
-    {
-      SeriesInfo seriesInfo = new SeriesInfo();
-      string tmpString;
-      int tmpInt;
-
-      if (TryGet(extractedTags, TAG_TITLE, out tmpString))
-        seriesInfo.Series = tmpString;
-
-      if (TryGet(extractedTags, TAG_EPISODENAME, out tmpString))
-        seriesInfo.Episode = tmpString;
-
-      if (TryGet(extractedTags, TAG_SERIESNUM, out tmpString) && int.TryParse(tmpString, out tmpInt))
-        seriesInfo.SeasonNumber = tmpInt;
-
-      if (TryGet(extractedTags, TAG_EPISODENUM, out tmpString))
-      {
-        int episodeNum;
-        if (int.TryParse(tmpString, out episodeNum))
-          seriesInfo.EpisodeNumbers.Add(episodeNum);
-      }
-      return seriesInfo;
-    }
-
-    private static bool TryGet(Tags tags, string key, out string value)
-    {
-      value = null;
-      SimpleTag tag = tags.Tag.Find(t => t.Name == key);
-      if (tag == null || tag.Value == null)
-        return false;
-
-      value = tag.Value.Trim();
-      return !string.IsNullOrEmpty(value);
     }
 
     #endregion

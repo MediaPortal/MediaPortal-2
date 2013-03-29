@@ -90,6 +90,60 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
 
     #endregion
 
+    #region Private methods
+
+    private static bool ExtractMovieData(ILocalFsResourceAccessor lfsra, IDictionary<Guid, MediaItemAspect> extractedAspectData)
+    {
+      string[] pathsToTest = new[] { lfsra.LocalFileSystemPath, lfsra.CanonicalLocalResourcePath.ToString() };
+      string title;
+      if (!MediaItemAspect.TryGetAttribute(extractedAspectData, MediaAspect.ATTR_TITLE, out title) || string.IsNullOrEmpty(title))
+        return false;
+
+      MovieInfo movieInfo = new MovieInfo
+        {
+          MovieName = title,
+        };
+
+      // Allow the online lookup to choose best matching language for metadata
+      ICollection<string> movieLanguages;
+      if (MediaItemAspect.TryGetAttribute(extractedAspectData, VideoAspect.ATTR_AUDIOLANGUAGES, out movieLanguages) && movieLanguages.Count > 0)
+        movieInfo.Languages.AddRange(movieLanguages);
+
+      // Try to use an existing IMDB id for exact mapping
+      string imdbId;
+      if (MediaItemAspect.TryGetAttribute(extractedAspectData, MovieAspect.ATTR_IMDB_ID, out imdbId) ||
+          pathsToTest.Any(path => ImdbIdMatcher.TryMatchImdbId(path, out imdbId)) ||
+          NfoReader.TryMatchImdbId(lfsra, out imdbId) ||
+          MatroskaMatcher.TryMatchImdbId(lfsra.LocalFileSystemPath, out imdbId))
+        movieInfo.ImdbId = imdbId;
+
+      // Also test the full path year, using a dummy. This is useful if the path contains the real name and year.
+      foreach (string path in pathsToTest)
+      {
+        MovieInfo dummy = new MovieInfo { MovieName = path };
+        if (NamePreprocessor.MatchTitleYear(dummy))
+        {
+          movieInfo.MovieName = dummy.MovieName;
+          movieInfo.Year = dummy.Year;
+          break;
+        }
+      }
+
+      // When searching movie title, the year can be relevant for multiple titles with same name but different years
+      DateTime recordingDate;
+      if (MediaItemAspect.TryGetAttribute(extractedAspectData, MediaAspect.ATTR_RECORDINGTIME, out recordingDate))
+        movieInfo.Year = recordingDate.Year;
+
+      if (MovieTheMovieDbMatcher.Instance.FindAndUpdateMovie(movieInfo))
+      {
+        movieInfo.SetMetadata(extractedAspectData);
+        return true;
+      }
+      return false;
+    }
+
+    #endregion
+
     #region IMetadataExtractor implementation
 
     public MetadataExtractorMetadata Metadata
@@ -115,56 +169,6 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
         // Only log at the info level here - And simply return false. This lets the caller know that we
         // couldn't perform our task here.
         ServiceRegistration.Get<ILogger>().Info("MoviesMetadataExtractor: Exception reading resource '{0}' (Text: '{1}')", mediaItemAccessor.CanonicalLocalResourcePath, e.Message);
-      }
-      return false;
-    }
-
-    private static bool ExtractMovieData(ILocalFsResourceAccessor lfsra, IDictionary<Guid, MediaItemAspect> extractedAspectData)
-    {
-      string[] pathsToTest = new [] { lfsra.LocalFileSystemPath , lfsra.CanonicalLocalResourcePath.ToString() };
-      string title;
-      if (MediaItemAspect.TryGetAttribute(extractedAspectData, MediaAspect.ATTR_TITLE, out title) && !string.IsNullOrEmpty(title))
-      {
-        MovieInfo movieInfo = new MovieInfo
-        {
-          MovieName = title,
-        };
-
-        // Allow the online lookup to choose best matching language for metadata
-        ICollection<string> movieLanguages;
-        if (MediaItemAspect.TryGetAttribute(extractedAspectData, VideoAspect.ATTR_AUDIOLANGUAGES, out movieLanguages) && movieLanguages.Count > 0)
-          movieInfo.Languages.AddRange(movieLanguages);
-
-        // Try to use an existing IMDB id for exact mapping
-        string imdbId;
-        if (MediaItemAspect.TryGetAttribute(extractedAspectData, MovieAspect.ATTR_IMDB_ID, out imdbId) ||
-          pathsToTest.Any(path => ImdbIdMatcher.TryMatchImdbId(path, out imdbId)) ||
-          NfoReader.TryMatchImdbId(lfsra, out imdbId) ||
-          MatroskaMatcher.TryMatchImdbId(lfsra.LocalFileSystemPath, out imdbId))
-          movieInfo.ImdbId = imdbId;
-
-        // Also test the full path year, using a dummy. This is useful if the path contains the real name and year.
-        foreach (string path in pathsToTest)
-        {
-          MovieInfo dummy = new MovieInfo { MovieName = path };
-          if (NamePreprocessor.MatchTitleYear(dummy))
-          {
-            movieInfo.MovieName = dummy.MovieName;
-            movieInfo.Year = dummy.Year;
-            break;
-          }
-        }
-
-        // When searching movie title, the year can be relevant for multiple titles with same name but different years
-        DateTime recordingDate;
-        if (MediaItemAspect.TryGetAttribute(extractedAspectData, MediaAspect.ATTR_RECORDINGTIME, out recordingDate))
-          movieInfo.Year = recordingDate.Year;
-
-        if (MovieTheMovieDbMatcher.Instance.FindAndUpdateMovie(movieInfo))
-        {
-          movieInfo.SetMetadata(extractedAspectData);
-          return true;
-        }
       }
       return false;
     }
