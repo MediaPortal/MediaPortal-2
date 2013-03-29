@@ -93,6 +93,11 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
 
     protected bool ExtractSeriesData(string localFsResourcePath, IDictionary<Guid, MediaItemAspect> extractedAspectData)
     {
+      // If resource is not a video file, the MediaAspect's title is not available
+      string title;
+      if (!MediaItemAspect.TryGetAttribute(extractedAspectData, MediaAspect.ATTR_TITLE, out title) || string.IsNullOrEmpty(title))
+        return false;
+
       SeriesInfo seriesInfo = null;
 
       // Try to get extended information out of matroska files)
