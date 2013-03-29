@@ -131,7 +131,7 @@ namespace UPnP.Infrastructure.CP.Description
         ICollection<DeviceDescriptor> result = new List<DeviceDescriptor>();
         XPathNodeIterator it = _deviceNavigator.Select(DEVICE_DESCRIPTION_NAMESPACE_PREFIX + ":deviceList/" + DEVICE_DESCRIPTION_NAMESPACE_PREFIX + ":device", _nsmgr);
         while (it.MoveNext())
-          result.Add(new DeviceDescriptor(_rootDescriptor, it.Current));
+          result.Add(new DeviceDescriptor(_rootDescriptor, it.Current.Clone()));
         return result;
       }
     }
