@@ -282,6 +282,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       _setFocusPrio = fe.SetFocusPrio;
       _renderedBoundingBox = null;
 
+      ContextMenuCommand = copyManager.GetCopy(fe.ContextMenuCommand);
+
       // Need to manually call this because we are in a detached state
       OnLayoutTransformPropertyChanged(_layoutTransformProperty, oldLayoutTransform);
 
