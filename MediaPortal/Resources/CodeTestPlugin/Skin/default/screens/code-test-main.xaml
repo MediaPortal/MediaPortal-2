@@ -20,6 +20,10 @@
             <Button Style="{StaticResource ButtonWideStyle}" Content="Create resource accessor"
                 HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
                 Command="{Command Source={StaticResource Model},Path=ShowScreenInTransientState,Parameters=test-create-resource-accessor}"/>
+            <Button Style="{StaticResource ButtonWideStyle}" Content="ContextMenuCommand test"
+                HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+                Command="{Command Source={StaticResource Model},Path=ContextMenuTest_Command}"
+                ContextMenuCommand="{Command Source={StaticResource Model},Path=ContextMenuTest_ContextMenuCommand}"/>
           </StackPanel>
           <StackPanel x:Name="RightPanel" Orientation="Vertical" Margin="5,0,0,0">
           </StackPanel>

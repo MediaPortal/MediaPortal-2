@@ -27,6 +27,7 @@ using System;
 using System.Collections.Generic;
 using MediaPortal.Common;
 using MediaPortal.UI.Presentation.Models;
+using MediaPortal.UI.Presentation.Screens;
 using MediaPortal.UI.Presentation.Workflow;
 
 namespace MediaPortal.Test.CodeTest
@@ -48,6 +49,22 @@ namespace MediaPortal.Test.CodeTest
     {
       IWorkflowManager workflowManager = ServiceRegistration.Get<IWorkflowManager>();
       workflowManager.NavigatePushTransient(new WorkflowState(Guid.NewGuid(), screen, screen, true, screen, false, true, ModelId, WorkflowType.Workflow), null);
+    }
+
+    public void ContextMenuTest_Command()
+    {
+      IDialogManager dialogManager = ServiceRegistration.Get<IDialogManager>();
+      string header = "Command executed";
+      string text = "The command has been executed. What about the ContextMenuCommand?";
+      dialogManager.ShowDialog(header, text, DialogType.OkDialog, false, DialogButtonType.Ok);
+    }
+
+    public void ContextMenuTest_ContextMenuCommand()
+    {
+      IDialogManager dialogManager = ServiceRegistration.Get<IDialogManager>();
+      string header = "ContextMenuCommand executed";
+      string text = "The ContextMenuCommand has been executed. Great.";
+      dialogManager.ShowDialog(header, text, DialogType.OkDialog, false, DialogButtonType.Ok);
     }
 
     #endregion
