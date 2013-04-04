@@ -245,7 +245,7 @@ namespace MediaPortal.ServiceMonitor.ViewModel
 
     private void WndProc(object sender, uint msg, uint wParam, uint lParam)
     {
-      if (msg == WinApi.SHOW_MP2_SERVICEMONITOR_MESSAGE)
+      if (msg == SingleInstanceHelper.SHOW_MP2_SERVICEMONITOR_MESSAGE)
         ShowMainWindow();
 
       if (msg == WM_POWERBROADCAST)

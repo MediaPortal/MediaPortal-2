@@ -25,7 +25,6 @@
 using System;
 using System.Runtime.InteropServices;
 using Hardcodet.Wpf.TaskbarNotification.Interop;
-using MediaPortal.Utilities.SystemAPI;
 
 namespace MediaPortal.ServiceMonitor.Utilities
 {
@@ -57,11 +56,6 @@ namespace MediaPortal.ServiceMonitor.Utilities
   /// </summary>
   internal static class WinApi
   {
-    /// <summary>
-    /// Windows message to bring MP2-ServiceMonitor to front.
-    /// </summary>
-    public static readonly uint SHOW_MP2_SERVICEMONITOR_MESSAGE = WindowsAPI.RegisterWindowMessage("SHOW_MP2_SERVICEMONITOR_MESSAGE");
-
     /// <summary>
     /// Creates, updates or deletes the taskbar icon.
     /// </summary>

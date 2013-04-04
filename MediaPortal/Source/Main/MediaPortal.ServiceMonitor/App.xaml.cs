@@ -27,8 +27,6 @@ using System;
 using System.IO;
 using MediaPortal.Common.PathManager;
 #endif
-using System.Security.AccessControl;
-using System.Security.Principal;
 using System.Threading;
 using System.Windows;
 using System.Windows.Threading;
@@ -42,7 +40,6 @@ using MediaPortal.Common.Exceptions;
 using MediaPortal.Common.Services.Runtime;
 using MediaPortal.Common.SystemResolver;
 using MediaPortal.ServiceMonitor.UPNP;
-using MediaPortal.ServiceMonitor.Utilities;
 using MediaPortal.ServiceMonitor.ViewModel;
 using MediaPortal.Utilities.SystemAPI;
 using Localization = MediaPortal.ServiceMonitor.Utilities.Localization;
@@ -76,7 +73,7 @@ namespace MediaPortal.ServiceMonitor
     {
       // Send our Win32 message to make the currently running instance
       // Jump on top of all the other windows
-      WindowsAPI.PostMessage((IntPtr)WindowsAPI.HWND_BROADCAST, WinApi.SHOW_MP2_SERVICEMONITOR_MESSAGE, IntPtr.Zero, IntPtr.Zero);
+      WindowsAPI.PostMessage((IntPtr)WindowsAPI.HWND_BROADCAST, SingleInstanceHelper.SHOW_MP2_SERVICEMONITOR_MESSAGE, IntPtr.Zero, IntPtr.Zero);
     }
 
     #endregion
