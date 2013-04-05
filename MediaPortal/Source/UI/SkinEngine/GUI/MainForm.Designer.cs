@@ -68,7 +68,6 @@ namespace MediaPortal.UI.SkinEngine.GUI
       this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
       this.BackColor = System.Drawing.Color.Black;
       this.ClientSize = new System.Drawing.Size(292, 266);
-      this.Icon = ((System.Drawing.Icon) (resources.GetObject("$this.Icon")));
       this.Name = "MainForm";
       this.Text = "MediaPortal 2";
       this.Activated += new System.EventHandler(this.MainForm_Activated);

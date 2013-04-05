@@ -27,6 +27,7 @@ using System.Drawing;
 using System.Threading;
 using System.Windows.Forms;
 using MediaPortal.Common;
+using MediaPortal.Common.PathManager;
 using MediaPortal.Common.Runtime;
 using MediaPortal.Common.Utils;
 using MediaPortal.UI.Control.InputManager;
@@ -104,6 +105,7 @@ namespace MediaPortal.UI.SkinEngine.GUI
       ServiceRegistration.Set<IScreenControl>(this);
 
       InitializeComponent();
+      Icon = Icon.ExtractAssociatedIcon(ServiceRegistration.Get<IPathManager>().GetPath("<APPLICATION_PATH>"));
       CheckForIllegalCrossThreadCalls = false;
 
       StartupSettings startupSettings = ServiceRegistration.Get<ISettingsManager>().Load<StartupSettings>();
