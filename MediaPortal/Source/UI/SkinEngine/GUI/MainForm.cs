@@ -750,6 +750,11 @@ namespace MediaPortal.UI.SkinEngine.GUI
       // Message thrown by another MP2-Client instance -> Bring current instance to front
       if (m.Msg == SingleInstanceHelper.SHOW_MP2_CLIENT_MESSAGE)
       {
+        ServiceRegistration.Get<ILogger>().Info("SkinEngine MainForm: Another instance of MP2-Client.exe tried to start. Bring current instance to front.");
+        // Restore if minimized
+        Restore();
+        // Set active window
+        Activate();
         CheckTopMost();
         return;
       }
