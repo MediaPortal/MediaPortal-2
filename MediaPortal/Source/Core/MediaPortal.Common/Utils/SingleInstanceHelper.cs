@@ -26,8 +26,9 @@ using System;
 using System.Security.AccessControl;
 using System.Security.Principal;
 using System.Threading;
+using MediaPortal.Utilities.SystemAPI;
 
-namespace MediaPortal.Utilities.SystemAPI
+namespace MediaPortal.Common.Utils
 {
   public class SingleInstanceHelper
   {

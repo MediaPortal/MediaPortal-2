@@ -28,6 +28,7 @@ using System.Threading;
 using System.Windows.Forms;
 using MediaPortal.Common;
 using MediaPortal.Common.Runtime;
+using MediaPortal.Common.Utils;
 using MediaPortal.UI.Control.InputManager;
 using MediaPortal.Common.Logging;
 using MediaPortal.UI.General;
@@ -43,7 +44,6 @@ using MediaPortal.UI.SkinEngine.ScreenManagement;
 using MediaPortal.UI.SkinEngine.SkinManagement;
 using MediaPortal.UI.SkinEngine.Settings;
 using MediaPortal.UI.SkinEngine.Utils;
-using MediaPortal.Utilities.SystemAPI;
 using SlimDX.Direct3D9;
 using Screen = MediaPortal.UI.SkinEngine.ScreenManagement.Screen;
 
