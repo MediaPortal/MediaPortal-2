@@ -64,20 +64,6 @@ namespace MediaPortal.ServiceMonitor
 
     #endregion
 
-    #region Single Application
-
-    /// <summary>
-    /// Switch To Current Instance of the Application
-    /// </summary>
-    private static void SwitchToCurrentInstance()
-    {
-      // Send our Win32 message to make the currently running instance
-      // Jump on top of all the other windows
-      WindowsAPI.PostMessage((IntPtr)WindowsAPI.HWND_BROADCAST, SingleInstanceHelper.SHOW_MP2_SERVICEMONITOR_MESSAGE, IntPtr.Zero, IntPtr.Zero);
-    }
-
-    #endregion
-
     #region OnStartUp
 
     /// <summary>
@@ -89,19 +75,21 @@ namespace MediaPortal.ServiceMonitor
       Thread.CurrentThread.SetApartmentState(ApartmentState.STA);
 
       // Parse Command Line options
-      var mpArgs = new CommandLineOptions();
+      CommandLineOptions mpArgs = new CommandLineOptions();
       ICommandLineParser parser = new CommandLineParser(new CommandLineParserSettings(Console.Error));
       if (!parser.ParseArguments(args.Args, mpArgs, Console.Out))
         Environment.Exit(1);
 
-      // Even if new instance was created by UacHelper, assume that previous one is already closed.
+      // Check if another instance is already running
+      // If new instance was created by UacHelper previous one, assume that previous one is already closed.
       if (SingleInstanceHelper.IsAlreadyRunning(MUTEX_ID, out _mutex))
       {
         _mutex = null;
         // Set focus on previously running app
-        SwitchToCurrentInstance();
+        SingleInstanceHelper.SwitchToCurrentInstance(SingleInstanceHelper.SHOW_MP2_SERVICEMONITOR_MESSAGE );
         // Stop current instance
-        throw new ApplicationException("Application already running");
+        Console.Out.WriteLine("Application already running.");
+        Environment.Exit(2);
       }
 
       // Make sure we're properly handling exceptions

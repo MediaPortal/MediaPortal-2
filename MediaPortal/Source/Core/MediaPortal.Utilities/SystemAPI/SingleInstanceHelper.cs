@@ -22,6 +22,7 @@
 
 #endregion
 
+using System;
 using System.Security.AccessControl;
 using System.Security.Principal;
 using System.Threading;
@@ -33,11 +34,19 @@ namespace MediaPortal.Utilities.SystemAPI
     /// <summary>
     /// Windows message id to bring MP2-Client to front.
     /// </summary>
+    /// <remarks>
+    /// Ideally this field should be kept within it's parent application, not within <see cref="MediaPortal.Utilities"/>.
+    /// It has been added here to keep <c>MediaPortal.Client</c> and <c>SkinEngine</c> projects independent from each other.
+    /// </remarks>
     public static readonly uint SHOW_MP2_CLIENT_MESSAGE = WindowsAPI.RegisterWindowMessage("SHOW_MP2_CLIENT_MESSAGE");
 
     /// <summary>
     /// Windows message id to bring MP2-ServiceMonitor to front.
     /// </summary>
+    /// <remarks>
+    /// Ideally this field should be kept within it's parent application, not within <see cref="MediaPortal.Utilities"/>.
+    /// It has been added here to be consistent to <c>MediaPortal.Client</c>.
+    /// </remarks>
     public static readonly uint SHOW_MP2_SERVICEMONITOR_MESSAGE = WindowsAPI.RegisterWindowMessage("SHOW_MP2_SERVICEMONITOR_MESSAGE");
 
     /// <summary>
@@ -67,6 +76,17 @@ namespace MediaPortal.Utilities.SystemAPI
         hasHandle = true;
       }
       return !hasHandle;
+    }
+
+    /// <summary>
+    /// Broadcasts a <param name="messageId">message</param> through the system to inform an existing instance to show up.
+    /// </summary>
+    /// <param name="messageId">The id to a static windows message, which should be broadcasted.</param>
+    public static void SwitchToCurrentInstance(uint messageId)
+    {
+      // Send our Win32 message to make the currently running instance
+      // Jump on top of all the other windows
+      WindowsAPI.PostMessage((IntPtr)WindowsAPI.HWND_BROADCAST, messageId, IntPtr.Zero, IntPtr.Zero);
     }
   }
 }

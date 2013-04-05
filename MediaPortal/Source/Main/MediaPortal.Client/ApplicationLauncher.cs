@@ -69,20 +69,6 @@ namespace MediaPortal.Client
 
     #endregion
 
-    #region Single Application
-
-    /// <summary>
-    /// Switch To Current Instance of the Application
-    /// </summary>
-    private static void SwitchToCurrentInstance()
-    {
-      // Send our Win32 message to make the currently running instance
-      // Jump on top of all the other windows
-      WindowsAPI.PostMessage((IntPtr)WindowsAPI.HWND_BROADCAST, SingleInstanceHelper.SHOW_MP2_CLIENT_MESSAGE, IntPtr.Zero, IntPtr.Zero);
-    }
-
-    #endregion
-
 #if !DEBUG
     private static SplashScreen CreateSplashScreen(int startupScreen)
     {
@@ -115,9 +101,11 @@ namespace MediaPortal.Client
       if (SingleInstanceHelper.IsAlreadyRunning(MUTEX_ID, out _mutex))
       {
         _mutex = null;
-        //set focus on previously running app
-        SwitchToCurrentInstance();
-        throw new ApplicationException("Application already running");
+        // Set focus on previously running app
+        SingleInstanceHelper.SwitchToCurrentInstance(SingleInstanceHelper.SHOW_MP2_CLIENT_MESSAGE);
+        // Stop current instance
+        Console.Out.WriteLine("Application already running.");
+        Environment.Exit(2);
       }
 
 #if !DEBUG
