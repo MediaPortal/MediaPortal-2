@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ArrayOfEHomeTransceiver xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <eHomeTransceiver DeviceID="#vid_0471&amp;pid_0815" Name="Microsoft/Philips 2005" />
+  <eHomeTransceiver DeviceID="#vid_045e&amp;pid_006d" Name="Microsoft/Philips 2004" />
+  <eHomeTransceiver DeviceID="#vid_1460&amp;pid_9150" Name="HP" />
+  <eHomeTransceiver DeviceID="#vid_107b&amp;pid_3009" Name="FIC Spectra/Mycom Mediacenter" />
+  <eHomeTransceiver DeviceID="#vid_0609&amp;pid_031d" Name="Toshiba/Hauppauge SMK MCE remote" />
+  <eHomeTransceiver DeviceID="#vid_1784&amp;pid_0001" Name="another Hauppauge OEM MCE remote" />
+  <eHomeTransceiver DeviceID="#vid_1784&amp;pid_0006" Name="another Hauppauge OEM MCE remote 2" />
+  <eHomeTransceiver DeviceID="#vid_03ee&amp;pid_2501" Name="Mitsumi MCE remote" />
+  <eHomeTransceiver DeviceID="#vid_1509&amp;pid_9242" Name="Fujitsu Scaleo-E" />
+  <eHomeTransceiver DeviceID="#vid_2304&amp;pid_0225" Name="Pinnacle PCTV Remote" />
+  <eHomeTransceiver DeviceID="#vid_051c&amp;pid_c001" Name="Shuttle MCE Remote" />
+  <eHomeTransceiver DeviceID="#vid_1308&amp;pid_c001" Name="another Shuttle MCE Remote" />
+  <eHomeTransceiver DeviceID="#vid_04b4&amp;pid_0100" Name="Centarea Master Remote II" />
+</ArrayOfEHomeTransceiver>

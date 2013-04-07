@@ -1,0 +1,15 @@
+<Plugin
+    DescriptorVersion="1.0"
+    Name="MceRemoteReceiver"
+    PluginId="{68FB8837-FA41-4701-85A6-6A0EDAC92E36}"
+    Author="chefkoch"
+    Copyright="GPL"
+    AutoActivate="true"
+    Description="Control your MP2 by a Microsoft MCE Remote"
+    PluginVersion="1.0">
+
+  <Runtime>
+    <Assembly FileName="MceRemoteReceiver.dll"/>
+    <PluginStateTracker ClassName="MediaPortal.Plugins.MceRemoteReceiver.MceRemoteReceiver"/>
+  </Runtime>
+</Plugin>
