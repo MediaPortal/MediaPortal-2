@@ -23,15 +23,22 @@
 #endregion
 
 using CommandLine;
+using CommandLine.Text;
 
 namespace MediaPortal.Server
 {
   public class CommandLineOptions
   {
-    [Option("d", "data", Required = false, HelpText = "Overrides the default application data directory.")]
-    public string DataDirectory = null;
+    [Option('d', "data", Required = false, HelpText = "Overrides the default application data directory.")]
+    public string DataDirectory { get; set; }
 
-    [Option("c", "console", Required = false, HelpText = "Run MP2 Server as Console Application.")]
-    public bool RunAsConsoleApp = false;
+    [Option('c', "console", Required = false, HelpText = "Run MP2 Server as Console Application.")]
+    public bool RunAsConsoleApp { get; set; }
+
+    [HelpOption]
+    public string GetUsage()
+    {
+      return HelpText.AutoBuild(this, current => HelpText.DefaultParsingErrorsHandler(this, current));
+    }
   }
 }

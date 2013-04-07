@@ -31,7 +31,6 @@ using System.Reflection;
 using System.Text;
 using System.Threading;
 using MergeMSI.Properties;
-using CommandLine;
 
 namespace MergeMSI
 {
@@ -41,11 +40,10 @@ namespace MergeMSI
     {
       Thread.CurrentThread.Name = "Main";
 
-      // Parse Command Line options
-      CommandLineOptions mpArgs = new CommandLineOptions();
-      ICommandLineParser parser = new CommandLineParser(new CommandLineParserSettings(Console.Error));
-      if (!parser.ParseArguments(args, mpArgs, Console.Out))
-        Environment.Exit(1);
+      // Parse command line options
+      var mpOptions = new CommandLineOptions();
+      var parser = new CommandLine.Parser(with => with.HelpWriter = Console.Out);
+      parser.ParseArgumentsStrict(args, mpOptions, () => Environment.Exit(1));
 
       if (String.IsNullOrWhiteSpace(Environment.GetEnvironmentVariable("wix")))
       {
@@ -53,10 +51,10 @@ namespace MergeMSI
         Environment.Exit(2);
       }
 
-      if (!CreateTransforms(mpArgs))
+      if (!CreateTransforms(mpOptions))
         Environment.Exit(3);
 
-      if (!MergeTransforms(mpArgs))
+      if (!MergeTransforms(mpOptions))
         Environment.Exit(4);
     }
 

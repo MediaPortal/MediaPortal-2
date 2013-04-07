@@ -26,7 +26,6 @@ using System;
 using System.ServiceProcess;
 using System.Threading;
 using System.Windows.Forms;
-using CommandLine;
 using MediaPortal.Backend;
 using MediaPortal.Common.Exceptions;
 using MediaPortal.Common.PluginManager;
@@ -46,7 +45,6 @@ namespace MediaPortal.Server
 {
   public class ApplicationLauncher
   {
-    protected static CommandLineOptions MpArgs = new CommandLineOptions();
     protected SystemStateService _systemStateService = null;
     protected string _dataDirectory = null;
 
@@ -60,13 +58,13 @@ namespace MediaPortal.Server
     /// </summary>
     public static void Main(params string[] args)
     {
-      // Parse Command Line options
-      var parser = new CommandLineParser(new CommandLineParserSettings(Console.Error));
-      if (!parser.ParseArguments(args, MpArgs, Console.Out))
-        Environment.Exit(1);
+      // Parse command line options
+      var mpOptions = new CommandLineOptions();
+      var parser = new CommandLine.Parser(with => with.HelpWriter = Console.Out);
+      parser.ParseArgumentsStrict(args, mpOptions, () => Environment.Exit(1));
 
-      if (MpArgs.RunAsConsoleApp)
-        new ApplicationLauncher(MpArgs.DataDirectory).RunAsConsole();
+      if (mpOptions.RunAsConsoleApp)
+        new ApplicationLauncher(mpOptions.DataDirectory).RunAsConsole();
       else
       {
         ServiceBase[] servicesToRun = new ServiceBase[] { new WindowsService() };

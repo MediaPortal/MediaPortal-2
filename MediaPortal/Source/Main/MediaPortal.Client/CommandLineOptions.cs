@@ -23,13 +23,19 @@
 #endregion
 
 using CommandLine;
+using CommandLine.Text;
 
 namespace MediaPortal.Client
 {
   public class CommandLineOptions
   {
-    [Option("d", "data", Required = false,
-        HelpText = "Overrides the default application data directory.")]
-    public string DataDirectory = null;
+    [Option('d', "data", Required = false, HelpText = "Overrides the default application data directory.")]
+    public string DataDirectory { get; set; }
+
+    [HelpOption]
+    public string GetUsage()
+    {
+      return HelpText.AutoBuild(this, current => HelpText.DefaultParsingErrorsHandler(this, current));
+    }
   }
 }

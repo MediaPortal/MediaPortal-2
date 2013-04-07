@@ -30,7 +30,6 @@ using MediaPortal.Common.PathManager;
 using System.Threading;
 using System.Windows;
 using System.Windows.Threading;
-using CommandLine;
 using MediaPortal.Common;
 using MediaPortal.Common.Localization;
 using MediaPortal.Common.Logging;
@@ -74,11 +73,10 @@ namespace MediaPortal.ServiceMonitor
       Thread.CurrentThread.Name = "Main";
       Thread.CurrentThread.SetApartmentState(ApartmentState.STA);
 
-      // Parse Command Line options
-      CommandLineOptions mpArgs = new CommandLineOptions();
-      ICommandLineParser parser = new CommandLineParser(new CommandLineParserSettings(Console.Error));
-      if (!parser.ParseArguments(args.Args, mpArgs, Console.Out))
-        Environment.Exit(1);
+      // Parse command line options
+      var mpOptions = new CommandLineOptions();
+      var parser = new CommandLine.Parser(with => with.HelpWriter = Console.Out);
+      parser.ParseArgumentsStrict(args.Args, mpOptions, () => Environment.Exit(1));
 
       // Check if another instance is already running
       // If new instance was created by UacHelper previous one, assume that previous one is already closed.
@@ -151,7 +149,7 @@ namespace MediaPortal.ServiceMonitor
         try
         {
           ServiceRegistration.Get<IServerConnectionManager>().Startup();
-          appController.StartUp(mpArgs);
+          appController.StartUp(mpOptions);
         }
         catch (Exception e)
         {

@@ -23,16 +23,24 @@
 #endregion
 
 using CommandLine;
+using CommandLine.Text;
 
 namespace MergeMSI
 {
   public class CommandLineOptions
   {
-    [Option("t", "TargetDir", Required = true,
-        HelpText = "Specifies the $(TargetDir) for your setup project.")]
-    public string TargetDir = null;
-    [Option("f", "TargetFileName", Required = true,
-        HelpText = "Specifies the $(TargetFileName) for your setup project.")]
-    public string TargetFileName = null;
+    [Option('t', "TargetDir", Required = true,
+      HelpText = "Specifies the $(TargetDir) for your setup project.")]
+    public string TargetDir { get; set; }
+
+    [Option('f', "TargetFileName", Required = true,
+      HelpText = "Specifies the $(TargetFileName) for your setup project.")]
+    public string TargetFileName { get; set; }
+
+    [HelpOption]
+    public string GetUsage()
+    {
+      return HelpText.AutoBuild(this, current => HelpText.DefaultParsingErrorsHandler(this, current));
+    }
   }
 }

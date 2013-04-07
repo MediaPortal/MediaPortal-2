@@ -23,38 +23,44 @@
 #endregion
 
 using CommandLine;
+using CommandLine.Text;
 
 namespace TransifexHelper
 {
   public class CommandLineOptions
   {
-    [Option("t", "TargetDir", Required = true,
-        HelpText = "Specifies the directory, where to search for Language\\string_en.xml.")]
-    public string TargetDir = null;
+    [Option('t', "TargetDir", Required = true,
+      HelpText = "Specifies the directory, where to search for Language\\string_en.xml.")]
+    public string TargetDir { get; set; }
 
-    [Option(null, "verify", Required = false,
-        HelpText = "Verify the tx project against the folder structure.")]
-    public bool Verify = false;
+    [Option("verify", Required = false,
+      HelpText = "Verify the tx project against the folder structure.")]
+    public bool Verify { get; set; }
 
-    [Option(null, "ToCache", Required = false,
-        HelpText = "Copy English template files from plugin sources to Transifex cache.")]
-    public bool ToCache = false;
+    [Option("ToCache", Required = false,
+      HelpText = "Copy English template files from plugin sources to Transifex cache.")]
+    public bool ToCache { get; set; }
 
-    [Option(null, "push", Required = false,
-        HelpText = "Push English template files from Transifex cache to Transifex.net.")]
-    public bool Push = false;
+    [Option("push", Required = false,
+      HelpText = "Push English template files from Transifex cache to Transifex.net.")]
+    public bool Push { get; set; }
 
-    [Option(null, "pull", Required = false,
-        HelpText = "Pull non-English translation files from Transifex.net to Transifex cache.")]
-    public bool Pull = false;
+    [Option("pull", Required = false,
+      HelpText = "Pull non-English translation files from Transifex.net to Transifex cache.")]
+    public bool Pull { get; set; }
 
-    [Option(null, "fix", Required = false,
-        HelpText = "(Temporary) Fix xml encodings for &lt; &gt; tags.")]
-    public bool Fix = false;
+    [Option("fix", Required = false,
+      HelpText = "(Temporary) Fix xml encodings for &lt; &gt; tags.")]
+    public bool Fix { get; set; }
 
+    [Option("FromCache", Required = false,
+      HelpText = "Copy non-English translation files from Transifex cache to language pack plugin.")]
+    public bool FromCache { get; set; }
 
-    [Option(null, "FromCache", Required = false,
-        HelpText = "Copy non-English translation files from Transifex cache to language pack plugin.")]
-    public bool FromCache = false;
+    [HelpOption]
+    public string GetUsage()
+    {
+      return HelpText.AutoBuild(this, current => HelpText.DefaultParsingErrorsHandler(this, current));
+    }
   }
 }

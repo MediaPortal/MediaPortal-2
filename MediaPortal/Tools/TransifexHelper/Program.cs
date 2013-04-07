@@ -30,7 +30,6 @@ using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading;
 using System.Xml;
-using CommandLine;
 
 namespace TransifexHelper
 {
@@ -76,37 +75,36 @@ namespace TransifexHelper
     {
       Thread.CurrentThread.Name = "Main";
 
-      // Parse Command Line options
-      CommandLineOptions mpArgs = new CommandLineOptions();
-      ICommandLineParser parser = new CommandLineParser(new CommandLineParserSettings(Console.Error));
-      if (!parser.ParseArguments(args, mpArgs, Console.Out))
-        Environment.Exit(1);
+      // Parse command line options
+      var mpOptions = new CommandLineOptions();
+      var parser = new CommandLine.Parser(with => with.HelpWriter = Console.Out);
+      parser.ParseArgumentsStrict(args, mpOptions, () => Environment.Exit(1));
 
-      targetDir = mpArgs.TargetDir;
+      targetDir = mpOptions.TargetDir;
 
       // always run verification first
       if (!Verify())
         Environment.Exit(2);
 
-      if (mpArgs.Verify)
+      if (mpOptions.Verify)
         Environment.Exit(0);
 
-      if (mpArgs.ToCache)
+      if (mpOptions.ToCache)
       {
         UpdateTransifexConfig();
         CopyToCache();
       }
 
-      if (mpArgs.Push)
+      if (mpOptions.Push)
         ExecutePush();
 
-      if (mpArgs.Pull)
+      if (mpOptions.Pull)
         ExecutePull();
 
-      if (mpArgs.Fix)
+      if (mpOptions.Fix)
         FixEncodings();
 
-      if (mpArgs.FromCache)
+      if (mpOptions.FromCache)
         CopyFromCache();
     }
 

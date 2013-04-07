@@ -41,7 +41,6 @@ using MediaPortal.Common.PathManager;
 using MediaPortal.Common.Settings;
 #endif
 using MediaPortal.UI.Shares;
-using CommandLine;
 using MediaPortal.Common;
 using MediaPortal.Common.Services.Runtime;
 using MediaPortal.Common.Logging;
@@ -91,11 +90,10 @@ namespace MediaPortal.Client
     {
       Thread.CurrentThread.Name = "Main";
 
-      // Parse Command Line options
-      CommandLineOptions mpArgs = new CommandLineOptions();
-      ICommandLineParser parser = new CommandLineParser(new CommandLineParserSettings(Console.Error));
-      if (!parser.ParseArguments(args, mpArgs, Console.Out))
-        Environment.Exit(1);
+      // Parse command line options
+      var mpOptions = new CommandLineOptions();
+      var parser = new CommandLine.Parser(with => with.HelpWriter = Console.Out);
+      parser.ParseArgumentsStrict(args, mpOptions, () => Environment.Exit(1));
 
       // Check if another instance is already running
       if (SingleInstanceHelper.IsAlreadyRunning(MUTEX_ID, out _mutex))
@@ -128,7 +126,7 @@ namespace MediaPortal.Client
         try
         {
           // Check if user wants to override the default Application Data location.
-          ApplicationCore.RegisterVitalCoreServices(mpArgs.DataDirectory);
+          ApplicationCore.RegisterVitalCoreServices(mpOptions.DataDirectory);
 
 #if !DEBUG
           splashScreen = CreateSplashScreen(ServiceRegistration.Get<ISettingsManager>().Load<UI.Settings.StartupSettings>().StartupScreenNum);

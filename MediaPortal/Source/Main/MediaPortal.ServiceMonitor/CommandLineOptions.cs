@@ -23,15 +23,22 @@
 #endregion
 
 using CommandLine;
+using CommandLine.Text;
 
 namespace MediaPortal.ServiceMonitor
 {
   public class CommandLineOptions
   {
-    [Option("m", "minimized", Required = false, HelpText = "Starts the application minimized.")]
-    public bool IsMinimized = false;
+    [Option('m', "minimized", Required = false, HelpText = "Starts the application minimized.")]
+    public bool IsMinimized { get; set; }
 
-    [Option("c", "command", Required = false, HelpText = "Defines the command which should be executed on startup. Example: command=RestartService")]
-    public string Command = null;
+    [Option('c', "command", Required = false, HelpText = "Defines the command which should be executed on startup. Example: command=RestartService")]
+    public string Command { get; set; }
+
+    [HelpOption]
+    public string GetUsage()
+    {
+      return HelpText.AutoBuild(this, current => HelpText.DefaultParsingErrorsHandler(this, current));
+    }
   }
 }
