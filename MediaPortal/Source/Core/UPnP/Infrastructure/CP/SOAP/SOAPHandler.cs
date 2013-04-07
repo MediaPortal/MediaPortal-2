@@ -171,7 +171,7 @@ namespace UPnP.Infrastructure.CP.SOAP
 
     protected static IList<object> ParseResult(TextReader textReader, CpAction action, bool sourceSupportsUPnP11)
     {
-      IList<object> outParameterValues = new List<object>();
+      object[] outParameterValues = new object[action.OutArguments.Count];
       using(XmlReader reader = XmlReader.Create(textReader, UPnPConfiguration.DEFAULT_XML_READER_SETTINGS))
       {
         reader.MoveToContent();
@@ -190,24 +190,35 @@ namespace UPnP.Infrastructure.CP.SOAP
             actionName.Substring(0, actionName.Length - "Response".Length) != action.Name)
           throw new ArgumentException("Invalid action name in result message");
 
-        IEnumerator<CpArgument> formalArgumentEnumer = action.OutArguments.GetEnumerator();
+        // UPnP spec says we have to be able to handle return values being out
+        // of order to support UPnP 1.0 devices. See UPnP-arch-DeviceArchitecture-v1.1
+        // section 2.5.4. We need a dictionary to make this easy.
+        IDictionary<string, int> formalArgIdxDictionary = new Dictionary<string, int>();
+        for (int i = 0; i < action.OutArguments.Count; i++)
+          formalArgIdxDictionary.Add(action.OutArguments[i].Name, i);
+
+        int outArgCount = 0;
         if (!SoapHelper.ReadEmptyStartElement(reader))
           // Parse and check output parameters
           while (reader.NodeType != XmlNodeType.EndElement)
           {
             string argumentName = reader.Name; // Arguments don't have a namespace, so take full name
-            if (!formalArgumentEnumer.MoveNext()) // Too many arguments
-              throw new ArgumentException("Invalid out argument count");
-            if (formalArgumentEnumer.Current.Name != argumentName)
+            int formalArgumentIndex;
+            if (!formalArgIdxDictionary.TryGetValue(argumentName, out formalArgumentIndex))
               throw new ArgumentException("Invalid argument name");
-            object value;
-            if (SoapHelper.ReadNull(reader))
-              value = null;
-            else
-              formalArgumentEnumer.Current.SoapParseArgument(reader, !sourceSupportsUPnP11, out value);
-            outParameterValues.Add(value);
+            CpArgument formalArgument = action.OutArguments[formalArgumentIndex];
+
+            // Get the argument value and store it in the correct position in the return list.
+            object value = null;
+            if (!SoapHelper.ReadNull(reader))
+              formalArgument.SoapParseArgument(reader, !sourceSupportsUPnP11, out value);
+            outParameterValues[formalArgumentIndex] = value;
+            outArgCount++;
+
+            // Don't allow duplicates of the same argument.
+            formalArgIdxDictionary.Remove(formalArgument.Name);
           }
-        if (formalArgumentEnumer.MoveNext()) // Too few arguments
+        if (outArgCount != action.OutArguments.Count) // Too few arguments
           throw new ArgumentException("Invalid out argument count");
       }
       return outParameterValues;

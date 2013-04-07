@@ -197,8 +197,9 @@ namespace UPnP.Infrastructure.CP.DeviceTree
       CpDataType dataType = CpDataType.CreateDataType(dtIt.Current, nsmgr, dataTypeResolver);
       CpStateVariable result = new CpStateVariable(connection, parentService, name, dataType);
       XPathNodeIterator dvIt = svIt.Select("s:defaultValue", nsmgr);
-      if (dvIt.MoveNext())
-        result.DefaultValue = dataType.SoapDeserializeValue(dvIt.Current.ReadSubtree(), true); // Default value is always simple value (see DevArch)
+      // TODO parsing of default values from CableCARD fails, need to figure out why
+      //if (dvIt.MoveNext())
+        //result.DefaultValue = dataType.SoapDeserializeValue(dvIt.Current.ReadSubtree(), true); // Default value is always simple value (see DevArch)
       XPathNodeIterator avlIt = svIt.Select("s:allowedValueList/s:allowedValue", nsmgr);
       if (avlIt.Count > 0)
       {

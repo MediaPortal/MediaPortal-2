@@ -288,7 +288,6 @@ namespace UPnP.Infrastructure.CP.GENA
           string dateStr = response.Headers.Get("DATE");
           string sid = response.Headers.Get("SID");
           string timeoutStr = response.Headers.Get("TIMEOUT");
-          DateTime date = DateTime.ParseExact(dateStr, "R", CultureInfo.InvariantCulture).ToLocalTime();
           int timeout;
           if (string.IsNullOrEmpty(timeoutStr) || (!timeoutStr.StartsWith("Second-") ||
               !int.TryParse(timeoutStr.Substring("Second-".Length).Trim(), out timeout)))
@@ -296,7 +295,15 @@ namespace UPnP.Infrastructure.CP.GENA
             service.InvokeEventSubscriptionFailed(new UPnPError((int) HttpStatusCode.BadRequest, "Invalid answer from UPnP device"));
             return;
           }
+
+          DateTime date = DateTime.ParseExact(dateStr, "R", CultureInfo.InvariantCulture).ToLocalTime();
           DateTime expiration = date.AddSeconds(timeout);
+          if (expiration < DateTime.Now)
+            // If the timeout is in the past already, assume it is invalid and estimate
+            // the timeout timestamp. This workaround is necessary for devices that do
+            // not have their date set correctly (so the DATE header is unusable).
+            expiration = DateTime.Now.AddSeconds(timeout);
+
           EventSubscription subscription;
           lock (_cpData.SyncObj)
           {
@@ -384,12 +391,12 @@ namespace UPnP.Infrastructure.CP.GENA
             minExpiration = subscription.Expiration;
         if (minExpiration.HasValue)
         {
-          long numMilliseconds = (minExpiration.Value - DateTime.Now).Milliseconds - EVENT_SUBSCRIPTION_RENEWAL_GAP;
+          double numMilliseconds = (minExpiration.Value - DateTime.Now).TotalMilliseconds - (EVENT_SUBSCRIPTION_RENEWAL_GAP * 1000);
           if (numMilliseconds < 0)
             numMilliseconds = 0;
           try
           {
-            _subscriptionRenewalTimer.Change(numMilliseconds, Timeout.Infinite);
+            _subscriptionRenewalTimer.Change((long)numMilliseconds, Timeout.Infinite);
           }
           catch (ObjectDisposedException) { }
         }
