@@ -26,8 +26,10 @@ using System;
 using System.Collections.Generic;
 using MediaPortal.Common;
 using MediaPortal.Common.Configuration;
+using MediaPortal.Common.Logging;
 using MediaPortal.Common.Messaging;
 using MediaPortal.Common.SystemCommunication;
+using MediaPortal.Plugins.ServerSettings.UPnP;
 using MediaPortal.UI.ServerCommunication;
 
 namespace MediaPortal.Plugins.ServerSettings.Settings
@@ -37,7 +39,7 @@ namespace MediaPortal.Plugins.ServerSettings.Settings
   /// themself using the <see cref="RegisterConfiguration"/> method, and unregister using <see cref="UnregisterConfiguration"/>
   /// (usually done in <see cref="IDisposable.Dispose"/> of item).
   /// </summary>
-  public class ConnectionMonitor: IDisposable
+  public class ConnectionMonitor : IDisposable
   {
     public static ConnectionMonitor Instance = new ConnectionMonitor();
 
@@ -63,6 +65,7 @@ namespace MediaPortal.Plugins.ServerSettings.Settings
             Enable(false);
             break;
           case ServerConnectionMessaging.MessageType.HomeServerAttached:
+            RegisterService();
             Visible(true);
             break;
           case ServerConnectionMessaging.MessageType.HomeServerDetached:
@@ -72,16 +75,28 @@ namespace MediaPortal.Plugins.ServerSettings.Settings
       }
     }
 
+    private void RegisterService()
+    {
+      // After the home server got attached we need to register our service proxy.
+      ServiceRegistration.Get<ServerSettingsProxyRegistration>().RegisterService();
+    }
+
     private void Visible(bool newState)
     {
       foreach (var configItem in _configItems)
+      {
+        ServiceRegistration.Get<ILogger>().Debug("ConnectionMonitor: Setting Configuration '{0}' visibility to {1}", configItem.Text, newState);
         configItem.Visible = newState;
+      }
     }
 
     private void Enable(bool newState)
     {
       foreach (var configItem in _configItems)
+      {
+        ServiceRegistration.Get<ILogger>().Debug("ConnectionMonitor: Setting Configuration '{0}' enabled to {1}", configItem.Text, newState);
         configItem.Enabled = newState;
+      }
     }
 
     #region IViewChangeNotificator implementation
@@ -109,8 +124,10 @@ namespace MediaPortal.Plugins.ServerSettings.Settings
     {
       IServerConnectionManager scm = ServiceRegistration.Get<IServerConnectionManager>();
       IContentDirectory cd = scm.ContentDirectory;
-      // Set initial "Enabled" value, depending on current connection state
+      // Set initial "Enabled" value, depending on current connection state.
       configItem.Enabled = cd != null;
+      // Set initial "Visible" value, depending on attachment state.
+      configItem.Visible = scm.HomeServerSystemId != null;
       _configItems.Add(configItem);
     }
 
