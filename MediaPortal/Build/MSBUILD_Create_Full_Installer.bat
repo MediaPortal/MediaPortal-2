@@ -1,18 +1,18 @@
 
-echo Deleting binary folder > BuildInstaller.log
+echo Deleting binary folder
 rmdir /s /q ..\bin
 
-echo Updating language resources from transifex >> BuildInstaller.log
+echo Updating language resources from transifex
 call TRANSIFEX_Update_Translation_Files.bat
 
-echo Rebuilding Server >> BuildInstaller.log
+echo Rebuilding Server
 call MSBUILD_Rebuild_Release_Server.bat
 
-echo Rebuilding Client >> BuildInstaller.log
+echo Rebuilding Client
 call MSBUILD_Rebuild_Release_Client.bat
 
-echo Rebuilding ServiceMonitor >> BuildInstaller.log
+echo Rebuilding ServiceMonitor
 call MSBUILD_Rebuild_Release_ServiceMonitor.bat
 
-echo Rebuilding Setup >> BuildInstaller.log
+echo Rebuilding Setup
 call MSBUILD_Rebuild_Release_Setup.bat
