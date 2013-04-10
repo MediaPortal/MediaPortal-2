@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="4.0">
+
+  <PropertyGroup>
+    <PluginDestination>$(SolutionDir)..\Bin\$(SolutionName)\$(OutDir)Tools\$(TargetName)\</PluginDestination>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PluginFiles Include="$(TargetPath)" />
+    <PluginFiles Include="$(TargetPath).config" />
+    <PluginFiles Include="$(TargetDir)DefaultRemoteMap.xml" />
+    <PluginFiles Include="$(TargetDir)eHomeTransceiverList.xml" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <LanguageFiles Include="$(ProjectDir)Language\*.*" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <DefaultFiles Include="$(ProjectDir)Defaults\**\*.*" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <DllFiles Include="$(TargetDir)\**\*.dll" />
+  </ItemGroup>
+
+  <Target Name="AfterBuild">
+    <Copy SourceFiles="@(PluginFiles)" DestinationFolder="$(PluginDestination)" />
+
+    <Copy SourceFiles="@(DefaultFiles)"
+          DestinationFiles="@(DefaultFiles->'$(PluginDestination)Defaults\%(RecursiveDir)%(Filename)%(Extension)')" />
+
+    <Copy SourceFiles="@(DllFiles)"
+          DestinationFiles="@(DllFiles->'$(PluginDestination)%(RecursiveDir)%(Filename)%(Extension)')" />
+  </Target>
+
+</Project>

@@ -415,5 +415,99 @@ namespace MediaPortal.Utilities.SystemAPI
     [DllImport("kernel32.dll")]
     public static extern uint GetCurrentThreadId();
 
+    #region FindWindow / BringToFront
+
+    public enum ShowWindowFlags
+    {
+      Hide = 0,
+      ShowNormal = 1,
+      ShowMinimized = 2,
+      ShowMaximized = 3,
+      ShowNoActivate = 4,
+      Show = 5,
+      Minimize = 6,
+      ShowMinNoActivate = 7,
+      ShowNotActivated = 8,
+      Restore = 9,
+      ShowDefault = 10,
+      ForceMinimize = 11
+    }
+
+    #region Interop
+
+    [DllImport("user32")]
+    private static extern bool AttachThreadInput(uint nThreadId, int nThreadIdTo, bool bAttach);
+
+    [DllImport("user32")]
+    private static extern bool BringWindowToTop(IntPtr hWnd);
+
+    [DllImport("user32")]
+    private static extern IntPtr GetForegroundWindow();
+
+    [DllImport("user32")]
+    private static extern int GetWindowThreadProcessId(IntPtr hWnd, out int unused);
+
+    [DllImport("user32")]
+    private static extern bool SetFocus(IntPtr hWnd);
+
+    [DllImport("user32", SetLastError = true)]
+    public static extern bool SetForegroundWindow(IntPtr _hwnd);
+
+    [DllImport("user32", SetLastError = true)]
+    public static extern uint ShowWindow(IntPtr hwnd, ShowWindowFlags showCommand);
+
+    #endregion
+
+    public static bool SetForegroundWindow(IntPtr window, bool force)
+    {
+      IntPtr windowForeground = GetForegroundWindow();
+
+      if (window == windowForeground)
+      {
+        return true;
+      }
+
+      bool setAttempt = SetForegroundWindow(window);
+
+      if (force == false || setAttempt)
+      {
+        return setAttempt;
+      }
+
+      if (windowForeground == IntPtr.Zero)
+      {
+        return false;
+      }
+
+      // if we don't attach successfully to the windows thread then we're out of options
+      int processId;
+      int fgWindowPID = GetWindowThreadProcessId(windowForeground, out processId);
+
+      if (fgWindowPID == -1)
+      {
+        return false;
+      }
+
+      // If we don't attach successfully to the windows thread then we're out of options
+      uint curThreadID = GetCurrentThreadId();
+      bool attached = AttachThreadInput(curThreadID, fgWindowPID, true);
+      int lastError = Marshal.GetLastWin32Error();
+
+      if (!attached)
+      {
+        return false;
+      }
+
+      SetForegroundWindow(window);
+      BringWindowToTop(window);
+      SetFocus(window);
+
+      AttachThreadInput(curThreadID, fgWindowPID, false);
+
+      // we've done all that we can so base our return value on whether we have succeeded or not
+      return (GetForegroundWindow() == window);
+    }
+
+    #endregion FindWindow / BringToFront
   }
 }

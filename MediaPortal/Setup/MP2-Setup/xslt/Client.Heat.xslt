@@ -36,4 +36,32 @@
       <xsl:apply-templates/>
     </Directory>
   </xsl:template>
+
+  <!-- Rewrite definition for MP2-ClientLauncher (fixed GUID, add to autostart...) -->
+  <xsl:key name="MP2-ClientLauncher.exe"
+           match="//wix:Component[wix:File/@Source = '$(var.MediaPortal.Client.TargetDir)\Tools\MP2-ClientLauncher\MP2-ClientLauncher.exe']"
+           use="@Id"/>
+
+  <xsl:template match="wix:Component[@Id = key('MP2-ClientLauncher.exe', @Id)/@Id]">
+
+    <Component Id="ClientLauncher.exe" Guid="51C55F34-A2BC-45FB-8949-7104556C7AD9">
+      <File Id="ClientLauncher.exe" KeyPath="yes" Source="$(var.MediaPortal.Client.TargetDir)\Tools\MP2-ClientLauncher\MP2-ClientLauncher.exe" />
+    </Component>
+
+    <!-- Auto-start via Registry -->
+    <Component Id="ClientLauncher.Registry.AutoStart" Guid="B602BA6F-90F7-4450-8E8C-C9EDFC6BEE6D">
+      <RegistryValue Root="HKCU"
+                     Key="Software\Microsoft\Windows\Currentversion\Run"
+                     Name="MP2 ClientLauncher"
+                     Value='"[#ClientLauncher.exe]"'
+                     KeyPath="yes"
+                     Type="expandable"/>
+    </Component>
+
+  </xsl:template>
+
+  <xsl:template match="wix:ComponentRef[@Id = key('MP2-ClientLauncher.exe', @Id)/@Id]">
+    <ComponentRef Id="ClientLauncher.exe" />
+    <ComponentRef Id="ClientLauncher.Registry.AutoStart" />
+  </xsl:template>
 </xsl:stylesheet>
