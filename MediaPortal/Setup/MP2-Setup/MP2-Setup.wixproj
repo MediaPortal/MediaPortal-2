@@ -50,6 +50,7 @@
     <Compile Include="UI\MP2_Setup_UI_SelectInstallType.wxs" />
     <Compile Include="VCRedist\VCRedist.wxs" />
     <Content Include="Includes.wxi" />
+    <None Include="MP2-Setup-Logging.bat" />
     <Content Include="VCRedist\Microsoft_VC100_ATL_x86.msm" />
     <Content Include="VCRedist\Microsoft_VC100_CRT_x86.msm" />
     <Content Include="VCRedist\Microsoft_VC100_MFC_x86.msm" />
@@ -130,7 +131,7 @@
 "$(WIX)bin\heat.exe" dir "$(ProjectDir)..\..\Bin\MP2-ServiceMonitor\bin\x86\Release" -cg ServiceMonitor.Heat -gg -scom -sreg -sfrag -svb6 -srd -dr INSTALLDIR_SERVICE_MONITOR -var var.MediaPortal.ServiceMonitor.TargetDir -template fragment -t $(ProjectDir)xslt\ServiceMonitor.Heat.xslt -out "$(ProjectDir)Features\ServiceMonitor.Heat.wxs"</PreBuildEvent>
   </PropertyGroup>
   <PropertyGroup>
-    <PostBuildEvent />
+    <PostBuildEvent>xcopy /Y "$(ProjectDir)MP2-Setup-Logging.bat" "$(TargetDir)en-us\"</PostBuildEvent>
   </PropertyGroup>
   <!--
 	To modify your build process, add your task inside one of the targets below and uncomment it.
