@@ -364,6 +364,8 @@ namespace MediaPortal.Common.Services.MediaManagement
 
     public ICollection<Guid> GetMetadataExtractorsForCategory(string mediaCategory)
     {
+      // Media categories are registered from the metadata extractor plugins - check we're loaded all metadata extractors to ensure the media categories have been registered
+      CheckMetadataExtractorsLoaded();
       ICollection<Guid> ids = new HashSet<Guid>();
       MediaCategory category;
       if (!_mediaCategories.TryGetValue(mediaCategory, out category))
