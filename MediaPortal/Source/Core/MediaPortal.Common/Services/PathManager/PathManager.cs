@@ -63,7 +63,7 @@ namespace MediaPortal.Common.Services.PathManager
 
     public void InitializeDefaults()
     {
-      string applicationPath = Assembly.GetExecutingAssembly().Location;
+      string applicationPath = Assembly.GetEntryAssembly().Location;
       InitializeDefaults(applicationPath);
     }
 
