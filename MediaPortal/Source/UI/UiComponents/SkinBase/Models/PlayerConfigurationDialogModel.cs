@@ -214,13 +214,7 @@ namespace MediaPortal.UiComponents.SkinBase.Models
           _playerConfigurationMenu.Add(item);
         }
         // Change geometry
-        IList<IPlayerContext> videoPCs = new List<IPlayerContext>();
-        for (int i = 0; i < numActivePlayers; i++)
-        {
-          IPlayerContext pc = playerContextManager.GetPlayerContext(i);
-          if (pc != null && pc.CurrentPlayer is IVideoPlayer)
-            videoPCs.Add(pc);
-        }
+        IList<IPlayerContext> videoPCs = GetVideoPlayerContexts();
         for (int i = 0; i < videoPCs.Count; i++)
         {
           IPlayerContext pc = videoPCs[i];
@@ -280,7 +274,7 @@ namespace MediaPortal.UiComponents.SkinBase.Models
         // Close player
         for (int i = 0; i < numActivePlayers; i++)
         {
-          string name = playerNames[i];
+          string name = numActivePlayers > 1 ? playerNames[i] : string.Empty;
           IPlayerContext pc = playerContexts[i];
           if (name != null)
           {
@@ -293,6 +287,19 @@ namespace MediaPortal.UiComponents.SkinBase.Models
         }
         _playerConfigurationMenu.FireChange();
       }
+    }
+
+    protected IList<IPlayerContext> GetVideoPlayerContexts()
+    {
+      IPlayerContextManager pcm = ServiceRegistration.Get<IPlayerContextManager>();
+      IList<IPlayerContext> videoPCs = new List<IPlayerContext>();
+      for (int i = 0; i < pcm.NumActivePlayerContexts; i++)
+      {
+        IPlayerContext pc = pcm.GetPlayerContext(i);
+        if (pc != null && pc.CurrentPlayer is IVideoPlayer)
+          videoPCs.Add(pc);
+      }
+      return videoPCs;
     }
 
     protected void UpdateAudioStreamsMenu()
@@ -408,7 +415,10 @@ namespace MediaPortal.UiComponents.SkinBase.Models
           return;
         }
         string geometryStr = LocalizationHelper.CreateResourceString(Consts.RES_CHOOSE_PLAYER_GEOMETRY).Evaluate();
-        _playerChooseGeometryHeader = string.Format("{0} ({1})", geometryStr, GetNameForPlayerContext(pc, pc.IsPrimaryPlayerContext ? 0 : 1));
+        IList<IPlayerContext> videoPCs = GetVideoPlayerContexts();
+        _playerChooseGeometryHeader = videoPCs.Count > 1 ?
+          string.Format("{0} ({1})", geometryStr, GetNameForPlayerContext(pc, pc.IsPrimaryPlayerContext ? 0 : 1))
+          : geometryStr;
         IVideoPlayer videoPlayer = pc.CurrentPlayer as IVideoPlayer;
         foreach (KeyValuePair<string, IGeometry> nameToGeometry in geometryManager.AvailableGeometries)
         {
@@ -438,7 +448,10 @@ namespace MediaPortal.UiComponents.SkinBase.Models
           return;
         }
         string effectStr = LocalizationHelper.CreateResourceString(Consts.RES_CHOOSE_PLAYER_EFFECT).Evaluate();
-        _playerChooseEffectHeader = string.Format("{0} ({1})", effectStr, GetNameForPlayerContext(pc, pc.IsPrimaryPlayerContext ? 0 : 1));
+        IList<IPlayerContext> videoPCs = GetVideoPlayerContexts();
+        _playerChooseEffectHeader = videoPCs.Count > 1 ?
+          string.Format("{0} ({1})", effectStr, GetNameForPlayerContext(pc, pc.IsPrimaryPlayerContext ? 0 : 1))
+          : effectStr;
         IVideoPlayer videoPlayer = pc.CurrentPlayer as IVideoPlayer;
         foreach (KeyValuePair<string, string> nameToEffect in geometryManager.AvailableEffects)
         {
