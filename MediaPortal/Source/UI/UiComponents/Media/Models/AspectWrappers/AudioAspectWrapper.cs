@@ -100,9 +100,9 @@ namespace MediaPortal.UiComponents.Media.Models.AspectWrappers
       get { return _durationProperty; }
     }
 
-    public double? Duration
+    public long? Duration
     {
-      get { return (double?) _durationProperty.GetValue(); }
+      get { return (long?) _durationProperty.GetValue(); }
       set { _durationProperty.SetValue(value); }
     }
 
@@ -214,7 +214,7 @@ namespace MediaPortal.UiComponents.Media.Models.AspectWrappers
       _artistsProperty = new SProperty(typeof(IEnumerable<string>));
       _albumProperty = new SProperty(typeof(string));
       _genresProperty = new SProperty(typeof(IEnumerable<string>));
-      _durationProperty = new SProperty(typeof(double?));
+      _durationProperty = new SProperty(typeof(long?));
       _trackProperty = new SProperty(typeof(int?));
       _numTracksProperty = new SProperty(typeof(int?));
       _albumArtistsProperty = new SProperty(typeof(IEnumerable<string>));
@@ -248,7 +248,7 @@ namespace MediaPortal.UiComponents.Media.Models.AspectWrappers
       Artists = (IEnumerable<string>) aspect[AudioAspect.ATTR_ARTISTS] ?? EMPTY_STRING_COLLECTION;
       Album = (string) aspect[AudioAspect.ATTR_ALBUM];
       Genres = (IEnumerable<string>) aspect[AudioAspect.ATTR_GENRES] ?? EMPTY_STRING_COLLECTION;
-      Duration = (double?) aspect[AudioAspect.ATTR_DURATION];
+      Duration = (long?) aspect[AudioAspect.ATTR_DURATION];
       Track = (int?) aspect[AudioAspect.ATTR_TRACK];
       NumTracks = (int?) aspect[AudioAspect.ATTR_NUMTRACKS];
       AlbumArtists = (IEnumerable<string>) aspect[AudioAspect.ATTR_ALBUMARTISTS] ?? EMPTY_STRING_COLLECTION;

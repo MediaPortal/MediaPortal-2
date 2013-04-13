@@ -139,7 +139,7 @@ namespace MediaPortal.UiComponents.Media.Views.RemovableMediaDrives
       providerResourceAspect.SetAttribute(ProviderResourceAspect.ATTR_SYSTEM_ID, systemId);
       mediaAspect.SetAttribute(MediaAspect.ATTR_TITLE, "Track " + track.TrackNo);
       audioAspect.SetAttribute(AudioAspect.ATTR_TRACK, (int) track.TrackNo);
-      audioAspect.SetAttribute(AudioAspect.ATTR_DURATION, track.Duration);
+      audioAspect.SetAttribute(AudioAspect.ATTR_DURATION, (long) track.Duration);
       audioAspect.SetAttribute(AudioAspect.ATTR_ENCODING, "PCM");
       audioAspect.SetAttribute(AudioAspect.ATTR_BITRATE, 1411200); // 44.1 kHz * 16 bit * 2 channel
       audioAspect.SetAttribute(AudioAspect.ATTR_NUMTRACKS, numTracks);

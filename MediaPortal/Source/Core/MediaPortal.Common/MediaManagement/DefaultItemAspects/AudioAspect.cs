@@ -34,7 +34,7 @@ namespace MediaPortal.Common.MediaManagement.DefaultItemAspects
     /// <summary>
     /// Media item aspect id of the audio aspect.
     /// </summary>
-    public static readonly Guid ASPECT_ID = new Guid("435E2E99-1546-444C-AE83-4843A3094533");
+    public static readonly Guid ASPECT_ID = new Guid("493F2B3B-8025-4DB1-80DC-C3CD39683C9F");
 
     /// <summary>
     /// Enumeration of artist names.
@@ -58,7 +58,7 @@ namespace MediaPortal.Common.MediaManagement.DefaultItemAspects
     /// Duration in seconds.
     /// </summary>
     public static readonly MediaItemAspectMetadata.AttributeSpecification ATTR_DURATION =
-        MediaItemAspectMetadata.CreateAttributeSpecification("Duration", typeof(double), Cardinality.Inline, false);
+        MediaItemAspectMetadata.CreateAttributeSpecification("Duration", typeof(long), Cardinality.Inline, false);
 
     /// <summary>
     /// Track number.

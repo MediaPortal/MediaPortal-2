@@ -386,7 +386,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
           composers = PatchID3v23Enumeration(composers);
         audioAspect.SetCollectionAttribute(AudioAspect.ATTR_COMPOSERS, ApplyAdditionalSeparator(composers));
 
-        audioAspect.SetAttribute(AudioAspect.ATTR_DURATION, tag.Properties.Duration.TotalSeconds);
+        audioAspect.SetAttribute(AudioAspect.ATTR_DURATION, (long) tag.Properties.Duration.TotalSeconds);
         if (tag.Tag.Genres.Length > 0)
         {
           IEnumerable<string> genres = tag.Tag.Genres;
