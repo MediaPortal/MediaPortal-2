@@ -291,7 +291,7 @@ namespace UPnP.Infrastructure.CP
           new Uri(preferredLink.DescriptionLocation), sd.ControlURL));
       NetworkUtils.SetLocalEndpoint(request, preferredLink.Endpoint.EndPointIPAddress);
       request.Method = "POST";
-      request.KeepAlive = true;
+      request.KeepAlive = false;
       request.AllowAutoRedirect = true;
       request.UserAgent = UPnPConfiguration.UPnPMachineInfoHeader;
       request.ContentType = "text/xml; charset=\"utf-8\"";
