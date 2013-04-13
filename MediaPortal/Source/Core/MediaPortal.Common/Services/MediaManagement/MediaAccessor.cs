@@ -203,7 +203,7 @@ namespace MediaPortal.Common.Services.MediaManagement
     }
 
     /// <summary>
-    /// Checks that the provider plugins are loaded.
+    /// Checks that the ResourceProvider plugins are loaded.
     /// </summary>
     protected void CheckProvidersLoaded()
     {
@@ -220,7 +220,7 @@ namespace MediaPortal.Common.Services.MediaManagement
     }
 
     /// <summary>
-    /// Checks that the provider plugins are loaded.
+    /// Checks that the MetadataExtractor plugins are loaded.
     /// </summary>
     protected void CheckMetadataExtractorsLoaded()
     {
@@ -261,7 +261,7 @@ namespace MediaPortal.Common.Services.MediaManagement
     {
       get
       {
-        // Media categories are registered from the metadata extractor plugins - check we're loaded all metadata extractors to ensure the media categories have been registered
+        // Media categories are registered from the metadata extractor plugins - check we have loaded all metadata extractors to ensure the media categories have been registered.
         CheckMetadataExtractorsLoaded();
         lock (_syncObj)
           return new Dictionary<string, MediaCategory>(_mediaCategories);
@@ -364,11 +364,9 @@ namespace MediaPortal.Common.Services.MediaManagement
 
     public ICollection<Guid> GetMetadataExtractorsForCategory(string mediaCategory)
     {
-      // Media categories are registered from the metadata extractor plugins - check we're loaded all metadata extractors to ensure the media categories have been registered
-      CheckMetadataExtractorsLoaded();
       ICollection<Guid> ids = new HashSet<Guid>();
       MediaCategory category;
-      if (!_mediaCategories.TryGetValue(mediaCategory, out category))
+      if (!MediaCategories.TryGetValue(mediaCategory, out category))
         return ids;
       ICollection<MediaCategory> categoriesToConsider = GetAllMediaCategoriesInHierarchy(category);
       foreach (KeyValuePair<Guid, IMetadataExtractor> localMetadataExtractor in LocalMetadataExtractors)
