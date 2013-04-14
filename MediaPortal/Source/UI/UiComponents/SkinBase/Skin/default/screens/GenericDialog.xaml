@@ -46,7 +46,7 @@
         </Grid.RowDefinitions>
         <Label Grid.Column="0" Grid.Row="0" Wrap="True" Color="{ThemeResource TextColor}"
             Content="{Binding Source={Service DialogManager},Path=CurrentDialogData.Text,Mode=OneTime}"/>
-        <ListView Grid.Column="0" Grid.Row="2" HorizontalAlignment="Center"
+        <ListView Grid.Column="0" Grid.Row="2" HorizontalAlignment="Center" SetFocusPrio="Default"
             Style="{ThemeResource DialogButtonsListViewStyle}"
             ItemsSource="{Binding Source={Service DialogManager},Path=CurrentDialogData.DialogButtons}"/>
       </Grid>
