@@ -379,7 +379,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       get
       {
         IScrollInfo si = _itemsHostPanel as IScrollInfo;
-        return si == null ? true : si.IsViewPortAtTop;
+        return si == null || si.IsViewPortAtTop;
       }
     }
 
@@ -407,6 +407,15 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       {
         IScrollInfo si = _itemsHostPanel as IScrollInfo;
         return si == null || si.IsViewPortAtRight;
+      }
+    }
+
+    public int NumberOfVisibleLines
+    {
+      get
+      {
+        IScrollInfo si = _itemsHostPanel as IScrollInfo;
+        return si == null ? 0 : si.NumberOfVisibleLines;
       }
     }
 

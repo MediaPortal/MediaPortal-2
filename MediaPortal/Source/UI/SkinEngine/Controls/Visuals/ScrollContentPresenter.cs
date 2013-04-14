@@ -154,7 +154,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
         if (IsHorzCentering)
           differenceX = CalculateCenteredScrollPos(elementBounds.X, elementBounds.Width, ActualPosition.X, ActualWidth);
         else if (_doScroll)
-          differenceX = CalculateVisibleScrollDifference(elementBounds.X, elementBounds.Width, ActualPosition.X, ActualWidth); 
+          differenceX = CalculateVisibleScrollDifference(elementBounds.X, elementBounds.Width, ActualPosition.X, ActualWidth);
 
         if (IsVertCentering)
           differenceY = CalculateCenteredScrollPos(elementBounds.Y, elementBounds.Height, ActualPosition.Y, ActualHeight) - _actualScrollOffsetY;
@@ -173,7 +173,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     {
       double difference = 0.0f;
       if (elementPos + elementSize > actualPos + actualSize)
-        difference = - (elementPos + elementSize - actualPos - actualSize);
+        difference = -(elementPos + elementSize - actualPos - actualSize);
       if (elementPos + difference < actualPos)
         difference = actualPos - elementPos;
       return (float) difference;
@@ -260,7 +260,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     {
       if (OpacityMask == null && (TotalHeight > ActualHeight || TotalWidth > ActualWidth))
       {
-        SolidColorBrush brush = new SolidColorBrush {Color = Color.Black};
+        SolidColorBrush brush = new SolidColorBrush { Color = Color.Black };
         OpacityMask = brush;
         _forcedOpacityMask = true;
       }
@@ -288,7 +288,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       base.SaveUIState(state, prefix);
       state[prefix + "/ScrollOffsetX"] = _scrollOffsetX;
       state[prefix + "/ScrollOffsetY"] = _scrollOffsetX;
-  }
+    }
 
     public override void RestoreUIState(IDictionary<string, object> state, string prefix)
     {
@@ -450,7 +450,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       {
         if (currentElement.ActualPosition.Y + currentElement.ActualHeight + DELTA_DOUBLE > ActualPosition.Y + ActualHeight)
           // Already at bottom
-          limitPosition = (float) (ActualPosition.Y + 2*ActualHeight);
+          limitPosition = (float) (ActualPosition.Y + 2 * ActualHeight);
         else
           limitPosition = (float) (ActualPosition.Y + ActualHeight);
       }
@@ -526,7 +526,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       {
         if (currentElement.ActualPosition.X + ActualWidth + DELTA_DOUBLE > ActualPosition.X + ActualWidth)
           // Already at right
-          limitPosition = (float) (ActualPosition.X + 2*ActualWidth);
+          limitPosition = (float) (ActualPosition.X + 2 * ActualWidth);
         else
           limitPosition = (float) (ActualPosition.X + ActualWidth);
       }
@@ -649,6 +649,11 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     public bool IsViewPortAtRight
     {
       get { return TemplateControl == null || -_actualScrollOffsetX + ActualWidth + DELTA_DOUBLE >= TotalWidth; }
+    }
+
+    public int NumberOfVisibleLines
+    {
+      get { return 0; /* As we are scrolling only by pixels here, we keep the default behavior */ }
     }
 
     #endregion

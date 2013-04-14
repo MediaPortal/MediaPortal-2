@@ -390,19 +390,22 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       if (!IsMouseOver)
         return;
 
-      int numLines = numDetents * SystemInformation.MouseWheelScrollLines;
+      IScrollViewerFocusSupport svfs = FindScrollControl() as IScrollViewerFocusSupport;
+      if (svfs == null)
+        return;
+
+      int scrollByLines = SystemInformation.MouseWheelScrollLines; // Use the system setting as default.
+      
+      IScrollInfo scrollInfo = svfs as IScrollInfo;
+      if (scrollInfo != null && scrollInfo.NumberOfVisibleLines != 0) // If ScrollControl can shown less items, use this as limit.
+        scrollByLines = scrollInfo.NumberOfVisibleLines;
+
+      int numLines = numDetents * scrollByLines;
+      
       if (numLines < 0)
-      {
-        IScrollViewerFocusSupport svfs = FindScrollControl() as IScrollViewerFocusSupport;
-        if (svfs != null)
-          svfs.ScrollDown(-1 * numLines);
-      }
+        svfs.ScrollDown(-1*numLines);
       else if (numLines > 0)
-      {
-        IScrollViewerFocusSupport svfs = FindScrollControl() as IScrollViewerFocusSupport;
-        if (svfs != null)
-          svfs.ScrollUp(numLines);
-      }
+        svfs.ScrollUp(numLines);
     }
 
     public override void OnKeyPressed(ref Key key)

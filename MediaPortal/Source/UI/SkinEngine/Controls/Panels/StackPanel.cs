@@ -824,6 +824,16 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
       get { return Orientation == Orientation.Vertical || _actualLastVisibleChildIndex == GetVisibleChildren().Count - 1; }
     }
 
+    public int NumberOfVisibleLines
+    {
+      get
+      {
+        int numLines = 0;
+        CalcHelper.Bound(ref numLines, 0, _actualLastVisibleChildIndex - _actualFirstVisibleChildIndex);
+        return numLines > 0 ? numLines : 0;
+      }
+    }
+
     #endregion
   }
 }

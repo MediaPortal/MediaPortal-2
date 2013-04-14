@@ -22,6 +22,8 @@
 
 #endregion
 
+using System.Windows.Forms;
+
 namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 {
   /// <summary>
@@ -113,5 +115,12 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     /// Returns the information if the viewport is at the right side of the available area.
     /// </summary>
     bool IsViewPortAtRight { get; }
+
+    /// <summary>
+    /// Returns the number of lines that can be shown inside the viewport. This value can be used for calculating 
+    /// the number of lines to be scrolled when using mouse wheel. If this value is <c>0</c>, the system default 
+    /// scrolling will be used (usually scrolling by <seealso cref="SystemInformation.MouseWheelScrollLines"/>).
+    /// </summary>
+    int NumberOfVisibleLines { get; }
   }
 }

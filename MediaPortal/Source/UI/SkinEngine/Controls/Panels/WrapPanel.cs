@@ -110,7 +110,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
     protected IList<LineMeasurement> _arrangedLines = new List<LineMeasurement>();
     protected int _actualFirstVisibleLineIndex = 0;
     protected int _actualLastVisibleLineIndex = -1;
-    
+
     #endregion
 
     #region Ctor
@@ -988,6 +988,11 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
     public virtual bool IsViewPortAtRight
     {
       get { return Orientation == Orientation.Horizontal || _actualLastVisibleLineIndex == GetVisibleChildren().Count - 1; }
+    }
+
+    public int NumberOfVisibleLines
+    {
+      get { return _actualLastVisibleLineIndex - _actualFirstVisibleLineIndex + 1; }
     }
 
     #endregion

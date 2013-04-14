@@ -568,6 +568,11 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
       get { return _scrollIndexX + _actualNumVisibleCols == _actualColumns; }
     }
 
+    public int NumberOfVisibleLines
+    {
+      get { return _actualNumVisibleRows; }
+    }
+
     #endregion
   }
 }
