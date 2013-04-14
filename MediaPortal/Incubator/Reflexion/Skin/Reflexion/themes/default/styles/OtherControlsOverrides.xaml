@@ -35,7 +35,7 @@
       </VisualBrush.Visual>
     </VisualBrush>
   </ResourceWrapper>
-
+  
   <!-- Scaling constants -->
   <ResourceWrapper x:Key="HomeMenuItemScaleMax"        Resource="2.0" />
   <ResourceWrapper x:Key="HomeMenuItemInverseScaleMax" Resource="0.5" /> 
