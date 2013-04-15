@@ -457,11 +457,11 @@ namespace Jyc.Expr
                 long lvalue;
                 if (long.TryParse(num, out lvalue))
                     return lvalue;
-                return decimal.Parse(num);
+                return decimal.Parse(num, CultureInfo.InvariantCulture);
             }
             else if (style == NumberStyles.Integer)
                 return double.Parse(num);
-            return float.Parse(num);
+            return float.Parse(num, CultureInfo.InvariantCulture);
         }
 
         private object ScanHexNumber()
