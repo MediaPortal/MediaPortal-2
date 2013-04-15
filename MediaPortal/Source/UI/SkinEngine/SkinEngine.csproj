@@ -251,6 +251,7 @@
     <Compile Include="MpfElements\Converters\PriorityBindingConverter.cs" />
     <Compile Include="MpfElements\Converters\ReferenceNotNull_BoolConverter.cs" />
     <Compile Include="MpfElements\Converters\expr\Error.cs" />
+    <Compile Include="MpfElements\Converters\StringFormatConverter.cs" />
     <Compile Include="MpfElements\IBindingContainer.cs" />
     <Compile Include="MpfElements\ISkinEngineManagedObject.cs" />
     <Compile Include="MpfElements\Resources\IUnmodifiableResource.cs" />

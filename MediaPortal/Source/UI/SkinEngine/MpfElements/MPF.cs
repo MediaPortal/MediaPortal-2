@@ -196,6 +196,7 @@ namespace MediaPortal.UI.SkinEngine.MpfElements
       _objectClassRegistrations.Add("DateFormatConverter", typeof(SkinEngine.MpfElements.Converters.DateFormatConverter));
       _objectClassRegistrations.Add("DurationConverter", typeof(SkinEngine.MpfElements.Converters.DurationConverter));
       _objectClassRegistrations.Add("PriorityBindingConverter", typeof(SkinEngine.MpfElements.Converters.PriorityBindingConverter));
+      _objectClassRegistrations.Add("StringFormatConverter", typeof(SkinEngine.MpfElements.Converters.StringFormatConverter));
 
       // Markup extensions
       _objectClassRegistrations.Add("StaticResource", typeof(SkinEngine.MarkupExtensions.StaticResourceMarkupExtension));

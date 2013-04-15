@@ -23,6 +23,7 @@
   <DateFormatConverter x:Key="DateFormatConverter"/>
   <DurationConverter x:Key="DurationConverter"/>
   <PriorityBindingConverter x:Key="PriorityBindingConverter"/>
+  <StringFormatConverter x:Key="StringFormatConverter"/>
 
   <!-- ******************* Screen/dialog animation storyboards ****************** -->
 
