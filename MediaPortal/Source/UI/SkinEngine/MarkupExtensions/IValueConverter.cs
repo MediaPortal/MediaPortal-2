@@ -28,9 +28,31 @@ using MediaPortal.UI.SkinEngine.MpfElements;
 
 namespace MediaPortal.UI.SkinEngine.MarkupExtensions
 {
+  /// <summary>
+  /// Exposes methods that allow modifying the data as it passes through the binding engine.
+  /// </summary>
   public interface IValueConverter : ISkinEngineManagedObject
   {
+    /// <summary>
+    /// Modifies the source data before passing it to the target for display in the UI.
+    /// </summary>
+    /// <param name="val">The source data being passed to the target.</param>
+    /// <param name="targetType">The <see cref="Type"/> of data expected by the target dependency property.</param>
+    /// <param name="parameter">An optional parameter to be used in the converter logic.</param>
+    /// <param name="culture">The culture of the conversion.</param>
+    /// <param name="result">The value to be passed to the target dependency property.</param>
+    /// <returns><c>true</c> if successful.</returns>
     bool Convert(object val, Type targetType, object parameter, CultureInfo culture, out object result);
+
+    /// <summary>
+    /// Modifies the target data before passing it to the source object. This method is called only in TwoWay bindings.
+    /// </summary>
+    /// <param name="val">The target data being passed to the source.</param>
+    /// <param name="targetType">The <see cref="Type"/> of data expected by the source object.</param>
+    /// <param name="parameter">An optional parameter to be used in the converter logic.</param>
+    /// <param name="culture">The culture of the conversion.</param>
+    /// <param name="result">The value to be passed to the source object.</param>
+    /// <returns><c>true</c> if successful.</returns>
     bool ConvertBack(object val, Type targetType, object parameter, CultureInfo culture, out object result);
   }
 }
