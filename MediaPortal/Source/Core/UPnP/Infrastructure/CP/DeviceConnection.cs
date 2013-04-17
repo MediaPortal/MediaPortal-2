@@ -133,7 +133,7 @@ namespace UPnP.Infrastructure.CP
     /// <param name="dataTypeResolver">Delegate method to resolve extended datatypes.</param>
     /// <param name="useHttpKeepAlive"><c>True</c> to set the HTTP keep-alive header in action requests sent over the connection, otherwise <c>false</c>.</param>
     public DeviceConnection(UPnPControlPoint controlPoint, RootDescriptor rootDescriptor, string deviceUuid,
-        CPData cpData, DataTypeResolverDlgt dataTypeResolver, bool useHttpKeepAlive)
+        CPData cpData, DataTypeResolverDlgt dataTypeResolver, bool useHttpKeepAlive = true)
     {
       _controlPoint = controlPoint;
       _cpData = cpData;

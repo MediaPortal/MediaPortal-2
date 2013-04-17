@@ -278,7 +278,7 @@ namespace UPnP.Infrastructure.CP
     /// service descriptions</item>
     /// </list>
     /// </exception>
-    public DeviceConnection Connect(RootDescriptor rootDescriptor, string deviceUuid, DataTypeResolverDlgt dataTypeResolver, bool useHttpKeepAlive)
+    public DeviceConnection Connect(RootDescriptor rootDescriptor, string deviceUuid, DataTypeResolverDlgt dataTypeResolver, bool useHttpKeepAlive = true)
     {
       return DoConnect(rootDescriptor, deviceUuid, dataTypeResolver, useHttpKeepAlive);
     }
@@ -316,7 +316,7 @@ namespace UPnP.Infrastructure.CP
 
     #region Private/protected methods
 
-    protected DeviceConnection DoConnect(RootDescriptor descriptor, string deviceUuid, DataTypeResolverDlgt dataTypeResolver, bool useHttpKeepAlive)
+    protected DeviceConnection DoConnect(RootDescriptor descriptor, string deviceUuid, DataTypeResolverDlgt dataTypeResolver, bool useHttpKeepAlive = true)
     {
       lock (_cpData.SyncObj)
       {
