@@ -26,6 +26,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Net;
+using System.Net.Cache;
 using System.Text;
 using MediaPortal.Utilities.Exceptions;
 using MediaPortal.Utilities.Network;
@@ -97,12 +98,16 @@ namespace UPnP.Infrastructure.CP
       {
         try
         {
-          StreamWriter sw = new StreamWriter(_httpWebRequest.GetRequestStream(), UPnPConsts.UTF8_NO_BOM);
-          sw.Write(message);
-          sw.Close();
+          using (Stream s = _httpWebRequest.GetRequestStream())
+          using (StreamWriter sw = new StreamWriter(s, UPnPConsts.UTF8_NO_BOM))
+          {
+            sw.Write(message);
+            sw.Close();
+          }
         }
         catch (Exception e)
         {
+          _httpWebRequest.Abort();
           throw new UPnPRemoteException(new UPnPError(501, "Error writing action call document: " + e.Message));
         }
       }
@@ -115,6 +120,7 @@ namespace UPnP.Infrastructure.CP
     protected CpDevice _device;
     protected GENAClientController _genaClientController;
     protected ICollection<AsyncWebRequestState> _pendingCalls = new List<AsyncWebRequestState>();
+    protected bool _useHttpKeepAlive;
 
     /// <summary>
     /// Creates a new <see cref="DeviceConnection"/> to the UPnP device contained in the given
@@ -125,13 +131,15 @@ namespace UPnP.Infrastructure.CP
     /// <param name="deviceUuid">UUID of the UPnP device to connect.</param>
     /// <param name="cpData">Shared control point data structure.</param>
     /// <param name="dataTypeResolver">Delegate method to resolve extended datatypes.</param>
+    /// <param name="useHttpKeepAlive"><c>True</c> to set the HTTP keep-alive header in action requests sent over the connection, otherwise <c>false</c>.</param>
     public DeviceConnection(UPnPControlPoint controlPoint, RootDescriptor rootDescriptor, string deviceUuid,
-        CPData cpData, DataTypeResolverDlgt dataTypeResolver)
+        CPData cpData, DataTypeResolverDlgt dataTypeResolver, bool useHttpKeepAlive)
     {
       _controlPoint = controlPoint;
       _cpData = cpData;
       _rootDescriptor = rootDescriptor;
       _deviceUUID = deviceUuid;
+      _useHttpKeepAlive = useHttpKeepAlive;
       _genaClientController = new GENAClientController(_cpData, this, rootDescriptor.SSDPRootEntry.PreferredLink.Endpoint, rootDescriptor.SSDPRootEntry.UPnPVersion);
       BuildDeviceProxy(rootDescriptor, deviceUuid, dataTypeResolver);
       _genaClientController.Start();
@@ -241,7 +249,8 @@ namespace UPnP.Infrastructure.CP
               SOAPHandler.ActionFailed(state.Action, state.ClientState, "Invalid content type");
               return;
             }
-            using (TextReader reader = new StreamReader(response.GetResponseStream(), contentEncoding))
+            using (Stream s = response.GetResponseStream())
+            using (TextReader reader = new StreamReader(s, contentEncoding))
               SOAPHandler.HandleErrorResult(reader, state.Action, state.ClientState);
           }
           else
@@ -284,14 +293,16 @@ namespace UPnP.Infrastructure.CP
       _genaClientController.UnsubscribeEvents(subscription);
     }
 
-    protected static HttpWebRequest CreateActionCallRequest(ServiceDescriptor sd, CpAction action)
+    protected HttpWebRequest CreateActionCallRequest(ServiceDescriptor sd, CpAction action)
     {
       LinkData preferredLink = sd.RootDescriptor.SSDPRootEntry.PreferredLink;
       HttpWebRequest request = (HttpWebRequest) WebRequest.Create(new Uri(
           new Uri(preferredLink.DescriptionLocation), sd.ControlURL));
       NetworkUtils.SetLocalEndpoint(request, preferredLink.Endpoint.EndPointIPAddress);
       request.Method = "POST";
-      request.KeepAlive = false;
+      request.KeepAlive = _useHttpKeepAlive;
+      request.CachePolicy = new RequestCachePolicy(RequestCacheLevel.NoCacheNoStore);
+      request.ServicePoint.Expect100Continue = false;
       request.AllowAutoRedirect = true;
       request.UserAgent = UPnPConfiguration.UPnPMachineInfoHeader;
       request.ContentType = "text/xml; charset=\"utf-8\"";

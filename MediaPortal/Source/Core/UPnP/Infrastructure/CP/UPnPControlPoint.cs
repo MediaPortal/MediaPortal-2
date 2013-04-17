@@ -267,6 +267,7 @@ namespace UPnP.Infrastructure.CP
     /// <param name="rootDescriptor">UPnP root descriptor to connect.</param>
     /// <param name="deviceUuid">UUID of the device in the root descriptor which is the node to connect.</param>
     /// <param name="dataTypeResolver">Delegate method to resolve extended datatypes.</param>
+    /// <param name="useHttpKeepAlive"><c>True</c> to set the HTTP keep-alive header in action requests sent over the connection, otherwise <c>false</c>.</param>
     /// <exception cref="ArgumentException">
     /// <list type="bullet">
     /// <item>If the device with the specified <paramref name="deviceUuid"/> isn't present
@@ -277,9 +278,9 @@ namespace UPnP.Infrastructure.CP
     /// service descriptions</item>
     /// </list>
     /// </exception>
-    public DeviceConnection Connect(RootDescriptor rootDescriptor, string deviceUuid, DataTypeResolverDlgt dataTypeResolver)
+    public DeviceConnection Connect(RootDescriptor rootDescriptor, string deviceUuid, DataTypeResolverDlgt dataTypeResolver, bool useHttpKeepAlive)
     {
-      return DoConnect(rootDescriptor, deviceUuid, dataTypeResolver);
+      return DoConnect(rootDescriptor, deviceUuid, dataTypeResolver, useHttpKeepAlive);
     }
 
     /// <summary>
@@ -315,11 +316,11 @@ namespace UPnP.Infrastructure.CP
 
     #region Private/protected methods
 
-    protected DeviceConnection DoConnect(RootDescriptor descriptor, string deviceUuid, DataTypeResolverDlgt dataTypeResolver)
+    protected DeviceConnection DoConnect(RootDescriptor descriptor, string deviceUuid, DataTypeResolverDlgt dataTypeResolver, bool useHttpKeepAlive)
     {
       lock (_cpData.SyncObj)
       {
-        DeviceConnection connection = new DeviceConnection(this, descriptor, deviceUuid, _cpData, dataTypeResolver);
+        DeviceConnection connection = new DeviceConnection(this, descriptor, deviceUuid, _cpData, dataTypeResolver, useHttpKeepAlive);
         _connectedDevices.Add(deviceUuid, connection);
         return connection;
       }
