@@ -282,6 +282,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.VideoMetadataExtractor
       Dictionary<string, IList<string>> tagsToExtract = MatroskaConsts.DefaultTags;
       mkvReader.ReadTags(tagsToExtract);
 
+      // Read title
       string title = string.Empty;
       IList<string> tags = tagsToExtract[MatroskaConsts.TAG_SIMPLE_TITLE];
       if (tags != null)
@@ -289,6 +290,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.VideoMetadataExtractor
       if (!string.IsNullOrEmpty(title))
         MediaItemAspect.SetAttribute(extractedAspectData, MediaAspect.ATTR_TITLE, title);
 
+      // Read release date
       int year;
       string yearCandidate = null;
       tags = tagsToExtract[MatroskaConsts.TAG_EPISODE_YEAR] ?? tagsToExtract[MatroskaConsts.TAG_SEASON_YEAR];
@@ -298,10 +300,18 @@ namespace MediaPortal.Extensions.MetadataExtractors.VideoMetadataExtractor
       if (int.TryParse(yearCandidate, out year))
         MediaItemAspect.SetAttribute(extractedAspectData, MediaAspect.ATTR_RECORDINGTIME, new DateTime(year, 1, 1));
 
+      // Read plot
+      tags = tagsToExtract[MatroskaConsts.TAG_EPISODE_SUMMARY];
+      string plot = tags != null ? tags.FirstOrDefault() : string.Empty;
+      if (!string.IsNullOrEmpty(plot))
+        MediaItemAspect.SetAttribute(extractedAspectData, VideoAspect.ATTR_STORYPLOT, plot);
+
+      // Read genre
       tags = tagsToExtract[MatroskaConsts.TAG_SERIES_GENRE];
       if (tags != null)
         MediaItemAspect.SetCollectionAttribute(extractedAspectData, VideoAspect.ATTR_GENRES, tags);
 
+      // Read actors
       IEnumerable<string> actors;
       // Combine series actors and episode actors if both are available
       var tagSeriesActors = tagsToExtract[MatroskaConsts.TAG_SERIES_ACTORS];
