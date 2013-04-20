@@ -30,7 +30,7 @@ using MediaPortal.UI.SkinEngine.MarkupExtensions;
 namespace MediaPortal.UI.SkinEngine.MpfElements.Converters
 {
   /// <summary>
-  /// DurationConverter formats TimeSpan values to string. It supports also Double values, which are treated as seconds. Int32 values will be treated as minutes.
+  /// DurationConverter formats TimeSpan values to string. It supports also Double and long values, which are treated as seconds. Int32 values will be treated as minutes.
   /// </summary>
   public class DurationConverter : IValueConverter
   {
@@ -47,6 +47,8 @@ namespace MediaPortal.UI.SkinEngine.MpfElements.Converters
         timeSpan = (TimeSpan) val;
       if (val is double)
         timeSpan = TimeSpan.FromSeconds((Double) val);
+      if (val is long)
+        timeSpan = TimeSpan.FromSeconds((long) val);
       if (val is int)
         timeSpan = TimeSpan.FromMinutes((int) val);
 
