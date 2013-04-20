@@ -2,6 +2,7 @@
 <resources>
   <!--Menu items for the five Media navigation parts-->
   <string name="Media.AudioMenuItem">Audio</string>
+  <string name="Media.VideosMenuItem">Video sadržaj</string>
   <string name="Media.SeriesMenuItem">Serije</string>
   <string name="Media.MoviesMenuItem">Filmovi</string>
   <string name="Media.ImagesMenuItem">Slike</string>
@@ -22,6 +23,7 @@
   <string name="Media.FilterAudioLanguagesNavbarDisplayLabel">Jezik: {0}</string>
   <string name="Media.FilterImageSizeNavbarDisplayLabel">Veličina: {0}</string>
   <string name="Media.FilterImageYearNavbarDisplayLabel">Year: {0}</string>
+  <string name="Media.FilterMoviesCollectionNavbarDisplayLabel">{0}</string>
   <string name="Media.FilterSeriesItemsNavbarDisplayLabel">{0}</string>
   <string name="Media.FilterSeriesSeasonNavbarDisplayLabel">Sezona {0}</string>
   <string name="Media.FilterMoviesNavbarDisplayLabel">Filmovi: {0}</string>
@@ -30,11 +32,13 @@
   <string name="Media.VideoCurrentlyPlayingWorkflowStateNavigationContextDisplayLabel">Trenutni video</string>
   <string name="Media.AudioFullscreenContentWorkflowStateNavigationContextDisplayLabel">Audio vizualizacija</string>
   <!--Screen headers-->
+  <string name="Media.VideoItemsHeader">Video sadržaj</string>
   <string name="Media.SeriesItemsHeader">Epizode</string>
   <string name="Media.MoviesItemsHeader">Filmovi</string>
   <string name="Media.ImageItemsHeader">Slike</string>
   <!--View names (names for the view instances)-->
   <string name="Media.AudioRootViewName">Audio</string>
+  <string name="Media.VideosRootViewName">Video sadržaj</string>
   <string name="Media.SeriesRootViewName">Serije</string>
   <string name="Media.ImagesRootViewName">Slike</string>
   <!--General strings used in views-->
@@ -44,11 +48,14 @@
   <!--Shown in the header of an items list, e.g. "15/350 items"-->
   <!--Shown in the header of an items list, e.g. "45 items"-->
   <!--Playlists-->
+  <string name="Media.AddToPlaylistProgressDialogHeader">Napredak</string>
   <!--Play items dialog-->
   <!--Player context names-->
   <string name="Media.AudioContextName">Audio</string>
   <!--Video currently playing-->
   <string name="Media.VideoYearLabel">Godina: </string>
+  <string name="Media.VideoDurationLabel">Trajanje: </string>
+  <!--Series currently playing-->
   <!--Image currently playing-->
   <string name="Media.ImageDimensions">Dimenzije: </string>
   <!--DVD currently playing-->
@@ -56,8 +63,11 @@
   <string name="Media.AudioYearLabel">Godina: </string>
   <string name="Media.AudioDurationLabel">Trajanje: </string>
   <string name="Media.SavePLLocally">Spremi lokalno</string>
+  <string name="Media.PlayMode">Način izvođenja</string>
   <!--VideoPlayerUIContributor-->
   <!--Video Player time units-->
+  <string name="Media.SwitchViewModeMenuItem">Način pogleda</string>
   <string name="Media.SwitchSortingMenuItem">Sortiranje</string>
   <string name="Media.SwitchSortingDialogTitle">Sortiranje</string>
+  <string name="Settings.Players">Reproduktori</string>
 </resources>

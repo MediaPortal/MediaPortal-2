@@ -19,7 +19,11 @@
   <string name="Media.FilterByAudioLanguageMenuItem">Filter op taal</string>
   <string name="Media.FilterByImageSizeMenuItem">Filter op grootte</string>
   <string name="Media.FilterByImageYearMenuItem">Filter op jaar</string>
+  <string name="Media.FilterByImageCountryMenuItem">Filter op land</string>
+  <string name="Media.FilterByImageStateMenuItem">Filter op provincie</string>
+  <string name="Media.FilterByImageCityMenuItem">Filter op stad</string>
   <string name="Media.FilterBySystemMenuItem">Filter op systeem</string>
+  <string name="Media.FilterByMoviesCollectionMenuItem">Filter op collectie</string>
   <string name="Media.FilterBySeriesNameMenuItem">Filter op series</string>
   <string name="Media.FilterBySeriesSeasonMenuItem">Filter op seizoen</string>
   <string name="Media.FilterBySeriesEpisodeMenuItem">Filter op aflevering</string>
@@ -50,8 +54,12 @@
   <string name="Media.FilterAudioLanguagesNavbarDisplayLabel">Taal: {0}</string>
   <string name="Media.FilterImageSizeNavbarDisplayLabel">Grootte: {0}</string>
   <string name="Media.FilterImageYearNavbarDisplayLabel">Jaar: {0}</string>
+  <string name="Media.FilterImageCountryNavbarDisplayLabel">Land: {0}</string>
+  <string name="Media.FilterImageStateNavbarDisplayLabel">Provincie: {0}</string>
+  <string name="Media.FilterImageCityNavbarDisplayLabel">Stad: {0}</string>
   <string name="Media.FilterAudioItemsNavbarDisplayLabel">Naam: {0}</string>
   <string name="Media.FilterVideoItemsNavbarDisplayLabel">Naam: {0}</string>
+  <string name="Media.FilterMoviesCollectionNavbarDisplayLabel">{0}</string>
   <string name="Media.FilterSeriesItemsNavbarDisplayLabel">{0}</string>
   <string name="Media.FilterSeriesSeasonNavbarDisplayLabel">Seizoen: {0}</string>
   <string name="Media.FilterImageItemsNavbarDisplayLabel">Name: {0}</string>
@@ -91,6 +99,7 @@
   <string name="Media.MoviesItemsHeader">Films</string>
   <string name="Media.ImageItemsHeader">Afbeeldingen</string>
   <string name="Media.SimpleSearchHeader">Eenvoudig zoeken</string>
+  <string name="Media.ChooseCollectionHeader">Kies een collectie</string>
   <string name="Media.ChooseActorHeader">Selecteer een acteur</string>
   <string name="Media.ChooseVideoGenreHeader">Selecteer een genre</string>
   <string name="Media.ChooseVideoYearHeader">Selecteer een jaar</string>
@@ -102,6 +111,9 @@
   <string name="Media.ChooseAudioGenreHeader">Selecteer een genre</string>
   <string name="Media.ChooseImageYearHeader">Selecteer een jaar</string>
   <string name="Media.ChooseImageSizeHeader">Selecteer een grootte</string>
+  <string name="Media.ChooseImageCountryHeader">Kies een land</string>
+  <string name="Media.ChooseImageStateHeader">Kies een provincie</string>
+  <string name="Media.ChooseImageCityHeader">Kies een stad</string>
   <string name="Media.ChooseSystemHeader">Selecteer een systeem</string>
   <string name="Media.ChooseVideoLanguageHeader">Selecteer een taal</string>
   <string name="Media.PlaylistsOverviewHeader">Afspeellijsten</string>
@@ -166,6 +178,8 @@
   <string name="Media.PlaylistTypeInfoLabel">Type afspeellijst</string>
   <string name="Media.PlaylistNumItemsLabel">Aantal items</string>
   <string name="Media.PlaylistIdInfoLabel">Interne afspeellijst id</string>
+  <string name="Media.OpenPlayerStrategy.MediaPortal.UI.Services.Players.PCMOpenPlayerStrategy.Default">Standaard</string>
+  <string name="Media.OpenPlayerStrategy.MediaPortal.UI.Services.Players.PCMOpenPlayerStrategy.PreservePiP">Behoud PiP video</string>
   <!--Play items dialog-->
   <string name="Media.PlayItemDialogHeader">Item afspelen</string>
   <string name="Media.PlayAudioItems">Audio items afspelen</string>
@@ -189,10 +203,16 @@
   <string name="Media.VideoCurrentlyPlayingHeader">Informatie huidige video</string>
   <string name="Media.VideoTitleLabel">Titel: </string>
   <string name="Media.VideoGenreLabel">Genre: </string>
+  <string name="Media.VideoCollectionLabel">Verzameling:</string>
   <string name="Media.VideoYearLabel">Jaar: </string>
   <string name="Media.VideoDurationLabel">Speelduur: </string>
   <string name="Media.VideoActorsLabel">Acteur(s): </string>
   <string name="Media.VideoStoryPlotLabel">Verhaallijn: </string>
+  <!--Series currently playing-->
+  <string name="Media.SeriesTitleLabel">Serie:</string>
+  <string name="Media.SeriesSeasonLabel">Seizoen:</string>
+  <string name="Media.SeriesEpisodeLabel">Aflevering(en):</string>
+  <string name="Media.SeriesEpisodeNameLabel">Titel aflevering</string>
   <!--Image currently playing-->
   <string name="Media.ImageCurrentlyPlayingHeader">Informatie huidige afbeelding</string>
   <string name="Media.ImageTitleLabel">Naam: </string>
@@ -204,14 +224,19 @@
   <string name="Media.ImageShutterSpeedLabel">Sluitertijd: </string>
   <string name="Media.ImageMeteringModeLabel">Meetmethode: </string>
   <string name="Media.ImageExposureTimeLabel">Belichtingstijd: </string>
+  <string name="Media.ImageCountryLabel">Land:</string>
+  <string name="Media.ImageStateLabel">Provincie:</string>
+  <string name="Media.ImageCityLabel">Stad:</string>
   <!--DVD currently playing-->
   <string name="Media.DVDCurrentlyPlayingHeader">Informatie huidige DVD</string>
   <!--Audio currently playing-->
   <string name="Media.AudioCurrentlyPlayingHeader">Informatie huidige audio</string>
+  <string name="Media.AudioAlbumLabel">Album:</string>
   <string name="Media.AudioArtistsLabel">Artiesten: </string>
   <string name="Media.AudioTitleLabel">Titel: </string>
   <string name="Media.AudioYearLabel">Jaar: </string>
   <string name="Media.AudioDurationLabel">Speelduur: </string>
+  <string name="Media.AudioGenresLabel">Genre(s):</string>
   <string name="Media.AudioPlaylistHeader">Audio afspeellijst</string>
   <string name="Media.VideoImagePlaylistHeader">Video/afbeelding afspeellijst</string>
   <string name="Media.PiPPlaylistHeader">PiP afspeellijst</string>
@@ -224,11 +249,21 @@
   <string name="Media.SavePlaylistAction">Afspeellijst opslaan</string>
   <string name="Media.SaveCurrentPlaylistAction">Huidige afspeellijst opslaan</string>
   <string name="Media.RemovePlaylistsAction">Afspeellijsten verwijderen</string>
+  <string name="Media.EditPlaylistButton">Afspeellijst bewerken</string>
   <string name="Media.LoadPlaylistButton">Afspeellijst laden</string>
   <string name="Media.PlaylistEmpty">&lt;Geen items in afspeellijst&gt;</string>
   <string name="Media.CannotPlayItemDialogText">Kan media-item niet afspelen</string>
   <string name="Media.CannotPlayItemsDialogText">Kan media-items niet afspelen</string>
   <string name="Media.ValueEmptyTitle">&lt;Leeg&gt;</string>
+  <string name="Media.ChoosePlayModeDialogHeader">Kies afspeelmodus</string>
+  <string name="Media.PlayMode">Afspeelmodus</string>
+  <string name="Media.PlayMode.Continuous">Doorlopend</string>
+  <string name="Media.PlayMode.Shuffle">Willekeurig</string>
+  <string name="Media.ChooseRepeatModeDialogHeader">Kies herhaalmodus</string>
+  <string name="Media.RepeatMode">Herhaalmodus</string>
+  <string name="Media.RepeatMode.None">Geen</string>
+  <string name="Media.RepeatMode.All">Alles</string>
+  <string name="Media.RepeatMode.One">Een</string>
   <!--VideoPlayerUIContributor-->
   <string name="Media.SubtitleOff">Ondertitels uitschakelen</string>
   <string name="Media.ChooseChapterDialogHeader">Kies hoofdstuk</string>
@@ -247,6 +282,7 @@
   <string name="Media.MediumList">Middelgrootte lijst</string>
   <string name="Media.LargeList">Grootte lijst</string>
   <string name="Media.LargeGrid">Raster</string>
+  <string name="Media.CoverLayout">Covers</string>
   <string name="Media.SwitchSortingMenuItem">Sortering</string>
   <string name="Media.SwitchSortingDialogTitle">Sortering</string>
   <string name="Media.SortByTitle">Sorteer op titel</string>
@@ -274,4 +310,6 @@
   <string name="Settings.Players.SkipStepTimeout.Help">Pas de vertraging aan voor de gebruikersinvoer voordat de stap voor overslaan wordt uitgevoerd</string>
   <string name="Settings.Players.SkipStepList">Speler stapgrootte voor overslaan</string>
   <string name="Settings.Players.SkipStepList.Help">Geef stapgrootte voor overslaan in seconden gescheiden door een ,</string>
+  <string name="Settings.Players.OpenPlayerStrategy">Spelerstrategie openen</string>
+  <string name="Settings.Players.OpenPlayerStrategy.Help">Strategie, hoe nieuw geopende spelers worden gepositioneerd naast al geopende spelers</string>
 </resources>

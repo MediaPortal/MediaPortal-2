@@ -15,8 +15,11 @@
   <string name="System.Information">Información</string>
   <string name="System.Warning">Atención</string>
   <string name="System.Error">Error</string>
+  <string name="Keys.Shift">Mayúsculas</string>
   <string name="Keys.CapsLock">Bloque de mayúsculas</string>
   <string name="Keys.AltGr">Alt Graphics</string>
+  <string name="Keys.Copy">Copiar</string>
+  <string name="Keys.Paste">Pegar</string>
   <string name="Home.Title">MediaPortal 2</string>
   <string name="Home.HomeStateDisplayLabel">Inicio</string>
   <string name="Dialogs.InfoHeaderText">Información</string>
@@ -37,22 +40,29 @@
   <string name="ServerConnection.DetachFromServerWorkflowStateLabel">Desconectarse del servivor</string>
   <string name="ServerConnection.HomeServerWorkflowStateLabel">Servidor inicial</string>
   <string name="ServerConnection.AttachedText.Before">Este cliente de MediaPortal 2 está actualmetne conectado al servidor inicial</string>
-  <string name="ServerConnection.AttachedText.After"/>
+  <string name="ServerConnection.AttachedText.After"></string>
   <string name="ServerConnection.NoHomeServerAttached">Actualmente, Este cliente de MediaPortal 2 no está conectado al servidor inicial</string>
+  <string name="ServerConnection.HomeServerIsConnected">El servidor de inicio esta actualmente conectado.</string>
+  <string name="ServerConnection.HomeServerIsNotConnected">El servidor de inicio esta actualmente desconectado.</string>
   <string name="ServerConnection.DetachMenu">Desconectar</string>
   <string name="ServerConnection.DetachConfirmDialogHeader">Desconectar del servidor casero</string>
+  <string name="ServerConnection.DetachConfirmDialogText">Si se desconecta del servidor de origen, todos los datos sobre los compartidos locales y sus elementos de medio serán eliminados de la librería del servidor de origen. Puede conectarse de nuevo después. ¿Quiere realmente desconectarse del servidor de origen '{0}' en el host '{1}'?</string>
   <string name="ServerConnection.SearchForServers">Buscar servidores</string>
   <string name="ServerConnection.DetachFromServer">Desconectar del servidor casero</string>
   <string name="ServerConnection.AttachToServerHeader">Conectar al servidor MediaPortal 2</string>
+  <string name="ServerConnection.AttachToMultipleText">Hay múltiples servidores MP2 disponibles en la red. ¿Quiere elegir uno de ellos como servidor de origen?</string>
   <string name="ServerConnection.AttachToSingleText.Before">El servidor MP 2</string>
   <string name="ServerConnection.AttachToSingleText.After">está disponible en la red. ¿Quiere conectarse al mismo?</string>
+  <string name="ServerConnection.AttachToServerNoServerText">Actualmente no hay ningún servidor MediaPortal 2 disponible en la red</string>
   <string name="ServerConnection.AttachButton">Conectar</string>
   <string name="ServerConnection.AttachInfoDialogHeader">Servidor conectado</string>
+  <string name="ServerConnection.AttachInfoDialogText">Este cliente MediaPortal 2 se a unido a su nuevo servidor de origen '{0}' en el origen '{1}'</string>
   <!--{0} = server name, {1} = host name-->
   <string name="Notifications.Title">Notificaciones</string>
   <string name="Notifications.OneMoreNotification">(1 más)</string>
   <string name="Notifications.NMoreNotifications">({0} más)</string>
   <string name="Notifications.WatchNotificationsWorkflowStateLabel">Notificaciones</string>
+  <string name="Notifications.Handle">Manipular</string>
   <string name="ImporterMessages.ImportStartedTitle">Importación comenzada</string>
   <string name="ImporterMessages.ImportStartedText">La importación de '{0}' a empezado.</string>
   <string name="ImporterMessages.ImportCompletedTitle">Importación finalizada</string>
@@ -60,9 +70,11 @@
   <string name="LocalFsResourceProvider.Name">Proveedor de recursos de archivo de sistemas locales</string>
   <string name="LocalFsResourceProvider.Description">Acceso al sistema de archivos locales</string>
   <string name="RemoteResourceProvider.Name">Proveedor de recursos remoto</string>
+  <string name="RemoteResourceProvider.Description">Recurso de acceso localizado en otro sistema MediaPortal 2</string>
   <string name="ScreenSaver.MediaPortal2">MediaPortal 2</string>
   <!--For MP UI player subsystem-->
   <string name="Players.NoPlayerAvailableNotificationTitle">Sin reproductor</string>
+  <string name="Players.NoPlayerAvailableNotificationText">No hay reproductor registrado para reproducir el elemento de medio '{0}'</string>
   <string name="Players.ErrorPlayingMediaItemTitle">Error reproduciendo el elemento</string>
   <string name="Players.UnableToPlayMediaItemText">Incapaz de reproducir el elemento '{0}'</string>
   <string name="Players.ResourceNotFoundText">El recurso '{0}' no se encuentra</string>
@@ -74,6 +86,8 @@
   <string name="Players.AudioVisualization">Visualización de audio</string>
   <string name="Players.PlayerOfType">{0} reproductor</string>
   <!--for example "Video player"-->
+  <string name="Players.SlotNo">Hueco #{0}</string>
+  <string name="Players.FocusPlayer">Foco {0}</string>
   <!--for example "Focus video player"-->
   <string name="Players.SwitchPipPlayers">Cambiar reproductores PiP</string>
   <string name="Players.ChooseAudioStream">Seleccionar canal de audio</string>
@@ -95,16 +109,31 @@
   <string name="Settings.General.System.Autostart.Help">Ejecutar MediaPortal automaticamente al iniciar Windows</string>
   <string name="Settings.General.Connectivity">Conectividad</string>
   <string name="Settings.General.Connectivity.HomeServer">Servidor de casa</string>
+  <string name="Settings.General.Connectivity.ServerListener">Servidor escuchano</string>
   <string name="Settings.General.Connectivity.ClientName">Nombre del cliente</string>
+  <string name="Settings.General.Connectivity.ClientName.Help">Selecciona el nombre para este cliente MediaPortal 2</string>
   <string name="Settings.Regional">Regional</string>
   <string name="Settings.Regional.Language">Lenguaje</string>
   <string name="Settings.Regional.Language.Main">Lenguaje</string>
+  <string name="Settings.Regional.Language.Main.Help">Selecciona el lenguaje principal usado en la aplicación</string>
+  <string name="Settings.Shares">Compartidos</string>
   <!--Section name-->
+  <string name="Settings.Shares.Configure">Configurar compartidos</string>
   <!--Group name-->
+  <string name="Settings.Shares.ConfigureShares.SharesConfiguration">Configuración de compartidos</string>
   <!--Setting-->
+  <string name="Settings.Shares.ConfigureShares.SharesConfiguration.Help">Configurar todos los compartidos locales</string>
+  <string name="Settings.Shares.Overview">Vistazo</string>
   <!--Group name-->
+  <string name="Settings.Shares.Overview.SharesOverview">Vistazo a los compartidos</string>
   <!--Setting-->
+  <string name="Settings.Shares.Overview.SharesOverview.Help">Vistazo global sobre los compartidos</string>
+  <string name="Settings.Shares.Imports.ReImportAllShares">Volver a importar todos los compartidos</string>
   <string name="Settings.Plugins">Plugins</string>
+  <string name="SharesOverview.OverviewWorkflowNavigationContextDisplayLabel">Vistazo a los compartidos</string>
+  <string name="SharesOverview.Title">Vistazo a los compartidos</string>
+  <string name="SharesOverview.ReImportAllShares">Volver a importar todos los compartidos</string>
+  <string name="Shares.NoSharesInThisView">- No hay compartidos en esta vista -</string>
   <string name="Shares.InvalidPath">RUTA INVÁLIDA: '{0}'</string>
   <!--For example: INVALID PATH: 'C:\XXX\YYY'-->
   <string name="Shares.Online">Conectado</string>
@@ -112,20 +141,57 @@
   <string name="Shares.ReImport">Reimportar</string>
   <string name="Shares.Importing">Importando...</string>
   <!--Shares configuration workflow-->
+  <string name="SharesConfig.SharesOverviewWorkflowNavigationContextDisplayLabel">Configuración de compartidos</string>
   <string name="SharesConfig.SharesRemoveWorkflowNavigationContextDisplayLabel">Borrar</string>
+  <string name="SharesConfig.ShareInfoWorkflowNavigationContextDisplayLabel">Información de compartido</string>
   <string name="SharesConfig.SharesAddChooseSystemWorkflowNavigationContextDisplayLabel">Elige sistema</string>
   <string name="SharesConfig.SharesEditChooseResourceProviderWorkflowNavigationContextDisplayLabel">Elige el proveedor de recursos</string>
+  <string name="SharesConfig.SharesEditEditPathWorkflowNavigationContextDisplayLabel">Editar ruta</string>
+  <string name="SharesConfig.SharesEditChoosePathWorkflowNavigationContextDisplayLabel">Elige la ruta</string>
+  <string name="SharesConfig.SharesEditEditNameWorkflowNavigationContextDisplayLabel">Editar nombre</string>
   <string name="SharesConfig.SharesEditChooseCategoriesWorkflowNavigationContextDisplayLabel">Elige las categorias</string>
+  <string name="SharesConfig.CannotAddSharesTitle">No se pueden añadir compartidos</string>
+  <string name="SharesConfig.SharesConfiguration.Title">Configuración de compartidos</string>
+  <string name="SharesConfig.NoSharesAvailable">No hay compartidos disponibles</string>
+  <string name="SharesConfig.ShareInformationHeader">Información de compartido</string>
   <string name="SharesConfig.ShareNameInfo">Nombre:</string>
+  <string name="SharesConfig.ShareResourceProviderInfo">Proveedor de recursos base:</string>
   <string name="SharesConfig.ShareSystem">Sistema:</string>
   <string name="SharesConfig.SharePathInfo">Ruta:</string>
+  <string name="SharesConfig.ShareResourcePathInfo">Ruta técnica:</string>
+  <string name="SharesConfig.ShareMediaCategoriesInfo">Categorías de medios:</string>
+  <string name="SharesConfig.ReImportShare">Volver a importar compartido</string>
+  <string name="SharesConfig.SetupDefaultShares">Configurar compartidos por defecto</string>
   <string name="SharesConfig.RemoveShares">Borrar</string>
+  <string name="SharesConfig.EditShare">Editar compartido</string>
   <string name="SharesConfig.ChooseSystem">Elige sistema</string>
+  <string name="SharesConfig.ChooseSharesToBeRemoved">Por favor selecciona los compartidos a eliminar</string>
+  <string name="SharesConfig.ChooseSystemForShare">Selecciona el sistema para el nuevo compartido</string>
+  <string name="SharesConfig.LocalShare">Compartido local</string>
+  <string name="SharesConfig.LocalShares">Compartidos locales</string>
+  <string name="SharesConfig.GlobalShare">Compartido global</string>
+  <string name="SharesConfig.GlobalShares">Compartidos globales</string>
+  <string name="SharesConfig.ChooseResourceProviderForShare">Por favor selecciona un proveedor de recursos para el compartido</string>
+  <string name="SharesConfig.EditResourceProviderPathForShare">Editar la ruta al compartido</string>
+  <string name="SharesConfig.ChooseResourceProviderPathForShare">Elegir la ruta del compartido</string>
+  <string name="SharesConfig.EditShareName">Editar el nombre a mostrar para el compartido</string>
+  <string name="SharesConfig.SharePathExists">Un compartido con esa ruta ya existe</string>
+  <string name="SharesConfig.ShareNameExists">Un compartido con ese nombre ya existe</string>
+  <string name="SharesConfig.ShareNameEmpty">Editar el nombre para el compartido</string>
+  <string name="SharesConfig.EditShareProblemHeader">Problema configurando el compartido</string>
+  <string name="SharesConfig.EditShareProblemText">Hubo un error interno mientras se configuraba el compartido</string>
   <string name="SharesConfig.MenuAddShare">Añadir</string>
   <string name="SharesConfig.MenuEditShares">Editar</string>
   <string name="SharesConfig.MenuRemoveShares">Borrar</string>
+  <string name="SharesConfig.AddServerShare">Añadir compartido global</string>
   <!--Must fit for both multiseat and singleseat, that's why we don't write "server share"-->
+  <string name="SharesConfig.EditServerShare">Editar compartido global</string>
   <!--Must fit for both multiseat and singleseat, that's why we don't write "server share"-->
+  <string name="SharesConfig.AddLocalShare">Añadir compartido local</string>
+  <string name="SharesConfig.EditLocalShare">Editar compartido local</string>
+  <string name="SharesConfig.UpdateShareRelocateItemsQueryDialogHeader">Actualizar compartido</string>
+  <string name="SharesConfig.UpdateShareRelocateItemsQueryText.Query">¿Quiere recolocar o limpiar y reimportar?</string>
+  <string name="SharesConfig.Relocate">Recolocar</string>
   <string name="SharesConfig.ReImport">Reimportar</string>
   <string name="UPnPFrontendServer.DefaultFriendlyName">Cliente MediaPortal 2</string>
   <string name="UPnPFrontendServer.Manufacturer">Team Mediaportal</string>

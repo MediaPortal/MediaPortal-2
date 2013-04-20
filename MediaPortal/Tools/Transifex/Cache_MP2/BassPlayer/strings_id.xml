@@ -1,0 +1,10 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<resources>
+  <string name="Settings.Players">Pemutar</string>
+  <string name="Settings.Players.Rendering">Rendering</string>
+  <string name="Settings.Players.Rendering.CrossFading">CrossFading</string>
+  <string name="Settings.Players.Rendering.CrossFading.CrossFadingEnabled">Cross fading aktif</string>
+  <string name="Settings.Players.Rendering.CrossFading.CrossFadingEnabled.Help">Tentukan bila MediaPortal harus menerapkan cross-fade antar lagu, bila memungkinkan</string>
+  <string name="Settings.Players.Rendering.CrossFading.CrossFadeDuration">Durasi cross fade</string>
+  <string name="Settings.Players.Rendering.CrossFading.CrossFadeDuration.Help">Waktu untuk melakukan cross-fade dalam detik</string>
+</resources>

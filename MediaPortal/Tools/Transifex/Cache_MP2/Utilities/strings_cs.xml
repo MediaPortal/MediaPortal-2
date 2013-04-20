@@ -1,2 +1,29 @@
 <?xml version='1.0' encoding='UTF-8'?>
-<resources/>
+<resources>
+  <string name="Utilities.MenuItem">Nástroje</string>
+  <string name="Utilities.MainWorkflowNavigationContextDisplayLabel">Nástroje</string>
+  <string name="Utilities.PlaylistImportWorkflowNavigationContextDisplayLabel">Import seznamu skladeb</string>
+  <string name="Utilities.MainScreenTitle">Nástroje</string>
+  <string name="Utilities.PlaylistImport">Import seznamu skladeb</string>
+  <string name="Utilities.PlaylistImportScreenTitle">Import seznamu skladeb</string>
+  <string name="Utilities.ImportPlaylistFile">Import souboru seznamu skladeb</string>
+  <string name="Utilities.ChoosePlaylistFile">Zvolit soubor</string>
+  <string name="Utilities.ChooseImportFileDialogHeader">Zvolit soubor k importu</string>
+  <string name="Utilities.EditPlaylistName">Upravit název seznamu skladeb</string>
+  <string name="Utilities.LocationOfShareContainingItems">Umístění sdílené složky obsahující média</string>
+  <string name="Utilities.LocalShareLocation">Místní sdílená složka</string>
+  <string name="Utilities.ServerShareLocation">Sdílená složka na serveru</string>
+  <string name="Utilities.StartPlaylistImport">Začít importovat seznam stop</string>
+  <string name="Utilities.PlaylistSavedSuccessfullyTitle">Úspěch</string>
+  <string name="Utilities.NoItemsWereImportedSkippingSaveText">Nebyla naimportována žádná položka. Uložení přeskočeno.</string>
+  <string name="Utilities.PlaylistSavedSuccessfullyText">Seznam stop '{0}' úspěšně uložen.</string>
+  <string name="Utilities.PlaylistSaveFailedTitle">Uložení seznamu stop selhalo</string>
+  <string name="Utilities.ImportPlaylistProgressTitle">Postup</string>
+  <string name="Utilities.ImportPlaylistProgressHeaderText">Importuji seznam stop</string>
+  <string name="Utilities.ImportPlaylistProgressText">{0}{1},{2} přeskočeno</string>
+  <string name="Utilities.StopImportPlaylistButton">Stop</string>
+  <string name="Utilities.PlaylistNameExists">Seznam skladeb s tímto názvem jíž existuje</string>
+  <string name="Utilities.ImportFileInvalid">Neplatný soubor pro import</string>
+  <string name="Utilities.PlaylistNameIsEmpty">Název seznamu skladeb je prázdný</string>
+  <string name="Utilities.ServerNotConnected">Server není připojený</string>
+</resources>

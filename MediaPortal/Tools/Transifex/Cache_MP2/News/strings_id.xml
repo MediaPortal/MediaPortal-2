@@ -1,0 +1,15 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<resources>
+  <string name="News.Title">Berita</string>
+  <string name="News.FeedsStateDisplayLabel">Berita</string>
+  <string name="News.Published">Dipublikasikan</string>
+  <string name="News.ConfiguredFeeds">Konfigurasi Feed</string>
+  <string name="News.AddFeed">Tambah Feed Berita</string>
+  <string name="News.EnterFeedName">Masukkan nama untuk feed</string>
+  <string name="News.EnterFeedUrl">Masukkan Url feed</string>
+  <string name="Settings.Plugins.News">Berita</string>
+  <string name="Settings.Plugins.News.FeedsSetup">Kelola Feed</string>
+  <string name="Settings.Plugins.News.FeedsSetup.Help">Konfigurasi feed yang digunakan mengambil data untuk berita</string>
+  <string name="Settings.Plugins.News.RefreshInterval">Interval Penyegaran</string>
+  <string name="Settings.Plugins.News.RefreshInterval.Help">Unduh data feed secara periodik setelah ... menit</string>
+</resources>

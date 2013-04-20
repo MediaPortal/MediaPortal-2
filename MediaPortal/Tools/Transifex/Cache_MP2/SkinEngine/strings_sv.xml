@@ -3,6 +3,9 @@
   <string name="Settings.Appearance.System">System</string>
   <string name="Settings.Appearance.System.Fullscreen">Fullskärm</string>
   <string name="Settings.Appearance.System.Fullscreen.Help">Visa MediaPortal 2 i fullskärm</string>
+  <string name="Settings.Appearance.System.StartupScreen">Startbildskärm</string>
+  <string name="Settings.Appearance.System.StartupScreen.Help">Välj bildskärm att starta på</string>
+  <string name="Settings.Appearance.System.StartupScreen.DoNotUseSelection">Använd inte bildskärmsval</string>
   <string name="Settings.Appearance.System.CellPhoneInputStyle">SMS-inmatning</string>
   <string name="Settings.Appearance.System.CellPhoneInputStyle.Help">Använd mobiltelefon/SMS-inmatning</string>
   <string name="Settings.Appearance.System.ScreenSaverEnabled">Aktivera skärmsläckare</string>
@@ -50,7 +53,7 @@
   <string name="Effects.glass_tiles">Glasblock</string>
   <string name="Effects.greyscale">Gråskala</string>
   <string name="Effects.invert">Omvända färger</string>
-  <string name="Effects.none">Inga</string>
+  <string name="Effects.none">Inga effekter</string>
   <string name="Effects.pixelate">Pixla</string>
   <string name="Effects.sepia">Sepia (Gulnat papper)</string>
   <string name="Effects.sharpen">Skarpare</string>
@@ -74,9 +77,9 @@
   <!--For example: "Slowmotion forward (0.5x)"-->
   <string name="PlayerControl.SlowMotionBackward">Slowmotion bakåt ({0})</string>
   <!--For example: "Slowmotion backward (0.5x)"-->
-  <string name="PlayerControl.PlaybackRateHint">{0}x</string>
+  <string name="PlayerControl.PlaybackRateHint">{0} gånger</string>
   <!--For example: 2x or 0.5x-->
   <string name="PlayerControl.Stopped">Stoppad</string>
-  <string name="PlayerControl.Ended">Slutat</string>
+  <string name="PlayerControl.Ended">Avslutad</string>
   <string name="PlayerControl.Active">Aktiv</string>
 </resources>

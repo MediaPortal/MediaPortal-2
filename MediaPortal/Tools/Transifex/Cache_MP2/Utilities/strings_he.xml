@@ -1,6 +1,9 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
+  <string name="Utilities.MenuItem">עזרים</string>
+  <string name="Utilities.MainWorkflowNavigationContextDisplayLabel">עזרים</string>
   <string name="Utilities.PlaylistImportWorkflowNavigationContextDisplayLabel">ייבוא רשימת השמעה</string>
+  <string name="Utilities.MainScreenTitle">עזרים</string>
   <string name="Utilities.PlaylistImport">ייבוא רשימת השמעה</string>
   <string name="Utilities.PlaylistImportScreenTitle">ייבוא רשימת השמעה</string>
   <string name="Utilities.ImportPlaylistFile">ייבא קובץ רשימת השמעה</string>
@@ -13,9 +16,11 @@
   <string name="Utilities.StartPlaylistImport">התחל ייבוא רשימת השמעה</string>
   <string name="Utilities.PlaylistSavedSuccessfullyTitle">הצלחה</string>
   <string name="Utilities.NoItemsWereImportedSkippingSaveText">אין פריטים שיובאו, מדלג על פעולת השמירה</string>
+  <string name="Utilities.PlaylistSavedSuccessfullyText">רשימת השמעה '{0}' נשמרה בהצלחה</string>
   <string name="Utilities.PlaylistSaveFailedTitle">שמירת רשימת השמעה נכשלה</string>
   <string name="Utilities.ImportPlaylistProgressTitle">התקדמות</string>
   <string name="Utilities.ImportPlaylistProgressHeaderText">מייבא רשימת השמעה</string>
+  <string name="Utilities.ImportPlaylistProgressText">{0}/{1}, {2} מדלג</string>
   <string name="Utilities.StopImportPlaylistButton">עצור</string>
   <string name="Utilities.PlaylistNameExists">שם רשימת השמעה קיים כבר</string>
   <string name="Utilities.ImportFileInvalid">קובץ ייבוא לא תקין</string>

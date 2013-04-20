@@ -1,0 +1,10 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<resources>
+  <string name="Settings.Appearance.Skin.Background.VideoBackground">Fons de vídeo</string>
+  <string name="Settings.Appearance.Skin.Background.VideoBackground.Help">Activa el fons i selecciona un vídeo</string>
+  <string name="Settings.Appearance.Skin.Background.EnableVideoBackground">Activa el fons de vídeo</string>
+  <string name="Settings.Appearance.Skin.Background.Setup">Configuració del fons de vídeo</string>
+  <string name="Settings.Appearance.Skin.Background.Setup.VideoFilename">Fitxer de vídeo</string>
+  <string name="Settings.Appearance.Skin.Background.Setup.Select">Selecciona</string>
+  <string name="Settings.Appearance.Skin.Background.Setup.SelectVideo">Seleccioneu un video per reproduïr al fons</string>
+</resources>

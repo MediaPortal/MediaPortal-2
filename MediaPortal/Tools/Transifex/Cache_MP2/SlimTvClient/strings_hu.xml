@@ -17,4 +17,5 @@
   <string name="SlimTvClient.RecordNow">Felvétel indítása</string>
   <string name="SlimTvClient.DeleteSchedule">Ütemezés törlése</string>
   <string name="SlimTvClient.CreateSchedule">Rögzítés ütemezése</string>
+  <string name="SlimTvClient.NameFilterNavBarItemLabel">{0}</string>
 </resources>

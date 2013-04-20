@@ -1,0 +1,15 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<resources>
+  <string name="News.Title">Neuigkeiten</string>
+  <string name="News.FeedsStateDisplayLabel">Neuigkeiten</string>
+  <string name="News.Published">Veröffentlicht</string>
+  <string name="News.ConfiguredFeeds">Feeds konfigurieren</string>
+  <string name="News.AddFeed">Newsfeed hinzufügen</string>
+  <string name="News.EnterFeedName">Name des Feeds</string>
+  <string name="News.EnterFeedUrl">URL des Feeds</string>
+  <string name="Settings.Plugins.News">Neuigkeiten</string>
+  <string name="Settings.Plugins.News.FeedsSetup">Feeds verwalten</string>
+  <string name="Settings.Plugins.News.FeedsSetup.Help">Einstellungen für Feeds die Daten für News sammeln</string>
+  <string name="Settings.Plugins.News.RefreshInterval">Aktualisierungsintervall</string>
+  <string name="Settings.Plugins.News.RefreshInterval.Help">Feed Daten alle ... Minute(n) laden</string>
+</resources>

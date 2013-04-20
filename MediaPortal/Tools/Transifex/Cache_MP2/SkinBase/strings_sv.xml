@@ -18,6 +18,8 @@
   <string name="Keys.Shift">Shift</string>
   <string name="Keys.CapsLock">Caps Lock</string>
   <string name="Keys.AltGr">Alt Gr</string>
+  <string name="Keys.Copy">Kopiera</string>
+  <string name="Keys.Paste">Klistra in</string>
   <string name="Home.Title">MediaPortal 2</string>
   <string name="Home.HomeStateDisplayLabel">Hem</string>
   <string name="Dialogs.InfoHeaderText">Info</string>
@@ -38,7 +40,7 @@
   <string name="ServerConnection.DetachFromServerWorkflowStateLabel">Koppla från servern</string>
   <string name="ServerConnection.HomeServerWorkflowStateLabel">Hemmaserver</string>
   <string name="ServerConnection.AttachedText.Before">Denna MediaPortal 2-klient är ansluten till en hemmaserver</string>
-  <string name="ServerConnection.AttachedText.After"/>
+  <string name="ServerConnection.AttachedText.After"></string>
   <string name="ServerConnection.NoHomeServerAttached">Denna MediaPortal 2-klient är inte ansluten till en hemmaserver</string>
   <string name="ServerConnection.HomeServerIsConnected">Hemmaservern är uppkopplad. </string>
   <string name="ServerConnection.HomeServerIsNotConnected">Hemmaservern är frånkopplad. </string>

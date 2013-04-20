@@ -19,7 +19,11 @@
   <string name="Media.FilterByAudioLanguageMenuItem">Rūšiuoti pagal kalbą</string>
   <string name="Media.FilterByImageSizeMenuItem">Filtruoti pagal dydį</string>
   <string name="Media.FilterByImageYearMenuItem">Filtruoti pagal metus</string>
+  <string name="Media.FilterByImageCountryMenuItem">Filtruoti pagal šalį</string>
+  <string name="Media.FilterByImageStateMenuItem">Filtruoti pagal valstiją</string>
+  <string name="Media.FilterByImageCityMenuItem">Filtruoti pagal miestą</string>
   <string name="Media.FilterBySystemMenuItem">Filtruoti pagal sistemą</string>
+  <string name="Media.FilterByMoviesCollectionMenuItem">Rūšiuoti pagal kolekcijas</string>
   <string name="Media.FilterBySeriesNameMenuItem">Filtruoti pagal serijas</string>
   <string name="Media.FilterBySeriesSeasonMenuItem">Filtruoti pagal sezoną</string>
   <string name="Media.FilterBySeriesEpisodeMenuItem">Filtruoti pagal epizodus</string>
@@ -50,8 +54,12 @@
   <string name="Media.FilterAudioLanguagesNavbarDisplayLabel">Kalba: {0}</string>
   <string name="Media.FilterImageSizeNavbarDisplayLabel">Dydis: {0}</string>
   <string name="Media.FilterImageYearNavbarDisplayLabel">Metai: {0}</string>
+  <string name="Media.FilterImageCountryNavbarDisplayLabel">Šalis: {0}</string>
+  <string name="Media.FilterImageStateNavbarDisplayLabel">Valstija: {0}</string>
+  <string name="Media.FilterImageCityNavbarDisplayLabel">Miestas: {0}</string>
   <string name="Media.FilterAudioItemsNavbarDisplayLabel">Vardas: {0}</string>
   <string name="Media.FilterVideoItemsNavbarDisplayLabel">Vardas: {0}</string>
+  <string name="Media.FilterMoviesCollectionNavbarDisplayLabel">{0}</string>
   <string name="Media.FilterSeriesItemsNavbarDisplayLabel">{0}</string>
   <string name="Media.FilterSeriesSeasonNavbarDisplayLabel">Sezonas: {0}</string>
   <string name="Media.FilterImageItemsNavbarDisplayLabel">Vardas: {0}</string>
@@ -91,6 +99,7 @@
   <string name="Media.MoviesItemsHeader">Filmai</string>
   <string name="Media.ImageItemsHeader">Vaizdai</string>
   <string name="Media.SimpleSearchHeader">Paprasta paieška</string>
+  <string name="Media.ChooseCollectionHeader">Pasirinkti kolekciją</string>
   <string name="Media.ChooseActorHeader">Pasirinkti aktorių</string>
   <string name="Media.ChooseVideoGenreHeader">Pasirinkti žanrą</string>
   <string name="Media.ChooseVideoYearHeader">Pasirinkti metus</string>
@@ -102,6 +111,9 @@
   <string name="Media.ChooseAudioGenreHeader">Pasirinkti žanrą</string>
   <string name="Media.ChooseImageYearHeader">Pasirinkti metus</string>
   <string name="Media.ChooseImageSizeHeader">Pasirinkti dydį</string>
+  <string name="Media.ChooseImageCountryHeader">Pasirinkti šalį</string>
+  <string name="Media.ChooseImageStateHeader">Pasirinkti valstiją</string>
+  <string name="Media.ChooseImageCityHeader">Pasirinkti miestą</string>
   <string name="Media.ChooseSystemHeader">Pasirinkti sistemą</string>
   <string name="Media.ChooseVideoLanguageHeader">Pasirinkite kalbą</string>
   <string name="Media.PlaylistsOverviewHeader">Grojaraščiai</string>
@@ -166,6 +178,8 @@
   <string name="Media.PlaylistTypeInfoLabel">Grojaraščio tipas</string>
   <string name="Media.PlaylistNumItemsLabel">Įrašų skaičius</string>
   <string name="Media.PlaylistIdInfoLabel">Vidinis grojaraščio ID</string>
+  <string name="Media.OpenPlayerStrategy.MediaPortal.UI.Services.Players.PCMOpenPlayerStrategy.Default">Standartinis</string>
+  <string name="Media.OpenPlayerStrategy.MediaPortal.UI.Services.Players.PCMOpenPlayerStrategy.PreservePiP">Saugoti PiP video</string>
   <!--Play items dialog-->
   <string name="Media.PlayItemDialogHeader">Atkurti įrašą</string>
   <string name="Media.PlayAudioItems">Groti audio įrašus</string>
@@ -189,10 +203,16 @@
   <string name="Media.VideoCurrentlyPlayingHeader">Šio video informacija</string>
   <string name="Media.VideoTitleLabel">Antraštė: </string>
   <string name="Media.VideoGenreLabel">Žanras: </string>
+  <string name="Media.VideoCollectionLabel">Kolekcija:</string>
   <string name="Media.VideoYearLabel">Metai: </string>
   <string name="Media.VideoDurationLabel">Trukmė: </string>
   <string name="Media.VideoActorsLabel">Aktorius(iai): </string>
   <string name="Media.VideoStoryPlotLabel">Siužetas: </string>
+  <!--Series currently playing-->
+  <string name="Media.SeriesTitleLabel">Serijos:</string>
+  <string name="Media.SeriesSeasonLabel">Sezonas:</string>
+  <string name="Media.SeriesEpisodeLabel">Epizodas(ai):</string>
+  <string name="Media.SeriesEpisodeNameLabel">Epizodo antraštė:</string>
   <!--Image currently playing-->
   <string name="Media.ImageCurrentlyPlayingHeader">Šio vaizdo informacija</string>
   <string name="Media.ImageTitleLabel">Vardas:</string>
@@ -204,14 +224,19 @@
   <string name="Media.ImageShutterSpeedLabel">Užsklandos greitis:</string>
   <string name="Media.ImageMeteringModeLabel">Matavimo būdas:</string>
   <string name="Media.ImageExposureTimeLabel">Ekspozicijos laikas:</string>
+  <string name="Media.ImageCountryLabel">Šalis:</string>
+  <string name="Media.ImageStateLabel">Valstija:</string>
+  <string name="Media.ImageCityLabel">Miestas:</string>
   <!--DVD currently playing-->
   <string name="Media.DVDCurrentlyPlayingHeader">Šio DVD informacija</string>
   <!--Audio currently playing-->
   <string name="Media.AudioCurrentlyPlayingHeader">Šio audio informacija</string>
+  <string name="Media.AudioAlbumLabel">Albumas:</string>
   <string name="Media.AudioArtistsLabel">Atlikėjai:</string>
   <string name="Media.AudioTitleLabel">Antraštė:</string>
   <string name="Media.AudioYearLabel">Metai:</string>
   <string name="Media.AudioDurationLabel">Trukmė:</string>
+  <string name="Media.AudioGenresLabel">Žanras(ai):</string>
   <string name="Media.AudioPlaylistHeader">Audio grojaraštis</string>
   <string name="Media.VideoImagePlaylistHeader">Video/vaizdo grojaraštis</string>
   <string name="Media.PiPPlaylistHeader">PiP grojaraštis</string>
@@ -224,11 +249,21 @@
   <string name="Media.SavePlaylistAction">Saugoti grojaraštį</string>
   <string name="Media.SaveCurrentPlaylistAction">Saugoti šį grojaraštį</string>
   <string name="Media.RemovePlaylistsAction">Išimti grojaraščius</string>
+  <string name="Media.EditPlaylistButton">Koreguoti grojaraštį</string>
   <string name="Media.LoadPlaylistButton">Krauti grojaraštį</string>
   <string name="Media.PlaylistEmpty">&lt;Grojaraštyje nėra įrašųt&gt;</string>
   <string name="Media.CannotPlayItemDialogText">Negalima atkurti media įrašo</string>
   <string name="Media.CannotPlayItemsDialogText">Negalima atkurti media įrašų</string>
   <string name="Media.ValueEmptyTitle">&lt;Tuščia&gt;</string>
+  <string name="Media.ChoosePlayModeDialogHeader">Pasirinkite grojimo režimą</string>
+  <string name="Media.PlayMode">Grojimo režimas</string>
+  <string name="Media.PlayMode.Continuous">Nenutrūktsamas</string>
+  <string name="Media.PlayMode.Shuffle">Maišyti</string>
+  <string name="Media.ChooseRepeatModeDialogHeader">Pasirinkite kartojimo režimą</string>
+  <string name="Media.RepeatMode">Kartojimo režimas</string>
+  <string name="Media.RepeatMode.None">Joks</string>
+  <string name="Media.RepeatMode.All">Visi</string>
+  <string name="Media.RepeatMode.One">Vienas</string>
   <!--VideoPlayerUIContributor-->
   <string name="Media.SubtitleOff">Išjungti subtitrus</string>
   <string name="Media.ChooseChapterDialogHeader">Pasirinkti skyrių</string>
@@ -247,6 +282,7 @@
   <string name="Media.MediumList">Vidutinis sąrašas</string>
   <string name="Media.LargeList">Ilgas sąrašas</string>
   <string name="Media.LargeGrid">Tinklelis</string>
+  <string name="Media.CoverLayout">Viršeliai</string>
   <string name="Media.SwitchSortingMenuItem">Rūšiuojama</string>
   <string name="Media.SwitchSortingDialogTitle">Rūšiuojama</string>
   <string name="Media.SortByTitle">Rūšiuoti pagal antraštę</string>
@@ -274,4 +310,6 @@
   <string name="Settings.Players.SkipStepTimeout.Help">Numatyti vartotojo įvesties pertrauką prieš atliekant praleidimą</string>
   <string name="Settings.Players.SkipStepList">Grotuvo praleidimo žingsniai</string>
   <string name="Settings.Players.SkipStepList.Help">Įveskite praleidimo žingsnius sekundėmis atskirtomis ,</string>
+  <string name="Settings.Players.OpenPlayerStrategy">Atverti grotuvo strategiją</string>
+  <string name="Settings.Players.OpenPlayerStrategy.Help">Strategija, kaip naujai paleisti grotuvai bus išdėstyti tarp esamų atvirų grotuvų</string>
 </resources>

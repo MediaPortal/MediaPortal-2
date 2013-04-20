@@ -17,4 +17,5 @@
   <string name="SlimTvClient.RecordNow">Gravar agora</string>
   <string name="SlimTvClient.DeleteSchedule">Deletar agendamento</string>
   <string name="SlimTvClient.CreateSchedule">Agendar gravação</string>
+  <string name="SlimTvClient.NameFilterNavBarItemLabel">{0}</string>
 </resources>

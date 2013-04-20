@@ -6,6 +6,7 @@
   <string name="Media.SeriesMenuItem">Σειρές</string>
   <string name="Media.ImagesMenuItem">Εικόνες</string>
   <!--Filter titles-->
+  <string name="Media.SimpleSearchFilterMenuItem">Αναζήτηση</string>
   <string name="Media.ShowAllAudioItemsMenuItem">Εμφάνιση όλων</string>
   <string name="Media.ShowAllVideoItemsMenuItem">Εμφάνιση όλων</string>
   <string name="Media.ShowAllImageItemsMenuItem">Εμφάνιση όλων</string>
@@ -30,6 +31,7 @@
   <string name="Media.FilterImageYearNavbarDisplayLabel">Χρονιά: {0}</string>
   <string name="Media.FilterAudioItemsNavbarDisplayLabel">Όνομα: {0}</string>
   <string name="Media.FilterVideoItemsNavbarDisplayLabel">Όνομα: {0}</string>
+  <string name="Media.FilterMoviesCollectionNavbarDisplayLabel">{0}</string>
   <string name="Media.FilterSeriesItemsNavbarDisplayLabel">{0}</string>
   <string name="Media.FilterImageItemsNavbarDisplayLabel">Όνομα: {0}</string>
   <!--Display labels for workflow navigation contexts-->
@@ -48,13 +50,17 @@
   <!--Shown in the header of an items list, e.g. "15/350 items"-->
   <!--Shown in the header of an items list, e.g. "45 items"-->
   <!--Playlists-->
+  <string name="Media.OpenPlayerStrategy.MediaPortal.UI.Services.Players.PCMOpenPlayerStrategy.Default">Προκαθορισμένο</string>
   <!--Play items dialog-->
   <!--Player context names-->
   <string name="Media.AudioContextName">Ήχος</string>
   <!--Video currently playing-->
+  <!--Series currently playing-->
   <!--Image currently playing-->
   <!--DVD currently playing-->
   <!--Audio currently playing-->
+  <string name="Media.RepeatMode.None">Κανένα</string>
+  <string name="Media.RepeatMode.All">Όλα</string>
   <!--VideoPlayerUIContributor-->
   <!--Video Player time units-->
 </resources>

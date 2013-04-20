@@ -17,4 +17,13 @@
   <string name="SlimTvClient.RecordNow">Optag nu</string>
   <string name="SlimTvClient.DeleteSchedule">Slet planlagt optagelse</string>
   <string name="SlimTvClient.CreateSchedule">Planlæg optagelse</string>
+  <string name="SlimTvClient.ErrorNoTvProvider">Ingen TV udbyder tilgængelig (p.t.)</string>
+  <string name="SlimTvClient.RecordingsMenuItem">Optagelser</string>
+  <string name="SlimTvClient.RecordingsRootViewName">TV optagelser</string>
+  <string name="SlimTvClient.ChannelMenuItemLabel">Filtrer pr. kanal</string>
+  <string name="SlimTvClient.ChannelNavBarItemLabel">Kanal: {0}</string>
+  <string name="SlimTvClient.RecordingsByChannelHeader">Optagelser pr. kanal</string>
+  <string name="SlimTvClient.NameFilterMenuItemLabel">Filtrer pr. navn</string>
+  <string name="SlimTvClient.NameFilterNavBarItemLabel">{0}</string>
+  <string name="SlimTvClient.RecordingsByNameHeader">Optagelser pr. navn</string>
 </resources>

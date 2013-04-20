@@ -1,23 +1,164 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
+  <string name="System.Yes">Ano</string>
+  <string name="System.No">Ne</string>
+  <string name="System.Done">Hotovo</string>
+  <string name="System.Finish">Dokončeno</string>
+  <string name="System.Ok">OK</string>
+  <string name="System.Cancel">Storno</string>
+  <string name="System.Discard">Zrušit</string>
+  <string name="System.Back">Zpět</string>
+  <string name="System.Continue">Pokračovat</string>
+  <string name="System.Add">Přidat</string>
+  <string name="System.Remove">Odebrat</string>
+  <string name="System.Hint">Nápověda</string>
+  <string name="System.Information">Informace</string>
+  <string name="System.Warning">Upozornění</string>
+  <string name="System.Error">Chyba</string>
+  <string name="Keys.Shift">Shift</string>
+  <string name="Keys.CapsLock">Caps Lock</string>
+  <string name="Keys.AltGr">Alt Gr</string>
+  <string name="Home.Title">MediaPortal 2</string>
+  <string name="Home.HomeStateDisplayLabel">Domů</string>
+  <string name="Dialogs.InfoHeaderText">Informace</string>
+  <string name="Dialogs.WarningHeaderText">Upozornění</string>
+  <string name="Dialogs.ErrorHeaderText">Chyba</string>
+  <string name="Media.MyMusic">Hudba</string>
+  <string name="Media.MyVideos">Videa</string>
+  <string name="Media.MyPictures">Obrázky</string>
+  <string name="Media.InvalidShareName">Neplatné sdílení</string>
+  <string name="ServerConnection.NotificationServerAvailableTitle">Dostupný server MP2</string>
+  <string name="ServerConnection.NotificationServerAvailableText">V síti je dostupný alespoň jeden server MediaPortalu 2. Připojte se k němu, abyste získali všechny funkce MediaPortalu 2.</string>
+  <string name="ServerConnection.ServerFormatText">{0}' u hostitele '{1}</string>
   <!--{0} = server name, {1} = host name-->
-  <string name="ServerConnection.AttachedText.After"/>
+  <string name="ServerConnection.UnknownServerName">&lt;Neznámý&gt;</string>
+  <string name="ServerConnection.UnknownServerSystem">&lt;Neznámý&gt;</string>
+  <string name="ServerConnection.HomeServer">Domovský server</string>
+  <string name="ServerConnection.AttachToServerWorkflowStateLabel">Připojit k serveru</string>
+  <string name="ServerConnection.DetachFromServerWorkflowStateLabel">Odpojit od serveru</string>
+  <string name="ServerConnection.HomeServerWorkflowStateLabel">DomovskyServer</string>
+  <string name="ServerConnection.AttachedText.Before">Tento klient MediaPortalu 2 je nyní připojen k domovskému serveru.</string>
+  <string name="ServerConnection.AttachedText.After"></string>
+  <string name="ServerConnection.NoHomeServerAttached">Tento klient MediaPortalu 2 není nyní připojen k domovskému serveru.</string>
+  <string name="ServerConnection.HomeServerIsConnected">Domovský server je nyní připojen.</string>
+  <string name="ServerConnection.HomeServerIsNotConnected">Domovský server je nyní odpojen.</string>
+  <string name="ServerConnection.DetachMenu">Odpojit</string>
+  <string name="ServerConnection.DetachConfirmDialogHeader">Odpojit od domovského serveru</string>
+  <string name="ServerConnection.DetachConfirmDialogText">Pokud se odpojíte od domovského serveru, všechna data v místním sdílení a jejich položky médií budou odebrány z knihovny médií domovského serveru. Opravdu se chcete odpojit od domovského serveru '{0}' u hostitele '{1}'?</string>
+  <string name="ServerConnection.SearchForServers">Hledat servery</string>
+  <string name="ServerConnection.DetachFromServer">Odpojit od domovského serveru</string>
+  <string name="ServerConnection.AttachToServerHeader">Připojit k serveru MediaPortalu 2</string>
+  <string name="ServerConnection.AttachToMultipleText">V síti je dostupných více serverů MP 2. Chcete jeden z nich vybrat jako domovský server?</string>
+  <string name="ServerConnection.AttachToSingleText.Before">Server MP 2</string>
+  <string name="ServerConnection.AttachToSingleText.After">je dostupný v síti. Chcete se k němu připojit?</string>
+  <string name="ServerConnection.AttachToServerNoServerText">V síti aktuálně není dostupný žádný server MediaPortalu 2.</string>
+  <string name="ServerConnection.AttachButton">Připojit</string>
+  <string name="ServerConnection.AttachInfoDialogHeader">Server připojen</string>
+  <string name="ServerConnection.AttachInfoDialogText">Tento klient MediaPortalu 2 byl připojen k novému domovskému serveru '{0}' u hostitele '{1}'</string>
   <!--{0} = server name, {1} = host name-->
+  <string name="Notifications.Title">Oznámení</string>
+  <string name="Notifications.OneMoreNotification">(1 další)</string>
+  <string name="Notifications.NMoreNotifications">({0} dalších)</string>
+  <string name="Notifications.WatchNotificationsWorkflowStateLabel">Oznámení</string>
+  <string name="Notifications.Handle">Spravovat</string>
+  <string name="ImporterMessages.ImportStartedTitle">Import spuštěn</string>
+  <string name="ImporterMessages.ImportStartedText">Import '{0}' byl spuštěn.</string>
+  <string name="ImporterMessages.ImportCompletedTitle">Import dokončen</string>
+  <string name="ImporterMessages.ImportCompletedText">Import '{0}' byl dokončen.</string>
+  <string name="LocalFsResourceProvider.Name">Zprostředkovatel zdrojů místního systému souborů</string>
+  <string name="LocalFsResourceProvider.Description">Přístup k místnímu systému souborů</string>
+  <string name="RemoteResourceProvider.Name">Zprostředkovat vzdálených zdrojů</string>
+  <string name="RemoteResourceProvider.Description">Přístup ke zdrojům umístěných v jiném systému MediaPortalu 2</string>
+  <string name="ScreenSaver.MediaPortal2">MediaPortal 2</string>
   <!--For MP UI player subsystem-->
+  <string name="Players.NoPlayerAvailableNotificationTitle">Žádný přehrávač</string>
+  <string name="Players.NoPlayerAvailableNotificationText">Není žádný přehrávač registrovaný pro přehrávání položky médií '{0}'</string>
+  <string name="Players.ErrorPlayingMediaItemTitle">Chyba přehrávání položky médií</string>
+  <string name="Players.UnableToPlayMediaItemText">Nelze přehrát položku médií '{0}'</string>
+  <string name="Players.ResourceNotFoundText">Zdroj '{0}' nebyl nalezen</string>
+  <string name="Players.PlayerConfiguration">Konfigurace přehrávače</string>
+  <string name="Players.CurrentMediaInfo">Informace o aktuálním médiu</string>
+  <string name="Players.FullscreenVideo">{0} na celou obrazovku</string>
   <!--for example "Fullscreen TV"-->
+  <string name="Players.FullscreenImage">Obrázek na celou obrazovku</string>
+  <string name="Players.AudioVisualization">Vizualizace audia</string>
+  <string name="Players.PlayerOfType">Přehrávač {0}</string>
   <!--for example "Video player"-->
+  <string name="Players.SlotNo">Patice č. {0}</string>
+  <string name="Players.FocusPlayer">Fokus {0}</string>
   <!--for example "Focus video player"-->
+  <string name="Players.SwitchPipPlayers">Prohodit přehrávače PiP</string>
+  <string name="Players.ChooseAudioStream">Vyberte zvukový datový proud</string>
   <!--for example "Audio menu for Lammbock"-->
+  <string name="Players.Mute">Ztlumit</string>
+  <string name="Players.MuteOff">Zrušit ztlumení</string>
+  <string name="Players.ClosePlayerContext">Zavřít {0}</string>
   <!--for example "Close video player"-->
+  <string name="Players.ChoosePlayerGeometry">Režim zvětšení</string>
+  <string name="Players.ChoosePlayerEffect">Efekt</string>
+  <string name="Settings.Appearance">Vzhled</string>
   <string name="Settings.Appearance.Skin">Vzhled</string>
+  <string name="Settings.Appearance.Skin.Formats.DateFormat">Formát data</string>
+  <string name="Settings.Appearance.Skin.Formats.DateFormat.Help">Formát data použitý ve vzhledu. Použijte specifikaci formátu třídy .net DateTime.</string>
+  <string name="Settings.Appearance.Skin.Formats.TimeFormat">Formát času</string>
+  <string name="Settings.Appearance.Skin.Formats.TimeFormat.Help">Formát času použitý ve vzhledu. Použijte specifikaci formátu třídy .net DateTime.</string>
+  <string name="Settings.General">Obecné</string>
   <string name="Settings.General.System">Systém</string>
+  <string name="Settings.General.System.Autostart">Automatické spuštění</string>
+  <string name="Settings.General.System.Autostart.Help">Spustit automaticky MediaPortal při spuštění Windows</string>
+  <string name="Settings.General.Connectivity">Připojení</string>
+  <string name="Settings.General.Connectivity.HomeServer">Domovský server</string>
+  <string name="Settings.General.Connectivity.HomeServer.Help">Informace o domovském serveru, připojit k a odpojit od serveru</string>
+  <string name="Settings.General.Connectivity.ClientName">Název klienta</string>
+  <string name="Settings.General.Connectivity.ClientName.Help">Nastavte název tohoto klienta MediaPortalu 2</string>
+  <string name="Settings.Regional">Místní nastavení</string>
+  <string name="Settings.Regional.Language">Jazyk</string>
+  <string name="Settings.Regional.Language.Main">Jazyk</string>
+  <string name="Settings.Regional.Language.Main.Help">Nastavte hlavní jazyk použitý v aplikaci</string>
+  <string name="Settings.Shares">Sdílené složky</string>
   <!--Section name-->
+  <string name="Settings.Shares.Configure">Nastavte sdílené složky</string>
+  <!--Group name-->
+  <string name="Settings.Shares.ConfigureShares.SharesConfiguration">Nastavení sdílených složek</string>
+  <!--Setting-->
+  <string name="Settings.Shares.ConfigureShares.SharesConfiguration.Help">Nastavte všechny místní sdílené složky</string>
   <!--Group name-->
   <!--Setting-->
-  <!--Group name-->
-  <!--Setting-->
+  <string name="Settings.Plugins">Doplňky</string>
   <!--For example: INVALID PATH: 'C:\XXX\YYY'-->
   <!--Shares configuration workflow-->
+  <string name="SharesConfig.SharesOverviewWorkflowNavigationContextDisplayLabel">Nastavení sdílených složek</string>
+  <string name="SharesConfig.SharesRemoveWorkflowNavigationContextDisplayLabel">Odebrat sdílené složky</string>
+  <string name="SharesConfig.ShareInfoWorkflowNavigationContextDisplayLabel">Informace o sdílených složkách</string>
+  <string name="SharesConfig.SharesAddChooseSystemWorkflowNavigationContextDisplayLabel">Vybrat systém</string>
+  <string name="SharesConfig.SharesEditChooseResourceProviderWorkflowNavigationContextDisplayLabel">Vybrat zprostředkovatele prostředků</string>
+  <string name="SharesConfig.SharesEditEditPathWorkflowNavigationContextDisplayLabel">Upravit cestu</string>
+  <string name="SharesConfig.SharesEditChoosePathWorkflowNavigationContextDisplayLabel">Vybrat cestu</string>
+  <string name="SharesConfig.SharesEditEditNameWorkflowNavigationContextDisplayLabel">Upravit název</string>
+  <string name="SharesConfig.SharesEditChooseCategoriesWorkflowNavigationContextDisplayLabel">Vybrat kategorie</string>
+  <string name="SharesConfig.CannotAddSharesTitle">Nelze přidat sdílené složky</string>
+  <string name="SharesConfig.SharesConfiguration.Title">Nastavení sdílených složek</string>
+  <string name="SharesConfig.NoSharesAvailable">Nejsou dostupné žádné sdílené složky</string>
+  <string name="SharesConfig.ShareInformationHeader">Informace o sdílené složce</string>
+  <string name="SharesConfig.ShareNameInfo">Název:</string>
+  <string name="SharesConfig.ShareResourceProviderInfo">Základní zprostředkovatel prostředků:</string>
+  <string name="SharesConfig.ShareSystem">Systém:</string>
+  <string name="SharesConfig.SharePathInfo">Cesta:</string>
+  <string name="SharesConfig.ShareResourcePathInfo">Technická cesta:</string>
+  <string name="SharesConfig.ShareMediaCategoriesInfo">Kategorie médií:</string>
+  <string name="SharesConfig.ReImportShare">Znovu importovat sdílené složky</string>
+  <string name="SharesConfig.SetupDefaultShares">Nastavit výchozí sdílené složky</string>
+  <string name="SharesConfig.RemoveShares">Odebrat sdílené složky</string>
+  <string name="SharesConfig.EditShare">Upravit sdílenou složku</string>
+  <string name="SharesConfig.ChooseSystem">Vybrat systém</string>
+  <string name="SharesConfig.ChooseSharesToBeRemoved">Vyberte sdílené složky k odebrání</string>
+  <string name="SharesConfig.ChooseSystemForShare">Vyberte systém pro novou sdílenou složku</string>
+  <string name="SharesConfig.LocalShare">Místní sdílená složka</string>
+  <string name="SharesConfig.LocalShares">Místní sdílené složky</string>
+  <string name="SharesConfig.GlobalShare">Globální sdílená složka</string>
+  <string name="SharesConfig.GlobalShares">Globální sdílené složky</string>
+  <string name="SharesConfig.MenuAddShare">Přidat sdílenou složku</string>
+  <string name="SharesConfig.MenuRemoveShares">Odebrat sdílené složky</string>
   <!--Must fit for both multiseat and singleseat, that's why we don't write "server share"-->
   <!--Must fit for both multiseat and singleseat, that's why we don't write "server share"-->
   <string name="UPnPFrontendServer.Manufacturer">Tým MediaPortalu</string>

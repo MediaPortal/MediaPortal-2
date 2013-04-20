@@ -48,8 +48,8 @@
   <string name="Weather.Freezing">Frost</string>
   <string name="Weather.NA">i.u.</string>
   <string name="Weather.Mist">Dis</string>
-  <string name="Weather.Low">låg</string>
-  <string name="Weather.High">hög</string>
+  <string name="Weather.Low">lägst</string>
+  <string name="Weather.High">högst</string>
   <string name="Weather.Thunder">Åska</string>
   <string name="Weather.Late">Sent</string>
   <string name="Weather.N">N</string>

@@ -19,7 +19,11 @@
   <string name="Media.FilterByAudioLanguageMenuItem">Omeji po jeziku</string>
   <string name="Media.FilterByImageSizeMenuItem">Omeji po velikosti</string>
   <string name="Media.FilterByImageYearMenuItem">Omeji po letu</string>
+  <string name="Media.FilterByImageCountryMenuItem">Omeji po državi</string>
+  <string name="Media.FilterByImageStateMenuItem">Omeji po regiji</string>
+  <string name="Media.FilterByImageCityMenuItem">Omeji po mestu</string>
   <string name="Media.FilterBySystemMenuItem">Omeji po sistemu</string>
+  <string name="Media.FilterByMoviesCollectionMenuItem">Filtriraj po zbirki</string>
   <string name="Media.FilterBySeriesNameMenuItem">Omeji po seriji</string>
   <string name="Media.FilterBySeriesSeasonMenuItem">Omeji po sezoni</string>
   <string name="Media.FilterBySeriesEpisodeMenuItem">Omeji po epizodi</string>
@@ -50,8 +54,12 @@
   <string name="Media.FilterAudioLanguagesNavbarDisplayLabel">Jezik: {0}</string>
   <string name="Media.FilterImageSizeNavbarDisplayLabel">Velikost: {0}</string>
   <string name="Media.FilterImageYearNavbarDisplayLabel">Leto: {0}</string>
+  <string name="Media.FilterImageCountryNavbarDisplayLabel">Država: {0}</string>
+  <string name="Media.FilterImageStateNavbarDisplayLabel">Regija: {0}</string>
+  <string name="Media.FilterImageCityNavbarDisplayLabel">Mesto: {0}</string>
   <string name="Media.FilterAudioItemsNavbarDisplayLabel">Ime: {0}</string>
   <string name="Media.FilterVideoItemsNavbarDisplayLabel">Ime: {0}</string>
+  <string name="Media.FilterMoviesCollectionNavbarDisplayLabel">{0}</string>
   <string name="Media.FilterSeriesItemsNavbarDisplayLabel">{0}</string>
   <string name="Media.FilterSeriesSeasonNavbarDisplayLabel">Sezona {0}</string>
   <string name="Media.FilterImageItemsNavbarDisplayLabel">Ime: {0}</string>
@@ -91,6 +99,7 @@
   <string name="Media.MoviesItemsHeader">Filmi</string>
   <string name="Media.ImageItemsHeader">Slike</string>
   <string name="Media.SimpleSearchHeader">Preprosto iskanje</string>
+  <string name="Media.ChooseCollectionHeader">Izberi zbirko</string>
   <string name="Media.ChooseActorHeader">Izberi igralca</string>
   <string name="Media.ChooseVideoGenreHeader">Izberi žanr</string>
   <string name="Media.ChooseVideoYearHeader">Izberi leto</string>
@@ -102,6 +111,9 @@
   <string name="Media.ChooseAudioGenreHeader">Izberi žanr</string>
   <string name="Media.ChooseImageYearHeader">Izberi leto</string>
   <string name="Media.ChooseImageSizeHeader">Izberi velikost</string>
+  <string name="Media.ChooseImageCountryHeader">Izberi državo</string>
+  <string name="Media.ChooseImageStateHeader">Izberi regijo</string>
+  <string name="Media.ChooseImageCityHeader">Izberi mesto</string>
   <string name="Media.ChooseSystemHeader">Izberi sistem</string>
   <string name="Media.ChooseVideoLanguageHeader">Izberi jezik</string>
   <string name="Media.PlaylistsOverviewHeader">Seznami predvajanja</string>
@@ -166,6 +178,8 @@
   <string name="Media.PlaylistTypeInfoLabel">Tip seznama predvajanja</string>
   <string name="Media.PlaylistNumItemsLabel">Število vsebin</string>
   <string name="Media.PlaylistIdInfoLabel">Interna številka seznama</string>
+  <string name="Media.OpenPlayerStrategy.MediaPortal.UI.Services.Players.PCMOpenPlayerStrategy.Default">Privzeto</string>
+  <string name="Media.OpenPlayerStrategy.MediaPortal.UI.Services.Players.PCMOpenPlayerStrategy.PreservePiP">Ohrani PiP video</string>
   <!--Play items dialog-->
   <string name="Media.PlayItemDialogHeader">Predvajaj vsebino</string>
   <string name="Media.PlayAudioItems">Predvajaj audio vsebine</string>
@@ -189,10 +203,16 @@
   <string name="Media.VideoCurrentlyPlayingHeader">Informacije o trenutnem videu</string>
   <string name="Media.VideoTitleLabel">Naslov: </string>
   <string name="Media.VideoGenreLabel">Žanr: </string>
+  <string name="Media.VideoCollectionLabel">Zbirka:</string>
   <string name="Media.VideoYearLabel">Leto: </string>
   <string name="Media.VideoDurationLabel">Trajanje: </string>
   <string name="Media.VideoActorsLabel">Igralci: </string>
   <string name="Media.VideoStoryPlotLabel">Zgodba: </string>
+  <!--Series currently playing-->
+  <string name="Media.SeriesTitleLabel">Nanizanka:</string>
+  <string name="Media.SeriesSeasonLabel">Sezona:</string>
+  <string name="Media.SeriesEpisodeLabel">Epizoda:</string>
+  <string name="Media.SeriesEpisodeNameLabel">Naslov epizode:</string>
   <!--Image currently playing-->
   <string name="Media.ImageCurrentlyPlayingHeader">Informacije o trenutni sliki</string>
   <string name="Media.ImageTitleLabel">Ime: </string>
@@ -204,14 +224,19 @@
   <string name="Media.ImageShutterSpeedLabel">Hitrost zaslonke: </string>
   <string name="Media.ImageMeteringModeLabel">Način merjenja: </string>
   <string name="Media.ImageExposureTimeLabel">Čas izpostavitve: </string>
+  <string name="Media.ImageCountryLabel">Država:</string>
+  <string name="Media.ImageStateLabel">Regija:</string>
+  <string name="Media.ImageCityLabel">Mesto:</string>
   <!--DVD currently playing-->
   <string name="Media.DVDCurrentlyPlayingHeader">Informacije o trenutnom DVD</string>
   <!--Audio currently playing-->
   <string name="Media.AudioCurrentlyPlayingHeader">Informacije o trenutnem audiu</string>
+  <string name="Media.AudioAlbumLabel">Album:</string>
   <string name="Media.AudioArtistsLabel">Izvajalci: </string>
   <string name="Media.AudioTitleLabel">Naslov: </string>
   <string name="Media.AudioYearLabel">Leto: </string>
   <string name="Media.AudioDurationLabel">Trajanje: </string>
+  <string name="Media.AudioGenresLabel">Žanr:</string>
   <string name="Media.AudioPlaylistHeader">Audio seznam predvajanja</string>
   <string name="Media.VideoImagePlaylistHeader">Video / slikovni seznam predvajanja</string>
   <string name="Media.PiPPlaylistHeader">PiP seznam predvajanja</string>
@@ -224,11 +249,21 @@
   <string name="Media.SavePlaylistAction">Shrani seznam</string>
   <string name="Media.SaveCurrentPlaylistAction">Shrani trenutni seznam</string>
   <string name="Media.RemovePlaylistsAction">Odstrani sezname</string>
+  <string name="Media.EditPlaylistButton">Uredi seznam predvajanja</string>
   <string name="Media.LoadPlaylistButton">Naloži seznam</string>
   <string name="Media.PlaylistEmpty">&lt;Seznam predvajanja je prazen&gt;</string>
   <string name="Media.CannotPlayItemDialogText">Ne morem predvajati vsebine</string>
   <string name="Media.CannotPlayItemsDialogText">Ne morem predvajati vsebin</string>
   <string name="Media.ValueEmptyTitle">&lt;Prazno&gt;</string>
+  <string name="Media.ChoosePlayModeDialogHeader">Izberi način predvajanja</string>
+  <string name="Media.PlayMode">Način predvajanja</string>
+  <string name="Media.PlayMode.Continuous">Zaporedno</string>
+  <string name="Media.PlayMode.Shuffle">Premešaj</string>
+  <string name="Media.ChooseRepeatModeDialogHeader">Izberi način ponavljanja</string>
+  <string name="Media.RepeatMode">Način ponavljanja</string>
+  <string name="Media.RepeatMode.None">Nič</string>
+  <string name="Media.RepeatMode.All">Vse</string>
+  <string name="Media.RepeatMode.One">Posamezno</string>
   <!--VideoPlayerUIContributor-->
   <string name="Media.SubtitleOff">Izključi podnapise</string>
   <string name="Media.ChooseChapterDialogHeader">Izberi poglavje</string>
@@ -247,6 +282,7 @@
   <string name="Media.MediumList">Srednji seznam</string>
   <string name="Media.LargeList">Velik seznam</string>
   <string name="Media.LargeGrid">Mreža</string>
+  <string name="Media.CoverLayout">Ovitki</string>
   <string name="Media.SwitchSortingMenuItem">Urejanje</string>
   <string name="Media.SwitchSortingDialogTitle">Urejanje</string>
   <string name="Media.SortByTitle">Uredi po naslovu</string>
@@ -274,4 +310,6 @@
   <string name="Settings.Players.SkipStepTimeout.Help">Določi čas čakanja za uporabnikov vnos preden se preskok dejansko izvede</string>
   <string name="Settings.Players.SkipStepList">Časi preskokov v predvajalniku</string>
   <string name="Settings.Players.SkipStepList.Help">Vnesi čase preskoka v sekundah, ločene z \",\"</string>
+  <string name="Settings.Players.OpenPlayerStrategy">Strategija odpiranja predvajalnikov</string>
+  <string name="Settings.Players.OpenPlayerStrategy.Help">Kako se bodo novi predvajalniki odpirali poleg že odprtih predvajalnikov</string>
 </resources>

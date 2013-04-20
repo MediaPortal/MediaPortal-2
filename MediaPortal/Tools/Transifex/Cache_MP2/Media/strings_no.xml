@@ -19,7 +19,11 @@
   <string name="Media.FilterByAudioLanguageMenuItem">Filtrer etter språk</string>
   <string name="Media.FilterByImageSizeMenuItem">Filtrer etter størrelse</string>
   <string name="Media.FilterByImageYearMenuItem">Filtrer etter år</string>
+  <string name="Media.FilterByImageCountryMenuItem">Filtrer etter land</string>
+  <string name="Media.FilterByImageStateMenuItem">Filtrer etter stat</string>
+  <string name="Media.FilterByImageCityMenuItem">Filtrer etter by</string>
   <string name="Media.FilterBySystemMenuItem">Filtrer etter system</string>
+  <string name="Media.FilterByMoviesCollectionMenuItem">Filtrer etter samling</string>
   <string name="Media.FilterBySeriesNameMenuItem">Filtrer etter serier</string>
   <string name="Media.FilterBySeriesSeasonMenuItem">Filtrer etter sesong</string>
   <string name="Media.FilterBySeriesEpisodeMenuItem">Filtrer etter episode</string>
@@ -50,8 +54,12 @@
   <string name="Media.FilterAudioLanguagesNavbarDisplayLabel">Språk</string>
   <string name="Media.FilterImageSizeNavbarDisplayLabel">Størrelse: {0}</string>
   <string name="Media.FilterImageYearNavbarDisplayLabel">År: {0}</string>
+  <string name="Media.FilterImageCountryNavbarDisplayLabel">Land: {0}</string>
+  <string name="Media.FilterImageStateNavbarDisplayLabel">Stat: {0}</string>
+  <string name="Media.FilterImageCityNavbarDisplayLabel">By: {0}</string>
   <string name="Media.FilterAudioItemsNavbarDisplayLabel">Navn: {0}</string>
   <string name="Media.FilterVideoItemsNavbarDisplayLabel">Navn: {0}</string>
+  <string name="Media.FilterMoviesCollectionNavbarDisplayLabel">{0}</string>
   <string name="Media.FilterSeriesItemsNavbarDisplayLabel">{0}</string>
   <string name="Media.FilterSeriesSeasonNavbarDisplayLabel">Sesong {0}</string>
   <string name="Media.FilterImageItemsNavbarDisplayLabel">Navn: {0}</string>
@@ -91,6 +99,7 @@
   <string name="Media.MoviesItemsHeader">Filmer</string>
   <string name="Media.ImageItemsHeader">Bilder</string>
   <string name="Media.SimpleSearchHeader">Enkelt søk</string>
+  <string name="Media.ChooseCollectionHeader">Velg en samling</string>
   <string name="Media.ChooseActorHeader">Velg en skuespiller</string>
   <string name="Media.ChooseVideoGenreHeader">Velg en sjanger</string>
   <string name="Media.ChooseVideoYearHeader">Velg et årstall</string>
@@ -102,6 +111,9 @@
   <string name="Media.ChooseAudioGenreHeader">Velg en sjanger</string>
   <string name="Media.ChooseImageYearHeader">Velg et årstall</string>
   <string name="Media.ChooseImageSizeHeader">Velg en størrelse</string>
+  <string name="Media.ChooseImageCountryHeader">Velg et land</string>
+  <string name="Media.ChooseImageStateHeader">Velg en stat</string>
+  <string name="Media.ChooseImageCityHeader">Velg en by</string>
   <string name="Media.ChooseSystemHeader">Velg et system</string>
   <string name="Media.ChooseVideoLanguageHeader">Velg språk</string>
   <string name="Media.PlaylistsOverviewHeader">Spilleliste</string>
@@ -166,6 +178,8 @@
   <string name="Media.PlaylistTypeInfoLabel">Type spilleliste</string>
   <string name="Media.PlaylistNumItemsLabel">Antall elementer</string>
   <string name="Media.PlaylistIdInfoLabel">Intern spilleliste-id</string>
+  <string name="Media.OpenPlayerStrategy.MediaPortal.UI.Services.Players.PCMOpenPlayerStrategy.Default">Standard</string>
+  <string name="Media.OpenPlayerStrategy.MediaPortal.UI.Services.Players.PCMOpenPlayerStrategy.PreservePiP">PiP</string>
   <!--Play items dialog-->
   <string name="Media.PlayItemDialogHeader">Spill element</string>
   <string name="Media.PlayAudioItems">Spill av lydelementer</string>
@@ -189,10 +203,16 @@
   <string name="Media.VideoCurrentlyPlayingHeader">Gjeldende videoinformasjon</string>
   <string name="Media.VideoTitleLabel">Tittel:</string>
   <string name="Media.VideoGenreLabel">Sjanger:</string>
+  <string name="Media.VideoCollectionLabel">Samling:</string>
   <string name="Media.VideoYearLabel">År:</string>
   <string name="Media.VideoDurationLabel">Varighet:</string>
   <string name="Media.VideoActorsLabel">Skuespiller(e): </string>
   <string name="Media.VideoStoryPlotLabel">Handling:</string>
+  <!--Series currently playing-->
+  <string name="Media.SeriesTitleLabel">Serier:</string>
+  <string name="Media.SeriesSeasonLabel">Sesong:</string>
+  <string name="Media.SeriesEpisodeLabel">Episode/-r:</string>
+  <string name="Media.SeriesEpisodeNameLabel">Episode navn:</string>
   <!--Image currently playing-->
   <string name="Media.ImageCurrentlyPlayingHeader">Gjeldende bildeinformasjon</string>
   <string name="Media.ImageTitleLabel">Navn:</string>
@@ -204,14 +224,19 @@
   <string name="Media.ImageShutterSpeedLabel">Lukkerhastighet:</string>
   <string name="Media.ImageMeteringModeLabel">Målemetode:</string>
   <string name="Media.ImageExposureTimeLabel">Eksponeringstid:</string>
+  <string name="Media.ImageCountryLabel">Land:</string>
+  <string name="Media.ImageStateLabel">Stat:</string>
+  <string name="Media.ImageCityLabel">By:</string>
   <!--DVD currently playing-->
   <string name="Media.DVDCurrentlyPlayingHeader">Gjeldende DVD-informasjon</string>
   <!--Audio currently playing-->
   <string name="Media.AudioCurrentlyPlayingHeader">Gjeldende lydinformasjon</string>
+  <string name="Media.AudioAlbumLabel">Album:</string>
   <string name="Media.AudioArtistsLabel">Artist:</string>
   <string name="Media.AudioTitleLabel">Tittel:</string>
   <string name="Media.AudioYearLabel">År:</string>
   <string name="Media.AudioDurationLabel">Varighet:</string>
+  <string name="Media.AudioGenresLabel">Sjanger/-e:</string>
   <string name="Media.AudioPlaylistHeader">Lyd-spilleliste</string>
   <string name="Media.VideoImagePlaylistHeader">Video/bilde-spilleliste</string>
   <string name="Media.PiPPlaylistHeader">PiP-spilleliste</string>
@@ -224,11 +249,21 @@
   <string name="Media.SavePlaylistAction">Lagre spilleliste</string>
   <string name="Media.SaveCurrentPlaylistAction">Lagre gjeldende spilleliste</string>
   <string name="Media.RemovePlaylistsAction">Fjern spilleliste</string>
+  <string name="Media.EditPlaylistButton">Rediger spilleliste</string>
   <string name="Media.LoadPlaylistButton">Hent spilleliste</string>
   <string name="Media.PlaylistEmpty">&lt;Ingen elementer i spillelisten&gt;</string>
   <string name="Media.CannotPlayItemDialogText">Kan ikke spille av mediaelementet</string>
   <string name="Media.CannotPlayItemsDialogText">Kan ikke spille av mediaelementer</string>
   <string name="Media.ValueEmptyTitle">&lt;Tom&gt;</string>
+  <string name="Media.ChoosePlayModeDialogHeader">modus</string>
+  <string name="Media.PlayMode">modus</string>
+  <string name="Media.PlayMode.Continuous">Kontinuerlig</string>
+  <string name="Media.PlayMode.Shuffle">Tilfeldig</string>
+  <string name="Media.ChooseRepeatModeDialogHeader">modus</string>
+  <string name="Media.RepeatMode">modus</string>
+  <string name="Media.RepeatMode.None">Ingen</string>
+  <string name="Media.RepeatMode.All">Alle</string>
+  <string name="Media.RepeatMode.One">En</string>
   <!--VideoPlayerUIContributor-->
   <string name="Media.SubtitleOff">Slå av undertekst</string>
   <string name="Media.ChooseChapterDialogHeader">Velg kapittel</string>
@@ -247,6 +282,7 @@
   <string name="Media.MediumList">Medium liste</string>
   <string name="Media.LargeList">Stor liste</string>
   <string name="Media.LargeGrid">Rutenett</string>
+  <string name="Media.CoverLayout">Cover</string>
   <string name="Media.SwitchSortingMenuItem">Sorter</string>
   <string name="Media.SwitchSortingDialogTitle">Sortering</string>
   <string name="Media.SortByTitle">Sorter etter tittel</string>
@@ -274,4 +310,6 @@
   <string name="Settings.Players.SkipStepTimeout.Help">Still inn ventetid for brukerinngrep før skippsteg blir utført</string>
   <string name="Settings.Players.SkipStepList">Avspiller skippsteg</string>
   <string name="Settings.Players.SkipStepList.Help">Legg inn skippsteg i sekunder separert med ,</string>
+  <string name="Settings.Players.OpenPlayerStrategy">Åpne spiller strategi</string>
+  <string name="Settings.Players.OpenPlayerStrategy.Help">Strategi, hvor nylig åpnede avspillere vil bli posisjonert blant allerede åpne avspillere</string>
 </resources>

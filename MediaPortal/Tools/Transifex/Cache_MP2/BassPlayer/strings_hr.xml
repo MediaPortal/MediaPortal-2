@@ -1,2 +1,10 @@
 <?xml version='1.0' encoding='UTF-8'?>
-<resources/>
+<resources>
+  <string name="Settings.Players">Reproduktori</string>
+  <string name="Settings.Players.Rendering">Izvođenje</string>
+  <string name="Settings.Players.Rendering.CrossFading">Prijelazi između pjesama</string>
+  <string name="Settings.Players.Rendering.CrossFading.CrossFadingEnabled">Prijelazi su omogućeni</string>
+  <string name="Settings.Players.Rendering.CrossFading.CrossFadingEnabled.Help">Ako je moguće, utvrđuje da li bi MediaPortal trebao uključiti prijelaze između pjesama</string>
+  <string name="Settings.Players.Rendering.CrossFading.CrossFadeDuration">Trajanje prijelaza</string>
+  <string name="Settings.Players.Rendering.CrossFading.CrossFadeDuration.Help">Vrijeme prijelaza u sekundama</string>
+</resources>

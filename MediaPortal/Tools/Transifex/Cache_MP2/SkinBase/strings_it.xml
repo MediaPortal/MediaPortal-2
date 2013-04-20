@@ -18,6 +18,8 @@
   <string name="Keys.Shift">Shift</string>
   <string name="Keys.CapsLock">Caps Lock</string>
   <string name="Keys.AltGr">Alt Gr</string>
+  <string name="Keys.Copy">Copia</string>
+  <string name="Keys.Paste">Incolla</string>
   <string name="Home.Title">MediaPortal 2</string>
   <string name="Home.HomeStateDisplayLabel">Home</string>
   <string name="Dialogs.InfoHeaderText">Info</string>
@@ -38,7 +40,7 @@
   <string name="ServerConnection.DetachFromServerWorkflowStateLabel">Scollega dal server</string>
   <string name="ServerConnection.HomeServerWorkflowStateLabel">ServerHome</string>
   <string name="ServerConnection.AttachedText.Before">Questo client MediaPortal 2 è attualmente collegato al server home</string>
-  <string name="ServerConnection.AttachedText.After"/>
+  <string name="ServerConnection.AttachedText.After"></string>
   <string name="ServerConnection.NoHomeServerAttached">Questo client MediaPortal 2 non è attualmente collegato al server home.</string>
   <string name="ServerConnection.HomeServerIsConnected">Il Sever home è attualmente collegato.</string>
   <string name="ServerConnection.HomeServerIsNotConnected">Il Sever home è attualmente scollegato.</string>
@@ -89,7 +91,7 @@
   <!--for example "Focus video player"-->
   <string name="Players.SwitchPipPlayers">Scambia players PiP</string>
   <string name="Players.ChooseAudioStream">Scegli flusso audio</string>
-  <string name="Players.PlayerSlotAudioMenu">Audio menu per {0}</string>
+  <string name="Players.PlayerSlotAudioMenu">Menu audio per {0}</string>
   <!--for example "Audio menu for Lammbock"-->
   <string name="Players.Mute">Mute</string>
   <string name="Players.MuteOff">Mute off</string>

@@ -1,0 +1,10 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<resources>
+  <string name="Settings.Appearance.Skin.Background.VideoBackground">Bakgrunnur myndbands</string>
+  <string name="Settings.Appearance.Skin.Background.VideoBackground.Help">Virkja bakgrunn myndbands og veljið myndband</string>
+  <string name="Settings.Appearance.Skin.Background.EnableVideoBackground">Virkja bakgrunn myndbands</string>
+  <string name="Settings.Appearance.Skin.Background.Setup">Stillingar fyrir bakgrunn myndbands</string>
+  <string name="Settings.Appearance.Skin.Background.Setup.VideoFilename">Myndbandsskrá</string>
+  <string name="Settings.Appearance.Skin.Background.Setup.Select">Veljið</string>
+  <string name="Settings.Appearance.Skin.Background.Setup.SelectVideo">Veljið myndband til að spila í bakgrunni</string>
+</resources>

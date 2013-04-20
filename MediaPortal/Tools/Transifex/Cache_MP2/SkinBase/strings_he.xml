@@ -35,7 +35,7 @@
   <string name="ServerConnection.DetachFromServerWorkflowStateLabel">התנתק משרת</string>
   <string name="ServerConnection.HomeServerWorkflowStateLabel">שרת ביתי</string>
   <string name="ServerConnection.AttachedText.Before">קליינט מדיה פורטל 2 זה מחובר כרגע לשרת ביתי</string>
-  <string name="ServerConnection.AttachedText.After"/>
+  <string name="ServerConnection.AttachedText.After"></string>
   <string name="ServerConnection.NoHomeServerAttached">כרגע קליינט מדיה פורטל 2 זה אינו מחובר לשרת ביתי</string>
   <string name="ServerConnection.HomeServerIsConnected">השרת הביתי כרגע מחובר</string>
   <string name="ServerConnection.HomeServerIsNotConnected">השרת הביתי כרגע מנותק</string>
@@ -64,6 +64,7 @@
   <!--For MP UI player subsystem-->
   <string name="Players.NoPlayerAvailableNotificationTitle">אין נגן</string>
   <string name="Players.ErrorPlayingMediaItemTitle">שגיאה בניגון פריט מדיה</string>
+  <string name="Players.UnableToPlayMediaItemText">לא ניתן לנגן פריט '{0}'</string>
   <string name="Players.PlayerConfiguration">הגדרות נגן</string>
   <string name="Players.CurrentMediaInfo">מידע מדיה עדכני</string>
   <string name="Players.FullscreenVideo">מסך מלא {0}</string>
@@ -76,7 +77,6 @@
   <!--for example "Focus video player"-->
   <string name="Players.SwitchPipPlayers">החלף נגני תמונה בתוך תמונה</string>
   <string name="Players.ChooseAudioStream">בחר זרם אודיו</string>
-  <string name="Players.PlayerSlotAudioMenu">תפריט אודיו ל {0}</string>
   <!--for example "Audio menu for Lammbock"-->
   <string name="Players.Mute">השתקה</string>
   <string name="Players.MuteOff">בטל השתקה</string>

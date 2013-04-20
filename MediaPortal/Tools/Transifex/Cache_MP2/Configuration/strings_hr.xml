@@ -4,6 +4,11 @@
   <string name="Configuration.ConfigurationMainWorkflowNavigationContextDisplayLabel">Postavke</string>
   <string name="Configuration.MainSettings">Glavne postavke</string>
   <!--2nd Header for root configuration section-->
+  <string name="Configuration.NoSettingsInThisSection">Nema postavki u ovom odjeljku</string>
+  <string name="Configuration.ErrorFloatingPointValue">'{0}' nije valjan broj s pomičnim zarezom</string>
+  <string name="Configuration.ErrorIntegerValue">'{0}' nije valjan cijeli broj</string>
+  <string name="Configuration.ErrorNumericLowerLimit">Koristite vrijednosti između '{1}' i '{2}'</string>
   <!--0 = current value, 1 = lower limit, 2 = upper limit-->
+  <string name="Configuration.ErrorNumericUpperLimit">Koristite vrijednosti između '{1}' i '{2}'</string>
   <!--0 = current value, 1 = lower limit, 2 = upper limit-->
 </resources>

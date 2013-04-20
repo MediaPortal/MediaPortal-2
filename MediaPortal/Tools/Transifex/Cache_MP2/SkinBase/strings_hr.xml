@@ -7,22 +7,27 @@
   <string name="System.Ok">U redu</string>
   <string name="System.Cancel">Otkaži</string>
   <string name="System.Discard">Odbaci</string>
+  <string name="System.Back">Natrag</string>
   <string name="System.Continue">Nastavi</string>
   <string name="System.Add">Dodaj</string>
   <string name="System.Remove">Ukloni</string>
+  <string name="System.Hint">Savjet</string>
   <string name="System.Information">Informacija</string>
   <string name="System.Warning">Upozorenje</string>
   <string name="System.Error">Greška</string>
   <string name="Keys.Shift">Shift</string>
+  <string name="Keys.CapsLock">Caps Lock</string>
   <string name="Keys.AltGr">Alt Gr</string>
   <string name="Home.Title">MediaPortal 2</string>
+  <string name="Home.HomeStateDisplayLabel">Početni zaslon</string>
   <string name="Dialogs.InfoHeaderText">Info</string>
   <string name="Dialogs.WarningHeaderText">Upozorenje</string>
   <string name="Dialogs.ErrorHeaderText">Greška</string>
   <string name="Media.MyMusic">Glazba</string>
+  <string name="Media.MyVideos">Video sadržaj</string>
   <string name="Media.MyPictures">Slike</string>
   <!--{0} = server name, {1} = host name-->
-  <string name="ServerConnection.AttachedText.After"/>
+  <string name="ServerConnection.AttachedText.After"></string>
   <!--{0} = server name, {1} = host name-->
   <string name="ScreenSaver.MediaPortal2">MediaPortal 2</string>
   <!--For MP UI player subsystem-->
@@ -36,6 +41,7 @@
   <string name="Players.ChoosePlayerEffect">Efekt</string>
   <string name="Settings.Appearance.Skin.Formats.DateFormat">Format datuma</string>
   <string name="Settings.Appearance.Skin.Formats.TimeFormat">Format vremena</string>
+  <string name="Settings.General.System">Sustav</string>
   <string name="Settings.Regional.Language">Jezik</string>
   <string name="Settings.Regional.Language.Main">Jezik</string>
   <string name="Settings.Regional.Language.Main.Help"> Postavi glavni jezik korišten u aplikaciji</string>

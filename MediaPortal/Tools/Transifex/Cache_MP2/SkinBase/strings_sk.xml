@@ -18,6 +18,8 @@
   <string name="Keys.Shift">Shift</string>
   <string name="Keys.CapsLock">Caps Lock</string>
   <string name="Keys.AltGr">Alt Gr</string>
+  <string name="Keys.Copy">Kopírovať</string>
+  <string name="Keys.Paste">Prilepiť</string>
   <string name="Home.Title">MediaPortal 2</string>
   <string name="Home.HomeStateDisplayLabel">Domov</string>
   <string name="Dialogs.InfoHeaderText">Info</string>
@@ -38,7 +40,7 @@
   <string name="ServerConnection.DetachFromServerWorkflowStateLabel">Odpojiť sa od serveru</string>
   <string name="ServerConnection.HomeServerWorkflowStateLabel">Domáci server</string>
   <string name="ServerConnection.AttachedText.Before">MediaPortal 2 klient je pripojený k domácemu serveru</string>
-  <string name="ServerConnection.AttachedText.After"/>
+  <string name="ServerConnection.AttachedText.After"></string>
   <string name="ServerConnection.NoHomeServerAttached">MediaPortal 2 klient nie je pripojený k domácemu serveru.</string>
   <string name="ServerConnection.HomeServerIsConnected">Domáci server je pripojený.</string>
   <string name="ServerConnection.HomeServerIsNotConnected">Domáci server je odpojený.</string>

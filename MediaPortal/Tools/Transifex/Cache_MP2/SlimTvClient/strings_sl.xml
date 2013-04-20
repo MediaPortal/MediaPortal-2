@@ -17,4 +17,13 @@
   <string name="SlimTvClient.RecordNow">Posnemi</string>
   <string name="SlimTvClient.DeleteSchedule">Prekliči snemanje</string>
   <string name="SlimTvClient.CreateSchedule">Razporedi snemanje</string>
+  <string name="SlimTvClient.ErrorNoTvProvider">(Trenutno) ni ponudnika TV</string>
+  <string name="SlimTvClient.RecordingsMenuItem">Posnetki</string>
+  <string name="SlimTvClient.RecordingsRootViewName">TV posnetki</string>
+  <string name="SlimTvClient.ChannelMenuItemLabel">Omeji po kanalu</string>
+  <string name="SlimTvClient.ChannelNavBarItemLabel">Kanal: {0}</string>
+  <string name="SlimTvClient.RecordingsByChannelHeader">Posnetki po kanalu</string>
+  <string name="SlimTvClient.NameFilterMenuItemLabel">Omeji po imenu</string>
+  <string name="SlimTvClient.NameFilterNavBarItemLabel">{0}</string>
+  <string name="SlimTvClient.RecordingsByNameHeader">Posnetki po imenu</string>
 </resources>

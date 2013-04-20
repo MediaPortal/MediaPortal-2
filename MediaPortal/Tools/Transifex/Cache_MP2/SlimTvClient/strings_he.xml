@@ -16,4 +16,5 @@
   <string name="SlimTvClient.RecordNow">הקלט כעת</string>
   <string name="SlimTvClient.DeleteSchedule">מחק תזמונים</string>
   <string name="SlimTvClient.CreateSchedule">תזמן הקלטה</string>
+  <string name="SlimTvClient.NameFilterNavBarItemLabel">{0}</string>
 </resources>

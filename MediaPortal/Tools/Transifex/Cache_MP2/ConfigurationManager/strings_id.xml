@@ -1,0 +1,9 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<resources>
+  <!--FIXME: Move those language resources to Manager application (or to a support plugin)-->
+  <string name="configuration.save_on_exit">Apakah anda ingin menyimpan perubahan sebelum ditutup?</string>
+  <string name="configuration.unsaved_warning">Peringatan: Perubahan Tak tersimpan</string>
+  <string name="configuration.browse">Ramban</string>
+  <string name="configuration.areas.settings">Setelan</string>
+  <string name="configuration.areas.logs">Log</string>
+</resources>

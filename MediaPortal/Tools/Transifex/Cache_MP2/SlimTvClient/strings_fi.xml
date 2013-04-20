@@ -17,4 +17,13 @@
   <string name="SlimTvClient.RecordNow">Tallenna</string>
   <string name="SlimTvClient.DeleteSchedule">Poista ajastus</string>
   <string name="SlimTvClient.CreateSchedule">Ajasta tallennus</string>
+  <string name="SlimTvClient.ErrorNoTvProvider">TV:n palveluntarjoajaa ei saatavilla (vielä)</string>
+  <string name="SlimTvClient.RecordingsMenuItem">Tallennukset</string>
+  <string name="SlimTvClient.RecordingsRootViewName">TV tallennukset</string>
+  <string name="SlimTvClient.ChannelMenuItemLabel">Suodata kanavan mukaan</string>
+  <string name="SlimTvClient.ChannelNavBarItemLabel">Kanava: {0}</string>
+  <string name="SlimTvClient.RecordingsByChannelHeader">Tallennukset kanavan mukaan</string>
+  <string name="SlimTvClient.NameFilterMenuItemLabel">Suodata nimen mukaan</string>
+  <string name="SlimTvClient.NameFilterNavBarItemLabel">{0}</string>
+  <string name="SlimTvClient.RecordingsByNameHeader">Tallennukset nimen mukaan</string>
 </resources>

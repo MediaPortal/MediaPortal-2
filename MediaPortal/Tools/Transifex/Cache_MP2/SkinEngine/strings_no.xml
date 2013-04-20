@@ -3,6 +3,9 @@
   <string name="Settings.Appearance.System">System</string>
   <string name="Settings.Appearance.System.Fullscreen">Fullskjerm</string>
   <string name="Settings.Appearance.System.Fullscreen.Help">Vis MediaPortal i fullskjermvisning</string>
+  <string name="Settings.Appearance.System.StartupScreen">Oppstarts skjerm</string>
+  <string name="Settings.Appearance.System.StartupScreen.Help">Velg oppstarts skjerm</string>
+  <string name="Settings.Appearance.System.StartupScreen.DoNotUseSelection">Ikke bruk skjerm velg</string>
   <string name="Settings.Appearance.System.CellPhoneInputStyle">Mobiltelefon-aktig stil</string>
   <string name="Settings.Appearance.System.CellPhoneInputStyle.Help">Bruke mobiltelefon- / SMS-aktig stil</string>
   <string name="Settings.Appearance.System.ScreenSaverEnabled">Bruke skjermsparer</string>

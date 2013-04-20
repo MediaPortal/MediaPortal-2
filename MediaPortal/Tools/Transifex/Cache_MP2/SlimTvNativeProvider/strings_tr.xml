@@ -1,0 +1,12 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<resources>
+  <string name="Settings.Plugins.TV">TV</string>
+  <string name="Settings.Plugins.TV.MPExtendedServerAddress">MPExtended sunucu adresleri</string>
+  <string name="Settings.Plugins.TV.MPExtendedServerAddress.Help">Sunucu adları veya IP adreslerini arada ';' olacak şekilde girin (varsayılan localhost).</string>
+  <string name="Settings.Plugins.TV.MPExtendedUsername">MPExtended servisi kullanıcı adı</string>
+  <string name="Settings.Plugins.TV.MPExtendedUsername.Help">Bağlanmak için kullanıcı adını girin. Boş bırakırsanız anonymous olarak bağlantı kurulur.</string>
+  <string name="Settings.Plugins.TV.MPExtendedPassword">MPExtended servis parolası</string>
+  <string name="Settings.Plugins.TV.MPExtendedPassword.Help">Bağlanmak için parolayı girin. Boş bırakılırsa anonymous olarak bağlanılır.</string>
+  <string name="Settings.Plugins.TV.ConnectionErrorTitle">Bağlantı hatası</string>
+  <string name="Settings.Plugins.TV.ConnectionErrorText">MPExtendedServerAddres-Sunucu: {0}'a bağlanılamadı</string>
+</resources>

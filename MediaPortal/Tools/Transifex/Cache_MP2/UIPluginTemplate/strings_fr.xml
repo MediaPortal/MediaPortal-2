@@ -7,6 +7,6 @@
      language.-->
   <string name="MyPlugin.String1">Français chaîne 1</string>
   <string name="MyPlugin.String2">Français chaîne 2</string>
-  <string name="MyPlugin.StateDisplayLabel">États de la barre de navigation</string>
+  <string name="MyPlugin.StateDisplayLabel">État de la barre de navigation</string>
   <string name="MyPlugin.MenuEntry">Mon Plugin</string>
 </resources>

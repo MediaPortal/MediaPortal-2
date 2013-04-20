@@ -3,6 +3,9 @@
   <string name="Settings.Appearance.System">Järjestelmä</string>
   <string name="Settings.Appearance.System.Fullscreen">Koko näyttö</string>
   <string name="Settings.Appearance.System.Fullscreen.Help">Näytä MediaPortal koko näytössä</string>
+  <string name="Settings.Appearance.System.StartupScreen">Aloitus näyttö</string>
+  <string name="Settings.Appearance.System.StartupScreen.Help">Valitse aloitus näyttö</string>
+  <string name="Settings.Appearance.System.StartupScreen.DoNotUseSelection">Älä käytä näytön valintaa</string>
   <string name="Settings.Appearance.System.CellPhoneInputStyle">Puhelimen syöttötyyli</string>
   <string name="Settings.Appearance.System.CellPhoneInputStyle.Help">Käytä puhelimen/tekstiviestin syöttötyyliä</string>
   <string name="Settings.Appearance.System.ScreenSaverEnabled">Ota käyttöön näytönsäästäjä</string>
@@ -65,7 +68,7 @@
   <string name="PlayerControl.HeaderPiP">{0} (kuva-kuvassa)</string>
   <!--{0} = media item title-->
   <string name="PlayerControl.Playing">Toistaa</string>
-  <string name="PlayerControl.Paused">Tauko</string>
+  <string name="PlayerControl.Paused">Pysäytetty</string>
   <string name="PlayerControl.SeekingForward">Kelaa eteenpäin ({0})</string>
   <!--For example: "Seeking forward (2x)"-->
   <string name="PlayerControl.SeekingBackward">Kelaa taaksepäin ({0})</string>

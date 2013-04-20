@@ -38,7 +38,7 @@
   <string name="ServerConnection.DetachFromServerWorkflowStateLabel">Sunucudan ayrıl</string>
   <string name="ServerConnection.HomeServerWorkflowStateLabel">Ev sunucusu</string>
   <string name="ServerConnection.AttachedText.Before">Şu anda, bu MediaPortal 2 istemci ev sunucusuna bağlı.</string>
-  <string name="ServerConnection.AttachedText.After"/>
+  <string name="ServerConnection.AttachedText.After"></string>
   <string name="ServerConnection.NoHomeServerAttached">Şu anda, bu MediaPortal 2 istemci ev sunucusuna bağlı değil.</string>
   <string name="ServerConnection.HomeServerIsConnected">Ev sunucusu şu an bağlı.</string>
   <string name="ServerConnection.HomeServerIsNotConnected">Ev sunucusu şu an bağlı değil.</string>
@@ -89,7 +89,6 @@
   <!--for example "Focus video player"-->
   <string name="Players.SwitchPipPlayers">Resim içinde Resim çalıcıları değiştir</string>
   <string name="Players.ChooseAudioStream">Ses kanalını seç</string>
-  <string name="Players.PlayerSlotAudioMenu">{0} için ses menüsü</string>
   <!--for example "Audio menu for Lammbock"-->
   <string name="Players.Mute">Sessiz</string>
   <string name="Players.MuteOff">Sessizi kapat</string>

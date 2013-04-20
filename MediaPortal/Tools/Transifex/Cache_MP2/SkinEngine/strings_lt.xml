@@ -3,6 +3,9 @@
   <string name="Settings.Appearance.System">Sistema</string>
   <string name="Settings.Appearance.System.Fullscreen">Visas ekranas</string>
   <string name="Settings.Appearance.System.Fullscreen.Help">Rodyti MediaPortal visame ekrane</string>
+  <string name="Settings.Appearance.System.StartupScreen">Pradžios ekranas</string>
+  <string name="Settings.Appearance.System.StartupScreen.Help">Pasirinkti pradžios ekraną</string>
+  <string name="Settings.Appearance.System.StartupScreen.DoNotUseSelection">Nenaudoti ekrano pasirinkimo</string>
   <string name="Settings.Appearance.System.CellPhoneInputStyle">Mobilaus telefono įvesties būdas</string>
   <string name="Settings.Appearance.System.CellPhoneInputStyle.Help">Naudoti mobilaus telefono/SMS įvesties būdą</string>
   <string name="Settings.Appearance.System.ScreenSaverEnabled">Įgalinti ekrano užsklandą</string>

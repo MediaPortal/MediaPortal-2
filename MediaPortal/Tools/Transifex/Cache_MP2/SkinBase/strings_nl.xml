@@ -18,6 +18,8 @@
   <string name="Keys.Shift">Shift</string>
   <string name="Keys.CapsLock">Caps Lock</string>
   <string name="Keys.AltGr">Alt Gr</string>
+  <string name="Keys.Copy">kopiëren</string>
+  <string name="Keys.Paste">plakken</string>
   <string name="Home.Title">MediaPortal 2</string>
   <string name="Home.HomeStateDisplayLabel">Thuis</string>
   <string name="Dialogs.InfoHeaderText">Info</string>
@@ -38,7 +40,7 @@
   <string name="ServerConnection.DetachFromServerWorkflowStateLabel">Verbreek verbinding met server</string>
   <string name="ServerConnection.HomeServerWorkflowStateLabel">ThuisServer</string>
   <string name="ServerConnection.AttachedText.Before">Deze MediaPortal 2 client is momenteel verbonden met de thuisserver</string>
-  <string name="ServerConnection.AttachedText.After"/>
+  <string name="ServerConnection.AttachedText.After"></string>
   <string name="ServerConnection.NoHomeServerAttached">Deze MediaPortal 2 client is momenteel niet verbonden met de thuisserver</string>
   <string name="ServerConnection.HomeServerIsConnected">De thuisserver is momenteel verbonden.</string>
   <string name="ServerConnection.HomeServerIsNotConnected">De thuisserver is momenteel niet verbonden</string>
@@ -89,7 +91,7 @@
   <!--for example "Focus video player"-->
   <string name="Players.SwitchPipPlayers">Verwissel PiP spelers</string>
   <string name="Players.ChooseAudioStream">Selecteer audio stream</string>
-  <string name="Players.PlayerSlotAudioMenu">Audio menu voor {0}</string>
+  <string name="Players.PlayerSlotAudioMenu">Geluidsmenu voor {0}</string>
   <!--for example "Audio menu for Lammbock"-->
   <string name="Players.Mute">Dempen</string>
   <string name="Players.MuteOff">Dempen uitschakelen</string>

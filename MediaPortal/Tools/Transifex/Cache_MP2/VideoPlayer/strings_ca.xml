@@ -1,5 +1,47 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
+  <string name="Settings.Players.Codecs">Codecs</string>
+  <string name="Settings.Players.Codecs.VideoCodecs">Codecs de vídeo</string>
+  <string name="Settings.Players.Codecs.VideoCodecs.MPEG2">Codec de vídeo MPEG2</string>
+  <string name="Settings.Players.Codecs.VideoCodecs.MPEG2.Help">Definiu el codec a utilitzar pel vídeo MPEG2 (DVD, DVB-SD)</string>
+  <string name="Settings.Players.Codecs.VideoCodecs.MPEG4">Codec de vídeo MPEG4</string>
+  <string name="Settings.Players.Codecs.VideoCodecs.MPEG4.Help">Definiu el codec a utilitzar pel vídeo MPEG4 (H.264, x264)</string>
+  <string name="Settings.Players.Codecs.VideoCodecs.AVC">Codec de vídeo AVC</string>
+  <string name="Settings.Players.Codecs.VideoCodecs.AVC.Help">Definiu el codec a utilitzar pel vídeo AVC (HDTV, BluRay)</string>
+  <string name="Settings.Players.Codecs.AudioCodecs">Codecs d'audio</string>
+  <string name="Settings.Players.Codecs.AudioRenderer">Renderitxador d'audio</string>
+  <string name="Settings.Players.Codecs.AudioCodecs.AudioCodec">Codec d'audio MPEG1/2</string>
+  <string name="Settings.Players.Codecs.AudioCodecs.AudioCodec.Help">Definiu el codec d'audio MPEG1/2</string>
+  <string name="Settings.Players.Codecs.AudioCodecs.AudioCodecLATMAAC">Codec d'audio LATM-AAC</string>
+  <string name="Settings.Players.Codecs.AudioCodecs.AudioCodecLATMAAC.Help">Definiu el codec d'audio LATM-AAC</string>
+  <string name="Settings.Players.Codecs.AudioCodecs.AudioCodecAAC">Codec d'audio AAC</string>
+  <string name="Settings.Players.Codecs.AudioCodecs.AudioCodecAAC.Help">Definiu el codec d'audio AAC</string>
+  <string name="Settings.Players.Codecs.AudioCodecs.AudioRenderer">Renderitzador d'audio</string>
+  <string name="Settings.Players.Codecs.AudioCodecs.AudioRenderer.Help">Definiu el renderitzador d'audio</string>
+  <string name="Settings.Players.VideoPlayer">Reproductor de vídeo</string>
+  <string name="Settings.Players.VideoPlayer.PreferMultiChannelAudio">Prioritza els fluxos d'audio multicanal</string>
+  <string name="Settings.Players.VideoPlayer.PreferMultiChannelAudio.Help">Si s'activa, es prioritzaran els fluxos de 6 canals (p. ex. AC3, AAC)</string>
+  <string name="Settings.Players.DVDPlayer">Reproductor DVD</string>
+  <string name="Settings.Players.DVDPlayer.EnableClosedCaption">Audio Descripció</string>
+  <string name="Settings.Players.DVDPlayer.EnableClosedCaption.Help">Definiu si s'ha d'activar l'Audio Descripció per defecte</string>
+  <string name="Settings.Players.DVDPlayer.EnableSubtitles">Subtítols</string>
+  <string name="Settings.Players.DVDPlayer.EnableSubtitles.Help">Definiu si s'han d'activar els subtítols per defecte</string>
+  <string name="Playback.NotSpecified">No s'ha especificat</string>
+  <string name="Playback.CaptionNormal">Subtítol en normal</string>
+  <string name="Playback.CaptionBig">Subtítol en gran</string>
+  <string name="Playback.CaptionChildren">Subtítol per a nens</string>
+  <string name="Playback.CCNormal">A.D. en normal</string>
+  <string name="Playback.CCBig">A.D. en gran</string>
+  <string name="Playback.CCChildren">A.D. per a nens</string>
+  <string name="Playback.Forced">Forçat</string>
+  <string name="Playback.DirectorCommentsNormal">Comentaris del director en normal</string>
+  <string name="Playback.DirectorCommentsBig">Comentaris del director en gran</string>
+  <string name="Playback.DirectorCommentsChildren">Comentaris del director per a nens</string>
+  <string name="Playback.VisuallyImpaired">Discapacitats visulas</string>
+  <string name="Playback.DirectorComments1">Comentaris del director</string>
+  <string name="Playback.DirectorComments2">Comentaris del director (2)</string>
+  <string name="Playback.Chapter">Capítol {0}</string>
   <!--For example: "Chapter 1"-->
+  <string name="Playback.Title">Títol {0}</string>
   <!--For example: "Title 1"-->
 </resources>

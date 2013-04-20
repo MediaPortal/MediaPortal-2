@@ -1,0 +1,15 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<resources>
+  <string name="News.Title">Vijesti</string>
+  <string name="News.FeedsStateDisplayLabel">Vijesti</string>
+  <string name="News.Published">Objavljeno</string>
+  <string name="News.ConfiguredFeeds">Podešeni feedovi</string>
+  <string name="News.AddFeed">Dodaj Feed za vijesti</string>
+  <string name="News.EnterFeedName">Upiši naziv feeda</string>
+  <string name="News.EnterFeedUrl">Upiši URL feeda</string>
+  <string name="Settings.Plugins.News">Vijesti</string>
+  <string name="Settings.Plugins.News.FeedsSetup">Uredi feedove</string>
+  <string name="Settings.Plugins.News.FeedsSetup.Help">Uredi feedove koji pribavljaju podatke za vijesti</string>
+  <string name="Settings.Plugins.News.RefreshInterval">Interval osvježavanja</string>
+  <string name="Settings.Plugins.News.RefreshInterval.Help">Preuzmi feed podatke svakih ... minuta</string>
+</resources>

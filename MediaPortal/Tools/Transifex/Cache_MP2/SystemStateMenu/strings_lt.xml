@@ -1,0 +1,14 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<resources>
+  <string name="Settings.General.System.SystemStateDialog">Išjungimo meniu</string>
+  <string name="Settings.General.System.SystemStateDialog.Help">Nustatyti išjungimo meniu punktų vietą ir matomumą</string>
+  <string name="SystemState.Configuration.Dialog.Title">Nustatyto išjungimo punktus</string>
+  <string name="SystemState.Title">Išjungimo meniu</string>
+  <string name="SystemState.Hibernate">Greitas išjungimas</string>
+  <string name="SystemState.Shutdown">Išjungti</string>
+  <string name="SystemState.Suspend">Pristabdyti</string>
+  <string name="SystemState.Restart">Restartuoti</string>
+  <string name="SystemState.Logoff">Išsiregistruoti</string>
+  <string name="SystemState.MinimizeMP">Minimizuoti MediaPortal</string>
+  <string name="SystemState.ShutdownMP">Uždaryti MediaPortal</string>
+</resources>

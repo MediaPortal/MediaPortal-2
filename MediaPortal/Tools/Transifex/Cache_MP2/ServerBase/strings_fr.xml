@@ -1,6 +1,6 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
-  <string name="MainForm.Title">Apllication serveur MediaPortal 2</string>
+  <string name="MainForm.Title">Application serveur MediaPortal 2</string>
   <string name="MainForm.AttachedClients">Clients liés</string>
   <string name="MainForm.Client">Client</string>
   <string name="MainForm.System">Système</string>

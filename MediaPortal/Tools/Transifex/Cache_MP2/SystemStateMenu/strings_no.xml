@@ -1,0 +1,14 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<resources>
+  <string name="Settings.General.System.SystemStateDialog">Avslutt meny</string>
+  <string name="Settings.General.System.SystemStateDialog.Help">Konfigurer visning og posisjon av avslutt meny objekter</string>
+  <string name="SystemState.Configuration.Dialog.Title">Konfigurer avslutt objekter</string>
+  <string name="SystemState.Title">Avslutt meny</string>
+  <string name="SystemState.Hibernate">Dvalemodus</string>
+  <string name="SystemState.Shutdown">Avslutt</string>
+  <string name="SystemState.Suspend">Hvilemodus</string>
+  <string name="SystemState.Restart">Start på nytt</string>
+  <string name="SystemState.Logoff">Logg av</string>
+  <string name="SystemState.MinimizeMP">Minimer MediaPortal</string>
+  <string name="SystemState.ShutdownMP">Lukk MediaPortal</string>
+</resources>

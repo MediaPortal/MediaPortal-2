@@ -1,0 +1,29 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<resources>
+  <string name="Utilities.MenuItem">Vahendid</string>
+  <string name="Utilities.MainWorkflowNavigationContextDisplayLabel">Vahendid</string>
+  <string name="Utilities.PlaylistImportWorkflowNavigationContextDisplayLabel">Esitusnimekirja import</string>
+  <string name="Utilities.MainScreenTitle">Vahendid</string>
+  <string name="Utilities.PlaylistImport">Esitusnimekirja import</string>
+  <string name="Utilities.PlaylistImportScreenTitle">Esitusnimekirja import</string>
+  <string name="Utilities.ImportPlaylistFile">Impordi esitusnimekiri</string>
+  <string name="Utilities.ChoosePlaylistFile">Vali fail</string>
+  <string name="Utilities.ChooseImportFileDialogHeader">Vali impordifail</string>
+  <string name="Utilities.EditPlaylistName">Muuda uue esitusnimekirja nime</string>
+  <string name="Utilities.LocationOfShareContainingItems">Meedifailide jagamise asukoht</string>
+  <string name="Utilities.LocalShareLocation">Kohalik jagamine</string>
+  <string name="Utilities.ServerShareLocation">Serveri jagamine</string>
+  <string name="Utilities.StartPlaylistImport">Alusta esitusnimekirja importi</string>
+  <string name="Utilities.PlaylistSavedSuccessfullyTitle">Õnnestus</string>
+  <string name="Utilities.NoItemsWereImportedSkippingSaveText">Midagi ei imporditud</string>
+  <string name="Utilities.PlaylistSavedSuccessfullyText">Esitusnimekiri '{0}' on salvestatud</string>
+  <string name="Utilities.PlaylistSaveFailedTitle">Esitusnimekirja salvestamine ebaõnnestus</string>
+  <string name="Utilities.ImportPlaylistProgressTitle">Edenemine</string>
+  <string name="Utilities.ImportPlaylistProgressHeaderText">Esitusnimekirja import</string>
+  <string name="Utilities.ImportPlaylistProgressText">{0}/{1}, {2} vahele jäätud</string>
+  <string name="Utilities.StopImportPlaylistButton">Stop</string>
+  <string name="Utilities.PlaylistNameExists">Esitusnimekirja nimi on juba olemas</string>
+  <string name="Utilities.ImportFileInvalid">Sobimatu impordifail</string>
+  <string name="Utilities.PlaylistNameIsEmpty">Esitusnimekirja nimi on juba tühi</string>
+  <string name="Utilities.ServerNotConnected">Server pole ühendatud</string>
+</resources>

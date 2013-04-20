@@ -17,4 +17,13 @@
   <string name="SlimTvClient.RecordNow">Spela in nu</string>
   <string name="SlimTvClient.DeleteSchedule">Ta bort planerad inspelning</string>
   <string name="SlimTvClient.CreateSchedule">Planera inspelning</string>
+  <string name="SlimTvClient.ErrorNoTvProvider">Ingen TV-försörjare är (ännu) tillgänglig</string>
+  <string name="SlimTvClient.RecordingsMenuItem">Inspelningar</string>
+  <string name="SlimTvClient.RecordingsRootViewName">TV-inspelningar</string>
+  <string name="SlimTvClient.ChannelMenuItemLabel">Filtrera på kanal</string>
+  <string name="SlimTvClient.ChannelNavBarItemLabel">Kanal: {0}</string>
+  <string name="SlimTvClient.RecordingsByChannelHeader">Inspelningar per kanal</string>
+  <string name="SlimTvClient.NameFilterMenuItemLabel">Filtrera på namn</string>
+  <string name="SlimTvClient.NameFilterNavBarItemLabel">{0}</string>
+  <string name="SlimTvClient.RecordingsByNameHeader">Inspelningar per namn</string>
 </resources>

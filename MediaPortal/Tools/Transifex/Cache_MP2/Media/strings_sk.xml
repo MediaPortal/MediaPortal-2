@@ -19,7 +19,11 @@
   <string name="Media.FilterByAudioLanguageMenuItem">Filtrovať podľa jazyka</string>
   <string name="Media.FilterByImageSizeMenuItem">Filtrovať podľa veľkosti</string>
   <string name="Media.FilterByImageYearMenuItem">Filtrovať podľa roku</string>
+  <string name="Media.FilterByImageCountryMenuItem">Filtrovať podľa krajiny</string>
+  <string name="Media.FilterByImageStateMenuItem">Filtrovať podľa štátu</string>
+  <string name="Media.FilterByImageCityMenuItem">Filtrovať podľa mesta</string>
   <string name="Media.FilterBySystemMenuItem">Filtrovať podľa systému</string>
+  <string name="Media.FilterByMoviesCollectionMenuItem">Filtrovať podľa zbierok</string>
   <string name="Media.FilterBySeriesNameMenuItem">Filtrovať podľa sariálu</string>
   <string name="Media.FilterBySeriesSeasonMenuItem">Filtrovať podľa sezóny</string>
   <string name="Media.FilterBySeriesEpisodeMenuItem">Filtrovať podľa epizódy</string>
@@ -50,8 +54,12 @@
   <string name="Media.FilterAudioLanguagesNavbarDisplayLabel">Jazyk: {0}</string>
   <string name="Media.FilterImageSizeNavbarDisplayLabel">Veľkosť: {0}</string>
   <string name="Media.FilterImageYearNavbarDisplayLabel">Rok: {0}</string>
+  <string name="Media.FilterImageCountryNavbarDisplayLabel">Krajina: {0}</string>
+  <string name="Media.FilterImageStateNavbarDisplayLabel">Štát: {0}</string>
+  <string name="Media.FilterImageCityNavbarDisplayLabel">Mesto: {0}</string>
   <string name="Media.FilterAudioItemsNavbarDisplayLabel">Meno: {0}</string>
   <string name="Media.FilterVideoItemsNavbarDisplayLabel">Rok: {0}</string>
+  <string name="Media.FilterMoviesCollectionNavbarDisplayLabel">{0}</string>
   <string name="Media.FilterSeriesItemsNavbarDisplayLabel">{0}</string>
   <string name="Media.FilterSeriesSeasonNavbarDisplayLabel">Sezóna {0}</string>
   <string name="Media.FilterImageItemsNavbarDisplayLabel">Meno: {0}</string>
@@ -91,6 +99,7 @@
   <string name="Media.MoviesItemsHeader">Filmy</string>
   <string name="Media.ImageItemsHeader">Fotky</string>
   <string name="Media.SimpleSearchHeader">Jednoduché hľadanie</string>
+  <string name="Media.ChooseCollectionHeader">Vybrať zbierku</string>
   <string name="Media.ChooseActorHeader">Vyberte si herca</string>
   <string name="Media.ChooseVideoGenreHeader">Vyberte si žáner</string>
   <string name="Media.ChooseVideoYearHeader">Vyberte si rok</string>
@@ -102,6 +111,9 @@
   <string name="Media.ChooseAudioGenreHeader">Vyberte si žáner</string>
   <string name="Media.ChooseImageYearHeader">Vyberte si rok</string>
   <string name="Media.ChooseImageSizeHeader">Vyberte si veľkosť</string>
+  <string name="Media.ChooseImageCountryHeader">Vyberte si krajinu</string>
+  <string name="Media.ChooseImageStateHeader">Vyberte si štát</string>
+  <string name="Media.ChooseImageCityHeader">Vyberte si mesto</string>
   <string name="Media.ChooseSystemHeader">Vyberte si systém</string>
   <string name="Media.ChooseVideoLanguageHeader">Vyberte jazyk</string>
   <string name="Media.PlaylistsOverviewHeader">Playlisty</string>
@@ -166,6 +178,8 @@
   <string name="Media.PlaylistTypeInfoLabel">Typ playlistu</string>
   <string name="Media.PlaylistNumItemsLabel">Počet položiek</string>
   <string name="Media.PlaylistIdInfoLabel">Interné ID playlistu</string>
+  <string name="Media.OpenPlayerStrategy.MediaPortal.UI.Services.Players.PCMOpenPlayerStrategy.Default">Predvolené</string>
+  <string name="Media.OpenPlayerStrategy.MediaPortal.UI.Services.Players.PCMOpenPlayerStrategy.PreservePiP">Zachovávať PiP video</string>
   <!--Play items dialog-->
   <string name="Media.PlayItemDialogHeader">Položka na prehratie</string>
   <string name="Media.PlayAudioItems">Audio položky na prehratie</string>
@@ -189,10 +203,16 @@
   <string name="Media.VideoCurrentlyPlayingHeader">Informácie o súčasných videách</string>
   <string name="Media.VideoTitleLabel">Názov:</string>
   <string name="Media.VideoGenreLabel">Žáner:</string>
+  <string name="Media.VideoCollectionLabel">Zbierka:</string>
   <string name="Media.VideoYearLabel">Rok:</string>
   <string name="Media.VideoDurationLabel">Trvanie:</string>
   <string name="Media.VideoActorsLabel">Herci:</string>
   <string name="Media.VideoStoryPlotLabel">Dej:</string>
+  <!--Series currently playing-->
+  <string name="Media.SeriesTitleLabel">Seriál:</string>
+  <string name="Media.SeriesSeasonLabel">Sezóna:</string>
+  <string name="Media.SeriesEpisodeLabel">Epizóda:</string>
+  <string name="Media.SeriesEpisodeNameLabel">Názov epizódy:</string>
   <!--Image currently playing-->
   <string name="Media.ImageCurrentlyPlayingHeader">Informácia o aktuálnej fotke</string>
   <string name="Media.ImageTitleLabel">Meno:</string>
@@ -204,14 +224,19 @@
   <string name="Media.ImageShutterSpeedLabel">Uzávierka:</string>
   <string name="Media.ImageMeteringModeLabel">Merací mód:</string>
   <string name="Media.ImageExposureTimeLabel">Expozícia:</string>
+  <string name="Media.ImageCountryLabel">Krajina:</string>
+  <string name="Media.ImageStateLabel">Štát:</string>
+  <string name="Media.ImageCityLabel">Mesto:</string>
   <!--DVD currently playing-->
   <string name="Media.DVDCurrentlyPlayingHeader">Informácia o aktuálnom DVD</string>
   <!--Audio currently playing-->
   <string name="Media.AudioCurrentlyPlayingHeader">Informácia o aktuálnom audiu</string>
+  <string name="Media.AudioAlbumLabel">Album:</string>
   <string name="Media.AudioArtistsLabel">Umelci:</string>
   <string name="Media.AudioTitleLabel">Názov:</string>
   <string name="Media.AudioYearLabel">Rok:</string>
   <string name="Media.AudioDurationLabel">Trvanie:</string>
+  <string name="Media.AudioGenresLabel">Žánre:</string>
   <string name="Media.AudioPlaylistHeader">Audio playlist</string>
   <string name="Media.VideoImagePlaylistHeader">Video/fotka playlist</string>
   <string name="Media.PiPPlaylistHeader">PiP playlist</string>
@@ -224,11 +249,21 @@
   <string name="Media.SavePlaylistAction">Uložiť playlist</string>
   <string name="Media.SaveCurrentPlaylistAction">Uložiť aktuálny playlist</string>
   <string name="Media.RemovePlaylistsAction">Odstrániť playlisty</string>
+  <string name="Media.EditPlaylistButton">Upraviť playlist</string>
   <string name="Media.LoadPlaylistButton">Načítať playlist</string>
   <string name="Media.PlaylistEmpty">&lt;V playliste nie sú žiadne položky&gt;</string>
   <string name="Media.CannotPlayItemDialogText">Položka média sa nedá prehrať</string>
   <string name="Media.CannotPlayItemsDialogText">Nie je možne prehrať médiá</string>
   <string name="Media.ValueEmptyTitle">&lt;Prázdny&gt;</string>
+  <string name="Media.ChoosePlayModeDialogHeader">Vyberte mód prehrávania</string>
+  <string name="Media.PlayMode">Mód prehrávania</string>
+  <string name="Media.PlayMode.Continuous">Súvislý</string>
+  <string name="Media.PlayMode.Shuffle">S preskakovaním</string>
+  <string name="Media.ChooseRepeatModeDialogHeader">Vyberte mód opakovania</string>
+  <string name="Media.RepeatMode">Mód opakovania</string>
+  <string name="Media.RepeatMode.None">Žiadne</string>
+  <string name="Media.RepeatMode.All">Všetko</string>
+  <string name="Media.RepeatMode.One">Jednu</string>
   <!--VideoPlayerUIContributor-->
   <string name="Media.SubtitleOff">Zrušiť titulky</string>
   <string name="Media.ChooseChapterDialogHeader">Vybrať kapitolu</string>
@@ -247,6 +282,7 @@
   <string name="Media.MediumList">Stredný zoznam</string>
   <string name="Media.LargeList">Veľký zoznam</string>
   <string name="Media.LargeGrid">Tabuľka</string>
+  <string name="Media.CoverLayout">Obaly</string>
   <string name="Media.SwitchSortingMenuItem">Usporiadanie</string>
   <string name="Media.SwitchSortingDialogTitle">Usporiadanie</string>
   <string name="Media.SortByTitle">Usporiadať podľa názvu</string>
@@ -274,4 +310,6 @@
   <string name="Settings.Players.SkipStepTimeout.Help">Nastavte čas, po ktorom sa skok vykoná</string>
   <string name="Settings.Players.SkipStepList">Veľkosti skokov prehrávača</string>
   <string name="Settings.Players.SkipStepList.Help">Zadajte skoky v sekundách oddelené čiarkou</string>
+  <string name="Settings.Players.OpenPlayerStrategy">Stratégia otvárania prehrávača</string>
+  <string name="Settings.Players.OpenPlayerStrategy.Help">Stratégia, podľa ktorej bude novo otvorený prehrávač zaradený k existujúcim prehrávačom</string>
 </resources>

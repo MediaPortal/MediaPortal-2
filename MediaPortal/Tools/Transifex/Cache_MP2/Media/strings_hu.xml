@@ -52,6 +52,7 @@
   <string name="Media.FilterImageYearNavbarDisplayLabel">Év: {0}</string>
   <string name="Media.FilterAudioItemsNavbarDisplayLabel">Név: {0}</string>
   <string name="Media.FilterVideoItemsNavbarDisplayLabel">Név: {0}</string>
+  <string name="Media.FilterMoviesCollectionNavbarDisplayLabel">{0}</string>
   <string name="Media.FilterSeriesItemsNavbarDisplayLabel">{0}</string>
   <string name="Media.FilterSeriesSeasonNavbarDisplayLabel">Évad: {0}</string>
   <string name="Media.FilterImageItemsNavbarDisplayLabel">Név: {0}</string>
@@ -167,6 +168,7 @@
   <string name="Media.VideoDurationLabel">Időtartam:</string>
   <string name="Media.VideoActorsLabel">Színész(ek):</string>
   <string name="Media.VideoStoryPlotLabel">Történet röviden:</string>
+  <!--Series currently playing-->
   <!--Image currently playing-->
   <string name="Media.ImageCurrentlyPlayingHeader">Jelenlegi kép információi</string>
   <string name="Media.ImageTitleLabel">Név:</string>
@@ -198,8 +200,10 @@
   <string name="Media.SavePlaylistAction">Lejátszási lista mentése</string>
   <string name="Media.SaveCurrentPlaylistAction">Jelenlegi lejátszási lista mentése</string>
   <string name="Media.RemovePlaylistsAction">Lejátszási lista eltávolítása</string>
+  <string name="Media.EditPlaylistButton">Lejátszási lista szerkesztése</string>
   <string name="Media.LoadPlaylistButton">Lejátszási lista betöltése</string>
   <string name="Media.ValueEmptyTitle">&lt;Üres&gt;</string>
+  <string name="Media.RepeatMode.None">Nincs</string>
   <!--VideoPlayerUIContributor-->
   <string name="Media.SubtitleOff">Feliratok tiltása</string>
   <string name="Media.ChooseChapterDialogHeader">Fejezet választása</string>

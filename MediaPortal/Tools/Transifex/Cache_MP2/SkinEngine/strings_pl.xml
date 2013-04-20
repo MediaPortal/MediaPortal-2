@@ -1,6 +1,7 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
   <!--File names (files in shaders/effects, without extension) to effect names to be shown in the GUI-->
+  <string name="Effects.none">Żaden</string>
   <!--{0} = media item title-->
   <!--{0} = media item title-->
   <!--For example: "Seeking forward (2x)"-->

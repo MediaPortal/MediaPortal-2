@@ -17,4 +17,13 @@
   <string name="SlimTvClient.RecordNow">Įrašyti dabar</string>
   <string name="SlimTvClient.DeleteSchedule">Trinti tvarkaraštį</string>
   <string name="SlimTvClient.CreateSchedule">Nustatyti įrašymo tvarkaraštį</string>
+  <string name="SlimTvClient.ErrorNoTvProvider">Nėra pasiekiamo TV tiekėjo</string>
+  <string name="SlimTvClient.RecordingsMenuItem">Įrašai</string>
+  <string name="SlimTvClient.RecordingsRootViewName">TV įrašai</string>
+  <string name="SlimTvClient.ChannelMenuItemLabel">Filtruoti pagal kanalą</string>
+  <string name="SlimTvClient.ChannelNavBarItemLabel">Kanalas: {0}</string>
+  <string name="SlimTvClient.RecordingsByChannelHeader">Įrašai pagal kanalą</string>
+  <string name="SlimTvClient.NameFilterMenuItemLabel">Filtruoti pagal pavadinimą</string>
+  <string name="SlimTvClient.NameFilterNavBarItemLabel">{0}</string>
+  <string name="SlimTvClient.RecordingsByNameHeader">Įrašai pagal pavadinimą</string>
 </resources>

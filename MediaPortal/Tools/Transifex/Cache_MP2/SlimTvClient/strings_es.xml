@@ -17,4 +17,13 @@
   <string name="SlimTvClient.RecordNow">Grabar ahora</string>
   <string name="SlimTvClient.DeleteSchedule">Borrar agenda</string>
   <string name="SlimTvClient.CreateSchedule">Agenda de grabación</string>
+  <string name="SlimTvClient.ErrorNoTvProvider">No hay proveedor de TV disponible (aún)</string>
+  <string name="SlimTvClient.RecordingsMenuItem">Grabaciones</string>
+  <string name="SlimTvClient.RecordingsRootViewName">Grabaciones de TV</string>
+  <string name="SlimTvClient.ChannelMenuItemLabel">Filtrar por canal</string>
+  <string name="SlimTvClient.ChannelNavBarItemLabel">Canal: {0}</string>
+  <string name="SlimTvClient.RecordingsByChannelHeader">Grabaciones por canal</string>
+  <string name="SlimTvClient.NameFilterMenuItemLabel">Filtrar por nombre</string>
+  <string name="SlimTvClient.NameFilterNavBarItemLabel">{0}</string>
+  <string name="SlimTvClient.RecordingsByNameHeader">Grabaciones por nombre</string>
 </resources>

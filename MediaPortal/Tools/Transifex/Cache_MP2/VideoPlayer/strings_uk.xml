@@ -15,6 +15,9 @@
   <string name="Settings.Players.Codecs.AudioCodecs.AudioCodecLATMAAC.Help">Вкажіть LATM-AAC аудіо кодек</string>
   <string name="Settings.Players.Codecs.AudioCodecs.AudioCodecAAC">AAC аудіо кодек</string>
   <string name="Settings.Players.Codecs.AudioCodecs.AudioCodecAAC.Help">Вкажіть AAC аудіо кодек</string>
+  <string name="Settings.Players.Codecs.AudioCodecs.AudioRenderer.Help">Встановити аудіо рендер</string>
+  <string name="Settings.Players.VideoPlayer">Програвач Відео</string>
+  <string name="Settings.Players.DVDPlayer">DVD програвач</string>
   <string name="Settings.Players.DVDPlayer.EnableSubtitles">Субтитри</string>
   <string name="Playback.NotSpecified">Не визначено</string>
   <!--For example: "Chapter 1"-->

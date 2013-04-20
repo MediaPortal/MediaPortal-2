@@ -18,6 +18,8 @@
   <string name="Keys.Shift">Shift</string>
   <string name="Keys.CapsLock">Velike črke</string>
   <string name="Keys.AltGr">Alt Gr</string>
+  <string name="Keys.Copy">Kopiraj</string>
+  <string name="Keys.Paste">Lepi</string>
   <string name="Home.Title">MediaPortal 2</string>
   <string name="Home.HomeStateDisplayLabel">Domov</string>
   <string name="Dialogs.InfoHeaderText">Info</string>
@@ -38,7 +40,7 @@
   <string name="ServerConnection.DetachFromServerWorkflowStateLabel">Odjavi se s strežnika</string>
   <string name="ServerConnection.HomeServerWorkflowStateLabel">Domači strežnik</string>
   <string name="ServerConnection.AttachedText.Before">Ta MediaPortal odjemalec je trenutno prijavljen na strežnik</string>
-  <string name="ServerConnection.AttachedText.After"/>
+  <string name="ServerConnection.AttachedText.After"></string>
   <string name="ServerConnection.NoHomeServerAttached">Ta MediaPortal odjemalec trenutno ni prijavljen na strežnik</string>
   <string name="ServerConnection.HomeServerIsConnected">Domači strežnik je trenutno povezan</string>
   <string name="ServerConnection.HomeServerIsNotConnected">Domači strežnik je trenutno nepovezan</string>
@@ -89,7 +91,7 @@
   <!--for example "Focus video player"-->
   <string name="Players.SwitchPipPlayers">Zamenjaj PiP predvajalnika</string>
   <string name="Players.ChooseAudioStream">Izberi audio vir</string>
-  <string name="Players.PlayerSlotAudioMenu">Audio mani za {0}</string>
+  <string name="Players.PlayerSlotAudioMenu">Audio meni za {0}</string>
   <!--for example "Audio menu for Lammbock"-->
   <string name="Players.Mute">Utišaj</string>
   <string name="Players.MuteOff">Konec utišanja</string>

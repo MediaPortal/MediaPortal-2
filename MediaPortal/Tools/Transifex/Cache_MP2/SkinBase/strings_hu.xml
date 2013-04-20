@@ -37,7 +37,7 @@
   <string name="ServerConnection.DetachFromServerWorkflowStateLabel">Szerverről leválasztás</string>
   <string name="ServerConnection.HomeServerWorkflowStateLabel">Otthoni Szerver</string>
   <string name="ServerConnection.AttachedText.Before">Ez a MediaPortal 2 kliens jelenleg az otthoni szerverhez van csatolva.</string>
-  <string name="ServerConnection.AttachedText.After"/>
+  <string name="ServerConnection.AttachedText.After"></string>
   <string name="ServerConnection.NoHomeServerAttached">Jelenleg, ez a MediaPortal 2 kliens nincs az otthoni szerverhez csatolva.</string>
   <string name="ServerConnection.HomeServerIsConnected">Jelenleg az otthoni szerverhez van kapcsolódva.</string>
   <string name="ServerConnection.HomeServerIsNotConnected">Jelenleg nincs az otthoni szerverhez kapcsolódva.</string>
@@ -79,7 +79,6 @@
   <!--for example "Focus video player"-->
   <string name="Players.SwitchPipPlayers">Kép a képben lejátszó váltása</string>
   <string name="Players.ChooseAudioStream">Audió folyam választása</string>
-  <string name="Players.PlayerSlotAudioMenu">Audio menü neki: {0}</string>
   <!--for example "Audio menu for Lammbock"-->
   <string name="Players.Mute">Némítás</string>
   <string name="Players.MuteOff">Némítás ki</string>

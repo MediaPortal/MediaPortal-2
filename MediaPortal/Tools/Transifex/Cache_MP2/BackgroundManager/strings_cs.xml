@@ -1,0 +1,10 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<resources>
+  <string name="Settings.Appearance.Skin.Background.VideoBackground">Video na pozadí</string>
+  <string name="Settings.Appearance.Skin.Background.VideoBackground.Help">Povolit video na pozadí a vybrat video</string>
+  <string name="Settings.Appearance.Skin.Background.EnableVideoBackground">Povolit video na pozadí</string>
+  <string name="Settings.Appearance.Skin.Background.Setup">Konfigurace videa na pozadí</string>
+  <string name="Settings.Appearance.Skin.Background.Setup.VideoFilename">Soubor videa</string>
+  <string name="Settings.Appearance.Skin.Background.Setup.Select">Vybrat</string>
+  <string name="Settings.Appearance.Skin.Background.Setup.SelectVideo">Vyberte video, které má být přehráváno na pozadí</string>
+</resources>

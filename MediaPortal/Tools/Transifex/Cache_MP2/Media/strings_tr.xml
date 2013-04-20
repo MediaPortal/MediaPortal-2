@@ -19,7 +19,10 @@
   <string name="Media.FilterByAudioLanguageMenuItem">Dile göre filtrele</string>
   <string name="Media.FilterByImageSizeMenuItem">Boyuta göre filtrele</string>
   <string name="Media.FilterByImageYearMenuItem">Yıla göre filtrele</string>
+  <string name="Media.FilterByImageStateMenuItem">Eyalete göre filtrele</string>
+  <string name="Media.FilterByImageCityMenuItem">Şehre göre filtrele</string>
   <string name="Media.FilterBySystemMenuItem">Sisteme göre filtrele</string>
+  <string name="Media.FilterByMoviesCollectionMenuItem">Koleksiyona göre filtrele</string>
   <string name="Media.FilterBySeriesNameMenuItem">Diziye göre filtrele</string>
   <string name="Media.FilterBySeriesSeasonMenuItem">Sezona göre filtrele</string>
   <string name="Media.FilterBySeriesEpisodeMenuItem">Bölüme göre filtrele</string>
@@ -50,8 +53,12 @@
   <string name="Media.FilterAudioLanguagesNavbarDisplayLabel">Dil: {0}</string>
   <string name="Media.FilterImageSizeNavbarDisplayLabel">Büyüklük: {0}</string>
   <string name="Media.FilterImageYearNavbarDisplayLabel">Yıl: {0}</string>
+  <string name="Media.FilterImageCountryNavbarDisplayLabel">Ülke: {0}</string>
+  <string name="Media.FilterImageStateNavbarDisplayLabel">Eyalet: {0}</string>
+  <string name="Media.FilterImageCityNavbarDisplayLabel">Şehir: {0}</string>
   <string name="Media.FilterAudioItemsNavbarDisplayLabel">Ad: {0}</string>
   <string name="Media.FilterVideoItemsNavbarDisplayLabel">Ad: {0}</string>
+  <string name="Media.FilterMoviesCollectionNavbarDisplayLabel">{0}</string>
   <string name="Media.FilterSeriesItemsNavbarDisplayLabel">{0}</string>
   <string name="Media.FilterSeriesSeasonNavbarDisplayLabel">Sezon {0}</string>
   <string name="Media.FilterImageItemsNavbarDisplayLabel">Ad: {0}</string>
@@ -91,6 +98,7 @@
   <string name="Media.MoviesItemsHeader">Filmler</string>
   <string name="Media.ImageItemsHeader">Resimler</string>
   <string name="Media.SimpleSearchHeader">Basit arama</string>
+  <string name="Media.ChooseCollectionHeader">Koleksiyon seçin</string>
   <string name="Media.ChooseActorHeader">Aktör seç</string>
   <string name="Media.ChooseVideoGenreHeader">Tür seç</string>
   <string name="Media.ChooseVideoYearHeader">Yıl seç</string>
@@ -102,6 +110,9 @@
   <string name="Media.ChooseAudioGenreHeader">Tür seç</string>
   <string name="Media.ChooseImageYearHeader">Yıl seç</string>
   <string name="Media.ChooseImageSizeHeader">Büyüklük seç</string>
+  <string name="Media.ChooseImageCountryHeader">Ülke seçin</string>
+  <string name="Media.ChooseImageStateHeader">Eyalet seçin</string>
+  <string name="Media.ChooseImageCityHeader">Şehir seçin</string>
   <string name="Media.ChooseSystemHeader">Sistem seç</string>
   <string name="Media.ChooseVideoLanguageHeader">Dil seç</string>
   <string name="Media.PlaylistsOverviewHeader">Çalma listeleri</string>
@@ -166,6 +177,7 @@
   <string name="Media.PlaylistTypeInfoLabel">Çalma listesi tipi</string>
   <string name="Media.PlaylistNumItemsLabel">İçerik sayısı</string>
   <string name="Media.PlaylistIdInfoLabel">Dahili çalma listesi tanımlayıcısı</string>
+  <string name="Media.OpenPlayerStrategy.MediaPortal.UI.Services.Players.PCMOpenPlayerStrategy.Default">Öntanımlı</string>
   <!--Play items dialog-->
   <string name="Media.PlayItemDialogHeader">İçeriği çal</string>
   <string name="Media.PlayAudioItems">Ses içeriklerini çal</string>
@@ -189,10 +201,16 @@
   <string name="Media.VideoCurrentlyPlayingHeader">Şu anki video bilgisi</string>
   <string name="Media.VideoTitleLabel">Başlık:</string>
   <string name="Media.VideoGenreLabel">Tür:</string>
+  <string name="Media.VideoCollectionLabel">Koleksiyon:</string>
   <string name="Media.VideoYearLabel">Yıl:</string>
   <string name="Media.VideoDurationLabel">Süre:</string>
   <string name="Media.VideoActorsLabel">Aktör(ler)</string>
   <string name="Media.VideoStoryPlotLabel">Konu:</string>
+  <!--Series currently playing-->
+  <string name="Media.SeriesTitleLabel">Seriler:</string>
+  <string name="Media.SeriesSeasonLabel">Sezon:</string>
+  <string name="Media.SeriesEpisodeLabel">Bölüm(ler):</string>
+  <string name="Media.SeriesEpisodeNameLabel">Bölüm başlığı:</string>
   <!--Image currently playing-->
   <string name="Media.ImageCurrentlyPlayingHeader">Şu anki resim bilgisi</string>
   <string name="Media.ImageTitleLabel">İsim:</string>
@@ -204,14 +222,19 @@
   <string name="Media.ImageShutterSpeedLabel">Objektif hızı:</string>
   <string name="Media.ImageMeteringModeLabel">Ölçüm modu:</string>
   <string name="Media.ImageExposureTimeLabel">Işıklandırma süresi:</string>
+  <string name="Media.ImageCountryLabel">Ülke:</string>
+  <string name="Media.ImageStateLabel">Eyalet:</string>
+  <string name="Media.ImageCityLabel">Şehir</string>
   <!--DVD currently playing-->
   <string name="Media.DVDCurrentlyPlayingHeader">Şu anki DVD bilgisi:</string>
   <!--Audio currently playing-->
   <string name="Media.AudioCurrentlyPlayingHeader">Aktif ses bilgisi</string>
+  <string name="Media.AudioAlbumLabel">Albüm:</string>
   <string name="Media.AudioArtistsLabel">Artistler:</string>
   <string name="Media.AudioTitleLabel">Başlık:</string>
   <string name="Media.AudioYearLabel">Yıl:</string>
   <string name="Media.AudioDurationLabel">Süre:</string>
+  <string name="Media.AudioGenresLabel">Tarz(lar):</string>
   <string name="Media.AudioPlaylistHeader">Ses çalma listesi</string>
   <string name="Media.VideoImagePlaylistHeader">Video/Resim çalma listesi</string>
   <string name="Media.PiPPlaylistHeader">Resim içinde Resim çalma listesi</string>
@@ -224,11 +247,19 @@
   <string name="Media.SavePlaylistAction">Çalma listesini kaydet</string>
   <string name="Media.SaveCurrentPlaylistAction">Aktif çalma listesini kaydet</string>
   <string name="Media.RemovePlaylistsAction">Çalma listelerini çıkart</string>
+  <string name="Media.EditPlaylistButton">Çalma listesini düzenle</string>
   <string name="Media.LoadPlaylistButton">Çalma listesini yükle</string>
   <string name="Media.PlaylistEmpty">&lt;Çalma listesinde öğe yok&gt;</string>
   <string name="Media.CannotPlayItemDialogText">Medya öğesini oynat</string>
   <string name="Media.CannotPlayItemsDialogText">Medya öğeleri çalınamadı</string>
   <string name="Media.ValueEmptyTitle">&lt;Boş&gt;</string>
+  <string name="Media.PlayMode">Oynatma Modu </string>
+  <string name="Media.PlayMode.Shuffle">Karıştır</string>
+  <string name="Media.ChooseRepeatModeDialogHeader">Tekrar Modunu Seç</string>
+  <string name="Media.RepeatMode">Tekrar Modu</string>
+  <string name="Media.RepeatMode.None">Hiçbiri</string>
+  <string name="Media.RepeatMode.All">Hepsi</string>
+  <string name="Media.RepeatMode.One">Bir</string>
   <!--VideoPlayerUIContributor-->
   <string name="Media.SubtitleOff">Altyazıları devre dışı bırak</string>
   <string name="Media.ChooseChapterDialogHeader">Bölüm seç</string>
@@ -247,6 +278,7 @@
   <string name="Media.MediumList">Orta liste</string>
   <string name="Media.LargeList">Büyük liste</string>
   <string name="Media.LargeGrid">Izgara</string>
+  <string name="Media.CoverLayout">Kapaklar</string>
   <string name="Media.SwitchSortingMenuItem">Sıralama</string>
   <string name="Media.SwitchSortingDialogTitle">Sıralama</string>
   <string name="Media.SortByTitle">Başlığa göre sırala</string>

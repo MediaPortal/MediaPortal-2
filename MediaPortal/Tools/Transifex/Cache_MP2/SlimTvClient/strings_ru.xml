@@ -17,4 +17,5 @@
   <string name="SlimTvClient.RecordNow">Записать сейчас</string>
   <string name="SlimTvClient.DeleteSchedule">Удалить запланированную запись</string>
   <string name="SlimTvClient.CreateSchedule">Запланировать запись</string>
+  <string name="SlimTvClient.NameFilterNavBarItemLabel">{0}</string>
 </resources>

@@ -19,7 +19,11 @@
   <string name="Media.FilterByAudioLanguageMenuItem">Filtrer efter sprog</string>
   <string name="Media.FilterByImageSizeMenuItem">Filtrer efter størrelse</string>
   <string name="Media.FilterByImageYearMenuItem">Filtrer efter år</string>
+  <string name="Media.FilterByImageCountryMenuItem">Filtrer efter land</string>
+  <string name="Media.FilterByImageStateMenuItem">Filtrer efter stat</string>
+  <string name="Media.FilterByImageCityMenuItem">Filtrer efter by</string>
   <string name="Media.FilterBySystemMenuItem">Filtrer efter system</string>
+  <string name="Media.FilterByMoviesCollectionMenuItem">Filtrer efter samling</string>
   <string name="Media.FilterBySeriesNameMenuItem">Filtrer efter serie</string>
   <string name="Media.FilterBySeriesSeasonMenuItem">Filtrer efter sæson</string>
   <string name="Media.FilterBySeriesEpisodeMenuItem">Filtrer efter afsnit</string>
@@ -50,8 +54,12 @@
   <string name="Media.FilterAudioLanguagesNavbarDisplayLabel">Sprog: {0}</string>
   <string name="Media.FilterImageSizeNavbarDisplayLabel">Størrelse: {0}</string>
   <string name="Media.FilterImageYearNavbarDisplayLabel">År: {0}</string>
+  <string name="Media.FilterImageCountryNavbarDisplayLabel">Land: {0}</string>
+  <string name="Media.FilterImageStateNavbarDisplayLabel">Stat: {0}</string>
+  <string name="Media.FilterImageCityNavbarDisplayLabel">By: {0}</string>
   <string name="Media.FilterAudioItemsNavbarDisplayLabel">Navn: {0}</string>
   <string name="Media.FilterVideoItemsNavbarDisplayLabel">Navn: {0}</string>
+  <string name="Media.FilterMoviesCollectionNavbarDisplayLabel">{0}</string>
   <string name="Media.FilterSeriesItemsNavbarDisplayLabel">{0}</string>
   <string name="Media.FilterSeriesSeasonNavbarDisplayLabel">Sæson {0}</string>
   <string name="Media.FilterImageItemsNavbarDisplayLabel">Navn: {0}</string>
@@ -91,6 +99,7 @@
   <string name="Media.MoviesItemsHeader">Film</string>
   <string name="Media.ImageItemsHeader">Billeder</string>
   <string name="Media.SimpleSearchHeader">Simpel søgning</string>
+  <string name="Media.ChooseCollectionHeader">Vælg en samling</string>
   <string name="Media.ChooseActorHeader">Vælg en skuespiller</string>
   <string name="Media.ChooseVideoGenreHeader">Vælg en genre</string>
   <string name="Media.ChooseVideoYearHeader">Vælg et år</string>
@@ -102,6 +111,9 @@
   <string name="Media.ChooseAudioGenreHeader">Vælg en genre</string>
   <string name="Media.ChooseImageYearHeader">Vælg et år</string>
   <string name="Media.ChooseImageSizeHeader">Vælg en størrelse</string>
+  <string name="Media.ChooseImageCountryHeader">Vælg et land</string>
+  <string name="Media.ChooseImageStateHeader">Vælg en stat</string>
+  <string name="Media.ChooseImageCityHeader">Vælg en by</string>
   <string name="Media.ChooseSystemHeader">Vælg et system</string>
   <string name="Media.ChooseVideoLanguageHeader">Vælg et sprog</string>
   <string name="Media.PlaylistsOverviewHeader">Afspilningslister</string>
@@ -166,6 +178,8 @@
   <string name="Media.PlaylistTypeInfoLabel">Afspilningslistetype</string>
   <string name="Media.PlaylistNumItemsLabel">Antal emner</string>
   <string name="Media.PlaylistIdInfoLabel">Intern afspilningsliste id</string>
+  <string name="Media.OpenPlayerStrategy.MediaPortal.UI.Services.Players.PCMOpenPlayerStrategy.Default">normal</string>
+  <string name="Media.OpenPlayerStrategy.MediaPortal.UI.Services.Players.PCMOpenPlayerStrategy.PreservePiP">Bibehold PiP video</string>
   <!--Play items dialog-->
   <string name="Media.PlayItemDialogHeader">Afspil emne</string>
   <string name="Media.PlayAudioItems">Afspil lyd emne</string>
@@ -189,10 +203,16 @@
   <string name="Media.VideoCurrentlyPlayingHeader">Nuværende video information</string>
   <string name="Media.VideoTitleLabel">Title: </string>
   <string name="Media.VideoGenreLabel">Genre: </string>
+  <string name="Media.VideoCollectionLabel">Samling:</string>
   <string name="Media.VideoYearLabel">År:</string>
   <string name="Media.VideoDurationLabel">Varighed:</string>
   <string name="Media.VideoActorsLabel">Skuespiller(e):</string>
   <string name="Media.VideoStoryPlotLabel">Plot:</string>
+  <!--Series currently playing-->
+  <string name="Media.SeriesTitleLabel">Serier:</string>
+  <string name="Media.SeriesSeasonLabel">Sæson:</string>
+  <string name="Media.SeriesEpisodeLabel">Episode(r):</string>
+  <string name="Media.SeriesEpisodeNameLabel">Episode titel:</string>
   <!--Image currently playing-->
   <string name="Media.ImageCurrentlyPlayingHeader">Nuværende billlede information</string>
   <string name="Media.ImageTitleLabel">Navn: </string>
@@ -204,14 +224,19 @@
   <string name="Media.ImageShutterSpeedLabel">Lukketid:</string>
   <string name="Media.ImageMeteringModeLabel">Lysmålingsmetode:</string>
   <string name="Media.ImageExposureTimeLabel">Eksponeringstid:</string>
+  <string name="Media.ImageCountryLabel">Land:</string>
+  <string name="Media.ImageStateLabel">Stat:</string>
+  <string name="Media.ImageCityLabel">By:</string>
   <!--DVD currently playing-->
   <string name="Media.DVDCurrentlyPlayingHeader">Nuværende DVD information</string>
   <!--Audio currently playing-->
   <string name="Media.AudioCurrentlyPlayingHeader">Nuværende lyd information</string>
+  <string name="Media.AudioAlbumLabel">Album:</string>
   <string name="Media.AudioArtistsLabel">Kunstner:</string>
   <string name="Media.AudioTitleLabel">Title: </string>
   <string name="Media.AudioYearLabel">År:</string>
   <string name="Media.AudioDurationLabel">Varighed:</string>
+  <string name="Media.AudioGenresLabel">Genre(r):</string>
   <string name="Media.AudioPlaylistHeader">Lyd afspillingsliste</string>
   <string name="Media.VideoImagePlaylistHeader">Video/billede afspillingsliste</string>
   <string name="Media.PiPPlaylistHeader">PiP afspillingsliste</string>
@@ -224,11 +249,20 @@
   <string name="Media.SavePlaylistAction">Gem afspillingsliste</string>
   <string name="Media.SaveCurrentPlaylistAction">Gem nuværende afspillingsliste</string>
   <string name="Media.RemovePlaylistsAction">Fjern afspilningslister</string>
+  <string name="Media.EditPlaylistButton">Rediger afspillingsliste</string>
   <string name="Media.LoadPlaylistButton">Hent afspillingsliste</string>
   <string name="Media.PlaylistEmpty">&lt;Ingen emner i afspillingsliste&gt;</string>
   <string name="Media.CannotPlayItemDialogText">Kan ikke afspille emne</string>
   <string name="Media.CannotPlayItemsDialogText">Kan ikke afspille emner</string>
   <string name="Media.ValueEmptyTitle">&lt;Tom&gt;</string>
+  <string name="Media.ChoosePlayModeDialogHeader">Vælg afspilnings tilstand</string>
+  <string name="Media.PlayMode">Afspilnings tilstand</string>
+  <string name="Media.PlayMode.Continuous">Kontinuerlig</string>
+  <string name="Media.PlayMode.Shuffle">Bland</string>
+  <string name="Media.ChooseRepeatModeDialogHeader">Vælg gentagelses tilstand</string>
+  <string name="Media.RepeatMode">Gentagelses tilstand</string>
+  <string name="Media.RepeatMode.None">Intet</string>
+  <string name="Media.RepeatMode.All">Alle</string>
   <!--VideoPlayerUIContributor-->
   <string name="Media.SubtitleOff">Fjern undertekst</string>
   <string name="Media.ChooseChapterDialogHeader">Vælg kapitel</string>
@@ -247,6 +281,7 @@
   <string name="Media.MediumList">Medium liste</string>
   <string name="Media.LargeList">Stor liste</string>
   <string name="Media.LargeGrid">Gitter</string>
+  <string name="Media.CoverLayout">Covers</string>
   <string name="Media.SwitchSortingMenuItem">Sortering</string>
   <string name="Media.SwitchSortingDialogTitle">Sortering</string>
   <string name="Media.SortByTitle">Sorter per titel</string>

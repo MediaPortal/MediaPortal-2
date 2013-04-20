@@ -14,6 +14,7 @@
   <string name="Settings.Appearance.Skin.SkinAndTheme.ChangeSkin">Breyta útliti</string>
   <string name="Settings.Appearance.Skin.SkinAndTheme.ChangeSkin.Help">Breyta útliti &amp; MediaPortal 2</string>
   <string name="Settings.Appearance.Skin.SkinAndTheme.ChangeTheme">Breyta þemu</string>
+  <string name="Settings.Appearance.Skin.SkinAndTheme.ChangeTheme.Help">Breyta framsetningu á núverandi útliti</string>
   <string name="Settings.Players">Spilarar</string>
   <string name="Settings.Players.Rendering">Þýði</string>
   <string name="Settings.Players.Rendering.DefaultGeometry">Skilgreining stækkunar</string>
@@ -26,14 +27,18 @@
   <string name="ScreenManager.ScreenBroken">Útlitið fyrir skjámynd '{0}' virðist ekki vera í lagi</string>
   <string name="ScreenManager.BackgroundScreenMissing">Get ekki fundið útlitið fyrir bakgrunn skjámyndar '{0}'</string>
   <string name="ScreenManager.BackgroundScreenBroken">Útlitið fyrir bakgrunn skjámyndar '{0}' virðist ekki vera í lagi</string>
+  <string name="Geometries.IntelligentZoom">Þróuð stækkun</string>
   <string name="Geometries.Normal">Eðlilegt</string>
   <string name="Geometries.Original">Upprunalegt</string>
   <string name="Geometries.Stretch">Strekkja</string>
   <string name="Geometries.Zoom">Stækkun</string>
   <string name="Geometries.Zoom149">Stækkun 14:9</string>
   <!--File names (files in shaders/effects, without extension) to effect names to be shown in the GUI-->
+  <string name="Effects.glass_tiles">Glerflísar</string>
   <string name="Effects.greyscale">Gráskali</string>
+  <string name="Effects.invert">Öfugt</string>
   <string name="Effects.none">Ekkert</string>
+  <string name="Effects.pixelate">Punktað</string>
   <string name="Effects.sepia">Brúnleitt</string>
   <string name="Effects.sharpen">Skerpa</string>
   <string name="Effects.sharpen_complex">Skerpun (flókin)</string>

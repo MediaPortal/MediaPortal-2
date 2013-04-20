@@ -1,0 +1,47 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<resources>
+  <string name="Settings.Players.Codecs">Codecs</string>
+  <string name="Settings.Players.Codecs.VideoCodecs">Video Codecs</string>
+  <string name="Settings.Players.Codecs.VideoCodecs.MPEG2">MPEG2 Video Codec</string>
+  <string name="Settings.Players.Codecs.VideoCodecs.MPEG2.Help">Setel codec untuk video MPEG2 (DVD, DVB-SD)</string>
+  <string name="Settings.Players.Codecs.VideoCodecs.MPEG4">MPEG4 Video Codec</string>
+  <string name="Settings.Players.Codecs.VideoCodecs.MPEG4.Help">Setel codec untuk video MPEG4 (H.264, x264)</string>
+  <string name="Settings.Players.Codecs.VideoCodecs.AVC">AVC Video Codec</string>
+  <string name="Settings.Players.Codecs.VideoCodecs.AVC.Help">Setel codec untuk video AVC (HDTV, BluRay)</string>
+  <string name="Settings.Players.Codecs.AudioCodecs">Audio Codecs</string>
+  <string name="Settings.Players.Codecs.AudioRenderer">Audio Renderer</string>
+  <string name="Settings.Players.Codecs.AudioCodecs.AudioCodec">MPEG1/2 Audio Codec</string>
+  <string name="Settings.Players.Codecs.AudioCodecs.AudioCodec.Help">Setel codec audio MPEG1/2</string>
+  <string name="Settings.Players.Codecs.AudioCodecs.AudioCodecLATMAAC">LATM-AAC Audio Codec</string>
+  <string name="Settings.Players.Codecs.AudioCodecs.AudioCodecLATMAAC.Help">Setel codec audio LATM-AAC</string>
+  <string name="Settings.Players.Codecs.AudioCodecs.AudioCodecAAC">AAC Audio Codec</string>
+  <string name="Settings.Players.Codecs.AudioCodecs.AudioCodecAAC.Help">Setel codec audio AAC</string>
+  <string name="Settings.Players.Codecs.AudioCodecs.AudioRenderer">Audio Renderer</string>
+  <string name="Settings.Players.Codecs.AudioCodecs.AudioRenderer.Help">Setel audio renderer</string>
+  <string name="Settings.Players.VideoPlayer">Pemutar Video</string>
+  <string name="Settings.Players.VideoPlayer.PreferMultiChannelAudio">Pilih multichannel audio streams</string>
+  <string name="Settings.Players.VideoPlayer.PreferMultiChannelAudio.Help">Bila aktif, stream 6ch akan dipilih (contoh AC3, AAC)</string>
+  <string name="Settings.Players.DVDPlayer">Pemutar DVD</string>
+  <string name="Settings.Players.DVDPlayer.EnableClosedCaption">Keterangan Penutup</string>
+  <string name="Settings.Players.DVDPlayer.EnableClosedCaption.Help">Pilih bila Keterangan Penutup harus diaktifkan secara baku</string>
+  <string name="Settings.Players.DVDPlayer.EnableSubtitles">Subtitel</string>
+  <string name="Settings.Players.DVDPlayer.EnableSubtitles.Help">Pilih jika subtitel harus diaktifkan secara baku</string>
+  <string name="Playback.NotSpecified">Tidak dispesifikasikan</string>
+  <string name="Playback.CaptionNormal">Keterangan Normal</string>
+  <string name="Playback.CaptionBig">Keterangan Besar</string>
+  <string name="Playback.CaptionChildren">Keterangan Bercabang</string>
+  <string name="Playback.CCNormal">CC Normal</string>
+  <string name="Playback.CCBig">CC Besar</string>
+  <string name="Playback.CCChildren">CC Bercabang</string>
+  <string name="Playback.Forced">Paksakan</string>
+  <string name="Playback.DirectorCommentsNormal">Komentar Normal Sutradara</string>
+  <string name="Playback.DirectorCommentsBig">Komentar Besar Sutradara</string>
+  <string name="Playback.DirectorCommentsChildren">Komentar Bercabang Sutradara</string>
+  <string name="Playback.VisuallyImpaired">Gangguan Visual</string>
+  <string name="Playback.DirectorComments1">Komentar Sutradara</string>
+  <string name="Playback.DirectorComments2">Komentar Sutradara (2)</string>
+  <string name="Playback.Chapter">Bagian {0}</string>
+  <!--For example: "Chapter 1"-->
+  <string name="Playback.Title">Judul {0}</string>
+  <!--For example: "Title 1"-->
+</resources>

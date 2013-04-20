@@ -19,6 +19,9 @@
   <string name="Media.FilterImageSizeNavbarDisplayLabel">Розмір: {0}</string>
   <string name="Media.FilterImageYearNavbarDisplayLabel">Рік: {0}</string>
   <!--Display labels for workflow navigation contexts-->
+  <string name="Media.VideoFullscreenContentWorkflowStateNavigationContextDisplayLabel">Повноекранне відео</string>
+  <string name="Media.AudioFullscreenContentWorkflowStateNavigationContextDisplayLabel">Аудіо візуалізація</string>
+  <string name="Media.ShowPlaylistWorkflowStateNavigationContextDisplayLabel">Плейлист</string>
   <string name="Media.SavePlaylistSuccessfulWorkflowStateNavigationContextDisplayLabel">Успішно</string>
   <string name="Media.SavePlaylistFailedWorkflowStateNavigationContextDisplayLabel">Не вдалося</string>
   <!--Screen headers-->
@@ -44,19 +47,26 @@
   <!--Player context names-->
   <string name="Media.AudioContextName">Аудіо</string>
   <!--Video currently playing-->
+  <!--Series currently playing-->
   <!--Image currently playing-->
   <string name="Media.CameraMake">Виробник камери:</string>
   <string name="Media.CameraModel">Модель камери:</string>
   <string name="Media.ImageISOSpeedLabel">Швидкість ISO:</string>
   <!--DVD currently playing-->
   <!--Audio currently playing-->
+  <string name="Media.AudioYearLabel">Рік:</string>
+  <string name="Media.AudioDurationLabel">Тривалість:</string>
   <string name="Media.SavePLAtServer">Зберегти на сервері</string>
   <string name="Media.SavePLLocally">Зберегти локально</string>
   <string name="Media.ShowAudioPlaylistAction">Показати аудіо плейлист</string>
   <string name="Media.ClearPlaylistAction">Очистити плейлист</string>
   <string name="Media.SavePlaylistAction">Зберегти плейлист</string>
   <string name="Media.SaveCurrentPlaylistAction">Зберегти поточний плейлист</string>
+  <string name="Media.EditPlaylistButton">Редагувати плейлист</string>
   <!--VideoPlayerUIContributor-->
+  <string name="Media.ChooseChapterDialogHeader">Виберіть частину</string>
+  <string name="Media.ChooseSubtitleDialogHeader">Виберіть субтитри</string>
+  <string name="Media.ChooseTitleDialogHeader">Виберіть назву</string>
   <!--Video Player time units-->
   <string name="Media.Seconds">сек</string>
   <string name="Media.Minutes">хв</string>
@@ -64,4 +74,7 @@
   <string name="Media.Start">Початок</string>
   <string name="Media.End">Кінець</string>
   <string name="Media.DontSkip">Не пропускати</string>
+  <string name="Media.LargeGrid">Сітка</string>
+  <string name="Media.SwitchSortingMenuItem">Сортування</string>
+  <string name="Media.SwitchSortingDialogTitle">Сортування</string>
 </resources>

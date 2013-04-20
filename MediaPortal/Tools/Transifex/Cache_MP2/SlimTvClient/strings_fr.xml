@@ -17,4 +17,13 @@
   <string name="SlimTvClient.RecordNow">Enregister</string>
   <string name="SlimTvClient.DeleteSchedule">Effacer l'enregistrement programmé</string>
   <string name="SlimTvClient.CreateSchedule">Programmer un enregistrement</string>
+  <string name="SlimTvClient.ErrorNoTvProvider">Aucun fournisseur TV disponible (pour l`instant)</string>
+  <string name="SlimTvClient.RecordingsMenuItem">Enregistrements</string>
+  <string name="SlimTvClient.RecordingsRootViewName">Enregistrements TV</string>
+  <string name="SlimTvClient.ChannelMenuItemLabel">Trier par chaîne</string>
+  <string name="SlimTvClient.ChannelNavBarItemLabel">Chaîne: {0}</string>
+  <string name="SlimTvClient.RecordingsByChannelHeader">Enregistrements triés par chaîne</string>
+  <string name="SlimTvClient.NameFilterMenuItemLabel">Trier par nom</string>
+  <string name="SlimTvClient.NameFilterNavBarItemLabel">{0}</string>
+  <string name="SlimTvClient.RecordingsByNameHeader">Enregistrements triés par nom</string>
 </resources>

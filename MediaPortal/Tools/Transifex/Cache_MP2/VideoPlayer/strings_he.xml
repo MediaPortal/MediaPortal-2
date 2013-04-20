@@ -23,9 +23,16 @@
   <string name="Settings.Players.VideoPlayer.PreferMultiChannelAudio.Help">אם נבחר, זרם רב ערוצי יקבל עדיפות</string>
   <string name="Settings.Players.DVDPlayer">נגן די.וי.די</string>
   <string name="Settings.Players.DVDPlayer.EnableClosedCaption">כתוביות</string>
+  <string name="Settings.Players.DVDPlayer.EnableClosedCaption.Help">בחר באם ברצונך לאפשר כתוביות כברירת מחדל</string>
   <string name="Settings.Players.DVDPlayer.EnableSubtitles">כתוביות</string>
   <string name="Settings.Players.DVDPlayer.EnableSubtitles.Help">סמן אם כתוביות יוצגו כברירת מחדל</string>
   <string name="Playback.NotSpecified">לא מוגדר</string>
+  <string name="Playback.CaptionNormal">כותרת רגילה</string>
+  <string name="Playback.CaptionBig">כותרת גדולה</string>
+  <string name="Playback.CaptionChildren">כותרת לילדים</string>
+  <string name="Playback.CCNormal">כתוביות רגילות</string>
+  <string name="Playback.CCBig">כתוביות גדולות</string>
+  <string name="Playback.CCChildren">כתוביות ילדים</string>
   <string name="Playback.Forced">כפוי</string>
   <string name="Playback.DirectorCommentsNormal">הערות במאי - תצוגה רגילה</string>
   <string name="Playback.DirectorCommentsBig">הערות במאי - תצוגה גדולה</string>

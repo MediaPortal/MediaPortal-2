@@ -1,4 +1,23 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
+  <string name="PartyMusicPlayer.MenuItem">Reproductor de música de fiesta</string>
+  <string name="PartyMusicPlayer.ConfigWorkflowNavigationContextDisplayLabel">Reproductor de música de fiesta</string>
+  <string name="PartyMusicPlayer.PlayerWorkflowNavigationContextDisplayLabel">Reproductor de música de fiesta</string>
+  <string name="PartyMusicPlayer.ConfigScreenTitle">Configuración del reproductor de música de fiesta</string>
   <string name="PartyMusicPlayer.Playlist">Lista de reproducción</string>
+  <string name="PartyMusicPlayer.ChoosePlaylist">Elige una lista de reproducción</string>
+  <string name="PartyMusicPlayer.UseEscapePassword">Usar contraseña de salida</string>
+  <string name="PartyMusicPlayer.DisableScreenSaver">Desactivar salvapantallas</string>
+  <string name="PartyMusicPlayer.StartPartyMode">Comenzar modo fiesta</string>
+  <string name="PartyMusicPlayer.ChoosePlaylistDialogHeader">Elegir lista de reproducción</string>
+  <string name="PartyMusicPlayer.EnterEscapePasswordDialogHeader">Contraseña de salida</string>
+  <string name="PartyMusicPlayer.EnterEscapePasswordDialogText">Por favor introduce la contraseña de salida del modo fiesta</string>
+  <string name="PartyMusicPlayer.WrongEscapePasswordDialogHeader">Contraseña de salida incorrecta</string>
+  <string name="PartyMusicPlayer.WrongEscapePasswordDialogText">Lo siento, ¡Esa es la contraseña de salida incorrecta!</string>
+  <string name="PartyMusicPlayer.ServerNotConnectedDialogHeader">Servidor no conectado</string>
+  <string name="PartyMusicPlayer.ServerNotConnectedDialogText">Para esta acción, el servidor de origen debe estar conectado</string>
+  <string name="PartyMusicPlayer.PlayerContextName">Reproductor de música de fiesta</string>
+  <string name="PartyMusicPlayer.AudioArtistLabel">Artista</string>
+  <string name="PartyMusicPlayer.AudioTitleLabel">Título</string>
+  <string name="PartyMusicPlayer.ShowPlaylist">Mostrar lista de reproducción</string>
 </resources>

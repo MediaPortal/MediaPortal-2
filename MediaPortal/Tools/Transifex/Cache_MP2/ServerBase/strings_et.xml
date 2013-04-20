@@ -1,0 +1,18 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<resources>
+  <string name="MainForm.Title">MediaPortal 2 Server Application</string>
+  <string name="MainForm.AttachedClients">Lisatud kliendid</string>
+  <string name="MainForm.Client">Klient</string>
+  <string name="MainForm.System">Süsteem</string>
+  <string name="MainForm.ConnectionState">Ühenduse olek</string>
+  <string name="MainForm.Connected">Ühendatud</string>
+  <string name="MainForm.Disconnected">Eraldatud</string>
+  <string name="UPnPBackendServer.DefaultFriendlyName">MediaPortal 2 server</string>
+  <string name="UPnPBackendServer.Manufacturer">Team Mediaportal</string>
+  <string name="UPnPBackendServer.ManufacturerUrl">www.team-mediaportal.com</string>
+  <string name="UPnPBackendServer.ModelDescription">MediaPortal 2 server - meediafailide hoidmiseks ja jagamiseks. Serveris on ka meedia andmebaas.</string>
+  <string name="UPnPBackendServer.ModelName">MediaPortal 2 server</string>
+  <string name="UPnPBackendServer.ModelNumber">1</string>
+  <string name="UPnPBackendServer.ModelUrl">...</string>
+  <string name="MediaLibrary.EmptyOrMiscCharGroupName">&lt;Empty or misc. character&gt;</string>
+</resources>

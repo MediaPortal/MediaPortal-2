@@ -19,7 +19,11 @@
   <string name="Media.FilterByAudioLanguageMenuItem">Filter nach Sprache</string>
   <string name="Media.FilterByImageSizeMenuItem">Filter nach Größe</string>
   <string name="Media.FilterByImageYearMenuItem">Filter nach Jahr</string>
+  <string name="Media.FilterByImageCountryMenuItem">Filter nach Land</string>
+  <string name="Media.FilterByImageStateMenuItem">Filter nach Bundesland</string>
+  <string name="Media.FilterByImageCityMenuItem">Filter nach Stadt</string>
   <string name="Media.FilterBySystemMenuItem">Filter nach System</string>
+  <string name="Media.FilterByMoviesCollectionMenuItem">Filter nach Sammlung</string>
   <string name="Media.FilterBySeriesNameMenuItem">Filter nach Serie</string>
   <string name="Media.FilterBySeriesSeasonMenuItem">Filter nach Staffel</string>
   <string name="Media.FilterBySeriesEpisodeMenuItem">Filter nach Episode</string>
@@ -50,8 +54,12 @@
   <string name="Media.FilterAudioLanguagesNavbarDisplayLabel">Sprache: {0}</string>
   <string name="Media.FilterImageSizeNavbarDisplayLabel">Größe: {0}</string>
   <string name="Media.FilterImageYearNavbarDisplayLabel">Jahr: {0}</string>
+  <string name="Media.FilterImageCountryNavbarDisplayLabel">Land: {0}</string>
+  <string name="Media.FilterImageStateNavbarDisplayLabel">Bundesland: {0}</string>
+  <string name="Media.FilterImageCityNavbarDisplayLabel">Stadt: {0}</string>
   <string name="Media.FilterAudioItemsNavbarDisplayLabel">Name: {0}</string>
   <string name="Media.FilterVideoItemsNavbarDisplayLabel">Name: {0}</string>
+  <string name="Media.FilterMoviesCollectionNavbarDisplayLabel">{0}</string>
   <string name="Media.FilterSeriesItemsNavbarDisplayLabel">{0}</string>
   <string name="Media.FilterSeriesSeasonNavbarDisplayLabel">Staffel {0}</string>
   <string name="Media.FilterImageItemsNavbarDisplayLabel">Name: {0}</string>
@@ -91,6 +99,7 @@
   <string name="Media.MoviesItemsHeader">Filme</string>
   <string name="Media.ImageItemsHeader">Bilder</string>
   <string name="Media.SimpleSearchHeader">Einfache Suche</string>
+  <string name="Media.ChooseCollectionHeader">Wähle eine Sammlung</string>
   <string name="Media.ChooseActorHeader">Wähle einen Darsteller</string>
   <string name="Media.ChooseVideoGenreHeader">Wähle ein Genre</string>
   <string name="Media.ChooseVideoYearHeader">Wähle ein Jahr</string>
@@ -102,6 +111,9 @@
   <string name="Media.ChooseAudioGenreHeader">Wähle ein Genre</string>
   <string name="Media.ChooseImageYearHeader">Wähle ein Jahr</string>
   <string name="Media.ChooseImageSizeHeader">Wähle eine Größe</string>
+  <string name="Media.ChooseImageCountryHeader">Wähle ein Land</string>
+  <string name="Media.ChooseImageStateHeader">Wähle ein Bundesland</string>
+  <string name="Media.ChooseImageCityHeader">Wähle eine Stadt</string>
   <string name="Media.ChooseSystemHeader">Wähle ein System</string>
   <string name="Media.ChooseVideoLanguageHeader">Wähle eine Sprache</string>
   <string name="Media.PlaylistsOverviewHeader">Wiedergabelisten</string>
@@ -166,6 +178,8 @@
   <string name="Media.PlaylistTypeInfoLabel">Art der Wiedergabeliste</string>
   <string name="Media.PlaylistNumItemsLabel">Anzahl der Elemente</string>
   <string name="Media.PlaylistIdInfoLabel">Interne Wiedergabelisten-ID</string>
+  <string name="Media.OpenPlayerStrategy.MediaPortal.UI.Services.Players.PCMOpenPlayerStrategy.Default">Standard</string>
+  <string name="Media.OpenPlayerStrategy.MediaPortal.UI.Services.Players.PCMOpenPlayerStrategy.PreservePiP">PiP-Video behalten</string>
   <!--Play items dialog-->
   <string name="Media.PlayItemDialogHeader">Element abspielen</string>
   <string name="Media.PlayAudioItems">Audiotitel abspielen</string>
@@ -189,10 +203,16 @@
   <string name="Media.VideoCurrentlyPlayingHeader">Aktuelle Video-Informationen</string>
   <string name="Media.VideoTitleLabel">Titel: </string>
   <string name="Media.VideoGenreLabel">Genre:</string>
+  <string name="Media.VideoCollectionLabel">Sammlung:</string>
   <string name="Media.VideoYearLabel">Jahr:</string>
   <string name="Media.VideoDurationLabel">Dauer:</string>
   <string name="Media.VideoActorsLabel">Darsteller:</string>
   <string name="Media.VideoStoryPlotLabel">Handlung:</string>
+  <!--Series currently playing-->
+  <string name="Media.SeriesTitleLabel">Serie:</string>
+  <string name="Media.SeriesSeasonLabel">Staffel:</string>
+  <string name="Media.SeriesEpisodeLabel">Folge(n):</string>
+  <string name="Media.SeriesEpisodeNameLabel">Folgentitel:</string>
   <!--Image currently playing-->
   <string name="Media.ImageCurrentlyPlayingHeader">Aktuelle Bild-Informationen</string>
   <string name="Media.ImageTitleLabel">Name:</string>
@@ -204,14 +224,19 @@
   <string name="Media.ImageShutterSpeedLabel">Verschlusszeit:</string>
   <string name="Media.ImageMeteringModeLabel">Messmethode:</string>
   <string name="Media.ImageExposureTimeLabel">Belichtungszeit:</string>
+  <string name="Media.ImageCountryLabel">Land:</string>
+  <string name="Media.ImageStateLabel">Bundesland:</string>
+  <string name="Media.ImageCityLabel">Stadt:</string>
   <!--DVD currently playing-->
   <string name="Media.DVDCurrentlyPlayingHeader">Aktuelle DVD-Information</string>
   <!--Audio currently playing-->
   <string name="Media.AudioCurrentlyPlayingHeader">Aktuelle Audio-Information</string>
+  <string name="Media.AudioAlbumLabel">Album:</string>
   <string name="Media.AudioArtistsLabel">Künstler:</string>
   <string name="Media.AudioTitleLabel">Titel:</string>
   <string name="Media.AudioYearLabel">Jahr:</string>
   <string name="Media.AudioDurationLabel">Dauer:</string>
+  <string name="Media.AudioGenresLabel">Genre(s): </string>
   <string name="Media.AudioPlaylistHeader">Audio-Wiedergabeliste</string>
   <string name="Media.VideoImagePlaylistHeader">Video/Bild-Wiedergabeliste</string>
   <string name="Media.PiPPlaylistHeader">PiP-Wiedergabeliste</string>
@@ -224,11 +249,21 @@
   <string name="Media.SavePlaylistAction">Wiedergabeliste speichern</string>
   <string name="Media.SaveCurrentPlaylistAction">Aktuelle Wiedergabeliste speichern</string>
   <string name="Media.RemovePlaylistsAction">Wiedergabelisten entfernen</string>
+  <string name="Media.EditPlaylistButton">Wiedergabeliste bearbeiten</string>
   <string name="Media.LoadPlaylistButton">Wiedergabeliste laden</string>
   <string name="Media.PlaylistEmpty">&lt;Keine Elemente in Wiedergabeliste&gt;</string>
   <string name="Media.CannotPlayItemDialogText">Kann Medienelement nicht wiedergeben</string>
   <string name="Media.CannotPlayItemsDialogText">Kann Medienelemente nicht wiedergeben</string>
   <string name="Media.ValueEmptyTitle">&lt;Leer&gt;</string>
+  <string name="Media.ChoosePlayModeDialogHeader">Wiedergabemodus wählen</string>
+  <string name="Media.PlayMode">Wiedergabemodus</string>
+  <string name="Media.PlayMode.Continuous">Endlos</string>
+  <string name="Media.PlayMode.Shuffle">Zufall</string>
+  <string name="Media.ChooseRepeatModeDialogHeader">Wiederholungsmodus wählen</string>
+  <string name="Media.RepeatMode">Wiederholungsmodus</string>
+  <string name="Media.RepeatMode.None">Kein Effekt</string>
+  <string name="Media.RepeatMode.All">Alle</string>
+  <string name="Media.RepeatMode.One">Eins</string>
   <!--VideoPlayerUIContributor-->
   <string name="Media.SubtitleOff">Untertitel deaktivieren</string>
   <string name="Media.ChooseChapterDialogHeader">Kapitel wählen</string>
@@ -247,6 +282,7 @@
   <string name="Media.MediumList">Mittlere Liste</string>
   <string name="Media.LargeList">Große Liste</string>
   <string name="Media.LargeGrid">Raster</string>
+  <string name="Media.CoverLayout">Covers</string>
   <string name="Media.SwitchSortingMenuItem">Sortierung</string>
   <string name="Media.SwitchSortingDialogTitle">Sortierung</string>
   <string name="Media.SortByTitle">Sortierung nach Titel</string>
@@ -274,4 +310,6 @@
   <string name="Settings.Players.SkipStepTimeout.Help">Setzt das Zeitlimit für Nutzereingaben, bevor der Sofortsprung ausgeführt wird</string>
   <string name="Settings.Players.SkipStepList">Player Sprungintervalle</string>
   <string name="Settings.Players.SkipStepList.Help">Gib eine Liste von Sprungintervallen in Sekunden an, getrennt mit ','</string>
+  <string name="Settings.Players.OpenPlayerStrategy">Playeröffnungs-Strategie</string>
+  <string name="Settings.Players.OpenPlayerStrategy.Help">Option, wie neu geöffnete Player unter anderen bereits geöffneten Playern positioniert werden</string>
 </resources>

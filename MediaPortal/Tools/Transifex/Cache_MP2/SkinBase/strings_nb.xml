@@ -1,0 +1,22 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<resources>
+  <!--{0} = server name, {1} = host name-->
+  <string name="ServerConnection.AttachedText.After"></string>
+  <!--{0} = server name, {1} = host name-->
+  <!--For MP UI player subsystem-->
+  <!--for example "Fullscreen TV"-->
+  <!--for example "Video player"-->
+  <!--for example "Focus video player"-->
+  <!--for example "Audio menu for Lammbock"-->
+  <!--for example "Close video player"-->
+  <!--Section name-->
+  <!--Group name-->
+  <!--Setting-->
+  <!--Group name-->
+  <!--Setting-->
+  <!--For example: INVALID PATH: 'C:\XXX\YYY'-->
+  <!--Shares configuration workflow-->
+  <!--Must fit for both multiseat and singleseat, that's why we don't write "server share"-->
+  <!--Must fit for both multiseat and singleseat, that's why we don't write "server share"-->
+  <!--<string name="UPnPFrontendServer.ModelUrl">...</string>-->
+</resources>
