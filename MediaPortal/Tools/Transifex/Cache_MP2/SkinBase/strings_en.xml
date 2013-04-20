@@ -118,6 +118,9 @@
   <string name="Settings.General.System.Autostart">Autostart</string>
   <string name="Settings.General.System.Autostart.Help">Start MediaPortal automatically on Windows startup</string>
 
+  <string name="Settings.General.System.ClientDOKANDrive">Resource mounting drive letter</string>
+  <string name="Settings.General.System.ClientDOKANDrive.Help">Configures the drive letter for mounting remote resources on this client.</string>
+
   <string name="Settings.General.Connectivity">Connectivity</string>
   <string name="Settings.General.Connectivity.HomeServer">Home server</string>
   <string name="Settings.General.Connectivity.HomeServer.Help">Home server information, attach to and detach from home server</string>
