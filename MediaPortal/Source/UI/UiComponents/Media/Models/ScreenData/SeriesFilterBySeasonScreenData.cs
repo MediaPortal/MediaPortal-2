@@ -22,6 +22,7 @@
 
 #endregion
 
+using MediaPortal.Common.Localization;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.UiComponents.Media.FilterCriteria;
 using MediaPortal.UiComponents.Media.General;
@@ -32,14 +33,21 @@ namespace MediaPortal.UiComponents.Media.Models.ScreenData
   public class SeriesFilterBySeasonScreenData : AbstractFiltersScreenData<SeasonFilterItem>
   {
     public SeriesFilterBySeasonScreenData() :
-        base(Consts.SCREEN_SERIES_FILTER_BY_SEASON, Consts.RES_FILTER_BY_SERIES_SEASON_MENU_ITEM,
+      base(Consts.SCREEN_SERIES_FILTER_BY_SEASON, Consts.RES_FILTER_BY_SERIES_SEASON_MENU_ITEM,
         Consts.RES_FILTER_SERIES_SEASON_NAVBAR_DISPLAY_LABEL, new SimpleMLFilterCriterion(SeriesAspect.ATTR_SERIES_SEASON))
-    {
-    }
+    { }
 
     public override AbstractFiltersScreenData<SeasonFilterItem> Derive()
     {
       return new SeriesFilterBySeasonScreenData();
+    }
+
+    protected override string GetNavbarDisplayLabel(Views.ViewSpecification subViewSpecification)
+    {
+      // subViewSpecification contains "Series S01" pattern, here we only want to show the season number.
+      string season = subViewSpecification.ViewDisplayName ?? string.Empty;
+      season = season.Substring(season.LastIndexOf("S") + 1);
+      return LocalizationHelper.Translate(_navbarSubViewNavigationDisplayLabel, season);
     }
   }
 }

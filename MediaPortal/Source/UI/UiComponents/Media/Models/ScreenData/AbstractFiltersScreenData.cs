@@ -204,20 +204,26 @@ namespace MediaPortal.UiComponents.Media.Models.ScreenData
       }
     }
 
+    /// <summary>
+    /// Constructs the display label for navigation bar. Derived classes can override the way how to construct it.
+    /// </summary>
+    /// <param name="subViewSpecification">ViewSpecification.</param>
+    /// <returns>Display label.</returns>
+    protected virtual string GetNavbarDisplayLabel(ViewSpecification subViewSpecification)
+    {
+      return LocalizationHelper.Translate(_navbarSubViewNavigationDisplayLabel, LocalizationHelper.Translate(subViewSpecification.ViewDisplayName));
+    }
+
     protected void NavigateToGroup(ViewSpecification subViewSpecification, IFilter clusterFilter)
     {
       AbstractFiltersScreenData<T> childScreenData = Derive();
       childScreenData.ClusterFilter = clusterFilter; // We already showed the clusters in the current screen - avoid clusters again else we would present the same grouped screen contents again
-      _navigationData.StackSubordinateNavigationContext(subViewSpecification, childScreenData,
-          LocalizationHelper.Translate(_navbarSubViewNavigationDisplayLabel,
-              LocalizationHelper.Translate(subViewSpecification.ViewDisplayName)));
+      _navigationData.StackSubordinateNavigationContext(subViewSpecification, childScreenData, GetNavbarDisplayLabel(subViewSpecification));
     }
 
     protected void NavigateToSubView(ViewSpecification subViewSpecification, ICollection<AbstractScreenData> remainingScreens)
     {
-      _navigationData.StackAutonomousNavigationContext(subViewSpecification, remainingScreens,
-          LocalizationHelper.Translate(_navbarSubViewNavigationDisplayLabel,
-              LocalizationHelper.Translate(subViewSpecification.ViewDisplayName)));
+      _navigationData.StackAutonomousNavigationContext(subViewSpecification, remainingScreens, GetNavbarDisplayLabel(subViewSpecification));
     }
   }
 }
