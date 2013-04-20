@@ -1,0 +1,48 @@
+<Plugin
+    DescriptorVersion="1.0"
+    Name="WifiConfiguration"
+    PluginId="{8113FC67-A46E-46CE-85A8-0C8E407A29B9}"
+    Author="offbyone"
+    Copyright="GPL"
+    Description="Configuration Plugin allowing to select a wireless network connection"
+    PluginVersion="1.0">
+
+  <DependsOn>
+    <PluginReference PluginId="{1AFF4467-64B0-4ca1-AF28-9AEDF3525BCE}"/> <!-- ConfigurationManager -->
+    <PluginReference PluginId="{B765A4B6-F455-4941-BDAE-2CE45208BFEB}"/> <!-- Configuration plugin -->
+    <PluginReference PluginId="{5D239050-02B8-4f58-8301-7630A1C4CF85}"/> <!-- SkinBase -->
+  </DependsOn>
+
+  <Runtime>
+    <Assembly FileName="WifiConfiguration.dll"/>
+  </Runtime>
+
+  <Register Location="/Models">
+    <Model Id="0A5A7384-72C5-412F-BCD4-6FBD64238858" Name="HomeServerModel" ClassName="MediaPortal.UiComponents.SkinBase.Models.WifiConnectionModel"/>   
+    <Model Id="3D5CA839-F47E-43AE-B796-9906D57FAFB0" Name="FindWirelessNetworksContributorModel" ClassName="MediaPortal.UiComponents.SkinBase.Actions.FindWirelessNetworksAction"/>    
+  </Register>
+
+  <Register Location="/Workflow/States">
+    <WorkflowState Id="C06C262F-DA22-46A8-9F05-F304829B2C09"
+        Name="WifiConnection" DisplayLabel="[Settings.General.Connectivity.WifiConnection]"
+        MainScreen="WifiConnection"/>
+  </Register>
+
+  <Register Location="/Resources/Language">
+    <Resource Id="WifiConfigurationLanguage" Directory="Language" Type="Language"/>
+  </Register>
+
+  <Register Location="/Resources/Skin">
+    <Resource Id="WifiConfigurationSkin" Directory="Skin" Type="Skin"/>
+  </Register>
+
+  <Register Location="/Configuration/Settings/General/Connectivity">
+    <CustomConfigSetting
+        Id="WifiConnection"
+        Text="[Settings.General.Connectivity.WifiConnection]"
+        HelpText="[Settings.General.Connectivity.WifiConnection.Help]"
+        ClassName="MediaPortal.UiComponents.SkinBase.Settings.Configuration.General.WifiConnection"
+        AdditionalData="WorkflowState=C06C262F-DA22-46A8-9F05-F304829B2C09,ConfAppPanel=..."/>
+  </Register>
+
+</Plugin>

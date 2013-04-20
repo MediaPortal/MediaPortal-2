@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+  <string name="Network.SearchForWirelessNetworks">Scan for Wireless Networks</string>
+  
+  <string name="Settings.General.Connectivity.WifiConnection">Wifi Connection</string>
+  <string name="Settings.General.Connectivity.WifiConnection.Help">Connect to a wireless network</string>
+</resources>

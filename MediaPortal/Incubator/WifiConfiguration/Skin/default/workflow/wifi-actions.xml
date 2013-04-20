@@ -1,0 +1,12 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<!-- Wifi connection workflow state actions -->
+<Workflow DescriptorVersion="1.0">
+  <MenuActions>
+    <WorkflowContributorAction Id="32AEF93D-F586-4214-BB92-E7660ADEB00E"
+        Name="WifiConnections->FindNetworks"
+        DisplayCategory="a-FindWifi"
+        SortOrder="a"
+        SourceStates="C06C262F-DA22-46A8-9F05-F304829B2C09"
+        ContributorModelId="3D5CA839-F47E-43AE-B796-9906D57FAFB0"/>
+  </MenuActions>
+</Workflow>
