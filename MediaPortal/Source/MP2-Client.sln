@@ -136,7 +136,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "StatisticsRenderer", "..\In
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SystemStateMenu", "..\Incubator\SystemStateMenu\SystemStateMenu.csproj", "{8E94A59D-33A0-4AEB-830D-24304A63EF23}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MovieThumbnailer", "Extensions\MetadataExtractors\MovieThumbnailer\MovieThumbnailer.csproj", "{29935593-E22E-44A9-A9A2-683D5C0F3E57}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VideoThumbnailer", "Extensions\MetadataExtractors\VideoThumbnailer\VideoThumbnailer.csproj", "{29935593-E22E-44A9-A9A2-683D5C0F3E57}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Titanium", "..\Incubator\Titanium\Titanium.csproj", "{5B09CF07-6386-44C1-B786-CAAC78835CAA}"
 EndProject
@@ -356,14 +356,14 @@ Global
 		{E17ACAD5-69AA-4205-BEBD-5E66A0183FDC}.Debug|x86.ActiveCfg = Debug|x86
 		{E17ACAD5-69AA-4205-BEBD-5E66A0183FDC}.Release|x86.ActiveCfg = Release|x86
 		{E17ACAD5-69AA-4205-BEBD-5E66A0183FDC}.Release|x86.Build.0 = Release|x86
-		{8E94A59D-33A0-4AEB-830D-24304A63EF23}.Debug|x86.ActiveCfg = Debug|x86
-		{8E94A59D-33A0-4AEB-830D-24304A63EF23}.Debug|x86.Build.0 = Debug|x86
-		{8E94A59D-33A0-4AEB-830D-24304A63EF23}.Release|x86.ActiveCfg = Release|x86
-		{8E94A59D-33A0-4AEB-830D-24304A63EF23}.Release|x86.Build.0 = Release|x86
 		{C44C886F-27D3-4F6B-A894-42F5E2175591}.Debug|x86.ActiveCfg = Debug|x86
 		{C44C886F-27D3-4F6B-A894-42F5E2175591}.Debug|x86.Build.0 = Debug|x86
 		{C44C886F-27D3-4F6B-A894-42F5E2175591}.Release|x86.ActiveCfg = Release|x86
 		{C44C886F-27D3-4F6B-A894-42F5E2175591}.Release|x86.Build.0 = Release|x86
+		{8E94A59D-33A0-4AEB-830D-24304A63EF23}.Debug|x86.ActiveCfg = Debug|x86
+		{8E94A59D-33A0-4AEB-830D-24304A63EF23}.Debug|x86.Build.0 = Debug|x86
+		{8E94A59D-33A0-4AEB-830D-24304A63EF23}.Release|x86.ActiveCfg = Release|x86
+		{8E94A59D-33A0-4AEB-830D-24304A63EF23}.Release|x86.Build.0 = Release|x86
 		{29935593-E22E-44A9-A9A2-683D5C0F3E57}.Debug|x86.ActiveCfg = Debug|x86
 		{29935593-E22E-44A9-A9A2-683D5C0F3E57}.Debug|x86.Build.0 = Debug|x86
 		{29935593-E22E-44A9-A9A2-683D5C0F3E57}.Release|x86.ActiveCfg = Release|x86

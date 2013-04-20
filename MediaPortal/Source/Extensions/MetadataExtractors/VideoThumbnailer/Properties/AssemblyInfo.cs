@@ -4,8 +4,8 @@ using System.Runtime.InteropServices;
 // Allgemeine Informationen über eine Assembly werden über die folgenden 
 // Attribute gesteuert. Ändern Sie diese Attributwerte, um die Informationen zu ändern,
 // die mit einer Assembly verknüpft sind.
-[assembly: AssemblyTitle("MovieThumbnailer")]
-[assembly: AssemblyDescription("MovieThumbnailer metada extractor")]
+[assembly: AssemblyTitle("VideoThumbnailer")]
+[assembly: AssemblyDescription("VideoThumbnailer metada extractor")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]

@@ -23,8 +23,8 @@
 #endregion
 
 using System;
-using System.Diagnostics;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using MediaPortal.Common;
 using MediaPortal.Common.Logging;
@@ -35,17 +35,17 @@ using MediaPortal.Common.Services.ResourceAccess.StreamedResourceToLocalFsAccess
 using MediaPortal.Utilities.FileSystem;
 using MediaPortal.Utilities.Process;
 
-namespace MediaPortal.Extensions.MetadataExtractors.MovieThumbnailer
+namespace MediaPortal.Extensions.MetadataExtractors.VideoThumbnailer
 {
   /// <summary>
   /// MediaPortal 2 metadata extractor to exctract thumbnails from videos.
   /// </summary>
-  public class MovieThumbnailer : IMetadataExtractor
+  public class VideoThumbnailer : IMetadataExtractor
   {
     #region Constants
 
     /// <summary>
-    /// GUID string for the MovieThumbnailer metadata extractor.
+    /// GUID string for the VideoThumbnailer metadata extractor.
     /// </summary>
     public const string METADATAEXTRACTOR_ID_STR = "FB0AA0ED-97B2-4721-BE74-AC67E77A17B2";
 
@@ -55,7 +55,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieThumbnailer
     public static Guid METADATAEXTRACTOR_ID = new Guid(METADATAEXTRACTOR_ID_STR);
 
     /// <summary>
-    /// Maximum duration for creating a single movie thumbnail.
+    /// Maximum duration for creating a single video thumbnail.
     /// </summary>
     protected const int PROCESS_TIMEOUT_MS = 10000;
 
@@ -71,14 +71,14 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieThumbnailer
 
     #region Ctor
 
-    static MovieThumbnailer()
+    static VideoThumbnailer()
     {
       MEDIA_CATEGORIES.Add(DefaultMediaCategories.Video);
     }
 
-    public MovieThumbnailer()
+    public VideoThumbnailer()
     {
-      _metadata = new MetadataExtractorMetadata(METADATAEXTRACTOR_ID, "Movies thumbnail extractor", MetadataExtractorPriority.Extended, true,
+      _metadata = new MetadataExtractorMetadata(METADATAEXTRACTOR_ID, "Video thumbnail extractor", MetadataExtractorPriority.Extended, true,
           MEDIA_CATEGORIES, new[]
               {
                 ThumbnailLargeAspect.Metadata
@@ -111,7 +111,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieThumbnailer
       {
         // Only log at the info level here - And simply return false. This lets the caller know that we
         // couldn't perform our task here.
-        ServiceRegistration.Get<ILogger>().Info("MovieThumbnailer: Exception reading resource '{0}' (Text: '{1}')", mediaItemAccessor.CanonicalLocalResourcePath, e.Message);
+        ServiceRegistration.Get<ILogger>().Info("VideoThumbnailer: Exception reading resource '{0}' (Text: '{1}')", mediaItemAccessor.CanonicalLocalResourcePath, e.Message);
       }
       return false;
     }
@@ -150,10 +150,10 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieThumbnailer
         {
           var binary = FileUtils.ReadFile(tempFileName);
           MediaItemAspect.SetAttribute(extractedAspectData, ThumbnailLargeAspect.ATTR_THUMBNAIL, binary);
-          ServiceRegistration.Get<ILogger>().Info("MovieThumbnailer: Successfully created thumbnail for resource '{0}'", lfsra.LocalFileSystemPath);
+          ServiceRegistration.Get<ILogger>().Info("VideoThumbnailer: Successfully created thumbnail for resource '{0}'", lfsra.LocalFileSystemPath);
         }
         else
-          ServiceRegistration.Get<ILogger>().Warn("MovieThumbnailer: Failed to create thumbnail for resource '{0}'", lfsra.LocalFileSystemPath);
+          ServiceRegistration.Get<ILogger>().Warn("VideoThumbnailer: Failed to create thumbnail for resource '{0}'", lfsra.LocalFileSystemPath);
       }
       finally
       {

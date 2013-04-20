@@ -76,7 +76,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MatroskaLib", "Extensions\M
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MovieMetadataExtractor", "Extensions\MetadataExtractors\MovieMetadataExtractor\MovieMetadataExtractor.csproj", "{E73C038E-FD47-40AD-9256-4457316F8A97}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MovieThumbnailer", "Extensions\MetadataExtractors\MovieThumbnailer\MovieThumbnailer.csproj", "{29935593-E22E-44A9-A9A2-683D5C0F3E57}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VideoThumbnailer", "Extensions\MetadataExtractors\VideoThumbnailer\VideoThumbnailer.csproj", "{29935593-E22E-44A9-A9A2-683D5C0F3E57}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MySQLDatabase", "Backend\Database\MySQLDatabase\MySQLDatabase.csproj", "{DAE7E1E5-4168-40E8-9F59-510B5CCEF1E0}"
 EndProject

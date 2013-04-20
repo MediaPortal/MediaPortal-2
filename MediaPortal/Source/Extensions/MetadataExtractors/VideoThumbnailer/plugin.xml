@@ -1,6 +1,6 @@
 <Plugin
     DescriptorVersion="1.0"
-    Name="MovieThumbnailer"
+    Name="VideoThumbnailer"
     PluginId="{FB0AA0ED-97B2-4721-BE74-AC67E77A17B2}"
     Author = "Morpheus_xx"
     Copyright="GPL"
@@ -8,12 +8,12 @@
     PluginVersion="1.1">
 
   <Runtime>
-    <Assembly FileName="MovieThumbnailer.dll"/>
+    <Assembly FileName="VideoThumbnailer.dll"/>
   </Runtime>
 
   <Register Location="/Media/MetadataExtractors">
     <Instance
-        Id="MovieThumbnailer"
-        ClassName="MediaPortal.Extensions.MetadataExtractors.MovieThumbnailer.MovieThumbnailer"/>
+        Id="VideoThumbnailer"
+        ClassName="MediaPortal.Extensions.MetadataExtractors.VideoThumbnailer.VideoThumbnailer"/>
   </Register>
 </Plugin>

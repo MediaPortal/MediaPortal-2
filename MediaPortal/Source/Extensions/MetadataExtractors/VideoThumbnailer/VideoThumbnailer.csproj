@@ -8,8 +8,8 @@
     <ProjectGuid>{29935593-E22E-44A9-A9A2-683D5C0F3E57}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>MediaPortal.Extensions.MetadataExtractors.MovieThumbnailer</RootNamespace>
-    <AssemblyName>MovieThumbnailer</AssemblyName>
+    <RootNamespace>MediaPortal.Extensions.MetadataExtractors.VideoThumbnailer</RootNamespace>
+    <AssemblyName>VideoThumbnailer</AssemblyName>
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
   </PropertyGroup>
@@ -59,7 +59,7 @@
     <Compile Include="..\..\..\Core\MediaPortal.Common\VersionInfo\VersionInfo.cs">
       <Link>Properties\VersionInfo.cs</Link>
     </Compile>
-    <Compile Include="MovieThumbnailer.cs" />
+    <Compile Include="VideoThumbnailer.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
