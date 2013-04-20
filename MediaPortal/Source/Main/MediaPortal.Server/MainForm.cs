@@ -23,11 +23,13 @@
 #endregion
 
 using System.Collections.Generic;
+using System.Drawing;
 using System.Windows.Forms;
 using MediaPortal.Backend.ClientCommunication;
 using MediaPortal.Common;
 using MediaPortal.Common.Localization;
 using MediaPortal.Common.Messaging;
+using MediaPortal.Common.PathManager;
 using MediaPortal.Common.Runtime;
 using MediaPortal.Common.Settings;
 using MediaPortal.Common.SystemCommunication;
@@ -59,6 +61,8 @@ namespace MediaPortal.Server
     public MainForm()
     {
       InitializeComponent();
+      Icon = Icon.ExtractAssociatedIcon(ServiceRegistration.Get<IPathManager>().GetPath("<APPLICATION_PATH>"));
+      serverTrayIcon.Icon = Icon;
       UpdateClientsList();
       ISettingsManager settingsManager = ServiceRegistration.Get<ISettingsManager>();
       AppSettings settings = settingsManager.Load<AppSettings>();
