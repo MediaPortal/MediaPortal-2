@@ -22,6 +22,7 @@
 
 #endregion
 
+using DirectShowLib;
 using MediaPortal.Common;
 using MediaPortal.Common.Localization;
 using MediaPortal.Common.Settings;
@@ -37,11 +38,21 @@ namespace MediaPortal.UI.Players.Video.Settings
   [XmlInclude(typeof(CodecInfo))]
   public class VideoSettings
   {
+    public static CodecInfo DEFAULT_AUDIO_CODEC = new CodecInfo("LAV Audio Decoder", new DsGuid("e8e73b6b-4cb3-44a4-be99-4f7bcb96e491"));
+    public static CodecInfo DEFAULT_VIDEO_CODEC = new CodecInfo("LAV Video Decoder", new DsGuid("ee30215d-164f-4a92-a4eb-9d4c13390f9f"));
+
     #region Private variables
 
     private int _subtitleLCID = 0;
     private int _audioLCID = 0;
     private int _menuLCID = 0;
+    private CodecInfo _audioCodec = null;
+    private CodecInfo _audioCodecAAC = null;
+    private CodecInfo _audioCodecLatmAac = null;
+    private CodecInfo _avcCodec = null;
+    private CodecInfo _h264Codec = null;
+    private CodecInfo _divXCodec = null;
+    private CodecInfo _mpeg2Codec = null;
 
     #endregion
 
@@ -57,50 +68,96 @@ namespace MediaPortal.UI.Players.Video.Settings
     [Setting(SettingScope.User, "")]
     public string Geometry { get; set; }
 
-    // Without default preferred codecs, the DirectShow graph will use intelligent connect.
     /// <summary>
-    /// Gets or Sets the preferred audio codec.
+    /// Gets or Sets the preferred audio codec. If user didn't select a codec, this value will return <see cref="DEFAULT_AUDIO_CODEC"/>.
+    /// <remarks>
+    /// Without default preferred codecs, the DirectShow graph will use intelligent connect.
+    /// </remarks>
     /// </summary>
     [Setting(SettingScope.User)]
-    public CodecInfo AudioCodec { get; set; }
-
-    // Without default preferred codecs, the DirectShow graph will use intelligent connect.
-    /// <summary>
-    /// Gets or Sets the preferred audio codec for LATM-AAC.
-    /// </summary>
-    [Setting(SettingScope.User)]
-    public CodecInfo AudioCodecLATMAAC { get; set; }
-
-    // Without default preferred codecs, the DirectShow graph will use intelligent connect.
-    /// <summary>
-    /// Gets or Sets the preferred audio codec for AAC.
-    /// </summary>
-    [Setting(SettingScope.User)]
-    public CodecInfo AudioCodecAAC { get; set; }
+    public CodecInfo AudioCodec
+    {
+      get { return _audioCodec ?? DEFAULT_AUDIO_CODEC; }
+      set { _audioCodec = value; }
+    }
 
     /// <summary>
-    /// Gets or sets the preferred MPEG2 codec.
+    /// Gets or Sets the preferred audio codec for LATM-AAC. If user didn't select a codec, this value will return <see cref="DEFAULT_AUDIO_CODEC"/>.
+    /// <remarks>
+    /// Without default preferred codecs, the DirectShow graph will use intelligent connect.
+    /// </remarks>
     /// </summary>
     [Setting(SettingScope.User)]
-    public CodecInfo Mpeg2Codec { get; set; }
+    public CodecInfo AudioCodecLATMAAC
+    {
+      get { return _audioCodecLatmAac ?? DEFAULT_AUDIO_CODEC; }
+      set { _audioCodecLatmAac = value; }
+    }
 
     /// <summary>
-    /// Gets or sets the preferred H264 codec.
+    /// Gets or Sets the preferred audio codec for AAC. If user didn't select a codec, this value will return <see cref="DEFAULT_AUDIO_CODEC"/>.
+    /// <remarks>
+    /// Without default preferred codecs, the DirectShow graph will use intelligent connect.
+    /// </remarks>
     /// </summary>
     [Setting(SettingScope.User)]
-    public CodecInfo H264Codec { get; set; }
-    
-    /// <summary>
-    /// Gets or Sets the preferred AVC codec.
-    /// </summary>
-    [Setting(SettingScope.User)]
-    public CodecInfo AVCCodec { get; set; }
+    public CodecInfo AudioCodecAAC
+    {
+      get { return _audioCodecAAC ?? DEFAULT_AUDIO_CODEC; }
+      set { _audioCodecAAC = value; }
+    }
 
     /// <summary>
-    /// Gets or sets the preferred DivX codec.
+    /// Gets or sets the preferred MPEG2 codec. If user didn't select a codec, this value will return <see cref="DEFAULT_VIDEO_CODEC"/>.
+    /// <remarks>
+    /// Without default preferred codecs, the DirectShow graph will use intelligent connect.
+    /// </remarks>
     /// </summary>
     [Setting(SettingScope.User)]
-    public CodecInfo DivXCodec { get; set; }
+    public CodecInfo Mpeg2Codec
+    {
+      get { return _mpeg2Codec ?? DEFAULT_VIDEO_CODEC; }
+      set { _mpeg2Codec = value; }
+    }
+
+    /// <summary>
+    /// Gets or sets the preferred H264 codec. If user didn't select a codec, this value will return <see cref="DEFAULT_VIDEO_CODEC"/>.
+    /// <remarks>
+    /// Without default preferred codecs, the DirectShow graph will use intelligent connect.
+    /// </remarks>
+    /// </summary>
+    [Setting(SettingScope.User)]
+    public CodecInfo H264Codec
+    {
+      get { return _h264Codec ?? DEFAULT_VIDEO_CODEC; }
+      set { _h264Codec = value; }
+    }
+
+    /// <summary>
+    /// Gets or Sets the preferred AVC codec. If user didn't select a codec, this value will return <see cref="DEFAULT_VIDEO_CODEC"/>.
+    /// <remarks>
+    /// Without default preferred codecs, the DirectShow graph will use intelligent connect.
+    /// </remarks>
+    /// </summary>
+    [Setting(SettingScope.User)]
+    public CodecInfo AVCCodec
+    {
+      get { return _avcCodec ?? DEFAULT_VIDEO_CODEC; }
+      set { _avcCodec = value; }
+    }
+
+    /// <summary>
+    /// Gets or sets the preferred DivX codec. If user didn't select a codec, this value will return <see cref="DEFAULT_VIDEO_CODEC"/>.
+    /// <remarks>
+    /// Without default preferred codecs, the DirectShow graph will use intelligent connect.
+    /// </remarks>
+    /// </summary>
+    [Setting(SettingScope.User)]
+    public CodecInfo DivXCodec
+    {
+      get { return _divXCodec ?? DEFAULT_VIDEO_CODEC; }
+      set { _divXCodec = value; }
+    }
 
     /// <summary>
     /// Gets or sets the preferred audio renderer.
