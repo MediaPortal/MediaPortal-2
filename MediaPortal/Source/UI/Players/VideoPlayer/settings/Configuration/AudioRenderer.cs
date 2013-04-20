@@ -30,7 +30,9 @@ namespace MediaPortal.UI.Players.Video.Settings.Configuration
   {
     public AudioRenderer()
       : base(null,null)
-    { }
+    {
+      _selectByName = true; // ClsIds of audio renderer devices appear multiple times, as one device can offer multiple renderers. So we compare here by device names.
+    }
 
     protected override void GetAvailableFilters()
     {
@@ -42,7 +44,7 @@ namespace MediaPortal.UI.Players.Video.Settings.Configuration
       // Load settings
       VideoSettings settings = SettingsManager.Load<VideoSettings>();
       if (settings != null && settings.AudioRenderer != null)
-        _currentSelection = settings.AudioRenderer.GetCLSID();
+        _currentSelectionName = settings.AudioRenderer.Name;
 
       base.Load();
     }

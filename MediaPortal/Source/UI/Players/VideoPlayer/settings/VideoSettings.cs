@@ -40,6 +40,7 @@ namespace MediaPortal.UI.Players.Video.Settings
   {
     public static CodecInfo DEFAULT_AUDIO_CODEC = new CodecInfo("LAV Audio Decoder", new DsGuid("e8e73b6b-4cb3-44a4-be99-4f7bcb96e491"));
     public static CodecInfo DEFAULT_VIDEO_CODEC = new CodecInfo("LAV Video Decoder", new DsGuid("ee30215d-164f-4a92-a4eb-9d4c13390f9f"));
+    public static CodecInfo DEFAULT_AUDIO_RENDERER = new CodecInfo("Default DirectSound Device", DsGuid.Empty);
 
     #region Private variables
 
@@ -49,6 +50,7 @@ namespace MediaPortal.UI.Players.Video.Settings
     private CodecInfo _audioCodec = null;
     private CodecInfo _audioCodecAAC = null;
     private CodecInfo _audioCodecLatmAac = null;
+    private CodecInfo _audioRenderer = null;
     private CodecInfo _avcCodec = null;
     private CodecInfo _h264Codec = null;
     private CodecInfo _divXCodec = null;
@@ -160,10 +162,17 @@ namespace MediaPortal.UI.Players.Video.Settings
     }
 
     /// <summary>
-    /// Gets or sets the preferred audio renderer.
+    /// Gets or sets the preferred audio renderer. If user didn't select a renderer, this value will return <see cref="DEFAULT_AUDIO_RENDERER"/>, which will be selected by name.
+    /// <remarks>
+    /// Without default preferred renderer, the DirectShow graph will use intelligent connect.
+    /// </remarks>
     /// </summary>
     [Setting(SettingScope.User)]
-    public CodecInfo AudioRenderer { get; set; }
+    public CodecInfo AudioRenderer
+    {
+      get { return _audioRenderer ?? DEFAULT_AUDIO_RENDERER; }
+      set { _audioRenderer = value; }
+    }
 
     /// <summary>
     /// Gets or sets a flag if closed captions should be enabled by default.

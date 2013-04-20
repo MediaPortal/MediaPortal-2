@@ -36,6 +36,8 @@ namespace MediaPortal.UI.Players.Video.Settings.Configuration
     private readonly Guid[] _inputMediaTypes;
     private readonly Guid[] _outputMediaTypes;
     protected DsGuid _currentSelection;
+    protected string _currentSelectionName;
+    protected bool _selectByName;
     protected List<CodecInfo> _codecList;
 
     protected GenericCodecSelection(Guid[] inputMediaTypes, Guid[] outputMediaTypes)
@@ -61,7 +63,7 @@ namespace MediaPortal.UI.Players.Video.Settings.Configuration
         _items.Add(LocalizationHelper.CreateStaticString(codecInfo.Name));
 
         // check if it is current the selected codec, use Guid because DsGuid's compare returns false.
-        if (_currentSelection != null && _currentSelection.ToGuid() == codecInfo.GetCLSID().ToGuid())
+        if (_selectByName && _currentSelectionName == codecInfo.Name || !_selectByName && _currentSelection != null && _currentSelection.ToGuid() == codecInfo.GetCLSID().ToGuid())
           Selected = idx;
 
         idx++;
