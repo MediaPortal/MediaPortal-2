@@ -8,7 +8,7 @@
     <ProjectGuid>{C88D621D-53F8-4F68-8E0D-CC50AF61D6B9}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>MediaPortal.UiComponents.Configuration.WifiConnection</RootNamespace>
+    <RootNamespace>MediaPortal.UiComponents.WifiConfiguration</RootNamespace>
     <AssemblyName>WifiConfiguration</AssemblyName>
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
@@ -67,6 +67,12 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="Skin\default\screens\WifiConnection.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup />
+  <ItemGroup>
+    <Content Include="Skin\default\themes\default\styles\WifiStyles.xaml">
       <SubType>Designer</SubType>
     </Content>
   </ItemGroup>

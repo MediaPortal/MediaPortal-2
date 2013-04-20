@@ -24,7 +24,7 @@
 
 using MediaPortal.Common.Configuration.ConfigurationClasses;
 
-namespace MediaPortal.UiComponents.SkinBase.Settings.Configuration.General
+namespace MediaPortal.UiComponents.WifiConfiguration.Settings
 {
   public class WifiConnection : CustomConfigSetting
   {

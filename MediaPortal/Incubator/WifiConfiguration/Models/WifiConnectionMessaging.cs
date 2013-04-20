@@ -25,7 +25,7 @@
 using MediaPortal.Common;
 using MediaPortal.Common.Messaging;
 
-namespace MediaPortal.UiComponents.SkinBase.Models
+namespace MediaPortal.UiComponents.WifiConfiguration.Models
 {
   public static class WifiConnectionMessaging
   {

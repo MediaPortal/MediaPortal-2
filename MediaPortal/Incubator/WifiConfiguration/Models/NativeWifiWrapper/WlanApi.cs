@@ -14,6 +14,7 @@ namespace NativeWifi
 	/// <remarks>
 	/// This class is the entrypoint to Native Wifi management. To manage WiFi settings, create an instance
 	/// of this class.
+  /// Code taken from http://managedwifi.codeplex.com/
 	/// </remarks>
 	public class WlanClient : IDisposable
 	{

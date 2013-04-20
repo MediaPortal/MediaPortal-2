@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ResourceDictionary
+    xmlns="www.team-mediaportal.com/2008/mpf/directx"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:system="clr-namespace:System"
+    xmlns:collections="clr-namespace:MediaPortal.UI.Presentation.DataObjects;assembly=MediaPortal.UI"
+    DependsOnStyleResources="Colors,Buttons"
+    >
+
+  <!-- Style for a single wifi network item -->
+  <DataTemplate x:Key="WifiItemDataTemplate" DataType="{x:Type collections:ListItem}">
+    <DockPanel x:Name="ItemControl" LastChildFill="True">
+
+      <Path x:Name="selectedCheckMark" DockPanel.Dock="Left" Width="26" Height="26" Stretch="None" IsVisible="{Binding Selected}"
+                Stroke="{ThemeResource ControlHandleColor}" StrokeThickness="1" Data="M8,13 L11,18 L18,6"/>
+
+      <StackPanel DockPanel.Dock="Right" Orientation="Horizontal">
+
+        <Path x:Name="signalBars" Width="25" Height="25" Stretch="None"
+                  Stroke="{ThemeResource ControlHandleColor}" StrokeThickness="1" Data="M0,25 L25,25 L25,0 L20,0 L20,5 L15,5 L15,10 L10,10 L10,15 L5,15 L5,20 L0,20 z">
+          <Path.Fill>
+            <LinearGradientBrush StartPoint="0,1" EndPoint="1,1">
+              <GradientStop Offset="0" Color="{ThemeResource PlayControlsFillColor1}"/>
+              <GradientStop Offset="{Binding AdditionalProperties[SignalStrength]}" Color="{ThemeResource PlayControlsFillColor1}"/>
+              <GradientStop Color="Transparent">
+                <GradientStop.Offset>
+                  <Binding Path="AdditionalProperties[SignalStrength]" Converter="{StaticResource ExpressionValueConverter}" ConverterParameter="{}{0} + 0.01f"/>
+                </GradientStop.Offset>
+              </GradientStop>
+              <GradientStop Offset="1" Color="Transparent"/>
+            </LinearGradientBrush >
+          </Path.Fill>
+        </Path>
+
+        <Label HorizontalAlignment="Right" HorizontalContentAlignment="Right" VerticalAlignment="Center" FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource TextColor}" Width="70">
+          <Label.Content>
+            <Binding Path="AdditionalProperties[SignalStrength]" Converter="{StaticResource StringFormatConverter}" ConverterParameter="{}{0:P0}"/>
+          </Label.Content>
+        </Label>
+
+      </StackPanel>
+
+      <Label x:Name="ItemLabel" DockPanel.Dock="Center" Content="{Binding [Name]}"
+                    HorizontalAlignment="Left" VerticalAlignment="Center" FontSize="{ThemeResource SmallFontSize}"
+                    Color="{ThemeResource TextColor}"/>
+    </DockPanel>
+  </DataTemplate>
+
+  <!-- ListView style for wifi networks -->
+  <Style x:Key="WifiListViewStyle" BasedOn="{ThemeResource ContentsMenuListViewStyle}">
+    <Setter Property="ItemTemplate" Value="{ThemeResource WifiItemDataTemplate}"/>
+  </Style>
+
+</ResourceDictionary>

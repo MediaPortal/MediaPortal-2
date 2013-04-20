@@ -29,10 +29,10 @@ using System.Text;
 using MediaPortal.Common.General;
 using MediaPortal.Common.Messaging;
 using MediaPortal.UI.Presentation.DataObjects;
-using NativeWifi;
 using MediaPortal.UiComponents.SkinBase.General;
+using NativeWifi;
 
-namespace MediaPortal.UiComponents.SkinBase.Models
+namespace MediaPortal.UiComponents.WifiConfiguration.Models
 {
   public class WifiConnectionModel : IDisposable
   {

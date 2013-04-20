@@ -24,14 +24,12 @@
 
 using System;
 using System.Collections.Generic;
-using MediaPortal.Common;
 using MediaPortal.Common.Localization;
-using MediaPortal.Common.Messaging;
 using MediaPortal.UI.Presentation.Workflow;
-using MediaPortal.UiComponents.SkinBase.Models;
+using MediaPortal.UiComponents.WifiConfiguration.Models;
 using NativeWifi;
 
-namespace MediaPortal.UiComponents.SkinBase.Actions
+namespace MediaPortal.UiComponents.WifiConfiguration.Actions
 {
   public class FindWirelessNetworksAction : IWorkflowContributor
   {
