@@ -302,15 +302,32 @@ namespace MediaPortal.UiComponents.SkinBase.Models
       return videoPCs;
     }
 
+    protected int GetTotalNumberOfAudioStreams()
+    {
+      int numberOfAudioStreams = 0;
+      IPlayerContextManager playerContextManager = ServiceRegistration.Get<IPlayerContextManager>();
+      for (int i = 0; i < playerContextManager.NumActivePlayerContexts; i++)
+      {
+        IPlayerContext pc = playerContextManager.GetPlayerContext(i);
+        if (pc == null || !pc.IsActive)
+          continue;
+        AudioStreamDescriptor currentAudioStream;
+        numberOfAudioStreams += pc.GetAudioStreamDescriptors(out currentAudioStream).Count;
+      }
+      return numberOfAudioStreams;
+    }
+
     protected void UpdateAudioStreamsMenu()
     {
       // Some updates could be avoided if we tracked a "dirty" flag and break execution if !dirty
       lock (_syncObj)
       {
         IPlayerContextManager playerContextManager = ServiceRegistration.Get<IPlayerContextManager>();
+        int numActivePlayers = playerContextManager.NumActivePlayerContexts;
+        int numberOfAudioStreams = GetTotalNumberOfAudioStreams();
 
         _audioStreamsMenu.Clear();
-        for (int i = 0; i < playerContextManager.NumActivePlayerContexts; i++)
+        for (int i = 0; i < numActivePlayers; i++)
         {
           IPlayerContext pc = playerContextManager.GetPlayerContext(i);
           if (pc == null || !pc.IsActive)
@@ -322,11 +339,14 @@ namespace MediaPortal.UiComponents.SkinBase.Models
           {
             string playedItem = player == null ? null : player.MediaItemTitle ?? pc.Name;
             string choiceItemName;
-            if (asds.Count > 1)
-              // Only display the audio stream name if the player has more than one audio stream
+            int count = asds.Count;
+            if (numActivePlayers > 1 && count > 1 && count != numberOfAudioStreams)
+              // Only display the playedItem name if more than one player is able to provide audio streams. If a single player provides
+              // multiple streams, they will be distinguished by the VideoPlayer.
               choiceItemName = playedItem + ": " + asd.AudioStreamName;
             else
-              choiceItemName = playedItem;
+              choiceItemName = count != numberOfAudioStreams ? playedItem : asd.AudioStreamName;
+
             AudioStreamDescriptor asdClosureCopy = asd;
             ListItem item = new ListItem(Consts.KEY_NAME, choiceItemName)
               {
