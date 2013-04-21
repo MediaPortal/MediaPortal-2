@@ -11,7 +11,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <References Include="$(ProjectDir)References\ffmpeg.exe" />
+    <References Include="$(TargetDir)ffmpeg.exe" />
   </ItemGroup>
 
   <Target Name="AfterBuild">
