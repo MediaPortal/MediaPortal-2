@@ -1,9 +1,17 @@
-Bin
-bin
-obj
+[Bb]in
+[Oo]bj
 *.log
 *.suo
 *.sln.cache
 *.resharper
 *.user
 _ReSharper.*
+
+# NuGet.exe will be downloaded by NuGet.targets if missing
+nuget.exe
+[Pp]ackages
+
+
+# all executables, uncomment only if really necessary
+*.exe
+*.dll
