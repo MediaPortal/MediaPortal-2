@@ -11,8 +11,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <References Include="$(ProjectDir)References\mkvextract.exe" />
-    <References Include="$(ProjectDir)References\mkvinfo.exe" />
+    <References Include="$(TargetDir)mkvextract.exe" />
+    <References Include="$(TargetDir)mkvinfo.exe" />
   </ItemGroup>
 
   <Target Name="AfterBuild">
