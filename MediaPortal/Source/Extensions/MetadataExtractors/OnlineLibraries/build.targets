@@ -11,6 +11,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <References Include="$(TargetDir)ICSharpCode.SharpZipLib.dll" />
     <References Include="$(TargetDir)Newtonsoft.Json.dll" />
   </ItemGroup>
 

@@ -15,7 +15,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <References Include="$(ProjectDir)References\ICSharpCode.SharpZipLib.dll" />
+    <References Include="$(TargetDir)ICSharpCode.SharpZipLib.dll" />
   </ItemGroup>
 
   <Target Name="AfterBuild">
