@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="4.0">
+
+  <PropertyGroup>
+    <AppDestination>$(SolutionDir)..\Bin\$(SolutionName)\bin\$(PlatformName)\$(ConfigurationName)\</AppDestination>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <References Include="$(ProjectDir)MP2 Client Splashscreen.jpg" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <BaseFiles Include="$(SolutionDir)Base\Client\**\*.*" />
+  </ItemGroup>
+
+  <Target Name="AfterBuild">
+    <Copy SourceFiles="@(References)" DestinationFolder="$(AppDestination)" />
+    <Copy SourceFiles="@(BaseFiles)"
+          DestinationFiles="@(BaseFiles->'$(AppDestination)%(RecursiveDir)%(Filename)%(Extension)')" />
+  </Target>
+
+</Project>

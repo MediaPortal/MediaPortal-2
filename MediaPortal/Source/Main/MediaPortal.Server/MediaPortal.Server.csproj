@@ -89,7 +89,6 @@
     <None Include="app.config">
       <SubType>Designer</SubType>
     </None>
-    <None Include="postbuild.bat" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\Core\MediaPortal.Backend\MediaPortal.Backend.csproj">
@@ -130,18 +129,9 @@
       <Install>true</Install>
     </BootstrapperPackage>
   </ItemGroup>
-  <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
-  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
-       Other similar extension points exist, see Microsoft.Common.targets.
-  <Target Name="BeforeBuild">
-  </Target>
-  <Target Name="AfterBuild">
-  </Target>
-  -->
-  <PropertyGroup>
-    <PostBuildEvent>"$(ProjectDir)postbuild.bat" "$(SolutionDir)" "$(SolutionDir)..\Bin\$(SolutionName)\bin\$(PlatformName)\$(ConfigurationName)\"
-</PostBuildEvent>
-    <PreBuildEvent>
-    </PreBuildEvent>
-  </PropertyGroup>
+  <ItemGroup>
+    <None Include="build.targets" />
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <Import Project="build.targets" />
 </Project>

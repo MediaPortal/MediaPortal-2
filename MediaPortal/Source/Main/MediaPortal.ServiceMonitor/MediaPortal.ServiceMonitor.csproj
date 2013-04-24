@@ -167,7 +167,6 @@
       <SubType>Designer</SubType>
     </Page>
     <None Include="app.config" />
-    <None Include="postbuild.bat" />
     <AppDesigner Include="Properties\" />
   </ItemGroup>
   <ItemGroup>
@@ -240,15 +239,9 @@
   <ItemGroup>
     <Resource Include="MP2-ServiceMonitor1.ico" />
   </ItemGroup>
+  <ItemGroup>
+    <None Include="build.targets" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
-  <PropertyGroup>
-    <PostBuildEvent>"$(ProjectDir)postbuild.bat" "$(SolutionDir)" "$(SolutionDir)..\Bin\$(SolutionName)\bin\$(PlatformName)\$(ConfigurationName)\"</PostBuildEvent>
-  </PropertyGroup>
-  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
-       Other similar extension points exist, see Microsoft.Common.targets.
-  <Target Name="BeforeBuild">
-  </Target>
-  <Target Name="AfterBuild">
-  </Target>
-  -->
+  <Import Project="build.targets" />
 </Project>
