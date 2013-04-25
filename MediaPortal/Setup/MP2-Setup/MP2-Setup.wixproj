@@ -126,21 +126,9 @@
       <RefTargetDir>INSTALLFOLDER</RefTargetDir>
     </ProjectReference>
   </ItemGroup>
+  <ItemGroup>
+    <None Include="build.targets" />
+  </ItemGroup>
   <Import Project="$(WixTargetsPath)" />
-  <PropertyGroup>
-    <PreBuildEvent>"$(WIX)bin\heat.exe" dir "$(ProjectDir)..\..\Bin\MP2-Client\bin\x86\Release" -cg Client.Heat -gg -scom -sreg -sfrag -svb6 -srd -dr INSTALLDIR_CLIENT -var var.MediaPortal.Client.TargetDir -template fragment -t $(ProjectDir)xslt\Client.Heat.xslt -out "$(ProjectDir)Features\Client.Heat.wxs"
-"$(WIX)bin\heat.exe" dir "$(ProjectDir)..\..\Bin\MP2-Server\bin\x86\Release" -cg Server.Heat -gg -scom -sreg -sfrag -svb6 -srd -dr INSTALLDIR_SERVER -var var.MediaPortal.Server.TargetDir -template fragment -t $(ProjectDir)xslt\Server.Heat.xslt -out "$(ProjectDir)Features\Server.Heat.wxs"
-"$(WIX)bin\heat.exe" dir "$(ProjectDir)..\..\Bin\MP2-ServiceMonitor\bin\x86\Release" -cg ServiceMonitor.Heat -gg -scom -sreg -sfrag -svb6 -srd -dr INSTALLDIR_SERVICE_MONITOR -var var.MediaPortal.ServiceMonitor.TargetDir -template fragment -t $(ProjectDir)xslt\ServiceMonitor.Heat.xslt -out "$(ProjectDir)Features\ServiceMonitor.Heat.wxs"</PreBuildEvent>
-  </PropertyGroup>
-  <PropertyGroup>
-    <PostBuildEvent>xcopy /Y "$(ProjectDir)MP2-Setup-Logging.bat" "$(TargetDir)en-us\"</PostBuildEvent>
-  </PropertyGroup>
-  <!--
-	To modify your build process, add your task inside one of the targets below and uncomment it.
-	Other similar extension points exist, see Wix.targets.
-	<Target Name="BeforeBuild">
-	</Target>
-	<Target Name="AfterBuild">
-	</Target>
-	-->
+  <Import Project="build.targets" />
 </Project>

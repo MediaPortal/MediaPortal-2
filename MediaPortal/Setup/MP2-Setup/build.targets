@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="4.0">
+
+  <UsingTask TaskName="HeatDirectory"
+    AssemblyFile="$(WixToolPath)WixUtilExtension.dll" />
+
+  <Target Name="BeforeBuild">
+    <HeatDirectory
+      Directory="$(SolutionDir)..\Bin\MP2-Client\bin\x86\Release"
+      PreprocessorVariable="var.MediaPortal.Client.TargetDir"
+      ComponentGroupName="Client.Heat"
+      DirectoryRefId="INSTALLDIR_CLIENT"
+      Transforms="$(ProjectDir)xslt\Client.Heat.xslt"
+      OutputFile="$(ProjectDir)Features\Client.Heat.wxs"
+      GenerateGuidsNow="true" SuppressCom="true" SuppressRegistry="true" SuppressFragments="true" SuppressRootDirectory="true" ToolPath="$(WixToolPath)" />
+
+    <HeatDirectory
+      Directory="$(SolutionDir)..\Bin\MP2-Server\bin\x86\Release"
+      PreprocessorVariable="var.MediaPortal.Server.TargetDir"
+      ComponentGroupName="Server.Heat"
+      DirectoryRefId="INSTALLDIR_SERVER"
+      Transforms="$(ProjectDir)xslt\Server.Heat.xslt"
+      OutputFile="$(ProjectDir)Features\Server.Heat.wxs"
+      GenerateGuidsNow="true" SuppressCom="true" SuppressRegistry="true" SuppressFragments="true" SuppressRootDirectory="true" ToolPath="$(WixToolPath)" />
+
+    <HeatDirectory
+      Directory="$(SolutionDir)..\Bin\MP2-ServiceMonitor\bin\x86\Release"
+      PreprocessorVariable="var.MediaPortal.ServiceMonitor.TargetDir"
+      ComponentGroupName="ServiceMonitor.Heat"
+      DirectoryRefId="INSTALLDIR_SERVICE_MONITOR"
+      Transforms="$(ProjectDir)xslt\ServiceMonitor.Heat.xslt"
+      OutputFile="$(ProjectDir)Features\ServiceMonitor.Heat.wxs"
+      GenerateGuidsNow="true" SuppressCom="true" SuppressRegistry="true" SuppressFragments="true" SuppressRootDirectory="true" ToolPath="$(WixToolPath)" />
+  </Target>
+
+
+  <ItemGroup>
+    <Resources Include="$(ProjectDir)MP2-Setup-Logging.bat"/>
+  </ItemGroup>
+
+  <Target Name="AfterBuild">
+    <Copy SourceFiles="@(Resources)" DestinationFolder="$(TargetDir)en-us\" />
+  </Target>
+
+</Project>
