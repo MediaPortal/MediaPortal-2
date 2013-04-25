@@ -2,9 +2,8 @@
 <Include
     xmlns="www.team-mediaportal.com/2008/mpf/directx"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-    xmlns:collections="clr-namespace:MediaPortal.UI.Presentation.DataObjects;assembly=MediaPortal.UI"
-    Source="screens\master_menu.xaml"
-    >
+    Source="screens\master_menu.xaml">
+  
   <Include.Resources>
 
     <!-- Header -->
@@ -28,7 +27,14 @@
         </StackPanel>
         <ListView ItemsSource="{Binding Networks}" Style="{ThemeResource WifiListViewStyle}"
                   Grid.Row="0" Grid.Column="1" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
-                  IsVisible="{Binding IsWifiAvailable}"/>
+                  IsVisible="{Binding IsWifiAvailable}">
+          <ListView.Resources>
+            <CommandList x:Key="Menu_Command">
+              <Command Source="{StaticResource Model}" Path="SetCurrentItem" Parameters="{LateBoundValue BindingValue={Binding}}"/>
+              <Command Source="{Service ScreenManager}" Path="ShowDialog" Parameters="dialogWifiOptions" />
+            </CommandList>
+          </ListView.Resources>
+        </ListView>
       </Grid>
     </ControlTemplate>
 

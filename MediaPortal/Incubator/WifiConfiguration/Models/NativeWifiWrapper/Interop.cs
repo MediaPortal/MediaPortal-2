@@ -660,6 +660,12 @@ namespace NativeWifi
 			[In] ref WlanConnectionParameters connectionParameters,
 			IntPtr pReserved);
 
+    [DllImport("wlanapi.dll")]
+    public static extern int WlanDisconnect(
+        [In] IntPtr clientHandle,
+        [In, MarshalAs(UnmanagedType.LPStruct)] Guid interfaceGuid,
+        IntPtr pReserved);
+
 		[DllImport("wlanapi.dll")]
 		public static extern int WlanDeleteProfile(
 			[In] IntPtr clientHandle,

@@ -18,14 +18,14 @@
   </Runtime>
 
   <Register Location="/Models">
-    <Model Id="0A5A7384-72C5-412F-BCD4-6FBD64238858" Name="HomeServerModel" ClassName="MediaPortal.UiComponents.WifiConfiguration.Models.WifiConnectionModel"/>   
+    <Model Id="0A5A7384-72C5-412F-BCD4-6FBD64238858" Name="WifiConnectionModel" ClassName="MediaPortal.UiComponents.WifiConfiguration.Models.WifiConnectionModel"/>   
     <Model Id="3D5CA839-F47E-43AE-B796-9906D57FAFB0" Name="FindWirelessNetworksContributorModel" ClassName="MediaPortal.UiComponents.WifiConfiguration.Actions.FindWirelessNetworksAction"/>    
   </Register>
 
   <Register Location="/Workflow/States">
     <WorkflowState Id="C06C262F-DA22-46A8-9F05-F304829B2C09"
         Name="WifiConnection" DisplayLabel="[Settings.General.Connectivity.WifiConnection]"
-        MainScreen="WifiConnection"/>
+        MainScreen="WifiConnection" WorkflowModel="0A5A7384-72C5-412F-BCD4-6FBD64238858"/>
   </Register>
 
   <Register Location="/Resources/Language">

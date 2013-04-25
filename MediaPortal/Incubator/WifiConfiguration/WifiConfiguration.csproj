@@ -50,6 +50,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Actions\FindWirelessNetworksAction.cs" />
+    <Compile Include="Models\NativeWifiWrapper\Helper.cs" />
     <Compile Include="Models\NativeWifiWrapper\Interop.cs" />
     <Compile Include="Models\NativeWifiWrapper\WlanApi.cs" />
     <Compile Include="Models\WifiConnectionMessaging.cs" />
@@ -70,9 +71,18 @@
       <SubType>Designer</SubType>
     </Content>
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <Content Include="Skin\default\screens\dialogWifiOptions.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
   <ItemGroup>
     <Content Include="Skin\default\themes\default\styles\WifiStyles.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Skin\default\screens\dialogWifiPassword.xaml">
       <SubType>Designer</SubType>
     </Content>
   </ItemGroup>
