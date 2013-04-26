@@ -56,10 +56,13 @@ namespace MediaPortal.Extensions.ResourceProviders.NetworkNeighborhoodResourcePr
       _path = path;
       if (IsServerPath(path))
         return;
-      IResourceAccessor ra;
-      if (!LocalFsResourceProvider.Instance.TryCreateResourceAccessor("/" + path, out ra))
-        throw new IllegalCallException("Unable to access resource '{0}'", path);
-      _underlayingResource = (ILocalFsResourceAccessor) ra;
+      using (ImpersonateUser())
+      {
+        IResourceAccessor ra;
+        if (!LocalFsResourceProvider.Instance.TryCreateResourceAccessor("/" + path, out ra))
+          throw new IllegalCallException("Unable to access resource '{0}'", path);
+        _underlayingResource = (ILocalFsResourceAccessor)ra;
+      }
     }
 
     protected ICollection<IFileSystemResourceAccessor> WrapLocalFsResourceAccessors(ICollection<IFileSystemResourceAccessor> localFsResourceAccessors)
