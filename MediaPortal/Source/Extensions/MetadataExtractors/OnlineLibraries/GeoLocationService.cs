@@ -27,6 +27,7 @@ using MediaPortal.Common.Logging;
 using MediaPortal.Extensions.OnlineLibraries.Libraries;
 using MediaPortal.Extensions.OnlineLibraries.Libraries.FreeGeoIP;
 using MediaPortal.Extensions.OnlineLibraries.Libraries.Google;
+using MediaPortal.Extensions.OnlineLibraries.Libraries.Microsoft;
 using MediaPortal.Extensions.OnlineLibraries.Libraries.OpenStreetMap;
 using MediaPortal.Utilities.Network;
 using System;
@@ -79,8 +80,7 @@ namespace MediaPortal.Extensions.OnlineLibraries
       if (_addressResolvers != null)
         return _addressResolvers;
 
-      //return _addressResolvers = new List<IAddressResolver> { new GPSLookup(), new Maps(), new Geocoder(), new IPLookup() };
-      return _addressResolvers = new List<IAddressResolver> { new Maps(), new Geocoder(), new IPLookup() };
+      return _addressResolvers = new List<IAddressResolver> { new GPSLookup(), new Maps(), new Geocoder(), new IPLookup() };
     }
 
     public IList<ICoordinateResolver> GetCoordinateResolverServices()
@@ -88,8 +88,7 @@ namespace MediaPortal.Extensions.OnlineLibraries
       if (_coordinateResolvers != null)
         return _coordinateResolvers;
 
-      //return _coordinateResolvers = new List<ICoordinateResolver> { new GPSLookup(), new IPLookup() };
-      return _coordinateResolvers = new List<ICoordinateResolver> { new IPLookup() };
+      return _coordinateResolvers = new List<ICoordinateResolver> { new GPSLookup(), new IPLookup() };
     }
 
     #endregion Public methods

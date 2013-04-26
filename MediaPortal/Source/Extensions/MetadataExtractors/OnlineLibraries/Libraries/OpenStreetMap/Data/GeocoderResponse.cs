@@ -42,7 +42,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.OpenStreetMap.Data
     #region Public properties
 
     [DataMember(Name = "place_id")]
-    public int PlaceId { get; set; }
+    public string PlaceId { get; set; }
 
     [DataMember(Name = "lat")]
     public double Latitude { get; set; }

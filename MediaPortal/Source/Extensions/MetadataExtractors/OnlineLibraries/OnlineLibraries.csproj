@@ -75,7 +75,7 @@
     <Compile Include="Libraries\IAddressResolver.cs" />
     <Compile Include="Libraries\ICoordinateResolver.cs" />
     <Compile Include="Libraries\IGeoLocationService.cs" />
-    <None Include="Libraries\Microsoft\GPSLookup.cs" />
+    <Compile Include="Libraries\Microsoft\GPSLookup.cs" />
     <Compile Include="Libraries\OpenStreetMap\Data\GeocoderResponse.cs" />
     <Compile Include="Libraries\OpenStreetMap\Geocoder.cs" />
     <Compile Include="Matches\MatchStorage.cs" />

@@ -22,6 +22,7 @@
 
 #endregion Copyright (C) 2007-2013 Team MediaPortal
 
+using System.Threading.Tasks;
 using MediaPortal.Common;
 using MediaPortal.Common.Logging;
 using System;
@@ -44,70 +45,67 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.Microsoft
 
     public GPSLookup()
     {
-      _gps.PositionChanged += GPSOnPositionChanged;
-      _gps.StatusChanged += GPSOnStatusChanged;
-      _gps.Start(true);
     }
 
     #endregion
 
     #region Private methods
 
-    private void GPSOnStatusChanged(object sender, GeoPositionStatusChangedEventArgs geoPositionStatusChangedEventArgs)
-    {
-      if (geoPositionStatusChangedEventArgs.Status == GeoPositionStatus.Disabled || geoPositionStatusChangedEventArgs.Status == GeoPositionStatus.NoData)
-      {
-        _gps.Stop();
-      }
-    }
-
-    private void GPSOnPositionChanged(object sender, GeoPositionChangedEventArgs<GeoCoordinate> geoPositionChangedEventArgs)
-    {
-      _gps.Stop();
-
-      _coordinates = new GeoCoordinate(
-        geoPositionChangedEventArgs.Position.Location.Latitude,
-        geoPositionChangedEventArgs.Position.Location.Longitude,
-        geoPositionChangedEventArgs.Position.Location.Altitude,
-        geoPositionChangedEventArgs.Position.Location.HorizontalAccuracy,
-        geoPositionChangedEventArgs.Position.Location.VerticalAccuracy,
-        geoPositionChangedEventArgs.Position.Location.Speed,
-        geoPositionChangedEventArgs.Position.Location.Course);
-
-      CivicAddressResolver resolver = new CivicAddressResolver();
-      _address = resolver.ResolveAddress(_coordinates);
-    }
-
     private bool TryGPSLookupInternal(out GeoCoordinate coordinates, out CivicAddress address)
     {
-      if (_coordinates.IsUnknown)
+      // Check if we've already looked up the location.
+      if (_coordinates != null && _address != null)
       {
-        coordinates = null;
-        address = null;
-        return false;
+        if (!_coordinates.IsUnknown && !_address.IsUnknown)
+        {
+          coordinates = _coordinates;
+          address = _address;
+          return true;
+        }
       }
 
-      CivicAddressResolver resolver = new CivicAddressResolver();
-      _address = resolver.ResolveAddress(_coordinates);
+      TaskCompletionSource<GeoCoordinate> tcs = new TaskCompletionSource<GeoCoordinate>();
 
-      coordinates = _coordinates;
-      address = _address;
+      _gps.PositionChanged += (sender, args) =>
+        {
+          _gps.Stop();
 
-      return true;
+          if (!tcs.TrySetResult(args.Position.Location))
+            _gps.Start();
+        };
+
+      _gps.Start();
+
+      if (tcs.Task.Wait(10000))
+      {
+        _coordinates = tcs.Task.Result;
+
+        CivicAddressResolver resolver = new CivicAddressResolver();
+        _address = resolver.ResolveAddress(_coordinates);
+
+        coordinates = _coordinates;
+        address = _address;
+        return true;
+      }
+
+      coordinates = null;
+      address = null;
+      return false;
     }
 
     private void DisposeGPS()
     {
-      _gps.PositionChanged -= GPSOnPositionChanged;
-      _gps.StatusChanged -= GPSOnStatusChanged;
-
-      _gps.Dispose();
-      _gps = null;
+      if (_gps != null)
+      {
+        _gps.Stop();
+        _gps.Dispose();
+        _gps = null;
+      }
     }
 
     #endregion Private methods
 
-    #region ICivicAddressResolver implementation
+    #region IAddressResolver implementation
 
     public bool TryResolveCivicAddress(GeoCoordinate coordinates, out CivicAddress address)
     {
@@ -121,7 +119,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.Microsoft
       return TryGPSLookupInternal(out temp, out address);
     }
 
-    #endregion ICivicAddressResolver implementation
+    #endregion IAddressResolver implementation
 
     #region ICoordinateResolver implementation
 
