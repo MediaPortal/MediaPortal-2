@@ -138,12 +138,20 @@ namespace MediaPortal.Extensions.ResourceProviders.NetworkNeighborhoodResourcePr
 
     public bool Exists
     {
-      get { return _underlayingResource == null ? IsServerPath(_path) : _underlayingResource.Exists; }
+      get
+      {
+        using(ImpersonateUser())
+          return _underlayingResource == null ? IsServerPath(_path) : _underlayingResource.Exists;
+      }
     }
 
     public bool IsFile
     {
-      get { return _underlayingResource != null && _underlayingResource.IsFile; }
+      get
+      {
+        using (ImpersonateUser())
+          return _underlayingResource != null && _underlayingResource.IsFile;
+      }
     }
 
     public string Path
@@ -153,7 +161,11 @@ namespace MediaPortal.Extensions.ResourceProviders.NetworkNeighborhoodResourcePr
 
     public string ResourceName
     {
-      get { return GetServerName(_path) ?? (_underlayingResource == null ? null : _underlayingResource.ResourceName); }
+      get
+      {
+        using (ImpersonateUser())
+          return GetServerName(_path) ?? (_underlayingResource == null ? null : _underlayingResource.ResourceName);
+      }
     }
 
     public string ResourcePathName
@@ -168,32 +180,43 @@ namespace MediaPortal.Extensions.ResourceProviders.NetworkNeighborhoodResourcePr
 
     public DateTime LastChanged
     {
-      get { return _underlayingResource == null ? new DateTime() : _underlayingResource.LastChanged; }
+      get
+      {
+        using (ImpersonateUser())
+          return _underlayingResource == null ? new DateTime() : _underlayingResource.LastChanged;
+      }
     }
 
     public long Size
     {
-      get { return _underlayingResource == null ? -1 : _underlayingResource.Size; }
+      get
+      {
+        using (ImpersonateUser())
+          return _underlayingResource == null ? -1 : _underlayingResource.Size;
+      }
     }
 
     public void PrepareStreamAccess()
     {
-      if (_underlayingResource != null)
-        _underlayingResource.PrepareStreamAccess();
+      using (ImpersonateUser())
+        if (_underlayingResource != null)
+          _underlayingResource.PrepareStreamAccess();
     }
 
     public Stream OpenRead()
     {
       if (_underlayingResource == null)
         throw new IllegalCallException("Path '{0} cannot be opened for reading", _path);
-      return _underlayingResource.OpenRead();
+      using (ImpersonateUser())
+        return _underlayingResource.OpenRead();
     }
 
     public Stream OpenWrite()
     {
       if (_underlayingResource == null)
         throw new IllegalCallException("Path '{0} cannot be opened for reading", _path);
-      return _underlayingResource.OpenWrite();
+      using (ImpersonateUser())
+        return _underlayingResource.OpenWrite();
     }
 
     public IResourceAccessor Clone()
@@ -203,7 +226,8 @@ namespace MediaPortal.Extensions.ResourceProviders.NetworkNeighborhoodResourcePr
 
     public bool ResourceExists(string path)
     {
-      return IsServerPath(path) || (_underlayingResource != null && _underlayingResource.ResourceExists(path));
+      using (ImpersonateUser())
+        return IsServerPath(path) || (_underlayingResource != null && _underlayingResource.ResourceExists(path));
     }
 
     public IFileSystemResourceAccessor GetResource(string path)
