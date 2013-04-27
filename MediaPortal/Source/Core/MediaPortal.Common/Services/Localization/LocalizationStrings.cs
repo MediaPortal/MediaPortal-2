@@ -187,7 +187,7 @@ namespace MediaPortal.Common.Services.Localization
           StringFile resources = (StringFile) s.Deserialize(r);
 
           foreach (StringLocalized languageString in resources.Strings)
-            _languageStrings[languageString.StringName] = StringUtils.TrimToEmpty(languageString.Text);
+            _languageStrings[languageString.StringName] = StringUtils.TrimToEmpty(languageString.Text).Replace(@"\'", "'"); // Android string resources require escaped apostrophes.
         }
       }
       catch (Exception ex)
