@@ -60,30 +60,10 @@ Parameters which have to be accessible by a DynamicResource lookup:
               FontSize="{ThemeResource BigFontSize}" Color="{ThemeResource WindowHeaderColor}"
               Content="{Binding Source={DynamicResource Header_Text},Path=Resource}" />
 
-      <StackPanel Margin="5" x:Name="WindowButtonsPanel" Orientation="Horizontal" Grid.Column="3" Grid.Row="0" VerticalAlignment="Center"
+      <StackPanel Margin="5,5,25,5" x:Name="WindowButtonsPanel" Orientation="Horizontal" Grid.Column="3" Grid.Row="0" VerticalAlignment="Center" HorizontalAlignment="Right"
             DataContext="{Binding RelativeSource={RelativeSource Self},Path=Screen}">
-        <StackPanel.IsVisible>
-          <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} &amp;&amp; {1}">
-            <Binding Path="HasInputFocus"/>
-            <Binding Source="{StaticResource MouseModel}" Path="IsMouseUsed"/>
-          </MultiBinding>
-        </StackPanel.IsVisible>
-        <StackPanel.Triggers>
-          <Trigger Property="IsMouseOver" Value="False">
-            <Trigger.Setters>
-              <Setter Property="OpacityMask" Value="#B0000000"/>
-            </Trigger.Setters>
-          </Trigger>
-        </StackPanel.Triggers>
-        <Button x:Name="MinimizeButton" Style="{ThemeResource WindowMinimizeButtonStyle}" Margin="3"
-              HorizontalAlignment="Left" VerticalAlignment="Center"
-              Command="{Command Source={Service Window},Path=Minimize}"/>
-        <Button x:Name="SuspendButton" Style="{ThemeResource SuspendButtonStyle}" Margin="3"
-              HorizontalAlignment="Left" VerticalAlignment="Center"
-              Command="{Command Source={Service System},Path=Suspend}"/>
-        <Button x:Name="CloseButton" Style="{ThemeResource WindowCloseButtonStyle}" Margin="3"
-              HorizontalAlignment="Left" VerticalAlignment="Center"
-              Command="{Command Source={Service Window},Path=Shutdown}"/>
+        <Button x:Name="PowerButton" Style="{ThemeResource PowerButtonStyle}" Margin="3"
+            Command="{Command Source={Service WorkflowManager},Path=NavigatePush,Parameters=BBFA7DB7-5055-48D5-A904-0F0C79849369}"/>
       </StackPanel>      <!-- WindowButtonsPanel -->
       
     </Grid>    <!-- HeaderPanel -->

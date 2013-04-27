@@ -22,10 +22,8 @@
       </Trigger>
     </Grid.Triggers>
     <StackPanel Margin="10" Orientation="Vertical" Context="{Service Window}">
-      <Button x:Name="CloseButton" Style="{ThemeResource WindowCloseButtonStyle}" Margin="3"
-          HorizontalAlignment="Left" Command="{Command Shutdown}"/>
-      <Button x:Name="MinimizeButton" Style="{ThemeResource WindowMinimizeButtonStyle}" Margin="3"
-          HorizontalAlignment="Left" Command="{Command Minimize}"/>
+      <Button x:Name="PowerButton" Style="{ThemeResource PowerButtonStyle}" Margin="3"
+          HorizontalAlignment="Left" Command="{Command Source={Service WorkflowManager},Path=NavigatePush,Parameters=BBFA7DB7-5055-48D5-A904-0F0C79849369}"/>
       <Button x:Name="BackButton" Style="{ThemeResource NavigateBackButtonStyle}" Margin="3"
           HorizontalAlignment="Left"
           Command="{Command Source={Service WorkflowManager},Path=NavigatePop,Parameters=1}"/>

@@ -54,30 +54,19 @@ Parameters which have to be accessible by a DynamicResource lookup:
           <ColumnDefinition Width="*"/>
           <ColumnDefinition Width="Auto"/>
         </Grid.ColumnDefinitions>
-        <StackPanel Margin="5" x:Name="WindowButtonsPanel" Orientation="Vertical" Grid.Column="0" Grid.Row="0"
+        <StackPanel Margin="10" x:Name="WindowButtonsPanel" Orientation="Vertical" Grid.Column="0" Grid.Row="0"
             HorizontalAlignment="Stretch" DataContext="{Binding RelativeSource={RelativeSource Self},Path=Screen}">
-          <StackPanel.IsVisible>
-            <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} &amp;&amp; {1}">
-              <Binding Path="HasInputFocus"/>
-              <Binding Source="{StaticResource MouseModel}" Path="IsMouseUsed"/>
-            </MultiBinding>
-          </StackPanel.IsVisible>
-          <StackPanel.Triggers>
-            <Trigger Property="IsMouseOver" Value="False">
-              <Trigger.Setters>
-                <Setter Property="OpacityMask" Value="#B0000000"/>
-              </Trigger.Setters>
-            </Trigger>
-          </StackPanel.Triggers>
-          <Button x:Name="CloseButton" Style="{ThemeResource WindowCloseButtonStyle}" Margin="3"
-              HorizontalAlignment="Left"
-              Command="{Command Source={Service Window},Path=Shutdown}"/>
-          <Button x:Name="MinimizeButton" Style="{ThemeResource WindowMinimizeButtonStyle}" Margin="3"
-              HorizontalAlignment="Left"
-              Command="{Command Source={Service Window},Path=Minimize}"/>
-          <Button x:Name="SuspendButton" Style="{ThemeResource SuspendButtonStyle}" Margin="3"
-              HorizontalAlignment="Left"
-              Command="{Command Source={Service System},Path=Suspend}"/>
+          <Button x:Name="PowerButton" Style="{ThemeResource PowerButtonStyle}" Margin="3"
+            OpacityMask="#A0000000" HorizontalAlignment="Left" 
+            Command="{Command Source={Service WorkflowManager},Path=NavigatePush,Parameters=BBFA7DB7-5055-48D5-A904-0F0C79849369}">
+            <Button.Triggers>
+              <Trigger Property="HasFocus" Value="True">
+                <Trigger.Setters>
+                  <Setter Property="OpacityMask" Value="#FF000000"/>
+                </Trigger.Setters>
+              </Trigger>
+            </Button.Triggers>
+          </Button>
         </StackPanel> <!-- WindowButtonsPanel -->
         <Grid x:Name="HeaderTextPanel" Grid.Column="1" Grid.Row="0">
           <Label x:Name="HeaderLabel"

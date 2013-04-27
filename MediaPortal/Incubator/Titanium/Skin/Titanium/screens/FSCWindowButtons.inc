@@ -13,7 +13,7 @@
       <Binding Source="{StaticResource MouseModel}" Path="IsMouseUsed"/>
     </MultiBinding>
   </DockPanel.IsVisible>
-  <Grid x:Name="WindowButtonsPanel" DockPanel.Dock="Left" VerticalAlignment="Top">
+  <Grid x:Name="WindowButtonsPanel" DockPanel.Dock="Right" VerticalAlignment="Top">
     <Grid.Triggers>
       <Trigger Property="IsMouseOver" Value="False">
         <Trigger.Setters>
@@ -25,10 +25,8 @@
       <Button x:Name="BackButton" Style="{ThemeResource NavigateBackButtonStyle}" Margin="3"
           HorizontalAlignment="Left"
           Command="{Command Source={Service WorkflowManager},Path=NavigatePop,Parameters=1}"/>
-      <Button x:Name="MinimizeButton" Style="{ThemeResource WindowMinimizeButtonStyle}" Margin="3"
-          HorizontalAlignment="Left" Command="{Command Minimize}"/>
-      <Button x:Name="CloseButton" Style="{ThemeResource WindowCloseButtonStyle}" Margin="3"
-          HorizontalAlignment="Left" Command="{Command Shutdown}"/>
+      <Button x:Name="PowerButton" Style="{ThemeResource PowerButtonStyle}" Margin="3"
+          HorizontalAlignment="Left" Command="{Command Source={Service WorkflowManager},Path=NavigatePush,Parameters=BBFA7DB7-5055-48D5-A904-0F0C79849369}"/>
     </StackPanel>
   </Grid> <!-- WindowButtonsPanel -->
 </DockPanel>

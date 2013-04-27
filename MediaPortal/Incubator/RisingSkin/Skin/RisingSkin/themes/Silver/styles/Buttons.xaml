@@ -1041,7 +1041,13 @@
 
   
   <!-- Global buttons -->
-  
+
+  <Style x:Key="PowerButtonStyle" BasedOn="{ThemeResource BaseWindowButtonStyle}">
+    <Style.Resources>
+      <ResourceWrapper x:Key="ContentControlTemplate" Resource="{ThemeResource PowerControlTemplate}" />
+    </Style.Resources>
+  </Style>
+
   <Style x:Key="WindowCloseButtonStyle" BasedOn="{ThemeResource BaseWindowButtonStyle}">
     <Style.Resources>
       <ResourceWrapper x:Key="ContentControlTemplate" Resource="{ThemeResource WindowCloseControlTemplate}" />
