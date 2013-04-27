@@ -21,6 +21,8 @@
   <String Id="F_Client_Desc">The user interface. Plays media files.</String>
   <String Id="F_Client_Plugins">Plugins</String>
   <String Id="F_Client_Plugins_Desc">Plugins for the client.</String>
+  <String Id="F_LAVFilters">LAV Filters</String>
+  <String Id="F_LAVFilters_Desc">Recommended directshow filters for best audio and video playback experience.</String>
 
   <String Id="SC_Client">MediaPortal 2</String>
   <String Id="SC_Client_Desc">Start MediaPortal 2</String>

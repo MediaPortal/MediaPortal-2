@@ -163,6 +163,10 @@
         NOT (Installed OR (DOKANVERCHECK64 AND VersionNT64) OR (DOKANVERCHECK32 AND NOT VersionNT64))
       </Custom>
 
+      <Custom Action="InstallLAVFilters" After="InstallFiles">
+        <![CDATA[(REINSTALL OR NOT Installed) AND &LAVFilters>=3]]>
+      </Custom>
+
       <RemoveExistingProducts After="InstallInitialize" />
       <InstallExecute After="RemoveExistingProducts" />
     </InstallExecuteSequence>

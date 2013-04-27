@@ -159,5 +159,9 @@
       </Component>
     </DirectoryRef>
 
+    <FeatureRef Id="Client">
+      <Feature Id="LAVFilters" Level="1" Absent="allow" InstallDefault="followParent" AllowAdvertise="no" Title="!(loc.F_LAVFilters)" Description="!(loc.F_LAVFilters_Desc)"/>
+    </FeatureRef>
+
   </Fragment>
 </Wix>
