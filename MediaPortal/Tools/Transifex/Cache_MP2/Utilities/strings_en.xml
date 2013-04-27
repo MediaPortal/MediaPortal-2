@@ -16,7 +16,7 @@
   <string name="Utilities.StartPlaylistImport">Start playlist import</string>
   <string name="Utilities.PlaylistSavedSuccessfullyTitle">Success</string>
   <string name="Utilities.NoItemsWereImportedSkippingSaveText">No items were imported. Skipping save action.</string>
-  <string name="Utilities.PlaylistSavedSuccessfullyText">Playlist '{0}' was saved successfully.</string>
+  <string name="Utilities.PlaylistSavedSuccessfullyText">Playlist \'{0}\' was saved successfully.</string>
   <string name="Utilities.PlaylistSaveFailedTitle">Save playlist failed</string>
   <string name="Utilities.ImportPlaylistProgressTitle">Progress</string>
   <string name="Utilities.ImportPlaylistProgressHeaderText">Importing playlist</string>

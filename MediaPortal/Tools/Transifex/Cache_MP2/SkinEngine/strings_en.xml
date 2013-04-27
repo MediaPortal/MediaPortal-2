@@ -18,7 +18,7 @@
   <string name="Settings.Appearance.Skin.SkinAndTheme.ChangeSkin">Change skin</string>
   <string name="Settings.Appearance.Skin.SkinAndTheme.ChangeSkin.Help">Change the look&amp;feel of MediaPortal 2</string>
   <string name="Settings.Appearance.Skin.SkinAndTheme.ChangeTheme">Change theme</string>
-  <string name="Settings.Appearance.Skin.SkinAndTheme.ChangeTheme.Help">Change the current skin's presentation</string>
+  <string name="Settings.Appearance.Skin.SkinAndTheme.ChangeTheme.Help">Change the current skin\'s presentation</string>
 
   <string name="Settings.Players">Players</string>
   <string name="Settings.Players.Rendering">Rendering</string>
@@ -36,12 +36,12 @@
   <string name="ScreenManager.NotificationErrorLoadingSkinFallingBackToCurrentText">Falling back to current skin</string>
   <string name="ScreenManager.NotificationErrorLoadingSkinFallingBackToDefaultText">Falling back to default skin</string>
   <string name="ScreenManager.ErrorLoadingSkinResource">Error loading skin resource</string>
-  <string name="ScreenManager.ScreenMissing">Cannot find the skin resource for screen '{0}'</string>
-  <string name="ScreenManager.ScreenBroken">The skin resource for screen '{0}' seems to be broken</string>
-  <string name="ScreenManager.BackgroundScreenMissing">Cannot find the skin resource for background screen '{0}'</string>
-  <string name="ScreenManager.BackgroundScreenBroken">The skin resource for background screen '{0}' seems to be broken</string>
-  <string name="ScreenManager.SuperLayerScreenMissing">Cannot find the skin resource for super layer screen '{0}'</string>
-  <string name="ScreenManager.SuperLayerScreenBroken">The skin resource for super layer screen '{0}' seems to be broken</string>
+  <string name="ScreenManager.ScreenMissing">Cannot find the skin resource for screen \'{0}\'</string>
+  <string name="ScreenManager.ScreenBroken">The skin resource for screen \'{0}\' seems to be broken</string>
+  <string name="ScreenManager.BackgroundScreenMissing">Cannot find the skin resource for background screen \'{0}\'</string>
+  <string name="ScreenManager.BackgroundScreenBroken">The skin resource for background screen \'{0}\' seems to be broken</string>
+  <string name="ScreenManager.SuperLayerScreenMissing">Cannot find the skin resource for super layer screen \'{0}\'</string>
+  <string name="ScreenManager.SuperLayerScreenBroken">The skin resource for super layer screen \'{0}\' seems to be broken</string>
 
   <string name="Geometries.IntelligentZoom">Intelligent Zoom</string>
   <string name="Geometries.LetterBox">Letterbox 4:3</string>

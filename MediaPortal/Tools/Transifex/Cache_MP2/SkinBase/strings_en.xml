@@ -37,7 +37,7 @@
 
   <string name="ServerConnection.NotificationServerAvailableTitle">MP2 server available</string>
   <string name="ServerConnection.NotificationServerAvailableText">There is at least one MediaPortal 2 server available in the network. Attach to it to get all features of MediaPortal 2.</string>
-  <string name="ServerConnection.ServerFormatText">'{0}' at host '{1}'</string> <!-- {0} = server name, {1} = host name -->
+  <string name="ServerConnection.ServerFormatText">\'{0}\' at host \'{1}\'</string> <!-- {0} = server name, {1} = host name -->
   <string name="ServerConnection.UnknownServerName">&lt;Unknown&gt;</string>
   <string name="ServerConnection.UnknownServerSystem">&lt;Unknown&gt;</string>
   <string name="ServerConnection.HomeServer">Home server</string>
@@ -45,12 +45,13 @@
   <string name="ServerConnection.DetachFromServerWorkflowStateLabel">Detach from server</string>
   <string name="ServerConnection.HomeServerWorkflowStateLabel">HomeServer</string>
   <string name="ServerConnection.AttachedText.Before">This MediaPortal 2 client is currently attached to home server</string>
+  <string name="ServerConnection.AttachedText.After"></string>
   <string name="ServerConnection.NoHomeServerAttached">Currently, this MediaPortal 2 client is not attached to a home server.</string>
   <string name="ServerConnection.HomeServerIsConnected">The home server is currently connected.</string>
   <string name="ServerConnection.HomeServerIsNotConnected">The home server is currently disconnected.</string>
   <string name="ServerConnection.DetachMenu">Detach</string>
   <string name="ServerConnection.DetachConfirmDialogHeader">Detach from home server</string>
-  <string name="ServerConnection.DetachConfirmDialogText">If you detach from the home server, all data about the local shares and their media items will be removed from the home server's media library. You can attach again later. Do you really want to detach from home server '{0}' at host '{1}'?</string>
+  <string name="ServerConnection.DetachConfirmDialogText">If you detach from the home server, all data about the local shares and their media items will be removed from the home server\'s media library. You can attach again later. Do you really want to detach from home server \'{0}\' at host \'{1}\'?</string>
   <string name="ServerConnection.SearchForServers">Search for servers</string>
   <string name="ServerConnection.DetachFromServer">Detach from home server</string>
   <string name="ServerConnection.AttachToServerHeader">Attach to MediaPortal 2 server</string>
@@ -60,7 +61,7 @@
   <string name="ServerConnection.AttachToServerNoServerText">Currently, there is no MediaPortal 2 server available in the network.</string>
   <string name="ServerConnection.AttachButton">Attach</string>
   <string name="ServerConnection.AttachInfoDialogHeader">Server attached</string>
-  <string name="ServerConnection.AttachInfoDialogText">This MediaPortal 2 client was attached to its new home server '{0}' at host '{1}'</string> <!-- {0} = server name, {1} = host name -->
+  <string name="ServerConnection.AttachInfoDialogText">This MediaPortal 2 client was attached to its new home server \'{0}\' at host \'{1}\'</string> <!-- {0} = server name, {1} = host name -->
 
   <string name="Notifications.Title">Notifications</string>
   <string name="Notifications.OneMoreNotification">(1 more)</string>
@@ -69,9 +70,9 @@
   <string name="Notifications.Handle">Handle</string>
 
   <string name="ImporterMessages.ImportStartedTitle">Import started</string>
-  <string name="ImporterMessages.ImportStartedText">The import of '{0}' has started.</string>
+  <string name="ImporterMessages.ImportStartedText">The import of \'{0}\' has started.</string>
   <string name="ImporterMessages.ImportCompletedTitle">Import completed</string>
-  <string name="ImporterMessages.ImportCompletedText">The import of '{0}' has finished.</string>
+  <string name="ImporterMessages.ImportCompletedText">The import of \'{0}\' has finished.</string>
 
   <string name="LocalFsResourceProvider.Name">Local filesystem resource provider</string>
   <string name="LocalFsResourceProvider.Description">Access the local filesystem</string>
@@ -83,10 +84,10 @@
 
   <!-- For MP UI player subsystem -->
   <string name="Players.NoPlayerAvailableNotificationTitle">No player</string>
-  <string name="Players.NoPlayerAvailableNotificationText">There is no player registered to play media item '{0}'</string>
+  <string name="Players.NoPlayerAvailableNotificationText">There is no player registered to play media item \'{0}\'</string>
   <string name="Players.ErrorPlayingMediaItemTitle">Error playing media item</string>
-  <string name="Players.UnableToPlayMediaItemText">Unable to play media item '{0}'</string>
-  <string name="Players.ResourceNotFoundText">Resource '{0}' not found</string>
+  <string name="Players.UnableToPlayMediaItemText">Unable to play media item \'{0}\'</string>
+  <string name="Players.ResourceNotFoundText">Resource \'{0}\' not found</string>
 
   <string name="Players.PlayerConfiguration">Player configuration</string>
   <string name="Players.CurrentMediaInfo">Current media info</string>
@@ -152,7 +153,7 @@
   <string name="SharesOverview.NotConnectedToHomeServer">The home server is not connected, system shares information cannot be retrieved.</string>
 
   <string name="Shares.NoSharesInThisView">- No shares in this view -</string>
-  <string name="Shares.InvalidPath">INVALID PATH: '{0}'</string> <!-- For example: INVALID PATH: 'C:\XXX\YYY' -->
+  <string name="Shares.InvalidPath">INVALID PATH: \'{0}\'</string> <!-- For example: INVALID PATH: 'C:\XXX\YYY' -->
   <string name="Shares.Online">Online</string>
   <string name="Shares.Offline">Offline</string>
   <string name="Shares.ReImport">ReImport</string>
@@ -197,7 +198,7 @@
   <string name="SharesConfig.EditResourceProviderPathForShare">Edit the path to the share</string>
   <string name="SharesConfig.ResourceProviderPathIsNotValid">Edit a valid path in the choosen resource provider. You can edit a simple path which is understandable by the resource provider. You can also edit a complex path in the format {[Base-ResourceProvider-ID]}://[Base-ResourceProvider-Path]&gt;{[Chained-ResourceProvider-ID]}://[Chained-ResourceProvider-Path]&gt;...</string>
   <string name="SharesConfig.ChooseResourceProviderPathForShare">Choose the path of the share</string>
-  <string name="SharesConfig.EditShareName">Edit the share's display name</string>
+  <string name="SharesConfig.EditShareName">Edit the share\'s display name</string>
   <string name="SharesConfig.ChooseShareCategories">Choose the categories of media contents located in the share</string>
   <string name="SharesConfig.SharePathExists">A share with that path already exists</string>
   <string name="SharesConfig.ShareNameExists">A share with that name already exists</string>
@@ -212,8 +213,8 @@
   <string name="SharesConfig.AddLocalShare">Add local share</string>
   <string name="SharesConfig.EditLocalShare">Edit local share</string>
   <string name="SharesConfig.UpdateShareRelocateItemsQueryDialogHeader">Update share</string>
-  <string name="SharesConfig.UpdateShareRelocateItemsQueryText.Info">The share's resource provider and/or path have been updated.</string>
-  <string name="SharesConfig.UpdateShareRelocateItemsQueryText.Description">The media library's information about the media items in that share can be updated (relocated) or cleared and reimported.</string>
+  <string name="SharesConfig.UpdateShareRelocateItemsQueryText.Info">The share\'s resource provider and/or path have been updated.</string>
+  <string name="SharesConfig.UpdateShareRelocateItemsQueryText.Description">The media library\'s information about the media items in that share can be updated (relocated) or cleared and reimported.</string>
   <string name="SharesConfig.UpdateShareRelocateItemsQueryText.Query">Do you want to relocate or clear and reimport?</string>
   <string name="SharesConfig.Relocate">Relocate</string>
   <string name="SharesConfig.ReImport">ReImport</string>

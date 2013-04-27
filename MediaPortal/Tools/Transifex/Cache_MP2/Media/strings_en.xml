@@ -15,6 +15,8 @@
   <string name="Media.FilterByAudioGenreMenuItem">Filter by genre</string>
   <string name="Media.FilterByDecadeMenuItem">Filter by decade</string>
   <string name="Media.FilterByActorMenuItem">Filter by actor</string>
+  <string name="Media.FilterByDirectorMenuItem">Filter by director</string>
+  <string name="Media.FilterByWriterMenuItem">Filter by writer</string>
   <string name="Media.FilterByVideoGenreMenuItem">Filter by genre</string>
   <string name="Media.FilterByVideoYearMenuItem">Filter by year</string>
   <string name="Media.FilterByAudioLanguageMenuItem">Filter by language</string>
@@ -50,6 +52,8 @@
   <string name="Media.FilterAudioGenreNavbarDisplayLabel">Genre: {0}</string>
   <string name="Media.FilterDecadeNavbarDisplayLabel">Decade: {0}</string>
   <string name="Media.FilterActorNavbarDisplayLabel">Actor: {0}</string>
+  <string name="Media.FilterDirectorNavbarDisplayLabel">Director: {0}</string>
+  <string name="Media.FilterWriterNavbarDisplayLabel">Writer: {0}</string>
   <string name="Media.FilterVideoGenreNavbarDisplayLabel">Genre: {0}</string>
   <string name="Media.FilterVideoYearNavbarDisplayLabel">Year: {0}</string>
   <string name="Media.FilterAudioLanguagesNavbarDisplayLabel">Language: {0}</string>
@@ -104,6 +108,8 @@
   <string name="Media.SimpleSearchHeader">Simple search</string>
   <string name="Media.ChooseCollectionHeader">Choose a collection</string>
   <string name="Media.ChooseActorHeader">Choose an actor</string>
+  <string name="Media.ChooseDirectorHeader">Choose a director</string>
+  <string name="Media.ChooseWriterHeader">Choose a writer</string>
   <string name="Media.ChooseVideoGenreHeader">Choose a genre</string>
   <string name="Media.ChooseVideoYearHeader">Choose a year</string>
   <string name="Media.ChooseSeriesHeader">Choose a series</string>
@@ -174,9 +180,9 @@
   <string name="Media.NoPlaylistsAvailable">- No playlists available -</string>
   <string name="Media.NoConfigPlaylistsHomeServerNotConnectedText">The home server is currently not connected, so playlists cannot be managed at the moment</string>
   <string name="Media.EditNameOfPlaylist">Edit the name of the playlist</string>
-  <string name="Media.SavePlaylistSuccessfulText">Playlist '{0}' was successfully saved at the server.</string>
-  <string name="Media.SavePlaylistFailedText">The playlist could not be saved. Error message: '{0}'</string>
-  <string name="Media.SavePlaylistFailedAlreadyExists">The playlist could not be saved: Playlist '{0}' already exists</string>
+  <string name="Media.SavePlaylistSuccessfulText">Playlist \'{0}\' was successfully saved at the server.</string>
+  <string name="Media.SavePlaylistFailedText">The playlist could not be saved. Error message: \'{0}\'</string>
+  <string name="Media.SavePlaylistFailedAlreadyExists">The playlist could not be saved: Playlist \'{0}\' already exists</string>
   <string name="Media.ChoosePlaylistsToBeRemovedText">Choose playlists to be removed</string>
   <string name="Media.PlaylistNameInfoLabel">Playlist name</string>
   <string name="Media.PlaylistTypeInfoLabel">Playlist type</string>
@@ -303,7 +309,7 @@
 
   <string name="Media.Start">Start</string>
   <string name="Media.End">End</string>
-  <string name="Media.DontSkip">Don't skip</string>
+  <string name="Media.DontSkip">Don\'t skip</string>
 
   <string name="Media.SwitchViewModeMenuItem">View mode</string>
   <string name="Media.SwitchViewModeDialogTitle">Choose view mode</string>
@@ -326,6 +332,7 @@
   <string name="Media.SortBySystem">Sort by system</string>
   <string name="Media.SortByActor">Sort by actor</string>
   <string name="Media.SortByDirector">Sort by director</string>
+  <string name="Media.SortByWriter">Sort by writer</string>
   <string name="Media.SortByDuration">Sort by duration</string>
   <string name="Media.SortByAspectRatio">Sort by aspect ratio</string>
   <string name="Media.SortByFirstAiredDate">Sort by aired date</string>
