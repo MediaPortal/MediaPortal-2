@@ -33,11 +33,13 @@ using MediaPortal.Common;
 using MediaPortal.Common.General;
 using MediaPortal.Common.Localization;
 using MediaPortal.Common.Logging;
+using MediaPortal.Common.Messaging;
 using MediaPortal.Common.PathManager;
 using MediaPortal.Common.PluginManager;
 using MediaPortal.Common.Registry;
 using MediaPortal.Common.Services.Localization;
 using MediaPortal.Common.Services.Logging;
+using MediaPortal.Common.Services.Messaging;
 using MediaPortal.Common.Services.PathManager;
 using MediaPortal.Common.Services.PluginManager;
 using MediaPortal.Common.Services.Settings;
@@ -91,7 +93,12 @@ namespace CustomActions
       ISettingsManager settingsManager = new SettingsManager();
       ServiceRegistration.Set<ISettingsManager>(settingsManager);
       ServiceRegistration.Set<IRegistry>(new MediaPortal.Common.Services.Registry.Registry());
-      ServiceRegistration.Set<IPluginManager>(new PluginManager());
+      ServiceRegistration.Set<IMessageBroker>(new MessageBroker());
+      PluginManager pluginManager = new PluginManager();
+      ServiceRegistration.Set<IPluginManager>(pluginManager);
+      // Required to load language resource registration from plugins, so ILocalization is able to use them.
+      pluginManager.Initialize();
+      pluginManager.Startup(false);
 
       StringManager stringManager = new StringManager();
       stringManager.Startup();
@@ -107,10 +114,10 @@ namespace CustomActions
 
       ServiceRegistration.RemoveAndDispose<ILocalization>();
       ServiceRegistration.RemoveAndDispose<IPluginManager>();
+      ServiceRegistration.RemoveAndDispose<IMessageBroker>();
       ServiceRegistration.RemoveAndDispose<IRegistry>();
       ServiceRegistration.RemoveAndDispose<ISettingsManager>();
       ServiceRegistration.RemoveAndDispose<IPathManager>();
-
       return result;
     }
 
