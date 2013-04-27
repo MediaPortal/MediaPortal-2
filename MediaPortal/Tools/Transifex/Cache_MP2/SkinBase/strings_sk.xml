@@ -31,7 +31,7 @@
   <string name="Media.InvalidShareName">Chybná vzdialená zložka</string>
   <string name="ServerConnection.NotificationServerAvailableTitle">MP2 server je dostupný</string>
   <string name="ServerConnection.NotificationServerAvailableText">V sieti je najmenej jeden MediaPortal 2 server. Pokiaľ sa k nemu pripojíte, získate všetky možnosti aplikácie MediaPortal 2.</string>
-  <string name="ServerConnection.ServerFormatText">{0}' na serveri '{1}</string>
+  <string name="ServerConnection.ServerFormatText">\'{0}\' na serveri \'{1}\'</string>
   <!--{0} = server name, {1} = host name-->
   <string name="ServerConnection.UnknownServerName">&lt;Neznáme&gt;</string>
   <string name="ServerConnection.UnknownServerSystem">&lt;Neznámy&gt;</string>
@@ -40,13 +40,12 @@
   <string name="ServerConnection.DetachFromServerWorkflowStateLabel">Odpojiť sa od serveru</string>
   <string name="ServerConnection.HomeServerWorkflowStateLabel">Domáci server</string>
   <string name="ServerConnection.AttachedText.Before">MediaPortal 2 klient je pripojený k domácemu serveru</string>
-  <string name="ServerConnection.AttachedText.After"></string>
   <string name="ServerConnection.NoHomeServerAttached">MediaPortal 2 klient nie je pripojený k domácemu serveru.</string>
   <string name="ServerConnection.HomeServerIsConnected">Domáci server je pripojený.</string>
   <string name="ServerConnection.HomeServerIsNotConnected">Domáci server je odpojený.</string>
   <string name="ServerConnection.DetachMenu">Odpojiť</string>
   <string name="ServerConnection.DetachConfirmDialogHeader">Odpojiť sa od domáceho serveru</string>
-  <string name="ServerConnection.DetachConfirmDialogText">Ak sa odpojíte od domáceho servera, všetky dáta o lokálnych zdieľaných zložkách a ich médiách budú odstránené z knižnice médií domáceho servera. Môžete sa potom znovu pripojť. Naozaj sa teraz chcete odpojiť od domáceho servera '{0}' na '{1}'?</string>
+  <string name="ServerConnection.DetachConfirmDialogText">Ak sa odpojíte od domáceho servera, všetky dáta o lokálnych zdieľaných zložkách a ich médiách budú odstránené z knižnice médií domáceho servera. Môžete sa potom znovu pripojť. Naozaj sa teraz chcete odpojiť od domáceho servera \'{0}\' na \'{1}\'?</string>
   <string name="ServerConnection.SearchForServers">Hľadať servery</string>
   <string name="ServerConnection.DetachFromServer">Odpojiť sa od domáceho serveru</string>
   <string name="ServerConnection.AttachToServerHeader">Pripojiť sa k MediaPortal 2 serveru</string>
@@ -56,7 +55,7 @@
   <string name="ServerConnection.AttachToServerNoServerText">Momentálne nie je v sieti žiadny MediaPortal 2 server dostupný.</string>
   <string name="ServerConnection.AttachButton">Pripojiť</string>
   <string name="ServerConnection.AttachInfoDialogHeader">Server pripojený</string>
-  <string name="ServerConnection.AttachInfoDialogText">Tento MediaPortal 2 klient bol pripojený k jeho novému domácemu serveru '{0}' na '{1}'</string>
+  <string name="ServerConnection.AttachInfoDialogText">Tento MediaPortal 2 klient bol pripojený k jeho novému domácemu serveru \'{0}\' na \'{1}\'</string>
   <!--{0} = server name, {1} = host name-->
   <string name="Notifications.Title">Oznamy</string>
   <string name="Notifications.OneMoreNotification">(1 ďalší)</string>
@@ -64,9 +63,9 @@
   <string name="Notifications.WatchNotificationsWorkflowStateLabel">Oznamy</string>
   <string name="Notifications.Handle">Handle</string>
   <string name="ImporterMessages.ImportStartedTitle">Import sa začal</string>
-  <string name="ImporterMessages.ImportStartedText">Import '{0}' bol spustený</string>
+  <string name="ImporterMessages.ImportStartedText">Import \'{0}\' bol spustený</string>
   <string name="ImporterMessages.ImportCompletedTitle">Import bol dokončený</string>
-  <string name="ImporterMessages.ImportCompletedText">Import '{0}' bol dokončený</string>
+  <string name="ImporterMessages.ImportCompletedText">Import \'{0}\' bol dokončený</string>
   <string name="LocalFsResourceProvider.Name">Obsluha lokálneho súborového systému</string>
   <string name="LocalFsResourceProvider.Description">Prístup na lokálny súborový systém</string>
   <string name="RemoteResourceProvider.Name">Obsluha vzdialených zdrojov</string>
@@ -74,10 +73,10 @@
   <string name="ScreenSaver.MediaPortal2">MediaPortal 2</string>
   <!--For MP UI player subsystem-->
   <string name="Players.NoPlayerAvailableNotificationTitle">Žiadny prehrávač</string>
-  <string name="Players.NoPlayerAvailableNotificationText">Na prehratie média '{0}' nie je registrovaný žiadny prehrávač</string>
+  <string name="Players.NoPlayerAvailableNotificationText">Na prehratie média \'{0}\' nie je registrovaný žiadny prehrávač</string>
   <string name="Players.ErrorPlayingMediaItemTitle">Chyba prehrávania média</string>
-  <string name="Players.UnableToPlayMediaItemText">Nedá sa prehrať položka média '{0}'</string>
-  <string name="Players.ResourceNotFoundText">Zdroj '{0}' nebol nájdený</string>
+  <string name="Players.UnableToPlayMediaItemText">Nedá sa prehrať položka média \'{0}\'</string>
+  <string name="Players.ResourceNotFoundText">Zdroj \'{0}\' nebol nájdený</string>
   <string name="Players.PlayerConfiguration">Konfigurácia prehrávača</string>
   <string name="Players.CurrentMediaInfo">Informácie o aktuálnom médiu</string>
   <string name="Players.FullscreenVideo"> {0} na celú obrazovku</string>
@@ -139,7 +138,7 @@
   <string name="SharesOverview.ReImportAllShares">Reimportovať všetky zdieľané zložky</string>
   <string name="SharesOverview.NotConnectedToHomeServer">Domáci server nie je pripojený, systémové zdieľané zložky sa nedajú načítať</string>
   <string name="Shares.NoSharesInThisView">- Tomuto pohľadu nevyhovujú žiadne zdieľané zložky -</string>
-  <string name="Shares.InvalidPath">NEPLATNÁ CESTA: '{0}'</string>
+  <string name="Shares.InvalidPath">NEPLATNÁ CESTA: \'{0}\'</string>
   <!--For example: INVALID PATH: 'C:\XXX\YYY'-->
   <string name="Shares.Online">Online</string>
   <string name="Shares.Offline">Offline</string>

@@ -14,6 +14,8 @@
   <string name="Media.FilterByAudioGenreMenuItem">Filter nach Genre</string>
   <string name="Media.FilterByDecadeMenuItem">Filter nach Jahrzehnt</string>
   <string name="Media.FilterByActorMenuItem">Filter nach Darsteller</string>
+  <string name="Media.FilterByDirectorMenuItem">Filter nach Regisseur</string>
+  <string name="Media.FilterByWriterMenuItem">Filter nach Autor</string>
   <string name="Media.FilterByVideoGenreMenuItem">Filter nach Genre</string>
   <string name="Media.FilterByVideoYearMenuItem">Filter nach Jahr</string>
   <string name="Media.FilterByAudioLanguageMenuItem">Filter nach Sprache</string>
@@ -49,6 +51,8 @@
   <string name="Media.FilterAudioGenreNavbarDisplayLabel">Genre: {0}</string>
   <string name="Media.FilterDecadeNavbarDisplayLabel">Jahrzehnt: {0}</string>
   <string name="Media.FilterActorNavbarDisplayLabel">Darsteller: {0}</string>
+  <string name="Media.FilterDirectorNavbarDisplayLabel">Regisseur: {0}</string>
+  <string name="Media.FilterWriterNavbarDisplayLabel">Autor: {0}</string>
   <string name="Media.FilterVideoGenreNavbarDisplayLabel">Genre: {0}</string>
   <string name="Media.FilterVideoYearNavbarDisplayLabel">Jahr: {0}</string>
   <string name="Media.FilterAudioLanguagesNavbarDisplayLabel">Sprache: {0}</string>
@@ -101,6 +105,8 @@
   <string name="Media.SimpleSearchHeader">Einfache Suche</string>
   <string name="Media.ChooseCollectionHeader">Wähle eine Sammlung</string>
   <string name="Media.ChooseActorHeader">Wähle einen Darsteller</string>
+  <string name="Media.ChooseDirectorHeader">Wähle einen Regisseur</string>
+  <string name="Media.ChooseWriterHeader">Wähle einen Autor</string>
   <string name="Media.ChooseVideoGenreHeader">Wähle ein Genre</string>
   <string name="Media.ChooseVideoYearHeader">Wähle ein Jahr</string>
   <string name="Media.ChooseSeriesHeader">Wähle eine Serie</string>
@@ -170,9 +176,9 @@
   <string name="Media.NoPlaylistsAvailable">- Keine Wiedergabelisten verfügbar -</string>
   <string name="Media.NoConfigPlaylistsHomeServerNotConnectedText">Es können keine Wiedergabelisten verwaltet werden, da der Home-Server nicht verbunden ist</string>
   <string name="Media.EditNameOfPlaylist">Namen der Wiedergabelisten bearbeiten</string>
-  <string name="Media.SavePlaylistSuccessfulText">Wiedergabeliste '{0}' erfolgreich auf dem Server gespeichert.</string>
-  <string name="Media.SavePlaylistFailedText">Die Wiedergabeliste konnte nicht gespeichert werden. Fehlermeldung: '{0}'</string>
-  <string name="Media.SavePlaylistFailedAlreadyExists">Die Wiedergabeliste '{0}' konnte nicht gespeichert werden, da sie bereits existiert</string>
+  <string name="Media.SavePlaylistSuccessfulText">Wiedergabeliste \'{0}\' erfolgreich auf dem Server gespeichert.</string>
+  <string name="Media.SavePlaylistFailedText">Die Wiedergabeliste konnte nicht gespeichert werden. Fehlermeldung: \'{0}\'</string>
+  <string name="Media.SavePlaylistFailedAlreadyExists">Die Wiedergabeliste \'{0}\' konnte nicht gespeichert werden, da sie bereits existiert</string>
   <string name="Media.ChoosePlaylistsToBeRemovedText">Wähle eine Wiedergabeliste zum Entfernen</string>
   <string name="Media.PlaylistNameInfoLabel">Name der Wiedergabeliste</string>
   <string name="Media.PlaylistTypeInfoLabel">Art der Wiedergabeliste</string>
@@ -296,8 +302,10 @@
   <string name="Media.SortBySystem">Sortierung nach System</string>
   <string name="Media.SortByActor">Sortierung nach Darsteller</string>
   <string name="Media.SortByDirector">Sortierung nach Director</string>
+  <string name="Media.SortByWriter">Sortierung nach Autor</string>
   <string name="Media.SortByDuration">Sortierung nach Dauer</string>
   <string name="Media.SortByAspectRatio">Sortierung nach Seitenverhältnis</string>
+  <string name="Media.SortByFirstAiredDate">Sortierung nach Ausstrahlungsdatum</string>
   <string name="Media.SortByDate">Sortierung nach Aufnahmedatum</string>
   <string name="Media.SortByEpisode">Sortierung nach Episode</string>
   <string name="Media.SortingBrowseDefault">Standard-Sortierung</string>
@@ -309,7 +317,7 @@
   <string name="Settings.Players.SkipStepTimeout">Zeitlimit für Sofortsprünge</string>
   <string name="Settings.Players.SkipStepTimeout.Help">Setzt das Zeitlimit für Nutzereingaben, bevor der Sofortsprung ausgeführt wird</string>
   <string name="Settings.Players.SkipStepList">Player Sprungintervalle</string>
-  <string name="Settings.Players.SkipStepList.Help">Gib eine Liste von Sprungintervallen in Sekunden an, getrennt mit ','</string>
+  <string name="Settings.Players.SkipStepList.Help">Gib eine Liste von Sprungintervallen in Sekunden an, getrennt mit \',\'</string>
   <string name="Settings.Players.OpenPlayerStrategy">Playeröffnungs-Strategie</string>
   <string name="Settings.Players.OpenPlayerStrategy.Help">Option, wie neu geöffnete Player unter anderen bereits geöffneten Playern positioniert werden</string>
 </resources>

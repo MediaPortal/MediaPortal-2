@@ -16,7 +16,7 @@
   <string name="Utilities.StartPlaylistImport">Start import af afspilningsliste</string>
   <string name="Utilities.PlaylistSavedSuccessfullyTitle">Succes</string>
   <string name="Utilities.NoItemsWereImportedSkippingSaveText">Ingen emner blev importeret. Springer Gem over.</string>
-  <string name="Utilities.PlaylistSavedSuccessfullyText">Afspilningslist '{0}' blev gemt..</string>
+  <string name="Utilities.PlaylistSavedSuccessfullyText">Afspilningslist \'{0}\' blev gemt..</string>
   <string name="Utilities.PlaylistSaveFailedTitle">Gem afspilningsliste mislykkedes</string>
   <string name="Utilities.ImportPlaylistProgressTitle">Fremdrift</string>
   <string name="Utilities.ImportPlaylistProgressHeaderText">Importere afspilningsliste</string>

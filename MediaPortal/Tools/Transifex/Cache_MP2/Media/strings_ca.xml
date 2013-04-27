@@ -28,10 +28,10 @@
   <string name="Media.FilterBySeriesSeasonMenuItem">Filtra per temporada</string>
   <string name="Media.FilterBySeriesEpisodeMenuItem">Filtra per episodi</string>
   <string name="Media.SimpleSearchFilterMenuItem">Cerca</string>
-  <string name="Media.ShowAllAudioItemsMenuItem">Mostra'ls tots</string>
-  <string name="Media.ShowAllVideoItemsMenuItem">Mostra'ls tots</string>
-  <string name="Media.ShowAllImageItemsMenuItem">Mostra'ls tots</string>
-  <string name="Media.ShowAllMoviesMenuItem">Mostra'ls tots</string>
+  <string name="Media.ShowAllAudioItemsMenuItem">Mostra\'ls tots</string>
+  <string name="Media.ShowAllVideoItemsMenuItem">Mostra\'ls tots</string>
+  <string name="Media.ShowAllImageItemsMenuItem">Mostra\'ls tots</string>
+  <string name="Media.ShowAllMoviesMenuItem">Mostra\'ls tots</string>
   <!--Special filters names-->
   <string name="Media.ImageFilterSmall">Petit</string>
   <string name="Media.ImageFilterMedium">Mitjà</string>
@@ -68,15 +68,15 @@
   <!--Display labels for workflow navigation contexts-->
   <string name="Media.BrowseMediaNavigationRootWorkflowNavigationContextDisplayLabel">Explora media</string>
   <string name="Media.LocalMediaNavigationRootWorkflowNavigationContextDisplayLabel">Media local</string>
-  <string name="Media.AudioNavigationRootWorkflowNavigationContextDisplayLabel">Biblioteca d'audio</string>
+  <string name="Media.AudioNavigationRootWorkflowNavigationContextDisplayLabel">Biblioteca d\'audio</string>
   <string name="Media.VideoNavigationRootWorkflowNavigationContextDisplayLabel">Biblioteca de vídeo</string>
   <string name="Media.SeriesNavigationRootWorkflowNavigationContextDisplayLabel">Biblioteca de sèries</string>
   <string name="Media.MoviesNavigationRootWorkflowNavigationContextDisplayLabel">Biblioteca de pel·lícules</string>
-  <string name="Media.ImageNavigationRootWorkflowNavigationContextDisplayLabel">Biblioteca d'imatges</string>
+  <string name="Media.ImageNavigationRootWorkflowNavigationContextDisplayLabel">Biblioteca d\'imatges</string>
   <string name="Media.VideoCurrentlyPlayingWorkflowStateNavigationContextDisplayLabel">Vídeo actual</string>
   <string name="Media.VideoFullscreenContentWorkflowStateNavigationContextDisplayLabel">Vídeo a pantalla completa</string>
   <string name="Media.AudioCurrentlyPlayingWorkflowStateNavigationContextDisplayLabel">Audio actual</string>
-  <string name="Media.AudioFullscreenContentWorkflowStateNavigationContextDisplayLabel">Visualització d'audio</string>
+  <string name="Media.AudioFullscreenContentWorkflowStateNavigationContextDisplayLabel">Visualització d\'audio</string>
   <string name="Media.ShowPlaylistWorkflowStateNavigationContextDisplayLabel">Llista</string>
   <string name="Media.EditPlaylistWorkflowStateNavigationContextDisplayLabel">Edita la llista</string>
   <string name="Media.PlaylistsOverviewWorkflowStateNavigationContextDisplayLabel">Llistes</string>
@@ -86,8 +86,8 @@
   <string name="Media.SavePlaylistSuccessfulWorkflowStateNavigationContextDisplayLabel">Amb èxit</string>
   <string name="Media.SavePlaylistFailedWorkflowStateNavigationContextDisplayLabel">Ha fallat</string>
   <string name="Media.PlayOrEnqueueItemsWorkflowStateNavigationContextDisplayLabel">Reprodueix/posa a la cua elements</string>
-  <string name="Media.CheckQueryPlayActionSingleItemWorkflowStateNavigationContextDisplayLabel">Executa l'acció</string>
-  <string name="Media.CheckQueryPlayActionMultipleItemsWorkflowStateNavigationContextDisplayLabel">Executa l'acció</string>
+  <string name="Media.CheckQueryPlayActionSingleItemWorkflowStateNavigationContextDisplayLabel">Executa l\'acció</string>
+  <string name="Media.CheckQueryPlayActionMultipleItemsWorkflowStateNavigationContextDisplayLabel">Executa l\'acció</string>
   <string name="Media.CheckQueryPlayActionMultipleItemsChooseMediaTypeWorkflowStateNavigationContextDisplayLabel">Trieu el tipus de media</string>
   <!--Screen headers-->
   <string name="Media.BrowseMediaNavigationHeader">Exploració dels media</string>
@@ -123,8 +123,8 @@
   <string name="Media.RemovePlaylistsHeader">Elimina llistes</string>
   <string name="Media.PlaylistDetailsHeader">Detalls de llista</string>
   <string name="Media.PlaylistLoadNoPlaylistText">No hi han llistes per carregar</string>
-  <string name="Media.PlaylistLoadErrorLoadingPlaylist">S'ha produït un error en carregar la llista</string>
-  <string name="Media.CannotSavePlaylistWithLocalMediaItems">Només es pot desar una llista si tots els elements s'han posat a la cua des del servidor d'inici (p. ex. no per l'exploració desconnectada dels media locals).</string>
+  <string name="Media.PlaylistLoadErrorLoadingPlaylist">S\'ha produït un error en carregar la llista</string>
+  <string name="Media.CannotSavePlaylistWithLocalMediaItems">Només es pot desar una llista si tots els elements s\'han posat a la cua des del servidor d\'inici (p. ex. no per l\'exploració desconnectada dels media locals).</string>
   <!--View names (names for the view instances)-->
   <string name="Media.BrowseMediaRootViewName">Explora media</string>
   <string name="Media.LocalMediaRootViewName">Media local</string>
@@ -151,51 +151,51 @@
   <string name="Media.MoreThanMaxItemsHint">La vista conté més de {0} elements. Restringiu-ne el nombre afegint-hi més filtres.</string>
   <string name="Media.MoreThanMaxItemsBrowseHint">La vista conté més de {0} elements.</string>
   <string name="Media.MoreThanMaxItemsSearchResultHint">El resultat de la cerca conté més de {0} elements. Acoteu-la.</string>
-  <string name="Media.ListIsBeingBuiltHint">S'esta formant la llista d'elements...</string>
-  <string name="Media.SearchResultIsBeingBuiltHint">S'està cercant...</string>
+  <string name="Media.ListIsBeingBuiltHint">S\'esta formant la llista d\'elements...</string>
+  <string name="Media.SearchResultIsBeingBuiltHint">S\'està cercant...</string>
   <!--Playlists-->
   <string name="Media.ManagePlaylists">Llistes</string>
   <string name="Media.AddAllToPlaylist">Afegeix-los tots a la llista</string>
   <string name="Media.NoItemsToAddHeader">No hi ha cap element per afegir</string>
   <string name="Media.NoItemsToAddText">No hi han elements a la vista actual</string>
-  <string name="Media.ChooseAVTypeDialogHeader">Trieu el tipus d'elements</string>
+  <string name="Media.ChooseAVTypeDialogHeader">Trieu el tipus d\'elements</string>
   <string name="Media.AddAllAudio">Afegeix elements audio</string>
   <string name="Media.AddAllVideo">Afegeix elements vídeo</string>
   <string name="Media.AddAllImages">Afegeix elements imatge</string>
   <string name="Media.AddAllVideosAndImages">Afegeix elements vídeo i imatge</string>
   <string name="Media.AddToPlaylistProgressDialogHeader">Curs</string>
-  <string name="Media.AddToPlaylistProgressText">S'estan afegint elements a llista...</string>
-  <string name="Media.NItemsAdded">S'han afegit {0} elements</string>
+  <string name="Media.AddToPlaylistProgressText">S\'estan afegint elements a llista...</string>
+  <string name="Media.NItemsAdded">S\'han afegit {0} elements</string>
   <string name="Media.StopAddToPlaylistButton">Atura</string>
   <string name="Media.NoPlaylistsAvailable">- No hi han llistes disponibles -</string>
-  <string name="Media.NoConfigPlaylistsHomeServerNotConnectedText">No es pot gestionar les llistes, ja que el servidor d'inici no és connectat</string>
+  <string name="Media.NoConfigPlaylistsHomeServerNotConnectedText">No es pot gestionar les llistes, ja que el servidor d\'inici no és connectat</string>
   <string name="Media.EditNameOfPlaylist">Edita el nom de la llista</string>
-  <string name="Media.SavePlaylistSuccessfulText">S'ha desat correctament la llista '{0}' al servidor.</string>
-  <string name="Media.SavePlaylistFailedText">No s'ha desat la llista: missatge d'error '{0}'</string>
-  <string name="Media.SavePlaylistFailedAlreadyExists">No s'ha desat la llista: ja hi ha una llista '{0}'</string>
+  <string name="Media.SavePlaylistSuccessfulText">S\'ha desat correctament la llista \'{0}\' al servidor.</string>
+  <string name="Media.SavePlaylistFailedText">No s\'ha desat la llista: missatge d\'error \'{0}\'</string>
+  <string name="Media.SavePlaylistFailedAlreadyExists">No s\'ha desat la llista: ja hi ha una llista \'{0}\'</string>
   <string name="Media.ChoosePlaylistsToBeRemovedText">Trieu les llistes a eliminar</string>
   <string name="Media.PlaylistNameInfoLabel">Nom de llista</string>
   <string name="Media.PlaylistTypeInfoLabel">Tipus de llista</string>
-  <string name="Media.PlaylistNumItemsLabel">Nombre d'elements</string>
+  <string name="Media.PlaylistNumItemsLabel">Nombre d\'elements</string>
   <string name="Media.PlaylistIdInfoLabel">Identificació interna de llista</string>
   <string name="Media.OpenPlayerStrategy.MediaPortal.UI.Services.Players.PCMOpenPlayerStrategy.Default">Defecte</string>
   <string name="Media.OpenPlayerStrategy.MediaPortal.UI.Services.Players.PCMOpenPlayerStrategy.PreservePiP">Conserva el vídeo PiP</string>
   <!--Play items dialog-->
-  <string name="Media.PlayItemDialogHeader">Reprodueix l'element</string>
+  <string name="Media.PlayItemDialogHeader">Reprodueix l\'element</string>
   <string name="Media.PlayAudioItems">Reprodueix els elements audio</string>
   <string name="Media.EnqueueAudioItems">Posa els elements audio a la cua</string>
   <string name="Media.MuteVideoAndPlayAudioItems">Reprodueix simultàniament els elements audio</string>
   <string name="Media.PlayVideoImageItems">Reprodueix els elements vídeo/imatge</string>
   <string name="Media.EnqueueVideoImageItems">Posa els elements vídeo/imatge a la cua</string>
-  <string name="Media.PlayVideoImageItemsMutedConcurrentAudio">Reprodueix els elements vídeo/imatge al fons i simultàniament l'element audio</string>
+  <string name="Media.PlayVideoImageItemsMutedConcurrentAudio">Reprodueix els elements vídeo/imatge al fons i simultàniament l\'element audio</string>
   <string name="Media.PlayVideoImageItemsPiP">Reprodueix els elements vídeo/imatge en mode PiP</string>
-  <string name="Media.PlayAudioItem">Reprodueix l'element audio</string>
-  <string name="Media.EnqueueAudioItem">Posa l'element audio a la cua</string>
-  <string name="Media.MuteVideoAndPlayAudioItem">Reprodueix simultàniament l'element audio</string>
-  <string name="Media.PlayVideoImageItem">Reprodueix l'element vídeo/imatge</string>
-  <string name="Media.EnqueueVideoImageItem">Posa l'element vídeo/imatge a la cua</string>
-  <string name="Media.PlayVideoImageItemMutedConcurrentAudio">Reprodueix l'element vídeo/imatge al fons i simultàniament l'element audio</string>
-  <string name="Media.PlayVideoImageItemPiP">Reprodueix l'element vídeo/imatge en mode PiP</string>
+  <string name="Media.PlayAudioItem">Reprodueix l\'element audio</string>
+  <string name="Media.EnqueueAudioItem">Posa l\'element audio a la cua</string>
+  <string name="Media.MuteVideoAndPlayAudioItem">Reprodueix simultàniament l\'element audio</string>
+  <string name="Media.PlayVideoImageItem">Reprodueix l\'element vídeo/imatge</string>
+  <string name="Media.EnqueueVideoImageItem">Posa l\'element vídeo/imatge a la cua</string>
+  <string name="Media.PlayVideoImageItemMutedConcurrentAudio">Reprodueix l\'element vídeo/imatge al fons i simultàniament l\'element audio</string>
+  <string name="Media.PlayVideoImageItemPiP">Reprodueix l\'element vídeo/imatge en mode PiP</string>
   <!--Player context names-->
   <string name="Media.VideoImageContextName">Viíeo/Imatge</string>
   <string name="Media.AudioContextName">Audio</string>
@@ -212,7 +212,7 @@
   <string name="Media.SeriesTitleLabel">Sèries:</string>
   <string name="Media.SeriesSeasonLabel">Temporada:</string>
   <string name="Media.SeriesEpisodeLabel">Episodi(s): </string>
-  <string name="Media.SeriesEpisodeNameLabel">Títol d'episodi:</string>
+  <string name="Media.SeriesEpisodeNameLabel">Títol d\'episodi:</string>
   <!--Image currently playing-->
   <string name="Media.ImageCurrentlyPlayingHeader">INformació de la imatge actual</string>
   <string name="Media.ImageTitleLabel">Nom:</string>
@@ -221,28 +221,28 @@
   <string name="Media.CameraModel">Model de càmera</string>
   <string name="Media.ImageISOSpeedLabel">Velocitat ISO:</string>
   <string name="Media.ImageFNumberLabel">Número F</string>
-  <string name="Media.ImageShutterSpeedLabel">Velocitat d'obturació:</string>
+  <string name="Media.ImageShutterSpeedLabel">Velocitat d\'obturació:</string>
   <string name="Media.ImageMeteringModeLabel">Mode fotòmetre</string>
-  <string name="Media.ImageExposureTimeLabel">Temps d'exhibició:</string>
+  <string name="Media.ImageExposureTimeLabel">Temps d\'exhibició:</string>
   <string name="Media.ImageCountryLabel">País:</string>
   <string name="Media.ImageStateLabel">Estat:</string>
   <string name="Media.ImageCityLabel">Ciutat:</string>
   <!--DVD currently playing-->
   <string name="Media.DVDCurrentlyPlayingHeader">Informació del DVD actual</string>
   <!--Audio currently playing-->
-  <string name="Media.AudioCurrentlyPlayingHeader">Informació de l'audio actual</string>
+  <string name="Media.AudioCurrentlyPlayingHeader">Informació de l\'audio actual</string>
   <string name="Media.AudioAlbumLabel">Àlbum:</string>
   <string name="Media.AudioArtistsLabel">Artistes: </string>
   <string name="Media.AudioTitleLabel">Títol:</string>
   <string name="Media.AudioYearLabel">Any:</string>
   <string name="Media.AudioDurationLabel">Durada:</string>
   <string name="Media.AudioGenresLabel">Gènere(s): </string>
-  <string name="Media.AudioPlaylistHeader">Llista d'audio</string>
+  <string name="Media.AudioPlaylistHeader">Llista d\'audio</string>
   <string name="Media.VideoImagePlaylistHeader">Llista de vídeo/imatge</string>
   <string name="Media.PiPPlaylistHeader">Llista de PiP</string>
   <string name="Media.SavePLAtServer">Desa al servidor</string>
   <string name="Media.SavePLLocally">Desa en local</string>
-  <string name="Media.ShowAudioPlaylistAction">Mostra la llista d'audio</string>
+  <string name="Media.ShowAudioPlaylistAction">Mostra la llista d\'audio</string>
   <string name="Media.ShowVideoImagePlaylistAction">Mostra la llista de vídeo/imatge</string>
   <string name="Media.ShowPiPPlaylistAction">Mostra la llista de PiP</string>
   <string name="Media.ClearPlaylistAction">Buida la llista</string>
@@ -252,7 +252,7 @@
   <string name="Media.EditPlaylistButton">Edita la llista</string>
   <string name="Media.LoadPlaylistButton">Carrega llista</string>
   <string name="Media.PlaylistEmpty">&lt;No hi han elements a la llista&gt;</string>
-  <string name="Media.CannotPlayItemDialogText">No es pot reproduïr l'element media</string>
+  <string name="Media.CannotPlayItemDialogText">No es pot reproduïr l\'element media</string>
   <string name="Media.CannotPlayItemsDialogText">No es pot reproduïr els elements media</string>
   <string name="Media.ValueEmptyTitle">&lt;Buit&gt;</string>
   <string name="Media.ChoosePlayModeDialogHeader">Trieu el mode de reproducció</string>
@@ -283,8 +283,8 @@
   <string name="Media.LargeList">Llista gran</string>
   <string name="Media.LargeGrid">Graella</string>
   <string name="Media.CoverLayout">Cobertes</string>
-  <string name="Media.SwitchSortingMenuItem">S'està ordenant</string>
-  <string name="Media.SwitchSortingDialogTitle">S'està ordenant</string>
+  <string name="Media.SwitchSortingMenuItem">S\'està ordenant</string>
+  <string name="Media.SwitchSortingDialogTitle">S\'està ordenant</string>
   <string name="Media.SortByTitle">Ordena per títol</string>
   <string name="Media.SortByAlbumTrack">Ordena per àlbum i peça</string>
   <string name="Media.SortByGenre">Ordena per gènere</string>
@@ -297,8 +297,8 @@
   <string name="Media.SortByActor">Ordena per actor</string>
   <string name="Media.SortByDirector">Filtra per director</string>
   <string name="Media.SortByDuration">Filtra per durada</string>
-  <string name="Media.SortByAspectRatio">Filtra per relació d'aspecte</string>
-  <string name="Media.SortByDate">Filtra per data d'enregistrament</string>
+  <string name="Media.SortByAspectRatio">Filtra per relació d\'aspecte</string>
+  <string name="Media.SortByDate">Filtra per data d\'enregistrament</string>
   <string name="Media.SortByEpisode">Filtra per episodi</string>
   <string name="Media.SortingBrowseDefault">Filtratge per defecte</string>
   <string name="Settings.Players">Reproductors</string>
@@ -306,10 +306,10 @@
   <string name="Settings.Players.ClosePlayersWhenFinished.Help">Activeu el paràmetre per a que el MediaPortal tanqui automàticmanet els reproductors en acabar</string>
   <string name="Settings.Players.InstantSkipPercent">Percentatge de salt ràpid</string>
   <string name="Settings.Players.InstantSkipPercent.Help">Seleccioneu el percentatge de la durada del vídeo a saltar ràpidament</string>
-  <string name="Settings.Players.SkipStepTimeout">Temps d'espera pels salts, en segons</string>
-  <string name="Settings.Players.SkipStepTimeout.Help">Modifiqueu el temps d'espera per accions de l'usuari abans que es reralitzi el salt</string>
+  <string name="Settings.Players.SkipStepTimeout">Temps d\'espera pels salts, en segons</string>
+  <string name="Settings.Players.SkipStepTimeout.Help">Modifiqueu el temps d\'espera per accions de l\'usuari abans que es reralitzi el salt</string>
   <string name="Settings.Players.SkipStepList">Salts del reproductor</string>
   <string name="Settings.Players.SkipStepList.Help">Introduïu</string>
-  <string name="Settings.Players.OpenPlayerStrategy">Obre l'estrategia del reproductor</string>
-  <string name="Settings.Players.OpenPlayerStrategy.Help">Estrategia, referent a la posició dels reproductors que s'obrin respecte als que ja ho estiguin</string>
+  <string name="Settings.Players.OpenPlayerStrategy">Obre l\'estrategia del reproductor</string>
+  <string name="Settings.Players.OpenPlayerStrategy.Help">Estrategia, referent a la posició dels reproductors que s\'obrin respecte als que ja ho estiguin</string>
 </resources>

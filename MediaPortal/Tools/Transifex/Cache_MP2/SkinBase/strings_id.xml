@@ -31,7 +31,7 @@
   <string name="Media.InvalidShareName">Share cacat</string>
   <string name="ServerConnection.NotificationServerAvailableTitle">Server MP2 tersedia</string>
   <string name="ServerConnection.NotificationServerAvailableText">Terdapat sedikitnya satu server MediaPortal 2 tersedia di jaringan. Kaitkan dengannya untuk memperoleh semua fitur MediaPortal 2.</string>
-  <string name="ServerConnection.ServerFormatText">{0}' pada host '{1}</string>
+  <string name="ServerConnection.ServerFormatText">\'{0}\' pada host \'{1}\'</string>
   <!--{0} = server name, {1} = host name-->
   <string name="ServerConnection.UnknownServerName">&lt;Tidak diketahui&gt;</string>
   <string name="ServerConnection.UnknownServerSystem">&lt;Tidak diketahui&gt;</string>
@@ -40,13 +40,12 @@
   <string name="ServerConnection.DetachFromServerWorkflowStateLabel">Putuskan dari server</string>
   <string name="ServerConnection.HomeServerWorkflowStateLabel">HomeServer</string>
   <string name="ServerConnection.AttachedText.Before">Klien MediaPortal 2 ini sedang terkait dengan server pusat</string>
-  <string name="ServerConnection.AttachedText.After"></string>
   <string name="ServerConnection.NoHomeServerAttached">Saat ini, klien MediaPortal 2 terputus dari server pusat.</string>
   <string name="ServerConnection.HomeServerIsConnected">Server pusat sedang terhubung.</string>
   <string name="ServerConnection.HomeServerIsNotConnected">Server pusat sudah tidak terhubung.</string>
   <string name="ServerConnection.DetachMenu">Putuskan</string>
   <string name="ServerConnection.DetachConfirmDialogHeader">Putuskan dari server pusat</string>
-  <string name="ServerConnection.DetachConfirmDialogText">Bila anda memutus dari server pusat, semua data yang dibagikan secara lokal termasuk item-item medianya akan dihapus dari pustaka media server pusat. Anda yakin untuk terputus dari server pusat '{0}' pada host '{1}'?</string>
+  <string name="ServerConnection.DetachConfirmDialogText">Bila anda memutus dari server pusat, semua data yang dibagikan secara lokal termasuk item-item medianya akan dihapus dari pustaka media server pusat. Anda yakin untuk terputus dari server pusat \'{0}\' pada host \'{1}\'?</string>
   <string name="ServerConnection.SearchForServers">Mencari server</string>
   <string name="ServerConnection.DetachFromServer">Terputus dari server pusat</string>
   <string name="ServerConnection.AttachToServerHeader">Terkait ke server MediaPortal 2</string>
@@ -56,7 +55,7 @@
   <string name="ServerConnection.AttachToServerNoServerText">Saat ini, tidak ada server MediaPortal 2 tersedia di jaringan.</string>
   <string name="ServerConnection.AttachButton">Kaitkan</string>
   <string name="ServerConnection.AttachInfoDialogHeader">Server terkait</string>
-  <string name="ServerConnection.AttachInfoDialogText">Klien MediaPortal 2 ini telah terkait dengan server pusat barunya '{0}' pada host '{1}'</string>
+  <string name="ServerConnection.AttachInfoDialogText">Klien MediaPortal 2 ini telah terkait dengan server pusat barunya \'{0}\' pada host \'{1}\'</string>
   <!--{0} = server name, {1} = host name-->
   <string name="Notifications.Title">Notifikasi</string>
   <string name="Notifications.OneMoreNotification">(1 lagi)</string>
@@ -64,9 +63,9 @@
   <string name="Notifications.WatchNotificationsWorkflowStateLabel">Notifikasi</string>
   <string name="Notifications.Handle">Tangani</string>
   <string name="ImporterMessages.ImportStartedTitle">Impor dimulai</string>
-  <string name="ImporterMessages.ImportStartedText">Import '{0}' telah dimulai.</string>
+  <string name="ImporterMessages.ImportStartedText">Import \'{0}\' telah dimulai.</string>
   <string name="ImporterMessages.ImportCompletedTitle">Impor selesai</string>
-  <string name="ImporterMessages.ImportCompletedText">Impor '{0}' telah selesai.</string>
+  <string name="ImporterMessages.ImportCompletedText">Impor \'{0}\' telah selesai.</string>
   <string name="LocalFsResourceProvider.Name">Penyedian sumber filesystem lokal</string>
   <string name="LocalFsResourceProvider.Description">Akses filesystem lokal</string>
   <string name="RemoteResourceProvider.Name">Penyedia sumber terkendali</string>
@@ -74,10 +73,10 @@
   <string name="ScreenSaver.MediaPortal2">MediaPortal 2</string>
   <!--For MP UI player subsystem-->
   <string name="Players.NoPlayerAvailableNotificationTitle">Tidak ada pemutar</string>
-  <string name="Players.NoPlayerAvailableNotificationText">Tidak ada pemutar yang terdaftar untuk memainkan item media '{0}'</string>
+  <string name="Players.NoPlayerAvailableNotificationText">Tidak ada pemutar yang terdaftar untuk memainkan item media \'{0}\'</string>
   <string name="Players.ErrorPlayingMediaItemTitle">Masalah memainkan item media</string>
-  <string name="Players.UnableToPlayMediaItemText">Tidak dapat memainkan item media '{0}'</string>
-  <string name="Players.ResourceNotFoundText">Sumber '{0}' tidak ditemukan</string>
+  <string name="Players.UnableToPlayMediaItemText">Tidak dapat memainkan item media \'{0}\'</string>
+  <string name="Players.ResourceNotFoundText">Sumber \'{0}\' tidak ditemukan</string>
   <string name="Players.PlayerConfiguration">Konfigurasi pemutar</string>
   <string name="Players.CurrentMediaInfo">Info media saat ini</string>
   <string name="Players.FullscreenVideo">Layar penuh {0}</string>
@@ -139,7 +138,7 @@
   <string name="SharesOverview.ReImportAllShares">Impor ulang semua share</string>
   <string name="SharesOverview.NotConnectedToHomeServer">Server pusat tidak terhubung, informasi sistem share tidak dapat diterima.</string>
   <string name="Shares.NoSharesInThisView">- Tidak ada share di tampilan ini -</string>
-  <string name="Shares.InvalidPath">PATH CACAT: '{0}'</string>
+  <string name="Shares.InvalidPath">PATH CACAT: \'{0}\'</string>
   <!--For example: INVALID PATH: 'C:\XXX\YYY'-->
   <string name="Shares.Online">Daring</string>
   <string name="Shares.Offline">Luring</string>

@@ -16,7 +16,7 @@
   <string name="Utilities.StartPlaylistImport">Spustiť import playlistu</string>
   <string name="Utilities.PlaylistSavedSuccessfullyTitle">Hotovo</string>
   <string name="Utilities.NoItemsWereImportedSkippingSaveText">Nepodarilo sa nič importovať, niet čo uložiť.</string>
-  <string name="Utilities.PlaylistSavedSuccessfullyText">Playlist '{0}' bol úspešne uložený.</string>
+  <string name="Utilities.PlaylistSavedSuccessfullyText">Playlist \'{0}\' bol úspešne uložený.</string>
   <string name="Utilities.PlaylistSaveFailedTitle">Ukladanie playlistu zlyhalo</string>
   <string name="Utilities.ImportPlaylistProgressTitle">Priebeh</string>
   <string name="Utilities.ImportPlaylistProgressHeaderText">Import playlistu</string>

@@ -16,7 +16,7 @@
   <string name="Utilities.StartPlaylistImport">Çalma listesi içe alma işlemini başlat</string>
   <string name="Utilities.PlaylistSavedSuccessfullyTitle">Başarılı</string>
   <string name="Utilities.NoItemsWereImportedSkippingSaveText">İçeri öğe alınmadı. Kayıt işlemi atlanıyor.</string>
-  <string name="Utilities.PlaylistSavedSuccessfullyText">Çalma listesi '{0}' başarıyla kaydedildi.</string>
+  <string name="Utilities.PlaylistSavedSuccessfullyText">Çalma listesi \'{0}\' başarıyla kaydedildi.</string>
   <string name="Utilities.PlaylistSaveFailedTitle">Çalma listesi kaydedilemedi.</string>
   <string name="Utilities.ImportPlaylistProgressTitle">İlerleme</string>
   <string name="Utilities.ImportPlaylistProgressHeaderText">Çalma listesi içe alınıyor</string>

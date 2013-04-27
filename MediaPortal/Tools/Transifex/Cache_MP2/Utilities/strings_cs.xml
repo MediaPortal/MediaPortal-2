@@ -16,7 +16,7 @@
   <string name="Utilities.StartPlaylistImport">Začít importovat seznam stop</string>
   <string name="Utilities.PlaylistSavedSuccessfullyTitle">Úspěch</string>
   <string name="Utilities.NoItemsWereImportedSkippingSaveText">Nebyla naimportována žádná položka. Uložení přeskočeno.</string>
-  <string name="Utilities.PlaylistSavedSuccessfullyText">Seznam stop '{0}' úspěšně uložen.</string>
+  <string name="Utilities.PlaylistSavedSuccessfullyText">Seznam stop \'{0}\' úspěšně uložen.</string>
   <string name="Utilities.PlaylistSaveFailedTitle">Uložení seznamu stop selhalo</string>
   <string name="Utilities.ImportPlaylistProgressTitle">Postup</string>
   <string name="Utilities.ImportPlaylistProgressHeaderText">Importuji seznam stop</string>

@@ -31,7 +31,7 @@
   <string name="Media.InvalidShareName">Ogiltig utdelad mapp</string>
   <string name="ServerConnection.NotificationServerAvailableTitle">MediaPortal 2-server är tillgänglig</string>
   <string name="ServerConnection.NotificationServerAvailableText">Det finns minst en MediaPortal 2 server tillgänglig på nätverket. Anslut för att få tillgång till alla funktioner i MediaPortal 2.</string>
-  <string name="ServerConnection.ServerFormatText">{0}' på värd '{1}</string>
+  <string name="ServerConnection.ServerFormatText">\'{0}\' hos värden \'{1}\'</string>
   <!--{0} = server name, {1} = host name-->
   <string name="ServerConnection.UnknownServerName">&lt;Okänd&gt;</string>
   <string name="ServerConnection.UnknownServerSystem">&lt;Okänd&gt;</string>
@@ -40,13 +40,12 @@
   <string name="ServerConnection.DetachFromServerWorkflowStateLabel">Koppla från servern</string>
   <string name="ServerConnection.HomeServerWorkflowStateLabel">Hemmaserver</string>
   <string name="ServerConnection.AttachedText.Before">Denna MediaPortal 2-klient är ansluten till en hemmaserver</string>
-  <string name="ServerConnection.AttachedText.After"></string>
   <string name="ServerConnection.NoHomeServerAttached">Denna MediaPortal 2-klient är inte ansluten till en hemmaserver</string>
   <string name="ServerConnection.HomeServerIsConnected">Hemmaservern är uppkopplad. </string>
   <string name="ServerConnection.HomeServerIsNotConnected">Hemmaservern är frånkopplad. </string>
   <string name="ServerConnection.DetachMenu">Koppla från</string>
   <string name="ServerConnection.DetachConfirmDialogHeader">Koppla från hemmaservern</string>
-  <string name="ServerConnection.DetachConfirmDialogText">Om du kopplar från hemmaservern så kommer all data om lokala mappar och deras mediaobjekt att tas bort från hemmaserverns bibliotek. Du kan ansluta igen senare. Vill du verkligen koppla från hemmaservern '{0}' på värd '{1}'? </string>
+  <string name="ServerConnection.DetachConfirmDialogText">Om du kopplar från hemmaservern så kommer all data om lokala mappar och deras mediaobjekt att tas bort från hemmaserverns bibliotek. Du kan ansluta igen senare. Vill du verkligen koppla från hemmaservern \'{0}\' på värd \'{1}\'? </string>
   <string name="ServerConnection.SearchForServers">Sök efter servrar</string>
   <string name="ServerConnection.DetachFromServer">Koppla från hemmaservern</string>
   <string name="ServerConnection.AttachToServerHeader">Anslut till MediaPortal 2-server</string>
@@ -56,7 +55,7 @@
   <string name="ServerConnection.AttachToServerNoServerText">För närvarande finns inga MediaPortal 2-servrar tillgängliga på nätverket. </string>
   <string name="ServerConnection.AttachButton">Anslut</string>
   <string name="ServerConnection.AttachInfoDialogHeader">Servern är ansluten</string>
-  <string name="ServerConnection.AttachInfoDialogText">Denna MediaPortal 2-klient anslöts till dess nya hemmaserver '{0}' på värd '{1}'</string>
+  <string name="ServerConnection.AttachInfoDialogText">Denna MediaPortal 2-klient anslöts till dess nya hemmaserver \'{0}\' på värd \'{1}\'</string>
   <!--{0} = server name, {1} = host name-->
   <string name="Notifications.Title">Meddelanden</string>
   <string name="Notifications.OneMoreNotification">(1 till)</string>
@@ -64,9 +63,9 @@
   <string name="Notifications.WatchNotificationsWorkflowStateLabel">Meddelanden</string>
   <string name="Notifications.Handle">Hantera</string>
   <string name="ImporterMessages.ImportStartedTitle">Import startad</string>
-  <string name="ImporterMessages.ImportStartedText">Import av '{0}' har startat.</string>
+  <string name="ImporterMessages.ImportStartedText">Import av \'{0}\' har startat.</string>
   <string name="ImporterMessages.ImportCompletedTitle">Import slutförd</string>
-  <string name="ImporterMessages.ImportCompletedText">Import av '{0}' är slutförd.</string>
+  <string name="ImporterMessages.ImportCompletedText">Import av \'{0}\' är slutförd.</string>
   <string name="LocalFsResourceProvider.Name">Resursförsörjare för lokalt filsystem</string>
   <string name="LocalFsResourceProvider.Description">Åtkomst till det lokala filsystemet</string>
   <string name="RemoteResourceProvider.Name">Fjärrresursförsörjare</string>
@@ -74,10 +73,10 @@
   <string name="ScreenSaver.MediaPortal2">MediaPortal 2</string>
   <!--For MP UI player subsystem-->
   <string name="Players.NoPlayerAvailableNotificationTitle">Ingen spelare</string>
-  <string name="Players.NoPlayerAvailableNotificationText">Det finns ingen spelare registrerad för att spela objekt '{0}'</string>
+  <string name="Players.NoPlayerAvailableNotificationText">Det finns ingen spelare registrerad för att spela objekt \'{0}\'</string>
   <string name="Players.ErrorPlayingMediaItemTitle">Fel vid spelning av mediaobjekt</string>
-  <string name="Players.UnableToPlayMediaItemText">Kan inte spela mediaobjekt '{0}'</string>
-  <string name="Players.ResourceNotFoundText">Resursen '{0}' hittades inte</string>
+  <string name="Players.UnableToPlayMediaItemText">Kan inte spela mediaobjekt \'{0}\'</string>
+  <string name="Players.ResourceNotFoundText">Resursen \'{0}\' hittades inte</string>
   <string name="Players.PlayerConfiguration">Konfigurera spelare</string>
   <string name="Players.CurrentMediaInfo">Aktuell mediainfo</string>
   <string name="Players.FullscreenVideo">Fullskärm {0}</string>
@@ -109,6 +108,8 @@
   <string name="Settings.General.System">System</string>
   <string name="Settings.General.System.Autostart">Autostart</string>
   <string name="Settings.General.System.Autostart.Help">Starta MediaPortal 2 automatiskt när Windows startar</string>
+  <string name="Settings.General.System.ClientDOKANDrive">Enhetsbeteckning för nätverksmappen </string>
+  <string name="Settings.General.System.ClientDOKANDrive.Help">Konfigurerar den här klientens enhetsbeteckningen för nätverksmappen </string>
   <string name="Settings.General.Connectivity">Uppkopplingar</string>
   <string name="Settings.General.Connectivity.HomeServer">Hemmaserver</string>
   <string name="Settings.General.Connectivity.HomeServer.Help">Hemmaserverinformation, anslut till och koppla från hemmaservern</string>
@@ -139,7 +140,7 @@
   <string name="SharesOverview.ReImportAllShares">Återimportera alla mappar</string>
   <string name="SharesOverview.NotConnectedToHomeServer">Hemmaservern är inte uppkopplad, så det går inte att hämta information om systemets utdelade mappar.</string>
   <string name="Shares.NoSharesInThisView">- Det finns inga mappar i den här vyn -</string>
-  <string name="Shares.InvalidPath">OGILTIG SÖKVÄG:'{0}'</string>
+  <string name="Shares.InvalidPath">OGILTIG SÖKVÄG:\'{0}\'</string>
   <!--For example: INVALID PATH: 'C:\XXX\YYY'-->
   <string name="Shares.Online">Online</string>
   <string name="Shares.Offline">Offline</string>

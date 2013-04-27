@@ -16,7 +16,7 @@
   <string name="Utilities.StartPlaylistImport">Hef innflutning á spilunarlista</string>
   <string name="Utilities.PlaylistSavedSuccessfullyTitle">Tókst</string>
   <string name="Utilities.NoItemsWereImportedSkippingSaveText">Ekkert var innflutt.  Sleppi vistun.</string>
-  <string name="Utilities.PlaylistSavedSuccessfullyText">Spilunarlisti '{0}' var vistaður</string>
+  <string name="Utilities.PlaylistSavedSuccessfullyText">Spilunarlisti \'{0}\' var vistaður</string>
   <string name="Utilities.PlaylistSaveFailedTitle">Mistókst að vista spilunarlista</string>
   <string name="Utilities.ImportPlaylistProgressTitle">Framvinda</string>
   <string name="Utilities.ImportPlaylistProgressHeaderText">Innflutningur spilunarlista</string>

@@ -4,7 +4,7 @@
   <string name="System.No">No</string>
   <string name="System.Done">Fet</string>
   <string name="System.Finish">Finalitzar</string>
-  <string name="System.Ok">D'acord</string>
+  <string name="System.Ok">D\'acord</string>
   <string name="System.Cancel">Cancel·la</string>
   <string name="System.Discard">Descarta</string>
   <string name="System.Back">Enrere</string>
@@ -31,87 +31,86 @@
   <string name="Media.InvalidShareName">Lloc compartit no vàlid</string>
   <string name="ServerConnection.NotificationServerAvailableTitle">Servidor MP2 disponible</string>
   <string name="ServerConnection.NotificationServerAvailableText">A la xarxa hi ha com a mínim un servidor MediaPortal2 disponible. Vinculeu-vos-hi per a obtenir-ne totes les funcions.</string>
-  <string name="ServerConnection.ServerFormatText">{0}' al host '{1}</string>
+  <string name="ServerConnection.ServerFormatText">\'{0}\' al host \'{1}\'</string>
   <!--{0} = server name, {1} = host name-->
   <string name="ServerConnection.UnknownServerName">&lt;Desconegut&gt;</string>
   <string name="ServerConnection.UnknownServerSystem">&lt;Desconegut&gt;</string>
-  <string name="ServerConnection.HomeServer">Servidor d'inici</string>
-  <string name="ServerConnection.AttachToServerWorkflowStateLabel">Vincula't al servidor</string>
-  <string name="ServerConnection.DetachFromServerWorkflowStateLabel">Desvincula't del servidor</string>
-  <string name="ServerConnection.HomeServerWorkflowStateLabel">Servidor d'inici</string>
-  <string name="ServerConnection.AttachedText.Before">El client del MediaPortal 2 és vinculat al servidor d'inici</string>
-  <string name="ServerConnection.AttachedText.After"></string>
-  <string name="ServerConnection.NoHomeServerAttached">El client del MediaPortal 2 no és vinculat a cap servidor d'inici</string>
-  <string name="ServerConnection.HomeServerIsConnected">El servidor d'inici està connectat</string>
-  <string name="ServerConnection.HomeServerIsNotConnected">El servidor d'inici està desconnectat</string>
+  <string name="ServerConnection.HomeServer">Servidor d\'inici</string>
+  <string name="ServerConnection.AttachToServerWorkflowStateLabel">Vincula\'t al servidor</string>
+  <string name="ServerConnection.DetachFromServerWorkflowStateLabel">Desvincula\'t del servidor</string>
+  <string name="ServerConnection.HomeServerWorkflowStateLabel">Servidor d\'inici</string>
+  <string name="ServerConnection.AttachedText.Before">El client del MediaPortal 2 és vinculat al servidor d\'inici</string>
+  <string name="ServerConnection.NoHomeServerAttached">El client del MediaPortal 2 no és vinculat a cap servidor d\'inici</string>
+  <string name="ServerConnection.HomeServerIsConnected">El servidor d\'inici està connectat</string>
+  <string name="ServerConnection.HomeServerIsNotConnected">El servidor d\'inici està desconnectat</string>
   <string name="ServerConnection.DetachMenu">Desvincula</string>
-  <string name="ServerConnection.DetachConfirmDialogHeader">Desvincula't del servidor d'inici</string>
-  <string name="ServerConnection.DetachConfirmDialogText">Si us desvinculeu del servidor d'inici totes les dades de llocs compartits locals i els elements media s'eliminaran de la seva biblioteca. Us hi podeu tornar a vincular més tard. Voleu desvincular del servidor d'inici '{0}' al host '{1}'?</string>
+  <string name="ServerConnection.DetachConfirmDialogHeader">Desvincula\'t del servidor d\'inici</string>
+  <string name="ServerConnection.DetachConfirmDialogText">Si us desvinculeu del servidor d\'inici totes les dades de llocs compartits locals i els elements media s\'eliminaran de la seva biblioteca. Us hi podeu tornar a vincular més tard. Voleu desvincular del servidor d\'inici \'{0}\' al host \'{1}\'?</string>
   <string name="ServerConnection.SearchForServers">Cerca servidors</string>
-  <string name="ServerConnection.DetachFromServer">Desvincula't del servidor d'inici</string>
-  <string name="ServerConnection.AttachToServerHeader">Vincula't del servidor del MediaPortal 2</string>
-  <string name="ServerConnection.AttachToMultipleText">Hi han diversos servidors MP 2 disponibles a la xarxa. Vouleu triar-ne un de servidor d'inici?</string>
+  <string name="ServerConnection.DetachFromServer">Desvincula\'t del servidor d\'inici</string>
+  <string name="ServerConnection.AttachToServerHeader">Vincula\'t del servidor del MediaPortal 2</string>
+  <string name="ServerConnection.AttachToMultipleText">Hi han diversos servidors MP 2 disponibles a la xarxa. Vouleu triar-ne un de servidor d\'inici?</string>
   <string name="ServerConnection.AttachToSingleText.Before">El servidor MP 2</string>
   <string name="ServerConnection.AttachToSingleText.After">és disponible a la xarxa. Voleu vincular-vos-hi?</string>
   <string name="ServerConnection.AttachToServerNoServerText">No hi ha cap servidor del MediaPortal 2 diponible a la xarxa.</string>
   <string name="ServerConnection.AttachButton">Vincula</string>
   <string name="ServerConnection.AttachInfoDialogHeader">Servidor vinculat</string>
-  <string name="ServerConnection.AttachInfoDialogText">El client del MediaPortal 2 s'havia vinculat al nou servidor d'inici '{0}' al host '{1}'</string>
+  <string name="ServerConnection.AttachInfoDialogText">El client del MediaPortal 2 s\'havia vinculat al nou servidor d\'inici \'{0}\' al host \'{1}\'</string>
   <!--{0} = server name, {1} = host name-->
   <string name="Notifications.Title">Notificacions</string>
   <string name="Notifications.OneMoreNotification">(1 més)</string>
   <string name="Notifications.NMoreNotifications">({0} més)</string>
   <string name="Notifications.WatchNotificationsWorkflowStateLabel">Notificacions</string>
   <string name="Notifications.Handle">Gestiona</string>
-  <string name="ImporterMessages.ImportStartedTitle">S'ha iniciat la importació</string>
-  <string name="ImporterMessages.ImportStartedText">S'ha iniciat la importació de '{0}'.</string>
-  <string name="ImporterMessages.ImportCompletedTitle">S'ha completat la importació</string>
-  <string name="ImporterMessages.ImportCompletedText">S'ha acabat la importació de '{0}'.</string>
+  <string name="ImporterMessages.ImportStartedTitle">S\'ha iniciat la importació</string>
+  <string name="ImporterMessages.ImportStartedText">S\'ha iniciat la importació de \'{0}\'.</string>
+  <string name="ImporterMessages.ImportCompletedTitle">S\'ha completat la importació</string>
+  <string name="ImporterMessages.ImportCompletedText">S\'ha acabat la importació de \'{0}\'.</string>
   <string name="LocalFsResourceProvider.Name">Proveïdor de recursos del sistema de fitxers local</string>
   <string name="LocalFsResourceProvider.Description">Accedeix al sistema de fitxers local</string>
   <string name="RemoteResourceProvider.Name">Proveïdor de recursos remot</string>
-  <string name="RemoteResourceProvider.Description">Accedeix als recursos d'un altre sistema MediaPortal 2</string>
+  <string name="RemoteResourceProvider.Description">Accedeix als recursos d\'un altre sistema MediaPortal 2</string>
   <string name="ScreenSaver.MediaPortal2">MediaPortal 2</string>
   <!--For MP UI player subsystem-->
   <string name="Players.NoPlayerAvailableNotificationTitle">Cap reproductor</string>
-  <string name="Players.NoPlayerAvailableNotificationText">No hi ha cap reproductor registrat per a reproduïr l'element '{0}'</string>
-  <string name="Players.ErrorPlayingMediaItemTitle">S'ha produït un error en reproduïr l'element media</string>
-  <string name="Players.UnableToPlayMediaItemText">No es pot reproduïr l'element media '{0}'</string>
-  <string name="Players.ResourceNotFoundText">No s'ha trobat el recurs '{0}'</string>
+  <string name="Players.NoPlayerAvailableNotificationText">No hi ha cap reproductor registrat per a reproduïr l\'element \'{0}\'</string>
+  <string name="Players.ErrorPlayingMediaItemTitle">S\'ha produït un error en reproduïr l\'element media</string>
+  <string name="Players.UnableToPlayMediaItemText">No es pot reproduïr l\'element media \'{0}\'</string>
+  <string name="Players.ResourceNotFoundText">No s\'ha trobat el recurs \'{0}\'</string>
   <string name="Players.PlayerConfiguration">Configuració de reproductor</string>
   <string name="Players.CurrentMediaInfo">Informació del media</string>
   <string name="Players.FullscreenVideo">Pantalla completa {0}</string>
   <!--for example "Fullscreen TV"-->
   <string name="Players.FullscreenImage">Imatge a pantalla completa</string>
-  <string name="Players.AudioVisualization">Visualització d'audio</string>
+  <string name="Players.AudioVisualization">Visualització d\'audio</string>
   <string name="Players.PlayerOfType">Reproductor {0}</string>
   <!--for example "Video player"-->
   <string name="Players.SlotNo">Ranura #{0}</string>
   <string name="Players.FocusPlayer">Focus {0}</string>
   <!--for example "Focus video player"-->
   <string name="Players.SwitchPipPlayers">Canvia els reproductors PiP</string>
-  <string name="Players.ChooseAudioStream">Tria el flux d'audio</string>
-  <string name="Players.PlayerSlotAudioMenu">Menú d'audio per {0}</string>
+  <string name="Players.ChooseAudioStream">Tria el flux d\'audio</string>
+  <string name="Players.PlayerSlotAudioMenu">Menú d\'audio per {0}</string>
   <!--for example "Audio menu for Lammbock"-->
   <string name="Players.Mute">Silencia</string>
   <string name="Players.MuteOff">Sonoritza</string>
   <string name="Players.ClosePlayerContext">Tanca {0}</string>
   <!--for example "Close video player"-->
-  <string name="Players.ChoosePlayerGeometry">Mode d'escalat</string>
+  <string name="Players.ChoosePlayerGeometry">Mode d\'escalat</string>
   <string name="Players.ChoosePlayerEffect">Effecte</string>
   <string name="Settings.Appearance">Aparença</string>
   <string name="Settings.Appearance.Skin">Aparença</string>
   <string name="Settings.Appearance.Skin.Formats.DateFormat">Format de data</string>
-  <string name="Settings.Appearance.Skin.Formats.DateFormat.Help">Format de data utilitzat a l'aparença. Seguiu les especificacions de format de la classe DateTime del .net.</string>
-  <string name="Settings.Appearance.Skin.Formats.TimeFormat">Format d'hora</string>
-  <string name="Settings.Appearance.Skin.Formats.TimeFormat.Help">Format d'hora utilitzat a l'aparença. Seguiu les especificacions de format de la classe DateTime del .net.</string>
+  <string name="Settings.Appearance.Skin.Formats.DateFormat.Help">Format de data utilitzat a l\'aparença. Seguiu les especificacions de format de la classe DateTime del .net.</string>
+  <string name="Settings.Appearance.Skin.Formats.TimeFormat">Format d\'hora</string>
+  <string name="Settings.Appearance.Skin.Formats.TimeFormat.Help">Format d\'hora utilitzat a l\'aparença. Seguiu les especificacions de format de la classe DateTime del .net.</string>
   <string name="Settings.General">General</string>
   <string name="Settings.General.System">Sistema</string>
   <string name="Settings.General.System.Autostart">Inici automàtic</string>
   <string name="Settings.General.System.Autostart.Help">Inicia automàticament el MediaPortal en engegr el Windows</string>
   <string name="Settings.General.Connectivity">Connectivitat</string>
-  <string name="Settings.General.Connectivity.HomeServer">Servidor d'inici</string>
-  <string name="Settings.General.Connectivity.HomeServer.Help">Informació del servidor d'inici, vincula i desvinvula del servidor d'inici</string>
+  <string name="Settings.General.Connectivity.HomeServer">Servidor d\'inici</string>
+  <string name="Settings.General.Connectivity.HomeServer.Help">Informació del servidor d\'inici, vincula i desvinvula del servidor d\'inici</string>
   <string name="Settings.General.Connectivity.ServerListener">Cercador de servidors</string>
   <string name="Settings.General.Connectivity.ServerListener.Help">Habilita les notificacions en estat desvinculat, en posar-se disponible a la xarxa un servidor MediaPortal 2</string>
   <string name="Settings.General.Connectivity.ClientName">Nom del client</string>
@@ -119,7 +118,7 @@
   <string name="Settings.Regional">Regional</string>
   <string name="Settings.Regional.Language">Idioma</string>
   <string name="Settings.Regional.Language.Main">Idioma</string>
-  <string name="Settings.Regional.Language.Main.Help">Estableix l'idioma principal per l'aplicació</string>
+  <string name="Settings.Regional.Language.Main.Help">Estableix l\'idioma principal per l\'aplicació</string>
   <string name="Settings.Shares">Llocs compartits</string>
   <!--Section name-->
   <string name="Settings.Shares.Configure">Configura llocs compartits</string>
@@ -137,14 +136,14 @@
   <string name="SharesOverview.OverviewWorkflowNavigationContextDisplayLabel">Visió dels llocs compartits</string>
   <string name="SharesOverview.Title">Visió dels llocs compartits</string>
   <string name="SharesOverview.ReImportAllShares">Torna a importar tots els llocs compartits</string>
-  <string name="SharesOverview.NotConnectedToHomeServer">No es pot recuperar informació dels llocs compartits del sistema, ja que el servidor d'inici no és connectat.</string>
+  <string name="SharesOverview.NotConnectedToHomeServer">No es pot recuperar informació dels llocs compartits del sistema, ja que el servidor d\'inici no és connectat.</string>
   <string name="Shares.NoSharesInThisView">- No hi ha cap lloc compartit a la vista -</string>
-  <string name="Shares.InvalidPath">INVCAMÍ NO VÀLID: '{0}'</string>
+  <string name="Shares.InvalidPath">INVCAMÍ NO VÀLID: \'{0}\'</string>
   <!--For example: INVALID PATH: 'C:\XXX\YYY'-->
   <string name="Shares.Online">En línia</string>
   <string name="Shares.Offline">Fora de línia</string>
   <string name="Shares.ReImport">Torna a importar</string>
-  <string name="Shares.Importing">S'està important...</string>
+  <string name="Shares.Importing">S\'està important...</string>
   <!--Shares configuration workflow-->
   <string name="SharesConfig.SharesOverviewWorkflowNavigationContextDisplayLabel">Configuració de llocs compartits</string>
   <string name="SharesConfig.SharesRemoveWorkflowNavigationContextDisplayLabel">Elimina llocs compartits</string>
@@ -156,7 +155,7 @@
   <string name="SharesConfig.SharesEditEditNameWorkflowNavigationContextDisplayLabel">Edita el nom</string>
   <string name="SharesConfig.SharesEditChooseCategoriesWorkflowNavigationContextDisplayLabel">Trieu categories</string>
   <string name="SharesConfig.CannotAddSharesTitle">No es poden afegir llocs compartits</string>
-  <string name="SharesConfig.CannotAddShareLocalHomeServerNotConnected">El servidor d'inici es troba al mateix ordinador, per tant, s'hi han de registrar tots els llocs compartits. El servidor no és connectat encara; inicieu el servidor d'inici i proveu de nou.</string>
+  <string name="SharesConfig.CannotAddShareLocalHomeServerNotConnected">El servidor d\'inici es troba al mateix ordinador, per tant, s\'hi han de registrar tots els llocs compartits. El servidor no és connectat encara; inicieu el servidor d\'inici i proveu de nou.</string>
   <string name="SharesConfig.SharesConfiguration.Title">Configuració de llocs compartits</string>
   <string name="SharesConfig.NoSharesAvailable">No hi han llocs compartits disponibles</string>
   <string name="SharesConfig.ShareInformationHeader">Informació de llocs compartits</string>
@@ -177,8 +176,8 @@
   <string name="SharesConfig.LocalShares">Llocs compartits locals</string>
   <string name="SharesConfig.GlobalShare">Lloc compartit global</string>
   <string name="SharesConfig.GlobalShares">Llocs compartits globals</string>
-  <string name="SharesConfig.NoConfigGlobalSharesHomeServerNotConnected">No es poden gestionar els llocs compartits, ja que el servidor d'inici no és connectat.</string>
-  <string name="SharesConfig.NoConfigLocalSharesHomeServerLocal">El servidor d'inici es troba al mateix ordinador, per tant, només es pot configurar llocs compartits globals.</string>
+  <string name="SharesConfig.NoConfigGlobalSharesHomeServerNotConnected">No es poden gestionar els llocs compartits, ja que el servidor d\'inici no és connectat.</string>
+  <string name="SharesConfig.NoConfigLocalSharesHomeServerLocal">El servidor d\'inici es troba al mateix ordinador, per tant, només es pot configurar llocs compartits globals.</string>
   <string name="SharesConfig.ChooseResourceProviderForShare">Seleccioneu un proveïdor de recursos pel lloc compartit</string>
   <string name="SharesConfig.EditResourceProviderPathForShare">Edita el camí del lloc compartit</string>
   <string name="SharesConfig.ResourceProviderPathIsNotValid">Editeu un camí vàlid del proveïdor de recursos triat. Podeu editar un camí senzill que sigui comprès pel proveïdor de recursos. Tanmateix, podeu editar un camí complex amb el format {[Base-ResourceProvider-ID]}://[Base-ResourceProvider-Path]&gt;{[Chained-ResourceProvider-ID]}://[Chained-ResourceProvider-Path]&gt;...</string>
@@ -188,8 +187,8 @@
   <string name="SharesConfig.SharePathExists">Ja hi ha un lloc compartit amb aquest camí</string>
   <string name="SharesConfig.ShareNameExists">Ja hi ha un lloc compartit amb aquest nom</string>
   <string name="SharesConfig.ShareNameEmpty">Edita el nom del lloc compartit</string>
-  <string name="SharesConfig.EditShareProblemHeader">S'ha produït un problema en configurar el lloc compartit</string>
-  <string name="SharesConfig.EditShareProblemText">S'ha produït un error intern en configurar el lloc compartit</string>
+  <string name="SharesConfig.EditShareProblemHeader">S\'ha produït un problema en configurar el lloc compartit</string>
+  <string name="SharesConfig.EditShareProblemText">S\'ha produït un error intern en configurar el lloc compartit</string>
   <string name="SharesConfig.MenuAddShare">Afegeix un lloc compartit</string>
   <string name="SharesConfig.MenuEditShares">Edita</string>
   <string name="SharesConfig.MenuRemoveShares">Elimina llocs compartits</string>
@@ -200,7 +199,7 @@
   <string name="SharesConfig.AddLocalShare">Afegeix un lloc compartit locall</string>
   <string name="SharesConfig.EditLocalShare">Edita un lloc compartit local</string>
   <string name="SharesConfig.UpdateShareRelocateItemsQueryDialogHeader">Actualitza el lloc compartit</string>
-  <string name="SharesConfig.UpdateShareRelocateItemsQueryText.Info">S'ha actualitzat el proveïdor de recursos i/o el camí del lloc compartit.</string>
+  <string name="SharesConfig.UpdateShareRelocateItemsQueryText.Info">S\'ha actualitzat el proveïdor de recursos i/o el camí del lloc compartit.</string>
   <string name="SharesConfig.UpdateShareRelocateItemsQueryText.Description">La informació dels elements a la biblioteca de media del lloc compartit es pot actualitzar (moure), o buidar i tornar a importar.</string>
   <string name="SharesConfig.UpdateShareRelocateItemsQueryText.Query">Voleu actualitzar, o buidar i tornar a importar?</string>
   <string name="SharesConfig.Relocate">Actualitzar</string>
@@ -208,7 +207,7 @@
   <string name="UPnPFrontendServer.DefaultFriendlyName">Client MediaPortal 2</string>
   <string name="UPnPFrontendServer.Manufacturer">Team Mediaportal</string>
   <string name="UPnPFrontendServer.ManufacturerUrl">www.team-mediaportal.com</string>
-  <string name="UPnPFrontendServer.ModelDescription">Client MediaPortal 2 - la GUI del MediaPortal. Reprodueix contingut media, allotja els llocs compartits locals i proveeix la interfície d'usuari.</string>
+  <string name="UPnPFrontendServer.ModelDescription">Client MediaPortal 2 - la GUI del MediaPortal. Reprodueix contingut media, allotja els llocs compartits locals i proveeix la interfície d\'usuari.</string>
   <string name="UPnPFrontendServer.ModelName">Client MediaPortal 2</string>
   <string name="UPnPFrontendServer.ModelNumber">1</string>
   <!--<string name="UPnPFrontendServer.ModelUrl">...</string>-->

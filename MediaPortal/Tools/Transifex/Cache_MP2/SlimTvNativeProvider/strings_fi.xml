@@ -2,7 +2,7 @@
 <resources>
   <string name="Settings.Plugins.TV">TV</string>
   <string name="Settings.Plugins.TV.MPExtendedServerAddress">MPExtended palvelimen osoitteet</string>
-  <string name="Settings.Plugins.TV.MPExtendedServerAddress.Help">Syötä palvelimen nimet tai IP-osoitteet, erotettuna ';' (oletuksena localhost)</string>
+  <string name="Settings.Plugins.TV.MPExtendedServerAddress.Help">Syötä palvelimen nimet tai IP-osoitteet, erotettuna \';\' (oletuksena localhost)</string>
   <string name="Settings.Plugins.TV.MPExtendedUsername">MPExtended palvelun käyttäjänimi</string>
   <string name="Settings.Plugins.TV.MPExtendedUsername.Help">Syötä käyttäjänimi yhdistääksesi. Tyhjä nimi käyttää anonyymiä yhteyttä.</string>
   <string name="Settings.Plugins.TV.MPExtendedPassword">MPExtended palvelun salasana</string>

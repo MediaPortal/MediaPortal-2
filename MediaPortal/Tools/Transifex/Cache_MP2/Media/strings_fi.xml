@@ -170,9 +170,9 @@
   <string name="Media.NoPlaylistsAvailable">- Soittolistoja ei saatavilla -</string>
   <string name="Media.NoConfigPlaylistsHomeServerNotConnectedText">Kotipalvelin ei ole kytkettynä, joten soittolistoja ei voi hallita tällä hetkellä</string>
   <string name="Media.EditNameOfPlaylist">Muokkaa soittolistan nimeä</string>
-  <string name="Media.SavePlaylistSuccessfulText">Soittolista '{0}' tallennettiin onnistuneesti palvelimelle.</string>
-  <string name="Media.SavePlaylistFailedText">Soittolistaa ei voitu tallentaa. Virheilmoitus: '{0}'</string>
-  <string name="Media.SavePlaylistFailedAlreadyExists">Soittolistaa ei voitu tallentaa: Soittolista '{0}' on jo olemassa</string>
+  <string name="Media.SavePlaylistSuccessfulText">Soittolista \'{0}\' tallennettiin onnistuneesti palvelimelle.</string>
+  <string name="Media.SavePlaylistFailedText">Soittolistaa ei voitu tallentaa. Virheilmoitus: \'{0}\'</string>
+  <string name="Media.SavePlaylistFailedAlreadyExists">Soittolistaa ei voitu tallentaa: Soittolista \'{0}\' on jo olemassa</string>
   <string name="Media.ChoosePlaylistsToBeRemovedText">Valitse poistettavat soittolistat</string>
   <string name="Media.PlaylistNameInfoLabel">Soittolistan nimi</string>
   <string name="Media.PlaylistTypeInfoLabel">Soittolistan tyyppi</string>

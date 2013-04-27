@@ -37,7 +37,6 @@
   <string name="ServerConnection.DetachFromServerWorkflowStateLabel">Szerverről leválasztás</string>
   <string name="ServerConnection.HomeServerWorkflowStateLabel">Otthoni Szerver</string>
   <string name="ServerConnection.AttachedText.Before">Ez a MediaPortal 2 kliens jelenleg az otthoni szerverhez van csatolva.</string>
-  <string name="ServerConnection.AttachedText.After"></string>
   <string name="ServerConnection.NoHomeServerAttached">Jelenleg, ez a MediaPortal 2 kliens nincs az otthoni szerverhez csatolva.</string>
   <string name="ServerConnection.HomeServerIsConnected">Jelenleg az otthoni szerverhez van kapcsolódva.</string>
   <string name="ServerConnection.HomeServerIsNotConnected">Jelenleg nincs az otthoni szerverhez kapcsolódva.</string>
@@ -64,8 +63,8 @@
   <!--For MP UI player subsystem-->
   <string name="Players.NoPlayerAvailableNotificationTitle">Nincs lejátszó</string>
   <string name="Players.ErrorPlayingMediaItemTitle">Hiba történt a média elem lejátszása közben</string>
-  <string name="Players.UnableToPlayMediaItemText">Nem lehet lejátszani a média elemet: '{0}'</string>
-  <string name="Players.ResourceNotFoundText">A forrás '{0}' nem található</string>
+  <string name="Players.UnableToPlayMediaItemText">Nem lehet lejátszani a média elemet: \'{0}\'</string>
+  <string name="Players.ResourceNotFoundText">A forrás \'{0}\' nem található</string>
   <string name="Players.PlayerConfiguration">Lejátszó beállítása</string>
   <string name="Players.CurrentMediaInfo">Jelenlegi média információi</string>
   <string name="Players.FullscreenVideo">Teljes képernyő {0}</string>
@@ -121,7 +120,7 @@
   <string name="SharesOverview.Title">Megosztások áttekintése</string>
   <string name="SharesOverview.ReImportAllShares">Összes megosztás újraimportálása</string>
   <string name="Shares.NoSharesInThisView">- Nincsenek megosztások ebben a nézetben -</string>
-  <string name="Shares.InvalidPath">ÉRVÉNYTELEN ÚTVONAL: '{0}'</string>
+  <string name="Shares.InvalidPath">ÉRVÉNYTELEN ÚTVONAL: \'{0}\'</string>
   <!--For example: INVALID PATH: 'C:\XXX\YYY'-->
   <string name="Shares.Online">Online</string>
   <string name="Shares.Offline">Offline</string>

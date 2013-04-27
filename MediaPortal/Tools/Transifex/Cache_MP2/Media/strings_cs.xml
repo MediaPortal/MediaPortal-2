@@ -170,9 +170,9 @@
   <string name="Media.NoPlaylistsAvailable">- Není dostupný žádný seznam stop -</string>
   <string name="Media.NoConfigPlaylistsHomeServerNotConnectedText">Domovský server není aktuálně připojen, takže nelze nyní spravovat seznamy stop</string>
   <string name="Media.EditNameOfPlaylist">Upravit název seznamu stop</string>
-  <string name="Media.SavePlaylistSuccessfulText">Seznam stop '{0}' byl úspěšně uložen na server.</string>
-  <string name="Media.SavePlaylistFailedText">Seznam stop nelze uložit. Chybová zpráva: '{0}'</string>
-  <string name="Media.SavePlaylistFailedAlreadyExists">Seznam stop nelze uložit. Seznam stop '{0}' již existuje</string>
+  <string name="Media.SavePlaylistSuccessfulText">Seznam stop \'{0}\' byl úspěšně uložen na server.</string>
+  <string name="Media.SavePlaylistFailedText">Seznam stop nelze uložit. Chybová zpráva: \'{0}\'</string>
+  <string name="Media.SavePlaylistFailedAlreadyExists">Seznam stop nelze uložit. Seznam stop \'{0}\' již existuje</string>
   <string name="Media.ChoosePlaylistsToBeRemovedText">Vyberte seznamy stop k odebrání</string>
   <string name="Media.PlaylistNameInfoLabel">Název seznamu stop</string>
   <string name="Media.PlaylistTypeInfoLabel">Typ seznamu stop</string>
@@ -309,7 +309,7 @@
   <string name="Settings.Players.SkipStepTimeout">Časový limit v sekundách pro kroky přeskočení</string>
   <string name="Settings.Players.SkipStepTimeout.Help">Nastavte časový limit pro vstup uživatele než je proveden krok přeskočení</string>
   <string name="Settings.Players.SkipStepList">Kroky přeskočení přehrávače</string>
-  <string name="Settings.Players.SkipStepList.Help">Zadejte kroky přeskočení v sekundách oddělené ','</string>
+  <string name="Settings.Players.SkipStepList.Help">Zadejte kroky přeskočení v sekundách oddělené \',\'</string>
   <string name="Settings.Players.OpenPlayerStrategy">Strategie otevírání přehrávače</string>
   <string name="Settings.Players.OpenPlayerStrategy.Help">Strategie, jak budou nově otevřené přehrávače umístěny mezi již otevřené přehrávače</string>
 </resources>

@@ -20,7 +20,7 @@
   <string name="Settings.Players.Codecs.AudioCodecs.AudioRenderer.Help">Définir le type de rendu audio</string>
   <string name="Settings.Players.VideoPlayer">Lecteur vidéo</string>
   <string name="Settings.Players.VideoPlayer.PreferMultiChannelAudio">Préférer les flux audio multicanaux</string>
-  <string name="Settings.Players.VideoPlayer.PreferMultiChannelAudio.Help">Le flux 6 canaux sera préféré (ex : AC3, AAC...), s'il est disponible</string>
+  <string name="Settings.Players.VideoPlayer.PreferMultiChannelAudio.Help">Le flux 6 canaux sera préféré (ex : AC3, AAC...), s\'il est disponible</string>
   <string name="Settings.Players.DVDPlayer">Lecteur DVD</string>
   <string name="Settings.Players.DVDPlayer.EnableClosedCaption">Audio description</string>
   <string name="Settings.Players.DVDPlayer.EnableClosedCaption.Help">Audio description actif par défaut ?</string>

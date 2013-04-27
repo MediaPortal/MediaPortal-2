@@ -170,9 +170,9 @@
   <string name="Media.NoPlaylistsAvailable">Плејлиста није дефинисана</string>
   <string name="Media.NoConfigPlaylistsHomeServerNotConnectedText">Home server тренутно није прикључен па се плејлиста не може мењати</string>
   <string name="Media.EditNameOfPlaylist">Промени име плејлисте</string>
-  <string name="Media.SavePlaylistSuccessfulText">Плејлиста '{0}' је успешно сачувана на серверу</string>
-  <string name="Media.SavePlaylistFailedText">Плејлиста није могла бити сачувана. Грешка: '{0}'</string>
-  <string name="Media.SavePlaylistFailedAlreadyExists">Плејлиста није могла бити сачувана. Плејлиста '{0}' већ постоји.</string>
+  <string name="Media.SavePlaylistSuccessfulText">Плејлиста \'{0}\' је успешно сачувана на серверу</string>
+  <string name="Media.SavePlaylistFailedText">Плејлиста није могла бити сачувана. Грешка: \'{0}\'</string>
+  <string name="Media.SavePlaylistFailedAlreadyExists">Плејлиста није могла бити сачувана. Плејлиста \'{0}\' већ постоји.</string>
   <string name="Media.ChoosePlaylistsToBeRemovedText">Изаберите плејлисту за уклањање</string>
   <string name="Media.PlaylistNameInfoLabel">Име плејлисте</string>
   <string name="Media.PlaylistTypeInfoLabel">Врста плејлисте</string>

@@ -16,7 +16,7 @@
   <string name="Utilities.StartPlaylistImport">התחל ייבוא רשימת השמעה</string>
   <string name="Utilities.PlaylistSavedSuccessfullyTitle">הצלחה</string>
   <string name="Utilities.NoItemsWereImportedSkippingSaveText">אין פריטים שיובאו, מדלג על פעולת השמירה</string>
-  <string name="Utilities.PlaylistSavedSuccessfullyText">רשימת השמעה '{0}' נשמרה בהצלחה</string>
+  <string name="Utilities.PlaylistSavedSuccessfullyText">רשימת השמעה \'{0}\' נשמרה בהצלחה</string>
   <string name="Utilities.PlaylistSaveFailedTitle">שמירת רשימת השמעה נכשלה</string>
   <string name="Utilities.ImportPlaylistProgressTitle">התקדמות</string>
   <string name="Utilities.ImportPlaylistProgressHeaderText">מייבא רשימת השמעה</string>

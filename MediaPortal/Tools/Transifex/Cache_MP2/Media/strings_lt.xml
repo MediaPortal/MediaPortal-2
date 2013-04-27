@@ -171,8 +171,8 @@
   <string name="Media.NoConfigPlaylistsHomeServerNotConnectedText">Pagrindinis serveris neprijungtas, todėl grojaraščių negalima valdyti</string>
   <string name="Media.EditNameOfPlaylist">Koreguoti grojaraščio vardą</string>
   <string name="Media.SavePlaylistSuccessfulText">Grojaraštis {0} sėkmingai išsaugotas serveryje.</string>
-  <string name="Media.SavePlaylistFailedText">Grojaraščio neįmanoma išsaugoti. Klaida: '{0}'</string>
-  <string name="Media.SavePlaylistFailedAlreadyExists">Grojaraščio neįmanoma išsaugoti. Grojaraštis '{0}' jau egzistuoja</string>
+  <string name="Media.SavePlaylistFailedText">Grojaraščio neįmanoma išsaugoti. Klaida: \'{0}\'</string>
+  <string name="Media.SavePlaylistFailedAlreadyExists">Grojaraščio neįmanoma išsaugoti. Grojaraštis \'{0}\' jau egzistuoja</string>
   <string name="Media.ChoosePlaylistsToBeRemovedText">Pasirinkti išmetamą grojaraštį</string>
   <string name="Media.PlaylistNameInfoLabel">Grojaraščio vardas</string>
   <string name="Media.PlaylistTypeInfoLabel">Grojaraščio tipas</string>

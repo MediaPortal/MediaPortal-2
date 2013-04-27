@@ -2,7 +2,7 @@
 <resources>
   <string name="Settings.Plugins.TV">TV</string>
   <string name="Settings.Plugins.TV.MPExtendedServerAddress">MPExtended serveradres</string>
-  <string name="Settings.Plugins.TV.MPExtendedServerAddress.Help">Voer de servernamen of IP-adressen in, gescheiden door een ';' (Standaard wordt 'localhost' gebruikt).</string>
+  <string name="Settings.Plugins.TV.MPExtendedServerAddress.Help">Voer de servernamen of IP-adressen in, gescheiden door een \';\' (Standaard wordt \'localhost\' gebruikt).</string>
   <string name="Settings.Plugins.TV.MPExtendedUsername">MPExtended service gebruikersnaam</string>
   <string name="Settings.Plugins.TV.MPExtendedUsername.Help">Voer de gebruikersnaam in om te verbinden. Als de gebruikersnaam niet wordt opgegeven wordt een anonieme verbinding gebruikt.</string>
   <string name="Settings.Plugins.TV.MPExtendedPassword">MPExtended service wachtwoord</string>

@@ -31,7 +31,7 @@
   <string name="Media.InvalidShareName">Ungültige Freigabe</string>
   <string name="ServerConnection.NotificationServerAvailableTitle">MP2-Server verfügbar</string>
   <string name="ServerConnection.NotificationServerAvailableText">Es gibt mindestens einen MediaPortal-2-Server im Netzwerk. Verbinde diesen Client mit ihm, um alle Funktionen nutzen zu können.</string>
-  <string name="ServerConnection.ServerFormatText">{0}' auf Rechner '{1}</string>
+  <string name="ServerConnection.ServerFormatText">\'{0}\' auf Rechner \'{1}\'</string>
   <!--{0} = server name, {1} = host name-->
   <string name="ServerConnection.UnknownServerName">&lt;Unbekannt&gt;</string>
   <string name="ServerConnection.UnknownServerSystem">&lt;Unbekannt&gt;</string>
@@ -40,13 +40,12 @@
   <string name="ServerConnection.DetachFromServerWorkflowStateLabel">Vom Server abkoppeln</string>
   <string name="ServerConnection.HomeServerWorkflowStateLabel">Heimserver</string>
   <string name="ServerConnection.AttachedText.Before">Dieser MediaPortal-2-Client ist einem Heimserver zugewiesen.</string>
-  <string name="ServerConnection.AttachedText.After"></string>
   <string name="ServerConnection.NoHomeServerAttached">Dieser MediaPortal-2-Client ist momentan keinem Heimserver zugewiesen.</string>
   <string name="ServerConnection.HomeServerIsConnected">Mit dem Heimserver verbunden.</string>
   <string name="ServerConnection.HomeServerIsNotConnected">Vom Heimserver getrennt.</string>
   <string name="ServerConnection.DetachMenu">Abkoppeln</string>
   <string name="ServerConnection.DetachConfirmDialogHeader">Vom Heimserver abkoppeln</string>
-  <string name="ServerConnection.DetachConfirmDialogText">Beim Abkoppeln vom Server werden alle Informationen über die lokalen Freigaben und deren Mediendateien vom Heimserver entfernt. Ein erneutes Anbinden ist möglich. Soll wirklich vom Server '{0}' ({1}) abgekoppelt werden?</string>
+  <string name="ServerConnection.DetachConfirmDialogText">Beim Abkoppeln vom Server werden alle Informationen über die lokalen Freigaben und deren Mediendateien vom Heimserver entfernt. Ein erneutes Anbinden ist möglich. Soll wirklich vom Server \'{0}\' ({1}) abgekoppelt werden?</string>
   <string name="ServerConnection.SearchForServers">Nach Servern suchen</string>
   <string name="ServerConnection.DetachFromServer">Vom Server abkoppeln</string>
   <string name="ServerConnection.AttachToServerHeader">An den Server anbinden</string>
@@ -56,7 +55,7 @@
   <string name="ServerConnection.AttachToServerNoServerText">Zur Zeit ist kein MediaPortal-2-Server im Netzwerk verfügbar.</string>
   <string name="ServerConnection.AttachButton">Anbinden</string>
   <string name="ServerConnection.AttachInfoDialogHeader">Server angebunden</string>
-  <string name="ServerConnection.AttachInfoDialogText">Dieser MediaPortal-2-Client wurde mit dem Heimserver '{0}' auf Rechner '{1}' verbunden.</string>
+  <string name="ServerConnection.AttachInfoDialogText">Dieser MediaPortal-2-Client wurde mit dem Heimserver \'{0}\' auf Rechner \'{1}\' verbunden.</string>
   <!--{0} = server name, {1} = host name-->
   <string name="Notifications.Title">Meldungen</string>
   <string name="Notifications.OneMoreNotification">(1 mehr)</string>
@@ -64,9 +63,9 @@
   <string name="Notifications.WatchNotificationsWorkflowStateLabel">Meldungen</string>
   <string name="Notifications.Handle">Details</string>
   <string name="ImporterMessages.ImportStartedTitle">Import gestartet</string>
-  <string name="ImporterMessages.ImportStartedText">Der Import '{0}' wurde gestartet.</string>
+  <string name="ImporterMessages.ImportStartedText">Der Import \'{0}\' wurde gestartet.</string>
   <string name="ImporterMessages.ImportCompletedTitle">Import abgeschlossen</string>
-  <string name="ImporterMessages.ImportCompletedText">Der Import '{0}' wurde abgeschlossen.</string>
+  <string name="ImporterMessages.ImportCompletedText">Der Import \'{0}\' wurde abgeschlossen.</string>
   <string name="LocalFsResourceProvider.Name">Ressourcen-Provider für das lokale Dateisystem</string>
   <string name="LocalFsResourceProvider.Description">Zugriff auf das lokale Dateisystem</string>
   <string name="RemoteResourceProvider.Name">Remote-Resourcen-Provider</string>
@@ -74,10 +73,10 @@
   <string name="ScreenSaver.MediaPortal2">MediaPortal 2</string>
   <!--For MP UI player subsystem-->
   <string name="Players.NoPlayerAvailableNotificationTitle">Fehlender Player</string>
-  <string name="Players.NoPlayerAvailableNotificationText">Es ist kein Player registriert, um das Medien-Objekt '{0}' wiedergeben zu können.</string>
+  <string name="Players.NoPlayerAvailableNotificationText">Es ist kein Player registriert, um das Medien-Objekt \'{0}\' wiedergeben zu können.</string>
   <string name="Players.ErrorPlayingMediaItemTitle">Wiedergabefehler</string>
-  <string name="Players.UnableToPlayMediaItemText">Wiedergabe von Medien-Objekt '{0}' nicht möglich.</string>
-  <string name="Players.ResourceNotFoundText">Ressource '{0}' nicht gefunden</string>
+  <string name="Players.UnableToPlayMediaItemText">Wiedergabe von Medien-Objekt \'{0}\' nicht möglich.</string>
+  <string name="Players.ResourceNotFoundText">Ressource \'{0}\' nicht gefunden</string>
   <string name="Players.PlayerConfiguration">Player-Einstellungen</string>
   <string name="Players.CurrentMediaInfo">Aktuelle Medien-Information</string>
   <string name="Players.FullscreenVideo">Vollbild-{0}</string>
@@ -109,6 +108,8 @@
   <string name="Settings.General.System">System</string>
   <string name="Settings.General.System.Autostart">Autostart</string>
   <string name="Settings.General.System.Autostart.Help">Starte MediaPortal automatisch beim Windows-Start</string>
+  <string name="Settings.General.System.ClientDOKANDrive">Laufwerksbuchstabe für Quelle</string>
+  <string name="Settings.General.System.ClientDOKANDrive.Help">Ordnet auf diesen Client der Remote-Quelle einen Laufwerksbuchstaben zu</string>
   <string name="Settings.General.Connectivity">Verbindungen</string>
   <string name="Settings.General.Connectivity.HomeServer">Heimserver</string>
   <string name="Settings.General.Connectivity.HomeServer.Help">Informationen zum Heimserver, Verbinden und Trennen</string>
@@ -139,7 +140,7 @@
   <string name="SharesOverview.ReImportAllShares">Alle Freigaben (erneut) importieren</string>
   <string name="SharesOverview.NotConnectedToHomeServer">Der Heimserver ist nicht verbunden, so dass keine Informationen zu System-Freigaben abgerufen werden können.</string>
   <string name="Shares.NoSharesInThisView">- Keine Freigaben in dieser Anzeige -</string>
-  <string name="Shares.InvalidPath">UNGÜLTIGER PFAD: '{0}'</string>
+  <string name="Shares.InvalidPath">UNGÜLTIGER PFAD: \'{0}\'</string>
   <!--For example: INVALID PATH: 'C:\XXX\YYY'-->
   <string name="Shares.Online">Online</string>
   <string name="Shares.Offline">Offline</string>

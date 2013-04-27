@@ -16,7 +16,7 @@
   <string name="Utilities.StartPlaylistImport">star import av spilleliste</string>
   <string name="Utilities.PlaylistSavedSuccessfullyTitle">Suksess</string>
   <string name="Utilities.NoItemsWereImportedSkippingSaveText">Ingen elementer ble importert. Ingen lagring gjort.</string>
-  <string name="Utilities.PlaylistSavedSuccessfullyText">Vellykket lagring av spillelisten '{0}'</string>
+  <string name="Utilities.PlaylistSavedSuccessfullyText">Vellykket lagring av spillelisten \'{0}\'</string>
   <string name="Utilities.PlaylistSaveFailedTitle">Lagring av spillelisten misslyktes</string>
   <string name="Utilities.ImportPlaylistProgressTitle">Fremgang</string>
   <string name="Utilities.ImportPlaylistProgressHeaderText">Importerer spillelisten</string>

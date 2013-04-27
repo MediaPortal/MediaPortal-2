@@ -31,7 +31,7 @@
   <string name="Media.InvalidShareName">Negalimas bendrinys</string>
   <string name="ServerConnection.NotificationServerAvailableTitle">MP serveris nepasiekiamas</string>
   <string name="ServerConnection.NotificationServerAvailableText">Bent vienas MediaPortal 2 serveris yra pasieiamas. Prijunkite prie jo norint naudotis visomis MediaPortal 2 funkcijomis.</string>
-  <string name="ServerConnection.ServerFormatText">{0}' pagrindiniame kompiuteryje '{1}</string>
+  <string name="ServerConnection.ServerFormatText">\'{0}\' pagrindiniame kompiuteryje \'{1}\'</string>
   <!--{0} = server name, {1} = host name-->
   <string name="ServerConnection.UnknownServerName">&lt;Nežinomas&gt;</string>
   <string name="ServerConnection.UnknownServerSystem">&lt;Nežinomas&gt;</string>
@@ -40,13 +40,12 @@
   <string name="ServerConnection.DetachFromServerWorkflowStateLabel">Atjungti nuo serverio</string>
   <string name="ServerConnection.HomeServerWorkflowStateLabel">Pagrindinis serveris</string>
   <string name="ServerConnection.AttachedText.Before">MediaPortal 2 klientas yra prijungtas prie pagrindinio serverio</string>
-  <string name="ServerConnection.AttachedText.After"></string>
   <string name="ServerConnection.NoHomeServerAttached">Šis MediaPortal 2 klientas dabar nėra prijungtas prie pagrindinio serverio.</string>
   <string name="ServerConnection.HomeServerIsConnected">Pagrindinis serveris yra prijungtas.</string>
   <string name="ServerConnection.HomeServerIsNotConnected">Pagrindinis serveris atjungtas.</string>
   <string name="ServerConnection.DetachMenu">Atjungti</string>
   <string name="ServerConnection.DetachConfirmDialogHeader">Atjungti nuo pagrindinio serverio</string>
-  <string name="ServerConnection.DetachConfirmDialogText">Jei Jūs atjungsite nuo pagrindinio serverio, visi duomenys apie lokalius bendrinius ir jų media įrašai bus panaikinti pagrindinio serverio bibliotekoje. Jūs galėsite prijungti vėliau. Ar tikrai norite atjungti pagrindinį serverį '{0}' kompiuteryje '{1}'?</string>
+  <string name="ServerConnection.DetachConfirmDialogText">Jei Jūs atjungsite nuo pagrindinio serverio, visi duomenys apie lokalius bendrinius ir jų media įrašai bus panaikinti pagrindinio serverio bibliotekoje. Jūs galėsite prijungti vėliau. Ar tikrai norite atjungti pagrindinį serverį \'{0}\' kompiuteryje \'{1}\'?</string>
   <string name="ServerConnection.SearchForServers">Ieškoti serverių</string>
   <string name="ServerConnection.DetachFromServer">Atjungti nuo pagrindinio serverio</string>
   <string name="ServerConnection.AttachToServerHeader">Prijungti prie MediaPortal 2 serverio</string>
@@ -56,17 +55,17 @@
   <string name="ServerConnection.AttachToServerNoServerText">Tinkle nėra pasiekiamų MediaPortal 2 serverių.</string>
   <string name="ServerConnection.AttachButton">Prijungti</string>
   <string name="ServerConnection.AttachInfoDialogHeader">Serveris prijungtas</string>
-  <string name="ServerConnection.AttachInfoDialogText">MediaPortal 2 klientas prijungtas prie naujo pagrindinio serverio '{0}' kompiuteryje '{1}'</string>
+  <string name="ServerConnection.AttachInfoDialogText">MediaPortal 2 klientas prijungtas prie naujo pagrindinio serverio \'{0}\' kompiuteryje \'{1}\'</string>
   <!--{0} = server name, {1} = host name-->
   <string name="Notifications.Title">Pranešimai</string>
   <string name="Notifications.OneMoreNotification">(dar 1)</string>
-  <string name="Notifications.NMoreNotifications">(dar '{0}')</string>
+  <string name="Notifications.NMoreNotifications">(dar \'{0}\')</string>
   <string name="Notifications.WatchNotificationsWorkflowStateLabel">Pranešimai</string>
   <string name="Notifications.Handle">Valdyti</string>
   <string name="ImporterMessages.ImportStartedTitle">Įkėlimas pradėtas</string>
-  <string name="ImporterMessages.ImportStartedText">'{0}' įkėlimas pradėtas.</string>
+  <string name="ImporterMessages.ImportStartedText">\'{0}\' įkėlimas pradėtas.</string>
   <string name="ImporterMessages.ImportCompletedTitle">Įkėlimas baigtas</string>
-  <string name="ImporterMessages.ImportCompletedText">'{0}' įkėlimas baigtas.</string>
+  <string name="ImporterMessages.ImportCompletedText">\'{0}\' įkėlimas baigtas.</string>
   <string name="LocalFsResourceProvider.Name">Lokalios bylų sistemos šaltinio tiekėjas</string>
   <string name="LocalFsResourceProvider.Description">Pasiekti lokalią bylų sistemą</string>
   <string name="RemoteResourceProvider.Name">Nuotolinis šaltinio tiekėjas</string>
@@ -74,13 +73,13 @@
   <string name="ScreenSaver.MediaPortal2">MediaPortal 2</string>
   <!--For MP UI player subsystem-->
   <string name="Players.NoPlayerAvailableNotificationTitle">Nėra grotuvo</string>
-  <string name="Players.NoPlayerAvailableNotificationText">Nėra registruoto grotuvo media įrašui '{0}' atkurti</string>
+  <string name="Players.NoPlayerAvailableNotificationText">Nėra registruoto grotuvo media įrašui \'{0}\' atkurti</string>
   <string name="Players.ErrorPlayingMediaItemTitle">Klaida atkuriant media įrašą</string>
-  <string name="Players.UnableToPlayMediaItemText">Negalima atkurti media įrašą '{0}'</string>
-  <string name="Players.ResourceNotFoundText">Šaltinis '{0}' nerastas</string>
+  <string name="Players.UnableToPlayMediaItemText">Negalima atkurti media įrašą \'{0}\'</string>
+  <string name="Players.ResourceNotFoundText">Šaltinis \'{0}\' nerastas</string>
   <string name="Players.PlayerConfiguration">Grotuvo konfiguracija</string>
   <string name="Players.CurrentMediaInfo">Šios media informacija</string>
-  <string name="Players.FullscreenVideo">Visas ekranas '{0}'</string>
+  <string name="Players.FullscreenVideo">Visas ekranas \'{0}\'</string>
   <!--for example "Fullscreen TV"-->
   <string name="Players.FullscreenImage">Viso ekrano vaizdas</string>
   <string name="Players.AudioVisualization">Audio vizualizacija</string>
@@ -139,7 +138,7 @@
   <string name="SharesOverview.ReImportAllShares">Pakartoti visų bendrinimų įkėlimą</string>
   <string name="SharesOverview.NotConnectedToHomeServer">Namų serveris neprijungtas, sistemos bendrinių informacija nepasiekiama</string>
   <string name="Shares.NoSharesInThisView">- Bendrinių nėra šiame atvaizde -</string>
-  <string name="Shares.InvalidPath">Negalimas kelias: '{0}'</string>
+  <string name="Shares.InvalidPath">Negalimas kelias: \'{0}\'</string>
   <!--For example: INVALID PATH: 'C:\XXX\YYY'-->
   <string name="Shares.Online">Online</string>
   <string name="Shares.Offline">Offline</string>

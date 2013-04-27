@@ -29,7 +29,7 @@
   <string name="Media.InvalidShareName">Vigane jagamine</string>
   <string name="ServerConnection.NotificationServerAvailableTitle">MP2 server saadaval</string>
   <string name="ServerConnection.NotificationServerAvailableText">Vähemalt üks MP2 server saadaval, ühenda see MediaPortal 2 kõigi võimaluste kasutamiseks.</string>
-  <string name="ServerConnection.ServerFormatText">{0}' hostil '{1}</string>
+  <string name="ServerConnection.ServerFormatText">\'{0}\' hostil \'{1}\'</string>
   <!--{0} = server name, {1} = host name-->
   <string name="ServerConnection.UnknownServerName">&lt;Unknown&gt;</string>
   <string name="ServerConnection.UnknownServerSystem">&lt;Unknown&gt;</string>
@@ -38,13 +38,12 @@
   <string name="ServerConnection.DetachFromServerWorkflowStateLabel">Eraldu serverist</string>
   <string name="ServerConnection.HomeServerWorkflowStateLabel">Koduserver</string>
   <string name="ServerConnection.AttachedText.Before">See MP2 kasutaja on hetkel ühendatud koduserveriga</string>
-  <string name="ServerConnection.AttachedText.After"></string>
   <string name="ServerConnection.NoHomeServerAttached">See MP2 kasutaja ei ole hetkel ühendatud koduserveriga</string>
   <string name="ServerConnection.HomeServerIsConnected">Koduserver on hetkel ühendatud</string>
   <string name="ServerConnection.HomeServerIsNotConnected">Koduserver on hetkel eraldatud</string>
   <string name="ServerConnection.DetachMenu">Eralda</string>
   <string name="ServerConnection.DetachConfirmDialogHeader">Eraldu koduserverist</string>
-  <string name="ServerConnection.DetachConfirmDialogText">Kui eraldud koduserverist eemaldatakse kõik andmed kohalike jagamisete ja meediafailide kohta meedia loetelust. Hiljem saab uuesti ühenduda. Kas eralduda koduserverist '{0}' hostil '{1}'?</string>
+  <string name="ServerConnection.DetachConfirmDialogText">Kui eraldud koduserverist eemaldatakse kõik andmed kohalike jagamisete ja meediafailide kohta meedia loetelust. Hiljem saab uuesti ühenduda. Kas eralduda koduserverist \'{0}\' hostil \'{1}\'?</string>
   <string name="ServerConnection.SearchForServers">Serveri otsimine</string>
   <string name="ServerConnection.DetachFromServer">Eraldu koduserverist</string>
   <string name="ServerConnection.AttachToServerHeader">Ühendu MediaPortal 2 serveriga</string>
@@ -54,7 +53,7 @@
   <string name="ServerConnection.AttachToServerNoServerText">Võrgus ei ole MediaPortal 2 serverit saadaval.</string>
   <string name="ServerConnection.AttachButton">Lisa</string>
   <string name="ServerConnection.AttachInfoDialogHeader">Server ühendatud</string>
-  <string name="ServerConnection.AttachInfoDialogText">MediaPortal 2 klient on ühendatud uue koduserveriga '{0}' hostil '{1}'</string>
+  <string name="ServerConnection.AttachInfoDialogText">MediaPortal 2 klient on ühendatud uue koduserveriga \'{0}\' hostil \'{1}\'</string>
   <!--{0} = server name, {1} = host name-->
   <string name="Notifications.Title">Teatised</string>
   <string name="Notifications.OneMoreNotification">(1 veel)</string>
@@ -62,9 +61,9 @@
   <string name="Notifications.WatchNotificationsWorkflowStateLabel">Teatised</string>
   <string name="Notifications.Handle">Käsitle</string>
   <string name="ImporterMessages.ImportStartedTitle">Import alustatud</string>
-  <string name="ImporterMessages.ImportStartedText">'{0}' import  on alustatud</string>
+  <string name="ImporterMessages.ImportStartedText">\'{0}\' import  on alustatud</string>
   <string name="ImporterMessages.ImportCompletedTitle">Import valmis</string>
-  <string name="ImporterMessages.ImportCompletedText">'{0}' import on valmis</string>
+  <string name="ImporterMessages.ImportCompletedText">\'{0}\' import on valmis</string>
   <string name="LocalFsResourceProvider.Name">Kohaliku failisüsteemi ressursipakkuja</string>
   <string name="LocalFsResourceProvider.Description">Pääs kohalikku failisüsteemi</string>
   <string name="RemoteResourceProvider.Name">Kauge ressursipakkuja</string>
@@ -72,10 +71,10 @@
   <string name="ScreenSaver.MediaPortal2">MediaPortal 2</string>
   <!--For MP UI player subsystem-->
   <string name="Players.NoPlayerAvailableNotificationTitle">Pole pleierit</string>
-  <string name="Players.NoPlayerAvailableNotificationText">Pole registreeritud pleierit '{0}' esitamiseks</string>
+  <string name="Players.NoPlayerAvailableNotificationText">Pole registreeritud pleierit \'{0}\' esitamiseks</string>
   <string name="Players.ErrorPlayingMediaItemTitle">Meedia esitamise viga</string>
-  <string name="Players.UnableToPlayMediaItemText">Ei suuda esitada '{0}'</string>
-  <string name="Players.ResourceNotFoundText">Ressussi '{0}' ei leia</string>
+  <string name="Players.UnableToPlayMediaItemText">Ei suuda esitada \'{0}\'</string>
+  <string name="Players.ResourceNotFoundText">Ressussi \'{0}\' ei leia</string>
   <string name="Players.PlayerConfiguration">Pleieri seadistamine</string>
   <string name="Players.CurrentMediaInfo">Käesoleva meedia info</string>
   <string name="Players.FullscreenVideo">Täiskuva {0}</string>
@@ -136,7 +135,7 @@
   <string name="SharesOverview.ReImportAllShares">Taasimpordi kõik jagamised</string>
   <string name="SharesOverview.NotConnectedToHomeServer">Koduserver pole ühendatud, süsteemi jagamiste info pole saadaval.</string>
   <string name="Shares.NoSharesInThisView">-Selles vaates pole jagamisi-</string>
-  <string name="Shares.InvalidPath">VIGANE TEE: '{0}'</string>
+  <string name="Shares.InvalidPath">VIGANE TEE: \'{0}\'</string>
   <!--For example: INVALID PATH: 'C:\XXX\YYY'-->
   <string name="Shares.Online">Online</string>
   <string name="Shares.Offline">Offline</string>

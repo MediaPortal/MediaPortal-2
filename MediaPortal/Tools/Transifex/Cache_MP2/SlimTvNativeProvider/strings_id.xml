@@ -2,7 +2,7 @@
 <resources>
   <string name="Settings.Plugins.TV">TV</string>
   <string name="Settings.Plugins.TV.MPExtendedServerAddress">Alamat server MPExtended</string>
-  <string name="Settings.Plugins.TV.MPExtendedServerAddress.Help">Masukkan nama server atau alamat IP, dipisahkan dengan ';' (bakunya localhost).</string>
+  <string name="Settings.Plugins.TV.MPExtendedServerAddress.Help">Masukkan nama server atau alamat IP, dipisahkan dengan \';\' (bakunya localhost).</string>
   <string name="Settings.Plugins.TV.MPExtendedUsername">Username layanan MPExtended</string>
   <string name="Settings.Plugins.TV.MPExtendedUsername.Help">Masukkan username untuk koneksi. Nama yang kosong akan menggunakan koneksi tanpa nama. </string>
   <string name="Settings.Plugins.TV.MPExtendedPassword">Password layanan MPExtended</string>

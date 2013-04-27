@@ -1,8 +1,8 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
   <string name="Settings.General.System.SystemStateDialog">Sammutus valikko</string>
-  <string name="Settings.General.System.SystemStateDialog.Help">Muokkaa 'Sammutus valikon' näkyvyyttä ja sijaintia</string>
-  <string name="SystemState.Configuration.Dialog.Title">Muokkaa 'Sammutus valikon' kohteita</string>
+  <string name="Settings.General.System.SystemStateDialog.Help">Muokkaa \'Sammutus valikon\' näkyvyyttä ja sijaintia</string>
+  <string name="SystemState.Configuration.Dialog.Title">Muokkaa \'Sammutus valikon\' kohteita</string>
   <string name="SystemState.Title">Sammutus valikko</string>
   <string name="SystemState.Hibernate">Lepotila</string>
   <string name="SystemState.Shutdown">Sammuta</string>

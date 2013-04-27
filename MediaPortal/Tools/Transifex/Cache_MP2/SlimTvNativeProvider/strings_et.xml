@@ -2,7 +2,7 @@
 <resources>
   <string name="Settings.Plugins.TV">TV</string>
   <string name="Settings.Plugins.TV.MPExtendedServerAddress">MPExtended server aadress</string>
-  <string name="Settings.Plugins.TV.MPExtendedServerAddress.Help">Sisesta serverinimed või IP aadressid, eraldatud ';' (vaikimisi localhost-i).</string>
+  <string name="Settings.Plugins.TV.MPExtendedServerAddress.Help">Sisesta serverinimed või IP aadressid, eraldatud \';\' (vaikimisi localhost-i).</string>
   <string name="Settings.Plugins.TV.MPExtendedUsername">MPExtended service kasutajanimi</string>
   <string name="Settings.Plugins.TV.MPExtendedUsername.Help">Sisesta kasutajanimi. Tühi nimi kasutab anonymous ühendust</string>
   <string name="Settings.Plugins.TV.MPExtendedPassword">MPExtended service password</string>

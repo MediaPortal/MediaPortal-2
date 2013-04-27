@@ -23,7 +23,7 @@
   <string name="Settings.Players.VideoPlayer.PreferMultiChannelAudio.Help">Wanneer ingeschakeld, krijgen 6 kanaals streams de voorkeur (b.v. AC3, AAC)</string>
   <string name="Settings.Players.DVDPlayer">DVD-speler</string>
   <string name="Settings.Players.DVDPlayer.EnableClosedCaption">Closed Captions</string>
-  <string name="Settings.Players.DVDPlayer.EnableClosedCaption.Help">Selecteer wanneer 'Closed Captions' ondertitels standaard moeten worden ingeschakeld</string>
+  <string name="Settings.Players.DVDPlayer.EnableClosedCaption.Help">Selecteer wanneer \'Closed Captions\' ondertitels standaard moeten worden ingeschakeld</string>
   <string name="Settings.Players.DVDPlayer.EnableSubtitles">Ondertitels</string>
   <string name="Settings.Players.DVDPlayer.EnableSubtitles.Help">Selecteer wanneer ondertitels standaard moeten worden ingeschakeld</string>
   <string name="Playback.NotSpecified">Niet gespecificeerd</string>

@@ -5,10 +5,10 @@
   <string name="Configuration.MainSettings">Põhiseaded</string>
   <!--2nd Header for root configuration section-->
   <string name="Configuration.NoSettingsInThisSection">Selles osas pole seadeid</string>
-  <string name="Configuration.ErrorFloatingPointValue">'{0}' pole sobiv floating point number</string>
-  <string name="Configuration.ErrorIntegerValue">'{0}' pole sobiv integer number</string>
-  <string name="Configuration.ErrorNumericLowerLimit">Kasuta väärtust vahemikus '{1}' ja '{2}' </string>
+  <string name="Configuration.ErrorFloatingPointValue">\'{0}\' pole sobiv floating point number</string>
+  <string name="Configuration.ErrorIntegerValue">\'{0}\' pole sobiv integer number</string>
+  <string name="Configuration.ErrorNumericLowerLimit">Kasuta väärtust vahemikus \'{1}\' ja \'{2}\' </string>
   <!--0 = current value, 1 = lower limit, 2 = upper limit-->
-  <string name="Configuration.ErrorNumericUpperLimit">Kasuta väärtust vahemikus '{1}' ja '{2}' </string>
+  <string name="Configuration.ErrorNumericUpperLimit">Kasuta väärtust vahemikus \'{1}\' ja \'{2}\' </string>
   <!--0 = current value, 1 = lower limit, 2 = upper limit-->
 </resources>

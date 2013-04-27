@@ -4,7 +4,7 @@
   <string name="Settings.Players.Rendering">Çalma şekli</string>
   <string name="Settings.Players.Rendering.CrossFading">Yumuşak Geçiş</string>
   <string name="Settings.Players.Rendering.CrossFading.CrossFadingEnabled">Yumuşak Geçiş devre dışı</string>
-  <string name="Settings.Players.Rendering.CrossFading.CrossFadingEnabled.Help">MediaPortal'ın mümkün olduğunda şarkılarda yumuşak geçiş kullanıp kullanmayacağını belirler</string>
+  <string name="Settings.Players.Rendering.CrossFading.CrossFadingEnabled.Help">MediaPortal\'ın mümkün olduğunda şarkılarda yumuşak geçiş kullanıp kullanmayacağını belirler</string>
   <string name="Settings.Players.Rendering.CrossFading.CrossFadeDuration">Yumuşak Geçiş uzunluğu</string>
   <string name="Settings.Players.Rendering.CrossFading.CrossFadeDuration.Help">Yumuşak Geçiş süresi, saniye olarak</string>
 </resources>

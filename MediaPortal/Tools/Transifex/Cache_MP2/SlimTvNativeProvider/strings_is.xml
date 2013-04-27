@@ -2,7 +2,7 @@
 <resources>
   <string name="Settings.Plugins.TV">Sjónvarp</string>
   <string name="Settings.Plugins.TV.MPExtendedServerAddress">Vistfang MPExtended þjónustu</string>
-  <string name="Settings.Plugins.TV.MPExtendedServerAddress.Help">Sláðu inn heiti miðlara eða IP tölur, aðgreint með ';' (localhost sjálfgefið)</string>
+  <string name="Settings.Plugins.TV.MPExtendedServerAddress.Help">Sláðu inn heiti miðlara eða IP tölur, aðgreint með \';\' (localhost sjálfgefið)</string>
   <string name="Settings.Plugins.TV.MPExtendedUsername">Notendanafn MPExtended þjónustu</string>
   <string name="Settings.Plugins.TV.MPExtendedUsername.Help">Sláðu inn notendanafn til að tengjast.  Ef autt,þá verður nafnlaust auðkenni notað</string>
   <string name="Settings.Plugins.TV.MPExtendedPassword">Aðgangsorð fyrir MPExtended þjónustunnar</string>

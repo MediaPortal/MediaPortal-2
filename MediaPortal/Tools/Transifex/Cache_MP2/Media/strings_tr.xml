@@ -147,9 +147,9 @@
   <!--Shown in the header of an items list, e.g. "15/350 items"-->
   <string name="Media.NItems">{0} içerik</string>
   <!--Shown in the header of an items list, e.g. "45 items"-->
-  <string name="Media.MoreThanMaxItemsHint">Bu görünümde {0}'dan çok içerik var. Lütfen daha çok filtre tanımlayarak içerik sayısını limitleyin.</string>
-  <string name="Media.MoreThanMaxItemsBrowseHint">Bu görünümde {0}'dan çok içerik var.</string>
-  <string name="Media.MoreThanMaxItemsSearchResultHint">Arama sonucunda {0}'dan çok içerik var. Lütfen daha spesifik arama yapın.</string>
+  <string name="Media.MoreThanMaxItemsHint">Bu görünümde {0}\'dan çok içerik var. Lütfen daha çok filtre tanımlayarak içerik sayısını limitleyin.</string>
+  <string name="Media.MoreThanMaxItemsBrowseHint">Bu görünümde {0}\'dan çok içerik var.</string>
+  <string name="Media.MoreThanMaxItemsSearchResultHint">Arama sonucunda {0}\'dan çok içerik var. Lütfen daha spesifik arama yapın.</string>
   <string name="Media.ListIsBeingBuiltHint">İçerik listesi hazırlanıyor...</string>
   <string name="Media.SearchResultIsBeingBuiltHint">Aranıyor...</string>
   <!--Playlists-->
@@ -169,9 +169,9 @@
   <string name="Media.NoPlaylistsAvailable">- Çalma listesi yok -</string>
   <string name="Media.NoConfigPlaylistsHomeServerNotConnectedText">Ana sunucuya bağlanılmamış. Şu anda çalma listelerinde değişiklik yapılamaz.</string>
   <string name="Media.EditNameOfPlaylist">Çalma listesi ismini tanımla</string>
-  <string name="Media.SavePlaylistSuccessfulText">Çalma listesi '{0}' sunucuya kaydedildi.</string>
-  <string name="Media.SavePlaylistFailedText">Çalma listesi kaydedilemedi. Hata kodu: '{0}'</string>
-  <string name="Media.SavePlaylistFailedAlreadyExists">Çalma listesi kaydedilemedi. Calma listesi '{0}' zaten tanımanmış</string>
+  <string name="Media.SavePlaylistSuccessfulText">Çalma listesi \'{0}\' sunucuya kaydedildi.</string>
+  <string name="Media.SavePlaylistFailedText">Çalma listesi kaydedilemedi. Hata kodu: \'{0}\'</string>
+  <string name="Media.SavePlaylistFailedAlreadyExists">Çalma listesi kaydedilemedi. Calma listesi \'{0}\' zaten tanımanmış</string>
   <string name="Media.ChoosePlaylistsToBeRemovedText">Silinecek çalma listelerini seçin</string>
   <string name="Media.PlaylistNameInfoLabel">Çalma listesi adı</string>
   <string name="Media.PlaylistTypeInfoLabel">Çalma listesi tipi</string>
@@ -299,7 +299,7 @@
   <string name="Media.SortingBrowseDefault">Varsayılan sıralama</string>
   <string name="Settings.Players">Oynatıcılar</string>
   <string name="Settings.Players.ClosePlayersWhenFinished">Bitince oynatıcıyı kapat</string>
-  <string name="Settings.Players.ClosePlayersWhenFinished.Help">MediaPortal'ın işi biten oynatıcıyı otomatik kapatması için bu seçeneği seçin</string>
+  <string name="Settings.Players.ClosePlayersWhenFinished.Help">MediaPortal\'ın işi biten oynatıcıyı otomatik kapatması için bu seçeneği seçin</string>
   <string name="Settings.Players.InstantSkipPercent">Anında yüzdeyle atlama</string>
   <string name="Settings.Players.InstantSkipPercent.Help">Anında atlama yapılacak yüzde miktarını seçin</string>
   <string name="Settings.Players.SkipStepTimeout">Atlama sürelerinde zamanaşımı süresini saniye olarak seçin</string>

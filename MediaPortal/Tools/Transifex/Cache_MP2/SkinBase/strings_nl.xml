@@ -26,12 +26,12 @@
   <string name="Dialogs.WarningHeaderText">Waarschuwing</string>
   <string name="Dialogs.ErrorHeaderText">Fout</string>
   <string name="Media.MyMusic">Muziek</string>
-  <string name="Media.MyVideos">Video's</string>
+  <string name="Media.MyVideos">Video\'s</string>
   <string name="Media.MyPictures">Afbeeldingen</string>
   <string name="Media.InvalidShareName">Ongeldige gedeelde map</string>
   <string name="ServerConnection.NotificationServerAvailableTitle">MP2-server is niet beschikbaar</string>
   <string name="ServerConnection.NotificationServerAvailableText">Er is ten minste een MediaPortal 2 server beschikbaar in het netwerk. Maak verbinding met deze server om alle mogelijkheden van MediaPortal 2 te benutten.</string>
-  <string name="ServerConnection.ServerFormatText">{0}' op host '{1}</string>
+  <string name="ServerConnection.ServerFormatText">\'{0}\' op host \'{1}\'</string>
   <!--{0} = server name, {1} = host name-->
   <string name="ServerConnection.UnknownServerName">&lt;Onbekend&gt;</string>
   <string name="ServerConnection.UnknownServerSystem">&lt;Onbekend&gt;</string>
@@ -40,13 +40,12 @@
   <string name="ServerConnection.DetachFromServerWorkflowStateLabel">Verbreek verbinding met server</string>
   <string name="ServerConnection.HomeServerWorkflowStateLabel">ThuisServer</string>
   <string name="ServerConnection.AttachedText.Before">Deze MediaPortal 2 client is momenteel verbonden met de thuisserver</string>
-  <string name="ServerConnection.AttachedText.After"></string>
   <string name="ServerConnection.NoHomeServerAttached">Deze MediaPortal 2 client is momenteel niet verbonden met de thuisserver</string>
   <string name="ServerConnection.HomeServerIsConnected">De thuisserver is momenteel verbonden.</string>
   <string name="ServerConnection.HomeServerIsNotConnected">De thuisserver is momenteel niet verbonden</string>
   <string name="ServerConnection.DetachMenu">Verbreek verbinding</string>
   <string name="ServerConnection.DetachConfirmDialogHeader">Verbreek verbinding met thuisserver</string>
-  <string name="ServerConnection.DetachConfirmDialogText">Als u de verbinding met de de thuisserver verwijderd, worden alle gegevens over de lokale gedeelde mappen en hun media-items verwijderd uit de mediabibliotheek op de thuisserver. U kunt later de verbinding weer toevoegen. Wil je echt de verbinding verwijderen met de thuisserver '{0}' op host '{1}'?</string>
+  <string name="ServerConnection.DetachConfirmDialogText">Als u de verbinding met de de thuisserver verwijderd, worden alle gegevens over de lokale gedeelde mappen en hun media-items verwijderd uit de mediabibliotheek op de thuisserver. U kunt later de verbinding weer toevoegen. Wil je echt de verbinding verwijderen met de thuisserver \'{0}\' op host \'{1}\'?</string>
   <string name="ServerConnection.SearchForServers">Servers zoeken</string>
   <string name="ServerConnection.DetachFromServer">Verbreek verbinding met thuisserver</string>
   <string name="ServerConnection.AttachToServerHeader">Maak verbinding met de MediaPortal 2 server</string>
@@ -56,7 +55,7 @@
   <string name="ServerConnection.AttachToServerNoServerText">Er is momenteel geen MediaPortal 2 server beschikbaar in het netwerk.</string>
   <string name="ServerConnection.AttachButton">Verbind</string>
   <string name="ServerConnection.AttachInfoDialogHeader">Server verbonden</string>
-  <string name="ServerConnection.AttachInfoDialogText">Deze MediaPortal 2 client is verbonden met de nieuwe thuisserver '{0}' op host '{1}'</string>
+  <string name="ServerConnection.AttachInfoDialogText">Deze MediaPortal 2 client is verbonden met de nieuwe thuisserver \'{0}\' op host \'{1}\'</string>
   <!--{0} = server name, {1} = host name-->
   <string name="Notifications.Title">Meldingen</string>
   <string name="Notifications.OneMoreNotification">(1 meer)</string>
@@ -64,9 +63,9 @@
   <string name="Notifications.WatchNotificationsWorkflowStateLabel">Meldingen</string>
   <string name="Notifications.Handle">Hanteer</string>
   <string name="ImporterMessages.ImportStartedTitle">Importeren gestart</string>
-  <string name="ImporterMessages.ImportStartedText">Het importeren van '{0}' is gestart.</string>
+  <string name="ImporterMessages.ImportStartedText">Het importeren van \'{0}\' is gestart.</string>
   <string name="ImporterMessages.ImportCompletedTitle">Importeren voltooid</string>
-  <string name="ImporterMessages.ImportCompletedText">Het importeren van '{0}' is klaar.</string>
+  <string name="ImporterMessages.ImportCompletedText">Het importeren van \'{0}\' is klaar.</string>
   <string name="LocalFsResourceProvider.Name">Bron lokale bestandssysteem</string>
   <string name="LocalFsResourceProvider.Description">Toegang tot het lokale bestandssysteem</string>
   <string name="RemoteResourceProvider.Name">Bron op afstand</string>
@@ -74,10 +73,10 @@
   <string name="ScreenSaver.MediaPortal2">MediaPortal 2</string>
   <!--For MP UI player subsystem-->
   <string name="Players.NoPlayerAvailableNotificationTitle">Geen speler</string>
-  <string name="Players.NoPlayerAvailableNotificationText">Er is geen speler geregistreerd voor het afspelen van media-item '{0}'</string>
+  <string name="Players.NoPlayerAvailableNotificationText">Er is geen speler geregistreerd voor het afspelen van media-item \'{0}\'</string>
   <string name="Players.ErrorPlayingMediaItemTitle">Fout tijdens afspelen van media-item</string>
-  <string name="Players.UnableToPlayMediaItemText">Niet in staat om media-item '{0}' af te spelen</string>
-  <string name="Players.ResourceNotFoundText">Bron '{0}' niet gevonden</string>
+  <string name="Players.UnableToPlayMediaItemText">Niet in staat om media-item \'{0}\' af te spelen</string>
+  <string name="Players.ResourceNotFoundText">Bron \'{0}\' niet gevonden</string>
   <string name="Players.PlayerConfiguration">Speler configureren</string>
   <string name="Players.CurrentMediaInfo">Huidige media-info</string>
   <string name="Players.FullscreenVideo">Volledig scherm {0}</string>
@@ -109,6 +108,8 @@
   <string name="Settings.General.System">Systeem</string>
   <string name="Settings.General.System.Autostart">Autostart</string>
   <string name="Settings.General.System.Autostart.Help">Start MediaPortal automatisch tijdens het opstarten van Windows</string>
+  <string name="Settings.General.System.ClientDOKANDrive">Schijfletter voor bronbestanden.</string>
+  <string name="Settings.General.System.ClientDOKANDrive.Help">Configureert de schijfletter voor het koppelen van externe bronnen op deze client.</string>
   <string name="Settings.General.Connectivity">Verbindingen</string>
   <string name="Settings.General.Connectivity.HomeServer">Thuisserver</string>
   <string name="Settings.General.Connectivity.HomeServer.Help">Thuisserver informatie, verbinding maken en verwijderen naar de thuisserver</string>
@@ -139,7 +140,7 @@
   <string name="SharesOverview.ReImportAllShares">Alle gedeelde mappen opnieuw importeren</string>
   <string name="SharesOverview.NotConnectedToHomeServer">De thuisserver is niet verbonden, de gedeelde mappen op van het systeem kunnen niet worden opgehaald</string>
   <string name="Shares.NoSharesInThisView">- Geen gedeelde mappen in deze weergave -</string>
-  <string name="Shares.InvalidPath">ONGELDIG PAD: '{0}'</string>
+  <string name="Shares.InvalidPath">ONGELDIG PAD: \'{0}\'</string>
   <!--For example: INVALID PATH: 'C:\XXX\YYY'-->
   <string name="Shares.Online">Online</string>
   <string name="Shares.Offline">Offline</string>

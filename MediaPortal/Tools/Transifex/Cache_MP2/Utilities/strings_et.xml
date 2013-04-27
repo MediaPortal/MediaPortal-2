@@ -16,7 +16,7 @@
   <string name="Utilities.StartPlaylistImport">Alusta esitusnimekirja importi</string>
   <string name="Utilities.PlaylistSavedSuccessfullyTitle">Õnnestus</string>
   <string name="Utilities.NoItemsWereImportedSkippingSaveText">Midagi ei imporditud</string>
-  <string name="Utilities.PlaylistSavedSuccessfullyText">Esitusnimekiri '{0}' on salvestatud</string>
+  <string name="Utilities.PlaylistSavedSuccessfullyText">Esitusnimekiri \'{0}\' on salvestatud</string>
   <string name="Utilities.PlaylistSaveFailedTitle">Esitusnimekirja salvestamine ebaõnnestus</string>
   <string name="Utilities.ImportPlaylistProgressTitle">Edenemine</string>
   <string name="Utilities.ImportPlaylistProgressHeaderText">Esitusnimekirja import</string>

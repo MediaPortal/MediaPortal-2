@@ -4,12 +4,12 @@
   <string name="News.FeedsStateDisplayLabel">Notícies</string>
   <string name="News.Published">Publicat</string>
   <string name="News.ConfiguredFeeds">Canals configurats</string>
-  <string name="News.AddFeed">Afegeix canal d'informació</string>
+  <string name="News.AddFeed">Afegeix canal d\'informació</string>
   <string name="News.EnterFeedName">Introduïu el nom pel canal</string>
-  <string name="News.EnterFeedUrl">Introduïu l'Url del canal</string>
+  <string name="News.EnterFeedUrl">Introduïu l\'Url del canal</string>
   <string name="Settings.Plugins.News">Notícies</string>
   <string name="Settings.Plugins.News.FeedsSetup">Gestiona els canals</string>
   <string name="Settings.Plugins.News.FeedsSetup.Help">Configureu els canals que capten dades de notícies</string>
-  <string name="Settings.Plugins.News.RefreshInterval">Interval d'actualització</string>
+  <string name="Settings.Plugins.News.RefreshInterval">Interval d\'actualització</string>
   <string name="Settings.Plugins.News.RefreshInterval.Help">Baixa periodicament dades del canal cada... minuts</string>
 </resources>

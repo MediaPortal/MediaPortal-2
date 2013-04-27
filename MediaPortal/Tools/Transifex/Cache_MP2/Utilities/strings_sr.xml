@@ -16,7 +16,7 @@
   <string name="Utilities.StartPlaylistImport">Започни учитавање плејлисте</string>
   <string name="Utilities.PlaylistSavedSuccessfullyTitle">Успешно обављено</string>
   <string name="Utilities.NoItemsWereImportedSkippingSaveText">Ништа није учитано</string>
-  <string name="Utilities.PlaylistSavedSuccessfullyText">Плејлиста '{0}' је успешно сачувана.</string>
+  <string name="Utilities.PlaylistSavedSuccessfullyText">Плејлиста \'{0}\' је успешно сачувана.</string>
   <string name="Utilities.PlaylistSaveFailedTitle">Снимање плејлисте није успело</string>
   <string name="Utilities.ImportPlaylistProgressTitle">Прогрес</string>
   <string name="Utilities.ImportPlaylistProgressHeaderText">Учитавање плејлисте</string>

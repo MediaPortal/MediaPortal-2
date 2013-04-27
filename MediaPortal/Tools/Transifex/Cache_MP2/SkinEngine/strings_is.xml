@@ -23,10 +23,10 @@
   <string name="ScreenManager.NotificationErrorLoadingSkinTitle">Villa litmeð út</string>
   <string name="ScreenManager.NotificationErrorLoadingSkinFallingBackToCurrentText">Fer aftur í fyrra útlit</string>
   <string name="ScreenManager.NotificationErrorLoadingSkinFallingBackToDefaultText">Fer aftur í sjálfgefið útlit</string>
-  <string name="ScreenManager.ScreenMissing">Get ekki fundið útlit fyrir þessa skjámynd '{0}'</string>
-  <string name="ScreenManager.ScreenBroken">Útlitið fyrir skjámynd '{0}' virðist ekki vera í lagi</string>
-  <string name="ScreenManager.BackgroundScreenMissing">Get ekki fundið útlitið fyrir bakgrunn skjámyndar '{0}'</string>
-  <string name="ScreenManager.BackgroundScreenBroken">Útlitið fyrir bakgrunn skjámyndar '{0}' virðist ekki vera í lagi</string>
+  <string name="ScreenManager.ScreenMissing">Get ekki fundið útlit fyrir þessa skjámynd \'{0}\'</string>
+  <string name="ScreenManager.ScreenBroken">Útlitið fyrir skjámynd \'{0}\' virðist ekki vera í lagi</string>
+  <string name="ScreenManager.BackgroundScreenMissing">Get ekki fundið útlitið fyrir bakgrunn skjámyndar \'{0}\'</string>
+  <string name="ScreenManager.BackgroundScreenBroken">Útlitið fyrir bakgrunn skjámyndar \'{0}\' virðist ekki vera í lagi</string>
   <string name="Geometries.IntelligentZoom">Þróuð stækkun</string>
   <string name="Geometries.Normal">Eðlilegt</string>
   <string name="Geometries.Original">Upprunalegt</string>

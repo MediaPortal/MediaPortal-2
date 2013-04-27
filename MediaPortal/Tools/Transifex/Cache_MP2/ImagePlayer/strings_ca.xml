@@ -1,8 +1,8 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
-  <string name="Settings.Players.Image">Visor d'imatges</string>
+  <string name="Settings.Players.Image">Visor d\'imatges</string>
   <string name="Settings.Players.Image.SlideShowImageDuration">Durada de les imatges presentades</string>
   <string name="Settings.Players.Image.SlideShowImageDuration.Help">Defineix el temps de mostra de cada imatge en el mode de presentació, en segons</string>
-  <string name="Settings.Players.Image.KenBurnsEffect">Utilitza l'efecte Ken Burns</string>
+  <string name="Settings.Players.Image.KenBurnsEffect">Utilitza l\'efecte Ken Burns</string>
   <string name="Settings.Players.Image.KenBurnsEffect.Help">Utilitza animacions de desplaçament i zoom en mostrar imatges</string>
 </resources>

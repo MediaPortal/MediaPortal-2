@@ -16,7 +16,7 @@
   <string name="Utilities.StartPlaylistImport">गीत-सूची आयात प्रारंभ</string>
   <string name="Utilities.PlaylistSavedSuccessfullyTitle">सफल</string>
   <string name="Utilities.NoItemsWereImportedSkippingSaveText">कोई वस्तुओं का आयात नहीं किया गया. क्रियाएं सहेजना छोड़ रहा है.</string>
-  <string name="Utilities.PlaylistSavedSuccessfullyText">गीत-सूची '{0}' सफलतापूर्वक सहेजा गया था.</string>
+  <string name="Utilities.PlaylistSavedSuccessfullyText">गीत-सूची \'{0}\' सफलतापूर्वक सहेजा गया था.</string>
   <string name="Utilities.PlaylistSaveFailedTitle">गीत सूची सहेजने में विफल</string>
   <string name="Utilities.ImportPlaylistProgressTitle">प्रगति</string>
   <string name="Utilities.ImportPlaylistProgressHeaderText">गीत सूची आयात कर रहा है</string>

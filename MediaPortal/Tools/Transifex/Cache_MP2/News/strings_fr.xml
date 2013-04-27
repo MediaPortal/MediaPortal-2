@@ -6,7 +6,7 @@
   <string name="News.ConfiguredFeeds">Flux configurés</string>
   <string name="News.AddFeed">Ajout de nouveaux Flux</string>
   <string name="News.EnterFeedName">Entrez un nom pour le Flux </string>
-  <string name="News.EnterFeedUrl">Entrez  l'Url du Flux</string>
+  <string name="News.EnterFeedUrl">Entrez  l\'Url du Flux</string>
   <string name="Settings.Plugins.News">Actualités</string>
   <string name="Settings.Plugins.News.FeedsSetup">Gérer les Flux</string>
   <string name="Settings.Plugins.News.FeedsSetup.Help">Configurer les Flux qui seront utilisés afin de récupérer les données concernant les Actualités</string>

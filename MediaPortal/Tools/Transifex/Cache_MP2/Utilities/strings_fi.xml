@@ -16,7 +16,7 @@
   <string name="Utilities.StartPlaylistImport">Aloita soittolistan tuonti</string>
   <string name="Utilities.PlaylistSavedSuccessfullyTitle">Onnistui</string>
   <string name="Utilities.NoItemsWereImportedSkippingSaveText">Ei tuotuja tiedostoja. Ohitetaan tallennus.</string>
-  <string name="Utilities.PlaylistSavedSuccessfullyText">Soittolista '{0}' tallennettu</string>
+  <string name="Utilities.PlaylistSavedSuccessfullyText">Soittolista \'{0}\' tallennettu</string>
   <string name="Utilities.PlaylistSaveFailedTitle">Soittolistan tallennus epäonnistui</string>
   <string name="Utilities.ImportPlaylistProgressTitle">Edistyminen</string>
   <string name="Utilities.ImportPlaylistProgressHeaderText">Tuodaan soittolistaa</string>

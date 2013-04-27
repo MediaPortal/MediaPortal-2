@@ -11,7 +11,7 @@
   <string name="PartyMusicPlayer.StartPartyMode">Avvia modalità party</string>
   <string name="PartyMusicPlayer.ChoosePlaylistDialogHeader">Scegli playlist</string>
   <string name="PartyMusicPlayer.EnterEscapePasswordDialogHeader">Escape password</string>
-  <string name="PartyMusicPlayer.EnterEscapePasswordDialogText">Perfavore inserisci la password per l'escape mode</string>
+  <string name="PartyMusicPlayer.EnterEscapePasswordDialogText">Perfavore inserisci la password per l\'escape mode</string>
   <string name="PartyMusicPlayer.WrongEscapePasswordDialogHeader">Password escape errata</string>
   <string name="PartyMusicPlayer.WrongEscapePasswordDialogText">Spiacente, escape password errata!</string>
   <string name="PartyMusicPlayer.ServerNotConnectedDialogHeader">Server non connesso</string>

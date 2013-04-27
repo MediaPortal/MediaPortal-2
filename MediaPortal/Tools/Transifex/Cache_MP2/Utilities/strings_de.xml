@@ -16,7 +16,7 @@
   <string name="Utilities.StartPlaylistImport">Starte Import der Playlist</string>
   <string name="Utilities.PlaylistSavedSuccessfullyTitle">Erfolgreich!</string>
   <string name="Utilities.NoItemsWereImportedSkippingSaveText">Es wurden keine Elemente importiert. Abspeichern wird übersprungen.</string>
-  <string name="Utilities.PlaylistSavedSuccessfullyText">Playlist '{0}' erfolgreich gespeichert.</string>
+  <string name="Utilities.PlaylistSavedSuccessfullyText">Playlist \'{0}\' erfolgreich gespeichert.</string>
   <string name="Utilities.PlaylistSaveFailedTitle">Speichern der Playlist fehlgeschlagen</string>
   <string name="Utilities.ImportPlaylistProgressTitle">Fortschritt</string>
   <string name="Utilities.ImportPlaylistProgressHeaderText">Playlist wird importiert</string>

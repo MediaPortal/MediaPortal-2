@@ -35,13 +35,12 @@
   <string name="ServerConnection.DetachFromServerWorkflowStateLabel">התנתק משרת</string>
   <string name="ServerConnection.HomeServerWorkflowStateLabel">שרת ביתי</string>
   <string name="ServerConnection.AttachedText.Before">קליינט מדיה פורטל 2 זה מחובר כרגע לשרת ביתי</string>
-  <string name="ServerConnection.AttachedText.After"></string>
   <string name="ServerConnection.NoHomeServerAttached">כרגע קליינט מדיה פורטל 2 זה אינו מחובר לשרת ביתי</string>
   <string name="ServerConnection.HomeServerIsConnected">השרת הביתי כרגע מחובר</string>
   <string name="ServerConnection.HomeServerIsNotConnected">השרת הביתי כרגע מנותק</string>
   <string name="ServerConnection.DetachMenu">התנתק</string>
   <string name="ServerConnection.DetachConfirmDialogHeader">התנתק מהשרת הביתי</string>
-  <string name="ServerConnection.DetachConfirmDialogText">באם תתנתק מהשרת הביתי, כל הנתונים על אזורי השיתוף וקבצי המדיה שלהם יוסרו מספריית השרת הביתי. תוכל להתחבר מאוחר יותר שוב. האם ברצונך להתנתק מהשרת הביתי '{0}' ב-host הזה: '{1}'?</string>
+  <string name="ServerConnection.DetachConfirmDialogText">באם תתנתק מהשרת הביתי, כל הנתונים על אזורי השיתוף וקבצי המדיה שלהם יוסרו מספריית השרת הביתי. תוכל להתחבר מאוחר יותר שוב. האם ברצונך להתנתק מהשרת הביתי \'{0}\' ב-host הזה: \'{1}\'?</string>
   <string name="ServerConnection.SearchForServers">חפש שרתים</string>
   <string name="ServerConnection.DetachFromServer">התנתק מהשרת הביתי</string>
   <string name="ServerConnection.AttachToServerHeader">התחבר לשרת מדיה פורטל 2</string>
@@ -64,7 +63,7 @@
   <!--For MP UI player subsystem-->
   <string name="Players.NoPlayerAvailableNotificationTitle">אין נגן</string>
   <string name="Players.ErrorPlayingMediaItemTitle">שגיאה בניגון פריט מדיה</string>
-  <string name="Players.UnableToPlayMediaItemText">לא ניתן לנגן פריט '{0}'</string>
+  <string name="Players.UnableToPlayMediaItemText">לא ניתן לנגן פריט \'{0}\'</string>
   <string name="Players.PlayerConfiguration">הגדרות נגן</string>
   <string name="Players.CurrentMediaInfo">מידע מדיה עדכני</string>
   <string name="Players.FullscreenVideo">מסך מלא {0}</string>

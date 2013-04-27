@@ -16,7 +16,7 @@
   <string name="Utilities.StartPlaylistImport">Mulai impor daftar main</string>
   <string name="Utilities.PlaylistSavedSuccessfullyTitle">Sukses</string>
   <string name="Utilities.NoItemsWereImportedSkippingSaveText">Tidak ada item diimpor. Melewatkan aksi simpan.</string>
-  <string name="Utilities.PlaylistSavedSuccessfullyText">Daftar main '{0}' berhasil disimpan.</string>
+  <string name="Utilities.PlaylistSavedSuccessfullyText">Daftar main \'{0}\' berhasil disimpan.</string>
   <string name="Utilities.PlaylistSaveFailedTitle">Gagal menyimpan daftar main</string>
   <string name="Utilities.ImportPlaylistProgressTitle">Perkembangan</string>
   <string name="Utilities.ImportPlaylistProgressHeaderText">Mengimpor daftar main</string>

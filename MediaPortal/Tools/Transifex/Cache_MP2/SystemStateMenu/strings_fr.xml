@@ -1,8 +1,8 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
   <string name="Settings.General.System.SystemStateDialog">Menu concernant l`arrêt</string>
-  <string name="Settings.General.System.SystemStateDialog.Help">Configurer l'affichage du menu de configuration de l'arrêt</string>
-  <string name="SystemState.Configuration.Dialog.Title">Configurer le type d'arrêt</string>
+  <string name="Settings.General.System.SystemStateDialog.Help">Configurer l\'affichage du menu de configuration de l\'arrêt</string>
+  <string name="SystemState.Configuration.Dialog.Title">Configurer le type d\'arrêt</string>
   <string name="SystemState.Title">Menu concernant l`arrêt</string>
   <string name="SystemState.Hibernate">Veille prolongée</string>
   <string name="SystemState.Shutdown">Arrêt</string>

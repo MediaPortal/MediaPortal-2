@@ -147,9 +147,9 @@
   <string name="Media.NoPlaylistsAvailable">- Nenhuma playlist disponível -</string>
   <string name="Media.NoConfigPlaylistsHomeServerNotConnectedText">O servidor está atualmente desconectado. Por este motivo, não é possível gerenciar as Playlists neste momento.</string>
   <string name="Media.EditNameOfPlaylist">Editar o nome da playlist</string>
-  <string name="Media.SavePlaylistSuccessfulText">Playlist '{0}' foi salva com sucesso no servidor.</string>
-  <string name="Media.SavePlaylistFailedText">A playlist não pode ser salva. Mensagem de erro: '{0}'</string>
-  <string name="Media.SavePlaylistFailedAlreadyExists">A playlist não pode ser salva: Playlist '{0}' já existe</string>
+  <string name="Media.SavePlaylistSuccessfulText">Playlist \'{0}\' foi salva com sucesso no servidor.</string>
+  <string name="Media.SavePlaylistFailedText">A playlist não pode ser salva. Mensagem de erro: \'{0}\'</string>
+  <string name="Media.SavePlaylistFailedAlreadyExists">A playlist não pode ser salva: Playlist \'{0}\' já existe</string>
   <string name="Media.ChoosePlaylistsToBeRemovedText">Escolha a playlist a ser removida</string>
   <string name="Media.PlaylistNameInfoLabel">Nome da Playlist</string>
   <string name="Media.PlaylistTypeInfoLabel">Tipo de playlist</string>

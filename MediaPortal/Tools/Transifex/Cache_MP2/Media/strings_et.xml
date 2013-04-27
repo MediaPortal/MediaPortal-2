@@ -161,9 +161,9 @@
   <string name="Media.NoPlaylistsAvailable">- Esitusloendeid pole saadaval -</string>
   <string name="Media.NoConfigPlaylistsHomeServerNotConnectedText">Koduserver pole ühendatud, esitusloendeid ei saa korraldada.</string>
   <string name="Media.EditNameOfPlaylist">Muuda esitusloendi nime</string>
-  <string name="Media.SavePlaylistSuccessfulText">Esitusloend '{0}' salvestati serverisse.</string>
-  <string name="Media.SavePlaylistFailedText">Esitusloendit ei saanud salvestada: Veakood '{0}'</string>
-  <string name="Media.SavePlaylistFailedAlreadyExists">Esitusloendit ei saanud salvestada: '{0}' on juba olemas</string>
+  <string name="Media.SavePlaylistSuccessfulText">Esitusloend \'{0}\' salvestati serverisse.</string>
+  <string name="Media.SavePlaylistFailedText">Esitusloendit ei saanud salvestada: Veakood \'{0}\'</string>
+  <string name="Media.SavePlaylistFailedAlreadyExists">Esitusloendit ei saanud salvestada: \'{0}\' on juba olemas</string>
   <string name="Media.ChoosePlaylistsToBeRemovedText">Vali esitusnimekirjad eemaldamiseks</string>
   <string name="Media.PlaylistNameInfoLabel">Esitusloendi nimi</string>
   <string name="Media.PlaylistTypeInfoLabel">Esitusloendi tüüp</string>

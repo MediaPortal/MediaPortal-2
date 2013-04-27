@@ -4,7 +4,7 @@
   <string name="Media.BrowseMediaMenuItem">Blader door media</string>
   <string name="Media.LocalMediaMenuItem">Lokale media</string>
   <string name="Media.AudioMenuItem">Audio</string>
-  <string name="Media.VideosMenuItem">Video's</string>
+  <string name="Media.VideosMenuItem">Video\'s</string>
   <string name="Media.SeriesMenuItem">Series</string>
   <string name="Media.MoviesMenuItem">Films</string>
   <string name="Media.ImagesMenuItem">Afbeeldingen</string>
@@ -14,6 +14,8 @@
   <string name="Media.FilterByAudioGenreMenuItem">Filter op genre</string>
   <string name="Media.FilterByDecadeMenuItem">Filter op decade</string>
   <string name="Media.FilterByActorMenuItem">Filter op acteur</string>
+  <string name="Media.FilterByDirectorMenuItem">Filter op regisseur</string>
+  <string name="Media.FilterByWriterMenuItem">Filter op schrijver</string>
   <string name="Media.FilterByVideoGenreMenuItem">Filter op genre</string>
   <string name="Media.FilterByVideoYearMenuItem">Filter op jaar</string>
   <string name="Media.FilterByAudioLanguageMenuItem">Filter op taal</string>
@@ -49,6 +51,8 @@
   <string name="Media.FilterAudioGenreNavbarDisplayLabel">Genre: {0}</string>
   <string name="Media.FilterDecadeNavbarDisplayLabel">Decade: {0}</string>
   <string name="Media.FilterActorNavbarDisplayLabel">Acteur: {0}</string>
+  <string name="Media.FilterDirectorNavbarDisplayLabel">Regisseur: {0}</string>
+  <string name="Media.FilterWriterNavbarDisplayLabel">Schrijver: {0}</string>
   <string name="Media.FilterVideoGenreNavbarDisplayLabel">Genre: {0}</string>
   <string name="Media.FilterVideoYearNavbarDisplayLabel">Jaar: {0}</string>
   <string name="Media.FilterAudioLanguagesNavbarDisplayLabel">Taal: {0}</string>
@@ -93,7 +97,7 @@
   <string name="Media.BrowseMediaNavigationHeader">Blader door media navigatie</string>
   <string name="Media.LocalMediaNavigationHeader">Lokale media navigatie</string>
   <string name="Media.MediaItemsHeader">Media-items</string>
-  <string name="Media.VideoItemsHeader">Video's</string>
+  <string name="Media.VideoItemsHeader">Video\'s</string>
   <string name="Media.AudioItemsHeader">Audio items</string>
   <string name="Media.SeriesItemsHeader">Afleveringen</string>
   <string name="Media.MoviesItemsHeader">Films</string>
@@ -101,6 +105,8 @@
   <string name="Media.SimpleSearchHeader">Eenvoudig zoeken</string>
   <string name="Media.ChooseCollectionHeader">Kies een collectie</string>
   <string name="Media.ChooseActorHeader">Selecteer een acteur</string>
+  <string name="Media.ChooseDirectorHeader">Kies een regisseur</string>
+  <string name="Media.ChooseWriterHeader">Kies een schrijver</string>
   <string name="Media.ChooseVideoGenreHeader">Selecteer een genre</string>
   <string name="Media.ChooseVideoYearHeader">Selecteer een jaar</string>
   <string name="Media.ChooseSeriesHeader">Selecteer een serie</string>
@@ -124,14 +130,14 @@
   <string name="Media.PlaylistDetailsHeader">Details afspeellijst</string>
   <string name="Media.PlaylistLoadNoPlaylistText">Geen afspeellijst om te laden</string>
   <string name="Media.PlaylistLoadErrorLoadingPlaylist">Fout tijdens het laden van de afspeellijst</string>
-  <string name="Media.CannotSavePlaylistWithLocalMediaItems">Een afspeellijst kan alleen opgeslagen worden als alle media-items werden opgevraagd van de 'home server' (dus niet door de lokale media navigatie).</string>
+  <string name="Media.CannotSavePlaylistWithLocalMediaItems">Een afspeellijst kan alleen opgeslagen worden als alle media-items werden opgevraagd van de \'home server\' (dus niet door de lokale media navigatie).</string>
   <!--View names (names for the view instances)-->
   <string name="Media.BrowseMediaRootViewName">Blader door media</string>
   <string name="Media.LocalMediaRootViewName">Lokale media</string>
   <string name="Media.ClientSharesViewName">Gedeelde mappen op client</string>
   <string name="Media.ServerSharesViewName">Gedeelde mappen op server</string>
   <string name="Media.AudioRootViewName">Audio</string>
-  <string name="Media.VideosRootViewName">Video's</string>
+  <string name="Media.VideosRootViewName">Video\'s</string>
   <string name="Media.SeriesRootViewName">Series</string>
   <string name="Media.ImagesRootViewName">Afbeeldingen</string>
   <string name="Media.SimpleSearchViewName">Eenvoudig zoeken</string>
@@ -170,9 +176,9 @@
   <string name="Media.NoPlaylistsAvailable">- Geen afspeellijsten beschikbaar -</string>
   <string name="Media.NoConfigPlaylistsHomeServerNotConnectedText">De thuisserver is momenteel niet verbonden en de afspeellijsten kunnen op dit moment niet worden beheerd</string>
   <string name="Media.EditNameOfPlaylist">Bewerk de naam van de afspeellijst</string>
-  <string name="Media.SavePlaylistSuccessfulText">Afspeellijst '{0}' is succesvol opgeslagen op de server</string>
-  <string name="Media.SavePlaylistFailedText">De afspeellijst kan niet worden opgeslagen. Foutmelding: '{0}'</string>
-  <string name="Media.SavePlaylistFailedAlreadyExists">De afspeellijst kan niet worden opgeslagen: Afspeellijst '{0}' bestaat al</string>
+  <string name="Media.SavePlaylistSuccessfulText">Afspeellijst \'{0}\' is succesvol opgeslagen op de server</string>
+  <string name="Media.SavePlaylistFailedText">De afspeellijst kan niet worden opgeslagen. Foutmelding: \'{0}\'</string>
+  <string name="Media.SavePlaylistFailedAlreadyExists">De afspeellijst kan niet worden opgeslagen: Afspeellijst \'{0}\' bestaat al</string>
   <string name="Media.ChoosePlaylistsToBeRemovedText">Selecteer de afspeellijsten om te verwijderen</string>
   <string name="Media.PlaylistNameInfoLabel">Naam afspeellijst</string>
   <string name="Media.PlaylistTypeInfoLabel">Type afspeellijst</string>
@@ -296,8 +302,10 @@
   <string name="Media.SortBySystem">Sorteer op systeem</string>
   <string name="Media.SortByActor">Sorteer op acteur</string>
   <string name="Media.SortByDirector">Sorteer op regisseur</string>
+  <string name="Media.SortByWriter">Sorteer op schrijver</string>
   <string name="Media.SortByDuration">Sorteer op speelduur</string>
   <string name="Media.SortByAspectRatio">Sorteer op beeldverhouding</string>
+  <string name="Media.SortByFirstAiredDate">Sorteer op datum van uitzending</string>
   <string name="Media.SortByDate">Sorteer op opnamedatum</string>
   <string name="Media.SortByEpisode">Sorteer op aflevering</string>
   <string name="Media.SortingBrowseDefault">Standaard sortering</string>

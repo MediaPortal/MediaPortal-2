@@ -150,9 +150,9 @@
   <string name="Media.StopAddToPlaylistButton">Megállítás</string>
   <string name="Media.NoPlaylistsAvailable">Nincsenek elérhető lejátszási listák</string>
   <string name="Media.EditNameOfPlaylist">Lejátszási lista nevének a szerkesztése</string>
-  <string name="Media.SavePlaylistSuccessfulText">'{0}' lejátszási lista sikeresen elmentve a szerverre. </string>
-  <string name="Media.SavePlaylistFailedText">A lejátszási listát nem lehetett menteni. Hiba üzenet: '{0}'</string>
-  <string name="Media.SavePlaylistFailedAlreadyExists">A lejátszási listát nem lehetett menteni. Már létezik '{0}' nevű lejátszási lista.</string>
+  <string name="Media.SavePlaylistSuccessfulText">\'{0}\' lejátszási lista sikeresen elmentve a szerverre. </string>
+  <string name="Media.SavePlaylistFailedText">A lejátszási listát nem lehetett menteni. Hiba üzenet: \'{0}\'</string>
+  <string name="Media.SavePlaylistFailedAlreadyExists">A lejátszási listát nem lehetett menteni. Már létezik \'{0}\' nevű lejátszási lista.</string>
   <string name="Media.ChoosePlaylistsToBeRemovedText">Válassza ki az eltávolítandó lejátszási listákat</string>
   <string name="Media.PlaylistNameInfoLabel">Lejátszási lista neve</string>
   <string name="Media.PlaylistTypeInfoLabel">Lejátszási lista típusa</string>

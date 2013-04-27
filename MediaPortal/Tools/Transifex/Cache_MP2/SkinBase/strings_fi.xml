@@ -31,7 +31,7 @@
   <string name="Media.InvalidShareName">Virheellinen verkkojako</string>
   <string name="ServerConnection.NotificationServerAvailableTitle">MP2 palvelin saatavilla</string>
   <string name="ServerConnection.NotificationServerAvailableText">Ainakin yksi MediaPortal 2-palvelin on käytettävissä verkossa. Liity siihen saadaksesi käyttöön kaikki MediaPortal 2:n ominaisuudet.</string>
-  <string name="ServerConnection.ServerFormatText">{0}' isännällä '{1}</string>
+  <string name="ServerConnection.ServerFormatText">\'{0}\' isännälle \'{1}\'</string>
   <!--{0} = server name, {1} = host name-->
   <string name="ServerConnection.UnknownServerName">&lt;Tuntematon&gt;</string>
   <string name="ServerConnection.UnknownServerSystem">&lt;Tuntematon&gt;</string>
@@ -40,13 +40,12 @@
   <string name="ServerConnection.DetachFromServerWorkflowStateLabel">Katkaise yhteys palvelimeen</string>
   <string name="ServerConnection.HomeServerWorkflowStateLabel">Kotipalvelin</string>
   <string name="ServerConnection.AttachedText.Before">Tämä MediaPortal 2 asiakas on liitetty kotipalvelimeen</string>
-  <string name="ServerConnection.AttachedText.After"></string>
   <string name="ServerConnection.NoHomeServerAttached">Tällä hetkellä tämä MediaPortal 2 asiakas ei ole liitetty kotipalvelimeen.</string>
   <string name="ServerConnection.HomeServerIsConnected">Kotipalvelin on yhdistetty</string>
   <string name="ServerConnection.HomeServerIsNotConnected">Kotipalvelinta ei ole yhdistetty</string>
   <string name="ServerConnection.DetachMenu">Irroita yhteys</string>
   <string name="ServerConnection.DetachConfirmDialogHeader">Irrottaudu kotipalvelimesta</string>
-  <string name="ServerConnection.DetachConfirmDialogText">Jos irrottaudut kotipalvelimesta, kaikki tiedot paikallisista verkkojaoista ja niiden mediatiedot poistetaan kotipalvelimen mediakirjastosta. Voit liittää palvelimen myöhemmin uudelleen. Haluatko todella irrottatua kotipalvelimesta '{0}' isännällä '{1}'?</string>
+  <string name="ServerConnection.DetachConfirmDialogText">Jos irrottaudut kotipalvelimesta, kaikki tiedot paikallisista verkkojaoista ja niiden mediatiedot poistetaan kotipalvelimen mediakirjastosta. Voit liittää palvelimen myöhemmin uudelleen. Haluatko todella irrottatua kotipalvelimesta \'{0}\' isännällä \'{1}\'?</string>
   <string name="ServerConnection.SearchForServers">Etsi palvelimia</string>
   <string name="ServerConnection.DetachFromServer">Irrottaudu kotipalvelimesta</string>
   <string name="ServerConnection.AttachToServerHeader">Liity MediaPortal 2 palvelimeen</string>
@@ -56,7 +55,7 @@
   <string name="ServerConnection.AttachToServerNoServerText">Tällä hetkellä MediaPortal 2 palvelimia ei ole saatavilla verkossa.</string>
   <string name="ServerConnection.AttachButton">Liitä</string>
   <string name="ServerConnection.AttachInfoDialogHeader">Palvelin liitetty</string>
-  <string name="ServerConnection.AttachInfoDialogText">Tämä MediaPortal 2 asiakas on liitetty uuteen kotipalvelimeensa '{0}' isännässä '{1}'</string>
+  <string name="ServerConnection.AttachInfoDialogText">Tämä MediaPortal 2 asiakas on liitetty uuteen kotipalvelimeensa \'{0}\' isännässä \'{1}\'</string>
   <!--{0} = server name, {1} = host name-->
   <string name="Notifications.Title">Ilmoitukset</string>
   <string name="Notifications.OneMoreNotification">(1 lisää)</string>
@@ -64,9 +63,9 @@
   <string name="Notifications.WatchNotificationsWorkflowStateLabel">Ilmoitukset</string>
   <string name="Notifications.Handle">Kahva</string>
   <string name="ImporterMessages.ImportStartedTitle">Tuonti aloitettu</string>
-  <string name="ImporterMessages.ImportStartedText">Aloitettu '{0}'n tuominen.</string>
+  <string name="ImporterMessages.ImportStartedText">Aloitettu \'{0}\'n tuominen.</string>
   <string name="ImporterMessages.ImportCompletedTitle">Tuonti suoritettu.</string>
-  <string name="ImporterMessages.ImportCompletedText">Lopettu '{0}'n tuominen.</string>
+  <string name="ImporterMessages.ImportCompletedText">Lopettu \'{0}\'n tuominen.</string>
   <string name="LocalFsResourceProvider.Name">Paikallisen tiedostojärjestelmä resurssin tarjoaja</string>
   <string name="LocalFsResourceProvider.Description">Yhdistä paikalliseen tiedostojärjestelmään</string>
   <string name="RemoteResourceProvider.Name">Etäresurssien tarjoaja</string>
@@ -74,10 +73,10 @@
   <string name="ScreenSaver.MediaPortal2">MediaPortal 2</string>
   <!--For MP UI player subsystem-->
   <string name="Players.NoPlayerAvailableNotificationTitle">Ei soitinta</string>
-  <string name="Players.NoPlayerAvailableNotificationText">Ei rekisteröityä soitinta jolla toistaa '{0}' mediakappale</string>
+  <string name="Players.NoPlayerAvailableNotificationText">Ei rekisteröityä soitinta jolla toistaa \'{0}\' mediakappale</string>
   <string name="Players.ErrorPlayingMediaItemTitle">Virhe mediakappaleen toistossa</string>
-  <string name="Players.UnableToPlayMediaItemText">Ei voi toistaa mediakappaletta '{0}'</string>
-  <string name="Players.ResourceNotFoundText">Ei löydetty resurssia '{0}'</string>
+  <string name="Players.UnableToPlayMediaItemText">Ei voi toistaa mediakappaletta \'{0}\'</string>
+  <string name="Players.ResourceNotFoundText">Ei löydetty resurssia \'{0}\'</string>
   <string name="Players.PlayerConfiguration">Soittimen asetukset</string>
   <string name="Players.CurrentMediaInfo">Nykyinen media info</string>
   <string name="Players.FullscreenVideo">Kokoruutu {0}</string>
@@ -139,7 +138,7 @@
   <string name="SharesOverview.ReImportAllShares">Tuo uudellen kaikki verkkojaot</string>
   <string name="SharesOverview.NotConnectedToHomeServer">Kotipalvelinta ei ole kytketty, järjestelmän verkkojakojen tietoja ei voi hakea</string>
   <string name="Shares.NoSharesInThisView">-Tässä näkymässä ei ole verkkojakoja-</string>
-  <string name="Shares.InvalidPath">VIRHEELLINEN POLKU: '{0}'</string>
+  <string name="Shares.InvalidPath">VIRHEELLINEN POLKU: \'{0}\'</string>
   <!--For example: INVALID PATH: 'C:\XXX\YYY'-->
   <string name="Shares.Online">Verkossa</string>
   <string name="Shares.Offline">Ei verkossa</string>

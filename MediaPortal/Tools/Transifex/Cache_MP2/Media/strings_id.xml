@@ -170,9 +170,9 @@
   <string name="Media.NoPlaylistsAvailable">- Tidak ada daftar main tersedia -</string>
   <string name="Media.NoConfigPlaylistsHomeServerNotConnectedText">Server pusat saat ini tidak terkoneksi, sehingga daftar main tidak dapat dikelola pada saat ini</string>
   <string name="Media.EditNameOfPlaylist">Edit nama daftar main</string>
-  <string name="Media.SavePlaylistSuccessfulText">Daftar main '{0}' berhasil disimpan di server.</string>
-  <string name="Media.SavePlaylistFailedText">Daftar main tidak dapat disimpan. Pesan masalah: '{0}'</string>
-  <string name="Media.SavePlaylistFailedAlreadyExists">Daftar main tidak dapat disimpan: Daftar main '{0}' sudah ada</string>
+  <string name="Media.SavePlaylistSuccessfulText">Daftar main \'{0}\' berhasil disimpan di server.</string>
+  <string name="Media.SavePlaylistFailedText">Daftar main tidak dapat disimpan. Pesan masalah: \'{0}\'</string>
+  <string name="Media.SavePlaylistFailedAlreadyExists">Daftar main tidak dapat disimpan: Daftar main \'{0}\' sudah ada</string>
   <string name="Media.ChoosePlaylistsToBeRemovedText">Pilih daftar main untuk dihapus</string>
   <string name="Media.PlaylistNameInfoLabel">Nama daftar main</string>
   <string name="Media.PlaylistTypeInfoLabel">Tipe daftar main</string>

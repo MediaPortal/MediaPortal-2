@@ -68,7 +68,7 @@
   <string name="Weather.WSW">BGB</string>
   <string name="Weather.WNW">BKB</string>
   <string name="Weather.NNW">KKB</string>
-  <string name="Weather.From">{0}dan {1} {2}'ye kadar</string>
+  <string name="Weather.From">{0}dan {1} {2}\'ye kadar</string>
   <string name="Weather.Various">çeşitli</string>
   <string name="Weather.Calm">sakin</string>
   <string name="Weather.NoWind">Rüzgarsız</string>

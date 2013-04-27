@@ -14,6 +14,8 @@
   <string name="Media.FilterByAudioGenreMenuItem">Filtrer efter genre</string>
   <string name="Media.FilterByDecadeMenuItem">Filtrer efter årti</string>
   <string name="Media.FilterByActorMenuItem">Filtrer efter skuespiller</string>
+  <string name="Media.FilterByDirectorMenuItem">Sorter per instruktør</string>
+  <string name="Media.FilterByWriterMenuItem">Filtrer efter forfatter</string>
   <string name="Media.FilterByVideoGenreMenuItem">Filtrer efter genre</string>
   <string name="Media.FilterByVideoYearMenuItem">Filtrer efter år</string>
   <string name="Media.FilterByAudioLanguageMenuItem">Filtrer efter sprog</string>
@@ -49,6 +51,8 @@
   <string name="Media.FilterAudioGenreNavbarDisplayLabel">Genre: {0}</string>
   <string name="Media.FilterDecadeNavbarDisplayLabel">Årti: {0}</string>
   <string name="Media.FilterActorNavbarDisplayLabel">Skuespiller: {0}</string>
+  <string name="Media.FilterDirectorNavbarDisplayLabel">Instruktør: {0}</string>
+  <string name="Media.FilterWriterNavbarDisplayLabel">Forfatter: {0} </string>
   <string name="Media.FilterVideoGenreNavbarDisplayLabel">Genre: {0}</string>
   <string name="Media.FilterVideoYearNavbarDisplayLabel">År: {0}</string>
   <string name="Media.FilterAudioLanguagesNavbarDisplayLabel">Sprog: {0}</string>
@@ -101,6 +105,8 @@
   <string name="Media.SimpleSearchHeader">Simpel søgning</string>
   <string name="Media.ChooseCollectionHeader">Vælg en samling</string>
   <string name="Media.ChooseActorHeader">Vælg en skuespiller</string>
+  <string name="Media.ChooseDirectorHeader">Vælg en instruktør</string>
+  <string name="Media.ChooseWriterHeader">Vælg en forfatter</string>
   <string name="Media.ChooseVideoGenreHeader">Vælg en genre</string>
   <string name="Media.ChooseVideoYearHeader">Vælg et år</string>
   <string name="Media.ChooseSeriesHeader">Vælg en serie</string>
@@ -170,9 +176,9 @@
   <string name="Media.NoPlaylistsAvailable">- Ingen afspilningsliste til rådighed -</string>
   <string name="Media.NoConfigPlaylistsHomeServerNotConnectedText">Der er ikke forbindelse til hjemmeserveren i øjeblikket. Derfor kan afspilningslister ikke vedligeholdes.</string>
   <string name="Media.EditNameOfPlaylist">Rediger afspilningslistens navn</string>
-  <string name="Media.SavePlaylistSuccessfulText">Afspilningsliste '{0}' blev gemt på serveren.</string>
-  <string name="Media.SavePlaylistFailedText">Afspilningslisten kunne ikke gemmes. Fejlmeddelse: '{0}'</string>
-  <string name="Media.SavePlaylistFailedAlreadyExists">Afspilningslisten kunne ikke gemmes: '{0}' findes allerede.</string>
+  <string name="Media.SavePlaylistSuccessfulText">Afspilningsliste \'{0}\' blev gemt på serveren.</string>
+  <string name="Media.SavePlaylistFailedText">Afspilningslisten kunne ikke gemmes. Fejlmeddelse: \'{0}\'</string>
+  <string name="Media.SavePlaylistFailedAlreadyExists">Afspilningslisten kunne ikke gemmes: \'{0}\' findes allerede.</string>
   <string name="Media.ChoosePlaylistsToBeRemovedText">Vælg afspilningsliste der skal fjernes.</string>
   <string name="Media.PlaylistNameInfoLabel">Afspilningslistenavn</string>
   <string name="Media.PlaylistTypeInfoLabel">Afspilningslistetype</string>
@@ -263,6 +269,7 @@
   <string name="Media.RepeatMode">Gentagelses tilstand</string>
   <string name="Media.RepeatMode.None">Intet</string>
   <string name="Media.RepeatMode.All">Alle</string>
+  <string name="Media.RepeatMode.One">En</string>
   <!--VideoPlayerUIContributor-->
   <string name="Media.SubtitleOff">Fjern undertekst</string>
   <string name="Media.ChooseChapterDialogHeader">Vælg kapitel</string>
@@ -295,8 +302,10 @@
   <string name="Media.SortBySystem">Sorter per system</string>
   <string name="Media.SortByActor">Sorter per skuespiller</string>
   <string name="Media.SortByDirector">Sorter per instruktør</string>
+  <string name="Media.SortByWriter">Sorter per forfatter</string>
   <string name="Media.SortByDuration">Sorter per varighed</string>
   <string name="Media.SortByAspectRatio">Sorter per formatforhold</string>
+  <string name="Media.SortByFirstAiredDate">Sorter per udsendelse dato</string>
   <string name="Media.SortByDate">Sorter per optagelsesdato</string>
   <string name="Media.SortByEpisode">Sorter per episode</string>
   <string name="Media.SortingBrowseDefault">Standard sortering</string>
@@ -309,4 +318,6 @@
   <string name="Settings.Players.SkipStepTimeout.Help">Juster timeout for brugere indtastning før skip trin udføreres.</string>
   <string name="Settings.Players.SkipStepList">Afspiller skip trin</string>
   <string name="Settings.Players.SkipStepList.Help">Indtast skip trin i sekunder adskilt af ,</string>
+  <string name="Settings.Players.OpenPlayerStrategy">Åbn afspiller planlægning</string>
+  <string name="Settings.Players.OpenPlayerStrategy.Help">Planlæg hvordan nyåbnede afspiller vil blive placeret bland allerede åbne afspillere</string>
 </resources>

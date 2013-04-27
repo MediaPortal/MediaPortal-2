@@ -1,15 +1,15 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
-  <string name="Weather.WeatherStateDisplayLabel">L'oratge</string>
-  <string name="Weather.WeatherSetupStateDisplayLabel">Configuració de l'oratge</string>
+  <string name="Weather.WeatherStateDisplayLabel">L\'oratge</string>
+  <string name="Weather.WeatherSetupStateDisplayLabel">Configuració de l\'oratge</string>
   <!--Dialog state, doesn't appear at the UI-->
   <string name="Weather.WeatherLocationStateDisplayLabel">Trieu la ubicació</string>
   <!--Dialog state, doesn't appear at the UI-->
-  <string name="Weather.Title">L'oratge</string>
+  <string name="Weather.Title">L\'oratge</string>
   <string name="Weather.ChooseLocation">Trieu la ubicació</string>
   <string name="Weather.Refresh">Actualitza</string>
-  <string name="Weather.Updating">S'està actualitzant</string>
-  <string name="Weather.Weather">L'oratge</string>
+  <string name="Weather.Updating">S\'està actualitzant</string>
+  <string name="Weather.Weather">L\'oratge</string>
   <string name="Weather.NoData">No hi ha cap dada</string>
   <string name="Weather.Temp">T</string>
   <string name="Weather.TempFeel">Temperatura de sensació</string>
@@ -17,7 +17,7 @@
   <string name="Weather.Wind">Vent</string>
   <string name="Weather.Humidity">Humitat</string>
   <string name="Weather.Precipitation">Precipitacions</string>
-  <string name="Weather.Pressure">Pressió de l'aire</string>
+  <string name="Weather.Pressure">Pressió de l\'aire</string>
   <string name="Weather.DewPoint">Punt de rosada</string>
   <string name="Weather.Sunrise">Sortida del sol</string>
   <string name="Weather.Sunset">Posta del sol</string>
@@ -40,7 +40,7 @@
   <string name="Weather.Wind">Vent</string>
   <string name="Weather.Strong">Forts</string>
   <string name="Weather.Clear">Clar</string>
-  <string name="Weather.Early">D'hora</string>
+  <string name="Weather.Early">D\'hora</string>
   <string name="Weather.Fog">Boirina</string>
   <string name="Weather.Haze">Boira</string>
   <string name="Weather.Windy">Ventós</string>
@@ -74,9 +74,9 @@
   <string name="Weather.NoWind">Sense vent</string>
   <string name="Weather.InTheVicinity">a la rodalia</string>
   <string name="Weather.Clearing">Escampant</string>
-  <string name="Settings.Plugins.Weather">L'oratge</string>
+  <string name="Settings.Plugins.Weather">L\'oratge</string>
   <string name="Settings.Plugins.Weather.LocationSetup">Configura ubicacions</string>
-  <string name="Settings.Plugins.Weather.LocationSetup.Help">Configureu les ciutats que seran disponibles a la pantalla de l'oratge</string>
+  <string name="Settings.Plugins.Weather.LocationSetup.Help">Configureu les ciutats que seran disponibles a la pantalla de l\'oratge</string>
   <string name="WeatherSetup.Title">Configura ciutats</string>
   <string name="WeatherSetup.ConfiguredCities">Ciutats configurades</string>
   <string name="WeatherSetup.EnterCity">Introduïu el nom la ciutat per afegir:</string>

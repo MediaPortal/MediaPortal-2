@@ -29,7 +29,7 @@
   <string name="Media.InvalidShareName">Geçersiz paylaşım</string>
   <string name="ServerConnection.NotificationServerAvailableTitle">MP2 sunucu müsait</string>
   <string name="ServerConnection.NotificationServerAvailableText">Ağda en az bir tane MediaPortal 2 sunucu var. Ona bağlanarak MediaPortal 2 nin sağladığı tüm özellikleri kullanabilirsiniz. </string>
-  <string name="ServerConnection.ServerFormatText">{1}' alanındaki '{0}</string>
+  <string name="ServerConnection.ServerFormatText">\'{1}\' alanındaki \'{0}\'</string>
   <!--{0} = server name, {1} = host name-->
   <string name="ServerConnection.UnknownServerName">&lt;Bilinmeyen&gt;</string>
   <string name="ServerConnection.UnknownServerSystem">&lt;Bilinmeyen&gt;</string>
@@ -38,13 +38,12 @@
   <string name="ServerConnection.DetachFromServerWorkflowStateLabel">Sunucudan ayrıl</string>
   <string name="ServerConnection.HomeServerWorkflowStateLabel">Ev sunucusu</string>
   <string name="ServerConnection.AttachedText.Before">Şu anda, bu MediaPortal 2 istemci ev sunucusuna bağlı.</string>
-  <string name="ServerConnection.AttachedText.After"></string>
   <string name="ServerConnection.NoHomeServerAttached">Şu anda, bu MediaPortal 2 istemci ev sunucusuna bağlı değil.</string>
   <string name="ServerConnection.HomeServerIsConnected">Ev sunucusu şu an bağlı.</string>
   <string name="ServerConnection.HomeServerIsNotConnected">Ev sunucusu şu an bağlı değil.</string>
   <string name="ServerConnection.DetachMenu">Ayır</string>
   <string name="ServerConnection.DetachConfirmDialogHeader">Sunucu bağlantısını kopar.</string>
-  <string name="ServerConnection.DetachConfirmDialogText">Ev sunucusundan ayrılırsanız,  ev sunucusu ile ilgili tüm paylaşımlar ev sunucusunun medya kütüphanesinden çıkarılacaktır. Daha sonra yeniden bağlanabilirsiniz. '{1}' alanındaki '{0}' ev sunucusundan gerçekten ayrılmak istiyor musunuz?</string>
+  <string name="ServerConnection.DetachConfirmDialogText">Ev sunucusundan ayrılırsanız,  ev sunucusu ile ilgili tüm paylaşımlar ev sunucusunun medya kütüphanesinden çıkarılacaktır. Daha sonra yeniden bağlanabilirsiniz. \'{1}\' alanındaki \'{0}\' ev sunucusundan gerçekten ayrılmak istiyor musunuz?</string>
   <string name="ServerConnection.SearchForServers">Sunucu ara</string>
   <string name="ServerConnection.DetachFromServer">Ev sunucusundan ayrıl</string>
   <string name="ServerConnection.AttachToServerHeader">MEdiaPortal 2 sunucusuna bağlan</string>
@@ -54,7 +53,7 @@
   <string name="ServerConnection.AttachToServerNoServerText">Şu anda, ağda hiçbir MediaPortal 2 sunucusu yok.</string>
   <string name="ServerConnection.AttachButton">Bağlan</string>
   <string name="ServerConnection.AttachInfoDialogHeader">Sunucu bağlandı</string>
-  <string name="ServerConnection.AttachInfoDialogText">MediaPortal 2 istemcisi '{1}' alanındaki '{0}' ev sunucusuna bağlandı. </string>
+  <string name="ServerConnection.AttachInfoDialogText">MediaPortal 2 istemcisi \'{1}\' alanındaki \'{0}\' ev sunucusuna bağlandı. </string>
   <!--{0} = server name, {1} = host name-->
   <string name="Notifications.Title">Bildirimler</string>
   <string name="Notifications.OneMoreNotification">(1 adet daha)</string>
@@ -62,9 +61,9 @@
   <string name="Notifications.WatchNotificationsWorkflowStateLabel">Bildirimler</string>
   <string name="Notifications.Handle">İşlem tanımlayıcısı</string>
   <string name="ImporterMessages.ImportStartedTitle">İçe aktarma başladı</string>
-  <string name="ImporterMessages.ImportStartedText">'{0}' ın içe aktarımı başladı.</string>
+  <string name="ImporterMessages.ImportStartedText">\'{0}\' ın içe aktarımı başladı.</string>
   <string name="ImporterMessages.ImportCompletedTitle">İçe aktarım tamamlandı</string>
-  <string name="ImporterMessages.ImportCompletedText">'{0}' ın içe aktarımı tamamlandı.</string>
+  <string name="ImporterMessages.ImportCompletedText">\'{0}\' ın içe aktarımı tamamlandı.</string>
   <string name="LocalFsResourceProvider.Name">Yerel dosya sistemi kaynak sağlayıcı</string>
   <string name="LocalFsResourceProvider.Description">Yerel dosya sistemine erişim</string>
   <string name="RemoteResourceProvider.Name">Uzak kaynak sağlayıcı</string>
@@ -72,10 +71,10 @@
   <string name="ScreenSaver.MediaPortal2">MediaPortal 2</string>
   <!--For MP UI player subsystem-->
   <string name="Players.NoPlayerAvailableNotificationTitle">Oynatıcı yok</string>
-  <string name="Players.NoPlayerAvailableNotificationText">'{0}' medyasını çalacak bir oynatıcı kaydedilmedi</string>
+  <string name="Players.NoPlayerAvailableNotificationText">\'{0}\' medyasını çalacak bir oynatıcı kaydedilmedi</string>
   <string name="Players.ErrorPlayingMediaItemTitle">Medyayı çalmada hata</string>
-  <string name="Players.UnableToPlayMediaItemText">'{0}' çalınamadı</string>
-  <string name="Players.ResourceNotFoundText">'{0}' bulunamadı</string>
+  <string name="Players.UnableToPlayMediaItemText">\'{0}\' çalınamadı</string>
+  <string name="Players.ResourceNotFoundText">\'{0}\' bulunamadı</string>
   <string name="Players.PlayerConfiguration">Oynatıcı yapılandırması</string>
   <string name="Players.CurrentMediaInfo">Mevcut medya bilgisi</string>
   <string name="Players.FullscreenVideo">Tam ekran {0}</string>
@@ -105,7 +104,7 @@
   <string name="Settings.General">Genel</string>
   <string name="Settings.General.System">Sistem</string>
   <string name="Settings.General.System.Autostart">Otomatik başlat</string>
-  <string name="Settings.General.System.Autostart.Help">Windows başladığında MediaPortal'ı da otomatik olarak başlat </string>
+  <string name="Settings.General.System.Autostart.Help">Windows başladığında MediaPortal\'ı da otomatik olarak başlat </string>
   <string name="Settings.General.Connectivity">Bağlantı</string>
   <string name="Settings.General.Connectivity.HomeServer">Ev sunucusu</string>
   <string name="Settings.General.Connectivity.HomeServer.Help">Ev sunucusu bilgisi, ev sunucusuna bağlan ya da ayrıl</string>
@@ -136,7 +135,7 @@
   <string name="SharesOverview.ReImportAllShares">Tüm paylaşımları yeniden içe aktar</string>
   <string name="SharesOverview.NotConnectedToHomeServer">Ev sunucusuna bağlı değil, sistem paylaşım bilgileri alınamadı.</string>
   <string name="Shares.NoSharesInThisView">- Bu görünümde paylaşım yok -</string>
-  <string name="Shares.InvalidPath">GEÇERSİZ YOL: '{0}'</string>
+  <string name="Shares.InvalidPath">GEÇERSİZ YOL: \'{0}\'</string>
   <!--For example: INVALID PATH: 'C:\XXX\YYY'-->
   <string name="Shares.Online">Çevrimiçi</string>
   <string name="Shares.Offline">Çevrimdışı</string>

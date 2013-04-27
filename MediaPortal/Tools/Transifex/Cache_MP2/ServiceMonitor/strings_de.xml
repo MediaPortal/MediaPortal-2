@@ -1,5 +1,19 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
-  <string name="ServerStatus.NotStarted">Server noch nicht gestartet</string>
+  <string name="ServerStatus.NotStarted">Server nicht gestartet</string>
+  <string name="ServerStatus.Attached">An Server angebunden</string>
+  <string name="ServerStatus.Connected">Mit Server verbunden</string>
+  <string name="ServerStatus.Detached">Vom Server getrennt</string>
+  <string name="ServerStatus.Disconnected">Vom Server getrennt</string>
+  <string name="ServerStatus.ClientConnected">Client(s) mit dem Server verbunden</string>
+  <string name="MainWindow.ServerStatus">Server-Status</string>
+  <string name="MainWindow.AttachedClients">Verbundene Clients:</string>
+  <string name="ContextMenu.ShowWin">Zeige Fenster</string>
+  <string name="ContextMenu.HideWin">Verstecke Fenster</string>
+  <string name="ContextMenu.StartService">Starte Service</string>
+  <string name="ContextMenu.StopService">Stoppe Service</string>
+  <string name="ContextMenu.EnableAutostart">Aktiviere Autostart</string>
+  <string name="ContextMenu.DisableAutostart">Deaktiviere Autostart</string>
   <string name="ContextMenu.Exit">Beenden</string>
+  <string name="SysTrayToolTip.Info">Rechtklick für weitere Optionen</string>
 </resources>

@@ -161,9 +161,9 @@
   <string name="Media.NoPlaylistsAvailable">- Non ci sono playlist disponibili -</string>
   <string name="Media.NoConfigPlaylistsHomeServerNotConnectedText">Il server home non è attualmente connesso, al momento le playlist non possono essere amminstrate</string>
   <string name="Media.EditNameOfPlaylist">Edita il nome della playlist</string>
-  <string name="Media.SavePlaylistSuccessfulText">La Playlist '{0}' è stata salvata con successo nel server.</string>
-  <string name="Media.SavePlaylistFailedText">La playlist non può essere salvata. Messaggio di errore: '{0}'</string>
-  <string name="Media.SavePlaylistFailedAlreadyExists">La playlistnon può essere salvata: Playlist '{0}' esiste già</string>
+  <string name="Media.SavePlaylistSuccessfulText">La Playlist \'{0}\' è stata salvata con successo nel server.</string>
+  <string name="Media.SavePlaylistFailedText">La playlist non può essere salvata. Messaggio di errore: \'{0}\'</string>
+  <string name="Media.SavePlaylistFailedAlreadyExists">La playlistnon può essere salvata: Playlist \'{0}\' esiste già</string>
   <string name="Media.ChoosePlaylistsToBeRemovedText">Scegli la playlists da rimuovere</string>
   <string name="Media.PlaylistNameInfoLabel">Nome Playlist</string>
   <string name="Media.PlaylistTypeInfoLabel">Tipo Playlist</string>
@@ -200,7 +200,7 @@
   <string name="Media.VideoStoryPlotLabel">Story plot: </string>
   <!--Series currently playing-->
   <!--Image currently playing-->
-  <string name="Media.ImageCurrentlyPlayingHeader">Informazioni sull'immagine corrente</string>
+  <string name="Media.ImageCurrentlyPlayingHeader">Informazioni sull\'immagine corrente</string>
   <string name="Media.ImageTitleLabel">Nome:</string>
   <string name="Media.ImageDimensions">Dimensioni:</string>
   <string name="Media.CameraMake">Fotocamera:</string>

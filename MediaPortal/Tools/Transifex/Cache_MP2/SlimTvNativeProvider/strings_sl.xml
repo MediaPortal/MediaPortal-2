@@ -2,7 +2,7 @@
 <resources>
   <string name="Settings.Plugins.TV">TV</string>
   <string name="Settings.Plugins.TV.MPExtendedServerAddress">Naslov strežnika MPExtended</string>
-  <string name="Settings.Plugins.TV.MPExtendedServerAddress.Help">Vpiši imena strežnikov ali njihove IP naslove, ločene s ';' (privzeto localhost).</string>
+  <string name="Settings.Plugins.TV.MPExtendedServerAddress.Help">Vpiši imena strežnikov ali njihove IP naslove, ločene s \';\' (privzeto localhost).</string>
   <string name="Settings.Plugins.TV.MPExtendedUsername">Uporabniško ime za MPExtended storitev</string>
   <string name="Settings.Plugins.TV.MPExtendedUsername.Help">Vpiši uporabniško ime za storitev. Prazno ime pomeni anonimno prijavo.</string>
   <string name="Settings.Plugins.TV.MPExtendedPassword">Geslo za storitev MPExtended</string>

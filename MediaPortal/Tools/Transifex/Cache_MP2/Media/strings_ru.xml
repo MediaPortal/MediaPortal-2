@@ -145,9 +145,9 @@
   <string name="Media.NoPlaylistsAvailable">- Нет плейлистов -</string>
   <string name="Media.NoConfigPlaylistsHomeServerNotConnectedText">Домашний сервер не подключён, поэтому работа с плейлистами не возможна</string>
   <string name="Media.EditNameOfPlaylist">Переименовать плейлист</string>
-  <string name="Media.SavePlaylistSuccessfulText">Плейлист '{0}' сохранён на сервере</string>
-  <string name="Media.SavePlaylistFailedText">Плейлист не может быть сохранён. Ошибка: '{0}'</string>
-  <string name="Media.SavePlaylistFailedAlreadyExists">Плейлист не сохранён: Плейлист '{0}' уже существует</string>
+  <string name="Media.SavePlaylistSuccessfulText">Плейлист \'{0}\' сохранён на сервере</string>
+  <string name="Media.SavePlaylistFailedText">Плейлист не может быть сохранён. Ошибка: \'{0}\'</string>
+  <string name="Media.SavePlaylistFailedAlreadyExists">Плейлист не сохранён: Плейлист \'{0}\' уже существует</string>
   <string name="Media.ChoosePlaylistsToBeRemovedText">Выберите удаляемые плейлисты</string>
   <string name="Media.PlaylistNameInfoLabel">Имя плейлиста</string>
   <string name="Media.PlaylistTypeInfoLabel">Тип плейлиста</string>

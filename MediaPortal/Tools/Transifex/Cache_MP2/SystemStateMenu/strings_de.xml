@@ -1,2 +1,14 @@
 <?xml version='1.0' encoding='UTF-8'?>
-<resources/>
+<resources>
+  <string name="Settings.General.System.SystemStateDialog">Schließen-Menü</string>
+  <string name="Settings.General.System.SystemStateDialog.Help">Richte Sichtbarkeit und Position der Energieoptionen ein</string>
+  <string name="SystemState.Configuration.Dialog.Title">Konfiguriere die Einträge in den Energieoptionen</string>
+  <string name="SystemState.Title">Schließen-Menü</string>
+  <string name="SystemState.Hibernate">Ruhezustand</string>
+  <string name="SystemState.Shutdown">Herunterfahren</string>
+  <string name="SystemState.Suspend">Schlafmodus</string>
+  <string name="SystemState.Restart">Neustarten</string>
+  <string name="SystemState.Logoff">Abmelden</string>
+  <string name="SystemState.MinimizeMP">MediaPortal minimieren</string>
+  <string name="SystemState.ShutdownMP">MediaPortal schließen</string>
+</resources>

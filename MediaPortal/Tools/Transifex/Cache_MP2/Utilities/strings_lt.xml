@@ -16,7 +16,7 @@
   <string name="Utilities.StartPlaylistImport">Pradėti grojaraščio įkėlimą</string>
   <string name="Utilities.PlaylistSavedSuccessfullyTitle">Sėkmingai</string>
   <string name="Utilities.NoItemsWereImportedSkippingSaveText">Įrašai neįkelti. Saugojimo veiksmas praleidžiamas.</string>
-  <string name="Utilities.PlaylistSavedSuccessfullyText">Grojaraštis '{0}' sėkmingai išsaugotas.</string>
+  <string name="Utilities.PlaylistSavedSuccessfullyText">Grojaraštis \'{0}\' sėkmingai išsaugotas.</string>
   <string name="Utilities.PlaylistSaveFailedTitle">Grojaraštis neišsaugotas</string>
   <string name="Utilities.ImportPlaylistProgressTitle">Eiga</string>
   <string name="Utilities.ImportPlaylistProgressHeaderText">Įkeliamas grojaraštis</string>

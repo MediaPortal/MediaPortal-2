@@ -31,7 +31,7 @@
   <string name="Media.InvalidShareName">Compartido no válido</string>
   <string name="ServerConnection.NotificationServerAvailableTitle">Servidor MP2 disponible</string>
   <string name="ServerConnection.NotificationServerAvailableText">Hay al menos un servidor MediaPortal 2 disponible en la red. Conecte para disponer de todas las característica de MediaPortal 2</string>
-  <string name="ServerConnection.ServerFormatText">{0}' en el host '{1}</string>
+  <string name="ServerConnection.ServerFormatText">\'{0}\' en el host \'{1}\'</string>
   <!--{0} = server name, {1} = host name-->
   <string name="ServerConnection.UnknownServerName">&lt;Desconocido&gt;</string>
   <string name="ServerConnection.UnknownServerSystem">&lt;Desconocido&gt;</string>
@@ -40,13 +40,12 @@
   <string name="ServerConnection.DetachFromServerWorkflowStateLabel">Desconectarse del servivor</string>
   <string name="ServerConnection.HomeServerWorkflowStateLabel">Servidor inicial</string>
   <string name="ServerConnection.AttachedText.Before">Este cliente de MediaPortal 2 está actualmetne conectado al servidor inicial</string>
-  <string name="ServerConnection.AttachedText.After"></string>
   <string name="ServerConnection.NoHomeServerAttached">Actualmente, Este cliente de MediaPortal 2 no está conectado al servidor inicial</string>
   <string name="ServerConnection.HomeServerIsConnected">El servidor de inicio esta actualmente conectado.</string>
   <string name="ServerConnection.HomeServerIsNotConnected">El servidor de inicio esta actualmente desconectado.</string>
   <string name="ServerConnection.DetachMenu">Desconectar</string>
   <string name="ServerConnection.DetachConfirmDialogHeader">Desconectar del servidor casero</string>
-  <string name="ServerConnection.DetachConfirmDialogText">Si se desconecta del servidor de origen, todos los datos sobre los compartidos locales y sus elementos de medio serán eliminados de la librería del servidor de origen. Puede conectarse de nuevo después. ¿Quiere realmente desconectarse del servidor de origen '{0}' en el host '{1}'?</string>
+  <string name="ServerConnection.DetachConfirmDialogText">Si se desconecta del servidor de origen, todos los datos sobre los compartidos locales y sus elementos de medio serán eliminados de la librería del servidor de origen. Puede conectarse de nuevo después. ¿Quiere realmente desconectarse del servidor de origen \'{0}\' en el host \'{1}\'?</string>
   <string name="ServerConnection.SearchForServers">Buscar servidores</string>
   <string name="ServerConnection.DetachFromServer">Desconectar del servidor casero</string>
   <string name="ServerConnection.AttachToServerHeader">Conectar al servidor MediaPortal 2</string>
@@ -56,7 +55,7 @@
   <string name="ServerConnection.AttachToServerNoServerText">Actualmente no hay ningún servidor MediaPortal 2 disponible en la red</string>
   <string name="ServerConnection.AttachButton">Conectar</string>
   <string name="ServerConnection.AttachInfoDialogHeader">Servidor conectado</string>
-  <string name="ServerConnection.AttachInfoDialogText">Este cliente MediaPortal 2 se a unido a su nuevo servidor de origen '{0}' en el origen '{1}'</string>
+  <string name="ServerConnection.AttachInfoDialogText">Este cliente MediaPortal 2 se a unido a su nuevo servidor de origen \'{0}\' en el origen \'{1}\'</string>
   <!--{0} = server name, {1} = host name-->
   <string name="Notifications.Title">Notificaciones</string>
   <string name="Notifications.OneMoreNotification">(1 más)</string>
@@ -64,9 +63,9 @@
   <string name="Notifications.WatchNotificationsWorkflowStateLabel">Notificaciones</string>
   <string name="Notifications.Handle">Manipular</string>
   <string name="ImporterMessages.ImportStartedTitle">Importación comenzada</string>
-  <string name="ImporterMessages.ImportStartedText">La importación de '{0}' a empezado.</string>
+  <string name="ImporterMessages.ImportStartedText">La importación de \'{0}\' a empezado.</string>
   <string name="ImporterMessages.ImportCompletedTitle">Importación finalizada</string>
-  <string name="ImporterMessages.ImportCompletedText">La importación de '{0}' ha terminado.</string>
+  <string name="ImporterMessages.ImportCompletedText">La importación de \'{0}\' ha terminado.</string>
   <string name="LocalFsResourceProvider.Name">Proveedor de recursos de archivo de sistemas locales</string>
   <string name="LocalFsResourceProvider.Description">Acceso al sistema de archivos locales</string>
   <string name="RemoteResourceProvider.Name">Proveedor de recursos remoto</string>
@@ -74,10 +73,10 @@
   <string name="ScreenSaver.MediaPortal2">MediaPortal 2</string>
   <!--For MP UI player subsystem-->
   <string name="Players.NoPlayerAvailableNotificationTitle">Sin reproductor</string>
-  <string name="Players.NoPlayerAvailableNotificationText">No hay reproductor registrado para reproducir el elemento de medio '{0}'</string>
+  <string name="Players.NoPlayerAvailableNotificationText">No hay reproductor registrado para reproducir el elemento de medio \'{0}\'</string>
   <string name="Players.ErrorPlayingMediaItemTitle">Error reproduciendo el elemento</string>
-  <string name="Players.UnableToPlayMediaItemText">Incapaz de reproducir el elemento '{0}'</string>
-  <string name="Players.ResourceNotFoundText">El recurso '{0}' no se encuentra</string>
+  <string name="Players.UnableToPlayMediaItemText">Incapaz de reproducir el elemento \'{0}\'</string>
+  <string name="Players.ResourceNotFoundText">El recurso \'{0}\' no se encuentra</string>
   <string name="Players.PlayerConfiguration">Configuración del reproductor</string>
   <string name="Players.CurrentMediaInfo">Información del medio actual</string>
   <string name="Players.FullscreenVideo">Pantalla completa {0}</string>
@@ -102,14 +101,20 @@
   <string name="Settings.Appearance">Aspecto</string>
   <string name="Settings.Appearance.Skin">Piel</string>
   <string name="Settings.Appearance.Skin.Formats.DateFormat">Formato de la fecha</string>
+  <string name="Settings.Appearance.Skin.Formats.DateFormat.Help">Formato de fecha usado en la Piel. Use las especificaciones de formato de la clase DateTime de .net</string>
   <string name="Settings.Appearance.Skin.Formats.TimeFormat">Formato de la hora</string>
+  <string name="Settings.Appearance.Skin.Formats.TimeFormat.Help">Formato de hora usado en la Piel. Use las especificaciones de formato de la clase DateTime de .net</string>
   <string name="Settings.General">General</string>
   <string name="Settings.General.System">Sistema</string>
   <string name="Settings.General.System.Autostart">Autocomenzar</string>
   <string name="Settings.General.System.Autostart.Help">Ejecutar MediaPortal automaticamente al iniciar Windows</string>
+  <string name="Settings.General.System.ClientDOKANDrive">Letra de montaje del recurso:</string>
+  <string name="Settings.General.System.ClientDOKANDrive.Help">Configura la letra de unidad para montar los recursos remotos en este cliente.</string>
   <string name="Settings.General.Connectivity">Conectividad</string>
   <string name="Settings.General.Connectivity.HomeServer">Servidor de casa</string>
+  <string name="Settings.General.Connectivity.HomeServer.Help">Información del servidor de Inicio, unirse o desunirse al servidor de inicio</string>
   <string name="Settings.General.Connectivity.ServerListener">Servidor escuchano</string>
+  <string name="Settings.General.Connectivity.ServerListener.Help">Activar notificación de estado desconectado, cuando el servidor MediaPortal 2 esté disponible en la red</string>
   <string name="Settings.General.Connectivity.ClientName">Nombre del cliente</string>
   <string name="Settings.General.Connectivity.ClientName.Help">Selecciona el nombre para este cliente MediaPortal 2</string>
   <string name="Settings.Regional">Regional</string>
@@ -133,8 +138,9 @@
   <string name="SharesOverview.OverviewWorkflowNavigationContextDisplayLabel">Vistazo a los compartidos</string>
   <string name="SharesOverview.Title">Vistazo a los compartidos</string>
   <string name="SharesOverview.ReImportAllShares">Volver a importar todos los compartidos</string>
+  <string name="SharesOverview.NotConnectedToHomeServer">El servidor no está conectado, la información de los compartidos del sistema no puede ser recibida.</string>
   <string name="Shares.NoSharesInThisView">- No hay compartidos en esta vista -</string>
-  <string name="Shares.InvalidPath">RUTA INVÁLIDA: '{0}'</string>
+  <string name="Shares.InvalidPath">RUTA INVÁLIDA: \'{0}\'</string>
   <!--For example: INVALID PATH: 'C:\XXX\YYY'-->
   <string name="Shares.Online">Conectado</string>
   <string name="Shares.Offline">Desconectado</string>
@@ -151,6 +157,7 @@
   <string name="SharesConfig.SharesEditEditNameWorkflowNavigationContextDisplayLabel">Editar nombre</string>
   <string name="SharesConfig.SharesEditChooseCategoriesWorkflowNavigationContextDisplayLabel">Elige las categorias</string>
   <string name="SharesConfig.CannotAddSharesTitle">No se pueden añadir compartidos</string>
+  <string name="SharesConfig.CannotAddShareLocalHomeServerNotConnected">El servidor de inicio está localizado en la misma máquina, por ello todos los compartidos deben ser registrados en el servidor. Pero el servidor no está conectado en este momento. Por favor inicia el servidor de inicio e inténtalo de nuevo.</string>
   <string name="SharesConfig.SharesConfiguration.Title">Configuración de compartidos</string>
   <string name="SharesConfig.NoSharesAvailable">No hay compartidos disponibles</string>
   <string name="SharesConfig.ShareInformationHeader">Información de compartido</string>
@@ -171,10 +178,14 @@
   <string name="SharesConfig.LocalShares">Compartidos locales</string>
   <string name="SharesConfig.GlobalShare">Compartido global</string>
   <string name="SharesConfig.GlobalShares">Compartidos globales</string>
+  <string name="SharesConfig.NoConfigGlobalSharesHomeServerNotConnected">El servidor de inicio no está conectado actualmente, por ello no se pueden manejar los compartidos globales en este momento.</string>
+  <string name="SharesConfig.NoConfigLocalSharesHomeServerLocal">El servidor de inicio está localizado en la misma máquina, por lo que sólo se pueden configurar los compartidos globales.</string>
   <string name="SharesConfig.ChooseResourceProviderForShare">Por favor selecciona un proveedor de recursos para el compartido</string>
   <string name="SharesConfig.EditResourceProviderPathForShare">Editar la ruta al compartido</string>
+  <string name="SharesConfig.ResourceProviderPathIsNotValid">Edita una ruta válida en el proveedor de recursos elegido. Puede editar una ruta simple que sea entendible por el proveedor de recursos. También puede editar una ruta compleja en el formato {[Base-ResourceProvider-ID]}://[Base-ResourceProvider-Path]&gt;{[Chained-ResourceProvider-ID]}://[Chained-ResourceProvider-Path]&gt;...</string>
   <string name="SharesConfig.ChooseResourceProviderPathForShare">Elegir la ruta del compartido</string>
   <string name="SharesConfig.EditShareName">Editar el nombre a mostrar para el compartido</string>
+  <string name="SharesConfig.ChooseShareCategories">Elige las categorías de medios contenidos en el compartido</string>
   <string name="SharesConfig.SharePathExists">Un compartido con esa ruta ya existe</string>
   <string name="SharesConfig.ShareNameExists">Un compartido con ese nombre ya existe</string>
   <string name="SharesConfig.ShareNameEmpty">Editar el nombre para el compartido</string>
@@ -190,12 +201,15 @@
   <string name="SharesConfig.AddLocalShare">Añadir compartido local</string>
   <string name="SharesConfig.EditLocalShare">Editar compartido local</string>
   <string name="SharesConfig.UpdateShareRelocateItemsQueryDialogHeader">Actualizar compartido</string>
+  <string name="SharesConfig.UpdateShareRelocateItemsQueryText.Info">El proveedor del recurso compartido y/o la ruta han sido actualizados.</string>
+  <string name="SharesConfig.UpdateShareRelocateItemsQueryText.Description">La información de la librería de medios sobre los elementos en este compartido han sido actualizados (recolocados) o limpiados y vueltos a importar</string>
   <string name="SharesConfig.UpdateShareRelocateItemsQueryText.Query">¿Quiere recolocar o limpiar y reimportar?</string>
   <string name="SharesConfig.Relocate">Recolocar</string>
   <string name="SharesConfig.ReImport">Reimportar</string>
   <string name="UPnPFrontendServer.DefaultFriendlyName">Cliente MediaPortal 2</string>
   <string name="UPnPFrontendServer.Manufacturer">Team Mediaportal</string>
   <string name="UPnPFrontendServer.ManufacturerUrl">www.team-mediaportal.com</string>
+  <string name="UPnPFrontendServer.ModelDescription">Cliente MediaPortal 2 - LA GUI de MediaPortal. Reproduced contenidos de medios, mantiene los compratidos locales y proporciona la interfac de usuario.</string>
   <string name="UPnPFrontendServer.ModelName">Cliente MediaPortal 2</string>
   <string name="UPnPFrontendServer.ModelNumber">1</string>
   <!--<string name="UPnPFrontendServer.ModelUrl">...</string>-->
