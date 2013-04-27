@@ -180,9 +180,9 @@
   <string name="Media.NoPlaylistsAvailable">- No playlists available -</string>
   <string name="Media.NoConfigPlaylistsHomeServerNotConnectedText">The home server is currently not connected, so playlists cannot be managed at the moment</string>
   <string name="Media.EditNameOfPlaylist">Edit the name of the playlist</string>
-  <string name="Media.SavePlaylistSuccessfulText">Playlist '{0}' was successfully saved at the server.</string>
-  <string name="Media.SavePlaylistFailedText">The playlist could not be saved. Error message: '{0}'</string>
-  <string name="Media.SavePlaylistFailedAlreadyExists">The playlist could not be saved: Playlist '{0}' already exists</string>
+  <string name="Media.SavePlaylistSuccessfulText">Playlist \'{0}\' was successfully saved at the server.</string>
+  <string name="Media.SavePlaylistFailedText">The playlist could not be saved. Error message: \'{0}\'</string>
+  <string name="Media.SavePlaylistFailedAlreadyExists">The playlist could not be saved: Playlist \'{0}\' already exists</string>
   <string name="Media.ChoosePlaylistsToBeRemovedText">Choose playlists to be removed</string>
   <string name="Media.PlaylistNameInfoLabel">Playlist name</string>
   <string name="Media.PlaylistTypeInfoLabel">Playlist type</string>
@@ -309,7 +309,7 @@
 
   <string name="Media.Start">Start</string>
   <string name="Media.End">End</string>
-  <string name="Media.DontSkip">Don't skip</string>
+  <string name="Media.DontSkip">Don\'t skip</string>
 
   <string name="Media.SwitchViewModeMenuItem">View mode</string>
   <string name="Media.SwitchViewModeDialogTitle">Choose view mode</string>

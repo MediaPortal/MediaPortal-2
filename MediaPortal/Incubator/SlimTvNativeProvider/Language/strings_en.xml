@@ -2,7 +2,7 @@
 <resources>
   <string name="Settings.Plugins.TV">TV</string>
   <string name="Settings.Plugins.TV.MPExtendedServerAddress">MPExtended server addresses</string>
-  <string name="Settings.Plugins.TV.MPExtendedServerAddress.Help">Enter server names or IP addresses, separated by ';' (defaults to localhost).</string>
+  <string name="Settings.Plugins.TV.MPExtendedServerAddress.Help">Enter server names or IP addresses, separated by \';\' (defaults to localhost).</string>
   <string name="Settings.Plugins.TV.MPExtendedUsername">MPExtended service username</string>
   <string name="Settings.Plugins.TV.MPExtendedUsername.Help">Enter the username to connect. Empty name will use anonymous connection.</string>
   <string name="Settings.Plugins.TV.MPExtendedPassword">MPExtended service password</string>
