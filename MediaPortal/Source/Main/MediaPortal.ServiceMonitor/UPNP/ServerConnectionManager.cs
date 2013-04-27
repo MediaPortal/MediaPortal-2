@@ -148,26 +148,13 @@ namespace MediaPortal.ServiceMonitor.UPNP
     }
 
     /// <summary>
-    /// Synchronously synchronizes all local shares and media item aspect types with the MediaPortal server.
+    /// Registers event handlers to get notifications about client connections.
     /// </summary>
     protected void CompleteServerConnection()
     {
       UPnPServerControllerServiceProxy sc = ServerControllerServiceProxy;
-      ISystemResolver systemResolver = ServiceRegistration.Get<ISystemResolver>();
       if (sc != null)
       {
-        try
-        {
-          // Check if we're attached to the server. If the server lost its state, it might have forgotten us.
-          if (!sc.GetAttachedClients().Select(clientMetadata => clientMetadata.SystemId).Contains(systemResolver.LocalSystemId))
-            sc.AttachClient(systemResolver.LocalSystemId);
-        }
-        catch (Exception e)
-        {
-          ServiceRegistration.Get<ILogger>().Warn("ServerConnectionManager: Error checking attachment state at home server '{0}'", e, HomeServerSystemId);
-          return; // This is a real error case, we don't need to try any other service calls
-        }
-
         // Register state variables change events
         sc.AttachedClientsChanged += OnAttachedClientsChanged;
         sc.ConnectedClientsChanged += OnConnectedClientsChanged;
