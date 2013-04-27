@@ -377,7 +377,6 @@ namespace TransifexHelper
             content = streamReader.ReadToEnd();
             string orig = content;
             content = REPLACE_EMPTY.Replace(content, "");
-            content = content.Replace("\\'", "'");
             content = NormalizeLineBreaks(content);
             changed = (orig != content);
             streamReader.Close();
