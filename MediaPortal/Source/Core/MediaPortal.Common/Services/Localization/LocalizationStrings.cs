@@ -187,13 +187,25 @@ namespace MediaPortal.Common.Services.Localization
           StringFile resources = (StringFile) s.Deserialize(r);
 
           foreach (StringLocalized languageString in resources.Strings)
-            _languageStrings[languageString.StringName] = StringUtils.TrimToEmpty(languageString.Text).Replace(@"\'", "'"); // Android string resources require escaped apostrophes.
+            _languageStrings[languageString.StringName] = PrepareAndroidFormat(languageString.Text);
         }
       }
       catch (Exception ex)
       {
         ServiceRegistration.Get<ILogger>().Warn("Failed to load language resource file '{0}'", ex, filePath);
       }
+    }
+
+    /// <summary>
+    /// Android string resources require escaped apostrophes and double quotes.
+    /// </summary>
+    /// <param name="languageString">Escaped string.</param>
+    /// <returns>Unescaped format.</returns>
+    protected static string PrepareAndroidFormat(string languageString)
+    {
+      return StringUtils.TrimToEmpty(languageString)
+        .Replace(@"\'", "'")
+        .Replace("\\\"", "\"");
     }
 
     #endregion
