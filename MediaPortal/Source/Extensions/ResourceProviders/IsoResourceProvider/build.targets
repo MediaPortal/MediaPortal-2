@@ -14,9 +14,14 @@
     <LanguageFiles Include="$(ProjectDir)Language\*.*" />
   </ItemGroup>
 
+  <ItemGroup>
+    <References Include="$(TargetDir)DiscUtils.dll" />
+  </ItemGroup>
+
   <Target Name="AfterBuild">
     <Copy SourceFiles="@(PluginFiles)" DestinationFolder="$(PluginDestination)" />
     <Copy SourceFiles="@(LanguageFiles)" DestinationFolder="$(PluginDestination)Language\" />
+    <Copy SourceFiles="@(References)" DestinationFolder="$(PluginDestination)" />
   </Target>
 
 </Project>
