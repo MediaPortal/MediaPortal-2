@@ -98,7 +98,7 @@ namespace CustomActions
       ServiceRegistration.Set<IPluginManager>(pluginManager);
       // Required to load language resource registration from plugins, so ILocalization is able to use them.
       pluginManager.Initialize();
-      pluginManager.Startup(false);
+      pluginManager.Startup(true); // Use "maintenance" mode here, this won't activate plugins as they are not needed here.
 
       StringManager stringManager = new StringManager();
       stringManager.Startup();
@@ -112,9 +112,9 @@ namespace CustomActions
             HomeServerSystemId = backendSystemResolver.LocalSystemId
         };
 
+      pluginManager.Shutdown();
       ServiceRegistration.RemoveAndDispose<ILocalization>();
       ServiceRegistration.RemoveAndDispose<IPluginManager>();
-      ServiceRegistration.RemoveAndDispose<IMessageBroker>();
       ServiceRegistration.RemoveAndDispose<IRegistry>();
       ServiceRegistration.RemoveAndDispose<ISettingsManager>();
       ServiceRegistration.RemoveAndDispose<IPathManager>();
