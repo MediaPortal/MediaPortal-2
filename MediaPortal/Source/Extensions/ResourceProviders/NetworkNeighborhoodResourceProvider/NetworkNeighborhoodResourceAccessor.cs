@@ -45,7 +45,9 @@ namespace MediaPortal.Extensions.ResourceProviders.NetworkNeighborhoodResourcePr
     protected NetworkNeighborhoodResourceProvider _parent;
     protected string _path;
     protected ILocalFsResourceAccessor _underlayingResource = null; // Only set if the path points to a file system resource - not a server
-    
+    protected WindowsImpersonationContext _windowsImpersonationContext;
+    protected WindowsIdentity _impersonatedUser;
+
     protected static SettingsChangeWatcher<NetworkNeighborhoodResourceProviderSettings> _settings = new SettingsChangeWatcher<NetworkNeighborhoodResourceProviderSettings>();
 
     #endregion
@@ -56,13 +58,13 @@ namespace MediaPortal.Extensions.ResourceProviders.NetworkNeighborhoodResourcePr
       _path = path;
       if (IsServerPath(path))
         return;
-      using (ImpersonateUser())
-      {
-        IResourceAccessor ra;
-        if (!LocalFsResourceProvider.Instance.TryCreateResourceAccessor("/" + path, out ra))
-          throw new IllegalCallException("Unable to access resource '{0}'", path);
-        _underlayingResource = (ILocalFsResourceAccessor)ra;
-      }
+
+      _windowsImpersonationContext = ImpersonateUser(ref _impersonatedUser);
+
+      IResourceAccessor ra;
+      if (!LocalFsResourceProvider.Instance.TryCreateResourceAccessor("/" + path, out ra))
+        throw new IllegalCallException("Unable to access resource '{0}'", path);
+      _underlayingResource = (ILocalFsResourceAccessor) ra;
     }
 
     protected ICollection<IFileSystemResourceAccessor> WrapLocalFsResourceAccessors(ICollection<IFileSystemResourceAccessor> localFsResourceAccessors)
@@ -97,7 +99,8 @@ namespace MediaPortal.Extensions.ResourceProviders.NetworkNeighborhoodResourcePr
 
     protected internal static bool IsResource(string path)
     {
-      using (ImpersonateUser())
+      WindowsIdentity current = null;
+      using (ImpersonateUser(ref current))
         return IsServerPath(path) || LocalFsResourceProvider.Instance.IsResource("/" + path);
     }
 
@@ -105,20 +108,25 @@ namespace MediaPortal.Extensions.ResourceProviders.NetworkNeighborhoodResourcePr
     /// Tries to impersonate the current process as the user which runs explorer.exe currently. The caller should always call <see cref="IDisposable.Dispose"/> on
     /// the returned instance to revert identity to self.
     /// </summary>
-    private static WindowsImpersonationContext ImpersonateUser()
+    private static WindowsImpersonationContext ImpersonateUser(ref WindowsIdentity requestedIdentity)
     {
       NetworkNeighborhoodResourceProviderSettings settings = _settings.Settings;
       WindowsImpersonationContext ctx = null;
 
       // Prefer to impersonate current interactive user.
       if (settings.ImpersonateInteractive)
-        ctx = ImpersonationHelper.ImpersonateByProcess("explorer");
+      {
+        if (!ImpersonationHelper.RequiresImpersonate(requestedIdentity))
+          return null;
+
+        ctx = ImpersonationHelper.ImpersonateByProcess("explorer", out requestedIdentity);
+      }
       if (ctx != null)
         return ctx;
 
       // Second way based on network credentials.
       if (settings.UseCredentials)
-        ctx = ImpersonationHelper.ImpersonateUser(settings.NetworkUserName, settings.NetworkPassword);
+        ctx = ImpersonationHelper.ImpersonateUser(settings.NetworkUserName, settings.NetworkPassword, out requestedIdentity);
 
       return ctx;
     }
@@ -129,6 +137,8 @@ namespace MediaPortal.Extensions.ResourceProviders.NetworkNeighborhoodResourcePr
     {
       if (_underlayingResource != null)
         _underlayingResource.Dispose();
+      if (_windowsImpersonationContext != null)
+        _windowsImpersonationContext.Dispose();
     }
 
     public IResourceProvider ParentProvider
@@ -140,7 +150,7 @@ namespace MediaPortal.Extensions.ResourceProviders.NetworkNeighborhoodResourcePr
     {
       get
       {
-        using(ImpersonateUser())
+        using (ImpersonateUser(ref _impersonatedUser))
           return _underlayingResource == null ? IsServerPath(_path) : _underlayingResource.Exists;
       }
     }
@@ -149,7 +159,7 @@ namespace MediaPortal.Extensions.ResourceProviders.NetworkNeighborhoodResourcePr
     {
       get
       {
-        using (ImpersonateUser())
+        using (ImpersonateUser(ref _impersonatedUser))
           return _underlayingResource != null && _underlayingResource.IsFile;
       }
     }
@@ -163,7 +173,7 @@ namespace MediaPortal.Extensions.ResourceProviders.NetworkNeighborhoodResourcePr
     {
       get
       {
-        using (ImpersonateUser())
+        using (ImpersonateUser(ref _impersonatedUser))
           return GetServerName(_path) ?? (_underlayingResource == null ? null : _underlayingResource.ResourceName);
       }
     }
@@ -182,7 +192,7 @@ namespace MediaPortal.Extensions.ResourceProviders.NetworkNeighborhoodResourcePr
     {
       get
       {
-        using (ImpersonateUser())
+        using (ImpersonateUser(ref _impersonatedUser))
           return _underlayingResource == null ? new DateTime() : _underlayingResource.LastChanged;
       }
     }
@@ -191,14 +201,14 @@ namespace MediaPortal.Extensions.ResourceProviders.NetworkNeighborhoodResourcePr
     {
       get
       {
-        using (ImpersonateUser())
+        using (ImpersonateUser(ref _impersonatedUser))
           return _underlayingResource == null ? -1 : _underlayingResource.Size;
       }
     }
 
     public void PrepareStreamAccess()
     {
-      using (ImpersonateUser())
+      using (ImpersonateUser(ref _impersonatedUser))
         if (_underlayingResource != null)
           _underlayingResource.PrepareStreamAccess();
     }
@@ -207,7 +217,7 @@ namespace MediaPortal.Extensions.ResourceProviders.NetworkNeighborhoodResourcePr
     {
       if (_underlayingResource == null)
         throw new IllegalCallException("Path '{0} cannot be opened for reading", _path);
-      using (ImpersonateUser())
+      using (ImpersonateUser(ref _impersonatedUser))
         return _underlayingResource.OpenRead();
     }
 
@@ -215,7 +225,7 @@ namespace MediaPortal.Extensions.ResourceProviders.NetworkNeighborhoodResourcePr
     {
       if (_underlayingResource == null)
         throw new IllegalCallException("Path '{0} cannot be opened for reading", _path);
-      using (ImpersonateUser())
+      using (ImpersonateUser(ref _impersonatedUser))
         return _underlayingResource.OpenWrite();
     }
 
@@ -226,7 +236,7 @@ namespace MediaPortal.Extensions.ResourceProviders.NetworkNeighborhoodResourcePr
 
     public bool ResourceExists(string path)
     {
-      using (ImpersonateUser())
+      using (ImpersonateUser(ref _impersonatedUser))
         return IsServerPath(path) || (_underlayingResource != null && _underlayingResource.ResourceExists(path));
     }
 
@@ -240,7 +250,7 @@ namespace MediaPortal.Extensions.ResourceProviders.NetworkNeighborhoodResourcePr
 
     public ICollection<IFileSystemResourceAccessor> GetFiles()
     {
-      using (ImpersonateUser())
+      using (ImpersonateUser(ref _impersonatedUser))
       {
         if (_path == "/" || IsServerPath(_path))
           return new List<IFileSystemResourceAccessor>();
@@ -250,7 +260,7 @@ namespace MediaPortal.Extensions.ResourceProviders.NetworkNeighborhoodResourcePr
 
     public ICollection<IFileSystemResourceAccessor> GetChildDirectories()
     {
-      using (ImpersonateUser())
+      using (ImpersonateUser(ref _impersonatedUser))
       {
         if (_path == "/")
           return NetworkResourcesEnumerator.EnumerateResources(ResourceScope.GlobalNet, ResourceType.Disk, ResourceUsage.All, ResourceDisplayType.Server)

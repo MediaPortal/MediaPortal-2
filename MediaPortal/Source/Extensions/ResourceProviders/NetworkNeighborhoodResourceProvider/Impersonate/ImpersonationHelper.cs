@@ -39,6 +39,8 @@ namespace MediaPortal.Extensions.ResourceProviders.NetworkNeighborhoodResourcePr
   {
     #region Constants and imports
 
+    private static readonly WellKnownSidType[] KNOWN_SID_TYPES = new[] { WellKnownSidType.NetworkServiceSid, WellKnownSidType.LocalServiceSid, WellKnownSidType.LocalSystemSid };
+
     // Group type enum
     public enum SecurityImpersonationLevel
     {
@@ -133,7 +135,7 @@ namespace MediaPortal.Extensions.ResourceProviders.NetworkNeighborhoodResourcePr
         TOKEN_DUPLICATE | TOKEN_IMPERSONATE | TOKEN_QUERY | TOKEN_QUERY_SOURCE |
         TOKEN_ADJUST_PRIVILEGES | TOKEN_ADJUST_GROUPS | TOKEN_ADJUST_DEFAULT |
         TOKEN_ADJUST_SESSIONID);
-    
+
     // Obtains user token
     [DllImport("advapi32.dll", SetLastError = true)]
     internal static extern bool LogonUser(string pszUsername, string pszDomain, string pszPassword, LogonType dwLogonType, LogonProvider dwLogonProvider, ref IntPtr phToken);
@@ -159,15 +161,35 @@ namespace MediaPortal.Extensions.ResourceProviders.NetworkNeighborhoodResourcePr
     #endregion
 
     /// <summary>
+    /// Checks if the caller needs to impersonate (again).
+    /// </summary>
+    /// <returns><c>true</c> if impersonate is required.</returns>
+    public static bool RequiresImpersonate(WindowsIdentity requestedIdentity)
+    {
+      if (requestedIdentity == null)
+        return true;
+
+      WindowsIdentity current = WindowsIdentity.GetCurrent();
+      if (current == null || current.User == null) // Can never happen, just to avoid R# warning.
+        return true;
+
+      return 
+        current.User != requestedIdentity.User || /* Current user is not the requested one. We need to compare SIDs here, instances are not equal */
+        KNOWN_SID_TYPES.Any(wellKnownSidType => current.User.IsWellKnown(wellKnownSidType)) /* User is any of well known SIDs, those have no network access */;
+    }
+
+    /// <summary>
     /// Attempts to impersonate an user based on an running process. If successful, it returns a WindowsImpersonationContext of the new users identity.
     /// </summary>
     /// <param name="processName">Process name to take user account from (without .exe).</param>
+    /// <param name="user">Return the user identity.</param>
     /// <returns>WindowsImpersonationContext if successful.</returns>
-    public static WindowsImpersonationContext ImpersonateByProcess(string processName)
+    public static WindowsImpersonationContext ImpersonateByProcess(string processName, out WindowsIdentity user)
     {
       // Try to find a process for given processName. There can be multiple processes, we will take the first one.
       // Attention: when working on a RemoteDesktop/Terminal session, there can be multiple user logged in. The result of finding the first process
       // might be not deterministic.
+      user = null;
       Process process = Process.GetProcessesByName(processName).FirstOrDefault();
       if (process == null)
         return null;
@@ -178,8 +200,8 @@ namespace MediaPortal.Extensions.ResourceProviders.NetworkNeighborhoodResourcePr
         if (!OpenProcessToken(process.Handle, TOKEN_QUERY | TOKEN_IMPERSONATE | TOKEN_DUPLICATE, ref pExistingTokenHandle))
           return null;
 
-        WindowsIdentity newId = new WindowsIdentity(pExistingTokenHandle);
-        return newId.Impersonate();
+        user = new WindowsIdentity(pExistingTokenHandle);
+        return user.Impersonate();
       }
       finally
       {
@@ -192,11 +214,12 @@ namespace MediaPortal.Extensions.ResourceProviders.NetworkNeighborhoodResourcePr
     /// <summary>
     /// Attempts to impersonate an user. If successful, it returns a WindowsImpersonationContext of the new users identity.
     /// </summary>
-    /// <param name="sUsername">Username you want to impersonate</param>
-    /// <param name="sDomain">Logon domain</param>
-    /// <param name="sPassword">User's password to logon with</param>
+    /// <param name="sUsername">Username you want to impersonate.</param>
+    /// <param name="sPassword">User's password to logon with.</param>
+    /// <param name="user">Return the user identity.</param>
+    /// <param name="sDomain">Logon domain, defaults to local system.</param>
     /// <returns>WindowsImpersonationContext if successful.</returns>
-    public static WindowsImpersonationContext ImpersonateUser(string sUsername, string sPassword, string sDomain = null)
+    public static WindowsImpersonationContext ImpersonateUser(string sUsername, string sPassword, out WindowsIdentity user, string sDomain = null)
     {
       // Initialize tokens
       IntPtr pExistingTokenHandle = IntPtr.Zero;
@@ -205,6 +228,8 @@ namespace MediaPortal.Extensions.ResourceProviders.NetworkNeighborhoodResourcePr
       // If domain name was blank, assume local machine
       if (string.IsNullOrWhiteSpace(sDomain))
         sDomain = Environment.MachineName;
+
+      user = null;
 
       try
       {
@@ -234,8 +259,8 @@ namespace MediaPortal.Extensions.ResourceProviders.NetworkNeighborhoodResourcePr
         else
         {
           // Create new identity using new primary token.
-          WindowsIdentity newId = new WindowsIdentity(pDuplicateTokenHandle);
-          WindowsImpersonationContext impersonatedUser = newId.Impersonate();
+          user = new WindowsIdentity(pDuplicateTokenHandle);
+          WindowsImpersonationContext impersonatedUser = user.Impersonate();
 
           // Check the identity after impersonation.
           // ServiceRegistration.Get<ILogger>().Debug("After impersonation: {0}", WindowsIdentity.GetCurrent().Name);
