@@ -107,4 +107,5 @@
   <Import Project="build.targets" />
   <Import Project="$(SolutionDir)\.nuget\NuGet.targets" Condition="Exists('$(SolutionDir)\.nuget\NuGet.targets')" />
   <Import Project="..\..\..\Packages\BASS.2.4.10\build\bass.targets" Condition="Exists('..\..\..\Packages\BASS.2.4.10\build\bass.targets')" />
+  <Import Project="..\..\..\Packages\bass.cd.2.4.5\build\bass.cd.targets" Condition="Exists('..\..\..\Packages\bass.cd.2.4.5\build\bass.cd.targets')" />
 </Project>

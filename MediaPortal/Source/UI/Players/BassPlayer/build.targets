@@ -15,6 +15,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <PlayerPlugins Include="$(TargetDir)basscd.dll" />
     <PlayerPlugins Include="$(ProjectDir)PlayerPlugins\*.*" />
   </ItemGroup>
 

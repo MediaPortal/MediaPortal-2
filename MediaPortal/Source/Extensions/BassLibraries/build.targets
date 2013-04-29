@@ -12,6 +12,7 @@
 
   <ItemGroup>
     <References Include="$(TargetDir)bass.dll" />
+    <References Include="$(TargetDir)basscd.dll" />
     <References Include="$(ProjectDir)References\*.*" />
   </ItemGroup>
 
