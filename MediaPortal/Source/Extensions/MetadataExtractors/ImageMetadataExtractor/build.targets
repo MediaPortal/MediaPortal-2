@@ -11,8 +11,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <References Include="$(ProjectDir)References\FreeImage.dll" />
-    <References Include="$(ProjectDir)References\FreeImageNET.dll" />
+    <References Include="$(TargetDir)FreeImage.dll" />
+    <References Include="$(TargetDir)FreeImageNET.dll" />
   </ItemGroup>
 
   <Target Name="AfterBuild">
