@@ -15,7 +15,24 @@
   </ItemGroup>
 
   <ItemGroup>
+    <PlayerPlugins Include="$(TargetDir)bass_aac.dll" />
+    <PlayerPlugins Include="$(TargetDir)bass_ac3.dll" />
+    <PlayerPlugins Include="$(TargetDir)bass_adx.dll" />
+    <PlayerPlugins Include="$(TargetDir)bass_aix.dll" />
+    <PlayerPlugins Include="$(TargetDir)bass_alac.dll" />
+    <PlayerPlugins Include="$(TargetDir)bass_ape.dll" />
+    <PlayerPlugins Include="$(TargetDir)bass_mpc.dll" />
+    <PlayerPlugins Include="$(TargetDir)bass_spx.dll" />
+    <PlayerPlugins Include="$(TargetDir)bass_tta.dll" />
     <PlayerPlugins Include="$(TargetDir)basscd.dll" />
+    <PlayerPlugins Include="$(TargetDir)bassflac.dll" />
+    <PlayerPlugins Include="$(TargetDir)bassmidi.dll" />
+    <PlayerPlugins Include="$(TargetDir)basswma.dll" />
+    <PlayerPlugins Include="$(TargetDir)basswv.dll" />
+
+    <PlayerPlugins Include="$(TargetDir)bass_ofr.dll" />
+    <PlayerPlugins Include="$(TargetDir)OptimFROG.dll" />
+
     <PlayerPlugins Include="$(ProjectDir)PlayerPlugins\*.*" />
   </ItemGroup>
 
