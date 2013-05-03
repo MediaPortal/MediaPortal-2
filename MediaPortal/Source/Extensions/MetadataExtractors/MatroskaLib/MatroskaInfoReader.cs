@@ -225,7 +225,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.MatroskaLib
     {
       binaryData = null;
       string tempFileName = Path.GetTempFileName();
-      if (ProcessUtils.TryExecute(_mkvExtractPath, string.Format("attachments \"{0}\" {1}:\"{2}\"", _fileName, attachmentIndex + 1, tempFileName), _priorityClass))
+      if (ProcessUtils.TryExecute_AutoImpersonate(_mkvExtractPath, string.Format("attachments \"{0}\" {1}:\"{2}\"", _fileName, attachmentIndex + 1, tempFileName), _priorityClass))
       {
         int fileSize = _attachments[attachmentIndex].FileSize;
         FileInfo fileInfo = new FileInfo(tempFileName);

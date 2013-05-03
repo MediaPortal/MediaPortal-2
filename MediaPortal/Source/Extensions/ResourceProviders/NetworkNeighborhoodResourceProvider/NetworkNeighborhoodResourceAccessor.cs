@@ -29,11 +29,11 @@ using System.Linq;
 using MediaPortal.Common.ResourceAccess;
 using MediaPortal.Common.Services.ResourceAccess.LocalFsResourceProvider;
 using MediaPortal.Common.Services.Settings;
-using MediaPortal.Extensions.ResourceProviders.NetworkNeighborhoodResourceProvider.Impersonate;
 using MediaPortal.Extensions.ResourceProviders.NetworkNeighborhoodResourceProvider.Settings;
 using MediaPortal.Utilities;
 using MediaPortal.Utilities.Exceptions;
 using MediaPortal.Utilities.Network;
+using MediaPortal.Utilities.Process;
 
 namespace MediaPortal.Extensions.ResourceProviders.NetworkNeighborhoodResourceProvider
 {

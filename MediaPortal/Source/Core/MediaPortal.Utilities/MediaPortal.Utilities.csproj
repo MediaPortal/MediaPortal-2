@@ -100,6 +100,7 @@
     <Compile Include="Network\NetworkResourcesEnumerator.cs" />
     <Compile Include="Network\Share.cs" />
     <Compile Include="Network\SharesEnumerator.cs" />
+    <Compile Include="Process\ImpersonationHelper.cs" />
     <Compile Include="Process\ProcessUtils.cs" />
     <Compile Include="Screens\SplashScreen.cs">
       <SubType>Form</SubType>

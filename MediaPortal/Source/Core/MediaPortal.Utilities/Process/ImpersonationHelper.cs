@@ -23,20 +23,22 @@
 #endregion
 
 using System;
-using System.Diagnostics;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Security.Principal;
-using MediaPortal.Common;
-using MediaPortal.Common.Logging;
 
-namespace MediaPortal.Extensions.ResourceProviders.NetworkNeighborhoodResourceProvider.Impersonate
+namespace MediaPortal.Utilities.Process
 {
   /// <summary>
   /// Helper class to logon as a new user. This is be required to access network resources when running the main program as LocalSystem.
   /// </summary>
   public class ImpersonationHelper
   {
+    #region ImpersonationContext
+
+    /// <summary>
+    /// Helper class to store <see cref="Identity"/> and automatically impersonate.
+    /// </summary>
     public class ImpersonationContext : IDisposable
     {
       private WindowsIdentity _identity;
@@ -47,7 +49,11 @@ namespace MediaPortal.Extensions.ResourceProviders.NetworkNeighborhoodResourcePr
         set
         {
           _identity = value;
-          Context = value.Impersonate();
+          try
+          {
+            Context = value.Impersonate();
+          }
+          catch { }
         }
       }
 
@@ -60,6 +66,8 @@ namespace MediaPortal.Extensions.ResourceProviders.NetworkNeighborhoodResourcePr
           wic.Dispose();
       }
     }
+
+    #endregion
 
     #region Constants and imports
 
@@ -199,7 +207,26 @@ namespace MediaPortal.Extensions.ResourceProviders.NetworkNeighborhoodResourcePr
 
       return
         current.User != requestedIdentity.User || /* Current user is not the requested one. We need to compare SIDs here, instances are not equal */
-        KNOWN_SID_TYPES.Any(wellKnownSidType => current.User.IsWellKnown(wellKnownSidType)) /* User is any of well known SIDs, those have no network access */;
+        IsWellknownIdentity(current) /* User is any of well known SIDs, those have no network access */;
+    }
+
+    /// <summary>
+    /// Indicates if the <see cref="WindowsIdentity.GetCurrent()"/> represents one of the <see cref="KNOWN_SID_TYPES"/>, which do not have network access.
+    /// </summary>
+    /// <returns><c>true</c> for a well known identity.</returns>
+    public static bool IsWellknownIdentity()
+    {
+      return IsWellknownIdentity(WindowsIdentity.GetCurrent());
+    }
+
+    /// <summary>
+    /// Indicates if the given <paramref name="identity"/> represents one of the <see cref="KNOWN_SID_TYPES"/>, which do not have network access.
+    /// </summary>
+    /// <param name="identity">Identity to check.</param>
+    /// <returns><c>true</c> for a well known identity.</returns>
+    public static bool IsWellknownIdentity(WindowsIdentity identity)
+    {
+      return KNOWN_SID_TYPES.Any(wellKnownSidType => identity.User != null && identity.User.IsWellKnown(wellKnownSidType));
     }
 
     /// <summary>
@@ -209,84 +236,109 @@ namespace MediaPortal.Extensions.ResourceProviders.NetworkNeighborhoodResourcePr
     /// <returns>WindowsImpersonationContext if successful.</returns>
     public static ImpersonationContext ImpersonateByProcess(string processName)
     {
-      // Try to find a process for given processName. There can be multiple processes, we will take the first one.
-      // Attention: when working on a RemoteDesktop/Terminal session, there can be multiple user logged in. The result of finding the first process
-      // might be not deterministic.
-      Process process = Process.GetProcessesByName(processName).FirstOrDefault();
-      if (process == null)
+      IntPtr userToken;
+      if (!GetTokenByProcess(processName, out userToken))
         return null;
 
-      IntPtr pExistingTokenHandle = IntPtr.Zero;
       try
       {
-        if (!OpenProcessToken(process.Handle, TOKEN_QUERY | TOKEN_IMPERSONATE | TOKEN_DUPLICATE, ref pExistingTokenHandle))
-          return null;
-
-        return new ImpersonationContext { Identity = new WindowsIdentity(pExistingTokenHandle) };
+        return new ImpersonationContext { Identity = new WindowsIdentity(userToken) };
       }
       finally
       {
         // Close handle.
-        if (pExistingTokenHandle != IntPtr.Zero)
-          CloseHandle(pExistingTokenHandle);
+        if (userToken != IntPtr.Zero)
+          CloseHandle(userToken);
       }
     }
 
     /// <summary>
     /// Attempts to impersonate an user. If successful, it returns a WindowsImpersonationContext of the new users identity.
     /// </summary>
-    /// <param name="sUsername">Username you want to impersonate.</param>
-    /// <param name="sPassword">User's password to logon with.</param>
-    /// <param name="sDomain">Logon domain, defaults to local system.</param>
+    /// <param name="username">Username you want to impersonate.</param>
+    /// <param name="password">User's password to logon with.</param>
+    /// <param name="domain">Logon domain, defaults to local system.</param>
     /// <returns>WindowsImpersonationContext if successful.</returns>
-    public static ImpersonationContext ImpersonateUser(string sUsername, string sPassword, string sDomain = null)
+    public static ImpersonationContext ImpersonateUser(string username, string password, string domain = null)
     {
       // Initialize tokens
-      IntPtr pExistingTokenHandle = IntPtr.Zero;
-      IntPtr pDuplicateTokenHandle = IntPtr.Zero;
-
-      // If domain name was blank, assume local machine
-      if (string.IsNullOrWhiteSpace(sDomain))
-        sDomain = Environment.MachineName;
+      IntPtr userToken = IntPtr.Zero;
 
       try
       {
-        // Get handle to token
-        bool bImpersonated = LogonUser(sUsername, sDomain, sPassword, LogonType.LOGON32_LOGON_INTERACTIVE, LogonProvider.LOGON32_PROVIDER_DEFAULT, ref pExistingTokenHandle);
-
-        // Did impersonation fail?
-        if (!bImpersonated)
-        {
-          int nErrorCode = Marshal.GetLastWin32Error();
-          ServiceRegistration.Get<ILogger>().Warn("LogonUser() for username '{0}' failed with error code: {1} ", sUsername, nErrorCode);
+        if (!GetTokenByUser(username, password, domain, out userToken))
           return null;
-        }
 
-        // Get identity before impersonation.
-        // ServiceRegistration.Get<ILogger>().Debug("Before impersonation: {0}", WindowsIdentity.GetCurrent().Name);
-
-        bool bRetVal = DuplicateToken(pExistingTokenHandle, SecurityImpersonationLevel.SecurityImpersonation, ref pDuplicateTokenHandle);
-
-        // Did DuplicateToken fail?
-        if (!bRetVal)
-        {
-          int nErrorCode = Marshal.GetLastWin32Error();
-          ServiceRegistration.Get<ILogger>().Warn("DuplicateToken() failed with error code: {0} ", nErrorCode);
-          return null;
-        }
-        else
-        {
-          // Create new identity using new primary token.
-          return new ImpersonationContext { Identity = new WindowsIdentity(pExistingTokenHandle) };
-        }
+        // Create new identity using new primary token.
+        return new ImpersonationContext { Identity = new WindowsIdentity(userToken) };
       }
       finally
       {
         // Close handle(s)
-        if (pExistingTokenHandle != IntPtr.Zero)
-          CloseHandle(pExistingTokenHandle);
-        if (pDuplicateTokenHandle != IntPtr.Zero)
-          CloseHandle(pDuplicateTokenHandle);
+        if (userToken != IntPtr.Zero)
+          CloseHandle(userToken);
+      }
+    }
+
+    /// <summary>
+    /// Tries to get an existing user token from the given <paramref name="processName"/>. Caller must call <see cref="CloseHandle"/> for the returned <paramref name="existingTokenHandle"/>
+    /// when it is no longer required.
+    /// </summary>
+    /// <param name="processName">Process name to take user account from (without .exe).</param>
+    /// <param name="existingTokenHandle">Outputs an existing token.</param>
+    /// <returns></returns>
+    public static bool GetTokenByProcess(string processName, out IntPtr existingTokenHandle)
+    {
+      // Try to find a process for given processName. There can be multiple processes, we will take the first one.
+      // Attention: when working on a RemoteDesktop/Terminal session, there can be multiple user logged in. The result of finding the first process
+      // might be not deterministic.
+      existingTokenHandle = IntPtr.Zero;
+      System.Diagnostics.Process process = System.Diagnostics.Process.GetProcessesByName(processName).FirstOrDefault();
+      if (process == null)
+        return false;
+
+      try
+      {
+        return OpenProcessToken(process.Handle, TOKEN_QUERY | TOKEN_IMPERSONATE | TOKEN_DUPLICATE, ref existingTokenHandle);
+      }
+      catch
+      {
+        return false;
+      }
+    }
+
+    /// <summary>
+    /// Tries to create a new user token based on given user credentials. Caller must call <see cref="CloseHandle"/> for the returned <paramref name="duplicateTokenHandle"/>
+    /// when it is no longer required.
+    /// </summary>
+    /// <param name="uername">User name.</param>
+    /// <param name="password">Password.</param>
+    /// <param name="domain">Domain name, <c>null</c> defaults to computer name.</param>
+    /// <param name="duplicateTokenHandle">Outputs a duplicated token.</param>
+    /// <returns><c>true</c> if successful.</returns>
+    public static bool GetTokenByUser(string uername, string password, string domain, out IntPtr duplicateTokenHandle)
+    {
+      // Initialize tokens
+      duplicateTokenHandle = IntPtr.Zero;
+      IntPtr existingTokenHandle = IntPtr.Zero;
+
+      // If domain name was blank, assume local machine
+      if (string.IsNullOrWhiteSpace(domain))
+        domain = Environment.MachineName;
+
+      try
+      {
+        // Get handle to token
+        if (!LogonUser(uername, domain, password, LogonType.LOGON32_LOGON_INTERACTIVE, LogonProvider.LOGON32_PROVIDER_DEFAULT, ref existingTokenHandle))
+          return false;
+
+        return DuplicateToken(existingTokenHandle, SecurityImpersonationLevel.SecurityImpersonation, ref duplicateTokenHandle);
+      }
+      finally
+      {
+        // Close handle(s)
+        if (existingTokenHandle != IntPtr.Zero)
+          CloseHandle(existingTokenHandle);
       }
     }
   }

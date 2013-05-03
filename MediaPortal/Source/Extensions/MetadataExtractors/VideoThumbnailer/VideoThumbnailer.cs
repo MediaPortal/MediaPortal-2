@@ -111,7 +111,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.VideoThumbnailer
       {
         // Only log at the info level here - And simply return false. This lets the caller know that we
         // couldn't perform our task here.
-        ServiceRegistration.Get<ILogger>().Info("VideoThumbnailer: Exception reading resource '{0}' (Text: '{1}')", mediaItemAccessor.CanonicalLocalResourcePath, e.Message);
+        ServiceRegistration.Get<ILogger>().Error("VideoThumbnailer: Exception reading resource '{0}' (Text: '{1}')", e, mediaItemAccessor.CanonicalLocalResourcePath, e.Message);
       }
       return false;
     }
@@ -146,7 +146,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.VideoThumbnailer
 
       try
       {
-        if (ProcessUtils.TryExecute(executable, arguments, ProcessPriorityClass.BelowNormal, PROCESS_TIMEOUT_MS) && File.Exists(tempFileName))
+        if (ProcessUtils.TryExecute_AutoImpersonate(executable, arguments, ProcessPriorityClass.BelowNormal, PROCESS_TIMEOUT_MS) && File.Exists(tempFileName))
         {
           var binary = FileUtils.ReadFile(tempFileName);
           MediaItemAspect.SetAttribute(extractedAspectData, ThumbnailLargeAspect.ATTR_THUMBNAIL, binary);
