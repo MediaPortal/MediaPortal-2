@@ -22,24 +22,24 @@
 
 #endregion Copyright (C) 2007-2013 Team MediaPortal
 
-using System.Threading.Tasks;
-using MediaPortal.Common;
-using MediaPortal.Common.Logging;
 using System;
 using System.Device.Location;
-using System.Threading;
+using System.Threading.Tasks;
 
 namespace MediaPortal.Extensions.OnlineLibraries.Libraries.Microsoft
 {
+  /// <summary>
+  /// Uses Microsofts GeoCoordinateWatcher to resolve the location of the device and lookup the address of the specified coordinates.
+  /// </summary>
   public class GPSLookup : ICoordinateResolver, IAddressResolver, IDisposable
   {
     #region Private variables
 
-    private GeoCoordinateWatcher _gps = new GeoCoordinateWatcher(GeoPositionAccuracy.High);
-    private GeoCoordinate _coordinates;
     private CivicAddress _address;
+    private GeoCoordinate _coordinates;
+    private GeoCoordinateWatcher _gps = new GeoCoordinateWatcher(GeoPositionAccuracy.High);
 
-    #endregion
+    #endregion Private variables
 
     #region Ctor
 
@@ -47,9 +47,19 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.Microsoft
     {
     }
 
-    #endregion
+    #endregion Ctor
 
     #region Private methods
+
+    private void DisposeGPS()
+    {
+      if (_gps != null)
+      {
+        _gps.Stop();
+        _gps.Dispose();
+        _gps = null;
+      }
+    }
 
     private bool TryGPSLookupInternal(out GeoCoordinate coordinates, out CivicAddress address)
     {
@@ -68,15 +78,16 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.Microsoft
 
       _gps.PositionChanged += (sender, args) =>
         {
+          // Need to stop the GPS ASAP otherwise it might trigger again.
           _gps.Stop();
 
           if (!tcs.TrySetResult(args.Position.Location))
-            _gps.Start();
+            _gps.Start(suppressPermissionPrompt: true);
         };
 
-      _gps.Start();
+      _gps.Start(suppressPermissionPrompt: true);
 
-      if (tcs.Task.Wait(10000))
+      if (tcs.Task.Wait(10000)) // 10 seconds.
       {
         _coordinates = tcs.Task.Result;
 
@@ -88,25 +99,23 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.Microsoft
         return true;
       }
 
+      _gps.Stop();
+
       coordinates = null;
       address = null;
       return false;
-    }
-
-    private void DisposeGPS()
-    {
-      if (_gps != null)
-      {
-        _gps.Stop();
-        _gps.Dispose();
-        _gps = null;
-      }
     }
 
     #endregion Private methods
 
     #region IAddressResolver implementation
 
+    /// <summary>
+    /// Retrieve the Address based on the coordinates given.
+    /// </summary>
+    /// <param name="coordinates">Location to lookup.</param>
+    /// <param name="address">Resultant address of the lookup.</param>
+    /// <returns>If lookup is successful.</returns>
     public bool TryResolveCivicAddress(GeoCoordinate coordinates, out CivicAddress address)
     {
       if (_address != null)
@@ -123,6 +132,11 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.Microsoft
 
     #region ICoordinateResolver implementation
 
+    /// <summary>
+    /// Lookup the coordinates of the current device.
+    /// </summary>
+    /// <param name="coordinates">Location of the device.</param>
+    /// <returns>If lookup is successful.</returns>
     public bool TryResolveCoordinates(out GeoCoordinate coordinates)
     {
       if (_coordinates != null)

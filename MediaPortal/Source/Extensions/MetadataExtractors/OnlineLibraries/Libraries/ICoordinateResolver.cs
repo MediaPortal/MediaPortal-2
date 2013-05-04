@@ -26,6 +26,9 @@ using System.Device.Location;
 
 namespace MediaPortal.Extensions.OnlineLibraries.Libraries
 {
+  /// <summary>
+  /// Determine a devices location.
+  /// </summary>
   public interface ICoordinateResolver
   {
     bool TryResolveCoordinates(out GeoCoordinate coordinates);

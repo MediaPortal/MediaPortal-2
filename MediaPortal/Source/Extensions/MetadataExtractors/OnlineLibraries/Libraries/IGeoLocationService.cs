@@ -26,10 +26,25 @@ using System.Device.Location;
 
 namespace MediaPortal.Extensions.OnlineLibraries.Libraries
 {
+  /// <summary>
+  /// Service to determine the location of a device.
+  /// </summary>
   public interface IGeoLocationService
   {
+    /// <summary>
+    /// Lookup the location of the current device.
+    /// </summary>
+    /// <param name="coordinates">Coordinates of the device.</param>
+    /// <param name="address">Address of the device.</param>
+    /// <returns>If lookup is successful.</returns>
     bool TryLookup(out GeoCoordinate coordinates, out CivicAddress address);
 
-    bool TryLookup(GeoCoordinate coordinates, out CivicAddress locationInfo);
+    /// <summary>
+    /// Lookup the address of a given location.
+    /// </summary>
+    /// <param name="coordinates">Coordinates to the location to lookup.</param>
+    /// <param name="address">Address to the coordinates passed.</param>
+    /// <returns>If lookup is successful.</returns>
+    bool TryLookup(GeoCoordinate coordinates, out CivicAddress address);
   }
 }

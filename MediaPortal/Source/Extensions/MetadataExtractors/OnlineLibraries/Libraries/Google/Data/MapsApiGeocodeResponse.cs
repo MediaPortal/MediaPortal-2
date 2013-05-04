@@ -31,6 +31,32 @@ using System.Runtime.Serialization;
 namespace MediaPortal.Extensions.OnlineLibraries.Libraries.Google.Data
 {
   [DataContract]
+  public class MapsApiGeocodeAddress
+  {
+    #region Public properties
+
+    [DataMember(Name = "long_name")]
+    public string LongName { get; set; }
+
+    [DataMember(Name = "short_name")]
+    public string ShortName { get; set; }
+
+    [DataMember(Name = "types")]
+    public string[] Types { get; set; }
+
+    #endregion Public properties
+
+    #region Public methods
+
+    public override string ToString()
+    {
+      return LongName;
+    }
+
+    #endregion Public methods
+  }
+
+  [DataContract]
   public class MapsApiGeocodeResponse
   {
     #region Public properties
@@ -38,7 +64,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.Google.Data
     [DataMember(Name = "results")]
     public List<MapsApiGeocodeResult> Results { get; set; }
 
-    #endregion
+    #endregion Public properties
   }
 
   [DataContract]
@@ -49,9 +75,14 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.Google.Data
     [DataMember(Name = "address_components")]
     public List<MapsApiGeocodeAddress> AddressComponents { get; set; }
 
-    #endregion
+    #endregion Public properties
 
     #region Public methods
+
+    public MapsApiGeocodeAddress GetAddressComponent(string type)
+    {
+      return AddressComponents.FirstOrDefault(addressComponent => addressComponent.Types != null && ((IList)addressComponent.Types).Contains(type));
+    }
 
     public CivicAddress ToCivicAddress()
     {
@@ -68,35 +99,6 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.Google.Data
       return result;
     }
 
-    public MapsApiGeocodeAddress GetAddressComponent(string type)
-    {
-      return AddressComponents.FirstOrDefault(addressComponent => addressComponent.Types != null && ((IList)addressComponent.Types).Contains(type));
-    }
-
-    #endregion
-  }
-
-  [DataContract]
-  public class MapsApiGeocodeAddress
-  {
-    #region Public properties
-
-    [DataMember(Name = "long_name")]
-    public string LongName { get; set; }
-    [DataMember(Name = "short_name")]
-    public string ShortName { get; set; }
-    [DataMember(Name = "types")]
-    public string[] Types { get; set; }
-
-    #endregion
-
-    #region Public methods
-
-    public override string ToString()
-    {
-      return LongName;
-    }
-
-    #endregion
+    #endregion Public methods
   }
 }

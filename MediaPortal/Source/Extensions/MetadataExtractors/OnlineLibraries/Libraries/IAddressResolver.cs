@@ -26,6 +26,9 @@ using System.Device.Location;
 
 namespace MediaPortal.Extensions.OnlineLibraries.Libraries
 {
+  /// <summary>
+  /// Resolve geolocation coordinates to an address.
+  /// </summary>
   public interface IAddressResolver
   {
     bool TryResolveCivicAddress(GeoCoordinate coordinates, out CivicAddress address);

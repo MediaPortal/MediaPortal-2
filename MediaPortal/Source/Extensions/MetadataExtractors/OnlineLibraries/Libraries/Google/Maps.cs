@@ -22,25 +22,27 @@
 
 #endregion Copyright (C) 2007-2013 Team MediaPortal
 
-using System.Device.Location;
-using System.Globalization;
 using MediaPortal.Common;
 using MediaPortal.Common.Localization;
 using MediaPortal.Extensions.OnlineLibraries.Libraries.Common;
 using MediaPortal.Extensions.OnlineLibraries.Libraries.Google.Data;
+using System.Device.Location;
+using System.Globalization;
 
 namespace MediaPortal.Extensions.OnlineLibraries.Libraries.Google
 {
+  /// <summary>
+  /// Google maps library.
+  /// </summary>
   public class Maps : IAddressResolver
   {
     #region Ctor
 
     public Maps()
     {
-      
     }
 
-    #endregion
+    #endregion Ctor
 
     #region Private methods
 
@@ -53,10 +55,16 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.Google
           mpLocal);
     }
 
-    #endregion
+    #endregion Private methods
 
     #region IAddressResolver implementation
 
+    /// <summary>
+    /// Determine the address of the given coordinates.
+    /// </summary>
+    /// <param name="coordinates">Coordinates to lookup.</param>
+    /// <param name="address">Address corresponding to the coordinates.</param>
+    /// <returns>If lookup is successful.</returns>
     public bool TryResolveCivicAddress(GeoCoordinate coordinates, out CivicAddress address)
     {
       var downloader = new Downloader { EnableCompression = true };
@@ -73,6 +81,6 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.Google
       return true;
     }
 
-    #endregion
+    #endregion IAddressResolver implementation
   }
 }

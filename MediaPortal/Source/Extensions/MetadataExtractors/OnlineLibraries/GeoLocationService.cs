@@ -37,6 +37,9 @@ using System.Linq;
 
 namespace MediaPortal.Extensions.OnlineLibraries
 {
+  /// <summary>
+  /// Service to lookup the location of a device.
+  /// </summary>
   public class GeoLocationService : IGeoLocationService
   {
     #region Static instance
@@ -146,6 +149,12 @@ namespace MediaPortal.Extensions.OnlineLibraries
 
     #region IGeoLocationService implemention
 
+    /// <summary>
+    /// Lookup the location of the current device.
+    /// </summary>
+    /// <param name="coordinates">Coordinates of the device.</param>
+    /// <param name="address">Address of the device.</param>
+    /// <returns>If lookup is successful.</returns>
     public bool TryLookup(out GeoCoordinate coordinates, out CivicAddress address)
     {
       try
@@ -175,6 +184,12 @@ namespace MediaPortal.Extensions.OnlineLibraries
       return false;
     }
 
+    /// <summary>
+    /// Lookup the address of a given location.
+    /// </summary>
+    /// <param name="coordinates">Coordinates to the location to lookup.</param>
+    /// <param name="address">Address to the coordinates passed.</param>
+    /// <returns>If lookup is successful.</returns>
     public bool TryLookup(GeoCoordinate coordinates, out CivicAddress address)
     {
       try

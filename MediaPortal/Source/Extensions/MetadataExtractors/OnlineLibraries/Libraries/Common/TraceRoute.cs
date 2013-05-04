@@ -32,10 +32,20 @@ using System.Net.NetworkInformation;
 
 namespace MediaPortal.Extensions.OnlineLibraries.Libraries.Common
 {
+  /// <summary>
+  /// Network trace route helper library.
+  /// </summary>
   public class TraceRoute
   {
     #region Public methods
 
+    /// <summary>
+    /// Lookup the first IP address external to the LAN.
+    /// </summary>
+    /// <param name="ip">External host to trace too.</param>
+    /// <param name="maxTtl">Maximum number of hops to try.</param>
+    /// <param name="response">Trace route result.</param>
+    /// <returns>If the trace is successful.</returns>
     public bool TrySearchForFirstExternalAddress(IPAddress ip, int maxTtl, out TraceRouteResponse response)
     {
       for (int i = 0; i < maxTtl; i++)
@@ -46,6 +56,10 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.Common
       response = null;
       return false;
     }
+
+    #endregion Public methods
+
+    #region Private methods
 
     private bool TryLookupInternal(IPAddress remoteHost, int ttl, out TraceRouteResponse response)
     {
@@ -93,6 +107,6 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.Common
       return false;
     }
 
-    #endregion Public methods
+    #endregion Private methods
   }
 }

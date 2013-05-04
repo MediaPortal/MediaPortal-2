@@ -39,8 +39,12 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.FreeGeoIP.Data
     #region Public properties
 
     /// <remarks/>
-    [DataMember(Name = "ip")]
-    public string Ip { get; set; }
+    [DataMember(Name = "areacode")]
+    public object AreaCode { get; set; }
+
+    /// <remarks/>
+    [DataMember(Name = "city")]
+    public string City { get; set; }
 
     /// <remarks/>
     [DataMember(Name = "country_code")]
@@ -51,20 +55,8 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.FreeGeoIP.Data
     public string CountryName { get; set; }
 
     /// <remarks/>
-    [DataMember(Name = "region_code")]
-    public string RegionCode { get; set; }
-
-    /// <remarks/>
-    [DataMember(Name = "region_name")]
-    public string RegionName { get; set; }
-
-    /// <remarks/>
-    [DataMember(Name = "city")]
-    public string City { get; set; }
-
-    /// <remarks/>
-    [DataMember(Name = "zipcode")]
-    public object ZipCode { get; set; }
+    [DataMember(Name = "ip")]
+    public string Ip { get; set; }
 
     /// <remarks/>
     [DataMember(Name = "latitude")]
@@ -79,8 +71,16 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.FreeGeoIP.Data
     public object MetroCode { get; set; }
 
     /// <remarks/>
-    [DataMember(Name = "areacode")]
-    public object AreaCode { get; set; }
+    [DataMember(Name = "region_code")]
+    public string RegionCode { get; set; }
+
+    /// <remarks/>
+    [DataMember(Name = "region_name")]
+    public string RegionName { get; set; }
+
+    /// <remarks/>
+    [DataMember(Name = "zipcode")]
+    public object ZipCode { get; set; }
 
     #endregion Public properties
 
@@ -88,19 +88,19 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.FreeGeoIP.Data
 
     public CivicAddress ToCivicAddress()
     {
-      var address = new CivicAddress();
+      CivicAddress address = new CivicAddress();
 
       address.CountryRegion = CountryName;
       address.StateProvince = RegionName;
       address.City = City;
       address.PostalCode = ZipCode.ToString();
-      
+
       return address;
     }
 
     public GeoCoordinate ToGeoCoordinates()
     {
-      var coordinates = new GeoCoordinate();
+      GeoCoordinate coordinates = new GeoCoordinate();
 
       coordinates.Latitude = (double)Latitude;
       coordinates.Longitude = (double)Longitude;
@@ -108,6 +108,6 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.FreeGeoIP.Data
       return coordinates;
     }
 
-    #endregion
+    #endregion Public methods
   }
 }

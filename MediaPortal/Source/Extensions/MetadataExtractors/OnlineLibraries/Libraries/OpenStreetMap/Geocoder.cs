@@ -26,10 +26,14 @@ using MediaPortal.Common;
 using MediaPortal.Common.Localization;
 using MediaPortal.Extensions.OnlineLibraries.Libraries.Common;
 using MediaPortal.Extensions.OnlineLibraries.Libraries.OpenStreetMap.Data;
+using System.Device.Location;
 using System.Globalization;
 
 namespace MediaPortal.Extensions.OnlineLibraries.Libraries.OpenStreetMap
 {
+  /// <summary>
+  /// OpenStreetMap library.
+  /// </summary>
   public class Geocoder : IAddressResolver
   {
     #region Ctor
@@ -55,7 +59,13 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.OpenStreetMap
 
     #region IAddressResolver implementation
 
-    public bool TryResolveCivicAddress(System.Device.Location.GeoCoordinate coordinates, out System.Device.Location.CivicAddress address)
+    /// <summary>
+    /// Lookup the address at the given coordinates.
+    /// </summary>
+    /// <param name="coordinates">Coordinates to lookup.</param>
+    /// <param name="address">Address of the coordinates given.</param>
+    /// <returns>If lookup is successful.</returns>
+    public bool TryResolveCivicAddress(GeoCoordinate coordinates, out CivicAddress address)
     {
       var downloader = new Downloader { EnableCompression = true };
       GeocoderResponse result = downloader.Download<GeocoderResponse>(BuildUrl(coordinates.Latitude, coordinates.Longitude));

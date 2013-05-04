@@ -34,15 +34,15 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.OpenStreetMap.Data
     #region Consts
 
     private const string KEY_CITY = "city";
-    private const string KEY_STATE = "state";
     private const string KEY_COUNTRY = "country";
+    private const string KEY_STATE = "state";
 
     #endregion Consts
 
     #region Public properties
 
-    [DataMember(Name = "place_id")]
-    public string PlaceId { get; set; }
+    [DataMember(Name = "address")]
+    public Dictionary<string, string> AddressInfo { get; internal set; }
 
     [DataMember(Name = "lat")]
     public double Latitude { get; set; }
@@ -50,8 +50,8 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.OpenStreetMap.Data
     [DataMember(Name = "lon")]
     public double Longitude { get; set; }
 
-    [DataMember(Name = "address")]
-    public Dictionary<string, string> AddressInfo { get; internal set; }
+    [DataMember(Name = "place_id")]
+    public string PlaceId { get; set; }
 
     #endregion Public properties
 

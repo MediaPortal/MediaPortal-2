@@ -30,6 +30,9 @@ using System.Net;
 
 namespace MediaPortal.Extensions.OnlineLibraries.Libraries.FreeGeoIP
 {
+  /// <summary>
+  /// FreeGeoIP Library.
+  /// </summary>
   public class IPLookup : IAddressResolver, ICoordinateResolver
   {
     #region Ctor
@@ -81,6 +84,12 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.FreeGeoIP
 
     #region IAddressResolver implementation
 
+    /// <summary>
+    /// Determine the address at the specified coordinates.
+    /// </summary>
+    /// <param name="coordinates">Coordinates to lookup.</param>
+    /// <param name="address">Resultant address.</param>
+    /// <returns>If lookup is successful.</returns>
     public bool TryResolveCivicAddress(GeoCoordinate coordinates, out CivicAddress address)
     {
       GeoCoordinate temp;
@@ -91,6 +100,11 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.FreeGeoIP
 
     #region ICoordinateResolver implementation
 
+    /// <summary>
+    /// Determine the current location of the device.
+    /// </summary>
+    /// <param name="coordinates">Coordinates of the device.</param>
+    /// <returns>If lookup is successful.</returns>
     public bool TryResolveCoordinates(out GeoCoordinate coordinates)
     {
       CivicAddress temp;
