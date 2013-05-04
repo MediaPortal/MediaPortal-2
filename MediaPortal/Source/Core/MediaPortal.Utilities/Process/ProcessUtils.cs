@@ -105,6 +105,9 @@ namespace MediaPortal.Utilities.Process
         ref STARTUPINFO lpStartupInfo,
         out PROCESS_INFORMATION lpProcessInformation);
 
+    [DllImport("kernel32.dll", CharSet = CharSet.Auto, SetLastError = true)]
+    public static extern bool SetPriorityClass(IntPtr handle, uint priorityClass);
+
     [DllImport("kernel32.dll", SetLastError = true)]
     [return: MarshalAs(UnmanagedType.Bool)]
     internal static extern bool GetExitCodeProcess(IntPtr hProcess, out uint lpExitCode);
@@ -240,6 +243,8 @@ namespace MediaPortal.Utilities.Process
         if (!TryExecute_Impersonated(appCmdLine, token, out pi))
           throw new InvalidOperationException("Failed to start process!");
 
+        SetProcessPriority(pi.hProcess, priorityClass);
+
         ProcessWaitHandle waitable = new ProcessWaitHandle(pi.hProcess);
         if (waitable.WaitOne(maxWaitMs))
         {
@@ -285,6 +290,11 @@ namespace MediaPortal.Utilities.Process
         null,
         ref si,
         out pi);
+    }
+
+    private static bool SetProcessPriority(IntPtr processHandle, ProcessPriorityClass priority)
+    {
+      return SetPriorityClass(processHandle, (uint) priority); // Note: Enum values are equal to unmanaged constants.
     }
 
     #endregion
