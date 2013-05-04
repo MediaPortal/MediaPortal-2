@@ -146,6 +146,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     protected AbstractProperty _styleProperty;
     protected AbstractProperty _focusableProperty;
     protected AbstractProperty _hasFocusProperty;
+    protected AbstractProperty _isKeyboardFocusWithinProperty;
     protected AbstractProperty _isMouseOverProperty;
     protected AbstractProperty _fontSizeProperty;
     protected AbstractProperty _fontFamilyProperty;
@@ -214,6 +215,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       // Focus properties
       _focusableProperty = new SProperty(typeof(bool), false);
       _hasFocusProperty = new SProperty(typeof(bool), false);
+      _isKeyboardFocusWithinProperty = new SProperty(typeof(bool), false);
 
       _isMouseOverProperty = new SProperty(typeof(bool), false);
 
@@ -240,6 +242,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       OpacityMaskProperty.Attach(OnOpacityChanged);
       ActualPositionProperty.Attach(OnActualBoundsChanged);
       IsEnabledProperty.Attach(OnEnabledChanged);
+
+      HasFocusProperty.Attach(OnHasFocusChanged);
     }
 
     void Detach()
@@ -257,6 +261,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       OpacityMaskProperty.Detach(OnOpacityChanged);
       ActualPositionProperty.Detach(OnActualBoundsChanged);
       IsEnabledProperty.Detach(OnEnabledChanged);
+
+      HasFocusProperty.Detach(OnHasFocusChanged);
     }
 
     public override void DeepCopy(IDeepCopyable source, ICopyManager copyManager)
@@ -349,6 +355,19 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     {
       if (!IsEnabled)
         ResetFocus();
+    }
+
+    void OnHasFocusChanged(AbstractProperty property, object oldValue)
+    {
+      // propagate up the Visual Tree
+      var visual = VisualParent;
+      while (visual != null)
+      {
+        var fe = visual as FrameworkElement;
+        if (fe != null)
+          fe.IsKeyboardFocusWithin = HasFocus;
+        visual = visual.VisualParent;
+      }
     }
 
     void OnLayoutTransformChanged(IObservable observable)
@@ -626,6 +645,20 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       internal set { _hasFocusProperty.SetValue(value); }
     }
 
+    public AbstractProperty IsKeyboardFocusWithinProperty
+    {
+      get { return _isKeyboardFocusWithinProperty; }
+    }
+
+    /// <summary>
+    /// Gets a value indicating whether keyboard focus is anywhere within the element or its visual tree child elements.
+    /// </summary>
+    public virtual bool IsKeyboardFocusWithin
+    {
+      get { return (bool)_isKeyboardFocusWithinProperty.GetValue(); }
+      internal set { _isKeyboardFocusWithinProperty.SetValue(value); }
+    }
+    
     public AbstractProperty FocusableProperty
     {
       get { return _focusableProperty; }
