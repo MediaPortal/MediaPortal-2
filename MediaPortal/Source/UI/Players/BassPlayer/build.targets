@@ -15,6 +15,12 @@
   </ItemGroup>
 
   <ItemGroup>
+    <!-- BASS extensions -->
+    <PlayerPlugins Include="$(TargetDir)bassmix.dll" />
+    <PlayerPlugins Include="$(TargetDir)bass_fx.dll" />
+    <PlayerPlugins Include="$(TargetDir)tags.dll" />
+
+    <!-- BASS audio decoders extensions -->
     <PlayerPlugins Include="$(TargetDir)bass_aac.dll" />
     <PlayerPlugins Include="$(TargetDir)bass_ac3.dll" />
     <PlayerPlugins Include="$(TargetDir)bass_adx.dll" />
@@ -32,8 +38,6 @@
 
     <PlayerPlugins Include="$(TargetDir)bass_ofr.dll" />
     <PlayerPlugins Include="$(TargetDir)OptimFROG.dll" />
-
-    <PlayerPlugins Include="$(ProjectDir)PlayerPlugins\*.*" />
   </ItemGroup>
 
   <Target Name="AfterBuild">
