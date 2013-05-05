@@ -11,10 +11,14 @@
   </ItemGroup>
 
   <ItemGroup>
+    <!-- BASS core -->
     <References Include="$(TargetDir)bass.dll" />
+    <References Include="$(TargetDir)Bass.Net.dll" />
+    <References Include="$(TargetDir)BassRegistration.dll" />
+
+    <!-- BASS extensions -->
     <References Include="$(TargetDir)basscd.dll" />
     <References Include="$(TargetDir)bassmix.dll" />
-    <References Include="$(ProjectDir)References\*.*" />
   </ItemGroup>
 
   <Target Name="AfterBuild">

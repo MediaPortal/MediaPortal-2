@@ -54,15 +54,12 @@
     <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Bass.Net, Version=2.4.6.2, Culture=neutral, PublicKeyToken=b7566c273e6ef480, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\Extensions\BassLibraries\References\Bass.Net.dll</HintPath>
-      <Private>False</Private>
+    <Reference Include="Bass.Net">
+      <HintPath>..\..\..\..\Packages\BASS.NET.2.4.10.1\lib\net40\Bass.Net.dll</HintPath>
     </Reference>
     <Reference Include="BassRegistration, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\Extensions\BassLibraries\References\BassRegistration.dll</HintPath>
-      <Private>False</Private>
+      <HintPath>..\..\..\..\Packages\BassRegistration.1.0.0.0\lib\net40\BassRegistration.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core">
