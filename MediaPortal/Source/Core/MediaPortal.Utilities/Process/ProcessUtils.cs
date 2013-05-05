@@ -24,6 +24,7 @@
 
 using System;
 using System.Diagnostics;
+using System.IO;
 using System.Runtime.InteropServices;
 using System.Security.Principal;
 using System.Threading;
@@ -71,9 +72,9 @@ namespace MediaPortal.Utilities.Process
       public short wShowWindow;
       public short cbReserved2;
       public IntPtr lpReserved2;
-      public IntPtr hStdInput;
-      public IntPtr hStdOutput;
-      public IntPtr hStdError;
+      public SafeFileHandle hStdInput;
+      public SafeFileHandle hStdOutput;
+      public SafeFileHandle hStdError;
     }
 
     internal enum SECURITY_IMPERSONATION_LEVEL
@@ -89,7 +90,6 @@ namespace MediaPortal.Utilities.Process
       TokenPrimary = 1,
       TokenImpersonation
     }
-
 
     [DllImport("advapi32.dll", SetLastError = true)]
     internal static extern bool CreateProcessAsUser(
@@ -116,9 +116,21 @@ namespace MediaPortal.Utilities.Process
     [return: MarshalAs(UnmanagedType.Bool)]
     internal static extern bool TerminateProcess(IntPtr hProcess, uint uExitCode);
 
+    [DllImport("kernel32.dll", CharSet = CharSet.Auto, SetLastError = true)]
+    internal static extern bool CreatePipe(out SafeFileHandle hReadPipe, out SafeFileHandle hWritePipe, SECURITY_ATTRIBUTES lpPipeAttributes, int nSize);
+
+    [DllImport("kernel32.dll", CharSet = CharSet.Ansi, SetLastError = true)]
+    internal static extern bool DuplicateHandle(IntPtr hSourceProcessHandle, SafeHandle hSourceHandle, IntPtr hTargetProcess, out SafeFileHandle targetHandle, int dwDesiredAccess, bool bInheritHandle, int dwOptions);
+
+    [DllImport("kernel32.dll", CharSet = CharSet.Ansi, SetLastError = true)]
+    internal static extern IntPtr GetCurrentProcess();
+
     private const int INFINITE = -1;
 
     private const short SW_HIDE = 0;
+
+    private const uint STARTF_USESTDHANDLES = 0x00000100;
+
     private const uint CREATE_UNICODE_ENVIRONMENT = 0x00000400;
     private const uint CREATE_NO_WINDOW = 0x08000000;
 
@@ -149,16 +161,8 @@ namespace MediaPortal.Utilities.Process
     /// <returns><c>true</c> if process was executed and finished correctly</returns>
     public static bool TryExecute(string executable, string arguments, ProcessPriorityClass priorityClass = ProcessPriorityClass.Normal, int maxWaitMs = 1000)
     {
-      using (System.Diagnostics.Process process = new System.Diagnostics.Process { StartInfo = new ProcessStartInfo(executable, arguments) { UseShellExecute = false, CreateNoWindow = true } })
-      {
-        process.Start();
-        process.PriorityClass = priorityClass;
-        if (process.WaitForExit(maxWaitMs))
-          return process.ExitCode == 0;
-        if (!process.HasExited)
-          process.Kill();
-      }
-      return false;
+      string unused;
+      return TryExecute(executable, arguments, false, out unused, priorityClass, maxWaitMs);
     }
 
     /// <summary>
@@ -173,37 +177,9 @@ namespace MediaPortal.Utilities.Process
     /// <returns><c>true</c> if process was executed and finished correctly</returns>
     public static bool TryExecute_AutoImpersonate(string executable, string arguments, ProcessPriorityClass priorityClass = ProcessPriorityClass.Normal, int maxWaitMs = 1000)
     {
-      return WindowsIdentity.GetCurrent().ImpersonationLevel == TokenImpersonationLevel.Impersonation ?
+      return IsImpersonated ?
         TryExecute_Impersonated(executable, arguments, priorityClass, maxWaitMs) :
         TryExecute(executable, arguments, priorityClass, maxWaitMs);
-    }
-
-    /// <summary>
-    /// Executes the <paramref name="executable"/> and waits a maximum time of <paramref name="maxWaitMs"/> for completion and returns the contents of
-    /// <see cref="Process.StandardOutput"/>. If the process doesn't end in this time, it gets aborted.
-    /// </summary>
-    /// <param name="executable">Program to execute</param>
-    /// <param name="arguments">Program arguments</param>
-    /// <param name="result">Returns the contents of standard output</param>
-    /// <param name="priorityClass">Process priority</param>
-    /// <param name="maxWaitMs">Maximum time to wait for completion</param>
-    /// <returns></returns>
-    public static bool TryExecuteReadString(string executable, string arguments, out string result, ProcessPriorityClass priorityClass = ProcessPriorityClass.Normal, int maxWaitMs = 1000)
-    {
-      using (System.Diagnostics.Process process = new System.Diagnostics.Process { StartInfo = new ProcessStartInfo(executable, arguments) { UseShellExecute = false, CreateNoWindow = true, RedirectStandardOutput = true } })
-      {
-        process.Start();
-        process.PriorityClass = priorityClass;
-        using (process.StandardOutput)
-        {
-          result = process.StandardOutput.ReadToEnd();
-          if (process.WaitForExit(maxWaitMs))
-            return process.ExitCode == 0;
-        }
-        if (!process.HasExited)
-          process.Kill();
-      }
-      return false;
     }
 
     /// <summary>
@@ -221,7 +197,104 @@ namespace MediaPortal.Utilities.Process
       if (!ImpersonationHelper.GetTokenByProcess("explorer", out userToken))
         return false;
 
-      return TryExecute_Impersonated(executable, arguments, userToken, priorityClass, maxWaitMs);
+      string unused;
+      return TryExecute_Impersonated(executable, arguments, userToken, false, out unused, priorityClass, maxWaitMs);
+    }
+
+    /// <summary>
+    /// Executes the <paramref name="executable"/> and waits a maximum time of <paramref name="maxWaitMs"/> for completion and returns the contents of
+    /// <see cref="Process.StandardOutput"/>. If the process doesn't end in this time, it gets aborted.
+    /// </summary>
+    /// <param name="executable">Program to execute</param>
+    /// <param name="arguments">Program arguments</param>
+    /// <param name="result">Returns the contents of standard output</param>
+    /// <param name="priorityClass">Process priority</param>
+    /// <param name="maxWaitMs">Maximum time to wait for completion</param>
+    /// <returns></returns>
+    public static bool TryExecuteReadString(string executable, string arguments, out string result, ProcessPriorityClass priorityClass = ProcessPriorityClass.Normal, int maxWaitMs = 1000)
+    {
+      return TryExecute(executable, arguments, true, out result, priorityClass, maxWaitMs);
+    }
+
+    /// <summary>
+    /// Executes the <paramref name="executable"/> and waits a maximum time of <paramref name="maxWaitMs"/> for completion and returns the contents of
+    /// <see cref="Process.StandardOutput"/>. If the process doesn't end in this time, it gets aborted.
+    /// </summary>
+    /// <param name="executable">Program to execute</param>
+    /// <param name="arguments">Program arguments</param>
+    /// <param name="result">Returns the contents of standard output</param>
+    /// <param name="priorityClass">Process priority</param>
+    /// <param name="maxWaitMs">Maximum time to wait for completion</param>
+    /// <returns></returns>
+    public static bool TryExecuteReadString_AutoImpersonate(string executable, string arguments, out string result, ProcessPriorityClass priorityClass = ProcessPriorityClass.Normal, int maxWaitMs = 1000)
+    {
+      return IsImpersonated ?
+        TryExecuteReadString_Impersonated(executable, arguments, out result, priorityClass, maxWaitMs) :
+        TryExecuteReadString(executable, arguments, out result, priorityClass, maxWaitMs);
+    }
+
+    /// <summary>
+    /// Executes the <paramref name="executable"/> and waits a maximum time of <paramref name="maxWaitMs"/> for completion and returns the contents of
+    /// <see cref="Process.StandardOutput"/>. If the process doesn't end in this time, it gets aborted. 
+    /// This method tries to impersonate the interactive user and run the process under its identity.
+    /// </summary>
+    /// <param name="executable">Program to execute</param>
+    /// <param name="arguments">Program arguments</param>
+    /// <param name="result">Returns the contents of standard output</param>
+    /// <param name="priorityClass">Process priority</param>
+    /// <param name="maxWaitMs">Maximum time to wait for completion</param>
+    /// <returns><c>true</c> if process was executed and finished correctly</returns>
+    public static bool TryExecuteReadString_Impersonated(string executable, string arguments, out string result, ProcessPriorityClass priorityClass = ProcessPriorityClass.Normal, int maxWaitMs = INFINITE)
+    {
+      IntPtr userToken;
+      if (!ImpersonationHelper.GetTokenByProcess("explorer", out userToken))
+      {
+        result = null;
+        return false;
+      }
+
+      return TryExecute_Impersonated(executable, arguments, userToken, false, out result, priorityClass, maxWaitMs);
+    }
+
+    #region Private methods
+
+    /// <summary>
+    /// Indicates if the current <see cref="WindowsIdentity"/> uses impersonation.
+    /// </summary>
+    private static bool IsImpersonated
+    {
+      get
+      {
+        WindowsIdentity windowsIdentity = WindowsIdentity.GetCurrent();
+        return windowsIdentity != null && windowsIdentity.ImpersonationLevel == TokenImpersonationLevel.Impersonation;
+      }
+    }
+
+    /// <summary>
+    /// Executes the <paramref name="executable"/> and waits a maximum time of <paramref name="maxWaitMs"/> for completion and returns the contents of
+    /// <see cref="Process.StandardOutput"/>. If the process doesn't end in this time, it gets aborted.
+    /// </summary>
+    /// <param name="executable">Program to execute</param>
+    /// <param name="arguments">Program arguments</param>
+    /// <param name="redirectInputOutput"><c>true</c> to redirect standard streams.</param>
+    /// <param name="result">Returns the contents of standard output</param>
+    /// <param name="priorityClass">Process priority</param>
+    /// <param name="maxWaitMs">Maximum time to wait for completion</param>
+    /// <returns></returns>
+    private static bool TryExecute(string executable, string arguments, bool redirectInputOutput, out string result, ProcessPriorityClass priorityClass = ProcessPriorityClass.Normal, int maxWaitMs = 1000)
+    {
+      using (System.Diagnostics.Process process = new System.Diagnostics.Process { StartInfo = new ProcessStartInfo(executable, arguments) { UseShellExecute = false, CreateNoWindow = true, RedirectStandardOutput = redirectInputOutput } })
+      {
+        process.Start();
+        process.PriorityClass = priorityClass;
+        using (process.StandardOutput)
+          result = redirectInputOutput ? process.StandardOutput.ReadToEnd() : null;
+        if (process.WaitForExit(maxWaitMs))
+          return process.ExitCode == 0;
+        if (!process.HasExited)
+          process.Kill();
+      }
+      return false;
     }
 
     /// <summary>
@@ -231,19 +304,33 @@ namespace MediaPortal.Utilities.Process
     /// <param name="executable">Program to execute</param>
     /// <param name="arguments">Program arguments</param>
     /// <param name="token">User token to run process</param>
+    /// <param name="redirectInputOutput"><c>true</c> to redirect standard streams.</param>
+    /// <param name="result">Returns the contents of standard output.</param>
     /// <param name="priorityClass">Process priority</param>
     /// <param name="maxWaitMs">Maximum time to wait for completion</param>
     /// <returns><c>true</c> if process was executed and finished correctly</returns>
-    public static bool TryExecute_Impersonated(string executable, string arguments, IntPtr token, ProcessPriorityClass priorityClass = ProcessPriorityClass.Normal, int maxWaitMs = INFINITE)
+    private static bool TryExecute_Impersonated(string executable, string arguments, IntPtr token, bool redirectInputOutput, out string result, ProcessPriorityClass priorityClass = ProcessPriorityClass.Normal, int maxWaitMs = INFINITE)
     {
       string appCmdLine = executable + (!string.IsNullOrWhiteSpace(arguments) ? " " + arguments : string.Empty);
+      SafeFileHandle inputHandle = null;
+      SafeFileHandle outputHandle = null;
+      SafeFileHandle errorHandle = null;
       try
       {
         PROCESS_INFORMATION pi;
-        if (!TryExecute_Impersonated(appCmdLine, token, out pi))
+        if (!TryExecute_Impersonated(appCmdLine, token, redirectInputOutput, out pi, out inputHandle, out outputHandle, out errorHandle))
           throw new InvalidOperationException("Failed to start process!");
 
         SetProcessPriority(pi.hProcess, priorityClass);
+
+        if (redirectInputOutput)
+        {
+          const int bufferSize = 0x1000;
+          StreamReader reader = new StreamReader(new FileStream(outputHandle, FileAccess.Read, bufferSize, false), Console.OutputEncoding, true, bufferSize);
+          result = reader.ReadToEnd();
+        }
+        else
+          result = null;
 
         ProcessWaitHandle waitable = new ProcessWaitHandle(pi.hProcess);
         if (waitable.WaitOne(maxWaitMs))
@@ -260,13 +347,18 @@ namespace MediaPortal.Utilities.Process
       finally
       {
         ImpersonationHelper.CloseHandle(token);
+        CloseSafeHandle(inputHandle);
+        CloseSafeHandle(outputHandle);
+        CloseSafeHandle(errorHandle);
       }
     }
 
-    #region Private methods
-
-    private static bool TryExecute_Impersonated(string cmdLine, IntPtr token, out PROCESS_INFORMATION pi)
+    private static bool TryExecute_Impersonated(string cmdLine, IntPtr token, bool redirectInputOutput, out PROCESS_INFORMATION pi,
+      out SafeFileHandle inputHandle, out SafeFileHandle outputHandle, out SafeFileHandle errorHandle)
     {
+      inputHandle = null;
+      outputHandle = null;
+      errorHandle = null;
       SECURITY_ATTRIBUTES saProcess = new SECURITY_ATTRIBUTES();
       SECURITY_ATTRIBUTES saThread = new SECURITY_ATTRIBUTES();
       saProcess.nLength = (uint) Marshal.SizeOf(saProcess);
@@ -278,6 +370,13 @@ namespace MediaPortal.Utilities.Process
       si.lpDesktop = @"WinSta0\Default"; // Modify as needed
       si.wShowWindow = SW_HIDE;
 
+      if (redirectInputOutput)
+      {
+        si.dwFlags = STARTF_USESTDHANDLES;
+        CreatePipe(out inputHandle, out si.hStdInput, true);
+        CreatePipe(out outputHandle, out si.hStdOutput, false);
+        CreatePipe(out errorHandle, out si.hStdError, false);
+      }
       return CreateProcessAsUser(
         token,
         null,
@@ -295,6 +394,37 @@ namespace MediaPortal.Utilities.Process
     private static bool SetProcessPriority(IntPtr processHandle, ProcessPriorityClass priority)
     {
       return SetPriorityClass(processHandle, (uint) priority); // Note: Enum values are equal to unmanaged constants.
+    }
+
+    public static void CreatePipe(out SafeFileHandle parentHandle, out SafeFileHandle childHandle, bool parentInputs)
+    {
+      SECURITY_ATTRIBUTES lpPipeAttributes = new SECURITY_ATTRIBUTES { bInheritHandle = true };
+      SafeFileHandle hWritePipe = null;
+      try
+      {
+        if (parentInputs)
+          CreatePipeWithSecurityAttributes(out childHandle, out hWritePipe, lpPipeAttributes, 0);
+        else
+          CreatePipeWithSecurityAttributes(out hWritePipe, out childHandle, lpPipeAttributes, 0);
+        if (!DuplicateHandle(GetCurrentProcess(), hWritePipe, GetCurrentProcess(), out parentHandle, 0, false, 2))
+          throw new Exception();
+      }
+      finally
+      {
+        CloseSafeHandle(hWritePipe);
+      }
+    }
+
+    private static void CloseSafeHandle(SafeFileHandle handle)
+    {
+      if (handle != null && !handle.IsInvalid)
+        handle.Close();
+    }
+
+    internal static void CreatePipeWithSecurityAttributes(out SafeFileHandle hReadPipe, out SafeFileHandle hWritePipe, SECURITY_ATTRIBUTES lpPipeAttributes, int nSize)
+    {
+      if ((!CreatePipe(out hReadPipe, out hWritePipe, lpPipeAttributes, nSize) || hReadPipe.IsInvalid) || hWritePipe.IsInvalid)
+        throw new Exception();
     }
 
     #endregion
