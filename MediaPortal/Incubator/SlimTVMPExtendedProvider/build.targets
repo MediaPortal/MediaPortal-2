@@ -16,8 +16,8 @@
 
   <ItemGroup>
     <References Include="$(TargetDir)SlimTv.Interfaces.dll" />
-    <References Include="$(ProjectDir)References\MPExtended.Services.Common.Interfaces.dll" />
-    <References Include="$(ProjectDir)References\MPExtended.Services.TVAccessService.Interfaces.dll" />
+    <References Include="$(TargetDir)MPExtended.Services.Common.Interfaces.dll" />
+    <References Include="$(TargetDir)MPExtended.Services.TVAccessService.Interfaces.dll" />
   </ItemGroup>
 
   <Target Name="AfterBuild">
