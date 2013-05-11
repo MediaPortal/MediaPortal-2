@@ -19,7 +19,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <References Include="$(ProjectDir)References\WorldWeatherOnlineHelper.dll" />
+    <References Include="$(TargetDir)WorldWeatherOnlineHelper.dll" />
   </ItemGroup>
 
   <Target Name="AfterBuild">
