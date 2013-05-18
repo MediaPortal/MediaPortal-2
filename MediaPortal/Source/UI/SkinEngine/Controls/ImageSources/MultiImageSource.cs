@@ -220,6 +220,13 @@ namespace MediaPortal.UI.SkinEngine.Controls.ImageSources
       {
         if (!_nextTexture.LoadFailed)
           _nextTexture.AllocateAsync();
+        else
+        {
+          _nextTexture = null;
+          CycleTextures(RightAngledRotation.Zero); // If new texture cannot be loaded, we allow switching to "empty" texture
+          return;
+        }
+
         if (!_transitionActive && _nextTexture.IsAllocated)
           CycleTextures(RightAngledRotation.Zero);
       }
