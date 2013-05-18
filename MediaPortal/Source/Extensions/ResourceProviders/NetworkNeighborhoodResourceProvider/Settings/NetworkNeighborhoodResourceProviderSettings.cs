@@ -31,7 +31,7 @@ namespace MediaPortal.Extensions.ResourceProviders.NetworkNeighborhoodResourcePr
     /// <summary>
     /// Gets or sets an indicator, if the server should try to impersonate the current interactive session.
     /// </summary>
-    [Setting(SettingScope.Global, false)]
+    [Setting(SettingScope.Global, true)]
     public bool ImpersonateInteractive { get; set; }
 
     /// <summary>
