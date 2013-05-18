@@ -162,10 +162,10 @@ namespace MediaPortal.UiComponents.SkinBase.Models
       }
       else if (message.ChannelName == SharesMessaging.CHANNEL)
       {
-        SharesMessaging.MessageType messageType =
-            (SharesMessaging.MessageType) message.MessageType;
+        SharesMessaging.MessageType messageType = (SharesMessaging.MessageType) message.MessageType;
         switch (messageType)
         {
+          case SharesMessaging.MessageType.NotifySharesChanged:
           case SharesMessaging.MessageType.ShareAdded:
           case SharesMessaging.MessageType.ShareRemoved:
             UpdateProperties_NoLock();
@@ -348,7 +348,7 @@ namespace MediaPortal.UiComponents.SkinBase.Models
       {
         ResourceProviderMetadata rpm = _shareProxy.GetSelectedBaseResourceProvider();
         if (rpm == null)
-            // Error case: Should not happen
+          // Error case: Should not happen
           return;
         ResourceProviderMetadata oldResourceProvider = _shareProxy.BaseResourceProvider;
         if (oldResourceProvider == null ||
@@ -361,7 +361,7 @@ namespace MediaPortal.UiComponents.SkinBase.Models
         if (_shareProxy.ResourceProviderSupportsResourceTreeNavigation)
           workflowManager.NavigatePush(Consts.WF_STATE_ID_SHARE_EDIT_CHOOSE_PATH);
         else // If needed, add other path navigation screens here
-            // Fallback: Simple TextBox path editor screen
+          // Fallback: Simple TextBox path editor screen
           workflowManager.NavigatePush(Consts.WF_STATE_ID_SHARE_EDIT_EDIT_PATH);
       }
       catch (NotConnectedException)
@@ -456,7 +456,7 @@ namespace MediaPortal.UiComponents.SkinBase.Models
         {
           share = GetSelectedServerShares().FirstOrDefault();
           if (share == null)
-              // Should never happen
+            // Should never happen
             return;
           lock (_syncObj)
             _shareProxy = new ServerShares(share);
@@ -667,7 +667,7 @@ namespace MediaPortal.UiComponents.SkinBase.Models
         lock (_syncObj)
           _shareProxy = new ServerShares(share);
       IWorkflowManager workflowManager = ServiceRegistration.Get<IWorkflowManager>();
-      workflowManager.NavigatePush(Consts.WF_STATE_ID_SHARE_INFO, new NavigationContextConfig {NavigationContextDisplayLabel = share.Name});
+      workflowManager.NavigatePush(Consts.WF_STATE_ID_SHARE_INFO, new NavigationContextConfig { NavigationContextDisplayLabel = share.Name });
     }
 
     protected void UpdateShareAndFinish(RelocationMode relocationMode)

@@ -42,11 +42,26 @@ namespace MediaPortal.UI.Shares
     /// </summary>
     public enum MessageType
     {
-      // Share related messages. The SHARE will contain the share instance which is affected.
+      /// <summary>
+      /// A new share was created. The SHARE will contain the share instance which is affected.
+      /// </summary>
       ShareAdded,
+      /// <summary>
+      /// An existing share was removed. The SHARE will contain the share instance which is affected.
+      /// </summary>
       ShareRemoved,
-      ShareChanged, // Parameter RELOCATION_MODE will be additionally set
+      /// <summary>
+      /// An existing share was changed. The SHARE will contain the share instance which is affected. Parameter RELOCATION_MODE will be additionally set.
+      /// </summary>
+      ShareChanged,
+      /// <summary>
+      /// An existing share should be reimported. The SHARE will contain the share instance which is affected.
+      /// </summary>
       ReImportShare,
+      /// <summary>
+      /// Generic message type for notifications of server shares changes. This message does not cause any server side action.
+      /// </summary>
+      NotifySharesChanged,
     }
 
     // Message data
