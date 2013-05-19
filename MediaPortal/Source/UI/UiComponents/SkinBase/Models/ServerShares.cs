@@ -113,11 +113,7 @@ namespace MediaPortal.UiComponents.SkinBase.Models
         return;
       }
       foreach (Share share in shares)
-      {
         contentDirectory.RemoveShare(share.ShareId);
-        // Only notify locally about changes here, server side handling is already done by IContentDirectory.
-        SharesMessaging.SendShareMessage(SharesMessaging.MessageType.NotifySharesChanged, share);
-      }
       _serverSharesCache = null;
     }
 
@@ -127,8 +123,6 @@ namespace MediaPortal.UiComponents.SkinBase.Models
       IContentDirectory contentDirectory = GetContentDirectoryService();
       Share share = Share.CreateNewShare(serverConnectionManager.HomeServerSystemId, ChoosenResourcePath, ShareName, MediaCategories);
       contentDirectory.RegisterShare(share);
-      // Only notify locally about changes here, server side handling is already done by IContentDirectory.
-      SharesMessaging.SendShareMessage(SharesMessaging.MessageType.NotifySharesChanged, share);
       _serverSharesCache = null;
     }
 
@@ -136,8 +130,6 @@ namespace MediaPortal.UiComponents.SkinBase.Models
     {
       IContentDirectory contentDirectory = GetContentDirectoryService();
       contentDirectory.UpdateShare(_origShare.ShareId, ChoosenResourcePath, ShareName, GetMediaCategoriesCleanedUp(), relocationMode);
-      // Only notify locally about changes here, server side handling is already done by IContentDirectory.
-      SharesMessaging.SendShareMessage(SharesMessaging.MessageType.NotifySharesChanged, _origShare);
       _serverSharesCache = null;
     }
 

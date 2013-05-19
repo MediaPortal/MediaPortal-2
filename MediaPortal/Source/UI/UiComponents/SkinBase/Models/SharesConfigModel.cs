@@ -113,6 +113,7 @@ namespace MediaPortal.UiComponents.SkinBase.Models
       AsynchronousMessageQueue messageQueue = new AsynchronousMessageQueue(this, new string[]
         {
            ServerConnectionMessaging.CHANNEL,
+           ContentDirectoryMessaging.CHANNEL,
            SharesMessaging.CHANNEL,
         });
       messageQueue.MessageReceived += OnMessageReceived;
@@ -160,12 +161,22 @@ namespace MediaPortal.UiComponents.SkinBase.Models
             break;
         }
       }
+      else if (message.ChannelName == ContentDirectoryMessaging.CHANNEL)
+      {
+        ContentDirectoryMessaging.MessageType messageType = (ContentDirectoryMessaging.MessageType) message.MessageType;
+        switch (messageType)
+        {
+          case ContentDirectoryMessaging.MessageType.RegisteredSharesChanged:
+            UpdateProperties_NoLock();
+            UpdateSharesLists_NoLock(false);
+            break;
+        }
+      }
       else if (message.ChannelName == SharesMessaging.CHANNEL)
       {
         SharesMessaging.MessageType messageType = (SharesMessaging.MessageType) message.MessageType;
         switch (messageType)
         {
-          case SharesMessaging.MessageType.NotifySharesChanged:
           case SharesMessaging.MessageType.ShareAdded:
           case SharesMessaging.MessageType.ShareRemoved:
             UpdateProperties_NoLock();

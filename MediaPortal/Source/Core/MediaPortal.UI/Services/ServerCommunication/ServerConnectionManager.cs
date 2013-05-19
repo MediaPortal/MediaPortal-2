@@ -471,11 +471,9 @@ namespace MediaPortal.UI.Services.ServerCommunication
       ICollection<Guid> oldImportingShares = _currentlyImportingSharesProxy;
       ICollection<Guid> newImportingShares = currentlyImportingShares;
       _currentlyImportingSharesProxy = newImportingShares;
-      foreach (Guid importingShare in
-          newImportingShares.Where(importingShare => !oldImportingShares.Contains(importingShare)))
+      foreach (Guid importingShare in newImportingShares.Where(importingShare => !oldImportingShares.Contains(importingShare)))
         ContentDirectoryMessaging.SendShareImportMessage(ContentDirectoryMessaging.MessageType.ShareImportStarted, importingShare);
-      foreach (Guid oldShare in
-          oldImportingShares.Where(oldShare => !newImportingShares.Contains(oldShare)))
+      foreach (Guid oldShare in oldImportingShares.Where(oldShare => !newImportingShares.Contains(oldShare)))
         ContentDirectoryMessaging.SendShareImportMessage(ContentDirectoryMessaging.MessageType.ShareImportCompleted, oldShare);
     }
 

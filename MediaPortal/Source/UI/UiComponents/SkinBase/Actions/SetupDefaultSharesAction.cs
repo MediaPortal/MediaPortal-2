@@ -60,6 +60,7 @@ namespace MediaPortal.UiComponents.SkinBase.Actions
       _messageQueue = new AsynchronousMessageQueue(this, new string[]
         {
            ServerConnectionMessaging.CHANNEL,
+           ContentDirectoryMessaging.CHANNEL,
            SharesMessaging.CHANNEL,
         });
       _messageQueue.MessageReceived += OnMessageReceived;
@@ -78,8 +79,7 @@ namespace MediaPortal.UiComponents.SkinBase.Actions
     {
       if (message.ChannelName == ServerConnectionMessaging.CHANNEL)
       {
-        ServerConnectionMessaging.MessageType messageType =
-            (ServerConnectionMessaging.MessageType) message.MessageType;
+        ServerConnectionMessaging.MessageType messageType = (ServerConnectionMessaging.MessageType) message.MessageType;
         switch (messageType)
         {
           case ServerConnectionMessaging.MessageType.HomeServerAttached:
@@ -88,10 +88,19 @@ namespace MediaPortal.UiComponents.SkinBase.Actions
             break;
         }
       }
+      else if (message.ChannelName == ContentDirectoryMessaging.CHANNEL)
+      {
+        ContentDirectoryMessaging.MessageType messageType = (ContentDirectoryMessaging.MessageType) message.MessageType;
+        switch (messageType)
+        {
+          case ContentDirectoryMessaging.MessageType.RegisteredSharesChanged:
+            FireStateChanged();
+            break;
+        }
+      }
       else if (message.ChannelName == SharesMessaging.CHANNEL)
       {
-        SharesMessaging.MessageType messageType =
-            (SharesMessaging.MessageType) message.MessageType;
+        SharesMessaging.MessageType messageType = (SharesMessaging.MessageType) message.MessageType;
         switch (messageType)
         {
           case SharesMessaging.MessageType.ShareAdded:

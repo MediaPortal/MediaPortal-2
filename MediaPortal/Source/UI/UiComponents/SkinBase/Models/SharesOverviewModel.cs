@@ -122,8 +122,7 @@ namespace MediaPortal.UiComponents.SkinBase.Models
       }
       else if (message.ChannelName == ContentDirectoryMessaging.CHANNEL)
       {
-        ContentDirectoryMessaging.MessageType messageType =
-            (ContentDirectoryMessaging.MessageType) message.MessageType;
+        ContentDirectoryMessaging.MessageType messageType = (ContentDirectoryMessaging.MessageType) message.MessageType;
         switch (messageType)
         {
           case ContentDirectoryMessaging.MessageType.RegisteredSharesChanged:
@@ -183,7 +182,7 @@ namespace MediaPortal.UiComponents.SkinBase.Models
       IServerController sc = scm.ServerController;
       if (sc == null)
         return;
-      sc.ScheduleImports(new Guid[] {share.ShareId}, ImportJobType.Refresh);
+      sc.ScheduleImports(new Guid[] { share.ShareId }, ImportJobType.Refresh);
     }
 
     #endregion
@@ -213,11 +212,11 @@ namespace MediaPortal.UiComponents.SkinBase.Models
           if (systems2Shares.TryGetValue(share.SystemId, out systemShares))
             systemShares.Add(share);
           else
-            systems2Shares[share.SystemId] = new List<Share> {share};
+            systems2Shares[share.SystemId] = new List<Share> { share };
         }
         ICollection<Guid> importingShares = cd.GetCurrentlyImportingShares() ?? new List<Guid>();
         ICollection<string> onlineSystems = sc.GetConnectedClients();
-        onlineSystems = onlineSystems == null ? new List<string> {scm.HomeServerSystemId} : new List<string>(onlineSystems) {scm.HomeServerSystemId};
+        onlineSystems = onlineSystems == null ? new List<string> { scm.HomeServerSystemId } : new List<string>(onlineSystems) { scm.HomeServerSystemId };
         foreach (KeyValuePair<string, ICollection<Share>> system2Shares in systems2Shares)
         {
           string systemId = system2Shares.Key;

@@ -58,10 +58,6 @@ namespace MediaPortal.UI.Shares
       /// An existing share should be reimported. The SHARE will contain the share instance which is affected.
       /// </summary>
       ReImportShare,
-      /// <summary>
-      /// Generic message type for notifications of server shares changes. This message does not cause any server side action.
-      /// </summary>
-      NotifySharesChanged,
     }
 
     // Message data
