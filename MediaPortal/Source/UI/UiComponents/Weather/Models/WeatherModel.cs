@@ -20,12 +20,8 @@
     along with MediaPortal 2. If not, see <http://www.gnu.org/licenses/>.
 */
 
-#endregion
+#endregion Copyright (C) 2007-2013 Team MediaPortal
 
-using System;
-using System.Collections.Generic;
-using System.Globalization;
-using System.Threading;
 using MediaPortal.Common;
 using MediaPortal.Common.General;
 using MediaPortal.Common.Localization;
@@ -37,7 +33,10 @@ using MediaPortal.UI.Presentation.Models;
 using MediaPortal.UI.Presentation.Workflow;
 using MediaPortal.UiComponents.Weather.Settings;
 using MediaPortal.Utilities.Network;
-using MediaPortal.UI.Presentation.Screens;
+using System;
+using System.Collections.Generic;
+using System.Globalization;
+using System.Threading;
 
 namespace MediaPortal.UiComponents.Weather.Models
 {
@@ -58,7 +57,7 @@ namespace MediaPortal.UiComponents.Weather.Models
 
     protected const string KEY_CITY = "City";
 
-    #endregion
+    #endregion Consts
 
     #region Protected fields
 
@@ -66,7 +65,7 @@ namespace MediaPortal.UiComponents.Weather.Models
     protected readonly IList<City> _locations = new List<City>();
     protected int _updateCount = 0;
 
-    protected readonly AbstractProperty _currentLocationProperty = new WProperty(typeof(City), new City("No Data", "No Data"));
+    protected readonly AbstractProperty _currentLocationProperty = new WProperty(typeof(City), City.NoData);
     protected readonly ItemsList _locationsList = new ItemsList();
     protected readonly AbstractProperty _isUpdatingProperty = new WProperty(typeof(bool), false);
     protected readonly AbstractProperty _lastUpdateTimeProperty = new WProperty(typeof(string), null);
@@ -76,7 +75,7 @@ namespace MediaPortal.UiComponents.Weather.Models
     protected IIntervalWork _refreshIntervalWork = null;
     protected ManualResetEvent _updateFinished = new ManualResetEvent(true);
 
-    #endregion
+    #endregion Protected fields
 
     #region Public properties
 
@@ -93,7 +92,7 @@ namespace MediaPortal.UiComponents.Weather.Models
     /// </summary>
     public City CurrentLocation
     {
-      get { return (City) _currentLocationProperty.GetValue(); }
+      get { return (City)_currentLocationProperty.GetValue(); }
     }
 
     /// <summary>
@@ -125,7 +124,7 @@ namespace MediaPortal.UiComponents.Weather.Models
     /// </summary>
     public bool IsUpdating
     {
-      get { return (bool) _isUpdatingProperty.GetValue(); }
+      get { return (bool)_isUpdatingProperty.GetValue(); }
       set { _isUpdatingProperty.SetValue(value); }
     }
 
@@ -142,11 +141,11 @@ namespace MediaPortal.UiComponents.Weather.Models
     /// </summary>
     public string LastUpdateTime
     {
-      get { return (string) _lastUpdateTimeProperty.GetValue(); }
+      get { return (string)_lastUpdateTimeProperty.GetValue(); }
       set { _lastUpdateTimeProperty.SetValue(value); }
     }
 
-    #endregion
+    #endregion Public properties
 
     #region Public methods
 
@@ -172,7 +171,7 @@ namespace MediaPortal.UiComponents.Weather.Models
     /// <param name="item">The location item.</param>
     public void ChangeLocation(ListItem item)
     {
-      City city = (City) item.AdditionalProperties[KEY_CITY];
+      City city = (City)item.AdditionalProperties[KEY_CITY];
 
       _preferredLocationCode = city.Id;
       StartBackgroundRefresh(city);
@@ -184,61 +183,29 @@ namespace MediaPortal.UiComponents.Weather.Models
     }
 
     /// <summary>
-    /// Check if this is the first time the weather plugin has loaded.
+    /// Check if the weather has already been configured once by the user (so we only prompt on first use).
     /// </summary>
-    public void CheckSettingsValid()
-    {
-      // Check is there's any settings (even empty) that have been saved before, if not trigger first run setup.
-      ISettingsManager settingsManager = ServiceRegistration.Get<ISettingsManager>();
-      WeatherSettings settings = settingsManager.Load<WeatherSettings>();
-
-      if (settings == null || settings.LocationsList == null)
-      {
-        ServiceRegistration.Get<ILogger>().Debug("WeatherModel: Not initialized, entering setup.");
-
-        // Create the configuration file so we won't trigger the setup again.
-        if (settings == null)
-          settings = new WeatherSettings();
-        settings.LocationsList = new List<CitySetupInfo>();
-        ServiceRegistration.Get<ISettingsManager>().Save(settings);
-
-        // Set the destination for the ConfigurationManager Plugin.
-        NavigationContextConfig contextConfig = new NavigationContextConfig();
-        contextConfig.AdditionalContextVariables = new Dictionary<String, Object>();
-        contextConfig.AdditionalContextVariables.Add(new KeyValuePair<string, object>(CONFIG_LOCATION_KEY, "/Plugins/Weather"));
-
-        // Change the Workflow to the Weather Setup Screen.
-        ServiceRegistration.Get<IWorkflowManager>().NavigatePushAsync(new Guid("E7422BB8-2779-49ab-BC99-E3F56138061B"), contextConfig);
-      }
-    }
-
     public void CheckWeatherConfigured()
     {
       // Check is there's any settings (even empty) that have been saved before, if not trigger first run setup.
       ISettingsManager settingsManager = ServiceRegistration.Get<ISettingsManager>();
       WeatherSettings settings = settingsManager.Load<WeatherSettings>();
 
-      if (settings == null || settings.LocationsList == null)
-      {
-        ServiceRegistration.Get<ILogger>().Debug("WeatherModel: Not initialized, entering setup.");
+      if (settings.LocationsList != null)
+        return;
 
-        // Create the configuration file so we won't trigger the setup again.
-        if (settings == null)
-          settings = new WeatherSettings();
-        settings.LocationsList = new List<CitySetupInfo>();
-        ServiceRegistration.Get<ISettingsManager>().Save(settings);
+      ServiceRegistration.Get<ILogger>().Debug("WeatherModel: Not initialized, entering setup.");
 
-        // Set the destination for the ConfigurationManager Plugin.
-        NavigationContextConfig contextConfig = new NavigationContextConfig();
-        contextConfig.AdditionalContextVariables = new Dictionary<String, Object>();
-        contextConfig.AdditionalContextVariables.Add(new KeyValuePair<string, object>(CONFIG_LOCATION_KEY, "/Plugins/Weather"));
+      // Create the configuration file so we won't trigger the setup again.
+      settings = new WeatherSettings();
+      settings.LocationsList = new List<CitySetupInfo>();
+      ServiceRegistration.Get<ISettingsManager>().Save(settings);
 
-        // Change the Workflow to the Weather Setup Screen.
-        ServiceRegistration.Get<IWorkflowManager>().NavigatePushAsync(new Guid("E7422BB8-2779-49ab-BC99-E3F56138061B"), contextConfig);
-      }
+      // Prompt to setup the weather plugin.
+      ServiceRegistration.Get<IWorkflowManager>().NavigatePushAsync(new Guid("F1CE62B4-32CA-46e8-BCFB-250FE07911B2"));
     }
 
-    #endregion
+    #endregion Public methods
 
     #region Private members
 
@@ -276,10 +243,12 @@ namespace MediaPortal.UiComponents.Weather.Models
 
     protected void ReadSettings(bool shouldFire)
     {
+      _currentLocationProperty.SetValue(City.NoData);
+
       // add citys from settings to the locations list
       WeatherSettings settings = ServiceRegistration.Get<ISettingsManager>().Load<WeatherSettings>();
 
-      if (settings == null || settings.LocationsList == null)
+      if (settings.LocationsList == null)
         return;
 
       _preferredLocationCode = settings.LocationCode;
@@ -333,7 +302,7 @@ namespace MediaPortal.UiComponents.Weather.Models
       IncUpdateCount();
       try
       {
-        City cityToRefresh = (City) threadArgument;
+        City cityToRefresh = (City)threadArgument;
 
         bool result = ServiceRegistration.Get<IWeatherCatcher>().GetLocationData(cityToRefresh);
 
@@ -367,7 +336,8 @@ namespace MediaPortal.UiComponents.Weather.Models
     /// <param name="loc">city setup info</param>
     private City AddCityToLocations(CitySetupInfo loc)
     {
-      if (loc == null) return null;
+      if (loc == null)
+        return null;
 
       City city = new City(loc);
       _locations.Add(city);
@@ -380,28 +350,28 @@ namespace MediaPortal.UiComponents.Weather.Models
       return city;
     }
 
-    #endregion
+    #endregion Private members
 
     #region Message and Tasks handling
 
     /// <summary>
     /// Creates a task for background refresh that gets executed every n seconds (refresh interval).
     /// </summary>
-    void StartRefreshTask()
+    private void StartRefreshTask()
     {
       if (_refreshIntervalSec == null)
         return;
       if (_refreshIntervalWork != null)
         return;
 
-      _refreshIntervalWork = new IntervalWork(Refresh, TimeSpan.FromSeconds((int) _refreshIntervalSec));
+      _refreshIntervalWork = new IntervalWork(Refresh, TimeSpan.FromSeconds((int)_refreshIntervalSec));
       ServiceRegistration.Get<IThreadPool>().AddIntervalWork(_refreshIntervalWork, false);
     }
 
     /// <summary>
     /// Deletes the created task.
     /// </summary>
-    void EndRefreshTask()
+    private void EndRefreshTask()
     {
       if (_refreshIntervalWork == null)
         return;
@@ -409,7 +379,7 @@ namespace MediaPortal.UiComponents.Weather.Models
       _refreshIntervalWork = null;
     }
 
-    #endregion
+    #endregion Message and Tasks handling
 
     #region IWorkflowModel implementation
 
@@ -460,6 +430,6 @@ namespace MediaPortal.UiComponents.Weather.Models
       return ScreenUpdateMode.AutoWorkflowManager;
     }
 
-    #endregion
+    #endregion IWorkflowModel implementation
   }
 }

@@ -20,7 +20,7 @@
     along with MediaPortal 2. If not, see <http://www.gnu.org/licenses/>.
 */
 
-#endregion
+#endregion Copyright (C) 2007-2013 Team MediaPortal
 
 using MediaPortal.Common.General;
 using MediaPortal.UI.Presentation.DataObjects;
@@ -32,6 +32,15 @@ namespace MediaPortal.UiComponents.Weather
   /// </summary>
   public class City : CitySetupInfo
   {
+    #region Const
+
+    /// <summary>
+    /// Represents No Data default. This field is read-only.
+    /// </summary>
+    public static readonly City NoData = new City("No Data", "No Data");
+
+    #endregion Const
+
     protected readonly AbstractProperty _locationInfo = new WProperty(typeof(LocInfo), new LocInfo());
     protected readonly AbstractProperty _currCondition = new WProperty(typeof(CurrentCondition), new CurrentCondition());
     protected readonly ItemsList _dayForecastCollection = new ItemsList();
@@ -104,7 +113,7 @@ namespace MediaPortal.UiComponents.Weather
 
     public LocInfo LocationInfo
     {
-      get { return (LocInfo) _locationInfo.GetValue(); }
+      get { return (LocInfo)_locationInfo.GetValue(); }
       set { _locationInfo.SetValue(value); }
     }
 
@@ -115,7 +124,7 @@ namespace MediaPortal.UiComponents.Weather
 
     public CurrentCondition Condition
     {
-      get { return (CurrentCondition) _currCondition.GetValue(); }
+      get { return (CurrentCondition)_currCondition.GetValue(); }
       set { _currCondition.SetValue(value); }
     }
 
@@ -138,6 +147,6 @@ namespace MediaPortal.UiComponents.Weather
       set { _updateSuccessful = value; }
     }
 
-    #endregion
+    #endregion Properties
   }
 }

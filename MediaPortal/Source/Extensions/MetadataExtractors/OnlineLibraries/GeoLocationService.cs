@@ -83,7 +83,9 @@ namespace MediaPortal.Extensions.OnlineLibraries
       if (_addressResolvers != null)
         return _addressResolvers;
 
-      return _addressResolvers = new List<IAddressResolver> { new GPSLookup(), new Maps(), new Geocoder(), new IPLookup() };
+      // Valk 2013-05-22: temporary removed because GPSLookup triggers an enternal security prompt which breaks the user experience.
+      //return _addressResolvers = new List<IAddressResolver> { new GPSLookup(), new Maps(), new Geocoder(), new IPLookup() };
+      return _addressResolvers = new List<IAddressResolver> { new Maps(), new Geocoder(), new IPLookup() };
     }
 
     public IList<ICoordinateResolver> GetCoordinateResolverServices()
@@ -91,7 +93,9 @@ namespace MediaPortal.Extensions.OnlineLibraries
       if (_coordinateResolvers != null)
         return _coordinateResolvers;
 
-      return _coordinateResolvers = new List<ICoordinateResolver> { new GPSLookup(), new IPLookup() };
+      // Valk 2013-05-22: temporary removed because GPSLookup triggers an enternal security prompt which breaks the user experience.
+      //return _coordinateResolvers = new List<ICoordinateResolver> { new GPSLookup(), new IPLookup() };
+      return _coordinateResolvers = new List<ICoordinateResolver> { new IPLookup() };
     }
 
     #endregion Public methods

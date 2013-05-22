@@ -26,7 +26,6 @@
             <!-- Setting default state of menu to hidden -->
             <!-- Checking if weather has been configured -->
             <EventTrigger RoutedEvent="Screen.Show">
-              <TriggerCommand Command="{Command Path=CheckSettingsValid}"/>
               <TriggerCommand Command="{Command Path=CheckWeatherConfigured}"/>
             </EventTrigger>
           </Grid.Triggers>
