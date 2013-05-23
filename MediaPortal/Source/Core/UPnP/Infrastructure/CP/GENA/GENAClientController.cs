@@ -296,7 +296,14 @@ namespace UPnP.Infrastructure.CP.GENA
             return;
           }
 
-          DateTime date = DateTime.ParseExact(dateStr, "R", CultureInfo.InvariantCulture).ToLocalTime();
+          // The date header is not always available, and it is not always accurate either.
+          DateTime date = DateTime.Now;
+          try
+          {
+            date = DateTime.ParseExact(dateStr, "R", CultureInfo.InvariantCulture).ToLocalTime();
+          }
+          catch { }
+
           DateTime expiration = date.AddSeconds(timeout);
           if (expiration < DateTime.Now)
             // If the timeout is in the past already, assume it is invalid and estimate
