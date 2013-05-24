@@ -22,8 +22,10 @@
 
 #endregion
 
+using System;
 using System.Collections.Generic;
 using MediaPortal.Common.Settings;
+using MediaPortal.Common.TaskScheduler;
 
 namespace MediaPortal.Common.Services.MediaManagement
 {
@@ -34,6 +36,18 @@ namespace MediaPortal.Common.Services.MediaManagement
     protected List<ImportJob> _pendingImportJobs = new List<ImportJob>();
 
     #endregion
+
+    /// <summary>
+    /// Gets or sets the Guid of the <see cref="Task"/> that is used for regular share imports.
+    /// </summary>
+    [Setting(SettingScope.Global)]
+    public Guid ImporterScheduleId { get; set; }
+
+    /// <summary>
+    /// Gets or sets the start hour on current day for the importer task execution.
+    /// </summary>
+    [Setting(SettingScope.Global, 2.0d)]
+    public double ImporterStartTime { get; set; }
 
     [Setting(SettingScope.Global)]
     public List<ImportJob> PendingImportJobs

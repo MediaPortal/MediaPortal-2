@@ -34,6 +34,7 @@ using MediaPortal.Common.Messaging;
 using MediaPortal.Common.Runtime;
 using MediaPortal.Common.Settings;
 using MediaPortal.Common.SystemResolver;
+using MediaPortal.Common.TaskScheduler;
 using MediaPortal.Utilities;
 using MediaPortal.Utilities.Exceptions;
 
@@ -71,7 +72,7 @@ namespace MediaPortal.Common.Services.MediaManagement
         {
           DirectoryAspect.ASPECT_ID,
         };
-    protected static IEnumerable<Guid> EMPTY_MIA_ID_ENUMERATION = new Guid[] {};
+    protected static IEnumerable<Guid> EMPTY_MIA_ID_ENUMERATION = new Guid[] { };
 
     #endregion
 
@@ -84,12 +85,14 @@ namespace MediaPortal.Common.Services.MediaManagement
     protected List<ImportJob> _importJobs = new List<ImportJob>(); // We need more flexibility than the default Queue implementation provides, so we just use a List
     protected ManualResetEvent _suspendedEvent = new ManualResetEvent(true);
     protected AutoResetEvent _importJobsReadyAvailableEvent = new AutoResetEvent(false);
+    protected Guid _importerTaskId;
 
     public ImporterWorker()
     {
       _messageQueue = new AsynchronousMessageQueue(this, new string[]
           {
-            SystemMessaging.CHANNEL
+            SystemMessaging.CHANNEL,
+            TaskSchedulerMessaging.CHANNEL
           });
       _messageQueue.MessageReceived += OnMessageReceived;
       // Message queue will be started in method Start()
@@ -108,14 +111,25 @@ namespace MediaPortal.Common.Services.MediaManagement
     {
       if (message.ChannelName == SystemMessaging.CHANNEL)
       {
-        SystemMessaging.MessageType messageType =
-            (SystemMessaging.MessageType) message.MessageType;
+        SystemMessaging.MessageType messageType = (SystemMessaging.MessageType) message.MessageType;
         switch (messageType)
         {
           case SystemMessaging.MessageType.SystemStateChanged:
             SystemState newState = (SystemState) message.MessageData[SystemMessaging.NEW_STATE];
             if (newState == SystemState.ShuttingDown)
               IsSuspended = true;
+            break;
+        }
+      }
+      if (message.ChannelName == TaskSchedulerMessaging.CHANNEL)
+      {
+        TaskSchedulerMessaging.MessageType messageType = (TaskSchedulerMessaging.MessageType) message.MessageType;
+        switch (messageType)
+        {
+          case TaskSchedulerMessaging.MessageType.DUE:
+            Task dueTask = (Task) message.MessageData[TaskSchedulerMessaging.TASK];
+            if (dueTask.ID == _importerTaskId)
+              RefreshLocalShares();
             break;
         }
       }
@@ -168,6 +182,38 @@ namespace MediaPortal.Common.Services.MediaManagement
         CollectionUtils.AddAll(_importJobs, settings.PendingImportJobs);
         _importJobsReadyAvailableEvent.Set();
       }
+    }
+
+    protected void ScheduleImports()
+    {
+      lock (_syncObj)
+      {
+        ISettingsManager settingsManager = ServiceRegistration.Get<ISettingsManager>();
+        ImporterWorkerSettings settings = settingsManager.Load<ImporterWorkerSettings>();
+        _importerTaskId = settings.ImporterScheduleId;
+        ITaskScheduler scheduler = ServiceRegistration.Get<ITaskScheduler>();
+        Schedule schedule = new Schedule
+          {
+            Hour = (int) settings.ImporterStartTime,
+            Minute = (int) (settings.ImporterStartTime - (int) settings.ImporterStartTime) * 60,
+            Day = -1,
+            Type = ScheduleType.TimeBased
+          };
+        Task importTask = new Task("ImporterWorker", schedule, Occurrence.Repeat, DateTime.MaxValue, true, true);
+        if (_importerTaskId == Guid.Empty)
+        {
+          _importerTaskId = scheduler.AddTask(importTask);
+          settings.ImporterScheduleId = _importerTaskId;
+          settingsManager.Save(settings);
+        }
+        else
+          scheduler.UpdateTask(_importerTaskId, importTask);
+      }
+    }
+
+    protected void RefreshLocalShares()
+    {
+      // TODO: forward command to MediaLibrary (MediaPortal.Backend)
     }
 
     protected void CheckSuspended(Exception e)
@@ -246,7 +292,7 @@ namespace MediaPortal.Common.Services.MediaManagement
             break;
         }
         if (!IsImportJobAvailable)
-          WaitHandle.WaitAny(new WaitHandle[] {_importJobsReadyAvailableEvent, _suspendedEvent});
+          WaitHandle.WaitAny(new WaitHandle[] { _importJobsReadyAvailableEvent, _suspendedEvent });
       }
     }
 
@@ -265,7 +311,7 @@ namespace MediaPortal.Common.Services.MediaManagement
       lock (_syncObj)
       {
         IsSuspended = false;
-        _workerThread = new Thread(ImporterLoop) {Name = "Importer", Priority = ThreadPriority.BelowNormal};
+        _workerThread = new Thread(ImporterLoop) { Name = "Importer", Priority = ThreadPriority.BelowNormal };
         _workerThread.Start();
       }
     }
@@ -478,7 +524,7 @@ namespace MediaPortal.Common.Services.MediaManagement
       {
         throw;
       }
-      catch(UnauthorizedAccessException e)
+      catch (UnauthorizedAccessException e)
       {
         // If the access to the file or folder was denied, simply continue with the others
         ServiceRegistration.Get<ILogger>().Warn("ImporterWorker: Problem accessing resource '{0}', continueing with one", e, currentDirectoryPath);
@@ -605,7 +651,6 @@ namespace MediaPortal.Common.Services.MediaManagement
               importJob.State = ImportJobState.Finished;
           ServiceRegistration.Get<ILogger>().Info("ImporterWorker: Finished import job '{0}'", importJob);
           ImporterWorkerMessaging.SendImportMessage(ImporterWorkerMessaging.MessageType.ImportCompleted, importJob.BasePath);
-          return;
         }
         catch (Exception e)
         {
@@ -618,12 +663,10 @@ namespace MediaPortal.Common.Services.MediaManagement
       catch (ImportSuspendedException)
       {
         ServiceRegistration.Get<ILogger>().Info("ImporterWorker: Suspending import job '{0}' ({1} items pending - will be continued next time)", importJob, importJob.PendingResources.Count);
-        return;
       }
       catch (ImportAbortException)
       {
         ServiceRegistration.Get<ILogger>().Info("ImporterWorker: Aborting import job '{0}' ({1} items pending)", importJob, importJob.PendingResources.Count);
-        return;
       }
     }
     #region IImporterWorker implementation
@@ -661,6 +704,7 @@ namespace MediaPortal.Common.Services.MediaManagement
       IsSuspended = true;
       _messageQueue.Start();
       LoadPendingImportJobs();
+      ScheduleImports();
       Initialize();
       // Don't start importer loop here - will be started when Activate is called
     }
