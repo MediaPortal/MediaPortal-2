@@ -28,7 +28,6 @@ using MediaPortal.Common.Localization;
 using MediaPortal.Common.Logging;
 using MediaPortal.Common.Messaging;
 using MediaPortal.Common.Services.Settings;
-using MediaPortal.Common.Settings;
 using MediaPortal.Common.Threading;
 using MediaPortal.UI.Presentation.Models;
 using MediaPortal.UiComponents.Weather.Settings;
@@ -45,11 +44,11 @@ namespace MediaPortal.UiComponents.Weather.Models
     /// <summary>
     /// Update interval for current location.
     /// </summary>
-    private const int WEATHER_UPDATE_INTERVAL = 30*60*1000;
+    private const int WEATHER_UPDATE_INTERVAL = 30 * 60 * 1000;
 
     protected readonly SettingsChangeWatcher<WeatherSettings> _settings = new SettingsChangeWatcher<WeatherSettings>();
 
-    protected readonly AbstractProperty _currentLocationProperty = new WProperty(typeof (City), City.NoData);
+    protected readonly AbstractProperty _currentLocationProperty = new WProperty(typeof(City), City.NoData);
 
     /// <summary>
     /// Exposes the current location to the skin.
@@ -75,9 +74,7 @@ namespace MediaPortal.UiComponents.Weather.Models
       : base(true, WEATHER_UPDATE_INTERVAL)
     {
       // do initial update in its own thread to avoid delay during startup of MP2
-      ServiceRegistration.Get<IThreadPool>()
-                         .Add(new DoWorkHandler(this.SetAndUpdatePreferredLocation), "SetAndUpdatePreferredLocation",
-                              QueuePriority.Normal, ThreadPriority.BelowNormal);
+      ServiceRegistration.Get<IThreadPool>().Add(SetAndUpdatePreferredLocation, "SetAndUpdatePreferredLocation", QueuePriority.Normal, ThreadPriority.BelowNormal);
       SubscribeToMessages();
       _settings.SettingsChanged += Update;
     }
@@ -97,26 +94,25 @@ namespace MediaPortal.UiComponents.Weather.Models
 
     protected void Update(object sender, EventArgs e)
     {
-      Update();
+      // Only react on city changes here. Regular weather updates are done timer based.
+      if (_settings.Settings.LocationCode != CurrentLocation.Id)
+        Update();
     }
 
     protected override void Update()
     {
       // Do update in its own thread to avoid delay
-      ServiceRegistration.Get<IThreadPool>()
-                         .Add(SetAndUpdatePreferredLocation, "SetAndUpdatePreferredLocation", QueuePriority.Normal,
-                              ThreadPriority.BelowNormal);
+      ServiceRegistration.Get<IThreadPool>().Add(SetAndUpdatePreferredLocation, "SetAndUpdatePreferredLocation", QueuePriority.Normal, ThreadPriority.BelowNormal);
     }
 
     protected void SetAndUpdatePreferredLocation()
     {
-      _currentLocationProperty.SetValue(City.NoData);
+      CurrentLocation.Copy(City.NoData);
 
-      WeatherSettings settings = ServiceRegistration.Get<ISettingsManager>().Load<WeatherSettings>();
-      if (settings.LocationsList == null)
+      if (_settings.Settings.LocationsList == null)
         return;
 
-      CitySetupInfo city = settings.LocationsList.Find(loc => loc.Id == settings.LocationCode);
+      CitySetupInfo city = _settings.Settings.LocationsList.Find(loc => loc.Id == _settings.Settings.LocationCode);
       if (city == null)
         return;
 
@@ -136,7 +132,7 @@ namespace MediaPortal.UiComponents.Weather.Models
 
       ServiceRegistration.Get<ILogger>().Info(result
                                                 ? "CurrentWeatherModel: Loaded weather data for {0}, {1}"
-                                                : "WeatherModel: Failed to load weather data for {0}, {1}",
+                                                : "CurrentWeatherModel: Failed to load weather data for {0}, {1}",
                                               CurrentLocation.Name, CurrentLocation.Id);
     }
 

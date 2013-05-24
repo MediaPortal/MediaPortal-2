@@ -35,9 +35,12 @@ namespace MediaPortal.UiComponents.Weather
     #region Const
 
     /// <summary>
-    /// Represents No Data default. This field is read-only.
+    /// Represents "No Data" default location. This property always returns a new instance.
     /// </summary>
-    public static readonly City NoData = new City("No Data", "No Data");
+    public static City NoData
+    {
+      get { return new City("No Data", string.Empty); }
+    }
 
     #endregion Const
 
