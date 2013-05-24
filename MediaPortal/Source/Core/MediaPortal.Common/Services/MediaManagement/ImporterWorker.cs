@@ -129,7 +129,9 @@ namespace MediaPortal.Common.Services.MediaManagement
           case TaskSchedulerMessaging.MessageType.DUE:
             Task dueTask = (Task) message.MessageData[TaskSchedulerMessaging.TASK];
             if (dueTask.ID == _importerTaskId)
-              RefreshLocalShares();
+              // Forward a new message which will be handled by MediaLibrary (it knows the shares and configuration), then it will
+              // schedule the local shares.
+              ImporterWorkerMessaging.SendImportMessage(ImporterWorkerMessaging.MessageType.RefreshLocalShares, null);
             break;
         }
       }
@@ -209,11 +211,6 @@ namespace MediaPortal.Common.Services.MediaManagement
         else
           scheduler.UpdateTask(_importerTaskId, importTask);
       }
-    }
-
-    protected void RefreshLocalShares()
-    {
-      // TODO: forward command to MediaLibrary (MediaPortal.Backend)
     }
 
     protected void CheckSuspended(Exception e)

@@ -173,6 +173,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
             ImporterWorkerMessaging.CHANNEL
         });
       _messageQueue.MessageReceived += OnMessageReceived;
+      _messageQueue.Start();
     }
 
     public void Dispose()
@@ -198,6 +199,10 @@ namespace MediaPortal.Backend.Services.MediaLibrary
               ContentDirectoryMessaging.SendShareImportMessage(ContentDirectoryMessaging.MessageType.ShareImportStarted, share.ShareId);
             else
               ContentDirectoryMessaging.SendShareImportMessage(ContentDirectoryMessaging.MessageType.ShareImportCompleted, share.ShareId);
+            break;
+
+          case ImporterWorkerMessaging.MessageType.RefreshLocalShares:
+            GetShares(null).Values.ToList().ForEach(TryScheduleLocalShareImport);
             break;
         }
       }

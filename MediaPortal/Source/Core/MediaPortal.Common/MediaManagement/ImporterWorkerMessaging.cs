@@ -66,6 +66,11 @@ namespace MediaPortal.Common.MediaManagement
       /// This message has one parameter <see cref="RESOURCE_PATH"/>.
       /// </summary>
       ImportCompleted,
+
+      /// <summary>
+      /// This message is sent if the importer's scheduler executes a full refresh of all local shares.
+      /// </summary>
+      RefreshLocalShares,
     }
 
     // Message data
