@@ -64,7 +64,7 @@ namespace MediaPortal.Common.TaskScheduler
   }
 
   /// <summary>
-  /// The Schedule struct represents the schedule from a particular Task. Schedule's are either time-based or
+  /// The Schedule struct represents the schedule from a particular Task. Schedules are either time-based or
   /// interval-based, depending on the setting of the property Type which is a value from enum ScheduleType. Depending on this
   /// type, either the tuple Minute, Hour and Day or the Interval variable must be defined. The task scheduler will act on
   /// these depending on the schedule type. Interval is of type TimeSpan. For the tuple the following conditions must be met:
@@ -573,7 +573,7 @@ namespace MediaPortal.Common.TaskScheduler
         // Run at xx minute, at hour xx, every day
         if (_lastRun == DateTime.MinValue)
         {
-          if ((now.Hour == hour && now.Minute < min) || (now.Hour < hour))
+          if ((now.Hour <= hour && now.Minute <= min) || (now.Hour < hour))
             return new DateTime(now.Year, now.Month, now.Day, hour, min, 0);
           nextDate = new DateTime(now.Year, now.Month, now.Day, hour, min, 0);
           return nextDate.AddDays(1);
