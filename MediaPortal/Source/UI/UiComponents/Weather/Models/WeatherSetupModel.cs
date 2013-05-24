@@ -28,10 +28,13 @@ using System.Linq;
 using MediaPortal.Common;
 using MediaPortal.Common.General;
 using MediaPortal.Common.Settings;
+using MediaPortal.Extensions.GeoLocation;
+using MediaPortal.Extensions.OnlineLibraries.Libraries.GeoLocation.Data;
 using MediaPortal.UI.Presentation.DataObjects;
 using MediaPortal.UI.Presentation.Models;
 using MediaPortal.UI.Presentation.Workflow;
 using MediaPortal.UiComponents.Weather.Settings;
+using MediaPortal.UI.Presentation.Screens;
 
 
 namespace MediaPortal.UiComponents.Weather.Models
@@ -138,6 +141,22 @@ namespace MediaPortal.UiComponents.Weather.Models
             return;
           }
         }
+      }
+    }
+
+    public void Detect()
+    {
+      LocationInfo locationInfo = ServiceRegistration.Get<IGeoLocationService>().Lookup();
+
+      if (locationInfo != null)
+      {
+        SearchLocations(String.Format("{0}, {1}", locationInfo.Latitude, locationInfo.Longitude));
+
+        ServiceRegistration.Get<IScreenManager>().ShowDialog("dialogWeatherSearchResult");
+      }
+      else
+      {
+        ServiceRegistration.Get<IScreenManager>().ShowDialog("dialogWeatherSearchDetectionFailed");
       }
     }
 

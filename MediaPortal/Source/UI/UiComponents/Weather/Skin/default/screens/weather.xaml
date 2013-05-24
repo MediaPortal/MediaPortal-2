@@ -22,6 +22,13 @@
             <ColumnDefinition Width="50"/>
             <ColumnDefinition Width="Auto"/>
           </Grid.ColumnDefinitions>
+          <Grid.Triggers>
+            <!-- Setting default state of menu to hidden -->
+            <EventTrigger RoutedEvent="Screen.Show">
+              <TriggerCommand Command="{Command Path=CheckSettingsValid}"/>
+            </EventTrigger>
+          </Grid.Triggers>
+
           <StackPanel x:Name="CurrentConditionOverview" Grid.Column="0" Grid.Row="0"
               HorizontalAlignment="Left" VerticalAlignment="Top" Margin="50,0,0,0">
             <Image x:Name="BigIcon" Width="128" Height="128" Source="{Binding CurrentLocation.Condition.BigIconProperty}"/>

@@ -37,6 +37,7 @@ using MediaPortal.UI.Presentation.Models;
 using MediaPortal.UI.Presentation.Workflow;
 using MediaPortal.UiComponents.Weather.Settings;
 using MediaPortal.Utilities.Network;
+using MediaPortal.UI.Presentation.Screens;
 
 namespace MediaPortal.UiComponents.Weather.Models
 {
@@ -46,6 +47,8 @@ namespace MediaPortal.UiComponents.Weather.Models
   public class WeatherModel : IWorkflowModel, IDisposable
   {
     #region Consts
+
+    private const string CONFIG_LOCATION_KEY = "ConfigurationModel: CONFIG_LOCATION";
 
     public const string WEATHER_MODEL_ID_STR = "92BDB53F-4159-4dc2-B212-6083C820A214";
     public readonly static Guid WEATHER_MODEL_ID = new Guid(WEATHER_MODEL_ID_STR);
@@ -178,6 +181,35 @@ namespace MediaPortal.UiComponents.Weather.Models
       WeatherSettings settings = ServiceRegistration.Get<ISettingsManager>().Load<WeatherSettings>();
       settings.LocationCode = city.Id;
       ServiceRegistration.Get<ISettingsManager>().Save(settings);
+    }
+
+    /// <summary>
+    /// Check if this is the first time the weather plugin has loaded.
+    /// </summary>
+    public void CheckSettingsValid()
+    {
+      // Check is there's any settings (even empty) that have been saved before, if not trigger first run setup.
+      ISettingsManager settingsManager = ServiceRegistration.Get<ISettingsManager>();
+      WeatherSettings settings = settingsManager.Load<WeatherSettings>();
+
+      if (settings == null || settings.LocationsList == null)
+      {
+        ServiceRegistration.Get<ILogger>().Debug("WeatherModel: Not initialized, entering setup.");
+
+        // Create the configuration file so we won't trigger the setup again.
+        if (settings == null)
+          settings = new WeatherSettings();
+        settings.LocationsList = new List<CitySetupInfo>();
+        ServiceRegistration.Get<ISettingsManager>().Save(settings);
+
+        // Set the destination for the ConfigurationManager Plugin.
+        NavigationContextConfig contextConfig = new NavigationContextConfig();
+        contextConfig.AdditionalContextVariables = new Dictionary<String, Object>();
+        contextConfig.AdditionalContextVariables.Add(new KeyValuePair<string, object>(CONFIG_LOCATION_KEY, "/Plugins/Weather"));
+
+        // Change the Workflow to the Weather Setup Screen.
+        ServiceRegistration.Get<IWorkflowManager>().NavigatePushAsync(new Guid("E7422BB8-2779-49ab-BC99-E3F56138061B"), contextConfig);
+      }
     }
 
     #endregion

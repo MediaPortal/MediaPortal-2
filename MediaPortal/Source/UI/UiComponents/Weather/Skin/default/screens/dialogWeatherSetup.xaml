@@ -26,6 +26,8 @@
                 Command="{Command Source={Service ScreenManager},Path=ShowDialog,Parameters=dialogWeatherSearch}"/>
             <Button Margin="5" Style="{ThemeResource ButtonWideStyle}" Content="[System.Remove]"
                 Command="{Command Source={Service ScreenManager},Path=ShowDialog,Parameters=dialogWeatherRemoveCity}"/>
+            <Button Margin="5" Style="{ThemeResource ButtonWideStyle}" Content="[WeatherSetup.Detect]"
+              Command="{Command Path=Detect}"/>
           </StackPanel>
         </StackPanel>
         <Grid HorizontalAlignment="Stretch">
