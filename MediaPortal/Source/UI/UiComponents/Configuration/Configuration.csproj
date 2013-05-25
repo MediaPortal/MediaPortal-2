@@ -67,6 +67,7 @@
       <Link>Properties\VersionInfo.cs</Link>
     </Compile>
     <Compile Include="ConfigurationControllers\AbstractEntryController.cs" />
+    <Compile Include="ConfigurationControllers\PathSelectionController.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

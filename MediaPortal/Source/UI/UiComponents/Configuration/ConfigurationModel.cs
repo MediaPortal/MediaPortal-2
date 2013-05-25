@@ -122,6 +122,7 @@ namespace MediaPortal.UiComponents.Configuration
       Register(new SingleSelectionListController());
       Register(new MultiSelectionListController());
       Register(new NumberSelectController());
+      Register(new PathSelectionController());
       // More generic controller types go here
 
       _workflowConfigurationController = new WorkflowConfigurationController();
