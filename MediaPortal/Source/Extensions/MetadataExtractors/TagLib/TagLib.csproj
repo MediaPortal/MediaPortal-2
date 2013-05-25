@@ -43,6 +43,8 @@
     <UseApplicationTrust>false</UseApplicationTrust>
     <BootstrapperEnabled>true</BootstrapperEnabled>
     <TargetFrameworkProfile />
+    <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">..\..\..\</SolutionDir>
+    <RestorePackages>true</RestorePackages>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|x86' ">
     <DebugSymbols>true</DebugSymbols>
@@ -64,171 +66,19 @@
     <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="System" />
-    <Reference Include="System.Core">
-      <RequiredTargetFramework>3.5</RequiredTargetFramework>
+    <Reference Include="taglib-sharp, Version=2.1.0.0, Culture=neutral, PublicKeyToken=db62eba44689b5b0, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\..\Packages\taglib.2.1.0.0\lib\taglib-sharp.dll</HintPath>
     </Reference>
-    <Reference Include="System.Data" />
-    <Reference Include="System.Xml" />
-  </ItemGroup>
-  <ItemGroup>
-    <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Aac\AudioHeader.cs" />
-    <Compile Include="Aac\BitStream.cs" />
-    <Compile Include="Aac\File.cs" />
-    <Compile Include="Aiff\File.cs" />
-    <Compile Include="Aiff\StreamHeader.cs" />
-    <Compile Include="Ape\File.cs" />
-    <Compile Include="Ape\Footer.cs" />
-    <Compile Include="Ape\Item.cs" />
-    <Compile Include="Ape\StreamHeader.cs" />
-    <Compile Include="Ape\Tag.cs" />
-    <Compile Include="Asf\ContentDescriptionObject.cs" />
-    <Compile Include="Asf\ContentDescriptor.cs" />
-    <Compile Include="Asf\DescriptionRecord.cs" />
-    <Compile Include="Asf\ExtendedContentDescriptionObject.cs" />
-    <Compile Include="Asf\File.cs" />
-    <Compile Include="Asf\FilePropertiesObject.cs" />
-    <Compile Include="Asf\Guid.cs" />
-    <Compile Include="Asf\HeaderExtensionObject.cs" />
-    <Compile Include="Asf\HeaderObject.cs" />
-    <Compile Include="Asf\MetadataLibraryObject.cs" />
-    <Compile Include="Asf\Object.cs" />
-    <Compile Include="Asf\PaddingObject.cs" />
-    <Compile Include="Asf\StreamPropertiesObject.cs" />
-    <Compile Include="Asf\Tag.cs" />
-    <Compile Include="Asf\UnknownObject.cs" />
-    <Compile Include="ByteVector.cs" />
-    <Compile Include="ByteVectorList.cs" />
-    <Compile Include="CombinedTag.cs" />
-    <Compile Include="CorruptFileException.cs" />
-    <Compile Include="File.cs" />
-    <Compile Include="FileTypes.cs" />
-    <Compile Include="Flac\Block.cs" />
-    <Compile Include="Flac\BlockHeader.cs" />
-    <Compile Include="Flac\File.cs" />
-    <Compile Include="Flac\Picture.cs" />
-    <Compile Include="Flac\StreamHeader.cs" />
-    <Compile Include="Genres.cs" />
-    <Compile Include="ICodec.cs" />
-    <Compile Include="Id3v1\StringHandler.cs" />
-    <Compile Include="Id3v1\Tag.cs" />
-    <Compile Include="Id3v2\ExtendedHeader.cs" />
-    <Compile Include="Id3v2\Footer.cs" />
-    <Compile Include="Id3v2\Frame.cs" />
-    <Compile Include="Id3v2\FrameFactory.cs" />
-    <Compile Include="Id3v2\FrameHeader.cs" />
-    <Compile Include="Id3v2\Frames\AttachedPictureFrame.cs" />
-    <Compile Include="Id3v2\Frames\CommentsFrame.cs" />
-    <Compile Include="Id3v2\Frames\GeneralEncapsulatedObjectFrame.cs" />
-    <Compile Include="Id3v2\Frames\MusicCdIdentifierFrame.cs" />
-    <Compile Include="Id3v2\Frames\PlayCountFrame.cs" />
-    <Compile Include="Id3v2\Frames\PopularimeterFrame.cs" />
-    <Compile Include="Id3v2\Frames\PrivateFrame.cs" />
-    <Compile Include="Id3v2\Frames\RelativeVolumeFrame.cs" />
-    <Compile Include="Id3v2\Frames\SynchronizedLyricsFrame.cs" />
-    <Compile Include="Id3v2\Frames\TermsOfUseFrame.cs" />
-    <Compile Include="Id3v2\Frames\TextIdentificationFrame.cs" />
-    <Compile Include="Id3v2\Frames\UniqueFileIdentifierFrame.cs" />
-    <Compile Include="Id3v2\Frames\UnknownFrame.cs" />
-    <Compile Include="Id3v2\Frames\UnsynchronisedLyricsFrame.cs" />
-    <Compile Include="Id3v2\Frames\UrlLinkFrame.cs" />
-    <Compile Include="Id3v2\FrameTypes.cs" />
-    <Compile Include="Id3v2\Header.cs" />
-    <Compile Include="Id3v2\SynchData.cs" />
-    <Compile Include="Id3v2\Tag.cs" />
-    <Compile Include="ListBase.cs" />
-    <Compile Include="Mpc\File.cs" />
-    <Compile Include="Mpc\StreamHeader.cs" />
-    <Compile Include="Mpeg4\AppleTag.cs" />
-    <Compile Include="Mpeg4\Box.cs" />
-    <Compile Include="Mpeg4\Boxes\AppleAdditionalInfoBox.cs" />
-    <Compile Include="Mpeg4\Boxes\AppleAnnotationBox.cs" />
-    <Compile Include="Mpeg4\Boxes\AppleDataBox.cs" />
-    <Compile Include="Mpeg4\Boxes\AppleElementaryStreamDescriptor.cs" />
-    <Compile Include="Mpeg4\Boxes\AppleItemListBox.cs" />
-    <Compile Include="Mpeg4\Boxes\FullBox.cs" />
-    <Compile Include="Mpeg4\Boxes\IsoAudioSampleEntry.cs" />
-    <Compile Include="Mpeg4\Boxes\IsoChunkLargeOffsetBox.cs" />
-    <Compile Include="Mpeg4\Boxes\IsoChunkOffsetBox.cs" />
-    <Compile Include="Mpeg4\Boxes\IsoFreeSpaceBox.cs" />
-    <Compile Include="Mpeg4\Boxes\IsoHandlerBox.cs" />
-    <Compile Include="Mpeg4\Boxes\IsoMetaBox.cs" />
-    <Compile Include="Mpeg4\Boxes\IsoMovieHeaderBox.cs" />
-    <Compile Include="Mpeg4\Boxes\IsoSampleDescriptionBox.cs" />
-    <Compile Include="Mpeg4\Boxes\IsoSampleEntry.cs" />
-    <Compile Include="Mpeg4\Boxes\IsoSampleTableBox.cs" />
-    <Compile Include="Mpeg4\Boxes\IsoUserDataBox.cs" />
-    <Compile Include="Mpeg4\Boxes\IsoVisualSampleEntry.cs" />
-    <Compile Include="Mpeg4\Boxes\UnknownBox.cs" />
-    <Compile Include="Mpeg4\BoxFactory.cs" />
-    <Compile Include="Mpeg4\BoxHeader.cs" />
-    <Compile Include="Mpeg4\BoxTypes.cs" />
-    <Compile Include="Mpeg4\File.cs" />
-    <Compile Include="Mpeg4\FileParser.cs" />
-    <Compile Include="Mpeg\AudioFile.cs" />
-    <Compile Include="Mpeg\AudioHeader.cs" />
-    <Compile Include="Mpeg\File.cs" />
-    <Compile Include="Mpeg\VideoHeader.cs" />
-    <Compile Include="Mpeg\XingHeader.cs" />
-    <Compile Include="Mpeg\VBRIHeader.cs" />
-    <Compile Include="NonContainer\EndTag.cs" />
-    <Compile Include="NonContainer\File.cs" />
-    <Compile Include="NonContainer\StartTag.cs" />
-    <Compile Include="NonContainer\Tag.cs" />
-    <Compile Include="Ogg\Bitstream.cs" />
-    <Compile Include="Ogg\Codec.cs" />
-    <Compile Include="Ogg\Codecs\Theora.cs" />
-    <Compile Include="Ogg\Codecs\Vorbis.cs" />
-    <Compile Include="Ogg\File.cs" />
-    <Compile Include="Ogg\GroupedComment.cs" />
-    <Compile Include="Ogg\Page.cs" />
-    <Compile Include="Ogg\PageHeader.cs" />
-    <Compile Include="Ogg\Paginator.cs" />
-    <Compile Include="Ogg\XiphComment.cs" />
-    <Compile Include="Picture.cs" />
-    <Compile Include="Properties.cs" />
-    <Compile Include="ReadOnlyByteVector.cs" />
-    <Compile Include="Riff\AviHeaderList.cs" />
-    <Compile Include="Riff\AviStream.cs" />
-    <Compile Include="Riff\BitmapInfoHeader.cs" />
-    <Compile Include="Riff\DivXTag.cs" />
-    <Compile Include="Riff\File.cs" />
-    <Compile Include="Riff\InfoTag.cs" />
-    <Compile Include="Riff\List.cs" />
-    <Compile Include="Riff\ListTag.cs" />
-    <Compile Include="Riff\MovieIdTag.cs" />
-    <Compile Include="Riff\WaveFormatEx.cs" />
-    <Compile Include="StringList.cs" />
-    <Compile Include="SupportedMimeType.cs" />
-    <Compile Include="Tag.cs" />
-    <Compile Include="UnsupportedFormatException.cs" />
-    <Compile Include="WavPack\File.cs" />
-    <Compile Include="WavPack\StreamHeader.cs" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="plugin.xml" />
   </ItemGroup>
   <ItemGroup>
-    <BootstrapperPackage Include="Microsoft.Net.Client.3.5">
-      <Visible>False</Visible>
-      <ProductName>.NET Framework 3.5 SP1 Client Profile</ProductName>
-      <Install>false</Install>
-    </BootstrapperPackage>
-    <BootstrapperPackage Include="Microsoft.Net.Framework.3.5.SP1">
-      <Visible>False</Visible>
-      <ProductName>.NET Framework 3.5 SP1</ProductName>
-      <Install>true</Install>
-    </BootstrapperPackage>
-    <BootstrapperPackage Include="Microsoft.Windows.Installer.3.1">
-      <Visible>False</Visible>
-      <ProductName>Windows Installer 3.1</ProductName>
-      <Install>true</Install>
-    </BootstrapperPackage>
-  </ItemGroup>
-  <ItemGroup>
     <None Include="build.targets" />
+    <None Include="packages.config" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="build.targets" />
+  <Import Project="$(SolutionDir)\.nuget\NuGet.targets" Condition="Exists('$(SolutionDir)\.nuget\NuGet.targets')" />
 </Project>
