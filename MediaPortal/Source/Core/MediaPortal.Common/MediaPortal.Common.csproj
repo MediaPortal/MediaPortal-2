@@ -81,6 +81,7 @@
     <Compile Include="Services\ServerCommunication\UPnPServerWatcher.cs" />
     <Compile Include="Services\Settings\SettingsChangeWatcher.cs" />
     <Compile Include="Services\Settings\SettingsManagerMessaging.cs" />
+    <Compile Include="Services\TaskScheduler\TaskWaitableTimer.cs" />
     <Compile Include="SystemCommunication\MPClientMetadata.cs" />
     <Compile Include="Commands\CommandList.cs" />
     <Compile Include="Commands\ICommand.cs" />
