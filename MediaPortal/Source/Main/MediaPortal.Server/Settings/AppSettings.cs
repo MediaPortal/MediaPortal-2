@@ -31,7 +31,7 @@ namespace MediaPortal.Server.Settings
   {
     #region Consts
 
-    protected const SuspendLevel DEFAULT_SUSPEND_LEVEL = SuspendLevel.AvoidSuspend;
+    protected const SuspendLevel DEFAULT_SUSPEND_LEVEL = SuspendLevel.None;
 
     #endregion
 
