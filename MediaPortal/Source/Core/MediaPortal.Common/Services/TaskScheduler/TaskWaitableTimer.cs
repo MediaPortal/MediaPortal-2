@@ -150,7 +150,7 @@ namespace MediaPortal.Common.Services.TaskScheduler
           _interval = DateTime.UtcNow.AddSeconds(value).ToFileTimeUtc();
 
           // Create thread
-          _waitThread = new Thread(WaitThread) { Priority = ThreadPriority.BelowNormal, Name = "TaskWaitableTimer" };
+          _waitThread = new Thread(WaitThread) { Priority = ThreadPriority.BelowNormal, Name = "WaitTimer" };
 
           using (ManualResetEvent handshake = new ManualResetEvent(false))
           {
@@ -232,6 +232,9 @@ namespace MediaPortal.Common.Services.TaskScheduler
     /// </summary>
     public override void Close()
     {
+      // Abort timer
+      SecondsToWait = -1;
+
       // Kill thread
       AbortWaiter();
 

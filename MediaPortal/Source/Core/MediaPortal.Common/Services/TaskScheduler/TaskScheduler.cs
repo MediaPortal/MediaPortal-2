@@ -24,7 +24,10 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using MediaPortal.Common.Logging;
+using MediaPortal.Common.Messaging;
+using MediaPortal.Common.Runtime;
 using MediaPortal.Common.Settings;
 using MediaPortal.Common.TaskScheduler;
 using MediaPortal.Common.Threading;
@@ -53,14 +56,26 @@ namespace MediaPortal.Common.Services.TaskScheduler
     /// </summary>
     protected readonly object _syncObj = new object();
 
+    /// <summary>
+    /// Timer to wake up system from standby if a task is due.
+    /// </summary>
+    protected TaskWaitableTimer _wakeUpTimer;
+
+    protected AsynchronousMessageQueue _messageQueue;
+
     #endregion
 
     #region Ctor & dtor
 
     public TaskScheduler()
     {
-      _settings = ServiceRegistration.Get<ISettingsManager>().Load <TaskSchedulerSettings>();
+      _settings = ServiceRegistration.Get<ISettingsManager>().Load<TaskSchedulerSettings>();
       SaveChanges(false);
+      _wakeUpTimer = new TaskWaitableTimer();
+      _wakeUpTimer.OnTimerExpired += OnResume;
+      _messageQueue = new AsynchronousMessageQueue(this, new[] { SystemMessaging.CHANNEL });
+      _messageQueue.MessageReceived += OnMessageReceived;
+      // Message queue will be started in Startup()
     }
 
     ~TaskScheduler()
@@ -72,6 +87,24 @@ namespace MediaPortal.Common.Services.TaskScheduler
 
     #region Private methods
 
+    private void OnMessageReceived(AsynchronousMessageQueue queue, SystemMessage message)
+    {
+      if (message.ChannelName == SystemMessaging.CHANNEL)
+      {
+        SystemMessaging.MessageType messageType = (SystemMessaging.MessageType) message.MessageType;
+        switch (messageType)
+        {
+          case SystemMessaging.MessageType.SystemStateChanged:
+            SystemState newState = (SystemState) message.MessageData[SystemMessaging.NEW_STATE];
+            if (newState == SystemState.Resuming)
+              DoResume();
+            if (newState == SystemState.Suspending)
+              DoSuspend();
+            break;
+        }
+      }
+    }
+
     /// <summary>
     /// Triggers the registered tasks which are registered to fire at startup.
     /// </summary>
@@ -82,15 +115,61 @@ namespace MediaPortal.Common.Services.TaskScheduler
       now = now.AddSeconds(-now.Second);
       lock (_syncObj)
       {
-        foreach (Task task in _settings.TaskCollection.Tasks)
+        foreach (Task task in _settings.TaskCollection.Tasks.Where(task => task.Occurrence == Occurrence.EveryStartUp))
         {
-          if (task.Occurrence == Occurrence.EveryStartUp)
-          {
-            if (task.IsExpired(now))
-              ExpireTask(task);
-            else
-              ProcessTask(task);
-          }
+          if (task.IsExpired(now))
+            ExpireTask(task);
+          else
+            ProcessTask(task);
+        }
+      }
+    }
+
+    /// <summary>
+    /// Triggers the registered tasks which are registered to fire at resume.
+    /// </summary>
+    private void DoResume()
+    {
+      DateTime now = DateTime.Now;
+      // Only use minute precision
+      now = now.AddSeconds(-now.Second);
+      lock (_syncObj)
+      {
+        foreach (Task task in _settings.TaskCollection.Tasks.Where(task => task.Occurrence == Occurrence.EveryWakeUp))
+        {
+          if (task.IsExpired(now))
+            ExpireTask(task);
+          else
+            ProcessTask(task);
+        }
+      }
+    }
+
+    /// <summary>
+    /// Executed when the system woke up for a task.
+    /// </summary>
+    private void OnResume()
+    {
+      ServiceRegistration.Get<ILogger>().Debug("TaskScheduler: Wake up");
+    }
+
+    /// <summary>
+    /// Get executed when the system is being suspended and takes care for setting a wakeup time for the next due task.
+    /// </summary>
+    private void DoSuspend()
+    {
+      DateTime now = DateTime.Now;
+      // Only use minute precision
+      now = now.AddSeconds(-now.Second);
+      lock (_syncObj)
+      {
+        DateTime nextTaskRun = _settings.TaskCollection.Tasks.Where(task => !task.IsExpired(now)).Min(t => t.NextRun);
+        if (nextTaskRun != DateTime.MinValue)
+        {
+          double secondsToWait = (nextTaskRun - now).TotalSeconds;
+
+          ServiceRegistration.Get<ILogger>().Debug("TaskScheduler: Schedule next wake up: {0} (in {1} minutes)", nextTaskRun, (int) secondsToWait / 60);
+          _wakeUpTimer.SecondsToWait = secondsToWait;
         }
       }
     }
@@ -114,7 +193,6 @@ namespace MediaPortal.Common.Services.TaskScheduler
           // Only process non-repeat tasks
           if (task.Occurrence == Occurrence.Once || task.Occurrence == Occurrence.Repeat)
           {
-            ServiceRegistration.Get<ILogger>().Debug("TaskScheduler: ProcessTask: {0}", task.ToString());
             // Process task if schedule is due
             if (task.IsDue(now))
             {
@@ -156,6 +234,7 @@ namespace MediaPortal.Common.Services.TaskScheduler
     /// <param name="task">Task to expire</param>
     private void ExpireTask(Task task)
     {
+      ServiceRegistration.Get<ILogger>().Debug("TaskScheduler: ExpireTask: {0}", task.ToString());
       Task tc = (Task) task.Clone();
       TaskSchedulerMessaging.SendTaskSchedulerMessage(TaskSchedulerMessaging.MessageType.EXPIRED, tc);
       _settings.TaskCollection.Remove(task);
@@ -170,6 +249,7 @@ namespace MediaPortal.Common.Services.TaskScheduler
     /// <param name="task">Task to process.</param>
     private void ProcessTask(Task task)
     {
+      ServiceRegistration.Get<ILogger>().Debug("TaskScheduler: ProcessTask: {0}", task.ToString());
       Task tc = (Task) task.Clone();
       TaskSchedulerMessaging.SendTaskSchedulerMessage(TaskSchedulerMessaging.MessageType.DUE, tc);
       task.LastRun = task.NextRun;
@@ -207,6 +287,7 @@ namespace MediaPortal.Common.Services.TaskScheduler
 
     public void Startup()
     {
+      _messageQueue.Start();
       DoStartup();
       _work = new IntervalWork(DoWork, new TimeSpan(0, 0, 20));
       ServiceRegistration.Get<IThreadPool>().AddIntervalWork(_work, false);
@@ -214,6 +295,8 @@ namespace MediaPortal.Common.Services.TaskScheduler
 
     public void Shutdown()
     {
+      _messageQueue.Shutdown();
+      _wakeUpTimer.Close();
       StopWorker();
       ServiceRegistration.Get<ISettingsManager>().Save(_settings);
     }
@@ -231,6 +314,7 @@ namespace MediaPortal.Common.Services.TaskScheduler
 
     public void UpdateTask(Guid taskId, Task updatedTask)
     {
+      ServiceRegistration.Get<ILogger>().Debug("TaskScheduler: UpdateTask: {0}", updatedTask);
       lock (_syncObj)
       {
         updatedTask.ID = taskId;
@@ -252,6 +336,7 @@ namespace MediaPortal.Common.Services.TaskScheduler
         }
         if (task == null)
           return;
+        ServiceRegistration.Get<ILogger>().Debug("TaskScheduler: RemoveTask: {0}", task);
         _settings.TaskCollection.Remove(task);
         SaveChanges(false);
         TaskSchedulerMessaging.SendTaskSchedulerMessage(TaskSchedulerMessaging.MessageType.DELETED, task);
