@@ -22,15 +22,25 @@
 
 #endregion
 
+using System;
+using System.ServiceProcess;
 using MediaPortal.Common.Logging;
 using MediaPortal.Common.Runtime;
 using MediaPortal.Utilities.SystemAPI;
 
 namespace MediaPortal.Common.Services.Runtime
 {
-  public class SystemStateService : ISystemStateService
+  public class SystemStateService : ISystemStateService, IDisposable
   {
     protected SystemState _state = SystemState.Starting;
+    protected PowerEventHandler _powerEventHandler;
+
+    public SystemStateService()
+    {
+      _powerEventHandler = new PowerEventHandler();
+      _powerEventHandler.OnPowerEvent += SendSystemStatePowerMessage;
+      // TODO: Morpheus_xx, 2013-05-26: implement OnQuerySuspend support here, extend ISystemStateService interface
+    }
 
     public void SwitchSystemState(SystemState newState, bool sendMessage)
     {
@@ -53,7 +63,7 @@ namespace MediaPortal.Common.Services.Runtime
 
       WindowsAPI.EXIT_WINDOWS flags = WindowsAPI.EXIT_WINDOWS.EWX_POWEROFF;
       if (force)
-        flags = flags | WindowsAPI.EXIT_WINDOWS.EWX_FORCE;
+        flags |= WindowsAPI.EXIT_WINDOWS.EWX_FORCE;
 
       // todo: chefkoch, 2013-01-31: add flag for HybridShutdown if OS is Windows 8
 
@@ -67,7 +77,7 @@ namespace MediaPortal.Common.Services.Runtime
 
       WindowsAPI.EXIT_WINDOWS flags = WindowsAPI.EXIT_WINDOWS.EWX_REBOOT;
       if (force)
-        flags = flags | WindowsAPI.EXIT_WINDOWS.EWX_FORCE;
+        flags |= WindowsAPI.EXIT_WINDOWS.EWX_FORCE;
 
       WindowsAPI.ExitWindowsEx(flags);
     }
@@ -95,11 +105,31 @@ namespace MediaPortal.Common.Services.Runtime
 
       WindowsAPI.EXIT_WINDOWS flags = WindowsAPI.EXIT_WINDOWS.EWX_LOGOFF;
       if (force)
-        flags = flags | WindowsAPI.EXIT_WINDOWS.EWX_FORCE;
+        flags |= WindowsAPI.EXIT_WINDOWS.EWX_FORCE;
 
       WindowsAPI.ExitWindowsEx(flags);
     }
 
+    protected void SendSystemStatePowerMessage(PowerBroadcastStatus status)
+    {
+      switch (status)
+      {
+        case PowerBroadcastStatus.ResumeAutomatic:
+        case PowerBroadcastStatus.ResumeCritical:
+        case PowerBroadcastStatus.ResumeSuspend:
+          SystemMessaging.SendSystemStateChangeMessage(SystemState.Resuming);
+          break;
+        case PowerBroadcastStatus.Suspend:
+          SystemMessaging.SendSystemStateChangeMessage(SystemState.Suspending);
+          break;
+      }
+    }
+
     #endregion
+
+    public void Dispose()
+    {
+      _powerEventHandler.Dispose();
+    }
   }
 }

@@ -349,5 +349,71 @@ namespace MediaPortal.Utilities.SystemAPI
 
     [DllImport("kernel32.dll", CharSet = CharSet.Unicode, SetLastError = true)]
     public static extern IntPtr OpenProcess(ProcessAccess dwDesiredAccess, [MarshalAs(UnmanagedType.Bool)] bool bInheritHandle, int dwProcessId);
+
+    [StructLayout(LayoutKind.Sequential)]
+    public struct Message
+    {
+      public IntPtr hwnd;
+      public int message;
+      public IntPtr wParam;
+      public IntPtr lParam;
+      public int time;
+      public int pt_x;
+      public int pt_y;
+    }
+
+    public delegate int WndProc(IntPtr hWnd, uint msg, IntPtr wParam, IntPtr lParam);
+
+    [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Auto)]
+    public struct WindowClass
+    {
+      public uint style;
+      public WndProc lpfnWndProc;
+      public int cbClsExtra;
+      public int cbWndExtra;
+      public IntPtr hInstance;
+      public IntPtr hIcon;
+      public IntPtr hCursor;
+      public IntPtr hbrBackground;
+      public string lpszMenuName;
+      public string lpszClassName;
+    }
+
+    #region WndProc message constants
+
+    public const int WM_QUIT = 0x0012;
+    public const int WM_POWERBROADCAST = 0x0218;
+    public const int BROADCAST_QUERY_DENY = 0x424D5144;
+
+    #endregion
+
+    [DllImport("user32", CharSet = CharSet.Auto)]
+    public static extern int RegisterClass(ref WindowClass windowClass);
+
+    [DllImport("user32.dll")]
+    public static extern int DefWindowProc(IntPtr hWnd, uint msg, IntPtr wParam, IntPtr lParam);
+
+    [DllImport("user32.dll", CharSet = CharSet.Ansi, ExactSpelling = true)]
+    public static extern bool GetMessageA([In, Out] ref Message message, IntPtr hWnd, int uMsgFilterMin, int uMsgFilterMax);
+
+    [DllImport("user32.dll", CharSet = CharSet.Auto, ExactSpelling = true)]
+    public static extern bool TranslateMessage([In, Out] ref Message message);
+
+    [DllImport("user32.dll", CharSet = CharSet.Ansi, ExactSpelling = true)]
+    public static extern IntPtr DispatchMessageA([In] ref Message message);
+
+    [DllImport("user32.dll", CharSet = CharSet.Auto)]
+    public static extern IntPtr CreateWindowEx(uint dwExStyle, string className, string windowName, uint dwStyle, int x, int y,
+                                                int width, int height, IntPtr hWndParent, IntPtr hMenu, IntPtr hInstance, IntPtr lpParam);
+    
+    [DllImport("user32.dll", CharSet = CharSet.Auto)]
+    public static extern bool DestroyWindow(IntPtr hWnd);
+
+    [DllImport("user32.dll")]
+    public static extern bool PostThreadMessage(uint idThread, uint msg, IntPtr wParam, IntPtr lParam);
+
+    [DllImport("kernel32.dll")]
+    public static extern uint GetCurrentThreadId();
+
   }
 }

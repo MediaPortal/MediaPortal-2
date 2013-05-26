@@ -62,10 +62,19 @@ namespace MediaPortal.Common.Runtime
     /// hibernation process.
     /// </summary>
     Hibernating,
+
+    /// <summary>
+    /// The system is resumed from suspend mode. This enum is never set as current state; it is just used to inform the system about the
+    /// resume process.
+    /// </summary>
+    Resuming,
   }
 
   public interface ISystemStateService
   {
+    /// <summary>
+    /// Gets the current <see cref="SystemState"/>.
+    /// </summary>
     SystemState CurrentState { get; }
 
     /// <summary>

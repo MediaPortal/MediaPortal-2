@@ -194,6 +194,7 @@ namespace MediaPortal.Server
         BackendExtension.DisposeBackendServices();
         ApplicationCore.DisposeCoreServices();
         _systemStateService.SwitchSystemState(SystemState.Ending, false);
+        _systemStateService.Dispose();
       }
     }
 

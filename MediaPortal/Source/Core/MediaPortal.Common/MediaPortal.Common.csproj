@@ -67,6 +67,7 @@
       <RequiredTargetFramework>3.5</RequiredTargetFramework>
     </Reference>
     <Reference Include="System.Drawing" />
+    <Reference Include="System.ServiceProcess" />
     <Reference Include="System.Web" />
     <Reference Include="System.Management" />
     <Reference Include="System.Windows.Forms" />
@@ -78,6 +79,7 @@
     <Compile Include="Services\Logging\ServerCrashLogger.cs" />
     <Compile Include="Services\Logging\UiCrashLogger.cs" />
     <Compile Include="Services\ResourceAccess\Settings\AvailableDriveLettersSettings.cs" />
+    <Compile Include="Services\Runtime\PowerEventHandler.cs" />
     <Compile Include="Services\ServerCommunication\UPnPServerWatcher.cs" />
     <Compile Include="Services\Settings\SettingsChangeWatcher.cs" />
     <Compile Include="Services\Settings\SettingsManagerMessaging.cs" />
