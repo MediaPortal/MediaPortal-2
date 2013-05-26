@@ -43,7 +43,7 @@ namespace MediaPortal.Server
                               StartType = ServiceStartMode.Manual
                             };
 
-      _serviceProcessInstaller = new ServiceProcessInstaller { Account = ServiceAccount.NetworkService };
+      _serviceProcessInstaller = new ServiceProcessInstaller { Account = ServiceAccount.LocalSystem }; // Local system is required for using impersonation!
       
       Installers.Add(_serviceInstaller);
       Installers.Add(_serviceProcessInstaller);
