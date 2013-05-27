@@ -784,9 +784,9 @@ namespace MediaPortal.Common.TaskScheduler
     {
       if (_schedule.Type == ScheduleType.IntervalBased)
         return String.Format("Task: {0}, Owner: {1}, Occurrence: {2}, Type: interval, Interval: {3}, LastRun: {4}, NextRun: {5}, Expires: {6}, Wakeup: {7}, Force: {8}",
-          _taskID, _owner, _occurrence, _schedule.Interval, _lastRun, _nextRun, _expires, _wakeup, _forceRun);
+          _taskID, _owner, _occurrence, _schedule.Interval, _lastRun, NextRun, _expires, _wakeup, _forceRun);
       return String.Format("Task: {0}, Owner: {1}, Occurrence: {2}, Type: time-based: D:{3}-H:{4}-M:{5}, LastRun: {6}, NextRun: {7}, Expires: {8}, Wakeup: {9}, Force: {10}",
-        _taskID, _owner, _occurrence, _schedule.Day, _schedule.Hour, _schedule.Minute, _lastRun, _nextRun, _expires, _wakeup, _forceRun);
+        _taskID, _owner, _occurrence, _schedule.Day, _schedule.Hour, _schedule.Minute, _lastRun, NextRun, _expires, _wakeup, _forceRun);
     }
 
     #endregion
