@@ -32,6 +32,7 @@ using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.Common.ResourceAccess;
 using MediaPortal.Common.Messaging;
 using MediaPortal.Common.Runtime;
+using MediaPortal.Common.Services.Settings;
 using MediaPortal.Common.Settings;
 using MediaPortal.Common.SystemResolver;
 using MediaPortal.Common.TaskScheduler;
@@ -85,6 +86,8 @@ namespace MediaPortal.Common.Services.MediaManagement
     protected ManualResetEvent _suspendedEvent = new ManualResetEvent(true);
     protected AutoResetEvent _importJobsReadyAvailableEvent = new AutoResetEvent(false);
     protected Guid _importerTaskId;
+    protected SettingsChangeWatcher<ImporterWorkerSettings> _settings = new SettingsChangeWatcher<ImporterWorkerSettings>();
+    protected bool _ignoreChange = false;
 
     public ImporterWorker()
     {
@@ -95,6 +98,7 @@ namespace MediaPortal.Common.Services.MediaManagement
           });
       _messageQueue.MessageReceived += OnMessageReceived;
       // Message queue will be started in method Start()
+      _settings.SettingsChanged += OnSettingsChanged;
     }
 
     public void Dispose()
@@ -136,6 +140,14 @@ namespace MediaPortal.Common.Services.MediaManagement
       }
     }
 
+    private void OnSettingsChanged(object sender, EventArgs e)
+    {
+      if (!_ignoreChange)
+        ScheduleImports();
+
+      _ignoreChange = false;
+    }
+
     protected bool IsImportJobAvailable
     {
       get
@@ -164,9 +176,8 @@ namespace MediaPortal.Common.Services.MediaManagement
       lock (_syncObj)
       {
         ISettingsManager settingsManager = ServiceRegistration.Get<ISettingsManager>();
-        ImporterWorkerSettings settings = settingsManager.Load<ImporterWorkerSettings>();
-        settings.PendingImportJobs = new List<ImportJob>(_importJobs);
-        settingsManager.Save(settings);
+        _settings.Settings.PendingImportJobs = new List<ImportJob>(_importJobs);
+        settingsManager.Save(_settings.Settings);
         foreach (ImportJob job in _importJobs)
           job.Dispose();
         _importJobs.Clear();
@@ -177,10 +188,8 @@ namespace MediaPortal.Common.Services.MediaManagement
     {
       lock (_syncObj)
       {
-        ISettingsManager settingsManager = ServiceRegistration.Get<ISettingsManager>();
-        ImporterWorkerSettings settings = settingsManager.Load<ImporterWorkerSettings>();
         _importJobs.Clear();
-        CollectionUtils.AddAll(_importJobs, settings.PendingImportJobs);
+        CollectionUtils.AddAll(_importJobs, _settings.Settings.PendingImportJobs);
         _importJobsReadyAvailableEvent.Set();
       }
     }
@@ -191,25 +200,25 @@ namespace MediaPortal.Common.Services.MediaManagement
       {
         ITaskScheduler scheduler = ServiceRegistration.Get<ITaskScheduler>();
         ISettingsManager settingsManager = ServiceRegistration.Get<ISettingsManager>();
-        ImporterWorkerSettings settings = settingsManager.Load<ImporterWorkerSettings>();
-        _importerTaskId = settings.ImporterScheduleId;
+        _importerTaskId = _settings.Settings.ImporterScheduleId;
 
         // Allow removal of existing import tasks
-        if (!settings.EnableAutoRefresh) 
+        if (!_settings.Settings.EnableAutoRefresh) 
         {
           if (_importerTaskId != Guid.Empty)
           {
             scheduler.RemoveTask(_importerTaskId);
-            _importerTaskId = settings.ImporterScheduleId = Guid.Empty;
-            settingsManager.Save(settings);
+            _importerTaskId = _settings.Settings.ImporterScheduleId = Guid.Empty;
+            _ignoreChange = true; // Do not react on next setting's change message!
+            settingsManager.Save(_settings.Settings);
           }
           return;
         }
 
         Schedule schedule = new Schedule
           {
-            Hour = (int) settings.ImporterStartTime,
-            Minute = (int) (settings.ImporterStartTime - (int) settings.ImporterStartTime) * 60,
+            Hour = (int) _settings.Settings.ImporterStartTime,
+            Minute = (int) ((_settings.Settings.ImporterStartTime - (int) _settings.Settings.ImporterStartTime) * 60),
             Day = -1,
             Type = ScheduleType.TimeBased
           };
@@ -218,8 +227,9 @@ namespace MediaPortal.Common.Services.MediaManagement
         if (_importerTaskId == Guid.Empty)
         {
           _importerTaskId = scheduler.AddTask(importTask);
-          settings.ImporterScheduleId = _importerTaskId;
-          settingsManager.Save(settings);
+          _settings.Settings.ImporterScheduleId = _importerTaskId;
+          _ignoreChange = true; // Do not react on next setting's change message!
+          settingsManager.Save(_settings.Settings);
         }
         else
           scheduler.UpdateTask(_importerTaskId, importTask);
@@ -723,6 +733,7 @@ namespace MediaPortal.Common.Services.MediaManagement
     {
       ShutdownImporterLoop();
       _messageQueue.Shutdown();
+      _settings.Dispose();
       PersistPendingImportJobs();
     }
 
