@@ -49,21 +49,23 @@ namespace MediaPortal.UiComponents.Configuration.ConfigurationControllers
         _pathBrowserCloseWatcher.Dispose();
 
       var pathEntry = Setting as PathEntry;
+      if (pathEntry == null)
+        return;
+
       Guid dialogHandle = ServiceRegistration.Get<IPathBrowser>().ShowPathBrowser(Help.Evaluate(), pathEntry.PathType == PathEntry.PathSelectionType.File, false,
         string.IsNullOrEmpty(pathEntry.Path) ? null : LocalFsResourceProviderBase.ToResourcePath(pathEntry.Path),
         path =>
         {
           string choosenPath = LocalFsResourceProviderBase.ToDosPath(path.LastPathSegment.Path);
-          if (string.IsNullOrEmpty(choosenPath))
-            return false;
-
-          return true;
+          return !string.IsNullOrEmpty(choosenPath);
         });
 
       _pathBrowserCloseWatcher = new PathBrowserCloseWatcher(this, dialogHandle, choosenPath =>
         {
           pathEntry.Path = LocalFsResourceProviderBase.ToDosPath(choosenPath);
           Save();
+          _pathBrowserCloseWatcher.Dispose();
+          _pathBrowserCloseWatcher = null;
         },
         null);
     }
