@@ -306,6 +306,7 @@ namespace MediaPortal.Common.Services.TaskScheduler
       lock (_syncObj)
       {
         newTask.ID = Guid.NewGuid();
+        ServiceRegistration.Get<ILogger>().Debug("TaskScheduler: AddTask: {0}", newTask);
         _settings.TaskCollection.Add(newTask);
         SaveChanges(false);
       }
@@ -314,10 +315,10 @@ namespace MediaPortal.Common.Services.TaskScheduler
 
     public void UpdateTask(Guid taskId, Task updatedTask)
     {
-      ServiceRegistration.Get<ILogger>().Debug("TaskScheduler: UpdateTask: {0}", updatedTask);
       lock (_syncObj)
       {
         updatedTask.ID = taskId;
+        ServiceRegistration.Get<ILogger>().Debug("TaskScheduler: UpdateTask: {0}", updatedTask);
         _settings.TaskCollection.Replace(taskId, updatedTask);
         SaveChanges(false);
         TaskSchedulerMessaging.SendTaskSchedulerMessage(TaskSchedulerMessaging.MessageType.CHANGED, updatedTask);
@@ -328,12 +329,7 @@ namespace MediaPortal.Common.Services.TaskScheduler
     {
       lock (_syncObj)
       {
-        Task task = null;
-        foreach (Task t in _settings.TaskCollection.Tasks)
-        {
-          if (t.ID == taskId)
-            task = t;
-        }
+        Task task = GetTask(taskId);
         if (task == null)
           return;
         ServiceRegistration.Get<ILogger>().Debug("TaskScheduler: RemoveTask: {0}", task);

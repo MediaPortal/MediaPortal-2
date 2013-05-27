@@ -25,6 +25,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Xml.Serialization;
 using MediaPortal.Common.TaskScheduler;
 
 namespace MediaPortal.Common.Services.TaskScheduler
@@ -121,9 +122,20 @@ namespace MediaPortal.Common.Services.TaskScheduler
     /// <summary>
     /// Property returning a list of tasks currently in the TaskCollection.
     /// </summary>
+    [XmlIgnore]
     public IList<Task> Tasks
     {
       get { return new List<Task>(_tasks); }
+    }
+
+    /// <summary>
+    /// XML Serialization property only.
+    /// </summary>
+    [XmlElement("Tasks")]
+    public List<Task> XML_Tasks
+    {
+      get { return _tasks; }
+      set { _tasks = value; }
     }
 
     #endregion
