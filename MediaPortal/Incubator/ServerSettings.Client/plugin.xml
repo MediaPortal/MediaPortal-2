@@ -22,6 +22,7 @@
   
   <Register Location="/Models">
     <Model Id="62BFBA02-88F8-41A9-BD5A-FFD98799089B" Name="ServerNetworkCredentialSetupModel" ClassName="MediaPortal.Plugins.ServerSettings.Models.ServerNetworkCredentialSetupModel"/>
+    <Model Id="B3109220-78E4-4ED1-90E1-D3180E02B401" Name="ServerImporterWorkerSetupModel" ClassName="MediaPortal.Plugins.ServerSettings.Models.ServerImporterWorkerSetupModel"/>
   </Register>
   
   <Register Location="/Services">
@@ -44,6 +45,12 @@
         DialogScreen="ServerNetworkCredentialSetup"
         DisplayLabel="[Settings.ServerSettings.NetworkCredentials]"
         WorkflowModel="62BFBA02-88F8-41A9-BD5A-FFD98799089B"/> <!-- Server Network Credential Setup Model -->
+
+    <DialogState Id="1C369D5A-73A9-40C7-8E3A-8B5C6A765E31"
+        Name="ServerImporterWorkerSetup"
+        DialogScreen="ServerImporterWorkerSetup"
+        DisplayLabel="[Settings.ServerSettings.ImporterWorker]"
+        WorkflowModel="B3109220-78E4-4ED1-90E1-D3180E02B401"/> <!-- Server Importer Worker Setup Model -->
   </Register>
 
   <!-- Root Sections -->
@@ -69,4 +76,21 @@
         AdditionalData="WorkflowState=20954924-19B3-45C0-9F79-640EDD9EAE58,ConfAppPanel=..."/>
   </Register>
 
+  <!-- Contents of '/Shares' section -->
+  <Register Location="/Configuration/Settings/Shares">
+    <ConfigGroup
+        Id="ExtendedConfigureShares"
+        Redundant="true"
+        Text="[Settings.Shares.Configure]"/>
+  </Register>
+
+  <!-- Contents of '/Shares/ExtendedConfigureShares' group -->
+  <Register Location="/Configuration/Settings/Shares/ExtendedConfigureShares">
+    <CustomConfigSetting
+        Id="ImporterWorker"
+        Text="[Settings.ServerSettings.ImporterWorker]"
+        HelpText="[Settings.ServerSettings.ImporterWorker.Help]"
+        ClassName="MediaPortal.Plugins.ServerSettings.Settings.Configuration.ServerImporterWorker"
+        AdditionalData="WorkflowState=1C369D5A-73A9-40C7-8E3A-8B5C6A765E31,ConfAppPanel=..."/>
+  </Register>
 </Plugin>

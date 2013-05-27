@@ -56,8 +56,10 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Models\ServerImporterWorkerSetupModel.cs" />
     <Compile Include="Models\ServerNetworkCredentialSetupModel.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Settings\Configuration\ServerImporterWorker.cs" />
     <Compile Include="Settings\Configuration\ServerDOKANDrive.cs" />
     <Compile Include="Settings\Configuration\ServerNetworkCredentials.cs" />
     <Compile Include="Settings\ConnectionMonitor.cs" />
@@ -89,6 +91,11 @@
       <Project>{8E15FBE3-F6C8-4B76-A560-F391B4124E9C}</Project>
       <Name>ServerSettings.Interfaces</Name>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Skin\default\screens\ServerImporterWorkerSetup.xaml">
+      <SubType>Designer</SubType>
+    </Content>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
