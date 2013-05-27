@@ -49,6 +49,12 @@ namespace MediaPortal.Common.Services.MediaManagement
     [Setting(SettingScope.Global, 2.0d)]
     public double ImporterStartTime { get; set; }
 
+    /// <summary>
+    /// Gets or sets an indicator if the automatic importer should be enabled.
+    /// </summary>
+    [Setting(SettingScope.Global, true)]
+    public bool EnableAutoRefresh { get; set; }
+
     [Setting(SettingScope.Global)]
     public List<ImportJob> PendingImportJobs
     {

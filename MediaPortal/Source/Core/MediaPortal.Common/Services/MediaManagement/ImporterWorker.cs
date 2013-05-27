@@ -54,7 +54,6 @@ namespace MediaPortal.Common.Services.MediaManagement
   {
   }
 
-  // TODO: Schedule regular reimports for all local shares
   public class ImporterWorker : IImporterWorker, IDisposable
   {
     #region Consts
@@ -190,10 +189,23 @@ namespace MediaPortal.Common.Services.MediaManagement
     {
       lock (_syncObj)
       {
+        ITaskScheduler scheduler = ServiceRegistration.Get<ITaskScheduler>();
         ISettingsManager settingsManager = ServiceRegistration.Get<ISettingsManager>();
         ImporterWorkerSettings settings = settingsManager.Load<ImporterWorkerSettings>();
         _importerTaskId = settings.ImporterScheduleId;
-        ITaskScheduler scheduler = ServiceRegistration.Get<ITaskScheduler>();
+
+        // Allow removal of existing import tasks
+        if (!settings.EnableAutoRefresh) 
+        {
+          if (_importerTaskId != Guid.Empty)
+          {
+            scheduler.RemoveTask(_importerTaskId);
+            _importerTaskId = settings.ImporterScheduleId = Guid.Empty;
+            settingsManager.Save(settings);
+          }
+          return;
+        }
+
         Schedule schedule = new Schedule
           {
             Hour = (int) settings.ImporterStartTime,
@@ -201,6 +213,7 @@ namespace MediaPortal.Common.Services.MediaManagement
             Day = -1,
             Type = ScheduleType.TimeBased
           };
+        
         Task importTask = new Task("ImporterWorker", schedule, Occurrence.Repeat, DateTime.MaxValue, true, true);
         if (_importerTaskId == Guid.Empty)
         {
