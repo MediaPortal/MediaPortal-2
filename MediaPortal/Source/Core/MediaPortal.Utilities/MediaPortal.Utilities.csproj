@@ -96,12 +96,17 @@
     <Compile Include="CommandLine\ValueListAttribute.cs" />
     <Compile Include="Conversion\Conversion.cs" />
     <Compile Include="Graphics\ImageUtilities.cs" />
+    <Compile Include="SystemAPI\NativeMethods.cs" />
+    <Compile Include="Process\SingleInstanceHelper.cs" />
     <Compile Include="Network\NetworkConnectionTracker.cs" />
     <Compile Include="Network\NetworkResourcesEnumerator.cs" />
     <Compile Include="Network\Share.cs" />
     <Compile Include="Network\SharesEnumerator.cs" />
     <Compile Include="Process\ImpersonationHelper.cs" />
     <Compile Include="Process\ProcessUtils.cs" />
+    <Compile Include="Process\ImpersonationProcess.cs">
+      <SubType>Component</SubType>
+    </Compile>
     <Compile Include="Screens\SplashScreen.cs">
       <SubType>Form</SubType>
     </Compile>

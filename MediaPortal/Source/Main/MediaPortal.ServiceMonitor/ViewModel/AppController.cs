@@ -34,12 +34,12 @@ using MediaPortal.Common.Logging;
 using MediaPortal.Common.Messaging;
 using MediaPortal.Common.Localization;
 using MediaPortal.Common.PathManager;
-using MediaPortal.Common.Utils;
 using MediaPortal.ServiceMonitor.Collections;
 using MediaPortal.ServiceMonitor.UPNP;
 using MediaPortal.ServiceMonitor.Utilities;
 using MediaPortal.ServiceMonitor.View;
 using System.ServiceProcess;
+using MediaPortal.Utilities.Process;
 using MediaPortal.Utilities.SystemAPI;
 
 namespace MediaPortal.ServiceMonitor.ViewModel

@@ -39,9 +39,9 @@ using MediaPortal.Common.Services.Logging;
 using MediaPortal.Common.Exceptions;
 using MediaPortal.Common.Services.Runtime;
 using MediaPortal.Common.SystemResolver;
-using MediaPortal.Common.Utils;
 using MediaPortal.ServiceMonitor.UPNP;
 using MediaPortal.ServiceMonitor.ViewModel;
+using MediaPortal.Utilities.Process;
 using Localization = MediaPortal.ServiceMonitor.Utilities.Localization;
 
 namespace MediaPortal.ServiceMonitor

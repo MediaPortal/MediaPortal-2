@@ -26,6 +26,8 @@ using System;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Security.Principal;
+using MediaPortal.Utilities.SystemAPI;
+using Microsoft.Win32.SafeHandles;
 
 namespace MediaPortal.Utilities.Process
 {
@@ -72,123 +74,6 @@ namespace MediaPortal.Utilities.Process
     #region Constants and imports
 
     private static readonly WellKnownSidType[] KNOWN_SID_TYPES = new[] { WellKnownSidType.NetworkServiceSid, WellKnownSidType.LocalServiceSid, WellKnownSidType.LocalSystemSid };
-
-    // Group type enum
-    public enum SecurityImpersonationLevel
-    {
-      SecurityAnonymous = 0,
-      SecurityIdentification = 1,
-      SecurityImpersonation = 2,
-      SecurityDelegation = 3
-    }
-
-    public enum LogonType
-    {
-      /// <summary>
-      /// This logon type is intended for users who will be interactively using the computer, such as a user being logged on  
-      /// by a terminal server, remote shell, or similar process.
-      /// This logon type has the additional expense of caching logon information for disconnected operations;
-      /// therefore, it is inappropriate for some client/server applications,
-      /// such as a mail server.
-      /// </summary>
-      LOGON32_LOGON_INTERACTIVE = 2,
-
-      /// <summary>
-      /// This logon type is intended for high performance servers to authenticate plaintext passwords.
-
-      /// The LogonUser function does not cache credentials for this logon type.
-      /// </summary>
-      LOGON32_LOGON_NETWORK = 3,
-
-      /// <summary>
-      /// This logon type is intended for batch servers, where processes may be executing on behalf of a user without
-      /// their direct intervention. This type is also for higher performance servers that process many plaintext
-      /// authentication attempts at a time, such as mail or Web servers.
-      /// The LogonUser function does not cache credentials for this logon type.
-      /// </summary>
-      LOGON32_LOGON_BATCH = 4,
-
-      /// <summary>
-      /// Indicates a service-type logon. The account provided must have the service privilege enabled.
-      /// </summary>
-      LOGON32_LOGON_SERVICE = 5,
-
-      /// <summary>
-      /// This logon type is for GINA DLLs that log on users who will be interactively using the computer.
-      /// This logon type can generate a unique audit record that shows when the workstation was unlocked.
-      /// </summary>
-      LOGON32_LOGON_UNLOCK = 7,
-
-      /// <summary>
-      /// This logon type preserves the name and password in the authentication package, which allows the server to make
-      /// connections to other network servers while impersonating the client. A server can accept plaintext credentials
-      /// from a client, call LogonUser, verify that the user can access the system across the network, and still
-      /// communicate with other servers.
-      /// NOTE: Windows NT:  This value is not supported.
-      /// </summary>
-      LOGON32_LOGON_NETWORK_CLEARTEXT = 8,
-
-      /// <summary>
-      /// This logon type allows the caller to clone its current token and specify new credentials for outbound connections.
-      /// The new logon session has the same local identifier but uses different credentials for other network connections.
-      /// NOTE: This logon type is supported only by the LOGON32_PROVIDER_WINNT50 logon provider.
-      /// NOTE: Windows NT:  This value is not supported.
-      /// </summary>
-      LOGON32_LOGON_NEW_CREDENTIALS = 9,
-    }
-
-    public enum LogonProvider
-    {
-      /// <summary>
-      /// Use the standard logon provider for the system.
-      /// The default security provider is negotiate, unless you pass NULL for the domain name and the user name
-      /// is not in UPN format. In this case, the default provider is NTLM.
-      /// NOTE: Windows 2000/NT:   The default security provider is NTLM.
-      /// </summary>
-      LOGON32_PROVIDER_DEFAULT = 0,
-      LOGON32_PROVIDER_WINNT35 = 1,
-      LOGON32_PROVIDER_WINNT40 = 2,
-      LOGON32_PROVIDER_WINNT50 = 3
-    }
-
-    private static int STANDARD_RIGHTS_REQUIRED = 0x000F0000;
-    private static int STANDARD_RIGHTS_READ = 0x00020000;
-    private static int TOKEN_ASSIGN_PRIMARY = 0x0001;
-    private static int TOKEN_DUPLICATE = 0x0002;
-    private static int TOKEN_IMPERSONATE = 0x0004;
-    private static int TOKEN_QUERY = 0x0008;
-    private static int TOKEN_QUERY_SOURCE = 0x0010;
-    private static int TOKEN_ADJUST_PRIVILEGES = 0x0020;
-    private static int TOKEN_ADJUST_GROUPS = 0x0040;
-    private static int TOKEN_ADJUST_DEFAULT = 0x0080;
-    private static int TOKEN_ADJUST_SESSIONID = 0x0100;
-    private static int TOKEN_READ = (STANDARD_RIGHTS_READ | TOKEN_QUERY);
-    private static int TOKEN_ALL_ACCESS = (STANDARD_RIGHTS_REQUIRED | TOKEN_ASSIGN_PRIMARY |
-        TOKEN_DUPLICATE | TOKEN_IMPERSONATE | TOKEN_QUERY | TOKEN_QUERY_SOURCE |
-        TOKEN_ADJUST_PRIVILEGES | TOKEN_ADJUST_GROUPS | TOKEN_ADJUST_DEFAULT |
-        TOKEN_ADJUST_SESSIONID);
-
-    // Obtains user token
-    [DllImport("advapi32.dll", SetLastError = true)]
-    internal static extern bool LogonUser(string pszUsername, string pszDomain, string pszPassword, LogonType dwLogonType, LogonProvider dwLogonProvider, ref IntPtr phToken);
-
-    // Closes open handles returned by LogonUser
-    [DllImport("kernel32.dll", CharSet = CharSet.Auto)]
-    internal extern static bool CloseHandle(IntPtr handle);
-
-    // Creates duplicate token handle.
-    [DllImport("advapi32.dll", CharSet = CharSet.Auto, SetLastError = true)]
-    internal extern static bool DuplicateToken(IntPtr existingTokenHandle, SecurityImpersonationLevel impersonationLevel, ref IntPtr duplicateTokenHandle);
-
-    [DllImport("advapi32")]
-    internal static extern bool OpenProcessToken(
-        IntPtr processHandle, // handle to process
-        int desiredAccess, // desired access to process
-        ref IntPtr tokenHandle // handle to open access token
-    );
-
-    [DllImport("advapi32.DLL")]
-    public static extern bool ImpersonateLoggedOnUser(IntPtr hToken); // handle to token for logged-on user
 
     #endregion
 
@@ -247,8 +132,7 @@ namespace MediaPortal.Utilities.Process
       finally
       {
         // Close handle.
-        if (userToken != IntPtr.Zero)
-          CloseHandle(userToken);
+        SafeCloseHandle(userToken);
       }
     }
 
@@ -275,19 +159,30 @@ namespace MediaPortal.Utilities.Process
       finally
       {
         // Close handle(s)
-        if (userToken != IntPtr.Zero)
-          CloseHandle(userToken);
+        SafeCloseHandle(userToken);
       }
     }
 
     /// <summary>
-    /// Tries to get an existing user token from the given <paramref name="processName"/>. Caller must call <see cref="CloseHandle"/> for the returned <paramref name="existingTokenHandle"/>
-    /// when it is no longer required.
+    /// Tries to get an existing user token running <c>explorer.exe</c>. If <paramref name="duplicate"/> is set to <c>true</c>, the caller must call <see cref="NativeMethods.CloseHandle"/> 
+    /// for the returned <paramref name="existingTokenHandle"/>  when it is no longer required.
+    /// </summary>
+    /// <param name="existingTokenHandle">Outputs an existing token.</param>
+    /// <param name="duplicate"><c>true</c> to duplicate handle.</param>
+    public static bool GetTokenByProcess(out IntPtr existingTokenHandle, bool duplicate = false)
+    {
+      return GetTokenByProcess("explorer", out existingTokenHandle, duplicate);
+    }
+
+    /// <summary>
+    /// Tries to get an existing user token from the given <paramref name="processName"/>. If <paramref name="duplicate"/> is set to <c>true</c>, the caller must call <see cref="NativeMethods.CloseHandle"/> 
+    /// for the returned <paramref name="existingTokenHandle"/>  when it is no longer required.
     /// </summary>
     /// <param name="processName">Process name to take user account from (without .exe).</param>
     /// <param name="existingTokenHandle">Outputs an existing token.</param>
-    /// <returns></returns>
-    public static bool GetTokenByProcess(string processName, out IntPtr existingTokenHandle)
+    /// <param name="duplicate"><c>true</c> to duplicate handle.</param>
+    /// <returns><c>true</c> if successful.</returns>
+    public static bool GetTokenByProcess(string processName, out IntPtr existingTokenHandle, bool duplicate = false)
     {
       // Try to find a process for given processName. There can be multiple processes, we will take the first one.
       // Attention: when working on a RemoteDesktop/Terminal session, there can be multiple user logged in. The result of finding the first process
@@ -299,16 +194,37 @@ namespace MediaPortal.Utilities.Process
 
       try
       {
-        return OpenProcessToken(process.Handle, TOKEN_QUERY | TOKEN_IMPERSONATE | TOKEN_DUPLICATE, ref existingTokenHandle);
+        if (!NativeMethods.OpenProcessToken(process.Handle, NativeMethods.TokenAccess.AssignPrimary | NativeMethods.TokenAccess.Duplicate | NativeMethods.TokenAccess.Query, ref existingTokenHandle))
+          return false;
+
+        IntPtr impersonationToken = existingTokenHandle;
+        return !duplicate || CreatePrimaryToken(impersonationToken, out existingTokenHandle);
       }
       catch
-      {
-        return false;
-      }
+      { }
+      return false;
+    }
+
+    private static bool CreatePrimaryToken(IntPtr impersonationToken, out IntPtr primaryToken)
+    {
+      // Convert the impersonation token into Primary token
+      NativeMethods.SecurityAttributes sa = new NativeMethods.SecurityAttributes();
+
+      bool retVal = NativeMethods.DuplicateTokenEx(
+        impersonationToken,
+        NativeMethods.TokenAccess.AssignPrimary | NativeMethods.TokenAccess.Duplicate| NativeMethods.TokenAccess.Query,
+        sa,
+        NativeMethods.SecurityImpersonationLevel.Identification,
+        NativeMethods.TokenType.Primary,
+        out primaryToken);
+
+      // Close the Token that was previously opened.
+      NativeMethods.CloseHandle(impersonationToken);
+      return retVal;
     }
 
     /// <summary>
-    /// Tries to create a new user token based on given user credentials. Caller must call <see cref="CloseHandle"/> for the returned <paramref name="duplicateTokenHandle"/>
+    /// Tries to create a new user token based on given user credentials. Caller must call <see cref="NativeMethods.CloseHandle"/> for the returned <paramref name="duplicateTokenHandle"/>
     /// when it is no longer required.
     /// </summary>
     /// <param name="uername">User name.</param>
@@ -329,17 +245,40 @@ namespace MediaPortal.Utilities.Process
       try
       {
         // Get handle to token
-        if (!LogonUser(uername, domain, password, LogonType.LOGON32_LOGON_INTERACTIVE, LogonProvider.LOGON32_PROVIDER_DEFAULT, ref existingTokenHandle))
+        if (!NativeMethods.LogonUser(uername, domain, password, NativeMethods.LogonType.Interactive, NativeMethods.LogonProvider.Default, out existingTokenHandle))
           return false;
 
-        return DuplicateToken(existingTokenHandle, SecurityImpersonationLevel.SecurityImpersonation, ref duplicateTokenHandle);
+        return NativeMethods.DuplicateToken(existingTokenHandle, NativeMethods.SecurityImpersonationLevel.Impersonation, ref duplicateTokenHandle);
       }
       finally
       {
         // Close handle(s)
-        if (existingTokenHandle != IntPtr.Zero)
-          CloseHandle(existingTokenHandle);
+        SafeCloseHandle(existingTokenHandle);
       }
+    }
+
+    internal static void SafeCloseHandle(IntPtr handle)
+    {
+      if (handle != IntPtr.Zero)
+        NativeMethods.CloseHandle(handle);
+    }
+
+    internal static void SafeCloseHandle(ref IntPtr handle)
+    {
+      SafeCloseHandle(handle);
+      handle = IntPtr.Zero;
+    }
+
+    internal static void SafeCloseHandle(SafeFileHandle handle)
+    {
+      if (handle != null && !handle.IsInvalid)
+        handle.Close();
+    }
+
+    internal static void SafeCloseHandle(ref SafeFileHandle handle)
+    {
+      SafeCloseHandle(handle);
+      handle = null;
     }
   }
 }

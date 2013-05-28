@@ -69,7 +69,7 @@ namespace MediaPortal.UI.Players.Video.Tools
         {
           try
           {
-            Common.Utils.NativeMethods.FreeLibrary(dllHandle);
+            Utilities.SystemAPI.NativeMethods.FreeLibrary(dllHandle);
           }
           catch { }
         }
@@ -89,8 +89,8 @@ namespace MediaPortal.UI.Players.Video.Tools
       // Load the class factory from the dll.
       // By specifying the flags we allow to search for dependencies in the same folder as the file to be loaded 
       // as well as default dirs like System32 and the Application folder.
-      IntPtr dllHandle = Common.Utils.NativeMethods.LoadLibraryEx(dllName, IntPtr.Zero,
-        Common.Utils.NativeMethods.LOAD_LIBRARY_SEARCH_DLL_LOAD_DIR | Common.Utils.NativeMethods.LOAD_LIBRARY_SEARCH_DEFAULT_DIRS);
+      IntPtr dllHandle = Utilities.SystemAPI.NativeMethods.LoadLibraryEx(dllName, IntPtr.Zero,
+        Utilities.SystemAPI.NativeMethods.LOAD_LIBRARY_SEARCH_DLL_LOAD_DIR | Utilities.SystemAPI.NativeMethods.LOAD_LIBRARY_SEARCH_DEFAULT_DIRS);
       if (dllHandle == IntPtr.Zero)
         return null;
 
@@ -98,7 +98,7 @@ namespace MediaPortal.UI.Players.Video.Tools
       DLL_LIST.AddDllHandle(dllHandle);
 
       //Get a pointer to the DllGetClassObject function
-      IntPtr dllGetClassObjectPtr = Common.Utils.NativeMethods.GetProcAddress(dllHandle, "DllGetClassObject");
+      IntPtr dllGetClassObjectPtr = Utilities.SystemAPI.NativeMethods.GetProcAddress(dllHandle, "DllGetClassObject");
       if (dllGetClassObjectPtr == IntPtr.Zero)
         return null;
 

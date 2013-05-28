@@ -29,7 +29,6 @@ using MediaPortal.Common.Exceptions;
 using MediaPortal.Common.ResourceAccess;
 using MediaPortal.Common.PluginManager;
 using MediaPortal.Common.Runtime;
-using MediaPortal.Common.Utils;
 using MediaPortal.UI;
 using MediaPortal.UI.Presentation;
 using MediaPortal.UI.Presentation.Workflow;
@@ -46,6 +45,7 @@ using CommandLine;
 using MediaPortal.Common;
 using MediaPortal.Common.Services.Runtime;
 using MediaPortal.Common.Logging;
+using MediaPortal.Utilities.Process;
 
 [assembly: CLSCompliant(true)]
 

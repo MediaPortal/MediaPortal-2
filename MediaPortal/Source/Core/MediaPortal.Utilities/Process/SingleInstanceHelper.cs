@@ -28,7 +28,7 @@ using System.Security.Principal;
 using System.Threading;
 using MediaPortal.Utilities.SystemAPI;
 
-namespace MediaPortal.Common.Utils
+namespace MediaPortal.Utilities.Process
 {
   public class SingleInstanceHelper
   {
