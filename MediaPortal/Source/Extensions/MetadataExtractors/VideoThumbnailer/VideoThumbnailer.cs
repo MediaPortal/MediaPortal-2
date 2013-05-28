@@ -146,7 +146,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.VideoThumbnailer
 
       try
       {
-        if (ProcessUtils.TryExecute_AutoImpersonate(executable, arguments, ProcessPriorityClass.BelowNormal, PROCESS_TIMEOUT_MS) && File.Exists(tempFileName))
+        if (ProcessUtils.TryExecute_AutoImpersonate(executable, arguments, ProcessPriorityClass.Idle, PROCESS_TIMEOUT_MS) && File.Exists(tempFileName))
         {
           var binary = FileUtils.ReadFile(tempFileName);
           MediaItemAspect.SetAttribute(extractedAspectData, ThumbnailLargeAspect.ATTR_THUMBNAIL, binary);

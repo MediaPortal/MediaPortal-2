@@ -44,7 +44,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.MatroskaLib
     private List<MatroskaAttachment> _attachments;
     private readonly string _mkvInfoPath;
     private readonly string _mkvExtractPath;
-    private readonly ProcessPriorityClass _priorityClass = ProcessPriorityClass.BelowNormal;
+    private readonly ProcessPriorityClass _priorityClass = ProcessPriorityClass.Idle;
 
     #endregion
 

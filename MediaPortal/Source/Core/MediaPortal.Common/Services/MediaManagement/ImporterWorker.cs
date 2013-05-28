@@ -331,7 +331,7 @@ namespace MediaPortal.Common.Services.MediaManagement
       lock (_syncObj)
       {
         IsSuspended = false;
-        _workerThread = new Thread(ImporterLoop) { Name = "Importer", Priority = ThreadPriority.BelowNormal };
+        _workerThread = new Thread(ImporterLoop) { Name = "Importer", Priority = ThreadPriority.Lowest };
         _workerThread.Start();
       }
     }
