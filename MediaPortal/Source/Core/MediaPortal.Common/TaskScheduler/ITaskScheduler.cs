@@ -33,7 +33,7 @@ namespace MediaPortal.Common.TaskScheduler
   /// as soon as a task is due on the message queue of name <see cref="TaskSchedulerMessaging.CHANNEL"/>. It sends out a
   /// message of message type <see cref="TaskSchedulerMessaging.MessageType.DUE"/> with the particular <see cref="Task"/>
   /// as a reference to the interested listeners on this message queue.
-  /// Listeners then can act on the generate message to perform time or interval based tasks.
+  /// Listeners then can act on the generated message to perform time or interval based tasks.
   /// </summary>
   /// <remarks>
   /// This is a high-level interface compared to the <see cref="Threading.IThreadPool"/> service, which provides the low-level threads.
@@ -47,7 +47,7 @@ namespace MediaPortal.Common.TaskScheduler
     void Startup();
 
     /// <summary>
-    /// Shutts the task scheduler down.
+    /// Shuts the task scheduler down.
     /// </summary>
     void Shutdown();
 
