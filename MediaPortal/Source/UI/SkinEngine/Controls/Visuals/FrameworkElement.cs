@@ -1805,21 +1805,17 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
         oldTransform = GraphicsDevice.FinalTransform;
         GraphicsDevice.SetCameraProjection(description.Width, description.Height);
       }
-      // Get the current backbuffer
-      using (Surface backBuffer = GraphicsDevice.Device.GetRenderTarget(0))
-      {
-        // Change the rendertarget to the render texture
-        GraphicsDevice.Device.SetRenderTarget(0, renderSurface);
 
+      // Render to given surface and restore it when we are done
+      using(new TemporaryRenderTarget(renderSurface))
+      {
         // Fill the background of the texture with an alpha value of 0
         GraphicsDevice.Device.Clear(ClearFlags.Target, Color.FromArgb(0, Color.Black), 1.0f, 0);
 
         // Render the control into the given texture
         RenderOverride(renderContext);
-
-        // Restore the backbuffer
-        GraphicsDevice.Device.SetRenderTarget(0, backBuffer);
       }
+
       // Restore standard transformation matrix
       if (oldTransform.HasValue)
         GraphicsDevice.FinalTransform = oldTransform.Value;

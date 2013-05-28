@@ -97,8 +97,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
 
       _imageContext = new ImageContext
         {
-            OnRefresh = OnImagecontextRefresh,
-            ExtraParameters = new System.Collections.Generic.Dictionary<string, object>()
+          OnRefresh = OnImagecontextRefresh,
+          ExtraParameters = new System.Collections.Generic.Dictionary<string, object>()
         };
     }
 
@@ -146,7 +146,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
       IGeometry geometry;
       if (geometryManager.AvailableGeometries.TryGetValue(geometryName, out geometry))
         _currentGeometry = geometry;
-      else {
+      else
+      {
         ServiceRegistration.Get<ILogger>().Debug("VideoBrush: Geometry '{0}' does not exist", geometryName);
         _currentGeometry = null;
       }
@@ -214,11 +215,11 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
       if (!aspectRatio.IsEmpty && geometry.RequiresCorrectAspectRatio)
       {
         float pixelRatio = aspectRatio.Width / aspectRatio.Height;
-        _scaledVideoSize.Width = _scaledVideoSize.Height * pixelRatio; 
+        _scaledVideoSize.Width = _scaledVideoSize.Height * pixelRatio;
       }
       // Adjust target size to match final Skin scaling
       targetSize = ImageContext.AdjustForSkinAR(targetSize);
-      
+
       // Adjust video size to fit desired geometry
       _scaledVideoSize = geometry.Transform(_scaledVideoSize, targetSize);
 
@@ -334,7 +335,11 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
         using (Surface target = _texture.GetSurfaceLevel(0))
           device.StretchRectangle(playerSurface, target, TextureFilter.None);
       }
-      return _imageContext.StartRender(renderContext, _scaledVideoSize, _texture, _videoTextureClip, BorderColor.ToArgb(), _lastFrameData);
+      
+      // Handling of multipass (3D) rendering, transformed rect contains the clipped area of the source image (i.e. left side in Side-By-Side mode).
+      RectangleF tranformedRect;
+      GraphicsDevice.RenderPipeline.GetVideoClip(_videoTextureClip, out tranformedRect);
+      return _imageContext.StartRender(renderContext, _scaledVideoSize, _texture, tranformedRect, BorderColor.ToArgb(), _lastFrameData);
     }
 
     protected virtual bool GetPlayer(out ISlimDXVideoPlayer player)

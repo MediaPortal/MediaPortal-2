@@ -109,8 +109,7 @@ namespace MediaPortal.Plugins.StatisticsRenderer
       _line = new Line(_device) { Width = 2.5f, Antialias = true };
 
       _fontSprite = new Sprite(_device);
-      _font = new Font(_device, TEXT_SIZE, 0, FontWeight.Normal, 0, false, CharacterSet.Default,
-        Precision.Default, FontQuality.ClearTypeNatural, PitchAndFamily.DontCare, "tahoma");
+      _font = new Font(_device, TEXT_SIZE, 0, FontWeight.Normal, 0, false, CharacterSet.Default, Precision.Default, FontQuality.ClearTypeNatural, PitchAndFamily.DontCare, "tahoma");
 
       // Get device info
       _adapterDisplayModeEx = SkinContext.Direct3D.GetAdapterDisplayModeEx(0);
@@ -153,6 +152,16 @@ namespace MediaPortal.Plugins.StatisticsRenderer
       Log("Toggling render mode...");
       SkinContext.NextRenderStrategy();
       Log("Render mode is now '" + SkinContext.RenderStrategy.Name + "'");
+    }
+
+    /// <summary>
+    /// ToggleRenderPipeline calls the <see cref="SkinContext.NextRenderPipeline"/> method to switch between the available RenderPipelines.
+    /// </summary>
+    private static void ToggleRenderPipeline()
+    {
+      Log("Toggling render pipeline...");
+      SkinContext.NextRenderPipeline();
+      Log("Render pipeline is now '" + SkinContext.RenderPipeline.GetType().Name + "'");
     }
 
     /// <summary>
@@ -202,7 +211,7 @@ namespace MediaPortal.Plugins.StatisticsRenderer
         _fpsCounter++;
         TimeSpan ts = DateTime.Now - _fpsTimer;
         float secs = (float) ts.TotalSeconds;
-        _fps = _fpsCounter/secs;
+        _fps = _fpsCounter / secs;
 
         Stats currentFrameStats = new Stats
           {
@@ -213,9 +222,9 @@ namespace MediaPortal.Plugins.StatisticsRenderer
 
         if (ts.TotalSeconds >= 1.0f)
         {
-          float totalAvgGuiTime = (float) _totalGuiRenderDuration.TotalMilliseconds/_totalFrameCount;
-          float avgGuiTime = (float) _guiRenderDuration.TotalMilliseconds/_frameCount;
-          float avgMsToVBlank = _sumMsToVBlank/_frameCount;
+          float totalAvgGuiTime = (float) _totalGuiRenderDuration.TotalMilliseconds / _totalFrameCount;
+          float avgGuiTime = (float) _guiRenderDuration.TotalMilliseconds / _frameCount;
+          float avgMsToVBlank = _sumMsToVBlank / _frameCount;
 
           int glitches;
           _perfLogString = string.Format(
@@ -226,6 +235,7 @@ namespace MediaPortal.Plugins.StatisticsRenderer
 
           currentFrameStats.Glitch = glitches;
           _perfLogString += "\r\n" + GetScreenInfo();
+          _perfLogString += "\r\n" + GetRenderPipelineInfo();
           _perfLogString += "\r\n" + GetPlayerInfos();
           _fpsCounter = 0;
           _frameCount = 0;
@@ -251,29 +261,27 @@ namespace MediaPortal.Plugins.StatisticsRenderer
 
     private void DrawTearingTest()
     {
-      using (Surface surface = _device.GetRenderTarget(0))
-      {
-        int left = _tearingPos;
-        int width = surface.Description.Width;
-        int height = surface.Description.Height;
-        Size size = new Size(4, height);
-        Point topLeft = new Point(left, 0);
-        if (topLeft.X + size.Width >= width)
-          topLeft.X = 0;
+      Surface surface = _device.GetRenderTarget(0);
+      int left = _tearingPos;
+      int width = surface.Description.Width;
+      int height = surface.Description.Height;
+      Size size = new Size(4, height);
+      Point topLeft = new Point(left, 0);
+      if (topLeft.X + size.Width >= width)
+        topLeft.X = 0;
 
-        Rectangle rcTearing = new Rectangle(topLeft, size);
+      Rectangle rcTearing = new Rectangle(topLeft, size);
 
-        _device.ColorFill(surface, rcTearing, new Color4(255, 255, 255, 255));
+      _device.ColorFill(surface, rcTearing, new Color4(255, 255, 255, 255));
 
-        topLeft = new Point((rcTearing.Right + 15) % width, 0);
-        if (topLeft.X + size.Width >= width)
-          topLeft.X = 0;
+      topLeft = new Point((rcTearing.Right + 15) % width, 0);
+      if (topLeft.X + size.Width >= width)
+        topLeft.X = 0;
 
-        rcTearing = new Rectangle(topLeft, size);
-        _device.ColorFill(surface, rcTearing, new Color4(255, 100, 100, 100));
+      rcTearing = new Rectangle(topLeft, size);
+      _device.ColorFill(surface, rcTearing, new Color4(255, 100, 100, 100));
 
-        _tearingPos = (_tearingPos + 7) % width;
-      }
+      _tearingPos = (_tearingPos + 7) % width;
     }
 
     private void DrawText(string text)
@@ -362,6 +370,11 @@ namespace MediaPortal.Plugins.StatisticsRenderer
       return string.Format("Screen Res: {0}x{1} @ {2}Hz", SkinContext.BackBufferWidth, SkinContext.BackBufferHeight, _adapterDisplayModeEx.RefreshRate);
     }
 
+    private string GetRenderPipelineInfo()
+    {
+      return string.Format("Render Pipeline: {0}", SkinContext.RenderPipeline.GetType().Name);
+    }
+
     private static string GetPlayerInfos()
     {
       string playerInfos = string.Empty;
@@ -405,6 +418,7 @@ namespace MediaPortal.Plugins.StatisticsRenderer
         Log("Registering KeyBindings on IInputManager");
         manager.AddKeyBinding(Key.F10, new VoidKeyActionDlgt(ToggleStatsRendering));
         manager.AddKeyBinding(Key.F11, new VoidKeyActionDlgt(ToggleRenderMode));
+        manager.AddKeyBinding(Key.F12, new VoidKeyActionDlgt(ToggleRenderPipeline));
       }
     }
 
@@ -416,6 +430,7 @@ namespace MediaPortal.Plugins.StatisticsRenderer
       {
         manager.RemoveKeyBinding(Key.F10);
         manager.RemoveKeyBinding(Key.F11);
+        manager.RemoveKeyBinding(Key.F12);
       }
     }
 
@@ -429,7 +444,7 @@ namespace MediaPortal.Plugins.StatisticsRenderer
       }
     }
 
-    public void Activated (PluginRuntime pluginRuntime)
+    public void Activated(PluginRuntime pluginRuntime)
     {
       ISystemStateService sss = ServiceRegistration.Get<ISystemStateService>();
       if (sss.CurrentState == SystemState.Running)
@@ -469,20 +484,20 @@ namespace MediaPortal.Plugins.StatisticsRenderer
       }
     }
 
-    public bool RequestEnd ()
+    public bool RequestEnd()
     {
       return true;
     }
 
-    public void Stop ()
+    public void Stop()
     {
     }
 
-    public void Continue ()
+    public void Continue()
     {
     }
 
-    public void Shutdown ()
+    public void Shutdown()
     {
     }
   }

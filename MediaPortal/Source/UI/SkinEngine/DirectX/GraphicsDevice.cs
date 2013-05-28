@@ -30,6 +30,7 @@ using System.Windows.Forms;
 using MediaPortal.Common;
 using MediaPortal.Common.Logging;
 using MediaPortal.UI.SkinEngine.ContentManagement;
+using MediaPortal.UI.SkinEngine.DirectX.RenderPipelines;
 using MediaPortal.UI.SkinEngine.DirectX.RenderStrategy;
 using MediaPortal.UI.SkinEngine.ScreenManagement;
 using MediaPortal.UI.SkinEngine.Utils;
@@ -39,6 +40,12 @@ using SlimDX.Direct3D9;
 namespace MediaPortal.UI.SkinEngine.DirectX
 {
   public delegate void WorkDlgt();
+
+  public enum RenderPassType
+  {
+    SingleOrFirstPass = 0,
+    SecondPass
+  }
 
   internal static class GraphicsDevice
   {
@@ -67,6 +74,10 @@ namespace MediaPortal.UI.SkinEngine.DirectX
     // RenderModeType related fields
     private static int _currentRenderStrategyIndex = 0;
     private static List<IRenderStrategy> _renderStrategies;
+
+    // RenderPipeline related fields
+    private static int _currentRenderPipeplineIndex;
+    private static List<IRenderPipeline> _renderPipelines;
 
     /// <summary>
     /// Returns the information if the graphics device is healthy, which means it was neither lost nor hung nor removed.
@@ -147,6 +158,8 @@ namespace MediaPortal.UI.SkinEngine.DirectX
       }
     }
 
+    public static RenderPassType RenderPass { get; set; }
+
     /// <summary>
     /// Lock to be used during DirectX (and maybe also other) resource access and during rendering.
     /// </summary>
@@ -210,6 +223,7 @@ namespace MediaPortal.UI.SkinEngine.DirectX
         // End cleanup part
 
         SetupRenderStrategies();
+        SetupRenderPipelines();
 
         Capabilities deviceCapabilities = _device.Capabilities;
         _backBuffer = _device.GetRenderTarget(0);
@@ -255,6 +269,22 @@ namespace MediaPortal.UI.SkinEngine.DirectX
       _currentRenderStrategyIndex = 0;
     }
 
+    /// <summary>
+    /// Setups all <see cref="IRenderPipeline"/>s.
+    /// </summary>
+    private static void SetupRenderPipelines()
+    {
+      _renderPipelines = new List<IRenderPipeline>
+        {
+          new SinglePass2DRenderPipeline(),
+          new SBSRenderPipeline(),
+          new TABRenderPipeline(),
+          new SBS2DRenderPipeline(),
+          new TAB2DRenderPipeline(),
+        };
+      _currentRenderPipeplineIndex = 0;
+    }
+
     private static void LogScreenMode(DisplayMode mode)
     {
       ServiceRegistration.Get<ILogger>().Info("GraphicsDevice: DirectX initialized {0}x{1} (format: {2} {3} Hz)", Width,
@@ -276,6 +306,22 @@ namespace MediaPortal.UI.SkinEngine.DirectX
     {
       _currentRenderStrategyIndex = (_currentRenderStrategyIndex + 1) % _renderStrategies.Count;
       LogScreenMode(CurrentDisplayMode);
+    }
+
+    /// <summary>
+    /// Gets the current <see cref="IRenderPipeline"/>.
+    /// </summary>
+    public static IRenderPipeline RenderPipeline
+    {
+      get { return _renderPipelines[_currentRenderPipeplineIndex]; }
+    }
+
+    /// <summary>
+    /// Switches through all possible RenderPipelines.
+    /// </summary>
+    public static void NextRenderPipeline()
+    {
+      _currentRenderPipeplineIndex = (_currentRenderPipeplineIndex + 1) % _renderPipelines.Count;
     }
 
     internal static void Dispose()
@@ -327,6 +373,7 @@ namespace MediaPortal.UI.SkinEngine.DirectX
             _device.ResetEx(_setup.PresentParameters);
 
             SetupRenderStrategies();
+            SetupRenderPipelines();
 
             Capabilities deviceCapabilities = _device.Capabilities;
             int ordinal = deviceCapabilities.AdapterOrdinal;
@@ -461,7 +508,7 @@ namespace MediaPortal.UI.SkinEngine.DirectX
       TransformProjection = Matrix.OrthoOffCenterLH(-w, w, -h, h, 0.0f, 2.0f);
       FinalTransform = TransformView * TransformProjection;
     }
-    
+
     /// <summary>
     /// Fires an event if listeners are available.
     /// </summary>
@@ -490,23 +537,25 @@ namespace MediaPortal.UI.SkinEngine.DirectX
       if (_device == null || !_deviceOk)
         return true;
 
-      RenderStrategy.BeginRender(doWaitForNextFame);
+      IRenderStrategy renderStrategy = RenderStrategy;
+      IRenderPipeline pipeline = RenderPipeline;
+
+      renderStrategy.BeginRender(doWaitForNextFame);
 
       _renderAndResourceAccessLock.EnterReadLock();
       try
       {
-        _device.Clear(ClearFlags.Target, Color.Black, 1.0f, 0);
-        _device.BeginScene();
-
         Fire(DeviceSceneBegin);
 
-        _screenManager.Render();
+        pipeline.BeginRender();
+
+        pipeline.Render();
+
+        pipeline.EndRender();
 
         Fire(DeviceSceneEnd);
 
-        _device.EndScene();
-
-        _device.PresentEx(RenderStrategy.PresentMode);
+        _device.PresentEx(renderStrategy.PresentMode);
 
         Fire(DeviceScenePresented);
 
