@@ -212,6 +212,32 @@ namespace MediaPortal.UiComponents.Weather.Models
       }
     }
 
+    public void CheckWeatherConfigured()
+    {
+      // Check is there's any settings (even empty) that have been saved before, if not trigger first run setup.
+      ISettingsManager settingsManager = ServiceRegistration.Get<ISettingsManager>();
+      WeatherSettings settings = settingsManager.Load<WeatherSettings>();
+
+      if (settings == null || settings.LocationsList == null)
+      {
+        ServiceRegistration.Get<ILogger>().Debug("WeatherModel: Not initialized, entering setup.");
+
+        // Create the configuration file so we won't trigger the setup again.
+        if (settings == null)
+          settings = new WeatherSettings();
+        settings.LocationsList = new List<CitySetupInfo>();
+        ServiceRegistration.Get<ISettingsManager>().Save(settings);
+
+        // Set the destination for the ConfigurationManager Plugin.
+        NavigationContextConfig contextConfig = new NavigationContextConfig();
+        contextConfig.AdditionalContextVariables = new Dictionary<String, Object>();
+        contextConfig.AdditionalContextVariables.Add(new KeyValuePair<string, object>(CONFIG_LOCATION_KEY, "/Plugins/Weather"));
+
+        // Change the Workflow to the Weather Setup Screen.
+        ServiceRegistration.Get<IWorkflowManager>().NavigatePushAsync(new Guid("E7422BB8-2779-49ab-BC99-E3F56138061B"), contextConfig);
+      }
+    }
+
     #endregion
 
     #region Private members

@@ -22,23 +22,30 @@
 
 #endregion Copyright (C) 2007-2013 Team MediaPortal
 
-#region Imports
-
 using MediaPortal.Common;
 using MediaPortal.Common.Logging;
-using MediaPortal.Extensions.GeoLocation.IPLookup.Data;
+using MediaPortal.Extensions.OnlineLibraries.Libraries.Common.Data;
 using MediaPortal.Utilities.Network;
 using System;
 using System.Net;
 using System.Net.NetworkInformation;
 
-#endregion Imports
-
-namespace MediaPortal.Extensions.GeoLocation.IPLookup
+namespace MediaPortal.Extensions.OnlineLibraries.Libraries.Common
 {
-  internal class TraceRoute
+  public class TraceRoute
   {
-    #region Private methods
+    #region Public methods
+
+    public bool TrySearchForFirstExternalAddress(IPAddress ip, int maxTtl, out TraceRouteResponse response)
+    {
+      for (int i = 0; i < maxTtl; i++)
+      {
+        if (TryLookupInternal(ip, i, out response)) return true;
+      }
+
+      response = null;
+      return false;
+    }
 
     private bool TryLookupInternal(IPAddress remoteHost, int ttl, out TraceRouteResponse response)
     {
@@ -70,7 +77,7 @@ namespace MediaPortal.Extensions.GeoLocation.IPLookup
               RemoteHost = remoteHost,
               FirstResponseTtl = ttl,
               FirstResponseHostname = Dns.GetHostEntry(reply.Address).HostName,
-              FirstResponseIP = reply.Address.ToString()
+              FirstResponseIP = reply.Address
             };
             return true;
           }
@@ -86,62 +93,6 @@ namespace MediaPortal.Extensions.GeoLocation.IPLookup
       return false;
     }
 
-    #endregion Private methods
-
-    #region Internal methods
-
-    internal bool TryLookup(String ipAddressOrHostName, int maxTtl, out TraceRouteResponse response)
-    {
-      if (!NetworkConnectionTracker.IsNetworkConnected)
-      {
-        ServiceRegistration.Get<ILogger>().Debug("TraceRoute: Lookup - No Network connected");
-        response = null;
-        return false;
-      }
-
-      try
-      {
-        IPAddress ipAddress = Dns.GetHostEntry(ipAddressOrHostName).AddressList[0];
-        return TryLookup(ipAddress, maxTtl, out response);
-      }
-      catch (Exception)
-      {
-      }
-
-      response = null;
-      return false;
-    }
-
-    internal bool TryLookup(IPAddress ipAddress, int maxTtl, out TraceRouteResponse response)
-    {
-      if (!NetworkConnectionTracker.IsNetworkConnected)
-      {
-        ServiceRegistration.Get<ILogger>().Debug("TraceRoute: Lookup - No Network connected");
-        response = null;
-        return false;
-      }
-
-      try
-      {
-        TraceRouteResponse result = null;
-
-        for (int i = 1; i < maxTtl; i++)
-        {
-          if (TryLookupInternal(ipAddress, i, out result))
-          {
-            response = result;
-            return true;
-          }
-        }
-      }
-      catch (Exception)
-      {
-      }
-
-      response = null;
-      return false;
-    }
-
-    #endregion Internal methods
+    #endregion Public methods
   }
 }

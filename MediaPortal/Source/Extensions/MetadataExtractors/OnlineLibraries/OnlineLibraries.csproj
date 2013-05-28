@@ -46,6 +46,7 @@
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
+    <Reference Include="System.Device" />
     <Reference Include="System.Drawing" />
     <Reference Include="System.Runtime.Serialization" />
     <Reference Include="System.ServiceModel.Web" />
@@ -60,17 +61,23 @@
     <Compile Include="..\..\..\Core\MediaPortal.Common\VersionInfo\VersionInfo.cs">
       <Link>Properties\VersionInfo.cs</Link>
     </Compile>
-    <Compile Include="GeoLocationMatcher.cs" />
+    <Compile Include="GeoLocationService.cs" />
     <Compile Include="Libraries\Common\CompressionWebClient.cs">
       <SubType>Component</SubType>
     </Compile>
+    <Compile Include="Libraries\Common\Data\TraceRouteResponse.cs" />
     <Compile Include="Libraries\Common\Downloader.cs" />
-    <Compile Include="Libraries\GeoLocation\Data\GoogleResult.cs" />
-    <Compile Include="Libraries\GeoLocation\Data\ReverseGeoCodeResult.cs" />
-    <Compile Include="Libraries\GeoLocation\IGeolocationLookup.cs" />
-    <Compile Include="Libraries\GeoLocation\Data\LocationInfo.cs" />
-    <Compile Include="Libraries\GeoLocation\Google.cs" />
-    <Compile Include="Libraries\GeoLocation\OsmNominatim.cs" />
+    <Compile Include="Libraries\Common\TraceRoute.cs" />
+    <Compile Include="Libraries\FreeGeoIP\Data\FreeGeoIPResponse.cs" />
+    <Compile Include="Libraries\FreeGeoIP\IPLookup.cs" />
+    <Compile Include="Libraries\Google\Data\MapsApiGeocodeResponse.cs" />
+    <Compile Include="Libraries\Google\Maps.cs" />
+    <Compile Include="Libraries\IAddressResolver.cs" />
+    <Compile Include="Libraries\ICoordinateResolver.cs" />
+    <Compile Include="Libraries\IGeoLocationService.cs" />
+    <None Include="Libraries\Microsoft\GPSLookup.cs" />
+    <Compile Include="Libraries\OpenStreetMap\Data\GeocoderResponse.cs" />
+    <Compile Include="Libraries\OpenStreetMap\Geocoder.cs" />
     <Compile Include="Matches\MatchStorage.cs" />
     <Compile Include="Libraries\MovieDbV3\Data\CastItem.cs" />
     <Compile Include="Libraries\MovieDbV3\Data\CrewItem.cs" />
@@ -150,7 +157,6 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <Content Include="Libraries\GeoLocation\Data\Example.js" />
     <Content Include="plugin.xml" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

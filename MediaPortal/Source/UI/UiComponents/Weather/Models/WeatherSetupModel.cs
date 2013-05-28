@@ -24,12 +24,13 @@
 
 using System;
 using System.Collections.Generic;
+using System.Device.Location;
+using System.Globalization;
 using System.Linq;
 using MediaPortal.Common;
 using MediaPortal.Common.General;
 using MediaPortal.Common.Settings;
-using MediaPortal.Extensions.GeoLocation;
-using MediaPortal.Extensions.OnlineLibraries.Libraries.GeoLocation.Data;
+using MediaPortal.Extensions.OnlineLibraries;
 using MediaPortal.UI.Presentation.DataObjects;
 using MediaPortal.UI.Presentation.Models;
 using MediaPortal.UI.Presentation.Workflow;
@@ -146,11 +147,14 @@ namespace MediaPortal.UiComponents.Weather.Models
 
     public void Detect()
     {
-      LocationInfo locationInfo = ServiceRegistration.Get<IGeoLocationService>().Lookup();
+      GeoCoordinate coordinates;
+      CivicAddress address;
 
-      if (locationInfo != null)
+      if (GeoLocationService.Instance.TryLookup(out coordinates, out address))
       {
-        SearchLocations(String.Format("{0}, {1}", locationInfo.Latitude, locationInfo.Longitude));
+        SearchLocations(String.Format("{0}, {1}",
+                                      coordinates.Latitude.ToString(CultureInfo.InvariantCulture),
+                                      coordinates.Longitude.ToString(CultureInfo.InvariantCulture)));
 
         ServiceRegistration.Get<IScreenManager>().ShowDialog("dialogWeatherSearchResult");
       }

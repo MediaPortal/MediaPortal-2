@@ -22,16 +22,12 @@
 
 #endregion Copyright (C) 2007-2013 Team MediaPortal
 
-#region Imports
+using System.Device.Location;
 
-using MediaPortal.Extensions.OnlineLibraries.Libraries.GeoLocation.Data;
-
-#endregion Imports
-
-namespace MediaPortal.Extensions.GeoLocation
+namespace MediaPortal.Extensions.OnlineLibraries.Libraries
 {
-  public interface IGeoLocationService
+  public interface ICoordinateResolver
   {
-    LocationInfo Lookup();
+    bool TryResolveCoordinates(out GeoCoordinate coordinates);
   }
 }

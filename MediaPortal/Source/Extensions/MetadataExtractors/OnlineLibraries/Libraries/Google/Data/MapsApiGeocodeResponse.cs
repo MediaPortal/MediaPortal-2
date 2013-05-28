@@ -20,62 +20,83 @@
     along with MediaPortal 2. If not, see <http://www.gnu.org/licenses/>.
 */
 
-#endregion
+#endregion Copyright (C) 2007-2013 Team MediaPortal
 
 using System.Collections;
 using System.Collections.Generic;
+using System.Device.Location;
 using System.Linq;
 using System.Runtime.Serialization;
 
-namespace MediaPortal.Extensions.OnlineLibraries.Libraries.GeoLocation.Data
+namespace MediaPortal.Extensions.OnlineLibraries.Libraries.Google.Data
 {
   [DataContract]
-  class GoogleResults
+  public class MapsApiGeocodeResponse
   {
+    #region Public properties
+
     [DataMember(Name = "results")]
-    public List<GoogleResult> Results { get; set; }
+    public List<MapsApiGeocodeResult> Results { get; set; }
+
+    #endregion
   }
 
   [DataContract]
-  class GoogleResult
+  public class MapsApiGeocodeResult
   {
-    [DataMember(Name = "address_components")]
-    public List<AddressComponent> AddressComponents { get; set; }
+    #region Public properties
 
-    public LocationInfo ToLocation ()
+    [DataMember(Name = "address_components")]
+    public List<MapsApiGeocodeAddress> AddressComponents { get; set; }
+
+    #endregion
+
+    #region Public methods
+
+    public CivicAddress ToCivicAddress()
     {
-      LocationInfo result = new LocationInfo();
+      CivicAddress result = new CivicAddress();
       var city = GetAddressComponent("locality");
       if (city != null)
         result.City = city.LongName;
       var state = GetAddressComponent("administrative_area_level_1");
       if (state != null)
-        result.State = state.LongName;
+        result.StateProvince = state.LongName;
       var country = GetAddressComponent("country");
       if (country != null)
-        result.Country = country.LongName;
+        result.CountryRegion = country.LongName;
       return result;
     }
 
-    public AddressComponent GetAddressComponent(string type)
+    public MapsApiGeocodeAddress GetAddressComponent(string type)
     {
-      return AddressComponents.FirstOrDefault(addressComponent => addressComponent.Types != null && ((IList) addressComponent.Types).Contains(type));
+      return AddressComponents.FirstOrDefault(addressComponent => addressComponent.Types != null && ((IList)addressComponent.Types).Contains(type));
     }
+
+    #endregion
   }
 
   [DataContract]
-  class AddressComponent
+  public class MapsApiGeocodeAddress
   {
+    #region Public properties
+
     [DataMember(Name = "long_name")]
     public string LongName { get; set; }
     [DataMember(Name = "short_name")]
     public string ShortName { get; set; }
     [DataMember(Name = "types")]
     public string[] Types { get; set; }
-    
+
+    #endregion
+
+    #region Public methods
+
     public override string ToString()
     {
       return LongName;
     }
+
+    #endregion
   }
 }

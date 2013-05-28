@@ -67,6 +67,7 @@
       <RequiredTargetFramework>3.5</RequiredTargetFramework>
     </Reference>
     <Reference Include="System.Data" />
+    <Reference Include="System.Device" />
     <Reference Include="System.Web" />
     <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Xml" />
@@ -91,7 +92,9 @@
     <Compile Include="Helper Classes\LocInfo.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Content Include="Language\strings_en.xml" />
-    <Content Include="plugin.xml" />
+    <Content Include="plugin.xml">
+      <SubType>Designer</SubType>
+    </Content>
     <Content Include="Skin\default\shortcuts\Weather-shortcuts.xml" />
     <Content Include="Skin\default\workflow\weather-actions.xml" />
     <Compile Include="Settings\Configuration\WeatherConfigSetting.cs" />
@@ -101,10 +104,6 @@
     <AppDesigner Include="Properties\" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\..\..\Incubator\GeoLocation\GeoLocation.csproj">
-      <Project>{c9949db1-cf39-4c29-a031-430a0536341e}</Project>
-      <Name>GeoLocation</Name>
-    </ProjectReference>
     <ProjectReference Include="..\..\..\Core\MediaPortal.Common\MediaPortal.Common.csproj">
       <Project>{ECF060E7-CAA1-4466-851F-F80B857641EA}</Project>
       <Name>MediaPortal.Common</Name>

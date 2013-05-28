@@ -2,7 +2,7 @@
     DescriptorVersion="1.0"
     Name="OnlineLibraries"
     PluginId="{B32504F3-4374-4640-94A1-16E1DEE84C3C}"
-    Author="Morpheus_xx"
+    Author="Morpheus_xx, Valk"
     Copyright="GPL"
     Description="Library plugin providing online libaries access (TMDB, TheTvDB...) needed for some default metadata extractors"
     PluginVersion="1.0">
@@ -16,8 +16,8 @@
         ServiceClassName="MediaPortal.Extensions.OnlineLibraries.SeriesTvDbMatcher"/>
     <Service Id="MovieTheMovieDbMatcher" RegistrationClassName="MediaPortal.Extensions.OnlineLibraries.MovieTheMovieDbMatcher"
         ServiceClassName="MediaPortal.Extensions.OnlineLibraries.MovieTheMovieDbMatcher"/>
-    <Service Id="GeoLocationMatcher" RegistrationClassName="MediaPortal.Extensions.OnlineLibraries.GeoLocationMatcher"
-        ServiceClassName="MediaPortal.Extensions.OnlineLibraries.GeoLocationMatcher"/>
+    <Service Id="GeoLocationService" RegistrationClassName="MediaPortal.Extensions.OnlineLibraries.Libraries.IGeoLocationService"
+        ServiceClassName="MediaPortal.Extensions.OnlineLibraries.GeoLocationService"/>
   </Register>
 
 </Plugin>

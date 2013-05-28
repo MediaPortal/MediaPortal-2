@@ -20,37 +20,31 @@
     along with MediaPortal 2. If not, see <http://www.gnu.org/licenses/>.
 */
 
-#endregion
+#endregion Copyright (C) 2007-2013 Team MediaPortal
 
+using System.Device.Location;
 using System.Globalization;
 using MediaPortal.Common;
 using MediaPortal.Common.Localization;
 using MediaPortal.Extensions.OnlineLibraries.Libraries.Common;
-using MediaPortal.Extensions.OnlineLibraries.Libraries.GeoLocation.Data;
+using MediaPortal.Extensions.OnlineLibraries.Libraries.Google.Data;
 
-namespace MediaPortal.Extensions.OnlineLibraries.Libraries.GeoLocation
+namespace MediaPortal.Extensions.OnlineLibraries.Libraries.Google
 {
-  public class Google : IGeolocationLookup
+  public class Maps : IAddressResolver
   {
-    public bool TryLookup(double latitude, double longitude, out LocationInfo locationInfo)
+    #region Ctor
+
+    public Maps()
     {
-      var downloader = new Downloader { EnableCompression = true };
-      downloader.Headers["Accept"] = "application/json";
-      // Google enables compressed output only, if a valid User-Agent is sent!
-      downloader.Headers["User-Agent"] = "Mozilla/5.0 (Windows NT 6.1; WOW64; rv:17.0) Gecko/20100101 Firefox/17.0";
-      GoogleResults results = downloader.Download<GoogleResults>(BuildUrl(latitude, longitude));
-      if (results == null || results.Results == null || results.Results.Count == 0)
-      {
-        locationInfo = null;
-        return false;
-      }
-      locationInfo = results.Results[0].ToLocation();
-      locationInfo.Latitude = latitude;
-      locationInfo.Longitude = longitude;
-      return true;
+      
     }
 
-    protected string BuildUrl(double latitude, double longitude)
+    #endregion
+
+    #region Private methods
+
+    private string BuildUrl(double latitude, double longitude)
     {
       var mpLocal = ServiceRegistration.Get<ILocalization>().CurrentCulture.TwoLetterISOLanguageName;
       return string.Format("http://maps.googleapis.com/maps/api/geocode/json?latlng={0},{1}&sensor=false&language={2}",
@@ -58,5 +52,27 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.GeoLocation
           longitude.ToString(CultureInfo.InvariantCulture),
           mpLocal);
     }
+
+    #endregion
+
+    #region IAddressResolver implementation
+
+    public bool TryResolveCivicAddress(GeoCoordinate coordinates, out CivicAddress address)
+    {
+      var downloader = new Downloader { EnableCompression = true };
+      downloader.Headers["Accept"] = "application/json";
+      // Google enables compressed output only, if a valid User-Agent is sent!
+      downloader.Headers["User-Agent"] = "Mozilla/5.0 (Windows NT 6.1; WOW64; rv:17.0) Gecko/20100101 Firefox/17.0";
+      MapsApiGeocodeResponse results = downloader.Download<MapsApiGeocodeResponse>(BuildUrl(coordinates.Latitude, coordinates.Longitude));
+      if (results == null || results.Results == null || results.Results.Count == 0)
+      {
+        address = null;
+        return false;
+      }
+      address = results.Results[0].ToCivicAddress();
+      return true;
+    }
+
+    #endregion
   }
 }

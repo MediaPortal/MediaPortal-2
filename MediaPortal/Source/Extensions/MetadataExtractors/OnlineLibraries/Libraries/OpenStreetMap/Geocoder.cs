@@ -22,57 +22,54 @@
 
 #endregion Copyright (C) 2007-2013 Team MediaPortal
 
-#region Imports
-
 using MediaPortal.Common;
 using MediaPortal.Common.Localization;
-using MediaPortal.Extensions.GeoLocation.IPLookup.Data;
 using MediaPortal.Extensions.OnlineLibraries.Libraries.Common;
-using MediaPortal.Extensions.OnlineLibraries.Libraries.GeoLocation.Data;
-using System.Net;
+using MediaPortal.Extensions.OnlineLibraries.Libraries.OpenStreetMap.Data;
+using System.Globalization;
 
-#endregion Imports
-
-namespace MediaPortal.Extensions.GeoLocation.IPLookup
+namespace MediaPortal.Extensions.OnlineLibraries.Libraries.OpenStreetMap
 {
-  internal class FreeGeoIPLookup
+  public class Geocoder : IAddressResolver
   {
+    #region Ctor
+
+    public Geocoder()
+    {
+    }
+
+    #endregion Ctor
+
     #region Private methods
 
-    private string BuildUrl(IPAddress address)
+    private string BuildUrl(double latitude, double longitude)
     {
       var mpLocal = ServiceRegistration.Get<ILocalization>().CurrentCulture.TwoLetterISOLanguageName;
-      return string.Format("http://freegeoip.net/json/{0}", address.ToString());
+      return string.Format("http://nominatim.openstreetmap.org/reverse?format=json&lat={0}&lon={1}&zoom=10&accept-language={2}",
+          latitude.ToString(CultureInfo.InvariantCulture),
+          longitude.ToString(CultureInfo.InvariantCulture),
+          mpLocal);
     }
 
     #endregion Private methods
 
-    #region Internal methods
+    #region IAddressResolver implementation
 
-    internal bool TryLookup(IPAddress address, out LocationInfo locationInfo)
+    public bool TryResolveCivicAddress(System.Device.Location.GeoCoordinate coordinates, out System.Device.Location.CivicAddress address)
     {
       var downloader = new Downloader { EnableCompression = true };
-      downloader.Headers["Accept"] = "application/json";
-      downloader.Headers["User-Agent"] = "Mozilla/5.0 (Windows NT 6.1; WOW64; rv:17.0) Gecko/20100101 Firefox/17.0";
-      FreeGeoIPResponse result = downloader.Download<FreeGeoIPResponse>(BuildUrl(address));
-
+      GeocoderResponse result = downloader.Download<GeocoderResponse>(BuildUrl(coordinates.Latitude, coordinates.Longitude));
       if (result == null)
       {
-        locationInfo = null;
+        address = null;
         return false;
       }
-
-      locationInfo = new LocationInfo()
-        {
-          City = result.City,
-          Country = result.CountryName,
-          Latitude = (double)result.Latitude,
-          Longitude = (double)result.Longitude,
-          State = result.RegionName
-        };
-      return true;
+      address = result.ToCivicAddress();
+      return !string.IsNullOrWhiteSpace(address.CountryRegion) ||
+             !string.IsNullOrWhiteSpace(address.StateProvince) ||
+             !string.IsNullOrWhiteSpace(address.City);
     }
 
-    #endregion Internal methods
+    #endregion IAddressResolver implementation
   }
 }

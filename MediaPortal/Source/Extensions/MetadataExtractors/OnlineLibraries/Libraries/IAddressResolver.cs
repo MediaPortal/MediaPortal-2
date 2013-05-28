@@ -20,16 +20,14 @@
     along with MediaPortal 2. If not, see <http://www.gnu.org/licenses/>.
 */
 
-#endregion
+#endregion Copyright (C) 2007-2013 Team MediaPortal
 
-namespace MediaPortal.Extensions.OnlineLibraries.Libraries.GeoLocation.Data
+using System.Device.Location;
+
+namespace MediaPortal.Extensions.OnlineLibraries.Libraries
 {
-  public class LocationInfo
+  public interface IAddressResolver
   {
-    public double Latitude { get; set; }
-    public double Longitude { get; set; }
-    public string City { get; set; }
-    public string State { get; set; }
-    public string Country { get; set; }
+    bool TryResolveCivicAddress(GeoCoordinate coordinates, out CivicAddress address);
   }
 }

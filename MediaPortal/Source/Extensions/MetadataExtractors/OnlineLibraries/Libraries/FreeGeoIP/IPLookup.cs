@@ -1,0 +1,102 @@
+﻿#region Copyright (C) 2007-2013 Team MediaPortal
+
+/*
+    Copyright (C) 2007-2013 Team MediaPortal
+    http://www.team-mediaportal.com
+
+    This file is part of MediaPortal 2
+
+    MediaPortal 2 is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    MediaPortal 2 is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with MediaPortal 2. If not, see <http://www.gnu.org/licenses/>.
+*/
+
+#endregion Copyright (C) 2007-2013 Team MediaPortal
+
+using MediaPortal.Extensions.OnlineLibraries.Libraries.Common;
+using MediaPortal.Extensions.OnlineLibraries.Libraries.Common.Data;
+using MediaPortal.Extensions.OnlineLibraries.Libraries.FreeGeoIP.Data;
+using System.Device.Location;
+using System.Net;
+
+namespace MediaPortal.Extensions.OnlineLibraries.Libraries.FreeGeoIP
+{
+  public class IPLookup : IAddressResolver, ICoordinateResolver
+  {
+    #region Ctor
+
+    public IPLookup()
+    {
+    }
+
+    #endregion Ctor
+
+    #region Private methods
+
+    private string BuildUrl(IPAddress address)
+    {
+      return string.Format("http://freegeoip.net/json/{0}", address.ToString());
+    }
+
+    private bool TryLookupInternal(out CivicAddress address, out GeoCoordinate coordinates)
+    {
+      TraceRoute trace = new TraceRoute();
+      TraceRouteResponse response;
+      trace.TrySearchForFirstExternalAddress(Dns.GetHostEntry("google.com").AddressList[0], 30,
+                                          out response);
+
+      return TryLookupInternal(response.FirstResponseIP, out address, out coordinates);
+    }
+
+    private bool TryLookupInternal(IPAddress ip, out CivicAddress address, out GeoCoordinate coordinates)
+    {
+      var downloader = new Downloader { EnableCompression = true };
+      downloader.Headers["Accept"] = "application/json";
+      downloader.Headers["User-Agent"] = "Mozilla/5.0 (Windows NT 6.1; WOW64; rv:17.0) Gecko/20100101 Firefox/17.0";
+      FreeGeoIPResponse result = downloader.Download<FreeGeoIPResponse>(BuildUrl(ip));
+
+      if (result == null)
+      {
+        address = null;
+        coordinates = null;
+        return false;
+      }
+
+      address = result.ToCivicAddress();
+      coordinates = result.ToGeoCoordinates();
+
+      return true;
+    }
+
+    #endregion Private methods
+
+    #region IAddressResolver implementation
+
+    public bool TryResolveCivicAddress(GeoCoordinate coordinates, out CivicAddress address)
+    {
+      GeoCoordinate temp;
+      return TryLookupInternal(out address, out temp);
+    }
+
+    #endregion IAddressResolver implementation
+
+    #region ICoordinateResolver implementation
+
+    public bool TryResolveCoordinates(out GeoCoordinate coordinates)
+    {
+      CivicAddress temp;
+      return TryLookupInternal(out temp, out coordinates);
+    }
+
+    #endregion ICoordinateResolver implementation
+  }
+}

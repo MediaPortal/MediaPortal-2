@@ -22,51 +22,21 @@
 
 #endregion Copyright (C) 2007-2013 Team MediaPortal
 
-#region Imports
-
-using System;
 using System.Net;
 
-#endregion Imports
-
-namespace MediaPortal.Extensions.GeoLocation.IPLookup.Data
+namespace MediaPortal.Extensions.OnlineLibraries.Libraries.Common.Data
 {
-  internal class TraceRouteResponse
+  public class TraceRouteResponse
   {
-    #region Private variables
-
-    private string _firstResponseHostname;
-    private string _firstResponseIP;
-    private int _firstResponseTtl;
-    private IPAddress _remoteHost;
-
-    #endregion Private variables
-
     #region Public properties
 
-    public String FirstResponseHostname
-    {
-      get { return _firstResponseHostname; }
-      set { _firstResponseHostname = value; }
-    }
+    public string FirstResponseHostname { get; set; }
 
-    public String FirstResponseIP
-    {
-      get { return _firstResponseIP; }
-      set { _firstResponseIP = value; }
-    }
+    public IPAddress FirstResponseIP { get; set; }
 
-    public int FirstResponseTtl
-    {
-      get { return _firstResponseTtl; }
-      set { _firstResponseTtl = value; }
-    }
+    public int FirstResponseTtl { get; set; }
 
-    public IPAddress RemoteHost
-    {
-      get { return _remoteHost; }
-      set { _remoteHost = value; }
-    }
+    public IPAddress RemoteHost { get; set; }
 
     #endregion Public properties
   }

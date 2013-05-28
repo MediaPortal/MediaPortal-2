@@ -20,12 +20,9 @@
     along with MediaPortal 2. If not, see <http://www.gnu.org/licenses/>.
 */
 
-#endregion
+#endregion Copyright (C) 2007-2013 Team MediaPortal
 
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
+using System.Device.Location;
 using MediaPortal.Common;
 using MediaPortal.Common.Logging;
 using MediaPortal.Common.MediaManagement;
@@ -36,9 +33,12 @@ using MediaPortal.Common.Services.ThumbnailGenerator;
 using MediaPortal.Common.Settings;
 using MediaPortal.Extensions.MetadataExtractors.ImageMetadataExtractor.Settings;
 using MediaPortal.Extensions.OnlineLibraries;
-using MediaPortal.Extensions.OnlineLibraries.Libraries.GeoLocation.Data;
 using MediaPortal.Utilities;
 using MediaPortal.Utilities.SystemAPI;
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
 
 namespace MediaPortal.Extensions.MetadataExtractors.ImageMetadataExtractor
 {
@@ -59,7 +59,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.ImageMetadataExtractor
     /// </summary>
     public static Guid METADATAEXTRACTOR_ID = new Guid(METADATAEXTRACTOR_ID_STR);
 
-    #endregion
+    #endregion Constants
 
     #region Protected fields and classes
 
@@ -68,7 +68,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.ImageMetadataExtractor
 
     protected MetadataExtractorMetadata _metadata;
 
-    #endregion
+    #endregion Protected fields and classes
 
     #region Ctor
 
@@ -98,7 +98,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.ImageMetadataExtractor
               });
     }
 
-    #endregion
+    #endregion Ctor
 
     #region Protected methods
 
@@ -114,7 +114,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.ImageMetadataExtractor
       return IMAGE_FILE_EXTENSIONS.Contains(ext);
     }
 
-    #endregion
+    #endregion Protected methods
 
     #region IMetadataExtractor implementation
 
@@ -153,16 +153,16 @@ namespace MediaPortal.Extensions.MetadataExtractors.ImageMetadataExtractor
           mediaAspect.SetAttribute(MediaAspect.ATTR_RECORDINGTIME, exif.OriginalDate != DateTime.MinValue ? exif.OriginalDate : fsra.LastChanged);
           mediaAspect.SetAttribute(MediaAspect.ATTR_COMMENT, StringUtils.TrimToNull(exif.ImageDescription));
 
-          if (exif.PixXDim.HasValue) imageAspect.SetAttribute(ImageAspect.ATTR_WIDTH, (int) exif.PixXDim);
-          if (exif.PixYDim.HasValue) imageAspect.SetAttribute(ImageAspect.ATTR_HEIGHT, (int) exif.PixYDim);
+          if (exif.PixXDim.HasValue) imageAspect.SetAttribute(ImageAspect.ATTR_WIDTH, (int)exif.PixXDim);
+          if (exif.PixYDim.HasValue) imageAspect.SetAttribute(ImageAspect.ATTR_HEIGHT, (int)exif.PixYDim);
           imageAspect.SetAttribute(ImageAspect.ATTR_MAKE, StringUtils.TrimToNull(exif.EquipMake));
           imageAspect.SetAttribute(ImageAspect.ATTR_MODEL, StringUtils.TrimToNull(exif.EquipModel));
-          if (exif.ExposureBias.HasValue) imageAspect.SetAttribute(ImageAspect.ATTR_EXPOSURE_BIAS, ((double) exif.ExposureBias).ToString());
+          if (exif.ExposureBias.HasValue) imageAspect.SetAttribute(ImageAspect.ATTR_EXPOSURE_BIAS, ((double)exif.ExposureBias).ToString());
           imageAspect.SetAttribute(ImageAspect.ATTR_EXPOSURE_TIME, exif.ExposureTime);
           imageAspect.SetAttribute(ImageAspect.ATTR_FLASH_MODE, StringUtils.TrimToNull(exif.FlashMode));
-          if (exif.FNumber.HasValue) imageAspect.SetAttribute(ImageAspect.ATTR_FNUMBER, string.Format("F {0}", (double) exif.FNumber));
+          if (exif.FNumber.HasValue) imageAspect.SetAttribute(ImageAspect.ATTR_FNUMBER, string.Format("F {0}", (double)exif.FNumber));
           imageAspect.SetAttribute(ImageAspect.ATTR_ISO_SPEED, StringUtils.TrimToNull(exif.ISOSpeed));
-          imageAspect.SetAttribute(ImageAspect.ATTR_ORIENTATION, (Int32) (exif.OrientationType ?? 0));
+          imageAspect.SetAttribute(ImageAspect.ATTR_ORIENTATION, (Int32)(exif.OrientationType ?? 0));
           imageAspect.SetAttribute(ImageAspect.ATTR_METERING_MODE, exif.MeteringMode.ToString());
 
           if (exif.Latitude.HasValue && exif.Longitude.HasValue)
@@ -170,16 +170,16 @@ namespace MediaPortal.Extensions.MetadataExtractors.ImageMetadataExtractor
             imageAspect.SetAttribute(ImageAspect.ATTR_LATITUDE, exif.Latitude);
             imageAspect.SetAttribute(ImageAspect.ATTR_LONGITUDE, exif.Longitude);
 
-            LocationInfo locationInfo;
-            if (!forceQuickMode && GeoLocationMatcher.Instance.TryLookup(exif.Latitude.Value, exif.Longitude.Value, out locationInfo))
+            CivicAddress locationInfo;
+            if (!forceQuickMode && GeoLocationService.Instance.TryLookup(new GeoCoordinate(exif.Latitude.Value, exif.Longitude.Value), out locationInfo))
             {
               imageAspect.SetAttribute(ImageAspect.ATTR_CITY, locationInfo.City);
-              imageAspect.SetAttribute(ImageAspect.ATTR_STATE, locationInfo.State);
-              imageAspect.SetAttribute(ImageAspect.ATTR_COUNTRY, locationInfo.Country);
+              imageAspect.SetAttribute(ImageAspect.ATTR_STATE, locationInfo.StateProvince);
+              imageAspect.SetAttribute(ImageAspect.ATTR_COUNTRY, locationInfo.CountryRegion);
             }
           }
 
-          using (ILocalFsResourceAccessor lfsra = StreamedResourceToLocalFsAccessBridge.GetLocalFsResourceAccessor((IFileSystemResourceAccessor) fsra.Clone()))
+          using (ILocalFsResourceAccessor lfsra = StreamedResourceToLocalFsAccessBridge.GetLocalFsResourceAccessor((IFileSystemResourceAccessor)fsra.Clone()))
           {
             string localFsResourcePath = lfsra.LocalFileSystemPath;
             if (localFsResourcePath != null)
@@ -209,6 +209,6 @@ namespace MediaPortal.Extensions.MetadataExtractors.ImageMetadataExtractor
       return false;
     }
 
-    #endregion
+    #endregion IMetadataExtractor implementation
   }
 }
