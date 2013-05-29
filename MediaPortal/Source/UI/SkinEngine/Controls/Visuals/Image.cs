@@ -359,7 +359,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     protected bool IsValidSource(string uriSource)
     {
       string lower = uriSource.ToLower();
-      if (lower.EndsWith(".png") || lower.EndsWith(".bmp") || lower.EndsWith(".jpg") || lower.EndsWith(".jpeg"))
+      if (lower.EndsWith(".png") || lower.EndsWith(".bmp") || lower.EndsWith(".jpg") || lower.EndsWith(".jpeg") || lower.EndsWith(".gif"))
         return true;
 
       if (Thumbnail && (lower.EndsWith(".avi") || lower.EndsWith(".ts") || lower.EndsWith(".mkv")))

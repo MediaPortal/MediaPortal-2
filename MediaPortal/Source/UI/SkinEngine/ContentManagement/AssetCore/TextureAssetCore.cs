@@ -24,9 +24,11 @@
 
 using System;
 using System.Drawing;
+using System.Drawing.Imaging;
 using System.IO;
 using System.Net;
 using System.Net.Cache;
+using FreeImageAPI;
 using MediaPortal.Common;
 using MediaPortal.Common.Logging;
 using MediaPortal.UI.SkinEngine.DirectX;
@@ -87,37 +89,78 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement.AssetCore
     protected void AllocateFromStream_NoLock(Stream stream)
     {
       stream.Seek(0, SeekOrigin.Begin);
-      Texture texture;
-      ImageInformation info;
+      Texture texture = null;
+      ImageInformation info = new ImageInformation();
       try
       {
-        texture = Texture.FromStream(GraphicsDevice.Device, stream, 0, _decodeWidth, _decodeHeight, 1, 
+        texture = Texture.FromStream(GraphicsDevice.Device, stream, 0, _decodeWidth, _decodeHeight, 1,
             Usage.None, Format.A8R8G8B8, Pool.Default, Filter.None, Filter.None, 0, out info);
+      }
+      catch (Direct3D9Exception ex)
+      {
+        // Decoding the image using the inbuilt decoders didn't work, so we try to create texture using FreeImage.
+        if ((uint) ex.ResultCode.Code == 0x88760B59) // D3DXERR_INVALIDDATA
+          // Load compressed image data.
+          texture = AllocateFromImageStream(stream, out info);
       }
       catch (Exception e)
       {
         ServiceRegistration.Get<ILogger>().Warn("TextureAssetCore: Error loading texture from file data stream", e);
         return;
       }
-      FinalizeAllocation(texture, info.Width, info.Height);
+      if (texture != null)
+        FinalizeAllocation(texture, info.Width, info.Height);
     }
 
     protected void AllocateFromBuffer_NoLock(byte[] data)
     {
-      Texture texture;
-      ImageInformation info;
+      Texture texture = null;
+      ImageInformation info = new ImageInformation();
       try
       {
-        texture = Texture.FromMemory(
-            GraphicsDevice.Device, data, _decodeWidth, _decodeHeight, 1,
-            Usage.None, Format.A8R8G8B8, Pool.Default, Filter.None, Filter.None, 0, out info);
+        texture = Texture.FromMemory(GraphicsDevice.Device, data, _decodeWidth, _decodeHeight, 1,
+                    Usage.None, Format.A8R8G8B8, Pool.Default, Filter.None, Filter.None, 0, out info);
+      }
+      catch (Direct3D9Exception ex)
+      {
+        // Decoding the image using the inbuilt decoders didn't work, so we try to create texture using FreeImage.
+        if ((uint) ex.ResultCode.Code == 0x88760B59) // D3DXERR_INVALIDDATA
+          // Load compressed image data.
+          using (Stream dataStream = new MemoryStream(data))
+            texture = AllocateFromImageStream(dataStream, out info);
       }
       catch (Exception e)
       {
         ServiceRegistration.Get<ILogger>().Warn("TextureAssetCore: Error loading texture from memory buffer", e);
         return;
       }
-      FinalizeAllocation(texture, info.Width, info.Height);
+      if (texture != null)
+        FinalizeAllocation(texture, info.Width, info.Height);
+    }
+
+    protected Texture AllocateFromImageStream(Stream dataStream, out ImageInformation info)
+    {
+      Texture texture;
+      FIBITMAP image = new FIBITMAP();
+      try
+      {
+        image = FreeImage.LoadFromStream(dataStream);
+
+        // Write uncompressed data to temporary stream.
+        using (var bmp = FreeImage.GetBitmap(image))
+        using (var memoryStream = new MemoryStream())
+        {
+          bmp.Save(memoryStream, ImageFormat.Bmp);
+          memoryStream.Position = 0;
+          texture = Texture.FromStream(GraphicsDevice.Device, memoryStream, (int) memoryStream.Length, _decodeWidth, _decodeHeight, 1,
+            Usage.None, Format.A8R8G8B8, Pool.Default, Filter.None, Filter.None, 0, out info);
+        }
+      }
+      finally
+      {
+        FreeImage.UnloadEx(ref image);
+      }
+      return texture;
     }
 
     protected virtual void FinalizeAllocation(Texture texture, int fileWidth, int fileHeight)
@@ -136,9 +179,9 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement.AssetCore
           SurfaceDescription desc = _texture.GetLevelDescription(0);
           _width = fileWidth;
           _height = fileHeight;
-          _maxU = fileWidth/((float) desc.Width);
-          _maxV = fileHeight/((float) desc.Height);
-          _allocationSize = desc.Width*desc.Height*4;
+          _maxU = fileWidth / ((float) desc.Width);
+          _maxV = fileHeight / ((float) desc.Height);
+          _allocationSize = desc.Width * desc.Height * 4;
           AllocationChanged(_allocationSize);
         }
       }
@@ -278,7 +321,8 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement.AssetCore
       protected WebClient _webClient;
       protected Uri _uri;
 
-      public AsyncWebLoadOperation(Uri uri, AsyncOperationFinished finishCallback) : base(finishCallback)
+      public AsyncWebLoadOperation(Uri uri, AsyncOperationFinished finishCallback)
+        : base(finishCallback)
       {
         _uri = uri;
         // Load texture as a web resource
@@ -327,12 +371,13 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement.AssetCore
     public class AsyncStreamLoadOperation : AsyncLoadOperation
     {
       protected bool _isCancelled = false;
-      
+
       protected Stream _stream;
       protected string _streamName;
       protected int _position;
 
-      public AsyncStreamLoadOperation(Stream stream, String streamName, AsyncOperationFinished finishCallback) : base(finishCallback)
+      public AsyncStreamLoadOperation(Stream stream, String streamName, AsyncOperationFinished finishCallback)
+        : base(finishCallback)
       {
         _stream = stream;
         _streamName = streamName;
@@ -416,7 +461,8 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement.AssetCore
     /// </summary>
     /// <param name="textureName">Name of the texture. Can either be a file name relative
     /// to the <see cref="SkinResources.IMAGES_DIRECTORY"/>, a web URL or a file URL.</param>
-    public TextureAssetCore(string textureName) : this(textureName, 0, 0)
+    public TextureAssetCore(string textureName)
+      : this(textureName, 0, 0)
     { }
 
     /// <summary>
@@ -499,7 +545,7 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement.AssetCore
 
     #region Protected allocation helpers
 
-        /// <summary>
+    /// <summary>
     /// Loads the specified texture from the file or from the URI.
     /// </summary>
     protected void Allocate_NoLock(bool async)
@@ -557,7 +603,7 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement.AssetCore
     {
       lock (_syncObj)
         if (_asyncLoadOperation != null && _asyncLoadOperation.TimeElapsed.TotalMilliseconds > ASYNCHRONOUS_TIMEOUT_MS)
-            _asyncLoadOperation.Cancel();
+          _asyncLoadOperation.Cancel();
     }
 
     protected bool CheckState(State testState)
@@ -684,7 +730,8 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement.AssetCore
   {
     private readonly byte[] _binaryThumbdata;
 
-    public BinaryTextureAssetCore(byte[] binaryThumbdata, string textureName) : base(textureName, 0, 0)
+    public BinaryTextureAssetCore(byte[] binaryThumbdata, string textureName)
+      : base(textureName, 0, 0)
     {
       _binaryThumbdata = binaryThumbdata;
     }
@@ -707,7 +754,8 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement.AssetCore
   {
     private readonly Stream _stream;
 
-    public StreamTextureAssetCore(Stream stream, string textureName) : base(textureName, 0, 0)
+    public StreamTextureAssetCore(Stream stream, string textureName)
+      : base(textureName, 0, 0)
     {
       _stream = stream;
     }
@@ -733,22 +781,23 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement.AssetCore
     protected const int TEXTURE_SIZE = 16;
     protected Color _color;
 
-    public ColorTextureAssetCore(Color color) : base(color.ToString())
+    public ColorTextureAssetCore(Color color)
+      : base(color.ToString())
     {
       _color = color;
       _maxU = 1.0f;
       _maxV = 1.0f;
     }
-    
+
     public override void Allocate()
     {
       lock (_syncObj)
       {
         if (!IsAllocated)
         {
-          byte[] buffer = new byte[TEXTURE_SIZE*TEXTURE_SIZE*4];
+          byte[] buffer = new byte[TEXTURE_SIZE * TEXTURE_SIZE * 4];
           int offset = 0;
-          while (offset < TEXTURE_SIZE*TEXTURE_SIZE*4)
+          while (offset < TEXTURE_SIZE * TEXTURE_SIZE * 4)
           {
             buffer[offset++] = _color.R;
             buffer[offset++] = _color.G;
@@ -765,7 +814,7 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement.AssetCore
 
           _width = TEXTURE_SIZE;
           _height = TEXTURE_SIZE;
-          _allocationSize = TEXTURE_SIZE*TEXTURE_SIZE*4;
+          _allocationSize = TEXTURE_SIZE * TEXTURE_SIZE * 4;
         }
       }
       // Don't hold a lock while calling external code
