@@ -359,6 +359,11 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
             DoSwitchSkinAndTheme_NoLock(newSkinName, newThemeName);
             DecPendingOperations();
             break;
+          case ScreenManagerMessaging.MessageType.SetBackgroundDisabled:
+            bool disabled = (bool) message.MessageData[ScreenManagerMessaging.IS_DISABLED];
+            DoSetBackgroundDisabled_NoLock(disabled);
+            DecPendingOperations();
+            break;
         }
       }
     }
@@ -556,6 +561,15 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
       settings.Skin = SkinName;
       settings.Theme = ThemeName;
       ServiceRegistration.Get<ISettingsManager>().Save(settings);
+    }
+
+    protected void DoSetBackgroundDisabled_NoLock(bool disabled)
+    {
+      ServiceRegistration.Get<ILogger>().Debug(disabled ?
+          "ScreenManager: Disabling background screen rendering" :
+          "ScreenManager: Enabling background screen rendering");
+      lock (_syncObj)
+        _backgroundDisabled = disabled;
     }
 
     /// <summary>
@@ -1425,15 +1439,11 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
       }
       set
       {
-        lock (_syncObj)
-        {
-          if (_backgroundDisabled == value)
-            return;
-          ServiceRegistration.Get<ILogger>().Debug(value ?
-              "ScreenManager: Disabling background screen rendering" :
-              "ScreenManager: Enabling background screen rendering");
-          _backgroundDisabled = value;
-        }
+        if (_backgroundDisabled == value)
+          return;
+
+        IncPendingOperations();
+        ScreenManagerMessaging.SendSetBackgroundDisableMessage(value);
       }
     }
 

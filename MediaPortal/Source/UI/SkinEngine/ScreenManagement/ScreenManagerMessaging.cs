@@ -76,6 +76,11 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
       /// Internal message to switch the skin/theme. The parameters <see cref="SKIN_NAME"/> and <see cref="THEME_NAME"/> are set.
       /// </summary>
       SwitchSkinAndTheme,
+
+      /// <summary>
+      /// Internal message to set the <see cref="ScreenManager.BackgroundDisabled"/> property.
+      /// </summary>
+      SetBackgroundDisabled,
     }
 
     // Message data
@@ -86,6 +91,7 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
     public const string CLOSE_DIALOGS_MODE = "Mode"; // Type CloseDialogsMode
     public const string SKIN_NAME = "SkinName"; // Type string
     public const string THEME_NAME = "ThemeName"; // Type string
+    public const string IS_DISABLED = "IsDisabled"; // Type bool
 
     internal static void SendMessageShowScreen(Screen screen, bool closeDialogs)
     {
@@ -128,6 +134,13 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
       SystemMessage msg = new SystemMessage(MessageType.SwitchSkinAndTheme);
       msg.MessageData[SKIN_NAME] = newSkinName;
       msg.MessageData[THEME_NAME] = newThemeName;
+      ServiceRegistration.Get<IMessageBroker>().Send(CHANNEL, msg);
+    }
+
+    internal static void SendSetBackgroundDisableMessage(bool disabled)
+    {
+      SystemMessage msg = new SystemMessage(MessageType.SetBackgroundDisabled);
+      msg.MessageData[IS_DISABLED] = disabled;
       ServiceRegistration.Get<IMessageBroker>().Send(CHANNEL, msg);
     }
   }
