@@ -130,7 +130,7 @@ namespace MediaPortal.UiComponents.News
             }
             catch (Exception error)
             {
-              ServiceRegistration.Get<ILogger>().Warn("Error reading News Feed Data from '{0}': {1}", url, error);
+              ServiceRegistration.Get<ILogger>().Warn("Error reading News Feed Data from '{0}'", error, url);
             }
           }
           lock (_feeds)
@@ -141,7 +141,7 @@ namespace MediaPortal.UiComponents.News
         }
         catch (Exception ex)
         {
-          ServiceRegistration.Get<ILogger>().Warn("Error refreshing News Data: {0}", ex);
+          ServiceRegistration.Get<ILogger>().Warn("Error refreshing News Data", ex);
         }
         finally
         {
