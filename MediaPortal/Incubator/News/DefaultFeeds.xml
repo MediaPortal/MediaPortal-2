@@ -66,4 +66,5 @@
       <Feed Name="DN">http://www.dn.se/toppnyheter-rss</Feed>
       <Feed Name="SVT">http://www.svt.se/nyheter/rss.xml</Feed>
     </Feeds>
+  </Region>
 </RegionalFeeds>

@@ -425,7 +425,9 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       string warnSource = source.ToString();
       if (_formerWarnURI != warnSource)
       {
-        ServiceRegistration.Get<ILogger>().Warn("Image: Image source '{0}' is not supported", warnSource);
+        if (!string.IsNullOrEmpty(warnSource))
+          ServiceRegistration.Get<ILogger>().Warn("Image: Image source '{0}' is not supported", warnSource);
+
         // Remember if we already wrote a warning to the log to avoid log flooding
         _formerWarnURI = uriSource;
       }

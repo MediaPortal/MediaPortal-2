@@ -40,8 +40,8 @@
 
 
   <ResourceWrapper x:Key="DialogBackgroundBaseColor" Resource="#B0D2D2D2"/>
-  <ResourceWrapper x:Key="DialogBackgroundGradient1Color" Resource="#E0FFFFFF"/>
-  <ResourceWrapper x:Key="DialogBackgroundGradient2Color" Resource="#E0939393"/>
+  <ResourceWrapper x:Key="DialogBackgroundGradient1Color" Resource="#E0B0B0B0"/>
+  <ResourceWrapper x:Key="DialogBackgroundGradient2Color" Resource="#E0808080"/>
 
   <ResourceWrapper x:Key="DialogBorderGradient1Color" Resource="#40505050"/>
   <ResourceWrapper x:Key="DialogBorderGradient2Color" Resource="#A0808080"/>
