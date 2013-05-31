@@ -101,7 +101,7 @@ namespace MediaPortal.UI.Players.Video
         // find the SourceFilter
         CodecInfo sourceFilter = ServiceRegistration.Get<ISettingsManager>().Load<BDPlayerSettings>().BDSourceFilter;
 
-        // load the SourceFilter         
+        // load the SourceFilter
         if (TryAdd(sourceFilter))
         {
           IFileSourceFilter fileSourceFilter = FilterGraphTools.FindFilterByInterface<IFileSourceFilter>(_graphBuilder);
@@ -126,7 +126,7 @@ namespace MediaPortal.UI.Players.Video
 
       // First all automatically rendered pins
       FilterGraphTools.RenderOutputPins(_graphBuilder, (IBaseFilter) fileSourceFilter);
-      
+
       Marshal.ReleaseComObject(fileSourceFilter);
 
       // MSDN: "During the connection process, the Filter Graph Manager ignores pins on intermediate filters if the pin name begins with a tilde (~)."
@@ -178,10 +178,16 @@ namespace MediaPortal.UI.Players.Video
           return true;
         }
 
-        ScanProcess scanner = ScanWorker;
-        IAsyncResult result = scanner.BeginInvoke(filePath, null, scanner);
-        result.AsyncWaitHandle.WaitOne();
-        BDInfoExt bluray = scanner.EndInvoke(result);
+        BDInfoExt bluray;
+        try
+        {
+          bluray = ScanWorker(filePath);
+        }
+        catch (Exception)
+        {
+          // If our parsing of BD structure fails, the splitter might still be able to handle the BDMV directly, so return "success" here.
+          return true;
+        }
 
         // Store all playlist files for title selection
         _bdTitles = bluray.PlaylistFiles.Values.Where(p => p.IsValid && !p.HasLoops).Distinct().ToList();
@@ -237,7 +243,7 @@ namespace MediaPortal.UI.Players.Video
       catch (Exception e)
       {
         BDPlayerBuilder.LogError("Exception while reading bluray structure {0} {1}", e.Message, e.StackTrace);
-        return true;
+        return false;
       }
     }
 
@@ -258,7 +264,7 @@ namespace MediaPortal.UI.Players.Video
     {
       get
       {
-        return _bdTitleNames.Length > 1 ? _bdTitleNames : EMPTY_STRING_ARRAY;
+        return _bdTitleNames != null && _bdTitleNames.Length > 1 ? _bdTitleNames : EMPTY_STRING_ARRAY;
       }
     }
 
