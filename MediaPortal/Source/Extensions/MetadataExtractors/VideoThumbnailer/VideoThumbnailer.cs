@@ -103,9 +103,8 @@ namespace MediaPortal.Extensions.MetadataExtractors.VideoThumbnailer
 
         if (!(mediaItemAccessor is IFileSystemResourceAccessor))
           return false;
-        using (IFileSystemResourceAccessor fsra = (IFileSystemResourceAccessor) mediaItemAccessor.Clone())
-        using (ILocalFsResourceAccessor lfsra = StreamedResourceToLocalFsAccessBridge.GetLocalFsResourceAccessor(fsra))
-          return ExtractThumbnail(lfsra, extractedAspectData);
+        using (LocalFsResourceAccessorHelper rah = new LocalFsResourceAccessorHelper(mediaItemAccessor))
+          return ExtractThumbnail(rah.LocalFsResourceAccessor, extractedAspectData);
       }
       catch (Exception e)
       {

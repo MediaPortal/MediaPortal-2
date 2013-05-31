@@ -30,7 +30,6 @@ using MediaPortal.Common.Logging;
 using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.Common.ResourceAccess;
-using MediaPortal.Common.Services.ResourceAccess.StreamedResourceToLocalFsAccessBridge;
 using MediaPortal.UI.Players.Video;
 
 namespace MediaPortal.Media.MetadataExtractors
@@ -73,13 +72,13 @@ namespace MediaPortal.Media.MetadataExtractors
       MediaCategory movieCategory;
       IMediaAccessor mediaAccessor = ServiceRegistration.Get<IMediaAccessor>();
       if (!mediaAccessor.MediaCategories.TryGetValue(MEDIA_CATEGORY_NAME_MOVIE, out movieCategory))
-        movieCategory = mediaAccessor.RegisterMediaCategory(MEDIA_CATEGORY_NAME_MOVIE, new List<MediaCategory> {DefaultMediaCategories.Video});
+        movieCategory = mediaAccessor.RegisterMediaCategory(MEDIA_CATEGORY_NAME_MOVIE, new List<MediaCategory> { DefaultMediaCategories.Video });
       MEDIA_CATEGORIES.Add(movieCategory);
     }
 
     public BluRayMetadataExtractor()
     {
-      _metadata = new MetadataExtractorMetadata(METADATAEXTRACTOR_ID, "BluRay metadata extractor", MetadataExtractorPriority.Core, false, 
+      _metadata = new MetadataExtractorMetadata(METADATAEXTRACTOR_ID, "BluRay metadata extractor", MetadataExtractorPriority.Core, false,
           MEDIA_CATEGORIES, new[]
               {
                 MediaAspect.Metadata,
@@ -102,8 +101,10 @@ namespace MediaPortal.Media.MetadataExtractors
       {
         if (!(mediaItemAccessor is IFileSystemResourceAccessor))
           return false;
-        using (IFileSystemResourceAccessor fsra = (IFileSystemResourceAccessor) mediaItemAccessor.Clone())
-        using (ILocalFsResourceAccessor lfsra = StreamedResourceToLocalFsAccessBridge.GetLocalFsResourceAccessor(fsra))
+
+        using (LocalFsResourceAccessorHelper rah = new LocalFsResourceAccessorHelper(mediaItemAccessor))
+        {
+          ILocalFsResourceAccessor lfsra = rah.LocalFsResourceAccessor;
           if (!lfsra.IsFile && lfsra.ResourceExists("BDMV"))
           {
             IFileSystemResourceAccessor fsraBDMV = lfsra.GetResource("BDMV");
@@ -134,6 +135,7 @@ namespace MediaPortal.Media.MetadataExtractors
               return true;
             }
           }
+        }
         return false;
       }
       catch
