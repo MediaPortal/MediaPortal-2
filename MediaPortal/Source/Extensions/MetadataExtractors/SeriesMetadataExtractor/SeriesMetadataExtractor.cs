@@ -30,7 +30,6 @@ using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.Common.MediaManagement.Helpers;
 using MediaPortal.Common.ResourceAccess;
-using MediaPortal.Common.Services.ResourceAccess.StreamedResourceToLocalFsAccessBridge;
 using MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor.NameMatchers;
 using MediaPortal.Extensions.OnlineLibraries;
 
@@ -98,7 +97,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
       if (!MediaItemAspect.TryGetAttribute(extractedAspectData, MediaAspect.ATTR_TITLE, out title) || string.IsNullOrEmpty(title))
         return false;
 
-      SeriesInfo seriesInfo = null;
+      SeriesInfo seriesInfo;
 
       // Try to get extended information out of matroska files)
       MatroskaMatcher matroskaMatcher = new MatroskaMatcher();
@@ -139,10 +138,9 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
 
         if (!(mediaItemAccessor is IFileSystemResourceAccessor))
           return false;
-        using (IFileSystemResourceAccessor fsra = (IFileSystemResourceAccessor) mediaItemAccessor.Clone())
-        using (ILocalFsResourceAccessor lfsra = StreamedResourceToLocalFsAccessBridge.GetLocalFsResourceAccessor(fsra))
+        using (LocalFsResourceAccessorHelper rah = new LocalFsResourceAccessorHelper(mediaItemAccessor))
         {
-          string localFsPath = lfsra.LocalFileSystemPath;
+          string localFsPath = rah.LocalFsResourceAccessor.LocalFileSystemPath;
           return ExtractSeriesData(localFsPath, extractedAspectData);
         }
       }

@@ -454,23 +454,9 @@ namespace MediaPortal.Extensions.MetadataExtractors.VideoMetadataExtractor
         {
           result.UpdateMetadata(extractedAspectData);
 
-          ILocalFsResourceAccessor disposeLfsra = null;
-          try
+          using (LocalFsResourceAccessorHelper rah = new LocalFsResourceAccessorHelper(mediaItemAccessor))
           {
-            ILocalFsResourceAccessor lfsra = fsra as ILocalFsResourceAccessor;
-            if (lfsra == null && !forceQuickMode)
-            { // In case forceQuickMode, we only want local browsing
-              IFileSystemResourceAccessor localFsra = (IFileSystemResourceAccessor) fsra.Clone();
-              try
-              {
-                lfsra = StreamedResourceToLocalFsAccessBridge.GetLocalFsResourceAccessor(localFsra);
-                disposeLfsra = lfsra; // Remember to dispose the extra resource accessor instance
-              }
-              catch (Exception)
-              {
-                localFsra.Dispose();
-              }
-            }
+            ILocalFsResourceAccessor lfsra = rah.LocalFsResourceAccessor;
             if (lfsra != null)
             {
               string localFsPath = lfsra.LocalFileSystemPath;
@@ -478,13 +464,8 @@ namespace MediaPortal.Extensions.MetadataExtractors.VideoMetadataExtractor
               ExtractMp4Tags(localFsPath, extractedAspectData, forceQuickMode);
               ExtractThumbnailData(localFsPath, extractedAspectData, forceQuickMode);
             }
+            return true;
           }
-          finally
-          {
-            if (disposeLfsra != null)
-              disposeLfsra.Dispose();
-          }
-          return true;
         }
       }
       catch (Exception e)

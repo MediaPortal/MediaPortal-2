@@ -31,7 +31,6 @@ using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.Common.MediaManagement.Helpers;
 using MediaPortal.Common.ResourceAccess;
-using MediaPortal.Common.Services.ResourceAccess.StreamedResourceToLocalFsAccessBridge;
 using MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor.Matchers;
 using MediaPortal.Extensions.OnlineLibraries;
 using MediaPortal.Extensions.OnlineLibraries.TheMovieDB;
@@ -160,9 +159,8 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
 
         if (!(mediaItemAccessor is IFileSystemResourceAccessor))
           return false;
-        using (IFileSystemResourceAccessor fsra = (IFileSystemResourceAccessor) mediaItemAccessor.Clone())
-        using (ILocalFsResourceAccessor lfsra = StreamedResourceToLocalFsAccessBridge.GetLocalFsResourceAccessor(fsra))
-          return ExtractMovieData(lfsra, extractedAspectData);
+        using (LocalFsResourceAccessorHelper rah = new LocalFsResourceAccessorHelper(mediaItemAccessor))
+          return ExtractMovieData(rah.LocalFsResourceAccessor, extractedAspectData);
       }
       catch (Exception e)
       {

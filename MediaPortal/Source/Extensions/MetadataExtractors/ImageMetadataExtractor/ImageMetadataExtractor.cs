@@ -28,7 +28,6 @@ using MediaPortal.Common.Logging;
 using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.Common.ResourceAccess;
-using MediaPortal.Common.Services.ResourceAccess.StreamedResourceToLocalFsAccessBridge;
 using MediaPortal.Common.Services.ThumbnailGenerator;
 using MediaPortal.Common.Settings;
 using MediaPortal.Extensions.MetadataExtractors.ImageMetadataExtractor.Settings;
@@ -179,9 +178,9 @@ namespace MediaPortal.Extensions.MetadataExtractors.ImageMetadataExtractor
             }
           }
 
-          using (ILocalFsResourceAccessor lfsra = StreamedResourceToLocalFsAccessBridge.GetLocalFsResourceAccessor((IFileSystemResourceAccessor)fsra.Clone()))
+          using (LocalFsResourceAccessorHelper rah = new LocalFsResourceAccessorHelper(mediaItemAccessor))
           {
-            string localFsResourcePath = lfsra.LocalFileSystemPath;
+            string localFsResourcePath = rah.LocalFsResourceAccessor.LocalFileSystemPath;
             if (localFsResourcePath != null)
             {
               // In quick mode only allow thumbs taken from cache.
