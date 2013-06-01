@@ -1,0 +1,29 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<resources>
+  <string name="SlimTvClient.Title">Client TV allégé</string>
+  <string name="SlimTvClient.CurrentlyPlayingInformationHeader">Information sur le programme</string>
+  <string name="SlimTvClient.ChannelLabel">Chaîne</string>
+  <string name="SlimTvClient.ProgramLabel">Programme</string>
+  <string name="SlimTvClient.DescriptionLabel">Description</string>
+  <string name="SlimTvClient.GenreLabel">Genre</string>
+  <string name="SlimTvClient.ProgramStartLabel">Heure de début</string>
+  <string name="SlimTvClient.ProgramEndLabel">Heure de fin</string>
+  <string name="SlimTvClient.EpisodeLabel">Épisode</string>
+  <string name="SlimTvClient.Guide">Guide Télé</string>
+  <string name="SlimTvClient.NoProgram">Programme indisponible</string>
+  <string name="SlimTvClient.ChooseProgramAction">Choisissez une action pour le programme...</string>
+  <string name="SlimTvClient.ProgramOver">Programme déjà terminé</string>
+  <string name="SlimTvClient.WatchNow">Regarder le programme en cours</string>
+  <string name="SlimTvClient.RecordNow">Enregister</string>
+  <string name="SlimTvClient.DeleteSchedule">Effacer l\'enregistrement programmé</string>
+  <string name="SlimTvClient.CreateSchedule">Programmer un enregistrement</string>
+  <string name="SlimTvClient.ErrorNoTvProvider">Aucun fournisseur TV disponible (pour l`instant)</string>
+  <string name="SlimTvClient.RecordingsMenuItem">Enregistrements</string>
+  <string name="SlimTvClient.RecordingsRootViewName">Enregistrements TV</string>
+  <string name="SlimTvClient.ChannelMenuItemLabel">Trier par chaîne</string>
+  <string name="SlimTvClient.ChannelNavBarItemLabel">Chaîne: {0}</string>
+  <string name="SlimTvClient.RecordingsByChannelHeader">Enregistrements triés par chaîne</string>
+  <string name="SlimTvClient.NameFilterMenuItemLabel">Trier par nom</string>
+  <string name="SlimTvClient.NameFilterNavBarItemLabel">{0}</string>
+  <string name="SlimTvClient.RecordingsByNameHeader">Enregistrements triés par nom</string>
+</resources>

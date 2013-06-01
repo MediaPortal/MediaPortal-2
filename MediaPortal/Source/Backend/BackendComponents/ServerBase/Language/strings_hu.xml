@@ -1,0 +1,18 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<resources>
+  <string name="MainForm.Title">MediaPortal 2 szerveralkalmazás</string>
+  <string name="MainForm.AttachedClients">Csatlakozott kliensek</string>
+  <string name="MainForm.Client">Kliens</string>
+  <string name="MainForm.System">Rendszer</string>
+  <string name="MainForm.ConnectionState">Csatlakozási állapot</string>
+  <string name="MainForm.Connected">Csatlakozva</string>
+  <string name="MainForm.Disconnected">Szétkapcsolva</string>
+  <string name="UPnPBackendServer.DefaultFriendlyName">MediaPortal 2 szerver</string>
+  <string name="UPnPBackendServer.Manufacturer">Team Mediaportal</string>
+  <string name="UPnPBackendServer.ManufacturerUrl">www.team-mediaportal.com</string>
+  <string name="UPnPBackendServer.ModelDescription">MediaPortal 2 szerver - hang, videó és képfájlok szolgáltatása valamint médiaadatbázis funkciók </string>
+  <string name="UPnPBackendServer.ModelName">MediaPortal 2 szerver</string>
+  <string name="UPnPBackendServer.ModelNumber">1</string>
+  <string name="UPnPBackendServer.ModelUrl">...</string>
+  <string name="MediaLibrary.EmptyOrMiscCharGroupName">&lt;Üres vagy egyéb karakter&gt;</string>
+</resources>

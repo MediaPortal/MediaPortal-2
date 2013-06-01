@@ -1,0 +1,14 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<resources>
+  <string name="Configuration.Name">Setelan</string>
+  <string name="Configuration.ConfigurationMainWorkflowNavigationContextDisplayLabel">Setelan</string>
+  <string name="Configuration.MainSettings">Setelan utama</string>
+  <!--2nd Header for root configuration section-->
+  <string name="Configuration.NoSettingsInThisSection">Tidak ada setelan untuk seksi ini</string>
+  <string name="Configuration.ErrorFloatingPointValue">\'{0}\' bukan angka floating point yang benar</string>
+  <string name="Configuration.ErrorIntegerValue">\'{0}\' bukan angka integer yang benar</string>
+  <string name="Configuration.ErrorNumericLowerLimit">Gunakan nilai antara \'{1}\' dan \'{2}\'</string>
+  <!--0 = current value, 1 = lower limit, 2 = upper limit-->
+  <string name="Configuration.ErrorNumericUpperLimit">Gunakan nilai antara \'{1}\' dan \'{2}\'</string>
+  <!--0 = current value, 1 = lower limit, 2 = upper limit-->
+</resources>

@@ -1,0 +1,47 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<resources>
+  <string name="Settings.Players.Codecs">Kodek</string>
+  <string name="Settings.Players.Codecs.VideoCodecs">Videokodek</string>
+  <string name="Settings.Players.Codecs.VideoCodecs.MPEG2">MPEG2-videokodek</string>
+  <string name="Settings.Players.Codecs.VideoCodecs.MPEG2.Help">Velg hvilken kodek som skal brukes ved avspilling av MPEG2-video (DVD, DVB-SD)</string>
+  <string name="Settings.Players.Codecs.VideoCodecs.MPEG4">MPEG4-videokodek</string>
+  <string name="Settings.Players.Codecs.VideoCodecs.MPEG4.Help">Velg hvilken kodek for bruk ved avspilling av MPEG4-video (H.264, x264)</string>
+  <string name="Settings.Players.Codecs.VideoCodecs.AVC">AVC-videokodek</string>
+  <string name="Settings.Players.Codecs.VideoCodecs.AVC.Help">Velg hvilken kodek som skal brukes ved avspilling av AVC-video (HDTV, BluRay)</string>
+  <string name="Settings.Players.Codecs.AudioCodecs">Lydkodek</string>
+  <string name="Settings.Players.Codecs.AudioRenderer">Lydgjengiver</string>
+  <string name="Settings.Players.Codecs.AudioCodecs.AudioCodec">MPEG1/2-lydkodek</string>
+  <string name="Settings.Players.Codecs.AudioCodecs.AudioCodec.Help">Velg hvilken kodek som skal brukes for MPEG1/2-lydavspilling</string>
+  <string name="Settings.Players.Codecs.AudioCodecs.AudioCodecLATMAAC">LATM-AAC-lydkodek</string>
+  <string name="Settings.Players.Codecs.AudioCodecs.AudioCodecLATMAAC.Help">Velg hvilken kodek som skal brukes for avspilling av MPEG1/2 lyd</string>
+  <string name="Settings.Players.Codecs.AudioCodecs.AudioCodecAAC">AAC-lydkodek</string>
+  <string name="Settings.Players.Codecs.AudioCodecs.AudioCodecAAC.Help">Velg hvilken kodek som skal brukes for avspilling av AAC-lyd</string>
+  <string name="Settings.Players.Codecs.AudioCodecs.AudioRenderer">Lydgjengiver</string>
+  <string name="Settings.Players.Codecs.AudioCodecs.AudioRenderer.Help">Velg hvilken lydgjengiver som skal brukes</string>
+  <string name="Settings.Players.VideoPlayer">Videoavspiller</string>
+  <string name="Settings.Players.VideoPlayer.PreferMultiChannelAudio">Foretrekker flerkanals lydstrøm</string>
+  <string name="Settings.Players.VideoPlayer.PreferMultiChannelAudio.Help">Hvis valgt, 6-kanalsstrøm er foretrukket (f.eks. AC3, AAC)</string>
+  <string name="Settings.Players.DVDPlayer">DVD-avspiller</string>
+  <string name="Settings.Players.DVDPlayer.EnableClosedCaption">Teksting (CC)</string>
+  <string name="Settings.Players.DVDPlayer.EnableClosedCaption.Help">Velg om teksting (CC) skal være på som standard</string>
+  <string name="Settings.Players.DVDPlayer.EnableSubtitles">Undertekst</string>
+  <string name="Settings.Players.DVDPlayer.EnableSubtitles.Help">Velg om undertekst skal være på som standard</string>
+  <string name="Playback.NotSpecified">Ikke spesifisert</string>
+  <string name="Playback.CaptionNormal">Normal tekst (CC)</string>
+  <string name="Playback.CaptionBig">Stor tekst (CC)</string>
+  <string name="Playback.CaptionChildren">Liten tekst (CC)</string>
+  <string name="Playback.CCNormal">Normal CC</string>
+  <string name="Playback.CCBig">Stor CC</string>
+  <string name="Playback.CCChildren">Liten CC</string>
+  <string name="Playback.Forced">Tvunget</string>
+  <string name="Playback.DirectorCommentsNormal">Regissørrens kommentar i normal størrelse</string>
+  <string name="Playback.DirectorCommentsBig">Regissørrens kommentar i stor størrelse</string>
+  <string name="Playback.DirectorCommentsChildren">Regissørrens kommentar i liten størrelse</string>
+  <string name="Playback.VisuallyImpaired">Synshemmet</string>
+  <string name="Playback.DirectorComments1">Regissørrens kommentarer</string>
+  <string name="Playback.DirectorComments2">Regissørrens kommentarer (2)</string>
+  <string name="Playback.Chapter">Kapittel {0}</string>
+  <!--For example: "Chapter 1"-->
+  <string name="Playback.Title">Tittel {0}</string>
+  <!--For example: "Title 1"-->
+</resources>

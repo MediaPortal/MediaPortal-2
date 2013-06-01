@@ -1,0 +1,23 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<resources>
+  <string name="PartyMusicPlayer.MenuItem">Pemutar musik party</string>
+  <string name="PartyMusicPlayer.ConfigWorkflowNavigationContextDisplayLabel">Pemutar musik party</string>
+  <string name="PartyMusicPlayer.PlayerWorkflowNavigationContextDisplayLabel">Pemutar musik party</string>
+  <string name="PartyMusicPlayer.ConfigScreenTitle">Konfigurasi pemutar musik party</string>
+  <string name="PartyMusicPlayer.Playlist">Daftar main</string>
+  <string name="PartyMusicPlayer.ChoosePlaylist">Pilih daftar main</string>
+  <string name="PartyMusicPlayer.UseEscapePassword">Gunakan escape password</string>
+  <string name="PartyMusicPlayer.DisableScreenSaver">Nonaktifkan screen saver</string>
+  <string name="PartyMusicPlayer.StartPartyMode">Mulai mode party</string>
+  <string name="PartyMusicPlayer.ChoosePlaylistDialogHeader">Pilih daftar main</string>
+  <string name="PartyMusicPlayer.EnterEscapePasswordDialogHeader">Escape password</string>
+  <string name="PartyMusicPlayer.EnterEscapePasswordDialogText">Silahkan masukkan escape password mode party</string>
+  <string name="PartyMusicPlayer.WrongEscapePasswordDialogHeader">Escape password salah</string>
+  <string name="PartyMusicPlayer.WrongEscapePasswordDialogText">Maaf, itu adalah escape password yang salah!</string>
+  <string name="PartyMusicPlayer.ServerNotConnectedDialogHeader">Server tidak terhubung</string>
+  <string name="PartyMusicPlayer.ServerNotConnectedDialogText">Untuk aksi ini, server pusat harus terhubung</string>
+  <string name="PartyMusicPlayer.PlayerContextName">Pemutar musik party</string>
+  <string name="PartyMusicPlayer.AudioArtistLabel">Artis</string>
+  <string name="PartyMusicPlayer.AudioTitleLabel">Judul</string>
+  <string name="PartyMusicPlayer.ShowPlaylist">Tampilkan daftar main</string>
+</resources>

@@ -1,0 +1,14 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<resources>
+  <string name="Configuration.Name">Nustatymai</string>
+  <string name="Configuration.ConfigurationMainWorkflowNavigationContextDisplayLabel">Nustatymai</string>
+  <string name="Configuration.MainSettings">Pagrindiniai nustatymai</string>
+  <!--2nd Header for root configuration section-->
+  <string name="Configuration.NoSettingsInThisSection">Šioje dalyje nėra nustatymų</string>
+  <string name="Configuration.ErrorFloatingPointValue">\'{0}\' nėra tinkamas judriojo taško skaičius</string>
+  <string name="Configuration.ErrorIntegerValue">\'{0}\' nėra tinkamas sveikas skaičius</string>
+  <string name="Configuration.ErrorNumericLowerLimit">Naudokite vertę tarp \'{1}\' ir \'{2}\'</string>
+  <!--0 = current value, 1 = lower limit, 2 = upper limit-->
+  <string name="Configuration.ErrorNumericUpperLimit">Naudokite vertę tarp \'{1}\' ir \'{2}\'</string>
+  <!--0 = current value, 1 = lower limit, 2 = upper limit-->
+</resources>

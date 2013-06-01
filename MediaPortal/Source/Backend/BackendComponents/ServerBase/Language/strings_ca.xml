@@ -1,0 +1,18 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<resources>
+  <string name="MainForm.Title">Aplicació MediaPortal 2 Server</string>
+  <string name="MainForm.AttachedClients">Clients adjunts</string>
+  <string name="MainForm.Client">Client</string>
+  <string name="MainForm.System">Sistema</string>
+  <string name="MainForm.ConnectionState">Estat de la connexió</string>
+  <string name="MainForm.Connected">Connectat</string>
+  <string name="MainForm.Disconnected">Desconnectat</string>
+  <string name="UPnPBackendServer.DefaultFriendlyName">Servidor MediaPortal 2</string>
+  <string name="UPnPBackendServer.Manufacturer">Team Mediaportal</string>
+  <string name="UPnPBackendServer.ManufacturerUrl">www.team-mediaportal.com</string>
+  <string name="UPnPBackendServer.ModelDescription">Servidor MediaPortal 2 - allotja fitxers d\'àudio, vídeos i imatges, i proporciona una base de dades de mèdia</string>
+  <string name="UPnPBackendServer.ModelName">Servidor MediaPortal 2</string>
+  <string name="UPnPBackendServer.ModelNumber">1</string>
+  <string name="UPnPBackendServer.ModelUrl">...</string>
+  <string name="MediaLibrary.EmptyOrMiscCharGroupName">&lt;Caràcter buit o miscel·lània&gt;</string>
+</resources>

@@ -1,0 +1,10 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<resources>
+  <string name="Settings.Players">Reproductores</string>
+  <string name="Settings.Players.Rendering">Renderizado</string>
+  <string name="Settings.Players.Rendering.CrossFading">CrossFading</string>
+  <string name="Settings.Players.Rendering.CrossFading.CrossFadingEnabled">Cross fading activado</string>
+  <string name="Settings.Players.Rendering.CrossFading.CrossFadingEnabled.Help">Determina si MediaPortal debe realizar cross-fade entre canciones, si es posible</string>
+  <string name="Settings.Players.Rendering.CrossFading.CrossFadeDuration">Duración del Cross fade</string>
+  <string name="Settings.Players.Rendering.CrossFading.CrossFadeDuration.Help">Tiempo para el cross-fade en segundos</string>
+</resources>

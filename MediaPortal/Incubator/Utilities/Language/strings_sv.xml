@@ -1,0 +1,29 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<resources>
+  <string name="Utilities.MenuItem">Verktyg</string>
+  <string name="Utilities.MainWorkflowNavigationContextDisplayLabel">Verktyg</string>
+  <string name="Utilities.PlaylistImportWorkflowNavigationContextDisplayLabel">Importera spellista</string>
+  <string name="Utilities.MainScreenTitle">Verktyg</string>
+  <string name="Utilities.PlaylistImport">Importera spellista</string>
+  <string name="Utilities.PlaylistImportScreenTitle">Importera spellista</string>
+  <string name="Utilities.ImportPlaylistFile">Importera spellista</string>
+  <string name="Utilities.ChoosePlaylistFile">Välj fil</string>
+  <string name="Utilities.ChooseImportFileDialogHeader">Välj fil att importera</string>
+  <string name="Utilities.EditPlaylistName">Redigera namnet på den nya spellistan</string>
+  <string name="Utilities.LocationOfShareContainingItems">Plats där den utdelade mappen, som innehåller media objekten, finns </string>
+  <string name="Utilities.LocalShareLocation">Lokal mapp</string>
+  <string name="Utilities.ServerShareLocation">Utdelad mapp på servern</string>
+  <string name="Utilities.StartPlaylistImport">Börja importera spellista</string>
+  <string name="Utilities.PlaylistSavedSuccessfullyTitle">Lyckades</string>
+  <string name="Utilities.NoItemsWereImportedSkippingSaveText">Inga objekt importerade. </string>
+  <string name="Utilities.PlaylistSavedSuccessfullyText">Lyckades spara spellistan \'{0}\'.</string>
+  <string name="Utilities.PlaylistSaveFailedTitle">Misslyckades spara spellistan.</string>
+  <string name="Utilities.ImportPlaylistProgressTitle">Status</string>
+  <string name="Utilities.ImportPlaylistProgressHeaderText">Importerar spellista</string>
+  <string name="Utilities.ImportPlaylistProgressText">{0}/{1}, hoppade över {2}</string>
+  <string name="Utilities.StopImportPlaylistButton">Stopp</string>
+  <string name="Utilities.PlaylistNameExists">Spellistan finns redan</string>
+  <string name="Utilities.ImportFileInvalid">Ogiltig fil att importera</string>
+  <string name="Utilities.PlaylistNameIsEmpty">Spellistans namn saknas</string>
+  <string name="Utilities.ServerNotConnected">Servern är inte uppkopplad</string>
+</resources>

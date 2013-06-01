@@ -1,0 +1,6 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<resources>
+  <string name="MainForm.System">Система</string>
+  <string name="UPnPBackendServer.Manufacturer">Team Mediaportal</string>
+  <string name="UPnPBackendServer.ModelNumber">1</string>
+</resources>

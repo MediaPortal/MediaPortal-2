@@ -1,0 +1,9 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<resources>
+  <!--FIXME: Move those language resources to Manager application (or to a support plugin)-->
+  <string name="configuration.save_on_exit">Salvestada seaded enne sulgemist?</string>
+  <string name="configuration.unsaved_warning">Hoiatus: Muutused on salvestamata!</string>
+  <string name="configuration.browse">Lehitse</string>
+  <string name="configuration.areas.settings">Seaded</string>
+  <string name="configuration.areas.logs">Logid</string>
+</resources>

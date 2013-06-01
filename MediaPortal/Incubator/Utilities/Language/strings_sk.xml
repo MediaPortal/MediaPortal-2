@@ -1,0 +1,29 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<resources>
+  <string name="Utilities.MenuItem">Pomôcky</string>
+  <string name="Utilities.MainWorkflowNavigationContextDisplayLabel">Pomôcky</string>
+  <string name="Utilities.PlaylistImportWorkflowNavigationContextDisplayLabel">Importovať playlist</string>
+  <string name="Utilities.MainScreenTitle">Pomôcky</string>
+  <string name="Utilities.PlaylistImport">Import playlistu</string>
+  <string name="Utilities.PlaylistImportScreenTitle">Import playlistu</string>
+  <string name="Utilities.ImportPlaylistFile">Importovať súbor s playlistom</string>
+  <string name="Utilities.ChoosePlaylistFile">Vyberte súbor</string>
+  <string name="Utilities.ChooseImportFileDialogHeader">Vyberte súbor na import</string>
+  <string name="Utilities.EditPlaylistName">Zmena mena nového playlistu</string>
+  <string name="Utilities.LocationOfShareContainingItems">Umiestnenie vzdialenej zložky obsahujúcej médiá</string>
+  <string name="Utilities.LocalShareLocation">Lokálne vzdialené zložky</string>
+  <string name="Utilities.ServerShareLocation">Vzdialené zložky na serveri</string>
+  <string name="Utilities.StartPlaylistImport">Spustiť import playlistu</string>
+  <string name="Utilities.PlaylistSavedSuccessfullyTitle">Hotovo</string>
+  <string name="Utilities.NoItemsWereImportedSkippingSaveText">Nepodarilo sa nič importovať, niet čo uložiť.</string>
+  <string name="Utilities.PlaylistSavedSuccessfullyText">Playlist \'{0}\' bol úspešne uložený.</string>
+  <string name="Utilities.PlaylistSaveFailedTitle">Ukladanie playlistu zlyhalo</string>
+  <string name="Utilities.ImportPlaylistProgressTitle">Priebeh</string>
+  <string name="Utilities.ImportPlaylistProgressHeaderText">Import playlistu</string>
+  <string name="Utilities.ImportPlaylistProgressText">{0}/{1}, {2} vynechaných</string>
+  <string name="Utilities.StopImportPlaylistButton">Stop</string>
+  <string name="Utilities.PlaylistNameExists">Playlist s takým menom už existuje</string>
+  <string name="Utilities.ImportFileInvalid">Súbor na import nevyhovuje</string>
+  <string name="Utilities.PlaylistNameIsEmpty">Názov playlistu je prázdny</string>
+  <string name="Utilities.ServerNotConnected">Nie je spojenie na server</string>
+</resources>

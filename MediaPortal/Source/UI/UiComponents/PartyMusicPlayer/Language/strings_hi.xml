@@ -1,0 +1,23 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<resources>
+  <string name="PartyMusicPlayer.MenuItem">पार्टी संगीत वादक</string>
+  <string name="PartyMusicPlayer.ConfigWorkflowNavigationContextDisplayLabel">पार्टी संगीत वादक</string>
+  <string name="PartyMusicPlayer.PlayerWorkflowNavigationContextDisplayLabel">पार्टी संगीत वादक</string>
+  <string name="PartyMusicPlayer.ConfigScreenTitle">पार्टी संगीत वादक विन्यास</string>
+  <string name="PartyMusicPlayer.Playlist">गीत-सूची</string>
+  <string name="PartyMusicPlayer.ChoosePlaylist">गीत-सूची चुनें</string>
+  <string name="PartyMusicPlayer.UseEscapePassword">एस्केप कूटशब्द का प्रयोग करें</string>
+  <string name="PartyMusicPlayer.DisableScreenSaver">स्क्रीन सेवर निष्क्रिय करें</string>
+  <string name="PartyMusicPlayer.StartPartyMode">पार्टी मोड प्रारंभ करे</string>
+  <string name="PartyMusicPlayer.ChoosePlaylistDialogHeader">गीत-सूची चुनें</string>
+  <string name="PartyMusicPlayer.EnterEscapePasswordDialogHeader">एस्केप कूटशब्द</string>
+  <string name="PartyMusicPlayer.EnterEscapePasswordDialogText">कृपया पार्टी मोड एस्केप कूटशब्द दर्ज करें</string>
+  <string name="PartyMusicPlayer.WrongEscapePasswordDialogHeader">एस्केप कूटशब्द गलत है</string>
+  <string name="PartyMusicPlayer.WrongEscapePasswordDialogText">क्षमा करें, यह एस्केप कूटशब्द गलत है!</string>
+  <string name="PartyMusicPlayer.ServerNotConnectedDialogHeader">सर्वर जुड़ा हुआ नहीं है</string>
+  <string name="PartyMusicPlayer.ServerNotConnectedDialogText">इस कार्रवाई के लिए, होम सर्वर जुड़ा होना चाहिए </string>
+  <string name="PartyMusicPlayer.PlayerContextName">पार्टी संगीत वादक</string>
+  <string name="PartyMusicPlayer.AudioArtistLabel">कलाकार</string>
+  <string name="PartyMusicPlayer.AudioTitleLabel">शीर्षक</string>
+  <string name="PartyMusicPlayer.ShowPlaylist">गीत-सूची</string>
+</resources>

@@ -1,0 +1,23 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<resources>
+  <string name="PartyMusicPlayer.MenuItem">Reproductor de música per festa</string>
+  <string name="PartyMusicPlayer.ConfigWorkflowNavigationContextDisplayLabel">Reproductor de música per festa</string>
+  <string name="PartyMusicPlayer.PlayerWorkflowNavigationContextDisplayLabel">Reproductor de música per festa</string>
+  <string name="PartyMusicPlayer.ConfigScreenTitle">Configuració del reproductor de música per festa</string>
+  <string name="PartyMusicPlayer.Playlist">Llista</string>
+  <string name="PartyMusicPlayer.ChoosePlaylist">Trieu llista</string>
+  <string name="PartyMusicPlayer.UseEscapePassword">Utilitza contrasenya d\'escapada</string>
+  <string name="PartyMusicPlayer.DisableScreenSaver">Desactiva l\'estalvi de pantalla</string>
+  <string name="PartyMusicPlayer.StartPartyMode">Inicia el mode festa</string>
+  <string name="PartyMusicPlayer.ChoosePlaylistDialogHeader">Trieu llista</string>
+  <string name="PartyMusicPlayer.EnterEscapePasswordDialogHeader">Contrasenya d\'escapada</string>
+  <string name="PartyMusicPlayer.EnterEscapePasswordDialogText">Intrduïu la contrasenya d\'escapada pel mode festa</string>
+  <string name="PartyMusicPlayer.WrongEscapePasswordDialogHeader">Contresenya d\'escapada errònia</string>
+  <string name="PartyMusicPlayer.WrongEscapePasswordDialogText">Aquesta no és lacontrasenya d\'escapada!</string>
+  <string name="PartyMusicPlayer.ServerNotConnectedDialogHeader">El servidor no és connectat</string>
+  <string name="PartyMusicPlayer.ServerNotConnectedDialogText">El servdior d\'inici ha de ser connectat per a l\'acció</string>
+  <string name="PartyMusicPlayer.PlayerContextName">Reproductor de música per festa</string>
+  <string name="PartyMusicPlayer.AudioArtistLabel">Artista</string>
+  <string name="PartyMusicPlayer.AudioTitleLabel">Títol</string>
+  <string name="PartyMusicPlayer.ShowPlaylist">Mostra la llista</string>
+</resources>

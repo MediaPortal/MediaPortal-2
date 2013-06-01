@@ -1,0 +1,10 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<resources>
+  <string name="HelloWorld.MenuEntry">Hello world</string>
+  <string name="HelloWorld.StateDisplayLabel">Hello world állapot</string>
+  <string name="HelloWorld.ScreenTitle">Hello world képernyő</string>
+  <string name="HelloWorld.HelloWorldText">A gomb megnyomása meg fogja változtatni ezt a szöveget</string>
+  <string name="HelloWorld.SampleText">Ez a HelloWorld bővítmény példa képernyője</string>
+  <string name="HelloWorld.ButtonText">Nyomj meg</string>
+  <string name="HelloWorld.ButtonTextCommandExecuted">Gratulálok, épp most indítottál el egy parancsot!</string>
+</resources>

@@ -1,0 +1,29 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<resources>
+  <string name="Utilities.MenuItem">Verktøy</string>
+  <string name="Utilities.MainWorkflowNavigationContextDisplayLabel">Verktøy</string>
+  <string name="Utilities.PlaylistImportWorkflowNavigationContextDisplayLabel">Importer spillelister</string>
+  <string name="Utilities.MainScreenTitle">Verktøy</string>
+  <string name="Utilities.PlaylistImport">Importer spillelister</string>
+  <string name="Utilities.PlaylistImportScreenTitle">Importer spillelister</string>
+  <string name="Utilities.ImportPlaylistFile">Importer spillelistefil</string>
+  <string name="Utilities.ChoosePlaylistFile">Velg fil</string>
+  <string name="Utilities.ChooseImportFileDialogHeader">Velg importfil</string>
+  <string name="Utilities.EditPlaylistName">Endre navnet på den nye spillelisten</string>
+  <string name="Utilities.LocationOfShareContainingItems">Plassering av delt ressurs som inneholder mediaelementer</string>
+  <string name="Utilities.LocalShareLocation">Lokal delt ressurs</string>
+  <string name="Utilities.ServerShareLocation">Delt server ressurs</string>
+  <string name="Utilities.StartPlaylistImport">star import av spilleliste</string>
+  <string name="Utilities.PlaylistSavedSuccessfullyTitle">Suksess</string>
+  <string name="Utilities.NoItemsWereImportedSkippingSaveText">Ingen elementer ble importert. Ingen lagring gjort.</string>
+  <string name="Utilities.PlaylistSavedSuccessfullyText">Vellykket lagring av spillelisten \'{0}\'</string>
+  <string name="Utilities.PlaylistSaveFailedTitle">Lagring av spillelisten misslyktes</string>
+  <string name="Utilities.ImportPlaylistProgressTitle">Fremgang</string>
+  <string name="Utilities.ImportPlaylistProgressHeaderText">Importerer spillelisten</string>
+  <string name="Utilities.ImportPlaylistProgressText">Hoppet over {0}/{1}, {2}</string>
+  <string name="Utilities.StopImportPlaylistButton">Stopp</string>
+  <string name="Utilities.PlaylistNameExists">Navnet på spillelisten finnes allerede</string>
+  <string name="Utilities.ImportFileInvalid">Feil import fil</string>
+  <string name="Utilities.PlaylistNameIsEmpty">Navnet på spillelisten er tomt</string>
+  <string name="Utilities.ServerNotConnected">Serveren er ikke tilkoblet</string>
+</resources>

@@ -1,0 +1,47 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<resources>
+  <string name="Settings.Players.Codecs">Çözücüler</string>
+  <string name="Settings.Players.Codecs.VideoCodecs">Video çözücüleri</string>
+  <string name="Settings.Players.Codecs.VideoCodecs.MPEG2">MPEG2 Video Çözücü</string>
+  <string name="Settings.Players.Codecs.VideoCodecs.MPEG2.Help">MPEG2 video (DVD, DVB-SD) için kullanılacak çözücüyü seçin</string>
+  <string name="Settings.Players.Codecs.VideoCodecs.MPEG4">MPEG4 Video Çözücü</string>
+  <string name="Settings.Players.Codecs.VideoCodecs.MPEG4.Help">MPEG4 video (H.264, x264) için kullanılacak çözücüyü seç</string>
+  <string name="Settings.Players.Codecs.VideoCodecs.AVC">AVC Video Çözücü</string>
+  <string name="Settings.Players.Codecs.VideoCodecs.AVC.Help">AVC video (HDTV, BluRay) için çözücü seç</string>
+  <string name="Settings.Players.Codecs.AudioCodecs">Ses Çözücüleri</string>
+  <string name="Settings.Players.Codecs.AudioRenderer">Ses Çözücüleri</string>
+  <string name="Settings.Players.Codecs.AudioCodecs.AudioCodec">MPEG 1/2 Ses Çözücüsü</string>
+  <string name="Settings.Players.Codecs.AudioCodecs.AudioCodec.Help">MPEG1/2 ses çözücüsü seç</string>
+  <string name="Settings.Players.Codecs.AudioCodecs.AudioCodecLATMAAC">LATM-AAC Ses Çözücü</string>
+  <string name="Settings.Players.Codecs.AudioCodecs.AudioCodecLATMAAC.Help">LATM-AAC ses çözücüsünü seç</string>
+  <string name="Settings.Players.Codecs.AudioCodecs.AudioCodecAAC">AAC Ses Çözücü</string>
+  <string name="Settings.Players.Codecs.AudioCodecs.AudioCodecAAC.Help">AAC ses çözücüsünü seç</string>
+  <string name="Settings.Players.Codecs.AudioCodecs.AudioRenderer">Ses Oluşturucu</string>
+  <string name="Settings.Players.Codecs.AudioCodecs.AudioRenderer.Help">Ses için oluşturucu seç</string>
+  <string name="Settings.Players.VideoPlayer">Video Çalıcısı</string>
+  <string name="Settings.Players.VideoPlayer.PreferMultiChannelAudio">Çoklu kanal ses kaynaklarını tercih et</string>
+  <string name="Settings.Players.VideoPlayer.PreferMultiChannelAudio.Help">Seçiliyse, 6 kanal ses kaynakları tercih edilir (örn: AC3, AAC)</string>
+  <string name="Settings.Players.DVDPlayer">DVD oynatıcı</string>
+  <string name="Settings.Players.DVDPlayer.EnableClosedCaption">Alt Yazılar</string>
+  <string name="Settings.Players.DVDPlayer.EnableClosedCaption.Help">Alt Yazıların varsayılan olarak kullanılması için seçin</string>
+  <string name="Settings.Players.DVDPlayer.EnableSubtitles">Altyazılar</string>
+  <string name="Settings.Players.DVDPlayer.EnableSubtitles.Help">Alt Yazıların varsayılan olarak kullanılması için seçin</string>
+  <string name="Playback.NotSpecified">Tanımlanmamış</string>
+  <string name="Playback.CaptionNormal">Normal Altyazı</string>
+  <string name="Playback.CaptionBig">Büyük Altyazı</string>
+  <string name="Playback.CaptionChildren">Çocuk için Altyazı</string>
+  <string name="Playback.CCNormal">Normal Altyazı</string>
+  <string name="Playback.CCBig">Büyük Altyazı</string>
+  <string name="Playback.CCChildren">Çocuk için Altyazı</string>
+  <string name="Playback.Forced">Zorla</string>
+  <string name="Playback.DirectorCommentsNormal">Direktör Yorumları Normal</string>
+  <string name="Playback.DirectorCommentsBig">Direktör Yorumları Büyük</string>
+  <string name="Playback.DirectorCommentsChildren">Direktör Yorumları Çocuk için</string>
+  <string name="Playback.VisuallyImpaired">Görsel Özürlüler İçin</string>
+  <string name="Playback.DirectorComments1">Direktör Yorumları</string>
+  <string name="Playback.DirectorComments2">Direktör Yorumları (2)</string>
+  <string name="Playback.Chapter">Bölüm {0}</string>
+  <!--For example: "Chapter 1"-->
+  <string name="Playback.Title">Başlık {0}</string>
+  <!--For example: "Title 1"-->
+</resources>

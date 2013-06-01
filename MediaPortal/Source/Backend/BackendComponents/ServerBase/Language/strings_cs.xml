@@ -1,0 +1,18 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<resources>
+  <string name="MainForm.Title">Serverová aplikace MediaPortalu 2</string>
+  <string name="MainForm.AttachedClients">Připojení klienti</string>
+  <string name="MainForm.Client">Klient</string>
+  <string name="MainForm.System">Systém</string>
+  <string name="MainForm.ConnectionState">Stav připojení</string>
+  <string name="MainForm.Connected">Připojeno</string>
+  <string name="MainForm.Disconnected">Odpojeno</string>
+  <string name="UPnPBackendServer.DefaultFriendlyName">Server MediaPortalu 2</string>
+  <string name="UPnPBackendServer.Manufacturer">Tým MediaPortalu</string>
+  <string name="UPnPBackendServer.ManufacturerUrl">www.team-mediaportal.com</string>
+  <string name="UPnPBackendServer.ModelDescription">Server MediaPortalu 2 - zpřístupňuje soubory audia, videa a obrázky a poskytuje databázi médií</string>
+  <string name="UPnPBackendServer.ModelName">Server MediaPortalu 2</string>
+  <string name="UPnPBackendServer.ModelNumber">1</string>
+  <string name="UPnPBackendServer.ModelUrl">...</string>
+  <string name="MediaLibrary.EmptyOrMiscCharGroupName">&lt;Prázdný nebo různý znak&gt;</string>
+</resources>

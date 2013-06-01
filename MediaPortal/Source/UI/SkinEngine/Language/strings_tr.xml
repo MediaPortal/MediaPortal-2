@@ -1,0 +1,82 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<resources>
+  <string name="Settings.Appearance.System">Sistem</string>
+  <string name="Settings.Appearance.System.Fullscreen">Tam ekran</string>
+  <string name="Settings.Appearance.System.Fullscreen.Help">MediaPortalı tam ekran göster</string>
+  <string name="Settings.Appearance.System.CellPhoneInputStyle">Mobil telefon giriş stili</string>
+  <string name="Settings.Appearance.System.CellPhoneInputStyle.Help">Mobil telefon giriş stili kullan</string>
+  <string name="Settings.Appearance.System.ScreenSaverEnabled">Ekran Koruyucu etkin</string>
+  <string name="Settings.Appearance.System.ScreenSaverEnabled.Help">Ekran Koruyucunun gösterilmesini ayarla</string>
+  <string name="Settings.Appearance.System.ScreenSaverTimeout">Ekran Koruyucu zaman aşımı</string>
+  <string name="Settings.Appearance.System.ScreenSaverTimeout.Help">Ekran Koruyucunun son kullanıcı işleminden sonra devreye girme süresi</string>
+  <string name="Settings.Appearance.System.Antialiasing">GUI keskinlik giderme</string>
+  <string name="Settings.Appearance.System.Antialiasing.Help">Keskinlik giderme GUI görüntü kalitesini arttırır ancak video performans problemlerine sebep olabilir</string>
+  <string name="Settings.Appearance.Skin">Skin</string>
+  <string name="Settings.Appearance.Skin.SkinAndTheme">Skin ve Tema</string>
+  <string name="Settings.Appearance.Skin.SkinAndTheme.ChangeSkin">Skin değiştir</string>
+  <string name="Settings.Appearance.Skin.SkinAndTheme.ChangeSkin.Help">MediaPortal 2 görünümünü değiştir</string>
+  <string name="Settings.Appearance.Skin.SkinAndTheme.ChangeTheme">Temayı değiştir</string>
+  <string name="Settings.Appearance.Skin.SkinAndTheme.ChangeTheme.Help">Kullanılak skinin gösterimini değiştir</string>
+  <string name="Settings.Players">Çalıcılar</string>
+  <string name="Settings.Players.Rendering">Oynatma şekli</string>
+  <string name="Settings.Players.Rendering.DefaultGeometry">Varsayılan yaklaştırma modu</string>
+  <string name="Settings.Players.Rendering.DefaultGeometry.Help">Video oynatıcılar tarafından varsayılan olarak kullanılacak yaklaştırma modunu seç</string>
+  <string name="Settings.General.System.ApplicationSuspendLevel">Windows enerji tasarruf modunu ayarla</string>
+  <string name="Settings.General.System.ApplicationSuspendLevel.Help">Windows otomatik uyku/kapanma veya ekran kapatma özelliğini MediaPortal 2 çalışırken devre dışı bırak</string>
+  <string name="Settings.General.System.ApplicationSuspendLevel.None">Tüm sistem enerji seviyelerinin kullanılmasına izin ver</string>
+  <string name="Settings.General.System.ApplicationSuspendLevel.AvoidSuspend">Sistem durklatılmasını engelle ancak ekran kapatmaya izin ver</string>
+  <string name="Settings.General.System.ApplicationSuspendLevel.DisplayRequired">Sistem duraklatılmasını ve ekran kapatmayı devre dışı bırak</string>
+  <string name="ScreenManager.NotificationErrorLoadingSkinTitle">Skin yüklemesi başarısız</string>
+  <string name="ScreenManager.NotificationErrorLoadingSkinFallingBackToCurrentText">Şu anki skin kullanılacak</string>
+  <string name="ScreenManager.NotificationErrorLoadingSkinFallingBackToDefaultText">Varsayılan skin kullanılacak</string>
+  <string name="ScreenManager.ErrorLoadingSkinResource">Skin kaynağı yüklenmesinde problem oluştu</string>
+  <string name="ScreenManager.ScreenMissing">Ekran \'{0}\' için skin kaynağı bulunamadı</string>
+  <string name="ScreenManager.ScreenBroken">Ekran \'{0}\' için skin kaynağı bozuk gibi</string>
+  <string name="ScreenManager.BackgroundScreenMissing">Ekran arkaplanı \'{0}\' için skin kaynağı bulunamadı</string>
+  <string name="ScreenManager.BackgroundScreenBroken">Ekran arkaplanı \'{0}\' için skin kaynağı bozuk gibi</string>
+  <string name="ScreenManager.SuperLayerScreenMissing">Süper katman \'{0}\' için skin kaynağı bulunamadı</string>
+  <string name="ScreenManager.SuperLayerScreenBroken">Süper katman \'{0}\' için skin kaynağı bozuk gibi</string>
+  <string name="Geometries.IntelligentZoom">Akıllı Yaklaştırma</string>
+  <string name="Geometries.LetterBox">Letterbox 4:3</string>
+  <string name="Geometries.Normal">Normal</string>
+  <string name="Geometries.Original">Orijinal</string>
+  <string name="Geometries.PanAndScan">Pan&amp;Scan</string>
+  <string name="Geometries.Stretch">Esnet</string>
+  <string name="Geometries.Zoom">Yaklaştır</string>
+  <string name="Geometries.Zoom149">Yaklaştır 14:9</string>
+  <!--File names (files in shaders/effects, without extension) to effect names to be shown in the GUI-->
+  <string name="Effects.denoise">Keskinlik</string>
+  <string name="Effects.directional_blur">Yönsel flulaştırma</string>
+  <string name="Effects.glass_tiles">Cam mozaik</string>
+  <string name="Effects.greyscale">Gri tonlama</string>
+  <string name="Effects.invert">Ters çevir</string>
+  <string name="Effects.none">Hiçbiri</string>
+  <string name="Effects.pixelate">Pikselleştir</string>
+  <string name="Effects.sepia">Eskimiş</string>
+  <string name="Effects.sharpen">Keskinleştir</string>
+  <string name="Effects.sharpen_complex">Keskinleştir (kompleks)</string>
+  <string name="Effects.zoom_blur">Yakınlaştırarak flulaştır</string>
+  <string name="PlayerControl.NoPlayer">Çalıcı yok</string>
+  <string name="PlayerControl.NoMediaItem">- Medya öğesi yok -</string>
+  <string name="PlayerControl.UnknownMediaItem">Bilinmeyen medya öğesi</string>
+  <string name="PlayerControl.UnknownPlayerContextName">Çalıcı</string>
+  <string name="PlayerControl.HeaderNormal">{0}</string>
+  <!--{0} = media item title-->
+  <string name="PlayerControl.HeaderPiP">{0} (Resim içinde Resim)</string>
+  <!--{0} = media item title-->
+  <string name="PlayerControl.Playing">Çalınıyor</string>
+  <string name="PlayerControl.Paused">Duraklatıldı</string>
+  <string name="PlayerControl.SeekingForward">İleri sarılıyor {0}</string>
+  <!--For example: "Seeking forward (2x)"-->
+  <string name="PlayerControl.SeekingBackward">Geri Sarılıyor {0}</string>
+  <!--For example: "Seeking forward (2x)"-->
+  <string name="PlayerControl.SlowMotionForward">Ağır gösterim ileri sarma {0}</string>
+  <!--For example: "Slowmotion forward (0.5x)"-->
+  <string name="PlayerControl.SlowMotionBackward">Ağır gösterim geri sarma {0}</string>
+  <!--For example: "Slowmotion backward (0.5x)"-->
+  <string name="PlayerControl.PlaybackRateHint">{0}x</string>
+  <!--For example: 2x or 0.5x-->
+  <string name="PlayerControl.Stopped">Durduruldu</string>
+  <string name="PlayerControl.Ended">Sonlandı</string>
+  <string name="PlayerControl.Active">Aktif</string>
+</resources>

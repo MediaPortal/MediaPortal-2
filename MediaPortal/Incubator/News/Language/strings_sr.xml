@@ -1,0 +1,15 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<resources>
+  <string name="News.Title">Новости</string>
+  <string name="News.FeedsStateDisplayLabel">Новости</string>
+  <string name="News.Published">Објављено</string>
+  <string name="News.ConfiguredFeeds">Подешени извори вести</string>
+  <string name="News.AddFeed">Додај извор вести</string>
+  <string name="News.EnterFeedName">Унеси име извора</string>
+  <string name="News.EnterFeedUrl">Унеси URL извора</string>
+  <string name="Settings.Plugins.News">Новости</string>
+  <string name="Settings.Plugins.News.FeedsSetup">Подешавање извора вести</string>
+  <string name="Settings.Plugins.News.FeedsSetup.Help">Конфигурисање извора који се користе за прикупљање вести</string>
+  <string name="Settings.Plugins.News.RefreshInterval">Интервал освежавања</string>
+  <string name="Settings.Plugins.News.RefreshInterval.Help">Презуми податке сваких ... минута</string>
+</resources>

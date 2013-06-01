@@ -1,0 +1,14 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<resources>
+  <string name="Configuration.Name">Ayarlar</string>
+  <string name="Configuration.ConfigurationMainWorkflowNavigationContextDisplayLabel">Ayarlar</string>
+  <string name="Configuration.MainSettings">Ana ayarlar</string>
+  <!--2nd Header for root configuration section-->
+  <string name="Configuration.NoSettingsInThisSection">Bu bölümde ayar yok</string>
+  <string name="Configuration.ErrorFloatingPointValue">\'{0}\' geçerli bir ondalıklı sayı değil</string>
+  <string name="Configuration.ErrorIntegerValue">\'{0}\' geçerli bir tamsayı değil</string>
+  <string name="Configuration.ErrorNumericLowerLimit">\'{1}\' ve \'{2}\' arasında bir değer girin</string>
+  <!--0 = current value, 1 = lower limit, 2 = upper limit-->
+  <string name="Configuration.ErrorNumericUpperLimit">\'{1}\' ve \'{2}\' arasında bir değer girin</string>
+  <!--0 = current value, 1 = lower limit, 2 = upper limit-->
+</resources>

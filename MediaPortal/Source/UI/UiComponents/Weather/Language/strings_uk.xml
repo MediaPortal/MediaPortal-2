@@ -1,0 +1,38 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<resources>
+  <string name="Weather.WeatherStateDisplayLabel">Погода</string>
+  <string name="Weather.WeatherSetupStateDisplayLabel">Налаштування погоди</string>
+  <!--Dialog state, doesn't appear at the UI-->
+  <!--Dialog state, doesn't appear at the UI-->
+  <string name="Weather.Title">Погода</string>
+  <string name="Weather.Refresh">Оновити</string>
+  <string name="Weather.Updating">Оновлення...</string>
+  <string name="Weather.Weather">Погода</string>
+  <string name="Weather.Wind">Вітер</string>
+  <string name="Weather.Humidity">Вологість</string>
+  <string name="Weather.Precipitation">Опади</string>
+  <string name="Weather.Pressure">Тиск</string>
+  <string name="Weather.DewPoint">Точка роси</string>
+  <string name="Weather.Sunrise">Схід сонця</string>
+  <string name="Weather.Sunset">Захід сонця</string>
+  <!--Forecast names are mostly assigned 1:1-->
+  <string name="Weather.TStorms">Гроща</string>
+  <string name="Weather.Sunny">Сонячно</string>
+  <string name="Weather.Cloudy">Хмарно</string>
+  <string name="Weather.Snow">Сніг</string>
+  <string name="Weather.Rain">Дощ</string>
+  <string name="Weather.AM">AM</string>
+  <string name="Weather.PM">PM</string>
+  <string name="Weather.Wind">Вітер</string>
+  <string name="Weather.Fog">Туман</string>
+  <string name="Weather.Windy">Вітряно</string>
+  <string name="Weather.Mist">Туман</string>
+  <string name="Weather.Thunder">Блискавка</string>
+  <string name="Settings.Plugins.Weather">Погода</string>
+  <string name="WeatherSetup.Title">Налаштувати міста</string>
+  <string name="WeatherSetup.ConfiguredCities">Налаштовані міста</string>
+  <string name="WeatherSetup.EnterCity">Будь-ласка введіть назву міста:</string>
+  <string name="WeatherSetup.SearchCity">Пошук міста</string>
+  <string name="WeatherSetup.AddCity">Додати місто</string>
+  <string name="WeatherSetup.RemoveCity">Видалити місто</string>
+</resources>

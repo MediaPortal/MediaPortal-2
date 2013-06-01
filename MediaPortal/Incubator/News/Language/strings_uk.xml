@@ -1,0 +1,8 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<resources>
+  <string name="News.Title">Новини</string>
+  <string name="News.FeedsStateDisplayLabel">Новини</string>
+  <string name="News.Published">Опубліковані</string>
+  <string name="News.ConfiguredFeeds">Налаштовані канали</string>
+  <string name="Settings.Plugins.News">Новини</string>
+</resources>

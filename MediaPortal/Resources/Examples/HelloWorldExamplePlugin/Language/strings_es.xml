@@ -1,0 +1,10 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<resources>
+  <string name="HelloWorld.MenuEntry">Hola mundo</string>
+  <string name="HelloWorld.StateDisplayLabel">Estado Hola mundo</string>
+  <string name="HelloWorld.ScreenTitle">Pantalla Hola mundo</string>
+  <string name="HelloWorld.HelloWorldText">Presionando el botón este texto cambiará</string>
+  <string name="HelloWorld.SampleText">Esta es la pantalla de ejemplo del Plugin HolaMundo</string>
+  <string name="HelloWorld.ButtonText">Apriétame</string>
+  <string name="HelloWorld.ButtonTextCommandExecuted">Enhorabuena, ¡Has provocado un Comando!</string>
+</resources>

@@ -1,0 +1,8 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<resources>
+  <string name="Settings.Players.Image">Predvajalnik slik</string>
+  <string name="Settings.Players.Image.SlideShowImageDuration">Čas prikaza slike</string>
+  <string name="Settings.Players.Image.SlideShowImageDuration.Help">Določa čas prikaza ene slike v sekundah</string>
+  <string name="Settings.Players.Image.KenBurnsEffect">Uporabi Ken Burns efekte</string>
+  <string name="Settings.Players.Image.KenBurnsEffect.Help">Uporabi animacije za premikanje in povečavo slik pri njihovem prikazu</string>
+</resources>

@@ -1,0 +1,82 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<resources>
+  <string name="Settings.Appearance.System">Sistem</string>
+  <string name="Settings.Appearance.System.Fullscreen">Layar penuh</string>
+  <string name="Settings.Appearance.System.Fullscreen.Help">Tampilkan MediaPortal dalam mode layar penuh</string>
+  <string name="Settings.Appearance.System.CellPhoneInputStyle">Gaya masukan telepon selular</string>
+  <string name="Settings.Appearance.System.CellPhoneInputStyle.Help">Gunakan gaya masukan telepon selular/SMS</string>
+  <string name="Settings.Appearance.System.ScreenSaverEnabled">Aktifkan screen saver</string>
+  <string name="Settings.Appearance.System.ScreenSaverEnabled.Help">Konfigurasikan bila screen saver harus ditampilkan</string>
+  <string name="Settings.Appearance.System.ScreenSaverTimeout">Rentang screen saver</string>
+  <string name="Settings.Appearance.System.ScreenSaverTimeout.Help">Konfigurasikan lamanya waktu dalam menit saat screen saver harus tampil setelah masukan terakhir dari pengguna</string>
+  <string name="Settings.Appearance.System.Antialiasing">GUI antialiasing</string>
+  <string name="Settings.Appearance.System.Antialiasing.Help">Antialiasing meningkatkan kualitas visual GUI tetapi dapat menurunkan kinerja video</string>
+  <string name="Settings.Appearance.Skin">Skin</string>
+  <string name="Settings.Appearance.Skin.SkinAndTheme">Skin dan tema</string>
+  <string name="Settings.Appearance.Skin.SkinAndTheme.ChangeSkin">Ubah skin</string>
+  <string name="Settings.Appearance.Skin.SkinAndTheme.ChangeSkin.Help">Ubah tampilan&amp;rasa dari MediaPortal 2</string>
+  <string name="Settings.Appearance.Skin.SkinAndTheme.ChangeTheme">Ubah tema</string>
+  <string name="Settings.Appearance.Skin.SkinAndTheme.ChangeTheme.Help">Ubah skin presentasi saat ini</string>
+  <string name="Settings.Players">Pemutar</string>
+  <string name="Settings.Players.Rendering">Rendering</string>
+  <string name="Settings.Players.Rendering.DefaultGeometry">Mode zoom baku</string>
+  <string name="Settings.Players.Rendering.DefaultGeometry.Help">Setel mode zoom yang akan diterapkan secara baku ke pemutar video</string>
+  <string name="Settings.General.System.ApplicationSuspendLevel">Konfigurasi hemat energi Windows</string>
+  <string name="Settings.General.System.ApplicationSuspendLevel.Help">Nonaktifkan Windows automatic suspend/shutdown atau deaktivasi layar di saat MediaPortal 2 sedang berjalan</string>
+  <string name="Settings.General.System.ApplicationSuspendLevel.None">Perkenankan semua level sistem hemat energi</string>
+  <string name="Settings.General.System.ApplicationSuspendLevel.AvoidSuspend">Abaikan penundaan sistem tetapi perkenankan deaktivasi layar</string>
+  <string name="Settings.General.System.ApplicationSuspendLevel.DisplayRequired">Abaikan penundaan sistem dan deaktivasi layar</string>
+  <string name="ScreenManager.NotificationErrorLoadingSkinTitle">Pemuatan skin bermasalah</string>
+  <string name="ScreenManager.NotificationErrorLoadingSkinFallingBackToCurrentText">Mengembalikan ulang ke skin saat ini</string>
+  <string name="ScreenManager.NotificationErrorLoadingSkinFallingBackToDefaultText">Mengembalikan ulang ke skin baku</string>
+  <string name="ScreenManager.ErrorLoadingSkinResource">Pemuatan sumber skin bermasalah</string>
+  <string name="ScreenManager.ScreenMissing">Tidak dapat menemukan sumber skin untuk layar \'{0}\'</string>
+  <string name="ScreenManager.ScreenBroken">Sumber skin untuk layar \'{0}\' tampaknya rusak</string>
+  <string name="ScreenManager.BackgroundScreenMissing">Tidak dapat menemukan sumber skin untuk latar layar \'{0}\'</string>
+  <string name="ScreenManager.BackgroundScreenBroken">Sumber skin untuk latar layar \'{0}\' tampaknya rusak</string>
+  <string name="ScreenManager.SuperLayerScreenMissing">Tidak dapat menemukan sumber skin untuk layar super layer \'{0}\'</string>
+  <string name="ScreenManager.SuperLayerScreenBroken">Sumber skin untuk layar super layer \'{0}\' tampaknya rusak</string>
+  <string name="Geometries.IntelligentZoom">Zoom Cerdas</string>
+  <string name="Geometries.LetterBox">Letterbox 4:3</string>
+  <string name="Geometries.Normal">Normal</string>
+  <string name="Geometries.Original">Orisinil</string>
+  <string name="Geometries.PanAndScan">Pan&amp;Scan</string>
+  <string name="Geometries.Stretch">Stretch</string>
+  <string name="Geometries.Zoom">Zoom</string>
+  <string name="Geometries.Zoom149">Zoom 14:9</string>
+  <!--File names (files in shaders/effects, without extension) to effect names to be shown in the GUI-->
+  <string name="Effects.denoise">Denoise</string>
+  <string name="Effects.directional_blur">Directional blur</string>
+  <string name="Effects.glass_tiles">Glass tiles</string>
+  <string name="Effects.greyscale">Greyscale</string>
+  <string name="Effects.invert">Kebalikan</string>
+  <string name="Effects.none">Nihil</string>
+  <string name="Effects.pixelate">Pixelate</string>
+  <string name="Effects.sepia">Sepia</string>
+  <string name="Effects.sharpen">Sharpen</string>
+  <string name="Effects.sharpen_complex">Sharpen (kompleks)</string>
+  <string name="Effects.zoom_blur">Zoom blur</string>
+  <string name="PlayerControl.NoPlayer">Tidak ada pemutar</string>
+  <string name="PlayerControl.NoMediaItem">- Tidak ada item media -</string>
+  <string name="PlayerControl.UnknownMediaItem">Item media tidak dikenal</string>
+  <string name="PlayerControl.UnknownPlayerContextName">Pemutar</string>
+  <string name="PlayerControl.HeaderNormal">{0}</string>
+  <!--{0} = media item title-->
+  <string name="PlayerControl.HeaderPiP">{0} (PiP)</string>
+  <!--{0} = media item title-->
+  <string name="PlayerControl.Playing">Memainkan</string>
+  <string name="PlayerControl.Paused">Ditunda</string>
+  <string name="PlayerControl.SeekingForward">Cari maju ({0})</string>
+  <!--For example: "Seeking forward (2x)"-->
+  <string name="PlayerControl.SeekingBackward">Cari mundur ({0})</string>
+  <!--For example: "Seeking forward (2x)"-->
+  <string name="PlayerControl.SlowMotionForward">Gerak lambat maju ({0})</string>
+  <!--For example: "Slowmotion forward (0.5x)"-->
+  <string name="PlayerControl.SlowMotionBackward">Gerak lambat mundur ({0})</string>
+  <!--For example: "Slowmotion backward (0.5x)"-->
+  <string name="PlayerControl.PlaybackRateHint">{0}x</string>
+  <!--For example: 2x or 0.5x-->
+  <string name="PlayerControl.Stopped">Berhenti</string>
+  <string name="PlayerControl.Ended">Selesai</string>
+  <string name="PlayerControl.Active">Aktif</string>
+</resources>

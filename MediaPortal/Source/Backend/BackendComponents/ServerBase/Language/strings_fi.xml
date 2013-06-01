@@ -1,0 +1,18 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<resources>
+  <string name="MainForm.Title">MediaPortal 2 palvelinohjelma</string>
+  <string name="MainForm.AttachedClients">Liitetyt asiakaskoneet</string>
+  <string name="MainForm.Client">Asiakaskone</string>
+  <string name="MainForm.System">Järjestelmä</string>
+  <string name="MainForm.ConnectionState">Yhteyden tila</string>
+  <string name="MainForm.Connected">Yhdistetty</string>
+  <string name="MainForm.Disconnected">Yhteys katkaistu</string>
+  <string name="UPnPBackendServer.DefaultFriendlyName">MediaPortal 2 palvelin</string>
+  <string name="UPnPBackendServer.Manufacturer">Team Mediaportal</string>
+  <string name="UPnPBackendServer.ManufacturerUrl">www.team-mediaportal.com</string>
+  <string name="UPnPBackendServer.ModelDescription">MediaPortal 2-palvelin - isännöi äänitiedostoja, videoita ja kuvia, ja tarjoaa media-tietokannan</string>
+  <string name="UPnPBackendServer.ModelName">MediaPortal 2 palvelin</string>
+  <string name="UPnPBackendServer.ModelNumber">1</string>
+  <string name="UPnPBackendServer.ModelUrl">...</string>
+  <string name="MediaLibrary.EmptyOrMiscCharGroupName">&lt;Tyhjä tai sekalainen merkki&gt;</string>
+</resources>

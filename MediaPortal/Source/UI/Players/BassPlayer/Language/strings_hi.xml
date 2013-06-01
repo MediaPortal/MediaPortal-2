@@ -1,0 +1,10 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<resources>
+  <string name="Settings.Players">प्लेयर</string>
+  <string name="Settings.Players.Rendering">प्रतिपादन</string>
+  <string name="Settings.Players.Rendering.CrossFading">क्रॉस लुप्त होती</string>
+  <string name="Settings.Players.Rendering.CrossFading.CrossFadingEnabled">क्रॉस लुप्त होती सक्षम</string>
+  <string name="Settings.Players.Rendering.CrossFading.CrossFadingEnabled.Help">निर्धारित करता है अगर मीडिया पोर्टल गाने क्रॉस-फीका चाहिए, यदि संभव हो तो</string>
+  <string name="Settings.Players.Rendering.CrossFading.CrossFadeDuration">क्रॉस फीका अवधि</string>
+  <string name="Settings.Players.Rendering.CrossFading.CrossFadeDuration.Help">समय क्रॉस-फीका के लिए सेकंड में</string>
+</resources>

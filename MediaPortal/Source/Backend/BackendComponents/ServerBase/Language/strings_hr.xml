@@ -1,0 +1,18 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<resources>
+  <string name="MainForm.Title">MediaPortal 2 Server aplikacija</string>
+  <string name="MainForm.AttachedClients">Spojeni klijenti</string>
+  <string name="MainForm.Client">Klijent</string>
+  <string name="MainForm.System">Sustav</string>
+  <string name="MainForm.ConnectionState">Stanje veze</string>
+  <string name="MainForm.Connected">Spojen</string>
+  <string name="MainForm.Disconnected">Odspojen</string>
+  <string name="UPnPBackendServer.DefaultFriendlyName">MediaPortal 2 server</string>
+  <string name="UPnPBackendServer.Manufacturer">Team Mediaportal</string>
+  <string name="UPnPBackendServer.ManufacturerUrl">www.team-mediaportal.com</string>
+  <string name="UPnPBackendServer.ModelDescription">MediaPortal 2 server - poslužuje fotografije, audio i video datoteke, te osigurava bazu medijskog sadržaja.</string>
+  <string name="UPnPBackendServer.ModelName">MediaPortal 2 server</string>
+  <string name="UPnPBackendServer.ModelNumber">1</string>
+  <string name="UPnPBackendServer.ModelUrl">...</string>
+  <string name="MediaLibrary.EmptyOrMiscCharGroupName">&lt;Prazan ili poseban znak&gt;</string>
+</resources>

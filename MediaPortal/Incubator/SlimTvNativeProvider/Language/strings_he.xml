@@ -1,0 +1,12 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<resources>
+  <string name="Settings.Plugins.TV">טלויזיה</string>
+  <string name="Settings.Plugins.TV.MPExtendedServerAddress">כתובת השרת שבו רץ MPExtended</string>
+  <string name="Settings.Plugins.TV.MPExtendedServerAddress.Help">הכנס את שם השרת או כתובת IP, מופרדים ע\"י פסיק (ברירת מחדל localhost)</string>
+  <string name="Settings.Plugins.TV.MPExtendedUsername">שם משתמש לשרות</string>
+  <string name="Settings.Plugins.TV.MPExtendedUsername.Help">הזן את שם המשתמש שלך על מנת להתחבר. במקרה של שדה ריק יווצר חיבור אנונימי.</string>
+  <string name="Settings.Plugins.TV.MPExtendedPassword">סיסמה לשרות</string>
+  <string name="Settings.Plugins.TV.MPExtendedPassword.Help">הכנס סיסמה להתחברות. סיסמאות ריקות ישתמשו בחיבור אנונימי.</string>
+  <string name="Settings.Plugins.TV.ConnectionErrorTitle">תקלה בחיבור</string>
+  <string name="Settings.Plugins.TV.ConnectionErrorText">לא ניתן להתחבר לשרות MPExtendedServerAddress-Server: {0}</string>
+</resources>

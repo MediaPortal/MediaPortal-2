@@ -1,0 +1,8 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<resources>
+  <string name="Settings.Players.Image">Плејер за слике</string>
+  <string name="Settings.Players.Image.SlideShowImageDuration">Преглед слика - трајање</string>
+  <string name="Settings.Players.Image.SlideShowImageDuration.Help">Подешава трајање у секундама за колико је слика видљива приликом гледања</string>
+  <string name="Settings.Players.Image.KenBurnsEffect">Користи Ken Burns ефекат</string>
+  <string name="Settings.Players.Image.KenBurnsEffect.Help">Користи померање и зумирање слика приликом гледања</string>
+</resources>

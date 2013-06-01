@@ -1,0 +1,10 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<resources>
+  <string name="Settings.Players">Prehrávače</string>
+  <string name="Settings.Players.Rendering">Rendering</string>
+  <string name="Settings.Players.Rendering.CrossFading">CrossFading</string>
+  <string name="Settings.Players.Rendering.CrossFading.CrossFadingEnabled">Cross fading povolený</string>
+  <string name="Settings.Players.Rendering.CrossFading.CrossFadingEnabled.Help">Zistí, či by MediaPortal mal použiť cross-fade pre skladby, ak je to možné</string>
+  <string name="Settings.Players.Rendering.CrossFading.CrossFadeDuration">Trvanie cross fade</string>
+  <string name="Settings.Players.Rendering.CrossFading.CrossFadeDuration.Help">Trvanie cross fade efektu v sekundách</string>
+</resources>

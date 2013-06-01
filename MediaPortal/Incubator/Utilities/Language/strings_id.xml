@@ -1,0 +1,29 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<resources>
+  <string name="Utilities.MenuItem">Utilitas</string>
+  <string name="Utilities.MainWorkflowNavigationContextDisplayLabel">Utilitas</string>
+  <string name="Utilities.PlaylistImportWorkflowNavigationContextDisplayLabel">Impor Daftar main</string>
+  <string name="Utilities.MainScreenTitle">Utiliti</string>
+  <string name="Utilities.PlaylistImport">Impor Daftar main</string>
+  <string name="Utilities.PlaylistImportScreenTitle">Impor Daftar main</string>
+  <string name="Utilities.ImportPlaylistFile">Impor file daftar main</string>
+  <string name="Utilities.ChoosePlaylistFile">Pilih file</string>
+  <string name="Utilities.ChooseImportFileDialogHeader">Pilih file impor</string>
+  <string name="Utilities.EditPlaylistName">Edit nama daftar main baru</string>
+  <string name="Utilities.LocationOfShareContainingItems">Lokasi yang dibagi yang berisi item media</string>
+  <string name="Utilities.LocalShareLocation">Share lokal</string>
+  <string name="Utilities.ServerShareLocation">Server share</string>
+  <string name="Utilities.StartPlaylistImport">Mulai impor daftar main</string>
+  <string name="Utilities.PlaylistSavedSuccessfullyTitle">Sukses</string>
+  <string name="Utilities.NoItemsWereImportedSkippingSaveText">Tidak ada item diimpor. Melewatkan aksi simpan.</string>
+  <string name="Utilities.PlaylistSavedSuccessfullyText">Daftar main \'{0}\' berhasil disimpan.</string>
+  <string name="Utilities.PlaylistSaveFailedTitle">Gagal menyimpan daftar main</string>
+  <string name="Utilities.ImportPlaylistProgressTitle">Perkembangan</string>
+  <string name="Utilities.ImportPlaylistProgressHeaderText">Mengimpor daftar main</string>
+  <string name="Utilities.ImportPlaylistProgressText">{0}/{1}, {2} dilewat</string>
+  <string name="Utilities.StopImportPlaylistButton">Berhenti</string>
+  <string name="Utilities.PlaylistNameExists">Nama daftar main sudah ada</string>
+  <string name="Utilities.ImportFileInvalid">File impor salah</string>
+  <string name="Utilities.PlaylistNameIsEmpty">Nama daftar main kosong</string>
+  <string name="Utilities.ServerNotConnected">Server tidak terhubung</string>
+</resources>

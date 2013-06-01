@@ -1,0 +1,9 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<resources>
+  <!--FIXME: Move those language resources to Manager application (or to a support plugin)-->
+  <string name="configuration.save_on_exit">Vill du spara ändringarna innan du stänger?</string>
+  <string name="configuration.unsaved_warning">Varning: Ändringarna är inte sparade</string>
+  <string name="configuration.browse">Utforska</string>
+  <string name="configuration.areas.settings">Inställningar</string>
+  <string name="configuration.areas.logs">Loggar</string>
+</resources>

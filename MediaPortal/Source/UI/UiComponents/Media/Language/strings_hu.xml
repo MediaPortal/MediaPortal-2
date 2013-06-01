@@ -1,0 +1,248 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<resources>
+  <!--Menu items for the five Media navigation parts-->
+  <string name="Media.BrowseMediaMenuItem">Média tallózása</string>
+  <string name="Media.LocalMediaMenuItem">Helyi média</string>
+  <string name="Media.AudioMenuItem">Audió</string>
+  <string name="Media.VideosMenuItem">Videók</string>
+  <string name="Media.SeriesMenuItem">Sorozatok</string>
+  <string name="Media.MoviesMenuItem">Filmek</string>
+  <string name="Media.ImagesMenuItem">Képek</string>
+  <!--Filter titles-->
+  <string name="Media.FilterByArtistMenuItem">Szűrés előadó szerint</string>
+  <string name="Media.FilterByAlbumMenuItem">Szűrés album szerint</string>
+  <string name="Media.FilterByAudioGenreMenuItem">Szűrés műfaj szerint</string>
+  <string name="Media.FilterByDecadeMenuItem">Szűrés évtized szerint</string>
+  <string name="Media.FilterByActorMenuItem">Szűrés színész szerin</string>
+  <string name="Media.FilterByVideoGenreMenuItem">Szűrés műfaj szerint</string>
+  <string name="Media.FilterByVideoYearMenuItem">Szűrés év szerint</string>
+  <string name="Media.FilterByAudioLanguageMenuItem">Szűrő nyelv alapján</string>
+  <string name="Media.FilterByImageSizeMenuItem">Szűrés méret szerint</string>
+  <string name="Media.FilterByImageYearMenuItem">Szűrés év szerint</string>
+  <string name="Media.FilterBySystemMenuItem">Szűrés rendszer szerint</string>
+  <string name="Media.FilterBySeriesNameMenuItem">Szűrés sorozatok szerint</string>
+  <string name="Media.FilterBySeriesSeasonMenuItem">Szűrés évad szerint</string>
+  <string name="Media.FilterBySeriesEpisodeMenuItem">Szűrés epizód szerint</string>
+  <string name="Media.SimpleSearchFilterMenuItem">Keresés</string>
+  <string name="Media.ShowAllAudioItemsMenuItem">Mind mutatása</string>
+  <string name="Media.ShowAllVideoItemsMenuItem">Mind mutatása</string>
+  <string name="Media.ShowAllImageItemsMenuItem">Mind mutatása</string>
+  <string name="Media.ShowAllMoviesMenuItem">Mindet mutassa</string>
+  <!--Special filters names-->
+  <string name="Media.ImageFilterSmall">Kicsi</string>
+  <string name="Media.ImageFilterMedium">Közepes</string>
+  <string name="Media.ImageFilterBig">Nagy</string>
+  <string name="Media.SwitchToBrowseMLView">Szerver nézet</string>
+  <string name="Media.SwitchToLocalMediaView">Helyi nézet</string>
+  <!--Navbar display labels for sub view navigation-->
+  <string name="Media.BrowseMediaNavigationNavbarDisplayLabel">{0}</string>
+  <!--For example: "R.E.M."-->
+  <string name="Media.LocalMediaNavigationNavbarDisplayLabel">{0}</string>
+  <!--For example: "R.E.M."-->
+  <string name="Media.FilterArtistNavbarDisplayLabel">Előadó: {0}</string>
+  <!--For example: "Artist: R.E.M."-->
+  <string name="Media.FilterAlbumNavbarDisplayLabel">Album: {0}</string>
+  <string name="Media.FilterAudioGenreNavbarDisplayLabel">Műfaj {0}</string>
+  <string name="Media.FilterDecadeNavbarDisplayLabel">Évtized: {0}</string>
+  <string name="Media.FilterActorNavbarDisplayLabel">Színész: {0}</string>
+  <string name="Media.FilterVideoGenreNavbarDisplayLabel">Műfaj: {0}</string>
+  <string name="Media.FilterVideoYearNavbarDisplayLabel">Év: {0}</string>
+  <string name="Media.FilterAudioLanguagesNavbarDisplayLabel">Nyelv: {0}</string>
+  <string name="Media.FilterImageSizeNavbarDisplayLabel">Méret: {0}</string>
+  <string name="Media.FilterImageYearNavbarDisplayLabel">Év: {0}</string>
+  <string name="Media.FilterAudioItemsNavbarDisplayLabel">Név: {0}</string>
+  <string name="Media.FilterVideoItemsNavbarDisplayLabel">Név: {0}</string>
+  <string name="Media.FilterMoviesCollectionNavbarDisplayLabel">{0}</string>
+  <string name="Media.FilterSeriesItemsNavbarDisplayLabel">{0}</string>
+  <string name="Media.FilterSeriesSeasonNavbarDisplayLabel">Évad: {0}</string>
+  <string name="Media.FilterImageItemsNavbarDisplayLabel">Név: {0}</string>
+  <string name="Media.FilterSystemNavbarDisplayLabel">Rendszer: {0}</string>
+  <string name="Media.FilterMoviesNavbarDisplayLabel">Filmek: {0}</string>
+  <!--Display labels for workflow navigation contexts-->
+  <string name="Media.BrowseMediaNavigationRootWorkflowNavigationContextDisplayLabel">Média tallózása</string>
+  <string name="Media.LocalMediaNavigationRootWorkflowNavigationContextDisplayLabel">Helyi média</string>
+  <string name="Media.AudioNavigationRootWorkflowNavigationContextDisplayLabel">Audió gyűjtemény</string>
+  <string name="Media.VideoNavigationRootWorkflowNavigationContextDisplayLabel">Videó gyűjtemény</string>
+  <string name="Media.SeriesNavigationRootWorkflowNavigationContextDisplayLabel">Sorozatok gyűjteménye</string>
+  <string name="Media.MoviesNavigationRootWorkflowNavigationContextDisplayLabel">Film könyvtár</string>
+  <string name="Media.ImageNavigationRootWorkflowNavigationContextDisplayLabel">Képek gyűjteménye</string>
+  <string name="Media.VideoCurrentlyPlayingWorkflowStateNavigationContextDisplayLabel">Aktuális videó</string>
+  <string name="Media.VideoFullscreenContentWorkflowStateNavigationContextDisplayLabel">Teljesképernyős videó</string>
+  <string name="Media.AudioCurrentlyPlayingWorkflowStateNavigationContextDisplayLabel">Jelenlegi audió</string>
+  <string name="Media.AudioFullscreenContentWorkflowStateNavigationContextDisplayLabel">Audió vizualizáció</string>
+  <string name="Media.ShowPlaylistWorkflowStateNavigationContextDisplayLabel">Lejátszási lista</string>
+  <string name="Media.EditPlaylistWorkflowStateNavigationContextDisplayLabel">Lejátszási lista szerkesztése</string>
+  <string name="Media.PlaylistsOverviewWorkflowStateNavigationContextDisplayLabel">Lejátszási listák</string>
+  <string name="Media.PlaylistInfoWorkflowStateNavigationContextDisplayLabel">Lejátszási lista információ</string>
+  <string name="Media.RemovePlaylistsWorkflowStateNavigationContextDisplayLabel">Lejátszási listák eltávolítása</string>
+  <string name="Media.SavePlaylistEditNameWorkflowStateNavigationContextDisplayLabel">Lejátszási lista nevének szerkesztése</string>
+  <string name="Media.SavePlaylistSuccessfulWorkflowStateNavigationContextDisplayLabel">Sikeres</string>
+  <string name="Media.SavePlaylistFailedWorkflowStateNavigationContextDisplayLabel">Sikertelen</string>
+  <string name="Media.PlayOrEnqueueItemsWorkflowStateNavigationContextDisplayLabel">Elemek lejátszása/hozzáadása</string>
+  <string name="Media.CheckQueryPlayActionSingleItemWorkflowStateNavigationContextDisplayLabel">Lejátszás művelet</string>
+  <string name="Media.CheckQueryPlayActionMultipleItemsWorkflowStateNavigationContextDisplayLabel">Lejátszás művelet</string>
+  <string name="Media.CheckQueryPlayActionMultipleItemsChooseMediaTypeWorkflowStateNavigationContextDisplayLabel">Médiatípus kiválasztása</string>
+  <!--Screen headers-->
+  <string name="Media.BrowseMediaNavigationHeader">Média navigáció böngészése</string>
+  <string name="Media.LocalMediaNavigationHeader">Helyi média navigáció</string>
+  <string name="Media.MediaItemsHeader">Média elemek</string>
+  <string name="Media.VideoItemsHeader">Videók</string>
+  <string name="Media.AudioItemsHeader">Audió elemek</string>
+  <string name="Media.SeriesItemsHeader">Epizódok</string>
+  <string name="Media.MoviesItemsHeader">Filmek</string>
+  <string name="Media.ImageItemsHeader">Képek</string>
+  <string name="Media.SimpleSearchHeader">Egyszerű keresés</string>
+  <string name="Media.ChooseActorHeader">Színész kiválasztása</string>
+  <string name="Media.ChooseVideoGenreHeader">Műfaj kiválasztása</string>
+  <string name="Media.ChooseVideoYearHeader">Év kiválasztása</string>
+  <string name="Media.ChooseSeriesHeader">Sorozat kiválastása</string>
+  <string name="Media.ChooseSeasonHeader">Évad kiválasztása</string>
+  <string name="Media.ChooseAudioDecadeHeader">Évtized kiválasztása</string>
+  <string name="Media.ChooseAlbumHeader">Album kiválasztása</string>
+  <string name="Media.ChooseArtistHeader">Előadó kiválasztása</string>
+  <string name="Media.ChooseAudioGenreHeader">Műfaj kiválasztása</string>
+  <string name="Media.ChooseImageYearHeader">Év kiválasztása</string>
+  <string name="Media.ChooseImageSizeHeader">Méret kiválasztása</string>
+  <string name="Media.ChooseSystemHeader">Rendszer kiválasztása</string>
+  <string name="Media.ChooseVideoLanguageHeader">Válasszon nyelvet</string>
+  <string name="Media.PlaylistsOverviewHeader">Lejátszási listák</string>
+  <string name="Media.SavePlaylistEditNameHeader">Lejátszási lista mentése</string>
+  <string name="Media.SavePlaylistFailedHeader">Lejátszási lista mentése</string>
+  <string name="Media.SavePlaylistSuccessfulHeader">Lejátszási lista mentése</string>
+  <string name="Media.RemovePlaylistsHeader">Lejátszási listák eltávolítása</string>
+  <string name="Media.PlaylistDetailsHeader">Lejátszási lista részletek</string>
+  <string name="Media.PlaylistLoadNoPlaylistText">Nincs betölthető lejátszási lista</string>
+  <string name="Media.PlaylistLoadErrorLoadingPlaylist">Hiba történt a lejátszási lista betöltésekor</string>
+  <!--View names (names for the view instances)-->
+  <string name="Media.BrowseMediaRootViewName">Média tallózása</string>
+  <string name="Media.LocalMediaRootViewName">Helyi média</string>
+  <string name="Media.ClientSharesViewName">Kliens megosztások</string>
+  <string name="Media.ServerSharesViewName">Szerver megosztások</string>
+  <string name="Media.AudioRootViewName">Audió</string>
+  <string name="Media.VideosRootViewName">Videók</string>
+  <string name="Media.SeriesRootViewName">Sorozatok</string>
+  <string name="Media.ImagesRootViewName">Képek</string>
+  <string name="Media.SimpleSearchViewName">Egyszerű keresés</string>
+  <!--General strings used in views-->
+  <string name="Media.ViewInvalid">Ezt a nézetet nem sikerült felépíteni</string>
+  <string name="Media.ViewEmpty">&lt;Nincs találat&gt;</string>
+  <string name="Media.NoItems">Nincs találat</string>
+  <!--Shown in the header of an items list-->
+  <string name="Media.OneItem">Egy találat</string>
+  <!--Shown in the header of an items list-->
+  <string name="Media.OneOfOneItem">1/1 találat</string>
+  <!--Shown in the header of an items list-->
+  <string name="Media.NOfMItems">{0}/{1} találat</string>
+  <!--Shown in the header of an items list, e.g. "15/350 items"-->
+  <string name="Media.NItems">{0} találat</string>
+  <!--Shown in the header of an items list, e.g. "45 items"-->
+  <string name="Media.MoreThanMaxItemsHint">Ez a nézet több, mint {0} találatot tartalmaz. Kérem szűkítse a találatok számát további szűrők hozzáadásával.</string>
+  <string name="Media.MoreThanMaxItemsBrowseHint">Ez a nézet több mint {0} elemet tartalmaz.</string>
+  <string name="Media.MoreThanMaxItemsSearchResultHint">A keresési eredmény több mint {0} találatot tartalmaz. Kérjük szűkítse a keresést.</string>
+  <string name="Media.SearchResultIsBeingBuiltHint">Keresés...</string>
+  <!--Playlists-->
+  <string name="Media.ManagePlaylists">Lejátszási lista</string>
+  <string name="Media.AddAllToPlaylist">Összes hozzáadása a lejátszási listához</string>
+  <string name="Media.NoItemsToAddHeader">Nincs hozzáadandó elem</string>
+  <string name="Media.NoItemsToAddText">A jelenlegi nézetben nincs megjeleníthető tétel</string>
+  <string name="Media.AddToPlaylistProgressDialogHeader">Folyamat</string>
+  <string name="Media.NItemsAdded">{0} elem hozzáadva</string>
+  <string name="Media.StopAddToPlaylistButton">Megállítás</string>
+  <string name="Media.NoPlaylistsAvailable">Nincsenek elérhető lejátszási listák</string>
+  <string name="Media.EditNameOfPlaylist">Lejátszási lista nevének a szerkesztése</string>
+  <string name="Media.SavePlaylistSuccessfulText">\'{0}\' lejátszási lista sikeresen elmentve a szerverre. </string>
+  <string name="Media.SavePlaylistFailedText">A lejátszási listát nem lehetett menteni. Hiba üzenet: \'{0}\'</string>
+  <string name="Media.SavePlaylistFailedAlreadyExists">A lejátszási listát nem lehetett menteni. Már létezik \'{0}\' nevű lejátszási lista.</string>
+  <string name="Media.ChoosePlaylistsToBeRemovedText">Válassza ki az eltávolítandó lejátszási listákat</string>
+  <string name="Media.PlaylistNameInfoLabel">Lejátszási lista neve</string>
+  <string name="Media.PlaylistTypeInfoLabel">Lejátszási lista típusa</string>
+  <!--Play items dialog-->
+  <!--Player context names-->
+  <string name="Media.VideoImageContextName">Videó/Kép</string>
+  <string name="Media.AudioContextName">Audió</string>
+  <!--Video currently playing-->
+  <string name="Media.VideoCurrentlyPlayingHeader">Jelenlegi videó információi</string>
+  <string name="Media.VideoTitleLabel">Cím:</string>
+  <string name="Media.VideoGenreLabel">Műfaj:</string>
+  <string name="Media.VideoYearLabel">Év:</string>
+  <string name="Media.VideoDurationLabel">Időtartam:</string>
+  <string name="Media.VideoActorsLabel">Színész(ek):</string>
+  <string name="Media.VideoStoryPlotLabel">Történet röviden:</string>
+  <!--Series currently playing-->
+  <!--Image currently playing-->
+  <string name="Media.ImageCurrentlyPlayingHeader">Jelenlegi kép információi</string>
+  <string name="Media.ImageTitleLabel">Név:</string>
+  <string name="Media.ImageDimensions">Felbontás:</string>
+  <string name="Media.CameraMake">Fényképezőgéppel készítve:</string>
+  <string name="Media.CameraModel">Fényképezőgép modellje:</string>
+  <string name="Media.ImageISOSpeedLabel">ISO érzékenység:</string>
+  <string name="Media.ImageFNumberLabel">Fókusz arány:</string>
+  <string name="Media.ImageShutterSpeedLabel">Záridő:</string>
+  <string name="Media.ImageMeteringModeLabel">Fénymérési mód:</string>
+  <string name="Media.ImageExposureTimeLabel">Expozíciós idő:</string>
+  <!--DVD currently playing-->
+  <string name="Media.DVDCurrentlyPlayingHeader">Jelenlegi DVD információi</string>
+  <!--Audio currently playing-->
+  <string name="Media.AudioCurrentlyPlayingHeader">Jelenlegi audió információi</string>
+  <string name="Media.AudioArtistsLabel">Előadó:</string>
+  <string name="Media.AudioTitleLabel">Cím:</string>
+  <string name="Media.AudioYearLabel">Év:</string>
+  <string name="Media.AudioDurationLabel">Időtartam:</string>
+  <string name="Media.AudioPlaylistHeader">Audió lejátszási lista:</string>
+  <string name="Media.VideoImagePlaylistHeader">Videó/Kép lejátszási lista:</string>
+  <string name="Media.PiPPlaylistHeader">Kép a képben lejátszási lista:</string>
+  <string name="Media.SavePLAtServer">Szerverre mentés</string>
+  <string name="Media.SavePLLocally">Helyi mentés</string>
+  <string name="Media.ShowAudioPlaylistAction">Audió lejátszási lista megjelenítése</string>
+  <string name="Media.ShowVideoImagePlaylistAction">Videó/Kép lejátszási lista megjelenítése</string>
+  <string name="Media.ShowPiPPlaylistAction">Kép a képben lejátszási lista megjelenítése</string>
+  <string name="Media.ClearPlaylistAction">Lejátszási lista kiürítése</string>
+  <string name="Media.SavePlaylistAction">Lejátszási lista mentése</string>
+  <string name="Media.SaveCurrentPlaylistAction">Jelenlegi lejátszási lista mentése</string>
+  <string name="Media.RemovePlaylistsAction">Lejátszási lista eltávolítása</string>
+  <string name="Media.EditPlaylistButton">Lejátszási lista szerkesztése</string>
+  <string name="Media.LoadPlaylistButton">Lejátszási lista betöltése</string>
+  <string name="Media.ValueEmptyTitle">&lt;Üres&gt;</string>
+  <string name="Media.RepeatMode.None">Nincs</string>
+  <!--VideoPlayerUIContributor-->
+  <string name="Media.SubtitleOff">Feliratok tiltása</string>
+  <string name="Media.ChooseChapterDialogHeader">Fejezet választása</string>
+  <string name="Media.ChooseSubtitleDialogHeader">Felirat választása</string>
+  <string name="Media.ChooseTitleDialogHeader">Cím választása</string>
+  <!--Video Player time units-->
+  <string name="Media.Seconds">mp</string>
+  <string name="Media.Minutes">perc</string>
+  <string name="Media.Hours">óra</string>
+  <string name="Media.Start">Kezdés</string>
+  <string name="Media.End">Vége</string>
+  <string name="Media.DontSkip">Ne hagyja ki</string>
+  <string name="Media.SwitchViewModeMenuItem">Nézet mód:</string>
+  <string name="Media.SwitchViewModeDialogTitle">Válasszon nézet módot</string>
+  <string name="Media.SmallList">Kis lista</string>
+  <string name="Media.MediumList">Közepes lista</string>
+  <string name="Media.LargeList">Nagy lista</string>
+  <string name="Media.LargeGrid">Rács</string>
+  <string name="Media.SwitchSortingMenuItem">Rendezés</string>
+  <string name="Media.SwitchSortingDialogTitle">Rendezés</string>
+  <string name="Media.SortByTitle">Rendezés cím alapján</string>
+  <string name="Media.SortByAlbumTrack">Rendezés album és szám alapján</string>
+  <string name="Media.SortByGenre">Rendezés műfaj alapján</string>
+  <string name="Media.SortByAlbum">Rendezés album és cím alapján</string>
+  <string name="Media.SortByTrack">Rendezés szám alapján</string>
+  <string name="Media.SortByArtist">Rendezés előadó alapján</string>
+  <string name="Media.SortByYear">Rendezés év alapján</string>
+  <string name="Media.SortBySize">Rendezés méret alapján</string>
+  <string name="Media.SortBySystem">Rendezés rendszer alapján</string>
+  <string name="Media.SortByActor">Rendezés színész alapján</string>
+  <string name="Media.SortByDirector">Rendezés rendező alapján</string>
+  <string name="Media.SortByDuration">Rendezés időtartam alapján</string>
+  <string name="Media.SortByAspectRatio">Rendezés képarány alapján</string>
+  <string name="Media.SortByDate">Rendezés felvétel dátuma alapján</string>
+  <string name="Media.SortByEpisode">Rendezés epizód alapján</string>
+  <string name="Media.SortingBrowseDefault">Alapértelmezett rendezés</string>
+  <string name="Settings.Players">Lejátszók</string>
+  <string name="Settings.Players.ClosePlayersWhenFinished">Lejátszók bezárása amikor kész</string>
+  <string name="Settings.Players.ClosePlayersWhenFinished.Help">Engedélyezze ezt a beállítást, hogy a MediaPortal automatikusan bezárja a lejátszókat amikor befejeződött</string>
+  <string name="Settings.Players.InstantSkipPercent">Azonnali ugrás százaléka</string>
+  <string name="Settings.Players.InstantSkipPercent.Help">Válassza ki, hogy a videó időtartamának hány százalékát kívánja átugrani azonnal</string>
+</resources>

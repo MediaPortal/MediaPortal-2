@@ -1,0 +1,10 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<resources>
+  <string name="HelloWorld.MenuEntry">Hallo wereld</string>
+  <string name="HelloWorld.StateDisplayLabel">Hallo wereld status</string>
+  <string name="HelloWorld.ScreenTitle">Hallo wereld scherm</string>
+  <string name="HelloWorld.HelloWorldText">Deze tekst veranderd wanneer op de knop wordt gedrukt</string>
+  <string name="HelloWorld.SampleText">Dit is het voorbeeldscherm van de HalloWereld plug-in</string>
+  <string name="HelloWorld.ButtonText">Druk op me</string>
+  <string name="HelloWorld.ButtonTextCommandExecuted">Gefeliciteerd, je hebt zojuist een commando geactiveerd!</string>
+</resources>

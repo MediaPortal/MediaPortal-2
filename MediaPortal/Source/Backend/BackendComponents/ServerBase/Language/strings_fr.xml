@@ -1,0 +1,18 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<resources>
+  <string name="MainForm.Title">Application serveur MediaPortal 2</string>
+  <string name="MainForm.AttachedClients">Clients liés</string>
+  <string name="MainForm.Client">Client</string>
+  <string name="MainForm.System">Système</string>
+  <string name="MainForm.ConnectionState">État de la connection</string>
+  <string name="MainForm.Connected">Connecté</string>
+  <string name="MainForm.Disconnected">Déconnecté</string>
+  <string name="UPnPBackendServer.DefaultFriendlyName">Serveur MediaPortal 2</string>
+  <string name="UPnPBackendServer.Manufacturer">Team MediaPortal</string>
+  <string name="UPnPBackendServer.ManufacturerUrl">www.team-mediaportal.com</string>
+  <string name="UPnPBackendServer.ModelDescription">Serveur MediaPortal 2 - Base de données et hôte pour fichiers audios, vidéos et images</string>
+  <string name="UPnPBackendServer.ModelName">Serveur MediaPortal 2</string>
+  <string name="UPnPBackendServer.ModelNumber">1</string>
+  <string name="UPnPBackendServer.ModelUrl">...</string>
+  <string name="MediaLibrary.EmptyOrMiscCharGroupName">&lt;Vide ou caractère inconnu&gt;</string>
+</resources>

@@ -1,0 +1,8 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<resources>
+  <string name="Settings.Players.Image">Проигрыватель изображений</string>
+  <string name="Settings.Players.Image.SlideShowImageDuration">Время показа изображения</string>
+  <string name="Settings.Players.Image.SlideShowImageDuration.Help">Устанавливает время (в секундах), в течение которого будет показываться каждое изображение в режиме слайд-шоу</string>
+  <string name="Settings.Players.Image.KenBurnsEffect">Эффект Ken Burns</string>
+  <string name="Settings.Players.Image.KenBurnsEffect.Help">Использовать эффекты панорамирования и приближения при смене изображений</string>
+</resources>

@@ -1,0 +1,10 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<resources>
+  <string name="HelloWorld.MenuEntry">Hallå världen</string>
+  <string name="HelloWorld.StateDisplayLabel">Tillstånd för Hallå världen</string>
+  <string name="HelloWorld.ScreenTitle">Bild för Hallå världen</string>
+  <string name="HelloWorld.HelloWorldText">Tryck på knappen för att ändra denna text</string>
+  <string name="HelloWorld.SampleText">Detta är exempelbilden för pluginet HelloWorld</string>
+  <string name="HelloWorld.ButtonText">Tryck på mej</string>
+  <string name="HelloWorld.ButtonTextCommandExecuted">Grattis, du har aktiverat ett Kommando!</string>
+</resources>

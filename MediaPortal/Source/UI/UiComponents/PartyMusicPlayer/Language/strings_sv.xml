@@ -1,0 +1,23 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<resources>
+  <string name="PartyMusicPlayer.MenuItem">Partymusikspelare</string>
+  <string name="PartyMusicPlayer.ConfigWorkflowNavigationContextDisplayLabel">Partymusikspelare</string>
+  <string name="PartyMusicPlayer.PlayerWorkflowNavigationContextDisplayLabel">Partymusikspelare</string>
+  <string name="PartyMusicPlayer.ConfigScreenTitle">Partymusikspelare konfiguration</string>
+  <string name="PartyMusicPlayer.Playlist">Spellista</string>
+  <string name="PartyMusicPlayer.ChoosePlaylist">Välj spellista</string>
+  <string name="PartyMusicPlayer.UseEscapePassword">Använd lösenord för att lämna partymusik</string>
+  <string name="PartyMusicPlayer.DisableScreenSaver">Inaktivera skärmsläckare</string>
+  <string name="PartyMusicPlayer.StartPartyMode">Starta partymusik</string>
+  <string name="PartyMusicPlayer.ChoosePlaylistDialogHeader">Välj spellista</string>
+  <string name="PartyMusicPlayer.EnterEscapePasswordDialogHeader">Lösenord för att lämna partymusik</string>
+  <string name="PartyMusicPlayer.EnterEscapePasswordDialogText">Skriv in lösenordet för att lämna partymusik</string>
+  <string name="PartyMusicPlayer.WrongEscapePasswordDialogHeader">Fel lösenord för att lämna partymusik</string>
+  <string name="PartyMusicPlayer.WrongEscapePasswordDialogText">Ledsen. lösenordet för att lämna partymusik är fel!</string>
+  <string name="PartyMusicPlayer.ServerNotConnectedDialogHeader">Servern är inte uppkopplad</string>
+  <string name="PartyMusicPlayer.ServerNotConnectedDialogText">Denna åtgärd kräver att hemmaservern är uppkopplad</string>
+  <string name="PartyMusicPlayer.PlayerContextName">Partymusikspelare</string>
+  <string name="PartyMusicPlayer.AudioArtistLabel">Artist</string>
+  <string name="PartyMusicPlayer.AudioTitleLabel">Titel</string>
+  <string name="PartyMusicPlayer.ShowPlaylist">Visa spellista</string>
+</resources>

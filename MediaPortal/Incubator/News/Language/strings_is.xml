@@ -1,0 +1,15 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<resources>
+  <string name="News.Title">Fréttir</string>
+  <string name="News.FeedsStateDisplayLabel">Fréttir</string>
+  <string name="News.Published">Birt</string>
+  <string name="News.ConfiguredFeeds">Skilgreina fréttaveitu</string>
+  <string name="News.AddFeed">Bæta við fréttaveitu</string>
+  <string name="News.EnterFeedName">Nefnið fréttaveitu</string>
+  <string name="News.EnterFeedUrl">Sláið inn vefslóð fréttaveitu</string>
+  <string name="Settings.Plugins.News">Fréttir</string>
+  <string name="Settings.Plugins.News.FeedsSetup">Umsjón fréttaveitu</string>
+  <string name="Settings.Plugins.News.FeedsSetup.Help">Stilla fréttaveitu sem notuð er fyrir fréttasöfnun</string>
+  <string name="Settings.Plugins.News.RefreshInterval">Regluleg endurstilling</string>
+  <string name="Settings.Plugins.News.RefreshInterval.Help">Sækja gögn reglulega eftir ... mínútur</string>
+</resources>

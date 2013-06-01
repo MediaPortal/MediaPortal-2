@@ -1,0 +1,10 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<resources>
+  <string name="Settings.Players">Afspillere</string>
+  <string name="Settings.Players.Rendering">Rendere</string>
+  <string name="Settings.Players.Rendering.CrossFading">Overlapning</string>
+  <string name="Settings.Players.Rendering.CrossFading.CrossFadingEnabled">Overlapning slået til</string>
+  <string name="Settings.Players.Rendering.CrossFading.CrossFadingEnabled.Help">Beslut om MediaPortal skal få sange til at overlappe, hvis muligt.</string>
+  <string name="Settings.Players.Rendering.CrossFading.CrossFadeDuration">Overlapnings tid</string>
+  <string name="Settings.Players.Rendering.CrossFading.CrossFadeDuration.Help">Overlapnings tid i sekunder</string>
+</resources>

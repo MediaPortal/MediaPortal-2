@@ -1,0 +1,15 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<resources>
+  <string name="News.Title">Nyheder</string>
+  <string name="News.FeedsStateDisplayLabel">Nyheder</string>
+  <string name="News.Published">Offentliggjort</string>
+  <string name="News.ConfiguredFeeds">Konfigurer nyhedsfeeds</string>
+  <string name="News.AddFeed">Tilføj nyhedsfeed</string>
+  <string name="News.EnterFeedName">Navngiv nyhedsfeed</string>
+  <string name="News.EnterFeedUrl">Url til nyhedsfeed</string>
+  <string name="Settings.Plugins.News">Nyheder</string>
+  <string name="Settings.Plugins.News.FeedsSetup">Indstil nyhedsfeeds</string>
+  <string name="Settings.Plugins.News.FeedsSetup.Help">Konfigurer feeds, der bruges som data for nyheder</string>
+  <string name="Settings.Plugins.News.RefreshInterval">Opdaterings interval</string>
+  <string name="Settings.Plugins.News.RefreshInterval.Help">Hent feeds periodisk efter ... minutter</string>
+</resources>

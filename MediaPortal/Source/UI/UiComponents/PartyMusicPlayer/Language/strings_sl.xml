@@ -1,0 +1,23 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<resources>
+  <string name="PartyMusicPlayer.MenuItem">Party predvajalnik glasbe</string>
+  <string name="PartyMusicPlayer.ConfigWorkflowNavigationContextDisplayLabel">Party predvajalnik glasbe</string>
+  <string name="PartyMusicPlayer.PlayerWorkflowNavigationContextDisplayLabel">Party predvajalnik glasbe</string>
+  <string name="PartyMusicPlayer.ConfigScreenTitle">Nastavitve party predvajalnika</string>
+  <string name="PartyMusicPlayer.Playlist">Seznam predvajanja</string>
+  <string name="PartyMusicPlayer.ChoosePlaylist">Izberi seznam predvajanja</string>
+  <string name="PartyMusicPlayer.UseEscapePassword">Uporabi geslo za pobeg</string>
+  <string name="PartyMusicPlayer.DisableScreenSaver">Onemogoči ohranjevalnik zaslona</string>
+  <string name="PartyMusicPlayer.StartPartyMode">Začni žur</string>
+  <string name="PartyMusicPlayer.ChoosePlaylistDialogHeader">Izberi seznam predvajanja</string>
+  <string name="PartyMusicPlayer.EnterEscapePasswordDialogHeader">Geslo za pobeg</string>
+  <string name="PartyMusicPlayer.EnterEscapePasswordDialogText">Vnesi geslo za pobeg iz žura</string>
+  <string name="PartyMusicPlayer.WrongEscapePasswordDialogHeader">Napačno geslo</string>
+  <string name="PartyMusicPlayer.WrongEscapePasswordDialogText">Žal si vnesel napačno geslo</string>
+  <string name="PartyMusicPlayer.ServerNotConnectedDialogHeader">Strežnik ni povezan</string>
+  <string name="PartyMusicPlayer.ServerNotConnectedDialogText">Za izvedbo tega opravila, moraš biti povezan na domači strežnik</string>
+  <string name="PartyMusicPlayer.PlayerContextName">Party predvajalnik glasbe</string>
+  <string name="PartyMusicPlayer.AudioArtistLabel">Izvajalec</string>
+  <string name="PartyMusicPlayer.AudioTitleLabel">Naslov</string>
+  <string name="PartyMusicPlayer.ShowPlaylist">Prikaži seznam predvajanja</string>
+</resources>

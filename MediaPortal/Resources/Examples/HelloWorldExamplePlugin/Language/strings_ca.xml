@@ -1,0 +1,10 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<resources>
+  <string name="HelloWorld.MenuEntry">Hello world</string>
+  <string name="HelloWorld.StateDisplayLabel">Estat del Hello world</string>
+  <string name="HelloWorld.ScreenTitle">Pantalla del Hello world</string>
+  <string name="HelloWorld.HelloWorldText">Aquest text es canviarà en prémer el botó</string>
+  <string name="HelloWorld.SampleText">Aquesta és la pantalla de mostra del connector HelloWorld</string>
+  <string name="HelloWorld.ButtonText">Premeu-me</string>
+  <string name="HelloWorld.ButtonTextCommandExecuted">Felicitats, acabeu d\'activar una Ordre!</string>
+</resources>

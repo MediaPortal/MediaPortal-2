@@ -1,0 +1,14 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<resources>
+  <string name="Settings.General.System.SystemStateDialog">Meni zaustavitve</string>
+  <string name="Settings.General.System.SystemStateDialog.Help">Prilagodi vidnost in pozicijo elementov menija zaustavitve</string>
+  <string name="SystemState.Configuration.Dialog.Title">Prilagodi elemente zaustavitve</string>
+  <string name="SystemState.Title">Meni zaustavitve</string>
+  <string name="SystemState.Hibernate">Mirovanje</string>
+  <string name="SystemState.Shutdown">Zaustavitev</string>
+  <string name="SystemState.Suspend">Spanje</string>
+  <string name="SystemState.Restart">Ponovni zagon</string>
+  <string name="SystemState.Logoff">Odjava</string>
+  <string name="SystemState.MinimizeMP">Minimiraj MediaPortal</string>
+  <string name="SystemState.ShutdownMP">Zapri MediaPortal</string>
+</resources>

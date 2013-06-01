@@ -1,0 +1,9 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<resources>
+  <!--FIXME: Move those language resources to Manager application (or to a support plugin)-->
+  <string name="configuration.save_on_exit">Да ли желите да сачувате измене пре него затворите прозор?</string>
+  <string name="configuration.unsaved_warning">Упозорење: Промене нису сачуване</string>
+  <string name="configuration.browse">Прегледај</string>
+  <string name="configuration.areas.settings">Подешавања</string>
+  <string name="configuration.areas.logs">Записано</string>
+</resources>

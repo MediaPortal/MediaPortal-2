@@ -1,0 +1,9 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<resources>
+  <string name="SkinHelper.ThemeColorsWorkflowNavigationContextDisplayLabel">Barvy motivu</string>
+  <string name="SkinHelper.MenuShowThemeColors">Zobrazit barvy motivu</string>
+  <string name="SkinHelper.ShowThemeColorsTitle">Barvy motivu</string>
+  <string name="SkinHelper.ShowThemeColorsText">Tato obrazovka zobrazí všechny zdroje barev definované v aktuálním motivu (a zděděných zdrojích)</string>
+  <string name="SkinHelper.LoadSkinTitle">Načíst vzhled</string>
+  <string name="SkinHelper.LoadThemeTitle">Načíst motiv</string>
+</resources>

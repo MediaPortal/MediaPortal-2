@@ -1,0 +1,10 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<resources>
+  <string name="HelloWorld.MenuEntry">Pozdravljen svet</string>
+  <string name="HelloWorld.StateDisplayLabel">Stanje programa</string>
+  <string name="HelloWorld.ScreenTitle">Ekran \"pozdravljen svet\"</string>
+  <string name="HelloWorld.HelloWorldText">Pritisni na gumb in tekst se bo spremenil</string>
+  <string name="HelloWorld.SampleText">To je vzorčni ekran programa \"pozdravljen svet\"</string>
+  <string name="HelloWorld.ButtonText">Pritisni me</string>
+  <string name="HelloWorld.ButtonTextCommandExecuted">Čestitke! Pravkar si sprožil ukaz!</string>
+</resources>

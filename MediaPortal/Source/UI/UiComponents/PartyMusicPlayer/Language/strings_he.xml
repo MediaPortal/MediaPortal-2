@@ -1,0 +1,23 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<resources>
+  <string name="PartyMusicPlayer.MenuItem">נגן מוזיקה למסיבה</string>
+  <string name="PartyMusicPlayer.ConfigWorkflowNavigationContextDisplayLabel">נגן מוזיקה למסיבה</string>
+  <string name="PartyMusicPlayer.PlayerWorkflowNavigationContextDisplayLabel">נגן מוזיקה למסיבה</string>
+  <string name="PartyMusicPlayer.ConfigScreenTitle">הגדרות נגן מוזיקה למסיבה</string>
+  <string name="PartyMusicPlayer.Playlist">רשימת ניגון</string>
+  <string name="PartyMusicPlayer.ChoosePlaylist">בחר רשימת השמעה</string>
+  <string name="PartyMusicPlayer.UseEscapePassword">סיסמת יציאה</string>
+  <string name="PartyMusicPlayer.DisableScreenSaver">בטל שומר מסך</string>
+  <string name="PartyMusicPlayer.StartPartyMode">התחל מצב מסיבה</string>
+  <string name="PartyMusicPlayer.ChoosePlaylistDialogHeader">בחר רשימת השמעה</string>
+  <string name="PartyMusicPlayer.EnterEscapePasswordDialogHeader">סיסמת יציאה</string>
+  <string name="PartyMusicPlayer.EnterEscapePasswordDialogText">הכנס את סיסמת היציאה ממצב מסיבה</string>
+  <string name="PartyMusicPlayer.WrongEscapePasswordDialogHeader">סיסמה שגויה</string>
+  <string name="PartyMusicPlayer.WrongEscapePasswordDialogText">זו סיסמת היציאה הלא נכונה</string>
+  <string name="PartyMusicPlayer.ServerNotConnectedDialogHeader">שרת לא מחובר</string>
+  <string name="PartyMusicPlayer.ServerNotConnectedDialogText">לשם פעולה זו - השרת חייב להיות מחובר</string>
+  <string name="PartyMusicPlayer.PlayerContextName">נגן מוזיקה למסיבה</string>
+  <string name="PartyMusicPlayer.AudioArtistLabel">אמן</string>
+  <string name="PartyMusicPlayer.AudioTitleLabel">כותרת</string>
+  <string name="PartyMusicPlayer.ShowPlaylist">הצג רשימת השמעה</string>
+</resources>

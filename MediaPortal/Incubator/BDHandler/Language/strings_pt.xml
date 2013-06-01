@@ -1,0 +1,5 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<resources>
+  <string name="Settings.Players.Codecs.VideoCodecs.BDSourceFilter">Filtro de Fonte de Bluray</string>
+  <string name="Settings.Players.Codecs.VideoCodecs.BDSourceFilter.Help">Ajusta o Filtro de Fonte usado para tocar Bluray. Atualmente apenas as Fontes Gabest e LAV Splitter são suportadas.</string>
+</resources>
