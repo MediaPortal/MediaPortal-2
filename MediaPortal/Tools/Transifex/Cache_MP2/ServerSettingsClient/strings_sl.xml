@@ -1,0 +1,13 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<resources>
+  <string name="Settings.ServerSettings">Nastavitve strežnika</string>
+  <string name="Settings.ServerSettings.ServerDOKANDrive">Črka pogona vpetih virov</string>
+  <string name="Settings.ServerSettings.ServerDOKANDrive.Help">Določa črko pogona za vpenjanje omrežnih virov na strežniku.</string>
+  <string name="Settings.ServerSettings.NetworkCredentials">Poverilnice omrežja</string>
+  <string name="Settings.ServerSettings.NetworkCredentials.Help">Določa uporabniško ime in geslo za dostop do omrežnih virov s strežnika.</string>
+  <string name="Settings.ServerSettings.ImpersonateInteractive">Uporabi poverilnice za interaktivne seje na strežniku</string>
+  <string name="Settings.ServerSettings.UseCredentials">Uporabi uporabniško ime in geslo za dostop do omrežja</string>
+  <string name="Settings.ServerSettings.UsernamePasswordGroup">Uporabniški ime in geslo</string>
+  <string name="Settings.ServerSettings.Username">Uporabniško ime:</string>
+  <string name="Settings.ServerSettings.Password">Geslo:</string>
+</resources>

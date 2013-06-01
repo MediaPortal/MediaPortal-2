@@ -1,0 +1,47 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<resources>
+  <string name="Settings.Players.Codecs">Codificadores</string>
+  <string name="Settings.Players.Codecs.VideoCodecs">Codificadores de Vídeo</string>
+  <string name="Settings.Players.Codecs.VideoCodecs.MPEG2">Codificador de Vídeo MPEG2</string>
+  <string name="Settings.Players.Codecs.VideoCodecs.MPEG2.Help">Configura o codificador usado para vídeos MPEG2 (DVD, DVB-SD)</string>
+  <string name="Settings.Players.Codecs.VideoCodecs.MPEG4">Codificador de Vídeo MPEG4</string>
+  <string name="Settings.Players.Codecs.VideoCodecs.MPEG4.Help">Configura o codificador usado para vídeos MPEG4 (H.264, x264)</string>
+  <string name="Settings.Players.Codecs.VideoCodecs.AVC">Codificador de Vídeo AVC</string>
+  <string name="Settings.Players.Codecs.VideoCodecs.AVC.Help">Configura o codificador usado para vídeos AVC (HDTV, BlueRay)</string>
+  <string name="Settings.Players.Codecs.AudioCodecs">Codificadores de Áudio</string>
+  <string name="Settings.Players.Codecs.AudioRenderer">Processadores de Áudio</string>
+  <string name="Settings.Players.Codecs.AudioCodecs.AudioCodec">Codificador de áudio MPEG1/2</string>
+  <string name="Settings.Players.Codecs.AudioCodecs.AudioCodec.Help">Configurar o codificador de áudio MPEG1/2</string>
+  <string name="Settings.Players.Codecs.AudioCodecs.AudioCodecLATMAAC">Codificador de áudio LATM-AAC</string>
+  <string name="Settings.Players.Codecs.AudioCodecs.AudioCodecLATMAAC.Help">Configurar o codificador de áudio LATM-AAC</string>
+  <string name="Settings.Players.Codecs.AudioCodecs.AudioCodecAAC">Codificador de áudio AAC</string>
+  <string name="Settings.Players.Codecs.AudioCodecs.AudioCodecAAC.Help">Configurar o codificador de áudio AAC</string>
+  <string name="Settings.Players.Codecs.AudioCodecs.AudioRenderer">Processador de Áudio</string>
+  <string name="Settings.Players.Codecs.AudioCodecs.AudioRenderer.Help">Configurar o processador de áudio</string>
+  <string name="Settings.Players.VideoPlayer">Visualizador de Vídeos</string>
+  <string name="Settings.Players.VideoPlayer.PreferMultiChannelAudio">Preferir faixas de áudio multi-canal</string>
+  <string name="Settings.Players.VideoPlayer.PreferMultiChannelAudio.Help">Se habilitado, faixas de 6cn são preferidas (ex.: AC3, AAC)</string>
+  <string name="Settings.Players.DVDPlayer">Visualizador de DVD</string>
+  <string name="Settings.Players.DVDPlayer.EnableClosedCaption">Closed Captions</string>
+  <string name="Settings.Players.DVDPlayer.EnableClosedCaption.Help">Selecione se as Closed Captions devem ser habilitadas por padrão</string>
+  <string name="Settings.Players.DVDPlayer.EnableSubtitles">Legendas</string>
+  <string name="Settings.Players.DVDPlayer.EnableSubtitles.Help">Selecione se as Legendas devem ser habilitadas por padrão</string>
+  <string name="Playback.NotSpecified">Não especificado</string>
+  <string name="Playback.CaptionNormal">Legenda Normal</string>
+  <string name="Playback.CaptionBig">Legenda Grande</string>
+  <string name="Playback.CaptionChildren">Legenda Infantil</string>
+  <string name="Playback.CCNormal">CC Normal</string>
+  <string name="Playback.CCBig">CC Grande</string>
+  <string name="Playback.CCChildren">CC Infantil</string>
+  <string name="Playback.Forced">Forçado</string>
+  <string name="Playback.DirectorCommentsNormal">Comentários do Diretor Normal</string>
+  <string name="Playback.DirectorCommentsBig">Comentários do Diretor Grande</string>
+  <string name="Playback.DirectorCommentsChildren">Comentários do Diretor Infantil</string>
+  <string name="Playback.VisuallyImpaired">Deficiente Visual</string>
+  <string name="Playback.DirectorComments1">Comentários do Diretor</string>
+  <string name="Playback.DirectorComments2">Comentários do Diretor (2)</string>
+  <string name="Playback.Chapter">Capítulo {0}</string>
+  <!--For example: "Chapter 1"-->
+  <string name="Playback.Title">Título {0}</string>
+  <!--For example: "Title 1"-->
+</resources>

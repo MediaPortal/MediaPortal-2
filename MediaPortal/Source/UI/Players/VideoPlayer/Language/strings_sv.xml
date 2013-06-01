@@ -1,0 +1,47 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<resources>
+  <string name="Settings.Players.Codecs">Avkodare</string>
+  <string name="Settings.Players.Codecs.VideoCodecs">Videoavkodare</string>
+  <string name="Settings.Players.Codecs.VideoCodecs.MPEG2">MPEG2-videoavkodare</string>
+  <string name="Settings.Players.Codecs.VideoCodecs.MPEG2.Help">Välj videoavkodare för MPEG2 (DVD, DVB-SD)</string>
+  <string name="Settings.Players.Codecs.VideoCodecs.MPEG4">MPEG4-videoavkodare</string>
+  <string name="Settings.Players.Codecs.VideoCodecs.MPEG4.Help">Välj videoavkodare för MPEG4 (H.264, x264)</string>
+  <string name="Settings.Players.Codecs.VideoCodecs.AVC">AVC-videoavkodare</string>
+  <string name="Settings.Players.Codecs.VideoCodecs.AVC.Help">Välj videoavkodare för AVC (HDTV, Bluray)</string>
+  <string name="Settings.Players.Codecs.AudioCodecs">Ljudavkodare</string>
+  <string name="Settings.Players.Codecs.AudioRenderer">Ljuduppspelare</string>
+  <string name="Settings.Players.Codecs.AudioCodecs.AudioCodec">MPEG1/2-ljudavkodare</string>
+  <string name="Settings.Players.Codecs.AudioCodecs.AudioCodec.Help">Välj ljudavkodare för MPEG1/2</string>
+  <string name="Settings.Players.Codecs.AudioCodecs.AudioCodecLATMAAC">LATM-AAC-ljudavkodare</string>
+  <string name="Settings.Players.Codecs.AudioCodecs.AudioCodecLATMAAC.Help">Välj ljudavkodare för LATM-AAC</string>
+  <string name="Settings.Players.Codecs.AudioCodecs.AudioCodecAAC">AAC-ljudavkodare</string>
+  <string name="Settings.Players.Codecs.AudioCodecs.AudioCodecAAC.Help">Välj ljudavkodare för AAC</string>
+  <string name="Settings.Players.Codecs.AudioCodecs.AudioRenderer">Ljuduppspelare</string>
+  <string name="Settings.Players.Codecs.AudioCodecs.AudioRenderer.Help">Välj ljuduppspelare</string>
+  <string name="Settings.Players.VideoPlayer">Videospelare</string>
+  <string name="Settings.Players.VideoPlayer.PreferMultiChannelAudio">Föredra flerkanaliga ljudströmmar</string>
+  <string name="Settings.Players.VideoPlayer.PreferMultiChannelAudio.Help">Om aktiverad, så prioriteras sexkanaliga strömmar (dvs. AC3, AAC)</string>
+  <string name="Settings.Players.DVDPlayer">DVD-spelare</string>
+  <string name="Settings.Players.DVDPlayer.EnableClosedCaption">Textning (utökade undertexter, t ex även textade ljudeffekter)</string>
+  <string name="Settings.Players.DVDPlayer.EnableClosedCaption.Help">Välj om textning ska vara på som standard</string>
+  <string name="Settings.Players.DVDPlayer.EnableSubtitles">Undertexter</string>
+  <string name="Settings.Players.DVDPlayer.EnableSubtitles.Help">Välj om undertexter ska vara på som standard</string>
+  <string name="Playback.NotSpecified">Ej specifierat</string>
+  <string name="Playback.CaptionNormal">Normal text</string>
+  <string name="Playback.CaptionBig">Stor text</string>
+  <string name="Playback.CaptionChildren">Liten Text</string>
+  <string name="Playback.CCNormal">Normal text</string>
+  <string name="Playback.CCBig">Stor text</string>
+  <string name="Playback.CCChildren">Liten Text</string>
+  <string name="Playback.Forced">Alltid på</string>
+  <string name="Playback.DirectorCommentsNormal">Normala filmregissörskommentarer </string>
+  <string name="Playback.DirectorCommentsBig">Stora filmregissörskommentarer </string>
+  <string name="Playback.DirectorCommentsChildren">Små filmregissörskommentarer</string>
+  <string name="Playback.VisuallyImpaired">Synsvaga</string>
+  <string name="Playback.DirectorComments1">Filmregissörskommentarer</string>
+  <string name="Playback.DirectorComments2">Filmregissörskommentarer (2)</string>
+  <string name="Playback.Chapter">Kapitel {0}</string>
+  <!--For example: "Chapter 1"-->
+  <string name="Playback.Title">Titel {0}</string>
+  <!--For example: "Title 1"-->
+</resources>

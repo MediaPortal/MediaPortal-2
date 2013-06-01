@@ -1,0 +1,5 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<resources>
+  <string name="Settings.Players.Codecs.VideoCodecs.BDSourceFilter">מסנן מקור בלוריי</string>
+  <string name="Settings.Players.Codecs.VideoCodecs.BDSourceFilter.Help">הגדר את מסנן המקור עבור נגן בלוריי. כרגע רק מקורות מסוג Gabset ו- LAV splitter נתמכים.</string>
+</resources>

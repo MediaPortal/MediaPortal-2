@@ -1,0 +1,14 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<resources>
+  <string name="Settings.General.System.SystemStateDialog">Menú d\'apagada</string>
+  <string name="Settings.General.System.SystemStateDialog.Help">Configura la visibilitat i posició dels elements del menú d\'apagada</string>
+  <string name="SystemState.Configuration.Dialog.Title">Configurar els elements d\'apagada</string>
+  <string name="SystemState.Title">Menú d\'apagada</string>
+  <string name="SystemState.Hibernate">Hivernar</string>
+  <string name="SystemState.Shutdown">Apagar</string>
+  <string name="SystemState.Suspend">Suspendre</string>
+  <string name="SystemState.Restart">Reiniciar</string>
+  <string name="SystemState.Logoff">Tancar sessió</string>
+  <string name="SystemState.MinimizeMP">Minimitzar MediaPortal</string>
+  <string name="SystemState.ShutdownMP">Tancar MediaPortal</string>
+</resources>

@@ -1,0 +1,9 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<resources>
+  <!--FIXME: Move those language resources to Manager application (or to a support plugin)-->
+  <string name="configuration.save_on_exit">क्या आप बंद करने से पहले बदलाब को सहेजना चाहते हैं?</string>
+  <string name="configuration.unsaved_warning">चेतावनी: असहेजे गए बदलाब </string>
+  <string name="configuration.browse">ब्राउज़ करें</string>
+  <string name="configuration.areas.settings">सेटिंग</string>
+  <string name="configuration.areas.logs">लॉग्स</string>
+</resources>

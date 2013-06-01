@@ -1,0 +1,21 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<resources>
+  <string name="SlimTvClient.Title">клиент Slim TV</string>
+  <string name="SlimTvClient.CurrentlyPlayingInformationHeader">Информация о передаче</string>
+  <string name="SlimTvClient.ChannelLabel">Канал</string>
+  <string name="SlimTvClient.ProgramLabel">Передача</string>
+  <string name="SlimTvClient.DescriptionLabel">Описание</string>
+  <string name="SlimTvClient.GenreLabel">Жанр</string>
+  <string name="SlimTvClient.ProgramStartLabel">Время начала</string>
+  <string name="SlimTvClient.ProgramEndLabel">Время окончания</string>
+  <string name="SlimTvClient.EpisodeLabel">Эпизод</string>
+  <string name="SlimTvClient.Guide">Программа передач</string>
+  <string name="SlimTvClient.NoProgram">Нет данных</string>
+  <string name="SlimTvClient.ChooseProgramAction">Выберите действие...</string>
+  <string name="SlimTvClient.ProgramOver">Передача уже закончилась</string>
+  <string name="SlimTvClient.WatchNow">Смотреть передачу</string>
+  <string name="SlimTvClient.RecordNow">Записать сейчас</string>
+  <string name="SlimTvClient.DeleteSchedule">Удалить запланированную запись</string>
+  <string name="SlimTvClient.CreateSchedule">Запланировать запись</string>
+  <string name="SlimTvClient.NameFilterNavBarItemLabel">{0}</string>
+</resources>

@@ -1,0 +1,10 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<resources>
+  <string name="Settings.Players">Spelers</string>
+  <string name="Settings.Players.Rendering">Weergave</string>
+  <string name="Settings.Players.Rendering.CrossFading">Geleidelijke overgang</string>
+  <string name="Settings.Players.Rendering.CrossFading.CrossFadingEnabled">Geleidelijke overgang ingeschakeld</string>
+  <string name="Settings.Players.Rendering.CrossFading.CrossFadingEnabled.Help">Bepaalt of MediaPortal, indien mogelijk, gebruik maakt van een geleidelijke overgang tussen nummers</string>
+  <string name="Settings.Players.Rendering.CrossFading.CrossFadeDuration">Tijdsduur geleidelijke overgang</string>
+  <string name="Settings.Players.Rendering.CrossFading.CrossFadeDuration.Help">Tijd van de geleidelijke overgang in seconden</string>
+</resources>

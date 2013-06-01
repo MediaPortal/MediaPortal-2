@@ -1,0 +1,14 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<resources>
+  <string name="Configuration.Name">Configurações</string>
+  <string name="Configuration.ConfigurationMainWorkflowNavigationContextDisplayLabel">Configurações</string>
+  <string name="Configuration.MainSettings">Configurações Prinicipais</string>
+  <!--2nd Header for root configuration section-->
+  <string name="Configuration.NoSettingsInThisSection">Não existem configurações nesta secção</string>
+  <string name="Configuration.ErrorFloatingPointValue">\'{0}\' não é um número de vírgula flutuante válido</string>
+  <string name="Configuration.ErrorIntegerValue">\'{0}\' não é um número inteiro válido</string>
+  <string name="Configuration.ErrorNumericLowerLimit">Utilize um valor entre \'{1}\' e \'{2}\'</string>
+  <!--0 = current value, 1 = lower limit, 2 = upper limit-->
+  <string name="Configuration.ErrorNumericUpperLimit">Utilize um valor entre \'{1}\' e \'{2}\'</string>
+  <!--0 = current value, 1 = lower limit, 2 = upper limit-->
+</resources>

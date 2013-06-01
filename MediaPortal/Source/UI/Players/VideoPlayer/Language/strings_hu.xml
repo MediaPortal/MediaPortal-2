@@ -1,0 +1,47 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<resources>
+  <string name="Settings.Players.Codecs">Kodekek</string>
+  <string name="Settings.Players.Codecs.VideoCodecs">Videókodekek</string>
+  <string name="Settings.Players.Codecs.VideoCodecs.MPEG2">MPEG2 videókodek</string>
+  <string name="Settings.Players.Codecs.VideoCodecs.MPEG2.Help">MPEG2 videó dekódolásához használt kodek beállítása (DVD, DVB-SD)</string>
+  <string name="Settings.Players.Codecs.VideoCodecs.MPEG4">MPEG4 videókodek</string>
+  <string name="Settings.Players.Codecs.VideoCodecs.MPEG4.Help">MPEG4 videó dekódolásához használt kodek beállítása (H.264, x264)</string>
+  <string name="Settings.Players.Codecs.VideoCodecs.AVC">AVC videókodek</string>
+  <string name="Settings.Players.Codecs.VideoCodecs.AVC.Help">AVC videó dekódolásához használt kodek beállítása (HDTV, BluRay)</string>
+  <string name="Settings.Players.Codecs.AudioCodecs">Hangkodekek</string>
+  <string name="Settings.Players.Codecs.AudioRenderer">Hangszolgáltató</string>
+  <string name="Settings.Players.Codecs.AudioCodecs.AudioCodec">MPEG1/2 audiókodek</string>
+  <string name="Settings.Players.Codecs.AudioCodecs.AudioCodec.Help">MPEG1/2 audiókodek beállítása</string>
+  <string name="Settings.Players.Codecs.AudioCodecs.AudioCodecLATMAAC">LATM-AAC audiókodek</string>
+  <string name="Settings.Players.Codecs.AudioCodecs.AudioCodecLATMAAC.Help">LATM-AAC audiókodek beállítása</string>
+  <string name="Settings.Players.Codecs.AudioCodecs.AudioCodecAAC">AAC audiókodek</string>
+  <string name="Settings.Players.Codecs.AudioCodecs.AudioCodecAAC.Help">AAC audiókodek beállítása</string>
+  <string name="Settings.Players.Codecs.AudioCodecs.AudioRenderer">Hangszolgáltató</string>
+  <string name="Settings.Players.Codecs.AudioCodecs.AudioRenderer.Help">Hangszolgáltató beállítása</string>
+  <string name="Settings.Players.VideoPlayer">Videólejátszó</string>
+  <string name="Settings.Players.VideoPlayer.PreferMultiChannelAudio">Többcsatornás hangsávok előnyben részesítése</string>
+  <string name="Settings.Players.VideoPlayer.PreferMultiChannelAudio.Help">Ha be van kapcsolva, akkor a 6-csatornás hangsávok előnyt élveznek (pl. AC3, AAC) </string>
+  <string name="Settings.Players.DVDPlayer">DVD lejátszó</string>
+  <string name="Settings.Players.DVDPlayer.EnableClosedCaption">Feliratok hallássérülteknek</string>
+  <string name="Settings.Players.DVDPlayer.EnableClosedCaption.Help">Hallássérülteknek szánt feliratok alapértelmezés szerint be legyenek-e kapcsolva</string>
+  <string name="Settings.Players.DVDPlayer.EnableSubtitles">Feliratok</string>
+  <string name="Settings.Players.DVDPlayer.EnableSubtitles.Help">Feliratok alapértelmezés szerint be legyenek-e kapcsolva</string>
+  <string name="Playback.NotSpecified">Nincs megadva</string>
+  <string name="Playback.CaptionNormal">Normál szövegek</string>
+  <string name="Playback.CaptionBig">Nagy szövegek</string>
+  <string name="Playback.CaptionChildren">Gyermek szövegek</string>
+  <string name="Playback.CCNormal">Normál CC</string>
+  <string name="Playback.CCBig">Nagy CC</string>
+  <string name="Playback.CCChildren">Gyermek CC</string>
+  <string name="Playback.Forced">Erőltetett</string>
+  <string name="Playback.DirectorCommentsNormal">Rendezői megjegyzések normál méretben</string>
+  <string name="Playback.DirectorCommentsBig">Rendezői megjegyzések nagy méretben</string>
+  <string name="Playback.DirectorCommentsChildren">Rendezői megjegyzések gyermek méretben</string>
+  <string name="Playback.VisuallyImpaired">Látássérültek</string>
+  <string name="Playback.DirectorComments1">Rendezői megjegyzések</string>
+  <string name="Playback.DirectorComments2">Rendezői megjegyzések (2)</string>
+  <string name="Playback.Chapter">Fejezet {0}</string>
+  <!--For example: "Chapter 1"-->
+  <string name="Playback.Title">Cím {0}</string>
+  <!--For example: "Title 1"-->
+</resources>

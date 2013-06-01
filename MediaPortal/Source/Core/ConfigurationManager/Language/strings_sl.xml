@@ -1,0 +1,9 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<resources>
+  <!--FIXME: Move those language resources to Manager application (or to a support plugin)-->
+  <string name="configuration.save_on_exit">Želiš shraniti spremembe, preden zapreš?</string>
+  <string name="configuration.unsaved_warning">Opozorilo: Neshranjene spremembe</string>
+  <string name="configuration.browse">Preglej</string>
+  <string name="configuration.areas.settings">Nastavitve</string>
+  <string name="configuration.areas.logs">Dnevniki</string>
+</resources>

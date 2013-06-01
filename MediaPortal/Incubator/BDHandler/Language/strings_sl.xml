@@ -1,0 +1,5 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<resources>
+  <string name="Settings.Players.Codecs.VideoCodecs.BDSourceFilter">Bluray predvajalni filter</string>
+  <string name="Settings.Players.Codecs.VideoCodecs.BDSourceFilter.Help">Določi filter za predvajanje Bluray diska. Trenutno sta podprta le Gabest in LAV Splitter.</string>
+</resources>

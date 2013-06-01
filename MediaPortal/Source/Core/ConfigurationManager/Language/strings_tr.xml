@@ -1,0 +1,9 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<resources>
+  <!--FIXME: Move those language resources to Manager application (or to a support plugin)-->
+  <string name="configuration.save_on_exit">Kapatmadan önce değişiklikleri kaydetmek ister misiniz?</string>
+  <string name="configuration.unsaved_warning">Uyarı: Kaydedilmemiş değişiklikler var.</string>
+  <string name="configuration.browse">Gözat</string>
+  <string name="configuration.areas.settings">Ayarlar</string>
+  <string name="configuration.areas.logs">Kayıtlar</string>
+</resources>

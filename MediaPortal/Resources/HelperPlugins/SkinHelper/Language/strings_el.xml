@@ -1,0 +1,9 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<resources>
+  <string name="SkinHelper.ThemeColorsWorkflowNavigationContextDisplayLabel">Χρώματα θέματος</string>
+  <string name="SkinHelper.MenuShowThemeColors">Εμφάνιση χρώματων θέματος</string>
+  <string name="SkinHelper.ShowThemeColorsTitle">Χρώματα θέματος</string>
+  <string name="SkinHelper.ShowThemeColorsText">Αυτή η οθόνη εμφανίζει όλα τα χρώματα που ορίζονται στο τρέχον θέμα (και κληρονομούνται)</string>
+  <string name="SkinHelper.LoadSkinTitle">Φόρτωση δέρματος</string>
+  <string name="SkinHelper.LoadThemeTitle">Φόρτωση θέματος</string>
+</resources>

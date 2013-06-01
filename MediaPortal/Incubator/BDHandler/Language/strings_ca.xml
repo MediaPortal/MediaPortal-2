@@ -1,0 +1,5 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<resources>
+  <string name="Settings.Players.Codecs.VideoCodecs.BDSourceFilter">Filtre de Fonts de Bluray</string>
+  <string name="Settings.Players.Codecs.VideoCodecs.BDSourceFilter.Help">Defineix el Filtre de Fonts per a la reproducció de Bluray. Actualment només Gabest i LAV Splitter Source són permesos.</string>
+</resources>

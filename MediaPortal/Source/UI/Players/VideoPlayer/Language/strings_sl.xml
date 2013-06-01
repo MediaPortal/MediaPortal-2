@@ -1,0 +1,47 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<resources>
+  <string name="Settings.Players.Codecs">Predvajalni filtri</string>
+  <string name="Settings.Players.Codecs.VideoCodecs">Video filtri</string>
+  <string name="Settings.Players.Codecs.VideoCodecs.MPEG2">MPEG2 video filter</string>
+  <string name="Settings.Players.Codecs.VideoCodecs.MPEG2.Help">Nastavi filter za predvajanje MPEG2 videa (DVD, DVB-SD)</string>
+  <string name="Settings.Players.Codecs.VideoCodecs.MPEG4">MPEG4 video filter</string>
+  <string name="Settings.Players.Codecs.VideoCodecs.MPEG4.Help">Nastavi filter za predvajanje MPEG4 videa (H.264, x264)</string>
+  <string name="Settings.Players.Codecs.VideoCodecs.AVC">AVC video filter</string>
+  <string name="Settings.Players.Codecs.VideoCodecs.AVC.Help">Nastavi filter za predvajanje AVC videa (HDTV, Bluray)</string>
+  <string name="Settings.Players.Codecs.AudioCodecs">Audio filtri</string>
+  <string name="Settings.Players.Codecs.AudioRenderer">Audio predvajalnik</string>
+  <string name="Settings.Players.Codecs.AudioCodecs.AudioCodec">MPEG 1/2 Audio filter</string>
+  <string name="Settings.Players.Codecs.AudioCodecs.AudioCodec.Help">Nastavi filter za predvajanje MPEG 1/2 audia</string>
+  <string name="Settings.Players.Codecs.AudioCodecs.AudioCodecLATMAAC">LATM-AAC Audio filter</string>
+  <string name="Settings.Players.Codecs.AudioCodecs.AudioCodecLATMAAC.Help">Nastavi LATM-AAC audio filter</string>
+  <string name="Settings.Players.Codecs.AudioCodecs.AudioCodecAAC">AAC Audio filter</string>
+  <string name="Settings.Players.Codecs.AudioCodecs.AudioCodecAAC.Help">Nastavi AAC audio filter</string>
+  <string name="Settings.Players.Codecs.AudioCodecs.AudioRenderer">Audio predvajalnik</string>
+  <string name="Settings.Players.Codecs.AudioCodecs.AudioRenderer.Help">Nastavi predvajalnik audia</string>
+  <string name="Settings.Players.VideoPlayer">Video predvajalnik</string>
+  <string name="Settings.Players.VideoPlayer.PreferMultiChannelAudio">Raje uporabi večkanalne audio vire</string>
+  <string name="Settings.Players.VideoPlayer.PreferMultiChannelAudio.Help">Če je to izbrano, potem bo predvajalnik raje uporabil 6 kanalne audio vire (AC3, AAC, ...)</string>
+  <string name="Settings.Players.DVDPlayer">DVD predvajalnik</string>
+  <string name="Settings.Players.DVDPlayer.EnableClosedCaption">Tekstovne razlage</string>
+  <string name="Settings.Players.DVDPlayer.EnableClosedCaption.Help">Označi, če želiš, da so tekstovne razlage zvoka privzeto vključene</string>
+  <string name="Settings.Players.DVDPlayer.EnableSubtitles">Podnapisi</string>
+  <string name="Settings.Players.DVDPlayer.EnableSubtitles.Help">Označi, če želiš, da so podnapisi privzeto vključeni</string>
+  <string name="Playback.NotSpecified">Ni določeno</string>
+  <string name="Playback.CaptionNormal">Normalna velikost</string>
+  <string name="Playback.CaptionBig">Velika velikost</string>
+  <string name="Playback.CaptionChildren">Otroška tekstovna razlaga</string>
+  <string name="Playback.CCNormal">Navadna TR</string>
+  <string name="Playback.CCBig">Velika TR</string>
+  <string name="Playback.CCChildren">Otroška TR</string>
+  <string name="Playback.Forced">Prisiljeno</string>
+  <string name="Playback.DirectorCommentsNormal">Komentarji režiserja navadni</string>
+  <string name="Playback.DirectorCommentsBig">Komentarji režiserja veliki</string>
+  <string name="Playback.DirectorCommentsChildren">Komentarji režiserja otroški</string>
+  <string name="Playback.VisuallyImpaired">Za tiste z okvarami vida</string>
+  <string name="Playback.DirectorComments1">Komentarji režiserja</string>
+  <string name="Playback.DirectorComments2">Komentarji režiserja (2)</string>
+  <string name="Playback.Chapter">Poglavje {0}</string>
+  <!--For example: "Chapter 1"-->
+  <string name="Playback.Title">Naslov {0}</string>
+  <!--For example: "Title 1"-->
+</resources>

@@ -1,0 +1,10 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<resources>
+  <string name="HelloWorld.MenuEntry">Γεια σου κόσμε</string>
+  <string name="HelloWorld.StateDisplayLabel">Κατάσταση \"Γεια σου κόσμε\"</string>
+  <string name="HelloWorld.ScreenTitle">Οθόνη Γεια σου κόσμε</string>
+  <string name="HelloWorld.HelloWorldText">Πατώντας το κουμπί θα </string>
+  <string name="HelloWorld.SampleText">Αυτη είναι η οθόνη παραδείγματος για το πρόσθετο \"Γεια σου κόσμε\"</string>
+  <string name="HelloWorld.ButtonText">Πάτησε με</string>
+  <string name="HelloWorld.ButtonTextCommandExecuted">Συγχαρητήρια, έχετε ενεργοποιήσει μια εντολή!</string>
+</resources>

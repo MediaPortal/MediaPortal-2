@@ -1,0 +1,15 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<resources>
+  <string name="News.Title">Nieuws</string>
+  <string name="News.FeedsStateDisplayLabel">Nieuws</string>
+  <string name="News.Published">Gepubliceerd</string>
+  <string name="News.ConfiguredFeeds">Geconfigureerde feeds</string>
+  <string name="News.AddFeed">Nieuwsfeed toevoegen</string>
+  <string name="News.EnterFeedName">Geef een naam voor de feed</string>
+  <string name="News.EnterFeedUrl">Geef de URL van de feed</string>
+  <string name="Settings.Plugins.News">Nieuws</string>
+  <string name="Settings.Plugins.News.FeedsSetup">Beheer feeds</string>
+  <string name="Settings.Plugins.News.FeedsSetup.Help">Feeds configureren die gebruikt worden voor het verzamelen van nieuwsgegevens</string>
+  <string name="Settings.Plugins.News.RefreshInterval">Verversingsinterval</string>
+  <string name="Settings.Plugins.News.RefreshInterval.Help">Download periodiek feedgegevens na ... minuten</string>
+</resources>

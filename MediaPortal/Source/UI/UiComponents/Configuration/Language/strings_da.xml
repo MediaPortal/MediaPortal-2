@@ -1,0 +1,14 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<resources>
+  <string name="Configuration.Name">Indstillinger</string>
+  <string name="Configuration.ConfigurationMainWorkflowNavigationContextDisplayLabel">Indstillinger</string>
+  <string name="Configuration.MainSettings">Hoved indstillinger</string>
+  <!--2nd Header for root configuration section-->
+  <string name="Configuration.NoSettingsInThisSection">Der er ingen indstillinger i denne sektion</string>
+  <string name="Configuration.ErrorFloatingPointValue">\'{0}\' er ikke et gyldigt \"floating point\" nummer</string>
+  <string name="Configuration.ErrorIntegerValue">\'{0}\' er ikke et gyldigt \"integer\" nummer</string>
+  <string name="Configuration.ErrorNumericLowerLimit">Benyt en værdi mellem \'{1}\' og \'{2}\'</string>
+  <!--0 = current value, 1 = lower limit, 2 = upper limit-->
+  <string name="Configuration.ErrorNumericUpperLimit">Benyt en værdi mellem \'{1}\' og \'{2}\'</string>
+  <!--0 = current value, 1 = lower limit, 2 = upper limit-->
+</resources>

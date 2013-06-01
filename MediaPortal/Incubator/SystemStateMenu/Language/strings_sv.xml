@@ -1,0 +1,14 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<resources>
+  <string name="Settings.General.System.SystemStateDialog">Avstängningsmeny</string>
+  <string name="Settings.General.System.SystemStateDialog.Help">Konfigurera vilka alternativ som ska visas på avstängningsmenyn, samt ordningen på alternativen.</string>
+  <string name="SystemState.Configuration.Dialog.Title">Konfigurera avstängningsalternativ</string>
+  <string name="SystemState.Title">Avstängningsmeny</string>
+  <string name="SystemState.Hibernate">Sätt datorn i viloläge</string>
+  <string name="SystemState.Shutdown">Stäng av datorn</string>
+  <string name="SystemState.Suspend">Sätt datorn i vänteläge</string>
+  <string name="SystemState.Restart">Starta om datorn</string>
+  <string name="SystemState.Logoff">Logga ut</string>
+  <string name="SystemState.MinimizeMP">Minimera MediaPortal 2</string>
+  <string name="SystemState.ShutdownMP">Stäng MediaPortal 2</string>
+</resources>

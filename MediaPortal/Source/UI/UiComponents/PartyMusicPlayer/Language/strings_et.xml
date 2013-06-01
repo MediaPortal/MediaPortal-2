@@ -1,0 +1,23 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<resources>
+  <string name="PartyMusicPlayer.MenuItem">Party music player</string>
+  <string name="PartyMusicPlayer.ConfigWorkflowNavigationContextDisplayLabel">Party music player</string>
+  <string name="PartyMusicPlayer.PlayerWorkflowNavigationContextDisplayLabel">Party music player</string>
+  <string name="PartyMusicPlayer.ConfigScreenTitle">Party music player seaded</string>
+  <string name="PartyMusicPlayer.Playlist">Esitusloend</string>
+  <string name="PartyMusicPlayer.ChoosePlaylist">Vali esitusloend</string>
+  <string name="PartyMusicPlayer.UseEscapePassword">Kasuta escape password</string>
+  <string name="PartyMusicPlayer.DisableScreenSaver">Keela screensaver</string>
+  <string name="PartyMusicPlayer.StartPartyMode">Start party mode</string>
+  <string name="PartyMusicPlayer.ChoosePlaylistDialogHeader">Vali esitusloend</string>
+  <string name="PartyMusicPlayer.EnterEscapePasswordDialogHeader">Escape password</string>
+  <string name="PartyMusicPlayer.EnterEscapePasswordDialogText">Palun sisesta party mode escape password</string>
+  <string name="PartyMusicPlayer.WrongEscapePasswordDialogHeader">Vale escape password</string>
+  <string name="PartyMusicPlayer.WrongEscapePasswordDialogText">Kahjuks on see vale escape password!</string>
+  <string name="PartyMusicPlayer.ServerNotConnectedDialogHeader">Server pole ühendatud</string>
+  <string name="PartyMusicPlayer.ServerNotConnectedDialogText">Toiminguks peab koduserver olema ühendatud</string>
+  <string name="PartyMusicPlayer.PlayerContextName">Party music player</string>
+  <string name="PartyMusicPlayer.AudioArtistLabel">Artist</string>
+  <string name="PartyMusicPlayer.AudioTitleLabel">Lugu</string>
+  <string name="PartyMusicPlayer.ShowPlaylist">Näita esitusloendit</string>
+</resources>

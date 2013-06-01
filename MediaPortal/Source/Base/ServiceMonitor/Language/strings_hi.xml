@@ -1,0 +1,5 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<resources>
+  <string name="ServerStatus.NotStarted">सर्वर शुरू नहीं हुआ</string>
+  <string name="ContextMenu.Exit">निकास</string>
+</resources>

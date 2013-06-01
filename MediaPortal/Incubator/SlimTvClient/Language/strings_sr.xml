@@ -1,0 +1,29 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<resources>
+  <string name="SlimTvClient.Title">Слим ТВ клијент</string>
+  <string name="SlimTvClient.CurrentlyPlayingInformationHeader">Информације о програму</string>
+  <string name="SlimTvClient.ChannelLabel">Канал</string>
+  <string name="SlimTvClient.ProgramLabel">Програм</string>
+  <string name="SlimTvClient.DescriptionLabel">Опис</string>
+  <string name="SlimTvClient.GenreLabel">Жанр</string>
+  <string name="SlimTvClient.ProgramStartLabel">Време почетка</string>
+  <string name="SlimTvClient.ProgramEndLabel">Време краја</string>
+  <string name="SlimTvClient.EpisodeLabel">Епизода</string>
+  <string name="SlimTvClient.Guide">ТВ водич</string>
+  <string name="SlimTvClient.NoProgram">Нема података о програму.</string>
+  <string name="SlimTvClient.ChooseProgramAction">Одаберите операције за програм</string>
+  <string name="SlimTvClient.ProgramOver">Програм је већ завршен</string>
+  <string name="SlimTvClient.WatchNow">Погледај програм</string>
+  <string name="SlimTvClient.RecordNow">Сними</string>
+  <string name="SlimTvClient.DeleteSchedule">Обриши распоред</string>
+  <string name="SlimTvClient.CreateSchedule">Направи распоред за снимање</string>
+  <string name="SlimTvClient.ErrorNoTvProvider">ТВ сигнал није доступан</string>
+  <string name="SlimTvClient.RecordingsMenuItem">Снимљено</string>
+  <string name="SlimTvClient.RecordingsRootViewName">ТВ снимци</string>
+  <string name="SlimTvClient.ChannelMenuItemLabel">Филтрирај по каналима</string>
+  <string name="SlimTvClient.ChannelNavBarItemLabel">Канал: {0}</string>
+  <string name="SlimTvClient.RecordingsByChannelHeader">Снимци по каналу</string>
+  <string name="SlimTvClient.NameFilterMenuItemLabel">Филтрирај по имену</string>
+  <string name="SlimTvClient.NameFilterNavBarItemLabel">{0}</string>
+  <string name="SlimTvClient.RecordingsByNameHeader">Снимци по имену</string>
+</resources>

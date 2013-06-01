@@ -1,0 +1,18 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<resources>
+  <string name="MainForm.Title">MediaPortal 2 Sunucu Uygulaması</string>
+  <string name="MainForm.AttachedClients">İlişkilendirilmiş istemciler</string>
+  <string name="MainForm.Client">İstemci</string>
+  <string name="MainForm.System">Sistem</string>
+  <string name="MainForm.ConnectionState">Bağlantı durumu</string>
+  <string name="MainForm.Connected">Bağlı</string>
+  <string name="MainForm.Disconnected">Bağlanılmamış</string>
+  <string name="UPnPBackendServer.DefaultFriendlyName">MediaPortal 2 Sunucu</string>
+  <string name="UPnPBackendServer.Manufacturer">Team Mediaportal</string>
+  <string name="UPnPBackendServer.ManufacturerUrl">www.team-mediaportal.com</string>
+  <string name="UPnPBackendServer.ModelDescription">MediaPortal 2 Sunucu - Ses, Video ve Resim dosyalarını paylaşır, ve medya veritabanı hizmeti sunar</string>
+  <string name="UPnPBackendServer.ModelName">MediaPortal 2 sunucu</string>
+  <string name="UPnPBackendServer.ModelNumber">1</string>
+  <string name="UPnPBackendServer.ModelUrl">...</string>
+  <string name="MediaLibrary.EmptyOrMiscCharGroupName">&lt;Boş veya özel karakter&gt;</string>
+</resources>

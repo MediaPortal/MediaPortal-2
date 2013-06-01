@@ -1,0 +1,10 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<resources>
+  <string name="Settings.Appearance.Skin.Background.VideoBackground">Videohintergrund</string>
+  <string name="Settings.Appearance.Skin.Background.VideoBackground.Help">aktiviere Videohintergrund und markiere das Video</string>
+  <string name="Settings.Appearance.Skin.Background.EnableVideoBackground">aktiviere Videohintergrund</string>
+  <string name="Settings.Appearance.Skin.Background.Setup">Videohintergrund Konfiguration</string>
+  <string name="Settings.Appearance.Skin.Background.Setup.VideoFilename">Videodatei</string>
+  <string name="Settings.Appearance.Skin.Background.Setup.Select">auswählen</string>
+  <string name="Settings.Appearance.Skin.Background.Setup.SelectVideo">markiere das Video um es im HIntergrund abzuspielen</string>
+</resources>

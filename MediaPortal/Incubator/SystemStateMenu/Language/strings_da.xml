@@ -1,0 +1,14 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<resources>
+  <string name="Settings.General.System.SystemStateDialog">Shutdown menu</string>
+  <string name="Settings.General.System.SystemStateDialog.Help">Konfigurer synlighed og placering af shutdown menupunkter</string>
+  <string name="SystemState.Configuration.Dialog.Title">Konfigurer shutdown punkter</string>
+  <string name="SystemState.Title">Shutdown menu</string>
+  <string name="SystemState.Hibernate">Dvale</string>
+  <string name="SystemState.Shutdown">Shutdown</string>
+  <string name="SystemState.Suspend">Suspender</string>
+  <string name="SystemState.Restart">Restart</string>
+  <string name="SystemState.Logoff">Logoff</string>
+  <string name="SystemState.MinimizeMP">Minimer MediaPortal</string>
+  <string name="SystemState.ShutdownMP">Luk MediaPortal</string>
+</resources>

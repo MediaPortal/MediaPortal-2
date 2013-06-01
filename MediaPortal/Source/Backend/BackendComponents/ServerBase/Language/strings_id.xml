@@ -1,0 +1,18 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<resources>
+  <string name="MainForm.Title">Aplikasi Server MediaPortal 2</string>
+  <string name="MainForm.AttachedClients">Klien terlampir</string>
+  <string name="MainForm.Client">Klien</string>
+  <string name="MainForm.System">Sistem</string>
+  <string name="MainForm.ConnectionState">Kondisi koneksi</string>
+  <string name="MainForm.Connected">Terhubung</string>
+  <string name="MainForm.Disconnected">Terputus</string>
+  <string name="UPnPBackendServer.DefaultFriendlyName">Server MediaPortal 2</string>
+  <string name="UPnPBackendServer.Manufacturer">Tim MediaPortal</string>
+  <string name="UPnPBackendServer.ManufacturerUrl">www.team-mediaportal.com</string>
+  <string name="UPnPBackendServer.ModelDescription">Server MediaPortal 2 - host file audio, video dan gambar, dan penyedia basisdata media</string>
+  <string name="UPnPBackendServer.ModelName">Server MediaPortal 2</string>
+  <string name="UPnPBackendServer.ModelNumber">1</string>
+  <string name="UPnPBackendServer.ModelUrl">...</string>
+  <string name="MediaLibrary.EmptyOrMiscCharGroupName">&lt;Kosong atau aneka karakter&gt;</string>
+</resources>

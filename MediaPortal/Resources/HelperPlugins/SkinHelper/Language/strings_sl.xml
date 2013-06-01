@@ -1,0 +1,9 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<resources>
+  <string name="SkinHelper.ThemeColorsWorkflowNavigationContextDisplayLabel">Barve téme</string>
+  <string name="SkinHelper.MenuShowThemeColors">Prikaži barve téme</string>
+  <string name="SkinHelper.ShowThemeColorsTitle">Barve téme</string>
+  <string name="SkinHelper.ShowThemeColorsText">Ta ekran prikazuje vse barve, določene v trenutni témi (in podedovanih sredstvih)</string>
+  <string name="SkinHelper.LoadSkinTitle">Naloži videz</string>
+  <string name="SkinHelper.LoadThemeTitle">Naloži témo</string>
+</resources>

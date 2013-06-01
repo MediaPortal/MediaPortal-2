@@ -1,0 +1,82 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<resources>
+  <string name="Settings.Appearance.System">Sistema</string>
+  <string name="Settings.Appearance.System.Fullscreen">Ecrã Inteiro</string>
+  <string name="Settings.Appearance.System.Fullscreen.Help">Mostrar o MediaPortal em modo de ecrã inteiro</string>
+  <string name="Settings.Appearance.System.CellPhoneInputStyle">Escrita estilo telemóvel</string>
+  <string name="Settings.Appearance.System.CellPhoneInputStyle.Help">Utilizar estilo de escrita de telemóvel/SMS</string>
+  <string name="Settings.Appearance.System.ScreenSaverEnabled">Ligar proteção de ecrã</string>
+  <string name="Settings.Appearance.System.ScreenSaverEnabled.Help">Configurar se a proteção de ecrã deve ser mostrada</string>
+  <string name="Settings.Appearance.System.ScreenSaverTimeout">Espera até ativar a proteção de ecrã</string>
+  <string name="Settings.Appearance.System.ScreenSaverTimeout.Help">Configurar o espaço de tempo em minutos desde a última ação do utilizador até ativar a proteção de ecrã</string>
+  <string name="Settings.Appearance.System.Antialiasing">Antialiasing da Interface Gráfica</string>
+  <string name="Settings.Appearance.System.Antialiasing.Help">O Antialiasing melhora a qualidade visual da Interface Gráfica, mas pode diminuir o desempenho do vídeo</string>
+  <string name="Settings.Appearance.Skin">Skin</string>
+  <string name="Settings.Appearance.Skin.SkinAndTheme">Skin e tema</string>
+  <string name="Settings.Appearance.Skin.SkinAndTheme.ChangeSkin">Mudar a skin</string>
+  <string name="Settings.Appearance.Skin.SkinAndTheme.ChangeSkin.Help">Mudar o aspeto do MediaPortal 2</string>
+  <string name="Settings.Appearance.Skin.SkinAndTheme.ChangeTheme">Mudar o tema</string>
+  <string name="Settings.Appearance.Skin.SkinAndTheme.ChangeTheme.Help">Mudar a apresentação do tema atual</string>
+  <string name="Settings.Players">Leitores</string>
+  <string name="Settings.Players.Rendering">Renderização</string>
+  <string name="Settings.Players.Rendering.DefaultGeometry">Modo de zoom predefinido</string>
+  <string name="Settings.Players.Rendering.DefaultGeometry.Help">Estabelece o modo de zoom que vai ser aplicado aos leitores de vídeo por predefinição</string>
+  <string name="Settings.General.System.ApplicationSuspendLevel">Configurar o modo de economia de energia do Windows</string>
+  <string name="Settings.General.System.ApplicationSuspendLevel.Help">Desativar a suspensão/encerramento automático do Windows ou a desativação do ecrã quando o MediaPortal 2 está em execução</string>
+  <string name="Settings.General.System.ApplicationSuspendLevel.None">Permitir todos os níveis de economia de energia do sistema</string>
+  <string name="Settings.General.System.ApplicationSuspendLevel.AvoidSuspend">Evitar a suspensão do sistema, mas permitir desativação o ecrã</string>
+  <string name="Settings.General.System.ApplicationSuspendLevel.DisplayRequired">Evitar a suspensão do sistema e desativação do ecrã</string>
+  <string name="ScreenManager.NotificationErrorLoadingSkinTitle">Erro ao carregar a skin</string>
+  <string name="ScreenManager.NotificationErrorLoadingSkinFallingBackToCurrentText">A reverter para a skin atual</string>
+  <string name="ScreenManager.NotificationErrorLoadingSkinFallingBackToDefaultText">A reverter para a skin predefinida</string>
+  <string name="ScreenManager.ErrorLoadingSkinResource">Erro ao carregar um recurso da skin</string>
+  <string name="ScreenManager.ScreenMissing">Não foi possível encontrar um recurso da skin para o ecrã \'{0}\'</string>
+  <string name="ScreenManager.ScreenBroken">O recurso da skin para o ecrã \'{0}\' parece estar quebrado</string>
+  <string name="ScreenManager.BackgroundScreenMissing">Não foi possível encontrar o recurso da skin para o fundo de ecrã \'{0}\'</string>
+  <string name="ScreenManager.BackgroundScreenBroken">O recurso da skin para o fundo de ecrã \'{0}\' parece estar quebrado</string>
+  <string name="ScreenManager.SuperLayerScreenMissing">Não foi possível encontrar o recurso da skin para o ecrã superior \'{0}\'</string>
+  <string name="ScreenManager.SuperLayerScreenBroken">O recurso da skin para o ecrã superior \'{0}\' parece estar quebrado</string>
+  <string name="Geometries.IntelligentZoom">Zoom Inteligente</string>
+  <string name="Geometries.LetterBox">Envelope 4:3</string>
+  <string name="Geometries.Normal">Normal</string>
+  <string name="Geometries.Original">Original</string>
+  <string name="Geometries.PanAndScan">Pan&amp;Scan</string>
+  <string name="Geometries.Stretch">Esticar</string>
+  <string name="Geometries.Zoom">Zoom</string>
+  <string name="Geometries.Zoom149">Zoom 14:9</string>
+  <!--File names (files in shaders/effects, without extension) to effect names to be shown in the GUI-->
+  <string name="Effects.denoise">Denoise</string>
+  <string name="Effects.directional_blur">Blur direcional</string>
+  <string name="Effects.glass_tiles">Mosaicos \"vidrados\"</string>
+  <string name="Effects.greyscale">Escala de cinzentos</string>
+  <string name="Effects.invert">Inverter</string>
+  <string name="Effects.none">Nenhum</string>
+  <string name="Effects.pixelate">Pixelizar</string>
+  <string name="Effects.sepia">Sépia</string>
+  <string name="Effects.sharpen">Sharpen</string>
+  <string name="Effects.sharpen_complex">Sharpen (complexo)</string>
+  <string name="Effects.zoom_blur">Zoom blur</string>
+  <string name="PlayerControl.NoPlayer">Sem leitor</string>
+  <string name="PlayerControl.NoMediaItem">- Sem item para tocar -</string>
+  <string name="PlayerControl.UnknownMediaItem">Item de media desconhecido</string>
+  <string name="PlayerControl.UnknownPlayerContextName">Leitor</string>
+  <string name="PlayerControl.HeaderNormal">{0}</string>
+  <!--{0} = media item title-->
+  <string name="PlayerControl.HeaderPiP">{0} (PiP)</string>
+  <!--{0} = media item title-->
+  <string name="PlayerControl.Playing">Tocando</string>
+  <string name="PlayerControl.Paused">Pausado</string>
+  <string name="PlayerControl.SeekingForward">Avançando ({0})</string>
+  <!--For example: "Seeking forward (2x)"-->
+  <string name="PlayerControl.SeekingBackward">A recuando ({0})</string>
+  <!--For example: "Seeking forward (2x)"-->
+  <string name="PlayerControl.SlowMotionForward">Avançando em câmara lenta ({0})</string>
+  <!--For example: "Slowmotion forward (0.5x)"-->
+  <string name="PlayerControl.SlowMotionBackward">Recuando em câmara lenta ({0})</string>
+  <!--For example: "Slowmotion backward (0.5x)"-->
+  <string name="PlayerControl.PlaybackRateHint">{0}x</string>
+  <!--For example: 2x or 0.5x-->
+  <string name="PlayerControl.Stopped">Parado</string>
+  <string name="PlayerControl.Ended">Terminado</string>
+  <string name="PlayerControl.Active">Ativo</string>
+</resources>

@@ -1,0 +1,82 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<resources>
+  <string name="Settings.Appearance.System">Systém</string>
+  <string name="Settings.Appearance.System.Fullscreen">Celá obrazovka</string>
+  <string name="Settings.Appearance.System.Fullscreen.Help">Zobraziť MediaPortal na celej obrazovke</string>
+  <string name="Settings.Appearance.System.CellPhoneInputStyle">Klávesnica mobilného telefónu</string>
+  <string name="Settings.Appearance.System.CellPhoneInputStyle.Help">Písať ako SMS na telefóne</string>
+  <string name="Settings.Appearance.System.ScreenSaverEnabled">Povoliť šetrič obrazovky</string>
+  <string name="Settings.Appearance.System.ScreenSaverEnabled.Help">Nastavenie zobrazovania šetriča</string>
+  <string name="Settings.Appearance.System.ScreenSaverTimeout">Počkať pre spustením šetriča</string>
+  <string name="Settings.Appearance.System.ScreenSaverTimeout.Help">Nastavenie času v minútach, po ktorom sa zobrazí šetrič obrazovky</string>
+  <string name="Settings.Appearance.System.Antialiasing">GUI antialiasing</string>
+  <string name="Settings.Appearance.System.Antialiasing.Help">Antialiasing robí skvalitňuje zobrazenie GUI ale znižuje výkon videa</string>
+  <string name="Settings.Appearance.Skin">Vzhľad</string>
+  <string name="Settings.Appearance.Skin.SkinAndTheme">Vzhľad a téma</string>
+  <string name="Settings.Appearance.Skin.SkinAndTheme.ChangeSkin">Zmeniť vzhľad</string>
+  <string name="Settings.Appearance.Skin.SkinAndTheme.ChangeSkin.Help">Change the look&amp;feel of MediaPortal 2</string>
+  <string name="Settings.Appearance.Skin.SkinAndTheme.ChangeTheme">Zmeniť tému</string>
+  <string name="Settings.Appearance.Skin.SkinAndTheme.ChangeTheme.Help">Zmeniť tému v rámci vzhľadu</string>
+  <string name="Settings.Players">Prehrávače</string>
+  <string name="Settings.Players.Rendering">Rendering</string>
+  <string name="Settings.Players.Rendering.DefaultGeometry">Prednastavený typ zoomu</string>
+  <string name="Settings.Players.Rendering.DefaultGeometry.Help">Zmeniť zoom typ, ktorý bude video prehrávač prednastavený</string>
+  <string name="Settings.General.System.ApplicationSuspendLevel">Nastaviť šetrenie energiou Windows</string>
+  <string name="Settings.General.System.ApplicationSuspendLevel.Help">Zakázať automatické uspatie, vypnutie alebo zhasnutie obrazovky, kým MediaPortal 2 beží</string>
+  <string name="Settings.General.System.ApplicationSuspendLevel.None">Povoliť všetky úrovne šetrenia energie systému.</string>
+  <string name="Settings.General.System.ApplicationSuspendLevel.AvoidSuspend">Zabrániť uspaniu systému, ale povoliť zhasnutie obrazovky</string>
+  <string name="Settings.General.System.ApplicationSuspendLevel.DisplayRequired">Zabrániť uspaniu systému a zhasnutiu obrazovky</string>
+  <string name="ScreenManager.NotificationErrorLoadingSkinTitle">Chyba načítania vzhľadu</string>
+  <string name="ScreenManager.NotificationErrorLoadingSkinFallingBackToCurrentText">Vraciam sa k aktuálnemu vzhľadu</string>
+  <string name="ScreenManager.NotificationErrorLoadingSkinFallingBackToDefaultText">Vraciam sa k predvolenému vzhľadu</string>
+  <string name="ScreenManager.ErrorLoadingSkinResource">Chyba načítania vzhľadu</string>
+  <string name="ScreenManager.ScreenMissing">Neviem nájst zdroj pre obrazovku vzhľadu \'{0}\'</string>
+  <string name="ScreenManager.ScreenBroken">Zdroj pre obrazovku vzhľadu \'{0}\' je chybný</string>
+  <string name="ScreenManager.BackgroundScreenMissing">Neviem nájsť zdroj pre pozadie obrazovky \'{0}\'</string>
+  <string name="ScreenManager.BackgroundScreenBroken">Pozadie vzhľadu pre obrazovku \'{0}\' vyzerá chybne</string>
+  <string name="ScreenManager.SuperLayerScreenMissing">Neviem nájsť zdroj pre super vrstvu obrazovky \'{0}\'</string>
+  <string name="ScreenManager.SuperLayerScreenBroken">Super vrstva vzhľadu pre obrazovku \'{0}\' vyzerá chybne</string>
+  <string name="Geometries.IntelligentZoom">Inteligentný zoom</string>
+  <string name="Geometries.LetterBox">Letterbox 4:3</string>
+  <string name="Geometries.Normal">Normálny</string>
+  <string name="Geometries.Original">Originál</string>
+  <string name="Geometries.PanAndScan">Pan&amp;Scan</string>
+  <string name="Geometries.Stretch">Roztiahnutý</string>
+  <string name="Geometries.Zoom">Zoom</string>
+  <string name="Geometries.Zoom149">Zoom 14:9</string>
+  <!--File names (files in shaders/effects, without extension) to effect names to be shown in the GUI-->
+  <string name="Effects.denoise">Odšumenie</string>
+  <string name="Effects.directional_blur">Smerové rozmazanie</string>
+  <string name="Effects.glass_tiles">Sklené dlaždice</string>
+  <string name="Effects.greyscale">Čiernobiele</string>
+  <string name="Effects.invert">Inverzia</string>
+  <string name="Effects.none">Žiadne</string>
+  <string name="Effects.pixelate">Pixelácia</string>
+  <string name="Effects.sepia">Sépia</string>
+  <string name="Effects.sharpen">Zostriť</string>
+  <string name="Effects.sharpen_complex">Zostriť (komplexne)</string>
+  <string name="Effects.zoom_blur">Rozostrenie pri zoome</string>
+  <string name="PlayerControl.NoPlayer">Nie je prehrávač</string>
+  <string name="PlayerControl.NoMediaItem">- Nie je médium -</string>
+  <string name="PlayerControl.UnknownMediaItem">Neznáma položka média</string>
+  <string name="PlayerControl.UnknownPlayerContextName">Prehrávač</string>
+  <string name="PlayerControl.HeaderNormal">{0}</string>
+  <!--{0} = media item title-->
+  <string name="PlayerControl.HeaderPiP">{0} (PiP)</string>
+  <!--{0} = media item title-->
+  <string name="PlayerControl.Playing">Prehrávam</string>
+  <string name="PlayerControl.Paused">Pauza</string>
+  <string name="PlayerControl.SeekingForward">Skok vpred ({0})</string>
+  <!--For example: "Seeking forward (2x)"-->
+  <string name="PlayerControl.SeekingBackward">Skok vzad ({0})</string>
+  <!--For example: "Seeking forward (2x)"-->
+  <string name="PlayerControl.SlowMotionForward">Spomalene vprad ({0})</string>
+  <!--For example: "Slowmotion forward (0.5x)"-->
+  <string name="PlayerControl.SlowMotionBackward">Spomalene vzad ({0})</string>
+  <!--For example: "Slowmotion backward (0.5x)"-->
+  <string name="PlayerControl.PlaybackRateHint">{0}×</string>
+  <!--For example: 2x or 0.5x-->
+  <string name="PlayerControl.Stopped">Zastavené</string>
+  <string name="PlayerControl.Ended">Skončilo</string>
+  <string name="PlayerControl.Active">Aktívne</string>
+</resources>

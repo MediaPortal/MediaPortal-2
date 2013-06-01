@@ -1,0 +1,5 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<resources>
+  <string name="Settings.Players.Codecs.VideoCodecs.BDSourceFilter">Saringan Sumber Bluray</string>
+  <string name="Settings.Players.Codecs.VideoCodecs.BDSourceFilter.Help">Setel Saringan Sumber untuk digunakan pada playback BluRay. Saat ini hanya Gabest dan LAV Splitter Source yang didukung.</string>
+</resources>

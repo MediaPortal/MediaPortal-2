@@ -1,0 +1,6 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<resources>
+  <string name="Settings.Plugins.TV">ТБ</string>
+  <string name="Settings.Plugins.TV.MPExtendedServerAddress.Help">Введіть імені серверів або IP адреса, через \';\' (по-замовчуванню localhost).</string>
+  <string name="Settings.Plugins.TV.ConnectionErrorTitle">Помилка підключення</string>
+</resources>

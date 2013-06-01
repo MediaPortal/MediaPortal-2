@@ -1,0 +1,29 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<resources>
+  <string name="Utilities.MenuItem">Utilidades</string>
+  <string name="Utilities.MainWorkflowNavigationContextDisplayLabel">Utilidades</string>
+  <string name="Utilities.PlaylistImportWorkflowNavigationContextDisplayLabel">Importar lista de reproducción</string>
+  <string name="Utilities.MainScreenTitle">Utilidades</string>
+  <string name="Utilities.PlaylistImport">Importar lista de reproducción</string>
+  <string name="Utilities.PlaylistImportScreenTitle">Importar lista de reproducción</string>
+  <string name="Utilities.ImportPlaylistFile">Importar archivo de lista de reproducción</string>
+  <string name="Utilities.ChoosePlaylistFile">Eliger archivo</string>
+  <string name="Utilities.ChooseImportFileDialogHeader">Elige archivo para importar</string>
+  <string name="Utilities.EditPlaylistName">Editar el nombre de la nueva lista de reproducción</string>
+  <string name="Utilities.LocationOfShareContainingItems">Localización de los compartidos que contienen los elementos de medios</string>
+  <string name="Utilities.LocalShareLocation">Compartido local</string>
+  <string name="Utilities.ServerShareLocation">Servidor de compartido</string>
+  <string name="Utilities.StartPlaylistImport">Comenzar importación de lista de reproducción</string>
+  <string name="Utilities.PlaylistSavedSuccessfullyTitle">Éxito</string>
+  <string name="Utilities.NoItemsWereImportedSkippingSaveText">No se importaron elementos. Omitiendo la acción de grabado.</string>
+  <string name="Utilities.PlaylistSavedSuccessfullyText">La lista de reproducción \'{0}\' se ha guardado correctamente.</string>
+  <string name="Utilities.PlaylistSaveFailedTitle">Guardado de la lista de reproducción erróneo</string>
+  <string name="Utilities.ImportPlaylistProgressTitle">Progreso</string>
+  <string name="Utilities.ImportPlaylistProgressHeaderText">Importando lista de reproducción</string>
+  <string name="Utilities.ImportPlaylistProgressText">{0}/{1}, {2} omitidos</string>
+  <string name="Utilities.StopImportPlaylistButton">Parar</string>
+  <string name="Utilities.PlaylistNameExists">El nombre de la lista de reproducción ya existe</string>
+  <string name="Utilities.ImportFileInvalid">Archivo a importar inválido</string>
+  <string name="Utilities.PlaylistNameIsEmpty">El nombre de la lista de reproducción está vacío</string>
+  <string name="Utilities.ServerNotConnected">El servidor no está conectado</string>
+</resources>

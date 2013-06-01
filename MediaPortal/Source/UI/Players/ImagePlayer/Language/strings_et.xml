@@ -1,0 +1,8 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<resources>
+  <string name="Settings.Players.Image">Image Player</string>
+  <string name="Settings.Players.Image.SlideShowImageDuration">Slideshow kestus</string>
+  <string name="Settings.Players.Image.SlideShowImageDuration.Help">Sea ühe pildi näitamise aeg</string>
+  <string name="Settings.Players.Image.KenBurnsEffect">Ken Burns effect</string>
+  <string name="Settings.Players.Image.KenBurnsEffect.Help">Kasuta panoraami ja zoomi animatsiooni piltide näitamisel</string>
+</resources>

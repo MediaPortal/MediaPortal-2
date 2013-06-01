@@ -1,0 +1,8 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<resources>
+  <string name="Settings.Players.Image">Visualizzatore Immagini</string>
+  <string name="Settings.Players.Image.SlideShowImageDuration">Durata slideshow immagini</string>
+  <string name="Settings.Players.Image.SlideShowImageDuration.Help">Setta la durata in secondi di quanto ogni immagine è visibile nella modalità slideshow</string>
+  <string name="Settings.Players.Image.KenBurnsEffect">Usa Ken Burns effect</string>
+  <string name="Settings.Players.Image.KenBurnsEffect.Help">Usa animazioni pan and zoom quando visualizzi una immagine</string>
+</resources>

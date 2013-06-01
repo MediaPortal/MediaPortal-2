@@ -1,0 +1,18 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<resources>
+  <string name="MainForm.Title">МедијаПортал 2 Сервер програм</string>
+  <string name="MainForm.AttachedClients">Прикачени клијенти</string>
+  <string name="MainForm.Client">Клијент</string>
+  <string name="MainForm.System">Систем</string>
+  <string name="MainForm.ConnectionState">Статус прикључења</string>
+  <string name="MainForm.Connected">Прикључен</string>
+  <string name="MainForm.Disconnected">Искључен</string>
+  <string name="UPnPBackendServer.DefaultFriendlyName">МедијаПортал 2 сервер</string>
+  <string name="UPnPBackendServer.Manufacturer">Team Mediaportal</string>
+  <string name="UPnPBackendServer.ManufacturerUrl">www.team-mediaportal.com</string>
+  <string name="UPnPBackendServer.ModelDescription">МедијаПортал 2 сервер - садржи аудио, видео фајлове и слике у бази  података</string>
+  <string name="UPnPBackendServer.ModelName">МедијаПортал 2 сервер</string>
+  <string name="UPnPBackendServer.ModelNumber">1</string>
+  <string name="UPnPBackendServer.ModelUrl">...</string>
+  <string name="MediaLibrary.EmptyOrMiscCharGroupName">&lt;Празан карактер&gt;</string>
+</resources>

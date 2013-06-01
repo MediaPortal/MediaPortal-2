@@ -1,0 +1,14 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<resources>
+  <string name="Configuration.Name">Налаштування</string>
+  <string name="Configuration.ConfigurationMainWorkflowNavigationContextDisplayLabel">Налаштування</string>
+  <string name="Configuration.MainSettings">Основні налаштування</string>
+  <!--2nd Header for root configuration section-->
+  <string name="Configuration.NoSettingsInThisSection">В цьому розділі немає налаштувань</string>
+  <string name="Configuration.ErrorFloatingPointValue">\'{0}\' не є числом з плаваючою комою</string>
+  <string name="Configuration.ErrorIntegerValue">\'{0}\' не є цілим числом</string>
+  <string name="Configuration.ErrorNumericLowerLimit">Використовуйте значення між \'{1}\' та \'{2}\'</string>
+  <!--0 = current value, 1 = lower limit, 2 = upper limit-->
+  <string name="Configuration.ErrorNumericUpperLimit">Використовуйте значення між \'{1}\' та \'{2}\'</string>
+  <!--0 = current value, 1 = lower limit, 2 = upper limit-->
+</resources>

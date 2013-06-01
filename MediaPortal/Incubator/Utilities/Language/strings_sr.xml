@@ -1,0 +1,29 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<resources>
+  <string name="Utilities.MenuItem">Услуге</string>
+  <string name="Utilities.MainWorkflowNavigationContextDisplayLabel">Услуге</string>
+  <string name="Utilities.PlaylistImportWorkflowNavigationContextDisplayLabel">Увоз плејлисте</string>
+  <string name="Utilities.MainScreenTitle">Услуге</string>
+  <string name="Utilities.PlaylistImport">Увоз плејлисте</string>
+  <string name="Utilities.PlaylistImportScreenTitle">Увоз плејлисте</string>
+  <string name="Utilities.ImportPlaylistFile">Увоз фајла плејлисте</string>
+  <string name="Utilities.ChoosePlaylistFile">Одабери фајл</string>
+  <string name="Utilities.ChooseImportFileDialogHeader">Одабери фајл за увоз</string>
+  <string name="Utilities.EditPlaylistName">Измени име нове плејлисте</string>
+  <string name="Utilities.LocationOfShareContainingItems">Локација размене која садржи медије</string>
+  <string name="Utilities.LocalShareLocation">Локална размена</string>
+  <string name="Utilities.ServerShareLocation">Сервер за размену</string>
+  <string name="Utilities.StartPlaylistImport">Започни учитавање плејлисте</string>
+  <string name="Utilities.PlaylistSavedSuccessfullyTitle">Успешно обављено</string>
+  <string name="Utilities.NoItemsWereImportedSkippingSaveText">Ништа није учитано</string>
+  <string name="Utilities.PlaylistSavedSuccessfullyText">Плејлиста \'{0}\' је успешно сачувана.</string>
+  <string name="Utilities.PlaylistSaveFailedTitle">Снимање плејлисте није успело</string>
+  <string name="Utilities.ImportPlaylistProgressTitle">Прогрес</string>
+  <string name="Utilities.ImportPlaylistProgressHeaderText">Учитавање плејлисте</string>
+  <string name="Utilities.ImportPlaylistProgressText">{0}/{1}, {2} прескочено</string>
+  <string name="Utilities.StopImportPlaylistButton">Стоп</string>
+  <string name="Utilities.PlaylistNameExists">Плејлиста са таквим именом већ постоји </string>
+  <string name="Utilities.ImportFileInvalid">Фајл није валидан</string>
+  <string name="Utilities.PlaylistNameIsEmpty">Име за плејлисту је празно</string>
+  <string name="Utilities.ServerNotConnected">Сервер није прикључен</string>
+</resources>

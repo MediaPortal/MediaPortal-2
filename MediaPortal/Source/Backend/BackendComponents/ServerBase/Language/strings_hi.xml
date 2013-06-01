@@ -1,0 +1,18 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<resources>
+  <string name="MainForm.Title">MediaPortal 2 सर्वर अनुप्रयोग</string>
+  <string name="MainForm.AttachedClients">संग्लित ग्राहक</string>
+  <string name="MainForm.Client">ग्राहक</string>
+  <string name="MainForm.System">तंत्र</string>
+  <string name="MainForm.ConnectionState">कनेक्शन स्थिति</string>
+  <string name="MainForm.Connected">जुड़ा</string>
+  <string name="MainForm.Disconnected">डिस्कनेक्ट कर दिया</string>
+  <string name="UPnPBackendServer.DefaultFriendlyName">MediaPortal 2 सर्वर</string>
+  <string name="UPnPBackendServer.Manufacturer">टीम Mediaportal</string>
+  <string name="UPnPBackendServer.ManufacturerUrl">www.team-mediaportal.com</string>
+  <string name="UPnPBackendServer.ModelDescription">MediaPortal 2 सर्वर ऑडियो फ़ाइलें, वीडियो और छवियों को होस्ट, और एक मीडिया डेटाबेस प्रदान करता है</string>
+  <string name="UPnPBackendServer.ModelName">MediaPortal 2 सर्वर</string>
+  <string name="UPnPBackendServer.ModelNumber">1</string>
+  <string name="UPnPBackendServer.ModelUrl">...</string>
+  <string name="MediaLibrary.EmptyOrMiscCharGroupName">&lt;रिक्त या विविध. character&gt;</string>
+</resources>

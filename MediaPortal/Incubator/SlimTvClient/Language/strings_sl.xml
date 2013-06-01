@@ -1,0 +1,29 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<resources>
+  <string name="SlimTvClient.Title">Tanek TV klient</string>
+  <string name="SlimTvClient.CurrentlyPlayingInformationHeader">Informacije o programih</string>
+  <string name="SlimTvClient.ChannelLabel">Kanal</string>
+  <string name="SlimTvClient.ProgramLabel">Oddaja</string>
+  <string name="SlimTvClient.DescriptionLabel">Opis</string>
+  <string name="SlimTvClient.GenreLabel">Žanr</string>
+  <string name="SlimTvClient.ProgramStartLabel">Čas začetka</string>
+  <string name="SlimTvClient.ProgramEndLabel">Čas konca</string>
+  <string name="SlimTvClient.EpisodeLabel">Epizoda</string>
+  <string name="SlimTvClient.Guide">TV Vodič</string>
+  <string name="SlimTvClient.NoProgram">Ni podatkov o oddaji</string>
+  <string name="SlimTvClient.ChooseProgramAction">Izberi akcijo za oddajo.</string>
+  <string name="SlimTvClient.ProgramOver">Oddaja je že končana</string>
+  <string name="SlimTvClient.WatchNow">Glej oddajo</string>
+  <string name="SlimTvClient.RecordNow">Posnemi</string>
+  <string name="SlimTvClient.DeleteSchedule">Prekliči snemanje</string>
+  <string name="SlimTvClient.CreateSchedule">Razporedi snemanje</string>
+  <string name="SlimTvClient.ErrorNoTvProvider">(Trenutno) ni ponudnika TV</string>
+  <string name="SlimTvClient.RecordingsMenuItem">Posnetki</string>
+  <string name="SlimTvClient.RecordingsRootViewName">TV posnetki</string>
+  <string name="SlimTvClient.ChannelMenuItemLabel">Omeji po kanalu</string>
+  <string name="SlimTvClient.ChannelNavBarItemLabel">Kanal: {0}</string>
+  <string name="SlimTvClient.RecordingsByChannelHeader">Posnetki po kanalu</string>
+  <string name="SlimTvClient.NameFilterMenuItemLabel">Omeji po imenu</string>
+  <string name="SlimTvClient.NameFilterNavBarItemLabel">{0}</string>
+  <string name="SlimTvClient.RecordingsByNameHeader">Posnetki po imenu</string>
+</resources>

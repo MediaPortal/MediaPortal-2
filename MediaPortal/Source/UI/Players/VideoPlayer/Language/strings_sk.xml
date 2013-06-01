@@ -1,0 +1,47 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<resources>
+  <string name="Settings.Players.Codecs">Kodeky</string>
+  <string name="Settings.Players.Codecs.VideoCodecs">Video kodeky</string>
+  <string name="Settings.Players.Codecs.VideoCodecs.MPEG2">MPEG2 Video kodek</string>
+  <string name="Settings.Players.Codecs.VideoCodecs.MPEG2.Help">Nastaviť kodek pre MPEG2 video (DVD, DVB-SD)</string>
+  <string name="Settings.Players.Codecs.VideoCodecs.MPEG4">MPEG4 Video kodek</string>
+  <string name="Settings.Players.Codecs.VideoCodecs.MPEG4.Help">Nastaviť kodek pre MPEG4 video (H.264, x264)</string>
+  <string name="Settings.Players.Codecs.VideoCodecs.AVC">AVC video kodek</string>
+  <string name="Settings.Players.Codecs.VideoCodecs.AVC.Help">Nastaviť kodek pre AVC video (HDTV, BluRay)</string>
+  <string name="Settings.Players.Codecs.AudioCodecs">Audio kodeky</string>
+  <string name="Settings.Players.Codecs.AudioRenderer">Audio renderer</string>
+  <string name="Settings.Players.Codecs.AudioCodecs.AudioCodec">MPEG1/2 audio kodek</string>
+  <string name="Settings.Players.Codecs.AudioCodecs.AudioCodec.Help">Nastaviť MPEG1/2 audio kodek</string>
+  <string name="Settings.Players.Codecs.AudioCodecs.AudioCodecLATMAAC">LATM-AAC audio kodek</string>
+  <string name="Settings.Players.Codecs.AudioCodecs.AudioCodecLATMAAC.Help">Nastaviť LATM-AAC audio kodek</string>
+  <string name="Settings.Players.Codecs.AudioCodecs.AudioCodecAAC">AAC audio kodek</string>
+  <string name="Settings.Players.Codecs.AudioCodecs.AudioCodecAAC.Help">Nastaviť AAC audio kodek</string>
+  <string name="Settings.Players.Codecs.AudioCodecs.AudioRenderer">Audio renderer</string>
+  <string name="Settings.Players.Codecs.AudioCodecs.AudioRenderer.Help">Nastaviť audio renderer</string>
+  <string name="Settings.Players.VideoPlayer">Video prehrávač</string>
+  <string name="Settings.Players.VideoPlayer.PreferMultiChannelAudio">Preferovať viackanálový zvuk</string>
+  <string name="Settings.Players.VideoPlayer.PreferMultiChannelAudio.Help">Preferenica 6 kanálového zvuku (napr. AC3, AAC)</string>
+  <string name="Settings.Players.DVDPlayer">DVD prehrávač</string>
+  <string name="Settings.Players.DVDPlayer.EnableClosedCaption">Titulky pre nepočujúcich</string>
+  <string name="Settings.Players.DVDPlayer.EnableClosedCaption.Help">Vyberte, ak majú byť titulky pre nepočujúcich predvolené</string>
+  <string name="Settings.Players.DVDPlayer.EnableSubtitles">Titulky</string>
+  <string name="Settings.Players.DVDPlayer.EnableSubtitles.Help">Vyberte, ak majú byť titulky predvolené</string>
+  <string name="Playback.NotSpecified">Nešpecifikované</string>
+  <string name="Playback.CaptionNormal">Normálne titulky</string>
+  <string name="Playback.CaptionBig">Veľké titulky</string>
+  <string name="Playback.CaptionChildren">Detské titulky</string>
+  <string name="Playback.CCNormal">Normálne titulky pre nepočujúcich</string>
+  <string name="Playback.CCBig">Veľké titulky pre nepočujúcich</string>
+  <string name="Playback.CCChildren">Detské titulky pre nepočujúcich</string>
+  <string name="Playback.Forced">Nútené</string>
+  <string name="Playback.DirectorCommentsNormal">Normálny komentár režiséra</string>
+  <string name="Playback.DirectorCommentsBig">Veľký komentár režiséra</string>
+  <string name="Playback.DirectorCommentsChildren">Detská komentár režiséra</string>
+  <string name="Playback.VisuallyImpaired">Slabozraký</string>
+  <string name="Playback.DirectorComments1">Komentár režiséra</string>
+  <string name="Playback.DirectorComments2">Komentár režiséra (2)</string>
+  <string name="Playback.Chapter">Kapitola {0}</string>
+  <!--For example: "Chapter 1"-->
+  <string name="Playback.Title">Titul {0}</string>
+  <!--For example: "Title 1"-->
+</resources>

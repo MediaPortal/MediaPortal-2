@@ -1,0 +1,12 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<resources>
+  <string name="Settings.Players.Codecs">कोडेक</string>
+  <string name="Settings.Players.Codecs.VideoCodecs">वीडियो कोडेक</string>
+  <string name="Settings.Players.Codecs.VideoCodecs.MPEG2">MPEG2 वीडियो कोडेक</string>
+  <string name="Settings.Players.Codecs.VideoCodecs.MPEG2.Help">MPEG2 वीडियो के  इस्तेमाल के लिए कोडेक सेट (DVD, DVB-SD)</string>
+  <string name="Settings.Players.Codecs.VideoCodecs.MPEG4">MPEG4 वीडियो कोडेक</string>
+  <string name="Settings.Players.Codecs.VideoCodecs.MPEG4.Help">MPEG4 वीडियो के  इस्तेमाल के लिए कोडेक सेट (H.264, x264)</string>
+  <string name="Settings.Players.Codecs.VideoCodecs.AVC">AVC वीडियो कोडेक</string>
+  <!--For example: "Chapter 1"-->
+  <!--For example: "Title 1"-->
+</resources>

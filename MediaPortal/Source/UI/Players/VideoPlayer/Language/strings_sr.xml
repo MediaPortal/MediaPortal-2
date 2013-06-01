@@ -1,0 +1,47 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<resources>
+  <string name="Settings.Players.Codecs">Кодеци</string>
+  <string name="Settings.Players.Codecs.VideoCodecs">Видео кодеци</string>
+  <string name="Settings.Players.Codecs.VideoCodecs.MPEG2">MPEG2 Видео кодек</string>
+  <string name="Settings.Players.Codecs.VideoCodecs.MPEG2.Help">Подеси кодек за MPEG2 видео (DVD, DVB-SD)</string>
+  <string name="Settings.Players.Codecs.VideoCodecs.MPEG4">MPEG4 видео кодек</string>
+  <string name="Settings.Players.Codecs.VideoCodecs.MPEG4.Help">Подеси кодек за MPEG4 видео (H.264, x264)</string>
+  <string name="Settings.Players.Codecs.VideoCodecs.AVC">AVC видео кодек</string>
+  <string name="Settings.Players.Codecs.VideoCodecs.AVC.Help">Подеси кодек за AVC видео (HDTV, BluRay)</string>
+  <string name="Settings.Players.Codecs.AudioCodecs">Аудио кодеци</string>
+  <string name="Settings.Players.Codecs.AudioRenderer">Аудио рендерер</string>
+  <string name="Settings.Players.Codecs.AudioCodecs.AudioCodec">MPEG1/2 Аудио кодек</string>
+  <string name="Settings.Players.Codecs.AudioCodecs.AudioCodec.Help">Подеси MPEG1/2 аудио кодек</string>
+  <string name="Settings.Players.Codecs.AudioCodecs.AudioCodecLATMAAC">LATM-AAC аудио кодек</string>
+  <string name="Settings.Players.Codecs.AudioCodecs.AudioCodecLATMAAC.Help">Подеси LATM-AAC аудио  кодек</string>
+  <string name="Settings.Players.Codecs.AudioCodecs.AudioCodecAAC">AAC аудио кодек</string>
+  <string name="Settings.Players.Codecs.AudioCodecs.AudioCodecAAC.Help">Подеси ААС аудио кодек</string>
+  <string name="Settings.Players.Codecs.AudioCodecs.AudioRenderer">Аудио рендерер</string>
+  <string name="Settings.Players.Codecs.AudioCodecs.AudioRenderer.Help">Подеси аудио рендерер</string>
+  <string name="Settings.Players.VideoPlayer">Видео плејер</string>
+  <string name="Settings.Players.VideoPlayer.PreferMultiChannelAudio">Вишеканално аудио емитовање</string>
+  <string name="Settings.Players.VideoPlayer.PreferMultiChannelAudio.Help">Уколико је омогућено - 6-канално емитовање је пожељно (нпр. AC3, AAC)</string>
+  <string name="Settings.Players.DVDPlayer">ДВД плејер</string>
+  <string name="Settings.Players.DVDPlayer.EnableClosedCaption">Титлови</string>
+  <string name="Settings.Players.DVDPlayer.EnableClosedCaption.Help">Изаберите опцију уколико желите да се титл увек појављује</string>
+  <string name="Settings.Players.DVDPlayer.EnableSubtitles">Преводи</string>
+  <string name="Settings.Players.DVDPlayer.EnableSubtitles.Help">Изаберите опцију уколико желите да се превод увек појављује</string>
+  <string name="Playback.NotSpecified">Није наведено</string>
+  <string name="Playback.CaptionNormal">Нормални титл</string>
+  <string name="Playback.CaptionBig">Велики титл</string>
+  <string name="Playback.CaptionChildren">Дечји титл</string>
+  <string name="Playback.CCNormal">Нормални титл</string>
+  <string name="Playback.CCBig">Велики титл</string>
+  <string name="Playback.CCChildren">Дечји титл</string>
+  <string name="Playback.Forced">Принудно</string>
+  <string name="Playback.DirectorCommentsNormal">Коментар режисера - нормално</string>
+  <string name="Playback.DirectorCommentsBig">Коментар режисера - велико</string>
+  <string name="Playback.DirectorCommentsChildren">Коментар режисера - дечји</string>
+  <string name="Playback.VisuallyImpaired">За слабовиде особе</string>
+  <string name="Playback.DirectorComments1">Коментар режисера</string>
+  <string name="Playback.DirectorComments2">Коментар режисера (2)</string>
+  <string name="Playback.Chapter">Поглавље {0}</string>
+  <!--For example: "Chapter 1"-->
+  <string name="Playback.Title">Наслов {0}</string>
+  <!--For example: "Title 1"-->
+</resources>
