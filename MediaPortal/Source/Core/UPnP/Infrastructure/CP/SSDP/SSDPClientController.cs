@@ -342,7 +342,6 @@ namespace UPnP.Infrastructure.CP.SSDP
         }
 
         _expirationTimer = new Timer(OnExpirationTimerElapsed, null, EXPIRATION_TIMER_INTERVAL, EXPIRATION_TIMER_INTERVAL);
-        SearchAll(null);
       }
     }
 
