@@ -1,0 +1,6 @@
+﻿<wpf:ResourceDictionary xml:space="preserve" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:s="clr-namespace:System;assembly=mscorlib" xmlns:ss="urn:shemas-jetbrains-com:settings-storage-xaml" xmlns:wpf="http://schemas.microsoft.com/winfx/2006/xaml/presentation">
+	<s:String x:Key="/Default/Environment/InjectedLayers/FileInjectedLayer/=D7AD8D645A7A0A4F8B9D38BB4098D607/AbsolutePath/@EntryValue">D:\MediaPortal\Sources\MediaPortal-2-dev\MediaPortal\Resources\Settings\ReSharper\TeamMediaPortal.DotSettings</s:String>
+	<s:String x:Key="/Default/Environment/InjectedLayers/FileInjectedLayer/=D7AD8D645A7A0A4F8B9D38BB4098D607/RelativePath/@EntryValue">..\..\..\Resources\Settings\ReSharper\TeamMediaPortal.DotSettings</s:String>
+	<s:Boolean x:Key="/Default/Environment/InjectedLayers/FileInjectedLayer/=D7AD8D645A7A0A4F8B9D38BB4098D607/@KeyIndexDefined">True</s:Boolean>
+	<s:Boolean x:Key="/Default/Environment/InjectedLayers/InjectedLayerCustomization/=FileD7AD8D645A7A0A4F8B9D38BB4098D607/@KeyIndexDefined">True</s:Boolean>
+	<s:Double x:Key="/Default/Environment/InjectedLayers/InjectedLayerCustomization/=FileD7AD8D645A7A0A4F8B9D38BB4098D607/RelativePriority/@EntryValue">1</s:Double></wpf:ResourceDictionary>
