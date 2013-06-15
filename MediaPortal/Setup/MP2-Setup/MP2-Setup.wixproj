@@ -33,6 +33,7 @@
       <Link>VersionInfo.wxi</Link>
     </Content>
     <Compile Include="Dokan\Dokan.wxs" />
+    <None Include="Dokan\Dokan.targets" />
     <Compile Include="Features\Client.Heat.wxs" />
     <Compile Include="Features\Client.wxs" />
     <Compile Include="Features\Server.Heat.wxs" />
