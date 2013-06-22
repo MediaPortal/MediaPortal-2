@@ -12,13 +12,13 @@
   </ItemGroup>
 
   <ItemGroup>
-    <References Include="$(ProjectDir)References\**\*.*" />
+    <References Include="$(TargetDir)mysql.data.dll" />
+    <References Include="$(TargetDir)mysql.data.entity.dll" />
   </ItemGroup>
 
   <Target Name="AfterBuild">
     <Copy SourceFiles="@(PluginFiles)" DestinationFolder="$(PluginDestination)" />
-    <Copy SourceFiles="@(References)"
-          DestinationFiles="@(References->'$(PluginDestination)%(RecursiveDir)%(Filename)%(Extension)')" />
+    <Copy SourceFiles="@(References)" DestinationFolder="$(PluginDestination)" />
   </Target>
 
 </Project>
