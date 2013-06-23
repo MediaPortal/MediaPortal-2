@@ -207,6 +207,8 @@
     <Content Include="Skin\Titanium\screens\MediaItemsList.inc" />
     <Content Include="Skin\Titanium\screens\ProgramInfoSlim.inc" />
     <Content Include="Skin\Titanium\skin.xml" />
+    <Content Include="Skin\Titanium\sounds\click.wav" />
+    <Content Include="Skin\Titanium\sounds\navigate.wav" />
     <Content Include="Skin\Titanium\themes\blue\images\background.png" />
     <Content Include="Skin\Titanium\themes\blue\images\preview.jpg" />
     <Content Include="Skin\Titanium\themes\blue\theme.xml" />
