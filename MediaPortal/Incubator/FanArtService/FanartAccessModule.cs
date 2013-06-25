@@ -44,7 +44,7 @@ namespace MediaPortal.Extensions.UserServices.FanArtService
     /// <param name="response">Information that is being sent back to the client.</param>
     /// <param name="session">Session used to </param>
     /// <returns>true if this module handled the request.</returns>
-    public override bool Process (IHttpRequest request, IHttpResponse response, IHttpSession session)
+    public override bool Process(IHttpRequest request, IHttpResponse response, IHttpSession session)
     {
       Uri uri = request.Uri;
       if (!uri.AbsolutePath.StartsWith("/FanartService"))
@@ -60,11 +60,11 @@ namespace MediaPortal.Extensions.UserServices.FanArtService
       int maxHeight;
       if (uri.Segments.Length < 4)
         return false;
-      if (!Enum.TryParse(GetSegmentWithoutSlash(uri,2), out mediaType))
+      if (!Enum.TryParse(GetSegmentWithoutSlash(uri, 2), out mediaType))
         return false;
       if (!Enum.TryParse(GetSegmentWithoutSlash(uri, 3), out fanArtType))
         return false;
-      string name = GetSegmentWithoutSlash(uri, 4);
+      string name = RemoveEscaping(GetSegmentWithoutSlash(uri, 4));
 
       // Both values are optional
       int.TryParse(GetSegmentWithoutSlash(uri, 5), out maxWidth);
@@ -77,6 +77,14 @@ namespace MediaPortal.Extensions.UserServices.FanArtService
       using (MemoryStream memoryStream = new MemoryStream(files[0].BinaryData))
         SendWholeStream(response, memoryStream, false);
       return true;
+    }
+
+    private static string RemoveEscaping(string escaped)
+    {
+      string result = escaped;
+      if (result.StartsWith("{") && result.EndsWith("}"))
+        result = result.Substring(1, result.Length - 2);
+      return result;
     }
 
     protected static string GetSegmentWithoutSlash(Uri uri, int index)
