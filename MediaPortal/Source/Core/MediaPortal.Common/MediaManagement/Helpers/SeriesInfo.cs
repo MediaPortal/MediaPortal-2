@@ -95,12 +95,12 @@ namespace MediaPortal.Common.MediaManagement.Helpers
     }
 
     /// <summary>
-    /// Gets or sets the series title. When setting a value, whitespaces will be cleaned up (<see cref="CleanupWhiteSpaces"/>).
+    /// Gets or sets the series title.
     /// </summary>
     public string Series
     {
       get { return _series; }
-      set { _series = CleanupWhiteSpaces(value); }
+      set { _series = value; }
     }
 
     /// <summary>
@@ -109,12 +109,12 @@ namespace MediaPortal.Common.MediaManagement.Helpers
     public string ImdbId { get; set; }
 
     /// <summary>
-    /// Gets or sets the episode title. When setting a value, whitespaces will be cleaned up (<see cref="CleanupWhiteSpaces"/>).
+    /// Gets or sets the episode title.
     /// </summary>
     public string Episode
     {
       get { return _episode; }
-      set { _episode = CleanupWhiteSpaces(value); }
+      set { _episode = value; }
     }
 
     /// <summary>
@@ -181,7 +181,7 @@ namespace MediaPortal.Common.MediaManagement.Helpers
     /// <summary>
     /// Cleans up strings by replacing unwanted characters (<c>'.'</c>, <c>'_'</c>) by spaces.
     /// </summary>
-    private static string CleanupWhiteSpaces(string str)
+    public static string CleanupWhiteSpaces(string str)
     {
       return str == null ? null : _cleanUpWhiteSpaces.Replace(str, " $1").Trim(' ', '-');
     }

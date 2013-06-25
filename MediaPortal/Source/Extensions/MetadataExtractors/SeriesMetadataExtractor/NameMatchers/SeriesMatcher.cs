@@ -85,11 +85,11 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor.Name
       SeriesInfo info = new SeriesInfo();
       Group group = ma.Groups[GROUP_SERIES];
       if (group.Length > 0)
-        info.Series = group.Value;
+        info.Series = SeriesInfo.CleanupWhiteSpaces(group.Value);
 
       group = ma.Groups[GROUP_EPISODE];
       if (group.Length > 0)
-        info.Episode = group.Value;
+        info.Episode = SeriesInfo.CleanupWhiteSpaces(group.Value);
 
       group = ma.Groups[GROUP_SEASONNUM];
       int tmpInt;
