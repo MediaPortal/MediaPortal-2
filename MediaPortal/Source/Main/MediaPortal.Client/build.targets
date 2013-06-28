@@ -17,6 +17,10 @@
     <Copy SourceFiles="@(References)" DestinationFolder="$(AppDestination)" />
     <Copy SourceFiles="@(BaseFiles)"
           DestinationFiles="@(BaseFiles->'$(AppDestination)%(RecursiveDir)%(Filename)%(Extension)')" />
+
+    <Delete Files="$(AppDestination)CommandLine.xml" />
+    <Delete Files="$(AppDestination)Microsoft.WindowsAPICodePack.pdb" />
+    <Delete Files="$(AppDestination)Microsoft.WindowsAPICodePack.Shell.pdb" />
   </Target>
 
 </Project>
