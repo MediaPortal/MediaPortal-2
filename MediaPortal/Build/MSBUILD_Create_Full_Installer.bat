@@ -1,21 +1,10 @@
 
-echo Deleting binary folder
-rmdir /s /q ..\bin
+xcopy /I /Y .\BuildReport\_BuildReport_Files .\_BuildReport_Files
 
-echo Restore NuGet packages
-call RestorePackages.bat
+set xml=Build_Report_MediaPortal_2.xml
+set html=Build_Report_MediaPortal_2.html
 
-echo Updating language resources from transifex
-call TRANSIFEX_Update_Translation_Files.bat
+set logger=/l:XmlFileLogger,"BuildReport\MSBuild.ExtensionPack.Loggers.dll";logfile=%xml%
+"%WINDIR%\Microsoft.NET\Framework\v4.0.30319\MSBUILD.exe" Build.proj %logger%
 
-echo Rebuilding Server
-call MSBUILD_Rebuild_Release_Server.bat
-
-echo Rebuilding Client
-call MSBUILD_Rebuild_Release_Client.bat
-
-echo Rebuilding ServiceMonitor
-call MSBUILD_Rebuild_Release_ServiceMonitor.bat
-
-echo Rebuilding Setup
-call MSBUILD_Rebuild_Release_Setup.bat
+BuildReport\msxsl %xml% _BuildReport_Files\BuildReport.xslt -o %html%

@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <!--
+  This file is the main entry for building MediaPortal 2,
+  including all it's components and an installation package.
+  -->
+  <Import Project="$(MSBuildThisFileDirectory)\Build.tasks" />
+
+  <PropertyGroup>
+    <ProjectRoot Condition="$(ProjectRoot) == ''">$(MSBuildThisFileDirectory)\..</ProjectRoot>
+
+    <!-- Build Configuration -->
+    <Configuration Condition=" '$(Configuration)' == '' ">Release</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">x86</Platform>
+
+    <!-- Build Steps
+    If OneStepOnly == true, it is assumed that only one solution should be build, i.e. Client only.
+    -->
+    <OneStepOnly Condition="$(OneStepOnly) != 'true'">false</OneStepOnly>
+    
+    <!--
+    Auto-Enable the following steps,
+         if these are not explicitly disabled and
+         only if multiple solutions should be compiled.
+    -->
+    <DownloadTranslations
+      Condition="$(DownloadTranslations) != 'false' AND $(OneStepOnly) != 'true'">true</DownloadTranslations>
+    <CopyTranslations
+      Condition="$(CopyTranslations) != 'false' AND $(OneStepOnly) != 'true'">true</CopyTranslations>
+
+    <BuildClient
+      Condition="$(BuildClient) != 'false' AND $(OneStepOnly) != 'true'">true</BuildClient>
+    <BuildServer
+      Condition="$(BuildServer) != 'false' AND $(OneStepOnly) != 'true'">true</BuildServer>
+    <BuildServiceMonitor
+      Condition="$(BuildServiceMonitor) != 'false' AND $(OneStepOnly) != 'true'">true</BuildServiceMonitor>
+    <BuildSetup
+      Condition="$(BuildSetup) != 'false' AND $(OneStepOnly) != 'true'">true</BuildSetup>
+
+  </PropertyGroup>
+
+  <!--
+  This item group defines the targets, that need to be called before acutally building the MP2 solutions.
+  The order is important.
+  -->
+  <ItemGroup>
+    <DependsOnTargets Include="WriteBuildInfos" />
+    <DependsOnTargets Include="ClearBinDirectory" />
+    <DependsOnTargets Include="RestoreAllPackages" />
+    <DependsOnTargets Include="DownloadTranslations" Condition="$(DownloadTranslations) == 'true'" />
+    <DependsOnTargets Include="CopyTranslations" Condition="$(CopyTranslations) == 'true'"  />
+  </ItemGroup>
+
+  <!-- This item group holds the MP2 solutions that should acutally being built. -->
+  <ItemGroup>
+    <ProjectsToBuild Include="$(ProjectRoot)\Source\MP2-Client.sln" Condition="$(BuildClient) == 'true'" />
+    <ProjectsToBuild Include="$(ProjectRoot)\Source\MP2-Server.sln" Condition="$(BuildServer) == 'true'" />
+    <ProjectsToBuild Include="$(ProjectRoot)\Source\MP2-ServiceMonitor.sln" Condition="$(BuildServiceMonitor) == 'true'" />
+    <ProjectsToBuild Include="$(ProjectRoot)\Setup\MP2-Setup.sln" Condition="$(BuildSetup) == 'true'" />
+  </ItemGroup>
+
+
+  <!-- Targets -->
+  <Import Project="$(MSBuildProjectDirectory)\RestorePackages.targets" />
+  <Import Project="$(MSBuildProjectDirectory)\Transifex.targets" />
+
+  <Target Name="WriteBuildInfos">
+    <Message Text="..:: BUILD CONFIGURATION ::.."/>
+    <Message Text="DependsOnTargets     = @(DependsOnTargets)"/>
+    <Message Text="DownloadTranslations = $(DownloadTranslations)"/>
+    <Message Text="CopyTranslations     = $(CopyTranslations)"/>
+    <Message Text="BuildClient          = $(BuildClient)"/>
+    <Message Text="BuildServer          = $(BuildServer)"/>
+    <Message Text="BuildServiceMonitor  = $(BuildServiceMonitor)"/>
+    <Message Text="BuildSetup           = $(BuildSetup)"/>
+    <Message Text="..:: BUILD CONFIGURATION END ::.."/>
+  </Target>
+
+  <Target Name="ClearBinDirectory">
+    <RemoveDir Condition="$(OneStepOnly) == 'false'" Directories="$(ProjectRoot)\bin" />
+  </Target>
+
+  <Target Name="Build"
+          DependsOnTargets="@(DependsOnTargets)">
+    <MSBuild Projects="@(ProjectsToBuild)"
+             Properties="Configuration=$(Configuration);Platform=$(Platform)"
+             Targets="Rebuild" />
+  </Target>
+
+</Project>
