@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <!--
+  This file blabla...
+  -->
+  <Import Project="$(MSBuildProjectDirectory)\Build.tasks" />
+
+  <PropertyGroup>
+    <ProjectRoot Condition="$(ProjectRoot) == ''">$(MSBuildProjectDirectory)\..</ProjectRoot>
+    <NuGetExePath Condition="$(NuGetExePath) == ''">$(MSBuildProjectDirectory)\NuGet.exe</NuGetExePath>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackagesConfigs Include="$(ProjectRoot)\**\packages.config" />
+  </ItemGroup>
+
+  <Target Name="CustomRestorePackages">
+    <DownloadFile DownloadAddress="https://nuget.org/nuget.exe" OutputFilename="$(NuGetExePath)" Condition="!Exists('$(NuGetExePath)')" />
+
+    <Message Text="Found the following 'packages.config'-files: @(PackagesConfigs->'%(FullPath)')"/>
+
+    <Exec Command='"$(NuGetExePath)" install "%(PackagesConfigs.FullPath)"'/>
+  </Target>
+</Project>
