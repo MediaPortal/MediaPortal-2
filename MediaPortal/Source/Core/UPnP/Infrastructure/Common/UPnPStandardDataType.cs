@@ -24,6 +24,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Xml;
 using UPnP.Infrastructure.Utils;
@@ -227,10 +228,10 @@ namespace UPnP.Infrastructure.Common
         case "r8":
         case "number":
         case "float":
-          writer.WriteString(((Double) value).ToString("E"));
+          writer.WriteString(((Double) value).ToString("E", CultureInfo.InvariantCulture));
           break;
         case "fixed.14.4":
-          writer.WriteString(((Double) value).ToString("0.##############E+0"));
+          writer.WriteString(((Double) value).ToString("0.##############E+0", CultureInfo.InvariantCulture));
           break;
         case "char":
         case "string":
