@@ -58,7 +58,7 @@ namespace MediaPortal.Common.Services.ServerCommunication
 
     public bool GetProfileByName(string profileName, out UserProfile userProfile)
     {
-      CpAction action = GetAction("GetProfile");
+      CpAction action = GetAction("GetProfileByName");
       IList<object> inParameters = new List<object> {profileName};
       IList<object> outParameters = action.InvokeAction(inParameters);
       userProfile = (UserProfile) outParameters[0];
