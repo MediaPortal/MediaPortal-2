@@ -71,7 +71,7 @@ namespace MediaPortal.Backend.Services.UserProfileDataManagement
         filters.Add("NAME=@NAME");
 
       if (filters.Count > 0)
-        result.CommandText += StringUtils.Join(" AND ", filters);
+        result.CommandText += " WHERE " + StringUtils.Join(" AND ", filters);
 
       if (profileId.HasValue)
         database.AddParameter(result, "PROFILE_ID", profileId, typeof(Guid));
