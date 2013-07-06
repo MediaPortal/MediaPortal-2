@@ -38,6 +38,7 @@ using MediaPortal.UI.Players.Video.Settings;
 using MediaPortal.UI.Players.Video.Tools;
 using MediaPortal.UI.Presentation.Geometries;
 using MediaPortal.UI.Presentation.Players;
+using MediaPortal.UI.Presentation.Players.ResumeState;
 using MediaPortal.UI.SkinEngine.Players;
 using MediaPortal.UI.SkinEngine.SkinManagement;
 using MediaPortal.Utilities.Exceptions;
@@ -45,7 +46,7 @@ using SlimDX.Direct3D9;
 
 namespace MediaPortal.UI.Players.Video
 {
-  public class VideoPlayer : BaseDXPlayer, ISlimDXVideoPlayer, ISubtitlePlayer, IChapterPlayer, ITitlePlayer
+  public class VideoPlayer : BaseDXPlayer, ISlimDXVideoPlayer, ISubtitlePlayer, IChapterPlayer, ITitlePlayer, IResumablePlayer
   {
     #region Classes & interfaces
 
@@ -131,7 +132,7 @@ namespace MediaPortal.UI.Players.Video
 
     #region Ctor & dtor
 
-    public VideoPlayer ()
+    public VideoPlayer()
     {
       _cropSettings = ServiceRegistration.Get<IGeometryManager>().CropSettings;
 
@@ -158,7 +159,7 @@ namespace MediaPortal.UI.Players.Video
 
     #region IInitializablePlayer implementation
 
-    protected override void AddPresenter ()
+    protected override void AddPresenter()
     {
       // Create the Allocator / Presenter object
       FreeEvrCallback();
@@ -231,7 +232,7 @@ namespace MediaPortal.UI.Players.Video
       FilterGraphTools.TryDispose(ref _rot);
       FilterGraphTools.TryRelease(ref _graphBuilder);
     }
-    
+
     #endregion
 
     #region ISlimDXVideoPlayer implementation
@@ -541,7 +542,7 @@ namespace MediaPortal.UI.Players.Video
       }
       return false;
     }
-    
+
     protected virtual void EnumerateChapters()
     {
       EnumerateChapters(false);
@@ -582,7 +583,7 @@ namespace MediaPortal.UI.Players.Video
     }
 
     #endregion
-    
+
     public virtual void ReleaseGUIResources()
     {
       // Releases all Direct3D related resources
@@ -949,6 +950,35 @@ namespace MediaPortal.UI.Players.Video
     public override string ToString()
     {
       return string.Format("{0}: {1}", GetType().Name, _resourceAccessor != null ? _resourceAccessor.ResourceName : "no resource");
+    }
+
+    #endregion
+
+    #region Implementation of IResumablePlayer
+
+    /// <summary>
+    /// Gets a <see cref="IResumeState"/> from the player.
+    /// </summary>
+    /// <param name="state">Outputs resume state.</param>
+    /// <returns><c>true</c> if successful, otherwise <c>false</c>.</returns>
+    public virtual bool GetResumeState(out IResumeState state)
+    {
+      state = new PositionResumeState { ResumePosition = CurrentTime };
+      return true;
+    }
+
+    /// <summary>
+    /// Sets a <see cref="IResumeState"/> to the player. The player is responsible to make the required initializations.
+    /// </summary>
+    /// <param name="state">Resume state.</param>
+    /// <returns><c>true</c> if successful, otherwise <c>false</c>.</returns>
+    public virtual bool SetResumeState(IResumeState state)
+    {
+      PositionResumeState pos = state as PositionResumeState;
+      if (pos == null)
+        return false;
+      CurrentTime = pos.ResumePosition;
+      return true;
     }
 
     #endregion

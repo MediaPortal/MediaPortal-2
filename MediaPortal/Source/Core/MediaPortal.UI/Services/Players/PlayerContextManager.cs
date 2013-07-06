@@ -35,9 +35,11 @@ using MediaPortal.Common.Runtime;
 using MediaPortal.Common.Settings;
 using MediaPortal.Common.Threading;
 using MediaPortal.UI.Presentation.Players;
+using MediaPortal.UI.Presentation.Players.ResumeState;
 using MediaPortal.UI.Presentation.Workflow;
 using MediaPortal.UI.Services.Players.PCMOpenPlayerStrategy;
 using MediaPortal.UI.Services.Players.Settings;
+using MediaPortal.UI.Services.UserManagement;
 using MediaPortal.Utilities;
 
 namespace MediaPortal.UI.Services.Players
@@ -152,6 +154,11 @@ namespace MediaPortal.UI.Services.Players
         IPlayerSlotController psc;
         switch (messageType)
         {
+          case PlayerManagerMessaging.MessageType.PlayerResumeState:
+            psc = (IPlayerSlotController) message.MessageData[PlayerManagerMessaging.PLAYER_SLOT_CONTROLLER];
+            IResumeState resumeState = (IResumeState) message.MessageData[PlayerManagerMessaging.KEY_RESUME_STATE];
+            HandleResumeInfo(psc, resumeState);
+            break;
           case PlayerManagerMessaging.MessageType.PlayerError:
           case PlayerManagerMessaging.MessageType.PlayerEnded:
             psc = (IPlayerSlotController) message.MessageData[PlayerManagerMessaging.PLAYER_SLOT_CONTROLLER];
@@ -220,6 +227,21 @@ namespace MediaPortal.UI.Services.Players
       if (potentialState == stateId)
         lock (SyncObj)
           _playerWfStateInstances.Add(new PlayerWFStateInstance(PlayerWFStateType.FullscreenContent, stateId));
+    }
+
+    protected void HandleResumeInfo(IPlayerSlotController psc, IResumeState resumeState)
+    {
+      IPlayerContext pc = PlayerContext.GetPlayerContext(psc);
+      if (pc == null || !pc.IsActive)
+        return;
+
+      // Resume info is only sent if the player supports it.
+      MediaItem currentItem = pc.CurrentMediaItem;
+      string serialized = ResumeStateBase.Serialize(resumeState);
+
+      IUserManagement userProfileDataManagement = ServiceRegistration.Get<IUserManagement>();
+      if (userProfileDataManagement.IsValidUser)
+        userProfileDataManagement.UserProfileDataManagement.SetUserMediaItemData(userProfileDataManagement.CurrentUser.ProfileId, currentItem.MediaItemId, PlayerContext.KEY_RESUME_STATE, serialized);
     }
 
     protected void HandlePlayerEnded(IPlayerSlotController psc)

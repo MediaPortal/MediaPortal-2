@@ -36,6 +36,8 @@ namespace MediaPortal.UI.Presentation.Players
     // Message channel name
     public const string CHANNEL = "PlayerManager";
 
+    public const string KEY_RESUME_STATE = "PlayerResumeState";
+
     // Message type
     public enum MessageType
     {
@@ -50,6 +52,12 @@ namespace MediaPortal.UI.Presentation.Players
       /// The player state is ready. This message will be sent after the <see cref="PlayerStarted"/> message.
       /// </summary>
       PlayerStateReady,
+
+      /// <summary>
+      /// The player is about to be released (after beeing stopped or ended). This message is immediately sent before <see cref="PlayerStopped"/>
+      /// or <see cref="PlayerEnded"/> and contains resume information as parameter <see cref="PlayerManagerMessaging.KEY_RESUME_STATE"/>.
+      /// </summary>
+      PlayerResumeState,
 
       /// <summary>
       /// A player was stopped.
@@ -146,6 +154,19 @@ namespace MediaPortal.UI.Presentation.Players
     {
       SystemMessage msg = new SystemMessage(type);
       msg.MessageData[PLAYER_SLOT_CONTROLLER] = psc;
+      ServiceRegistration.Get<IMessageBroker>().Send(CHANNEL, msg);
+    }
+
+    /// <summary>
+    /// Sends a message which contains information for resuming playback. The contained data can be specific for each player (can be position or some binary data).
+    /// </summary>
+    /// <param name="psc">Player slot controller of the player which is involved.</param>
+    /// <param name="resumeState">Resume state.</param>
+    public static void SendPlayerResumeStateMessage(IPlayerSlotController psc, IResumeState resumeState)
+    {
+      SystemMessage msg = new SystemMessage(MessageType.PlayerResumeState);
+      msg.MessageData[PLAYER_SLOT_CONTROLLER] = psc;
+      msg.MessageData[KEY_RESUME_STATE] = resumeState;
       ServiceRegistration.Get<IMessageBroker>().Send(CHANNEL, msg);
     }
 

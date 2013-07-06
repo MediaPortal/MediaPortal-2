@@ -213,6 +213,9 @@
   <string name="Media.PlayVideoImageItemMutedConcurrentAudio">Play video/image item in background &amp; continue concurrent audio item</string>
   <string name="Media.PlayVideoImageItemPiP">Play video/image item in PiP mode</string>
 
+  <string name="Media.PlaybackResume">Resume playback</string>
+  <string name="Media.PlaybackFromStart">Play from start</string>
+
   <!-- Player context names -->
   <string name="Media.VideoImageContextName">Video/Image</string>
   <string name="Media.AudioContextName">Audio</string>

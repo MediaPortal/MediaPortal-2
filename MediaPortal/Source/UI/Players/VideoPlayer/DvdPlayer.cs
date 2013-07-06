@@ -43,6 +43,7 @@ using MediaPortal.UI.Players.Video.Interfaces;
 using MediaPortal.UI.Players.Video.Settings;
 using MediaPortal.UI.Players.Video.Tools;
 using MediaPortal.UI.Presentation.Players;
+using MediaPortal.UI.Presentation.Players.ResumeState;
 using MediaPortal.UI.Presentation.Screens;
 
 namespace MediaPortal.UI.Players.Video
@@ -94,7 +95,7 @@ namespace MediaPortal.UI.Players.Video
     private const string DVD_NAVIGATOR = "DVD Navigator";
 
     protected DvdPreferredDisplayMode _videoPref = DvdPreferredDisplayMode.DisplayContentDefault;
-    protected AspectRatioMode arMode = AspectRatioMode.Stretched;
+    protected AspectRatioMode _arMode = AspectRatioMode.Stretched;
     protected DvdVideoAttributes _videoAttr;
 
     #endregion
@@ -279,7 +280,7 @@ namespace MediaPortal.UI.Players.Video
 
     /// <summary>
     /// Gets the current DVD playback state as byte array. The resume state can be set later by calling
-    /// <see cref="SetResumeState"/> with the returned byte array.
+    /// <see cref="SetResumeState(byte[])"/> with the returned byte array.
     /// </summary>
     /// <param name="resumeData">The resume data.</param>
     /// <returns><c>true</c>, if the resume state could successfully retrieved. In that case <paramref name="resumeData"/>
@@ -340,7 +341,7 @@ namespace MediaPortal.UI.Players.Video
     /// <summary>
     /// Restores the DVD playback state from a formerly saved resume state.
     /// </summary>
-    /// <param name="resumeData">The resume data which was retrieved by calling <see cref="GetResumeState"/>.</param>
+    /// <param name="resumeData">The resume data which was retrieved by calling <see cref="GetResumeState(out byte[])"/>.</param>
     private void SetResumeState(byte[] resumeData)
     {
       if ((resumeData != null) && (resumeData.Length > 0))
@@ -369,7 +370,6 @@ namespace MediaPortal.UI.Players.Video
 
         Marshal.ReleaseComObject(dvdState);
       }
-      return;
     }
 
     /// <summary>
@@ -429,7 +429,7 @@ namespace MediaPortal.UI.Players.Video
       ServiceRegistration.Get<ILogger>().Debug("DvdPlayer: ShowDvdMenu");
       _dvdCtrl.ShowMenu(DvdMenuId.Root, DvdCmdFlags.None, out _cmdOption);
     }
-    
+
     public void OnMouseMove(float x, float y)
     {
       if (_dvdCtrl == null || !_handlesInput || _buttonCount <= 0)
@@ -710,7 +710,7 @@ namespace MediaPortal.UI.Players.Video
         audioStreams = _streamInfoAudio;
         subtitleStreams = _streamInfoSubtitles;
       }
-      
+
       if (forceRefresh || audioStreams == null || subtitleStreams == null)
       {
         audioStreams = new StreamInfoHandler();
@@ -757,9 +757,9 @@ namespace MediaPortal.UI.Players.Video
           string languageName = GetLanguageName(currentLCID);
 
           String localizationTag = attr.LanguageExtension.ToString();
-          String currentSubtitle = String.Format("{0} {1}", languageName, 
+          String currentSubtitle = String.Format("{0} {1}", languageName,
             ServiceRegistration.Get<ILocalization>().ToString("[Playback." + localizationTag + "]") ?? localizationTag);
-          
+
           subtitleStreams.AddUnique(new StreamInfo(null, i, currentSubtitle, currentLCID));
         }
 
@@ -787,7 +787,7 @@ namespace MediaPortal.UI.Players.Video
         return;
 
       StreamInfo selectedAudio = audioStreams.FindStream(audioStream);
-      if (selectedAudio == null) 
+      if (selectedAudio == null)
         return;
 
       int audioLanguage;
@@ -849,7 +849,7 @@ namespace MediaPortal.UI.Players.Video
         return;
 
       StreamInfo selectedSubtitle = subtitleStreams.FindStream(subtitle);
-      if (selectedSubtitle == null) 
+      if (selectedSubtitle == null)
         return;
 
       int iLanguage;
@@ -1138,6 +1138,41 @@ namespace MediaPortal.UI.Players.Video
         lock (SyncObj)
           return ToTimeSpan(_duration);
       }
+    }
+
+    #endregion
+
+    #region Implementation of IResumablePlayer
+
+    /// <summary>
+    /// Gets a <see cref="IResumeState"/> from the player.
+    /// </summary>
+    /// <param name="state">Outputs resume state.</param>
+    /// <returns><c>true</c> if successful, otherwise <c>false</c>.</returns>
+    public override bool GetResumeState(out IResumeState state)
+    {
+      byte[] data;
+      if (GetResumeState(out data))
+      {
+        state = new BinaryResumeState { ResumeData = data };
+        return true;
+      }
+      state = null;
+      return false;
+    }
+
+    /// <summary>
+    /// Sets a <see cref="IResumeState"/> to the player. The player is responsible to make the required initializations.
+    /// </summary>
+    /// <param name="state">Resume state.</param>
+    /// <returns><c>true</c> if successful, otherwise <c>false</c>.</returns>
+    public override bool SetResumeState(IResumeState state)
+    {
+      BinaryResumeState binaryResumeState = state as BinaryResumeState;
+      if (binaryResumeState == null)
+        return false;
+      SetResumeState(binaryResumeState.ResumeData);
+      return true;
     }
 
     #endregion

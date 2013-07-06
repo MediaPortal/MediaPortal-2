@@ -64,6 +64,8 @@ namespace MediaPortal.UiComponents.Media.General
     public const string STR_WF_STATE_ID_CHECK_QUERY_PLAYACTION_MULTIPLE_ITEMS = "895C4853-6D52-4c0f-9B16-B7DA789CBF6A";
     public const string STR_WF_STATE_ID_QUERY_AV_TYPE_CHECK_QUERY_PLAYACTION_MULTIPLE_ITEMS = "9F73CA87-732F-4017-9B1D-11DAFEED7FEC";
 
+    public const string STR_WF_STATE_ID_CHECK_RESUME_SINGLE_ITEM = "04138763-42E6-49F1-BA51-EE3A9BAA835D";
+
     public static readonly Guid MODULE_ID_MEDIA = new Guid(STR_MODULE_ID_MEDIA);
 
     public static readonly Guid WF_STATE_ID_BROWSE_MEDIA_NAVIGATION_ROOT = new Guid(STR_WF_STATE_ID_BROWSE_MEDIA_NAVIGATION_ROOT);
@@ -96,6 +98,8 @@ namespace MediaPortal.UiComponents.Media.General
     public static readonly Guid WF_STATE_ID_CHECK_QUERY_PLAYACTION_MULTIPLE_ITEMS = new Guid(STR_WF_STATE_ID_CHECK_QUERY_PLAYACTION_MULTIPLE_ITEMS);
     public static readonly Guid WF_STATE_ID_QUERY_AV_TYPE_CHECK_QUERY_PLAYACTION_MULTIPLE_ITEMS = new Guid(STR_WF_STATE_ID_QUERY_AV_TYPE_CHECK_QUERY_PLAYACTION_MULTIPLE_ITEMS);
 
+    public static readonly Guid WF_STATE_ID_CHECK_RESUME_SINGLE_ITEM = new Guid(STR_WF_STATE_ID_CHECK_RESUME_SINGLE_ITEM);
+
     // Localization resource identifiers
     public const string RES_PLAY_AUDIO_ITEM = "[Media.PlayAudioItem]";
     public const string RES_ENQUEUE_AUDIO_ITEM = "[Media.EnqueueAudioItem]";
@@ -114,6 +118,10 @@ namespace MediaPortal.UiComponents.Media.General
     public const string RES_ENQUEUE_VIDEO_IMAGE_ITEMS = "[Media.EnqueueVideoImageItems]";
     public const string RES_PLAY_VIDEO_IMAGE_ITEMS_MUTED_CONCURRENT_AUDIO = "[Media.PlayVideoImageItemsMutedConcurrentAudio]";
     public const string RES_PLAY_VIDEO_IMAGE_ITEMS_PIP = "[Media.PlayVideoImageItemsPiP]";
+
+    // Resume playback
+    public static string RES_PLAYBACK_RESUME = "[Media.PlaybackResume]";
+    public static string RES_PLAYBACK_FROMSTART = "[Media.PlaybackFromStart]";
 
     public const string RES_VIDEO_IMAGE_CONTEXT_NAME = "[Media.VideoImageContextName]";
     public const string RES_AUDIO_CONTEXT_NAME = "[Media.AudioContextName]";

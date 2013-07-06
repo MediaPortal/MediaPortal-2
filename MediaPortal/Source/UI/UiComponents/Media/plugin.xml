@@ -107,6 +107,10 @@
         Name="CheckQueryPlayActionMultipleItems_ChooseMediaType"
         DisplayLabel="[Media.CheckQueryPlayActionMultipleItemsChooseMediaTypeWorkflowStateNavigationContextDisplayLabel]"
         WorkflowModel="3750D3FE-CA2A-4c8a-97B3-A08EF305C084"/> <!-- Workflow model = PlayItems model -->
+    <DialogState Id="04138763-42E6-49F1-BA51-EE3A9BAA835D"
+        Name="CheckResumePlayback"
+        DisplayLabel="[Media.CheckQueryPlayActionSingleItemWorkflowStateNavigationContextDisplayLabel]"
+        WorkflowModel="3750D3FE-CA2A-4c8a-97B3-A08EF305C084"/> <!-- Workflow model = PlayItems model -->
 
     <!-- CP/FSC states -->
 

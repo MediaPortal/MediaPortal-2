@@ -88,6 +88,9 @@ namespace MediaPortal.UI.Services.Players
       }
       if (player == null)
         return;
+
+      // Handling of resume data
+      NotifyResumeState(player);
       ResetPlayerEvents_NoLock(player);
       IPlayer stopPlayer = null;
       IDisposable disposePlayer;
@@ -115,6 +118,17 @@ namespace MediaPortal.UI.Services.Players
         {
           ServiceRegistration.Get<ILogger>().Warn("PlayerSlotController: Error disposing player '{0}'", e, disposePlayer);
         }
+    }
+
+    protected void NotifyResumeState(IPlayer player)
+    {
+      IResumablePlayer resumablePlayer = player as IResumablePlayer;
+      if (resumablePlayer == null)
+        return;
+
+      IResumeState resumeState;
+      if (resumablePlayer.GetResumeState(out resumeState))
+        PlayerManagerMessaging.SendPlayerResumeStateMessage(this, resumeState);
     }
 
     protected void CheckActive()
@@ -304,13 +318,13 @@ namespace MediaPortal.UI.Services.Players
         if (vc != null)
         {
           if (mute && !vc.Mute)
-              // If we are switching the audio off, first disable the audio before setting the volume -
-              // perhaps both properties were changed and we want to avoid a short volume change before the audio gets disabled
+            // If we are switching the audio off, first disable the audio before setting the volume -
+            // perhaps both properties were changed and we want to avoid a short volume change before the audio gets disabled
             vc.Mute = true;
           vc.Volume = volume;
           vc.Mute = mute;
         }
-    }
+      }
       catch (Exception e)
       {
         ServiceRegistration.Get<ILogger>().Warn("PlayerSlotController: Error checking the audio state in player '{0}'", e, _player);
@@ -448,6 +462,17 @@ namespace MediaPortal.UI.Services.Players
           if (disposePlayer != null)
             disposePlayer.Dispose();
           OnPlayerStarted(player);
+          
+          // Handling of resume info.
+          object resumeObject;
+          if (ContextVariables.TryGetValue(PlayerContext.KEY_RESUME_STATE, out resumeObject))
+          {
+            IResumeState resumeState = (IResumeState) resumeObject;
+            IResumablePlayer resumablePlayer = player as IResumablePlayer;
+            if (resumablePlayer != null)
+              resumablePlayer.SetResumeState(resumeState);
+          }
+
           if (mpc != null)
             mpc.Resume();
           return true;
@@ -487,6 +512,6 @@ namespace MediaPortal.UI.Services.Players
         _contextVariables.Clear();
     }
 
-   #endregion
+    #endregion
   }
 }

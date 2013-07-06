@@ -58,6 +58,7 @@
     </Reference>
     <Reference Include="System.Data" />
     <Reference Include="System.Drawing" />
+    <Reference Include="System.Runtime.Serialization" />
     <Reference Include="System.ServiceModel">
       <RequiredTargetFramework>3.0</RequiredTargetFramework>
     </Reference>
@@ -75,8 +76,12 @@
     <Compile Include="FrontendServer\IFrontendServer.cs" />
     <Compile Include="General\WindowsMessaging.cs" />
     <Compile Include="Presentation\Actions\KeyAction.cs" />
+    <Compile Include="Presentation\Players\IResumablePlayer.cs" />
     <Compile Include="Presentation\Players\ISpectrumPlayer.cs" />
     <Compile Include="Presentation\Players\ITitlePlayer.cs" />
+    <Compile Include="Presentation\Players\ResumeState\ResumeStateBase.cs" />
+    <Compile Include="Presentation\Players\ResumeState\BinaryResumeState.cs" />
+    <Compile Include="Presentation\Players\ResumeState\PositionResumeState.cs" />
     <Compile Include="Presentation\Screens\IVideoPlayerSynchronizationStrategy.cs" />
     <Compile Include="Presentation\Utilities\PathBrowserCloseWatcher.cs" />
     <Compile Include="Presentation\Utilities\PathBrowserMessaging.cs" />

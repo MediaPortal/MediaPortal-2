@@ -326,7 +326,6 @@ namespace MediaPortal.UI.Players.Video.Tools
         FilterGraphTools.TryRelease(ref pinEnum);
         Marshal.FreeCoTaskMem(ptrFetched);
       }
-      return;
     }
 
     /// <summary>
