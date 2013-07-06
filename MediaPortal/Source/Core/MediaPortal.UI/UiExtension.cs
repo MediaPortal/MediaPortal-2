@@ -35,6 +35,7 @@ using MediaPortal.UI.RemovableMedia;
 using MediaPortal.UI.ServerCommunication;
 using MediaPortal.UI.Services.SystemResolver;
 using MediaPortal.UI.Services.UiNotifications;
+using MediaPortal.UI.Services.UserManagement;
 using MediaPortal.UI.Shares;
 using MediaPortal.UI.Services.Players;
 using MediaPortal.UI.Services.ServerCommunication;
@@ -70,6 +71,9 @@ namespace MediaPortal.UI
 
       logger.Debug("UiExtension: Registering IServerConnectionManager service");
       ServiceRegistration.Set<IServerConnectionManager>(new ServerConnectionManager());
+
+      logger.Debug("UiExtension: Registering IUserManagement service");
+      ServiceRegistration.Set<IUserManagement>(new UserManagement());
 
       logger.Debug("UiExtension: Registering IMediaItemAspectTypeRegistration service");
       ServiceRegistration.Set<IMediaItemAspectTypeRegistration>(new MediaItemAspectTypeRegistration());
@@ -115,6 +119,9 @@ namespace MediaPortal.UI
 
       logger.Debug("UiExtension: Removing IMediaItemAspectTypeRegistration service");
       ServiceRegistration.RemoveAndDispose<IMediaItemAspectTypeRegistration>();
+
+      logger.Debug("UiExtension: Removing IUserManagement service");
+      ServiceRegistration.RemoveAndDispose<IUserManagement>();
 
       logger.Debug("UiExtension: Removing IServerConnectionManager service");
       ServiceRegistration.RemoveAndDispose<IServerConnectionManager>();

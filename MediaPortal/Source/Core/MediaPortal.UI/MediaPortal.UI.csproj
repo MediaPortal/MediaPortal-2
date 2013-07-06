@@ -178,6 +178,8 @@
     <Compile Include="Services\Shares\LocalSharesManagement.cs" />
     <Compile Include="Presentation\UiNotifications\DefaultNotification.cs" />
     <Compile Include="Services\UiNotifications\NotificationService.cs" />
+    <Compile Include="Services\UserManagement\IUserManagement.cs" />
+    <Compile Include="Services\UserManagement\UserManagement.cs" />
     <Compile Include="Services\Workflow\ShortcutResourcesLoader.cs" />
     <Compile Include="Services\Workflow\WorkflowStateBuilder.cs" />
     <Compile Include="Settings\StartupSettings.cs" />
