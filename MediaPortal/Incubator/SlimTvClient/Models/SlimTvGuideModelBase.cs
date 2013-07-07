@@ -257,9 +257,12 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
             ServiceRegistration.Get<ILogger>().Warn("Could not instantiate SlimTv extension with id '{0}'", itemMetadata.Id);
           else
           {
-            IProgramAction action = Activator.CreateInstance(slimTvProgramExtension.ExtensionClass) as IProgramAction;
+            Type extensionClass = slimTvProgramExtension.ExtensionClass;
+            if (extensionClass == null)
+              throw new PluginInvalidStateException("Could not find class type for extension {0}", slimTvProgramExtension.Caption);
+            IProgramAction action = Activator.CreateInstance(extensionClass) as IProgramAction;
             if (action == null)
-              throw new PluginInvalidStateException("Could not create IProgramAction instance of class {0}", slimTvProgramExtension.ExtensionClass);
+              throw new PluginInvalidStateException("Could not create IProgramAction instance of class {0}", extensionClass);
             _programExtensions[slimTvProgramExtension.Id] = new TvExtension { Caption = slimTvProgramExtension.Caption, Extension = action };
           }
         }
