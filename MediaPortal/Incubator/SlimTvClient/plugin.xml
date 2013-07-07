@@ -63,7 +63,7 @@
   <!--
   <Builder Name="SlimTvExtensionBuilder" ClassName="MediaPortal.Plugins.SlimTv.Interfaces.Extensions.SlimTvExtensionBuilder"/>
   <Register Location="/SlimTv/Extensions">
-    <SlimTvExtensionBuilder Id="{197B0299-B411-4FC7-BA96-765371C77B3B}" Caption="Example" ClassName="MediaPortal.Plugins.SlimTv.Extensions.ProgramExample"/>
+    <SlimTvExtensionBuilder Id="{197B0299-B411-4FC7-BA96-765371C77B3B}" Caption="Example" ClassName="MediaPortal.Plugins.SlimTv.Client.Extensions.ProgramExample"/>
   </Register>
   -->
 
