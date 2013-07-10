@@ -12,6 +12,10 @@ nuget.exe
 [Pp]ackages
 
 
-# all executables, uncomment only if really necessary
+# All executables, uncomment only if really necessary
 *.exe
 *.dll
+
+# Don't include other languages than English into repository, others are managed with Transifex
+strings_*.xml
+!strings_en.xml

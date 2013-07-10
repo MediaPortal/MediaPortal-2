@@ -1,0 +1,2 @@
+# Special exception for language files: only in this cache folder all languages are allowed
+!strings_*.xml
