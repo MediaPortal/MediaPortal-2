@@ -82,7 +82,7 @@ namespace MediaPortal.UiComponents.WifiConfiguration.Models
 
     public bool IsWifiAvailable
     {
-      get { return (bool)_isWifiAvailableProperty.GetValue(); }
+      get { return (bool) _isWifiAvailableProperty.GetValue(); }
       set { _isWifiAvailableProperty.SetValue(value); }
     }
 
@@ -115,7 +115,7 @@ namespace MediaPortal.UiComponents.WifiConfiguration.Models
             item.AdditionalProperties.Add(Consts.KEY_PATH, "Connect");
             options.Add(item);
           }
-          if ((bool)_currentItem.AdditionalProperties["HasProfile"])
+          if ((bool) _currentItem.AdditionalProperties["HasProfile"])
           {
             var item = new ListItem(Consts.KEY_NAME, "[Network.DeleteProfile]");
             item.AdditionalProperties.Add(Consts.KEY_PATH, "DeleteProfile");
@@ -130,7 +130,9 @@ namespace MediaPortal.UiComponents.WifiConfiguration.Models
     {
       ServiceRegistration.Get<IScreenManager>().CloseTopmostDialog();
       var nic = _currentItem.AdditionalProperties["Interface"] as WlanClient.WlanInterface;
-      var network = ((Wlan.WlanAvailableNetwork)_currentItem.AdditionalProperties["Network"]);
+      if (nic == null)
+        return;
+      var network = ((Wlan.WlanAvailableNetwork) _currentItem.AdditionalProperties["Network"]);
       switch (option.AdditionalProperties[Consts.KEY_PATH] as string)
       {
         case "Disconnect":
@@ -154,8 +156,8 @@ namespace MediaPortal.UiComponents.WifiConfiguration.Models
         ConnectNewSecureNetwork(
             _currentItem.Labels[Consts.KEY_NAME].Evaluate(),
             key,
-            (WlanClient.WlanInterface)_currentItem.AdditionalProperties["Interface"],
-            (Wlan.WlanAvailableNetwork)_currentItem.AdditionalProperties["Network"]);
+            (WlanClient.WlanInterface) _currentItem.AdditionalProperties["Interface"],
+            (Wlan.WlanAvailableNetwork) _currentItem.AdditionalProperties["Network"]);
       }
     }
 
@@ -192,27 +194,22 @@ namespace MediaPortal.UiComponents.WifiConfiguration.Models
 
     public void ExitModelContext(UI.Presentation.Workflow.NavigationContext oldContext, UI.Presentation.Workflow.NavigationContext newContext)
     {
-      
     }
 
     public void ChangeModelContext(UI.Presentation.Workflow.NavigationContext oldContext, UI.Presentation.Workflow.NavigationContext newContext, bool push)
     {
-      
     }
 
     public void Deactivate(UI.Presentation.Workflow.NavigationContext oldContext, UI.Presentation.Workflow.NavigationContext newContext)
     {
-      
     }
 
     public void Reactivate(UI.Presentation.Workflow.NavigationContext oldContext, UI.Presentation.Workflow.NavigationContext newContext)
     {
-      
     }
 
     public void UpdateMenuActions(UI.Presentation.Workflow.NavigationContext context, IDictionary<Guid, UI.Presentation.Workflow.WorkflowAction> actions)
     {
-      
     }
 
     public ScreenUpdateMode UpdateScreen(UI.Presentation.Workflow.NavigationContext context, ref string screen)
@@ -228,7 +225,7 @@ namespace MediaPortal.UiComponents.WifiConfiguration.Models
     {
       if (message.ChannelName == WifiConnectionMessaging.CHANNEL)
       {
-        WifiConnectionMessaging.MessageType messageType = (WifiConnectionMessaging.MessageType)message.MessageType;
+        WifiConnectionMessaging.MessageType messageType = (WifiConnectionMessaging.MessageType) message.MessageType;
         switch (messageType)
         {
           case WifiConnectionMessaging.MessageType.ScanCompleted:
@@ -251,8 +248,9 @@ namespace MediaPortal.UiComponents.WifiConfiguration.Models
             string ssid = Helper.GetStringForSSID(network.dot11Ssid);
             if (!string.IsNullOrEmpty(ssid))
             {
-              List<Tuple<Wlan.WlanAvailableNetwork, WlanClient.WlanInterface>> networksForSSID = null;
-              if (!hashedNetworks.TryGetValue(ssid, out networksForSSID)) hashedNetworks[ssid] = networksForSSID = new List<Tuple<Wlan.WlanAvailableNetwork, WlanClient.WlanInterface>>();
+              List<Tuple<Wlan.WlanAvailableNetwork, WlanClient.WlanInterface>> networksForSSID;
+              if (!hashedNetworks.TryGetValue(ssid, out networksForSSID)) 
+                hashedNetworks[ssid] = networksForSSID = new List<Tuple<Wlan.WlanAvailableNetwork, WlanClient.WlanInterface>>();
               networksForSSID.Add(new Tuple<Wlan.WlanAvailableNetwork, WlanClient.WlanInterface>(network, wlanIface));
             }
           }
@@ -275,7 +273,7 @@ namespace MediaPortal.UiComponents.WifiConfiguration.Models
           if (string.IsNullOrWhiteSpace(readableSSID)) readableSSID = "No SSID";
           ListItem item = new ListItem(Consts.KEY_NAME, readableSSID, false);
           item.Selected = (network.flags & Wlan.WlanAvailableNetworkFlags.Connected) == Wlan.WlanAvailableNetworkFlags.Connected;
-          item.AdditionalProperties["SignalStrength"] = (float)network.wlanSignalQuality / 100.0f;
+          item.AdditionalProperties["SignalStrength"] = network.wlanSignalQuality / 100.0f;
           item.AdditionalProperties["Secure"] = network.securityEnabled;
           item.AdditionalProperties["HasProfile"] = (network.flags & Wlan.WlanAvailableNetworkFlags.HasProfile) == Wlan.WlanAvailableNetworkFlags.HasProfile;
           item.AdditionalProperties["Network"] = network;

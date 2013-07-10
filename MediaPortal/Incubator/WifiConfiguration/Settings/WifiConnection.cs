@@ -28,19 +28,18 @@ namespace MediaPortal.UiComponents.WifiConfiguration.Settings
 {
   public class WifiConnection : CustomConfigSetting
   {
-	  public WifiConnection()
-		  : base()
-	  {
+    public WifiConnection()
+    {
       try
       {
         // only show the config entry when the system has Wlan NICs
-        base.Visible = NativeWifi.WlanClient.Instance.Interfaces.Length > 0;
+        Visible = NativeWifi.WlanClient.Instance.Interfaces.Length > 0;
       }
-      catch 
+      catch
       {
         // any error means system has no Wlan NICs or disabled services
-        base.Visible = false;
+        Visible = false;
       }
-	  }
+    }
   }
 }

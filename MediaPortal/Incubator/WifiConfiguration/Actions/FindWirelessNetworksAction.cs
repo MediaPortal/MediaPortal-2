@@ -83,7 +83,7 @@ namespace MediaPortal.UiComponents.WifiConfiguration.Actions
       {
         foreach (var nic in WlanClient.Instance.Interfaces)
         {
-          nic.WlanNotification += new WlanClient.WlanInterface.WlanNotificationEventHandler(OnWlanNotification);
+          nic.WlanNotification += OnWlanNotification;
           _scanningNICs.Add(nic.InterfaceGuid, nic);
           nic.Scan();
         }
@@ -96,7 +96,7 @@ namespace MediaPortal.UiComponents.WifiConfiguration.Actions
     {
       if (notifyData.notificationSource == Wlan.WlanNotificationSource.ACM)
       {
-        if (_scanningNICs.Count > 0 && (notifyData.notificationCode == (int)NativeWifi.Wlan.WlanNotificationCodeAcm.ScanComplete || notifyData.notificationCode == (int)NativeWifi.Wlan.WlanNotificationCodeAcm.ScanFail))
+        if (_scanningNICs.Count > 0 && (notifyData.notificationCode == (int)Wlan.WlanNotificationCodeAcm.ScanComplete || notifyData.notificationCode == (int)Wlan.WlanNotificationCodeAcm.ScanFail))
         {
           _scanningNICs[notifyData.interfaceGuid].WlanNotification -= OnWlanNotification;
           _scanningNICs.Remove(notifyData.interfaceGuid);

@@ -15,7 +15,7 @@
         <Path x:Name="selectedCheckMark" Width="26" Height="26" Stretch="None" IsVisible="{Binding Selected}"
                 Stroke="{ThemeResource ControlHandleColor}" StrokeThickness="1" Data="M8,13 L11,18 L18,6"/>
       </Grid>
-      
+
       <StackPanel DockPanel.Dock="Right" Orientation="Horizontal">
 
         <Path x:Name="signalBars" Width="25" Height="25" Stretch="None"
