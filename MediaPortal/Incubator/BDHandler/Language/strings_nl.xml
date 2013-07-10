@@ -1,5 +1,0 @@
-<?xml version='1.0' encoding='UTF-8'?>
-<resources>
-  <string name="Settings.Players.Codecs.VideoCodecs.BDSourceFilter">Blu-ray bronfilter</string>
-  <string name="Settings.Players.Codecs.VideoCodecs.BDSourceFilter.Help">Stel het bronfilter in dat gebruikt wordt voor het afspelen van Blu-ray. Momenteel worden alleen Gabest en LAV Splitter ondersteund.</string>
-</resources>

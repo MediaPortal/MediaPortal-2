@@ -3,9 +3,6 @@
   <string name="Settings.Appearance.System">מערכת</string>
   <string name="Settings.Appearance.System.Fullscreen">מסך מלא</string>
   <string name="Settings.Appearance.System.Fullscreen.Help">הצג את מדיה פורטל במסך מלא</string>
-  <string name="Settings.Appearance.System.StartupScreen">מסך איתחול</string>
-  <string name="Settings.Appearance.System.StartupScreen.Help">בחר מסך איתחול</string>
-  <string name="Settings.Appearance.System.StartupScreen.DoNotUseSelection">אל תשתמש בבחירת מסכים</string>
   <string name="Settings.Appearance.System.CellPhoneInputStyle">סגנון הקלדה - פלאפון</string>
   <string name="Settings.Appearance.System.CellPhoneInputStyle.Help">השתמש בסגנון הקלדה של פלאפון/SMS</string>
   <string name="Settings.Appearance.System.ScreenSaverEnabled">אפשר שומר מסך</string>

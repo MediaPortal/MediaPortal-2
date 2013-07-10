@@ -1,8 +1,0 @@
-<?xml version='1.0' encoding='UTF-8'?>
-<resources>
-  <string name="Settings.Players.Image">Bildeavspiller</string>
-  <string name="Settings.Players.Image.SlideShowImageDuration">Lysbildefremvisningstid</string>
-  <string name="Settings.Players.Image.SlideShowImageDuration.Help">Stille inn tiden i sekunder for hvor lenge hvert bilde skal vises i lysbildefremvisningen</string>
-  <string name="Settings.Players.Image.KenBurnsEffect">Bruke Ken Burns-effekt</string>
-  <string name="Settings.Players.Image.KenBurnsEffect.Help">Bruke panorering og zoom-animering ved visning av bilde</string>
-</resources>

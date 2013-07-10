@@ -1,9 +1,0 @@
-<?xml version='1.0' encoding='UTF-8'?>
-<resources>
-  <string name="SkinHelper.ThemeColorsWorkflowNavigationContextDisplayLabel">Warna tema</string>
-  <string name="SkinHelper.MenuShowThemeColors">Tampilkan warna tema</string>
-  <string name="SkinHelper.ShowThemeColorsTitle">Warna tema</string>
-  <string name="SkinHelper.ShowThemeColorsText">Layar ini menampilkan semua koleksi warna yang ada di tema sekarang (dan turunannya)</string>
-  <string name="SkinHelper.LoadSkinTitle">Muat skin</string>
-  <string name="SkinHelper.LoadThemeTitle">Muat tema</string>
-</resources>

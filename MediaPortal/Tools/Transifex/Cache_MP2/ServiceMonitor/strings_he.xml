@@ -1,19 +1,5 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
   <string name="ServerStatus.NotStarted">שרת לא התחיל</string>
-  <string name="ServerStatus.Attached">מחובר לשרת</string>
-  <string name="ServerStatus.Connected">מחובר לשרת</string>
-  <string name="ServerStatus.Detached">מנותק מהשרת</string>
-  <string name="ServerStatus.Disconnected">מנותק מהשרת</string>
-  <string name="ServerStatus.ClientConnected">לקוח(ות) מחוברים לשרת</string>
-  <string name="MainWindow.ServerStatus">מצב השרת</string>
-  <string name="MainWindow.AttachedClients">לקוחות מחוברים:</string>
-  <string name="ContextMenu.ShowWin">הצג חלון</string>
-  <string name="ContextMenu.HideWin">הסתר חלון</string>
-  <string name="ContextMenu.StartService">התחל תהליך</string>
-  <string name="ContextMenu.StopService">סגור תהליך</string>
-  <string name="ContextMenu.EnableAutostart">אפשר הפעלה אוטומטית</string>
-  <string name="ContextMenu.DisableAutostart">בטל הפעלה אוטומטית</string>
   <string name="ContextMenu.Exit">יציאה</string>
-  <string name="SysTrayToolTip.Info">לחצן ימני לאפשרויות נוספות</string>
 </resources>

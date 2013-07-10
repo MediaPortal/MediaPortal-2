@@ -1,5 +1,0 @@
-<?xml version='1.0' encoding='UTF-8'?>
-<resources>
-  <string name="Settings.Players.Codecs.VideoCodecs.BDSourceFilter">Bluray forrás szűrő</string>
-  <string name="Settings.Players.Codecs.VideoCodecs.BDSourceFilter.Help">A Bluray lejátszáshoz tartozó forrás szűrő beállítása. Jelenleg csak a Gabest és a LAV Splitter forrás a támogatott.</string>
-</resources>

@@ -1,8 +1,0 @@
-<?xml version='1.0' encoding='UTF-8'?>
-<resources>
-  <string name="Settings.ServerSettings">Nastavanie servera</string>
-  <string name="Settings.ServerSettings.ServerDOKANDrive">Jednotka na pripájanie obsahu</string>
-  <string name="Settings.ServerSettings.UsernamePasswordGroup">Meno a heslo</string>
-  <string name="Settings.ServerSettings.Username">Meno:</string>
-  <string name="Settings.ServerSettings.Password">Heslo:</string>
-</resources>

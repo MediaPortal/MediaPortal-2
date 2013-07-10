@@ -1,5 +1,0 @@
-<?xml version='1.0' encoding='UTF-8'?>
-<resources>
-  <string name="IsoResourceProvider.Name">ISO -tiedoston resurssien tarjoaja</string>
-  <string name="IsoResourceProvider.Description">Avaa tiedostoja ja hakemistoja ISO -tiedostoista</string>
-</resources>

@@ -1,9 +1,0 @@
-<?xml version='1.0' encoding='UTF-8'?>
-<resources>
-  <!--FIXME: Move those language resources to Manager application (or to a support plugin)-->
-  <string name="configuration.save_on_exit">Ønsker du at gemme ændringerne før du lukker?</string>
-  <string name="configuration.unsaved_warning">Advarsel: Ændringer ikke gemt</string>
-  <string name="configuration.browse">Gennemse</string>
-  <string name="configuration.areas.settings">Indstillinger</string>
-  <string name="configuration.areas.logs">log filer</string>
-</resources>

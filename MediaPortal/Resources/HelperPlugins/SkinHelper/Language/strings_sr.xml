@@ -1,9 +1,0 @@
-<?xml version='1.0' encoding='UTF-8'?>
-<resources>
-  <string name="SkinHelper.ThemeColorsWorkflowNavigationContextDisplayLabel">Теме боја</string>
-  <string name="SkinHelper.MenuShowThemeColors">Прикажи теме боја</string>
-  <string name="SkinHelper.ShowThemeColorsTitle">Теме боја</string>
-  <string name="SkinHelper.ShowThemeColorsText">На екрану се приказују све боје у текућој теми</string>
-  <string name="SkinHelper.LoadSkinTitle">Учитај изглед</string>
-  <string name="SkinHelper.LoadThemeTitle">Учитај тему</string>
-</resources>

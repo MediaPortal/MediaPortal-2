@@ -40,7 +40,6 @@
   <string name="ServerConnection.DetachFromServerWorkflowStateLabel">Odpojiť sa od serveru</string>
   <string name="ServerConnection.HomeServerWorkflowStateLabel">Domáci server</string>
   <string name="ServerConnection.AttachedText.Before">MediaPortal 2 klient je pripojený k domácemu serveru</string>
-  <string name="ServerConnection.AttachedText.After"></string>
   <string name="ServerConnection.NoHomeServerAttached">MediaPortal 2 klient nie je pripojený k domácemu serveru.</string>
   <string name="ServerConnection.HomeServerIsConnected">Domáci server je pripojený.</string>
   <string name="ServerConnection.HomeServerIsNotConnected">Domáci server je odpojený.</string>
@@ -109,8 +108,6 @@
   <string name="Settings.General.System">Systém</string>
   <string name="Settings.General.System.Autostart">Autoštart</string>
   <string name="Settings.General.System.Autostart.Help">Spustiť MediaPortal automaticky po štarte Windows</string>
-  <string name="Settings.General.System.ClientDOKANDrive">Jednotka na pripájanie obsahu</string>
-  <string name="Settings.General.System.ClientDOKANDrive.Help">Nastavenie písmena jednotky, kam sa pripojí (\'mount\') vzdialený obsah.</string>
   <string name="Settings.General.Connectivity">Konektivita</string>
   <string name="Settings.General.Connectivity.HomeServer">Domáci server</string>
   <string name="Settings.General.Connectivity.HomeServer.Help">Domáci server. Informácie, pripojenie a odpojenie sa od servera.</string>

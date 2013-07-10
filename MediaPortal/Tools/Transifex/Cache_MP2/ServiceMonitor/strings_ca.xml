@@ -1,19 +1,5 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
   <string name="ServerStatus.NotStarted">No s\'ha iniciat el servidor</string>
-  <string name="ServerStatus.Attached">Unit al servidor</string>
-  <string name="ServerStatus.Connected">Connectat al servidor</string>
-  <string name="ServerStatus.Detached">Finalitzada la unió al servidor</string>
-  <string name="ServerStatus.Disconnected">Desconnectat del servidor</string>
-  <string name="ServerStatus.ClientConnected">Client(s) connectat(s) al servidor</string>
-  <string name="MainWindow.ServerStatus">Estat del servidor</string>
-  <string name="MainWindow.AttachedClients">Clients units:</string>
-  <string name="ContextMenu.ShowWin">Mostrar finestra</string>
-  <string name="ContextMenu.HideWin">Ocultar finestra</string>
-  <string name="ContextMenu.StartService">Iniciar servei</string>
-  <string name="ContextMenu.StopService">Parar servei</string>
-  <string name="ContextMenu.EnableAutostart">Habilitar inici automàtic</string>
-  <string name="ContextMenu.DisableAutostart">Deshabilitar inici automàtic</string>
   <string name="ContextMenu.Exit">Surt</string>
-  <string name="SysTrayToolTip.Info">Clic dret per a més opcions</string>
 </resources>

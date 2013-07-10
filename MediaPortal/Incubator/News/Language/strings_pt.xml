@@ -1,7 +1,0 @@
-<?xml version='1.0' encoding='UTF-8'?>
-<resources>
-  <string name="News.Title">Notícias</string>
-  <string name="News.FeedsStateDisplayLabel">Notícias</string>
-  <string name="News.Published">Publicado</string>
-  <string name="Settings.Plugins.News">Notícias</string>
-</resources>

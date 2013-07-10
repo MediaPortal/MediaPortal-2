@@ -14,8 +14,6 @@
   <string name="Media.FilterByAudioGenreMenuItem">Filtruoti pagal žanrą</string>
   <string name="Media.FilterByDecadeMenuItem">Filtruoti pagal dekadą</string>
   <string name="Media.FilterByActorMenuItem">Filtruoti pagal aktorių</string>
-  <string name="Media.FilterByDirectorMenuItem">Filtruoti pagal režisierių</string>
-  <string name="Media.FilterByWriterMenuItem">Filtruoti pagal rašytoją</string>
   <string name="Media.FilterByVideoGenreMenuItem">Filtruoti pagal žanrą</string>
   <string name="Media.FilterByVideoYearMenuItem">Filtruoti pagal metus</string>
   <string name="Media.FilterByAudioLanguageMenuItem">Rūšiuoti pagal kalbą</string>
@@ -51,8 +49,6 @@
   <string name="Media.FilterAudioGenreNavbarDisplayLabel">Žanras: {0}</string>
   <string name="Media.FilterDecadeNavbarDisplayLabel">Dekada: {0}</string>
   <string name="Media.FilterActorNavbarDisplayLabel">Aktorius: {0}</string>
-  <string name="Media.FilterDirectorNavbarDisplayLabel">Režisierius: {0}</string>
-  <string name="Media.FilterWriterNavbarDisplayLabel">Rašytojas: {0}</string>
   <string name="Media.FilterVideoGenreNavbarDisplayLabel">Žanras: {0}</string>
   <string name="Media.FilterVideoYearNavbarDisplayLabel">Metai: {0}</string>
   <string name="Media.FilterAudioLanguagesNavbarDisplayLabel">Kalba: {0}</string>
@@ -105,8 +101,6 @@
   <string name="Media.SimpleSearchHeader">Paprasta paieška</string>
   <string name="Media.ChooseCollectionHeader">Pasirinkti kolekciją</string>
   <string name="Media.ChooseActorHeader">Pasirinkti aktorių</string>
-  <string name="Media.ChooseDirectorHeader">Pasirinkti režisierių</string>
-  <string name="Media.ChooseWriterHeader">Pasirinkti rašytoją</string>
   <string name="Media.ChooseVideoGenreHeader">Pasirinkti žanrą</string>
   <string name="Media.ChooseVideoYearHeader">Pasirinkti metus</string>
   <string name="Media.ChooseSeriesHeader">Pasirinkti serijas</string>
@@ -302,10 +296,8 @@
   <string name="Media.SortBySystem">Rūšiuoti pagal sistemą</string>
   <string name="Media.SortByActor">Rūšiuoti pagal aktorių</string>
   <string name="Media.SortByDirector">Rūšiuoti pagal režisierių</string>
-  <string name="Media.SortByWriter">Rūšiuoti pagal rašytoją</string>
   <string name="Media.SortByDuration">Rūšiuoti pagal trukmę</string>
   <string name="Media.SortByAspectRatio">Rūšiuoti pagal kraštinių santykį</string>
-  <string name="Media.SortByFirstAiredDate">Rūšiuoti pagal išleidimo datą</string>
   <string name="Media.SortByDate">Rūšiuoti pagal įrašo datą</string>
   <string name="Media.SortByEpisode">Rūšiuoti pagal epizodą</string>
   <string name="Media.SortingBrowseDefault">Numatytas rūšiavimas</string>

@@ -40,7 +40,6 @@
   <string name="ServerConnection.DetachFromServerWorkflowStateLabel">Déconnexion du serveur</string>
   <string name="ServerConnection.HomeServerWorkflowStateLabel">Serveur local</string>
   <string name="ServerConnection.AttachedText.Before">Ce client MediaPortal 2 est connecté au serveur local</string>
-  <string name="ServerConnection.AttachedText.After"></string>
   <string name="ServerConnection.NoHomeServerAttached">Ce client MediaPortal 2 est déconnecté du serveur local</string>
   <string name="ServerConnection.HomeServerIsConnected">Le serveur local est ouvert</string>
   <string name="ServerConnection.HomeServerIsNotConnected">Le serveur local est fermé</string>
@@ -109,8 +108,6 @@
   <string name="Settings.General.System">Système</string>
   <string name="Settings.General.System.Autostart">Démarrage automatique</string>
   <string name="Settings.General.System.Autostart.Help">Démarrer MediaPortal automatiquement après le lancement de Windows</string>
-  <string name="Settings.General.System.ClientDOKANDrive">Lettre du lecteur permettant de monter des ressources</string>
-  <string name="Settings.General.System.ClientDOKANDrive.Help">Configurez la lettre du lecteur afin de permettre de monter des ressources distantes sur ce client.</string>
   <string name="Settings.General.Connectivity">Connectivité</string>
   <string name="Settings.General.Connectivity.HomeServer">Serveur local</string>
   <string name="Settings.General.Connectivity.HomeServer.Help">Connexion, déconnexion, informations concernant le serveur local</string>

@@ -3,9 +3,6 @@
   <string name="Settings.Appearance.System">Sistema</string>
   <string name="Settings.Appearance.System.Fullscreen">Pantalla completa</string>
   <string name="Settings.Appearance.System.Fullscreen.Help">Mostra el MediaPortal a pantalla completa</string>
-  <string name="Settings.Appearance.System.StartupScreen">Pantalla d\'inici</string>
-  <string name="Settings.Appearance.System.StartupScreen.Help">Selecciona la pantalla d\'inici</string>
-  <string name="Settings.Appearance.System.StartupScreen.DoNotUseSelection">No fer servir la selecció de pantalla</string>
   <string name="Settings.Appearance.System.CellPhoneInputStyle">Entrada estil mòbil</string>
   <string name="Settings.Appearance.System.CellPhoneInputStyle.Help">Utilitza l\'estil mòbil/SMS</string>
   <string name="Settings.Appearance.System.ScreenSaverEnabled">Activa l\'estalvi de pantalla</string>

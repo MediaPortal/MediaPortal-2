@@ -1,5 +1,0 @@
-<?xml version='1.0' encoding='UTF-8'?>
-<resources>
-  <string name="Settings.Players.Codecs.VideoCodecs.BDSourceFilter">Filtr zdroje Bluray</string>
-  <string name="Settings.Players.Codecs.VideoCodecs.BDSourceFilter.Help">Nastavte filtr zdroje pro přehrávání BluRay. Aktuálně jsou podporovány pouze zdroje Gabest a LAV Splitter.</string>
-</resources>

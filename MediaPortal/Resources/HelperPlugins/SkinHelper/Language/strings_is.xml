@@ -1,9 +1,0 @@
-<?xml version='1.0' encoding='UTF-8'?>
-<resources>
-  <string name="SkinHelper.ThemeColorsWorkflowNavigationContextDisplayLabel">Þemalitir</string>
-  <string name="SkinHelper.MenuShowThemeColors">Sýnið þemaliti</string>
-  <string name="SkinHelper.ShowThemeColorsTitle">Þemalitir</string>
-  <string name="SkinHelper.ShowThemeColorsText">Þessi skjámynd sýnir alla liti sem eru skilgreindir fyrir núverandi þema (og erfðir)</string>
-  <string name="SkinHelper.LoadSkinTitle">Hleð inn útlit</string>
-  <string name="SkinHelper.LoadThemeTitle">Hleð þema</string>
-</resources>

@@ -1,5 +1,0 @@
-<?xml version='1.0' encoding='UTF-8'?>
-<resources>
-  <string name="Settings.Plugins.TV">TV</string>
-  <string name="Settings.Plugins.TV.ConnectionErrorTitle">Greška s vezom</string>
-</resources>

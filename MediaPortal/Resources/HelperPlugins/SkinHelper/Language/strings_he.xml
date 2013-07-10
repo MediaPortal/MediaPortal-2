@@ -1,9 +1,0 @@
-<?xml version='1.0' encoding='UTF-8'?>
-<resources>
-  <string name="SkinHelper.ThemeColorsWorkflowNavigationContextDisplayLabel">צבעי נושא</string>
-  <string name="SkinHelper.MenuShowThemeColors">הצג צבעי נושא</string>
-  <string name="SkinHelper.ShowThemeColorsTitle">צבעי נושא</string>
-  <string name="SkinHelper.ShowThemeColorsText">מסך זה מציג את כל מקורות הצבע המוגדרים עבור ערכת הנושא הנוכחית (ומקורות שערכת הנושא ירשה)</string>
-  <string name="SkinHelper.LoadSkinTitle">טען סקין</string>
-  <string name="SkinHelper.LoadThemeTitle">טען ערכת נושא</string>
-</resources>

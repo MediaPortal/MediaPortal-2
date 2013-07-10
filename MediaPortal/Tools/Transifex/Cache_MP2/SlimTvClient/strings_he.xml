@@ -1,6 +1,5 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
-  <string name="SlimTvClient.Title">קליינט טלויזיה קל</string>
   <string name="SlimTvClient.CurrentlyPlayingInformationHeader">מידע אודות התוכנית</string>
   <string name="SlimTvClient.ChannelLabel">ערוץ</string>
   <string name="SlimTvClient.ProgramLabel">תוכנית</string>
@@ -17,13 +16,5 @@
   <string name="SlimTvClient.RecordNow">הקלט כעת</string>
   <string name="SlimTvClient.DeleteSchedule">מחק תזמונים</string>
   <string name="SlimTvClient.CreateSchedule">תזמן הקלטה</string>
-  <string name="SlimTvClient.ErrorNoTvProvider">אין ספק טלויזיה פנוי (בינתיים)</string>
-  <string name="SlimTvClient.RecordingsMenuItem">הקלטות</string>
-  <string name="SlimTvClient.RecordingsRootViewName">הקלטות מטלויזיה</string>
-  <string name="SlimTvClient.ChannelMenuItemLabel">סנן לפי ערוץ</string>
-  <string name="SlimTvClient.ChannelNavBarItemLabel">ערוץ: {0}</string>
-  <string name="SlimTvClient.RecordingsByChannelHeader">הקלטה לפי ערוץ</string>
-  <string name="SlimTvClient.NameFilterMenuItemLabel">סנן לפי שם</string>
   <string name="SlimTvClient.NameFilterNavBarItemLabel">{0}</string>
-  <string name="SlimTvClient.RecordingsByNameHeader">הקלטות לפי שם</string>
 </resources>

@@ -40,7 +40,6 @@
   <string name="ServerConnection.DetachFromServerWorkflowStateLabel">Atjungti nuo serverio</string>
   <string name="ServerConnection.HomeServerWorkflowStateLabel">Pagrindinis serveris</string>
   <string name="ServerConnection.AttachedText.Before">MediaPortal 2 klientas yra prijungtas prie pagrindinio serverio</string>
-  <string name="ServerConnection.AttachedText.After"></string>
   <string name="ServerConnection.NoHomeServerAttached">Šis MediaPortal 2 klientas dabar nėra prijungtas prie pagrindinio serverio.</string>
   <string name="ServerConnection.HomeServerIsConnected">Pagrindinis serveris yra prijungtas.</string>
   <string name="ServerConnection.HomeServerIsNotConnected">Pagrindinis serveris atjungtas.</string>
@@ -109,8 +108,6 @@
   <string name="Settings.General.System">Sistema</string>
   <string name="Settings.General.System.Autostart">Autopaleidimas</string>
   <string name="Settings.General.System.Autostart.Help">Paleisti MediaPortal automatiškai startuojant Windows</string>
-  <string name="Settings.General.System.ClientDOKANDrive">Prijungiamo resurso disko raidė</string>
-  <string name="Settings.General.System.ClientDOKANDrive.Help">Konfiguruoja disko raidę prijungiamam nuotoliniam resursui šiame kliente.</string>
   <string name="Settings.General.Connectivity">Jungiamumas</string>
   <string name="Settings.General.Connectivity.HomeServer">Pagrindinis serveris</string>
   <string name="Settings.General.Connectivity.HomeServer.Help">Pagrindinio serverio informacija, prijungti ir atjungti pastarąjį</string>

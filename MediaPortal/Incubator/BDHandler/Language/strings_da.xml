@@ -1,5 +1,0 @@
-<?xml version='1.0' encoding='UTF-8'?>
-<resources>
-  <string name="Settings.Players.Codecs.VideoCodecs.BDSourceFilter">Bluray Kilde Filter</string>
-  <string name="Settings.Players.Codecs.VideoCodecs.BDSourceFilter.Help">Angiv Kilde filteret til brug for BluRay afspilning. P.t. er kun Gabest og LAV Splitter Kiler understøttet.</string>
-</resources>

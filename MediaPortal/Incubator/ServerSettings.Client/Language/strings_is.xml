@@ -1,8 +1,0 @@
-<?xml version='1.0' encoding='UTF-8'?>
-<resources>
-  <string name="Settings.ServerSettings">Uppsetning miðlara</string>
-  <string name="Settings.ServerSettings.UseCredentials">Nota notenda og aðgangsorð til að tengjast neti</string>
-  <string name="Settings.ServerSettings.UsernamePasswordGroup">Notandi og aðgangsorð</string>
-  <string name="Settings.ServerSettings.Username">Notandi:</string>
-  <string name="Settings.ServerSettings.Password">Aðgangsorð:</string>
-</resources>

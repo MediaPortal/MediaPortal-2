@@ -1,9 +1,0 @@
-<?xml version='1.0' encoding='UTF-8'?>
-<resources>
-  <string name="SkinHelper.ThemeColorsWorkflowNavigationContextDisplayLabel">Colors del tema</string>
-  <string name="SkinHelper.MenuShowThemeColors">Mostra els colors del tema</string>
-  <string name="SkinHelper.ShowThemeColorsTitle">Colors del tema</string>
-  <string name="SkinHelper.ShowThemeColorsText">Les fonts de color definides al tema actual és mostren a la pantalla (així com les fonts heretades)</string>
-  <string name="SkinHelper.LoadSkinTitle">Carrega pells</string>
-  <string name="SkinHelper.LoadThemeTitle">Carrega temes</string>
-</resources>

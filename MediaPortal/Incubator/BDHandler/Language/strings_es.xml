@@ -1,5 +1,0 @@
-<?xml version='1.0' encoding='UTF-8'?>
-<resources>
-  <string name="Settings.Players.Codecs.VideoCodecs.BDSourceFilter">Filtro Principal Bluray</string>
-  <string name="Settings.Players.Codecs.VideoCodecs.BDSourceFilter.Help">Configurar el Filtro Principal para el reproductor Bluray. Actualmente sólo son soportados los Filtros Gabest y LAV.</string>
-</resources>

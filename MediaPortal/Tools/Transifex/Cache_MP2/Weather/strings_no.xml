@@ -83,7 +83,4 @@
   <string name="WeatherSetup.SearchCity">Søk etter by</string>
   <string name="WeatherSetup.AddCity">Legg til by</string>
   <string name="WeatherSetup.RemoveCity">Fjern by</string>
-  <string name="WeatherSetup.Detect">Gjenkjenn</string>
-  <string name="WeatherSetup.DetectionFailed">Gjennkjenning feilet</string>
-  <string name="WeatherSetup.DetectionFailedMessage">Klarte ikke å gjenkjenne din plassering automatisk</string>
 </resources>

@@ -15,5 +15,5 @@
   <string name="ContextMenu.EnableAutostart">Aktiviere Autostart</string>
   <string name="ContextMenu.DisableAutostart">Deaktiviere Autostart</string>
   <string name="ContextMenu.Exit">Beenden</string>
-  <string name="SysTrayToolTip.Info">Rechtsklick für weitere Optionen</string>
+  <string name="SysTrayToolTip.Info">Rechtklick für weitere Optionen</string>
 </resources>

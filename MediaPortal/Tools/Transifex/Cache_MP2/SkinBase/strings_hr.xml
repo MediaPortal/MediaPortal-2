@@ -5,7 +5,7 @@
   <string name="System.Done">Završeno</string>
   <string name="System.Finish">Završi</string>
   <string name="System.Ok">U redu</string>
-  <string name="System.Cancel">Odustani</string>
+  <string name="System.Cancel">Otkaži</string>
   <string name="System.Discard">Odbaci</string>
   <string name="System.Back">Natrag</string>
   <string name="System.Continue">Nastavi</string>
@@ -24,10 +24,9 @@
   <string name="Dialogs.WarningHeaderText">Upozorenje</string>
   <string name="Dialogs.ErrorHeaderText">Greška</string>
   <string name="Media.MyMusic">Glazba</string>
-  <string name="Media.MyVideos">Video</string>
+  <string name="Media.MyVideos">Video sadržaj</string>
   <string name="Media.MyPictures">Slike</string>
   <!--{0} = server name, {1} = host name-->
-  <string name="ServerConnection.AttachedText.After"></string>
   <!--{0} = server name, {1} = host name-->
   <string name="ScreenSaver.MediaPortal2">MediaPortal 2</string>
   <!--For MP UI player subsystem-->

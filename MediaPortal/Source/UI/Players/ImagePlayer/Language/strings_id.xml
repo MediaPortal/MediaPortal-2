@@ -1,8 +1,0 @@
-<?xml version='1.0' encoding='UTF-8'?>
-<resources>
-  <string name="Settings.Players.Image">Pemutar Gambar</string>
-  <string name="Settings.Players.Image.SlideShowImageDuration">Durasi Slideshow Gambar</string>
-  <string name="Settings.Players.Image.SlideShowImageDuration.Help">Setel durasi dalam detik berapa lama setiap gambar muncul dalam modus slideshow</string>
-  <string name="Settings.Players.Image.KenBurnsEffect">Gunakan efek Ken Burns</string>
-  <string name="Settings.Players.Image.KenBurnsEffect.Help">Gunakan animasi pan dan zoom saat menampilkan gambar</string>
-</resources>

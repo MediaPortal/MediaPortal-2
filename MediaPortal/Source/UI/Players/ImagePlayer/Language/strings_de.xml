@@ -1,8 +1,0 @@
-<?xml version='1.0' encoding='UTF-8'?>
-<resources>
-  <string name="Settings.Players.Image">Bild-Datei Wiedergabe</string>
-  <string name="Settings.Players.Image.SlideShowImageDuration">Anzeigedauer</string>
-  <string name="Settings.Players.Image.SlideShowImageDuration.Help">Legt die Anzeigedauer in Sekunden während einer Diashow fest.</string>
-  <string name="Settings.Players.Image.KenBurnsEffect">Den Ken-Burns-Effekt verwenden</string>
-  <string name="Settings.Players.Image.KenBurnsEffect.Help">Nutzt Schwenk- und Vergrößerungsanimationen während einer Diashow.</string>
-</resources>

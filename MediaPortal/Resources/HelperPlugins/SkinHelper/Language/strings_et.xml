@@ -1,9 +1,0 @@
-<?xml version='1.0' encoding='UTF-8'?>
-<resources>
-  <string name="SkinHelper.ThemeColorsWorkflowNavigationContextDisplayLabel">Teema värvid</string>
-  <string name="SkinHelper.MenuShowThemeColors">Näita teema värve</string>
-  <string name="SkinHelper.ShowThemeColorsTitle">Teema värvid</string>
-  <string name="SkinHelper.ShowThemeColorsText">Sellel ekraanil näeb teema värviallikaid (ja seotud ressursse)</string>
-  <string name="SkinHelper.LoadSkinTitle">Lae skin</string>
-  <string name="SkinHelper.LoadThemeTitle">Lae teema</string>
-</resources>

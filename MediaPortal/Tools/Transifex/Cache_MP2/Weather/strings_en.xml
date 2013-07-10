@@ -85,8 +85,4 @@
   <string name="WeatherSetup.SearchCity">Search city</string>
   <string name="WeatherSetup.AddCity">Add city</string>
   <string name="WeatherSetup.RemoveCity">Remove city</string>
-  <string name="WeatherSetup.Detect">Detect</string>
-
-  <string name="WeatherSetup.DetectionFailed">Detection Failed</string>
-  <string name="WeatherSetup.DetectionFailedMessage">Failed to automatically detect your location.</string>
 </resources>

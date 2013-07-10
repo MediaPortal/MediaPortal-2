@@ -1,5 +1,0 @@
-<?xml version='1.0' encoding='UTF-8'?>
-<resources>
-  <string name="Settings.Players.Codecs.VideoCodecs.BDSourceFilter">Myndþýðing á BluRay</string>
-  <string name="Settings.Players.Codecs.VideoCodecs.BDSourceFilter.Help">Settu myndþýðingu fyrir BluRay afspilun.  Í augnablikinu eru bara Gabest og LAV myndþýðingar studdar.</string>
-</resources>

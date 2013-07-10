@@ -83,7 +83,4 @@
   <string name="WeatherSetup.SearchCity">Sök plats</string>
   <string name="WeatherSetup.AddCity">Lägg till plats</string>
   <string name="WeatherSetup.RemoveCity">Ta bort plats</string>
-  <string name="WeatherSetup.Detect">Hitta din ort</string>
-  <string name="WeatherSetup.DetectionFailed">Hittade inte din ort</string>
-  <string name="WeatherSetup.DetectionFailedMessage">Misslyckades med att automatiskt hitta din ort</string>
 </resources>

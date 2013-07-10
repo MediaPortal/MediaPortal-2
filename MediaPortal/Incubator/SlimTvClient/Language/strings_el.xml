@@ -1,5 +1,0 @@
-<?xml version='1.0' encoding='UTF-8'?>
-<resources>
-  <string name="SlimTvClient.GenreLabel">Είδος</string>
-  <string name="SlimTvClient.NameFilterNavBarItemLabel">{0}</string>
-</resources>

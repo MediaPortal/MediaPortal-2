@@ -1,8 +1,0 @@
-<?xml version='1.0' encoding='UTF-8'?>
-<resources>
-  <string name="Settings.Players.Image">נגן תמונות</string>
-  <string name="Settings.Players.Image.SlideShowImageDuration">משך זמן להצגת תמונה במצגת</string>
-  <string name="Settings.Players.Image.SlideShowImageDuration.Help">מגדיר את משך הזמן בשניות שבה תוצג תמונה במצב מצגת</string>
-  <string name="Settings.Players.Image.KenBurnsEffect">השתמש באפקט Ken Burns</string>
-  <string name="Settings.Players.Image.KenBurnsEffect.Help">השתמש בהנפשה מסוג Pan and Zoom בהצגת תמונה</string>
-</resources>

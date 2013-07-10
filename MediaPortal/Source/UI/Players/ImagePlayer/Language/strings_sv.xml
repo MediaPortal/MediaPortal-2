@@ -1,8 +1,0 @@
-<?xml version='1.0' encoding='UTF-8'?>
-<resources>
-  <string name="Settings.Players.Image">Bildspelare</string>
-  <string name="Settings.Players.Image.SlideShowImageDuration">Tid som en bild visas under bildspel</string>
-  <string name="Settings.Players.Image.SlideShowImageDuration.Help">Sätter tiden för hur länge varje bild ska visas under ett bildspel</string>
-  <string name="Settings.Players.Image.KenBurnsEffect">Använd \'Ken Burns\'-effekt</string>
-  <string name="Settings.Players.Image.KenBurnsEffect.Help">Använder panorerings- och zoomningsanimeringar när en bild visas.</string>
-</resources>

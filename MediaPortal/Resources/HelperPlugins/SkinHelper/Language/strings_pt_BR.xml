@@ -1,9 +1,0 @@
-<?xml version='1.0' encoding='UTF-8'?>
-<resources>
-  <string name="SkinHelper.ThemeColorsWorkflowNavigationContextDisplayLabel">Cores do tema</string>
-  <string name="SkinHelper.MenuShowThemeColors">Mostrar cores do tema</string>
-  <string name="SkinHelper.ShowThemeColorsTitle">Cores do tema</string>
-  <string name="SkinHelper.ShowThemeColorsText">Nesta tela são exibidas todas as variações de cores do tema definido atualmente (e de todos os recursos)</string>
-  <string name="SkinHelper.LoadSkinTitle">Carregar o template</string>
-  <string name="SkinHelper.LoadThemeTitle">Carrega o tema</string>
-</resources>
