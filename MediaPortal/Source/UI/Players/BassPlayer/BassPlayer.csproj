@@ -57,9 +57,8 @@
     <Reference Include="Bass.Net">
       <HintPath>..\..\..\..\Packages\BASS.NET.2.4.10.1\lib\net40\Bass.Net.dll</HintPath>
     </Reference>
-    <Reference Include="BassRegistration, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\..\Packages\BassRegistration.1.0.0.0\lib\net40\BassRegistration.dll</HintPath>
+    <Reference Include="BassRegistration">
+      <HintPath>..\..\..\..\Packages\BassRegistration.1.0.0.1\lib\net40\BassRegistration.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core">
