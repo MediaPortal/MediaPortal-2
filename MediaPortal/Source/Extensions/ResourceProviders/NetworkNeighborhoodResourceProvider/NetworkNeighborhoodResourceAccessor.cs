@@ -60,9 +60,8 @@ namespace MediaPortal.Extensions.ResourceProviders.NetworkNeighborhoodResourcePr
       _impersonationContext = ImpersonateUser(null);
 
       IResourceAccessor ra;
-      if (!LocalFsResourceProvider.Instance.TryCreateResourceAccessor("/" + path, out ra))
-        throw new IllegalCallException("Unable to access resource '{0}'", path);
-      _underlayingResource = (ILocalFsResourceAccessor) ra;
+      if (LocalFsResourceProvider.Instance.TryCreateResourceAccessor("/" + path, out ra))
+        _underlayingResource = (ILocalFsResourceAccessor) ra;
     }
 
     protected ICollection<IFileSystemResourceAccessor> WrapLocalFsResourceAccessors(ICollection<IFileSystemResourceAccessor> localFsResourceAccessors)
@@ -213,7 +212,7 @@ namespace MediaPortal.Extensions.ResourceProviders.NetworkNeighborhoodResourcePr
     public Stream OpenRead()
     {
       if (_underlayingResource == null)
-        throw new IllegalCallException("Path '{0} cannot be opened for reading", _path);
+        return null;
       using (ImpersonateUser(_impersonationContext))
         return _underlayingResource.OpenRead();
     }
@@ -221,7 +220,7 @@ namespace MediaPortal.Extensions.ResourceProviders.NetworkNeighborhoodResourcePr
     public Stream OpenWrite()
     {
       if (_underlayingResource == null)
-        throw new IllegalCallException("Path '{0} cannot be opened for reading", _path);
+        return null;
       using (ImpersonateUser(_impersonationContext))
         return _underlayingResource.OpenWrite();
     }
