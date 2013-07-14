@@ -87,24 +87,34 @@ namespace MediaPortal.Extensions.UserServices.FanArtService
       InitProviders();
       foreach (IFanArtProvider fanArtProvider in _providerList)
       {
-        IList<string> fanArtImages;
-        if (fanArtProvider.TryGetFanArt(mediaType, fanArtType, name, maxWidth, maxHeight, singleRandom, out fanArtImages))
+        IBinaryFanArtProvider binaryProvider = fanArtProvider as IBinaryFanArtProvider;
+        if (binaryProvider != null)
         {
-          IList<string> result = singleRandom ? GetSingleRandom(fanArtImages) : fanArtImages;
-          return result.Select(f => FanArtImage.FromFile(f, maxWidth, maxHeight)).Where(fanArtImage => fanArtImage != null).ToList();
+          IList<FanArtImage> fanArtImages;
+          if (binaryProvider.TryGetFanArt(mediaType, fanArtType, name, maxWidth, maxHeight, singleRandom, out fanArtImages))
+            return singleRandom ? GetSingleRandom(fanArtImages) : fanArtImages;
+        }
+        else
+        {
+          IList<string> fanArtImages;
+          if (fanArtProvider.TryGetFanArt(mediaType, fanArtType, name, maxWidth, maxHeight, singleRandom, out fanArtImages))
+          {
+            IList<string> result = singleRandom ? GetSingleRandom(fanArtImages) : fanArtImages;
+            return result.Select(f => FanArtImage.FromFile(f, maxWidth, maxHeight)).Where(fanArtImage => fanArtImage != null).ToList();
+          }
         }
       }
       return null;
     }
 
-    protected IList<string> GetSingleRandom(IList<string> fullList)
+    protected IList<TE> GetSingleRandom<TE>(IList<TE> fullList)
     {
       if (fullList.Count <= 1)
         return fullList;
 
       Random rnd = new Random(DateTime.Now.Millisecond);
       int rndIndex = rnd.Next(fullList.Count - 1);
-      return new List<string> { fullList[rndIndex] };
+      return new List<TE> { fullList[rndIndex] };
     }
   }
 }

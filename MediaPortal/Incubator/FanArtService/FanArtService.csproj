@@ -50,6 +50,7 @@
     <Compile Include="..\..\Source\Core\MediaPortal.Common\VersionInfo\VersionInfo.cs">
       <Link>Properties\VersionInfo.cs</Link>
     </Compile>
+    <Compile Include="AlbumThumbs.cs" />
     <Compile Include="FanArtService.cs" />
     <Compile Include="FanArtServicePlugin.cs" />
     <Compile Include="FanartAccessModule.cs" />
