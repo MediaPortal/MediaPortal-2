@@ -145,7 +145,8 @@ namespace MediaPortal.Common.MediaManagement.MLQueries
 
     public MediaItemQuery(IEnumerable<Guid> necessaryRequestedMIATypeIDs, IFilter filter)
     {
-      _necessaryRequestedMIATypeIDs = new HashSet<Guid>(necessaryRequestedMIATypeIDs);
+      SetNecessaryRequestedMIATypeIDs(necessaryRequestedMIATypeIDs);
+      SetOptionalRequestedMIATypeIDs(null);
       _filter = filter;
     }
 
