@@ -327,9 +327,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
 
       MediaItemAspect mediaAspect = MediaItemAspect.GetOrCreateAspect(extractedAspectData, MediaAspect.Metadata);
       MediaItemAspect audioAspect = MediaItemAspect.GetOrCreateAspect(extractedAspectData, AudioAspect.Metadata);
-      MediaItemAspect thumbnailSmallAspect = MediaItemAspect.GetOrCreateAspect(extractedAspectData, ThumbnailSmallAspect.Metadata);
-      MediaItemAspect thumbnailLargeAspect = MediaItemAspect.GetOrCreateAspect(extractedAspectData, ThumbnailLargeAspect.Metadata);
-      
+
       try
       {
         File tag;
@@ -409,7 +407,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
         IPicture[] pics = tag.Tag.Pictures;
         if (pics.Length > 0)
         {
-          thumbnailLargeAspect.SetAttribute(ThumbnailLargeAspect.ATTR_THUMBNAIL, pics[0].Data.Data);
+          MediaItemAspect.SetAttribute(extractedAspectData, ThumbnailLargeAspect.ATTR_THUMBNAIL, pics[0].Data.Data);
         }
         else
         {
@@ -422,9 +420,9 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
           byte[] thumbData;
           ImageType imageType;
           if (generator.GetThumbnail(fileName, 96, 96, cachedOnly, out thumbData, out imageType))
-            thumbnailSmallAspect.SetAttribute(ThumbnailSmallAspect.ATTR_THUMBNAIL, thumbData);
+            MediaItemAspect.SetAttribute(extractedAspectData, ThumbnailSmallAspect.ATTR_THUMBNAIL, thumbData);
           if (generator.GetThumbnail(fileName, 256, 256, cachedOnly, out thumbData, out imageType))
-            thumbnailLargeAspect.SetAttribute(ThumbnailLargeAspect.ATTR_THUMBNAIL, thumbData);
+            MediaItemAspect.SetAttribute(extractedAspectData, ThumbnailLargeAspect.ATTR_THUMBNAIL, thumbData);
         }
         return true;
       }
