@@ -11,7 +11,6 @@ namespace MediaPortal.Extensions.UserServices.FanArtService
 {
   class AlbumThumbs : IBinaryFanArtProvider
   {
-    private static readonly Guid[] OPTIONAL_MIAS = new Guid[] { };
     private static readonly Guid[] NECESSARY_MIAS = new Guid[]
       {
         AudioAspect.ASPECT_ID,
@@ -36,7 +35,7 @@ namespace MediaPortal.Extensions.UserServices.FanArtService
         return false;
 
       IFilter filter = new RelationalFilter(AudioAspect.ATTR_ALBUM, RelationalOperator.EQ, name);
-      MediaItemQuery query = new MediaItemQuery(NECESSARY_MIAS, OPTIONAL_MIAS, filter);
+      MediaItemQuery query = new MediaItemQuery(NECESSARY_MIAS, filter);
       var items = mediaLibrary.Search(query, false);
       result = new List<FanArtImage>();
       foreach (var mediaItem in items)
