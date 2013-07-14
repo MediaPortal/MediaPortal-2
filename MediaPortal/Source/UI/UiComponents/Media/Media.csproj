@@ -144,6 +144,7 @@
     <Compile Include="Models\NavigationModel\MoviesNavigation.cs" />
     <Compile Include="Models\NavigationModel\SeriesNavigation.cs" />
     <Compile Include="Models\NavigationModel\VideosNavigation.cs" />
+    <Compile Include="Models\Navigation\AlbumFilterItem.cs" />
     <Compile Include="Models\Navigation\SeasonFilterItem.cs" />
     <Compile Include="Models\Navigation\MovieFilterItem.cs" />
     <Compile Include="Models\Navigation\MovieItem.cs" />
