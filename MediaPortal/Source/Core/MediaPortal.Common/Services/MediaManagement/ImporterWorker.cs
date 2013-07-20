@@ -825,7 +825,7 @@ namespace MediaPortal.Common.Services.MediaManagement
       ICollection<Guid> metadataExtractorIds = GetMetadataExtractorIdsForMediaCategories(mediaCategories);
       ImportJob job = new ImportJob(ImportJobType.Refresh, path, metadataExtractorIds, includeSubDirectories);
       EnqueueImportJob(job);
-      ImporterWorkerMessaging.SendImportMessage(ImporterWorkerMessaging.MessageType.ImportScheduled, path, ImportJobType.Import);
+      ImporterWorkerMessaging.SendImportMessage(ImporterWorkerMessaging.MessageType.ImportScheduled, path, ImportJobType.Refresh);
     }
 
     #endregion

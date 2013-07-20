@@ -202,7 +202,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
             break;
 
           case ImporterWorkerMessaging.MessageType.RefreshLocalShares:
-            GetShares(null).Values.ToList().ForEach(TryScheduleLocalShareImport);
+            GetShares(null).Values.ToList().ForEach(TryScheduleLocalShareRefresh);
             break;
         }
       }
@@ -402,6 +402,14 @@ namespace MediaPortal.Backend.Services.MediaLibrary
     {
       using (IDbCommand command = MediaLibrary_SubSchema.DeleteShareCategoryCommand(transaction, shareId, mediaCategory))
         command.ExecuteNonQuery();
+    }
+
+    protected void TryScheduleLocalShareRefresh(Share share)
+    {
+      IImporterWorker importerWorker = ServiceRegistration.Get<IImporterWorker>();
+
+      if (share.SystemId == _localSystemId)
+        importerWorker.ScheduleRefresh(share.BaseResourcePath, share.MediaCategories, true);
     }
 
     protected void TryScheduleLocalShareImport(Share share)
