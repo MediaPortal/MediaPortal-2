@@ -142,7 +142,11 @@ namespace MediaPortal.Utilities.Network
                 if (pRsrc.dwDisplayType == displayType)
                   result.Add(pRsrc.lpRemoteName);
 
-                if ((pRsrc.dwUsage & ResourceUsage.Container) == ResourceUsage.Container)
+                // If the current NetworkResource is a container, we call EnumerateResources recursively.
+                // In some situations, the lpRemoteName in the NetworkResource is null or empty. In this case
+                // we do not call EnumerateResources recursively as this leads to an infinite loop of
+                // recursive calls. For details see Jira MP2-356
+                if ((pRsrc.dwUsage & ResourceUsage.Container) == ResourceUsage.Container && !String.IsNullOrEmpty(pRsrc.lpRemoteName))
                   result.AddRange(EnumerateResources(pRsrc, scope, type, usage, displayType));
               }
               else if (res != ErrorCodes.ErrorNoMoreItems)
