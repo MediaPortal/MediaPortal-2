@@ -285,8 +285,16 @@ namespace MediaPortal.Backend.Services.UserProfileDataManagement
         bool result;
         using (IDbCommand command = UserProfileDataManagement_SubSchema.DeleteUserMediaItemDataCommand(transaction, profileId, mediaItemId, key))
           command.ExecuteNonQuery();
-        using (IDbCommand command = UserProfileDataManagement_SubSchema.CreateUserMediaItemDataCommand(transaction, profileId, mediaItemId, key, data))
-          result = command.ExecuteNonQuery() > 0;
+
+        // Allow "delete only", if new data is null. This is used to delete no longer required data.
+        if (!string.IsNullOrEmpty(data))
+        {
+          using (IDbCommand command = UserProfileDataManagement_SubSchema.CreateUserMediaItemDataCommand(transaction, profileId, mediaItemId, key, data))
+            result = command.ExecuteNonQuery() > 0;
+        }
+        else
+          result = true;
+
         transaction.Commit();
         return result;
       }
