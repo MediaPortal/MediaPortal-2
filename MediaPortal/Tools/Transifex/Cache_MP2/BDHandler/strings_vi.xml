@@ -1,0 +1,5 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<resources>
+  <string name="Settings.Players.Codecs.VideoCodecs.BDSourceFilter">Bộ lọc nguồn Bluray</string>
+  <string name="Settings.Players.Codecs.VideoCodecs.BDSourceFilter.Help">Đặt bộ lọc nguồn sử dụng chế độ phát lại dành cho Bluray. Hiện chỉ có nguồn từ Gabest và LAV Splitter là được hỗ trợ.</string>
+</resources>

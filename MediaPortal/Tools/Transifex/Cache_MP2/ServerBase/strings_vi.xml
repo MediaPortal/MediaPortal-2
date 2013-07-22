@@ -1,0 +1,18 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<resources>
+  <string name="MainForm.Title">Ứng dụng MediaPortal 2 Server</string>
+  <string name="MainForm.AttachedClients">Các client đính kèm</string>
+  <string name="MainForm.Client">Client</string>
+  <string name="MainForm.System">Hệ thống</string>
+  <string name="MainForm.ConnectionState">Trạng thái kết nối</string>
+  <string name="MainForm.Connected">Đã kết nối</string>
+  <string name="MainForm.Disconnected">Đã ngắt kết nối</string>
+  <string name="UPnPBackendServer.DefaultFriendlyName">MediaPortal 2 server</string>
+  <string name="UPnPBackendServer.Manufacturer">Nhóm Mediaportal</string>
+  <string name="UPnPBackendServer.ManufacturerUrl">www.team-mediaportal.com</string>
+  <string name="UPnPBackendServer.ModelDescription">MediaPortal 2 server - chứa tập tin audio, video và image, và cung cấp cơ sở dữ liệu truyền thông đa phương tiện</string>
+  <string name="UPnPBackendServer.ModelName">MediaPortal 2 server</string>
+  <string name="UPnPBackendServer.ModelNumber">1</string>
+  <string name="UPnPBackendServer.ModelUrl">...</string>
+  <string name="MediaLibrary.EmptyOrMiscCharGroupName">&lt;Rỗng hoặc thiếu ký tự&gt;</string>
+</resources>

@@ -18,6 +18,8 @@
   <string name="Keys.Shift">Shift</string>
   <string name="Keys.CapsLock">Caps Lock</string>
   <string name="Keys.AltGr">Alt Gr</string>
+  <string name="Keys.Copy">Afrita</string>
+  <string name="Keys.Paste">Líma</string>
   <string name="Home.Title">MediaPortal 2</string>
   <string name="Home.HomeStateDisplayLabel">Home</string>
   <string name="Dialogs.InfoHeaderText">Upplýsingar</string>
@@ -37,6 +39,7 @@
   <string name="ServerConnection.DetachFromServerWorkflowStateLabel">Aftengjast miðlara</string>
   <string name="ServerConnection.HomeServerWorkflowStateLabel">Aðalmiðlari</string>
   <string name="ServerConnection.AttachedText.Before">Þessi MediaPortal 2 biðlari er tengdur við aðalmiðlarann</string>
+  <string name="ServerConnection.AttachedText.After"></string>
   <string name="ServerConnection.NoHomeServerAttached">Þessi MediaPortal biðlari er ekki tengdur við aðalmiðlara</string>
   <string name="ServerConnection.HomeServerIsConnected">Aðalmiðlari er tengdur</string>
   <string name="ServerConnection.HomeServerIsNotConnected">Aðalmiðlari er ótengdur</string>
@@ -78,6 +81,7 @@
   <!--for example "Focus video player"-->
   <string name="Players.SwitchPipPlayers">Víxlun á MíM spilara</string>
   <string name="Players.ChooseAudioStream">Veljið hljóðstraum</string>
+  <string name="Players.PlayerSlotAudioMenu">Hljóðvalmynd fyrir {0}</string>
   <!--for example "Audio menu for Lammbock"-->
   <string name="Players.Mute">Hljóðlaust</string>
   <string name="Players.MuteOff">Hljóðlaust af</string>

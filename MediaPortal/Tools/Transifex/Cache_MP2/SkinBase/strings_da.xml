@@ -31,7 +31,7 @@
   <string name="Media.InvalidShareName">Invalid share</string>
   <string name="ServerConnection.NotificationServerAvailableTitle">MP2 server tilgængelig</string>
   <string name="ServerConnection.NotificationServerAvailableText">Der er mindst en MediaPortal 2 server på dette netværk. Knyt forbindelse til den for at opnå alle MediaPortal 2\'s fordele.</string>
-  <string name="ServerConnection.ServerFormatText">'{0}' på vært '{1}'</string>
+  <string name="ServerConnection.ServerFormatText">\'{0}\' på vært \'{1}\'</string>
   <!--{0} = server name, {1} = host name-->
   <string name="ServerConnection.UnknownServerName">&lt;Ukendt&gt;</string>
   <string name="ServerConnection.UnknownServerSystem">&lt;Ukendt&gt;</string>
@@ -40,6 +40,7 @@
   <string name="ServerConnection.DetachFromServerWorkflowStateLabel">Frigør fra server</string>
   <string name="ServerConnection.HomeServerWorkflowStateLabel">HjemmeServer</string>
   <string name="ServerConnection.AttachedText.Before">Denne MediaPortal 2 klient er pt tilknyttet hjemmeserver</string>
+  <string name="ServerConnection.AttachedText.After"></string>
   <string name="ServerConnection.NoHomeServerAttached">Denne MediaPortal 2 klient er pt ikke tilknyttet hjemmeserver</string>
   <string name="ServerConnection.HomeServerIsConnected">Hjemmeserver er pt tilknyttet.</string>
   <string name="ServerConnection.HomeServerIsNotConnected">Hjemmeserver er pt ikke tilknyttet.</string>

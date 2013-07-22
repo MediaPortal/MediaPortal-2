@@ -8,7 +8,7 @@
   <string name="SystemState.Shutdown">Arrêt</string>
   <string name="SystemState.Suspend">Veille</string>
   <string name="SystemState.Restart">Redémarrer</string>
-  <string name="SystemState.Logoff">Logoff</string>
+  <string name="SystemState.Logoff">Déconnexion</string>
   <string name="SystemState.MinimizeMP">Minimiser Mediaportal</string>
   <string name="SystemState.ShutdownMP">Fermer Mediaportal</string>
 </resources>

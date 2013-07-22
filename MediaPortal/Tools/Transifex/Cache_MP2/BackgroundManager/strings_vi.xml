@@ -1,0 +1,10 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<resources>
+  <string name="Settings.Appearance.Skin.Background.VideoBackground">Video nền</string>
+  <string name="Settings.Appearance.Skin.Background.VideoBackground.Help">Bật chế độ video dạng nền và chọn video</string>
+  <string name="Settings.Appearance.Skin.Background.EnableVideoBackground">Bật chế độ video dạng nền</string>
+  <string name="Settings.Appearance.Skin.Background.Setup">Chỉnh sửa video dạng nền</string>
+  <string name="Settings.Appearance.Skin.Background.Setup.VideoFilename">Tập tin video</string>
+  <string name="Settings.Appearance.Skin.Background.Setup.Select">Chọn</string>
+  <string name="Settings.Appearance.Skin.Background.Setup.SelectVideo">Chọn video để phát ở dạng nền</string>
+</resources>

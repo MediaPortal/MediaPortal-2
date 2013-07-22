@@ -83,4 +83,7 @@
   <string name="WeatherSetup.SearchCity">Søg by</string>
   <string name="WeatherSetup.AddCity">Tilføj by</string>
   <string name="WeatherSetup.RemoveCity">Fjern by</string>
+  <string name="WeatherSetup.Detect">Detektere</string>
+  <string name="WeatherSetup.DetectionFailed">D\netektion mislykkedes</string>
+  <string name="WeatherSetup.DetectionFailedMessage">Kunne ikke automatisk registrere din placering.</string>
 </resources>

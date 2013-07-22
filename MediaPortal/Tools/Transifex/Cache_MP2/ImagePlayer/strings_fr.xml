@@ -1,8 +1,8 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
   <string name="Settings.Players.Image">Visionneuse d\'image</string>
-  <string name="Settings.Players.Image.SlideShowImageDuration">Durée du fondu enchainé</string>
-  <string name="Settings.Players.Image.SlideShowImageDuration.Help">Définit la durée en secondes pendant combien de temps chaque image est visible en mode diaporama</string>
+  <string name="Settings.Players.Image.SlideShowImageDuration">Durée d\'affichage en Diaporama</string>
+  <string name="Settings.Players.Image.SlideShowImageDuration.Help">Définit en seconde, la durée d\'affichage de chaque image dans le mode diaporama</string>
   <string name="Settings.Players.Image.KenBurnsEffect">Utiliser l\'effet \"Ken Burns\"</string>
-  <string name="Settings.Players.Image.KenBurnsEffect.Help">Utiliser des animations panoramique et de zoom lors de l\'affichage d\'une image</string>
+  <string name="Settings.Players.Image.KenBurnsEffect.Help">Utiliser les effets de panoramique et de zoom lors de l\'affichage d\'une image</string>
 </resources>

@@ -1,5 +1,8 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
+  <string name="Utilities.MenuItem">Alati</string>
+  <string name="Utilities.MainWorkflowNavigationContextDisplayLabel">Alati</string>
+  <string name="Utilities.MainScreenTitle">Alati</string>
   <string name="Utilities.ImportPlaylistProgressTitle">Napredak</string>
   <string name="Utilities.ImportPlaylistProgressText">{0}/{1}, {2} preskočenih</string>
 </resources>

@@ -1,0 +1,19 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<resources>
+  <string name="ServerStatus.NotStarted">Server chưa khởi động</string>
+  <string name="ServerStatus.Attached">Gửi đến phía server</string>
+  <string name="ServerStatus.Connected">Đã kết nối đến server</string>
+  <string name="ServerStatus.Detached">Gỡ kết nối khỏi server</string>
+  <string name="ServerStatus.Disconnected">Ngắt kết nối từ server</string>
+  <string name="ServerStatus.ClientConnected">Client đã kết nối tới server</string>
+  <string name="MainWindow.ServerStatus">Trạng thái server</string>
+  <string name="MainWindow.AttachedClients">Các client kèm theo:</string>
+  <string name="ContextMenu.ShowWin">Hiển thị cửa sổ</string>
+  <string name="ContextMenu.HideWin">Ẩn cửa sổ</string>
+  <string name="ContextMenu.StartService">Bắt đầu dịch vụ</string>
+  <string name="ContextMenu.StopService">Dừng lại dịch vụ</string>
+  <string name="ContextMenu.EnableAutostart">Bật tính năng tự khởi động</string>
+  <string name="ContextMenu.DisableAutostart">Tắt tính năng tự khởi động</string>
+  <string name="ContextMenu.Exit">Thoát</string>
+  <string name="SysTrayToolTip.Info">Click phải chuột để có thêm nhiều tùy chọn khác</string>
+</resources>

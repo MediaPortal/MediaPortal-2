@@ -14,6 +14,8 @@
   <string name="Media.FilterByAudioGenreMenuItem">Suodata tyylilajin mukaan</string>
   <string name="Media.FilterByDecadeMenuItem">Suodata vuosikymmenen mukaan</string>
   <string name="Media.FilterByActorMenuItem">Suodata näyttelijän mukaan</string>
+  <string name="Media.FilterByDirectorMenuItem">Suodata ohjaajan mukaan</string>
+  <string name="Media.FilterByWriterMenuItem">Suodata käsikirjoittajan mukaan</string>
   <string name="Media.FilterByVideoGenreMenuItem">Suodata tyylilajin mukaan</string>
   <string name="Media.FilterByVideoYearMenuItem">Suodata vuoden mukaan</string>
   <string name="Media.FilterByAudioLanguageMenuItem">Suodata kielen mukaan</string>
@@ -49,6 +51,8 @@
   <string name="Media.FilterAudioGenreNavbarDisplayLabel">Tyylilaji: {0}</string>
   <string name="Media.FilterDecadeNavbarDisplayLabel">Vuosikymmen: {0}</string>
   <string name="Media.FilterActorNavbarDisplayLabel">Näyttelijä: {0}</string>
+  <string name="Media.FilterDirectorNavbarDisplayLabel">Ohjaaja:{0}</string>
+  <string name="Media.FilterWriterNavbarDisplayLabel">Käsikirjoittaja:{0}</string>
   <string name="Media.FilterVideoGenreNavbarDisplayLabel">Tyylilaji: {0}</string>
   <string name="Media.FilterVideoYearNavbarDisplayLabel">Vuosi: {0}</string>
   <string name="Media.FilterAudioLanguagesNavbarDisplayLabel">Kieli: {0}</string>
@@ -101,6 +105,8 @@
   <string name="Media.SimpleSearchHeader">Yksinkertainen haku</string>
   <string name="Media.ChooseCollectionHeader">Valitse kokoelma</string>
   <string name="Media.ChooseActorHeader">Valitse näyttelijä</string>
+  <string name="Media.ChooseDirectorHeader">Valitse ohjaaja</string>
+  <string name="Media.ChooseWriterHeader">Valitse käsikirjoittaja</string>
   <string name="Media.ChooseVideoGenreHeader">Valitse lajityyppi</string>
   <string name="Media.ChooseVideoYearHeader">Valitse vuosi</string>
   <string name="Media.ChooseSeriesHeader">Valitse sarja</string>
@@ -296,8 +302,10 @@
   <string name="Media.SortBySystem">Lajittele järjestelmän mukaan</string>
   <string name="Media.SortByActor">Lajittele näyttelijän mukaan</string>
   <string name="Media.SortByDirector">Lajittele ohjaajan mukaan</string>
+  <string name="Media.SortByWriter">Lajittele käsikirjoittajan mukaan</string>
   <string name="Media.SortByDuration">Lajittele keston mukaan</string>
   <string name="Media.SortByAspectRatio">Lajittele kuvasuhteen mukaan</string>
+  <string name="Media.SortByFirstAiredDate">Lajittele esityspäivän mukaan</string>
   <string name="Media.SortByDate">Lajittele tallennuspäivän mukaan</string>
   <string name="Media.SortByEpisode">Lajittele jakson mukaan</string>
   <string name="Media.SortingBrowseDefault">Oletus lajittelu</string>

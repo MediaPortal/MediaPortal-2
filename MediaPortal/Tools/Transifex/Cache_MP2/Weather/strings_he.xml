@@ -83,4 +83,7 @@
   <string name="WeatherSetup.SearchCity">חפש עיר</string>
   <string name="WeatherSetup.AddCity">הוסף עיר</string>
   <string name="WeatherSetup.RemoveCity">הסר עיר</string>
+  <string name="WeatherSetup.Detect">זהה</string>
+  <string name="WeatherSetup.DetectionFailed">זיהוי נכשל</string>
+  <string name="WeatherSetup.DetectionFailedMessage">זיהוי מיקום אוטומטי נכשל</string>
 </resources>

@@ -1,0 +1,29 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<resources>
+  <string name="SlimTvClient.Title">Slim TV Client</string>
+  <string name="SlimTvClient.CurrentlyPlayingInformationHeader">Thông tin chương trình</string>
+  <string name="SlimTvClient.ChannelLabel">Kên</string>
+  <string name="SlimTvClient.ProgramLabel">Chương trình</string>
+  <string name="SlimTvClient.DescriptionLabel">Mô tả</string>
+  <string name="SlimTvClient.GenreLabel">Loại</string>
+  <string name="SlimTvClient.ProgramStartLabel">Thời gian bắt đầu</string>
+  <string name="SlimTvClient.ProgramEndLabel">Thời gian kết thúc</string>
+  <string name="SlimTvClient.EpisodeLabel">Episode</string>
+  <string name="SlimTvClient.Guide">Lịch xem TV</string>
+  <string name="SlimTvClient.NoProgram">Không có dữ liệu về chương trình.</string>
+  <string name="SlimTvClient.ChooseProgramAction">Chọn thao tác của chương trình...</string>
+  <string name="SlimTvClient.ProgramOver">Chương trình đã hết</string>
+  <string name="SlimTvClient.WatchNow">Xem chương trình ngay bây giờ</string>
+  <string name="SlimTvClient.RecordNow">Ghi hình ngay bây giờ</string>
+  <string name="SlimTvClient.DeleteSchedule">Xóa lịch</string>
+  <string name="SlimTvClient.CreateSchedule">Ghi hình lịch xem</string>
+  <string name="SlimTvClient.ErrorNoTvProvider">HIện không có nhà cung cấp TV (vẫn chưa)</string>
+  <string name="SlimTvClient.RecordingsMenuItem">Ghi hình</string>
+  <string name="SlimTvClient.RecordingsRootViewName">Ghi hình TV</string>
+  <string name="SlimTvClient.ChannelMenuItemLabel">Lọc theo kênh</string>
+  <string name="SlimTvClient.ChannelNavBarItemLabel">Kênh: {0}</string>
+  <string name="SlimTvClient.RecordingsByChannelHeader">Ghi hình theo kênh</string>
+  <string name="SlimTvClient.NameFilterMenuItemLabel">Lọc với tên</string>
+  <string name="SlimTvClient.NameFilterNavBarItemLabel">{0}</string>
+  <string name="SlimTvClient.RecordingsByNameHeader">Ghi hình với tên</string>
+</resources>

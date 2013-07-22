@@ -40,6 +40,7 @@
   <string name="ServerConnection.DetachFromServerWorkflowStateLabel">Katkaise yhteys palvelimeen</string>
   <string name="ServerConnection.HomeServerWorkflowStateLabel">Kotipalvelin</string>
   <string name="ServerConnection.AttachedText.Before">Tämä MediaPortal 2 asiakas on liitetty kotipalvelimeen</string>
+  <string name="ServerConnection.AttachedText.After"></string>
   <string name="ServerConnection.NoHomeServerAttached">Tällä hetkellä tämä MediaPortal 2 asiakas ei ole liitetty kotipalvelimeen.</string>
   <string name="ServerConnection.HomeServerIsConnected">Kotipalvelin on yhdistetty</string>
   <string name="ServerConnection.HomeServerIsNotConnected">Kotipalvelinta ei ole yhdistetty</string>
@@ -108,6 +109,8 @@
   <string name="Settings.General.System">Järjestelmä</string>
   <string name="Settings.General.System.Autostart">Automaattinen käynnistys</string>
   <string name="Settings.General.System.Autostart.Help">Käynnistä MediaPortal automaattisesti Windowsin käynnistyessä</string>
+  <string name="Settings.General.System.ClientDOKANDrive">Resurssien liitännän levyaseman kirjain</string>
+  <string name="Settings.General.System.ClientDOKANDrive.Help">Määrittää levyaseman kirjaimen jota käytetään etäresurssien liittämiseen tälle koneelle.</string>
   <string name="Settings.General.Connectivity">Yhteydet</string>
   <string name="Settings.General.Connectivity.HomeServer">Kotipalvelin</string>
   <string name="Settings.General.Connectivity.HomeServer.Help">Kotipalvelimen tiedot, katkaise ja ota yhteys kotipalvelimeen palvelimeen</string>

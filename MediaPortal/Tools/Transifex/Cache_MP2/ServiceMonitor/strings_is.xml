@@ -1,5 +1,19 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
   <string name="ServerStatus.NotStarted">Miðlari ekki ræstur</string>
+  <string name="ServerStatus.Attached">Tengt miðlara</string>
+  <string name="ServerStatus.Connected">Tengt miðlara</string>
+  <string name="ServerStatus.Detached">Aftengdur miðlara</string>
+  <string name="ServerStatus.Disconnected">Aftengdur miðlara</string>
+  <string name="ServerStatus.ClientConnected">Biðlarar tengdi við miðlara</string>
+  <string name="MainWindow.ServerStatus">Staða miðlara</string>
+  <string name="MainWindow.AttachedClients">Tengdir biðlarar</string>
+  <string name="ContextMenu.ShowWin">Sýna glugga</string>
+  <string name="ContextMenu.HideWin">Fela glugga</string>
+  <string name="ContextMenu.StartService">Ræsi þjónustu</string>
+  <string name="ContextMenu.StopService">Stöðva þjónustu</string>
+  <string name="ContextMenu.EnableAutostart">Virkja sjálfvirka ræsun</string>
+  <string name="ContextMenu.DisableAutostart">Óvirkja sjálfvirka ræsun</string>
   <string name="ContextMenu.Exit">Hætta</string>
+  <string name="SysTrayToolTip.Info">Hægri smella fyrir fleiri aðgerðir</string>
 </resources>

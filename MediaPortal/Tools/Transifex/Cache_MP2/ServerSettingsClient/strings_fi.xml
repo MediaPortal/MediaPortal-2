@@ -1,4 +1,17 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
   <string name="Settings.ServerSettings">Palvelimen asetukset</string>
+  <string name="Settings.ServerSettings.ServerDOKANDrive">Resurssien liittämisen levyasema kirjain</string>
+  <string name="Settings.ServerSettings.ServerDOKANDrive.Help">Määrittää levyasema kirjaimen jota käytetään etäkoneiden resurssien liittämiseen</string>
+  <string name="Settings.ServerSettings.NetworkCredentials">Verkkotunnukset</string>
+  <string name="Settings.ServerSettings.NetworkCredentials.Help">Määrittelee käyttäjätunnuksen ja salasanan palvelimen verkkoresurssien käyttöä varten</string>
+  <string name="Settings.ServerSettings.ImpersonateInteractive">Käytä vuorovaikutteisen istunnon tunnuksia palvelimella</string>
+  <string name="Settings.ServerSettings.UseCredentials">Käytä käyttäjätunnusta ja salasanaa verkkoon pääsemiseksi</string>
+  <string name="Settings.ServerSettings.UsernamePasswordGroup">Käyttäjätunnus ja salasana</string>
+  <string name="Settings.ServerSettings.Username">Käyttäjätunnus:</string>
+  <string name="Settings.ServerSettings.Password">Salasana:</string>
+  <string name="Settings.ServerSettings.ImporterWorker">Jakojen tuojan määritykset</string>
+  <string name="Settings.ServerSettings.ImporterWorker.Help">Määritä levyjakojen automaattinen päivitys</string>
+  <string name="Settings.ServerSettings.ImporterWorker.EnableAutoRefresh">Ota käyttöön automaattinen päivitys</string>
+  <string name="Settings.ServerSettings.ImporterWorker.RunAtHour">Suorita tiettynä aikana päivästä(24 tuntinen)</string>
 </resources>

@@ -1,5 +1,12 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
   <string name="Settings.Plugins.TV">TV</string>
+  <string name="Settings.Plugins.TV.MPExtendedServerAddress">MPExtended server adrese</string>
+  <string name="Settings.Plugins.TV.MPExtendedServerAddress.Help">Unesite ime servera ili IP adrese odvojene \",\" (zadani je ovo računalo)</string>
+  <string name="Settings.Plugins.TV.MPExtendedUsername">Korisničko ime MPExtended servisa</string>
+  <string name="Settings.Plugins.TV.MPExtendedUsername.Help">Unesite korisničko ime za spajanje. Bez korisničkog imena koristiti će se anonimna veza.</string>
+  <string name="Settings.Plugins.TV.MPExtendedPassword">Zaporka MPExtended servisa</string>
+  <string name="Settings.Plugins.TV.MPExtendedPassword.Help">Unesite zaporku ime za spajanje. Bez zaporke koristiti će se anonimna veza.</string>
   <string name="Settings.Plugins.TV.ConnectionErrorTitle">Greška s vezom</string>
+  <string name="Settings.Plugins.TV.ConnectionErrorText">Ne mogu spojiti MPExtendedServer adresu - Server: {0}</string>
 </resources>

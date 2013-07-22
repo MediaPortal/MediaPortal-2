@@ -1,2 +1,10 @@
 <?xml version='1.0' encoding='UTF-8'?>
-<resources/>
+<resources>
+  <string name="Settings.Appearance.Skin.Background.VideoBackground">Video pozadina</string>
+  <string name="Settings.Appearance.Skin.Background.VideoBackground.Help">Omogućite video pozadinu i odaberite video</string>
+  <string name="Settings.Appearance.Skin.Background.EnableVideoBackground">Omogućite video pozadinu</string>
+  <string name="Settings.Appearance.Skin.Background.Setup">Postavke Video pozadine</string>
+  <string name="Settings.Appearance.Skin.Background.Setup.VideoFilename">Video datoteka</string>
+  <string name="Settings.Appearance.Skin.Background.Setup.Select">Odaberite</string>
+  <string name="Settings.Appearance.Skin.Background.Setup.SelectVideo">Odaberite video koji će biti u pozadini</string>
+</resources>

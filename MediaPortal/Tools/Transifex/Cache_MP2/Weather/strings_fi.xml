@@ -83,4 +83,7 @@
   <string name="WeatherSetup.SearchCity">Etsi kaupunki</string>
   <string name="WeatherSetup.AddCity">Lisää kaupunki</string>
   <string name="WeatherSetup.RemoveCity">Poista kaupunki</string>
+  <string name="WeatherSetup.Detect">Tunnista</string>
+  <string name="WeatherSetup.DetectionFailed">Tunnistaminen epäonnistui</string>
+  <string name="WeatherSetup.DetectionFailedMessage">Sijaintisi tunnistaminen ei onnistunut automaattisesti</string>
 </resources>

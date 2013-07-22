@@ -2,6 +2,21 @@
 <resources>
   <string name="Settings.Appearance.System">Sustav</string>
   <string name="Settings.Appearance.System.Fullscreen">Puni zaslon</string>
+  <string name="Settings.Appearance.System.Fullscreen.Help">Prikaži MediaPortal u \"punom zaslonu\"</string>
+  <string name="Settings.Appearance.System.CellPhoneInputStyle">Način unosa kao mob. telefon</string>
+  <string name="Settings.Appearance.System.CellPhoneInputStyle.Help">Koristi način unosa kao mob. telefon/SMS</string>
+  <string name="Settings.Appearance.System.ScreenSaverEnabled">Omogući čuvara zaslona</string>
+  <string name="Settings.Appearance.System.ScreenSaverEnabled.Help">Podesite ako bi čuv. zaslona bio prikazan</string>
+  <string name="Settings.Appearance.System.ScreenSaverTimeout">Trajanje čuvara zaslona</string>
+  <string name="Settings.Appearance.System.ScreenSaverTimeout.Help">Podesite vrijeme u minutama, kad bi čuv. zaslona trebao biti prikazan nakon korisnikovog zadnjeg unosa.</string>
+  <string name="Settings.Appearance.System.Antialiasing">GUI antialiasing</string>
+  <string name="Settings.Appearance.System.Antialiasing.Help">Antialiasing poboljšava GUI vizualno, ali smanjuje video performanse</string>
+  <string name="Settings.Appearance.Skin">Skin</string>
+  <string name="Settings.Appearance.Skin.SkinAndTheme">Skin i tema</string>
+  <string name="Settings.Appearance.Skin.SkinAndTheme.ChangeSkin">Promijenite skin</string>
+  <string name="Settings.Appearance.Skin.SkinAndTheme.ChangeSkin.Help">Promijenite look&amp; ugođaj MediaPortala 2</string>
+  <string name="Settings.Appearance.Skin.SkinAndTheme.ChangeTheme">Promijenite temu</string>
+  <string name="Settings.Appearance.Skin.SkinAndTheme.ChangeTheme.Help">Promijenite trenutni prikaz skina</string>
   <string name="Settings.Players">Reproduktori</string>
   <string name="Settings.Players.Rendering">Izvođenje</string>
   <!--File names (files in shaders/effects, without extension) to effect names to be shown in the GUI-->

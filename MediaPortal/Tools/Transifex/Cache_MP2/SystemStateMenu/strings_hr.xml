@@ -1,0 +1,14 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<resources>
+  <string name="Settings.General.System.SystemStateDialog">Izbornik gašenja</string>
+  <string name="Settings.General.System.SystemStateDialog.Help">Podesite vidljivost i poziciju Izbornika za gašenje </string>
+  <string name="SystemState.Configuration.Dialog.Title">Podesite stavke za gašenje</string>
+  <string name="SystemState.Title">Izbornik za gašenje</string>
+  <string name="SystemState.Hibernate">Hibernacija</string>
+  <string name="SystemState.Shutdown">Gašenje</string>
+  <string name="SystemState.Suspend">Spavanje</string>
+  <string name="SystemState.Restart">Ponovno pokretanje</string>
+  <string name="SystemState.Logoff">Odjava</string>
+  <string name="SystemState.MinimizeMP">Minimizirajte Mediaportal</string>
+  <string name="SystemState.ShutdownMP">Zatvorite Mediaportal</string>
+</resources>

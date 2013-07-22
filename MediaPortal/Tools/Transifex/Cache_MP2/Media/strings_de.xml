@@ -39,7 +39,7 @@
   <string name="Media.ImageFilterMedium">Mittel</string>
   <string name="Media.ImageFilterBig">Groß</string>
   <string name="Media.SwitchToBrowseMLView">Zur Server-Ansicht</string>
-  <string name="Media.SwitchToLocalMediaView">Zur lokaler Ansicht</string>
+  <string name="Media.SwitchToLocalMediaView">Zu lokaler Ansicht</string>
   <!--Navbar display labels for sub view navigation-->
   <string name="Media.BrowseMediaNavigationNavbarDisplayLabel">{0}</string>
   <!--For example: "R.E.M."-->
@@ -267,7 +267,7 @@
   <string name="Media.PlayMode.Shuffle">Zufall</string>
   <string name="Media.ChooseRepeatModeDialogHeader">Wiederholungsmodus wählen</string>
   <string name="Media.RepeatMode">Wiederholungsmodus</string>
-  <string name="Media.RepeatMode.None">Kein Effekt</string>
+  <string name="Media.RepeatMode.None">Keine</string>
   <string name="Media.RepeatMode.All">Alle</string>
   <string name="Media.RepeatMode.One">Eins</string>
   <!--VideoPlayerUIContributor-->
@@ -288,7 +288,7 @@
   <string name="Media.MediumList">Mittlere Liste</string>
   <string name="Media.LargeList">Große Liste</string>
   <string name="Media.LargeGrid">Raster</string>
-  <string name="Media.CoverLayout">Covers</string>
+  <string name="Media.CoverLayout">Cover</string>
   <string name="Media.SwitchSortingMenuItem">Sortierung</string>
   <string name="Media.SwitchSortingDialogTitle">Sortierung</string>
   <string name="Media.SortByTitle">Sortierung nach Titel</string>

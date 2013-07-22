@@ -1,2 +1,10 @@
 <?xml version='1.0' encoding='UTF-8'?>
-<resources/>
+<resources>
+  <string name="Settings.Players">Παίκτες</string>
+  <string name="Settings.Players.Rendering">Απόδοση</string>
+  <string name="Settings.Players.Rendering.CrossFading">Σταδιακό σβήσιμο</string>
+  <string name="Settings.Players.Rendering.CrossFading.CrossFadingEnabled">Ενεργοποιηση του Cross fading </string>
+  <string name="Settings.Players.Rendering.CrossFading.CrossFadingEnabled.Help">Καθορίζει αν το MediaPortal θα πρέπει να παιζει cross-fade τραγούδια, αν είναι δυνατόν</string>
+  <string name="Settings.Players.Rendering.CrossFading.CrossFadeDuration">διάρκεια Cross fade uration</string>
+  <string name="Settings.Players.Rendering.CrossFading.CrossFadeDuration.Help">Χρόνος για cross-fade σε δευτερόλεπτα</string>
+</resources>

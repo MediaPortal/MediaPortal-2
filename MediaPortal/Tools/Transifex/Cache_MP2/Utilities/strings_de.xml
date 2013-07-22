@@ -12,7 +12,7 @@
   <string name="Utilities.EditPlaylistName">Name der Playlist bearbeiten</string>
   <string name="Utilities.LocationOfShareContainingItems">Datenverzeichnis, dass die Mediadateien enthält</string>
   <string name="Utilities.LocalShareLocation">Lokale Freigabe</string>
-  <string name="Utilities.ServerShareLocation">Serververzeichnis</string>
+  <string name="Utilities.ServerShareLocation">Freigabe auf dem Server</string>
   <string name="Utilities.StartPlaylistImport">Starte Import der Playlist</string>
   <string name="Utilities.PlaylistSavedSuccessfullyTitle">Erfolgreich!</string>
   <string name="Utilities.NoItemsWereImportedSkippingSaveText">Es wurden keine Elemente importiert. Abspeichern wird übersprungen.</string>

@@ -1,0 +1,43 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<resources>
+  <string name="Settings.Appearance.System">Hệ thống</string>
+  <string name="Settings.Appearance.System.Fullscreen">Toàn màn hình</string>
+  <string name="Settings.Appearance.System.Fullscreen.Help">Hiển thị chương trình ở chế độ toàn màn hình</string>
+  <string name="Settings.Appearance.System.CellPhoneInputStyle">Kiểu nhập dữ liệu cho di động</string>
+  <string name="Settings.Appearance.System.CellPhoneInputStyle.Help">Sử dụng kiểu nhập dữ liệu cho di động/SMS</string>
+  <string name="Settings.Appearance.System.ScreenSaverEnabled">Bật trình bảo vệ màn hình</string>
+  <string name="Settings.Appearance.System.ScreenSaverEnabled.Help">Chỉnh sửa cách trình bảo vệ màn hình về mặt hiển thị</string>
+  <string name="Settings.Appearance.System.ScreenSaverTimeout">Thời gian cho trình bảo vệ màn hình</string>
+  <string name="Settings.Appearance.System.ScreenSaverTimeout.Help">Chỉnh sửa độ dài thời gian bằng phút khi trình bảo vệ màn hình được hiển thị dựa vào lần thao tác cuối cùng của người dùng</string>
+  <string name="Settings.Appearance.System.Antialiasing">Khử dạng răng cưa trong hiển thị</string>
+  <string name="Settings.Appearance.System.Antialiasing.Help">Khử dạng răng cưa trong hiển thị sẽ làm tăng chất lượng hiển thị của giao diện, nhưng có thể làm giảm tính biểu thị của video</string>
+  <string name="Settings.Appearance.Skin">Giao diện</string>
+  <string name="Settings.Appearance.Skin.SkinAndTheme">Giao diện</string>
+  <string name="Settings.Appearance.Skin.SkinAndTheme.ChangeSkin">Thay đổi giao diện</string>
+  <string name="Settings.Appearance.Skin.SkinAndTheme.ChangeSkin.Help">Thay đổi giao diện của Mediaportal 2</string>
+  <string name="Settings.Appearance.Skin.SkinAndTheme.ChangeTheme">Thay đổi giao diện</string>
+  <string name="Settings.Appearance.Skin.SkinAndTheme.ChangeTheme.Help">Thay đổi trình diễn của giao diện hiện tại</string>
+  <string name="Settings.Players">Người phát</string>
+  <string name="Settings.Players.Rendering">Đang render</string>
+  <string name="Settings.Players.Rendering.DefaultGeometry">Chế độ phóng to tự động</string>
+  <string name="Settings.Players.Rendering.DefaultGeometry.Help">Đặt chế độ phóng to được áp dụng cho trình chiếu video theo mặc định</string>
+  <string name="Settings.General.System.ApplicationSuspendLevel">Chrinh sửa chức năng tiết kiệm năng lượng của Windows</string>
+  <string name="Settings.General.System.ApplicationSuspendLevel.Help">Tắt tính năng tự động dừng/shutdown của windows hoặc chế độ tự kích hoạt khi MediaPortal 2 đang chạy</string>
+  <string name="Settings.General.System.ApplicationSuspendLevel.None">Cho phép tất cả chế độ tiết kiệm năng lượng</string>
+  <string name="Settings.General.System.ApplicationSuspendLevel.AvoidSuspend">Tránh việc dừng lại đột ngột chương trình, nhưng vẫn bật hiển thị trên màn hình</string>
+  <string name="Settings.General.System.ApplicationSuspendLevel.DisplayRequired">Tránh tình trạng tạm dừng đột ngột và tái kích hoạt của chương trình</string>
+  <string name="ScreenManager.NotificationErrorLoadingSkinTitle">Lỗi khi tải giao diện</string>
+  <string name="ScreenManager.NotificationErrorLoadingSkinFallingBackToCurrentText">Quay trở lại giao diện mặc định</string>
+  <string name="ScreenManager.NotificationErrorLoadingSkinFallingBackToDefaultText">Quay trở lại giao diện mặc định</string>
+  <string name="ScreenManager.ErrorLoadingSkinResource">Lỗi khi tải các phần tài nguyên của giao diện</string>
+  <string name="ScreenManager.ScreenMissing">Không thể tìm được tài nguyên của giao diện với màn hình \'{0}\'</string>
+  <!--File names (files in shaders/effects, without extension) to effect names to be shown in the GUI-->
+  <string name="PlayerControl.HeaderNormal">{0}</string>
+  <!--{0} = media item title-->
+  <!--{0} = media item title-->
+  <!--For example: "Seeking forward (2x)"-->
+  <!--For example: "Seeking forward (2x)"-->
+  <!--For example: "Slowmotion forward (0.5x)"-->
+  <!--For example: "Slowmotion backward (0.5x)"-->
+  <!--For example: 2x or 0.5x-->
+</resources>

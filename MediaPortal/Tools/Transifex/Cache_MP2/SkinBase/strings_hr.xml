@@ -5,7 +5,7 @@
   <string name="System.Done">Završeno</string>
   <string name="System.Finish">Završi</string>
   <string name="System.Ok">U redu</string>
-  <string name="System.Cancel">Otkaži</string>
+  <string name="System.Cancel">Odustani</string>
   <string name="System.Discard">Odbaci</string>
   <string name="System.Back">Natrag</string>
   <string name="System.Continue">Nastavi</string>
@@ -24,12 +24,14 @@
   <string name="Dialogs.WarningHeaderText">Upozorenje</string>
   <string name="Dialogs.ErrorHeaderText">Greška</string>
   <string name="Media.MyMusic">Glazba</string>
-  <string name="Media.MyVideos">Video sadržaj</string>
+  <string name="Media.MyVideos">Video</string>
   <string name="Media.MyPictures">Slike</string>
   <!--{0} = server name, {1} = host name-->
+  <string name="ServerConnection.AttachedText.After"></string>
   <!--{0} = server name, {1} = host name-->
   <string name="ScreenSaver.MediaPortal2">MediaPortal 2</string>
   <!--For MP UI player subsystem-->
+  <string name="Players.FullscreenVideo">Puni zaslon {0}</string>
   <!--for example "Fullscreen TV"-->
   <string name="Players.AudioVisualization">Audio vizualizacija</string>
   <!--for example "Video player"-->
@@ -38,6 +40,7 @@
   <string name="Players.ClosePlayerContext">Zatvori {0}</string>
   <!--for example "Close video player"-->
   <string name="Players.ChoosePlayerEffect">Efekt</string>
+  <string name="Settings.Appearance.Skin">Skin</string>
   <string name="Settings.Appearance.Skin.Formats.DateFormat">Format datuma</string>
   <string name="Settings.Appearance.Skin.Formats.TimeFormat">Format vremena</string>
   <string name="Settings.General.System">Sustav</string>
@@ -53,6 +56,7 @@
   <!--For example: INVALID PATH: 'C:\XXX\YYY'-->
   <!--Shares configuration workflow-->
   <string name="SharesConfig.ShareNameInfo">Ime:</string>
+  <string name="SharesConfig.ShareSystem">Sustav:</string>
   <string name="SharesConfig.SharePathInfo">Staza:</string>
   <string name="SharesConfig.MenuEditShares">Uredi</string>
   <!--Must fit for both multiseat and singleseat, that's why we don't write "server share"-->

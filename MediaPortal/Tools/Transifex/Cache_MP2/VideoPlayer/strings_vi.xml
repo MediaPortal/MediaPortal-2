@@ -1,0 +1,47 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<resources>
+  <string name="Settings.Players.Codecs">Codec</string>
+  <string name="Settings.Players.Codecs.VideoCodecs">Video Codec</string>
+  <string name="Settings.Players.Codecs.VideoCodecs.MPEG2">MPEG2 Video Codec</string>
+  <string name="Settings.Players.Codecs.VideoCodecs.MPEG2.Help">Chỉnh codec được dùng cho MPEG2 video (DVD, DVB-SD)</string>
+  <string name="Settings.Players.Codecs.VideoCodecs.MPEG4">MPEG4 Video Codec</string>
+  <string name="Settings.Players.Codecs.VideoCodecs.MPEG4.Help">Chỉnh codec được dùng cho MPEG4 video (H.264, x264)</string>
+  <string name="Settings.Players.Codecs.VideoCodecs.AVC">AVC Video Codec</string>
+  <string name="Settings.Players.Codecs.VideoCodecs.AVC.Help">Chỉnh codec được dùng cho AVC video (HDTV, BluRay)</string>
+  <string name="Settings.Players.Codecs.AudioCodecs">Audio Codecs</string>
+  <string name="Settings.Players.Codecs.AudioRenderer">Audio Renderer</string>
+  <string name="Settings.Players.Codecs.AudioCodecs.AudioCodec">MPEG1/2 Audio Codec</string>
+  <string name="Settings.Players.Codecs.AudioCodecs.AudioCodec.Help">Chỉnh MPEG1/2 audio codec</string>
+  <string name="Settings.Players.Codecs.AudioCodecs.AudioCodecLATMAAC">LATM-AAC Audio Codec</string>
+  <string name="Settings.Players.Codecs.AudioCodecs.AudioCodecLATMAAC.Help">Chỉnh LATM-AAC audio codec</string>
+  <string name="Settings.Players.Codecs.AudioCodecs.AudioCodecAAC">AAC Audio Codec</string>
+  <string name="Settings.Players.Codecs.AudioCodecs.AudioCodecAAC.Help">Chỉnh AAC audio codec</string>
+  <string name="Settings.Players.Codecs.AudioCodecs.AudioRenderer">Audio Renderer</string>
+  <string name="Settings.Players.Codecs.AudioCodecs.AudioRenderer.Help">Chỉnh audio renderer</string>
+  <string name="Settings.Players.VideoPlayer">Trình xem video</string>
+  <string name="Settings.Players.VideoPlayer.PreferMultiChannelAudio">Luồng dữ liệu audio nhiều kênh ưa thích</string>
+  <string name="Settings.Players.VideoPlayer.PreferMultiChannelAudio.Help">Nếu được bật, các luồng dữ liệu 6ch được chọn (ví dụ. AC3, AAC)</string>
+  <string name="Settings.Players.DVDPlayer">Trình xem DVD</string>
+  <string name="Settings.Players.DVDPlayer.EnableClosedCaption">Đầu đề bị đóng</string>
+  <string name="Settings.Players.DVDPlayer.EnableClosedCaption.Help">Chọn nếu phần đầu đề bị đóng nên được bật theo mặc định</string>
+  <string name="Settings.Players.DVDPlayer.EnableSubtitles">Phụ đề</string>
+  <string name="Settings.Players.DVDPlayer.EnableSubtitles.Help">Chọn nếu phụ đề nên được bật theo mặc định</string>
+  <string name="Playback.NotSpecified">Chưa xác định</string>
+  <string name="Playback.CaptionNormal">Đầu đề thông thường</string>
+  <string name="Playback.CaptionBig">Đầu đề dạng lớn</string>
+  <string name="Playback.CaptionChildren">Đầu đề trẻ em</string>
+  <string name="Playback.CCNormal">CC dạng bình thường</string>
+  <string name="Playback.CCBig">CC dạng lớn</string>
+  <string name="Playback.CCChildren">CC dạng trẻ em</string>
+  <string name="Playback.Forced">Bắt buộc</string>
+  <string name="Playback.DirectorCommentsNormal">Bình luận thông thường về đạo diễn</string>
+  <string name="Playback.DirectorCommentsBig">Bình luận về đạo diễn dạng lớn</string>
+  <string name="Playback.DirectorCommentsChildren">Trẻ em bình luận về đạo diễn</string>
+  <string name="Playback.VisuallyImpaired">Hạ độ hiển thị</string>
+  <string name="Playback.DirectorComments1">Bình luận đạo diễn</string>
+  <string name="Playback.DirectorComments2">Bình luận đạo diễn (2)</string>
+  <string name="Playback.Chapter">Chương {0}</string>
+  <!--For example: "Chapter 1"-->
+  <string name="Playback.Title">Tiêu đề {0}</string>
+  <!--For example: "Title 1"-->
+</resources>

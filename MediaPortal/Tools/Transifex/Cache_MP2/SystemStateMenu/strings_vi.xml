@@ -1,0 +1,14 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<resources>
+  <string name="Settings.General.System.SystemStateDialog">Shutdown menu</string>
+  <string name="Settings.General.System.SystemStateDialog.Help">Chỉnh thông số về vị trí hiển thị của các đối tượng trong menu shutdown</string>
+  <string name="SystemState.Configuration.Dialog.Title">Chỉnh sửa các đối tượng shutdown</string>
+  <string name="SystemState.Title">Menu Shutdown</string>
+  <string name="SystemState.Hibernate">Đóng băng</string>
+  <string name="SystemState.Shutdown">Shutdown</string>
+  <string name="SystemState.Suspend">Tạm dừng</string>
+  <string name="SystemState.Restart">Khởi động lại</string>
+  <string name="SystemState.Logoff">Khóa lại</string>
+  <string name="SystemState.MinimizeMP">Thu nhỏ chương trình</string>
+  <string name="SystemState.ShutdownMP">Đóng lại chương trình</string>
+</resources>

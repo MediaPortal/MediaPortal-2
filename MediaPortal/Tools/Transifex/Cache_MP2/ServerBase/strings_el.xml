@@ -13,5 +13,6 @@
   <string name="UPnPBackendServer.ModelDescription">Διακομιστής MediaPortal 2 - φιλοξενεί αρχείο ήχου, εικόνας και βίντεο, και κρατά τη βάση πολυμέσων</string>
   <string name="UPnPBackendServer.ModelName">Διακομιστής MediaPortal 2</string>
   <string name="UPnPBackendServer.ModelNumber">1</string>
+  <string name="UPnPBackendServer.ModelUrl">...</string>
   <string name="MediaLibrary.EmptyOrMiscCharGroupName">&lt;Άδειος ή άκυρος χαρακτήρας&gt;</string>
 </resources>

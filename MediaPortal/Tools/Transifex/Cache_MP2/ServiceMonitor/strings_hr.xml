@@ -1,4 +1,19 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
+  <string name="ServerStatus.NotStarted">Server nije pokrenut</string>
+  <string name="ServerStatus.Attached">Priključen na server</string>
+  <string name="ServerStatus.Connected">Povezan sa serverom</string>
+  <string name="ServerStatus.Detached">Isključen sa servera</string>
+  <string name="ServerStatus.Disconnected">Nepovezan sa serverom</string>
+  <string name="ServerStatus.ClientConnected">Klijent(i) povezani sa serverom</string>
+  <string name="MainWindow.ServerStatus">Status servera</string>
+  <string name="MainWindow.AttachedClients">Priključeni klijenti:</string>
+  <string name="ContextMenu.ShowWin">Pokaži prozor</string>
+  <string name="ContextMenu.HideWin">Skrij prozor</string>
+  <string name="ContextMenu.StartService">Pokreni servis</string>
+  <string name="ContextMenu.StopService">Zaustavi servis</string>
+  <string name="ContextMenu.EnableAutostart">Omogući autostart</string>
+  <string name="ContextMenu.DisableAutostart">Onemogući autostart</string>
   <string name="ContextMenu.Exit">Izlaz</string>
+  <string name="SysTrayToolTip.Info">Desni klik za daljnje opcije</string>
 </resources>

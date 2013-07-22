@@ -1,0 +1,10 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<resources>
+  <string name="SystemState.Hibernate">Svæfa</string>
+  <string name="SystemState.Shutdown">Slökkva</string>
+  <string name="SystemState.Suspend">Stöðva</string>
+  <string name="SystemState.Restart">Endurræsa</string>
+  <string name="SystemState.Logoff">Afskrá</string>
+  <string name="SystemState.MinimizeMP">Minnka MediaPortal</string>
+  <string name="SystemState.ShutdownMP">Loka MediaPortal</string>
+</resources>

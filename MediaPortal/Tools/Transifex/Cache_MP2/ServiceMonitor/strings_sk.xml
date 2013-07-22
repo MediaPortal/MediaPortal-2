@@ -1,5 +1,19 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
   <string name="ServerStatus.NotStarted">Server nebeží</string>
+  <string name="ServerStatus.Attached">Pripojený k serveru</string>
+  <string name="ServerStatus.Connected">Spojený so serverom</string>
+  <string name="ServerStatus.Detached">Pripojenie k serveru zrušené</string>
+  <string name="ServerStatus.Disconnected">Odpojený od serveru</string>
+  <string name="ServerStatus.ClientConnected">Klienty spojené so serverom</string>
+  <string name="MainWindow.ServerStatus">Stav servera</string>
+  <string name="MainWindow.AttachedClients">Pripojené klienty:</string>
+  <string name="ContextMenu.ShowWin">Ukázať okno</string>
+  <string name="ContextMenu.HideWin">Skryť okno</string>
+  <string name="ContextMenu.StartService">Naštartovať službu</string>
+  <string name="ContextMenu.StopService">Zastaviť službu</string>
+  <string name="ContextMenu.EnableAutostart">Povoliť aut. štart</string>
+  <string name="ContextMenu.DisableAutostart">Zrušiť aut. štart</string>
   <string name="ContextMenu.Exit">Ukončiť</string>
+  <string name="SysTrayToolTip.Info">Pravý klik pre ďalšie možnosti</string>
 </resources>

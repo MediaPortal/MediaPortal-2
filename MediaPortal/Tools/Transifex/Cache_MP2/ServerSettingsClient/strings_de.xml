@@ -1,13 +1,17 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
   <string name="Settings.ServerSettings">Server-Einstellungen</string>
-  <string name="Settings.ServerSettings.ServerDOKANDrive">Laufwerksbuchstabe für Quelle</string>
+  <string name="Settings.ServerSettings.ServerDOKANDrive">Laufwerksbuchstabe für die eingebundene Quelle</string>
   <string name="Settings.ServerSettings.ServerDOKANDrive.Help">Ordnet auf dem Server der Remote-Quelle einen Laufwerksbuchstaben zu</string>
   <string name="Settings.ServerSettings.NetworkCredentials">Netzwerk-Zugangsdaten</string>
-  <string name="Settings.ServerSettings.NetworkCredentials.Help">Hier wird der Benutzername und das Passwort für den Zugriff auf den Server verwaltet</string>
+  <string name="Settings.ServerSettings.NetworkCredentials.Help">Hier wird der Benutzername und das Passwort für den Zugriff auf die Server-Quellen verwaltet</string>
   <string name="Settings.ServerSettings.ImpersonateInteractive">Benutze die Zugangsdaten der interaktiven Sitzung auf dem Server</string>
   <string name="Settings.ServerSettings.UseCredentials">Benutzername und Passwort für Netzwerkzugriff verwenden</string>
   <string name="Settings.ServerSettings.UsernamePasswordGroup">Benutzername und Passwort</string>
   <string name="Settings.ServerSettings.Username">Benutzername:</string>
   <string name="Settings.ServerSettings.Password">Passwort:</string>
+  <string name="Settings.ServerSettings.ImporterWorker">Importeinstellungen für die Freigaben konfigurieren</string>
+  <string name="Settings.ServerSettings.ImporterWorker.Help">Automatische Aktualisierung der Freigaben konfigurieren</string>
+  <string name="Settings.ServerSettings.ImporterWorker.EnableAutoRefresh">Aktiviere automatische Aktualisierung</string>
+  <string name="Settings.ServerSettings.ImporterWorker.RunAtHour">Zu dieser Stunde ausführen (24h Basis)</string>
 </resources>

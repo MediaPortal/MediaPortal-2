@@ -83,4 +83,7 @@
   <string name="WeatherSetup.SearchCity">Išči mesto</string>
   <string name="WeatherSetup.AddCity">Dodaj mesto</string>
   <string name="WeatherSetup.RemoveCity">Odstrani mesto</string>
+  <string name="WeatherSetup.Detect">Zaznaj</string>
+  <string name="WeatherSetup.DetectionFailed">Zaznavanje je spodletelo</string>
+  <string name="WeatherSetup.DetectionFailedMessage">Samodejno zaznavanje vaše lokacije je spodletelo.</string>
 </resources>

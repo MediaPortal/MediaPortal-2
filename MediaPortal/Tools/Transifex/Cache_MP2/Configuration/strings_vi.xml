@@ -1,0 +1,14 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<resources>
+  <string name="Configuration.Name">Thiết lập</string>
+  <string name="Configuration.ConfigurationMainWorkflowNavigationContextDisplayLabel">Thiết lập</string>
+  <string name="Configuration.MainSettings">Thiết lập chính</string>
+  <!--2nd Header for root configuration section-->
+  <string name="Configuration.NoSettingsInThisSection">Hiện không có thiết lập nào cho phần này</string>
+  <string name="Configuration.ErrorFloatingPointValue">\'{0}\' không phải là một số thực hợp lệ</string>
+  <string name="Configuration.ErrorIntegerValue">\'{0}\' không phải là một số nguyên hợp lệ</string>
+  <string name="Configuration.ErrorNumericLowerLimit">Sử dụng một giá trị ở giữa \'{1}\' và \'{2}\'</string>
+  <!--0 = current value, 1 = lower limit, 2 = upper limit-->
+  <string name="Configuration.ErrorNumericUpperLimit">Sử dụng một giá trị ở giữa \'{1}\' và \'{2}\'</string>
+  <!--0 = current value, 1 = lower limit, 2 = upper limit-->
+</resources>

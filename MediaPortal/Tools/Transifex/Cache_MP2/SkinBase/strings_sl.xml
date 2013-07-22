@@ -40,6 +40,7 @@
   <string name="ServerConnection.DetachFromServerWorkflowStateLabel">Odjavi se s strežnika</string>
   <string name="ServerConnection.HomeServerWorkflowStateLabel">Domači strežnik</string>
   <string name="ServerConnection.AttachedText.Before">Ta MediaPortal odjemalec je trenutno prijavljen na strežnik</string>
+  <string name="ServerConnection.AttachedText.After"></string>
   <string name="ServerConnection.NoHomeServerAttached">Ta MediaPortal odjemalec trenutno ni prijavljen na strežnik</string>
   <string name="ServerConnection.HomeServerIsConnected">Domači strežnik je trenutno povezan</string>
   <string name="ServerConnection.HomeServerIsNotConnected">Domači strežnik je trenutno nepovezan</string>
@@ -108,6 +109,8 @@
   <string name="Settings.General.System">Sistem</string>
   <string name="Settings.General.System.Autostart">Avtomatski zagon</string>
   <string name="Settings.General.System.Autostart.Help">Ob zagonu Windows sistema zaženi MediaPortal</string>
+  <string name="Settings.General.System.ClientDOKANDrive">Črka pogona vpetih virov</string>
+  <string name="Settings.General.System.ClientDOKANDrive.Help">Določa črko pogona za vpenjanje omrežnih virov na strežniku.</string>
   <string name="Settings.General.Connectivity">Povezljivost</string>
   <string name="Settings.General.Connectivity.HomeServer">Domači strežnik</string>
   <string name="Settings.General.Connectivity.HomeServer.Help">Informacije o strežnikih, prijava in odjava od strežnika</string>

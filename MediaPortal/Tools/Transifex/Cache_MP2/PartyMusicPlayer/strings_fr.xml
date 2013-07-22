@@ -14,7 +14,7 @@
   <string name="PartyMusicPlayer.EnterEscapePasswordDialogText">SVP, entrer le mot de passe permettant de quitter le mode Soirée</string>
   <string name="PartyMusicPlayer.WrongEscapePasswordDialogHeader">Mot de passe pour quitter erroné</string>
   <string name="PartyMusicPlayer.WrongEscapePasswordDialogText">Désolé, mot  passe incorrect!</string>
-  <string name="PartyMusicPlayer.ServerNotConnectedDialogHeader">Aucune connexion au Serveur</string>
+  <string name="PartyMusicPlayer.ServerNotConnectedDialogHeader">Aucune connexion au serveur</string>
   <string name="PartyMusicPlayer.ServerNotConnectedDialogText">Pour cette action, le serveur (Home Serveur) doit être connecté</string>
   <string name="PartyMusicPlayer.PlayerContextName">Lecteur en mode Soirée</string>
   <string name="PartyMusicPlayer.AudioArtistLabel">Artiste</string>

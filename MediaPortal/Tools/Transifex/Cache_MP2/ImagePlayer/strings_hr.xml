@@ -1,2 +1,8 @@
 <?xml version='1.0' encoding='UTF-8'?>
-<resources/>
+<resources>
+  <string name="Settings.Players.Image">Reproduktor slika</string>
+  <string name="Settings.Players.Image.SlideShowImageDuration">Trajanje slideshowa</string>
+  <string name="Settings.Players.Image.SlideShowImageDuration.Help">Postavlja trajanje prikaza jedne slike slidesowu</string>
+  <string name="Settings.Players.Image.KenBurnsEffect">Primijenite Ken Burns efekt</string>
+  <string name="Settings.Players.Image.KenBurnsEffect.Help">Koristiti animirano uvećanje i pomicanje pri prikazu slike.</string>
+</resources>

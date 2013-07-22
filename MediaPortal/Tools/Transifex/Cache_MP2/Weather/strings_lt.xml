@@ -83,4 +83,7 @@
   <string name="WeatherSetup.SearchCity">Ieškoti miesto</string>
   <string name="WeatherSetup.AddCity">Pridėti miestą</string>
   <string name="WeatherSetup.RemoveCity">Pašalinti miestą</string>
+  <string name="WeatherSetup.Detect">Aptikti</string>
+  <string name="WeatherSetup.DetectionFailed">Nepavyko aptikti</string>
+  <string name="WeatherSetup.DetectionFailedMessage">Nepavyko automatiškai aptikti jūsų padėties.</string>
 </resources>

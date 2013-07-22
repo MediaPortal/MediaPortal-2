@@ -40,6 +40,7 @@
   <string name="ServerConnection.DetachFromServerWorkflowStateLabel">Desvincula\'t del servidor</string>
   <string name="ServerConnection.HomeServerWorkflowStateLabel">Servidor d\'inici</string>
   <string name="ServerConnection.AttachedText.Before">El client del MediaPortal 2 és vinculat al servidor d\'inici</string>
+  <string name="ServerConnection.AttachedText.After"></string>
   <string name="ServerConnection.NoHomeServerAttached">El client del MediaPortal 2 no és vinculat a cap servidor d\'inici</string>
   <string name="ServerConnection.HomeServerIsConnected">El servidor d\'inici està connectat</string>
   <string name="ServerConnection.HomeServerIsNotConnected">El servidor d\'inici està desconnectat</string>
@@ -108,6 +109,8 @@
   <string name="Settings.General.System">Sistema</string>
   <string name="Settings.General.System.Autostart">Inici automàtic</string>
   <string name="Settings.General.System.Autostart.Help">Inicia automàticament el MediaPortal en engegr el Windows</string>
+  <string name="Settings.General.System.ClientDOKANDrive">Lletra de muntatge del recurs:</string>
+  <string name="Settings.General.System.ClientDOKANDrive.Help">Configura la lletra d\'unitat per muntar els recursos remots en aquest client.</string>
   <string name="Settings.General.Connectivity">Connectivitat</string>
   <string name="Settings.General.Connectivity.HomeServer">Servidor d\'inici</string>
   <string name="Settings.General.Connectivity.HomeServer.Help">Informació del servidor d\'inici, vincula i desvinvula del servidor d\'inici</string>

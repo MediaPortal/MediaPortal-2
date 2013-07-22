@@ -7,6 +7,8 @@
   <string name="Settings.Appearance.Skin">Δέρμα</string>
   <string name="Settings.Appearance.Skin.SkinAndTheme.ChangeSkin">Αλλαγή </string>
   <string name="Settings.Appearance.Skin.SkinAndTheme.ChangeTheme">Αλλαγή θέματος</string>
+  <string name="Settings.Players">Παίκτες</string>
+  <string name="Settings.Players.Rendering">Απόδοση</string>
   <string name="Settings.Players.Rendering.DefaultGeometry">Προεπιλεγμένη επιλογή ζούμ</string>
   <string name="ScreenManager.NotificationErrorLoadingSkinTitle">Σφάλμα στη φόρτωση ...</string>
   <string name="ScreenManager.ErrorLoadingSkinResource">Σφάλμα στη φόρτωση </string>

@@ -1,5 +1,5 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
   <string name="IsoResourceProvider.Name">Fournisseur de fichiers Image-CD</string>
-  <string name="IsoResourceProvider.Description">Accéder aux fichiers et dossiers inclus dansl\'image-CD</string>
+  <string name="IsoResourceProvider.Description">Accéder aux fichiers et dossiers inclus dans l\'image-CD</string>
 </resources>

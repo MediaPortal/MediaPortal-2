@@ -1,0 +1,15 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<resources>
+  <string name="News.Title">Tin tức</string>
+  <string name="News.FeedsStateDisplayLabel">Tin tức</string>
+  <string name="News.Published">Được xuất bản</string>
+  <string name="News.ConfiguredFeeds">Chỉnh sửa Feed</string>
+  <string name="News.AddFeed">Thêm Feed tin tức</string>
+  <string name="News.EnterFeedName">Điền tên cho feed</string>
+  <string name="News.EnterFeedUrl">Điền vào đường dẫn Url của feed</string>
+  <string name="Settings.Plugins.News">Tin tức</string>
+  <string name="Settings.Plugins.News.FeedsSetup">Quản lý Feed</string>
+  <string name="Settings.Plugins.News.FeedsSetup.Help">Chỉnh sửa feed được dùng để thu thập dữ liệu cho tin tức</string>
+  <string name="Settings.Plugins.News.RefreshInterval">Tải mới lại hệ thống tin</string>
+  <string name="Settings.Plugins.News.RefreshInterval.Help">Tải về dữ liệu feed sau ... phút</string>
+</resources>

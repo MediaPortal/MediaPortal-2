@@ -1,2 +1,5 @@
 <?xml version='1.0' encoding='UTF-8'?>
-<resources/>
+<resources>
+  <string name="ZipMediaProvider.Name">Media pružatelj ZIP daoteke</string>
+  <string name="ZipMediaProvider.Description">Pristupi datotekama i mapama u ZIP datotekama</string>
+</resources>

@@ -1,5 +1,19 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
   <string name="ServerStatus.NotStarted">Palvelin ei ole käynnissä</string>
+  <string name="ServerStatus.Attached">Liitetty palvelimeen</string>
+  <string name="ServerStatus.Connected">Yhdistetty palvelimeen</string>
+  <string name="ServerStatus.Detached">Irroitettu palvelimesta</string>
+  <string name="ServerStatus.Disconnected">Yhteys katkaistu palvelimeen</string>
+  <string name="ServerStatus.ClientConnected">Työasem(i)a yhdistettynä palvelimeen</string>
+  <string name="MainWindow.ServerStatus">Palvelimen tila</string>
+  <string name="MainWindow.AttachedClients">Liittyneet työasemat:</string>
+  <string name="ContextMenu.ShowWin">Näytä ikkuna</string>
+  <string name="ContextMenu.HideWin">Piiloita ikkuna</string>
+  <string name="ContextMenu.StartService">Aloita palvelu</string>
+  <string name="ContextMenu.StopService">Pysäytä palvelu</string>
+  <string name="ContextMenu.EnableAutostart">Ota automaattinen käynnistys käyttöön</string>
+  <string name="ContextMenu.DisableAutostart">Poista automaattinen käynnistys käytöstä</string>
   <string name="ContextMenu.Exit">Poistu</string>
+  <string name="SysTrayToolTip.Info">Oikealla klikkauksella lisää vaihtoehtoja</string>
 </resources>

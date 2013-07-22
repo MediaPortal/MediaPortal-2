@@ -1,0 +1,8 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<resources>
+  <string name="Settings.Players.Image">Hình ảnh chương trình</string>
+  <string name="Settings.Players.Image.SlideShowImageDuration">Độ dài trình chiếu ảnh</string>
+  <string name="Settings.Players.Image.SlideShowImageDuration.Help">Đặt độ dài bằng đơn vị giây để xác định thời hạn xuất hiện của mỗi hình ảnh trong chế độ trình diễn ảnh</string>
+  <string name="Settings.Players.Image.KenBurnsEffect">Sử dụng hiệu ứng Ken Burns</string>
+  <string name="Settings.Players.Image.KenBurnsEffect.Help">Sử dụng hiệu ứng lướt và phóng to khi hiển thị một hình ảnh</string>
+</resources>

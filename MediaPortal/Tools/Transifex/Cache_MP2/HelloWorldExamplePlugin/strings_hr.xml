@@ -1,2 +1,10 @@
 <?xml version='1.0' encoding='UTF-8'?>
-<resources/>
+<resources>
+  <string name="HelloWorld.MenuEntry">Pozdrav svijetu</string>
+  <string name="HelloWorld.StateDisplayLabel">Pozdrav svijetu stanje</string>
+  <string name="HelloWorld.ScreenTitle">Pozdrav svijetu zaslon</string>
+  <string name="HelloWorld.HelloWorldText">Pritiskanje tipke će promijeniti ovaj tekst</string>
+  <string name="HelloWorld.SampleText">Ovo je primjer zaslona PozdravSvijetu dodatka</string>
+  <string name="HelloWorld.ButtonText">Pritisni me</string>
+  <string name="HelloWorld.ButtonTextCommandExecuted">Čestitam, upravo ste pokrenuli komandu!</string>
+</resources>

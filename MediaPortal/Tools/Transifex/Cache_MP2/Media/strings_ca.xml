@@ -14,6 +14,8 @@
   <string name="Media.FilterByAudioGenreMenuItem">Filtra per gènere</string>
   <string name="Media.FilterByDecadeMenuItem">Filtra per dècada</string>
   <string name="Media.FilterByActorMenuItem">Filtra per actor</string>
+  <string name="Media.FilterByDirectorMenuItem">Filtra per director</string>
+  <string name="Media.FilterByWriterMenuItem">Filtra per escriptor</string>
   <string name="Media.FilterByVideoGenreMenuItem">Filtra per gènere</string>
   <string name="Media.FilterByVideoYearMenuItem">Filtra per any</string>
   <string name="Media.FilterByAudioLanguageMenuItem">Filtra per idioma</string>
@@ -21,7 +23,7 @@
   <string name="Media.FilterByImageYearMenuItem">Filtra per any</string>
   <string name="Media.FilterByImageCountryMenuItem">Filtra per país</string>
   <string name="Media.FilterByImageStateMenuItem">Filtra per estat</string>
-  <string name="Media.FilterByImageCityMenuItem">Piltra per ciutat</string>
+  <string name="Media.FilterByImageCityMenuItem">Filtra per ciutat</string>
   <string name="Media.FilterBySystemMenuItem">Filtra per sistema</string>
   <string name="Media.FilterByMoviesCollectionMenuItem">Filtra per col·lecció</string>
   <string name="Media.FilterBySeriesNameMenuItem">Filtra per sèries</string>
@@ -49,6 +51,8 @@
   <string name="Media.FilterAudioGenreNavbarDisplayLabel">Gènere: {0}</string>
   <string name="Media.FilterDecadeNavbarDisplayLabel">Dècada: {0}</string>
   <string name="Media.FilterActorNavbarDisplayLabel">Actor: {0}</string>
+  <string name="Media.FilterDirectorNavbarDisplayLabel">Director: {0}</string>
+  <string name="Media.FilterWriterNavbarDisplayLabel">Escriptor: {0}</string>
   <string name="Media.FilterVideoGenreNavbarDisplayLabel">Gènere: {0}</string>
   <string name="Media.FilterVideoYearNavbarDisplayLabel">Any: {0}</string>
   <string name="Media.FilterAudioLanguagesNavbarDisplayLabel">Idioma: {0}</string>
@@ -101,6 +105,8 @@
   <string name="Media.SimpleSearchHeader">Cerca senzilla</string>
   <string name="Media.ChooseCollectionHeader">Trieu una col·lecció</string>
   <string name="Media.ChooseActorHeader">Trieu un actor</string>
+  <string name="Media.ChooseDirectorHeader">Trieu un director</string>
+  <string name="Media.ChooseWriterHeader">Trieu un escriptor</string>
   <string name="Media.ChooseVideoGenreHeader">Trieu un gènere</string>
   <string name="Media.ChooseVideoYearHeader">Trieu un any</string>
   <string name="Media.ChooseSeriesHeader">Trieu una sèrie</string>
@@ -214,9 +220,9 @@
   <string name="Media.SeriesEpisodeLabel">Episodi(s): </string>
   <string name="Media.SeriesEpisodeNameLabel">Títol d\'episodi:</string>
   <!--Image currently playing-->
-  <string name="Media.ImageCurrentlyPlayingHeader">INformació de la imatge actual</string>
+  <string name="Media.ImageCurrentlyPlayingHeader">Informació de la imatge actual</string>
   <string name="Media.ImageTitleLabel">Nom:</string>
-  <string name="Media.ImageDimensions">MIdes: </string>
+  <string name="Media.ImageDimensions">Mides: </string>
   <string name="Media.CameraMake">Marca de la càmera:</string>
   <string name="Media.CameraModel">Model de càmera</string>
   <string name="Media.ImageISOSpeedLabel">Velocitat ISO:</string>
@@ -295,9 +301,11 @@
   <string name="Media.SortBySize">Ordena per mida</string>
   <string name="Media.SortBySystem">Ordena per sistema</string>
   <string name="Media.SortByActor">Ordena per actor</string>
-  <string name="Media.SortByDirector">Filtra per director</string>
-  <string name="Media.SortByDuration">Filtra per durada</string>
-  <string name="Media.SortByAspectRatio">Filtra per relació d\'aspecte</string>
+  <string name="Media.SortByDirector">Ordena per director</string>
+  <string name="Media.SortByWriter">Ordena per escriptor</string>
+  <string name="Media.SortByDuration">Ordena per durada</string>
+  <string name="Media.SortByAspectRatio">Ordena per relació d\'aspecte</string>
+  <string name="Media.SortByFirstAiredDate">Ordena per data d\'emissió</string>
   <string name="Media.SortByDate">Filtra per data d\'enregistrament</string>
   <string name="Media.SortByEpisode">Filtra per episodi</string>
   <string name="Media.SortingBrowseDefault">Filtratge per defecte</string>

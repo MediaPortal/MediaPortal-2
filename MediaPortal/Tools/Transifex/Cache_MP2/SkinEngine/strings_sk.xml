@@ -3,6 +3,9 @@
   <string name="Settings.Appearance.System">Systém</string>
   <string name="Settings.Appearance.System.Fullscreen">Celá obrazovka</string>
   <string name="Settings.Appearance.System.Fullscreen.Help">Zobraziť MediaPortal na celej obrazovke</string>
+  <string name="Settings.Appearance.System.StartupScreen">Obrazovka pri spustení</string>
+  <string name="Settings.Appearance.System.StartupScreen.Help">Vyberte obrazovku pri spustení</string>
+  <string name="Settings.Appearance.System.StartupScreen.DoNotUseSelection">Nepoužívať výber obrazovky</string>
   <string name="Settings.Appearance.System.CellPhoneInputStyle">Klávesnica mobilného telefónu</string>
   <string name="Settings.Appearance.System.CellPhoneInputStyle.Help">Písať ako SMS na telefóne</string>
   <string name="Settings.Appearance.System.ScreenSaverEnabled">Povoliť šetrič obrazovky</string>

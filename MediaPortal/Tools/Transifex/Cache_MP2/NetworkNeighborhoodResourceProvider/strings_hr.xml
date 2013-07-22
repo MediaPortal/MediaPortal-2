@@ -1,2 +1,5 @@
 <?xml version='1.0' encoding='UTF-8'?>
-<resources/>
+<resources>
+  <string name="NetworkNeighborhoodResourceProvider.Name">Pružatelj informacija za okružje lokalne mreže.</string>
+  <string name="NetworkNeighborhoodResourceProvider.Description">Pristupi windows dijeljenim mapama na računalima u okružju lokalne mreže.</string>
+</resources>

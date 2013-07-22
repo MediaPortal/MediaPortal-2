@@ -1,4 +1,8 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
+  <string name="Settings.Players.Image">Image Player</string>
+  <string name="Settings.Players.Image.SlideShowImageDuration">Παρουσίαση διάρκειας εικόνας</string>
+  <string name="Settings.Players.Image.SlideShowImageDuration.Help">Ορισμός της διάρκειας σε δευτερόλεπτα πόσο χρόνο κάθε εικόνα είναι εμφανής σε λειτουργία slideshow</string>
   <string name="Settings.Players.Image.KenBurnsEffect">Χρησιμοποίηση εφφέ Ken Burns</string>
+  <string name="Settings.Players.Image.KenBurnsEffect.Help">Χρήση pan και ζουμ κινούμενων εικόνων κατά την προβολή μιας εικόνας</string>
 </resources>

@@ -3,8 +3,8 @@
   <string name="Settings.Appearance.System">System</string>
   <string name="Settings.Appearance.System.Fullscreen">Vollbild</string>
   <string name="Settings.Appearance.System.Fullscreen.Help">MediaPortal im Vollbildmodus anzeigen</string>
-  <string name="Settings.Appearance.System.StartupScreen">Willkommensbildschirm</string>
-  <string name="Settings.Appearance.System.StartupScreen.Help">Auswahl des Willkommensbildschirms</string>
+  <string name="Settings.Appearance.System.StartupScreen">Start-Bildschirm</string>
+  <string name="Settings.Appearance.System.StartupScreen.Help">Auswahl des Bildschirms, auf dem MediaPortal gestartet wird</string>
   <string name="Settings.Appearance.System.StartupScreen.DoNotUseSelection">Bildschirmauswahl deaktivieren</string>
   <string name="Settings.Appearance.System.CellPhoneInputStyle">Handy-Tastatur</string>
   <string name="Settings.Appearance.System.CellPhoneInputStyle.Help">Handy-Tastatur benutzen</string>

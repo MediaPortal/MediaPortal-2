@@ -1,5 +1,19 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
   <string name="ServerStatus.NotStarted">Serveren er ikke startet</string>
+  <string name="ServerStatus.Attached">Koblet til server</string>
+  <string name="ServerStatus.Connected">Tilkoblet til server</string>
+  <string name="ServerStatus.Detached">Avkoblet server</string>
+  <string name="ServerStatus.Disconnected">Frakoblet server</string>
+  <string name="ServerStatus.ClientConnected">Klient(er) kolbet til server</string>
+  <string name="MainWindow.ServerStatus">Server status</string>
+  <string name="MainWindow.AttachedClients">Tilkoblede klienter:</string>
+  <string name="ContextMenu.ShowWin">Vis vindu</string>
+  <string name="ContextMenu.HideWin">Skjul vindu</string>
+  <string name="ContextMenu.StartService">Start tjenesten</string>
+  <string name="ContextMenu.StopService">Stop tjenesten</string>
+  <string name="ContextMenu.EnableAutostart">Aktiver autostart</string>
+  <string name="ContextMenu.DisableAutostart">Deaktiver autostart</string>
   <string name="ContextMenu.Exit">Avslutt</string>
+  <string name="SysTrayToolTip.Info">Høyreklikk for flere valg</string>
 </resources>

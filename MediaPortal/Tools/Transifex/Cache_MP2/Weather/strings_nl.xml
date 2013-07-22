@@ -83,4 +83,7 @@
   <string name="WeatherSetup.SearchCity">Plaats zoeken</string>
   <string name="WeatherSetup.AddCity">Plaats toevoegen</string>
   <string name="WeatherSetup.RemoveCity">Plaats verwijderen</string>
+  <string name="WeatherSetup.Detect">Detecteren</string>
+  <string name="WeatherSetup.DetectionFailed">Detecteren mislukt</string>
+  <string name="WeatherSetup.DetectionFailedMessage">Het is mislukt om je locatie automatisch te detecteren.</string>
 </resources>

@@ -13,7 +13,7 @@
   <string name="Weather.NoData">nie sú údaje</string>
   <string name="Weather.Temp">Teplota</string>
   <string name="Weather.TempFeel">Pocitovo</string>
-  <string name="Weather.UVIndex">UV Index</string>
+  <string name="Weather.UVIndex">UV index</string>
   <string name="Weather.Wind">Vietor</string>
   <string name="Weather.Humidity">Vlhkosť</string>
   <string name="Weather.Precipitation">Zrážky</string>
@@ -83,4 +83,7 @@
   <string name="WeatherSetup.SearchCity">Vyhľadať mesto</string>
   <string name="WeatherSetup.AddCity">Pridať mesto</string>
   <string name="WeatherSetup.RemoveCity">Odstrániť mesto</string>
+  <string name="WeatherSetup.Detect">Detegovať</string>
+  <string name="WeatherSetup.DetectionFailed">Detekcia zlyhala</string>
+  <string name="WeatherSetup.DetectionFailedMessage">Vašu lokalitu nebolo možné zistiť automaticky.</string>
 </resources>

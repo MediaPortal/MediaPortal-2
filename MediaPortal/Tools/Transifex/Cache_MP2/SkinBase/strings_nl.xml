@@ -40,6 +40,7 @@
   <string name="ServerConnection.DetachFromServerWorkflowStateLabel">Verbreek verbinding met server</string>
   <string name="ServerConnection.HomeServerWorkflowStateLabel">ThuisServer</string>
   <string name="ServerConnection.AttachedText.Before">Deze MediaPortal 2 client is momenteel verbonden met de thuisserver</string>
+  <string name="ServerConnection.AttachedText.After"></string>
   <string name="ServerConnection.NoHomeServerAttached">Deze MediaPortal 2 client is momenteel niet verbonden met de thuisserver</string>
   <string name="ServerConnection.HomeServerIsConnected">De thuisserver is momenteel verbonden.</string>
   <string name="ServerConnection.HomeServerIsNotConnected">De thuisserver is momenteel niet verbonden</string>

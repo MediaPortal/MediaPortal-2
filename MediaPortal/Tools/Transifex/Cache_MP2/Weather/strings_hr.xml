@@ -83,4 +83,7 @@
   <string name="WeatherSetup.SearchCity">Tražite grad</string>
   <string name="WeatherSetup.AddCity">Dodajte grad</string>
   <string name="WeatherSetup.RemoveCity">Uklonite grad</string>
+  <string name="WeatherSetup.Detect">Utvrdi lokaciju</string>
+  <string name="WeatherSetup.DetectionFailed">Utvrđivanje nije uspjelo</string>
+  <string name="WeatherSetup.DetectionFailedMessage">Nije uspjelo automatsko utvrđivanje Vaše lokacije.</string>
 </resources>

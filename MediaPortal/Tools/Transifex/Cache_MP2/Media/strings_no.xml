@@ -14,6 +14,8 @@
   <string name="Media.FilterByAudioGenreMenuItem">Filtrer etter sjanger</string>
   <string name="Media.FilterByDecadeMenuItem">Filtrer etter tiår</string>
   <string name="Media.FilterByActorMenuItem">Filtrer etter skuespiller</string>
+  <string name="Media.FilterByDirectorMenuItem">Filtrer etter regissør</string>
+  <string name="Media.FilterByWriterMenuItem">Filtrer etter forfatter</string>
   <string name="Media.FilterByVideoGenreMenuItem">Filtrer etter sjanger</string>
   <string name="Media.FilterByVideoYearMenuItem">Filtrer etter år</string>
   <string name="Media.FilterByAudioLanguageMenuItem">Filtrer etter språk</string>
@@ -49,6 +51,8 @@
   <string name="Media.FilterAudioGenreNavbarDisplayLabel">Sjanger: {0}</string>
   <string name="Media.FilterDecadeNavbarDisplayLabel">Tiår: {0}</string>
   <string name="Media.FilterActorNavbarDisplayLabel">Skuespiller: {0}</string>
+  <string name="Media.FilterDirectorNavbarDisplayLabel">regissør: {0}</string>
+  <string name="Media.FilterWriterNavbarDisplayLabel">Forfatter: {0}</string>
   <string name="Media.FilterVideoGenreNavbarDisplayLabel">Sjanger: {0}</string>
   <string name="Media.FilterVideoYearNavbarDisplayLabel">År: {0}</string>
   <string name="Media.FilterAudioLanguagesNavbarDisplayLabel">Språk</string>
@@ -101,6 +105,8 @@
   <string name="Media.SimpleSearchHeader">Enkelt søk</string>
   <string name="Media.ChooseCollectionHeader">Velg en samling</string>
   <string name="Media.ChooseActorHeader">Velg en skuespiller</string>
+  <string name="Media.ChooseDirectorHeader">Velg regissør</string>
+  <string name="Media.ChooseWriterHeader">Velg forfatter</string>
   <string name="Media.ChooseVideoGenreHeader">Velg en sjanger</string>
   <string name="Media.ChooseVideoYearHeader">Velg et årstall</string>
   <string name="Media.ChooseSeriesHeader">Velg en serie</string>
@@ -296,8 +302,10 @@
   <string name="Media.SortBySystem">Sorter etter system</string>
   <string name="Media.SortByActor">Sorter etter skuespiller</string>
   <string name="Media.SortByDirector">Sorter etter regissør</string>
+  <string name="Media.SortByWriter">Sorter etter forfatter</string>
   <string name="Media.SortByDuration">Sorter etter varighet</string>
   <string name="Media.SortByAspectRatio">Sorter etter sideforhold</string>
+  <string name="Media.SortByFirstAiredDate">Sorter etter sendt dato</string>
   <string name="Media.SortByDate">Sorter etter dato for innspilling</string>
   <string name="Media.SortByEpisode">Sorter etter episode</string>
   <string name="Media.SortingBrowseDefault">Standard sortering</string>

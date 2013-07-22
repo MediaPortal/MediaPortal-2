@@ -3,6 +3,9 @@
   <string name="Settings.Appearance.System">Sistem</string>
   <string name="Settings.Appearance.System.Fullscreen">Celoten zaslon</string>
   <string name="Settings.Appearance.System.Fullscreen.Help">Prikazuj MediaPoortal celozaslonsko</string>
+  <string name="Settings.Appearance.System.StartupScreen">Začetni zaslon</string>
+  <string name="Settings.Appearance.System.StartupScreen.Help">Izberite začetni zaslon</string>
+  <string name="Settings.Appearance.System.StartupScreen.DoNotUseSelection">Ne uporabi izbire zaslona</string>
   <string name="Settings.Appearance.System.CellPhoneInputStyle">Način vnosa kot na mobilnem telefonu</string>
   <string name="Settings.Appearance.System.CellPhoneInputStyle.Help">Uporabi način vnosa, kot pri SMS na telefonu</string>
   <string name="Settings.Appearance.System.ScreenSaverEnabled">Omogoči ohranjevalnik zaslona</string>

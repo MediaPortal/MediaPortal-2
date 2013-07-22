@@ -3,6 +3,8 @@
   <string name="Settings.Appearance.System">Kerfi</string>
   <string name="Settings.Appearance.System.Fullscreen">Fullur skjár</string>
   <string name="Settings.Appearance.System.Fullscreen.Help">Sýma MediaPortal á fullum sjá</string>
+  <string name="Settings.Appearance.System.StartupScreen">Ræsiskjár</string>
+  <string name="Settings.Appearance.System.StartupScreen.Help">Veljið ræsiskjá</string>
   <string name="Settings.Appearance.System.CellPhoneInputStyle">SMS innsláttur</string>
   <string name="Settings.Appearance.System.CellPhoneInputStyle.Help">Nota SMS innslátt</string>
   <string name="Settings.Appearance.System.ScreenSaverEnabled">Virkja skjásvæfu</string>

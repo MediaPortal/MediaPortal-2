@@ -63,4 +63,5 @@
   <string name="Media.RepeatMode.All">Όλα</string>
   <!--VideoPlayerUIContributor-->
   <!--Video Player time units-->
+  <string name="Settings.Players">Παίκτες</string>
 </resources>
