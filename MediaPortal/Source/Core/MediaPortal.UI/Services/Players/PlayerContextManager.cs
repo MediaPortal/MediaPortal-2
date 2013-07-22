@@ -157,7 +157,8 @@ namespace MediaPortal.UI.Services.Players
           case PlayerManagerMessaging.MessageType.PlayerResumeState:
             psc = (IPlayerSlotController) message.MessageData[PlayerManagerMessaging.PLAYER_SLOT_CONTROLLER];
             IResumeState resumeState = (IResumeState) message.MessageData[PlayerManagerMessaging.KEY_RESUME_STATE];
-            HandleResumeInfo(psc, resumeState);
+            Guid mediaItemId = (Guid) message.MessageData[PlayerManagerMessaging.KEY_MEDIAITEM_ID];
+            HandleResumeInfo(psc, mediaItemId, resumeState);
             break;
           case PlayerManagerMessaging.MessageType.PlayerError:
           case PlayerManagerMessaging.MessageType.PlayerEnded:
@@ -229,19 +230,13 @@ namespace MediaPortal.UI.Services.Players
           _playerWfStateInstances.Add(new PlayerWFStateInstance(PlayerWFStateType.FullscreenContent, stateId));
     }
 
-    protected void HandleResumeInfo(IPlayerSlotController psc, IResumeState resumeState)
+    protected void HandleResumeInfo(IPlayerSlotController psc, Guid mediaItemId, IResumeState resumeState)
     {
-      IPlayerContext pc = PlayerContext.GetPlayerContext(psc);
-      if (pc == null || !pc.IsActive)
-        return;
-
-      // Resume info is only sent if the player supports it.
-      MediaItem currentItem = pc.CurrentMediaItem;
       string serialized = ResumeStateBase.Serialize(resumeState);
 
       IUserManagement userProfileDataManagement = ServiceRegistration.Get<IUserManagement>();
       if (userProfileDataManagement.IsValidUser)
-        userProfileDataManagement.UserProfileDataManagement.SetUserMediaItemData(userProfileDataManagement.CurrentUser.ProfileId, currentItem.MediaItemId, PlayerContext.KEY_RESUME_STATE, serialized);
+        userProfileDataManagement.UserProfileDataManagement.SetUserMediaItemData(userProfileDataManagement.CurrentUser.ProfileId, mediaItemId, PlayerContext.KEY_RESUME_STATE, serialized);
     }
 
     protected void HandlePlayerEnded(IPlayerSlotController psc)

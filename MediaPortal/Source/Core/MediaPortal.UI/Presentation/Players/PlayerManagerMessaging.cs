@@ -22,6 +22,7 @@
 
 #endregion
 
+using System;
 using MediaPortal.Common;
 using MediaPortal.Common.Messaging;
 
@@ -37,6 +38,7 @@ namespace MediaPortal.UI.Presentation.Players
     public const string CHANNEL = "PlayerManager";
 
     public const string KEY_RESUME_STATE = "PlayerResumeState";
+    public const string KEY_MEDIAITEM_ID = "MediaItemId";
 
     // Message type
     public enum MessageType
@@ -161,11 +163,13 @@ namespace MediaPortal.UI.Presentation.Players
     /// Sends a message which contains information for resuming playback. The contained data can be specific for each player (can be position or some binary data).
     /// </summary>
     /// <param name="psc">Player slot controller of the player which is involved.</param>
+    /// <param name="mediaItemId">ID of media item that was played.</param>
     /// <param name="resumeState">Resume state.</param>
-    public static void SendPlayerResumeStateMessage(IPlayerSlotController psc, IResumeState resumeState)
+    public static void SendPlayerResumeStateMessage(IPlayerSlotController psc, Guid mediaItemId, IResumeState resumeState)
     {
       SystemMessage msg = new SystemMessage(MessageType.PlayerResumeState);
       msg.MessageData[PLAYER_SLOT_CONTROLLER] = psc;
+      msg.MessageData[KEY_MEDIAITEM_ID] = mediaItemId;
       msg.MessageData[KEY_RESUME_STATE] = resumeState;
       ServiceRegistration.Get<IMessageBroker>().Send(CHANNEL, msg);
     }

@@ -126,9 +126,18 @@ namespace MediaPortal.UI.Services.Players
       if (resumablePlayer == null)
         return;
 
+      // Get the current MediaItem ID at this time, later the PSC is already closed (in case of PlayerEnded state) and MediaItem information is lost.
+      object oContext;
+      if (!ContextVariables.TryGetValue(PlayerContext.KEY_PLAYER_CONTEXT, out oContext) || !(oContext is IPlayerContext))
+        return;
+      
+      IPlayerContext playerContext = (IPlayerContext) oContext;
+      if (playerContext.CurrentMediaItem == null)
+        return;
+
       IResumeState resumeState;
       if (resumablePlayer.GetResumeState(out resumeState))
-        PlayerManagerMessaging.SendPlayerResumeStateMessage(this, resumeState);
+        PlayerManagerMessaging.SendPlayerResumeStateMessage(this, playerContext.CurrentMediaItem.MediaItemId, resumeState);
     }
 
     protected void CheckActive()
