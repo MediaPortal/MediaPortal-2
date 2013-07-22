@@ -28,12 +28,11 @@ using System.Windows.Forms;
 using MediaPortal.Backend.ClientCommunication;
 using MediaPortal.Common;
 using MediaPortal.Common.Localization;
+using MediaPortal.Common.Logging;
 using MediaPortal.Common.Messaging;
 using MediaPortal.Common.PathManager;
 using MediaPortal.Common.Runtime;
-using MediaPortal.Common.Settings;
 using MediaPortal.Common.SystemCommunication;
-using MediaPortal.Server.Settings;
 
 namespace MediaPortal.Server
 {
@@ -64,11 +63,6 @@ namespace MediaPortal.Server
       Icon = Icon.ExtractAssociatedIcon(ServiceRegistration.Get<IPathManager>().GetPath("<APPLICATION_PATH>"));
       serverTrayIcon.Icon = Icon;
       UpdateClientsList();
-      ISettingsManager settingsManager = ServiceRegistration.Get<ISettingsManager>();
-      AppSettings settings = settingsManager.Load<AppSettings>();
-      _applicationSuspendLevel = settings.SuspendLevel;
-      UpdateSystemSuspendLevel_MainThread(); // Don't use UpdateSystemSuspendLevel() here because the window handle was not created yet
-      cbAvoidShutdown.Checked = ApplicationSuspendLevel > SuspendLevel.None;
     }
 
     public SuspendLevel ApplicationSuspendLevel
@@ -79,10 +73,6 @@ namespace MediaPortal.Server
         if (_applicationSuspendLevel == value)
           return;
         _applicationSuspendLevel = value;
-        ISettingsManager settingsManager = ServiceRegistration.Get<ISettingsManager>();
-        AppSettings settings = settingsManager.Load<AppSettings>();
-        settings.SuspendLevel = _applicationSuspendLevel;
-        settingsManager.Save(settings);
         UpdateSystemSuspendLevel();
       }
     }
@@ -99,7 +89,9 @@ namespace MediaPortal.Server
 
     protected void UpdateSystemSuspendLevel_MainThread()
     {
-      EnergySavingConfig.SetCurrentSuspendLevel(_applicationSuspendLevel);
+      // Set a continous state for MainThread.
+      ServiceRegistration.Get<ILogger>().Debug("UpdatePowerState: Setting continuous suspend level to {0}", _applicationSuspendLevel);
+      EnergySavingConfig.SetCurrentSuspendLevel(_applicationSuspendLevel, true);
     }
 
     private void OnMainFormShown(object sender, System.EventArgs e)
@@ -152,6 +144,8 @@ namespace MediaPortal.Server
               connectedClientSystemIDs.Contains(attachedClientData.SystemId));
           lvClients.Items.Add(lvi);
         }
+        // Avoid suspend as long as clients are connected.
+        ApplicationSuspendLevel = connectedClientSystemIDs.Count > 0 ? SuspendLevel.AvoidSuspend : SuspendLevel.None;
       }
       finally
       {
@@ -177,11 +171,6 @@ namespace MediaPortal.Server
     {
       _messageQueue.Shutdown();
       _messageQueue = null;
-    }
-
-    private void OnAvoidShutdownCheckedChanged(object sender, System.EventArgs e)
-    {
-      ApplicationSuspendLevel = cbAvoidShutdown.Checked ? SuspendLevel.AvoidSuspend : SuspendLevel.None;
     }
   }
 }
