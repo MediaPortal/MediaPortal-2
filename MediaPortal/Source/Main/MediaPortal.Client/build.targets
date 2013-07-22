@@ -13,16 +13,15 @@
     <BaseFiles Include="$(SolutionDir)Base\Client\**\*.*" />
   </ItemGroup>
 
-  <ItemGroup>
-    <CleanupFiles Include="$(AppDestination)\*.pdb" />
-    <CleanupFiles Include="$(AppDestination)\*.xml" />
-  </ItemGroup>
-
   <Target Name="AfterBuild">
     <Copy SourceFiles="@(References)" DestinationFolder="$(AppDestination)" />
     <Copy SourceFiles="@(BaseFiles)"
           DestinationFiles="@(BaseFiles->'$(AppDestination)%(RecursiveDir)%(Filename)%(Extension)')" />
 
+    <ItemGroup>
+      <CleanupFiles Include="$(AppDestination)*.pdb" />
+      <CleanupFiles Include="$(AppDestination)*.xml" />
+    </ItemGroup>
     <Delete Condition=" '$(Configuration)' == 'Release' " Files="@(CleanupFiles)" />
   </Target>
 
