@@ -23,13 +23,19 @@
 #endregion
 
 using System.ServiceProcess;
+using MediaPortal.Backend.ClientCommunication;
+using MediaPortal.Common;
+using MediaPortal.Common.Logging;
+using MediaPortal.Common.Messaging;
+using MediaPortal.Common.Runtime;
 
 namespace MediaPortal.Server
 {
   public partial class WindowsService : ServiceBase
   {
     protected ApplicationLauncher _launcher = null;
-
+    protected AsynchronousMessageQueue _messageQueue = null;
+    protected SuspendLevel _suspendLevel = SuspendLevel.None;
     public WindowsService()
     {
       InitializeComponent();
@@ -39,20 +45,79 @@ namespace MediaPortal.Server
       CanHandlePowerEvent = true;
       AutoLog = false;
     }
-    
+
     protected override void OnStart(string[] args)
     {
       if (_launcher != null)
         return;
       _launcher = new ApplicationLauncher(null);
       _launcher.Start();
+      SubscribeToMessages();
+      UpdatePowerState();
     }
 
     protected override void OnStop()
     {
+      UnsubscribeFromMessages();
       if (_launcher == null)
         return;
       _launcher.Stop();
     }
+
+    protected override bool OnPowerEvent(PowerBroadcastStatus powerStatus)
+    {
+      if (powerStatus == PowerBroadcastStatus.QuerySuspend)
+      {
+        // Deny suspend if required.
+        if (_suspendLevel > SuspendLevel.None)
+          return false;
+      }
+      return base.OnPowerEvent(powerStatus);
+    }
+
+    #region Message and power state handling
+
+    protected void SubscribeToMessages()
+    {
+      _messageQueue = new AsynchronousMessageQueue("WindowsService", new[] { ClientManagerMessaging.CHANNEL });
+      _messageQueue.MessageReceived += OnMessageReceived;
+      _messageQueue.Start();
+    }
+
+    protected void UnsubscribeFromMessages()
+    {
+      if (_messageQueue == null)
+        return;
+      _messageQueue.Shutdown();
+      _messageQueue = null;
+    }
+
+    protected void OnMessageReceived(AsynchronousMessageQueue queue, SystemMessage message)
+    {
+      if (message.ChannelName != ClientManagerMessaging.CHANNEL)
+        return;
+
+      ClientManagerMessaging.MessageType messageType = (ClientManagerMessaging.MessageType) message.MessageType;
+      switch (messageType)
+      {
+        case ClientManagerMessaging.MessageType.ClientOnline:
+        case ClientManagerMessaging.MessageType.ClientOffline:
+          UpdatePowerState();
+          break;
+      }
+    }
+
+    protected void UpdatePowerState()
+    {
+      IClientManager clientManager = ServiceRegistration.Get<IClientManager>(false);
+      if (clientManager == null)
+        return;
+      // Set a continous state for current thread (which is the AMQ thread, not the "MainThread").
+      _suspendLevel = (clientManager.ConnectedClients.Count > 0 ? SuspendLevel.AvoidSuspend : SuspendLevel.None);
+      ServiceRegistration.Get<ILogger>().Debug("UpdatePowerState: Setting continuous suspend level to {0}", _suspendLevel);
+      EnergySavingConfig.SetCurrentSuspendLevel(_suspendLevel, true);
+    }
+
+    #endregion
   }
 }
