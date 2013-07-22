@@ -963,7 +963,13 @@ namespace MediaPortal.UI.Players.Video
     /// <returns><c>true</c> if successful, otherwise <c>false</c>.</returns>
     public virtual bool GetResumeState(out IResumeState state)
     {
-      state = new PositionResumeState { ResumePosition = CurrentTime };
+      TimeSpan currentTime = CurrentTime;
+      TimeSpan duration = Duration;
+      // If we already played back more then 99%, we don't want to ask user to resume playback.
+      if (currentTime.TotalSeconds / duration.TotalSeconds > 0.99)
+        state = null;
+      else
+        state = new PositionResumeState { ResumePosition = CurrentTime };
       return true;
     }
 
