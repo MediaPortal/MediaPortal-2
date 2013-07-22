@@ -135,6 +135,11 @@ file_filter=Cache_MP2\Weather\strings_<lang>.xml
 source_file=Cache_MP2\Weather\strings_en.xml
 source_lang=en
 type=ANDROID
+[MP2.WifiConfiguration]
+file_filter=Cache_MP2\WifiConfiguration\strings_<lang>.xml
+source_file=Cache_MP2\WifiConfiguration\strings_en.xml
+source_lang=en
+type=ANDROID
 [MP2.ZipResourceProvider]
 file_filter=Cache_MP2\ZipResourceProvider\strings_<lang>.xml
 source_file=Cache_MP2\ZipResourceProvider\strings_en.xml
