@@ -228,6 +228,7 @@ namespace TransifexHelper
     private static void SearchLangDirs(DirectoryInfo currentDir)
     {
       if (currentDir.Name.ToLower() == "bin") return;
+      if (currentDir.Name.ToLower() == "packages") return;
 
       // if current dir is a valid language dir, read resource
       if (currentDir.Name.ToLower() == "language" &&
@@ -364,6 +365,8 @@ namespace TransifexHelper
       foreach (var res in TransifexResources)
       {
         string inputDir = res.GetCacheFullDirectory();
+        if (!Directory.Exists(inputDir))
+          continue;
 
         foreach (FileInfo langFile in new DirectoryInfo(inputDir).GetFiles())
         {
