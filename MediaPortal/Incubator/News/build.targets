@@ -8,7 +8,6 @@
   <ItemGroup>
     <PluginFiles Include="$(TargetDir)$(ProjectName).dll" />
     <PluginFiles Include="$(ProjectDir)plugin.xml" />
-    <PluginFiles Include="$(ProjectDir)DefaultFeeds.xml" />
   </ItemGroup>
 
   <ItemGroup>

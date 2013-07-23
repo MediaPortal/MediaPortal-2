@@ -22,18 +22,22 @@
 
 #endregion
 
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Xml.Serialization;
 using MediaPortal.Common;
 using MediaPortal.Common.Localization;
+using MediaPortal.Common.Logging;
 using MediaPortal.Common.Settings;
 
 namespace MediaPortal.UiComponents.News.Settings
 {
   public class NewsSettings
   {
+    internal const string DEFAULT_FEEDS_URL = "http://install.team-mediaportal.com/MP2/News/DefaultFeeds.xml";
+
     public NewsSettings()
     {
       FeedsList = new List<FeedBookmark>();
@@ -55,15 +59,29 @@ namespace MediaPortal.UiComponents.News.Settings
     {
       if (DefaultFeeds == null)
       {
-        // if the default feeds haven't been loaded yet, deserialize them from xml file
-        var path = Path.Combine(Path.GetDirectoryName(typeof(NewsSettings).Assembly.Location), "DefaultFeeds.xml");
-        var serializer = new XmlSerializer(typeof(RegionalFeedBookmarksCollection));
-        using (var fs = new FileStream(path, FileMode.Open, FileAccess.Read))
+        try
         {
-          var loadedFeeds = serializer.Deserialize(fs) as RegionalFeedBookmarksCollection;
-          DefaultFeeds = new Dictionary<string, List<FeedBookmark>>();
-          foreach (var region in loadedFeeds)
-            DefaultFeeds[region.RegionCode] = region.FeedBookmarks;
+          // if the default feeds haven't been loaded yet, load xml from sever
+          using (var client = new CompressionWebClient())
+          {
+            // use our special client that has a lower timeout and uses compression by default
+            string defaultFeedsData = client.DownloadString(DEFAULT_FEEDS_URL);
+            // deserialize feeds from xml file
+            var serializer = new XmlSerializer(typeof(RegionalFeedBookmarksCollection));
+            using (var reader = new StringReader(defaultFeedsData))
+            {
+              var loadedFeeds = serializer.Deserialize(reader) as RegionalFeedBookmarksCollection;
+              DefaultFeeds = new Dictionary<string, List<FeedBookmark>>();
+              foreach (var region in loadedFeeds)
+                DefaultFeeds[region.RegionCode] = region.FeedBookmarks;
+            }
+          }
+        }
+        catch (Exception ex)
+        {
+          ServiceRegistration.Get<ILogger>().Warn("Unable to load default news feeds xml from server: {0}", ex.Message);
+          // return an empty list, so next time this method is called it will try to download the default feeds again
+          return new List<FeedBookmark>();
         }
       }
       // find the best matching list of feeds for the user's culture

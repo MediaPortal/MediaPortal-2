@@ -65,7 +65,6 @@
     <Compile Include="NewsCollector.cs" />
     <Compile Include="NewsProvider.cs" />
     <Compile Include="SyndicationFeedReader.cs" />
-    <Content Include="DefaultFeeds.xml" />
     <Compile Include="Models\CurrentNewsModel.cs" />
     <Compile Include="Models\NewsFeed.cs" />
     <Compile Include="Models\NewsItems.cs" />
