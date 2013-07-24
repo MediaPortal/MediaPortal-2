@@ -61,7 +61,12 @@ namespace MediaPortal.Extensions.UserServices.FanArtService
         return false;
 
       IFilter filter = new RelationalFilter(AudioAspect.ATTR_ALBUM, RelationalOperator.EQ, name);
-      MediaItemQuery query = new MediaItemQuery(NECESSARY_MIAS, filter);
+      MediaItemQuery query = new MediaItemQuery(NECESSARY_MIAS, filter)
+        {
+          Limit = 1, // Only one needed
+          SortInformation = new List<SortInformation> { new SortInformation(AudioAspect.ATTR_ALBUM, SortDirection.Ascending) }
+        };
+
       var items = mediaLibrary.Search(query, false);
       result = new List<FanArtImage>();
       foreach (var mediaItem in items)
