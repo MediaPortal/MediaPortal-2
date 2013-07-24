@@ -305,7 +305,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
 
       if (!string.IsNullOrEmpty(whereStr))
       {
-        result.Append("WHERE ");
+        result.Append(" WHERE ");
         result.Append(whereStr);
       }
       if (groupByValues)
@@ -322,7 +322,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
         if (compiledSortInformation != null && compiledSortInformation.Count > 0)
         {
           IEnumerable<string> sortCriteria = compiledSortInformation.Select(csi => csi.GetSortDeclaration(ns));
-          result.Append("ORDER BY ");
+          result.Append(" ORDER BY ");
           result.Append(StringUtils.Join(", ", sortCriteria));
         }
       }
