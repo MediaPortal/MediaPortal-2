@@ -15,6 +15,7 @@ Default background image - no media present
   <DockPanel>
     <DockPanel.Resources>
       <Model x:Key="VideoBackgroundModel" Id="441288AC-F88D-4186-8993-6E259F7C75D8"/>
+      <fanart:FanArtImageSourceConverter x:Key="FanArtImageSourceConverter"/>
     </DockPanel.Resources>
     
     <!-- Video background -->
@@ -55,14 +56,8 @@ Default background image - no media present
                 <RowDefinition Height="*"/>
               </Grid.RowDefinitions>
               <Image x:Name="StaticBackground" VerticalAlignment="Stretch" Stretch="Uniform" Grid.Row="0" Grid.Column="0" Source="Reflex.jpg"/>
-              <Image x:Name="FanArtImageBackground" VerticalAlignment="Stretch" Stretch="Uniform" Grid.Row="0" Grid.Column="0">
-                <Image.Source>
-                  <fanart:FanArtImageSource 
-                      fanart:FanArtMediaType="{Binding Source={StaticResource FanArtBackgroundModel}, Path=FanArtMediaType}" 
-                      fanart:FanArtType="FanArt" 
-                      fanart:FanArtName="{Binding Source={StaticResource FanArtBackgroundModel}, Path=FanArtName}"
-                      fanart:MaxWidth="1920" fanart:MaxHeight="1080"/>
-                </Image.Source>
+              <Image x:Name="FanArtImageBackground" VerticalAlignment="Stretch" Stretch="Uniform" Grid.Row="0" Grid.Column="0"
+                Source="{Binding Source={StaticResource FanArtBackgroundModel}, Path=ImageSource, Converter={StaticResource FanArtImageSourceConverter}, ConverterParameter=FanArt;1920;1080;False}">
                 <Image.Triggers>
                   <Trigger Property="HasImage" Value="False">
                     <Setter TargetName="FanartVisualBrush" Property="Animation"/>
