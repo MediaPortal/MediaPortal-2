@@ -7,6 +7,9 @@
   Grid.Column="2" Grid.Row="0" x:Name="MediaItemDetails"
   HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
 
+  <Grid.Resources>
+    <fanart:FanArtImageSourceConverter x:Key="FanArtImageSourceConverter"/>
+  </Grid.Resources>
   <Grid.RowDefinitions>
     <RowDefinition Height="*"/>
   </Grid.RowDefinitions>
@@ -101,14 +104,8 @@
   </StackPanel>
 
 
-  <Image Grid.Column="0" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Stretch="Uniform" Margin="5" 
-      Width="380" Height="560">
-    <Image.Source>
-      <fanart:FanArtImageSource 
-        fanart:FanArtMediaType="{Binding Source={StaticResource FanArtBackgroundModel}, Path=FanArtMediaType}" 
-        fanart:FanArtType="Poster" 
-        fanart:FanArtName="{Binding Source={StaticResource FanArtBackgroundModel}, Path=FanArtName}"
-        fanart:MaxWidth="380" fanart:MaxHeight="560"/>
-    </Image.Source>
+  <Image Grid.Column="0" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Stretch="Uniform" Margin="5"
+      Width="380" Height="560"
+      Source="{Binding Source={StaticResource FanArtBackgroundModel}, Path=ImageSource, Converter={StaticResource FanArtImageSourceConverter}, ConverterParameter=Poster;380;560}">
   </Image>
 </Grid>

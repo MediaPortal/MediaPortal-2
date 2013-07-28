@@ -7,6 +7,7 @@
     Source="screens\master_slidemenu.xaml"
     >
   <Include.Resources>
+    <fanart:FanArtImageSourceConverter x:Key="FanArtImageSourceConverter"/>
     <ResourceWrapper x:Key="Header_Text" Resource="[Media.MoviesItemsHeader]"/>
     <ControlTemplate x:Key="Contents_Template">
       <Grid>
@@ -68,14 +69,8 @@
                   Content="{Binding Source={StaticResource FanArtBackgroundModel}, Path=ItemDescription}"
                   Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}"/>
 
-              <Image Grid.Row="1" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Stretch="UniformToFill" Margin="15" FallbackSource="{Binding MediaItem}">
-                <Image.Source>
-                  <fanart:FanArtImageSource 
-                  fanart:FanArtMediaType="{Binding Source={StaticResource FanArtBackgroundModel}, Path=FanArtMediaType}" 
-                  fanart:FanArtType="FanArt" 
-                  fanart:FanArtName="{Binding Source={StaticResource FanArtBackgroundModel}, Path=FanArtName}"
-                  fanart:MaxWidth="580" fanart:MaxHeight="360"/>
-                </Image.Source>
+              <Image Grid.Row="1" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Stretch="UniformToFill" Margin="15" FallbackSource="{Binding MediaItem}"
+                     Source="{Binding Source={StaticResource FanArtBackgroundModel}, Path=ImageSource, Converter={StaticResource FanArtImageSourceConverter}, ConverterParameter=FanArt;580;360}">
               </Image>
             </Grid>
           </Border>
@@ -94,16 +89,9 @@
           </Border>
 
           <Border Grid.Column="1" Grid.Row="0" x:Name="CoverBorder" BorderBrush="#000000" CornerRadius="20" BorderThickness="2" Width="460" Height="665" Background="#E4000000">
-            <Image VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Stretch="UniformToFill" Margin="15">
-              <Image.Source>
-                <fanart:FanArtImageSource 
-                fanart:FanArtMediaType="{Binding Source={StaticResource FanArtBackgroundModel}, Path=FanArtMediaType}" 
-                fanart:FanArtType="Poster" 
-                fanart:FanArtName="{Binding Source={StaticResource FanArtBackgroundModel}, Path=FanArtName}"
-                fanart:MaxWidth="500" fanart:MaxHeight="660"/>
-              </Image.Source>
+            <Image VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Stretch="UniformToFill" Margin="15"
+                   Source="{Binding Source={StaticResource FanArtBackgroundModel}, Path=ImageSource, Converter={StaticResource FanArtImageSourceConverter}, ConverterParameter=Poster;500;660}">
             </Image>
-
           </Border>
 
           <!-- Itemslist -->
