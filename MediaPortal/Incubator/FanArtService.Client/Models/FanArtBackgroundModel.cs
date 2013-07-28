@@ -27,6 +27,7 @@ using MediaPortal.Common.General;
 using MediaPortal.Common.MediaManagement;
 using MediaPortal.Extensions.UserServices.FanArtService.Interfaces;
 using MediaPortal.UI.Presentation.DataObjects;
+using MediaPortal.UI.SkinEngine.Controls.ImageSources;
 using MediaPortal.UiComponents.Media.Models.Navigation;
 
 namespace MediaPortal.Extensions.UserServices.FanArtService.Client.Models
@@ -45,16 +46,19 @@ namespace MediaPortal.Extensions.UserServices.FanArtService.Client.Models
     protected AbstractProperty _fanArtNameProperty;
     protected AbstractProperty _itemDescriptionProperty;
     protected AbstractProperty _mediaItemProperty;
+    protected AbstractProperty _imageSourceProperty;
 
     public FanArtBackgroundModel()
     {
-      _selectedItemProperty = new WProperty(typeof (ListItem), null);
+      _selectedItemProperty = new WProperty(typeof(ListItem), null);
       _selectedItemProperty.Attach(SetFanArtType);
       _fanArtMediaTypeProperty = new WProperty(typeof(FanArtConstants.FanArtMediaType), FanArtConstants.FanArtMediaType.Undefined);
       _fanArtNameProperty = new WProperty(typeof(string), string.Empty);
       _itemDescriptionProperty = new WProperty(typeof(string), string.Empty);
       _mediaItemProperty = new WProperty(typeof(MediaItem), null);
+      _imageSourceProperty = new WProperty(typeof(ImageSource), null);
       SetFanArtType();
+      SetImageSource();
     }
 
     public Guid ModelId
@@ -71,7 +75,7 @@ namespace MediaPortal.Extensions.UserServices.FanArtService.Client.Models
 
     public ListItem SelectedItem
     {
-      get { return (ListItem)_selectedItemProperty.GetValue(); }
+      get { return (ListItem) _selectedItemProperty.GetValue(); }
       set { _selectedItemProperty.SetValue(value); }
     }
 
@@ -119,6 +123,17 @@ namespace MediaPortal.Extensions.UserServices.FanArtService.Client.Models
       internal set { _itemDescriptionProperty.SetValue(value); }
     }
 
+    public AbstractProperty ImageSourceProperty
+    {
+      get { return _imageSourceProperty; }
+    }
+
+    public ImageSource ImageSource
+    {
+      get { return (ImageSource) _imageSourceProperty.GetValue(); }
+      internal set { _imageSourceProperty.SetValue(value); }
+    }
+
     public void SetSelectedItem(ListItem item)
     {
       SelectedItem = item;
@@ -129,6 +144,19 @@ namespace MediaPortal.Extensions.UserServices.FanArtService.Client.Models
     private void SetFanArtType(AbstractProperty property, object value)
     {
       SetFanArtType();
+      SetImageSource();
+    }
+
+    /// <summary>
+    /// Creates a new FanArtImageSource instance for exposing it using <see cref="ImageSource"/>.
+    /// </summary>
+    private void SetImageSource()
+    {
+      ImageSource = new FanArtImageSource
+        {
+          FanArtMediaType = FanArtMediaType,
+          FanArtName = FanArtName,
+        };
     }
 
     private void SetFanArtType()
