@@ -7,12 +7,15 @@ Default background image - no media present
 <Screen
     xmlns="www.team-mediaportal.com/2008/mpf/directx"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:fanart="clr-namespace:MediaPortal.Extensions.UserServices.FanArtService.Client;assembly=FanArtService.Client"
+    xmlns:animation="clr-namespace:MediaPortal.UI.SkinEngine.Controls.Brushes.Animation;assembly=SkinEngine" 
     xmlns:bm="clr-namespace:MediaPortal.UiComponents.BackgroundManager.Models;assembly=BackgroundManager"
     x:Name="DefaultBackgroundScreen"
     >
   <DockPanel>
     <DockPanel.Resources>
       <Model x:Key="VideoBackgroundModel" Id="441288AC-F88D-4186-8993-6E259F7C75D8"/>
+      <fanart:FanArtImageSourceConverter x:Key="FanArtImageSourceConverter"/>
     </DockPanel.Resources>
 
     <!-- Video background -->
@@ -36,8 +39,42 @@ Default background image - no media present
       </Grid.Triggers>
     </Grid>
 
-    <StackPanel IsVisible="{Binding Source={StaticResource VideoBackgroundModel},Path=!IsEnabled}" Background="{ThemeResource BackgroundBrush}">
-      <Image Source="fanart_overlay.png" />
+    <StackPanel IsVisible="{Binding Source={StaticResource VideoBackgroundModel},Path=!IsEnabled}">
+      <StackPanel.Background>
+        <VisualBrush x:Name="FanartVisualBrush" AnimationEnabled="True">
+          <VisualBrush.Visual>
+            <Grid VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Background="{ThemeResource BackgroundBrush}">
+              <Grid.Resources>
+                <Model x:Key="FanArtBackgroundModel" Id="8F42C8E9-E8A3-475C-A50A-99E1E644DC91"/>
+              </Grid.Resources>
+              <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+              </Grid.ColumnDefinitions>
+              <Grid.RowDefinitions>
+                <RowDefinition Height="*"/>
+              </Grid.RowDefinitions>
+              <Image x:Name="FanArtImageBackground" VerticalAlignment="Stretch" Stretch="Uniform" Grid.Row="0" Grid.Column="0"
+                Source="{Binding Source={StaticResource FanArtBackgroundModel}, Path=ImageSource, Converter={StaticResource FanArtImageSourceConverter}, ConverterParameter=FanArt;1920;1080;False}">
+                <Image.Triggers>
+                  <Trigger Property="HasImage" Value="False">
+                    <Setter TargetName="FanartVisualBrush" Property="Animation"/>
+                    <Setter TargetName="FanartVisualBrush" Property="AnimationEnabled" Value="False"/>
+                  </Trigger>
+                  <Trigger Property="HasImage" Value="True">
+                    <Setter TargetName="FanartVisualBrush" Property="AnimationEnabled" Value="True"/>
+                    <Setter TargetName="FanartVisualBrush" Property="Animation">
+                      <Setter.Value>
+                        <animation:KenBurnsAnimator Duration="5" />
+                      </Setter.Value>
+                    </Setter>
+                  </Trigger>
+                </Image.Triggers>
+              </Image>
+              <Image Source="fanart_overlay.png" />
+            </Grid>
+          </VisualBrush.Visual>
+        </VisualBrush>
+      </StackPanel.Background>
     </StackPanel>
   </DockPanel>
 </Screen>
