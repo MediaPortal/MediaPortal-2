@@ -207,16 +207,16 @@
 
   <!-- ************************* Control styles for buttons ************************* -->
 
+  <ResourceWrapper x:Key="ButtonMask_Image">
+    <ImageBrush ImageSource="homebutton_mask.png" Stretch="Fill"/>
+  </ResourceWrapper>
+
   <!-- Home items button style -->
   <Style x:Key="HomeButtonControlStyle" TargetType="{x:Type Control}">
     <Setter Property="Template">
       <Setter.Value>
         <ControlTemplate>
-          <Border x:Name="HoverGlow" BorderBrush="#4000B7FF" CornerRadius="5" BorderThickness="4" Margin="-8" IsVisible="false"
-              HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
-            <Border BorderBrush="#00B7FF" CornerRadius="5" BorderThickness="2" Margin="-6"
-              HorizontalAlignment="Stretch" VerticalAlignment="Stretch"/>
-            </Border>
+          <Image x:Name="HoverGlow" Source="basichome_button_focus.png" Margin="-45" IsVisible="false" />
         </ControlTemplate>
       </Setter.Value>
     </Setter>
@@ -441,7 +441,8 @@
               </TransformGroup>
             </Grid.RenderTransform>
             <Control Style="{ThemeResource HomeButtonControlStyle}" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"/>
-            <ContentPresenter x:Name="ButtonContentPresenter" Margin="0" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"/>
+            <ContentPresenter x:Name="ButtonContentPresenter" Margin="0" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+                OpacityMask="{StaticResource ButtonMask_Image}"/>
           </Grid>
           <ControlTemplate.Triggers>
             <Trigger Property="HasFocus" Value="True">
