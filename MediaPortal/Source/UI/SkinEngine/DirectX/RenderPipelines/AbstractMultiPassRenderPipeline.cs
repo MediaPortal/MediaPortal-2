@@ -70,7 +70,8 @@ namespace MediaPortal.UI.SkinEngine.DirectX.RenderPipelines
     public override void EndRender()
     {
       // Restore backbuffer as render target.
-      GraphicsDevice.Device.SetRenderTarget(0, _backbuffer);
+      using (_backbuffer)
+        GraphicsDevice.Device.SetRenderTarget(0, _backbuffer);
       base.EndRender();
     }
 

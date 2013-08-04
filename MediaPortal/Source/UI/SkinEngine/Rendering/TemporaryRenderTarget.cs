@@ -46,6 +46,9 @@ namespace MediaPortal.UI.SkinEngine.Rendering
     // The active RendertTarget before we change it
     private readonly Surface _backBuffer;
 
+    // Only need to dispose surface if we created them
+    private readonly bool _disposeSurface = false;
+
     /// <summary>
     /// Constructs a <see cref="TemporaryRenderTarget"/> instance.
     /// </summary>
@@ -69,7 +72,9 @@ namespace MediaPortal.UI.SkinEngine.Rendering
     /// <param name="targetTexture">Target texture to render on</param>
     public TemporaryRenderTarget(int renderTargetIndex, Texture targetTexture)
       : this(renderTargetIndex, targetTexture.GetSurfaceLevel(0))
-    { }
+    {
+      _disposeSurface = true;
+    }
 
 
     /// <summary>
@@ -97,6 +102,8 @@ namespace MediaPortal.UI.SkinEngine.Rendering
     {
       // Restore all previous rembered values
       _device.SetRenderTarget(_renderTargetIndex, _backBuffer);
+      if (_disposeSurface && _targetSurface != null)
+        _targetSurface.Dispose();
     }
   }
 }
