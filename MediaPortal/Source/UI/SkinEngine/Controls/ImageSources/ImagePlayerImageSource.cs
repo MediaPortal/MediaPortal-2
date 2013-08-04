@@ -232,9 +232,9 @@ namespace MediaPortal.UI.SkinEngine.Controls.ImageSources
       textureSize = new SizeF(desc.Width, desc.Height);
       DeviceEx device = SkinContext.Device;
       Texture result = new Texture(device, desc.Width, desc.Height, 1, Usage.None, Format.A8R8G8B8, Pool.Default);
-      using (Surface target = result.GetSurfaceLevel(0))
-      using (Surface source = sourceTexture.GetSurfaceLevel(0))
-        device.StretchRectangle(source, target, TextureFilter.None);
+      Surface target = result.GetSurfaceLevel(0);
+      Surface source = sourceTexture.GetSurfaceLevel(0);
+      device.StretchRectangle(source, target, TextureFilter.None);
       return result;
     }
 

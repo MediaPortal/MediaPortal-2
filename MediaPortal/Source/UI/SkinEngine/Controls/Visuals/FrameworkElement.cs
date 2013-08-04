@@ -1811,9 +1811,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
         GraphicsDevice.SetCameraProjection(description.Width, description.Height);
       }
 
-
       // Render to given surface and restore it when we are done
-      using(new TemporaryRenderTarget(renderSurface))
+      using (new TemporaryRenderTarget(renderSurface))
       {
         // Fill the background of the texture with an alpha value of 0
         GraphicsDevice.Device.Clear(ClearFlags.Target, Color.FromArgb(0, Color.Black), 1.0f, 0);
@@ -1822,7 +1821,6 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
         RenderOverride(renderContext);
         // Render opacity brush so that it modifies the alpha channel in the target
         RenderOpacityBrush(renderContext);
-
       }
 
       // Restore standard transformation matrix

@@ -145,19 +145,17 @@ namespace MediaPortal.UI.Players.Video
           _aspectRatio.Width = arx;
           _aspectRatio.Height = ary;
 
-          using (Surface surf = Surface.FromPointer(new IntPtr(dwSurface)))
+          Surface surf = Surface.FromPointer(new IntPtr(dwSurface));
+          SurfaceDescription surfaceDesc = _surface == null ? new SurfaceDescription() : _surface.Description;
+          SurfaceDescription surfDesc = surf.Description;
+          if (surfaceDesc.Width != surfDesc.Width || surfaceDesc.Height != surfDesc.Height)
           {
-            SurfaceDescription surfaceDesc = _surface == null ? new SurfaceDescription() : _surface.Description;
-            SurfaceDescription surfDesc = surf.Description;
-            if (surfaceDesc.Width != surfDesc.Width || surfaceDesc.Height != surfDesc.Height)
-            {
-              if (_surface != null)
-                _surface.Dispose();
-              _surface = Surface.CreateRenderTarget(_device, surfDesc.Width, surfDesc.Height, Format.A8R8G8B8, MultisampleType.None, 0, false);
-            }
-
-            _device.StretchRectangle(surf, _surface, TextureFilter.None);
+            if (_surface != null)
+              _surface.Dispose();
+            _surface = Surface.CreateRenderTarget(_device, surfDesc.Width, surfDesc.Height, Format.A8R8G8B8, MultisampleType.None, 0, false);
           }
+
+          _device.StretchRectangle(surf, _surface, TextureFilter.None);
         }
 
       VideoSizePresentDlgt vsp = VideoSizePresent;
