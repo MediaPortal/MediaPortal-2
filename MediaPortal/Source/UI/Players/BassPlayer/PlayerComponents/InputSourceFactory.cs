@@ -79,7 +79,7 @@ namespace MediaPortal.UI.Players.BassPlayer.PlayerComponents
           }
           else
           {
-            IFileSystemResourceAccessor fsra = accessor as ILocalFsResourceAccessor;
+            IFileSystemResourceAccessor fsra = accessor as IFileSystemResourceAccessor;
             if (fsra == null)
               return null;
             if (URLUtils.IsMODFile(filePath))
