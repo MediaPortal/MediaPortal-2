@@ -373,7 +373,7 @@ namespace MediaPortal.UiComponents.Media.Controls
       if (!_refreshValues || player == null || _spectrumCanvas == null)
         return;
 
-      if (player.State == PlayerState.Active && !player.GetFFTData(_channelData))
+      if (player.State != PlayerState.Active || !player.GetFFTData(_channelData))
         return;
 
       UpdateSpectrumShapes(player);
