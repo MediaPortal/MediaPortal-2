@@ -39,11 +39,14 @@ namespace MediaPortal.UI.Players.BassPlayer.PlayerComponents
   /// </summary>
   public class InputSourceFactory : IDisposable
   {
+    protected IResourceAccessor _accessor;
+
     #region IDisposable Members
 
     public void Dispose()
     {
-      // Maybe needed in the future?
+      if (_accessor != null)
+        _accessor.Dispose();
     }
 
     #endregion
@@ -62,36 +65,34 @@ namespace MediaPortal.UI.Players.BassPlayer.PlayerComponents
       if (!CanPlay(resourceLocator, mimeType))
         return null;
       IInputSource result;
-      using (IResourceAccessor accessor = resourceLocator.CreateAccessor())
+      _accessor = resourceLocator.CreateAccessor();
+
+      AudioCDResourceAccessor acdra = _accessor as AudioCDResourceAccessor;
+      if (acdra != null)
+        result = BassCDTrackInputSource.Create(acdra.Drive, acdra.TrackNo);
+      else
       {
-        AudioCDResourceAccessor acdra = accessor as AudioCDResourceAccessor;
-        if (acdra != null)
-          result = BassCDTrackInputSource.Create(acdra.Drive, acdra.TrackNo);
+        string filePath = _accessor.ResourcePathName;
+        if (URLUtils.IsCDDA(filePath))
+        {
+          ILocalFsResourceAccessor lfra = _accessor as ILocalFsResourceAccessor;
+          if (lfra == null)
+            return null;
+          result = BassFsCDTrackInputSource.Create(lfra.LocalFileSystemPath);
+        }
         else
         {
-          string filePath = accessor.ResourcePathName;
-          if (URLUtils.IsCDDA(filePath))
-          {
-            ILocalFsResourceAccessor lfra = accessor as ILocalFsResourceAccessor;
-            if (lfra == null)
-              return null;
-            result = BassFsCDTrackInputSource.Create(lfra.LocalFileSystemPath);
-          }
+          IFileSystemResourceAccessor fsra = _accessor as IFileSystemResourceAccessor;
+          if (fsra == null)
+            return null;
+          if (URLUtils.IsMODFile(filePath))
+            result = BassMODFileInputSource.Create(fsra);
           else
-          {
-            IFileSystemResourceAccessor fsra = accessor as IFileSystemResourceAccessor;
-            if (fsra == null)
-              return null;
-            if (URLUtils.IsMODFile(filePath))
-              result = BassMODFileInputSource.Create(fsra);
-            else
-              result = BassAudioFileInputSource.Create(fsra);
-          }
-          // TODO: Handle web streams when we have resource accessors for web URLs: BassWebStreamInputSource.Create(...);
+            result = BassAudioFileInputSource.Create(fsra);
         }
-        Log.Debug("InputSourceFactory: Creating input source for media resource '{0}' of type '{1}'", accessor, result.GetType());
+        // TODO: Handle web streams when we have resource accessors for web URLs: BassWebStreamInputSource.Create(...);
       }
-
+      Log.Debug("InputSourceFactory: Creating input source for media resource '{0}' of type '{1}'", _accessor, result.GetType());
       return result;
     }
 
