@@ -78,7 +78,7 @@ namespace MediaPortal.Common.Services.ResourceAccess
       IResourceAccessor result;
       if (_nativeResourcePath.IsNetworkResource)
       {
-        if (_nativeResourcePath.TryCreateLocalResourceAccessor(out result) && result is INetworkResourceAccessor)
+        if (_nativeResourcePath.TryCreateLocalResourceAccessor(out result))
           return result;
       }
       SystemName nativeSystem = systemResolver.GetSystemNameForSystemId(_nativeSystemId);
