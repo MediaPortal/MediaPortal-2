@@ -206,9 +206,12 @@ namespace MediaPortal.UI.Players.Video
         _mediaItemTitle = mediaItemTitle;
         if (_resourceLocator.NativeResourcePath.IsNetworkResource)
         {
-          _resourceAccessor = _resourceLocator.CreateAccessor() as INetworkResourceAccessor;
+          var ra = _resourceLocator.CreateAccessor();
+          if (ra is INetworkResourceAccessor || ra is ILocalFsResourceAccessor)
+            _resourceAccessor = ra;
+
           if (_resourceAccessor == null)
-            throw new IllegalCallException("The VideoPlayer can only play network resources of type INetworkResourceAccessor");
+            throw new IllegalCallException("The VideoPlayer can only play network resources of type INetworkResourceAccessor or ILocalFsResourceAccessor");
 
           ServiceRegistration.Get<ILogger>().Debug("{0}: Initializing for network media item '{1}'", PlayerTitle, SourcePathOrUrl);
         }
