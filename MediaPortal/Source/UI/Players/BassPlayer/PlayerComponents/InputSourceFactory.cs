@@ -23,6 +23,7 @@
 #endregion
 
 using System;
+using System.Windows.Forms;
 using MediaPortal.Common;
 using MediaPortal.Common.ResourceAccess;
 using MediaPortal.Common.Settings;
@@ -73,7 +74,14 @@ namespace MediaPortal.UI.Players.BassPlayer.PlayerComponents
       else
       {
         string filePath = _accessor.ResourcePathName;
-        if (URLUtils.IsCDDA(filePath))
+        // Network streams
+        INetworkResourceAccessor netra = _accessor as INetworkResourceAccessor;
+        if (netra != null)
+        {
+          result = BassWebStreamInputSource.Create(netra.URL);
+        }
+        // CDDA
+        else if (URLUtils.IsCDDA(filePath))
         {
           ILocalFsResourceAccessor lfra = _accessor as ILocalFsResourceAccessor;
           if (lfra == null)
@@ -82,6 +90,7 @@ namespace MediaPortal.UI.Players.BassPlayer.PlayerComponents
         }
         else
         {
+          // Filesystem resources
           IFileSystemResourceAccessor fsra = _accessor as IFileSystemResourceAccessor;
           if (fsra == null)
             return null;
@@ -90,7 +99,6 @@ namespace MediaPortal.UI.Players.BassPlayer.PlayerComponents
           else
             result = BassAudioFileInputSource.Create(fsra);
         }
-        // TODO: Handle web streams when we have resource accessors for web URLs: BassWebStreamInputSource.Create(...);
       }
       Log.Debug("InputSourceFactory: Creating input source for media resource '{0}' of type '{1}'", _accessor, result.GetType());
       return result;
@@ -104,7 +112,7 @@ namespace MediaPortal.UI.Players.BassPlayer.PlayerComponents
 
       using (IResourceAccessor accessor = locator.CreateAccessor())
       {
-        if (accessor is AudioCDResourceAccessor)
+        if (accessor is AudioCDResourceAccessor || accessor is INetworkResourceAccessor)
           return true;
         string ext = DosPathHelper.GetExtension(accessor.ResourcePathName).ToLowerInvariant();
         BassPlayerSettings settings = ServiceRegistration.Get<ISettingsManager>().Load<BassPlayerSettings>();

@@ -289,8 +289,9 @@ namespace MediaPortal.UI.Players.BassPlayer
     private static void CheckException(string bassFunction)
     {
       // Ignore BASS_ERROR_ENDED and BASS_ERROR_HANDLE - can occur if stream ended or if the stream was disposed while still playing
+      // Ignore BASS_ERROR_NOTAVAIL which happens for URL streams that don't offer length information
       BASSError error = Bass.BASS_ErrorGetCode();
-      if (error != BASSError.BASS_ERROR_ENDED && error != BASSError.BASS_ERROR_HANDLE)
+      if (error != BASSError.BASS_ERROR_ENDED && error != BASSError.BASS_ERROR_HANDLE && error != BASSError.BASS_ERROR_NOTAVAIL)
         throw new BassLibraryException(bassFunction);
     }
 
