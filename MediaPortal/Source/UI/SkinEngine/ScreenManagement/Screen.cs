@@ -438,7 +438,6 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
         inputManager.MouseClicked -= HandleMouseClick;
         inputManager.MouseWheeled -= HandleMouseWheel;
         HasInputFocus = false;
-        RemoveCurrentFocus();
       }
     }
 
