@@ -697,7 +697,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
         if (state.TryGetValue(prefix + "/ItemsStartIndex", out oIndex) && state.TryGetValue(prefix + "/NumItems", out oNumItems) &&
             (startIndex = (int?) oIndex).HasValue && (numItems = (int?) oNumItems).HasValue)
         {
-          int endIndexExcl = Math.Max(startIndex.Value + numItems.Value, itemProvider.NumItems);
+          int endIndexExcl = Math.Min(startIndex.Value + numItems.Value, itemProvider.NumItems); // Limit to a maximum of NumItems.
           for (int i = startIndex.Value; i < endIndexExcl; i++)
           {
             FrameworkElement child = GetItem(i, itemProvider, false);
