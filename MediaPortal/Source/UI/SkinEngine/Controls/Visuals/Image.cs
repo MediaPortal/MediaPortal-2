@@ -310,37 +310,39 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 
       ImageSourceState allocatedSource = null;
 
+      ImageSource imageSource = _sourceState.ImageSource;
       // Find a new image source
-      if (_sourceState.ImageSource == null)
+      if (imageSource == null)
       {
-        _sourceState.ImageSource = LoadImageSource(Source, true);
+        imageSource = _sourceState.ImageSource = LoadImageSource(Source, true);
         _sourceState.Setup = false;
       }
 
-      if (_sourceState.ImageSource != null && !_sourceState.ImageSource.IsAllocated)
+      if (imageSource != null && !imageSource.IsAllocated)
       {
         _sourceState.Setup = false;
-        _sourceState.ImageSource.Allocate();
+        imageSource.Allocate();
       }
 
-      if (_sourceState.ImageSource != null && _sourceState.ImageSource.IsAllocated)
+      if (imageSource != null && imageSource.IsAllocated)
         allocatedSource = _sourceState;
       else
       {
+        ImageSource fallbackSource = _fallbackSourceState.ImageSource;
         // If the source image could not load yet, try fallback image
-        if (_fallbackSourceState.ImageSource == null)
+        if (fallbackSource == null)
         {
-          _fallbackSourceState.ImageSource = LoadImageSource(FallbackSource, false);
+          fallbackSource = _fallbackSourceState.ImageSource = LoadImageSource(FallbackSource, false);
           _fallbackSourceState.Setup = false;
         }
 
-        if (_fallbackSourceState.ImageSource != null && !_fallbackSourceState.ImageSource.IsAllocated)
+        if (fallbackSource != null && !fallbackSource.IsAllocated)
         {
           _fallbackSourceState.Setup = false;
-          _fallbackSourceState.ImageSource.Allocate();
+          fallbackSource.Allocate();
         }
 
-        if (_fallbackSourceState.ImageSource != null && _fallbackSourceState.ImageSource.IsAllocated)
+        if (fallbackSource != null && fallbackSource.IsAllocated)
         {
           _fallbackSourceInUse = true;
           allocatedSource = _fallbackSourceState;

@@ -101,8 +101,9 @@ namespace MediaPortal.UI.SkinEngine.Controls.ImageSources
       _imageContext.Rotation = _rotation;
       if (_texture == null && _textureData != null)
         _texture = ContentManager.Instance.GetTexture(_textureData, _key);
-      if (_texture != null && !_texture.IsAllocated)
-        _texture.Allocate();
+      TextureAsset texture = _texture;
+      if (texture != null && !texture.IsAllocated)
+        texture.Allocate();
     }
 
     public override void Deallocate()

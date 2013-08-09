@@ -210,16 +210,19 @@ namespace MediaPortal.UI.SkinEngine.Controls.ImageSources
         }
       }
       // Check our previous texture is allocated. Synchronous.
-      if (_lastTexture != null && !_lastTexture.IsAllocated)
-        _lastTexture.Allocate();
+      TextureAsset lastTexture = _lastTexture;
+      TextureAsset currentTexture = _currentTexture;
+      TextureAsset nextTexture = _nextTexture;
+      if (lastTexture != null && !lastTexture.IsAllocated)
+        lastTexture.Allocate();
       // Check our current texture is allocated. Synchronous.
-      if (_currentTexture != null && !_currentTexture.IsAllocated)
-        _currentTexture.Allocate();
+      if (currentTexture != null && !currentTexture.IsAllocated)
+        currentTexture.Allocate();
       // Check our next texture is allocated. Asynchronous.
-      if (_nextTexture != null)
+      if (nextTexture != null)
       {
-        if (!_nextTexture.LoadFailed)
-          _nextTexture.AllocateAsync();
+        if (!nextTexture.LoadFailed)
+          nextTexture.AllocateAsync();
         else
         {
           _nextTexture = null;
@@ -227,7 +230,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.ImageSources
           return;
         }
 
-        if (!_transitionActive && _nextTexture.IsAllocated)
+        if (!_transitionActive && nextTexture.IsAllocated)
           CycleTextures(RightAngledRotation.Zero);
       }
     }

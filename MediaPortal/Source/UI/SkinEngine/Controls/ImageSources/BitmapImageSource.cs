@@ -222,14 +222,15 @@ namespace MediaPortal.UI.SkinEngine.Controls.ImageSources
         }
         return;
       }
-      if (_texture == null)
-        _texture = ContentManager.Instance.GetTexture(uri, DecodePixelWidth, DecodePixelHeight, Thumbnail);
-      if (_texture != null && !_texture.IsAllocated)
+      TextureAsset texture = _texture;
+      if (texture == null)
+        texture = _texture = ContentManager.Instance.GetTexture(uri, DecodePixelWidth, DecodePixelHeight, Thumbnail);
+      if (texture != null && !texture.IsAllocated)
       {
         if (Thumbnail)
-          _texture.ThumbnailDimension = ThumbnailDimension;
-        _texture.Allocate();
-        if (_texture.IsAllocated)
+          texture.ThumbnailDimension = ThumbnailDimension;
+        texture.Allocate();
+        if (texture.IsAllocated)
         {
           _imageContext.Refresh();
           FireChanged();

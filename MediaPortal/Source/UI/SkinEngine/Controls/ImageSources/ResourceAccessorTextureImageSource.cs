@@ -91,10 +91,11 @@ namespace MediaPortal.UI.SkinEngine.Controls.ImageSources
     public override void Allocate()
     {
       _imageContext.Rotation = _rotation;
-      if (_texture == null && _stream != null)
-        _texture = ContentManager.Instance.GetTexture(_stream, _key);
-      if (_texture != null && !_texture.IsAllocated)
-        _texture.Allocate();
+      TextureAsset texture = _texture;
+      if (texture == null && _stream != null)
+        texture = _texture = ContentManager.Instance.GetTexture(_stream, _key);
+      if (texture != null && !texture.IsAllocated)
+        texture.Allocate();
     }
 
     public override void Deallocate()
