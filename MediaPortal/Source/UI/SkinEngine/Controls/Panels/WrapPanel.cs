@@ -669,7 +669,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
     public override void SaveUIState(IDictionary<string, object> state, string prefix)
     {
       base.SaveUIState(state, prefix);
-      state[prefix + "/FirstVisibleLine"] = _actualLastVisibleLineIndex;
+      state[prefix + "/FirstVisibleLine"] = _actualFirstVisibleLineIndex;
     }
 
     public override void RestoreUIState(IDictionary<string, object> state, string prefix)
