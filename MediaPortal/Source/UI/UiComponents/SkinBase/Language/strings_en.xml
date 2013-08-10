@@ -80,6 +80,9 @@
   <string name="RemoteResourceProvider.Name">Remote resource provider</string>
   <string name="RemoteResourceProvider.Description">Access resources located at another MediaPortal 2 system</string>
 
+  <string name="RawUrlResourceProvider.Name">Raw Url resource provider</string>
+  <string name="RawUrlResourceProvider.Description">Access raw Uri sources</string>
+
   <string name="ScreenSaver.MediaPortal2">MediaPortal 2</string>
 
   <!-- For MP UI player subsystem -->

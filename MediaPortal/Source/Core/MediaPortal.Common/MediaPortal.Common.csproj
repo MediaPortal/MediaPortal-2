@@ -84,6 +84,8 @@
     <Compile Include="ResourceAccess\LocalFsResourceAccessorHelper.cs" />
     <Compile Include="Services\Logging\ServerCrashLogger.cs" />
     <Compile Include="Services\Logging\UiCrashLogger.cs" />
+    <Compile Include="Services\ResourceAccess\RawUrlResourceProvider\RawUrlResourceProvider.cs" />
+    <Compile Include="Services\ResourceAccess\RawUrlResourceProvider\RawUrlResourceAccessor.cs" />
     <Compile Include="Services\ResourceAccess\Settings\AvailableDriveLettersSettings.cs" />
     <Compile Include="Services\Runtime\PowerEventHandler.cs" />
     <Compile Include="Services\ServerCommunication\UPnPServerWatcher.cs" />
