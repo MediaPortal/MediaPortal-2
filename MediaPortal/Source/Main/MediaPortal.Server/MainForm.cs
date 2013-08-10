@@ -33,6 +33,7 @@ using MediaPortal.Common.Messaging;
 using MediaPortal.Common.PathManager;
 using MediaPortal.Common.Runtime;
 using MediaPortal.Common.SystemCommunication;
+using MediaPortal.Common.SystemResolver;
 
 namespace MediaPortal.Server
 {
@@ -135,8 +136,14 @@ namespace MediaPortal.Server
         IClientManager clientManager = ServiceRegistration.Get<IClientManager>();
         ICollection<ClientConnection> clients = clientManager.ConnectedClients;
         ICollection<string> connectedClientSystemIDs = new List<string>(clients.Count);
+        int countRemoteSystems = 0;
         foreach (ClientConnection clientConnection in clients)
-          connectedClientSystemIDs.Add(clientConnection.Descriptor.MPFrontendServerUUID);
+        {
+          string mpFrontendServerUUID = clientConnection.Descriptor.MPFrontendServerUUID;
+          connectedClientSystemIDs.Add(mpFrontendServerUUID);
+          if (!ServiceRegistration.Get<ISystemResolver>().GetSystemNameForSystemId(mpFrontendServerUUID).IsLocalSystem())
+            countRemoteSystems++;
+        }
         foreach (MPClientMetadata attachedClientData in clientManager.AttachedClients.Values)
         {
           ListViewItem lvi = CreateClientItem(attachedClientData.LastClientName,
@@ -144,8 +151,8 @@ namespace MediaPortal.Server
               connectedClientSystemIDs.Contains(attachedClientData.SystemId));
           lvClients.Items.Add(lvi);
         }
-        // Avoid suspend as long as clients are connected.
-        ApplicationSuspendLevel = connectedClientSystemIDs.Count > 0 ? SuspendLevel.AvoidSuspend : SuspendLevel.None;
+        // Avoid suspend as long as remote clients are connected. A local client prevents suspend using its own logic.
+        ApplicationSuspendLevel = countRemoteSystems > 0 ? SuspendLevel.AvoidSuspend : SuspendLevel.None;
       }
       finally
       {
@@ -155,7 +162,7 @@ namespace MediaPortal.Server
 
     protected ListViewItem CreateClientItem(string clientName, string clientSystem, bool isConnected)
     {
-      return new ListViewItem(new string[] {clientName, clientSystem, LocalizationHelper.Translate(isConnected ? CONNECTED_RES : DISCONNECTED_RES)});
+      return new ListViewItem(new string[] { clientName, clientSystem, LocalizationHelper.Translate(isConnected ? CONNECTED_RES : DISCONNECTED_RES) });
     }
 
     protected void InitializeLocalizedControls()

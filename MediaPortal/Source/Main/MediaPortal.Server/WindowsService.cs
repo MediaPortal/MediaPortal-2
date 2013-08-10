@@ -22,12 +22,14 @@
 
 #endregion
 
+using System.Linq;
 using System.ServiceProcess;
 using MediaPortal.Backend.ClientCommunication;
 using MediaPortal.Common;
 using MediaPortal.Common.Logging;
 using MediaPortal.Common.Messaging;
 using MediaPortal.Common.Runtime;
+using MediaPortal.Common.SystemResolver;
 
 namespace MediaPortal.Server
 {
@@ -112,8 +114,14 @@ namespace MediaPortal.Server
       IClientManager clientManager = ServiceRegistration.Get<IClientManager>(false);
       if (clientManager == null)
         return;
+
+      int countRemoteSystems = clientManager.ConnectedClients.
+        Select(clientConnection => clientConnection.Descriptor.MPFrontendServerUUID).
+        Count(mpFrontendServerUUID => !ServiceRegistration.Get<ISystemResolver>().GetSystemNameForSystemId(mpFrontendServerUUID).IsLocalSystem());
+
+      // Avoid suspend as long as remote clients are connected. A local client prevents suspend using its own logic.
       // Set a continous state for current thread (which is the AMQ thread, not the "MainThread").
-      _suspendLevel = (clientManager.ConnectedClients.Count > 0 ? SuspendLevel.AvoidSuspend : SuspendLevel.None);
+      _suspendLevel = countRemoteSystems > 0 ? SuspendLevel.AvoidSuspend : SuspendLevel.None;
       ServiceRegistration.Get<ILogger>().Debug("UpdatePowerState: Setting continuous suspend level to {0}", _suspendLevel);
       EnergySavingConfig.SetCurrentSuspendLevel(_suspendLevel, true);
     }
