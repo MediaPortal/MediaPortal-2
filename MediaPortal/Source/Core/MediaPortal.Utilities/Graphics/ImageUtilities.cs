@@ -27,6 +27,7 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
+using System.Linq;
 
 namespace MediaPortal.Utilities.Graphics
 {
@@ -48,20 +49,10 @@ namespace MediaPortal.Utilities.Graphics
       // Get accessor that creates the dictionary on demand
       get
       {
+        if (_encoders != null) 
+          return _encoders;
         // If the quick lookup isn't initialised, initialise it
-        if (_encoders == null)
-          _encoders = new Dictionary<string, ImageCodecInfo>();
-
-        // If there are no codecs, try loading them
-        if (_encoders.Count == 0)
-          // Get all the codecs
-          foreach (ImageCodecInfo codec in ImageCodecInfo.GetImageEncoders())
-          {
-            // Add each codec to the quick lookup
-            _encoders.Add(codec.MimeType.ToLower(), codec);
-          }
-
-        return _encoders;
+        return _encoders = ImageCodecInfo.GetImageEncoders().ToDictionary(codec => codec.MimeType.ToLower());
       }
     }
 
@@ -169,7 +160,7 @@ namespace MediaPortal.Utilities.Graphics
     /// <returns>Stream containing the resized image</returns>
     public static Stream ResizeImage(Stream sourceStream, ImageFormat targetFormat, int maxWidth, int maxHeight)
     {
-      using (Image bitmap = ResizeImage(Bitmap.FromStream(sourceStream), maxWidth, maxHeight))
+      using (Image bitmap = ResizeImage(Image.FromStream(sourceStream), maxWidth, maxHeight))
       {
         MemoryStream tmpImageStream = new MemoryStream();
         bitmap.Save(tmpImageStream, ImageFormat.Bmp);
