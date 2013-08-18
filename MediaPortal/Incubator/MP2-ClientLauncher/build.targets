@@ -20,11 +20,11 @@
     <DefaultFiles Include="$(ProjectDir)Defaults\**\*.*" />
   </ItemGroup>
 
-  <ItemGroup>
-    <DllFiles Include="$(TargetDir)\**\*.dll" />
-  </ItemGroup>
-
   <Target Name="AfterBuild">
+    <ItemGroup>
+      <DllFiles Include="$(TargetDir)\**\*.dll" />
+    </ItemGroup>
+
     <Copy SourceFiles="@(PluginFiles)" DestinationFolder="$(PluginDestination)" />
 
     <Copy SourceFiles="@(DefaultFiles)"
