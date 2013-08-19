@@ -95,6 +95,7 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
     public const string VIRTUAL_KEYBOARD_DIALOG = "DialogVirtualKeyboard";
 
     public const string SHOW_EVENT = "Screen.Show";
+    public const string PREPARE_EVENT = "Screen.Prepare";
     public const string CLOSE_EVENT = "Screen.Hide";
 
     /// <summary>
@@ -455,6 +456,11 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
         // Switch to "Running" state which builds the final screen structure
         ScreenState = State.Running;
         int maxNumUpdate = 10;
+
+        // This violates against MP2 multi threading guidelines, but is required to execute this synchronously i.e. to restore state information
+        // directly when the screen is created.
+        TriggerScreenPreparingEvent_Sync();
+
         while ((_root.IsMeasureInvalid || _root.IsArrangeInvalid) && maxNumUpdate-- > 0)
         {
           SetValues();
@@ -708,6 +714,15 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
     {
       TriggerScreenEvent(CLOSE_EVENT, RoutingStrategyEnum.VisualTree);
       _closeTime = FindCloseEventCompletionTime().AddMilliseconds(20); // 20 more milliseconds because of the delay until the event is fired in render loop
+    }
+
+    /// <summary>
+    /// Fires the <see cref="PREPARE_EVENT"/>. In contrast to <see cref="TriggerScreenShowingEvent"/> and <see cref="TriggerScreenClosingEvent"/> this method
+    /// directly fires the event instead of executing it later (<see cref="_pendingScreenEvent"/>).
+    /// </summary>
+    public void TriggerScreenPreparingEvent_Sync()
+    {
+      DoFireScreenEvent(new PendingScreenEvent(PREPARE_EVENT, RoutingStrategyEnum.VisualTree));
     }
 
     protected void DoFireScreenEvent(PendingScreenEvent pendingScreenEvent)

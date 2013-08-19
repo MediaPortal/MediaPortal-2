@@ -71,12 +71,12 @@ namespace MediaPortal.UI.SkinEngine.SpecialElements.Workflow
 
     private void OnUIEventOccured(string eventname)
     {
-      if (eventname != Screen.SHOW_EVENT && eventname != Screen.CLOSE_EVENT)
+      if (eventname != Screen.PREPARE_EVENT && eventname != Screen.CLOSE_EVENT)
         return;
       UIElement targetElement = _targetObject;
       if (targetElement == null)
         return;
-      if (eventname == Screen.SHOW_EVENT)
+      if (eventname == Screen.PREPARE_EVENT)
       {
         // Mapping of context variable name -> UI state
         IDictionary<string, IDictionary<string, object>> state =
