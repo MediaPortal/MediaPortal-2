@@ -130,7 +130,7 @@ namespace MediaPortal.UI.Services.Players
       object oContext;
       if (!ContextVariables.TryGetValue(PlayerContext.KEY_PLAYER_CONTEXT, out oContext) || !(oContext is IPlayerContext))
         return;
-      
+
       IPlayerContext playerContext = (IPlayerContext) oContext;
       if (playerContext.CurrentMediaItem == null)
         return;
@@ -454,7 +454,10 @@ namespace MediaPortal.UI.Services.Players
         ICollection<Exception> exceptions;
         player = _playerManager.BuildPlayer_NoLock(mediaItem, out exceptions);
         if (player == null)
+        {
           HandleUnableToPlay(mediaItem, exceptions);
+          OnPlaybackError(null);
+        }
         else
         {
           IMediaPlaybackControl mpc;
@@ -471,7 +474,7 @@ namespace MediaPortal.UI.Services.Players
           if (disposePlayer != null)
             disposePlayer.Dispose();
           OnPlayerStarted(player);
-          
+
           // Handling of resume info.
           object resumeObject;
           if (ContextVariables.TryGetValue(PlayerContext.KEY_RESUME_STATE, out resumeObject))
