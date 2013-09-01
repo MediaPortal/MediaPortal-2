@@ -64,7 +64,8 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
     // properties for channel browsing and program preview
     protected AbstractProperty _selectedCurrentProgramProperty = null;
     protected AbstractProperty _selectedNextProgramProperty = null;
-
+    protected AbstractProperty _selectedChannelNameProperty = null;
+    protected AbstractProperty _selectedProgramProgressProperty = null;
 
     // properties for playing channel and program (OSD)
     protected AbstractProperty _currentProgramProperty = null;
@@ -143,6 +144,23 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
     }
 
     /// <summary>
+    /// Exposes the selected channel name to the skin.
+    /// </summary>
+    public string SelectedChannelName
+    {
+      get { return (string) _selectedChannelNameProperty.GetValue(); }
+      set { _selectedChannelNameProperty.SetValue(value); }
+    }
+
+    /// <summary>
+    /// Exposes the selected channel name to the skin.
+    /// </summary>
+    public AbstractProperty SelectedChannelNameProperty
+    {
+      get { return _selectedChannelNameProperty; }
+    }
+
+    /// <summary>
     /// Exposes the list of channels in current group.
     /// </summary>
     public ItemsList CurrentGroupChannels
@@ -153,9 +171,9 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
     /// <summary>
     /// Exposes the current program to the skin.
     /// </summary>
-    public string SelectedCurrentProgram
+    public ProgramProperties SelectedCurrentProgram
     {
-      get { return (string) _selectedCurrentProgramProperty.GetValue(); }
+      get { return (ProgramProperties) _selectedCurrentProgramProperty.GetValue(); }
       set { _selectedCurrentProgramProperty.SetValue(value); }
     }
 
@@ -171,9 +189,9 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
     /// <summary>
     /// Exposes the next program to the skin.
     /// </summary>
-    public string SelectedNextProgram
+    public ProgramProperties SelectedNextProgram
     {
-      get { return (string) _selectedNextProgramProperty.GetValue(); }
+      get { return (ProgramProperties) _selectedNextProgramProperty.GetValue(); }
       set { _selectedNextProgramProperty.SetValue(value); }
     }
 
@@ -218,6 +236,23 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
     public AbstractProperty ProgramProgressProperty
     {
       get { return _programProgressProperty; }
+    }
+
+    /// <summary>
+    /// Gets a value (range 0 to 100) which denotes the current fraction of played content.
+    /// </summary>
+    public double SelectedProgramProgress
+    {
+      get { return (double) _selectedProgramProgressProperty.GetValue(); }
+      internal set { _selectedProgramProgressProperty.SetValue(value); }
+    }
+
+    /// <summary>
+    /// Gets a value (range 0 to 100) which denotes the current fraction of played content.
+    /// </summary>
+    public AbstractProperty SelectedProgramProgressProperty
+    {
+      get { return _selectedProgramProgressProperty; }
     }
 
     /// <summary>
@@ -325,7 +360,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
       if (selectedItem != null)
       {
         IChannel channel = (IChannel) selectedItem.AdditionalProperties["CHANNEL"];
-        UpdateProgramForChannel(channel);
+        UpdateSelectedChannelPrograms(channel);
       }
     }
 
@@ -474,7 +509,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
       IsOSDLevel1 = false;
       IsOSDLevel2 = false;
 
-      UpdateForChannel(_channels[_zapChannelIndex]);
+      UpdateRunningChannelPrograms(_channels[_zapChannelIndex]);
 
       if (_zapTimer == null)
       {
@@ -502,25 +537,33 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
       // When not zapped the previous channel information is restored during the next Update() call
     }
 
-    protected void UpdateForChannel(IChannel channel)
+    protected void UpdateSelectedChannelPrograms(IChannel channel)
     {
-      ChannelName = channel.Name;
+      UpdateForChannel(channel, SelectedCurrentProgram, SelectedNextProgram, SelectedChannelNameProperty, SelectedProgramProgressProperty);
+    }
+
+    protected void UpdateRunningChannelPrograms(IChannel channel)
+    {
+      UpdateForChannel(channel, CurrentProgram, NextProgram, ChannelNameProperty, ProgramProgressProperty);
+    }
+
+    protected void UpdateForChannel(IChannel channel, ProgramProperties current, ProgramProperties next, AbstractProperty channelNameProperty, AbstractProperty progressProperty)
+    {
+      channelNameProperty.SetValue(channel.Name);
       IProgram currentProgram;
       IProgram nextProgram;
       if (_tvHandler.ProgramInfo.GetNowNextProgram(channel, out currentProgram, out nextProgram))
       {
-        CurrentProgram.SetProgram(currentProgram);
-        double progress = (DateTime.Now - currentProgram.StartTime).TotalSeconds /
-                          (currentProgram.EndTime - currentProgram.StartTime).TotalSeconds * 100;
-        _programProgressProperty.SetValue(progress);
-
-        NextProgram.SetProgram(nextProgram);
+        current.SetProgram(currentProgram);
+        next.SetProgram(nextProgram);
+        double progress = (DateTime.Now - currentProgram.StartTime).TotalSeconds / (currentProgram.EndTime - currentProgram.StartTime).TotalSeconds * 100;
+        progressProperty.SetValue(progress);
       }
       else
       {
-        CurrentProgram.SetProgram(null);
-        NextProgram.SetProgram(null);
-        _programProgressProperty.SetValue(100d);
+        current.SetProgram(null);
+        next.SetProgram(null);
+        progressProperty.SetValue(100d);
       }
     }
 
@@ -533,8 +576,11 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
       if (!_isInitialized)
       {
         _currentGroupNameProperty = new WProperty(typeof(string), string.Empty);
-        _selectedCurrentProgramProperty = new WProperty(typeof(string), string.Empty);
-        _selectedNextProgramProperty = new WProperty(typeof(string), string.Empty);
+
+        _selectedChannelNameProperty = new WProperty(typeof(string), string.Empty);
+        _selectedCurrentProgramProperty = new WProperty(typeof(ProgramProperties), new ProgramProperties());
+        _selectedNextProgramProperty = new WProperty(typeof(ProgramProperties), new ProgramProperties());
+        _selectedProgramProgressProperty = new WProperty(typeof(double), 0d);
 
         _currentChannelNameProperty = new WProperty(typeof(string), string.Empty);
         _currentProgramProperty = new WProperty(typeof(ProgramProperties), new ProgramProperties());
@@ -670,17 +716,6 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
       if (channel1 != null && channel2 != null)
         return channel1.ChannelId == channel2.ChannelId && channel1.MediaType == channel2.MediaType;
       return false;
-    }
-
-    private void UpdateProgramForChannel(IChannel channel)
-    {
-      IProgram currentProgram;
-      IProgram nextProgram;
-      if (_tvHandler.ProgramInfo.GetNowNextProgram(channel, out currentProgram, out nextProgram))
-      {
-        _selectedCurrentProgramProperty.SetValue(FormatProgram(currentProgram));
-        _selectedNextProgramProperty.SetValue(FormatProgram(nextProgram));
-      }
     }
 
     protected void UpdateAllCurrentPrograms()

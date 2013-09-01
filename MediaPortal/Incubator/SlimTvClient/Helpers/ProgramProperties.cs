@@ -35,10 +35,11 @@ namespace MediaPortal.Plugins.SlimTv.Client.Helpers
   /// </summary>
   public class ProgramProperties
   {
+    private static readonly double PROGRAM_WIDTH_FACTOR = 6.5;
+
     private DateTime _viewPortMinTime;
     private DateTime _viewPortMaxTime;
     private bool _settingProgram = false;
-    private static readonly double ProgramWidthFactor = 6.5;
 
     public AbstractProperty ProgramIdProperty { get; set; }
     public AbstractProperty IsScheduledProperty { get; set; }
@@ -131,7 +132,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.Helpers
 
     static ProgramProperties()
     {
-      ResourceHelper.ReadResourceDouble("MultiGuideProgramTimeFactor", ref ProgramWidthFactor);
+      ResourceHelper.ReadResourceDouble("MultiGuideProgramTimeFactor", ref PROGRAM_WIDTH_FACTOR);
     }
 
     public ProgramProperties() : this(DateTime.Now, DateTime.Now.AddHours(SlimTvMultiChannelGuideModel.VisibleHours))
@@ -218,7 +219,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.Helpers
         programEnd = _viewPortMaxTime;
 
       RemainingDuration = Math.Max((int)(programEnd - programStart).TotalMinutes, 0);
-      ProgramWidth = ProgramWidthFactor * RemainingDuration;
+      ProgramWidth = PROGRAM_WIDTH_FACTOR * RemainingDuration;
     }
   }
 }
