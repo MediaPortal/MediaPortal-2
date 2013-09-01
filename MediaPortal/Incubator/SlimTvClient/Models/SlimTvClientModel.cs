@@ -754,6 +754,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
         return;
       item.Program.SetProgram(program ?? GetNoProgram(previousProgram));
       item.AdditionalProperties["PROGRAM"] = program;
+      item.Update();
     }
 
     private static ProgramListItem GetNoProgramPlaceholder(IProgram previousProgram = null)

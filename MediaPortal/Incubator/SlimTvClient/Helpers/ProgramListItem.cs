@@ -36,6 +36,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.Helpers
   {
     protected AbstractProperty _programProperty = null;
     protected AbstractProperty _isRunningProperty = null;
+    protected AbstractProperty _progressProperty = null;
 
     /// <summary>
     /// Exposes the program.
@@ -70,10 +71,31 @@ namespace MediaPortal.Plugins.SlimTv.Client.Helpers
       get { return _isRunningProperty; }
     }
 
+    /// <summary>
+    /// Exposes percent value of programm's progress. It will be a value between <c>0</c> and <c>100</c>.
+    /// If program is not running, it will be always <c>0</c>.
+    /// </summary>
+    public double Progress
+    {
+      get { return (double) _progressProperty.GetValue(); }
+      set { _progressProperty.SetValue(value); }
+    }
+
+    /// <summary>
+    /// Exposes percent value of programm's progress. It will be a value between <c>0</c> and <c>100</c>.
+    /// If program is not running, it will be always <c>0</c>.
+    /// </summary>
+    public AbstractProperty ProgressProperty
+    {
+      get { return _progressProperty; }
+    }
+
+
     public ProgramListItem(ProgramProperties program)
     {
       _programProperty = new WProperty(typeof(ProgramProperties), program);
       _isRunningProperty = new WProperty(typeof(bool), false);
+      _progressProperty = new WProperty(typeof(double), 0d);
       SetLabel(Consts.KEY_NAME, program.Title);
       SetLabel("Title", program.Title);
       SetLabel("StartTime", FormatHelper.FormatProgramTime(program.StartTime));
@@ -88,6 +110,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.Helpers
     {
       DateTime now = DateTime.Now;
       IsRunning = Program.StartTime <= now && Program.EndTime > now;
+      Progress = (now - Program.StartTime).TotalSeconds / (Program.EndTime - Program.StartTime).TotalSeconds * 100;
     }
   }
 
