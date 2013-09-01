@@ -16,6 +16,7 @@
   <ResourceWrapper x:Key="OSDDetailLabelHeight" Resource="150"/>
   
   <ResourceWrapper x:Key="MiniGuideWidth" Resource="300"/>
+  <ResourceWrapper x:Key="MiniGuideDetailsWidth" Resource="300"/>
 
   <!-- Hours to be shown in EPG screen -->
   <ResourceWrapper x:Key="MultiGuideVisibleHours" Resource="2.5"/>

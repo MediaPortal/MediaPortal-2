@@ -9,5 +9,7 @@
   <!-- Program guide colors -->
   <ResourceWrapper x:Key="ProgramRunningFill" Resource="#A0134763"/>
   <ResourceWrapper x:Key="ProgramScheduledFill" Resource="#A0FF0000"/>
+  
+  <ResourceWrapper x:Key="MiniguideDetailBackground" Resource="#A0000000"/>
 
 </ResourceDictionary>
