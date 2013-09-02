@@ -190,6 +190,11 @@
   <ItemGroup>
     <None Include="build.targets" />
   </ItemGroup>
+  <ItemGroup>
+    <Content Include="Skin\default\screens\DialogChooseGroup.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="build.targets" />
 </Project>

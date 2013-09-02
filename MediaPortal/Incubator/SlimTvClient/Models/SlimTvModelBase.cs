@@ -25,10 +25,12 @@
 using System;
 using System.Collections.Generic;
 using MediaPortal.Common;
+using MediaPortal.Common.Commands;
 using MediaPortal.Plugins.SlimTv.Interfaces;
 using MediaPortal.Plugins.SlimTv.Interfaces.Items;
 using MediaPortal.UI.Presentation.DataObjects;
 using MediaPortal.UI.Presentation.Models;
+using MediaPortal.UI.Presentation.Screens;
 using MediaPortal.UI.Presentation.Workflow;
 
 namespace MediaPortal.Plugins.SlimTv.Client.Models
@@ -41,6 +43,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
     #region Protected fields
 
     protected ITvHandler _tvHandler;
+    protected ItemsList _channelGroupList;
     protected IList<IChannelGroup> _channelGroups;
     protected IList<IChannel> _channels;
     protected int _webChannelGroupIndex;
@@ -58,7 +61,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
     { }
 
     protected SlimTvModelBase(long updateInterval)
-      : base (true, updateInterval)
+      : base(true, updateInterval)
     { }
 
     #endregion
@@ -66,18 +69,19 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
     #region GUI properties and methods
 
     /// <summary>
+    /// Gets the list of all available channel groups.
+    /// </summary>
+    public ItemsList ChannelGroupList
+    {
+      get { return _channelGroupList; }
+    }
+
+    /// <summary>
     /// Skips group index to next one.
     /// </summary>
     public void NextGroup()
     {
-      if (_channelGroups == null)
-        return;
-
-      _webChannelGroupIndex++;
-      if (_webChannelGroupIndex >= _channelGroups.Count)
-        _webChannelGroupIndex = 0;
-
-      UpdateChannels();
+      SetGroup(++_webChannelGroupIndex);
     }
 
     /// <summary>
@@ -85,14 +89,35 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
     /// </summary>
     public void PrevGroup()
     {
+      SetGroup(--_webChannelGroupIndex);
+    }
+
+    /// <summary>
+    /// Sets the current channel group and updates the channel list.
+    /// </summary>
+    /// <param name="newIndex">Index of group to select.</param>
+    public void SetGroup(int newIndex)
+    {
       if (_channelGroups == null)
         return;
 
-      _webChannelGroupIndex--;
-      if (_webChannelGroupIndex < 0)
-        _webChannelGroupIndex = _channelGroups.Count - 1;
+      if (newIndex >= _channelGroups.Count)
+        newIndex = 0;
 
+      if (newIndex < 0)
+        newIndex = _channelGroups.Count - 1;
+
+      _webChannelGroupIndex = newIndex;
+      FillChannelGroupList();
       UpdateChannels();
+    }
+
+    /// <summary>
+    /// Opens the group selection dialog.
+    /// </summary>
+    public void SelectGroup()
+    {
+      ServiceRegistration.Get<IScreenManager>().ShowDialog("DialogChooseGroup");
     }
 
     /// <summary>
@@ -154,9 +179,30 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
       _tvHandler.ChannelAndGroupInfo.GetChannelGroups(out _channelGroups);
 
       GetCurrentChannelGroup();
+      FillChannelGroupList();
       GetCurrentChannel();
       UpdateChannels();
       UpdatePrograms();
+    }
+
+    protected void FillChannelGroupList()
+    {
+      if (_channelGroups == null)
+        return;
+
+      _channelGroupList = new ItemsList();
+      for (int idx = 0; idx < _channelGroups.Count; idx++)
+      {
+        IChannelGroup group = _channelGroups[idx];
+        int selIdx = idx;
+        ListItem channelGroupItem = new ListItem(UiComponents.Media.General.Consts.KEY_NAME, group.Name)
+        {
+          Command = new MethodDelegateCommand(() => SetGroup(selIdx)),
+          Selected = selIdx == _webChannelGroupIndex
+        };
+        _channelGroupList.Add(channelGroupItem);
+      }
+      _channelGroupList.FireChange();
     }
 
     protected void GetCurrentChannelGroup()
