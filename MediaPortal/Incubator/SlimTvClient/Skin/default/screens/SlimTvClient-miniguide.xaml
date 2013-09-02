@@ -134,8 +134,8 @@
              Color="{ThemeResource TextColor}"/>
         </Grid>
 
-        <!--<KeyBinding Key="Right" Command="{Command Path=NextGroup}"/>
-        <KeyBinding Key="Left" Command="{Command Path=PrevGroup}"/>-->
+        <KeyBinding Key="Yellow" Command="{Command Path=NextGroup}"/>
+        <KeyBinding Key="Green" Command="{Command Path=PrevGroup}"/>
       </Grid>
     </ControlTemplate>
   </Include.Resources>
