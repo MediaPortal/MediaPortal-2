@@ -17,7 +17,7 @@
     <Shortcut Key="P:A" WorkflowAction="30715D73-4205-417f-80AA-E82F0834171F" />
     
     <!-- Name="*->FullscreenContent" -->
-    <Shortcut Key="P:F" WorkflowAction="9C3E6701-6856-49ec-A4CD-0CEB15F385F6" />
+    <Shortcut Key="P:F,S:Red" WorkflowAction="9C3E6701-6856-49ec-A4CD-0CEB15F385F6" />
 
     <!-- Name="*->CurrentMedia" -->
     <Shortcut Key="P:C" WorkflowAction="D83604C0-0936-4416-9DE8-7B6D7C50023C" />
