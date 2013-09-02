@@ -14,8 +14,9 @@
   <ResourceWrapper x:Key="TvGuideRowHeaderWidth" Resource="250"/>
 
   <ResourceWrapper x:Key="OSDDetailLabelHeight" Resource="150"/>
-  
-  <ResourceWrapper x:Key="MiniGuideWidth" Resource="300"/>
+
+  <ResourceWrapper x:Key="MiniGuideHeight" Resource="500"/>
+  <ResourceWrapper x:Key="MiniGuideWidth" Resource="600"/>
   <ResourceWrapper x:Key="MiniGuideDetailsWidth" Resource="300"/>
 
   <!-- Hours to be shown in EPG screen -->

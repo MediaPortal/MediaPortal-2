@@ -15,6 +15,7 @@
 
   <ResourceWrapper x:Key="OSDDetailLabelHeight" Resource="220"/>
 
+  <ResourceWrapper x:Key="MiniGuideHeight" Resource="700"/>
   <ResourceWrapper x:Key="MiniGuideWidth" Resource="900"/>
   <ResourceWrapper x:Key="MiniGuideDetailsWidth" Resource="500"/>
 

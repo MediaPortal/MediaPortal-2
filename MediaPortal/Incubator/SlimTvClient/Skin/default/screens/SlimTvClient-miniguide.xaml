@@ -7,16 +7,23 @@
     xmlns:mp_special_controls="clr-namespace:MediaPortal.UI.SkinEngine.SpecialElements.Controls"
     >
   <Include.Resources>
-
-    <!-- Header -->
-    <ResourceWrapper x:Key="Dialog_Header_Text" Resource="[SlimTvClient.Title]"/>
-
     <!-- SlimTvClient model -->
     <Model x:Key="SlimTvClient" Id="8BEC1372-1C76-484c-8A69-C7F3103708EC"/>
+    <Model x:Key="TimeModel" Id="E821B1C8-0666-4339-8027-AA45A4F6F107"/>
+
+    <!-- Header -->
+    <!--<ResourceWrapper x:Key="Dialog_Header_Text" Resource="{Binding Source={StaticResource TimeModel}, Path=CurrentTime}"/>-->
+
+    <ControlTemplate x:Key="Alternative_Contents_Template">
+      <Label x:Name="TimeLabel" Content="{Binding Source={StaticResource TimeModel}, Path=CurrentTime}" 
+             FontSize="{ThemeResource DialogTitleFontSize}" Margin="20,0,10,0"
+             Color="{ThemeResource DialogHeaderColor}"
+             VerticalAlignment="Center" HorizontalAlignment="Left"/>
+    </ControlTemplate>
 
     <!-- Contents -->
     <ControlTemplate x:Key="Contents_Template">
-      <Grid x:Name="MainGrid" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" 
+      <Grid x:Name="MainGrid" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Height="{ThemeResource MiniGuideWidth}"
         DataContext="{Binding Source={StaticResource SlimTvClient}}">
 
         <Grid.ColumnDefinitions>
@@ -34,10 +41,10 @@
             HorizontalAlignment="Left" VerticalAlignment="Center" Orientation="Horizontal">
           <Button x:Name="PrevGroupButton" Style="{StaticResource SmallButtonStyle}" Content=" &lt; "
               Command="{Command PrevGroup}"/>
+          <Button x:Name="CurrentGroupNameButton" Style="{StaticResource ButtonWideStyle}" Content="{Binding CurrentGroupName}"
+              Command="{Command SelectGroup}"/>
           <Button x:Name="NextGroupButton" Style="{StaticResource SmallButtonStyle}" Content=" &gt; "
               Command="{Command NextGroup}"/>
-          <Label x:Name="CurrentGroupNameLabel" Content="{Binding CurrentGroupName}"
-              Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}"/>
         </StackPanel>
 
         <StackPanel x:Name="PiPControl" Margin="20,0,20,0" Grid.Column="1" Grid.Row="0"
@@ -127,8 +134,8 @@
              Color="{ThemeResource TextColor}"/>
         </Grid>
 
-        <KeyBinding Key="Right" Command="{Command Path=NextGroup}"/>
-        <KeyBinding Key="Left" Command="{Command Path=PrevGroup}"/>
+        <!--<KeyBinding Key="Right" Command="{Command Path=NextGroup}"/>
+        <KeyBinding Key="Left" Command="{Command Path=PrevGroup}"/>-->
       </Grid>
     </ControlTemplate>
   </Include.Resources>
