@@ -291,9 +291,28 @@
     </StackPanel>
   </DataTemplate>
 
+  <Style x:Key="VirtualizingHorizontalListViewStyle" BasedOn="{ThemeResource DefaultListViewStyle}">
+    <Setter Property="ItemsPanel">
+      <Setter.Value>
+        <ItemsPanelTemplate>
+          <VirtualizingStackPanel x:Name="ListItemsHost" IsItemsHost="True" Orientation="Horizontal" />
+        </ItemsPanelTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
+
+  <Style x:Key="VirtualizingListViewStyle" BasedOn="{ThemeResource DefaultListViewStyle}">
+    <Setter Property="ItemsPanel">
+      <Setter.Value>
+        <ItemsPanelTemplate>
+          <VirtualizingStackPanel x:Name="ListItemsHost" IsItemsHost="True" />
+        </ItemsPanelTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
 
   <!-- ProgramGuideViewStyle defines the horizontal layout for the MultiChannelGuide program rows. -->
-  <Style x:Key="ProgramGuideViewStyle" TargetType="{x:Type ListView}">
+  <Style x:Key="ProgramGuideViewStyle" TargetType="{x:Type ListView}" BasedOn="{ThemeResource VirtualizingHorizontalListViewStyle}">
     <Setter Property="Template">
       <Setter.Value>
         <ControlTemplate TargetType="{x:Type ListView}">
@@ -301,17 +320,10 @@
         </ControlTemplate>
       </Setter.Value>
     </Setter>
-    <Setter Property="ItemsPanel">
-      <Setter.Value>
-        <ItemsPanelTemplate>
-          <StackPanel x:Name="ListItemsHost" IsItemsHost="True" Orientation="Horizontal" />
-        </ItemsPanelTemplate>
-      </Setter.Value>
-    </Setter>
   </Style>
 
   <!-- SingleProgramGuideListViewStyle is used for Single Channel Guide-->
-  <Style x:Key="SingleProgramGuideListViewStyle" BasedOn="{ThemeResource DefaultListViewStyle}">
+  <Style x:Key="SingleProgramGuideListViewStyle" BasedOn="{ThemeResource VirtualizingListViewStyle}">
     <Setter Property="ItemTemplate" Value="{ThemeResource SingleChannelProgramGuideDataTemplate}"/>
     <Setter Property="ItemContainerStyle" Value="{ThemeResource DefaultMenuItemContainerStyle}"/>
   </Style>
@@ -583,13 +595,13 @@
   </DataTemplate>
 
   <!-- MultiProgramGuideContainerStyle is the "top level" style used in SlimTvClient-fullguide -->
-  <Style x:Key="MultiProgramGuideContainerStyle" BasedOn="{ThemeResource DefaultListViewStyle}">
+  <Style x:Key="MultiProgramGuideContainerStyle" BasedOn="{ThemeResource VirtualizingListViewStyle}">
     <Setter Property="ItemTemplate" Value="{ThemeResource GuideChannelListDataTemplate}"/>
     <Setter Property="ItemContainerStyle" Value="{ThemeResource DefaultItemContainerStyle}"/>
   </Style>
 
   <!-- ChannelWithLogoAndProgramListViewStyle is used inside main screen and for miniguide -->
-  <Style x:Key="ChannelWithLogoAndProgramListViewStyle" BasedOn="{ThemeResource DefaultListViewStyle}">
+  <Style x:Key="ChannelWithLogoAndProgramListViewStyle" BasedOn="{ThemeResource VirtualizingListViewStyle}">
     <!--<Setter Property="ItemTemplate" Value="{ThemeResource ChannelWithLogoAndProgramDataTemplate}"/>-->
     <Setter Property="ItemTemplate" Value="{ThemeResource ChannelWithCurrentProgramDataTemplate}"/>
     <Setter Property="ItemContainerStyle" Value="{ThemeResource DefaultMenuItemContainerStyle}"/>
