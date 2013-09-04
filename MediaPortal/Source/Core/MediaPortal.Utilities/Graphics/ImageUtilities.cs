@@ -90,7 +90,7 @@ namespace MediaPortal.Utilities.Graphics
     /// <returns>Resized image</returns>
     public static Image ResizeImage(Image fullsizeImage, int maxWidth, int maxHeight, bool allowUpScale = false)
     {
-      if (!allowUpScale && fullsizeImage.Width <= maxHeight && fullsizeImage.Height <= maxHeight)
+      if (!allowUpScale && fullsizeImage.Width <= maxWidth && fullsizeImage.Height <= maxHeight)
         return fullsizeImage;
 
       if (fullsizeImage.Width <= maxWidth)
@@ -163,7 +163,7 @@ namespace MediaPortal.Utilities.Graphics
       using (Image bitmap = ResizeImage(Image.FromStream(sourceStream), maxWidth, maxHeight))
       {
         MemoryStream tmpImageStream = new MemoryStream();
-        bitmap.Save(tmpImageStream, ImageFormat.Bmp);
+        bitmap.Save(tmpImageStream, targetFormat);
         tmpImageStream.Position = 0;
         return tmpImageStream;
       }
