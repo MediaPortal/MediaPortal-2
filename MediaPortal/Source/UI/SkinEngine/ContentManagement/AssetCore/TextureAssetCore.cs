@@ -24,7 +24,6 @@
 
 using System;
 using System.Drawing;
-using System.Drawing.Imaging;
 using System.IO;
 using System.Net;
 using System.Net.Cache;
@@ -44,6 +43,11 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement.AssetCore
 {
   public class BaseTextureAssetCore : TemporaryAssetCoreBase, IAssetCore
   {
+    /// <summary>
+    /// Defines the maximum size that is used for rendering image textures. Larger images will be scaled down to fit this size.
+    /// </summary>
+    public const int MAX_TEXTURE_DIMENSION = 2048;
+
     protected Texture _texture = null;
     protected int _width = 0;
     protected int _height = 0;
@@ -88,20 +92,12 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement.AssetCore
 
     protected void AllocateFromStream_NoLock(Stream stream)
     {
-      stream.Seek(0, SeekOrigin.Begin);
-      Texture texture = null;
+      Texture texture;
       ImageInformation info = new ImageInformation();
       try
       {
-        texture = Texture.FromStream(GraphicsDevice.Device, stream, 0, _decodeWidth, _decodeHeight, 1,
-            Usage.None, Format.A8R8G8B8, Pool.Default, Filter.None, Filter.None, 0, out info);
-      }
-      catch (Direct3D9Exception ex)
-      {
-        // Decoding the image using the inbuilt decoders didn't work, so we try to create texture using FreeImage.
-        if ((uint) ex.ResultCode.Code == 0x88760B59) // D3DXERR_INVALIDDATA
-          // Load compressed image data.
-          texture = AllocateFromImageStream(stream, ref info);
+        stream.Seek(0, SeekOrigin.Begin);
+        texture = AllocateFromImageStream(stream, ref info);
       }
       catch (Exception e)
       {
@@ -114,43 +110,24 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement.AssetCore
 
     protected void AllocateFromBuffer_NoLock(byte[] data)
     {
-      Texture texture = null;
-      ImageInformation info = new ImageInformation();
-      try
-      {
-        texture = Texture.FromMemory(GraphicsDevice.Device, data, _decodeWidth, _decodeHeight, 1,
-                    Usage.None, Format.A8R8G8B8, Pool.Default, Filter.None, Filter.None, 0, out info);
-      }
-      catch (Direct3D9Exception ex)
-      {
-        // Decoding the image using the inbuilt decoders didn't work, so we try to create texture using FreeImage.
-        if ((uint) ex.ResultCode.Code == 0x88760B59) // D3DXERR_INVALIDDATA
-          // Load compressed image data.
-          using (Stream dataStream = new MemoryStream(data))
-            texture = AllocateFromImageStream(dataStream, ref info);
-      }
-      catch (Exception e)
-      {
-        ServiceRegistration.Get<ILogger>().Warn("TextureAssetCore: Error loading texture from memory buffer", e);
-        return;
-      }
-      if (texture != null)
-        FinalizeAllocation(texture, info.Width, info.Height);
+      using (Stream dataStream = new MemoryStream(data))
+        AllocateFromStream_NoLock(dataStream);
     }
 
     protected Texture AllocateFromImageStream(Stream dataStream, ref ImageInformation info)
     {
       Texture texture = null;
-      FIBITMAP image = new FIBITMAP();
+      FIBITMAP image = FIBITMAP.Zero;
       try
       {
         image = FreeImage.LoadFromStream(dataStream);
 
         // Write uncompressed data to temporary stream.
-        using (var bmp = FreeImage.GetBitmap(image))
         using (var memoryStream = new MemoryStream())
         {
-          bmp.Save(memoryStream, ImageFormat.Bmp);
+          // Scale down larger images
+          image = ResizeImage(image, MAX_TEXTURE_DIMENSION, MAX_TEXTURE_DIMENSION);
+          FreeImage.SaveToStream(image, memoryStream, FREE_IMAGE_FORMAT.FIF_BMP);
           memoryStream.Position = 0;
           texture = Texture.FromStream(GraphicsDevice.Device, memoryStream, (int)memoryStream.Length, _decodeWidth, _decodeHeight, 1,
             Usage.None, Format.A8R8G8B8, Pool.Default, Filter.None, Filter.None, 0, out info);
@@ -165,6 +142,37 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement.AssetCore
         FreeImage.UnloadEx(ref image);
       }
       return texture;
+    }
+
+    /// <summary>
+    /// Resizes the given <paramref name="fullsizeImage"/> to a maximum <paramref name="maxWidth"/> and <paramref name="maxHeight"/> while preserving
+    /// corrent aspect ratio.
+    /// </summary>
+    /// <param name="fullsizeImage">Image</param>
+    /// <param name="maxWidth">Max. width</param>
+    /// <param name="maxHeight">Max. height</param>
+    /// <returns>Resized image</returns>
+    public static FIBITMAP ResizeImage(FIBITMAP fullsizeImage, int maxWidth, int maxHeight)
+    {
+      int width = (int)FreeImage.GetWidth(fullsizeImage);
+      int height = (int)FreeImage.GetHeight(fullsizeImage);
+      if (width <= maxWidth && height <= maxHeight)
+        return fullsizeImage;
+
+      if (width <= maxWidth)
+        maxWidth = width;
+
+      int newHeight = height * maxWidth / width;
+      if (newHeight > maxHeight)
+      {
+        // Resize with height instead
+        maxWidth = width * maxHeight / height;
+        newHeight = maxHeight;
+      }
+
+      FIBITMAP rescaled = FreeImage.Rescale(fullsizeImage, maxWidth, newHeight, FREE_IMAGE_FILTER.FILTER_LANCZOS3);
+      FreeImage.UnloadEx(ref fullsizeImage);
+      return rescaled;
     }
 
     protected virtual void FinalizeAllocation(Texture texture, int fileWidth, int fileHeight)
@@ -743,6 +751,30 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement.AssetCore
     public override void Allocate()
     {
       AllocateFromBuffer_NoLock(_binaryThumbdata);
+    }
+
+    public override void AllocateAsync()
+    {
+      Allocate();
+    }
+  }
+
+  /// <summary>
+  /// A version of <see cref="TextureAssetCore"/> that gets its texture data synchronously from a stream.
+  /// </summary>
+  public class SynchronousStreamTextureAssetCore : TextureAssetCore
+  {
+    private readonly Stream _stream;
+
+    public SynchronousStreamTextureAssetCore(Stream stream, string textureName)
+      : base(textureName, 0, 0)
+    {
+      _stream = stream;
+    }
+
+    public override void Allocate()
+    {
+      AllocateFromStream_NoLock(_stream);
     }
 
     public override void AllocateAsync()

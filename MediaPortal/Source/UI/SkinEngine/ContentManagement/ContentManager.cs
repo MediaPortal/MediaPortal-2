@@ -173,12 +173,16 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement
     /// </summary>
     /// <param name="stream">Stream to read the image data to create the texture from.</param>
     /// <param name="key">Key which is unique for the given image <paramref name="stream"/>.</param>
+    /// <param name="useSyncLoading">If <c>true</c> the stream gets read synchronously.</param>
     /// <returns>A texture asset containing the image given by the <paramref name="stream"/>.</returns>
-    public TextureAsset GetTexture(Stream stream, string key)
+    public TextureAsset GetTexture(Stream stream, string key, bool useSyncLoading = false)
     {
       return GetCreateAsset(AssetType.Thumbnail, key,
           assetCore => new TextureAsset(assetCore as TextureAssetCore),
-          () => new StreamTextureAssetCore(stream, key)) as TextureAsset;
+          () => useSyncLoading ?
+            new SynchronousStreamTextureAssetCore(stream, key) as TextureAssetCore :
+            new StreamTextureAssetCore(stream, key)
+            ) as TextureAsset ;
     }
 
     /// <summary>
