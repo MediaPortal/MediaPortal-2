@@ -24,7 +24,6 @@
 
 using System;
 using System.Drawing;
-using System.Drawing.Imaging;
 using System.IO;
 using System.Threading;
 using MediaPortal.Common;
@@ -35,10 +34,9 @@ using MediaPortal.Common.Settings;
 using MediaPortal.UI.Players.Image.Animation;
 using MediaPortal.UI.Players.Image.Settings;
 using MediaPortal.UI.Presentation.Players;
+using MediaPortal.UI.SkinEngine.ContentManagement;
 using MediaPortal.UI.SkinEngine.Players;
-using MediaPortal.UI.SkinEngine.SkinManagement;
 using MediaPortal.Utilities;
-using MediaPortal.Utilities.Graphics;
 using SlimDX.Direct3D9;
 using RightAngledRotation = MediaPortal.UI.Presentation.Players.RightAngledRotation;
 
@@ -47,11 +45,6 @@ namespace MediaPortal.UI.Players.Image
   public class ImagePlayer : IDisposable, ISlimDXImagePlayer, IPlayerEvents, IReusablePlayer, IMediaPlaybackControl
   {
     #region Consts
-
-    /// <summary>
-    /// Defines the maximum size that is used for rendering image textures.
-    /// </summary>
-    public const int MAX_TEXTURE_DIMENSION = 2048;
 
     protected static readonly TimeSpan TS_INFINITE = TimeSpan.FromMilliseconds(-1);
 
@@ -71,7 +64,7 @@ namespace MediaPortal.UI.Players.Image
     protected bool _flipY = false;
 
     protected IResourceLocator _currentLocator = null;
-    protected Texture _texture = null;
+    protected TextureAsset _texture = null;
     protected SizeF _textureMaxUV = new SizeF(1, 1);
     protected TimeSpan _slideShowImageDuration = TimeSpan.FromSeconds(10);
     protected Timer _slideShowTimer = null;
@@ -99,7 +92,6 @@ namespace MediaPortal.UI.Players.Image
     public void Dispose()
     {
       DisposeTimer();
-      DisposeTexture();
     }
 
     #region Protected members
@@ -179,15 +171,6 @@ namespace MediaPortal.UI.Players.Image
         }
     }
 
-    protected void DisposeTexture()
-    {
-      if (_texture == null)
-        return;
-      _texture.Dispose();
-      _texture = null;
-      _textureMaxUV = SizeF.Empty;
-    }
-
     protected void CheckTimer()
     {
       lock (_syncObj)
@@ -239,37 +222,39 @@ namespace MediaPortal.UI.Players.Image
       if (locator == null)
         lock (_syncObj)
         {
-          DisposeTexture();
           _currentLocator = null;
           return;
         }
 
-      Texture texture;
-      ImageInformation imageInformation;
       using (IResourceAccessor ra = locator.CreateAccessor())
       {
         IFileSystemResourceAccessor fsra = ra as IFileSystemResourceAccessor;
         if (fsra == null)
           return;
         using (Stream stream = fsra.OpenRead())
-        using (Stream tmpImageStream = ImageUtilities.ResizeImage(stream, ImageFormat.MemoryBmp, MAX_TEXTURE_DIMENSION, MAX_TEXTURE_DIMENSION))
-          texture = Texture.FromStream(SkinContext.Device, tmpImageStream, (int) tmpImageStream.Length, 0, 0, 1, Usage.None,
-            Format.A8R8G8B8, Pool.Default, Filter.None, Filter.None, 0, out imageInformation);
+        {
+          string key = fsra.CanonicalLocalResourcePath.Serialize();
+          _texture = ContentManager.Instance.GetTexture(stream, key, true);
+          if (_texture == null)
+            return;
+          if (!_texture.IsAllocated)
+            _texture.Allocate();
+          if (!_texture.IsAllocated)
+            return;
+        }
       }
       lock (_syncObj)
       {
         ReloadSettings();
         _state = PlayerState.Active;
 
-        DisposeTexture();
         _currentLocator = locator;
         _mediaItemTitle = mediaItemTitle;
-        _texture = texture;
         _rotation = rotation;
         _flipX = flipX;
         _flipY = flipY;
-        SurfaceDescription desc = _texture.GetLevelDescription(0);
-        _textureMaxUV = new SizeF(imageInformation.Width / (float) desc.Width, imageInformation.Height / (float) desc.Height);
+        SurfaceDescription desc = _texture.Texture.GetLevelDescription(0);
+        _textureMaxUV = new SizeF(_texture.Width / (float) desc.Width, _texture.Height / (float) desc.Height);
 
         // Reset animation
         _animator.Initialize();
@@ -417,8 +402,7 @@ namespace MediaPortal.UI.Players.Image
     {
       get
       {
-        SurfaceDescription sd = _texture.GetLevelDescription(0);
-        return new Size((int) (sd.Width * _textureMaxUV.Width), (int) (sd.Height * _textureMaxUV.Height));
+        return _texture != null ? new Size(_texture.Width, _texture.Height) : new Size();
       }
     }
 
@@ -463,7 +447,7 @@ namespace MediaPortal.UI.Players.Image
       get
       {
         lock (_syncObj)
-          return _texture;
+          return _texture != null ? _texture.Texture : null;
       }
     }
 
@@ -477,7 +461,7 @@ namespace MediaPortal.UI.Players.Image
         // Flatten progress function to be in the range 0-1
         if (animationProgress < 0)
           animationProgress = 0;
-        animationProgress = 1-1/(5*animationProgress*animationProgress+1);
+        animationProgress = 1 - 1 / (5 * animationProgress * animationProgress + 1);
         RectangleF textureClip = _animator.GetZoomRect(animationProgress, ImageSize, outputSize);
         return new RectangleF(textureClip.X * _textureMaxUV.Width, textureClip.Y * _textureMaxUV.Height, textureClip.Width * _textureMaxUV.Width, textureClip.Height * _textureMaxUV.Height);
       }
