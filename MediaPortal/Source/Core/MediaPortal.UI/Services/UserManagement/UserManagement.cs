@@ -59,12 +59,13 @@ namespace MediaPortal.UI.Services.UserManagement
 
     public UserProfile GetOrCreateDefaultUser()
     {
-      UserProfile user;
+      UserProfile user = null;
       string profileName = SystemInformation.ComputerName;
-      if (!UserProfileDataManagement.GetProfileByName(profileName, out user))
+      IUserProfileDataManagement updm = UserProfileDataManagement;
+      if (updm != null && !updm.GetProfileByName(profileName, out user))
       {
-        Guid profileId = UserProfileDataManagement.CreateProfile(profileName);
-        if (!UserProfileDataManagement.GetProfile(profileId, out user))
+        Guid profileId = updm.CreateProfile(profileName);
+        if (!updm.GetProfile(profileId, out user))
           return null;
       }
       return user;
