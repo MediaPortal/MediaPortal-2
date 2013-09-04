@@ -101,7 +101,7 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement.AssetCore
         // Decoding the image using the inbuilt decoders didn't work, so we try to create texture using FreeImage.
         if ((uint) ex.ResultCode.Code == 0x88760B59) // D3DXERR_INVALIDDATA
           // Load compressed image data.
-          texture = AllocateFromImageStream(stream, out info);
+          texture = AllocateFromImageStream(stream, ref info);
       }
       catch (Exception e)
       {
@@ -127,7 +127,7 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement.AssetCore
         if ((uint) ex.ResultCode.Code == 0x88760B59) // D3DXERR_INVALIDDATA
           // Load compressed image data.
           using (Stream dataStream = new MemoryStream(data))
-            texture = AllocateFromImageStream(dataStream, out info);
+            texture = AllocateFromImageStream(dataStream, ref info);
       }
       catch (Exception e)
       {
@@ -138,9 +138,9 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement.AssetCore
         FinalizeAllocation(texture, info.Width, info.Height);
     }
 
-    protected Texture AllocateFromImageStream(Stream dataStream, out ImageInformation info)
+    protected Texture AllocateFromImageStream(Stream dataStream, ref ImageInformation info)
     {
-      Texture texture;
+      Texture texture = null;
       FIBITMAP image = new FIBITMAP();
       try
       {
@@ -152,9 +152,13 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement.AssetCore
         {
           bmp.Save(memoryStream, ImageFormat.Bmp);
           memoryStream.Position = 0;
-          texture = Texture.FromStream(GraphicsDevice.Device, memoryStream, (int) memoryStream.Length, _decodeWidth, _decodeHeight, 1,
+          texture = Texture.FromStream(GraphicsDevice.Device, memoryStream, (int)memoryStream.Length, _decodeWidth, _decodeHeight, 1,
             Usage.None, Format.A8R8G8B8, Pool.Default, Filter.None, Filter.None, 0, out info);
         }
+      }
+      catch (Exception e)
+      {
+        ServiceRegistration.Get<ILogger>().Warn("TextureAssetCore: Error loading texture from stream using FreeImage", e);
       }
       finally
       {
