@@ -226,6 +226,8 @@ namespace MediaPortal.UI.Players.Image
           return;
         }
 
+      ReloadSettings();
+
       using (IResourceAccessor ra = locator.CreateAccessor())
       {
         IFileSystemResourceAccessor fsra = ra as IFileSystemResourceAccessor;
@@ -245,7 +247,6 @@ namespace MediaPortal.UI.Players.Image
       }
       lock (_syncObj)
       {
-        ReloadSettings();
         _state = PlayerState.Active;
 
         _currentLocator = locator;
