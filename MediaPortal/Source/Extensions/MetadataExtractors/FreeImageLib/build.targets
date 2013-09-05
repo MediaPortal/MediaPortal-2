@@ -6,12 +6,17 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PluginFiles Include="$(TargetDir)$(ProjectName).dll" />
     <PluginFiles Include="$(ProjectDir)plugin.xml" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <References Include="$(ProjectDir)\Resources\FreeImage.dll" />
+    <References Include="$(TargetDir)FreeImageNet.dll" />
   </ItemGroup>
 
   <Target Name="AfterBuild">
     <Copy SourceFiles="@(PluginFiles)" DestinationFolder="$(PluginDestination)" />
+    <Copy SourceFiles="@(References)" DestinationFolder="$(PluginDestination)" />
   </Target>
 
 </Project>

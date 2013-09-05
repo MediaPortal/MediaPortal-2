@@ -7,6 +7,10 @@
     Description="Metadata extractor for many kinds of image file formats"
     PluginVersion="1.0">
 
+  <DependsOn>
+    <PluginReference PluginId="{94B90D7C-EF2E-466C-9FDE-E9F57472761A}"/> <!-- FreeImageLib -->
+  </DependsOn>
+
   <Runtime>
     <Assembly FileName="ImageMetadataExtractor.dll"/>
   </Runtime>

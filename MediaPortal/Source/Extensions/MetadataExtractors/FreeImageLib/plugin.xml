@@ -1,0 +1,13 @@
+<Plugin
+    DescriptorVersion="1.0"
+    Name="FreeImage Library"
+    PluginId="{94B90D7C-EF2E-466C-9FDE-E9F57472761A}"
+    Author="Morpheus_xx"
+    Copyright="GPL"
+    Description="Library plugin providing the FreeImage functionality needed for SkinEngine and some default metadata extractors"
+    PluginVersion="3.15.4.1">
+
+  <Runtime>
+    <Assembly FileName="FreeImageNet.dll"/>
+  </Runtime>
+</Plugin>

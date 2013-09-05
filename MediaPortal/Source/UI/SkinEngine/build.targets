@@ -7,8 +7,6 @@
 
   <ItemGroup>
     <PluginFiles Include="$(TargetDir)$(ProjectName).dll" />
-    <PluginFiles Include="$(TargetDir)FreeImage.dll" />
-    <PluginFiles Include="$(TargetDir)FreeImageNET.dll" />
     <PluginFiles Include="$(ProjectDir)plugin.xml" />
   </ItemGroup>
 
