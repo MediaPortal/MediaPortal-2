@@ -58,6 +58,11 @@ namespace MediaPortal.Extensions.MetadataExtractors.ImageMetadataExtractor
     /// </summary>
     public static Guid METADATAEXTRACTOR_ID = new Guid(METADATAEXTRACTOR_ID_STR);
 
+    /// <summary>
+    /// Default mimetype for not detected formats.
+    /// </summary>
+    public const string DEFAULT_MIMETYPE = "image/unknown";
+
     #endregion Constants
 
     #region Protected fields and classes
@@ -139,9 +144,8 @@ namespace MediaPortal.Extensions.MetadataExtractors.ImageMetadataExtractor
         // Open a stream for media item to detect mimeType.
         using (Stream mediaStream = fsra.OpenRead())
         {
-          string mimeType = MimeTypeDetector.GetMimeType(mediaStream);
-          if (mimeType != null)
-            mediaAspect.SetAttribute(MediaAspect.ATTR_MIME_TYPE, mimeType);
+          string mimeType = MimeTypeDetector.GetMimeType(mediaStream) ?? DEFAULT_MIMETYPE;
+          mediaAspect.SetAttribute(MediaAspect.ATTR_MIME_TYPE, mimeType);
         }
         // Extract EXIF information from media item.
         using (ExifMetaInfo.ExifMetaInfo exif = new ExifMetaInfo.ExifMetaInfo(fsra))

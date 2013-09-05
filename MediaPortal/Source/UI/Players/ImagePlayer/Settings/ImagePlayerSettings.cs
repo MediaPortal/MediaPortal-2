@@ -33,8 +33,18 @@ namespace MediaPortal.UI.Players.Image.Settings
   public class ImagePlayerSettings
   {
     public const int DEFAULT_SLIDE_SHOW_IMAGE_DURATION = 4;
-    public static readonly List<string> DEFAULT_SUPPORTED_EXTENSIONS =
-        new List<string>(".bmp,.png,.jpg,.jpeg".Split(','));
+    public static readonly List<string> DEFAULT_SUPPORTED_EXTENSIONS = new List<string>
+      {
+          ".jpg",
+          ".jpeg",
+          ".png",
+          ".bmp",
+          ".gif",
+          ".tga",
+          ".tiff",
+          ".tif",
+      };
+
 
     protected double _slideShowImageDuration = DEFAULT_SLIDE_SHOW_IMAGE_DURATION;
     protected List<string> _supportedExtensions = new List<string>(DEFAULT_SUPPORTED_EXTENSIONS);
