@@ -369,7 +369,7 @@ namespace MediaPortal.UiComponents.Weather.Grabbers
 
     private static string BuildRequest(string relativePage, Dictionary<string, string> args)
     {
-      return string.Format("http://free.worldweatheronline.com/feed/{0}?{1}", relativePage, BuildRequestArgs(args));
+      return string.Format("http://api.worldweatheronline.com/free/v1/{0}?{1}", relativePage, BuildRequestArgs(args));
     }
 
     private static string BuildRequestArgs(Dictionary<string, string> args)
