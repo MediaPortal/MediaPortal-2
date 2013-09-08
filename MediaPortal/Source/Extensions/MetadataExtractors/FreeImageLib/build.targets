@@ -10,7 +10,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <References Include="$(ProjectDir)\Resources\FreeImage.dll" />
+    <References Include="$(TargetDir)FreeImage.dll" />
     <References Include="$(TargetDir)FreeImageNet.dll" />
   </ItemGroup>
 
