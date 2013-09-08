@@ -354,7 +354,7 @@ namespace MediaPortal.UI.SkinEngine.InputManagement
       }
 
       // Reset system's idle time. For remote input i.e. it is not reset by the system itself.
-      EnergySavingConfig.SetCurrentSuspendLevel(SuspendLevel.DisplayRequired);
+      ServiceRegistration.Get<ISystemStateService>().SetCurrentSuspendLevel(SuspendLevel.DisplayRequired);
     }
 
     protected void EnqueueCommand(ParameterlessMethod command)

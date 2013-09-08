@@ -61,7 +61,7 @@
     <Reference Include="Microsoft.WindowsAPICodePack">
       <HintPath>..\..\..\Packages\Windows7APICodePack-Core.1.1.0.0\lib\Microsoft.WindowsAPICodePack.dll</HintPath>
       <Private>True</Private>
-	  </Reference>
+    </Reference>
     <Reference Include="Microsoft.WindowsAPICodePack.Shell">
       <HintPath>..\..\..\Packages\Windows7APICodePack-Shell.1.1.0.0\lib\Microsoft.WindowsAPICodePack.Shell.dll</HintPath>
       <Private>True</Private>
@@ -216,7 +216,6 @@
     <Compile Include="ResourceAccess\ResourcePathMetadata.cs" />
     <Compile Include="MediaManagement\MLQueries\MLQueryResultGroup.cs" />
     <Compile Include="Messaging\MessageWatcher.cs" />
-    <Compile Include="Runtime\EnergySavingConfig.cs" />
     <Compile Include="SystemCommunication\IContentDirectory.cs" />
     <Compile Include="SystemCommunication\IServerController.cs" />
     <Compile Include="SystemCommunication\ServerDescriptor.cs" />

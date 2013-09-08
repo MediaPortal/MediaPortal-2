@@ -123,7 +123,7 @@ namespace MediaPortal.Server
       // Set a continous state for current thread (which is the AMQ thread, not the "MainThread").
       _suspendLevel = countRemoteSystems > 0 ? SuspendLevel.AvoidSuspend : SuspendLevel.None;
       ServiceRegistration.Get<ILogger>().Debug("UpdatePowerState: Setting continuous suspend level to {0}", _suspendLevel);
-      EnergySavingConfig.SetCurrentSuspendLevel(_suspendLevel, true);
+      ServiceRegistration.Get<ISystemStateService>().SetCurrentSuspendLevel(_suspendLevel, true);
     }
 
     #endregion

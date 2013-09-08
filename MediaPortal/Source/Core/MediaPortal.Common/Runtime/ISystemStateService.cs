@@ -70,6 +70,39 @@ namespace MediaPortal.Common.Runtime
     Resuming,
   }
 
+  /// <summary>
+  /// Enumeration of automatic shutdown levels which can be disabled.
+  /// </summary>
+  /// <remarks>
+  /// We order the energy saving levels of a computer in two successive steps. First, the screen is switched off, second, the
+  /// computer is suspended/shut down. The application can prevent Windows from doing either of them. If the level
+  /// <see cref="AvoidSuspend"/> is used, the automatic suspension is prevented but the display may be switched off. If
+  /// the level <see cref="DisplayRequired"/> is used, both automatic suspension/shutdown and display switch off are prevented.
+  /// Suspend level <see cref="None"/> is used to reset the suspend state.
+  /// </remarks>
+  public enum SuspendLevel
+  {
+    /// <summary>
+    /// All energy saving levels allowed.
+    /// </summary>
+    None,
+
+    /// <summary>
+    /// Automatic suspend/shutdown is disabled, automatic display switch off is allowed.
+    /// </summary>
+    AvoidSuspend,
+
+    /// <summary>
+    /// Both automatic suspend/shutdown and automatic display switch off are allowed.
+    /// </summary>
+    DisplayRequired,
+  }
+
+  /// <summary>
+  /// <see cref="ISystemStateService"/> provides control over Windows state, i.e. to shutdown or reboot the computer.
+  /// Additionally the <see cref="SetCurrentSuspendLevel"/> method allows disabling some of the system's energy saving levels.
+  /// Be careful: This methods only affects the current thread!
+  /// </summary>
   public interface ISystemStateService
   {
     /// <summary>
@@ -113,5 +146,26 @@ namespace MediaPortal.Common.Runtime
     /// This can cause applications to lose data. Therefore, force should be set to <c>true</c> only in an emergency.
     /// </param>
     void Logoff(bool force = false);
+
+    /// <summary>
+    /// Sets the <see cref="SuspendLevel"/> for the current thread.
+    /// </summary>
+    /// <param name="level">The <see cref="SuspendLevel"/>, which should be set.</param>
+    /// <param name="continuous">
+    /// If continuous is set to <c>true</c>, the given <paramref name="level">SuspendLevel</paramref> is valid for the current thread,
+    /// until it has been changed again.
+    /// ATTENTION: This should be used only by the application's main thread.
+    /// To reset the system's idle time only, continuous has to be set to <c>false</c>.
+    /// </param>
+    /// <remarks>
+    /// Each thread can request its required maximum suspension level. The system won't advance the suspension further than the suspension
+    /// level of all threads. If for example one thread sets suspension level <see cref="SuspendLevel.AvoidSuspend"/> and another thread sets
+    /// suspension level <see cref="SuspendLevel.DisplayRequired"/>, the system won't switch off the display and won't automatically
+    /// suspend/shut down the system. Only if no thread has set the suspension level <see cref="SuspendLevel.DisplayRequired"/> but there are
+    /// threads which have <see cref="SuspendLevel.AvoidSuspend"/> set, the system might switch off the display but won't suspend/shut down
+    /// the system.
+    /// The Windows API function <c>SetThreadExecutionState</c> in <c>kernel32.dll</c> is used to provide that functionality.
+    /// </remarks>
+    void SetCurrentSuspendLevel(SuspendLevel level, bool continuous = false);
   }
 }

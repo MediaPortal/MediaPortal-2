@@ -92,7 +92,7 @@ namespace MediaPortal.Server
     {
       // Set a continous state for MainThread.
       ServiceRegistration.Get<ILogger>().Debug("UpdatePowerState: Setting continuous suspend level to {0}", _applicationSuspendLevel);
-      EnergySavingConfig.SetCurrentSuspendLevel(_applicationSuspendLevel, true);
+      ServiceRegistration.Get<ISystemStateService>().SetCurrentSuspendLevel(_applicationSuspendLevel, true);
     }
 
     private void OnMainFormShown(object sender, System.EventArgs e)

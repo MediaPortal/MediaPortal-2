@@ -34,12 +34,13 @@ namespace MediaPortal.Common.Services.Runtime
   {
     protected SystemState _state = SystemState.Starting;
     protected PowerEventHandler _powerEventHandler;
+    protected SuspendLevel _lastContinuousSuspendLevel = SuspendLevel.None;
 
     public SystemStateService()
     {
       _powerEventHandler = new PowerEventHandler();
       _powerEventHandler.OnPowerEvent += SendSystemStatePowerMessage;
-      // TODO: Morpheus_xx, 2013-05-26: implement OnQuerySuspend support here, extend ISystemStateService interface
+      _powerEventHandler.OnQuerySuspend += OnQuerySuspend;
     }
 
     public void SwitchSystemState(SystemState newState, bool sendMessage)
@@ -123,6 +124,35 @@ namespace MediaPortal.Common.Services.Runtime
           SystemMessaging.SendSystemStateChangeMessage(SystemState.Suspending);
           break;
       }
+    }
+
+    public void SetCurrentSuspendLevel(SuspendLevel level, bool continuous = false)
+    {
+      WindowsAPI.EXECUTION_STATE requestedState = 0;
+      switch (level)
+      {
+        case SuspendLevel.AvoidSuspend:
+          requestedState = WindowsAPI.EXECUTION_STATE.ES_SYSTEM_REQUIRED;
+          break;
+        case SuspendLevel.DisplayRequired:
+          requestedState = WindowsAPI.EXECUTION_STATE.ES_DISPLAY_REQUIRED;
+          break;
+      }
+
+      if (continuous)
+      {
+        _lastContinuousSuspendLevel = level; // Remember the value to handle OnQuerySuspend properly
+        requestedState |= WindowsAPI.EXECUTION_STATE.ES_CONTINUOUS;
+      }
+
+      WindowsAPI.SetThreadExecutionState(requestedState);
+    }
+
+    protected bool OnQuerySuspend()
+    {
+      // Deny suspend requests as long as a continuous level of "AvoidSuspend" or "DisplayRequired" is set.
+      // "true" allows standby, "false" denies it.
+      return _lastContinuousSuspendLevel == SuspendLevel.None;
     }
 
     #endregion
