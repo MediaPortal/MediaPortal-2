@@ -457,7 +457,8 @@ namespace MediaPortal.UI.Players.Image
       // TODO: Execute animation in own timer
       lock (_syncObj)
       {
-        RectangleF textureClip = _animator.GetZoomRect(ImageSize, outputSize);
+        DateTime displayTime = _pauseTime.HasValue ? _pauseTime.Value : DateTime.Now;
+        RectangleF textureClip = _animator.GetZoomRect(ImageSize, outputSize, displayTime);
         return new RectangleF(textureClip.X * _textureMaxUV.Width, textureClip.Y * _textureMaxUV.Height, textureClip.Width * _textureMaxUV.Width, textureClip.Height * _textureMaxUV.Height);
       }
     }

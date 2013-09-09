@@ -50,10 +50,10 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes.Animation
       set { _animationDuration = TimeSpan.FromSeconds(value); }
     }
 
-    public RectangleF GetZoomRect(Size imageSize, Size outputSize)
+    public RectangleF GetZoomRect(Size imageSize, Size outputSize, DateTime displayTime)
     {
-      TimeSpan displayTime = DateTime.Now - _startTime;
-      float animationProgress = (float) displayTime.TotalMilliseconds / (float) _animationDuration.TotalMilliseconds;
+      TimeSpan timeProgress = displayTime - _startTime;
+      float animationProgress = (float) timeProgress.TotalMilliseconds / (float) _animationDuration.TotalMilliseconds;
       // Flatten progress function to be in the range 0-1
       if (animationProgress < 0)
         animationProgress = 0;

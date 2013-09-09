@@ -22,6 +22,7 @@
 
 #endregion
 
+using System;
 using System.Drawing;
 
 namespace MediaPortal.UI.SkinEngine.Controls.Brushes.Animation
@@ -39,7 +40,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes.Animation
     {
     }
 
-    public RectangleF GetZoomRect(Size imageSize, Size outputSize)
+    public RectangleF GetZoomRect(Size imageSize, Size outputSize, DateTime displayTime)
     {
       return _zoomRect;
     }

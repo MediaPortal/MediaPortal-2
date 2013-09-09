@@ -458,7 +458,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
 
       Size size = new Size((int) BrushDimensions.X, (int) BrushDimensions.Y);
       Size outputSize = new Size((int) _vertsBounds.Width, (int) _vertsBounds.Height);
-      RectangleF textureClip = animator.GetZoomRect(size, outputSize);
+      RectangleF textureClip = animator.GetZoomRect(size, outputSize, DateTime.Now);
 
       var vector4 = new Vector4(
         -textureClip.X * TextureMaxUV.X, 
