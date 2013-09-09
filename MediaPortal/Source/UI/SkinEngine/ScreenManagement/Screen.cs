@@ -718,6 +718,15 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
     }
 
     /// <summary>
+    /// Fires the <see cref="CLOSE_EVENT"/>. In contrast to <see cref="TriggerScreenShowingEvent"/> and <see cref="TriggerScreenClosingEvent"/> this method
+    /// directly fires the event instead of executing it later (<see cref="_pendingScreenEvent"/>).
+    /// </summary>
+    public void TriggerScreenClosingEvent_Sync()
+    {
+      DoFireScreenEvent(new PendingScreenEvent(CLOSE_EVENT, RoutingStrategyEnum.VisualTree));
+    }
+
+    /// <summary>
     /// Fires the <see cref="PREPARE_EVENT"/>. In contrast to <see cref="TriggerScreenShowingEvent"/> and <see cref="TriggerScreenClosingEvent"/> this method
     /// directly fires the event instead of executing it later (<see cref="_pendingScreenEvent"/>).
     /// </summary>

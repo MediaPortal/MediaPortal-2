@@ -864,7 +864,7 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
       }
       DoCloseDialogs_NoLock(true, true);
       currentScreen.ScreenState = Screen.State.Closing;
-      currentScreen.TriggerScreenClosingEvent();
+      currentScreen.TriggerScreenClosingEvent_Sync();
       UnfocusScreen_NoLock(screen);
     }
 
