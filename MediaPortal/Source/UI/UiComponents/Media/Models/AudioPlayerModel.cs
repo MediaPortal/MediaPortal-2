@@ -44,6 +44,12 @@ namespace MediaPortal.UiComponents.Media.Models
     {
       if (!(player is IAudioPlayer))
         return null;
+
+      // First check if the player provides an own UI contributor.
+      IUIContributorPlayer uicPlayer = player as IUIContributorPlayer;
+      if (uicPlayer != null)
+        return uicPlayer.UIContributorType;
+
       // TODO: Specific UI contributor implementations for specific players
       return typeof(DefaultAudioPlayerUIContributor);
     }
