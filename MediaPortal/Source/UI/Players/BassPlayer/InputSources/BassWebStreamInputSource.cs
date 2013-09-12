@@ -26,13 +26,14 @@ using System;
 using MediaPortal.UI.Players.BassPlayer.Interfaces;
 using MediaPortal.UI.Players.BassPlayer.Utils;
 using Un4seen.Bass;
+using Un4seen.Bass.AddOn.Tags;
 
 namespace MediaPortal.UI.Players.BassPlayer.InputSources
 {
   /// <summary>
   /// Represents a file inputsource.
   /// </summary>
-  internal class BassWebStreamInputSource : IInputSource
+  internal class BassWebStreamInputSource : IInputSource, ITagSource
   {
     #region Static members
 
@@ -53,6 +54,8 @@ namespace MediaPortal.UI.Players.BassPlayer.InputSources
     #region Fields
 
     private readonly string _url;
+    private readonly TAG_INFO _tagInfo;
+    private int _handle;
     private BassStream _bassStream;
 
     #endregion
@@ -60,6 +63,19 @@ namespace MediaPortal.UI.Players.BassPlayer.InputSources
     public string URL
     {
       get { return _url; }
+    }
+
+    /// <summary>
+    /// Tries to get tags from current stream. Note: the information is retrieved from BASS library in each access to this property.
+    /// </summary>
+    public TAG_INFO Tags
+    {
+      get
+      {
+        // Update the tags
+        BassTags.BASS_TAG_GetFromURL(_handle, _tagInfo);
+        return _tagInfo;
+      }
     }
 
     #region IInputSource Members
@@ -100,6 +116,7 @@ namespace MediaPortal.UI.Players.BassPlayer.InputSources
     private BassWebStreamInputSource(string url)
     {
       _url = url;
+      _tagInfo = new TAG_INFO(_url);
     }
 
     /// <summary>
@@ -111,12 +128,12 @@ namespace MediaPortal.UI.Players.BassPlayer.InputSources
 
       const BASSFlag flags = BASSFlag.BASS_STREAM_DECODE | BASSFlag.BASS_SAMPLE_FLOAT;
 
-      int handle = Bass.BASS_StreamCreateURL(_url, 0, flags, null, new IntPtr());
+      _handle = Bass.BASS_StreamCreateURL(_url, 0, flags, null, new IntPtr());
 
-      if (handle == BassConstants.BassInvalidHandle)
-        throw new BassLibraryException("BASS_MusicLoad");
+      if (_handle == BassConstants.BassInvalidHandle)
+        throw new BassLibraryException("BASS_StreamCreateURL");
 
-      _bassStream = BassStream.Create(handle);
+      _bassStream = BassStream.Create(_handle);
     }
 
     #endregion

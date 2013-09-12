@@ -34,6 +34,7 @@ using MediaPortal.UI.Players.BassPlayer.Settings;
 using MediaPortal.UI.Players.BassPlayer.Utils;
 using MediaPortal.UI.Presentation.Players;
 using Un4seen.Bass;
+using Un4seen.Bass.AddOn.Tags;
 
 namespace MediaPortal.UI.Players.BassPlayer
 {
@@ -259,6 +260,17 @@ namespace MediaPortal.UI.Players.BassPlayer
       if (source == null)
         return TimeSpan.Zero;
       return source.Length;
+    }
+
+    public TAG_INFO GetTags()
+    {
+      PlaybackSession session = _playbackProcessor.PlaybackSession;
+      if (session == null)
+        return null;
+      ITagSource source = session.CurrentInputSource as ITagSource;
+      if (source == null)
+        return null;
+      return source.Tags;
     }
 
     /// <summary>

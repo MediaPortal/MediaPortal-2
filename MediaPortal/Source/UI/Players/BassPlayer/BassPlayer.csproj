@@ -79,6 +79,7 @@
     <Compile Include="BassPlayer.cs" />
     <Compile Include="Controller.cs" />
     <Compile Include="InputSources\BassFsCDTrackInputSource.cs" />
+    <Compile Include="Interfaces\ITagSource.cs" />
     <Compile Include="Settings\BassPlayerSettings.cs" />
     <Compile Include="BassStream.cs" />
     <Compile Include="BassStreamHelperTypes.cs" />

@@ -32,6 +32,7 @@ using MediaPortal.UI.Players.BassPlayer.PlayerComponents;
 using MediaPortal.UI.Players.BassPlayer.Utils;
 using MediaPortal.UI.Presentation.Players;
 using Un4seen.Bass;
+using Un4seen.Bass.AddOn.Tags;
 
 namespace MediaPortal.UI.Players.BassPlayer
 {
@@ -53,7 +54,7 @@ namespace MediaPortal.UI.Players.BassPlayer
   /// Multithreading: This "external" player interface class is safe for multithreading.
   /// </para>
   /// </remarks>
-  public class BassPlayer : IDisposable, ISpectrumPlayer, IMediaPlaybackControl, IPlayerEvents, IReusablePlayer
+  public class BassPlayer : IDisposable, ISpectrumPlayer, IMediaPlaybackControl, IPlayerEvents, IReusablePlayer, ITagSource
   {
     #region Protected fields
 
@@ -118,6 +119,18 @@ namespace MediaPortal.UI.Players.BassPlayer
       {
         lock (_syncObj)
           return _externalState;
+      }
+    }
+
+    /// <summary>
+    /// Gets tags from current source, which contain information about artist and title. This is mainly important for streams where this information will
+    /// change regulary.
+    /// </summary>
+    public TAG_INFO Tags
+    {
+      get
+      {
+        return _controller != null ? _controller.GetTags() : null;
       }
     }
 
