@@ -77,13 +77,6 @@
     <Compile Include="..\..\..\Core\MediaPortal.Common\VersionInfo\VersionInfo.cs">
       <Link>Properties\VersionInfo.cs</Link>
     </Compile>
-    <Compile Include="Animation\AbstractKenBurnsEffect.cs" />
-    <Compile Include="Animation\KenBurnsAnimator.cs" />
-    <Compile Include="Animation\KenBurnsPanEffect.cs" />
-    <Compile Include="Animation\KenBurnsZoomEffect.cs" />
-    <Compile Include="Animation\KenBurnsEffects.cs" />
-    <Compile Include="Animation\IImageAnimator.cs" />
-    <Compile Include="Animation\StillImageAnimator.cs" />
     <Compile Include="ImagePlayer.cs" />
     <Compile Include="ImagePlayerBuilder.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

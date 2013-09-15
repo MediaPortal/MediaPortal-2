@@ -31,10 +31,10 @@ using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.Common.ResourceAccess;
 using MediaPortal.Common.Settings;
-using MediaPortal.UI.Players.Image.Animation;
 using MediaPortal.UI.Players.Image.Settings;
 using MediaPortal.UI.Presentation.Players;
 using MediaPortal.UI.SkinEngine.ContentManagement;
+using MediaPortal.UI.SkinEngine.Controls.Brushes.Animation;
 using MediaPortal.UI.SkinEngine.Players;
 using MediaPortal.Utilities;
 using SlimDX.Direct3D9;
@@ -457,13 +457,7 @@ namespace MediaPortal.UI.Players.Image
       // TODO: Execute animation in own timer
       lock (_syncObj)
       {
-        TimeSpan displayTime = (_pauseTime.HasValue ? _pauseTime.Value : DateTime.Now) - _playbackStartTime;
-        float animationProgress = (float) displayTime.TotalMilliseconds / (float) _slideShowImageDuration.TotalMilliseconds;
-        // Flatten progress function to be in the range 0-1
-        if (animationProgress < 0)
-          animationProgress = 0;
-        animationProgress = 1 - 1 / (5 * animationProgress * animationProgress + 1);
-        RectangleF textureClip = _animator.GetZoomRect(animationProgress, ImageSize, outputSize);
+        RectangleF textureClip = _animator.GetZoomRect(ImageSize, outputSize);
         return new RectangleF(textureClip.X * _textureMaxUV.Width, textureClip.Y * _textureMaxUV.Height, textureClip.Width * _textureMaxUV.Width, textureClip.Height * _textureMaxUV.Height);
       }
     }
