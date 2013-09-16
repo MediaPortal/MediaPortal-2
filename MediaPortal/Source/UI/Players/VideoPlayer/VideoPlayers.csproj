@@ -62,9 +62,8 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>References\DirectShowLib-2005.dll</HintPath>
     </Reference>
-    <Reference Include="SlimDX, Version=2.0.12.43, Culture=neutral, PublicKeyToken=b1b0c32fd1ffe4f9, processorArchitecture=x86">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\SkinEngine\References\SlimDX.dll</HintPath>
+    <Reference Include="SlimDX">
+      <HintPath>..\..\..\..\Packages\SlimDX.4.0.13.43\lib\NET40\SlimDX.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core">
@@ -169,6 +168,7 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="build.targets" />
+    <None Include="packages.config" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="build.targets" />
