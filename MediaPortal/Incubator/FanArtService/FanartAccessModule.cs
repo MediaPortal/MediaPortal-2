@@ -26,11 +26,11 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Net;
-using System.Web;
 using HttpServer;
 using HttpServer.HttpModules;
 using HttpServer.Sessions;
 using MediaPortal.Common;
+using MediaPortal.Common.Network;
 using MediaPortal.Extensions.UserServices.FanArtService.Interfaces;
 
 namespace MediaPortal.Extensions.UserServices.FanArtService
@@ -58,17 +58,19 @@ namespace MediaPortal.Extensions.UserServices.FanArtService
       FanArtConstants.FanArtType fanArtType;
       int maxWidth;
       int maxHeight;
-      if (uri.Segments.Length < 4)
+      if (!Enum.TryParse(request.Param["mediatype"].Value, out mediaType))
         return false;
-      if (!Enum.TryParse(GetSegmentWithoutSlash(uri, 2), out mediaType))
+      if (!Enum.TryParse(request.Param["fanarttype"].Value, out fanArtType))
         return false;
-      if (!Enum.TryParse(GetSegmentWithoutSlash(uri, 3), out fanArtType))
+      string name = request.Param["name"].Value;
+      if (string.IsNullOrWhiteSpace(name))
         return false;
-      string name = RemoveEscaping(GetSegmentWithoutSlash(uri, 4));
+
+      name = name.Decode(); // For safe handling of "&" character in name
 
       // Both values are optional
-      int.TryParse(GetSegmentWithoutSlash(uri, 5), out maxWidth);
-      int.TryParse(GetSegmentWithoutSlash(uri, 6), out maxHeight);
+      int.TryParse(request.Param["width"].Value, out maxWidth);
+      int.TryParse(request.Param["height"].Value, out maxHeight);
 
       IList<FanArtImage> files = fanart.GetFanArt(mediaType, fanArtType, name, maxWidth, maxHeight, true);
       if (files == null || files.Count == 0)
@@ -77,21 +79,6 @@ namespace MediaPortal.Extensions.UserServices.FanArtService
       using (MemoryStream memoryStream = new MemoryStream(files[0].BinaryData))
         SendWholeStream(response, memoryStream, false);
       return true;
-    }
-
-    private static string RemoveEscaping(string escaped)
-    {
-      string result = escaped;
-      if (result.StartsWith("{") && result.EndsWith("}"))
-        result = result.Substring(1, result.Length - 2);
-      return result;
-    }
-
-    protected static string GetSegmentWithoutSlash(Uri uri, int index)
-    {
-      if (index >= uri.Segments.Length)
-        return null;
-      return HttpUtility.UrlDecode(uri.Segments[index].Replace("/", string.Empty));
     }
 
     protected void SendWholeStream(IHttpResponse response, Stream resourceStream, bool onlyHeaders)
