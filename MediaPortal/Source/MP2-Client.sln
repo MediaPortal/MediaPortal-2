@@ -152,11 +152,6 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ServerSettings.Client", "..
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WifiConfiguration", "..\Incubator\WifiConfiguration\WifiConfiguration.csproj", "{C88D621D-53F8-4F68-8E0D-CC50AF61D6B9}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".nuget", ".nuget", "{B7FEB410-0053-48CB-B1DF-85E83C0DF749}"
-	ProjectSection(SolutionItems) = preProject
-		.nuget\NuGet.targets = .nuget\NuGet.targets
-	EndProjectSection
-EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Libraries", "Libraries", "{9407EDC5-89CB-476C-AF36-E705C78D1659}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FreeImageLib", "Extensions\MetadataExtractors\FreeImageLib\FreeImageLib.csproj", "{3758657D-A0BF-478A-BE36-93180588CB0C}"
