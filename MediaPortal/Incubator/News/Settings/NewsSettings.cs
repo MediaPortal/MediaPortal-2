@@ -43,13 +43,13 @@ namespace MediaPortal.UiComponents.News.Settings
       FeedsList = new List<FeedBookmark>();
     }
 
-    [Setting(SettingScope.User, HasDefault=false)]
+    [Setting(SettingScope.User, HasDefault = false)]
     public List<FeedBookmark> FeedsList { get; set; }
 
     [Setting(SettingScope.User, 15)]
     public int RefreshInterval { get; set; }
 
-    static Dictionary<string, List<FeedBookmark>> DefaultFeeds;
+    static Dictionary<string, List<FeedBookmark>> _defaultFeeds;
 
     /// <summary>
     /// Gets a default list of feeds for the current user's region, with a fall back to English.
@@ -57,7 +57,7 @@ namespace MediaPortal.UiComponents.News.Settings
     /// <returns></returns>
     public static List<FeedBookmark> GetDefaultRegionalFeeds()
     {
-      if (DefaultFeeds == null)
+      if (_defaultFeeds == null)
       {
         try
         {
@@ -70,10 +70,10 @@ namespace MediaPortal.UiComponents.News.Settings
             var serializer = new XmlSerializer(typeof(RegionalFeedBookmarksCollection));
             using (var reader = new StringReader(defaultFeedsData))
             {
-              var loadedFeeds = serializer.Deserialize(reader) as RegionalFeedBookmarksCollection;
-              DefaultFeeds = new Dictionary<string, List<FeedBookmark>>();
+              var loadedFeeds = (RegionalFeedBookmarksCollection) serializer.Deserialize(reader);
+              _defaultFeeds = new Dictionary<string, List<FeedBookmark>>();
               foreach (var region in loadedFeeds)
-                DefaultFeeds[region.RegionCode] = region.FeedBookmarks;
+                _defaultFeeds[region.RegionCode] = region.FeedBookmarks;
             }
           }
         }
@@ -85,16 +85,16 @@ namespace MediaPortal.UiComponents.News.Settings
         }
       }
       // find the best matching list of feeds for the user's culture
-      List<FeedBookmark> result = null;
+      List<FeedBookmark> result;
       var culture = ServiceRegistration.Get<ILocalization>().CurrentCulture;
       // first try to get feeds for this language and region
-      if (DefaultFeeds.TryGetValue(culture.Name, out result))
+      if (_defaultFeeds.TryGetValue(culture.Name, out result))
         return result.ToList();
       // then try to get feeds for this language
-      if (DefaultFeeds.TryGetValue(culture.TwoLetterISOLanguageName, out result))
+      if (_defaultFeeds.TryGetValue(culture.TwoLetterISOLanguageName, out result))
         return result.ToList();
       // fallback is always the generic english feeds
-      return DefaultFeeds["en"].ToList();
+      return _defaultFeeds["en"].ToList();
     }
   }
 }
