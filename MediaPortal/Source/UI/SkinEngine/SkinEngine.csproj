@@ -57,9 +57,6 @@
     <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="FreeImageNET, Version=3.15.1.0, Culture=neutral, processorArchitecture=x86">
-      <HintPath>..\..\..\Packages\FreeImageNET.3.15.1\lib\net20\FreeImageNET.dll</HintPath>
-    </Reference>
     <Reference Include="SlimDX, Version=4.0.13.43, Culture=neutral, PublicKeyToken=b1b0c32fd1ffe4f9, processorArchitecture=x86">
       <Private>True</Private>
       <HintPath>..\..\..\Packages\SlimDX.4.0.13.43\lib\NET40\SlimDX.dll</HintPath>
