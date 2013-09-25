@@ -1,0 +1,11 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<resources>
+  <string name="Network.SearchForWirelessNetworks">Zoeken naar draadloze netwerken</string>
+  <string name="Network.NoWirelessNetworksFound">Geen draadloze netwerken gevonden</string>
+  <string name="Network.Connect">Verbinden</string>
+  <string name="Network.Disconnect">Verbinding verbreken</string>
+  <string name="Network.EnterWifiPassword">Geef Wifi wachtwoord</string>
+  <string name="Network.DeleteProfile">Verwijder Wifi profiel</string>
+  <string name="Settings.General.Connectivity.WifiConnection">Wifi verbinding</string>
+  <string name="Settings.General.Connectivity.WifiConnection.Help">Verbindt met een draadloos netwerk</string>
+</resources>

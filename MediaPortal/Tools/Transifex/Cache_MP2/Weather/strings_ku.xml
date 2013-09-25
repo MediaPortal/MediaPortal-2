@@ -1,0 +1,22 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<resources>
+  <string name="Weather.WeatherStateDisplayLabel">کەش و هەوا</string>
+  <string name="Weather.WeatherSetupStateDisplayLabel">ڕێکخستنی کەش و هەوا</string>
+  <!--Dialog state, doesn't appear at the UI-->
+  <string name="Weather.WeatherLocationStateDisplayLabel">شوێن دیاریبکە</string>
+  <!--Dialog state, doesn't appear at the UI-->
+  <string name="Weather.Title">کەش و هەوا</string>
+  <string name="Weather.ChooseLocation">شوێن دیاریبکە</string>
+  <string name="Weather.Refresh">تازەکردنەوە</string>
+  <string name="Weather.Updating">نوێکردنەوە...</string>
+  <string name="Weather.Weather">کەش و هەوا</string>
+  <string name="Weather.NoData">داتا نیە</string>
+  <string name="Weather.Temp">پلە</string>
+  <!--Forecast names are mostly assigned 1:1-->
+  <string name="Settings.Plugins.Weather">کەش و هەوا</string>
+  <string name="WeatherSetup.SearchCity">گەڕان بۆ شار</string>
+  <string name="WeatherSetup.AddCity">زیادکردن شار</string>
+  <string name="WeatherSetup.RemoveCity">لابردنی شار</string>
+  <string name="WeatherSetup.Detect">دۆزینەوە</string>
+  <string name="WeatherSetup.DetectionFailed">دۆزینەوە سەرکەوتو نەبوو</string>
+</resources>

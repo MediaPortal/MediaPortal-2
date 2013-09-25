@@ -1,0 +1,14 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<resources>
+  <string name="Settings.General.System.SystemStateDialog">Опције за затварање програма</string>
+  <string name="Settings.General.System.SystemStateDialog.Help">Подеси видљивост и позицију менија за затварање програма</string>
+  <string name="SystemState.Configuration.Dialog.Title">Подеси ставке</string>
+  <string name="SystemState.Title">Опције за затварање програма</string>
+  <string name="SystemState.Hibernate">Хибернација</string>
+  <string name="SystemState.Shutdown">Затвори програм</string>
+  <string name="SystemState.Suspend">Обуставити</string>
+  <string name="SystemState.Restart">Рестартуј</string>
+  <string name="SystemState.Logoff">Одлогуј се</string>
+  <string name="SystemState.MinimizeMP">Минимизирај МедијаПортал</string>
+  <string name="SystemState.ShutdownMP">Затвори МедијаПортал</string>
+</resources>

@@ -71,6 +71,8 @@
   <string name="LocalFsResourceProvider.Description">Åtkomst till det lokala filsystemet</string>
   <string name="RemoteResourceProvider.Name">Fjärrresursförsörjare</string>
   <string name="RemoteResourceProvider.Description">Åtkomst till resurser på andra MediaPortal 2-system</string>
+  <string name="RawUrlResourceProvider.Name">Resursförsörjare för Url</string>
+  <string name="RawUrlResourceProvider.Description">Åtkomst till Uri-källor</string>
   <string name="ScreenSaver.MediaPortal2">MediaPortal 2</string>
   <!--For MP UI player subsystem-->
   <string name="Players.NoPlayerAvailableNotificationTitle">Ingen spelare</string>

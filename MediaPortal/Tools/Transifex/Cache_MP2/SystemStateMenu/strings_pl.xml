@@ -1,2 +1,14 @@
 <?xml version='1.0' encoding='UTF-8'?>
-<resources/>
+<resources>
+  <string name="Settings.General.System.SystemStateDialog">Zamknij system</string>
+  <string name="Settings.General.System.SystemStateDialog.Help">Konfiguruj widoczność i pozycję elementów menu zamykania systemu</string>
+  <string name="SystemState.Configuration.Dialog.Title">Konfiguruj elementy zamykania systemu</string>
+  <string name="SystemState.Title">Zamknij system</string>
+  <string name="SystemState.Hibernate">Hibernacja</string>
+  <string name="SystemState.Shutdown">Zamknij system</string>
+  <string name="SystemState.Suspend">Stan wstrzymania</string>
+  <string name="SystemState.Restart">Uruchom ponownie</string>
+  <string name="SystemState.Logoff">Wyloguj</string>
+  <string name="SystemState.MinimizeMP">Minimalizuj MediaPortal</string>
+  <string name="SystemState.ShutdownMP">Zamknij MediaPortal</string>
+</resources>

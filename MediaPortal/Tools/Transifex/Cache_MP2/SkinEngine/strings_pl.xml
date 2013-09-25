@@ -1,8 +1,21 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
+  <string name="Settings.Appearance.System">System</string>
+  <string name="Settings.Appearance.System.Fullscreen">Pełny ekran</string>
+  <string name="Settings.Appearance.Skin">Skóra</string>
+  <string name="Settings.Appearance.Skin.SkinAndTheme">Skóra i motyw</string>
+  <string name="Settings.Appearance.Skin.SkinAndTheme.ChangeSkin">Zmień skórę</string>
+  <string name="Settings.Appearance.Skin.SkinAndTheme.ChangeTheme">Zmień motyw</string>
+  <string name="Settings.Players">Odtwarzacze</string>
+  <string name="ScreenManager.NotificationErrorLoadingSkinTitle">Błąd ładowania skóry</string>
+  <string name="ScreenManager.ErrorLoadingSkinResource">Błąd ładowania zasobów skóry</string>
   <!--File names (files in shaders/effects, without extension) to effect names to be shown in the GUI-->
   <string name="Effects.none">Żaden</string>
+  <string name="PlayerControl.NoPlayer">Brak odtwarzacza</string>
+  <string name="PlayerControl.UnknownPlayerContextName">Odtwarzacz</string>
+  <string name="PlayerControl.HeaderNormal">{0}</string>
   <!--{0} = media item title-->
+  <string name="PlayerControl.HeaderPiP">{0} (PiP)</string>
   <!--{0} = media item title-->
   <!--For example: "Seeking forward (2x)"-->
   <!--For example: "Seeking forward (2x)"-->

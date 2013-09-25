@@ -1,2 +1,6 @@
 <?xml version='1.0' encoding='UTF-8'?>
-<resources/>
+<resources>
+  <string name="Settings.Plugins.TV">TV</string>
+  <string name="Settings.Plugins.TV.MPExtendedServerAddress.Help">Wprowadź nazwy serwerów lub adresy IP rozdzielone średnikiem (domyślnie localhost).</string>
+  <string name="Settings.Plugins.TV.ConnectionErrorTitle">Błąd połączenia</string>
+</resources>

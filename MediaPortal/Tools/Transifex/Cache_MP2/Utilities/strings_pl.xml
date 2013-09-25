@@ -1,2 +1,21 @@
 <?xml version='1.0' encoding='UTF-8'?>
-<resources/>
+<resources>
+  <string name="Utilities.MenuItem">Narzędzia</string>
+  <string name="Utilities.MainWorkflowNavigationContextDisplayLabel">Narzędzia</string>
+  <string name="Utilities.PlaylistImportWorkflowNavigationContextDisplayLabel">Import listy odtwarzania</string>
+  <string name="Utilities.MainScreenTitle">Narzędzia</string>
+  <string name="Utilities.PlaylistImport">Import listy odtwarzania</string>
+  <string name="Utilities.PlaylistImportScreenTitle">Import listy odtwarzania</string>
+  <string name="Utilities.ImportPlaylistFile">Import pliku listy odtwarzania</string>
+  <string name="Utilities.ChoosePlaylistFile">Wybierz plik</string>
+  <string name="Utilities.ChooseImportFileDialogHeader">Wybierz plik importu</string>
+  <string name="Utilities.EditPlaylistName">Edycja nazwy nowej listy odtwarzania</string>
+  <string name="Utilities.LocalShareLocation">Lokalny udział</string>
+  <string name="Utilities.StartPlaylistImport">Uruchom import listy odtwarzania</string>
+  <string name="Utilities.ImportPlaylistProgressTitle">Postęp</string>
+  <string name="Utilities.ImportPlaylistProgressHeaderText">Importowanie listy odtwarzania</string>
+  <string name="Utilities.PlaylistNameExists">List odtwarzania o tej nazwie już istnieje</string>
+  <string name="Utilities.ImportFileInvalid">Nieprawidłowy plik importu</string>
+  <string name="Utilities.PlaylistNameIsEmpty">Nazwa listy odtwarzania jest pusta</string>
+  <string name="Utilities.ServerNotConnected">Serwer jest niepodłączony</string>
+</resources>

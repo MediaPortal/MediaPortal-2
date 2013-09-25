@@ -1,2 +1,10 @@
 <?xml version='1.0' encoding='UTF-8'?>
-<resources/>
+<resources>
+  <string name="Settings.Appearance.Skin.Background.VideoBackground">Wideo w tle</string>
+  <string name="Settings.Appearance.Skin.Background.VideoBackground.Help">Włącz wideo w tle i wybierz film</string>
+  <string name="Settings.Appearance.Skin.Background.EnableVideoBackground">Włącz wideo w tle</string>
+  <string name="Settings.Appearance.Skin.Background.Setup">Ustawienia wideo w tle</string>
+  <string name="Settings.Appearance.Skin.Background.Setup.VideoFilename">Plik filmu</string>
+  <string name="Settings.Appearance.Skin.Background.Setup.Select">Wybierz</string>
+  <string name="Settings.Appearance.Skin.Background.Setup.SelectVideo">Wybierz film do odtwarzania w tle</string>
+</resources>

@@ -1,2 +1,9 @@
 <?xml version='1.0' encoding='UTF-8'?>
-<resources/>
+<resources>
+  <string name="ServerStatus.NotStarted">Serwer nieuruchomiony</string>
+  <string name="MainWindow.ServerStatus">Status serwera</string>
+  <string name="ContextMenu.StartService">Uruchom usługę</string>
+  <string name="ContextMenu.StopService">Zatrzymaj usługę</string>
+  <string name="ContextMenu.EnableAutostart">Włącz uruchomienie automatyczne</string>
+  <string name="ContextMenu.DisableAutostart">Wyłącz uruchomienie automatyczne</string>
+</resources>

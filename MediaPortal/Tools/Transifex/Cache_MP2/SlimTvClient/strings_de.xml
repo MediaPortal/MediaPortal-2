@@ -12,6 +12,7 @@
   <string name="SlimTvClient.Guide">TV Guide</string>
   <string name="SlimTvClient.NoProgram">Keine Programme</string>
   <string name="SlimTvClient.ChooseProgramAction">Aktion wählen</string>
+  <string name="SlimTvClient.ChooseChannelGroup">Kanalgruppe wählen</string>
   <string name="SlimTvClient.ProgramOver">Programm ist bereits vorbei</string>
   <string name="SlimTvClient.WatchNow">Jetzt ansehen</string>
   <string name="SlimTvClient.RecordNow">Aufnehmen</string>

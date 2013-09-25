@@ -1,0 +1,10 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<resources>
+  <string name="Settings.Appearance.Skin.Background.VideoBackground">پشت شاشەی ڤیدیۆ</string>
+  <string name="Settings.Appearance.Skin.Background.VideoBackground.Help">چالاککردنی پشت شاشەی ڤیدیۆ و دیاریکردنی ڤیدیۆ</string>
+  <string name="Settings.Appearance.Skin.Background.EnableVideoBackground">چالاککردنی پشت شاشەی ڤیدیۆ</string>
+  <string name="Settings.Appearance.Skin.Background.Setup">ڕێکخستنەکانی پشت شاشەی ڤیدیۆ</string>
+  <string name="Settings.Appearance.Skin.Background.Setup.VideoFilename">فایلی ڤیدیۆیی</string>
+  <string name="Settings.Appearance.Skin.Background.Setup.Select">دیاریکردن</string>
+  <string name="Settings.Appearance.Skin.Background.Setup.SelectVideo">فایلێکی ڤیدیۆیی دیاریبکە بۆ لێدانی لە پشت شاشەدا</string>
+</resources>

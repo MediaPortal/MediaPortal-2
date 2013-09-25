@@ -12,6 +12,7 @@
   <string name="SlimTvClient.Guide">TV opas</string>
   <string name="SlimTvClient.NoProgram">Ei ohjelmatietoja.</string>
   <string name="SlimTvClient.ChooseProgramAction">Valitse ohjelman toiminto...</string>
+  <string name="SlimTvClient.ChooseChannelGroup">Valitse kanava ryhmä...</string>
   <string name="SlimTvClient.ProgramOver">Ohjelma jo loppunut</string>
   <string name="SlimTvClient.WatchNow">Katso ohjelmaa nyt</string>
   <string name="SlimTvClient.RecordNow">Tallenna</string>

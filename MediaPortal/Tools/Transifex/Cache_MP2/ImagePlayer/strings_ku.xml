@@ -1,0 +1,6 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<resources>
+  <string name="Settings.Players.Image">پیشاندەری وێنە</string>
+  <string name="Settings.Players.Image.SlideShowImageDuration">ماوەی پیشاندانی وێنە بەدوای یەکدا</string>
+  <string name="Settings.Players.Image.KenBurnsEffect">Ken بەکارهێنانی کاریگەری سوتاندنی</string>
+</resources>

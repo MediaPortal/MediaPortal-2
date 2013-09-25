@@ -1,2 +1,9 @@
 <?xml version='1.0' encoding='UTF-8'?>
-<resources/>
+<resources>
+  <string name="SkinHelper.ThemeColorsWorkflowNavigationContextDisplayLabel">Kolory motywu</string>
+  <string name="SkinHelper.MenuShowThemeColors">Wyświetl kolory motywu</string>
+  <string name="SkinHelper.ShowThemeColorsTitle">Kolory motywu</string>
+  <string name="SkinHelper.ShowThemeColorsText">Ten ekran wyświetla wszystkie zasoby kolorystyczne zdefiniowane w bieżącym motywie (oraz zasoby dziedziczone)</string>
+  <string name="SkinHelper.LoadSkinTitle">Załaduj skórę</string>
+  <string name="SkinHelper.LoadThemeTitle">Załaduj motyw</string>
+</resources>

@@ -202,6 +202,8 @@
   <string name="Media.EnqueueVideoImageItem">Zaradiť položky videa/fotky</string>
   <string name="Media.PlayVideoImageItemMutedConcurrentAudio">Prehrať video/fotku na pozadí a pokračovať súčasnom prehrávaní audia</string>
   <string name="Media.PlayVideoImageItemPiP">Prehrať video/fotku v PiP móde</string>
+  <string name="Media.PlaybackResume">Obnoviť prehrávanie</string>
+  <string name="Media.PlaybackFromStart">Prehrať od začiatku</string>
   <!--Player context names-->
   <string name="Media.VideoImageContextName">Video/Fotka</string>
   <string name="Media.AudioContextName">Audio</string>

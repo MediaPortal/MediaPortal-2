@@ -1,0 +1,12 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<resources>
+  <string name="News.Title">هەواڵ</string>
+  <string name="News.FeedsStateDisplayLabel">هەواڵ</string>
+  <string name="News.Published">بڵاوکراوەتەوە لە</string>
+  <string name="News.ConfiguredFeeds">سەرچاوە ڕێکخراوەکان</string>
+  <string name="News.AddFeed">زیادکردنی سەرچاوەی هەواڵ</string>
+  <string name="News.EnterFeedName">ناوی سەرچاوە بنوسە</string>
+  <string name="Settings.Plugins.News">هەواڵ</string>
+  <string name="Settings.Plugins.News.FeedsSetup">دەستکاریکردنی سەرچاوەکان</string>
+  <string name="Settings.Plugins.News.RefreshInterval">ماوەی نوێکردنەوە</string>
+</resources>

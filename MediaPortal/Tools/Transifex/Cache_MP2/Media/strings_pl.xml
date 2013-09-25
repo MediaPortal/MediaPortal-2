@@ -3,13 +3,19 @@
   <!--Menu items for the five Media navigation parts-->
   <string name="Media.VideosMenuItem">Wideo</string>
   <!--Filter titles-->
-  <string name="Media.SimpleSearchFilterMenuItem">Szukaj</string>
+  <string name="Media.SimpleSearchFilterMenuItem">Wyszukaj</string>
   <!--Special filters names-->
   <!--Navbar display labels for sub view navigation-->
+  <string name="Media.BrowseMediaNavigationNavbarDisplayLabel">{0}</string>
   <!--For example: "R.E.M."-->
+  <string name="Media.LocalMediaNavigationNavbarDisplayLabel">{0}</string>
   <!--For example: "R.E.M."-->
   <!--For example: "Artist: R.E.M."-->
+  <string name="Media.FilterMoviesCollectionNavbarDisplayLabel">{0}</string>
+  <string name="Media.FilterSeriesItemsNavbarDisplayLabel">{0}</string>
   <!--Display labels for workflow navigation contexts-->
+  <string name="Media.AudioFullscreenContentWorkflowStateNavigationContextDisplayLabel">Wizualizacja audio</string>
+  <string name="Media.ShowPlaylistWorkflowStateNavigationContextDisplayLabel">Lista odtwarzania</string>
   <!--Screen headers-->
   <string name="Media.VideoItemsHeader">Wideo</string>
   <!--View names (names for the view instances)-->
@@ -21,6 +27,7 @@
   <!--Shown in the header of an items list, e.g. "15/350 items"-->
   <!--Shown in the header of an items list, e.g. "45 items"-->
   <!--Playlists-->
+  <string name="Media.AddToPlaylistProgressDialogHeader">Postęp</string>
   <string name="Media.OpenPlayerStrategy.MediaPortal.UI.Services.Players.PCMOpenPlayerStrategy.Default">Domyślne</string>
   <!--Play items dialog-->
   <!--Player context names-->
@@ -33,4 +40,5 @@
   <string name="Media.RepeatMode.All">Wszystkie</string>
   <!--VideoPlayerUIContributor-->
   <!--Video Player time units-->
+  <string name="Settings.Players">Odtwarzacze</string>
 </resources>

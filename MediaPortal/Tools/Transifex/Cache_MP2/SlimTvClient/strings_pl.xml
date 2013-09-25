@@ -1,4 +1,25 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
+  <string name="SlimTvClient.Title">Lekki klient TV</string>
+  <string name="SlimTvClient.CurrentlyPlayingInformationHeader">Informacje o programie</string>
+  <string name="SlimTvClient.ChannelLabel">Kanał</string>
+  <string name="SlimTvClient.ProgramLabel">Program</string>
+  <string name="SlimTvClient.DescriptionLabel">Opis</string>
   <string name="SlimTvClient.GenreLabel">Rodzaj</string>
+  <string name="SlimTvClient.ProgramStartLabel">Czas rozpoczęcia</string>
+  <string name="SlimTvClient.ProgramEndLabel">Czas zakończenia</string>
+  <string name="SlimTvClient.EpisodeLabel">Odcinek</string>
+  <string name="SlimTvClient.Guide">Przewodnik TV</string>
+  <string name="SlimTvClient.ProgramOver">Program już się zakończył</string>
+  <string name="SlimTvClient.WatchNow">Oglądaj program teraz</string>
+  <string name="SlimTvClient.RecordNow">Rozpocznij nagrywanie</string>
+  <string name="SlimTvClient.CreateSchedule">Zaplanuj nagrywanie</string>
+  <string name="SlimTvClient.RecordingsMenuItem">Nagrania</string>
+  <string name="SlimTvClient.RecordingsRootViewName">Nagrania TV</string>
+  <string name="SlimTvClient.ChannelMenuItemLabel">Filtruj wg kanału</string>
+  <string name="SlimTvClient.ChannelNavBarItemLabel">Kanał: {0}</string>
+  <string name="SlimTvClient.RecordingsByChannelHeader">Nagrania wg kanału</string>
+  <string name="SlimTvClient.NameFilterMenuItemLabel">Filtruj wg nazwy</string>
+  <string name="SlimTvClient.NameFilterNavBarItemLabel">{0}</string>
+  <string name="SlimTvClient.RecordingsByNameHeader">Nagrania wg nazwy</string>
 </resources>

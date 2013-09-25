@@ -12,6 +12,7 @@
   <string name="SlimTvClient.Guide">TV program</string>
   <string name="SlimTvClient.NoProgram">Bez údajov o programe.</string>
   <string name="SlimTvClient.ChooseProgramAction">Vyberte akciu programu...</string>
+  <string name="SlimTvClient.ChooseChannelGroup">Vyberte skupinu kanálov...</string>
   <string name="SlimTvClient.ProgramOver">Program už skončil</string>
   <string name="SlimTvClient.WatchNow">Sledovať program</string>
   <string name="SlimTvClient.RecordNow">Nahrať</string>

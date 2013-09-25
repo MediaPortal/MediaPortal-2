@@ -1,2 +1,5 @@
 <?xml version='1.0' encoding='UTF-8'?>
-<resources/>
+<resources>
+  <string name="Settings.Players.Codecs.VideoCodecs.BDSourceFilter">Filtr przetwarzający Bluray</string>
+  <string name="Settings.Players.Codecs.VideoCodecs.BDSourceFilter.Help">Ustaw Filtr Przetwarzający dla odtwarzania BluRay. Obecnie obsługiwane są jedynie Gabest i LAV Splitter Source.</string>
+</resources>
