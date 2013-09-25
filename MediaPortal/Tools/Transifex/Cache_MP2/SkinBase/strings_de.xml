@@ -71,6 +71,8 @@
   <string name="LocalFsResourceProvider.Description">Zugriff auf das lokale Dateisystem</string>
   <string name="RemoteResourceProvider.Name">Remote-Resourcen-Provider</string>
   <string name="RemoteResourceProvider.Description">Zugriff auf Ressourcen, die auf anderen MediaPortal-2-Systemen gespeichert sind</string>
+  <string name="RawUrlResourceProvider.Name">Url Ressourcen-Provider</string>
+  <string name="RawUrlResourceProvider.Description">Zugriff auf Url-Quellen</string>
   <string name="ScreenSaver.MediaPortal2">MediaPortal 2</string>
   <!--For MP UI player subsystem-->
   <string name="Players.NoPlayerAvailableNotificationTitle">Fehlender Player</string>

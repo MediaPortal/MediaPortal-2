@@ -1,2 +1,11 @@
 <?xml version='1.0' encoding='UTF-8'?>
-<resources/>
+<resources>
+  <string name="PartyMusicPlayer.Playlist">Lista odtwarzania</string>
+  <string name="PartyMusicPlayer.ChoosePlaylist">Wybierz listę odtwarzania</string>
+  <string name="PartyMusicPlayer.DisableScreenSaver">Wyłącz wygaszacz ekranu</string>
+  <string name="PartyMusicPlayer.ChoosePlaylistDialogHeader">Wybierz listę odtwarzania</string>
+  <string name="PartyMusicPlayer.ServerNotConnectedDialogHeader">Serwer jest niepodłączony</string>
+  <string name="PartyMusicPlayer.AudioArtistLabel">Artysta</string>
+  <string name="PartyMusicPlayer.AudioTitleLabel">Tytuł</string>
+  <string name="PartyMusicPlayer.ShowPlaylist">Wyświetl listę odtwarzania</string>
+</resources>

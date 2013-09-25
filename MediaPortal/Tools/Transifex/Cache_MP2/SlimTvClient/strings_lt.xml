@@ -12,6 +12,7 @@
   <string name="SlimTvClient.Guide">TV programa</string>
   <string name="SlimTvClient.NoProgram">Nėra programos duomenų.</string>
   <string name="SlimTvClient.ChooseProgramAction">Pasirinkite programos veiksmą...</string>
+  <string name="SlimTvClient.ChooseChannelGroup">Pasirinkti kanalų grupę...</string>
   <string name="SlimTvClient.ProgramOver">Programa jau pasibaigusi</string>
   <string name="SlimTvClient.WatchNow">Žiūrėti programą dabar</string>
   <string name="SlimTvClient.RecordNow">Įrašyti dabar</string>

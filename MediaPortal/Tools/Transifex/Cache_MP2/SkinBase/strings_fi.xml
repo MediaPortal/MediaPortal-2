@@ -71,6 +71,8 @@
   <string name="LocalFsResourceProvider.Description">Yhdistä paikalliseen tiedostojärjestelmään</string>
   <string name="RemoteResourceProvider.Name">Etäresurssien tarjoaja</string>
   <string name="RemoteResourceProvider.Description">Yhdistä toisen MediaPortal 2 järjestelmän resursseihin</string>
+  <string name="RawUrlResourceProvider.Name">Raw Url resurssien tarjoaja</string>
+  <string name="RawUrlResourceProvider.Description">Ota yhteyttä raw Url-lähteisiin</string>
   <string name="ScreenSaver.MediaPortal2">MediaPortal 2</string>
   <!--For MP UI player subsystem-->
   <string name="Players.NoPlayerAvailableNotificationTitle">Ei soitinta</string>

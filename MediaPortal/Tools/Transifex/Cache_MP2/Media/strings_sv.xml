@@ -202,6 +202,8 @@
   <string name="Media.EnqueueVideoImageItem">Köa video-/bildobjekt</string>
   <string name="Media.PlayVideoImageItemMutedConcurrentAudio">Visa video-/bildobjekt i bakgrunden &amp; fortsätt samtidigt spela ljudobjekt</string>
   <string name="Media.PlayVideoImageItemPiP">Visa video-/bildobjekt i bild-i-bild</string>
+  <string name="Media.PlaybackResume">Återuppta uppspelning</string>
+  <string name="Media.PlaybackFromStart">Spela från början</string>
   <!--Player context names-->
   <string name="Media.VideoImageContextName">Video/bild</string>
   <string name="Media.AudioContextName">Ljud</string>

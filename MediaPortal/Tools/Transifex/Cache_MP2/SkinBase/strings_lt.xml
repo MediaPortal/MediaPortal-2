@@ -71,6 +71,8 @@
   <string name="LocalFsResourceProvider.Description">Pasiekti lokalią bylų sistemą</string>
   <string name="RemoteResourceProvider.Name">Nuotolinis šaltinio tiekėjas</string>
   <string name="RemoteResourceProvider.Description">Pasiekti šaltinį esantį kitoje MediaPortal 2 sistemoje</string>
+  <string name="RawUrlResourceProvider.Name">Žaliavinio URL šaltinio tiekėjas</string>
+  <string name="RawUrlResourceProvider.Description">Pasiekti žaliavinių URL šaltinius</string>
   <string name="ScreenSaver.MediaPortal2">MediaPortal 2</string>
   <!--For MP UI player subsystem-->
   <string name="Players.NoPlayerAvailableNotificationTitle">Nėra grotuvo</string>

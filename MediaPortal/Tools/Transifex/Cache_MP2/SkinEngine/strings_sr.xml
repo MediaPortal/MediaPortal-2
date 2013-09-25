@@ -3,6 +3,9 @@
   <string name="Settings.Appearance.System">Систем</string>
   <string name="Settings.Appearance.System.Fullscreen">Цео екран</string>
   <string name="Settings.Appearance.System.Fullscreen.Help">Прикажи МедијаПортал по целом екрану</string>
+  <string name="Settings.Appearance.System.StartupScreen">Почетни екран</string>
+  <string name="Settings.Appearance.System.StartupScreen.Help">Одабери почетни екран</string>
+  <string name="Settings.Appearance.System.StartupScreen.DoNotUseSelection">Не употребљавај одабир екрана</string>
   <string name="Settings.Appearance.System.CellPhoneInputStyle">Користи стил мобилног телефона за убацивање података</string>
   <string name="Settings.Appearance.System.CellPhoneInputStyle.Help">Користи стил Мобилни телефон/СМС за убацивање података</string>
   <string name="Settings.Appearance.System.ScreenSaverEnabled">Омогући чувара екрана</string>

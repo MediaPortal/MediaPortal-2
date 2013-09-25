@@ -109,6 +109,8 @@
   <string name="Settings.General.System">Систем</string>
   <string name="Settings.General.System.Autostart">Аутостарт</string>
   <string name="Settings.General.System.Autostart.Help">Покрени МедијаПортл аутоматски када се ОС покрене</string>
+  <string name="Settings.General.System.ClientDOKANDrive">Слово за драјв</string>
+  <string name="Settings.General.System.ClientDOKANDrive.Help">Конфигурише слово за драјв на овом клијенту за приступ фајловима ван овог клијента</string>
   <string name="Settings.General.Connectivity">Повезивање</string>
   <string name="Settings.General.Connectivity.HomeServer">Кућни сервер</string>
   <string name="Settings.General.Connectivity.HomeServer.Help">Кућни сервер, закачи и раскачи се са кућног сервера</string>

@@ -71,6 +71,8 @@
   <string name="LocalFsResourceProvider.Description">Prístup na lokálny súborový systém</string>
   <string name="RemoteResourceProvider.Name">Obsluha vzdialených zdrojov</string>
   <string name="RemoteResourceProvider.Description">Prístup na na zdroje umiestnené na inom MediaPortal 2 systéme</string>
+  <string name="RawUrlResourceProvider.Name">Obsluha čistého URL</string>
+  <string name="RawUrlResourceProvider.Description">Pristupovať k čistým zdrojom URL</string>
   <string name="ScreenSaver.MediaPortal2">MediaPortal 2</string>
   <!--For MP UI player subsystem-->
   <string name="Players.NoPlayerAvailableNotificationTitle">Žiadny prehrávač</string>

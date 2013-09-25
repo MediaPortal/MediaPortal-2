@@ -1,6 +1,14 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
+  <string name="Configuration.Name">Ustawienia</string>
+  <string name="Configuration.ConfigurationMainWorkflowNavigationContextDisplayLabel">Ustawienia</string>
+  <string name="Configuration.MainSettings">Główne ustawienia</string>
   <!--2nd Header for root configuration section-->
+  <string name="Configuration.NoSettingsInThisSection">Sekcja nie zawiera ustawień</string>
+  <string name="Configuration.ErrorFloatingPointValue">\'{0}\' nie jest prawidłową liczbą zmiennopozycyjną</string>
+  <string name="Configuration.ErrorIntegerValue">\'{0}\' nie jest prawidłową liczbą całkowitą</string>
+  <string name="Configuration.ErrorNumericLowerLimit">Użyj wartości z przedziału \'{1}\' - \'{2}\'</string>
   <!--0 = current value, 1 = lower limit, 2 = upper limit-->
+  <string name="Configuration.ErrorNumericUpperLimit">Użyj wartości z przedziału \'{1}\' - \'{2}\'</string>
   <!--0 = current value, 1 = lower limit, 2 = upper limit-->
 </resources>

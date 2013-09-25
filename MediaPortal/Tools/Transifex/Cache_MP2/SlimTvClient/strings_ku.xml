@@ -1,0 +1,29 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<resources>
+  <string name="SlimTvClient.Title">خزمەتگوزاری سەیرکردنی تەلەڤزیۆن</string>
+  <string name="SlimTvClient.CurrentlyPlayingInformationHeader">زانیاری بەرنامە</string>
+  <string name="SlimTvClient.ChannelLabel">کەناڵ</string>
+  <string name="SlimTvClient.ProgramLabel">بەرنامە</string>
+  <string name="SlimTvClient.DescriptionLabel">لێدوان</string>
+  <string name="SlimTvClient.GenreLabel">جۆر</string>
+  <string name="SlimTvClient.ProgramStartLabel">کاتی دەستپێکردن</string>
+  <string name="SlimTvClient.ProgramEndLabel">کاتی کۆتایهاتن</string>
+  <string name="SlimTvClient.EpisodeLabel">زنجیرە</string>
+  <string name="SlimTvClient.Guide">ڕێنمایی تەلەڤزیۆن</string>
+  <string name="SlimTvClient.NoProgram">داتای بەرنامە نیە.</string>
+  <string name="SlimTvClient.ChooseProgramAction">فرمانی بەرنامە هەڵبژێرە...</string>
+  <string name="SlimTvClient.ProgramOver">بەرنامەکە تەواو بووە</string>
+  <string name="SlimTvClient.WatchNow">سەیرکردنی بەرنامە ئێستا</string>
+  <string name="SlimTvClient.RecordNow">تۆمارکردن ئێستا</string>
+  <string name="SlimTvClient.DeleteSchedule">سڕینەوەی خشتە</string>
+  <string name="SlimTvClient.CreateSchedule">خشتەی تۆمارکردن</string>
+  <string name="SlimTvClient.ErrorNoTvProvider">(هێشتا) هیچ وەرگرێکی تەلەڤزیۆن نیە</string>
+  <string name="SlimTvClient.RecordingsMenuItem">تۆمارکراوەکان</string>
+  <string name="SlimTvClient.RecordingsRootViewName">تۆمارکراوەکانی تەلەڤزیۆن</string>
+  <string name="SlimTvClient.ChannelMenuItemLabel">ڕێگریکردن بەپێی کەناڵ</string>
+  <string name="SlimTvClient.ChannelNavBarItemLabel">کەناڵ: {0}</string>
+  <string name="SlimTvClient.RecordingsByChannelHeader">تۆمارکردن بەپێی کەناڵ</string>
+  <string name="SlimTvClient.NameFilterMenuItemLabel">ڕێگریکردن بەپێی ناو</string>
+  <string name="SlimTvClient.NameFilterNavBarItemLabel">{0}</string>
+  <string name="SlimTvClient.RecordingsByNameHeader">تۆمارکردن بەپێی کات</string>
+</resources>

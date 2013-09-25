@@ -1,0 +1,16 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<resources>
+  <string name="Utilities.MenuItem">ئامرازەکان</string>
+  <string name="Utilities.MainWorkflowNavigationContextDisplayLabel">ئامرازەکان</string>
+  <string name="Utilities.PlaylistImportWorkflowNavigationContextDisplayLabel">هێنانی لیستی لێدان</string>
+  <string name="Utilities.MainScreenTitle">ئامرازەکان</string>
+  <string name="Utilities.PlaylistImport">هێنانی لیستی لێدان</string>
+  <string name="Utilities.PlaylistImportScreenTitle">هێنانی لیستی لێدان</string>
+  <string name="Utilities.ImportPlaylistFile">هێنانی فایلی لیستی لێدان</string>
+  <string name="Utilities.ChoosePlaylistFile">فایل دیاریبکە</string>
+  <string name="Utilities.PlaylistSavedSuccessfullyTitle">سەرکەوتوو بوو</string>
+  <string name="Utilities.ImportPlaylistProgressTitle">ئەنجامدان</string>
+  <string name="Utilities.ImportPlaylistProgressHeaderText">هێنانی لیستی لێدان</string>
+  <string name="Utilities.StopImportPlaylistButton">وەستاندن</string>
+  <string name="Utilities.PlaylistNameIsEmpty">ناوی لیستی لێدان بەتاڵە</string>
+</resources>

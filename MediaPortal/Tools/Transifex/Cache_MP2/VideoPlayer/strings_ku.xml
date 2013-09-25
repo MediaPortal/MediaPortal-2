@@ -1,0 +1,16 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<resources>
+  <string name="Settings.Players.Codecs">کۆدیکەکان</string>
+  <string name="Settings.Players.Codecs.VideoCodecs">کۆدیکەکانی ڤیدیۆ</string>
+  <string name="Settings.Players.Codecs.VideoCodecs.MPEG2">MPEG2 کۆدیکی ڤیدیۆیی</string>
+  <string name="Settings.Players.Codecs.VideoCodecs.MPEG4">MPEG4 کۆدیکی ڤیدیۆیی</string>
+  <string name="Settings.Players.Codecs.VideoCodecs.AVC">AVC کۆدیکی ڤیدیۆیی</string>
+  <string name="Settings.Players.Codecs.AudioCodecs">کۆدیکەکانی دەنگ</string>
+  <string name="Settings.Players.VideoPlayer">لێدەری ڤیدیۆ</string>
+  <string name="Settings.Players.DVDPlayer">لێدەری دیڤیدی</string>
+  <string name="Settings.Players.DVDPlayer.EnableSubtitles">ژێرنووس</string>
+  <string name="Playback.Chapter">{0} بەش</string>
+  <!--For example: "Chapter 1"-->
+  <string name="Playback.Title">{0} ناونیشان</string>
+  <!--For example: "Title 1"-->
+</resources>

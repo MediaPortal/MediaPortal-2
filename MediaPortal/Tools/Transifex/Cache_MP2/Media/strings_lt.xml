@@ -202,6 +202,8 @@
   <string name="Media.EnqueueVideoImageItem">Šis video</string>
   <string name="Media.PlayVideoImageItemMutedConcurrentAudio">Atkurti video/vaizdo įrašus fone &amp; tęsti lygiagretų audio įrašą</string>
   <string name="Media.PlayVideoImageItemPiP">Atkurti video/vaizdo įrašą PiP būdu</string>
+  <string name="Media.PlaybackResume">Atnaujinti grojimą</string>
+  <string name="Media.PlaybackFromStart">Groti nuo pradžių</string>
   <!--Player context names-->
   <string name="Media.VideoImageContextName">Video/vaizdas</string>
   <string name="Media.AudioContextName">Audio</string>

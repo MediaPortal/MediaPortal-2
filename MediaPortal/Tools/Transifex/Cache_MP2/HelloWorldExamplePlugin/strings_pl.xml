@@ -1,2 +1,10 @@
 <?xml version='1.0' encoding='UTF-8'?>
-<resources/>
+<resources>
+  <string name="HelloWorld.MenuEntry">Witaj Świecie</string>
+  <string name="HelloWorld.StateDisplayLabel">Witaj Świecie stan</string>
+  <string name="HelloWorld.ScreenTitle">Witaj Świecie ekran</string>
+  <string name="HelloWorld.HelloWorldText">Kliknięcie przycisku zmieni ten tekst</string>
+  <string name="HelloWorld.SampleText">To jest przykładowy ekran dodatku HelloWorld</string>
+  <string name="HelloWorld.ButtonText">Kliknij mnie</string>
+  <string name="HelloWorld.ButtonTextCommandExecuted">Gratulacje, właśnie uruchomiłeś komendę!</string>
+</resources>

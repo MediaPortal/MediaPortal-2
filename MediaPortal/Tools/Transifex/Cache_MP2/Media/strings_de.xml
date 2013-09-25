@@ -202,6 +202,8 @@
   <string name="Media.EnqueueVideoImageItem">Video/Bild einreihen</string>
   <string name="Media.PlayVideoImageItemMutedConcurrentAudio">Video/Bild im Hintergrund abspielen und Audiowiedergabe fortsetzen</string>
   <string name="Media.PlayVideoImageItemPiP">Video/Bild im PiP Modus abspielen</string>
+  <string name="Media.PlaybackResume">Wiedergabe fortsetzen</string>
+  <string name="Media.PlaybackFromStart">Von Anfang an wiedergeben</string>
   <!--Player context names-->
   <string name="Media.VideoImageContextName">Video/Bild</string>
   <string name="Media.AudioContextName">Audio</string>

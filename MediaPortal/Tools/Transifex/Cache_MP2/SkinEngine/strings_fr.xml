@@ -43,7 +43,7 @@
   <string name="Geometries.LetterBox">4:3</string>
   <string name="Geometries.Normal">Normal</string>
   <string name="Geometries.Original">Original</string>
-  <string name="Geometries.PanAndScan"></string>
+  <string name="Geometries.PanAndScan">Pan &amp; scan</string>
   <string name="Geometries.Stretch">Étiré</string>
   <string name="Geometries.Zoom">Zoom</string>
   <string name="Geometries.Zoom149">Zoom 14:9</string>

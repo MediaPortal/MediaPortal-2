@@ -1,5 +1,19 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
   <string name="ServerStatus.NotStarted">Сервер није стартован</string>
+  <string name="ServerStatus.Attached">Закачен на сервер</string>
+  <string name="ServerStatus.Connected">Укључен на сервер</string>
+  <string name="ServerStatus.Detached">Откачен са сервера</string>
+  <string name="ServerStatus.Disconnected">Искључен са сервера</string>
+  <string name="ServerStatus.ClientConnected">Клијент(и) закачен(и) на сервер</string>
+  <string name="MainWindow.ServerStatus">Статус сервера</string>
+  <string name="MainWindow.AttachedClients">Прикачени клијенти:</string>
+  <string name="ContextMenu.ShowWin">Прикажи прозор</string>
+  <string name="ContextMenu.HideWin">Сакриј прозор</string>
+  <string name="ContextMenu.StartService">Покрени сервис</string>
+  <string name="ContextMenu.StopService">Заустави сервис</string>
+  <string name="ContextMenu.EnableAutostart">Омогући аутостарт</string>
+  <string name="ContextMenu.DisableAutostart">Онемогући аутостарт</string>
   <string name="ContextMenu.Exit">Изађи</string>
+  <string name="SysTrayToolTip.Info">Десни клик за додатне опције</string>
 </resources>
