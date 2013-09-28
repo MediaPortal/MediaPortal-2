@@ -170,7 +170,7 @@
   <Import Project="build.targets" />
   <Import Project="$(SolutionDir)\.nuget\NuGet.targets" Condition="Exists('$(SolutionDir)\.nuget\NuGet.targets')" />
   <Import Project="..\..\..\..\Packages\bass.cd.2.4.5\build\bass.cd.targets" Condition="Exists('..\..\..\..\Packages\bass.cd.2.4.5\build\bass.cd.targets')" />
-  <Import Project="..\..\..\..\Packages\bass.aac.2.4.4.2\build\bass.aac.targets" Condition="Exists('..\..\..\..\Packages\bass.aac.2.4.4.2\build\bass.aac.targets')" />
+  <Import Project="..\..\..\..\Packages\bass.aac.2.4.4.4\build\bass.aac.targets" Condition="Exists('..\..\..\..\Packages\bass.aac.2.4.4.4\build\bass.aac.targets')" />
   <Import Project="..\..\..\..\Packages\bass.ac3.2.4.0.3\build\bass.ac3.targets" Condition="Exists('..\..\..\..\Packages\bass.ac3.2.4.0.3\build\bass.ac3.targets')" />
   <Import Project="..\..\..\..\Packages\bass.adx.2.4.1.1\build\bass.adx.targets" Condition="Exists('..\..\..\..\Packages\bass.adx.2.4.1.1\build\bass.adx.targets')" />
   <Import Project="..\..\..\..\Packages\bass.aix.2.4.1.1\build\bass.aix.targets" Condition="Exists('..\..\..\..\Packages\bass.aix.2.4.1.1\build\bass.aix.targets')" />
