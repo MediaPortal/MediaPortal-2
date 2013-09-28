@@ -186,5 +186,5 @@
   <Import Project="..\..\..\..\Packages\bass.ofr.2.4.0.2\build\bass.ofr.targets" Condition="Exists('..\..\..\..\Packages\bass.ofr.2.4.0.2\build\bass.ofr.targets')" />
   <Import Project="..\..\..\..\Packages\bass.mix.2.4.7.2\build\bass.mix.targets" Condition="Exists('..\..\..\..\Packages\bass.mix.2.4.7.2\build\bass.mix.targets')" />
   <Import Project="..\..\..\..\Packages\bass.tags.0.0.17\build\bass.tags.targets" Condition="Exists('..\..\..\..\Packages\bass.tags.0.0.17\build\bass.tags.targets')" />
-  <Import Project="..\..\..\..\Packages\bass.fx.2.4.9\build\bass.fx.targets" Condition="Exists('..\..\..\..\Packages\bass.fx.2.4.9\build\bass.fx.targets')" />
+  <Import Project="..\..\..\..\Packages\bass.fx.2.4.10.1\build\bass.fx.targets" Condition="Exists('..\..\..\..\Packages\bass.fx.2.4.10.1\build\bass.fx.targets')" />
 </Project>
