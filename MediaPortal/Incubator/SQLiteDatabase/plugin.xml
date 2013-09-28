@@ -1,0 +1,19 @@
+<Plugin
+    DescriptorVersion="1.0"
+    Name="SQLiteDatabase"
+    PluginId="{CDFC897C-DBFC-4815-8135-EEA1E4628623}"
+    Author="offbyone; MJGraf"
+    Copyright="GPL"
+    AutoActivate="true"
+    Description="Provides database access to an SQLite database"
+    PluginVersion="0.07">
+
+  <Runtime>
+    <Assembly FileName="SQLiteDatabase.dll"/>
+  </Runtime>
+
+  <Register Location="/Services">
+    <Service Id="SQLiteDatabase" RegistrationClassName="MediaPortal.Backend.Database.ISQLDatabase"
+        RegistrationClassAssembly="MediaPortal.Backend" ServiceClassName="MediaPortal.Database.SQLite.SQLiteDatabase"/>
+  </Register>
+</Plugin>
