@@ -55,7 +55,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="Bass.Net">
-      <HintPath>..\..\..\Packages\BASS.NET.2.4.10.1\lib\net40\Bass.Net.dll</HintPath>
+      <HintPath>..\..\..\Packages\BASS.NET.2.4.10.3\lib\net40\Bass.Net.dll</HintPath>
     </Reference>
     <Reference Include="BassRegistration">
       <HintPath>..\..\..\Packages\BassRegistration.1.0.0.1\lib\net40\BassRegistration.dll</HintPath>
