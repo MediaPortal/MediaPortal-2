@@ -26,6 +26,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
+using System.Linq;
 using System.Windows.Forms;
 using System.Xml.Serialization;
 using MediaPortal.Common;
@@ -60,8 +61,8 @@ namespace MediaPortal.Plugins.MceRemoteReceiver
       {
         // Register Device
         Remote.Click = null;
-        Remote.Click += new RemoteEventHandler(OnRemoteClick);
-        Remote.DeviceRemoval += new DeviceEventHandler(OnDeviceRemoval);
+        Remote.Click += OnRemoteClick;
+        Remote.DeviceRemoval += OnDeviceRemoval;
       }
       catch (Exception ex)
       {
@@ -70,23 +71,18 @@ namespace MediaPortal.Plugins.MceRemoteReceiver
       }
 
       // Kill ehtray.exe since that program catches the MCE remote keys and would start MCE 2005
-      Process[] myProcesses;
-      myProcesses = Process.GetProcesses();
-      foreach (Process myProcess in myProcesses)
+      Process[] myProcesses = Process.GetProcesses();
+      foreach (Process myProcess in myProcesses.Where(p => p.ProcessName.ToLower().Equals("ehtray")))
       {
-        if (myProcess.ProcessName.ToLower().Equals("ehtray"))
+        try
         {
-          try
-          {
-            LogInfo("Stopping Microsoft ehtray");
-            myProcess.Kill();
-          }
-          catch (Exception)
-          {
-            LogInfo("Cannot stop Microsoft ehtray");
-            Stop();
-            return;
-          }
+          LogInfo("Stopping Microsoft ehtray");
+          myProcess.Kill();
+        }
+        catch (Exception)
+        {
+          LogInfo("Cannot stop Microsoft ehtray");
+          Stop();
         }
       }
     }
@@ -94,9 +90,9 @@ namespace MediaPortal.Plugins.MceRemoteReceiver
     private void StopReceiver()
     {
       LogInfo("Stopping MCE remote");
-      Remote.Click -= new RemoteEventHandler(OnRemoteClick);
-      Remote.DeviceRemoval -= new DeviceEventHandler(OnDeviceRemoval);
-      Remote.DeviceArrival -= new DeviceEventHandler(OnDeviceArrival);
+      Remote.Click -= OnRemoteClick;
+      Remote.DeviceRemoval -= OnDeviceRemoval;
+      Remote.DeviceArrival -= OnDeviceArrival;
     }
 
     #region Message handling
@@ -120,12 +116,11 @@ namespace MediaPortal.Plugins.MceRemoteReceiver
     {
       if (message.ChannelName == WindowsMessaging.CHANNEL)
       {
-        WindowsMessaging.MessageType messageType =
-            (WindowsMessaging.MessageType)message.MessageType;
+        WindowsMessaging.MessageType messageType = (WindowsMessaging.MessageType) message.MessageType;
         switch (messageType)
         {
           case WindowsMessaging.MessageType.WindowsBroadcast:
-            Message msg = (Message)message.MessageData[WindowsMessaging.MESSAGE];
+            Message msg = (Message) message.MessageData[WindowsMessaging.MESSAGE];
             HandleWindowsMessage(msg);
             break;
         }
@@ -138,15 +133,15 @@ namespace MediaPortal.Plugins.MceRemoteReceiver
 
     private void OnDeviceRemoval(object sender, EventArgs e)
     {
-      Remote.DeviceRemoval -= new DeviceEventHandler(OnDeviceRemoval);
-      Remote.DeviceArrival += new DeviceEventHandler(OnDeviceArrival);
+      Remote.DeviceRemoval -= OnDeviceRemoval;
+      Remote.DeviceArrival += OnDeviceArrival;
       LogInfo("MCE receiver has been unplugged");
     }
 
     private void OnDeviceArrival(object sender, EventArgs e)
     {
-      Remote.DeviceArrival -= new DeviceEventHandler(OnDeviceArrival);
-      Remote.Click -= new RemoteEventHandler(OnRemoteClick);
+      Remote.DeviceArrival -= OnDeviceArrival;
+      Remote.Click -= OnRemoteClick;
       LogInfo("MCE receiver detected");
       StartReceiver();
     }
@@ -163,14 +158,14 @@ namespace MediaPortal.Plugins.MceRemoteReceiver
         return false;
 
       int command = (msg.LParam.ToInt32() >> 16) & ~0xF000;
-      InputDevices.LastHidRequest = (AppCommands)command;
+      InputDevices.LastHidRequest = (AppCommands) command;
 
       RemoteButton remoteButton = RemoteButton.None;
 
-      if ((AppCommands)command == AppCommands.VolumeUp)
+      if ((AppCommands) command == AppCommands.VolumeUp)
         remoteButton = RemoteButton.VolumeUp;
 
-      if ((AppCommands)command == AppCommands.VolumeDown)
+      if ((AppCommands) command == AppCommands.VolumeDown)
         remoteButton = RemoteButton.VolumeDown;
 
       if (remoteButton != RemoteButton.None)
@@ -182,9 +177,9 @@ namespace MediaPortal.Plugins.MceRemoteReceiver
     /// <summary>
     /// Evaluate button press from remote
     /// </summary>
-    /// <param name="button">Remote Button</param>
+    /// <param name="sender">Sender</param>
+    /// <param name="e">Arguments</param>
     private void OnRemoteClick(object sender, RemoteEventArgs e)
-      //RemoteButton button)
     {
       RemoteButton remoteButton = e.Button;
 
@@ -262,7 +257,7 @@ namespace MediaPortal.Plugins.MceRemoteReceiver
     {
       XmlSerializer reader = new XmlSerializer(typeof(List<MappedKeyCode>));
       using (StreamReader file = new StreamReader(remoteFile))
-        return (ICollection<MappedKeyCode>)reader.Deserialize(file);
+        return (ICollection<MappedKeyCode>) reader.Deserialize(file);
     }
 
     protected static void SaveRemoteMap(string remoteFile, ICollection<MappedKeyCode> remoteMap)
@@ -276,7 +271,7 @@ namespace MediaPortal.Plugins.MceRemoteReceiver
     {
       XmlSerializer reader = new XmlSerializer(typeof(List<eHomeTransceiver>));
       using (StreamReader file = new StreamReader(remoteFile))
-        return (ICollection<eHomeTransceiver>)reader.Deserialize(file);
+        return (ICollection<eHomeTransceiver>) reader.Deserialize(file);
     }
 
     protected static void SaveTransceivers(string remoteFile, ICollection<eHomeTransceiver> remoteMap)
@@ -329,15 +324,13 @@ namespace MediaPortal.Plugins.MceRemoteReceiver
       // We initialize the key code map here instead of in the constructor because here, we have access to the plugin's
       // directory (via the pluginRuntime parameter).
       _mappedKeyCodes = new Dictionary<int, Key>();
-      ICollection<MappedKeyCode> keyCodes = settings.RemoteMap ??
-          LoadRemoteMap(pluginRuntime.Metadata.GetAbsolutePath("DefaultRemoteMap.xml"));
+      ICollection<MappedKeyCode> keyCodes = settings.RemoteMap ?? LoadRemoteMap(pluginRuntime.Metadata.GetAbsolutePath("DefaultRemoteMap.xml"));
       foreach (MappedKeyCode mkc in keyCodes)
         _mappedKeyCodes.Add(mkc.Code, mkc.Key);
-      
+
       //_eHomeTransceivers.Add(new eHomeTransceiver() { DeviceID = "testKey", Name = "testValue" });
       //SaveTransceivers(pluginRuntime.Metadata.GetAbsolutePath("eHomeTransceiverList.xml"), _eHomeTransceivers);
-      ICollection<eHomeTransceiver> transceivers = settings.Transceivers ??
-          LoadTransceivers(pluginRuntime.Metadata.GetAbsolutePath("eHomeTransceiverList.xml"));
+      ICollection<eHomeTransceiver> transceivers = settings.Transceivers ?? LoadTransceivers(pluginRuntime.Metadata.GetAbsolutePath("eHomeTransceiverList.xml"));
       if (transceivers.Count > 0)
         Remote.Transceivers.AddRange(transceivers);
 
