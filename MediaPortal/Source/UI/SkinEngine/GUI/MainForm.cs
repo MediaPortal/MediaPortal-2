@@ -420,6 +420,7 @@ namespace MediaPortal.UI.SkinEngine.GUI
     {
       AppSettings settings = ServiceRegistration.Get<ISettingsManager>().Load<AppSettings>();
       settings.ScreenSaverTimeoutMin = screenSaverTimeoutMin;
+      settings.ScreenSaverEnabled = screenSaverEnabled;
       ServiceRegistration.Get<ISettingsManager>().Save(settings);
       _screenSaverTimeOut = TimeSpan.FromMinutes(screenSaverTimeoutMin);
       _isScreenSaverEnabled = screenSaverEnabled;
