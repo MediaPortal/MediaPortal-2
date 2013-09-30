@@ -33,59 +33,64 @@ using MediaPortal.UiComponents.Media.Views;
 
 namespace MediaPortal.UiComponents.Media.Models.NavigationModel
 {
-  class AudioNavigation : IMediaNavigationInitializer
+  class VideosNavigationInitializer : IMediaNavigationInitializer
   {
     public string MediaNavigationMode
     {
-      get { return Models.MediaNavigationMode.Audio; }
+      get { return Models.MediaNavigationMode.Videos; }
     }
 
     public Guid MediaNavigationRootState
     {
-      get { return Consts.WF_STATE_ID_AUDIO_NAVIGATION_ROOT; }
+      get { return Consts.WF_STATE_ID_VIDEOS_NAVIGATION_ROOT; }
     }
 
     public void InitMediaNavigation(out string mediaNavigationMode, out NavigationData navigationData)
     {
       IEnumerable<Guid> skinDependentOptionalMIATypeIDs = MediaNavigationModel.GetMediaSkinOptionalMIATypes(MediaNavigationMode);
-      AbstractItemsScreenData.PlayableItemCreatorDelegate picd = mi => new AudioItem(mi)
+      AbstractItemsScreenData.PlayableItemCreatorDelegate picd = mi => new VideoItem(mi)
       {
         Command = new MethodDelegateCommand(() => PlayItemsModel.CheckQueryPlayAction(mi))
       };
-      ViewSpecification rootViewSpecification = new MediaLibraryQueryViewSpecification(Consts.RES_AUDIO_VIEW_NAME,
-        null, Consts.NECESSARY_AUDIO_MIAS, skinDependentOptionalMIATypeIDs, true)
+      ViewSpecification rootViewSpecification = new MediaLibraryQueryViewSpecification(Consts.RES_VIDEOS_VIEW_NAME,
+        null, Consts.NECESSARY_VIDEO_MIAS, skinDependentOptionalMIATypeIDs, true)
       {
         MaxNumItems = Consts.MAX_NUM_ITEMS_VISIBLE
       };
-      AbstractScreenData filterByAlbum = new AudioFilterByAlbumScreenData();
+      AbstractScreenData filterByGenre = new VideosFilterByGenreScreenData();
       ICollection<AbstractScreenData> availableScreens = new List<AbstractScreenData>
         {
-          new AudioShowItemsScreenData(picd),
-          new AudioFilterByArtistScreenData(),
-          filterByAlbum,
+          new VideosShowItemsScreenData(picd),
+          new VideosFilterByLanguageScreenData(),
+          new VideosFilterByActorScreenData(),
+          new VideosFilterByDirectorScreenData(),
+          new VideosFilterByWriterScreenData(),
+          filterByGenre,
           // C# doesn't like it to have an assignment inside a collection initializer
-          new AudioFilterByGenreScreenData(),
-          new AudioFilterByDecadeScreenData(),
-          new AudioFilterBySystemScreenData(),
-          new AudioSimpleSearchScreenData(picd),
+          new VideosFilterByYearScreenData(),
+          new VideosFilterBySystemScreenData(),
+          new VideosSimpleSearchScreenData(picd),
         };
-      Sorting.Sorting sortByAlbumTrack = new AudioSortByAlbumTrack();
+      Sorting.Sorting sortByTitle = new SortByTitle();
       ICollection<Sorting.Sorting> availableSortings = new List<Sorting.Sorting>
         {
-          sortByAlbumTrack,
-          new SortByTitle(),
-          new AudioSortByFirstGenre(),
-          new AudioSortByFirstArtist(),
-          new AudioSortByAlbum(),
-          new AudioSortByTrack(),
+          sortByTitle,
           new SortByYear(),
+          new VideoSortByFirstGenre(),
+          new VideoSortByDuration(),
+          new VideoSortByFirstActor(),
+          new VideoSortByFirstDirector(),
+          new VideoSortByFirstWriter(),
+          new VideoSortBySize(),
+          new VideoSortByAspectRatio(),
           new SortBySystem(),
         };
-      navigationData = new NavigationData(null, Consts.RES_AUDIO_VIEW_NAME, MediaNavigationRootState,
-        MediaNavigationRootState, rootViewSpecification, filterByAlbum, availableScreens, sortByAlbumTrack)
+      navigationData = new NavigationData(null, Consts.RES_VIDEOS_VIEW_NAME, MediaNavigationRootState,
+        MediaNavigationRootState, rootViewSpecification, filterByGenre, availableScreens, sortByTitle)
       {
         AvailableSortings = availableSortings
       };
+
       mediaNavigationMode = MediaNavigationMode;
     }
   }

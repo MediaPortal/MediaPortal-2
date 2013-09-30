@@ -23,10 +23,8 @@
 #endregion
 
 using System;
-using MediaPortal.Common;
 using MediaPortal.Common.Commands;
 using MediaPortal.Common.General;
-using MediaPortal.Common.Settings;
 using MediaPortal.UI.Presentation.DataObjects;
 using MediaPortal.UiComponents.Media.General;
 using MediaPortal.UiComponents.Media.Settings;
@@ -49,13 +47,12 @@ namespace MediaPortal.UiComponents.Media.Models
 
     public ViewModeModel()
     {
-      ViewSettings settings = ServiceRegistration.Get<ISettingsManager>().Load<ViewSettings>();
-      _layoutTypeProperty = new WProperty(typeof(LayoutType), settings.LayoutType);
-      _layoutSizeProperty = new WProperty(typeof(LayoutSize), settings.LayoutSize);
+      _layoutTypeProperty = new WProperty(typeof(LayoutType), ViewSettings.DEFAULT_LAYOUT_TYPE);
+      _layoutSizeProperty = new WProperty(typeof(LayoutSize), ViewSettings.DEFAULT_LAYOUT_SIZE);
 
       ListItem smallList = new ListItem(Consts.KEY_NAME, Consts.RES_SMALL_LIST)
         {
-            Command = new MethodDelegateCommand(() => SetViewMode(LayoutType.ListLayout, LayoutSize.Small)),
+          Command = new MethodDelegateCommand(() => SetViewMode(LayoutType.ListLayout, LayoutSize.Small)),
         };
       smallList.AdditionalProperties[Consts.KEY_LAYOUT_TYPE] = LayoutType.ListLayout;
       smallList.AdditionalProperties[Consts.KEY_LAYOUT_SIZE] = LayoutSize.Small;
@@ -63,7 +60,7 @@ namespace MediaPortal.UiComponents.Media.Models
 
       ListItem mediumlList = new ListItem(Consts.KEY_NAME, Consts.RES_MEDIUM_LIST)
         {
-            Command = new MethodDelegateCommand(() => SetViewMode(LayoutType.ListLayout, LayoutSize.Medium))
+          Command = new MethodDelegateCommand(() => SetViewMode(LayoutType.ListLayout, LayoutSize.Medium))
         };
       mediumlList.AdditionalProperties[Consts.KEY_LAYOUT_TYPE] = LayoutType.ListLayout;
       mediumlList.AdditionalProperties[Consts.KEY_LAYOUT_SIZE] = LayoutSize.Medium;
@@ -71,7 +68,7 @@ namespace MediaPortal.UiComponents.Media.Models
 
       ListItem largeList = new ListItem(Consts.KEY_NAME, Consts.RES_LARGE_LIST)
         {
-            Command = new MethodDelegateCommand(() => SetViewMode(LayoutType.ListLayout, LayoutSize.Large))
+          Command = new MethodDelegateCommand(() => SetViewMode(LayoutType.ListLayout, LayoutSize.Large))
         };
       largeList.AdditionalProperties[Consts.KEY_LAYOUT_TYPE] = LayoutType.ListLayout;
       largeList.AdditionalProperties[Consts.KEY_LAYOUT_SIZE] = LayoutSize.Large;
@@ -79,7 +76,7 @@ namespace MediaPortal.UiComponents.Media.Models
 
       ListItem largeGrid = new ListItem(Consts.KEY_NAME, Consts.RES_LARGE_GRID)
         {
-            Command = new MethodDelegateCommand(() => SetViewMode(LayoutType.GridLayout, LayoutSize.Large))
+          Command = new MethodDelegateCommand(() => SetViewMode(LayoutType.GridLayout, LayoutSize.Large))
         };
       largeGrid.AdditionalProperties[Consts.KEY_LAYOUT_TYPE] = LayoutType.GridLayout;
       largeGrid.AdditionalProperties[Consts.KEY_LAYOUT_SIZE] = LayoutSize.Large;
@@ -87,11 +84,22 @@ namespace MediaPortal.UiComponents.Media.Models
 
       ListItem coverLarge = new ListItem(Consts.KEY_NAME, Consts.RES_LARGE_COVER)
         {
-            Command = new MethodDelegateCommand(() => SetViewMode(LayoutType.CoverLayout, LayoutSize.Large))
+          Command = new MethodDelegateCommand(() => SetViewMode(LayoutType.CoverLayout, LayoutSize.Large))
         };
       coverLarge.AdditionalProperties[Consts.KEY_LAYOUT_TYPE] = LayoutType.CoverLayout;
       coverLarge.AdditionalProperties[Consts.KEY_LAYOUT_SIZE] = LayoutSize.Large;
       _viewModeItemsList.Add(coverLarge);
+    }
+
+    public void Update()
+    {
+      MediaNavigationModel model = MediaNavigationModel.GetCurrentInstance();
+      NavigationData navigationData = model.NavigationData;
+      if (navigationData == null)
+        return;
+
+      LayoutType = navigationData.LayoutType;
+      LayoutSize = navigationData.LayoutSize;
     }
 
     protected void SetViewMode(LayoutType layoutType, LayoutSize layoutSize)
@@ -99,22 +107,23 @@ namespace MediaPortal.UiComponents.Media.Models
       LayoutType = layoutType;
       LayoutSize = layoutSize;
 
-      ISettingsManager settingsManager = ServiceRegistration.Get<ISettingsManager>();
-      ViewSettings settings = settingsManager.Load<ViewSettings>();
-      settings.LayoutType = layoutType;
-      settings.LayoutSize = layoutSize;
-      settingsManager.Save(settings);
+      MediaNavigationModel model = MediaNavigationModel.GetCurrentInstance();
+      NavigationData navigationData = model.NavigationData;
+      if (navigationData == null)
+        return;
+
+      navigationData.LayoutType = layoutType;
+      navigationData.LayoutSize = layoutSize;
     }
 
     protected void UpdateSelectedFlag(ItemsList itemsList)
     {
-      ViewSettings settings = ServiceRegistration.Get<ISettingsManager>().Load<ViewSettings>();
       foreach (ListItem item in itemsList)
       {
         object layout;
         object size;
         if (item.AdditionalProperties.TryGetValue(Consts.KEY_LAYOUT_TYPE, out layout) && item.AdditionalProperties.TryGetValue(Consts.KEY_LAYOUT_SIZE, out size))
-          item.Selected = settings.LayoutType.Equals(layout) && settings.LayoutSize.Equals(size);
+          item.Selected = LayoutType.Equals(layout) && LayoutSize.Equals(size);
       }
     }
 

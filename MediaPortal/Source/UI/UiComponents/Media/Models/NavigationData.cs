@@ -27,8 +27,11 @@ using System.Collections.Generic;
 using System.Linq;
 using MediaPortal.Common;
 using MediaPortal.Common.Localization;
+using MediaPortal.Common.Settings;
 using MediaPortal.UI.Presentation.Screens;
 using MediaPortal.UI.Presentation.Workflow;
+using MediaPortal.UiComponents.Media.Models.NavigationModel;
+using MediaPortal.UiComponents.Media.Settings;
 using MediaPortal.UiComponents.Media.Views;
 using MediaPortal.UiComponents.Media.General;
 using MediaPortal.UiComponents.Media.Models.ScreenData;
@@ -60,6 +63,8 @@ namespace MediaPortal.UiComponents.Media.Models
 
     protected Sorting.Sorting _currentSorting = null;
     protected ICollection<Sorting.Sorting> _availableSortings = null;
+    protected LayoutType _layoutType = LayoutType.ListLayout;
+    protected LayoutSize _layoutSize = LayoutSize.Small;
 
     #endregion
 
@@ -79,7 +84,7 @@ namespace MediaPortal.UiComponents.Media.Models
     public NavigationData(NavigationData parent, string navigationContextName, Guid parentWorkflowStateId, Guid currentWorkflowStateId,
         ViewSpecification baseViewSpecification, AbstractScreenData defaultScreen, ICollection<AbstractScreenData> availableScreens,
         Sorting.Sorting currentSorting) :
-        this(parent, navigationContextName, parentWorkflowStateId, currentWorkflowStateId, baseViewSpecification, defaultScreen, availableScreens,
+      this(parent, navigationContextName, parentWorkflowStateId, currentWorkflowStateId, baseViewSpecification, defaultScreen, availableScreens,
         currentSorting, false) { }
 
     // If the suppressActions parameter is set to <c>true</c>, no actions will be built. Instead, they will be inherited from
@@ -154,6 +159,7 @@ namespace MediaPortal.UiComponents.Media.Models
         AbstractScreenData screenData = _currentScreenData;
         if (screenData != null)
           screenData.UpdateItems();
+        SaveLayoutSettings();
       }
     }
 
@@ -190,6 +196,32 @@ namespace MediaPortal.UiComponents.Media.Models
     }
 
     /// <summary>
+    /// Gets the <see cref="LayoutType"/> associated with current navigation data.
+    /// </summary>
+    public LayoutType LayoutType
+    {
+      get { return _layoutType; }
+      internal set
+      {
+        _layoutType = value;
+        SaveLayoutSettings();
+      }
+    }
+
+    /// <summary>
+    /// Gets the <see cref="LayoutSize"/> associated with current navigation data.
+    /// </summary>
+    public LayoutSize LayoutSize
+    {
+      get { return _layoutSize; }
+      internal set
+      {
+        _layoutSize = value;
+        SaveLayoutSettings();
+      }
+    }
+
+    /// <summary>
     /// Releases resources which are needed by the current screen.
     /// </summary>
     public void Disable()
@@ -203,6 +235,7 @@ namespace MediaPortal.UiComponents.Media.Models
     public void Enable()
     {
       _currentScreenData.CreateScreenData(this);
+      UpdateLayout();
     }
 
     /// <summary>
@@ -243,20 +276,78 @@ namespace MediaPortal.UiComponents.Media.Models
     /// presenting the result of a filter, where the menu must be changed.
     /// </summary>
     /// <param name="subViewSpecification">Specification for the sub view to be shown in the new navigation context.</param>
-    /// <param name="remainingScreens">New collection of remaining available screens.</param>
+    /// <param name="currentMenuItemLabel">Current menu item label needed for distinction of available screens.</param>
     /// <param name="navbarDisplayLabel">Display label to be shown in the navigation bar for the new navigation context.</param>
     /// <returns>Newly created navigation data.</returns>
-    public NavigationData StackAutonomousNavigationContext(ViewSpecification subViewSpecification,
-        ICollection<AbstractScreenData> remainingScreens, string navbarDisplayLabel)
+    public NavigationData StackAutonomousNavigationContext(ViewSpecification subViewSpecification, string currentMenuItemLabel, string navbarDisplayLabel)
     {
+      AbstractScreenData currentScreen = AvailableScreens.FirstOrDefault(screen => screen.MenuItemLabel == currentMenuItemLabel);
+      ICollection<AbstractScreenData> remainingScreens = new List<AbstractScreenData>(AvailableScreens.Where(screen => screen != currentScreen));
+
       WorkflowState newState = WorkflowState.CreateTransientState(
           "View: " + subViewSpecification.ViewDisplayName, subViewSpecification.ViewDisplayName,
           false, null, false, WorkflowType.Workflow);
+
+      string nextScreenName;
+      AbstractScreenData nextScreen = null;
+
+      // Try to load the prefered next screen from settings.
+      if (LoadScreenHierarchy(CurrentScreenData.GetType().ToString(), out nextScreenName))
+        nextScreen = remainingScreens.FirstOrDefault(s => s.GetType().ToString() == nextScreenName);
+
+      // Default way: always take the first of the available screens.
+      if (nextScreen == null)
+        nextScreen = remainingScreens.First(s => s != currentScreen);
+
+      ScreenConfig nextScreenConfig;
+      LoadLayoutSettings(nextScreen.GetType().ToString(), out nextScreenConfig);
+
+      Sorting.Sorting nextSortingMode = AvailableSortings.FirstOrDefault(sorting => sorting.GetType().ToString() == nextScreenConfig.Sorting) ?? _currentSorting;
+
       NavigationData newNavigationData = new NavigationData(this, subViewSpecification.ViewDisplayName,
-          newState.StateId, newState.StateId, subViewSpecification, remainingScreens.FirstOrDefault(), remainingScreens,
-          _currentSorting);
+          newState.StateId, newState.StateId, subViewSpecification, nextScreen, remainingScreens,
+          nextSortingMode) { LayoutType = nextScreenConfig.LayoutType, LayoutSize = nextScreenConfig .LayoutSize };
       PushNewNavigationWorkflowState(newState, navbarDisplayLabel, newNavigationData);
       return newNavigationData;
+    }
+
+    private void UpdateLayout()
+    {
+      IWorkflowManager workflowManager = ServiceRegistration.Get<IWorkflowManager>();
+      ViewModeModel vm = workflowManager.GetModel(ViewModeModel.VM_MODEL_ID) as ViewModeModel;
+      if (vm != null)
+        vm.Update();
+    }
+
+    private void SaveLayoutSettings()
+    {
+      ViewSettings viewSettings = ServiceRegistration.Get<ISettingsManager>().Load<ViewSettings>();
+      viewSettings.ScreenConfigs[CurrentScreenData.GetType().ToString()] = new ScreenConfig
+      {
+        Sorting = CurrentSorting.GetType().ToString(),
+        LayoutSize = LayoutSize,
+        LayoutType = LayoutType
+      };
+      ServiceRegistration.Get<ISettingsManager>().Save(viewSettings);
+    }
+
+    private bool LoadLayoutSettings(string nextScreen, out ScreenConfig screenConfig)
+    {
+      ViewSettings viewSettings = ServiceRegistration.Get<ISettingsManager>().Load<ViewSettings>();
+      return viewSettings.ScreenConfigs.TryGetValue(nextScreen, out screenConfig);
+    }
+
+    private bool LoadScreenHierarchy(string currentScreen, out string nextScreen)
+    {
+      ViewSettings viewSettings = ServiceRegistration.Get<ISettingsManager>().Load<ViewSettings>();
+      return viewSettings.ScreenHierarchy.TryGetValue(currentScreen, out nextScreen);
+    }
+
+    private void SaveScreenHierarchy(string currentScreen, string nextScreen)
+    {
+      ViewSettings viewSettings = ServiceRegistration.Get<ISettingsManager>().Load<ViewSettings>();
+      viewSettings.ScreenHierarchy[currentScreen] = nextScreen;
+      ServiceRegistration.Get<ISettingsManager>().Save(viewSettings);
     }
 
     protected static void PushNewNavigationWorkflowState(WorkflowState newState, string navbarDisplayLabel, NavigationData newNavigationData)
@@ -280,11 +371,15 @@ namespace MediaPortal.UiComponents.Media.Models
       {
         AbstractScreenData newScreen = screen; // Necessary to be used in closure
         WorkflowAction action = new MethodDelegateAction(Guid.NewGuid(),
-            _navigationContextName + "->" + newScreen.MenuItemLabel, new Guid[] {_currentWorkflowStateId},
+            _navigationContextName + "->" + newScreen.MenuItemLabel, new Guid[] { _currentWorkflowStateId },
             LocalizationHelper.CreateResourceString(newScreen.MenuItemLabel), () =>
               {
                 _currentScreenData.ReleaseScreenData();
                 _currentScreenData = newScreen;
+
+                string parent = Parent == null ? string.Empty: Parent.CurrentScreenData.GetType().ToString();
+                SaveScreenHierarchy(parent, newScreen.GetType().ToString());
+
                 IWorkflowManager workflowManager = ServiceRegistration.Get<IWorkflowManager>();
                 // The last screen could have stepped into a deeper media navigation context when it had produced
                 // sub views. So we first have to revert our workflow to the base workflow id before moving to the new screen.
@@ -298,8 +393,8 @@ namespace MediaPortal.UiComponents.Media.Models
                   workflowManager.NavigatePopToState(_baseWorkflowStateId, false);
               })
           {
-              DisplayCategory = Consts.FILTERS_WORKFLOW_CATEGORY,
-              SortOrder = ct++.ToString(), // Sort in the order we have built up the filters
+            DisplayCategory = Consts.FILTERS_WORKFLOW_CATEGORY,
+            SortOrder = ct++.ToString(), // Sort in the order we have built up the filters
           };
         _dynamicWorkflowActions.Add(action);
       }

@@ -33,61 +33,53 @@ using MediaPortal.UiComponents.Media.Views;
 
 namespace MediaPortal.UiComponents.Media.Models.NavigationModel
 {
-  class MoviesNavigation : IMediaNavigationInitializer
+  class ImagesNavigationInitializer : IMediaNavigationInitializer
   {
     public string MediaNavigationMode
     {
-      get { return Models.MediaNavigationMode.Movies; }
+      get { return Models.MediaNavigationMode.Images; }
     }
 
     public Guid MediaNavigationRootState
     {
-      get { return Consts.WF_STATE_ID_MOVIES_NAVIGATION_ROOT; }
+      get { return Consts.WF_STATE_ID_IMAGES_NAVIGATION_ROOT; }
     }
 
     public void InitMediaNavigation(out string mediaNavigationMode, out NavigationData navigationData)
     {
       IEnumerable<Guid> skinDependentOptionalMIATypeIDs = MediaNavigationModel.GetMediaSkinOptionalMIATypes(MediaNavigationMode);
-      AbstractItemsScreenData.PlayableItemCreatorDelegate picd = mi => new MovieItem(mi)
+      AbstractItemsScreenData.PlayableItemCreatorDelegate picd = mi => new ImageItem(mi)
       {
         Command = new MethodDelegateCommand(() => PlayItemsModel.CheckQueryPlayAction(mi))
       };
-      ViewSpecification rootViewSpecification = new MediaLibraryQueryViewSpecification(Consts.RES_MOVIES_VIEW_NAME,
-        null, Consts.NECESSARY_MOVIES_MIAS, skinDependentOptionalMIATypeIDs, true)
+      ViewSpecification rootViewSpecification = new MediaLibraryQueryViewSpecification(Consts.RES_IMAGES_VIEW_NAME,
+        null, Consts.NECESSARY_IMAGE_MIAS, skinDependentOptionalMIATypeIDs, true)
       {
         MaxNumItems = Consts.MAX_NUM_ITEMS_VISIBLE
       };
-      AbstractScreenData filterByGenre = new VideosFilterByGenreScreenData();
+      AbstractScreenData filterByYear = new ImagesFilterByYearScreenData();
       ICollection<AbstractScreenData> availableScreens = new List<AbstractScreenData>
         {
-          new MoviesShowItemsScreenData(picd),
-          new MovieFilterByCollectionScreenData(),
-          new VideosFilterByActorScreenData(),
-          new VideosFilterByDirectorScreenData(),
-          new VideosFilterByWriterScreenData(),
-          filterByGenre,
+          new ImagesShowItemsScreenData(picd),
+          filterByYear,
           // C# doesn't like it to have an assignment inside a collection initializer
-          new VideosFilterByYearScreenData(),
-          new VideosFilterBySystemScreenData(),
-          new VideosSimpleSearchScreenData(picd),
+          new ImagesFilterByCountryScreenData(),
+          new ImagesFilterByStateScreenData(),
+          new ImagesFilterByCityScreenData(),
+          new ImagesFilterBySizeScreenData(),
+          new ImagesFilterBySystemScreenData(),
+          new ImagesSimpleSearchScreenData(picd),
         };
-      Sorting.Sorting sortByTitle = new SortByTitle();
+      Sorting.Sorting sortByYear = new SortByYear();
       ICollection<Sorting.Sorting> availableSortings = new List<Sorting.Sorting>
         {
-          sortByTitle,
           new SortByYear(),
-          new VideoSortByFirstGenre(),
-          new VideoSortByDuration(),
-          new VideoSortByFirstActor(),
-          new VideoSortByFirstDirector(),
-          new VideoSortByFirstWriter(),
-          new VideoSortBySize(),
-          new VideoSortByAspectRatio(),
+          new SortByTitle(),
+          new ImageSortBySize(),
           new SortBySystem(),
         };
-
-      navigationData = new NavigationData(null, Consts.RES_MOVIES_VIEW_NAME, MediaNavigationRootState,
-        MediaNavigationRootState, rootViewSpecification, filterByGenre, availableScreens, sortByTitle)
+      navigationData = new NavigationData(null, Consts.RES_IMAGES_VIEW_NAME, MediaNavigationRootState,
+        MediaNavigationRootState, rootViewSpecification, filterByYear, availableScreens, sortByYear)
       {
         AvailableSortings = availableSortings
       };

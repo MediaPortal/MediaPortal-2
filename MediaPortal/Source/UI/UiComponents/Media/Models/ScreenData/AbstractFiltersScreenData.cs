@@ -159,8 +159,6 @@ namespace MediaPortal.UiComponents.Media.Models.ScreenData
             // So we need an equality criterion when the screen to be removed is equal to this screen in terms of its
             // filter criterion. But with the given data, we actually cannot derive that equality.
             // So we simply use the MenuItemLabel, which should be the same in this and the base screen of the same filter.
-            ICollection<AbstractScreenData> remainingScreens = new List<AbstractScreenData>(
-                _navigationData.AvailableScreens.Where(screen => screen.MenuItemLabel != MenuItemLabel));
             foreach (FilterValue filterValue in fv)
             {
               string filterTitle = filterValue.Title;
@@ -170,7 +168,9 @@ namespace MediaPortal.UiComponents.Media.Models.ScreenData
               {
                 SimpleTitle = filterTitle,
                 NumItems = filterValue.NumItems,
-                Command = grouping ? new MethodDelegateCommand(() => NavigateToGroup(subVS, selectAttributeFilter)) : new MethodDelegateCommand(() => NavigateToSubView(subVS, remainingScreens))
+                Command = grouping ? 
+                  new MethodDelegateCommand(() => NavigateToGroup(subVS, selectAttributeFilter)) :
+                  new MethodDelegateCommand(() => NavigateToSubView(subVS))
               };
               items.Add(filterValueItem);
               if (filterValue.NumItems.HasValue)
@@ -221,9 +221,9 @@ namespace MediaPortal.UiComponents.Media.Models.ScreenData
       _navigationData.StackSubordinateNavigationContext(subViewSpecification, childScreenData, GetNavbarDisplayLabel(subViewSpecification));
     }
 
-    protected void NavigateToSubView(ViewSpecification subViewSpecification, ICollection<AbstractScreenData> remainingScreens)
+    protected void NavigateToSubView(ViewSpecification subViewSpecification)
     {
-      _navigationData.StackAutonomousNavigationContext(subViewSpecification, remainingScreens, GetNavbarDisplayLabel(subViewSpecification));
+      _navigationData.StackAutonomousNavigationContext(subViewSpecification, MenuItemLabel, GetNavbarDisplayLabel(subViewSpecification));
     }
   }
 }

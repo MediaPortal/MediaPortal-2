@@ -33,53 +33,52 @@ using MediaPortal.UiComponents.Media.Views;
 
 namespace MediaPortal.UiComponents.Media.Models.NavigationModel
 {
-  class ImagesNavigation : IMediaNavigationInitializer
+  class SeriesNavigationInitializer : IMediaNavigationInitializer
   {
     public string MediaNavigationMode
     {
-      get { return Models.MediaNavigationMode.Images; }
+      get { return Models.MediaNavigationMode.Series; }
     }
 
     public Guid MediaNavigationRootState
     {
-      get { return Consts.WF_STATE_ID_IMAGES_NAVIGATION_ROOT; }
+      get { return Consts.WF_STATE_ID_SERIES_NAVIGATION_ROOT; }
     }
 
     public void InitMediaNavigation(out string mediaNavigationMode, out NavigationData navigationData)
     {
       IEnumerable<Guid> skinDependentOptionalMIATypeIDs = MediaNavigationModel.GetMediaSkinOptionalMIATypes(MediaNavigationMode);
-      AbstractItemsScreenData.PlayableItemCreatorDelegate picd = mi => new ImageItem(mi)
+      AbstractItemsScreenData.PlayableItemCreatorDelegate picd = mi => new SeriesItem(mi)
       {
         Command = new MethodDelegateCommand(() => PlayItemsModel.CheckQueryPlayAction(mi))
       };
-      ViewSpecification rootViewSpecification = new MediaLibraryQueryViewSpecification(Consts.RES_IMAGES_VIEW_NAME,
-        null, Consts.NECESSARY_IMAGE_MIAS, skinDependentOptionalMIATypeIDs, true)
+      ViewSpecification rootViewSpecification = new MediaLibraryQueryViewSpecification(Consts.RES_SERIES_VIEW_NAME,
+        null, Consts.NECESSARY_SERIES_MIAS, skinDependentOptionalMIATypeIDs, true)
       {
         MaxNumItems = Consts.MAX_NUM_ITEMS_VISIBLE
       };
-      AbstractScreenData filterByYear = new ImagesFilterByYearScreenData();
+      AbstractScreenData filterBySeries = new SeriesFilterByNameScreenData();
       ICollection<AbstractScreenData> availableScreens = new List<AbstractScreenData>
         {
-          new ImagesShowItemsScreenData(picd),
-          filterByYear,
           // C# doesn't like it to have an assignment inside a collection initializer
-          new ImagesFilterByCountryScreenData(),
-          new ImagesFilterByStateScreenData(),
-          new ImagesFilterByCityScreenData(),
-          new ImagesFilterBySizeScreenData(),
-          new ImagesFilterBySystemScreenData(),
-          new ImagesSimpleSearchScreenData(picd),
+          filterBySeries,
+          new SeriesFilterBySeasonScreenData(),
+          new SeriesShowItemsScreenData(picd),
+          new VideosFilterByLanguageScreenData(),
+          new VideosFilterByGenreScreenData(),
+          new VideosSimpleSearchScreenData(picd),
         };
-      Sorting.Sorting sortByYear = new SortByYear();
+      Sorting.Sorting sortByEpisode = new SeriesSortByEpisode();
       ICollection<Sorting.Sorting> availableSortings = new List<Sorting.Sorting>
         {
-          new SortByYear(),
+          sortByEpisode,
           new SortByTitle(),
-          new ImageSortBySize(),
+          new SortByFirstAiredDate(),
+          new SortByDate(),
           new SortBySystem(),
         };
-      navigationData = new NavigationData(null, Consts.RES_IMAGES_VIEW_NAME, MediaNavigationRootState,
-        MediaNavigationRootState, rootViewSpecification, filterByYear, availableScreens, sortByYear)
+      navigationData = new NavigationData(null, Consts.RES_SERIES_VIEW_NAME, MediaNavigationRootState,
+        MediaNavigationRootState, rootViewSpecification, filterBySeries, availableScreens, sortByEpisode)
       {
         AvailableSortings = availableSortings
       };

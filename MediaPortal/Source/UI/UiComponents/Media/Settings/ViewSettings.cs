@@ -23,6 +23,7 @@
 #endregion
 
 using MediaPortal.Common.Settings;
+using MediaPortal.Utilities.Xml;
 
 namespace MediaPortal.UiComponents.Media.Settings
 {
@@ -41,26 +42,28 @@ namespace MediaPortal.UiComponents.Media.Settings
     Large,
   }
 
+  public struct ScreenConfig
+  {
+    public string Sorting { get; set; }
+    public LayoutType LayoutType { get; set; }
+    public LayoutSize LayoutSize { get; set; }
+  }
+
   public class ViewSettings
   {
-    protected const LayoutType DEFAULT_LAYOUT_TYPE = LayoutType.ListLayout;
-    protected const LayoutSize DEFAULT_LAYOUT_SIZE = LayoutSize.Small;
+    public const LayoutType DEFAULT_LAYOUT_TYPE = LayoutType.ListLayout;
+    public const LayoutSize DEFAULT_LAYOUT_SIZE = LayoutSize.Small;
 
-    protected LayoutType _layoutType = DEFAULT_LAYOUT_TYPE;
-    protected LayoutSize _layoutSize = DEFAULT_LAYOUT_SIZE;
-
-    [Setting(SettingScope.User, 1)]
-    public LayoutType LayoutType
+    public ViewSettings()
     {
-      get { return _layoutType; }
-      set { _layoutType = value; }
+      ScreenConfigs = new SerializableDictionary<string, ScreenConfig>();
+      ScreenHierarchy = new SerializableDictionary<string, string>();
     }
 
-    [Setting(SettingScope.User, 1)]
-    public LayoutSize LayoutSize
-    {
-      get { return _layoutSize; }
-      set { _layoutSize = value; }
-    }
+    [Setting(SettingScope.User)]
+    public SerializableDictionary<string, ScreenConfig> ScreenConfigs { get; set; }
+
+    [Setting(SettingScope.User)]
+    public SerializableDictionary<string, string> ScreenHierarchy { get; set; }
   }
 }

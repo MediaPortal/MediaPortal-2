@@ -87,16 +87,16 @@ namespace MediaPortal.UiComponents.Media.Models
 
     #region Constructor
 
-    static MediaNavigationModel ()
+    static MediaNavigationModel()
     {
       // Initializes the list of inbuilt IMediaNavigationInitializers.
       new List<IMediaNavigationInitializer>
       {
-        new VideosNavigation(),
-        new AudioNavigation(),
-        new ImagesNavigation(),
-        new SeriesNavigation(),
-        new MoviesNavigation(),
+        new VideosNavigationInitializer(),
+        new AudioNavigationInitializer(),
+        new ImagesNavigationInitializer(),
+        new SeriesNavigationInitializer(),
+        new MoviesNavigationInitializer(),
       }.ForEach(i => _initializers[i.MediaNavigationRootState] = i);
     }
 
@@ -342,17 +342,17 @@ namespace MediaPortal.UiComponents.Media.Models
             if (mi.Aspects.ContainsKey(AudioAspect.ASPECT_ID))
               return new AudioItem(mi)
                 {
-                    Command = new MethodDelegateCommand(() => PlayItemsModel.CheckQueryPlayAction(mi))
+                  Command = new MethodDelegateCommand(() => PlayItemsModel.CheckQueryPlayAction(mi))
                 };
             if (mi.Aspects.ContainsKey(VideoAspect.ASPECT_ID))
               return new VideoItem(mi)
                 {
-                    Command = new MethodDelegateCommand(() => PlayItemsModel.CheckQueryPlayAction(mi))
+                  Command = new MethodDelegateCommand(() => PlayItemsModel.CheckQueryPlayAction(mi))
                 };
             if (mi.Aspects.ContainsKey(ImageAspect.ASPECT_ID))
               return new ImageItem(mi)
                 {
-                    Command = new MethodDelegateCommand(() => PlayItemsModel.CheckQueryPlayAction(mi))
+                  Command = new MethodDelegateCommand(() => PlayItemsModel.CheckQueryPlayAction(mi))
                 };
             return null;
           };
@@ -386,7 +386,7 @@ namespace MediaPortal.UiComponents.Media.Models
         navigationData = new NavigationData(null, viewName, workflowStateId,
             workflowStateId, rootViewSpecification, screenData, null, browseDefaultSorting)
           {
-              AvailableSortings = availableSortings
+            AvailableSortings = availableSortings
           };
       }
       result.Add(Consts.KEY_NAVIGATION_MODE, mode);
@@ -406,7 +406,7 @@ namespace MediaPortal.UiComponents.Media.Models
         return;
       // Initialize root media navigation state. We will set up all sub processes for each media model "part", i.e.
       // audio, videos, images, browse local media and browse media library.
-      IDictionary<string, object > contextVariables = PrepareRootState(context.WorkflowState.StateId);
+      IDictionary<string, object> contextVariables = PrepareRootState(context.WorkflowState.StateId);
       foreach (KeyValuePair<string, object> variable in contextVariables)
         context.SetContextVariable(variable.Key, variable.Value);
     }
