@@ -22,67 +22,47 @@
 
 #endregion
 
-using System;
 using System.Collections.Generic;
 using MediaPortal.Common.Commands;
 using MediaPortal.UiComponents.Media.General;
 using MediaPortal.UiComponents.Media.Models.Navigation;
 using MediaPortal.UiComponents.Media.Models.ScreenData;
 using MediaPortal.UiComponents.Media.Models.Sorting;
-using MediaPortal.UiComponents.Media.Views;
 
 namespace MediaPortal.UiComponents.Media.Models.NavigationModel
 {
-  class SeriesNavigationInitializer : IMediaNavigationInitializer
+  class SeriesNavigationInitializer : BaseNavigationInitializer
   {
-    public string MediaNavigationMode
+    public SeriesNavigationInitializer()
     {
-      get { return Models.MediaNavigationMode.Series; }
-    }
+      _mediaNavigationMode = Models.MediaNavigationMode.Series;
+      _mediaNavigationRootState = Consts.WF_STATE_ID_SERIES_NAVIGATION_ROOT;
+      _viewName = Consts.RES_SERIES_VIEW_NAME;
+      _necessaryMias = Consts.NECESSARY_SERIES_MIAS;
 
-    public Guid MediaNavigationRootState
-    {
-      get { return Consts.WF_STATE_ID_SERIES_NAVIGATION_ROOT; }
-    }
+      AbstractItemsScreenData.PlayableItemCreatorDelegate picd = mi => new SeriesItem(mi) { Command = new MethodDelegateCommand(() => PlayItemsModel.CheckQueryPlayAction(mi)) };
 
-    public void InitMediaNavigation(out string mediaNavigationMode, out NavigationData navigationData)
-    {
-      IEnumerable<Guid> skinDependentOptionalMIATypeIDs = MediaNavigationModel.GetMediaSkinOptionalMIATypes(MediaNavigationMode);
-      AbstractItemsScreenData.PlayableItemCreatorDelegate picd = mi => new SeriesItem(mi)
-      {
-        Command = new MethodDelegateCommand(() => PlayItemsModel.CheckQueryPlayAction(mi))
-      };
-      ViewSpecification rootViewSpecification = new MediaLibraryQueryViewSpecification(Consts.RES_SERIES_VIEW_NAME,
-        null, Consts.NECESSARY_SERIES_MIAS, skinDependentOptionalMIATypeIDs, true)
-      {
-        MaxNumItems = Consts.MAX_NUM_ITEMS_VISIBLE
-      };
-      AbstractScreenData filterBySeries = new SeriesFilterByNameScreenData();
-      ICollection<AbstractScreenData> availableScreens = new List<AbstractScreenData>
+      _defaultScreen = new SeriesFilterByNameScreenData();
+      _availableScreens = new List<AbstractScreenData>
         {
           // C# doesn't like it to have an assignment inside a collection initializer
-          filterBySeries,
+          _defaultScreen,
           new SeriesFilterBySeasonScreenData(),
           new SeriesShowItemsScreenData(picd),
           new VideosFilterByLanguageScreenData(),
           new VideosFilterByGenreScreenData(),
           new VideosSimpleSearchScreenData(picd),
         };
-      Sorting.Sorting sortByEpisode = new SeriesSortByEpisode();
-      ICollection<Sorting.Sorting> availableSortings = new List<Sorting.Sorting>
+
+      _defaultSorting = new SeriesSortByEpisode();
+      _availableSortings = new List<Sorting.Sorting>
         {
-          sortByEpisode,
+          _defaultSorting,
           new SortByTitle(),
           new SortByFirstAiredDate(),
           new SortByDate(),
           new SortBySystem(),
         };
-      navigationData = new NavigationData(null, Consts.RES_SERIES_VIEW_NAME, MediaNavigationRootState,
-        MediaNavigationRootState, rootViewSpecification, filterBySeries, availableScreens, sortByEpisode)
-      {
-        AvailableSortings = availableSortings
-      };
-      mediaNavigationMode = MediaNavigationMode;
     }
   }
 }

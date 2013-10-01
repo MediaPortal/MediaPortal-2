@@ -22,59 +22,44 @@
 
 #endregion
 
-using System;
 using System.Collections.Generic;
 using MediaPortal.Common.Commands;
 using MediaPortal.UiComponents.Media.General;
 using MediaPortal.UiComponents.Media.Models.Navigation;
 using MediaPortal.UiComponents.Media.Models.ScreenData;
 using MediaPortal.UiComponents.Media.Models.Sorting;
-using MediaPortal.UiComponents.Media.Views;
 
 namespace MediaPortal.UiComponents.Media.Models.NavigationModel
 {
-  class MoviesNavigationInitializer : IMediaNavigationInitializer
+  class MoviesNavigationInitializer : BaseNavigationInitializer
   {
-    public string MediaNavigationMode
+    public MoviesNavigationInitializer()
     {
-      get { return Models.MediaNavigationMode.Movies; }
-    }
+      _mediaNavigationMode = Models.MediaNavigationMode.Movies;
+      _mediaNavigationRootState = Consts.WF_STATE_ID_MOVIES_NAVIGATION_ROOT;
+      _viewName = Consts.RES_MOVIES_VIEW_NAME;
+      _necessaryMias = Consts.NECESSARY_MOVIES_MIAS;
 
-    public Guid MediaNavigationRootState
-    {
-      get { return Consts.WF_STATE_ID_MOVIES_NAVIGATION_ROOT; }
-    }
+      AbstractItemsScreenData.PlayableItemCreatorDelegate picd = mi => new MovieItem(mi) { Command = new MethodDelegateCommand(() => PlayItemsModel.CheckQueryPlayAction(mi)) };
 
-    public void InitMediaNavigation(out string mediaNavigationMode, out NavigationData navigationData)
-    {
-      IEnumerable<Guid> skinDependentOptionalMIATypeIDs = MediaNavigationModel.GetMediaSkinOptionalMIATypes(MediaNavigationMode);
-      AbstractItemsScreenData.PlayableItemCreatorDelegate picd = mi => new MovieItem(mi)
-      {
-        Command = new MethodDelegateCommand(() => PlayItemsModel.CheckQueryPlayAction(mi))
-      };
-      ViewSpecification rootViewSpecification = new MediaLibraryQueryViewSpecification(Consts.RES_MOVIES_VIEW_NAME,
-        null, Consts.NECESSARY_MOVIES_MIAS, skinDependentOptionalMIATypeIDs, true)
-      {
-        MaxNumItems = Consts.MAX_NUM_ITEMS_VISIBLE
-      };
-      AbstractScreenData filterByGenre = new VideosFilterByGenreScreenData();
-      ICollection<AbstractScreenData> availableScreens = new List<AbstractScreenData>
+      _defaultScreen = new VideosFilterByGenreScreenData();
+      _availableScreens = new List<AbstractScreenData>
         {
           new MoviesShowItemsScreenData(picd),
           new MovieFilterByCollectionScreenData(),
           new VideosFilterByActorScreenData(),
           new VideosFilterByDirectorScreenData(),
           new VideosFilterByWriterScreenData(),
-          filterByGenre,
-          // C# doesn't like it to have an assignment inside a collection initializer
+          _defaultScreen,
           new VideosFilterByYearScreenData(),
           new VideosFilterBySystemScreenData(),
           new VideosSimpleSearchScreenData(picd),
         };
-      Sorting.Sorting sortByTitle = new SortByTitle();
-      ICollection<Sorting.Sorting> availableSortings = new List<Sorting.Sorting>
+
+      _defaultSorting = new SortByTitle();
+      _availableSortings = new List<Sorting.Sorting>
         {
-          sortByTitle,
+          _defaultSorting,
           new SortByYear(),
           new VideoSortByFirstGenre(),
           new VideoSortByDuration(),
@@ -85,13 +70,6 @@ namespace MediaPortal.UiComponents.Media.Models.NavigationModel
           new VideoSortByAspectRatio(),
           new SortBySystem(),
         };
-
-      navigationData = new NavigationData(null, Consts.RES_MOVIES_VIEW_NAME, MediaNavigationRootState,
-        MediaNavigationRootState, rootViewSpecification, filterByGenre, availableScreens, sortByTitle)
-      {
-        AvailableSortings = availableSortings
-      };
-      mediaNavigationMode = MediaNavigationMode;
     }
   }
 }

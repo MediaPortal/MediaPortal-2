@@ -22,47 +22,31 @@
 
 #endregion
 
-using System;
 using System.Collections.Generic;
 using MediaPortal.Common.Commands;
 using MediaPortal.UiComponents.Media.General;
 using MediaPortal.UiComponents.Media.Models.Navigation;
 using MediaPortal.UiComponents.Media.Models.ScreenData;
 using MediaPortal.UiComponents.Media.Models.Sorting;
-using MediaPortal.UiComponents.Media.Views;
 
 namespace MediaPortal.UiComponents.Media.Models.NavigationModel
 {
-  class ImagesNavigationInitializer : IMediaNavigationInitializer
+  class ImagesNavigationInitializer : BaseNavigationInitializer
   {
-    public string MediaNavigationMode
+    public ImagesNavigationInitializer()
     {
-      get { return Models.MediaNavigationMode.Images; }
-    }
+      _mediaNavigationMode = Models.MediaNavigationMode.Images;
+      _mediaNavigationRootState = Consts.WF_STATE_ID_IMAGES_NAVIGATION_ROOT;
+      _viewName = Consts.RES_IMAGES_VIEW_NAME;
+      _necessaryMias = Consts.NECESSARY_IMAGE_MIAS;
 
-    public Guid MediaNavigationRootState
-    {
-      get { return Consts.WF_STATE_ID_IMAGES_NAVIGATION_ROOT; }
-    }
+      AbstractItemsScreenData.PlayableItemCreatorDelegate picd = mi => new ImageItem(mi) { Command = new MethodDelegateCommand(() => PlayItemsModel.CheckQueryPlayAction(mi)) };
 
-    public void InitMediaNavigation(out string mediaNavigationMode, out NavigationData navigationData)
-    {
-      IEnumerable<Guid> skinDependentOptionalMIATypeIDs = MediaNavigationModel.GetMediaSkinOptionalMIATypes(MediaNavigationMode);
-      AbstractItemsScreenData.PlayableItemCreatorDelegate picd = mi => new ImageItem(mi)
-      {
-        Command = new MethodDelegateCommand(() => PlayItemsModel.CheckQueryPlayAction(mi))
-      };
-      ViewSpecification rootViewSpecification = new MediaLibraryQueryViewSpecification(Consts.RES_IMAGES_VIEW_NAME,
-        null, Consts.NECESSARY_IMAGE_MIAS, skinDependentOptionalMIATypeIDs, true)
-      {
-        MaxNumItems = Consts.MAX_NUM_ITEMS_VISIBLE
-      };
-      AbstractScreenData filterByYear = new ImagesFilterByYearScreenData();
-      ICollection<AbstractScreenData> availableScreens = new List<AbstractScreenData>
+      _defaultScreen = new ImagesFilterByYearScreenData();
+      _availableScreens = new List<AbstractScreenData>
         {
           new ImagesShowItemsScreenData(picd),
-          filterByYear,
-          // C# doesn't like it to have an assignment inside a collection initializer
+          _defaultScreen,
           new ImagesFilterByCountryScreenData(),
           new ImagesFilterByStateScreenData(),
           new ImagesFilterByCityScreenData(),
@@ -70,20 +54,15 @@ namespace MediaPortal.UiComponents.Media.Models.NavigationModel
           new ImagesFilterBySystemScreenData(),
           new ImagesSimpleSearchScreenData(picd),
         };
-      Sorting.Sorting sortByYear = new SortByYear();
-      ICollection<Sorting.Sorting> availableSortings = new List<Sorting.Sorting>
+
+      _defaultSorting = new SortByYear();
+      _availableSortings = new List<Sorting.Sorting>
         {
-          new SortByYear(),
+          _defaultSorting,
           new SortByTitle(),
           new ImageSortBySize(),
           new SortBySystem(),
         };
-      navigationData = new NavigationData(null, Consts.RES_IMAGES_VIEW_NAME, MediaNavigationRootState,
-        MediaNavigationRootState, rootViewSpecification, filterByYear, availableScreens, sortByYear)
-      {
-        AvailableSortings = availableSortings
-      };
-      mediaNavigationMode = MediaNavigationMode;
     }
   }
 }

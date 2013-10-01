@@ -22,58 +22,43 @@
 
 #endregion
 
-using System;
 using System.Collections.Generic;
 using MediaPortal.Common.Commands;
 using MediaPortal.UiComponents.Media.General;
 using MediaPortal.UiComponents.Media.Models.Navigation;
 using MediaPortal.UiComponents.Media.Models.ScreenData;
 using MediaPortal.UiComponents.Media.Models.Sorting;
-using MediaPortal.UiComponents.Media.Views;
 
 namespace MediaPortal.UiComponents.Media.Models.NavigationModel
 {
-  class AudioNavigationInitializer : IMediaNavigationInitializer
+  class AudioNavigationInitializer : BaseNavigationInitializer
   {
-    public string MediaNavigationMode
+    public AudioNavigationInitializer()
     {
-      get { return Models.MediaNavigationMode.Audio; }
-    }
+      _mediaNavigationMode = Models.MediaNavigationMode.Audio;
+      _mediaNavigationRootState = Consts.WF_STATE_ID_AUDIO_NAVIGATION_ROOT;
+      _viewName = Consts.RES_AUDIO_VIEW_NAME;
+      _necessaryMias = Consts.NECESSARY_AUDIO_MIAS;
 
-    public Guid MediaNavigationRootState
-    {
-      get { return Consts.WF_STATE_ID_AUDIO_NAVIGATION_ROOT; }
-    }
+      AbstractItemsScreenData.PlayableItemCreatorDelegate picd = mi => new AudioItem(mi) { Command = new MethodDelegateCommand(() => PlayItemsModel.CheckQueryPlayAction(mi)) };
 
-    public void InitMediaNavigation(out string mediaNavigationMode, out NavigationData navigationData)
-    {
-      IEnumerable<Guid> skinDependentOptionalMIATypeIDs = MediaNavigationModel.GetMediaSkinOptionalMIATypes(MediaNavigationMode);
-      AbstractItemsScreenData.PlayableItemCreatorDelegate picd = mi => new AudioItem(mi)
-      {
-        Command = new MethodDelegateCommand(() => PlayItemsModel.CheckQueryPlayAction(mi))
-      };
-      ViewSpecification rootViewSpecification = new MediaLibraryQueryViewSpecification(Consts.RES_AUDIO_VIEW_NAME,
-        null, Consts.NECESSARY_AUDIO_MIAS, skinDependentOptionalMIATypeIDs, true)
-      {
-        MaxNumItems = Consts.MAX_NUM_ITEMS_VISIBLE
-      };
-      AbstractScreenData filterByArtist = new AudioFilterByArtistScreenData();
-
-      ICollection<AbstractScreenData> availableScreens = new List<AbstractScreenData>
+      _defaultScreen = new AudioFilterByArtistScreenData();
+      _availableScreens = new List<AbstractScreenData>
         {
-          new AudioShowItemsScreenData(picd),
-          filterByArtist,
           // C# doesn't like it to have an assignment inside a collection initializer
+          _defaultScreen,
           new AudioFilterByAlbumScreenData(),
+          new AudioShowItemsScreenData(picd),
           new AudioFilterByGenreScreenData(),
           new AudioFilterByDecadeScreenData(),
           new AudioFilterBySystemScreenData(),
           new AudioSimpleSearchScreenData(picd),
         };
-      Sorting.Sorting sortByAlbumTrack = new AudioSortByAlbumTrack();
-      ICollection<Sorting.Sorting> availableSortings = new List<Sorting.Sorting>
+
+      _defaultSorting = new AudioSortByAlbumTrack();
+      _availableSortings = new List<Sorting.Sorting>
         {
-          sortByAlbumTrack,
+          _defaultSorting,
           new SortByTitle(),
           new AudioSortByFirstGenre(),
           new AudioSortByFirstArtist(),
@@ -82,12 +67,6 @@ namespace MediaPortal.UiComponents.Media.Models.NavigationModel
           new SortByYear(),
           new SortBySystem(),
         };
-      navigationData = new NavigationData(null, Consts.RES_AUDIO_VIEW_NAME, MediaNavigationRootState,
-        MediaNavigationRootState, rootViewSpecification, filterByArtist, availableScreens, sortByAlbumTrack)
-      {
-        AvailableSortings = availableSortings
-      };
-      mediaNavigationMode = MediaNavigationMode;
     }
   }
 }

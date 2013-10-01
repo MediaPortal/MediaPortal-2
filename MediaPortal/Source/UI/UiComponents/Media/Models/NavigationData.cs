@@ -331,19 +331,19 @@ namespace MediaPortal.UiComponents.Media.Models
       ServiceRegistration.Get<ISettingsManager>().Save(viewSettings);
     }
 
-    private bool LoadLayoutSettings(string nextScreen, out ScreenConfig screenConfig)
+    public static bool LoadLayoutSettings(string nextScreen, out ScreenConfig screenConfig)
     {
       ViewSettings viewSettings = ServiceRegistration.Get<ISettingsManager>().Load<ViewSettings>();
       return viewSettings.ScreenConfigs.TryGetValue(nextScreen, out screenConfig);
     }
 
-    private bool LoadScreenHierarchy(string currentScreen, out string nextScreen)
+    public static bool LoadScreenHierarchy(string currentScreen, out string nextScreen)
     {
       ViewSettings viewSettings = ServiceRegistration.Get<ISettingsManager>().Load<ViewSettings>();
       return viewSettings.ScreenHierarchy.TryGetValue(currentScreen, out nextScreen);
     }
 
-    private void SaveScreenHierarchy(string currentScreen, string nextScreen)
+    public static void SaveScreenHierarchy(string currentScreen, string nextScreen)
     {
       ViewSettings viewSettings = ServiceRegistration.Get<ISettingsManager>().Load<ViewSettings>();
       viewSettings.ScreenHierarchy[currentScreen] = nextScreen;
