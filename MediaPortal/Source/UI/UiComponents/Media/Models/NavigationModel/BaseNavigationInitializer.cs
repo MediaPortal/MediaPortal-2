@@ -71,7 +71,7 @@ namespace MediaPortal.UiComponents.Media.Models.NavigationModel
       AbstractScreenData nextScreen = null;
 
       // Try to load the prefered next screen from settings.
-      if (NavigationData.LoadScreenHierarchy(string.Empty, out nextScreenName))
+      if (NavigationData.LoadScreenHierarchy(_viewName, out nextScreenName))
         nextScreen = _availableScreens.FirstOrDefault(s => s.GetType().ToString() == nextScreenName);
 
       if (nextScreen == null)

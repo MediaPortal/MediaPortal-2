@@ -30,7 +30,6 @@ using MediaPortal.Common.Localization;
 using MediaPortal.Common.Settings;
 using MediaPortal.UI.Presentation.Screens;
 using MediaPortal.UI.Presentation.Workflow;
-using MediaPortal.UiComponents.Media.Models.NavigationModel;
 using MediaPortal.UiComponents.Media.Settings;
 using MediaPortal.UiComponents.Media.Views;
 using MediaPortal.UiComponents.Media.General;
@@ -377,7 +376,7 @@ namespace MediaPortal.UiComponents.Media.Models
                 _currentScreenData.ReleaseScreenData();
                 _currentScreenData = newScreen;
 
-                string parent = Parent == null ? string.Empty: Parent.CurrentScreenData.GetType().ToString();
+                string parent = Parent == null ? _navigationContextName : Parent.CurrentScreenData.GetType().ToString();
                 SaveScreenHierarchy(parent, newScreen.GetType().ToString());
 
                 IWorkflowManager workflowManager = ServiceRegistration.Get<IWorkflowManager>();
