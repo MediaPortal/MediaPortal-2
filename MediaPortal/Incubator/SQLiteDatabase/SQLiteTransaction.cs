@@ -34,26 +34,18 @@ namespace MediaPortal.Database.SQLite
 
       #region Variables
 
-      private readonly System.Data.SQLite.SQLiteTransaction _transaction;
-      private readonly ISQLDatabase _database;
+      private System.Data.SQLite.SQLiteTransaction _transaction;
+      private readonly SQLiteDatabase _database;
       private SQLiteConnection _connection;
 
       #endregion
 
       #region Constructors/Destructors
 
-      public SQLiteTransaction(SQLiteDatabase database, string connectionString, IsolationLevel level)
+      public SQLiteTransaction(SQLiteDatabase database, IsolationLevel level)
       {
         _database = database;
-        _connection = new SQLiteConnection(connectionString);
-        _connection.Open();
-
-        // MP2's database backend uses foreign key constraints to ensure referential integrity.
-        // SQLite supports this, but it has to be enabled for each database connection by a PRAGMA command
-        // For details see http://www.sqlite.org/foreignkeys.html
-        var command = new SQLiteCommand("PRAGMA foreign_keys = ON", _connection);
-        command.ExecuteNonQuery();
-
+        _connection = _database.ConnectionPool.GetConnection();
         _transaction = _connection.BeginTransaction(level);
       }
 
@@ -63,9 +55,19 @@ namespace MediaPortal.Database.SQLite
 
       public void Dispose()
       {
+        // Dispose the System.Data.SQLite.SQLiteTransaction. If neither Commit nor Rollback was
+        // called before, the standard behaviour of System.Data.SQLite.SQLiteTransaction is to
+        // issue a Rollback during disposing.
+        if (_transaction != null)
+        {
+          _transaction.Dispose();
+          _transaction = null;
+        }
+        
+        // Return the underlying connection to the connection pool without closing it
         if (_connection != null)
         {
-          _connection.Close();
+          _database.ConnectionPool.PutConnection(_connection);
           _connection = null;
         }
       }
