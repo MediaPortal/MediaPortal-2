@@ -45,10 +45,10 @@ namespace MediaPortal.UiComponents.Media.Models.NavigationModel
       _defaultScreen = new AudioFilterByArtistScreenData();
       _availableScreens = new List<AbstractScreenData>
         {
+          new AudioShowItemsScreenData(picd),
           // C# doesn't like it to have an assignment inside a collection initializer
           _defaultScreen,
           new AudioFilterByAlbumScreenData(),
-          new AudioShowItemsScreenData(picd),
           new AudioFilterByGenreScreenData(),
           new AudioFilterByDecadeScreenData(),
           new AudioFilterBySystemScreenData(),
