@@ -67,19 +67,40 @@
     <Content Include="Skin\ApolloOne\themes\default\theme.xml" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="build.targets">
+    <Folder Include="Skin\ApolloOne\backgrounds\" />
+    <Folder Include="Skin\ApolloOne\fonts\" />
+    <Folder Include="Skin\ApolloOne\images\" />
+    <Folder Include="Skin\ApolloOne\sounds\" />
+    <Folder Include="Skin\ApolloOne\superlayers\" />
+    <Folder Include="Skin\ApolloOne\themes\default\images\" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Skin\ApolloOne\screens\master_bare.xaml" />
+    <Content Include="Skin\ApolloOne\screens\master_menu.xaml" />
+    <Content Include="Skin\ApolloOne\screens\home.xaml" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="build.targets" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Skin\ApolloOne\screens\master_homemenu.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Skin\ApolloOne\themes\default\styles\OtherControlsOverrides.xaml">
       <SubType>Designer</SubType>
     </None>
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="Skin\ApolloOne\backgrounds\" />
-    <Folder Include="Skin\ApolloOne\fonts\" />
-    <Folder Include="Skin\ApolloOne\images\" />
-    <Folder Include="Skin\ApolloOne\screens\" />
-    <Folder Include="Skin\ApolloOne\sounds\" />
-    <Folder Include="Skin\ApolloOne\superlayers\" />
-    <Folder Include="Skin\ApolloOne\themes\default\images\" />
-    <Folder Include="Skin\ApolloOne\themes\default\styles\" />
+    <Content Include="Skin\ApolloOne\themes\default\styles\ColorsOverrides.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Skin\ApolloOne\themes\default\styles\ButtonsOverrides.xaml">
+      <SubType>Designer</SubType>
+    </Content>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="build.targets" />

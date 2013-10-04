@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ResourceDictionary
+    xmlns="www.team-mediaportal.com/2008/mpf/directx"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    DependsOnStyleResources="Colors"
+    >
+  <ResourceWrapper x:Key="HomeNonFocusedColor" Resource="#6B6A6A"/>
+
+  <ResourceWrapper x:Key="FocusedButtonGradientLightColor" Resource="#FF6B94AF"/>
+
+  <ResourceWrapper x:Key="FocusedButtonGradientLighterColor" Resource="#FF959595"/>
+
+  <ResourceWrapper x:Key="FocusedButtonGradientDarkColor" Resource="#FF606060"/>
+
+  <ResourceWrapper x:Key="PressedButtonGradientLight1Color" Resource="#FFB0B0B0"/>
+
+  <ResourceWrapper x:Key="PressedButtonGradientLight2Color" Resource="#FFA0A0A0"/>
+
+  <ResourceWrapper x:Key="PressedButtonGradientDark1Color" Resource="#FF808080"/>
+
+  <ResourceWrapper x:Key="PressedButtonGradientDark2Color" Resource="#FF404040"/>
+
+  <!-- Colors and gradients used for buttons shine and OSD progress / control area -->
+  <ResourceWrapper x:Key="ShineGradientStartColor" Resource="#FFA0C0FF" />
+  <ResourceWrapper x:Key="ShineGradientEndColor" Resource="#00A0C0FF" />
+
+  <!-- Button background and effects-->
+  <ResourceWrapper x:Key="ButtonBackgroundFill" Resource="#80000000"/>
+  <ResourceWrapper x:Key="ButtonBackgroundDisabledFill" Resource="#F0101010"/>
+  <ResourceWrapper x:Key="ButtonBackgroundFocusFill" Resource="#70136D96"/>
+
+</ResourceDictionary>
