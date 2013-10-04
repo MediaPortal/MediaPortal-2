@@ -4,8 +4,8 @@ using System.Runtime.InteropServices;
 // Allgemeine Informationen über eine Assembly werden über die folgenden 
 // Attribute gesteuert. Ändern Sie diese Attributwerte, um die Informationen zu ändern,
 // die mit einer Assembly verknüpft sind.
-[assembly: AssemblyTitle("SQLCEDatabase")]
-[assembly: AssemblyDescription("SQL CE database for MediaPortal 2")]
+[assembly: AssemblyTitle("SQLiteDatabase")]
+[assembly: AssemblyDescription("SQLite database for MediaPortal 2")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
@@ -16,6 +16,6 @@ using System.Runtime.InteropServices;
 [assembly: ComVisible(false)]
 
 // Die folgende GUID bestimmt die ID der Typbibliothek, wenn dieses Projekt für COM verfügbar gemacht wird
-[assembly: Guid("dda4ae45-4e41-4ac5-ab46-eccd678d2651")]
+[assembly: Guid("8354401A-31BC-4EC0-8C0D-BEF5F145EAB8")]
 
 // Other attributes are included from VersionInfo.cs!
