@@ -67,6 +67,7 @@ Parameters which have to be accessible by a DynamicResource lookup:
         <ColumnDefinition Width="Auto"/>
         <ColumnDefinition Width="Auto"/>
       </Grid.ColumnDefinitions>
+
       <DockPanel x:Name="WindowButtonsPanel" Grid.Column="0" Grid.Row="0" LastChildFill="True" Margin="10"
           VerticalAlignment="Top" HorizontalAlignment="Left" DataContext="{Binding RelativeSource={RelativeSource Self},Path=Screen}">
         <!-- Morpheus_xx, 2013-04-27: Power menu button should be available also when not using mouse (remote, keyboard) -->
@@ -122,6 +123,7 @@ Parameters which have to be accessible by a DynamicResource lookup:
     <ListView x:Name="KeyBindingControls" DockPanel.Dock="Bottom" Style="{ThemeResource KeyBindingsListViewStyle}"
         Height="100" ItemsSource="{DynamicResource KeyBindingControls}"/>
 -->
+    <Image Source="shadow_complete.png" DockPanel.Dock="Center" />
 
     <!-- Order matters here: The client area control has to be the last control (LastChildFill) -->
     <Control x:Name="ClientArea" DockPanel.Dock="Center"

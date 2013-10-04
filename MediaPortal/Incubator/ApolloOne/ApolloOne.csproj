@@ -70,8 +70,10 @@
     <Content Include="Skin\ApolloOne\images\93442DF7-186D-42e5-A0F5-CF1493E68F49.jpg" />
     <Content Include="Skin\ApolloOne\images\A4DF2DF6-8D66-479a-9930-D7106525EB07.jpg" />
     <Content Include="Skin\ApolloOne\images\B4A9199F-6DD4-4bda-A077-DE9C081F7703.jpg" />
+    <Content Include="Skin\ApolloOne\images\Background.jpg" />
     <Content Include="Skin\ApolloOne\images\C33E39CC-910E-41C8-BFFD-9ECCD340B569.jpg" />
     <Content Include="Skin\ApolloOne\images\E00B8442-8230-4D7B-B871-6AC77755A0D5.jpg" />
+    <Content Include="Skin\ApolloOne\images\shadow_complete.png" />
     <Content Include="Skin\ApolloOne\skin.xml" />
     <Content Include="Skin\ApolloOne\themes\default\theme.xml" />
   </ItemGroup>
@@ -107,6 +109,11 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="Skin\ApolloOne\themes\default\styles\ButtonsOverrides.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Skin\ApolloOne\themes\default\styles\BrushesOverrides.xaml">
       <SubType>Designer</SubType>
     </Content>
   </ItemGroup>
