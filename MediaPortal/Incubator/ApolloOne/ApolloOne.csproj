@@ -63,13 +63,21 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="plugin.xml" />
+    <Content Include="Skin\ApolloOne\images\17D2390E-5B05-4fbd-89F6-24D60CEB427F.jpg" />
+    <Content Include="Skin\ApolloOne\images\30715D73-4205-417f-80AA-E82F0834171F.jpg" />
+    <Content Include="Skin\ApolloOne\images\30F57CBA-459C-4202-A587-09FFF5098251.jpg" />
+    <Content Include="Skin\ApolloOne\images\80D2E2CC-BAAA-4750-807B-F37714153751.jpg" />
+    <Content Include="Skin\ApolloOne\images\93442DF7-186D-42e5-A0F5-CF1493E68F49.jpg" />
+    <Content Include="Skin\ApolloOne\images\A4DF2DF6-8D66-479a-9930-D7106525EB07.jpg" />
+    <Content Include="Skin\ApolloOne\images\B4A9199F-6DD4-4bda-A077-DE9C081F7703.jpg" />
+    <Content Include="Skin\ApolloOne\images\C33E39CC-910E-41C8-BFFD-9ECCD340B569.jpg" />
+    <Content Include="Skin\ApolloOne\images\E00B8442-8230-4D7B-B871-6AC77755A0D5.jpg" />
     <Content Include="Skin\ApolloOne\skin.xml" />
     <Content Include="Skin\ApolloOne\themes\default\theme.xml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Skin\ApolloOne\backgrounds\" />
     <Folder Include="Skin\ApolloOne\fonts\" />
-    <Folder Include="Skin\ApolloOne\images\" />
     <Folder Include="Skin\ApolloOne\sounds\" />
     <Folder Include="Skin\ApolloOne\superlayers\" />
     <Folder Include="Skin\ApolloOne\themes\default\images\" />
