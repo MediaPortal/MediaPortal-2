@@ -1,0 +1,18 @@
+<Plugin
+    DescriptorVersion="1.0"
+    Name="Apollo One Skin"
+    PluginId="{AC4B8A5F-0399-40BB-91AD-55D2673929BD}"
+    Author="Wizard123,Morpheus_xx"
+    Copyright="GPL"
+    Description="Apollo One for MediaPortal 2."
+    PluginVersion="1.0">
+
+  <DependsOn>
+    <PluginReference PluginId="{5D239050-02B8-4f58-8301-7630A1C4CF85}"/> <!-- SkinBase -->
+    <PluginReference PluginId="{F6C71648-3874-4d27-9232-C41EBEDE0337}"/> <!-- BackgroundManager -->
+  </DependsOn>
+
+  <Register Location="/Resources/Skin">
+    <Resource Id="ApolloOneSkin" Directory="Skin" Type="Skin"/>
+  </Register>
+</Plugin>
