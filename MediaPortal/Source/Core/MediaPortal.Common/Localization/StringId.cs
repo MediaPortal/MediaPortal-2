@@ -157,8 +157,8 @@ namespace MediaPortal.Common.Localization
         int pos = label.IndexOf('.');
         if (pos == -1)
           return false;
-        section = label.Substring(1, pos - 1).ToLower();
-        name = label.Substring(pos + 1, label.Length - pos - 2).ToLower();
+        section = label.Substring(1, pos - 1).ToLowerInvariant();
+        name = label.Substring(pos + 1, label.Length - pos - 2).ToLowerInvariant();
         return true;
       }
       return false;
