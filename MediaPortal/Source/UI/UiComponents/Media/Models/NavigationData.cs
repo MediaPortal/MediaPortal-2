@@ -51,6 +51,7 @@ namespace MediaPortal.UiComponents.Media.Models
   {
     #region Protected properties
 
+    protected bool _initializing = true;
     protected NavigationData _parent;
     protected string _navigationContextName;
     protected Guid _currentWorkflowStateId;
@@ -322,6 +323,9 @@ namespace MediaPortal.UiComponents.Media.Models
 
     private void UpdateLayout()
     {
+      // Clear the initializing flag, so further changes to layout properties will be saved.
+      _initializing = false;
+
       IWorkflowManager workflowManager = ServiceRegistration.Get<IWorkflowManager>();
       ViewModeModel vm = workflowManager.GetModel(ViewModeModel.VM_MODEL_ID) as ViewModeModel;
       if (vm != null)
@@ -330,6 +334,10 @@ namespace MediaPortal.UiComponents.Media.Models
 
     private void SaveLayoutSettings()
     {
+      // Avoid saving changes when constructing new instances.
+      if (_initializing)
+        return;
+
       ViewSettings viewSettings = ServiceRegistration.Get<ISettingsManager>().Load<ViewSettings>();
       viewSettings.ScreenConfigs[CurrentScreenData.GetType().ToString()] = new ScreenConfig
       {
