@@ -1,21 +1,26 @@
 <?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+<Project ToolsVersion="4.0" DefaultTargets="RestoreAllPackages" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <!--
-  This file blabla...
+  This file contains MSBuild code to download all the NuGet packages for the repository before
+  actual opening and compiling a *.csproj file.
   -->
-  <Import Project="$(MSBuildProjectDirectory)\Build.tasks" />
+  <Import Project="$(MSBuildThisFileDirectory)\Build.tasks" />
 
   <PropertyGroup>
-    <ProjectRoot Condition="$(ProjectRoot) == ''">$(MSBuildProjectDirectory)\..</ProjectRoot>
-    <NuGetExePath Condition="$(NuGetExePath) == ''">$(MSBuildProjectDirectory)\NuGet.exe</NuGetExePath>
+    <ProjectRoot Condition="$(ProjectRoot) == ''">$(MSBuildThisFileDirectory)\..</ProjectRoot>
+    <NuGetExePath Condition="$(NuGetExePath) == ''">$(MSBuildThisFileDirectory)\NuGet.exe</NuGetExePath>
   </PropertyGroup>
 
   <ItemGroup>
     <PackagesConfigs Include="$(ProjectRoot)\**\packages.config" />
   </ItemGroup>
 
-  <Target Name="CustomRestorePackages">
+  <Target Name="DownloadNuGet">
     <DownloadFile DownloadAddress="https://nuget.org/nuget.exe" OutputFilename="$(NuGetExePath)" Condition="!Exists('$(NuGetExePath)')" />
+  </Target>
+
+  <Target Name="RestoreAllPackages"
+          DependsOnTargets="DownloadNuGet">
 
     <Message Text="Found the following 'packages.config'-files: @(PackagesConfigs->'%(FullPath)')"/>
 
