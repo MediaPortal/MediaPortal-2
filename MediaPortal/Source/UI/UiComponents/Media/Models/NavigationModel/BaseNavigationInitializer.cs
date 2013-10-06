@@ -25,7 +25,10 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using MediaPortal.Common.Commands;
+using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.UiComponents.Media.General;
+using MediaPortal.UiComponents.Media.Models.Navigation;
 using MediaPortal.UiComponents.Media.Models.ScreenData;
 using MediaPortal.UiComponents.Media.Settings;
 using MediaPortal.UiComponents.Media.Views;
@@ -47,8 +50,29 @@ namespace MediaPortal.UiComponents.Media.Models.NavigationModel
     protected ICollection<AbstractScreenData> _availableScreens;
     protected Sorting.Sorting _defaultSorting;
     protected ICollection<Sorting.Sorting> _availableSortings;
+    protected AbstractItemsScreenData.PlayableItemCreatorDelegate _genericPlayableItemCreatorDelegate;
+    protected ViewSpecification _customRootViewSpecification;
 
     #endregion
+
+    protected BaseNavigationInitializer()
+    {
+      // Create a generic delegate that knows all kind of our inbuilt media item types.
+      _genericPlayableItemCreatorDelegate = mi =>
+      {
+        if (mi.Aspects.ContainsKey(SeriesAspect.ASPECT_ID))
+          return new SeriesItem(mi) { Command = new MethodDelegateCommand(() => PlayItemsModel.CheckQueryPlayAction(mi)) };
+        if (mi.Aspects.ContainsKey(MovieAspect.ASPECT_ID))
+          return new MovieItem(mi) { Command = new MethodDelegateCommand(() => PlayItemsModel.CheckQueryPlayAction(mi)) };
+        if (mi.Aspects.ContainsKey(AudioAspect.ASPECT_ID))
+          return new AudioItem(mi) { Command = new MethodDelegateCommand(() => PlayItemsModel.CheckQueryPlayAction(mi)) };
+        if (mi.Aspects.ContainsKey(VideoAspect.ASPECT_ID))
+          return new VideoItem(mi) { Command = new MethodDelegateCommand(() => PlayItemsModel.CheckQueryPlayAction(mi)) };
+        if (mi.Aspects.ContainsKey(ImageAspect.ASPECT_ID))
+          return new ImageItem(mi) { Command = new MethodDelegateCommand(() => PlayItemsModel.CheckQueryPlayAction(mi)) };
+        return null;
+      };
+    }
 
     public string MediaNavigationMode
     {
@@ -60,13 +84,24 @@ namespace MediaPortal.UiComponents.Media.Models.NavigationModel
       get { return _mediaNavigationRootState; }
     }
 
+    /// <summary>
+    /// Prepares custom views or initializes specific data, which are not available at construction time (i.e. <see cref="MediaNavigationModel.GetMediaSkinOptionalMIATypes(string)"/>).
+    /// </summary>
+    protected virtual void Prepare()
+    {
+    }
+
     public virtual void InitMediaNavigation(out string mediaNavigationMode, out NavigationData navigationData)
     {
+      Prepare();
       IEnumerable<Guid> skinDependentOptionalMIATypeIDs = MediaNavigationModel.GetMediaSkinOptionalMIATypes(MediaNavigationMode);
-      ViewSpecification rootViewSpecification = new MediaLibraryQueryViewSpecification(_viewName, null, _necessaryMias, skinDependentOptionalMIATypeIDs, true)
-      {
-        MaxNumItems = Consts.MAX_NUM_ITEMS_VISIBLE
-      };
+      // Prefer custom view specification.
+      ViewSpecification rootViewSpecification = _customRootViewSpecification ??
+        new MediaLibraryQueryViewSpecification(_viewName, null, _necessaryMias, skinDependentOptionalMIATypeIDs, true)
+        {
+          MaxNumItems = Consts.MAX_NUM_ITEMS_VISIBLE
+        };
+
       string nextScreenName;
       AbstractScreenData nextScreen = null;
 

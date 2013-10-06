@@ -26,24 +26,19 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using MediaPortal.Common;
-using MediaPortal.Common.Commands;
 using MediaPortal.Common.Logging;
 using MediaPortal.Common.MediaManagement;
-using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.Common.PluginItemBuilders;
 using MediaPortal.Common.PluginManager;
 using MediaPortal.UI.Presentation.Screens;
 using MediaPortal.UI.Presentation.SkinResources;
 using MediaPortal.UiComponents.Media.Models.NavigationModel;
-using MediaPortal.UiComponents.Media.Models.Sorting;
-using MediaPortal.UiComponents.Media.Views;
 using MediaPortal.UI.Presentation.DataObjects;
 using MediaPortal.UI.Presentation.Models;
 using MediaPortal.UI.Presentation.Players;
 using MediaPortal.UI.Presentation.Workflow;
 using MediaPortal.UiComponents.Media.General;
 using MediaPortal.UiComponents.Media.Models.ScreenData;
-using MediaPortal.UiComponents.Media.Models.Navigation;
 
 namespace MediaPortal.UiComponents.Media.Models
 {
@@ -97,6 +92,8 @@ namespace MediaPortal.UiComponents.Media.Models
         new ImagesNavigationInitializer(),
         new SeriesNavigationInitializer(),
         new MoviesNavigationInitializer(),
+        new LocalBrowsingNavigationInitializer(),
+        new MediaLibraryBrowsingNavigationInitializer(),
       }.ForEach(i => _initializers[i.MediaNavigationRootState] = i);
     }
 
@@ -314,81 +311,14 @@ namespace MediaPortal.UiComponents.Media.Models
       IDictionary<string, object> result = new Dictionary<string, object>();
       // The initial state ID determines the media model "part" to initialize: Browse local media, browse media library, audio, videos or images.
       // The media model part determines the media navigation mode and the view contents to be set.
-      NavigationData navigationData;
+      if (!_initializers.ContainsKey(workflowStateId)) 
+        return result;
+
+      // Use the IMediaNavigationInitializer that is associated with our root workflow state.
+      IMediaNavigationInitializer initializer = _initializers[workflowStateId];
       string mode;
-      if (_initializers.ContainsKey(workflowStateId))
-      {
-        // Use the IMediaNavigationInitializer that is associated with our root workflow state.
-        IMediaNavigationInitializer initializer = _initializers[workflowStateId];
-        initializer.InitMediaNavigation(out mode, out navigationData);
-      }
-      else
-      {
-        // If we were called with a supported root state, we should be either in state WF_STATE_ID_LOCAL_MEDIA_NAVIGATION_ROOT
-        // or WF_STATE_ID_MEDIA_BROWSE_NAVIGATION_ROOT here
-        if (workflowStateId != Consts.WF_STATE_ID_LOCAL_MEDIA_NAVIGATION_ROOT &&
-            workflowStateId != Consts.WF_STATE_ID_BROWSE_MEDIA_NAVIGATION_ROOT)
-        {
-          // Error case: We cannot handle the given state
-          ServiceRegistration.Get<ILogger>().Warn("MediaNavigationModel: Unknown root workflow state with ID '{0}', initializing local media navigation", workflowStateId);
-          // We simply use the local media mode as fallback for this case, so we go on
-          workflowStateId = Consts.WF_STATE_ID_LOCAL_MEDIA_NAVIGATION_ROOT;
-        }
-        mode = workflowStateId == Consts.WF_STATE_ID_LOCAL_MEDIA_NAVIGATION_ROOT ? MediaNavigationMode.BrowseLocalMedia :
-            MediaNavigationMode.BrowseMediaLibrary;
-        IEnumerable<Guid> skinDependentOptionalMIATypeIDs = GetMediaSkinOptionalMIATypes(mode);
-        AbstractItemsScreenData.PlayableItemCreatorDelegate picd = mi =>
-          {
-            if (mi.Aspects.ContainsKey(AudioAspect.ASPECT_ID))
-              return new AudioItem(mi)
-                {
-                  Command = new MethodDelegateCommand(() => PlayItemsModel.CheckQueryPlayAction(mi))
-                };
-            if (mi.Aspects.ContainsKey(VideoAspect.ASPECT_ID))
-              return new VideoItem(mi)
-                {
-                  Command = new MethodDelegateCommand(() => PlayItemsModel.CheckQueryPlayAction(mi))
-                };
-            if (mi.Aspects.ContainsKey(ImageAspect.ASPECT_ID))
-              return new ImageItem(mi)
-                {
-                  Command = new MethodDelegateCommand(() => PlayItemsModel.CheckQueryPlayAction(mi))
-                };
-            return null;
-          };
-        IEnumerable<Guid> necessaryMIATypeIDs = new Guid[]
-            {
-                ProviderResourceAspect.ASPECT_ID,
-                MediaAspect.ASPECT_ID,
-            };
-        IEnumerable<Guid> optionalMIATypeIDs = new Guid[]
-            {
-                AudioAspect.ASPECT_ID,
-                VideoAspect.ASPECT_ID,
-                ImageAspect.ASPECT_ID,
-            }.Union(skinDependentOptionalMIATypeIDs);
-        string viewName = workflowStateId == Consts.WF_STATE_ID_LOCAL_MEDIA_NAVIGATION_ROOT ?
-            Consts.RES_LOCAL_MEDIA_ROOT_VIEW_NAME : Consts.RES_BROWSE_MEDIA_ROOT_VIEW_NAME;
-        ViewSpecification rootViewSpecification = workflowStateId == Consts.WF_STATE_ID_LOCAL_MEDIA_NAVIGATION_ROOT ?
-            new AddedRemovableMediaViewSpecificationFacade(new LocalMediaRootProxyViewSpecification(viewName, necessaryMIATypeIDs, optionalMIATypeIDs)) :
-            new AddedRemovableMediaViewSpecificationFacade(new BrowseMediaRootProxyViewSpecification(viewName, necessaryMIATypeIDs, optionalMIATypeIDs));
-        // Dynamic screens remain null - browse media states don't provide dynamic filters
-        AbstractScreenData screenData = workflowStateId == Consts.WF_STATE_ID_LOCAL_MEDIA_NAVIGATION_ROOT ?
-            (AbstractScreenData) new LocalMediaNavigationScreenData(picd) : new BrowseMediaNavigationScreenData(picd);
-        Sorting.Sorting browseDefaultSorting = new BrowseDefaultSorting();
-        ICollection<Sorting.Sorting> availableSortings = new List<Sorting.Sorting>
-          {
-              browseDefaultSorting,
-              new SortByTitle(),
-              new SortByDate(),
-              // We could offer sortings here which are specific for one media item type but which will cope with all three item types (and sort items of the three types in a defined order)
-          };
-        navigationData = new NavigationData(null, viewName, workflowStateId,
-            workflowStateId, rootViewSpecification, screenData, null, browseDefaultSorting)
-          {
-            AvailableSortings = availableSortings
-          };
-      }
+      NavigationData navigationData;
+      initializer.InitMediaNavigation(out mode, out navigationData);
       result.Add(Consts.KEY_NAVIGATION_MODE, mode);
       result.Add(Consts.KEY_NAVIGATION_DATA, navigationData);
       return result;

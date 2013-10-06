@@ -1,0 +1,73 @@
+﻿#region Copyright (C) 2007-2013 Team MediaPortal
+
+/*
+    Copyright (C) 2007-2013 Team MediaPortal
+    http://www.team-mediaportal.com
+
+    This file is part of MediaPortal 2
+
+    MediaPortal 2 is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    MediaPortal 2 is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with MediaPortal 2. If not, see <http://www.gnu.org/licenses/>.
+*/
+
+#endregion
+
+using System.Collections.Generic;
+using System.Linq;
+using MediaPortal.Common.MediaManagement.DefaultItemAspects;
+using MediaPortal.UiComponents.Media.General;
+using MediaPortal.UiComponents.Media.Models.ScreenData;
+using MediaPortal.UiComponents.Media.Models.Sorting;
+using MediaPortal.UiComponents.Media.Views;
+
+namespace MediaPortal.UiComponents.Media.Models.NavigationModel
+{
+  class MediaLibraryBrowsingNavigationInitializer : BaseNavigationInitializer
+  {
+    public MediaLibraryBrowsingNavigationInitializer()
+    {
+      _mediaNavigationMode = Models.MediaNavigationMode.BrowseMediaLibrary;
+      _mediaNavigationRootState = Consts.WF_STATE_ID_BROWSE_MEDIA_NAVIGATION_ROOT;
+      _viewName = Consts.RES_BROWSE_MEDIA_ROOT_VIEW_NAME;
+      _necessaryMias = Consts.NECESSARY_BROWSING_MIAS;
+
+      _defaultScreen = new BrowseMediaNavigationScreenData(_genericPlayableItemCreatorDelegate);
+
+      // Dynamic screens remain null - browse media states don't provide dynamic filters
+      _availableScreens = null;
+
+      _defaultSorting = new BrowseDefaultSorting();
+      _availableSortings = new List<Sorting.Sorting>
+        {
+          _defaultSorting,
+          new SortByTitle(),
+          new SortByDate(),
+          // We could offer sortings here which are specific for one media item type but which will cope with all three item types (and sort items of the three types in a defined order)
+        };
+    }
+
+    protected override void Prepare()
+    {
+      var optionalMias = new[]
+      {
+        AudioAspect.ASPECT_ID,
+        VideoAspect.ASPECT_ID,
+        ImageAspect.ASPECT_ID
+      }.Union(MediaNavigationModel.GetMediaSkinOptionalMIATypes(MediaNavigationMode));
+
+      _customRootViewSpecification = new AddedRemovableMediaViewSpecificationFacade(
+        new BrowseMediaRootProxyViewSpecification(_viewName, _necessaryMias, optionalMias));
+      base.Prepare();
+    }
+  }
+}

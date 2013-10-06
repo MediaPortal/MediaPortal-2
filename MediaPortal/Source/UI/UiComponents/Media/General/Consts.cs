@@ -449,6 +449,12 @@ namespace MediaPortal.UiComponents.Media.General
 
     public static int ADD_TO_PLAYLIST_UPDATE_INTERVAL = 50;
 
+    public static readonly Guid[] NECESSARY_BROWSING_MIAS = new Guid[]
+      {
+          ProviderResourceAspect.ASPECT_ID,
+          MediaAspect.ASPECT_ID,
+      };
+
     public static readonly Guid[] NECESSARY_VIDEO_MIAS = new Guid[]
       {
           ProviderResourceAspect.ASPECT_ID,

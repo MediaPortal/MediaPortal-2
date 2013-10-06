@@ -142,6 +142,8 @@
     <Compile Include="Models\NavigationModel\IMediaNavigationInitializer.cs" />
     <Compile Include="Models\NavigationModel\ImagesNavigationInitializer.cs" />
     <Compile Include="Models\NavigationModel\BaseNavigationInitializer.cs" />
+    <Compile Include="Models\NavigationModel\MediaLibraryBrowsingNavigationInitializer.cs" />
+    <Compile Include="Models\NavigationModel\LocalBrowsingNavigationInitializer.cs" />
     <Compile Include="Models\NavigationModel\MoviesNavigationInitializer.cs" />
     <Compile Include="Models\NavigationModel\SeriesNavigationInitializer.cs" />
     <Compile Include="Models\NavigationModel\VideosNavigationInitializer.cs" />
