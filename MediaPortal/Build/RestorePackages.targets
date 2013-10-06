@@ -26,4 +26,13 @@
 
     <Exec Command='"$(NuGetExePath)" install "%(PackagesConfigs.FullPath)"'/>
   </Target>
+
+  <!--
+  This target downloads only the packages that are required for launching the BuildProcess.
+  Such dependencies might be BuildReport or other MSBuild tasks that provide additional features.
+  -->
+  <Target Name="RestoreBuildPackages"
+          DependsOnTargets="DownloadNuGet">
+    <Exec Command='"$(NuGetExePath)" install "$(MSBuildThisFileDirectory)\packages.config"'/>
+  </Target>
 </Project>
