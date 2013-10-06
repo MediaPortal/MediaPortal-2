@@ -264,8 +264,18 @@ namespace MediaPortal.UiComponents.Media.Models
       WorkflowState newState = WorkflowState.CreateTransientState(
           "View: " + subViewSpecification.ViewDisplayName, subViewSpecification.ViewDisplayName,
           false, null, true, WorkflowType.Workflow);
+
+      ScreenConfig nextScreenConfig;
+      LoadLayoutSettings(visibleScreen.ToString(), out nextScreenConfig);
+
+      Sorting.Sorting nextSortingMode = AvailableSortings.FirstOrDefault(sorting => sorting.GetType().ToString() == nextScreenConfig.Sorting) ?? _currentSorting;
+
       NavigationData newNavigationData = new NavigationData(this, subViewSpecification.ViewDisplayName,
-          _baseWorkflowStateId, newState.StateId, subViewSpecification, visibleScreen, _availableScreens, _currentSorting, true);
+          _baseWorkflowStateId, newState.StateId, subViewSpecification, visibleScreen, _availableScreens, nextSortingMode, true)
+      {
+        LayoutType = nextScreenConfig.LayoutType,
+        LayoutSize = nextScreenConfig.LayoutSize
+      };
       PushNewNavigationWorkflowState(newState, navbarDisplayLabel, newNavigationData);
       return newNavigationData;
     }
@@ -305,7 +315,7 @@ namespace MediaPortal.UiComponents.Media.Models
 
       NavigationData newNavigationData = new NavigationData(this, subViewSpecification.ViewDisplayName,
           newState.StateId, newState.StateId, subViewSpecification, nextScreen, remainingScreens,
-          nextSortingMode) { LayoutType = nextScreenConfig.LayoutType, LayoutSize = nextScreenConfig .LayoutSize };
+          nextSortingMode) { LayoutType = nextScreenConfig.LayoutType, LayoutSize = nextScreenConfig.LayoutSize };
       PushNewNavigationWorkflowState(newState, navbarDisplayLabel, newNavigationData);
       return newNavigationData;
     }
