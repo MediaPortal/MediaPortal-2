@@ -242,6 +242,9 @@ namespace MediaPortal.UiComponents.Media.General
     public const string RES_SWITCH_TO_BROWSE_ML_VIEW = "[Media.SwitchToBrowseMLView]";
     public const string RES_SWITCH_TO_LOCAL_MEDIA_VIEW = "[Media.SwitchToLocalMediaView]";
 
+    public const string RES_SWITCH_TO_BROWSE_SHARE_VIEW = "[Media.SwitchToBrowseShareView]";
+    public const string RES_SWITCH_TO_MEDIALIBRARY_VIEW = "[Media.SwitchToMediaLibraryView]";
+
     public const string RES_CONCURRENT_PLAYER_OPEN_STRATEGY_TEMPLATE = "[Media.OpenPlayerStrategy.{0}]";
 
     // DVD

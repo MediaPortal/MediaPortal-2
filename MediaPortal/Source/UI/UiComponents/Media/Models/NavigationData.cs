@@ -360,9 +360,15 @@ namespace MediaPortal.UiComponents.Media.Models
       return viewSettings.ScreenHierarchy.TryGetValue(currentScreen, out nextScreen);
     }
 
-    public static void SaveScreenHierarchy(string currentScreen, string nextScreen)
+    public static void SaveScreenHierarchy(string currentScreen, string nextScreen, bool backupOld = false)
     {
       ViewSettings viewSettings = ServiceRegistration.Get<ISettingsManager>().Load<ViewSettings>();
+      if (backupOld)
+      {
+        string oldScreen;
+        if (viewSettings.ScreenHierarchy.TryGetValue(currentScreen, out oldScreen))
+          viewSettings.ScreenHierarchy[currentScreen + "_OLD"] = oldScreen;
+      }
       viewSettings.ScreenHierarchy[currentScreen] = nextScreen;
       ServiceRegistration.Get<ISettingsManager>().Save(viewSettings);
     }

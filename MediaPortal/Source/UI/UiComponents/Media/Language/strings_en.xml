@@ -44,6 +44,9 @@
   <string name="Media.SwitchToBrowseMLView">To server view</string>
   <string name="Media.SwitchToLocalMediaView">To local view</string>
 
+  <string name="Media.SwitchToBrowseShareView">To share view</string>
+  <string name="Media.SwitchToMediaLibraryView">To library view</string>
+
   <!-- Navbar display labels for sub view navigation -->
   <string name="Media.BrowseMediaNavigationNavbarDisplayLabel">{0}</string> <!-- For example: "R.E.M." -->
   <string name="Media.LocalMediaNavigationNavbarDisplayLabel">{0}</string> <!-- For example: "R.E.M." -->

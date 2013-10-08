@@ -49,6 +49,12 @@
         SortOrder="a"
         SourceStates="*"
         ContributorModelId="F1DBEDCB-CB95-4CF5-8787-07390869DE44"/> <!-- SwitchBrowseLocalML action -->
+    <WorkflowContributorAction Id="03189090-A3C1-4346-9A84-4ACD6725DDE0"
+        Name="*->SwitchBrowseMode"
+        DisplayCategory="a-Additional"
+        SortOrder="0"
+        SourceStates="*"
+        ContributorModelId="56B6B935-8972-48C2-811A-BF150A1F8F09"/> <!-- SwitchBrowseMode action -->
     <WorkflowContributorAction Id="09243059-EE44-460d-8412-2E994CCB5A98"
         Name="*->AddToPlaylist"
         DisplayCategory="a-Media"

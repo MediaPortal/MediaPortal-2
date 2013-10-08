@@ -106,6 +106,7 @@
     <Compile Include="Actions\AddViewToPlaylistAction.cs" />
     <Compile Include="Actions\BrowseMediaAction.cs" />
     <Compile Include="Actions\BaseTrackServerConnectionAction.cs" />
+    <Compile Include="Actions\SwitchBrowseModeAction.cs" />
     <Compile Include="Actions\SwitchBrowseLocalMLAction.cs" />
     <Compile Include="Actions\MoviesAction.cs" />
     <Compile Include="Actions\SeriesAction.cs" />

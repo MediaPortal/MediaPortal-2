@@ -160,7 +160,8 @@ namespace MediaPortal.UiComponents.Media.Models
 
     public static NavigationData GetNavigationData(NavigationContext navigationContext, bool inheritFromPredecessor)
     {
-      return navigationContext.GetContextVariable(Consts.KEY_NAVIGATION_DATA, inheritFromPredecessor) as NavigationData;
+      return navigationContext == null ? null :
+        navigationContext.GetContextVariable(Consts.KEY_NAVIGATION_DATA, inheritFromPredecessor) as NavigationData;
     }
 
     /// <summary>
