@@ -24,6 +24,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using MediaPortal.Common;
 using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
@@ -53,16 +54,18 @@ namespace MediaPortal.UiComponents.Media.Views
     #region Protected fields
 
     protected string _systemId;
+    protected readonly IEnumerable<string> _restrictedMediaCategories;
 
     #endregion
 
     #region Ctor
 
     public SystemSharesViewSpecification(string systemId, string viewDisplayName,
-        IEnumerable<Guid> necessaryMIATypeIds, IEnumerable<Guid> optionalMIATypeIds) :
+        IEnumerable<Guid> necessaryMIATypeIds, IEnumerable<Guid> optionalMIATypeIds, IEnumerable<string> restrictedMediaCategories = null) :
         base(viewDisplayName, necessaryMIATypeIds, optionalMIATypeIds)
     {
       _systemId = systemId;
+      _restrictedMediaCategories = restrictedMediaCategories;
     }
 
     #endregion
@@ -98,6 +101,9 @@ namespace MediaPortal.UiComponents.Media.Views
         return;
       foreach(Share share in cd.GetShares(_systemId, SharesFilter.All))
       {
+        // Check if we want to filter only for given MediaCategories
+        if (_restrictedMediaCategories != null && !share.MediaCategories.Intersect(_restrictedMediaCategories).Any())
+          continue;
         MediaItem parentDirectory = cd.LoadItem(share.SystemId, share.BaseResourcePath, DIRECTORY_MIA_ID_ENUMERATION, EMPTY_ID_ENUMERATION);
         if (parentDirectory == null)
           continue;

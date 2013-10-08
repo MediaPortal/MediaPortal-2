@@ -52,6 +52,7 @@ namespace MediaPortal.UiComponents.Media.Models.NavigationModel
     protected ICollection<Sorting.Sorting> _availableSortings;
     protected AbstractItemsScreenData.PlayableItemCreatorDelegate _genericPlayableItemCreatorDelegate;
     protected ViewSpecification _customRootViewSpecification;
+    protected IEnumerable<string> _restrictedMediaCategories = null;
 
     #endregion
 
@@ -89,11 +90,27 @@ namespace MediaPortal.UiComponents.Media.Models.NavigationModel
     /// </summary>
     protected virtual void Prepare()
     {
+      _customRootViewSpecification = null;
     }
 
     public virtual void InitMediaNavigation(out string mediaNavigationMode, out NavigationData navigationData)
     {
       Prepare();
+
+      string nextScreenName;
+      AbstractScreenData nextScreen = null;
+
+      // Try to load the prefered next screen from settings.
+      if (NavigationData.LoadScreenHierarchy(_viewName, out nextScreenName))
+      {
+        // Support for browsing mode.
+        if (nextScreenName == Consts.USE_BROWSE_MODE)
+          SetBrowseMode();
+
+        if (_availableScreens != null)
+          nextScreen = _availableScreens.FirstOrDefault(s => s.GetType().ToString() == nextScreenName);
+      }
+
       IEnumerable<Guid> skinDependentOptionalMIATypeIDs = MediaNavigationModel.GetMediaSkinOptionalMIATypes(MediaNavigationMode);
       // Prefer custom view specification.
       ViewSpecification rootViewSpecification = _customRootViewSpecification ??
@@ -101,13 +118,6 @@ namespace MediaPortal.UiComponents.Media.Models.NavigationModel
         {
           MaxNumItems = Consts.MAX_NUM_ITEMS_VISIBLE
         };
-
-      string nextScreenName;
-      AbstractScreenData nextScreen = null;
-
-      // Try to load the prefered next screen from settings.
-      if (NavigationData.LoadScreenHierarchy(_viewName, out nextScreenName))
-        nextScreen = _availableScreens.FirstOrDefault(s => s.GetType().ToString() == nextScreenName);
 
       if (nextScreen == null)
         nextScreen = _defaultScreen;
@@ -125,6 +135,16 @@ namespace MediaPortal.UiComponents.Media.Models.NavigationModel
         LayoutSize = nextScreenConfig.LayoutSize
       };
       mediaNavigationMode = MediaNavigationMode;
+    }
+
+    /// <summary>
+    /// Switches to browsing by MediaLibray shares, limited to restricted MediaCategories.
+    /// </summary>
+    protected void SetBrowseMode()
+    {
+      _availableScreens = null;
+      _defaultScreen = new BrowseMediaNavigationScreenData(_genericPlayableItemCreatorDelegate);
+      _customRootViewSpecification = new BrowseMediaRootProxyViewSpecification(_viewName, _necessaryMias, null, _restrictedMediaCategories);
     }
   }
 }

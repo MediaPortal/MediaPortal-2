@@ -23,9 +23,7 @@
 #endregion
 
 using System.Collections.Generic;
-using MediaPortal.Common.Commands;
 using MediaPortal.UiComponents.Media.General;
-using MediaPortal.UiComponents.Media.Models.Navigation;
 using MediaPortal.UiComponents.Media.Models.ScreenData;
 using MediaPortal.UiComponents.Media.Models.Sorting;
 
@@ -33,26 +31,32 @@ namespace MediaPortal.UiComponents.Media.Models.NavigationModel
 {
   class ImagesNavigationInitializer : BaseNavigationInitializer
   {
+    internal static IEnumerable<string> RESTRICTED_MEDIA_CATEGORIES = new List<string> { Models.MediaNavigationMode.Images }; // "Images"
+
     public ImagesNavigationInitializer()
     {
       _mediaNavigationMode = Models.MediaNavigationMode.Images;
       _mediaNavigationRootState = Consts.WF_STATE_ID_IMAGES_NAVIGATION_ROOT;
       _viewName = Consts.RES_IMAGES_VIEW_NAME;
       _necessaryMias = Consts.NECESSARY_IMAGE_MIAS;
+      _restrictedMediaCategories = RESTRICTED_MEDIA_CATEGORIES;
+    }
 
-      AbstractItemsScreenData.PlayableItemCreatorDelegate picd = mi => new ImageItem(mi) { Command = new MethodDelegateCommand(() => PlayItemsModel.CheckQueryPlayAction(mi)) };
+    protected override void Prepare()
+    {
+      base.Prepare();
 
       _defaultScreen = new ImagesFilterByYearScreenData();
       _availableScreens = new List<AbstractScreenData>
         {
-          new ImagesShowItemsScreenData(picd),
+          new ImagesShowItemsScreenData(_genericPlayableItemCreatorDelegate),
           _defaultScreen,
           new ImagesFilterByCountryScreenData(),
           new ImagesFilterByStateScreenData(),
           new ImagesFilterByCityScreenData(),
           new ImagesFilterBySizeScreenData(),
           new ImagesFilterBySystemScreenData(),
-          new ImagesSimpleSearchScreenData(picd),
+          new ImagesSimpleSearchScreenData(_genericPlayableItemCreatorDelegate),
         };
 
       _defaultSorting = new SortByYear();

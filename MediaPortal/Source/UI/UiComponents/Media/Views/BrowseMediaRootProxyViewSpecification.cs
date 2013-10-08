@@ -42,11 +42,20 @@ namespace MediaPortal.UiComponents.Media.Views
   /// </summary>
   public class BrowseMediaRootProxyViewSpecification : AbstractMediaRootProxyViewSpecification
   {
+    #region Fields
+
+    protected readonly IEnumerable<string> _restrictedMediaCategories;
+
+    #endregion
+
     #region Ctor
 
     public BrowseMediaRootProxyViewSpecification(string viewDisplayName,
-        IEnumerable<Guid> necessaryMIATypeIds, IEnumerable<Guid> optionalMIATypeIds) :
-        base(viewDisplayName, necessaryMIATypeIds, optionalMIATypeIds) { }
+      IEnumerable<Guid> necessaryMIATypeIds, IEnumerable<Guid> optionalMIATypeIds, IEnumerable<string> restrictedMediaCategories = null) :
+        base(viewDisplayName, necessaryMIATypeIds, optionalMIATypeIds)
+    {
+      _restrictedMediaCategories = restrictedMediaCategories;
+    }
 
     #endregion
 
@@ -158,7 +167,7 @@ namespace MediaPortal.UiComponents.Media.Views
 
       if (IsSingleSeat(serverConnectionManager))
         // This code branch represents the typical single-seat scenario, so we only show the server's shares.
-        new SystemSharesViewSpecification(serverConnectionManager.HomeServerSystemId, null, _necessaryMIATypeIds, _optionalMIATypeIds).ReLoadItemsAndSubViewSpecifications(out mediaItems, out subViewSpecifications);
+        new SystemSharesViewSpecification(serverConnectionManager.HomeServerSystemId, null, _necessaryMIATypeIds, _optionalMIATypeIds, _restrictedMediaCategories).ReLoadItemsAndSubViewSpecifications(out mediaItems, out subViewSpecifications);
       else
         // This code branch represents all other scenarios than the single-seat scenario.
         new AllSystemsViewSpecification(null, _necessaryMIATypeIds, _optionalMIATypeIds).ReLoadItemsAndSubViewSpecifications(out mediaItems, out subViewSpecifications);

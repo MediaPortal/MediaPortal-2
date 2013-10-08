@@ -23,9 +23,7 @@
 #endregion
 
 using System.Collections.Generic;
-using MediaPortal.Common.Commands;
 using MediaPortal.UiComponents.Media.General;
-using MediaPortal.UiComponents.Media.Models.Navigation;
 using MediaPortal.UiComponents.Media.Models.ScreenData;
 using MediaPortal.UiComponents.Media.Models.Sorting;
 
@@ -33,19 +31,25 @@ namespace MediaPortal.UiComponents.Media.Models.NavigationModel
 {
   class VideosNavigationInitializer : BaseNavigationInitializer
   {
+    internal static IEnumerable<string> RESTRICTED_MEDIA_CATEGORIES = new List<string> { Models.MediaNavigationMode.Videos }; // "Videos"
+
     public VideosNavigationInitializer()
     {
       _mediaNavigationMode = Models.MediaNavigationMode.Videos;
       _mediaNavigationRootState = Consts.WF_STATE_ID_VIDEOS_NAVIGATION_ROOT;
       _viewName = Consts.RES_VIDEOS_VIEW_NAME;
       _necessaryMias = Consts.NECESSARY_VIDEO_MIAS;
+      _restrictedMediaCategories = RESTRICTED_MEDIA_CATEGORIES;
+    }
 
-      AbstractItemsScreenData.PlayableItemCreatorDelegate picd = mi => new VideoItem(mi) { Command = new MethodDelegateCommand(() => PlayItemsModel.CheckQueryPlayAction(mi)) };
+    protected override void Prepare()
+    {
+      base.Prepare();
 
       _defaultScreen = new VideosFilterByGenreScreenData();
       _availableScreens = new List<AbstractScreenData>
         {
-          new VideosShowItemsScreenData(picd),
+          new VideosShowItemsScreenData(_genericPlayableItemCreatorDelegate),
           new VideosFilterByLanguageScreenData(),
           new VideosFilterByActorScreenData(),
           new VideosFilterByDirectorScreenData(),
@@ -53,7 +57,7 @@ namespace MediaPortal.UiComponents.Media.Models.NavigationModel
           _defaultScreen,
           new VideosFilterByYearScreenData(),
           new VideosFilterBySystemScreenData(),
-          new VideosSimpleSearchScreenData(picd),
+          new VideosSimpleSearchScreenData(_genericPlayableItemCreatorDelegate),
         };
 
       _defaultSorting = new SortByTitle();

@@ -40,6 +40,11 @@ namespace MediaPortal.UiComponents.Media.Models.NavigationModel
       _mediaNavigationRootState = Consts.WF_STATE_ID_LOCAL_MEDIA_NAVIGATION_ROOT;
       _viewName = Consts.RES_LOCAL_MEDIA_ROOT_VIEW_NAME;
       _necessaryMias = Consts.NECESSARY_BROWSING_MIAS;
+    }
+
+    protected override void Prepare()
+    {
+      base.Prepare();
 
       _defaultScreen = new LocalMediaNavigationScreenData(_genericPlayableItemCreatorDelegate);
 
@@ -54,10 +59,7 @@ namespace MediaPortal.UiComponents.Media.Models.NavigationModel
           new SortByDate(),
           // We could offer sortings here which are specific for one media item type but which will cope with all three item types (and sort items of the three types in a defined order)
         };
-    }
 
-    protected override void Prepare()
-    {
       var optionalMias = new[]
       {
         AudioAspect.ASPECT_ID,
@@ -67,7 +69,6 @@ namespace MediaPortal.UiComponents.Media.Models.NavigationModel
 
       _customRootViewSpecification = new AddedRemovableMediaViewSpecificationFacade(
         new LocalMediaRootProxyViewSpecification(_viewName, _necessaryMias, optionalMias));
-      base.Prepare();
     }
   }
 }

@@ -23,46 +23,48 @@
 #endregion
 
 using System.Collections.Generic;
-using MediaPortal.Common.Commands;
 using MediaPortal.UiComponents.Media.General;
-using MediaPortal.UiComponents.Media.Models.Navigation;
 using MediaPortal.UiComponents.Media.Models.ScreenData;
 using MediaPortal.UiComponents.Media.Models.Sorting;
 
 namespace MediaPortal.UiComponents.Media.Models.NavigationModel
 {
-  class SeriesNavigationInitializer : BaseNavigationInitializer
+  internal class SeriesNavigationInitializer : BaseNavigationInitializer
   {
+    internal static IEnumerable<string> RESTRICTED_MEDIA_CATEGORIES = new List<string> { Models.MediaNavigationMode.Series }; // "Series"
+
     public SeriesNavigationInitializer()
     {
       _mediaNavigationMode = Models.MediaNavigationMode.Series;
       _mediaNavigationRootState = Consts.WF_STATE_ID_SERIES_NAVIGATION_ROOT;
       _viewName = Consts.RES_SERIES_VIEW_NAME;
       _necessaryMias = Consts.NECESSARY_SERIES_MIAS;
+      _restrictedMediaCategories = RESTRICTED_MEDIA_CATEGORIES;
+    }
 
-      AbstractItemsScreenData.PlayableItemCreatorDelegate picd = mi => new SeriesItem(mi) { Command = new MethodDelegateCommand(() => PlayItemsModel.CheckQueryPlayAction(mi)) };
-
+    protected override void Prepare()
+    {
+      base.Prepare();
       _defaultScreen = new SeriesFilterByNameScreenData();
       _availableScreens = new List<AbstractScreenData>
-        {
-          new SeriesShowItemsScreenData(picd),
-          // C# doesn't like it to have an assignment inside a collection initializer
-          _defaultScreen,
-          new SeriesFilterBySeasonScreenData(),
-          new VideosFilterByLanguageScreenData(),
-          new VideosFilterByGenreScreenData(),
-          new VideosSimpleSearchScreenData(picd),
-        };
-
+      {
+        new SeriesShowItemsScreenData(_genericPlayableItemCreatorDelegate),
+        // C# doesn't like it to have an assignment inside a collection initializer
+        _defaultScreen,
+        new SeriesFilterBySeasonScreenData(),
+        new VideosFilterByLanguageScreenData(),
+        new VideosFilterByGenreScreenData(),
+        new VideosSimpleSearchScreenData(_genericPlayableItemCreatorDelegate),
+      };
       _defaultSorting = new SeriesSortByEpisode();
       _availableSortings = new List<Sorting.Sorting>
-        {
-          _defaultSorting,
-          new SortByTitle(),
-          new SortByFirstAiredDate(),
-          new SortByDate(),
-          new SortBySystem(),
-        };
+      {
+        _defaultSorting,
+        new SortByTitle(),
+        new SortByFirstAiredDate(),
+        new SortByDate(),
+        new SortBySystem(),
+      };
     }
   }
 }

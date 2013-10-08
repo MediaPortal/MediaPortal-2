@@ -32,9 +32,9 @@ namespace MediaPortal.UiComponents.Media.Models
     public const string BrowseLocalMedia = "BrowseLocalMedia";
     public const string BrowseMediaLibrary = "BrowseMediaLibrary";
     public const string Audio = "Audio";
-    public const string Videos = "Videos";
-    public const string Images = "Images";
+    public const string Videos = "Video";
+    public const string Images = "Image";
     public const string Series = "Series";
-    public const string Movies = "Movies";
+    public const string Movies = "Movie";
   }
 }

@@ -23,9 +23,7 @@
 #endregion
 
 using System.Collections.Generic;
-using MediaPortal.Common.Commands;
 using MediaPortal.UiComponents.Media.General;
-using MediaPortal.UiComponents.Media.Models.Navigation;
 using MediaPortal.UiComponents.Media.Models.ScreenData;
 using MediaPortal.UiComponents.Media.Models.Sorting;
 
@@ -33,26 +31,32 @@ namespace MediaPortal.UiComponents.Media.Models.NavigationModel
 {
   class AudioNavigationInitializer : BaseNavigationInitializer
   {
+    internal static IEnumerable<string> RESTRICTED_MEDIA_CATEGORIES = new List<string> { Models.MediaNavigationMode.Audio }; // "Audio"
+
     public AudioNavigationInitializer()
     {
       _mediaNavigationMode = Models.MediaNavigationMode.Audio;
       _mediaNavigationRootState = Consts.WF_STATE_ID_AUDIO_NAVIGATION_ROOT;
       _viewName = Consts.RES_AUDIO_VIEW_NAME;
       _necessaryMias = Consts.NECESSARY_AUDIO_MIAS;
+      _restrictedMediaCategories = RESTRICTED_MEDIA_CATEGORIES;
+    }
 
-      AbstractItemsScreenData.PlayableItemCreatorDelegate picd = mi => new AudioItem(mi) { Command = new MethodDelegateCommand(() => PlayItemsModel.CheckQueryPlayAction(mi)) };
+    protected override void Prepare()
+    {
+      base.Prepare();
 
       _defaultScreen = new AudioFilterByArtistScreenData();
       _availableScreens = new List<AbstractScreenData>
         {
-          new AudioShowItemsScreenData(picd),
+          new AudioShowItemsScreenData(_genericPlayableItemCreatorDelegate),
           // C# doesn't like it to have an assignment inside a collection initializer
           _defaultScreen,
           new AudioFilterByAlbumScreenData(),
           new AudioFilterByGenreScreenData(),
           new AudioFilterByDecadeScreenData(),
           new AudioFilterBySystemScreenData(),
-          new AudioSimpleSearchScreenData(picd),
+          new AudioSimpleSearchScreenData(_genericPlayableItemCreatorDelegate),
         };
 
       _defaultSorting = new AudioSortByAlbumTrack();

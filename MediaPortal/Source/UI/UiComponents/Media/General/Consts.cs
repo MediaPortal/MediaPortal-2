@@ -440,6 +440,9 @@ namespace MediaPortal.UiComponents.Media.General
 
     public const string KEY_SORTING = "Sorting";
 
+    // Custom constants used for NavigationData
+    public const string USE_BROWSE_MODE = "{UseBrowseMode}";
+
     // Keys for workflow state variables
     public const string KEY_NAVIGATION_MODE = "MediaNavigationModel: NAVIGATION_MODE";
     public const string KEY_NAVIGATION_DATA = "MediaNavigationModel: NAVIGATION_DATA";
