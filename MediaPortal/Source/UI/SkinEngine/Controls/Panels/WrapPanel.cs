@@ -227,7 +227,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
           return result;
         }
         if (desiredChildSize.Height > result.TotalExtendsInNonOrientationDirection)
-          result.TotalExtendsInNonOrientationDirection = desiredChildSize.Height;
+          result.TotalExtendsInNonOrientationDirection = GetExtendsInNonOrientationDirection(Orientation, desiredChildSize);
       }
       if (invertLayoutDirection)
         result.StartIndex = currentIndex + 1;
