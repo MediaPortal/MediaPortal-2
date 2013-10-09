@@ -65,6 +65,7 @@
     </Compile>
     <Compile Include="FanArtImageSource.cs" />
     <Compile Include="FanArtImageSourceConverter.cs" />
+    <Compile Include="MediaItemAspectToBoolConverter.cs" />
     <Compile Include="Models\FanArtBackgroundModel.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
