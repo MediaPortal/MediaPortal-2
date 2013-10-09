@@ -220,7 +220,8 @@ namespace MediaPortal.UI.SkinEngine.Xaml
       if (obj is Type)
       {
         type = (Type) obj;
-        obj = null;
+        // Morpheus_xx 2013-10-09: we must not set obj to "null", this prevents accessing static fields (see FieldDescriptor)
+        // obj = null;
       }
       else
         type = obj.GetType();
