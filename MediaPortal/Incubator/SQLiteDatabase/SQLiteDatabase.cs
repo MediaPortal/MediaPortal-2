@@ -26,13 +26,12 @@ using System;
 using System.Data;
 using System.Data.SQLite;
 using System.IO;
-using System.Linq;
-using System.Management;
 using MediaPortal.Backend.Database;
 using MediaPortal.Backend.Services.Database;
 using MediaPortal.Common;
 using MediaPortal.Common.Logging;
 using MediaPortal.Common.PathManager;
+using MediaPortal.Common.Settings;
 
 namespace MediaPortal.Database.SQLite
 {
@@ -53,23 +52,13 @@ namespace MediaPortal.Database.SQLite
     private const string DatabaseTypeString = "SQLite"; // Name of this Database
     private const string DatabaseVersionString = "1.0.88.0"; // Version of the sytem.data.sqlite wrapper
 
-    private const int DefaultPageSize = 4096; // Page size used in the database file
-    private const int DefaultLockTimeout = 30000; // Time in ms the database will wait for a lock
-    private const string DefaultDatabaseFileName = "Datastore.s3db"; // Default name of the database file
-    
-    // These commands are executed on a connection when it is created and opened
-    // to initialize the respective connection before it is used. There's currently one command:
-    // MP2's database backend uses foreign key constraints to ensure referential integrity.
-    // SQLite supports this, but it has to be enabled for each database connection by a PRAGMA command
-    // For details see http://www.sqlite.org/foreignkeys.html
-    private const string DefaultInitializationCommand = "PRAGMA foreign_keys=ON;";
-
     #endregion
 
     #region Variables
 
     private readonly string _connectionString;
     private ConnectionPool<SQLiteConnection> _connectionPool;
+    private readonly SQLiteSettings _settings;
 
     #endregion
 
@@ -79,14 +68,21 @@ namespace MediaPortal.Database.SQLite
     {
       try
       {
+        _settings = ServiceRegistration.Get<ISettingsManager>().Load<SQLiteSettings>();
+        _settings.LogSettings();
+        ServiceRegistration.Get<ISettingsManager>().Save(_settings);
+        
         var pathManager = ServiceRegistration.Get<IPathManager>();
         string dataDirectory = pathManager.GetPath("<DATABASE>");
-        string databaseFile = Path.Combine(dataDirectory, DefaultDatabaseFileName).Replace('\\', '/');
+        string databaseFile = Path.Combine(dataDirectory, _settings.DatabaseFileName);
 
-        // We use an URI instead of a simple database path and filename. The reason is that
+        // We would like to use an URI instead of a simple database path and filename. The reason is that
         // only this way we can switch on the shared cache mode of SQLite in System.Data.SQLite
-        string databaseUri = System.Web.HttpUtility.UrlPathEncode("file:///" + databaseFile + "?cache=shared");
-        ServiceRegistration.Get<ILogger>().Debug("SQLiteDatabase: URI used in connection string: '{0}'", databaseUri);
+        // However, when using an URI, SQLite ignores the page size value specified. When we have found
+        // a solution, uncomment the following 3 lines and set FullUri instead of DataSource below.
+        //databaseFile = databaseFile.Replace('\\', '/');
+        //string databaseUri = System.Web.HttpUtility.UrlPathEncode("file:///" + databaseFile + "?cache=shared");
+        //ServiceRegistration.Get<ILogger>().Debug("SQLiteDatabase: URI used in connection string: '{0}'", databaseUri);
 
         _connectionPool = new ConnectionPool<SQLiteConnection>(CreateOpenAndInitializeConnection);
 
@@ -96,7 +92,8 @@ namespace MediaPortal.Database.SQLite
         var connBuilder = new SQLiteConnectionStringBuilder
         {
           // Name of the database file including path  
-          FullUri = databaseUri,
+          //FullUri = databaseUri,
+          DataSource = databaseFile,
         
           // Use SQLite database version 3.x  
           Version = 3,
@@ -105,17 +102,9 @@ namespace MediaPortal.Database.SQLite
           // Saves some space in the database and is said to make search queries on GUIDs faster  
           BinaryGUID = true,
         
-          // If a lock cannot be obtained, the database enginge waits DefaultLockTimeout ms before it throws an exception  
-          DefaultTimeout = DefaultLockTimeout,
-        
-          // Set page size to NTFS cluster size = 4096 bytes; supposed to give better performance
-          // For BLOBs > 50kb a page size of 8192 is said to give more performance (http://www.sqlite.org/intern-v-extern-blob.html)
-          // However, tests with MP2 Server have shown that 4KB is the ideal size for MP2.
-          PageSize = DefaultPageSize,
-        
-          // Size of the memory cache used by the database expressed in number of pages
-          // ToDo: make this a setting
-          CacheSize = GetOptimalCacheSizeInPages(),
+          DefaultTimeout = _settings.LockTimeout,
+          PageSize = _settings.PageSize,
+          CacheSize = _settings.CacheSizeInPages,
         
           // Use the Write Ahead Log mode
           // In this journal mode write locks do not block reads
@@ -135,6 +124,7 @@ namespace MediaPortal.Database.SQLite
         };
 
         _connectionString = connBuilder.ToString();
+        ServiceRegistration.Get<ILogger>().Info("SQLiteDatabase: Connection String used: '{0}'", _connectionString);
 
         if (!Directory.Exists(dataDirectory))
           Directory.CreateDirectory(dataDirectory);
@@ -170,48 +160,16 @@ namespace MediaPortal.Database.SQLite
 
     /// <summary>
     /// Creates a new <see cref="SQLiteConnection"/> object, opens it and executes the
-    /// <see cref="DefaultInitializationCommand"/> via ExecuteNonQuery()
+    /// InitializationCommand via ExecuteNonQuery()
     /// </summary>
     /// <returns>Newly created and initialized <see cref="SQLiteConnection"/></returns>
     private SQLiteConnection CreateOpenAndInitializeConnection()
     {
       var connection = new SQLiteConnection(_connectionString);
       connection.Open();
-      using (var command = new SQLiteCommand(DefaultInitializationCommand, connection))
+      using (var command = new SQLiteCommand(_settings.InitializationCommand, connection))
         command.ExecuteNonQuery();
       return connection;
-    }
-
-    /// <summary>
-    /// Calculates the optimal cache size for the SQLiteDatabase in number of pages
-    /// </summary>
-    /// <remarks>
-    /// RAM up to 512MB: CacheSize 32MB
-    /// RAM up to 1GB: CacheSize 64MB
-    /// RAM up to 2GB: CacheSize 128MB
-    /// RAM over 2GB: CacheSize 256MB
-    /// Based on the <see cref="DefaultPageSize"/> the CacheSize is transformed into number of pages
-    /// </remarks>
-    /// <returns>Optimal cache size in number of pages</returns>
-    private int GetOptimalCacheSizeInPages()
-    {
-      const string query = "SELECT TotalPhysicalMemory FROM Win32_ComputerSystem";
-      var searcher = new ManagementObjectSearcher(query);
-      UInt32 totalRamInKiloBytes = searcher.Get().Cast<ManagementObject>().Aggregate<ManagementObject, uint>(0, (current, mo) => current + Convert.ToUInt32(mo.Properties["TotalPhysicalMemory"].Value) / 1024);
-      
-      int optimalCacheSizeInKiloBytes;
-      if (totalRamInKiloBytes <= (512 * 1024))
-        optimalCacheSizeInKiloBytes = 32 * 1024;
-      else if (totalRamInKiloBytes <= (1024 * 1024))
-        optimalCacheSizeInKiloBytes = 64 * 1024;
-      else if (totalRamInKiloBytes <= (2048 * 1024))
-        optimalCacheSizeInKiloBytes = 128 * 1024;
-      else
-        optimalCacheSizeInKiloBytes = 256 * 1024;
-      
-      int optimalCacheSizeInPages = optimalCacheSizeInKiloBytes / (DefaultPageSize / 1024);
-      ServiceRegistration.Get<ILogger>().Debug("SQLiteDatabase: Total RAM: {0}MB; Cache: {1}MB = {2} Pages", Math.Round(totalRamInKiloBytes / 1024d), optimalCacheSizeInKiloBytes / 1024, optimalCacheSizeInPages);
-      return optimalCacheSizeInPages;
     }
 
     #endregion
