@@ -87,6 +87,9 @@ namespace MediaPortal.Database.SQLite
     [Setting(SettingScope.Global)]
     public int CacheSizeInKiloBytes { get; set; }
 
+    [Setting(SettingScope.Global, false)]
+    public bool EnableTraceLogging { get; set; }
+
     public int CacheSizeInPages
     {
       get

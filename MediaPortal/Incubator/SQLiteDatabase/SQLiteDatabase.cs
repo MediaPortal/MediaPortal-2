@@ -31,6 +31,7 @@ using MediaPortal.Backend.Services.Database;
 using MediaPortal.Common;
 using MediaPortal.Common.Logging;
 using MediaPortal.Common.PathManager;
+using MediaPortal.Common.Services.Logging;
 using MediaPortal.Common.Settings;
 
 namespace MediaPortal.Database.SQLite
@@ -59,6 +60,7 @@ namespace MediaPortal.Database.SQLite
     private readonly string _connectionString;
     private ConnectionPool<SQLiteConnection> _connectionPool;
     private readonly SQLiteSettings _settings;
+    private readonly FileLogger _sqliteDebugLogger;
 
     #endregion
 
@@ -71,7 +73,15 @@ namespace MediaPortal.Database.SQLite
         _settings = ServiceRegistration.Get<ISettingsManager>().Load<SQLiteSettings>();
         _settings.LogSettings();
         ServiceRegistration.Get<ISettingsManager>().Save(_settings);
-        
+
+        if (_settings.EnableTraceLogging)
+        {
+          _sqliteDebugLogger = FileLogger.CreateFileLogger(ServiceRegistration.Get<IPathManager>().GetPath(@"<LOG>\SQLiteDebug.log"), LogLevel.Debug, false, true);
+          SQLiteLog.Initialize();
+          SQLiteLog.RemoveDefaultHandler();
+          SQLiteLog.Log += MPSQLiteLogEventHandler;
+        }
+
         var pathManager = ServiceRegistration.Get<IPathManager>();
         string dataDirectory = pathManager.GetPath("<DATABASE>");
         string databaseFile = Path.Combine(dataDirectory, _settings.DatabaseFileName);
@@ -123,6 +133,9 @@ namespace MediaPortal.Database.SQLite
           SyncMode = SynchronizationModes.Normal
         };
 
+        if (_settings.EnableTraceLogging)
+          connBuilder.Flags = SQLiteConnectionFlags.LogAll;
+        
         _connectionString = connBuilder.ToString();
         ServiceRegistration.Get<ILogger>().Info("SQLiteDatabase: Connection String used: '{0}'", _connectionString);
 
@@ -170,6 +183,24 @@ namespace MediaPortal.Database.SQLite
       using (var command = new SQLiteCommand(_settings.InitializationCommand, connection))
         command.ExecuteNonQuery();
       return connection;
+    }
+
+    private void MPSQLiteLogEventHandler(object sender, LogEventArgs e)
+    {
+      if (_sqliteDebugLogger == null || e == null)
+        return;
+
+      string logText = e.Message;
+      if (logText == null)
+        logText = "<null>";
+      else
+      {
+        logText = logText.Trim();
+        if (logText.Length == 0)
+          logText = "<empty>";
+      }
+
+      _sqliteDebugLogger.Debug("SQLite ({0}): {1}", e.ErrorCode, logText);
     }
 
     #endregion
